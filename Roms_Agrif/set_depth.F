@@ -1,0 +1,358 @@
+!
+! $Id: set_depth.F,v 1.4 2005/10/06 08:46:29 pmarches Exp $
+!
+#include "cppdefs.h"
+#ifdef SOLVE3D
+
+      subroutine set_depth (tile)
+      implicit none
+      integer tile
+#include "param.h"
+#include "compute_tile_bounds.h"
+      call set_depth_tile (Istr,Iend,Jstr,Jend)
+      return
+      end
+
+      subroutine set_depth_tile (Istr,Iend,Jstr,Jend)
+!
+! Create S-coordinate system: based on model topography h(i,j),
+! fast-time-averaged free-surface field and vertical coordinate
+! transformation metrics compute evolving depths of of the three-
+! dimensional model grid (z_r,z_w) and vertical heights of model
+! grid boxes.
+!
+      implicit none
+      integer Istr,Iend,Jstr,Jend, i,j,k
+      real cff_r,cff1_r,cff2_r, cff_w,cff1_w,cff2_w, z_r0,z_w0
+# include "param.h"
+# include "grid.h"
+# include "ocean2d.h"
+# include "ocean3d.h"
+# include "coupling.h"
+# include "scalars.h"
+!
+# include "compute_auxiliary_bounds.h"
+!
+# ifdef EW_PERIODIC
+#  define I_RANGE Istr,Iend
+# else
+#  define I_RANGE IstrR,IendR
+# endif
+# ifdef NS_PERIODIC
+#  define J_RANGE Jstr,Jend
+# else
+#  define J_RANGE JstrR,JendR
+# endif
+
+      if (iic.eq.0) then               ! During initialization and
+        do j=J_RANGE                   ! /or restart: copy initial
+          do i=I_RANGE                 ! free surface field into
+            hinv(i,j)=1./h(i,j)        ! array for holding fast-time
+            Zt_avg1(i,j)=zeta(i,j,1)   ! averaged free surface.
+          enddo
+        enddo
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend, hinv)
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend, Zt_avg1)
+# endif
+      endif
+
+      do j=J_RANGE              !!! WARNING: Setting old-new (!<,!>)
+        do i=I_RANGE            !!!          must be consistent with
+          z_w(i,j,0)=-h(i,j)    !!!          similar setting in
+        enddo                   !!!          omega.F
+        do k=1,N,+1
+          cff_w=hc*(sc_w(k)-Cs_w(k))
+          cff1_w=Cs_w(k)
+          cff2_w=sc_w(k)+1.
+
+          cff_r=hc*(sc_r(k)-Cs_r(k))
+          cff1_r=Cs_r(k)
+          cff2_r=sc_r(k)+1.
+
+          do i=I_RANGE
+            z_w0=cff_w+cff1_w*h(i,j)                               !<
+            z_w(i,j,k)=z_w0+Zt_avg1(i,j)*(1.+z_w0*hinv(i,j))       !<
+
+            z_r0=cff_r+cff1_r*h(i,j)                               !<
+            z_r(i,j,k)=z_r0+Zt_avg1(i,j)*(1.+z_r0*hinv(i,j))       !<
+
+c**         z_w(i,j,k)=cff_w+cff1_w*h(i,j)+cff2_w*Zt_avg1(i,j)     !>
+c**         z_r(i,j,k)=cff_r+cff1_r*h(i,j)+cff2_r*Zt_avg1(i,j)     !>
+
+            Hz_bak(i,j,k)=Hz(i,j,k)
+            Hz(i,j,k)=z_w(i,j,k)-z_w(i,j,k-1)
+          enddo
+        enddo
+      enddo
+# undef I_RANGE
+# undef J_RANGE
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+      call exchange_w3d_tile (Istr,Iend,Jstr,Jend, z_w(START_2D_ARRAY,0))
+      call exchange_r3d_tile (Istr,Iend,Jstr,Jend, z_r(START_2D_ARRAY,1))
+      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,  Hz(START_2D_ARRAY,1))
+      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,  Hz_bak(START_2D_ARRAY,1))
+# endif
+
+      return
+      end
+
+
+
+      subroutine set_HUV (tile)
+      implicit none
+      integer tile
+#include "param.h"
+#include "compute_tile_bounds.h"
+      call set_HUV_tile (Istr,Iend,Jstr,Jend)
+      return
+      end
+
+      subroutine set_HUV_tile (Istr,Iend,Jstr,Jend)
+      implicit none
+      integer Istr,Iend,Jstr,Jend, i,j,k
+# include "param.h"
+# include "grid.h"
+# include "ocean3d.h"
+# include "scalars.h"
+!
+# include "compute_auxiliary_bounds.h"
+!
+# ifdef EW_PERIODIC 
+#  define IU_RANGE Istr,Iend
+#  define IV_RANGE Istr,Iend
+# else
+#  define IU_RANGE Istr,IendR
+#  define IV_RANGE IstrR,IendR
+# endif
+
+# ifdef NS_PERIODIC 
+#  define JU_RANGE Jstr,Jend
+#  define JV_RANGE Jstr,Jend
+# else
+#  define JU_RANGE JstrR,JendR
+#  define JV_RANGE Jstr,JendR
+# endif
+
+      do k=1,N
+        do j=JU_RANGE
+          do i=IU_RANGE
+            Huon(i,j,k)=0.5*(Hz(i,j,k)+Hz(i-1,j,k))
+     &                     *on_u(i,j)*u(i,j,k,nrhs)
+          enddo
+        enddo
+        do j=JV_RANGE
+          do i=IV_RANGE
+            Hvom(i,j,k)=0.5*(Hz(i,j,k)+Hz(i,j-1,k))
+     &                     *om_v(i,j)*v(i,j,k,nrhs)
+          enddo
+        enddo
+      enddo
+# undef IU_RANGE
+# undef JU_RANGE
+# undef IV_RANGE
+# undef JV_RANGE
+!
+! Exchange periodic boundaries, if so prescribed.
+!
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      call exchange_u3d_tile (Istr,Iend,Jstr,Jend, 
+     &                                         Huon(START_2D_ARRAY,1))
+      call exchange_v3d_tile (Istr,Iend,Jstr,Jend, 
+     &                                         Hvom(START_2D_ARRAY,1))
+# endif
+      return
+      end
+
+
+
+
+      subroutine set_HUV1 (tile)
+      implicit none
+      integer tile
+#include "param.h"
+#include "compute_tile_bounds.h"
+      call set_HUV1_tile (Istr,Iend,Jstr,Jend)
+      return
+      end
+
+      subroutine set_HUV1_tile (Istr,Iend,Jstr,Jend)
+      implicit none
+      integer Istr,Iend,Jstr,Jend, i,j,k
+# include "param.h"
+# include "grid.h"
+# include "ocean3d.h"
+# include "scalars.h"
+!
+# include "compute_auxiliary_bounds.h"
+!
+# ifdef EW_PERIODIC
+#  define IU_RANGE Istr,Iend
+#  define IV_RANGE Istr,Iend
+# else
+#  define IU_RANGE Istr,IendR
+#  define IV_RANGE IstrR,IendR
+# endif
+
+# ifdef NS_PERIODIC
+#  define JU_RANGE Jstr,Jend
+#  define JV_RANGE Jstr,Jend
+# else
+#  define JU_RANGE JstrR,JendR
+#  define JV_RANGE Jstr,JendR
+# endif
+
+      do k=1,N
+        do j=JU_RANGE
+          do i=IU_RANGE
+            Huon(i,j,k)=0.25*(3.*(Hz(i,j,k)+Hz(i-1,j,k))
+     &                      -Hz_bak(i,j,k)-Hz_bak(i-1,j,k))
+     &                             *on_u(i,j)*u(i,j,k,nrhs)
+          enddo
+        enddo
+        do j=JV_RANGE
+          do i=IV_RANGE
+            Hvom(i,j,k)=0.25*( 3.*(Hz(i,j,k)+Hz(i,j-1,k))
+     &                     -Hz_bak(i,j,k)-Hz_bak(i,j-1,k))
+     &                            *om_v(i,j)*v(i,j,k,nrhs)
+          enddo
+        enddo
+      enddo
+# undef IU_RANGE
+# undef JU_RANGE
+# undef IV_RANGE
+# undef JV_RANGE
+!
+! Exchange periodic boundaries, if so prescribed.
+!
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      call exchange_u3d_tile (Istr,Iend,Jstr,Jend, 
+     &                                     Huon(START_2D_ARRAY,1))
+      call exchange_v3d_tile (Istr,Iend,Jstr,Jend,
+     &                                     Hvom(START_2D_ARRAY,1))
+# endif
+      return
+      end
+
+
+
+
+      subroutine set_HUV2 (tile)
+      implicit none
+      integer tile, trd, omp_get_thread_num
+#include "param.h"
+#include "private_scratch.h"
+#include "compute_tile_bounds.h"
+      trd=omp_get_thread_num()
+      call set_HUV2_tile (Istr,Iend,Jstr,Jend, A2d(1,1,trd),
+     &                                         A2d(1,2,trd))
+      return
+      end
+
+      subroutine set_HUV2_tile (Istr,Iend,Jstr,Jend,DC,FC)
+      implicit none
+      integer Istr,Iend,Jstr,Jend, i,j,k
+# include "param.h"
+      real DC(PRIVATE_1D_SCRATCH_ARRAY,0:N),
+     &     FC(PRIVATE_1D_SCRATCH_ARRAY,0:N)
+# include "grid.h"
+# include "ocean3d.h"
+# include "scalars.h"
+# include "coupling.h"
+!
+# include "compute_auxiliary_bounds.h"
+!
+# ifdef EW_PERIODIC
+#  define IU_RANGE Istr,Iend
+#  define IV_RANGE Istr,Iend
+# else
+#  define IU_RANGE Istr,IendR
+#  define IV_RANGE IstrR,IendR
+# endif
+
+# ifdef NS_PERIODIC
+#  define JU_RANGE Jstr,Jend
+#  define JV_RANGE Jstr,Jend
+# else
+#  define JU_RANGE JstrR,JendR
+#  define JV_RANGE Jstr,JendR
+# endif
+
+      do j=JU_RANGE
+        do i=IU_RANGE
+          DC(i,0)=0.
+          FC(i,0)=0.
+        enddo
+        do k=1,N
+          do i=IU_RANGE
+            DC(i,k)=0.5*(Hz(i,j,k)+Hz(i-1,j,k))*on_u(i,j)
+            DC(i,0)=DC(i,0)+DC(i,k)
+            FC(i,0)=FC(i,0)+DC(i,k)*u(i,j,k,nrhs)
+          enddo
+        enddo
+        do i=IU_RANGE
+          FC(i,0)=(FC(i,0)-DU_avg2(i,j))/DC(i,0)
+        enddo
+        do k=1,N
+          do i=IU_RANGE
+            u(i,j,k,nrhs)=(u(i,j,k,nrhs)-FC(i,0))
+# ifdef MASKING
+     &                                 *umask(i,j)
+# endif
+            Huon(i,j,k)=DC(i,k)*u(i,j,k,nrhs)
+          enddo
+        enddo
+      enddo
+          
+      do j=JV_RANGE
+        do i=IV_RANGE
+          DC(i,0)=0.
+          FC(i,0)=0.
+        enddo
+        do k=1,N
+          do i=IV_RANGE
+            DC(i,k)=0.5*(Hz(i,j,k)+Hz(i,j-1,k))*om_v(i,j)
+            DC(i,0)=DC(i,0)+DC(i,k)
+            FC(i,0)=FC(i,0)+DC(i,k)*v(i,j,k,nrhs)
+          enddo
+        enddo
+        do i=IV_RANGE
+          FC(i,0)=(FC(i,0)-DV_avg2(i,j))/DC(i,0)
+        enddo
+        do k=1,N
+          do i=IV_RANGE
+            v(i,j,k,nrhs)=(v(i,j,k,nrhs)-FC(i,0))
+# ifdef MASKING
+     &                                 *vmask(i,j)
+# endif
+            Hvom(i,j,k)=DC(i,k)*v(i,j,k,nrhs)
+          enddo
+        enddo
+      enddo
+
+# undef IU_RANGE
+# undef JU_RANGE
+# undef IV_RANGE
+# undef JV_RANGE
+!
+! Exchange periodic boundaries, if so prescribed.
+!
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      call exchange_u3d_tile (Istr,Iend,Jstr,Jend,
+     &                                    Huon(START_2D_ARRAY,1))
+      call exchange_u3d_tile (Istr,Iend,Jstr,Jend,
+     &                                  u(START_2D_ARRAY,1,nrhs))
+      call exchange_v3d_tile (Istr,Iend,Jstr,Jend,
+     &                                    Hvom(START_2D_ARRAY,1))
+      call exchange_v3d_tile (Istr,Iend,Jstr,Jend,
+     &                                  v(START_2D_ARRAY,1,nrhs))
+# endif
+      return
+      end
+
+#else
+      subroutine set_depth_empty
+      return
+      end
+#endif /* SOLVE3D */
+

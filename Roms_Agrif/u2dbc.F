@@ -1,0 +1,687 @@
+!
+! $Id: u2dbc.F,v 1.6 2005/11/07 10:38:47 pmarches Exp $
+!
+#ifndef CHILD
+!
+# include "cppdefs.h"
+      subroutine u2dbc_tile(Istr,Iend,Jstr,Jend,grad)
+# ifdef AGRIF      
+      use AGRIF_Util
+      integer Istr,Iend,Jstr,Jend
+      real grad(PRIVATE_2D_SCRATCH_ARRAY)
+      
+      if (AGRIF_Root()) then
+        call u2dbc_parent_tile(Istr,Iend,Jstr,Jend,grad)
+      else
+        call u2dbc_child_tile(Istr,Iend,Jstr,Jend,grad)
+      endif
+      return
+      end
+!
+! PARENT
+!
+      subroutine u2dbc_parent_tile (Istr,Iend,Jstr,Jend,grad)
+# endif
+!
+! Set lateral boundary conditions for the barotropic (i.e.
+! vertically integrated) XI-component velocity ubar(:,:,knew)
+! for the parent grid.
+!
+#else
+!
+! CHILD
+!
+      subroutine u2dbc_child_tile (Istr,Iend,Jstr,Jend,grad)
+!
+! Set lateral boundary conditions for the barotropic (i.e.
+! vertically integrated) XI-component velocity ubar(:,:,knew)
+! for the child grid.
+!
+#endif /* CHILD */
+!
+! Common Code
+!
+# include "set_obc_definitions.h"
+!
+      implicit none
+      integer Istr,Iend,Jstr,Jend, i,j
+      real    grad(PRIVATE_2D_SCRATCH_ARRAY)
+      real    eps,cff, cx,cy,
+     &        dft,dfx,dfy, tau,tau_in,tau_out,hx,zx
+      parameter (eps=1.D-20)
+#include "param.h"
+#include "boundary.h"
+#include "climat.h"
+#include "grid.h"
+#include "ocean2d.h"
+#include "scalars.h"
+!
+#include "compute_auxiliary_bounds.h"
+!
+!  If child grid, interpolate ubar from parent
+!  AGRIF does not work yet with #undef SOLVE3D
+!
+#ifdef CHILD
+#  ifdef SOLVE3D
+      call u2dbc_interp_tile(Istr,Iend,Jstr,Jend,knew)
+#  else
+      Some coding is needed to have AGRIF without SOLVE3D.....
+#  endif
+#endif
+!
+#if defined M2_FRC_BRY || defined M2NUDGING
+      tau_in=dtfast*tauM_in
+      tau_out=dtfast*tauM_out
+#endif
+!
+!====================================================================
+!                            WESTERN BC
+!====================================================================
+#ifndef EW_COM_PERIODIC
+      if (WESTERN_EDGE) then                
+# ifdef OBC_COM_WEST                  
+#  ifdef OBC_COM_M2ORLANSKI
+!                                           Western edge radiation BC
+!                                           ======= ==== ========= ==
+        do j=Jstr,Jend+1
+          grad(Istr  ,j)=(ubar(Istr  ,j,kstp)-ubar(Istr  ,j-1,kstp))
+#   ifdef MASKING
+     &                                                *pmask(Istr,j)
+#   endif
+          grad(Istr+1,j)=(ubar(Istr+1,j,kstp)-ubar(Istr+1,j-1,kstp))
+#   ifdef MASKING
+     &                                              *pmask(Istr+1,j)
+#   endif
+        enddo
+        do j=Jstr,Jend
+          dft=ubar(Istr+1,j,kstp)-ubar(Istr+1,j,knew)
+          dfx=ubar(Istr+1,j,knew)-ubar(Istr+2,j,knew)
+ 
+          if (dfx*dft .lt. 0.) then
+            dft=0.                       ! <-- cancel cx, if inflow
+#   if defined M2_FRC_BRY || defined M2NUDGING
+            tau=tau_in
+          else
+            tau=tau_out
+#   endif
+          endif
+ 
+          if (dft*(grad(Istr+1,j)+grad(Istr+1,j+1)) .gt. 0.) then
+            dfy=grad(Istr+1,j  )
+          else
+            dfy=grad(Istr+1,j+1)
+          endif
+ 
+#   ifdef OBC_COM_RAD_NORMAL
+          dfy=0.
+#   endif
+          cff=max(dfx*dfx+dfy*dfy, eps)
+          cx=dft*dfx
+#   ifdef OBC_COM_RAD_NPO
+          cy=0.
+#   else
+          cy=min(cff,max(dft*dfy,-cff))
+#   endif
+ 
+          ubar(Istr,j,knew)=( cff*ubar(Istr,j,kstp)
+     &                       +cx*ubar(Istr+1,j,knew)
+     &                    -max(cy,0.)*grad(Istr,j  )
+     &                    -min(cy,0.)*grad(Istr,j+1)
+     &                                   )/(cff+cx)
+#   if defined M2_FRC_BRY || defined M2NUDGING
+          ubar(Istr,j,knew)=(1.-tau)*ubar(Istr,j,knew)
+#    ifdef M2_FRC_BRY
+     &                            +tau*ubarbry_west(j)
+#    else
+     &                              +tau*ubclm(Istr,j)
+#    endif
+#   endif
+#   ifdef MASKING
+          ubar(Istr,j,knew)=ubar(Istr,j,knew)*umask(Istr,j)
+#   endif
+        enddo
+#  elif defined OBC_COM_M2FLATHER
+!                                            Western edge Flather BC
+!                                            ======= ==== ======= ==
+        do j=Jstr,Jend
+          ubar(Istr,j,knew)= -sqrt(2.*g/(h(Istr-1,j)+h(Istr,j)))
+     &             *( 0.5*(zeta(Istr-1,j,knew)+zeta(Istr,j,knew))
+#   ifdef Z_FRC_BRY
+     &                                           -zetabry_west(j) 
+#   elif defined ZNUDGING
+     &                           -0.5*(ssh(Istr-1,j)+ssh(Istr,j)) 
+#   endif
+     &              )
+#   ifdef M2_FRC_BRY
+     &                                           +ubarbry_west(j)
+#   elif defined M2NUDGING
+     &                                             +ubclm(Istr,j)
+#   endif
+#   ifdef MASKING
+          ubar(Istr,j,knew)=ubar(Istr,j,knew)*umask(Istr,j)
+#   endif
+        enddo
+#  elif defined OBC_COM_M2CHARACT
+!                                            Western edge Characteristic BC
+!                                            ======= ==== ======= ==
+        do j=Jstr,Jend
+	  cff=0.5*(h(Istr-1,j)+h(Istr,j))
+	  hx=sqrt(g/cff)
+	  cx=dtfast*cff*hx*0.5*(pm(Istr-1,j)+pm(Istr,j))
+	  
+	  if (cx.lt.0.5) then
+	  zx=(0.5+cx)*zeta(Istr,j,kstp)+(0.5-cx)*zeta(Istr-1,j,kstp)
+	  else
+	  zx=(0.5*zeta(Istr,j,kstp)+(cx-0.5)*zeta(Istr,j,knew))/cx
+	  endif
+	  
+          ubar(Istr,j,knew)= 0.5*((1.-cx)*ubar(Istr,j,kstp)
+     &                             +cx*ubar(Istr+1,j,kstp)
+#   ifdef M2_FRC_BRY
+     &                                           +ubarbry_west(j))
+#   elif defined M2NUDGING
+     &                                             +ubclm(Istr,j))
+#    endif
+     &                           -hx*( zx
+#   ifdef Z_FRC_BRY
+     &                                           -zetabry_west(j) 
+#   elif defined ZNUDGING
+     &                           -0.5*(ssh(Istr-1,j)+ssh(Istr,j)) 
+#   endif
+     &              )
+#   ifdef MASKING
+          ubar(Istr,j,knew)=ubar(Istr,j,knew)*umask(Istr,j)
+#   endif
+        enddo	
+#  elif defined OBC_COM_M2SPECIFIED
+!                                            Western edge Specified BC
+!                                            ======= ==== ========= ==
+        do j=Jstr,Jend
+#   ifdef M2_FRC_BRY
+          ubar(Istr,j,knew)=ubarbry_west(j)
+#   else
+          ubar(Istr,j,knew)=ubclm(Istr,j)
+#   endif
+#   ifdef MASKING
+     &                      *umask(Istr,j)
+#   endif
+        enddo
+#  else
+!                                            Western edge gradient BC
+!                                            ======= ==== ======== ==
+        do j=Jstr,Jend
+          ubar(Istr,j,knew)=ubar(Istr+1,j,knew)
+#   ifdef MASKING
+     &                      *umask(Istr,j)
+#   endif
+        enddo
+#  endif
+!
+# else
+        do j=Jstr,Jend                          ! Western edge closed
+          ubar(Istr,j,knew)=0.                  ! ======= ==== ======
+        enddo                                   !  (no-flux, default)
+# endif           /* OBC_COM_WEST */
+      endif     !<-- WESTERN_EDGE
+!
+!====================================================================
+!                            EASTERN BC
+!====================================================================
+      if (EASTERN_EDGE) then
+# ifdef OBC_COM_EAST
+#  ifdef OBC_COM_M2ORLANSKI
+!                                           Eastern edge radiation BC
+!                                           ======= ==== ========= ==
+        do j=Jstr,Jend+1
+          grad(Iend  ,j)=(ubar(Iend  ,j,kstp)-ubar(Iend  ,j-1,kstp))
+#   ifdef MASKING 
+     &                                                *pmask(Iend,j)
+#   endif
+          grad(Iend+1,j)=(ubar(Iend+1,j,kstp)-ubar(Iend+1,j-1,kstp))
+#   ifdef MASKING
+     &                                              *pmask(Iend+1,j)
+#   endif
+        enddo
+        do j=Jstr,Jend
+          dft=ubar(Iend,j,kstp)-ubar(Iend  ,j,knew)
+          dfx=ubar(Iend,j,knew)-ubar(Iend-1,j,knew)
+ 
+          if (dfx*dft .lt. 0.) then
+            dft=0.                       ! <-- cancel cx, if inflow
+#   if defined M2_FRC_BRY || defined M2NUDGING
+            tau=tau_in
+          else
+            tau=tau_out
+#   endif
+          endif
+ 
+          if (dft*(grad(Iend,j)+grad(Iend,j+1)) .gt. 0.) then
+            dfy=grad(Iend,j)
+          else
+            dfy=grad(Iend,j+1)
+          endif
+ 
+#   ifdef OBC_COM_RAD_NORMAL
+          dfy=0.
+#   endif
+          cff=max(dfx*dfx+dfy*dfy, eps)
+          cx=dft*dfx
+#   ifdef OBC_COM_RAD_NPO
+          cy=0.
+#   else
+          cy=min(cff,max(dft*dfy,-cff))
+#   endif
+ 
+          ubar(Iend+1,j,knew)=( cff*ubar(Iend+1,j,kstp)
+     &                             +cx*ubar(Iend,j,knew)
+     &                      -max(cy,0.)*grad(Iend+1,j  )
+     &                      -min(cy,0.)*grad(Iend+1,j+1)
+     &                                       )/(cff+cx)
+#   if defined M2_FRC_BRY || defined M2NUDGING
+          ubar(Iend+1,j,knew)=(1.-tau)*ubar(Iend+1,j,knew)
+#    ifdef M2_FRC_BRY
+     &                                +tau*ubarbry_east(j)
+#    else
+     &                                +tau*ubclm(Iend+1,j)
+#    endif
+#   endif
+#   ifdef MASKING
+          ubar(Iend+1,j,knew)=ubar(Iend+1,j,knew)*umask(Iend+1,j)
+#   endif
+        enddo
+#  elif defined OBC_COM_M2FLATHER
+!                                            Eastern edge Flather BC
+!                                            ======= ==== ======= ==
+        do j=Jstr,Jend
+          ubar(Iend+1,j,knew)=sqrt(2.*g/(h(Iend+1,j)+h(Iend,j)))
+     &              *( 0.5*( zeta(Iend,j,knew)+zeta(Iend+1,j,knew))
+#   ifdef Z_FRC_BRY
+     &                                             -zetabry_east(j)
+#   elif defined ZNUDGING
+     &                             -0.5*(ssh(Iend,j)+ssh(Iend+1,j))
+#   endif
+     &               )
+#   ifdef M2_FRC_BRY
+     &                                             +ubarbry_east(j)
+#   elif defined M2NUDGING
+     &                                             +ubclm(Iend+1,j)
+#   endif
+#   ifdef MASKING
+          ubar(Iend+1,j,knew)=ubar(Iend+1,j,knew)*umask(Iend+1,j)
+#   endif
+        enddo
+#  elif defined OBC_COM_M2CHARACT
+!                                            Eastern edge Characteristic BC
+!                                            ======= ==== ======= ==
+        do j=Jstr,Jend
+	  cff=0.5*(h(Iend,j)+h(Iend+1,j))
+	  hx=sqrt(g/cff)
+	  cx=dtfast*cff*hx*0.5*(pm(Iend,j)+pm(Iend+1,j))
+	  
+	  if (cx.lt.0.5) then
+	  zx=(0.5+cx)*zeta(Iend,j,kstp)+(0.5-cx)*zeta(Iend+1,j,kstp)
+	  else
+	  zx=(0.5*zeta(Iend,j,kstp)+(cx-0.5)*zeta(Iend,j,knew))/cx
+	  endif
+	  
+          ubar(Iend+1,j,knew)= 0.5*((1.-cx)*ubar(Iend+1,j,kstp)
+     &                             +cx*ubar(Iend,j,kstp)
+#   ifdef M2_FRC_BRY
+     &                                           +ubarbry_east(j))
+#   elif defined M2NUDGING
+     &                                             +ubclm(Iend+1,j))
+#    endif
+     &                           +hx*( zx
+#   ifdef Z_FRC_BRY
+     &                                           -zetabry_east(j) 
+#   elif defined ZNUDGING
+     &                           -0.5*(ssh(Iend,j)+ssh(Iend+1,j)) 
+#   endif
+     &              )
+#   ifdef MASKING
+          ubar(Iend+1,j,knew)=ubar(Iend+1,j,knew)*umask(Iend+1,j)
+#   endif
+        enddo		
+#  elif defined OBC_COM_M2SPECIFIED
+!                                            Eastern edge Specified BC
+!                                            ======= ==== ========= ==
+        do j=Jstr,Jend
+#   ifdef M2_FRC_BRY
+          ubar(Iend+1,j,knew)=ubarbry_east(j)
+#   else
+          ubar(Iend+1,j,knew)=ubclm(Iend+1,j)
+#   endif
+#   ifdef MASKING
+     &                        *umask(Iend+1,j)
+#   endif
+        enddo
+#  else
+!                                            Eastern edge gradient BC
+!                                            ======= ==== ======== ==
+        do j=Jstr,Jend
+          ubar(Iend+1,j,knew)=ubar(Iend,j,knew)
+#   ifdef MASKING
+     &                        *umask(Iend+1,j)
+#   endif
+        enddo
+#  endif
+# else
+        do j=Jstr,Jend                       ! Eastern edge closed BC
+          ubar(Iend+1,j,knew)=0.             ! ======= ==== ====== ==
+        enddo
+# endif /* OBC_COM_EAST */
+      endif         !<-- EASTERN_EDGE
+#endif              /* !EW_COM_PERIODIC */
+ 
+ 
+ 
+#ifndef NS_COM_PERIODIC
+!
+!====================================================================
+!                            SOUTHERN BC
+!====================================================================
+      if (SOUTHERN_EDGE) then
+# ifdef OBC_COM_SOUTH
+#  if defined OBC_COM_M2ORLANSKI
+!                                          Southern edge radiation BC
+!                                          ======== ==== ========= ==
+        do i=IstrU-1,Iend
+          grad(i,Jstr-1)=ubar(i+1,Jstr-1,kstp)-ubar(i,Jstr-1,kstp)
+          grad(i,Jstr  )=ubar(i+1,Jstr  ,kstp)-ubar(i,Jstr  ,kstp)
+        enddo
+        do i=IstrU,Iend
+          dft=ubar(i,Jstr,kstp)-ubar(i,Jstr  ,knew)
+          dfx=ubar(i,Jstr,knew)-ubar(i,Jstr+1,knew)
+ 
+          if (dfx*dft .lt. 0.) then
+            dft=0.                        ! <-- cancel cx, if inflow
+#   if defined M2_FRC_BRY || defined M2NUDGING
+            tau=tau_in
+          else
+            tau=tau_out
+#   endif
+          endif
+ 
+          if (dft*(grad(i-1,Jstr)+grad(i,Jstr)) .gt. 0.) then
+            dfy=grad(i-1,Jstr)
+          else
+            dfy=grad(i  ,Jstr)
+          endif
+ 
+#   ifdef OBC_COM_RAD_NORMAL
+          dfy=0.
+#   endif
+          cff=max(dfx*dfx+dfy*dfy, eps)
+          cx=dft*dfx
+#   ifdef OBC_COM_RAD_NPO
+          cy=0.
+#   else
+          cy=min(cff,max(dft*dfy,-cff))
+#   endif
+ 
+          ubar(i,Jstr-1,knew)=( cff*ubar(i,Jstr-1,kstp)
+     &                             +cx*ubar(i,Jstr,knew)
+     &                      -max(cy,0.)*grad(i-1,Jstr-1)
+     &                      -min(cy,0.)*grad(i  ,Jstr-1)
+     &                                       )/(cff+cx)
+#   if defined M2_FRC_BRY || defined M2NUDGING
+          ubar(i,Jstr-1,knew)=(1.-tau)*ubar(i,Jstr-1,knew)
+#    ifdef M2_FRC_BRY
+     &                               +tau*ubarbry_south(i)
+#    else
+     &                                +tau*ubclm(i,Jstr-1)
+#    endif
+#   endif
+#   ifdef MASKING
+          ubar(i,Jstr-1,knew)=ubar(i,Jstr-1,knew)*umask(i,Jstr-1)
+#   endif
+        enddo
+#  elif defined OBC_COM_M2FLATHER || defined OBC_COM_M2CHARACT
+!                                           Southern edge Chapman BC
+!                                           ======== ==== ======= ==
+        do i=IstrU,Iend
+          cx=dtfast*0.5*(pn(i-1,Jstr-1)+pn(i,Jstr-1))
+     &        *sqrt(0.5*g*(h(i-1,Jstr-1)+h(i,Jstr-1)))
+
+          ubar(i,Jstr-1,knew)=( ubar(i,Jstr-1,kstp)
+     &                  +cx*ubar(i,Jstr,knew) )/(1.+cx)     
+#   ifdef MASKING
+     &                         *umask(i,Jstr-1)
+#   endif
+        enddo
+#  elif defined OBC_COM_M2CHARACT0
+!                                      Southern edge Characteristic BC
+!                                      ======== ==== ============== ==
+        do i=IstrU,Iend
+          if (vbar(i,Jstr+1,knew).lt.0.) then
+            ubar(i,Jstr-1,knew)=ubar(i,Jstr,knew)
+          else
+#   ifdef M2_FRC_BRY
+            ubar(i,Jstr-1,knew)=ubarbry_south(i)
+#   else
+            ubar(i,Jstr-1,knew)=ubclm(i,Jstr-1)
+#   endif
+          endif
+#   ifdef MASKING
+          ubar(i,Jstr-1,knew)=ubar(i,Jstr-1,knew)*umask(i,Jstr-1)
+#   endif
+        enddo
+#  elif defined OBC_COM_M2SPECIFIED
+!                                           Southern edge Specified BC
+!                                           ======== ==== ========= ==
+        do i=IstrU,Iend
+#   ifdef M2_FRC_BRY
+          ubar(i,Jstr-1,knew)=ubarbry_south(i)
+#   else 
+          ubar(i,Jstr-1,knew)=ubclm(i,Jstr-1)
+#   endif
+#   ifdef MASKING
+     &                         *umask(i,Jstr-1)
+#   endif
+        enddo
+#  else
+!                                           Southern edge gradient BC
+!                                           ======== ==== ======== ==
+        do i=IstrU,Iend
+          ubar(i,Jstr-1,knew)=ubar(i,Jstr,knew)
+#   ifdef MASKING
+     &                         *umask(i,Jstr-1)
+#   endif
+        enddo
+#  endif
+# else
+#  ifdef EW_COM_PERIODIC
+#   define I_RANGE IstrU,Iend
+#  else
+#   define I_RANGE Istr,IendR
+#  endif
+                                        ! Wall: free-slip (gamma2=+1)
+        do i=I_RANGE                    ! ====    no-slip (gamma2=-1)
+          ubar(i,Jstr-1,knew)=gamma2*ubar(i,Jstr,knew)
+#  ifdef MASKING
+     &                                *umask(i,Jstr-1)
+#  endif
+        enddo
+#  undef I_RANGE
+# endif              /* OBC_COM_SOUTH */
+      endif          !<-- SOUTHERN_EDGE
+!
+!====================================================================
+!                            NORTHERN BC
+!====================================================================
+      if (NORTHERN_EDGE) then
+# ifdef OBC_COM_NORTH
+#  if defined OBC_COM_M2ORLANSKI
+!                                          Northern edge radiation BC
+!                                          ======== ==== ========= ==
+        do i=IstrU-1,Iend
+          grad(i,Jend  )=ubar(i+1,Jend  ,kstp)-ubar(i,Jend,kstp  )
+          grad(i,Jend+1)=ubar(i+1,Jend+1,kstp)-ubar(i,Jend+1,kstp)
+        enddo
+        do i=IstrU,Iend
+          dft=ubar(i,Jend,kstp)-ubar(i,Jend  ,knew)
+          dfx=ubar(i,Jend,knew)-ubar(i,Jend-1,knew)
+ 
+          if (dfx*dft .lt. 0.) then
+            dft=0.                        ! <-- cancel cx, if inflow
+#   if defined M2_FRC_BRY || defined M2NUDGING
+            tau=tau_in
+          else
+            tau=tau_out
+#   endif
+          endif
+ 
+          if (dft*(grad(i-1,Jend)+grad(i,Jend)) .gt. 0.) then
+            dfy=grad(i-1,Jend)
+          else
+            dfy=grad(i  ,Jend)
+          endif
+ 
+#   ifdef OBC_COM_RAD_NORMAL
+          dfy=0.
+#   endif
+          cff=max(dfx*dfx+dfy*dfy, eps)
+          cx=dft*dfx
+#   ifdef OBC_COM_RAD_NPO
+          cy=0.
+#   else
+          cy=min(cff,max(dft*dfy,-cff))
+#   endif
+ 
+          ubar(i,Jend+1,knew)=( cff*ubar(i,Jend+1,kstp)
+     &                             +cx*ubar(i,Jend,knew)
+     &                      -max(cy,0.)*grad(i-1,Jend+1)
+     &                      -min(cy,0.)*grad(i  ,Jend+1)
+     &                                       )/(cff+cx)
+#   if defined M2_FRC_BRY || defined M2NUDGING
+          ubar(i,Jend+1,knew)=(1.-tau)*ubar(i,Jend+1,knew)
+#    ifdef M2_FRC_BRY
+     &                               +tau*ubarbry_north(i)
+#    else
+     &                                +tau*ubclm(i,Jend+1)
+#    endif
+#   endif
+#   ifdef MASKING
+          ubar(i,Jend+1,knew)=ubar(i,Jend+1,knew)*umask(i,Jend+1)
+#   endif
+        enddo
+#  elif defined OBC_COM_M2FLATHER || defined OBC_COM_M2CHARACT
+!                                           Northern edge Chapman BC
+!                                           ======== ==== ======= ==
+        do i=IstrU,Iend
+          cx=dtfast*sqrt(0.5*g*(h(i-1,Jend+1)+h(i,Jend+1)))
+     &                    *0.5*(pn(i-1,Jend+1)+pn(i,Jend+1))
+          ubar(i,Jend+1,knew)=( ubar(i,Jend+1,kstp)
+     &                +cx*ubar(i,Jend,knew))/(1.+cx)
+#   ifdef MASKING
+     &                        *umask(i,Jend+1)
+#   endif
+        enddo
+#  elif defined OBC_COM_M2CHARACT0
+!                                    Northern edge Characteristic BC
+!                                    ======== ==== ============== ==
+        do i=IstrU,Iend
+          if (vbar(i,Jend-1,knew).gt.0.) then
+            ubar(i,Jend+1,knew)=ubar(i,Jend,knew)
+          else
+#   ifdef M2_FRC_BRY
+            ubar(i,Jend+1,knew)=ubarbry_north(i)
+#   else
+            ubar(i,Jend+1,knew)=ubclm(i,Jend+1)
+#   endif
+          endif
+#   ifdef MASKING
+          ubar(i,Jend+1,knew)=ubar(i,Jend+1,knew)*umask(i,Jend+1)
+#   endif
+        enddo
+#  elif defined OBC_COM_M2SPECIFIED
+!                                           Northern edge Specified BC
+!                                           ======== ==== ========= ==
+        do i=IstrU,Iend
+#   ifdef M2_FRC_BRY
+          ubar(i,Jend+1,knew)=ubarbry_north(i)
+#   else
+          ubar(i,Jend+1,knew)=ubclm(i,Jend+1)
+#   endif
+#   ifdef MASKING
+     &                        *umask(i,Jend+1)
+#   endif
+        enddo
+#  else
+!                                           Northern edge gradient BC
+!                                           ======== ==== ======== ==
+        do i=IstrU,Iend
+          ubar(i,Jend+1,knew)=ubar(i,Jend,knew)
+#   ifdef MASKING
+     &                        *umask(i,Jend+1)
+#   endif
+        enddo
+
+#  endif
+# else
+#  ifdef EW_COM_PERIODIC
+#   define I_RANGE IstrU,Iend
+#  else
+#   define I_RANGE Istr,IendR
+#  endif
+                                       !  Wall: free-slip (gamma2=+1)
+        do i=I_RANGE                   !  =====   no-slip (gamma2=-1)
+          ubar(i,Jend+1,knew)=gamma2*ubar(i,Jend,knew)
+#  ifdef MASKING
+     &                                *umask(i,Jend+1)
+#  endif
+        enddo
+#  undef I_RANGE
+# endif               /* OBC_COM_NORTH */
+      endif          !<-- NORTHERN_EDGE
+#endif                /* !NS_COM_PERIODIC */
+ 
+                           ! Corners between adjacent open boundaries
+                           ! ======= ======= ======== ==== ==========
+ 
+#if defined OBC_COM_SOUTH && defined OBC_COM_WEST
+      if (WESTERN_EDGE .and. SOUTHERN_EDGE) then
+        ubar(Istr,Jstr-1,knew)=0.5*( ubar(Istr+1,Jstr-1,knew)
+     &                                  +ubar(Istr,Jstr,knew))
+#  ifdef MASKING
+     &                        *umask(Istr,Jstr-1)
+#  endif
+      endif
+#endif
+#if defined OBC_COM_SOUTH && defined OBC_COM_EAST
+      if (EASTERN_EDGE .and. SOUTHERN_EDGE) then
+        ubar(Iend+1,Jstr-1,knew)=0.5*( ubar(Iend,Jstr-1,knew)
+     &                                +ubar(Iend+1,Jstr,knew))
+#  ifdef MASKING
+     &                        *umask(Iend+1,Jstr-1)
+#  endif
+      endif
+#endif
+#if defined OBC_COM_NORTH && defined OBC_COM_WEST
+      if (WESTERN_EDGE .and. NORTHERN_EDGE) then
+        ubar(Istr,Jend+1,knew)=0.5*( ubar(Istr+1,Jend+1,knew)
+     &                                  +ubar(Istr,Jend,knew))
+#  ifdef MASKING
+     &                        *umask(Istr,Jend+1)
+#  endif
+      endif
+#endif
+#if defined OBC_COM_NORTH && defined OBC_COM_EAST
+      if (EASTERN_EDGE .and. NORTHERN_EDGE) then
+        ubar(Iend+1,Jend+1,knew)=0.5*( ubar(Iend,Jend+1,knew)
+     &                                +ubar(Iend+1,Jend,knew))
+#  ifdef MASKING
+     &                        *umask(Iend+1,Jend+1)
+#  endif
+      endif
+#endif
+      return
+      end
+#ifndef CHILD
+# define CHILD
+# ifdef AGRIF
+#  include "u2dbc.F"
+# endif
+# undef CHILD
+#endif  /* !CHILD */
+ 

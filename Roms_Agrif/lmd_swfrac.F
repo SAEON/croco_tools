@@ -1,0 +1,97 @@
+!
+! $Id: lmd_swfrac.F,v 1.2 2003/12/17 13:56:03 pmarches Exp $
+!
+#include "cppdefs.h"
+#if defined LMD_SKPP || defined LMD_BKPP
+
+      subroutine lmd_swfrac_tile (Istr,Iend,Jstr,Jend, Zscale,Z,swdk)
+!
+!--------------------------------------------------------------------
+!  This subroutine computes the  fraction of solar shortwave flux
+!  penetrating to specified depth (times Zscale) due to exponential
+!  decay in Jerlov water type.
+!
+!  Input:
+!          Zscale   scale factor to apply to depth array
+!          Z        vertical height [meters, negative] for
+!                        desired solar short-wave fraction.
+!  Output:
+!          swdk     shortwave (radiation) fractional decay.
+!
+!  Reference:
+!
+!  Paulson, C.A., and J.J. Simpson, 1977: Irradiance meassurements
+!  in the upper ocean, J. Phys. Oceanogr., 7, 952-956.
+!
+!  This routine was adapted from Bill Large 1995 code.
+!--------------------------------------------------------------------
+!
+      implicit none
+# include "param.h"
+# include "scalars.h"
+# include "lmd_kpp.h"
+      integer Istr,Iend,Jstr,Jend, i,j,indx
+      real Zscale, Z(PRIVATE_2D_SCRATCH_ARRAY),
+     &             swdk(PRIVATE_2D_SCRATCH_ARRAY)
+      integer lmd_Jwt
+      real lmd_mu1(5), lmd_mu2(5), lmd_r1(5), cff1, cff2, cff3 ,cff4
+
+      lmd_mu1(1)=0.35    !  Define reciprocal of the absorption
+      lmd_mu1(2)=0.6     !  coefficient for each of two solar
+      lmd_mu1(3)=1.0     !  wavelength bands as a function 
+      lmd_mu1(4)=1.5     !  of water type (Ref: Paulson and
+      lmd_mu1(5)=1.4     !  Simpson, 1977).
+
+      lmd_mu2(1)=23.0
+      lmd_mu2(2)=20.0
+      lmd_mu2(3)=17.0
+      lmd_mu2(4)=14.0
+      lmd_mu2(5)=7.9
+
+      lmd_r1(1)=0.58    !  Define fraction of the total radiance 
+      lmd_r1(2)=0.62    !  for wavelength band 1 as a function of 
+      lmd_r1(3)=0.67    !  Jerlov water type. The fraction for
+      lmd_r1(4)=0.77    !  wavelength band 2 is lmd_r2=1-lmd_r1.
+      lmd_r1(5)=0.78
+                        !  Set Jerlov water type to assign
+      lmd_Jwt=1         !  everywhere; an integer from 1 to 5.
+!
+!  On first call: initialize (for now) initialize index for Jerlov
+!  water type to 1 (type I). This variable is used in the computation
+!  of the fraction solar shortwave flux.
+!
+      if (iic.eq.ntstart) then
+        do j=Jstr,Jend
+          do i=Istr,Iend
+            Jwtype(i,j)=lmd_Jwt
+          enddo
+        enddo
+      endif
+!
+!  Use Paulson and Simpson (1977) two wavelength bands solar
+!  absorption model.
+!
+      do j=Jstr,Jend
+        do i=Istr,Iend
+          indx=Jwtype(i,j)      
+          cff1=Z(i,j)*Zscale/lmd_mu1(indx)
+          cff2=Z(i,j)*Zscale/lmd_mu2(indx)
+          if (cff1.ge.-20.) then            ! Quick fix to avoid computing 
+            cff3=lmd_r1(indx) *exp(cff1)    ! exp(-15000)
+          else
+            cff3=0.
+          endif
+          if (cff2.ge.-20.) then         
+            cff4=(1.-lmd_r1(indx)) *exp(cff2)
+          else
+            cff4=0.
+          endif
+          swdk(i,j)=cff3+cff4
+        enddo
+      enddo
+#else
+      subroutine lmd_swfrac
+#endif /* LMD_SKPP || LMD_BKPP */
+      return
+      end
+

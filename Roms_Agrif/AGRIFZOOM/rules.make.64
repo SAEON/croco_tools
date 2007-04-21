@@ -1,0 +1,71 @@
+all : libagrif.a
+
+libagrif.a : $(OBJS)
+	$(AR) -X 64 -r $@ $(OBJS)
+
+$(AGRIFOBJS)/%.o : $(AGRIFFILES)/%.F
+	@$(SRM) $(AGRIFYOURFILES)/$(*F).f
+	@$(P_C) $(P_O) $(AGRIFFILES)/$(*F).F > $(AGRIFYOURFILES)/$(*F).f
+	@$(F_C) $(F_O) $(FFLAGS_EXTEND) $(AGRIF_OPTS) -c $(AGRIFYOURFILES)/$(*F).f -o $(AGRIFOBJS)/$(*F).o
+
+
+$(AGRIFOBJS)/modarrays.o: $(AGRIFOBJS)/modtypes.o
+
+$(AGRIFOBJS)/modbc.o: $(AGRIFOBJS)/modinterp.o
+
+$(AGRIFOBJS)/modbcfunction.o: $(AGRIFOBJS)/modupdate.o \
+			 $(AGRIFOBJS)/modbc.o 
+#			 $(AGRIFOBJS)/modinterp.o 
+#			 $(AGRIFOBJS)/modtypes.o
+
+#$(AGRIFOBJS)/modcluster.o: $(AGRIFOBJS)/modtypes.o 
+$(AGRIFOBJS)/modcluster.o: $(AGRIFOBJS)/modsauv.o \
+			$(AGRIFOBJS)/modinitvars.o \
+			$(AGRIFOBJS)/modcurgridfunctions.o
+#			$(AGRIFOBJS)/modlinktomodel.o
+
+$(AGRIFOBJS)/modcurgridfunctions.o: $(AGRIFOBJS)/modinit.o
+#			$(AGRIFOBJS)/modtypes.o
+
+$(AGRIFOBJS)/modinit.o: $(AGRIFOBJS)/modlinktomodel.o \
+			$(AGRIFOBJS)/modtypes.o
+
+$(AGRIFOBJS)/modinitvars.o: $(AGRIFOBJS)/modlinktomodel.o \
+			$(AGRIFOBJS)/modtypes.o
+
+$(AGRIFOBJS)/modinterpbasic.o: $(AGRIFOBJS)/modtypes.o
+
+$(AGRIFOBJS)/modinterp.o: $(AGRIFOBJS)/modcurgridfunctions.o \
+			$(AGRIFOBJS)/modmask.o \
+			$(AGRIFOBJS)/modarrays.o \
+			$(AGRIFOBJS)/modinterpbasic.o
+
+$(AGRIFOBJS)/modlinktomodel.o: $(AGRIFOBJS)/modtypes.o
+
+$(AGRIFOBJS)/modmask.o: $(AGRIFOBJS)/modtypes.o
+
+$(AGRIFOBJS)/modsauv.o: $(AGRIFOBJS)/modarrays.o \
+			$(AGRIFOBJS)/modlinktomodel.o \
+			$(AGRIFOBJS)/modtypes.o
+
+$(AGRIFOBJS)/modupdatebasic.o: $(AGRIFOBJS)/modtypes.o
+
+$(AGRIFOBJS)/modupdate.o: $(AGRIFOBJS)/modmask.o \
+			$(AGRIFOBJS)/modcurgridfunctions.o \
+			$(AGRIFOBJS)/modarrays.o \
+			$(AGRIFOBJS)/modmpp.o \
+			$(AGRIFOBJS)/modupdatebasic.o
+
+#$(AGRIFOBJS)/modutil.o: $(AGRIFOBJS)/modtypes.o 
+$(AGRIFOBJS)/modutil.o: $(AGRIFOBJS)/modcurgridfunctions.o \
+			$(AGRIFOBJS)/modcluster.o
+#			$(AGRIFOBJS)/modlinktomodel.o 
+#			$(AGRIFOBJS)/modsauv.o 
+
+$(AGRIFOBJS)/modmpp.o: $(AGRIFOBJS)/modtypes.o \
+			$(AGRIFOBJS)/modarrays.o
+
+clean : FORCE
+	$(SRM) $(OBJS) $(MODOBJS)$(LIBDIR)/libagrif.a
+	
+FORCE :

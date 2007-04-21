@@ -1,0 +1,26 @@
+#- $Id: AA_make.ldef,v 1.3 2005/08/22 15:12:01 agrif Exp $
+#---------------------------------------------------------------------
+#- Creation des elements relatifs a AGRIF (lib, config)
+#---------------------------------------------------------------------
+SHELL = /bin/sh
+#---------------------------------------------------------------------
+LIBDIR = ../../lib
+MODDIR = $(LIBDIR)
+#---------------------------------------------------------------------
+#--- -DNC_REAL option is needed if compiled in simple precision
+#--- In case you switch to double precision use -DNC_DOUBLE
+#-
+# Compilation:
+#-Q- lxiv7 FFLAGS_EXTEND=  -I..
+#-Q- lxiv8 FFLAGS_EXTEND=  -I..
+#-Q- sun   FFLAGS_EXTEND= -I..
+#-Q- aix   FFLAGS_EXTEND = -I.. -I$(HOME)/include/ -qsuffix=f=f
+#-Q- aix   AGRIF_OPTS = -qfixed -qrecur
+#-Q- ibm   FFLAGS_EXTEND = -I.. -I$(HOME)/include/ -qsuffix=f=f
+#-Q- ibm   AGRIF_OPTS = -qfixed -qrecur
+#-
+MODEL_LIB = $(LIBDIR)/libagrif.a
+SXMODEL_LIB = $(MODEL_LIB)
+#-Q- sxnec  SXMODEL_LIB = $(LIBDIR)/libsxagrif.a
+#-Q- sx6nec SXMODEL_LIB = $(LIBDIR)/libsxagrif.a
+#-

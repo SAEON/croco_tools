@@ -1,0 +1,64 @@
+!
+! $Id: nc_sta.h,v 1.1 2005/01/21 17:02:11 pmarches Exp $
+!
+! This is include file "nc_sta.h".
+! ==== == ======= ==== ============
+!
+! stafield     Number of station fields for output
+! wrtsta       Logical vector with flags for output
+! indxsta[...] Index of logical flag to output several fields
+!       Grd  - grid level
+!       Temp - temp
+!       Salt - Salt
+!       Rho  - Density
+!       Vel  - u and v components
+! ncidsta      id of station output file  
+! nrecsta      step to output station data
+! sta[...]     several reference names of netcdf output
+! staname      station output filename
+! staposname   station input data filename
+
+      integer stafield
+      parameter(stafield=5)
+      integer indxstaGrd, indxstaTemp, indxstaSalt,
+     & indxstaRho, indxstaVel
+      parameter (     indxstaGrd=1, indxstaTemp=2,
+     & indxstaSalt=3, indxstaRho=4,  indxstaVel=5)
+ 
+
+      integer ncidsta,    nrecsta,    staGlevel
+     &      , staTstep,   staTime,    staXgrd,  staYgrd
+     &      , staZgrd,    staV,       staU
+#ifdef SPHERICAL
+     &      , staLon,     staLat
+#else
+     &      , staX,       staY
+#endif
+#ifdef SOLVE3D
+     &      , staDepth,   staDen,   staTemp
+# ifdef SALINITY
+     &      , staSal
+# endif
+#endif
+      logical wrtsta(stafield)
+
+      common/incscrum_sta/
+     &        ncidsta,    nrecsta,    staGlevel
+     &      , staTstep,   staTime,    staXgrd,  staYgrd
+     &      , staZgrd,    staV,       staU
+#ifdef SPHERICAL
+     &      , staLon,     staLat
+#else
+     &      , staX,       staY
+#endif
+#ifdef SOLVE3D
+     &      , staDepth,   staDen,   staTemp
+# ifdef SALINITY
+     &      , staSal
+# endif
+#endif
+     &      , wrtsta
+
+
+      character*80  staname,   staposname
+      common /cncscrum_sta/ staname,   staposname

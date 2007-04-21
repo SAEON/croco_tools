@@ -1,0 +1,340 @@
+!
+! $Id: zetabc.F,v 1.7 2005/10/07 15:32:41 pmarches Exp $
+!
+#ifndef CHILD
+!
+# include "cppdefs.h"
+      subroutine zetabc_tile(Istr,Iend,Jstr,Jend)
+# ifdef AGRIF      
+      use AGRIF_Util
+      integer Istr,Iend,Jstr,Jend
+      if (AGRIF_Root()) then
+        call zetabc_parent_tile(Istr,Iend,Jstr,Jend)
+      else
+        call zetabc_child_tile(Istr,Iend,Jstr,Jend)
+c        call zetabc_interp_tile(Istr,Iend,Jstr,Jend)
+      endif
+      return
+      end
+!
+! PARENT
+!
+      subroutine zetabc_parent_tile(Istr,Iend,Jstr,Jend)
+# endif
+!
+! Set boundary conditions for free surface zeta(:,:,knew)
+! for the parent grid.
+!
+#else
+!
+! CHILD
+!
+      subroutine zetabc_child_tile(Istr,Iend,Jstr,Jend)
+!
+! Set boundary conditions for free surface zeta(:,:,knew)
+! for the child grid.
+!
+#endif /* CHILD */
+!
+! Common Code
+!
+# include "set_obc_definitions.h"
+!
+      implicit none
+      integer Istr,Iend,Jstr,Jend, i,j
+      real cff,cx,dft,dfx, eps
+      parameter (eps=1.D-20)
+#include "param.h"
+#include "boundary.h"
+#include "climat.h"
+#include "grid.h"
+#include "ocean2d.h"
+#include "scalars.h"
+!
+#include "compute_auxiliary_bounds.h"
+!
+!  If child grid, interpolate zeta from parent
+!
+#ifdef CHILD
+      call zetabc_interp_tile(Istr,Iend,Jstr,Jend)
+#endif
+! 
+#ifndef EW_COM_PERIODIC
+!
+!====================================================================
+!                            WESTERN BC
+!====================================================================
+      if (WESTERN_EDGE) then
+# if defined OBC_COM_WEST && defined OBC_COM_ZORLANSKI
+!                                           Western edge Radiation BC
+!                                           ======= ==== ========= ==
+        do j=Jstr,Jend
+          dft=zeta(1,j,kstp)-zeta(1,j,knew)
+          dfx=zeta(1,j,knew)-zeta(2,j,knew)
+
+          if (dfx*dft .lt. 0.) dft=0.     ! <--  SUPPRESS INFLOW
+
+          cx=dft*dfx
+          cff=max(dfx*dfx, eps)
+
+          zeta(0,j,knew)=(cff*zeta(0,j,kstp)+cx*zeta(1,j,knew))
+     &                                                /(cff+cx)
+#  ifdef MASKING
+     &                      *rmask(0,j)
+#  endif
+        enddo
+# elif defined OBC_COM_WEST && defined OBC_COM_ZCHAPMAN
+!                                           Western edge Chapman BC
+!                                           ======= ==== ======= ==
+        do j=Jstr,Jend
+          cx=dtfast*pm(1,j)*sqrt(g*h(1,j))
+          zeta(0,j,knew)=(zeta(0,j,kstp)+cx*zeta(1,j,knew))/(1.+cx)
+#  ifdef MASKING
+     &                      *rmask(0,j)
+#  endif
+        enddo
+# elif defined OBC_COM_WEST && defined OBC_COM_ZSPECIFIED
+!                                           Western edge Specified BC
+!                                           ======= ==== ========= ==
+        do j=Jstr,Jend
+#   ifdef Z_FRC_BRY
+          zeta(0,j,knew)=zetabry_west(j)
+#   else
+          zeta(0,j,knew)=SSH(0,j)
+#   endif
+#  ifdef MASKING
+     &                      *rmask(0,j)
+#  endif
+        enddo
+# else
+        do j=Jstr,Jend                     ! Western edge gradient BC
+          zeta(0,j,knew)=zeta(1,j,knew)    ! ======= ==== ======== ==
+#  ifdef MASKING
+     &                      *rmask(0,j)
+#  endif
+        enddo
+# endif
+      endif
+!
+!====================================================================
+!                            EASTERN BC
+!====================================================================
+      if (EASTERN_EDGE) then
+#  if defined OBC_COM_EAST && defined OBC_COM_ZORLANSKI
+!                                           Eastern edge Radiation BC
+!                                           ======= ==== ========= ==
+        do j=Jstr,Jend
+          dft=zeta(Iend,j,kstp)-zeta(Iend,j,knew)
+          dfx=zeta(Iend,j,knew)-zeta(Iend-1,j,knew)
+
+          if (dfx*dft .lt. 0.) dft=0.     ! <--  SUPPRESS INFLOW
+
+          cx=dft*dfx
+          cff=max(dfx*dfx, eps)
+
+          zeta(Iend+1,j,knew)=(cff*zeta(Iend+1,j,kstp)+
+     &                              cx*zeta(Iend,j,knew))/(cff+cx)
+#  ifdef MASKING
+     &                                            *rmask(Iend+1,j)
+#  endif
+        enddo
+# elif defined OBC_COM_EAST && defined OBC_COM_ZCHAPMAN
+!                                           Eastern edge Chapman BC
+!                                           ======= ==== ======= ==
+        do j=Jstr,Jend
+          cx=dtfast*pm(Iend,j)*sqrt(g*h(Iend,j))
+          zeta(Iend+1,j,knew)=(zeta(Iend+1,j,kstp)
+     &                              +cx*zeta(Iend,j,knew))/(1.+cx)
+#  ifdef MASKING
+     &                      *rmask(Iend+1,j)
+#  endif
+        enddo
+# elif defined OBC_COM_EAST && defined OBC_COM_ZSPECIFIED
+!                                           Eastern edge Specified BC
+!                                           ======= ==== ========= ==
+        do j=Jstr,Jend
+#   ifdef Z_FRC_BRY
+          zeta(Iend+1,j,knew)=zetabry_east(j) 
+#   else
+          zeta(Iend+1,j,knew)=SSH(Iend+1,j)
+#   endif
+#  ifdef MASKING
+     &                      *rmask(Iend+1,j)
+#  endif
+        enddo
+#  else
+        do j=Jstr,Jend                         ! Eastern edge gradient BC
+          zeta(Iend+1,j,knew)=zeta(Iend,j,knew)! ======= ==== ======== ==
+#  ifdef MASKING
+     &                        *rmask(Iend+1,j)
+#  endif
+        enddo
+# endif
+      endif
+#endif        /* !EW_COM_PERIODIC */
+
+#ifndef NS_COM_PERIODIC
+!
+!====================================================================
+!                            SOUTHERN BC
+!====================================================================
+      if (SOUTHERN_EDGE) then
+# if defined OBC_COM_SOUTH && defined OBC_COM_ZORLANSKI
+!                                           Southern edge Radiation BC
+!                                           ======= ==== ========= ==
+        do i=Istr,Iend
+          dft=zeta(i,1,kstp)-zeta(i,1,knew)
+          dfx=zeta(i,1,knew)-zeta(i,2,knew)
+
+          if (dfx*dft .lt. 0.) dft=0.     ! <--  SUPPRESS INFLOW
+
+          cx=dft*dfx
+          cff=max(dfx*dfx, eps)
+
+          zeta(i,0,knew)=(cff*zeta(i,0,kstp)+cx*zeta(i,1,knew))
+     &                                                /(cff+cx)
+#  ifdef MASKING
+     &                      *rmask(i,0)
+#  endif
+        enddo
+# elif defined OBC_COM_SOUTH && defined OBC_COM_ZCHAPMAN
+!                                           Southern edge Chapman BC
+!                                           ======== ==== ======= ==
+        do i=Istr,Iend
+          cx=dtfast*pn(i,1)*sqrt(g*h(i,1))
+          zeta(i,0,knew)=(zeta(i,0,kstp)
+     &                              +cx*zeta(i,1,knew))/(1.+cx)
+#  ifdef MASKING
+     &                      *rmask(i,0)
+#  endif
+        enddo         
+# elif defined OBC_COM_SOUTH && defined OBC_COM_ZSPECIFIED
+!                                           Southern edge Specified BC
+!                                           ======== ==== ========= ==
+        do i=Istr,Iend
+#   ifdef Z_FRC_BRY
+          zeta(i,0,knew)=zetabry_south(i)
+#   else
+          zeta(i,0,knew)=SSH(i,0)
+#   endif
+#  ifdef MASKING
+     &                      *rmask(i,0)
+#  endif
+        enddo         
+#  else
+        do i=Istr,Iend                    ! Southern edge gradient BC
+          zeta(i,0,knew)=zeta(i,1,knew)   ! ======== ==== ======== ==
+#  ifdef MASKING
+     &                      *rmask(i,0)
+#  endif
+        enddo
+# endif  /* OBC_COM_SOUTH */
+      endif
+!
+!====================================================================
+!                            NORTHERN BC
+!====================================================================
+      if (NORTHERN_EDGE) then
+#  if defined OBC_COM_NORTH && defined OBC_COM_ZORLANSKI
+!                                           Northern edge Radiation BC
+!                                           ======= ==== ========= ==
+        do i=Istr,Iend
+          dft=zeta(i,Jend,kstp)-zeta(i,Jend,knew)
+          dfx=zeta(i,Jend,knew)-zeta(i,Jend-1,knew)
+
+          if (dfx*dft .lt. 0.) dft=0.     ! <--  SUPPRESS INFLOW
+
+          cx=dft*dfx
+          cff=max(dfx*dfx, eps)
+
+          zeta(i,Jend+1,knew)=(cff*zeta(i,Jend+1,kstp)+
+     &                              cx*zeta(i,Jend,knew))/(cff+cx)
+#  ifdef MASKING
+     &                                            *rmask(i,Jend+1)
+#  endif
+        enddo
+# elif defined OBC_COM_NORTH && defined OBC_COM_ZCHAPMAN
+!                                           Northern edge Chapman BC
+!                                           ======== ==== ======= ==
+        do i=Istr,Iend
+          cx=dtfast*pn(i,Jend)*sqrt(g*h(i,Jend))
+          zeta(i,Jend+1,knew)=(zeta(i,Jend+1,kstp)
+     &                              +cx*zeta(i,Jend,knew))/(1.+cx)
+#  ifdef MASKING
+     &                      *rmask(i,Jend+1)
+#  endif
+        enddo
+# elif defined OBC_COM_NORTH && defined OBC_COM_ZSPECIFIED
+!                                           Northern edge Specified BC
+!                                           ======== ==== ========= ==
+        do i=Istr,Iend
+#   ifdef Z_FRC_BRY
+          zeta(i,Jend+1,knew)=zetabry_north(i)
+#   else
+          zeta(i,Jend+1,knew)=SSH(i,Jend+1)
+#   endif
+#  ifdef MASKING
+     &                      *rmask(i,Jend+1)
+#  endif
+        enddo
+# else 
+!                                            Northern edge gradient BC
+!                                            ======== ==== ======== ==
+        do i=Istr,Iend
+          zeta(i,Jend+1,knew)=zeta(i,Jend,knew)
+#  ifdef MASKING
+     &                       *rmask(i,Jend+1)
+#  endif
+        enddo
+# endif   /* OBC_COM_NORTH */
+      endif
+#endif       /* !NS_COM_PERIODIC */
+!
+!====================================================================
+!                   CORNERS (between open boundaries)
+!====================================================================
+#if defined OBC_COM_SOUTH && defined OBC_COM_WEST
+      if (SOUTHERN_EDGE .and. WESTERN_EDGE) then
+        zeta(0,0,knew)=0.5*(zeta(1,0 ,knew)+zeta(0 ,1,knew))
+#  ifdef MASKING
+     &                       *rmask(0,0)
+#  endif        
+      endif
+#endif
+#if defined OBC_COM_SOUTH && defined OBC_COM_EAST
+      if (SOUTHERN_EDGE .and. EASTERN_EDGE) then
+        zeta(Iend+1,0,knew)=0.5*(zeta(Iend+1,1 ,knew)+zeta(Iend,0,knew))
+#  ifdef MASKING
+     &                       *rmask(Iend+1,0)
+#  endif                
+      endif
+#endif
+#if defined OBC_COM_NORTH && defined OBC_COM_WEST
+      if (NORTHERN_EDGE .and. WESTERN_EDGE) then
+        zeta(0,Jend+1,knew)=0.5*(zeta(0,Jend,knew)+zeta(1 ,Jend+1,knew))
+#  ifdef MASKING
+     &                       *rmask(0,Jend+1)
+#  endif                
+      endif
+#endif
+#if defined OBC_COM_NORTH && defined OBC_COM_EAST
+      if (NORTHERN_EDGE .and. EASTERN_EDGE) then
+        zeta(Iend+1,Jend+1,knew)=0.5*(zeta(Iend+1,Jend,knew)+
+     &                            zeta(Iend,Jend+1,knew))
+#  ifdef MASKING
+     &                       *rmask(Iend+1,Jend+1)
+#  endif             
+      endif
+#endif
+!
+      return
+      end
+#ifndef CHILD
+# define CHILD
+# ifdef AGRIF
+#  include "zetabc.F"
+# endif
+# undef CHILD
+#endif  /* !CHILD */
+ 
+

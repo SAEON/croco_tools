@@ -1,0 +1,9 @@
+rm -f AGRIF_INC/*
+rm -f AGRIF_MODELFILES/*
+rm -f AGRIF_OBJS/*
+rm -f AGRIF_YOURFILES/*
+rm -f SORTIE/*
+
+rm -f .depend*
+rm -f .agrif*
+rm -f LIB/*.o

@@ -1,0 +1,36 @@
+# [1] Machine independent rules and definitions.
+#==== ======= =========== ===== === ============
+.SUFFIXES: .o .f .i .F
+
+.f.o:
+	$(CFT) -c $(FFLAGS) $*.f -o $*.o
+#	rm -f $*.f
+.F.f:
+	$(CPP) -P $(CPPFLAGS) $*.F | ./mpc > $*.f
+
+.F.o:
+	$(CPP) -P $(CPPFLAGS) $*.F | ./mpc > $*_.f
+	$(CFT) -c $(FFLAGS) $*_.f -o $*.o
+#	/bin/rm $*.f
+
+.F:
+	$(LDR) -o $@ $(LDFLAGS) $<
+.f:
+	$(LDR) -o $@ $(LDFLAGS) $<
+
+# [2] Machine dependent definitions
+#==== ======= ========= ===========
+# CPP           Name of the C preprocessor
+# CPPFLAGS      Flags to the C preprocessor
+# CFT           Name of the fortran compiler to use
+# FFLAGS        Flags to the fortran compiler
+# LDR           Program to load the objects into an executable
+# LDFLAGS       Flags to the loader
+#
+      CPP = $(CPP1)
+ CPPFLAGS = $(CPPFLAGS1)
+      CFT = $(CFT1)
+      LDR = $(CFT)
+   FFLAGS = $(FFLAGS1)
+  LDFLAGS =
+     LCDF = $(LDFLAGS1) -lnetcdf

@@ -1,0 +1,95 @@
+title:
+        PERU TEST MODEL LEVEL #1
+time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
+               2160      1200     45      1
+S-coord: THETA_S,   THETA_B,    Hc (m)
+           7.0d0      0.0d0      5.0d0
+grid:  filename
+                          roms_grd.nc.1
+forcing: filename
+                          roms_frc.nc.1
+climatology: filename
+                          XXXXXXXXX
+boundary: filename
+                          XXXXXXXXX
+initial: NRREC  filename
+          1 
+                          roms_ini.nc.1
+restart:          NRST, NRPFRST / filename
+                 2160    -1
+                          roms_rst.nc.1
+history: LDEFHIS, NWRT, NRPFHIS / filename 
+            T     216     0
+                          roms_his.nc.1
+averages: NTSAVG, NAVG, NRPFAVG / filename
+            1     216     0
+                          roms_avg.nc.1
+
+primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
+                          T    T   T   T  T    30*T
+auxiliary_history_fields:   rho Omega  W  Akv  Akt  Aks  HBL HBBL HEL  Bostr
+                             F   F     T   F    T    F    30*T
+
+primary_averages: zeta UBAR VBAR  U  V   wrtT(1:NT)
+                   T    T    T    T  T   30*T
+auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL HBBL HEL Bostr
+                     F   T     T   F    T    F   30*T
+
+
+rho0:
+      1025.d0
+lateral_visc:   VISC2,    VISC4    [m^2/sec for all]
+                 0.       0.
+tracer_diff2: TNU2(1:NT)           [m^2/sec for all]
+               30*0.d0 
+bottom_drag:     RDRG [m/s],  RDRG2,  Zob [m],  Cdb_min, Cdb_max
+                 3.0d-04      0.d-3    0.d-2     2.5d-3    2.d-2 
+gamma2:
+                 1.d0
+
+sponge:          X_SPONGE [m],    V_SPONGE [m^2/sec]
+                  50.e3           100.
+
+nudg_cof:    TauT_in, TauT_out, TauM_in, TauM_out  [days for all]
+              XXX       XXX      XXX      XXX
+
+
+
+diagnostics:   ldefdia   nwrtdia    nrpfdia /filename
+                  T        216        0
+                                           roms_dia.nc.1
+diag_avg: ldefdia_avg  ntsdia_avg  nwrtdia_avg  nprfdia_avg /filename
+               T          1          216           0
+                                           roms_dia_avg.nc.1
+diagnosticsM:   ldefdiaM   nwrtdiaM    nrpfdiaM /filename
+                  T         216         0
+                                           roms_diaM.nc
+diagM_avg: ldefdiaM_avg  ntsdiaM_avg  nwrtdiaM_avg  nprfdiaM_avg /filename
+               T          1            216            0
+                                           roms_diaM_avg.nc.1
+diagnostics_bio:   ldefdiabio   nwrtdiabio    nrpfdiabio /filename
+                        T          216             0
+                                           roms_diabio.nc.1
+diagbio_avg: ldefdiabio_avg  ntsdiabio_avg  nwrtdiabio_avg  nprfdiabio_avg /filename
+                  T              1              216              0
+                                           roms_diabio_avg.nc.1
+
+
+sediments: input file
+           sediment.in
+sediment_history_fields: bed_thick bed_poros bed_fra(sand,silt)
+                            T         F        T  T
+
+bbl_history_fields: Abed Hripple Lripple Zbnot Zbapp Bostrw
+                     T      F       F      T     F     T
+
+floats: LDEFFLT, NFLT, NRPFFLT / inpnam, hisnam
+           T       6      0
+                                floats.in
+                                floats.nc
+float_fields:  Grdvar Temp Salt Rho Vel
+                 F     F    F    F   F
+
+stations:
+station_fields:
+
