@@ -1,0 +1,137 @@
+function test_bry(bry_file,grid_file,tracer,l,obc)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  Test the bry (boundary) files.
+% 
+%  Further Information:  
+%  http://www.brest.ird.fr/Roms_tools/
+%  
+%  This file is part of ROMSTOOLS
+%
+%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  it under the terms of the GNU General Public License as published
+%  by the Free Software Foundation; either version 2 of the License,
+%  or (at your option) any later version.
+%
+%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  WITHOUT ANY WARRANTY; without even the implied warranty of
+%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%  GNU General Public License for more details.
+%
+%  You should have received a copy of the GNU General Public License
+%  along with this program; if not, write to the Free Software
+%  Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+%  MA  02111-1307  USA
+%
+%  Copyright (c) 2002-2006 by Pierrick Penven 
+%  e-mail:Pierrick.Penven@ird.fr  
+%
+%  Updated    1-Sep-2006 by Pierrick Penven
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%
+% Get the grid
+%
+nc=netcdf(grid_file);
+pm=nc{'pm'}(:);
+pn=nc{'pn'}(:);
+h=nc{'h'}(:);
+if strcmp(tracer,'u')
+  lat=nc{'lat_u'}(:);
+  lon=nc{'lon_u'}(:);
+  mask=nc{'mask_u'}(:);
+  pm=rho2u_2d(pm);
+  pn=rho2u_2d(pn);
+  h=rho2u_2d(h);
+elseif strcmp(tracer,'v')
+  lat=nc{'lat_v'}(:);
+  lon=nc{'lon_v'}(:);
+  mask=nc{'mask_v'}(:);
+  pm=rho2v_2d(pm);
+  pn=rho2v_2d(pn);
+  h=rho2v_2d(h);
+else
+  lat=nc{'lat_rho'}(:);
+  lon=nc{'lon_rho'}(:);
+  mask=nc{'mask_rho'}(:);
+end
+[M L]=size(lon);
+mask=nc{'mask_rho'}(:);
+mask(mask==0)=NaN;
+close(nc)
+%
+nc=netcdf(bry_file);
+theta_s=nc{'theta_s'}(:);
+if isempty(theta_s)
+  theta_s=nc.theta_s(:);
+  theta_b=nc.theta_b(:);
+  hc=nc.hc(:);
+else
+  theta_b=nc{'theta_b'}(:);
+  hc=nc{'hc'}(:);
+end
+%
+for obcndx=1:4
+  if obc(obcndx)==1
+    if obcndx==1
+%      disp(' Plot southern boundary...')
+      suffix='south';
+      iroms=(1:L);
+      jroms=1;
+    elseif obcndx==2
+%      disp(' Plot eastern boundary...')
+      suffix='east';
+      iroms=L;
+      jroms=(1:M);
+    elseif obcndx==3
+%      disp(' Plot northern boundary...')
+      suffix='north';
+      iroms=(1:L);
+      jroms=M;
+    elseif obcndx==4
+%      disp(' Plot western boundary...')
+      suffix='west';
+      iroms=1;
+      jroms=(1:M);
+    end
+    subplot(2,2,obcndx)
+    topo=squeeze(h(jroms,iroms));
+    mask_vert=squeeze(mask(jroms,iroms));
+    if (obcndx==1 | obcndx==3)
+      dx=1./squeeze(pm(jroms,iroms));
+    else
+      dx=1./squeeze(pn(jroms,iroms));
+    end
+    temp=squeeze(nc{[tracer,'_',suffix]}(l,:,:));
+    [Nz,Nx]=size(temp);
+    z=squeeze(zlevs(topo,0*topo,theta_s,theta_b,hc,Nz,'r'));
+    x1=0*topo;
+    for i=2:Nx
+      x1(i)=x1(i-1)+0.5*(dx(i)+dx(i-1));
+    end
+    x=zeros(Nz,Nx);
+    masksection=zeros(Nz,Nx);
+    for i=1:Nx
+      for k=1:Nz
+        x(k,i)=x1(i);
+        masksection(k,i)=mask_vert(i);
+      end
+    end
+    x1=x1/1000;
+    x=x/1000;
+    temp=masksection.*temp;
+    pcolor(x,z,temp) 
+    colorbar
+    shading interp
+    hold on
+    plot(x1,-topo,'k')
+    hold off
+    title([tracer,' ',suffix,' - time index=',num2str(l)])
+  end
+end
+close(nc)
+
+return
+
+

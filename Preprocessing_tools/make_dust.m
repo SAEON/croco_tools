@@ -1,0 +1,102 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  Build a PISCES forcing file
+%
+%  Extrapole and interpole surface data to get surface boundary
+%  conditions for PISCES (forcing netcdf file)
+%
+%  Data input format (netcdf):
+%     irondep(T, Y, X)
+%     T : time [Months]
+%     Y : Latitude [degree north]
+%     X : Longitude [degree east]
+%
+%  Data source : IRI/LDEO Climate Data Library 
+%                (Atlas of Surface Marine Data 1994)
+%
+%    http://ingrid.ldgo.columbia.edu/
+%    http://iridl.ldeo.columbia.edu/SOURCES/.DASILVA/
+%
+%  Pierrick Penven, IRD, 2005.                                    %
+%  Olivier Aumont the master, IRD, 2006.                          %
+%  Patricio Marchesiello, chief, IRD, 2007.                       %
+%  Christophe Eugene Raoul Menkes, the slave, IRD, 2007.          %
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+clear all
+close all
+%%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
+disp(' ')
+disp('Adding iron dust deposition into forcing file')
+%
+%  Title - Grid file name - Forcing file name
+%
+romstools_param
+%
+% Dust deposition file 
+%
+dust_file='../WOAPISCES/dust.iron.cdf';
+dust_name='irondep';
+time=woa_time;
+cycle=woa_cycle;
+%
+%%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
+%
+% Read in the grid
+%
+disp(' ')
+disp(' Read in the grid...')
+nc=netcdf(grdname);
+Lp=length(nc('xi_rho'));
+Mp=length(nc('eta_rho'));
+lon=nc{'lon_rho'}(:);
+lat=nc{'lat_rho'}(:);
+angle=nc{'angle'}(:);
+result=close(nc);
+%
+% Add dust variables in forcing file
+%
+disp(' Creating dust variables and attributes in forcing file')
+nc=netcdf(frcname,'write');
+redef(nc);
+%
+nc('dust_time') = length(time);;
+nc{'dust_time'} = ncdouble('dust_time') ;
+nc{'dust'} = ncdouble('dust_time','eta_rho','xi_rho') ;
+%
+nc{'dust_time'}.long_name = ncchar('time for dust');
+nc{'dust_time'}.long_name = 'time for dust';
+nc{'dust_time'}.units = ncchar('day');
+nc{'dust_time'}.units = 'day';
+if cycle~=0
+  nc{'dust_time'}.cycle_length = cycle;
+end
+%
+nc{'dust'}.long_name = ncchar('Dust');
+nc{'dust'}.long_name = 'Dust';
+nc{'dust'}.units = ncchar('nMol Fe m-3');
+nc{'dust'}.units = 'nmol Fe m-3';
+nc{'dust'}.fields = ncchar('dust, scalar, series');
+nc{'dust'}.fields = 'dust, scalar, series';
+%
+endef(nc);
+%
+nc{'dust_time'}(:)=time*30; % if time in month in the dataset !!!
+%
+% Loop on time
+%
+for tindex=1:length(time)
+  time=nc{'dust_time'}(tindex);
+  nc{'dust'}(tindex,:,:)=ext_data(dust_file,dust_name,tindex,...
+             lon,lat,time,Roa,1);
+end
+close(nc)
+%
+% Make a few plots
+%
+disp(' Make a few plots...')
+test_forcing(frcname,grdname,'dust',[1 4 7 10],3,coastfileplot)
+%
+% End
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
