@@ -58,6 +58,7 @@
 #define HADV_UPSTREAM_TS  /* 3rd-order upstream bias horiz. advection */
 #undef  HADV_AKIMA_TS     /* 4th-order Akima horiz. advection */
 #define VADV_SPLINES_TS   /* splines vertical advection */
+#undef  VADV_AKIMA_TS     /* 4th-order Akima vertical advection */
 #undef  VADV_C2_TS        /* 2nd-order centered vertical advection */
 #undef  CONST_TRACERS
 
