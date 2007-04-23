@@ -104,7 +104,10 @@
      &     lmd_sdd2=1.85,    ! (Fedorov, 1988).
      &     lmd_sdd3=0.85)    !
      
+# undef LMD_NUW_GARGETT
 # ifdef LMD_RIMIX
+#  define RI_HSMOOTH
+#  undef  RI_VSMOOTH
       real Ri, ratio, dudz,dvdz,shear2
 # endif
 # ifdef LMD_BOTEK
@@ -135,8 +138,6 @@
 
 
 # ifdef LMD_RIMIX
-#  define RI_HORAVG
-#  define RI_VERAVG
 !
 ! Compute Richardson number.
 !-------------------------------------------------------------------
@@ -191,7 +192,7 @@
           enddo
         enddo
 
-#  ifdef RI_HORAVG
+#  ifdef RI_HSMOOTH
 #   ifndef EW_PERIODIC
         if (WESTERN_EDGE) then
           do j=J_EXT_RANGE
@@ -247,10 +248,10 @@
      &                      +Rig(i,j-1,0)+Rig(i-1,j-1,0))
           enddo
         enddo    !--> discard  Rig(:,:,0)
+#  endif /* RI_HSMOOTH */
       enddo  !--> k loop
 
-#  endif /* RI_HORAVG */
-#  ifdef RI_VERAVG
+#  ifdef RI_VSMOOTH
 !
 !  Smooth Rig vertically at the interior points.
 !
@@ -263,7 +264,7 @@
           enddo
         enddo
       enddo
-#  endif /* RI_VERAVG */
+#  endif /* RI_VSMOOTH */
 # endif /* LMD_RIMIX */
 
       do k=1,N-1
@@ -292,15 +293,18 @@
 # endif
 
 !
-!  Compute interior diffusivity due to wave breaking (Gargett and
-!  Holloway.
+!  Compute interior diffusivity due to wave breaking 
+!  (choose constant values as in Large et al. or 
+!   Gargett and Holloway parameterization)
 !
+# ifdef LMD_NUW_GARGETT
            cff=1./SQRT(MAX(bvf(i,j,k),1.e-7))
            lmd_iwm=1.e-6*cff
            lmd_iws=1.e-7*cff
-!           lmd_iwm=lmd_nuwm
-!           lmd_iws=lmd_nuws
-
+# else
+           lmd_iwm=lmd_nuwm
+           lmd_iws=lmd_nuws
+# endif
 !
 ! Compute interior convective diffusivity due to
 ! static instability mixing.
