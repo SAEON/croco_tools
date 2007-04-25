@@ -1,26 +1,31 @@
 #include "cppdefs.h"
+#if defined key_passivetrc && defined key_trc_pisces
 
-      SUBROUTINE pisces_ini(tile)
+      subroutine pisces_ini(tile)
 
       implicit none
-#include "param.h"
       integer tile
+#include "param.h"
 #include "compute_tile_bounds.h"
-C
-#if defined key_passivetrc && defined key_trc_pisces
-CC   ------------------------------------------------------------------
-CCC
-CCC   ROUTINE romspisces : PISCES MODEL
-CCC   *****************************
-CCC
+      call pisces_ini_tile (Istr,Iend,Jstr,Jend)
+      return
+      end
+
+      subroutine pisces_ini_tile (Istr,Iend,Jstr,Jend)
+CC
+CC -----------------------------------------------------------------
+CC
+CC   ROUTINE romspisces : PISCES MODEL
+CC   *****************************
+CC
 CC
 CC     PURPOSE.
 CC     --------
 CC          *ROMSPISCES* ECOSYSTEM MODEL IN THE WHOLE OCEAN
 CC                       THIS ROUTINE COMPUTES THE DIFFERENT
-C                        INTERACTIONS
+CC                       INTERACTIONS
 CC                       BETWEEN THE DIFFERENT COMPARTMENTS OF THE
-C                        MODEL
+CC                       MODEL
 CC ----------------------------------------------------------------
 CC parameters and commons
 CC ======================
@@ -30,5 +35,10 @@ CC ======================
       CALL trclsm
       CALL trcini(Istr,Iend,Jstr,Jend)
 
-#endif
-       END
+      return
+      end
+#else
+      subroutine pisces_ini_empty
+      end
+#endif /* key_passivetrc && key_trc_pisces */
+

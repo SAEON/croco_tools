@@ -29,7 +29,7 @@ CC      COMMON
 CC
 CC   WORKSPACE :
 CC   ---------
-CC      ji jj jk
+CC      i j k
 CC
 CC
 CC   EXTERNAL :
@@ -50,7 +50,7 @@ CC local declarations
 CC ==================
 # if defined key_passivetrc
 
-      INTEGER ji,jj,jk,jn,jl
+      INTEGER i,j,k,itrc
 CCC---------------------------------------------------------------------
 CCC  OPA8, LODYC (15/11/96)
 CCC---------------------------------------------------------------------
@@ -64,11 +64,11 @@ C
 C
 C 1. initialization of passives tracers field
 C -------------------------------------------
-      DO jn=1,jptra
-        DO jk=1,jpk
-          DO jj=Jstr,Jend
-            DO ji=Istr,Iend
-              trn(ji,jj,jk,jn)=0.e0
+      DO itrc=1,jptra
+        DO k=1,jpk
+          DO j=Jstr,Jend
+            DO i=Istr,Iend
+              trn(i,j,k,n)=0.e0
             END DO
           END DO
         END DO
@@ -77,18 +77,18 @@ C -------------------------------------------
 CCC Christophe Menkes. This is already done in init_array.F in ROMS
 c$$$#    if defined key_trc_diaadd
 c$$$C initialization of output 2d and 3d arrays
-c$$$      DO jn=1,jpdia2d
-c$$$          DO jj=Jstr,Jend
-c$$$            DO ji=Istr,Iend
-c$$$            bioVSink(ji,jj,jn)=0.e0
+c$$$      DO itrc=1,jpdia2d
+c$$$          DO j=Jstr,Jend
+c$$$            DO i=Istr,Iend
+c$$$            bioVSink(i,j,n)=0.e0
 c$$$          END DO
 c$$$        END DO
 c$$$      END DO
-c$$$      DO jn=1,jpdia3d
-c$$$        DO jk=1,jpk
-c$$$          DO jj=Jstr,Jend
-c$$$            DO ji=Istr,Iend
-c$$$              bioFlux(ji,jj,jk,jn)=0.e0
+c$$$      DO itrc=1,jpdia3d
+c$$$        DO k=1,jpk
+c$$$          DO j=Jstr,Jend
+c$$$            DO i=Istr,Iend
+c$$$              bioFlux(i,j,k,n)=0.e0
 c$$$            END DO
 c$$$          END DO
 c$$$        END DO

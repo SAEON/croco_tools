@@ -700,13 +700,13 @@
 #ifdef AVERAGES
      &                                ,   avgname
 #endif
-#if defined DIAGNOSTICS_TS 
+#ifdef DIAGNOSTICS_TS 
      &                                ,  dianame
 # ifdef AVERAGES
      &                                ,  dianame_avg
 # endif
 #endif
-#if defined DIAGNOSTICS_UV
+#ifdef DIAGNOSTICS_UV
      &                                ,  dianameM
 # ifdef AVERAGES
      &                                ,  dianameM_avg
@@ -724,16 +724,17 @@
  || (defined M3CLIMATOLOGY && !defined ANA_M3CLIMA)
      &                                ,   clmname
 #endif
-#if  defined T_FRC_BRY  || defined M2_FRC_BRY || \
-     defined M3_FRC_BRY || defined Z_FRC_BRY
+#ifdef FRC_BRY 
      &                                ,   bry_file
 #endif
 #ifdef ASSIMILATION
      &                      ,  aparnam,   assname
 #endif
-
+#ifdef BIOLOGY
+     &                                ,   bioname
+#endif
 #ifdef SEDIMENT
-      character*80  sedinam
+     &                                ,   sedname
 #endif
 
 #ifdef SOLVE3D
@@ -772,15 +773,17 @@
  || (defined M3CLIMATOLOGY && !defined ANA_M3CLIMA)
      &                                ,   clmname
 #endif
-#if  defined T_FRC_BRY  || defined M2_FRC_BRY || \
-     defined M3_FRC_BRY || defined Z_FRC_BRY
+#ifdef FRC_BRY
      &                                ,   bry_file
 #endif
 #ifdef ASSIMILATION
      &                      ,  aparnam,   assname
 #endif
 #ifdef SEDIMENT
-     &                      ,  sedinam
+     &                      ,  sedname
+#endif
+#ifdef BIOLOGY
+     &                      ,  bioname
 #endif
      &                      ,  vname
 

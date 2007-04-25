@@ -439,9 +439,9 @@ C        endif
 !  Read in initial float locations.
 !---------------------------------------------------------------------
 !
-      lstr=lenstr(sedinam)
+      lstr=lenstr(sedname)
 
-      open(iunit,file=sedinam(1:lstr),form='formatted',
+      open(iunit,file=sedname(1:lstr),form='formatted',
      &  status='old', err=195)
 !
 !  Read input parameters according to their input card number.
@@ -529,16 +529,16 @@ C        endif
 !
 !  Error while reading input parameters.
 !
-  40  write(stdout,50) icard, i, Nclass, sedinam
+  40  write(stdout,50) icard, i, Nclass, sedname
   50  format(/,' INIT_SEDIMENTS - error reading variables in card: ',
      &             i2, ', entry: ',i3,/,15x,
      &             'nclass:',i3, 'input script: ',a)
   
-  60  write(stdout,80) icard, sedinam
+  60  write(stdout,80) icard, sedname
   80  format(/,' INIT_SEDIMENTS - error while reading input card: ',
      &       i2,15x,'in input script: ',a)
 
- 195  write(stdout,205) sedinam
+ 195  write(stdout,205) sedname
  205  format(/,'sediment inputfile ',A,/, 
      &   ' not found sediment initialization', ' from restart file')
 

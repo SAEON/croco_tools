@@ -237,6 +237,23 @@
         MPI_master_only write(stdout,'(2x,A,2x,A)')
      &             'Forcing Data File:', frcname(1:lstr)
 !
+! Biology forcing: iron dust deposition. 
+!
+# ifdef BIOLOGY
+      elseif (keyword(1:kwlen).eq.'biology') then
+        call cancel_kwd (keyword(1:kwlen), ierr)
+        read(input,'(A)',err=95) fname
+        lstr=lenstr(fname)
+#  if defined MPI && defined PARALLEL_FILES
+        call insert_node (fname, lstr, mynode, NNODES, ierr)
+#  endif
+c        open (testunit, file=fname(1:lstr), status='old', err=97)
+c        close(testunit)
+        bioname=fname(1:lstr)
+        MPI_master_only write(stdout,'(2x,A,2x,A)')
+     &             'Biology Forcing Data File:', bioname(1:lstr)
+# endif
+!
 ! Bulk file name. Check its availability.
 !
 # if defined BULK_FLUX
@@ -1120,12 +1137,12 @@
 !
       elseif (keyword(1:kwlen).eq.'sediments') then
         call cancel_kwd (keyword(1:kwlen), ierr)
-        read(input,'(A)',err=95) sedinam
-        lstr=lenstr(sedinam)
+        read(input,'(A)',err=95) sedname
+        lstr=lenstr(sedname)
     
         MPI_master_only write(stdout,
      &              '(/9x,A,2x,A)')
-     &        'Sediment input file:',sedinam
+     &        'Sediment input file:',sedname
 
       elseif (keyword(1:kwlen).eq.'sediment_history_fields') then
         call cancel_kwd (keyword(1:kwlen), ierr)

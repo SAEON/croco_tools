@@ -80,6 +80,8 @@ diagbio_avg: ldefdiabio_avg  ntsdiabio_avg  nwrtdiabio_avg  nprfdiabio_avg /file
                   T              1              72              0
                                  roms_diabio_avg.nc
 
+biology:   forcing file
+           roms_frcbio.nc
 
 sediments: input file
            sediment.in
