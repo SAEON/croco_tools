@@ -27,11 +27,15 @@ clear all
 close all
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
 disp(' ')
-disp('Adding iron dust deposition into forcing file')
+disp('Creating biology forcing file')
 %
 %  Title - Grid file name - Forcing file name
 %
 romstools_param
+%
+% bioname
+%
+bioname='roms_frcbio.nc'
 %
 % Dust deposition file 
 %
@@ -54,11 +58,14 @@ lat=nc{'lat_rho'}(:);
 angle=nc{'angle'}(:);
 result=close(nc);
 %
-% Add dust variables in forcing file
+% create dust forcing file
 %
-disp(' Creating dust variables and attributes in forcing file')
-nc=netcdf(frcname,'write');
-redef(nc);
+disp(' Creating file')
+nc = netcdf(bioname, 'clobber');
+result = redef(nc);
+%
+nc('xi_rho') = Lp;
+nc('eta_rho') = Mp;
 %
 nc('dust_time') = length(time);;
 nc{'dust_time'} = ncdouble('dust_time') ;
@@ -80,6 +87,15 @@ nc{'dust'}.fields = ncchar('dust, scalar, series');
 nc{'dust'}.fields = 'dust, scalar, series';
 %
 endef(nc);
+% Create global attributes
+nw.title = ncchar(ROMS_title);
+nw.title = ROMS_title;
+nw.date = ncchar(date);
+nw.date = date;
+nw.grd_file = ncchar(bioname);
+nw.grd_file = grdname;
+nw.type = ncchar('ROMS biology forcing file');
+nw.type = 'ROMS biology forcing file';
 %
 nc{'dust_time'}(:)=time*30; % if time in month in the dataset !!!
 %
