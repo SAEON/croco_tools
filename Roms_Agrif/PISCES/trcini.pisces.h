@@ -72,7 +72,7 @@ C
          lstr=lenstr(bioname)
          ierr=nf_open (bioname(1:lstr), nf_nowrite, ncid)
          if (ierr .ne. nf_noerr) then
-	   write(stdout,3) bioname
+	   write(stdout,4) bioname
 	 endif
          ierr=nf_inq_varid (ncid,"dust",varid)
          if (ierr .ne. nf_noerr) then
@@ -93,7 +93,7 @@ C
 #ifdef MPI
      &                                                      , mynode
 #endif
-  3      format(/,' TRCINI_PISCES - unable to open forcing netCDF ',
+  4      format(/,' TRCINI_PISCES - unable to open forcing netCDF ',
      &                                                              1x,A)
   5      format(/,' TRCINI_PISCES - unable to find forcing variable: ',A,
      &                          /,14x,'in forcing netCDF file: ',A)
@@ -102,7 +102,7 @@ C
 
        do j=Jstr,Jend
 	  do i=Istr,Iend
-            dustmo(i,j,:)=dustmp(i+1,j+1,:)
+            dustmo(i,j,:)=dustmp(i,j,:)
           end do
        end do
 
