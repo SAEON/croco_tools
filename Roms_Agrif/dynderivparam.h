@@ -44,7 +44,8 @@
 #endif
       sse=size_ETA/Np; ssz=Np/size_ETA
       se=sse/(sse+ssz);   sz=1-se
-
+      N1dXI = size_XI
+      N1dETA = size_ETA
       N2d=size_XI*(se*size_ETA+sz*Np)
       N3d=size_XI*size_ETA*Np
 

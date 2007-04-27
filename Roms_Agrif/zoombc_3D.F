@@ -255,25 +255,6 @@ C$OMP BARRIER
         enddo
       endif      
 #  endif
-
-!      ainterp(1)=0.
-!      ainterp(2)=-(1.-2*gamma)*(1./(-2.+4*gamma))*(-2.)/rrhot
-!      ainterp(3)=-(1.-2*gamma)*(1./(-2.+4*gamma))*(1.-4*gamma)/rrhot
-!      ainterp(4)=-(1.-2*gamma)*(1./(-2.+4*gamma))*(1.+4*gamma)/rrhot
-!      ainterp(5)=(0.5-2.*gamma)
-!      ainterp(6)=(0.5+2.*gamma)
-      
-!      IF ((nbstep3dparent .NE. 0) .AND. (nnew ==3)) THEN
-!      do k=1,N
-!      do j=JstR,JendR
-!      uclm(Istr,j,k)=
-!     & (0.5+2.*gamma)*u(Istr,j,k,nstp)+(0.5-2.*gamma)
-!     &*u(Istr,j,k,3-nstp)-(1.-2*gamma)*(1./(-2.+4*gamma))*
-!     &((1.+4*gamma)*U_west(Istr,j,k,4)+(1.-4*gamma)*U_west(Istr,j,k,3)
-!     &-2.*U_west(Istr,j,k,2))*(1./rrhot)
-!      enddo
-!      enddo
-!      ENDIF
       
 #  ifdef AGRIF_OBC_EAST
       if (EASTERN_EDGE) then      
@@ -792,9 +773,9 @@ C$OMP BARRIER
        ENDIF
 !      
 #  ifdef AGRIF_OBC_SOUTH
-      if (SOUTHERN_EDGE) then
-        do k=1,N      
-          do i=IstrR,IendR
+       if (SOUTHERN_EDGE) then
+         do k=1,N      
+           do i=IstrR,IendR
 #   ifdef T_FRC_BRY
             tbry_south(i,k,itrc)=
 #   else
@@ -807,17 +788,6 @@ C$OMP BARRIER
 #   ifdef MASKING     
      &        *rmask(i,Jstr-1)
 #   endif
-!            tclm(i,Jstr-1,k,itrc)=
-!     &    0.5*(2.*
-!     &     (ainterp(1)*T_south(i,Jstr-1,k,1,itrc)+
-!     &      ainterp(2)*T_south(i,Jstr-1,k,2,itrc)+
-!     &      ainterp(3)*T_south(i,Jstr-1,k,3,itrc)+
-!     &      ainterp(4)*T_south(i,Jstr-1,k,4,itrc)) 
-!     &   - (ainterp(1)*T_south(i,Jstr,k,1,itrc)+
-!     &      ainterp(2)*T_south(i,Jstr,k,2,itrc)+
-!     &      ainterp(3)*T_south(i,Jstr,k,3,itrc)+
-!     &      ainterp(4)*T_south(i,Jstr,k,4,itrc))+
-!     &     t(i,Jstr,k,nnew,itrc))
           enddo
         enddo
       endif
@@ -837,20 +807,7 @@ C$OMP BARRIER
      &      ainterp(4)*T_north(i,Jend+1,k,4,itrc))     
 #   ifdef MASKING     
      &          *rmask(i,Jend+1)
-#   endif  
-
-!            tclm(i,Jend+1,k,itrc)=
-!     &    0.5*(2.*
-!     &     (ainterp(1)*T_north(i,Jend+1,k,1,itrc)+
-!     &      ainterp(2)*T_north(i,Jend+1,k,2,itrc)+
-!     &      ainterp(3)*T_north(i,Jend+1,k,3,itrc)+
-!     &      ainterp(4)*T_north(i,Jend+1,k,4,itrc)) 
-!     &   - (ainterp(1)*T_north(i,Jend,k,1,itrc)+
-!     &      ainterp(2)*T_north(i,Jend,k,2,itrc)+
-!     &      ainterp(3)*T_north(i,Jend,k,3,itrc)+
-!     &      ainterp(4)*T_north(i,Jend,k,4,itrc))+
-!     &     t(i,Jend,k,nnew,itrc))
-        
+#   endif
           enddo
         enddo
       endif      
@@ -871,17 +828,6 @@ C$OMP BARRIER
 #   ifdef MASKING     
      &         *rmask(Istr-1,j)
 #   endif
-!            tclm(Istr-1,j,k,itrc)=
-!     &    0.5*(2.*
-!     &     (ainterp(1)*T_west(Istr-1,j,k,1,itrc)+
-!     &      ainterp(2)*T_west(Istr-1,j,k,2,itrc)+
-!     &      ainterp(3)*T_west(Istr-1,j,k,3,itrc)+
-!     &      ainterp(4)*T_west(Istr-1,j,k,4,itrc)) 
-!     &   - (ainterp(1)*T_west(Istr,j,k,1,itrc)+
-!     &      ainterp(2)*T_west(Istr,j,k,2,itrc)+
-!     &      ainterp(3)*T_west(Istr,j,k,3,itrc)+
-!     &      ainterp(4)*T_west(Istr,j,k,4,itrc))+
-!     &     t(Istr,j,k,nnew,itrc))
           enddo
         enddo
       endif      
@@ -901,19 +847,8 @@ C$OMP BARRIER
      &      ainterp(4)*T_east(Iend+1,j,k,4,itrc))       
 #   ifdef MASKING     
      &        *rmask(Iend+1,j)
-#   endif     
-!            tclm(Iend+1,j,k,itrc)=
-!     &    0.5*(2.*
-!     &     (ainterp(1)*T_east(Iend+1,j,k,1,itrc)+
-!     &      ainterp(2)*T_east(Iend+1,j,k,2,itrc)+
-!     &      ainterp(3)*T_east(Iend+1,j,k,3,itrc)+
-!     &      ainterp(4)*T_east(Iend+1,j,k,4,itrc)) 
-!     &   - (ainterp(1)*T_east(Iend,j,k,1,itrc)+
-!     &      ainterp(2)*T_east(Iend,j,k,2,itrc)+
-!     &      ainterp(3)*T_east(Iend,j,k,3,itrc)+
-!     &      ainterp(4)*T_east(Iend,j,k,4,itrc))+
-!     &     t(Iend,j,k,nnew,itrc))
-          enddo
+#   endif
+           enddo
         enddo
       endif
 #  endif     

@@ -51,6 +51,7 @@
      &     UFx(PRIVATE_2D_SCRATCH_ARRAY), cff,
      &     VFe(PRIVATE_2D_SCRATCH_ARRAY),
      &     VFx(PRIVATE_2D_SCRATCH_ARRAY)
+     
 # include "param.h"
 # include "scalars.h"
 # include "grid.h"
@@ -69,47 +70,192 @@
 #  define LOCALLM Lm
 #  define LOCALMM Mm
 # endif
-
+      real uspongeloc(PRIVATE_2D_SCRATCH_ARRAY,N)
+      real vspongeloc(PRIVATE_2D_SCRATCH_ARRAY,N)
        integer decal
+       real tinterp,onemtinterp, rrhot
+       integer :: nold
+       integer :: irhot
        
        external interpspongeu, interpspongev
 !
 # include "compute_auxiliary_bounds.h"
-!
-!     IF (mod(nbstep3d,Agrif_Irhot()).NE.0) RETURN
 
+      irhot = Agrif_Irhot()
+      rrhot = real(irhot)
+      decal = 2*max(Agrif_Irhox(),Agrif_Irhoy())+1
+                       
+      If (nbcoarse == 1) THEN
+      do k=1,N
+      do j=JstrR,JendR
+      do i=IstrR,IendR
+      usponge(i,j,k) = 0.
+      vsponge(i,j,k) = 0.
+      enddo
+      enddo
+      enddo
+      
 C$OMP BARRIER
 C$OMP MASTER
-      decal = 2*max(Agrif_Irhox(),Agrif_Irhoy())+1
-      Call Agrif_Set_bc(Huon,(/-decal,0/),
-     &     InterpolationShouldbemade=.TRUE.)
-      Call Agrif_Set_bc(Hvom,(/-decal,0/),
-     &     InterpolationShouldbemade=.TRUE.)
-      usponge = 0.
-      vsponge = 0.
-      Call Agrif_Bc_Variable(usponge,Huon,procname=interpspongeu)
-      Call Agrif_Bc_Variable(vsponge,Hvom,procname=interpspongev)
 
-      
-      do k=1,N
-      do j=0,Mm+1
-      do i=0,Lm+1
-        usponge(i,j,k) = (u(i,j,k,nstp) - usponge(i,j,k))*umask(i,j)
-      enddo
-      enddo
-      enddo
-      
-      do k=1,N
-      do j=0,Mm+1
-      do i=0,Lm+1
-        vsponge(i,j,k) = (v(i,j,k,nstp) - vsponge(i,j,k))*vmask(i,j)
-      enddo
-      enddo
-      enddo
+      Call Agrif_Set_bc(usponge,(/-decal,0/),
+     &         InterpolationShouldbemade=.TRUE.)
+      Call Agrif_Set_bc(vsponge,(/-decal,0/),
+     &         InterpolationShouldbemade=.TRUE.)
 
+       tinterp = 1.
+               
+      Call Agrif_Bc_Variable(usponge,usponge,calledweight=tinterp,
+     &                         procname=interpspongeu)
+      Call Agrif_Bc_Variable(vsponge,vsponge,calledweight=tinterp,
+     &                         procname=interpspongev)
+
+      UTimesponge = 3 - UTimesponge
 C$OMP END MASTER
 C$OMP BARRIER
 
+       if (SOUTHERN_EDGE) then  
+         do k=1,N
+         do j=0,decal
+         do i=Istr-1,Iend+1
+          U_sponge_south(i,j,k,UTimesponge)=
+     &              usponge(i,j,k)       
+          V_sponge_south(i,j,k,UTimesponge)=
+     &              vsponge(i,j,k)         
+         enddo
+         enddo
+         enddo
+       endif
+                     
+      if (NORTHERN_EDGE) then
+         do k=1,N
+         do j=Jend-decal,Jend+1
+         do i=Istr-1,Iend+1
+          U_sponge_north(i,j,k,UTimesponge)=
+     &              usponge(i,j,k)          
+          V_sponge_north(i,j,k,UTimesponge)=
+     &              vsponge(i,j,k)     
+         enddo
+         enddo
+         enddo
+       endif               
+
+
+      if (WESTERN_EDGE) then
+         do k=1,N
+         do j=Jstr-1,Jend+1
+         do i=0,decal      
+          U_sponge_west(i,j,k,UTimesponge)=
+     &              usponge(i,j,k)       
+          V_sponge_west(i,j,k,UTimesponge)=
+     &              vsponge(i,j,k)        
+         enddo
+         enddo
+         enddo
+       endif
+                    
+      if (EASTERN_EDGE) then  
+         do k=1,N
+         do j=Jstr-1,Jend+1
+         do i=Iend-decal,Iend+1    
+          U_sponge_east(i,j,k,UTimesponge)=
+     &              usponge(i,j,k)    
+          V_sponge_east(i,j,k,UTimesponge)=
+     &              vsponge(i,j,k)             
+         enddo
+         enddo
+         enddo  
+       endif
+      
+C$OMP BARRIER  
+      ENDIF    
+
+      uspongeloc = 0.
+      vspongeloc = 0.
+
+       tinterp = real(nbcoarse-1)/rrhot
+       IF (nbstep3d .LT. irhot) tinterp = 0.
+       onemtinterp = -tinterp
+       tinterp = 1.+tinterp
+       
+       nold = 3 - UTimesponge
+
+       if (SOUTHERN_EDGE) then
+       do k=1,N
+       do j=0,decal
+       do i=Istr-1,Iend+1
+          uspongeloc(i,j,k) =
+     &          (u(i,j,k,nstp)
+     &       -onemtinterp*U_sponge_south(i,j,k,nold)
+     &       -tinterp*U_sponge_south(i,j,k,UTimesponge))
+     &           *umask(i,j)  
+          vspongeloc(i,j,k) =
+     &          (v(i,j,k,nstp)
+     &       -onemtinterp*V_sponge_south(i,j,k,nold)
+     &       -tinterp*V_sponge_south(i,j,k,UTimesponge))
+     &           *vmask(i,j)            
+       enddo
+       enddo
+       enddo
+       endif
+       
+       if (NORTHERN_EDGE) then
+       do k=1,N
+       do j=Jend-decal,Jend+1
+       do i=Istr-1,Iend+1
+          uspongeloc(i,j,k) =
+     &          (u(i,j,k,nstp)
+     &       -onemtinterp*U_sponge_north(i,j,k,nold)
+     &       -tinterp*U_sponge_north(i,j,k,UTimesponge))
+     &           *umask(i,j)     
+          vspongeloc(i,j,k) =
+     &          (v(i,j,k,nstp)
+     &       -onemtinterp*V_sponge_north(i,j,k,nold)
+     &       -tinterp*V_sponge_north(i,j,k,UTimesponge))
+     &           *vmask(i,j)        
+       enddo
+       enddo
+       enddo           
+       endif
+       
+      if (WESTERN_EDGE) then
+         do k=1,N
+         do j=Jstr-1,Jend+1
+         do i=0,decal
+          uspongeloc(i,j,k) =
+     &          (u(i,j,k,nstp)
+     &       -onemtinterp*U_sponge_west(i,j,k,nold)
+     &       -tinterp*U_sponge_west(i,j,k,UTimesponge))
+     &           *umask(i,j)
+          vspongeloc(i,j,k) =
+     &          (v(i,j,k,nstp)
+     &       -onemtinterp*V_sponge_west(i,j,k,nold)
+     &       -tinterp*V_sponge_west(i,j,k,UTimesponge))
+     &           *vmask(i,j)     
+         enddo
+         enddo
+         enddo
+       endif      
+       
+      if (EASTERN_EDGE) then    
+         do k=1,N
+         do j=Jstr-1,Jend+1
+         do i=Iend-decal,Iend+1    
+          uspongeloc(i,j,k) =
+     &          (u(i,j,k,nstp)
+     &       -onemtinterp*U_sponge_east(i,j,k,nold)
+     &       -tinterp*U_sponge_east(i,j,k,UTimesponge))
+     &           *umask(i,j)    
+          vspongeloc(i,j,k) =
+     &          (v(i,j,k,nstp)
+     &       -onemtinterp*V_sponge_east(i,j,k,nold)
+     &       -tinterp*V_sponge_east(i,j,k,UTimesponge))
+     &           *vmask(i,j)         
+         enddo
+         enddo
+         enddo 
+       endif
+                          
       indx=3-nstp    !--> time index for target arrays;
 
             
@@ -121,11 +267,11 @@ C$OMP BARRIER
         do j=JstrV-1,Jend
           do i=IstrU-1,Iend
             cff=0.5*Hz(i,j,k)*visc2_r(i,j)*(
-     &      on_r(i,j)*pm(i,j)*( (pn(i  ,j)+pn(i+1,j))*usponge(i+1,j,k)
-     &                         -(pn(i-1,j)+pn(i  ,j))*usponge(i  ,j,k)
+     &    on_r(i,j)*pm(i,j)*( (pn(i  ,j)+pn(i+1,j))*uspongeloc(i+1,j,k)
+     &                       -(pn(i-1,j)+pn(i  ,j))*uspongeloc(i  ,j,k)
      &                                                              )
-     &     -om_r(i,j)*pn(i,j)*( (pm(i,j  )+pm(i,j+1))*vsponge(i,j+1,k)
-     &                         -(pm(i,j-1)+pm(i,j  ))*vsponge(i,j  ,k)
+     &   -om_r(i,j)*pn(i,j)*( (pm(i,j  )+pm(i,j+1))*vspongeloc(i,j+1,k)
+     &                       -(pm(i,j-1)+pm(i,j  ))*vspongeloc(i,j  ,k)
      &                                                             ))
             UFx(i,j)=on_r(i,j)*on_r(i,j)*cff
             VFe(i,j)=om_r(i,j)*om_r(i,j)*cff
@@ -136,12 +282,12 @@ C$OMP BARRIER
             cff=0.125*visc2_p(i,j)*
      &      (Hz(i-1,j,k)+Hz(i,j,k)+Hz(i-1,j-1,k)+Hz(i,j-1,k))*(
      &      0.25*(pm(i-1,j)+pm(i,j)+pm(i-1,j-1)+pm(i,j-1))*on_p(i,j)
-     &                     *( (pn(i  ,j-1)+pn(i  ,j))*vsponge(i  ,j,k)
-     &                       -(pn(i-1,j-1)+pn(i-1,j))*vsponge(i-1,j,k)
+     &                  *( (pn(i  ,j-1)+pn(i  ,j))*vspongeloc(i  ,j,k)
+     &                    -(pn(i-1,j-1)+pn(i-1,j))*vspongeloc(i-1,j,k)
      &                                                              )
      &     +0.25*(pn(i-1,j)+pn(i,j)+pn(i-1,j-1)+pn(i,j-1))*om_p(i,j)
-     &                     *( (pm(i-1,j  )+pm(i,j  ))*usponge(i,j  ,k)
-     &                       -(pm(i-1,j-1)+pm(i,j-1))*usponge(i,j-1,k)
+     &                  *( (pm(i-1,j  )+pm(i,j  ))*uspongeloc(i,j  ,k)
+     &                  -(pm(i-1,j-1)+pm(i,j-1))*uspongeloc(i,j-1,k)
      &                                                             ))
 # ifdef MASKING
      &                                                   *pmask(i,j)

@@ -139,8 +139,6 @@ C$OMP BARRIER
       my_first=trd*range
       my_last=min(my_first + range-1, NSUB_X*NSUB_E-1)
 
-!      print *,' APPEL DE PRESTEP3D SUR GRILLE ',agrif_fixed(),
-!     &' iif = ',iif
 C$OMP MASTER
 
        
@@ -416,8 +414,6 @@ C$OMP THREADPRIVATE (/tile_ranges/)
 ! Thus, there is no need for the corrector step during the auxiliary
 ! time step.
 !
-!      print *,' APPEL DE STEP2D SUR GRIILE ',agrif_fixed()
-!     &  ,' iif = ',iif
 
 C$OMP MASTER
         kstp=knew                   ! This might look a bit silly,
@@ -498,12 +494,9 @@ C$OMP BARRIER
         endif
 
 #if defined AGRIF && defined AGRIF_2WAY
-C$OMP BARRIER
-C$OMP SINGLE
         if (.not.agrif_root()) then
             call update2d()
         endif
-C$OMP END SINGLE
 #endif
 
       return
@@ -555,8 +548,6 @@ C$OMP THREADPRIVATE (/tile_ranges/)
       Agrif_lev_sedim=Agrif_Nb_Fine_Grids()
 #endif
     
-!          print *,' APPEL DE STEP3D SUR GRIILE ',agrif_fixed(),
-!     &' iif = ',iif
 C$OMP BARRIER
 
 #ifdef SOLVE3D

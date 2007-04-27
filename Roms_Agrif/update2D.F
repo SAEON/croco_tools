@@ -54,24 +54,89 @@
 
       irhot = Agrif_Irhot()
       
-      IF (iif == nfast) THEN
-      IF (nbcoarse == 1) THEN
-      DU_avg1(:,:,4) = 0.
-      DV_avg1(:,:,4) = 0.     
-      ENDIF
+!      IF (iif == nfast) THEN
+!      IF (nbcoarse == 1) THEN
+!      DU_avg1(:,:,4) = 0.
+!      DV_avg1(:,:,4) = 0.     
+!      ENDIF
       
-      invrrhot = 1./real(irhot)
-      DU_avg1(:,:,4) = DU_avg1(:,:,4) + invrrhot * DU_avg2(:,:)
-      DV_avg1(:,:,4) = DV_avg1(:,:,4) + invrrhot * DV_avg2(:,:)
-      ENDIF
+!      invrrhot = 1./real(irhot)
+!      DU_avg1(:,:,4) = DU_avg1(:,:,4) + invrrhot * DU_avg2(:,:)
+!      DV_avg1(:,:,4) = DV_avg1(:,:,4) + invrrhot * DV_avg2(:,:)
+!      ENDIF
       
 
       
       IF ((mod(iif+(nbcoarse-1)*mod(nfast,irhot),irhot).NE.0)) RETURN
 
+C$OMP BARRIER
+C$OMP SINGLE
         irhox = Agrif_Irhox()
         irhoy = Agrif_Irhoy()
              
+
+
+     
+      Call Agrif_Set_Parent(indupdate,0) 
+        
+#ifdef MASKING
+      Agrif_UseSpecialValueInUpdate = .TRUE.
+#endif
+      Agrif_SpecialValueFineGrid = 0.
+      
+      indupdate = 0
+      
+      global_update_2d = .FALSE.
+           
+      Call Agrif_Update_Variable(tabtemp,Zt_avg3,
+     &         locupdate=(/0,0/),procname = updatezeta)
+
+      Agrif_UseSpecialValueInUpdate = .FALSE.
+            
+      Call Agrif_Update_Variable(tabtemp,DU_avg1,
+     &         locupdate=(/0,0/),procname = updateubar)
+     
+      Call Agrif_Update_Variable(tabtemp,DV_avg1,
+     &         locupdate=(/0,0/),procname = updatevbar) 
+
+
+          
+      
+      IF (iif == nfast) THEN
+        
+      IF (nbcoarse == irhot) THEN
+
+      global_update_2d = .TRUE.
+
+#ifdef MASKING
+      Agrif_UseSpecialValueInUpdate = .TRUE.
+#endif
+      Agrif_SpecialValueFineGrid = 0.
+      
+      Call Agrif_Update_Variable(tabtemp,Zt_avg3,
+     &         procname = updatezeta)
+      
+      Call Agrif_Update_Variable(tabtemp,DU_avg1,
+     &         procname = updateubar)
+     
+      Call Agrif_Update_Variable(tabtemp,DV_avg1,
+     &         procname = updatevbar)      
+      
+!      Call Agrif_Update_Variable(tabtemp(:,:,1),DU_avg2,
+!     &         procname = updateduavg2)
+     
+!      Call Agrif_Update_Variable(tabtemp(:,:,1),DV_avg2,
+!     &         procname = updatedvavg2)  
+
+      Agrif_UseSpecialValueInUpdate = .FALSE.
+
+             
+      ENDIF
+      
+      ENDIF
+C$OMP END SINGLE
+
+      return
 
       ztavg1_parent=>
      &Agrif_Parent(Zt_avg1)
@@ -102,62 +167,7 @@
      &Agrif_Parent(nnew)
       parenth=>
      &Agrif_Parent(h)
-     
-      Call Agrif_Set_Parent(indupdate,0) 
-        
-#ifdef MASKING
-      Agrif_UseSpecialValueInUpdate = .TRUE.
-#endif
-      Agrif_SpecialValueFineGrid = 0.
-      
-      indupdate = 0
-      
-      global_update_2d = .FALSE.
            
-      Call Agrif_Update_Variable(tabtemp,Zt_avg3,
-     &         locupdate=(/0,0/),procname = updatezeta)
-      
-      Call Agrif_Update_Variable(tabtemp,DU_avg1,
-     &         locupdate=(/0,0/),procname = updateubar)
-     
-      Call Agrif_Update_Variable(tabtemp,DV_avg1,
-     &         locupdate=(/0,0/),procname = updatevbar) 
-
-      Agrif_UseSpecialValueInUpdate = .FALSE.
-          
-!      RETURN
-      
-      IF (iif == nfast) THEN
-        
-      IF (nbcoarse == irhot) THEN
-!      print *,'JUPDATE DUAVG2'
-
-      global_update_2d = .TRUE.
-
-#ifdef MASKING
-      Agrif_UseSpecialValueInUpdate = .TRUE.
-#endif
-      Agrif_SpecialValueFineGrid = 0.
-      
-      Call Agrif_Update_Variable(tabtemp,Zt_avg3,
-     &         procname = updatezeta)
-      
-      Call Agrif_Update_Variable(tabtemp,DU_avg1,
-     &         procname = updateubar)
-     
-      Call Agrif_Update_Variable(tabtemp,DV_avg1,
-     &         procname = updatevbar)      
-      
-!      Call Agrif_Update_Variable(tabtemp(:,:,1),DU_avg2,
-!     &         procname = updateduavg2)
-     
-!      Call Agrif_Update_Variable(tabtemp(:,:,1),DV_avg2,
-!     &         procname = updatedvavg2)  
-
-      Agrif_UseSpecialValueInUpdate = .FALSE.
-      
-      return
-      
       ztavg1_parent=>
      &Agrif_Parent(Zt_avg1)
       duavg2parent=>
@@ -217,35 +227,6 @@
       Ztavg1_parent(ipv,jpv)=Ztavg1_parent(ipv,jpv)+t2
       EndDo    
       
-
-!      rmaskparent=>
-!     &Agrif_Parent(rmask)
-     
-!      t1 = 0.
-!      do j=1,59
-!      do i=1,59
-!      t1=t1+Ztavg1_parent(i,j)*rmaskparent(i,j)
-!      enddo
-!      enddo
-      
-!      do j=Agrif_iy(),Agrif_iy()+Mm/3-1
-!      do i=Agrif_ix(),Agrif_ix()+Lm/3-1
-!      t1=t1-Ztavg1_parent(i,j)*rmaskparent(i,j)
-!      enddo
-!      enddo
-          
-!      do j=1,Mm
-!      do i=1,Lm
-!      t1=t1+rmask(i,j)*Zt_avg1(i,j)/9.
-!      enddo
-!      enddo  
-            
-!      print *,'VOLUME = ',t1
-             
-      ENDIF
-      
-      ENDIF
-          
       return
       end
       
@@ -278,8 +259,7 @@
       real,dimension(:,:,:),pointer :: coarsevalues
       integer :: iiffine, irhotfine, nbgrid
       common/updateubar2val/finevalues,coarsevalues, iiffine,irhotfine,
-     &   nbgrid 
-      real,dimension(:,:,:),allocatable :: tempvalues  
+     &   nbgrid
 !$AGRIF_END_DO_NOT_TREAT  
        integer irhot, ibegin,isize  
        real tabtemp(i1:i2,j1:j2) 
@@ -398,26 +378,14 @@
          tabtemp = 0.
          do iter=0,iif-1
          cff = -weight2(iif,iter)
-         oldindupdate = indupdate
-         do j=j1,j2
-         do i=i1,i2
-         oldindupdate = oldindupdate + 1
-         tabtemp(i,j) = tabtemp(i,j)
-     &    +cff*coarsevalues(oldindupdate,iter,nbgrid)
-         enddo
-         enddo
+         call copy1d(tabtemp,coarsevalues(indupdate+1,iter,nbgrid),
+     &               cff,isize)
          enddo    
          
          do iter=0,iiffine
          cff=weight2(iiffine,iter)
-         oldindupdate = indupdate
-         do j=j1,j2
-         do i=i1,i2
-          oldindupdate = oldindupdate + 1         
-         tabtemp(i,j) = tabtemp(i,j)
-     &    +cff*finevalues(oldindupdate,iter,nbgrid)
-         enddo
-         enddo         
+         call copy1d(tabtemp,finevalues(indupdate+1,iter,nbgrid),
+     &               cff,isize)
          enddo
          
          tabtemp = tabtemp/weight2(iif,iif)
@@ -470,8 +438,7 @@
       real,dimension(:,:,:),pointer :: coarsevalues
       integer :: iiffine, irhotfine, nbgrid
       common/updateubar2val/finevalues,coarsevalues, iiffine,irhotfine,
-     &   nbgrid 
-      real,dimension(:,:,:),allocatable :: tempvalues  
+     &   nbgrid
 !$AGRIF_END_DO_NOT_TREAT  
        integer irhot, ibegin,isize  
        real tabtemp(i1:i2,j1:j2) 
@@ -588,26 +555,14 @@
          tabtemp = 0.
          do iter=0,iif-1
          cff = -weight2(iif,iter)
-         oldindupdate = indupdate
-         do j=j1,j2
-         do i=i1,i2
-         oldindupdate = oldindupdate + 1
-         tabtemp(i,j) = tabtemp(i,j)
-     &    +cff*coarsevalues(oldindupdate,iter,nbgrid)
-         enddo
-         enddo
+         call copy1d(tabtemp,coarsevalues(indupdate+1,iter,nbgrid),
+     &               cff,isize)
          enddo    
          
          do iter=0,iiffine
          cff=weight2(iiffine,iter)
-         oldindupdate = indupdate
-         do j=j1,j2
-         do i=i1,i2
-          oldindupdate = oldindupdate + 1         
-         tabtemp(i,j) = tabtemp(i,j)
-     &    +cff*finevalues(oldindupdate,iter,nbgrid)
-         enddo
-         enddo         
+         call copy1d(tabtemp,finevalues(indupdate+1,iter,nbgrid),
+     &               cff,isize)        
          enddo
          
          tabtemp = tabtemp/weight2(iif,iif)
@@ -659,8 +614,7 @@
       real,dimension(:,:,:),pointer :: coarsevalues
       integer :: iiffine, irhotfine, nbgrid
       common/updateubar2val/finevalues,coarsevalues, iiffine,irhotfine,
-     &   nbgrid 
-      real,dimension(:,:,:),allocatable :: tempvalues  
+     &   nbgrid
 !$AGRIF_END_DO_NOT_TREAT  
        integer irhot, ibegin,isize  
        real tabtemp(i1:i2,j1:j2) 
@@ -779,26 +733,14 @@
          tabtemp = 0.
          do iter=0,iif-1
          cff = -weight2(iif,iter)
-         oldindupdate = indupdate
-         do j=j1,j2
-         do i=i1,i2
-         oldindupdate = oldindupdate + 1
-         tabtemp(i,j) = tabtemp(i,j)
-     &    +cff*coarsevalues(oldindupdate,iter,nbgrid)
-         enddo
-         enddo
+         call copy1d(tabtemp,coarsevalues(indupdate+1,iter,nbgrid),
+     &               cff,isize)
          enddo    
          
          do iter=0,iiffine
          cff=weight2(iiffine,iter)
-         oldindupdate = indupdate
-         do j=j1,j2
-         do i=i1,i2
-          oldindupdate = oldindupdate + 1         
-         tabtemp(i,j) = tabtemp(i,j)
-     &    +cff*finevalues(oldindupdate,iter,nbgrid)
-         enddo
-         enddo         
+         call copy1d(tabtemp,finevalues(indupdate+1,iter,nbgrid),
+     &               cff,isize)
          enddo
          
          tabtemp = tabtemp/weight2(iif,iif)

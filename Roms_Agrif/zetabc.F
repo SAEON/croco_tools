@@ -50,13 +50,28 @@ c        call zetabc_interp_tile(Istr,Iend,Jstr,Jend)
 #include "grid.h"
 #include "ocean2d.h"
 #include "scalars.h"
+#ifdef AGRIF
+#include "private_scratch.h"
+      integer trd
+C$    integer omp_get_thread_num
+#endif
 !
 #include "compute_auxiliary_bounds.h"
 !
 !  If child grid, interpolate zeta from parent
 !
 #ifdef CHILD
-      call zetabc_interp_tile(Istr,Iend,Jstr,Jend)
+      trd=0
+C$    trd=omp_get_thread_num()
+      call zetabc_interp_tile(Istr,Iend,Jstr,Jend
+     &                    ,A1dETA(1,9+5*NWEIGHT,trd)
+     &                    ,A1dETA(1,11+7*NWEIGHT,trd)
+     &                    ,A1dETA(1,13+9*NWEIGHT,trd)
+     &                    ,A1dETA(1,15+9*NWEIGHT,trd)     
+     &                    ,A1dXI(1,9+5*NWEIGHT,trd)
+     &                    ,A1dXI(1,11+7*NWEIGHT,trd)
+     &                    ,A1dXI(1,13+9*NWEIGHT,trd)
+     &                    ,A1dXI(1,15+9*NWEIGHT,trd))
 #endif
 ! 
 #ifndef EW_COM_PERIODIC
@@ -66,7 +81,7 @@ c        call zetabc_interp_tile(Istr,Iend,Jstr,Jend)
 !====================================================================
       if (WESTERN_EDGE) then
 # if defined OBC_COM_WEST && defined OBC_COM_ZORLANSKI
-!                                           Western edge Radiation BC
+!                                           Eastern edge Radiation BC
 !                                           ======= ==== ========= ==
         do j=Jstr,Jend
           dft=zeta(1,j,kstp)-zeta(1,j,knew)

@@ -421,9 +421,9 @@
       parameter (padd_E=(Mm+2)/2-(Mm+1)/2)
 #endif
 #ifdef AGRIF
-      integer NSA, N2d,N3d
+      integer NSA, N2d,N3d,N1dXI,N1dETA
       parameter (NSA=28)
-      common /scrum_private_param/ N2d,N3d
+      common /scrum_private_param/ N2d,N3d,N1dXI,N1dETA
 #else
       integer NSA, N2d,N3d, size_XI,size_ETA
       integer se,sse, sz,ssz

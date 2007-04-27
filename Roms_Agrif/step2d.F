@@ -379,6 +379,7 @@ czz     cff3=0.0088
 ! computations near western and southern boundaries in non-periodic
 ! directions. 
 !
+
 #ifdef UV_ADV
       do j=jstr,jend
         do i=istr-1,iend
@@ -448,6 +449,9 @@ czz     cff3=0.0088
 !
 ! Compute horizontal viscous stress terms (2D only).
 !
+#ifdef SOLVE3D
+#undef UV_VIS2
+#endif
 # ifdef UV_VIS2
       do j=jstr-1,jend
         do i=istr-1,iend
@@ -681,8 +685,7 @@ czz     cff3=0.0088
 #endif
         enddo
       enddo
-   
-C$OMP BARRIER       
+         
       do j=JstrV,jend
         do i=istr,iend
           DVnew=( (Dstp(i,j)+Dstp(i,j-1))*vbar(i,j,kstp)

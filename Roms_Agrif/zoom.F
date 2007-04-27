@@ -357,41 +357,65 @@ CR      write(*,*) '  0' MYID
       Call Agrif_Set_bcinterp(Zt_avg1,AGRIF_lagrange)
       Call Agrif_Set_bc(Zt_avg1,(/-1,0/))
       
-      Call Agrif_Set_bcinterp(u,agrif_weno)
-      Call Agrif_Set_bcinterp(v,agrif_weno)
+      Call Agrif_Set_bcinterp(u,interp1=agrif_lagrange
+     &  ,interp2=agrif_ppm)
+      Call Agrif_Set_bcinterp(v,interp1=agrif_ppm
+     &  ,interp2=agrif_lagrange)
       Call Agrif_Set_bc(u,(/0,0/))
       Call Agrif_Set_bc(v,(/0,0/))
       
       
-      Call Agrif_Set_bcinterp(t,AGRIF_linear)
+      Call Agrif_Set_bcinterp(t,AGRIF_lagrange)
       Call Agrif_Set_bc(t,(/-1,0/))
 
-      Call Agrif_Set_bcinterp(DU_avg2,agrif_weno)
-      Call Agrif_Set_bcinterp(DV_avg2,agrif_weno)
+      Call Agrif_Set_bcinterp(DU_avg2,interp1=agrif_lagrange
+     &   ,interp2=agrif_ppm)
+      Call Agrif_Set_bcinterp(DV_avg2,interp1=agrif_ppm
+     &  ,interp2=agrif_lagrange)
       Call Agrif_Set_bc(DU_avg2,(/0,0/))
       Call Agrif_Set_bc(DV_avg2,(/0,0/))
 
-      Call Agrif_Set_bcinterp(DU_avg1,agrif_weno)
-      Call Agrif_Set_bcinterp(DV_avg1,agrif_weno)
+      Call Agrif_Set_bcinterp(DU_avg1,interp1=agrif_lagrange
+     &   ,interp2=agrif_ppm)
+      Call Agrif_Set_bcinterp(DV_avg1,interp1=agrif_ppm
+     &  ,interp2=agrif_lagrange)
       Call Agrif_Set_bc(DU_avg1,(/0,0/))
       Call Agrif_Set_bc(DV_avg1,(/0,0/))
       Call Agrif_Set_type(updateTprof,(/2,2,0,0/),(/1,1,0,0/))
-      Call Agrif_Set_raf(updateTprof,(/'x','y','N','N'/))      
+      Call Agrif_Set_type(tsponge,(/2,2,0,0/),(/1,1,0,0/))      
+      Call Agrif_Set_raf(updateTprof,(/'x','y','N','N'/)) 
+      Call Agrif_Set_raf(tsponge,(/'x','y','N','N'/))            
       Call Agrif_Set_type(Huon,(/1,2,0/),(/1,1,0/))
       Call Agrif_Set_raf(Huon,(/'x','y','N'/))
       Call Agrif_Set_type(Hvom,(/2,1,0/),(/1,1,0/))
       Call Agrif_Set_raf(Hvom,(/'x','y','N'/))  
+      
+      Call Agrif_Set_type(usponge,(/1,2,0/),(/1,1,0/))
+      Call Agrif_Set_raf(usponge,(/'x','y','N'/))
+      Call Agrif_Set_type(vsponge,(/2,1,0/),(/1,1,0/))
+      Call Agrif_Set_raf(vsponge,(/'x','y','N'/))      
           
-      Call Agrif_Set_bcinterp(updateTprof,agrif_weno)
+      Call Agrif_Set_bcinterp(updateTprof,agrif_lagrange)
       Call Agrif_Set_bc(updateTprof,(/-1,0/))     
+
+      Call Agrif_Set_bcinterp(tsponge,agrif_lagrange)
+      Call Agrif_Set_bc(tsponge,(/-1,0/))           
       
-      
-      Call Agrif_Set_bcinterp(Huon,agrif_weno)
+      Call Agrif_Set_bcinterp(Huon,interp1=agrif_lagrange
+     &    ,interp2=agrif_ppm)
       Call Agrif_Set_bc(Huon,(/0,0/))     
       
-      Call Agrif_Set_bcinterp(Hvom,agrif_weno)
+      Call Agrif_Set_bcinterp(Hvom,interp1=agrif_ppm
+     &   ,interp2=agrif_lagrange)
       Call Agrif_Set_bc(Hvom,(/0,0/))
 
+      Call Agrif_Set_bcinterp(usponge,interp1=agrif_lagrange
+     &    ,interp2=agrif_ppm)
+      Call Agrif_Set_bc(usponge,(/0,0/))     
+      
+      Call Agrif_Set_bcinterp(vsponge,interp1=agrif_ppm
+     &   ,interp2=agrif_lagrange)
+      Call Agrif_Set_bc(vsponge,(/0,0/))
 #else
       Call Agrif_Set_bcinterp(ubar,AGRIF_linearconserv)
       Call Agrif_Set_bcinterp(vbar,AGRIF_linearconserv)
@@ -401,58 +425,61 @@ CR      write(*,*) '  0' MYID
 
 #ifdef AGRIF_2WAY
       Call Agrif_Set_UpdateType(updateTprof,update=
-     &   Agrif_Update_Full_Weighting)
+     &   Agrif_Update_full_weighting)
 
+      Call Agrif_Set_UpdateType(tsponge,update=
+     &   Agrif_Update_full_weighting)
+     
       Call Agrif_Set_UpdateType(Huon,
-     &update1=Agrif_Update_Full_Weighting,
+     &update1=Agrif_Update_full_weighting,
      &update2=
-     &Agrif_Update_Full_Weighting)
+     &Agrif_Update_full_weighting)
 
       Call Agrif_Set_UpdateType(DU_avg2,update=
-     &Agrif_Update_Full_Weighting)
+     &Agrif_Update_full_weighting)
 
       Call Agrif_Set_UpdateType(DU_avg1,update=
-     &Agrif_Update_Full_Weighting)
+     &Agrif_Update_full_weighting)
 
       Call Agrif_Set_UpdateType(Hvom,update1=
-     &Agrif_Update_Full_Weighting,update2=
-     &Agrif_Update_Full_Weighting)
+     &Agrif_Update_full_weighting,update2=
+     &Agrif_Update_full_weighting)
 
       Call Agrif_Set_UpdateType(DV_avg2,update=
-     &Agrif_Update_Full_Weighting)   
+     &Agrif_Update_full_weighting)   
 
       Call Agrif_Set_UpdateType(DV_avg1,update=
-     &Agrif_Update_Full_Weighting) 
+     &Agrif_Update_full_weighting) 
       
       Call Agrif_Set_UpdateType(Zt_avg1,update=
-     &Agrif_Update_Full_Weighting)  
+     &Agrif_Update_full_weighting)  
 
       Call Agrif_Set_UpdateType(Zt_avg3,update=
-     &Agrif_Update_Full_Weighting)
+     &Agrif_Update_full_weighting)
 
 !       Call Agrif_Set_UpdateType(updateTprof,update=
 !      &   Agrif_Update_Average)
 ! 
 !       Call Agrif_Set_UpdateType(Huon,
-!      &update1=Agrif_Update_Full_Weighting,
+!      &update1=Agrif_Update_Average,
 !      &update2=
-!      &Agrif_Update_Full_Weighting)
+!      &Agrif_Update_Average)
 ! 
 !       Call Agrif_Set_UpdateType(DU_avg2,update=
-!      &Agrif_Update_Full_Weighting)
+!      &Agrif_Update_Average)
 ! 
 !       Call Agrif_Set_UpdateType(DU_avg1,update=
-!      &Agrif_Update_Full_Weighting)
+!      &Agrif_Update_Average)
 ! 
 !       Call Agrif_Set_UpdateType(Hvom,update1=
-!      &Agrif_Update_Full_Weighting,update2=
-!      &Agrif_Update_Full_Weighting)
+!      &Agrif_Update_Average,update2=
+!      &Agrif_Update_Average)
 ! 
 !       Call Agrif_Set_UpdateType(DV_avg2,update=
-!      &Agrif_Update_Full_Weighting)   
+!      &Agrif_Update_Average)   
 ! 
 !       Call Agrif_Set_UpdateType(DV_avg1,update=
-!      &Agrif_Update_Full_Weighting) 
+!      &Agrif_Update_Average) 
 !       
 !       Call Agrif_Set_UpdateType(Zt_avg1,update=
 !      &Agrif_Update_Average)  
@@ -462,37 +489,37 @@ CR      write(*,*) '  0' MYID
 
 
 !       Call Agrif_Set_UpdateType(updateTprof,update=
-!      &   Agrif_Update_Full_Weighting)
+!      &   Agrif_Update_Average)
 ! 
 !       Call Agrif_Set_UpdateType(Huon,
-!      &update1=Agrif_Update_Full_Weighting,
+!      &update1=Agrif_Update_Average,
 !      &update2=Agrif_Update_Average)
 ! 
 !       Call Agrif_Set_UpdateType(DU_avg2,
-!      &update1=Agrif_Update_Full_Weighting,
+!      &update1=Agrif_Update_Average,
 !      &update2=Agrif_Update_Average)
 ! 
 !       Call Agrif_Set_UpdateType(DU_avg1,
-!      &update1=Agrif_Update_Full_Weighting,
+!      &update1=Agrif_Update_Average,
 !      &update2=Agrif_Update_Average)
 ! 
 !       Call Agrif_Set_UpdateType(Hvom,update1=
 !      &Agrif_Update_Average,update2=
-!      &Agrif_Update_Full_Weighting)
+!      &Agrif_Update_Average)
 ! 
 !       Call Agrif_Set_UpdateType(DV_avg2,update1=
 !      &Agrif_Update_Average,update2=
-!      &Agrif_Update_Full_Weighting)
+!      &Agrif_Update_Average)
 ! 
 !       Call Agrif_Set_UpdateType(DV_avg1,update1=
 !      &Agrif_Update_Average,update2=
-!      &Agrif_Update_Full_Weighting)
+!      &Agrif_Update_Average)
 ! 
 !       Call Agrif_Set_UpdateType(Zt_avg1,update=
-!      &Agrif_Update_Full_Weighting)
+!      &Agrif_Update_Average)
 ! 
 !       Call Agrif_Set_UpdateType(Zt_avg3,update=
-!      &Agrif_Update_Full_Weighting)
+!      &Agrif_Update_Average)
 
 
 #endif
@@ -503,18 +530,12 @@ CR      write(*,*) '  0' MYID
       nbcoarse = 1
       nbstep3d = 0
       
+      TTimesponge = 1
+      UTimesponge = 1
+      VTimesponge = 1
+      
       myfx = 0.
       myfy = 0.
-      
-      DU_west1 = 0.
-      DU_east1 = 0.
-      DU_north1 = 0.
-      DU_south1 = 0.
-
-      DV_west1 = 0.
-      DV_east1 = 0.
-      DV_north1 = 0.
-      DV_south1 = 0.
 
 
 #if defined AGRIF_2WAY      

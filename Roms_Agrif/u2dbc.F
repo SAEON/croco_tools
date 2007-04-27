@@ -46,6 +46,11 @@
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j
       real    grad(PRIVATE_2D_SCRATCH_ARRAY)
+#ifdef AGRIF
+#include "private_scratch.h"
+      integer trd
+C$    integer omp_get_thread_num
+#endif       
       real    eps,cff, cx,cy,
      &        dft,dfx,dfy, tau,tau_in,tau_out,hx,zx
       parameter (eps=1.D-20)
@@ -63,7 +68,17 @@
 !
 #ifdef CHILD
 #  ifdef SOLVE3D
-      call u2dbc_interp_tile(Istr,Iend,Jstr,Jend,knew)
+      trd=0
+C$    trd=omp_get_thread_num()
+      call u2dbc_interp_tile(Istr,Iend,Jstr,Jend
+     &                    ,A1dETA(1,5+3*NWEIGHT,trd)
+     &                    ,A1dETA(1,6+4*NWEIGHT,trd)
+     &                    ,A1dETA(1,7+5*NWEIGHT,trd)
+     &                    ,A1dETA(1,8+5*NWEIGHT,trd)     
+     &                    ,A1dXI(1,5+3*NWEIGHT,trd)
+     &                    ,A1dXI(1,6+4*NWEIGHT,trd)
+     &                    ,A1dXI(1,7+5*NWEIGHT,trd)
+     &                    ,A1dXI(1,8+5*NWEIGHT,trd))
 #  else
       Some coding is needed to have AGRIF without SOLVE3D.....
 #  endif
@@ -73,6 +88,32 @@
       tau_in=dtfast*tauM_in
       tau_out=dtfast*tauM_out
 #endif
+
+
+#if defined OBC_COM_M2FLATHER || defined OBC_COM_M2CHARACT
+      grad = 1.
+#if defined OBC_COM_SOUTH && defined OBC_COM_WEST
+      if (WESTERN_EDGE .and. SOUTHERN_EDGE) then
+        grad(Istr,Jstr) = 0.5
+      endif
+#endif
+#if defined OBC_COM_SOUTH && defined OBC_COM_EAST
+      if (EASTERN_EDGE .and. SOUTHERN_EDGE) then
+        grad(Iend+1,Jstr) = 0.5
+      endif
+#endif
+#if defined OBC_COM_NORTH && defined OBC_COM_WEST
+      if (WESTERN_EDGE .and. NORTHERN_EDGE) then
+        grad(Istr,Jend) = 0.5
+      endif
+#endif
+#if defined OBC_COM_NORTH && defined OBC_COM_EAST
+      if (EASTERN_EDGE .and. NORTHERN_EDGE) then
+        grad(Iend+1,Jend) = 0.5
+      endif
+#endif      
+#endif
+
 !
 !====================================================================
 !                            WESTERN BC
@@ -151,7 +192,7 @@
 #   elif defined ZNUDGING
      &                           -0.5*(ssh(Istr-1,j)+ssh(Istr,j)) 
 #   endif
-     &              )
+     &              )*grad(Istr,j)
 #   ifdef M2_FRC_BRY
      &                                           +ubarbry_west(j)
 #   elif defined M2NUDGING
@@ -188,7 +229,7 @@
 #   elif defined ZNUDGING
      &                           -0.5*(ssh(Istr-1,j)+ssh(Istr,j)) 
 #   endif
-     &              )
+     &              )*grad(Istr,j)
 #   ifdef MASKING
           ubar(Istr,j,knew)=ubar(Istr,j,knew)*umask(Istr,j)
 #   endif
@@ -300,7 +341,7 @@
 #   elif defined ZNUDGING
      &                             -0.5*(ssh(Iend,j)+ssh(Iend+1,j))
 #   endif
-     &               )
+     &               )*grad(Iend+1,j)
 #   ifdef M2_FRC_BRY
      &                                             +ubarbry_east(j)
 #   elif defined M2NUDGING
@@ -337,7 +378,7 @@
 #   elif defined ZNUDGING
      &                           -0.5*(ssh(Iend,j)+ssh(Iend+1,j)) 
 #   endif
-     &              )
+     &              )*grad(Iend+1,j)
 #   ifdef MASKING
           ubar(Iend+1,j,knew)=ubar(Iend+1,j,knew)*umask(Iend+1,j)
 #   endif

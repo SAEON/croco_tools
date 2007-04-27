@@ -35,6 +35,7 @@
       real FX(PRIVATE_2D_SCRATCH_ARRAY),     cff1,
      &     FE(PRIVATE_2D_SCRATCH_ARRAY),     cff2,
      &     LapT(PRIVATE_2D_SCRATCH_ARRAY)
+      real tspongeloc(PRIVATE_2D_SCRATCH_ARRAY,N,NT)
 !
 # ifdef MPI
 #  define LOCALLM Lmmpi
@@ -45,41 +46,181 @@
 # endif
 !
        integer decal
-       
+       real maxdiff
+       real tinterp,onemtinterp, rrhot
+       integer :: nold
+       integer :: irhot
        external interpsponget
 !
 # include "compute_auxiliary_bounds.h"
 !
 
-!     IF (mod(nbstep3d,Agrif_Irhot()).NE.0) RETURN
-
+      irhot = Agrif_Irhot()
+      rrhot = real(irhot)
+      decal = 2*max(Agrif_Irhox(),Agrif_Irhoy())+1
+      
+      If (nbcoarse == 1) THEN
+      do itrc=1,NT
+      do k=1,N
+      do j=JstrR,JendR
+      do i=IstrR,IendR
+      tsponge(i,j,k,itrc) = 0.
+      enddo
+      enddo
+      enddo
+      enddo
+      
 C$OMP BARRIER
 C$OMP MASTER
-      decal = 2*max(Agrif_Irhox(),Agrif_Irhoy())+1
-      Call Agrif_Set_bc(updateTprof,(/-decal,0/),
+      
+      Call Agrif_Set_bc(tsponge,(/-decal,0/),
      &     InterpolationShouldbemade=.TRUE.)
 #ifdef MASKING
         Agrif_UseSpecialvalue=.true.
 #endif
       Agrif_Specialvalue=0.
-      tsponge = 0.
-      Call Agrif_Bc_Variable(tsponge,updateTprof,procname=interpsponget)
+
+       tinterp = 1.
+
+      Call Agrif_Bc_Variable(tsponge,tsponge,calledweight=tinterp,
+     &                           procname=interpsponget)
       Agrif_UseSpecialvalue=.false.
 
-      do itrc=1,NT
-      do k=1,N
-      do j=0,Mm+1
-      do i=0,Lm+1
-        tsponge(i,j,k,itrc) = (t(i,j,k,nstp,itrc) - tsponge(i,j,k,itrc))
-     &           *rmask(i,j)
-      enddo
-      enddo
-      enddo
-      enddo
-
+       TTimesponge = 3 - TTimesponge
+       
 C$OMP END MASTER
 C$OMP BARRIER
+       
+       if (SOUTHERN_EDGE) then  
+         do itrc=1,NT
+         do k=1,N
+         do j=0,decal
+         do i=Istr-1,Iend+1 
+          T_sponge_south(i,j,k,TTimesponge,itrc)=
+     &              tsponge(i,j,k,itrc)          
+         enddo
+         enddo
+         enddo
+         enddo
+       endif
+                     
+      if (NORTHERN_EDGE) then
+         do itrc=1,NT
+         do k=1,N
+         do j=Jend-decal,Jend+1
+         do i=Istr-1,Iend+1     
+          T_sponge_north(i,j,k,TTimesponge,itrc)=
+     &              tsponge(i,j,k,itrc)          
+         enddo
+         enddo
+         enddo
+         enddo
+       endif               
 
+
+      if (WESTERN_EDGE) then
+         do itrc=1,NT
+         do k=1,N
+         do j=Jstr-1,Jend+1
+         do i=0,decal      
+          T_sponge_west(i,j,k,TTimesponge,itrc)=
+     &              tsponge(i,j,k,itrc)          
+         enddo
+         enddo
+         enddo
+         enddo
+       endif
+                    
+      if (EASTERN_EDGE) then      
+         do itrc=1,NT
+         do k=1,N
+         do j=Jstr-1,Jend+1
+         do i=Iend-decal,Iend+1    
+          T_sponge_east(i,j,k,TTimesponge,itrc)=
+     &              tsponge(i,j,k,itrc)          
+         enddo
+         enddo
+         enddo
+         enddo  
+       endif
+    
+C$OMP BARRIER
+    
+      ENDIF
+      
+       tspongeloc = 0.
+      
+       tinterp = real(nbcoarse-1)/rrhot
+       IF (nbstep3d .LT. irhot) tinterp = 0.
+       onemtinterp = -tinterp
+       tinterp = 1.+tinterp
+       
+       nold = 3 - TTimesponge
+
+       if (SOUTHERN_EDGE) then
+       do itrc=1,NT
+       do k=1,N
+       do j=0,decal
+       do i=Istr-1,Iend+1
+          tspongeloc(i,j,k,itrc) =
+     &          (t(i,j,k,nstp,itrc)
+     &       -onemtinterp*T_sponge_south(i,j,k,nold,itrc)
+     &       -tinterp*T_sponge_south(i,j,k,TTimesponge,itrc))
+     &           *rmask(i,j)        
+       enddo
+       enddo
+       enddo
+       enddo
+       endif
+       
+       if (NORTHERN_EDGE) then
+       do itrc=1,NT
+       do k=1,N
+       do j=Jend-decal,Jend+1
+       do i=Istr-1,Iend+1
+          tspongeloc(i,j,k,itrc) =
+     &          (t(i,j,k,nstp,itrc)
+     &       -onemtinterp*T_sponge_north(i,j,k,nold,itrc)
+     &       -tinterp*T_sponge_north(i,j,k,TTimesponge,itrc))
+     &           *rmask(i,j)        
+       enddo
+       enddo
+       enddo
+       enddo             
+       endif
+       
+      if (WESTERN_EDGE) then
+         do itrc=1,NT
+         do k=1,N
+         do j=Jstr-1,Jend+1
+         do i=0,decal
+          tspongeloc(i,j,k,itrc) =
+     &          (t(i,j,k,nstp,itrc)
+     &       -onemtinterp*T_sponge_west(i,j,k,nold,itrc)
+     &       -tinterp*T_sponge_west(i,j,k,TTimesponge,itrc))
+     &           *rmask(i,j)
+         enddo
+         enddo
+         enddo
+         enddo
+       endif      
+       
+      if (EASTERN_EDGE) then      
+         do itrc=1,NT
+         do k=1,N
+         do j=Jstr-1,Jend+1
+         do i=Iend-decal,Iend+1    
+          tspongeloc(i,j,k,itrc) =
+     &          (t(i,j,k,nstp,itrc)
+     &       -onemtinterp*T_sponge_east(i,j,k,nold,itrc)
+     &       -tinterp*T_sponge_east(i,j,k,TTimesponge,itrc))
+     &           *rmask(i,j)       
+         enddo
+         enddo
+         enddo
+         enddo  
+       endif
+             
 !
       do itrc = 1,NT
       do k=1,N
@@ -90,10 +231,9 @@ C$OMP BARRIER
 !
         do j=Jstr,Jend
           do i=Istr,Iend+1
-
             FX(i,j)=0.25*(diff2(i,j,itrc)+diff2(i-1,j,itrc))
-     &                   *pmon_u(i,j)*(Hz(i,j,k)+Hz(i-1,j,k))*(
-     &                     tsponge(i,j,k,itrc)-tsponge(i-1,j,k,itrc)
+     &         *pmon_u(i,j)*(Hz(i,j,k)+Hz(i-1,j,k))*(
+     &                tspongeloc(i,j,k,itrc)-tspongeloc(i-1,j,k,itrc)
      &                                                        )
 # ifdef MASKING
      &                                                   *umask(i,j)
@@ -101,10 +241,10 @@ C$OMP BARRIER
           enddo
         enddo
         do j=Jstr,Jend+1
-          do i=Istr,Iend
+          do i=Istr,Iend      
             FE(i,j)=0.25*(diff2(i,j,itrc)+diff2(i,j-1,itrc))
-     &                     *pnom_v(i,j)*(Hz(i,j,k)+Hz(i,j-1,k))*(
-     &                      tsponge(i,j,k,itrc)-tsponge(i,j-1,k,itrc)
+     &        *pnom_v(i,j)*(Hz(i,j,k)+Hz(i,j-1,k))*(
+     &                tspongeloc(i,j,k,itrc)-tspongeloc(i,j-1,k,itrc)
      &                                                           )
 # ifdef MASKING
      &                                                   *vmask(i,j)
@@ -141,7 +281,7 @@ C$OMP BARRIER
 !
             THmix(i,j,k,itrc)=THmix(i,j,k,itrc)*cff1/Hz(i,j,k)
             Trate(i,j,k,itrc)=Trate(i,j,k,itrc)*cff1/Hz(i,j,k)
-# endif
+# endif     
           enddo
         enddo
       enddo

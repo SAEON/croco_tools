@@ -52,17 +52,15 @@
 
       
       Call Agrif_Update_Variable(tabtemp,updateTprof,
-     &         locupdate=(/0,1/),procname = updateTranp1pre)  
+     &         locupdate=(/0,2/),procname = updateTranp1pre)  
 
-
+      Agrif_UseSpecialValueInUpdate = .FALSE.
            
       Call Agrif_Update_Variable(tabtemp(:,:,:,1),Huon,
-     &         locupdate=(/0,1/),procname = updateunp1pre)
+     &         locupdate=(/0,2/),procname = updateunp1pre)
 
       Call Agrif_Update_Variable(tabtemp(:,:,:,1),Hvom,
-     &         locupdate=(/0,1/),procname = updatevnp1pre)
-     
-      Agrif_UseSpecialValueInUpdate = .FALSE.     
+     &         locupdate=(/0,2/),procname = updatevnp1pre) 
       
       return
       end  
@@ -120,6 +118,9 @@
       IF (mod(nbstep3d,5) == (irhot-1)) THEN
       Call Agrif_Update_Variable(tabtemp,updateTprof,
      &         procname = updateTranp1)
+     
+      Agrif_UseSpecialValueInUpdate = .FALSE.
+           
       Call Agrif_Update_Variable(tabtemp(:,:,:,1),Huon,
      &         procname = updateunp1)
       Call Agrif_Update_Variable(tabtemp(:,:,:,1),Hvom,
@@ -127,13 +128,14 @@
       ELSE
       Call Agrif_Update_Variable(tabtemp,updateTprof,
      &         locupdate=(/0,2/),procname = updateTranp1)
+     
+      Agrif_UseSpecialValueInUpdate = .FALSE.
+           
       Call Agrif_Update_Variable(tabtemp(:,:,:,1),Huon,
      &         locupdate=(/0,2/),procname = updateunp1)
       Call Agrif_Update_Variable(tabtemp(:,:,:,1),Hvom,
      &         locupdate=(/0,2/),procname = updatevnp1)     
       ENDIF
-
-      Agrif_UseSpecialValueInUpdate = .FALSE.
 
        RETURN
       
@@ -519,9 +521,9 @@
           ENDDO
          ENDDO
        ENDDO 
-        ENDDO         
+        ENDDO
+
        ENDIF
-!            print *,'je sort ',before
       return
       end
  

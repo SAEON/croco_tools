@@ -4,11 +4,11 @@
 #ifndef CHILD
 !
 # include "cppdefs.h"
-      subroutine v2dbc_tile(Istr,Iend,Jstr,Jend,grad)
+      subroutine v2dbc_tile(Istr,Iend,Jstr,Jend,grad)      
 # ifdef AGRIF      
       use AGRIF_Util
       integer Istr,Iend,Jstr,Jend
-      real grad(PRIVATE_2D_SCRATCH_ARRAY)
+      real grad(PRIVATE_2D_SCRATCH_ARRAY)     
       if (AGRIF_Root()) then
         call v2dbc_parent_tile(Istr,Iend,Jstr,Jend,grad)
       else
@@ -19,7 +19,7 @@
 !
 ! PARENT
 !
-      subroutine v2dbc_parent_tile(Istr,Iend,Jstr,Jend,grad)
+      subroutine v2dbc_parent_tile(Istr,Iend,Jstr,Jend,grad)      
 # endif
 !
 ! Set lateral boundary conditions for the barotropic (i.e.
@@ -30,7 +30,7 @@
 !
 ! CHILD
 !
-      subroutine v2dbc_child_tile (Istr,Iend,Jstr,Jend,grad)
+      subroutine v2dbc_child_tile (Istr,Iend,Jstr,Jend,grad)      
 !
 ! Set lateral boundary conditions for the barotropic (i.e.
 ! vertically integrated) ETA-component velocity vbar(:,:,knew)
@@ -43,12 +43,17 @@
 # include "set_obc_definitions.h"
 !
       implicit none
+#include "param.h"      
       integer Istr,Iend,Jstr,Jend, i,j
       real    grad(PRIVATE_2D_SCRATCH_ARRAY)
+#ifdef AGRIF
+#include "private_scratch.h"
+      integer trd
+C$    integer omp_get_thread_num
+#endif      
       real    eps,cff, cx,cy,
      &        dft,dfx,dfy, tau,tau_in,tau_out,hx,zx
       parameter (eps=1.D-20)
-#include "param.h"
 #include "boundary.h"
 #include "climat.h"
 #include "grid.h"
@@ -62,7 +67,17 @@
 !
 #ifdef CHILD
 #  ifdef SOLVE3D
-      call v2dbc_interp_tile(Istr,Iend,Jstr,Jend,knew)
+      trd=0
+C$    trd=omp_get_thread_num()
+      call v2dbc_interp_tile(Istr,Iend,Jstr,Jend
+     &                    ,A1dETA(1,1,trd)
+     &                    ,A1dETA(1,2+NWEIGHT,trd)
+     &                    ,A1dETA(1,3+2*NWEIGHT,trd)
+     &                    ,A1dETA(1,4+2*NWEIGHT,trd)     
+     &                    ,A1dXI(1,1,trd)
+     &                    ,A1dXI(1,2+NWEIGHT,trd)
+     &                    ,A1dXI(1,3+2*NWEIGHT,trd)
+     &                    ,A1dXI(1,4+2*NWEIGHT,trd))
 #  else
       Some coding is needed to have AGRIF without SOLVE3D.....
 #  endif
@@ -73,6 +88,30 @@
       tau_out=dtfast*tauM_out
 #endif
 !
+#if defined OBC_COM_M2FLATHER || defined OBC_COM_M2CHARACT
+      grad = 1.
+#if defined OBC_COM_SOUTH && defined OBC_COM_WEST
+      if (WESTERN_EDGE .and. SOUTHERN_EDGE) then
+        grad(Istr,Jstr) = 0.5
+      endif
+#endif
+#if defined OBC_COM_SOUTH && defined OBC_COM_EAST
+      if (EASTERN_EDGE .and. SOUTHERN_EDGE) then
+        grad(Iend,Jstr) = 0.5
+      endif
+#endif
+#if defined OBC_COM_NORTH && defined OBC_COM_WEST
+      if (WESTERN_EDGE .and. NORTHERN_EDGE) then
+        grad(Istr,Jend+1) = 0.5
+      endif
+#endif
+#if defined OBC_COM_NORTH && defined OBC_COM_EAST
+      if (EASTERN_EDGE .and. NORTHERN_EDGE) then
+        grad(Iend,Jend+1) = 0.5
+      endif
+#endif      
+#endif
+
 #ifndef NS_COM_PERIODIC
 !
 !====================================================================
@@ -151,7 +190,7 @@
 #   elif defined ZNUDGING
      &                            -0.5*(ssh(i,Jstr-1)+ssh(i,Jstr))
 #   endif 
-     &             )
+     &             )*grad(i,Jstr)
 #   ifdef M2_FRC_BRY
      &                                           +vbarbry_south(i)
 #   elif defined M2NUDGING
@@ -188,7 +227,7 @@
 #   elif defined ZNUDGING
      &                           -0.5*(ssh(i,Jstr-1)+ssh(i,Jstr)) 
 #   endif
-     &              )
+     &              )*grad(i,Jstr)
 #   ifdef MASKING
           vbar(i,Jstr,knew)=vbar(i,Jstr,knew)*vmask(i,Jstr)
 #   endif
@@ -299,7 +338,7 @@
 #   elif defined ZNUDGING
      &                             -0.5*(ssh(i,Jend)+ssh(i,Jend+1))
 #   endif
-     &               )
+     &               )*grad(i,Jend+1)
 #   ifdef M2_FRC_BRY
      &                                            +vbarbry_north(i)
 #   elif defined M2NUDGING
@@ -336,7 +375,7 @@
 #   elif defined ZNUDGING
      &                           -0.5*(ssh(i,Jend)+ssh(i,Jend+1)) 
 #   endif
-     &              )
+     &              )*grad(i,Jend+1)
 #   ifdef MASKING
           vbar(i,Jend+1,knew)=vbar(i,Jend+1,knew)*vmask(i,Jend+1)
 #   endif
