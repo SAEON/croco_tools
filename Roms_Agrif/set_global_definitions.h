@@ -124,6 +124,8 @@
 
 #define PRIVATE_1D_SCRATCH_ARRAY Istr-2:Iend+2
 #define PRIVATE_2D_SCRATCH_ARRAY Istr-2:Iend+2,Jstr-2:Jend+2
+#define PRIVATE_1DXI_SCRATCH_ARRAY Istr-2:Iend+2
+#define PRIVATE_1DETA_SCRATCH_ARRAY Jstr-2:Jend+2
 
 /*
   The following definitions contain fortran logical expressions
