@@ -84,7 +84,10 @@ C     Number of dimensions of the grid variable
       childtemp % var % nbdim = 1  
 C      
 C     Values on the current grid used for the update
-      childtemp % var % array1 => tab      
+      childtemp % var % array1 => tab     
+      
+C      childtemp % var % list_update => child%var%list_update
+             
 C
      
       IF (present(procname)) THEN
@@ -95,6 +98,8 @@ C
      &     (TypeUpdate,parent,child,deb,fin)
       ENDIF     
 C      
+C      child % var % list_update => childtemp%var%list_update
+      
       deallocate(childtemp % var)
 C
 C       
@@ -145,6 +150,8 @@ C     Number of dimensions of the grid variable
 C      
 C     Values on the current grid used for the update
       childtemp % var % array2 => tab      
+      
+C      childtemp % var % list_update => child%var%list_update      
 C
       IF (present(procname)) THEN
       CALL Agrif_UpdateVariable
@@ -154,6 +161,8 @@ C
      &     (TypeUpdate,parent,child,deb,fin)
       ENDIF
 C      
+C      child % var % list_update => childtemp%var%list_update
+      
       deallocate(childtemp % var)
 C
 C       
@@ -203,6 +212,8 @@ C     Number of dimensions of the grid variable
 C      
 C     Values on the current grid used for the update
       childtemp % var % array3 => tab     
+      
+C      childtemp % var % list_update => child%var%list_update      
 C
       IF (present(procname)) THEN
       CALL Agrif_UpdateVariable
@@ -212,6 +223,8 @@ C
      &     (TypeUpdate,parent,child,deb,fin)
       ENDIF
 C      
+C      child % var % list_update => childtemp%var%list_update
+      
       DEALLOCATE(childtemp % var)
 C
 C       
@@ -261,6 +274,9 @@ C     Number of dimensions of the grid variable
 C      
 C     Values on the current grid used for the update
       childtemp % var % array4 => tab     
+      
+C      childtemp % var % list_update => child%var%list_update
+            
 C
       IF (present(procname)) THEN
       CALL Agrif_UpdateVariable
@@ -269,6 +285,8 @@ C
       CALL Agrif_UpdateVariable
      &     (TypeUpdate,parent,child,deb,fin)
       ENDIF
+
+C      child % var % list_update => childtemp%var%list_update      
 C
       deallocate(childtemp % var)
 C
@@ -321,6 +339,8 @@ C     Number of dimensions of the grid variable
 C      
 C     Values on the current grid used for the update
       childtemp % var % array5 => tab      
+      
+C      childtemp % var % list_update => child%var%list_update      
 C
       IF (present(procname)) THEN
       CALL Agrif_UpdateVariable
@@ -329,6 +349,9 @@ C
       CALL Agrif_UpdateVariable
      &     (TypeUpdate,parent,child,deb,fin)
       ENDIF
+      
+C      child % var % list_update => childtemp%var%list_update
+            
 C      
       deallocate(childtemp % var)
 C
@@ -379,9 +402,13 @@ C     Number of dimensions of the grid variable
 C      
 C     Values on the current grid used for the update
       childtemp % var % array6 => tab      
+C      childtemp % var % list_update => child%var%list_update
 C
       Call Agrif_UpdateVariable
      &     (TypeUpdate,parent,child,deb,fin)
+     
+C      child % var % list_update => childtemp%var%list_update
+           
 C      
       deallocate(childtemp % var)
 C
@@ -667,7 +694,8 @@ C in the update scheme
         ELSE
           indtab(i,1,1) = indtab(i,1,1) - coeffraf
           indtab(i,1,2) = indtab(i,1,2) - 1
-          IF (TypeUpdate(i) .EQ. Agrif_Update_Full_Weighting) THEN
+          IF ((TypeUpdate(i) .EQ. Agrif_Update_Full_Weighting)
+     &                            .AND.(mod(coeffraf,2) == 1)) THEN
             indtab(i,1,1) = indtab(i,1,1) - 1
             indtab(i,1,2) = indtab(i,1,2) + 1
           ENDIF
@@ -1050,8 +1078,8 @@ C     Arguments
       
 C
 C     Local pointers
-      TYPE(AGRIF_PVARIABLE)      :: tempP      ! Temporary parent grid variable
-      TYPE(AGRIF_PVARIABLE)      :: tempC      ! Temporary child grid variable
+      TYPE(AGRIF_PVARIABLE), SAVE      :: tempP      ! Temporary parent grid variable
+      TYPE(AGRIF_PVARIABLE), SAVE      :: tempC      ! Temporary child grid variable
 C
 C     Local scalars
       INTEGER,DIMENSION(nbdim)    :: pttruetab,cetruetab
@@ -1065,7 +1093,7 @@ cccccccc      LOGICAL,DIMENSION(nbdim)    :: noraftab
       INTEGER,DIMENSION(nbdim)    :: pttruetabwhole,cetruetabwhole
       INTEGER,DIMENSION(nbdim,2,2) :: childarray
       INTEGER,DIMENSION(nbdim,2,2) :: parentarray
-      TYPE(AGRIF_PVARIABLE)      :: tempCextend,tempPextend ! Temporary child
+      TYPE(AGRIF_PVARIABLE), SAVE      :: tempCextend,tempPextend ! Temporary child
       INTEGER :: nbin, ndirin
 C
 #ifdef AGRIF_MPI
@@ -1075,8 +1103,10 @@ C
       INTEGER                              :: i,j,k
       INTEGER,DIMENSION(nbdim,4)           :: tab3
       INTEGER,DIMENSION(nbdim,4,0:Agrif_Nbprocs-1) :: tab4
-      INTEGER,DIMENSION(nbdim,0:Agrif_Nbprocs-1,4) :: tab4t
-ccccccccccccccc      TYPE(AGRIF_PVARIABLE)                :: childvalues
+      INTEGER,DIMENSION(nbdim,0:Agrif_Nbprocs-1,4) :: tab4t, tab5t
+      LOGICAL :: find_list_update
+      LOGICAL, DIMENSION(0:Agrif_Nbprocs-1) :: memberinall, memberinall2
+      LOGICAL, DIMENSION(1) :: memberin1      
 C
 #endif
 C
@@ -1148,7 +1178,7 @@ C on the local processor
        ENDIF
        
       IF (memberin) THEN
-      allocate(tempC%var)
+      IF (.not.associated(tempC%var)) allocate(tempC%var)
 
 C
       Call Agrif_nbdim_allocation(tempC%var,
@@ -1216,6 +1246,15 @@ C
 C
 C     tab2 contains the necessary limits of the parent grid for each processor
 
+      IF (Associated(child%var%list_update)) THEN
+      Call Agrif_Find_list_update(child%var%list_update,pttab,petab,
+     &                          pttab_Child,pttab_Parent,nbdim,
+     &       find_list_update,tab4t,tab5t,memberinall,memberinall2)
+      ELSE
+      find_list_update = .FALSE.
+      ENDIF
+      
+      if (.not.find_list_update) then      
       tab3(:,1) = pttruetab(:)
       tab3(:,2) = cetruetab(:)
       tab3(:,3) = pttruetabwhole(:)
@@ -1225,7 +1264,7 @@ C
       Call MPI_ALLGATHER(tab3,4*nbdim,MPI_INTEGER,tab4,4*nbdim,
      &                   MPI_INTEGER,MPI_COMM_WORLD,code)
 
-      Allocate(tempCextend%var)
+      IF (.not.associated(tempCextend%var)) Allocate(tempCextend%var)
       DO k=0,Agrif_Nbprocs-1
        do j=1,4
          do i=1,nbdim
@@ -1233,9 +1272,17 @@ C
          enddo
        enddo
       enddo
+      
+      memberin1(1) = memberin
+      CALL MPI_ALLGATHER(memberin1,1,MPI_LOGICAL,memberinall,
+     &                  1,MPI_LOGICAL,MPI_COMM_WORLD,code)
+           
+      endif
+      
       Call Get_External_Data(tempC,tempCextend,tab4t(:,:,1),
      &            tab4t(:,:,2),
-     &            tab4t(:,:,3),tab4t(:,:,4),nbdim,memberin,memberin)
+     &            tab4t(:,:,3),tab4t(:,:,4),nbdim,memberin,memberin,
+     &            memberinall)
 
 #else
       tempCextend%var => tempC%var
@@ -1248,7 +1295,7 @@ C     Update of the parent grid (tempP) from the child grid (tempC)
 
       IF (memberin) THEN
 
-      allocate(tempP%var)
+      IF (.not.associated(tempP%var)) allocate(tempP%var)
       Call Agrif_nbdim_allocation(tempP%var,
      &                 indmin,indmax,nbdim)
 
@@ -1303,7 +1350,7 @@ C     Update of the parent grid (tempP) from the child grid (tempC)
       endif
 
       Call Agrif_nbdim_deallocation(tempCextend%var,nbdim)
-      Deallocate(tempCextend%var)
+C      Deallocate(tempCextend%var)
 
       ENDIF
 
@@ -1328,6 +1375,7 @@ C
 
       Call Agrif_ParentGrid_to_ChildGrid()
 
+      if (.not.find_list_update) then
       tab3(:,1) = indmin(:)
       tab3(:,2) = indmax(:)
       tab3(:,3) = indminglob2(:)
@@ -1336,17 +1384,29 @@ C
       Call MPI_ALLGATHER(tab3,4*nbdim,MPI_INTEGER,tab4,4*nbdim,
      &                   MPI_INTEGER,MPI_COMM_WORLD,code)
 
-      Allocate(tempPextend%var)
+      IF (.not.associated(tempPextend%var)) Allocate(tempPextend%var)
       DO k=0,Agrif_Nbprocs-1
        do j=1,4
          do i=1,nbdim
-         tab4t(i,k,j) = tab4(i,j,k)
+         tab5t(i,k,j) = tab4(i,j,k)
          enddo
        enddo
       enddo
-      Call Get_External_Data(tempP,tempPextend,tab4t(:,:,1),
-     &            tab4t(:,:,2),
-     &            tab4t(:,:,3),tab4t(:,:,4),nbdim,memberin,member)
+ 
+      memberin1(1) = member
+      CALL MPI_ALLGATHER(memberin1,1,MPI_LOGICAL,memberinall2,
+     &                  1,MPI_LOGICAL,MPI_COMM_WORLD,code)
+     
+      Call Agrif_Addto_list_update(child%var%list_update,pttab,petab,
+     &                          pttab_Child,pttab_Parent,nbdim
+     &   ,tab4t,tab5t,memberinall,memberinall2) 
+          
+      endif
+      
+      Call Get_External_Data(tempP,tempPextend,tab5t(:,:,1),
+     &            tab5t(:,:,2),
+     &            tab5t(:,:,3),tab5t(:,:,4),nbdim,memberin,member,
+     &            memberinall2)
 
 #else
       tempPextend%var => tempP%var
@@ -1572,13 +1632,13 @@ C     Deallocations
 #ifdef AGRIF_MPI
       Call Agrif_nbdim_deallocation(tempP%var,nbdim)
       Call Agrif_nbdim_deallocation(tempC%var,nbdim)
-      Deallocate(tempC % var)
+!      Deallocate(tempC % var)
 #endif
-      Deallocate(tempP % var)
+!      Deallocate(tempP % var)
       ENDIF
 #ifdef AGRIF_MPI
-      Deallocate(tempPextend%var)
-      IF (.Not.memberin) Deallocate(tempCextend%var)
+!      Deallocate(tempPextend%var)
+!      IF (.Not.memberin) Deallocate(tempCextend%var)
 #endif
 
 C
@@ -1721,48 +1781,7 @@ C
 C
 C
 C
-C     **************************************************************************
-CCC   Subroutine Agrif_Update_1D_Recursive
-C     **************************************************************************
-C
-      Subroutine Agrif_Update_1D_recursive(TypeUpdate,tempP,tempC,
-     &                                     indmin,indmax,
-     &                                     pttab_child,petab_child,
-     &                                     s_child,s_parent,
-     &                                     ds_child,ds_parent,nbdim)
-C
-CCC   Description:
-CCC   Subroutine to update a 1D grid variable on the parent grid.
-C
-CC    Method:
-C
-C     Declarations:
-C
-      
-C
-C     Arguments
-      INTEGER                   :: nbdim
-      INTEGER, DIMENSION(nbdim) :: TypeUpdate            ! TYPE of update (copy or average)
-      INTEGER, DIMENSION(nbdim) :: indmin,indmax
-      INTEGER, DIMENSION(nbdim) :: pttab_child,petab_child
-      REAL, DIMENSION(nbdim)    :: s_child,s_parent
-      REAL, DIMENSION(nbdim)    :: ds_child,ds_parent
-      REAL, DIMENSION(indmin(nbdim):indmax(nbdim))           :: tempP
-      REAL, DIMENSION(pttab_child(nbdim):petab_child(nbdim)) :: tempC
-C
-C
-      Call Agrif_UpdateBase(TypeUpdate(1),
-     &                  tempP(indmin(nbdim):indmax(nbdim)),
-     &                  tempC(pttab_child(nbdim):petab_child(nbdim)),
-     &                  indmin(nbdim),indmax(nbdim),           
-     &                  pttab_child(nbdim),petab_child(nbdim),
-     &                  s_parent(nbdim),s_child(nbdim),
-     &                  ds_parent(nbdim),ds_child(nbdim))
-C
-      Return
-C
-C
-      End Subroutine Agrif_Update_1D_recursive
+
 C
 C
 C
@@ -1771,7 +1790,7 @@ CCC   Subroutine Agrif_Update_2D_Recursive
 C     **************************************************************************
 C
       Subroutine Agrif_Update_2D_recursive(TypeUpdate,tempP,tempC,
-     &                                     indmin,indmax,   
+     &                                     indmin,indmax,
      &                                     pttab_child,petab_child,
      &                                     s_child,s_parent,
      &                                     ds_child,ds_parent,nbdim)
@@ -1794,42 +1813,44 @@ C
       REAL, DIMENSION(nbdim)    :: ds_child,ds_parent
       REAL, DIMENSION(indmin(1):indmax(1),
      &                indmin(2):indmax(2))           :: tempP
-      REAL, DIMENSION(pttab_child(1):petab_child(1),
-     &                pttab_child(2):petab_child(2)) :: tempC
+C      REAL, DIMENSION(pttab_child(1):petab_child(1),
+C     &                pttab_child(2):petab_child(2)) :: tempC
+     
+      REAL, DIMENSION(:,:) :: tempC     
 C
 C     Local variables      
-      REAL, DIMENSION(:,:), Allocatable :: tabtemp
+      REAL, DIMENSION(indmin(1):indmax(1),
+     &                 pttab_child(2):petab_child(2)) :: tabtemp
       INTEGER :: i,j
-C
-C
-      Allocate(tabtemp(indmin(1):indmax(1),
-     &                 pttab_child(2):petab_child(2)))
+      INTEGER :: coeffraf,locind_child_left
 C
       do j = pttab_child(nbdim),petab_child(nbdim)
 C
-        Call Agrif_Update_1D_recursive(TypeUpdate,    
-     &         tabtemp(indmin(nbdim-1):indmax(nbdim-1),j),
-     &         tempC(pttab_child(nbdim-1):petab_child(nbdim-1),j),
+        Call Agrif_Update_1D_recursive(TypeUpdate(1:nbdim-1),    
+     &         tabtemp(:,j),
+     &         tempC(:,j-pttab_child(nbdim)+1),
      &         indmin(1:nbdim-1),indmax(1:nbdim-1),
      &         pttab_child(1:nbdim-1),petab_child(1:nbdim-1),
      &         s_child(1:nbdim-1),s_parent(1:nbdim-1),
      &         ds_child(1:nbdim-1),ds_parent(1:nbdim-1),nbdim-1)
 C
       enddo
+      
+      Call Agrif_Compute_nbdim_update(s_parent(nbdim),s_child(nbdim),
+     &  ds_parent(nbdim),ds_child(nbdim),coeffraf,locind_child_left)
 C
       do i = indmin(1),indmax(1)
 C
         Call Agrif_UpdateBase(TypeUpdate(2),
-     &           tempP(i,indmin(nbdim):indmax(nbdim)),
-     &          tabtemp(i,pttab_child(nbdim):petab_child(nbdim)),
+     &           tempP(i,:),
+     &          tabtemp(i,:),
      &           indmin(nbdim),indmax(nbdim),
      &           pttab_child(nbdim),petab_child(nbdim),
      &           s_parent(nbdim),s_child(nbdim),
-     &           ds_parent(nbdim),ds_child(nbdim))
+     &           ds_parent(nbdim),ds_child(nbdim),
+     &                  coeffraf,locind_child_left)
 C        
       enddo
-C
-      Deallocate(tabtemp)
 C
       Return
 C
@@ -1872,21 +1893,19 @@ C
      &                pttab_child(3):petab_child(3)) :: tempC
 C
 C     Local variables      
-      REAL, DIMENSION(:,:,:), Allocatable :: tabtemp
-      INTEGER :: i,j,k
-C
-C
-      Allocate(tabtemp(indmin(1):indmax(1),
+      REAL, DIMENSION(indmin(1):indmax(1),
      &                 indmin(2):indmax(2), 
-     &                 pttab_child(3):petab_child(3)))
+     &                 pttab_child(3):petab_child(3)) :: tabtemp
+      INTEGER :: i,j,k
+      INTEGER :: coeffraf,locind_child_left
+      INTEGER :: kdeb
+C
 C
       do k = pttab_child(nbdim),petab_child(nbdim)
 C
-        Call Agrif_Update_2D_recursive(TypeUpdate,    
-     &         tabtemp(indmin(nbdim-2):indmax(nbdim-2),
-     &                 indmin(nbdim-1):indmax(nbdim-1),k),
-     &         tempC(pttab_child(nbdim-2):petab_child(nbdim-2),
-     &               pttab_child(nbdim-1):petab_child(nbdim-1),k),
+        Call Agrif_Update_2D_recursive(TypeUpdate(1:nbdim-1),    
+     &         tabtemp(:,:,k),
+     &         tempC(:,:,k),
      &         indmin(1:nbdim-1),indmax(1:nbdim-1),
      &         pttab_child(1:nbdim-1),petab_child(1:nbdim-1),
      &         s_child(1:nbdim-1),s_parent(1:nbdim-1),
@@ -1894,24 +1913,40 @@ C
 C
       enddo
 C
+      Call Agrif_Compute_nbdim_update(s_parent(nbdim),s_child(nbdim),
+     &  ds_parent(nbdim),ds_child(nbdim),coeffraf,locind_child_left)
+      
+      IF (coeffraf == 1) THEN
+      
+      kdeb = pttab_child(3)+locind_child_left-2
+      do k=indmin(3),indmax(3)
+      kdeb = kdeb + 1
+      do j = indmin(2),indmax(2)
+        do i = indmin(1),indmax(1)
+        tempP(i,j,k) = tabtemp(i,j,kdeb)
+      enddo
+      enddo
+      enddo
+              
+      ELSE
 C
       do j = indmin(2),indmax(2)
 C
         do i = indmin(1),indmax(1)
 C
           Call Agrif_UpdateBase(TypeUpdate(3),
-     &           tempP(i,j,indmin(nbdim):indmax(nbdim)),
-     &          tabtemp(i,j,pttab_child(nbdim):petab_child(nbdim)),
+     &           tempP(i,j,:),
+     &          tabtemp(i,j,:),
      &           indmin(nbdim),indmax(nbdim),
      &           pttab_child(nbdim),petab_child(nbdim),
      &           s_parent(nbdim),s_child(nbdim),
-     &           ds_parent(nbdim),ds_child(nbdim))
+     &           ds_parent(nbdim),ds_child(nbdim),
+     &                  coeffraf,locind_child_left)
 C
         enddo 
 C        
       enddo
-C
-      Deallocate(tabtemp)
+      ENDIF
 C
       Return
 C
@@ -1958,6 +1993,7 @@ C
 C     Local variables      
       REAL, DIMENSION(:,:,:,:), Allocatable :: tabtemp
       INTEGER :: i,j,k,l
+      INTEGER :: coeffraf,locind_child_left
 C
 C
       Allocate(tabtemp(indmin(1):indmax(1),
@@ -1967,7 +2003,7 @@ C
 C
       do l = pttab_child(nbdim),petab_child(nbdim)
 C
-        Call Agrif_Update_3D_recursive(TypeUpdate,    
+        Call Agrif_Update_3D_recursive(TypeUpdate(1:nbdim-1),    
      &         tabtemp(indmin(nbdim-3):indmax(nbdim-3),
      &                 indmin(nbdim-2):indmax(nbdim-2),
      &                 indmin(nbdim-1):indmax(nbdim-1),l),
@@ -1980,6 +2016,9 @@ C
      &         ds_child(1:nbdim-1),ds_parent(1:nbdim-1),nbdim-1)
 C
       enddo
+      
+      Call Agrif_Compute_nbdim_update(s_parent(nbdim),s_child(nbdim),
+     &  ds_parent(nbdim),ds_child(nbdim),coeffraf,locind_child_left)
 C
       do k = indmin(3),indmax(3)
 C
@@ -1993,7 +2032,8 @@ C
      &           indmin(nbdim),indmax(nbdim),
      &           pttab_child(nbdim),petab_child(nbdim),
      &           s_parent(nbdim),s_child(nbdim),
-     &           ds_parent(nbdim),ds_child(nbdim))
+     &           ds_parent(nbdim),ds_child(nbdim),
+     &                  coeffraf,locind_child_left)
 C
           enddo 
 C
@@ -2050,6 +2090,7 @@ C
 C     Local variables      
       REAL, DIMENSION(:,:,:,:,:), Allocatable :: tabtemp
       INTEGER :: i,j,k,l,m
+      INTEGER :: coeffraf,locind_child_left
 C
 C
       Allocate(tabtemp(indmin(1):indmax(1),
@@ -2060,7 +2101,7 @@ C
 C
       do m = pttab_child(nbdim),petab_child(nbdim)
 C
-        Call Agrif_Update_4D_recursive(TypeUpdate,    
+        Call Agrif_Update_4D_recursive(TypeUpdate(1:nbdim-1),    
      &         tabtemp(indmin(nbdim-4):indmax(nbdim-4),
      &                 indmin(nbdim-3):indmax(nbdim-3),
      &                 indmin(nbdim-2):indmax(nbdim-2),
@@ -2075,6 +2116,9 @@ C
      &         ds_child(1:nbdim-1),ds_parent(1:nbdim-1),nbdim-1)
 C
       enddo
+      
+      Call Agrif_Compute_nbdim_update(s_parent(nbdim),s_child(nbdim),
+     &  ds_parent(nbdim),ds_child(nbdim),coeffraf,locind_child_left)
 C
       do l = indmin(4),indmax(4)
 C
@@ -2091,7 +2135,8 @@ C
      &           indmin(nbdim),indmax(nbdim),
      &           pttab_child(nbdim),petab_child(nbdim),
      &           s_parent(nbdim),s_child(nbdim),
-     &           ds_parent(nbdim),ds_child(nbdim))
+     &           ds_parent(nbdim),ds_child(nbdim),
+     &                  coeffraf,locind_child_left)
 C
             enddo
 C
@@ -2153,6 +2198,7 @@ C
 C     Local variables      
       REAL, DIMENSION(:,:,:,:,:,:), Allocatable :: tabtemp
       INTEGER :: i,j,k,l,m,n
+      INTEGER :: coeffraf,locind_child_left
 C
 C
       Allocate(tabtemp(indmin(1):indmax(1),
@@ -2164,7 +2210,7 @@ C
 C
       do n = pttab_child(nbdim),petab_child(nbdim)
 C
-        Call Agrif_Update_5D_recursive(TypeUpdate,    
+        Call Agrif_Update_5D_recursive(TypeUpdate(1:nbdim-1),    
      &         tabtemp(indmin(nbdim-5):indmax(nbdim-5),
      &                 indmin(nbdim-4):indmax(nbdim-4),
      &                 indmin(nbdim-3):indmax(nbdim-3),
@@ -2181,6 +2227,9 @@ C
      &         ds_child(1:nbdim-1),ds_parent(1:nbdim-1),nbdim-1)
 C
       enddo
+      
+      Call Agrif_Compute_nbdim_update(s_parent(nbdim),s_child(nbdim),
+     &  ds_parent(nbdim),ds_child(nbdim),coeffraf,locind_child_left)
 C
       do m = indmin(5),indmax(5)
       do l = indmin(4),indmax(4)
@@ -2198,7 +2247,8 @@ C
      &           indmin(nbdim),indmax(nbdim),
      &           pttab_child(nbdim),petab_child(nbdim),
      &           s_parent(nbdim),s_child(nbdim),
-     &           ds_parent(nbdim),ds_child(nbdim))
+     &           ds_parent(nbdim),ds_child(nbdim),
+     &                  coeffraf,locind_child_left)
 C
             enddo
 C
@@ -2225,7 +2275,8 @@ C
       Subroutine Agrif_UpdateBase(TypeUpdate,
      &                            parenttab,childtab,
      &                            indmin,indmax,pttab_child,petab_child,
-     &                            s_parent,s_child,ds_parent,ds_child)
+     &                            s_parent,s_child,ds_parent,ds_child,
+     &                            coeffraf,locind_child_left)
 C
 CCC   Description:
 CCC   Subroutine calling the updating method chosen by the user (copy, average
@@ -2243,12 +2294,13 @@ C
       REAL,DIMENSION(indmin:indmax)           :: parenttab       
       REAL,DIMENSION(pttab_child:petab_child) :: childtab      
       REAL    :: s_parent,s_child
-      REAL    :: ds_parent,ds_child       
+      REAL    :: ds_parent,ds_child      
+      INTEGER :: coeffraf,locind_child_left
 C
 C
       if (TypeUpdate == AGRIF_Update_copy) then
 C             
-          Call copy1D
+          Call agrif_copy1D
      &       (parenttab,childtab,
      &          indmax-indmin+1,petab_child-pttab_child+1,
      &          s_parent,s_child,ds_parent,ds_child)     
@@ -2265,7 +2317,8 @@ C
           Call full_weighting1D
      &       (parenttab,childtab,
      &          indmax-indmin+1,petab_child-pttab_child+1,
-     &          s_parent,s_child,ds_parent,ds_child)
+     &          s_parent,s_child,ds_parent,ds_child,
+     &          coeffraf,locind_child_left)
 C
       endif 
 C
@@ -2275,8 +2328,145 @@ C
       End Subroutine Agrif_UpdateBase
 C
 C
+
+      Subroutine Agrif_Compute_nbdim_update(s_parent,s_child,
+     &  ds_parent,ds_child,coeffraf,locind_child_left)
+      real :: s_parent,s_child,ds_parent,ds_child
+      integer :: coeffraf,locind_child_left
+     
+      coeffraf = nint(ds_parent/ds_child)
+      locind_child_left = 1 + agrif_int((s_parent-s_child)/ds_child)
+      
+      End Subroutine Agrif_Compute_nbdim_update
+ 
+#if defined AGRIF_MPI      
+      Subroutine Agrif_Find_list_update(list_update,pttab,petab,
+     &                          pttab_Child,pttab_Parent,nbdim,
+     &     find_list_update,tab4t,tab5t,memberinall,memberinall2)     
+      TYPE(Agrif_List_Interp_Loc), Pointer :: list_update
+      INTEGER :: nbdim
+      INTEGER,DIMENSION(nbdim)   :: pttab,petab,pttab_Child,pttab_Parent
+      LOGICAL :: find_list_update
+      Type(Agrif_List_Interp_loc), Pointer :: parcours
+      INTEGER :: i
+C
+      INTEGER,DIMENSION(nbdim,0:Agrif_Nbprocs-1,4) :: tab4t, tab5t
+      LOGICAL, DIMENSION(0:Agrif_Nbprocs-1) :: memberinall,memberinall2
+                    
+      find_list_update = .FALSE.
+      
+      parcours => list_update
+      
+      Find_loop :   Do While (associated(parcours))
+        Do i=1,nbdim
+          IF ((pttab(i) /= parcours%interp_loc%pttab(i)).OR.
+     &        (petab(i) /= parcours%interp_loc%petab(i)).OR.
+     &        (pttab_child(i) /= parcours%interp_loc%pttab_child(i)).OR.
+     &        (pttab_parent(i) /= parcours%interp_loc%pttab_parent(i)))
+     &               THEN
+            parcours=>parcours%suiv
+            Cycle Find_loop
+          ENDIF
+        EndDo
+        
+        tab4t = parcours%interp_loc%tab4t(1:nbdim,0:Agrif_Nbprocs-1,1:4)
+        memberinall = parcours%interp_loc%memberinall(0:Agrif_Nbprocs-1)
+        
+        tab5t = parcours%interp_loc%tab5t(1:nbdim,0:Agrif_Nbprocs-1,1:4)
+        memberinall2 = 
+     &       parcours%interp_loc%memberinall2(0:Agrif_Nbprocs-1)
+        
+        find_list_update = .TRUE.   
+        Exit Find_loop
+      End Do Find_loop  
+                              
+      End Subroutine Agrif_Find_list_update  
+      
+      Subroutine Agrif_AddTo_list_update(list_update,pttab,petab,
+     &                          pttab_Child,pttab_Parent,nbdim
+     &      ,tab4t,tab5t,memberinall,memberinall2)
+          
+      TYPE(Agrif_List_Interp_Loc), Pointer :: list_update
+      INTEGER :: nbdim
+      INTEGER,DIMENSION(nbdim)   :: pttab,petab,pttab_Child,pttab_Parent
+      INTEGER,DIMENSION(nbdim,0:Agrif_Nbprocs-1,4) :: tab4t, tab5t
+      LOGICAL,DIMENSION(0:Agrif_Nbprocs-1) :: memberinall, memberinall2
+
+      Type(Agrif_List_Interp_loc), Pointer :: parcours
+            
+       Allocate(parcours)
+      Allocate(parcours%interp_loc)
+      
+      parcours%interp_loc%pttab(1:nbdim) = pttab(1:nbdim)
+      parcours%interp_loc%petab(1:nbdim) = petab(1:nbdim)
+      parcours%interp_loc%pttab_child(1:nbdim) = pttab_child(1:nbdim)
+      parcours%interp_loc%pttab_parent(1:nbdim) = pttab_parent(1:nbdim)
+      Allocate(parcours%interp_loc%tab4t(nbdim,0:Agrif_Nbprocs-1,4))
+      Allocate(parcours%interp_loc%memberinall(0:Agrif_Nbprocs-1))
+      
+      Allocate(parcours%interp_loc%tab5t(nbdim,0:Agrif_Nbprocs-1,4))
+      Allocate(parcours%interp_loc%memberinall2(0:Agrif_Nbprocs-1))
+            
+      parcours%interp_loc%tab4t=tab4t   
+      parcours%interp_loc%memberinall=memberinall
+ 
+      parcours%interp_loc%tab5t=tab5t   
+      parcours%interp_loc%memberinall2=memberinall2
+            
+      parcours%suiv => list_update
+      
+      list_update => parcours
+      
+      End Subroutine Agrif_Addto_list_update
+#endif
+           
       End Module Agrif_Update
 
-
-
+C     **************************************************************************
+CCC   Subroutine Agrif_Update_1D_Recursive
+C     **************************************************************************
+C
+      Subroutine Agrif_Update_1D_recursive(TypeUpdate,tempP,tempC,
+     &                                     indmin,indmax,
+     &                                     pttab_child,petab_child,
+     &                                     s_child,s_parent,
+     &                                     ds_child,ds_parent,nbdim)
+C
+CCC   Description:
+CCC   Subroutine to update a 1D grid variable on the parent grid.
+C
+CC    Method:
+C
+C     Declarations:
+C
       
+C
+C     Arguments
+      USE Agrif_Update
+      INTEGER                   :: nbdim
+      INTEGER, DIMENSION(nbdim) :: TypeUpdate            ! TYPE of update (copy or average)
+      INTEGER, DIMENSION(nbdim) :: indmin,indmax
+      INTEGER, DIMENSION(nbdim) :: pttab_child,petab_child
+      REAL, DIMENSION(nbdim)    :: s_child,s_parent
+      REAL, DIMENSION(nbdim)    :: ds_child,ds_parent
+      REAL, DIMENSION(indmin(nbdim):indmax(nbdim))           :: tempP
+      REAL, DIMENSION(pttab_child(nbdim):petab_child(nbdim)) :: tempC
+      INTEGER :: coeffraf,locind_child_left
+C
+C
+      Call Agrif_Compute_nbdim_update(s_parent(nbdim),s_child(nbdim),
+     &  ds_parent(nbdim),ds_child(nbdim),coeffraf,locind_child_left)
+      
+      Call Agrif_UpdateBase(TypeUpdate(1),
+     &                  tempP(indmin(nbdim):indmax(nbdim)),
+     &                  tempC(pttab_child(nbdim):petab_child(nbdim)),
+     &                  indmin(nbdim),indmax(nbdim),           
+     &                  pttab_child(nbdim),petab_child(nbdim),
+     &                  s_parent(nbdim),s_child(nbdim),
+     &                  ds_parent(nbdim),ds_child(nbdim),
+     &                  coeffraf,locind_child_left)
+C
+      Return
+C
+C
+      End Subroutine Agrif_Update_1D_recursive      

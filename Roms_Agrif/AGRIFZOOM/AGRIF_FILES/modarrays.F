@@ -331,7 +331,8 @@ C
       CASE (2)
         Variable%array2 = Value
       CASE (3)
-        Variable%array3 = Value
+        Call Agrif_set_tozero3D(Variable%array3)
+!        Variable%array3 = Value
       CASE (4)
         Variable%array4 = Value
       CASE (5)
@@ -342,7 +343,14 @@ C
 C
       return
 C
-      End Subroutine Agrif_nbdim_Full_VarEQreal       
+      End Subroutine Agrif_nbdim_Full_VarEQreal   
+      
+      Subroutine Agrif_set_tozero3D(tab3D)
+      real,dimension(:,:,:),target :: tab3D
+      
+      tab3D = 0.
+      
+      end subroutine agrif_set_tozero3D    
 C
 C
 #if !defined AGRIF_MPI
@@ -449,26 +457,26 @@ C
          Variable%array1(inf(1):sup(1)) = 
      &         Variable2%array1(inf2(1):sup2(1))
       CASE (2)
-         Variable%array2(inf(1):sup(1),
-     &                         inf(2):sup(2)) = 
-     &         Variable2%array2(inf2(1):sup2(1),
-     &                          inf2(2):sup2(2))
+     
+      Call Agrif_Copy_2d(Variable%array2,Variable2%array2,
+     &  lbound(Variable%array2),
+     &  lbound(Variable2%array2),
+     &  inf,sup,inf2,sup2)
+          
       CASE (3)
-         Variable%array3(inf(1):sup(1),
-     &                         inf(2):sup(2), 
-     &                         inf(3):sup(3)) = 
-     &         Variable2%array3(inf2(1):sup2(1),
-     &                          inf2(2):sup2(2),
-     &                          inf2(3):sup2(3))
+
+      Call Agrif_Copy_3d(Variable%array3,Variable2%array3,
+     &  lbound(Variable%array3),
+     &  lbound(Variable2%array3),
+     &  inf,sup,inf2,sup2)
+
       CASE (4)
-        Variable%array4(inf(1):sup(1),
-     &                         inf(2):sup(2), 
-     &                         inf(3):sup(3),
-     &                         inf(4):sup(4)) = 
-     &         Variable2%array4(inf2(1):sup2(1),
-     &                          inf2(2):sup2(2),
-     &                          inf2(3):sup2(3),
-     &                          inf2(4):sup2(4))
+      
+      Call Agrif_Copy_4d(Variable%array4,Variable2%array4,
+     &  lbound(Variable%array4),
+     &  lbound(Variable2%array4),
+     &  inf,sup,inf2,sup2)
+     
       CASE (5)
         Variable%array5(inf(1):sup(1),
      &                         inf(2):sup(2), 
@@ -1309,52 +1317,6 @@ C
 C
 #ifdef AGRIF_MPI
 C
-C     **************************************************************************
-CCC   Subroutine Agrif_GlobtoLocInd
-C     **************************************************************************
-C
-      Subroutine Agrif_GlobtoLocInd(tabarray,lboundl,uboundl,tab1,tab2,
-     &                              nbdim,rank)
-C
-CCC   Description:
-CCC   For a global index located on the current processor, tabarray gives the 
-CCC   corresponding local index   
-C
-C
-C     Declarations:
-C
-
-C
-C     Arguments
-      INTEGER :: nbdim
-      INTEGER,DIMENSION(nbdim) :: tab1,tab2
-      INTEGER,DIMENSION(minval(tab1):maxval(tab2),nbdim,2 ) :: tabarray
-      INTEGER,DIMENSION(nbdim) :: lboundl,uboundl
-      INTEGER :: rank
-C
-C     Local variables
-      INTEGER :: i,i1,k
-C
-C
-      tabarray(:,:,1) = 0
-C        
-      do i = 1,nbdim
-C       
-        Call Agrif_Invloc(lboundl(i),rank,i,i1)
-        
-        do k=tab1(i)+lboundl(i)-i1,tab2(i)+lboundl(i)-i1
-           tabarray(k-lboundl(i)+i1,i,1)=1
-           tabarray(k-lboundl(i)+i1,i,2)=k
-        enddo
-
-C
-      enddo
-C
-      Return
-C
-C
-      End Subroutine Agrif_GlobtoLocInd
-
 C
 C     **************************************************************************
 CCC   Subroutine Agrif_GlobtoLocInd2
@@ -1416,5 +1378,41 @@ C
       End Subroutine Agrif_GlobtoLocInd2
 C
 #endif      
+
+      Subroutine Agrif_Copy_2d(tabout,tabin,l,m,inf,sup,inf2,sup2)
+      integer,dimension(2) :: l,m,inf,sup,inf2,sup2
+      real,target,dimension(l(1):,l(2):) :: tabout
+      real,target,dimension(m(1):,m(2):) :: tabin
+          tabout(inf(1):sup(1),
+     &                         inf(2):sup(2)) = 
+     &         tabin(inf2(1):sup2(1),
+     &                          inf2(2):sup2(2))
+      End Subroutine Agrif_Copy_2d
+      
+      Subroutine Agrif_Copy_3d(tabout,tabin,l,m,inf,sup,inf2,sup2)
+      integer,dimension(3) :: l,m,inf,sup,inf2,sup2
+      real,target,dimension(l(1):,l(2):,l(3):) :: tabout
+      real,target,dimension(m(1):,m(2):,m(3):) :: tabin
+          tabout(inf(1):sup(1),
+     &                         inf(2):sup(2), 
+     &                         inf(3):sup(3)) = 
+     &         tabin(inf2(1):sup2(1),
+     &                          inf2(2):sup2(2),
+     &                          inf2(3):sup2(3))
+      End Subroutine Agrif_Copy_3d
+      
+      Subroutine Agrif_Copy_4d(tabout,tabin,l,m,inf,sup,inf2,sup2)
+      integer,dimension(4) :: l,m,inf,sup,inf2,sup2
+      real,target,dimension(l(1):,l(2):,l(3):,l(4):) :: tabout
+      real,target,dimension(m(1):,m(2):,m(3):,m(4):) :: tabin
+          tabout(inf(1):sup(1),
+     &                         inf(2):sup(2), 
+     &                         inf(3):sup(3), 
+     &                         inf(4):sup(4)) = 
+     &         tabin(inf2(1):sup2(1),
+     &                          inf2(2):sup2(2),
+     &                          inf2(3):sup2(3),
+     &                          inf2(4):sup2(4))
+      End Subroutine Agrif_Copy_4d      
 
       End Module Agrif_Arrays

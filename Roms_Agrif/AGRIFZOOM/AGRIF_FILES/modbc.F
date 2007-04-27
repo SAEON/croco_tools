@@ -90,13 +90,15 @@ C
 C     Index indicating if a space interpolation is necessary
       childtemp % var % interpIndex => child % var % interpIndex       
       childtemp % var % Interpolationshouldbemade = 
-     &                 child % var % Interpolationshouldbemade       
+     &                 child % var % Interpolationshouldbemade  
+      childtemp % var % list_interp => child % var% list_interp          
 C
 C     Call to the procedure for the calculations of the boundary conditions
       Call Agrif_CorrectVariable
      &     (TypeInterp,parent,childtemp,deb,fin,pweight,weight)
 C
       child % var % oldvalues2D => childtemp % var % oldvalues2D
+      child % var % list_interp => childtemp % var %list_interp      
 C      
       deallocate(childtemp % var)
 C
@@ -158,7 +160,8 @@ C
 C     Index indicating if a space interpolation is necessary
       childtemp % var % interpIndex => child % var % interpIndex       
       childtemp % var % Interpolationshouldbemade = 
-     &                 child % var % Interpolationshouldbemade       
+     &                 child % var % Interpolationshouldbemade   
+      childtemp % var % list_interp => child % var% list_interp    
 C
 C     Call to the procedure for the calculations of the boundary conditions
       IF (present(procname)) THEN
@@ -171,6 +174,7 @@ C     Call to the procedure for the calculations of the boundary conditions
 
 C   
       child % var % oldvalues2D => childtemp % var % oldvalues2D
+      child % var % list_interp => childtemp % var %list_interp
 C         
       deallocate(childtemp % var)
 C
@@ -233,7 +237,8 @@ C
 C     Index indicating if a space interpolation is necessary
       childtemp % var % interpIndex => child % var % interpIndex
       childtemp % var % Interpolationshouldbemade = 
-     &                 child % var % Interpolationshouldbemade       
+     &                 child % var % Interpolationshouldbemade 
+      childtemp % var % list_interp => child % var% list_interp           
 C
 C     Call to the procedure for the calculations of the boundary conditions     
       IF (present(procname)) THEN
@@ -245,6 +250,7 @@ C     Call to the procedure for the calculations of the boundary conditions
       ENDIF
 C
       child % var % oldvalues2D => childtemp % var % oldvalues2D
+      child % var % list_interp => childtemp % var %list_interp      
 C      
       deallocate(childtemp % var)
 C
@@ -309,7 +315,8 @@ C
 C     Index indicating if a space interpolation is necessary
       childtemp % var % interpIndex => child % var % interpIndex       
       childtemp % var % Interpolationshouldbemade = 
-     &                 child % var % Interpolationshouldbemade       
+     &                 child % var % Interpolationshouldbemade  
+      childtemp % var % list_interp => child % var% list_interp          
 C
 C     Call to the procedure for the calculations of the boundary conditions
       IF (present(procname)) THEN
@@ -321,6 +328,7 @@ C     Call to the procedure for the calculations of the boundary conditions
       ENDIF
 C
       child % var % oldvalues2D => childtemp % var % oldvalues2D
+      child % var % list_interp => childtemp % var %list_interp      
 C      
       deallocate(childtemp % var)
 C
@@ -385,7 +393,8 @@ C
 C     Index indicating if a space interpolation is necessary
       childtemp % var % interpIndex => child % var % interpIndex       
       childtemp % var % Interpolationshouldbemade = 
-     &                 child % var % Interpolationshouldbemade       
+     &                 child % var % Interpolationshouldbemade 
+      childtemp % var % list_interp => child % var% list_interp           
 C
 C     Call to the procedure for the calculations of the boundary conditions  
       IF (present(procname)) THEN
@@ -397,6 +406,7 @@ C     Call to the procedure for the calculations of the boundary conditions
       ENDIF
 C
       child % var % oldvalues2D => childtemp % var % oldvalues2D
+      child % var % list_interp => childtemp % var %list_interp      
 C      
       deallocate(childtemp % var)
 C
@@ -461,13 +471,15 @@ C
 C     Index indicating if a space interpolation is necessary
       childtemp % var % interpIndex => child % var % interpIndex       
       childtemp % var % Interpolationshouldbemade = 
-     &                 child % var % Interpolationshouldbemade       
+     &                 child % var % Interpolationshouldbemade 
+      childtemp % var % list_interp => child % var% list_interp           
 C
 C     Call to the procedure for the calculations of the boundary conditions
       Call Agrif_CorrectVariable
      &     (TypeInterp,parent,childtemp,deb,fin,pweight,weight)
 C
       child % var % oldvalues2D => childtemp % var % oldvalues2D
+      child % var % list_interp => childtemp % var %list_interp      
 C      
       deallocate(childtemp % var)
 C
@@ -936,20 +948,10 @@ C
      &              * (ptres2(i,2,ndir,nb)-ptres2(i,1,ndir,nb)+1)
 C      
               enddo
-C              
-              allocate(tab(sizetab))
-C
-             Call Agrif_vector2array(
-     &                      tab,child%var,
-     &                      ptres2(:,:,ndir,nb),
-     &                      nbdim)
 
-C     
-              Call saveAfterInterp
-     &             (child,tab,kindex)
+              Call saveAfterInterp(child,
+     &           ptres2(:,:,ndir,nb),kindex,sizetab,nbdim)
 C
-C
-              deallocate(tab)     
            ENDIF
 C
           endif
@@ -1003,10 +1005,10 @@ C
 C              
               allocate(tab(sizetab))
 C
-             Call Agrif_vector2array(
-     &                      tab,child%var,
-     &                      ptres2(:,:,ndir,nb),
-     &                      nbdim)
+c            Call Agrif_vector2array(
+c    &                      tab,child%var,
+c    &                      ptres2(:,:,ndir,nb),
+c    &                      nbdim)
 C    
 C                  
               Call timeInterpolation
@@ -1037,7 +1039,7 @@ C     **************************************************************************
 CCC   Subroutine saveAfterInterp
 C     **************************************************************************
 C
-      Subroutine saveAfterInterp(child,tab,kindex)
+      Subroutine saveAfterInterp(child,bounds,kindex,newsize,nbdim)
 C
 CCC   Descritpion:
 CCC   Subroutine used to save the values of the grid variable on the fine grid 
@@ -1049,44 +1051,104 @@ C
 C
 C     argument
       TYPE (AGRIF_PVariable) :: child   ! The fine grid variable
-      REAL, DIMENSION(:)     :: tab     ! Values on the fine grid variable 
-                                        !   after the space interpolation  
       INTEGER                :: kindex  ! Index indicating where this safeguard 
                                         ! is done on the fine grid
+      INTEGER :: nbdim, newsize
+      INTEGER,DIMENSION(nbdim,2) :: bounds
 C
 C     Local scalars
-      INTEGER :: newsize                ! Size of the domain where boundary
-                                        !    conditions are calculated
-      INTEGER :: i
+      INTEGER                      :: ir,jr,kr,lr,mr,nr
 C
 C
 C     Allocation of the array oldvalues2d
-      newsize = size(tab)
+
 C
       if (newsize .LE. 0) return
 C
       Call Agrif_Checksize
      &     (child,kindex+newsize)  
-C
-C
-C     Safeguard in the oldvalues2d array       
-C            
+
       if (child % var % interpIndex 
      &        /= Agrif_Curgrid % parent % ngridstep ) then
-         do i = 1,newsize
-           child % var % oldvalues2d(kindex,1) = child % var %
-     &                                        oldvalues2d(kindex,2) 
-           child % var % oldvalues2d(kindex,2) = tab(i)
-           kindex = kindex + 1
-         enddo
-      else
-        do i = 1,newsize
-           child % var % oldvalues2d(kindex,2) = tab(i)
-           kindex = kindex + 1
-         enddo
+       child%var%oldvalues2d(kindex:kindex+newsize-1,1)=
+     &        child%var%oldvalues2d(kindex:kindex+newsize-1,2)
       endif
-     
 
+      SELECT CASE (nbdim)
+      CASE (1)
+
+         do ir=bounds(1,1),bounds(1,2)
+            child%var%oldvalues2d(kindex,2) =
+     &           child%var%array1(ir)
+            kindex = kindex + 1
+         enddo       
+C
+      CASE (2)
+
+        do jr=bounds(2,1),bounds(2,2)
+           do ir=bounds(1,1),bounds(1,2)
+            child%var%oldvalues2d(kindex,2) =
+     &           child%var%array2(ir,jr)
+            kindex = kindex + 1
+           enddo
+         enddo      
+C
+      CASE (3)
+        do kr=bounds(3,1),bounds(3,2)
+          do jr=bounds(2,1),bounds(2,2)
+             do ir=bounds(1,1),bounds(1,2)
+            child%var%oldvalues2d(kindex,2) =
+     &           child%var%array3(ir,jr,kr)
+            kindex = kindex + 1
+             enddo
+           enddo
+         enddo       
+C
+      CASE (4)
+          do lr=bounds(4,1),bounds(4,2)
+           do kr=bounds(3,1),bounds(3,2)
+             do jr=bounds(2,1),bounds(2,2)
+               do ir=bounds(1,1),bounds(1,2)
+            child%var%oldvalues2d(kindex,2) =
+     &           child%var%array4(ir,jr,kr,lr)
+            kindex = kindex + 1
+               enddo
+             enddo
+           enddo
+         enddo         
+C
+      CASE (5)
+         do mr=bounds(5,1),bounds(5,2)
+           do lr=bounds(4,1),bounds(4,2)
+            do kr=bounds(3,1),bounds(3,2) 
+              do jr=bounds(2,1),bounds(2,2)
+                 do ir=bounds(1,1),bounds(1,2)
+            child%var%oldvalues2d(kindex,2) =
+     &           child%var%array5(ir,jr,kr,lr,mr)
+            kindex = kindex + 1
+                 enddo
+               enddo
+             enddo
+           enddo
+         enddo   
+C
+      CASE (6)
+        do nr=bounds(6,1),bounds(6,2)
+           do mr=bounds(5,1),bounds(5,2)
+             do lr=bounds(4,1),bounds(4,2)
+               do kr=bounds(3,1),bounds(3,2)
+                do jr=bounds(2,1),bounds(2,2)
+                   do ir=bounds(1,1),bounds(1,2)
+            child%var%oldvalues2d(kindex,2) =
+     &           child%var%array6(ir,jr,kr,lr,mr,nr)
+            kindex = kindex + 1
+                   enddo
+                 enddo
+               enddo
+             enddo
+           enddo
+         enddo       
+      END SELECT
 C
 C                                                  
       End subroutine saveAfterInterp

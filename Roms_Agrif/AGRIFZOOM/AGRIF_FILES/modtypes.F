@@ -28,6 +28,10 @@ CCC   Definition of data types used in Agrif, of several variables and
 C        PARAMETERs.     
 C
       IMPLICIT NONE
+      
+C     Maximum refinement ratio
+
+      INTEGER, PARAMETER :: Agrif_MaxRaff = 7      
 C
 C     **************************************************************************
 CCC   TYPE Agrif_LRECTANGLE
@@ -241,8 +245,34 @@ C
          INTEGER, DIMENSION(6) :: bcTYPEinterp ! option bcinterp
          INTEGER, DIMENSION(6) :: TYPEinterp ! option interp
          INTEGER, DIMENSION(6) :: TYPEupdate ! option update
+         
+         Type(Agrif_List_Interp_Loc), Pointer :: list_interp => NULL()
+         Type(Agrif_List_Interp_Loc), Pointer :: list_update => NULL()
 C
       End TYPE Agrif_Variable 
+      
+      Type Agrif_Interp_Loc
+      integer,dimension(6) :: pttab,petab,
+     &                          pttab_Child,pttab_Parent = -99
+      integer,dimension(6) :: indmin, indmax
+      INTEGER,DIMENSION(6)    :: pttruetab,cetruetab
+      logical :: member, memberin      
+#if !defined AGRIF_MPI      
+      integer,dimension(6) :: indminglob,indmaxglob
+#else
+      integer,dimension(6) :: indminglob2,indmaxglob2
+      INTEGER,DIMENSION(6,2,2) :: parentarray
+      INTEGER,DIMENSION(:,:,:), POINTER :: tab4t
+      LOGICAL, DIMENSION(:), POINTER :: memberinall
+      INTEGER,DIMENSION(:,:,:), POINTER :: tab5t
+      LOGICAL, DIMENSION(:), POINTER :: memberinall2
+#endif      
+      End Type Agrif_Interp_Loc
+      
+      Type Agrif_List_Interp_Loc
+      Type(Agrif_Interp_Loc), Pointer :: interp_loc
+      Type(Agrif_List_Interp_Loc), Pointer :: suiv
+      End Type Agrif_List_Interp_Loc
         
        TYPE Agrif_Profile
           character*80 :: profilename

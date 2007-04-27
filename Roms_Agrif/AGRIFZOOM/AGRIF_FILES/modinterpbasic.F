@@ -35,10 +35,12 @@ C     Modules used:
 C
       IMPLICIT NONE
 C             
+      Real,Dimension(Agrif_MaxRaff) :: tabdiff2, tabdiff3
+      Real,Dimension(:),Allocatable::tabtest4      
+       
       CONTAINS
 C     Define procedures contained in this module
-C 
-C
+C  
 C     **************************************************************************  
 CCC   Subroutine Linear1d  
 C     ************************************************************************** 
@@ -58,13 +60,15 @@ C
 C        
 C     Arguments
       INTEGER             :: np,nc      
-      REAL, DIMENSION(np) :: x      
-      REAL, DIMENSION(nc) :: y  
+      REAL,INTENT(IN), DIMENSION(np) :: x      
+      REAL,INTENT(OUT), DIMENSION(nc) :: y  
       REAL                :: s_parent,s_child,ds_parent,ds_child
 C
 C     Local scalars
       INTEGER :: i,coeffraf,locind_parent_left
-      REAL    :: ypos,globind_parent_left
+      REAL    :: ypos,globind_parent_left,globind_parent_right
+      REAL    :: invds, invds2
+      REAL :: ypos2,diff
 C
 C
 
@@ -80,25 +84,39 @@ C
 C
       endif                          
 C
-      ypos = s_child      
-C
-      do i = 1,nc-1
-C
-        locind_parent_left = 1 + agrif_int((ypos - s_parent)/ds_parent)
-C
+      ypos = s_child 
+
+      locind_parent_left = 1 + agrif_int((ypos - s_parent)/ds_parent)
+
         globind_parent_left = s_parent 
      &                        + (locind_parent_left - 1)*ds_parent
-C        
-        y(i) = ((globind_parent_left + ds_parent - ypos)
-     &          *x(locind_parent_left)
-     &        + (ypos - globind_parent_left)
-     &          *x(locind_parent_left+1))
-     &         / ds_parent                
+
+        globind_parent_right = globind_parent_left + ds_parent
+
 C
-        ypos = ypos + ds_child
+      invds = 1./ds_parent
+      invds2 = ds_child/ds_parent
+      
+      ypos2 = ypos*invds
+      globind_parent_right=globind_parent_right*invds
+      
+      do i = 1,nc-1
+C
+        if (ypos2 > globind_parent_right) then
+           locind_parent_left = locind_parent_left + 1.
+           globind_parent_right = globind_parent_right + 1.
+        endif
+        
+        diff=(globind_parent_right - ypos2)
+        
+        y(i) = (diff*x(locind_parent_left)
+     &        + (1.-diff)*x(locind_parent_left+1))
+C
+        ypos2 = ypos2 + invds2
 C
       enddo
 C
+      ypos = s_child + (nc-1)*ds_child
       locind_parent_left = 1 + agrif_int((ypos - s_parent)/ds_parent)
 C
       if (locind_parent_left == np) then
@@ -113,8 +131,7 @@ C
           y(nc) = ((globind_parent_left + ds_parent - ypos)
      &            *x(locind_parent_left)
      &          + (ypos - globind_parent_left)
-     &            *x(locind_parent_left+1))
-     &           / ds_parent     
+     &            *x(locind_parent_left+1))*invds
 C
       endif                                          
 C           
@@ -122,6 +139,7 @@ C
 C
 C       
       End Subroutine Linear1d   
+       
 C
 C
 C
@@ -144,8 +162,8 @@ C
 C             
 C     Arguments
       INTEGER             :: np,nc      
-      REAL, DIMENSION(np) :: x      
-      REAL, DIMENSION(nc) :: y  
+      REAL,INTENT(IN), DIMENSION(np) :: x      
+      REAL,INTENT(OUT), DIMENSION(nc) :: y  
       REAL                :: s_parent,s_child,ds_parent,ds_child 
 C
 C     Local scalars
@@ -238,8 +256,8 @@ C
 C        
 C     Arguments
       INTEGER             :: np,nc      
-      REAL, DIMENSION(np) :: x      
-      REAL, DIMENSION(nc) :: y  
+      REAL,INTENT(IN), DIMENSION(np) :: x      
+      REAL,INTENT(OUT), DIMENSION(nc) :: y  
       REAL                :: s_parent,s_child,ds_parent,ds_child
 C
 C     Local scalars
@@ -528,9 +546,9 @@ C
 C        
 C     Arguments
       Integer             :: np,nc      
-      Real, Dimension(np) :: x      
-      Real, Dimension(nc) :: y
-      Real, Dimension(:),Allocatable :: ytemp
+      Real, INTENT(IN),Dimension(np) :: x      
+      Real, INTENT(OUT),Dimension(nc) :: y
+C      Real, Dimension(:),Allocatable :: ytemp
       Real                :: s_parent,s_child,ds_parent,ds_child
 C
 C     Local scalars
@@ -538,11 +556,11 @@ C     Local scalars
       Integer :: iparent,ipos,pos,nmin,nmax
       Real    :: ypos
       integer :: i1,jj
-      Real :: xpmin,cavg,a,b
+      Real :: xpmin,a
 C      
       Real :: xrmin,xrmax,am3,s2,s1  
-      Real, Dimension(np) :: dela,xr,xl,delta,a6,slope,slope2
-      Real, Dimension(:),Allocatable  :: diff,diff2,diff3    
+      Real, Dimension(np) :: xl,delta,a6,slope
+C      Real, Dimension(:),Allocatable  :: diff,diff2,diff3    
       INTEGER :: diffmod
       REAL :: invcoeffraf
 C      
@@ -555,7 +573,15 @@ C
       End If
       invcoeffraf = ds_child/ds_parent
 C      
-      Allocate(ytemp(-2*coeffraf:nc+2*coeffraf))
+
+      IF( .NOT. allocated(tabtest4) ) THEN    
+      Allocate(tabtest4(-2*coeffraf:nc+2*coeffraf))
+      ELSE
+         IF (size(tabtest4) .LT. nc+4*coeffraf+1)THEN
+         deallocate( tabtest4 )
+         Allocate(tabtest4(-2*coeffraf:nc+2*coeffraf))
+         ENDIF
+      ENDIF  
       ypos = s_child  
 C
       locind_parent_left = 1 + agrif_int((ypos - s_parent)/ds_parent) 
@@ -566,18 +592,18 @@ C
       xpmin = s_parent + (locind_parent_left-1)*ds_parent       
       i1 = 1+agrif_int((xpmin-s_child)/ds_child)        
 C     
-      Allocate( diff(coeffraf),diff2(coeffraf),diff3(coeffraf) )
-C      
-         diff(:) = invcoeffraf
-C      
-      a = 0.
-      b = invcoeffraf
+C
+      
       Do i=1,coeffraf
-         diff2(i) = 0.5*(b*b - a*a)  
-         diff3(i) = (1./3.)*(b*b*b - a*a*a)
-         a = a + invcoeffraf
-         b = b + invcoeffraf
-      End do
+        tabdiff2(i)=(real(i)-0.5)*invcoeffraf
+      EndDo
+
+      a = invcoeffraf**2 
+      tabdiff3(1) = (1./3.)*a
+      a=2.*a
+      Do i=2,coeffraf
+        tabdiff3(i) = tabdiff3(i-1)+(real(i)-1)*a
+      EndDo
 C
       if( locind_parent_last+2 <= np ) then
            nmax = locind_parent_last+2    
@@ -593,45 +619,35 @@ C
           nmin = locind_parent_left
       endif    
 C 
+C
       Do i = nmin,nmax
          slope(i) = x(i) - x(i-1)
       Enddo
-C
-      Do i = nmin,nmax-1
-         dela(i) = 0.5 * ( slope(i) + slope(i+1) )
+
+      Do i = nmin+1,nmax-1
+         xl(i)= 0.5*(x(i-1)+x(i))
+     &      -0.08333333333333*(slope(i+1)-slope(i-1)) 
       Enddo
 C
-      Do i = nmin,nmax-2
-         xr(i) = x(i) + (1./2.)*slope(i+1) + (-1./6.)*dela(i+1)
-     &                                     + ( 1./6. )*dela(i)
-      Enddo
-C
-      Do i = nmin,nmax-2
-         xl(i+1) = xr(i)         
-      Enddo
 C apply parabolic monotonicity
        Do i = locind_parent_left,locind_parent_last
-          delta(i) = xr(i) - xl(i)
-          a6(i) = 6.*x(i)-3.*(xl(i) +xr(i))
+          delta(i) = xl(i+1) - xl(i)
+          a6(i) = 6.*x(i)-3.*(xl(i) +xl(i+1))
 C
        End do   
 C
         diffmod = 0
-       IF (mod(coeffraf,2) == 0) diffmod = 1           
+       IF (mod(coeffraf,2) == 0) diffmod = 1
 C
         ipos = i1
 C               
         Do iparent = locind_parent_left,locind_parent_last       
              pos=1
-             cavg = 0.
              Do jj = ipos - coeffraf/2+diffmod,ipos + coeffraf/2
 C
-               ytemp(jj) = (diff(pos)*xl(iparent)   
-     &             + diff2(pos)
-     &             *  (delta(iparent)+a6(iparent))
-     &             - diff3(pos)*a6(iparent))*coeffraf
-                              
-               cavg = cavg + ytemp(jj)
+               tabtest4(jj) = xl(iparent)   
+     &             + tabdiff2(pos) *  (delta(iparent)+a6(iparent))
+     &             - tabdiff3(pos) *  a6(iparent)
                pos = pos+1 
              End do 
              ipos = ipos + coeffraf
@@ -639,9 +655,8 @@ C
         End do     
 C
 C
-        y(1:nc)=ytemp(1:nc)                                 
-        deallocate(ytemp)                
-        deallocate(diff, diff2, diff3)
+        y(1:nc)=tabtest4(1:nc)
+        
       Return
       End Subroutine ppm1d
       
@@ -677,7 +692,7 @@ C     Local scalars
       Real :: xpmin,cavg,a,b
 C      
       Real :: xrmin,xrmax,am3,s2,s1
-      Real, Dimension(np) :: dela,xr,xl,delta,a6,slope,slope2,smooth
+      Real, Dimension(np) :: xr,xl,delta,a6,slope,slope2,smooth
       Real, Dimension(:),Allocatable  :: diff,diff2,diff3
       INTEGER :: diffmod
       REAL :: invcoeffraf
@@ -849,7 +864,7 @@ C     Local scalars
       Real :: xpmin,cavg,a,b
 C      
       Real :: xrmin,xrmax,am3,s2,s1
-      Real, Dimension(np) :: dela,xr,xl,delta,a6,slope,slope2
+      Real, Dimension(np) :: xr,xl,delta,a6,slope,slope2
       Real, Dimension(:),Allocatable  :: diff,diff2,diff3
       INTEGER :: diffmod
       REAL :: invcoeffraf

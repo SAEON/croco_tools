@@ -33,7 +33,7 @@ C
 C
       Subroutine Get_External_Data(tempC,tempCextend,pttruetab,
      &   cetruetab,pttruetabwhole,cetruetabwhole,nbdim,memberin,
-     &   memberout)
+     &   memberout,memberoutall1)
 
       IMPLICIT NONE
 #include "mpif.h"
@@ -53,17 +53,21 @@ C
       INTEGER,DIMENSION(nbdim,0:Agrif_NbProcs-1)    :: pttruetab2,
      &                                                 cetruetab2
       LOGICAL :: memberout1(1),memberoutall(0:Agrif_Nbprocs-1)
+      LOGICAL, OPTIONAL :: memberoutall1(0:Agrif_Nbprocs-1)
       INTEGER :: code
 
 C pttruetab2 and cetruetab2 are modified arraysin order to always
 C send the most inner points
 
         
+        IF (present(memberoutall1)) THEN
+        memberoutall = memberoutall1
+        ELSE
          memberout1(1) = memberout
 
          CALL MPI_ALLGATHER(memberout1,1,MPI_LOGICAL,memberoutall,
      &                  1,MPI_LOGICAL,MPI_COMM_WORLD,code)
-
+        ENDIF
          pttruetab2(:,Agrif_Procrank) = pttruetab(:,Agrif_Procrank)
          cetruetab2(:,Agrif_Procrank) = cetruetab(:,Agrif_Procrank)
          do k2=0,Agrif_Nbprocs-1
@@ -197,7 +201,7 @@ c       IF (.NOT.memberin) sendtoproc = .FALSE.
       LOGICAL,DIMENSION(0:Agrif_Nbprocs-1)       :: sendtoproc
       LOGICAL,DIMENSION(0:Agrif_Nbprocs-1)       :: recvfromproc
       LOGICAL                                    :: res
-      TYPE(AGRIF_PVARIABLE)                      :: temprecv
+      TYPE(AGRIF_PVARIABLE), SAVE                      :: temprecv
 
 #include "mpif.h"
           INTEGER :: i,k
@@ -242,12 +246,8 @@ C
      &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
      &                        MPI_COMM_WORLD,code)
                 CASE(3)
-                   Call MPI_SEND(tempC%var%array3(
-     &                        imin(1,k):imax(1,k),
-     &                        imin(2,k):imax(2,k),
-     &                        imin(3,k):imax(3,k)),
-     &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
-     &                        MPI_COMM_WORLD,code)
+                  Call Agrif_Send_3Darray(tempC%var%array3,
+     &             lbound(tempC%var%array3),imin(:,k),imax(:,k),k)
                 CASE(4)
                    Call MPI_SEND(tempC%var%array4(
      &                        imin(1,k):imax(1,k),
@@ -310,7 +310,7 @@ C
 C
                 enddo
 
-                allocate(temprecv%var)
+             IF (.Not.Associated(temprecv%var)) allocate(temprecv%var)
              call Agrif_nbdim_allocation(temprecv%var,imin_recv(:,k),
      &   imax_recv(:,k),nbdim)
             SELECT CASE(nbdim)
@@ -340,22 +340,8 @@ C
      &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
      &               MPI_COMM_WORLD,statut,code)
        END SELECT
-            
-            Call where_valtabtotab_mpi(tempCextend%var,
-     &             temprecv%var,imin_recv(:,k),imax_recv(:,k),0.,nbdim)
-     
-                Call Agrif_nbdim_deallocation(temprecv%var,nbdim)
-                deallocate(temprecv%var)
-
             endif
-
-C
-      enddo
-
-
-      do k = Agrif_ProcRank+1,Agrif_Nbprocs-1
-C
-C
+            
             Call MPI_SEND(sendtoproc(k),1,MPI_LOGICAL,k,etiquette,
      &                    MPI_COMM_WORLD,code)
 C
@@ -368,27 +354,28 @@ C
      &                        2*nbdim,MPI_INTEGER,k,etiquette,
      &                        MPI_COMM_WORLD,code)
 C
-                datasize = 1
-C
-                do i = 1,nbdim
-C
-                  datasize = datasize * (imax(i,k)-imin(i,k)+1)
-C
-                enddo
-C
                 SELECT CASE(nbdim)
                 CASE(1)
+                datasize=SIZE(tempC%var%array1(
+     &                        imin(1,k):imax(1,k)))
                    Call MPI_SEND(tempC%var%array1(
      &                        imin(1,k):imax(1,k)),
      &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
      &                        MPI_COMM_WORLD,code)
                 CASE(2)
+                datasize=SIZE(tempC%var%array2(
+     &                        imin(1,k):imax(1,k),
+     &                        imin(2,k):imax(2,k)))
                    Call MPI_SEND(tempC%var%array2(
      &                        imin(1,k):imax(1,k),
      &                        imin(2,k):imax(2,k)),
      &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
      &                        MPI_COMM_WORLD,code)
                 CASE(3)
+                datasize=SIZE(tempC%var%array3(
+     &                        imin(1,k):imax(1,k),
+     &                        imin(2,k):imax(2,k),
+     &                        imin(3,k):imax(3,k)))
                    Call MPI_SEND(tempC%var%array3(
      &                        imin(1,k):imax(1,k),
      &                        imin(2,k):imax(2,k),
@@ -396,6 +383,11 @@ C
      &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
      &                        MPI_COMM_WORLD,code)
                 CASE(4)
+                datasize=SIZE(tempC%var%array4(
+     &                        imin(1,k):imax(1,k),
+     &                        imin(2,k):imax(2,k),
+     &                        imin(3,k):imax(3,k),
+     &                        imin(4,k):imax(4,k)))
                    Call MPI_SEND(tempC%var%array4(
      &                        imin(1,k):imax(1,k),
      &                        imin(2,k):imax(2,k),
@@ -404,6 +396,12 @@ C
      &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
      &                        MPI_COMM_WORLD,code)
                 CASE(5)
+                datasize=SIZE(tempC%var%array5(
+     &                        imin(1,k):imax(1,k),
+     &                        imin(2,k):imax(2,k),
+     &                        imin(3,k):imax(3,k),
+     &                        imin(4,k):imax(4,k),
+     &                        imin(5,k):imax(5,k)))
                    Call MPI_SEND(tempC%var%array5(
      &                        imin(1,k):imax(1,k),
      &                        imin(2,k):imax(2,k),
@@ -413,6 +411,13 @@ C
      &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
      &                        MPI_COMM_WORLD,code)
                 CASE(6)
+                datasize=SIZE(tempC%var%array6(
+     &                        imin(1,k):imax(1,k),
+     &                        imin(2,k):imax(2,k),
+     &                        imin(3,k):imax(3,k),
+     &                        imin(4,k):imax(4,k),
+     &                        imin(5,k):imax(5,k),
+     &                        imin(6,k):imax(6,k)))
                    Call MPI_SEND(tempC%var%array6(
      &                        imin(1,k):imax(1,k),
      &                        imin(2,k):imax(2,k),
@@ -424,6 +429,16 @@ C
      &                        MPI_COMM_WORLD,code)
                 END SELECT
 C
+            endif            
+            
+            if (recvfromproc(k)) then
+                        
+            Call where_valtabtotab_mpi(tempCextend%var,
+     &             temprecv%var,imin_recv(:,k),imax_recv(:,k),0.,nbdim)
+     
+                Call Agrif_nbdim_deallocation(temprecv%var,nbdim)
+C                deallocate(temprecv%var)
+
             endif
 
 C
@@ -447,58 +462,88 @@ C
      &                        2*nbdim,MPI_INTEGER,k,etiquette,
      &                        MPI_COMM_WORLD,statut,code)
 
-                imin_recv(:,k) = iminmax_temp(:,1,k)
-                imax_recv(:,k) = iminmax_temp(:,2,k)
+C                imin_recv(:,k) = iminmax_temp(:,1,k)
+C                imax_recv(:,k) = iminmax_temp(:,2,k)
 
-                datasize = 1
+C                datasize = 1
 C
-                do i = 1,nbdim
+C                do i = 1,nbdim
 C
-                datasize = datasize * (imax_recv(i,k)-imin_recv(i,k)+1)
+C                datasize = datasize * (imax_recv(i,k)-imin_recv(i,k)+1)
 C
-                enddo
-                allocate(temprecv%var)
-             call Agrif_nbdim_allocation(temprecv%var,imin_recv(:,k),
-     &   imax_recv(:,k),nbdim)
+C                enddo
+             IF (.Not.Associated(temprecv%var)) allocate(temprecv%var)
+             call Agrif_nbdim_allocation(temprecv%var,
+     &   iminmax_temp(:,1,k),iminmax_temp(:,2,k),nbdim)
             SELECT CASE(nbdim)
             CASE(1)
+              datasize=SIZE(temprecv%var%array1)
               Call MPI_RECV(temprecv%var%array1,
      &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
      &               MPI_COMM_WORLD,statut,code)
             CASE(2)
+              datasize=SIZE(temprecv%var%array2)
               Call MPI_RECV(temprecv%var%array2,
      &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
      &               MPI_COMM_WORLD,statut,code)
             CASE(3)
+              datasize=SIZE(temprecv%var%array3)
               Call MPI_RECV(temprecv%var%array3,
      &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
      &               MPI_COMM_WORLD,statut,code)
 
             CASE(4)
+              datasize=SIZE(temprecv%var%array4)
               Call MPI_RECV(temprecv%var%array4,
      &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
      &               MPI_COMM_WORLD,statut,code)
             CASE(5)
+              datasize=SIZE(temprecv%var%array5)
               Call MPI_RECV(temprecv%var%array5,
      &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
      &               MPI_COMM_WORLD,statut,code)
             CASE(6)
+              datasize=SIZE(temprecv%var%array6)
               Call MPI_RECV(temprecv%var%array6,
      &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
      &               MPI_COMM_WORLD,statut,code)
           END SELECT
             
             Call where_valtabtotab_mpi(tempCextend%var,
-     &             temprecv%var,imin_recv(:,k),imax_recv(:,k),0.,nbdim)
+     &             temprecv%var,iminmax_temp(:,1,k),iminmax_temp(:,2,k)
+     &            ,0.,nbdim)
      
                 Call Agrif_nbdim_deallocation(temprecv%var,nbdim)
-                deallocate(temprecv%var)
+C                deallocate(temprecv%var)
             endif
 
 C
       enddo
 
           End Subroutine ExchangeSamelevel
+
+          Subroutine Agrif_Send_3Darray(tab3D,bounds,imin,imax,k)
+          integer, dimension(3) :: bounds, imin, imax
+          real,dimension(bounds(1):,bounds(2):,bounds(3):),target
+     &                             :: tab3D
+          integer :: k
+          integer :: etiquette = 100
+          integer :: datasize, code
+#include "mpif.h"   
+
+          datasize = SIZE(tab3D(
+     &                       imin(1):imax(1),
+     &                        imin(2):imax(2),
+     &                        imin(3):imax(3)))
+       
+                   Call MPI_SEND(tab3D(
+     &                        imin(1):imax(1),
+     &                        imin(2):imax(2),
+     &                        imin(3):imax(3)),
+     &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &                        MPI_COMM_WORLD,code)
+     
+         End Subroutine Agrif_Send_3Darray
 
 #else
       Subroutine Agrif_mpp_empty()

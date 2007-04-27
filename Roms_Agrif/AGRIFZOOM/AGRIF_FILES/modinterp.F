@@ -103,10 +103,12 @@ C     Index indicating (in the Agrif_Interp1D procedure) if a space
 C        interpolation is necessary
       childtemp % var % interpIndex => child % var % interpIndex       
       childtemp % var % Interpolationshouldbemade = 
-     &    child % var % Interpolationshouldbemade       
+     &    child % var % Interpolationshouldbemade 
+      childtemp % var % list_interp => child % var% list_interp            
 C      
       Call Agrif_InterpVariable
      &     (TypeInterp,parent,childtemp,torestore)
+      child % var % list_interp => childtemp % var %list_interp     
 C      
       deallocate(childtemp % var)
 C
@@ -172,10 +174,12 @@ C     Index indicating (in the Agrif_Interp2D procedure) if a space
 C        interpolation is necessary
       childtemp % var % interpIndex => child % var % interpIndex       
       childtemp % var % Interpolationshouldbemade = 
-     &    child % var % Interpolationshouldbemade       
+     &    child % var % Interpolationshouldbemade   
+      childtemp % var % list_interp => child % var% list_interp          
 C     
       Call Agrif_InterpVariable
      &     (TypeInterp,parent,childtemp,torestore)
+      child % var % list_interp => childtemp % var %list_interp     
 C      
       deallocate(childtemp % var)
 C
@@ -242,10 +246,12 @@ C     Index indicating (in the Agrif_Interp3D procedure) if a space
 C        interpolation is necessary
       childtemp % var % interpIndex => child % var % interpIndex    
       childtemp % var % Interpolationshouldbemade = 
-     &    child % var % Interpolationshouldbemade       
+     &    child % var % Interpolationshouldbemade   
+      childtemp % var % list_interp => child % var% list_interp          
 C     
       Call Agrif_InterpVariable
      &     (TypeInterp,parent,childtemp,torestore)
+      child % var % list_interp => childtemp % var %list_interp     
 C      
       deallocate(childtemp % var)
 C
@@ -313,10 +319,12 @@ C     Index indicating (in the Agrif_Interp4D procedure) if a space
 C        interpolation is necessary
       childtemp % var % interpIndex => child % var % interpIndex    
       childtemp % var % Interpolationshouldbemade = 
-     &    child % var % Interpolationshouldbemade       
+     &    child % var % Interpolationshouldbemade  
+      childtemp % var % list_interp => child % var% list_interp           
 C     
       Call Agrif_InterpVariable
      &     (TypeInterp,parent,childtemp,torestore)
+      child % var % list_interp => childtemp % var %list_interp
 C      
       deallocate(childtemp % var)
 C
@@ -385,10 +393,13 @@ C     Index indicating (in the Agrif_Interp5D procedure) if a space
 C        interpolation is necessary
       childtemp % var % interpIndex => child % var % interpIndex    
       childtemp % var % Interpolationshouldbemade = 
-     &    child % var % Interpolationshouldbemade       
+     &    child % var % Interpolationshouldbemade   
+      childtemp % var % list_interp => child % var% list_interp          
 C      
       Call Agrif_InterpVariable
      &     (TypeInterp,parent,childtemp,torestore)
+     
+      child % var % list_interp => childtemp % var %list_interp
 C      
       deallocate(childtemp % var)
 C
@@ -458,11 +469,14 @@ C     Index indicating (in the Agrif_Interp6D procedure) if a space
 C        interpolation is necessary
       childtemp % var % interpIndex => child % var % interpIndex    
       childtemp % var % Interpolationshouldbemade = 
-     &    child % var % Interpolationshouldbemade       
+     &    child % var % Interpolationshouldbemade  
+     
+      childtemp % var % list_interp => child % var% list_interp           
 C      
       Call Agrif_InterpVariable
      &     (TypeInterp,parent,childtemp,torestore)
 C      
+      child % var % list_interp => childtemp % var %list_interp
       deallocate(childtemp % var)
 C
 C       
@@ -590,8 +604,8 @@ C     Arguments
                                                        !    restore is used
 C
 C     Local pointers
-      TYPE(AGRIF_PVARIABLE)      :: tempP,tempPextend  ! Temporary parent grid variable
-      TYPE(AGRIF_PVARIABLE)      :: tempC      ! Temporary child grid variable
+      TYPE(AGRIF_PVARIABLE),SAVE      :: tempP,tempPextend  ! Temporary parent grid variable
+      TYPE(AGRIF_PVARIABLE),SAVE      :: tempC      ! Temporary child grid variable
 C
 C     Local scalars        
       INTEGER                     :: i,j,k,l,m,n
@@ -604,28 +618,51 @@ C     Local scalars
       INTEGER,DIMENSION(nbdim,2,2) :: childarray
       INTEGER,DIMENSION(nbdim,2,2) :: parentarray
       LOGICAL :: memberin,member
-      TYPE(AGRIF_PVARIABLE)                      ::  parentvalues
+      TYPE(AGRIF_PVARIABLE),SAVE                      ::  parentvalues
+      LOGICAL :: find_list_interp
+      INTEGER,DIMENSION(nbdim)    :: indminglob2,indmaxglob2      
 C
 #ifdef AGRIF_MPI
 C
       LOGICAL :: memberout
       INTEGER,PARAMETER                          :: etiquette = 100
       INTEGER                                    :: code
-      INTEGER,DIMENSION(nbdim)    :: indminglob2,indmaxglob2
       INTEGER,DIMENSION(nbdim,4)           :: tab3
       INTEGER,DIMENSION(nbdim,4,0:Agrif_Nbprocs-1) :: tab4
       INTEGER,DIMENSION(nbdim,0:Agrif_Nbprocs-1,4) :: tab4t
+      LOGICAL, DIMENSION(0:Agrif_Nbprocs-1) :: memberinall
+      LOGICAL, DIMENSION(1) :: memberin1
 C
 #endif      
 C     
 C   
 C     Boundaries of the current grid where interpolation is done
+
+      
+      
+      
+      IF (Associated(child%var%list_interp)) THEN
+      Call Agrif_Find_list_interp(child%var%list_interp,pttab,petab,
+     &                          pttab_Child,pttab_Parent,nbdim,
+     &                          indmin,indmax,indminglob,
+     &       indmaxglob,indminglob2,indmaxglob2,parentarray,
+     &       pttruetab,cetruetab,member,memberin,find_list_interp
+#if defined AGRIF_MPI
+     &       ,tab4t,memberinall
+#endif
+     &    )
+      ELSE
+      find_list_interp = .FALSE.
+      ENDIF
+      
+      IF (.not.find_list_interp) THEN
       Call Agrif_nbdim_Get_bound_dimension(child % var,
      &                               lowerbound,upperbound,nbdim)
 
       Call Agrif_Childbounds(nbdim,lowerbound,upperbound,
      &                                   pttab,petab,
      &                                   pttruetab,cetruetab,memberin)
+     
 C
 C
 
@@ -639,10 +676,9 @@ C
      &                        child % var % root_var % interptab)
 
 
-#ifdef AGRIF_MPI 
-
-      IF (memberin) THEN
-      Call Agrif_Parentbounds(TYPEinterp,nbdim,indmin,indmax,
+#ifdef AGRIF_MPI
+       IF (memberin) THEN
+        Call Agrif_Parentbounds(TYPEinterp,nbdim,indmin,indmax,
      &                        s_Parent_temp,s_Child_temp,
      &                        s_Child,ds_Child,
      &                        s_Parent,ds_Parent,
@@ -650,8 +686,7 @@ C
      &                        pttab_Child,pttab_Parent,
      &                        child%var%root_var%posvar,
      &                        child % var % root_var % interptab)
-      ENDIF
-   
+      ENDIF 
 
       Call Agrif_nbdim_Get_bound_dimension(parent%var,
      &                              lowerbound,upperbound,nbdim)
@@ -670,8 +705,8 @@ C
      &                     indminglob2,indmaxglob2,
      &                     nbdim,Agrif_Procrank,
      &                     member)
-            endif
-
+       endif
+       
       Call Agrif_ParentGrid_to_ChildGrid()
 #else
       parentarray(:,1,1) = indminglob
@@ -683,10 +718,29 @@ C
       member = .TRUE.
 #endif
 
+      ELSE
+      
+#if !defined AGRIF_MPI
+      parentarray(:,1,1) = indminglob
+      parentarray(:,2,1) = indmaxglob
+      parentarray(:,1,2) = indminglob
+      parentarray(:,2,2) = indmaxglob
+      indmin = indminglob
+      indmax = indmaxglob
+      member = .TRUE.
+      s_Parent_temp = s_Parent + (indminglob - pttab_Parent)*ds_Parent
+      s_Child_temp = s_Child + (pttab - pttab_Child) * ds_Child
+#else      
+      s_Parent_temp = s_Parent + (indmin - pttab_Parent)*ds_Parent
+      s_Child_temp = s_Child + (pttruetab - pttab_Child) * ds_Child
+#endif      
+           
+      ENDIF
+
 
 
       IF (member) THEN
-      allocate(tempP%var)
+      IF (.not.associated(tempP%var)) allocate(tempP%var)
 
 C
       Call Agrif_nbdim_allocation(tempP%var,
@@ -744,6 +798,7 @@ C
             endif
 
 #ifdef AGRIF_MPI
+      if (.not.find_list_interp) then
       tab3(:,1) = indminglob2(:)
       tab3(:,2) = indmaxglob2(:)
       tab3(:,3) = indmin(:)
@@ -753,7 +808,8 @@ C
       Call MPI_ALLGATHER(tab3,4*nbdim,MPI_INTEGER,tab4,4*nbdim,
      &                   MPI_INTEGER,MPI_COMM_WORLD,code)
 
-      Allocate(tempPextend%var)
+      IF (.not.associated(tempPextend%var)) Allocate(tempPextend%var)
+
       DO k=0,Agrif_Nbprocs-1
        do j=1,4
          do i=1,nbdim
@@ -761,17 +817,36 @@ C
                 enddo
       enddo
       enddo
+      
+      memberin1(1) = memberin
+      CALL MPI_ALLGATHER(memberin1,1,MPI_LOGICAL,memberinall,
+     &                  1,MPI_LOGICAL,MPI_COMM_WORLD,code)
+     
+      endif     
+           
       Call Get_External_Data(tempP,tempPextend,tab4t(:,:,1),
      &            tab4t(:,:,2),
-     &            tab4t(:,:,3),tab4t(:,:,4),nbdim,member,memberin)
+     &            tab4t(:,:,3),tab4t(:,:,4),nbdim,member,memberin,
+     &            memberinall)
 #else
       tempPextend%var => tempP%var
 #endif
 
+      if (.not.find_list_interp) then
+      Call Agrif_Addto_list_interp(child%var%list_interp,pttab,petab,
+     &                          pttab_Child,pttab_Parent,indmin,indmax,
+     &   indminglob,indmaxglob,indminglob2,indmaxglob2,parentarray,
+     &   pttruetab,cetruetab,member,memberin,nbdim
+#if defined AGRIF_MPI
+     &   ,tab4t,memberinall
+#endif
+     &    )
+      endif
+      
 C
 C
       IF (memberin) THEN
-      allocate(tempC%var)
+      IF (.not.associated(tempC%var)) allocate(tempC%var)
 C
 
       Call Agrif_nbdim_allocation(tempC%var,pttruetab,cetruetab,nbdim)
@@ -784,7 +859,8 @@ C
           noraftab(1:nbdim) =
      &         child % var % root_var % interptab(1:nbdim) .EQ. 'N'
 C
-          Allocate(parentvalues%var)
+          IF (.not.associated(parentvalues%var))
+     &            Allocate(parentvalues%var)
 C
           Call Agrif_nbdim_allocation
      &               (parentvalues%var,indmin,indmax,nbdim)
@@ -798,7 +874,7 @@ C
      &                           noraftab(1:nbdim),nbdim)
 C
           Call Agrif_nbdim_deallocation(parentvalues%var,nbdim)
-          Deallocate(parentvalues%var)
+C          Deallocate(parentvalues%var)
 C
 C
       endif      
@@ -1121,14 +1197,14 @@ C
       endif
 
         Call Agrif_nbdim_deallocation(tempPextend%var,nbdim)
-        deallocate(tempPextend%var)
+C        deallocate(tempPextend%var)
 
       Call Agrif_nbdim_deallocation(tempC%var,nbdim)
       
-      Deallocate(tempC % var)
+C      Deallocate(tempC % var)
       ELSE
       
-      deallocate(tempPextend%var)
+C      deallocate(tempPextend%var)
 
       ENDIF
 C
@@ -1137,7 +1213,7 @@ C     Deallocations
 #ifdef AGRIF_MPI        
       IF (member) THEN
       Call Agrif_nbdim_deallocation(tempP%var,nbdim)
-      Deallocate(tempP % var)
+C      Deallocate(tempP % var)
       endif
 #endif
 C
@@ -1217,10 +1293,7 @@ C
            indmax(i) = indmax(i) + 1
         ENDIF
         
-!        ELSEIF ( TYPEinterp(i) .eq. Agrif_ppm .or.
-!     &      TYPEinterp(i) .eq. Agrif_eno  .or.
-!     &      TYPEinterp(i) .eq. Agrif_lagrange .or.
-!     &      TYPEinterp(i) .eq. Agrif_weno) THEN  
+
 C        
        ENDDO 
 C
@@ -1260,19 +1333,23 @@ C     Arguments
       INTEGER, DIMENSION(nbdim) :: pttab_child,petab_child
       REAL, DIMENSION(nbdim) :: s_child,s_parent
       REAL, DIMENSION(nbdim) :: ds_child,ds_parent
-      REAL, DIMENSION(indmin(nbdim):indmax(nbdim)) :: tabin        
-      REAL, DIMENSION(pttab_child(nbdim):petab_child(nbdim)) :: tabout
+      REAL, INTENT(IN),DIMENSION(indmin(nbdim):indmax(nbdim)) :: tabin        
+      REAL, INTENT(OUT),
+     &      DIMENSION(pttab_child(nbdim):petab_child(nbdim)) :: tabout
+      INTEGER :: coeffraf
 C
 C
 C     Commentaire perso : nbdim vaut toujours 1 ici. 
 C
+      coeffraf = nint(ds_parent(nbdim)/ds_child(nbdim))
+      
       Call Agrif_InterpBase(TypeInterp(1),
      &                  tabin(indmin(nbdim):indmax(nbdim)),
      &                  tabout(pttab_child(nbdim):petab_child(nbdim)),
      &                  indmin(nbdim),indmax(nbdim),            
      &                  pttab_child(nbdim),petab_child(nbdim),
      &                  s_parent(nbdim),s_child(nbdim),
-     &                  ds_parent(nbdim),ds_child(nbdim))
+     &                  ds_parent(nbdim),ds_child(nbdim),coeffraf)
 C                
       Return
 C
@@ -1307,11 +1384,11 @@ C
       INTEGER, DIMENSION(nbdim) :: pttab_child,petab_child
       REAL   , DIMENSION(nbdim) ::  s_child, s_parent
       REAL   , DIMENSION(nbdim) :: ds_child,ds_parent
-      REAL   , DIMENSION(
+      REAL   ,INTENT(IN), DIMENSION(
      &                indmin(nbdim-1):indmax(nbdim-1),
      &                indmin(nbdim):indmax(nbdim)
      &                ) :: tabin        
-      REAL   , DIMENSION(
+      REAL   ,INTENT(OUT), DIMENSION(
      &                pttab_child(nbdim-1):petab_child(nbdim-1),
      &                pttab_child(nbdim):petab_child(nbdim)
      &                ) :: tabout
@@ -1319,6 +1396,7 @@ C
 C     Local variables      
       REAL, DIMENSION(:,:), Allocatable :: tabtemp
       INTEGER i,j
+      INTEGER :: coeffraf
 C
 C        
       Allocate(tabtemp(pttab_child(nbdim-1):petab_child(nbdim-1),
@@ -1339,6 +1417,8 @@ C
 C        
       enddo
 C        
+      coeffraf = nint(ds_parent(nbdim)/ds_child(nbdim))
+      
       do i=pttab_child(nbdim-1),petab_child(nbdim-1)
 C
         Call Agrif_InterpBase(TypeInterp(2),
@@ -1347,7 +1427,7 @@ C
      &           indmin(nbdim),indmax(nbdim),
      &           pttab_child(nbdim),petab_child(nbdim),
      &           s_parent(nbdim),s_child(nbdim),
-     &           ds_parent(nbdim),ds_child(nbdim))
+     &           ds_parent(nbdim),ds_child(nbdim),coeffraf)
 C        
       enddo
 C                
@@ -1382,16 +1462,18 @@ C
       INTEGER, DIMENSION(nbdim) :: indmin,indmax
       INTEGER, DIMENSION(nbdim) :: pttab_child,petab_child
       REAL, DIMENSION(nbdim) :: s_child,s_parent,ds_child,ds_parent
-      REAL, DIMENSION(indmin(nbdim-2):indmax(nbdim-2),
+      REAL,INTENT(IN), DIMENSION(indmin(nbdim-2):indmax(nbdim-2),
      &                indmin(nbdim-1):indmax(nbdim-1),
      &                indmin(nbdim)  :indmax(nbdim)) :: tabin        
-      REAL, DIMENSION(pttab_child(nbdim-2):petab_child(nbdim-2),
+      REAL,INTENT(OUT),
+     &        DIMENSION(pttab_child(nbdim-2):petab_child(nbdim-2),
      &                pttab_child(nbdim-1):petab_child(nbdim-1),
      &                pttab_child(nbdim):petab_child(nbdim)) :: tabout
 C
 C     Local variables      
       REAL, DIMENSION(:,:,:), Allocatable :: tabtemp
       INTEGER i,j,k
+      INTEGER :: coeffraf, locind_child_left, kdeb
 C
 C        
       Allocate(tabtemp(pttab_child(nbdim-2):petab_child(nbdim-2),
@@ -1411,6 +1493,24 @@ C
      &         ds_child(1:nbdim-1),ds_parent(1:nbdim-1),nbdim-1)
 C        
       enddo
+      
+
+      Call Agrif_Compute_nbdim_interp(s_parent(nbdim),s_child(nbdim),
+     &  ds_parent(nbdim),ds_child(nbdim),coeffraf,locind_child_left)
+           
+      IF (coeffraf == 1) THEN
+      
+      kdeb = indmin(3)+locind_child_left-2
+      do k=pttab_child(3),petab_child(3)
+      kdeb = kdeb + 1
+      do j = pttab_child(2),petab_child(2)
+        do i = pttab_child(1),petab_child(1)
+        tabout(i,j,k) = tabtemp(i,j,kdeb)
+      enddo
+      enddo
+      enddo
+              
+      ELSE      
 C
       do j=pttab_child(nbdim-1),petab_child(nbdim-1) 
 C        
@@ -1422,11 +1522,12 @@ C
      &           indmin(nbdim),indmax(nbdim),
      &           pttab_child(nbdim),petab_child(nbdim),
      &           s_parent(nbdim),s_child(nbdim),
-     &           ds_parent(nbdim),ds_child(nbdim))
+     &           ds_parent(nbdim),ds_child(nbdim),coeffraf)
 C
         enddo 
 C       
       enddo
+      ENDIF
 C                
       Deallocate(tabtemp)
 C
@@ -1459,11 +1560,12 @@ C
       INTEGER, DIMENSION(nbdim) :: indmin,indmax
       INTEGER, DIMENSION(nbdim) :: pttab_child,petab_child
       REAL, DIMENSION(nbdim) :: s_child,s_parent,ds_child,ds_parent
-      REAL, DIMENSION(indmin(nbdim-3):indmax(nbdim-3),
+      REAL,INTENT(IN), DIMENSION(indmin(nbdim-3):indmax(nbdim-3),
      &                indmin(nbdim-2):indmax(nbdim-2),
      &                indmin(nbdim-1):indmax(nbdim-1),
      &                indmin(nbdim):indmax(nbdim)) :: tabin        
-      REAL, DIMENSION(pttab_child(nbdim-3):petab_child(nbdim-3),
+      REAL,INTENT(OUT),
+     &       DIMENSION(pttab_child(nbdim-3):petab_child(nbdim-3),
      &                pttab_child(nbdim-2):petab_child(nbdim-2),
      &                pttab_child(nbdim-1):petab_child(nbdim-1),
      &                pttab_child(nbdim):petab_child(nbdim)) :: tabout
@@ -1471,6 +1573,7 @@ C
 C     Local variables      
       REAL, DIMENSION(:,:,:,:), Allocatable :: tabtemp
       INTEGER i,j,k,l
+      INTEGER :: coeffraf
 C
 C        
       Allocate(tabtemp(pttab_child(nbdim-3):petab_child(nbdim-3),
@@ -1494,6 +1597,8 @@ C
 C        
       enddo
 C
+      coeffraf = nint(ds_parent(nbdim)/ds_child(nbdim))
+      
       do k = pttab_child(nbdim-1),petab_child(nbdim-1)
 C
         do j = pttab_child(nbdim-2),petab_child(nbdim-2) 
@@ -1506,7 +1611,7 @@ C
      &           indmin(nbdim),indmax(nbdim),
      &           pttab_child(nbdim),petab_child(nbdim),
      &           s_parent(nbdim),s_child(nbdim),
-     &           ds_parent(nbdim),ds_child(nbdim))
+     &           ds_parent(nbdim),ds_child(nbdim),coeffraf)
 C
           enddo
 C
@@ -1545,12 +1650,13 @@ C
       INTEGER, DIMENSION(nbdim) :: indmin,indmax
       INTEGER, DIMENSION(nbdim) :: pttab_child,petab_child
       REAL, DIMENSION(nbdim) :: s_child,s_parent,ds_child,ds_parent
-      REAL, DIMENSION(indmin(nbdim-4):indmax(nbdim-4),
+      REAL,INTENT(IN), DIMENSION(indmin(nbdim-4):indmax(nbdim-4),
      &                indmin(nbdim-3):indmax(nbdim-3),
      &                indmin(nbdim-2):indmax(nbdim-2),
      &                indmin(nbdim-1):indmax(nbdim-1),
      &                indmin(nbdim):indmax(nbdim)) :: tabin  
-      REAL, DIMENSION(pttab_child(nbdim-4):petab_child(nbdim-4),
+      REAL,INTENT(OUT),
+     &    DIMENSION(pttab_child(nbdim-4):petab_child(nbdim-4),
      &                pttab_child(nbdim-3):petab_child(nbdim-3),
      &                pttab_child(nbdim-2):petab_child(nbdim-2),
      &                pttab_child(nbdim-1):petab_child(nbdim-1),
@@ -1559,6 +1665,7 @@ C
 C     Local variables      
       REAL, DIMENSION(:,:,:,:,:), Allocatable :: tabtemp
       INTEGER i,j,k,l,m
+      INTEGER :: coeffraf
 C
 C        
       Allocate(tabtemp(pttab_child(nbdim-4):petab_child(nbdim-4),
@@ -1584,6 +1691,8 @@ C
      &         ds_child(1:nbdim-1),ds_parent(1:nbdim-1),nbdim-1)
 C        
       enddo
+      
+      coeffraf = nint(ds_parent(nbdim)/ds_child(nbdim))
 C
       do l = pttab_child(nbdim-1),petab_child(nbdim-1) 
 C
@@ -1600,7 +1709,7 @@ C
      &             indmin(nbdim),indmax(nbdim),
      &             pttab_child(nbdim),petab_child(nbdim),
      &             s_parent(nbdim),s_child(nbdim),
-     &             ds_parent(nbdim),ds_child(nbdim))
+     &             ds_parent(nbdim),ds_child(nbdim),coeffraf)
 C
             enddo
 C
@@ -1641,13 +1750,14 @@ C
       INTEGER, DIMENSION(nbdim) :: indmin,indmax
       INTEGER, DIMENSION(nbdim) :: pttab_child,petab_child
       REAL, DIMENSION(nbdim) :: s_child,s_parent,ds_child,ds_parent
-      REAL, DIMENSION(indmin(nbdim-5):indmax(nbdim-5),
+      REAL,INTENT(IN), DIMENSION(indmin(nbdim-5):indmax(nbdim-5),
      &                indmin(nbdim-4):indmax(nbdim-4),
      &                indmin(nbdim-3):indmax(nbdim-3), 
      &                indmin(nbdim-2):indmax(nbdim-2),
      &                indmin(nbdim-1):indmax(nbdim-1),
      &                indmin(nbdim):indmax(nbdim)) :: tabin        
-      REAL, DIMENSION(pttab_child(nbdim-5):petab_child(nbdim-5),
+      REAL,INTENT(OUT),
+     &    DIMENSION(pttab_child(nbdim-5):petab_child(nbdim-5),
      &                pttab_child(nbdim-4):petab_child(nbdim-4),
      &                pttab_child(nbdim-3):petab_child(nbdim-3),
      &                pttab_child(nbdim-2):petab_child(nbdim-2),
@@ -1657,6 +1767,7 @@ C
 C     Local variables      
       REAL, DIMENSION(:,:,:,:,:,:), Allocatable :: tabtemp
       INTEGER i,j,k,l,m,n
+      INTEGER :: coeffraf
 C
 C        
       Allocate(tabtemp(pttab_child(nbdim-5):petab_child(nbdim-5),
@@ -1685,6 +1796,8 @@ C
      &         ds_child(1:nbdim-1),ds_parent(1:nbdim-1),nbdim-1)
 C        
       enddo
+      
+      coeffraf = nint(ds_parent(nbdim)/ds_child(nbdim))
 C
       do m = pttab_child(nbdim-1),petab_child(nbdim-1) 
       do l = pttab_child(nbdim-2),petab_child(nbdim-2) 
@@ -1702,7 +1815,7 @@ C
      &             indmin(nbdim),indmax(nbdim),
      &             pttab_child(nbdim),petab_child(nbdim),
      &             s_parent(nbdim),s_child(nbdim),
-     &             ds_parent(nbdim),ds_child(nbdim))
+     &             ds_parent(nbdim),ds_child(nbdim),coeffraf)
 C
             enddo
 C
@@ -1729,7 +1842,8 @@ C
       Subroutine Agrif_InterpBase(TypeInterp,
      &                           parenttab,childtab,
      &                           indmin,indmax,pttab_child,petab_child,
-     &                           s_parent,s_child,ds_parent,ds_child)   
+     &                           s_parent,s_child,ds_parent,ds_child,
+     &                           coeffraf)   
 C
 CCC   Description:
 CCC   Subroutine calling the interpolation method chosen by the user (linear, 
@@ -1742,9 +1856,10 @@ C
       INTEGER                :: TypeInterp
       INTEGER :: indmin,indmax
       INTEGER :: pttab_child,petab_child
-      REAL,DIMENSION(indmin:indmax)           :: parenttab       
-      REAL,DIMENSION(pttab_child:petab_child) :: childtab      
+      REAL,INTENT(IN),DIMENSION(indmin:indmax)           :: parenttab       
+      REAL,INTENT(OUT),DIMENSION(pttab_child:petab_child) :: childtab        
       REAL    :: s_parent,s_child,ds_parent,ds_child 
+      INTEGER :: coeffraf
 C 
 C
        IF ((indmin == indmax).AND.(pttab_child == petab_child)) THEN
@@ -1818,6 +1933,144 @@ C
       End Subroutine Agrif_InterpBase 
 C
 
+      Subroutine Agrif_Compute_nbdim_interp(s_parent,s_child,
+     &  ds_parent,ds_child,coeffraf,locind_child_left)
+      real :: s_parent,s_child,ds_parent,ds_child
+      integer :: coeffraf,locind_child_left
+     
+      coeffraf = nint(ds_parent/ds_child)
+      locind_child_left = 1 + agrif_int((s_child-s_parent)/ds_parent)
+      End Subroutine Agrif_Compute_nbdim_interp
+C          
 
-C                        
+      Subroutine Agrif_Find_list_interp(list_interp,pttab,petab,
+     &                          pttab_Child,pttab_Parent,nbdim,
+     &                          indmin,indmax,indminglob,
+     &      indmaxglob,indminglob2,indmaxglob2,parentarray,
+     &       pttruetab,cetruetab,member,memberin,
+     &      find_list_interp
+#if defined AGRIF_MPI
+     &     ,tab4t,memberinall
+#endif
+     &    )     
+      TYPE(Agrif_List_Interp_Loc), Pointer :: list_interp
+      INTEGER :: nbdim
+      INTEGER,DIMENSION(nbdim)   :: pttab,petab,pttab_Child,pttab_Parent
+      LOGICAL :: find_list_interp
+      Type(Agrif_List_Interp_loc), Pointer :: parcours
+      INTEGER,DIMENSION(nbdim)   :: indmin,indmax  
+      INTEGER,DIMENSION(nbdim)   :: indminglob,indmaxglob
+      INTEGER,DIMENSION(nbdim)   :: pttruetab,cetruetab      
+      INTEGER,DIMENSION(nbdim)   :: indminglob2,indmaxglob2  
+      INTEGER,DIMENSION(nbdim,2,2) :: parentarray
+      LOGICAL :: member, memberin
+      INTEGER :: i
+#ifdef AGRIF_MPI
+C
+      INTEGER,DIMENSION(nbdim,0:Agrif_Nbprocs-1,4) :: tab4t
+      LOGICAL, DIMENSION(0:Agrif_Nbprocs-1) :: memberinall
+#endif 
+                    
+      find_list_interp = .FALSE.
+      
+      parcours => list_interp
+      Find_loop :   Do While (associated(parcours))
+        Do i=1,nbdim
+          IF ((pttab(i) /= parcours%interp_loc%pttab(i)).OR.
+     &        (petab(i) /= parcours%interp_loc%petab(i)).OR.
+     &        (pttab_child(i) /= parcours%interp_loc%pttab_child(i)).OR.
+     &        (pttab_parent(i) /= parcours%interp_loc%pttab_parent(i)))
+     &               THEN
+            parcours=>parcours%suiv
+            Cycle Find_loop
+          ENDIF
+        EndDo
+C        print *,'ok trouve'
+        indmin = parcours%interp_loc%indmin(1:nbdim)
+        indmax = parcours%interp_loc%indmax(1:nbdim)
+        
+        pttruetab = parcours%interp_loc%pttruetab(1:nbdim)
+        cetruetab = parcours%interp_loc%cetruetab(1:nbdim)
+                
+#if !defined AGRIF_MPI
+        indminglob = parcours%interp_loc%indminglob(1:nbdim)
+        indmaxglob = parcours%interp_loc%indmaxglob(1:nbdim)
+#else
+        indminglob2 = parcours%interp_loc%indminglob2(1:nbdim)
+        indmaxglob2 = parcours%interp_loc%indmaxglob2(1:nbdim)
+        parentarray = parcours%interp_loc%parentarray(1:nbdim,:,:)
+        member = parcours%interp_loc%member
+        tab4t = parcours%interp_loc%tab4t(1:nbdim,0:Agrif_Nbprocs-1,1:4)
+        memberinall = parcours%interp_loc%memberinall(0:Agrif_Nbprocs-1)
+#endif        
+        memberin = parcours%interp_loc%memberin
+        find_list_interp = .TRUE.   
+        Exit Find_loop
+      End Do Find_loop  
+                              
+      End Subroutine Agrif_Find_list_interp   
+      
+      Subroutine Agrif_AddTo_list_interp(list_interp,pttab,petab,
+     &                          pttab_Child,pttab_Parent,indmin,indmax,
+     &                          indminglob,indmaxglob,
+     &                          indminglob2,indmaxglob2,
+     &                          parentarray,pttruetab,cetruetab,
+     &                          member,memberin,nbdim
+#if defined AGRIF_MPI
+     &      ,tab4t,memberinall
+#endif
+     &    )
+          
+      TYPE(Agrif_List_Interp_Loc), Pointer :: list_interp
+      INTEGER :: nbdim
+      INTEGER,DIMENSION(nbdim)   :: pttab,petab,pttab_Child,pttab_Parent
+      INTEGER,DIMENSION(nbdim)   :: indmin,indmax
+      INTEGER,DIMENSION(nbdim)   :: indminglob,indmaxglob
+      INTEGER,DIMENSION(nbdim)   :: indminglob2,indmaxglob2
+      INTEGER,DIMENSION(nbdim)   :: pttruetab,cetruetab
+      INTEGER,DIMENSION(nbdim,2,2) :: parentarray
+      LOGICAL :: member, memberin
+#ifdef AGRIF_MPI
+C
+      INTEGER,DIMENSION(nbdim,0:Agrif_Nbprocs-1,4) :: tab4t
+      LOGICAL,DIMENSION(0:Agrif_Nbprocs-1) :: memberinall
+#endif                   
+      Type(Agrif_List_Interp_loc), Pointer :: parcours
+            
+       Allocate(parcours)
+      Allocate(parcours%interp_loc)
+      
+      parcours%interp_loc%pttab(1:nbdim) = pttab(1:nbdim)
+      parcours%interp_loc%petab(1:nbdim) = petab(1:nbdim)
+      parcours%interp_loc%pttab_child(1:nbdim) = pttab_child(1:nbdim)
+      parcours%interp_loc%pttab_parent(1:nbdim) = pttab_parent(1:nbdim)
+  
+  
+      parcours%interp_loc%indmin(1:nbdim) = indmin(1:nbdim)
+      parcours%interp_loc%indmax(1:nbdim) = indmax(1:nbdim)
+
+      parcours%interp_loc%memberin = memberin
+#if !defined AGRIF_MPI
+      parcours%interp_loc%indminglob(1:nbdim) = indminglob(1:nbdim)
+      parcours%interp_loc%indmaxglob(1:nbdim) = indmaxglob(1:nbdim)
+#else
+      parcours%interp_loc%indminglob2(1:nbdim) = indminglob2(1:nbdim)
+      parcours%interp_loc%indmaxglob2(1:nbdim) = indmaxglob2(1:nbdim)
+      parcours%interp_loc%parentarray(1:nbdim,:,:) 
+     &       = parentarray(1:nbdim,:,:)
+      parcours%interp_loc%member = member
+      Allocate(parcours%interp_loc%tab4t(nbdim,0:Agrif_Nbprocs-1,4))
+      Allocate(parcours%interp_loc%memberinall(0:Agrif_Nbprocs-1))
+      parcours%interp_loc%tab4t=tab4t   
+      parcours%interp_loc%memberinall=memberinall   
+#endif      
+
+      parcours%interp_loc%pttruetab(1:nbdim) = pttruetab(1:nbdim)
+      parcours%interp_loc%cetruetab(1:nbdim) = cetruetab(1:nbdim)
+      
+      parcours%suiv => list_interp
+      
+      list_interp => parcours
+      End Subroutine Agrif_Addto_list_interp 
+                
       End Module Agrif_Interpolation

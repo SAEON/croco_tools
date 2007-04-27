@@ -47,7 +47,7 @@ C     **************************************************************************
 CCC   Subroutine Copy1d  
 C     ************************************************************************** 
 C
-      Subroutine copy1d(x,y,np,nc,
+      Subroutine agrif_copy1d(x,y,np,nc,
      &                  s_parent,s_child,ds_parent,ds_child) 
 C
 CCC   Description:
@@ -98,7 +98,7 @@ C
       Return 
 C
 C
-      End Subroutine copy1d
+      End Subroutine agrif_copy1d
 C
 C
 C
@@ -146,17 +146,19 @@ C
       diffmod = 0
       
       IF ( mod(coeffraf,2) == 0 ) diffmod = 1
+
+        locind_child_left = 1 + agrif_int((xpos - s_child)/ds_child)
       
       do i = 1,np
 C
-        locind_child_left = 1 + agrif_int((xpos - s_child)/ds_child)
+
 C
-        if ((locind_child_left-1 < 1) 
-     &      .OR. (locind_child_left+1 > nc)) then 
+c        if ((locind_child_left-1 < 1) 
+c     &      .OR. (locind_child_left+1 > nc)) then 
 C
-            x(i) = y(locind_child_left)                
+c            x(i) = y(locind_child_left)                
 C
-          else 
+c          else 
           nbnonnuls = 0
           Do ii = -coeffraf/2+locind_child_left+diffmod,
      &                coeffraf/2+locind_child_left
@@ -180,9 +182,10 @@ C
                  x(i) = x(i)/coeffraf
             ENDIF
 C
-        endif
+c       endif
 C
-        xpos = xpos + ds_parent
+c        xpos = xpos + ds_parent
+        locind_child_left = locind_child_left + coeffraf
 C
       enddo
 C
@@ -198,7 +201,8 @@ CCC   Subroutine Full_weighting1d
 C     **************************************************************************  
 C
       Subroutine full_weighting1D(x,y,np,nc,
-     &                            s_parent,s_child,ds_parent,ds_child) 
+     &                            s_parent,s_child,ds_parent,ds_child,
+     &                            coeffraf,locind_child_left) 
 C
 CCC   Description:
 CCC   Subroutine to do an update by full_weighting on a parent grid (vector x) 
@@ -215,14 +219,15 @@ C     Local variables
       INTEGER :: i,locind_child_left,coeffraf
       REAL    :: xpos,sumweight,weight
       INTEGER :: ii,diffmod
+      REAL :: xposfin
+      INTEGER :: it1,it2
+      INTEGER :: i1,i2
+      REAL :: invsumweight
+      REAL :: weights(-(coeffraf-1):coeffraf-1)
       
-C 
 C
-      coeffraf = nint(ds_parent/ds_child)
 C
       if (coeffraf == 1) then
-C
-          locind_child_left = 1 + nint((s_parent - s_child)/ds_child)
 C        
           x(1:np) = y(locind_child_left:locind_child_left+np-1)
 C
@@ -232,54 +237,58 @@ C
 C
       xpos = s_parent      
       
-      x = 0.
+       x = 0.
+
+       xposfin = s_child + ds_child * (locind_child_left - 1)
+       IF (abs(xposfin - xpos).LT.0.001) THEN
+          diffmod = 0
+       ELSE
+          diffmod = 1
+       ENDIF
 C
-      diffmod = 0
-      
-      IF ( mod(coeffraf,2) == 0 ) diffmod = 1
-      
+             
+       it1 = -(coeffraf-1)
+       i1 = -(coeffraf-1)+locind_child_left+diffmod
+       i2 = 2*coeffraf - 2
+       
+      invsumweight=1./coeffraf**2
+      do i=-(coeffraf-1),0
+        weights(i) = invsumweight*(coeffraf + i)
+      enddo
+      do i=1,coeffraf-1
+        weights(i) = invsumweight*(coeffraf - i)
+      enddo
+
+      sumweight = 0                    
       do i = 1,np
 C
-        locind_child_left = 1 + agrif_int((xpos - s_child)/ds_child)
+          it2 = it1
+          Do ii = i1,i1+i2
 C
-        if ((locind_child_left-1 < 1) 
-     &      .OR. (locind_child_left+1 > nc)) then 
-C
-            x(i) = y(locind_child_left)                
-C
-          else 
-          sumweight = 0
-          Do ii = -(coeffraf-1)+locind_child_left+diffmod,
-     &                (coeffraf-1)+locind_child_left
-C 
-            IF (Agrif_UseSpecialValueInUpdate) THEN
+           IF (Agrif_UseSpecialValueInUpdate) THEN
             IF (y(ii) .NE. Agrif_SpecialValueFineGrid) THEN
-               weight = coeffraf - abs(ii-(locind_child_left+diffmod))
-               x(i) = x(i) + weight*y(ii)
-               sumweight = sumweight+weight
+               x(i) = x(i) + weights(it2)*y(ii)
+               sumweight = sumweight+weights(it2)
             ENDIF
-            ELSE
-               weight = coeffraf - abs(ii-(locind_child_left+diffmod))
-               x(i) = x(i) + weight*y(ii)
-               sumweight = sumweight+weight
-            ENDIF
+           ELSE           
+               x(i) = x(i) + weights(it2)*y(ii)
+           ENDIF           
+           
+          it2 = it2+1
           End Do
-          
-            IF (Agrif_UseSpecialValueInUpdate) THEN
+
+           IF (Agrif_UseSpecialValueInUpdate) THEN          
                  IF (sumweight .NE. 0.) THEN
                     x(i) = x(i)/sumweight
+                    sumweight = 0
                  ELSE
                     x(i) = Agrif_SpecialValueFineGrid
                  ENDIF
-            ELSE
-                 x(i) = x(i)/sumweight
-            ENDIF
+           ENDIF
+        
+        i1 = i1 + coeffraf
 C
-        endif
-C
-        xpos = xpos + ds_parent
-C
-      enddo
+      enddo    
 C
       Return 
 C            
