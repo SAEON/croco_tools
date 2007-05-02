@@ -1,12 +1,12 @@
-CCC-----------------------------------------------------------------
-CCC
-CCC                     ROUTINE trcini.pisces.h
-CCC                     ************************
-CCC
-CCC  PURPOSE :
-CCC  ---------
-CCC     Initialisation of PISCES biological and chemical variables
-CCC
+CC----------------------------------------------------------------
+CC
+CC                     ROUTINE trcini.pisces.h
+CC                     ************************
+CC
+CC  PURPOSE :
+CC  ---------
+CC     Initialisation of PISCES biological and chemical variables
+CC
 CC   INPUT :
 CC   -----
 CC      common
@@ -26,23 +26,23 @@ CC      original  : 1988-07  E. MAIER-REIMER      MPI HAMBURG
 CC      additions : 1999-10  O. Aumont and C. Le Quere
 CC      additions : 2002     O. Aumont (PISCES)
 CC
-CCC---------------------------------------------------------------------
+CC---------------------------------------------------------------------
 CC local declarations
 CC ==================
       INTEGER ichl,iband,mo
       INTEGER jpmois,jpan
       PARAMETER (jpan=1, jpmois=12)
 
-      REAL xtoto,expide,denitide
-      REAL ndepo(Istr:Iend,Jstr:Jend),
-     &     river(Istr:Iend,Jstr:Jend),
-     &     riverdoc(Istr:Iend,Jstr:Jend),
-     &     dustmp(GLOBAL_2D_ARRAY,12)
       CHARACTER*34 clname
 
       INTEGER ipi,ipj,ipk,istep(jpmois),itime,istep0(jpan)
-      REAL zsecond, zlon(jpi,jpj),zlat(jpi,jpj),zlev(jpk),zdate0
       INTEGER numriv,numdust,numbath,numdep
+
+      REAL xtoto,expide,denitide
+      REAL ndepo(jpi,jpj),river(jpi,jpj)
+      REAL riverdoc(jpi,jpj)
+      REAL dustmp(GLOBAL_2D_ARRAY,12)
+      REAL zsecond, zlon(jpi,jpj),zlat(jpi,jpj),zlev(jpk),zdate0
       REAL zmaskt
 
 c      INCLUDE 'netcdf.inc'
@@ -52,11 +52,8 @@ c      INCLUDE 'netcdf.inc'
       integer ncid, varid, dimid, ierr,
      &        lstr, lenstr, nf_fread, nrec_dust, irec
 C
-C 1. initialization
-C -----------------
-C
-C computation of the record length for direct access FILE
-C this length depend of 512 for the t3d machine
+C Compute record length for direct access FILE
+C (this length depends on 512 for the t3d machine)
 C
       rfact = rdt 
       rfactr = 1./rfact
@@ -68,78 +65,78 @@ C
 C    INITIALISE DUST INPUT FROM ATMOSPHERE
 C    -------------------------------------
 C
-       IF (bdustfer) THEN
-         lstr=lenstr(bioname)
-         ierr=nf_open (bioname(1:lstr), nf_nowrite, ncid)
-         if (ierr .ne. nf_noerr) then
-	   write(stdout,4) bioname
-	 endif
-         ierr=nf_inq_varid (ncid,"dust",varid)
-         if (ierr .ne. nf_noerr) then
-           write(stdout,5) "dust", bioname
-         endif
-	 ierr=nf_inq_dimid(ncid,"dust_time",dimid)
-         ierr=nf_inq_dimlen(ncid,dimid,nrec_dust)
-	 do irec=1,nrec_dust
-           ierr=nf_fread(dustmp(START_2D_ARRAY,irec), ncid, varid,
-     &                                                 irec, r2dvar)
-           if (ierr .ne. nf_noerr) then
-             write(stdout,6) "dust", irec 
-           endif
-	 enddo
-	 ierr=nf_close(ncid)
-         write(stdout,'(6x,A,1x,I4)') 
-     &                     'TRCINI_PISCES -- Read dust deposition '
+      IF (bdustfer) THEN
+        lstr=lenstr(bioname)
+        ierr=nf_open (bioname(1:lstr), nf_nowrite, ncid)
+        if (ierr .ne. nf_noerr) then
+           write(stdout,4) bioname
+        endif
+        ierr=nf_inq_varid (ncid,"dust",varid)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,5) "dust", bioname
+        endif
+        ierr=nf_inq_dimid(ncid,"dust_time",dimid)
+        ierr=nf_inq_dimlen(ncid,dimid,nrec_dust)
+        do irec=1,nrec_dust
+          ierr=nf_fread(dustmp(START_2D_ARRAY,irec), ncid, varid,
+     &                                              irec, r2dvar)
+          if (ierr .ne. nf_noerr) then
+            write(stdout,6) "dust", irec 
+          endif
+        enddo
+        ierr=nf_close(ncid)
+        write(stdout,'(6x,A,1x,I4)') 
+     &                   'TRCINI_PISCES -- Read dust deposition '
 #ifdef MPI
-     &                                                      , mynode
+     &                                                   , mynode
 #endif
-  4      format(/,' TRCINI_PISCES - unable to open forcing netCDF ',
+  4     format(/,' TRCINI_PISCES - unable to open forcing netCDF ',
      &                                                              1x,A)
-  5      format(/,' TRCINI_PISCES - unable to find forcing variable: ',A,
+  5     format(/,' TRCINI_PISCES - unable to find forcing variable: ',A,
      &                          /,14x,'in forcing netCDF file: ',A)
-  6      format(/,' TRCINI_PISCES - error while reading variable: ',A,2x,
+  6     format(/,' TRCINI_PISCES - error while reading variable: ',A,2x,
      &                                            ' at TIME index = ',i4)
 
-       do j=Jstr,Jend
+        do j=Jstr,Jend
 	  do i=Istr,Iend
             dustmo(i,j,:)=dustmp(i,j,:)
           end do
-       end do
+        end do
 
-       ELSE
-       dustmo(:,:,:)=0.
-       ENDIF
+      ELSE
+        dustmo(:,:,:)=0.
+      ENDIF
 C
 C    INITIALISE THE NUTRIENT INPUT BY RIVERS
 C    ---------------------------------------
 C
 C       IF (briver) THEN
-C       clname='river.orca.nc'
-C       CALL flinopen(clname,nizoom,jpi,njzoom,jpj,.false.,ipi,ipj,0
-C     $      ,zlon,zlat,zlev,itime,istep0,zdate0,zsecond,numriv)
-C       CALL flinget(numriv,'riverdic',jpidta,jpjdta,0,jpan,1,
-C     $        1,nizoom,jpi,njzoom,jpj,river)
-C       CALL flinget(numriv,'riverdoc',jpidta,jpjdta,0,jpan,1,
-C     $        1,nizoom,jpi,njzoom,jpj,riverdoc)
-C       CALL flinclo(numriv)
+C         clname='river.orca.nc'
+C         CALL flinopen(clname,nizoom,jpi,njzoom,jpj,.false.,ipi,ipj,0
+C     $        ,zlon,zlat,zlev,itime,istep0,zdate0,zsecond,numriv)
+C         CALL flinget(numriv,'riverdic',jpidta,jpjdta,0,jpan,1,
+C     $          1,nizoom,jpi,njzoom,jpj,river)
+C         CALL flinget(numriv,'riverdoc',jpidta,jpjdta,0,jpan,1,
+C     $          1,nizoom,jpi,njzoom,jpj,riverdoc)
+C         CALL flinclo(numriv)
 C       ELSE
-       river(:,:)=0.
-       riverdoc(:,:)=0.
-C       endif
+          river(:,:)=0.
+          riverdoc(:,:)=0.
+C       ENDIF
        
 C
 C    INITIALISE THE N INPUT BY DUST
-C    ---------------------------------------
+C    -------------------------------
 C
 C       IF (bndepo) THEN
-C       clname='ndeposition.orca.nc'
-C       CALL flinopen(clname,nizoom,jpi,njzoom,jpj,.false.,ipi,ipj,0
-C     $      ,zlon,zlat,zlev,itime,istep0,zdate0,zsecond,numdep)
-C       CALL flinget(numdep,'ndep',jpidta,jpjdta,0,jpan,1,
-C     $        1,nizoom,jpi,njzoom,jpj,ndepo)
-C       CALL flinclo(numdep)
+C         clname='ndeposition.orca.nc'
+C         CALL flinopen(clname,nizoom,jpi,njzoom,jpj,.false.,ipi,ipj,0
+C     $        ,zlon,zlat,zlev,itime,istep0,zdate0,zsecond,numdep)
+C         CALL flinget(numdep,'ndep',jpidta,jpjdta,0,jpan,1,
+C     $          1,nizoom,jpi,njzoom,jpj,ndepo)
+C         CALL flinclo(numdep)
 C       ELSE
-       ndepo(:,:)=0.
+          ndepo(:,:)=0.
 C       ENDIF
 C
 C    Computation of the coastal mask.
@@ -147,95 +144,91 @@ C    Computation of an island mask to enhance coastal supply
 C    of iron
 C    -------------------------------------------------------
 C
-       IF (bsedinput) THEN
-
-         do j=Jstr,Jend
-           do i=Istr,Iend
-        if (tmask(i,j,jpk).ne.0) then
-        cmask(i,j,jpk)=1.
-        endif
-            end do
+      IF (bsedinput) THEN
+        do j=1,jpj
+          do i=1,jpi
+            if (tmask(i,j,jpk).ne.0) then
+              cmask(i,j,jpk)=1.
+            endif
           end do
-
-       do k=1,jpk-1
-         do j=Jstr,Jend
-	   do i=Istr,Iend
-       if (tmask(i,j,k).ne.0) then
-       zmaskt=tmask(i+1,j,k)*tmask(i-1,j,k)*tmask(i,j+1,k)
-     &   *tmask(i,j-1,k)
-       if (zmaskt.eq.0) then
-        cmask(i,j,k)=0.1
-       endif
-       endif
-           end do
-         end do
-       end do
-C
-CC
-       DO k=1,jpk
-         DO j=Jstr,Jend
-	   DO i=Istr,Iend
-         expide=min(8.,(fsdept(i,j,k)/500.)**(-1.5))
-         denitide=-0.9543+0.7662*log(expide)-0.235*log(expide)**2
-         cmask(i,j,k)=cmask(i,j,k)*min(1.,exp(denitide)/0.5)
-           END DO
-         END DO
-       END DO
-       ELSE
-       cmask(:,:,:)=0.
-       ENDIF
+        end do
+        do k=1,jpk-1
+          do j=2,jpj-1
+            do i=2,jpi-1
+              if (tmask(i,j,k).ne.0) then
+                zmaskt=tmask(i+1,j,k)*tmask(i-1,j,k)
+     &                *tmask(i,j+1,k)*tmask(i,j-1,k)
+                if (zmaskt.eq.0) then
+                  cmask(i,j,k)=0.1
+                endif
+              endif
+            enddo
+          enddo
+        enddo
+        do k=1,jpk
+          do i=1,jpi
+            do j=1,jpj
+              expide=min(8.,(fsdept(i,j,k)/500.)**(-1.5))
+              denitide=-0.9543+0.7662*log(expide)-0.235*log(expide)**2
+              cmask(i,j,k)=cmask(i,j,k)*min(1.,exp(denitide)/0.5)
+            enddo
+          enddo
+        enddo
+      ELSE
+        cmask(:,:,:)=0.
+      ENDIF
 C
 C     Computation of the total atmospheric supply of Si
 C     -------------------------------------------------
 C
-       sumdepsi=0.
-       DO mo=1,12
-         DO j=Jstr,Jend
-           DO i=Istr,Iend
-           sumdepsi=sumdepsi+dustmo(i,j,mo)/(12.*rmoss)*8.8
-     &       *0.075/28.1*e1t(i,j)*e2t(i,j)*tmask(i,j,1)
-           END DO
-         END DO
-       END DO
+      sumdepsi=0.
+      DO mo=1,12
+        DO j=2,jpjm1
+          DO i=2,jpim1
+            sumdepsi=sumdepsi+dustmo(i,j,mo)/(12.*rmoss)*8.8
+     &         *0.075/28.1*e1t(i,j)*e2t(i,j)*tmask(i,j,1)
+          END DO
+        END DO
+      END DO
 C
 C    COMPUTATION OF THE N/P RELEASE DUE TO COASTAL RIVERS
 C    COMPUTATION OF THE Si RELEASE DUE TO COASTAL RIVERS 
 C    ---------------------------------------------------
 C
-       DO j=Jstr,Jend
-         DO i=Istr,Iend
-       cotdep(i,j)=river(i,j)*1E9/(12.*raass
-     &   *e1t(i,j)*e2t(i,j)*fse3t(i,j,1))*tmask(i,j,1)
-       rivinp(i,j)=(river(i,j)+riverdoc(i,j))*1E9
-     &   /(31.6*raass*e1t(i,j)*e2t(i,j)*fse3t(i,j,1))
-     &   *tmask(i,j,1)
-       nitdep(i,j)=7.6*ndepo(i,j)*tmask(i,j,1)/(14E6*raass
-     &   *fse3t(i,j,1))
-         END DO
-       END DO
+      DO j=1,jpj
+        DO i=1,jpi
+          cotdep(i,j)=river(i,j)*1E9/(12.*raass*e1t(i,j)
+     &              *e2t(i,j)*fse3t(i,j,1))*tmask(i,j,1)
+          rivinp(i,j)=(river(i,j)+riverdoc(i,j))*1E9
+     &      /(31.6*raass*e1t(i,j)*e2t(i,j)*fse3t(i,j,1))
+     &                                         *tmask(i,j,1)
+          nitdep(i,j)=7.6*ndepo(i,j)*tmask(i,j,1)/
+     &                             (14E6*raass*fse3t(i,j,1))
+        END DO
+      END DO
 
       rivpo4input=0.
       rivalkinput=0.
       nitdepinput=0.
-       DO j=Jstr,Jend
-         DO i=Istr,Iend
-         rivpo4input=rivpo4input+rivinp(i,j)*(e1t(i,j)*e2t(i,j)
-     &     *fse3t(i,j,1))*tmask(i,j,1)*raass
-         rivalkinput=rivalkinput+cotdep(i,j)*(e1t(i,j)*e2t(i,j)
-     &     *fse3t(i,j,1))*tmask(i,j,1)*raass
-         nitdepinput=nitdepinput+nitdep(i,j)*(e1t(i,j)*e2t(i,j)
-     &     *fse3t(i,j,1))*tmask(i,j,1)*raass
-         END DO
-       END DO
+      DO j=2,jpjm1
+        DO i=2,jpim1
+          rivpo4input=rivpo4input+rivinp(i,j)*(e1t(i,j)*e2t(i,j)
+     &                           *fse3t(i,j,1))*tmask(i,j,1)*raass
+          rivalkinput=rivalkinput+cotdep(i,j)*(e1t(i,j)*e2t(i,j)
+     &                           *fse3t(i,j,1))*tmask(i,j,1)*raass
+          nitdepinput=nitdepinput+nitdep(i,j)*(e1t(i,j)*e2t(i,j)
+     &                           *fse3t(i,j,1))*tmask(i,j,1)*raass
+        END DO
+      END DO
 C
 C    Coastal supply of iron
 C    ----------------------
 C
       DO k=1,jpk
-        DO j=Jstr,Jend
-          DO i=Istr,Iend
-          ironsed(i,j,k)=sedfeinput*cmask(i,j,k)
-     &      /(fse3t(i,j,k)*rjjss)
+        DO j=1,jpj
+          DO i=1,jpi
+            ironsed(i,j,k)=sedfeinput*cmask(i,j,k)
+     &                          /(fse3t(i,j,k)*rjjss)
           END DO
         END DO
       END DO

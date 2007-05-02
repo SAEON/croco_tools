@@ -68,37 +68,14 @@ C -------------------------------------------
         DO k=1,jpk
           DO j=Jstr,Jend
             DO i=Istr,Iend
-              trn(i,j,k,n)=0.e0
+              trn(i,j,k,itrc)=0.e0
             END DO
           END DO
         END DO
       END DO
-
-CCC Christophe Menkes. This is already done in init_array.F in ROMS
-c$$$#    if defined key_trc_diaadd
-c$$$C initialization of output 2d and 3d arrays
-c$$$      DO itrc=1,jpdia2d
-c$$$          DO j=Jstr,Jend
-c$$$            DO i=Istr,Iend
-c$$$            bioVSink(i,j,n)=0.e0
-c$$$          END DO
-c$$$        END DO
-c$$$      END DO
-c$$$      DO itrc=1,jpdia3d
-c$$$        DO k=1,jpk
-c$$$          DO j=Jstr,Jend
-c$$$            DO i=Istr,Iend
-c$$$              bioFlux(i,j,k,n)=0.e0
-c$$$            END DO
-c$$$          END DO
-c$$$        END DO
-c$$$      END DO
-c$$$#    endif
-
-          WRITE(numout,*) ' '
-          WRITE(numout,*) ' trcini: generic initialisation done '
-          WRITE(numout,*) ' '
-C
+      WRITE(numout,*) ' '
+      WRITE(numout,*) ' trcini: generic initialisation done '
+      WRITE(numout,*) ' '
 # else
 C
 C no passive tracers

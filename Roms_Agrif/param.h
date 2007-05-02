@@ -150,8 +150,8 @@
      &          , Nsinking2,Nsinkfer,Nsinkfer2,Nsinksil
      &          , Nsinkcal,Nzmeu,Nirondep,Nnitrpot
 #    endif
-     &          , NumFluxTerms,NumVSinkTerms,NumGasExcTerms
 #   endif
+     &          , NumFluxTerms,NumVSinkTerms,NumGasExcTerms
 #  elif defined BIO_NPZD
      &          , iNO3_, iChla, iPhy1, iZoo1
      &          , iDet1

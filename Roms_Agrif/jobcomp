@@ -74,7 +74,12 @@ mkdir $SCRDIR
 /bin/cp -Rf ${SOURCE}/AGRIFZOOM $SCRDIR
 /bin/cp -f ${SOURCE}/PISCES/* $SCRDIR
 /bin/cp -f ${SOURCE}/PISCES/kRGB61.txt $RUNDIR
-/bin/cp -f ${SOURCE}/PISCES/namelist.trc.sms $RUNDIR
+if (  -e "namelist.trc.sms" ) then
+  echo "  file namelist.trc.sms exists in Run directory"
+else
+  /bin/cp -f ${SOURCE}/PISCES/namelist.trc.sms $RUNDIR
+  echo "  file namelist.trc.sms copied from source directory"
+endif
 #
 # overwrite with local files
 #

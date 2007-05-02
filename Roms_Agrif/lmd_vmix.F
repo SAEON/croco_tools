@@ -104,7 +104,7 @@
      &     lmd_sdd2=1.85,    ! (Fedorov, 1988).
      &     lmd_sdd3=0.85)    !
      
-# undef LMD_NUW_GARGETT
+# define LMD_NUW_GARGETT
 # ifdef LMD_RIMIX
 #  define RI_HSMOOTH
 #  undef  RI_VSMOOTH
