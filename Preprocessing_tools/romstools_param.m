@@ -48,18 +48,28 @@ ROMSTOOLS_dir = '../';
 RUN_dir=[ROMSTOOLS_dir,'Run/'];
 ROMS_files_dir=[RUN_dir];
 %
+% AGRIF LEVEL
+% 
+level=1;
+if level==0,
+  lev='';
+else
+  lev=['.',num2str(level),];
+end
+%
 % ROMS file names (grid, forcing, bulk, climatology, initial)
 %
-grdname=[ROMS_files_dir,'roms_grd.nc'];
-frcname=[ROMS_files_dir,'roms_frc.nc'];
-blkname=[ROMS_files_dir,'roms_blk.nc'];
-clmname=[ROMS_files_dir,'roms_clm.nc'];
-ininame=[ROMS_files_dir,'roms_ini.nc'];
-oaname =[ROMS_files_dir,'roms_oa.nc'];    % oa file  : intermediate file not used
-                                          %            in roms simulations
-bryname=[ROMS_files_dir,'roms_bry.nc'];
-Zbryname=[ROMS_files_dir,'roms_bry_Z.nc'];% Zbry file: intermediate file not used
-                                          %            in roms simulations
+grdname=[ROMS_files_dir,'roms_grd.nc',lev];
+frcname=[ROMS_files_dir,'roms_frc.nc',lev];
+bioname=[ROMS_files_dir,'roms_frcbio.nc',lev];
+blkname=[ROMS_files_dir,'roms_blk.nc',lev];
+ininame=[ROMS_files_dir,'roms_ini.nc',lev];
+clmname=[ROMS_files_dir,'roms_clm.nc',lev];
+oaname =[ROMS_files_dir,'roms_oa.nc',lev];    % oa file  : intermediate file not used
+                                              %            in roms simulations
+bryname=[ROMS_files_dir,'roms_bry.nc',lev];
+Zbryname=[ROMS_files_dir,'roms_bry_Z.nc',lev];% Zbry file: intermediate file not used
+                                              %            in roms simulations
 %
 frc_prefix=[ROMS_files_dir,'roms_frc'];   % generic forcing file name 
                                           % for interannual roms simulations (NCEP or GFS)
@@ -283,7 +293,7 @@ SPIN_Long     = 0;                  % SPIN-UP duration in Years
 FORC_DATA_DIR = [RUN_dir,'DATA/'];
 %
 Download_data = 1;                            % Get data from the OPENDAP sites 
-level         = 0;                            % AGRIF level; 0=parent grid 
+%level         = 0;                            % AGRIF level; 0=parent grid 
 %
 %  Options for make_NCEP
 %

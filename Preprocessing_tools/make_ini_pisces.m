@@ -107,21 +107,21 @@ ext_tracers_ini(ininame,grdname,fer_month_data,fer_ann_data,...
 %
 disp(' ')
 disp(' Make a few plots...')
-test_clim(clmname,grdname,'NO3',1,coastfileplot)
+test_clim(ininame,grdname,'NO3',1,coastfileplot)
 figure
-test_clim(clmname,grdname,'PO4',1,coastfileplot)
+test_clim(ininame,grdname,'PO4',1,coastfileplot)
 figure
-test_clim(clmname,grdname,'Si',1,coastfileplot)
+test_clim(ininame,grdname,'Si',1,coastfileplot)
 figure
-test_clim(clmname,grdname,'O2',1,coastfileplot)
+test_clim(ininame,grdname,'O2',1,coastfileplot)
 figure
-test_clim(clmname,grdname,'DIC',1,coastfileplot)
+test_clim(ininame,grdname,'DIC',1,coastfileplot)
 figure
-test_clim(clmname,grdname,'TALK',1,coastfileplot)
+test_clim(ininame,grdname,'TALK',1,coastfileplot)
 figure
-test_clim(clmname,grdname,'DOC',1,coastfileplot)
+test_clim(ininame,grdname,'DOC',1,coastfileplot)
 figure
-test_clim(clmname,grdname,'FER',1,coastfileplot)
+test_clim(ininame,grdname,'FER',1,coastfileplot)
 %
 % End
 %

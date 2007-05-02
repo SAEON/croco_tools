@@ -35,7 +35,7 @@ romstools_param
 %
 % bioname
 %
-bioname='roms_frcbio.nc'
+%bioname='roms_frcbio.nc'
 %
 % Dust deposition file 
 %
@@ -111,7 +111,7 @@ close(nc)
 % Make a few plots
 %
 disp(' Make a few plots...')
-test_forcing(frcname,grdname,'dust',[1 4 7 10],3,coastfileplot)
+test_bioforcing(bioname,grdname,'dust',[1 4 7 10],3,coastfileplot)
 %
 % End
 %
