@@ -88,6 +88,9 @@ C
       numnat=80
 C
       clname='namelist.trc.sms'
+#ifdef AGRIF
+      IF (.Not.Agrif_Root()) clname=TRIM(clname)//'.'//Agrif_CFixed()
+#endif      
       OPEN(unit=numnat, FILE=clname, FORM=clfor, ACCESS=clseq,
      $    STATUS=clold, IOSTAT=iost)
       REWIND ( numnat )
@@ -255,6 +258,8 @@ C
           WRITE(numout,*) ' '
           WRITE(numout,*) 'Fe input from sediments : ', bsedinput
           WRITE(numout,*) ' '
+       CLOSE(numnat)
+
 C
 
 #else
