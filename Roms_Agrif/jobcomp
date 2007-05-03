@@ -5,7 +5,7 @@
 #
 # set source, compilation and run directories
 #
-set SOURCE=../Roms_Agrifnew
+set SOURCE=../Roms_Agrif
 set SCRDIR=../Compile
 set RUNDIR=`pwd`
 
@@ -77,7 +77,7 @@ mkdir $SCRDIR
 if (  -e "namelist.trc.sms" ) then
   echo "  file namelist.trc.sms exists in Run directory"
 else
-  /bin/cp -f ${SOURCE}/PISCES/namelist.trc.sms $RUNDIR
+  /bin/cp -f ${SOURCE}/PISCES/namelist.trc.sms* $RUNDIR
   echo "  file namelist.trc.sms copied from source directory"
 endif
 #
@@ -110,9 +110,7 @@ echo OPERATING SYSTEM IS: $uname
 #
 if ($uname == Linux) then          # LINUX
   set OS = Linux
-  set CONV=conv.linux
   if ($LINUX_FC == ifort || $LINUX_FC == ifc) then
-    set MAKEAGRIF=Makefile.linux.ifc
     setenv CPP1 "cpp -traditional"
     setenv CFT1 mpif90
     setenv FFLAGS1 "-O3 -g -w90 -w95 -cm -72 -r8"
@@ -122,7 +120,6 @@ if ($uname == Linux) then          # LINUX
 #     set MAKEAGRIF=Makefile.linux.ifc.64
 #    endiF
   else if ($LINUX_FC == g95) then
-    set MAKEAGRIF=Makefile.linux.g95
     setenv CPP1 "cpp -traditional -DLinux"
     setenv CFT1 g95
     setenv FFLAGS1 "-O3 -i4 -r8 -fno-second-underscore -ffixed-line-length-132" 
@@ -136,8 +133,6 @@ if ($uname == Linux) then          # LINUX
 
 else if ($uname == AIX) then       # IBM
   set OS = AIX
-  set CONV=conv.ibm
-  set MAKEAGRIF=Makefile.ibm
   setenv CPP1 /lib/cpp
   setenv CFT1 "xlf95 -I$HOME/include/"
   if ($BITS == THIRTYTWO) then
@@ -151,16 +146,12 @@ else if ($uname == AIX) then       # IBM
 
 else if ($uname == OSF1) then     # COMPAQ
   set OS = OSF1
-  set CONV=conv.compaq
-  set MAKEAGRIF=Makefile.compaq
   setenv CPP1 /lib/cpp
   setenv CFT1 f95
   setenv FFLAGS1 "-fast -i4 -r8"
 
 else if ($uname == IRIX64) then   # SGI
   set OS = IRIX64
-  set CONV=conv.sgi
-  set MAKEAGRIF=Makefile.sgi
   setenv CPP1 "/usr/freeware/bin/cpp -traditional"
   setenv CFT1 f90
   setenv FFLAGS1 "-O2"
@@ -168,8 +159,6 @@ else if ($uname == IRIX64) then   # SGI
 else if ($uname == SunOS) then 	   # SUN:  tested on SunFire 880 (SPARC III)
   set GREP = /usr/xpg4/bin/grep    #       and Sun Ultra-60 (SPARC II)
   set OS = SunOS
-  set CONV=conv.ibm
-  set MAKEAGRIF=Makefile.sun
   setenv CPP1 /lib/cpp
   setenv CFT1 "f95"
   if ($BITS == THIRTYTWO) then
@@ -179,10 +168,8 @@ else if ($uname == SunOS) then 	   # SUN:  tested on SunFire 880 (SPARC III)
     set MAKEAGRIF=Makefile.sun.64
     setenv FFLAGS1 "-O5 -xtarget=native64 -xprefetch -xtypemap=real:64,double:128 -xlibmopt "
   endif
-else if ($uname == Darwin) then          # LINUX
+else if ($uname == Darwin) then          # DARWIN IFORT
   set OS = Darwin
-  set CONV=conv.darwin
-    set MAKEAGRIF=Makefile.darwin.g95
     setenv CPP1 "cpp -DLinux"
     setenv CFT1 ifort
     setenv FFLAGS1 "-O2 -r8 -i4 -g -w90 -w95 -cm -72"
