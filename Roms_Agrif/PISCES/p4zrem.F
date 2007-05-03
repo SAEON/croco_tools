@@ -76,14 +76,14 @@ C      Vertical decay of the bacterial activity
 C      ----------------------------------------
 C
 C Christophe Menkes. WE want to do that under the Euphotic Layer
-c$$$      DO jk=13,jpk
-c$$$        DO jj=Jstr, Jend
-c$$$          DO ji=Istr, Iend
-c$$$         zdepbac(ji,jj,jk)=min(1.,fsdept(ji,jj,12)/fsdept(ji,jj,jk))
-c$$$     &      *zdepbac(ji,jj,12)
-c$$$          END DO
-c$$$        END DO
-c$$$      END DO
+c      DO jk=13,jpk
+c        DO jj=Jstr, Jend
+c          DO ji=Istr, Iend
+c        zdepbac(ji,jj,jk)=min(1.,fsdept(ji,jj,12)/fsdept(ji,jj,jk))
+c     &      *zdepbac(ji,jj,12)
+c          END DO
+c        END DO
+c      END DO
         DO jj=Jstr, Jend
           DO ji=Istr, Iend
              DO jk=zmeuindex(ji, jj)+1,jpk
