@@ -82,7 +82,7 @@ include Makedefs
         p4zint.F        p4zprod.F	p4zmicro.F\
         p4zlim.F        p4zrem.F	p4zche.F\
         p4zbio.F        p4zmeso.F       p4zsink2.F \
-        p4zlys.F        p4zsed.F        Agrif2Model.F
+        p4zsed.F        Agrif2Model.F
 
 AMRDIR = AGRIFZOOM/AGRIF_YOURFILES
 
