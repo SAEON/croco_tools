@@ -104,7 +104,7 @@
       integer iprmin,iprmax,jprmin,jprmax
       real,dimension(:,:),allocatable :: hconstraint,constraints,
      &gradconstraints
-      external hinterp
+      external hinterp     
 !$AGRIF_DO_NOT_TREAT
        integer isens
        common/interph/isens
@@ -201,6 +201,12 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Set analytical initial
 # ifdef ANA_INITIAL
       endif
 # endif
+#if defined BIOLOGY && defined PISCES
+C$OMP PARALLEL DO PRIVATE(tile)      ! Set analytical initial
+        do tile=0,NSUB_X*NSUB_E-1    ! conditions for tracers
+          call  pisces_ini (tile)  ! if not found in initial
+        enddo                        ! conditions NetCDF file).
+#endif
 CR      write(*,*) ' -6' MYID 
       if (may_day_flag.ne.0) goto 99     !-->  EXIT
 
@@ -611,6 +617,7 @@ CR      write(*,*) '  0' MYID
 #endif            
 
 #endif     <-  AGRIF_2WAY
+     
       return
       end
       
