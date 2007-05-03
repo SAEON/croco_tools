@@ -71,7 +71,7 @@ include Makedefs
 \
         zoom.F		update2D.F	set_nudgcof_fine.F\
 	zoombc_2D.F	zoombc_3D.F	uv3dmix_fine.F\
-        t3dmix_fine.F   update3D.F	Agrif2Model.F\
+        t3dmix_fine.F   update3D.F	\
 \
         biology_pisces.F\
 	ropigrid.F	ropistep.F	pirostep.F\
@@ -82,7 +82,7 @@ include Makedefs
         p4zint.F        p4zprod.F	p4zmicro.F\
         p4zlim.F        p4zrem.F	p4zche.F\
         p4zbio.F        p4zmeso.F       p4zsink2.F \
-        p4zlys.F        p4zsed.F 
+        p4zlys.F        p4zsed.F        Agrif2Model.F
 
 AMRDIR = AGRIFZOOM/AGRIF_YOURFILES
 
