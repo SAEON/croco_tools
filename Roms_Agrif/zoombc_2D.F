@@ -454,7 +454,7 @@ C$OMP BARRIER
        oldindinterp = indinterp
        
        do j=j1,j2
-       do i=i1,i2
+       do i=max(i1,lbound(h,1)+1),i2
        oldindinterp=oldindinterp+1
        coarsevalues(oldindinterp,0,nbgrid) = 
      &  0.5*(h(i-1,j)+zeta(i-1,j,kstp)+h(i,j)+
@@ -467,7 +467,7 @@ C$OMP BARRIER
        oldindinterp = indinterp
        
        do j=j1,j2
-       do i=i1,i2
+       do i=max(i1,lbound(h,1)+1),i2
        oldindinterp=oldindinterp+1
        coarsevalues(oldindinterp,iif,nbgrid) =
      &   0.5*(h(i-1,j)+zeta(i-1,j,knew)+h(i,j)+
@@ -948,7 +948,7 @@ C$OMP BARRIER
        
        oldindinterp = indinterp
        
-       do j=j1,j2
+       do j=max(j1,lbound(h,2)+1),j2
        do i=i1,i2
        oldindinterp=oldindinterp+1
        coarsevalues(oldindinterp,0,nbgrid) = 
@@ -961,7 +961,7 @@ C$OMP BARRIER
        
        oldindinterp = indinterp
        
-       do j=j1,j2
+       do j=max(j1,lbound(h,2)+1),j2
        do i=i1,i2
        oldindinterp=oldindinterp+1
        coarsevalues(oldindinterp,iif,nbgrid) =
