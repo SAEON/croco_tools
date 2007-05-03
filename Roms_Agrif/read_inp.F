@@ -82,6 +82,7 @@
       if (.Not.Agrif_Root()) then
         lstr=lenstr(fname)
         fname=fname(1:lstr) / / '.' / / Agrif_Cfixed()
+        lstr=lenstr(fname)
       endif
 #endif
 !
