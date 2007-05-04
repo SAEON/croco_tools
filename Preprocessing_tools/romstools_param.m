@@ -45,12 +45,12 @@
 ROMS_title  = 'Peru Test Model';
 ROMS_config = 'Peru';
 ROMSTOOLS_dir = '../';
-RUN_dir=[ROMSTOOLS_dir,'Run/'];
+RUN_dir=['./'];
 ROMS_files_dir=[RUN_dir];
 %
-% AGRIF LEVEL
+% AGRIF LEVEL (0 = parent grid)
 % 
-level=1;
+level=0;
 if level==0,
   lev='';
 else
@@ -82,7 +82,7 @@ blk_prefix=[ROMS_files_dir,'roms_blk'];   % generic bulk file name
 %Roa=300e3;
 Roa=0;
 %
-interp_method = 'cubic';           % Interpolation method: 'linear' or 'cubic'
+interp_method = 'linear';         % Interpolation method: 'linear' or 'cubic'
 %
 makeplot     = 1;                 % 1: create a few graphics after each preprocessing step
 %
@@ -95,10 +95,10 @@ makeplot     = 1;                 % 1: create a few graphics after each preproce
 %
 % Grid dimensions:
 %
-lonmin =  145;   % Minimum longitude [degree east]
-lonmax =  170;   % Maximum longitude [degree east]
-latmin = -30;   % Minimum latitude  [degree north]
-latmax = -10;   % Maximum latitude  [degree north]
+lonmin =  -85;   % Minimum longitude [degree east]
+lonmax =  -75;   % Maximum longitude [degree east]
+latmin =  -15;   % Minimum latitude  [degree north]
+latmax =   -7;   % Maximum latitude  [degree north]
 %
 % Grid resolution [degree]
 %
@@ -194,7 +194,7 @@ pathfinder_sst_name=[ROMSTOOLS_dir,...
 %
 %  Open boundaries switches (! should be consistent with cppdefs.h !)
 %
-obc = [1 0 1 1]; % open boundaries (1=open , [S E N W])
+obc = [1 1 1 1]; % open boundaries (1=open , [S E N W])
 %
 %  Level of reference for geostrophy calculation
 %
@@ -293,7 +293,6 @@ SPIN_Long     = 0;                  % SPIN-UP duration in Years
 FORC_DATA_DIR = [RUN_dir,'DATA/'];
 %
 Download_data = 1;                            % Get data from the OPENDAP sites 
-%level         = 0;                            % AGRIF level; 0=parent grid 
 %
 %  Options for make_NCEP
 %

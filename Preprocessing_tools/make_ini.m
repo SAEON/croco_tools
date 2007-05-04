@@ -31,52 +31,10 @@ close all
 %
 title='Climatology';
 %
-%  Switches for selecting what to process (1=ON)
+% Common parameters
 %
-makeini=1;  %1: process initial data
-%
-%  Grid file name - Climatology file name
-%  Initial file name - OA file name
-%
-grdname='roms_grd.nc';
-frcname='roms_frc.nc';
-ininame='roms_ini.nc';
-oaname ='roms_oa.nc';
-%
-%  Vertical grid parameters
-%  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-%  !!! WARNING WARNING WARNING WARNING WARNING  !!!
-%  !!!   THESE MUST IDENTICAL IN THE .IN FILE   !!!
-%  !!! WARNING WARNING WARNING WARNING WARNING  !!!
-%  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-%
-theta_s=6.;
-theta_b=0.;
-hc=5.;
-N=30; % number of vertical levels (rho)
-%
-%  Open boundaries switches
-%  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-%  !!! WARNING WARNING WARNING WARNING WARNING  !!!
-%  !!!   MUST BE CONFORM TO THE CPP SWITCHES    !!!
-%  !!! WARNING WARNING WARNING WARNING WARNING  !!!
-%  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-%
-obc=[1 1 1 1]; % open boundaries (1=open , [S E N W])
-%
-%  Level of reference for geostrophy calculation
-%
-zref=-500; 
-%
-%  Day of initialisation
-%
-tini=0;  
-%
-% Set times and cycles: monthly climatology for all data
-%
-time=[15:30:345];    % time 
-cycle=360;           % cycle 
-%
+romstools_param
+
 %  Data climatologies file names:
 %
 %    temp_month_data : monthly temperature climatology
@@ -84,11 +42,11 @@ cycle=360;           % cycle
 %    salt_month_data : monthly salinity climatology
 %    salt_ann_data   : annual salinity climatology
 %
-temp_month_data='../WOA2001/temp_month_corrected.cdf';
-temp_ann_data='../WOA2001/temp_ann_corrected.cdf';
-insitu2pot=1;   %1: transform in-situ temperature to potential temperature
-salt_month_data='../WOA2001/salt_month_corrected.cdf';
-salt_ann_data='../WOA2001/salt_ann_corrected.cdf';
+temp_month_data  = '../WOA2001/temp_month.cdf';
+temp_ann_data    = '../WOA2001/temp_ann.cdf';
+insitu2pot       = 1;   %1: transform in-situ temperature to potential temperature
+salt_month_data  = '../WOA2001/salt_month.cdf';
+salt_ann_data    = '../WOA2001/salt_ann.cdf';
 %
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
@@ -137,9 +95,9 @@ end
 %
 disp(' ')
 disp(' Make a few plots...')
-test_clim(ininame,grdname,'temp',1)
+test_clim(ininame,grdname,'temp',1,coastfileplot)
 figure
-test_clim(ininame,grdname,'salt',1)
+test_clim(ininame,grdname,'salt',1,coastfileplot)
 %
 % End
 %

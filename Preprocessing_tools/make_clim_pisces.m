@@ -24,23 +24,23 @@ romstools_param
 %
 % Climatology files
 %
-no3_month_data  = '../WOAPISCES/no3_seas.cdf';
+no3_seas_data  = '../WOAPISCES/no3_seas.cdf';
 no3_ann_data    = '../WOAPISCES/no3_ann.cdf';
-po4_month_data  = '../WOAPISCES/po4_seas.cdf';
+po4_seas_data  = '../WOAPISCES/po4_seas.cdf';
 po4_ann_data    = '../WOAPISCES/po4_ann.cdf';
-o2_month_data   = '../WOAPISCES/o2_seas.cdf';
+o2_seas_data   = '../WOAPISCES/o2_seas.cdf';
 o2_ann_data     = '../WOAPISCES/o2_ann.cdf';
-sio3_month_data = '../WOAPISCES/sio3_seas.cdf';
+sio3_seas_data = '../WOAPISCES/sio3_seas.cdf';
 sio3_ann_data   = '../WOAPISCES/sio3_ann.cdf';
-dic_month_data  = '../WOAPISCES/dic_seas.cdf';
+dic_seas_data  = '../WOAPISCES/dic_seas.cdf';
 dic_ann_data    = '../WOAPISCES/dic_ann.cdf';
-talk_month_data = '../WOAPISCES/talk_seas.cdf';
+talk_seas_data = '../WOAPISCES/talk_seas.cdf';
 talk_ann_data   = '../WOAPISCES/talk_ann.cdf';
-doc_month_data  = '../WOAPISCES/doc_seas.cdf';
+doc_seas_data  = '../WOAPISCES/doc_seas.cdf';
 doc_ann_data    = '../WOAPISCES/doc_ann.cdf';
-fer_month_data  = '../WOAPISCES/fer_seas.cdf';
+fer_seas_data  = '../WOAPISCES/fer_seas.cdf';
 fer_ann_data    = '../WOAPISCES/fer_ann.cdf';
-dust_month_data = '../WOAPISCES/dust_seas.cdf';
+dust_seas_data = '../WOAPISCES/dust_seas.cdf';
 dust_ann_data   = '../WOAPISCES/dust_ann.cdf';
 %
 cycle=woa_cycle;
@@ -100,8 +100,6 @@ if (makeoa)
 
   ext_tracers(oaname,fer_seas_data,fer_ann_data,...
              'fer','FER','fer_time','Zfer',Roa);
-
-
 end
 %
 % Vertical interpolations 
