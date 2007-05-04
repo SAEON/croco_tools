@@ -73,7 +73,6 @@ include Makedefs
 	zoombc_2D.F	zoombc_3D.F	uv3dmix_fine.F\
         t3dmix_fine.F   update3D.F	\
 \
-        biology_pisces.F\
 	ropigrid.F	ropistep.F	pirostep.F\
 	trcini.F	trclsm.F	pisces_ini.F\
 	p4zday.F	p4znano.F	p4zlys.F\

@@ -1,31 +1,32 @@
-      SUBROUTINE biology_pisces(kt,Istr,Iend,Jstr,Jend)
-C
+!
+! $Id$
+!
 #include "cppdefs.h"
-      INTEGER kt,Istr,Iend,Jstr,Jend
-#if defined PISCES
-CC   ------------------------------------------------------------------
-CCC
-CCC   ROUTINE romspisces : PISCES MODEL
-CCC   *****************************
-CCC
-CC
-CC     PURPOSE.
-CC     --------
-CC          *ROMSPISCES* ECOSYSTEM MODEL IN THE WHOLE OCEAN
-CC                       THIS ROUTINE COMPUTES THE DIFFERENT
-C                        INTERACTIONS
-CC                       BETWEEN THE DIFFERENT COMPARTMENTS OF THE
-C                        MODEL
-CC ----------------------------------------------------------------
-CC parameters and commons
-CC ======================
+
+      subroutine biology_tile (Istr,Iend,Jstr,Jend)
+!------------------------------------------------------------------
+!
+!   ROUTINE biology_pisces : PISCES MODEL
+!   *************************************
+!
+!
+!     PURPOSE.
+!     --------
+!          *ROMS_PISCES ECOSYSTEM MODEL FOR THE WHOLE OCEAN
+!                       THIS ROUTINE COMPUTES INTERACTIONS
+!                       BETWEEN THE DIFFERENT COMPARTMENTS OF THE
+!                       MODEL
+!----------------------------------------------------------------
+      INTEGER Istr,Iend,Jstr,Jend
+# include "param.h"
+# include "scalars.h"
       INTEGER ktask
 
       ktask=1
 
       CALL ropistep(Istr,Iend,Jstr,Jend)
-      CALL p4zprg(ktask,kt,Istr,Iend,Jstr,Jend)
+      CALL p4zprg(ktask,iic,Istr,Iend,Jstr,Jend)
       CALL pirostep(Istr,Iend,Jstr,Jend)
-#endif
-       
+
+      RETURN       
       END

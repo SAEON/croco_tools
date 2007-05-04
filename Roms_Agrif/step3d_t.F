@@ -722,11 +722,7 @@
 ! Compute biological fluxes
 !---------------------------------------------------------------
 !
-#  ifdef PISCES
-      call biology_pisces(iic,Istr,Iend,Jstr,Jend)  
-#  else
       call biology_tile (Istr,Iend,Jstr,Jend)
-#  endif
 #  endif
 
       do itrc=1,NT
