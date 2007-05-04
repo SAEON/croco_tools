@@ -1,4 +1,4 @@
-function add_ini_chla(inifile,gridfile,seas_datafile,cycle);
+function add_ini_chla(inifile,gridfile,seas_datafile,cycle,Roa);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -35,11 +35,35 @@ function add_ini_chla(inifile,gridfile,seas_datafile,cycle);
 %   output:
 %
 %    [longrd,latgrd,chla] : surface field to plot (as an illustration)
+% 
+%  Further Information:  
+%  http://www.brest.ird.fr/Roms_tools/
+%  
+%  This file is part of ROMSTOOLS
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  it under the terms of the GNU General Public License as published
+%  by the Free Software Foundation; either version 2 of the License,
+%  or (at your option) any later version.
+%
+%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  WITHOUT ANY WARRANTY; without even the implied warranty of
+%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%  GNU General Public License for more details.
+%
+%  You should have received a copy of the GNU General Public License
+%  along with this program; if not, write to the Free Software
+%  Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+%  MA  02111-1307  USA
+%
+%  Copyright (c) 2001-2006 by Pierrick Penven 
+%  e-mail:Pierrick.Penven@ird.fr  
+%
+%  Updated    August-2006 by Pierrick Penven
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 disp('Add_ini_chla: creating variable and attribute')
-ro=1e8;
 default=NaN;
 %
 % read in the datafile 
@@ -79,8 +103,15 @@ y=y(jmin:jmax);
 % 
 nc=netcdf(inifile,'write');
 theta_s = nc{'theta_s'}(:);
-theta_b =  nc{'theta_b'}(:);
-Tcline  =  nc{'Tcline'}(:);
+if isempty(theta_s)
+  disp('Restart file')
+  theta_s=nc.theta_s(:);
+  theta_b=nc.theta_b(:);
+  hc=nc.hc(:);
+else
+  theta_b =  nc{'theta_b'}(:);
+  hc  =  nc{'hc'}(:);
+end
 N =  length(nc('s_rho'));
 scrum_time = nc{'scrum_time'}(:);
 scrum_time = scrum_time / (24*3600);
@@ -135,6 +166,9 @@ for l=1:tinilen
         error('No posterious time in the dataset')
       end
     end
+    disp(['Initialisation time: ',num2str(modeltime),...
+          ' - Time 1: ',num2str(time1),...
+          ' - Time 2: ',num2str(time2)])
     cff1=(modeltime-time2)/(time1-time2);
     cff2=(time1-modeltime)/(time1-time2);
   else
@@ -147,16 +181,16 @@ for l=1:tinilen
 %
   disp('Add_ini_chla: horizontal extrapolation of surface data')
   surfchla=squeeze(ncseas{'chlorophyll'}(l1,jmin:jmax,imin:imax));
-  surfchla=get_missing_val(x,y,surfchla,missval,ro,default);
+  surfchla=get_missing_val(x,y,surfchla,missval,Roa,default);
   surfchla2=squeeze(ncseas{'chlorophyll'}(l2,jmin:jmax,imin:imax));
-  surfchla2=get_missing_val(x,y,surfchla2,missval,ro,default);
+  surfchla2=get_missing_val(x,y,surfchla2,missval,Roa,default);
   surfchla=cff1*surfchla + cff2*surfchla2;
   surfchlaroms=interp2(x,y,surfchla,lon,lat);
 %
 % extrapole the chlorophyll on the vertical
 %
   zeta = squeeze(nc{'zeta'}(l,:,:));
-  zroms=zlevs(h,zeta,theta_s,theta_b,Tcline,N,'r');
+  zroms=zlevs(h,zeta,theta_s,theta_b,hc,N,'r');
   disp(['Add_ini_chla: vertical ',...
   'extrapolation of chlorophyll'])
   chlaroms=extr_chlo(surfchlaroms,zroms);

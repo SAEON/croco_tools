@@ -1,11 +1,9 @@
-function add_ini_no3(ininame,grdname,oaname,cycle);
+function add_ini_no3(ininame,grdname,oaname,cycle,NO3min);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  function [longrd,latgrd,no3]=add_ini_no3(ininame,grdname,...
 %                                           seas_datafile,ann_datafile,...
 %                                           cycle);
-%
-%  pierrick 2001
 %
 %  Add nitrate (mMol N m-3) in a ROMS initial file.
 %  take seasonal data for the upper levels and annual data for the
@@ -27,8 +25,31 @@ function add_ini_no3(ininame,grdname,oaname,cycle);
 %   output:
 %
 %    [longrd,latgrd,no3] : surface field to plot (as an illustration)
+% 
+%  Further Information:  
+%  http://www.brest.ird.fr/Roms_tools/
+%  
+%  This file is part of ROMSTOOLS
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  it under the terms of the GNU General Public License as published
+%  by the Free Software Foundation; either version 2 of the License,
+%  or (at your option) any later version.
+%
+%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  WITHOUT ANY WARRANTY; without even the implied warranty of
+%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%  GNU General Public License for more details.
+%
+%  You should have received a copy of the GNU General Public License
+%  along with this program; if not, write to the Free Software
+%  Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+%  MA  02111-1307  USA
+%
+%  Copyright (c) 2001-2006 by Pierrick Penven 
+%  e-mail:Pierrick.Penven@ird.fr  
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 disp('Add_ini_no3: creating variable and attribute')
 %
@@ -42,8 +63,15 @@ close(nc);
 % 
 nc=netcdf(ininame,'write');
 theta_s = nc{'theta_s'}(:);
-theta_b =  nc{'theta_b'}(:);
-hc  =  nc{'hc'}(:);
+if isempty(theta_s)
+  disp('Restart file')
+  theta_s=nc.theta_s(:);
+  theta_b=nc.theta_b(:);
+  hc=nc.hc(:);
+else
+  theta_b =  nc{'theta_b'}(:);
+  hc  =  nc{'hc'}(:);
+end
 N =  length(nc('s_rho'));
 %
 % open the oa file  
@@ -62,7 +90,8 @@ zmax=max(max(max(zroms)));
 % Check if the min z level is below the min sigma level 
 %    (if not add a deep layer)
 %
-addsurf=max(z)<zmax;
+%addsurf=max(z)<zmax;
+addsurf=1;
 addbot=min(z)>zmin;
 if addsurf
  z=[100;z];
@@ -73,13 +102,8 @@ end
 Nz=min(find(z<zmin));
 z=z(1:Nz);
 %
-% open the initial file  
+% read in the initial file  
 % 
-nc=netcdf(ininame,'write');
-theta_s = nc{'theta_s'}(:);
-theta_b =  nc{'theta_b'}(:);
-hc  =  nc{'hc'}(:);
-N =  length(nc('s_rho'));
 scrum_time = nc{'scrum_time'}(:);
 scrum_time = scrum_time / (24*3600);
 tinilen = length(scrum_time);
@@ -128,6 +152,9 @@ for l=1:tinilen
         error('No posterious time in the dataset')
       end
     end
+    disp(['Initialisation time: ',num2str(modeltime),...
+          ' - Time 1: ',num2str(time1),...
+          ' - Time 2: ',num2str(time2)])	 
     cff1=(modeltime-time2)/(time1-time2);
     cff2=(time1-modeltime)/(time1-time2);
   else
@@ -154,8 +181,18 @@ for l=1:tinilen
     var2=cat(1,var2,var2(end,:,:));
   end
   var=cff1*var + cff2*var2;
+  zeta = squeeze(nc{'zeta'}(l,:,:));
+  zroms=zlevs(h,zeta,theta_s,theta_b,hc,N,'r');
   nc{'NO3'}(l,:,:,:)=ztosigma(flipdim(var,1),zroms,flipud(z));
 end
-close(nc);
 close(noa);
+%
+% Remove low values for oligotrophic areas
+%
+for l=1:tinilen
+  NO3=nc{'NO3'}(l,:,:,:);
+  NO3(NO3<NO3min)=0;
+  nc{'NO3'}(l,:,:,:)=NO3;
+end
+close(nc);
 return

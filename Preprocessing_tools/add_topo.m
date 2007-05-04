@@ -1,11 +1,47 @@
 function h=add_topo(grdname,toponame)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % add a topography (here etopo2) to a ROMS grid
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% the topogaphy matrix is coarsened prior
+% to the interpolation on the ROMS grid tp
+% prevent the generation of noise due to 
+% subsampling. this procedure ensure a better
+% general volume conservation.
 %
-%  read grid
+% Last update Pierrick Penven 8/2006.
+%
+% 
+%  Further Information:  
+%  http://www.brest.ird.fr/Roms_tools/
+%  
+%  This file is part of ROMSTOOLS
+%
+%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  it under the terms of the GNU General Public License as published
+%  by the Free Software Foundation; either version 2 of the License,
+%  or (at your option) any later version.
+%
+%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  WITHOUT ANY WARRANTY; without even the implied warranty of
+%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%  GNU General Public License for more details.
+%
+%  You should have received a copy of the GNU General Public License
+%  along with this program; if not, write to the Free Software
+%  Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+%  MA  02111-1307  USA
+%
+%  Copyright (c) 2001-2006 by Pierrick Penven 
+%  e-mail:Pierrick.Penven@ird.fr 
+%
+%  Updated    Aug-2006 by Pierrick Penven
+%  Updated    2006/10/05 by Pierrick Penven (dl depend of model
+%                                           resolution at low resolution)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  read roms grid
 %
 nc=netcdf(grdname);
 lon=nc{'lon_rho'}(:);
@@ -14,7 +50,14 @@ pm=nc{'pm'}(:);
 pn=nc{'pn'}(:);
 result=close(nc);
 %
-dl=1;
+% Get ROMS averaged resolution
+%
+dx=mean(mean(1./pm));
+dy=mean(mean(1./pn));
+dx_roms=mean([dx dy]);
+disp(['   ROMS resolution : ',num2str(dx_roms/1000,3),' km'])
+%
+dl=max([1 2*(dx_roms/(60*1852))]);
 lonmin=min(min(lon))-dl;
 lonmax=max(max(lon))+dl;
 latmin=min(min(lat))-dl;
@@ -50,14 +93,7 @@ if ~isempty(i3)
 end
 result=close(nc);
 %
-% Get ROMS mean resolution
-%
-dx=mean(mean(1./pm));
-dy=mean(mean(1./pn));
-dx_roms=mean([dx dy]);
-disp(['ROMS resolution : ',num2str(dx_roms/1000,2),' km'])
-%
-% Get TOPO mean resolution
+% Get TOPO averaged resolution
 %
 R=6367442.76;
 deg2rad=pi/180;
@@ -66,12 +102,11 @@ dphi=y(2:end)-y(1:end-1);
 dy=R*deg2rad*dphi;
 dx=R*deg2rad*dg*cos(deg2rad*y);
 dx_topo=mean([dx ;dy]);
-disp(['Topography resolution : ',num2str(dx_topo/1000,2),' km'])
+disp(['   Topography data resolution : ',num2str(dx_topo/1000,3),' km'])
 %
 % Degrade TOPO resolution
 %
 n=0;
-%while dx_roms>(2*dx_topo)
 while dx_roms>(dx_topo)
   n=n+1;
 %  
@@ -90,10 +125,11 @@ while dx_roms>(dx_topo)
   dx=R*deg2rad*dg*cos(deg2rad*y);
   dx_topo=mean([dx ;dy]);
 end
-disp(['Topography resolution halved ',num2str(n),' times'])
-disp(['Topography resolution : ',num2str(dx_topo/1000,2),' km'])
+disp(['   Topography resolution halved ',num2str(n),' times'])
+disp(['   New topography resolution : ',num2str(dx_topo/1000,3),' km'])
 %
-%  interpole topo
+%  interpolate the topo
 %
 h=interp2(x,y,topo,lon,lat,'cubic');
+%
 return

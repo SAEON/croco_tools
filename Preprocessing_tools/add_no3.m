@@ -6,8 +6,6 @@ function add_no3(oafile,climfile,inifile,gridfile,seas_datafile,...
 %                                       seas_datafile,ann_datafile,...
 %                                       cycle);
 %
-%  pierrick 2001
-%
 %  Add nitrate (mMol N m-3) in a ROMS climatology file
 %  take seasonal data for the upper levels and annual data for the
 %  lower levels
@@ -26,8 +24,31 @@ function add_no3(oafile,climfile,inifile,gridfile,seas_datafile,...
 %   output:
 %
 %    [longrd,latgrd,no3] : surface field to plot (as an illustration)
+% 
+%  Further Information:  
+%  http://www.brest.ird.fr/Roms_tools/
+%  
+%  This file is part of ROMSTOOLS
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  it under the terms of the GNU General Public License as published
+%  by the Free Software Foundation; either version 2 of the License,
+%  or (at your option) any later version.
+%
+%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  WITHOUT ANY WARRANTY; without even the implied warranty of
+%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%  GNU General Public License for more details.
+%
+%  You should have received a copy of the GNU General Public License
+%  along with this program; if not, write to the Free Software
+%  Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+%  MA  02111-1307  USA
+%
+%  Copyright (c) 2001-2006 by Pierrick Penven 
+%  e-mail:Pierrick.Penven@ird.fr  
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Read in the grid
 %
@@ -41,7 +62,7 @@ nc=netcdf(seas_datafile);
 t=nc{'T'}(:);
 close(nc)
 nc=netcdf(ann_datafile);
-zno3=nc{'Z'}(:)
+zno3=nc{'Z'}(:);
 kmax=max(find(zno3<hmax))-1;
 zno3=zno3(1:kmax);
 close(nc)
@@ -53,9 +74,9 @@ if (makeoa)
   nc=netcdf(oafile,'write');
   redef(nc);
   nc('no3_time') = length(t);
-  nc{'no3_time'} = ncdouble('no3_time'); 
+  nc{'no3_time'} = ncdouble('no3_time') ;
   nc('Zno3') = length(zno3);
-  nc{'Zno3'} = ncdouble('Zno3'); 
+  nc{'Zno3'} = ncdouble('Zno3') ;
   nc{'NO3'} = ncdouble('no3_time','Zno3','eta_rho','xi_rho') ;
 %
   nc{'no3_time'}.long_name = ncchar('time for nitrate');
@@ -82,8 +103,8 @@ if (makeoa)
 %
 % record deth and time and close
 %
-  nc{'Zno3'}(:)=zno3;
   nc{'no3_time'}(:)=t*30; % if time in month in the dataset !!!
+  nc{'Zno3'}(:)=zno3;
   close(nc)
 end
 %

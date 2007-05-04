@@ -1,10 +1,8 @@
-function add_chla(climfile,gridfile,seas_datafile,cycle);
+function add_chla(climfile,gridfile,seas_datafile,cycle,Roa);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  function add_chla(climfile,gridfile,seas_datafile,cycle);
-%
-%  pierrick 2001
 %
 %  Add chlorophyll (mg C) in a ROMS climatology file.
 %  take seasonal data for the surface levels and extrapole 
@@ -26,12 +24,33 @@ function add_chla(climfile,gridfile,seas_datafile,cycle);
 %                    file used for the lower levels  (netcdf)
 %    cycle         : time length (days) of climatology cycle (ex:360 for
 %                    annual cycle) - 0 if no cycle.
+% 
+%  Further Information:  
+%  http://www.brest.ird.fr/Roms_tools/
+%  
+%  This file is part of ROMSTOOLS
 %
+%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  it under the terms of the GNU General Public License as published
+%  by the Free Software Foundation; either version 2 of the License,
+%  or (at your option) any later version.
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  WITHOUT ANY WARRANTY; without even the implied warranty of
+%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%  GNU General Public License for more details.
+%
+%  You should have received a copy of the GNU General Public License
+%  along with this program; if not, write to the Free Software
+%  Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+%  MA  02111-1307  USA
+%
+%  Copyright (c) 2001-2006 by Pierrick Penven 
+%  e-mail:Pierrick.Penven@ird.fr  
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 disp('Add_chla: creating variable and attribute')
-ro=1e8;
 default=NaN;
 %
 % read in the datafile 
@@ -109,7 +128,7 @@ disp(['time index: ',num2str(l),' of total: ',num2str(tlen)])
 %
   disp('Add_chla: horizontal interpolation of surface data')
   surfchla=squeeze(ncseas{'chlorophyll'}(l,jmin:jmax,imin:imax));
-  surfchla=get_missing_val(x,y,surfchla,missval,ro,default);
+  surfchla=get_missing_val(x,y,surfchla,missval,Roa,default);
   surfchlaroms=interp2(x,y,surfchla,lon,lat);
 %
 % extrapole the chlorophyll on the vertical
