@@ -105,7 +105,7 @@
                       /* Lateral Forcing */
 # define SPONGE
 
-# undef CLIMATOLOGY
+# define CLIMATOLOGY
 # ifdef CLIMATOLOGY
 #  define ZCLIMATOLOGY
 #  define M2CLIMATOLOGY
@@ -119,7 +119,7 @@
 #  undef  ROBUST_DIAG
 # endif
 
-# define  FRC_BRY
+# undef FRC_BRY
 # ifdef FRC_BRY
 #  define Z_FRC_BRY
 #  define M2_FRC_BRY
@@ -135,9 +135,13 @@
                       /* Lateral Mixing */
 # define UV_VIS2
 # define MIX_GP_UV
-# undef  SMAGORINSKY
 # define TS_DIF2
 # define MIX_GP_TS
+# undef  SMAGORINSKY
+# ifdef SMAGORINSKY
+#  define SMAGO_UV
+#  undef  SMAGO_TS
+# endif
 # if defined TCLIMATOLOGY & !defined AGRIF
 #  define CLIMAT_TS_MIXH
 # endif

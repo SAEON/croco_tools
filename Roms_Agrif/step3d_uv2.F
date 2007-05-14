@@ -327,7 +327,6 @@
             MVadv(i,j,k,1)=MVadv(i,j,k,1)*cff
             MCor(i,j,k,1)=MCor(i,j,k,1)*cff
             MPrsgrd(i,j,k,1)=MPrsgrd(i,j,k,1)*cff
-            MHmix(i,j,k,1)=MHmix(i,j,k,1)*cff
             MVmix(i,j,k,1)=MVmix(i,j,k,1)*cff
             Mrate(i,j,k,1)=Mrate(i,j,k,1)*cff
 !
@@ -339,7 +338,6 @@
             MVadv(i,j,k,2)=MVadv(i,j,k,2)*cff
             MCor(i,j,k,2)=MCor(i,j,k,2)*cff
             MPrsgrd(i,j,k,2)=MPrsgrd(i,j,k,2)*cff
-            MHmix(i,j,k,2)=MHmix(i,j,k,2)*cff
             MVmix(i,j,k,2)=MVmix(i,j,k,2)*cff
             Mrate(i,j,k,2)=Mrate(i,j,k,2)*cff
           enddo

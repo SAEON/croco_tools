@@ -79,7 +79,7 @@
       do k=1,N
         do j=JstrV-1,Jend
           do i=IstrU-1,Iend
-# ifdef SMAGORINSKY
+# ifdef SMAGO_UV
             cff=0.5*Hz(i,j,k)*(visc2_r(i,j)+visc3d_r(i,j,k))*(
 # else
             cff=0.5*Hz(i,j,k)*visc2_r(i,j)*(
@@ -96,7 +96,7 @@
         enddo
         do j=Jstr,Jend+1
           do i=Istr,Iend+1
-# ifdef SMAGORINSKY
+# ifdef SMAGO_UV
             cff=0.125*(visc2_p(i,j)+visc3d_p(i,j,k))*
 # else
             cff=0.125*visc2_p(i,j)*
@@ -132,7 +132,7 @@
             rufrc(i,j)=rufrc(i,j) + cff
             u(i,j,k,indx)=u(i,j,k,indx) + dt*cff
 # ifdef DIAGNOSTICS_UV
-            MHmix(i,j,k,1) = cff*om_u(i,j)*on_u(i,j)
+            MHmix(i,j,k,1) = 2*cff/(Hz(i-1,j,k)+Hz(i,j,k))
 # endif
           enddo
         enddo
@@ -145,7 +145,7 @@
             rvfrc(i,j)=rvfrc(i,j) + cff
             v(i,j,k,indx)=v(i,j,k,indx) + dt*cff
 # ifdef DIAGNOSTICS_UV
-            MHmix(i,j,k,2) = cff*om_v(i,j)*on_v(i,j)
+            MHmix(i,j,k,2) = 2*cff/(Hz(i,j,k)+Hz(i,j-1,k))
 # endif
           enddo
         enddo

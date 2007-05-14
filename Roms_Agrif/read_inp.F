@@ -660,7 +660,7 @@ c        close(testunit)
      &                                        .or. wrthis(indxBostr)
      &     ) wrthis(indxTime)=.true.
 
-#  if defined UV_VIS2 && defined SMAGORINSKY
+#  if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
         wrthis(indxVisc)=.true.
 #  endif
 
@@ -705,7 +705,7 @@ c        close(testunit)
 #  endif
 # endif
      &  , wrthis(indxBostr), 'write Bostr', 'Bottom Stress.'
-#  if defined UV_VIS2 && defined SMAGORINSKY
+#  if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
      &  , wrthis(indxVisc),  'write Visc3d', 'Horizontal viscosity.'
 #  endif
 #endif /* SOLVE3D */
@@ -800,7 +800,7 @@ c        close(testunit)
      &                                        .or. wrtavg(indxBostr)
      &     ) wrtavg(indxTime)=.true.
 
-#  if defined UV_VIS2 && defined SMAGORINSKY
+#  if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
         wrtavg(indxVisc)=.true.
 #  endif
 
@@ -845,7 +845,7 @@ c        close(testunit)
 #   endif
 #  endif
      &  , wrtavg(indxBostr),'write Bostr', 'Bottom Stress.'
-#  if defined UV_VIS2 && defined SMAGORINSKY
+#  if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
      &  , wrtavg(indxVisc),'write Visc3d', 'Horizontal viscosity'
 #  endif
 # endif /* SOLVE3D */

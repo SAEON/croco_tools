@@ -238,7 +238,7 @@
               enddo
             enddo
           endif
-#  if defined UV_VIS2 && defined SMAGORINSKY
+#  if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
           if (wrtavg(indxVisc)) then
             do k=1,N
               do j=JstrR,JendR
@@ -452,7 +452,7 @@
               enddo
             enddo
           endif
-#  if defined UV_VIS2 && defined SMAGORINSKY
+#  if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
           if (wrtavg(indxVisc)) then
             do k=1,N
               do j=JstrR,JendR
@@ -680,7 +680,7 @@
               enddo
             enddo
           endif
-#  if defined UV_VIS2 && defined SMAGORINSKY
+#  if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
           if (wrtavg(indxVisc)) then
             do k=1,N
               do j=JstrR,JendR

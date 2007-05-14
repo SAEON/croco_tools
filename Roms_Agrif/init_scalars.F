@@ -594,7 +594,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxR =',indxR
       vname(3,indxR)='kilogram meter-3                            '
       vname(4,indxR)='density, scalar, series                     '
 
-# if defined UV_VIS2 && defined SMAGORINSKY
+# if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
 CR      write(stdout,'(1x,A,I3)') 'indxVisc =',indxVisc
       vname(1,indxVisc)='visc3d                                   '
       vname(2,indxVisc)='horizontal viscosity coefficient         '

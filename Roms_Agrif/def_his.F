@@ -496,7 +496,7 @@
           ierr=nf_put_att_text (ncid, vidW, 'field',     lvar,
      &                                  vname(4,indxW)(1:lvar))
         endif
-# if defined UV_VIS2 && defined SMAGORINSKY
+# if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
 !
 ! Horizontal viscosity coefficient.
 !
@@ -1086,7 +1086,7 @@
             goto 99                                       !--> ERROR
           endif
         endif
-# if defined UV_VIS2 && defined SMAGORINSKY
+# if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
 !
 ! Horizontal viscosity coefficient.
 !

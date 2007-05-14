@@ -57,7 +57,7 @@
      &       /avg_theta1/theta1_avg /avg_theta2/theta2_avg
 #   endif
 #  endif /* BIOLOGY */
-#  if defined UV_VIS2 && defined SMAGORINSKY
+#  if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
       real visc3d_avg(GLOBAL_2D_ARRAY,N)
       common /avg_visc3d/visc3d_avg
 #  endif

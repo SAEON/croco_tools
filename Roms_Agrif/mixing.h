@@ -8,11 +8,6 @@
       real visc2_r(GLOBAL_2D_ARRAY)
       real visc2_p(GLOBAL_2D_ARRAY)
       common /mixing_visc2_r/visc2_r /mixing_visc2_p/visc2_p
-# ifdef SMAGORINSKY
-      real visc3d_r(GLOBAL_2D_ARRAY,N)
-      real visc3d_p(GLOBAL_2D_ARRAY,N)
-      common /mixing_visc3d_r/visc3d_r /mixing_visc3d_p/visc3d_p
-# endif    
 #endif
 #ifdef UV_VIS4
       real visc4_r(GLOBAL_2D_ARRAY)
@@ -26,6 +21,13 @@
 #ifdef TS_DIF4
       real diff4(GLOBAL_2D_ARRAY,NT)
       common /mixing_diff4/diff4
+#endif
+#if defined UV_VIS2 || defined TS_DIF2
+# ifdef SMAGORINSKY
+      real visc3d_r(GLOBAL_2D_ARRAY,N)
+      real visc3d_p(GLOBAL_2D_ARRAY,N)
+      common /mixing_visc3d_r/visc3d_r /mixing_visc3d_p/visc3d_p
+# endif
 #endif
 
 #ifdef SOLVE3D

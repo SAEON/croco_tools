@@ -240,21 +240,28 @@
           enddo
         endif
         if (EASTERN_EDGE) then
-#ifdef MPI        
+#   ifdef MPI        
           do j=Jstr,Jend
             uxx(Lmmpi+1,j)=uxx(Lmmpi,j)
             Huxx(Lmmpi+1,j)=Huxx(Lmmpi,j)
           enddo
-#else
+#   else
           do j=Jstr,Jend
             uxx(Lm+1,j)=uxx(Lm,j)
             Huxx(Lm+1,j)=Huxx(Lm,j)
           enddo
-#endif          
+#   endif          
         endif
 #  endif
+
         do j=Jstr,Jend
           do i=IstrU-1,Iend
+#  ifdef HADV_C4_UV
+            UFx(i,j)=0.25*( u(i,j,k,nrhs)+u(i+1,j,k,nrhs)
+     &                         -0.125*(uxx(i,j)+uxx(i+1,j))
+     &                  )*( Huon(i,j,k)+Huon(i+1,j,k)
+     &                      -0.125*(Huxx(i,j)+Huxx(i+1,j)))
+#  else
             cffX=u(i,j,k,nrhs)+u(i+1,j,k,nrhs)
             if (cffX.gt.0.) then
               curvX=uxx(i,j)
@@ -263,6 +270,7 @@
             endif
             UFx(i,j)=0.25*(cffX+gamma*curvX)*( Huon(i,j,k)+
      &            Huon(i+1,j,k)-0.125*(Huxx(i,j)+Huxx(i+1,j)))
+#  endif
           enddo
         enddo
 #  undef Huxx
@@ -307,21 +315,27 @@
           enddo
         endif
         if (NORTHERN_EDGE) then
-#ifdef MPI
+#   ifdef MPI
           do i=Istr,Iend
             vee(i,Mmmpi+1)=vee(i,Mmmpi)
             Hvee(i,Mmmpi+1)=Hvee(i,Mmmpi)
           enddo
-#else        
+#   else        
           do i=Istr,Iend
             vee(i,Mm+1)=vee(i,Mm)
             Hvee(i,Mm+1)=Hvee(i,Mm)
           enddo
-#endif          
+#   endif          
         endif
 #  endif
         do j=JstrV-1,Jend
           do i=Istr,Iend
+#  ifdef HADV_C4_UV
+            VFe(i,j)=0.25*( v(i,j,k,nrhs)+v(i,j+1,k,nrhs)
+     &                        -0.125*(vee(i,j)+vee(i,j+1))
+     &                  )*( Hvom(i,j,k)+Hvom(i,j+1,k)
+     &                      -0.125*(Hvee(i,j)+Hvee(i,j+1)))
+#  else
             cffE=v(i,j,k,nrhs)+v(i,j+1,k,nrhs)
             if (cffE.gt.0.) then
               curvE=vee(i,j)
@@ -330,6 +344,7 @@
             endif
             VFe(i,j)=0.25*(cffE+gamma*curvE)*( Hvom(i,j,k)+
      &             Hvom(i,j+1,k)-0.125*(Hvee(i,j)+Hvee(i,j+1)))
+#  endif
           enddo
         enddo
 #  undef Hvee
@@ -371,15 +386,15 @@
           enddo
         endif
         if (NORTHERN_EDGE) then
-#ifdef MPI
+#   ifdef MPI
           do i=IstrU,Iend
             uee(i,Mmmpi+1)=uee(i,Mmmpi)
           enddo
-#else        
+#   else        
           do i=IstrU,Iend
             uee(i,Mm+1)=uee(i,Mm)
           enddo
-#endif          
+#   endif          
         endif
 #  endif
         do j=Jstr,Jend+1
@@ -389,6 +404,12 @@
         enddo
         do j=Jstr,Jend+1
           do i=IstrU,Iend
+#  ifdef HADV_C4_UV
+            UFe(i,j)=0.25*( u(i,j,k,nrhs)+u(i,j-1,k,nrhs)
+     &                        -0.125*(uee(i,j)+uee(i,j-1))
+     &                  )*( Hvom(i,j,k)+Hvom(i-1,j,k)
+     &                     -0.125*(Hvxx(i,j)+Hvxx(i-1,j)))
+#  else
             cffX=u(i,j,k,nrhs)+u(i,j-1,k,nrhs)
             cffE=Hvom(i,j,k)+Hvom(i-1,j,k)
             if (cffE.gt.0.) then
@@ -398,6 +419,7 @@
             endif
             UFe(i,j)=0.25*(cffX+gamma*curvX)*(cffE-0.125*(
      &                             Hvxx(i,j)+Hvxx(i-1,j) ))
+#  endif
           enddo
         enddo
 #  undef Hvxx
@@ -439,15 +461,15 @@
           enddo
         endif
         if (EASTERN_EDGE) then
-#ifdef MPI
+#   ifdef MPI
           do j=JstrV,Jend
             vxx(Lmmpi+1,j)=vxx(Lmmpi,j)
           enddo
-#else        
+#   else        
           do j=JstrV,Jend
             vxx(Lm+1,j)=vxx(Lm,j)
           enddo
-#endif          
+#   endif          
         endif
         
 #  endif
@@ -458,6 +480,12 @@
         enddo
         do j=JstrV,Jend
           do i=Istr,Iend+1
+#  ifdef HADV_C4_UV
+            VFx(i,j)=0.25*( v(i,j,k,nrhs)+v(i-1,j,k,nrhs)
+     &                        -0.125*(vxx(i,j)+vxx(i-1,j))
+     &                  )*( Huon(i,j,k)+Huon(i,j-1,k)
+     &                     -0.125*(Huee(i,j)+Huee(i,j-1)))
+#  else
             cffE=v(i,j,k,nrhs)+v(i-1,j,k,nrhs)
             cffX=Huon(i,j,k)+Huon(i,j-1,k)
             if (cffX.gt.0.) then
@@ -467,6 +495,7 @@
             endif
             VFx(i,j)=0.25*(cffE+gamma*curvE)*(cffX-0.125*(
      &                             Huee(i,j)+Huee(i,j-1) ))
+#  endif
           enddo
         enddo
 #undef Huee

@@ -121,8 +121,13 @@
         if (k.gt.0) then
           do j=Jstr,Jend
             do i=Istr,Iend+1
+# ifdef SMAGO_TS
+              FX(i,j)=0.25*(diff2(i,j,itrc)+diff2(i-1,j,itrc)
+     &                     +visc3d_r(i,j,k)+visc3d_r(i-1,j,k))
+# else
               FX(i,j)=0.25*(diff2(i,j,itrc)+diff2(i-1,j,itrc))
-     &                     *(Hz(i,j,k)+Hz(i-1,j,k))*on_u(i,j)*(
+# endif
+     &                    *(Hz(i,j,k)+Hz(i-1,j,k))*on_u(i,j)*(
      &         dTdx(i  ,j,k1)-0.5*(
      &             min(dZdx(i,j,k1),0.)*(dTdz(i-1,j,k1)+dTdz(i,j,k2))
      &            +max(dZdx(i,j,k1),0.)*(dTdz(i-1,j,k2)+dTdz(i,j,k1))
@@ -131,7 +136,12 @@
           enddo
           do j=Jstr,Jend+1
             do i=Istr,Iend
+# ifdef SMAGO_TS
+              FE(i,j)=0.125*(diff2(i,j,itrc)+diff2(i,j-1,itrc)
+     &                      +visc3d_r(i,j,k)+visc3d_r(i,j-1,k))
+# else
               FE(i,j)=0.25*(diff2(i,j,itrc)+diff2(i,j-1,itrc))
+# endif
      &                     *(Hz(i,j,k)+Hz(i,j-1,k))*om_v(i,j)*(
      &         dTde(i,j,k1)-0.5*(
      &             min(dZde(i,j,k1),0.)*(dTdz(i,j-1,k1)+dTdz(i,j,k2))
@@ -148,7 +158,11 @@
                 cff3=max(dZdx(i  ,j,k2),0.)
                 cff4=max(dZdx(i+1,j,k1),0.)
 
+# ifdef SMAGO_TS
+                FC(i,j,k2)=0.5*(diff2(i,j,itrc)+visc3d_r(i,j,k))*(
+# else
                 FC(i,j,k2)=0.5*diff2(i,j,itrc)*(
+# endif
      &                       cff1*(cff1*dTdz(i,j,k2)-dTdx(i  ,j,k1))
      &                        +cff2*(cff2*dTdz(i,j,k2)-dTdx(i+1,j,k2))
      &                        +cff3*(cff3*dTdz(i,j,k2)-dTdx(i  ,j,k2))
@@ -160,7 +174,12 @@
                 cff3=max(dZde(i,j  ,k2),0.)
                 cff4=max(dZde(i,j+1,k1),0.)
 
+# ifdef SMAGO_TS
+                FC(i,j,k2)=FC(i,j,k2)+
+     &                       0.5*(diff2(i,j,itrc)+visc3d_r(i,j,k))*(
+# else
                 FC(i,j,k2)=FC(i,j,k2)+0.5*diff2(i,j,itrc)*(
+# endif
      &                        cff1*(cff1*dTdz(i,j,k2)-dTde(i,j  ,k1))
      &                       +cff2*(cff2*dTdz(i,j,k2)-dTde(i,j+1,k2))
      &                       +cff3*(cff3*dTdz(i,j,k2)-dTde(i,j  ,k2))

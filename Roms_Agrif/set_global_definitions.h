@@ -46,6 +46,7 @@
 **  (The default horizontal advection is third-order upstream bias)
 */
 
+#undef  HADV_C4_UV       /* 4th-order centered horizontal advection */
 #define VADV_SPLINES_UV  /* splines vertical advection */
 #undef  VADV_C2_UV       /* 2nd-order centered vertical advection */
 

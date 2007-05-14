@@ -225,7 +225,7 @@ CR      write(*,*) 'wrt_his:  wrtO  ' MYID
         endif
 CR      write(*,*) 'wrt_his:  wrtW  ' MYID
       endif
-#  if defined UV_VIS2 && defined SMAGORINSKY
+#  if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
 !
 ! Write out Horizontal viscosity coefficient.
 !

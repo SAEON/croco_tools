@@ -2,7 +2,7 @@
 ! $Id: smagorinsky.F,v 1.4 2005/10/07 15:32:40 pmarches Exp $
 !
 #include "cppdefs.h"
-#if defined UV_VIS2 && defined SMAGORINSKY
+#if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
 
       subroutine smagorinsky (tile)
       implicit none
@@ -136,6 +136,6 @@
 # endif
 #else
       subroutine smagorinsky_empty
-#endif  /* UV_VIS2 && SMAGORINSKY */
+#endif  /* (UV_VIS2 || TS_DIF2) && SMAGORINSKY */
       return
       end

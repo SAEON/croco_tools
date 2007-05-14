@@ -53,29 +53,39 @@
 !
         do j=Jstr,Jend
           do i=Istr,Iend+1
+# ifdef SMAGO_TS
+            FX(i,j)=0.25*(diff2(i,j,itrc)+diff2(i-1,j,itrc)
+     &                   +visc3d_r(i,j,k)+visc3d_r(i-1,j,k))
+# else
             FX(i,j)=0.25*(diff2(i,j,itrc)+diff2(i-1,j,itrc))
-     &                   *pmon_u(i,j)*(Hz(i,j,k)+Hz(i-1,j,k))*(
-     &                     t(i,j,k,nrhs,itrc)-t(i-1,j,k,nrhs,itrc)
-# ifdef CLIMAT_TS_MIXH
-     &                          -tclm(i,j,k,itrc)+tclm(i-1,j,k,itrc)
 # endif
-     &                                                        )
+     &                *pmon_u(i,j)*(Hz(i,j,k)+Hz(i-1,j,k))*(
+     &               t(i,j,k,nrhs,itrc)-t(i-1,j,k,nrhs,itrc)
+# ifdef CLIMAT_TS_MIXH
+     &                  -tclm(i,j,k,itrc)+tclm(i-1,j,k,itrc)
+# endif
+     &                                                     )
 # ifdef MASKING
-     &                                                   *umask(i,j)
+     &                                           *umask(i,j)
 # endif
           enddo
         enddo
         do j=Jstr,Jend+1
           do i=Istr,Iend
+# ifdef SMAGO_TS
+            FE(i,j)=0.125*(diff2(i,j,itrc)+diff2(i,j-1,itrc)
+     &                    +visc3d_r(i,j,k)+visc3d_r(i,j-1,k))
+# else
             FE(i,j)=0.25*(diff2(i,j,itrc)+diff2(i,j-1,itrc))
-     &                     *pnom_v(i,j)*(Hz(i,j,k)+Hz(i,j-1,k))*(
-     &                      t(i,j,k,nrhs,itrc)-t(i,j-1,k,nrhs,itrc)
-# ifdef CLIMAT_TS_MIXH
-     &                          -tclm(i,j,k,itrc)+tclm(i,j-1,k,itrc)
 # endif
-     &                                                           )
+     &                *pnom_v(i,j)*(Hz(i,j,k)+Hz(i,j-1,k))*(
+     &               t(i,j,k,nrhs,itrc)-t(i,j-1,k,nrhs,itrc)
+# ifdef CLIMAT_TS_MIXH
+     &                  -tclm(i,j,k,itrc)+tclm(i,j-1,k,itrc)
+# endif
+     &                                                     )
 # ifdef MASKING
-     &                                                   *vmask(i,j)
+     &                                           *vmask(i,j)
 # endif
           enddo
         enddo
@@ -87,20 +97,19 @@
           do i=Istr,Iend
             cff1=pm(i,j)*pn(i,j)
             t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+dt*cff1
-     &                        *(FX(i+1,j)-FX(i,j)+FE(i,j+1)-FE(i,j))
-     &                                                    /Hz(i,j,k)
+     &                 *(FX(i+1,j)-FX(i,j)+FE(i,j+1)-FE(i,j))
+     &                                             /Hz(i,j,k)
 # ifdef DIAGNOSTICS_TS
             THmix(i,j,k,itrc)=FX(i+1,j)-FX(i,j)
      &                       +FE(i,j+1)-FE(i,j)
-     &                       +(FC(i,j,k2)-FC(i,j,k1))/cff1
 #  ifdef MASKING
-     &              * rmask(i,j)
+     &                                           * rmask(i,j)
 #  endif
             Trate(i,j,k,itrc)=(Hz(i,j,k)*t(i,j,k,nnew,itrc)
-     &                        -Hz_bak(i,j,k)*t(i,j,k,nstp,itrc))
-     &                                                 /(dt*cff1)
+     &                     -Hz_bak(i,j,k)*t(i,j,k,nstp,itrc))
+     &                                             /(dt*cff1)
 #  ifdef MASKING
-     &              * rmask(i,j)
+     &                                           * rmask(i,j)
 #  endif
 !
 !  Divide all diagnostic terms by the cell volume

@@ -213,7 +213,7 @@
         if (k.gt.0) then
           do j=JstrV-1,Jend
             do i=IstrU-1,Iend
-# ifdef SMAGORINSKY
+# ifdef SMAGO_UV
               cff=(visc2_r(i,j)+visc3d_r(i,j,k))*Hz(i,j,k)*(
 # else
               cff=visc2_r(i,j)*Hz(i,j,k)*(
@@ -235,7 +235,7 @@
           enddo
           do j=Jstr,Jend+1
             do i=Istr,Iend+1
-# ifdef SMAGORINSKY
+# ifdef SMAGO_UV
               cff=0.25*(visc2_p(i,j)+visc3d_p(i,j,k))
 # else
               cff=0.25*visc2_p(i,j)
@@ -314,7 +314,7 @@
      &                         +cff4*(cff8*dnVdz-dnVdx(i,j+1,k1))
      &                                                          )
  
-# ifdef SMAGORINSKY
+# ifdef SMAGO_UV
                 UFs(i,j,k2)=0.25*(visc2_r(i-1,j)+visc2_r(i,j)+
      &                      visc3d_r(i-1,j,k)+visc3d_r(i,j,k))*cff
 # else
@@ -374,7 +374,7 @@
      &                         +cff4*(cff8*dnUdz-dnUdx(i,j  ,k1))
      &                                                          )
  
-# ifdef SMAGORINSKY
+# ifdef SMAGO_UV
                 VFs(i,j,k2)=0.25*(visc2_r(i,j-1)+visc2_r(i,j)+
      &                      visc3d_r(i,j-1,k)+visc3d_r(i,j,k))*cff
 # else
@@ -400,8 +400,8 @@
               u(i,j,k,indx)=u(i,j,k,indx) + dt*( cff+UFs(i,j,k2)
      &                                              -UFs(i,j,k1))
 # ifdef DIAGNOSTICS_UV
-              MHmix(i,j,k,1) = (cff+UFs(i,j,k2)-UFs(i,j,k1))
-     &                                  *om_u(i,j)*on_u(i,j)
+              MHmix(i,j,k,1) = 2*(cff+UFs(i,j,k2)-UFs(i,j,k1))
+     &                                   /(Hz(i-1,j,k)+Hz(i,j,k))
 # endif
             enddo
           enddo
@@ -415,8 +415,8 @@
               v(i,j,k,indx)=v(i,j,k,indx) + dt*( cff+VFs(i,j,k2)
      &                                              -VFs(i,j,k1))
 # ifdef DIAGNOSTICS_UV
-            MHmix(i,j,k,2) = (cff+VFs(i,j,k2)-VFs(i,j,k1))
-     &                                *om_v(i,j)*on_v(i,j)
+              MHmix(i,j,k,2) = 2*(cff+VFs(i,j,k2)-VFs(i,j,k1))
+     &                                   /(Hz(i,j,k)+Hz(i,j-1,k))
 # endif
             enddo
           enddo
