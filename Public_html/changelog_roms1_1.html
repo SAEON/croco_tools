@@ -1,0 +1,604 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
+
+  <head>
+    <title>CHANGE LOG ROMS_AGRIF V1.1</title>
+    <meta http-equiv="Content-Type" content=
+    "text/html; charset=iso-8859-1" />
+    <link type="text/css" href="style.css" media="all" rel="stylesheet" />
+  </head>
+  
+  <body>
+
+    <div id="logo"><a href="http://www.brest.ird.fr"></a></div>	
+    
+    <h1>CHANGE LOG FOR ROMS_AGRIF V1.1</h1>
+
+    
+    <p>Current version: October 11 2005</p>
+
+    <li><p>
+     Date: 16 January 2006<br>
+     Author : G. Karakas, F. Marin, P. Marchesiello<br>
+     Category : Cleaning and minor bug fixes<br>
+     Description : cleaning of CPP flags in 2D obcs allowing Flather (FLATHER)
+     OR Characteristics (CHARACT) conditions; fix initialization of nrechis
+     for MPI (same as nrecavg, which was corrected earlier); bbl.h missing
+     in arm.in; + erasing unused declared variables.<br>
+     Modified Files :
+         u2dbc.F v2dbc.F wrt_his.F amr.in lmd_bkpp.F
+    </p></li>
+
+    <li><p>
+     Date: 15 Decembre 2005<br>
+     Author : L. Debreu<br>
+     Category : bug fix<br>
+     Description : We just fixed a quite important bug (we take it as a bug) in the
+     Roms_Agrif version of the code, that is also present in the Rutgers version.
+     This concerns the computation of the pressure gradient term
+     in the corrector step of the barotropic mode.
+     This computation involves zeta at time n and n-1 which should come
+     from the preceding corrector step, but this is not the case. They
+     actually come via the storage in rubar, rvbar that has been done in the
+     preceding predictor step where the values of zeta have been "filtered".
+     So the algorithm do not match eqs2.27-2.30 of Sasha and Jim paper.
+
+     More problematic, theses "wrong" values of rubar, rvbar computed in the 
+     first predictor step are used for the coupling with the 3D part.
+     So that the free surface gradient does not cancel with the one computed in
+     the 3D part.
+     (Additionaly, computation in the first predictor is not centered at time n,
+     since in this first step a trapezoidal scheme is used, this makes
+     the coupling really wrong and the second time step of the barotropic mode
+     is only first order accurate).
+
+     A quick fix is to recompute at every predictor step the right value of the
+     pressure gradient term and to use this term both for the coupling and for
+     the storage in rubar(:,:,krhs).
+
+     Configurations where a large ndtfast is used will probably be only slightly affected.
+
+     We have done several experiments that tend to show that configurations with small ndtfast 
+     (ndtfast lower than 20,30) that were blowing up before the corrections are now running ok. <br>
+     Modified Files : step2d.F
+    </p></li>
+
+    <li><p>
+     Date: 27 October 2005<br>
+     Author : E. Mason, P. Penven<br>
+     Category : corrections to recent release<br>
+     Description : Corrections to recent OBCs changes (Characteristic method).<br>
+     Modified Files :
+         u2dbc.F u3dbc.F v3dbc.F
+    </p></li>
+
+    <li><p>
+     Date: 27 October 2005<br>
+     Author : M. Messie<br>
+     Category : bug fix from recent release<br>
+     Description :  cpp flag PASSIVE_TRACER mispelled in cppdefs.h.<br>
+     Modified Files : cppdefs.h
+    </p></li>
+
+    <li><p>
+     Date: 26 October 2005<br>
+     Author : P. Marchesiello<br>
+     Category : updates<br>
+     Description : change in open boundary conditions: characteristic methods
+     for 2D are completed with incoming characteristics implemented; upwind method
+     for tracers. cleaning of BOUNDARY (common blocks), zoom.F (ipu in wrong colomn).
+     Creation of bulk_flux routine called by set_vbc.<br>
+     Modified Files :
+         Makefile analytical.F boundary.h cppdefs.h get_vbc.F param.h
+         roms.in set_nudgcof.F set_nudgcof_fine.F set_obc_definitions.h
+         step.F step3d_t.F t3dbc.F u2dbc.F u3dbc.F v2dbc.F v3dbc.F
+         zoom.F zoom.h<br>
+     Added Files: bulk_flux.F
+    </p></li>
+
+    <li><p>
+     Date: 11 October 2005<br>
+     Author : P. Marchesiello<br>
+     Category : bug fix<br>
+     Description : bug fix in DIAGNOSTICS_TS (init_scalars.F) when using
+     added tracers (BIOLOGY, ...). + cosmetic changes<br>
+     Modified Files :
+         analytical.F init_scalars.F main.F ncscrum.h uv3dmix_GP.F
+    </p></li>
+
+    <li><p>
+     Date: 11 October 2005<br>
+     Author : P. Penven and P. Marchesiello<br>
+     Category :aminibug + cosmetic<br>
+     Description : cleaning of private array management in
+     step3d_t.F (minibug: risk of false sharing with OpenMP). + cosmetic
+     changesa<br>.
+     Modified Files :
+        pre_step3d.F rho_eos.F step3d_t.F step3d_uv2.F uv3dmix_GP.F
+    </p></li>
+
+    <li><p>
+     Date: 10 October 2005<br>
+     Author : P. Estrade and P. Marchesiello<br>
+     Category : Implementation<br>
+     Description : Implementation of DIAGNOSTICS_UV<br>
+     Modified Files : cppdefs.h      init_scalars.F     output.F    read_inp.F  set_diags_avg.F  uv3dmix_S.F
+     def_diags.F    main.F          param.h            rho_eos.F   step3d_uv2.F     wrt_diags_avg.F
+     diagnostics.h  mixing.h        prsgrd.F           rhs3d.F     step.F           wrt_diags.F
+     init_arrays.F  ncscrum.h       put_global_atts.F  scalars.h   uv3dmix_GP.F
+    </p></li>
+
+    <li><p>
+     Date: 7 October 2005<br>
+     Author : L. Debreu<br>
+     Category : Bug fix<br>
+     Description : in vertical advection scheme of predictor step (pre_step3d),
+     centered 2nd order advection scheme was hard coded, replacing defined
+     SPLINES advection scoheme; corrected.
+     Modified Files : pre_step3d.F
+    </p></li>
+
+    <li><p>
+     Date: 7 October 2005<br>
+     Author : P. Marchesiello<br>
+     Category : Bug fix<br>
+     Description :<br>  
+	     1- bug fix (from 14 Sep 2005 release): PERIODIC conditions need JstrV, IstrU to be
+     written with capital letters because of CPP use. All Istr,Iend,Jstr,Jend
+     incices have been cleaned according to this requirement.<br>
+	     2- LINEAR_EOS has been fixed to allow use of vertical
+     mixing schemes, particularly KPP. masking of rho,rho1,bvf was not always done
+     consistently in both linear and non-linear part of the EOS; corrected.<br>
+             3- Bostr flag is needed for keyword:auxiliary_averagesin in roms.in.*<br>
+     Modified Files :<br>
+        ana_grid.F analytical.F get_bry.F init_arrays.F pre_step3d.F
+        prsgrd.F rho_eos.F roms.in.Canyon roms.in.Innershelf
+        roms.in.Overflow roms.in.River roms.in.Seamount
+        roms.in.Shelfront roms.in.Upwelling set_diags_avg.F
+        smagorinsky.F step2d.F step3d_t.F step3d_uv2.F t3dbc.F u2dbc.F
+        u3dbc.F uv3dmix_GP.F uv3dmix_S.F v2dbc.F v3dbc.F zetabc.F
+        zoom.F
+    </p></li>
+
+    <li><p>
+     Date: 6 October 2005<br>
+     Author : P. Marchesiello<br>
+     Category : update<br>
+     Description : update nf_read_bry for MPI capability of BOUNDARY
+     forcing. + cosmetic changes.
+     Modified Files :
+        Makefile check_srcs.F check_switches1.F get_bry.F get_ssh.F
+        get_sss.F nf_read_bry.F setup_kwds.F
+    </p></li>
+
+    <li><p>
+     Date: 6 October 2005<br>
+     Author : P. Marchesiello<br>
+     Category : bug fix<br>
+     Description : MPI and PERIODIC bug corrected in get_vbc.F where boundary
+     conditions were missing for bustr and bvstr (used in lmd_bkpp). plus some
+     minor cleaning of style and consistency of Makefile with previous removed
+     files.<br>
+     Modified Files :
+        Makefile get_vbc.F lmd_bkpp.F lmd_skpp.F lmd_vmix.F
+        pre_step3d.F set_depth.F step2d.F
+    </p></li>
+
+    <li><p>
+     Date: 28 Septembre 2005<br>
+     Author : P. marchesiello<br>
+     Category : Update<br>
+     Description : 1. updates on horizontal mixing routines
+     vertical mixing routines. Horizontal mixing of momentum is now done as a divergence
+     of stress tensor. U and V mixing components are computed in a single routine,
+     uv3dmix, for geopotential (uv3dmix_GP.F)and iso-sigma (uv3dmix_S.F) formulations.
+     The presentation is now similar to the tracer routines. biharmonic dissipation and
+     diffusion codes have been removed because they were obsolete, same for iso-neutral
+     diffusion (t3dmix_EN.F). t3dmix_S.F was updated for MPI parallelisation.
+                 2. cleaning of vertical mixing routines. Pacanowsky and Philander
+     (PP_VMIX) has been removed because of redondance with local Ri formulation in
+     LMD_MIXING (plus parallelisation was not up to date).<br>
+     Modified Files :
+        Makefile bvf_mix.F cppdefs.h grid.h init_arrays.F main.F
+        mixing.h put_global_atts.F read_inp.F rho_eos.F scalars.h
+        set_global_definitions.h setup_grid1.F setup_grid2.F
+        smagorinsky.F step.F t3dmix.F t3dmix_GP.F t3dmix_S.F zoom.F<br>
+     Added Files:
+        uv3dmix.F uv3dmix_GP.F uv3dmix_S.F<br>
+     Removed Files:
+        pp_vmix.F t3dmix_EN.F u3dmix.F v3dmix.F visc_rescale.F
+    </p></li>
+
+    <li><p>
+     Date: 28 Septembre 2005<br>
+     Author : P. Penven and P. marchesiello<br>
+     Category : Cleaning<br>
+     Description : cleaning of BOUNDARY and SMAGORINSKY options (14 and 22 Sep 2005 release).
+     cleaning of CPP keys in cppdefs.h and separation of UCLIMATOLOGY into
+     M2- and M3CLIMATOLOGY. This allows cleaning of 2D configurations (undef SOLVE3D).
+     Some pre-determined options are transfered from cppdefs.h to
+     set_global_definitions.h. Creation of output.F routine similar to rutger's code
+     to perform I/O commands previsouly in step.F.
+     Modified Files :
+        Makefile analytical.F boundary.h climat.h clm_tides.F
+        cppdefs.h get_uclima.F init_arrays.F main.F ncscrum.h param.h
+        read_inp.F scalars.h set_global_definitions.h set_nudgcof.F
+        set_nudgcof_fine.F step.F step2d.F step3d_uv2.F t3dbc.F
+        tides.h u2dbc.F u3dbc.F v2dbc.F v3dbc.F
+     Added Files:
+        output.F
+    </p></li>
+
+    <li><p>
+     Date: 23 Septembre 2005<br>
+     Author : P. Penven and P. marchesiello<br>
+     Category : Cleaning<br>
+     Description : Cleaning of BOUNDARY (14 Sep 2005 release) for consistency
+     with other options (TIDES, ...)<br>
+     Modified Files :
+        amr.in averages.h boundary.h clm_tides.F cppdefs.h
+        init_arrays.F param.h read_inp.F set_avg.F tides.h wrt_avg.F
+        zetabc.F zoom.F zoom.h u2dbc.F v2dbc.F
+    </p></li>
+
+    <li><p>
+     Date: 22 Septembre 2005<br>
+     Author : P. Penven and P. marchesiello<br>
+     Category : Implementation<br>
+     Description : implementation of Smagorinsky parametrisation of
+     3d viscosity (to be used when a viscous boundary layer is needed, for example
+     in western boundary systems). Implementation of avg true vertical velocity.<br>
+     Modified Files :
+         Makefile averages.h cppdefs.h def_his.F init_scalars.F
+         mixing.h ncscrum.h param.h read_inp.F set_avg.F step.F
+         u3dmix.F v3dmix.F wrt_avg.F wrt_his.F<br>
+     Added Files:
+         smagorinsky.F
+    </p></li>
+
+    <li><p>
+     Date: 14 Septembre 2005<br>
+     Author : P. Penven and P. Marchesiello<br>
+     Category : Implementation, updates, Cleaning<br>
+     Description : Implementation 2D boundary data in place or addition to 3d
+     clim data for OBCs. Implementation of VORTEX testcase. Cleaning of AGRIF 
+     routines in ROMS code. Recoding of OBC
+     routines for having PARENT and CHILD share the same code. Routines renamed:
+     OBC routines, step2d.F, step3d_t.F, rhs3d.F, pre_step3d.F prsgrd.F<br>
+     Modified Files :
+     ana_initial.F    init_arrays.F   prsgrd.F            step3d_t.F     u2dbc.F   zoom.F
+     ana_initracer.F  init_scalars.F  read_inp.F          step.F         u3dbc.F
+     analytical.F     main.F          rhs3d.F             step_floats.F  v2dbc.F
+     ana_vmix.F       nf_read_bry.F   set_nudgcof_fine.F  step_sta.F     v3dbc.F
+     get_bry.F        pre_step3d.F    step2d.F            t3dbc.F        zetabc.F 
+     boundary.h  compute_starts_counts.h  ncscrum.h  scalars.h
+     climat.h    cppdefs.h                param.h    set_obc_definitions.h
+     amr.in  roms.in jobcomp. Run directory is updated accordingly.
+    </p></li>
+
+    <li><p>
+     Date: 1 Septembre 2005<br>
+     Author : P. marchesiello<br>
+     Category : Cleaning<br>
+     Description : cleaning of bostr_avg logic<br>
+     Modified Files : def_his.F read_inp.F init_arrays.F
+    </p></li>
+
+    <li><p>
+     Date: 18 August 2005<br>
+     Author : P. marchesiello<br>
+     Category : Cleaning<br>
+     Description : cleaning of IO avg variables (bottom stress bostr and bottom
+     boundary layer depth hbbl); bug corrected in def_his.F concerning hbbl.<br>
+     Modified Files : set_avg.F def_his.F wrt_avg.F read_inp.F averages.h
+    </p></li>
+
+    <li><p>
+     Date: 18 August 2005<br>
+     Author : P. marchesiello<br>
+     Category : Cleaning<br>
+     Description : cleaning of logic for computing time_avg (solves troubles on NYMPHEA with OpenMP)<br>
+     Modified Files : set_avg.F def_his.F
+    </p></li>
+
+    <li><p>
+     Date: 24 Mai 2005<br>
+     Author : P. marchesiello<br>
+     Category : Cleaning<br>
+     Description : #undef STATION by default in cppdefs.h<br>
+     Modified Files : cppdefs.h (copied to directory Run)
+    </p></li>
+
+    <li><p>
+     Date: 16 Mai 2005<br>
+     Author : G. Eldin<br>
+     Category : update<br>
+     Description : update of jobcomp to include SunOS compilation options<br>
+     Modified Files : jobcomp (copied to directory Run)
+    </p></li>
+
+    <li><p>
+     Date: 11 Mai 2005<br>
+     Author : P. Penven<br>
+     Category : Cleaning<br>
+     Description : cleaning around LMD_NONLOCAL and AGRIF_RAD* keys<br>
+     Modified Files : step3d_t3S.F t3dbc_im.F u3dbc_im.F v3dbc_im.F visc_rescale.F
+    </p></li>
+
+    <li><p>
+     Date: 11 Mai 2005<br>
+     Author : A. Peliz<br>
+     Category : Updates and Cleaning<br>
+     Description : cleaning STATIONS and implementation of IBM option to FLOATS
+     IBM computes age and stage of larvae, then writes it down to floats.nc.<br>
+     Modified Files : 
+    cppdefs.h def_floats.F floats.h ncscrum_floats.h random_walk.F
+    step_floats.F step_sta.F wrt_floats.F wrt_sta.F
+    </p></li>
+
+    <li><p>
+     Date: 24 April 2005<br>
+     Author : F. Marin<br>
+     Category : Bug fix<br>
+     Description : correct error in writting restart file when both FLOATS
+     and AGRIF are defined (bad definition of array tmp).
+     Modified Files : wrt_rst.F
+    </p></li>
+
+    <li><p>
+     Date: 23 March 2005<br>
+     Author : P. Marchesiello<br>
+     Category : Cleaning<br>
+     Description : update CVS Ids on new diags routines (missed
+     in previous release)
+     Modified Files :
+   def_diags.F diagnostics.h set_diags_avg.F wrt_diags.F
+   wrt_diags_avg.F
+    </p></li>
+
+    <li><p>
+     Date: 22 March 2005<br>
+     Author : Gildas Cambon and P. Marchesiello<br>
+     Category : implementation<br>
+     Description : Implementation of 3D diagnostics of the tracer equations to be
+     used with CPP flag DIAGNOSTICS_TS. The terms are stored in step3d_t and 
+     t3dmix, then written in both history and average diag files following 
+     the procedure done for main his and avg files. 
+     Note: Run directory is updated accordingly.<br>
+     Modified Files : 
+        def_diags.F diagnostics.h set_diags_avg.F wrt_diags.F
+        wrt_diags_avg.F
+        Makefile amr.in closecdf.F cppdefs.h init_arrays.F
+        init_scalars.F jobcomp main.F ncscrum.h param.h read_inp.F
+        roms.in roms.in.1 scalars.h step.F step3d_t3S.F t3dmix_GP.F
+        wrt_avg.F
+    </p></li>
+
+    <li><p>
+     Date: 28 January 2005<br>
+     Author : P. Marchesiello<br>
+     Category : cleaning<br>
+     Description : cleaning of STATIONS.
+     Modified Files : step_sta.F sta.h stations.in stations.m
+    </p></li>
+
+    <li><p>
+     Date: 20 January 2005<br>
+     Author : A. Peliz and P. Marchesiello<br>
+     Category : upgrade<br>
+     Description : Code upgraded to support STATIONS. STATIONS is implemented 
+     as FLOATS but fixed in space. The coding is adapted from FLOATS: 
+     input/output, initialization, stepping, ...
+     The user enters station locations in stations.in, output parameters
+     in roms.in and the results are in stations.nc. A basic matlab routine is 
+     provided to visualize the output (stations.m).<br>
+     Modified Files : 
+     closecdf.F  init_arrays_sta.F  init_sta.F    main.F             read_inp.F     step.F      wrt_sta.F
+     def_sta.F   init_scalars.F     interp_sta.F  put_global_atts.F  set_nudgcof.F  step_sta.F  zoom.F
+     cppdefs.h  init_sta.h  ncscrum.h  nc_sta.h  param.h  scalars.h  sta.h
+     roms.in roms.in.1 Makefile
+    </p></li>
+
+    <li><p>
+     Date: 19 January 2005<br>
+     Authors: M. Blaas and P. Marchesiello <br>
+     Category: updates and bug fixes <br>
+     Description : <br>
+     * updates of SEDIMENT and BBL modules:
+       write and read related vars into/from restart.nc. Initialization logic:
+       vars set to analytical values from sediment.in or values from init.nc
+       Some cleaning and renaming; cleaning of CPP logic (main.F); fixed some
+       indexing bugs and a bug related to CPP logic with BBL in get_vbc.F,
+       increased NWRTHIS etc. <br>
+     * bug fixed: this bug (step2d_LF_AM3.F) June 9 2004, v1.0) was corrected
+       but re-introduced. <br>
+     * update on logic for analytical clim. tracer values when ANA_TCLIMA is not
+       defined (ana_tclima in analytical.F step.F). ana_tclima is now always called
+       in step.F but only variables not available on files are changed. That
+       concerns biogechemical, sediment, passive tracers ... <br>
+     Modified Files :
+         AGRIF_FixedGrids.in Makefile analytical.F bbl.F bbl.h
+         cppdefs.h def_his.F def_rst.F dynderivparam.h get_initial.F
+         get_tclima.F get_vbc.F init_arrays.F init_scalars.F
+         insert_node.F main.F ncscrum.h param.h read_inp.F roms.in
+         roms.in.1 scalars.h sediment.F sediment.h sediment.in step.F
+         step2d_LF_AM3.F wrt_his.F wrt_rst.F zoom.F <br>
+    </p></li>
+
+    <li><p>
+     Date: 6 January 2005<br>
+     Author : S. Le Gentil and F. Vandermeirsh <br>
+     Category : bug fix<br>
+     Description : getting MPI running for REGIONAL configurations<br>
+     Modified Files : set_nudgcof.F ana_initracer.F<br>
+    </p></li>
+
+    <li><p>
+     Date: 12 December 2004<br>
+     Author : P. Marchesiello <br>
+     Category : upgrade<br>
+     Description : writing hbbl in his/avg files and Akv, Akt, Aks in avg files<br>
+     Modified Files : averages.h cppdefs.h def_his.F init_arrays.F<br>
+     init_scalars.F ncscrum.h set_avg.F wrt_avg.F wrt_his.F<br>
+    </p></li>
+
+    <li><p>
+     Date: 12 December 2004<br>
+     Author : L. Debreu <br>
+     Category : bug fix<br>
+     Description : expr: invrcoeft=1./float(rcoeft)<br>
+     Modified Files : step_floats.F<br>
+    </p></li>
+
+    <li><p>
+     Date: 30 November 2004<br>
+     Author : P. Marchesiello and L. Debreu <br>
+     Category : upgrade<br>
+     Description : improve portability to g95 Linux compiler<br>
+     Modified Files : jobcomp AGRIFZOOM/macros.make.linux.g95<br>
+    </p></li>
+
+
+    <li><p>
+     Date: 30 November 2004<br>
+     Author : Eric Machu and P. Penven <br>
+     Category : upgrade<br>
+     Description : upgrade and addition of biology modules of various complexity<br>
+     Modified Files : biol_N2ChlPZD2.F biol_N2P2Z2D2.F biol_NChlPZD.F<br>
+     ana_initial.F ana_initracer.F bio_diag.F cppdefs.h get_initial.F get_tclima.F<br>
+     init_scalars.F Makefile ncscrum.h param.h roms.in roms.in.1<br>
+    </p></li>
+
+    <li><p>
+     Date: 30 November 2004<br>
+     Author : Zhijin Li <br>
+     Category : bug fix<br>
+     Description : charactere length corrected to be equal to max_opt_size<br>
+     Modified Files : strings.h<br>
+    </p></li>
+
+    <li><p>
+     Date: 29 November 2004<br>
+     Author : Florian Lemarie <br>
+     Category : upgrade<br>
+     Description : add portability to g95 Linux compiler<br>
+     Modified Files : AGRIFZOOM/AGRIF_FILES/: modinterpbasic.F modupdate.F modcluster.F<br>
+                AGRIFZOOM/: macros.make.linux.g95 Makefile.linux.g95<br>
+                jobcomp
+    </p></li>
+
+    <li><p>
+     Date: 29 November 2004<br>
+     Author : Alvaro Peliz <br>
+     Category : bug fix<br>
+     Description : old bug was re-introduced in floats initialization in the last update<br>
+     Modified Files : step_floats.F<br>
+    </p></li>
+
+    <li><p>
+     Date: 25 November 2004<br>
+     Author : L. Debreu <br>
+     Category : cleaning<br>
+     Modified Files : jobcomp AGRIFZOOM/rules.make<br>
+    </p></li>
+
+    <li><p>
+     Date: 25 November 2004<br>
+     Author : Gokay Karakas <br>
+     Category : cleaning<br>
+     Description : z_w is not used in pre_step3d4S.F and need not to be declarer<br>
+     Modified Files : pre_step3d4S.F<br>
+    </p></li>
+
+    <li><p>
+     Date: 17 November 2004<br>
+     Author : Alvaro Peliz <br>
+     Category : upgrade<br>
+     Description : compute dAKtdz and add to lagrangian random walk term<br>
+     Modified Files : random_walk.F mixing.h step3d_t3S.F<br>
+    </p></li>
+
+    <li><p>
+     Date: 16 November 2004<br>
+     Author : L. Debreu <br>
+     Category : bug fix<br>
+     Description : buffer.h is declared in amr.in and jobcomp since a common has been
+     The atmospheric fields are read in a new get_bulk.F and computaion<br>
+     added to it. jobcomp was also clean for IBM compilers, a line breaker was wrong<br>
+     Modified Files : jobcomp amr.in<br>
+    </p></li>
+
+    <li><p>
+     Date: 9 November 2004<br>
+     Author : Gene Li <br>
+     Category : upgrade<br>
+     Description : Code upgrade to support heat flux bulk formulation.<br>
+     The atmospheric fields are read in a new get_bulk.F and computaion<br>
+     of heat flux is done in get_vbc.F. Two new cpp flags are added:<br>
+     BULK_FLUX and BULK_EP<br>
+     Modified Files : get_bulk.F cppdefs.h forces.h Makefile init_arrays.F<br>
+     init_scalars.h ncscrum.h read_inp.F<br>
+    </p></li>
+
+    <li><p>
+     Date: 9 November 2004<br>
+     Author : Xavier Capet<br>
+     Category : Bug fix<br>
+     Description :<br>
+     * rhs_floats.F: there was a bug in the vertical velocity<br>
+     interpolation. The indexes for Hz were not consistent<br>
+     with the fact that Hz(i) is defined for i=1,N.<br>
+     Therefore, particles inside the bottom most grid box<br>
+     had wrong vertical velocities. (and sometimes a<br>
+     tendency to dive quickly as a result of large<br>
+     velocities).<br>
+     * step_floats.F : there was a bug in the transformation<br>
+     from release depth (m) to sigma level. As a result of<br>
+     that, floats to be released at a given depth did<br>
+     exhibit an initial jump especially over regions with<br>
+     important slope.<br>
+     * Buffer.h: buff in common block to limit stacksize<br>
+     Modified Files : rhs_floats.F step_floats.F buffer.h<br>
+    </p></li>
+
+    <li><p>
+     Date: 9 November 2004<br>
+     Author : Alvaro Peliz<br>
+     Category : upgrade<br>
+     Description : random walk routine added in Lagrangian model<br>
+     to allow for vertical and horizontal walk + diel migration<br>
+     3 new cpp flags: RANDOM_VERTICAL, RANDOM_HORIZONTAL, DIEL_MIGRATION<br>
+     Modified Files : random_walk cppdefs.h Makefile step_float.F<br>
+    </p></li>
+
+    <li><p>
+     Date: 9 November 2004<br>
+     Author : Meinte Blass<br>
+     Category : upgrade<br>
+     Description : upgrade in sediment routine<br>
+     Modified Files : cppdefs.h sediment.F
+    </p></li>
+
+    <li><p>
+     Date: 9 November 2004<br>
+     Author : Pierrick Penven<br>
+     Category : cleaning<br>
+     Description : improve timing robustness for average files storage<br>
+     Modified Files : set_avg.F step.F
+    </p></li>
+
+    <li><p>
+     Date: 9 November 2004<br>
+     Author : Patrick Marchesiello<br>
+     Category : cleaning<br>
+     Description : cleaning of default regional application (PERU)<br>
+     and cppdefs.h visibility, and update of a 2D version of cppdefs.h<br>
+     (cppdefs.h.2D) for 2D regional testing<br>
+     Modified Files : cppdefs.h param.h roms.in roms.in.1 cppdefs.h.2D<br>
+    </p></li>
+
+  </body>
+
+</html>

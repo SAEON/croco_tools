@@ -1,0 +1,536 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
+
+  <head>
+    <title>CHANGE LOG ROMS_AGRIF V1.0</title>
+    <meta http-equiv="Content-Type" content=
+    "text/html; charset=iso-8859-1" />
+    <link type="text/css" href="style.css" media="all" rel="stylesheet" />
+  </head>
+  
+  <body>
+
+    <div id="logo"><a href="http://www.brest.ird.fr"></a></div>	
+    
+    <h1>CHANGE LOG FOR ROMS_AGRIF V1.0</h1>
+    
+    <p>Current version: 11_05_2004</p>
+
+    <li><p>
+     Date: 16/12/2003<br>
+     Author : Laurent Debreu<br>
+     Category : bug fix<br>
+     Description: problem when running with more than 2 nested grids<br>
+     Modified files : AGRIFZOOM/AGRIF_FILES/modinitvars.F<br>
+    </p></li>
+
+    <li><p>
+     Date: January 6 2004<br>
+     Author: Harmut Frenzel<br>
+     Description: cleaning<br>
+     Modified files :<br>
+         lmd_bkpp.F: corrected bbl limitation (Bflux&gt;0)<br>
+         read_inp.F: l. 384 and l. 458: (U -&gt; V)<br>
+                     itrc loops: I1 -&gt; I2<br>
+         def_rst.F:  l. 287: vname(4, ...<br>
+         init_scalars.F: ll. 228-229<br>
+    </p></li>
+     
+    <li><p>
+     Date: January 6 2004<br>
+     Author: Steven Herbette<br>
+     Description: Bug fix<br>
+     Modified files :<br>
+            set_nudgcof.F: l. 124: add k loop<br>
+    </p></li>
+    <li><p>
+     Date: January 7 2004<br>
+     Author : Laurent Debreu<br>
+     Category : bug fix<br>
+     Description: ifc v.8 compatibility in AGRIF<br>
+     Note: AGRIF now requires f95 (instead of f90)<br>
+           intel ifc7.1 (and up) is already f95 but f90 is<br>
+           replaced by f95 for compaq in jobcomp routine<br>
+     Modified files : AGRIFZOOM/AGRIF_FILES/modtypes.F<br>
+                      AGRIFZOOM/AGRIF_FILES/modinit.F<br>
+                      jobcomp<br>
+    </p></li>
+     
+    <li><p>
+     Date: January 7 2004<br>
+     Author : Laurent Debreu<br>
+     Category : cleaning<br>
+     Description: -tpp7 in macros.make.linux.ifc for AGRIF<br>
+     Modified files : AGRIFZOOM/macros.make.linux.ifc<br>
+    </p></li>
+     
+    <li><p>
+     Date: March 22 2004<br>
+     Author : Meinte Blaas, Patrick Marchesiello<br>
+     Category : update<br>
+     Description: update of Sediment and BBL modules. Changes in input param files<br>
+                  roms.in and addition of sediment.in<br>
+     Modified files : <br>
+       AGRIF_FixedGrids.in  main.F           ncscrum.h                roms.in.1    wrt_his.F<br>
+       analytical.F         cppdefs.h        nf_fread.F               sediment.F   zoom.F<br>
+       bbl.F                def_his.F        param.h                  sediment.h   <br>
+       bbl.h                get_vbc.F        private_scratch_AMR.h    sediment.in<br>
+       buffer.h             init_arrays.F    private_scratch.h        step.F<br>
+                            init_scalars.F   read_inp.F<br>
+                            jobcomp*         roms.in <br>
+    </p></li>
+     
+    <li><p>
+     Date: March 22 2004<br>
+     Author : Xavier Capet, Patrick Marchesiello<br>
+     Category : cleaning<br>
+     Description: ouput array w_avg in average files as in history files<br>
+     Modified files : averages.h wrt_avg.F init_arrays.F<br>
+    </p></li>
+     
+    <li><p>
+     Date: March 22 2004<br>
+     Author : Patrick Marchesiello, Laurent Debreu<br>
+     Category : bug fix<br>
+     Description: nesting conditions:<br>
+                   - fix of Flather conditions (zetabc.F); <br>
+                   - interpolation indices in amr.in (negative for interior points)<br>
+     	           - update of corner points<br>
+     Modified files : amr.in t3dbc_im.F u3dbc_im.F v3dbc_im.F zetabc.F<br>
+    </p></li>
+     
+    <li><p>
+     Date: March 22 2004<br>
+     Author : Patrick Marchesiello, Hartmut Frenzel<br>
+     Category : cleaning<br>
+     Description: cleaning of ana_grid.F for using without AGRIF, still work<br>
+                  to be done for using with AGRIF (update for new AGRIF libraries)<br>
+     Modified files : ana_grid.F<br>
+    </p></li>
+     
+    <li><p>
+     Date: March 22 2004<br>
+     Author : Pierrick Penven<br>
+     Category : bug fix<br>
+     Description: cpp syntax error in bbl.F<br>
+     Modified files : bbl.F<br>
+    </p></li>
+     
+    <li><p>
+     Date: March 22 2004<br>
+     Author : Pierrick Penven<br>
+     Category : cleaning<br>
+     Description: removing unused lines in amr.in<br>
+     Modified files : amr.in<br>
+    </p></li>
+     
+    <li><p>
+     Date: March 22 2004<br>
+     Author : Pierrick Penven<br>
+     Category : cleaning <br>
+     Description: cleaning and generalization for the update of corner points for t, <br>
+     u and v.<br>
+     Modified files : t3dbc_im.F u3dbc_im.F v3dbc_im.F<br>
+    </p></li>
+     
+    <li><p>
+     Date: March 22 2004<br>
+     Author : Pierrick Penven<br>
+     Category :  improvement<br>
+     Description: add a local mass inforcement for the nesting procedure <br>
+     (should work for any grid refinment). cpp key: AGRIF_CORRECT_LOCAL_FLUXES<br>
+     Modified files : u2dbc_im.F v2dbc_im.F<br>
+    </p></li>
+     
+    <li><p>
+     Date: March 23 2004<br>
+     Author : Pierrick Penven<br>
+     Category :  improvement<br>
+     Description: add storage of the barotropic variables for the child boundary <br>
+     conditions: improvement of volume conservation. cpp keys: <br>
+     AGRIF_STORE_BAROT_CHILD AGRIF_FLUX_BC. Now compatible with AGRIF_RAD2D.<br>
+     Modified files : amr.in step2d_LF_AMR3.F u2dbc_im.F v2dbc_im.F zetabc.F<br> 
+     zoom.h zoom.F<br>
+    </p></li>
+     
+    <li><p>
+     Date: March 23 2004<br>
+     Author : Pierrick Penven<br>
+     Category :  bug fix<br>
+     Description: prevent array size exceeding for the variable weight. <br>
+     Introduction of parameter NWEIGHT in param.h and a test in read_inp.F.<br>
+     Modified files : read_inp.F param.h scalars.h zoom.h<br>
+    </p></li>
+     
+    <li><p>
+     Date: March 23 2004<br>
+     Author : Pierrick Penven<br>
+     Category :  portability<br>
+     Description: compatibility to g77 (without AGRIF or OPENMP)<br>
+     Modified files : jobcomp mpc.F<br>
+    </p></li>
+     
+    <li><p>
+     Date: March 23 2004<br>
+     Author : Pierrick Penven<br>
+     Category :  cleaning <br>
+     Description: remove warning messages when using -Wall or -warn all.<br>
+     Modified files : mpc.F param.h bbl.h main.F read_inp.F init_scalars.F <br>
+     init_arrays.F setup_grid1.F setup_grid2.F visc_rescale.F set_nudgcof.F <br>
+     set_nudgcof_fine.F zoom.F step.F zetabc.F u2dbc_im.F v2dbc_im.F <br>
+     pre_step3d4S.F rhs3d35S.F omega.F u3dbc_im.F v3dbc_im.F t3dbc_im.F<br>
+     ab_ratio.F lmd_vmix.F lmd_skpp.F lmd_bkpp.F lenstr.F diag.F <br>
+     ana_initracer.F  get_initial.F  wrt_grid.F def_his.F wrt_his.F<br>
+     get_ssh.F wrt_floats.F step3d_t3S.F get_vbc.F clm_tides.F sediment.F bbl.F<br>
+    </p></li>
+     
+    <li><p>
+     Date: March 23 2004<br>
+     Author : Pierrick Penven<br>
+     Category : bug fix<br>
+     Description: size_xi &amp; size_eta defined in param.h and ana_grid.F. Changed to <br>
+     length_xi and length_eta in ana_grid.F.<br>
+     Modified files : ana_grid.F<br>
+    </p></li>
+     
+    <li><p>
+     Date: March 24 2004<br>
+     Author : Pierrick Penven, Philippe Estrade<br>
+     Category : improvement<br>
+     Description: add an inner shelf example (cpp key INNERSHELF)<br>
+     Modified files : cppdefs.h param.h ana_grid.F ana_initial.F analytical.F<br>
+     ana_initracer.F read_inp.F<br>
+    </p></li>
+     
+    <li><p>
+     Date: March 24 2004<br>
+     Author : Pierrick Penven<br>
+     Category : bug fix<br>
+     Description: compilation crashes when not using sponges<br>
+     Modified files : set_nudgcof.F <br>
+    </p></li>
+     
+    <li><p>
+     Date: March 24 2004<br>
+     Author : Pierrick Penven<br>
+     Category : bug fix<br>
+     Description: fpp is case preserving: #define JstrV Jstr is not applied to jstrV.<br>
+     Modified files : step2d_LF_AM3.F<br>
+    </p></li>
+     
+    <li><p>
+     Date: March 24 2004<br>
+     Author : Pierrick Penven<br>
+     Category : cleaning<br>
+     Description: removing rhobar (ana_meanrho) that is unused in any part of the code.<br>
+     Modified files : ocean3d.h analytical.F init_arrays.F<br>
+    </p></li>
+     
+    <li><p>
+     Date: March 24 2004<br>
+     Author : Pierrick Penven<br>
+     Category : cleaning<br>
+     Description: putting back different examples (UPWELLING, SOLITON, SEAMOUNT, <br>
+     OVERFLOW, SHELFRONT, CANYON_A, CANYON_B, GRAV_ADJ, BASIN), <br>
+     removing the unrecoverable ones (TASMAN_SEA, NJ_BIGHT, NPACIFIC, DAMEE).<br>
+     Modified files : cppdefs.h read_inp.F analytical.F ana_initracer.F ana_initial.F <br>
+     ana_vmix.F param.h<br>
+    </p></li>
+     
+    <li><p>
+     Date: March 24 2004<br>
+     Author : Pierrick Penven<br>
+     Category : bug fix<br>
+     Description: got_tini(NT) declared only for SOLVE3D<br>
+     Modified files : scalars.h<br>
+    </p></li>
+     
+    <li><p>
+     Date: March 24 2004<br>
+     Author : Pierrick Penven<br>
+     Category : bug fix<br>
+     Description: iif is declared only for SOLVE3D<br>
+     Modified files : step2d_LF_AM3.F<br>
+    </p></li>
+     
+    <li><p>
+     Date: March 24 2004<br>
+     Author : Pierrick Penven<br>
+     Category : bug fix<br>
+     Description: "#define SWITCH !" is not understandable by fpp when using t3dmix <br>
+     without masking.<br>
+     Modified files : t3dmix_EN.F t3dmix_GP.F<br>
+    </p></li>
+    
+    <li><p>
+     Date: March 25 2004<br>
+     Author : Pierrick Penven<br>
+     Category : bug fix<br>
+     Description: removing modules in ana_vmix.F<br>
+     Modified files : ana_vmix.F<br>
+    </p></li>
+    
+    <li><p>
+     Date: March 25 2004<br>
+     Author : Pierrick Penven<br>
+     Category : cleaning<br>
+     Description: removing #ifdef AGRIF in zoom.F<br>
+     Modified files : zoom.F<br>
+    </p></li>
+    
+    <li><p>
+     Date: March 25 2004<br>
+     Author : Pierrick Penven<br>
+     Category : improvement <br>
+     Description: add a 2 way nesting for tracers (work only for identical<br>
+     parent and child topographies). cppkey : AGRIF_2WAY<br>
+     Modified files : jobcomp, amr.in, update.F, step.F, macros.make.linux.ifc,<br>
+     modupdate.F, rules.make, Makefile.linux.ifc, Makefile<br>
+    </p></li>
+    
+    <li><p>
+     Date: March 31 2004<br>
+     Author : Pierrick Penven<br>
+     Category : bug fix <br>
+     Description : segmentation fault at variable declaration <br>
+     text(GLOBAL_2D_ARRAY,N,3,NT) in zoom.F in large configurations.<br>
+     Modified files : zoom.F<br>
+    </p></li>
+    
+    <li><p>
+     Date: April 5 2004<br>
+     Author : Pierrick Penven<br>
+     Category : upgrade <br>
+     Description : change for a more general set_nudgcof.F <br>
+     Modified files : set_nudgcof.F set_nudgcof_fine.F 
+    </p></li>
+    
+    <li><p>
+     Date: April 5 2004<br>
+     Author : Pierrick Penven<br>
+     Category : cleaning <br>
+     Description : add cppkeys AGRIF to prevent looking for roms_clm.nc.1 and
+     nudging coeff for the child grids.<br>
+     Modified files : read_inp.F 
+    </p></li>
+    
+    <li><p>
+     Date: May 10 2004 <br>
+     Author : Laurent Debreu <br>
+     Category : Bug Fixed in AGRIF (relevant to IBM machines) <br>
+     Description : tabvars defined as pointer <br>
+     Modified files : in AGRIFZOOM/AGRIF_FILES/ <br>
+     modtypes.F modinitvar.F
+    </p></li>
+    
+    <li><p>
+     Date: May 10 2004 <br>
+     Author : Xavier Capet <br>
+     Category : cleaning <br>
+     Description : output format for w_avg is w3var (0:N) <br>
+     Modified files : wrt_avg.F
+    </p></li>
+    
+    <li><p>
+     Date: May 10 2004 <br>
+     Author : Charles Dong <br>
+     Category : upgrade <br>
+     Description : Z2_ORLANSKI operational for all open boundaries <br>
+     Modified files : zetabc.F
+    </p></li>
+    
+    <li><p>
+     Date: May 10 2004 <br>
+     Author : Pierrick Penven <br>
+     Category : upgrade <br>
+     Description : set_nudgcof_fine_empty added to avoid empty routine <br>
+     Modified files : set_nudgcof_fine.F
+    </p></li>
+    
+    <li><p>
+     Date: May 10 2004 <br>
+     Author : Xavier capet <br>
+     Category : upgrade <br>
+     Description : upgrade FLOATS for the new AGRIF <br>
+     Modified files : <br>
+     amr.in         def_rst.F             ncscrum_floats.h <br>
+     buffer.h       floats.h              ncscrum.h          scalars.h  <br>
+                closecdf.F     init_arrays_floats.F  main.F  <br>
+     nf_fread.F     wrt_floats.F   init_floats.F         param.h  <br>
+     step.F         wrt_rst.F      interp_rho.F          step_floats.F  <br>
+     def_floats.F   read_inp.F     zoom.F                put_global_atts.F
+    </p></li>
+    
+    <li><p>
+     Date: May 10 2004<br>
+     Author : Xavier capet<br>
+     Category : upgrade<br>
+     Description : portability of AGRIF for IBM and Linux/Opteron<br>
+     Modified files : in AGRIFZOOM/<br>
+     macros.make.ibm.64    rules.make.64    macros.make.sgi <br>
+     Makefile.ibm.64       Makefile.linux.ifc.64  Makefile.sgi
+    </p></li>
+    
+    <li><p>
+     Date: May 11 2004 <br>
+     Author : Sylvie LeGentil <br>
+     Category : bug fix <br>
+     Description : parallel bug for analytical configurations:  <br>
+     el and xl not properly defined. <br>
+     Modified files : ana_grid.F
+    </p></li>
+    
+    <li><p>
+     Date: May 11 2004 <br>
+     Author : Pierrick Penven <br>
+     Category : cleaning <br>
+     Description : putting back the ALLOW_SINGLE_BLOCK_MODE option for debugging purposes.<br>
+     VAR_RHO_2D transfered to set_global_definitions.h to prevent errors.<br>
+     Modified files : cppdefs.h  set_global_definitions.h
+    </p></li>
+    
+    <li><p>
+     Date: June 9 2004 <br>
+     Author : A. Shchepetkin <br>
+     Category : bug fix <br>
+     Description : wrong sign of h(i,j-1)-h(i,j) just after <br>
+     second occurence of CPP switch VAR_RHO_2D
+     Modified files : step2d_LF_AM3.F
+    </p></li>
+    
+    <li><p>
+     Date: June 22 2004 <br>
+     Author : Sylvie Le Gentil <br>
+     Category : bug fix <br>
+     Description : MPI parallel bug: Synchronization missing in t3dmix_GP.F<br>
+     Modified files : t3dmix_GP.F
+    </p></li>
+     
+    <li><p>
+     Date: June 22 2004 <br>
+     Author : Sylvie Le Gentil <br>
+     Category : bug fix <br>
+     Description : I/O problem for MPI and EW periodic canal case; <br>
+     eta_rho not define in common block incscrum.  <br>
+     Modified files : ncscrum.h
+    </p></li>
+     
+    <li><p>
+     Date: June 22 2004 <br>
+     Author : Sylvie Le Gentil <br>
+     Category : bug fix in MPI <br>
+     Description : netcdf.inc had to be included earlier in put_global_atts.F <br>
+     for nf_put_att_int to be defined.  <br>
+     Modified files : put_global_atts.F 
+    </p></li>
+     
+    <li><p>
+     Date: June 22 2004 <br>
+     Author : Meinte Blaas <br>
+     Category : upgrade <br>
+     Description : ... <br>
+     Modified files : bbl.F
+    </p></li>
+     
+    <li><p>
+     Date: June 22 2004 <br>
+     Author : Meinte Blaas, P. Marchesiello <br>
+     Category : upgrade <br>
+     Description : add option for Power-function shaped filters <br>
+     for mode coupling; Change CPP switches to M2FILTER_COSINE (default),  <br>
+     M2FILTER_FLAT and M2FILTER_POWER.  <br>
+     Modified files : set_weights.F cppdefs.h 
+    </p></li>
+     
+    <li><p>
+     Date: June 22 2004 <br>
+     Author : Alvaro Peliz, P. Marchesiello <br>
+     Category : implementation <br>
+     Description : implement point sources for momentum and tracers (PSOURCE). <br>
+     Idealized parameters are introduced through roms.in and analytical <br>
+     functions through analytical.F (ANA_PSOURCE) <br>
+     Modified files : jobcomp amr.in ana_grid.F ana_initial.F ana_initracer.F <br>
+     analytical.F cppdefs.h get_vbc.F param.h pre_step3d4S.F read_inp.F <br>
+     sources.h step2d_LF_AM3.F step3d_t3S.F step3d_uv2.F
+    </p></li>
+     
+    <li><p>
+     Date: June 22 2004 <br>
+     Author : P. Marchesiello <br>
+     Category : cleaning in AGRIF (maybe bug?!) <br>
+     Description : change CPP switch AGRIF_CORRECT_LOCAL_FLUXES into <br>
+     AGRIF_LOCAL_VOLCONS for robustness in checking CPP switches <br>
+     Modified files : u2dbc_im.F v2dbc_im.F cppdefs.h
+    </p></li>
+     
+    <li><p>
+     Date: June 23 2004 <br>
+     Author : Laurent Debreu <br>
+     Category : Bug Fixed in AGRIF <br>
+     Description : previous modinitvar.F fix was not done properly <br>
+     Modified files : in AGRIFZOOM/AGRIF_FILES/ <br>
+     modtypes.F modinitvar.F
+    </p></li>
+     
+    <li><p>
+     Date: June 25 2004 <br>
+     Author : P. Marchesiello, Pierre Karleskind <br>
+     Category : Bug Fixed in AGRIF <br>
+     Description : Ranges wrong in u2dbc2, v2dbc2 and v2dbd3,v2dbc3  <br>
+     Modified files : u2dbc_im.F v2dbc_im.F <br>
+    </p></li>
+     
+    <li><p>
+     Date: August 3 2004 <br>
+     Author : P. Marchesiello, Pierre Karleskind <br>
+     Category : Bug Fixed <br>
+     Description : modified reading of float parameter nflt to avoid <br>
+     zero values allocation on child grids (AGRIF) which gave an integer <br>
+     divided by 0 when used in step.F with mod(...,nflt). <br>
+     Modified files : read_inp.F <br>
+    </p></li>
+     
+    <li><p>
+     Date: August 4 2004 <br>
+     Author : P. Marchesiello <br>
+     Category : Bug Fixed <br>
+     Description : hbbl needs to be limited by hekman in deep regions to <br>
+     avoid generation of numerical checkboard instabilities starting at <br>
+     the bottom. <br>
+     Modified files : lmd_bkpp.F <br>
+    </p></li>
+     
+    <li><p>
+     Date: September 8 2004 <br>
+     Author : Laurent Debreu <br>
+     Category : Bug Fixed <br>
+     Description :<br> 
+     "if (dft*(grad(i,Jend)+grad(i,Jend+1)) .gt. 0.) then"<br>
+     is replaced by:<br>
+     "if (dft*(grad(i,Jend)+grad(i+1,Jend)) .gt. 0.) then"<br>
+     in the northern radiative boundary conditions for vbar<br>
+     Modified files : v2dbc_im.F <br>
+    </p></li>
+     
+    <li><p>
+     Date: September 8 2004 <br>
+     Author : P. Penven <br>
+     Category : Cleaning <br>
+     Description : MASKING cpp keys added to u2dbc.F and v2dbc.F<br>
+     + #undef ALLOW_SINGLE_BLOCK_MODE in set_global_definitions.h<br>
+     Modified files : u2dbc.F, v2dbc.F, set_global_definitions.h <br>
+    </p></li>
+     
+    <li><p>
+     Date: September 9 2004 <br>
+     Author : Alvaro peliz and P. Marchesiello <br>
+     Category : Bug fixed in nested floats<br>
+     Description : variable nrpfflt is to be declared in scalars.h and not<br>
+     ncscrum_floats.h in order to be initialized properly by child levels.<br>
+     Modified files : scalars.h, ncscrum_floats.h<br>
+    </p></li>
+
+  </body>
+</html>
