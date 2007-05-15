@@ -17,9 +17,9 @@
 	</li>
  
         <li><a href="ftp://ftp.ifremer.fr/ifremer/ird/romstools/Roms_Agrif_SVN_latest.tar.gz">./Roms_tools/Roms_Agrif/ --> V1.X-ALPHA </a>
-	    version: Daily update from the <a href="https://gforge.inria.fr/projects/romsagrif/">ROMS_AGRIF project on Inria Gforge</a>
-	    - check <a href="http://lists.gforge.inria.fr/pipermail/romsagrif-commits/"></a> the romsagrif-commits archives</a>
-	    - this is an unstable version.
+	    version: daily tar file extracted from the <a href="https://gforge.inria.fr/projects/romsagrif/">ROMS_AGRIF project on Inria Gforge</a>
+	    - check the <a href="http://lists.gforge.inria.fr/pipermail/romsagrif-commits/">romsagrif-commits archives</a>
+	    - this is not a stable version.
 	</li>
 
         <li><a href="roms1d/index.html">+ ROMS-1D source code and documentation</a>  
