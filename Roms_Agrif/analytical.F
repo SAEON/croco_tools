@@ -105,11 +105,11 @@
 ! Set kinematic bottom heat flux [degC m/s] at horizontal RHO-points.
 !--------------------------------------------------------------------
 !
-#  if defined BASIN     || defined CANYON_A  || defined CANYON_B   \
-  || defined GRAV_ADJ  || defined OVERFLOW  || defined SEAMOUNT   \
-  || defined SHELFRONT || defined SED_TEST2 || defined UPWELLING  \
-  || defined REGIONAL  || defined INNERSHELF || defined RIVER     \
-  || defined VORTEX
+#  if defined BASIN    || defined CANYON_A  || defined CANYON_B   \
+  || defined EQUATOR   || defined GRAV_ADJ  || defined INNERSHELF \
+  || defined OVERFLOW  || defined REGIONAL  || defined RIVER      \
+  || defined SEAMOUNT  || defined SED_TEST2 || defined SHELFRONT  \
+  || defined UPWELLING || defined VORTEX
         do j=JstrR,JendR
           do i=IstrR,IendR
             btflx(i,j,itemp)=0.
@@ -129,9 +129,9 @@
 !  scaling by bottom salinity is done in STEP3D.
 !---------------------------------------------------------------------
 !
-#   if defined SHELFRONT || defined SED_TEST2  || defined UPWELLING  \
-   || defined REGIONAL  || defined INNERSHELF || defined SEAMOUNT   \
-   || defined RIVER     || defined VORTEX
+#   if  defined EQUATOR || defined INNERSHELF || defined REGIONAL  \
+   || defined RIVER     || defined SED_TEST2  || defined SHELFRONT \
+   || defined UPWELLING || defined SEAMOUNT   || defined VORTEX
         do j=JstrR,JendR
           do i=IstrR,IendR
             btflx(i,j,isalt)=0.
@@ -266,6 +266,12 @@
      &               (1.-tanh((yr(i,j)-0.5*el)/10000.))
         enddo
       enddo
+# elif defined EQUATOR
+      do j=JstrR,JendR
+        do i=Istr,IendR
+          sustr(i,j)=-0.05/rho0
+        enddo
+      enddo
 # elif defined SED_TEST2
       do j=JstrR,JendR
         do i=IstrR,IendR
@@ -304,10 +310,11 @@
 !  Set kinematic surface momentum flux (wind stress) component in the
 !  ETA-direction (m^2/s^2) at horizontal V-points.
 !
-# if defined BASIN     || defined CANYON_A  || defined CANYON_B  || \
-     defined GRAV_ADJ  || defined OVERFLOW  || defined SEAMOUNT  || \
-     defined SHELFRONT || defined SOLITON   || defined UPWELLING || \
-     defined RIVER     || defined VORTEX    || defined REGIONAL 
+# if defined BASIN     || defined CANYON_A  || defined CANYON_B  \
+  || defined EQUATOR   || defined GRAV_ADJ  || defined OVERFLOW  \
+  || defined REGIONAL  || defined RIVER     || defined SEAMOUNT  \
+  || defined SHELFRONT || defined SOLITON   || defined UPWELLING \
+  || defined VORTEX     
       do j=Jstr,JendR
         do i=IstrR,IendR
           svstr(i,j)=0.
@@ -357,9 +364,9 @@
 !  Set kinematic surface solar shortwave radiation [degC m/s] at
 !  horizontal RHO-points.
 !
-# if defined OVERFLOW   || defined REGIONAL || defined UPWELLING\
-  || defined INNERSHELF || defined SEAMOUNT || defined SHELFRONT\
-  || defined RIVER      || defined VORTEX
+# if defined EQUATOR   || defined INNERSHELF || defined OVERFLOW \
+  || defined REGIONAL  || defined RIVER      || defined SEAMOUNT \
+  || defined SHELFRONT || defined UPWELLING  || defined VORTEX
       do j=JstrR,JendR
         do i=IstrR,IendR
           srflx(i,j)=0.
@@ -440,15 +447,42 @@
 # include "forces.h"
 # include "scalars.h"
       integer Istr,Iend,Jstr,Jend, i,j
+# if defined EQUATOR
+      real y1,y2,sst1,sst2
+# endif
 !
 # include "compute_auxiliary_bounds.h"
 !
+# if defined EQUATOR
+! SST = 25C and lineraly decreases to 10C 1200km from the Equator.
+      y1=1200.E+3
+      y2=1500.E+3
+      sst1=10.
+      sst2=25.
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          sst(i,j)=sst1
+	  if ((yr(i,j).gt.-y1).and.(yr(i,j).lt.y1)) then
+            sst(i,j)=sst2
+	  else
+	    if ((yr(i,j).gt.-y2).and.(yr(i,j).lt.-y1)) then
+              sst(i,j)=((sst2-sst1)*yr(i,j)-sst1*y1+y2*sst2)/(y2-y1)
+	    endif
+	    if ((yr(i,j).gt.y1).and.(yr(i,j).lt.y2)) then
+              sst(i,j)=((sst2-sst1)*yr(i,j)+sst1*y1-y2*sst2)/(y1-y2)
+	    endif
+	  endif
+          dqdt(i,j)=-50.0/(rho0*Cp)
+        enddo
+      enddo
+# else 
       do j=JstrR,JendR
         do i=IstrR,IendR
           sst(i,j)=???
           dqdt(i,j)=???
         enddo
       enddo
+# endif
       return
       end
 #endif /* ANA_SST && QCORRECTION */
@@ -508,10 +542,11 @@ c
 !  Set kinematic surface heat flux [degC m/s] at horizontal
 !  RHO-points.
 !
-#if defined BASIN     || defined CANYON_A  || defined CANYON_B  ||\
-    defined OVERFLOW  || defined GRAV_ADJ  || defined SHELFRONT ||\
-    defined SEAMOUNT  || defined UPWELLING || defined REGIONAL  ||\
-    defined INNERSHELF || defined RIVER    || defined VORTEX
+#if defined BASIN    || defined CANYON_A  || defined CANYON_B   \
+ || defined EQUATOR  || defined GRAV_ADJ  || defined INNERSHELF \
+ || defined OVERFLOW || defined REGIONAL  || defined RIVER      \
+ || defined SEAMOUNT || defined SHELFRONT || defined UPWELLING  \
+ || defined VORTEX
 
         do j=JstrR,JendR
           do i=IstrR,IendR
@@ -531,8 +566,10 @@ c
 !  Set kinematic surface freshwater flux (m/s) at horizontal
 !  RHO-points, scaling by surface salinity is done in STEP3D.
 !
-# if defined SHELFRONT  || defined UPWELLING || defined REGIONAL ||\
-     defined INNERSHELF || defined SEAMOUNT  || defined RIVER
+# if defined EQUATOR || defined INNERSHELF || defined REGIONAL  \
+  || defined RIVER   || defined SEAMOUNT   || defined SHELFRONT \
+  || defined UPWELLING
+      
         do j=JstrR,JendR
           do i=IstrR,IendR
             stflx(i,j,isalt)=0.

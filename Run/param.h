@@ -110,7 +110,7 @@
       parameter (NP_XI=1, NP_ETA=2,  NNODES=NP_XI*NP_ETA)
       parameter (NSUB_X=1, NSUB_E=1, NPP=1)
 #elif defined OPENMP
-      parameter (NSUB_X=2, NSUB_E=4, NPP=4)
+      parameter (NSUB_X=8, NSUB_E=8, NPP=4)
 #else
       parameter (NSUB_X=1, NSUB_E=1, NPP=1)
 #endif

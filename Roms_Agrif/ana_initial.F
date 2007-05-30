@@ -51,9 +51,9 @@
 !------------------------------------------------------------------
 !
 # if defined BASIN      || defined CANYON_A  || defined CANYON_B   \
-   || defined GRAV_ADJ  || defined OVERFLOW  || defined SEAMOUNT   \
-   || defined SHELFRONT || defined UPWELLING || defined INNERSHELF \
-   || defined REGIONAL  || defined RIVER
+   || defined EQUATOR   || defined GRAV_ADJ  || defined OVERFLOW  \
+   || defined SEAMOUNT  || defined SHELFRONT || defined UPWELLING \
+   || defined INNERSHELF || defined REGIONAL  || defined RIVER
       do j=JR_RANGE
         do i=IR_RANGE
           zeta(i,j,1)=0.
@@ -122,9 +122,9 @@
 !--------------------------------------------------------------------
 !
 #  if defined BASIN     || defined CANYON_A  || defined CANYON_B   \
-   || defined GRAV_ADJ  || defined OVERFLOW  || defined SEAMOUNT   \
-   || defined SHELFRONT || defined UPWELLING || defined INNERSHELF \
-   || defined REGIONAL  || defined RIVER
+   || defined EQUATOR   || defined GRAV_ADJ  || defined OVERFLOW  \
+   || defined SEAMOUNT  || defined SHELFRONT || defined UPWELLING \
+   || defined INNERSHELF || defined REGIONAL  || defined RIVER
       do k=1,N
         do j=JR_RANGE
           do i=IR_RANGE
@@ -172,6 +172,19 @@
             t(i,j,k,1,itemp)=3.488*exp(z_r(i,j,k)/800.)
      &        *(1.-0.666666666666*tanh(z_r(i,j,k)/800.))
             t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
+          enddo
+        enddo
+      enddo
+#  elif defined EQUATOR
+      do k=1,N
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+            t(i,j,k,1,itemp)=10.0
+            t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
+#    ifdef SALINITY
+            t(i,j,k,1,isalt)=35.0
+            t(i,j,k,2,isalt)=t(i,j,k,1,isalt)
+#    endif
           enddo
         enddo
       enddo

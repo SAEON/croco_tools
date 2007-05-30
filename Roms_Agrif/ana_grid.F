@@ -60,6 +60,10 @@
                      depth=4000.
                      f0=1.E-4
                      beta=0.
+# elif defined EQUATOR
+                     depth=5000.
+                     f0=0.
+                     beta=2.2829e-11
 # elif defined GRAV_ADJ
                      depth=20.
                      f0=0.
@@ -110,6 +114,9 @@
 # elif defined CANYON_A || defined CANYON_B
                      Length_XI =128.0e+3
                      Length_ETA=96.0e+3
+# elif defined EQUATOR
+                     Length_ETA=3200.0E+3
+                     Length_XI =4000.0E+3
 # elif defined GRAV_ADJ
                      Length_XI =64.0E+3
                      Length_ETA=2.0E+3
@@ -177,6 +184,10 @@
       x0=0.
       y0=0.
 # endif
+# ifdef EQUATOR
+      y0=y0-0.5*el
+# endif
+
 CR      write(*,'(4(A3,pe15.9,1x),I3)') 'dx=',dx, 'dy=',dy,
 CR     &                                'x0=',x0, 'y0=',y0, mynode
  
@@ -208,13 +219,17 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
 !
       do j=JstrR,JendR
         do i=IstrR,IendR
+#  ifdef EQUATOR
+          f(i,j)=f0+beta*yr(i,j)
+#  else
           f(i,j)=f0+beta*(yr(i,j)-(0.5*el))
+#  endif
         enddo
       enddo   
 !
 !  Set bathymetry [meters; positive] at RHO-points.
 !
-# if defined BASIN || defined GRAV_ADJ || defined SOLITON
+# if defined BASIN || defined EQUATOR || defined GRAV_ADJ || defined SOLITON
       do j=JstrR,JendR
         do i=IstrR,IendR
           h(i,j)=depth

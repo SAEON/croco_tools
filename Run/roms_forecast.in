@@ -1,0 +1,103 @@
+title:
+        Southern Benguela Forecast
+time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
+               128      5400     60      1
+S-coord: THETA_S,   THETA_B,    Hc (m)
+           6.0d0      0.0d0      10.0d0
+grid:  filename
+                          roms_grd.nc
+forcing: filename
+                          roms_frc_GFS_0.nc
+bulk_forcing: filename
+                          roms_blk_GFS_0.nc
+boundary: filename
+                          roms_bry_ECCO_0.nc
+initial: NRREC  filename
+          1 
+                          roms_ini_fct.nc
+restart:          NRST, NRPFRST / filename
+                  128   -1
+                          roms_rst.nc
+history: LDEFHIS, NWRT, NRPFHIS / filename 
+            T     2     0
+                          roms_his.nc
+averages: NTSAVG, NAVG, NRPFAVG / filename
+            1     16     0
+                          roms_avg.nc
+
+primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
+                          T    T   T   F  F    10*F
+auxiliary_history_fields:   rho Omega  W  Akv  Akt  Aks  HBL  Bostr
+                             F   F     F   F    F    F    F    F
+
+primary_averages: zeta UBAR VBAR  U  V   wrtT(1:NT)
+                   T    T    T    T  T   10*T
+auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL  Bostr
+                     F   T     T   F    T    F    T    T
+
+
+rho0:
+      1025.d0
+
+lateral_visc:   VISC2,    VISC4    [m^2/sec for all]
+                 0.       0.
+
+tracer_diff2: TNU2(1:NT)           [m^2/sec for all]
+               10*0.d0 
+
+bottom_drag:     RDRG [m/s],  RDRG2,  Zob [m],  Cdb_min, Cdb_max
+                 0.0d-04      0.d-3    1.d-2     1.d-4    1.d-1 
+
+gamma2:
+                 1.d0
+
+sponge:          X_SPONGE [m],    V_SPONGE [m^2/sec]
+                   100.e3           800.
+
+nudg_cof:    TauT_in, TauT_out, TauM_in, TauM_out  [days for all]
+                1.       360.      10.      360.
+
+
+
+
+diagnostics:   ldefdia   nwrtdia    nrpfdia /filename
+                  T        144         0
+                                   roms_diags.nc
+diag_avg: ldefdia_avg  ntsdia_avg  nwrtdia_avg  nprfdia_avg /filename
+               T          1           144            0
+                                                 roms_diags_avg.nc
+
+diagnostics_bio:   ldefdiabio   nwrtdiabio    nrpfdiabio /filename
+                        T          20             0
+                                   roms_diagsbio.nc
+diagbio_avg: ldefdiabio_avg  ntsdiabio_avg  nwrtdiabio_avg  nprfdiabio_avg /filename
+                  T              1              20              0
+                                                 roms_diagsbio_avg.nc
+
+sediments: input file
+           sediment.in
+sediment_history_fields: bed_thick bed_poros bed_fra(sand,silt)
+                            T         F        T  T
+
+bbl_history_fields: Abed Hripple Lripple Zbnot Zbapp Bostrw
+                     T      F       F      T     F     T
+
+floats: LDEFFLT, NFLT, NRPFFLT / inpname, hisname
+           T       6      0
+                                   floats.in
+                                   floats.nc
+float_fields:  Grdvar Temp Salt Rho Vel
+                 F     F    F    F   F
+
+stations: LDEFSTA, NSTA, NRPFSTA / inpname, hisname
+             T      1      0
+                                    roms_stations.in
+                                    roms_sta_forecast.nc
+station_fields:  Grdvar Temp Salt Rho Vel
+                   T     T    T    T   T
+
+psource:   Nsrc  Isrc  Jsrc  Dsrc  Qbar [m3/s]    Lsrc        Tsrc
+            2
+                  3    54     1    200.            T T      5. 0.
+                  3    40     0    200.            T T      5. 0.
+

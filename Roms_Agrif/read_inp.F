@@ -46,26 +46,32 @@
 ! WITHOUT the UNIX redirection (<): roms<startup_file like it
 ! used to be.
 !
-#if defined SOLITON
-      fname='roms.in.Soliton'
-#elif defined OVERFLOW
-      fname='roms.in.Overflow'
-#elif defined SEAMOUNT
-      fname='roms.in.Seamount'
-#elif defined UPWELLING
-      fname='roms.in.Upwelling'
-#elif defined REGIONAL
-      fname='roms.in.US_West'
-#elif defined BASIN
-      fname='roms.in.Basin'
-#elif defined INNERSHELF
-      fname='roms.in.Innershelf'
-#elif defined SHELFRONT
-      fname='roms.in.Shelfront'
+#if defined BASIN
+      fname='TEST_CASES/roms.in.Basin'
 #elif defined CANYON_A || defined CANYON_B
-      fname='roms.in.Canyon'
+      fname='TEST_CASES/roms.in.Canyon'
+#elif defined EQUATOR
+      fname='TEST_CASES/roms.in.Equator'
 #elif defined GRAV_ADJ
-      fname='roms.in.Grav_adj'
+      fname='TEST_CASES/roms.in.Grav_adj'
+#elif defined INNERSHELF
+      fname='TEST_CASES/roms.in.Innershelf'
+#elif defined OVERFLOW
+      fname='TEST_CASES/roms.in.Overflow'
+#elif defined RIVER
+      fname='TEST_CASES/roms.in.River'
+#elif defined SEAMOUNT
+      fname='TEST_CASES/roms.in.Seamount'
+#elif defined SHELFRONT
+      fname='TEST_CASES/roms.in.Shelfront'
+#elif defined SOLITON
+      fname='TEST_CASES/roms.in.Soliton'
+#elif defined UPWELLING
+      fname='TEST_CASES/roms.in.Upwelling'
+#elif defined VORTEX
+      fname='TEST_CASES/roms.in.Vortex'
+#elif defined REGIONAL
+      fname='roms.in'
 #else
       fname='no_startup_file'
 #endif

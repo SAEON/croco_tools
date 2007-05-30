@@ -593,15 +593,15 @@ C$OMP BARRIER
 # endif
 
 # if defined TS_DIF2 || defined TS_DIF4
-# if defined AGRIF && !defined SMAGO_TS
+#  if defined AGRIF && !defined SMAGO_TS
         if (Agrif_Root()) then
-# endif
-        call t3dmix (tile) 
-# if defined AGRIF !defined SMAGO_TS
+#  endif
+          call t3dmix (tile) 
+#  if defined AGRIF && !defined SMAGO_TS
         else
-        call t3dmix_fine(tile)
+          call t3dmix_fine(tile)
         endif
-# endif
+#  endif
 # endif
       enddo
 C$OMP BARRIER
