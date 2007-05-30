@@ -29,8 +29,8 @@
 clear all
 close all
 %
-tndx=26;
-j=17;
+tndx=2; % should be 120
+j=17;   % middle of the basin
 i=21;
 %
 % Read data

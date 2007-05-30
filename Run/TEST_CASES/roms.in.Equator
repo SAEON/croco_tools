@@ -4,7 +4,7 @@
 title:
 	Equator Example
 !
-! based on:
+! Based on:
 ! Boccaletti, G., R.C. Pacanowski, G.H. Philander and A.V. Fedorov, 2004,
 ! The Thermal Structure of the Upper Ocean, J.Phys.Oceanogr., 34, 888-902.
 !
@@ -12,7 +12,7 @@ time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
                 108000     8640     45      40
 
 S-coord: THETA_S,   THETA_B,    Hc (m)
-          5.0d0      0.0d0        10.d0
+         5d0      0.0d0        10.d0
 
 initial: NRREC  filename
           0 
@@ -46,10 +46,10 @@ lin_EOS_cff:  R0 [kg/m3], T0 [Celsius], S0 [PSU], TCOEF [1/Celsius], SCOEF [1/PS
 
 
 lateral_visc:   VISC2    [m^2/sec ]
-                 4e3  0.
+                 2.e3  0.
 
 tracer_diff2: TNU2         [m^2/sec]
-                 1e3 1e3
+                 1.e3 1.e3
 
 
 
