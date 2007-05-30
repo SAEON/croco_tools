@@ -29,7 +29,7 @@
 clear all
 close all
 %
-tndx=51; % should be 120
+tndx=56; % should be 120
 j=17;   % middle of the basin
 i=21;
 %
