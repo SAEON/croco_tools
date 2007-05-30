@@ -2,57 +2,72 @@
 ####################################################
 #               COMPILATION JOB                    #
 ####################################################
+unalias rm
+unalias mv
+unalias cp
 #
 # set source, compilation and run directories
 #
 set SOURCE=../Roms_Agrif
 set SCRDIR=../Compile
 set RUNDIR=`pwd`
-
+#
+# determine operating system
+#
+set OS = `uname`
+echo OPERATING SYSTEM IS: $OS
 #
 # Linux compiler options (only relevant to Linux OS)
 #
-set LINUX_FC=ifort
-#set LINUX_FC=ifc
-#set LINUX_FC=g95
-#set LINUX_FC=g77
-
+if ($OS == Linux) then
+  set LINUX_FC=ifort
+#  set LINUX_FC=ifc
+#  set LINUX_FC=g95
+#  set LINUX_FC=g77
 #
 # set 32 or 64 Bits executable
 #
-set BITS=THIRTYTWO
-#set BITS=SIXTYFOUR
-
+  set ARCH = `uname -m`
+  echo PROCESSOR IS: $ARCH
+  if ($ARCH == x86_64) then
+    set BITS=SIXTYFOUR
+  else
+    set BITS=THIRTYTWO
+  endif
+else
+  set BITS=THIRTYTWO
+#  set BITS=SIXTYFOUR
+endif
 #
 # set NETCDF directories
 #
-if ($BITS == THIRTYTWO) then
-#  set NETCDFLIB=-L$HOME/lib32
-#  set NETCDFINC=-I$HOME/lib32
+set NETCDFLIB=-L/usr/local/lib
+set NETCDFINC=-I/usr/local/include
+#
+if ($OS == Linux) then
   if ($LINUX_FC == g77) then
-    set NETCDFLIB=-L../netcdf_g77/
-    set NETCDFINC=-I../netcdf_g77/
-  else
-    set NETCDFLIB=-L/usr/local/lib
-    set NETCDFINC=-I/usr/local/include
+    if ($BITS == THIRTYTWO) then
+      set NETCDFLIB=-L../netcdf_g77/
+      set NETCDFINC=-I../netcdf_g77/
+    endif
+  else if ($LINUX_FC == ifort) then
+    if ($BITS == THIRTYTWO) then
+      set NETCDFLIB=-L../netcdf_ifc/
+      set NETCDFINC=-I../netcdf_ifc/
+    else
+      set NETCDFLIB=-L../netcdf_x86_64
+      set NETCDFINC=-I../netcdf_x86_64
+    endif
   endif
-else
-  set NETCDFLIB=-L$HOME/libn64
-  set NETCDFINC=-I$HOME/libn64
 endif
-
 #
 # set MPI directories if needed
 #
-# set MPILIB=
-# set MPIINC="-I/usr/local/src/openmpi-1.1.2/include"
- set MPILIB="-L/usr/local/lib -lmpich"
- set MPIINC=-I/usr/local/include
-
+set MPILIB="-L/usr/local/lib -lmpich"
+set MPIINC=-I/usr/local/include
 #
 # END OF USER'S MODIFICATIONS
 ####################################################
-
 #
 # Use GNU Make command
 #
@@ -98,27 +113,16 @@ cd $SCRDIR
 #
 setenv LDFLAGS1 "$NETCDFLIB"
 setenv CPPFLAGS1 "$NETCDFINC -IROMSFILES/AGRIF_INC"
-
-#
-# determine operating system
-#
-set uname = `uname`
-echo OPERATING SYSTEM IS: $uname
-
 #
 # Set compilation options
 #
-if ($uname == Linux) then          # LINUX
+if ($OS == Linux) then          # LINUX
   set OS = Linux
   if ($LINUX_FC == ifort || $LINUX_FC == ifc) then
-    setenv CPP1 "cpp -traditional"
-    setenv CFT1 mpif90
-    setenv FFLAGS1 "-O3 -g -w90 -w95 -cm -72 -r8"
-###  for 32 bit executable under 64 bit OS (Opteron ...)
-#    if (`uname -r` == 2.6.3-6mdksmp) then
-#     setenv FFLAGS1 "-Wl,-m elf_i386 $FFLAGS1"
-#     set MAKEAGRIF=Makefile.linux.ifc.64
-#    endiF
+    setenv CPP1 "fpp -free"
+    setenv CFT1 ifort
+    setenv FFLAGS1 "-O3 -w90 -w95 -cm -72 -fno-alias -i4 -r8 -Vaxlib"
+    setenv LDFLAGS1 "-Vaxlib $LDFLAGS1"
   else if ($LINUX_FC == g95) then
     setenv CPP1 "cpp -traditional -DLinux"
     setenv CFT1 g95
@@ -131,7 +135,7 @@ if ($uname == Linux) then          # LINUX
     setenv LDFLAGS1 "$LDFLAGS1"
   endif
 
-else if ($uname == AIX) then       # IBM
+else if ($OS == AIX) then       # IBM
   set OS = AIX
   setenv CPP1 /lib/cpp
   setenv CFT1 "xlf95 -I$HOME/include/"
@@ -144,19 +148,19 @@ else if ($uname == AIX) then       # IBM
     setenv FFLAGS1 "-q64 -qwarn64 -qfixed -qrealsize=8 -qintsize=8 -qhot -qalias=noaryovrlp -qthreaded -O3 -qarch=pwr4 -qtune=pwr4 -qunroll=yes"
   endif
 
-else if ($uname == OSF1) then     # COMPAQ
+else if ($OS == OSF1) then     # COMPAQ
   set OS = OSF1
   setenv CPP1 /lib/cpp
   setenv CFT1 f95
   setenv FFLAGS1 "-fast -i4 -r8"
 
-else if ($uname == IRIX64) then   # SGI
+else if ($OS == IRIX64) then   # SGI
   set OS = IRIX64
   setenv CPP1 "/usr/freeware/bin/cpp -traditional"
   setenv CFT1 f90
   setenv FFLAGS1 "-O2"
 
-else if ($uname == SunOS) then 	   # SUN:  tested on SunFire 880 (SPARC III)
+else if ($OS == SunOS) then 	   # SUN:  tested on SunFire 880 (SPARC III)
   set GREP = /usr/xpg4/bin/grep    #       and Sun Ultra-60 (SPARC II)
   set OS = SunOS
   setenv CPP1 /lib/cpp
@@ -168,7 +172,7 @@ else if ($uname == SunOS) then 	   # SUN:  tested on SunFire 880 (SPARC III)
     set MAKEAGRIF=Makefile.sun.64
     setenv FFLAGS1 "-O5 -xtarget=native64 -xprefetch -xtypemap=real:64,double:128 -xlibmopt "
   endif
-else if ($uname == Darwin) then          # DARWIN IFORT
+else if ($OS == Darwin) then          # DARWIN IFORT
   set OS = Darwin
     setenv CPP1 "cpp -DLinux"
     setenv CFT1 ifort
@@ -237,7 +241,7 @@ if ($?COMPILEAGRIF) then
   else
   $MAKE -C AGRIFZOOM COMDIRIN=./ COMDIROUT=./ F90="$CFT1" CPP="$CPP1" FFLAGS_EXTEND="$FFLAGS1"
   endif
-  if ($uname == Darwin) then          # DARWIN
+  if ($OS == Darwin) then          # DARWIN
 # run RANLIB on Darwin system
   ranlib AGRIFZOOM/libagrif.a
   endif
