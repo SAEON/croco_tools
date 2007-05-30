@@ -1,0 +1,73 @@
+ROMSTOOLS can help for the design of ROMS biogeochemical 
+experiments. For the initial conditions and lateral boundary
+conditions, WOA provides a seasonal climatology for nitrate
+concentration and WOA or SeaWifs can be used to obtain a 
+seasonal climatology of surface chlorophyll concentration.
+Phytoplankton is estimated by a constant chlorophyll/phytoplankton 
+ratio derived from previous simulations. Zooplankton is estimated
+in a similar way. The part which should be edited by the user in 
+romstools\_param.m is:\\
+\\ 
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\%\\
+\% Open boundaries and initial conditions parameters\\
+\%   used by make\_clim.m, make\_biol.m, make\_bry.m\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\%\\
+\% World Ocean Atlas directory (WOA2001 or WOA2005) \\
+\%\\
+woa\_dir=[ROMSTOOLS\_dir,'WOA2005/'];\\
+\%\\
+\% Surface chlorophyll seasonal climatology (WOA2001 or SeaWifs)\\
+\%\\
+chla\_dir=[ROMSTOOLS\_dir,'SeaWifs/'];\\
+\%\\\\
+Variables description :
+\begin{itemize}
+\item woa\_dir=[ROMSTOOLS\_dir,'WOA2005/'] : Directory where the World Ocean
+Atlas 2005 climatology \citep{Con02} is located. The World Ocean
+Atlas 2001 climatology can also be used.
+\item chla\_dir=[ROMSTOOLS\_dir,'SeaWifs/'] : Directory of the surface 
+chlorophyll seasonal climatology.
+\end{itemize}
+Run make\_biol in the Matlab session :\\
+$>>$\\
+$>>$ make\_biol\\\\
+You should obtain :\\
+-------------------------------------------------------------------------------\\
+Add\_no3: creating variables and attributes for the OA file\\
+Add\_no3: creating variables and attributes for the Climatology file\\
+\\ 
+ Ext tracers: Roa = 0 km - default value = NaN\\
+ Ext tracers: horizontal interpolation of the annual data\\
+ Ext tracers: horizontal interpolation of the seasonal data\\
+time index: 1 of total: 4\\
+time index: 2 of total: 4\\
+time index: 3 of total: 4\\
+time index: 4 of total: 4\\
+ \\
+ Vertical interpolations\\
+ \\
+ NO3...\\
+ Time index: 1 of total: 4\\
+ Time index: 2 of total: 4\\
+ Time index: 3 of total: 4\\
+ Time index: 4 of total: 4\\
+ \\
+ CHla...\\
+Add\_chla: creating variable and attribute\\
+...\\
+Make a few plots...\\
+-------------------------------------------------------------------------------\\\\
+The cpp keys related to biology:
+\begin{itemize}
+\item BIO\_NChlPZD : Select a 5 components (Nitrate, Chlorophyll, Phytoplankton, 
+Zooplankton, Detritus) biogeochemical model.
+\item BIO\_N2ChlPZD2 : Select a 7 components (Nitrate, Ammonium, Chlorophyll, 
+Phytoplankton, Zooplankton, Small Detritus, Large Detritus) biogeochemical model. 
+\item BIO\_N2P2Z2D2 : Select a 8 components (Nitrate, Ammonium, Small  
+Phytoplankton, Large Phytoplankton, Small Zooplankton, Large Zooplankton,
+Small Detritus, Large Detritus) biogeochemical model. 
+\item DIAGNOSTICS\_BIO : Define if writing out fluxes between the biological
+components.\\
+\end{itemize}

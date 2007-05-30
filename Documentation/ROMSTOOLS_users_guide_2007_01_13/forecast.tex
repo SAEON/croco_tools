@@ -1,0 +1,33 @@
+An operating coastal modeling system can be designed following the 
+assumption that large scale offshore dynamics are slow in comparison 
+to the coastal system. The lateral boundary conditions are interpolated 
+from the last available ECCO model outputs and are kept constant during
+the ROMS simulation. ECCO model outputs are delayed by about two to four 
+weeks, but we suppose that they are still relevant for the present large 
+scale oceanic structure. The Global Forecast System (GFS) is used for the 
+surface forcing. A first day of simulation is run in hindcast mode. This 
+will provide the initial conditions for the next simulated day. 
+Using GFS as surface forcing and ECCO for the lateral boundary conditions, 
+a forecast of 7 days is conducted. A UNIX C-Shell script 
+(~/Roms\_tools/Run/run\_roms\_forecast.csh) manages
+data downloading, the hindcast and forecast simulations
+and datas storage.
+The script run\_roms\_forecast.csh starts Matlab in 
+batch mode to download
+with OPENDAP the lateral boundary conditions from ECCO and 
+the surface forcing from GFS. It interpolates the data on ROMS 
+grid and launches the hindcast and the forecast runs.
+
+The script run\_roms\_forecast.csh should be edited to change the
+directory pathways (HOME, RUNDIR, PATH, LD\_LIBRAIRY\_PATH, MATLAB,...).
+
+The ROMS input files $\sim$/Roms\_tools/Run/roms\_hindcast.in and 
+$\sim$/Roms\_tools/Run/roms\_forecast.in should also be edited to change
+the length of the time step and the number of time steps. 
+The ROMS input file roms\_hindcast.in should be defined such as 
+the hindcast run duration
+is 1 day and a restart file is generated at the end of the hindcast run.
+
+The script run\_roms\_forecast.csh can be relaunched everyday in batch mode 
+using crontab.
+

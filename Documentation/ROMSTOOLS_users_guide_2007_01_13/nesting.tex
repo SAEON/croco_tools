@@ -1,0 +1,226 @@
+%
+% nesting
+%
+
+\subsection{Introduction}
+
+To address the challenge of bridging the gap between near-shore and
+offshore dynamics, a nesting capability has been added to ROMS
+and tested for the California Upwelling System \citep{Pen04}.
+The method chosen for embedded griding takes advantage of the AGRIF
+(Adaptive Grid Refinement in Fortran) package \citep{Bla99,Deb00,
+Deb03a,Deb03b}.
+AGRIF is a Fortran 95 package for the inclusion of adaptive mesh refinement
+features within a finite difference numerical model. One of
+the major advantages of AGRIF in static-grid embedding is the ability to
+manage an arbitrary number of fixed grids and an arbitrary number of
+embedding levels.
+
+\begin{figure}[htbp]
+\centerline{\psfig{figure=nesting_fig1.eps,width=15cm}}
+\caption{Temporal coupling between a parent and a child grid
+for a refinement factor of 3.  The coupling is done at the baroclinic
+time step.}
+\label{fig:temp_coupling}
+\end{figure}
+
+A recursive integration procedure manages the time evolution for the
+child grids during the time step of the parent grids
+(Figure \ref{fig:temp_coupling}). In order to preserve the CFL 
+criterion, for a typical
+coefficient of refinement (say, a factor of 3 for a 5 km resolution
+grid embedded in a 15 km grid), for each parent time step the child
+must be advanced using a time step divided by the coefficient of
+refinement as many time as necessary to reach the time of the parent
+(Figure (\ref{fig:temp_coupling})).  For simple 2-level embedding, the
+procedure is as follows:\\
+\begin{enumerate}
+\item Advance the parent grid by one parent time step.
+\item Interpolate the relevant parent variables in space and time
+to get the boundary conditions for the child grid.
+\item Advance the child grid by as much child time steps as necessary
+to reach the new parent model time.
+\item Update point by point the parent model by averaging the more
+accurate values of the child model (in the case of 2-way embedding).
+\end{enumerate}
+The recursive approach used in AGRIF
+allows the specification of any number
+of embedding level.
+
+\subsection{Embedded (child) model preparation}
+
+To run an embedded model, the user must provide the grid, the surface 
+forcing and the initial conditions. To name the different files,
+AGRIF employs a specific strategy: if the parent file names are of
+the form: XXX.nc, the first child names will be of the form: 
+XXX.nc.1, the second: XXX.nc.2, etc... 
+This convention is also applied for the "roms.in" input files.
+
+A graphic user interface (NestGUI) facilitates the generation of 
+the different NetCDF files. Launch nestgui in the Matlab session 
+(in the $\sim$/Roms\_tools/Run/ directory):
+\\ \\
+$>>$\\
+$>>$ nestgui
+\\ \\
+A window pops up, asking for a "PARENT GRID" NetCDF file 
+(Figure \ref{fig:nestgui1}). In our Benguela test case, you should select 
+$\sim$/Roms\_tools/Run/ROMSFILES/roms\_grd.nc (grid file) and click "open".
+The main window appears (Figure \ref{fig:nestgui2}).
+
+\begin{figure}[!ht]
+\centerline{\psfig{figure=nesting_select.eps,width=5cm}}
+\caption{Entrance window of NestGUI}
+\label{fig:nestgui1}
+\end{figure}
+ 
+\begin{figure}[!ht]
+\centerline{\psfig{figure=nesting.eps,width=12cm}}
+\caption{The NestGUI main window}
+\label{fig:nestgui2}
+\end{figure}
+
+To generate the child model you should follow several steps:
+
+\begin{enumerate}
+
+\item To define the child domain, click "Define child" and create
+the child domain on the main window. The size of the grid child
+(Lchild and Mchild) is now visible. This operation can be redone 
+until you are satisfied with the size and the position of the child 
+domain. The child domain can be finely tuned using the imin, 
+imax, jmin and jmax boxes. 
+Be aware that the mask interpolation from the parent grid
+to the child grid is not optimal close to corners. Parent/Child
+boundaries should be placed where the mask is showing a straight
+coastline. A warning will be given during the interpolation
+procedure if this is not the case.
+
+\item "Interp child" : It generates the child grid file. Before, 
+you should select if you are using a new topography
+("New child topo" button) for the child
+grid or if you are just interpolating the parent topography
+on the child grid. In the first case, you should defines
+what topography file will be used (e.g. 
+$\sim$/Roms\_tools/Topo/etopo2.nc or another dataset).
+You should also define if you want the volume of the child grid 
+to match the volume of the parent close to the parent/child 
+boundaries ("Match volume" button, it should be "on" by default).
+You should also define define the r factor \citep{Bec93} 
+for topography smoothing ("r-factor", 0.25 is safe) and
+the number of points to connect the child topography to the
+parent topography ("n-band", it follows the relation 
+$h_{new}=\alpha.h_{child} + (1-\alpha).h_{parent}$, 
+where $\alpha$ is going from 0 to 1 in "n-band" points 
+from the parent/child boundaries).
+You should also select the child minimum depth ("Hmin",
+it should be lower or equal to the parent minimum depth),
+the maximum depth at the coast ("Hmax coast"), the 
+number of selective hanning filter passes for the deep 
+regions ("n filter deep") and the number of final 
+hanning filter passes ("n filter final").
+
+\item "Interp forcing": It interpolates the parent 
+surface forcing  on the child grid. Select the parent forcing file
+to be interpolated (e.g. $\sim$/Roms\_tools/Run/ROMSFILES/roms\_frc.nc). 
+The child forcing file roms\_frc.nc.1 will be created. 
+The parent surface fluxes are interpolated on the child grid. 
+You can use "Interp bulk" if you are using a bulk formula.
+In this case, the parent bulk file 
+(e.g. $\sim$/Roms\_tools/Run/ROMSFILES/roms\_blk.nc) will be
+interpolated on the child grid.
+
+\item "Interp initial": It interpolates parent initial
+conditions on the child grid. Select the parent initial file
+(e.g. $\sim$/Roms\_tools/Run/ROMSFILES/roms\_ini.nc).
+The child initial file 
+(e.g. $\sim$/Roms\_tools/Run/ROMSFILES/roms\_ini.nc.1) 
+will be created.
+If the topographies are different between the parent and 
+the child grids, the child initial conditions are 
+vertically re-interpolated. In this case you should check 
+if the options "vertical corrections" and "extrapolations"
+are selected.
+"Interp biology" can be used to interpolate
+parent biological variables for biogeochemical experiments.
+"Interp restart" generates a child restart file from 
+a parent restart file 
+(e.g. $\sim$/Roms\_tools/Run/ROMSFILES/roms\_rst.nc). 
+This can be done to "hot start" a child model after the 
+spin-up of the parent model.
+
+\item You can click on "Create roms.in.*" to generate a
+child input file (roms.in.1) from the parent input
+file and click on "Create AGRIF\_FixedGrids.in" to 
+generate a AGRIF\_FixedGrids.in file (the file which
+defines the child grid position in the parent grid).
+
+\end{enumerate}
+
+"river" can be used to locate the river on the coast.
+"Interp clim" can be useful to generate boundary conditions 
+to test the child model alone. 
+
+\subsection{Compiling and running the model}
+
+The ROMS nesting procedure needs a Fortran 95 compiler. For Linux PCs,
+the Intel Fortran Compiler (ifort) is available at \\
+http://www.intel.com/software/products/compilers/flin/noncom.htm.
+To be able to compile ROMS with ifort, you should change the corresponding 
+comments in jobcomp. Define AGRIF in \\
+$\sim$/Roms\_tools/Run/cppdefs.h.
+Other cpp keys are related to AGRIF:
+\begin{itemize}
+\item AGRIF\_OBC\_EAST : Open eastern boundary for the child grids.
+\item AGRIF\_OBC\_WEST : Open western boundary for the child grids.
+\item AGRIF\_OBC\_SOUTH : Open southern boundary for the child grids.
+\item AGRIF\_OBC\_NORTH : Open northern boundary for the child grids.
+\item AGRIF\_STORE\_BAROT\_CHILD : Store ubar and vbar during the parent step for the
+child boundary conditions.
+\item AGRIF\_FLUX\_BC : Apply parent/child barotropic boundary conditions has 
+fluxes.
+\item AGRIF\_POLY\_DUAVG : Apply a third order polynomial temporal interpolation 
+for DU\_avg1 and DU\_avg2.
+\item AGRIF\_LOCAL\_VOLCONS : Enforce parent-child mass conservation.
+\item AGRIF\_OBC\_M2FLATHER :  Activate Flather open boundary conditions for ubar and vbar
+for the child model .
+\item AGRIF\_OBC\_M2ORLANSKI : Activate 2D radiation open boundary conditions for ubar and vbar
+for the child model.
+\item AGRIF\_OBC\_M2SPECIFIED : Activate specified open boundary conditions for ubar and vbar
+for the child model.
+\item AGRIF\_OBC\_M2CHARACT :  Activate open boundary conditions based on characteristic methods 
+for ubar and vbar
+for the child model.
+\item AGRIF\_OBC\_M3ORLANSKI : Activate 2D radiation open boundary conditions for u and v
+for the child model.
+\item AGRIF\_OBC\_M3SPECIFIED : Activate specified open boundary conditions for u and v
+for the child model.
+\item AGRIF\_OBC\_M3CHARACT : Activate open boundary conditions based on characteristic methods 
+for u and v
+for the child model.
+\item AGRIF\_OBC\_TORLANSKI :  Activate 2D radiation open boundary conditions for tracers
+for the child model .
+\item AGRIF\_OBC\_TUPWIND : Activate upwind open boundary conditions for tracers
+for the child model.
+\item AGRIF\_OBC\_TSPECIFIED  : Activate specified open boundary conditions for tracers
+for the child model.
+\end{itemize}
+The default definitions should be sufficient for most of the applications.
+\\
+\\
+It is possible to edit the file AGRIF\_FixedGrids.in. 
+This file contains the child grid positions
+(i.e. imin,imax,jmin,jmax) and coefficients of refinement. A first line
+gives the number of children grids per parent (if AGRIF\_STORE\_BAROT\_CHILD
+is defined, only one child grid can be defined per parent grid). A second
+line gives the relative position of each grid and the coefficient of refinement 
+for each dimension. 
+Edit the input files roms.in.1, roms.in.2 , etc... to define correctly the 
+file names and the time steps. To run the model, simply type at the prompt:
+roms roms.in.
+
+To visualize the ROMS model outputs for different grid levels, 
+change the value in the "child models" box
+in roms\_gui.
+
+

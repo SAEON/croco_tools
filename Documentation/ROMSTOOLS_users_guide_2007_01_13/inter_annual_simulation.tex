@@ -1,0 +1,258 @@
+ROMSTOOLS can help to realize inter-annual simulations. In this context, 
+we rely on Ocean Global Circulations Models (OGCM) for the lateral 
+boundary conditions and a global atmospheric reanalysis for the surface 
+forcing (NCEP). To limit the volume of data which needs to be transfered 
+over the Internet, we use Opendap to extract only the necessary subgrids. 
+
+\subsection{Getting the surface forcing data from NCEP}
+
+The Matlab script make\_NCEP.m is used to obtain the surface forcing data.
+It downloads the necessary NCEP surface forcing data (Sea Surface 
+Temperature, Wind stress ...) over the Internet, and interpolates them on 
+the model grid. Since make\_NCEP.m works with the bulk parameterization 
+(i.e. the 
+BULK\_FLUX and BULK\_EP cpp keys should be defined in cppdefs.h),
+a surface forcing NetCDF file and a bulk NetCDF file are generated for 
+each month of your simulation in the directory 
+$\sim$/Roms\_tools/Run/ROMSFILES/ .
+The part of the file romstools\_param.m that you should change is:\\\\
+\%\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\%\\
+\% 7 Parameters for Interannual forcing (SODA, ECCO, NCEP, ...)\\
+\%\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\%\\
+\% Path to Forcing data\\
+\%\\
+FORC\_DATA\_DIR = [RUN\_dir,'DATA/'];\\
+\%\\
+Download\_data = 1;                            \% Get data from the OPENDAP sites \\
+level         = 0;                            \% AGRIF level; 0=parent grid \\
+\%\\
+\%  Options for make\_NCEP\\
+\%\\
+NCEP\_dir= [FORC\_DATA\_DIR,'NCEP\_',ROMS\_config,'/']; \% NCEP data directory\\
+makefrc      = 1;                            \% 1: Create forcing files\\
+makeblk      = 1;                            \% 1: Create bulk files\\
+add\_tides     = 0;                     \% 1: Add the tides (To be done...)\\
+\%\\
+NCEP\_version  = 1;                            \% NCEP version:\\
+\%                                 (1: NCEP/NCAR Reanalysis, 1/1/1948 - present\\
+\%                                  2: NCEP-DOE Reanalysis, 1/1/1979 - 12/31/2001)\\
+\%\\
+\\
+Variables description :
+\begin{itemize}
+\item FORC\_DATA\_DIR : Directory where the different files downloaded over 
+the Internet are stored.
+\item Download\_data : Get data from the OPENDAP sites. Should be 1.
+\item level : AGRIF level. The parent grid = 0 and the child grid = 1.
+\item NCEP\_dir= [FORC\_DATA\_DIR,'NCEP\_',ROMS\_config,'/'] : NCEP data directory. 
+This is where NCEP data downloaded over the Internet are stored.
+\item makefrc : Switch to define if the forcing file is generated. Should be 1.
+\item makeblk : Switch to define if the bulk file is generated. Should be 1.
+\item add\_tides : Switch to define if the tidal forcing is added. 
+\item NCEP\_version : version of the NCEP reanalysis. 1: NCEP/NCAR Reanalysis, 1/1/1948 - present.
+2: NCEP-DOE Reanalysis, 1/1/1979 - 12/31/2001.
+\end{itemize}
+
+Save romstools\_param.m and run make\_NCEP in the Matlab session.
+You should obtain:
+\\\\
+$>>$ make\_NCEP\\
+Add the paths of the different toolboxes\\
+Arch : x86\_64 - Matlab version : 2006a\\
+Use of mexnc and loaddap in 64 bits.\\
+Download NCEP data with OPENDAP\\
+\\
+Get NCEP data from 2000 to 2000\\
+Minimum Longitude: 12.3\\
+Maximum Longitude: 20.3\\
+Minimum Latitude: -35.5\\
+Maximum Latitude: -26.3815\\
+\\
+Making output data directory ../Run/DATA/NCEP\_Benguela/\\
+Process the first dataset: http://www.cdc.noaa.gov/cgi-bin/nph-nc/Datasets/ncep.reanalysis/surface\_gauss/\\
+    Create ../Run/DATA/NCEP\_Benguela/land.sfc.gauss.nc\\
+Processing year: 2000\\
+  Processing month: 1\\
+    Get air for year 2000 - month 1\\
+...
+
+\subsection{Getting the lateral boundary conditions}
+
+Initial conditions and lateral boundary conditions and  can be 
+obtained from several ocean global circulation models (OGCM) 
+such as SODA \citep{Car05} or ECCO \citep{Sta99}. The SODA 
+reanalysis is available from 1958 to 2001 and ECCO is available 
+from 1993 until now. The Matlab script make\_OGCM.m is used to 
+download data over the Internet, and to perform the interpolations 
+on the model grid. 
+A lateral boundary conditions NetCDF file is generated for each month 
+of your simulation in the directory $\sim$/Roms\_tools/Run/ROMSFILES/ . 
+\\
+\\
+The part of the file romstools\_param.m that you should change is:
+\\
+\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\%\\
+\% Options for make\_OGCM \\
+\%\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+OGCM        = 'SODA';                                \% Select the OGCM:
+SODA(1958-2001), ECCO(1993-2005), ...\\
+OGCM\_dir    = [FORC\_DATA\_DIR,OGCM,'\_',ROMS\_config,'/'];  \\
+bry\_prefix  = [ROMS\_files\_dir,'roms\_bry\_',OGCM,'\_']; \\
+clm\_prefix  = [ROMS\_files\_dir,'roms\_clm\_',OGCM,'\_']; \\
+ini\_prefix  = [ROMS\_files\_dir,'roms\_ini\_',OGCM,'\_']; \\
+OGCM\_prefix = [OGCM,'\_'];                            \\
+rmdepth     = 2;                                    \\ 
+\%                             \\
+\%                        \\
+\\\\\\
+Variables description :
+\begin{itemize}
+\item OGCM = 'SODA' : Name of the OGCM employed (SODA or ECCO).
+\item OGCM\_dir    = [FORC\_DATA\_DIR,OGCM,'\_',ROMS\_config,'/']  : 
+OGCM data directory.
+\item bry\_prefix  = [ROMS\_files\_dir,'roms\_bry\_',OGCM,'\_'] : 
+Left part of the boundary file name.
+\item clm\_prefix  = [ROMS\_files\_dir,'roms\_clm\_',OGCM,'\_'] : 
+Left part of the climatology file name.
+\item ini\_prefix  = [ROMS\_files\_dir,'roms\_ini\_',OGCM,'\_'] : 
+Left part of the initial file name.
+\item OGCM\_prefix = [OGCM,'\_'] : 
+Left part of the OGCM file name. This is where OGCM data are
+stored. 
+\item rmdepth = 2 : Number of bottom levels to remove.
+This is useful when there is no valid data at this level.
+For example, if the depth in the ROMS domain is shallower 
+than the OGCM depth.
+\end{itemize}
+Save romstools\_param.m and run make\_OGCM in the Matlab session.
+You should obtain:
+\\\\
+$>>$ make\_OGCM\\
+Add the paths of the different toolboxes\\
+Arch : x86\_64 - Matlab version : 2006a\\
+Use of mexnc and loaddap in 64 bits.\\
+Download data...\\
+\\
+Get data from Y2000M1 to Y2000M3\\
+Minimum Longitude: 12.3\\
+Maximum Longitude: 20.3\\
+Minimum Latitude: -35.5\\
+Maximum Latitude: -26.3815\\
+\\
+Making output data directory ../Run/DATA/SODA\_Benguela/\\
+Process the dataset: http://iridl.ldeo.columbia.edu./SOURCES/.CARTON-GIESE/.SODA/.v1p4p3\\
+Processing year: 2000\\
+  Processing month: 1\\
+    Download SODA for 2000 - 1\\
+    ...SSH\\
+    ...U\\
+...
+
+\subsection{Running the model}
+
+Compile the model with jobcomp (and with the 
+cpp keys BULK\_FLUX and BULK\_EP defined) and edit 
+the input parameter file 
+$\sim$/Roms\_tools/Run/roms\_inter.in as for the
+climatology experiments. As for the long simulations, a csh script
+(run\_roms\_inter.csh) manages the handling of input and output files.
+It also changes the number of time steps so each month has the correct
+length. This script takes care of leap years. For example Y1996M2 
+(February 1996) is 29 days long.
+
+Part to edit in run\_roms\_inter.csh:\\
+\\
+\#\\
+set MODEL=roms\\
+set SCRATCHDIR=`pwd`/SCRATCH\\
+set INPUTDIR=`pwd`\\
+set MSSDIR=`pwd`/ROMS\_FILES\\
+set MSSOUT=`pwd`/ROMS\_FILES\\
+set CODFILE=roms\\
+set AGRIF\_FILE=AGRIF\_FixedGrids.in\\
+\#\\
+set BULK\_FILES=1\\
+set FORCING\_FILES=1\\
+set CLIMATOLOGY\_FILES=0\\
+set BOUNDARY\_FILES=1\\
+\#\\
+\# Atmospheric surface forcing dataset (NCEP, GFS,...)\\
+\#\\
+set ATMOS=NCEP\\
+\#\\
+\# Oceanic boundary and initial dataset (SODA, ECCO,...)\\
+\#\\
+set OGCM=SODA\\
+\#\\
+\# Model time step [seconds]\\
+\#\\
+set DT=5400\\
+\#\\
+\# number total of grid levels (1: No child grid)\\
+\#\\
+set NLEVEL=1\\
+\#\\
+set NY\_START=2000\\
+set NY\_END=2000\\
+set NM\_START=1\\
+set NM\_END=3\\
+\#\\
+\#  Restart file - RSTFLAG=0 --$>$ No Restart\\
+\#		  RSTFLAG=1 --$>$ Restart\\
+\#\\
+set RSTFLAG=0\\
+\#\\
+\#  Time Schedule  -  TIME\_SCHED=0 --$>$ yearly files\\
+\#                    TIME\_SCHED=1 --$>$ monthly files\\
+\#\\
+set TIME\_SCHED=1\\
+\#\\
+\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#
+\\
+\\
+Variables definitions:
+\begin{itemize}
+\item MODEL=roms : Name used for the input files. For example roms\_grd.nc.
+\item SCRATCHDIR=`pwd`/SCRATCH : Scratch directory where the model is run.
+\item INPUTDIR=`pwd` : Input directory where the roms\_inter.in input file
+is located.
+\item MSSDIR=`pwd`/ROMS\_FILES : Directory where the roms input NetCDF files
+(roms\_grd.nc, roms\_frc.nc, ...) are stored.
+\item MSSOUT=`pwd`/ROMS\_FILES : Directory where the roms output NetCDF files
+(roms\_his.nc, roms\_avg.nc, ...) are stored.
+\item CODFILE=roms : ROMS executable.
+\item AGRIF\_FILE=AGRIF\_FixedGrids.in : AGRIF input file which defines the 
+position of child grids when using embedding.
+\item BULK\_FILES=1 : 1 if using bulk NetCDF files (should be 1 for NCEP).
+\item FORCING\_FILES=1 : 1 if using forcing NetCDF files (should be 1 for NCEP).
+\item CLIMATOLOGY\_FILES=0 : 1 if using XXX\_clm.nc files. Using a climatology
+file for each month can take a lot of disc space. It is less costly to use
+ boundary files (XXX\_bry.nc). 
+\item BOUNDARY\_FILES=1 : 1 if using XXX\_bry.nc files. 
+\item ATMOS=NCEP : name of the atmospheric reanalysis. For the moment it is only
+NCEP.
+\item OGCM=SODA : name of the OGCM for the boundary conditions. SODA or ECCO.
+\item DT=5400 : Model time step in seconds.
+\item NDAYS = 30 : Number of days in 1 month.
+\item NLEVEL=1 : Total number of model grids (no embedding: NLEVEL=1).
+\item NY\_START=2000 : Starting year.
+\item NY\_END=2000 : Ending Year.
+\item NM\_START=1 : Starting month.
+\item NM\_END=3 : Ending month.
+\item RSTFLAG=0 : 1 if restarting a simulation
+\item TIME\_SCHED=1 : (obsolete) 0 if using yearly files, 1 if using monthly 
+files. Since make\_NCEP and make\_OGCM are creating only monthly
+files, it should be always 1.
+\end{itemize}
+
+
+As for ROMS long climatology experiments, inter-annual experiments can be run
+in batch mode:\\
+$>$: nohup ./run\_roms\_inter.csh $>$ exp1.out \&\\\\
