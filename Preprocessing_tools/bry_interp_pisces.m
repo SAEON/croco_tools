@@ -5,7 +5,7 @@ function bry_interp(zbryname,lon,lat,seas_datafile,ann_datafile,...
 % set the value of ro (oa decorrelation scale [m]) 
 % and default (value if no data)
 %
-ro=1e8;
+ro=0; %ro=1e8;
 default=NaN;
 %
 % Read in the datafile
