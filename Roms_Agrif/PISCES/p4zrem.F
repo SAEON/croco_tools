@@ -86,9 +86,9 @@ c        END DO
 c      END DO
         DO jj=Jstr, Jend
           DO ji=Istr, Iend
-             DO jk=zmeuindex(ji, jj)+1,jpk
-         zdepbac(ji,jj,jk)=min(1.,fsdept(ji,jj,12)/fsdept(ji,jj,jk))
-     &      *zdepbac(ji,jj,12)
+             DO jk=zmeuindex(ji,jj)+1,jpk
+         zdepbac(ji,jj,jk)=min(1.,fsdept(ji,jj,zmeuindex(ji,jj))
+     &        /fsdept(ji,jj,jk))*zdepbac(ji,jj,zmeuindex(ji,jj))
           END DO
         END DO
       END DO
