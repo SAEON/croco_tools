@@ -47,6 +47,12 @@ lateral_visc:   VISC2,    VISC4    [m^2/sec for all]
 tracer_diff2: TNU2(1:NT)           [m^2/sec for all]
                30*0.d0 
 
+tracer_diff4: TNU4(1:NT)           [m^4/sec for all]
+               30*0.d11
+
+vertical_mixing: Akv_bak, Akt_bak [m^2/sec]
+                   0.d0    30*0.d0
+
 bottom_drag:     RDRG [m/s],  RDRG2,  Zob [m],  Cdb_min, Cdb_max
                  3.0d-04      0.d-3    0.d-3     1.d-4    1.d-1 
 

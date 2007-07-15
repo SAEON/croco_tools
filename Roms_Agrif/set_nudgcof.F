@@ -2,7 +2,8 @@
 ! $Id: set_nudgcof.F,v 1.12 2005/10/26 15:18:52 pmarches Exp $
 !
 #include "cppdefs.h"
-#if defined TNUDGING || defined ZNUDGING || defined SPONGE
+#if defined ZNUDGING || defined M2NUDGING || defined M3NUDGING\
+    || defined TNUDGING || defined SPONGE
 
       subroutine set_nudgcof (tile)
       implicit none
@@ -28,12 +29,24 @@
 # include "scalars.h"
 # include "ocean3d.h"
       integer Istr,Iend,Jstr,Jend, i, j, k, isp, itrc, ibnd
+      real visc2_sponge, visc4_sponge
       real wrk(PRIVATE_2D_SCRATCH_ARRAY)
 # if defined CANARY  || defined IBERIA
-      real lon0,lat0, rsponge, dx,dy,dr,cff,cff1,cff2
+      real lon0,lat0, rsponge, dx,dy,dr,cff,cff1,cff2,
+# endif
+# ifdef SPONGE_GRID
+      real uscale
+      parameter (uscale=0.1)
 # endif
 !
 # include "compute_extended_bounds.h"
+!
+! if SPONGE_GRID, vsponge is redefined as: 
+! 5 times an interior visc2 given by :
+! A = 1/12 * uscale * grd_scale
+! B = 1/12 * uscale * grd_scale**3
+!
+# undef SPONGE_GRID
 !
 !--------------------------------------------------------------------
 !  Set up nudging towards climatology time-scale coeffcients [1/s]
@@ -48,9 +61,9 @@
      &                    0, MPI_COMM_WORLD, ierr)      
 # else
       isp=int(x_sponge*pm(1,1)) ! number of points in layer     
-# endif      
+# endif
 !
-      do j=max(-1,JstrR-1),JendR             
+      do j=max(-1,JstrR-1),JendR
         do i=max(-1,IstrR-1),IendR
           ibnd=isp
 # ifndef MPI
@@ -86,6 +99,11 @@
         enddo
       enddo
 
+!
+!-------------------------------------------------------------------
+! Compute nudging coefficients in nudging layers
+!-------------------------------------------------------------------
+!
       do j=JstrR,JendR
         do i=IstrR,IendR
 # ifdef TNUDGING
@@ -99,14 +117,6 @@
 # endif
 # ifdef M3NUDGING
           M3nudgcof(i,j)=tauM_out*wrk(i,j)
-# endif
-# ifdef SPONGE
-#  ifdef UV_VIS2
-          visc2_r(i,j)=v_sponge*wrk(i,j) + visc2
-#  endif
-#  ifdef TS_DIF2
-          diff2(i,j,itemp)=v_sponge*wrk(i,j)
-#  endif
 # endif
         enddo
       enddo
@@ -123,7 +133,7 @@
           enddo
         enddo
       enddo
-#  ifdef ROBUST_DIAG  
+#  ifdef ROBUST_DIAG
       do itrc=1,2               ! nudging everywher
         do k=1,N
           do j=JstrR,JendR
@@ -135,36 +145,114 @@
       enddo
 #  endif
 # endif
-!
-!  viscosity at psi points
-!
+
 # ifdef SPONGE
+!
+!-------------------------------------------------------------------
+! Add Viscosity and Diffusivity in SPONGE layers
+!-------------------------------------------------------------------
+!
+! Add Viscosity and Diffusivity (for temperature first)
+! at rho points 
+!
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+#  ifdef SPONGE_GRID
+          visc2_sponge=5*uscale*grdmax/12.
+#  else
+          visc2_sponge=v_sponge
+#  endif
 #  ifdef UV_VIS2
-      do j=Jstr,JendR
-        do i=Istr,IendR
-          visc2_p(i,j)=0.25*v_sponge*( wrk(i,j  )+wrk(i-1,j  )
-     &                                +wrk(i,j-1)+wrk(i-1,j-1))
-     &                + visc2
+#   ifdef VIS_GRID
+          visc2_r(i,j)=visc2_sponge*wrk(i,j) + visc2_r(i,j)
+#   else
+          visc2_r(i,j)=visc2_sponge*wrk(i,j) + visc2
+#   endif
+#  endif
+#  ifdef TS_DIF2
+          diff2(i,j,itemp)=visc2_sponge*wrk(i,j)
+#   ifdef DIF_GRID
+     &                     + diff2(i,j,itemp)
+#   endif
+#  endif
+#  if (defined UV_VIS4 || defined TS_DIF4)
+          visc4_sponge=visc2_sponge/(pm(i,j)*pn(i,j))
+#  endif
+#  ifdef UV_VIS4
+#   ifdef VIS_GRID
+          visc4_r(i,j)=visc4_sponge*wrk(i,j) + visc4_r(i,j)
+#   else
+          visc4_r(i,j)=visc4_sponge*wrk(i,j) + visc4
+#   endif
+#  endif
+#  ifdef TS_DIF4
+          diff4(i,j,itemp)=visc4_sponge*wrk(i,j)
+#   ifdef DIF_GRID
+     &                     + diff4(i,j,itemp)
+#   endif
+#  endif
         enddo
       enddo
+!
+!  Viscosity at psi points
+!
+      do j=Jstr,JendR
+        do i=Istr,IendR
+#  ifdef SPONGE_GRID
+          visc2_sponge=5*uscale*grdmax/12.
+#  else
+          visc2_sponge=v_sponge
 #  endif
+#  ifdef UV_VIS2
+          visc2_p(i,j)=0.25*visc2_sponge*( wrk(i,j  )+wrk(i-1,j  )
+     &                                    +wrk(i,j-1)+wrk(i-1,j-1))
+#   ifdef VIS_GRID
+     &                + visc2_p(i,j)
+#   else
+     &                + visc2
+#   endif
+#  elif defined UV_VIS4
+          visc4_sponge=visc2_sponge/(pm(i,j)*pn(i,j))
+          visc4_p(i,j)=0.25*visc4_sponge*( wrk(i,j  )+wrk(i-1,j  )
+     &                                    +wrk(i,j-1)+wrk(i-1,j-1))
+#   ifdef VIS_GRID
+     &                + visc4_p(i,j)
+#   else
+     &                + visc4
+#   endif
+#  endif
+        enddo
+      enddo
 !
-!  diffusivity for the other tracers
+!  Diffusivity for all tracers
 !
-#  if defined TS_DIF2
       do itrc=1,NT
         do j=JstrR,JendR
           do i=IstrR,IendR
+#  ifdef TS_DIF2
+#   ifdef DIF_GRID
+            diff2(i,j,itrc)=diff2(i,j,itemp)
+#   else
             diff2(i,j,itrc)=diff2(i,j,itemp)+tnu2(itrc)
+#   endif
+#  elif defined TS_DIF4
+#   ifdef DIF_GRID
+            diff4(i,j,itrc)=diff4(i,j,itemp)
+#   else
+            diff4(i,j,itrc)=diff4(i,j,itemp)+tnu4(itrc)
+#   endif
+#  endif
           enddo
         enddo
       enddo
-#  endif
-# endif
+# endif /* SPONGE */
+
 !
+!-------------------------------------------------------------------
 !  add configuration specific stuff
+!-------------------------------------------------------------------
 !
-#  if defined CANARY || defined IBERIA
+# if defined CANARY || defined IBERIA
       lon0=-8.2
       lat0=35.7
       rsponge=300.e3
@@ -185,7 +273,7 @@
           endif
         enddo
       enddo
-#  endif
+# endif
 #else
       subroutine set_nudgcof_empty
 #endif /* TNUDGING || ZNUDGING || SPONGE */
