@@ -462,10 +462,8 @@
           do j=jstr,jend
             do i=istr,iend+1
 # ifdef SMAGO_TS
-c              FX(i,j)=-0.25*(diff4(i,j,itrc)+diff4(i-1,j,itrc)
-c     &                     +visc3d_r(i,j,k)+visc3d_r(i-1,j,k))
-              FX(i,j)=-0.5*0.333333333333*  !  0.5*(1/12)/(.5^3)
-     &               abs(u(i,j,k,nrhs))/(pm(i,j)+pm(i-1,j))**3
+              FX(i,j)=-0.25*(diff4(i,j,itrc)+diff4(i-1,j,itrc)
+     &                     +visc3d_r(i,j,k)+visc3d_r(i-1,j,k))
 # else
               FX(i,j)=-0.25*(diff4(i,j,itrc)+diff4(i-1,j,itrc))
 # endif
@@ -479,10 +477,8 @@ c     &                     +visc3d_r(i,j,k)+visc3d_r(i-1,j,k))
           do j=jstr,jend+1
             do i=istr,iend
 # ifdef SMAGO_TS
-c              FE(i,j)=-0.25*(diff4(i,j,itrc)+diff4(i,j-1,itrc)
-c     &                      +visc3d_r(i,j,k)+visc3d_r(i,j-1,k))
-              FE(i,j)=-0.5*0.333333333333*  !  0.5*(1/12)/(.5^3)
-     &              abs(v(i,j,k,nrhs))/(pn(i,j)+pn(i,j-1))**3
+              FE(i,j)=-0.25*(diff4(i,j,itrc)+diff4(i,j-1,itrc)
+     &                      +visc3d_r(i,j,k)+visc3d_r(i,j-1,k))
 # else
               FE(i,j)=-0.25*(diff4(i,j,itrc)+diff4(i,j-1,itrc))
 # endif
@@ -501,11 +497,8 @@ c     &                      +visc3d_r(i,j,k)+visc3d_r(i,j-1,k))
                 cff3=max(dZdx(i  ,j,k2),0.)
                 cff4=max(dZdx(i+1,j,k1),0.)
 # ifdef SMAGO_TS
-c                FC(i,j,k2)=-0.5*(diff4(i,j,itrc)
-c     &                            +visc3d_r(i,j,k))*(
-                 FC(i,j,k2)=0.25*0.083333333333*( ! 1/12
-     &              abs(u(i,j,k,nrhs)+u(i+1,j,k,nrhs))/pm(i,j)**3 )*(
-
+                FC(i,j,k2)=-0.5*(diff4(i,j,itrc)
+     &                            +visc3d_r(i,j,k))*(
 # else
                 FC(i,j,k2)=-0.5*diff4(i,j,itrc)*(
 # endif
@@ -519,11 +512,8 @@ c     &                            +visc3d_r(i,j,k))*(
                 cff3=max(dZde(i,j  ,k2),0.)
                 cff4=max(dZde(i,j+1,k1),0.)
 # ifdef SMAGO_TS
-c                FC(i,j,k2)=FC(i,j,k2)-
-c     &                       0.5*(diff4(i,j,itrc)
-c     &                                  +visc3d_r(i,j,k))*(
-                FC(i,j,k2)=0.25*0.083333333333*(  ! 1/12
-     &             abs(v(i,j,k,nrhs)+v(i,j+1,k,nrhs))/pn(i,j)**3 )*(
+                FC(i,j,k2)=FC(i,j,k2)-0.5*(diff4(i,j,itrc)
+     &                                  +visc3d_r(i,j,k))*(
 # else
                 FC(i,j,k2)=FC(i,j,k2)-0.5*diff4(i,j,itrc)*(
 # endif
