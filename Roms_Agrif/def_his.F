@@ -1228,7 +1228,7 @@
 !
 ! Depth of bottom planetary boundary layer.
 !
-        if (wrt(indxHbl)) then
+        if (wrt(indxHbbl)) then
           lvar=lenstr(vname(1,indxHbbl))
           ierr=nf_inq_varid (ncid,vname(1,indxHbbl)(1:lvar), vidHbbl)
           if (ierr .ne. nf_noerr) then
