@@ -171,6 +171,7 @@ $|$-- Run
 
 $|$\hspace{0.5cm}$|$-- DATA
 
+
 $|$\hspace{0.5cm}$|$-- FORECAST
 
 $|$\hspace{0.5cm}$|$-- ROMS\_FILES
@@ -280,4 +281,75 @@ The "nearest" Matlab function that is less costly can be used instead.
 If the computer starts to swap, you should think of reducing the 
 dimension of your model's domain.
 \item It is sometimes difficult to compile LoadDAP. 
+LibDAP must be installed before installing LoadDAP. Here some instructions 
+for the installation of these libraries:\\
+\begin{itemize}
+\item Download libDAP and loadDAP tar.gz version at the web location
+http://www.opendap.org
+\item Uncompress and untar the files (gunzip and tar -xvf)
+\item To build the libDAP library, follow these steps:\\
+\begin{itemize}
+\item $>$: cd libdap\\
+\item Type './configure' at the prompt. Some libraries must be installed 
+on your system to successfully run configure and build libDAP library : libcurl 
+(http://curl.haxx.se/) and libxml2 (http://xmlsoft.org/).\\
+Example:\\
+------------------------------------------------------------------------------------------\\
+checking for a BSD-compatible install... /usr/bin/install -c\\
+checking whether build environment is sane... yes\\
+checking whether make sets (MAKE)... yes\\
+checking build system type... i686-pc-linux-gnu\\
+checking host system type... i686-pc-linux-gnu\\
+checking for gawk... (cached) mawk\\
+checking for g++... g++\\
+checking for C++ compiler default output file name... a.out\\
+...\\
+config.status: dods-datatypes.h is unchanged\\
+config.status: executing depfiles commands\\
+------------------------------------------------------------------------------------------\\
+\item Type 'make' to build the library.\\
+Example :\\
+------------------------------------------------------------------------------------------\\
+make[1]: Entering directory '/home/tropic/tan/soft/libdap-3.6.2'\\
+Making all in gl\\
+make[2]: Entering directory '/home/tropic/tan/soft/libdap-3.6.2/gl'\\
+make  all-am\\
+make[3]: Entering directory '/home/tropic/tan/soft/libdap-3.6.2/gl'\\
+...\\
+------------------------------------------------------------------------------------------\\
+\item Type 'make check' to run the tests. To pass this step you 
+must have DejaGNU framework (GNU FTP mirror list:
+http://www.gnu.org/prep/ftp.html).\\
+Example :\\
+------------------------------------------------------------------------------------------\\
+make[1]: Entering directory `/home/tropic/tan/soft/libdap-3.6.2/gl'\\
+dejagnu\_driver.sh\\
+...\\
+Test Run By tan on Thu Jul 19 11:19:02 2007\\
+Native configuration is i686-pc-linux-gnu\\
+                ===== das-test tests =====\\
+		Running ...\\
+                ===== das-test Summary =====\\		
+                ===== dds-test tests =====\\
+		Running ...\\
+		===== dds-test Summary =====\\
+                ===== expr-test tests =====\\
+		Running ...\\
+                ===== expr-test Summary =====\\
+PASS: dejagnu\_driver.sh\\
+==================\\
+All 1 tests passed\\
+==================\\
+make[2]: Leaving directory `/home/tropic/tan/soft/libdap-3.6.2/tests'\\
+make[1]: Leaving directory `/home/tropic/tan/soft/libdap-3.6.2/tests'\\
+------------------------------------------------------------------------------------------\\
+\item Type 'make install' to install the library. By default the files are installed under
+/usr/local/lib/. You can specify a different root directory using the following option :
+'make install root\_directory'.\\
+\end{itemize}
+
+\item For install loadDAP library process in the same way as for the
+installation of libDAP. By default the files are installed under
+/usr/local/share/.
+\end{itemize}
 \end{itemize}
