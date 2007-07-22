@@ -114,16 +114,16 @@ nw{'wspd'}.long_name   = 'wind speed 10m';
 nw{'wspd'}.units       = ncchar('m s-1');
 nw{'wspd'}.units       = 'm s-1';
 
-%nw{'sustr'} = ncdouble('bulk_time', 'eta_rho', 'xi_rho');
-%nw{'sustr'}.long_name = ncchar('surface u-momentum stress');
-%nw{'sustr'}.long_name = 'surface u-momentum stress';
-%nw{'sustr'}.units = ncchar('Newton meter-2');
-%nw{'sustr'}.units = 'Newton meter-2';
-%nw{'svstr'} = ncdouble('bulk_time', 'eta_rho', 'xi_rho');
-%nw{'svstr'}.long_name = ncchar('surface v-momentum stress');
-%nw{'svstr'}.long_name = 'surface v-momentum stress';
-%nw{'svstr'}.units = ncchar('Newton meter-2');
-%nw{'svstr'}.units = 'Newton meter-2';
+nw{'sustr'} = ncdouble('bulk_time', 'eta_rho', 'xi_rho');
+nw{'sustr'}.long_name = ncchar('surface u-momentum stress');
+nw{'sustr'}.long_name = 'surface u-momentum stress';
+nw{'sustr'}.units = ncchar('Newton meter-2');
+nw{'sustr'}.units = 'Newton meter-2';
+nw{'svstr'} = ncdouble('bulk_time', 'eta_rho', 'xi_rho');
+nw{'svstr'}.long_name = ncchar('surface v-momentum stress');
+nw{'svstr'}.long_name = 'surface v-momentum stress';
+nw{'svstr'}.units = ncchar('Newton meter-2');
+nw{'svstr'}.units = 'Newton meter-2';
 
 result = endef(nw);
 
