@@ -1,29 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
 
-<!--Converted with jLaTeX2HTML 2002-2-1 (1.70) JA patch-2.0
-patched version by:  Kenshi Muto, Debian Project.
-* modified by:  Shige TAKENO
-LaTeX2HTML 2002-2-1 (1.70),
-original version by:  Nikos Drakos, CBLU, University of Leeds
-* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
-* with significant contributions from:
-  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
-<HTML>
-<HEAD>
-<TITLE>doc</TITLE>
-<META NAME="description" CONTENT="doc">
-<META NAME="keywords" CONTENT="doc">
-<META NAME="resource-type" CONTENT="document">
-<META NAME="distribution" CONTENT="global">
-
-<META NAME="Generator" CONTENT="jLaTeX2HTML v2002-2-1 JA patch-2.0">
-<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
-
-<LINK REL="STYLESHEET" HREF="doc.css">
-
-</HEAD>
-
-<BODY >
 
 <DIV ALIGN="CENTER">
 <BR>
@@ -34,20 +9,20 @@ original version by:  Nikos Drakos, CBLU, University of Leeds
 <BR>
 <BR>
 <BR>
-<FONT SIZE="+3"><B>ROMSTOOLS User's Guide </B></FONT>
+<#12#><FONT SIZE="+3"><B>ROMSTOOLS User's Guide </B></FONT><#12#>
 <BR><BR>
 <BR>
 <BR>
 <BR>
 <BR>
 <BR>
-<FONT SIZE="+2">Pierrick Penven and Thi-Anh Tan</FONT>
+<#14#><FONT SIZE="+2">Pierrick Penven and Thi-Anh Tan</FONT><#14#>
 <BR><BR>
 <BR>
 <BR>
-<FONT SIZE="+1">Institut de Recherche pour le D&#233;veloppement (IRD),
+<#16#><FONT SIZE="+1">Institut de Recherche pour le D&#233;veloppement (IRD),
 213 rue Lafayette, Paris,
-France</FONT> 
+France</FONT><#16#> 
 <BR><BR>
 <BR>
 <BR>
@@ -55,13 +30,13 @@ France</FONT>
 <BR>
 <BR>
 </DIV><DIV ALIGN="CENTER"><DIV ALIGN="CENTER">
-figure=roms_gui.eps,width=11cm</DIV></DIV>
+<#18#>figure=roms_gui.eps,width=11cm<#18#></DIV></DIV>
 <DIV ALIGN="CENTER"><BR>
 <BR>
 <BR>
 </DIV>
 <P>
-<DIV ALIGN="CENTER">January, 2007
+<DIV ALIGN="CENTER"><#20#>January, 2007<#20#>
 </DIV>
 <P>
 <DIV ALIGN="CENTER">
@@ -73,104 +48,30 @@ figure=roms_gui.eps,width=11cm</DIV></DIV>
 
 <H2><A NAME="SECTION00010000000000000000">
 Contents</A>
-</H2>
-<!--Table of Contents-->
-
-<UL>
-<LI><A NAME="tex2html44"
-  HREF="doc.html#SECTION00020000000000000000">1 Introduction</A>
-<UL>
-<LI><A NAME="tex2html45"
-  HREF="doc.html#SECTION00021000000000000000">1.1 Installation</A>
-<LI><A NAME="tex2html46"
-  HREF="doc.html#SECTION00022000000000000000">1.2 Future plans</A>
-<LI><A NAME="tex2html47"
-  HREF="doc.html#SECTION00023000000000000000">1.3 Warning and bugs</A>
-</UL><BR>
-<LI><A NAME="tex2html48"
-  HREF="doc.html#SECTION00030000000000000000">2 The ROMS model</A>
-<LI><A NAME="tex2html49"
-  HREF="doc.html#SECTION00040000000000000000">3 Tutorial : the Southern Benguela example</A>
-<UL>
-<LI><A NAME="tex2html50"
-  HREF="doc.html#SECTION00041000000000000000">3.1 Getting started</A>
-<LI><A NAME="tex2html51"
-  HREF="doc.html#SECTION00042000000000000000">3.2 Building the grid</A>
-<LI><A NAME="tex2html52"
-  HREF="doc.html#SECTION00043000000000000000">3.3 Getting the wind and other surface fluxes</A>
-<LI><A NAME="tex2html53"
-  HREF="doc.html#SECTION00044000000000000000">3.4 Getting the initial and the lateral boundary conditions</A>
-<LI><A NAME="tex2html54"
-  HREF="doc.html#SECTION00045000000000000000">3.5 Compiling the model</A>
-<LI><A NAME="tex2html55"
-  HREF="doc.html#SECTION00046000000000000000">3.6 Running the model</A>
-<LI><A NAME="tex2html56"
-  HREF="doc.html#SECTION00047000000000000000">3.7 Long simulations</A>
-<LI><A NAME="tex2html57"
-  HREF="doc.html#SECTION00048000000000000000">3.8 Getting the results</A>
-</UL><BR>
-<LI><A NAME="tex2html58"
-  HREF="doc.html#SECTION00050000000000000000">4 Tides</A>
-<LI><A NAME="tex2html59"
-  HREF="doc.html#SECTION00060000000000000000">5 Inter-Annual simulations</A>
-<UL>
-<LI><A NAME="tex2html60"
-  HREF="doc.html#SECTION00061000000000000000">5.1 Getting the surface forcing data from NCEP</A>
-<LI><A NAME="tex2html61"
-  HREF="doc.html#SECTION00062000000000000000">5.2 Getting the lateral boundary conditions</A>
-<LI><A NAME="tex2html62"
-  HREF="doc.html#SECTION00063000000000000000">5.3 Running the model</A>
-</UL><BR>
-<LI><A NAME="tex2html63"
-  HREF="doc.html#SECTION00070000000000000000">6 Embedding</A>
-<UL>
-<LI><A NAME="tex2html64"
-  HREF="doc.html#SECTION00071000000000000000">6.1 Introduction</A>
-<LI><A NAME="tex2html65"
-  HREF="doc.html#SECTION00072000000000000000">6.2 Embedded (child) model preparation</A>
-<LI><A NAME="tex2html66"
-  HREF="doc.html#SECTION00073000000000000000">6.3 Compiling and running the model</A>
-</UL><BR>
-<LI><A NAME="tex2html67"
-  HREF="doc.html#SECTION00080000000000000000">7 Biology</A>
-<LI><A NAME="tex2html68"
-  HREF="doc.html#SECTION00090000000000000000">8 Operational coastal modeling system</A>
-<LI><A NAME="tex2html69"
-  HREF="doc.html#SECTION000100000000000000000">Bibliography</A>
-</UL>
-<!--End of Table of Contents-->
+</H2><tex2html_toc_mark>
 
 <P>
 
 <H1><A NAME="SECTION00020000000000000000">
 1 Introduction</A>
 </H1>
+<tex2html_file>#./intro.tex#
 This guide presents a series of Matlab routines which
 could be useful for the pre- and post-processing of oceanic
 regional ROMS simulations. This guide is just a basic 
 users guide, details of the methods and datasets are
-described in <A
- HREF="doc.html#Pen07">Penven et al.  (submitted)</A>.
+described in #Pen07#<tex2html_citet_mark>##.
 
 <P>
 The Regional Ocean Modeling System (ROMS) is a new
-generation ocean circulation model (<A
- HREF="doc.html#Shc03b">Shchepetkin and McWilliams, 2005</A>)
+generation ocean circulation model (#Shc03b#<tex2html_cite_par_mark>##)
 that has been specially designed for accurate simulations
 of regional oceanic systems.
-The reader is referred to <A
- HREF="doc.html#Shc03a">Shchepetkin and McWilliams (2003)</A> and to 
-<A
- HREF="doc.html#Shc03b">Shchepetkin and McWilliams (2005)</A> for a complete description of the model.
+The reader is referred to #Shc03a#<tex2html_citet_mark>## and to 
+#Shc03b#<tex2html_citet_mark>## for a complete description of the model.
 ROMS has been applied for the regional simulation of a 
 variety of different regions of the world oceans 
-(e.g. <A NAME="tex2html70"
-  HREF="doc.html#Mar03">Marchesiello et al., 2003</A>; <A NAME="tex2html71"
-  HREF="doc.html#Pen01">Penven et al., 2001</A>; <A NAME="tex2html72"
-  HREF="doc.html#Mac02">MacCready et al., 2002</A>; <A NAME="tex2html73"
-  HREF="doc.html#Hai00">Haidvogel et al., 2000</A>; <A NAME="tex2html74"
-  HREF="doc.html#Dil03">Di Lorenzo et al., 2003</A>; <A NAME="tex2html75"
-  HREF="doc.html#Bla02">Blanke et al., 2002</A>).
+(e.g. <tex2html_cite_multiple_mark>#Bla02#<tex2html_cite_par_mark>##; #Dil03#<tex2html_cite_par_mark>##; #Hai00#<tex2html_cite_par_mark>##; #Mac02#<tex2html_cite_par_mark>##; #Mar03#<tex2html_cite_par_mark>##; #Pen01#<tex2html_cite_par_mark>##<tex2html_cite_multiple_mark>).
 
 <P>
 To perform a regional simulation using ROMS, the modeler 
@@ -227,11 +128,8 @@ on all the plateforms.
 <P>
 All the other necessary Matlab toolboxes (i.e. air-sea, mask, 
 netcdf or m_map...) are included in the ROMSTOOLS package. 
-Global datasets, such as topography (<A
- HREF="doc.html#Smi97">Smith and Sandwell, 1997</A>), 
-hydrography (<A
- HREF="doc.html#Con02">Conkright et al., 2002</A>) or surface fluxes (<A
- HREF="doc.html#Das94">Da Silva et al., 1994</A>), are 
+Global datasets, such as topography (#Smi97#<tex2html_cite_par_mark>##), 
+hydrography (#Con02#<tex2html_cite_par_mark>##) or surface fluxes (#Das94#<tex2html_cite_par_mark>##), are 
 also included.
 
 <P>
@@ -270,457 +168,181 @@ directory tree :
 <BR>Roms_tools
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- Aforc_NCEP
+<tex2html_image_mark>#tex2html_wrap_inline125#-- Aforc_NCEP
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- Aforc_QuikSCAT
+<tex2html_image_mark>#tex2html_wrap_inline127#-- Aforc_QuikSCAT
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- air_sea 
+<tex2html_image_mark>#tex2html_wrap_inline129#-- air_sea 
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- COADS05  
+<tex2html_image_mark>#tex2html_wrap_inline131#-- COADS05  
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- Compile
+<tex2html_image_mark>#tex2html_wrap_inline133#-- Compile
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- Diagnostic_tools
+<tex2html_image_mark>#tex2html_wrap_inline135#-- Diagnostic_tools
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- Documentation
+<tex2html_image_mark>#tex2html_wrap_inline137#-- Documentation
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- User_guide
+<tex2html_image_mark>#tex2html_wrap_inline139# <tex2html_image_mark>#tex2html_wrap_inline141#-- User_guide
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- Forecast_tools
+<tex2html_image_mark>#tex2html_wrap_inline143#-- Forecast_tools
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- mask
+<tex2html_image_mark>#tex2html_wrap_inline145#-- mask
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- mex60
+<tex2html_image_mark>#tex2html_wrap_inline147#-- mex60
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- mexnc
+<tex2html_image_mark>#tex2html_wrap_inline149#-- mexnc
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- tests
+<tex2html_image_mark>#tex2html_wrap_inline151# <tex2html_image_mark>#tex2html_wrap_inline153#-- tests
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- m_map
+<tex2html_image_mark>#tex2html_wrap_inline155#-- m_map
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- private
+<tex2html_image_mark>#tex2html_wrap_inline157# <tex2html_image_mark>#tex2html_wrap_inline159#-- private
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- Nesting_tools
+<tex2html_image_mark>#tex2html_wrap_inline161#-- Nesting_tools
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- netcdf_g77
+<tex2html_image_mark>#tex2html_wrap_inline163#-- netcdf_g77
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- netcdf_ifc
+<tex2html_image_mark>#tex2html_wrap_inline165#-- netcdf_ifc
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- netcdf_matlab
+<tex2html_image_mark>#tex2html_wrap_inline167#-- netcdf_matlab
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- listpick
+<tex2html_image_mark>#tex2html_wrap_inline169# <tex2html_image_mark>#tex2html_wrap_inline171#-- listpick
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- ncatt
+<tex2html_image_mark>#tex2html_wrap_inline173# <tex2html_image_mark>#tex2html_wrap_inline175#-- ncatt
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- ncbrowser
+<tex2html_image_mark>#tex2html_wrap_inline177# <tex2html_image_mark>#tex2html_wrap_inline179#-- ncbrowser
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- ncdim
+<tex2html_image_mark>#tex2html_wrap_inline181# <tex2html_image_mark>#tex2html_wrap_inline183#-- ncdim
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- ncfiles
+<tex2html_image_mark>#tex2html_wrap_inline185# <tex2html_image_mark>#tex2html_wrap_inline187#-- ncfiles
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- ncitem
+<tex2html_image_mark>#tex2html_wrap_inline189# <tex2html_image_mark>#tex2html_wrap_inline191#-- ncitem
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- ncrec
+<tex2html_image_mark>#tex2html_wrap_inline193# <tex2html_image_mark>#tex2html_wrap_inline195#-- ncrec
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- nctype
+<tex2html_image_mark>#tex2html_wrap_inline197# <tex2html_image_mark>#tex2html_wrap_inline199#-- nctype
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- ncutility
+<tex2html_image_mark>#tex2html_wrap_inline201# <tex2html_image_mark>#tex2html_wrap_inline203#-- ncutility
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- ncvar
+<tex2html_image_mark>#tex2html_wrap_inline205# <tex2html_image_mark>#tex2html_wrap_inline207#-- ncvar
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- netcdf
+<tex2html_image_mark>#tex2html_wrap_inline209# <tex2html_image_mark>#tex2html_wrap_inline211#-- netcdf
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- netcdf_x86_64
+<tex2html_image_mark>#tex2html_wrap_inline213#-- netcdf_x86_64
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- Oforc_OGCM
+<tex2html_image_mark>#tex2html_wrap_inline215#-- Oforc_OGCM
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- Opendap_tools
+<tex2html_image_mark>#tex2html_wrap_inline217#-- Opendap_tools
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- FEDORA
+<tex2html_image_mark>#tex2html_wrap_inline219# <tex2html_image_mark>#tex2html_wrap_inline221#-- FEDORA
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- FEDORA_X64
+<tex2html_image_mark>#tex2html_wrap_inline223# <tex2html_image_mark>#tex2html_wrap_inline225#-- FEDORA_X64
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- Preprocessing_tools
+<tex2html_image_mark>#tex2html_wrap_inline227#-- Preprocessing_tools
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- Roms_Agrif
+<tex2html_image_mark>#tex2html_wrap_inline229#-- Roms_Agrif
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- AGRIFZOOM
+<tex2html_image_mark>#tex2html_wrap_inline231# <tex2html_image_mark>#tex2html_wrap_inline233#-- AGRIFZOOM
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- AGRIF_FILES
+<tex2html_image_mark>#tex2html_wrap_inline235# <tex2html_image_mark>#tex2html_wrap_inline237# <tex2html_image_mark>#tex2html_wrap_inline239#-- AGRIF_FILES
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- AGRIF_INC
+<tex2html_image_mark>#tex2html_wrap_inline241# <tex2html_image_mark>#tex2html_wrap_inline243# <tex2html_image_mark>#tex2html_wrap_inline245#-- AGRIF_INC
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- AGRIF_OBJS
+<tex2html_image_mark>#tex2html_wrap_inline247# <tex2html_image_mark>#tex2html_wrap_inline249# <tex2html_image_mark>#tex2html_wrap_inline251#-- AGRIF_OBJS
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- AGRIF_YOURFILES
+<tex2html_image_mark>#tex2html_wrap_inline253# <tex2html_image_mark>#tex2html_wrap_inline255# <tex2html_image_mark>#tex2html_wrap_inline257#-- AGRIF_YOURFILES
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- LIB.clean
+<tex2html_image_mark>#tex2html_wrap_inline259# <tex2html_image_mark>#tex2html_wrap_inline261# <tex2html_image_mark>#tex2html_wrap_inline263#-- LIB.clean
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- Run
+<tex2html_image_mark>#tex2html_wrap_inline265#-- Run
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- DATA
+<tex2html_image_mark>#tex2html_wrap_inline267# <tex2html_image_mark>#tex2html_wrap_inline269#-- DATA
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- FORECAST
+<tex2html_image_mark>#tex2html_wrap_inline271# <tex2html_image_mark>#tex2html_wrap_inline273#-- FORECAST
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- ROMS_FILES
+<tex2html_image_mark>#tex2html_wrap_inline275# <tex2html_image_mark>#tex2html_wrap_inline277#-- ROMS_FILES
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- SCRATCH
+<tex2html_image_mark>#tex2html_wrap_inline279# <tex2html_image_mark>#tex2html_wrap_inline281#-- SCRATCH
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- TEST_CASES
+<tex2html_image_mark>#tex2html_wrap_inline283# <tex2html_image_mark>#tex2html_wrap_inline285#-- TEST_CASES
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- SeaWifs
+<tex2html_image_mark>#tex2html_wrap_inline287#-- SeaWifs
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- SST_pathfinder
+<tex2html_image_mark>#tex2html_wrap_inline289#-- SST_pathfinder
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- Tides
+<tex2html_image_mark>#tex2html_wrap_inline291#-- Tides
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- Topo
+<tex2html_image_mark>#tex2html_wrap_inline293#-- Topo
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$"> <IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- Matlab
+<tex2html_image_mark>#tex2html_wrap_inline295# <tex2html_image_mark>#tex2html_wrap_inline297#-- Matlab
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- TPX06
+<tex2html_image_mark>#tex2html_wrap_inline299#-- TPX06
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- TPX07
+<tex2html_image_mark>#tex2html_wrap_inline301#-- TPX07
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- Visualization_tools
+<tex2html_image_mark>#tex2html_wrap_inline303#-- Visualization_tools
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- WOA2001
+<tex2html_image_mark>#tex2html_wrap_inline305#-- WOA2001
 
 <P>
-<IMG
- WIDTH="8" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img2.png"
- ALT="$\vert$">- WOA2005
+<tex2html_image_mark>#tex2html_wrap_inline307#-- WOA2005
 
 <BR>
 <BR>Definition of the different directories :
@@ -733,11 +355,7 @@ directory tree :
       satellite scatterometer data (QuickSCAT).
 </LI>
 <LI>COADS05 : Directory of the surface fluxes global monthly 
-      climatology at <IMG
- WIDTH="32" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img3.png"
- ALT="$0.5^\circ$"> resolution (<A
- HREF="doc.html#Das94">Da Silva et al., 1994</A>).
+      climatology at <tex2html_image_mark>#tex2html_wrap_inline309# resolution (#Das94#<tex2html_cite_par_mark>##).
 </LI>
 <LI>Compile : Empty scratch directory for ROMS compilation.
 </LI>
@@ -756,10 +374,7 @@ directory tree :
 <LI>mexnc : Matlab NetCDF interface for 64 bits Linux architectures.
 </LI>
 <LI>m_map : The Matlab mapping toolbox 
-      (http://www2.ocgy.ubc.ca/<IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">rich/map.html).
+      (http://www2.ocgy.ubc.ca/<tex2html_image_mark>#tex2html_wrap_inline311#rich/map.html).
 </LI>
 <LI>Nesting_tools : Preprocessing tools used to prepare nested
       models.
@@ -772,15 +387,13 @@ directory tree :
 <BR>      http://www.intel.com/software/products/compilers/flin/noncom.htm.
 </LI>
 <LI>netcdf_matlab : The Matlab NetCDF toolbox  
-<BR>      (<FONT SIZE="-1">      http://woodshole.er.usgs.gov/staffpages/cdenham/public_html/MexCDF/nc4ml5.html</FONT>).
+<BR>      (<#104#><FONT SIZE="-1">      http://woodshole.er.usgs.gov/staffpages/cdenham/public_html/MexCDF/nc4ml5.html</FONT><#104#>).
 </LI>
 <LI>netcdf_x86_64 : The NetCDF Fortran library for Linux, compiled with ifort
       on a 64 bits architecture.
 </LI>
 <LI>Oforc_OGCM : Scripts for the recovery of initial and lateral boundary 
-      conditions from global OGCMs (SODA (<A
- HREF="doc.html#Car05">Carton et al., 2005</A>) or ECCO (<A
- HREF="doc.html#Sta99">Stammer et al., 1999</A>)) for 
+      conditions from global OGCMs (SODA (#Car05#<tex2html_cite_par_mark>##) or ECCO (#Sta99#<tex2html_cite_par_mark>##)) for 
       inter-annual simulations.
 </LI>
 <LI>Opendap_tools : LoadDAP mexcdf and several scripts to automatically
@@ -797,38 +410,26 @@ directory tree :
 <LI>SeaWifs : surface chlorophyll-a climatology based on SeaWifs observations.
 </LI>
 <LI>SST_pathfinder : Directory of a higher resolution SST climatology 
-      (<A
- HREF="doc.html#Rey94">Reynolds and Smith, 1994</A>) for the thermal correction term.
+      (#Rey94#<tex2html_cite_par_mark>##) for the thermal correction term.
 </LI>
 <LI>Tides : Matlab routines to prepare ROMS tidal simulations. Tidal data
       are derived from the Oregon State University global models of ocean tides 
-      TPXO6 and TPXO7 (<A
- HREF="doc.html#Egb02">Egbert and Erofeeva, 2002</A>): 
+      TPXO6 and TPXO7 (#Egb02#<tex2html_cite_par_mark>##): 
       http://www.oce.orst.edu/research/po/research/tide/global.html.
 </LI>
-<LI>Topo : Location of the global topography dataset at <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img5.png"
- ALT="$2'$"> resolution
-      (<A
- HREF="doc.html#Smi97">Smith and Sandwell, 1997</A>). Original data can be found at:
+<LI>Topo : Location of the global topography dataset at <tex2html_image_mark>#tex2html_wrap_inline313# resolution
+      (#Smi97#<tex2html_cite_par_mark>##). Original data can be found at:
       http://topex.ucsd.edu/cgi-bin/get_data.cgi
 </LI>
-<LI>TPX06 : Directory of the global model of ocean tides TPXO6 (<A
- HREF="doc.html#Egb02">Egbert and Erofeeva, 2002</A>).
+<LI>TPX06 : Directory of the global model of ocean tides TPXO6 (#Egb02#<tex2html_cite_par_mark>##).
 </LI>
-<LI>TPX07 : Directory of the global model of ocean tides TPXO7 (<A
- HREF="doc.html#Egb02">Egbert and Erofeeva, 2002</A>).
+<LI>TPX07 : Directory of the global model of ocean tides TPXO7 (#Egb02#<tex2html_cite_par_mark>##).
 </LI>
 <LI>Visualization_tools : Matlab scripts for the ROMS visualization
       graphic user interface.
 </LI>
 <LI>WOA2001 : World Ocean Atlas 2001 global dataset 
-      (monthly climatology at <IMG
- WIDTH="19" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img6.png"
- ALT="$1^\circ$"> resolution) (<A
- HREF="doc.html#Con02">Conkright et al., 2002</A>).
+      (monthly climatology at <tex2html_image_mark>#tex2html_wrap_inline315# resolution) (#Con02#<tex2html_cite_par_mark>##).
 </LI>
 <LI>WOA2005 : World Ocean Atlas 2005 global dataset 
 </LI>
@@ -858,18 +459,12 @@ methods.
 <LI>Since Geostrophy is used to obtain the horizontal currents for
 the lateral boundary conditions, this method should be applied with 
 care close to the Equator. An extrapolation of the currents outside 
-an equatorial band (2<IMG
- WIDTH="11" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img7.png"
- ALT="$^\circ$">S-2<IMG
- WIDTH="11" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img7.png"
- ALT="$^\circ$">N) is performed to get an 
+an equatorial band (2<tex2html_image_mark>#tex2html_wrap_inline317#S-2<tex2html_image_mark>#tex2html_wrap_inline319#N) is performed to get an 
 approximation of the equatorial currents.
 </LI>
 <LI>On extended grids, the objective analysis used for data 
 extrapolation can be relatively costly in memory and CPU time. 
-The "nearest" Matlab function that is less costly can be used instead.
+The ;SPMquot;nearest;SPMquot; Matlab function that is less costly can be used instead.
 If the computer starts to swap, you should think of reducing the 
 dimension of your model's domain.
 </LI>
@@ -886,16 +481,13 @@ http://www.opendap.org
 <LI>To build the libDAP library, follow these steps:
 <BR>
 <UL>
-<LI><IMG
- WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img8.png"
- ALT="$&gt;$">: cd libdap
+<LI><tex2html_image_mark>#tex2html_wrap_inline321#: cd libdap
 <BR></LI>
 <LI>Type './configure' at the prompt. Some libraries must be installed 
 on your system to successfully run configure and build libDAP library : libcurl 
 (http://curl.haxx.se/) and libxml2 (http://xmlsoft.org/).
 <BR>Example:
-<BR>---------------------------------------------
+<BR>------------------------------------------------------------------------------------------
 <BR>checking for a BSD-compatible install... /usr/bin/install -c
 <BR>checking whether build environment is sane... yes
 <BR>checking whether make sets (MAKE)... yes
@@ -907,24 +499,24 @@ on your system to successfully run configure and build libDAP library : libcurl
 <BR>...
 <BR>config.status: dods-datatypes.h is unchanged
 <BR>config.status: executing depfiles commands
-<BR>---------------------------------------------
+<BR>------------------------------------------------------------------------------------------
 <BR></LI>
 <LI>Type 'make' to build the library.
 <BR>Example :
-<BR>---------------------------------------------
+<BR>------------------------------------------------------------------------------------------
 <BR>make[1]: Entering directory '/home/tropic/tan/soft/libdap-3.6.2'
 <BR>Making all in gl
 <BR>make[2]: Entering directory '/home/tropic/tan/soft/libdap-3.6.2/gl'
 <BR>make  all-am
 <BR>make[3]: Entering directory '/home/tropic/tan/soft/libdap-3.6.2/gl'
 <BR>...
-<BR>---------------------------------------------
+<BR>------------------------------------------------------------------------------------------
 <BR></LI>
 <LI>Type 'make check' to run the tests. To pass this step you 
 must have DejaGNU framework (GNU FTP mirror list:
 http://www.gnu.org/prep/ftp.html).
 <BR>Example :
-<BR>---------------------------------------------
+<BR>------------------------------------------------------------------------------------------
 <BR>make[1]: Entering directory `/home/tropic/tan/soft/libdap-3.6.2/gl'
 <BR>dejagnu_driver.sh
 <BR>...
@@ -945,7 +537,7 @@ http://www.gnu.org/prep/ftp.html).
 <BR>==================
 <BR>make[2]: Leaving directory `/home/tropic/tan/soft/libdap-3.6.2/tests'
 <BR>make[1]: Leaving directory `/home/tropic/tan/soft/libdap-3.6.2/tests'
-<BR>---------------------------------------------
+<BR>------------------------------------------------------------------------------------------
 <BR></LI>
 <LI>Type 'make install' to install the library. By default the files are installed under
 /usr/local/lib/. You can specify a different root directory using the following option :
@@ -962,12 +554,14 @@ installation of libDAP. By default the files are installed under
 </UL>
 </LI>
 </UL>
+<tex2html_endfile>#./intro.tex#
 
 <P>
 
 <H1><A NAME="SECTION00030000000000000000">
 2 The ROMS model</A>
 </H1>
+<tex2html_file>#./roms.tex#
 ROMS solves the primitive equations in an Earth-centered
 rotating environment, based on the Boussinesq approximation and
 hydrostatic vertical momentum balance. ROMS is discretized in
@@ -976,8 +570,7 @@ ROMS is a split-explicit, free-surface ocean model, where short time steps
 are used to advance the surface elevation and barotropic momentum, with a
 much larger time step used for temperature, salinity, and baroclinic momentum.
 ROMS employs a special 2-way time-averaging procedure for the barotropic mode,
-which satisfies the 3D continuity equation (<A
- HREF="doc.html#Shc03b">Shchepetkin and McWilliams, 2005</A>).
+which satisfies the 3D continuity equation (#Shc03b#<tex2html_cite_par_mark>##).
 The specially designed predictor-corrector time step algorithm used in ROMS
 allows a substantial increase in the permissible time-step size.
 
@@ -992,26 +585,25 @@ faster than the number of CPUs.
 <P>
 The third-order, upstream-biased advection scheme implemented in ROMS
 allows the generation of steep gradients, enhancing the effective resolution
-of the solution for a given grid size (<A
- HREF="doc.html#Shc98">Shchepetkin and McWilliams, 1998</A>). Explicit lateral
+of the solution for a given grid size (#Shc98#<tex2html_cite_par_mark>##). Explicit lateral
 viscosity is null everywhere in the model domain except in sponge layers
 near the open  boundaries where it increases smoothly close to the lateral
 open boundaries.
 
 <P>
-A non-local, K-profile planetary (KPP) boundary layer scheme (<A
- HREF="doc.html#Lar94">Large, 1994</A>)
+A non-local, K-profile planetary (KPP) boundary layer scheme (#Lar94#<tex2html_cite_par_mark>##)
 parameterizes the unresolved physical vertical subgrid-scale processes.
 If a lateral boundary faces the open ocean, an active, implicit,
 upstream biased, radiation condition connects the model solution
-to the surroundings (<A
- HREF="doc.html#Mar01">Marchesiello et al., 2001</A>).
+to the surroundings (#Mar01#<tex2html_cite_par_mark>##).
+<tex2html_endfile>#./roms.tex#
 
 <P>
 
 <H1><A NAME="SECTION00040000000000000000">
 3 Tutorial : the Southern Benguela example</A>
 </H1>
+<tex2html_file>#./tutorial.tex#
 This section presents the essential steps for preparing
 and running a regional ROMS simulation. This is 
 done following the example of a model of the
@@ -1025,98 +617,74 @@ Southern Benguela at low resolution.
 
 <P>
 Once the installation has been successful, launch a Matlab session
-in the directory: <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run. Run the start.m
+in the directory: <tex2html_image_mark>#tex2html_wrap_inline625#/Roms_tools/Run. Run the start.m
 script to set the Matlab paths for this session. The start.m script
 also makes the difference between 32 bits and 64 bits Linux architectures
 and adjusts the paths in consequence: 
 <BR>
-<BR><IMG
- WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img8.png"
- ALT="$&gt;$"> : cd Roms_tools/Run 
-<BR><IMG
- WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img8.png"
- ALT="$&gt;$"> : matlab 
-<BR><IMG
- WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img9.png"
- ALT="$&lt;$"> M A T L A B <IMG
- WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img8.png"
- ALT="$&gt;$">...
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$"> start 
+<BR><tex2html_image_mark>#tex2html_wrap_inline627# : cd Roms_tools/Run 
+<BR><tex2html_image_mark>#tex2html_wrap_inline629# : matlab 
+<BR><tex2html_image_mark>#tex2html_wrap_inline631# M A T L A B <tex2html_image_mark>#tex2html_wrap_inline633#...
+<BR><tex2html_image_mark>#tex2html_wrap_inline635# start 
 <BR>Add the paths of the different toolboxes... 
 <BR>Arch : x86_64 - Matlab version : 12 
 <BR>Use of mex60 and loaddap in 32 bits. 
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$"> 
+<BR><tex2html_image_mark>#tex2html_wrap_inline637# 
 <BR>
 <BR>You are now ready to create a new configuration.
 It is important to respect the order of the following preprocessing 
 steps: make_grid, make_forcing, make_clim.
 For all the preprocessing steps, there is only one file to edit : 
-<IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/romstools_param.m .
+<tex2html_image_mark>#tex2html_wrap_inline639#/Roms_tools/Run/romstools_param.m .
 This file contains the necessary parameters for the generation
 of the ROMS input NetCDF files.
 The first section in romstools_param.m  defines the general parameters,
 such as title, working directories or file names:
 
 <BR>
-<BR>%%%%%%%%%%%%%%%%%%%%%%
-<BR>%
-<BR>% 1- General parameters
-<BR>%
-<BR>%%%%%%%%%%%%%%%%%%%%%%
-<BR>%
-<BR>%  ROMS title names and directories
-<BR>%
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> 1- General parameters
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark>  ROMS title names and directories
+<BR><tex2html_percent_mark>
 <BR>ROMS_title  = 'Benguela Test Model';
 <BR>ROMS_config = 'Benguela';
 <BR>ROMSTOOLS_dir = '../';
 <BR>RUN_dir=[ROMSTOOLS_dir,'Run/'];
 <BR>ROMS_files_dir=[RUN_dir,'ROMS_FILES/'];
-<BR>%
-<BR>% ROMS file names (grid, forcing, bulk, climatology, initial)
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> ROMS file names (grid, forcing, bulk, climatology, initial)
+<BR><tex2html_percent_mark>
 <BR>grdname=[ROMS_files_dir,'roms_grd.nc'];
 <BR>frcname=[ROMS_files_dir,'roms_frc.nc'];
 <BR>blkname=[ROMS_files_dir,'roms_blk.nc'];
 <BR>clmname=[ROMS_files_dir,'roms_clm.nc'];
 <BR>ininame=[ROMS_files_dir,'roms_ini.nc'];
-<BR>oaname =[ROMS_files_dir,'roms_oa.nc'];    % oa file  : intermediate file not used
-<BR>                                          %            in roms simulations
+<BR>oaname =[ROMS_files_dir,'roms_oa.nc'];    <tex2html_percent_mark> oa file  : intermediate file not used
+<BR>                                          <tex2html_percent_mark>            in roms simulations
 <BR>bryname=[ROMS_files_dir,'roms_bry.nc'];
-<BR>Zbryname=[ROMS_files_dir,'roms_bry_Z.nc'];% Zbry file: intermediate file not used
-<BR>                                          %            in roms simulations
-<BR>%
-<BR>frc_prefix=[ROMS_files_dir,'roms_frc'];   % generic bulk forcing file name 
-<BR>                                          % for inter-annual roms simulations (NCEP or GFS)
-<BR>blk_prefix=[ROMS_files_dir,'roms_blk'];   % generic forcing file name
-<BR>                                          % for inter-annual roms simulations (NCEP or GFS)
-<BR>%
-<BR>% Objective analysis decorrelation scale [m]
-<BR>% (if Roa=0: simple extrapolation method; crude but much less costly)
-<BR>%
-<BR>%Roa=300e3;
+<BR>Zbryname=[ROMS_files_dir,'roms_bry_Z.nc'];<tex2html_percent_mark> Zbry file: intermediate file not used
+<BR>                                          <tex2html_percent_mark>            in roms simulations
+<BR><tex2html_percent_mark>
+<BR>frc_prefix=[ROMS_files_dir,'roms_frc'];   <tex2html_percent_mark> generic bulk forcing file name 
+<BR>                                          <tex2html_percent_mark> for inter-annual roms simulations (NCEP or GFS)
+<BR>blk_prefix=[ROMS_files_dir,'roms_blk'];   <tex2html_percent_mark> generic forcing file name
+<BR>                                          <tex2html_percent_mark> for inter-annual roms simulations (NCEP or GFS)
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> Objective analysis decorrelation scale [m]
+<BR><tex2html_percent_mark> (if Roa=0: simple extrapolation method; crude but much less costly)
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark>Roa=300e3;
 <BR>Roa=0;
-<BR>%
-<BR>interp_method = 'cubic';           % Interpolation method: 'linear' or 'cubic'
-<BR>%
-<BR>makeplot     = 1;                 % 1: create a few graphics after each preprocessing step
-<BR>%
-<BR>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+<BR><tex2html_percent_mark>
+<BR>interp_method = 'cubic';           <tex2html_percent_mark> Interpolation method: 'linear' or 'cubic'
+<BR><tex2html_percent_mark>
+<BR>makeplot     = 1;                 <tex2html_percent_mark> 1: create a few graphics after each preprocessing step
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
 <BR>
 <BR>Variables description:
 
@@ -1127,7 +695,7 @@ you want for your configuration.
 <LI>ROMS_config = 'Benguela' : Name of the configuration. This is used for the storage of
 NCEP or OGCM data for a specific configuration.
 </LI>
-<LI>ROMSTOOLS_dir = '../' : "Roms_tools" directory.
+<LI>ROMSTOOLS_dir = '../' : ;SPMquot;Roms_tools;SPMquot; directory.
 </LI>
 <LI>RUN_dir=[ROMSTOOLS_dir,'Run/'] : Roms_tools/Run directory. This is where all 
 the work is done.
@@ -1150,7 +718,7 @@ are stored. In general, we follow  the style : XXX_blk.nc.
 <LI>clmname=[ROMS_files_dir,'roms_clm.nc'] : Name of the ROMS input NetCDF climatology file.
 This is where ROMS prognostic variables (u,v, temp, salt, ubar, vbar, zeta) for lateral boundary 
 and interior nudging are stored. This file can be large because variables are stored for all the 
-ROMS grid interior points. It is called "a climatology file" because this was the file used in 
+ROMS grid interior points. It is called ;SPMquot;a climatology file;SPMquot; because this was the file used in 
 the past for the restoring of the ROMS solution towards an in-situ climatology (such as Levitus 
 for example). In general, we follow the style : XXX_clm.nc.
 </LI>
@@ -1180,7 +748,7 @@ the case of inter_annual simulations. In this case, a separate file is created f
 For example, a bulk file based on NCEP for January 2000 is : roms_blk_NCEP_Y2000M1.nc
 </LI>
 <LI>Roa=0 : Decorrelation length scale in meters for the objective analysis (300 km
-is a reasonable value for the employed datasets). If Roa=0, the "nearest" Matlab extrapolation
+is a reasonable value for the employed datasets). If Roa=0, the ;SPMquot;nearest;SPMquot; Matlab extrapolation
 method is used instead of an objective analysis. This is much less costly, but the 
 results might be at a lower quality.
 </LI>
@@ -1201,151 +769,109 @@ analysis. It can be linear or cubic.
 The part of the file romstools_param.m that you should edit is :
 
 <BR>
-<BR>%%%%%%%%%%%%%%%%%%%%%%
-<BR>%
-<BR>% 2-Grid parameters
-<BR>%   used by make_grid.m (and others..)
-<BR>%
-<BR>%%%%%%%%%%%%%%%%%%%%%%
-<BR>%
-<BR>% Grid dimensions:
-<BR>%
-<BR>lonmin =  12.3;   % Minimum longitude [degree east]
-<BR>lonmax = 20.45;   % Maximum longitude [degree east]
-<BR>latmin = -35.5;   % Minimum latitude  [degree north]
-<BR>latmax = -26.5;   % Maximum latitude  [degree north]
-<BR>%
-<BR>% Grid resolution [degree]
-<BR>%
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> 2-Grid parameters
+<BR><tex2html_percent_mark>   used by make_grid.m (and others..)
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> Grid dimensions:
+<BR><tex2html_percent_mark>
+<BR>lonmin =  12.3;   <tex2html_percent_mark> Minimum longitude [degree east]
+<BR>lonmax = 20.45;   <tex2html_percent_mark> Maximum longitude [degree east]
+<BR>latmin = -35.5;   <tex2html_percent_mark> Minimum latitude  [degree north]
+<BR>latmax = -26.5;   <tex2html_percent_mark> Maximum latitude  [degree north]
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> Grid resolution [degree]
+<BR><tex2html_percent_mark>
 <BR>dl = 1/3;
-<BR>%
-<BR>% Number of vertical Levels (! should be the same in param.h !)
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> Number of vertical Levels (! should be the same in param.h !)
+<BR><tex2html_percent_mark>
 <BR>N = 32;
-<BR>%
-<BR>%  Vertical grid parameters (! should be the same in roms.in !)
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark>  Vertical grid parameters (! should be the same in roms.in !)
+<BR><tex2html_percent_mark>
 <BR>theta_s = 6.;
 <BR>theta_b = 0.;
 <BR>hc      =10.;
-<BR>%
-<BR>% Minimum depth at the shore [m] (depends on the resolution,
-<BR>% rule of thumb: dl=1, hmin=300, dl=1/4, hmin=150, ...)
-<BR>% This affect the filtering since it works on grad(h)/h.
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> Minimum depth at the shore [m] (depends on the resolution,
+<BR><tex2html_percent_mark> rule of thumb: dl=1, hmin=300, dl=1/4, hmin=150, ...)
+<BR><tex2html_percent_mark> This affect the filtering since it works on grad(h)/h.
+<BR><tex2html_percent_mark>
 <BR>hmin = 75;
-<BR>%
-<BR>% Maximum depth at the shore [m] (to prevent the generation
-<BR>% of too big walls along the coast)
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> Maximum depth at the shore [m] (to prevent the generation
+<BR><tex2html_percent_mark> of too big walls along the coast)
+<BR><tex2html_percent_mark>
 <BR>hmax_coast = 500;
-<BR>%
-<BR>%  Topography netcdf file name (ETOPO 2 or any other netcdf file
-<BR>%  in the same format)
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark>  Topography netcdf file name (ETOPO 2 or any other netcdf file
+<BR><tex2html_percent_mark>  in the same format)
+<BR><tex2html_percent_mark>
 <BR>topofile = [ROMSTOOLS_dir,'Topo/etopo2.nc'];
-<BR>%
-<BR>% Slope parameter (r=grad(h)/h) maximum value for topography smoothing
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> Slope parameter (r=grad(h)/h) maximum value for topography smoothing
+<BR><tex2html_percent_mark>
 <BR>rtarget = 0.25;
-<BR>%
-<BR>% Number of pass of a selective filter to reduce the isolated
-<BR>% seamounts on the deep ocean.
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> Number of pass of a selective filter to reduce the isolated
+<BR><tex2html_percent_mark> seamounts on the deep ocean.
+<BR><tex2html_percent_mark>
 <BR>n_filter_deep_topo=4;
-<BR>%
-<BR>% Number of pass of a single hanning filter at the end of the
-<BR>% smoothing procedure to ensure that there is no 2DX noise in the 
-<BR>% topography.
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> Number of pass of a single hanning filter at the end of the
+<BR><tex2html_percent_mark> smoothing procedure to ensure that there is no 2DX noise in the 
+<BR><tex2html_percent_mark> topography.
+<BR><tex2html_percent_mark>
 <BR>n_filter_final=2;
-<BR>%
-<BR>%  GSHSS user defined coastline (see m_map) 
-<BR>%  XXX_f.mat    Full resolution data
-<BR>%  XXX_h.mat    High resolution data
-<BR>%  XXX_i.mat    Intermediate resolution data
-<BR>%  XXX_l.mat    Low resolution data
-<BR>%  XXX_c.mat    Crude resolution data
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark>  GSHSS user defined coastline (see m_map) 
+<BR><tex2html_percent_mark>  XXX_f.mat    Full resolution data
+<BR><tex2html_percent_mark>  XXX_h.mat    High resolution data
+<BR><tex2html_percent_mark>  XXX_i.mat    Intermediate resolution data
+<BR><tex2html_percent_mark>  XXX_l.mat    Low resolution data
+<BR><tex2html_percent_mark>  XXX_c.mat    Crude resolution data
+<BR><tex2html_percent_mark>
 <BR>coastfileplot = 'coastline_l.mat';
 <BR>coastfilemask = 'coastline_l_mask.mat';
 <BR>
 <BR>Variables description:
 
 <UL>
-<LI>lonmin =  12.3 : Western limit of the grid in longitude [-360<IMG
- WIDTH="11" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img7.png"
- ALT="$^\circ$">, 360<IMG
- WIDTH="11" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img7.png"
- ALT="$^\circ$">]. 
+<LI>lonmin =  12.3 : Western limit of the grid in longitude [-360<tex2html_image_mark>#tex2html_wrap_inline641#, 360<tex2html_image_mark>#tex2html_wrap_inline643#]. 
 The grid is rectangular in latitude/longitude.
 </LI>
-<LI>lonmax = 20.45 : Eastern limit [-360<IMG
- WIDTH="11" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img7.png"
- ALT="$^\circ$">, 360<IMG
- WIDTH="11" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img7.png"
- ALT="$^\circ$">]. 
+<LI>lonmax = 20.45 : Eastern limit [-360<tex2html_image_mark>#tex2html_wrap_inline645#, 360<tex2html_image_mark>#tex2html_wrap_inline647#]. 
 Should be superior to lonmin.
 </LI>
-<LI>latmin = -35.5 : Southern limit of the grid in latitude [-90<IMG
- WIDTH="11" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img7.png"
- ALT="$^\circ$">, 90<IMG
- WIDTH="11" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img7.png"
- ALT="$^\circ$">].
+<LI>latmin = -35.5 : Southern limit of the grid in latitude [-90<tex2html_image_mark>#tex2html_wrap_inline649#, 90<tex2html_image_mark>#tex2html_wrap_inline651#].
 </LI>
-<LI>latmax = -26.5 : Northern limit [-90<IMG
- WIDTH="11" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img7.png"
- ALT="$^\circ$">, 90<IMG
- WIDTH="11" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img7.png"
- ALT="$^\circ$">].
+<LI>latmax = -26.5 : Northern limit [-90<tex2html_image_mark>#tex2html_wrap_inline653#, 90<tex2html_image_mark>#tex2html_wrap_inline655#].
 Should be superior to latmin.
 </LI>
 <LI>l = 1/3 : Grid longitude resolution in degrees. The latitude spacing is deduced to
-obtain an isotropic grid using the relation: <!-- MATH
- $d\phi=dl\cos(\phi)$
- -->
-<IMG
- WIDTH="102" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img11.png"
- ALT="$d\phi=dl\cos(\phi)$">.
+obtain an isotropic grid using the relation: <tex2html_verbatim_mark>#math6#<tex2html_image_mark>#tex2html_wrap_inline657#.
 </LI>
 <LI>N = 32 : Number of vertical levels. Warning! N has to be also 
-defined in the file : <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/param.h before compiling
+defined in the file : <tex2html_image_mark>#tex2html_wrap_inline659#/Roms_tools/Run/param.h before compiling
 the model.
 </LI>
 <LI>theta_s = 6. : Vertical S-coordinate surface stretching parameter. 
 When building the climatology and initial ROMS files, we have to define
 the vertical grid. Warning! The different vertical grid parameters should 
 be identical in this file and in the ROMS input file (i.e. 
-<IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/roms.in).
+<tex2html_image_mark>#tex2html_wrap_inline661#/Roms_tools/Run/roms.in).
 This is a serious cause of bug.
 The effects of theta_s, theta_b, hc, and N can be tested 
 using the Matlab script : 
-<BR><IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Preprocessing_tools/test_vgrid.m.
+<BR><tex2html_image_mark>#tex2html_wrap_inline663#/Roms_tools/Preprocessing_tools/test_vgrid.m.
 </LI>
 <LI>theta_b = 0. : Vertical S-coordinate bottom stretching parameter.
 </LI>
-<LI>hc      = 10. : Vertical S-coordinate <IMG
- WIDTH="24" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
- SRC="img12.png"
- ALT="$H_c$"> parameter. It gives approximately the
+<LI>hc      = 10. : Vertical S-coordinate <tex2html_image_mark>#tex2html_wrap_inline665# parameter. It gives approximately the
 transition depth between the horizontal surface levels and the bottom terrain following
 levels. It should be inferior to hmin.
 </LI>
@@ -1353,13 +879,7 @@ levels. It should be inferior to hmin.
 to prevent, for example, the occurrence of model grid cells without water.
 This does not influence the masking routines. At lower resolution, hmin should be 
 quite large (for example 150m for dl=1/2). Otherwise, since topography smoothing 
-is based on <!-- MATH
- $\frac{\nabla h}{2h}$
- -->
-<IMG
- WIDTH="26" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img13.png"
- ALT="$\frac{\nabla h}{2h}$">, the bottom slopes can be totally eroded.
+is based on <tex2html_verbatim_mark>#math7#<tex2html_image_mark>#tex2html_wrap_inline667#, the bottom slopes can be totally eroded.
 </LI>
 <LI>hmax_coast = 500 : Maximum depth under the mask. It prevents selected
 isobaths (here 500 m) to go under the mask. If this is the case, 
@@ -1367,39 +887,21 @@ this could be a source of problems
 for western boundary currents (for example).
 </LI>
 <LI>topofile = [ROMSTOOLS_dir,'Topo/etopo2.nc'] : Default topography file. 
-We are using here etopo2 (<A
- HREF="doc.html#Smi97">Smith and Sandwell, 1997</A>). 
+We are using here etopo2 (#Smi97#<tex2html_cite_par_mark>##). 
 </LI>
-<LI>rtarget = 0.25 : This variable control the maximum value of the <IMG
- WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
- SRC="img14.png"
- ALT="$r$">-parameter
-that measures the slope of the sigma layers (<A
- HREF="doc.html#Bec93">Beckmann and Haidvogel, 1993</A>):
+<LI>rtarget = 0.25 : This variable control the maximum value of the <tex2html_image_mark>#tex2html_wrap_inline669#-parameter
+that measures the slope of the sigma layers (#Bec93#<tex2html_cite_par_mark>##):
 <BR><P></P>
 <DIV ALIGN="CENTER">
-<!-- MATH
- \begin{displaymath}
-r=\frac{\nabla h}{2h}=\frac{h_{+1/2}-h_{-1/2}}{h_{+1/2}+h_{-1/2}}
-\end{displaymath}
- -->
+<tex2html_verbatim_mark>#math8#
 
-<IMG
- WIDTH="176" HEIGHT="46" BORDER="0"
- SRC="img15.png"
- ALT="\begin{displaymath}
-r=\frac{\nabla h}{2h}=\frac{h_{+1/2}-h_{-1/2}}{h_{+1/2}+h_{-1/2}}
-\end{displaymath}">
+<tex2html_image_mark>#displaymath671#
 </DIV><BR CLEAR="ALL">
 <P></P>
 To prevent horizontal pressure gradients errors, well known in
-terrain-following coordinate models (<A
- HREF="doc.html#Han91">Haney, 1991</A>), realistic topography
+terrain-following coordinate models (#Han91#<tex2html_cite_par_mark>##), realistic topography
 requires some smoothing. Empirical results have shown that reliable
-model results are obtained if <IMG
- WIDTH="12" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
- SRC="img14.png"
- ALT="$r$"> does not exceed 0.2.
+model results are obtained if <tex2html_image_mark>#tex2html_wrap_inline673# does not exceed 0.2.
 </LI>
 <LI>n_filter_deep_topo=4 : Number of pass of a Hanning filter to prevent 
 the occurrence of noise and isolated seamounts on deep regions.
@@ -1408,7 +910,7 @@ the occurrence of noise and isolated seamounts on deep regions.
 smoothing process to be sure that no noise is present in the topography.
 </LI>
 <LI>coastfileplot = 'coastline_l.mat' : Binary GSHSS coastal file used by m_map
-for graphical pruposes. The letter before ".mat" selects the coastline resolution.
+for graphical pruposes. The letter before ;SPMquot;.mat;SPMquot; selects the coastline resolution.
 f: Full resolution, h: High resolution, i: Intermediate resolution, l: Low resolution
 c: Crude resolution.
 </LI>
@@ -1421,17 +923,11 @@ for the coastline in the masking toolbox.
 Save romstools_param.m and run make_grid in the Matlab session :
 
 <BR>
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$">
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$"> make_grid 
+<BR><tex2html_image_mark>#tex2html_wrap_inline675#
+<BR><tex2html_image_mark>#tex2html_wrap_inline677# make_grid 
 <BR> 
 <BR>You should obtain in the Matlab session:
-<BR>---------------------------------------------
+<BR>------------------------------------------------------------------------------------------
 <BR>Making the grid: ../Run/ROMS_FILES/roms_grd.nc 
 <BR>
 <BR>Title: Benguela Test Model 
@@ -1468,23 +964,17 @@ Save romstools_param.m and run make_grid in the Matlab session :
 <BR> Write it down...
 <BR>
 <BR> Do a plot...
-<BR> <IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$">
-<BR> ---------------------------------------------
+<BR> <tex2html_image_mark>#tex2html_wrap_inline679#
+<BR> ------------------------------------------------------------------------------------------
 <BR>
 <BR>You should keep the values of LLm and MMm during the process.
 They will be necessary for the ROMS parameter file  
-<IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/param.h. In this test case,
+<tex2html_image_mark>#tex2html_wrap_inline681#/Roms_tools/Run/param.h. In this test case,
 LLm0 = 23 and MMm0 = 31. 
 
 <P>
 During the grid generation process, the question 
-"Do you want to use editmask ? y,[n]" is asked. The default answer is n (for no).
+;SPMquot;Do you want to use editmask ? y,[n];SPMquot; is asked. The default answer is n (for no).
 If the answer is y (for yes), editmask, the  graphic interface developed 
 by A.Y.Shcherbina, will be launched to manually edit the mask 
 (Note that, for the moment, editmask is not working with matlab7 and mexnc).
@@ -1493,27 +983,22 @@ mask is generated from the unfiltered topography data. A procedure prevents
 the existence of isolated land (or sea) points.
 
 <P>
-Figure (<A HREF="#fig:grid">1</A>) presents the
+Figure (<A HREF=<tex2html_cr_mark>#fig:grid#503><tex2html_cr_mark></A>) presents the
 bottom topography obtained with make_grid.m for the
 Southern Benguela example. Note that at this low
-resolution (1/3<IMG
- WIDTH="11" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img7.png"
- ALT="$^\circ$">), the topography has been strongly
+resolution (1/3<tex2html_image_mark>#tex2html_wrap_inline683#), the topography has been strongly
 smoothed.
 
 <P>
 
-<DIV ALIGN="CENTER"><A NAME="fig:grid"></A><A NAME="506"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:grid"><tex2html_anchor_mark></A><A NAME="506"><tex2html_anchor_mark></A>
 <TABLE>
-<CAPTION ALIGN="BOTTOM"><STRONG>Figure 1:</STRONG>
-Result of make_grid.m for the Benguela example</CAPTION>
-<TR><TD><IMG
- WIDTH="271" HEIGHT="359" BORDER="0"
- SRC="img16.png"
- ALT="\begin{figure}\centerline{\psfig{figure=make_grid_benguela.eps,width=6cm}}\end{figure}"></TD></TR>
+<CAPTION ALIGN="BOTTOM"><STRONG><#1925#>Figure<#1925#> 1:</STRONG>
+<#1926#>Result of make_grid.m for the Benguela example<#1926#></CAPTION>
+<TR><TD><tex2html_image_mark>#figure504#</TD></TR>
 </TABLE>
 </DIV>
+
 
 <P>
 
@@ -1526,28 +1011,28 @@ The next step is to create the file containing the different surface
 fluxes. The part of the file romstools_param.m that you should edit is :
 
 <BR>
-<BR>%
-<BR>%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<BR>% 3-Surface forcing parameters
-<BR>%   used by make_forcing.m and by make_bulk.m
-<BR>%
-<BR>%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<BR>% COADS directory (for climatology runs)
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR><tex2html_percent_mark> 3-Surface forcing parameters
+<BR><tex2html_percent_mark>   used by make_forcing.m and by make_bulk.m
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR><tex2html_percent_mark> COADS directory (for climatology runs)
+<BR><tex2html_percent_mark>
 <BR>coads_dir=[ROMSTOOLS_dir,'COADS05/'];
-<BR>%
-<BR>% COADS time (for climatology runs)
-<BR>%
-<BR>coads_time=(15:30:345); % days: middle of each month
-<BR>coads_cycle=360;        % repetition of a typical year of 360 days 
-<BR>%
-<BR>%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<BR>%
-<BR>% 3.1 Surface forcing parameters
-<BR>%   used by pathfinder_sst.m
-<BR>%
-<BR>%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> COADS time (for climatology runs)
+<BR><tex2html_percent_mark>
+<BR>coads_time=(15:30:345); <tex2html_percent_mark> days: middle of each month
+<BR>coads_cycle=360;        <tex2html_percent_mark> repetition of a typical year of 360 days 
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> 3.1 Surface forcing parameters
+<BR><tex2html_percent_mark>   used by pathfinder_sst.m
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR><tex2html_percent_mark>
 <BR>pathfinder_sst_name=[ROMSTOOLS_dir,...
 <BR>                    'SST_pathfinder/climato_pathfinder.nc'];
 <BR>
@@ -1555,11 +1040,7 @@ fluxes. The part of the file romstools_param.m that you should edit is :
 
 <UL>
 <LI>coads_dir=[ROMSTOOLS_dir,'COADS05/'] : Directory where the global atlas of surface marine 
-data at 1/2<IMG
- WIDTH="11" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img7.png"
- ALT="$^\circ$"> resolution (<A
- HREF="doc.html#Das94">Da Silva et al., 1994</A>) is located.
+data at 1/2<tex2html_image_mark>#tex2html_wrap_inline685# resolution (#Das94#<tex2html_cite_par_mark>##) is located.
 </LI>
 <LI>coads_time=(15:30:345) : Time in days for the monthly climatology. It corresponds to the
 middle of each month. ROMS uses this time to interpolate linearly the forcing variables in time.
@@ -1569,9 +1050,7 @@ of simplicity, we are running the model on a repeating climatological year of 36
 </LI>
 <LI>pathfinder_sst_name=[ROMSTOOLS_dir,SST_pathfinder/climato_pathfinder.nc'] : 
 Directory of the  monthly climatology of sea surface temperature from Pathfinder satellite 
-observations (<A
- HREF="doc.html#Cas99">Casey and Cornillon, 1999</A>). This can be used has an alternative of <A
- HREF="doc.html#Das94">Da Silva et al. (1994)</A> SST.
+observations (#Cas99#<tex2html_cite_par_mark>##). This can be used has an alternative of #Das94#<tex2html_citet_mark>## SST.
 </LI>
 </UL>
 
@@ -1579,17 +1058,11 @@ observations (<A
 Save romstools_param.m and run make_forcing in the Matlab session :
 
 <BR>
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$">
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$"> make_forcing
+<BR><tex2html_image_mark>#tex2html_wrap_inline687#
+<BR><tex2html_image_mark>#tex2html_wrap_inline689# make_forcing
 <BR>
 <BR>You should obtain :
-<BR>---------------------------------------------
+<BR>------------------------------------------------------------------------------------------
 <BR>Benguela Test Model
 <BR>
 <BR> Read in the grid...
@@ -1599,49 +1072,31 @@ Save romstools_param.m and run make_forcing in the Matlab session :
 <BR>Getting tauy for time index 1
 <BR>...
 <BR>Make a few plots...
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$">
-<BR>---------------------------------------------
+<BR><tex2html_image_mark>#tex2html_wrap_inline691#
+<BR>------------------------------------------------------------------------------------------
 <BR>
 <BR>This program can take a relatively long time to process all the forcing variables.
-Figure (<A HREF="#fig:forcing">2</A>) presents the wind stress vectors and wind stress norm 
+Figure (<A HREF=<tex2html_cr_mark>#fig:forcing#515><tex2html_cr_mark></A>) presents the wind stress vectors and wind stress norm 
 obtained from the global atlas of surface marine 
-data at 1/2<IMG
- WIDTH="11" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img7.png"
- ALT="$^\circ$"> resolution (<A
- HREF="doc.html#Das94">Da Silva et al., 1994</A>) at 4 different periods of the year.
-<A
- HREF="doc.html#Das94">Da Silva et al. (1994)</A> sea surface temperature (SST) is used for the restoring term (dQdSST)
+data at 1/2<tex2html_image_mark>#tex2html_wrap_inline693# resolution (#Das94#<tex2html_cite_par_mark>##) at 4 different periods of the year.
+#Das94#<tex2html_citet_mark>## sea surface temperature (SST) is used for the restoring term (dQdSST)
 in the heat flux calculation. To improve the model solution it is possible to 
-use a SST climatology at a finer resolution (9.28 km) (<A
- HREF="doc.html#Cas99">Casey and Cornillon, 1999</A>). To do 
+use a SST climatology at a finer resolution (9.28 km) (#Cas99#<tex2html_cite_par_mark>##). To do 
 so, you can run pathfinder_sst.m in the Matlab session :
 
 <BR>
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$">
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$"> pathfinder_sst
+<BR><tex2html_image_mark>#tex2html_wrap_inline695#
+<BR><tex2html_image_mark>#tex2html_wrap_inline697# pathfinder_sst
 <BR>
 <BR>
 <BR>
 <BR>You should obtain :
-<BR>---------------------------------------------
+<BR>------------------------------------------------------------------------------------------
 <BR> ... Month index: 1 
 <BR> ... Month index: 2 
 <BR>...
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$">
-<BR>---------------------------------------------
+<BR><tex2html_image_mark>#tex2html_wrap_inline699#
+<BR>------------------------------------------------------------------------------------------
 <BR>
 <BR>For the surface forcing, instead of directly prescribing the fluxes, it is possible 
 to use a bulk formula to generate the surface fluxes from atmospheric variables 
@@ -1650,17 +1105,11 @@ cpp key defined. To generate the bulk forcing file, you need to run make_bulk
 in the Matlab session :
 
 <BR>
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$">
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$"> make_bulk
+<BR><tex2html_image_mark>#tex2html_wrap_inline701#
+<BR><tex2html_image_mark>#tex2html_wrap_inline703# make_bulk
 <BR>
 <BR>You should obtain :
-<BR>---------------------------------------------
+<BR>------------------------------------------------------------------------------------------
 <BR>Benguela Test Model
 <BR>
 <BR> Read in the grid...
@@ -1670,27 +1119,19 @@ in the Matlab session :
 <BR>Getting sat for time index 2
 <BR>...
 <BR>Make a few plots...
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$">
-<BR>---------------------------------------------
+<BR><tex2html_image_mark>#tex2html_wrap_inline705#
+<BR>------------------------------------------------------------------------------------------
 <BR>
 <P>
 
-<DIV ALIGN="CENTER"><A NAME="fig:forcing"></A><A NAME="617"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:forcing"><tex2html_anchor_mark></A><A NAME="617"><tex2html_anchor_mark></A>
 <TABLE>
-<CAPTION ALIGN="BOTTOM"><STRONG>Figure 2:</STRONG>
-Wind stress[N.m<IMG
- WIDTH="21" HEIGHT="18" ALIGN="BOTTOM" BORDER="0"
- SRC="img1.png"
- ALT="$^{-2}$">] obtained using make_forcing.m for the Benguela example.</CAPTION>
-<TR><TD><IMG
- WIDTH="409" HEIGHT="335" BORDER="0"
- SRC="img17.png"
- ALT="\begin{figure}\centerline{\psfig{figure=make_frcwind_benguela.eps,width=9cm}}\end{figure}"></TD></TR>
+<CAPTION ALIGN="BOTTOM"><STRONG><#1940#>Figure<#1940#> 2:</STRONG>
+<#1941#>Wind stress[N.m<tex2html_image_mark>#tex2html_wrap_inline707#] obtained using make_forcing.m for the Benguela example.<#1941#></CAPTION>
+<TR><TD><tex2html_image_mark>#figure519#</TD></TR>
 </TABLE>
 </DIV>
+
 
 <P>
 
@@ -1707,49 +1148,49 @@ the lateral boundary conditions, and the initial conditions file (XXX_ini.nc).
 The part which should be edited by the user in the file romstools_param.m is:
 
 <BR>
-<BR>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<BR>%
-<BR>% 4-Open boundaries and initial conditions parameters
-<BR>%   used by make_clim.m, make_biol.m, make_bry.m
-<BR>%
-<BR>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<BR>%  Open boundaries switches (! should be consistent with cppdefs.h !)
-<BR>%
-<BR>obc = [1 1 1 1]; % open boundaries (1=open , [S E N W])
-<BR>%
-<BR>%  Level of reference for geostrophy calculation
-<BR>%
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> 4-Open boundaries and initial conditions parameters
+<BR><tex2html_percent_mark>   used by make_clim.m, make_biol.m, make_bry.m
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR><tex2html_percent_mark>  Open boundaries switches (! should be consistent with cppdefs.h !)
+<BR><tex2html_percent_mark>
+<BR>obc = [1 1 1 1]; <tex2html_percent_mark> open boundaries (1=open , [S E N W])
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark>  Level of reference for geostrophy calculation
+<BR><tex2html_percent_mark>
 <BR>zref = -1000;
-<BR>%
-<BR>%  Switches for selecting what to process in make_clim (1=ON)
-<BR>%  (and also in make_OGCM.m and make_OGCM_frcst.m)
-<BR>makeini=1;      %1: process initial data
-<BR>makeclim=1;     %1: process lateral boundary data
-<BR>makebry=0;      %1: process boundary data
-<BR>%
-<BR>makeoa=1;       %1: process oa data (intermediate file)
-<BR>makeZbry=0;     %1: process data in Z coordinate
-<BR>%
-<BR>insitu2pot=1;   %1: convert in-situ temperature into potential temperature
-<BR>%
-<BR>%  Day of initialization for climatology experiments (=0 : 1st January 0h)
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark>  Switches for selecting what to process in make_clim (1=ON)
+<BR><tex2html_percent_mark>  (and also in make_OGCM.m and make_OGCM_frcst.m)
+<BR>makeini=1;      <tex2html_percent_mark>1: process initial data
+<BR>makeclim=1;     <tex2html_percent_mark>1: process lateral boundary data
+<BR>makebry=0;      <tex2html_percent_mark>1: process boundary data
+<BR><tex2html_percent_mark>
+<BR>makeoa=1;       <tex2html_percent_mark>1: process oa data (intermediate file)
+<BR>makeZbry=0;     <tex2html_percent_mark>1: process data in Z coordinate
+<BR><tex2html_percent_mark>
+<BR>insitu2pot=1;   <tex2html_percent_mark>1: convert in-situ temperature into potential temperature
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark>  Day of initialization for climatology experiments (=0 : 1st January 0h)
+<BR><tex2html_percent_mark>
 <BR>tini=0;
-<BR>%
-<BR>% World Ocean Atlas directory (WOA2001 or WOA2005) 
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> World Ocean Atlas directory (WOA2001 or WOA2005) 
+<BR><tex2html_percent_mark>
 <BR>woa_dir=[ROMSTOOLS_dir,'WOA2005/'];
-<BR>%
-<BR>% Surface chlorophyll seasonal climatology (WOA2001 or SeaWifs)
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> Surface chlorophyll seasonal climatology (WOA2001 or SeaWifs)
+<BR><tex2html_percent_mark>
 <BR>chla_dir=[ROMSTOOLS_dir,'SeaWifs/'];
-<BR>%
-<BR>%  Set times and cycles for the boundary conditions:
-<BR>%   monthly climatology 
-<BR>%
-<BR>woa_time=(15:30:345); % days: middle of each month
-<BR>woa_cycle=360;        % repetition of a typical year of 360 days
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark>  Set times and cycles for the boundary conditions:
+<BR><tex2html_percent_mark>   monthly climatology 
+<BR><tex2html_percent_mark>
+<BR>woa_time=(15:30:345); <tex2html_percent_mark> days: middle of each month
+<BR>woa_cycle=360;        <tex2html_percent_mark> repetition of a typical year of 360 days
+<BR><tex2html_percent_mark>
 <BR>
 <P>
 Variables description:
@@ -1758,10 +1199,7 @@ Variables description:
 <LI>obc=[1 1 1 1] : Switches to open (1=open) or close (0=wall) the lateral
 boundaries [South East North West]. This is used for the application of mass
 enforcement. Be aware, this should be compatible with the open boundary
-CPP-switches in the file <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/cppdefs.h.
+CPP-switches in the file <tex2html_image_mark>#tex2html_wrap_inline709#/Roms_tools/Run/cppdefs.h.
 </LI>
 <LI>zref=-1000 : Depth [meters] of the level of no motion for the geostrophic 
 velocities calculation.
@@ -1790,8 +1228,7 @@ In this case, in-situ temperature is converted into potential temperature.
 <LI>tini=0 : Day of initialization in climatology experiments (15 = January 15).
 </LI>
 <LI>woa_dir=[ROMSTOOLS_dir,'WOA2005/'] : Directory where the World Ocean
-Atlas 2005 climatology (<A
- HREF="doc.html#Con02">Conkright et al., 2002</A>) is located. The World Ocean
+Atlas 2005 climatology (#Con02#<tex2html_cite_par_mark>##) is located. The World Ocean
 Atlas 2001 climatology can also be used.
 </LI>
 <LI>chla_dir=[ROMSTOOLS_dir,'SeaWifs/'] : Directory of the surface 
@@ -1809,17 +1246,11 @@ year of 360 days.
 Save romstools_param.m and run make_clim in the Matlab session :
 
 <BR>
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$">
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$"> make_clim 
+<BR><tex2html_image_mark>#tex2html_wrap_inline711#
+<BR><tex2html_image_mark>#tex2html_wrap_inline713# make_clim 
 <BR>
 <BR>You should obtain :
-<BR>---------------------------------------------
+<BR>------------------------------------------------------------------------------------------
 <BR> Making the clim: ../Run/ROMS_FILES/roms_clm.nc 
 <BR> 
 <BR> Title: Benguela Test Model 
@@ -1830,29 +1261,24 @@ Save romstools_param.m and run make_clim in the Matlab session :
 <BR> Creating the file : ../Run/ROMS_FILES/roms_clm.nc
 <BR> ...
 <BR> Make a few plots...
-<BR> <IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$">
-<BR>---------------------------------------------
+<BR> <tex2html_image_mark>#tex2html_wrap_inline715#
+<BR>------------------------------------------------------------------------------------------
 <BR>
 <BR>This program can also take quite a long time to run.
-Figure (<A HREF="#fig:clim">3</A>) presents 4 different sections
+Figure (<A HREF=<tex2html_cr_mark>#fig:clim#528><tex2html_cr_mark></A>) presents 4 different sections
 of temperature for the initial condition file for the 
 Benguela example. The sections are in the X-direction (East-West), 
 the first section is for the Southern part of the domain and the last one 
 is for the Northern part of the domain.
 
-<DIV ALIGN="CENTER"><A NAME="fig:clim"></A><A NAME="531"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:clim"><tex2html_anchor_mark></A><A NAME="531"><tex2html_anchor_mark></A>
 <TABLE>
-<CAPTION ALIGN="BOTTOM"><STRONG>Figure 3:</STRONG>
-Result of make_clim.m for the Benguela example</CAPTION>
-<TR><TD><IMG
- WIDTH="318" HEIGHT="249" BORDER="0"
- SRC="img18.png"
- ALT="\begin{figure}\centerline{\psfig{figure=make_clim_benguela.eps,width=7cm}}\end{figure}"></TD></TR>
+<CAPTION ALIGN="BOTTOM"><STRONG><#1950#>Figure<#1950#> 3:</STRONG>
+<#1951#>Result of make_clim.m for the Benguela example<#1951#></CAPTION>
+<TR><TD><tex2html_image_mark>#figure529#</TD></TR>
 </TABLE>
 </DIV>
+
 
 <P>
 An alternative of using a climatology file is to create a boundary 
@@ -1861,24 +1287,18 @@ FRC_BRY should be defined and ROMS recompiled. Run make_bry in
 the Matlab session :
 
 <BR>
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$">
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$"> make_bry 
+<BR><tex2html_image_mark>#tex2html_wrap_inline717#
+<BR><tex2html_image_mark>#tex2html_wrap_inline719# make_bry 
 <BR>
 <BR>You should obtain :
-<BR>---------------------------------------------
+<BR>------------------------------------------------------------------------------------------
 <BR> Making the file: ../Run/ROMS_FILES/roms_bry.nc 
 <BR> 
 <BR> Title: Benguela Test Model 
 <BR> 
 <BR> Read in the grid... 
 <BR>... 
-<BR>---------------------------------------------
+<BR>------------------------------------------------------------------------------------------
 <BR>
 <P>
 
@@ -1890,10 +1310,7 @@ the Matlab session :
 Once all the netcdf data files are ready (i.e. XXX_grd.nc,
 XXX_frc.nc, XXX_ini.nc, and XXX_clm.nc), we can 
 prepare ROMS for compilation. All is done in the 
- <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/ directory. 
+ <tex2html_image_mark>#tex2html_wrap_inline721#/Roms_tools/Run/ directory. 
 
 <P>
 
@@ -1901,19 +1318,13 @@ prepare ROMS for compilation. All is done in the
 3.5.1 param.h</A>
 </H3>
 Edit the file 
- <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/param.h.
+ <tex2html_image_mark>#tex2html_wrap_inline723#/Roms_tools/Run/param.h.
  The line which needs to be changed is:
 <BR>
 <BR>#  elif defined BENGUELA
 
 <P>
-parameter (LLm0=23, MMm0=31, N=32)  ! <IMG
- WIDTH="46" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img19.png"
- ALT="$&lt;--$"> Southern Benguela Test Case
+parameter (LLm0=23, MMm0=31, N=32)  ! <tex2html_image_mark>#tex2html_wrap_inline725# Southern Benguela Test Case
 <BR>#  else
 <BR>
 <BR>These are the values of the model grid size: LLm0 points in the X 
@@ -1926,10 +1337,7 @@ defined in romstools_param.m.
 <H3><A NAME="SECTION00045200000000000000">
 3.5.2 cppdefs.h</A>
 </H3>
-The second file to edit is  <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/cppdefs.h.
+The second file to edit is  <tex2html_image_mark>#tex2html_wrap_inline727#/Roms_tools/Run/cppdefs.h.
 This file defines the CPP keys that are used by the
 the C-preprocessor when compiling ROMS. The C-preprocessor selects the different
 parts of the Fortran code which needs to be compiled depending on the defined CPP
@@ -1968,9 +1376,9 @@ Definitions of the CCP keys in cppdefs.h:
 <BR>
 <BR>
 <BR>
-<BR>-------------
+<BR>--------------------------
 <BR>       BASIC OPTIONS 
-<BR>-------------
+<BR>--------------------------
 
 <BR>
 <BR>/*                       Configuration Name */
@@ -2035,9 +1443,9 @@ Definitions of the CCP keys in cppdefs.h:
 <BR>
 <BR>
 <BR>
-<BR>----------------------
+<BR>--------------------------------------------
 <BR>   MORE ADVANCED OPTIONS 
-<BR>----------------------
+<BR>--------------------------------------------
 
 <BR>
 <BR>/*                       Model dynamics */
@@ -2084,8 +1492,7 @@ Warning! This should be off when restarting the model.
 </LI>
 <LI>SPLIT_EOS : Activate the split of the nonlinear equation of state in a
 adiabatic part and a compressible part for the reduction of pressure gradient errors
-(<A
- HREF="doc.html#Shc03a">Shchepetkin and McWilliams, 2003</A>).
+(#Shc03a#<tex2html_cite_par_mark>##).
 
 <BR>
 <BR>/*                       Surface Forcing */
@@ -2303,20 +1710,14 @@ Small Detritus, Large Detritus) biogeochemical model.
 </UL>
 
 <P>
-ROMS can be compiled by running the UNIX tcsh script <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/jobcomp.
+ROMS can be compiled by running the UNIX tcsh script <tex2html_image_mark>#tex2html_wrap_inline729#/Roms_tools/Run/jobcomp.
 Jobcomp should be able to recognize your system. It has been tested on 
 Linux, IBM, Sun and Compaq systems. On Linux PCs, the default compiler is the GNU g77, 
 but it is possible to uncomment specific lines in jobcomp to use g95 or ifort.
 The latter is mandatory when using AGRIF and/or OPEN_MP.
 When changing the compiler you should provide a corresponding NetCDF library.
 Once the compilation is done, you should obtain a new
-executable (roms) in the <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run directory.
+executable (roms) in the <tex2html_image_mark>#tex2html_wrap_inline731#/Roms_tools/Run directory.
 ROMS should be recompiled each time param.h or cppdefs.h are changed.
 
 <P>
@@ -2326,33 +1727,24 @@ ROMS should be recompiled each time param.h or cppdefs.h are changed.
 </H2>
 
 <P>
-Edit the input parameter file: <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/roms.in.
+Edit the input parameter file: <tex2html_image_mark>#tex2html_wrap_inline733#/Roms_tools/Run/roms.in.
 The vertical grid parameters (THETA_S,   THETA_B,   HC)
 should be identical to the ones in romstools_param.m.
 Otherwise, the other default values should not be changed.
 The definition of all the input variables is given at the start of each ROMS
 simulation.
-To run the model, type in directory <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/ : ./roms roms.in.
+To run the model, type in directory <tex2html_image_mark>#tex2html_wrap_inline735#/Roms_tools/Run/ : ./roms roms.in.
 On the screen, you should check the Cu_max parameter: if it is greater than
 1 you are violating the CFL criterion. In this case, you should reduce the 
 time step.
 
 <BR>Example of model run:
 <BR>
-<BR><IMG
- WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img8.png"
- ALT="$&gt;$"> : ./roms roms.in
+<BR><tex2html_image_mark>#tex2html_wrap_inline737# : ./roms roms.in
 
 <BR>
 <BR>You should obtain :
-<BR>---------------------------------------------
+<BR>------------------------------------------------------------------------------------------
 <BR> Southern Benguela
 <BR>       480  ntimes   Total number of timesteps for 3D equations.
 <BR>   5400.00  dt       Timestep [sec] for 3D equations
@@ -2531,24 +1923,24 @@ time step.
 <BR>
 <BR> Maximum grid stiffness ratios:   rx0 =0.2353349875  rx1 =  2.5672736953
 <BR>
-<BR>      GET_INITIAL - Processing data for time =   0.000     record =   1
+<BR>      GET_INITIAL -- Processing data for time =   0.000     record =   1
 <BR>
-<BR>      GET_TCLIMA - Read climatology of tracer   1 for time =    345.0 
-<BR>      GET_TCLIMA - Read climatology of tracer   1 for time =    15.00 
-<BR>      GET_TCLIMA - Read climatology of tracer   2 for time =    345.0 
-<BR>      GET_TCLIMA - Read climatology of tracer   2 for time =    15.00 
-<BR>      GET_UCLIMA - Read momentum climatology      for time =    345.0 
-<BR>      GET_UCLIMA - Read momentum climatology      for time =    15.00 
+<BR>      GET_TCLIMA -- Read climatology of tracer   1 for time =    345.0 
+<BR>      GET_TCLIMA -- Read climatology of tracer   1 for time =    15.00 
+<BR>      GET_TCLIMA -- Read climatology of tracer   2 for time =    345.0 
+<BR>      GET_TCLIMA -- Read climatology of tracer   2 for time =    15.00 
+<BR>      GET_UCLIMA -- Read momentum climatology      for time =    345.0 
+<BR>      GET_UCLIMA -- Read momentum climatology      for time =    15.00 
 <BR>      GET_SSH     - Read SSH climatology           for time =    345.0 
 <BR>      GET_SSH     - Read SSH climatology           for time =    15.00 
-<BR>      GET_SMFLUX - Read surface momentum stresses for time =    345.0 
-<BR>      GET_SMFLUX - Read surface momentum stresses for time =    15.00 
-<BR>      GET_BULK   - Read fields for bulk formula   for time =    345.0 
-<BR>      GET_BULK   - Read fields for bulk formula   for time =    15.00 
+<BR>      GET_SMFLUX -- Read surface momentum stresses for time =    345.0 
+<BR>      GET_SMFLUX -- Read surface momentum stresses for time =    15.00 
+<BR>      GET_BULK   -- Read fields for bulk formula   for time =    345.0 
+<BR>      GET_BULK   -- Read fields for bulk formula   for time =    15.00 
 <BR>
 <BR>      DEF_HIS/AVG - Created new netCDF file 'ROMS_FILES/roms_his.nc'.
-<BR>      WRT_GRID - wrote grid data into file 'ROMS_FILES/roms_his.nc'.
-<BR>      WRT_HIS - wrote history fields into time record =   1 /   1
+<BR>      WRT_GRID -- wrote grid data into file 'ROMS_FILES/roms_his.nc'.
+<BR>      WRT_HIS -- wrote history fields into time record =   1 /   1
 <BR>
 <BR> MAIN: started time-steping.
 <BR>
@@ -2556,7 +1948,7 @@ time step.
 <BR>     0     0.00000 0.000000000E+00 2.1475858E+01 2.1475858E+01 9.5239861E+14  0
 <BR>     1     0.06250 1.306369099E-04 2.1476230E+01 2.1476361E+01 9.5239208E+14  0
 <BR>...
-<BR>---------------------------------------------
+<BR>------------------------------------------------------------------------------------------
 <BR>
 <P>
 
@@ -2614,14 +2006,8 @@ Part to edit in run_roms.csh:
 <BR># 
 <BR>set NLEVEL=1 
 <BR># 
-<BR>#  Time Schedule  -  TIME_SCHED=0 -<IMG
- WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img8.png"
- ALT="$&gt;$"> yearly files 
-<BR>#                    TIME_SCHED=1 -<IMG
- WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img8.png"
- ALT="$&gt;$"> monthly files 
+<BR>#  Time Schedule  -  TIME_SCHED=0 --<tex2html_image_mark>#tex2html_wrap_inline739# yearly files 
+<BR>#                    TIME_SCHED=1 --<tex2html_image_mark>#tex2html_wrap_inline741# monthly files 
 <BR># 
 <BR>set TIME_SCHED=1 
 <BR># 
@@ -2673,23 +2059,11 @@ position of child grids when using embedding.
 To run a ROMS long simulation in batch mode on a Linux workstation:
 <BR>
 <P>
-<IMG
- WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img8.png"
- ALT="$&gt;$"> : nohup ./run_roms.csh <IMG
- WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img8.png"
- ALT="$&gt;$"> exp1.out &amp;
+<tex2html_image_mark>#tex2html_wrap_inline743# : nohup ./run_roms.csh <tex2html_image_mark>#tex2html_wrap_inline745# exp1.out <tex2html_ampersand_mark>
 <BR>
 <BR>To check the execution of your model, type in the directory
-<IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_Tools/Run :
-<BR><IMG
- WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img8.png"
- ALT="$&gt;$">: more exp1.out
+<tex2html_image_mark>#tex2html_wrap_inline747#/Roms_Tools/Run :
+<BR><tex2html_image_mark>#tex2html_wrap_inline749#: more exp1.out
 
 <H2><A NAME="SECTION00048000000000000000">
 3.8 Getting the results</A>
@@ -2705,190 +2079,97 @@ To run a ROMS long simulation in batch mode on a Linux workstation:
 Once the model has run, or during the simulation, it is possible
 to visualize the model outputs using a Matlab graphic user interface : 
 roms_gui. Launch roms_gui in the Matlab session 
-(in the  <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/ directory):
+(in the  <tex2html_image_mark>#tex2html_wrap_inline751#/Roms_tools/Run/ directory):
 
 <BR>
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$"> 
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$"> roms_gui
+<BR><tex2html_image_mark>#tex2html_wrap_inline753# 
+<BR><tex2html_image_mark>#tex2html_wrap_inline755# roms_gui
 
 <BR>
-<BR>A window pops up, asking for a ROMS history NetCDF file (Figure <A HREF="#fig:open">4</A>).
+<BR>A window pops up, asking for a ROMS history NetCDF file (Figure <A HREF=<tex2html_cr_mark>#fig:open#548><tex2html_cr_mark></A>).
 You should select roms_his.nc (history file) or roms_avg.nc (average file) and
-click "open".
+click ;SPMquot;open;SPMquot;.
 
-<DIV ALIGN="CENTER"><A NAME="fig:open"></A><A NAME="551"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:open"><tex2html_anchor_mark></A><A NAME="551"><tex2html_anchor_mark></A>
 <TABLE>
-<CAPTION ALIGN="BOTTOM"><STRONG>Figure 4:</STRONG>
-Entrance window of roms_gui</CAPTION>
-<TR><TD><IMG
- WIDTH="226" HEIGHT="267" BORDER="0"
- SRC="img20.png"
- ALT="\begin{figure}\centerline{\psfig{figure=roms_gui_select.eps,width=5cm}}\end{figure}"></TD></TR>
+<CAPTION ALIGN="BOTTOM"><STRONG><#1980#>Figure<#1980#> 4:</STRONG>
+<#1981#>Entrance window of roms_gui<#1981#></CAPTION>
+<TR><TD><tex2html_image_mark>#figure549#</TD></TR>
 </TABLE>
 </DIV>
+
 
 <BR>
-<DIV ALIGN="CENTER"><A NAME="fig:romsgui"></A><A NAME="556"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:romsgui"><tex2html_anchor_mark></A><A NAME="556"><tex2html_anchor_mark></A>
 <TABLE>
-<CAPTION ALIGN="BOTTOM"><STRONG>Figure 5:</STRONG>
-roms_gui</CAPTION>
-<TR><TD><IMG
- WIDTH="407" HEIGHT="375" BORDER="0"
- SRC="img21.png"
- ALT="\begin{figure}\centerline{\psfig{figure=roms_gui.eps,width=9cm}}\end{figure}"></TD></TR>
+<CAPTION ALIGN="BOTTOM"><STRONG><#1983#>Figure<#1983#> 5:</STRONG>
+<#1984#>roms_gui<#1984#></CAPTION>
+<TR><TD><tex2html_image_mark>#figure554#</TD></TR>
 </TABLE>
 </DIV>
+
 
 <P>
 The main window appears, variables can be selected to obtain an image such as
-Figure (<A HREF="#fig:romsgui">5</A>). On the left side, the upper box  gives the available 
+Figure (<A HREF=<tex2html_cr_mark>#fig:romsgui#559><tex2html_cr_mark></A>). On the left side, the upper box  gives the available 
 ROMS variable names and the lower box presents the variables derived from the
 ROMS model outputs :
 
 <P>
 
 <UL>
-<LI>Ke : Horizontal slice of kinetic energy: <IMG
- WIDTH="88" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
- SRC="img22.png"
- ALT="$0.5(u^2+v^2)$">.
+<LI>Ke : Horizontal slice of kinetic energy: <tex2html_image_mark>#tex2html_wrap_inline757#.
 </LI>
 <LI>Rho : Horizontal slice of density using the non-linear equation of state 
-for seawater of <A
- HREF="doc.html#Jac95">Jackett and McDougall (1995)</A>.
+for seawater of #Jac95#<tex2html_citet_mark>##.
 </LI>
 <LI>Pot_Rho : Horizontal slice of the potential density.
 </LI>
 <LI>Bvf : Horizontal slice of the Brunt-V&#228;is&#228;la frequency: 
-<!-- MATH
- $N^2=-\frac{g}{\rho}\frac{\partial \rho}{\partial z}$
- -->
-<IMG
- WIDTH="88" HEIGHT="38" ALIGN="MIDDLE" BORDER="0"
- SRC="img23.png"
- ALT="$N^2=-\frac{g}{\rho}\frac{\partial \rho}{\partial z}$"> 
+<tex2html_verbatim_mark>#math9#<tex2html_image_mark>#tex2html_wrap_inline759# 
 </LI>
-<LI>Vort : Horizontal slice of vorticity: <!-- MATH
- $\frac{\partial v}{\partial x}-
-\frac{\partial u}{\partial y}$
- -->
-<IMG
- WIDTH="61" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img24.png"
- ALT="$\frac{\partial v}{\partial x}-
-\frac{\partial u}{\partial y}$">.
+<LI>Vort : Horizontal slice of vorticity: <tex2html_verbatim_mark>#math10#<tex2html_image_mark>#tex2html_wrap_inline761#.
 </LI>
 <LI>Pot_vort : Horizontal slice of the vertical component of Ertel's potential vorticity:
-<!-- MATH
- $\frac{\partial \lambda}{\partial z} \left [ f + 
-\left (\frac{\partial v}{\partial x}-\frac{\partial u}{\partial y}\right ) \right ]$
- -->
-<IMG
- WIDTH="145" HEIGHT="45" ALIGN="MIDDLE" BORDER="0"
- SRC="img25.png"
- ALT="$\frac{\partial \lambda}{\partial z} \left [ f +
-\left (\frac{\partial v}{\partial x}-\frac{\partial u}{\partial y}\right ) \right ]$">.
-In our case, <IMG
- WIDTH="43" HEIGHT="30" ALIGN="MIDDLE" BORDER="0"
- SRC="img26.png"
- ALT="$\lambda=\rho$">.
+<tex2html_verbatim_mark>#math11#<tex2html_image_mark>#tex2html_wrap_inline763#.
+In our case, <tex2html_image_mark>#tex2html_wrap_inline765#.
 </LI>
 <LI>Psi : Horizontal slice of stream function: 
-<!-- MATH
- $\nabla^2 \psi=\frac{\partial v}{\partial x}-\frac{\partial u}{\partial y}$
- -->
-<IMG
- WIDTH="113" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img27.png"
- ALT="$\nabla^2 \psi=\frac{\partial v}{\partial x}-\frac{\partial u}{\partial y}$">.
+<tex2html_verbatim_mark>#math12#<tex2html_image_mark>#tex2html_wrap_inline767#.
 This routine might be costly since it inverses the Laplacian of the vorticity
 (using a successive over relaxation solver).
 </LI>
-<LI>Speed : Horizontal slice of the ocean currents velocity : <!-- MATH
- $\sqrt{u^2+v^2}$
- -->
-<IMG
- WIDTH="68" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
- SRC="img28.png"
- ALT="$\sqrt{u^2+v^2}$">.
+<LI>Speed : Horizontal slice of the ocean currents velocity : <tex2html_verbatim_mark>#math13#<tex2html_image_mark>#tex2html_wrap_inline769#.
 </LI>
 <LI>Transport : Horizontal slice of the transport stream function : 
-<!-- MATH
- $\nabla^2 S_{vd}=\frac{\partial \bar{v}}{\partial x}-\frac{\partial \bar{u}}{\partial y}$
- -->
-<IMG
- WIDTH="126" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img29.png"
- ALT="$\nabla^2 S_{vd}=\frac{\partial \bar{v}}{\partial x}-\frac{\partial \bar{u}}{\partial y}$">.
+<tex2html_verbatim_mark>#math14#<tex2html_image_mark>#tex2html_wrap_inline771#.
 </LI>
 <LI>Okubo : Horizontal slice of the Okubo-Weiss parameter : 
-<!-- MATH
- $\Lambda^2=
-\left ( \frac{\partial u}{\partial x}-\frac{\partial v}{\partial y} \right )^2+
-\left ( \frac{\partial v}{\partial x}+\frac{\partial u}{\partial y} \right )^2-
-\left ( \frac{\partial v}{\partial x}-\frac{\partial u}{\partial y} \right )^2$
- -->
-<IMG
- WIDTH="331" HEIGHT="51" ALIGN="MIDDLE" BORDER="0"
- SRC="img30.png"
- ALT="$\Lambda^2=
-\left ( \frac{\partial u}{\partial x}-\frac{\partial v}{\partial y} ...
-...
-\left ( \frac{\partial v}{\partial x}-\frac{\partial u}{\partial y} \right )^2$">.
+<tex2html_verbatim_mark>#math15#<tex2html_image_mark>#tex2html_wrap_inline773#.
 </LI>
 <LI>Chla : Compute a chlorophyll-a from Large and Small phytoplankton concentrations.
 </LI>
-<LI>z_SST_1C : Depth of 1<IMG
- WIDTH="11" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img7.png"
- ALT="$^\circ$">C below SST.
+<LI>z_SST_1C : Depth of 1<tex2html_image_mark>#tex2html_wrap_inline775#C below SST.
 </LI>
-<LI>z_rho_1.25 : Depth of 1.25 kg.m<IMG
- WIDTH="21" HEIGHT="18" ALIGN="BOTTOM" BORDER="0"
- SRC="img31.png"
- ALT="$^{-3}$"> below surface density.
+<LI>z_rho_1.25 : Depth of 1.25 kg.m<tex2html_image_mark>#tex2html_wrap_inline777# below surface density.
 </LI>
 <LI>z_max_bvf : Depth of the maximum of the  Brunt-V&#228;is&#228;la frequency.
 </LI>
 <LI>z_max_dtdz : Depth of the maximum  vertical temperature gradient.
 </LI>
-<LI>z_20C : Depth of the 20<IMG
- WIDTH="11" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img7.png"
- ALT="$^\circ$">C isotherm.
+<LI>z_20C : Depth of the 20<tex2html_image_mark>#tex2html_wrap_inline779#C isotherm.
 </LI>
-<LI>z_15C : Depth of the 15<IMG
- WIDTH="11" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img7.png"
- ALT="$^\circ$">C isotherm.
+<LI>z_15C : Depth of the 15<tex2html_image_mark>#tex2html_wrap_inline781#C isotherm.
 </LI>
-<LI>z_sig27 : Depth of the 1027 kg.m<IMG
- WIDTH="21" HEIGHT="18" ALIGN="BOTTOM" BORDER="0"
- SRC="img31.png"
- ALT="$^{-3}$"> density layer.
+<LI>z_sig27 : Depth of the 1027 kg.m<tex2html_image_mark>#tex2html_wrap_inline783# density layer.
 </LI>
-<LI>r_factor : <!-- MATH
- $r=\frac{\nabla h}{2h}=\frac{h_{+1/2}-h_{-1/2}}{h_{+1/2}+h_{-1/2}}$
- -->
-<IMG
- WIDTH="156" HEIGHT="42" ALIGN="MIDDLE" BORDER="0"
- SRC="img32.png"
- ALT="$r=\frac{\nabla h}{2h}=\frac{h_{+1/2}-h_{-1/2}}{h_{+1/2}+h_{-1/2}}$">
+<LI>r_factor : <tex2html_verbatim_mark>#math16#<tex2html_image_mark>#tex2html_wrap_inline785#
 </LI>
 </UL>
 
 <P>
-It is possible to add arrows for the horizontal currents by increasing the "Current vectors 
-spatial step". It is also possible to obtain vertical sections, time series, vertical profiles
+It is possible to add arrows for the horizontal currents by increasing the ;SPMquot;Current vectors 
+spatial step;SPMquot;. It is also possible to obtain vertical sections, time series, vertical profiles
 and Hovm&#252;ller diagrams by clicking on the corresponding targets in roms_gui.
 
 <P>
@@ -2900,10 +2181,7 @@ and Hovm&#252;ller diagrams by clicking on the corresponding targets in roms_gui
 <P>
 To analyze the long simulations,
 a few scripts have been added in the directory: 
-<BR><IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Diagnostic_tools:
+<BR><tex2html_image_mark>#tex2html_wrap_inline787#/Roms_tools/Diagnostic_tools:
 
 <UL>
 <LI>roms_diags.m : Get volume and surface averaged quantities from a ROMS simulation.
@@ -2929,7 +2207,7 @@ Run these scripts in a Matlab session.
 The obtained mean or eddy files can be visualized with roms_gui.
 <BR>
 <P>
-If you need to create and play ".fli" animations, you should install ppm2fli
+If you need to create and play ;SPMquot;.fli;SPMquot; animations, you should install ppm2fli
 and xanim on your system. If you have a Linux PC, you can follow these steps:
 
 <OL>
@@ -2946,52 +2224,49 @@ and xanim on your system. If you have a Linux PC, you can follow these steps:
 </OL>
 If you are not using a Linux PC, you should ask your 
 system administrator to install these programs.
-<BR>
+<BR><tex2html_endfile>#./tutorial.tex#
+
 <P>
 
 <H1><A NAME="SECTION00050000000000000000">
 4 Tides</A>
 </H1>
-Using the method described by <A
- HREF="doc.html#Fla76">Flather (1976)</A>, ROMS is able to propagate the 
+<tex2html_file>#./tides.tex#
+Using the method described by #Fla76#<tex2html_citet_mark>##, ROMS is able to propagate the 
 different tidal constituents from its lateral boundaries. To do so, define  
 the cpp keys TIDES,  SSH_TIDES and UV_TIDES and recompile the model 
-using jobcomp. To work correctly, the model should use the <A
- HREF="doc.html#Fla76">Flather (1976)</A> 
+using jobcomp. To work correctly, the model should use the #Fla76#<tex2html_citet_mark>## 
 open boundary radiation scheme (cpp key OBC_M2FLATHER defined).
 <BR>The tidal components are added to the forcing file (XXX_frc.nc)
 by the Matlab program make_tides.m.
-Edit the file : <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/romstools_param.m.
+Edit the file : <tex2html_image_mark>#tex2html_wrap_inline901#/Roms_tools/Run/romstools_param.m.
 The part of the file that you should change is :
 <BR>
-<BR>%%%%%%%%%%%%%%%%%%%%%
-<BR>%
-<BR>% 5-Parameters for tidal forcing
-<BR>%
-<BR>%%%%%%%%%%%%%%%%%%%%%
-<BR>%
-<BR>% TPXO file name (TPXO6 or TPXO7)
-<BR>%
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> 5-Parameters for tidal forcing
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> TPXO file name (TPXO6 or TPXO7)
+<BR><tex2html_percent_mark>
 <BR>tidename=[ROMSTOOLS_dir,'TPXO6/TPXO6.nc'];
-<BR>%
-<BR>% Number of tides component to process
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> Number of tides component to process
+<BR><tex2html_percent_mark>
 <BR>Ntides=10;
-<BR>%
-<BR>% Chose order from the rank in the TPXO file :
-<BR>% "M2 S2 N2 K2 K1 O1 P1 Q1 Mf Mm"
-<BR>% " 1  2  3  4  5  6  7  8  9 10"
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> Chose order from the rank in the TPXO file :
+<BR><tex2html_percent_mark> ;SPMquot;M2 S2 N2 K2 K1 O1 P1 Q1 Mf Mm;SPMquot;
+<BR><tex2html_percent_mark> ;SPMquot; 1  2  3  4  5  6  7  8  9 10;SPMquot;
+<BR><tex2html_percent_mark>
 <BR>tidalrank=[1 2 3 4 5 6 7 8 9 10];
-<BR>%
-<BR>% Compare with tidegauge observations
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> Compare with tidegauge observations
+<BR><tex2html_percent_mark>
 <BR>lon0=18.37;
-<BR>lat0=-33.91;   % Cape Town location
-<BR>Z0=1;          % Mean depth of the tidegauge in Cape Town
+<BR>lat0=-33.91;   <tex2html_percent_mark> Cape Town location
+<BR>Z0=1;          <tex2html_percent_mark> Mean depth of the tidegauge in Cape Town
 <BR>
 <BR>
 <P>
@@ -3000,14 +2275,13 @@ Variables definitions :
 <UL>
 <LI>tidename=[ROMSTOOLS_dir,'TPXO6/TPXO6.nc'] : Location of the netcdf tidal dataset. 
 This file is derived from the Oregon State University global model of ocean tides TPXO.6 
-(<A
- HREF="doc.html#Egb02">Egbert and Erofeeva, 2002</A>).  Data sources can be found at 
+(#Egb02#<tex2html_cite_par_mark>##).  Data sources can be found at 
 <BR>http://www.oce.orst.edu/po/research/tide/global.html.
 It is also possible to use TPXO7.
 </LI>
 <LI>Ntides=10 : Number of tidal components to process. Warning!
 This value should be identical to the value of the parameter Ntides in param.h:
-"parameter (Ntides=10)".
+;SPMquot;parameter (Ntides=10);SPMquot;.
 </LI>
 <LI>tidalrank=[1 2 3 4 5 6 7 8 9 10] : Order to select the different tidal components.
 </LI>
@@ -3019,61 +2293,54 @@ with observations.
 <BR></LI>
 </UL>
 An important aspect is the definition of time and especially the choice of a 
-time origin. This is defined in <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/romstools_param.m:
+time origin. This is defined in <tex2html_image_mark>#tex2html_wrap_inline903#/Roms_tools/Run/romstools_param.m:
 
 <BR>
-<BR>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<BR>%
-<BR>% 6-Temporal parameters (used for make_tides, make_NCEP, make_OGCM)
-<BR>%
-<BR>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<BR>%
-<BR>Yorig         = 1900;               % reference time for vector time
-<BR>                                    % in roms initial and forcing files
-<BR>%
-<BR>Ymin          = 2000;               % first forcing year
-<BR>Ymax          = 2000;               % last  forcing year
-<BR>Mmin          = 1;                  % first forcing month
-<BR>Mmax          = 3;                  % last  forcing month
-<BR>%
-<BR>Dmin          = 1;                  % Day of initialization
-<BR>Hmin          = 0;                  % Hour of initialization
-<BR>Min_min       = 0;                  % Minute of initialization
-<BR>Smin          = 0;                  % Second of initialization
-<BR>%
-<BR>SPIN_Long     = 0;                  % SPIN-UP duration in Years
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> 6-Temporal parameters (used for make_tides, make_NCEP, make_OGCM)
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR><tex2html_percent_mark>
+<BR>Yorig         = 1900;               <tex2html_percent_mark> reference time for vector time
+<BR>                                    <tex2html_percent_mark> in roms initial and forcing files
+<BR><tex2html_percent_mark>
+<BR>Ymin          = 2000;               <tex2html_percent_mark> first forcing year
+<BR>Ymax          = 2000;               <tex2html_percent_mark> last  forcing year
+<BR>Mmin          = 1;                  <tex2html_percent_mark> first forcing month
+<BR>Mmax          = 3;                  <tex2html_percent_mark> last  forcing month
+<BR><tex2html_percent_mark>
+<BR>Dmin          = 1;                  <tex2html_percent_mark> Day of initialization
+<BR>Hmin          = 0;                  <tex2html_percent_mark> Hour of initialization
+<BR>Min_min       = 0;                  <tex2html_percent_mark> Minute of initialization
+<BR>Smin          = 0;                  <tex2html_percent_mark> Second of initialization
+<BR><tex2html_percent_mark>
+<BR>SPIN_Long     = 0;                  <tex2html_percent_mark> SPIN-UP duration in Years
 <BR>
 <BR>
 <BR>The origin of time (Yorig: 1 january of year Yorig) should be kept the same
 for all the preprocessing and postprocessing steps.
 Save romstools_param.m and run make_tides in the Matlab session:
 
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$">
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$"> make_tides
+<BR><tex2html_image_mark>#tex2html_wrap_inline905#
+<BR><tex2html_image_mark>#tex2html_wrap_inline907# make_tides
 <BR>
 <BR>You should obtain :
-<BR>---------------------------------------------
+<BR>------------------------------------------------------------------------------------------
 <BR>Start date for nodal correction : 1-Jan-2000
 <BR>Reading ROMS grid parameters ...
 <BR>Tidal components : M2 S2 N2 K2 K1 O1 P1 Q1 Mf Mm 
 <BR>Processing tide : 1 of 10
 <BR>...
-<BR>---------------------------------------------
-<BR>
+<BR>------------------------------------------------------------------------------------------
+<BR><tex2html_endfile>#./tides.tex#
+
 <P>
 
 <H1><A NAME="SECTION00060000000000000000">
 5 Inter-Annual simulations</A>
 </H1>
+<tex2html_file>#./inter_annual_simulation.tex#
 ROMSTOOLS can help to realize inter-annual simulations. In this context, 
 we rely on Ocean Global Circulations Models (OGCM) for the lateral 
 boundary conditions and a global atmospheric reanalysis for the surface 
@@ -3095,37 +2362,34 @@ the model grid. Since make_NCEP.m works with the bulk parameterization
 BULK_FLUX and BULK_EP cpp keys should be defined in cppdefs.h),
 a surface forcing NetCDF file and a bulk NetCDF file are generated for 
 each month of your simulation in the directory 
-<IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/ROMSFILES/ .
+<tex2html_image_mark>#tex2html_wrap_inline925#/Roms_tools/Run/ROMSFILES/ .
 The part of the file romstools_param.m that you should change is:
 <BR>
-<BR>%
-<BR>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<BR>%
-<BR>% 7 Parameters for Interannual forcing (SODA, ECCO, NCEP, ...)
-<BR>%
-<BR>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<BR>%
-<BR>% Path to Forcing data
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> 7 Parameters for Interannual forcing (SODA, ECCO, NCEP, ...)
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> Path to Forcing data
+<BR><tex2html_percent_mark>
 <BR>FORC_DATA_DIR = [RUN_dir,'DATA/'];
-<BR>%
-<BR>Download_data = 1;                            % Get data from the OPENDAP sites 
-<BR>level         = 0;                            % AGRIF level; 0=parent grid 
-<BR>%
-<BR>%  Options for make_NCEP
-<BR>%
-<BR>NCEP_dir= [FORC_DATA_DIR,'NCEP_',ROMS_config,'/']; % NCEP data directory
-<BR>makefrc      = 1;                            % 1: Create forcing files
-<BR>makeblk      = 1;                            % 1: Create bulk files
-<BR>add_tides     = 0;                     % 1: Add the tides (To be done...)
-<BR>%
-<BR>NCEP_version  = 1;                            % NCEP version:
-<BR>%                                 (1: NCEP/NCAR Reanalysis, 1/1/1948 - present
-<BR>%                                  2: NCEP-DOE Reanalysis, 1/1/1979 - 12/31/2001)
-<BR>%
+<BR><tex2html_percent_mark>
+<BR>Download_data = 1;                            <tex2html_percent_mark> Get data from the OPENDAP sites 
+<BR>level         = 0;                            <tex2html_percent_mark> AGRIF level; 0=parent grid 
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark>  Options for make_NCEP
+<BR><tex2html_percent_mark>
+<BR>NCEP_dir= [FORC_DATA_DIR,'NCEP_',ROMS_config,'/']; <tex2html_percent_mark> NCEP data directory
+<BR>makefrc      = 1;                            <tex2html_percent_mark> 1: Create forcing files
+<BR>makeblk      = 1;                            <tex2html_percent_mark> 1: Create bulk files
+<BR>add_tides     = 0;                     <tex2html_percent_mark> 1: Add the tides (To be done...)
+<BR><tex2html_percent_mark>
+<BR>NCEP_version  = 1;                            <tex2html_percent_mark> NCEP version:
+<BR><tex2html_percent_mark>                                 (1: NCEP/NCAR Reanalysis, 1/1/1948 - present
+<BR><tex2html_percent_mark>                                  2: NCEP-DOE Reanalysis, 1/1/1979 - 12/31/2001)
+<BR><tex2html_percent_mark>
 <BR>
 <BR>Variables description :
 
@@ -3156,10 +2420,7 @@ Save romstools_param.m and run make_NCEP in the Matlab session.
 You should obtain:
 
 <BR>
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$"> make_NCEP
+<BR><tex2html_image_mark>#tex2html_wrap_inline927# make_NCEP
 <BR>Add the paths of the different toolboxes
 <BR>Arch : x86_64 - Matlab version : 2006a
 <BR>Use of mexnc and loaddap in 64 bits.
@@ -3188,29 +2449,24 @@ You should obtain:
 <P>
 Initial conditions and lateral boundary conditions and  can be 
 obtained from several ocean global circulation models (OGCM) 
-such as SODA (<A
- HREF="doc.html#Car05">Carton et al., 2005</A>) or ECCO (<A
- HREF="doc.html#Sta99">Stammer et al., 1999</A>). The SODA 
+such as SODA (#Car05#<tex2html_cite_par_mark>##) or ECCO (#Sta99#<tex2html_cite_par_mark>##). The SODA 
 reanalysis is available from 1958 to 2001 and ECCO is available 
 from 1993 until now. The Matlab script make_OGCM.m is used to 
 download data over the Internet, and to perform the interpolations 
 on the model grid. 
 A lateral boundary conditions NetCDF file is generated for each month 
-of your simulation in the directory <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/ROMSFILES/ . 
+of your simulation in the directory <tex2html_image_mark>#tex2html_wrap_inline929#/Roms_tools/Run/ROMSFILES/ . 
 
 <BR>
 <BR>The part of the file romstools_param.m that you should change is:
 
 <BR>
-<BR>%%%%%%%%%%%%%%%%%%%
-<BR>%
-<BR>% Options for make_OGCM 
-<BR>%
-<BR>%%%%%%%%%%%%%%%%%%%
-<BR>OGCM        = 'SODA';                                % Select the OGCM:
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> Options for make_OGCM 
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR>OGCM        = 'SODA';                                <tex2html_percent_mark> Select the OGCM:
 SODA(1958-2001), ECCO(1993-2005), ...
 <BR>OGCM_dir    = [FORC_DATA_DIR,OGCM,'_',ROMS_config,'/'];  
 <BR>bry_prefix  = [ROMS_files_dir,'roms_bry_',OGCM,'_']; 
@@ -3218,8 +2474,8 @@ SODA(1958-2001), ECCO(1993-2005), ...
 <BR>ini_prefix  = [ROMS_files_dir,'roms_ini_',OGCM,'_']; 
 <BR>OGCM_prefix = [OGCM,'_'];                            
 <BR>rmdepth     = 2;                                    
-<BR>%                             
-<BR>%                        
+<BR><tex2html_percent_mark>                             
+<BR><tex2html_percent_mark>                        
 <BR>
 <BR>
 <BR>
@@ -3254,10 +2510,7 @@ Save romstools_param.m and run make_OGCM in the Matlab session.
 You should obtain:
 
 <BR>
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$"> make_OGCM
+<BR><tex2html_image_mark>#tex2html_wrap_inline931# make_OGCM
 <BR>Add the paths of the different toolboxes
 <BR>Arch : x86_64 - Matlab version : 2006a
 <BR>Use of mexnc and loaddap in 64 bits.
@@ -3288,10 +2541,7 @@ You should obtain:
 Compile the model with jobcomp (and with the 
 cpp keys BULK_FLUX and BULK_EP defined) and edit 
 the input parameter file 
-<IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/roms_inter.in as for the
+<tex2html_image_mark>#tex2html_wrap_inline933#/Roms_tools/Run/roms_inter.in as for the
 climatology experiments. As for the long simulations, a csh script
 (run_roms_inter.csh) manages the handling of input and output files.
 It also changes the number of time steps so each month has the correct
@@ -3336,25 +2586,13 @@ Part to edit in run_roms_inter.csh:
 <BR>set NM_START=1
 <BR>set NM_END=3
 <BR>#
-<BR>#  Restart file - RSTFLAG=0 -<IMG
- WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img8.png"
- ALT="$&gt;$"> No Restart
-<BR>#		  RSTFLAG=1 -<IMG
- WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img8.png"
- ALT="$&gt;$"> Restart
+<BR>#  Restart file - RSTFLAG=0 --<tex2html_image_mark>#tex2html_wrap_inline935# No Restart
+<BR>#		  RSTFLAG=1 --<tex2html_image_mark>#tex2html_wrap_inline937# Restart
 <BR>#
 <BR>set RSTFLAG=0
 <BR>#
-<BR>#  Time Schedule  -  TIME_SCHED=0 -<IMG
- WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img8.png"
- ALT="$&gt;$"> yearly files
-<BR>#                    TIME_SCHED=1 -<IMG
- WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img8.png"
- ALT="$&gt;$"> monthly files
+<BR>#  Time Schedule  -  TIME_SCHED=0 --<tex2html_image_mark>#tex2html_wrap_inline939# yearly files
+<BR>#                    TIME_SCHED=1 --<tex2html_image_mark>#tex2html_wrap_inline941# monthly files
 <BR>#
 <BR>set TIME_SCHED=1
 <BR>#
@@ -3422,20 +2660,16 @@ files, it should be always 1.
 <P>
 As for ROMS long climatology experiments, inter-annual experiments can be run
 in batch mode:
-<BR><IMG
- WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img8.png"
- ALT="$&gt;$">: nohup ./run_roms_inter.csh <IMG
- WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img8.png"
- ALT="$&gt;$"> exp1.out &amp;
+<BR><tex2html_image_mark>#tex2html_wrap_inline943#: nohup ./run_roms_inter.csh <tex2html_image_mark>#tex2html_wrap_inline945# exp1.out <tex2html_ampersand_mark>
 <BR>
-<BR>
+<BR><tex2html_endfile>#./inter_annual_simulation.tex#
+
 <P>
 
 <H1><A NAME="SECTION00070000000000000000">
 6 Embedding</A>
 </H1>
+<tex2html_file>#./nesting.tex#
 
 <P>
 
@@ -3446,14 +2680,10 @@ in batch mode:
 <P>
 To address the challenge of bridging the gap between near-shore and
 offshore dynamics, a nesting capability has been added to ROMS
-and tested for the California Upwelling System (<A
- HREF="doc.html#Pen04">Penven et al., 2006</A>).
+and tested for the California Upwelling System (#Pen04#<tex2html_cite_par_mark>##).
 The method chosen for embedded griding takes advantage of the AGRIF
-(Adaptive Grid Refinement in Fortran) package (<A NAME="tex2html76"
-  HREF="doc.html#Bla99">Blayo and Debreu, 1999</A>; <A NAME="tex2html77"
-  HREF="doc.html#Deb03b">Debreu and Vouland, 2003</A>; <A NAME="tex2html78"
-  HREF="doc.html#Deb00">Debreu, 2000</A>; <A NAME="tex2html79"
-  HREF="doc.html#Deb03a">Debreu and Blayo, 2003</A>).
+(Adaptive Grid Refinement in Fortran) package (<tex2html_cite_multiple_mark>#Bla99#<tex2html_cite_par_mark>##; #Deb00#<tex2html_cite_par_mark>##; #
+Deb03a#<tex2html_cite_par_mark>##; #Deb03b#<tex2html_cite_par_mark>##<tex2html_cite_multiple_mark>).
 AGRIF is a Fortran 95 package for the inclusion of adaptive mesh refinement
 features within a finite difference numerical model. One of
 the major advantages of AGRIF in static-grid embedding is the ability to
@@ -3462,29 +2692,27 @@ embedding levels.
 
 <P>
 
-<DIV ALIGN="CENTER"><A NAME="fig:temp_coupling"></A><A NAME="972"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:temp_coupling"><tex2html_anchor_mark></A><A NAME="972"><tex2html_anchor_mark></A>
 <TABLE>
-<CAPTION ALIGN="BOTTOM"><STRONG>Figure 6:</STRONG>
-Temporal coupling between a parent and a child grid
+<CAPTION ALIGN="BOTTOM"><STRONG><#2025#>Figure<#2025#> 6:</STRONG>
+<#2026#>Temporal coupling between a parent and a child grid
 for a refinement factor of 3.  The coupling is done at the baroclinic
-time step.</CAPTION>
-<TR><TD><IMG
- WIDTH="582" HEIGHT="166" BORDER="0"
- SRC="img33.png"
- ALT="\begin{figure}\centerline{\psfig{figure=nesting_fig1.eps,width=15cm}}\end{figure}"></TD></TR>
+time step.<#2026#></CAPTION>
+<TR><TD><tex2html_image_mark>#figure970#</TD></TR>
 </TABLE>
 </DIV>
+
 
 <P>
 A recursive integration procedure manages the time evolution for the
 child grids during the time step of the parent grids
-(Figure <A HREF="#fig:temp_coupling">6</A>). In order to preserve the CFL 
+(Figure <A HREF=<tex2html_cr_mark>#fig:temp_coupling#975><tex2html_cr_mark></A>). In order to preserve the CFL 
 criterion, for a typical
 coefficient of refinement (say, a factor of 3 for a 5 km resolution
 grid embedded in a 15 km grid), for each parent time step the child
 must be advanced using a time step divided by the coefficient of
 refinement as many time as necessary to reach the time of the parent
-(Figure (<A HREF="#fig:temp_coupling">6</A>)).  For simple 2-level embedding, the
+(Figure (<A HREF=<tex2html_cr_mark>#fig:temp_coupling#976><tex2html_cr_mark></A>)).  For simple 2-level embedding, the
 procedure is as follows:
 <BR>
 <OL>
@@ -3516,60 +2744,44 @@ forcing and the initial conditions. To name the different files,
 AGRIF employs a specific strategy: if the parent file names are of
 the form: XXX.nc, the first child names will be of the form: 
 XXX.nc.1, the second: XXX.nc.2, etc... 
-This convention is also applied for the "roms.in" input files.
+This convention is also applied for the ;SPMquot;roms.in;SPMquot; input files.
 
 <P>
 A graphic user interface (NestGUI) facilitates the generation of 
 the different NetCDF files. Launch nestgui in the Matlab session 
-(in the <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/ directory):
+(in the <tex2html_image_mark>#tex2html_wrap_inline1005#/Roms_tools/Run/ directory):
 
 <BR>
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$">
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$"> nestgui
+<BR><tex2html_image_mark>#tex2html_wrap_inline1007#
+<BR><tex2html_image_mark>#tex2html_wrap_inline1009# nestgui
 
 <BR>
-<BR>A window pops up, asking for a "PARENT GRID" NetCDF file 
-(Figure <A HREF="#fig:nestgui1">7</A>). In our Benguela test case, you should select 
-<IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/ROMSFILES/roms_grd.nc (grid file) and click "open".
-The main window appears (Figure <A HREF="#fig:nestgui2">8</A>).
+<BR>A window pops up, asking for a ;SPMquot;PARENT GRID;SPMquot; NetCDF file 
+(Figure <A HREF=<tex2html_cr_mark>#fig:nestgui1#980><tex2html_cr_mark></A>). In our Benguela test case, you should select 
+<tex2html_image_mark>#tex2html_wrap_inline1011#/Roms_tools/Run/ROMSFILES/roms_grd.nc (grid file) and click ;SPMquot;open;SPMquot;.
+The main window appears (Figure <A HREF=<tex2html_cr_mark>#fig:nestgui2#981><tex2html_cr_mark></A>).
 
 <P>
 
-<DIV ALIGN="CENTER"><A NAME="fig:nestgui1"></A><A NAME="984"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:nestgui1"><tex2html_anchor_mark></A><A NAME="984"><tex2html_anchor_mark></A>
 <TABLE>
-<CAPTION ALIGN="BOTTOM"><STRONG>Figure 7:</STRONG>
-Entrance window of NestGUI</CAPTION>
-<TR><TD><IMG
- WIDTH="226" HEIGHT="215" BORDER="0"
- SRC="img34.png"
- ALT="\begin{figure}\centerline{\psfig{figure=nesting_select.eps,width=5cm}}\end{figure}"></TD></TR>
+<CAPTION ALIGN="BOTTOM"><STRONG><#2033#>Figure<#2033#> 7:</STRONG>
+<#2034#>Entrance window of NestGUI<#2034#></CAPTION>
+<TR><TD><tex2html_image_mark>#figure982#</TD></TR>
 </TABLE>
 </DIV>
+
 
 <P>
 
-<DIV ALIGN="CENTER"><A NAME="fig:nestgui2"></A><A NAME="989"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:nestgui2"><tex2html_anchor_mark></A><A NAME="989"><tex2html_anchor_mark></A>
 <TABLE>
-<CAPTION ALIGN="BOTTOM"><STRONG>Figure 8:</STRONG>
-The NestGUI main window</CAPTION>
-<TR><TD><IMG
- WIDTH="543" HEIGHT="434" BORDER="0"
- SRC="img35.png"
- ALT="\begin{figure}\centerline{\psfig{figure=nesting.eps,width=12cm}}\end{figure}"></TD></TR>
+<CAPTION ALIGN="BOTTOM"><STRONG><#2036#>Figure<#2036#> 8:</STRONG>
+<#2037#>The NestGUI main window<#2037#></CAPTION>
+<TR><TD><tex2html_image_mark>#figure987#</TD></TR>
 </TABLE>
 </DIV>
+
 
 <P>
 To generate the child model you should follow several steps:
@@ -3577,7 +2789,7 @@ To generate the child model you should follow several steps:
 <P>
 
 <OL>
-<LI>To define the child domain, click "Define child" and create
+<LI>To define the child domain, click ;SPMquot;Define child;SPMquot; and create
 the child domain on the main window. The size of the grid child
 (Lchild and Mchild) is now visible. This operation can be redone 
 until you are satisfied with the size and the position of the child 
@@ -3591,96 +2803,68 @@ procedure if this is not the case.
 
 <P>
 </LI>
-<LI>"Interp child" : It generates the child grid file. Before, 
+<LI>;SPMquot;Interp child;SPMquot; : It generates the child grid file. Before, 
 you should select if you are using a new topography
-("New child topo" button) for the child
+(;SPMquot;New child topo;SPMquot; button) for the child
 grid or if you are just interpolating the parent topography
 on the child grid. In the first case, you should defines
 what topography file will be used (e.g. 
-<IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Topo/etopo2.nc or another dataset).
+<tex2html_image_mark>#tex2html_wrap_inline1013#/Roms_tools/Topo/etopo2.nc or another dataset).
 You should also define if you want the volume of the child grid 
 to match the volume of the parent close to the parent/child 
-boundaries ("Match volume" button, it should be "on" by default).
-You should also define define the r factor (<A
- HREF="doc.html#Bec93">Beckmann and Haidvogel, 1993</A>) 
-for topography smoothing ("r-factor", 0.25 is safe) and
+boundaries (;SPMquot;Match volume;SPMquot; button, it should be ;SPMquot;on;SPMquot; by default).
+You should also define define the r factor (#Bec93#<tex2html_cite_par_mark>##) 
+for topography smoothing (;SPMquot;r-factor;SPMquot;, 0.25 is safe) and
 the number of points to connect the child topography to the
-parent topography ("n-band", it follows the relation 
-<!-- MATH
- $h_{new}=\alpha.h_{child} + (1-\alpha).h_{parent}$
- -->
-<IMG
- WIDTH="234" HEIGHT="32" ALIGN="MIDDLE" BORDER="0"
- SRC="img36.png"
- ALT="$h_{new}=\alpha.h_{child} + (1-\alpha).h_{parent}$">, 
-where <IMG
- WIDTH="14" HEIGHT="13" ALIGN="BOTTOM" BORDER="0"
- SRC="img37.png"
- ALT="$\alpha$"> is going from 0 to 1 in "n-band" points 
+parent topography (;SPMquot;n-band;SPMquot;, it follows the relation 
+<tex2html_verbatim_mark>#math17#<tex2html_image_mark>#tex2html_wrap_inline1015#, 
+where <tex2html_image_mark>#tex2html_wrap_inline1017# is going from 0 to 1 in ;SPMquot;n-band;SPMquot; points 
 from the parent/child boundaries).
-You should also select the child minimum depth ("Hmin",
+You should also select the child minimum depth (;SPMquot;Hmin;SPMquot;,
 it should be lower or equal to the parent minimum depth),
-the maximum depth at the coast ("Hmax coast"), the 
+the maximum depth at the coast (;SPMquot;Hmax coast;SPMquot;), the 
 number of selective hanning filter passes for the deep 
-regions ("n filter deep") and the number of final 
-hanning filter passes ("n filter final").
+regions (;SPMquot;n filter deep;SPMquot;) and the number of final 
+hanning filter passes (;SPMquot;n filter final;SPMquot;).
 
 <P>
 </LI>
-<LI>"Interp forcing": It interpolates the parent 
+<LI>;SPMquot;Interp forcing;SPMquot;: It interpolates the parent 
 surface forcing  on the child grid. Select the parent forcing file
-to be interpolated (e.g. <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/ROMSFILES/roms_frc.nc). 
+to be interpolated (e.g. <tex2html_image_mark>#tex2html_wrap_inline1019#/Roms_tools/Run/ROMSFILES/roms_frc.nc). 
 The child forcing file roms_frc.nc.1 will be created. 
 The parent surface fluxes are interpolated on the child grid. 
-You can use "Interp bulk" if you are using a bulk formula.
+You can use ;SPMquot;Interp bulk;SPMquot; if you are using a bulk formula.
 In this case, the parent bulk file 
-(e.g. <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/ROMSFILES/roms_blk.nc) will be
+(e.g. <tex2html_image_mark>#tex2html_wrap_inline1021#/Roms_tools/Run/ROMSFILES/roms_blk.nc) will be
 interpolated on the child grid.
 
 <P>
 </LI>
-<LI>"Interp initial": It interpolates parent initial
+<LI>;SPMquot;Interp initial;SPMquot;: It interpolates parent initial
 conditions on the child grid. Select the parent initial file
-(e.g. <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/ROMSFILES/roms_ini.nc).
+(e.g. <tex2html_image_mark>#tex2html_wrap_inline1023#/Roms_tools/Run/ROMSFILES/roms_ini.nc).
 The child initial file 
-(e.g. <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/ROMSFILES/roms_ini.nc.1) 
+(e.g. <tex2html_image_mark>#tex2html_wrap_inline1025#/Roms_tools/Run/ROMSFILES/roms_ini.nc.1) 
 will be created.
 If the topographies are different between the parent and 
 the child grids, the child initial conditions are 
 vertically re-interpolated. In this case you should check 
-if the options "vertical corrections" and "extrapolations"
+if the options ;SPMquot;vertical corrections;SPMquot; and ;SPMquot;extrapolations;SPMquot;
 are selected.
-"Interp biology" can be used to interpolate
+;SPMquot;Interp biology;SPMquot; can be used to interpolate
 parent biological variables for biogeochemical experiments.
-"Interp restart" generates a child restart file from 
+;SPMquot;Interp restart;SPMquot; generates a child restart file from 
 a parent restart file 
-(e.g. <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/ROMSFILES/roms_rst.nc). 
-This can be done to "hot start" a child model after the 
+(e.g. <tex2html_image_mark>#tex2html_wrap_inline1027#/Roms_tools/Run/ROMSFILES/roms_rst.nc). 
+This can be done to ;SPMquot;hot start;SPMquot; a child model after the 
 spin-up of the parent model.
 
 <P>
 </LI>
-<LI>You can click on "Create roms.in.*" to generate a
+<LI>You can click on ;SPMquot;Create roms.in.*;SPMquot; to generate a
 child input file (roms.in.1) from the parent input
-file and click on "Create AGRIF_FixedGrids.in" to 
+file and click on ;SPMquot;Create AGRIF_FixedGrids.in;SPMquot; to 
 generate a AGRIF_FixedGrids.in file (the file which
 defines the child grid position in the parent grid).
 
@@ -3689,8 +2873,8 @@ defines the child grid position in the parent grid).
 </OL>
 
 <P>
-"river" can be used to locate the river on the coast.
-"Interp clim" can be useful to generate boundary conditions 
+;SPMquot;river;SPMquot; can be used to locate the river on the coast.
+;SPMquot;Interp clim;SPMquot; can be useful to generate boundary conditions 
 to test the child model alone. 
 
 <P>
@@ -3705,10 +2889,7 @@ the Intel Fortran Compiler (ifort) is available at
 <BR>http://www.intel.com/software/products/compilers/flin/noncom.htm.
 To be able to compile ROMS with ifort, you should change the corresponding 
 comments in jobcomp. Define AGRIF in 
-<BR><IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/cppdefs.h.
+<BR><tex2html_image_mark>#tex2html_wrap_inline1029#/Roms_tools/Run/cppdefs.h.
 Other cpp keys are related to AGRIF:
 
 <UL>
@@ -3780,16 +2961,18 @@ roms roms.in.
 
 <P>
 To visualize the ROMS model outputs for different grid levels, 
-change the value in the "child models" box
+change the value in the ;SPMquot;child models;SPMquot; box
 in roms_gui.
 
 <P>
+<tex2html_endfile>#./nesting.tex#
 
 <P>
 
 <H1><A NAME="SECTION00080000000000000000">
 7 Biology</A>
 </H1>
+<tex2html_file>#./biology.tex#
 ROMSTOOLS can help for the design of ROMS biogeochemical 
 experiments. For the initial conditions and lateral boundary
 conditions, WOA provides a seasonal climatology for nitrate
@@ -3800,27 +2983,26 @@ ratio derived from previous simulations. Zooplankton is estimated
 in a similar way. The part which should be edited by the user in 
 romstools_param.m is:
 <BR>
-<BR>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<BR>%
-<BR>% Open boundaries and initial conditions parameters
-<BR>%   used by make_clim.m, make_biol.m, make_bry.m
-<BR>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-<BR>%
-<BR>% World Ocean Atlas directory (WOA2001 or WOA2005) 
-<BR>%
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> Open boundaries and initial conditions parameters
+<BR><tex2html_percent_mark>   used by make_clim.m, make_biol.m, make_bry.m
+<BR><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark><tex2html_percent_mark>
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> World Ocean Atlas directory (WOA2001 or WOA2005) 
+<BR><tex2html_percent_mark>
 <BR>woa_dir=[ROMSTOOLS_dir,'WOA2005/'];
-<BR>%
-<BR>% Surface chlorophyll seasonal climatology (WOA2001 or SeaWifs)
-<BR>%
+<BR><tex2html_percent_mark>
+<BR><tex2html_percent_mark> Surface chlorophyll seasonal climatology (WOA2001 or SeaWifs)
+<BR><tex2html_percent_mark>
 <BR>chla_dir=[ROMSTOOLS_dir,'SeaWifs/'];
-<BR>%
+<BR><tex2html_percent_mark>
 <BR>
 <BR>Variables description :
 
 <UL>
 <LI>woa_dir=[ROMSTOOLS_dir,'WOA2005/'] : Directory where the World Ocean
-Atlas 2005 climatology (<A
- HREF="doc.html#Con02">Conkright et al., 2002</A>) is located. The World Ocean
+Atlas 2005 climatology (#Con02#<tex2html_cite_par_mark>##) is located. The World Ocean
 Atlas 2001 climatology can also be used.
 </LI>
 <LI>chla_dir=[ROMSTOOLS_dir,'SeaWifs/'] : Directory of the surface 
@@ -3828,17 +3010,11 @@ chlorophyll seasonal climatology.
 </LI>
 </UL>
 Run make_biol in the Matlab session :
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$">
-<BR><IMG
- WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
- SRC="img10.png"
- ALT="$&gt;&gt;$"> make_biol
+<BR><tex2html_image_mark>#tex2html_wrap_inline1095#
+<BR><tex2html_image_mark>#tex2html_wrap_inline1097# make_biol
 <BR>
 <BR>You should obtain :
-<BR>----------------------------------------
+<BR>-------------------------------------------------------------------------------
 <BR>Add_no3: creating variables and attributes for the OA file
 <BR>Add_no3: creating variables and attributes for the Climatology file
 <BR>
@@ -3862,7 +3038,7 @@ Run make_biol in the Matlab session :
 <BR>Add_chla: creating variable and attribute
 <BR>...
 <BR>Make a few plots...
-<BR>----------------------------------------
+<BR>-------------------------------------------------------------------------------
 <BR>
 <BR>The cpp keys related to biology:
 
@@ -3881,12 +3057,14 @@ Small Detritus, Large Detritus) biogeochemical model.
 components.
 <BR></LI>
 </UL>
+<tex2html_endfile>#./biology.tex#
 
 <P>
 
 <H1><A NAME="SECTION00090000000000000000">
 8 Operational coastal modeling system</A>
 </H1>
+<tex2html_file>#./forecast.tex#
 An operating coastal modeling system can be designed following the 
 assumption that large scale offshore dynamics are slow in comparison 
 to the coastal system. The lateral boundary conditions are interpolated 
@@ -3898,7 +3076,7 @@ surface forcing. A first day of simulation is run in hindcast mode. This
 will provide the initial conditions for the next simulated day. 
 Using GFS as surface forcing and ECCO for the lateral boundary conditions, 
 a forecast of 7 days is conducted. A UNIX C-Shell script 
-(&nbsp;/Roms_tools/Run/run_roms_forecast.csh) manages
+(~/Roms_tools/Run/run_roms_forecast.csh) manages
 data downloading, the hindcast and forecast simulations
 and datas storage.
 The script run_roms_forecast.csh starts Matlab in 
@@ -3912,14 +3090,8 @@ The script run_roms_forecast.csh should be edited to change the
 directory pathways (HOME, RUNDIR, PATH, LD_LIBRAIRY_PATH, MATLAB,...).
 
 <P>
-The ROMS input files <IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/roms_hindcast.in and 
-<IMG
- WIDTH="16" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$\sim$">/Roms_tools/Run/roms_forecast.in should also be edited to change
+The ROMS input files <tex2html_image_mark>#tex2html_wrap_inline1103#/Roms_tools/Run/roms_hindcast.in and 
+<tex2html_image_mark>#tex2html_wrap_inline1105#/Roms_tools/Run/roms_forecast.in should also be edited to change
 the length of the time step and the number of time steps. 
 The ROMS input file roms_hindcast.in should be defined such as 
 the hindcast run duration
@@ -3928,341 +3100,25 @@ is 1 day and a restart file is generated at the end of the hindcast run.
 <P>
 The script run_roms_forecast.csh can be relaunched everyday in batch mode 
 using crontab.
+<tex2html_endfile>#./forecast.tex#
 
 <P>
  <P>
 <H2><A NAME="SECTIONREF">Bibliography</A>
 </H2>
-
-<DL COMPACT>
-<DT><A NAME="Bec93">
-Beckmann, A., Haidvogel, D.B.,
-1993.
-Numerical simulation of flow around a tall
-isolated seamount. Part I: Problem formulation
-and model accuracy.
-Journal of Physical Oceanography
-23,
-1736-1753.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Bla02">
-Blanke, B., Roy, C., Penven, P., Speich, S., 
-McWilliams, J.C., Nelson, G.,
-2002.
-Linking wind and upwelling interannual variability in a
-regional model of the southern Benguela,
-Geophysical Research Letters
-29,
-2188-2191.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Bla99">
-Blayo, E., Debreu, L.,
-1999.
-Adaptive mesh refinement for finite-difference
-ocean models: First experiments.
-Journal of Physical Oceanography
-29,
-1239-1250.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Car05">
-Carton, J.A., Giese, B.S., Grodsky, S.A., 2005. 
-Sea level rise and the warming of the oceans in the 
-Simple Ocean Data Assimilation (SODA) ocean reanalysis.
-Journal of Geophysical Research
-110, C09006, doi:10.1029/2004JC002817.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Cas99">
-Casey, K.S., Cornillon, P., 1999. 
-A comparison of satellite and in situ based
-sea surface temperature climatologies. 
-Journal of Climate 
-12, 1848-1863.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Con02">
-Conkright, M.E., R.A. Locarnini, H.E. Garcia, T.D. O Brien, 
-T.P. Boyer, C. Stephens, J.I. Antonov, 2002. 
-World Ocean Atlas 2001: Objective Analyses, Data Statistics, 
-and Figures, CD-ROM Documentation. 
-National Oceanographic Data Center, 
-Silver Spring, MD, 
-17 pp.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Das94">
-Da Silva, A.M., Young, C.C., Levitus, S.
-1994.
-Atlas of surface marine data 1994,
-Vol. 1,
-algorithms and procedures,
-NOAA Atlas NESDIS 6,
-U. S. Department of Commerce,
-NOAA,
-NESDIS,
-USA,
-74 pp.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Deb00">
-Debreu, L.,
-2000.
-Raffinement adaptatif de maillage et m&#233;thodes de zoom -
-application aux mod&#232;les d'oc&#233;an,
-2000,
-Ph.D. thesis,
-Universit&#233; Joseph Fourier,
-Grenoble.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Deb03a">
-Debreu, L., Blayo, E.,
-2003.
-AGRIF: Adaptive Grid Refinement In Fortran.
-<I>submitted to ACM Transactions on Mathematical Software - TOMS</I>.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Deb03b">
-Debreu, L., Vouland, C.,
-2003.
-AGRIF: Adaptive Grid Refinement In Fortran.
-[Available online http://www-lmc.imag.fr/IDOPT/AGRIF/index.html].
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Dil03">
-Di Lorenzo, E., Miller, A.J., Neilson, D.J., 
-Cornuelle, B.D., Moisan, J.R.,
-2003.
-Modeling observed California Current mesoscale eddies and 
-the ecosystem response .
-International Journal of Remote Sensing,
-in press.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Egb02">
-Egbert, G., Erofeeva, S., 2002.
-Efficient inverse modeling of barotropic ocean tides, 
-Journal of Atmospheric and Oceanic Technology
-19,
-183-204.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Fla76">
-Flather, R.A., 1976.
-A tidal model of the northwest European continental shelf.
-M&#233;moires de la Soci&#233;t&#233; Royale des Sciences de Li&#232;ge, 
-10, 
-141-164.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Hai00">
-Haidvogel, D.B., Arango, H.G., Hedstrom, K. , Beckmann, A.,
-Malanotte-Rizzoli, P., Shchepetkin, A.F.,
-2000.
-Model Evaluation Experiments in the North Atlantic Basin:
-Simulations in Nonlinear Terrain-Following Coordinates.
-Dynamics of Atmospheres and Oceans
-32 ,
-239-281.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Han91">
-Haney, R.L.,
-1991.
-On the pressure force over steep
-topography in sigma coordinate ocean models.
-Journal of Physical Oceanography
-21,
-610-619.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Jac95">
-Jackett, D.R., McDougall, T.J.,
-1995.
-Minimal Adjustment of Hydrostatic Profiles to 
-Achieve Static Stability.
-Journal of Atmospheric and Oceanic Technology
-12,
-381-389.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Lar94">
-Large, W.G., McWilliams, J.C., Doney, S.C.,
-1994.
-Oceanic vertical mixing: a review and a model
-with a nonlocal boundary layer parameterization.
-Reviews in Geophysics
-32,
-363-403.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Mac02">
-MacCready, P. M., R. D. Hetland, W. R. Geyer, 
-Long-Term Isohaline Salt Balance in an Estuary. 
-Continental Shelf Research, 22, 1591-1601.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Mar01">
-Marchesiello, P., McWilliams, J.C., Shchepetkin, A.,
-2001.
-Open boundary condition for long-term integration of regional oceanic
-models.
-Ocean Modelling
-3,
-1-21.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Mar03">
-Marchesiello, P., McWilliams, J.C., Shchepetkin, A.,
-2003.
-Equilibrium structure and dynamics of the California Current System.
-Journal of Physical Oceanography
-33,
-753-783.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Pen01">
-Penven, P., Roy C., Lutjeharms, J.R.E., 
-Colin de verdi&#232;re, A., Johnson, A., Shillington, F.,
-Fr&#233;on, P., Brundrit, G.,
-2001.
-A regional hydrodynamic model of the Southern Benguela.
-South African Journal of Science
-97,
-472-476.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Pen04">
-Penven, P., Debreu, L., Marchesiello,  P., McWilliams, J.C.,
-2006.
-Application of the ROMS embedding procedure for the Central 
-California Upwelling System.
-Ocean Modelling
-12, 157-187.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Pen07">
-Penven, P.,  Marchesiello,  P., Debreu, L., Lef&#232;vre, J.,
-ROMSTOOLS: A series of tools for the pre- and 
-post-processing of oceanic regional ROMS simulations.
-Ocean Modelling,
-submitted.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Rey94">
-Reynolds, R.W., Smith, T.M., 1994. 
-Improved global sea surface temperature
-analyses using optimum interpolation. 
-Journal of Climate.
-7, 929-948.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Shc98">
-Shchepetkin, A.F., McWilliams, J.C.,
-1998.
-Quasi-monotone advection schemes based on explicit locally
-adaptive dissipation.
-Monthly Weather Review
-126,
-1541-1580.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Shc03a">
-Shchepetkin, A.F., McWilliams, J.C.,
-2003.
-A method for computing horizontal pressure-gradient force
-in an ocean model with a non-aligned vertical coordinate.
-Journal of Geophysical Research
-108.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Shc03b">
-Shchepetkin, A.F., McWilliams, J.C.,
-2005.
-Regional Ocean Model System: a split-explicit ocean model with a
-free-surface and topography-following vertical coordinate.
-Ocean Modelling
-9, 347-404.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Smi97">
-Smith, W.H.F., Sandwell, D.T.,
-1997.
-Global seafloor topography from satellite altimetry and ship depth soundings.
-Science
-277,
-1957-1962.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Sta99">
-Stammer, D., Davis, R., Fu, L.L., Fukumori, I., Giering, R., Lee, T.,
-Marotzke, J., Marshall, J., Menemenlis, D., Niiler, P., Wunsch, C.,
-Zlotnicki., V., 1999. 
-The consortium for estimating the circulation and
-climate of the ocean (ECCO) - Science goals and task plan - Report
-N<IMG
- WIDTH="11" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img38.png"
- ALT="$^o$">1. 
-Techical report, 
-Jet Propulsion Laboratory - Massachusetts Institute of
- Technology - Scripps Institution of Oceanography.
-<BR>
-<P></A>
-<DD> 
-</DL>
+<tex2html_bbl_mark>#1#
 <H1><A NAME="SECTION000110000000000000000">
 About this document ...</A>
 </H1>
- <P>
+ <STRONG></STRONG><P>
 This document was generated using the
 <A HREF="http://www.latex2html.org/"><STRONG>LaTeX</STRONG>2<tt>HTML</tt></A> translator Version 2002-2-1 (1.70)
-<P>
-Copyright &#169; 1993, 1994, 1995, 1996,
+<P>Copyright &#169; 1993, 1994, 1995, 1996,
 <A HREF="http://cbl.leeds.ac.uk/nikos/personal.html">Nikos Drakos</A>, 
 Computer Based Learning Unit, University of Leeds.
 <BR>Copyright &#169; 1997, 1998, 1999,
-<A HREF="http://www.maths.mq.edu.au/~ross/">Ross Moore</A>, 
+<A HREF="http://www.maths.mq.edu.au/&#126;ross/">Ross Moore</A>, 
 Mathematics Department, Macquarie University, Sydney.
-<P>
-The command line arguments were: <BR>
+<P>The command line arguments were: <BR>
  <STRONG>latex2html</STRONG> <TT>-split 0 -white -show_section_numbers -no_navigation doc.tex</TT>
-<P>
-The translation was initiated by Pierrick Penven on 2007-07-25<BR><HR>
-<ADDRESS>
-Pierrick Penven
-2007-07-25
-</ADDRESS>
-</BODY>
-</HTML>
+<P>The translation was initiated by Pierrick Penven on 2007-07-25
