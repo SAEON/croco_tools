@@ -1,4 +1,4 @@
-This is TeX, Version 3.14159 (Web2C 7.4.5) (format=latex 2006.1.19)  16 JAN 2007 10:27
+This is TeX, Version 3.14159 (Web2C 7.4.5) (format=latex 2006.1.19)  25 JUL 2007 14:31
 **./images.tex
 (./images.tex
 LaTeX2e <2001/06/01>
@@ -23,7 +23,7 @@ File: size10.clo 2001/04/21 v1.4e Standard LaTeX file (size option)
 \bibindent=\dimen102
 ) (/usr/share/texmf/tex/latex/base/ifthen.sty
 Package: ifthen 2001/05/26 v1.1c Standard LaTeX ifthen package (DPC)
-) (/home/ppenven/Burotique/ROMSTOOLS_users_guide_2007_01_13/psfig.sty
+) (/home/ppenven/TMP_ROMSTOOLS/ROMSTOOLS_users_guide_2007_01_13/psfig.sty
 \@unused=\write3
 \ps@stream=\read1
 \p@intvaluex=\dimen103
@@ -87,7 +87,7 @@ Package: multicol 2000/07/10 v1.5z multicolumn formatting (FMi)
 \multicolundershoot=\dimen120
 \mult@nat@firstbox=\box50
 \colbreak@box=\box51
-) (/home/ppenven/Burotique/ROMSTOOLS_users_guide_2007_01_13/natbib.sty
+) (/home/ppenven/TMP_ROMSTOOLS/ROMSTOOLS_users_guide_2007_01_13/natbib.sty
 Package: natbib 1997/07/05 6.6 (PWD)
 \bibhang=\skip45
 \bibsep=\skip46
@@ -152,216 +152,216 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <7> on input line 141.
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <5> on input line 141.
-l2hSize :tex2html_wrap_inline1773:8.14003pt::0.0pt::11.23618pt.
+l2hSize :tex2html_wrap_inline1781:8.14003pt::0.0pt::11.23618pt.
 [1
 
 
 
 ]
-l2hSize :tex2html_wrap_inline121:8.0pt::8.0pt::3.27782pt.
+l2hSize :tex2html_wrap_inline125:8.0pt::8.0pt::3.27782pt.
 [2
 
 
 ]
-l2hSize :tex2html_wrap_inline305:6.88586pt::0.0pt::17.87508pt.
+l2hSize :tex2html_wrap_inline309:6.88586pt::0.0pt::17.87508pt.
 [3
 
 
 ]
-l2hSize :tex2html_wrap_inline307:6.45831pt::0.0pt::8.27783pt.
+l2hSize :tex2html_wrap_inline311:6.45831pt::0.0pt::8.27783pt.
 [4
 
 
 ]
-l2hSize :tex2html_wrap_inline309:7.51782pt::0.0pt::8.3056pt.
+l2hSize :tex2html_wrap_inline313:7.51782pt::0.0pt::8.3056pt.
 [5
 
 
 ]
-l2hSize :tex2html_wrap_inline311:6.88586pt::0.0pt::10.09727pt.
+l2hSize :tex2html_wrap_inline315:6.88586pt::0.0pt::10.09727pt.
 [6
 
 
 ]
-l2hSize :tex2html_wrap_inline313:6.88586pt::0.0pt::5.09726pt.
+l2hSize :tex2html_wrap_inline317:6.88586pt::0.0pt::5.09726pt.
 [7
 
 
 ]
-l2hSize :tex2html_wrap_inline619:6.95831pt::6.95831pt::8.27783pt.
+l2hSize :tex2html_wrap_inline321:6.95831pt::6.95831pt::8.27783pt.
 [8
 
 
 ]
-l2hSize :tex2html_wrap_inline623:6.95831pt::6.95831pt::8.27783pt.
+l2hSize :tex2html_wrap_inline631:6.95831pt::6.95831pt::8.27783pt.
 [9
 
 
 ]
-l2hSize :tex2html_wrap_inline627:6.95831pt::6.95831pt::16.05563pt.
+l2hSize :tex2html_wrap_inline635:6.95831pt::6.95831pt::16.05563pt.
 [10
 
 
 ]
-l2hSize :tex2html_wrap_inline649:8.0pt::8.0pt::62.17357pt.
+l2hSize :tex2html_wrap_inline657:8.0pt::8.0pt::62.17357pt.
 [11
 
 
 ]
-l2hSize :tex2html_wrap_inline657:7.33331pt::7.33331pt::12.88628pt.
+l2hSize :tex2html_wrap_inline665:7.33331pt::7.33331pt::12.88628pt.
 [12
 
 
 ]
-l2hSize :tex2html_wrap_inline659:9.29842pt::9.29842pt::14.26234pt.
+l2hSize :tex2html_wrap_inline667:9.29842pt::9.29842pt::14.26234pt.
 [13
 
 
 ]
-l2hSize :tex2html_wrap_inline661:6.45831pt::0.0pt::5.2894pt.
+l2hSize :tex2html_wrap_inline669:6.45831pt::0.0pt::5.2894pt.
 [14
 
 
 ]
-l2hSize :displaymath663:25.81503pt::0.0pt::349.0pt.
+l2hSize :displaymath671:25.81503pt::0.0pt::349.0pt.
 [15
 
 
 ]
 psfig: searching make_grid_benguela.eps for bounding box
 psfig: including make_grid_benguela.eps 
-l2hSize :figure496:225.34575pt::0.0pt::349.0pt.
+l2hSize :figure504:225.34575pt::0.0pt::349.0pt.
 [16
 
 
 ]
 psfig: searching make_frcwind_benguela.eps for bounding box
 psfig: including make_frcwind_benguela.eps 
-l2hSize :figure511:209.98123pt::0.0pt::349.0pt.
+l2hSize :figure519:209.98123pt::0.0pt::349.0pt.
 [17
 
 
 ]
 psfig: searching make_clim_benguela.eps for bounding box
 psfig: including make_clim_benguela.eps 
-l2hSize :figure521:155.35188pt::0.0pt::349.0pt.
+l2hSize :figure529:155.35188pt::0.0pt::349.0pt.
 [18
 
 
 ]
-l2hSize :tex2html_wrap_inline717:6.95831pt::6.95831pt::26.61115pt.
+l2hSize :tex2html_wrap_inline725:6.95831pt::6.95831pt::26.61115pt.
 [19
 
 
 ]
 psfig: searching roms_gui_select.eps for bounding box
 psfig: including roms_gui_select.eps 
-l2hSize :figure541:167.87112pt::0.0pt::349.0pt.
+l2hSize :figure549:167.87112pt::0.0pt::349.0pt.
 [20
 
 
 ]
 psfig: searching roms_gui.eps for bounding box
 psfig: including roms_gui.eps 
-l2hSize :figure546:235.5887pt::0.0pt::349.0pt.
+l2hSize :figure554:235.5887pt::0.0pt::349.0pt.
 [21
 
 
 ]
-l2hSize :tex2html_wrap_inline749:8.64003pt::8.64003pt::53.18063pt.
+l2hSize :tex2html_wrap_inline757:8.64003pt::8.64003pt::53.18063pt.
 [22
 
 
 ]
-l2hSize :tex2html_wrap_inline751:9.82217pt::9.82217pt::53.02461pt.
+l2hSize :tex2html_wrap_inline759:9.82217pt::9.82217pt::53.02461pt.
 [23
 
 
 ]
-l2hSize :tex2html_wrap_inline753:9.29842pt::9.29842pt::36.18701pt.
+l2hSize :tex2html_wrap_inline761:9.29842pt::9.29842pt::36.18701pt.
 [24
 
 
 ]
-l2hSize :tex2html_wrap_inline755:12.00008pt::12.00008pt::89.28105pt.
+l2hSize :tex2html_wrap_inline763:12.00008pt::12.00008pt::89.28105pt.
 [25
 
 
 ]
-l2hSize :tex2html_wrap_inline757:7.44444pt::7.44444pt::24.83676pt.
+l2hSize :tex2html_wrap_inline765:7.44444pt::7.44444pt::24.83676pt.
 [26
 
 
 ]
-l2hSize :tex2html_wrap_inline759:9.29842pt::9.29842pt::69.21242pt.
+l2hSize :tex2html_wrap_inline767:9.29842pt::9.29842pt::69.21242pt.
 [27
 
 
 ]
-l2hSize :tex2html_wrap_inline761:9.63329pt::9.63329pt::40.95837pt.
+l2hSize :tex2html_wrap_inline769:9.63329pt::9.63329pt::40.95837pt.
 [28
 
 
 ]
-l2hSize :tex2html_wrap_inline763:9.29842pt::9.29842pt::77.38573pt.
+l2hSize :tex2html_wrap_inline771:9.29842pt::9.29842pt::77.38573pt.
 [29
 
 
 ]
-l2hSize :tex2html_wrap_inline765:14.03899pt::14.03899pt::205.83282pt.
+l2hSize :tex2html_wrap_inline773:14.03899pt::14.03899pt::205.83282pt.
 [30
 
 
 ]
-l2hSize :tex2html_wrap_inline769:8.14003pt::0.0pt::11.23618pt.
+l2hSize :tex2html_wrap_inline777:8.14003pt::0.0pt::11.23618pt.
 [31
 
 
 ]
-l2hSize :tex2html_wrap_inline777:11.04997pt::11.04997pt::96.25987pt.
+l2hSize :tex2html_wrap_inline785:11.04997pt::11.04997pt::96.25987pt.
 [32
 
 
 ]
 psfig: searching nesting_fig1.eps for bounding box
 psfig: including nesting_fig1.eps 
-l2hSize :figure962:110.96564pt::0.0pt::349.0pt.
+l2hSize :figure970:110.96564pt::0.0pt::349.0pt.
 [33
 
 
 ]
 psfig: searching nesting_select.eps for bounding box
 psfig: including nesting_select.eps 
-l2hSize :figure974:135.15039pt::0.0pt::349.0pt.
+l2hSize :figure982:135.15039pt::0.0pt::349.0pt.
 [34
 
 
 ]
 psfig: searching nesting.eps for bounding box
 psfig: including nesting.eps 
-l2hSize :figure979:273.14636pt::0.0pt::349.0pt.
+l2hSize :figure987:273.14636pt::0.0pt::349.0pt.
 [35
 
 
 ]
-l2hSize :tex2html_wrap_inline1007:8.0pt::8.0pt::144.93822pt.
+l2hSize :tex2html_wrap_inline1015:8.0pt::8.0pt::144.93822pt.
 [36
 
 
 ]
-l2hSize :tex2html_wrap_inline1009:6.45831pt::0.0pt::6.93407pt.
+l2hSize :tex2html_wrap_inline1017:6.45831pt::0.0pt::6.93407pt.
 [37
 
 
 ]
-l2hSize :tex2html_wrap_inline1147:6.6428pt::0.0pt::4.94725pt.
+l2hSize :tex2html_wrap_inline1155:6.6428pt::0.0pt::4.94725pt.
 [38
 
 
 ] (./images.aux) ) 
 Here is how much of TeX's memory you used:
  1241 strings out of 95847
- 15242 string characters out of 1194789
+ 15262 string characters out of 1194789
  63460 words of memory out of 1000001
  4210 multiletter control sequences out of 10000+50000
  3640 words of font info for 14 fonts, out of 500000 for 1000

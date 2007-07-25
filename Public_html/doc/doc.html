@@ -874,6 +874,92 @@ If the computer starts to swap, you should think of reducing the
 dimension of your model's domain.
 </LI>
 <LI>It is sometimes difficult to compile LoadDAP. 
+LibDAP must be installed before installing LoadDAP. Here some instructions 
+for the installation of these libraries:
+<BR>
+<UL>
+<LI>Download libDAP and loadDAP tar.gz version at the web location
+http://www.opendap.org
+</LI>
+<LI>Uncompress and untar the files (gunzip and tar -xvf)
+</LI>
+<LI>To build the libDAP library, follow these steps:
+<BR>
+<UL>
+<LI><IMG
+ WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
+ SRC="img8.png"
+ ALT="$&gt;$">: cd libdap
+<BR></LI>
+<LI>Type './configure' at the prompt. Some libraries must be installed 
+on your system to successfully run configure and build libDAP library : libcurl 
+(http://curl.haxx.se/) and libxml2 (http://xmlsoft.org/).
+<BR>Example:
+<BR>---------------------------------------------
+<BR>checking for a BSD-compatible install... /usr/bin/install -c
+<BR>checking whether build environment is sane... yes
+<BR>checking whether make sets (MAKE)... yes
+<BR>checking build system type... i686-pc-linux-gnu
+<BR>checking host system type... i686-pc-linux-gnu
+<BR>checking for gawk... (cached) mawk
+<BR>checking for g++... g++
+<BR>checking for C++ compiler default output file name... a.out
+<BR>...
+<BR>config.status: dods-datatypes.h is unchanged
+<BR>config.status: executing depfiles commands
+<BR>---------------------------------------------
+<BR></LI>
+<LI>Type 'make' to build the library.
+<BR>Example :
+<BR>---------------------------------------------
+<BR>make[1]: Entering directory '/home/tropic/tan/soft/libdap-3.6.2'
+<BR>Making all in gl
+<BR>make[2]: Entering directory '/home/tropic/tan/soft/libdap-3.6.2/gl'
+<BR>make  all-am
+<BR>make[3]: Entering directory '/home/tropic/tan/soft/libdap-3.6.2/gl'
+<BR>...
+<BR>---------------------------------------------
+<BR></LI>
+<LI>Type 'make check' to run the tests. To pass this step you 
+must have DejaGNU framework (GNU FTP mirror list:
+http://www.gnu.org/prep/ftp.html).
+<BR>Example :
+<BR>---------------------------------------------
+<BR>make[1]: Entering directory `/home/tropic/tan/soft/libdap-3.6.2/gl'
+<BR>dejagnu_driver.sh
+<BR>...
+<BR>Test Run By tan on Thu Jul 19 11:19:02 2007
+<BR>Native configuration is i686-pc-linux-gnu
+<BR>                ===== das-test tests =====
+<BR>		Running ...
+<BR>                ===== das-test Summary =====
+<BR>                ===== dds-test tests =====
+<BR>		Running ...
+<BR>		===== dds-test Summary =====
+<BR>                ===== expr-test tests =====
+<BR>		Running ...
+<BR>                ===== expr-test Summary =====
+<BR>PASS: dejagnu_driver.sh
+<BR>==================
+<BR>All 1 tests passed
+<BR>==================
+<BR>make[2]: Leaving directory `/home/tropic/tan/soft/libdap-3.6.2/tests'
+<BR>make[1]: Leaving directory `/home/tropic/tan/soft/libdap-3.6.2/tests'
+<BR>---------------------------------------------
+<BR></LI>
+<LI>Type 'make install' to install the library. By default the files are installed under
+/usr/local/lib/. You can specify a different root directory using the following option :
+'make install root_directory'.
+<BR></LI>
+</UL>
+
+<P>
+</LI>
+<LI>For install loadDAP library process in the same way as for the
+installation of libDAP. By default the files are installed under
+/usr/local/share/.
+</LI>
+</UL>
 </LI>
 </UL>
 
@@ -1418,7 +1504,7 @@ smoothed.
 
 <P>
 
-<DIV ALIGN="CENTER"><A NAME="fig:grid"></A><A NAME="498"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:grid"></A><A NAME="506"></A>
 <TABLE>
 <CAPTION ALIGN="BOTTOM"><STRONG>Figure 1:</STRONG>
 Result of make_grid.m for the Benguela example</CAPTION>
@@ -1592,7 +1678,7 @@ in the Matlab session :
 <BR>
 <P>
 
-<DIV ALIGN="CENTER"><A NAME="fig:forcing"></A><A NAME="609"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:forcing"></A><A NAME="617"></A>
 <TABLE>
 <CAPTION ALIGN="BOTTOM"><STRONG>Figure 2:</STRONG>
 Wind stress[N.m<IMG
@@ -1757,7 +1843,7 @@ Benguela example. The sections are in the X-direction (East-West),
 the first section is for the Southern part of the domain and the last one 
 is for the Northern part of the domain.
 
-<DIV ALIGN="CENTER"><A NAME="fig:clim"></A><A NAME="523"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:clim"></A><A NAME="531"></A>
 <TABLE>
 <CAPTION ALIGN="BOTTOM"><STRONG>Figure 3:</STRONG>
 Result of make_clim.m for the Benguela example</CAPTION>
@@ -1878,6 +1964,10 @@ Definitions of the CCP keys in cppdefs.h:
 </LI>
 <LI>REGIONAL  : Must be defined if running realistic regional simulations.
 
+<BR>
+<BR>
+<BR>
+<BR>
 <BR>-------------
 <BR>       BASIC OPTIONS 
 <BR>-------------
@@ -1938,6 +2028,13 @@ Definitions of the CCP keys in cppdefs.h:
 </LI>
 <LI>BBL : Activate the bottom boundary layer module.
 
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
+<BR>
 <BR>----------------------
 <BR>   MORE ADVANCED OPTIONS 
 <BR>----------------------
@@ -2628,7 +2725,7 @@ roms_gui. Launch roms_gui in the Matlab session
 You should select roms_his.nc (history file) or roms_avg.nc (average file) and
 click "open".
 
-<DIV ALIGN="CENTER"><A NAME="fig:open"></A><A NAME="543"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:open"></A><A NAME="551"></A>
 <TABLE>
 <CAPTION ALIGN="BOTTOM"><STRONG>Figure 4:</STRONG>
 Entrance window of roms_gui</CAPTION>
@@ -2640,7 +2737,7 @@ Entrance window of roms_gui</CAPTION>
 </DIV>
 
 <BR>
-<DIV ALIGN="CENTER"><A NAME="fig:romsgui"></A><A NAME="548"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:romsgui"></A><A NAME="556"></A>
 <TABLE>
 <CAPTION ALIGN="BOTTOM"><STRONG>Figure 5:</STRONG>
 roms_gui</CAPTION>
@@ -2850,7 +2947,6 @@ and xanim on your system. If you have a Linux PC, you can follow these steps:
 If you are not using a Linux PC, you should ask your 
 system administrator to install these programs.
 <BR>
-<BR>
 <P>
 
 <H1><A NAME="SECTION00050000000000000000">
@@ -2917,6 +3013,9 @@ This value should be identical to the value of the parameter Ntides in param.h:
 </LI>
 <LI>lon0=18.37;lat0=-33.91;Z0=1 : Location of a tidal gauge to compare the interpolated values
 with observations. 
+<BR>
+<BR>
+<BR>
 <BR></LI>
 </UL>
 An important aspect is the definition of time and especially the choice of a 
@@ -3363,7 +3462,7 @@ embedding levels.
 
 <P>
 
-<DIV ALIGN="CENTER"><A NAME="fig:temp_coupling"></A><A NAME="964"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:temp_coupling"></A><A NAME="972"></A>
 <TABLE>
 <CAPTION ALIGN="BOTTOM"><STRONG>Figure 6:</STRONG>
 Temporal coupling between a parent and a child grid
@@ -3448,7 +3547,7 @@ The main window appears (Figure <A HREF="#fig:nestgui2">8</A>).
 
 <P>
 
-<DIV ALIGN="CENTER"><A NAME="fig:nestgui1"></A><A NAME="976"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:nestgui1"></A><A NAME="984"></A>
 <TABLE>
 <CAPTION ALIGN="BOTTOM"><STRONG>Figure 7:</STRONG>
 Entrance window of NestGUI</CAPTION>
@@ -3461,7 +3560,7 @@ Entrance window of NestGUI</CAPTION>
 
 <P>
 
-<DIV ALIGN="CENTER"><A NAME="fig:nestgui2"></A><A NAME="981"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:nestgui2"></A><A NAME="989"></A>
 <TABLE>
 <CAPTION ALIGN="BOTTOM"><STRONG>Figure 8:</STRONG>
 The NestGUI main window</CAPTION>
@@ -4160,10 +4259,10 @@ Mathematics Department, Macquarie University, Sydney.
 The command line arguments were: <BR>
  <STRONG>latex2html</STRONG> <TT>-split 0 -white -show_section_numbers -no_navigation doc.tex</TT>
 <P>
-The translation was initiated by Pierrick Penven on 2007-01-16<BR><HR>
+The translation was initiated by Pierrick Penven on 2007-07-25<BR><HR>
 <ADDRESS>
 Pierrick Penven
-2007-01-16
+2007-07-25
 </ADDRESS>
 </BODY>
 </HTML>
