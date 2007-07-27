@@ -881,16 +881,18 @@ Here are a few instructions for the installation of these libraries:
 <LI>Download libDAP and loadDAP tar.gz version at the web location
 http://www.opendap.org
 </LI>
-<LI>Uncompress and untar the files (gunzip and tar -xvf)
-</LI>
 <LI>To build the libDAP library, follow these steps:
 <BR>
 <UL>
+<LI>log you as a root
+</LI>
+<LI>Uncompress and untar the file libdap.tar.gz (gunzip and tar -xvf)
+</LI>
 <LI><IMG
  WIDTH="16" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
  SRC="img8.png"
- ALT="$&gt;$">: cd libdap
-<BR></LI>
+ ALT="$&gt;$">: cd libdap_directory
+</LI>
 <LI>Type './configure' at the prompt. Some libraries must be installed 
 on your system to successfully run configure and build libDAP library : libcurl 
 (http://curl.haxx.se/) and libxml2 (http://xmlsoft.org/).
@@ -948,8 +950,12 @@ http://www.gnu.org/prep/ftp.html).
 <BR>---------------------------------------------
 <BR></LI>
 <LI>Type 'make install' to install the library. By default the files are installed under
-/usr/local/lib/. You can specify a different root directory using the following option :
+/usr/local/lib/. You can specify a different root directory using the following control :
 'make install root_directory'.
+<BR></LI>
+<LI>Go to the .bashrc and add 
+<BR>'EXPORT LD_LIBRARY_PATH=$LD_LIBRARY_PATH
+: root_directory.'
 <BR></LI>
 </UL>
 
@@ -1464,9 +1470,7 @@ Save romstools_param.m and run make_grid in the Matlab session :
 <BR>   13 iterations - rmax = 0.24879
 <BR> Smooth the topography a last time to prevent 2DX noise:
 <BR>   2 pass of a hanning smoother.
-<BR>
 <BR> Write it down...
-<BR>
 <BR> Do a plot...
 <BR> <IMG
  WIDTH="29" HEIGHT="29" ALIGN="MIDDLE" BORDER="0"
@@ -2528,7 +2532,6 @@ time step.
 <BR>     0  -1.0000000  -1.0000000         -75.000   -2439.016   -4803.033
 <BR>
 <BR> Time splitting: ndtfast = 60    nfast = 89
-<BR>
 <BR> Maximum grid stiffness ratios:   rx0 =0.2353349875  rx1 =  2.5672736953
 <BR>
 <BR>      GET_INITIAL - Processing data for time =   0.000     record =   1
@@ -4260,10 +4263,10 @@ Mathematics Department, Macquarie University, Sydney.
 The command line arguments were: <BR>
  <STRONG>latex2html</STRONG> <TT>-split 0 -white -show_section_numbers -no_navigation doc.tex</TT>
 <P>
-The translation was initiated by Pierrick Penven on 2007-07-26<BR><HR>
+The translation was initiated by Pierrick Penven on 2007-07-27<BR><HR>
 <ADDRESS>
 Pierrick Penven
-2007-07-26
+2007-07-27
 </ADDRESS>
 </BODY>
 </HTML>
