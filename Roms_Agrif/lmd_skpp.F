@@ -272,15 +272,15 @@
 !
       do j=Jstr,Jend
         do i=Istr,Iend
-          hekman=lmd_cekman*ustar(i,j)/max(abs(f(i,j)),eps)
-          hbl(i,j)=min(hbl(i,j),hekman)
-# ifdef LMD_SKPP_MONOB
           if (Bflux(i,j).gt.0.) then
+            hekman=lmd_cekman*ustar(i,j)/max(abs(f(i,j)),eps)
+            hbl(i,j)=min(hbl(i,j),hekman)
+# ifdef LMD_SKPP_MONOB
             hmonob=lmd_cmonob*ustar(i,j)*ustar(i,j)*ustar(i,j)
      &                                    /(vonKar*Bflux(i,j)) 
             hbl(i,j)=min(hbl(i,j),hmonob)
-          endif
 # endif
+          endif
 # ifdef MASKING
           hbl(i,j)=hbl(i,j)*rmask(i,j)
 # endif
