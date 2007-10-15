@@ -131,8 +131,10 @@ CC                  ------------------------------
 CC      gdept(), gdepw() : depth of t- and w-points (m)
 CC      e3t(), e3w()     : vertical scale factors at t- and w-points (m)
 CC
-      REAL fsdept(jpi,jpj,jpk), fsdepw(jpi,jpj,jpk+1) 
-      REAL fse3t(jpi,jpj,jpk), fse3w(jpi,jpj,jpk+1)
+      REAL fsdept(GLOBAL_2D_ARRAY,jpk),
+     &     fsdepw(GLOBAL_2D_ARRAY,jpk+1),
+     &     fse3t(GLOBAL_2D_ARRAY,jpk),
+     &     fse3w(GLOBAL_2D_ARRAY,jpk+1)
 C
       COMMON/comcoz/ fsdept, fsdepw, fse3t, fse3w
 CC
@@ -148,7 +150,7 @@ CC
 C
       COMMON/cimask/ mbathy
 C
-      REAL tmask(jpi,jpj,jpk)
+      REAL tmask(GLOBAL_2D_ARRAY,jpk)
 C
       COMMON/comask/ tmask
 C
@@ -197,7 +199,7 @@ C
 C
       COMMON/comtau/ taux, tauy
 C
-      REAL vatm(jpi,jpj)
+      REAL vatm(GLOBAL_2D_ARRAY)
 C
       COMMON/comflr2/vatm
 CC
@@ -217,7 +219,7 @@ CC Common/comqsr/ : penetrative solar radiation
 CC --------------------------------------------
 CC	qsr()	         : solar radiation (w m-2)
 C
-      REAL qsr(jpi,jpj)
+      REAL qsr(GLOBAL_2D_ARRAY)
 CC
       COMMON/comqsr/ qsr
 CC
@@ -268,7 +270,7 @@ CC    hmld()             : mixing layer depth (turbocline)
 CC    hmlp()             : mixed layer depth  (rho=rho0+zdcrit)
 CC    hmln()             : mixed layer depth  (bn2 criteria)
 C
-      REAL hmld(jpi,jpj)
+      REAL hmld(GLOBAL_2D_ARRAY)
 C
       COMMON/comdia/ hmld
 C

@@ -39,7 +39,7 @@ CC ======================
 CC----------------------------------------------------------------------
 CC local declarations
 CC ==================
-      INTEGER ji, jj, jk
+      INTEGER ji, jj, jk, iz
       REAL remip,remik,xlam1b
       REAL xkeq,xfeequi,siremin
       REAL zsatur,zsatur2,znusil
@@ -86,9 +86,10 @@ c        END DO
 c      END DO
         DO jj=Jstr, Jend
           DO ji=Istr, Iend
-             DO jk=zmeuindex(ji,jj)+1,jpk
-         zdepbac(ji,jj,jk)=min(1.,fsdept(ji,jj,zmeuindex(ji,jj))
-     &        /fsdept(ji,jj,jk))*zdepbac(ji,jj,zmeuindex(ji,jj))
+             iz=zmeuindex(ji,jj)
+             DO jk=iz+1,jpk
+         zdepbac(ji,jj,jk)=min(1.,fsdept(ji,jj,iz)/fsdept(ji,jj,jk))
+     &                                            *zdepbac(ji,jj,iz)
           END DO
         END DO
       END DO

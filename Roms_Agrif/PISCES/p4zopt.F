@@ -71,9 +71,9 @@ C
         xchl=(trn(ji,jj,jk,jpnch)+trn(ji,jj,jk,jpdch)+rtrn)*1.E6
         xchl=max(0.03,xchl)
         xchl=min(10.,xchl)
-                                                                                
+
         mrgb = int(41+20.*log10(xchl)+rtrn)
-                                                                                
+
         ekb(ji,jj,jk)=xkrgb(1,mrgb)
         ekg(ji,jj,jk)=xkrgb(2,mrgb)
         ekr(ji,jj,jk)=xkrgb(3,mrgb)
@@ -98,8 +98,7 @@ C
 C
         END DO
       END DO
-                                                                                
-                                                                                
+
       DO jk = 2,jpk
         DO jj=Jstr, Jend
           DO ji=Istr, Iend
@@ -133,91 +132,85 @@ C
 C     Computation of the euphotic depth
 C     ---------------------------------
 C    
-        DO jj=Jstr, Jend
-          DO ji=Istr, Iend
-        zmeu(ji,jj) = 1000.
-        zmeuindex(ji,jj) = jpk
-          END DO
-        END DO
+      DO jj=Jstr, Jend
+         DO ji=Istr, Iend
+            zmeu(ji,jj) = 0.
+            zmeuindex(ji,jj) = 1
+         END DO
+      END DO
 
-      DO jk = 2,jpk
-c$$$        write(*,*) 'DEPTH p4zopt',fsdepw(30,30,jk)
-        DO jj=Jstr, Jend
-          DO ji=Istr, Iend
-        IF (etot(ji,jj,jk).GE.0.0043*qsr(ji,jj)) THEN
-           zmeu(ji,jj) = fsdepw(ji,jj,jk+1)
-           zmeuindex(ji,jj)=jk
-        ENDIF
-          END DO
-        END DO
+      DO jk = 1,jpk
+         DO jj=Jstr, Jend
+            DO ji=Istr, Iend
+               IF (etot(ji,jj,jk).GT.0.0043*qsr(ji,jj)) THEN
+                  zmeu(ji,jj) = fsdepw(ji,jj,jk+1)
+                  zmeuindex(ji,jj)=jk
+               ENDIF
+            END DO
+         END DO
       END DO
 C
-        DO jj=Jstr, Jend
-          DO ji=Istr, Iend
-        zmeu(ji,jj)=min(1000.,zmeu(ji,jj))
-          END DO
-        END DO
 C
 C    Computation of the mean light over the mixed layer depth
 C    --------------------------------------------------------
 C
       DO jj=Jstr, Jend
-        DO ji=Istr, Iend
-        zdepmoy(ji,jj)  = 0
-        etmp(ji,jj)  = 0.
-          END DO
-        END DO
-
-      DO jk = 1,jpk
-        DO jj=Jstr, Jend
-          DO ji=Istr, Iend
-        emoy(ji,jj,jk)  = 0.
-          END DO
-        END DO
+         DO ji=Istr, Iend
+            zdepmoy(ji,jj)  = 0
+            etmp(ji,jj)  = 0.
+         END DO
       END DO
 
       DO jk = 1,jpk
         DO jj=Jstr, Jend
           DO ji=Istr, Iend
-         if (fsdepw(ji,jj,jk+1).le.hmld(ji,jj)) then
-       etmp(ji,jj) = etmp(ji,jj)+etot(ji,jj,jk)*fse3t(ji,jj,jk)
-       zdepmoy(ji,jj)=zdepmoy(ji,jj)+fse3t(ji,jj,jk)
-         endif
+             emoy(ji,jj,jk)  = 0.
           END DO
-        END DO
+       END DO
       END DO
 
       DO jk = 1,jpk
         DO jj=Jstr, Jend
           DO ji=Istr, Iend
-        emoy(ji,jj,jk) = etot(ji,jj,jk)
+             if (fsdepw(ji,jj,jk+1).le.hmld(ji,jj)) then
+                etmp(ji,jj) = etmp(ji,jj)+etot(ji,jj,jk)*fse3t(ji,jj,jk)
+                zdepmoy(ji,jj)=zdepmoy(ji,jj)+fse3t(ji,jj,jk)
+             endif
           END DO
-        END DO
+       END DO
       END DO
-
+      
       DO jk = 1,jpk
-        DO jj=Jstr, Jend
-          DO ji=Istr, Iend
-        IF (fsdepw(ji,jj,jk+1).LE.hmld(ji,jj)) THEN
-          emoy(ji,jj,jk) = etmp(ji,jj)/(zdepmoy(ji,jj)+rtrn)
-        ENDIF
-          END DO
-        END DO
+         DO jj=Jstr, Jend
+            DO ji=Istr, Iend
+               emoy(ji,jj,jk) = etot(ji,jj,jk)
+            END DO
+         END DO
       END DO
-
+      
+      DO jk = 1,jpk
+         DO jj=Jstr, Jend
+            DO ji=Istr, Iend
+               IF (fsdepw(ji,jj,jk+1).LE.hmld(ji,jj)) THEN
+                  emoy(ji,jj,jk) = etmp(ji,jj)/(zdepmoy(ji,jj)+rtrn)
+               ENDIF
+            END DO
+         END DO
+      END DO
+      
 #   if defined key_trc_diaadd
       DO jj=Jstr, Jend
-        DO ji=Istr, Iend
-        bioVSink(ji,jj,11) = zmeu(ji,jj)*tmask(ji,jj,1)
-        END DO
+         DO ji=Istr, Iend
+            bioVSink(ji,jj,11) = zmeu(ji,jj)*tmask(ji,jj,1)
+         END DO
       END DO
 #    endif
 #    if defined key_trc_dia3d
-        DO jk = 1,jpk
-          DO jj=Jstr, Jend
+      DO jk = 1,jpk
+         DO jj=Jstr, Jend
             DO ji=Istr, Iend
                bioFlux(ji,jj,jk,4)=etot(ji,jj,jk)
-     &                            *tmask(ji,jj,jk)
+     &              *tmask(ji,jj,jk)
             END DO
          END DO
       ENDDO

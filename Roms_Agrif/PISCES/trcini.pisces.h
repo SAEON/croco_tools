@@ -26,6 +26,9 @@ CC      original  : 1988-07  E. MAIER-REIMER      MPI HAMBURG
 CC      additions : 1999-10  O. Aumont and C. Le Quere
 CC      additions : 2002     O. Aumont (PISCES)
 CC
+CC      changes for ROMS:
+CC                  2007     P. Marchesiello
+CC
 CC---------------------------------------------------------------------
 CC local declarations
 CC ==================
@@ -90,12 +93,11 @@ C
 #ifdef MPI
      &                                                   , mynode
 #endif
-  4     format(/,' TRCINI_PISCES - unable to open forcing netCDF ',
-     &                                                              1x,A)
+  4     format(/,' TRCINI_PISCES - unable to open forcing netCDF ',1x,A)
   5     format(/,' TRCINI_PISCES - unable to find forcing variable: ',A,
-     &                          /,14x,'in forcing netCDF file: ',A)
+     &                               /,14x,'in forcing netCDF file: ',A)
   6     format(/,' TRCINI_PISCES - error while reading variable: ',A,2x,
-     &                                            ' at TIME index = ',i4)
+     &                                           ' at TIME index = ',i4)
 
         do j=Jstr,Jend
 	  do i=Istr,Iend
@@ -145,29 +147,25 @@ C    of iron
 C    -------------------------------------------------------
 C
       IF (bsedinput) THEN
-        do j=1,jpj
-          do i=1,jpi
-            if (tmask(i,j,jpk).ne.0) then
-              cmask(i,j,jpk)=1.
-            endif
+        do j=Jstr,Jend
+          do i=Istr,Iend
+            cmask(i,j,jpk)=1.
           end do
         end do
-        do k=1,jpk-1
-          do j=2,jpj-1
-            do i=2,jpi-1
-              if (tmask(i,j,k).ne.0) then
-                zmaskt=tmask(i+1,j,k)*tmask(i-1,j,k)
-     &                *tmask(i,j+1,k)*tmask(i,j-1,k)
-                if (zmaskt.eq.0) then
-                  cmask(i,j,k)=0.1
-                endif
-              endif
-            enddo
-          enddo
-        enddo
+c        do k=1,jpk-1
+c          do j=Jstr,Jend
+c            do i=Istr,Iend
+c                zmaskt=tmask(i+1,j,k)*tmask(i-1,j,k)
+c     &                *tmask(i,j+1,k)*tmask(i,j-1,k)
+c                if (zmaskt.eq.0) then
+c                  cmask(i,j,k)=0.1
+c                endif
+c            enddo
+c          enddo
+c        enddo
         do k=1,jpk
-          do i=1,jpi
-            do j=1,jpj
+          do j=Jstr,Jend
+            do i=Istr,Iend
               expide=min(8.,(fsdept(i,j,k)/500.)**(-1.5))
               denitide=-0.9543+0.7662*log(expide)-0.235*log(expide)**2
               cmask(i,j,k)=cmask(i,j,k)*min(1.,exp(denitide)/0.5)
@@ -181,15 +179,15 @@ C
 C     Computation of the total atmospheric supply of Si
 C     -------------------------------------------------
 C
-      sumdepsi=0.
-      DO mo=1,12
-        DO j=2,jpjm1
-          DO i=2,jpim1
-            sumdepsi=sumdepsi+dustmo(i,j,mo)/(12.*rmoss)*8.8
-     &         *0.075/28.1*e1t(i,j)*e2t(i,j)*tmask(i,j,1)
-          END DO
-        END DO
-      END DO
+C      sumdepsi=0.
+C      DO mo=1,12
+C        DO j=2,jpjm1
+C          DO i=2,jpim1
+C            sumdepsi=sumdepsi+dustmo(i,j,mo)/(12.*rmoss)*8.8
+C     &         *0.075/28.1*e1t(i,j)*e2t(i,j)*tmask(i,j,1)
+C          END DO
+C        END DO
+C      END DO
 C
 C    COMPUTATION OF THE N/P RELEASE DUE TO COASTAL RIVERS
 C    COMPUTATION OF THE Si RELEASE DUE TO COASTAL RIVERS 
@@ -207,19 +205,19 @@ C
         END DO
       END DO
 
-      rivpo4input=0.
-      rivalkinput=0.
-      nitdepinput=0.
-      DO j=2,jpjm1
-        DO i=2,jpim1
-          rivpo4input=rivpo4input+rivinp(i,j)*(e1t(i,j)*e2t(i,j)
-     &                           *fse3t(i,j,1))*tmask(i,j,1)*raass
-          rivalkinput=rivalkinput+cotdep(i,j)*(e1t(i,j)*e2t(i,j)
-     &                           *fse3t(i,j,1))*tmask(i,j,1)*raass
-          nitdepinput=nitdepinput+nitdep(i,j)*(e1t(i,j)*e2t(i,j)
-     &                           *fse3t(i,j,1))*tmask(i,j,1)*raass
-        END DO
-      END DO
+C      rivpo4input=0.
+C      rivalkinput=0.
+C      nitdepinput=0.
+C      DO j=2,jpjm1
+C        DO i=2,jpim1
+C          rivpo4input=rivpo4input+rivinp(i,j)*(e1t(i,j)*e2t(i,j)
+C     &                           *fse3t(i,j,1))*tmask(i,j,1)*raass
+C          rivalkinput=rivalkinput+cotdep(i,j)*(e1t(i,j)*e2t(i,j)
+C     &                           *fse3t(i,j,1))*tmask(i,j,1)*raass
+C          nitdepinput=nitdepinput+nitdep(i,j)*(e1t(i,j)*e2t(i,j)
+C     &                           *fse3t(i,j,1))*tmask(i,j,1)*raass
+C        END DO
+C      END DO
 C
 C    Coastal supply of iron
 C    ----------------------

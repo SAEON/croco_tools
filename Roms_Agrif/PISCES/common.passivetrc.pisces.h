@@ -157,8 +157,7 @@ CC
 CC---------------------------------------------
 CC
       REAL etot(jpi,jpj,jpk),emoy(jpi,jpj,jpk)
-      REAL xkrgb(3,61),zmeu(jpi,jpj)
-      INTEGER zmeuindex(jpi,jpj)
+      INTEGER xkrgb(3,61),zmeu(jpi,jpj),zmeuindex(jpi,jpj)
 
       COMMON/cotpar/etot,emoy,xkrgb,zmeu,zmeuindex
 CC
