@@ -16,14 +16,13 @@ C$    trd=omp_get_thread_num()
      &                    A2d(1,2,trd), A2d(1, 3,trd), A2d(1, 4,trd),
      &                    A2d(1, 5,trd), A2d(1, 6,trd),A2d(1, 7,trd),
      &                    A2d(1, 8,trd), A2d(1, 9,trd), A2d(1,10,trd),
-     &                    A2d(1,11,trd), A2d(1,12,trd), A2d(1,13,trd),
-     &                    A2d(1,14,trd))
+     &                    A2d(1,11,trd), A2d(1,12,trd), A2d(1,13,trd))
       return
       end
  
       subroutine step2D_FB_tile (istr,iend,jstr,jend, zeta_new,Dnew,
      &                             rubar,rvbar, urhs,vrhs, DUon,DVom,
-     &                                Drhs, Drhs_p, UFx,UFe,VFx,VFe)
+     &                                Drhs, UFx,UFe,VFx,VFe)
 !
 ! Prform one time step for barotropic mode (free-surface and baro-
 ! tropic 2D momentum equations) using Generalized Forward-Backward
@@ -42,13 +41,12 @@ C$    trd=omp_get_thread_num()
      &         Dnew(PRIVATE_2D_SCRATCH_ARRAY),  cff0,
      &        rubar(PRIVATE_2D_SCRATCH_ARRAY),  cff1,
      &        rvbar(PRIVATE_2D_SCRATCH_ARRAY),  cff2,
-     &         urhs(PRIVATE_2D_SCRATCH_ARRAY),
+     &         urhs(PRIVATE_2D_SCRATCH_ARRAY),  cff3,
      &         vrhs(PRIVATE_2D_SCRATCH_ARRAY),
-     &         DUon(PRIVATE_2D_SCRATCH_ARRAY),  cff3,
-     &         DVom(PRIVATE_2D_SCRATCH_ARRAY),  cff4,
-     &         Drhs(PRIVATE_2D_SCRATCH_ARRAY),  cff5,
-     &       Drhs_p(PRIVATE_2D_SCRATCH_ARRAY),  cff6,
-     &          UFx(PRIVATE_2D_SCRATCH_ARRAY),
+     &         DUon(PRIVATE_2D_SCRATCH_ARRAY),
+     &         DVom(PRIVATE_2D_SCRATCH_ARRAY),
+     &         Drhs(PRIVATE_2D_SCRATCH_ARRAY),
+     &          UFx(PRIVATE_2D_SCRATCH_ARRAY), 
      &          UFe(PRIVATE_2D_SCRATCH_ARRAY),  DUnew,
      &          VFx(PRIVATE_2D_SCRATCH_ARRAY),  DVnew,
      &          VFe(PRIVATE_2D_SCRATCH_ARRAY)
@@ -461,15 +459,17 @@ czz     cff3=0.0088
           VFe(i,j)=cff*(vbar(i,j+1,kstp)-vbar(i,j,kstp))
      &                                 *pn(i,j)*om_r(i,j)
 
-          cff1=0.25*Drhs_p(i+1,j+1)*visc2_p(i+1,j+1)*(
-     &               (pn(i+1,j+1)+pn(i,j+1)+pn(i+1,j)+pn(i,j))
-     &                  *(ubar(i+1,j+1,kstp)-ubar(i+1,j,kstp))
-     &              +(pm(i+1,j+1)+pm(i,j+1)+pm(i+1,j)+pm(i,j))
-     &                  *(vbar(i+1,j+1,kstp)-vbar(i,j+1,kstp))
-     &                                                       )
+          cff1=0.0625*visc2_p(i+1,j+1)*( Drhs(i,j)
+     &       +Drhs(i+1,j)+Drhs(i,j+1)+Drhs(i+1,j+1) )*(
+     &          (pn(i+1,j+1)+pn(i,j+1)+pn(i+1,j)+pn(i,j))
+     &             *(ubar(i+1,j+1,kstp)-ubar(i+1,j,kstp))
+     &         +(pm(i+1,j+1)+pm(i,j+1)+pm(i+1,j)+pm(i,j))
+     &             *(vbar(i+1,j+1,kstp)-vbar(i,j+1,kstp))
+     &                                                  )
 #  ifdef MASKING
      &                     *pmask(i+1,j+1)
 #  endif
+
           UFe(i+1,j+1)=cff1*om_p(i+1,j+1)
           VFx(i+1,j+1)=cff1*on_p(i+1,j+1)
         enddo
