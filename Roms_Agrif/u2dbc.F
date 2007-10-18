@@ -206,34 +206,41 @@ C$    trd=omp_get_thread_num()
 !                                            Western edge Characteristic BC
 !                                            ======= ==== ======= ==
         do j=Jstr,Jend
-	  cff=0.5*(h(Istr-1,j)+h(Istr,j))
-	  hx=sqrt(g/cff)
-	  cx=dtfast*cff*hx*0.5*(pm(Istr-1,j)+pm(Istr,j))
-	  
-	  if (cx.lt.0.5) then
-	  zx=(0.5+cx)*zeta(Istr,j,kstp)+(0.5-cx)*zeta(Istr-1,j,kstp)
-	  else
-	  zx=(0.5*zeta(Istr,j,kstp)+(cx-0.5)*zeta(Istr,j,knew))/cx
-	  endif
-	  
-          ubar(Istr,j,knew)= 0.5*((1.-cx)*ubar(Istr,j,kstp)
-     &                             +cx*ubar(Istr+1,j,kstp)
+          cff=0.5*(h(Istr-1,j)+h(Istr,j))
+          hx=sqrt(g/cff)
+          cx=dtfast*cff*hx*0.5*(pm(Istr-1,j)+pm(Istr,j))
+  
+c          if (cx.lt.0.5) then
+c            zx=(0.5+cx)*zeta(Istr,j,kstp)+(0.5-cx)*zeta(Istr-1,j,kstp)
+c          else
+c            zx=(0.5*zeta(Istr,j,kstp)+(cx-0.5)*zeta(Istr,j,knew))/cx
+c          endif
+
+          zx=(0.5+cx)*zeta(istr,j,kstp)+(0.5-cx)*zeta(istr-1,j,kstp)
+          if (cx .gt. 0.292893218813452) then
+            zx=zx + ( zeta(istr,j,knew) +cx*zeta(istr-1,j,kstp)
+     &                               -(1.+cx)*zeta(istr,j,kstp)
+     &                           )*(1.-0.292893218813452/cx)**2
+          endif
+  
+          ubar(Istr,j,knew)= 0.5*( (1.-cx)*ubar(Istr,j,kstp)
+     &                                    +cx*ubar(Istr+1,j,kstp)
 #   ifdef M2_FRC_BRY
-     &                                           +ubarbry_west(j))
+     &                                           +ubarbry_west(j)
 #   elif defined M2NUDGING
-     &                                             +ubclm(Istr,j))
+     &                                             +ubclm(Istr,j)
 #    endif
-     &                           -hx*( zx
+     &                                      -hx*( zx
 #   ifdef Z_FRC_BRY
-     &                                           -zetabry_west(j) 
+     &                                           -zetabry_west(j))
 #   elif defined ZNUDGING
-     &                           -0.5*(ssh(Istr-1,j)+ssh(Istr,j)) 
+     &                                             -ssh(Istr-1,j))
 #   endif
-     &              )*grad(Istr,j)
+     &                           ) !*grad(Istr,j)
 #   ifdef MASKING
           ubar(Istr,j,knew)=ubar(Istr,j,knew)*umask(Istr,j)
 #   endif
-        enddo	
+        enddo
 #  elif defined OBC_COM_M2SPECIFIED
 !                                            Western edge Specified BC
 !                                            ======= ==== ========= ==
@@ -355,34 +362,41 @@ C$    trd=omp_get_thread_num()
 !                                            Eastern edge Characteristic BC
 !                                            ======= ==== ======= ==
         do j=Jstr,Jend
-	  cff=0.5*(h(Iend,j)+h(Iend+1,j))
-	  hx=sqrt(g/cff)
-	  cx=dtfast*cff*hx*0.5*(pm(Iend,j)+pm(Iend+1,j))
-	  
-	  if (cx.lt.0.5) then
-	  zx=(0.5+cx)*zeta(Iend,j,kstp)+(0.5-cx)*zeta(Iend+1,j,kstp)
-	  else
-	  zx=(0.5*zeta(Iend,j,kstp)+(cx-0.5)*zeta(Iend,j,knew))/cx
-	  endif
-	  
-          ubar(Iend+1,j,knew)= 0.5*((1.-cx)*ubar(Iend+1,j,kstp)
-     &                             +cx*ubar(Iend,j,kstp)
+          cff=0.5*(h(Iend,j)+h(Iend+1,j))
+          hx=sqrt(g/cff)
+          cx=dtfast*cff*hx*0.5*(pm(Iend,j)+pm(Iend+1,j))
+  
+c          if (cx.lt.0.5) then
+c            zx=(0.5+cx)*zeta(Iend,j,kstp)+(0.5-cx)*zeta(Iend+1,j,kstp)
+c          else
+c            zx=(0.5*zeta(Iend,j,kstp)+(cx-0.5)*zeta(Iend,j,knew))/cx
+c          endif
+
+          zx=(0.5+cx)*zeta(iend,j,kstp)+(0.5-cx)*zeta(iend+1,j,kstp)
+          if (cx .gt. 0.292893218813452) then
+            zx=zx + ( zeta(iend,j,knew) +cx*zeta(iend+1,j,kstp)
+     &                               -(1.+cx)*zeta(iend,j,kstp)
+     &                           )*(1.-0.292893218813452/cx)**2
+          endif
+  
+          ubar(Iend+1,j,knew)= 0.5*( (1.-cx)*ubar(Iend+1,j,kstp)
+     &                                        +cx*ubar(Iend,j,kstp)
 #   ifdef M2_FRC_BRY
-     &                                           +ubarbry_east(j))
+     &                                             +ubarbry_east(j)
 #   elif defined M2NUDGING
-     &                                             +ubclm(Iend+1,j))
+     &                                             +ubclm(Iend+1,j)
 #    endif
-     &                           +hx*( zx
+     &                                      +hx*( zx
 #   ifdef Z_FRC_BRY
-     &                                           -zetabry_east(j) 
+     &                                           -zetabry_east(j))
 #   elif defined ZNUDGING
-     &                           -0.5*(ssh(Iend,j)+ssh(Iend+1,j)) 
+     &                                               -ssh(Iend,j))
 #   endif
-     &              )*grad(Iend+1,j)
+     &                             ) !*grad(Iend+1,j)
 #   ifdef MASKING
           ubar(Iend+1,j,knew)=ubar(Iend+1,j,knew)*umask(Iend+1,j)
 #   endif
-        enddo		
+        enddo
 #  elif defined OBC_COM_M2SPECIFIED
 !                                            Eastern edge Specified BC
 !                                            ======= ==== ========= ==
