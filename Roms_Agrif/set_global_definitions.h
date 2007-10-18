@@ -46,17 +46,23 @@
 **  (The default horizontal advection is third-order upstream bias)
 */
 
-#undef  HADV_C4_UV       /* 4th-order centered horizontal advection */
+#undef HADV_C4_UV        /* 4th-order centered horizontal advection */
 #define VADV_SPLINES_UV  /* splines vertical advection */
 #undef  VADV_C2_UV       /* 2nd-order centered vertical advection */
 
 /*
  *  Select model dynamics for TRACER equations:
- *  (The default horizontal and vertical advection is 4th-order centered;
- *   default horiz. advection is used exclusively in predictor step)
+ *  (The default horizontal and vertical advection is 4th-order centered)
 */
 
-#define HADV_UPSTREAM_TS  /* 3rd-order upstream bias horiz. advection */
+#define HADV_UPSTREAM_TS  /* 3rd-order upstream horiz. advection */
+#ifdef SPLIT_UP3          /* Split 3rd-order scheme into   */
+# undef HADV_UPSTREAM_TS  /*    4th order centered         */
+# undef TS_DIF2           /*     + hyperdiffusion          */
+# define TS_DIF4
+# define DIF_COEF_3D 
+# define DIF_PECLET
+#endif
 #undef  HADV_AKIMA_TS     /* 4th-order Akima horiz. advection */
 #define VADV_SPLINES_TS   /* splines vertical advection */
 #undef  VADV_AKIMA_TS     /* 4th-order Akima vertical advection */

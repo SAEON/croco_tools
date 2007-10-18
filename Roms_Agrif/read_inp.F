@@ -666,8 +666,11 @@ c        close(testunit)
      &                                        .or. wrthis(indxBostr)
      &     ) wrthis(indxTime)=.true.
 
-#  if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
+#  ifdef VIS_COEF_3D
         wrthis(indxVisc)=.true.
+#  endif
+#  ifdef DIF_COEF_3D
+        wrthis(indxDiff)=.true.
 #  endif
 
         MPI_master_only write(stdout,'(8(/6x,l1,2x,A,1x,A))')
@@ -711,8 +714,11 @@ c        close(testunit)
 #  endif
 # endif
      &  , wrthis(indxBostr), 'write Bostr', 'Bottom Stress.'
-#  if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
+#  ifdef VIS_COEF_3D
      &  , wrthis(indxVisc),  'write Visc3d', 'Horizontal viscosity.'
+#  endif
+#  ifdef DIF_COEF_3D
+     &  , wrthis(indxDiff),  'write Visc3d', 'Horizontal viscosity.'
 #  endif
 #endif /* SOLVE3D */
 #ifdef AVERAGES
@@ -806,8 +812,11 @@ c        close(testunit)
      &                                        .or. wrtavg(indxBostr)
      &     ) wrtavg(indxTime)=.true.
 
-#  if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
+#  ifdef VIS_COEF_3D
         wrtavg(indxVisc)=.true.
+#  endif
+#  ifdef DIF_COEF_3D
+        wrtavg(indxDiff)=.true.
 #  endif
 
         MPI_master_only write(stdout,'(8(/6x,l1,2x,A,1x,A))')
@@ -851,8 +860,11 @@ c        close(testunit)
 #   endif
 #  endif
      &  , wrtavg(indxBostr),'write Bostr', 'Bottom Stress.'
-#  if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
+#  ifdef VIS_COEF_3D
      &  , wrtavg(indxVisc),'write Visc3d', 'Horizontal viscosity'
+#  endif
+#  ifdef DIF_COEF_3D
+     &  , wrtavg(indxDiff),'write Visc3d', 'Horizontal viscosity'
 #  endif
 # endif /* SOLVE3D */
 #endif /* AVERAGES */

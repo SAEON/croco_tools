@@ -59,6 +59,7 @@
 # define vidO hisO
 # define vidW hisW
 # define vidVisc hisVisc
+# define vidDiff hisDiff
 # define vidAkv hisAkv
 # define vidAkt hisAkt
 # define vidAks hisAks
@@ -97,6 +98,7 @@
 # define vidO avgO
 # define vidW avgW
 # define vidVisc avgVisc
+# define vidDiff avgDiff
 # define vidAkv avgAkv
 # define vidAkt avgAkt
 # define vidAks avgAks
@@ -496,7 +498,7 @@
           ierr=nf_put_att_text (ncid, vidW, 'field',     lvar,
      &                                  vname(4,indxW)(1:lvar))
         endif
-# if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
+# ifdef VIS_COEF_3D
 !
 ! Horizontal viscosity coefficient.
 !
@@ -520,6 +522,32 @@
           lvar=lenstr(vname(4,indxVisc))
           ierr=nf_put_att_text (ncid, vidVisc, 'field',     lvar,
      &                                  vname(4,indxVisc)(1:lvar))
+        endif
+# endif
+# ifdef DIF_COEF_3D
+!
+! Horizontal diffusivity coefficient.
+!
+        if (wrt(indxDiff)) then
+          lvar=lenstr(vname(1,indxDiff))
+          ierr=nf_def_var (ncid, vname(1,indxDiff)(1:lvar),
+     &                             NF_FOUT, 4, r3dgrd, vidDiff)
+#  ifndef AVRH
+          lvar=lenstr(vname(2,indxDiff))
+          ierr=nf_put_att_text (ncid, vidDiff, 'long_name', lvar,
+     &                                  vname(2,indxDiff)(1:lvar))
+#  else
+          text='averaged '/ /vname(2,indxDiff)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidDiff, 'long_name', lvar,
+     &                                              text(1:lvar))
+#  endif
+          lvar=lenstr(vname(3,indxDiff))
+          ierr=nf_put_att_text (ncid, vidDiff, 'units',     lvar,
+     &                                  vname(3,indxDiff)(1:lvar))
+          lvar=lenstr(vname(4,indxDiff))
+          ierr=nf_put_att_text (ncid, vidDiff, 'field',     lvar,
+     &                                  vname(4,indxDiff)(1:lvar))
         endif
 # endif
 !
@@ -1086,7 +1114,7 @@
             goto 99                                       !--> ERROR
           endif
         endif
-# if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
+# ifdef VIS_COEF_3D
 !
 ! Horizontal viscosity coefficient.
 !
@@ -1095,6 +1123,19 @@
           ierr=nf_inq_varid (ncid, vname(1,indxVisc)(1:lvar), vidVisc)
           if (ierr .ne. nf_noerr) then
             write(stdout,1) vname(1,indxVisc)(1:lvar), ncname(1:lstr)
+            goto 99                                       !--> ERROR
+          endif
+        endif
+# endif
+# ifdef DIF_COEF_3D
+!
+! Horizontal diffusivity coefficient.
+!
+        if (wrt(indxDiff)) then
+          lvar=lenstr(vname(1,indxDiff))
+          ierr=nf_inq_varid (ncid, vname(1,indxDiff)(1:lvar), vidDiff)
+          if (ierr .ne. nf_noerr) then
+            write(stdout,1) vname(1,indxDiff)(1:lvar), ncname(1:lstr)
             goto 99                                       !--> ERROR
           endif
         endif
@@ -1352,6 +1393,7 @@
 #undef vidW
 #undef vidW
 #undef vidVisc
+#undef vidDiff
 #undef vidAkv
 #undef vidAkt
 #undef vidAks

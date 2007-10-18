@@ -29,7 +29,7 @@ include Makedefs
 \
 	pre_step3d.F	step3d_t.F	step3d_uv1.F	step3d_uv2.F\
 	prsgrd.F	rhs3d.F		set_depth.F	omega.F\
-	uv3dmix.F	t3dmix.F	smagorinsky.F\
+	uv3dmix.F	t3dmix.F	hmix_coef.F\
 	u3dbc.F		v3dbc.F		t3dbc.F\
 \
 	rho_eos.F	ab_ratio.F	alfabeta.F\

@@ -594,12 +594,27 @@ CR      write(stdout,'(1x,A,I3)') 'indxR =',indxR
       vname(3,indxR)='kilogram meter-3                            '
       vname(4,indxR)='density, scalar, series                     '
 
-# if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
+# ifdef VIS_COEF_3D
 CR      write(stdout,'(1x,A,I3)') 'indxVisc =',indxVisc
       vname(1,indxVisc)='visc3d                                   '
       vname(2,indxVisc)='horizontal viscosity coefficient         '
+#  ifdef UV_VIS2
       vname(3,indxVisc)='meter2 second-1                          '
-      vname(4,indxVisc)='vis3d, scalar, series                    '
+#  else
+      vname(3,indxVisc)='meter4 second-1                          '
+#  endif
+      vname(4,indxVisc)='visc3d, scalar, series                   '
+# endif
+# ifdef DIF_COEF_3D
+CR      write(stdout,'(1x,A,I3)') 'indxDiff =',indxDiff
+      vname(1,indxDiff)='diff3d                                   '
+      vname(2,indxDiff)='horizontal diffusivity coefficient       '
+#  ifdef TS_DIF2
+      vname(3,indxDiff)='meter2 second-1                          '
+#  else
+      vname(3,indxDiff)='meter4 second-1                          '
+#  endif
+      vname(4,indxDiff)='diff3d, scalar, series                   '
 # endif
 
 CR      write(stdout,'(1x,A,I3)') 'indxAkv =',indxAkv

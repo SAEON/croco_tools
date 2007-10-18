@@ -225,7 +225,7 @@ CR      write(*,*) 'wrt_his:  wrtO  ' MYID
         endif
 CR      write(*,*) 'wrt_his:  wrtW  ' MYID
       endif
-#  if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
+#  ifdef VIS_COEF_3D
 !
 ! Write out Horizontal viscosity coefficient.
 !
@@ -235,6 +235,21 @@ CR      write(*,*) 'wrt_his:  wrtW  ' MYID
         if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxVisc))
           write(stdout,1) vname(1,indxVisc)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+#  endif
+#  ifdef DIF_COEF_3D
+!
+! Write out Horizontal Diffusivity coefficient.
+!
+      if (wrthis(indxDiff)) then
+        ierr=nf_fwrite(diff3d(START_2D_ARRAY,1), ncidhis,
+     &                 hisDiff, record, r3dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxDiff))
+          write(stdout,1) vname(1,indxDiff)(1:lvar), record, ierr
      &                    MYID
           goto 99                                         !--> ERROR
         endif

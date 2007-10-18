@@ -521,7 +521,7 @@
           vbarbry_east(j)=init
         enddo
 #  endif
-#  if defined SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
+#  ifdef SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
         do k=1,N
           do j=JstrR,JendR
 #   ifdef M3_FRC_BRY
@@ -552,7 +552,7 @@
           vbarbry_south(i)=init
         enddo
 #  endif
-#  if defined SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
+#  ifdef SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
         do k=1,N
           do i=JstrR,IendR
 #   ifdef M3_FRC_BRY
@@ -583,7 +583,7 @@
           vbarbry_north(i)=init
         enddo
 #  endif
-#  if defined SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
+#  ifdef SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
         do k=1,N
           do i=JstrR,IendR
 #   ifdef M3_FRC_BRY
@@ -634,22 +634,22 @@
             visc2_p(i,j)=visc2
           enddo
         enddo
-# ifdef SMAGORINSKY
-        do k=1,N
-          do j=JstrR,JendR
-            do i=IstrR,IendR
-              visc3d_r(i,j,k)=init
-              visc3d_p(i,j,k)=init
-            enddo
-          enddo
-        enddo
-# endif
 #endif
 #ifdef UV_VIS4
         do j=JstrR,JendR
           do i=IstrR,IendR
             visc4_r(i,j)=visc4
             visc4_p(i,j)=visc4
+          enddo
+        enddo
+#endif
+#ifdef VIS_COEF_3D
+        do k=1,N
+          do j=JstrR,JendR
+            do i=IstrR,IendR
+              visc3d_r(i,j,k)=init
+              visc3d_p(i,j,k)=init
+            enddo
           enddo
         enddo
 #endif
@@ -671,6 +671,15 @@
           enddo
         enddo
 #endif
+#ifdef DIF_COEF_3D
+        do k=1,N
+          do j=JstrR,JendR
+            do i=IstrR,IendR
+              diff3d(i,j,k)=init
+            enddo
+          enddo
+        enddo
+#endif
 #ifdef SOLVE3D
 !
 !  Initialize vertical mixing coefficients (see "mixing.h") to their
@@ -686,10 +695,6 @@
             Akv(i,j,k)=Akv_bak
 # else
             Akv(i,j,k)=init
-# endif
-# if defined MIX_EN_TS || defined MIX_EN_UV
-            rhosx(i,j,k)=init
-            rhose(i,j,k)=init
 # endif
 # if defined BVF_MIXING \
       || defined LMD_MIXING || defined LMD_SKPP || defined LMD_BKPP \

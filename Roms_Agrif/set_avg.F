@@ -238,7 +238,7 @@
               enddo
             enddo
           endif
-#  if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
+#  ifdef VIS_COEF_3D
           if (wrtavg(indxVisc)) then
             do k=1,N
               do j=JstrR,JendR
@@ -249,6 +249,18 @@
             enddo
           endif
 #  endif
+#  ifdef DIF_COEF_3D
+          if (wrtavg(indxDiff)) then
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  diff3d_avg(i,j,k)=diff3d(i,j,k)
+                enddo
+              enddo
+            enddo
+          endif
+#  endif
+
 #  ifdef AVERAGES_K
           if (wrtavg(indxAkv)) then
             do k=0,N
@@ -452,12 +464,23 @@
               enddo
             enddo
           endif
-#  if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
+#  ifdef VIS_COEF_3D
           if (wrtavg(indxVisc)) then
             do k=1,N
               do j=JstrR,JendR
                 do i=IstrR,IendR
                   visc3d_avg(i,j,k)=visc3d_avg(i,j,k)+visc3d_r(i,j,k)
+                enddo
+              enddo
+            enddo
+          endif
+#  endif
+#  ifdef DIF_COEF_3D
+          if (wrtavg(indxDiff)) then
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  diff3d_avg(i,j,k)=diff3d_avg(i,j,k)+diff3d(i,j,k)
                 enddo
               enddo
             enddo
@@ -680,13 +703,25 @@
               enddo
             enddo
           endif
-#  if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
+#  ifdef VIS_COEF_3D
           if (wrtavg(indxVisc)) then
             do k=1,N
               do j=JstrR,JendR
                 do i=IstrR,IendR
                   visc3d_avg(i,j,k)=cff*(visc3d_avg(i,j,k)
-     &                                    +visc3d_r(i,j,k))
+     &                                  +visc3d_r(i,j,k))
+                enddo
+              enddo
+            enddo
+          endif
+#  endif
+#  ifdef DIF_COEF_3D
+          if (wrtavg(indxDiff)) then
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  diff3d_avg(i,j,k)=cff*(diff3d_avg(i,j,k)
+     &                                  +diff3d(i,j,k))
                 enddo
               enddo
             enddo

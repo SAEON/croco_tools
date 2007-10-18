@@ -22,11 +22,26 @@
       real diff4(GLOBAL_2D_ARRAY,NT)
       common /mixing_diff4/diff4
 #endif
-#if defined UV_VIS2 || defined TS_DIF2
-# ifdef SMAGORINSKY
+#ifdef VIS_COEF_3D
       real visc3d_r(GLOBAL_2D_ARRAY,N)
       real visc3d_p(GLOBAL_2D_ARRAY,N)
-      common /mixing_visc3d_r/visc3d_r /mixing_visc3d_p/visc3d_p
+      common /mixing_visc3d_r/visc3d_r
+     &       /mixing_visc3d_p/visc3d_p
+# ifdef VIS_PECLET
+      real visc3d_u(GLOBAL_2D_ARRAY,N)
+      real visc3d_v(GLOBAL_2D_ARRAY,N)
+      common /mixing_visc3d_u/visc3d_u
+     &       /mixing_visc3d_v/visc3d_v
+# endif
+#endif
+#ifdef DIF_COEF_3D
+      real diff3d(GLOBAL_2D_ARRAY,N)
+      common /mixing_diff3d/diff3d
+# ifdef DIF_PECLET
+      real diff3d_u(GLOBAL_2D_ARRAY,N)
+      real diff3d_v(GLOBAL_2D_ARRAY,N)
+      common /mixing_diff3d_u/diff3d_u
+     &       /mixing_diff3d_v/diff3d_v
 # endif
 #endif
 

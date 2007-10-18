@@ -76,11 +76,11 @@
 ! Compute horizontal advection
 !---------------------------------------------------------------
 !
-#ifdef HADV_UPSTREAM_TS
-# define curv WORK
-#else
-# define grad WORK
-#endif
+# ifdef HADV_UPSTREAM_TS
+#  define curv WORK
+# else
+#  define grad WORK
+# endif
 !
       do k=1,N
         do itrc=1,NT
@@ -111,7 +111,7 @@
 # endif
             enddo
           enddo
-#  undef I_EXT_RANGE
+# undef I_EXT_RANGE
 # ifndef EW_PERIODIC
           if (WESTERN_EDGE) then
             do j=Jstr,Jend
@@ -119,15 +119,15 @@
             enddo
           endif
           if (EASTERN_EDGE) then
-#ifdef MPI          
+#  ifdef MPI
             do j=Jstr,Jend
               FX(Lmmpi+2,j)=FX(Lmmpi+1,j)
             enddo
-#else
+#  else
              do j=Jstr,Jend
               FX(Lm+2,j)=FX(Lm+1,j)
             enddo
-#endif            
+#  endif
           endif
 # endif
 
@@ -144,14 +144,14 @@
               endif
 # else
               grad(i,j)=0.5*(FX(i+1,j)+FX(i,j))
-#endif
+# endif
             enddo
           enddo             !--> discard FX
 
 
           do j=Jstr,Jend
             do i=Istr,Iend+1
-#ifdef HADV_UPSTREAM_TS
+# ifdef HADV_UPSTREAM_TS
               if (Huon(i,j,k) .gt. 0.) then
                 cff=curv(i-1,j)
               else
@@ -159,11 +159,11 @@
               endif
               FX(i,j)=0.5*( t(i,j,k,3,itrc)+t(i-1,j,k,3,itrc)
      &                           -0.333333333333*cff )*Huon(i,j,k)
-#else
+# else
               FX(i,j)=0.5*( t(i,j,k,3,itrc)+t(i-1,j,k,3,itrc)
      &                     -0.333333333333*(grad(i,j)-grad(i-1,j))
      &                                               )*Huon(i,j,k)
-#endif
+# endif
             enddo          !--> discard grad
           enddo
 
@@ -195,7 +195,7 @@
 # endif
             enddo
           enddo
-#  undef J_EXT_RANGE
+# undef J_EXT_RANGE
 # ifndef NS_PERIODIC
           if (SOUTHERN_EDGE) then
             do i=Istr,Iend
@@ -203,18 +203,17 @@
             enddo
           endif
           if (NORTHERN_EDGE) then
-#ifdef MPI
+#  ifdef MPI
             do i=Istr,Iend
               FE(i,Mmmpi+2)=FE(i,Mmmpi+1)
             enddo
-#else                      
+#  else
             do i=Istr,Iend
               FE(i,Mm+2)=FE(i,Mm+1)
             enddo
-#endif            
+#  endif
           endif
 # endif
-
 
           do j=Jstr-1,Jend+1
             do i=Istr,Iend
@@ -249,6 +248,7 @@
               FE(i,j)=0.5*( t(i,j,k,3,itrc)+t(i,j-1,k,3,itrc)
      &                     -0.333333333333*(grad(i,j)-grad(i,j-1))
      &                                               )*Hvom(i,j,k)
+#  undef grad
 # endif
             enddo
           enddo            !--> discard grad
@@ -304,7 +304,7 @@
             enddo
           enddo                 !-->  discard FX,FE
 
-#ifdef AGRIF          
+#ifdef AGRIF
           IF (Agrif_Root()) Then
           MYFX(Istr:Iend+1,Jstr:Jend,k,itrc)=FX(Istr:Iend+1,Jstr:Jend)
           MYFY(Istr:Iend,Jstr:Jend+1,k,itrc)=FE(Istr:Iend,Jstr:Jend+1)
@@ -317,7 +317,7 @@
      &       MYFY(Istr:Iend,Jstr:Jend+1,k,itrc)
      &      +invrrhot*FE(Istr:Iend,Jstr:Jend+1)
           EndIF
-#endif          
+#endif
 
 #ifdef DIAGNOSTICS_TS
       do j=Jstr,Jend
@@ -331,7 +331,7 @@
      &              * rmask(i,j)
 # endif
           enddo
-        enddo                       
+        enddo
 #endif /*DIAGNOSTICS_TS*/
 
         enddo    ! <-- itrc
@@ -590,6 +590,43 @@
 ! term by substracting the right hand side terms to the time rate of change
 ! (see scrum manual p16)
 !
+! Crank-Nicholson scheme:
+!
+!   dq(k)     1     [         q(k+1)-q(k)             q(k)-q(k-1) ]
+!  ------ = ----- * [ Akt(k)* ----------- - Akt(k-1)* ----------- ]
+!    dt     Hz(k)   [            dz(k)                   dz(k-1)  ]
+!
+! where q(k) represents tracer field t(:,:,k,:,itrc). Doing so
+! implies solution of a tri-diagonal system
+!
+!     -FC(k-1)*q_new(k-1) +[Hz(k)+FC(k-1)+FC(k)]*q_new(k)
+!                       -FC(k)*q_new(k+1) = Hz(k)*q_old(k)
+!
+!                dt*Akt(k)
+! where FC(k) = ----------- is normalized diffusivity coefficient
+!                  dz(k)
+!
+! defined at W-points; q_new(k) is the new-time-step (unknown) tracer
+! field; q_old(k) is old-time-step tracer (known).  As long as
+! vertical diffusivity Akt(k) is nonnegative, the tri-diagonal matrix
+! is diagonally dominant which guarantees stability of a Gaussian
+! elimination procedure, (e.g., Richtmeyer annd  Morton, 1967).
+! Top and bottom boundary conditions are assumed to be no-flux,
+! effectively Akt(N)=Akt(0)=0, hence FC(N)=FC(1)=0. This leads to
+! equations for top and bottom grid boxes;
+!
+!   -FC(N-1)*q_new(N-1) +[Hz(N)+FC(N-1)]*q_new(N) = Hz(N)*q_old(N)
+!
+!          [Hz(1)+FC(1)]*q_new(1) -FC(1)*q_new(2) = Hz(1)*q_old(1)
+!
+! The FC(N)=FC(0)=0 boundary conditions does not mean that physical
+! boundary conditions are no flux: the forcing fluxes have been
+! applied explicitly above.  Instead, the no-flux condition should
+! be interpreted as that the implicit step merely redistributes the
+! tracer concentration throughout the water column. At this moment
+! the content of array t(:,:,:,nnew,itrc) has meaning of Hz*tracer.
+! After the implicit step it becomes just tracer.
+!
 #ifdef DIAGNOSTICS_TS
           do k=1,N
             do i=Istr,Iend
@@ -775,6 +812,13 @@
      &                    *rmask(i,j)
 #  endif
 !
+               TXadv(i,j,k,itrc)=TXadv(i,j,k,itrc)+
+     &            t(i,j,k,3,itrc)*(Huon(i+1,j,k)-Huon(i,j,k))
+               TYadv(i,j,k,itrc)=TYadv(i,j,k,itrc)+
+     &            t(i,j,k,3,itrc)*(Hvom(i,j+1,k)-Hvom(i,j,k))
+               TVadv(i,j,k,itrc)=TVadv(i,j,k,itrc)-
+     &            t(i,j,k,3,itrc)*(Huon(i+1,j,k)-Huon(i,j,k)+
+     &                             Hvom(i,j+1,k)-Hvom(i,j,k))
                cff=pm(i,j)*pn(i,j)/Hz(i,j,k)
                TXadv(i,j,k,itrc)=TXadv(i,j,k,itrc)*cff
                TYadv(i,j,k,itrc)=TYadv(i,j,k,itrc)*cff

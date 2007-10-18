@@ -201,7 +201,7 @@
           goto 99                                         !--> ERROR
         endif
       endif
-#  if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
+#  ifdef VIS_COEF_3D
 !
 ! Write out Horizontal viscosity coefficient.
 !
@@ -211,6 +211,21 @@
         if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxVisc))
           write(stdout,1) vname(1,indxVisc)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+#  endif
+#  ifdef DIF_COEF_3D
+!
+! Write out Horizontal diffusivity coefficient.
+!
+      if (wrtavg(indxDiff)) then
+        ierr=nf_fwrite(diff3d_avg(START_2D_ARRAY,1), ncidavg, avgDiff,
+     &                                                 record, r3dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxDiff))
+          write(stdout,1) vname(1,indxDiff)(1:lvar), record, ierr
      &                    MYID
           goto 99                                         !--> ERROR
         endif

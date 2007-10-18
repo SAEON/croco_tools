@@ -29,7 +29,7 @@
 # include "scalars.h"
 # include "ocean3d.h"
       integer Istr,Iend,Jstr,Jend, i, j, k, isp, itrc, ibnd
-      real visc2_sponge, visc4_sponge
+      real visc2_sponge, visc4_sponge, diff2_sponge, diff4_sponge
       real wrk(PRIVATE_2D_SCRATCH_ARRAY)
 # if defined CANARY  || defined IBERIA
       real lon0,lat0, rsponge, dx,dy,dr,cff,cff1,cff2,
@@ -41,12 +41,11 @@
 !
 # include "compute_extended_bounds.h"
 !
-! if SPONGE_GRID, vsponge is redefined as: 
-! 5 times an interior visc2 given by :
-! A = 1/12 * uscale * grd_scale
-! B = 1/12 * uscale * grd_scale**3
-!
 # undef SPONGE_GRID
+!                    if SPONGE_GRID, vsponge is redefined as: 
+!                    5 times an interior visc2 given by :
+!                    A = 1/12 * uscale * grd_scale
+!                    B = 1/12 * uscale * grd_scale**3
 !
 !--------------------------------------------------------------------
 !  Set up nudging towards climatology time-scale coeffcients [1/s]
@@ -152,99 +151,73 @@
 ! Add Viscosity and Diffusivity in SPONGE layers
 !-------------------------------------------------------------------
 !
-! Add Viscosity and Diffusivity (for temperature first)
-! at rho points 
+#  if defined UV_VIS2 || defined UV_VIS4
+!
+! Add Viscosity at rho points 
 !
       do j=JstrR,JendR
         do i=IstrR,IendR
-#  ifdef SPONGE_GRID
+#   ifdef SPONGE_GRID
           visc2_sponge=5*uscale*grdmax/12.
-#  else
+#   else
           visc2_sponge=v_sponge
-#  endif
-#  ifdef UV_VIS2
-#   ifdef VIS_GRID
+#   endif
+#   ifdef UV_VIS2
           visc2_r(i,j)=visc2_sponge*wrk(i,j) + visc2_r(i,j)
-#   else
-          visc2_r(i,j)=visc2_sponge*wrk(i,j) + visc2
-#   endif
-#  endif
-#  ifdef TS_DIF2
-          diff2(i,j,itemp)=visc2_sponge*wrk(i,j)
-#   ifdef DIF_GRID
-     &                     + diff2(i,j,itemp)
-#   endif
-#  endif
-#  if (defined UV_VIS4 || defined TS_DIF4)
+#   elif defined UV_VIS4
           visc4_sponge=visc2_sponge/(pm(i,j)*pn(i,j))
-#  endif
-#  ifdef UV_VIS4
-#   ifdef VIS_GRID
           visc4_r(i,j)=visc4_sponge*wrk(i,j) + visc4_r(i,j)
-#   else
-          visc4_r(i,j)=visc4_sponge*wrk(i,j) + visc4
+          visc4(i,j)=min(visc4(i,j),1.e-2*grdmax**3)
 #   endif
-#  endif
-#  ifdef TS_DIF4
-          diff4(i,j,itemp)=visc4_sponge*wrk(i,j)
-#   ifdef DIF_GRID
-     &                     + diff4(i,j,itemp)
-#   endif
-#  endif
         enddo
       enddo
 !
-!  Viscosity at psi points
+!  Interpolate Viscosity at psi points
 !
       do j=Jstr,JendR
         do i=Istr,IendR
-#  ifdef SPONGE_GRID
+#   ifdef SPONGE_GRID
           visc2_sponge=5*uscale*grdmax/12.
-#  else
+#   else
           visc2_sponge=v_sponge
-#  endif
-#  ifdef UV_VIS2
+#   endif
+#   ifdef UV_VIS2
           visc2_p(i,j)=0.25*visc2_sponge*( wrk(i,j  )+wrk(i-1,j  )
      &                                    +wrk(i,j-1)+wrk(i-1,j-1))
-#   ifdef VIS_GRID
-     &                + visc2_p(i,j)
-#   else
-     &                + visc2
-#   endif
-#  elif defined UV_VIS4
+     &                                               + visc2_p(i,j)
+#   elif defined UV_VIS4
           visc4_sponge=visc2_sponge/(pm(i,j)*pn(i,j))
           visc4_p(i,j)=0.25*visc4_sponge*( wrk(i,j  )+wrk(i-1,j  )
      &                                    +wrk(i,j-1)+wrk(i-1,j-1))
-#   ifdef VIS_GRID
-     &                + visc4_p(i,j)
-#   else
-     &                + visc4
+     &                                               + visc4_p(i,j)
 #   endif
-#  endif
         enddo
       enddo
+#  endif /* UV_VIS2 || UV_VIS4 */
+
+#  if defined TS_DIF2 || defined TS_DIF4
 !
-!  Diffusivity for all tracers
+!  Add Diffusivity for all tracers
 !
       do itrc=1,NT
         do j=JstrR,JendR
           do i=IstrR,IendR
-#  ifdef TS_DIF2
-#   ifdef DIF_GRID
-            diff2(i,j,itrc)=diff2(i,j,itemp)
+#   ifdef SPONGE_GRID
+            diff2_sponge=5*uscale*grdmax/12.
 #   else
-            diff2(i,j,itrc)=diff2(i,j,itemp)+tnu2(itrc)
+            diff2_sponge=v_sponge
 #   endif
-#  elif defined TS_DIF4
-#   ifdef DIF_GRID
-            diff4(i,j,itrc)=diff4(i,j,itemp)
-#   else
-            diff4(i,j,itrc)=diff4(i,j,itemp)+tnu4(itrc)
+#   ifdef TS_DIF2
+            diff2(i,j,itrc)=diff2_sponge*wrk(i,j)+diff2(i,j,itrc)
+#   elif defined TS_DIF4
+            diff4_sponge=diff2_sponge/(pm(i,j)*pn(i,j))
+            diff4(i,j,itrc)=diff4_sponge*wrk(i,j)+diff4(i,j,itrc)
+            diff4(i,j,itrc)=min(diff4(i,j,itrc),1.e-2*grdmax**3)
 #   endif
-#  endif
           enddo
         enddo
       enddo
+#  endif /* TS_DIF2 || TS_DIF4 */
 # endif /* SPONGE */
 
 !

@@ -67,6 +67,7 @@
       do k=0,N,+1     ! placement    dTdz,FC(:,:,k2) k+1/2   W-points 
         k1=k2         ! of scratch dTdx,dTde(:,:,k1) k     rho-points 
         k2=3-k1       ! variables    dTdz,FC(:,:,k1) k-1/2   W-points
+
         if (k.lt.N) then
           do j=jstr,jend
             do i=istr,iend+1
@@ -114,14 +115,14 @@
         endif
  
         if (k.gt.0) then
+
           do j=jstr,jend
             do i=istr,iend+1
-# ifdef SMAGO_TS
-              FX(i,j)=0.25*(diff2(i,j,itrc)+diff2(i-1,j,itrc)
-     &                     +visc3d_r(i,j,k)+visc3d_r(i-1,j,k))
+# ifdef DIF_COEF_3D
+              FX(i,j)=0.25*(diff3d(i,j,k)+diff3d(i-1,j,k))
 # else
               FX(i,j)=0.25*(diff2(i,j,itrc)+diff2(i-1,j,itrc))
-# endif
+#endif
      &                     *(Hz(i,j,k)+Hz(i-1,j,k))*on_u(i,j)*(
      &         dTdx(i  ,j,k1)-0.5*(
      &             min(dZdx(i,j,k1),0.)*(dTdz(i-1,j,k1)+dTdz(i,j,k2))
@@ -131,9 +132,8 @@
           enddo
           do j=jstr,jend+1
             do i=istr,iend
-# ifdef SMAGO_TS
-              FE(i,j)=0.25*(diff2(i,j,itrc)+diff2(i,j-1,itrc)
-     &                      +visc3d_r(i,j,k)+visc3d_r(i,j-1,k))
+# ifdef DIF_COEF_3D
+              FE(i,j)=0.25*(diff3d(i,j,k)+diff2(i,j-1,k))
 # else
               FE(i,j)=0.25*(diff2(i,j,itrc)+diff2(i,j-1,itrc))
 # endif
@@ -151,32 +151,31 @@
                 cff2=min(dZdx(i+1,j,k2),0.)
                 cff3=max(dZdx(i  ,j,k2),0.)
                 cff4=max(dZdx(i+1,j,k1),0.)
-# ifdef SMAGO_TS
-                FC(i,j,k2)=0.5*(diff2(i,j,itrc)+visc3d_r(i,j,k))*(
+# ifdef DIF_COEF_3D
+                FC(i,j,k2)=0.5*diff3d(i,j,k)*(
 # else
                 FC(i,j,k2)=0.5*diff2(i,j,itrc)*(
 # endif
-     &                         cff1*(cff1*dTdz(i,j,k2)-dTdx(i  ,j,k1))
-     &                        +cff2*(cff2*dTdz(i,j,k2)-dTdx(i+1,j,k2))
-     &                        +cff3*(cff3*dTdz(i,j,k2)-dTdx(i  ,j,k2))
-     &                        +cff4*(cff4*dTdz(i,j,k2)-dTdx(i+1,j,k1))
-     &                                                               )
+     &            cff1*(cff1*dTdz(i,j,k2)-dTdx(i  ,j,k1))
+     &           +cff2*(cff2*dTdz(i,j,k2)-dTdx(i+1,j,k2))
+     &           +cff3*(cff3*dTdz(i,j,k2)-dTdx(i  ,j,k2))
+     &           +cff4*(cff4*dTdz(i,j,k2)-dTdx(i+1,j,k1))
+     &                                         )
                 cff1=min(dZde(i,j  ,k1),0.)
                 cff2=min(dZde(i,j+1,k2),0.)
                 cff3=max(dZde(i,j  ,k2),0.)
                 cff4=max(dZde(i,j+1,k1),0.)
  
-# ifdef SMAGO_TS
-                FC(i,j,k2)=FC(i,j,k2)+
-     &                       0.5*(diff2(i,j,itrc)+visc3d_r(i,j,k))*(
+# ifdef DIF_COEF_3D
+                FC(i,j,k2)=FC(i,j,k2)+0.5*diff3d(i,j,k)*(
 # else
                 FC(i,j,k2)=FC(i,j,k2)+0.5*diff2(i,j,itrc)*(
 # endif
-     &                        cff1*(cff1*dTdz(i,j,k2)-dTde(i,j  ,k1))
-     &                       +cff2*(cff2*dTdz(i,j,k2)-dTde(i,j+1,k2))
-     &                       +cff3*(cff3*dTdz(i,j,k2)-dTde(i,j  ,k2))
-     &                       +cff4*(cff4*dTdz(i,j,k2)-dTde(i,j+1,k1))
-     &                                                              )
+     &            cff1*(cff1*dTdz(i,j,k2)-dTde(i,j  ,k1))
+     &           +cff2*(cff2*dTdz(i,j,k2)-dTde(i,j+1,k2))
+     &           +cff3*(cff3*dTdz(i,j,k2)-dTde(i,j  ,k2))
+     &           +cff4*(cff4*dTdz(i,j,k2)-dTde(i,j+1,k1))
+     &                                                    )
               enddo
             enddo
           endif
@@ -338,23 +337,24 @@
                 cff2=min(dZdx(i+1,j,k2),0.)
                 cff3=max(dZdx(i  ,j,k2),0.)
                 cff4=max(dZdx(i+1,j,k1),0.)
+
                 FC(i,j,k2)=0.5*(
-     &                        cff1*(cff1*dTdz(i,j,k2)-dTdx(i  ,j,k1))
-     &                       +cff2*(cff2*dTdz(i,j,k2)-dTdx(i+1,j,k2))
-     &                       +cff3*(cff3*dTdz(i,j,k2)-dTdx(i  ,j,k2))
-     &                       +cff4*(cff4*dTdz(i,j,k2)-dTdx(i+1,j,k1))
-     &                                                              )
+     &            cff1*(cff1*dTdz(i,j,k2)-dTdx(i  ,j,k1))
+     &           +cff2*(cff2*dTdz(i,j,k2)-dTdx(i+1,j,k2))
+     &           +cff3*(cff3*dTdz(i,j,k2)-dTdx(i  ,j,k2))
+     &           +cff4*(cff4*dTdz(i,j,k2)-dTdx(i+1,j,k1))
+     &                          )
                 cff1=min(dZde(i,j  ,k1),0.)
                 cff2=min(dZde(i,j+1,k2),0.)
                 cff3=max(dZde(i,j  ,k2),0.)
                 cff4=max(dZde(i,j+1,k1),0.)
  
                 FC(i,j,k2)=FC(i,j,k2)+0.5*(
-     &                        cff1*(cff1*dTdz(i,j,k2)-dTde(i,j  ,k1))
-     &                       +cff2*(cff2*dTdz(i,j,k2)-dTde(i,j+1,k2))
-     &                       +cff3*(cff3*dTdz(i,j,k2)-dTde(i,j  ,k2))
-     &                       +cff4*(cff4*dTdz(i,j,k2)-dTde(i,j+1,k1))
-     &                                                              )
+     &            cff1*(cff1*dTdz(i,j,k2)-dTde(i,j  ,k1))
+     &           +cff2*(cff2*dTdz(i,j,k2)-dTde(i,j+1,k2))
+     &           +cff3*(cff3*dTdz(i,j,k2)-dTde(i,j  ,k2))
+     &           +cff4*(cff4*dTdz(i,j,k2)-dTde(i,j+1,k1))
+     &                                    )
               enddo
             enddo
           endif
@@ -459,11 +459,15 @@
         endif
  
         if (k.gt.0) then
+
           do j=jstr,jend
             do i=istr,iend+1
-# ifdef SMAGO_TS
-              FX(i,j)=-0.25*(diff4(i,j,itrc)+diff4(i-1,j,itrc)
-     &                     +visc3d_r(i,j,k)+visc3d_r(i-1,j,k))
+# ifdef DIF_COEF_3D
+#  ifdef DIF_PECLET
+              FX(i,j)=-0.5*diff3d_u(i,j,k)
+#  else
+              FX(i,j)=-0.25*(diff3d(i,j,k)+diff3d(i-1,j,k))
+#  endif
 # else
               FX(i,j)=-0.25*(diff4(i,j,itrc)+diff4(i-1,j,itrc))
 # endif
@@ -476,9 +480,12 @@
           enddo
           do j=jstr,jend+1
             do i=istr,iend
-# ifdef SMAGO_TS
-              FE(i,j)=-0.25*(diff4(i,j,itrc)+diff4(i,j-1,itrc)
-     &                      +visc3d_r(i,j,k)+visc3d_r(i,j-1,k))
+# ifdef DIF_COEF_3D
+#  ifdef DIF_PECLET
+              FE(i,j)=-0.5*diff3d_v(i,j,k)
+#  else
+              FE(i,j)=-0.25*(diff3d(i,j,k)+diff3d(i,j-1,k))
+#  endif
 # else
               FE(i,j)=-0.25*(diff4(i,j,itrc)+diff4(i,j-1,itrc))
 # endif
@@ -496,32 +503,41 @@
                 cff2=min(dZdx(i+1,j,k2),0.)
                 cff3=max(dZdx(i  ,j,k2),0.)
                 cff4=max(dZdx(i+1,j,k1),0.)
-# ifdef SMAGO_TS
-                FC(i,j,k2)=-0.5*(diff4(i,j,itrc)
-     &                            +visc3d_r(i,j,k))*(
+# ifdef DIF_COEF_3D
+#  ifdef DIF_PECLET
+                FC(i,j,k2)=-0.125*(diff3d_u(i,j,k)+diff3d_u(i+1,j,k)
+     &                       +diff3d_u(i,j,k+1)+diff3d_u(i+1,j,k))*(
+#  else
+                FC(i,j,k2)=-0.5*diff3d(i,j,k)*(
+#  endif
 # else
                 FC(i,j,k2)=-0.5*diff4(i,j,itrc)*(
 # endif
-     &                        cff1*(cff1*dTdz(i,j,k2)-dTdx(i  ,j,k1))
-     &                       +cff2*(cff2*dTdz(i,j,k2)-dTdx(i+1,j,k2))
-     &                       +cff3*(cff3*dTdz(i,j,k2)-dTdx(i  ,j,k2))
-     &                       +cff4*(cff4*dTdz(i,j,k2)-dTdx(i+1,j,k1))
-     &                                                              )
+     &            cff1*(cff1*dTdz(i,j,k2)-dTdx(i  ,j,k1))
+     &           +cff2*(cff2*dTdz(i,j,k2)-dTdx(i+1,j,k2))
+     &           +cff3*(cff3*dTdz(i,j,k2)-dTdx(i  ,j,k2))
+     &           +cff4*(cff4*dTdz(i,j,k2)-dTdx(i+1,j,k1))
+     &                                           )
                 cff1=min(dZde(i,j  ,k1),0.)
                 cff2=min(dZde(i,j+1,k2),0.)
                 cff3=max(dZde(i,j  ,k2),0.)
                 cff4=max(dZde(i,j+1,k1),0.)
-# ifdef SMAGO_TS
-                FC(i,j,k2)=FC(i,j,k2)-0.5*(diff4(i,j,itrc)
-     &                                  +visc3d_r(i,j,k))*(
+# ifdef DIF_COEF_3D
+#  ifdef DIF_PECLET
+                FC(i,j,k2)=FC(i,j,k2)
+     &                -0.125*(diff3d_v(i,j,k)+diff3d_v(i,j+1,k)
+     &                  +diff3d_v(i,j,k+1)+diff3d_v(i,j+1,k))*(
+#  else
+                FC(i,j,k2)=FC(i,j,k2)-0.5*diff3d(i,j,k)*(
+#  endif
 # else
                 FC(i,j,k2)=FC(i,j,k2)-0.5*diff4(i,j,itrc)*(
 # endif
-     &                        cff1*(cff1*dTdz(i,j,k2)-dTde(i,j  ,k1))
-     &                       +cff2*(cff2*dTdz(i,j,k2)-dTde(i,j+1,k2))
-     &                       +cff3*(cff3*dTdz(i,j,k2)-dTde(i,j  ,k2))
-     &                       +cff4*(cff4*dTdz(i,j,k2)-dTde(i,j+1,k1))
-     &                                                              )
+     &            cff1*(cff1*dTdz(i,j,k2)-dTde(i,j  ,k1))
+     &           +cff2*(cff2*dTdz(i,j,k2)-dTde(i,j+1,k2))
+     &           +cff3*(cff3*dTdz(i,j,k2)-dTde(i,j  ,k2))
+     &           +cff4*(cff4*dTdz(i,j,k2)-dTde(i,j+1,k1))
+     &                                                     )
               enddo
             enddo
           endif
@@ -558,6 +574,7 @@
         endif  ! <-- k.gt.0
       enddo   ! --> k
 # endif /* TS_DIF4 */
+
       return
       end
 

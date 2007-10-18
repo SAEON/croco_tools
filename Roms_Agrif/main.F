@@ -118,6 +118,12 @@ CR      write(*,*) ' -9' MYID
 #endif
 CR      write(*,*) ' -8' MYID 
 #ifdef SOLVE3D
+#if defined VIS_GRID || defined DIF_GRID 
+C$OMP PARALLEL DO PRIVATE(tile)
+      do tile=0,NSUB_X*NSUB_E-1      ! Rescale horizontal mixing
+        call hmix_coef (tile)        ! coefficients according to
+      enddo                          ! local grid size.
+#endif
 C$OMP PARALLEL DO PRIVATE(tile)      ! Create three-dimensional
       do tile=0,NSUB_X*NSUB_E-1      ! S-coordinate system, which
         call set_depth (tile)        ! may be needed by ana_initial

@@ -32,7 +32,7 @@
       end
 
       subroutine pre_step3d_tile (Istr,Iend,Jstr,Jend, ru,rv,
-     &                         FC,CF,DC, FX,FE,grad, Hz_half,
+     &                         FC,CF,DC, FX,FE,WORK, Hz_half,
      &                           u,v,t,Hz,Hz_bak,Huon,Hvom,W)
 !
 !--------------------------------------------------------------------
@@ -68,7 +68,7 @@
      &     DC(PRIVATE_1D_SCRATCH_ARRAY,0:N),  gamma, 
      &         FX(PRIVATE_2D_SCRATCH_ARRAY),  epsil,
      &         FE(PRIVATE_2D_SCRATCH_ARRAY),
-     &       grad(PRIVATE_2D_SCRATCH_ARRAY),
+     &       WORK(PRIVATE_2D_SCRATCH_ARRAY),
      &      Hz_half(PRIVATE_2D_SCRATCH_ARRAY,N),
      &                     u(GLOBAL_2D_ARRAY,N,3),
      &                     v(GLOBAL_2D_ARRAY,N,3),
@@ -133,6 +133,16 @@ C--# include "ocean3d.h" --> u declared only once
 !  This preliminary step shall be done before field t(:,:,:,???,:)
 !  loses its meaningful values during the pre-step operation. 
 !
+!
+!---------------------------------------------------------------
+! Compute horizontal advection
+!---------------------------------------------------------------
+!
+# ifdef HADV_UPSTREAM_TS
+#  define curv WORK
+# else
+#  define grad WORK
+# endif
       do k=1,N
         do itrc=1,NT
 # ifdef EW_PERIODIC
@@ -166,34 +176,53 @@ C--# include "ocean3d.h" --> u declared only once
 # ifndef EW_PERIODIC 
           if (WESTERN_EDGE) then
             do j=Jstr,Jend
-              FX(Istr-1,j)=FX(Istr,j)
+              FX(0,j)=FX(1,j)
             enddo
           endif
           if (EASTERN_EDGE) then
+#  ifdef MPI
             do j=Jstr,Jend
-              FX(Iend+2,j)=FX(Iend+1,j)
+              FX(Lmmpi+2,j)=FX(Lmmpi+1,j)
             enddo
+#  else
+             do j=Jstr,Jend
+              FX(Lm+2,j)=FX(Lm+1,j)
+            enddo
+#  endif
           endif
 # endif
           do j=Jstr,Jend
             do i=Istr-1,Iend+1
-              grad(i,j)=0.5*(FX(i+1,j)+FX(i,j))
-
-              cff=2.*(FX(i+1,j)*FX(i,j))
+# if defined HADV_UPSTREAM_TS
+              curv(i,j)=FX(i+1,j)-FX(i,j)
+# elif defined HADV_AKIMA_TS
+              cff=2.*FX(i+1,j)*FX(i,j)
               if (cff.gt.epsil) then
                 grad(i,j)=cff/(FX(i+1,j)+FX(i,j))
               else
                 grad(i,j)=0.
               endif
-
+# else
+              grad(i,j)=0.5*(FX(i+1,j)+FX(i,j))
+# endif
             enddo
           enddo             !--> discard FX
 
           do j=Jstr,Jend
             do i=Istr,Iend+1
+# ifdef HADV_UPSTREAM_TS
+              if (Huon(i,j,k) .gt. 0.) then
+                cff=curv(i-1,j)
+              else
+                cff=curv(i,j)
+              endif
               FX(i,j)=0.5*( t(i,j,k,nstp,itrc)+t(i-1,j,k,nstp,itrc)
-     &                       -0.333333333333*(grad(i,j)-grad(i-1,j))
-     &                                                 )*Huon(i,j,k)
+     &                           -0.333333333333*cff )*Huon(i,j,k)
+# else
+              FX(i,j)=0.5*( t(i,j,k,nstp,itrc)+t(i-1,j,k,nstp,itrc)
+     &                     -0.333333333333*(grad(i,j)-grad(i-1,j))
+     &                                               )*Huon(i,j,k)
+# endif
             enddo
           enddo            !--> discard grad
 
@@ -225,41 +254,69 @@ C--# include "ocean3d.h" --> u declared only once
 # endif
             enddo
           enddo
-#  undef J_EXT_RANGE
+# undef J_EXT_RANGE
 # ifndef NS_PERIODIC
           if (SOUTHERN_EDGE) then
             do i=Istr,Iend
-              FE(i,Jstr-1)=FE(i,Jstr)
+              FE(i,0)=FE(i,1)
             enddo
           endif
           if (NORTHERN_EDGE) then
+#  ifdef MPI
             do i=Istr,Iend
-              FE(i,Jend+2)=FE(i,Jend+1)
+              FE(i,Mmmpi+2)=FE(i,Mmmpi+1)
             enddo
+#  else
+            do i=Istr,Iend
+              FE(i,Mm+2)=FE(i,Mm+1)
+            enddo
+#  endif
           endif
 # endif
+
           do j=Jstr-1,Jend+1
             do i=Istr,Iend
-              grad(i,j)=0.5*(FE(i,j+1)+FE(i,j))
-
+# if defined HADV_UPSTREAM_TS
+              curv(i,j)=FE(i,j+1)-FE(i,j)
+# elif defined HADV_AKIMA_TS
               cff=2.*FE(i,j+1)*FE(i,j)
               if (cff.gt.epsil) then
                 grad(i,j)=cff/(FE(i,j+1)+FE(i,j))
               else
                 grad(i,j)=0.
               endif
+# else
+              grad(i,j)=0.5*(FE(i,j+1)+FE(i,j))
+# endif
             enddo
           enddo            !--> discard FE
 
           do j=Jstr,Jend+1
             do i=Istr,Iend
+# ifdef HADV_UPSTREAM_TS
+              if (Hvom(i,j,k) .gt. 0.) then
+                cff=curv(i,j-1)
+              else
+                cff=curv(i,j)
+              endif
               FE(i,j)=0.5*( t(i,j,k,nstp,itrc)+t(i,j-1,k,nstp,itrc)
-     &                       -0.333333333333*(grad(i,j)-grad(i,j-1))
-     &                                                 )*Hvom(i,j,k)
+     &                          -0.333333333333*cff )*Hvom(i,j,k)
+#  undef curv
+# else
+              FE(i,j)=0.5*( t(i,j,k,nstp,itrc)+t(i,j-1,k,nstp,itrc)
+     &                     -0.333333333333*(grad(i,j)-grad(i,j-1))
+     &                                               )*Hvom(i,j,k)
+#  undef grad
+# endif
             enddo
           enddo            !--> discard grad
 
 # ifdef PSOURCE
+!
+!-------------------------------------------------------------------
+! Apply point sources for river runoff simulations
+!-------------------------------------------------------------------
+!
           do is=1,Nsrc
             i=Isrc(is)
             j=Jsrc(is)
@@ -324,7 +381,10 @@ C--# include "ocean3d.h" --> u declared only once
 ! continuity equation (the same for all tracers): DC=1/Hz_half_new,
 ! where Hz_half_new is Hz at time step n+1/2 as it would be computed
 ! from three-dimensional divergence of volume fluxes Huon,Hvom and W.
-!  
+!
+!---------------------------------------------------------------
+! Compute vertical advection
+!---------------------------------------------------------------
 ! Finalize computation of the auxiliary tracer field: compute its
 ! change due to vertical advection. Computation of vertical advective
 ! fluxes requires interpolation of tracer values to the verical grid-
@@ -547,15 +607,15 @@ c**
 !---------------------------------------------------------------
 !
       do itrc=1,NT
-        call t3dbc_tile (Istr,Iend,Jstr,Jend, nnew,itrc, grad)
+        call t3dbc_tile (Istr,Iend,Jstr,Jend, nnew,itrc, WORK)
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
         call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                          t(START_2D_ARRAY,1,nnew,itrc))
 # endif
       enddo
 
-      call u3dbc_tile (Istr,Iend,Jstr,Jend, grad)
-      call v3dbc_tile (Istr,Iend,Jstr,Jend, grad)
+      call u3dbc_tile (Istr,Iend,Jstr,Jend, WORK)
+      call v3dbc_tile (Istr,Iend,Jstr,Jend, WORK)
 
 !
 !---------------------------------------------------------------

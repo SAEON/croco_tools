@@ -17,6 +17,7 @@
 ! indxR           density anomaly
 !
 ! indxVisc        Horizontal viscosity coefficients
+! indxDiff        Horizontal diffusivity coefficients
 ! indxAkv,indxAkt,indxAks  vertical viscosity/diffusivity coefficients
 ! indxHbl         depth of planetary boundary layer in KPP model
 ! indxHbbl        depth of bottom planetary boundary layer in KPP model
@@ -170,11 +171,11 @@
 #  endif
 # endif /* BIOLOGY && DIAGNOSTICS_BIO */
 
-      integer indxO, indxW, indxR, indxVisc, indxAkv, indxAkt
+      integer indxO, indxW, indxR, indxVisc, indxDiff, indxAkv, indxAkt
       parameter (indxO=indxT+ntrc_salt+ntrc_pas+ntrc_bio+ntrc_sed
-     &                       +ntrc_diats+ntrc_diauv+ntrc_diabio+1,
-     &           indxW=indxO+1, indxR=indxO+2, indxVisc=indxR+1,
-     &           indxAkv=indxR+2, indxAkt=indxAkv+1)
+     &                      +ntrc_diats+ntrc_diauv+ntrc_diabio+1,
+     &           indxW=indxO+1, indxR=indxO+2, indxVisc=indxO+3,
+     &           indxDiff=indxO+4,indxAkv=indxO+5, indxAkt=indxO+6)
 
 # ifdef SALINITY
       integer indxAks
@@ -433,9 +434,9 @@
       integer  ncidhis, nrechis,  nrpfhis
      &      , hisTime, hisTstep, hisZ,    hisUb,  hisVb
 #ifdef SOLVE3D
-     &      , hisU,  hisV,  hisR,    hisHbl, hisHbbl
-     &      , hisO,  hisW,  hisVisc,  hisAkv,  hisAkt, hisAks
-     &      , hisBostr
+     &      , hisU,   hisV,   hisR,    hisHbl, hisHbbl
+     &      , hisO,   hisW,   hisVisc, hisDiff
+     &      , hisAkv, hisAkt, hisAks,  hisBostr
 # ifdef BIOLOGY
      &      , hisHel
 #  ifdef BIO_NPZD
@@ -481,7 +482,7 @@
      &      , avgTime, avgTstep, avgZ,    avgUb,  avgVb
 # ifdef SOLVE3D
      &      , avgU,  avgV,  avgR,    avgHbl, avgHbbl
-     &      , avgO,  avgW,  avgVisc, avgAkv,  avgAkt, avgAks
+     &      , avgO,  avgW,  avgVisc, avgDiff, avgAkv,  avgAkt, avgAks
 # ifdef BIOLOGY
      &      , avgHel
 #  ifdef BIO_NPZD
@@ -584,7 +585,8 @@
      &      , hisTime, hisTstep, hisZ,    hisUb,  hisVb
 #ifdef SOLVE3D
      &      , hisU,    hisV,     hisT,    hisR
-     &      , hisO,    hisW,     hisVisc, hisAkv,  hisAkt, hisAks
+     &      , hisO,    hisW,     hisVisc, hisDiff
+     &      , hisAkv,  hisAkt,   hisAks
      &      , hisHbl,  hisHbbl,  hisBostr
 # ifdef BIOLOGY
      &      , hisHel
@@ -646,8 +648,9 @@
      &      , ncidavg,  nrecavg,  nrpfavg
      &      , avgTime, avgTstep, avgZ,    avgUb,  avgVb
 # ifdef SOLVE3D
-     &      , avgU,    avgV,     avgT,    avgR
-     &      , avgO,    avgW,     avgVisc,  avgAkv,  avgAkt, avgAks
+     &      , avgU,    avgV,     avgT,     avgR
+     &      , avgO,    avgW,     avgVisc,  avgDiff
+     &      , avgAkv,  avgAkt,   avgAks
      &      , avgHbl,  avgHbbl
 #  ifdef BIOLOGY
      &      , avgHel

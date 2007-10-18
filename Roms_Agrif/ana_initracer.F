@@ -107,7 +107,9 @@
 #  endif
 #  if defined PASSIVE_TRACER && !defined ANA_PSOURCE
             if (.not.got_tini(itpas)) then
-              if (h(i,j).lt.300) then
+c              if (h(i,j).lt.300) then
+             if (z_r(i,j,k).lt.-800 .and.
+     &           z_r(i,j,k).gt.-1200 ) then
                 t(i,j,k,1,itpas)=1
               else
                  t(i,j,k,1,itpas)=0

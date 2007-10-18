@@ -75,7 +75,7 @@
 # define CURVGRID
 # define SPHERICAL
 # define MASKING
-                      /* Input/Output & Diagnostics */
+                      /* I/O & Diagnostics */
 # define AVERAGES
 # define AVERAGES_K
 # undef  DIAGNOSTICS_TS
@@ -133,16 +133,17 @@
                       /* Point Sources - Rivers */
 # undef  PSOURCE
 # undef  ANA_PSOURCE
-                      /* Lateral Mixing */
+                      /* Lateral Momentum Mixing */
 # define UV_VIS2
 # define MIX_GP_UV
+# undef  VIS_COEF_3D
+# ifdef VIS_COEF_3D
+#  define VIS_SMAGO
+# endif
+                      /* Lateral Tracer Mixing */
 # define TS_DIF2
 # define MIX_GP_TS
-# undef  SMAGORINSKY
-# ifdef SMAGORINSKY
-#  define SMAGO_UV
-#  undef  SMAGO_TS
-# endif
+# undef  SPLIT_UP3
 # if defined TCLIMATOLOGY & !defined AGRIF
 #  define CLIMAT_TS_MIXH
 # endif
@@ -161,6 +162,7 @@
                       /* Open Boundary Conditions */
 # ifdef TIDES
 #  define OBC_M2FLATHER
+#  undef  OBC_M2CHARACT
 # else
 #  undef  OBC_M2SPECIFIED
 #  undef  OBC_M2FLATHER

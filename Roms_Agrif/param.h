@@ -72,6 +72,8 @@
       parameter (LLm0=170, MMm0=60,  N=30) ! <-- Pacific
 #  elif defined  CORAL
       parameter (LLm0=81, MMm0=77,  N=32)  ! <-- CORAL sea
+#  elif defined  NEWCAL
+      parameter (LLm0=81, MMm0=77,  N=32)  ! <-- CORAL sea
 #  else
       parameter (LLm0=39,  MMm0=32,  N=20)
 #  endif

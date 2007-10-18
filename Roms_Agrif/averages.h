@@ -57,9 +57,13 @@
      &       /avg_theta1/theta1_avg /avg_theta2/theta2_avg
 #   endif
 #  endif /* BIOLOGY */
-#  if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
+#  ifdef VIS_COEF_3D
       real visc3d_avg(GLOBAL_2D_ARRAY,N)
       common /avg_visc3d/visc3d_avg
+#  endif
+#  ifdef DIF_COEF_3D
+      real diff3d_avg(GLOBAL_2D_ARRAY,N)
+      common /avg_diff3d/diff3d_avg
 #  endif
 #  ifdef AVERAGES_K
       real Akv_avg(GLOBAL_2D_ARRAY,0:N)

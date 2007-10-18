@@ -52,7 +52,7 @@
 #ifdef SPLIT_EOS
 # define rho rho1
 #endif
- 
+
 #define EPS 0.5
 c-#define MAX_SLOPE 1.E+2   /* inverse of max isoneutral slope */
 c-#define MIN_STRAT  0.1
@@ -107,7 +107,7 @@ c-#define MIN_STRAT  0.1
         else
           do j=jstr-1,jend+1
             do i=istr-1,iend+1
-#if defined MAX_SLOPE
+# if defined MAX_SLOPE
               cff=MAX( rho(i,j,k)-rho(i,j,k+1),
      &                 1.E-14,
      &                 0.25*MAX_SLOPE*(z_r(i,j,k+1)-z_r(i,j,k))
@@ -117,12 +117,12 @@ c-#define MIN_STRAT  0.1
      &                           +dRde(i,j,k1)**2+dRde(i,j+1,k1)**2)
      &                                                             )
               cff1=-1.0/cff
-#elif defined MIN_STRAT
+# elif defined MIN_STRAT
               cff1=-1.0/MAX( rho(i,j,k)-rho(i,j,k+1),
      &                       MIN_STRAT*(z_r(i,j,k+1)-z_r(i,j,k)))
-#elif defined EPS
+# elif defined EPS
               cff1=-1.0/MAX( rho(i,j,k)-rho(i,j,k+1), EPS )
-#endif
+# endif
               dTdr(i,j,k2)=cff1*( t(i,j,k+1,nrhs,itrc)
      &                                            -t(i,j,k,nrhs,itrc)
 # ifdef CLIMAT_TS_MIXH
@@ -135,11 +135,11 @@ c-#define MIN_STRAT  0.1
         endif
  
         if (k.gt.0) then
+
           do j=jstr,jend
             do i=istr,iend+1
-# ifdef SMAGO_TS
-              FX(i,j)=0.25*(diff2(i,j,itrc)+diff2(i-1,j,itrc)
-     &                     +visc3d_r(i,j,k)+visc3d_r(i-1,j,k))
+# ifdef DIF_COEF_3D
+              FX(i,j)=0.25*(diff3d(i,j,k)+diff3d(i-1,j,k))
 # else
               FX(i,j)=0.25*(diff2(i,j,itrc)+diff2(i-1,j,itrc))
 # endif
@@ -152,9 +152,8 @@ c-#define MIN_STRAT  0.1
           enddo
           do j=jstr,jend+1
             do i=istr,iend
-# ifdef SMAGO_TS
-              FE(i,j)=0.25*(diff2(i,j,itrc)+diff2(i,j-1,itrc)
-     &                      +visc3d_r(i,j,k)+visc3d_r(i,j-1,k))
+# ifdef DIF_COEF_3D
+              FE(i,j)=0.25*(diff3d(i,j,k)+diff3d(i,j-1,k))
 # else
               FE(i,j)=0.25*(diff2(i,j,itrc)+diff2(i,j-1,itrc))
 # endif
@@ -188,12 +187,11 @@ c-#define MIN_STRAT  0.1
      &                 +cff3*(cff3*dTdr(i,j,k2)-dTde(i,j  ,k2))
      &                 +cff4*(cff4*dTdr(i,j,k2)-dTde(i,j+1,k1))
  
-# ifdef SMAGO_TS
-                FC(i,j,k2)=0.5*cff*(diff2(i,j,itrc)+visc3d_r(i,j,k))
+# ifdef DIF_COEF_3D
+                FC(i,j,k2)=0.5*cff*diff3d(i,j,k)*FC(i,j,k2)
 # else
-                FC(i,j,k2)=0.5*cff*diff2(i,j,itrc)
+                FC(i,j,k2)=0.5*cff*diff2(i,j,itrc)*FC(i,j,k2)
 # endif
-     &                                            *FC(i,j,k2)
               enddo
             enddo
           endif
@@ -240,7 +238,7 @@ c-#define MIN_STRAT  0.1
 !  Laplacian operator twice.
 !--------------------------------------------------------------------
 !
-#  ifndef EW_PERIODIC
+# ifndef EW_PERIODIC
       if (WESTERN_EDGE) then
         imin=istr
       else
@@ -251,11 +249,11 @@ c-#define MIN_STRAT  0.1
       else
         imax=iend+1
       endif
-#  else
+# else
       imin=istr-1
       imax=iend+1
-#  endif
-#  ifndef NS_PERIODIC
+# endif
+# ifndef NS_PERIODIC
       if (SOUTHERN_EDGE) then
         jmin=jstr
       else
@@ -266,12 +264,12 @@ c-#define MIN_STRAT  0.1
       else
         jmax=jend+1
       endif
-#  else
+# else
       jmin=jstr-1
       jmax=jend+1
-#  endif
-#  define J_EXT_RANGE jmin,jmax
-#  define I_EXT_RANGE imin,imax
+# endif
+# define J_EXT_RANGE jmin,jmax
+# define I_EXT_RANGE imin,imax
 !                                              !!! WARNING: RECURSIVE
 !  The FIRST rotated Laplacian operator:       !!! BLOCKING SEQUENCE
 !--------------------------------------------------------------------
@@ -287,9 +285,9 @@ c-#define MIN_STRAT  0.1
               dRdx(i,j,k2)=cff*(rho(i,j,k+1)-rho(i-1,j,k+1))
               dTdx(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)-
      &                               t(i-1,j,k+1,nrhs,itrc)
-#  ifdef CLIMAT_TS_MIXH
+# ifdef CLIMAT_TS_MIXH
      &               -tclm(i,j,k+1,itrc)+tclm(i-1,j,k+1,itrc)
-#  endif
+# endif
      &                                                      )
             enddo
           enddo
@@ -299,9 +297,9 @@ c-#define MIN_STRAT  0.1
               dRde(i,j,k2)=cff*(rho(i,j,k+1)-rho(i,j-1,k+1))
               dTde(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)-
      &                               t(i,j-1,k+1,nrhs,itrc)
-#  ifdef CLIMAT_TS_MIXH
+# ifdef CLIMAT_TS_MIXH
      &               -tclm(i,j,k+1,itrc)+tclm(i,j-1,k+1,itrc)
-#  endif
+# endif
      &                          )
             enddo
           enddo
@@ -317,7 +315,7 @@ c-#define MIN_STRAT  0.1
         else
           do j=-1+J_EXT_RANGE+1
             do i=-1+I_EXT_RANGE+1
-#if defined MAX_SLOPE
+# if defined MAX_SLOPE
               cff=MAX( rho(i,j,k)-rho(i,j,k+1),
      &                 1.E-14,
      &                 0.25*MAX_SLOPE*(z_r(i,j,k+1)-z_r(i,j,k))
@@ -327,12 +325,12 @@ c-#define MIN_STRAT  0.1
      &                           +dRde(i,j,k1)**2+dRde(i,j+1,k1)**2)
      &                                                             )
               cff1=-1.0/cff
-#elif defined MIN_STRAT
+# elif defined MIN_STRAT
               cff1=-1.0/MAX( rho(i,j,k)-rho(i,j,k+1),
      &                       MIN_STRAT*(z_r(i,j,k+1)-z_r(i,j,k)))
-#elif defined EPS
+# elif defined EPS
               cff1=-1.0/MAX( rho(i,j,k)-rho(i,j,k+1), EPS )
-#endif
+# endif
  
               FC(i,j,k2)=cff1*(z_r(i,j,k+1)-z_r(i,j,k))
               dTdr(i,j,k2)=cff1*(t(i,j,k+1,nrhs,itrc)
@@ -406,7 +404,7 @@ c-#define MIN_STRAT  0.1
 !  Apply boundary conditions to the Laplacian
 !  (for the cases other than periodic: closed or gradient)
 !
-#   ifndef EW_PERIODIC
+# ifndef EW_PERIODIC
         if (WESTERN_EDGE) then
           do k=1,N
             do j=J_EXT_RANGE
@@ -492,7 +490,7 @@ c-#define MIN_STRAT  0.1
         else
           do j=jstr-1,jend+1
             do i=istr-1,iend+1
-#if defined MAX_SLOPE
+# if defined MAX_SLOPE
               cff=MAX( rho(i,j,k)-rho(i,j,k+1),
      &                 1.E-14,
      &                 0.25*MAX_SLOPE*(z_r(i,j,k+1)-z_r(i,j,k))
@@ -502,12 +500,12 @@ c-#define MIN_STRAT  0.1
      &                           +dRde(i,j,k1)**2+dRde(i,j+1,k1)**2)
      &                                                             )
               cff1=-1.0/cff
-#elif defined MIN_STRAT
+# elif defined MIN_STRAT
               cff1=-1.0/MAX( rho(i,j,k)-rho(i,j,k+1),
      &                       MIN_STRAT*(z_r(i,j,k+1)-z_r(i,j,k)))
-#elif defined EPS
+# elif defined EPS
               cff1=-1.0/MAX( rho(i,j,k)-rho(i,j,k+1), EPS )
-#endif
+# endif
  
               FC(i,j,k2)=cff1*(z_r(i,j,k+1)-z_r(i,j,k))
               dTdr(i,j,k2)=cff1*(LapT(i,j,k+1)-LapT(i,j,k))
@@ -516,11 +514,15 @@ c-#define MIN_STRAT  0.1
         endif
  
         if (k.gt.0) then
+
           do j=jstr,jend
             do i=istr,iend+1
-# ifdef SMAGO_TS
-              FX(i,j)=-0.25*(diff4(i,j,itrc)+diff4(i-1,j,itrc)
-     &                      +visc3d_r(i,j,k)+visc3d_r(i-1,j,k))
+# ifdef DIF_COEF_3D
+#  ifdef DIF_PECLET
+              FX(i,j)=-0.5*diff3d_u(i,j,k)
+#  else
+              FX(i,j)=-0.25*(diff3d(i,j,k)+diff3d(i-1,j,k))
+#  endif
 # else
               FX(i,j)=-0.25*(diff4(i,j,itrc)+diff4(i-1,j,itrc))
 # endif
@@ -533,9 +535,12 @@ c-#define MIN_STRAT  0.1
           enddo
           do j=jstr,jend+1
             do i=istr,iend
-# ifdef SMAGO_TS
-              FE(i,j)=-0.25*(diff4(i,j,itrc)+diff4(i,j-1,itrc)
-     &                      +visc3d_r(i,j,k)+visc3d_r(i,j-1,k))
+# ifdef DIF_COEF_3D
+#  ifdef DIF_PECLET
+              FE(i,j)=-0.5*diff3d_v(i,j,k)
+#  else
+              FE(i,j)=-0.25*(diff3d(i,j,k)+diff3d(i,j-1,k))
+#  endif
 # else
               FE(i,j)=-0.25*(diff4(i,j,itrc)+diff4(i,j-1,itrc))
 # endif
@@ -549,31 +554,48 @@ c-#define MIN_STRAT  0.1
           if (k.lt.N) then
             do j=jstr,jend
               do i=istr,iend
+                cff=FC(i,j,k2)
                 cff1=MAX(dRdx(i  ,j,k1),0.)
                 cff2=MAX(dRdx(i+1,j,k2),0.)
                 cff3=MIN(dRdx(i  ,j,k2),0.)
                 cff4=MIN(dRdx(i+1,j,k1),0.)
- 
-                cff=    cff1*(cff1*dTdr(i,j,k2)-dTdx(i  ,j,k1))
+# ifdef DIF_COEF_3D
+#  ifdef DIF_PECLET
+                FC(i,j,k2)=-0.125*(diff3d_u(i,j,k)+diff3d_u(i+1,j,k)
+     &                        +diff3d_u(i,j,k+1)+diff3d_u(i+1,j,k))*(
+#  else
+                FC(i,j,k2)=-0.5*diff3d(i,j,k)*(
+#  endif
+# else
+                FC(i,j,k2)=-0.5*diff4(i,j,itrc)*(
+# endif
+     &                  cff1*(cff1*dTdr(i,j,k2)-dTdx(i  ,j,k1))
      &                 +cff2*(cff2*dTdr(i,j,k2)-dTdx(i+1,j,k2))
      &                 +cff3*(cff3*dTdr(i,j,k2)-dTdx(i  ,j,k2))
      &                 +cff4*(cff4*dTdr(i,j,k2)-dTdx(i+1,j,k1))
- 
+     &                                           )*cff
+
                 cff1=MAX(dRde(i,j  ,k1),0.)
                 cff2=MAX(dRde(i,j+1,k2),0.)
                 cff3=MIN(dRde(i,j  ,k2),0.)
                 cff4=MIN(dRde(i,j+1,k1),0.)
- 
-                cff=cff+cff1*(cff1*dTdr(i,j,k2)-dTde(i,j  ,k1))
+
+# ifdef DIF_COEF_3D
+#  ifdef DIF_PECLET
+                FC(i,j,k2)=FC(i,j,k2)
+     &                -0.125*(diff3d_v(i,j,k)+diff3d_v(i,j+1,k)
+     &                       +diff3d_v(i,j,k+1)+diff3d_v(i,j+1,k))*(
+#  else
+                FC(i,j,k2)=FC(i,j,k2)-0.5*diff3d(i,j,k)*(
+#  endif
+# else
+                FC(i,j,k2)=FC(i,j,k2)-0.5*diff4(i,j,itrc)*(
+# endif
+     &                  cff1*(cff1*dTdr(i,j,k2)-dTde(i,j  ,k1))
      &                 +cff2*(cff2*dTdr(i,j,k2)-dTde(i,j+1,k2))
      &                 +cff3*(cff3*dTdr(i,j,k2)-dTde(i,j  ,k2))
      &                 +cff4*(cff4*dTdr(i,j,k2)-dTde(i,j+1,k1))
-# ifdef SMAGO_TS
-                FC(i,j,k2)=-0.5*cff*(diff4(i,j,itrc)+
-     &                             visc3d_r(i,j,k))*FC(i,j,k2)
-# else
-                FC(i,j,k2)=-0.5*cff*diff4(i,j,itrc)*FC(i,j,k2)
-# endif
+     &                                                    )*cff
               enddo
             enddo
           endif
@@ -610,7 +632,7 @@ c-#define MIN_STRAT  0.1
           enddo
         endif  ! <-- k.gt.0
       enddo   ! --> k
-#  endif /* T_DIF4 */
+#endif /* T_DIF4 */
 
 #ifdef SPLIT_EOS
 # undef rho

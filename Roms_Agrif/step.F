@@ -297,8 +297,8 @@ C$OMP BARRIER
         call bvf_mix (tile)
 # endif
         call omega (tile)
-# if (defined UV_VIS2 || defined TS_DIF2) && defined SMAGORINSKY
-        call smagorinsky (tile)
+# if defined VIS_COEF_3D || defined DIF_COEF_3D
+        call hmix_coef (tile)
 # endif
       enddo
 C$OMP BARRIER
@@ -307,15 +307,15 @@ C$OMP BARRIER
         call rhs3d (tile)
         call pre_step3d (tile)
 # if defined UV_VIS2 || defined UV_VIS4
-# if defined AGRIF && !defined SMAGO_UV
+#  if defined AGRIF && defined UV_VIS2 && !defined VIS_COEF_3D
         if (Agrif_Root()) then
-# endif
-        call uv3dmix (tile) 
-# if defined AGRIF && !defined SMAGO_UV
+          call uv3dmix (tile)
         else
-        call uv3dmix_fine(tile)
+          call uv3dmix_fine(tile)
         endif
-# endif
+#  else
+        call uv3dmix (tile)
+#  endif
 # endif
 # ifdef AVERAGES
         call set_avg (tile)
@@ -591,18 +591,18 @@ C$OMP BARRIER
         call sediment (tile)
 #  endif
 # endif
-
 # if defined TS_DIF2 || defined TS_DIF4
-#  if defined AGRIF && !defined SMAGO_TS
+#  if defined AGRIF && defined TS_DIF2 && !defined DIF_COEF_3D
         if (Agrif_Root()) then
-#  endif
-          call t3dmix (tile) 
-#  if defined AGRIF && !defined SMAGO_TS
+          call t3dmix (tile)
         else
           call t3dmix_fine(tile)
         endif
+#  else
+        call t3dmix (tile)
 #  endif
 # endif
+
       enddo
 C$OMP BARRIER
 
