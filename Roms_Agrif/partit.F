@@ -134,7 +134,7 @@
           goto 97     !--> next file
         endif
 
-        write(stdout,'(8x,3A))') 'Processing netCDF file ''',
+        write(stdout,'(8x,3A)') 'Processing netCDF file ''',
      &                               ncname0(1:lstr), '''...'
 
         ierr=nf_inq (ncid0, ndims, nvars, ngatts, unlimdimid)
