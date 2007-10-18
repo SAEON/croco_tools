@@ -43,9 +43,9 @@
       integer :: nbgrid, indinterp
       common/interp2d/coarsevalues, nbgrid, indinterp
 !$AGRIF_END_DO_NOT_TREAT     
-#ifdef MPI
+# ifdef MPI
        include 'mpif.h'
-#endif
+# endif
   
 # ifdef MPI
 #  define LOCALLM Lmmpi
@@ -79,9 +79,9 @@ C$OMP BARRIER
 C$OMP MASTER      
 
         tinterp=1.
-#ifdef MASKING
+# ifdef MASKING
         Agrif_UseSpecialValue = .true.
-#endif
+# endif
         Agrif_SpecialValue = 0.
 
         nbgrid = Agrif_Fixed()
@@ -102,7 +102,7 @@ C$OMP BARRIER
           
           lastcff=1./lastcff
                
-#  ifdef AGRIF_OBC_WEST
+# ifdef AGRIF_OBC_WEST
       if (WESTERN_EDGE) then
           i = Istr
 
@@ -132,7 +132,7 @@ C$OMP BARRIER
           DU_west6(j)=lastcff*((dinterp(i,j)/rrhoy)-DU_west6(j))
 #  ifdef MASKING
      &                               * umask(i,j)
-#   endif                     
+#  endif                     
           enddo      
           
           do j=Jstr,Jend
@@ -141,8 +141,8 @@ C$OMP BARRIER
           endif
                                        
       endif
-#  endif 
-#  ifdef AGRIF_OBC_EAST
+# endif 
+# ifdef AGRIF_OBC_EAST
       if (EASTERN_EDGE) then
           i=Iend+1         
           
@@ -170,7 +170,7 @@ C$OMP BARRIER
           DU_east6(j)=lastcff*((dinterp(i,j)/rrhoy)-DU_east6(j))
 #  ifdef MASKING
      &                               * umask(i,j)
-#   endif          
+#  endif          
           enddo      
           
           do j=Jstr,Jend
@@ -179,9 +179,9 @@ C$OMP BARRIER
           endif          
                                  
       endif
-#  endif 
+# endif 
 
-#  ifdef AGRIF_OBC_SOUTH
+# ifdef AGRIF_OBC_SOUTH
 
       if (SOUTHERN_EDGE) then
           j=Jstr-1
@@ -210,7 +210,7 @@ C$OMP BARRIER
           DU_south6(i)=lastcff*((dinterp(i,j)/rrhox)-DU_south6(i))
 #  ifdef MASKING
      &                               * umask(i,j)
-#   endif          
+#  endif          
           enddo      
           
           do i=Istr,Iend
@@ -220,8 +220,8 @@ C$OMP BARRIER
                                        
       endif
       
-#  endif 
-#  ifdef AGRIF_OBC_NORTH
+# endif 
+# ifdef AGRIF_OBC_NORTH
       if (NORTHERN_EDGE) then  
           j=Jend+1
           
@@ -251,16 +251,16 @@ C$OMP BARRIER
           DU_north6(i)=lastcff*((dinterp(i,j)/rrhox)-DU_north6(i))
 #  ifdef MASKING
      &                               * umask(i,j)
-#   endif             
+#  endif             
           enddo      
           
           do i=Istr,Iend
           DU_north6(i)=(DU_north6(i)-DU_north4(i,iif-1))/rrhot
           enddo 
-          endif                 
-                                     
-      endif                    
-#  endif
+          endif
+
+      endif
+# endif
         U2DTimeindex = parentnbstep
       endif
 
@@ -276,7 +276,7 @@ C$OMP BARRIER
             DU_west(j)=DU_west4(j,iif-1)+DU_west6(j)
           enddo
        endif
-#endif 
+# endif 
 
 # ifdef AGRIF_OBC_EAST
       if (EASTERN_EDGE) then
@@ -293,7 +293,7 @@ C$OMP BARRIER
 #  endif
 
 # ifdef AGRIF_OBC_SOUTH
-      if (SOUTHERN_EDGE) then       
+      if (SOUTHERN_EDGE) then
           j=Jstr-1
           
           do i=Istr,Iend
@@ -304,7 +304,7 @@ C$OMP BARRIER
             DU_south(i)=DU_south4(i,iif-1)+DU_south6(i)
           enddo
        endif
-#  endif
+# endif
 
 # ifdef AGRIF_OBC_NORTH
       if (NORTHERN_EDGE) then
@@ -318,108 +318,112 @@ C$OMP BARRIER
             DU_north(i)=DU_north4(i,iif-1)+DU_north6(i)
           enddo         
        endif
-#  endif  
+# endif  
           
+
+# if defined M2_FRC_BRY || defined M2NUDGING
 !
 ! Apply the value to ubclm or ubarbry
 !
       cffx = g*dtfast*2./(1.+rrhox)
 
-#ifdef AGRIF_2WAY
+#  ifdef AGRIF_2WAY
       cffx = 0.
-#endif
+#  endif
 
-# ifdef AGRIF_OBC_WEST
+#  ifdef AGRIF_OBC_WEST
       if (WESTERN_EDGE) then
         do j=Jstr,Jend
-        ubclm(Istr,j) = (cffx/om_u(Istr,j))*
-     & (SSH(Istr,j)-zeta(Istr,j,knew))
-#  ifdef M2_FRC_BRY
+#   ifdef M2_FRC_BRY
           ubarbry_west(j)=
-#  else
-          ubclm(Istr,j)= ubclm(Istr,j) +
-#  endif
-#  ifdef AGRIF_FLUX_BC
+#   else
+          ubclm(Istr,j)= (cffx/om_u(Istr,j))*
+     &                   (SSH(Istr,j)-zeta(Istr,j,knew))  +
+#   endif
+#   ifdef AGRIF_FLUX_BC
      &              (2.*DU_west(j)/((h(Istr-1,j)+zeta(Istr-1,j,knew)
      &                                 +h(Istr,j)+zeta(Istr,j,knew))
      &                                                *on_u(Istr,j)))
-#  else
+#   else
      &                  DU_west(j)
-#  endif
-#  ifdef MASKING
+#   endif
+#   ifdef MASKING
      &                  *umask(Istr,j)
-#  endif
+#   endif
         enddo   
 
       endif
-# endif
-# ifdef AGRIF_OBC_EAST
+#  endif
+
+#  ifdef AGRIF_OBC_EAST
       if (EASTERN_EDGE) then
         do j=Jstr,Jend
-        ubclm(Iend+1,j) = -(cffx/om_u(Iend+1,j))*
-     & (SSH(Iend,j)-zeta(Iend,j,knew))
-
-#  ifdef M2_FRC_BRY
+#   ifdef M2_FRC_BRY
           ubarbry_east(j)=
-#  else
-          ubclm(Iend+1,j)=ubclm(Iend+1,j)+
-#  endif
-#  ifdef AGRIF_FLUX_BC
+#   else
+          ubclm(Iend+1,j)=-(cffx/om_u(Iend+1,j))*
+     &                     (SSH(Iend,j)-zeta(Iend,j,knew)) +
+#   endif
+#   ifdef AGRIF_FLUX_BC
      &                  (2.*DU_east(j)/(( h(Iend,j)+zeta(Iend,j,knew)
      &                              +h(Iend+1,j)+zeta(Iend+1,j,knew))
      &                                              *on_u(Iend+1,j)))
-#  else
+#   else
      &                      DU_east(j)
-#  endif
-#  ifdef MASKING
+#   endif
+#   ifdef MASKING
      &                      *umask(Iend+1,j)
-#  endif
+#   endif
         enddo       
       endif
-# endif
-# ifdef AGRIF_OBC_SOUTH
+#  endif
+
+#  ifdef AGRIF_OBC_SOUTH
       if (SOUTHERN_EDGE) then       
         do i=Istr,Iend
-#  ifdef M2_FRC_BRY
+#   ifdef M2_FRC_BRY
           ubarbry_south(i)=
-#  else
+#   else
           ubclm(i,Jstr-1)=
-#  endif
-#  ifdef AGRIF_FLUX_BC
+#   endif
+#   ifdef AGRIF_FLUX_BC
      &              (2.*DU_south(i)/(( h(i,Jstr-1)+zeta(i,Jstr-1,knew)
      &                           +h(i-1,Jstr-1)+zeta(i-1,Jstr-1,knew))
      &                                                *on_u(i,Jstr-1)))
-#  else
+#   else
      &                  DU_south(i)
-#  endif
-#  ifdef MASKING
+#   endif
+#   ifdef MASKING
      &                  *umask(i,Jstr-1)
-#  endif
+#   endif
       enddo
       endif
-# endif
-# ifdef AGRIF_OBC_NORTH
+#  endif
+
+#  ifdef AGRIF_OBC_NORTH
       if (NORTHERN_EDGE) then
         do i=Istr,Iend
-#  ifdef M2_FRC_BRY
+#   ifdef M2_FRC_BRY
           ubarbry_north(i)=
-#  else
+#   else
           ubclm(i,Jend+1)=
-#  endif
-#  ifdef AGRIF_FLUX_BC
+#   endif
+#   ifdef AGRIF_FLUX_BC
      &            (2.*DU_north(i)/(( h(i,Jend+1)+zeta(i,Jend+1,knew)
      &                         +h(i-1,Jend+1)+zeta(i-1,Jend+1,knew))
      &                                             *on_u(i,Jend+1)))
-#  else
+#   else
      &                DU_north(i)
-#  endif
-#  ifdef MASKING
+#   endif
+#   ifdef MASKING
      &                *umask(i,Jend+1)
-#  endif
+#   endif
         enddo
 
       endif
-#endif      
+#  endif
+# endif /* M2_FRC_BRY || M2NUDGING */
+
       return
       end
       
@@ -813,108 +817,107 @@ C$OMP BARRIER
                                  
       endif
 # endif      
-               
+          
+# if defined M2_FRC_BRY || defined M2NUDGING
 !
 ! Apply the value to vbclm or vbarbry
 !
       cffy = g*dtfast*2./(1.+rrhoy)
 
-#ifdef AGRIF_2WAY
+#  ifdef AGRIF_2WAY
       cffy = 0.
-#endif
+#  endif
 
-# ifdef AGRIF_OBC_SOUTH
+#  ifdef AGRIF_OBC_SOUTH
       if (SOUTHERN_EDGE) then
          do i=Istr,Iend
-        vbclm(i,Jstr)=(cffy/on_v(i,Jstr))*
-     & (SSH(i,Jstr)-zeta(i,Jstr,knew))
-#  ifdef M2_FRC_BRY
+#   ifdef M2_FRC_BRY
            vbarbry_south(i)=
-#  else
-           vbclm(i,Jstr)=vbclm(i,Jstr)+
-#  endif
-#  ifdef AGRIF_FLUX_BC
+#   else
+           vbclm(i,Jstr)=(cffy/on_v(i,Jstr))*
+     &                   (SSH(i,Jstr)-zeta(i,Jstr,knew))   +
+#   endif
+#   ifdef AGRIF_FLUX_BC
      &              (2.*DV_south(i)/((h(i,Jstr-1)+zeta(i,Jstr-1,knew)
      &                                  +h(i,Jstr)+zeta(i,Jstr,knew))
      &                                                 *om_v(i,Jstr)))
-#  else
+#   else
      &                  DV_south(i)
-#  endif
-#  ifdef MASKING
+#   endif
+#   ifdef MASKING
      &                  *vmask(i,Jstr)
-#  endif 
-       enddo     
-
+#   endif 
+       enddo
       endif
-# endif 
-# ifdef AGRIF_OBC_NORTH
+#  endif 
+
+#  ifdef AGRIF_OBC_NORTH
       if (NORTHERN_EDGE) then
         do i=Istr,Iend
-        vbclm(i,Jend+1)=-(cffy/on_v(i,Jend+1))*
-     & (SSH(i,Jend)-zeta(i,Jend,knew))
-
-#  ifdef M2_FRC_BRY
+#   ifdef M2_FRC_BRY
           vbarbry_north(i)=
-#  else
-          vbclm(i,Jend+1)=vbclm(i,Jend+1)+
-#  endif
-#  ifdef AGRIF_FLUX_BC
+#   else
+          vbclm(i,Jend+1)=-(cffy/on_v(i,Jend+1))*
+     &                     (SSH(i,Jend)-zeta(i,Jend,knew))  +
+#   endif
+#   ifdef AGRIF_FLUX_BC
      &                  (2.*DV_north(i)/(( h(i,Jend)+zeta(i,Jend,knew)
      &                               +h(i,Jend+1)+zeta(i,Jend+1,knew))
      &                                               *om_v(i,Jend+1)))
-#  else
+#   else
      &                  DV_north(i)
-#  endif
-#  ifdef MASKING
+#   endif
+#   ifdef MASKING
      &                  *vmask(i,Jend+1)
-#  endif 
-        enddo        
-
-	
+#   endif 
+        enddo
       endif
-# endif 
-# ifdef AGRIF_OBC_EAST       
+#  endif
+
+#  ifdef AGRIF_OBC_EAST       
       if (EASTERN_EDGE) then
         do j=Jstr,Jend
-#  ifdef M2_FRC_BRY
+#   ifdef M2_FRC_BRY
           vbarbry_east(j)=
-#  else
+#   else
           vbclm(Iend+1,j)=
-#  endif
-#  ifdef AGRIF_FLUX_BC
+#   endif
+#   ifdef AGRIF_FLUX_BC
      &             (2.*DV_east(j)/(( h(Iend+1,j)+zeta(Iend+1,j,knew)
      &                           +h(Iend+1,j-1)+zeta(Iend+1,j-1,knew))
      &                                             *om_v(Iend+1,j)))
-#  else
+#   else
      &                 DV_east(j)
-#  endif
-#  ifdef MASKING
+#   endif
+#   ifdef MASKING
      &                 *vmask(Iend+1,j)
-#  endif
+#   endif
         enddo
       endif       
-# endif 
-# ifdef AGRIF_OBC_WEST             
+#  endif 
+
+#  ifdef AGRIF_OBC_WEST             
       if (WESTERN_EDGE) then
         do j=Jstr,Jend
-#  ifdef M2_FRC_BRY
+#   ifdef M2_FRC_BRY
           vbarbry_west(j)=
-#  else
+#   else
           vbclm(Istr-1,j)=
-#  endif
-#  ifdef AGRIF_FLUX_BC
+#   endif
+#   ifdef AGRIF_FLUX_BC
      &                (2.*DV_west(j)/((h(Istr-1,j)+zeta(Istr-1,j,knew)
      &                           +h(Istr-1,j-1)+zeta(Istr-1,j-1,knew))
      &                                                *om_v(Istr-1,j)))
-#  else
+#   else
      &                  DV_west(j)
-#  endif
-#  ifdef MASKING
+#   endif
+#   ifdef MASKING
      &                  *vmask(Istr-1,j)
-#  endif
+#   endif
         enddo
       endif
-# endif
+#  endif
+# endif /* M2_FRC_BRY || M2NUDGING */
       return
       end
 
@@ -1339,12 +1342,13 @@ C$OMP BARRIER
           Zeta_south4(i,j,iif-1) = Zeta_south3(i,j,iif-1)
           enddo
           enddo
-          
+#   ifdef ZNUDGING
           do j=Jstr-1,Jstr
           do i=Istr,Iend
           SSH(i,j)=Zeta_south4(i,j,iif-1)+Zeta_south6(i,j)
           enddo
           enddo
+#   endif
           
           endif
 #  endif
@@ -1356,13 +1360,13 @@ C$OMP BARRIER
           Zeta_north4(i,j,iif-1) = Zeta_north3(i,j,iif-1)
           enddo
           enddo
-          
+#   ifdef ZNUDGING
           do j=Jend,Jend+1
           do i=Istr,Iend
           SSH(i,j)=Zeta_north4(i,j,iif-1)+Zeta_north6(i,j)
           enddo
           enddo
-                   
+#   endif
           endif
 #  endif
 #  ifdef AGRIF_OBC_WEST 
@@ -1373,13 +1377,13 @@ C$OMP BARRIER
           Zeta_west4(i,j,iif-1) = Zeta_west3(i,j,iif-1)
           enddo
           enddo
-          
+#   ifdef ZNUDGING
           do j=Jstr,Jend
           do i=Istr-1,Istr
           SSH(i,j)=Zeta_west4(i,j,iif-1)+Zeta_west6(i,j)
           enddo
           enddo
-                    
+#   endif
           endif
 #  endif
 #  ifdef AGRIF_OBC_EAST
@@ -1390,13 +1394,13 @@ C$OMP BARRIER
           Zeta_east4(i,j,iif-1) = Zeta_east3(i,j,iif-1)
           enddo
           enddo
-          
+#   ifdef ZNUDGING
           do j=Jstr,Jend
           do i=Iend,Iend+1
           SSH(i,j)=Zeta_east4(i,j,iif-1)+Zeta_east6(i,j)
           enddo
           enddo
-                    
+#   endif
           endif
 #  endif
      
