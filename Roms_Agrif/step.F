@@ -592,15 +592,16 @@ C$OMP BARRIER
 #  endif
 # endif
 # if defined TS_DIF2 || defined TS_DIF4
-#  if defined AGRIF && defined TS_DIF2 && !defined DIF_COEF_3D
-        if (Agrif_Root()) then
-          call t3dmix (tile)
-        else
-          call t3dmix_fine(tile)
-        endif
-#  else
         call t3dmix (tile)
-#  endif
+c#  if defined AGRIF && defined TS_DIF2 && !defined DIF_COEF_3D
+c        if (Agrif_Root()) then
+c          call t3dmix (tile)
+c        else
+c          call t3dmix_fine(tile)
+c        endif
+c#  else
+c        call t3dmix (tile)
+c#  endif
 # endif
 
       enddo
