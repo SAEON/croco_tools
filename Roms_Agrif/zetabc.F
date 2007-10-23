@@ -83,7 +83,7 @@ C$    trd=omp_get_thread_num()
 # if defined OBC_COM_WEST && defined OBC_COM_ZORLANSKI
 !                                           Eastern edge Radiation BC
 !                                           ======= ==== ========= ==
-        do j=Jstr,Jend
+        do j=JstrV-1,Jend
           dft=zeta(1,j,kstp)-zeta(1,j,knew)
           dfx=zeta(1,j,knew)-zeta(2,j,knew)
 
@@ -101,7 +101,7 @@ C$    trd=omp_get_thread_num()
 # elif defined OBC_COM_WEST && defined OBC_COM_ZCHAPMAN
 !                                           Western edge Chapman BC
 !                                           ======= ==== ======= ==
-        do j=Jstr,Jend
+        do j=JstrV-1,Jend
           cx=dtfast*pm(1,j)*sqrt(g*h(1,j))
           zeta(0,j,knew)=(zeta(0,j,kstp)+cx*zeta(1,j,knew))/(1.+cx)
 #  ifdef MASKING
@@ -111,7 +111,7 @@ C$    trd=omp_get_thread_num()
 # elif defined OBC_COM_WEST && defined OBC_COM_ZSPECIFIED
 !                                           Western edge Specified BC
 !                                           ======= ==== ========= ==
-        do j=Jstr,Jend
+        do j=JstrV-1,Jend
 #   ifdef Z_FRC_BRY
           zeta(0,j,knew)=zetabry_west(j)
 #   else
@@ -122,7 +122,7 @@ C$    trd=omp_get_thread_num()
 #  endif
         enddo
 # else
-        do j=Jstr,Jend                     ! Western edge gradient BC
+        do j=JstrV-1,Jend                     ! Western edge gradient BC
           zeta(0,j,knew)=zeta(1,j,knew)    ! ======= ==== ======== ==
 #  ifdef MASKING
      &                      *rmask(0,j)
@@ -138,7 +138,7 @@ C$    trd=omp_get_thread_num()
 #  if defined OBC_COM_EAST && defined OBC_COM_ZORLANSKI
 !                                           Eastern edge Radiation BC
 !                                           ======= ==== ========= ==
-        do j=Jstr,Jend
+        do j=JstrV-1,Jend
           dft=zeta(Iend,j,kstp)-zeta(Iend,j,knew)
           dfx=zeta(Iend,j,knew)-zeta(Iend-1,j,knew)
 
@@ -156,7 +156,7 @@ C$    trd=omp_get_thread_num()
 # elif defined OBC_COM_EAST && defined OBC_COM_ZCHAPMAN
 !                                           Eastern edge Chapman BC
 !                                           ======= ==== ======= ==
-        do j=Jstr,Jend
+        do j=JstrV-1,Jend
           cx=dtfast*pm(Iend,j)*sqrt(g*h(Iend,j))
           zeta(Iend+1,j,knew)=(zeta(Iend+1,j,kstp)
      &                              +cx*zeta(Iend,j,knew))/(1.+cx)
@@ -167,7 +167,7 @@ C$    trd=omp_get_thread_num()
 # elif defined OBC_COM_EAST && defined OBC_COM_ZSPECIFIED
 !                                           Eastern edge Specified BC
 !                                           ======= ==== ========= ==
-        do j=Jstr,Jend
+        do j=JstrV-1,Jend
 #   ifdef Z_FRC_BRY
           zeta(Iend+1,j,knew)=zetabry_east(j) 
 #   else
@@ -178,7 +178,7 @@ C$    trd=omp_get_thread_num()
 #  endif
         enddo
 #  else
-        do j=Jstr,Jend                         ! Eastern edge gradient BC
+        do j=JstrV-1,Jend                         ! Eastern edge gradient BC
           zeta(Iend+1,j,knew)=zeta(Iend,j,knew)! ======= ==== ======== ==
 #  ifdef MASKING
      &                        *rmask(Iend+1,j)
@@ -197,7 +197,7 @@ C$    trd=omp_get_thread_num()
 # if defined OBC_COM_SOUTH && defined OBC_COM_ZORLANSKI
 !                                           Southern edge Radiation BC
 !                                           ======= ==== ========= ==
-        do i=Istr,Iend
+        do i=IstrU-1,Iend
           dft=zeta(i,1,kstp)-zeta(i,1,knew)
           dfx=zeta(i,1,knew)-zeta(i,2,knew)
 
@@ -215,7 +215,7 @@ C$    trd=omp_get_thread_num()
 # elif defined OBC_COM_SOUTH && defined OBC_COM_ZCHAPMAN
 !                                           Southern edge Chapman BC
 !                                           ======== ==== ======= ==
-        do i=Istr,Iend
+        do i=IstrU-1,Iend
           cx=dtfast*pn(i,1)*sqrt(g*h(i,1))
           zeta(i,0,knew)=(zeta(i,0,kstp)
      &                              +cx*zeta(i,1,knew))/(1.+cx)
@@ -226,7 +226,7 @@ C$    trd=omp_get_thread_num()
 # elif defined OBC_COM_SOUTH && defined OBC_COM_ZSPECIFIED
 !                                           Southern edge Specified BC
 !                                           ======== ==== ========= ==
-        do i=Istr,Iend
+        do i=IstrU-1,Iend
 #   ifdef Z_FRC_BRY
           zeta(i,0,knew)=zetabry_south(i)
 #   else
@@ -237,7 +237,7 @@ C$    trd=omp_get_thread_num()
 #  endif
         enddo         
 #  else
-        do i=Istr,Iend                    ! Southern edge gradient BC
+        do i=IstrU-1,Iend                    ! Southern edge gradient BC
           zeta(i,0,knew)=zeta(i,1,knew)   ! ======== ==== ======== ==
 #  ifdef MASKING
      &                      *rmask(i,0)
@@ -253,7 +253,7 @@ C$    trd=omp_get_thread_num()
 #  if defined OBC_COM_NORTH && defined OBC_COM_ZORLANSKI
 !                                           Northern edge Radiation BC
 !                                           ======= ==== ========= ==
-        do i=Istr,Iend
+        do i=IstrU-1,Iend
           dft=zeta(i,Jend,kstp)-zeta(i,Jend,knew)
           dfx=zeta(i,Jend,knew)-zeta(i,Jend-1,knew)
 
@@ -271,7 +271,7 @@ C$    trd=omp_get_thread_num()
 # elif defined OBC_COM_NORTH && defined OBC_COM_ZCHAPMAN
 !                                           Northern edge Chapman BC
 !                                           ======== ==== ======= ==
-        do i=Istr,Iend
+        do i=IstrU-1,Iend
           cx=dtfast*pn(i,Jend)*sqrt(g*h(i,Jend))
           zeta(i,Jend+1,knew)=(zeta(i,Jend+1,kstp)
      &                              +cx*zeta(i,Jend,knew))/(1.+cx)
@@ -282,7 +282,7 @@ C$    trd=omp_get_thread_num()
 # elif defined OBC_COM_NORTH && defined OBC_COM_ZSPECIFIED
 !                                           Northern edge Specified BC
 !                                           ======== ==== ========= ==
-        do i=Istr,Iend
+        do i=IstrU-1,Iend
 #   ifdef Z_FRC_BRY
           zeta(i,Jend+1,knew)=zetabry_north(i)
 #   else
@@ -295,7 +295,7 @@ C$    trd=omp_get_thread_num()
 # else 
 !                                            Northern edge gradient BC
 !                                            ======== ==== ======== ==
-        do i=Istr,Iend
+        do i=IstrU-1,Iend
           zeta(i,Jend+1,knew)=zeta(i,Jend,knew)
 #  ifdef MASKING
      &                       *rmask(i,Jend+1)
