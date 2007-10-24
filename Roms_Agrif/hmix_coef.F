@@ -204,7 +204,7 @@
 !
 !--------------------------------------------------------------------
 !
-      diff_clip=1000*grdmax**2  !1.e-2*grdmax**3
+      diff_clip=1.e-2*grdmax**3
       do k=1,N
         do j=Jstr-1,Jend+1
           do i=IstrU-1,Iend+1
@@ -526,15 +526,15 @@
       call exchange_r3d_tile (Istr,Iend,Jstr,Jend,visc3d_r)
       call exchange_p3d_tile (Istr,Iend,Jstr,Jend,visc3d_p)
 #   ifdef VIS_PECLET
-      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,visc3d_u)
-      call exchange_p3d_tile (Istr,Iend,Jstr,Jend,visc3d_v)
+      call exchange_u3d_tile (Istr,Iend,Jstr,Jend,visc3d_u)
+      call exchange_v3d_tile (Istr,Iend,Jstr,Jend,visc3d_v)
 #   endif
 #  endif
 #  ifdef DIF_COEF_3D
-      call exchange_p3d_tile (Istr,Iend,Jstr,Jend,diff3d)
+      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,diff3d)
 #   ifdef DIF_PECLET
-      call exchange_p3d_tile (Istr,Iend,Jstr,Jend,diff3d_u)
-      call exchange_p3d_tile (Istr,Iend,Jstr,Jend,diff3d_v)
+      call exchange_u3d_tile (Istr,Iend,Jstr,Jend,diff3d_u)
+      call exchange_v3d_tile (Istr,Iend,Jstr,Jend,diff3d_v)
 #   endif
 #  endif
 # endif
