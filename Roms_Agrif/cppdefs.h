@@ -133,16 +133,29 @@
                       /* Point Sources - Rivers */
 # undef  PSOURCE
 # undef  ANA_PSOURCE
-                      /* Lateral Mixing */
+                      /* Lateral Momentum Mixing */
 # define UV_VIS2
+# undef UV_VIS4
 # define MIX_GP_UV
-# define TS_DIF2
-# define MIX_GP_TS
-# undef  SMAGORINSKY
-# ifdef SMAGORINSKY
+# undef VIS_COEF_3D
+# ifdef VIS_COEF_3D
+#  define VIS_SMAGO
 #  define SMAGO_UV
-#  undef  SMAGO_TS
 # endif
+# undef VIS_GRID
+# undef VIS_PECLET
+                     /* Lateral Tracer Mixing */
+# define TS_DIF2
+# undef TS_DIF4
+# define MIX_GP_TS
+# undef  SPLIT_UP3
+# undef DIF_COEF_3D
+# ifdef DIF_COEF_3D
+#  define DIF_SMAGO
+#  define SMAGO_TS
+# endif
+# undef DIF_GRID
+# undef DIF_PECLET
 # if defined TCLIMATOLOGY & !defined AGRIF
 #  define CLIMAT_TS_MIXH
 # endif
@@ -161,6 +174,7 @@
                       /* Open Boundary Conditions */
 # ifdef TIDES
 #  define OBC_M2FLATHER
+#  undef  OBC_M2CHARACT
 # else
 #  undef  OBC_M2SPECIFIED
 #  undef  OBC_M2FLATHER
