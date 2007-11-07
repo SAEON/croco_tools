@@ -133,7 +133,7 @@
           do j=jstr,jend+1
             do i=istr,iend
 # ifdef DIF_COEF_3D
-              FE(i,j)=0.25*(diff3d(i,j,k)+diff2(i,j-1,k))
+              FE(i,j)=0.25*(diff3d(i,j,k)+diff3d(i,j-1,k))
 # else
               FE(i,j)=0.25*(diff2(i,j,itrc)+diff2(i,j-1,itrc))
 # endif
@@ -574,6 +574,11 @@
         endif  ! <-- k.gt.0
       enddo   ! --> k
 # endif /* TS_DIF4 */
+
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+        call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
+     &                          t(START_2D_ARRAY,1,nnew,itrc))
+# endif
 
       return
       end
