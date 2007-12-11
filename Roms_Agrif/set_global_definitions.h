@@ -322,12 +322,9 @@ c-# define TANH dtanh
 #  define AGRIF_OBC_WEST
 #  define AGRIF_OBC_NORTH
 #  define AGRIF_OBC_SOUTH
-#  undef AGRIF_STORE_BAROT_CHILD
 #  define AGRIF_FLUX_BC 
-#  undef AGRIF_POLY_DUAVG
-#  undef AGRIF_LOCAL_VOLCONS
-#  define AGRIF_OBC_M2SPECIFIED
 
+#  define AGRIF_OBC_M2SPECIFIED
 #  ifdef AGRIF_2WAY
 #   define AGRIF_OBC_M3SPECIFIED
 #   define AGRIF_OBC_TSPECIFIED
