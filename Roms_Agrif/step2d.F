@@ -16,7 +16,7 @@ C$    trd=omp_get_thread_num()
      &                    A2d(1,2,trd), A2d(1, 3,trd), A2d(1, 4,trd),
      &                    A2d(1, 5,trd), A2d(1, 6,trd),A2d(1, 7,trd),
      &                    A2d(1, 8,trd), A2d(1, 9,trd), A2d(1,10,trd),
-     &                    A2d(1,11,trd), A2d(1,12,trd), A2d(1,13,trd)
+     &                    A2d(1,11,trd), A2d(1,12,trd), A2d(1,13,trd))
       return
       end
  
