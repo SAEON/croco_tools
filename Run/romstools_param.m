@@ -85,22 +85,22 @@ makeplot     = 1;                 % 1: create a few graphics after each preproce
 %
 % Grid dimensions:
 %
-lonmin =  12.3;   % Minimum longitude [degree east]
-lonmax = 20.45;   % Maximum longitude [degree east]
-latmin = -35.5;   % Minimum latitude  [degree north]
-latmax = -26.5;   % Maximum latitude  [degree north]
+lonmin =   -10.2; % Minimum longitude [degree east]
+lonmax =     0.2; % Maximum longitude [degree east]
+latmin =    43;   % Minimum latitude  [degree north]
+latmax =    51.2; % Maximum latitude  [degree north]
 %
 % Grid resolution [degree]
 %
-dl = 1/3;
+dl = 1/4;
 %
 % Number of vertical Levels (! should be the same in param.h !)
 %
-N = 32;
+N = 40;
 %
 %  Vertical grid parameters (! should be the same in roms.in !)
 %
-theta_s = 6.;
+theta_s = 5.5;
 theta_b = 0.;
 hc      =10.;
 %
@@ -108,7 +108,7 @@ hc      =10.;
 % rule of thumb: dl=1, hmin=300, dl=1/4, hmin=150, ...)
 % This affect the filtering since it works on grad(h)/h.
 %
-hmin = 75;
+hmin = 150;
 %
 % Maximum depth at the shore [m] (to prevent the generation
 % of too big walls along the coast)
@@ -127,7 +127,7 @@ rtarget = 0.25;
 % Number of pass of a selective filter to reduce the isolated
 % seamounts on the deep ocean.
 %
-n_filter_deep_topo=4;
+n_filter_deep_topo=3;
 %
 % Number of pass of a single hanning filter at the end of the
 % smooting procedure to ensure that there is no 2DX noise in the 
