@@ -42,7 +42,7 @@
 %
 %  ROMS title names and directories
 %
-ROMS_title  = 'Benguela Test Model';
+ROMS_title  = 'Irish Sea';
 ROMS_config = 'Benguela';
 ROMSTOOLS_dir = '../';
 RUN_dir=[ROMSTOOLS_dir,'Run/'];
