@@ -1,0 +1,6 @@
+make_OGCM.m is a way to get initial and boundary conditions
+for ROMS simulations from different global oceanic models.
+for the moment it works with SODA and ECCO. 
+it uses DODS to extract the subgrids.
+
+pierrick 2006/1/19.
