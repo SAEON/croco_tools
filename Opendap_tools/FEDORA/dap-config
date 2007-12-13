@@ -1,0 +1,80 @@
+#! /bin/sh
+#
+# Borrowed the idea for this script (and some code) from libcurl.
+#
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+usage()
+{
+    cat <<EOF
+Usage: dap-config [OPTION]
+
+Available values for OPTION include:
+
+  --help      display this help message and exit
+  --cc        C compiler
+  --cxx       C++ compiler
+  --cflags    pre-processor and compiler flags
+  --libs      library linking information for libdap++
+  --prefix    OPeNDAP install prefix
+  --version   Library version
+EOF
+
+    exit $1
+}
+
+if test $# -eq 0; then
+    usage 1
+fi
+
+while test $# -gt 0; do
+    case "$1" in
+    # this deals with options in the style
+    # --option=value and extracts the value part
+    # [not currently used]
+    -*=*) value=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+    *) value= ;;
+    esac
+
+    case "$1" in
+    --help)
+	usage 0
+	;;
+
+    --cc)
+	echo "gcc"
+	;;
+
+    --cxx)
+	echo "g++"
+	;;
+
+    --cflags)
+	echo "-I${includedir}/libdap"
+	;;
+
+    --libs)
+       	echo "-L${libdir} -ldap  -L/usr/lib -lcurl -L/usr/kerberos/lib -lssl -lcrypto -ldl -lz -lgssapi_krb5 -lkrb5 -lk5crypto -lkrb5support -lcom_err -lresolv -lidn -lssl -lcrypto -lz -L/usr/lib -lxml2 -lz -lm -lpthread"
+       	;;
+
+    --prefix)
+       	echo "${prefix}"
+       	;;
+
+    --version)
+	echo "libdap 3.6.2"
+	;;
+
+    *)
+        echo "unknown option: $1"
+	usage
+	exit 1
+	;;
+    esac
+    shift
+done
+
+exit 0
