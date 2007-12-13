@@ -8,18 +8,17 @@
     
     <ul id="download_model">
 
-        <li><a href="ftp://ftp.ifremer.fr/ifremer/ird/romstools/Roms_Agrif_13_02_2006.tar.gz">./Roms_tools/Roms_Agrif/ --> V1.2-BETA</a>
-	    version: 13/02/2006 - size: 944 k
-	</li>
-
-        <li><a href="ftp://ftp.ifremer.fr/ifremer/ird/romstools/Roms_Agrif_17_01_2006.tar.gz">./Roms_tools/Roms_Agrif/ --> V1.1</a>
-	    version: 17/01/2006 - size: 620 k
+        <li><a href="ftp://ftp.ifremer.fr/ifremer/ird/romstools/Roms_Agrif_17_01_2006.tar.gz">
+	       ./Roms_tools/Roms_Agrif/ --> V1.1</a>
+	       Version: 17/01/2006 - size: 620 k.
+	       This is the stable version, compatible with Romstools.
 	</li>
  
-        <li><a href="ftp://ftp.ifremer.fr/ifremer/ird/romstools/Roms_Agrif_SVN_latest.tar.gz">./Roms_tools/Roms_Agrif/ --> V1.X-ALPHA </a>
-	    version: daily tar file extracted from the <a href="https://gforge.inria.fr/projects/romsagrif/">ROMS_AGRIF project on Inria Gforge</a>
-	    - check the <a href="http://lists.gforge.inria.fr/pipermail/romsagrif-commits/">romsagrif-commits archives</a>
-	    - this is not a stable version.
+        <li><a href="ftp://ftp.ifremer.fr/ifremer/ird/romstools/Roms_Agrif_SVN_latest.tar.gz">
+	     ./Roms_tools/Roms_Agrif/ --> VX.X-ALPHA </a>
+	     Version: daily tar file extracted from the <a href="https://gforge.inria.fr/projects/romsagrif/">ROMS_AGRIF project on Inria Gforge</a>
+	     - check the <a href="http://lists.gforge.inria.fr/pipermail/romsagrif-commits/">romsagrif-commits archives</a>
+	     - this is not a stable version.
 	</li>
 
         <li><a href="roms1d/index.html">+ ROMS-1D source code and documentation</a>  
