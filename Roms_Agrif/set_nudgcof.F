@@ -34,18 +34,17 @@
 # if defined CANARY  || defined IBERIA
       real lon0,lat0, rsponge, dx,dy,dr,cff,cff1,cff2,
 # endif
+
+# undef SPONGE_GRID
+! if SPONGE_GRID, vsponge is redefined as 5 x visc :
+!       visc = A = 1/12 * uscale * grd_scale
+!  or   visc = B = 1/12 * uscale * grd_scale**3
 # ifdef SPONGE_GRID
       real uscale
       parameter (uscale=0.1)
 # endif
 !
 # include "compute_extended_bounds.h"
-!
-# undef SPONGE_GRID
-!                    if SPONGE_GRID, vsponge is redefined as: 
-!                    5 times an interior visc2 given by :
-!                    A = 1/12 * uscale * grd_scale
-!                    B = 1/12 * uscale * grd_scale**3
 !
 !--------------------------------------------------------------------
 !  Set up nudging towards climatology time-scale coeffcients [1/s]
