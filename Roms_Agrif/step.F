@@ -1,6 +1,11 @@
 !
 ! $Id: step.F,v 1.18 2005/10/26 15:18:52 pmarches Exp $
 !
+!
+!====================================================================
+!                         subroutine step
+!====================================================================
+!
 #include "cppdefs.h"
       subroutine step()
       implicit none
@@ -92,7 +97,11 @@ C$OMP END PARALLEL
 
       return
       end
-
+!
+!====================================================================
+!                subroutine prestep3D_thread
+!====================================================================
+!
       subroutine prestep3D_thread()
 #ifdef AGRIF
       use Agrif_Util
@@ -141,7 +150,6 @@ C$OMP BARRIER
 
 C$OMP MASTER
 
-       
       time=time_start+dt*float(iic-ntstart)
       tdays=time*sec2day
 
@@ -151,7 +159,6 @@ C$OMP MASTER
       nnew=3
 #endif
 
-       
 #ifdef FLOATS
       nfp1=MOD(nfp1+1,NFT+1)  ! Shift time indices
       nf  =MOD(nf  +1,NFT+1)  ! for floats
@@ -362,8 +369,13 @@ C$OMP END SINGLE
 
       return
       end
-      
+!
+!====================================================================
+!                   subroutine step2D_thread
+!====================================================================
+!
       subroutine step2D_thread()
+
 #ifdef AGRIF
       use Agrif_Util
 #endif
@@ -501,7 +513,11 @@ C$OMP BARRIER
 
       return
       end
-      
+!
+!====================================================================
+!                  subroutine step3D_thread
+!====================================================================
+!      
       subroutine step3D_thread()
 #ifdef AGRIF
       use Agrif_Util
