@@ -1,7 +1,7 @@
 title:
         Southern Benguela
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
-               480      5400     60      1
+                1440      1800     60      1
 S-coord: THETA_S,   THETA_B,    Hc (m)
            6.0d0      0.0d0      10.0d0
 grid:  filename
@@ -18,24 +18,24 @@ initial: NRREC  filename
           1 
                           ROMS_FILES/roms_ini.nc
 restart:          NRST, NRPFRST / filename
-                  480   -1
+                  1440   -1
                           ROMS_FILES/roms_rst.nc
 history: LDEFHIS, NWRT, NRPFHIS / filename 
-            T     480     0
+            T     1440     0
                           ROMS_FILES/roms_his.nc
 averages: NTSAVG, NAVG, NRPFAVG / filename
-            1      48     0
+            1      144     0
                           ROMS_FILES/roms_avg.nc
 
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
-                          T    F   F   F  F    10*F
-auxiliary_history_fields:   rho Omega  W  Akv  Akt  Aks  HBL  Bostr
-                             F   F     F   F    F    F    F    F
+                          T    T   T    T  T    10*T
+auxiliary_history_fields:   rho Omega  W  Akv  Akt  Aks  HBL  HBBL Bostr
+                             T   T     T   T    T    F    T    T    F
 
 primary_averages: zeta UBAR VBAR  U  V   wrtT(1:NT)
                    T    T    T    T  T   10*T
-auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL  Bostr
-                     F   T     T   F    T    F    T    T
+auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL  HBBL Bostr
+                     F   T     T   F    T    F    T    T    T
 
 
 rho0:
