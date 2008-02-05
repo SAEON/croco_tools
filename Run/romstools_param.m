@@ -44,6 +44,7 @@
 %
 ROMS_title  = 'Benguela Test Model';
 ROMS_config = 'Benguela';
+DATADIR = '/calcul/pc-kuria/GILDAS/Data_Roms/'
 ROMSTOOLS_dir = '../';
 RUN_dir=[ROMSTOOLS_dir,'Run/'];
 ROMS_files_dir=[RUN_dir,'ROMS_FILES/'];
@@ -85,14 +86,14 @@ makeplot     = 1;                 % 1: create a few graphics after each preproce
 %
 % Grid dimensions:
 %
-lonmin =  12.3;   % Minimum longitude [degree east]
-lonmax = 20.45;   % Maximum longitude [degree east]
-latmin = -35.5;   % Minimum latitude  [degree north]
-latmax = -26.5;   % Maximum latitude  [degree north]
+lonmin =     8;   % Minimum longitude [degree east]
+lonmax =    22;   % Maximum longitude [degree east]
+latmin =   -38;   % Minimum latitude  [degree north]
+latmax =   -26;   % Maximum latitude  [degree north]
 %
 % Grid resolution [degree]
 %
-dl = 1/3;
+dl = 1/6;
 %
 % Number of vertical Levels (! should be the same in param.h !)
 %
@@ -118,7 +119,7 @@ hmax_coast = 500;
 %  Topography netcdf file name (ETOPO 2 or any other netcdf file
 %  in the same format)
 %
-topofile = [ROMSTOOLS_dir,'Topo/etopo2.nc'];
+topofile = [DATADIR,'Topo/etopo2.nc'];
 %
 % Slope parameter (r=grad(h)/h) maximum value for topography smoothing
 %
@@ -154,7 +155,7 @@ coastfilemask = 'coastline_l_mask.mat';
 %
 % COADS directory (for climatology runs)
 %
-coads_dir=[ROMSTOOLS_dir,'COADS05/'];
+coads_dir=[DATADIR,'COADS05/'];
 %
 % COADS time (for climatology runs)
 %
@@ -172,7 +173,7 @@ coads_cycle=360;        % repetition of a typical year of 360 days
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-pathfinder_sst_name=[ROMSTOOLS_dir,...
+pathfinder_sst_name=[DATADIR,...
                     'SST_pathfinder/climato_pathfinder.nc'];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -206,11 +207,11 @@ tini=0;
 %
 % World Ocean Atlas directory (WOA2001 or WOA2005) 
 %
-woa_dir=[ROMSTOOLS_dir,'WOA2005/'];
+woa_dir=[DATADIR,'WOA2005/'];
 %
 % Surface chlorophyll seasonal climatology (WOA2001 or SeaWifs)
 %
-chla_dir=[ROMSTOOLS_dir,'SeaWifs/'];
+chla_dir=[DATADIR,'SeaWifs/'];
 %
 %  Set times and cycles for the boundary conditions: 
 %   monthly climatology 
@@ -230,7 +231,7 @@ woa_cycle=360;        % repetition of a typical year of 360 days
 %
 % TPXO file name (TPXO6 or TPXO7)
 %
-tidename=[ROMSTOOLS_dir,'TPXO6/TPXO6.nc'];
+tidename=[DATADIR,'TPXO6/TPXO6.nc'];
 %
 % Number of tides component to process
 %
@@ -313,7 +314,7 @@ rmdepth     = 2;                                     % Number of bottom levels t
 QSCAT_dir        = [FORC_DATA_DIR,'QSCAT_',ROMS_config,'/']; % QSCAT data directory.
 QSCAT_frc_prefix = [frc_prefix,'_QSCAT_']; % generic forcing file name
                                            % for interannual roms simulations with QuickCAT.
-QSCAT_clim_file  = [ROMSTOOLS_dir,'QuikSCAT_clim/',...   % QuikSCAT climatology
+QSCAT_clim_file  = [DATADIR,'QuikSCAT_clim/',...   % QuikSCAT climatology
                     'QSCAT_global_clim_jul99_aug06.nc']; % file for make_QSCAT_clim.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
