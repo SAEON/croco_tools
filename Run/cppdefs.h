@@ -33,16 +33,16 @@
 !
 */
                       /* Configuration Namea */
-# define PERU
+# define BENGUELA
                       /* Parallelization */
-# undef  OPENMP
+# undef OPENMP
 # undef  MPI
                       /* Nesting */
 # undef  AGRIF
 # undef  AGRIF_2WAY
                       /* Open Boundary Conditions */
-# undef  TIDES
-# undef  OBC_EAST
+# undef TIDES
+# define OBC_EAST
 # define OBC_WEST
 # define OBC_NORTH
 # define OBC_SOUTH
