@@ -1,0 +1,105 @@
+MexNC 
+
+MexNC is an interface between MATLAB and NetCDF files.  What's provided
+here is the C code for building the mexnc mex-file on your platform as
+well as several helper routines and wrappers.  The 2.0.x release is
+known to be compatible with NetCDF versions 3.6.0-p1 and below.
+
+Prior to release 2.0.0, the mex-file had the name "mexcdf53", the 53
+coming from the fact that it was intended to work on Matlab 5.3 platforms.
+On linux, this became further confused with the release of Matlab 6.0,
+which would not work with mexcdf53 and required it's own build, which was
+named mexcdf60.  The names are a bit clumsy, and as the release of the
+new mex-file with support NetCDF-3 API approached, it was decided that
+a name change was called for.  Wrapper routines called "mexcdf53.m" and
+"mexcdf60.m" are provided for backwards compatibility.  These routines
+do nothing except call mexnc with whatever arguments they themselves
+were given.
+
+If your platform is a common one, you may find an existing binary for
+the mex-file at http://mexcdf.sourceforge.net/downloads/index.html.  
+
+
+PLATFORM-SPECIFIC NOTES
+=======================================================================
+The SGI mex-file fails two m-files in the test suite, "test_attput.m"
+and "test_get_var_bad_param_datatype.m".  The code portions that fail
+have to do with error handling, so rather than mexnc failing to 
+execute good code, it is rather the case that mexnc does not fail
+gracefully in those cases.  I do not have access to an SGI, so I 
+unfortunately cannot debug this.
+
+
+
+FILES PROVIDED
+=======================================================================
+This package provides the following files:
+
+    AUTHORS:  
+        people contributing mex file builds and source code.
+
+    COPYING:  
+        copyright notice.
+
+    ChangeLog:  
+        detailed changes in particular files in this module
+
+    common.c mexgateway.c netcdf2.c netcdf3.c
+        Source files.
+
+    INSTALL:
+        Installation notes.  For some platforms, this file isn't necessary.
+
+    mex-files:
+        Some platforms may be afforded more than one mex-file.  If the
+        mex-file in this directory does not work for you, you might want
+        to check this directory for other choices.
+
+    makefile:  
+        used to compile the mex-file.  Don't bother with this unless
+        you need to compile your own build and you are NOT on windows.
+
+    mexcdf53.m mexcdf60.m mexcdf.m
+        Wrapper routines.  Used primarily for backwards compatibility.
+        
+    mexnc.m
+        Help information for the mex-file.
+
+    nc_64bit_offset_mode.m nc_clobber_mode.m nc_fill_mode.m
+    nc_hdf5_mode.m nc_lock_mode.m nc_noclobber_mode.m nc_nofill_mode.m
+    nc_nowrite_mode.m nc_share_mode.m nc_write_mode.m
+        Helper routines that provide the user with mnemonics
+        for NetCDF open and creation modes.
+
+    nc_double.m, nc_float.m, nc_int.m, nc_short.m, nc_byte.m, nc_char.m
+        Convenience functions that supply the corresponding enumerated
+        constants in netcdf.h
+
+    mexnc_msvc71_st.bat, mexnc_msvc71_st_R11.bat
+        Options files for building on the windows platform
+
+    win32_make_mexnc.m
+        M-file for invoking a win32 build.
+
+    NEWS
+        High level news about this particular release.
+
+    README
+        This file.
+
+    tests
+        This directory contains some scripts that will test your build
+        of mexnc.  You need to execute the matlab script "test_mexnc"
+        from within the tests directory.  Just about every function is
+        tested at least once.   You don't need to bother with this unless
+        you are compiling your own build.
+
+
+
+
+RELEASE INFORMATION
+=======================================================================
+$Name$
+$Date: 2006-05-23 17:53:47 -0400 (Tue, 23 May 2006) $
+$Id: README 1318 2006-05-23 21:53:47Z johnevans007 $
+

@@ -1,0 +1,117 @@
+May 25, 2006 - MEXNC 2.0.19
+        GET_MEXNC_INFO has been problematic to maintain, since it has to
+        be adjusted each time mexnc is updated.  Often I just forgot about
+        it, meaning that it would be returning incorrect information,
+        and requiring a subsequent re-release just to fix it. It has
+        been changed to return just two strings, both of which are
+        automatically adjusted via CVS.
+
+May 23, 2006 - MEXNC 2.0.18
+	Installation has hopefully been simplified.  Got rid of all
+	the multiple mexopts.R??.sh files.  Now the user has to copy it
+	out of their own matlab installation directory.  This had been
+	confusing users a bit and was a problem for R2006a adopters who
+	couldn't use the mexopts.R14.sh for their system.  Not sure why
+	I thought this was a good idea in the first place.
+
+
+October 18, 2005 - MEXNC 2.0.14
+	I've decided to package the mex-file with the source code and
+	auxilliary m-files.  Makes for a little extra work on my part at
+	the beginning, but it should put a stop to all these friggin'
+	questions that arise when people don't read the friggin'
+	installation instructions. 
+
+
+August 11, 2005 - MEXNC 2.0.13
+	Kate Hedstrom found a problem with the newly added _OPEN operation
+	that slipped past the testing on R14 platforms, but shows up
+	on R13.  Basically it was a poorly written test of an incorrect
+	number of parameters being passed into the _OPEN operation,
+	which wasn't armed with the correct number of input parameters
+	in the first place.  It should have caused a segmentation fault
+	across the board, but only did so on R13 installations.
+
+	This is a minor bug fix release.  
+
+August 8, 2005 - MEXNC 2.0.12
+	Because of historical reasons, I guess that it's necessary to
+	allow for [] to be passed as a parameter to VARDEF for the case
+	of singleton variables.  There's too much old netcdf_toolbox
+	code that tries to do this.
+
+	When support for nc__create and nc__enddef were added, nc__open
+	should have also been supported.  Now it is.
+
+February 24, 2005 - MEXNC 2.0.6
+	Bug fixes to this release include netcdf-2 functions VARPUT1,
+	VARGET1, VARPUT, VARGET, VARPUTG, and VARGETG, and ATTCOPY.
+	All but the last fixed problems where incorrect inputs would
+	lead to segmentation faults.  See the ChangeLog for more details.
+
+	Some netcdf-3 functions had not been implemented in prior
+	releases.  In each case, either the equivalent functionality
+	was available thru another netcdf-2 (SET_FILL only) or netcdf-3
+	function call.	Those netcdf-3 calls include nc_inq_attname,
+	nc_inq_atttype, nc_inq_dimname, nc_inq_dimlen, nc_inq_vartype,
+	nc_inq_varndims, nc_inq_vardimid, nc_inq_varnatts, nc_inq_nvars,
+	nc_inq_ndims, and nc_inq_natts.  Again, no functionality was
+	missing.  For example, the call to
+	
+        	[varname, datatype, ndims, dimids, natts, status] = mexnc ( 'inq_var', ...
+
+	provides all the functionality of
+
+		[varname, status] = mexnc ( 'inq_varname', ...
+		[vartype, status] = mexnc ( 'inq_vartype', ...
+		[varndims, status] = mexnc ( 'inq_varndims', ...
+		[dimids, status] = mexnc ( 'inq_vardimid', ...
+		[varnatts, status] = mexnc ( 'inq_varnatts', ...
+
+	but the latter calls are maybe a bit less unwieldy if one is
+	only interested in one of the bits of data provided by 'inq_var'.
+
+
+
+	Improved the make system by providing separate targets for
+	each release.  Now one should not have to edit the makefile in
+	order to build mexnc on any of R11, R12, R13, or R14.
+
+	Convenience functions were added for the netcdf datatypes.
+	Now one can provide an argument of, say, nc_double instead of
+	'nc_double'.
+
+	Information for OPENDAP builds was included in mexopts.R13.sh.
+
+	Unit testing can be done in the "test" subdirectory.  
+
+	
+December 20, 2004 
+    This version of MEXNC has support for the NetCDF-3 API and is
+    compatible with NetCDF versions 3.6.0. It will not compile against
+    versions 2.4 and below, although it is backwards compatible with the
+    2.4 API. The mexfile has actually been renamed to mexnc, as mexcdf53
+    was kind of cumbersome. M-file routines have been provided in order
+    to maintain backwards compatibility, so all of your existing software
+    should continue to work as before. MEXCDF remains the overall umbrella
+    name for all the matlab software on this site.
+
+
+    There is a one to one correspondence between NetCDF-3 API calls and
+    new mexfile functions. Any user should be able to determine exactly
+    what the mexfile will do (no more, no less) by reading the man page
+    for the NetCDF-3 API. All mexnc(netcdf-3) routines return error
+    codes that are true to the NetCDF-3 API.
+
+
+    The other bit of news is that compiling against NetCDF 3.6.0 gives
+    the user Large File Support. I've created files as large as 30GB
+    and only had to stop there because my partition was running low on
+    available space. Make sure you read the user's guide and understand
+    all the issues involved with Large File Support. The mexcdf module
+    has a subdirectory called "tests" that gives an example of how to
+    create a file with Large File Support. Run the tests with
+
+    >> test_mexnc;
+             
+    The m-file that specifically tests large file support is test_lfs.m. 
