@@ -52,7 +52,7 @@ nw('eta_psi') = M;
 nw('one') = 1;
 nw('two') = 2;
 nw('four') = 4;
-nw('bath') = 0;
+nw('bath') = 1;
 
 %
 %  Create variables and attributes
