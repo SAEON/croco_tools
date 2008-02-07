@@ -220,7 +220,11 @@
 !-----------------------------------------------------------------------
 !  Compute horizontal biharmonic diffusion along geopotential
 !  surfaces.  The biharmonic operator is computed by applying
-!  the harmonic operator twice.
+!  the harmonic operator twice. 
+!
+!  To increase stability range, rotated biharmonic diffusion is 
+!  applied to T at time between nrhs (n+1/2) and nstp (n) 
+!  with coefficients: (3/4)*T(nrhs)+(1/4)*T(nstp)
 !-----------------------------------------------------------------------
 !
 #  ifndef EW_PERIODIC
@@ -270,24 +274,32 @@
             do i=imin,imax+1
               cff=0.5*(pm(i,j)+pm(i-1,j)) SWITCH umask(i,j)
               dZdx(i,j,k2)=cff*(z_r(i,j,k+1)-z_r(i-1,j,k+1))
-              dTdx(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)-
-     &                                 t(i-1,j,k+1,nrhs,itrc)
+!              dTdx(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)-
+!     &                                 t(i-1,j,k+1,nrhs,itrc)
+              dTdx(i,j,k2)=cff*( 0.75*(t(i,j,k+1,nrhs,itrc)-
+     &                                 t(i-1,j,k+1,nrhs,itrc))
+     &                          +0.25*(t(i,j,k+1,nstp,itrc)-
+     &                                 t(i-1,j,k+1,nstp,itrc))
 #  ifdef CLIMAT_TS_MIXH
-     &               -tclm(i,j,k+1,itrc)+tclm(i-1,j,k+1,itrc)
+     &                -tclm(i,j,k+1,itrc)+tclm(i-1,j,k+1,itrc)
 #  endif
-     &                                                      )
+     &                         )
             enddo
           enddo
           do j=jmin,jmax+1
             do i=imin,imax
               cff=0.5*(pn(i,j)+pn(i,j-1)) SWITCH vmask(i,j)
               dZde(i,j,k2)=cff*(z_r(i,j,k+1)-z_r(i,j-1,k+1))
-              dTde(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)-
-     &                                 t(i,j-1,k+1,nrhs,itrc)
+!              dTde(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)-
+!     &                                 t(i,j-1,k+1,nrhs,itrc)
+              dTde(i,j,k2)=cff*( 0.75*(t(i,j,k+1,nrhs,itrc)-
+     &                                 t(i,j-1,k+1,nrhs,itrc))
+     &                          +0.25*(t(i,j,k+1,nstp,itrc)-
+     &                                 t(i,j-1,k+1,nstp,itrc))
 #  ifdef CLIMAT_TS_MIXH
-     &               -tclm(i,j,k+1,itrc)+tclm(i,j-1,k+1,itrc)
+     &                -tclm(i,j,k+1,itrc)+tclm(i,j-1,k+1,itrc)
 #  endif
-     &                          )
+     &                         )
             enddo
           enddo
         endif
@@ -302,11 +314,15 @@
         else
           do j=jmin-1,jmax+1
             do i=imin-1,imax+1
-              dTdz(i,j,k2)=(t(i,j,k+1,nrhs,itrc)-t(i,j,k,nrhs,itrc)
+!              dTdz(i,j,k2)=(t(i,j,k+1,nrhs,itrc)-t(i,j,k,nrhs,itrc)
+              dTdz(i,j,k2)=( 0.75*(t(i,j,k+1,nrhs,itrc)
+     &                            -t(i,j,k,nrhs,itrc))
+     &                      +0.25*(t(i,j,k+1,nstp,itrc)
+     &                            -t(i,j,k,nstp,itrc))
 #  ifdef CLIMAT_TS_MIXH
-     &                         -tclm(i,j,k+1,itrc)+tclm(i,j,k,itrc)
+     &                      -tclm(i,j,k+1,itrc)+tclm(i,j,k,itrc)
 #  endif
-     &                                  )/(z_r(i,j,k+1)-z_r(i,j,k))
+     &                     )/(z_r(i,j,k+1)-z_r(i,j,k))
             enddo
           enddo
         endif
