@@ -960,8 +960,13 @@ czz     cff3=0.0088
         do i=Istr,Iend
           IF(ABS(vbar(i,j,knew)).GE.VMAX) THEN
             VMAX=ABS(vbar(i,j,knew))
+#ifdef MPI
+            IMAX=i+iminmpi-1
+            JMAX=j+jminmpi-1
+#else
             IMAX=i
             JMAX=j
+#endif
           ENDIF
         enddo
       enddo
