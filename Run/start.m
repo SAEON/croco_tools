@@ -58,10 +58,10 @@ addpath([mypath,'mask'])
 % Comment/Add this lines if these directories 
 % are already in tour matlab path
 addpath([mypath,'m_map'])
-% $$$ addpath([mypath,'netcdf_matlab'])
-% $$$ addpath([mypath,'netcdf_matlab/ncfiles'])
-% $$$ addpath([mypath,'netcdf_matlab/nctype'])
-% $$$ addpath([mypath,'netcdf_matlab/ncutility'])
+addpath([mypath,'netcdf_matlab'])
+addpath([mypath,'netcdf_matlab/ncfiles'])
+addpath([mypath,'netcdf_matlab/nctype'])
+addpath([mypath,'netcdf_matlab/ncutility'])
 %
 %-------------------------------------------------------
 %
@@ -90,9 +90,13 @@ addpath([mypath,'m_map'])
 %
 %-------------------------------------------------------
 %
+% Pierrick: a corriger pour que ca marche sur differents systemes
+%
 % Comment/Add these lines if you wants to 
 % use :
 % 1 - your own compiled mexnc libraries 
-  addpath([mypath,'mexnc'])
+%  addpath([mypath,'mexnc'])
 % 2 - your own compiled libdap/loaddap libraries 
-  addpath([mypath,'Opendap_tools/DEBIAN_X64'])
+%  addpath([mypath,'Opendap_tools/DEBIAN_X64'])
+addpath([mypath,'mex60'])
+addpath([mypath,'Opendap_tools/FEDORA'])
