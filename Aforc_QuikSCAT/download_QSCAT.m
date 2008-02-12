@@ -102,7 +102,7 @@ for Y=Ymin:Ymax
     tndx=find(month==M & year==Y);
     taux=zeros(length(tndx),length(lat),length(lon));
     tauy=0*taux;
-    n=0;
+    n=0; clear good_time;
     for i=tndx(1):tndx(end)   
       disp(['    Processing day: ',num2str(n)])
       trange=['[',num2str(i-1),':',num2str(i-1),']'];
