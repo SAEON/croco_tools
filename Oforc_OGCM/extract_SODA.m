@@ -52,6 +52,24 @@ ssh=getdap(url,'',...
 missval=x.ssh.missing_value;
 ssh(ssh<=missval)=NaN;
 %
+% Get TAUX
+%
+disp('    ...TAUX')
+taux=getdap(url,'',...
+            'taux',trange,'',jrange,...
+            i1min,i1max,i2min,i2max,i3min,i3max);
+missval=x.taux.missing_value;
+taux(taux<=missval)=NaN;
+%
+% Get TAUY
+%
+disp('    ...TAUY')
+tauy=getdap(url,'',...
+            'tauy',trange,'',jrange,...
+            i1min,i1max,i2min,i2max,i3min,i3max);
+missval=x.tauy.missing_value;
+tauy(tauy<=missval)=NaN;
+%
 % Get U
 %
 disp('    ...U')
@@ -94,8 +112,12 @@ salt(salt<=missval)=NaN;
 %
 % Create the SODA file
 %
-create_OGCM([SODA_dir,SODA_prefix,'Y',num2str(year),'M',num2str(month),'.cdf'],...
+% $$$ create_OGCM([SODA_dir,SODA_prefix,'Y',num2str(year),'M',num2str(month),'.cdf'],...
+% $$$             lon,lat,lon,lat,lon,lat,depth,time,...
+% $$$             temp,salt,u,v,ssh,taux,tauy,Yorig)
+
+create_SODA([SODA_dir,SODA_prefix,'Y',num2str(year),'M',num2str(month),'.cdf'],...
             lon,lat,lon,lat,lon,lat,depth,time,...
-            temp,salt,u/100,v/100,ssh/100,Yorig)
+            temp,salt,u,v,ssh,taux,tauy,Yorig)
 %
 return
