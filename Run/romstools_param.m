@@ -44,7 +44,7 @@
 %
 ROMS_title  = 'Benguela Test Model';
 ROMS_config = 'Benguela';
-DATADIR = '/calcul/pc-kuria/GILDAS/Data_Roms/'
+DATADIR = '../'
 ROMSTOOLS_dir = '../';
 RUN_dir=[ROMSTOOLS_dir,'Run/'];
 ROMS_files_dir=[RUN_dir,'ROMS_FILES/'];
