@@ -52,10 +52,15 @@ if strcmp(OGCM,'SODA')
 % SODA 1.2:   Jan 1958 to Dec 2001 (now obsolete)
 %  url = 'http://iridl.ldeo.columbia.edu./SOURCES/.CARTON-GIESE/.SODA/.v1p2'; 
 % SODA 1.4.2: Jan 1958 to Dec 2001
-  url = 'http://iridl.ldeo.columbia.edu./SOURCES/.CARTON-GIESE/.SODA/.v1p4p2'; 
+%  url = 'http://iridl.ldeo.columbia.edu./SOURCES/.CARTON-GIESE/.SODA/.v1p4p2'; 
 % SODA 1.4.3: Jan 2000 to Dec 2004 (QuickSCAT)
-%  url = 'http://iridl.ldeo.columbia.edu./SOURCES/.CARTON-GIESE/.SODA/.v1p4p3';
-%
+%  url =  'http://iridl.ldeo.columbia.edu./SOURCES/.CARTON-GIESE/.SODA/.v1p4p3'
+% SODA 2.0.2-3.
+url= 'http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p0p2-3'
+disp({'!! Change from 1.4.3 version';
+      '   New variables : taux, tauy, u, v';
+      '   in m and m/s and no more in cm and cm/s'})
+
 elseif strcmp(OGCM,'ECCO')
 %
 %  ECCO DODS URL
