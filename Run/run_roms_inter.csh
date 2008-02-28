@@ -254,7 +254,7 @@ while ($NY != $NY_END)
 #  COMPUTE
 #
     date
-    $CODFILE  ${MODEL}_${TIME}_inter.in > ${MODEL}_${TIME}.out
+    ./$CODFILE  ${MODEL}_${TIME}_inter.in > ${MODEL}_${TIME}.out
     date
 #
 #  Archive
