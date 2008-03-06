@@ -35,7 +35,7 @@
 %  Alvaro Peliz (U. Aveiro) & Patrick Marchesiello (IRD) - 2005
 %
 %  Updated    6-Sep-2006 by Pierrick Penven
-%
+%  Updated    Feb-2008 by Jerome Lefevre --- change OpenDap server ---
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 start
 clear all
@@ -46,7 +46,7 @@ close all
 %
 romstools_param
 %
-frc_prefix=[frc_prefix,'_NCEP_'];
+frc_prefix=[frc_prefix,'_NCEP_'];                           
 blk_prefix=[blk_prefix,'_NCEP_'];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -62,11 +62,15 @@ end
 %
 % Get the model grid
 %
+disp(' ')
+disp([' Read in the grid ',grdname])
 nc=netcdf(grdname);
+Lp=length(nc('xi_rho'));
+Mp=length(nc('eta_rho'));
 lon=nc{'lon_rho'}(:);
 lat=nc{'lat_rho'}(:);
 angle=nc{'angle'}(:);
-close(nc)
+close(nc);
 %
 % Extract data over the internet
 %
@@ -80,7 +84,7 @@ if Download_data==1
   latmax=max(max(lat));
 %
 % Download NCEP
-% 
+%
   disp('Download NCEP data with OPENDAP')
   download_NCEP(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,...
                 NCEP_dir,NCEP_version,Yorig)
@@ -89,29 +93,14 @@ end
 if makefrc==1 | makeblk==1
 %
 % Get the NCEP horisontal grids (it should be the same for every month)
-% in case of NCEP1 there are 2 horizontal grid
-% (rhum is not on the gauss grid) 
-% 
-  nc=netcdf([NCEP_dir,'land.sfc.gauss.nc']);
+%
+  nc=netcdf([NCEP_dir,'landsfc_Y',num2str(Ymin),'M',num2str(Mmin),'.nc']);
   lon1=nc{'lon'}(:);
   lat1=nc{'lat'}(:);
   [lon1,lat1]=meshgrid(lon1,lat1);
-  mask1=1-squeeze(nc{'land'}(:));
-  mask1(mask1==0)=NaN;
-  close(nc)
-  if NCEP_version==1
-    nc=netcdf([NCEP_dir,'land.nc']);
-    lon2=nc{'lon'}(:);
-    lat2=nc{'lat'}(:);
-    [lon2,lat2]=meshgrid(lon2,lat2);
-    mask2=1-squeeze(nc{'land'}(:));
-    mask2(mask2==0)=NaN;
-    close(nc)
-  else
-    lon2=[];
-    lat2=[];
-    mask2=[];
-  end
+  mask=1-squeeze(nc{'landsfc'}(:));
+  mask(mask==0)=NaN;  
+  close(nc);
 %
 % Loop on the years and the months
 %
@@ -132,25 +121,25 @@ if makefrc==1 | makeblk==1
             ' - month ',num2str(M)])
       disp(' ')
 %
-% Process the time (here in days)
+% Process time (here in days)
 %
-      nc=netcdf([NCEP_dir,'air.2m.gauss.Y',num2str(Y),'M',num2str(M),'.nc']);
+      nc=netcdf([NCEP_dir,'tmp2m_Y',num2str(Y),'M',num2str(M),'.nc']);
       NCEP_time=nc{'time'}(:);
       close(nc);
       dt=mean(gradient(NCEP_time));
-%
-% Add 3 times step in the ROMS files: 1 at the beginning and 2 at the end 
-% (otherwise.. ROMS crashes)
-%
-      tlen=length(NCEP_time)+3;
+% add timesteps at the end of the ROMS file to make a full month of 31 days
+% then add 3 more timestep: 1 at the beginning and 2 at the end
+      tlen0=length(NCEP_time);
+      tlen=127; % 124+3
+      %%%tlen=tlen0+3;
       time=0*(1:tlen);
-      time(2:end-2)=NCEP_time;
+      time(2:tlen0+1)=NCEP_time;
       time(1)=time(2)-dt;
-      time(end-1)=time(end-2)+dt;
-      time(end)=time(end-1)+dt;
+      for tndx=tlen0+1:tlen-1;
+        time(tndx+1)=time(tndx)+dt;
+      end;
 %
 % Create the ROMS forcing files
-%
       blkname=[blk_prefix,'Y',num2str(Y),...
                'M',num2str(M),nc_suffix];
       frcname=[frc_prefix,'Y',num2str(Y),...
@@ -164,7 +153,8 @@ if makefrc==1 | makeblk==1
         create_forcing(frcname,grdname,ROMS_title,...
                        time,0,0,...
                        0,0,0,...
-  	               0,0,0,0,0,0)
+                       0,0,0,0,0,0)
+
       end
 %
 % Add the tides (needs to be tested for this version of make_NCEP)
@@ -174,7 +164,6 @@ if makefrc==1 | makeblk==1
       end
 %
 % Open the ROMS forcing files
-%
       if makefrc==1
         nc_frc=netcdf(frcname,'write');
       else
@@ -187,14 +176,14 @@ if makefrc==1 | makeblk==1
       end
 %
 % Check if there are NCEP files for the previous Month
-%
       Mm=M-1;
       Ym=Y;
       if Mm==0
         Mm=12;
         Ym=Y-1;
       end
-      fname=[NCEP_dir,'air.2m.gauss.Y',num2str(Ym),'M',num2str(Mm),'.nc'];
+      fname = [NCEP_dir,'tmp2m_Y',num2str(Ym),'M',num2str(Mm),'.nc'];
+      nc=netcdf([NCEP_dir,'tmp2m_Y',num2str(Ym),'M',num2str(Mm),'.nc']);
       if exist(fname)==0
         disp(['   No data for the previous month: using current month'])
         tndx=1;
@@ -212,25 +201,30 @@ if makefrc==1 | makeblk==1
         close(nc)
       end
 %
-% Perform the interpolations for the previous month
+% Perform interpolations for the previous month
 %
       disp('First step')
-      interp_NCEP(NCEP_version,NCEP_dir,Ym,Mm,Roa,interp_method,...
-                  lon1,lat1,mask1,lon2,lat2,mask2,tndx,...
-      	  	  nc_frc,nc_blk,lon,lat,angle,1)
+%disp(['NCEP_dir :',NCEP_dir])
+%disp(['Ym :',num2str(Ym)])
+%disp(['Mm :',num2str(Mm)])
+%disp(['Roa :',num2str(Roa)])
+%disp(['interp_method :',interp_method])
+
+
+      interp_NCEP(NCEP_dir,Ym,Mm,Roa,interp_method,lon1,lat1,...
+                  mask,tndx,nc_frc,nc_blk,lon,lat,angle,1)
 %
-% Perform the interpolations for the current month
+% Perform interpolations for the current month
 %
-      for tndx=1:tlen-3
+      for tndx=1:tlen0
         if mod(tndx,20)==0
-          disp(['  Step: ',num2str(tndx),' of ',num2str(tlen-3)])
+          disp(['  Step: ',num2str(tndx),' of ',num2str(tlen0)])
         end
-        interp_NCEP(NCEP_version,NCEP_dir,Y,M,Roa,interp_method,...
-                    lon1,lat1,mask1,lon2,lat2,mask2,tndx,...
-		    nc_frc,nc_blk,lon,lat,angle,tndx+1)
+        interp_NCEP(NCEP_dir,Y,M,Roa,interp_method,lon1,lat1,...
+                    mask,tndx,nc_frc,nc_blk,lon,lat,angle,tndx+1)
       end
 %
-% Read the NCEP file for the next month
+% Read NCEP file for the next month
 %
       Mp=M+1;
       Yp=Y;
@@ -238,42 +232,41 @@ if makefrc==1 | makeblk==1
         Mp=1;
         Yp=Y+1;
       end
-      fname=[NCEP_dir,'air.2m.gauss.Y',num2str(Yp),'M',num2str(Mp),'.nc'];
+      fname=[NCEP_dir,'tmp2m_Y',num2str(Yp),'M',num2str(Mp),'.nc'];
       if exist(fname)==0
         disp(['   No data for the next month: using current month'])
-        tndx=tlen-3;
+        tndx=tlen0;
         Mp=M;
         Yp=Y;
       else
         nc=netcdf(fname);
-        tndx=1;
         if makefrc==1
-          nc_frc{'sms_time'}(tlen-1)=nc{'time'}(tndx);
-          nc_frc{'sms_time'}(tlen)=nc{'time'}(tndx+1);
+          for tndx=tlen0+2:tlen;
+            nc_frc{'sms_time'}(tndx)=nc{'time'}(tndx-tlen0-1);
+          end;
         end
         if makeblk==1
-          nc_blk{'bulk_time'}(tlen-1)=nc{'time'}(tndx);
-          nc_blk{'bulk_time'}(tlen)=nc{'time'}(tndx+1);
+          for tndx=tlen0+2:tlen;
+            nc_blk{'bulk_time'}(tndx)=nc{'time'}(tndx-tlen0-1);
+          end;
         end
         close(nc)
       end
 %
 % Perform the interpolations for the next month
 %
-      disp('Last step')
-      interp_NCEP(NCEP_version,NCEP_dir,Yp,Mp,Roa,interp_method,...
-                  lon1,lat1,mask1,lon2,lat2,mask2,tndx,...
-		  nc_frc,nc_blk,lon,lat,angle,tlen-1)
-      disp('Last step (one more time...)')
-      if Mp==M
-        interp_NCEP(NCEP_version,NCEP_dir,Yp,Mp,Roa,interp_method,...
-                    lon1,lat1,mask1,lon2,lat2,mask2,tndx,...
-		    nc_frc,nc_blk,lon,lat,angle,tlen)
-      else
-        interp_NCEP(NCEP_version,NCEP_dir,Yp,Mp,Roa,interp_method,...
-                    lon1,lat1,mask1,lon2,lat2,mask2,tndx+1,...
-		    nc_frc,nc_blk,lon,lat,angle,tlen)
-      end
+      disp('Last steps')
+      for tndx=tlen0+2:tlen;
+        disp([' ... ',num2str(tndx)])
+        tout=tndx;
+        if Mp==M
+          tin=tlen0; % persistency if current month is used
+        else
+          tin=tndx-tlen0-1;
+        end
+        interp_NCEP(NCEP_dir,Yp,Mp,Roa,interp_method,lon1,lat1,...
+                  mask,tin,nc_frc,nc_blk,lon,lat,angle,tout)
+      end;
 %
 % Close the ROMS forcing files
 %
@@ -293,7 +286,6 @@ end
 % just copy the files for the first year and change the time
 %
 if SPIN_Long>0
-  disp(['Add a spin-up phase of ',num2str(SPIN_Long)])
   M=Mmin-1;
   Y=Ymin-SPIN_Long;
   for month=1:12*SPIN_Long
@@ -358,7 +350,7 @@ end
 if makeplot==1
   disp(' ')
   disp(' Make a few plots...')
-  slides=[1 2 3 4]; 
+  slides=[1 2 3 4];
   test_forcing(blkname,grdname,'tair',slides,3,coastfileplot)
   figure
   test_forcing(blkname,grdname,'rhum',slides,3,coastfileplot)
@@ -375,3 +367,4 @@ if makeplot==1
   figure
   test_forcing(blkname,grdname,'radsw',slides,3,coastfileplot)
 end
+

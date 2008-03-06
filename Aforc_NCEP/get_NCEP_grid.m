@@ -1,5 +1,5 @@
 function [i1min,i1max,i2min,i2max,i3min,i3max,jrange,lon,lat,mask]=...
-         get_ncep_grid(path,landname,lonmin,lonmax,latmin,latmax)
+get_NCEP_grid(url_path,lonmin,lonmax,latmin,latmax)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Get the indices for a NCEP subgrid 
@@ -29,9 +29,13 @@ function [i1min,i1max,i2min,i2max,i3min,i3max,jrange,lon,lat,mask]=...
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %  Updated    6-Sep-2006 by Pierrick Penven
-%
+%  Updated    Fev-2008 by   Jerome Lefevre remove mask reading
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Get the indices for a NCEP 
+
 dl=3;
+
 lonmin=lonmin-dl;
 lonmax=lonmax+dl;
 latmin=latmin-dl;
@@ -39,8 +43,8 @@ latmax=latmax+dl;
 %
 % Get the global horizontal grid
 %
-lon=readdap([path,landname],'lon',[]);
-lat=readdap([path,landname],'lat',[]);
+lon=readdap(url_path,'lon',[]);
+lat=readdap(url_path,'lat',[]);
 %
 % Get a subgrid
 %
@@ -78,8 +82,5 @@ end
 jmin=min(j)-1;
 jmax=max(j)-1;
 jrange=['[',num2str(jmin),':',num2str(jmax),']'];
-%
-% Get the land mask
-%
-mask=getdap(path,landname,'land','[0]','',jrange,...
-            i1min,i1max,i2min,i2max,i3min,i3max);
+
+%From this version no more mask reading

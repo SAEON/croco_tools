@@ -7,7 +7,7 @@ function download_NCEP(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,...
 % Take care of the Greenwitch Meridian.
 % 
 % Pierrick 2005
-%
+% Update J. Lefevre, feb-2008 to use Nomads1 server(nomad3 is dead)
 
 %clear all
 %close all
@@ -27,32 +27,55 @@ if nargin < 1
   NCEP_version=1;
 end
 %
+disp(['latmax=',num2str(latmax)])
 if NCEP_version==1
 %
-% First dataset
-%
-  url1='http://www.cdc.noaa.gov/cgi-bin/nph-nc/Datasets/ncep.reanalysis/surface_gauss/';
-  land1_name='land.sfc.gauss.nc';
-  name1={'air.2m.gauss.' 'nlwrs.sfc.gauss.' 'nswrs.sfc.gauss.' 'prate.sfc.gauss.'...
-         'uwnd.10m.gauss.' 'vwnd.10m.gauss.'};
-  level1={'' '' '' '' '' ''};
-%
-% Second dataset
-%
-  url2='http://www.cdc.noaa.gov/cgi-bin/nph-nc/Datasets/ncep.reanalysis/surface/';
-  land2_name='land.nc';
-  name2={'rhum.sig995.'};
-  level2={''};
+% nomad3 server reanalysis-1
+  ncep_url='http://nomad1.ncep.noaa.gov:9090/dods/reanalyses/reanalysis-1/';
+  catalog={'6hr/grb2d/grb2d' ...
+           '6hr/grb2d/grb2d' ...
+	   '6hr/grb2d/grb2d' ...
+	   '6hr/grb2d/grb2d' ...
+	   '6hr/grb2d/grb2d' ...
+	   '6hr/grb2d/grb2d' ...
+	   '6hr/grb2d/grb2d' ...
+	   '6hr/grb2d/grb2d' ...
+	   '6hr/grb2d/grb2d'};  
+  vnames={'landsfc' ...      % surface land-sea mask [1=land; 0=sea] 
+          'tmp2m' ...        % 2 m temp. [k]
+          'dlwrfsfc' ...     % surface downward long wave flux [w/m^2] 
+          'tmpsfc' ...       % surface temp. [k]   		  
+	  'dswrfsfc' ...     % surface downward solar radiation flux [w/m^2] 
+	  'pratesfc' ...     % surface precipitation rate [kg/m^2/s] 
+	  'ugrd10m' ...      % 10 m u wind [m/s]
+	  'vgrd10m' ...      % 10 m v wind [m/s]
+	  'spfh2m'};         % 2 m specific humidity [kg/kg]
+  level ={'' '' '' '' '' '' '' '' ''};
 %
 elseif NCEP_version==2
-%
-% One dataset only...
-%
-  url1='http://www.cdc.noaa.gov/cgi-bin/nph-nc/Datasets/ncep.reanalysis2/gaussian_grid/';
-  land1_name='land.sfc.gauss.nc';
-  name1={'air.2m.gauss.' 'dlwrf.sfc.gauss.' 'dswrf.sfc.gauss.' 'prate.sfc.gauss.'...
-         'uwnd.10m.gauss.' 'vwnd.10m.gauss.' 'shum.2m.gauss.' 'skt.sfc.gauss.'};
-  level1={'[0]' '' '' '' '[0]' '[0]' '[0]' ''};
+%http://nomad3.ncep.noaa.gov:9090/dods/reanalyses/reanalysis-2/month/flx/flx
+% nomad3 server reanalysis-2
+  ncep_url='http://nomad1.ncep.noaa.gov:9090/dods/reanalyses/reanalysis-2/';
+  catalog={'6hr/flx/flx' ...
+           '6hr/flx/flx' ...
+           '6hr/flx/flx' ...
+	   '6hr/flx/flx' ...
+	   '6hr/flx/flx' ...
+	   '6hr/flx/flx' ...
+	   '6hr/flx/flx' ...
+	   '6hr/flx/flx' ...
+	   '6hr/flx/flx'};  
+  vnames={'landsfc' ...    % surface land-sea mask [1=land; 0=sea] 
+          'tmp2m' ...      % 2 m temp. [k]
+          'dlwrfsfc' ...   % surface downward long wave flux [w/m^2] 
+          'tmpsfc' ...     % surface temp. [k]   
+	  'dswrfsfc' ...   % surface downward solar radiation flux [w/m^2] 
+	  'pratesfc' ...   % surface precipitation rate [kg/m^2/s] 
+	  'ugrd10m' ...    % 10 m u wind [m/s]
+	  'vgrd10m' ...    % 10 m v wind [m/s]
+	  'spfh2m'};       % 2 m specific humidity [kg/kg]
+  level ={'' '' '' '' '' '' '' '' ''};
+
 else
   error('Wrong NCEP version')
 end
@@ -61,6 +84,8 @@ end
 %
 disp([' '])
 disp(['Get NCEP data from ',num2str(Ymin),' to ',num2str(Ymax)])
+disp(['From ',ncep_url]);
+disp([' '])
 disp(['Minimum Longitude: ',num2str(lonmin)])
 disp(['Maximum Longitude: ',num2str(lonmax)])
 disp(['Minimum Latitude: ',num2str(latmin)])
@@ -71,38 +96,61 @@ disp([' '])
 %
 disp(['Making output data directory ',NCEP_dir])
 eval(['!mkdir ',NCEP_dir])
-%
-% Start with the first NCEP dataset
-%
-disp(['Process the first dataset: ',url1])
-%
+
+
+for k=1:length(vnames)
+
+% Get attribute
+ x=loaddap('-A -e +v',[ncep_url,char(catalog(k))]);
+ if (dods_err==1)
+   error(dods_err_msg)
+ end
+
+% check time unit (APDRC dataset are daily)
+ if isempty(x.time.units)
+  error('No time unit found');
+ end
+ eval(['Tunits=x.time.units;']);
+
+ if findstr('day',Tunits)
+   time_scale = 1;
+ elseif findstr('hour',Tunits)
+   time_scale = 1/24;
+ else
+   error('Time units is not days or hours. I assume NCEP datasets are all daily ??! ');
+ end
+
+% NCEP reanalysis 1 and 2 from NOMADS : time origine is "days since 1-1-1 00:00:00"
+startime = [1,1,1,0,0,0]; %[year, month, day, hour, minute, second]
+ 
+ time=readdap([ncep_url,char(catalog(k))],'time',[]);
+ time = time*time_scale;
+
+%% time = time - time(1);
+ TIME_OFFSET=(mjd(Yorig,1,1,0)-mjd(startime(1),startime(2),startime(3),startime(4))); 
+ time = time - TIME_OFFSET; % This is time in days from Yorig
+ [year,month,days,hour,min,sec]=datevec(time+datenum(Yorig,1,1));
+ 
 % Find a subset of the NCEP grid
-%
-[i1min,i1max,i2min,i2max,i3min,i3max,jrange,lon,lat,mask]=...
-get_NCEP_grid(url1,land1_name,lonmin,lonmax,latmin,latmax);
-%
-% Write out the land mask
-%
-write_NCEP([NCEP_dir,land1_name],'land',lon,lat,0,mask,Yorig)
-%
+ [i1min,i1max,i2min,i2max,i3min,i3max,jrange,lon,lat]=...
+ get_NCEP_grid([ncep_url,char(catalog(k))],lonmin,lonmax,latmin,latmax);
+
+disp(['latmax=',num2str(latmax)])
+% 
+if k==1
+ disp('  Get the Land Mask tindex = 1');
+ tndx = 1;
+ trange = '[1:1]';
+ extract_NCEP(NCEP_dir,ncep_url,char(catalog(k)),char(vnames(k)),Ymin,Mmin,...
+              lon,lat,time(tndx),...
+              trange,char(level(k)),jrange,...
+              i1min,i1max,i2min,i2max,i3min,i3max,...
+              Yorig) 
+else
 % Loop on the years
-%
-for Y=Ymin:Ymax
+ for Y=Ymin:Ymax
   disp(['Processing year: ',num2str(Y)])
-%
-% Get the time vector for this year
-%
-  time=readdap([url1,char(name1(1)),num2str(Y),'.nc'],'time',[]);
-%
-% Convert the time into "Yorig" time (i.e in days since Yorig/1/1 00:00:0.0)
-%
-  if NCEP_version==1
-    time=365+(time/24)-datenum(Yorig,1,1);
-  elseif NCEP_version==2
-    time=datenum(1800,1,1)+(time/24)-datenum(Yorig,1,1);
-  end
-  [year,month,days,hour,min,sec]=datevec(time+datenum(Yorig,1,1));
-%
+
 % Loop on the months
 %
   if Y==Ymin
@@ -115,84 +163,30 @@ for Y=Ymin:Ymax
   else
     mo_max=12;
   end
+  
   for M=mo_min:mo_max
-    disp(['  Processing month: ',num2str(M)])
-%
-% Get the time indices for this month
-%
-    tndx=find(month==M);
+   disp(['  Processing month: ',num2str(M)])
+   recipe_file = [NCEP_dir,char(vnames(k)),'_Y',num2str(Y),'M',num2str(M),'.nc'];
+   if ~exist(recipe_file)
+   % Get the time indices for this month and year
+    tndx=intersect(find(month==M),find(year==Y));
+
+%intersect.m work for matlab7 check for matlab  6 
+%----------------------------------------------
+
     trange=['[',num2str(tndx(1)-1),':',num2str(tndx(end)-1),']'];
-%
-% Loop on the names
-%
-    for i=1:length(name1)
-      extract_NCEP(NCEP_dir,url1,char(name1(i)),Y,M,...
-                   lon,lat,time(tndx),...
-                   trange,char(level1(i)),jrange,...
-                   i1min,i1max,i2min,i2max,i3min,i3max,...
-                   Yorig)
-    end
-  end
-end
-if NCEP_version==1
-%
-% Start with the second NCEP dataset
-%
-  disp(['Process the second dataset: ',url2])
-%
-% Get a subset of the NCEP grid
-%
-  [i1min,i1max,i2min,i2max,i3min,i3max,jrange,lon,lat,mask]=...
-  get_NCEP_grid(url2,land2_name,lonmin,lonmax,latmin,latmax);
-%
-% Write the land mask
-%
-  write_NCEP([NCEP_dir,land2_name],'land',lon,lat,0,mask,Yorig)
-%
-% Loop on the years
-%
-  for Y=Ymin:Ymax
-    disp(['Processing year: ',num2str(Y)])
-%
-% Get the time vector for this year
-%
-    time=readdap([url2,char(name2(1)),num2str(Y),'.nc'],'time',[]);
-%
-% Convert it into "Yorig" time
-%
-    time=365+(time/24)-datenum(Yorig,1,1);
-    [year,month,days,hour,min,sec]=datevec(time+datenum(Yorig,1,1));
-%
-% Loop on the months
-%
-    if Y==Ymin
-      mo_min=Mmin;
-    else
-    mo_min=1;
-    end
-    if Y==Ymax
-      mo_max=Mmax;
-    else
-      mo_max=12;
-    end
-    for M=mo_min:mo_max
-      disp(['  Processing month: ',num2str(M)])
-%
-% Get the time indices for this month
-%
-      tndx=find(month==M);
-      trange=['[',num2str(tndx(1)-1),':',num2str(tndx(end)-1),']'];
-%
-% Loop on the names
-%
-      for i=1:length(name2)
-        extract_NCEP(NCEP_dir,url2,char(name2(i)),Y,M,...
-                     lon,lat,time(tndx),...
-                     trange,char(level2(i)),jrange,...
-                     i1min,i1max,i2min,i2max,i3min,i3max,...
-                     Yorig)
-      end
-    end
-  end
-end
+   % Get the subset
+    extract_NCEP(NCEP_dir,ncep_url,char(catalog(k)),char(vnames(k)),Y,M,...
+              lon,lat,time(tndx),...
+              trange,char(level(k)),jrange,...
+              i1min,i1max,i2min,i2max,i3min,i3max,...
+              Yorig)
+   else
+    disp(['File ',recipe_file,' already exist, abord.']);
+   end % if file exist 
+  end % end loop month
+ end % end loop year
+end % end if k
+end % end loop variable
+
 return

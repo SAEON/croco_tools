@@ -1,8 +1,9 @@
-function extract_NCEP(NCEP_dir,url,fname,year,month,...
+function extract_NCEP(NCEP_dir,url,fname,vname,year,month,...
                       lon,lat,time,...
                       trange,level,jrange,...
                       i1min,i1max,i2min,i2max,i3min,i3max,...
                       Yorig)
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Extract a subset from NCEP using OPENDAP
@@ -34,39 +35,37 @@ function extract_NCEP(NCEP_dir,url,fname,year,month,...
 %
 %  Updated    6-Sep-2006 by Pierrick Penven
 %  Updated    22-Sep-2006 by Pierrick Penven (readattribute)
-%
+%  Updated    Jul-2007 to use Nomads3 server, J. Lefevre.  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 %
 % Get the variable name
 %
-n=min(find(fname=='.'));
-vname=fname(1:n-1);
-disp(['    Get ',vname,' for year ',num2str(year),...
+disp(['Get ',vname,' for year ',num2str(year),...
       ' - month ',num2str(month)])
 %
 % Get the variable 2D subset (take care of greenwitch)
 %
-var=getdap(url,[fname,num2str(year),'.nc'],...
-            vname,trange,level,jrange,...
-            i1min,i1max,i2min,i2max,i3min,i3max);
+var=getdap(url,fname,vname,...
+            trange,level,jrange,...
+            i1min,i1max,i2min,i2max,i3min,i3max);	    
 %
 % Get the dataset attributes
 %
-x=readattribute([url,fname,num2str(year),'.nc']);	
-eval(['add_offset=x.',vname,'.add_offset;']);
-eval(['scale_factor=x.',vname,'.scale_factor;']);
+x=readattribute([url,fname]);
+%eval(['add_offset=x.',vname,'.add_offset;']);
+%eval(['scale_factor=x.',vname,'.scale_factor;']);  %no scale scale factor and offset ??
 eval(['missing_value=x.',vname,'.missing_value;']);
+
 %
 % Correct the variable
 %
 var=shiftdim(var,2);
-var=add_offset+var*scale_factor;
 var(var==missing_value)=NaN;
 %
 % Write it in a file
 %
-write_NCEP([NCEP_dir,fname,'Y',num2str(year),'M',num2str(month),'.nc'],...
+write_NCEP([NCEP_dir,vname,'_Y',num2str(year),'M',num2str(month),'.nc'],...
             vname,lon,lat,time,var,Yorig)
 %
 return
+

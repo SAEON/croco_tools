@@ -1,116 +1,100 @@
-function interp_NCEP(NCEP_version,NCEP_dir,Y,M,Roa,interp_method,...
-                     lon1,lat1,mask1,lon2,lat2,mask2,tin,...
+function interp_NCEP(NCEP_dir,Y,M,Roa,interp_method,...
+                     lon1,lat1,mask1,tin,...
 		     nc_frc,nc_blk,lon,lat,angle,tout)
 
 %
 % Read the local NCEP files and perform the interpolations
 %
 % Pierrick 2005
-%
-
-
+% Menkes 2007
+% Update, Feb-2008, J. Lefevre to use Nomads3 server
+%---------------------------------------------------------------------------------
 %
 % 1: Air temperature: Convert from Kelvin to Celsius
 %
-nc=netcdf([NCEP_dir,'air.2m.gauss.Y',num2str(Y),'M',num2str(M),'.nc']);
-tair=squeeze(nc{'air'}(tin,:,:));
-close(nc)
+nc=netcdf([NCEP_dir,'tmp2m_Y',num2str(Y),'M',num2str(M),'.nc']);
+tair=squeeze(nc{'tmp2m'}(tin,:,:));
+close(nc);
+%tair=get_missing_val(lon1,lat1,mask1.*tair);
 tair=get_missing_val(lon1,lat1,mask1.*tair,nan,Roa,nan);
 tair=tair-273.15;
 tair=interp2(lon1,lat1,tair,lon,lat,interp_method);
 %
 % 2: Relative humidity: Convert from % to fraction
 %
-if NCEP_version==1
-  nc=netcdf([NCEP_dir,'rhum.sig995.Y',num2str(Y),'M',num2str(M),'.nc']);
-  rhum=squeeze(nc{'rhum'}(tin,:,:));
-  close(nc)
-  rhum=get_missing_val(lon2,lat2,mask2.*rhum,nan,Roa,nan);
-  rhum=rhum/100;
-  rhum=interp2(lon2,lat2,rhum,lon,lat,interp_method);
-elseif NCEP_version==2
-  nc=netcdf([NCEP_dir,'shum.2m.gauss.Y',num2str(Y),'M',num2str(M),'.nc']);
-  shum=squeeze(nc{'shum'}(tin,:,:));
-  close(nc)
-  shum=get_missing_val(lon1,lat1,mask1.*shum,nan,Roa,nan);
-  shum=interp2(lon1,lat1,shum,lon,lat,interp_method);
-  rhum=shum./qsat(tair);
-end
+% Get Specific Humidity [Kg/Kg]
+%
+nc=netcdf([NCEP_dir,'spfh2m_Y',num2str(Y),'M',num2str(M),'.nc']);
+shum=squeeze(nc{'spfh2m'}(tin,:,:));
+close(nc);
+%shum=get_missing_val(lon1,lat1,mask1.*shum);
+shum=get_missing_val(lon1,lat1,mask1.*shum,nan,Roa,nan);
+shum=interp2(lon1,lat1,shum,lon,lat,interp_method);
+%
+% computes specific humidity at saturation (Tetens  formula)
+% (see air_sea tools, fonction qsat)
+%
+rhum=shum./qsat(tair);
 %
 % 3: Precipitation rate: Convert from [kg/m^2/s] to cm/day
 %
-nc=netcdf([NCEP_dir,'prate.sfc.gauss.Y',num2str(Y),'M',num2str(M),'.nc']);
-prate=squeeze(nc{'prate'}(tin,:,:));
-close(nc)
+nc=netcdf([NCEP_dir,'pratesfc_Y',num2str(Y),'M',num2str(M),'.nc']);
+prate=squeeze(nc{'pratesfc'}(tin,:,:));
+close(nc);
 prate=get_missing_val(lon1,lat1,mask1.*prate,nan,Roa,nan);
 prate=prate*0.1*(24*60*60.0);
 prate=interp2(lon1,lat1,prate,lon,lat,interp_method);
 prate(abs(prate)<1.e-4)=0;
 %
 % 4: Net shortwave flux: [W/m^2]
-%      ROMS convention: positive downward
-%           opposite to NCEP -->*(-1)
-%           but same as NCEP2...
-%
-if NCEP_version==1
-  nc=netcdf([NCEP_dir,'nswrs.sfc.gauss.Y',num2str(Y),'M',num2str(M),'.nc']);
-  nswrs=squeeze(nc{'nswrs'}(tin,:,:));
-  close(nc)
-  nswrs=get_missing_val(lon1,lat1,mask1.*nswrs,nan,Roa,nan);
-  nswrs=nswrs*-1;
-  radsw=interp2(lon1,lat1,nswrs,lon,lat,interp_method);
+%      ROMS convention: downward = positive
+  nc=netcdf([NCEP_dir,'dswrfsfc_Y',num2str(Y),'M',num2str(M),'.nc']);
+  dswrs=squeeze(nc{'dswrfsfc'}(tin,:,:));
+  close(nc);
+%  dswrs=get_missing_val(lon1,lat1,mask1.*dswrs);
+  dswrs=get_missing_val(lon1,lat1,mask1.*dswrs,nan,Roa,nan);
+  radsw=interp2(lon1,lat1,dswrs,lon,lat,interp_method);
   radsw(radsw<1.e-10)=0;
-elseif NCEP_version==2
-  nc=netcdf([NCEP_dir,'dswrf.sfc.gauss.Y',num2str(Y),'M',num2str(M),'.nc']);
-  dswrf=squeeze(nc{'dswrf'}(tin,:,:));
-  close(nc)
-  dswrf=get_missing_val(lon1,lat1,mask1.*dswrf,nan,Roa,nan);
-  radsw=interp2(lon1,lat1,dswrf,lon,lat,interp_method);
-  radsw(radsw<1.e-10)=0;
-end
 %
 % 5: Net outgoing Longwave flux:  [W/m^2]
 %      ROMS convention: positive upward (opposite to nswrs)
 %
-if NCEP_version==1
-  nc=netcdf([NCEP_dir,'nlwrs.sfc.gauss.Y',num2str(Y),'M',num2str(M),'.nc']);
-  nlwrs=squeeze(nc{'nlwrs'}(tin,:,:));
-  close(nc)
-  nlwrs=get_missing_val(lon1,lat1,mask1.*nlwrs,nan,Roa,nan);
-  radlw=interp2(lon1,lat1,nlwrs,lon,lat,interp_method);
-elseif NCEP_version==2
+% get downward longwave flux [W/m^2]
+  nc=netcdf([NCEP_dir,'dlwrfsfc_Y',num2str(Y),'M',num2str(M),'.nc']);
+  dlwrf=squeeze(nc{'dlwrfsfc'}(tin,:,:));
+  close(nc);
+%  dlwrf=get_missing_val(lon1,lat1,mask1.*dlwrf);
+  dlwrf=get_missing_val(lon1,lat1,mask1.*dlwrf,nan,Roa,nan);
 %
-%   lwhf convention: positive downward --> * (-1)
-%   input: downward longwave rad. and sst from
-%   respectively NCEP2 downward rad. (same conv.) and
-%   skin temperature.
+% get skin temperature [K].
 %
-  nc=netcdf([NCEP_dir,'skt.sfc.gauss.Y',num2str(Y),'M',num2str(M),'.nc']);
-  skt=squeeze(nc{'skt'}(tin,:,:));
-  close(nc)
+  nc=netcdf([NCEP_dir,'tmpsfc_Y',num2str(Y),'M',num2str(M),'.nc']);
+  skt=squeeze(nc{'tmpsfc'}(tin,:,:));
+  close(nc);
+%  skt=get_missing_val(lon1,lat1,mask1.*skt);
   skt=get_missing_val(lon1,lat1,mask1.*skt,nan,Roa,nan);
   skt=skt-273.15; 
 %
-  nc=netcdf([NCEP_dir,'dlwrf.sfc.gauss.Y',num2str(Y),'M',num2str(M),'.nc']);
-  dlwrf=squeeze(nc{'dlwrf'}(tin,:,:));
-  close(nc)
-  dlwrf=get_missing_val(lon1,lat1,mask1.*dlwrf,nan,Roa,nan);
-  nlwf=-lwhf(skt,dlwrf); 
+% computes net longwave heat flux following Dickey et al (1994) 
+% (see air_sea tools, fonction lwhf)
+%
+  nlwf = -lwhf(skt,dlwrf); 
   radlw=interp2(lon1,lat1,nlwf,lon,lat,interp_method);
-end
 %
-% 6: Wind & Wind stress
+% 6: Wind & Wind stress [m/s]
 %
-nc=netcdf([NCEP_dir,'uwnd.10m.gauss.Y',num2str(Y),'M',num2str(M),'.nc']);
-uwnd=squeeze(nc{'uwnd'}(tin,:,:));
+nc=netcdf([NCEP_dir,'ugrd10m_Y',num2str(Y),'M',num2str(M),'.nc']);
+uwnd=squeeze(nc{'ugrd10m'}(tin,:,:));
 close(nc)
 uwnd=get_missing_val(lon1,lat1,mask1.*uwnd,nan,Roa,nan);
+%uwnd=get_missing_val(lon1,lat1,mask1.*uwnd);
 uwnd=interp2(lon1,lat1,uwnd,lon,lat,interp_method);
 %
-nc=netcdf([NCEP_dir,'vwnd.10m.gauss.Y',num2str(Y),'M',num2str(M),'.nc']);
-vwnd=squeeze(nc{'vwnd'}(tin,:,:));
+nc=netcdf([NCEP_dir,'vgrd10m_Y',num2str(Y),'M',num2str(M),'.nc']);
+vwnd=squeeze(nc{'vgrd10m'}(tin,:,:));
 close(nc)
 vwnd=get_missing_val(lon1,lat1,mask1.*vwnd,nan,Roa,nan);
+%vwnd=get_missing_val(lon1,lat1,mask1.*vwnd);
 vwnd=interp2(lon1,lat1,vwnd,lon,lat,interp_method);
 %
 % Compute the stress
@@ -152,3 +136,5 @@ if ~isempty(nc_blk)
 %  nc_blk{'sustr'}(tout,:,:)=sustr;
 %  nc_blk{'svstr'}(tout,:,:)=svstr;
 end
+
+
