@@ -19,6 +19,7 @@
 	     Version: daily tar file extracted from the <a href="https://gforge.inria.fr/projects/romsagrif/">ROMS_AGRIF project on Inria Gforge</a>
 	     - check the <a href="http://lists.gforge.inria.fr/pipermail/romsagrif-commits/">romsagrif-commits archives</a>
 	     - this is not a stable version.
+             - to register, use MOISE as INRIA Team collaboration 
 	</li>
 
         <li><a href="roms1d/index.html">+ ROMS-1D source code and documentation</a>  
