@@ -1509,86 +1509,85 @@ CR     &                          ,indxbioVSink+NFlux_VSinkD2-1
      &     'DelC            , scalar, series          '
 
         vname(1,indxbioVSink+Nsinking-1)=
-     &     'PMO                                       '
+     &     'ExpPOC1                                   '
         vname(2,indxbioVSink+Nsinking-1)=
-     &     'Organic Matter export                     '
+     &     'small POC export                          '
         vname(3,indxbioVSink+Nsinking-1)=
      &     'molC/m2/s                                 '
         vname(4,indxbioVSink+Nsinking-1)=
-     &     'PMO             , scalar, series          '
+     &     'ExpPOC1         , scalar, series          '
 
         vname(1,indxbioVSink+Nsinking2-1)=
-     &     'PMO                                       '
+     &     'ExpPOC2                                   '
         vname(2,indxbioVSink+Nsinking2-1)=
-     &     'MO export                                 '
+     &     'big POM export                            '
         vname(3,indxbioVSink+Nsinking2-1)=
      &     'molC/m2/s                                 '
         vname(4,indxbioVSink+Nsinking2-1)=
-     &     'PMO             , scalar, series          '
-
+     &     'ExpPOC2         , scalar, series          '
 
         vname(1,indxbioVSink+Nsinkfer-1)=
-     &     'ExpFe1                                       '
+     &     'ExpFe1                                    '
         vname(2,indxbioVSink+Nsinkfer-1)=
-     &     'Fe export Nano                                 '
+     &     'Fe export Nano                            '
         vname(3,indxbioVSink+Nsinkfer-1)=
-     &     'molFe/m2/s                                 '
+     &     'molFe/m2/s                                '
         vname(4,indxbioVSink+Nsinkfer-1)=
-     &     'ExpFe1             , scalar, series          '
+     &     'ExpFe1          , scalar, series          '
 
         vname(1,indxbioVSink+Nsinkfer2-1)=
-     &     'ExpFe2                                       '
+     &     'ExpFe2                                    '
         vname(2,indxbioVSink+Nsinkfer2-1)=
-     &     'Fe export Diatoms                            '
+     &     'Fe export Diatoms                         '
         vname(3,indxbioVSink+Nsinkfer2-1)=
-     &     'molFe/m2/s                                 '
+     &     'molFe/m2/s                                '
         vname(4,indxbioVSink+Nsinkfer2-1)=
-     &     'ExpFe2             , scalar, series          '
+     &     'ExpFe2          , scalar, series          '
 
         vname(1,indxbioVSink+Nsinksil-1)=
-     &     'ExpSi                                        '
+     &     'ExpSi                                     '
         vname(2,indxbioVSink+Nsinksil-1)=
-     &     'BSi export                                 '
+     &     'BSi export                                '
         vname(3,indxbioVSink+Nsinksil-1)=
-     &     'molSi/m2/s                                 '
+     &     'molSi/m2/s                                '
         vname(4,indxbioVSink+Nsinksil-1)=
-     &     'ExpSi             , scalar, series          '
+     &     'ExpSi           , scalar, series          '
 
         vname(1,indxbioVSink+Nsinkcal-1)=
-     &     'ExpCaco3                                        '
+     &     'ExpCaco3                                  '
         vname(2,indxbioVSink+Nsinkcal-1)=
-     &     'Calcite export                                 '
+     &     'Calcite export                            '
         vname(3,indxbioVSink+Nsinkcal-1)=
      &     'molC/m2/s                                 '
         vname(4,indxbioVSink+Nsinkcal-1)=
-     &     'ExpCaCo3             , scalar, series          '
+     &     'ExpCaCo3        , scalar, series          '
 
         vname(1,indxbioVSink+Nzmeu-1)=
-     &     'Zmeu                                        '
+     &     'Zmeu                                      '
         vname(2,indxbioVSink+Nzmeu-1)=
-     &     'Euphotic Depth (1%)                         '
+     &     'Euphotic Depth (1%)                       '
         vname(3,indxbioVSink+Nzmeu-1)=
      &     'm                                         '
         vname(4,indxbioVSink+Nzmeu-1)=
-     &     'Zmeu             , scalar, series          '
+     &     'Zmeu            , scalar, series          '
 
         vname(1,indxbioVSink+Nirondep-1)=
-     &     'Fedep                                        '
+     &     'Fedep                                     '
         vname(2,indxbioVSink+Nirondep-1)=
-     &     'Iron surface deposition flux                 '
+     &     'Iron surface deposition flux              '
         vname(3,indxbioVSink+Nirondep-1)=
-     &     'molFe/m2/s                                   '
+     &     'molFe/m2/s                                '
         vname(4,indxbioVSink+Nirondep-1)=
-     &     'Fedep             , scalar, series          '
+     &     'Fedep           , scalar, series          '
 
         vname(1,indxbioVSink+Nnitrpot-1)=
-     &     'Nfix                                        '
+     &     'Nfix                                      '
         vname(2,indxbioVSink+Nnitrpot-1)=
      &     'Nitrogen Fixation                         '
         vname(3,indxbioVSink+Nnitrpot-1)=
-     &     'molN/m2/s                                   '
+     &     'molN/m2/s                                 '
         vname(4,indxbioVSink+Nnitrpot-1)=
-     &     'Nfix             , scalar, series          '
+     &     'Nfix            , scalar, series          '
 
 #    endif
 
