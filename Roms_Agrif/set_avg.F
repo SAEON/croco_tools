@@ -90,87 +90,6 @@
               enddo
             enddo
           endif
-#ifdef LMD_SKPP
-          if (wrtavg(indxHbl)) then
-            do j=JstrR,JendR
-              do i=IstrR,IendR
-                hbl_avg(i,j)=hbl(i,j)
-              enddo
-            enddo
-          endif
-#endif
-#ifdef LMD_BKPP
-          if (wrtavg(indxHbbl)) then
-            do j=JstrR,JendR
-              do i=IstrR,IendR
-                hbbl_avg(i,j)=hbbl(i,j)
-              enddo
-            enddo
-          endif
-#endif
-#ifdef BIOLOGY
-          if (wrtavg(indxHel)) then
-            do j=JstrR,JendR
-              do i=IstrR,IendR
-                hel_avg(i,j)=hel(i,j)
-              enddo
-            enddo
-          endif
-# ifdef BIO_NPZD
-          if (wrtavg(indxChC)) then
-            do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR
-                  theta_avg(i,j,k)=theta(i,j,k)
-                enddo
-              enddo
-            enddo
-          endif
-#  ifdef OXYGEN
-          if (wrtavg(indxU10)) then
-             do j=JstrR,JendR
-                do i=IstrR,IendR
-                   u10_avg(i,j)=u10(i,j)
-                enddo
-             enddo
-          endif
-          if (wrtavg(indxKvO2)) then
-             do j=JstrR,JendR
-                do i=IstrR,IendR
-                   Kv_O2_avg(i,j)=Kv_O2(i,j)
-                enddo
-             enddo
-          endif
-          if (wrtavg(indxO2sat)) then
-             do j=JstrR,JendR
-                do i=IstrR,IendR
-                   O2satu_avg(i,j)=O2satu(i,j)
-                enddo
-             enddo
-          endif
-#   endif /* OXYGEN */
-# elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-          if (wrtavg(indxChC1)) then
-            do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR
-                  theta1_avg(i,j,k)=theta1(i,j,k)
-                enddo
-              enddo
-            enddo
-          endif
-
-          if (wrtavg(indxChC2)) then
-            do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR
-                  theta2_avg(i,j,k)=theta2(i,j,k)
-                enddo
-              enddo
-            enddo
-          endif
-# endif
-#endif /* BIOLOGY */
           if (wrtavg(indxBostr)) then
             do j=Jstr,Jend
               do i=Istr,Iend
@@ -238,6 +157,46 @@
               enddo
             enddo
           endif
+#  ifdef LMD_SKPP
+          if (wrtavg(indxHbl)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+                hbl_avg(i,j)=hbl(i,j)
+              enddo
+            enddo
+          endif
+#  endif
+#  ifdef LMD_BKPP
+          if (wrtavg(indxHbbl)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+                hbbl_avg(i,j)=hbbl(i,j)
+              enddo
+            enddo
+          endif
+#  endif
+#  ifdef BULK_FLUX
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                shflx_rsw_avg(i,j)=shflx_rsw(i,j)
+              enddo
+            enddo
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                shflx_rlw_avg(i,j)=shflx_rlw(i,j)
+              enddo
+            enddo
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                shflx_lat_avg(i,j)=shflx_lat(i,j)
+              enddo
+            enddo
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                shflx_sen_avg(i,j)=shflx_sen(i,j)
+              enddo
+            enddo
+# endif
 #  ifdef VIS_COEF_3D
           if (wrtavg(indxVisc)) then
             do k=1,N
@@ -260,7 +219,6 @@
             enddo
           endif
 #  endif
-
 #  ifdef AVERAGES_K
           if (wrtavg(indxAkv)) then
             do k=0,N
@@ -292,7 +250,71 @@
           endif
 #   endif
 #  endif
-# endif
+#  ifdef BIOLOGY
+          if (wrtavg(indxHel)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+                hel_avg(i,j)=hel(i,j)
+              enddo
+            enddo
+          endif
+#   ifdef BIO_NPZD
+          if (wrtavg(indxChC)) then
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  theta_avg(i,j,k)=theta(i,j,k)
+                enddo
+              enddo
+            enddo
+          endif
+#    ifdef OXYGEN
+          if (wrtavg(indxU10)) then
+             do j=JstrR,JendR
+                do i=IstrR,IendR
+                   u10_avg(i,j)=u10(i,j)
+                enddo
+             enddo
+          endif
+          if (wrtavg(indxKvO2)) then
+             do j=JstrR,JendR
+                do i=IstrR,IendR
+                   Kv_O2_avg(i,j)=Kv_O2(i,j)
+                enddo
+             enddo
+          endif
+          if (wrtavg(indxO2sat)) then
+             do j=JstrR,JendR
+                do i=IstrR,IendR
+                   O2satu_avg(i,j)=O2satu(i,j)
+                enddo
+             enddo
+          endif
+#    endif /* OXYGEN */
+#   elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
+          if (wrtavg(indxChC1)) then
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  theta1_avg(i,j,k)=theta1(i,j,k)
+                enddo
+              enddo
+            enddo
+          endif
+
+          if (wrtavg(indxChC2)) then
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  theta2_avg(i,j,k)=theta2(i,j,k)
+                enddo
+              enddo
+            enddo
+          endif
+#    endif
+#   endif /* BIOLOGY */
+#  endif /* SOLVE3D */
+
         elseif (mod(ilc-1,navg).gt.1) then
           if (wrtavg(indxZ)) then
             do j=JstrR,JendR
@@ -315,87 +337,6 @@
               enddo
             enddo
           endif
-#ifdef LMD_SKPP
-          if (wrtavg(indxHbl)) then
-            do j=JstrR,JendR
-              do i=IstrR,IendR
-                hbl_avg(i,j)=hbl_avg(i,j)+hbl(i,j)
-              enddo
-            enddo
-          endif
-#endif
-#ifdef LMD_BKPP
-          if (wrtavg(indxHbbl)) then
-            do j=JstrR,JendR
-              do i=IstrR,IendR
-                hbbl_avg(i,j)=hbbl_avg(i,j)+hbbl(i,j)
-              enddo
-            enddo
-          endif
-#endif
-#ifdef BIOLOGY
-          if (wrtavg(indxHel)) then
-            do j=JstrR,JendR
-              do i=IstrR,IendR
-                hel_avg(i,j)=hel_avg(i,j)+hel(i,j)
-              enddo
-            enddo
-          endif
-# ifdef BIO_NPZD
-          if (wrtavg(indxChC)) then
-            do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR
-                  theta_avg(i,j,k)=theta_avg(i,j,k)+theta(i,j,k)
-                enddo
-              enddo
-            enddo
-          endif
-#   ifdef OXYGEN
-          if (wrtavg(indxU10)) then
-             do j=JstrR,JendR
-                do i=IstrR,IendR
-                   u10_avg(i,j)=u10_avg(i,j)+u10(i,j)
-                enddo
-             enddo
-          endif
-          if (wrtavg(indxKvO2)) then
-             do j=JstrR,JendR
-                do i=IstrR,IendR
-                   Kv_O2_avg(i,j)=Kv_O2_avg(i,j)+Kv_O2(i,j)
-                enddo
-             enddo
-          endif
-          if (wrtavg(indxO2sat)) then
-             do j=JstrR,JendR
-                do i=IstrR,IendR
-                   O2satu_avg(i,j)=O2satu_avg(i,j)+O2satu(i,j)
-                enddo
-             enddo
-          endif
-#   endif /* OXYGEN */
-# elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-          if (wrtavg(indxChC1)) then
-            do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR
-                  theta1_avg(i,j,k)=theta1_avg(i,j,k)+theta1(i,j,k)
-                enddo
-              enddo
-            enddo
-          endif
-
-          if (wrtavg(indxChC2)) then
-            do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR
-                  theta2_avg(i,j,k)=theta2_avg(i,j,k)+theta2(i,j,k)
-                enddo
-              enddo
-            enddo
-          endif
-# endif
-#endif /* BIOLOGY */
           if (wrtavg(indxBostr)) then
             do j=Jstr,Jend
               do i=Istr,Iend
@@ -431,7 +372,7 @@
                 do j=JstrR,JendR
                   do i=IstrR,IendR
                     t_avg(i,j,k,itrc)=t_avg(i,j,k,itrc)
-     &                              +t(i,j,k,nstp,itrc)
+     &                               +t(i,j,k,nstp,itrc)
                   enddo
                 enddo
               enddo
@@ -464,6 +405,46 @@
               enddo
             enddo
           endif
+#  ifdef LMD_SKPP
+          if (wrtavg(indxHbl)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+                hbl_avg(i,j)=hbl_avg(i,j)+hbl(i,j)
+              enddo
+            enddo
+          endif
+#  endif
+#  ifdef LMD_BKPP
+          if (wrtavg(indxHbbl)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+                hbbl_avg(i,j)=hbbl_avg(i,j)+hbbl(i,j)
+              enddo
+            enddo
+          endif
+#  endif
+#  ifdef BULK_FLUX
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                shflx_rsw_avg(i,j)=shflx_rsw_avg(i,j)+shflx_rsw(i,j)
+              enddo
+            enddo
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                shflx_rlw_avg(i,j)=shflx_rlw_avg(i,j)+shflx_rlw(i,j)
+              enddo
+            enddo
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                shflx_lat_avg(i,j)=shflx_lat_avg(i,j)+shflx_lat(i,j)
+              enddo
+            enddo
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                shflx_sen_avg(i,j)=shflx_sen_avg(i,j)+shflx_sen(i,j)
+              enddo
+            enddo
+#  endif
 #  ifdef VIS_COEF_3D
           if (wrtavg(indxVisc)) then
             do k=1,N
@@ -518,8 +499,72 @@
             enddo
           endif
 #   endif
-#  endif
+#  endif /* AVERAGES_K */
+#  ifdef BIOLOGY
+          if (wrtavg(indxHel)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+                hel_avg(i,j)=hel_avg(i,j)+hel(i,j)
+              enddo
+            enddo
+          endif
+#   ifdef BIO_NPZD
+          if (wrtavg(indxChC)) then
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  theta_avg(i,j,k)=theta_avg(i,j,k)+theta(i,j,k)
+                enddo
+              enddo
+            enddo
+          endif
+#    ifdef OXYGEN
+          if (wrtavg(indxU10)) then
+             do j=JstrR,JendR
+                do i=IstrR,IendR
+                   u10_avg(i,j)=u10_avg(i,j)+u10(i,j)
+                enddo
+             enddo
+          endif
+          if (wrtavg(indxKvO2)) then
+             do j=JstrR,JendR
+                do i=IstrR,IendR
+                   Kv_O2_avg(i,j)=Kv_O2_avg(i,j)+Kv_O2(i,j)
+                enddo
+             enddo
+          endif
+          if (wrtavg(indxO2sat)) then
+             do j=JstrR,JendR
+                do i=IstrR,IendR
+                   O2satu_avg(i,j)=O2satu_avg(i,j)+O2satu(i,j)
+                enddo
+             enddo
+          endif
+#    endif /* OXYGEN */
+#   elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
+          if (wrtavg(indxChC1)) then
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  theta1_avg(i,j,k)=theta1_avg(i,j,k)+theta1(i,j,k)
+                enddo
+              enddo
+            enddo
+          endif
+
+          if (wrtavg(indxChC2)) then
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  theta2_avg(i,j,k)=theta2_avg(i,j,k)+theta2(i,j,k)
+                enddo
+              enddo
+            enddo
+          endif
+#   endif
+#  endif /* BIOLOGY */
 # endif /* SOLVE3D */
+
         elseif (mod(ilc-1,navg).eq.0) then
           cff=1./float(navg)
           if (ZEROTH_TILE) time_avg=time_avg+float(navg)*dt
@@ -547,93 +592,6 @@
               enddo
             enddo
           endif
-#ifdef LMD_SKPP
-          if (wrtavg(indxHbl)) then
-            do j=JstrR,JendR
-              do i=IstrR,IendR
-                hbl_avg(i,j)=cff*( hbl_avg(i,j)
-     &                               +hbl(i,j))
-              enddo
-            enddo
-          endif
-#endif
-#ifdef LMD_BKPP
-          if (wrtavg(indxHbbl)) then
-            do j=JstrR,JendR
-              do i=IstrR,IendR
-                hbbl_avg(i,j)=cff*( hbbl_avg(i,j)
-     &                                +hbbl(i,j))
-              enddo
-            enddo
-          endif
-#endif
-#ifdef BIOLOGY
-          if (wrtavg(indxHel)) then
-            do j=JstrR,JendR
-              do i=IstrR,IendR
-                hel_avg(i,j)=cff*( hel_avg(i,j)
-     &                            +hel(i,j)     )
-              enddo
-            enddo
-          endif
-# ifdef BIO_NPZD
-          if (wrtavg(indxChC)) then
-            do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR
-                  theta_avg(i,j,k)=cff*( theta_avg(i,j,k)
-     &                                  +theta(i,j,k)     )
-                enddo
-              enddo
-            enddo
-          endif
-#   ifdef OXYGEN
-          if (wrtavg(indxU10)) then
-             do j=JstrR,JendR
-                do i=IstrR,IendR
-                   u10_avg(i,j)=cff*( u10_avg(i,j)+u10(i,j) )
-                enddo
-             enddo
-          endif
-          if (wrtavg(indxKvO2)) then
-             do j=JstrR,JendR
-                do i=IstrR,IendR
-                   Kv_O2_avg(i,j)=cff*( Kv_O2_avg(i,j)+Kv_O2(i,j) )
-                enddo
-             enddo
-          endif
-          if (wrtavg(indxO2sat)) then
-             do j=JstrR,JendR
-                do i=IstrR,IendR
-                   O2satu_avg(i,j)=cff*( O2satu_avg(i,j)+O2satu(i,j) )
-                enddo
-             enddo
-          endif
-#   endif /* OXYGEN */
-# elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-          if (wrtavg(indxChC1)) then
-            do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR
-                  theta1_avg(i,j,k)=cff*( theta1_avg(i,j,k)
-     &                                   +theta1(i,j,k)     )
-                enddo
-              enddo
-            enddo
-          endif
-
-          if (wrtavg(indxChC2)) then
-            do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR
-                  theta2_avg(i,j,k)=cff*( theta2_avg(i,j,k)
-     &                                   +theta2(i,j,k)     )
-                enddo
-              enddo
-            enddo
-          endif
-# endif
-#endif /* BIOLOGY */
           if (wrtavg(indxBostr)) then
             do j=Jstr,Jend
               do i=Istr,Iend
@@ -703,6 +661,52 @@
               enddo
             enddo
           endif
+#  ifdef LMD_SKPP
+          if (wrtavg(indxHbl)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+                hbl_avg(i,j)=cff*( hbl_avg(i,j)
+     &                               +hbl(i,j))
+              enddo
+            enddo
+          endif
+#  endif
+#  ifdef LMD_BKPP
+          if (wrtavg(indxHbbl)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+                hbbl_avg(i,j)=cff*( hbbl_avg(i,j)
+     &                                +hbbl(i,j))
+              enddo
+            enddo
+          endif
+#  endif
+#  ifdef BULK_FLUX
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                shflx_rsw_avg(i,j)=cff*( shflx_rsw_avg(i,j)+
+     &                                   shflx_rsw(i,j) )
+              enddo
+            enddo
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                shflx_rlw_avg(i,j)=cff*( shflx_rlw_avg(i,j)+
+     &                                   shflx_rlw(i,j) )
+              enddo
+            enddo
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                shflx_lat_avg(i,j)=cff*( shflx_lat_avg(i,j)+
+     &                                   shflx_lat(i,j) )
+              enddo
+            enddo
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                shflx_sen_avg(i,j)=cff*( shflx_sen_avg(i,j)+
+     &                                   shflx_sen(i,j) )
+              enddo
+            enddo
+#  endif
 #  ifdef VIS_COEF_3D
           if (wrtavg(indxVisc)) then
             do k=1,N
@@ -760,7 +764,74 @@
           endif
 #   endif
 #  endif
-# endif
+#  ifdef BIOLOGY
+          if (wrtavg(indxHel)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+                hel_avg(i,j)=cff*( hel_avg(i,j)
+     &                            +hel(i,j)     )
+              enddo
+            enddo
+          endif
+#   ifdef BIO_NPZD
+          if (wrtavg(indxChC)) then
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  theta_avg(i,j,k)=cff*( theta_avg(i,j,k)
+     &                                  +theta(i,j,k)     )
+                enddo
+              enddo
+            enddo
+          endif
+#    ifdef OXYGEN
+          if (wrtavg(indxU10)) then
+             do j=JstrR,JendR
+                do i=IstrR,IendR
+                   u10_avg(i,j)=cff*( u10_avg(i,j)+u10(i,j) )
+                enddo
+             enddo
+          endif
+          if (wrtavg(indxKvO2)) then
+             do j=JstrR,JendR
+                do i=IstrR,IendR
+                   Kv_O2_avg(i,j)=cff*( Kv_O2_avg(i,j)+Kv_O2(i,j) )
+                enddo
+             enddo
+          endif
+          if (wrtavg(indxO2sat)) then
+             do j=JstrR,JendR
+                do i=IstrR,IendR
+                   O2satu_avg(i,j)=cff*( O2satu_avg(i,j)+O2satu(i,j) )
+                enddo
+             enddo
+          endif
+#    endif /* OXYGEN */
+#   elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
+          if (wrtavg(indxChC1)) then
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  theta1_avg(i,j,k)=cff*( theta1_avg(i,j,k)
+     &                                   +theta1(i,j,k)     )
+                enddo
+              enddo
+            enddo
+          endif
+
+          if (wrtavg(indxChC2)) then
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  theta2_avg(i,j,k)=cff*( theta2_avg(i,j,k)
+     &                                   +theta2(i,j,k)     )
+                enddo
+              enddo
+            enddo
+          endif
+#   endif
+#  endif /* BIOLOGY */
+# endif /* SOLVE3D */
         endif
       endif
       return

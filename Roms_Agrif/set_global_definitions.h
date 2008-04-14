@@ -322,6 +322,7 @@ c-# define TANH dtanh
 #  define AGRIF_OBC_WEST
 #  define AGRIF_OBC_NORTH
 #  define AGRIF_OBC_SOUTH
+
 #  define AGRIF_FLUX_BC 
 
 #  define AGRIF_OBC_M2SPECIFIED

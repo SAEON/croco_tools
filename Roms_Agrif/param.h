@@ -368,7 +368,7 @@
 # endif
       parameter (NT=itemp+ntrc_salt+ntrc_pas+ntrc_bio+ntrc_sed)
 # ifdef DIAGNOSTICS_TS
-      parameter (ntrc_diats=7*NT)
+      parameter (ntrc_diats=15*NT)
 # else
       parameter (ntrc_diats=0)
 # endif

@@ -82,6 +82,10 @@
 # define vidSed hisSed
 # define vidBBL hisBBL
 # define vidBostr hisBostr
+# define vidShflx_rsw hisShflx_rsw
+# define vidShflx_rlw hisShflx_rlw
+# define vidShflx_lat hisShflx_lat
+# define vidShflx_sen hisShflx_sen
 #else
 # define ncname avgname
 # define rec_per_file nrpfavg
@@ -121,6 +125,11 @@
 # define vidSed avgSed
 # define vidBBL avgBBL
 # define vidBostr avgBostr
+# define vidShflx_rsw avgShflx_rsw
+# define vidShflx_rlw avgShflx_rlw
+# define vidShflx_lat avgShflx_lat
+# define vidShflx_sen avgShflx_sen
+
       character*70 text
 #endif
 !
@@ -175,8 +184,12 @@
       if (mynode.gt.0) create_new_file=.false.
 #endif
 !
+!=================================================================
+!
 ! Create new history/averages file:    Put global attributes
 ! ====== === ======= ======== =====    and define all variables.
+!
+!=================================================================
 !
   10  if (create_new_file) then
         ierr=nf_create(ncname(1:lstr), nf_clobber, ncid)
@@ -208,7 +221,7 @@
 #endif
         ierr=nf_def_dim (ncid, 'time', nf_unlimited, timedim)
         ierr=nf_def_dim (ncid, 'auxil',    4,        auxil(1))
-        
+
         auxil(2)=timedim
 
         r2dgrd(3)=timedim           ! Free surface
@@ -218,7 +231,7 @@
 
         v2dgrd(1)=r2dgrd(1)         ! 2D VBAR-type
         v2dgrd(3)=timedim
-        
+
         b3dgrd(1)=r2dgrd(1)         !
         b3dgrd(2)=r2dgrd(2)         ! 3D BED-type
         b3dgrd(4)=timedim           !
@@ -283,6 +296,13 @@
         lvar=lenstr(vname(4,indxTime))
         ierr=nf_put_att_text (ncid, vidTime, 'field',  lvar,
      &                                vname(4,indxTime)(1:lvar))
+
+!===============================================================
+!
+! Define primary variables
+!
+!===============================================================
+
 !
 ! Free-surface.
 !
@@ -353,6 +373,7 @@
           ierr=nf_put_att_text (ncid, vidVb, 'field',     lvar,
      &                                  vname(4,indxVb)(1:lvar))
         endif
+
 #ifdef SOLVE3D
 !
 ! 3D momenta in XI- and ETA-directions.
@@ -498,6 +519,33 @@
           ierr=nf_put_att_text (ncid, vidW, 'field',     lvar,
      &                                  vname(4,indxW)(1:lvar))
         endif
+#endif /* SOLVE3D */
+
+!================================================================
+! 
+! Define secondary variables
+!
+!================================================================
+
+        if (wrt(indxBostr)) then
+          lvar=lenstr(vname(1,indxBostr))
+          ierr=nf_def_var (ncid, vname(1,indxBostr)(1:lvar),
+     &                             NF_FOUT, 3, r2dgrd, vidBostr)
+#  ifndef AVRH
+          lvar=lenstr(vname(2,indxBostr))
+          ierr=nf_put_att_text (ncid, vidBostr, 'long_name', lvar,
+     &                                 vname(2,indxBostr)(1:lvar))
+#  else
+          text='averaged '/ /vname(2,indxBostr)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidBostr, 'long_name', lvar,
+     &                                               text(1:lvar))
+#  endif
+          lvar=lenstr(vname(3,indxBostr))
+          ierr=nf_put_att_text (ncid, vidBostr, 'units',     lvar,
+     &                                 vname(3,indxBostr)(1:lvar))
+        endif
+#ifdef SOLVE3D
 # ifdef VIS_COEF_3D
 !
 ! Horizontal viscosity coefficient.
@@ -879,12 +927,12 @@
 # endif /* SEDIMENT */
 # if defined BBL && !defined AVRH
 !
-! Abed       Wind-induced, bed wave excursion amplitude (m)  
-! Hripple    Bed ripple height (m)                           
-! Lripple    Bed ripple length (m)                             
+! Abed       Wind-induced, bed wave excursion amplitude (m)
+! Hripple    Bed ripple height (m)
+! Lripple    Bed ripple length (m)
 ! Zbnot      Physical hydraulic bottom roughness (grain roughness) (m)
-! Zbapp      Effective apparent hydraulic bottom roughness         
-! bostrw     Wave-induced kinematic bottom stress (N/m2)   
+! Zbapp      Effective apparent hydraulic bottom roughness
+! bostrw     Wave-induced kinematic bottom stress (N/m2)
 !
         do itrc=1,6
          indxWrk=indxBBL+itrc-1
@@ -908,36 +956,89 @@
          endif
         enddo
 # endif /* BBL */
-
-        if (wrt(indxBostr)) then
-          lvar=lenstr(vname(1,indxBostr))
-          ierr=nf_def_var (ncid, vname(1,indxBostr)(1:lvar),
-     &                             NF_FOUT, 3, r2dgrd, vidBostr)
+# ifdef BULK_FLUX
+! Short wave SHFLX
+        lvar=lenstr(vname(1,indxShflx_rsw))
+        ierr=nf_def_var (ncid, vname(1,indxShflx_rsw)(1:lvar),
+     &                           NF_FOUT, 3, r2dgrd, vidShflx_rsw)
 #  ifndef AVRH
-          lvar=lenstr(vname(2,indxBostr))
-          ierr=nf_put_att_text (ncid, vidBostr, 'long_name', lvar,
-     &                                 vname(2,indxBostr)(1:lvar))
+        lvar=lenstr(vname(2,indxShflx_rsw))
+        ierr=nf_put_att_text (ncid, vidShflx_rsw, 'long_name', lvar,
+     &                               vname(2,indxShflx_rsw)(1:lvar))
 #  else
-          text='averaged '/ /vname(2,indxBostr)
-          lvar=lenstr(text)
-          ierr=nf_put_att_text (ncid, vidBostr, 'long_name', lvar,
+        text='averaged '/ /vname(2,indxShflx_rsw)
+        lvar=lenstr(text)
+        ierr=nf_put_att_text (ncid, vidShflx_rsw, 'long_name', lvar,
      &                                               text(1:lvar))
 #  endif
-          lvar=lenstr(vname(3,indxBostr))
-          ierr=nf_put_att_text (ncid, vidBostr, 'units',     lvar,
-     &                                 vname(3,indxBostr)(1:lvar))
-        endif
+        lvar=lenstr(vname(3,indxShflx_rsw))
+        ierr=nf_put_att_text (ncid, vidShflx_rsw, 'units',     lvar,
+     &                               vname(3,indxShflx_rsw)(1:lvar))
+! Long wave SHFLX
+        lvar=lenstr(vname(1,indxShflx_rlw))
+        ierr=nf_def_var (ncid, vname(1,indxShflx_rlw)(1:lvar),
+     &                           NF_FOUT, 3, r2dgrd, vidShflx_rlw)
+#  ifndef AVRH
+        lvar=lenstr(vname(2,indxShflx_rlw))
+        ierr=nf_put_att_text (ncid, vidShflx_rlw, 'long_name', lvar,
+     &                               vname(2,indxShflx_rlw)(1:lvar))
+#  else
+        text='averaged '/ /vname(2,indxShflx_rlw)
+        lvar=lenstr(text)
+        ierr=nf_put_att_text (ncid, vidShflx_rlw, 'long_name', lvar,
+     &                                             text(1:lvar))
+#  endif
+        lvar=lenstr(vname(3,indxShflx_rlw))
+        ierr=nf_put_att_text (ncid, vidShflx_rlw, 'units',     lvar,
+     &                               vname(3,indxShflx_rlw)(1:lvar))
+! Latent SHFLX
+        lvar=lenstr(vname(1,indxShflx_lat))
+        ierr=nf_def_var (ncid, vname(1,indxShflx_lat)(1:lvar),
+     &                           NF_FOUT, 3, r2dgrd, vidShflx_lat)
+#  ifndef AVRH
+        lvar=lenstr(vname(2,indxShflx_lat))
+        ierr=nf_put_att_text (ncid, vidShflx_lat, 'long_name', lvar,
+     &                               vname(2,indxShflx_lat)(1:lvar))
+#  else
+        text='averaged '/ /vname(2,indxShflx_lat)
+        lvar=lenstr(text)
+        ierr=nf_put_att_text (ncid, vidShflx_lat, 'long_name', lvar,
+     &                                             text(1:lvar))
+#  endif
+        lvar=lenstr(vname(3,indxShflx_lat))
+        ierr=nf_put_att_text (ncid, vidShflx_lat, 'units',     lvar,
+     &                               vname(3,indxShflx_lat)(1:lvar))
+! Sensible SHFLX
+        lvar=lenstr(vname(1,indxShflx_sen))
+        ierr=nf_def_var (ncid, vname(1,indxShflx_sen)(1:lvar),
+     &                           NF_FOUT, 3, r2dgrd, vidShflx_sen)
+#  ifndef AVRH
+        lvar=lenstr(vname(2,indxShflx_sen))
+        ierr=nf_put_att_text (ncid, vidShflx_sen, 'long_name', lvar,
+     &                               vname(2,indxShflx_sen)(1:lvar))
+#  else
+        text='averaged '/ /vname(2,indxShflx_sen)
+        lvar=lenstr(text)
+        ierr=nf_put_att_text (ncid, vidShflx_sen, 'long_name', lvar,
+     &                                             text(1:lvar))
+#  endif
+        lvar=lenstr(vname(3,indxShflx_sen))
+        ierr=nf_put_att_text (ncid, vidShflx_sen, 'units',     lvar,
+     &                               vname(3,indxShflx_sen)(1:lvar))
+# endif
 !
 #endif /* SOLVE3D */
+
 !
 ! Leave definition mode.
-! ----- ---------- -----
+!
 !
         ierr=nf_enddef(ncid)
         write(stdout,'(6x,4A,1x,A,i4)') 'DEF_HIS/AVG - Created ',
      &                'new netCDF file ''', ncname(1:lstr), '''.'
      &                 MYID
 !
+!===================================================================
 ! Open an existing file and prepare for appending data.
 ! ==== == ======== ==== === ======= === ========= =====
 ! Inquire about the dimensions and variables. Check for
@@ -947,6 +1048,7 @@
 !
 ! After that verify that all necessary variables are already
 ! defined there and find their netCDF IDs.
+!===================================================================
 !
       elseif (ncid.eq.-1) then
         ierr=nf_open (ncname(1:lstr), nf_write, ncid)
@@ -1043,7 +1145,18 @@
             goto 99                                       !--> ERROR
           endif
         endif
-
+!
+! bostr     Kinematic bottom stress (N/m2)
+!
+        if (wrt(indxBostr)) then
+          lvar=lenstr(vname(1,indxBostr))
+          ierr=nf_inq_varid (ncid,vname(1,indxBostr)(1:lvar),
+     &                                                   vidBostr)
+          if (ierr .ne. nf_noerr) then
+          write(stdout,1) vname(1,indxBostr)(1:lvar), ncname(1:lstr)
+            goto 99                                       !--> ERROR
+          endif
+        endif
 
 #ifdef SOLVE3D
 !
@@ -1318,18 +1431,40 @@
          endif
         enddo
 # endif /* BBL */
+# ifdef BULK_FLUX
 !
-! bostr     Kinematic bottom stress (N/m2)
+! Shflx     Surface Heat Flux components (degC/s)
 !
-        if (wrt(indxBostr)) then
-          lvar=lenstr(vname(1,indxBostr))
-          ierr=nf_inq_varid (ncid,vname(1,indxBostr)(1:lvar), 
-     &                                                   vidBostr)
-          if (ierr .ne. nf_noerr) then
-          write(stdout,1) vname(1,indxBostr)(1:lvar), ncname(1:lstr)
-            goto 99                                       !--> ERROR
-          endif
+        lvar=lenstr(vname(1,indxShflx_rsw))
+        ierr=nf_inq_varid (ncid,vname(1,indxShflx_rsw)(1:lvar),
+     &                                               vidShflx_rsw)
+        if (ierr .ne. nf_noerr) then
+        write(stdout,1) vname(1,indxShflx_rsw)(1:lvar), ncname(1:lstr)
+          goto 99                                       !--> ERROR
         endif
+        lvar=lenstr(vname(1,indxShflx_rlw))
+        ierr=nf_inq_varid (ncid,vname(1,indxShflx_rlw)(1:lvar),
+     &                                               vidShflx_rlw)
+        if (ierr .ne. nf_noerr) then
+        write(stdout,1) vname(1,indxShflx_rlw)(1:lvar), ncname(1:lstr)
+          goto 99                                       !--> ERROR
+        endif
+        lvar=lenstr(vname(1,indxShflx_lat))
+        ierr=nf_inq_varid (ncid,vname(1,indxShflx_lat)(1:lvar),
+     &                                               vidShflx_lat)
+        if (ierr .ne. nf_noerr) then
+        write(stdout,1) vname(1,indxShflx_lat)(1:lvar), ncname(1:lstr)
+          goto 99                                       !--> ERROR
+        endif
+        lvar=lenstr(vname(1,indxShflx_sen))
+        ierr=nf_inq_varid (ncid,vname(1,indxShflx_sen)(1:lvar),
+     &                                               vidShflx_sen)
+        if (ierr .ne. nf_noerr) then
+        write(stdout,1) vname(1,indxShflx_sen)(1:lvar), ncname(1:lstr)
+          goto 99                                       !--> ERROR
+        endif
+# endif
+
 #endif /* SOLVE3D */
         write(*,'(6x,2A,i4,1x,A,i4)') 'DEF_HIS/AVG -- Opened ',
      &                     'existing file  from record =', rec
@@ -1416,6 +1551,10 @@
 #undef vidSed
 #undef vidBBL
 #undef vidBostr
+#undef vidShflx_rsw
+#undef vidShflx_rlw
+#undef vidShflx_lat
+#undef vidShflx_sen
 
 #ifdef AVERAGES
 # ifndef AVRH

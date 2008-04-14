@@ -135,7 +135,6 @@
 # undef  ANA_PSOURCE
                       /* Lateral Momentum Mixing */
 # define UV_VIS2
-# undef UV_VIS4
 # define MIX_GP_UV
 # undef VIS_COEF_3D
 # ifdef VIS_COEF_3D
@@ -146,18 +145,10 @@
 # undef VIS_PECLET
                      /* Lateral Tracer Mixing */
 # define TS_DIF2
-# undef TS_DIF4
 # define MIX_GP_TS
 # undef  SPLIT_UP3
-# undef DIF_COEF_3D
-# ifdef DIF_COEF_3D
-#  define DIF_SMAGO
-#  define SMAGO_TS
-# endif
-# undef DIF_GRID
-# undef DIF_PECLET
 # if defined TCLIMATOLOGY & !defined AGRIF
-#  define CLIMAT_TS_MIXH
+#  undef CLIMAT_TS_MIXH
 # endif
                       /* Vertical Mixing */
 # undef  BODYFORCE

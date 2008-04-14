@@ -121,7 +121,6 @@
           goto 99                                         !--> ERROR
         endif
       endif
-
 # ifdef SOLVE3D
 !
 ! 3D momentum components in XI- and ETA-directions.
@@ -201,6 +200,43 @@
           goto 99                                         !--> ERROR
         endif
       endif
+#  ifdef BULK_FLUX
+!
+!  Write out surface heat flux component (degC/s)
+!
+      ierr=nf_fwrite(Shflx_rsw_avg, ncidavg, avgShflx_rsw, record, 
+     &                                                     r2dvar)
+      if (ierr .ne. nf_noerr) then
+        lvar=lenstr(vname(1,indxShflx_rsw))
+        write(stdout,1) vname(1,indxShflx_rsw)(1:lvar), record, ierr
+     &                  MYID
+        goto 99                                         !--> ERROR
+      endif
+      ierr=nf_fwrite(Shflx_rlw_avg, ncidavg, avgShflx_rlw, record,
+     &                                                     r2dvar)
+      if (ierr .ne. nf_noerr) then
+        lvar=lenstr(vname(1,indxShflx_rlw))
+        write(stdout,1) vname(1,indxShflx_rlw)(1:lvar), record, ierr
+     &                  MYID
+        goto 99                                         !--> ERROR
+      endif
+      ierr=nf_fwrite(Shflx_lat_avg, ncidavg, avgShflx_lat, record,
+     &                                                     r2dvar)
+      if (ierr .ne. nf_noerr) then
+        lvar=lenstr(vname(1,indxShflx_lat))
+        write(stdout,1) vname(1,indxShflx_lat)(1:lvar), record, ierr
+     &                  MYID
+        goto 99                                         !--> ERROR
+      endif
+      ierr=nf_fwrite(Shflx_sen_avg, ncidavg, avgShflx_sen, record,
+     &                                                     r2dvar)
+      if (ierr .ne. nf_noerr) then
+        lvar=lenstr(vname(1,indxShflx_sen))
+        write(stdout,1) vname(1,indxShflx_sen)(1:lvar), record, ierr
+     &                  MYID
+        goto 99                                         !--> ERROR
+      endif
+#  endif
 #  ifdef VIS_COEF_3D
 !
 ! Write out Horizontal viscosity coefficient.
@@ -333,7 +369,7 @@
         if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxU10))
           write(stdout,1) vname(1,indxU10)(1:lvar), record, ierr,
-     &                    nf_strerror(ierr) MYID
+     &                    MYID
           goto 99                                         !--> ERROR
         endif
       endif
@@ -342,7 +378,7 @@
         if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxKvO2))
           write(stdout,1) vname(1,indxKvO2)(1:lvar), record, ierr,
-     &                    nf_strerror(ierr) MYID
+     &                    MYID
           goto 99                                         !--> ERROR
         endif
       endif
@@ -351,7 +387,7 @@
         if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxO2sat))
           write(stdout,1) vname(1,indxO2sat)(1:lvar), record, ierr,
-     &                    nf_strerror(ierr) MYID
+     &                    MYID
           goto 99                                         !--> ERROR
         endif
       endif

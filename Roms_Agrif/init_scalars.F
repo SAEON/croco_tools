@@ -211,6 +211,11 @@ CR      write(stdout,'(1x,A,I3)') 'indxVb = ',indxVb
       vname(3,indxVb)='meter second-1                             '
       vname(4,indxVb)='vbar-velocity, scalar, series              '
 
+CR      write(stdout,'(1x,A,I3)') 'indxBostr =',indxBostr
+      vname(1,indxBostr)='bostr                                   '
+      vname(2,indxBostr)='Kinematic bottom stress                 '
+      vname(3,indxBostr)='N/m2                                    '
+
 #ifdef SOLVE3D
 CR      write(stdout,'(1x,A,I3)') 'indxU = ',indxU
       vname(1,indxU)='u                                           '
@@ -570,11 +575,24 @@ CR      write(stdout,'(1x,A,I3)') 'indxBostrw=',indxBBL+5
       vname(2,indxBostrw)='Wave-induced kinematic bottom stress   '
       vname(3,indxBostrw)='N/m2                                   '
 # endif
-
-CR      write(stdout,'(1x,A,I3)') 'indxBostr =',indxBostr
-      vname(1,indxBostr)='bostr                                   '
-      vname(2,indxBostr)='Kinematic bottom stress                 '
-      vname(3,indxBostr)='N/m2                                    '
+# ifdef BULK_FLUX
+CR      write(stdout,'(1x,A,I3)') 'indxShflx_rsw =',indxShflx_rsw
+      vname(1,indxShflx_rsw)='shflx_rsw                           '
+      vname(2,indxShflx_rsw)='Short-wave surface radiation        '
+      vname(3,indxShflx_rsw)='degC/s                              '
+CR      write(stdout,'(1x,A,I3)') 'indxShflx_rlw =',indxShflx_rlw
+      vname(1,indxShflx_rlw)='shflx_rlw                           '
+      vname(2,indxShflx_rlw)='Long-wave surface radiation         '
+      vname(3,indxShflx_rlw)='degC/s                              '
+CR      write(stdout,'(1x,A,I3)') 'indxShflx_lat =',indxShflx_lat
+      vname(1,indxShflx_lat)='shflx_lat                           '
+      vname(2,indxShflx_lat)='Latent surface heat flux            '
+      vname(3,indxShflx_lat)='degC/s                              '
+CR      write(stdout,'(1x,A,I3)') 'indxShflx_sen =',indxShflx_sen
+      vname(1,indxShflx_sen)='shflx_sen                           '
+      vname(2,indxShflx_sen)='Sensible surface heat flux          '
+      vname(3,indxShflx_sen)='degC/s                              '
+# endif
 
 CR      write(stdout,'(1x,A,I3)') 'indxO =',indxO
       vname(1,indxO)='omega                                       '
@@ -900,16 +918,16 @@ CR       write(stdout,'(20x,A)') vname(1,indxTVmix+itrc-1)
        vname(2,indxTVmix+itrc-1)='Vertical mixing term            '
        write(vname3,*) trim(unitt),' second-1                     '
        vname(3,indxTVmix+itrc-1)=vname3
-       
-CR       write(stdout,'(1x,A,I3)') 'indxTbody = ',indxTbody+itrc-1
+
+CR       write(stdout,'(1x,A,I3)') 'indxTForc = ',indxTForc+itrc-1
        nametrc=vname(1,indxT+itrc-1)
        unitt=vname(3,indxT+itrc-1)
-       write(vname1,*) trim(nametrc),'_body                       '
-       vname(1,indxTbody+itrc-1)=vname1
-CR       write(stdout,'(20x,A)') vname(1,indxTbody+itrc-1)
-       vname(2,indxTbody+itrc-1)='Body Force term (Nudging & SWRAD)'
-       write(vname3,*) trim(unitt),' second-1                      '
-       vname(3,indxTbody+itrc-1)=vname3
+       write(vname1,*) trim(nametrc),'_forc                       '
+       vname(1,indxTForc+itrc-1)=vname1
+CR       write(stdout,'(20x,A)') vname(1,indxTForc+itrc-1)
+       vname(2,indxTForc+itrc-1)='Forcing term (Q & Nudging)      '
+       write(vname3,*) trim(unitt),' second-1                     '
+       vname(3,indxTForc+itrc-1)=vname3
 
 CR       write(stdout,'(1x,A,I3)') 'indxTrate = ',indxTrate+itrc-1
        nametrc=vname(1,indxT+itrc-1)
@@ -920,6 +938,92 @@ CR       write(stdout,'(20x,A)') vname(1,indxTrate+itrc-1)
        vname(2,indxTrate+itrc-1)='Time rate of change             '
        write(vname3,*) trim(unitt),' second-1                     '
        vname(3,indxTrate+itrc-1)=vname3
+
+!
+! Tracer diagnostics variables averaged over the MLD
+!
+CR       write(stdout,'(1x,A,I3)') 'indxTXadv_mld = ',indxTXadv_mld+itrc-1
+       lvar=lenstr(vname(1,indxT+itrc-1))
+       nametrc=vname(1,indxT+itrc-1)(1:lvar)
+       lvar=lenstr(nametrc)
+       unitt=vname(3,indxT+itrc-1)
+       write(vname1,*) trim(nametrc),'_xadv_mld                   '
+       vname(1,indxTXadv_mld+itrc-1)=vname1
+CR       write(stdout,'(20x,A)') vname(1,indxTXadv_mld+itrc-1)
+       vname(2,indxTXadv_mld+itrc-1)='MLD xi advection term       '
+       write(vname3,*) trim(unitt),' second-1                     '
+       vname(3,indxTXadv_mld+itrc-1)=vname3
+
+CR       write(stdout,'(1x,A,I3)') 'indxTYadv_mld = ',indxTYadv_mld+itrc-1
+       nametrc=vname(1,indxT+itrc-1)
+       unitt=vname(3,indxT+itrc-1)
+       write(vname1,*) trim(nametrc),'_yadv_mld                   '
+       vname(1,indxTYadv_mld+itrc-1)=vname1
+CR       write(stdout,'(20x,A)') vname(1,indxTYadv_mld+itrc-1)
+       vname(2,indxTYadv_mld+itrc-1)='MLD eta advection term      '
+       write(vname3,*) trim(unitt),' second-1                     '
+       vname(3,indxTYadv_mld+itrc-1)=vname3
+
+CR       write(stdout,'(1x,A,I3)') 'indxTVadv_mld = ',indxTVadv_mld+itrc-1
+       nametrc=vname(1,indxT+itrc-1)
+       unitt=vname(3,indxT+itrc-1)
+       write(vname1,*) trim(nametrc),'_vadv_mld                   ' 
+       vname(1,indxTVadv_mld+itrc-1)=vname1
+CR       write(stdout,'(20x,A)') vname(1,indxTVadv+itrc-1)
+       vname(2,indxTVadv_mld+itrc-1)='MLD vertical advection term '
+       write(vname3,*) trim(unitt),' second-1                     '
+       vname(3,indxTVadv_mld+itrc-1)=vname3
+
+CR       write(stdout,'(1x,A,I3)') 'indxTHmix_mld = ',indxTHmix_mld+itrc-1
+       nametrc=vname(1,indxT+itrc-1)
+       unitt=vname(3,indxT+itrc-1)
+       write(vname1,*) trim(nametrc),'_hmix_mld                   '
+       vname(1,indxTHmix_mld+itrc-1)=vname1
+CR       write(stdout,'(20x,A)') vname(1,indxTHmix_mld+itrc-1)
+       vname(2,indxTHmix_mld+itrc-1)='MLD xi mixing term          '
+       write(vname3,*) trim(unitt),' second-1                     '
+       vname(3,indxTHmix_mld+itrc-1)=vname3
+
+CR       write(stdout,'(1x,A,I3)') 'indxTVmix_mld = ',indxTVmix_mld+itrc-1
+       nametrc=vname(1,indxT+itrc-1)
+       unitt=vname(3,indxT+itrc-1)
+       write(vname1,*) trim(nametrc),'_vmix_mld                   ' 
+       vname(1,indxTVmix_mld+itrc-1)=vname1
+CR       write(stdout,'(20x,A)') vname(1,indxTVmix_mld+itrc-1)
+       vname(2,indxTVmix_mld+itrc-1)='MLD vertical mixing term    '
+       write(vname3,*) trim(unitt),' second-1                     '
+       vname(3,indxTVmix_mld+itrc-1)=vname3
+
+CR       write(stdout,'(1x,A,I3)') 'indxTForc_mld = ',indxTForc_mld+itrc-1
+       nametrc=vname(1,indxT+itrc-1)
+       unitt=vname(3,indxT+itrc-1)
+       write(vname1,*) trim(nametrc),'_forc_mld                   '
+       vname(1,indxTForc_mld+itrc-1)=vname1
+CR       write(stdout,'(20x,A)') vname(1,indxTForc_mld+itrc-1)
+       vname(2,indxTForc_mld+itrc-1)='MLD Forcing term (Q & Nudg) '
+       write(vname3,*) trim(unitt),' second-1                     '
+       vname(3,indxTForc_mld+itrc-1)=vname3
+
+CR       write(stdout,'(1x,A,I3)') 'indxTrate_mld = ',indxTrate_mld+itrc-1
+       nametrc=vname(1,indxT+itrc-1)
+       unitt=vname(3,indxT+itrc-1)
+       write(vname1,*) trim(nametrc),'_rate_mld                   '
+       vname(1,indxTrate_mld+itrc-1)=vname1
+CR       write(stdout,'(20x,A)') vname(1,indxTrate_mld+itrc-1)
+       vname(2,indxTrate_mld+itrc-1)='MLD time rate of change     '
+       write(vname3,*) trim(unitt),' second-1                     '
+       vname(3,indxTrate_mld+itrc-1)=vname3
+
+CR       write(stdout,'(1x,A,I3)') 'indxTentr_mld = ',indxTentr_mld+itrc-1
+       nametrc=vname(1,indxT+itrc-1)
+       unitt=vname(3,indxT+itrc-1)
+       write(vname1,*) trim(nametrc),'_entr_mld                   '
+       vname(1,indxTentr_mld+itrc-1)=vname1
+CR       write(stdout,'(20x,A)') vname(1,indxTentr_mld+itrc-1)
+       vname(2,indxTentr_mld+itrc-1)='MLD entrainment rate        '
+       write(vname3,*) trim(unitt),' second-1                     '
+       vname(3,indxTentr_mld+itrc-1)=vname3
+
       enddo
 # endif  /* DIAGNOSTICS_TS */
 
@@ -1520,7 +1624,7 @@ CR     &                          ,indxbioVSink+NFlux_VSinkD2-1
         vname(1,indxbioVSink+Nsinking2-1)=
      &     'ExpPOC2                                   '
         vname(2,indxbioVSink+Nsinking2-1)=
-     &     'big POM export                            '
+     &     'big POC export                            '
         vname(3,indxbioVSink+Nsinking2-1)=
      &     'molC/m2/s                                 '
         vname(4,indxbioVSink+Nsinking2-1)=

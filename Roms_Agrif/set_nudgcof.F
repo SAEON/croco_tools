@@ -36,9 +36,9 @@
 # endif
 
 # undef SPONGE_GRID
-! if SPONGE_GRID, vsponge is redefined as 5 x visc :
-!       visc = A = 1/12 * uscale * grd_scale
-!  or   visc = B = 1/12 * uscale * grd_scale**3
+! if SPONGE_GRID, vsponge is defined as :
+!       A = 1/2 * uscale * grd_scale
+!  and  B = A * grd_scale**2
 # ifdef SPONGE_GRID
       real uscale
       parameter (uscale=0.1)
@@ -157,7 +157,7 @@
       do j=JstrR,JendR
         do i=IstrR,IendR
 #   ifdef SPONGE_GRID
-          visc2_sponge=5*uscale*grdmax/12.
+          visc2_sponge=.5*uscale*grdmax
 #   else
           visc2_sponge=v_sponge
 #   endif
@@ -176,7 +176,7 @@
       do j=Jstr,JendR
         do i=Istr,IendR
 #   ifdef SPONGE_GRID
-          visc2_sponge=5*uscale*grdmax/12.
+          visc2_sponge=.5*uscale*grdmax
 #   else
           visc2_sponge=v_sponge
 #   endif
@@ -202,7 +202,7 @@
         do j=JstrR,JendR
           do i=IstrR,IendR
 #   ifdef SPONGE_GRID
-            diff2_sponge=5*uscale*grdmax/12.
+            diff2_sponge=.5*uscale*grdmax
 #   else
             diff2_sponge=v_sponge
 #   endif

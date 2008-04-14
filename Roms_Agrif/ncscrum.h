@@ -3,6 +3,8 @@
 !
 ! This is include file "ncscrum.h".
 ! ==== == ======= ==== ============
+!
+!===================================================================
 ! indices in character array "vname", which holds variable names
 !                                                and attributes.
 ! indxTime        time
@@ -49,6 +51,7 @@
 ! indxWWA,indxWWD,indxWWP   wind induced wave Amplitude,
 !                 Direction and Period
 !
+!=======================================================================
       integer indxTime, indxZ, indxUb, indxVb
       parameter (indxTime=1, indxZ=2, indxUb=3, indxVb=4)
 #ifdef SOLVE3D
@@ -136,14 +139,25 @@
 
 # ifdef DIAGNOSTICS_TS
       integer indxTXadv,indxTYadv,indxTVadv, 
-     &        indxTHmix,indxTVmix,indxTbody,indxTrate
+     &        indxTHmix,indxTVmix,indxTForc,indxTrate,
+     &        indxTXadv_mld,indxTYadv_mld,indxTVadv_mld,
+     &        indxTHmix_mld,indxTVmix_mld,indxTForc_mld,indxTrate_mld,
+     &        indxTentr_mld
       parameter (indxTXadv=indxT+ntrc_salt+ntrc_pas+ntrc_bio+ntrc_sed+1,
      &           indxTYadv=indxTXadv+NT,
      &           indxTVadv=indxTYadv+NT,
      &           indxTHmix=indxTVadv+NT,
      &           indxTVmix=indxTHmix+NT, 
-     &           indxTbody=indxTVmix+NT,
-     &           indxTrate=indxTbody+NT)
+     &           indxTForc=indxTVmix+NT,
+     &           indxTrate=indxTForc+NT,
+     &           indxTXadv_mld=indxTrate+NT,
+     &           indxTYadv_mld=indxTXadv_mld+NT,
+     &           indxTVadv_mld=indxTYadv_mld+NT,
+     &           indxTHmix_mld=indxTVadv_mld+NT,
+     &           indxTVmix_mld=indxTHmix_mld+NT,
+     &           indxTForc_mld=indxTVmix_mld+NT,
+     &           indxTrate_mld=indxTForc_mld+NT,
+     &           indxTentr_mld=indxTrate_mld+NT  )
 # endif
 # ifdef DIAGNOSTICS_UV
       integer indxMXadv,indxMYadv,indxMVadv,indxMCor,
@@ -280,14 +294,15 @@
      &           indxRHUM=indxSST+5,  indxRADLW=indxSST+6,
      &           indxRADSW=indxSST+7, indxPRATE=indxSST+8,
      &           indxUWND=indxSST+9,  indxVWND=indxSST+10)
+      integer indxShflx_rsw,indxShflx_rlw,indxShflx_lat,indxShflx_sen 
+      parameter (indxShflx_rsw=indxSST+11, indxShflx_rlw=indxSST+12,
+     &           indxShflx_lat=indxSST+13, indxShflx_sen=indxSST+14)
 # endif
-#endif
       integer indxBostr
-      parameter (indxBostr=indxSUSTR+18)
-#ifdef SOLVE3D
+      parameter (indxBostr=indxSUSTR+22)
 # ifdef SEDIMENT
       integer indxSed, indxBTHK, indxBPOR, indxBFRA
-      parameter (indxSed=indxSUSTR+19,
+      parameter (indxSed=indxSUSTR+23,
      &           indxBTHK=indxSed, indxBPOR=indxSed+1,
      &           indxBFRA=indxSed+2)
 # endif
@@ -295,9 +310,9 @@
       integer indxBBL, indxAbed, indxHrip, indxLrip, indxZbnot, 
      &        indxZbapp, indxBostrw
 #  ifdef SEDIMENT
-      parameter (indxBBL=indxSUSTR+21+NST,
+      parameter (indxBBL=indxSUSTR+25+NST,
 #  else
-      parameter (indxBBL=indxSUSTR+21, 
+      parameter (indxBBL=indxSUSTR+25, 
 #  endif
      &           indxAbed  =indxBBL,   indxHrip  =indxBBL+1,
      &           indxLrip  =indxBBL+2, indxZbnot =indxBBL+3, 
@@ -318,8 +333,11 @@
       parameter (indxUi=indxAi+1, indxVi=indxAi+2, indxHi=indxAi+3,
      &                         indxHS=indxAi+4, indxTIsrf=indxAi+5)
 #endif
-
-
+!
+!
+!===================================================================
+!
+!===================================================================
 !
 ! Grid Type Codes:  r2dvar....w3hvar are codes for array types.
 ! ==== ==== ======  The codes are set according to the rule:
@@ -327,6 +345,7 @@
 !    where horiz_grid_type=0,1,2,3 for RHO-,U-,V-,PSI-points
 !    respectively and vert_grid_type=0 for 2D fields; 1,2 for
 !    3D-RHO- and W-vertical points.
+
 !
       integer r2dvar, u2dvar, v2dvar, p2dvar, r3dvar,
      &                u3dvar, v3dvar, p3dvar, w3dvar, b3dvar
@@ -367,6 +386,7 @@
 # endif
 #endif /* AGRIF */
 !
+!====================================================================
 ! Naming conventions for indices, variable IDs, etc...
 !
 ! prefix ncid_  means netCDF ID for netCDF file
@@ -412,6 +432,7 @@
 !   ntbulkn bulk formula variables in current forcing file.
 !
 ! vname    character array for variable names and attributes;
+!=================================================================
 !
       integer ncidfrc, ncidbulk, ncidclm,  ntsms
      &      , ntsrf,  ntssh,  ntsst, ntsss, ntuclm, ntww,
@@ -433,10 +454,15 @@
 #endif
       integer  ncidhis, nrechis,  nrpfhis
      &      , hisTime, hisTstep, hisZ,    hisUb,  hisVb
+     &      , hisBostr
 #ifdef SOLVE3D
      &      , hisU,   hisV,   hisR,    hisHbl, hisHbbl
      &      , hisO,   hisW,   hisVisc, hisDiff
-     &      , hisAkv, hisAkt, hisAks,  hisBostr
+     &      , hisAkv, hisAkt, hisAks
+# ifdef BULK_FLUX
+     &      , hisShflx_rsw,   hisShflx_rlw
+     &      , hisShflx_lat,   hisShflx_sen
+# endif
 # ifdef BIOLOGY
      &      , hisHel
 #  ifdef BIO_NPZD
@@ -460,7 +486,10 @@
      &      , diaTime, diaTstep
      &      , diaTXadv(NT), diaTYadv(NT), diaTVadv(NT)
      &      , diaTHmix(NT), diaTVmix(NT)
-     &      , diaTbody(NT), diaTrate(NT)
+     &      , diaTForc(NT), diaTrate(NT)
+     &      , diaTXadv_mld(NT), diaTYadv_mld(NT), diaTVadv_mld(NT)
+     &      , diaTHmix_mld(NT), diaTVmix_mld(NT)
+     &      , diaTForc_mld(NT), diaTrate_mld(NT), diaTentr_mld(NT)
 # endif
 # ifdef DIAGNOSTICS_UV
         integer nciddiaM, nrecdiaM, nrpfdiaM
@@ -478,11 +507,13 @@
 # endif
 #endif
 #ifdef AVERAGES
-      integer   ncidavg, nrecavg,  nrpfavg
-     &      , avgTime, avgTstep, avgZ,    avgUb,  avgVb
+      integer ncidavg, nrecavg,  nrpfavg
+     &      , avgTime, avgTstep, avgZ, avgUb,  avgVb
+     &      , avgBostr
 # ifdef SOLVE3D
-     &      , avgU,  avgV,  avgR,    avgHbl, avgHbbl
-     &      , avgO,  avgW,  avgVisc, avgDiff, avgAkv,  avgAkt, avgAks
+     &      , avgU,   avgV,   avgR,    avgHbl, avgHbbl
+     &      , avgO,   avgW,   avgVisc, avgDiff
+     &      , avgAkv, avgAkt, avgAks
 # ifdef BIOLOGY
      &      , avgHel
 #  ifdef BIO_NPZD
@@ -495,9 +526,10 @@
 #  endif
 # endif
       integer avgT(NT)
-# endif
-      integer avgBostr
-# ifdef SOLVE3D
+#  ifdef BULK_FLUX
+      integer avgShflx_rsw,   avgShflx_rlw
+     &      , avgShflx_lat,   avgShflx_sen
+#  endif
 #  ifdef SEDIMENT
       integer avgSed(NST+2)
 #  endif
@@ -509,7 +541,10 @@
      &      , diaTime_avg, diaTstep_avg
      &      , diaTXadv_avg(NT), diaTYadv_avg(NT), diaTVadv_avg(NT)
      &      , diaTHmix_avg(NT), diaTVmix_avg(NT)
-     &      , diaTbody_avg(NT), diaTrate_avg(NT)
+     &      , diaTForc_avg(NT), diaTrate_avg(NT)
+     &      , diaTXadv_mld_avg(NT), diaTYadv_mld_avg(NT), diaTVadv_mld_avg(NT)
+     &      , diaTHmix_mld_avg(NT), diaTVmix_mld_avg(NT)
+     &      , diaTForc_mld_avg(NT), diaTrate_mld_avg(NT), diaTentr_mld_avg(NT)
 #  endif
 #  ifdef DIAGNOSTICS_UV
        integer nciddiaM_avg, nrecdiaM_avg, nrpfdiaM_avg
@@ -583,11 +618,16 @@
 #endif
      &      , ncidhis, nrechis,  nrpfhis
      &      , hisTime, hisTstep, hisZ,    hisUb,  hisVb
+     &      , hisBostr
 #ifdef SOLVE3D
      &      , hisU,    hisV,     hisT,    hisR
      &      , hisO,    hisW,     hisVisc, hisDiff
      &      , hisAkv,  hisAkt,   hisAks
-     &      , hisHbl,  hisHbbl,  hisBostr
+     &      , hisHbl,  hisHbbl
+# ifdef BULK_FLUX
+     &      , hisShflx_rsw, hisShflx_rlw
+     &      , hisShflx_lat, hisShflx_sen
+#  endif
 # ifdef BIOLOGY
      &      , hisHel
 #  ifdef BIO_NPZD
@@ -610,13 +650,18 @@
      &      , nciddia, nrecdia, nrpfdia
      &      , diaTime, diaTstep
      &      , diaTXadv, diaTYadv, diaTVadv, diaTHmix
-     &      , diaTVmix, diaTbody, diaTrate
+     &      , diaTVmix, diaTForc, diaTrate
+     &      , diaTXadv_mld, diaTYadv_mld, diaTVadv_mld, diaTHmix_mld
+     &      , diaTVmix_mld, diaTForc_mld, diaTrate_mld, diaTentr_mld
 # ifdef AVERAGES
      &      , nciddia_avg, nrecdia_avg, nrpfdia_avg
      &      , diaTime_avg, diaTstep_avg
      &      , diaTXadv_avg, diaTYadv_avg, diaTVadv_avg
-     &      , diaTHmix_avg, diaTVmix_avg, diaTbody_avg
+     &      , diaTHmix_avg, diaTVmix_avg, diaTForc_avg
      &      , diaTrate_avg
+     &      , diaTXadv_mld_avg, diaTYadv_mld_avg, diaTVadv_mld_avg
+     &      , diaTHmix_mld_avg, diaTVmix_mld_avg, diaTForc_mld_avg
+     &      , diaTrate_mld_avg, diaTentr_mld_avg
 # endif
 #endif
 #ifdef DIAGNOSTICS_UV
@@ -647,6 +692,7 @@
 #ifdef AVERAGES
      &      , ncidavg,  nrecavg,  nrpfavg
      &      , avgTime, avgTstep, avgZ,    avgUb,  avgVb
+     &      , avgBostr
 # ifdef SOLVE3D
      &      , avgU,    avgV,     avgT,     avgR
      &      , avgO,    avgW,     avgVisc,  avgDiff
@@ -663,9 +709,10 @@
      &      , avgChC1, avgChC2
 #   endif
 #  endif
-# endif
-     &      , avgBostr
-# ifdef SOLVE3D
+#  ifdef BULK_FLUX
+     &      , avgShflx_rsw, avgShflx_rlw
+     &      , avgShflx_lat, avgShflx_sen
+#  endif
 #  ifdef SEDIMENT
      &      , avgSed
 #  endif

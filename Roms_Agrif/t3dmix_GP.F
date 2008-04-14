@@ -26,7 +26,7 @@
 !
       implicit none
 # include "param.h"
-      integer istr,iend,jstr,jend, itrc, i,j,k,k1,k2
+      integer istr,iend,jstr,jend, itrc, i,j,k,k1,k2, kmld
 # ifdef TS_DIF4
      &                           , imin,imax,jmin,jmax
 # endif
@@ -118,11 +118,11 @@
 
           do j=jstr,jend
             do i=istr,iend+1
-# ifdef DIF_COEF_3D
+#  ifdef DIF_COEF_3D
               FX(i,j)=0.25*(diff3d(i,j,k)+diff3d(i-1,j,k))
-# else
+#  else
               FX(i,j)=0.25*(diff2(i,j,itrc)+diff2(i-1,j,itrc))
-#endif
+#  endif
      &                     *(Hz(i,j,k)+Hz(i-1,j,k))*on_u(i,j)*(
      &         dTdx(i  ,j,k1)-0.5*(
      &             min(dZdx(i,j,k1),0.)*(dTdz(i-1,j,k1)+dTdz(i,j,k2))
@@ -132,11 +132,11 @@
           enddo
           do j=jstr,jend+1
             do i=istr,iend
-# ifdef DIF_COEF_3D
+#  ifdef DIF_COEF_3D
               FE(i,j)=0.25*(diff3d(i,j,k)+diff3d(i,j-1,k))
-# else
+#  else
               FE(i,j)=0.25*(diff2(i,j,itrc)+diff2(i,j-1,itrc))
-# endif
+#  endif
      &                     *(Hz(i,j,k)+Hz(i,j-1,k))*om_v(i,j)*(
      &         dTde(i,j,k1)-0.5*(
      &             min(dZde(i,j,k1),0.)*(dTdz(i,j-1,k1)+dTdz(i,j,k2))
@@ -151,11 +151,11 @@
                 cff2=min(dZdx(i+1,j,k2),0.)
                 cff3=max(dZdx(i  ,j,k2),0.)
                 cff4=max(dZdx(i+1,j,k1),0.)
-# ifdef DIF_COEF_3D
+#  ifdef DIF_COEF_3D
                 FC(i,j,k2)=0.5*diff3d(i,j,k)*(
-# else
+#  else
                 FC(i,j,k2)=0.5*diff2(i,j,itrc)*(
-# endif
+#  endif
      &            cff1*(cff1*dTdz(i,j,k2)-dTdx(i  ,j,k1))
      &           +cff2*(cff2*dTdz(i,j,k2)-dTdx(i+1,j,k2))
      &           +cff3*(cff3*dTdz(i,j,k2)-dTdx(i  ,j,k2))
@@ -166,11 +166,11 @@
                 cff3=max(dZde(i,j  ,k2),0.)
                 cff4=max(dZde(i,j+1,k1),0.)
  
-# ifdef DIF_COEF_3D
+#  ifdef DIF_COEF_3D
                 FC(i,j,k2)=FC(i,j,k2)+0.5*diff3d(i,j,k)*(
-# else
+#  else
                 FC(i,j,k2)=FC(i,j,k2)+0.5*diff2(i,j,itrc)*(
-# endif
+#  endif
      &            cff1*(cff1*dTdz(i,j,k2)-dTde(i,j  ,k1))
      &           +cff2*(cff2*dTdz(i,j,k2)-dTde(i,j+1,k2))
      &           +cff3*(cff3*dTdz(i,j,k2)-dTde(i,j  ,k2))
@@ -187,33 +187,13 @@
      &                                         +FE(i,j+1)-FE(i,j))
      &                                         +FC(i,j,k2)-FC(i,j,k1)
      &                                                   )/Hz(i,j,k)
-# ifdef DIAGNOSTICS_TS
-              THmix(i,j,k,itrc)=FX(i+1,j)-FX(i,j)
-     &                         +FE(i,j+1)-FE(i,j)
-     &                         +(FC(i,j,k2)-FC(i,j,k1))/cff1
-#  ifdef MASKING
-     &              * rmask(i,j)
-#  endif
-              Trate(i,j,k,itrc)=(Hz(i,j,k)*t(i,j,k,nnew,itrc)
-     &                          -Hz_bak(i,j,k)*t(i,j,k,nstp,itrc))
-     &                                                  /(dt*cff1)
-#  ifdef MASKING
-     &              * rmask(i,j)
-#  endif
-!
-! Divide all diagnostic terms by the cell volume
-! (Hz(i,j,k,itrc)/(pm(i,j).*pn(i,j)). There after the unit
-! of diag terms are: (unit of tracers)* s-1.
-!
-              THmix(i,j,k,itrc)=THmix(i,j,k,itrc)*cff1/Hz(i,j,k)
-              Trate(i,j,k,itrc)=Trate(i,j,k,itrc)*cff1/Hz(i,j,k)
-# endif
-
             enddo
           enddo
         endif  ! <-- k.gt.0
       enddo   ! --> k
+
 # endif /* T_DIF2 */
+
 
 # ifdef TS_DIF4
 !
@@ -478,15 +458,15 @@
 
           do j=jstr,jend
             do i=istr,iend+1
-# ifdef DIF_COEF_3D
-#  ifdef DIF_PECLET
+#  ifdef DIF_COEF_3D
+#   ifdef DIF_PECLET
               FX(i,j)=-0.5*diff3d_u(i,j,k)
-#  else
+#   else
               FX(i,j)=-0.25*(diff3d(i,j,k)+diff3d(i-1,j,k))
-#  endif
-# else
+#   endif
+#  else
               FX(i,j)=-0.25*(diff4(i,j,itrc)+diff4(i-1,j,itrc))
-# endif
+#  endif
      &                     *(Hz(i,j,k)+Hz(i-1,j,k))*on_u(i,j)*(
      &         dTdx(i  ,j,k1)-0.5*(
      &             min(dZdx(i,j,k1),0.)*(dTdz(i-1,j,k1)+dTdz(i,j,k2))
@@ -496,15 +476,15 @@
           enddo
           do j=jstr,jend+1
             do i=istr,iend
-# ifdef DIF_COEF_3D
-#  ifdef DIF_PECLET
+#  ifdef DIF_COEF_3D
+#   ifdef DIF_PECLET
               FE(i,j)=-0.5*diff3d_v(i,j,k)
-#  else
+#   else
               FE(i,j)=-0.25*(diff3d(i,j,k)+diff3d(i,j-1,k))
-#  endif
-# else
+#   endif
+#  else
               FE(i,j)=-0.25*(diff4(i,j,itrc)+diff4(i,j-1,itrc))
-# endif
+#  endif
      &                     *(Hz(i,j,k)+Hz(i,j-1,k))*om_v(i,j)*(
      &         dTde(i,j,k1)-0.5*(
      &             min(dZde(i,j,k1),0.)*(dTdz(i,j-1,k1)+dTdz(i,j,k2))
@@ -519,16 +499,16 @@
                 cff2=min(dZdx(i+1,j,k2),0.)
                 cff3=max(dZdx(i  ,j,k2),0.)
                 cff4=max(dZdx(i+1,j,k1),0.)
-# ifdef DIF_COEF_3D
-#  ifdef DIF_PECLET
+#  ifdef DIF_COEF_3D
+#   ifdef DIF_PECLET
                 FC(i,j,k2)=-0.125*(diff3d_u(i,j,k)+diff3d_u(i+1,j,k)
      &                       +diff3d_u(i,j,k+1)+diff3d_u(i+1,j,k))*(
-#  else
+#   else
                 FC(i,j,k2)=-0.5*diff3d(i,j,k)*(
-#  endif
-# else
+#   endif
+#  else
                 FC(i,j,k2)=-0.5*diff4(i,j,itrc)*(
-# endif
+#  endif
      &            cff1*(cff1*dTdz(i,j,k2)-dTdx(i  ,j,k1))
      &           +cff2*(cff2*dTdz(i,j,k2)-dTdx(i+1,j,k2))
      &           +cff3*(cff3*dTdz(i,j,k2)-dTdx(i  ,j,k2))
@@ -538,17 +518,17 @@
                 cff2=min(dZde(i,j+1,k2),0.)
                 cff3=max(dZde(i,j  ,k2),0.)
                 cff4=max(dZde(i,j+1,k1),0.)
-# ifdef DIF_COEF_3D
-#  ifdef DIF_PECLET
+#  ifdef DIF_COEF_3D
+#   ifdef DIF_PECLET
                 FC(i,j,k2)=FC(i,j,k2)
      &                -0.125*(diff3d_v(i,j,k)+diff3d_v(i,j+1,k)
      &                  +diff3d_v(i,j,k+1)+diff3d_v(i,j+1,k))*(
-#  else
+#   else
                 FC(i,j,k2)=FC(i,j,k2)-0.5*diff3d(i,j,k)*(
-#  endif
-# else
+#   endif
+#  else
                 FC(i,j,k2)=FC(i,j,k2)-0.5*diff4(i,j,itrc)*(
-# endif
+#  endif
      &            cff1*(cff1*dTdz(i,j,k2)-dTde(i,j  ,k1))
      &           +cff2*(cff2*dTdz(i,j,k2)-dTde(i,j+1,k2))
      &           +cff3*(cff3*dTdz(i,j,k2)-dTde(i,j  ,k2))
@@ -564,40 +544,15 @@
      &                              cff1*( FX(i+1,j)-FX(i,j)
      &                                    +FE(i,j+1)-FE(i,j))
      &                     +FC(i,j,k2)-FC(i,j,k1) )/Hz(i,j,k)
-# ifdef DIAGNOSTICS_TS
-              THmix(i,j,k,itrc)=FX(i+1,j)-FX(i,j)
-     &                         +FE(i,j+1)-FE(i,j)
-     &                         +(FC(i,j,k2)-FC(i,j,k1))/cff1
-#  ifdef MASKING
-     &              * rmask(i,j)
-#  endif
-              Trate(i,j,k,itrc)=(Hz(i,j,k)*t(i,j,k,nnew,itrc)
-     &                          -Hz_bak(i,j,k)*t(i,j,k,nstp,itrc))
-     &                                                  /(dt*cff1)
-#  ifdef MASKING
-     &              * rmask(i,j)
-#  endif
-!
-! Divide all diagnostic terms by the cell volume
-! (Hz(i,j,k,itrc)/(pm(i,j).*pn(i,j)). There after the unit
-! of diag terms are: (unit of tracers)* s-1.
-!
-              THmix(i,j,k,itrc)=THmix(i,j,k,itrc)*cff1/Hz(i,j,k)
-              Trate(i,j,k,itrc)=Trate(i,j,k,itrc)*cff1/Hz(i,j,k)
-# endif
             enddo
           enddo
         endif  ! <-- k.gt.0
       enddo   ! --> k
+
 # endif /* TS_DIF4 */
 
-# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
-        call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
-     &                          t(START_2D_ARRAY,1,nnew,itrc))
-# endif
-
-      return
-      end
+!      return
+!      end
 
 #else
       subroutine t3dmix_empty

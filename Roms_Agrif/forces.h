@@ -82,6 +82,16 @@
 !
       real stflx(GLOBAL_2D_ARRAY,NT)
       common /forces_stflx/stflx
+# ifdef BULK_FLUX
+      real shflx_rsw(GLOBAL_2D_ARRAY)
+      common /frc_shflx_rsw/shflx_rsw
+      real shflx_rlw(GLOBAL_2D_ARRAY)
+      common /frc_shflx_rlw/shflx_rlw
+      real shflx_lat(GLOBAL_2D_ARRAY)
+      common /frc_shflx_lat/shflx_lat
+      real shflx_sen(GLOBAL_2D_ARRAY)
+      common /frc_shflx_sen/shflx_sen
+# endif
 # if !defined ANA_STFLUX || !defined ANA_SSFLUX
 !
 !  stflxg   Two-time level surface tracer flux grided data.

@@ -195,7 +195,7 @@
           if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxMrate+itrc-1))
             write(stdout,1) vname(1,indxMrate+itrc-1)(1:lvar),
-     &           record, ierr, nf_strerror(ierr) MYID 
+     &           record, ierr MYID 
             goto 99
           endif
       enddo

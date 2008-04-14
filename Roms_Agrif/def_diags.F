@@ -43,8 +43,17 @@
 #  define vidTVadv diaTVadv
 #  define vidTHmix diaTHmix
 #  define vidTVmix diaTVmix
-#  define vidTbody diaTbody
+#  define vidTForc diaTForc
 #  define vidTrate diaTrate
+!
+#  define vidTXadv_mld diaTXadv_mld
+#  define vidTYadv_mld diaTYadv_mld
+#  define vidTVadv_mld diaTVadv_mld
+#  define vidTHmix_mld diaTHmix_mld
+#  define vidTVmix_mld diaTVmix_mld
+#  define vidTForc_mld diaTForc_mld
+#  define vidTrate_mld diaTrate_mld
+#  define vidTentr_mld diaTentr_mld
 !
 # else /* AVRH */
 !
@@ -59,8 +68,18 @@
 #  define vidTVadv diaTVadv_avg
 #  define vidTHmix diaTHmix_avg
 #  define vidTVmix diaTVmix_avg
-#  define vidTbody diaTbody_avg
+#  define vidTForc diaTForc_avg
 #  define vidTrate diaTrate_avg
+!
+#  define vidTXadv_mld diaTXadv_mld_avg
+#  define vidTYadv_mld diaTYadv_mld_avg
+#  define vidTVadv_mld diaTVadv_mld_avg
+#  define vidTHmix_mld diaTHmix_mld_avg
+#  define vidTVmix_mld diaTVmix_mld_avg
+#  define vidTForc_mld diaTForc_mld_avg
+#  define vidTrate_mld diaTrate_mld_avg
+#  define vidTentr_mld diaTentr_mld_avg
+
 !
         character*60 text
 !
@@ -310,27 +329,27 @@
            ierr=nf_put_att_text (ncid,vidTVmix(itrc), 'field',
      &                       lvar, vname(4,indxTVmix+itrc-1)(1:lvar))
 !
-! indxTbody - Solar radiation and nudging body forces
+! indxTForc - Solar radiation and nudging body forces
 !
-           lvar=lenstr(vname(1,indxTbody+itrc-1))
-           ierr=nf_def_var (ncid,vname(1,indxTbody+itrc-1)(1:lvar),
-     &                        NF_FOUT, 4, r3dgrd, vidTbody(itrc))
+           lvar=lenstr(vname(1,indxTForc+itrc-1))
+           ierr=nf_def_var (ncid,vname(1,indxTForc+itrc-1)(1:lvar),
+     &                        NF_FOUT, 4, r3dgrd, vidTForc(itrc))
 # ifndef AVRH
-           lvar=lenstr(vname(2,indxTbody+itrc-1))
-           ierr=nf_put_att_text (ncid, vidTbody(itrc), 'long_name', 
-     &                      lvar, vname(2,indxTbody+itrc-1)(1:lvar))
+           lvar=lenstr(vname(2,indxTForc+itrc-1))
+           ierr=nf_put_att_text (ncid, vidTForc(itrc), 'long_name', 
+     &                      lvar, vname(2,indxTForc+itrc-1)(1:lvar))
 # else
-           text='averaged '/ /vname(2,indxTbody+itrc-1)
+           text='averaged '/ /vname(2,indxTForc+itrc-1)
            lvar=lenstr(text)
-           ierr=nf_put_att_text (ncid, vidTbody(itrc), 'long_name', 
+           ierr=nf_put_att_text (ncid, vidTForc(itrc), 'long_name', 
      &          lvar, text(1:lvar))
 # endif
-           lvar=lenstr(vname(3,indxTbody+itrc-1))
-           ierr=nf_put_att_text (ncid, vidTbody(itrc),'units',     
-     &                     lvar, vname(3,indxTbody+itrc-1)(1:lvar))
-           lvar=lenstr(vname(4,indxTbody+itrc-1))
-           ierr=nf_put_att_text (ncid, vidTbody(itrc),'field',     
-     &                     lvar, vname(4,indxTbody+itrc-1)(1:lvar))
+           lvar=lenstr(vname(3,indxTForc+itrc-1))
+           ierr=nf_put_att_text (ncid, vidTForc(itrc),'units',     
+     &                     lvar, vname(3,indxTForc+itrc-1)(1:lvar))
+           lvar=lenstr(vname(4,indxTForc+itrc-1))
+           ierr=nf_put_att_text (ncid, vidTForc(itrc),'field',     
+     &                     lvar, vname(4,indxTForc+itrc-1)(1:lvar))
 !
 ! Trate indxTrate
 !
@@ -354,6 +373,184 @@
            ierr=nf_put_att_text (ncid, vidTrate(itrc),'field',
      &                     lvar, vname(4,indxTrate+itrc-1)(1:lvar))
 !
+!
+! indxTXadv on MLD
+!
+           lvar=lenstr(vname(1,indxTXadv_mld+itrc-1))
+           ierr=nf_def_var (ncid, vname(1,indxTXadv_mld+itrc-1)(1:lvar),
+     &                       NF_FOUT, 3, r2dgrd, vidTXadv_mld(itrc))
+# ifndef AVRH
+           lvar=lenstr(vname(2,indxTXadv_mld+itrc-1))
+           ierr=nf_put_att_text (ncid, vidTXadv_mld(itrc), 'long_name',
+     &                     lvar, vname(2,indxTXadv_mld+itrc-1)(1:lvar))
+# else
+           text='averaged '/ /vname(2,indxTXadv_mld+itrc-1)
+           lvar=lenstr(text)
+           ierr=nf_put_att_text (ncid, vidTXadv_mld(itrc), 'long_name', 
+     &       lvar, text(1:lvar))
+# endif
+           lvar=lenstr(vname(3,indxTXadv_mld+itrc-1))
+           ierr=nf_put_att_text (ncid,vidTXadv_mld(itrc), 'units', lvar,
+     &                            vname(3,indxTXadv_mld+itrc-1)(1:lvar))
+           lvar=lenstr(vname(4,indxTXadv_mld+itrc-1))
+           ierr=nf_put_att_text (ncid,vidTXadv_mld(itrc), 'field',
+     &                      lvar, vname(4,indxTXadv_mld+itrc-1)(1:lvar))
+!
+! indxTYadv on MLD
+!
+           lvar=lenstr(vname(1,indxTYadv_mld+itrc-1))
+           ierr=nf_def_var (ncid, vname(1,indxTYadv_mld+itrc-1)(1:lvar),
+     &                           NF_FOUT, 3, r2dgrd, vidTYadv_mld(itrc))
+# ifndef AVRH
+           lvar=lenstr(vname(2,indxTYadv_mld+itrc-1))
+           ierr=nf_put_att_text (ncid, vidTYadv_mld(itrc), 'long_name',
+     &                     lvar, vname(2,indxTYadv_mld+itrc-1)(1:lvar))
+# else
+           text='averaged '/ /vname(2,indxTYadv_mld+itrc-1)
+           lvar=lenstr(text)
+           ierr=nf_put_att_text (ncid, vidTYadv_mld(itrc), 'long_name', 
+     &       lvar, text(1:lvar))
+# endif
+           lvar=lenstr(vname(3,indxTYadv_mld+itrc-1))
+           ierr=nf_put_att_text (ncid,vidTYadv_mld(itrc), 'units', lvar,
+     &                            vname(3,indxTYadv_mld+itrc-1)(1:lvar))
+           lvar=lenstr(vname(4,indxTYadv_mld+itrc-1))
+           ierr=nf_put_att_text (ncid,vidTYadv_mld(itrc), 'field',
+     &                      lvar, vname(4,indxTYadv_mld+itrc-1)(1:lvar))
+!
+! indxTVadv on MLD
+!
+           lvar=lenstr(vname(1,indxTVadv_mld+itrc-1))
+           ierr=nf_def_var (ncid, vname(1,indxTVadv_mld+itrc-1)(1:lvar),
+     &                           NF_FOUT, 3, r2dgrd, vidTVadv_mld(itrc))
+# ifndef AVRH
+           lvar=lenstr(vname(2,indxTVadv_mld+itrc-1))
+           ierr=nf_put_att_text (ncid, vidTVadv_mld(itrc), 'long_name',
+     &                     lvar, vname(2,indxTVadv_mld+itrc-1)(1:lvar))
+# else
+           text='averaged '/ /vname(2,indxTVadv_mld+itrc-1)
+           lvar=lenstr(text)
+           ierr=nf_put_att_text (ncid, vidTVadv_mld(itrc), 'long_name', 
+     &       lvar, text(1:lvar))
+# endif
+           lvar=lenstr(vname(3,indxTVadv_mld+itrc-1))
+           ierr=nf_put_att_text (ncid,vidTVadv_mld(itrc), 'units', lvar,
+     &                            vname(3,indxTVadv_mld+itrc-1)(1:lvar))
+           lvar=lenstr(vname(4,indxTVadv_mld+itrc-1))
+           ierr=nf_put_att_text (ncid,vidTVadv_mld(itrc), 'field',
+     &                      lvar, vname(4,indxTVadv_mld+itrc-1)(1:lvar))
+!
+! indxTHmix on MLD
+!
+           lvar=lenstr(vname(1,indxTHmix_mld+itrc-1))
+           ierr=nf_def_var (ncid, vname(1,indxTHmix_mld+itrc-1)(1:lvar),
+     &                           NF_FOUT, 3, r2dgrd, vidTHmix_mld(itrc))
+# ifndef AVRH
+           lvar=lenstr(vname(2,indxTHmix_mld+itrc-1))
+           ierr=nf_put_att_text (ncid, vidTHmix_mld(itrc), 'long_name',
+     &                      lvar, vname(2,indxTHmix_mld+itrc-1)(1:lvar))
+# else
+           text='averaged '/ /vname(2,indxTHmix_mld+itrc-1)
+           lvar=lenstr(text)
+           ierr=nf_put_att_text (ncid, vidTHmix_mld(itrc), 'long_name',
+     &                                            lvar, text(1:lvar))
+# endif
+           lvar=lenstr(vname(3,indxTHmix_mld+itrc-1))
+           ierr=nf_put_att_text (ncid,diaTHmix_mld(itrc), 'units', lvar,
+     &                            vname(3,indxTHmix_mld+itrc-1)(1:lvar))
+           lvar=lenstr(vname(4,indxTHmix_mld+itrc-1))
+           ierr=nf_put_att_text (ncid,vidTHmix_mld(itrc), 'field',
+     &                      lvar, vname(4,indxTHmix_mld+itrc-1)(1:lvar))
+!
+!indxTVmix on MLD
+!
+           lvar=lenstr(vname(1,indxTVmix_mld+itrc-1))
+           ierr=nf_def_var (ncid, vname(1,indxTVmix_mld+itrc-1)(1:lvar),
+     &                           NF_FOUT, 3, r2dgrd, vidTVmix_mld(itrc))
+# ifndef AVRH
+           lvar=lenstr(vname(2,indxTVmix_mld+itrc-1))
+           ierr=nf_put_att_text (ncid, vidTVmix_mld(itrc), 'long_name',
+     &                     lvar, vname(2,indxTVmix_mld+itrc-1)(1:lvar))
+# else
+           text='averaged '/ /vname(2,indxTVmix_mld+itrc-1)
+           lvar=lenstr(text)
+           ierr=nf_put_att_text (ncid, vidTVmix_mld(itrc), 'long_name', 
+     &       lvar, text(1:lvar))
+# endif
+           lvar=lenstr(vname(3,indxTVmix_mld+itrc-1))
+           ierr=nf_put_att_text (ncid,diaTVmix_mld(itrc), 'units', lvar,
+     &                            vname(3,indxTVmix_mld+itrc-1)(1:lvar))
+           lvar=lenstr(vname(4,indxTVmix_mld+itrc-1))
+           ierr=nf_put_att_text (ncid,vidTVmix_mld(itrc), 'field',
+     &                      lvar, vname(4,indxTVmix_mld+itrc-1)(1:lvar))
+!
+! indxTForc - Solar radiation and nudging body forces - on MLD
+!
+           lvar=lenstr(vname(1,indxTForc_mld+itrc-1))
+           ierr=nf_def_var (ncid,vname(1,indxTForc_mld+itrc-1)(1:lvar),
+     &                        NF_FOUT, 3, r2dgrd, vidTForc_mld(itrc))
+# ifndef AVRH
+           lvar=lenstr(vname(2,indxTForc_mld+itrc-1))
+           ierr=nf_put_att_text (ncid, vidTForc_mld(itrc), 'long_name', 
+     &                      lvar, vname(2,indxTForc_mld+itrc-1)(1:lvar))
+# else
+           text='averaged '/ /vname(2,indxTForc_mld+itrc-1)
+           lvar=lenstr(text)
+           ierr=nf_put_att_text (ncid, vidTForc_mld(itrc), 'long_name', 
+     &          lvar, text(1:lvar))
+# endif
+           lvar=lenstr(vname(3,indxTForc_mld+itrc-1))
+           ierr=nf_put_att_text (ncid, vidTForc_mld(itrc),'units',     
+     &                     lvar, vname(3,indxTForc_mld+itrc-1)(1:lvar))
+           lvar=lenstr(vname(4,indxTForc_mld+itrc-1))
+           ierr=nf_put_att_text (ncid, vidTForc_mld(itrc),'field',     
+     &                     lvar, vname(4,indxTForc_mld+itrc-1)(1:lvar))
+!
+! Trate indxTrate on MLD
+!
+           lvar=lenstr(vname(1,indxTrate_mld+itrc-1))
+           ierr=nf_def_var (ncid, vname(1,indxTrate_mld+itrc-1)(1:lvar),
+     &                           NF_FOUT, 3, r2dgrd, vidTrate_mld(itrc))
+# ifndef AVRH
+           lvar=lenstr(vname(2,indxTrate_mld+itrc-1))
+           ierr=nf_put_att_text (ncid, vidTrate_mld(itrc), 'long_name', 
+     &                     lvar, vname(2,indxTrate_mld+itrc-1)(1:lvar))
+# else
+           text='averaged '/ /vname(2,indxTrate_mld+itrc-1)
+           lvar=lenstr(text)
+           ierr=nf_put_att_text (ncid, vidTrate_mld(itrc), 'long_name', 
+     &                                          lvar, text(1:lvar))
+# endif
+           lvar=lenstr(vname(3,indxTrate_mld+itrc-1))
+           ierr=nf_put_att_text (ncid, vidTrate_mld(itrc),'units',
+     &                     lvar, vname(3,indxTrate_mld+itrc-1)(1:lvar))
+           lvar=lenstr(vname(4,indxTrate_mld+itrc-1))
+           ierr=nf_put_att_text (ncid, vidTrate_mld(itrc),'field',
+     &                     lvar, vname(4,indxTrate_mld+itrc-1)(1:lvar))
+!
+! Tentr indxTentr on MLD
+!
+           lvar=lenstr(vname(1,indxTentr_mld+itrc-1))
+           ierr=nf_def_var (ncid, vname(1,indxTentr_mld+itrc-1)(1:lvar),
+     &                           NF_FOUT, 3, r2dgrd, vidTentr_mld(itrc))
+# ifndef AVRH
+           lvar=lenstr(vname(2,indxTentr_mld+itrc-1))
+           ierr=nf_put_att_text (ncid, vidTentr_mld(itrc), 'long_name',
+     &                     lvar, vname(2,indxTentr_mld+itrc-1)(1:lvar))
+# else
+           text='averaged '/ /vname(2,indxTentr_mld+itrc-1)
+           lvar=lenstr(text)
+           ierr=nf_put_att_text (ncid, vidTentr_mld(itrc), 'long_name',
+     &                                          lvar, text(1:lvar))
+# endif
+           lvar=lenstr(vname(3,indxTentr_mld+itrc-1))
+           ierr=nf_put_att_text (ncid, vidTentr_mld(itrc),'units',
+     &                     lvar, vname(3,indxTentr_mld+itrc-1)(1:lvar))
+           lvar=lenstr(vname(4,indxTentr_mld+itrc-1))
+           ierr=nf_put_att_text (ncid, vidTentr_mld(itrc),'field',
+     &                     lvar, vname(4,indxTentr_mld+itrc-1)(1:lvar))
+!
+
         end do
 !
 !
@@ -472,7 +669,7 @@
             write(stdout,1) vname(1,indxTYadv+itrc-1)(1:lvar),
      &                                         ncname(1:lstr) 
             goto 99                                       !--> ERROR
-          endif                                 
+          endif
 !
 ! indxTVadv
 !
@@ -507,13 +704,13 @@
             goto 99                                       !--> ERROR
           endif
 !
-! indxTbody
+! indxTForc
 !
-          lvar=lenstr(vname(1,indxTbody+itrc-1))
-          ierr=nf_inq_varid (ncid, vname(1,indxTbody+itrc-1)(1:lvar),
-     &                                               vidTbody(itrc))
+          lvar=lenstr(vname(1,indxTForc+itrc-1))
+          ierr=nf_inq_varid (ncid, vname(1,indxTForc+itrc-1)(1:lvar),
+     &                                               vidTForc(itrc))
           if (ierr .ne. nf_noerr) then
-            write(stdout,1) vname(1,indxTbody+itrc-1)(1:lvar),
+            write(stdout,1) vname(1,indxTForc+itrc-1)(1:lvar),
      &                                         ncname(1:lstr) 
             goto 99                                       !--> ERROR
           endif
@@ -529,6 +726,94 @@
             goto 99                                       !--> ERROR
           endif
 !
+!
+! indxTXadv on MLD
+!
+          lvar=lenstr(vname(1,indxTXadv_mld+itrc-1))
+          ierr=nf_inq_varid (ncid,vname(1,indxTXadv_mld+itrc-1)(1:lvar),
+     &                                               vidTXadv_mld(itrc))
+          if (ierr .ne. nf_noerr) then
+            write(stdout,1) vname(1,indxTXadv_mld+itrc-1)(1:lvar),
+     &                                         ncname(1:lstr) 
+            goto 99                                       !--> ERROR
+          endif
+!
+! indxTYadv on MLD
+!
+          lvar=lenstr(vname(1,indxTYadv_mld+itrc-1))
+          ierr=nf_inq_varid (ncid,vname(1,indxTYadv_mld+itrc-1)(1:lvar),
+     &                                               vidTYadv_mld(itrc))
+          if (ierr .ne. nf_noerr) then
+            write(stdout,1) vname(1,indxTYadv_mld+itrc-1)(1:lvar),
+     &                                         ncname(1:lstr) 
+            goto 99                                       !--> ERROR
+          endif
+!
+! indxTVadv on MLD
+!
+          lvar=lenstr(vname(1,indxTVadv_mld+itrc-1))
+          ierr=nf_inq_varid (ncid,vname(1,indxTVadv_mld+itrc-1)(1:lvar),
+     &                                               vidTVadv_mld(itrc))
+          if (ierr .ne. nf_noerr) then
+            write(stdout,1) vname(1,indxTVadv_mld+itrc-1)(1:lvar),
+     &                                         ncname(1:lstr) 
+            goto 99                                       !--> ERROR
+          endif
+!
+! indxTHmix on MLD
+!
+          lvar=lenstr(vname(1,indxTHmix_mld+itrc-1))
+          ierr=nf_inq_varid (ncid,vname(1,indxTHmix_mld+itrc-1)(1:lvar),
+     &                                               vidTHmix_mld(itrc))
+          if (ierr .ne. nf_noerr) then
+            write(stdout,1) vname(1,indxTHmix_mld+itrc-1)(1:lvar),
+     &                                         ncname(1:lstr)
+            goto 99                                       !--> ERROR
+          endif
+!
+! indxTVmix on MLD
+!
+          lvar=lenstr(vname(1,indxTVmix_mld+itrc-1))
+          ierr=nf_inq_varid (ncid,vname(1,indxTVmix_mld+itrc-1)(1:lvar),
+     &                                               vidTVmix_mld(itrc))
+          if (ierr .ne. nf_noerr) then
+            write(stdout,1) vname(1,indxTVmix_mld+itrc-1)(1:lvar),
+     &                                         ncname(1:lstr) 
+            goto 99                                       !--> ERROR
+          endif
+!
+! indxTForc on MLD
+!
+          lvar=lenstr(vname(1,indxTForc_mld+itrc-1))
+          ierr=nf_inq_varid (ncid,vname(1,indxTForc_mld+itrc-1)(1:lvar),
+     &                                               vidTForc_mld(itrc))
+          if (ierr .ne. nf_noerr) then
+            write(stdout,1) vname(1,indxTForc_mld+itrc-1)(1:lvar),
+     &                                         ncname(1:lstr) 
+            goto 99                                       !--> ERROR
+          endif
+!
+! indxTrate on MLD
+!
+          lvar=lenstr(vname(1,indxTrate_mld+itrc-1))
+          ierr=nf_inq_varid (ncid,vname(1,indxTrate_mld+itrc-1)(1:lvar),
+     &                                               vidTrate_mld(itrc))
+          if (ierr .ne. nf_noerr) then
+            write(stdout,1) vname(1,indxTrate_mld+itrc-1)(1:lvar),
+     &                                         ncname(1:lstr) 
+            goto 99                                       !--> ERROR
+          endif
+!
+! indxTentr on MLD
+!
+          lvar=lenstr(vname(1,indxTentr_mld+itrc-1))
+          ierr=nf_inq_varid (ncid,vname(1,indxTentr_mld+itrc-1)(1:lvar),
+     &                                               vidTentr_mld(itrc))
+          if (ierr .ne. nf_noerr) then
+            write(stdout,1) vname(1,indxTentr_mld+itrc-1)(1:lvar),
+     &                                         ncname(1:lstr)
+            goto 99                                       !--> ERROR
+          endif
         enddo
 !
         write(*,'(6x,2A,i4,1x,A,i4)') 'DEF_DIAG -- Opened ',
@@ -589,8 +874,17 @@
 #undef vidTVadv
 #undef vidTHmix
 #undef vidTVmix
-#undef vidTbody
+#undef vidTForc
 #undef vidTrate
+!
+#undef vidTXadv_mld
+#undef vidTYadv_mld
+#undef vidTVadv_mld
+#undef vidTHmix_mld
+#undef vidTVmix_mld
+#undef vidTForc_mld
+#undef vidTrate_mld
+#undef vidTentr_mld
 !
 # ifdef AVERAGES
 #  ifndef AVRH

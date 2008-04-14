@@ -22,8 +22,8 @@
 !--------------------------------------------------------------------
 !
       implicit none
-#   include "param.h"
-      integer itrc, istr,iend,jstr,jend, i,j,k, 
+#include "param.h"
+      integer itrc, istr,iend,jstr,jend, i,j,k, kmld,
      &        imin,imax,jmin,jmax
       real    FX(PRIVATE_2D_SCRATCH_ARRAY),     cff1,
      &        FE(PRIVATE_2D_SCRATCH_ARRAY),     cff2,
@@ -95,29 +95,11 @@
             t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+dt*cff1
      &                 *(FX(i+1,j)-FX(i,j)+FE(i,j+1)-FE(i,j))
      &                                             /Hz(i,j,k)
-# ifdef DIAGNOSTICS_TS
-            THmix(i,j,k,itrc)=FX(i+1,j)-FX(i,j)
-     &                       +FE(i,j+1)-FE(i,j)
-#  ifdef MASKING
-     &                                           * rmask(i,j)
-#  endif
-            Trate(i,j,k,itrc)=(Hz(i,j,k)*t(i,j,k,nnew,itrc)
-     &                     -Hz_bak(i,j,k)*t(i,j,k,nstp,itrc))
-     &                                             /(dt*cff1)
-#  ifdef MASKING
-     &                                           * rmask(i,j)
-#  endif
-!
-!  Divide all diagnostic terms by the cell volume
-!  (Hz(i,j,k,itrc)/(pm(i,j).*pn(i,j)). There after the unit
-!  of diag terms are: (unit of tracers)* s-1.
-!
-            THmix(i,j,k,itrc)=THmix(i,j,k,itrc)*cff1/Hz(i,j,k)
-            Trate(i,j,k,itrc)=Trate(i,j,k,itrc)*cff1/Hz(i,j,k)
-# endif
           enddo
         enddo
+
 #endif /* TS_DIF2 */
+
 
 #ifdef TS_DIF4
 !
@@ -352,37 +334,13 @@
             t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+dt*cff1
      &                 *(FX(i+1,j)-FX(i,j)+FE(i,j+1)-FE(i,j))
      &                                             /Hz(i,j,k)
-# ifdef DIAGNOSTICS_TS
-            THmix(i,j,k,itrc)=FX(i+1,j)-FX(i,j)
-     &                       +FE(i,j+1)-FE(i,j)
-#  ifdef MASKING
-     &                                           * rmask(i,j)
-#  endif
-            Trate(i,j,k,itrc)=(Hz(i,j,k)*t(i,j,k,nnew,itrc)
-     &                     -Hz_bak(i,j,k)*t(i,j,k,nstp,itrc))
-     &                                             /(dt*cff1)
-#  ifdef MASKING
-     &                                           * rmask(i,j)
-#  endif
-!
-!  Divide all diagnostic terms by the cell volume
-!  (Hz(i,j,k,itrc)/(pm(i,j).*pn(i,j)). There after the unit
-!  of diag terms are: (unit of tracers)* s-1.
-!
-            THmix(i,j,k,itrc)=THmix(i,j,k,itrc)*cff1/Hz(i,j,k)
-            Trate(i,j,k,itrc)=Trate(i,j,k,itrc)*cff1/Hz(i,j,k)
-# endif
           enddo
         enddo
 
 #endif /* TS_DIF4 */
 
-# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
-        call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
-     &                          t(START_2D_ARRAY,1,nnew,itrc))
-# endif
+      enddo   ! --> k
 
-      enddo
-      return
-      end
+!      return
+!      end
  

@@ -133,7 +133,23 @@ CR      write(*,*) 'wrt_his: wrtUBAR' MYID
         endif
 CR      write(*,*) 'wrt_his: wrtVBAR' MYID
       endif
-
+      if (wrthis(indxBostr)) then
+        do j=0,Mm
+          do i=0,Lm
+            work2d(i,j)=0.5*sqrt((bustr(i,j)+bustr(i+1,j))**2
+     &                          +(bvstr(i,j)+bvstr(i,j+1))**2)
+     &                                                   *rho0
+          enddo
+        enddo
+        ierr=nf_fwrite(work2d, ncidhis, hisBostr, record, r2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxBostr))
+          write(stdout,1) vname(1,indxBostr)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+CR      write(*,*) 'wrt_his:  bostr' MYID
+      endif
 #ifdef SOLVE3D
 !
 ! 3D momentum components in XI- and ETA-directions.
@@ -328,6 +344,43 @@ CR      write(*,*) 'wrt_his:  wrtHBL' MYID
 CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
       endif
 # endif
+# ifdef BULK_FLUX
+!
+!  Write out surface heat flux component (degC/s)
+!
+      ierr=nf_fwrite(Shflx_rsw, ncidhis, hisShflx_rsw, record,
+     &                                                     r2dvar)
+      if (ierr .ne. nf_noerr) then
+        lvar=lenstr(vname(1,indxShflx_rsw))
+        write(stdout,1) vname(1,indxShflx_rsw)(1:lvar), record, ierr
+     &                  MYID
+        goto 99                                         !--> ERROR
+      endif
+      ierr=nf_fwrite(Shflx_rlw, ncidhis, hisShflx_rlw, record,
+     &                                                     r2dvar)
+      if (ierr .ne. nf_noerr) then
+        lvar=lenstr(vname(1,indxShflx_rlw))
+        write(stdout,1) vname(1,indxShflx_rlw)(1:lvar), record, ierr
+     &                  MYID
+        goto 99                                         !--> ERROR
+      endif
+      ierr=nf_fwrite(Shflx_lat, ncidhis, hisShflx_lat, record,
+     &                                                     r2dvar)
+      if (ierr .ne. nf_noerr) then
+        lvar=lenstr(vname(1,indxShflx_lat))
+        write(stdout,1) vname(1,indxShflx_lat)(1:lvar), record, ierr
+     &                  MYID
+        goto 99                                         !--> ERROR
+      endif
+      ierr=nf_fwrite(Shflx_sen, ncidhis, hisShflx_sen, record,
+     &                                                     r2dvar)
+      if (ierr .ne. nf_noerr) then
+        lvar=lenstr(vname(1,indxShflx_sen))
+        write(stdout,1) vname(1,indxShflx_sen)(1:lvar), record, ierr
+     &                  MYID
+        goto 99                                         !--> ERROR
+      endif
+# endif
 # ifdef BIOLOGY
 !
 !  Write out depth of the euphotic layer (m).
@@ -360,7 +413,7 @@ CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
         if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxU10))
           write(stdout,1) vname(1,indxU10)(1:lvar), record, ierr,
-     &                    nf_strerror(ierr) MYID
+     &                    MYID
           goto 99                                         !--> ERROR
         endif
       endif
@@ -369,7 +422,7 @@ CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
         if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxKvO2))
           write(stdout,1) vname(1,indxKvO2)(1:lvar), record, ierr,
-     &                    nf_strerror(ierr) MYID
+     &                    MYID
           goto 99                                         !--> ERROR
         endif
       endif
@@ -378,7 +431,7 @@ CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
         if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxO2sat))
           write(stdout,1) vname(1,indxO2sat)(1:lvar), record, ierr,
-     &                    nf_strerror(ierr) MYID
+     &                    MYID
           goto 99                                         !--> ERROR
         endif
       endif
@@ -405,8 +458,6 @@ CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
       endif
 #  endif
 # endif
-
-
 # ifdef SEDIMENT
 !
 ! Write out sediment bed layer thickness, porosity, volume 
@@ -516,24 +567,8 @@ CR        write(*,*) 'wrt_his:  Zbapp', MYID
 CR        write(*,*) 'wrt_his:  bostrw' MYID
         endif
 # endif /* BBL */
-        if (wrthis(indxBostr)) then
-          do j=0,Mm
-            do i=0,Lm
-              work2d(i,j)=0.5*sqrt((bustr(i,j)+bustr(i+1,j))**2
-     &                            +(bvstr(i,j)+bvstr(i,j+1))**2)
-     &                                                     *rho0
-            enddo
-          enddo
-          ierr=nf_fwrite(work2d, ncidhis, hisBostr, record, r2dvar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxBostr))
-            write(stdout,1) vname(1,indxBostr)(1:lvar), record, ierr
-     &                      MYID
-            goto 99                                         !--> ERROR
-          endif
-CR        write(*,*) 'wrt_his:  bostr' MYID
-        endif
 #endif /* SOLVE3D */
+
   1   format(/1x,'WRT_HIS ERROR while writing variable ''', A,
      &          ''' into history file.', /11x, 'Time record:',
      &                   I6,3x,'netCDF error code',i4,3x,a,i4)

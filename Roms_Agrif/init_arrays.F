@@ -182,13 +182,22 @@
 # ifdef AVERAGES
               t_avg(i,j,k,itrc)=init
 # endif
+            enddo
+          enddo
+        enddo
+      enddo
+ 
 # ifdef DIAGNOSTICS_TS
+      do itrc=1,NT
+        do k=1,N
+          do j=JstrR,JendR
+            do i=IstrR,IendR
               TXadv(i,j,k,itrc)=init
               TYadv(i,j,k,itrc)=init
               TVadv(i,j,k,itrc)=init
               THmix(i,j,k,itrc)=init
               TVmix(i,j,k,itrc)=init
-              Tbody(i,j,k,itrc)=init
+              TForc(i,j,k,itrc)=init
               Trate(i,j,k,itrc)=init
 #  ifdef AVERAGES
               TXadv_avg(i,j,k,itrc)=init
@@ -196,12 +205,43 @@
               TVadv_avg(i,j,k,itrc)=init
               THmix_avg(i,j,k,itrc)=init
               TVmix_avg(i,j,k,itrc)=init
-              Tbody_avg(i,j,k,itrc)=init
+              TForc_avg(i,j,k,itrc)=init
               Trate_avg(i,j,k,itrc)=init
 #  endif /* AVERAGES*/
-# endif /*DIAGNOSTICS_TS*/
             enddo
+          enddo
+        enddo
+      enddo
+      do itrc=1,NT
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+            TXadv_mld(i,j,itrc)=init
+            TYadv_mld(i,j,itrc)=init
+            TVadv_mld(i,j,itrc)=init
+            THmix_mld(i,j,itrc)=init
+            TVmix_mld(i,j,itrc)=init
+            TForc_mld(i,j,itrc)=init
+            Trate_mld(i,j,itrc)=init
+            Tentr_mld(i,j,itrc)=init
+#  ifdef AVERAGES
+            TXadv_mld_avg(i,j,itrc)=init
+            TYadv_mld_avg(i,j,itrc)=init
+            TVadv_mld_avg(i,j,itrc)=init
+            THmix_mld_avg(i,j,itrc)=init
+            TVmix_mld_avg(i,j,itrc)=init
+            TForc_mld_avg(i,j,itrc)=init
+            Trate_mld_avg(i,j,itrc)=init
+            Tentr_mld_avg(i,j,itrc)=init
+#  endif /* AVERAGES*/
+          enddo
+        enddo
+      enddo
+# endif /*DIAGNOSTICS_TS*/
+
 # ifdef DIAGNOSTICS_BIO
+      do k=1,N
+        do j=JstrR,JendR
+          do i=IstrR,IendR
 #  ifdef PISCES
 #   ifdef key_trc_dia3d
             do iflux=1,NumFluxTerms
@@ -221,10 +261,11 @@
               bioVSink(i,j,k,iflux)= init
             enddo
 #  endif
-# endif /*DIAGNOSTICS_BIO*/
           enddo
         enddo
       enddo
+# endif /*DIAGNOSTICS_BIO*/
+
 # ifdef SEDIMENT
 !
 !  Initialize sediment module arrays.
@@ -350,7 +391,18 @@
           wspdg(i,j,1)=init
           wspdg(i,j,2)=init
 #  endif
-# endif
+          shflx_rsw(i,j)=init
+          shflx_rlw(i,j)=init
+          shflx_lat(i,j)=init
+          shflx_sen(i,j)=init
+#  ifdef AVERAGES
+          shflx_rsw_avg(i,j)=init
+          shflx_rlw_avg(i,j)=init
+          shflx_lat_avg(i,j)=init
+          shflx_sen_avg(i,j)=init
+#  endif
+# endif /* BULK_FLUX */
+
           srflx(i,j)=init
 # ifndef ANA_SRFLUX
           srflxg(i,j,1)=init

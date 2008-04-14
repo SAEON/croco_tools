@@ -67,8 +67,9 @@
         record=1+mod(nrecdia_avg-1, nrpfdia_avg)
       endif
 !
+!---------------------------------------------------------------
 ! Write out evolving model variables:
-! ----- --- -------- ----- ----------
+!---------------------------------------------------------------
 !
 ! Time step number and record numbers.
 !
@@ -99,9 +100,9 @@
         goto 99                                           !--> ERROR
       endif
 !
-! Tracer diag variables.
-! ------ ---- ----------
-!
+!---------------------------------------------------------------
+! Tracer diagnostic variables.
+!---------------------------------------------------------------
 !
       do itrc=1,NT
 !
@@ -160,14 +161,14 @@
             goto 99                                       !--> ERROR
           endif
 !
-! indxTbody  
+! indxTForc  
 !
-         ierr = nf_fwrite(Tbody_avg(START_2D_ARRAY,1,itrc), 
-     &        nciddia_avg, diaTbody_avg(itrc), record, r3dvar)
+         ierr = nf_fwrite(TForc_avg(START_2D_ARRAY,1,itrc), 
+     &        nciddia_avg, diaTForc_avg(itrc), record, r3dvar)
          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxTbody+itrc-1))
-            write(stdout,1) vname(1,indxTbody+itrc-1)(1:lvar),
-     &           record, ierr, nf_strerror(ierr) MYID 
+            lvar=lenstr(vname(1,indxTForc+itrc-1))
+            write(stdout,1) vname(1,indxTForc+itrc-1)(1:lvar),
+     &           record, ierr MYID 
             goto 99
          endif
 !
@@ -178,9 +179,103 @@
           if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxTrate+itrc-1))
             write(stdout,1) vname(1,indxTrate+itrc-1)(1:lvar),
-     &           record, ierr, nf_strerror(ierr) MYID 
+     &           record, ierr MYID 
             goto 99
           endif
+!
+!
+!---------------------------------------------------------------
+! Tracer diagnostic variables averaged over the MLD
+!---------------------------------------------------------------
+!
+! indxTXadv
+!
+          ierr=nf_fwrite(TXadv_mld_avg(START_2D_ARRAY,itrc),nciddia_avg,
+     &                           diaTXadv_mld_avg(itrc), record, r2dvar)
+          if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxTXadv_mld+itrc-1))
+            write(stdout,1) vname(1,indxTXadv_mld+itrc-1)(1:lvar), 
+     &                            record, ierr MYID
+            goto 99                                       !--> ERROR
+          endif
+!
+! indxTYadv
+!
+          ierr=nf_fwrite(TYadv_mld_avg(START_2D_ARRAY,itrc),nciddia_avg,
+     &                           diaTYadv_mld_avg(itrc), record, r2dvar)
+          if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxTYadv_mld+itrc-1))
+            write(stdout,1) vname(1,indxTYadv_mld+itrc-1)(1:lvar),
+     &                            record, ierr MYID
+            goto 99                                       !--> ERROR
+          endif
+!
+! indxTVadv
+!
+          ierr=nf_fwrite(TVadv_mld_avg(START_2D_ARRAY,itrc),nciddia_avg,
+     &                           diaTVadv_mld_avg(itrc), record, r2dvar)
+          if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxTVadv_mld+itrc-1))
+            write(stdout,1) vname(1,indxTVadv_mld+itrc-1)(1:lvar),
+     &                            record,  ierr MYID
+            goto 99                                       !--> ERROR
+          endif
+!
+! indxTHmix
+!
+          ierr=nf_fwrite(THmix_mld_avg(START_2D_ARRAY,itrc),nciddia_avg,
+     &                           diaTHmix_mld_avg(itrc), record, r2dvar)
+          if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxTHmix_mld+itrc-1))
+            write(stdout,1) vname(1,indxTHmix_mld+itrc-1)(1:lvar),
+     &                            record, ierr MYID
+            goto 99                                       !--> ERROR
+          endif
+!
+! indxTVmix
+!
+          ierr=nf_fwrite(TVmix_mld_avg(START_2D_ARRAY,itrc),nciddia_avg,
+     &                           diaTVmix_mld_avg(itrc), record, r2dvar)
+          if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxTVmix_mld+itrc-1))
+            write(stdout,1) vname(1,indxTVmix_mld+itrc-1)(1:lvar), 
+     &                            record, ierr MYID
+            goto 99                                       !--> ERROR
+          endif
+!
+! indxTForc 
+!
+         ierr = nf_fwrite(TForc_mld_avg(START_2D_ARRAY,itrc), 
+     &             nciddia_avg, diaTForc_mld_avg(itrc), record, r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxTForc_mld+itrc-1))
+            write(stdout,1) vname(1,indxTForc_mld+itrc-1)(1:lvar),
+     &                            record, ierr MYID 
+            goto 99
+         endif
+!
+! indxTrate
+!
+          ierr = nf_fwrite(Trate_mld_avg(START_2D_ARRAY,itrc), 
+     &        nciddia_avg, diaTrate_mld_avg(itrc), record, r2dvar)
+          if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxTrate_mld+itrc-1))
+            write(stdout,1) vname(1,indxTrate_mld+itrc-1)(1:lvar),
+     &                            record, ierr MYID 
+            goto 99
+          endif
+!
+! indxTentr
+!
+          ierr = nf_fwrite(Tentr_mld_avg(START_2D_ARRAY,itrc),
+     &        nciddia_avg, diaTentr_mld_avg(itrc), record, r2dvar)
+          if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxTentr_mld+itrc-1))
+            write(stdout,1) vname(1,indxTentr_mld+itrc-1)(1:lvar),
+     &                            record, ierr MYID
+            goto 99
+          endif
+
 !
       enddo
 !
@@ -196,7 +291,7 @@
       write(*,*) 'TVadv_avg(i,j,k,itrc) ',TVadv_avg(i,j,k,itrc)
       write(*,*) 'THmix_avg(i,j,k,itrc) ',THmix_avg(i,j,k,itrc)
       write(*,*) 'TVmix_avg(i,j,k,itrc) ',TVmix_avg(i,j,k,itrc)
-      write(*,*) 'Tbody_avg(i,j,k,itrc) ',Tbody_avg(i,j,k,itrc)
+      write(*,*) 'TForc_avg(i,j,k,itrc) ',TForc_avg(i,j,k,itrc)
       write(*,*) 'Trate_avg(i,j,k,itrc) ',Trate_avg(i,j,k,itrc)
 
       write(*,*) 'SumTSavg(i,j,k,itrc) = ',TXadv_avg(i,j,k,itrc)
@@ -204,7 +299,7 @@
      &                                  +  TVadv_avg(i,j,k,itrc)
      &                                  +  THmix_avg(i,j,k,itrc)
      &                                  +  TVmix_avg(i,j,k,itrc)
-     &                                  +  Tbody_avg(i,j,k,itrc)
+     &                                  +  TForc_avg(i,j,k,itrc)
      &                                  -  Trate_avg(i,j,k,itrc)
               write(*,*) '----------------------------------'
 #  endif /* DEBUG */

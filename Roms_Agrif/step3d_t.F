@@ -41,7 +41,7 @@
 #ifdef DIAGNOSTICS_TS
 # include "diagnostics.h"
 #endif
-      integer Istr,Iend,Jstr,Jend, itrc, i,j,k, indx
+      integer Istr,Iend,Jstr,Jend, itrc, i,j,k, indx, kmld
 # ifdef PSOURCE
      &       ,is
 # endif
@@ -511,38 +511,44 @@
 #endif /*DIAGNOSTICS_TS*/  
 
 !
+!---------------------------------------------------------------
+! Compute surface and Bottom forcing
+!---------------------------------------------------------------
+!
+!
 ! Add top and bottom fluxes
 !
           do i=Istr,Iend
             FC(i,N)=dt*stflx(i,j,itrc)
             FC(i,0)=-dt*btflx(i,j,itrc)            
           enddo
-
-# if defined LMD_SKPP || defined LMD_BKPP
 !
-!---------------------------------------------------------------
 ! Add solar radiation flux in temperature equation
 ! Also compute the nonlocal transport flux for unstable
 ! (convective) forcing conditions into matrix DC when using
 ! the Large et al. 1994 KPP scheme.
-!---------------------------------------------------------------
 !
           if (itrc.eq.itemp) then
             do k=1,N-1
               do i=Istr,Iend
-                FC(i,k)=dt*srflx(i,j)*swdk(i,j,k)
+                FC(i,k)=0.
+# if defined LMD_SKPP || defined LMD_BKPP
+     &                 +dt*srflx(i,j)*swdk(i,j,k)
 #  ifdef LMD_NONLOCAL
      &                 -dt*Akt(i,j,k,itemp)*ghats(i,j,k)
 #  endif
+# endif
               enddo
             enddo
           elseif (itrc.eq.isalt) then
             do k=1,N-1
               do i=Istr,Iend
                 FC(i,k)=0.
+# if defined LMD_SKPP || defined LMD_BKPP
 #  ifdef LMD_NONLOCAL
      &                 -dt*Akt(i,j,k,isalt)*ghats(i,j,k)
 #  endif
+# endif
               enddo
             enddo
           endif
@@ -552,30 +558,16 @@
                 t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+FC(i,k )
      &                                               -FC(i,k-1)
 #  ifdef DIAGNOSTICS_TS
-                Tbody(i,j,k,itrc)=(FC(i,k)-FC(i,k-1))
+                Tforc(i,j,k,itrc)=(FC(i,k)-FC(i,k-1))
      &                                    /(dt*pm(i,j)*pn(i,j))
-#ifdef MASKING
-     &             * rmask(i,j)
-# endif           
-#   endif  /* DIAGNOSTICS_TS */
+#   ifdef MASKING
+     &                                             * rmask(i,j)
+#   endif           
+#  endif  /* DIAGNOSTICS_TS */
               enddo
             enddo
           endif
-# else 
-#   ifdef DIAGNOSTICS_TS
-          if (itrc.eq.itemp .or. itrc.eq.isalt) then
-            do k=1,N
-              do i=Istr,Iend
-                Tbody(i,j,k,itrc)=0.0
-#ifdef MASKING
-     &             * rmask(i,j)
-# endif
-              enddo
-            enddo
-          endif
-#   endif
 
-# endif
 !
 !---------------------------------------------------------------
 ! Compute vertical mixing
@@ -706,7 +698,7 @@
      &            -(TVmix(i,j,k,itrc)-t(i,j,k,nnew,itrc)*Hz(i,j,k))
      &                                        /(dt*pm(i,j)*pn(i,j))
 #  ifdef MASKING
-     &              * rmask(i,j)
+     &                                                 * rmask(i,j)
 #  endif
             enddo
           enddo                 
@@ -760,7 +752,7 @@
 !---------------------------------------------------------------
 !
       call biology_tile (Istr,Iend,Jstr,Jend)
-#  endif
+# endif
 
       do itrc=1,NT
 !
@@ -777,7 +769,7 @@
      &                    +dt*Tnudgcof(i,j,k,itrc)*(tclm(i,j,k,itrc)
      &                                           -t(i,j,k,nnew,itrc))
 #  ifdef DIAGNOSTICS_TS
-              Tbody(i,j,k,itrc)=(Tbody(i,j,k,itrc)
+              Tforc(i,j,k,itrc)=(Tforc(i,j,k,itrc)
      &                    +Tnudgcof(i,j,k,itrc)
      &                    *(tclm(i,j,k,itrc)-t(i,j,k,nnew,itrc))
      &                    *(Hz(i,j,k)/(pm(i,j)*pn(i,j))))
@@ -803,34 +795,85 @@
 !---------------------------------------------------------------
 !
        do k=1,N
-          do j=Jstr,Jend
-            do i=Istr,Iend
-               Trate(i,j,k,itrc)=(Hz(i,j,k)*t(i,j,k,nnew,itrc)
-     &                           -Hz_bak(i,j,k)*t(i,j,k,nstp,itrc))
-     &                                        /(dt*pm(i,j)*pn(i,j))
+         do j=Jstr,Jend
+           do i=Istr,Iend
+              Trate(i,j,k,itrc)=(Hz(i,j,k)*t(i,j,k,nnew,itrc)
+     &                          -Hz_bak(i,j,k)*t(i,j,k,nstp,itrc))
+     &                                       /(dt*pm(i,j)*pn(i,j))
 #  ifdef MASKING
-     &                    *rmask(i,j)
+     &                   *rmask(i,j)
 #  endif
 !
-               TXadv(i,j,k,itrc)=TXadv(i,j,k,itrc)+
-     &            t(i,j,k,3,itrc)*(Huon(i+1,j,k)-Huon(i,j,k))
-               TYadv(i,j,k,itrc)=TYadv(i,j,k,itrc)+
-     &            t(i,j,k,3,itrc)*(Hvom(i,j+1,k)-Hvom(i,j,k))
-               TVadv(i,j,k,itrc)=TVadv(i,j,k,itrc)-
-     &            t(i,j,k,3,itrc)*(Huon(i+1,j,k)-Huon(i,j,k)+
-     &                             Hvom(i,j+1,k)-Hvom(i,j,k))
-               cff=pm(i,j)*pn(i,j)/Hz(i,j,k)
-               TXadv(i,j,k,itrc)=TXadv(i,j,k,itrc)*cff
-               TYadv(i,j,k,itrc)=TYadv(i,j,k,itrc)*cff
-               TVadv(i,j,k,itrc)=TVadv(i,j,k,itrc)*cff
-               TVmix(i,j,k,itrc)=TVmix(i,j,k,itrc)*cff
-               Tbody(i,j,k,itrc)=Tbody(i,j,k,itrc)*cff
-               Trate(i,j,k,itrc)=Trate(i,j,k,itrc)*cff
-            enddo
-          enddo
+              TXadv(i,j,k,itrc)=TXadv(i,j,k,itrc)+
+     &           t(i,j,k,3,itrc)*(Huon(i+1,j,k)-Huon(i,j,k))
+              TYadv(i,j,k,itrc)=TYadv(i,j,k,itrc)+
+     &           t(i,j,k,3,itrc)*(Hvom(i,j+1,k)-Hvom(i,j,k))
+              TVadv(i,j,k,itrc)=TVadv(i,j,k,itrc)-
+     &           t(i,j,k,3,itrc)*(Huon(i+1,j,k)-Huon(i,j,k)+
+     &                            Hvom(i,j+1,k)-Hvom(i,j,k))
+!
+              cff=pm(i,j)*pn(i,j)/Hz(i,j,k)
+              TXadv(i,j,k,itrc)=TXadv(i,j,k,itrc)*cff
+              TYadv(i,j,k,itrc)=TYadv(i,j,k,itrc)*cff
+              TVadv(i,j,k,itrc)=TVadv(i,j,k,itrc)*cff
+              TVmix(i,j,k,itrc)=TVmix(i,j,k,itrc)*cff
+              Tforc(i,j,k,itrc)=Tforc(i,j,k,itrc)*cff
+              Trate(i,j,k,itrc)=Trate(i,j,k,itrc)*cff
+           enddo
+         enddo
        enddo
-
+!
+!---------------------------------------------------------------
+! Compute tracer diagnostics averaged over the MLD
+!---------------------------------------------------------------
+!
+       do j=Jstr,Jend
+         do i=Istr,Iend
+            TXadv_mld(i,j,itrc)=0.
+            TYadv_mld(i,j,itrc)=0.
+            TVadv_mld(i,j,itrc)=0.
+            TVmix_mld(i,j,itrc)=0.
+            Tforc_mld(i,j,itrc)=0.
+            Trate_mld(i,j,itrc)=0.
+         enddo
+       enddo
+       do j=Jstr,Jend
+         do i=Istr,Iend
+#  ifdef LMD_SKPP
+           kmld=kbl(i,j)
+#  else
+           kmld=N-5
+#  endif
+           do k=N,kmld,-1
+             cff=Hz(i,j,k)/(z_w(i,j,N)-z_w(i,j,kmld-1))
+             TXadv_mld(i,j,itrc)=TXadv_mld(i,j,itrc)+
+     &                           TXadv(i,j,k,itrc)*cff
+             TYadv_mld(i,j,itrc)=TYadv_mld(i,j,itrc)+
+     &                           TYadv(i,j,k,itrc)*cff
+             TVadv_mld(i,j,itrc)=TVadv_mld(i,j,itrc)+
+     &                           TVadv(i,j,k,itrc)*cff
+             TVmix_mld(i,j,itrc)=TVmix_mld(i,j,itrc)+
+     &                           TVmix(i,j,k,itrc)*cff
+             TForc_mld(i,j,itrc)=Tforc_mld(i,j,itrc)+
+     &                           Tforc(i,j,k,itrc)*cff
+             Trate_mld(i,j,itrc)=Trate_mld(i,j,itrc)+
+     &                           Trate(i,j,k,itrc)*cff
+           enddo
+         enddo
+       enddo
+       do j=Jstr,Jend
+         do i=Istr,Iend
+            Tentr_mld(i,j,itrc)=Trate_mld(i,j,itrc)-
+     &                          TXadv_mld(i,j,itrc)-
+     &                          TYadv_mld(i,j,itrc)-
+     &                          TVadv_mld(i,j,itrc)-
+     &                          TVmix_mld(i,j,itrc)-
+     &                          Tforc_mld(i,j,itrc)-
+     &                          Trate_mld(i,j,itrc)
+         enddo
+       enddo
 # endif /* DIAGNOSTICS_TS */
+
 
 # if defined MASKING
 #  ifdef EW_PERIODIC
@@ -858,7 +901,9 @@
         call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                          t(START_2D_ARRAY,1,nnew,itrc))
 # endif
+
       enddo  ! <-- itrc
+
 #else
       subroutine step3d_t_empty
 #endif  /* SOLVE3D */

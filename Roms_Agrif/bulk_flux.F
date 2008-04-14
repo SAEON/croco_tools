@@ -136,6 +136,13 @@
 # ifdef BULK_EP
           stflx(i,j,isalt)=(evap-prate(i,j))*t(i,j,N,nrhs,isalt)
 # endif
+!
+!  Store fluxes for diagnostics
+!
+          shflx_rsw(i,j)=radsw(i,j)
+          shflx_rlw(i,j)=-radlw(i,j)
+          shflx_lat(i,j)=hflat
+          shflx_sen(i,j)=hfsen
         enddo
       enddo
 

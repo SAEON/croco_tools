@@ -111,8 +111,8 @@
      &                               diaTXadv(itrc), record, r3dvar)
           if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxTXadv+itrc-1))
-            write(stdout,1) vname(1,indxTXadv+itrc-1)(1:lvar), record,
-     &                      ierr MYID
+            write(stdout,1) vname(1,indxTXadv+itrc-1)(1:lvar), 
+     &           record, ierr MYID
             goto 99                                       !--> ERROR
           endif
 !
@@ -122,8 +122,8 @@
      &                               diaTYadv(itrc), record, r3dvar)
           if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxTYadv+itrc-1))
-            write(stdout,1) vname(1,indxTYadv+itrc-1)(1:lvar), record,
-     &                      ierr MYID
+            write(stdout,1) vname(1,indxTYadv+itrc-1)(1:lvar),
+     &           record, ierr MYID
             goto 99                                       !--> ERROR
           endif
 !
@@ -133,8 +133,8 @@
      &                               diaTVadv(itrc), record, r3dvar)
           if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxTVadv+itrc-1))
-            write(stdout,1) vname(1,indxTVadv+itrc-1)(1:lvar), record,
-     &                      ierr MYID
+            write(stdout,1) vname(1,indxTVadv+itrc-1)(1:lvar),
+     &           record, ierr MYID
             goto 99                                       !--> ERROR
           endif
 !
@@ -144,8 +144,8 @@
      &                               diaTHmix(itrc), record, r3dvar)
           if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxTHmix+itrc-1))
-            write(stdout,1) vname(1,indxTHmix+itrc-1)(1:lvar), record,
-     &                      ierr MYID
+            write(stdout,1) vname(1,indxTHmix+itrc-1)(1:lvar),
+     &           record, ierr MYID
             goto 99                                       !--> ERROR
           endif
 !
@@ -155,19 +155,19 @@
      &                               diaTVmix(itrc), record, r3dvar)
           if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxTVmix+itrc-1))
-            write(stdout,1) vname(1,indxTVmix+itrc-1)(1:lvar), record,
-     &                      ierr MYID
+            write(stdout,1) vname(1,indxTVmix+itrc-1)(1:lvar),
+     &           record, ierr MYID
             goto 99                                       !--> ERROR
           endif
 !
-! indxTbody 
+! indxTForc 
 !
-         ierr = nf_fwrite(Tbody(START_2D_ARRAY,1,itrc), 
-     &               nciddia, diaTbody(itrc), record, r3dvar)
+         ierr = nf_fwrite(TForc(START_2D_ARRAY,1,itrc), 
+     &               nciddia, diaTForc(itrc), record, r3dvar)
          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxTbody+itrc-1))
-            write(stdout,1) vname(1,indxTbody+itrc-1)(1:lvar),
-     &           record, ierr, nf_strerror(ierr) MYID 
+            lvar=lenstr(vname(1,indxTForc+itrc-1))
+            write(stdout,1) vname(1,indxTForc+itrc-1)(1:lvar),
+     &           record, ierr MYID 
             goto 99
          endif
 !
@@ -178,7 +178,99 @@
           if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxTrate+itrc-1))
             write(stdout,1) vname(1,indxTrate+itrc-1)(1:lvar),
-     &           record, ierr, nf_strerror(ierr) MYID 
+     &           record, ierr MYID 
+            goto 99
+          endif
+!
+!---------------------------------------------------------------
+! Tracer diagnostic variables averaged over the MLD
+!---------------------------------------------------------------
+!
+! indxTXadv
+!
+          ierr=nf_fwrite(TXadv_mld(START_2D_ARRAY,itrc), nciddia,
+     &                               diaTXadv_mld(itrc), record, r2dvar)
+          if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxTXadv_mld+itrc-1))
+            write(stdout,1) vname(1,indxTXadv_mld+itrc-1)(1:lvar),
+     &           record, ierr MYID
+            goto 99                                       !--> ERROR
+          endif
+!
+! indxTYadv
+!
+          ierr=nf_fwrite(TYadv_mld(START_2D_ARRAY,itrc), nciddia,
+     &                               diaTYadv_mld(itrc), record, r2dvar)
+          if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxTYadv_mld+itrc-1))
+            write(stdout,1) vname(1,indxTYadv_mld+itrc-1)(1:lvar),
+     &           record, ierr MYID
+            goto 99                                       !--> ERROR
+          endif
+!
+! indxTVadv
+!
+          ierr=nf_fwrite(TVadv_mld(START_2D_ARRAY,itrc), nciddia,
+     &                               diaTVadv_mld(itrc), record, r2dvar)
+          if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxTVadv_mld+itrc-1))
+            write(stdout,1) vname(1,indxTVadv_mld+itrc-1)(1:lvar),
+     &           record, ierr MYID
+            goto 99                                       !--> ERROR
+          endif
+!
+! indxTHmix
+!
+          ierr=nf_fwrite(THmix_mld(START_2D_ARRAY,itrc), nciddia,
+     &                               diaTHmix_mld(itrc), record, r2dvar)
+          if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxTHmix_mld+itrc-1))
+            write(stdout,1) vname(1,indxTHmix_mld+itrc-1)(1:lvar),
+     &           record, ierr MYID
+            goto 99                                       !--> ERROR
+          endif
+!
+! indxTVmix
+!
+          ierr=nf_fwrite(TVmix_mld(START_2D_ARRAY,itrc), nciddia,
+     &                               diaTVmix_mld(itrc), record, r2dvar)
+          if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxTVmix_mld+itrc-1))
+            write(stdout,1) vname(1,indxTVmix_mld+itrc-1)(1:lvar),
+     &           record, ierr MYID
+            goto 99                                       !--> ERROR
+          endif
+!
+! indxTForc 
+!
+         ierr = nf_fwrite(TForc_mld(START_2D_ARRAY,itrc), 
+     &               nciddia, diaTForc_mld(itrc), record, r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxTForc_mld+itrc-1))
+            write(stdout,1) vname(1,indxTForc_mld+itrc-1)(1:lvar),
+     &           record, ierr MYID 
+            goto 99
+         endif
+!
+! indxTrate
+!
+          ierr = nf_fwrite(Trate_mld(START_2D_ARRAY,itrc), 
+     &        nciddia, diaTrate_mld(itrc), record, r2dvar)
+          if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxTrate_mld+itrc-1))
+            write(stdout,1) vname(1,indxTrate_mld+itrc-1)(1:lvar),
+     &           record, ierr MYID 
+            goto 99
+          endif
+!
+! indxTentr
+!
+          ierr = nf_fwrite(Tentr_mld(START_2D_ARRAY,itrc),
+     &        nciddia, diaTentr_mld(itrc), record, r2dvar)
+          if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxTentr_mld+itrc-1))
+            write(stdout,1) vname(1,indxTentr_mld+itrc-1)(1:lvar),
+     &           record, ierr MYID
             goto 99
           endif
 !
@@ -196,7 +288,7 @@
       write(*,*) 'TVadv(i,j,k,itrc) ',TVadv(i,j,k,itrc)
       write(*,*) 'THmix(i,j,k,itrc) ',THmix(i,j,k,itrc)
       write(*,*) 'TVmix(i,j,k,itrc) ',TVmix(i,j,k,itrc)
-      write(*,*) 'Tbody(i,j,k,itrc) ',Tbody(i,j,k,itrc)
+      write(*,*) 'TForc(i,j,k,itrc) ',TForc(i,j,k,itrc)
       write(*,*) 'Trate(i,j,k,itrc) ',Trate(i,j,k,itrc)
 
       write(*,*) 'SumTShis(i,j,k,itrc) = ',TXadv(i,j,k,itrc)
@@ -204,7 +296,7 @@
      &                                  +  TVadv(i,j,k,itrc)
      &                                  +  THmix(i,j,k,itrc)
      &                                  +  TVmix(i,j,k,itrc)
-     &                                  +  Tbody(i,j,k,itrc)
+     &                                  +  TForc(i,j,k,itrc)
      &                                  -  Trate(i,j,k,itrc)
       write(*,*) '-----------------------------------------'
 #  endif /* DEBUG */

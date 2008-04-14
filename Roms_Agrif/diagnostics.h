@@ -11,8 +11,17 @@
       real TVadv(GLOBAL_2D_ARRAY,N,NT)
       real THmix(GLOBAL_2D_ARRAY,N,NT)
       real TVmix(GLOBAL_2D_ARRAY,N,NT)
-      real Tbody(GLOBAL_2D_ARRAY,N,NT)
+      real TForc(GLOBAL_2D_ARRAY,N,NT)
       real Trate(GLOBAL_2D_ARRAY,N,NT)
+!
+      real TXadv_mld(GLOBAL_2D_ARRAY,NT)
+      real TYadv_mld(GLOBAL_2D_ARRAY,NT)
+      real TVadv_mld(GLOBAL_2D_ARRAY,NT)
+      real THmix_mld(GLOBAL_2D_ARRAY,NT)
+      real TVmix_mld(GLOBAL_2D_ARRAY,NT)
+      real TForc_mld(GLOBAL_2D_ARRAY,NT)
+      real Trate_mld(GLOBAL_2D_ARRAY,NT)
+      real Tentr_mld(GLOBAL_2D_ARRAY,NT)
 # ifdef AVERAGES
       real timedia_avg
       real TXadv_avg(GLOBAL_2D_ARRAY,N,NT)
@@ -20,16 +29,34 @@
       real TVadv_avg(GLOBAL_2D_ARRAY,N,NT)
       real THmix_avg(GLOBAL_2D_ARRAY,N,NT)
       real TVmix_avg(GLOBAL_2D_ARRAY,N,NT)
-      real Tbody_avg(GLOBAL_2D_ARRAY,N,NT)
+      real TForc_avg(GLOBAL_2D_ARRAY,N,NT)
       real Trate_avg(GLOBAL_2D_ARRAY,N,NT)
+!
+      real TXadv_mld_avg(GLOBAL_2D_ARRAY,NT)
+      real TYadv_mld_avg(GLOBAL_2D_ARRAY,NT)
+      real TVadv_mld_avg(GLOBAL_2D_ARRAY,NT)
+      real THmix_mld_avg(GLOBAL_2D_ARRAY,NT)
+      real TVmix_mld_avg(GLOBAL_2D_ARRAY,NT)
+      real TForc_mld_avg(GLOBAL_2D_ARRAY,NT)
+      real Trate_mld_avg(GLOBAL_2D_ARRAY,NT)
+      real Tentr_mld_avg(GLOBAL_2D_ARRAY,NT)
 # endif	
       common /diag_TXadv/TXadv   
      &       /diag_TYadv/TYadv
      &       /diag_TVadv/TVadv  
      &       /diag_THmix/THmix
      &       /diag_TVmix/TVmix
-     &       /diag_Tbody/Tbody
+     &       /diag_TForc/TForc
      &       /diag_Trate/Trate
+!
+      common /diag_TXadv_mld/TXadv_mld
+     &       /diag_TYadv_mld/TYadv_mld
+     &       /diag_TVadv_mld/TVadv_mld
+     &       /diag_THmix_mld/THmix_mld
+     &       /diag_TVmix_mld/TVmix_mld
+     &       /diag_TForc_mld/TForc_mld
+     &       /diag_Trate_mld/Trate_mld
+     &       /diag_Tentr_mld/Tentr_mld	  
 # ifdef AVERAGES
       common /diag_timedia_avg/timedia_avg
       common /diag_TXadv_avg/TXadv_avg  
@@ -37,8 +64,17 @@
      &       /diag_TVadv_avg/TVadv_avg   
      &       /diag_THmix_avg/THmix_avg
      &       /diag_TVmix_avg/TVmix_avg
-     &       /diag_Tbody_avg/Tbody_avg
+     &       /diag_TForc_avg/TForc_avg
      &       /diag_Trate_avg/Trate_avg
+!
+      common /diag_TXadv_mld_avg/TXadv_mld_avg
+     &       /diag_TYadv_mld_avg/TYadv_mld_avg
+     &       /diag_TVadv_mld_avg/TVadv_mld_avg
+     &       /diag_THmix_mld_avg/THmix_mld_avg
+     &       /diag_TVmix_mld_avg/TVmix_mld_avg
+     &       /diag_TForc_mld_avg/TForc_mld_avg
+     &       /diag_Trate_mld_avg/Trate_mld_avg
+     &       /diag_Tentr_mld_avg/Tentr_mld_avg
 # endif       	
 #endif /* DIAGNOSTICS_TS */
 !
