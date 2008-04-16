@@ -42,7 +42,7 @@
 # undef  AGRIF_2WAY
                       /* Open Boundary Conditions */
 # undef  TIDES
-# undef  OBC_EAST
+# define OBC_EAST
 # define OBC_WEST
 # define OBC_NORTH
 # define OBC_SOUTH
@@ -75,11 +75,30 @@
 # define CURVGRID
 # define SPHERICAL
 # define MASKING
-                      /* Input/Output & Diagnostics */
-# define AVERAGES
-# define AVERAGES_K
-# undef  DIAGNOSTICS_TS
-# undef  DIAGNOSTICS_UV
+                      /* Lateral Momentum Mixing */
+# define UV_VIS2
+# define MIX_GP_UV
+# undef  UV_SPLIT_UP3
+# undef  VIS_SMAGO
+                      /* Lateral Tracer Mixing */
+# define TS_DIF2
+# define MIX_GP_TS
+# undef  TS_SPLIT_UP3
+# if defined TCLIMATOLOGY & !defined AGRIF
+#  undef CLIMAT_TS_MIXH
+# endif
+                      /* Vertical Mixing */
+# undef  BODYFORCE
+# undef  BVF_MIXING
+# define LMD_MIXING
+# ifdef LMD_MIXING
+#  define LMD_SKPP
+#  define LMD_BKPP
+#  define LMD_RIMIX
+#  define LMD_CONVEC
+#  undef  LMD_DDMIX
+#  undef  LMD_NONLOCAL
+# endif
                       /* Equation of State */
 # define SALINITY
 # define NONLIN_EOS
@@ -133,44 +152,14 @@
                       /* Point Sources - Rivers */
 # undef  PSOURCE
 # undef  ANA_PSOURCE
-                      /* Lateral Momentum Mixing */
-# define UV_VIS2
-# define MIX_GP_UV
-# undef VIS_COEF_3D
-# ifdef VIS_COEF_3D
-#  define VIS_SMAGO
-#  define SMAGO_UV
-# endif
-# undef VIS_GRID
-# undef VIS_PECLET
-                     /* Lateral Tracer Mixing */
-# define TS_DIF2
-# define MIX_GP_TS
-# undef  SPLIT_UP3
-# if defined TCLIMATOLOGY & !defined AGRIF
-#  undef CLIMAT_TS_MIXH
-# endif
-                      /* Vertical Mixing */
-# undef  BODYFORCE
-# undef  BVF_MIXING
-# define LMD_MIXING
-# ifdef LMD_MIXING
-#  define LMD_SKPP
-#  define LMD_BKPP
-#  define LMD_RIMIX
-#  define LMD_CONVEC
-#  undef  LMD_DDMIX
-#  undef  LMD_NONLOCAL
-# endif
                       /* Open Boundary Conditions */
 # ifdef TIDES
 #  define OBC_M2FLATHER
-#  undef  OBC_M2CHARACT
 # else
 #  undef  OBC_M2SPECIFIED
 #  undef  OBC_M2FLATHER
-#  undef  OBC_M2CHARACT
-#  define OBC_M2ORLANSKI
+#  define OBC_M2CHARACT
+#  undef  OBC_M2ORLANSKI
 #  ifdef OBC_M2ORLANSKI
 #   define OBC_VOLCONS
 #  endif
@@ -179,7 +168,11 @@
 # define OBC_TORLANSKI
 # undef  OBC_M3SPECIFIED
 # undef  OBC_TSPECIFIED
-
+                      /* Input/Output & Diagnostics */
+# define AVERAGES
+# define AVERAGES_K
+# define DIAGNOSTICS_TS
+# undef  DIAGNOSTICS_UV
 /*
 !           Applications:
 !---------------------------------

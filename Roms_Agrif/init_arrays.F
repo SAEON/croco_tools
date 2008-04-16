@@ -270,7 +270,7 @@
 !
 !  Initialize sediment module arrays.
 !
-      do j=JstrR,JendR          
+      do j=JstrR,JendR
         do i=IstrR,IendR
           do ilay=1,NLAY
             bed_thick(i,j,ilay)=init
@@ -283,7 +283,7 @@
       enddo
 # endif /* SEDIMENT */
 # ifdef BBL
-      do j=JstrR,JendR          
+      do j=JstrR,JendR
         do i=IstrR,IendR
           Abed(i,j)=init
           Hripple(i,j)=init
@@ -696,6 +696,18 @@
         enddo
 #endif
 #ifdef VIS_COEF_3D
+# ifdef UV_SPLIT_UP3
+        do k=1,N
+          do j=JstrR,JendR
+            do i=IstrR,IendR
+              viscU_r(i,j,k)=init
+              viscU_p(i,j,k)=init
+              viscV_r(i,j,k)=init
+              viscV_p(i,j,k)=init
+            enddo
+          enddo
+        enddo
+# else
         do k=1,N
           do j=JstrR,JendR
             do i=IstrR,IendR
@@ -704,6 +716,7 @@
             enddo
           enddo
         enddo
+# endif
 #endif
 #ifdef TS_DIF2
         do itrc=1,NT

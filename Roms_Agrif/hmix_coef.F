@@ -30,8 +30,9 @@
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j,k,itrc
       real grd_scale(PRIVATE_2D_SCRATCH_ARRAY)
-      real cff, uscale, horcon, horcon_d4, cff_peclet, diff_clip
-      parameter (uscale = 0.1, horcon=0.1, horcon_d4=1.,
+      real cff, surf, defrate, horcon, 
+     &     uscale, cff_peclet, diff_clip
+      parameter (uscale = 0.1, horcon=0.1,
      &           cff_peclet=1./12.) 
 # include "param.h"
 # include "grid.h"
@@ -140,18 +141,21 @@
 
 # if defined VIS_COEF_3D || defined DIF_COEF_3D
 
-#  if defined VIS_SMAGO || defined DIF_SMAGO
+#  if defined VIS_SMAGO || defined DIF_SMAGO || defined UV_SPLIT_UP3
 !
 !---------------------------------------------------------------
 !  Smagorinsky diffusion coefficient
 !
 !  For Laplacian diffusion, the POM formulation is used:
-!    A = C*DX*DY*sqrt[du/dx^2 +dvdy^2 + 0.5(dvdx+dudy)^2]
+!    A = CA*DX*DY*DEFRATE
+!        with DEFRATE=sqrt[du/dx^2 +dvdy^2 + 0.5(dvdx+dudy)^2]
+!        DEFRATE is the deformation rate
 !
 !  For Biharmonic diffusion, Griffies et al (2000) formulation
 !  is used:
 !
-!    B = C4*A*DX*DY  where C4 is a constant (parameter horcon_d4)
+!    B = CB*(DX*DY)**2*DEFRATE
+!   where CA is a constant parameter = 1/12 (Peclet constraint)
 !
 !---------------------------------------------------------------
 !
@@ -161,41 +165,56 @@
       do k=1,N
         do j=JstrV-1,Jend
           do i=IstrU-1,Iend
-            cff=(horcon/(pm(i,j)*pn(i,j)))
-     &         *sqrt( ((u(i+1,j,k,nrhs)-u(i,j,k,nrhs))*pm(i,j))**2
-     &               +((v(i,j+1,k,nrhs)-v(i,j,k,nrhs))*pn(i,j))**2
+            surf=(1./(pm(i,j)*pn(i,j)))
+            defrate=sqrt( ((u(i+1,j,k,nrhs)-u(i,j,k,nrhs))*pm(i,j))**2
+     &                   +((v(i,j+1,k,nrhs)-v(i,j,k,nrhs))*pn(i,j))**2
      &               +0.5*(0.25*pn(i,j)*(
      &                     u(i,j+1,k,nrhs)+u(i+1,j+1,k,nrhs)
      &                    -u(i,j-1,k,nrhs)-u(i+1,j-1,k,nrhs))
      &                   + 0.25*pm(i,j)*(
      &                     v(i+1,j,k,nrhs)+v(i+1,j+1,k,nrhs)
      &                    -v(i-1,j,k,nrhs)-v(i-1,j+1,k,nrhs)) )**2)
+
 #   ifdef VIS_SMAGO
 #    ifdef UV_VIS2
-            visc3d_r(i,j,k)=cff+visc2_r(i,j)
+            visc3d_r(i,j,k)=horcon*surf*defrate+visc2_r(i,j)
 #    elif defined UV_VIS4
-            visc3d_r(i,j,k)=cff*horcon_d4/(pm(i,j)*pn(i,j))+visc4_r(i,j)
+            visc3d_r(i,j,k)=cff_peclet*surf**2*defrate+visc4_r(i,j)
+#     ifdef MIX_GP_UV
             visc3d_r(i,j,k)=min(visc3d_r(i,j,k),diff_clip)
+#     endif
 #    endif
+#   elif defined UV_SPLIT_UP3
+            viscU_r(i,j,k)=cff_peclet*surf**2*max( defrate,
+     &      0.5*abs(u(i,j,k,nrhs)+u(i+1,j,k,nrhs))*pm(i,j) )+visc4_r(i,j)
+            viscV_r(i,j,k)=cff_peclet*surf**2*max( defrate,
+     &      0.5*abs(v(i,j,k,nrhs)+v(i,j+1,k,nrhs))*pn(i,j) )+visc4_r(i,j)
+#    ifdef MIX_GP_UV
+            viscU_r(i,j,k)=min(viscU_r(i,j,k),diff_clip)
+            viscV_r(i,j,k)=min(viscV_r(i,j,k),diff_clip)
+#    endif
+            visc3d_r(i,j,k)=sqrt(viscU_r(i,j,k)**2+viscV_r(i,j,k)**2)
 #   endif
+
 #   ifdef DIF_SMAGO
 #    ifdef TS_DIF2
-            diff3d(i,j,k)=cff+diff2(i,j,itemp) 
+            diff3d(i,j,k)=horcon*surf*defrate+diff2(i,j,itemp) 
 #    elif defined TS_DIF4
-            diff3d(i,j,k)=cff*horcon_d4/(pm(i,j)*pn(i,j))+diff4(i,j,itemp)
+            diff3d(i,j,k)=cff_peclet*surf**2*defrate+diff4(i,j,itemp)
+#     ifdef MIX_GP_TS
             diff3d(i,j,k)=min(diff3d(i,j,k),diff_clip)
+#     endif
 #    endif
 #   endif
           enddo
         enddo
       enddo
-#  endif /* VIS_SMAGO || DIF_SMAGO */
+#  endif /* VIS_SMAGO || DIF_SMAGO || UV_SPLIT_UP3 */
 
-#  if (defined VIS_PECLET && defined UV_VIS4) ||\
-      (defined DIF_PECLET && defined TS_DIF4)
+#  if defined TS_SPLIT_UP3
 !
 !--------------------------------------------------------------------
-! Mixing coefficient based on Peclet number
+! Tracer mixing coefficient based on Peclet number
 !
 ! Results from splitting the 3rd order upstream biased 
 ! scheme advection as in Holland et al. (1998) and Webb et al. (1998)
@@ -204,79 +223,45 @@
 !
 !--------------------------------------------------------------------
 !
-      diff_clip=1.e-2*grdmax**3
+!!      diff_clip=1.e-2*grdmax**3
       do k=1,N
         do j=Jstr-1,Jend+1
           do i=IstrU-1,Iend+1
-!            diff_clip=min(1., ((Hz(i,j,k)+Hz(i-1,j,k))/
-!     &                         (z_r(i,j,k+1)-z_r(i-1,j,k+1)) )**2)
-!     &                                       *om_u(i,j)**4/(16*dt)
-#   ifdef DIF_PECLET
             diff3d_u(i,j,k)=cff_peclet*abs(u(i,j,k,nrhs))*om_u(i,j)**3
-     &                     + 0.5*(diff4(i,j,itemp)+diff4(i-1,j,itemp))
+            diff_clip=.5*(Hz(i,j,k)+Hz(i-1,j,k))/
+     &                   (z_r(i,j,k+1)-z_r(i-1,j,k+1))
+            diff_clip=min(1.,3*diff_clip**2)*diff3d_u(i,j,k)
+            diff3d_u(i,j,k)=diff3d_u(i,j,k)+
+     &              0.5*(diff4(i,j,itemp)+diff4(i-1,j,itemp))
+#   ifdef MIX_GP_TS
             diff3d_u(i,j,k)=min(diff3d_u(i,j,k),diff_clip)
 #   endif
-#   ifdef VIS_PECLET
-            visc3d_u(i,j,k)=cff_peclet*abs(u(i,j,k,nrhs))*om_u(i,j)**3
-     &                     + 0.5*(visc4(i,j,itemp)+visc4(i-1,j,itemp))
-            visc3d_u(i,j,k)=min(visc3d_u(i,j,k),diff_clip)
-#  endif
           enddo
         enddo
         do j=JstrV-1,Jend+1
           do i=Istr-1,Iend+1
-!            diff_clip=min(1., ((Hz(i,j,k)+Hz(i,j-1,k))/
-!     &                         (z_r(i,j,k+1)-z_r(i,j-1,k+1)) )**2)
-!     &                                       *on_v(i,j)**4/(16*dt)
-#   ifdef DIF_PECLET
             diff3d_v(i,j,k)=cff_peclet*abs(v(i,j,k,nrhs))*on_v(i,j)**3
-     &                     + 0.5*(diff4(i,j,itemp)+diff4(i,j-1,itemp))
+            diff_clip=.5*(Hz(i,j,k)+Hz(i,j-1,k))/
+     &                   (z_r(i,j,k+1)-z_r(i,j-1,k+1)) 
+            diff_clip=min(1.,3*diff_clip**2)*diff3d_v(i,j,k)
+            diff3d_v(i,j,k)=diff3d_v(i,j,k)+
+     &                         0.5*(diff4(i,j,itemp)+diff4(i,j-1,itemp))
+#   ifdef MIX_GP_TS
             diff3d_v(i,j,k)=min(diff3d_v(i,j,k),diff_clip)
 #   endif
-#   ifdef VIS_PECLET
-            visc3d_v(i,j,k)=cff_peclet*abs(v(i,j,k,nrhs))*on_v(i,j)**3
-     &                     + 0.5*(visc4(i,j,itemp)+visc4(i,j-1,itemp))
-            visc3d_v(i,j,k)=min(visc3d_v(i,j,k),diff_clip)
-#   endif
           enddo
         enddo
       enddo
 
-
       do k=1,N
         do j=JstrV-1,Jend
           do i=IstrU-1,Iend
-#   ifdef DIF_PECLET
             diff3d(i,j,k)=0.25*(diff3d_u(i,j,k)+diff3d_u(i+1,j,k)
      &                         +diff3d_v(i,j,k)+diff3d_v(i,j+1,k))
-#   endif
-#   ifdef VIS_PECLET
-            visc3d_r(i,j,k)=0.25*(visc3d_u(i,j,k)+visc3d_u(i+1,j,k)
-     &                           +visc3d_v(i,j,k)+visc3d_v(i,j+1,k))
-#   endif
           enddo
         enddo
       enddo
-#  endif /* VIS_PECLET || DIF_PECLET */
-
-#  if (defined VIS_PECLET && defined UV_VIS2)
-      do k=1,N
-        do j=JstrV-1,Jend
-          do i=IstrU-1,Iend
-             visc3d_r(i,j,k)=visc2_r(i,j)
-          enddo
-        enddo
-      enddo
-#  endif
-#  if (defined DIF_PECLET && defined TS_DIF2)
-      do k=1,N
-        do j=JstrV-1,Jend
-          do i=IstrU-1,Iend
-             diff3d(i,j,k)=diff2(i,j,itemp)
-          enddo
-        enddo
-      enddo
-#  endif
+#  endif /* TS_SPLIT_UP3 */
 
 # endif /* VIS_COEF_3D || DIF_COEF_3D */
 
@@ -289,10 +274,10 @@
       if (WESTERN_EDGE) then
         do k=1,N
           do j=JstrV-1,Jend
-            visc3d_r(Istr-1,j,k)=visc3d_r(Istr,j,k)
-#  ifdef VIS_PECLET
-            visc3d_u(Istr-1,j,k)=visc3d_u(Istr,j,k)
-            visc3d_v(Istr-1,j,k)=visc3d_v(Istr,j,k)
+           visc3d_r(Istr-1,j,k)=visc3d_r(Istr,j,k)
+#  ifdef UV_SPLIT_UP3
+            viscU_r(Istr-1,j,k)=viscU_r(Istr,j,k)
+            viscV_r(Istr-1,j,k)=viscV_r(Istr,j,k)
 #  endif
           enddo
         enddo
@@ -301,9 +286,9 @@
         do k=1,N
           do j=JstrV-1,Jend
             visc3d_r(Iend+1,j,k)=visc3d_r(Iend,j,k)
-#  ifdef VIS_PECLET
-            visc3d_u(Iend+1,j,k)=visc3d_u(Iend,j,k)
-            visc3d_v(Iend+1,j,k)=visc3d_v(Iend,j,k)
+#  ifdef UV_SPLIT_UP3
+            viscU_r(Iend+1,j,k)=viscU_r(Iend,j,k)
+            viscV_r(Iend+1,j,k)=viscV_r(Iend,j,k)
 #  endif
           enddo
         enddo
@@ -312,9 +297,9 @@
         do k=1,N
           do i=IstrU-1,Iend
             visc3d_r(i,Jstr-1,k)=visc3d_r(i,Jstr,k)
-#  ifdef VIS_PECLET
-            visc3d_u(i,Jstr-1,k)=visc3d_u(i,Jstr,k)
-            visc3d_v(i,Jstr-1,k)=visc3d_v(i,Jstr,k)
+#  ifdef UV_SPLIT_UP3
+            viscU_r(i,Jstr-1,k)=viscU_r(i,Jstr,k)
+            viscV_r(i,Jstr-1,k)=viscV_r(i,Jstr,k)
 #  endif
           enddo
         enddo
@@ -323,9 +308,9 @@
         do k=1,N
           do i=IstrU-1,Iend
             visc3d_r(i,Jend+1,k)=visc3d_r(i,Jend,k)
-#  ifdef VIS_PECLET
-            visc3d_u(i,Jend+1,k)=visc3d_u(i,Jend,k)
-            visc3d_v(i,Jend+1,k)=visc3d_v(i,Jend,k)
+#  ifdef UV_SPLIT_UP3
+            viscU_r(i,Jend+1,k)=viscU_r(i,Jend,k)
+            viscV_r(i,Jend+1,k)=viscV_r(i,Jend,k)
 #  endif
           enddo
         enddo
@@ -336,7 +321,7 @@
         do k=1,N
           do j=JstrV-1,Jend
             diff3d(Istr-1,j,k)=diff3d(Istr,j,k)
-#  ifdef DIF_PECLET
+#  ifdef TS_SPLIT_UP3
             diff3d_u(Istr-1,j,k)=diff3d_u(Istr,j,k)
             diff3d_v(Istr-1,j,k)=diff3d_v(Istr,j,k)
 #  endif
@@ -347,7 +332,7 @@
         do k=1,N
           do j=JstrV-1,Jend
             diff3d(Iend+1,j,k)=diff3d(Iend,j,k)
-#  ifdef DIF_PECLET
+#  ifdef TS_SPLIT_UP3
             diff3d_u(Iend+1,j,k)=diff3d_u(Iend,j,k)
             diff3d_v(Iend+1,j,k)=diff3d_v(Iend,j,k)
 #  endif
@@ -358,7 +343,7 @@
         do k=1,N
           do i=IstrU-1,Iend
             diff3d(i,Jstr-1,k)=diff3d(i,Jstr,k)
-#  ifdef DIF_PECLET
+#  ifdef TS_SPLIT_UP3
             diff3d_u(i,Jstr-1,k)=diff3d_u(i,Jstr,k)
             diff3d_v(i,Jstr-1,k)=diff3d_v(i,Jstr,k)
 #  endif
@@ -369,7 +354,7 @@
         do k=1,N
           do i=IstrU-1,Iend
             diff3d(i,Jend+1,k)=diff3d(i,Jend,k)
-#  ifdef DIF_PECLET
+#  ifdef TS_SPLIT_UP3
             diff3d_u(i,Jend+1,k)=diff3d_u(i,Jend,k)
             diff3d_v(i,Jend+1,k)=diff3d_v(i,Jend,k)
 #  endif
@@ -387,13 +372,13 @@
           visc3d_r(Istr-1,Jstr-1,k)=0.5*
      &                          ( visc3d_r(Istr,Jstr-1,k)
      &                           +visc3d_r(Istr-1,Jstr,k))
-#  ifdef VIS_PECLET
-          visc3d_u(Istr-1,Jstr-1,k)=0.5*
-     &                          ( visc3d_u(Istr,Jstr-1,k)
-     &                           +visc3d_u(Istr-1,Jstr,k))
-          visc3d_v(Istr-1,Jstr-1,k)=0.5*
-     &                          ( visc3d_v(Istr,Jstr-1,k)
-     &                           +visc3d_v(Istr-1,Jstr,k))
+#  ifdef UV_SPLIT_UP3
+          viscU_r(Istr-1,Jstr-1,k)=0.5*
+     &                          ( viscU_r(Istr,Jstr-1,k)
+     &                           +viscU_r(Istr-1,Jstr,k))
+          viscV_r(Istr-1,Jstr-1,k)=0.5*
+     &                          ( viscV_r(Istr,Jstr-1,k)
+     &                           +viscV_r(Istr-1,Jstr,k))
 #  endif
         enddo
       endif
@@ -402,13 +387,13 @@
           visc3d_r(Iend+1,Jstr-1,k)=0.5*
      &                          (visc3d_r(Iend,Jstr-1,k)
      &                          +visc3d_r(Iend+1,Jstr,k))
-#  ifdef VIS_PECLET
-          visc3d_u(Iend+1,Jstr-1,k)=0.5*
-     &                          (visc3d_u(Iend,Jstr-1,k)
-     &                          +visc3d_u(Iend+1,Jstr,k))
-          visc3d_v(Iend+1,Jstr-1,k)=0.5*
-     &                          (visc3d_v(Iend,Jstr-1,k)
-     &                          +visc3d_v(Iend+1,Jstr,k))
+#  ifdef UV_SPLIT_UP3
+          viscU_r(Iend+1,Jstr-1,k)=0.5*
+     &                          (viscU_r(Iend,Jstr-1,k)
+     &                          +viscU_r(Iend+1,Jstr,k))
+          viscV_r(Iend+1,Jstr-1,k)=0.5*
+     &                          (viscV_r(Iend,Jstr-1,k)
+     &                          +viscV_r(Iend+1,Jstr,k))
 #  endif
         enddo
       endif
@@ -417,13 +402,13 @@
           visc3d_r(Istr-1,Jend+1,k)=0.5*
      &                          ( visc3d_r(Istr,Jend+1,k)
      &                           +visc3d_r(Istr-1,Jend,k))
-#  ifdef VIS_PECLET
-          visc3d_u(Istr-1,Jend+1,k)=0.5*
-     &                          ( visc3d_u(Istr,Jend+1,k)
-     &                           +visc3d_u(Istr-1,Jend,k))
-          visc3d_v(Istr-1,Jend+1,k)=0.5*
-     &                          ( visc3d_v(Istr,Jend+1,k)
-     &                           +visc3d_v(Istr-1,Jend,k))
+#  ifdef UV_SPLIT_UP3
+          viscU_r(Istr-1,Jend+1,k)=0.5*
+     &                          ( viscU_r(Istr,Jend+1,k)
+     &                           +viscU_r(Istr-1,Jend,k))
+          viscV_r(Istr-1,Jend+1,k)=0.5*
+     &                          ( viscV_r(Istr,Jend+1,k)
+     &                           +viscV_r(Istr-1,Jend,k))
 #  endif
         enddo
       endif
@@ -432,13 +417,13 @@
           visc3d_r(Iend+1,Jend+1,k)=0.5*
      &                          ( visc3d_r(Iend,Jend+1,k)
      &                           +visc3d_r(Iend+1,Jend,k))
-#  ifdef VIS_PECLET
-          visc3d_u(Iend+1,Jend+1,k)=0.5*
-     &                          ( visc3d_u(Iend,Jend+1,k)
-     &                           +visc3d_u(Iend+1,Jend,k))
-          visc3d_v(Iend+1,Jend+1,k)=0.5*
-     &                          ( visc3d_v(Iend,Jend+1,k)
-     &                           +visc3d_v(Iend+1,Jend,k))
+#  ifdef UV_SPLIT_UP3
+          viscU_r(Iend+1,Jend+1,k)=0.5*
+     &                          ( viscU_r(Iend,Jend+1,k)
+     &                           +viscU_r(Iend+1,Jend,k))
+          viscV_r(Iend+1,Jend+1,k)=0.5*
+     &                          ( viscV_r(Iend,Jend+1,k)
+     &                           +viscV_r(Iend+1,Jend,k))
 #  endif
         enddo
       endif
@@ -449,7 +434,7 @@
           diff3d(Istr-1,Jstr-1,k)=0.5*
      &                          ( diff3d(Istr,Jstr-1,k)
      &                           +diff3d(Istr-1,Jstr,k))
-#  ifdef DIF_PECLET
+#  ifdef TS_SPLIT_UP3
           diff3d_u(Istr-1,Jstr-1,k)=0.5*
      &                          ( diff3d_u(Istr,Jstr-1,k)
      &                           +diff3d_u(Istr-1,Jstr,k))
@@ -464,7 +449,7 @@
           diff3d(Iend+1,Jstr-1,k)=0.5*
      &                          (diff3d(Iend,Jstr-1,k)
      &                          +diff3d(Iend+1,Jstr,k))
-#  ifdef DIF_PECLET
+#  ifdef TS_SPLIT_UP3
           diff3d_u(Iend+1,Jstr-1,k)=0.5*
      &                          (diff3d_u(Iend,Jstr-1,k)
      &                          +diff3d_u(Iend+1,Jstr,k))
@@ -479,7 +464,7 @@
           diff3d(Istr-1,Jend+1,k)=0.5*
      &                          ( diff3d(Istr,Jend+1,k)
      &                           +diff3d(Istr-1,Jend,k))
-#  ifdef DIF_PECLET
+#  ifdef TS_SPLIT_UP3
           diff3d_u(Istr-1,Jend+1,k)=0.5*
      &                          ( diff3d_u(Istr,Jend+1,k)
      &                           +diff3d_u(Istr-1,Jend,k))
@@ -494,7 +479,7 @@
           diff3d(Iend+1,Jend+1,k)=0.5*
      &                          ( diff3d(Iend,Jend+1,k)
      &                           +diff3d(Iend+1,Jend,k))
-#  ifdef DIF_PECLET
+#  ifdef TS_SPLIT_UP3
           diff3d_u(Iend+1,Jend+1,k)=0.5*
      &                          ( diff3d_u(Iend,Jend+1,k)
      &                           +diff3d_u(Iend+1,Jend,k))
@@ -513,9 +498,18 @@
       do k=1,N
         do j=Jstr,JendR
           do i=Istr,IendR
+#  ifdef UV_SPLIT_UP3
+            viscU_p(i,j,k)=0.25*
+     &                  ( viscU_r(i,j  ,k)+viscU_r(i-1,j  ,k)
+     &                   +viscU_r(i,j-1,k)+viscU_r(i-1,j-1,k))
+            viscV_p(i,j,k)=0.25*
+     &                  ( viscV_r(i,j  ,k)+viscV_r(i-1,j  ,k)
+     &                   +viscV_r(i,j-1,k)+viscV_r(i-1,j-1,k))
+#  else
             visc3d_p(i,j,k)=0.25*
      &                  ( visc3d_r(i,j  ,k)+visc3d_r(i-1,j  ,k)
      &                   +visc3d_r(i,j-1,k)+visc3d_r(i-1,j-1,k))
+#  endif
           enddo
         enddo
       enddo
@@ -524,15 +518,18 @@
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
 #  ifdef VIS_COEF_3D
       call exchange_r3d_tile (Istr,Iend,Jstr,Jend,visc3d_r)
+#   ifdef UV_SPLIT_UP3
+      call exchange_u3d_tile (Istr,Iend,Jstr,Jend,viscU_r)
+      call exchange_v3d_tile (Istr,Iend,Jstr,Jend,viscV_r)
+      call exchange_u3d_tile (Istr,Iend,Jstr,Jend,viscU_p)
+      call exchange_v3d_tile (Istr,Iend,Jstr,Jend,viscV_p)
+#   else
       call exchange_p3d_tile (Istr,Iend,Jstr,Jend,visc3d_p)
-#   ifdef VIS_PECLET
-      call exchange_u3d_tile (Istr,Iend,Jstr,Jend,visc3d_u)
-      call exchange_v3d_tile (Istr,Iend,Jstr,Jend,visc3d_v)
 #   endif
 #  endif
 #  ifdef DIF_COEF_3D
       call exchange_r3d_tile (Istr,Iend,Jstr,Jend,diff3d)
-#   ifdef DIF_PECLET
+#   ifdef TS_SPLIT_UP3
       call exchange_u3d_tile (Istr,Iend,Jstr,Jend,diff3d_u)
       call exchange_v3d_tile (Istr,Iend,Jstr,Jend,diff3d_v)
 #   endif

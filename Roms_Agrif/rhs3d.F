@@ -195,10 +195,12 @@
       
 # ifdef UV_ADV
 !
+!====================================================================
 !  Add in horizontal advection of momentum.
 !  Compute diagonal [UFx,VFe] and off-diagonal [UFe,VFx] components
 !  of tensor of momentum flux due to horizontal advection; after that
 !  add in horizontal advection terms.
+!====================================================================
 !
 #  define uxx wrk1
 #  define Huxx wrk2
@@ -530,9 +532,17 @@
       do j=Jstr,Jend
 # ifdef UV_ADV
 !
-!  Compute and add in vertical advection terms:
+!=================================================================
+!
+!  Compute and add in vertical advection terms
+!
+!=================================================================
 !
 #  ifdef VADV_SPLINES_UV
+!
+!  Construct conservative parabolic splines for the vertical
+!  derivatives "CF" of u-momentum.
+!
         do k=1,N
           do i=IstrU,Iend
             DC(i,k)=0.5625*(Hz(i  ,j,k)+Hz(i-1,j,k))
@@ -559,9 +569,11 @@
             CF(i,k)=CF(i,k)-FC(i,k)*CF(i,k+1)
           enddo
         enddo               !--> discard FC
-
-                            ! Compute vertical advective fluxes
-        do k=1,N-1          ! FC=W*[spline-interpolated velocity]
+!
+! Compute vertical advective fluxes 
+! FC=W*[spline-interpolated velocity]
+!
+        do k=1,N-1
           do i=IstrU,Iend
             FC(i,k)=( 0.5625*(W(i  ,j,k)+W(i-1,j,k))-0.0625*(
      &                                 W(i+1,j,k)+W(i-2,j,k) ))
@@ -622,6 +634,10 @@
 
         if (j.ge.JstrV) then
 #  ifdef VADV_SPLINES_UV
+!
+!  Construct conservative parabolic splines for the vertical
+!  derivatives "CF" of v-momentum.
+!
           do k=1,N
             do i=Istr,Iend
               DC(i,k)=0.5625*(Hz(i  ,j,k)+Hz(i,j-1,k))
@@ -648,9 +664,11 @@
               CF(i,k)=CF(i,k)-FC(i,k)*CF(i,k+1)
             enddo
           enddo             !--> discard FC
-
-                            ! Compute vertical advective fluxes
-          do k=1,N-1        ! FC=W*[spline-interpolated velocity]
+!
+! Compute vertical advective fluxes
+! FC=W*[spline-interpolated velocity]
+!
+          do k=1,N-1
             do i=Istr,Iend
               FC(i,k)=( 0.5625*(W(i,j  ,k)+W(i,j-1,k))-0.0625*(
      &                                   W(i,j+1,k)+W(i,j-2,k) ))

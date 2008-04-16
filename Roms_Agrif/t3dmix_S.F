@@ -25,9 +25,9 @@
 #include "param.h"
       integer itrc, istr,iend,jstr,jend, i,j,k, kmld,
      &        imin,imax,jmin,jmax
-      real    FX(PRIVATE_2D_SCRATCH_ARRAY),     cff1,
-     &        FE(PRIVATE_2D_SCRATCH_ARRAY),     cff2,
-     &        LapT(PRIVATE_2D_SCRATCH_ARRAY)
+      real    FX(PRIVATE_2D_SCRATCH_ARRAY),     cff,
+     &        FE(PRIVATE_2D_SCRATCH_ARRAY),     cff1,
+     &        LapT(PRIVATE_2D_SCRATCH_ARRAY),   cff2
 #include "grid.h"
 #include "ocean3d.h"
 #include "mixing.h"
@@ -292,7 +292,7 @@
         do j=jstr,jend
           do i=istr,iend+1
 # ifdef DIF_COEF_3D
-#  ifdef DIF_PECLET
+#  ifdef TS_SPLIT_UP3
               FX(i,j)=-0.5*diff3d_u(i,j,k)
 #  else
               FX(i,j)=-0.25*(diff3d(i,j,k)+diff3d(i-1,j,k))
@@ -310,7 +310,7 @@
         do j=jstr,jend+1
           do i=istr,iend
 # ifdef DIF_COEF_3D
-#  ifdef DIF_PECLET
+#  ifdef TS_SPLIT_UP3
               FE(i,j)=-0.5*diff3d_v(i,j,k)
 #  else
               FE(i,j)=-0.25*(diff3d(i,j,k)+diff3d(i,j-1,k))

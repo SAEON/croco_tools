@@ -24,20 +24,25 @@
 #endif
 #ifdef VIS_COEF_3D
       real visc3d_r(GLOBAL_2D_ARRAY,N)
-      real visc3d_p(GLOBAL_2D_ARRAY,N)
       common /mixing_visc3d_r/visc3d_r
-     &       /mixing_visc3d_p/visc3d_p
-# ifdef VIS_PECLET
-      real visc3d_u(GLOBAL_2D_ARRAY,N)
-      real visc3d_v(GLOBAL_2D_ARRAY,N)
-      common /mixing_visc3d_u/visc3d_u
-     &       /mixing_visc3d_v/visc3d_v
+# ifdef UV_SPLIT_UP3
+      real viscU_r(GLOBAL_2D_ARRAY,N)
+      real viscV_r(GLOBAL_2D_ARRAY,N)
+      real viscU_p(GLOBAL_2D_ARRAY,N)
+      real viscV_p(GLOBAL_2D_ARRAY,N)
+      common /mixing_viscU_r/viscU_r
+     &       /mixing_viscV_r/viscV_r
+      common /mixing_viscU_p/viscU_p
+     &       /mixing_viscV_p/viscV_p
+# else
+      real visc3d_p(GLOBAL_2D_ARRAY,N)
+      common /mixing_visc3d_p/visc3d_p
 # endif
 #endif
 #ifdef DIF_COEF_3D
       real diff3d(GLOBAL_2D_ARRAY,N)
       common /mixing_diff3d/diff3d
-# ifdef DIF_PECLET
+# ifdef TS_SPLIT_UP3
       real diff3d_u(GLOBAL_2D_ARRAY,N)
       real diff3d_v(GLOBAL_2D_ARRAY,N)
       common /mixing_diff3d_u/diff3d_u

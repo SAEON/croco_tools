@@ -459,7 +459,7 @@
           do j=jstr,jend
             do i=istr,iend+1
 #  ifdef DIF_COEF_3D
-#   ifdef DIF_PECLET
+#   ifdef TS_SPLIT_UP3
               FX(i,j)=-0.5*diff3d_u(i,j,k)
 #   else
               FX(i,j)=-0.25*(diff3d(i,j,k)+diff3d(i-1,j,k))
@@ -477,7 +477,7 @@
           do j=jstr,jend+1
             do i=istr,iend
 #  ifdef DIF_COEF_3D
-#   ifdef DIF_PECLET
+#   ifdef TS_SPLIT_UP3
               FE(i,j)=-0.5*diff3d_v(i,j,k)
 #   else
               FE(i,j)=-0.25*(diff3d(i,j,k)+diff3d(i,j-1,k))
@@ -500,7 +500,7 @@
                 cff3=max(dZdx(i  ,j,k2),0.)
                 cff4=max(dZdx(i+1,j,k1),0.)
 #  ifdef DIF_COEF_3D
-#   ifdef DIF_PECLET
+#   ifdef TS_SPLIT_UP3
                 FC(i,j,k2)=-0.125*(diff3d_u(i,j,k)+diff3d_u(i+1,j,k)
      &                       +diff3d_u(i,j,k+1)+diff3d_u(i+1,j,k))*(
 #   else
@@ -519,7 +519,7 @@
                 cff3=max(dZde(i,j  ,k2),0.)
                 cff4=max(dZde(i,j+1,k1),0.)
 #  ifdef DIF_COEF_3D
-#   ifdef DIF_PECLET
+#   ifdef TS_SPLIT_UP3
                 FC(i,j,k2)=FC(i,j,k2)
      &                -0.125*(diff3d_v(i,j,k)+diff3d_v(i,j+1,k)
      &                  +diff3d_v(i,j,k+1)+diff3d_v(i,j+1,k))*(

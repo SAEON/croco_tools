@@ -14,25 +14,22 @@
  to accomodate enough workspace accordingly. This switch is used for
  debugging purposes only and normally should be undefined.
 */
- 
 #undef ALLOW_SINGLE_BLOCK_MODE
 #ifdef ALLOW_SINGLE_BLOCK_MODE
 # define SINGLE NSUB_X*NSUB_E,NSUB_X*NSUB_E !!!
 #endif
  
 /*
- * Activate barotropic pressure gradient response to the
- * perturbation of free-surface in the presence of stratification
+   Activate barotropic pressure gradient response to the
+   perturbation of free-surface in the presence of stratification
 */
-
 #ifdef SOLVE3D
 # define VAR_RHO_2D
 #endif
 
 /*
- * Set default time-averaging filter for barotropic fields.
+   Set default time-averaging filter for barotropic fields.
 */
- 
 # undef M2FILTER_COSINE
 # undef M2FILTER_FLAT
 # define M2FILTER_POWER
@@ -42,32 +39,56 @@
 #endif
 
 /*
-**  Select model dynamics for MOMENTUM equations:
-**  (The default horizontal advection is third-order upstream bias)
+    Select MOMENTUM LATERAL advection scheme:
+    (The default is third-order upstream biased)
 */
-
-#undef HADV_C4_UV        /* 4th-order centered horizontal advection */
-#define VADV_SPLINES_UV  /* splines vertical advection */
-#undef  VADV_C2_UV       /* 2nd-order centered vertical advection */
+#undef  HADV_C4_UV        /* 4th-order centered lateral advection */
+#ifdef UV_SPLIT_UP3       /*    Split 3rd-order scheme into       */
+# define HADV_C4_UV       /*       4th order centered             */
+# undef  UV_VIS2          /*        + hyperdiffusion              */
+# define UV_VIS4
+# undef  MIX_GP_UV
+# define MIX_S_UV
+# define VIS_COEF_3D
+#endif
+#ifdef VIS_SMAGO 
+# define VIS_COEF_3D
+#endif
 
 /*
- *  Select model dynamics for TRACER equations:
- *  (The default horizontal and vertical advection is 4th-order centered)
+    Select MOMENTUM VERTICAL advection scheme:
 */
+#define VADV_SPLINES_UV   /* splines vertical advection */
+#undef  VADV_C2_UV        /* 2nd-order centered vertical advection */
 
-#define HADV_UPSTREAM_TS  /* 3rd-order upstream horiz. advection */
-#ifdef SPLIT_UP3          /* Split 3rd-order scheme into   */
-# undef HADV_UPSTREAM_TS  /*    4th order centered         */
-# undef TS_DIF2           /*     + hyperdiffusion          */
+/*
+    Select TRACER LATERAL advection scheme
+    (The default is 4th-order centered)
+*/
+#define HADV_UPSTREAM_TS  /* 3rd-order upstream lateral advection */
+#ifdef TS_SPLIT_UP3       /*     Split 3rd-order scheme into      */
+# undef  HADV_UPSTREAM_TS /*       4th order centered             */
+# undef  TS_DIF2          /*        + hyperdiffusion              */
 # define TS_DIF4
 # define DIF_COEF_3D 
-# define DIF_PECLET
 #endif
-#undef  HADV_AKIMA_TS     /* 4th-order Akima horiz. advection */
-#define VADV_SPLINES_TS   /* splines vertical advection */
-#undef  VADV_AKIMA_TS     /* 4th-order Akima vertical advection */
-#undef  VADV_C2_TS        /* 2nd-order centered vertical advection */
-#undef  CONST_TRACERS
+#ifdef DIF_SMAGO          /* Smagorinsky diffusivity option   */
+# define DIF_COEF_3D
+#endif
+#undef   HADV_AKIMA_TS    /* 4th-order Akima horiz. advection */
+
+/*
+    Select model dynamics for TRACER vertical advection
+    (The default is 4th-order centered)
+*/
+#undef   VADV_SPLINES_TS   /* splines vertical advection */
+#define  VADV_AKIMA_TS     /* 4th-order Akima vertical advection */
+#undef   VADV_C2_TS        /* 2nd-order centered vertical advection */
+
+/*
+    Constant tracer option
+*/
+#undef   CONST_TRACERS
 
 
 /* Switch ON/OFF double precision for real type variables (since this
@@ -103,7 +124,7 @@
  the physical domain (as opposite to the whole domain), so two ghost
  zones are always provided on the each side. These data for these
  two ghost zones is then exchanged by message passing. 
- */
+*/
 
 #ifdef MPI
 # define GLOBAL_2D_ARRAY -1:Lm+2+padd_X,-1:Mm+2+padd_E
@@ -127,7 +148,6 @@
 #  endif
 # endif
 #endif
-
 
 #define PRIVATE_1D_SCRATCH_ARRAY Istr-2:Iend+2
 #define PRIVATE_2D_SCRATCH_ARRAY Istr-2:Iend+2,Jstr-2:Jend+2
@@ -236,7 +256,7 @@
  Definitions for other shared memory platforms may be appended here.
 */
 #if defined sgi || defined SGI
-!
+
 # define CVECTOR CDIR$ IVDEP
 # define CSDOACROSS C$DOACROSS
 # define CAND C$&
@@ -246,7 +266,7 @@
 /* # define CSDISTRIBUTE_RESHAPE !! c$distribute_reshape */
 # define BLOCK_PATTERN block,block
 # define BLOCK_CLAUSE !! onto(2,*)
-!
+
 #elif defined cray || defined CRAY
 # ifdef  DBLEPREC
 #  undef  DBLEPREC
@@ -258,14 +278,13 @@
 # define CAND CMIC$&
 # define ENTER_CRITICAL_REGION CMIC$ GUARD
 # define EXIT_CRITICAL_REGION CMIC$ END GUARD
-!
+
 #endif
 
 
 #define PUT_GRID_INTO_RESTART
 #define PUT_GRID_INTO_HISTORY
 #define PUT_GRID_INTO_AVERAGES
-
 
 
 /*
@@ -300,6 +319,7 @@ c-# define TANH dtanh
 # define nf_get_vara_FTYPE nf_get_vara_real
 # define nf_put_vara_FTYPE nf_put_vara_real
 #endif
+
 /*
  Choice of double/single precision for netCDF output.
 */
@@ -308,6 +328,7 @@ c-# define TANH dtanh
 #else
 # define NF_FOUT NF_REAL
 #endif
+
 /*
  Decide which time step of fast variables zeta, ubar, vbar goes
  to output.

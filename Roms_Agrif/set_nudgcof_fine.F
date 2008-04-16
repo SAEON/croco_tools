@@ -152,7 +152,7 @@
 #   elif defined UV_VIS4
           visc4_sponge=visc2_sponge/(pm(i,j)*pn(i,j))
           visc4_r(i,j)=visc4_sponge*wrk(i,j) + visc4_r(i,j)
-          visc4(i,j)=min(visc4(i,j),1.e-2*grdmax**3)
+          visc4_r(i,j)=min(visc4_r(i,j),1.e-2*grdmax**3)
 #   endif
         enddo
       enddo
