@@ -228,12 +228,11 @@
         do j=Jstr-1,Jend+1
           do i=IstrU-1,Iend+1
             diff3d_u(i,j,k)=cff_peclet*abs(u(i,j,k,nrhs))*om_u(i,j)**3
+     &                      +0.5*(diff4(i,j,itemp)+diff4(i-1,j,itemp))
+#   ifdef MIX_GP_TS
             diff_clip=.5*(Hz(i,j,k)+Hz(i-1,j,k))/
      &                   (z_r(i,j,k+1)-z_r(i-1,j,k+1))
-            diff_clip=min(1.,3*diff_clip**2)*diff3d_u(i,j,k)
-            diff3d_u(i,j,k)=diff3d_u(i,j,k)+
-     &              0.5*(diff4(i,j,itemp)+diff4(i-1,j,itemp))
-#   ifdef MIX_GP_TS
+            diff_clip=min(1.,diff_clip**2)*diff3d_u(i,j,k)
             diff3d_u(i,j,k)=min(diff3d_u(i,j,k),diff_clip)
 #   endif
           enddo
@@ -241,12 +240,11 @@
         do j=JstrV-1,Jend+1
           do i=Istr-1,Iend+1
             diff3d_v(i,j,k)=cff_peclet*abs(v(i,j,k,nrhs))*on_v(i,j)**3
+     &                      +0.5*(diff4(i,j,itemp)+diff4(i,j-1,itemp))
+#   ifdef MIX_GP_TS
             diff_clip=.5*(Hz(i,j,k)+Hz(i,j-1,k))/
      &                   (z_r(i,j,k+1)-z_r(i,j-1,k+1)) 
-            diff_clip=min(1.,3*diff_clip**2)*diff3d_v(i,j,k)
-            diff3d_v(i,j,k)=diff3d_v(i,j,k)+
-     &                         0.5*(diff4(i,j,itemp)+diff4(i,j-1,itemp))
-#   ifdef MIX_GP_TS
+            diff_clip=min(1.,diff_clip**2)*diff3d_v(i,j,k)
             diff3d_v(i,j,k)=min(diff3d_v(i,j,k),diff_clip)
 #   endif
           enddo
