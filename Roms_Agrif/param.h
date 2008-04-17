@@ -209,6 +209,7 @@
 # else
       parameter (ntrc_pas=0)
 # endif
+
 # ifdef BIOLOGY
 #  ifdef PISCES
       parameter (ntrc_bio=24,itrc_bio=itemp+ntrc_salt+ntrc_pas+1)
@@ -341,13 +342,9 @@
      &           NFlux_VSinkD2 = 3,
      &           NumVSinkTerms = 3)
 #  endif
-#  if defined BIO_N2P2Z2D2 || defined BIO_NPZD || defined PISCES
-#   ifdef DIAGNOSTICS_BIO
+#  if defined DIAGNOSTICS_BIO && !defined BIO_N2PZD2
       parameter (ntrc_diabio=NumFluxTerms+
-     &              NumGasExcTerms+NumVSinkTerms)
-#   else
-      parameter (ntrc_diabio=0)
-#   endif
+     &                       NumGasExcTerms+NumVSinkTerms)
 #  else
 !  config N2PZD2: fluxes not implemented yet
       parameter (ntrc_diabio=0)
