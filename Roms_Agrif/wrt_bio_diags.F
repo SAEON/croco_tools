@@ -100,7 +100,7 @@ CDEBUG      write(*,*) 'Write Time'
          if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxbioFlux+iflux-1))
             write(stdout,1) vname(1,indxbioFlux+iflux-1)(1:lvar),
-     &           record, ierr, MYID
+     &           record, ierr MYID
             goto 99
          end if
       end do
@@ -116,7 +116,7 @@ c$$$     &        bioVSink(30,30,iflux)
          if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxbioVSink+iflux-1))
             write(stdout,1) vname(1,indxbioVSink+iflux-1)(1:lvar),
-     &           record, ierr, MYID
+     &           record, ierr MYID
             goto 99
          end if
       end do
