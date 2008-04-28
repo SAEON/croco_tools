@@ -1,5 +1,5 @@
 function download_QSCAT(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,...
-                        QSCAT_dir,Yorig)
+                        QSCAT_dir,Yorig,QSCAT_blk)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Extract a subgrid from QSCAT to get a ROMS forcing
@@ -102,7 +102,7 @@ for Y=Ymin:Ymax
     tndx=find(month==M & year==Y);
     taux=zeros(length(tndx),length(lat),length(lon));
     tauy=0*taux;
-    n=0; clear good_time;
+    n=0; clear good_time;clear taux; clear tauy
     for i=tndx(1):tndx(end)   
       disp(['    Processing day: ',num2str(n)])
       trange=['[',num2str(i-1),':',num2str(i-1),']'];
@@ -110,8 +110,26 @@ for Y=Ymin:Ymax
                          i1min,i1max,i2min,i2max,i3min,i3max);
       y=getdap(url,[],'mwst',trange,[],jrange,...
                            i1min,i1max,i2min,i2max,i3min,i3max);
+      
+      
+      if QSCAT_blk
+	xu=getdap(url,[],'zws',trange,[],jrange,...
+                         i1min,i1max,i2min,i2max,i3min,i3max);
+	yv=getdap(url,[],'mws',trange,[],jrange,...
+                         i1min,i1max,i2min,i2max,i3min,i3max);
+	ws=getdap(url,[],'ws',trange,[],jrange,...
+                         i1min,i1max,i2min,i2max,i3min,i3max);
+	
+      end
+      
       x(x==-32767)=NaN;
       y(y==-32767)=NaN;
+      if QSCAT_blk
+      xu(xu==-32767)=NaN;
+      yv(yv==-32767)=NaN;
+      ws(ws==-32767)=NaN;
+      end
+ 
       if (isnan(max(max(x))) | isnan(max(max(y))))
         disp('Warning : nan value')
       elseif ((max(max(x))==0) | (max(max(y))==0))
@@ -121,14 +139,101 @@ for Y=Ymin:Ymax
         good_time(n)=time(i);
         taux(n,:,:)=x;
         tauy(n,:,:)=y;
+	if QSCAT_blk
+	  uwnd(n,:,:)=xu;
+	  vwnd(n,:,:)=yv;
+	  wnds(n,:,:)=ws;
+        end
       end  
     end
-    taux=taux(1:n,:,:);
-    tauy=tauy(1:n,:,:);    
+
+% $$$ figure
+% $$$ pcolor(lon,lat,squeeze(uwnd(10,:,:)))
+    %  
+    disp('Checking filling of the maps...')
+    tot=length(lat)*length(lon);
+    nbmask=max(sum(sum(squeeze(floor(mean(isnan(taux(1:n,:,:)),1))))),1);
+    size( sum(sum(squeeze(floor(mean(isnan(taux(1:n,:,:)),1))))) )
+%    disp('MASK')
+%    size(nbmask)
+%    nbmask
+    %    
+    to_keep=[];
+    for k=1:n
+       tab=squeeze(taux(k,:,:));
+       per=(sum(sum(isnan(tab)))-nbmask)/tot*100.;
+       if per >= 5.
+         disp([''])
+         disp(['***********************************************'])
+         disp(['More than 5% bad values -> map ',num2str(k), ' removed'])
+         disp(['For your info -> per=  ',num2str(per),'%']) 
+         disp(['***********************************************'])         
+         disp([''])
+       else
+         to_keep=[to_keep,k];
+       end 
+    end
+    %
+    good_time=good_time(to_keep);
+    taux=taux(to_keep,:,:);
+    tauy=tauy(to_keep,:,:); 
+    
+    if QSCAT_blk
+	uwnd=uwnd(to_keep,:,:);
+	vwnd=vwnd(to_keep,:,:);
+	wnds=wnds(to_keep,:,:);
+    end
+    
+%
+% Check for erroneous data values abs>10*max(median)
+    disp('Checking erroneous data values...')
+    nt=length(to_keep);
+    
+%
+    med=median(taux,1);
+%    x_ind=find( abs(taux-med(ones(nt,1),:,:)) >= 5*max(max(abs(med))) );
+    x_ind=find( abs(taux-repmat(med,[nt,1,1])) >= 5*max(max(abs(med))) );
+    taux(x_ind)=NaN;
+%
+    med=median(tauy,1);
+%    y_ind=find( abs(tauy-med(ones(nt,1),:,:)) >= 5*max(max(abs(med))) );
+    y_ind=find( abs(tauy-repmat(med,[nt,1,1])) >= 5*max(max(abs(med))) );
+    tauy(y_ind)=NaN;
+%
+if QSCAT_blk
+%
+    med=median(uwnd,1);
+%    x_ind=find( abs(taux-med(ones(nt,1),:,:)) >= 5*max(max(abs(med))) );
+    x_ind=find( abs(uwnd-repmat(med,[nt,1,1])) >= 5*max(max(abs(med))) );
+    uwnd(x_ind)=NaN;
+%
+    med=median(vwnd,1);
+%    y_ind=find( abs(tauy-med(ones(nt,1),:,:)) >= 5*max(max(abs(med))) );
+    y_ind=find( abs(vwnd-repmat(med,[nt,1,1])) >= 5*max(max(abs(med))) );
+    vwnd(y_ind)=NaN;
+  
+    med=median(wnds,1);
+%    y_ind=find( abs(tauy-med(ones(nt,1),:,:)) >= 5*max(max(abs(med))) );
+    y_ind=find( abs(wnds-repmat(med,[nt,1,1])) >= 5*max(max(abs(med))) );
+    wnds(y_ind)=NaN;
+end
+
+    
     write_NCEP([QSCAT_dir,'taux','Y',num2str(Y),'M',num2str(M),'.nc'],...
                 'taux',lon,lat,good_time,taux,Yorig)
     write_NCEP([QSCAT_dir,'tauy','Y',num2str(Y),'M',num2str(M),'.nc'],...
                 'tauy',lon,lat,good_time,tauy,Yorig)
+    
+    if QSCAT_blk
+    write_NCEP([QSCAT_dir,'uwnd','Y',num2str(Y),'M',num2str(M),'.nc'],...
+                'uwnd',lon,lat,good_time,uwnd,Yorig)
+    write_NCEP([QSCAT_dir,'vwnd','Y',num2str(Y),'M',num2str(M),'.nc'],...
+                'vwnd',lon,lat,good_time,vwnd,Yorig)
+    write_NCEP([QSCAT_dir,'wnds','Y',num2str(Y),'M',num2str(M),'.nc'],...
+                'wnds',lon,lat,good_time,wnds,Yorig)
+    end
   end
 end
 return
+ 
+

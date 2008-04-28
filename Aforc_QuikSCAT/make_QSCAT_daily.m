@@ -55,6 +55,13 @@ romstools_param
 %
 taux_name='taux';
 tauy_name='tauy';
+
+if QSCAT_blk==1
+uwnd_name='uwnd';
+vwnd_name='vwnd';
+wspd_name='wnds';
+end
+
 %
 %  Heat fluxes w3
 %
@@ -134,7 +141,7 @@ if Download_data==1
 % 
   disp('Download QSCAT data with OPENDAP')
   download_QSCAT(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,...
-                 QSCAT_dir,Yorig)
+                 QSCAT_dir,Yorig,QSCAT_blk)
 end
 %
 % Loop on the years and the months
@@ -177,7 +184,7 @@ for Y=Ymin:Ymax
     frcname=[QSCAT_frc_prefix,'Y',num2str(Y),...
              'M',num2str(M),nc_suffix];
     disp(['Create a new forcing file: ' frcname])
-    create_forcing(frcname,grdname,ROMS_title,...
+    create_forcing_QSCAT(frcname,grdname,ROMS_title,...
                    time,coads_time,coads_time,...
                    coads_time,coads_time,coads_time,...
                    0,coads_cycle,coads_cycle,...
@@ -268,6 +275,21 @@ for Y=Ymin:Ymax
                lon,lat,[],Roa,2);
     nc_frc{'sustr'}(1,:,:)=rho2u_2d(u.*cosa + v.*sina);
     nc_frc{'svstr'}(1,:,:)=rho2v_2d(v.*cosa - u.*sina);
+    
+    if QSCAT_blk==1
+      
+      uwnd_file=[QSCAT_dir,'uwndY',num2str(Ym),'M',num2str(Mm),'.nc'];
+      vwnd_file=[QSCAT_dir,'vwndY',num2str(Ym),'M',num2str(Mm),'.nc']; 
+      wspd_file=[QSCAT_dir,'wndsY',num2str(Ym),'M',num2str(Mm),'.nc'];       
+      uwnd=ext_data(uwnd_file,uwnd_name,tindex,lon,lat,[],Roa,2);
+      vwnd=ext_data(vwnd_file,vwnd_name,tindex,lon,lat,[],Roa,2); 
+      wspd=ext_data(wspd_file,wspd_name,tindex,lon,lat,[],Roa,2); 
+      
+      nc_frc{'uwnd'}(1,:,:)=uwnd;
+      nc_frc{'vwnd'}(1,:,:)=vwnd;
+      nc_frc{'wspd'}(1,:,:)=wspd;  
+    end    
+    
 %
 % Perform the interpolations for the current month
 %
@@ -278,8 +300,27 @@ for Y=Ymin:Ymax
                  lon,lat,[],Roa,2);
       v=ext_data(tauy_file,tauy_name,tindex-1,...
                  lon,lat,[],Roa,2);
+      
       nc_frc{'sustr'}(tindex,:,:)=rho2u_2d(u.*cosa + v.*sina);
       nc_frc{'svstr'}(tindex,:,:)=rho2v_2d(v.*cosa - u.*sina);
+      
+      if QSCAT_blk 
+      uwnd_file=[QSCAT_dir,'uwndY',num2str(Y),'M',num2str(M),'.nc'];
+      vwnd_file=[QSCAT_dir,'vwndY',num2str(Y),'M',num2str(M),'.nc']; 
+      wspd_file=[QSCAT_dir,'wndsY',num2str(Y),'M',num2str(M),'.nc'];   		
+	
+      uwnd=ext_data(uwnd_file,uwnd_name,tindex-1,...
+               lon,lat,[],Roa,2);
+      vwnd=ext_data(vwnd_file,vwnd_name,tindex-1,...
+               lon,lat,[],Roa,2); 
+      wspd=ext_data(wspd_file,wspd_name,tindex-1,...
+               lon,lat,[],Roa,2);  	
+      
+      nc_frc{'uwnd'}(tindex,:,:)=uwnd;
+      nc_frc{'vwnd'}(tindex,:,:)=vwnd;
+      nc_frc{'wspd'}(tindex,:,:)=wspd;
+      end
+      
     end
 %
 % Read the QSCAT file for the next month
@@ -315,6 +356,23 @@ for Y=Ymin:Ymax
     nc_frc{'sustr'}(tlen,:,:)=rho2u_2d(u.*cosa + v.*sina);
     nc_frc{'svstr'}(tlen,:,:)=rho2v_2d(v.*cosa - u.*sina);
 %
+      if QSCAT_blk      
+      uwnd_file=[QSCAT_dir,'uwndY',num2str(Yp),'M',num2str(Mp),'.nc'];
+      vwnd_file=[QSCAT_dir,'vwndY',num2str(Yp),'M',num2str(Mp),'.nc']; 
+      wspd_file=[QSCAT_dir,'wndsY',num2str(Yp),'M',num2str(Mp),'.nc'];       
+      uwnd=ext_data(uwnd_file,uwnd_name,tindex,...
+               lon,lat,[],Roa,2);
+      vwnd=ext_data(vwnd_file,vwnd_name,tindex,...
+               lon,lat,[],Roa,2); 
+      wspd=ext_data(wspd_file,wspd_name,tindex,...
+               lon,lat,[],Roa,2);     
+           
+      nc_frc{'uwnd'}(tlen,:,:)=uwnd;
+      nc_frc{'vwnd'}(tlen,:,:)=vwnd;
+      nc_frc{'wspd'}(tlen,:,:)=wspd;
+      end
+      
+     
     close(nc_frc)
 %
   end
