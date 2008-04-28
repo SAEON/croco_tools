@@ -1,0 +1,188 @@
+    <div id="logo"><a href="http://www.brest.ird.fr"></a></div>	
+    <h1>Download section</h1>
+    
+    <p class="desc">The ROMSTOOLS directory tree has been split in several 
+        gzipped tar files to facilitate data transfer.</p>
+    
+    <h3>ROMS_AGRIF and ROMS1D:</h3>
+    
+    <ul id="download_model">
+
+        <li><a href="http://roms.mpl.ird.fr/Data/Roms_Agrif_17_01_2006.tar.gz">
+	       ./Roms_tools/Roms_Agrif/ --> V1.1</a>
+	       Version: 17/01/2006 - size: 620 k.
+	       This is the stable version, compatible with Romstools.
+	</li>
+ 
+        <li><a href="http://roms.mpl.ird.fr/Data/Roms_Agrif_SVN_latest.tar.gz">
+	     ./Roms_tools/Roms_Agrif/ --> VX.X-ALPHA </a>
+	     Version: daily tar file extracted from the <a href="https://gforge.inria.fr/projects/romsagrif/">ROMS_AGRIF project on Inria Gforge</a>
+	     - check the <a href="http://lists.gforge.inria.fr/pipermail/romsagrif-commits/">romsagrif-commits archives</a>
+	     - this is not a stable version.
+             - to register, use MOISE as INRIA Team collaboration 
+	</li>
+
+        <li><a href="roms1d/index.html">+ ROMS-1D source code and documentation</a>  
+	</li>
+
+    </ul>
+
+    <h3>ROMSTOOLS tar files:</h3>
+
+    <ul id="download_tools">
+
+        <li><a href="http://roms.mpl.ird.fr/Data/Aforc_NCEP_Update_2008_03_17.tar.gz">./Roms_tools/Aforc_NCEP_Update/</a>
+	    version: 2008/03/17 - size:  8 k
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/Aforc_NCEP_2006_10_25.tar.gz">./Roms_tools/Aforc_NCEP/</a>
+	    version: 2006/10/25 - size:  8 k
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/Aforc_QuikSCAT_2008_03_18.tar.gz">./Roms_tools/Aforc_QuikSCAT/</a>
+	    version: 2008/03/18 - size:  8 k
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/Diagnostic_tools_2006_11_02.tar.gz">./Roms_tools/Diagnostic_tools/</a>
+	    version: 2006/11/02 - size: 8 k
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/Documentation_2007_01_15.tar.gz">./Roms_tools/Documentation/</a>
+	    version: 2007/1/15 - size: 4.6 Megs
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/Forecast_tools_2007_02_15.tar.gz">./Roms_tools/Forecast_tools/</a>
+	    version: 2007/02/15 - size: 9 k
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/Nesting_tools_2007_05_04.tar.gz">./Roms_tools/Nesting_tools/</a>
+	    version: 2007/05/04 - size: 34 k
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/Oforc_OGCM_2008_03_18.tar.gz">./Roms_tools/Oforc_OGCM/</a>
+	    version: 2008/18/03 - size: 12 k
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/Opendap_tools_2007_03_01.tar.gz">./Roms_tools/Opendap_tools/</a>
+	    version: 2007/03/01 - size: 704 k
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/Preprocessing_tools_2007_03_28.tar.gz">./Roms_tools/Preprocessing_tools/</a>
+	    version: 2007/03/28 - size: 45 k
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/Run_2007_01_17.tar.gz">./Roms_tools/Run/</a>
+	    version: 2007/01/17 - size: 44 k
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/Tides_2006_10_05.tar.gz">./Roms_tools/Tides/</a>
+	    version: 2006/10/05 - size: 108 k
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/Visualization_tools_2006_11_15.tar.gz">./Roms_tools/Visualization_tools/</a>
+	    version: 2006/11/15 - size: 48 k
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/other_26_05_2004.tar.gz">./Roms_tools/</a>
+	    version: 26/05/2004 - size: 572 k
+	</li>
+    </ul>
+    
+   <h3>Datasets needed by ROMSTOOLS:</h3>
+
+    <ul id="download_tools">
+
+        <li><a href="http://roms.mpl.ird.fr/Data/COADS05_2006_10_25.tar.gz">./Roms_tools/COADS05/</a>
+	    version: 2006/10/25 - size: 103 Megs
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/QuikSCAT_clim_2007_01_16.tar.gz">./Roms_tools/QuikSCAT_clim/</a>
+	    version: 2007/01/16 - size: 12 Megs
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/SeaWifs_2006_10_25.tar.gz">./Roms_tools/SeaWifs/</a>
+	    version: 2006/10/25 - size: 17 Megs
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/SST_pathfinder_2006_10_02.tar.gz">./Roms_tools/SST_pathfinder/</a>
+	    version: 2006/10/02 - size: 14 Megs
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/Topo_26_05_2004.tar.gz">./Roms_tools/Topo/</a>
+	    version: 26/05/2004 - size: 101 Megs
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/TPXO6_2006_10_05.tar.gz">./Roms_tools/TPXO6/</a>
+	    version: 2006/10/05 - size: 145 Megs
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/TPXO7_2006_10_05.tar.gz">./Roms_tools/TPXO7/</a>
+	    version: 2006/10/05 - size: 149 Megs
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/WOA2001_26_05_2004.tar.gz">./Roms_tools/WOA2001/</a>
+	    version: 26/05/2004 - size: 81 Megs
+	</li>
+ 
+        <li><a href="http://roms.mpl.ird.fr/Data/WOA2005_2006_10_20.tar.gz">./Roms_tools/WOA2005/</a>
+	    version: 2006/10/20 - size: 80 Megs
+	</li>
+
+    </ul>
+
+   <h3>Other toolboxes or softwares needed by ROMSTOOLS:</h3>
+
+    <ul id="download_tools">
+
+        <li><a href="http://roms.mpl.ird.fr/Data/air_sea_25_10_2005.tar.gz">./Roms_tools/air_sea/</a>
+	    version: 25/10/2005 - size:  264 k
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/mask_22_06_2004.tar.gz">./Roms_tools/mask/</a>
+	    version: 26/05/2004 - size: 20 k
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/mex60_2006_09_10.tar.gz">./Roms_tools/mex60/</a>
+	    version: 2006/09/10 - size: 46 k
+	</li>
+	
+        <li><a href="http://roms.mpl.ird.fr/Data/mexnc_2006_09_10.tar.gz">./Roms_tools/mexnc/</a>
+	    version: 2006/09/10 - size: 240 k
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/m_map_2006_10_05.tar.gz">./Roms_tools/m_map/</a>
+	    version: 2006/10/05 - size: 78 Megs
+	</li>
+	
+        <li><a href="http://roms.mpl.ird.fr/Data/netcdf_g77_26_05_2004.tar.gz">./Roms_tools/netcdf_g77/</a>
+	    version: 26/05/2004 - size: 100 k 
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/netcdf_ifc_26_05_2004.tar.gz">./Roms_tools/netcdf_ifc/</a>
+	    version: 26/05/2004 - size: 204 k
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/netcdf_matlab_2006_09_10.tar.gz">./Roms_tools/netcdf_matlab/</a>
+	    version: 2006/09/10 - size: 136 k
+	</li>
+
+        <li><a href="http://roms.mpl.ird.fr/Data/netcdf_x86_64_2006_09_10.tar.gz">./Roms_tools/netcdf_x86_64</a>
+	    version: 2006/09/10 - size: 696 k
+	</li>
+
+         <li><a href="http://roms.mpl.ird.fr/Data/untarall.csh">untarall.csh</a>
+	   (a little csh script to uncompress and untar all the downloaded files) - size 1k
+	</li>
+
+    </ul>
+
+
+   <h3>Anonymous CVS:</h3>
+
+     <p class="desc">There is an anonymous CVS server from which the latest versions of <br>
+                     Roms_Agrif can be retrieved. To checkout a copy, do:<br>
+                     cvs -d:pserver:anoncvs@cvs.mpl.ird.fr:/projet login<br>
+                     Use the password "anoncvs"<br>
+                     cvs -d:pserver:anoncvs@cvs.mpl.ird.fr:/projet co Roms_Agrif
+     </p>
+
