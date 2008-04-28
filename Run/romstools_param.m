@@ -291,6 +291,12 @@ level         = 0;                            % AGRIF level; 0=parent grid
 NCEP_dir= [FORC_DATA_DIR,'NCEP_',ROMS_config,'/']; % NCEP data directory
 makefrc      = 1;                            % 1: Create forcing files
 makeblk      = 1;                            % 1: Create bulk files
+QSCAT_blk    = 1;                            % 1: -a) Correct NCEP
+                                             %     frc/bulk file with the
+                                             %     u,v,wspd fields from
+                                             %     QSCAT daily data 
+					     %    -b) Download u, v, wspd
+                                             %         in the QSCAT frc file
 add_tides     = 0;                     % 1: Add the tides (To be done...)
 %
 NCEP_version  = 1;                            % NCEP version:

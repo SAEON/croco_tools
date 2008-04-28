@@ -37,7 +37,7 @@
 %  Updated    6-Sep-2006 by Pierrick Penven
 %  Updated    Feb-2008 by Jerome Lefevre --- change OpenDap server ---
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-start
+%start
 clear all
 close all
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
@@ -130,8 +130,8 @@ if makefrc==1 | makeblk==1
 % add timesteps at the end of the ROMS file to make a full month of 31 days
 % then add 3 more timestep: 1 at the beginning and 2 at the end
       tlen0=length(NCEP_time);
-      tlen=127; % 124+3
-      %%%tlen=tlen0+3;
+%      tlen=127; % 124+3
+      tlen=tlen0+3;
       time=0*(1:tlen);
       time(2:tlen0+1)=NCEP_time;
       time(1)=time(2)-dt;
