@@ -97,7 +97,7 @@
 	</li>
 
         <li><a href="ftp://ftp.ifremer.fr/ifremer/ird/romstools/QuikSCAT_clim_2007_04_28.tar.gz">./Roms_tools/QuikSCAT_clim/</a>
-	    version: 2007/01/16 - size: 12 Megs
+	    version: 2008/04/28 - size: 12 Megs
 	</li>
 
         <li><a href="ftp://ftp.ifremer.fr/ifremer/ird/romstools/SeaWifs_2006_10_25.tar.gz">./Roms_tools/SeaWifs/</a>
