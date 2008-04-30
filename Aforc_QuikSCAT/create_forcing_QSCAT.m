@@ -1,4 +1,4 @@
-function  create_forcing_QSCAT(frcname,grdname,title,smst,...
+function  create_forcing_QSCAT(frcname,grdname,title,QSCAT_blk,smst,...
                          shft,swft,srft,sstt,ssst,smsc,...
                          shfc,swfc,srfc,sstc,sssc)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -118,6 +118,7 @@ nw{'svstr'}.long_name = 'surface v-momentum stress';
 nw{'svstr'}.units = ncchar('Newton meter-2');
 nw{'svstr'}.units = 'Newton meter-2';
 
+if QSCAT_blk
 nw{'uwnd'} = ncdouble('sms_time', 'eta_rho', 'xi_rho');
 nw{'uwnd'}.long_name = ncchar('10m u-wind component');
 nw{'uwnd'}.long_name = 'u-wind';
@@ -135,7 +136,7 @@ nw{'wspd'}.long_name = ncchar('10 mwind speed');
 nw{'wspd'}.long_name = '10m wind speed';
 nw{'wspd'}.units = ncchar('m/s');
 nw{'wspd'}.units = 'm/s';
-
+end
 
 nw{'shflux'} = ncdouble('shf_time', 'eta_rho', 'xi_rho');
 nw{'shflux'}.long_name = ncchar('surface net heat flux');
