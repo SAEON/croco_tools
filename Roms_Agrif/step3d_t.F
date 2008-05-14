@@ -868,8 +868,7 @@
      &                          TYadv_mld(i,j,itrc)-
      &                          TVadv_mld(i,j,itrc)-
      &                          TVmix_mld(i,j,itrc)-
-     &                          Tforc_mld(i,j,itrc)-
-     &                          Trate_mld(i,j,itrc)
+     &                          Tforc_mld(i,j,itrc)
          enddo
        enddo
 # endif /* DIAGNOSTICS_TS */
