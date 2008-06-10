@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
+
+  <head>
+    <title>CHANGE LOG ROMS_AGRIF VX.X-alpha</title>
+    <meta http-equiv="Content-Type" content=
+    "text/html; charset=iso-8859-1" />
+    <link type="text/css" href="style.css" media="all" rel="stylesheet" />
+  </head>
+  
+  <body>
+
+    <div id="logo"><a href="http://www.brest.ird.fr"></a></div>	
+    
+    <h1>CHANGE LOG FOR ROMS_AGRIF VX.X-alpha</h1>
+    
+    <p>Developpment  version : SVN Inria Web site</p>
+    <li><p>
+     Author : L. Debreu, P. Marchesiello<br>	 
+     Category : Update<br>	 
+     Description: <br>
+      - AGRIF is updated. This allows MPI parallelization of nesting,
+     in addition to added flexibility and portability. 
+     In particular AGRIF executable conv 
+     (for generation of nested code) is auto-configured and amr.in is now 
+     transparent to ROMS developments (AGRIF manages the include files 
+     and variables to be interpolated).<br>
+     - A preliminary version of 2-way nesting on the baroclinic time-step is added but not
+     fully operational; A full barotropic-baroclinic 2-way nesting is under completion.<br>
+     - Online diagnostics are added for BIOLOGY modules...    
+
+
+    </p></li>
+
+<!--    <li><p>
+     Date: 13 february 2006<br>
+     Author : L. Debreu, P. Marchesiello<br>
+     Category : Update<br>
+     Description: <br>
+      - AGRIF is updated. This allows MPI parallelization of nesting,
+     in addition to added flexibility and portability. 
+     In particular AGRIF executable conv 
+     (for generation of nested code) is auto-configured and amr.in is now 
+     transparent to ROMS developments (AGRIF manages the include files 
+     and variables to be interpolated).<br>
+     - A preliminary version of 2-way nesting on the baroclinic time-step is added but not
+     fully operational; A full barotropic-baroclinic 2-way nesting is under completion.<br>
+     - Online diagnostics are added for BIOLOGY modules...
+    </p></li>   -->
+
+
+</ul>
+</body></html>
