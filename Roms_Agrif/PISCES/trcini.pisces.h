@@ -68,47 +68,57 @@ C
 C    INITIALISE DUST INPUT FROM ATMOSPHERE
 C    -------------------------------------
 C
-      IF (bdustfer) THEN
-        lstr=lenstr(bioname)
-        ierr=nf_open (bioname(1:lstr), nf_nowrite, ncid)
-        if (ierr .ne. nf_noerr) then
-           write(stdout,4) bioname
-        endif
-        ierr=nf_inq_varid (ncid,"dust",varid)
-        if (ierr .ne. nf_noerr) then
-          write(stdout,5) "dust", bioname
-        endif
-        ierr=nf_inq_dimid(ncid,"dust_time",dimid)
-        ierr=nf_inq_dimlen(ncid,dimid,nrec_dust)
-        do irec=1,nrec_dust
-          ierr=nf_fread(dustmp(START_2D_ARRAY,irec), ncid, varid,
-     &                                              irec, r2dvar)
-          if (ierr .ne. nf_noerr) then
-            write(stdout,6) "dust", irec 
-          endif
-        enddo
-        ierr=nf_close(ncid)
-        write(stdout,'(6x,A,1x,I4)') 
-     &                   'TRCINI_PISCES -- Read dust deposition '
-#ifdef MPI
-     &                                                   , mynode
-#endif
-  4     format(/,' TRCINI_PISCES - unable to open forcing netCDF ',1x,A)
-  5     format(/,' TRCINI_PISCES - unable to find forcing variable: ',A,
-     &                               /,14x,'in forcing netCDF file: ',A)
-  6     format(/,' TRCINI_PISCES - error while reading variable: ',A,2x,
-     &                                           ' at TIME index = ',i4)
-
-        do j=Jstr,Jend
-	  do i=Istr,Iend
-            dustmo(i,j,:)=dustmp(i,j,:)
-          end do
-        end do
-
-      ELSE
-        dustmo(:,:,:)=0.
-      ENDIF
-C
+!      IF (bdustfer) THEN
+!        lstr=lenstr(bioname)
+!        ierr=nf_open (bioname(1:lstr), nf_nowrite, ncid)
+!        if (ierr .ne. nf_noerr) then
+!           write(stdout,4) bioname
+!        endif
+!        ierr=nf_inq_varid (ncid,"dust",varid)
+!        if (ierr .ne. nf_noerr) then
+!          write(stdout,5) "dust", bioname
+ !       endif
+!        ierr=nf_inq_dimid(ncid,"dust_time",dimid)
+!        ierr=nf_inq_dimlen(ncid,dimid,nrec_dust)
+!        do irec=1,nrec_dust
+!          ierr=nf_fread(dustmp(START_2D_ARRAY,irec), ncid, varid,
+!     &                                              irec, r2dvar)
+!          if (ierr .ne. nf_noerr) then
+!            write(stdout,6) "dust", irec 
+!          endif
+!        enddo
+!        ierr=nf_close(ncid)
+!        write(stdout,'(6x,A,1x,I4)') 
+!     &                   'TRCINI_PISCES -- Read dust deposition '
+!#ifdef MPI
+!     &                                                   , mynode
+!#endif
+!  4     format(/,' TRCINI_PISCES - unable to open forcing netCDF ',1x,A)
+!  5     format(/,' TRCINI_PISCES - unable to find forcing variable: ',A,
+!     &                               /,14x,'in forcing netCDF file: ',A)
+!  6     format(/,' TRCINI_PISCES - error while reading variable: ',A,2x,
+!     &                                           ' at TIME index = ',i4)
+!
+!        do irec=1,nrec_dust
+!          do j=Jstr,Jend
+!	    do i=Istr,Iend
+ !             dustmo(i,j,irec)=dustmp(i,j,irec)
+!            enddo
+!          enddo
+!        enddo
+!
+!      ELSE
+!
+!        do irec=1,nrec_dust
+!          do j=Jstr,Jend
+!	    do i=Istr,Iend
+!	      dustmo(i,j,irec)=0.
+!	    enddo
+!	  enddo
+!        enddo
+!
+!      ENDIF
+!C
 C    INITIALISE THE NUTRIENT INPUT BY RIVERS
 C    ---------------------------------------
 C
@@ -453,11 +463,11 @@ C  FROM THE NEW BIOOPTIC MODEL PROPOSED JM ANDRE, WE READ HERE
 C  A PRECOMPUTED ARRAY CORRESPONDING TO THE ATTENUATION COEFFICIENT
 C  ----------------------------------------------------------------
 C
-         open(49,file='kRGB61.txt',form='formatted')
-         do ichl=1,61
-           READ(49,*) xtoto,(xkrgb(iband,ichl),iband = 1,3)
-         end do
-         close(49)
+c         open(49,file='kRGB61.txt',form='formatted')
+c         do ichl=1,61
+c           READ(49,*) xtoto,(xkrgb(iband,ichl),iband = 1,3)
+c         end do
+c         close(49)
 C      
 C
 C  Call p4zche to initialize the chemical constants

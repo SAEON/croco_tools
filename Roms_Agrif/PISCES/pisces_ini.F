@@ -29,10 +29,12 @@ CC                       MODEL
 CC ----------------------------------------------------------------
 CC parameters and commons
 CC ======================
+      implicit none
+      integer Istr,Iend,Jstr,Jend
 
       CALL ropigrid(Istr,Iend,Jstr,Jend)
       CALL ropistep(Istr,Iend,Jstr,Jend)
-      CALL trclsm
+!      CALL trclsm
       CALL trcini(Istr,Iend,Jstr,Jend)
 
       return

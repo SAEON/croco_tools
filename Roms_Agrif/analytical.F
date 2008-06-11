@@ -80,7 +80,7 @@
       end
 #endif /* ANA_BMFLUX */ 
 #ifdef SOLVE3D
-# ifdef ANA_BTFLUX || defined ANA_BSFLUX || defined ANA_BPFLUX 
+# if defined ANA_BTFLUX || defined ANA_BSFLUX || defined ANA_BPFLUX 
       subroutine ana_btflux_tile (Istr,Iend,Jstr,Jend, itrc)
 !
 !---------------------------------------------------------------------

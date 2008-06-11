@@ -1,9 +1,11 @@
-      SUBROUTINE trcini(Istr,Iend,Jstr,Jend)
 #include "cppdefs.h"
+#ifdef PISCES
+
+      SUBROUTINE trcini(Istr,Iend,Jstr,Jend)
+
       Implicit NONE
       INTEGER Istr,Jstr,Iend,Jend
 
-#ifdef PISCES
 CCC---------------------------------------------------------------------
 CCC
 CCC                       ROUTINE trcini
@@ -82,6 +84,83 @@ C no passive tracers
 C
 # endif
 C
-#endif /* PISCES */
       RETURN
       END
+
+!==================================================================
+!
+!==================================================================
+
+      subroutine get_dust 
+ 
+      Implicit none 
+# include "param.h"
+# include "parameter.h"
+# include "common.h"
+# include "netcdf.inc"
+# include "ncscrum.h"
+# include "scalars.h"
+      integer i, j, ncid, varid, dimid, ierr,
+     &        lstr, lenstr, nf_fread, nrec_dust, irec
+      REAL dustmp(GLOBAL_2D_ARRAY,12)
+!
+!    READ DUST INPUT FROM ATMOSPHERE
+!    -------------------------------------
+!
+      IF (bdustfer) THEN
+        lstr=lenstr(bioname)
+        ierr=nf_open (bioname(1:lstr), nf_nowrite, ncid)
+        if (ierr .ne. nf_noerr) then
+           write(stdout,4) bioname
+        endif
+        ierr=nf_inq_varid (ncid,"dust",varid)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,5) "dust", bioname
+        endif
+        ierr=nf_inq_dimid(ncid,"dust_time",dimid)
+        ierr=nf_inq_dimlen(ncid,dimid,nrec_dust)
+        do irec=1,nrec_dust
+          ierr=nf_fread(dustmp(START_2D_ARRAY,irec), ncid, varid,
+     &                                              irec, r2dvar)
+          if (ierr .ne. nf_noerr) then
+            write(stdout,6) "dust", irec 
+          endif
+        enddo
+        ierr=nf_close(ncid)
+        write(stdout,'(6x,A,1x,I4)') 
+     &                   'TRCINI_PISCES -- Read dust deposition '
+#ifdef MPI
+     &                                                   , mynode
+#endif
+  4     format(/,' TRCINI_PISCES - unable to open forcing netCDF ',1x,A)
+  5     format(/,' TRCINI_PISCES - unable to find forcing variable: ',A,
+     &                               /,14x,'in forcing netCDF  ',A)
+  6     format(/,' TRCINI_PISCES - error while reading variable: ',A,2x,
+     &                                           ' at TIME index = ',i4)
+
+
+        do irec=1,nrec_dust
+          do j=1,Mm
+            do i=1,Lm
+              dustmo(i,j,irec)=dustmp(i,j,irec)
+            enddo
+          enddo
+        enddo
+
+      ELSE
+
+        do irec=1,nrec_dust
+          do j=1,Mm
+            do i=1,Lm
+              dustmo(i,j,irec)=0.
+            enddo
+          enddo
+        enddo
+
+      ENDIF
+
+      return
+      end
+
+#endif /* PISCES */
+

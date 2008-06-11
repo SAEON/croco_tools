@@ -133,6 +133,11 @@
       call init_scalars (ierr)       ! Also initialize global
       if (ierr.ne.0) goto 100        ! scalar variables.
 
+#ifdef PISCES
+      call trclsm
+      call get_dust
+#endif
+
 # ifdef SEDIMENT
       if (Agrif_Fixed().EQ.Agrif_lev_sedim) then
         call init_sediment           ! Read sediment initial values and

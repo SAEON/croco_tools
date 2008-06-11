@@ -99,13 +99,17 @@ C
 C         Passage de variables 2D dynamiques
 C         ----------------------------------
 C     
-      DO j=JstrR+1,JendR-1
-        DO i=IstrR+1,IendR-1
-!          qsr(i,j)=srflxg(i,j,2)
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
            qsr(i,j)=rho0*Cp*srflx(i,j)
            hmld(i,j)=hbl(i,j)
-c          vatm(i,j)=sqrt(sqrt((sustr(i,j)*rho0)**2+(svstr(i,j)*rho0)
-c     &                                       **2)/1.25e-3)
+       END DO
+      END DO
+
+      DO j=Jstr,Jend
+        DO i=Istr,Iend
+c          vatm(i,j)=sqrt(sqrt((sustr(i,j)*rho0)**2
+c     &                       +(svstr(i,j)*rho0)**2)/1.25e-3)
            vatm(i,j)=sqrt(sqrt((0.5*rho0*(sustr(i,j)+sustr(i+1,j)))**2
      &                        +(0.5*rho0*(svstr(i,j)+svstr(i,j+1)))**2)
      &                                                        /1.25e-3)

@@ -542,7 +542,7 @@
           vbarbry_west(j)=init
         enddo
 #  endif
-#  ifdef SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
+#  if defined SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
         do k=1,N
           do j=JstrR,JendR
 #   ifdef M3_FRC_BRY
@@ -573,7 +573,7 @@
           vbarbry_east(j)=init
         enddo
 #  endif
-#  ifdef SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
+#  if defined SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
         do k=1,N
           do j=JstrR,JendR
 #   ifdef M3_FRC_BRY
@@ -604,7 +604,7 @@
           vbarbry_south(i)=init
         enddo
 #  endif
-#  ifdef SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
+#  if defined SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
         do k=1,N
           do i=JstrR,IendR
 #   ifdef M3_FRC_BRY
@@ -635,7 +635,7 @@
           vbarbry_north(i)=init
         enddo
 #  endif
-#  ifdef SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
+#  if defined SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
         do k=1,N
           do i=JstrR,IendR
 #   ifdef M3_FRC_BRY

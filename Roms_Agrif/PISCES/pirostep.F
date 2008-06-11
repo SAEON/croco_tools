@@ -37,7 +37,7 @@ C         --------------------------------
         DO k=1,jpk
           DO j=Jstr,Jend
             DO i=Istr,Iend
-      trn(i,j,k,itrc)=trn(i,j,k,itrc)*1E6
+              trn(i,j,k,itrc)=trn(i,j,k,itrc)*1E6
             END DO
           END DO
         END DO
@@ -46,9 +46,9 @@ C         --------------------------------
       DO k=1,jpk
         DO j=Jstr,Jend
           DO i=Istr,Iend
-      trn(i,j,k,jpno3)=trn(i,j,k,jpno3)/7.6
-      trn(i,j,k,jpnh4)=trn(i,j,k,jpnh4)/7.6
-      trn(i,j,k,jppo4)=trn(i,j,k,jppo4)/122.
+            trn(i,j,k,jpno3)=trn(i,j,k,jpno3)/7.6
+            trn(i,j,k,jpnh4)=trn(i,j,k,jpnh4)/7.6
+            trn(i,j,k,jppo4)=trn(i,j,k,jppo4)/122.
           END DO
         END DO
       END DO
@@ -58,7 +58,7 @@ C         --------------------------------
         DO k=1,jpk
           DO j=Jstr,Jend
             DO i=Istr,Iend
-      t(i,j,k,nnew,itrc+2)=trn(i,j,jpk+1-k,itrc)
+              t(i,j,k,nnew,itrc+2)=trn(i,j,jpk+1-k,itrc)
             END DO
           END DO
         END DO
