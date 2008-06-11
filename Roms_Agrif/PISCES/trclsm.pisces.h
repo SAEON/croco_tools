@@ -36,7 +36,8 @@ CC local declarations
 CC ==================
 
 #if defined key_passivetrc && defined key_trc_pisces
-      INTEGER iost,ilu,iused(1,100),ilseq
+      INTEGER iost,ilu,iused(1,100),ilseq,iband,ichl
+      REAL    xtoto
       CHARACTER (len=21) :: clold,clfor,clseq,clnew,cldir,clunf
       CHARACTER (len=32) :: clname
 CC
@@ -261,6 +262,15 @@ C
        CLOSE(numnat)
 
 C
+C  FROM THE NEW BIOOPTIC MODEL PROPOSED JM ANDRE, WE READ HERE
+C  A PRECOMPUTED ARRAY CORRESPONDING TO THE ATTENUATION COEFFICIENT
+C  ----------------------------------------------------------------
+C
+         open(49,file='kRGB61.txt',form='formatted')
+         do ichl=1,61
+           READ(49,*) xtoto,(xkrgb(iband,ichl),iband = 1,3)
+         end do
+         close(49)
 
 #else
 C
