@@ -25,7 +25,7 @@
 !
       implicit none
 #include "param.h"
-      integer itrc, istr,iend,jstr,jend, i,j,k,k1,k2, klmd
+      integer itrc, istr,iend,jstr,jend, i,j,k,k1,k2, kmld
      &            , imin,imax,jmin,jmax
       real LapT(PRIVATE_2D_SCRATCH_ARRAY,0:N),
      &       FX(PRIVATE_2D_SCRATCH_ARRAY),
@@ -41,6 +41,9 @@
 #include "mixing.h"
 #include "climat.h"
 #include "scalars.h"
+# ifdef DIAGNOSTICS_TS
+#  include "diagnostics.h"
+# endif
 !
 #include "compute_auxiliary_bounds.h"
 !
