@@ -17,6 +17,7 @@
 !                       BETWEEN THE DIFFERENT COMPARTMENTS OF THE
 !                       MODEL
 !----------------------------------------------------------------
+      implicit none
       INTEGER Istr,Iend,Jstr,Jend
 # include "param.h"
 # include "scalars.h"
