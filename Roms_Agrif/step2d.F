@@ -988,6 +988,7 @@ czz     cff3=0.0088
         WRITE(stdout,'(A,I6)')    '  IIC        =',iic
 #endif
         may_day_flag=1
+        stop                            !-->  EXIT
       ENDIF
         
       return
