@@ -103,6 +103,15 @@ C
       integer i, j, ncid, varid, dimid, ierr,
      &        lstr, lenstr, nf_fread, nrec_dust, irec
       REAL dustmp(GLOBAL_2D_ARRAY,12)
+
+#ifdef MPI
+#define LOCALLM Lmmpi
+#define LOCALMM Mmmpi
+#else
+#define LOCALLM Lm
+#define LOCALMM Mm
+#endif
+
 !
 !    READ DUST INPUT FROM ATMOSPHERE
 !    -------------------------------------
@@ -140,8 +149,8 @@ C
 
 
         do irec=1,nrec_dust
-          do j=1,Mm
-            do i=1,Lm
+          do j=1,LOCALMM
+            do i=1,LOCALLM
               dustmo(i,j,irec)=dustmp(i,j,irec)
             enddo
           enddo
@@ -150,8 +159,8 @@ C
       ELSE
 
         do irec=1,nrec_dust
-          do j=1,Mm
-            do i=1,Lm
+          do j=1,LOCALMM
+            do i=1,LOCALLM
               dustmo(i,j,irec)=0.
             enddo
           enddo
