@@ -432,8 +432,9 @@
 
       it1=3-itbry
       it2=itbry
-      cff1=bry_time(it2)-time
-      cff2=time-bry_time(it1)
+      cff=time+0.5*dt
+      cff1=bry_time(it2)-cff
+      cff2=cff-bry_time(it1)
       if (ZEROTH_TILE .and. cff1.lt.dt) synchro_flag=.true.
 
       if (cff1.ge.0. .and. cff2.ge.0.) then
