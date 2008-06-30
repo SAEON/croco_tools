@@ -164,9 +164,8 @@
 #   ifdef UV_VIS2
           visc2_r(i,j)=visc2_sponge*wrk(i,j) + visc2_r(i,j)
 #   elif defined UV_VIS4
-          visc4_sponge=visc2_sponge/(pm(i,j)*pn(i,j))
+          visc4_sponge=5*visc2_sponge/(pm(i,j)*pn(i,j))
           visc4_r(i,j)=visc4_sponge*wrk(i,j) + visc4_r(i,j)
-          visc4_r(i,j)=min(visc4_r(i,j),1.e-2*grdmax**3)
 #   endif
         enddo
       enddo
@@ -211,7 +210,6 @@
 #   elif defined TS_DIF4
             diff4_sponge=diff2_sponge/(pm(i,j)*pn(i,j))
             diff4(i,j,itrc)=diff4_sponge*wrk(i,j)+diff4(i,j,itrc)
-            diff4(i,j,itrc)=min(diff4(i,j,itrc),1.e-2*grdmax**3)
 #   endif
           enddo
         enddo

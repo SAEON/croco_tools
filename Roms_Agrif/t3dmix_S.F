@@ -157,34 +157,6 @@
 # endif
           enddo
         enddo
-#   ifdef EW_PERIODIC
-        if (WESTERN_EDGE) then
-          do j=jmin,jmax
-            FX(0,j)=pmon_u(Lm2,j)*0.5*(Hz(Lm2,j,k)+Hz(L-3,j,k))*(
-     &                     t(Lm2,j,k,nrhs,itrc)-t(L-3,j,k,nrhs,itrc)
-# ifdef CLIMAT_TS_MIXH
-     &                         -tclm(Lm2,j,k,itrc)+tclm(L-3,j,k,itrc)
-# endif
-     &                                                              )
-# ifdef MASKING
-     &                                                 *umask(Lm2,j)
-# endif
-          enddo
-        endif
-        if (EASTERN_EDGE) then
-          do j=jmin,jmax
-            FX(Lp,j)=pmon_u(3,j)*0.5*(Hz(3,j,k)+Hz(2,j,k))*(
-     &                        t(3,j,k,nrhs,itrc)-t(2,j,k,nrhs,itrc)
-# ifdef CLIMAT_TS_MIXH
-     &                             -tclm(3,j,k,itrc)+tclm(2,j,k,itrc)
-# endif
-     &                                                              )
-# ifdef MASKING
-     &                                                   *umask(3,j)
-# endif
-          enddo
-        endif
-# endif /* EW_PERIODIC */
 !
 !  Compute horizontal tracer flux in the ETA-direction at V-points.
 !
@@ -201,34 +173,6 @@
 # endif
           enddo
         enddo
-# ifdef NS_PERIODIC
-        if (SOUTHERN_EDGE) then
-          do i=imin,imax
-            FE(i,0)=pnom_v(i,Mm2)*0.5*(Hz(i,Mm2,k)+Hz(i,M-3,k))*(
-     &                   t(i,Mm2,k,nrhs,itrc)-t(i,M-3,k,nrhs,itrc)
-#  ifdef CLIMAT_TS_MIXH
-     &                        -tclm(i,Mm2,k,itrc)+tclm(i,M-3,k,itrc)
-#  endif
-     &                                                              )
-#  ifdef MASKING
-     &                                                 *vmask(i,Mm2)
-#  endif
-          enddo
-        endif
-        if (NORTHERN_EDGE) then
-          do i=imin,imax
-            FE(i,Mp)=pnom_v(i,3)*0.5*(Hz(i,3,k)+Hz(i,2,k))*(
-     &                       t(i,3,k,nrhs,itrc)-t(i,2,k,nrhs,itrc)
-#  ifdef CLIMAT_TS_MIXH
-     &                            -tclm(i,3,k,itrc)+tclm(i,2,k,itrc)
-#  endif
-     &                                                              )
-#  ifdef MASKING
-     &                                                   *vmask(i,3)
-#  endif
-          enddo
-        endif
-# endif /* NS_PERIODIC */
 !
 !  Compute first Laplacian, without mixing coefficient.
 !  Multiply by the metrics of the second Laplacian.

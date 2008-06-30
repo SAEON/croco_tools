@@ -171,7 +171,7 @@
                       /* Input/Output & Diagnostics */
 # define AVERAGES
 # define AVERAGES_K
-# define DIAGNOSTICS_TS
+# undef  DIAGNOSTICS_TS
 # undef  DIAGNOSTICS_UV
 /*
 !           Applications:

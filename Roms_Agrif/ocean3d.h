@@ -21,6 +21,15 @@
      &  /grid_Hz_bak/Hz_bak /grid_zw/z_w  /grid_Huon/Huon
      &                                    /grid_Hvom/Hvom
 
+# if defined UV_VIS4 && defined MIX_GP_UV
+      real z_u(GLOBAL_2D_ARRAY,N)
+      real z_v(GLOBAL_2D_ARRAY,N)
+      real dz_u(GLOBAL_2D_ARRAY,N)
+      real dz_v(GLOBAL_2D_ARRAY,N)
+      common /grid_zu/z_u /grid_zv/z_v
+     &       /grid_dz_u/dz_u /grid_dz_v/dz_v
+# endif
+
       real rho1(GLOBAL_2D_ARRAY,N)
       real rho(GLOBAL_2D_ARRAY,N)
       common /ocean_rho1/rho1 /ocean_rho/rho

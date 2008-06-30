@@ -74,11 +74,17 @@
       real on_v(GLOBAL_2D_ARRAY)
       real om_p(GLOBAL_2D_ARRAY)
       real on_p(GLOBAL_2D_ARRAY)
+      real pn_u(GLOBAL_2D_ARRAY)
+      real pm_v(GLOBAL_2D_ARRAY)
+      real pm_u(GLOBAL_2D_ARRAY)
+      real pn_v(GLOBAL_2D_ARRAY)
       common /metrics_pm/pm    /metrics_pn/pn
      &       /metrics_omr/om_r /metrics_on_r/on_r
      &       /metrics_omu/om_u /metrics_on_u/on_u
      &       /metrics_omv/om_v /metrics_on_v/on_v
      &       /metrics_omp/om_p /metrics_on_p/on_p
+     &       /metrics_pnu/pn_u /metrics_pmv/pm_v
+     &       /metrics_pmu/pm_u /metrics_pnv/pn_v
 
 #if (defined CURVGRID && defined UV_ADV)
       real dmde(GLOBAL_2D_ARRAY)

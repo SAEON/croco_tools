@@ -31,7 +31,7 @@
       integer Istr,Iend,Jstr,Jend, i,j,k,itrc
       real grd_scale(PRIVATE_2D_SCRATCH_ARRAY)
       real cff, surf, defrate, horcon, 
-     &     uscale, cff_peclet, diff_clip
+     &     uscale, cff_peclet, cff_clip, diff_clip
       parameter (uscale = 0.1, horcon=0.1,
      &           cff_peclet=1./12.) 
 # include "param.h"
@@ -161,11 +161,13 @@
 !
 !  Mixing at RHO points
 !
-      diff_clip=1.e-2*grdmax**3
+      diff_clip=5.e-3*grdmax**3
       do k=1,N
         do j=JstrV-1,Jend
           do i=IstrU-1,Iend
-            surf=(1./(pm(i,j)*pn(i,j)))
+!
+! Compute deformation rate
+!
             defrate=sqrt( ((u(i+1,j,k,nrhs)-u(i,j,k,nrhs))*pm(i,j))**2
      &                   +((v(i,j+1,k,nrhs)-v(i,j,k,nrhs))*pn(i,j))**2
      &               +0.5*(0.25*pn(i,j)*(
@@ -174,7 +176,10 @@
      &                   + 0.25*pm(i,j)*(
      &                     v(i+1,j,k,nrhs)+v(i+1,j+1,k,nrhs)
      &                    -v(i-1,j,k,nrhs)-v(i-1,j+1,k,nrhs)) )**2)
-
+            surf=om_r(i,j)*on_r(i,j)
+!
+! Smagorinsky viscosity (harmonic and biharmonic)
+!
 #   ifdef VIS_SMAGO
 #    ifdef UV_VIS2
             visc3d_r(i,j,k)=horcon*surf*defrate+visc2_r(i,j)
@@ -184,18 +189,23 @@
             visc3d_r(i,j,k)=min(visc3d_r(i,j,k),diff_clip)
 #     endif
 #    endif
+!
+! Combined Smagorinsky+Peclet hyperviscosity (physical and numerical closure)
+!
 #   elif defined UV_SPLIT_UP3
             viscU_r(i,j,k)=cff_peclet*surf**2*max( defrate,
-     &      0.5*abs(u(i,j,k,nrhs)+u(i+1,j,k,nrhs))*pm(i,j) )+visc4_r(i,j)
+     &         0.5*abs(u(i,j,k,nrhs)+u(i+1,j,k,nrhs))*pm(i,j) )+visc4_r(i,j)
             viscV_r(i,j,k)=cff_peclet*surf**2*max( defrate,
-     &      0.5*abs(v(i,j,k,nrhs)+v(i,j+1,k,nrhs))*pn(i,j) )+visc4_r(i,j)
+     &         0.5*abs(v(i,j,k,nrhs)+v(i,j+1,k,nrhs))*pn(i,j) )+visc4_r(i,j)
 #    ifdef MIX_GP_UV
             viscU_r(i,j,k)=min(viscU_r(i,j,k),diff_clip)
             viscV_r(i,j,k)=min(viscV_r(i,j,k),diff_clip)
 #    endif
-            visc3d_r(i,j,k)=sqrt(viscU_r(i,j,k)**2+viscV_r(i,j,k)**2)
+            visc3d_r(i,j,k)=max(viscU_r(i,j,k),viscV_r(i,j,k))
 #   endif
-
+!
+! Smagorinsky diffusivity (harmonic and biharmonic)
+!
 #   ifdef DIF_SMAGO
 #    ifdef TS_DIF2
             diff3d(i,j,k)=horcon*surf*defrate+diff2(i,j,itemp) 
@@ -226,25 +236,23 @@
 !!      diff_clip=1.e-2*grdmax**3
       do k=1,N
         do j=Jstr-1,Jend+1
-          do i=IstrU-1,Iend+1
+          do i=Istr,Iend+1
             diff3d_u(i,j,k)=cff_peclet*abs(u(i,j,k,nrhs))*om_u(i,j)**3
      &                      +0.5*(diff4(i,j,itemp)+diff4(i-1,j,itemp))
 #   ifdef MIX_GP_TS
-            diff_clip=.5*(Hz(i,j,k)+Hz(i-1,j,k))/
-     &                   (z_r(i,j,k+1)-z_r(i-1,j,k+1))
-            diff_clip=min(1.,diff_clip**2)*diff3d_u(i,j,k)
+            diff_clip=.5*(Hz(i,j,k)+Hz(i-1,j,k))/(z_r(i,j,k)-z_r(i-1,j,k))
+            diff_clip=min(1.,diff_clip**4)*diff3d_u(i,j,k)
             diff3d_u(i,j,k)=min(diff3d_u(i,j,k),diff_clip)
 #   endif
           enddo
         enddo
-        do j=JstrV-1,Jend+1
+        do j=Jstr,Jend+1
           do i=Istr-1,Iend+1
             diff3d_v(i,j,k)=cff_peclet*abs(v(i,j,k,nrhs))*on_v(i,j)**3
      &                      +0.5*(diff4(i,j,itemp)+diff4(i,j-1,itemp))
 #   ifdef MIX_GP_TS
-            diff_clip=.5*(Hz(i,j,k)+Hz(i,j-1,k))/
-     &                   (z_r(i,j,k+1)-z_r(i,j-1,k+1)) 
-            diff_clip=min(1.,diff_clip**2)*diff3d_v(i,j,k)
+            diff_clip=.5*(Hz(i,j,k)+Hz(i,j-1,k))/(z_r(i,j,k)-z_r(i,j-1,k)) 
+            diff_clip=min(1.,diff_clip**4)*diff3d_v(i,j,k)
             diff3d_v(i,j,k)=min(diff3d_v(i,j,k),diff_clip)
 #   endif
           enddo
@@ -252,8 +260,8 @@
       enddo
 
       do k=1,N
-        do j=JstrV-1,Jend
-          do i=IstrU-1,Iend
+        do j=Jstr,Jend
+          do i=Istr,Iend
             diff3d(i,j,k)=0.25*(diff3d_u(i,j,k)+diff3d_u(i+1,j,k)
      &                         +diff3d_v(i,j,k)+diff3d_v(i,j+1,k))
           enddo
@@ -317,12 +325,8 @@
 # ifdef DIF_COEF_3D
       if (WESTERN_EDGE) then
         do k=1,N
-          do j=JstrV-1,Jend
+          do j=Jstr,Jend
             diff3d(Istr-1,j,k)=diff3d(Istr,j,k)
-#  ifdef TS_SPLIT_UP3
-            diff3d_u(Istr-1,j,k)=diff3d_u(Istr,j,k)
-            diff3d_v(Istr-1,j,k)=diff3d_v(Istr,j,k)
-#  endif
           enddo
         enddo
       endif
@@ -330,10 +334,6 @@
         do k=1,N
           do j=JstrV-1,Jend
             diff3d(Iend+1,j,k)=diff3d(Iend,j,k)
-#  ifdef TS_SPLIT_UP3
-            diff3d_u(Iend+1,j,k)=diff3d_u(Iend,j,k)
-            diff3d_v(Iend+1,j,k)=diff3d_v(Iend,j,k)
-#  endif
           enddo
         enddo
       endif
@@ -341,10 +341,6 @@
         do k=1,N
           do i=IstrU-1,Iend
             diff3d(i,Jstr-1,k)=diff3d(i,Jstr,k)
-#  ifdef TS_SPLIT_UP3
-            diff3d_u(i,Jstr-1,k)=diff3d_u(i,Jstr,k)
-            diff3d_v(i,Jstr-1,k)=diff3d_v(i,Jstr,k)
-#  endif
           enddo
         enddo
       endif
@@ -352,10 +348,6 @@
         do k=1,N
           do i=IstrU-1,Iend
             diff3d(i,Jend+1,k)=diff3d(i,Jend,k)
-#  ifdef TS_SPLIT_UP3
-            diff3d_u(i,Jend+1,k)=diff3d_u(i,Jend,k)
-            diff3d_v(i,Jend+1,k)=diff3d_v(i,Jend,k)
-#  endif
           enddo
         enddo
       endif
@@ -432,14 +424,6 @@
           diff3d(Istr-1,Jstr-1,k)=0.5*
      &                          ( diff3d(Istr,Jstr-1,k)
      &                           +diff3d(Istr-1,Jstr,k))
-#  ifdef TS_SPLIT_UP3
-          diff3d_u(Istr-1,Jstr-1,k)=0.5*
-     &                          ( diff3d_u(Istr,Jstr-1,k)
-     &                           +diff3d_u(Istr-1,Jstr,k))
-          diff3d_v(Istr-1,Jstr-1,k)=0.5*
-     &                          ( diff3d_v(Istr,Jstr-1,k)
-     &                           +diff3d_v(Istr-1,Jstr,k))
-#  endif
         enddo
       endif
       if (SOUTHERN_EDGE .and. EASTERN_EDGE) then
@@ -447,14 +431,6 @@
           diff3d(Iend+1,Jstr-1,k)=0.5*
      &                          (diff3d(Iend,Jstr-1,k)
      &                          +diff3d(Iend+1,Jstr,k))
-#  ifdef TS_SPLIT_UP3
-          diff3d_u(Iend+1,Jstr-1,k)=0.5*
-     &                          (diff3d_u(Iend,Jstr-1,k)
-     &                          +diff3d_u(Iend+1,Jstr,k))
-          diff3d_v(Iend+1,Jstr-1,k)=0.5*
-     &                          (diff3d_v(Iend,Jstr-1,k)
-     &                          +diff3d_v(Iend+1,Jstr,k))
-#  endif
         enddo
       endif
       if (NORTHERN_EDGE .and. WESTERN_EDGE) then
@@ -462,14 +438,6 @@
           diff3d(Istr-1,Jend+1,k)=0.5*
      &                          ( diff3d(Istr,Jend+1,k)
      &                           +diff3d(Istr-1,Jend,k))
-#  ifdef TS_SPLIT_UP3
-          diff3d_u(Istr-1,Jend+1,k)=0.5*
-     &                          ( diff3d_u(Istr,Jend+1,k)
-     &                           +diff3d_u(Istr-1,Jend,k))
-          diff3d_v(Istr-1,Jend+1,k)=0.5*
-     &                          ( diff3d_v(Istr,Jend+1,k)
-     &                           +diff3d_v(Istr-1,Jend,k))
-#  endif
         enddo
       endif
       if (NORTHERN_EDGE .and. EASTERN_EDGE) then
@@ -477,14 +445,6 @@
           diff3d(Iend+1,Jend+1,k)=0.5*
      &                          ( diff3d(Iend,Jend+1,k)
      &                           +diff3d(Iend+1,Jend,k))
-#  ifdef TS_SPLIT_UP3
-          diff3d_u(Iend+1,Jend+1,k)=0.5*
-     &                          ( diff3d_u(Iend,Jend+1,k)
-     &                           +diff3d_u(Iend+1,Jend,k))
-          diff3d_v(Iend+1,Jend+1,k)=0.5*
-     &                          ( diff3d_v(Iend,Jend+1,k)
-     &                           +diff3d_v(Iend+1,Jend,k))
-#  endif
         enddo
       endif
 # endif
@@ -515,10 +475,10 @@
 
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
 #  ifdef VIS_COEF_3D
-      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,visc3d_r)
+!      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,visc3d_r)
 #   ifdef UV_SPLIT_UP3
-      call exchange_u3d_tile (Istr,Iend,Jstr,Jend,viscU_r)
-      call exchange_v3d_tile (Istr,Iend,Jstr,Jend,viscV_r)
+!      call exchange_u3d_tile (Istr,Iend,Jstr,Jend,viscU_r)
+!      call exchange_v3d_tile (Istr,Iend,Jstr,Jend,viscV_r)
       call exchange_u3d_tile (Istr,Iend,Jstr,Jend,viscU_p)
       call exchange_v3d_tile (Istr,Iend,Jstr,Jend,viscV_p)
 #   else
@@ -528,8 +488,8 @@
 #  ifdef DIF_COEF_3D
       call exchange_r3d_tile (Istr,Iend,Jstr,Jend,diff3d)
 #   ifdef TS_SPLIT_UP3
-      call exchange_u3d_tile (Istr,Iend,Jstr,Jend,diff3d_u)
-      call exchange_v3d_tile (Istr,Iend,Jstr,Jend,diff3d_v)
+!      call exchange_u3d_tile (Istr,Iend,Jstr,Jend,diff3d_u)
+!      call exchange_v3d_tile (Istr,Iend,Jstr,Jend,diff3d_v)
 #   endif
 #  endif
 # endif

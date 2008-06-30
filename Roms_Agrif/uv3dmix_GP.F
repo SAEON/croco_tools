@@ -392,30 +392,28 @@
 !
           do j=Jstr,Jend
             do i=IstrU,Iend
-              cff=0.125*(pm(i-1,j)+pm(i,j))*(pn(i-1,j) +pn(i,j))
-     &               *( (pn(i-1,j)+pn(i,j))*(UFx(i,j)-UFx(i-1,j))
-     &                 +(pm(i-1,j)+pm(i,j))*(UFe(i,j+1)-UFe(i,j))
-     &                                                          )
+              cff=pn_u(i,j)*(UFx(i,j)-UFx(i-1,j))
+     &           +pm_u(i,j)*(UFe(i,j+1)-UFe(i,j))
+              cff1=pm_u(i,j)*pn_u(i,j)*cff
               rufrc(i,j)=rufrc(i,j) + cff
-              u(i,j,k,indx)=u(i,j,k,indx) + dt*( cff+UFs(i,j,k2)
+              u(i,j,k,indx)=u(i,j,k,indx) + dt*(cff1+UFs(i,j,k2)
      &                                              -UFs(i,j,k1))
 # ifdef DIAGNOSTICS_UV
-              MHmix(i,j,k,1) = 2*(cff+UFs(i,j,k2)-UFs(i,j,k1))
+              MHmix(i,j,k,1) = 2*(cff1+UFs(i,j,k2)-UFs(i,j,k1))
      &                                   /(Hz(i-1,j,k)+Hz(i,j,k))
 # endif
             enddo
           enddo
           do j=JstrV,Jend
             do i=Istr,Iend
-              cff=0.125*(pm(i,j)+pm(i,j-1))*(pn(i,j) +pn(i,j-1))
-     &               *( (pn(i,j-1)+pn(i,j))*(VFx(i+1,j)-VFx(i,j))
-     &                 -(pm(i,j-1)+pm(i,j))*(VFe(i,j)-VFe(i,j-1))
-     &                                                          )
+              cff=pn_v(i,j)*(VFx(i+1,j)-VFx(i,j))
+     &           -pm_v(i,j)*(VFe(i,j)-VFe(i,j-1))
+              cff1=pm_v(i,j)*pn_v(i,j)*cff 
               rvfrc(i,j)=rvfrc(i,j) + cff
-              v(i,j,k,indx)=v(i,j,k,indx) + dt*( cff+VFs(i,j,k2)
+              v(i,j,k,indx)=v(i,j,k,indx) + dt*(cff1+VFs(i,j,k2)
      &                                              -VFs(i,j,k1))
 # ifdef DIAGNOSTICS_UV
-              MHmix(i,j,k,2) = 2*(cff+VFs(i,j,k2)-VFs(i,j,k1))
+              MHmix(i,j,k,2) = 2*(cff1+VFs(i,j,k2)-VFs(i,j,k1))
      &                                   /(Hz(i,j,k)+Hz(i,j-1,k))
 # endif
             enddo

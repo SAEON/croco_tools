@@ -88,6 +88,8 @@
      &                 /(pn(i,j)+pn(i-1,j))
            om_u(i,j)=2./(pm(i,j)+pm(i-1,j))
            on_u(i,j)=2./(pn(i,j)+pn(i-1,j))
+           pn_u(i,j)=0.5*(pn(i,j)+pn(i-1,j))
+           pm_u(i,j)=0.5*(pm(i,j)+pm(i-1,j))
 #ifdef MASKING
            umask(i,j)=rmask(i,j)*rmask(i-1,j)
 #endif
@@ -102,6 +104,8 @@
      &                /(pm(i,j)+pm(i,j-1))
           om_v(i,j)=2./(pm(i,j)+pm(i,j-1))
           on_v(i,j)=2./(pn(i,j)+pn(i,j-1))
+          pm_v(i,j)=0.5*(pm(i,j)+pm(i,j-1))
+          pn_v(i,j)=0.5*(pn(i,j)+pn(i,j-1))
 #ifdef MASKING
           vmask(i,j)=rmask(i,j)*rmask(i,j-1)
 #endif
@@ -144,10 +148,14 @@
       call exchange_u2d_tile (Istr,Iend,Jstr,Jend, pmon_u)
       call exchange_u2d_tile (Istr,Iend,Jstr,Jend,   om_u)
       call exchange_u2d_tile (Istr,Iend,Jstr,Jend,   on_u)
+      call exchange_u2d_tile (Istr,Iend,Jstr,Jend,   pn_u)
+      call exchange_u2d_tile (Istr,Iend,Jstr,Jend,   pm_u)
 
       call exchange_v2d_tile (Istr,Iend,Jstr,Jend, pnom_v)
       call exchange_v2d_tile (Istr,Iend,Jstr,Jend,   om_v)
       call exchange_v2d_tile (Istr,Iend,Jstr,Jend,   on_v)
+      call exchange_v2d_tile (Istr,Iend,Jstr,Jend,   pm_v)
+      call exchange_v2d_tile (Istr,Iend,Jstr,Jend,   pn_v)
 
       call exchange_p2d_tile (Istr,Iend,Jstr,Jend, pnom_p)
       call exchange_p2d_tile (Istr,Iend,Jstr,Jend, pmon_p)
