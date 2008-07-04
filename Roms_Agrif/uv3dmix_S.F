@@ -49,7 +49,7 @@
       integer Istr,Iend,Jstr,Jend, i,j,k, indx
       real UFe(PRIVATE_2D_SCRATCH_ARRAY),
      &     UFx(PRIVATE_2D_SCRATCH_ARRAY), cff,
-     &     VFe(PRIVATE_2D_SCRATCH_ARRAY),
+     &     VFe(PRIVATE_2D_SCRATCH_ARRAY), cff1,
      &     VFx(PRIVATE_2D_SCRATCH_ARRAY)
 # include "param.h"
 # include "scalars.h"
@@ -57,16 +57,11 @@
 # include "ocean3d.h"
 # include "coupling.h"
 # include "mixing.h"
+# ifdef CLIMAT_UV_MIXH
+#  include "climat.h"
+# endif
 # ifdef DIAGNOSTICS_UV
 #  include "diagnostics.h"
-# endif
-!
-# ifdef MPI
-#  define LOCALLM Lmmpi
-#  define LOCALMM Mmmpi
-# else
-#  define LOCALLM Lm
-#  define LOCALMM Mm
 # endif
 !
 # include "compute_auxiliary_bounds.h"
@@ -80,16 +75,23 @@
         do j=JstrV-1,Jend
           do i=IstrU-1,Iend
 # ifdef SMAGO_UV
-            cff=0.5*Hz(i,j,k)*(visc2_r(i,j)+visc3d_r(i,j,k))*(
+            cff=Hz(i,j,k)*(visc2_r(i,j)+visc3d_r(i,j,k))*
 # else
-            cff=0.5*Hz(i,j,k)*visc2_r(i,j)*(
+            cff=Hz(i,j,k)*visc2_r(i,j)*
 # endif
-     &      on_r(i,j)*pm(i,j)*( (pn(i  ,j)+pn(i+1,j))*u(i+1,j,k,nstp)
-     &                         -(pn(i-1,j)+pn(i  ,j))*u(i  ,j,k,nstp)
-     &                                                              )
-     &     -om_r(i,j)*pn(i,j)*( (pm(i,j  )+pm(i,j+1))*v(i,j+1,k,nstp)
-     &                         -(pm(i,j-1)+pm(i,j  ))*v(i,j  ,k,nstp)
-     &                                                             ))
+#  ifdef CLIMAT_UV_MIXH
+     &    ( on_r(i,j)*pm(i,j)*
+     &        ( pn_u(i+1,j)*(u(i+1,j,k,nstp)-uclm(i+1,j,k))
+     &         -pn_u(i  ,j)*(u(i  ,j,k,nstp)-uclm(i  ,j,k)) )
+     &     -om_r(i,j)*pn(i,j)*
+     &        ( pm_v(i,j+1)*(v(i,j+1,k,nstp)-vclm(i,j+1,k))
+     &         -pm_v(i,j  )*(v(i,j  ,k,nstp)-vclm(i,j  ,k)) ) )
+#  else
+     &    ( on_r(i,j)*pm(i,j)*( pn_u(i+1,j)*u(i+1,j,k,nstp)
+     &                         -pn_u(i  ,j)*u(i  ,j,k,nstp) )
+     &     -om_r(i,j)*pn(i,j)*( pm_v(i,j+1)*v(i,j+1,k,nstp)
+     &                         -pm_v(i,j  )*v(i,j  ,k,nstp) ) )
+#  endif
             UFx(i,j)=on_r(i,j)*on_r(i,j)*cff
             VFe(i,j)=om_r(i,j)*om_r(i,j)*cff
           enddo
@@ -97,19 +99,26 @@
         do j=Jstr,Jend+1
           do i=Istr,Iend+1
 # ifdef SMAGO_UV
-            cff=0.125*(visc2_p(i,j)+visc3d_p(i,j,k))*
+            cff=0.0625*(visc2_p(i,j)+visc3d_p(i,j,k))*
 # else
-            cff=0.125*visc2_p(i,j)*
+            cff=0.0625*visc2_p(i,j)*
 # endif
-     &      (Hz(i-1,j,k)+Hz(i,j,k)+Hz(i-1,j-1,k)+Hz(i,j-1,k))*(
-     &      0.25*(pm(i-1,j)+pm(i,j)+pm(i-1,j-1)+pm(i,j-1))*on_p(i,j)
-     &                     *( (pn(i  ,j-1)+pn(i  ,j))*v(i  ,j,k,nstp)
-     &                       -(pn(i-1,j-1)+pn(i-1,j))*v(i-1,j,k,nstp)
-     &                                                              )
-     &     +0.25*(pn(i-1,j)+pn(i,j)+pn(i-1,j-1)+pn(i,j-1))*om_p(i,j)
-     &                     *( (pm(i-1,j  )+pm(i,j  ))*u(i,j  ,k,nstp)
-     &                       -(pm(i-1,j-1)+pm(i,j-1))*u(i,j-1,k,nstp)
-     &                                                             ))
+     &      (Hz(i-1,j,k)+Hz(i,j,k)+Hz(i-1,j-1,k)+Hz(i,j-1,k))*
+#  ifdef CLIMAT_UV_MIXH
+     &      (  (pm(i-1,j)+pm(i,j)+pm(i-1,j-1)+pm(i,j-1))*on_p(i,j)
+     &              *( pn_v(i  ,j)*(v(i  ,j,k,nstp)-vclm(i  ,j,k))
+     &                -pn_v(i-1,j)*(v(i-1,j,k,nstp)-vclm(i-1,j,k)) )
+     &        +(pn(i-1,j)+pn(i,j)+pn(i-1,j-1)+pn(i,j-1))*om_p(i,j)
+     &              *( pm_u(i,j  )*(u(i,j  ,k,nstp)-uclm(i  ,j,k))
+     &                -pm_u(i,j-1)*(u(i,j-1,k,nstp)-uclm(i-1,j,k)) ) )
+#  else
+     &      (  (pm(i-1,j)+pm(i,j)+pm(i-1,j-1)+pm(i,j-1))*on_p(i,j)
+     &                     *( pn_v(i  ,j)*v(i  ,j,k,nstp)
+     &                       -pn_v(i-1,j)*v(i-1,j,k,nstp) )
+     &        +(pn(i-1,j)+pn(i,j)+pn(i-1,j-1)+pn(i,j-1))*om_p(i,j)
+     &                     *( pm_u(i,j  )*u(i,j  ,k,nstp)
+     &                       -pm_u(i,j-1)*u(i,j-1,k,nstp) ) )
+#  endif
 # ifdef MASKING
      &                                                   *pmask(i,j)
 # endif

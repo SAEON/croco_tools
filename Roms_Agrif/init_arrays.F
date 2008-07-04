@@ -686,6 +686,13 @@
             visc2_p(i,j)=visc2
           enddo
         enddo
+#elif defined SPONGE_VIS2
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+            visc2_r(i,j)=0.
+            visc2_p(i,j)=0.
+          enddo
+        enddo
 #endif
 #ifdef UV_VIS4
         do j=JstrR,JendR
@@ -723,6 +730,14 @@
           do j=JstrR,JendR
             do i=IstrR,IendR
               diff2(i,j,itrc)=tnu2(itrc)
+            enddo
+          enddo
+        enddo
+#elif defined SPONGE_DIF2
+        do itrc=1,NT
+          do j=JstrR,JendR
+            do i=IstrR,IendR
+              diff2(i,j,itrc)=0.
             enddo
           enddo
         enddo

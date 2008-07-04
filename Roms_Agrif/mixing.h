@@ -4,7 +4,7 @@
 ! This is include file "mixing.h"
 !  ==== == ======= ==== ==========
 !
-#ifdef UV_VIS2
+#if defined UV_VIS2 || defined SPONGE_VIS2
       real visc2_r(GLOBAL_2D_ARRAY)
       real visc2_p(GLOBAL_2D_ARRAY)
       common /mixing_visc2_r/visc2_r /mixing_visc2_p/visc2_p
@@ -14,7 +14,7 @@
       real visc4_p(GLOBAL_2D_ARRAY)
       common /mixing_visc4_r/visc4_r /mixing_visc4_p/visc4_p
 #endif
-#ifdef TS_DIF2
+#if defined TS_DIF2 || defined SPONGE_DIF2
       real diff2(GLOBAL_2D_ARRAY,NT)
       common /mixing_diff2/diff2
 #endif

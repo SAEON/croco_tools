@@ -1,36 +1,40 @@
 !
-! $Id: uv3dmix_GP.F,v 1.3 2005/10/10 13:40:19 pmarches Exp $
+! $Id: uv3dmix_S.F,v 1.3 2005/10/10 13:40:19 pmarches Exp $
 !
 #include "cppdefs.h"
-#if defined SOLVE3D && defined UV_VIS2
- 
-      subroutine uv3dmix (tile)
+# if defined SOLVE3D && defined SPONGE_VIS2 && !defined UV_VIS2
+
+# define MIX_S_UV_SPG
+# if defined M3CLIMATOLOGY && !defined AGRIF
+#  define CLIMAT_SPONGE
+# endif
+
+# ifdef MIX_S_UV_SPG
+!
+!====================================================================
+!
+! Compute horizontal harmonic viscosity along S-surfaces
+! in SPONGE layers
+!
+!====================================================================
+!
+      subroutine uv3dmix_spg (tile)
       implicit none
       integer tile, trd, omp_get_thread_num
-#include "param.h"
-#include "private_scratch.h"
-#include "compute_tile_bounds.h"
-      trd=omp_get_thread_num() 
-      call uv3dmix_tile (Istr,Iend,Jstr,Jend,
-     &    A2d(1, 1,trd), A2d(1, 2,trd), A2d(1, 3,trd), A2d(1,4,trd),
-     &    A2d(1, 5,trd), A2d(1, 7,trd), A2d(1, 9,trd), A2d(1,11,trd),
-     &    A2d(1,13,trd), A2d(1,15,trd), A2d(1,17,trd), A2d(1,19,trd),
-     &    A2d(1,21,trd), A2d(1,23,trd), A2d(1,25,trd), A2d(1,27,trd))
+# include "param.h"
+# include "private_scratch.h"
+# include "compute_tile_bounds.h"
+      trd=omp_get_thread_num()
+      call uv3dmix_spg_tile (Istr,Iend,Jstr,Jend, 
+     &                        A2d(1,1,trd), A2d(1,2,trd),
+     &                        A2d(1,3,trd), A2d(1,4,trd))
       return
       end
  
-      subroutine uv3dmix_tile (Istr,Iend,Jstr,Jend, UFx, UFe,
-     &                             VFx,VFe, UFs,VFs, dnUdx,  dmUde,
-     &                             dUdz,    dnVdx,   dmVde,  dVdz,
-     &                             dZdx_r,  dZdx_p,  dZde_r, dZde_p)
-
+      subroutine uv3dmix_spg_tile (Istr,Iend,Jstr,Jend, UFx,UFe,VFx,VFe)
 !
-! Compute horizontal (along geopotential surfaces) viscous terms as
-! divergence of symmetric stress tensor.
-!
-! Compute harmonic mixing of momentum, rotated along geopotentials,
-! from the horizontal divergence of the  stress  tensor. Components
-! of stress tensor are:
+! Computes harmonic mixing of momentum as horizontal divergence of the 
+! stress tensor. Components of the stress tensor are:
 !                         du     dv
 !         s_xx = -s_yy = ---- - -----
 !                         dx     dy
@@ -39,31 +43,158 @@
 !         s_xy =  s_yx = ---- + ----
 !                         dy     dx
 !
-! A transverse  isotropy is assumed so the stress tensor is splitted
-! into vertical and horizontal subtensors.
+! Reference:
 !
-!  Reference:
+! Wajsowicz, R.C, 1993: A consistent formulation of the anisotropic
+!     stress tensor for use in models of the large-scale ocean
+!     circulation, JCP, 105, 333-338.
 !
-! [1] Stelling, G. S., and J. A. Th. M. van Kester, 1994: On the
-!       approximation of horizontal gradients in sigma-coordinates
-!       for bathymetry with steep bottom slopes. Int. J. Num. Meth.
-!       in Fluids, v. 18, pp. 915-935.
+! Sadourny, R. and K. Maynard, 1997: Formulations of lateral
+!     diffusion in geophysical fluid dynamics models, In "Numerical
+!     Methods of Atmospheric and Oceanic Modelling". Lin, Laprise,
+!     and Ritchie, Eds., NRC Research Press, 547-556.
 !
-! [2] Wajsowicz, R.C, 1993: A consistent formulation of the
-!       anisotropic stress tensor for use in models of the
-!       large-scale ocean circulation, JCP, 105, 333-338.
+! Griffies, S.M. and R.W. Hallberg, 2000: Biharmonic friction with
+!     a Smagorinsky-like viscosity for use in large-scale eddy-
+!     permitting ocean models, Mon. Wea. Rev., 128, 8, 2935-2946.
 !
-! [3] Sadourny, R. and K. Maynard, 1997: Formulations of lateral
-!       diffusion in geophysical fluid dynamics models, In
-!       "Numerical Methods of Atmospheric and Oceanic Modelling".
-!       Lin, Laprise, and Ritchie, Eds., NRC Research Press,
-!       547-556.
+
+      implicit none
+      integer Istr,Iend,Jstr,Jend, i,j,k, indx
+      real UFe(PRIVATE_2D_SCRATCH_ARRAY),
+     &     UFx(PRIVATE_2D_SCRATCH_ARRAY), cff,
+     &     VFe(PRIVATE_2D_SCRATCH_ARRAY), cff1,
+     &     VFx(PRIVATE_2D_SCRATCH_ARRAY)
+# include "param.h"
+# include "scalars.h"
+# include "grid.h"
+# include "ocean3d.h"
+# include "coupling.h"
+# include "mixing.h"
+# include "climat.h"
+# ifdef DIAGNOSTICS_UV
+#  include "diagnostics.h"
+# endif
 !
-! [4] Griffies, S.M. and R.W. Hallberg, 2000: Biharmonic friction
-!       with a Smagorinsky-like viscosity for use in large-scale
-!       eddy-permitting ocean models, Monthly Weather Rev.,v. 128,
-!       No. 8, pp. 2935-2946.
+# include "compute_auxiliary_bounds.h"
 !
+      indx=3-nstp    !--> time index for target arrays;
+
+!
+!  Compute flux-components of the horizontal divergence of the stress
+!  tensor (m5/s2) in XI- and ETA-directions.
+!
+      do k=1,N
+        do j=JstrV-1,Jend
+          do i=IstrU-1,Iend
+            cff=Hz(i,j,k)*visc2_r(i,j)*
+#  ifdef CLIMAT_SPONGE
+     &    ( on_r(i,j)*pm(i,j)*
+     &        ( pn_u(i+1,j)*(u(i+1,j,k,nstp)-uclm(i+1,j,k))
+     &         -pn_u(i  ,j)*(u(i  ,j,k,nstp)-uclm(i  ,j,k)) )
+     &     -om_r(i,j)*pn(i,j)*
+     &        ( pm_v(i,j+1)*(v(i,j+1,k,nstp)-vclm(i,j+1,k))
+     &         -pm_v(i,j  )*(v(i,j  ,k,nstp)-vclm(i,j  ,k)) ) )
+#  else
+     &    ( on_r(i,j)*pm(i,j)*( pn_u(i+1,j)*u(i+1,j,k,nstp)
+     &                         -pn_u(i  ,j)*u(i  ,j,k,nstp) )
+     &     -om_r(i,j)*pn(i,j)*( pm_v(i,j+1)*v(i,j+1,k,nstp)
+     &                         -pm_v(i,j  )*v(i,j  ,k,nstp) ) )
+#  endif
+            UFx(i,j)=on_r(i,j)*on_r(i,j)*cff
+            VFe(i,j)=om_r(i,j)*om_r(i,j)*cff
+          enddo
+        enddo
+        do j=Jstr,Jend+1
+          do i=Istr,Iend+1
+            cff=0.0625*visc2_p(i,j)*
+     &      (Hz(i-1,j,k)+Hz(i,j,k)+Hz(i-1,j-1,k)+Hz(i,j-1,k))*
+#  ifdef CLIMAT_SPONGE
+     &      (  (pm(i-1,j)+pm(i,j)+pm(i-1,j-1)+pm(i,j-1))*on_p(i,j)
+     &              *( pn_v(i  ,j)*(v(i  ,j,k,nstp)-vclm(i  ,j,k))
+     &                -pn_v(i-1,j)*(v(i-1,j,k,nstp)-vclm(i-1,j,k)) )
+     &        +(pn(i-1,j)+pn(i,j)+pn(i-1,j-1)+pn(i,j-1))*om_p(i,j)
+     &              *( pm_u(i,j  )*(u(i,j  ,k,nstp)-uclm(i  ,j,k))
+     &                -pm_u(i,j-1)*(u(i,j-1,k,nstp)-uclm(i-1,j,k)) ) )
+#  else
+     &      (  (pm(i-1,j)+pm(i,j)+pm(i-1,j-1)+pm(i,j-1))*on_p(i,j)
+     &                     *( pn_v(i  ,j)*v(i  ,j,k,nstp)
+     &                       -pn_v(i-1,j)*v(i-1,j,k,nstp) )
+     &        +(pn(i-1,j)+pn(i,j)+pn(i-1,j-1)+pn(i,j-1))*om_p(i,j)
+     &                     *( pm_u(i,j  )*u(i,j  ,k,nstp)
+     &                       -pm_u(i,j-1)*u(i,j-1,k,nstp) ) )
+#  endif
+#  ifdef MASKING
+     &                                              *pmask(i,j)
+#  endif
+            UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
+            VFx(i,j)=on_p(i,j)*on_p(i,j)*cff
+          enddo
+        enddo
+!
+! Apply viscous terms. Note that at this stage arrays u,v(...,3-nstp)
+! contain Hz*U and Hz*V with units of [m2/s].   Also compute vertical
+! integral of viscous terms and add it into coupling terms for the
+! barotropic mode
+!
+        do j=Jstr,Jend
+          do i=IstrU,Iend
+            cff=pn_u(i,j)*(UFx(i,j)-UFx(i-1,j))
+     &         +pm_u(i,j)*(UFe(i,j+1)-UFe(i,j))
+            cff1=pm_u(i,j)*pn_u(i,j)*cff
+            rufrc(i,j)=rufrc(i,j) + cff
+            u(i,j,k,indx)=u(i,j,k,indx) + dt*cff1
+#  ifdef DIAGNOSTICS_UV
+            MHmix(i,j,k,1) = MHmix(i,j,k,1)+
+     &                            2*cff1/(Hz(i-1,j,k)+Hz(i,j,k))
+#  endif
+          enddo
+        enddo
+        do j=JstrV,Jend
+          do i=Istr,Iend
+            cff=pn_v(i,j)*(VFx(i+1,j)-VFx(i,j))
+     &         -pm_v(i,j)*(VFe(i,j)-VFe(i,j-1))
+            cff1=pm_v(i,j)*pn_v(i,j)*cff 
+            rvfrc(i,j)=rvfrc(i,j) + cff
+            v(i,j,k,indx)=v(i,j,k,indx) + dt*cff1
+#  ifdef DIAGNOSTICS_UV
+            MHmix(i,j,k,2) = MHmix(i,j,k,2)+
+     &                            2*cff1/(Hz(i,j,k)+Hz(i,j-1,k))
+#  endif
+          enddo
+        enddo
+      enddo
+      return
+      end
+
+# else
+!
+!====================================================================
+!
+! Compute horizontal harmonic viscosity along geopotential surfaces
+! in SPONGE layers
+!
+!====================================================================
+!
+      subroutine uv3dmix_spg (tile)
+      implicit none
+      integer tile, trd, omp_get_thread_num
+#include "param.h"
+#include "private_scratch.h"
+#include "compute_tile_bounds.h"
+      trd=omp_get_thread_num() 
+      call uv3dmix_spg_tile (Istr,Iend,Jstr,Jend,
+     &    A2d(1, 1,trd), A2d(1, 2,trd), A2d(1, 3,trd), A2d(1,4,trd),
+     &    A2d(1, 5,trd), A2d(1, 7,trd), A2d(1, 9,trd), A2d(1,11,trd),
+     &    A2d(1,13,trd), A2d(1,15,trd), A2d(1,17,trd), A2d(1,19,trd),
+     &    A2d(1,21,trd), A2d(1,23,trd), A2d(1,25,trd), A2d(1,27,trd))
+      return
+      end
+ 
+      subroutine uv3dmix_spg_tile (Istr,Iend,Jstr,Jend, UFx, UFe,
+     &                             VFx,VFe, UFs,VFs, dnUdx,  dmUde,
+     &                             dUdz,    dnVdx,   dmVde,  dVdz,
+     &                             dZdx_r,  dZdx_p,  dZde_r, dZde_p)
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j,k, k1,k2, indx
       real UFe(PRIVATE_2D_SCRATCH_ARRAY),
@@ -89,9 +220,6 @@
 # include "ocean3d.h"
 # include "coupling.h"
 # include "mixing.h"
-# ifdef CLIMAT_UV_MIXH
-#  include "climat.h"
-# endif
 # ifdef DIAGNOSTICS_UV
 #  include "diagnostics.h"
 # endif
@@ -99,25 +227,7 @@
 # include "compute_auxiliary_bounds.h"
 
       indx=3-nstp    !--> time index for target arrays;
-!
-! Compute horizontal harmonic viscosity along geopotential surfaces.
-!--------------------------------------------------------------------
-!
-! Compute horizontal and vertical gradients.  Notice the recursive
-! blocking sequence.  The vertical placement of the gradients is:
-!
-!    dZdx_r, dZde_r, dnUdx, dmVde(:,:,k1) k      rho-points
-!    dZdx_r, dZde_r, dnUdx, dmVde(:,:,k2) k+1    rho-points
-!    dZdx_p, dZde_p, dnVdx, dmUde(:,:,k1) k      psi-points
-!    dZdx_p, dZde_p, dnVdx, dmUde(:,:,k2) k+1    psi-points
-!                       UFs, dUdz(:,:,k1) k-1/2  WU-points
-!                       UFs, dUdz(:,:,k2) k+1/2  WU-points
-!                       VFs, dVdz(:,:,k1) k-1/2  WV-points
-!                       VFs, dVdz(:,:,k2) k+1/2  WV-points
-!
-! Compute sigma-slopes (nondimensional) at RHO- and PSI-points.
-! Compute momentum horizontal (1/m/s) and vertical (1/s) gradients.
-!
+
       k2=1
       do k=0,N,+1  !--> irreversible
         k1=k2
@@ -142,7 +252,7 @@
           do j=JstrV-1,Jend
             do i=IstrU-1,Iend
               dnUdx(i,j,k2)=pm(i,j)*
-#  ifdef CLIMAT_UV_MIXH
+#  ifdef CLIMAT_SPONGE
      &        ( pn_u(i+1,j)*(u(i+1,j,k+1,nstp)-uclm(i+1,j,k+1))
      &         -pn_u(i  ,j)*(u(i  ,j,k+1,nstp)-uclm(i  ,j,k+1)) )
 #  else
@@ -153,7 +263,7 @@
      &                                            *rmask(i,j)
 # endif
               dmVde(i,j,k2)=pn(i,j)*
-#  ifdef CLIMAT_UV_MIXH
+#  ifdef CLIMAT_SPONGE
      &        ( pm_v(i,j+1)*(v(i,j+1,k+1,nstp)-vclm(i,j+1,k+1))
      &         -pm_v(i,j  )*(v(i,j  ,k+1,nstp)-vclm(i,j  ,k+1)) )
 #  else
@@ -171,7 +281,7 @@
             do i=Istr,Iend+1
               dmUde(i,j,k2)=0.25*(pn(i,j)+pn(i-1,j)+pn(i,j-1)
      &                                            +pn(i-1,j-1))
-#  ifdef CLIMAT_UV_MIXH
+#  ifdef CLIMAT_SPONGE
      &       *( pm_u(i,j  )*(u(i,j  ,k+1,nstp)-uclm(i+1,j,k+1))
      &         -pm_u(i,j-1)*(u(i,j-1,k+1,nstp)-uclm(i  ,j,k+1)) )
 #  else
@@ -183,7 +293,7 @@
 # endif
               dnVdx(i,j,k2)=0.25*(pm(i,j)+pm(i-1,j)+pm(i,j-1)
      &                                            +pm(i-1,j-1))
-#  ifdef CLIMAT_UV_MIXH
+#  ifdef CLIMAT_SPONGE
      &       *( pn_v(i  ,j)*(v(i  ,j,k+1,nstp)-vclm(i  ,j,k+1))
      &         -pn_v(i-1,j)*(v(i-1,j,k+1,nstp)-vclm(i-1,j,k+1)) )
 #  else
@@ -215,7 +325,7 @@
         else
           do j=Jstr-1,Jend+1
             do i=IstrU-1,Iend+1
-#  ifdef CLIMAT_UV_MIXH
+#  ifdef CLIMAT_SPONGE
               dUdz(i,j,k2)=2.*(u(i,j,k+1,nstp)-u(i,j,k,nstp)
      &                            -uclm(i,j,k+1)+uclm(i,j,k))
 #  else
@@ -227,7 +337,7 @@
           enddo
           do j=JstrV-1,Jend+1
             do i=Istr-1,Iend+1
-#  ifdef CLIMAT_UV_MIXH
+#  ifdef CLIMAT_SPONGE
               dVdz(i,j,k2)=2.*(v(i,j,k+1,nstp)-v(i,j,k,nstp)
      &                            -vclm(i,j,k+1)+vclm(i,j,k))
 #  else
@@ -245,11 +355,7 @@
         if (k.gt.0) then
           do j=JstrV-1,Jend
             do i=IstrU-1,Iend
-# ifdef SMAGO_UV
-              cff=(visc2_r(i,j)+visc3d_r(i,j,k))*Hz(i,j,k)*(
-# else
               cff=visc2_r(i,j)*Hz(i,j,k)*(
-# endif
      &         om_r(i,j)*( dnUdx(i,j,k1) - 0.5*pn(i,j)*(
      &           min(dZdx_r(i,j,k1),0.)*(dUdz(i,j,k1)+dUdz(i+1,j,k2))
      &          +max(dZdx_r(i,j,k1),0.)*(dUdz(i,j,k2)+dUdz(i+1,j,k1))
@@ -267,11 +373,7 @@
           enddo
           do j=Jstr,Jend+1
             do i=Istr,Iend+1
-# ifdef SMAGO_UV
-              cff=0.25*(visc2_p(i,j)+visc3d_p(i,j,k))
-# else
               cff=0.25*visc2_p(i,j)
-# endif
      &             *(Hz(i,j,k)+Hz(i-1,j,k)+Hz(i,j-1,k)+Hz(i-1,j-1,k))
      &       *( om_p(i,j)*( dnVdx(i,j,k1)-0.125*( pn(i,j)+pn(i-1,j)
      &                                        +pn(i,j-1)+pn(i-1,j-1))
@@ -345,13 +447,7 @@
      &                         +cff3*(cff7*dnVdz-dnVdx(i,j  ,k2))
      &                         +cff4*(cff8*dnVdz-dnVdx(i,j+1,k1))
      &                                                          )
- 
-# ifdef SMAGO_UV
-                UFs(i,j,k2)=0.25*(visc2_r(i-1,j)+visc2_r(i,j)+
-     &                      visc3d_r(i-1,j,k)+visc3d_r(i,j,k))*cff
-# else
                 UFs(i,j,k2)=0.25*(visc2_r(i-1,j)+visc2_r(i,j))*cff
-# endif
               enddo
             enddo
  
@@ -405,14 +501,7 @@
      &                         +cff3*(cff7*dnUdz-dnUdx(i,j-1,k2))
      &                         +cff4*(cff8*dnUdz-dnUdx(i,j  ,k1))
      &                                                          )
- 
-# ifdef SMAGO_UV
-                VFs(i,j,k2)=0.25*(visc2_r(i,j-1)+visc2_r(i,j)+
-     &                      visc3d_r(i,j-1,k)+visc3d_r(i,j,k))*cff
-# else
                 VFs(i,j,k2)=0.25*(visc2_r(i,j-1)+visc2_r(i,j))*cff
-# endif
-
               enddo
             enddo
           endif
@@ -431,7 +520,8 @@
               u(i,j,k,indx)=u(i,j,k,indx) + dt*(cff1+UFs(i,j,k2)
      &                                              -UFs(i,j,k1))
 # ifdef DIAGNOSTICS_UV
-              MHmix(i,j,k,1) = 2*(cff1+UFs(i,j,k2)-UFs(i,j,k1))
+              MHmix(i,j,k,1) = MHmix(i,j,k,1)+
+     &                           2*(cff1+UFs(i,j,k2)-UFs(i,j,k1))
      &                                   /(Hz(i-1,j,k)+Hz(i,j,k))
 # endif
             enddo
@@ -445,7 +535,8 @@
               v(i,j,k,indx)=v(i,j,k,indx) + dt*(cff1+VFs(i,j,k2)
      &                                              -VFs(i,j,k1))
 # ifdef DIAGNOSTICS_UV
-              MHmix(i,j,k,2) = 2*(cff1+VFs(i,j,k2)-VFs(i,j,k1))
+              MHmix(i,j,k,2) = MHmix(i,j,k,2)+
+     &                           2*(cff1+VFs(i,j,k2)-VFs(i,j,k1))
      &                                   /(Hz(i,j,k)+Hz(i,j-1,k))
 # endif
             enddo
@@ -454,8 +545,12 @@
       enddo
       return
       end
+!====================================================================
+!
+# endif /* MIX_S_UV_SPG */
+
 #else
-      subroutine visc3d_empty
+      subroutine uv3dmix_spg_empty
       end
 #endif
  

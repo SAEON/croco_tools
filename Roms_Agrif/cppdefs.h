@@ -84,9 +84,6 @@
 # define TS_DIF2
 # define MIX_GP_TS
 # undef  TS_SPLIT_UP3
-# if defined TCLIMATOLOGY & !defined AGRIF
-#  undef CLIMAT_TS_MIXH
-# endif
                       /* Vertical Mixing */
 # undef  BODYFORCE
 # undef  BVF_MIXING
@@ -124,6 +121,8 @@
 # endif
                       /* Lateral Forcing */
 # define SPONGE
+# define SPONGE_DIF2
+# undef  SPONGE_VIS2
 
 # define CLIMATOLOGY
 # ifdef CLIMATOLOGY

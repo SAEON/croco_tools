@@ -39,7 +39,7 @@
 #endif
 
 /*
-    Select MOMENTUM LATERAL advection scheme:
+    Select MOMENTUM LATERAL advection-diffusion scheme:
     (The default is third-order upstream biased)
 */
 #undef  HADV_C4_UV        /* 4th-order centered lateral advection */
@@ -55,6 +55,11 @@
 # define VIS_COEF_3D
 #endif
 
+# if defined M3CLIMATOLOGY && !defined AGRIF\
+     && !defined UV_SPLIT_UP3 && !defined VIS_SMAGO
+#  define CLIMAT_UV_MIXH
+# endif
+
 /*
     Select MOMENTUM VERTICAL advection scheme:
 */
@@ -62,13 +67,14 @@
 #undef  VADV_C2_UV        /* 2nd-order centered vertical advection */
 
 /*
-    Select TRACER LATERAL advection scheme
+    Select TRACER LATERAL advection-diffusion scheme
     (The default is 4th-order centered)
 */
 #define HADV_UPSTREAM_TS  /* 3rd-order upstream lateral advection */
 #ifdef TS_SPLIT_UP3       /*     Split 3rd-order scheme into      */
 # undef  HADV_UPSTREAM_TS /*       4th order centered             */
 # undef  TS_DIF2          /*        + hyperdiffusion              */
+# undef  CLIMAT_TS_MIXH
 # define TS_DIF4
 # define DIF_COEF_3D 
 #endif
@@ -76,6 +82,11 @@
 # define DIF_COEF_3D
 #endif
 #undef   HADV_AKIMA_TS    /* 4th-order Akima horiz. advection */
+
+# if defined TCLIMATOLOGY && !defined AGRIF\
+       	&& !defined TS_SPLIT_UP3 && !defined DIF_SMAGO
+#  define CLIMAT_TS_MIXH
+# endif
 
 /*
     Select model dynamics for TRACER vertical advection
@@ -100,18 +111,13 @@
 
 #define DBLEPREC
 
-#if defined CLUSTER
-# define QUAD 8
-# define QuadZero 0.D0
-#elif defined Linux
-# define QUAD 8
-# define QuadZero 0.D0
-#elif defined __IFC
+#if defined DBLEPREC && !defined Linux && !defined PGI && !defined __IFC
 # define QUAD 16
-# define QuadZero 0.0_16
+# define QuadZero 0.Q0
+/* # define QuadZero 0.0_16 */
 #else
-# define QUAD 16
-# define QuadZero 0.q0
+# define QUAD 8
+# define QuadZero 0.D0
 #endif
 
 /*
@@ -175,11 +181,12 @@
 # define SOUTHERN_EDGE .not.SOUTH_INTER
 # define NORTHERN_EDGE .not.NORTH_INTER
 #else
-# define WESTERN_EDGE Istr.eq.1
-# define EASTERN_EDGE Iend.eq.Lm
-# define SOUTHERN_EDGE Jstr.eq.1
-# define NORTHERN_EDGE Jend.eq.Mm
+# define WESTERN_EDGE istr.eq.1
+# define EASTERN_EDGE iend.eq.Lm
+# define SOUTHERN_EDGE jstr.eq.1
+# define NORTHERN_EDGE jend.eq.Mm
 #endif
+
 
 /*
   Sometimes it is needed to include MPI-node number into printed

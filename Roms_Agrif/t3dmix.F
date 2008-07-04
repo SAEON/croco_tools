@@ -56,14 +56,14 @@
             Trate_mld(i,j,itrc)=0.
          enddo
        enddo
-       do k=N,kmld,-1
-         do j=Jstr,Jend
-           do i=Istr,Iend
+       do j=Jstr,Jend
+         do i=Istr,Iend
 #  ifdef LMD_SKPP
-             kmld=kbl(i,j)
+           kmld=kbl(i,j)
 #  else
-             kmld=N-5
+           kmld=N-5
 #  endif
+           do k=N,kmld,-1
              cff=Hz(i,j,k)/(z_w(i,j,N)-z_w(i,j,kmld-1))
              THmix_mld(i,j,itrc)=THmix_mld(i,j,itrc)+
      &                           THmix(i,j,k,itrc)*cff
@@ -79,9 +79,15 @@
 ! Data exchange at the boundaries or interfaces
 !==========================================================
 !
-# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+! If diffusion in sponge layers is performed in the separate 
+! sponge routine (t3dmix_spg) then message passing is 
+! performed there
+!
+# if !(defined SPONGE_DIF2 && !defined TS_DIF2)
+#  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
         call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                          t(START_2D_ARRAY,1,nnew,itrc))
+#  endif
 # endif
 
        return

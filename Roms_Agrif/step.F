@@ -36,7 +36,7 @@ C$OMP THREADPRIVATE (/tile_ranges/)
              iif = mod(iif+1, nfast+2)
 C$OMP PARALLEL
              call step3D_thread()
-C$OMP END PARALLEL	     
+C$OMP END PARALLEL 
              nbstep3d = nbstep3d + 1
            ENDIF
            Return
@@ -61,7 +61,7 @@ C$OMP END PARALLEL
       IF (iif .EQ. 0) then
 C$OMP PARALLEL
         call prestep3D_thread()
-C$OMP END PARALLEL	
+C$OMP END PARALLEL
       endif
        
       IF ((iif.NE.0).AND.(iif.NE.(nfast+1))) THEN
@@ -75,7 +75,7 @@ C$OMP END PARALLEL
       IF (iif .EQ. (nfast+1)) then
 C$OMP PARALLEL
         call step3D_thread()
-C$OMP END PARALLEL	
+C$OMP END PARALLEL
         nbstep3d = nbstep3d + 1
       endif
 #endif      
@@ -314,14 +314,9 @@ C$OMP BARRIER
         call rhs3d (tile)
         call pre_step3d (tile)
 # if defined UV_VIS2 || defined UV_VIS4
-#  if defined AGRIF && defined UV_VIS2 && !defined VIS_COEF_3D
-        if (Agrif_Root()) then
-          call uv3dmix (tile)
-        else
-          call uv3dmix_fine(tile)
-        endif
-#  else
         call uv3dmix (tile)
+#  if defined SPONGE_VIS2 && !defined UV_VIS2
+        call uv3dmix_spg (tile)
 #  endif
 # endif
 # ifdef AVERAGES
@@ -609,15 +604,9 @@ C$OMP BARRIER
 # endif
 # if defined TS_DIF2 || defined TS_DIF4
         call t3dmix (tile)
-c#  if defined AGRIF && defined TS_DIF2 && !defined DIF_COEF_3D
-c        if (Agrif_Root()) then
-c          call t3dmix (tile)
-c        else
-c          call t3dmix_fine(tile)
-c        endif
-c#  else
-c        call t3dmix (tile)
-c#  endif
+#  if defined SPONGE_DIF2 && !defined TS_DIF2
+        call t3dmix_spg (tile)
+#  endif
 # endif
 
       enddo
