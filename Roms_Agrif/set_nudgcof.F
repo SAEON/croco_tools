@@ -136,7 +136,7 @@
         do k=1,N
           do j=JstrR,JendR
             do i=IstrR,IendR
-              Tnudgcof(i,j,k,itrc)=1./(360.*86400.)
+              Tnudgcof(i,j,k,itrc)=tauT_out
             enddo
           enddo
         enddo
