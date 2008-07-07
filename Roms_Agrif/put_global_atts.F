@@ -69,6 +69,28 @@
         ierr=nf_put_att_text(ncid,  nf_global, 'type', 24,
      &                          'ROMS floats history file')
 #endif
+#if (defined DIAGNOSTICS_TS && defined DIAGNOSTICS_TS_ADV) 
+      elseif (ncid.eq.nciddia) then
+        ierr=nf_put_att_text(ncid,  nf_global, 'type', 51,
+     &     'ROMS DIAGTS history file - flux form for adv. terms')
+#ifdef AVERAGES
+      elseif (ncid.eq.nciddia_avg) then
+        ierr=nf_put_att_text(ncid,  nf_global, 'type', 51,
+     &     'ROMS DIAGTS average file - flux form for adv. terms')
+#endif
+#endif
+#if (defined DIAGNOSTICS_TS && !defined DIAGNOSTICS_TS_ADV) 
+      elseif (ncid.eq.nciddia) then
+        ierr=nf_put_att_text(ncid,  nf_global, 'type', 57,
+     &     'ROMS DIAGTS history file - divergence form for adv. terms')
+#ifdef AVERAGES
+      elseif (ncid.eq.nciddia_avg) then
+        ierr=nf_put_att_text(ncid,  nf_global, 'type', 57,
+     &     'ROMS DIAGTS average file - divergence form for adv. terms')
+#endif
+#endif
+
+
       endif
 
 

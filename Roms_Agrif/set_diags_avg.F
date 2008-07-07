@@ -85,6 +85,8 @@
               enddo
             enddo
           enddo
+
+#ifdef DIAGNOSTICS_TS_MLD
 !
 ! Diagnostics averaged over MLD
 !
@@ -102,7 +104,7 @@
               enddo
             enddo
           enddo
-
+#endif /* DIAGNOSTICS_TS_MLD  */
         elseif (mod(ilc-1,nwrtdia_avg).gt.1) then
 
           if (ZEROTH_TILE) timedia_avg=timedia_avg+time
@@ -137,6 +139,8 @@
             enddo
           enddo
 
+
+#ifdef DIAGNOSTICS_TS_MLD
 !
 ! Diagnostics averaged over MLD
 !
@@ -162,7 +166,7 @@
               enddo
             enddo
           enddo
-
+#endif /* DIAGNOSTICS_TS_MLD  */
         elseif (mod(ilc-1,nwrtdia_avg).eq.0) then
 
           cff=1./float(nwrtdia_avg)
@@ -198,6 +202,7 @@
             enddo
           enddo
 
+#ifdef DIAGNOSTICS_TS_MLD
 !
 ! Diagnostics averaged over MLD
 !
@@ -223,7 +228,7 @@
               enddo
             enddo
           enddo
-
+#endif /* DIAGNOSTICS_TS_MLD  */
         endif
       endif
       return

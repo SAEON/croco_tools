@@ -558,7 +558,7 @@
                 t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+FC(i,k )
      &                                               -FC(i,k-1)
 #  ifdef DIAGNOSTICS_TS
-                Tforc(i,j,k,itrc)=(FC(i,k)-FC(i,k-1))
+                TForc(i,j,k,itrc)=(FC(i,k)-FC(i,k-1))
      &                                    /(dt*pm(i,j)*pn(i,j))
 #   ifdef MASKING
      &                                             * rmask(i,j)
@@ -769,7 +769,7 @@
      &                    +dt*Tnudgcof(i,j,k,itrc)*(tclm(i,j,k,itrc)
      &                                           -t(i,j,k,nnew,itrc))
 #  ifdef DIAGNOSTICS_TS
-              Tforc(i,j,k,itrc)=(Tforc(i,j,k,itrc)
+              TForc(i,j,k,itrc)=(TForc(i,j,k,itrc)
      &                    +Tnudgcof(i,j,k,itrc)
      &                    *(tclm(i,j,k,itrc)-t(i,j,k,nnew,itrc))
      &                    *(Hz(i,j,k)/(pm(i,j)*pn(i,j))))
@@ -804,6 +804,7 @@
      &                   *rmask(i,j)
 #  endif
 !
+# ifdef DIAGNOSTICS_TS_ADV
               TXadv(i,j,k,itrc)=TXadv(i,j,k,itrc)+
      &           t(i,j,k,3,itrc)*(Huon(i+1,j,k)-Huon(i,j,k))
               TYadv(i,j,k,itrc)=TYadv(i,j,k,itrc)+
@@ -811,17 +812,20 @@
               TVadv(i,j,k,itrc)=TVadv(i,j,k,itrc)-
      &           t(i,j,k,3,itrc)*(Huon(i+1,j,k)-Huon(i,j,k)+
      &                            Hvom(i,j+1,k)-Hvom(i,j,k))
+# endif /* DIAGNOSTICS_TS_ADV */
 !
               cff=pm(i,j)*pn(i,j)/Hz(i,j,k)
               TXadv(i,j,k,itrc)=TXadv(i,j,k,itrc)*cff
               TYadv(i,j,k,itrc)=TYadv(i,j,k,itrc)*cff
               TVadv(i,j,k,itrc)=TVadv(i,j,k,itrc)*cff
               TVmix(i,j,k,itrc)=TVmix(i,j,k,itrc)*cff
-              Tforc(i,j,k,itrc)=Tforc(i,j,k,itrc)*cff
+              TForc(i,j,k,itrc)=TForc(i,j,k,itrc)*cff
               Trate(i,j,k,itrc)=Trate(i,j,k,itrc)*cff
            enddo
          enddo
        enddo
+!
+#  ifdef DIAGNOSTICS_TS_MLD
 !
 !---------------------------------------------------------------
 ! Compute tracer diagnostics averaged over the MLD
@@ -833,7 +837,7 @@
             TYadv_mld(i,j,itrc)=0.
             TVadv_mld(i,j,itrc)=0.
             TVmix_mld(i,j,itrc)=0.
-            Tforc_mld(i,j,itrc)=0.
+            TForc_mld(i,j,itrc)=0.
             Trate_mld(i,j,itrc)=0.
          enddo
        enddo
@@ -854,8 +858,8 @@
      &                           TVadv(i,j,k,itrc)*cff
              TVmix_mld(i,j,itrc)=TVmix_mld(i,j,itrc)+
      &                           TVmix(i,j,k,itrc)*cff
-             TForc_mld(i,j,itrc)=Tforc_mld(i,j,itrc)+
-     &                           Tforc(i,j,k,itrc)*cff
+             TForc_mld(i,j,itrc)=TForc_mld(i,j,itrc)+
+     &                           TForc(i,j,k,itrc)*cff
              Trate_mld(i,j,itrc)=Trate_mld(i,j,itrc)+
      &                           Trate(i,j,k,itrc)*cff
            enddo
@@ -868,9 +872,10 @@
      &                          TYadv_mld(i,j,itrc)-
      &                          TVadv_mld(i,j,itrc)-
      &                          TVmix_mld(i,j,itrc)-
-     &                          Tforc_mld(i,j,itrc)
+     &                          TForc_mld(i,j,itrc)
          enddo
        enddo
+#  endif /* DIAGNOSTICS_TS_MLD */
 # endif /* DIAGNOSTICS_TS */
 
 

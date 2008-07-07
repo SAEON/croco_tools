@@ -958,6 +958,7 @@
 # endif /* BBL */
 # ifdef BULK_FLUX
 ! Short wave SHFLX
+      if (wrt(indxShflx_rsw)) then
         lvar=lenstr(vname(1,indxShflx_rsw))
         ierr=nf_def_var (ncid, vname(1,indxShflx_rsw)(1:lvar),
      &                           NF_FOUT, 3, r2dgrd, vidShflx_rsw)
@@ -974,7 +975,9 @@
         lvar=lenstr(vname(3,indxShflx_rsw))
         ierr=nf_put_att_text (ncid, vidShflx_rsw, 'units',     lvar,
      &                               vname(3,indxShflx_rsw)(1:lvar))
+      endif 
 ! Long wave SHFLX
+      if (wrt(indxShflx_rlw)) then
         lvar=lenstr(vname(1,indxShflx_rlw))
         ierr=nf_def_var (ncid, vname(1,indxShflx_rlw)(1:lvar),
      &                           NF_FOUT, 3, r2dgrd, vidShflx_rlw)
@@ -991,7 +994,9 @@
         lvar=lenstr(vname(3,indxShflx_rlw))
         ierr=nf_put_att_text (ncid, vidShflx_rlw, 'units',     lvar,
      &                               vname(3,indxShflx_rlw)(1:lvar))
+      endif 
 ! Latent SHFLX
+      if (wrt(indxShflx_lat)) then
         lvar=lenstr(vname(1,indxShflx_lat))
         ierr=nf_def_var (ncid, vname(1,indxShflx_lat)(1:lvar),
      &                           NF_FOUT, 3, r2dgrd, vidShflx_lat)
@@ -1008,7 +1013,9 @@
         lvar=lenstr(vname(3,indxShflx_lat))
         ierr=nf_put_att_text (ncid, vidShflx_lat, 'units',     lvar,
      &                               vname(3,indxShflx_lat)(1:lvar))
+      endif
 ! Sensible SHFLX
+      if (wrt(indxShflx_sen)) then
         lvar=lenstr(vname(1,indxShflx_sen))
         ierr=nf_def_var (ncid, vname(1,indxShflx_sen)(1:lvar),
      &                           NF_FOUT, 3, r2dgrd, vidShflx_sen)
@@ -1025,7 +1032,9 @@
         lvar=lenstr(vname(3,indxShflx_sen))
         ierr=nf_put_att_text (ncid, vidShflx_sen, 'units',     lvar,
      &                               vname(3,indxShflx_sen)(1:lvar))
-# endif
+
+      endif
+# endif  /* BULK_FLUX */
 !
 #endif /* SOLVE3D */
 
@@ -1435,6 +1444,7 @@
 !
 ! Shflx     Surface Heat Flux components (degC/s)
 !
+      if (wrt(indxShflx_rsw)) then
         lvar=lenstr(vname(1,indxShflx_rsw))
         ierr=nf_inq_varid (ncid,vname(1,indxShflx_rsw)(1:lvar),
      &                                               vidShflx_rsw)
@@ -1442,6 +1452,9 @@
         write(stdout,1) vname(1,indxShflx_rsw)(1:lvar), ncname(1:lstr)
           goto 99                                       !--> ERROR
         endif
+      endif
+!
+      if (wrt(indxShflx_rlw)) then
         lvar=lenstr(vname(1,indxShflx_rlw))
         ierr=nf_inq_varid (ncid,vname(1,indxShflx_rlw)(1:lvar),
      &                                               vidShflx_rlw)
@@ -1449,6 +1462,9 @@
         write(stdout,1) vname(1,indxShflx_rlw)(1:lvar), ncname(1:lstr)
           goto 99                                       !--> ERROR
         endif
+       endif
+!
+      if (wrt(indxShflx_lat)) then
         lvar=lenstr(vname(1,indxShflx_lat))
         ierr=nf_inq_varid (ncid,vname(1,indxShflx_lat)(1:lvar),
      &                                               vidShflx_lat)
@@ -1456,6 +1472,9 @@
         write(stdout,1) vname(1,indxShflx_lat)(1:lvar), ncname(1:lstr)
           goto 99                                       !--> ERROR
         endif
+       endif
+!
+      if (wrt(indxShflx_sen)) then
         lvar=lenstr(vname(1,indxShflx_sen))
         ierr=nf_inq_varid (ncid,vname(1,indxShflx_sen)(1:lvar),
      &                                               vidShflx_sen)
@@ -1463,6 +1482,8 @@
         write(stdout,1) vname(1,indxShflx_sen)(1:lvar), ncname(1:lstr)
           goto 99                                       !--> ERROR
         endif
+       endif
+!
 # endif
 
 #endif /* SOLVE3D */

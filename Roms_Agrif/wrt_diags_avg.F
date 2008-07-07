@@ -183,6 +183,7 @@
             goto 99
           endif
 !
+#ifdef DIAGNOSTICS_TS_MLD
 !
 !---------------------------------------------------------------
 ! Tracer diagnostic variables averaged over the MLD
@@ -275,7 +276,8 @@
      &                            record, ierr MYID
             goto 99
           endif
-
+!
+#endif /*DIAGNOSTICS_TS_MLD*/
 !
       enddo
 !

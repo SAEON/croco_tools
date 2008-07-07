@@ -171,6 +171,10 @@
 # define AVERAGES
 # define AVERAGES_K
 # undef  DIAGNOSTICS_TS
+# ifdef DIAGNOSTICS_TS
+# undef DIAGNOSTICS_TS_ADV
+# undef DIAGNOSTICS_TS_MLD
+# endif
 # undef  DIAGNOSTICS_UV
 /*
 !           Applications:

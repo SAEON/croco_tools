@@ -204,37 +204,48 @@
 !
 !  Write out surface heat flux component (degC/s)
 !
-      ierr=nf_fwrite(Shflx_rsw_avg, ncidavg, avgShflx_rsw, record, 
+      if (wrtavg(indxShflx_rsw)) then
+       ierr=nf_fwrite(Shflx_rsw_avg, ncidavg, avgShflx_rsw, record, 
      &                                                     r2dvar)
-      if (ierr .ne. nf_noerr) then
-        lvar=lenstr(vname(1,indxShflx_rsw))
-        write(stdout,1) vname(1,indxShflx_rsw)(1:lvar), record, ierr
+       if (ierr .ne. nf_noerr) then
+         lvar=lenstr(vname(1,indxShflx_rsw))
+         write(stdout,1) vname(1,indxShflx_rsw)(1:lvar), record, ierr
      &                  MYID
-        goto 99                                         !--> ERROR
+         goto 99                                         !--> ERROR
+       endif
       endif
-      ierr=nf_fwrite(Shflx_rlw_avg, ncidavg, avgShflx_rlw, record,
+
+      if (wrtavg(indxShflx_rlw)) then
+        ierr=nf_fwrite(Shflx_rlw_avg, ncidavg, avgShflx_rlw, record,
      &                                                     r2dvar)
-      if (ierr .ne. nf_noerr) then
-        lvar=lenstr(vname(1,indxShflx_rlw))
-        write(stdout,1) vname(1,indxShflx_rlw)(1:lvar), record, ierr
+       if (ierr .ne. nf_noerr) then
+           lvar=lenstr(vname(1,indxShflx_rlw))
+           write(stdout,1) vname(1,indxShflx_rlw)(1:lvar), record, ierr
      &                  MYID
-        goto 99                                         !--> ERROR
+            goto 99                                         !--> ERROR
+       endif
       endif
-      ierr=nf_fwrite(Shflx_lat_avg, ncidavg, avgShflx_lat, record,
+
+      if (wrtavg(indxShflx_lat)) then
+        ierr=nf_fwrite(Shflx_lat_avg, ncidavg, avgShflx_lat, record,
      &                                                     r2dvar)
-      if (ierr .ne. nf_noerr) then
-        lvar=lenstr(vname(1,indxShflx_lat))
-        write(stdout,1) vname(1,indxShflx_lat)(1:lvar), record, ierr
+       if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxShflx_lat))
+          write(stdout,1) vname(1,indxShflx_lat)(1:lvar), record, ierr
      &                  MYID
-        goto 99                                         !--> ERROR
+          goto 99                                         !--> ERROR
+       endif
       endif
-      ierr=nf_fwrite(Shflx_sen_avg, ncidavg, avgShflx_sen, record,
+
+      if (wrtavg(indxShflx_sen)) then
+         ierr=nf_fwrite(Shflx_sen_avg, ncidavg, avgShflx_sen, record,
      &                                                     r2dvar)
-      if (ierr .ne. nf_noerr) then
-        lvar=lenstr(vname(1,indxShflx_sen))
-        write(stdout,1) vname(1,indxShflx_sen)(1:lvar), record, ierr
+       if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxShflx_sen))
+          write(stdout,1) vname(1,indxShflx_sen)(1:lvar), record, ierr
      &                  MYID
-        goto 99                                         !--> ERROR
+          goto 99                                         !--> ERROR
+       endif
       endif
 #  endif
 #  ifdef VIS_COEF_3D

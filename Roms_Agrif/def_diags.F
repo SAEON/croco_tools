@@ -46,6 +46,7 @@
 #  define vidTForc diaTForc
 #  define vidTrate diaTrate
 !
+#ifdef DIAGNOSTICS_TS_MLD
 #  define vidTXadv_mld diaTXadv_mld
 #  define vidTYadv_mld diaTYadv_mld
 #  define vidTVadv_mld diaTVadv_mld
@@ -54,6 +55,7 @@
 #  define vidTForc_mld diaTForc_mld
 #  define vidTrate_mld diaTrate_mld
 #  define vidTentr_mld diaTentr_mld
+#endif
 !
 # else /* AVRH */
 !
@@ -71,6 +73,7 @@
 #  define vidTForc diaTForc_avg
 #  define vidTrate diaTrate_avg
 !
+#ifdef DIAGNOSTICS_TS_MLD
 #  define vidTXadv_mld diaTXadv_mld_avg
 #  define vidTYadv_mld diaTYadv_mld_avg
 #  define vidTVadv_mld diaTVadv_mld_avg
@@ -79,7 +82,7 @@
 #  define vidTForc_mld diaTForc_mld_avg
 #  define vidTrate_mld diaTrate_mld_avg
 #  define vidTentr_mld diaTentr_mld_avg
-
+#endif
 !
         character*60 text
 !
@@ -374,6 +377,8 @@
      &                     lvar, vname(4,indxTrate+itrc-1)(1:lvar))
 !
 !
+#ifdef DIAGNOSTICS_TS_MLD
+!
 ! indxTXadv on MLD
 !
            lvar=lenstr(vname(1,indxTXadv_mld+itrc-1))
@@ -550,7 +555,7 @@
            ierr=nf_put_att_text (ncid, vidTentr_mld(itrc),'field',
      &                     lvar, vname(4,indxTentr_mld+itrc-1)(1:lvar))
 !
-
+#endif /* DIAGNOSTICS_TS_MLD */
         end do
 !
 !
@@ -727,6 +732,8 @@
           endif
 !
 !
+#ifdef DIAGNOSTICS_TS_MLD
+!
 ! indxTXadv on MLD
 !
           lvar=lenstr(vname(1,indxTXadv_mld+itrc-1))
@@ -814,6 +821,9 @@
      &                                         ncname(1:lstr)
             goto 99                                       !--> ERROR
           endif
+!
+#endif /*DIAGNOSTICS_TS_MLD*/
+!
         enddo
 !
         write(*,'(6x,2A,i4,1x,A,i4)') 'DEF_DIAG -- Opened ',
@@ -877,6 +887,7 @@
 #undef vidTForc
 #undef vidTrate
 !
+#ifdef DIAGNOSTICS_TS_MLD
 #undef vidTXadv_mld
 #undef vidTYadv_mld
 #undef vidTVadv_mld
@@ -885,6 +896,7 @@
 #undef vidTForc_mld
 #undef vidTrate_mld
 #undef vidTentr_mld
+#endif /*DIAGNOSTICS_TS_MLD*/
 !
 # ifdef AVERAGES
 #  ifndef AVRH

@@ -622,6 +622,13 @@ c        close(testunit)
 # ifdef LMD_BKPP
      &                                          ,  wrthis(indxHbbl)
 # endif
+     &                                          ,  wrthis(indxBostr)
+# if defined BULK_FLUX
+     &                                          , wrthis(indxShflx_rsw)
+     &                                          , wrthis(indxShflx_rlw)
+     &                                          , wrthis(indxShflx_lat)
+     &                                          , wrthis(indxShflx_sen)
+# endif
 # ifdef BIOLOGY
      &                                          ,  wrthis(indxHel)
 #  ifdef BIO_NPZD
@@ -636,7 +643,8 @@ c        close(testunit)
      &                                          ,  wrthis(indxChC2)
 #  endif
 # endif
-     &                                          ,  wrthis(indxBostr)
+
+
 
         if ( wrthis(indxR) .or. wrthis(indxO) .or. wrthis(indxW)
      &                   .or. wrthis(indxAkv) .or. wrthis(indxAkt)
@@ -648,6 +656,13 @@ c        close(testunit)
 # endif
 # ifdef LMD_BKPP
      &                                        .or. wrthis(indxHbbl)
+# endif
+     &                                        .or. wrthis(indxBostr)
+# if defined BULK_FLUX
+     &                                        .or. wrthis(indxShflx_rsw)
+     &                                        .or. wrthis(indxShflx_rlw)
+     &                                        .or. wrthis(indxShflx_lat)
+     &                                        .or. wrthis(indxShflx_sen)
 # endif
 # ifdef BIOLOGY
      &                                        .or. wrthis(indxHel)
@@ -663,7 +678,6 @@ c        close(testunit)
      &                                        .or. wrthis(indxChC2)
 #  endif
 # endif
-     &                                        .or. wrthis(indxBostr)
      &     ) wrthis(indxTime)=.true.
 
 #  ifdef VIS_COEF_3D
@@ -714,6 +728,14 @@ c        close(testunit)
 #  endif
 # endif
      &  , wrthis(indxBostr), 'write Bostr', 'Bottom Stress.'
+     &  , wrthis(indxShflx_rsw), 'write shflx_rsw', 
+     &                                'Solar Heat Flux'
+     &  , wrthis(indxShflx_rlw), 'write shflx_rlw', 
+     &                                 'Long Wave Heat Flux'
+     &  , wrthis(indxShflx_lat), 'write shflx_lat',
+     &                                 'Latente heat flux'
+     &  , wrthis(indxShflx_sen), 'write shflx_sen',
+     &                                 'Sensible heta flux'
 #  ifdef VIS_COEF_3D
      &  , wrthis(indxVisc),  'write Visc3d', 'Horizontal viscosity.'
 #  endif
@@ -768,6 +790,14 @@ c        close(testunit)
 #  ifdef LMD_BKPP
      &                                          ,  wrtavg(indxHbbl)
 #  endif
+#  endif
+     &                                          ,  wrtavg(indxBostr)
+# ifdef BULK_FLUX
+     &                                          ,  wrtavg(indxShflx_rsw)
+     &                                          ,  wrtavg(indxShflx_rlw)
+     &                                          ,  wrtavg(indxShflx_lat)
+     &                                          ,  wrtavg(indxShflx_sen)
+# endif
 #  ifdef BIOLOGY
      &                                          ,  wrtavg(indxHel)
 #   ifdef BIO_NPZD
@@ -781,8 +811,7 @@ c        close(testunit)
      &                                          ,  wrtavg(indxChC1)
      &                                          ,  wrtavg(indxChC2)
 #   endif
-#  endif
-     &                                          ,  wrtavg(indxBostr)
+
 
         if ( wrtavg(indxR) .or. wrtavg(indxO) .or. wrtavg(indxW)
      &                   .or. wrtavg(indxAkv) .or. wrtavg(indxAkt)
@@ -795,6 +824,14 @@ c        close(testunit)
 #  ifdef LMD_BKPP
      &                                        .or. wrtavg(indxHbbl)
 #  endif
+     &                                        .or. wrtavg(indxBostr)
+     &     
+# if defined BULK_FLUX
+     &                                        .or. wrthis(indxShflx_rsw)
+     &                                        .or. wrthis(indxShflx_rlw)
+     &                                        .or. wrthis(indxShflx_lat)
+     &                                        .or. wrthis(indxShflx_sen)
+# endif 
 #  ifdef BIOLOGY
      &                                        .or. wrtavg(indxHel)
 #   ifdef BIO_NPZD
@@ -809,7 +846,7 @@ c        close(testunit)
      &                                        .or. wrtavg(indxChC2)
 #   endif
 #  endif
-     &                                        .or. wrtavg(indxBostr)
+
      &     ) wrtavg(indxTime)=.true.
 
 #  ifdef VIS_COEF_3D
@@ -860,6 +897,14 @@ c        close(testunit)
 #   endif
 #  endif
      &  , wrtavg(indxBostr),'write Bostr', 'Bottom Stress.'
+     &  , wrtavg(indxShflx_rsw), 'write shflx_rsw', 
+     &                                'Solar Heat Flux'
+     &  , wrtavg(indxShflx_rlw), 'write shflx_rlw', 
+     &                                 'Long Wave Heat Flux'
+     &  , wrtavg(indxShflx_lat), 'write shflx_lat',
+     &                                 'Latente heat flux'
+     &  , wrtavg(indxShflx_sen), 'write shflx_sen',
+     &                                 'Sensible heta flux'
 #  ifdef VIS_COEF_3D
      &  , wrtavg(indxVisc),'write Visc3d', 'Horizontal viscosity'
 #  endif
