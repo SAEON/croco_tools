@@ -87,6 +87,10 @@ for j=1:jstep:M
   xrad=xrad/1000;
   x=x/1000;
   field=masksection.*field;
+% $$$   x
+% $$$   squeeze(z(:,j,:))
+% $$$   field
+  
   pcolor(x,squeeze(z(:,j,:)),field) 
   colorbar
   shading interp
@@ -107,7 +111,7 @@ if niceplot==1
   m_proj('mercator',...
      'lon',[domaxis(1) domaxis(2)],...
      'lat',[domaxis(3) domaxis(4)]);
-  m_pcolor(lon,lat,mask.*field)
+  m_pcolor(lon,lat,mask.*field);
   shading flat
   colorbar
   hold on

@@ -24,26 +24,30 @@ romstools_param
 %
 % Climatology files
 %
-no3_seas_data  = '../WOAPISCES/no3_seas.cdf';
-no3_ann_data    = '../WOAPISCES/no3_ann.cdf';
-po4_seas_data  = '../WOAPISCES/po4_seas.cdf';
-po4_ann_data    = '../WOAPISCES/po4_ann.cdf';
-o2_seas_data   = '../WOAPISCES/o2_seas.cdf';
-o2_ann_data     = '../WOAPISCES/o2_ann.cdf';
-sio3_seas_data = '../WOAPISCES/sio3_seas.cdf';
-sio3_ann_data   = '../WOAPISCES/sio3_ann.cdf';
-dic_seas_data  = '../WOAPISCES/dic_seas.cdf';
-dic_ann_data    = '../WOAPISCES/dic_ann.cdf';
-talk_seas_data = '../WOAPISCES/talk_seas.cdf';
-talk_ann_data   = '../WOAPISCES/talk_ann.cdf';
-doc_seas_data  = '../WOAPISCES/doc_seas.cdf';
-doc_ann_data    = '../WOAPISCES/doc_ann.cdf';
-fer_seas_data  = '../WOAPISCES/fer_seas.cdf';
-fer_ann_data    = '../WOAPISCES/fer_ann.cdf';
-dust_seas_data = '../WOAPISCES/dust_seas.cdf';
-dust_ann_data   = '../WOAPISCES/dust_ann.cdf';
+DATADIR='../';
+no3_seas_data  = [DATADIR,'WOAPISCES/no3_seas.cdf'];
+no3_ann_data   = [DATADIR,'WOAPISCES/no3_ann.cdf'];
+po4_seas_data  = [DATADIR,'WOAPISCES/po4_seas.cdf'];
+po4_ann_data   = [DATADIR,'WOAPISCES/po4_ann.cdf'];
+o2_seas_data   = [DATADIR,'WOAPISCES/o2_seas.cdf'];
+o2_ann_data    = [DATADIR,'WOAPISCES/o2_ann.cdf'];
+sio3_seas_data = [DATADIR,'WOAPISCES/sio3_seas.cdf'];
+sio3_ann_data  = [DATADIR,'WOAPISCES/sio3_ann.cdf'];
+dic_seas_data  = [DATADIR,'WOAPISCES/dic_seas.cdf'];
+dic_ann_data   = [DATADIR,'WOAPISCES/dic_ann.cdf'];
+talk_seas_data = [DATADIR,'WOAPISCES/talk_seas.cdf'];
+talk_ann_data  = [DATADIR,'WOAPISCES/talk_ann.cdf'];
+doc_seas_data  = [DATADIR,'WOAPISCES/doc_seas.cdf'];
+doc_ann_data   = [DATADIR,'WOAPISCES/doc_ann.cdf'];
+fer_seas_data  = [DATADIR,'WOAPISCES/fer_seas.cdf'];
+fer_ann_data   = [DATADIR,'WOAPISCES/fer_ann.cdf'];
+dust_seas_data = [DATADIR,'WOAPISCES/dust_seas.cdf'];
+dust_ann_data  = [DATADIR,'WOAPISCES/dust_ann.cdf'];
 %
 cycle=woa_cycle;
+%gc
+NO3min=1;
+%gc
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -169,75 +173,9 @@ if (makeclim)
   disp(' FER...')
   vinterp_clm(clmname,grdname,oaname,'FER','fer_time','Zfer',0,'r');
 end
-%
-% Initial file
-%
-if (makeini)
-  disp(' ')
-  disp(' Initial')
-  disp(' ')
-  disp(' NO3...')
-  add_ini_no3(ininame,grdname,oaname,cycle);
-%
-%  PO4
-%
-  disp(' ')
-  disp(' Initial')
-  disp(' ')
-  disp(' PO4...')
-  add_ini_po4(ininame,grdname,oaname,cycle);
-%
-%  Si
-%
-  disp(' ')
-  disp(' Initial')
-  disp(' ')
-  disp(' Si...')
-  add_ini_sio3(ininame,grdname,oaname,cycle);
-%
-%  O2
-%
- disp(' ')
- disp(' Initial')
- disp(' ')
- disp(' O2...')
- add_ini_o2(ininame,grdname,oaname,cycle);
-%
-%  O2
-%
- disp(' ')
- disp(' Initial')
- disp(' ')
- disp(' DIC...')
- add_ini_dic(ininame,grdname,oaname,cycle);
-%
-%  TALK
-%
- disp(' ')
- disp(' Initial')
- disp(' ')
- disp(' TALK...')
- add_ini_talk(ininame,grdname,oaname,cycle);
-%
-%  DOC
-%
- disp(' ')
- disp(' Initial')
- disp(' ')
- disp(' DOC...')
- add_ini_doc(ininame,grdname,oaname,cycle);
-%
-%  TALK
-%
- disp(' ')
- disp(' Initial')
- disp(' ')
- disp(' FER...')
- add_ini_fer(ininame,grdname,oaname,cycle);
-end
-%
-% Make a few plots
-%
+
+
+if (makeclim)
 disp(' ')
 disp(' Make a few plots...')
 test_clim(clmname,grdname,'NO3',1,coastfileplot)
@@ -255,6 +193,7 @@ figure
 test_clim(clmname,grdname,'DOC',1,coastfileplot)
 figure
 test_clim(clmname,grdname,'FER',1,coastfileplot)
+end
 %
 % End
 %

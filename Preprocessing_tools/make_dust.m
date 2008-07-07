@@ -39,9 +39,10 @@ romstools_param
 %
 % Dust deposition file 
 %
-dust_file='../WOAPISCES/dust.iron.cdf';
+dust_file='/calcul/pc-tropic-133/GILDAS/Data_Roms_Local/WOAPISCES/dust.iron.cdf';
 dust_name='irondep';
-time=woa_time;
+%time=woa_time;
+time=[0.5:1:11.5];
 cycle=woa_cycle;
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%

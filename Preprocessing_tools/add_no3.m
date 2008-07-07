@@ -60,11 +60,14 @@ close(nc);
 %
 nc=netcdf(seas_datafile);
 t=nc{'T'}(:);
+t
 close(nc)
 nc=netcdf(ann_datafile);
 zno3=nc{'Z'}(:);
 kmax=max(find(zno3<hmax))-1;
 zno3=zno3(1:kmax);
+disp('Size zno3=')
+size(zno3)
 close(nc)
 %
 % open the OA file  
@@ -73,12 +76,29 @@ if (makeoa)
   disp('Add_no3: creating variables and attributes for the OA file')
   nc=netcdf(oafile,'write');
   redef(nc);
+  
+  disp('write no3time')
+  %Create Dimensions
   nc('no3_time') = length(t);
+  %Create Variable
   nc{'no3_time'} = ncdouble('no3_time') ;
-  nc('Zno3') = length(zno3);
+%
+%%
+%
+  %Create Dimensions
+  nc('Zno3') = length(zno3);  
+  %Create Variable
   nc{'Zno3'} = ncdouble('Zno3') ;
+%
+%%
+%    
+  %Create Variable
   nc{'NO3'} = ncdouble('no3_time','Zno3','eta_rho','xi_rho') ;
 %
+%%
+%    
+  %Create Attribute
+  
   nc{'no3_time'}.long_name = ncchar('time for nitrate');
   nc{'no3_time'}.long_name = 'time for nitrate';
   nc{'no3_time'}.units = ncchar('day');
@@ -86,22 +106,23 @@ if (makeoa)
   if cycle~=0
     nc{'no3_time'}.cycle_length = cycle;
   end
-%
+%%%
   nc{'Zno3'}.long_name = ncchar('Depth for NO3');
   nc{'Zno3'}.long_name = 'Depth for NO3';
   nc{'Zno3'}.units = ncchar('m');
   nc{'Zno3'}.units = 'm';
-%
+%%%
   nc{'NO3'}.long_name = ncchar('Nitrate');
   nc{'NO3'}.long_name = 'Nitrate';
   nc{'NO3'}.units = ncchar('mMol N m-3');
   nc{'NO3'}.units = 'mMol N m-3';
   nc{'NO3'}.fields = ncchar('NO3, scalar, series');
   nc{'NO3'}.fields = 'NO3, scalar, series';
-%
+%%%
   endef(nc);
 %
-% record deth and time and close
+%% Write variables
+%% record depth and time and close
 %
   nc{'no3_time'}(:)=t*30; % if time in month in the dataset !!!
   nc{'Zno3'}(:)=zno3;
