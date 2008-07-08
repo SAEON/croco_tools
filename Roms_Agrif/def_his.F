@@ -82,10 +82,12 @@
 # define vidSed hisSed
 # define vidBBL hisBBL
 # define vidBostr hisBostr
-# define vidShflx_rsw hisShflx_rsw
-# define vidShflx_rlw hisShflx_rlw
-# define vidShflx_lat hisShflx_lat
-# define vidShflx_sen hisShflx_sen
+# ifdef BULK_FLUX
+#  define vidShflx_rsw hisShflx_rsw
+#  define vidShflx_rlw hisShflx_rlw
+#  define vidShflx_lat hisShflx_lat
+#  define vidShflx_sen hisShflx_sen
+# endif
 #else
 # define ncname avgname
 # define rec_per_file nrpfavg
@@ -125,11 +127,12 @@
 # define vidSed avgSed
 # define vidBBL avgBBL
 # define vidBostr avgBostr
-# define vidShflx_rsw avgShflx_rsw
-# define vidShflx_rlw avgShflx_rlw
-# define vidShflx_lat avgShflx_lat
-# define vidShflx_sen avgShflx_sen
-
+# ifdef BULK_FLUX
+#  define vidShflx_rsw avgShflx_rsw
+#  define vidShflx_rlw avgShflx_rlw
+#  define vidShflx_lat avgShflx_lat
+#  define vidShflx_sen avgShflx_sen
+# endif
       character*70 text
 #endif
 !

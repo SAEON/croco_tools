@@ -623,7 +623,7 @@ c        close(testunit)
      &                                          ,  wrthis(indxHbbl)
 # endif
      &                                          ,  wrthis(indxBostr)
-# if defined BULK_FLUX
+# ifdef BULK_FLUX
      &                                          , wrthis(indxShflx_rsw)
      &                                          , wrthis(indxShflx_rlw)
      &                                          , wrthis(indxShflx_lat)
@@ -706,6 +706,16 @@ c        close(testunit)
      &  , wrthis(indxHbbl),  'write Hbbl  ',
      &                       'Depth of bottom planetary boundary layer.'
 # endif
+# ifdef BULK_FLUX
+     &  , wrthis(indxShflx_rsw), 'write shflx_rsw', 
+     &                                'Solar Heat Flux'
+     &  , wrthis(indxShflx_rlw), 'write shflx_rlw', 
+     &                                 'Long Wave Heat Flux'
+     &  , wrthis(indxShflx_lat), 'write shflx_lat',
+     &                                 'Latente heat flux'
+     &  , wrthis(indxShflx_sen), 'write shflx_sen',
+     &                                 'Sensible heta flux'
+# endif
 # ifdef BIOLOGY
      &  , wrthis(indxHel),   'write Hel  ',
      &                          'Depth of the euphotic layer'
@@ -728,14 +738,6 @@ c        close(testunit)
 #  endif
 # endif
      &  , wrthis(indxBostr), 'write Bostr', 'Bottom Stress.'
-     &  , wrthis(indxShflx_rsw), 'write shflx_rsw', 
-     &                                'Solar Heat Flux'
-     &  , wrthis(indxShflx_rlw), 'write shflx_rlw', 
-     &                                 'Long Wave Heat Flux'
-     &  , wrthis(indxShflx_lat), 'write shflx_lat',
-     &                                 'Latente heat flux'
-     &  , wrthis(indxShflx_sen), 'write shflx_sen',
-     &                                 'Sensible heta flux'
 #  ifdef VIS_COEF_3D
      &  , wrthis(indxVisc),  'write Visc3d', 'Horizontal viscosity.'
 #  endif
@@ -875,6 +877,14 @@ c        close(testunit)
      &  , wrtavg(indxHbbl),  'write Hbbl  ',
      &                    'Depth of the bottom planetary boundary layer'
 #  endif
+     &  , wrtavg(indxShflx_rsw), 'write shflx_rsw', 
+     &                                'Solar Heat Flux'
+     &  , wrtavg(indxShflx_rlw), 'write shflx_rlw', 
+     &                                 'Long Wave Heat Flux'
+     &  , wrtavg(indxShflx_lat), 'write shflx_lat',
+     &                                 'Latente heat flux'
+     &  , wrtavg(indxShflx_sen), 'write shflx_sen',
+     &                                 'Sensible heta flux'
 #  ifdef BIOLOGY
      &  , wrtavg(indxHel),'write Hel  ',
      &                          'Depth of the euphotic layer'
@@ -897,14 +907,6 @@ c        close(testunit)
 #   endif
 #  endif
      &  , wrtavg(indxBostr),'write Bostr', 'Bottom Stress.'
-     &  , wrtavg(indxShflx_rsw), 'write shflx_rsw', 
-     &                                'Solar Heat Flux'
-     &  , wrtavg(indxShflx_rlw), 'write shflx_rlw', 
-     &                                 'Long Wave Heat Flux'
-     &  , wrtavg(indxShflx_lat), 'write shflx_lat',
-     &                                 'Latente heat flux'
-     &  , wrtavg(indxShflx_sen), 'write shflx_sen',
-     &                                 'Sensible heta flux'
 #  ifdef VIS_COEF_3D
      &  , wrtavg(indxVisc),'write Visc3d', 'Horizontal viscosity'
 #  endif
