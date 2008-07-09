@@ -1,50 +1,50 @@
 function add_bry_pisces(bryname,obc,time,cycle,clobber);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                                                                 %
-% function add_bry_pisces(bryname,grdname,title,obc...            %
-%                         theta_s,theta_b,hc,N,...                %
-%                         time,cycle,clobber);                    %
-%                                                                 %
-%   This function create the header of a Netcdf climatology       %
-%   file.                                                         %
-%                                                                 %
-%   Input:                                                        %
-%                                                                 %
-%   bryname      Netcdf climatology file name (character string). %
-%   obc          open boundaries flag (1=open , [S E N W]).       %
-%   time         time.(vector)                                    %
-%   cycle        Length (days) for cycling the climatology.(Real) %
-%   clobber      Switch to allow or not writing over an existing  %
-%                file.(character string)                          %
-%                                                                 %
+%                                                                 
+% function add_bry_pisces(bryname,grdname,title,obc...            
+%                         theta_s,theta_b,hc,N,...                
+%                         time,cycle,clobber);                    
+%                                                                 
+%   This function create the header of a Netcdf climatology       
+%   file.                                                         
+%                                                                 
+%   Input:                                                        
+%                                                                 
+%   bryname      Netcdf climatology file name (character string). 
+%   obc          open boundaries flag (1=open , [S E N W]).       
+%   time         time.(vector)                                    
+%   cycle        Length (days) for cycling the climatology.(Real) 
+%   clobber      Switch to allow or not writing over an existing  
+%                file.(character string)                          
+%
+%  Further Information:  
+%  http://www.brest.ird.fr/Roms_tools/
+%  
+%  This file is part of ROMSTOOLS
+%
+%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  it under the terms of the GNU General Public License as published
+%  by the Free Software Foundation; either version 2 of the License,
+%  or (at your option) any later version.
+%
+%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  WITHOUT ANY WARRANTY; without even the implied warranty of
+%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%  GNU General Public License for more details.
+%
+%  You should have received a copy of the GNU General Public License
+%  along with this program; if not, write to the Free Software
+%  Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+%  MA  02111-1307  USA
+%
+%  Copyright (c) 2001-2006 by Pierrick Penven 
+%  e-mail:Pierrick.Penven@ird.fr  
 %  Pierrick Penven, IRD, 2005.                                    %
 %  Olivier Aumont the master, IRD, 2006.                          %
 %  Patricio Marchesiello, chief, IRD, 2007.                       %
 %  Christophe Eugene Raoul Menkes, the slave, IRD, 2007.          %
 %                                                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-%  Data climatologies file names:
-%
-no3_month_data  = '../WOAPISCES/no3_seas.cdf';
-no3_ann_data    = '../WOAPISCES/no3_ann.cdf';
-po4_month_data  = '../WOAPISCES/po4_seas.cdf';
-po4_ann_data    = '../WOAPISCES/po4_ann.cdf';
-o2_month_data   = '../WOAPISCES/o2_seas.cdf';
-o2_ann_data     = '../WOAPISCES/o2_ann.cdf';
-sio3_month_data = '../WOAPISCES/sio3_seas.cdf';
-sio3_ann_data   = '../WOAPISCES/sio3_ann.cdf';
-dic_month_data  = '../WOAPISCES/dic_seas.cdf';
-dic_ann_data    = '../WOAPISCES/dic_ann.cdf';
-talk_month_data = '../WOAPISCES/talk_seas.cdf';
-talk_ann_data   = '../WOAPISCES/talk_ann.cdf';
-doc_month_data  = '../WOAPISCES/doc_seas.cdf';
-doc_ann_data    = '../WOAPISCES/doc_ann.cdf';
-fer_month_data  = '../WOAPISCES/fer_seas.cdf';
-fer_ann_data    = '../WOAPISCES/fer_ann.cdf';
-dust_month_data = '../WOAPISCES/dust_seas.cdf';
-dust_ann_data   = '../WOAPISCES/dust_ann.cdf';
-
 disp(' ')
 disp([' Adding PISCES data into file : ',bryname])
 disp(' ')

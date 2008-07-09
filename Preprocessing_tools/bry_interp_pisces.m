@@ -1,15 +1,48 @@
-function bry_interp(zbryname,lon,lat,seas_datafile,ann_datafile,...
-                    dataname,vname,obcndx);
+function bry_interp_pisces(zbryname,lon,lat,seas_datafile,ann_datafile,...
+                    dataname,vname,obcndx,Roa);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%  function bry_interp(zbryname,lon,lat,seas_datafile,ann_datafile,...
+%                      dataname,vname,obcndx,Roa);
+% 
+%  Interpole data for the lateral boundaries (bry_file) along 
+%  horizontal z levels.
+% 
+%  Further Information:  
+%  http://www.brest.ird.fr/Roms_tools/
+%  
+%  This file is part of ROMSTOOLS
+%
+%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  it under the terms of the GNU General Public License as published
+%  by the Free Software Foundation; either version 2 of the License,
+%  or (at your option) any later version.
+%
+%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  WITHOUT ANY WARRANTY; without even the implied warranty of
+%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%  GNU General Public License for more details.
+%
+%  You should have received a copy of the GNU General Public License
+%  along with this program; if not, write to the Free Software
+%  Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+%  MA  02111-1307  USA
+%
+%  Copyright (c) 2001-2006 by Pierrick Penven 
+%  e-mail:Pierrick.Penven@ird.fr  
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [M,L]=size(lon);
 %
 % set the value of ro (oa decorrelation scale [m]) 
-% and default (value if no data)
-%
-ro=0; %ro=1e8;
+% and default (value if no data) ro=0; %ro=1e8;
 default=NaN;
 %
 % Read in the datafile
 %
+seas_datafile
 ncseas=netcdf(seas_datafile);
 X=ncseas{'X'}(:);
 Y=ncseas{'Y'}(:);
@@ -73,15 +106,17 @@ Nz=length(Z);
 % Check the time
 %
 tbry=nc{'bry_time'}(:); 
-T=T*30; % if time in month in the dataset !!!
+%Take care if tile in the WOAPISCES data files !!!
+T=(T-1)*30; % if time in month in the dataset !!!
+%tbry
+%T
+
 if (tbry~=T)
-  num2str(tbry)
-  num2str(T)
   error(['time mismatch  tbry = ',num2str(tbry),...
-                              '  t = ',num2str(T)])
+         '  t = ',num2str(T)])
 end
 %
-% Read the annual dataset
+% Read the annual dataset if Nz > Nzseas
 %
 if Nz > Nzseas
   ncann=netcdf(ann_datafile);
@@ -111,7 +146,7 @@ if Nz > Nzseas
     if ~isempty(i3)
       data=cat(2,data,squeeze(ncann{dataname}(k,j,i3)));
     end
-    data=get_missing_val(x,y,data,missval,ro,default);
+    data=get_missing_val(x,y,data,missval,Roa,default);
     if dims(1)==1
       datazgrid(k,:)=interp2(x,y,data,lon,lat,'linear');
     else
@@ -120,6 +155,8 @@ if Nz > Nzseas
   end
   close(ncann);
 end
+
+%Else read seasonal datafile 
 %
 % interpole the seasonal dataset on the horizontal roms grid
 %
@@ -127,7 +164,6 @@ disp([' Ext tracers: horizontal interpolation of the seasonal data'])
 %
 % loop on time
 %
-
 missval=ncseas{dataname}.missing_value(:);
 for l=1:tlen
 %for l=1:1
@@ -149,7 +185,7 @@ for l=1:tlen
     if ~isempty(i3)
       data=cat(2,data,squeeze(ncseas{dataname}(l,k,j,i3)));
     end
-    data=get_missing_val(x,y,data,missval,ro,default);
+    data=get_missing_val(x,y,data,missval,Roa,default);
     if dims(1)==1
       datazgrid(k,:)=interp2(x,y,data,lon,lat,'linear');
     else

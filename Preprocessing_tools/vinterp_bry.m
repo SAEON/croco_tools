@@ -1,5 +1,5 @@
-function vinterp(bryname,grdname,Zbryname,vname,obcndx);
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function vinterp_bry(bryname,grdname,Zbryname,vname,obcndx)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Vertical interpolation from a Z-grid to a sigma-grid in the
 %  case of boundary (bry) files.
@@ -87,6 +87,7 @@ for l=1:tlen
 %for l=1:1
 %  disp([' Time index: ',num2str(l),' of total: ',num2str(tlen)])
   var=squeeze(noa{vname}(l,:));
+%  disp(['SIZE VAR=',num2str(size(var))])
   if addsurf
     var=cat(1,var(1,:),var);
   end
@@ -99,4 +100,26 @@ end
 close(nc);
 close(noa);
 
+
+%DEBUG
+%
+%size(var)
+%var
+%
+%size(flipdim(var,1))
+%flipdim(var,1)
+%
+%size(z)
+%z
+%
+%size(flipud(z))
+%flipud(z)
+%
+%size(zroms)
+%zroms
+%
+%size(ztosigma_1d(flipdim(var,1),zroms,flipud(z)))
+%
+%
+%%
 return

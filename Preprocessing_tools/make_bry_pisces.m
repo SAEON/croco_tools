@@ -18,16 +18,41 @@
 %  Data source : IRI/LDEO climate Data Library (World Ocean Atlas 1998)
 %    http://ingrid.ldgo.columbia.edu/
 %    http://iridl.ldeo.columbia.edu/SOURCES/.NOAA/.NODC/.WOA98/
+% 
+%  Further Information:  
+%  http://www.brest.ird.fr/Roms_tools/
+%  
+%  This file is part of ROMSTOOLS
 %
+%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  it under the terms of the GNU General Public License as published
+%  by the Free Software Foundation; either version 2 of the License,
+%  or (at your option) any later version.
+%
+%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  WITHOUT ANY WARRANTY; without even the implied warranty of
+%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%  GNU General Public License for more details.
+%
+%  You should have received a copy of the GNU General Public License
+%  along with this program; if not, write to the Free Software
+%  Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+%  MA  02111-1307  USA
+%
+%  Copyright (c) 2005-2006 by Pierrick Penven 
+%  e-mail:Pierrick.Penven@ird.fr  
+%
+%  Updated    1-Sep-2006 by Pierrick Penven
 %  Pierrick Penven, IRD, 2005.                                    %
 %  Olivier Aumont the master, IRD, 2006.                          %
 %  Patricio Marchesiello, chief, IRD, 2007.                       %
 %  Christophe Eugene Raoul Menkes, the slave, IRD, 2007.          %
-%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 %  WARNING !!!!!! THIS ASSUMES THAT THE TIME FOR PISCES INITIAL.
 %  IS THE SAME AS THE CLIM T AND S. ELSE, CHANGE THE PROGRAM
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all
 close all
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
@@ -35,6 +60,7 @@ close all
 % Common parameters
 %
 romstools_param
+Roa
 %
 % Set times and cycles: monthly climatology for all data
 %
@@ -43,27 +69,36 @@ cycle=woa_cycle;           % cycle
 %
 %  Data climatologies file names:
 %
-no3_month_data  = '../WOAPISCES/no3_seas.cdf';
-no3_ann_data    = '../WOAPISCES/no3_ann.cdf';
-po4_month_data  = '../WOAPISCES/po4_seas.cdf';
-po4_ann_data    = '../WOAPISCES/po4_ann.cdf';
-o2_month_data   = '../WOAPISCES/o2_seas.cdf';
-o2_ann_data     = '../WOAPISCES/o2_ann.cdf';
-sio3_month_data = '../WOAPISCES/sio3_seas.cdf';
-sio3_ann_data   = '../WOAPISCES/sio3_ann.cdf';
-dic_month_data  = '../WOAPISCES/dic_seas.cdf';
-dic_ann_data    = '../WOAPISCES/dic_ann.cdf';
-talk_month_data = '../WOAPISCES/talk_seas.cdf';
-talk_ann_data   = '../WOAPISCES/talk_ann.cdf';
-doc_month_data  = '../WOAPISCES/doc_seas.cdf';
-doc_ann_data    = '../WOAPISCES/doc_ann.cdf';
-fer_month_data  = '../WOAPISCES/fer_seas.cdf';
-fer_ann_data    = '../WOAPISCES/fer_ann.cdf';
-dust_month_data = '../WOAPISCES/dust_seas.cdf';
-dust_ann_data   = '../WOAPISCES/dust_ann.cdf';
+DATADIR='../';
+no3_seas_data  = [DATADIR,'WOAPISCES/no3_seas.cdf'];
+no3_ann_data   = [DATADIR,'WOAPISCES/no3_ann.cdf'];
+po4_seas_data  = [DATADIR,'WOAPISCES/po4_seas.cdf'];
+po4_ann_data   = [DATADIR,'WOAPISCES/po4_ann.cdf'];
+o2_seas_data   = [DATADIR,'WOAPISCES/o2_seas.cdf'];
+o2_ann_data    = [DATADIR,'WOAPISCES/o2_ann.cdf'];
+sio3_seas_data = [DATADIR,'WOAPISCES/sio3_seas.cdf'];
+sio3_ann_data  = [DATADIR,'WOAPISCES/sio3_ann.cdf'];
+dic_seas_data  = [DATADIR,'WOAPISCES/dic_seas.cdf'];
+dic_ann_data   = [DATADIR,'WOAPISCES/dic_ann.cdf'];
+talk_seas_data = [DATADIR,'WOAPISCES/talk_seas.cdf'];
+talk_ann_data  = [DATADIR,'WOAPISCES/talk_ann.cdf'];
+doc_seas_data  = [DATADIR,'WOAPISCES/doc_seas.cdf'];
+doc_ann_data   = [DATADIR,'WOAPISCES/doc_ann.cdf'];
+fer_seas_data  = [DATADIR,'WOAPISCES/fer_seas.cdf'];
+fer_ann_data   = [DATADIR,'WOAPISCES/fer_ann.cdf'];
+dust_seas_data = [DATADIR,'WOAPISCES/dust_seas.cdf'];
+dust_ann_data  = [DATADIR,'WOAPISCES/dust_ann.cdf'];
 %
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
+%
+% Title
+%
+disp(' ')
+disp([' Making the file: ',bryname])
+disp([' Adding the PISCES variables'])
+disp(' ')
+disp([' Title: ',ROMS_title])
 %
 % Read in the grid
 %
@@ -119,31 +154,30 @@ if (makeZbry)
         disp(' Processing western boundary...')
 	suffix='_west';
       end
-  
       disp('  Nitrate...')
-      bry_interp_pisces(Zbryname,lon,lat,no3_month_data,no3_ann_data,...
-               'nitrate',['NO3',suffix],obcndx);        
+      bry_interp_pisces(Zbryname,lon,lat,no3_seas_data,no3_ann_data,...
+               'nitrate',['NO3',suffix],obcndx,Roa);        
       disp('  Phosphate...')
-      bry_interp_pisces(Zbryname,lon,lat,po4_month_data,po4_ann_data,...
-               'phosphate',['PO4',suffix],obcndx);        
-      disp('  Silica...')
-      bry_interp_pisces(Zbryname,lon,lat,sio3_month_data,sio3_ann_data,...
-               'silicate',['Si',suffix],obcndx);        
-      disp('  Oxygen for life...')
-      bry_interp_pisces(Zbryname,lon,lat,o2_month_data,o2_ann_data,...
-               'oxygen',['O2',suffix],obcndx);        
+      bry_interp_pisces(Zbryname,lon,lat,po4_seas_data,po4_ann_data,...
+               'phosphate',['PO4',suffix],obcndx,Roa);        
+      disp('  Silicate...')
+      bry_interp_pisces(Zbryname,lon,lat,sio3_seas_data,sio3_ann_data,...
+               'silicate',['Si',suffix],obcndx,Roa);        
+      disp('  Oxygen...')
+      bry_interp_pisces(Zbryname,lon,lat,o2_seas_data,o2_ann_data,...
+               'oxygen',['O2',suffix],obcndx,Roa);        
       disp('  Dissolved Inorganic Carbon...')
-      bry_interp_pisces(Zbryname,lon,lat,dic_month_data,dic_ann_data,...
-               'dic',['DIC',suffix],obcndx);        
+      bry_interp_pisces(Zbryname,lon,lat,dic_seas_data,dic_ann_data,...
+               'dic',['DIC',suffix],obcndx,Roa);        
       disp('  Total Alkalinity...')
-      bry_interp_pisces(Zbryname,lon,lat,talk_month_data,talk_ann_data,...
-               'talk',['TALK',suffix],obcndx);        
+      bry_interp_pisces(Zbryname,lon,lat,talk_seas_data,talk_ann_data,...
+               'talk',['TALK',suffix],obcndx,Roa);        
       disp('  Dissolved Organic Carbon...')
-      bry_interp_pisces(Zbryname,lon,lat,doc_month_data,doc_ann_data,...
-               'doc',['DOC',suffix],obcndx);        
+      bry_interp_pisces(Zbryname,lon,lat,doc_seas_data,doc_ann_data,...
+               'doc',['DOC',suffix],obcndx,Roa);        
       disp('  Iron...')
-      bry_interp_pisces(Zbryname,lon,lat,fer_month_data,fer_ann_data,...
-               'fer',['FER',suffix],obcndx);        
+      bry_interp_pisces(Zbryname,lon,lat,fer_seas_data,fer_ann_data,...
+               'fer',['FER',suffix],obcndx,Roa);        
     end
   end
 end
@@ -181,7 +215,7 @@ if (makebry)
       disp('  Silica...')
       vinterp_bry(bryname,grdname,Zbryname,['Si',suffix],obcndx);
       disp(' ')
-      disp('  Oxygen for life...')
+      disp('  Oxygen ...')
       vinterp_bry(bryname,grdname,Zbryname,['O2',suffix],obcndx);
       disp(' ')
       disp('  Dissolved Inorganic Carbon...')
@@ -201,6 +235,7 @@ end
 %
 % Make a few plots
 %
+if makeplot==1
 disp(' ')
 disp(' Make a few plots...')
 test_bry(bryname,grdname,'NO3',1,obc)
@@ -218,6 +253,7 @@ figure
 test_bry(bryname,grdname,'DOC',6,obc)
 figure
 test_bry(bryname,grdname,'FER',6,obc)
+end
 %
 % End
 %

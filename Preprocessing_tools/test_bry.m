@@ -75,22 +75,22 @@ end
 for obcndx=1:4
   if obc(obcndx)==1
     if obcndx==1
-%      disp(' Plot southern boundary...')
+      disp(' Plot southern boundary...')
       suffix='south';
       iroms=(1:L);
       jroms=1;
     elseif obcndx==2
-%      disp(' Plot eastern boundary...')
+      disp(' Plot eastern boundary...')
       suffix='east';
       iroms=L;
       jroms=(1:M);
     elseif obcndx==3
-%      disp(' Plot northern boundary...')
+      disp(' Plot northern boundary...')
       suffix='north';
       iroms=(1:L);
       jroms=M;
     elseif obcndx==4
-%      disp(' Plot western boundary...')
+      disp(' Plot western boundary...')
       suffix='west';
       iroms=1;
       jroms=(1:M);
@@ -121,6 +121,9 @@ for obcndx=1:4
     x1=x1/1000;
     x=x/1000;
     temp=masksection.*temp;
+% $$$     disp(['Size x =   ',num2str(size(x))])
+% $$$     disp(['Size z =   ',num2str(size(z))])
+% $$$     disp(['Size temp =',num2str(size(temp))])
     pcolor(x,z,temp) 
     colorbar
     shading interp

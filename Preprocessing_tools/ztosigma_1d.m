@@ -14,7 +14,7 @@ function vnew = ztosigma_1d(var,z,depth)
 % 
 % On Output:
 %
-%    vnew    Variable sigma (3D matrix).
+%    vnew    Variable sigma (2D matrix).
 % 
 %  Further Information:  
 %  http://www.brest.ird.fr/Roms_tools/
