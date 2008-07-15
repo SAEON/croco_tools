@@ -73,7 +73,7 @@
 #  elif defined  CORAL
       parameter (LLm0=81, MMm0=77,  N=32)  ! <-- CORAL sea
 #  else
-      parameter (LLm0=39,  MMm0=32,  N=20)
+      parameter (LLm0=41,  MMm0=42,  N=32) ! <-- BenguelaLR
 #  endif
 #else
       parameter (LLm0=??, MMm0=??, N=??)

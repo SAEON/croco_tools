@@ -107,9 +107,10 @@
 
 # undef  BULK_FLUX
 # ifdef BULK_FLUX
+# define LW_ONLINE
 #  define BULK_EP
-#  define BULK_SMFLUX
-#  undef  DIURNAL_SRFLUX
+#  undef BULK_SMFLUX
+#  define  DIURNAL_SRFLUX
 # endif
 # ifdef BULK_EP
 #  undef  QCORRECTION

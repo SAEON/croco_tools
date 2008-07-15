@@ -21,11 +21,11 @@
 #include "scalars.h"
       integer i,j, Istr,Iend,Jstr,Jend
       real evap
-      real cpair,rho0i,cpi,cpaircpi
+      real cpair,rho0i,cpi,cpaircpi,CtoK, sigmaSB
       real patm
-      real ew,rw,qw,es,rs,ra,qa
+      real ew,rw,qw,es,rs,ra,qa,emiss_lw
       real vtair,rhoair,a,b,ce,cs,htevap
-      real hflat,hfsen
+      real hflat,hfsen,radlw_out,lwup,ts
       real wspd0,szero,ss
       real aer(PRIVATE_2D_SCRATCH_ARRAY),
      &     cer(PRIVATE_2D_SCRATCH_ARRAY)
@@ -130,9 +130,44 @@
           evap=a*ce*(qw-qa)
           hflat=-evap*htevap*cpi
           hfsen=-a*cs*(t(i,j,N,nrhs,itemp)-tair(i,j))*cpaircpi
+
+#ifdef LW_ONLINE
 !
+!compute radlw from incoming lonwave from LWHF.m:
+! computes net longwave heat flux following Dickey et al (1994).
+! qlw=LWHF(Ts,dlw) computes the net longwave heat flux into the ocean.
+! Following Dickey et al (1994), J. Atmos. Oceanic Tech., 11, 1057-1078,
+! the incident longwave flux can be corrected for sensor heating due to
+! insolation if you are using Epply or Kipp & Zonen CG1 pyrgeometers.
+! In this case, use qlw=LWHF(Ts,dlw,dsw). Epply is the default
+! pyrgeometer; change code for the Kipp & Zonen instrument.
+
+          CtoK        = 273.16    !conversion factor for [C] to [K]
+
+          emiss_lw    = 0.985
+! long-wave emissivity of ocean from Dickey et al! (1994),
+! J. Atmos. Oceanic Tech., 11, 1057-1076.
+
+
+          sigmaSB     = 5.6697e-8  ! Stefan-Boltzmann constant [m^2/K^4
+
+! long-wave emissivity of ocean from Dickey et al! (1994),
+! J. Atmos. Oceanic Tech., 11, 1057-1076
+
+! compute upward gray-body longwave flux
+          lwup=-1*emiss_lw*sigmaSB*((t(i,j,N,nrhs,itemp)+CtoK)**4)
+! compute net longwave flux
+          radlw_out= lwup + emiss_lw*radlw(i,j)*(rho0*cp)
+! scale factor, convert to degC/s
+         radlw_out=radlw_out/(rho0*cp)
+!  Change the signe of longwave because -1 x -1
+
 !  Compute total surface heat flux.
+          stflx(i,j,itemp)=radsw(i,j)+radlw_out+hflat+hfsen
+#else 
           stflx(i,j,itemp)=radsw(i,j)-radlw(i,j)+hflat+hfsen
+#endif
+
 # ifdef BULK_EP
           stflx(i,j,isalt)=(evap-prate(i,j))*t(i,j,N,nrhs,isalt)
 # endif
@@ -140,9 +175,13 @@
 !  Store fluxes for diagnostics
 !
           shflx_rsw(i,j)=radsw(i,j)
-          shflx_rlw(i,j)=-radlw(i,j)
           shflx_lat(i,j)=hflat
           shflx_sen(i,j)=hfsen
+#ifdef LW_ONLINE
+          shflx_rlw(i,j)=radlw_out
+#else
+          shflx_rlw(i,j)=-radlw(i,j)
+#endif 
         enddo
       enddo
 
