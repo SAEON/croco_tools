@@ -80,6 +80,7 @@ prate(abs(prate)<1.e-4)=0;
 %
   nlwf = -lwhf(skt,dlwrf); 
   radlw=interp2(lon1,lat1,nlwf,lon,lat,interp_method);
+
 %
 % get the  downward longwave heat flux  
 %
@@ -135,7 +136,7 @@ if ~isempty(nc_blk)
   nc_blk{'prate'}(tout,:,:)=prate;
   nc_blk{'wspd'}(tout,:,:)=wspd;
   nc_blk{'radlw'}(tout,:,:)=radlw;
-  nc_blk{'radlw_in'}(tout,:,:)=radlw;
+  nc_blk{'radlw_in'}(tout,:,:)=radlw_in;
   nc_blk{'radsw'}(tout,:,:)=radsw;
   nc_blk{'uwnd'}(tout,:,:)=u10;
   nc_blk{'vwnd'}(tout,:,:)=v10;
