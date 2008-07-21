@@ -298,6 +298,8 @@
       parameter (indxShflx_rsw=indxSST+11, indxShflx_rlw=indxSST+12,
      &           indxShflx_lat=indxSST+13, indxShflx_sen=indxSST+14)
 # endif
+      integer indxWstr
+      parameter (indxWstr=indxSUSTR+21)
       integer indxBostr
       parameter (indxBostr=indxSUSTR+22)
 # ifdef SEDIMENT
@@ -454,7 +456,7 @@
 #endif
       integer  ncidhis, nrechis,  nrpfhis
      &      , hisTime, hisTstep, hisZ,    hisUb,  hisVb
-     &      , hisBostr
+     &      , hisBostr, hisWstr
 #ifdef SOLVE3D
      &      , hisU,   hisV,   hisR,    hisHbl, hisHbbl
      &      , hisO,   hisW,   hisVisc, hisDiff
@@ -509,7 +511,7 @@
 #ifdef AVERAGES
       integer ncidavg, nrecavg,  nrpfavg
      &      , avgTime, avgTstep, avgZ, avgUb,  avgVb
-     &      , avgBostr
+     &      , avgBostr, avgWstr
 # ifdef SOLVE3D
      &      , avgU,   avgV,   avgR,    avgHbl, avgHbbl
      &      , avgO,   avgW,   avgVisc, avgDiff
@@ -618,7 +620,7 @@
 #endif
      &      , ncidhis, nrechis,  nrpfhis
      &      , hisTime, hisTstep, hisZ,    hisUb,  hisVb
-     &      , hisBostr
+     &      , hisBostr, hisWstr
 #ifdef SOLVE3D
      &      , hisU,    hisV,     hisT,    hisR
      &      , hisO,    hisW,     hisVisc, hisDiff
@@ -692,7 +694,7 @@
 #ifdef AVERAGES
      &      , ncidavg,  nrecavg,  nrpfavg
      &      , avgTime, avgTstep, avgZ,    avgUb,  avgVb
-     &      , avgBostr
+     &      , avgBostr, avgWstr
 # ifdef SOLVE3D
      &      , avgU,    avgV,     avgT,     avgR
      &      , avgO,    avgW,     avgVisc,  avgDiff

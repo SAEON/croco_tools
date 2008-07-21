@@ -121,6 +121,19 @@
           goto 99                                         !--> ERROR
         endif
       endif
+!
+!  Write out kinematic surface stress (N/m2).
+!
+      if (wrtavg(indxWstr)) then
+        ierr=nf_fwrite(wstr_avg, ncidavg, avgWstr, record, r2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxWstr))
+          write(stdout,1) vname(1,indxWstr)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+!
 # ifdef SOLVE3D
 !
 ! 3D momentum components in XI- and ETA-directions.

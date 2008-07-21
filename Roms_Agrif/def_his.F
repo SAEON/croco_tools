@@ -82,6 +82,7 @@
 # define vidSed hisSed
 # define vidBBL hisBBL
 # define vidBostr hisBostr
+# define vidWstr hisWstr
 # ifdef BULK_FLUX
 #  define vidShflx_rsw hisShflx_rsw
 #  define vidShflx_rlw hisShflx_rlw
@@ -127,6 +128,7 @@
 # define vidSed avgSed
 # define vidBBL avgBBL
 # define vidBostr avgBostr
+# define vidWstr avgWstr
 # ifdef BULK_FLUX
 #  define vidShflx_rsw avgShflx_rsw
 #  define vidShflx_rlw avgShflx_rlw
@@ -547,6 +549,25 @@
           lvar=lenstr(vname(3,indxBostr))
           ierr=nf_put_att_text (ncid, vidBostr, 'units',     lvar,
      &                                 vname(3,indxBostr)(1:lvar))
+        endif
+!
+        if (wrt(indxWstr)) then
+          lvar=lenstr(vname(1,indxWstr))
+          ierr=nf_def_var (ncid, vname(1,indxWstr)(1:lvar),
+     &                             NF_FOUT, 3, r2dgrd, vidWstr)
+#  ifndef AVRH
+          lvar=lenstr(vname(2,indxWstr))
+          ierr=nf_put_att_text (ncid, vidWstr, 'long_name', lvar,
+     &                                 vname(2,indxWstr)(1:lvar))
+#  else
+          text='averaged '/ /vname(2,indxWstr)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidWstr, 'long_name', lvar,
+     &                                               text(1:lvar))
+#  endif
+          lvar=lenstr(vname(3,indxWstr))
+          ierr=nf_put_att_text (ncid, vidWstr, 'units',     lvar,
+     &                                 vname(3,indxWstr)(1:lvar))
         endif
 #ifdef SOLVE3D
 # ifdef VIS_COEF_3D
@@ -1169,6 +1190,18 @@
             goto 99                                       !--> ERROR
           endif
         endif
+!
+! wstr     Kinematic surface wind stress (N/m2)
+!
+        if (wrt(indxWstr)) then
+          lvar=lenstr(vname(1,indxWstr))
+          ierr=nf_inq_varid (ncid,vname(1,indxWstr)(1:lvar),
+     &                                                   vidWstr)
+          if (ierr .ne. nf_noerr) then
+          write(stdout,1) vname(1,indxWstr)(1:lvar), ncname(1:lstr)
+            goto 99                                       !--> ERROR
+          endif
+        endif
 
 #ifdef SOLVE3D
 !
@@ -1575,6 +1608,7 @@
 #undef vidSed
 #undef vidBBL
 #undef vidBostr
+#undef vidWstr
 #undef vidShflx_rsw
 #undef vidShflx_rlw
 #undef vidShflx_lat

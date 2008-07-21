@@ -150,6 +150,23 @@ CR      write(*,*) 'wrt_his: wrtVBAR' MYID
         endif
 CR      write(*,*) 'wrt_his:  bostr' MYID
       endif
+      if (wrthis(indxWstr)) then
+        do j=0,Mm
+          do i=0,Lm
+            work2d(i,j)=0.5*sqrt((sustr(i,j)+sustr(i+1,j))**2
+     &                          +(svstr(i,j)+svstr(i,j+1))**2)
+     &                                                   *rho0
+          enddo
+        enddo
+        ierr=nf_fwrite(work2d, ncidhis, hisWstr, record, r2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxWstr))
+          write(stdout,1) vname(1,indxWstr)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+CR      write(*,*) 'wrt_his:  Wstr' MYID
+      endif
 #ifdef SOLVE3D
 !
 ! 3D momentum components in XI- and ETA-directions.

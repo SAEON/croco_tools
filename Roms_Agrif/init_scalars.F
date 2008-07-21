@@ -216,6 +216,11 @@ CR      write(stdout,'(1x,A,I3)') 'indxBostr =',indxBostr
       vname(2,indxBostr)='Kinematic bottom stress                 '
       vname(3,indxBostr)='N/m2                                    '
 
+CR      write(stdout,'(1x,A,I3)') 'indxWstr =',indxWstr
+      vname(1,indxWstr)='wstr                                   '
+      vname(2,indxWstr)='Kinematic wind stress                  '
+      vname(3,indxWstr)='N/m2                                   ' 
+
 #ifdef SOLVE3D
 CR      write(stdout,'(1x,A,I3)') 'indxU = ',indxU
       vname(1,indxU)='u                                           '

@@ -623,6 +623,7 @@ c        close(testunit)
      &                                          ,  wrthis(indxHbbl)
 # endif
      &                                          ,  wrthis(indxBostr)
+     &                                          ,  wrthis(indxWstr)
 # ifdef BULK_FLUX
      &                                          , wrthis(indxShflx_rsw)
      &                                          , wrthis(indxShflx_rlw)
@@ -658,6 +659,7 @@ c        close(testunit)
      &                                        .or. wrthis(indxHbbl)
 # endif
      &                                        .or. wrthis(indxBostr)
+     &                                        .or. wrthis(indxWstr)
 # if defined BULK_FLUX
      &                                        .or. wrthis(indxShflx_rsw)
      &                                        .or. wrthis(indxShflx_rlw)
@@ -738,6 +740,7 @@ c        close(testunit)
 #  endif
 # endif
      &  , wrthis(indxBostr), 'write Bostr', 'Bottom Stress.'
+     &  , wrthis(indxWstr), 'write Wstress', 'Wind Stress.'
 #  ifdef VIS_COEF_3D
      &  , wrthis(indxVisc),  'write Visc3d', 'Horizontal viscosity.'
 #  endif
@@ -794,6 +797,7 @@ c        close(testunit)
 #  endif
 #  endif
      &                                          ,  wrtavg(indxBostr)
+     &                                          ,  wrtavg(indxWstr)
 # ifdef BULK_FLUX
      &                                          ,  wrtavg(indxShflx_rsw)
      &                                          ,  wrtavg(indxShflx_rlw)
@@ -827,6 +831,7 @@ c        close(testunit)
      &                                        .or. wrtavg(indxHbbl)
 #  endif
      &                                        .or. wrtavg(indxBostr)
+     &                                        .or. wrtavg(indxWstr)
      &     
 # if defined BULK_FLUX
      &                                        .or. wrthis(indxShflx_rsw)
@@ -907,6 +912,7 @@ c        close(testunit)
 #   endif
 #  endif
      &  , wrtavg(indxBostr),'write Bostr', 'Bottom Stress.'
+     &  , wrtavg(indxWstrs),'write Wstr', 'Wind Stress.'
 #  ifdef VIS_COEF_3D
      &  , wrtavg(indxVisc),'write Visc3d', 'Horizontal viscosity'
 #  endif

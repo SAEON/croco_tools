@@ -100,6 +100,16 @@
               enddo
             enddo
           endif
+          if (wrtavg(indxWstr)) then
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                wstr_avg(i,j)=
+     &                    0.5*sqrt((sustr(i,j)+sustr(i+1,j))**2
+     &                            +(svstr(i,j)+svstr(i,j+1))**2)
+     &                                                     *rho0
+              enddo
+            enddo
+          endif
 # ifdef SOLVE3D
           if (wrtavg(indxU)) then
             do k=1,N
@@ -343,6 +353,16 @@
                 bostr_avg(i,j)=bostr_avg(i,j)+
      &                         0.5*sqrt((bustr(i,j)+bustr(i+1,j))**2
      &                                 +(bvstr(i,j)+bvstr(i,j+1))**2)
+     &                                                          *rho0
+              enddo
+            enddo
+          endif
+          if (wrtavg(indxWstr)) then
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                wstr_avg(i,j)=wstr_avg(i,j)+
+     &                         0.5*sqrt((sustr(i,j)+sustr(i+1,j))**2
+     &                                 +(svstr(i,j)+svstr(i,j+1))**2)
      &                                                          *rho0
               enddo
             enddo
@@ -598,6 +618,16 @@
                 bostr_avg(i,j)=cff*( bostr_avg(i,j)+
      &                         0.5*sqrt((bustr(i,j)+bustr(i+1,j))**2
      &                                 +(bvstr(i,j)+bvstr(i,j+1))**2)
+     &                                                          *rho0)
+              enddo
+            enddo
+          endif
+          if (wrtavg(indxWstr)) then
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                wstr_avg(i,j)=cff*( wstr_avg(i,j)+
+     &                         0.5*sqrt((sustr(i,j)+sustr(i+1,j))**2
+     &                                 +(svstr(i,j)+svstr(i,j+1))**2)
      &                                                          *rho0)
               enddo
             enddo
