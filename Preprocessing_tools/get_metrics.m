@@ -62,7 +62,7 @@ pn=1./dy;
 %  dndx and dmde
 %
 dndx(2:M,2:L)=0.5*(1./pn(2:M,3:Lp) - 1./pn(2:M,1:Lm));
-dmde(2:M,2:L)=0.5*(1./pm(3:Mp,2:L) - 1./pm(3:Mp,2:L));
+dmde(2:M,2:L)=0.5*(1./pm(3:Mp,2:L) - 1./pm(1:Mm,2:L));
 dndx(1,:)=0;
 dndx(Mp,:)=0;
 dndx(:,1)=0;
