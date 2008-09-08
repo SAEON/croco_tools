@@ -37,6 +37,7 @@
 !
 ! Use pre-set default startup filename for known applications,
 ! or get it as an argument from command line via iargc-getarg
+
 ! (override default). NOTE: The usage of the executable should
 ! be either 
 !           roms
@@ -624,6 +625,8 @@ c        close(testunit)
 # endif
      &                                          ,  wrthis(indxBostr)
      &                                          ,  wrthis(indxWstr)
+     &                                          ,  wrthis(indxUWstr)
+     &                                          ,  wrthis(indxVWstr)
 # ifdef BULK_FLUX
      &                                          , wrthis(indxShflx_rsw)
      &                                          , wrthis(indxShflx_rlw)
@@ -660,6 +663,8 @@ c        close(testunit)
 # endif
      &                                        .or. wrthis(indxBostr)
      &                                        .or. wrthis(indxWstr)
+     &                                        .or. wrthis(indxUWstr)
+     &                                        .or. wrthis(indxVWstr)
 # if defined BULK_FLUX
      &                                        .or. wrthis(indxShflx_rsw)
      &                                        .or. wrthis(indxShflx_rlw)
@@ -741,6 +746,8 @@ c        close(testunit)
 # endif
      &  , wrthis(indxBostr), 'write Bostr', 'Bottom Stress.'
      &  , wrthis(indxWstr), 'write Wstress', 'Wind Stress.'
+     &  , wrthis(indxUWstr), 'write U-Wstress comp.', 'U-Wind Stress.'
+     &  , wrthis(indxVWstr), 'write V-Wstress comp.', 'V-Wind Stress.'
 #  ifdef VIS_COEF_3D
      &  , wrthis(indxVisc),  'write Visc3d', 'Horizontal viscosity.'
 #  endif
@@ -798,6 +805,8 @@ c        close(testunit)
 #  endif
      &                                          ,  wrtavg(indxBostr)
      &                                          ,  wrtavg(indxWstr)
+     &                                          ,  wrtavg(indxUWstr)
+     &                                          ,  wrtavg(indxVWstr)
 # ifdef BULK_FLUX
      &                                          ,  wrtavg(indxShflx_rsw)
      &                                          ,  wrtavg(indxShflx_rlw)
@@ -832,6 +841,8 @@ c        close(testunit)
 #  endif
      &                                        .or. wrtavg(indxBostr)
      &                                        .or. wrtavg(indxWstr)
+     &                                        .or. wrtavg(indxUWstr)
+     &                                        .or. wrtavg(indxVWstr)
      &     
 # if defined BULK_FLUX
      &                                        .or. wrthis(indxShflx_rsw)
@@ -912,7 +923,9 @@ c        close(testunit)
 #   endif
 #  endif
      &  , wrtavg(indxBostr),'write Bostr', 'Bottom Stress.'
-     &  , wrtavg(indxWstrs),'write Wstr', 'Wind Stress.'
+     &  , wrtavg(indxWstr),'write Wstr', 'Wind Stress.'
+     &  , wrtavg(indxUWstr),'write U-Wstress comp.', 'U-Wind Stress.'
+     &  , wrtavg(indxVWstr),'write V-Wstress comp.', 'V-Wind Stress.'
 #  ifdef VIS_COEF_3D
      &  , wrtavg(indxVisc),'write Visc3d', 'Horizontal viscosity'
 #  endif

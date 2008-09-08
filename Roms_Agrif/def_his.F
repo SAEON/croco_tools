@@ -83,6 +83,8 @@
 # define vidBBL hisBBL
 # define vidBostr hisBostr
 # define vidWstr hisWstr
+# define vidUWstr hisUWstr
+# define vidVWstr hisVWstr
 # ifdef BULK_FLUX
 #  define vidShflx_rsw hisShflx_rsw
 #  define vidShflx_rlw hisShflx_rlw
@@ -129,6 +131,8 @@
 # define vidBBL avgBBL
 # define vidBostr avgBostr
 # define vidWstr avgWstr
+# define vidUWstr avgUWstr
+# define vidVWstr avgVWstr
 # ifdef BULK_FLUX
 #  define vidShflx_rsw avgShflx_rsw
 #  define vidShflx_rlw avgShflx_rlw
@@ -568,6 +572,44 @@
           lvar=lenstr(vname(3,indxWstr))
           ierr=nf_put_att_text (ncid, vidWstr, 'units',     lvar,
      &                                 vname(3,indxWstr)(1:lvar))
+        endif
+!
+        if (wrt(indxUWstr)) then
+          lvar=lenstr(vname(1,indxUWstr))
+          ierr=nf_def_var (ncid, vname(1,indxUWstr)(1:lvar),
+     &                             NF_FOUT, 3, u2dgrd, vidUWstr)
+#  ifndef AVRH
+          lvar=lenstr(vname(2,indxUWstr))
+          ierr=nf_put_att_text (ncid, vidUWstr, 'long_name', lvar,
+     &                                 vname(2,indxUWstr)(1:lvar))
+#  else
+          text='averaged '/ /vname(2,indxUWstr)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidUWstr, 'long_name', lvar,
+     &                                               text(1:lvar))
+#  endif
+          lvar=lenstr(vname(3,indxUWstr))
+          ierr=nf_put_att_text (ncid, vidUWstr, 'units',     lvar,
+     &                                 vname(3,indxUWstr)(1:lvar))
+        endif
+!
+        if (wrt(indxVWstr)) then
+          lvar=lenstr(vname(1,indxVWstr))
+          ierr=nf_def_var (ncid, vname(1,indxVWstr)(1:lvar),
+     &                             NF_FOUT, 3, v2dgrd, vidVWstr)
+#  ifndef AVRH
+          lvar=lenstr(vname(2,indxVWstr))
+          ierr=nf_put_att_text (ncid, vidVWstr, 'long_name', lvar,
+     &                                 vname(2,indxVWstr)(1:lvar))
+#  else
+          text='averaged '/ /vname(2,indxVWstr)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidVWstr, 'long_name', lvar,
+     &                                               text(1:lvar))
+#  endif
+          lvar=lenstr(vname(3,indxVWstr))
+          ierr=nf_put_att_text (ncid, vidVWstr, 'units',     lvar,
+     &                                 vname(3,indxVWstr)(1:lvar))
         endif
 #ifdef SOLVE3D
 # ifdef VIS_COEF_3D
@@ -1202,6 +1244,30 @@
             goto 99                                       !--> ERROR
           endif
         endif
+!
+! uwstr     Kinematic surface u wind stress component (N/m2)
+!
+        if (wrt(indxUWstr)) then
+          lvar=lenstr(vname(1,indxUWstr))
+          ierr=nf_inq_varid (ncid,vname(1,indxUWstr)(1:lvar),
+     &                                                   vidUWstr)
+          if (ierr .ne. nf_noerr) then
+          write(stdout,1) vname(1,indxUWstr)(1:lvar), ncname(1:lstr)
+            goto 99                                       !--> ERROR
+          endif
+        endif
+!
+! vwstr     Kinematic surface v wind stress component (N/m2)
+!
+        if (wrt(indxVWstr)) then
+          lvar=lenstr(vname(1,indxVWstr))
+          ierr=nf_inq_varid (ncid,vname(1,indxVWstr)(1:lvar),
+     &                                                   vidVWstr)
+          if (ierr .ne. nf_noerr) then
+          write(stdout,1) vname(1,indxVWstr)(1:lvar), ncname(1:lstr)
+            goto 99                                       !--> ERROR
+          endif
+        endif
 
 #ifdef SOLVE3D
 !
@@ -1609,6 +1675,8 @@
 #undef vidBBL
 #undef vidBostr
 #undef vidWstr
+#undef vidUWstr
+#undef vidVWstr
 #undef vidShflx_rsw
 #undef vidShflx_rlw
 #undef vidShflx_lat

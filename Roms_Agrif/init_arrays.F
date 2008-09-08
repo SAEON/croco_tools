@@ -314,6 +314,8 @@
 #ifdef AVERAGES
           bostr_avg(i,j)=init
           wstr_avg(i,j)=init
+          sustr_avg(i,j)=init
+          svstr_avg(i,j)=init
 #endif
 #ifndef ANA_BMFLUX
           bustrg(i,j,1)=init

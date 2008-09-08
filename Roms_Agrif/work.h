@@ -9,3 +9,6 @@
 
       real work2d(GLOBAL_2D_ARRAY)
       common /work2d/ work2d
+
+      real work2d2(GLOBAL_2D_ARRAY)
+      common /work2d2/ work2d2

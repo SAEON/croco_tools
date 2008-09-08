@@ -300,11 +300,15 @@
 # endif
       integer indxWstr
       parameter (indxWstr=indxSUSTR+21)
+      integer indxUWstr
+      parameter (indxUWstr=indxSUSTR+22)
+      integer indxVWstr
+      parameter (indxVWstr=indxSUSTR+23)
       integer indxBostr
-      parameter (indxBostr=indxSUSTR+22)
+      parameter (indxBostr=indxSUSTR+24)
 # ifdef SEDIMENT
       integer indxSed, indxBTHK, indxBPOR, indxBFRA
-      parameter (indxSed=indxSUSTR+23,
+      parameter (indxSed=indxSUSTR+25,
      &           indxBTHK=indxSed, indxBPOR=indxSed+1,
      &           indxBFRA=indxSed+2)
 # endif
@@ -312,9 +316,9 @@
       integer indxBBL, indxAbed, indxHrip, indxLrip, indxZbnot, 
      &        indxZbapp, indxBostrw
 #  ifdef SEDIMENT
-      parameter (indxBBL=indxSUSTR+25+NST,
+      parameter (indxBBL=indxSUSTR+26+NST,
 #  else
-      parameter (indxBBL=indxSUSTR+25, 
+      parameter (indxBBL=indxSUSTR+26, 
 #  endif
      &           indxAbed  =indxBBL,   indxHrip  =indxBBL+1,
      &           indxLrip  =indxBBL+2, indxZbnot =indxBBL+3, 
@@ -456,7 +460,7 @@
 #endif
       integer  ncidhis, nrechis,  nrpfhis
      &      , hisTime, hisTstep, hisZ,    hisUb,  hisVb
-     &      , hisBostr, hisWstr
+     &      , hisBostr, hisWstr, hisUWstr, hisVWstr
 #ifdef SOLVE3D
      &      , hisU,   hisV,   hisR,    hisHbl, hisHbbl
      &      , hisO,   hisW,   hisVisc, hisDiff
@@ -511,7 +515,7 @@
 #ifdef AVERAGES
       integer ncidavg, nrecavg,  nrpfavg
      &      , avgTime, avgTstep, avgZ, avgUb,  avgVb
-     &      , avgBostr, avgWstr
+     &      , avgBostr, avgWstr, avgUwstr, avgVwstr
 # ifdef SOLVE3D
      &      , avgU,   avgV,   avgR,    avgHbl, avgHbbl
      &      , avgO,   avgW,   avgVisc, avgDiff
@@ -620,7 +624,7 @@
 #endif
      &      , ncidhis, nrechis,  nrpfhis
      &      , hisTime, hisTstep, hisZ,    hisUb,  hisVb
-     &      , hisBostr, hisWstr
+     &      , hisBostr, hisWstr, hisUWstr, hisVWstr
 #ifdef SOLVE3D
      &      , hisU,    hisV,     hisT,    hisR
      &      , hisO,    hisW,     hisVisc, hisDiff
@@ -694,7 +698,7 @@
 #ifdef AVERAGES
      &      , ncidavg,  nrecavg,  nrpfavg
      &      , avgTime, avgTstep, avgZ,    avgUb,  avgVb
-     &      , avgBostr, avgWstr
+     &      , avgBostr, avgWstr, avgUWstr, avgVWstr
 # ifdef SOLVE3D
      &      , avgU,    avgV,     avgT,     avgR
      &      , avgO,    avgW,     avgVisc,  avgDiff

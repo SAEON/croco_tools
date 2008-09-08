@@ -110,6 +110,20 @@
               enddo
             enddo
           endif
+          if (wrtavg(indxUWstr)) then
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                sustr_avg(i,j)=sustr(i,j)*rho0
+              enddo
+            enddo
+          endif
+          if (wrtavg(indxVWstr)) then
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                svstr_avg(i,j)=svstr(i,j)*rho0
+              enddo
+            enddo
+          endif
 # ifdef SOLVE3D
           if (wrtavg(indxU)) then
             do k=1,N
@@ -367,6 +381,24 @@
               enddo
             enddo
           endif
+          if (wrtavg(indxUWstr)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+                sustr_avg(i,j)=sustr_avg(i,j)+
+     &                         sustr(i,j)*rho0
+              enddo
+            enddo
+          endif
+          if (wrtavg(indxVWstr)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+                svstr_avg(i,j)=svstr_avg(i,j)+
+     &                         svstr(i,j)*rho0
+              enddo
+            enddo
+          endif
+
+
 # ifdef SOLVE3D
           if (wrtavg(indxU)) then
             do k=1,N
@@ -629,6 +661,22 @@
      &                         0.5*sqrt((sustr(i,j)+sustr(i+1,j))**2
      &                                 +(svstr(i,j)+svstr(i,j+1))**2)
      &                                                          *rho0)
+              enddo
+            enddo
+          endif
+          if (wrtavg(indxUWstr)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+                wstr_avg(i,j)=cff*(sustr_avg(i,j)+
+     &                         sustr(i,j)*rho0)
+              enddo
+            enddo
+          endif
+          if (wrtavg(indxVWstr)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+                wstr_avg(i,j)=cff*(svstr_avg(i,j)+
+     &                         svstr(i,j)*rho0)
               enddo
             enddo
           endif

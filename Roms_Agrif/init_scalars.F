@@ -186,7 +186,7 @@ C$OMP END PARALLEL
 ! attributes (name, long-name, units, field).
 !---------------------------------------------------------------
 !
-c--#define CR  
+!--#define CR  
 CR      write(stdout,'(1x,A,I3)') 'indxTime =',indxTime
       vname(1,indxTime)='scrum_time                               '
       vname(2,indxTime)='time since initialization                '
@@ -219,7 +219,17 @@ CR      write(stdout,'(1x,A,I3)') 'indxBostr =',indxBostr
 CR      write(stdout,'(1x,A,I3)') 'indxWstr =',indxWstr
       vname(1,indxWstr)='wstr                                   '
       vname(2,indxWstr)='Kinematic wind stress                  '
-      vname(3,indxWstr)='N/m2                                   ' 
+      vname(3,indxWstr)='N/m2                                   '
+                               
+CR      write(stdout,'(1x,A,I3)') 'indxUWstr =',indxUWstr
+      vname(1,indxUWstr)='sustr                                  '
+      vname(2,indxUWstr)='Kinematic u wind stress component      '
+      vname(3,indxUWstr)='N/m2                                   '
+
+CR      write(stdout,'(1x,A,I3)') 'indxVWstr =',indxVWstr
+      vname(1,indxVWstr)='svstr                                  '
+      vname(2,indxVWstr)='Kinematic v wind stress component      '
+      vname(3,indxVWstr)='N/m2                                   '
 
 #ifdef SOLVE3D
 CR      write(stdout,'(1x,A,I3)') 'indxU = ',indxU

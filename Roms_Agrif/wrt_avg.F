@@ -134,6 +134,29 @@
         endif
       endif
 !
+!  Write out kinematic U surface stress component (N/m2).
+!
+      if (wrtavg(indxUWstr)) then
+        ierr=nf_fwrite(sustr_avg, ncidavg, avgUWstr, record, u2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxUWstr))
+          write(stdout,1) vname(1,indxUWstr)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+!
+!  Write out kinematic V surface stress component (N/m2).
+!
+      if (wrtavg(indxVWstr)) then
+        ierr=nf_fwrite(svstr_avg, ncidavg, avgVWstr, record, v2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxVWstr))
+          write(stdout,1) vname(1,indxVWstr)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
 # ifdef SOLVE3D
 !
 ! 3D momentum components in XI- and ETA-directions.
