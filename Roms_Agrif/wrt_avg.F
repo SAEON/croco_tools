@@ -241,7 +241,7 @@
 !  Write out surface heat flux component (degC/s)
 !
       if (wrtavg(indxShflx_rsw)) then
-       ierr=nf_fwrite(Shflx_rsw_avg, ncidavg, avgShflx_rsw, record, 
+       ierr=nf_fwrite(shflx_rsw_avg, ncidavg, avgShflx_rsw, record, 
      &                                                     r2dvar)
        if (ierr .ne. nf_noerr) then
          lvar=lenstr(vname(1,indxShflx_rsw))
@@ -252,7 +252,7 @@
       endif
 
       if (wrtavg(indxShflx_rlw)) then
-        ierr=nf_fwrite(Shflx_rlw_avg, ncidavg, avgShflx_rlw, record,
+        ierr=nf_fwrite(shflx_rlw_avg, ncidavg, avgShflx_rlw, record,
      &                                                     r2dvar)
        if (ierr .ne. nf_noerr) then
            lvar=lenstr(vname(1,indxShflx_rlw))
@@ -263,7 +263,7 @@
       endif
 
       if (wrtavg(indxShflx_lat)) then
-        ierr=nf_fwrite(Shflx_lat_avg, ncidavg, avgShflx_lat, record,
+        ierr=nf_fwrite(shflx_lat_avg, ncidavg, avgShflx_lat, record,
      &                                                     r2dvar)
        if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxShflx_lat))
@@ -274,7 +274,7 @@
       endif
 
       if (wrtavg(indxShflx_sen)) then
-         ierr=nf_fwrite(Shflx_sen_avg, ncidavg, avgShflx_sen, record,
+         ierr=nf_fwrite(shflx_sen_avg, ncidavg, avgShflx_sen, record,
      &                                                     r2dvar)
        if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxShflx_sen))

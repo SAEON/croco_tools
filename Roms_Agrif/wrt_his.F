@@ -136,34 +136,6 @@ CR      write(*,*) 'wrt_his: wrtVBAR' MYID
       if (wrthis(indxBostr)) then
         do j=0,Mm
           do i=0,Lm
-!            if (i.eq.Lm .and. j.eq.0) then 
-!             write(*,*)'bustr(Lm,0)=',bustr(i,j)
-!            endif
-!            if (i.eq.Lm .and. j.eq.0) then 
-!             write(*,*)'bustr(Lm+1,0)=',bustr(i+1,j)
-!            endif
-!            if (i.eq.Lm .and. j.eq.0) then 
-!             write(*,*)'bustr(Lm+2,0)=',bustr(i+2,j)
-!            endif
-!            if (i.eq.Lm .and. j.eq.0) then 
-!             write(*,*)'bustr(Lm+3,0)=',bustr(i+3,j)
-!            endif
-!            if (i.eq.0 .and. j.eq.0) then 
-!             write(*,*)'bvstr(0,0)=',bvstr(i,j)
-!            endif
-!            if (i.eq.1.and.j.eq.0) then 
-!             write(*,*)'bvstr(1,0)=',bvstr(i,j)
-!            endif
-!            if (i.eq.2.and.j.eq.0) then 
-!             write(*,*)'bvstr(2,0)=',bvstr(i,j)
-!            endif
-!            if (i.eq.0.and.j.eq.1) then 
-!             write(*,*)'bvstr(0,1)=',bvstr(i,j)
-!            endif
-!            if (i.eq.0.and.j.eq.2) then 
-!             write(*,*)'bvstr(0,2)=',bvstr(i,j)
-!            endif
-
             work2d(i,j)=0.5*sqrt((bustr(i,j)+bustr(i+1,j))**2
      &                          +(bvstr(i,j)+bvstr(i,j+1))**2)
      &                                                   *rho0
@@ -178,53 +150,9 @@ CR      write(*,*) 'wrt_his: wrtVBAR' MYID
         endif
 CR      write(*,*) 'wrt_his:  bostr' MYID
       endif
-
-
-
       if (wrthis(indxWstr)) then
-!        write(*,*)'Lm=',Lm
-!        write(*,*)'Mm=',Mm
-!        write(*,*)'L=',L
-!        write(*,*)'M=',M
         do j=1,Mm
          do i=1,Lm
-!            if (i.eq.Lm .and. j.eq.0) then 
-!             write(*,*)'svstr(Lm,0)=',svstr(i,j)
-!            endif
-!            if (i.eq.Lm .and. j.eq.0) then 
-!             write(*,*)'svstr(Lm+1,0)=',svstr(i+1,j)
-!            endif
-!            if (i.eq.Lm .and. j.eq.0) then 
-!             write(*,*)'svstr(Lm+2,0)=',svstr(i+2,j)
-!            endif
-!            if (i.eq.Lm .and. j.eq.0) then 
-!             write(*,*)'svstr(Lm+3,0)=',svstr(i+3,j)
-!            endif
-!            if (i.eq.0 .and. j.eq.0) then 
-!             write(*,*)'svstr(0,0)=',svstr(i,j)
-!            endif
-!            if (i.eq.1.and.j.eq.0) then 
-!             write(*,*)'svstr(1,0)=',svstr(i,j)
-!            endif
-!            if (i.eq.2.and.j.eq.0) then 
-!             write(*,*)'svstr(2,0)=',svstr(i,j)
-!            endif
-!            if (i.eq.0.and.j.eq.1) then 
-!             write(*,*)'svstr(0,1)=',svstr(i,j)
-!            endif
-!            if (i.eq.0.and.j.eq.2) then 
-!             write(*,*)'svstr(0,2)=',svstr(i,j)
-!            endif
-!            if (i.eq.Lm .and. j.eq.1) then 
-!             write(*,*)'svstr(Lm,1)=',svstr(i,j)
-!            endif
-!            if (i.eq.Lm .and. j.eq.2) then 
-!             write(*,*)'svstr(Lm,2)=',svstr(i,j)
-!            endif
-!            if (i.eq.Lm .and. j.eq.25) then 
-!             write(*,*)'svstr(Lm,25)=',svstr(i,j)
-!            endif
-
             work2d2(i,j)=0.5*sqrt((sustr(i,j)+sustr(i+1,j))**2
      &                          +(svstr(i,j)+svstr(i,j+1))**2)
      &                                                   *rho0
@@ -458,18 +386,7 @@ CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
 !  Write out surface heat flux component (degC/s)
 !
        if (wrthis(indxShflx_rsw)) then
-!             write(*,*)'Shflx_rsw(0,0)=',Shflx_rsw(0,0)
-!             write(*,*)'Shflx_rsw(0,1)=',Shflx_rsw(0,1)
-!             write(*,*)'Shflx_rsw(0,2)=',Shflx_rsw(0,2)
-!             write(*,*)'Shflx_rsw(Lm,0)=',Shflx_rsw(Lm,0)
-!             write(*,*)'Shflx_rsw(Lm+1,0)=',Shflx_rsw(Lm+1,0)
-!             write(*,*)'Shflx_rsw(Lm+2,0)=',Shflx_rsw(Lm+2,0)
-!             write(*,*)'Shflx_rsw(Lm+3,0)=',Shflx_rsw(Lm+3,0)
-!             write(*,*)'Shflx_rsw(Lm+4,0)=',Shflx_rsw(Lm+4,0)
-!             write(*,*)'Shflx_rsw(5,Mm)=',Shflx_rsw(5,Mm)
-!             write(*,*)'Shflx_rsw(5,Mm+1)=',Shflx_rsw(5,Mm+1)
-!             write(*,*)'Shflx_rsw(5,Mm+2)=',Shflx_rsw(5,Mm+2)
-        ierr=nf_fwrite(Shflx_rsw, ncidhis, hisShflx_rsw, record,
+        ierr=nf_fwrite(shflx_rsw, ncidhis, hisShflx_rsw, record,
      &                                                     r2dvar)
         if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxShflx_rsw))
@@ -480,7 +397,7 @@ CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
        endif
 
        if (wrthis(indxShflx_rlw)) then
-        ierr=nf_fwrite(Shflx_rlw, ncidhis, hisShflx_rlw, record,
+        ierr=nf_fwrite(shflx_rlw, ncidhis, hisShflx_rlw, record,
      &                                                     r2dvar)
          if (ierr .ne. nf_noerr) then
            lvar=lenstr(vname(1,indxShflx_rlw))
@@ -491,7 +408,7 @@ CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
        endif
 
       if (wrthis(indxShflx_lat)) then
-         ierr=nf_fwrite(Shflx_lat, ncidhis, hisShflx_lat, record,
+         ierr=nf_fwrite(shflx_lat, ncidhis, hisShflx_lat, record,
      &                                                     r2dvar)
          if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxShflx_lat))
@@ -502,7 +419,7 @@ CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
       endif
 
       if (wrthis(indxShflx_sen)) then
-        ierr=nf_fwrite(Shflx_sen, ncidhis, hisShflx_sen, record,
+        ierr=nf_fwrite(shflx_sen, ncidhis, hisShflx_sen, record,
      &                                                     r2dvar)
           if (ierr .ne. nf_noerr) then
            lvar=lenstr(vname(1,indxShflx_sen))
