@@ -30,6 +30,7 @@ function test_clim(clim_file,grid_file,tracer,l,coastfileplot)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
 niceplot=1;
 %
 nc=netcdf(clim_file);
@@ -87,11 +88,8 @@ for j=1:jstep:M
   xrad=xrad/1000;
   x=x/1000;
   field=masksection.*field;
-% $$$   x
-% $$$   squeeze(z(:,j,:))
-% $$$   field
-  
   pcolor(x,squeeze(z(:,j,:)),field) 
+  drawnow
   colorbar
   shading interp
   hold on
@@ -111,7 +109,7 @@ if niceplot==1
   m_proj('mercator',...
      'lon',[domaxis(1) domaxis(2)],...
      'lat',[domaxis(3) domaxis(4)]);
-  m_pcolor(lon,lat,mask.*field);
+  m_pcolor(lon,lat,mask.*field)
   shading flat
   colorbar
   hold on

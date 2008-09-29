@@ -104,6 +104,7 @@ for time=thetime
 
     m_pcolor(lon,lat,mask.*field)
     shading flat
+    drawnow
     colorbar
     hold on
     m_quiver(lonred,latred,ured,vred,'k')

@@ -38,6 +38,7 @@ close all
 romstools_param
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
+warning off
 %
 % Title
 %
@@ -240,6 +241,7 @@ if makeplot==1
          'fontsize',7);
   hold off
 end
+warning on
 %
 % End
 %
