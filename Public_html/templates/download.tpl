@@ -13,18 +13,10 @@
 	       Version: 17/01/2006 - size: 620 k.
 	       This is the stable version, compatible with Romstools.
 	</li>
- 
-        <li><a href="../Data/Roms_Agrif_SVN_latest.tar.gz">
-	     ./Roms_tools/Roms_Agrif/ --> VX.X-ALPHA </a>
-	     Version: daily tar file extracted from the <a href="https://gforge.inria.fr/projects/romsagrif/">ROMS_AGRIF project on Inria Gforge</a>
-	     - check the <a href="http://lists.gforge.inria.fr/pipermail/romsagrif-commits/">romsagrif-commits archives</a>
-	     - this is not a stable version.
-             - to register, use MOISE as INRIA Team collaboration 
-	</li>
 
         <li><a href="roms1d/index.html">+ ROMS-1D source code and documentation</a>  
-	</li>
-
+        </li>
+	
     </ul>
 
     <h3>ROMSTOOLS tar files:</h3>
@@ -190,6 +182,13 @@
 	</li>
 
     </ul>
+
+<!-- ----------------------------------------------------------------------------------------------------------------------------------- -->
+    <h3>ROMS_AGRIF development version VX.X-ALPHA </h3>
+        <li> !!! THIS IS NOT A STABLE VERSION !!!  </li>
+        <li> Development version VX.X-ALPHA on <a href="https://gforge.inria.fr/projects/romsagrif/">ROMS_AGRIF project on Inria Gforge</a>  </li>
+        <li> To register and download this version, send an email to Gildas.Cambon .at. ird.fr, then  use MOISE as INRIA Team collaboration to register </li>
+        <li> Check the <a href="http://lists.gforge.inria.fr/pipermail/romsagrif-commits/">romsagrif-commits archives</a>   </li>
 
 
 <!--   <h3>Anonymous CVS:</h3>
