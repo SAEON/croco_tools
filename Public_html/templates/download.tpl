@@ -183,20 +183,13 @@
 
     </ul>
 
-<!-- ----------------------------------------------------------------------------------------------------------------------------------- -->
+
     <h3>ROMS_AGRIF development version VX.X-ALPHA </h3>
+    <ul id="Develpment version">
         <li> !!! THIS IS NOT A STABLE VERSION !!!  </li>
         <li> Development version VX.X-ALPHA on <a href="https://gforge.inria.fr/projects/romsagrif/">ROMS_AGRIF project on Inria Gforge</a>  </li>
         <li> To register and download this version, send an email to Gildas.Cambon .at. ird.fr, then  use MOISE as INRIA Team collaboration to register </li>
         <li> Check the <a href="http://lists.gforge.inria.fr/pipermail/romsagrif-commits/">romsagrif-commits archives</a>   </li>
 
-
-<!--   <h3>Anonymous CVS:</h3>
-
-     <p class="desc">There is an anonymous CVS server from which the latest versions of <br>
-                     Roms_Agrif can be retrieved. To checkout a copy, do:<br>
-                     cvs -d:pserver:anoncvs@cvs.mpl.ird.fr:/projet login<br>
-                     Use the password "anoncvs"<br>
-                     cvs -d:pserver:anoncvs@cvs.mpl.ird.fr:/projet co Roms_Agrif   -->
-     </p>
+    </ul>
 

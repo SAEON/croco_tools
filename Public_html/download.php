@@ -12,7 +12,7 @@ else
 {
 	include('config.php');
 
-	$message="Name: ".$_POST['name']."\n\rIntritution: ".$_POST['institution']."\n\rCountry: ".$_POST['country']."\n\rMail: ".$_POST['mail']."\n\rScientific Project: ".$_POST['project']."\n\rComment: ".$_POST['comment'];
+	$message="Name: ".$_POST['name']."\n\rInstitution: ".$_POST['institution']."\n\rCountry: ".$_POST['country']."\n\rMail: ".$_POST['mail']."\n\rScientific Project: ".$_POST['project']."\n\rComment: ".$_POST['comment'];
 	if ( mail($destinataire, $objet, $message, $entetes) ) 
 	{ 
 		require 'templates/download.tpl';
