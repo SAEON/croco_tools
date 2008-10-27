@@ -1,5 +1,5 @@
 #include "cppdefs.h"
- 
+#ifndef CHILD_SPG
       subroutine t3dmix (tile)
       implicit none
       integer tile, itrc, trd, omp_get_thread_num
@@ -7,20 +7,48 @@
 #include "private_scratch.h"
 #include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
+#ifdef AGRIF
       do itrc=1,NT
-        call t3dmix_tile (istr,iend,jstr,jend, itrc, A2d(1,1,trd),
-     &                                 A2d(1,2,trd), A2d(1,3,trd))
+        if (AGRIF_Root()) then
+            call t3dmix_tile (istr,iend,jstr,jend, itrc, 
+     &          A2d(1,1,trd),A2d(1,2,trd), A2d(1,3,trd))
+        else
+            call t3dmix_child_tile (istr,iend,jstr,jend, itrc,
+     &          A2d(1,1,trd), A2d(1,2,trd), A2d(1,3,trd))
+        endif
       enddo
       return
       end
- 
-      subroutine t3dmix_tile (istr,iend,jstr,jend, itrc, FX,FE,LapT)
+#else 
+      do itrc=1,NT
+       call t3dmix_tile(istr,iend,jstr,jend, itrc, A2d(1,1,trd),
+     &                                 A2d(1,2,trd), A2d(1,3,trd))
+      enddo
+       return
+       end
+#endif   /* AGRIF */
 !
-!--------------------------------------------------------------------
-!  This routine computes horizontal mixing of tracers
-!  along S-surfaces.
-!--------------------------------------------------------------------
+!---------------------------------------------------------------------
+!*********************************************************************
+!---------------------------------------------------------------------
 !
+!PARENT
+! 
+      subroutine t3dmix_tile (istr,iend,jstr,jend, itrc,
+     &                    FX,FE, LapT)
+!
+#else
+!
+! CHILD
+!
+      subroutine t3dmix_child_tile(istr,iend,jstr,jend, itrc,
+     &                     FX,FE, LapT)
+#endif /* CHILD_SPG */
+!
+!---------------------------------------------------------------------
+! ******************************Common Code***************************
+!---------------------------------------------------------------------
+!!   
       implicit none
 #include "param.h"
       integer itrc, istr,iend,jstr,jend, i,j,k, kmld,
@@ -39,7 +67,22 @@
 !
 #include "compute_auxiliary_bounds.h"
 !
-
+# ifdef MASKING
+#  define SWITCH *
+# else
+#  define SWITCH !
+# endif
+!
+#ifdef AGRIF
+#include "zoom.h"
+#endif
+!
+#ifdef CHILD_SPG
+#define TCLM tsponge
+#else
+#define TCLM tclm
+#endif
+!
       do k=1,N
  
 #ifdef TS_DIF2
@@ -59,13 +102,7 @@
 #endif
      &                   *pmon_u(i,j)*(Hz(i,j,k)+Hz(i-1,j,k))*(
      &                     t(i,j,k,nrhs,itrc)-t(i-1,j,k,nrhs,itrc)
-# ifdef CLIMAT_TS_MIXH
-     &                          -tclm(i,j,k,itrc)+tclm(i-1,j,k,itrc)
-# endif
-     &                                                              )
-# ifdef MASKING
-     &                                                   *umask(i,j)
-# endif
+     &                                              ) SWITCH umask(i,j)
           enddo
         enddo
         do j=jstr,jend+1
@@ -77,13 +114,7 @@
 # endif
      &                     *pnom_v(i,j)*(Hz(i,j,k)+Hz(i,j-1,k))*(
      &                      t(i,j,k,nrhs,itrc)-t(i,j-1,k,nrhs,itrc)
-# ifdef CLIMAT_TS_MIXH
-     &                          -tclm(i,j,k,itrc)+tclm(i,j-1,k,itrc)
-# endif
-     &                                                              )
-# ifdef MASKING
-     &                                                   *vmask(i,j)
-# endif
+     &                                              ) SWITCH vmask(i,j)
           enddo
         enddo
 !
@@ -148,13 +179,10 @@
             do i=imin,imax+1
             FX(i,j)=pmon_u(i,j)*0.5*(Hz(i,j,k)+Hz(i-1,j,k))*(
      &                      t(i,j,k,nrhs,itrc)-t(i-1,j,k,nrhs,itrc)
-# ifdef CLIMAT_TS_MIXH
-     &                          -tclm(i,j,k,itrc)+tclm(i-1,j,k,itrc)
+# if defined CLIMAT_TS_MIXH
+     &                          -TCLM(i,j,k,itrc)+TCLM(i-1,j,k,itrc)
 # endif
-     &                                                              )
-# ifdef MASKING
-     &                                                   *umask(i,j)
-# endif
+     &                                              ) SWITCH umask(i,j)
           enddo
         enddo
 !
@@ -164,13 +192,10 @@
           do i=imin,imax
             FE(i,j)=pnom_v(i,j)*0.5*(Hz(i,j,k)+Hz(i,j-1,k))*(
      &                     t(i,j,k,nrhs,itrc)-t(i,j-1,k,nrhs,itrc)
-# ifdef CLIMAT_TS_MIXH
-     &                          -tclm(i,j,k,itrc)+tclm(i,j-1,k,itrc)
+# if defined CLIMAT_TS_MIXH
+     &                          -TCLM(i,j,k,itrc)+TCLM(i,j-1,k,itrc)
 # endif
-     &                                                              )
-# ifdef MASKING
-     &                                                   *vmask(i,j)
-# endif
+     &                                              ) SWITCH vmask(i,j)
           enddo
         enddo
 !
@@ -245,10 +270,8 @@
               FX(i,j)=-0.25*(diff4(i,j,itrc)+diff4(i-1,j,itrc))
 # endif
      &                     *pmon_u(i,j)*(Hz(i,j,k)+Hz(i-1,j,k))
-     &                                 *(LapT(i,j)-LapT(i-1,j))
-# ifdef MASKING
-     &                                              *umask(i,j)
-# endif
+     &                                 *(LapT(i,j)-LapT(i-1,j)) 
+     &                                              SWITCH umask(i,j)
           enddo
         enddo
         do j=jstr,jend+1
@@ -264,9 +287,7 @@
 # endif
      &                     *pnom_v(i,j)*(Hz(i,j,k)+Hz(i,j-1,k))
      &                                 *(LapT(i,j)-LapT(i,j-1))
-# ifdef MASKING
-     &                                              *vmask(i,j)
-# endif
+     &                                             SWITCH vmask(i,j)
           enddo
         enddo
 !
@@ -282,9 +303,15 @@
         enddo
 
 #endif /* TS_DIF4 */
-
       enddo   ! --> k
+!
+       return
+      end
 
-!      return
-!      end
- 
+#ifndef CHILD_SPG
+# define CHILD_SPG
+# ifdef AGRIF
+#  include "t3dmix_S.F"
+# endif
+# undef CHILD_SPG
+#endif  /* !CHILD_SPG */

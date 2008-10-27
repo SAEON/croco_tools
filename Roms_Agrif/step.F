@@ -313,12 +313,19 @@ C$OMP BARRIER
         call prsgrd (tile)
         call rhs3d (tile)
         call pre_step3d (tile)
+
 # if defined UV_VIS2 || defined UV_VIS4
+#   if defined AGRIF
+      if (.Not.Agrif_Root()) then
+         call uv3dmix_fine (tile)
+      endif
+#   endif
         call uv3dmix (tile)
-#  if defined SPONGE_VIS2 && !defined UV_VIS2
+#  if defined SPONGE_VIS2
         call uv3dmix_spg (tile)
 #  endif
 # endif
+
 # ifdef AVERAGES
         call set_avg (tile)
 #  if defined DIAGNOSTICS_TS
@@ -603,8 +610,13 @@ C$OMP BARRIER
 #  endif
 # endif
 # if defined TS_DIF2 || defined TS_DIF4
+#   if defined AGRIF
+      if (.Not.Agrif_Root()) then
+         call t3dmix_fine (tile)
+      endif
+#   endif
         call t3dmix (tile)
-#  if defined SPONGE_DIF2 && !defined TS_DIF2
+#  if defined SPONGE_DIF2
         call t3dmix_spg (tile)
 #  endif
 # endif

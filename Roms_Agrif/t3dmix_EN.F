@@ -1,5 +1,6 @@
+!
 #include "cppdefs.h"
- 
+#ifndef CHILD_SPG
       subroutine t3dmix (tile)
       implicit none
       integer tile, itrc, trd, omp_get_thread_num
@@ -7,22 +8,55 @@
 #include "private_scratch.h"
 #include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
+#ifdef AGRIF
       do itrc=1,NT
+       if (AGRIF_Root()) then
         call t3dmix_tile (istr,iend,jstr,jend, itrc, A3d(1,1,trd),
      &                                    A2d(1, 1,trd), A2d(1, 2,trd),
      &                      A2d(1,3,trd), A2d(1, 5,trd), A2d(1, 7,trd),
      &                      A2d(1,9,trd), A2d(1,11,trd), A2d(1,13,trd))
+       else
+        call t3dmix_child_tile (istr,iend,jstr,jend, itrc, A3d(1,1,trd),
+     &                                    A2d(1, 1,trd), A2d(1, 2,trd),
+     &                      A2d(1,3,trd), A2d(1, 5,trd), A2d(1, 7,trd),
+     &                      A2d(1,9,trd), A2d(1,11,trd), A2d(1,13,trd))
+       endif
       enddo
       return
       end
- 
-      subroutine t3dmix_tile (istr,iend,jstr,jend, itrc, LapT, FX,FE,
-     &                                  FC,dTdr, dTdx,dTde,dRdx,dRde)
+#else 
+      do itrc=1,NT
+       call t3dmix_tile(istr,iend,jstr,jend, itrc, A3d(1,1,trd),
+     &                                    A2d(1, 1,trd), A2d(1, 2,trd),
+     &                      A2d(1,3,trd), A2d(1, 5,trd), A2d(1, 7,trd),
+     &                      A2d(1,9,trd), A2d(1,11,trd), A2d(1,13,trd))
+      enddo
+       return
+       end
+#endif   /* AGRIF */
 !
-!--------------------------------------------------------------------
-!  Compute isopycnic horizontal mixing terms for tracer equations.
-!--------------------------------------------------------------------
+!---------------------------------------------------------------------
+!*********************************************************************
+!---------------------------------------------------------------------
 !
+!PARENT
+! 
+      subroutine t3dmix_tile (istr,iend,jstr,jend, itrc, LapT, 
+     &                   FX,FE, FC,dTdr, dTdx,dTde,dRdx,dRde)
+!
+#else
+!
+! CHILD
+!
+      subroutine t3dmix_child_tile (istr,iend,jstr,jend, itrc, LapT,
+     $                     FX,FE,FC,dTdr, dTdx,dTde,dRdx,dRde)
+!
+#endif /* CHILD_SPG */
+!
+!---------------------------------------------------------------------
+! ******************************Common Code***************************
+!---------------------------------------------------------------------
+!!   
       implicit none
 #include "param.h"
       integer itrc, istr,iend,jstr,jend, i,j,k,k1,k2, kmld
@@ -59,7 +93,17 @@
 #define EPS 0.5
 c-#define MAX_SLOPE 1.E+2   /* inverse of max isoneutral slope */
 c-#define MIN_STRAT  0.1
- 
+!
+#ifdef AGRIF
+#include "zoom.h"
+#endif
+!
+#ifdef CHILD_SPG
+#define TCLM tsponge
+#else
+#define TCLM tclm
+#endif
+!
 #ifdef TS_DIF2
 !
 !--------------------------------------------------------------------
@@ -80,8 +124,8 @@ c-#define MIN_STRAT  0.1
               dRdx(i,j,k2)=cff*(rho(i,j,k+1) -rho(i-1,j,k+1))
               dTdx(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)
      &                               -t(i-1,j,k+1,nrhs,itrc)
-# ifdef CLIMAT_TS_MIXH
-     &               -tclm(i,j,k+1,itrc)+tclm(i-1,j,k+1,itrc)
+# if defined CLIMAT_TS_MIXH 
+     &               -TCLM(i,j,k+1,itrc)+TCLM(i-1,j,k+1,itrc)
 # endif
      &                                                      )
             enddo
@@ -92,8 +136,8 @@ c-#define MIN_STRAT  0.1
               dRde(i,j,k2)=cff*(rho(i,j,k+1) -rho(i,j-1,k+1))
               dTde(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)
      &                               -t(i,j-1,k+1,nrhs,itrc)
-# ifdef CLIMAT_TS_MIXH
-     &               -tclm(i,j,k+1,itrc)+tclm(i,j-1,k+1,itrc)
+# if defined CLIMAT_TS_MIXH
+     &               -TCLM(i,j,k+1,itrc)+TCLM(i,j-1,k+1,itrc)
 # endif
      &                                                      )
             enddo
@@ -128,8 +172,8 @@ c-#define MIN_STRAT  0.1
 # endif
               dTdr(i,j,k2)=cff1*( t(i,j,k+1,nrhs,itrc)
      &                                            -t(i,j,k,nrhs,itrc)
-# ifdef CLIMAT_TS_MIXH
-     &                           -tclm(i,j,k+1,itrc)+tclm(i,j,k,itrc)
+# if defined CLIMAT_TS_MIXH
+     &                           -TCLM(i,j,k+1,itrc)+TCLM(i,j,k,itrc)
 # endif
      &                                                              )
               FC(i,j,k2)=cff1*(z_r(i,j,k+1)-z_r(i,j,k))
@@ -268,8 +312,8 @@ c-#define MIN_STRAT  0.1
               dRdx(i,j,k2)=cff*(rho(i,j,k+1)-rho(i-1,j,k+1))
               dTdx(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)-
      &                               t(i-1,j,k+1,nrhs,itrc)
-# ifdef CLIMAT_TS_MIXH
-     &               -tclm(i,j,k+1,itrc)+tclm(i-1,j,k+1,itrc)
+# if defined CLIMAT_TS_MIXH
+     &               -TCLM(i,j,k+1,itrc)+TCLM(i-1,j,k+1,itrc)
 # endif
      &                                                      )
             enddo
@@ -280,8 +324,8 @@ c-#define MIN_STRAT  0.1
               dRde(i,j,k2)=cff*(rho(i,j,k+1)-rho(i,j-1,k+1))
               dTde(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)-
      &                               t(i,j-1,k+1,nrhs,itrc)
-# ifdef CLIMAT_TS_MIXH
-     &               -tclm(i,j,k+1,itrc)+tclm(i,j-1,k+1,itrc)
+# if defined CLIMAT_TS_MIXH
+     &               -TCLM(i,j,k+1,itrc)+TCLM(i,j-1,k+1,itrc)
 # endif
      &                          )
             enddo
@@ -318,8 +362,8 @@ c-#define MIN_STRAT  0.1
               FC(i,j,k2)=cff1*(z_r(i,j,k+1)-z_r(i,j,k))
               dTdr(i,j,k2)=cff1*(t(i,j,k+1,nrhs,itrc)
      &                             -t(i,j,k,nrhs,itrc)
-#  ifdef CLIMAT_TS_MIXH
-     &                         -tclm(i,j,k+1,itrc)+tclm(i,j,k,itrc)
+#  if defined CLIMAT_TS_MIXH
+     &                         -TCLM(i,j,k+1,itrc)+TCLM(i,j,k,itrc)
 #  endif
      &                          )
             enddo
@@ -600,6 +644,14 @@ c-#define MIN_STRAT  0.1
 # undef rho
 #endif
 
-!      return
-!      end
+      return
+      end
  
+#ifndef CHILD_SPG
+# define CHILD_SPG
+# ifdef AGRIF
+#  include "t3dmix_EN.F"
+# endif
+# undef CHILD_SPG
+#endif  /* !CHILD_SPG */
+

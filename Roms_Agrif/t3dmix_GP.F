@@ -1,6 +1,7 @@
+!
 #include "cppdefs.h"
-#ifdef SOLVE3D
- 
+
+#ifndef CHILD_SPG
       subroutine t3dmix (tile)
       implicit none
       integer tile, itrc, trd, omp_get_thread_num
@@ -8,22 +9,56 @@
 # include "private_scratch.h"
 # include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
+#ifdef AGRIF
       do itrc=1,NT
+       if (AGRIF_Root()) then
         call t3dmix_tile (istr,iend,jstr,jend, itrc, A3d(1,1,trd),
      &                                    A2d(1, 1,trd), A2d(1, 2,trd),
      &                      A2d(1,3,trd), A2d(1, 5,trd), A2d(1, 7,trd),
      &                      A2d(1,9,trd), A2d(1,11,trd), A2d(1,13,trd))
+       else
+         call t3dmix_child_tile(istr,iend,jstr,jend, itrc, A3d(1,1,trd),
+     &                                    A2d(1, 1,trd), A2d(1, 2,trd),
+     &                      A2d(1,3,trd), A2d(1, 5,trd), A2d(1, 7,trd),
+     &                      A2d(1,9,trd), A2d(1,11,trd), A2d(1,13,trd))
+
+       endif
       enddo
       return
       end
- 
+#else 
+      do itrc=1,NT
+       call t3dmix_tile(istr,iend,jstr,jend, itrc, A3d(1,1,trd),
+     &                                    A2d(1, 1,trd), A2d(1, 2,trd),
+     &                      A2d(1,3,trd), A2d(1, 5,trd), A2d(1, 7,trd),
+     &                      A2d(1,9,trd), A2d(1,11,trd), A2d(1,13,trd))
+      enddo
+       return
+       end
+#endif   /* AGRIF */
+!
+!---------------------------------------------------------------------
+!*********************************************************************
+!---------------------------------------------------------------------
+!
+!PARENT
+! 
       subroutine t3dmix_tile (istr,iend,jstr,jend, itrc, LapT,
      &                    FX,FE, FC,dTdz, dTdx,dTde,dZdx,dZde)
 !
-!--------------------------------------------------------------------
-!  Compute geopotential horizontal mixing terms for tracer equations.
-!--------------------------------------------------------------------
+#else
 !
+! CHILD
+!
+      subroutine t3dmix_child_tile(Istr,Iend,Jstr,Jend, itrc,
+     &                     FX,FE, FC,dTdz, dTdx,dTde,dZdx,dZde)
+!
+#endif /* CHILD_SPG */
+!
+!---------------------------------------------------------------------
+! ******************************Common Code***************************
+!---------------------------------------------------------------------
+!!
       implicit none
 # include "param.h"
       integer istr,iend,jstr,jend, itrc, i,j,k,k1,k2, kmld
@@ -48,13 +83,25 @@
 #  include "diagnostics.h"
 # endif
 !
-# include "compute_auxiliary_bounds.h"
-!
 # ifdef MASKING
 #  define SWITCH *
 # else
 #  define SWITCH !
 # endif
+!
+#ifdef AGRIF
+#include "zoom.h"
+#endif
+!
+#ifdef CHILD_SPG
+#define TCLM tsponge
+#else
+#define TCLM tclm
+#endif
+!
+# include "compute_auxiliary_bounds.h"
+
+
 
 # ifdef TS_DIF2
 !
@@ -75,8 +122,8 @@
               dZdx(i,j,k2)=cff*(z_r(i,j,k+1) -z_r(i-1,j,k+1))
               dTdx(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)
      &                               -t(i-1,j,k+1,nrhs,itrc)
-#  ifdef CLIMAT_TS_MIXH
-     &               -tclm(i,j,k+1,itrc)+tclm(i-1,j,k+1,itrc)
+#  if defined CLIMAT_TS_MIXH
+     &               -TCLM(i,j,k+1,itrc)+TCLM(i-1,j,k+1,itrc)
 #  endif
      &                                                      )
             enddo
@@ -87,8 +134,8 @@
               dZde(i,j,k2)=cff*(z_r(i,j,k+1) -z_r(i,j-1,k+1))
               dTde(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)
      &                               -t(i,j-1,k+1,nrhs,itrc)
-#  ifdef CLIMAT_TS_MIXH
-     &               -tclm(i,j,k+1,itrc)+tclm(i,j-1,k+1,itrc)
+#  if defined CLIMAT_TS_MIXH
+     &               -TCLM(i,j,k+1,itrc)+TCLM(i,j-1,k+1,itrc)
 #  endif
      &                                                      )
             enddo
@@ -106,8 +153,8 @@
           do j=jstr-1,jend+1
             do i=istr-1,iend+1
               dTdz(i,j,k2)=(t(i,j,k+1,nrhs,itrc)-t(i,j,k,nrhs,itrc)
-#  ifdef CLIMAT_TS_MIXH
-     &                          -tclm(i,j,k+1,itrc)+tclm(i,j,k,itrc)
+#  if defined CLIMAT_TS_MIXH
+     &                          -TCLM(i,j,k+1,itrc)+TCLM(i,j,k,itrc)
 #  endif
      &                                   )/(z_r(i,j,k+1)-z_r(i,j,k))
             enddo
@@ -260,8 +307,8 @@
      &                                 t(i-1,j,k+1,nrhs,itrc))
      &                          +0.25*(t(i,j,k+1,nstp,itrc)-
      &                                 t(i-1,j,k+1,nstp,itrc))
-#  ifdef CLIMAT_TS_MIXH
-     &                -tclm(i,j,k+1,itrc)+tclm(i-1,j,k+1,itrc)
+#  if defined CLIMAT_TS_MIXH
+     &                -TCLM(i,j,k+1,itrc)+TCLM(i-1,j,k+1,itrc)
 #  endif
      &                         )
             enddo
@@ -276,8 +323,8 @@
      &                                 t(i,j-1,k+1,nrhs,itrc))
      &                          +0.25*(t(i,j,k+1,nstp,itrc)-
      &                                 t(i,j-1,k+1,nstp,itrc))
-#  ifdef CLIMAT_TS_MIXH
-     &                -tclm(i,j,k+1,itrc)+tclm(i,j-1,k+1,itrc)
+#  if defined CLIMAT_TS_MIXH
+     &                -TCLM(i,j,k+1,itrc)+TCLM(i,j-1,k+1,itrc)
 #  endif
      &                         )
             enddo
@@ -299,8 +346,8 @@
      &                            -t(i,j,k,nrhs,itrc))
      &                      +0.25*(t(i,j,k+1,nstp,itrc)
      &                            -t(i,j,k,nstp,itrc))
-#  ifdef CLIMAT_TS_MIXH
-     &                      -tclm(i,j,k+1,itrc)+tclm(i,j,k,itrc)
+#  if defined CLIMAT_TS_MIXH
+     &                      -TCLM(i,j,k+1,itrc)+TCLM(i,j,k,itrc)
 #  endif
      &                     )/(z_r(i,j,k+1)-z_r(i,j,k))
             enddo
@@ -550,12 +597,17 @@
       enddo   ! --> k
 
 # endif /* TS_DIF4 */
-
-!      return
-!      end
-
-#else
-      subroutine t3dmix_empty
+!
+       return
       end
-#endif /* SOLVE3D */
+ 
+#ifndef CHILD_SPG
+# define CHILD_SPG
+# ifdef AGRIF
+#  include "t3dmix_GP.F"
+# endif
+# undef CHILD_SPG
+#endif  /* !CHILD_SPG */
+
+
  

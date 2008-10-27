@@ -11,13 +11,12 @@
 # include "private_scratch.h"
 # include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
-      call uv3dmix_fine_tile (Istr,Iend,Jstr,Jend, 
-     &                        A2d(1,1,trd), A2d(1,2,trd),
-     &                        A2d(1,3,trd), A2d(1,4,trd))
+
+      call uv3dmix_fine_tile (Istr,Iend,Jstr,Jend)
       return
       end
  
-      subroutine uv3dmix_fine_tile (Istr,Iend,Jstr,Jend, UFx,UFe,VFx,VFe)
+      subroutine uv3dmix_fine_tile (Istr,Iend,Jstr,Jend)
 !
 ! Computes harmonic mixing of momentum, along constant S-surfaces
 ! as horizontal divergence of the stress tensor. Components of the
@@ -70,13 +69,10 @@
 #  define LOCALLM Lm
 #  define LOCALMM Mm
 # endif
-      real uspongeloc(PRIVATE_2D_SCRATCH_ARRAY,N)
-      real vspongeloc(PRIVATE_2D_SCRATCH_ARRAY,N)
        integer decal
        real tinterp,onemtinterp, rrhot
        integer :: nold
        integer :: irhot
-       
        external interpspongeu, interpspongev
 !
 # include "compute_auxiliary_bounds.h"
@@ -167,11 +163,10 @@ C$OMP BARRIER
          enddo  
        endif
       
-C$OMP BARRIER  
+C$OMP BARRIER 
+ 
       ENDIF    
 
-      uspongeloc = 0.
-      vspongeloc = 0.
 
        tinterp = real(nbcoarse-1)/rrhot
        IF (nbstep3d .LT. irhot) tinterp = 0.
@@ -184,16 +179,13 @@ C$OMP BARRIER
        do k=1,N
        do j=0,decal
        do i=Istr-1,Iend+1
-          uspongeloc(i,j,k) =
-     &          (u(i,j,k,nstp)
-     &       -onemtinterp*U_sponge_south(i,j,k,nold)
-     &       -tinterp*U_sponge_south(i,j,k,UTimesponge))
-     &           *umask(i,j)  
-          vspongeloc(i,j,k) =
-     &          (v(i,j,k,nstp)
-     &       -onemtinterp*V_sponge_south(i,j,k,nold)
-     &       -tinterp*V_sponge_south(i,j,k,UTimesponge))
-     &           *vmask(i,j)            
+          usponge(i,j,k) =
+     &          onemtinterp*U_sponge_south(i,j,k,nold)
+     &       +tinterp*U_sponge_south(i,j,k,UTimesponge)
+
+          vsponge(i,j,k) =
+     &   onemtinterp*V_sponge_south(i,j,k,nold)
+     &       +tinterp*V_sponge_south(i,j,k,UTimesponge)  
        enddo
        enddo
        enddo
@@ -203,16 +195,12 @@ C$OMP BARRIER
        do k=1,N
        do j=Jend-decal,Jend+1
        do i=Istr-1,Iend+1
-          uspongeloc(i,j,k) =
-     &          (u(i,j,k,nstp)
-     &       -onemtinterp*U_sponge_north(i,j,k,nold)
-     &       -tinterp*U_sponge_north(i,j,k,UTimesponge))
-     &           *umask(i,j)     
-          vspongeloc(i,j,k) =
-     &          (v(i,j,k,nstp)
-     &       -onemtinterp*V_sponge_north(i,j,k,nold)
-     &       -tinterp*V_sponge_north(i,j,k,UTimesponge))
-     &           *vmask(i,j)        
+          usponge(i,j,k) =
+     &       onemtinterp*U_sponge_north(i,j,k,nold)
+     &       +tinterp*U_sponge_north(i,j,k,UTimesponge)
+          vsponge(i,j,k) =
+     &       onemtinterp*V_sponge_north(i,j,k,nold)
+     &       +tinterp*V_sponge_north(i,j,k,UTimesponge)       
        enddo
        enddo
        enddo           
@@ -222,16 +210,12 @@ C$OMP BARRIER
          do k=1,N
          do j=Jstr-1,Jend+1
          do i=0,decal
-          uspongeloc(i,j,k) =
-     &          (u(i,j,k,nstp)
-     &       -onemtinterp*U_sponge_west(i,j,k,nold)
-     &       -tinterp*U_sponge_west(i,j,k,UTimesponge))
-     &           *umask(i,j)
-          vspongeloc(i,j,k) =
-     &          (v(i,j,k,nstp)
-     &       -onemtinterp*V_sponge_west(i,j,k,nold)
-     &       -tinterp*V_sponge_west(i,j,k,UTimesponge))
-     &           *vmask(i,j)     
+          usponge(i,j,k) =
+     &       onemtinterp*U_sponge_west(i,j,k,nold)
+     &       +tinterp*U_sponge_west(i,j,k,UTimesponge)
+          vsponge(i,j,k) =
+     &       onemtinterp*V_sponge_west(i,j,k,nold)
+     &       +tinterp*V_sponge_west(i,j,k,UTimesponge)
          enddo
          enddo
          enddo
@@ -241,16 +225,12 @@ C$OMP BARRIER
          do k=1,N
          do j=Jstr-1,Jend+1
          do i=Iend-decal,Iend+1    
-          uspongeloc(i,j,k) =
-     &          (u(i,j,k,nstp)
-     &       -onemtinterp*U_sponge_east(i,j,k,nold)
-     &       -tinterp*U_sponge_east(i,j,k,UTimesponge))
-     &           *umask(i,j)    
-          vspongeloc(i,j,k) =
-     &          (v(i,j,k,nstp)
-     &       -onemtinterp*V_sponge_east(i,j,k,nold)
-     &       -tinterp*V_sponge_east(i,j,k,UTimesponge))
-     &           *vmask(i,j)         
+          usponge(i,j,k) =
+     &       onemtinterp*U_sponge_east(i,j,k,nold)
+     &       +tinterp*U_sponge_east(i,j,k,UTimesponge)
+          vsponge(i,j,k) =
+     &       onemtinterp*V_sponge_east(i,j,k,nold)
+     &       +tinterp*V_sponge_east(i,j,k,UTimesponge)       
          enddo
          enddo
          enddo 
@@ -258,77 +238,6 @@ C$OMP BARRIER
                           
       indx=3-nstp    !--> time index for target arrays;
 
-            
-!
-!  Compute flux-components of the horizontal divergence of the stress
-!  tensor (m5/s2) in XI- and ETA-directions.
-!
-      do k=1,N
-        do j=JstrV-1,Jend
-          do i=IstrU-1,Iend
-            cff=0.5*Hz(i,j,k)*visc2_r(i,j)*(
-     &    on_r(i,j)*pm(i,j)*( (pn(i  ,j)+pn(i+1,j))*uspongeloc(i+1,j,k)
-     &                       -(pn(i-1,j)+pn(i  ,j))*uspongeloc(i  ,j,k)
-     &                                                              )
-     &   -om_r(i,j)*pn(i,j)*( (pm(i,j  )+pm(i,j+1))*vspongeloc(i,j+1,k)
-     &                       -(pm(i,j-1)+pm(i,j  ))*vspongeloc(i,j  ,k)
-     &                                                             ))
-            UFx(i,j)=on_r(i,j)*on_r(i,j)*cff
-            VFe(i,j)=om_r(i,j)*om_r(i,j)*cff
-          enddo
-        enddo
-        do j=Jstr,Jend+1
-          do i=Istr,Iend+1
-            cff=0.125*visc2_p(i,j)*
-     &      (Hz(i-1,j,k)+Hz(i,j,k)+Hz(i-1,j-1,k)+Hz(i,j-1,k))*(
-     &      0.25*(pm(i-1,j)+pm(i,j)+pm(i-1,j-1)+pm(i,j-1))*on_p(i,j)
-     &                  *( (pn(i  ,j-1)+pn(i  ,j))*vspongeloc(i  ,j,k)
-     &                    -(pn(i-1,j-1)+pn(i-1,j))*vspongeloc(i-1,j,k)
-     &                                                              )
-     &     +0.25*(pn(i-1,j)+pn(i,j)+pn(i-1,j-1)+pn(i,j-1))*om_p(i,j)
-     &                  *( (pm(i-1,j  )+pm(i,j  ))*uspongeloc(i,j  ,k)
-     &                  -(pm(i-1,j-1)+pm(i,j-1))*uspongeloc(i,j-1,k)
-     &                                                             ))
-# ifdef MASKING
-     &                                                   *pmask(i,j)
-# endif
-            UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
-            VFx(i,j)=on_p(i,j)*on_p(i,j)*cff
-          enddo
-        enddo
-!
-! Apply viscous terms. Note that at this stage arrays u,v(...,3-nstp)
-! contain Hz*U and Hz*V with units of [m2/s].   Also compute vertical
-! integral of viscous terms and add it into coupling terms for the
-! barotropic mode
-!
-        do j=Jstr,Jend
-          do i=IstrU,Iend
-            cff=0.125*(pm(i-1,j)+pm(i,j))*(pn(i-1,j) +pn(i,j))
-     &             *( (pn(i-1,j)+pn(i,j))*(UFx(i,j)-UFx(i-1,j))
-     &               +(pm(i-1,j)+pm(i,j))*(UFe(i,j+1)-UFe(i,j))
-     &                                                        )
-            rufrc(i,j)=rufrc(i,j) + cff
-            u(i,j,k,indx)=u(i,j,k,indx) + dt*cff
-# ifdef DIAGNOSTICS_UV
-            MHmix(i,j,k,1) = cff*om_u(i,j)*on_u(i,j)
-# endif
-          enddo
-        enddo
-        do j=JstrV,Jend
-          do i=Istr,Iend
-            cff=0.125*(pm(i,j)+pm(i,j-1))*(pn(i,j) +pn(i,j-1))
-     &             *( (pn(i,j-1)+pn(i,j))*(VFx(i+1,j)-VFx(i,j))
-     &               -(pm(i,j-1)+pm(i,j))*(VFe(i,j)-VFe(i,j-1))
-     &                                                        )
-            rvfrc(i,j)=rvfrc(i,j) + cff
-            v(i,j,k,indx)=v(i,j,k,indx) + dt*cff
-# ifdef DIAGNOSTICS_UV
-            MHmix(i,j,k,2) = cff*om_v(i,j)*on_v(i,j)
-# endif
-          enddo
-        enddo
-      enddo
       return
       end
       

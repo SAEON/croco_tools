@@ -1,9 +1,6 @@
 !
-! $Id: uv3dmix_S.F,v 1.3 2005/10/10 13:40:19 pmarches Exp $
-!
 #include "cppdefs.h"
-# if defined SOLVE3D && defined UV_VIS2
- 
+#ifndef CHILD_SPG
       subroutine uv3dmix (tile)
       implicit none
       integer tile, trd, omp_get_thread_num
@@ -11,15 +8,44 @@
 # include "private_scratch.h"
 # include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
+#ifdef AGRIF
+       if (AGRIF_Root()) then
+        call uv3dmix_tile (Istr,Iend,Jstr,Jend, 
+     &                        A2d(1,1,trd), A2d(1,2,trd),
+     &                        A2d(1,3,trd), A2d(1,4,trd))
+       else
+        call uv3dmix_child_tile (Istr,Iend,Jstr,Jend, 
+     &                        A2d(1,1,trd), A2d(1,2,trd),
+     &                        A2d(1,3,trd), A2d(1,4,trd))
+       endif 
+      return
+      end
+#else 
       call uv3dmix_tile (Istr,Iend,Jstr,Jend, 
      &                        A2d(1,1,trd), A2d(1,2,trd),
      &                        A2d(1,3,trd), A2d(1,4,trd))
       return
       end
- 
-      subroutine uv3dmix_tile (Istr,Iend,Jstr,Jend, UFx,UFe,VFx,VFe)
+#endif   /* AGRIF */ 
 !
-! Computes harmonic mixing of momentum, along constant S-surfaces
+!---------------------------------------------------------------------
+!*********************************************************************
+!---------------------------------------------------------------------
+! 
+!PARENT
+! 
+      subroutine uv3dmix_tile (Istr,Iend,Jstr,Jend, 
+     &                                       UFx,UFe,VFx,VFe)
+#else
+!
+! CHILD
+!
+      subroutine uv3dmix_child_tile (Istr,Iend,Jstr,Jend, 
+     &                                         UFx,UFe,VFx,VFe)
+#endif /* CHILD_SPG */
+!
+!--------------------------------------------------------------------
+! Computes harmonic mixing of momentum, along constant S-surfaces 
 ! as horizontal divergence of the stress tensor. Components of the
 ! stress tensor are:
 !                         du     dv
@@ -44,7 +70,10 @@
 ! Griffies, S.M. and R.W. Hallberg, 2000: Biharmonic friction with
 !     a Smagorinsky-like viscosity for use in large-scale eddy-
 !     permitting ocean models, Mon. Wea. Rev., 128, 8, 2935-2946.
-!
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+! ******************************Common Code***************************
+!---------------------------------------------------------------------
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j,k, indx
       real UFe(PRIVATE_2D_SCRATCH_ARRAY),
@@ -66,6 +95,24 @@
 !
 # include "compute_auxiliary_bounds.h"
 !
+# ifdef MASKING
+#  define SWITCH *
+# else
+#  define SWITCH !
+# endif
+!
+#ifdef AGRIF
+#include "zoom.h"
+#endif
+!
+#ifdef CHILD_SPG
+#define UCLM usponge
+#define VCLM vsponge
+#else
+#define UCLM uclm
+#define VCLM vclm
+#endif
+!
       indx=3-nstp    !--> time index for target arrays;
 !
 !  Compute flux-components of the horizontal divergence of the stress
@@ -79,13 +126,13 @@
 # else
             cff=Hz(i,j,k)*visc2_r(i,j)*
 # endif
-#  ifdef CLIMAT_UV_MIXH
+#  if defined CLIMAT_UV_MIXH
      &    ( on_r(i,j)*pm(i,j)*
-     &        ( pn_u(i+1,j)*(u(i+1,j,k,nstp)-uclm(i+1,j,k))
-     &         -pn_u(i  ,j)*(u(i  ,j,k,nstp)-uclm(i  ,j,k)) )
+     &        ( pn_u(i+1,j)*(u(i+1,j,k,nstp)-UCLM(i+1,j,k))
+     &         -pn_u(i  ,j)*(u(i  ,j,k,nstp)-UCLM(i  ,j,k)) )
      &     -om_r(i,j)*pn(i,j)*
-     &        ( pm_v(i,j+1)*(v(i,j+1,k,nstp)-vclm(i,j+1,k))
-     &         -pm_v(i,j  )*(v(i,j  ,k,nstp)-vclm(i,j  ,k)) ) )
+     &        ( pm_v(i,j+1)*(v(i,j+1,k,nstp)-VCLM(i,j+1,k))
+     &         -pm_v(i,j  )*(v(i,j  ,k,nstp)-VCLM(i,j  ,k)) ) )
 #  else
      &    ( on_r(i,j)*pm(i,j)*( pn_u(i+1,j)*u(i+1,j,k,nstp)
      &                         -pn_u(i  ,j)*u(i  ,j,k,nstp) )
@@ -104,13 +151,13 @@
             cff=0.0625*visc2_p(i,j)*
 # endif
      &      (Hz(i-1,j,k)+Hz(i,j,k)+Hz(i-1,j-1,k)+Hz(i,j-1,k))*
-#  ifdef CLIMAT_UV_MIXH
+#  if defined CLIMAT_UV_MIXH
      &      (  (pm(i-1,j)+pm(i,j)+pm(i-1,j-1)+pm(i,j-1))*on_p(i,j)
-     &              *( pn_v(i  ,j)*(v(i  ,j,k,nstp)-vclm(i  ,j,k))
-     &                -pn_v(i-1,j)*(v(i-1,j,k,nstp)-vclm(i-1,j,k)) )
+     &              *( pn_v(i  ,j)*(v(i  ,j,k,nstp)-VCLM(i  ,j,k))
+     &                -pn_v(i-1,j)*(v(i-1,j,k,nstp)-VCLM(i-1,j,k)) )
      &        +(pn(i-1,j)+pn(i,j)+pn(i-1,j-1)+pn(i,j-1))*om_p(i,j)
-     &              *( pm_u(i,j  )*(u(i,j  ,k,nstp)-uclm(i  ,j,k))
-     &                -pm_u(i,j-1)*(u(i,j-1,k,nstp)-uclm(i-1,j,k)) ) )
+     &              *( pm_u(i,j  )*(u(i,j  ,k,nstp)-UCLM(i  ,j,k))
+     &                -pm_u(i,j-1)*(u(i,j-1,k,nstp)-UCLM(i-1,j,k)) ) )
 #  else
      &      (  (pm(i-1,j)+pm(i,j)+pm(i-1,j-1)+pm(i,j-1))*on_p(i,j)
      &                     *( pn_v(i  ,j)*v(i  ,j,k,nstp)
@@ -118,10 +165,8 @@
      &        +(pn(i-1,j)+pn(i,j)+pn(i-1,j-1)+pn(i,j-1))*om_p(i,j)
      &                     *( pm_u(i,j  )*u(i,j  ,k,nstp)
      &                       -pm_u(i,j-1)*u(i,j-1,k,nstp) ) )
+     &                                            SWITCH pmask(i,j)
 #  endif
-# ifdef MASKING
-     &                                                   *pmask(i,j)
-# endif
             UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
             VFx(i,j)=on_p(i,j)*on_p(i,j)*cff
           enddo
@@ -157,10 +202,15 @@
           enddo
         enddo
       enddo
+!
       return
       end
-#else
-      subroutine visc3d_empty
-      end
-#endif
- 
+!
+#ifndef CHILD_SPG
+# define CHILD_SPG
+# ifdef AGRIF
+#  include "uv3dmix_S.F"
+# endif
+# undef CHILD_SPG
+#endif  /* !CHILD_SPG */
+!

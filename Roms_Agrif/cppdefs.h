@@ -1,4 +1,4 @@
-!
+		!
 ! $Id: cppdefs.h,v 1.28 2005/10/27 09:58:11 pmarches Exp $
 !
 /*
@@ -75,15 +75,36 @@
 # define CURVGRID
 # define SPHERICAL
 # define MASKING
+!
                       /* Lateral Momentum Mixing */
 # define UV_VIS2
 # define MIX_GP_UV
 # undef  UV_SPLIT_UP3
 # undef  VIS_SMAGO
                       /* Lateral Tracer Mixing */
-# define TS_DIF2
 # define MIX_GP_TS
-# undef  TS_SPLIT_UP3
+!-------------------------------------------------------------
+! Explanations:
+! ***********
+! Choose diffusion  :
+!     MIX_GP_TS: along geopotential surface
+! or  MIX_S_TS : along sigma surface       
+! or  MIX_EN_TS : along isopyncnal surface  
+!--------------------------------------------------------------
+# define TS_DIF2
+# undef TS_SPLIT_UP3
+# ifdef TS_SPLIT_UP3
+#  undef TS_DIF2
+# endif 
+!---------------------------------------------------------------
+! Explanations:
+! ***********
+! Choose diffusion schemes :
+!     - TS_DIF2 : constant mixing coefficient + laplacian 
+!  or - TS_DIF4 : constant mixing coefficient + bilaplacian
+!  or - TS_SPLIT_UP3 : 3d mixing coefficient +
+!      4th order centered advection and + bilaplacian hyperdiffusion   
+!--------------------------------------------------------------
                       /* Vertical Mixing */
 # undef  BODYFORCE
 # undef  BVF_MIXING
@@ -122,8 +143,6 @@
 # endif
                       /* Lateral Forcing */
 # define SPONGE
-# define SPONGE_DIF2
-# undef  SPONGE_VIS2
 
 # define CLIMATOLOGY
 # ifdef CLIMATOLOGY
@@ -193,7 +212,7 @@
 #  ifdef PISCES
 #   define key_trc_pisces
 #   define key_passivetrc
-#   define DIAGNOSTICS_BIO
+#   undef DIAGNOSTICS_BIO
 #   ifdef DIAGNOSTICS_BIO
 #     define key_trc_diaadd
 #     define key_trc_dia3d

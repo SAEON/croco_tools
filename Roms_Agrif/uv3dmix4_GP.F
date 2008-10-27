@@ -1,4 +1,6 @@
+!
 #include "cppdefs.h"
+#ifndef CHILD_SPG
       subroutine uv3dmix (tile)
 !====================================================================!
 !                                                                    !
@@ -39,10 +41,29 @@
       integer tile, trd, omp_get_thread_num
 #include "param.h"
 #include "private_scratch.h"
-!
 #include "compute_tile_bounds.h"
-!
-      trd=omp_get_thread_num()
+      trd=omp_get_thread_num() 
+#ifdef AGRIF
+      if (AGRIF_Root()) then
+       call uv3dmix_tile (Istr,Iend,Jstr,Jend,
+     &                      A3d(1, 1,trd),A3d(1, 2,trd),A2d(1, 1,trd),
+     &                      A2d(1, 2,trd),A2d(1, 3,trd),A2d(1, 4,trd),
+     &                      A2d(1, 5,trd),A2d(1, 7,trd),A2d(1, 9,trd),
+     &                      A2d(1,11,trd),A2d(1,13,trd),A2d(1,15,trd),
+     &                      A2d(1,17,trd),A2d(1,19,trd),A2d(1,21,trd),
+     &                      A2d(1,23,trd),A2d(1,25,trd),A2d(1,27,trd))
+      else
+       call uv3dmix_child_tile (Istr,Iend,Jstr,Jend,
+     &                      A3d(1, 1,trd),A3d(1, 2,trd),A2d(1, 1,trd),
+     &                      A2d(1, 2,trd),A2d(1, 3,trd),A2d(1, 4,trd),
+     &                      A2d(1, 5,trd),A2d(1, 7,trd),A2d(1, 9,trd),
+     &                      A2d(1,11,trd),A2d(1,13,trd),A2d(1,15,trd),
+     &                      A2d(1,17,trd),A2d(1,19,trd),A2d(1,21,trd),
+     &                      A2d(1,23,trd),A2d(1,25,trd),A2d(1,27,trd))
+       endif
+      return
+      end
+#else 
       call uv3dmix_tile (Istr,Iend,Jstr,Jend,
      &                      A3d(1, 1,trd),A3d(1, 2,trd),A2d(1, 1,trd),
      &                      A2d(1, 2,trd),A2d(1, 3,trd),A2d(1, 4,trd),
@@ -52,13 +73,31 @@
      &                      A2d(1,23,trd),A2d(1,25,trd),A2d(1,27,trd))
       return
       end
+#endif   /* AGRIF */ 
 !
+!---------------------------------------------------------------------
 !*********************************************************************
+!---------------------------------------------------------------------
+!
+!PARENT
+!
       subroutine uv3dmix_tile (Istr,Iend,Jstr,Jend,LapU,LapV,UFx,
      &                              UFe,VFx,VFe,UFs,VFs,dnUdx,dmUde,
      &                              dUdz,dnVdx,dmVde,dVdz,dZdx_r,
      &                              dZdx_p,dZde_r,dZde_p)
-!*********************************************************************
+#else
+!
+! CHILD
+!
+      subroutine uv3dmix_child_tile (Istr,Iend,Jstr,Jend,LapU,LapV,UFx,
+     &                              UFe,VFx,VFe,UFs,VFs,dnUdx,dmUde,
+     &                              dUdz,dnVdx,dmVde,dVdz,dZdx_r,
+     &                              dZdx_p,dZde_r,dZde_p)
+#endif /* CHILD_SPG */
+!
+!---------------------------------------------------------------------
+! ******************************Common Code***************************
+!---------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -95,7 +134,25 @@
      &        dZdx_r(PRIVATE_2D_SCRATCH_ARRAY,2)
 !
 # include "compute_auxiliary_bounds.h"
-
+!
+# ifdef MASKING
+#  define SWITCH *
+# else
+#  define SWITCH !
+# endif
+!
+#ifdef AGRIF
+#include "zoom.h"
+#endif
+!
+#ifdef CHILD_SPG
+#define UCLM usponge
+#define VCLM vsponge
+#else
+#define UCLM uclm
+#define VCLM vclm
+#endif
+!
 # ifndef EW_PERIODIC
       if (WESTERN_EDGE) then
         imin=istr
@@ -166,17 +223,13 @@
           do j=jmin-1,jmax+1
             do i=iminU-1,imax+1
               UFx(i,j)=pm_u(i,j)*dz_u(i,j,k+1)
-# ifdef MASKING
-     &                *umask(i,j)
-# endif
+     &                                     SWITCH umask(i,j)
             enddo
           enddo
           do j=jminV-1,jmax+1
             do i=imin-1,imax+1
               VFe(i,j)=pn_v(i,j)*dz_v(i,j,k+1)
-# ifdef MASKING
-     &                *vmask(i,j)
-# endif
+     &                                     SWITCH vmask(i,j)
             enddo
           enddo
 !
@@ -187,15 +240,11 @@
               dnUdx(i,j,k2)=pm(i,j)*
      &                      (pn_u(i+1,j)*u(i+1,j,k+1,nstp)-
      &                       pn_u(i  ,j)*u(i  ,j,k+1,nstp))
-# ifdef MASKING
-     &                     *rmask(i,j)
-# endif
+     &                                     SWITCH rmask(i,j)
               dmVde(i,j,k2)=pn(i,j)*
      &                      (pm_v(i,j+1)*v(i,j+1,k+1,nstp)-
      &                       pm_v(i,j  )*v(i,j  ,k+1,nstp))
-# ifdef MASKING
-     &                     *rmask(i,j)
-# endif
+     &                                     SWITCH rmask(i,j)
               dZdx_r(i,j,k2)=0.5*(UFx(i,j)+UFx(i+1,j))
               dZde_r(i,j,k2)=0.5*(VFe(i,j)+VFe(i,j+1))
             enddo
@@ -206,16 +255,12 @@
      &                            pn(i-1,j-1)+pn(i,j-1))*
      &                      (pm_u(i,j  )*u(i,j  ,k+1,nstp)-
      &                       pm_u(i,j-1)*u(i,j-1,k+1,nstp))
-# ifdef MASKING
-     &                     *pmask(i,j)
-# endif
+     &                                     SWITCH pmask(i,j)
               dnVdx(i,j,k2)=0.25*(pm(i-1,j  )+pm(i,j  )+
      &                            pm(i-1,j-1)+pm(i,j-1))*
      &                      (pn_v(i  ,j)*v(i  ,j,k+1,nstp)-
      &                       pn_v(i-1,j)*v(i-1,j,k+1,nstp))
-# ifdef MASKING
-     &                     *pmask(i,j)
-# endif
+     &                                     SWITCH pmask(i,j)
               dZde_p(i,j,k2)=0.5*(VFe(i-1,j)+VFe(i,j))
               dZdx_p(i,j,k2)=0.5*(UFx(i,j-1)+UFx(i,j))
             enddo
@@ -265,9 +310,7 @@
      &                             (dVdz(i,j,k1)+dVdz(i,j+1,k2))+
      &                         MAX(dZde_r(i,j,k1),0.0)*
      &                             (dVdz(i,j,k2)+dVdz(i,j+1,k1)))))
-# ifdef MASKING
-     &           *rmask(i,j)
-# endif
+     &                                               SWITCH rmask(i,j)
               UFx(i,j)=on_r(i,j)*on_r(i,j)*cff
               VFe(i,j)=om_r(i,j)*om_r(i,j)*cff
             enddo
@@ -288,9 +331,7 @@
      &                             (dUdz(i,j-1,k1)+dUdz(i,j,k2))+
      &                         MAX(dZde_p(i,j,k1),0.0)*
      &                             (dUdz(i,j-1,k2)+dUdz(i,j,k1)))))
-# ifdef MASKING
-     &           *pmask(i,j)
-# endif
+     &                                              SWITH pmask(i,j)
               UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
               VFx(i,j)=on_p(i,j)*on_p(i,j)*cff
             enddo
@@ -424,9 +465,7 @@
      &                      pm_u(i,j)*(UFe(i,j+1)-UFe(i,j  )))+
      &                   (UFs(i,j,k2)-UFs(i,j,k1))/
      &                    (0.5*(Hz(i-1,j,k)+Hz(i,j,k)))
-# ifdef MASKING
-     &                   *umask(i,j)
-# endif
+     &                   SWITCH umask(i,j)
             enddo
           enddo
           do j=jminV,jmax
@@ -436,9 +475,7 @@
      &                      pm_v(i,j)*(VFe(i,j  )-VFe(i,j-1)))+
      &                   (VFs(i,j,k2)-VFs(i,j,k1))/
      &                     (0.5*(Hz(i,j-1,k)+Hz(i,j,k)))
-# ifdef MASKING
-     &                   *vmask(i,j)
-# endif
+     &                   SWITCH vmask(i,j)
             enddo
           enddo
 !
@@ -562,17 +599,13 @@
           do j=Jstr-1,Jend+1
             do i=IstrU-1,Iend+1
               UFx(i,j)=pm_u(i,j)*dz_u(i,j,k+1)
-# ifdef MASKING
-     &                *umask(i,j)
-# endif
+     &                SWITCH umask(i,j)
             enddo
           enddo
           do j=JstrV-1,Jend+1
             do i=Istr-1,Iend+1
               VFe(i,j)=pn_v(i,j)*dz_v(i,j,k+1)
-# ifdef MASKING
-     &                *vmask(i,j)
-# endif
+     &                SWITCH vmask(i,j)
             enddo
           enddo
 !
@@ -584,15 +617,11 @@
               dnUdx(i,j,k2)=pm(i,j)*
      &                      (pn_u(i+1,j)*LapU(i+1,j,k+1)-
      &                       pn_u(i  ,j)*LapU(i  ,j,k+1)) 
-# ifdef MASKING
-     &                     *rmask(i,j)
-# endif
+     &                     SWITCH rmask(i,j)
               dmVde(i,j,k2)=pn(i,j)*
      &                      (pm_v(i,j+1)*LapV(i,j+1,k+1)-
      &                       pm_v(i,j  )*LapV(i,j  ,k+1)) 
-# ifdef MASKING
-     &                     *rmask(i,j)
-# endif
+     &                     SWITCH rmask(i,j)
               dZdx_r(i,j,k2)=0.5*(UFx(i,j)+UFx(i+1,j))
               dZde_r(i,j,k2)=0.5*(VFe(i,j)+VFe(i,j+1))
 
@@ -604,16 +633,12 @@
      &                            pn(i-1,j-1)+pn(i,j-1))*
      &                      (pm_u(i,j  )*LapU(i,j  ,k+1)-
      &                       pm_u(i,j-1)*LapU(i,j-1,k+1))
-# ifdef MASKING
-     &                     *pmask(i,j)
-# endif
+     &                     SWITCH pmask(i,j)
               dnVdx(i,j,k2)=0.125*(pm(i-1,j  )+pm(i,j  )+
      &                             pm(i-1,j-1)+pm(i,j-1))*
      &                      (pn_v(i  ,j)*LapV(i  ,j,k+1)-
      &                       pn_v(i-1,j)*LapV(i-1,j,k+1))
-# ifdef MASKING
-     &                     *pmask(i,j)
-# endif
+     &                     SWITCH pmask(i,j)
               dZde_p(i,j,k2)=0.5*(VFe(i-1,j)+VFe(i,j))
               dZdx_p(i,j,k2)=0.5*(UFx(i,j-1)+UFx(i,j))
             enddo
@@ -666,9 +691,8 @@
      &                             (dVdz(i,j,k1)+dVdz(i,j+1,k2))+
      &                         MAX(dZde_r(i,j,k1),0.0)*
      &                             (dVdz(i,j,k2)+dVdz(i,j+1,k1)))))
-# ifdef MASKING
-     &                   *rmask(i,j)
-# endif
+     &                   SWITCH rmask(i,j)
+
               UFx(i,j)=on_r(i,j)*on_r(i,j)*cff
               VFe(i,j)=om_r(i,j)*om_r(i,j)*cff
 # ifdef VIS_COEF_3D
@@ -703,9 +727,7 @@
      &                             (dUdz(i,j-1,k1)+dUdz(i,j,k2))+
      &                         MAX(dZde_p(i,j,k1),0.0)*
      &                             (dUdz(i,j-1,k2)+dUdz(i,j,k1)))))
-# ifdef MASKING
-     &                  *pmask(i,j)
-# endif
+     &                  SWITCH pmask(i,j)
             UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
             VFx(i,j)=on_p(i,j)*on_p(i,j)*cff
 # ifdef VIS_COEF_3D
@@ -896,8 +918,16 @@
 !
         endif
       enddo
-
+!
       return
       end
-
+!
+!
+#ifndef CHILD_SPG
+# define CHILD_SPG
+# ifdef AGRIF
+#  include "uv3dmix4_GP.F"
+# endif
+# undef CHILD_SPG
+#endif  /* !CHILD_SPG */ 
 

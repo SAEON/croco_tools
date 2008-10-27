@@ -689,11 +689,12 @@
             visc2_p(i,j)=visc2
           enddo
         enddo
-#elif defined SPONGE_VIS2
+#endif
+#ifdef SPONGE_VIS2
         do j=JstrR,JendR
           do i=IstrR,IendR
-            visc2_r(i,j)=0.
-            visc2_p(i,j)=0.
+            visc2_sponge_r(i,j)=init
+            visc2_sponge_p(i,j)=init
           enddo
         enddo
 #endif
@@ -736,14 +737,21 @@
             enddo
           enddo
         enddo
-#elif defined SPONGE_DIF2
-        do itrc=1,NT
+!#elif defined SPONGE_DIF2
+!        do itrc=1,NT
+!          do j=JstrR,JendR
+!            do i=IstrR,IendR
+!              diff2(i,j,itrc)=0.
+!            enddo
+!          enddo
+!        enddo
+#endif
+#ifdef SPONGE_DIF2
           do j=JstrR,JendR
             do i=IstrR,IendR
-              diff2(i,j,itrc)=0.
+              diff2_sponge(i,j)=init
             enddo
           enddo
-        enddo
 #endif
 #ifdef TS_DIF4
         do itrc=1,NT

@@ -1,4 +1,6 @@
+!
 #include "cppdefs.h"
+#ifndef CHILD_SPG
       subroutine uv3dmix (tile)
 !====================================================================!
 !                                                                    !
@@ -39,20 +41,50 @@
       integer tile, trd, omp_get_thread_num
 #include "param.h"
 #include "private_scratch.h"
-!
 #include "compute_tile_bounds.h"
-!
       trd=omp_get_thread_num()
+#ifdef AGRIF
+      if (AGRIF_Root()) then
+      call uv3dmix_tile (Istr,Iend,Jstr,Jend,
+     &                      A2d(1, 1,trd),A2d(1, 3,trd),A2d(1, 5,trd),
+     &                      A2d(1, 7,trd),A2d(1, 9,trd),A2d(1,11,trd))
+      else
+      call uv3dmix_child_tile (Istr,Iend,Jstr,Jend,
+     &                      A2d(1, 1,trd),A2d(1, 3,trd),A2d(1, 5,trd),
+     &                      A2d(1, 7,trd),A2d(1, 9,trd),A2d(1,11,trd))
+
+
+       endif
+      return
+      end
+#else 
       call uv3dmix_tile (Istr,Iend,Jstr,Jend,
      &                      A2d(1, 1,trd),A2d(1, 3,trd),A2d(1, 5,trd),
      &                      A2d(1, 7,trd),A2d(1, 9,trd),A2d(1,11,trd))
       return
       end
+#endif   /* AGRIF */ 
 !
+!---------------------------------------------------------------------
 !*********************************************************************
+!---------------------------------------------------------------------
+!
+!PARENT
+!
       subroutine uv3dmix_tile (Istr,Iend,Jstr,Jend,UFx,UFe,LapU,
      &                            VFx,VFe,LapV)
-!*********************************************************************
+!
+#else
+!
+! CHILD
+!
+      subroutine uv3dmix_child_tile (Istr,Iend,Jstr,Jend,UFx,UFe,LapU,
+     &                            VFx,VFe,LapV)
+#endif /* CHILD_SPG */
+!
+!---------------------------------------------------------------------
+! ******************************Common Code***************************
+!---------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -61,6 +93,9 @@
 # include "coupling.h"
 # include "ocean3d.h"
 # include "scalars.h"
+# ifdef CLIMAT_UV_MIXH
+#  include "climat.h"
+# endif
 # ifdef DIAGNOSTICS_UV
 #  include "diagnostics.h"
 # endif
@@ -76,7 +111,25 @@
      &          VFx(PRIVATE_2D_SCRATCH_ARRAY)
 !
 # include "compute_auxiliary_bounds.h"
- 
+!
+# ifdef MASKING
+#  define SWITCH *
+# else
+#  define SWITCH !
+# endif
+!
+#ifdef AGRIF
+#include "zoom.h"
+#endif
+!
+#ifdef CHILD_SPG
+#define UCLM usponge
+#define VCLM vsponge
+#else
+#define UCLM uclm
+#define VCLM vclm
+#endif
+! 
 # ifndef EW_PERIODIC
       if (WESTERN_EDGE) then
         imin=istr
@@ -135,11 +188,23 @@
         do j=jminV-1,jmax
           do i=iminU-1,imax
             cff=pmon_r(i,j)*
+
+#  if defined CLIMAT_UV_MIXH
+     &           (pn_u(i+1,j)*(u(i+1,j,k,nstp)-UCLM(i+1,j,k))-
+     &            pn_u(i  ,j)*(u(i  ,j,k,nstp)-UCLM(i  ,j,k)) ) - 
+# else
      &           (pn_u(i+1,j)*u(i+1,j,k,nstp)-
-     &            pn_u(i  ,j)*u(i  ,j,k,nstp)) - 
+     &            pn_u(i  ,j)*u(i  ,j,k,nstp) ) -
+# endif
      &          pnom_r(i,j)*
+#  if defined CLIMAT_UV_MIXH
+     &           (pm_v(i,j+1)*(v(i,j+1,k,nstp)-VCLM(i,j+1,k))-
+     &            pm_v(i,j  )*(v(i,j  ,k,nstp)-VCLM(i,j  ,k)) )
+# else
      &           (pm_v(i,j+1)*v(i,j+1,k,nstp)-
      &            pm_v(i,j  )*v(i,j  ,k,nstp))
+# endif
+
             UFx(i,j)=on_r(i,j)*on_r(i,j)*cff
             VFe(i,j)=om_r(i,j)*om_r(i,j)*cff
           enddo
@@ -150,14 +215,24 @@
         do j=jmin,jmax+1
           do i=imin,imax+1
             cff=pmon_p(i,j)*
+
+#  if defined CLIMAT_UV_MIXH
+     &           (pn_v(i  ,j)*(v(i  ,j,k,nstp)-VCLM(i  ,j,k)) -
+     &            pn_v(i-1,j)*(v(i-1,j,k,nstp)-VCLM(i-1,j,k)) )+
+# else
      &           (pn_v(i  ,j)*v(i  ,j,k,nstp)-
      &            pn_v(i-1,j)*v(i-1,j,k,nstp))+
+# endif
      &          pnom_p(i,j)*
+#  if defined CLIMAT_UV_MIXH
+     &           (pm_u(i,j  )*( u(i,j  ,k,nstp)-UCLM(i,j  ,k))-
+     &            pm_u(i,j-1)*( u(i,j-1,k,nstp)-UCLM(i,j-1,k)) )
+# else
      &           (pm_u(i,j  )*u(i,j  ,k,nstp)-
      &            pm_u(i,j-1)*u(i,j-1,k,nstp))
-# ifdef MASKING
-     &                               *pmask(i,j)
-# endif /* MASKING */
+# endif
+     &                               SWITCH pmask(i,j)
+!!gc
             UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
             VFx(i,j)=on_p(i,j)*on_p(i,j)*cff
           enddo
@@ -327,9 +402,8 @@
      &           pnom_p(i,j)*
      &           (pm_u(i,j  )*LapU(i,j  )-
      &            pm_u(i,j-1)*LapU(i,j-1)))
-# ifdef MASKING
-     &                               *pmask(i,j)
-# endif /* MASKING */
+     &                             SWITCH pmask(i,j)
+
             UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
             VFx(i,j)=on_p(i,j)*on_p(i,j)*cff
 # ifdef VIS_COEF_3D
@@ -377,8 +451,17 @@
           enddo
         enddo
       enddo
-
+!
       return
       end
+!
+#ifndef CHILD_SPG
+# define CHILD_SPG
+# ifdef AGRIF
+#  include "uv3dmix4_S.F"
+# endif
+# undef CHILD_SPG
+#endif  /* !CHILD_SPG */ 
+
 
 

@@ -2,8 +2,7 @@
 ! $Id: t3dmix_S.F,v 1.4 2005/10/10 13:40:19 pmarches Exp $
 !
 #include "cppdefs.h"
-#if defined SOLVE3D && defined TS_DIF2 && defined AGRIF
-
+#if defined SOLVE3D && defined AGRIF
       subroutine t3dmix_fine (tile)
       implicit none
       integer tile, trd, omp_get_thread_num
@@ -12,17 +11,13 @@
 # include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
       
-        call t3dmix_fine_tile (Istr,Iend,Jstr,Jend, A2d(1,1,trd),
-     &                                 A2d(1,2,trd), A2d(1,3,trd))
+        call t3dmix_fine_tile (Istr,Iend,Jstr,Jend)
       
       return
       end
 
-      subroutine t3dmix_fine_tile (Istr,Iend,Jstr,Jend, FX,FE,LapT)
-!
-!  This routine computes horizontal mixing of tracers
-!  along S-surfaces.
-!
+      subroutine t3dmix_fine_tile (Istr,Iend,Jstr,Jend)
+
       implicit none
 # include "param.h"
 # include "grid.h"
@@ -32,10 +27,6 @@
 # include "scalars.h"
 # include "zoom.h"
       integer itrc, Istr,Iend,Jstr,Jend, i,j,k
-      real FX(PRIVATE_2D_SCRATCH_ARRAY),     cff1,
-     &     FE(PRIVATE_2D_SCRATCH_ARRAY),     cff2,
-     &     LapT(PRIVATE_2D_SCRATCH_ARRAY)
-      real tspongeloc(PRIVATE_2D_SCRATCH_ARRAY,N,NT)
 !
 # ifdef MPI
 #  define LOCALLM Lmmpi
@@ -58,7 +49,6 @@
       irhot = Agrif_Irhot()
       rrhot = real(irhot)
       decal = 2*max(Agrif_Irhox(),Agrif_Irhoy())+1
-      
       If (nbcoarse == 1) THEN
       do itrc=1,NT
       do k=1,N
@@ -69,7 +59,6 @@
       enddo
       enddo
       enddo
-      
 C$OMP BARRIER
 C$OMP MASTER
       
@@ -148,7 +137,6 @@ C$OMP BARRIER
     
       ENDIF
       
-       tspongeloc = 0.
       
        tinterp = real(nbcoarse-1)/rrhot
        IF (nbstep3d .LT. irhot) tinterp = 0.
@@ -162,11 +150,9 @@ C$OMP BARRIER
        do k=1,N
        do j=0,decal
        do i=Istr-1,Iend+1
-          tspongeloc(i,j,k,itrc) =
-     &          (t(i,j,k,nstp,itrc)
-     &       -onemtinterp*T_sponge_south(i,j,k,nold,itrc)
-     &       -tinterp*T_sponge_south(i,j,k,TTimesponge,itrc))
-     &           *rmask(i,j)        
+          tsponge(i,j,k,itrc) =
+     &       onemtinterp*T_sponge_south(i,j,k,nold,itrc)
+     &       +tinterp*T_sponge_south(i,j,k,TTimesponge,itrc)
        enddo
        enddo
        enddo
@@ -178,11 +164,9 @@ C$OMP BARRIER
        do k=1,N
        do j=Jend-decal,Jend+1
        do i=Istr-1,Iend+1
-          tspongeloc(i,j,k,itrc) =
-     &          (t(i,j,k,nstp,itrc)
-     &       -onemtinterp*T_sponge_north(i,j,k,nold,itrc)
-     &       -tinterp*T_sponge_north(i,j,k,TTimesponge,itrc))
-     &           *rmask(i,j)        
+           tsponge(i,j,k,itrc) =
+     &       onemtinterp*T_sponge_north(i,j,k,nold,itrc)
+     &       +tinterp*T_sponge_north(i,j,k,TTimesponge,itrc)
        enddo
        enddo
        enddo
@@ -194,11 +178,9 @@ C$OMP BARRIER
          do k=1,N
          do j=Jstr-1,Jend+1
          do i=0,decal
-          tspongeloc(i,j,k,itrc) =
-     &          (t(i,j,k,nstp,itrc)
-     &       -onemtinterp*T_sponge_west(i,j,k,nold,itrc)
-     &       -tinterp*T_sponge_west(i,j,k,TTimesponge,itrc))
-     &           *rmask(i,j)
+            tsponge(i,j,k,itrc) =
+     &                onemtinterp*T_sponge_west(i,j,k,nold,itrc)
+     &                + tinterp*T_sponge_west(i,j,k,TTimesponge,itrc)
          enddo
          enddo
          enddo
@@ -209,88 +191,15 @@ C$OMP BARRIER
          do itrc=1,NT
          do k=1,N
          do j=Jstr-1,Jend+1
-         do i=Iend-decal,Iend+1    
-          tspongeloc(i,j,k,itrc) =
-     &          (t(i,j,k,nstp,itrc)
-     &       -onemtinterp*T_sponge_east(i,j,k,nold,itrc)
-     &       -tinterp*T_sponge_east(i,j,k,TTimesponge,itrc))
-     &           *rmask(i,j)       
+         do i=Iend-decal,Iend+1   
+           tsponge(i,j,k,itrc)=
+     &               onemtinterp*T_sponge_east(i,j,k,nold,itrc)
+     &               + tinterp*T_sponge_east(i,j,k,TTimesponge,itrc)  
          enddo
          enddo
          enddo
          enddo  
        endif
-             
-!
-      do itrc = 1,NT
-      do k=1,N
-!
-!  Add in horizontal Laplacian diffusion along constant S-surfaces.
-!--------------------------------------------------------------------
-!  Compute XI- and ETA-components of diffusive tracer flux.
-!
-        do j=Jstr,Jend
-          do i=Istr,Iend+1
-            FX(i,j)=0.25*(diff2(i,j,itrc)+diff2(i-1,j,itrc))
-     &         *pmon_u(i,j)*(Hz(i,j,k)+Hz(i-1,j,k))*(
-     &                tspongeloc(i,j,k,itrc)-tspongeloc(i-1,j,k,itrc)
-     &                                                        )
-# ifdef MASKING
-     &                                                   *umask(i,j)
-# endif
-          enddo
-        enddo
-        do j=Jstr,Jend+1
-          do i=Istr,Iend      
-            FE(i,j)=0.25*(diff2(i,j,itrc)+diff2(i,j-1,itrc))
-     &        *pnom_v(i,j)*(Hz(i,j,k)+Hz(i,j-1,k))*(
-     &                tspongeloc(i,j,k,itrc)-tspongeloc(i,j-1,k,itrc)
-     &                                                           )
-# ifdef MASKING
-     &                                                   *vmask(i,j)
-# endif
-          enddo
-        enddo
-!
-!  Add in horizontal diffusion of tracer [T m^3/s].
-!  Multiply by mixing coefficient.
-!
-        do j=Jstr,Jend
-          do i=Istr,Iend
-            cff1=pm(i,j)*pn(i,j)
-            t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+dt*cff1
-     &                        *(FX(i+1,j)-FX(i,j)+FE(i,j+1)-FE(i,j))
-     &                                                    /Hz(i,j,k)
-# ifdef DIAGNOSTICS_TS
-            THmix(i,j,k,itrc)=FX(i+1,j)-FX(i,j)
-     &                       +FE(i,j+1)-FE(i,j)
-     &                       +(FC(i,j,k2)-FC(i,j,k1))/cff1
-#  ifdef MASKING
-     &              * rmask(i,j)
-#  endif
-            Trate(i,j,k,itrc)=(Hz(i,j,k)*t(i,j,k,nnew,itrc)
-     &                        -Hz_bak(i,j,k)*t(i,j,k,nstp,itrc))
-     &                                                 /(dt*cff1)
-#  ifdef MASKING
-     &              * rmask(i,j)
-#  endif
-!
-!  Divide all diagnostic terms by the cell volume
-!  (Hz(i,j,k,itrc)/(pm(i,j).*pn(i,j)). There after the unit
-!  of diag terms are: (unit of tracers)* s-1.
-!
-            THmix(i,j,k,itrc)=THmix(i,j,k,itrc)*cff1/Hz(i,j,k)
-            Trate(i,j,k,itrc)=Trate(i,j,k,itrc)*cff1/Hz(i,j,k)
-# endif     
-          enddo
-        enddo
-      enddo
-
-# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
-        call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
-     &                          t(START_2D_ARRAY,1,nnew,itrc))
-# endif
-      enddo
 
       return
       end

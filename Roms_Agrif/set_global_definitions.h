@@ -55,13 +55,15 @@
 # define VIS_COEF_3D
 #endif
 
-# if defined M3CLIMATOLOGY && !defined AGRIF\
-     && !defined UV_SPLIT_UP3 && !defined VIS_SMAGO
-#  define CLIMAT_UV_MIXH
-# endif
 
-/*
-    Select MOMENTUM VERTICAL advection scheme:
+!# if defined M3CLIMATOLOGY  && !defined UV_SPLIT_UP3\
+!      && !defined VIS_SMAGO
+!#  define CLIMAT_UV_MIXH
+!# endif
+
+
+/*    
+Select MOMENTUM VERTICAL advection scheme:
 */
 #define VADV_SPLINES_UV   /* splines vertical advection */
 #undef  VADV_C2_UV        /* 2nd-order centered vertical advection */
@@ -74,7 +76,6 @@
 #ifdef TS_SPLIT_UP3       /*     Split 3rd-order scheme into      */
 # undef  HADV_UPSTREAM_TS /*       4th order centered             */
 # undef  TS_DIF2          /*        + hyperdiffusion              */
-# undef  CLIMAT_TS_MIXH
 # define TS_DIF4
 # define DIF_COEF_3D 
 #endif
@@ -83,10 +84,17 @@
 #endif
 #undef   HADV_AKIMA_TS    /* 4th-order Akima horiz. advection */
 
-# if defined TCLIMATOLOGY && !defined AGRIF\
-       	&& !defined TS_SPLIT_UP3 && !defined DIF_SMAGO
-#  define CLIMAT_TS_MIXH
-# endif
+!# if defined TCLIMATOLOGY && !defined TS_SPLIT_UP3 && !defined DIF_SMAGO
+!#  define CLIMAT_TS_MIXH
+!# endif
+
+/* 
+   Apply diffusion in the interior
+   over an anomaly only, with respect 
+   to a reference frame (climatology)
+*/
+#undef CLIMAT_TS_MIXH
+#undef CLIMAT_UV_MIXH
 
 /*
     Select model dynamics for TRACER vertical advection
@@ -95,6 +103,15 @@
 #undef   VADV_SPLINES_TS   /* splines vertical advection */
 #define  VADV_AKIMA_TS     /* 4th-order Akima vertical advection */
 #undef   VADV_C2_TS        /* 2nd-order centered vertical advection */
+
+/*
+    Sponge behavior
+    (Default is laplacien diffusion on field-field_clm)
+*/
+#if defined SPONGE
+# define SPONGE_DIF2
+# define SPONGE_VIS2
+#endif
 
 /*
     Constant tracer option

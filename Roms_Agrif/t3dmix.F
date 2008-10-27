@@ -90,8 +90,13 @@
 #  endif
 # endif
 
-       return
-       end
+!       return
+!       end
+!---------------------------------------------------------
+!gc
+!remove return end because include of xx.F at the end of 
+!t3dmix_EN.F etc that already have return end
+!---------------------------------------------------------
 
 #else
       subroutine t3dmix_empty
