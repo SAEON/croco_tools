@@ -4,8 +4,10 @@
 !
 ! This is "work.h": declaration of utility work array.
 !
+#ifdef SOLVE3D
       real work(GLOBAL_2D_ARRAY,0:N)
       common /work3d/ work
+#endif
 
       real work2d(GLOBAL_2D_ARRAY)
       common /work2d/ work2d

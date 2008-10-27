@@ -298,6 +298,7 @@
       parameter (indxShflx_rsw=indxSST+11, indxShflx_rlw=indxSST+12,
      &           indxShflx_lat=indxSST+13, indxShflx_sen=indxSST+14)
 # endif
+#endif /* SOLVE3D */
       integer indxWstr
       parameter (indxWstr=indxSUSTR+21)
       integer indxUWstr
@@ -306,6 +307,7 @@
       parameter (indxVWstr=indxSUSTR+23)
       integer indxBostr
       parameter (indxBostr=indxSUSTR+24)
+#ifdef SOLVE3D
 # ifdef SEDIMENT
       integer indxSed, indxBTHK, indxBPOR, indxBFRA
       parameter (indxSed=indxSUSTR+25,

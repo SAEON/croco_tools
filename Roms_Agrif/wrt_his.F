@@ -31,8 +31,8 @@
 #  ifdef SEDIMENT
      &      , indxWrk
 #  endif
-# include "work.h"
 #endif
+#include "work.h"
 #include "netcdf.inc"
 
 #if defined MPI & !defined PARALLEL_FILES
