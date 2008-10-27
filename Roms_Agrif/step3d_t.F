@@ -540,6 +540,7 @@
 # endif
               enddo
             enddo
+# ifdef SALINITY 
           elseif (itrc.eq.isalt) then
             do k=1,N-1
               do i=Istr,Iend
@@ -551,8 +552,13 @@
 # endif
               enddo
             enddo
+# endif
           endif
+# ifdef SALINITY 
           if (itrc.eq.itemp .or. itrc.eq.isalt) then
+# else
+          if (itrc.eq.itemp) then
+# endif
             do k=1,N
               do i=Istr,Iend
                 t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+FC(i,k )
