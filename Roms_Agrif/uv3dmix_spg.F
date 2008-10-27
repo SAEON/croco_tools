@@ -1,6 +1,6 @@
 !
 #include "cppdefs.h"
-# if defined SOLVE3D && defined SPONGE_VIS2 && !defined UV_VIS2
+#if defined SOLVE3D && defined SPONGE_VIS2 && !defined UV_VIS2
 !
 # define MIX_S_UV_SPG
 !
@@ -8,15 +8,15 @@
 #  define CLIMAT_UV_SPONGE
 # endif
 !
-#ifndef CHILD_SPG
+# ifndef CHILD_SPG
       subroutine uv3dmix_spg (tile)
       implicit none
       integer tile, trd, omp_get_thread_num
-# include "param.h"
-# include "private_scratch.h"
-# include "compute_tile_bounds.h"
+#  include "param.h"
+#  include "private_scratch.h"
+#  include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
-#ifdef AGRIF 
+#  ifdef AGRIF 
       if (AGRIF_Root()) then
       call uv3dmix_spg_tile (Istr,Iend,Jstr,Jend, 
      &                        A2d(1,1,trd), A2d(1,2,trd),
@@ -40,7 +40,7 @@
        endif
       return
       end
-#else
+#  else   /* AGRIF */
       call uv3dmix_spg_tile (Istr,Iend,Jstr,Jend, 
      &                        A2d(1,1,trd), A2d(1,2,trd),
      &                        A2d(1,3,trd), A2d(1,4,trd),   
@@ -52,7 +52,7 @@
      &                        A2d(1,25,trd), A2d(1,27,trd))
        return
        end
-#endif   /* AGRIF */
+#  endif   /* AGRIF */
 
 !
 !---------------------------------------------------------------------
@@ -67,11 +67,13 @@
      &                             dUdz,    dnVdx,   dmVde,  dVdz,
      &                             dZdx_r,  dZdx_p,  dZde_r, dZde_p)
 
-#undef CLIMAT_UV_SPONGE_FINE
+#  undef CLIMAT_UV_SPONGE_FINE
 
 ! Compute laplacien diffusion in the parent sponge. 
 ! Diffusion applied on T-TCLM if CLIMAT_UV_SPONGE_FINE
-#else
+
+# else /* CHILD_SPG */
+
 !
 ! CHILD
 !
@@ -84,12 +86,12 @@
 ! Compute laplacien diffusion in the child sponge using 
 ! t3dmix_fine.F. Diffusion applied on T-TCLM CLIMAT_UV_SPONGE_FINE
 
+#  define CLIMAT_UV_SPONGE_FINE
 
-#define CLIMAT_UV_SPONGE_FINE
-! on force  si agrif + child
-
+! Compute laplacien diffusion in the child sponge. 
+! Apply a sponge  agrif + child
         
-#endif /* CHILD_SPG */
+# endif /* CHILD_SPG */
 !
 !---------------------------------------------------------------------
 ! ******************************Common Code***************************
@@ -164,17 +166,17 @@
 #  define SWITCH !
 # endif
 
-#ifdef AGRIF
-#include "zoom.h"
-#endif
+# ifdef AGRIF
+#  include "zoom.h"
+# endif
 
-#ifdef CHILD_SPG
-#define UCLM usponge
-#define VCLM vsponge
-#else
-#define UCLM uclm
-#define VCLM vclm
-#endif
+# ifdef CHILD_SPG
+#  define UCLM usponge
+#  define VCLM vsponge
+# else
+#  define UCLM uclm
+#  define VCLM vclm
+# endif
 
       indx=3-nstp    !--> time index for target arrays;
 !
@@ -607,15 +609,13 @@
       return
       end
 
- 
-#ifndef CHILD_SPG
-# define CHILD_SPG
-# ifdef AGRIF
-#  include "uv3dmix_spg.F"
-# endif
-# undef CHILD_SPG
-#endif  /* !CHILD_SPG */
-
+# ifndef CHILD_SPG
+#  define CHILD_SPG
+#  ifdef AGRIF
+#   include "uv3dmix_spg.F"
+#  endif
+#  undef CHILD_SPG
+# endif  /* !CHILD_SPG */
 
 #else
       subroutine uv3dmix_spg_empty

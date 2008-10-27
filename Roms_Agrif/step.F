@@ -321,6 +321,7 @@ C$OMP BARRIER
       endif
 #   endif
         call uv3dmix (tile)
+# else
 #  if defined SPONGE_VIS2
         call uv3dmix_spg (tile)
 #  endif
