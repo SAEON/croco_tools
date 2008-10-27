@@ -112,12 +112,6 @@
 !
 # include "compute_auxiliary_bounds.h"
 !
-# ifdef MASKING
-#  define SWITCH *
-# else
-#  define SWITCH !
-# endif
-!
 #ifdef AGRIF
 #include "zoom.h"
 #endif
@@ -231,8 +225,10 @@
      &           (pm_u(i,j  )*u(i,j  ,k,nstp)-
      &            pm_u(i,j-1)*u(i,j-1,k,nstp))
 # endif
-     &                               SWITCH pmask(i,j)
-!!gc
+#    ifdef MASKING
+     &                               * pmask(i,j)
+#    endif
+
             UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
             VFx(i,j)=on_p(i,j)*on_p(i,j)*cff
           enddo
@@ -402,7 +398,9 @@
      &           pnom_p(i,j)*
      &           (pm_u(i,j  )*LapU(i,j  )-
      &            pm_u(i,j-1)*LapU(i,j-1)))
-     &                             SWITCH pmask(i,j)
+#    ifdef MASKING
+     &                             * pmask(i,j)
+#    endif
 
             UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
             VFx(i,j)=on_p(i,j)*on_p(i,j)*cff

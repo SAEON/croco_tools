@@ -129,12 +129,6 @@
 !
 # include "compute_auxiliary_bounds.h"
 !
-# ifdef MASKING
-#  define SWITCH *
-# else
-#  define SWITCH !
-# endif
-!
 #ifdef AGRIF
 #include "zoom.h"
 #endif
@@ -175,13 +169,17 @@
           do j=Jstr-1,Jend+1
             do i=IstrU-1,Iend+1
               UFx(i,j)=(z_r(i,j,k+1)-z_r(i-1,j,k+1))*pm_u(i,j)
-     &                                       SWITCH umask(i,j)
+#    ifdef MASKING
+     &                                       * umask(i,j)
+#    endif
             enddo
           enddo
           do j=JstrV-1,Jend+1
             do i=Istr-1,Iend+1
               VFe(i,j)=(z_r(i,j,k+1)-z_r(i,j-1,k+1))*pn_v(i,j)
-     &                                       SWITCH vmask(i,j)
+#    ifdef MASKING
+     &                                       * vmask(i,j)
+#    endif
             enddo
           enddo
           do j=JstrV-1,Jend
@@ -194,7 +192,9 @@
      &              (pn_u(i+1,j)*u(i+1,j,k+1,nstp)
      &              -pn_u(i  ,j)*u(i  ,j,k+1,nstp))
 #  endif
-     &                                       SWITCH rmask(i,j)
+#    ifdef MASKING
+     &                                       * rmask(i,j)
+#    endif
               dmVde(i,j,k2)=pn(i,j)*
 #  if defined CLIMAT_UV_MIXH
      &        ( pm_v(i,j+1)*(v(i,j+1,k+1,nstp)-VCLM(i,j+1,k+1))
@@ -203,7 +203,9 @@
      &              (pm_v(i,j+1)*v(i,j+1,k+1,nstp)
      &              -pm_v(i,j  )*v(i,j  ,k+1,nstp))
 #  endif
-     &                                       SWITCH rmask(i,j)
+#    ifdef MASKING
+     &                                       * rmask(i,j)
+#    endif
               dZdx_r(i,j,k2)=0.5*(UFx(i,j)+UFx(i+1,j))
               dZde_r(i,j,k2)=0.5*(VFe(i,j)+VFe(i,j+1))
             enddo
@@ -219,7 +221,9 @@
      &             *(pm_u(i,j  )*u(i,j  ,k+1,nstp)
      &              -pm_u(i,j-1)*u(i,j-1,k+1,nstp))
 #  endif
-     &                                          SWITCH pmask(i,j)
+#    ifdef MASKING
+     &                                          * pmask(i,j)
+#    endif
               dnVdx(i,j,k2)=0.25*(pm(i,j)+pm(i-1,j)+pm(i,j-1)
      &                                            +pm(i-1,j-1))
 #  if defined CLIMAT_UV_MIXH
@@ -229,7 +233,9 @@
      &             *(pn_v(i  ,j)*v(i  ,j,k+1,nstp)
      &              -pn_v(i-1,j)*v(i-1,j,k+1,nstp))
 #  endif
-     &                                       SWITCH pmask(i,j)
+#    ifdef MASKING
+     &                                       * pmask(i,j)
+#    endif
               dZde_p(i,j,k2)=0.5*(VFe(i-1,j)+VFe(i,j))
               dZdx_p(i,j,k2)=0.5*(UFx(i,j-1)+UFx(i,j))
             enddo
@@ -295,7 +301,9 @@
      &           min(dZde_r(i,j,k1),0.)*(dVdz(i,j,k1)+dVdz(i,j+1,k2))
      &          +max(dZde_r(i,j,k1),0.)*(dVdz(i,j,k2)+dVdz(i,j+1,k1))
      &                                                            )))
-     &                                              SWITCH rmask(i,j)
+#    ifdef MASKING
+     &                                              * rmask(i,j)
+#    endif
               UFx(i,j)=om_r(i,j)*om_r(i,j)*cff
               VFe(i,j)=om_r(i,j)*om_r(i,j)*cff
             enddo
@@ -318,7 +326,9 @@
      &        *( min(dZde_p(i,j,k1),0.)*(dUdz(i,j-1,k1)+dUdz(i,j,k2))
      &          +max(dZde_p(i,j,k1),0.)*(dUdz(i,j-1,k2)+dUdz(i,j,k1))
      &                                                            )))
-     &                                              SWITCH pmask(i,j)
+#    ifdef MASKING
+     &                                              * pmask(i,j)
+#    endif
               UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
               VFx(i,j)=om_p(i,j)*om_p(i,j)*cff
             enddo

@@ -100,12 +100,6 @@
 !
 # include "compute_auxiliary_bounds.h"
 !
-# ifdef MASKING
-#  define SWITCH *
-# else
-#  define SWITCH !
-# endif
-
 #ifdef AGRIF
 #include "zoom.h"
 #endif
@@ -133,7 +127,10 @@
 # if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE 
      &                   -TCLM(i,j,k,itrc)+TCLM(i-1,j,k,itrc)
 # endif
-     &                                    ) SWITCH umask(i,j)
+     &                                                   )
+#    ifdef MASKING
+     &                                         * umask(i,j)
+#    endif
           enddo
         enddo
         do j=Jstr,Jend+1
@@ -144,7 +141,10 @@
 # if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE 
      &                    -TCLM(i,j,k,itrc)+TCLM(i,j-1,k,itrc)
 # endif
-     &                                     ) SWITCH vmask(i,j)
+     &                                                   ) 
+#    ifdef MASKING
+     &                                       * vmask(i,j)
+#    endif
           enddo
         enddo
 !
@@ -176,26 +176,32 @@
         if (k.lt.N) then
           do j=Jstr,Jend
             do i=Istr,Iend+1
-              cff=0.5*(pm(i,j)+pm(i-1,j)) SWITCH umask(i,j)
+              cff=0.5*(pm(i,j)+pm(i-1,j)) 
+#    ifdef MASKING
+     &                                 * umask(i,j)
+#    endif
               dZdx(i,j,k2)=cff*(z_r(i,j,k+1) -z_r(i-1,j,k+1))
               dTdx(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)
      &                               -t(i-1,j,k+1,nrhs,itrc)
 # if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE
      &               -TCLM(i,j,k+1,itrc)+TCLM(i-1,j,k+1,itrc)
 #  endif
-     &                                                      )
+     &                                                  )
             enddo
           enddo
           do j=Jstr,Jend+1
             do i=Istr,Iend
-              cff=0.5*(pn(i,j)+pn(i,j-1)) SWITCH vmask(i,j)
+              cff=0.5*(pn(i,j)+pn(i,j-1)) 
+#    ifdef MASKING
+     &                                  * vmask(i,j)
+#    endif
               dZde(i,j,k2)=cff*(z_r(i,j,k+1) -z_r(i,j-1,k+1))
               dTde(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)
      &                               -t(i,j-1,k+1,nrhs,itrc)
 # if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE
      &               -TCLM(i,j,k+1,itrc)+TCLM(i,j-1,k+1,itrc)
 #  endif
-     &                                                      )
+     &                                                  )
             enddo
           enddo
         endif
@@ -299,12 +305,16 @@
 # ifndef MIX_S_TS
      &                       +(FC(i,j,k2)-FC(i,j,k1))/cff1
 # endif
-     &                                   SWITCH rmask(i,j)
+#    ifdef MASKING
+     &                                   * rmask(i,j)
+#    endif
 
             Trate(i,j,k,itrc)=(Hz(i,j,k)*t(i,j,k,nnew,itrc)
      &                    -Hz_bak(i,j,k)*t(i,j,k,nstp,itrc))
      &                                            /(dt*cff1)
-     &                                   SWITCH rmask(i,j)
+#    ifdef MASKING
+     &                                   * rmask(i,j)
+#    endif
 !
 ! Divide all diagnostic terms by the cell volume
 ! (Hz(i,j,k,itrc)/(pm(i,j).*pn(i,j)). There after the unit

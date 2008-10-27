@@ -81,11 +81,6 @@
 !
 #include "compute_auxiliary_bounds.h"
 !
-#ifdef MASKING
-# define SWITCH *
-#else
-# define SWITCH !
-#endif
 #ifdef SPLIT_EOS
 # define rho rho1
 #endif
@@ -120,7 +115,10 @@ c-#define MIN_STRAT  0.1
         if (k.lt.N) then
           do j=jstr,jend
             do i=istr,iend+1
-              cff=0.5*(pm(i,j)+pm(i-1,j)) SWITCH umask(i,j)
+              cff=0.5*(pm(i,j)+pm(i-1,j)) 
+#    ifdef MASKING
+     &                        * umask(i,j)
+#    endif
               dRdx(i,j,k2)=cff*(rho(i,j,k+1) -rho(i-1,j,k+1))
               dTdx(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)
      &                               -t(i-1,j,k+1,nrhs,itrc)
@@ -132,7 +130,11 @@ c-#define MIN_STRAT  0.1
           enddo
           do j=jstr,jend+1
             do i=istr,iend
-              cff=0.5*(pn(i,j)+pn(i,j-1)) SWITCH vmask(i,j)
+              cff=0.5*(pn(i,j)+pn(i,j-1)) 
+#    ifdef MASKING
+     &                       * vmask(i,j)
+#    endif
+
               dRde(i,j,k2)=cff*(rho(i,j,k+1) -rho(i,j-1,k+1))
               dTde(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)
      &                               -t(i,j-1,k+1,nrhs,itrc)
@@ -308,7 +310,10 @@ c-#define MIN_STRAT  0.1
         if (k.lt.N) then
           do j=J_EXT_RANGE
             do i=I_EXT_RANGE+1
-              cff=0.5*(pm(i,j)+pm(i-1,j)) SWITCH umask(i,j)
+              cff=0.5*(pm(i,j)+pm(i-1,j)) 
+#    ifdef MASKING
+     &                            * umask(i,j)
+#    endif
               dRdx(i,j,k2)=cff*(rho(i,j,k+1)-rho(i-1,j,k+1))
               dTdx(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)-
      &                               t(i-1,j,k+1,nrhs,itrc)
@@ -320,7 +325,10 @@ c-#define MIN_STRAT  0.1
           enddo
           do j=J_EXT_RANGE+1
             do i=I_EXT_RANGE
-              cff=0.5*(pn(i,j)+pn(i,j-1)) SWITCH vmask(i,j)
+              cff=0.5*(pn(i,j)+pn(i,j-1)) 
+#    ifdef MASKING
+     &                            * vmask(i,j)
+#    endif
               dRde(i,j,k2)=cff*(rho(i,j,k+1)-rho(i,j-1,k+1))
               dTde(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)-
      &                               t(i,j-1,k+1,nrhs,itrc)
@@ -493,14 +501,20 @@ c-#define MIN_STRAT  0.1
         if (k.lt.N) then
           do j=jstr,jend
             do i=istr,iend+1
-              cff=0.5*(pm(i,j)+pm(i-1,j)) SWITCH umask(i,j)
+              cff=0.5*(pm(i,j)+pm(i-1,j)) 
+#    ifdef MASKING
+     &                                    * umask(i,j)
+#    endif
               dRdx(i,j,k2)=cff*(rho(i,j,k+1) -rho(i-1,j,k+1))
               dTdx(i,j,k2)=cff*(LapT(i,j,k+1)-LapT(i-1,j,k+1))
             enddo
           enddo
           do j=jstr,jend+1
             do i=istr,iend
-              cff=0.5*(pn(i,j)+pn(i,j-1)) SWITCH vmask(i,j)
+              cff=0.5*(pn(i,j)+pn(i,j-1)) 
+#    ifdef MASKING
+     &                                      * vmask(i,j)
+#    endif
               dRde(i,j,k2)=cff*(rho(i,j,k+1) -rho(i,j-1,k+1))
               dTde(i,j,k2)=cff*(LapT(i,j,k+1)-LapT(i,j-1,k+1))
             enddo

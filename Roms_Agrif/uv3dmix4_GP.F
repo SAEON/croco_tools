@@ -135,12 +135,6 @@
 !
 # include "compute_auxiliary_bounds.h"
 !
-# ifdef MASKING
-#  define SWITCH *
-# else
-#  define SWITCH !
-# endif
-!
 #ifdef AGRIF
 #include "zoom.h"
 #endif
@@ -223,13 +217,17 @@
           do j=jmin-1,jmax+1
             do i=iminU-1,imax+1
               UFx(i,j)=pm_u(i,j)*dz_u(i,j,k+1)
-     &                                     SWITCH umask(i,j)
+#    ifdef MASKING
+     &                                     * umask(i,j)
+#    endif
             enddo
           enddo
           do j=jminV-1,jmax+1
             do i=imin-1,imax+1
               VFe(i,j)=pn_v(i,j)*dz_v(i,j,k+1)
-     &                                     SWITCH vmask(i,j)
+#    ifdef MASKING
+     &                                     * vmask(i,j)
+#    endif
             enddo
           enddo
 !
@@ -240,11 +238,15 @@
               dnUdx(i,j,k2)=pm(i,j)*
      &                      (pn_u(i+1,j)*u(i+1,j,k+1,nstp)-
      &                       pn_u(i  ,j)*u(i  ,j,k+1,nstp))
-     &                                     SWITCH rmask(i,j)
+#    ifdef MASKING
+     &                                     * rmask(i,j)
+#    endif
               dmVde(i,j,k2)=pn(i,j)*
      &                      (pm_v(i,j+1)*v(i,j+1,k+1,nstp)-
      &                       pm_v(i,j  )*v(i,j  ,k+1,nstp))
-     &                                     SWITCH rmask(i,j)
+#    ifdef MASKING
+     &                                     * rmask(i,j)
+#    endif
               dZdx_r(i,j,k2)=0.5*(UFx(i,j)+UFx(i+1,j))
               dZde_r(i,j,k2)=0.5*(VFe(i,j)+VFe(i,j+1))
             enddo
@@ -255,12 +257,16 @@
      &                            pn(i-1,j-1)+pn(i,j-1))*
      &                      (pm_u(i,j  )*u(i,j  ,k+1,nstp)-
      &                       pm_u(i,j-1)*u(i,j-1,k+1,nstp))
-     &                                     SWITCH pmask(i,j)
+#    ifdef MASKING
+     &                                     * pmask(i,j)
+#    endif
               dnVdx(i,j,k2)=0.25*(pm(i-1,j  )+pm(i,j  )+
      &                            pm(i-1,j-1)+pm(i,j-1))*
      &                      (pn_v(i  ,j)*v(i  ,j,k+1,nstp)-
      &                       pn_v(i-1,j)*v(i-1,j,k+1,nstp))
-     &                                     SWITCH pmask(i,j)
+#    ifdef MASKING
+     &                                     * pmask(i,j)
+#    endif
               dZde_p(i,j,k2)=0.5*(VFe(i-1,j)+VFe(i,j))
               dZdx_p(i,j,k2)=0.5*(UFx(i,j-1)+UFx(i,j))
             enddo
@@ -310,7 +316,9 @@
      &                             (dVdz(i,j,k1)+dVdz(i,j+1,k2))+
      &                         MAX(dZde_r(i,j,k1),0.0)*
      &                             (dVdz(i,j,k2)+dVdz(i,j+1,k1)))))
-     &                                               SWITCH rmask(i,j)
+#    ifdef MASKING
+     &                                               * rmask(i,j)
+#    endif
               UFx(i,j)=on_r(i,j)*on_r(i,j)*cff
               VFe(i,j)=om_r(i,j)*om_r(i,j)*cff
             enddo
@@ -331,7 +339,9 @@
      &                             (dUdz(i,j-1,k1)+dUdz(i,j,k2))+
      &                         MAX(dZde_p(i,j,k1),0.0)*
      &                             (dUdz(i,j-1,k2)+dUdz(i,j,k1)))))
-     &                                              SWITH pmask(i,j)
+#    ifdef MASKING
+     &                                              * pmask(i,j)
+#    endif
               UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
               VFx(i,j)=on_p(i,j)*on_p(i,j)*cff
             enddo
@@ -465,7 +475,9 @@
      &                      pm_u(i,j)*(UFe(i,j+1)-UFe(i,j  )))+
      &                   (UFs(i,j,k2)-UFs(i,j,k1))/
      &                    (0.5*(Hz(i-1,j,k)+Hz(i,j,k)))
-     &                   SWITCH umask(i,j)
+#    ifdef MASKING
+     &                   * umask(i,j)
+#    endif
             enddo
           enddo
           do j=jminV,jmax
@@ -475,7 +487,9 @@
      &                      pm_v(i,j)*(VFe(i,j  )-VFe(i,j-1)))+
      &                   (VFs(i,j,k2)-VFs(i,j,k1))/
      &                     (0.5*(Hz(i,j-1,k)+Hz(i,j,k)))
-     &                   SWITCH vmask(i,j)
+#    ifdef MASKING
+     &                   * vmask(i,j)
+#    endif
             enddo
           enddo
 !
@@ -599,13 +613,17 @@
           do j=Jstr-1,Jend+1
             do i=IstrU-1,Iend+1
               UFx(i,j)=pm_u(i,j)*dz_u(i,j,k+1)
-     &                SWITCH umask(i,j)
+#    ifdef MASKING
+     &                * umask(i,j)
+#    endif
             enddo
           enddo
           do j=JstrV-1,Jend+1
             do i=Istr-1,Iend+1
               VFe(i,j)=pn_v(i,j)*dz_v(i,j,k+1)
-     &                SWITCH vmask(i,j)
+#    ifdef MASKING
+     &                * vmask(i,j)
+#    endif
             enddo
           enddo
 !
@@ -617,11 +635,15 @@
               dnUdx(i,j,k2)=pm(i,j)*
      &                      (pn_u(i+1,j)*LapU(i+1,j,k+1)-
      &                       pn_u(i  ,j)*LapU(i  ,j,k+1)) 
-     &                     SWITCH rmask(i,j)
+#    ifdef MASKING
+     &                     * rmask(i,j)
+#    endif
               dmVde(i,j,k2)=pn(i,j)*
      &                      (pm_v(i,j+1)*LapV(i,j+1,k+1)-
      &                       pm_v(i,j  )*LapV(i,j  ,k+1)) 
-     &                     SWITCH rmask(i,j)
+#    ifdef MASKING
+     &                     * rmask(i,j)
+#    endif
               dZdx_r(i,j,k2)=0.5*(UFx(i,j)+UFx(i+1,j))
               dZde_r(i,j,k2)=0.5*(VFe(i,j)+VFe(i,j+1))
 
@@ -633,12 +655,16 @@
      &                            pn(i-1,j-1)+pn(i,j-1))*
      &                      (pm_u(i,j  )*LapU(i,j  ,k+1)-
      &                       pm_u(i,j-1)*LapU(i,j-1,k+1))
-     &                     SWITCH pmask(i,j)
+#    ifdef MASKING
+     &                     * pmask(i,j)
+#    endif
               dnVdx(i,j,k2)=0.125*(pm(i-1,j  )+pm(i,j  )+
      &                             pm(i-1,j-1)+pm(i,j-1))*
      &                      (pn_v(i  ,j)*LapV(i  ,j,k+1)-
      &                       pn_v(i-1,j)*LapV(i-1,j,k+1))
-     &                     SWITCH pmask(i,j)
+#    ifdef MASKING
+     &                     * pmask(i,j)
+#    endif
               dZde_p(i,j,k2)=0.5*(VFe(i-1,j)+VFe(i,j))
               dZdx_p(i,j,k2)=0.5*(UFx(i,j-1)+UFx(i,j))
             enddo
@@ -691,7 +717,9 @@
      &                             (dVdz(i,j,k1)+dVdz(i,j+1,k2))+
      &                         MAX(dZde_r(i,j,k1),0.0)*
      &                             (dVdz(i,j,k2)+dVdz(i,j+1,k1)))))
-     &                   SWITCH rmask(i,j)
+#    ifdef MASKING
+     &                   * rmask(i,j)
+#    endif
 
               UFx(i,j)=on_r(i,j)*on_r(i,j)*cff
               VFe(i,j)=om_r(i,j)*om_r(i,j)*cff
@@ -727,7 +755,9 @@
      &                             (dUdz(i,j-1,k1)+dUdz(i,j,k2))+
      &                         MAX(dZde_p(i,j,k1),0.0)*
      &                             (dUdz(i,j-1,k2)+dUdz(i,j,k1)))))
-     &                  SWITCH pmask(i,j)
+#    ifdef MASKING
+     &                  * pmask(i,j)
+#    endif
             UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
             VFx(i,j)=on_p(i,j)*on_p(i,j)*cff
 # ifdef VIS_COEF_3D

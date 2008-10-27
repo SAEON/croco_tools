@@ -83,12 +83,6 @@
 #  include "diagnostics.h"
 # endif
 !
-# ifdef MASKING
-#  define SWITCH *
-# else
-#  define SWITCH !
-# endif
-!
 #ifdef AGRIF
 #include "zoom.h"
 #endif
@@ -118,7 +112,10 @@
         if (k.lt.N) then
           do j=jstr,jend
             do i=istr,iend+1
-              cff=0.5*(pm(i,j)+pm(i-1,j)) SWITCH umask(i,j)
+              cff=0.5*(pm(i,j)+pm(i-1,j)) 
+#    ifdef MASKING
+     &                                     * umask(i,j)
+#    endif
               dZdx(i,j,k2)=cff*(z_r(i,j,k+1) -z_r(i-1,j,k+1))
               dTdx(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)
      &                               -t(i-1,j,k+1,nrhs,itrc)
@@ -130,7 +127,10 @@
           enddo
           do j=jstr,jend+1
             do i=istr,iend
-              cff=0.5*(pn(i,j)+pn(i,j-1)) SWITCH vmask(i,j)
+              cff=0.5*(pn(i,j)+pn(i,j-1)) 
+#    ifdef MASKING
+     &                                       * vmask(i,j)
+#    endif
               dZde(i,j,k2)=cff*(z_r(i,j,k+1) -z_r(i,j-1,k+1))
               dTde(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)
      &                               -t(i,j-1,k+1,nrhs,itrc)
@@ -299,7 +299,10 @@
         if (k.lt.N) then
           do j=jmin,jmax
             do i=imin,imax+1
-              cff=0.5*(pm(i,j)+pm(i-1,j)) SWITCH umask(i,j)
+              cff=0.5*(pm(i,j)+pm(i-1,j)) 
+
+     &                                        * umask(i,j)
+
               dZdx(i,j,k2)=cff*(z_r(i,j,k+1)-z_r(i-1,j,k+1))
 !              dTdx(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)-
 !     &                                 t(i-1,j,k+1,nrhs,itrc)
@@ -315,7 +318,10 @@
           enddo
           do j=jmin,jmax+1
             do i=imin,imax
-              cff=0.5*(pn(i,j)+pn(i,j-1)) SWITCH vmask(i,j)
+              cff=0.5*(pn(i,j)+pn(i,j-1)) 
+#    ifdef MASKING
+      &                                         * vmask(i,j)
+#    endif
               dZde(i,j,k2)=cff*(z_r(i,j,k+1)-z_r(i,j-1,k+1))
 !              dTde(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)-
 !     &                                 t(i,j-1,k+1,nrhs,itrc)
@@ -471,14 +477,20 @@
         if (k.lt.N) then
           do j=jstr,jend
             do i=istr,iend+1
-              cff=0.5*(pm(i,j)+pm(i-1,j)) SWITCH umask(i,j)
+              cff=0.5*(pm(i,j)+pm(i-1,j)) 
+#    ifdef MASKING
+     &                                    * umask(i,j)
+#    endif
               dZdx(i,j,k2)=cff*(z_r(i,j,k+1) -z_r(i-1,j,k+1))
               dTdx(i,j,k2)=cff*(LapT(i,j,k+1)-LapT(i-1,j,k+1))
             enddo
           enddo
           do j=jstr,jend+1
             do i=istr,iend
-              cff=0.5*(pn(i,j)+pn(i,j-1)) SWITCH vmask(i,j)
+              cff=0.5*(pn(i,j)+pn(i,j-1)) 
+#    ifdef MASKING
+     &                                     * vmask(i,j)
+#    endif
               dZde(i,j,k2)=cff*(z_r(i,j,k+1) -z_r(i,j-1,k+1))
               dTde(i,j,k2)=cff*(LapT(i,j,k+1)-LapT(i,j-1,k+1))
             enddo

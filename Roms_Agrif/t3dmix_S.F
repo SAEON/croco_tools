@@ -67,12 +67,6 @@
 !
 #include "compute_auxiliary_bounds.h"
 !
-# ifdef MASKING
-#  define SWITCH *
-# else
-#  define SWITCH !
-# endif
-!
 #ifdef AGRIF
 #include "zoom.h"
 #endif
@@ -102,7 +96,10 @@
 #endif
      &                   *pmon_u(i,j)*(Hz(i,j,k)+Hz(i-1,j,k))*(
      &                     t(i,j,k,nrhs,itrc)-t(i-1,j,k,nrhs,itrc)
-     &                                              ) SWITCH umask(i,j)
+     &                                              ) 
+#    ifdef MASKING
+     &                                            * umask(i,j)
+#    endif
           enddo
         enddo
         do j=jstr,jend+1
@@ -114,7 +111,10 @@
 # endif
      &                     *pnom_v(i,j)*(Hz(i,j,k)+Hz(i,j-1,k))*(
      &                      t(i,j,k,nrhs,itrc)-t(i,j-1,k,nrhs,itrc)
-     &                                              ) SWITCH vmask(i,j)
+     &                                              ) 
+#    ifdef MASKING
+     &                                              * vmask(i,j)
+#    endif
           enddo
         enddo
 !
@@ -130,7 +130,6 @@
         enddo
 
 #endif /* TS_DIF2 */
-
 
 #ifdef TS_DIF4
 !
@@ -182,7 +181,10 @@
 # if defined CLIMAT_TS_MIXH
      &                          -TCLM(i,j,k,itrc)+TCLM(i-1,j,k,itrc)
 # endif
-     &                                              ) SWITCH umask(i,j)
+     &                                              ) 
+#    ifdef MASKING
+     &                                             * umask(i,j)
+#    endif
           enddo
         enddo
 !
@@ -195,7 +197,10 @@
 # if defined CLIMAT_TS_MIXH
      &                          -TCLM(i,j,k,itrc)+TCLM(i,j-1,k,itrc)
 # endif
-     &                                              ) SWITCH vmask(i,j)
+     &                                              ) 
+#    ifdef MASKING
+     &                                              * vmask(i,j)
+#    endif
           enddo
         enddo
 !
@@ -271,7 +276,9 @@
 # endif
      &                     *pmon_u(i,j)*(Hz(i,j,k)+Hz(i-1,j,k))
      &                                 *(LapT(i,j)-LapT(i-1,j)) 
-     &                                              SWITCH umask(i,j)
+#    ifdef MASKING
+     &                                        * umask(i,j)
+#    endif
           enddo
         enddo
         do j=jstr,jend+1
@@ -287,7 +294,9 @@
 # endif
      &                     *pnom_v(i,j)*(Hz(i,j,k)+Hz(i,j-1,k))
      &                                 *(LapT(i,j)-LapT(i,j-1))
-     &                                             SWITCH vmask(i,j)
+#    ifdef MASKING
+     &                                         * vmask(i,j)
+#    endif
           enddo
         enddo
 !
