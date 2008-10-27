@@ -23,7 +23,6 @@
 # ifdef TS_DIF2
       real diff2(GLOBAL_2D_ARRAY,NT)
       common /mixing_diff2/diff2
-      common /mixing_diff2_spg/diff2_sponge
 # endif
 # ifdef SPONGE_DIF2
       real diff2_sponge(GLOBAL_2D_ARRAY)
