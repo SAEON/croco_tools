@@ -315,13 +315,12 @@ C$OMP BARRIER
         call pre_step3d (tile)
 
 # if defined UV_VIS2 || defined UV_VIS4
-#   if defined AGRIF
+#  if defined AGRIF
       if (.Not.Agrif_Root()) then
          call uv3dmix_fine (tile)
       endif
-#   endif
+#  endif
         call uv3dmix (tile)
-# else
 #  if defined SPONGE_VIS2
         call uv3dmix_spg (tile)
 #  endif
