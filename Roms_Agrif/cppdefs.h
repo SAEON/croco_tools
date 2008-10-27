@@ -33,13 +33,13 @@
 !
 */
                       /* Configuration Namea */
-# define PERU
+# define BENGUELA_LR
                       /* Parallelization */
 # undef  OPENMP
 # undef  MPI
-                      /* Nesting */
-# undef  AGRIF
-# undef  AGRIF_2WAY
+    
+# undef AGRIF       /* Nesting */
+# undef AGRIF_2WAY
                       /* Open Boundary Conditions */
 # undef  TIDES
 # define OBC_EAST
@@ -78,9 +78,12 @@
 !
                       /* Lateral Momentum Mixing */
 # define UV_VIS2
-# define MIX_GP_UV
-# undef  UV_SPLIT_UP3
+# define MIX_S_UV
+# undef UV_SPLIT_UP3
 # undef  VIS_SMAGO
+!
+!
+!
                       /* Lateral Tracer Mixing */
 # define MIX_GP_TS
 !-------------------------------------------------------------
@@ -91,8 +94,8 @@
 ! or  MIX_S_TS : along sigma surface       
 ! or  MIX_EN_TS : along isopyncnal surface  
 !--------------------------------------------------------------
-# define TS_DIF2
-# undef TS_SPLIT_UP3
+# undef TS_DIF2
+# define TS_SPLIT_UP3
 # ifdef TS_SPLIT_UP3
 #  undef TS_DIF2
 # endif 
@@ -126,12 +129,12 @@
 # define SFLX_CORR
 # define DIURNAL_SRFLUX
 
-# undef  BULK_FLUX
+# define BULK_FLUX
 # ifdef BULK_FLUX
-# define LW_ONLINE
+# undef LW_ONLINE
 #  define BULK_EP
 #  undef BULK_SMFLUX
-#  define  DIURNAL_SRFLUX
+#  undef  DIURNAL_SRFLUX
 # endif
 # ifdef BULK_EP
 #  undef  QCORRECTION
@@ -190,11 +193,9 @@
                       /* Input/Output & Diagnostics */
 # define AVERAGES
 # define AVERAGES_K
-# undef  DIAGNOSTICS_TS
-# ifdef DIAGNOSTICS_TS
+# undef DIAGNOSTICS_TS
 # undef DIAGNOSTICS_TS_ADV
 # undef DIAGNOSTICS_TS_MLD
-# endif
 # undef  DIAGNOSTICS_UV
 /*
 !           Applications:

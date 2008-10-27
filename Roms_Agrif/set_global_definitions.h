@@ -55,12 +55,10 @@
 # define VIS_COEF_3D
 #endif
 
-
 !# if defined M3CLIMATOLOGY  && !defined UV_SPLIT_UP3\
 !      && !defined VIS_SMAGO
 !#  define CLIMAT_UV_MIXH
 !# endif
-
 
 /*    
 Select MOMENTUM VERTICAL advection scheme:
@@ -106,7 +104,7 @@ Select MOMENTUM VERTICAL advection scheme:
 
 /*
     Sponge behavior
-    (Default is laplacien diffusion on field-field_clm)
+    (Default is laplacien diffusion on field-climatology)
 */
 #if defined SPONGE
 # define SPONGE_DIF2

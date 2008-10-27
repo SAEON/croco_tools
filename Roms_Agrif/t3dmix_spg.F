@@ -52,7 +52,7 @@
 # undef CLIMAT_TS_SPONGE_FINE
 !
 !
-! Compute laplacien diffusion in the parent sponge
+! Compute laplacien diffusion in the parent grid sponge
 ! Diffusion applied on T-TCLM
 !
 #else
@@ -68,7 +68,7 @@
 # if !defined TS_SPLIT_UP3 
 #  define CLIMAT_TS_SPONGE_FINE
 # endif
-! on force CLIMAT_TS_MIXH si agrif + child + no TS_SPLIT_UP3
+! define CLIMAT_TS_MIXH if AGRIF + CHILD GRID and undef TS_SPLIT_UP3
 
       
 #endif /* CHILD_SPG */
