@@ -38,7 +38,7 @@ romstools_param
 %
 % Directory and file names
 %
-directory=[RUN_dir,'SCRATCH/'];
+directory=[RUN_dir,'SCRATCH_SPLITUP_NOSMAGO/'];
 model='roms';
 nonseannal=0; % 1:  non-seasonnal variance 
 %

@@ -30,17 +30,17 @@
 %                                             variables)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-clear all
-close all
+%clear all
+%close all
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
 %
 romstools_param
 %
 % Directory and file names
 %
-directory=[RUN_dir,'SCRATCH/'];
+directory=[RUN_dir,'/SCRATCH_SPLITUP_NOSMAGO/'];
 model='roms';
-Ymin=6;
+Ymin=4;
 Ymax=10;
 Mmin=1;
 Mmax=12;
