@@ -29,15 +29,15 @@
 %  Updated    24-Oct-2006 by Pierrick Penven (Generalization to all tracers)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%clear all
-%close all
+clear all
+close all
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
 %
 romstools_param
 %
 % Directory and file names
 %
-directory=[RUN_dir,'/SCRATCH_SPLITUP_NOSMAGO/'];
+directory=[RUN_dir,'SCRATCH/'];
 model='roms';
 filetype='avg';  % 'his' or 'avg'
 Ymin=1;

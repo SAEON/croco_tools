@@ -42,11 +42,11 @@ romstools_param
 %    salt_month_data : monthly salinity climatology
 %    salt_ann_data   : annual salinity climatology
 %
-temp_month_data  = '../WOA2005/temp_month.cdf';
-temp_ann_data    = '../WOA2005/temp_ann.cdf';
+temp_month_data  = '../WOA2001/temp_month.cdf';
+temp_ann_data    = '../WOA2001/temp_ann.cdf';
 insitu2pot       = 1;   %1: transform in-situ temperature to potential temperature
-salt_month_data  = '../WOA2005/salt_month.cdf';
-salt_ann_data    = '../WOA2005/salt_ann.cdf';
+salt_month_data  = '../WOA2001/salt_month.cdf';
+salt_ann_data    = '../WOA2001/salt_ann.cdf';
 %
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%

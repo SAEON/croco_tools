@@ -502,9 +502,9 @@
 !
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
         call exchange_u3d_tile (Istr,Iend,Jstr,Jend,
-     &                          u(START_2D_ARRAY,1,nnew))
+     &                          u(START_2D_ARRAY,1,nnew,itrc))
         call exchange_v3d_tile (Istr,Iend,Jstr,Jend,
-     &                          v(START_2D_ARRAY,1,nnew))
+     &                          v(START_2D_ARRAY,1,nnew,itrc))
 # endif
 !
       return

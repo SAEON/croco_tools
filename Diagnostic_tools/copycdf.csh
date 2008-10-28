@@ -37,8 +37,6 @@ set outputfile = $2
 set newtype = "$3"
 echo $newtype
 #
-setenv PATH ${PATH}:/export/caparmor/netcdf_3.6.1/x86_64/bin
-#
 ncdump -v spherical,xl,el,h,f,pm,pn,lon_rho,lat_rho,angle,mask_rho $inputfile > tmp1.cdl
 #
 cat > msg << EOF
