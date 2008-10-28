@@ -176,13 +176,13 @@
         do i=Istr,IendR
 
 #   ifdef SPONGE_GRID
-          visc2_sponge_p=0.125*uscale*grdmax*
-     &                 ( wrk(i,j  )+wrk(i-1,j  )
-     &                 +wrk(i,j-1)+wrk(i-1,j-1) )
+          visc2_sponge_p(i,j)=0.125*uscale*grdmax*
+     &                       ( wrk(i,j  )+wrk(i-1,j  )
+     &                        +wrk(i,j-1)+wrk(i-1,j-1) )
 #   else
-          visc2_sponge_p=0.5*v_sponge*
-     &                 ( wrk(i,j  )+wrk(i-1,j  )
-     &                 +wrk(i,j-1)+wrk(i-1,j-1) )
+          visc2_sponge_p(i,j)=0.5*v_sponge*
+     &                      ( wrk(i,j  )+wrk(i-1,j  )
+     &                       +wrk(i,j-1)+wrk(i-1,j-1) )
 #   endif
 #  endif
 
