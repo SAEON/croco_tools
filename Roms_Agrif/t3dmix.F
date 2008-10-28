@@ -74,29 +74,6 @@
        enddo
 # endif /* DIAGNOSTICS_TS */
 
-!
-!==========================================================
-! Data exchange at the boundaries or interfaces
-!==========================================================
-!
-! If diffusion in sponge layers is performed in the separate 
-! sponge routine (t3dmix_spg) then message passing is 
-! performed there
-!
-# if !(defined SPONGE_DIF2 && !defined TS_DIF2)
-#  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
-        call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
-     &                          t(START_2D_ARRAY,1,nnew,itrc))
-#  endif
-# endif
-
-!       return
-!       end
-!---------------------------------------------------------
-!gc
-!remove return end because include of xx.F at the end of 
-!t3dmix_EN.F etc that already have return end
-!---------------------------------------------------------
 
 #else
       subroutine t3dmix_empty
