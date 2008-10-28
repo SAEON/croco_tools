@@ -143,9 +143,9 @@
       do j=JstrR,JendR
         do i=IstrR,IendR
 #   ifdef SPONGE_GRID
-          visc2_sponge_r(i,j)=5*uscale*grdmax/12.
+          visc2_sponge_r(i,j)=5*uscale*grdmax/12*wrk(i,j)
 #   else
-          visc2_sponge_r(i,j)=v_sponge
+          visc2_sponge_r(i,j)=v_sponge*wrk(i,j)
 #   endif
 !#   if defined UV_VIS2 || defined SPONGE_VIS2
 !          visc2_r(i,j)=visc2_sponge*wrk(i,j) + visc2_r(i,j)
@@ -161,11 +161,11 @@
       do j=Jstr,JendR
         do i=Istr,IendR
 #   ifdef SPONGE_GRID
-          visc2_sponge=5*uscale*grdmax/12*
+          visc2_sponge_p(i,j)=5*uscale*grdmax/12*
      &         0.5*( wrk(i,j  )+wrk(i-1,j  )
      &                 +wrk(i,j-1)+wrk(i-1,j-1) )
 #   else
-          visc2_sponge=0.5*v_sponge*
+          visc2_sponge_p(i,j)=0.5*v_sponge*
      &                 ( wrk(i,j  )+wrk(i-1,j  )
      &                 +wrk(i,j-1)+wrk(i-1,j-1) )
 #   endif
