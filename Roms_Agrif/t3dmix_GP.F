@@ -610,6 +610,11 @@
 
 # endif /* TS_DIF4 */
 !
+#  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+        call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
+     &                          t(START_2D_ARRAY,1,nnew,itrc))
+#  endif
+# endif
        return
       end
  
