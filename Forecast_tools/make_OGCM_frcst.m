@@ -28,6 +28,7 @@
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %  Updated    8-Sep-2006 by Pierrick Penven
+%  Updated    20-Aug-2008 by Matthieu Caillaud & P. Marchesiello
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %clear all
@@ -36,13 +37,14 @@
 %
 % Common parameters
 %
+tic
 romstools_param
 %
 % Specific to forecast
 %
 makeplot = 0;
 %
-OGCM = 'ECCO'; 
+%OGCM = 'mercator'; 
 bry_prefix  = [ROMS_files_dir,'roms_bry_',OGCM,'_']; % generic boundary file name
 clm_prefix  = [ROMS_files_dir,'roms_clm_',OGCM,'_']; % generic climatology file name
 ini_prefix  = [ROMS_files_dir,'roms_ini_',OGCM,'_']; % generic initial file name
@@ -57,10 +59,17 @@ if strcmp(OGCM,'ECCO')
 %
   url = 'http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/kf066b/kf066b_'; 
 %
+elseif strcmp(OGCM,'mercator')
+%
+%  MERCATOR DODS URL
+%
+%  login/password can be entered here or in romstools params
+%  and should be asked to the MERCATOR team 
+%
+ % url=['http://',login,':',password,'@opendap.mercator-ocean.fr/thredds/dodsC/mercatorPsy3v1R1v_glo_mean_best_estimate'];
+  url=['http://',login,':',password,'@opendap.mercator-ocean.fr/thredds/dodsC/mercatorPsy3v2_glo_mean_best_estimate'];
+%
 else
-%
-% I don't know other OGCM available in real time...
-%
   error(['Unknown OGCM: ',OGCM])
 end
 %
@@ -118,21 +127,60 @@ Z=-nc{'depth'}(:);
 NZ=length(Z);
 NZ=NZ-rmdepth;
 Z=Z(1:NZ);
+if strcmp(OGCM,'ECCO')
+  time=[90 270];
+  time_cycle=360;
+  trange=[1 1];
+  hdays=1;
+elseif strcmp(OGCM,'mercator')
+  OGCM_time=nc{'time'}(:);
+  ntimes=length(OGCM_time);
+  dt=max(gradient(OGCM_time));
+  time_cycle=0;
+  hdays=5;
+  if OGCM_time(end)~=rundate+6
+    if OGCM_time(end)==rundate+5
+      roms_time=0*(1:ntimes+1);
+      roms_time(1:end-1)=OGCM_time;
+      roms_time(end)=roms_time(end-1)+dt;
+    else
+      roms_time=0*(1:ntimes+2);
+      roms_time(1:end-2)=OGCM_time;
+      roms_time(end-1)=roms_time(end-2)+dt;
+      roms_time(end)=roms_time(end-1)+dt;
+    end
+  else
+    roms_time=OGCM_time;
+  end
+  nrec=1;
+  if nrec==1  % nrec=1 3 records are used
+    time=0*(1:3);
+    time(1)=roms_time(1);
+    time(2)=roms_time(OGCM_time==rundate);
+    time(3)=roms_time(end);
+  else        % nrec=0 all records are used
+    for i=1:delta:length(roms_time)
+      time(i)=roms_time(i);
+    end
+  end
+  p=find(OGCM_time==OGCM_time(1));
+  q=find(OGCM_time==OGCM_time(5));
+  r=find(OGCM_time==OGCM_time(end));
+  trange=[p q r];
+end   % MERCATOR
 close(nc)
+
 %
 % Initial file 
-% (the strategy is to start at the begining of a month)
-% it is possible to do some temporal interpolation... 
-% but I am too lazy. lets start the first day of
-% month Mmin of year Ymin... with the first data available.
 %
 if makeini==1
   ininame=[ini_prefix,num2str(rundate),nc_suffix];
   disp(['Create an initial file for ',num2str(rundate);])
   create_inifile(ininame,grdname,ROMS_title,...
                  theta_s,theta_b,hc,N,...
-                 rundate-1,'clobber');
+                 rundate-hdays,'clobber');
   nc_ini=netcdf(ininame,'write');
+ 
   interp_OGCM_frcst(OGCM_name,Roa,interp_method,...
               lonU,latU,lonV,latV,lonT,latT,Z,1,...
               nc_ini,[],lon,lat,angle,h,1)
@@ -141,6 +189,7 @@ if makeini==1
 end
 %
 %
+
 % Clim and Bry files
 %
 if makeclim==1 | makebry==1
@@ -148,7 +197,7 @@ if makeclim==1 | makebry==1
     bryname=[bry_prefix,num2str(rundate),nc_suffix];
     create_bryfile(bryname,grdname,ROMS_title,[1 1 1 1],...
                    theta_s,theta_b,hc,N,...
-                   [90 270],360,'clobber');
+                   time,time_cycle,'clobber');
     nc_bry=netcdf(bryname,'write');
   else
     nc_bry=[];
@@ -157,20 +206,22 @@ if makeclim==1 | makebry==1
     clmname=[clm_prefix,num2str(rundate),nc_suffix];
     create_climfile(clmname,grdname,ROMS_title,...
                     theta_s,theta_b,hc,N,...
-                    [90 270],360,'clobber');
+                    time,time_cycle,'clobber');
     nc_clm=netcdf(clmname,'write');
   else
     nc_clm=[];
   end
+
 %
-% Perform the interpolations for the current month
+% Perform the interpolations for all selected records
 %
+for tndx=1:length(time)
+  disp([' Time step : ',num2str(tndx),' of ',num2str(length(time)),' :'])
   interp_OGCM_frcst(OGCM_name,Roa,interp_method,...
-                    lonU,latU,lonV,latV,lonT,latT,Z,1,...
-		    nc_clm,nc_bry,lon,lat,angle,h,1)
-  interp_OGCM_frcst(OGCM_name,Roa,interp_method,...
-                    lonU,latU,lonV,latV,lonT,latT,Z,1,...
-		    nc_clm,nc_bry,lon,lat,angle,h,2)
+                    lonU,latU,lonV,latV,lonT,latT,Z,trange(tndx),...
+		    nc_clm,nc_bry,lon,lat,angle,h,tndx)
+end
+
 %
 % Close the ROMS files
 %
@@ -215,4 +266,4 @@ if makeplot==1
   end
 end
 
-
+toc

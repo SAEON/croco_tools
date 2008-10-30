@@ -30,14 +30,17 @@
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %  Updated    9-Sep-2006 by Pierrick Penven
+%  Updated    20-Aug-2008 by Matthieu Caillaud & P. Marchesiello
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Common parameters
 %
+tic
 romstools_param
 %
 makeplot = 0;
+it=2;
 %
 frc_prefix=[frc_prefix,'_GFS_'];
 blk_prefix=[blk_prefix,'_GFS_'];
@@ -91,7 +94,7 @@ if Download_data==1
 % Download data with DODS (the download matlab routine depends on the OGCM)
 % 
   disp('Download data...')
-  download_GFS(today,lonmin,lonmax,latmin,latmax,FRCST_dir,Yorig)
+  download_GFS(today,lonmin,lonmax,latmin,latmax,FRCST_dir,Yorig,it)
 %
 end
 %
@@ -117,6 +120,23 @@ create_forcing(frcname,grdname,ROMS_title,...
                        0,0,0,...
   	               0,0,0,0,0,0)
 nc_frc=netcdf(frcname,'write');
+% for l=1:tlen
+% nc_blk{'tair'}(l,:,:)=0;
+% nc_blk{'rhum'}(l,:,:)=0;
+% nc_blk{'prate'}(l,:,:)=0;
+% nc_blk{'radsw'}(l,:,:)=0;
+% nc_blk{'radlw'}(l,:,:)=0;
+% nc_blk{'wspd'}(l,:,:)=0;
+% nc_frc{'sustr'}(l,:,:)=0;
+% nc_frc{'svstr'}(l,:,:)=0;
+% 
+% end
+% 
+
+
+
+
+
 %
 % Loop on time
 %
@@ -126,22 +146,85 @@ for l=1:tlen
 %for l=1:1
   disp(['time index: ',num2str(l),' of total: ',num2str(tlen)])
   
-  var=get_missing_val(lon1,lat1,squeeze(nc{'tair'}(l,:,:)),missval,Roa,default);
+  var=squeeze(nc{'tair'}(l,:,:));
+  if mean(mean(isnan(var)~=1))
+  var=get_missing_val(lon1,lat1,var,missval,Roa,default);
   nc_blk{'tair'}(l,:,:)=interp2(lon1,lat1,var,lon,lat,interp_method);
-  var=get_missing_val(lon1,lat1,squeeze(nc{'rhum'}(l,:,:)),missval,Roa,default);
+  else
+     var=squeeze(nc{'tair'}(l-1,:,:)); 
+     var=get_missing_val(lon1,lat1,var,missval,Roa,default);
+     nc_blk{'tair'}(l,:,:)=interp2(lon1,lat1,var,lon,lat,interp_method);
+  end
+
+  var=squeeze(nc{'rhum'}(l,:,:));
+  
+  if mean(mean(isnan(var)~=1))
+  var=get_missing_val(lon1,lat1,var,missval,Roa,default);
   nc_blk{'rhum'}(l,:,:)=interp2(lon1,lat1,var,lon,lat,interp_method);
-  var=get_missing_val(lon1,lat1,squeeze(nc{'prate'}(l,:,:)),missval,Roa,default);
+  else
+      var=squeeze(nc{'rhum'}(l-1,:,:));
+      var=get_missing_val(lon1,lat1,var,missval,Roa,default);
+      nc_blk{'rhum'}(l,:,:)=interp2(lon1,lat1,var,lon,lat,interp_method);
+  end
+  
+  var=squeeze(nc{'prate'}(l,:,:));
+  if mean(mean(isnan(var)~=1))
+  var=get_missing_val(lon1,lat1,var,missval,Roa,default);
   nc_blk{'prate'}(l,:,:)=interp2(lon1,lat1,var,lon,lat,interp_method);
-  var=get_missing_val(lon1,lat1,squeeze(nc{'wspd'}(l,:,:)),missval,Roa,default);
+  else
+      var=squeeze(nc{'prate'}(l-1,:,:));
+      var=get_missing_val(lon1,lat1,var,missval,Roa,default);
+      nc_blk{'prate'}(l,:,:)=interp2(lon1,lat1,var,lon,lat,interp_method);
+  end
+  
+  var=squeeze(nc{'wspd'}(l,:,:));
+  if mean(mean(isnan(var)~=1))
+  var=get_missing_val(lon1,lat1,var,missval,Roa,default);
   nc_blk{'wspd'}(l,:,:)=interp2(lon1,lat1,var,lon,lat,interp_method);
-  var=get_missing_val(lon1,lat1,squeeze(nc{'radlw'}(l,:,:)),missval,Roa,default);
+  else
+      var=squeeze(nc{'wspd'}(l-1,:,:));
+      var=get_missing_val(lon1,lat1,var,missval,Roa,default);
+      nc_blk{'wspd'}(l,:,:)=interp2(lon1,lat1,var,lon,lat,interp_method);
+  end
+  
+  var=squeeze(nc{'radlw'}(l,:,:));
+  if mean(mean(isnan(var)~=1))
+  var=get_missing_val(lon1,lat1,var,missval,Roa,default);
   nc_blk{'radlw'}(l,:,:)=interp2(lon1,lat1,var,lon,lat,interp_method);
-  var=get_missing_val(lon1,lat1,squeeze(nc{'radsw'}(l,:,:)),missval,Roa,default);
+  else
+      var=squeeze(nc{'radlw'}(l-1,:,:));
+      var=get_missing_val(lon1,lat1,var,missval,Roa,default);
+      nc_blk{'radlw'}(l,:,:)=interp2(lon1,lat1,var,lon,lat,interp_method);
+  end
+  
+  var=squeeze(nc{'radsw'}(l,:,:));
+  if mean(mean(isnan(var)~=1))
+  var=get_missing_val(lon1,lat1,var,missval,Roa,default);
   nc_blk{'radsw'}(l,:,:)=interp2(lon1,lat1,var,lon,lat,interp_method);
-  tx=get_missing_val(lon1,lat1,squeeze(nc{'tx'}(l,:,:)),missval,Roa,default);
-  ty=get_missing_val(lon1,lat1,squeeze(nc{'ty'}(l,:,:)),missval,Roa,default);
+  else
+      var=squeeze(nc{'radsw'}(l-1,:,:));
+      var=get_missing_val(lon1,lat1,var,missval,Roa,default);
+      nc_blk{'radsw'}(l,:,:)=interp2(lon1,lat1,var,lon,lat,interp_method);
+  end
+  var=squeeze(nc{'tx'}(l,:,:));
+  if mean(mean(isnan(var)~=1))
+  tx=get_missing_val(lon1,lat1,var,missval,Roa,default);
   tx=interp2(lon1,lat1,tx,lon,lat,interp_method);
+  else
+      var=squeeze(nc{'tx'}(l-1,:,:));
+      tx=get_missing_val(lon1,lat1,var,missval,Roa,default);
+      tx=interp2(lon1,lat1,tx,lon,lat,interp_method);
+  end
+  
+  var=squeeze(nc{'ty'}(l,:,:));
+  if mean(mean(isnan(var)~=1))
+  ty=get_missing_val(lon1,lat1,var,missval,Roa,default);
   ty=interp2(lon1,lat1,ty,lon,lat,interp_method);
+  else
+      var=squeeze(nc{'ty'}(l-1,:,:));
+      ty=get_missing_val(lon1,lat1,var,missval,Roa,default);
+      ty=interp2(lon1,lat1,ty,lon,lat,interp_method);
+  end
   nc_frc{'sustr'}(l,:,:)=rho2u_2d(tx.*cosa+ty.*sina);
   nc_frc{'svstr'}(l,:,:)=rho2v_2d(ty.*cosa-tx.*sina);
 end
@@ -172,7 +255,7 @@ if makeplot==1
 end
 
 
-
+toc
 
 
 

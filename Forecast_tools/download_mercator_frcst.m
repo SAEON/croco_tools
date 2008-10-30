@@ -1,4 +1,4 @@
-function ecco_name=download_ECCO_frcst(lonmin,lonmax,latmin,latmax,...
+function mercator_name=download_mercator_frcst(lonmin,lonmax,latmin,latmax,...
                                          FRCST_dir,FRCST_prefix,url,Yorig)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -38,9 +38,62 @@ function ecco_name=download_ECCO_frcst(lonmin,lonmax,latmin,latmax,...
 %
 % Get the date
 %
+l=1;
 rundate_str=date;
 rundate=datenum(rundate_str)-datenum(Yorig,1,1);
-[y,m,d,h,mi,s]=datevec(rundate_str);
+lh=5; % length of hindcast for mercator
+lf=6; % length of forecast
+%%% test if mercator forecast exist %%%
+    time=readdap(url,'time',[]);
+    time=time+datenum(1950,1,1);
+    time=time-datenum(Yorig,1,1);
+    while l==1
+    try
+        x=find(time==rundate+lf);
+        foundtime=1;
+    catch
+        foundtime=0;
+    end
+        if foundtime==1 & ~isempty(x)
+            disp('time is ok')
+        else
+            foundtime=0;
+            disp('missing forecast')
+        end
+        
+if foundtime==0;
+    lf=lf-1;
+    l=1;
+else
+    l=0;
+end
+    end
+
+for i=1:lh
+    time1(i)=datenum(rundate_str)-(lh+1-i);
+end
+time2=datenum(rundate_str);
+for j=1:lf
+    time3(j)=datenum(rundate_str)+j;
+    
+end
+if foundtime==0
+    time3=[time3 time3(end)];
+        end
+        
+time=cat(2,time1,time2,time3);
+
+
+% Get time from Opendap
+time2=readdap(url,'time',[]);
+time2=time2+datenum(1950,1,1);
+%time2=time2-datenum(Yorig,1,1);
+
+% Get time index
+for i=1:length(time)
+   tndx(i)=find(time2==time(i));
+end
+
 %
 % start
 %
@@ -61,58 +114,15 @@ eval(['!mkdir ',FRCST_dir])
 %
 disp(['Process the dataset: ',url])
 %
-% Get the latest ECCO time
-%
-%
-% first ecco time: 06-Jan-2006 (315696)
-% first ecco time: 07-Jan-2006 (324456) !!! should be reset every year !!!
-%
-ecco_time_start=324456/24+datenum(1970,1,1)-datenum(Yorig,1,1);
-ecco_times=[ecco_time_start:10:ecco_time_start+10000];
-%htime_ecco=24*(ecco_times+datenum(Yorig,1,1)-datenum(1970,1,1));
-%
-% Get the closest ecco time
-%
-ecco_indx=max(find(ecco_times<=rundate));
-foundfile=0;
-%
-while foundfile==0
-  ecco_time=ecco_times(ecco_indx);
-  disp([' Testing date: ' datestr(ecco_time+datenum(Yorig,1,1))])
-  [ecco_y,ecco_m,ecco_d,ecco_h,ecco_mi,ecco_s]=...
-  datevec(ecco_time+datenum(Yorig,1,1));
-  daysinyear=ecco_time+datenum(Yorig,1,1)-datenum(ecco_y,1,1);
-  necco=round(daysinyear/10);
-  nhours=necco*240;
-  if nhours < 1000
-    endname=['_00',num2str(nhours),'_240.cdf'];
-  elseif nhours < 10000
-    endname=['_0',num2str(nhours),'_240.cdf'];
-  else nhours < 10000
-    endname=['_',num2str(nhours),'_240.cdf'];
-  end
-%  
-  if necco <= 9
-    prefix=[url,num2str(ecco_y),'/n10day_01_0',num2str(necco),'/'];
-    suffix=['_08_08.00001',endname];
-  elseif necco <= 18
-    prefix=[url,num2str(ecco_y),'/n10day_10_',num2str(necco),'/'];
-    suffix=['_08_08.02160',endname];
-  elseif necco <= 27
-    prefix=[url,num2str(ecco_y),'/n10day_19_',num2str(necco),'/'];
-    suffix=['_08_08.04320',endname];
-  elseif necco <= 37
-    prefix=[url,num2str(ecco_y),'/n10day_28_',num2str(necco),'/'];
-    suffix=['_08_08.06480',endname];
-  end
-%
+% 
 %  test if the file exist
 %
-  vname='Have';
-  fname=[prefix,vname,suffix];
+% 
+foundfile=0;
+  fname=url;
   warning off
   try
-    x=loaddap('-A -e +v ',fname);
+    x=loaddap('-A -e +v ', fname);
     foundfile=1;
   catch
     foundfile=0;
@@ -122,50 +132,49 @@ while foundfile==0
   else
     foundfile=0;
     disp('  File does not exist')
-    ecco_indx=ecco_indx-1;
-    if ecco_indx==0
-     error('DOWNLOAD_ECCO_FRCST: No file found...')
-    end
   end
   warning on
-end
 %
-tindex=x.time.DODS_ML_Size;
-missval=x.Have.missing_value;
 %
+%tindex=x.time.DODS_ML_Size;
+%missval=x.ssh.missing_value; %PSY3V1
+missval=x.ssh.ml__FillValue; %PSY3V2
 % Get the time
 %
-vname='Have';
-fname=[prefix,'Have',suffix];
-trange=['[',num2str(tindex-1),':',num2str(tindex-1),']'];
-time=readdap(fname,'time',trange);
-time=floor(time/24+datenum(1970,1,1));
-disp(['    Date: ',datestr(time)])
-time=time-datenum(Yorig,1,1);
-ecco_name=[FRCST_dir,FRCST_prefix,num2str(time),'.cdf'];
+trange=['[',num2str(min(tndx)-1),':',num2str(max(tndx)-1),']'];
+fname=url;
 %
-%if isempty(dir(ecco_name))
-if ~exist(ecco_name)
+%trange=['[',num2str(tindex-1),':',num2str(tindex-1),']'];
+%time=readdap(fname,'time',trange);
+%time=floor(time+datenum(1950,1,1));
+%disp(['    Date: ',datestr(time)])
+%time=time-datenum(Yorig,1,1);
+time=time2(tndx)-datenum(Yorig,1,1);
+mercator_name=[FRCST_dir,FRCST_prefix,num2str(rundate),'.cdf'];
+%
+%if isempty(dir(mercator_name))
+if ~exist(mercator_name)
 %
 %
 % Get a subset of the ECCO grid
 %
-  vname='Have';
-  fname=[prefix,vname,suffix];
+
+  
   [i1min,i1max,i2min,i2max,i3min,i3max,...
    i1min_u,i1max_u,i2min_u,i2max_u,i3min_u,i3max_u,...
    jrange,jrange_v,krange,lon,lon_u,lat,lat_v,depth]=...
-   get_ECCO_subgrid(fname,lonmin,lonmax,latmin,latmax);
+   get_mercator_subgrid(url,lonmin,lonmax,latmin,latmax);
 %
-% Extract ECCO
+% Extract mercator
 %
-   extract_ECCO_frcst(FRCST_dir,FRCST_prefix,prefix,suffix,tindex,missval,...
+   extract_mercator_frcst(FRCST_dir,FRCST_prefix,url,tndx,missval,...
                       lon,lon_u,lat,lat_v,depth,...
                       krange,jrange,jrange_v,...
                       i1min,i1max,i2min,i2max,i3min,i3max,...
                       i1min_u,i1max_u,i2min_u,i2max_u,i3min_u,i3max_u,...
                       time,Yorig)
 else
-  disp('  ECCO file allready exist')
+  disp('  mercator file allready exist')
 end
+
 return

@@ -1,4 +1,4 @@
-function fname=get_GFS_fname(time,gfs_run_time)
+function fname=get_GFS_fname(time,gfs_run_time,gfstype)
 %
 %  fname=get_GFS_fname(time,gfs_run_time)
 %
@@ -28,12 +28,18 @@ function fname=get_GFS_fname(time,gfs_run_time)
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %  Updated    9-Sep-2006 by Pierrick Penven
+%  Updated    20-Aug-2008 by Matthieu Caillaud & P. Marchesiello
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-gfsname='gfs_master';
-%url='http://nomads6.ncdc.noaa.gov:9090';
-url='http://nomad3.ncep.noaa.gov:9090';
+url='http://nomad1.ncep.noaa.gov:9090';
+if gfstype==0
+  gfsname='gdas/rotating/gdas';
+  gfsname1='gdas';
+else
+  gfsname='gfs_master/gfs';
+  gfsname1='gfs_master';
+end
 %
 % Get the date
 %
@@ -50,12 +56,21 @@ else
   strd=num2str(d);
 end
 %
-gfsdir=[url,'/dods/',gfsname,'/gfs',stry,strm,strd,'/'];
+gfsdir=[url,'/dods/',gfsname,stry,strm,strd,'/'];
+gdasdir=[url,'/dods/',gfsname,stry,strm,strd];
 %
 % Get the grid
 %
 if gfs_run_time < 10
-  fname=[gfsdir,gfsname,'_0',num2str(gfs_run_time),'z'];
+if gfstype==0
+  fname=[gdasdir,'0',num2str(gfs_run_time)];
 else
-  fname=[gfsdir,gfsname,'_',num2str(gfs_run_time),'z'];
+  fname=[gfsdir,gfsname1,'_0',num2str(gfs_run_time),'z'];
+end
+else
+if gfstype==0
+  fname=[gdasdir,num2str(gfs_run_time)];
+else
+  fname=[gfsdir,gfsname1,'_',num2str(gfs_run_time),'z'];
+end
 end
