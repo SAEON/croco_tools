@@ -283,6 +283,8 @@ if { eval `$CPP1 testkeys.F | grep -i -q openmp` } then
     setenv FFLAGS1 "$FFLAGS1 -mp"
   else if ($OS == SunOS) then 
     setenv FFLAGS1 "$FFLAGS1 -openmp"
+  else if ($OS == Darwin) then 
+    setenv FFLAGS1 "$FFLAGS1 -openmp"
   endif
 endif
 #
