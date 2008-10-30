@@ -215,8 +215,8 @@
               dmUde(i,j,k2)=0.25*(pn(i,j)+pn(i-1,j)+pn(i,j-1)
      &                                            +pn(i-1,j-1))
 #  if defined CLIMAT_UV_MIXH
-     &       *( pm_u(i,j  )*(u(i,j  ,k+1,nstp)-UCLM(i+1,j,k+1))
-     &         -pm_u(i,j-1)*(u(i,j-1,k+1,nstp)-UCLM(i  ,j,k+1)) )
+     &       *( pm_u(i,j  )*(u(i,j  ,k+1,nstp)-UCLM(i,j,k+1))
+     &         -pm_u(i,j-1)*(u(i,j-1,k+1,nstp)-UCLM(i,j-1,k+1)) )
 #  else
      &             *(pm_u(i,j  )*u(i,j  ,k+1,nstp)
      &              -pm_u(i,j-1)*u(i,j-1,k+1,nstp))
