@@ -59,11 +59,12 @@ C$OMP END PARALLEL
 #ifdef SOLVE3D       
        iif = mod(iif+1, nfast+2)
       IF (iif .EQ. 0) then
+#endif      
 C$OMP PARALLEL
         call prestep3D_thread()
 C$OMP END PARALLEL
-      endif
-       
+#ifdef SOLVE3D 
+      endif       
       IF ((iif.NE.0).AND.(iif.NE.(nfast+1))) THEN
 #endif
 C$OMP PARALLEL
@@ -71,11 +72,12 @@ C$OMP PARALLEL
 C$OMP END PARALLEL
 #ifdef SOLVE3D
       ENDIF
-
       IF (iif .EQ. (nfast+1)) then
+#endif      
 C$OMP PARALLEL
         call step3D_thread()
 C$OMP END PARALLEL
+#ifdef SOLVE3D
         nbstep3d = nbstep3d + 1
       endif
 #endif      
