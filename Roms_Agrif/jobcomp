@@ -104,6 +104,10 @@ endif
 /bin/cp -f jobcomp $SCRDIR
 #/bin/cp -f amr.in $SCRDIR
 #
+# Etalon data
+#
+/bin/cp -f TEST_CASES/etalon_data.h* ${SCRDIR}
+#
 # Change directory
 #
 cd $SCRDIR
