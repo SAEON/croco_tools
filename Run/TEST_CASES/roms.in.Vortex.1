@@ -1,5 +1,5 @@
 title:
-        Vortex Example Zoom1 (DON'T FORGET make_vortex.m)
+        Vortex Example Zoom #1 (DON'T FORGET make_vortex.m)
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
                1      960     48      1
 S-coord: THETA_S,   THETA_B,    Hc (m)
@@ -9,6 +9,8 @@ grid:  filename
 initial: NRREC  filename
           0 
                           vortex_ini.nc.1
+climatology: filename
+                          XXXXX
 restart:          NRST, NRPFRST / filename
                   1800   -1
                           vortex_rst.nc.1
@@ -16,9 +18,9 @@ history: LDEFHIS, NWRT, NRPFHIS / filename
             T      180      0
                           vortex_his.nc.1
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
-                         T T T T T   T T T T T T T T T T
-auxiliary_history_fields: rho Omega  W  Akv  Akt  Aks  HBL Bostr
-                           T   F     T   F    F    F    F   F
+                         T    T    T    T  T   10*T
+auxiliary_history_fields: rho Omega  W  Akv  Akt  Aks  HBL Hbbl Bostr Wstr UWstr VWstr
+                          T  F       T  F    F    F    T   F    F     F    F     F
 rho0:
       1024.4
 bottom_drag:     RDRG(m/s),      RDRG2, Zob [m],  Cdb_min, Cdb_max

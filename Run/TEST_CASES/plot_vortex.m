@@ -37,7 +37,6 @@ close all
 %
 vname='temp';
 tindex=11;
-nestvortex=1;
 %
 % Caxis depending of the variable name
 %
@@ -118,8 +117,10 @@ end
 %
 % Child
 %
-if nestvortex==1
-  nc=netcdf('vortex_his.nc.1');
+nc=netcdf('vortex_his.nc.1');
+nestvortex=0;
+if ~isempty(nc)
+  nestvortex=1;
   X=1e-3*nc{'x_rho'}(:);
   Y=1e-3*nc{'y_rho'}(:);
   if ddd==1

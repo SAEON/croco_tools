@@ -48,6 +48,8 @@ parent_grd='vortex_grd.nc';
 child_grd='vortex_grd.nc.1';
 parent_ini ='vortex_ini.nc';
 child_ini ='vortex_ini.nc.1';
+parent_clm ='vortex_clm.nc';
+child_clm ='vortex_clm.nc.1';
 %
 % Parameters for the Parent Grid
 %
@@ -160,7 +162,26 @@ nc{'zeta'}(:) =  zeta;
 nc{'ubar'}(:) =  ubar; 
 nc{'vbar'}(:) =  vbar; 
 nc{'temp'}(:) =  t; 
-close(nc);
+close(nc)
+%
+%  Create and fill the climatology file
+%
+create_climfile(parent_clm,parent_grd,title,...
+                theta_s,theta_b,hc,N,[25 75],100,'clobber')
+nc=netcdf(parent_clm,'write');
+nc{'u'}(1,:,:,:) =  u;
+nc{'v'}(1,:,:,:) =  v;
+nc{'zeta'}(1,:,:,:) =  zeta;
+nc{'ubar'}(1,:,:,:) =  ubar;
+nc{'vbar'}(1,:,:,:) =  vbar;
+nc{'temp'}(1,:,:,:) =  t;
+nc{'u'}(2,:,:,:) =  u;
+nc{'v'}(2,:,:,:) =  v;
+nc{'zeta'}(2,:,:,:) =  zeta;
+nc{'ubar'}(2,:,:,:) =  ubar;
+nc{'vbar'}(2,:,:,:) =  vbar;
+nc{'temp'}(2,:,:,:) =  t;
+close(nc)
 %
 % file_title
 %
@@ -294,6 +315,25 @@ nc{'ubar'}(:) =  ubar;
 nc{'vbar'}(:) =  vbar; 
 nc{'temp'}(:) =  t; 
 close(nc);
+%
+%  Create and fill the climatology file
+%
+create_climfile(child_clm,child_grd,title,...
+                theta_s,theta_b,hc,N,[25 75],100,'clobber')
+nc=netcdf(child_clm,'write');
+nc{'u'}(1,:,:,:) =  u;
+nc{'v'}(1,:,:,:) =  v;
+nc{'zeta'}(1,:,:,:) =  zeta;
+nc{'ubar'}(1,:,:,:) =  ubar;
+nc{'vbar'}(1,:,:,:) =  vbar;
+nc{'temp'}(1,:,:,:) =  t;
+nc{'u'}(2,:,:,:) =  u;
+nc{'v'}(2,:,:,:) =  v;
+nc{'zeta'}(2,:,:,:) =  zeta;
+nc{'ubar'}(2,:,:,:) =  ubar;
+nc{'vbar'}(2,:,:,:) =  vbar;
+nc{'temp'}(2,:,:,:) =  t;
+close(nc)
 %
 % agrif_fixedgrids.in file
 %
