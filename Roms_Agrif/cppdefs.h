@@ -540,10 +540,11 @@
 !                       Baroclinic Vortex Example (TEST AGRIF)
 !                       ========== ====== ======= ===== ======
 */
-# define OPENMP
+# undef  OPENMP
 # undef  MPI
 # define AGRIF
 # define AGRIF_2WAY
+# define MASKING
 # define SOLVE3D
 # define UV_COR
 # define UV_ADV
