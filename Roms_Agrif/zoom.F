@@ -340,10 +340,12 @@ CR      write(*,*) '  0' MYID
             
       Call Agrif_Set_type(h,(/2,2/),(/1,1/))
       Call Agrif_Set_raf(h,(/'x','y'/))  
-      
+
+#  ifdef MASKING      
       Call Agrif_Set_type(rmask,(/2,2/),(/1,1/))
       Call Agrif_Set_raf(rmask,(/'x','y'/))          
-            
+#  endif            
+
 #else
       Call Agrif_Set_type(ubar,(/1,2,0/),(/1,1,0/))
       Call Agrif_Set_type(vbar,(/2,1,0/),(/1,1,0/))
@@ -360,8 +362,10 @@ CR      write(*,*) '  0' MYID
       Call Agrif_Set_UpdateType(h,update=
      &   Agrif_Update_Full_Weighting)
 
+#ifdef MASKING      
       Call Agrif_Set_UpdateType(rmask,update=
      &   Agrif_Update_Average)
+#endif
                       
 #ifdef SOLVE3D
 

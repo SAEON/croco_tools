@@ -149,9 +149,11 @@
      &Agrif_Parent(nnew)
       Hzparent=>
      &Agrif_Parent(Hz)
+#ifdef MASKING
       rmaskparent=>
      &Agrif_Parent(rmask)
-      
+#endif          
+     
  
 
         
@@ -517,7 +519,10 @@
 !           IF (Hz(i,j,k).NE.0.) THEN
 !              t(i,j,k,nnew,l) = tabres(i,j,k,l)/Hz(i,j,k)
 !           ENDIF
-	      t(i,j,k,nnew,l) = tabres(i,j,k,l)*rmask(i,j)
+	      t(i,j,k,nnew,l) = tabres(i,j,k,l)
+#ifdef MASKING
+     &                         *rmask(i,j)
+#endif          
           ENDDO
          ENDDO
        ENDDO 

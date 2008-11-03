@@ -37,8 +37,6 @@
       common /xyz/ buff
 #endif
 
-#undef  ETALON_CHECK
-
 #ifdef ETALON_CHECK
       integer ncheck, nparam, iocheck
       parameter (ncheck=6, nparam=4)
@@ -46,7 +44,39 @@
       character*60 check_line, etalon_line(ncheck)
       real    A0(nparam), A1(nparam)
       integer P0(nparam), P1(nparam)
-# include "etalon_data.h"
+#if defined BASIN
+#  include "etalon_data.h.Basin"
+# elif defined CANYON_A
+#  include "etalon_data.h.Canyon_A"
+# elif defined CANYON_B
+#  include "etalon_data.h.Canyon_B"
+# elif defined EQUATOR
+#  include "etalon_data.h.Equator"
+# elif defined GRAV_ADJ
+#  include "etalon_data.h.Grav_adj"
+# elif defined INNERSHELF
+#  include "etalon_data.h.Innershelf"
+# elif defined RIVER
+#  include "etalon_data.h.River"
+# elif defined SEAMOUNT
+#  include "etalon_data.h.Seamount"
+# elif defined SHELFRONT
+#  include "etalon_data.h.Shelfront"
+# elif defined SOLITON
+#  include "etalon_data.h.Soliton"
+# elif defined OVERFLOW
+#  include "etalon_data.h.Overflow"
+# elif defined UPWELLING
+#  include "etalon_data.h.Upwelling"
+# elif defined VORTEX
+#  ifdef AGRIF
+#   include "etalon_data.h.VortexAgrif"
+#  else
+#   include "etalon_data.h.Vortex"
+#  endif
+# else
+#  include "etalon_data.h"
+# endif
 #endif
 
 !
