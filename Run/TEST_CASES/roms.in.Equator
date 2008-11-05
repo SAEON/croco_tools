@@ -9,47 +9,47 @@ title:
 ! The Thermal Structure of the Upper Ocean, J.Phys.Oceanogr., 34, 888-902.
 !
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
-                108000     8640     45      40
+               108000   8640     45       40
 
 S-coord: THETA_S,   THETA_B,    Hc (m)
-         5.0d0      0.0d0        10.d0
+         5.0d0      0.0d0       10.d0
 
 initial: NRREC  filename
-          0 
-                          roms_ini.nc
+         0 
+                          equator_ini.nc
 
 restart:          NRST, NRPFRST / filename
                   108000      -1
-                          roms_rst.nc
+                          equator_rst.nc
 
 history: LDEFHIS, NWRT, NRPFHIS / filename 
-            T      900      0 
-                          roms_his.nc
+            T     900      0 
+                          equator_his.nc
 
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
-                         T    T     T   T  T   T T 
+                        T    T    T     T  T   T T 
 
-auxiliary_history_fields: rho Omega  W  Akv  Akt  Aks  HBL Bostr
-                           T   F     T   F    T    F    F   F
+auxiliary_history_fields: rho Omega  W  Akv  Akt  Aks  HBL Hbbl Bostr Wstr UWstr VWstr
+                          F  F       T  F    T    F    T   F    F     F    F     F
 
 rho0:
       1025.
 
 bottom_drag:     RDRG(m/s),      RDRG2, Zob [m],  Cdb_min, Cdb_max
-                 3.e-4             0.      0.         0.      0. 
+                 3.e-4           0.     0.        0.       0. 
 
 gamma2:
                  1.
 
 lin_EOS_cff:  R0 [kg/m3], T0 [Celsius], S0 [PSU], TCOEF [1/Celsius], SCOEF [1/PSU] 
-              30.         0.            0.        0.28                0.
+              30.         0.            0.        0.28               0.
 
 
 lateral_visc:   VISC2    [m^2/sec ]
-                 2.0e3  0.
+                2.0e3  0.
 
 tracer_diff2: TNU2         [m^2/sec]
-                 1.0e3 1.0e3
+              1.0e3 1.0e3
 
 
 

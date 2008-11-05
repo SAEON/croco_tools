@@ -3,38 +3,40 @@
 !
 title:
 	Inner Shelf 2D-V Example
+
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
-                1620      1600     51      1
+               1620     1600     51       1
+
 S-coord: THETA_S,   THETA_B,    Hc (m)
-           7.0d0      0.0d0        50.d0
+         7.0d0      0.0d0       50.d0
 
 initial: NRREC  filename
           0 
-                          roms_rst.nc
+                          inner_rst.nc
 
 restart:          NRST, NRPFRST / filename
                   1620      -1
-                          roms_rst.nc
+                          inner_rst.nc
 
 history: LDEFHIS, NWRT, NRPFHIS / filename 
             T      54      0 
-                          roms_his.nc
+                          inner_his.nc
 
 averages: NTSAVG, NAVG, NRPFAVG / filename
             1      54      0
-                          roms_avg.nc
+                          inner_avg.nc
 
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
-                         T    T    T    T  T     10*T
+                        T    T    T     T  T   10*T
 
-auxiliary_history_fields: rho Omega  W  Akv  Akt  Aks  HBL Bostr
-                           F   F     T   F    T    F    T   T
+auxiliary_history_fields: rho Omega  W  Akv  Akt  Aks  HBL Hbbl Bostr Wstr UWstr VWstr
+                          F   F      T  F    T    F    T   T    T     F    F     F
 
 primary_averages: zeta UBAR VBAR  U  V   wrtT(1:NT)
-                   T    T    T    T  T     10*T
+                  T    T    T     T  T   10*T
 
-auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL Bostr
-                     F   T     F   F    T    F    T    T
+auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL Hbbl Bostr Wstr UWstr VWstr
+                    F   F      T  F    T    F    T   T    T     F    F     F
 
 rho0:
       1000.
