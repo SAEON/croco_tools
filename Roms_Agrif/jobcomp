@@ -125,7 +125,7 @@ if ($OS == Linux) then          # LINUX
   if ($LINUX_FC == ifort || $LINUX_FC == ifc) then
     setenv CPP1 "fpp -free"
     setenv CFT1 ifort
-    setenv FFLAGS1 "-O3 -w90 -w95 -cm -72 -fno-alias -i4 -r8 -Vaxlib"
+    setenv FFLAGS1 "-O3 -w90 -w95 -cm -72 -fno-alias -i4 -r8 -Vaxlib -fp-model precise"
     setenv LDFLAGS1 "-Vaxlib $LDFLAGS1"
   else if ($LINUX_FC == g95) then
     setenv CPP1 "cpp -traditional -DLinux"
