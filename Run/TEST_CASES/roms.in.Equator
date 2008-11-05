@@ -9,7 +9,7 @@ title:
 ! The Thermal Structure of the Upper Ocean, J.Phys.Oceanogr., 34, 888-902.
 !
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
-               108000   8640     45       40
+               3600     8640     45       40
 
 S-coord: THETA_S,   THETA_B,    Hc (m)
          5.0d0      0.0d0       10.d0
@@ -19,18 +19,18 @@ initial: NRREC  filename
                           equator_ini.nc
 
 restart:          NRST, NRPFRST / filename
-                  108000      -1
+                  3600      -1
                           equator_rst.nc
 
 history: LDEFHIS, NWRT, NRPFHIS / filename 
-            T     900      0 
+            T     30      0 
                           equator_his.nc
 
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
                         T    T    T     T  T   T T 
 
 auxiliary_history_fields: rho Omega  W  Akv  Akt  Aks  HBL Hbbl Bostr Wstr UWstr VWstr
-                          F  F       T  F    T    F    T   F    F     F    F     F
+                          F    F     F  F    F    F    F   F    F     F    F     F
 
 rho0:
       1025.
