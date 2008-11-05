@@ -49,8 +49,10 @@
 !
 #if defined BASIN
       fname='TEST_CASES/roms.in.Basin'
-#elif defined CANYON_A || defined CANYON_B
-      fname='TEST_CASES/roms.in.Canyon'
+#elif defined CANYON_A
+      fname='TEST_CASES/roms.in.Canyon_A'
+#elif defined CANYON_B
+      fname='TEST_CASES/roms.in.Canyon_B'
 #elif defined EQUATOR
       fname='TEST_CASES/roms.in.Equator'
 #elif defined GRAV_ADJ
