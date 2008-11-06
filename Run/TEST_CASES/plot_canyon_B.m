@@ -34,7 +34,7 @@ i=32;
 %
 % Read data
 %
-nc=netcdf('roms_his.nc');
+nc=netcdf('canyon_B_his.nc');
 h=nc{'h'}(:);
 x1=nc{'x_rho'}(:);
 y1=nc{'y_rho'}(:);

@@ -35,7 +35,7 @@ vname='salt';
 %
 % Read data
 %
-nc=netcdf('roms_his.nc');
+nc=netcdf('river_his.nc');
 tis=nc{'scrum_time'}(:);
 h=nc{'h'}(:);
 x=(nc{'x_rho'}(:))/1000;

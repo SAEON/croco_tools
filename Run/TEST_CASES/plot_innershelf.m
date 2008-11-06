@@ -29,11 +29,11 @@
 clear all
 close all
 
-tndx=31;
+tndx=30;
 %
 % Read data
 %
-nc=netcdf('roms_his.nc');
+nc=netcdf('inner_avg.nc');
 h=nc{'h'}(:);
 x=squeeze(nc{'x_rho'}(2,:));
 zeta=squeeze(nc{'zeta'}(tndx,:,:));

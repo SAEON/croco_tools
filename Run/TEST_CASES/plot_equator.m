@@ -29,13 +29,13 @@
 clear all
 close all
 %
-tndx=56; % should be 120
+tndx=99; 
 j=17;   % middle of the basin
 i=21;
 %
 % Read data
 %
-nc=netcdf('roms_his.nc');
+nc=netcdf('equator_his.nc');
 h=nc{'h'}(:);
 x1=nc{'x_rho'}(:);
 y1=nc{'y_rho'}(:);
@@ -73,7 +73,9 @@ title('Time evolution from 10^{o}C isothermal conditions')
 %
 figure(2)
 [C1,h1]=contour(xr(:,2:end-2),zr(:,2:end-2),t(:,2:end-2),[5:1:19],'k');
-clabel(C1,h1)
+if isfinite(C1)
+  clabel(C1,h1)
+end
 hold on
 [C2,h2]=contour(xr(:,2:end-2),zr(:,2:end-2),t(:,2:end-2),[20 20],'r');
 clabel(C2,h2)

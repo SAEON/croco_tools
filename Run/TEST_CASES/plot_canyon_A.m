@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Make 1 plot from the results of the GRAV_ADJ test case
+%  Make 2 graphics from the results of the CANYON test case
 % 
 %  Further Information:  
 %  http://www.brest.ird.fr/Roms_tools/
@@ -30,33 +30,53 @@ clear all
 close all
 
 tndx=3;
+i=32;
 %
 % Read data
 %
-nc=netcdf('gravadj_his.nc');
+nc=netcdf('canyon_A_his.nc');
 h=nc{'h'}(:);
-x=squeeze(nc{'x_rho'}(2,:));
+x1=nc{'x_rho'}(:);
+y1=nc{'y_rho'}(:);
+y=squeeze(y1(:,i));
 zeta=squeeze(nc{'zeta'}(tndx,:,:));
-t=squeeze(nc{'temp'}(tndx,:,2,:));
+t=squeeze(nc{'rho'}(tndx,:,:,i));
 [N,M]=size(t);
+sst=squeeze(nc{'temp'}(tndx,N,:,:));
+u=squeeze(nc{'u'}(tndx,N,:,:));
+v=squeeze(nc{'v'}(tndx,N,:,:));
 theta_s=nc.theta_s(:);
 theta_b=nc.theta_b(:);
 hc=nc.hc(:);
 close(nc);
 
 zr = zlevs(h,zeta,theta_s,theta_b,hc,N,'r');
-zr=squeeze(zr(:,2,:));
-xr=reshape(x,1,M);
-xr=repmat(xr,[N 1])/1000;
+zr=squeeze(zr(:,:,i));
+yr=reshape(y,1,M);
+yr=repmat(yr,[N 1])/1000;
 
 %
-% Plot
+% First plot
 %
-contourf(xr,zr,t,[-1:0.5:7])
-caxis([0 5])
+figure(1)
+contourf(yr,zr,t,[28:0.1:32])
 shading flat
 colorbar
-title('Gravity adjustment sigma vertical section')
-
-
+title('Canyon sigma vertical section')
+caxis([28 31])
+%
+% Second plot
+%
+figure(2)
+contourf(x1(2:end-1,2:end-1)/1000,y1(2:end-1,2:end-1)/1000,...
+         100*zeta(2:end-1,2:end-1),[-0.5:0.1:2])
+axis image
+shading flat
+caxis([-0.1 1])
+colorbar
+hold on
+contour(x1(2:end-1,2:end-1)/1000,y1(2:end-1,2:end-1)/1000,...
+        h(2:end-1,2:end-1),'k')
+hold off
+title('Canyon sea surface elevation [cm]')
 

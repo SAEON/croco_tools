@@ -9,27 +9,27 @@ S-coord: THETA_S,   THETA_B,    Hc (m)
 
 initial: NRREC  filename
           0 
-                          canyon_rst.nc
+                          canyon_B_ini.nc
 
 restart:          NRST, NRPFRST / filename
                   240      -1
-                          canyon_rst.nc
+                          canyon_B_rst.nc
 
 history: LDEFHIS, NWRT, NRPFHIS / filename 
             T      120      0 
-                          canyon_his.nc
+                          canyon_B_his.nc
 
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
                         T    T    T     T  T   T T
 
 auxiliary_history_fields: rho Omega  W  Akv  Akt  Aks  HBL Hbbl Bostr Wstr UWstr VWstr
-                          F  F       T  F    T    F    T   F    F     F    F     F
+                          T  F       T  F    T    F    T   F    F     F    F     F
 
 rho0:
       1025.
 
 bottom_drag:     RDRG(m/s),      RDRG2, Zob [m],  Cdb_min, Cdb_max
-                 3.e-4             0.      0.         0.      0. 
+                 3.e-4           0.     0.        0.       0. 
 
 gamma2:
                  1.
