@@ -41,13 +41,13 @@ foreach EXAMPLE ( $LIST_EXAMPLE )
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  jobcomp_rvtk > jobcomp_serial_${EXAMPLE}.log
+  time jobcomp_rvtk > jobcomp_serial_${EXAMPLE}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   /bin/mv roms roms_${EXAMPLE}.exe
   echo run $EXAMPLE
-  roms_${EXAMPLE}.exe > serial_${EXAMPLE}.log
+  time roms_${EXAMPLE}.exe > serial_${EXAMPLE}.log
   date
   grep --binary-files=text ETALON serial_${EXAMPLE}.log
   grep --binary-files=text difference: serial_${EXAMPLE}.log
@@ -67,13 +67,13 @@ foreach EXAMPLE ( $LIST_EXAMPLE )
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  jobcomp_rvtk > jobcomp_openmp_${EXAMPLE}.log
+  time jobcomp_rvtk > jobcomp_openmp_${EXAMPLE}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   /bin/mv roms roms_${EXAMPLE}.exe
   echo run $EXAMPLE
-  roms_${EXAMPLE}.exe > openmp_${EXAMPLE}.log
+  time roms_${EXAMPLE}.exe > openmp_${EXAMPLE}.log
   date
   echo test $EXAMPLE
   grep --binary-files=text ETALON openmp_${EXAMPLE}.log

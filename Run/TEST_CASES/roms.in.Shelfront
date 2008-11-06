@@ -1,7 +1,7 @@
 title:
 	Shelf Front Example
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
-               720      1200     48      1
+               720      1200     50      1
 
 S-coord: THETA_S,   THETA_B,    Hc (m)
          1.0d0      0.0d0       10.d0
