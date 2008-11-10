@@ -49,13 +49,13 @@ foreach EXAMPLE ( $LIST_EXAMPLE )
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time jobcomp_rvtk > jobcomp_serial_${EXAMPLE}.log
+  time ./jobcomp_rvtk > jobcomp_serial_${EXAMPLE}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   /bin/mv roms roms_serial_${EXAMPLE}.exe
   echo RUN SERIAL $EXAMPLE
-  time roms_serial_${EXAMPLE}.exe > serial_${EXAMPLE}.log
+  time ./roms_serial_${EXAMPLE}.exe > serial_${EXAMPLE}.log
   date
   echo TEST SERIAL $EXAMPLE
   foreach WORD ( $LIST_WORDS )
@@ -82,13 +82,13 @@ foreach EXAMPLE ( $LIST_EXAMPLE )
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time jobcomp_rvtk > jobcomp_openmp_${EXAMPLE}.log
+  time ./jobcomp_rvtk > jobcomp_openmp_${EXAMPLE}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   /bin/mv roms roms_omp1X2_${EXAMPLE}.exe
   echo RUN OPENMP 1X2 $EXAMPLE
-  time roms_omp1X2_${EXAMPLE}.exe > openmp1X2_${EXAMPLE}.log
+  time ./roms_omp1X2_${EXAMPLE}.exe > openmp1X2_${EXAMPLE}.log
   date
   echo TEST OPENMP 1X2  $EXAMPLE
   foreach WORD ( $LIST_WORDS )
@@ -108,13 +108,13 @@ foreach EXAMPLE ( $LIST_EXAMPLE )
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time jobcomp_rvtk > jobcomp_openmp_${EXAMPLE}.log
+  time ./jobcomp_rvtk > jobcomp_openmp_${EXAMPLE}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   /bin/mv roms roms_omp2X1_${EXAMPLE}.exe
   echo RUN OPENMP 2X1 $EXAMPLE
-  time roms_omp2X1_${EXAMPLE}.exe > openmp2X1_${EXAMPLE}.log
+  time ./roms_omp2X1_${EXAMPLE}.exe > openmp2X1_${EXAMPLE}.log
   date
   echo TEST OPENMP 2X1 $EXAMPLE
   foreach WORD ( $LIST_WORDS )
@@ -134,13 +134,13 @@ foreach EXAMPLE ( $LIST_EXAMPLE )
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time jobcomp_rvtk > jobcomp_openmp_${EXAMPLE}.log
+  time ./jobcomp_rvtk > jobcomp_openmp_${EXAMPLE}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   /bin/mv roms roms_omp4X4_${EXAMPLE}.exe
   echo RUN OPENMP 4X4 $EXAMPLE
-  time roms_omp4X4_${EXAMPLE}.exe > openmp4X4_${EXAMPLE}.log
+  time ./roms_omp4X4_${EXAMPLE}.exe > openmp4X4_${EXAMPLE}.log
   date
   echo TEST OPENMP 4X4 $EXAMPLE
   foreach WORD ( $LIST_WORDS )
