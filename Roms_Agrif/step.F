@@ -540,6 +540,9 @@ C$OMP BARRIER
 #include "ocean3d.h"
 #include "ocean2d.h"
 #include "coupling.h"
+#ifdef AUTOTILING
+#include "autotiling.h"
+#endif
        integer range
 !$AGRIF_DO_NOT_TREAT
       integer ntrds,trd,
@@ -668,6 +671,10 @@ C$OMP END MASTER
 #endif /*AGRIF && AGRIF_2WAY*/
 
 C$OMP MASTER
+#ifdef AUTOTILING
+      if (iic-lastiic == nbsampling) call auto_tiling
+#endif
+
       iic=iic + 1
 
 #ifdef AGRIF      

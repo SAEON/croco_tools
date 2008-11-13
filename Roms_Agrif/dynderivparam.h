@@ -5,6 +5,7 @@
 ! Domain subdivision parameters:
 ! ====== =========== ===========
 
+#ifdef AGRIF
 #ifdef MPI
       Lm=(LLm+NP_XI-1)/NP_XI; Mm=(MMm+NP_ETA-1)/NP_ETA
 #else
@@ -34,7 +35,20 @@
       xi_rho=LLm+2;  xi_u=xi_rho-1
       eta_rho=MMm+2; eta_v=eta_rho-1
 #endif
+
+#ifdef PISCES
+      jpiglo = LLm
+      jpjglo = MMm
+      jpi = Lm
+      jpj = Mm
+      jpim1 = jpi - 1
+      jpjm1 = jpj - 1
+#endif
+
+#endif  ! <- key AGRIF
+
 !********************************************************************
+#if defined AGRIF || defined AUTOTILING
 #undef ALLOW_SINGLE_BLOCK_MODE
 #ifdef  ALLOW_SINGLE_BLOCK_MODE
       size_XI=6+Lm; size_ETA=6+Mm
@@ -48,12 +62,5 @@
       N1dETA = size_ETA
       N2d=size_XI*(se*size_ETA+sz*Np)
       N3d=size_XI*size_ETA*Np
-
-#ifdef PISCES
-      jpiglo = LLm
-      jpjglo = MMm
-      jpi = Lm
-      jpj = Mm
-      jpim1 = jpi - 1
-      jpjm1 = jpj - 1
 #endif
+

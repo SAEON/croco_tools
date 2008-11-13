@@ -39,7 +39,7 @@
 #elif defined SHELFRONT
       parameter (LLm0=4,   MMm0=40,  N=10)
 #elif defined SOLITON
-      parameter (LLm0=96,  MMm0=32,  N=10)
+      parameter (LLm0=96*8,  MMm0=32*8,  N=10)
 #elif defined UPWELLING
       parameter (LLm0=16,  MMm0=64,  N=16)
 #elif defined VORTEX
@@ -73,7 +73,7 @@
 #  elif defined  CORAL
       parameter (LLm0=81, MMm0=77,  N=32)  ! <-- CORAL sea
 #  else
-      parameter (LLm0=41,  MMm0=42,  N=32) ! <-- BenguelaLR
+      parameter (LLm0=39,  MMm0=32,  N=20)
 #  endif
 #else
       parameter (LLm0=??, MMm0=??, N=??)
@@ -107,13 +107,20 @@
       integer NSUB_X, NSUB_E, NPP
 #ifdef MPI
       integer NP_XI, NP_ETA, NNODES     
-      parameter (NP_XI=1, NP_ETA=2,  NNODES=NP_XI*NP_ETA)
-      parameter (NSUB_X=1, NSUB_E=1, NPP=1)
+      parameter (NP_XI=1, NP_ETA=4,  NNODES=NP_XI*NP_ETA)
+      parameter (NPP=1)
 #elif defined OPENMP
-      parameter (NSUB_X=2, NSUB_E=4, NPP=4)
+      parameter (NPP=2)
 #else
-      parameter (NSUB_X=1, NSUB_E=1, NPP=1)
+      parameter (NPP=1)
 #endif
+
+#ifdef AUTOTILING
+      common/distrib/NSUB_X, NSUB_E
+#else
+      parameter (NSUB_X=1, NSUB_E=1)
+#endif
+
 !
 ! Number of tracers and tracer identification indices:
 ! ====== == ======= === ====== ============== ========
@@ -209,7 +216,6 @@
 # else
       parameter (ntrc_pas=0)
 # endif
-
 # ifdef BIOLOGY
 #  ifdef PISCES
       parameter (ntrc_bio=24,itrc_bio=itemp+ntrc_salt+ntrc_pas+1)
@@ -342,9 +348,13 @@
      &           NFlux_VSinkD2 = 3,
      &           NumVSinkTerms = 3)
 #  endif
-#  if defined DIAGNOSTICS_BIO && !defined BIO_N2PZD2
+#  if defined BIO_N2P2Z2D2 || defined BIO_NPZD || defined PISCES
+#   ifdef DIAGNOSTICS_BIO
       parameter (ntrc_diabio=NumFluxTerms+
-     &                       NumGasExcTerms+NumVSinkTerms)
+     &              NumGasExcTerms+NumVSinkTerms)
+#   else
+      parameter (ntrc_diabio=0)
+#   endif
 #  else
 !  config N2PZD2: fluxes not implemented yet
       parameter (ntrc_diabio=0)
@@ -365,7 +375,7 @@
 # endif
       parameter (NT=itemp+ntrc_salt+ntrc_pas+ntrc_bio+ntrc_sed)
 # ifdef DIAGNOSTICS_TS
-      parameter (ntrc_diats=15*NT)
+      parameter (ntrc_diats=7*NT)
 # else
       parameter (ntrc_diats=0)
 # endif
@@ -419,7 +429,8 @@
       parameter (padd_X=(Lm+2)/2-(Lm+1)/2)
       parameter (padd_E=(Mm+2)/2-(Mm+1)/2)
 #endif
-#ifdef AGRIF
+
+#if defined AGRIF || defined AUTOTILING
       integer NSA, N2d,N3d,N1dXI,N1dETA
       parameter (NSA=28)
       common /scrum_private_param/ N2d,N3d,N1dXI,N1dETA

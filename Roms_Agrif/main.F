@@ -37,9 +37,15 @@ C      real*8 start_time2, start_time1, exe_time
 # include "parameter.h"
 #endif
 # include "dynparam.h"
-# include "dynderivparam.h"
 #endif
      
+#ifdef AUTOTILING
+! Initial values of NSUB_X, NSUB_E
+      NSUB_X = 1
+      NSUB_E = NPP
+#endif
+
+# include "dynderivparam.h"
 
 #ifdef MPI
       call MPI_Init (ierr)
@@ -58,6 +64,10 @@ C      real*8 start_time2, start_time1, exe_time
   90  close(iunit)
 #endif
    
+#ifdef AUTOTILING
+      call init_auto_tiling
+#endif
+
 #ifdef MPI
 C     start_time1=PMPI_Wtime()
       call MPI_Setup (ierr)

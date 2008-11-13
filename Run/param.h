@@ -107,13 +107,20 @@
       integer NSUB_X, NSUB_E, NPP
 #ifdef MPI
       integer NP_XI, NP_ETA, NNODES     
-      parameter (NP_XI=1, NP_ETA=2,  NNODES=NP_XI*NP_ETA)
-      parameter (NSUB_X=1, NSUB_E=1, NPP=1)
+      parameter (NP_XI=1, NP_ETA=4,  NNODES=NP_XI*NP_ETA)
+      parameter (NPP=1)
 #elif defined OPENMP
-      parameter (NSUB_X=2, NSUB_E=4, NPP=4)
+      parameter (NPP=2)
 #else
-      parameter (NSUB_X=1, NSUB_E=1, NPP=1)
+      parameter (NPP=1)
 #endif
+
+#ifdef AUTOTILING
+      common/distrib/NSUB_X, NSUB_E
+#else
+      parameter (NSUB_X=1, NSUB_E=2)
+#endif
+
 !
 ! Number of tracers and tracer identification indices:
 ! ====== == ======= === ====== ============== ========
@@ -422,7 +429,8 @@
       parameter (padd_X=(Lm+2)/2-(Lm+1)/2)
       parameter (padd_E=(Mm+2)/2-(Mm+1)/2)
 #endif
-#ifdef AGRIF
+
+#if defined AGRIF || defined AUTOTILING
       integer NSA, N2d,N3d,N1dXI,N1dETA
       parameter (NSA=28)
       common /scrum_private_param/ N2d,N3d,N1dXI,N1dETA
