@@ -19,7 +19,6 @@ nc{'lon'}.units = ncchar('degree_east');
 nc{'lon'}.units = 'degree_east';
 % 
 nc{'lat'} = ncfloat('lat');
-nc{'lat'} = ncdouble('eta_rho', 'xi_rho');
 nc{'lat'}.long_name = ncchar('latitude of RHO-points');
 nc{'lat'}.long_name = 'latitude of RHO-points';
 nc{'lat'}.units = ncchar('degree_north');
