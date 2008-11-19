@@ -131,13 +131,13 @@ if strcmp(OGCM,'ECCO')
   time=[90 270];
   time_cycle=360;
   trange=[1 1];
-  hdays=1;
+  %hdays=1;
 elseif strcmp(OGCM,'mercator')
   OGCM_time=nc{'time'}(:);
   ntimes=length(OGCM_time);
   dt=max(gradient(OGCM_time));
   time_cycle=0;
-  hdays=5;
+  %hdays=5;
   if OGCM_time(end)~=rundate+6
     if OGCM_time(end)==rundate+5
       roms_time=0*(1:ntimes+1);

@@ -39,11 +39,6 @@ function download_GFS(today,lonmin,lonmax,latmin,latmax,FRCST_dir,Yorig,it)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 romstools_param
-if strcmp(OGCM,'ECCO')
-  hdays=1;
-elseif strcmp(OGCM,'mercator')
-  hdays=5
-end
 
 %
 % Put the date in 'Yorig' time
