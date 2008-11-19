@@ -377,6 +377,53 @@ for Y=Ymin:Ymax
 %
   end
 end
+%#########################################################################
+%
+%               ADD THIS TO COMPUTE THE SPIN-UP PERIOD
+%               --------------------------------------
+%
+% Spin-up: (reproduce the first year 'SPIN_Long' times)
+% just copy the files for the first year and change the time
+%
+
+if SPIN_Long>0
+  M=Mmin-1;
+  Y=Ymin-SPIN_Long;
+  for month=1:12*SPIN_Long
+    M=M+1;
+    if M==13
+      M=1; 
+      Y=Y+1;
+    end
+%
+% Forcing files
+%
+% Copy the file
+%
+      frcname=[QSCAT_frc_prefix,'Y',num2str(Ymin),'M',num2str(M),nc_suffix];
+      frcname2=[QSCAT_frc_prefix,'Y',num2str(Y),'M',num2str(M),nc_suffix];
+      disp(['Create ',frcname2]) 
+      eval(['!cp ',frcname,' ',frcname2]) 
+%
+% Change the time
+%
+      nc=netcdf(frcname2,'write');
+      time=nc{'sms_time'}(:)+datenum(Yorig,1,1);
+      [y,m,d,h,mi,s]=datevec(time);
+      dy=Ymin-Y;
+      y=y-dy;
+      time=datenum(y,m,d,h,mi,s)-datenum(Yorig,1,1);
+%      disp(datestr(time+datenum(Yorig,1,1)))
+      nc{'sms_time'}(:)=time;
+      close(nc)
+    end
+  end
+%
+%
+%#########################################################################
+
+
+
 %
 % Make a few plots
 %
