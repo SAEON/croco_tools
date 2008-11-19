@@ -1,4 +1,4 @@
-function write_ncep(fname,vname,lon,lat,time,var,Yorig)
+function write_NCEP(fname,vname,lon,lat,time,var,Yorig)
 
 %----------------------------------------------------------
 %
