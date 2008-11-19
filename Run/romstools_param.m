@@ -331,6 +331,13 @@ QSCAT_clim_file  = [DATADIR,'QuikSCAT_clim/',...   % QuikSCAT climatology
 %
 FRCST_dir = [FORC_DATA_DIR,'Forecast/'];       % path to store local OGCM data
 FRCST_prefix  = [OGCM,'_'];                    % generic OGCM file name 
+
+if strcmp(OGCM,'ECCO')                         % nb of hindcast days
+  hdays=1;
+elseif strcmp(OGCM,'mercator')
+  hdays=5
+end
+timezone = +11                                 % Local time= UTC + timezone
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
