@@ -8,12 +8,12 @@
 .F.f:
 	@$(CPP) -P $(CPPFLAGS) $*.F | ./mpc > ROMSFILES/$*.F
 	@(cd ROMSFILES ; ./conv amr.scrum -rm \
-		-comdirin ./ -comdirout AGRIF_MODELFILES/. -f77 -convfile $*.F)
+		-comdirin ./ -comdirout AGRIF_MODELFILES/. -convfile $*.F)
 	@$(CPP) -P $(CPPFLAGS) -IROMSFILES/AGRIF_INC ROMSFILES/AGRIF_MODELFILES/$*.F | ./mpc > $*_.f
 .F.o:
 	$(CPP) -P $(CPPFLAGS) $*.F | ./mpc > ROMSFILES/$*.F
 	(cd ROMSFILES ; ./conv amr.scrum -rm \
-		-comdirin ./ -comdirout AGRIF_MODELFILES/. -f77 -convfile $*.F)
+		-comdirin ./ -comdirout AGRIF_MODELFILES/. -convfile $*.F)
 #	$(CPP) -P $(CPPFLAGS) -IROMSFILES/AGRIF_INC ROMSFILES/AGRIF_MODELFILES/$*.F  > $*_.f
 #	@$(CPP) -P $(CPPFLAGS) -IROMSFILES/AGRIF_INC ROMSFILES/AGRIF_MODELFILES/$*.F | ./mpc > $*.f
 #	$(CFT) -c $(FFLAGS) $*_.f -o $*.o
