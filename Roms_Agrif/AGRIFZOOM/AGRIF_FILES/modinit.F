@@ -128,6 +128,7 @@ C
 C
 C     Pointer argument: 
       Type(Agrif_Grid), Pointer  :: Agrif_Gr
+      
 C
       do i = 1 , Agrif_NbVariables
 C 
@@ -135,21 +136,45 @@ C
 C
          if (associated(Agrif_Gr%tabvars(i)%var%array1)) then
              Agrif_Gr % tabvars(i) % var % nbdim = 1
+             Agrif_Gr % tabvars(i) % var % lb(1:1) = 
+     &         lbound(Agrif_Gr%tabvars(i)%var%array1)
+             Agrif_Gr % tabvars(i) % var % ub(1:1) = 
+     &         ubound(Agrif_Gr%tabvars(i)%var%array1)     
          endif
          if (associated(Agrif_Gr%tabvars(i)%var%array2)) then
              Agrif_Gr % tabvars(i) % var % nbdim = 2
+             Agrif_Gr % tabvars(i) % var % lb(1:2) = 
+     &         lbound(Agrif_Gr%tabvars(i)%var%array2)
+             Agrif_Gr % tabvars(i) % var % ub(1:2) = 
+     &         ubound(Agrif_Gr%tabvars(i)%var%array2)
          endif
          if (associated(Agrif_Gr%tabvars(i)%var%array3)) then
              Agrif_Gr % tabvars(i) % var % nbdim = 3
+             Agrif_Gr % tabvars(i) % var % lb(1:3) = 
+     &         lbound(Agrif_Gr%tabvars(i)%var%array3)
+             Agrif_Gr % tabvars(i) % var % ub(1:3) = 
+     &         ubound(Agrif_Gr%tabvars(i)%var%array3)
          endif
          if (associated(Agrif_Gr%tabvars(i)%var%array4)) then
              Agrif_Gr % tabvars(i) % var % nbdim = 4
+             Agrif_Gr % tabvars(i) % var % lb(1:4) = 
+     &         lbound(Agrif_Gr%tabvars(i)%var%array4)
+             Agrif_Gr % tabvars(i) % var % ub(1:4) = 
+     &         ubound(Agrif_Gr%tabvars(i)%var%array4)
          endif
          if (associated(Agrif_Gr%tabvars(i)%var%array5)) then
              Agrif_Gr % tabvars(i) % var % nbdim = 5
+             Agrif_Gr % tabvars(i) % var % lb(1:5) = 
+     &         lbound(Agrif_Gr%tabvars(i)%var%array5)
+             Agrif_Gr % tabvars(i) % var % ub(1:5) = 
+     &         ubound(Agrif_Gr%tabvars(i)%var%array5)
          endif
          if (associated(Agrif_Gr%tabvars(i)%var%array6)) then
              Agrif_Gr % tabvars(i) % var % nbdim = 6
+             Agrif_Gr % tabvars(i) % var % lb(1:6) = 
+     &         lbound(Agrif_Gr%tabvars(i)%var%array6)
+             Agrif_Gr % tabvars(i) % var % ub(1:6) = 
+     &         ubound(Agrif_Gr%tabvars(i)%var%array6)
          endif
 C
          if (associated(Agrif_Gr%tabvars(i)%var%darray1)) then

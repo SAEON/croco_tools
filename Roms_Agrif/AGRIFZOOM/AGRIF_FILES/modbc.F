@@ -1,5 +1,5 @@
 !
-! $Id: modbc.F,v 1.5 2005/08/22 15:11:29 agrif Exp $
+! $Id: modbc.F 779 2007-12-22 17:04:17Z rblod $
 !
 C     AGRIF (Adaptive Grid Refinement In Fortran)
 C
@@ -40,13 +40,14 @@ C
 C     Define procedures contained in this module
 C
 C
+      
 C
 C     **************************************************************************
 CCC   Subroutine Agrif_Interp_bc_1d
 C     **************************************************************************
 C 
       Subroutine Agrif_Interp_bc_1d(TypeInterp,parent,child,tab,deb,fin,
-     &                              weight,pweight)            
+     &                              weight,pweight,procname)
 C
 CCC   Description:
 CCC   Subroutine to calculate the boundary conditions on a fine grid for a 1D 
@@ -57,15 +58,18 @@ C
       
 C
 C     Arguments      
-      INTEGER,DIMENSION(6) :: TypeInterp    ! TYPE of interpolation
-                                            ! (linear,...)
+      External :: procname
+      Optional :: procname
+      INTEGER,DIMENSION(6,6) :: TypeInterp    ! TYPE of interpolation (linear, 
+                                            ! lagrange, spline, ... )
       TYPE(AGRIF_PVariable) :: parent       ! Variable on the parent grid
       TYPE(AGRIF_PVariable) :: child        ! Variable on the child grid
       TYPE(AGRIF_PVariable) :: childtemp    ! Temporary variable on the child 
                                             ! grid
-      INTEGER :: deb,fin                    ! Positions of the  interpolations 
+      INTEGER :: deb,fin                    ! Positions where interpolations are
+                                            ! done on the fine grid 
       REAL, DIMENSION(
-     &    lbound(child%var%array1,1):ubound(child%var%array1,1)
+     &         child%var%lb(1):child%var%ub(1) 
      &    ), Target :: tab ! Values of the grid variable
       LOGICAL :: pweight                    ! Indicates if weight is used for  
                                             ! the temporal interpolation 
@@ -74,7 +78,7 @@ C     Arguments
 C
 C
 C     Definition of a temporary AGRIF_PVariable data TYPE representing the grid
-C     variable.  
+C     variable.   
 C
       allocate(childtemp % var)  
 C
@@ -90,20 +94,31 @@ C
 C     Index indicating if a space interpolation is necessary
       childtemp % var % interpIndex => child % var % interpIndex       
       childtemp % var % Interpolationshouldbemade = 
-     &                 child % var % Interpolationshouldbemade  
-      childtemp % var % list_interp => child % var% list_interp          
+     &                 child % var % Interpolationshouldbemade   
+      childtemp % var % list_interp => child % var% list_interp 
+      
+      childtemp % var% lb = child % var % lb
+      childtemp % var% ub = child % var % ub         
 C
 C     Call to the procedure for the calculations of the boundary conditions
+      IF (present(procname)) THEN
+      Call Agrif_CorrectVariable
+     &     (TypeInterp,parent,childtemp,deb,fin,pweight,weight,procname)
+      ELSE
       Call Agrif_CorrectVariable
      &     (TypeInterp,parent,childtemp,deb,fin,pweight,weight)
-C
+      ENDIF
+
+C   
       child % var % oldvalues2D => childtemp % var % oldvalues2D
-      child % var % list_interp => childtemp % var %list_interp      
-C      
+      child % var % list_interp => childtemp % var %list_interp
+C         
       deallocate(childtemp % var)
 C
 C       
       End Subroutine Agrif_Interp_bc_1D
+C
+      
 C
 C
 C
@@ -125,7 +140,7 @@ C
 C     Arguments      
       External :: procname
       Optional :: procname
-      INTEGER,DIMENSION(6) :: TypeInterp    ! TYPE of interpolation (linear, 
+      INTEGER,DIMENSION(6,6) :: TypeInterp    ! TYPE of interpolation (linear, 
                                             ! lagrange, spline, ... )
       TYPE(AGRIF_PVariable) :: parent       ! Variable on the parent grid
       TYPE(AGRIF_PVariable) :: child        ! Variable on the child grid
@@ -134,9 +149,9 @@ C     Arguments
       INTEGER :: deb,fin                    ! Positions where interpolations are
                                             ! done on the fine grid 
       REAL, DIMENSION(
-     &         lbound(child%var%array2,1): ubound(child%var%array2,1),
-     &         lbound(child%var%array2,2): ubound(child%var%array2,2)), 
-     &         Target :: tab ! Values of the grid variable
+     &         child%var%lb(1):child%var%ub(1),
+     &         child%var%lb(2):child%var%ub(2) 
+     &    ), Target :: tab ! Values of the grid variable
       LOGICAL :: pweight                    ! Indicates if weight is used for  
                                             ! the temporal interpolation 
       REAL :: weight                        ! Coefficient for the time 
@@ -161,7 +176,10 @@ C     Index indicating if a space interpolation is necessary
       childtemp % var % interpIndex => child % var % interpIndex       
       childtemp % var % Interpolationshouldbemade = 
      &                 child % var % Interpolationshouldbemade   
-      childtemp % var % list_interp => child % var% list_interp    
+      childtemp % var % list_interp => child % var% list_interp 
+      
+      childtemp % var% lb = child % var % lb
+      childtemp % var% ub = child % var % ub         
 C
 C     Call to the procedure for the calculations of the boundary conditions
       IF (present(procname)) THEN
@@ -201,7 +219,7 @@ C
 C     Arguments 
       External :: procname
       Optional :: procname     
-      INTEGER,DIMENSION(6) :: TypeInterp    ! TYPE of interpolation (linear, 
+      INTEGER,DIMENSION(6,6) :: TypeInterp    ! TYPE of interpolation (linear, 
                                             ! lagrange, spline, ... )
       TYPE(AGRIF_PVariable) :: parent       ! Variable on the parent grid
       TYPE(AGRIF_PVariable) :: child        ! Variable on the child grid
@@ -210,9 +228,9 @@ C     Arguments
       INTEGER :: deb,fin                    ! Positions where interpolations 
                                             ! are done on the fine grid 
       REAL, DIMENSION(
-     &         lbound(child%var%array3,1):ubound(child%var%array3,1),
-     &         lbound(child%var%array3,2):ubound(child%var%array3,2),
-     &         lbound(child%var%array3,3):ubound(child%var%array3,3)
+     &         child%var%lb(1):child%var%ub(1),
+     &         child%var%lb(2):child%var%ub(2),
+     &         child%var%lb(3):child%var%ub(3)
      &         ), Target :: tab ! Values of the grid variable
       LOGICAL :: pweight                    ! Indicates if weight is used for 
                                             ! the temporal interpolation 
@@ -238,7 +256,10 @@ C     Index indicating if a space interpolation is necessary
       childtemp % var % interpIndex => child % var % interpIndex
       childtemp % var % Interpolationshouldbemade = 
      &                 child % var % Interpolationshouldbemade 
-      childtemp % var % list_interp => child % var% list_interp           
+      childtemp % var % list_interp => child % var% list_interp 
+      
+      childtemp % var% lb = child % var % lb
+      childtemp % var% ub = child % var % ub
 C
 C     Call to the procedure for the calculations of the boundary conditions     
       IF (present(procname)) THEN
@@ -278,7 +299,7 @@ C
 C     Arguments      
       External :: procname
       Optional :: procname     
-      INTEGER,DIMENSION(6) :: TypeInterp      ! TYPE of interpolation (linear, 
+      INTEGER,DIMENSION(6,6) :: TypeInterp      ! TYPE of interpolation (linear, 
                                               ! lagrange, spline, ... )
       TYPE(AGRIF_PVariable) :: parent         ! Variable on the parent grid
       TYPE(AGRIF_PVariable) :: child          ! Variable on the child grid
@@ -287,10 +308,10 @@ C     Arguments
       INTEGER :: deb,fin                      ! Positions where interpolations 
                                               ! are done on the fine grid 
       REAL, DIMENSION(
-     &        lbound(child%var%array4,1):ubound(child%var%array4,1),
-     &        lbound(child%var%array4,2):ubound(child%var%array4,2),
-     &        lbound(child%var%array4,3):ubound(child%var%array4,3),
-     &        lbound(child%var%array4,4):ubound(child%var%array4,4)
+     &         child%var%lb(1):child%var%ub(1),
+     &         child%var%lb(2):child%var%ub(2),
+     &         child%var%lb(3):child%var%ub(3),
+     &         child%var%lb(4):child%var%ub(4)
      &        ), Target :: tab ! Values of the grid variable
       LOGICAL :: pweight                      ! Indicates if weight is used for 
                                               ! the temporal interpolation 
@@ -316,7 +337,10 @@ C     Index indicating if a space interpolation is necessary
       childtemp % var % interpIndex => child % var % interpIndex       
       childtemp % var % Interpolationshouldbemade = 
      &                 child % var % Interpolationshouldbemade  
-      childtemp % var % list_interp => child % var% list_interp          
+      childtemp % var % list_interp => child % var% list_interp 
+      
+      childtemp % var% lb = child % var % lb
+      childtemp % var% ub = child % var % ub               
 C
 C     Call to the procedure for the calculations of the boundary conditions
       IF (present(procname)) THEN
@@ -355,7 +379,7 @@ C
 C     Arguments      
       External :: procname
       Optional :: procname     
-      INTEGER,DIMENSION(6) :: TypeInterp      ! TYPE of interpolation (linear, 
+      INTEGER,DIMENSION(6,6) :: TypeInterp      ! TYPE of interpolation (linear, 
                                               ! lagrange, spline, ... )
       TYPE(AGRIF_PVariable) :: parent         ! Variable on the parent grid
       TYPE(AGRIF_PVariable) :: child          ! Variable on the child grid
@@ -364,11 +388,11 @@ C     Arguments
       INTEGER :: deb,fin                      ! Positions where interpolations 
                                               ! are done on the fine grid 
       REAL, DIMENSION(
-     &         lbound(child%var%array5,1):ubound(child%var%array5,1),
-     &         lbound(child%var%array5,2):ubound(child%var%array5,2),
-     &         lbound(child%var%array5,3):ubound(child%var%array5,3),
-     &         lbound(child%var%array5,4):ubound(child%var%array5,4),
-     &         lbound(child%var%array5,5):ubound(child%var%array5,5)
+     &         child%var%lb(1):child%var%ub(1),
+     &         child%var%lb(2):child%var%ub(2),
+     &         child%var%lb(3):child%var%ub(3),
+     &         child%var%lb(4):child%var%ub(4),
+     &         child%var%lb(5):child%var%ub(5)
      &         ), Target :: tab ! Values of the grid variable
       LOGICAL :: pweight                      ! Indicates if weight is used for 
                                               ! the temporal interpolation 
@@ -394,7 +418,11 @@ C     Index indicating if a space interpolation is necessary
       childtemp % var % interpIndex => child % var % interpIndex       
       childtemp % var % Interpolationshouldbemade = 
      &                 child % var % Interpolationshouldbemade 
-      childtemp % var % list_interp => child % var% list_interp           
+      childtemp % var % list_interp => child % var% list_interp  
+      
+      childtemp % var% lb = child % var % lb
+      childtemp % var% ub = child % var % ub
+                     
 C
 C     Call to the procedure for the calculations of the boundary conditions  
       IF (present(procname)) THEN
@@ -432,7 +460,7 @@ C
       
 C
 C     Arguments      
-      INTEGER,DIMENSION(6) :: TypeInterp      ! TYPE of interpolation (linear, 
+      INTEGER,DIMENSION(6,6) :: TypeInterp      ! TYPE of interpolation (linear, 
                                               ! lagrange, spline, ... )
       TYPE(AGRIF_PVariable) :: parent         ! Variable on the parent grid
       TYPE(AGRIF_PVariable) :: child          ! Variable on the child grid
@@ -441,12 +469,12 @@ C     Arguments
       INTEGER :: deb,fin                      ! Positions where interpolations 
                                               ! are done on the fine grid 
       REAL, DIMENSION(
-     &         lbound(child%var%array6,1):ubound(child%var%array6,1),
-     &         lbound(child%var%array6,2):ubound(child%var%array6,2),
-     &         lbound(child%var%array6,3):ubound(child%var%array6,3),
-     &         lbound(child%var%array6,4):ubound(child%var%array6,4),
-     &         lbound(child%var%array6,5):ubound(child%var%array6,5),
-     &         lbound(child%var%array6,6):ubound(child%var%array6,6)
+     &         child%var%lb(1):child%var%ub(1),
+     &         child%var%lb(2):child%var%ub(2),
+     &         child%var%lb(3):child%var%ub(3),
+     &         child%var%lb(4):child%var%ub(4),
+     &         child%var%lb(5):child%var%ub(5),
+     &         child%var%lb(6):child%var%ub(6)
      &         ), Target :: tab ! Values of the grid variable
       LOGICAL :: pweight                      ! Indicates if weight is used for 
                                               ! the temporal interpolation 
@@ -472,7 +500,10 @@ C     Index indicating if a space interpolation is necessary
       childtemp % var % interpIndex => child % var % interpIndex       
       childtemp % var % Interpolationshouldbemade = 
      &                 child % var % Interpolationshouldbemade 
-      childtemp % var % list_interp => child % var% list_interp           
+      childtemp % var % list_interp => child % var% list_interp  
+      
+      childtemp % var% lb = child % var % lb
+      childtemp % var% ub = child % var % ub               
 C
 C     Call to the procedure for the calculations of the boundary conditions
       Call Agrif_CorrectVariable
@@ -506,7 +537,7 @@ C     Arguments
       Optional :: procname
       TYPE(AGRIF_PVariable) :: parent         ! Variable on the parent grid
       TYPE(AGRIF_PVariable) :: child          ! Variable on the child grid
-      INTEGER,DIMENSION(6)  :: TypeInterp     ! TYPE of interpolation
+      INTEGER,DIMENSION(6,6)  :: TypeInterp     ! TYPE of interpolation
                                               !    (linear,lagrange,...)
       INTEGER               :: deb,fin        ! Positions where boundary
                                               !    conditions are calculated
@@ -625,28 +656,8 @@ C
 C
           case('N') ! No space DIMENSION      
 C
-            select case (nbdim) 
-C      
-              case(1)
-                nbtab_Child(n) = SIZE(child % var % array1,n) - 1
-                pttab_Child(n) = lbound(child % var % array1,n)
-              case(2)
-                nbtab_Child(n) = SIZE(child % var % array2,n) - 1
-                pttab_Child(n) = lbound(child % var % array2,n)
-              case(3)
-                nbtab_Child(n) = SIZE(child % var % array3,n) - 1
-                pttab_Child(n) = lbound(child % var % array3,n)  
-              case(4)
-                nbtab_Child(n) = SIZE(child % var % array4,n) - 1
-                pttab_Child(n) = lbound(child % var % array4,n)
-              case(5)
-                nbtab_Child(n) = SIZE(child % var % array5,n) - 1
-                pttab_Child(n) = lbound(child % var % array5,n)      
-              case(6)
-                nbtab_Child(n) = SIZE(child % var % array6,n) - 1
-                pttab_Child(n) = lbound(child % var % array6,n)      
-C
-            end select
+            nbtab_Child(n) = child % var % ub(n) - child % var % lb(n)
+            pttab_Child(n) = child % var % lb(n)
 C
 C           No interpolation but only a copy of the values of the grid variable
 C      
@@ -714,7 +725,7 @@ C
 C     Arguments
       External :: procname
       Optional :: procname
-      INTEGER,DIMENSION(6) :: TypeInterp ! TYPE of interpolation (linear, 
+      INTEGER,DIMENSION(6,6) :: TypeInterp ! TYPE of interpolation (linear, 
                                          !   spline,...)  
       TYPE(AGRIF_PVariable)    :: parent ! Variable on the parent grid
       TYPE(AGRIF_PVariable)    :: child  ! Variable on the child grid 
@@ -755,7 +766,7 @@ C     Local variables
       INTEGER,DIMENSION(nbdim,2,2) :: indtruetab ! grid variable where 
                                        !   boundary conditions are 
       INTEGER,DIMENSION(nbdim,2,2,nbdim)   :: ptres,ptres2 ! calculated
-      INTEGER                      :: nb,ndir,n,sizetab
+      INTEGER                      :: nb,ndir,n,sizetab(1)
       REAL, DIMENSION(:), Allocatable :: tab ! Array used for the interpolation
       REAL    :: c1t,c2t               ! Coefficients for the time interpolation
                                        !    (c2t=1-c1t) 
@@ -909,17 +920,19 @@ C
 C     Space interpolation 
 C      
       kindex = 1    
+      
+
 C
       do nb = 1,nbdim
 C
-        do ndir = 1,2                
+        do ndir = 1,2
 C
           if (loctab_child(nb) /= (-ndir) 
      &        .AND. loctab_child(nb) /= -3) then  
 C
               IF (present(procname)) THEN
               Call Agrif_InterpnD
-     &             (TYPEInterp,parent,child,
+     &             (TYPEInterp(nb,:),parent,child,
      &              ptres(1:nbdim,1,ndir,nb),ptres(1:nbdim,2,ndir,nb),
      &              pttab_child(1:nbdim),pttab_Parent(1:nbdim),
      &              s_Child(1:nbdim),s_Parent(1:nbdim),
@@ -927,7 +940,7 @@ C
      &              restore,.FALSE.,nbdim,procname)
               ELSE
               Call Agrif_InterpnD              
-     &             (TYPEInterp,parent,child,
+     &             (TYPEInterp(nb,:),parent,child,
      &              ptres(1:nbdim,1,ndir,nb),ptres(1:nbdim,2,ndir,nb),
      &              pttab_child(1:nbdim),pttab_Parent(1:nbdim),
      &              s_Child(1:nbdim),s_Parent(1:nbdim),
@@ -940,17 +953,17 @@ C
 C             Safeguard of the values of the grid variable (at times n and n+1
 C                on the parent grid)
 C      
-              sizetab = 1
+              sizetab(1) = 1
 C
               do i = 1,nbdim
 C          
-                sizetab = sizetab 
+                sizetab(1) = sizetab(1)
      &              * (ptres2(i,2,ndir,nb)-ptres2(i,1,ndir,nb)+1)
 C      
               enddo
 
               Call saveAfterInterp(child,
-     &           ptres2(:,:,ndir,nb),kindex,sizetab,nbdim)
+     &           ptres2(:,:,ndir,nb),kindex,sizetab(1),nbdim)
 C
            ENDIF
 C
@@ -993,36 +1006,9 @@ C
 C
           if (loctab_child(nb) /= (-ndir) 
      &        .AND. loctab_child(nb) /= -3) then
-C      
-              sizetab=1   
-C
-              do i = 1,nbdim
-C          
-                sizetab = sizetab
-     &             * (ptres2(i,2,ndir,nb)-ptres2(i,1,ndir,nb)+1)
-C      
-              enddo
-C              
-              allocate(tab(sizetab))
-C
-c            Call Agrif_vector2array(
-c    &                      tab,child%var,
-c    &                      ptres2(:,:,ndir,nb),
-c    &                      nbdim)
-C    
-C                  
+
               Call timeInterpolation
-     &             (child,tab,kindex,c1t,c2t)           
-C
-C
-          Call Agrif_array2vector(
-     &                   child%var,
-     &                   ptres2(:,:,ndir,nb),
-     &                   tab,nbdim)
-C
-C         
-              deallocate(tab)
-C 
+     &             (child,ptres2(:,:,ndir,nb),kindex,c1t,c2t,nbdim)
           endif
 C
         enddo
@@ -1070,15 +1056,16 @@ C
 
       if (child % var % interpIndex 
      &        /= Agrif_Curgrid % parent % ngridstep ) then
-       child%var%oldvalues2d(kindex:kindex+newsize-1,1)=
-     &        child%var%oldvalues2d(kindex:kindex+newsize-1,2)
+       child%var%oldvalues2d(1,kindex:kindex+newsize-1)=
+     &        child%var%oldvalues2d(2,kindex:kindex+newsize-1)
       endif
 
       SELECT CASE (nbdim)
       CASE (1)
 
+!CDIR ALTCODE
          do ir=bounds(1,1),bounds(1,2)
-            child%var%oldvalues2d(kindex,2) =
+            child%var%oldvalues2d(2,kindex) =
      &           child%var%array1(ir)
             kindex = kindex + 1
          enddo       
@@ -1086,8 +1073,9 @@ C
       CASE (2)
 
         do jr=bounds(2,1),bounds(2,2)
+!CDIR ALTCODE
            do ir=bounds(1,1),bounds(1,2)
-            child%var%oldvalues2d(kindex,2) =
+            child%var%oldvalues2d(2,kindex) =
      &           child%var%array2(ir,jr)
             kindex = kindex + 1
            enddo
@@ -1096,8 +1084,9 @@ C
       CASE (3)
         do kr=bounds(3,1),bounds(3,2)
           do jr=bounds(2,1),bounds(2,2)
+!CDIR ALTCODE
              do ir=bounds(1,1),bounds(1,2)
-            child%var%oldvalues2d(kindex,2) =
+            child%var%oldvalues2d(2,kindex) =
      &           child%var%array3(ir,jr,kr)
             kindex = kindex + 1
              enddo
@@ -1108,8 +1097,9 @@ C
           do lr=bounds(4,1),bounds(4,2)
            do kr=bounds(3,1),bounds(3,2)
              do jr=bounds(2,1),bounds(2,2)
+!CDIR ALTCODE
                do ir=bounds(1,1),bounds(1,2)
-            child%var%oldvalues2d(kindex,2) =
+            child%var%oldvalues2d(2,kindex) =
      &           child%var%array4(ir,jr,kr,lr)
             kindex = kindex + 1
                enddo
@@ -1122,8 +1112,9 @@ C
            do lr=bounds(4,1),bounds(4,2)
             do kr=bounds(3,1),bounds(3,2) 
               do jr=bounds(2,1),bounds(2,2)
+!CDIR ALTCODE
                  do ir=bounds(1,1),bounds(1,2)
-            child%var%oldvalues2d(kindex,2) =
+            child%var%oldvalues2d(2,kindex) =
      &           child%var%array5(ir,jr,kr,lr,mr)
             kindex = kindex + 1
                  enddo
@@ -1138,8 +1129,9 @@ C
              do lr=bounds(4,1),bounds(4,2)
                do kr=bounds(3,1),bounds(3,2)
                 do jr=bounds(2,1),bounds(2,2)
+!CDIR ALTCODE
                    do ir=bounds(1,1),bounds(1,2)
-            child%var%oldvalues2d(kindex,2) =
+            child%var%oldvalues2d(2,kindex) =
      &           child%var%array6(ir,jr,kr,lr,mr,nr)
             kindex = kindex + 1
                    enddo
@@ -1159,7 +1151,7 @@ C     **************************************************************************
 CCC   Subroutine timeInterpolation
 C     **************************************************************************
 C
-      Subroutine timeInterpolation(child,tab,kindex,c1t,c2t) 
+      Subroutine timeInterpolation(child,bounds,kindex,c1t,c2t,nbdim) 
 C
 CCC   Descritpion:
 CCC   Subroutine for a linear time interpolation on the child grid. 
@@ -1170,7 +1162,8 @@ C
 C
 C     argument
       TYPE (AGRIF_PVariable) :: child  ! The fine grid variable
-      REAL, DIMENSION(:)     :: tab
+      INTEGER :: nbdim
+      INTEGER,DIMENSION(nbdim,2) :: bounds
       INTEGER                :: kindex ! Index indicating the values of the fine
                                        ! grid got before and after the space 
                                        ! interpolation and used for the time 
@@ -1180,13 +1173,99 @@ C     argument
 C
 C     Local aruments      
       INTEGER :: i
+C     Local scalars
+      INTEGER                      :: ir,jr,kr,lr,mr,nr      
 C
 C
-      do i = 1,size(tab)
-        tab(i) = c2t*child % var % oldvalues2d(kindex,1)   
-     &         + c1t*child % var % oldvalues2d(kindex,2)        
-        kindex = kindex + 1        
-      enddo                                             
+      
+      SELECT CASE (nbdim)
+      CASE (1)
+
+!CDIR ALTCODE
+         do ir=bounds(1,1),bounds(1,2)
+                child%var%array1(ir) =
+     &           c2t*child % var % oldvalues2d(1,kindex)   
+     &         + c1t*child % var % oldvalues2d(2,kindex)    
+            kindex = kindex + 1
+         enddo       
+C
+      CASE (2)
+
+        do jr=bounds(2,1),bounds(2,2)
+!CDIR ALTCODE
+           do ir=bounds(1,1),bounds(1,2)
+                child%var%array2(ir,jr) =
+     &           c2t*child % var % oldvalues2d(1,kindex)   
+     &         + c1t*child % var % oldvalues2d(2,kindex) 
+            kindex = kindex + 1
+           enddo
+         enddo      
+C
+      CASE (3)
+        do kr=bounds(3,1),bounds(3,2)
+          do jr=bounds(2,1),bounds(2,2)
+!CDIR ALTCODE
+             do ir=bounds(1,1),bounds(1,2)
+                child%var%array3(ir,jr,kr) =
+     &           c2t*child % var % oldvalues2d(1,kindex)   
+     &         + c1t*child % var % oldvalues2d(2,kindex) 
+            kindex = kindex + 1
+             enddo
+           enddo
+         enddo       
+C
+      CASE (4)
+          do lr=bounds(4,1),bounds(4,2)
+           do kr=bounds(3,1),bounds(3,2)
+             do jr=bounds(2,1),bounds(2,2)
+!CDIR ALTCODE
+               do ir=bounds(1,1),bounds(1,2)
+                child%var%array4(ir,jr,kr,lr) =
+     &           c2t*child % var % oldvalues2d(1,kindex)   
+     &         + c1t*child % var % oldvalues2d(2,kindex) 
+            kindex = kindex + 1
+               enddo
+             enddo
+           enddo
+         enddo         
+C
+      CASE (5)
+         do mr=bounds(5,1),bounds(5,2)
+           do lr=bounds(4,1),bounds(4,2)
+            do kr=bounds(3,1),bounds(3,2) 
+              do jr=bounds(2,1),bounds(2,2)
+!CDIR ALTCODE
+                 do ir=bounds(1,1),bounds(1,2)
+                child%var%array5(ir,jr,kr,lr,mr) =
+     &           c2t*child % var % oldvalues2d(1,kindex)   
+     &         + c1t*child % var % oldvalues2d(2,kindex) 
+            kindex = kindex + 1
+                 enddo
+               enddo
+             enddo
+           enddo
+         enddo   
+C
+      CASE (6)
+        do nr=bounds(6,1),bounds(6,2)
+           do mr=bounds(5,1),bounds(5,2)
+             do lr=bounds(4,1),bounds(4,2)
+               do kr=bounds(3,1),bounds(3,2)
+                do jr=bounds(2,1),bounds(2,2)
+!CDIR ALTCODE
+                   do ir=bounds(1,1),bounds(1,2)
+                child%var%array6(ir,jr,kr,lr,mr,nr) =
+     &           c2t*child % var % oldvalues2d(1,kindex)   
+     &         + c1t*child % var % oldvalues2d(2,kindex) 
+            kindex = kindex + 1
+                   enddo
+                 enddo
+               enddo
+             enddo
+           enddo
+         enddo       
+      END SELECT
+                                                   
 C
 C
       End subroutine timeInterpolation      
@@ -1220,26 +1299,26 @@ C
 C
       if (.NOT. associated(child % var % oldvalues2d)) then
 C
-          allocate(child % var % oldvalues2d(newsize,2))
+          allocate(child % var % oldvalues2d(2,newsize))
 C  
           child % var % oldvalues2d=0.
 C
         else
 C
-          if (SIZE(child % var % oldvalues2d,1) < newsize) then   
+          if (SIZE(child % var % oldvalues2d,2) < newsize) then   
 C
-              allocate(tempoldvalues(SIZE(child % var %
-     &                                    oldvalues2d,1),2))
+              allocate(tempoldvalues(2,SIZE(child % var %
+     &                                    oldvalues2d,2)))
 C
               tempoldvalues = child % var % oldvalues2d
 C
               deallocate(child % var % oldvalues2d)
 C
-              allocate(child % var % oldvalues2d(newsize,2))
+              allocate(child % var % oldvalues2d(2,newsize))
 C            
               child%var%oldvalues2d=0.
 C
-              child % var % oldvalues2d(1:SIZE(tempoldvalues,1),:) = 
+              child % var % oldvalues2d(:,1:SIZE(tempoldvalues,2)) = 
      &        tempoldvalues(:,:)
 C
               deallocate(tempoldvalues)

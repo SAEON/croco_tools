@@ -1,5 +1,5 @@
 !
-! $Id: modcurgridfunctions.F,v 1.4 2005/08/22 15:11:29 agrif Exp $
+! $Id: modarrays.F 662 2007-05-25 15:58:52Z opalod $
 !
 C     AGRIF (Adaptive Grid Refinement In Fortran)
 C
@@ -175,27 +175,8 @@ C
 C
 C     Local variables       
 C
-      SELECT CASE (nbdim)
-      CASE (1)
-           lower = lbound(Variable % array1)
-           upper = ubound(Variable % array1)
-      CASE (2)
-           lower = lbound(Variable % array2)
-           upper = ubound(Variable % array2)
-      CASE (3)
-           lower = lbound(Variable % array3)
-           upper = ubound(Variable % array3)
-      CASE (4)
-           lower = lbound(Variable % array4)
-           upper = ubound(Variable % array4)
-      CASE (5)
-           lower = lbound(Variable % array5)
-           upper = ubound(Variable % array5)
-      CASE (6)
-           lower = lbound(Variable % array6)
-           upper = ubound(Variable % array6)
-      END SELECT
-C
+      lower = Variable % lb(1:nbdim)
+      upper = Variable % ub(1:nbdim)
       return
 C
       End Subroutine Agrif_nbdim_Get_bound_dimension     
@@ -550,213 +531,7 @@ C
       End Subroutine Agrif_nbdim_Full_VarEQvar
 C
 C
-C     **************************************************************************
-CCC   Subroutine Agrif_array2vector
-C     **************************************************************************
-C
-      Subroutine Agrif_array2vector(array,bounds,vector,nbdim)
-C
-CCC   Description:
-CCC   This subroutine is used to record the array into the vector
-C
-C     Declarations:
-C      
-      
-C
-C     Arguments      
-C
-      TYPE(AGRIF_Variable), Pointer       :: array
-      REAL, DIMENSION(:)         :: vector      ! Array used for the time 
-      INTEGER                    :: nbdim       ! dimension of the table
-      INTEGER,DIMENSION(nbdim,2) :: bounds
-C
-C     Local variables       
-C
-      INTEGER                      :: nind,ir,jr,kr,lr,mr,nr
-C
-      SELECT CASE (nbdim)
-      CASE (1)
-         nind=0
-         do ir=bounds(1,1),bounds(1,2)
-            nind=nind+1
-            array%array1(ir) = vector(nind)
-         enddo       
-C
-      CASE (2)
-         nind=0
-          do jr=bounds(2,1),bounds(2,2)
-           do ir=bounds(1,1),bounds(1,2)
-               nind=nind+1
-               array%array2(ir,jr) = vector(nind)
-           enddo
-         enddo        
-C
-      CASE (3)
-         nind=0
-        do kr=bounds(3,1),bounds(3,2)
-           do jr=bounds(2,1),bounds(2,2)
-             do ir=bounds(1,1),bounds(1,2)
-                  nind=nind+1
-                  array%array3(ir,jr,kr) = vector(nind)
-             enddo
-           enddo
-         enddo      
-C
-      CASE (4)
-         nind=0
-        do lr=bounds(4,1),bounds(4,2)
-          do kr=bounds(3,1),bounds(3,2)
-             do jr=bounds(2,1),bounds(2,2)
-               do ir=bounds(1,1),bounds(1,2)
-                     nind=nind+1
-                     array%array4(ir,jr,kr,lr) = vector(nind)
-               enddo
-             enddo
-           enddo
-         enddo          
-C
-      CASE (5)
-         nind=0
-         do mr=bounds(5,1),bounds(5,2)
-         do lr=bounds(4,1),bounds(4,2)
-          do kr=bounds(3,1),bounds(3,2) 
-              do jr=bounds(2,1),bounds(2,2)
-                 do ir=bounds(1,1),bounds(1,2)
-                     nind=nind+1
-                     array%array5(ir,jr,kr,lr,mr) = vector(nind)
-                 enddo
-               enddo
-             enddo
-           enddo
-         enddo        
-C
-      CASE (6)
-         nind=0
-        do nr=bounds(6,1),bounds(6,2)
-          do mr=bounds(5,1),bounds(5,2)
-          do lr=bounds(4,1),bounds(4,2)
-           do kr=bounds(3,1),bounds(3,2)
-             do jr=bounds(2,1),bounds(2,2)
-                   do ir=bounds(1,1),bounds(1,2)
-                     nind=nind+1
-                     array%array6(ir,jr,kr,lr,mr,nr) = vector(nind)
-                   enddo
-                 enddo
-               enddo
-             enddo
-           enddo
-         enddo       
-        END SELECT
-C
-      return
-C
-      End Subroutine Agrif_array2vector
-C
-C
-C
-C     **************************************************************************
-CCC   Subroutine Agrif_vector2array
-C     **************************************************************************
-C
-      Subroutine Agrif_vector2array(vector,array,bounds,nbdim)
-C
-CCC   Description:
-CCC   This subroutine is used to record the array into the vector
-C
-C     Declarations:
-C      
-      
-C
-C     Arguments      
-C
-      TYPE(AGRIF_Variable), Pointer       :: array
-      REAL, DIMENSION(:)         :: vector      ! Array used for the time 
-      INTEGER                    :: nbdim       ! dimension of the table
-      INTEGER,DIMENSION(nbdim,2) :: bounds
-C
-C     Local variables       
-C
-      INTEGER                      :: nind,ir,jr,kr,lr,mr,nr
-C
-      SELECT CASE (nbdim)
-      CASE (1)
-         nind=0
-         do ir=bounds(1,1),bounds(1,2)
-            nind=nind+1
-            vector(nind) = array%array1(ir)
-         enddo       
-C
-      CASE (2)
-         nind=0
-        do jr=bounds(2,1),bounds(2,2)
-           do ir=bounds(1,1),bounds(1,2)
-               nind=nind+1
-               vector(nind) = array%array2(ir,jr)
-           enddo
-         enddo      
-C
-      CASE (3)
-         nind=0
-        do kr=bounds(3,1),bounds(3,2)
-          do jr=bounds(2,1),bounds(2,2)
-             do ir=bounds(1,1),bounds(1,2)
-                  nind=nind+1
-                  vector(nind) = array%array3(ir,jr,kr)
-             enddo
-           enddo
-         enddo       
-C
-      CASE (4)
-         nind=0
-          do lr=bounds(4,1),bounds(4,2)
-           do kr=bounds(3,1),bounds(3,2)
-             do jr=bounds(2,1),bounds(2,2)
-               do ir=bounds(1,1),bounds(1,2)
-                     nind=nind+1
-                     vector(nind) = array%array4(ir,jr,kr,lr)
-               enddo
-             enddo
-           enddo
-         enddo         
-C
-      CASE (5)
-         nind=0
-         do mr=bounds(5,1),bounds(5,2)
-           do lr=bounds(4,1),bounds(4,2)
-            do kr=bounds(3,1),bounds(3,2) 
-              do jr=bounds(2,1),bounds(2,2)
-                 do ir=bounds(1,1),bounds(1,2)
-                     nind=nind+1
-                     vector(nind) = array%array5(ir,jr,kr,lr,mr)
-                 enddo
-               enddo
-             enddo
-           enddo
-         enddo   
-C
-      CASE (6)
-         nind=0
-        do nr=bounds(6,1),bounds(6,2)
-           do mr=bounds(5,1),bounds(5,2)
-             do lr=bounds(4,1),bounds(4,2)
-               do kr=bounds(3,1),bounds(3,2)
-                do jr=bounds(2,1),bounds(2,2)
-                   do ir=bounds(1,1),bounds(1,2)
-                     nind=nind+1
-                     vector(nind) = array%array6(ir,jr,kr,lr,mr,nr)
-                   enddo
-                 enddo
-               enddo
-             enddo
-           enddo
-         enddo       
-      END SELECT
-C
-      return
-C
-      End Subroutine Agrif_vector2array
 
-#ifdef AGRIF_MPI
 C     **************************************************************************
 CCC   Subroutine GiveAgrif_SpecialValueToTab_mpi
 C     **************************************************************************
@@ -785,79 +560,79 @@ C
       SELECT CASE (nbdim)
       CASE (1)
              Where (Variable1 % array1(
-     &           bound1(lower(1),1,2):bound1(upper(1),1,2)) 
+     &           bound1(1,1,2):bound1(1,2,2)) 
      &            == Value)
-             Variable2 % array1(lower(1):upper(1))
+             Variable2 % array1(bound1(1,1,1):bound1(1,2,1))
      &                        = Value
 C      
               End Where
       CASE (2)
              Where (Variable1 % array2(
-     &           bound1(lower(1),1,2):bound1(upper(1),1,2),
-     &           bound1(lower(2),2,2):bound1(upper(2),2,2)) 
+     &           bound1(1,1,2):bound1(1,2,2),
+     &           bound1(2,1,2):bound1(2,2,2)) 
      &            == Value)
-             Variable2 % array2(lower(1):upper(1),
-     &                          lower(2):upper(2))
+             Variable2 % array2(bound1(1,1,1):bound1(1,2,1),
+     &                       bound1(2,1,1):bound1(2,2,1))
      &                        = Value
 C      
               End Where
       CASE (3)
              Where (Variable1 % array3(
-     &           bound1(lower(1),1,2):bound1(upper(1),1,2),
-     &           bound1(lower(2),2,2):bound1(upper(2),2,2), 
-     &           bound1(lower(3),3,2):bound1(upper(3),3,2)) 
+     &           bound1(1,1,2):bound1(1,2,2),
+     &                       bound1(2,1,2):bound1(2,2,2),
+     &                       bound1(3,1,2):bound1(3,2,2)) 
      &            == Value)
-             Variable2 % array3(lower(1):upper(1),
-     &                          lower(2):upper(2),
-     &                          lower(3):upper(3))
+             Variable2 % array3(bound1(1,1,1):bound1(1,2,1),
+     &                       bound1(2,1,1):bound1(2,2,1),
+     &                       bound1(3,1,1):bound1(3,2,1))
      &                         = Value
 C      
               End Where
       CASE (4)
              Where (Variable1 % array4(
-     &           bound1(lower(1),1,2):bound1(upper(1),1,2),
-     &           bound1(lower(2),2,2):bound1(upper(2),2,2), 
-     &           bound1(lower(3),3,2):bound1(upper(3),3,2),
-     &           bound1(lower(4),4,2):bound1(upper(4),4,2)) 
+     &           bound1(1,1,2):bound1(1,2,2),
+     &                       bound1(2,1,2):bound1(2,2,2),
+     &                       bound1(3,1,2):bound1(3,2,2),
+     &                       bound1(4,1,2):bound1(4,2,2)) 
      &            == Value)
-             Variable2 % array4(lower(1):upper(1),
-     &                          lower(2):upper(2),
-     &                          lower(3):upper(3),
-     &                          lower(4):upper(4))
+             Variable2 % array4(bound1(1,1,1):bound1(1,2,1),
+     &                       bound1(2,1,1):bound1(2,2,1),
+     &                       bound1(3,1,1):bound1(3,2,1),
+     &                       bound1(4,1,1):bound1(4,2,1))
      &                        = Value
 C      
               End Where
       CASE (5)
              Where (Variable1 % array5(
-     &           bound1(lower(1),1,2):bound1(upper(1),1,2),
-     &           bound1(lower(2),2,2):bound1(upper(2),2,2),
-     &           bound1(lower(3),3,2):bound1(upper(3),3,2),
-     &           bound1(lower(4),4,2):bound1(upper(4),4,2),
-     &           bound1(lower(5),5,2):bound1(upper(5),5,2)) 
+     &           bound1(1,1,2):bound1(1,2,2),
+     &                       bound1(2,1,2):bound1(2,2,2),
+     &                       bound1(3,1,2):bound1(3,2,2),
+     &                       bound1(4,1,2):bound1(4,2,2),
+     &                       bound1(5,1,2):bound1(5,2,2)) 
      &            == Value)
-             Variable2 % array5(lower(1):upper(1),
-     &                          lower(2):upper(2),
-     &                          lower(3):upper(3),
-     &                          lower(4):upper(4),
-     &                          lower(5):upper(5))
+             Variable2 % array5(bound1(1,1,1):bound1(1,2,1),
+     &                       bound1(2,1,1):bound1(2,2,1),
+     &                       bound1(3,1,1):bound1(3,2,1),
+     &                       bound1(4,1,1):bound1(4,2,1),
+     &                       bound1(5,1,1):bound1(5,2,1))
      &                        = Value
 C      
               End Where
       CASE (6)
              Where (Variable1 % array6(
-     &           bound1(lower(1),1,2):bound1(upper(1),1,2),
-     &           bound1(lower(2),2,2):bound1(upper(2),2,2),
-     &           bound1(lower(2),3,2):bound1(upper(3),3,2),
-     &           bound1(lower(4),4,2):bound1(upper(4),4,2),
-     &           bound1(lower(5),5,2):bound1(upper(5),5,2),
-     &           bound1(lower(6),6,2):bound1(upper(6),6,2)) 
+     &           bound1(1,1,2):bound1(1,2,2),
+     &                       bound1(2,1,2):bound1(2,2,2),
+     &                       bound1(3,1,2):bound1(3,2,2),
+     &                       bound1(4,1,2):bound1(4,2,2),
+     &                       bound1(5,1,2):bound1(5,2,2),
+     &                       bound1(6,1,2):bound1(6,2,2)) 
      &            == Value)
-             Variable2 % array6(lower(1):upper(1),
-     &                          lower(2):upper(2),
-     &                          lower(3):upper(3),
-     &                          lower(4):upper(4),
-     &                          lower(5):upper(5),
-     &                          lower(6):upper(6))
+             Variable2 % array6(bound1(1,1,1):bound1(1,2,1),
+     &                       bound1(2,1,1):bound1(2,2,1),
+     &                       bound1(3,1,1):bound1(3,2,1),
+     &                       bound1(4,1,1):bound1(4,2,1),
+     &                       bound1(5,1,1):bound1(5,2,1),
+     &                       bound1(6,1,1):bound1(6,2,1))
      &                        = Value
 C      
               End Where
@@ -866,7 +641,7 @@ C
       return
 C
       End Subroutine GiveAgrif_SpecialValueToTab_mpi    
-#else
+
 C     **************************************************************************
 CCC   Subroutine GiveAgrif_SpecialValueToTab
 C     **************************************************************************
@@ -975,7 +750,7 @@ C
       return
 C
       End Subroutine GiveAgrif_SpecialValueToTab   
-#endif
+
 C
 C
 #ifdef AGRIF_MPI

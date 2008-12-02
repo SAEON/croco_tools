@@ -31,7 +31,11 @@ C
       
 C     Maximum refinement ratio
 
-      INTEGER, PARAMETER :: Agrif_MaxRaff = 7      
+      INTEGER, PARAMETER :: Agrif_MaxRaff = 7
+      
+C     Maximum number of grids of the hierarchy
+      INTEGER, PARAMETER :: Agrif_NbMaxGrids = 10
+                  
 C
 C     **************************************************************************
 CCC   TYPE Agrif_LRECTANGLE
@@ -159,7 +163,8 @@ C          Arrays for adaptive grid refinement
            INTEGER ,DIMENSION(:)          ,Pointer :: tabpoint1D
            INTEGER ,DIMENSION(:,:)        ,Pointer :: tabpoint2D
            INTEGER ,DIMENSION(:,:,:)      ,Pointer :: tabpoint3D
-           
+           Type(Agrif_List_Variables), Pointer     :: variables=>NULL()
+           INTEGER                                 :: NbVariables = 0
            Type(Agrif_Flux), Pointer               :: fluxes => NULL()
       End TYPE Agrif_grid
 C
@@ -171,6 +176,7 @@ CCC   Description:
 CCC   Data TYPE to CHARACTERize a grid variable.   
 C
       TYPE Agrif_Variable 
+         CHARACTER*80 :: variablename
 C       
          ! Pointer on the variable of the root grid 
          TYPE(Agrif_Variable), Pointer :: root_var 
@@ -203,6 +209,14 @@ C        Arrays containing the values of the grid variables (REAL*8)
          REAL*8, DIMENSION(:,:,:,:)    ,Pointer :: darray4   => NULL()
          REAL*8, DIMENSION(:,:,:,:,:)  ,Pointer :: darray5   => NULL()
          REAL*8, DIMENSION(:,:,:,:,:,:),Pointer :: darray6   => NULL()
+C        Arrays containing the values of the grid variables (REAL*4)
+         REAL*4                                 :: sarray0
+         REAL*4, DIMENSION(:)          ,Pointer :: sarray1   => NULL()
+         REAL*4, DIMENSION(:,:)        ,Pointer :: sarray2   => NULL()
+         REAL*4, DIMENSION(:,:,:)      ,Pointer :: sarray3   => NULL()
+         REAL*4, DIMENSION(:,:,:,:)    ,Pointer :: sarray4   => NULL()
+         REAL*4, DIMENSION(:,:,:,:,:)  ,Pointer :: sarray5   => NULL()
+         REAL*4, DIMENSION(:,:,:,:,:,:),Pointer :: sarray6   => NULL()
 C        Arrays containing the values of the grid variables (LOGICAL)
          LOGICAL                                 :: larray0
          LOGICAL, DIMENSION(:)          ,Pointer :: larray1   => NULL()
@@ -240,11 +254,13 @@ C
          LOGICAL :: Interpolationshouldbemade = .FALSE. 
          INTEGER :: bcinf ! option bc
          INTEGER :: bcsup ! option bc
-         INTEGER :: updateinf ! option update
-         INTEGER :: updatesup ! option update         
-         INTEGER, DIMENSION(6) :: bcTYPEinterp ! option bcinterp
+         INTEGER, DIMENSION(6) :: updateinf ! option update
+         INTEGER, DIMENSION(6) :: updatesup ! option update         
+         INTEGER, DIMENSION(6,6) :: bcTYPEinterp ! option bcinterp
          INTEGER, DIMENSION(6) :: TYPEinterp ! option interp
          INTEGER, DIMENSION(6) :: TYPEupdate ! option update
+         
+         INTEGER, DIMENSION(6) :: lb, ub
          
          Type(Agrif_List_Interp_Loc), Pointer :: list_interp => NULL()
          Type(Agrif_List_Interp_Loc), Pointer :: list_update => NULL()
@@ -266,6 +282,10 @@ C
       LOGICAL, DIMENSION(:), POINTER :: memberinall
       INTEGER,DIMENSION(:,:,:), POINTER :: tab5t
       LOGICAL, DIMENSION(:), POINTER :: memberinall2
+      LOGICAL, DIMENSION(:), POINTER :: sendtoproc1    
+      LOGICAL, DIMENSION(:), POINTER :: recvfromproc1      
+      LOGICAL, DIMENSION(:), POINTER :: sendtoproc2      
+      LOGICAL, DIMENSION(:), POINTER :: recvfromproc2      
 #endif      
       End Type Agrif_Interp_Loc
       
@@ -273,7 +293,12 @@ C
       Type(Agrif_Interp_Loc), Pointer :: interp_loc
       Type(Agrif_List_Interp_Loc), Pointer :: suiv
       End Type Agrif_List_Interp_Loc
-        
+
+       TYPE Agrif_List_Variables
+         Type(Agrif_PVariable), Pointer :: pvar
+         Type(Agrif_List_Variables), Pointer :: nextvariable  => NULL()
+       END TYPE Agrif_List_Variables
+               
        TYPE Agrif_Profile
           character*80 :: profilename
 C
@@ -289,6 +314,7 @@ C
          ! Array indicating the TYPE of DIMENSION (space or not) for 
          !    each of them 
          CHARACTER(6),DIMENSION(:) ,Pointer :: interptab   => NULL() 
+         Type(Agrif_Variable), Pointer :: var
          Type(Agrif_Profile), Pointer :: nextprofile  => NULL()
        END TYPE Agrif_Profile
        
@@ -349,6 +375,7 @@ C   clustering PARAMETERs
       INTEGER               :: Agrif_Regridding
       INTEGER               :: Agrif_Minwidth
       REAL                  :: Agrif_Efficiency = 0.7
+      INTEGER               :: MaxSearch = 5
       REAL    ,DIMENSION(3) :: Agrif_mind
 C     PARAMETERs for the interpolation of the child grids
       ! linear interpolation

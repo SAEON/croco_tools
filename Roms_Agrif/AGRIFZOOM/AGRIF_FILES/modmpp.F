@@ -1,5 +1,5 @@
 !
-! $Id: modcurgridfunctions.F,v 1.4 2005/08/22 15:11:29 agrif Exp $
+! $Id: modmpp.F 779 2007-12-22 17:04:17Z rblod $
 !
 C     AGRIF (Adaptive Grid Refinement In Fortran)
 C
@@ -30,6 +30,146 @@ C
 
       Contains
 #ifdef AGRIF_MPI
+      Subroutine Get_External_Data_first(pttruetab,
+     &   cetruetab,pttruetabwhole,cetruetabwhole,nbdim,memberin,
+     &   memberout,memberoutall1,sendtoproc,recvfromproc,imin,imax,
+     &   imin_recv,imax_recv)
+
+      IMPLICIT NONE
+#include "mpif.h"
+      INTEGER :: nbdim
+      INTEGER,DIMENSION(nbdim,0:Agrif_NbProcs-1)    :: pttruetab,
+     &                                                 cetruetab
+      INTEGER,DIMENSION(nbdim,0:Agrif_NbProcs-1)    :: pttruetabwhole,
+     &                                                 cetruetabwhole
+      INTEGER :: k,i,k2
+      LOGICAL, DIMENSION(0:Agrif_Nbprocs-1) :: sendtoproc, recvfromproc
+      INTEGER,DIMENSION(nbdim,0:Agrif_NbProcs-1):: imin,imax,
+     &   imin_recv,imax_recv
+      LOGICAL :: memberin, memberout
+      INTEGER :: imintmp, imaxtmp,j,i1
+      INTEGER :: imin1,imax1
+      LOGICAL :: tochange,tochangebis
+      INTEGER,DIMENSION(nbdim,0:Agrif_NbProcs-1)    :: pttruetab2,
+     &                                                 cetruetab2
+      LOGICAL :: memberout1(1),memberoutall(0:Agrif_Nbprocs-1)
+      LOGICAL, OPTIONAL :: memberoutall1(0:Agrif_Nbprocs-1)
+      INTEGER :: code
+      
+C pttruetab2 and cetruetab2 are modified arraysin order to always
+C send the most inner points
+
+        
+        IF (present(memberoutall1)) THEN
+        memberoutall = memberoutall1
+        ELSE
+         memberout1(1) = memberout
+
+         CALL MPI_ALLGATHER(memberout1,1,MPI_LOGICAL,memberoutall,
+     &                  1,MPI_LOGICAL,MPI_COMM_WORLD,code)
+        ENDIF
+         pttruetab2(:,Agrif_Procrank) = pttruetab(:,Agrif_Procrank)
+         cetruetab2(:,Agrif_Procrank) = cetruetab(:,Agrif_Procrank)
+         do k2=0,Agrif_Nbprocs-1
+            do i=1,nbdim
+
+           tochangebis=.TRUE.
+           DO i1=1,nbdim
+            IF (i .NE. i1) THEN
+              IF ((pttruetab(i1,Agrif_Procrank).NE.pttruetab(i1,k2)).OR.
+     &          (cetruetab(i1,Agrif_Procrank).NE.cetruetab(i1,k2))) THEN
+                   tochangebis = .FALSE.
+               EXIT
+              ENDIF
+             ENDIF
+           ENDDO
+
+           IF (tochangebis) THEN
+
+
+          imin1 = max(pttruetab(i,Agrif_Procrank),
+     &                    pttruetab(i,k2))
+          imax1 = min(cetruetab(i,Agrif_Procrank),
+     &                    cetruetab(i,k2))
+
+C Always send the most interior points
+
+           tochange = .false.
+           IF (cetruetab(i,Agrif_Procrank)> cetruetab(i,k2)) THEN
+
+           DO j=imin1,imax1
+             IF ((cetruetab(i,k2)-j) >
+     &             (j-pttruetab(i,Agrif_Procrank))) THEN
+             imintmp = j+1
+             tochange = .TRUE.
+             ELSE
+              EXIT
+             ENDIF
+          ENDDO
+          ENDIF
+
+           if (tochange) then
+C
+              pttruetab2(i,Agrif_Procrank) = imintmp
+C
+          endif
+
+           tochange = .FALSE.
+           imaxtmp=0
+           IF (pttruetab(i,Agrif_Procrank) < pttruetab(i,k2)) THEN
+          DO j=imax1,imin1,-1
+            IF ((j-pttruetab(i,k2)) >
+     &             (cetruetab(i,Agrif_Procrank)-j)) THEN
+             imaxtmp = j-1
+             tochange = .TRUE.
+            ELSE
+             EXIT
+            ENDIF
+          ENDDO
+
+          ENDIF
+
+                    if (tochange) then
+C
+              cetruetab2(i,Agrif_Procrank) = imaxtmp
+C
+          endif
+C
+
+          ENDIF
+           enddo
+         enddo
+
+
+       do k = 0,Agrif_NbProcs-1
+C
+        sendtoproc(k) = .true.
+C
+!CDIR SHORTLOOP
+        do i = 1,nbdim
+C
+          imin(i,k) = max(pttruetab2(i,Agrif_Procrank),
+     &                    pttruetabwhole(i,k))
+          imax(i,k) = min(cetruetab2(i,Agrif_Procrank),
+     &                    cetruetabwhole(i,k))
+C
+          if (imin(i,k) > imax(i,k)) then
+C
+              sendtoproc(k) = .false.
+C
+          endif
+C
+        enddo
+        IF (.NOT.memberoutall(k)) THEN
+           sendtoproc(k) = .FALSE.
+        ENDIF
+C
+      enddo
+      
+      Call Exchangesamelevel_first(sendtoproc,nbdim,imin,imax,
+     &     recvfromproc,imin_recv,imax_recv)
+      
+      End Subroutine Get_External_Data_first
 C
       Subroutine Get_External_Data(tempC,tempCextend,pttruetab,
      &   cetruetab,pttruetabwhole,cetruetabwhole,nbdim,memberin,
@@ -145,6 +285,7 @@ C
 C
         sendtoproc(k) = .true.
 C
+!CDIR SHORTLOOP
         do i = 1,nbdim
 C
           imin(i,k) = max(pttruetab2(i,Agrif_Procrank),
@@ -227,6 +368,7 @@ C
 C
                 datasize = 1
 C
+!CDIR SHORTLOOP
                 do i = 1,nbdim
 C
                   datasize = datasize * (imax(i,k)-imin(i,k)+1)
@@ -246,6 +388,7 @@ C
      &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
      &                        MPI_COMM_WORLD,code)
                 CASE(3)
+                
                   Call Agrif_Send_3Darray(tempC%var%array3,
      &             lbound(tempC%var%array3),imin(:,k),imax(:,k),k)
                 CASE(4)
@@ -304,6 +447,7 @@ C
 
                 datasize = 1
 C
+!CDIR SHORTLOOP
                 do i = 1,nbdim
 C
                 datasize = datasize * (imax_recv(i,k)-imin_recv(i,k)+1)
@@ -340,7 +484,22 @@ C
      &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
      &               MPI_COMM_WORLD,statut,code)
        END SELECT
+                        
+            Call where_valtabtotab_mpi(tempCextend%var,
+     &             temprecv%var,imin_recv(:,k),imax_recv(:,k),0.,nbdim)
+     
+                Call Agrif_nbdim_deallocation(temprecv%var,nbdim)
+C                deallocate(temprecv%var)
+
             endif
+
+C
+      enddo
+
+C     Reception from others processors of the necessary part of the parent grid
+      do k = Agrif_ProcRank+1,Agrif_Nbprocs-1
+C
+C
             
             Call MPI_SEND(sendtoproc(k),1,MPI_LOGICAL,k,etiquette,
      &                    MPI_COMM_WORLD,code)
@@ -429,21 +588,10 @@ C
      &                        MPI_COMM_WORLD,code)
                 END SELECT
 C
-            endif            
-            
-            if (recvfromproc(k)) then
-                        
-            Call where_valtabtotab_mpi(tempCextend%var,
-     &             temprecv%var,imin_recv(:,k),imax_recv(:,k),0.,nbdim)
-     
-                Call Agrif_nbdim_deallocation(temprecv%var,nbdim)
-C                deallocate(temprecv%var)
-
             endif
 
 C
       enddo
-
 C
 C
 C     Reception from others processors of the necessary part of the parent grid
@@ -521,7 +669,425 @@ C
       enddo
 
           End Subroutine ExchangeSamelevel
+          
+       Subroutine ExchangeSameLevel_first(sendtoproc,nbdim,imin,imax,
+     &          recvfromproc,imin_recv,imax_recv)
+      Implicit None
+      INTEGER :: nbdim
+      INTEGER,DIMENSION(nbdim,0:Agrif_Nbprocs-1) :: imin,imax
+      INTEGER,DIMENSION(nbdim,2,0:Agrif_Nbprocs-1) :: iminmax_temp
+      INTEGER,DIMENSION(nbdim,0:Agrif_Nbprocs-1) :: imin_recv,imax_recv
+      LOGICAL,DIMENSION(0:Agrif_Nbprocs-1)       :: sendtoproc
+      LOGICAL,DIMENSION(0:Agrif_Nbprocs-1)       :: recvfromproc
+      LOGICAL                                    :: res
 
+#include "mpif.h"
+          INTEGER :: i,k
+          INTEGER :: etiquette = 100
+          INTEGER :: code, datasize
+          INTEGER,DIMENSION(MPI_STATUS_SIZE)   :: statut
+
+     
+      do k = 0,Agrif_ProcRank-1
+C
+C
+            Call MPI_SEND(sendtoproc(k),1,MPI_LOGICAL,k,etiquette,
+     &                    MPI_COMM_WORLD,code)
+C
+            if (sendtoproc(k)) then
+C
+                iminmax_temp(:,1,k) = imin(:,k)
+                iminmax_temp(:,2,k) = imax(:,k)
+
+                Call MPI_SEND(iminmax_temp(:,:,k),
+     &                        2*nbdim,MPI_INTEGER,k,etiquette,
+     &                        MPI_COMM_WORLD,code)
+C
+            endif
+
+C
+      enddo
+C
+C
+C     Reception from others processors of the necessary part of the parent grid
+      do k = Agrif_ProcRank+1,Agrif_Nbprocs-1
+C
+C
+            Call MPI_RECV(res,1,MPI_LOGICAL,k,etiquette,
+     &                    MPI_COMM_WORLD,statut,code)
+C
+            recvfromproc(k) = res
+
+C
+            if (recvfromproc(k)) then
+C
+                Call MPI_RECV(iminmax_temp(:,:,k),
+     &                        2*nbdim,MPI_INTEGER,k,etiquette,
+     &                        MPI_COMM_WORLD,statut,code)
+
+                imin_recv(:,k) = iminmax_temp(:,1,k)
+                imax_recv(:,k) = iminmax_temp(:,2,k)
+            endif
+
+C
+      enddo
+
+C     Reception from others processors of the necessary part of the parent grid
+      do k = Agrif_ProcRank+1,Agrif_Nbprocs-1
+C
+C
+            
+            Call MPI_SEND(sendtoproc(k),1,MPI_LOGICAL,k,etiquette,
+     &                    MPI_COMM_WORLD,code)
+C
+            if (sendtoproc(k)) then
+C
+                iminmax_temp(:,1,k) = imin(:,k)
+                iminmax_temp(:,2,k) = imax(:,k)
+
+                Call MPI_SEND(iminmax_temp(:,:,k),
+     &                        2*nbdim,MPI_INTEGER,k,etiquette,
+     &                        MPI_COMM_WORLD,code)
+C
+            endif
+
+C
+      enddo
+C
+C
+C     Reception from others processors of the necessary part of the parent grid
+      do k = Agrif_ProcRank-1,0,-1
+C
+C
+            Call MPI_RECV(res,1,MPI_LOGICAL,k,etiquette,
+     &                    MPI_COMM_WORLD,statut,code)
+C
+            recvfromproc(k) = res
+
+C
+            if (recvfromproc(k)) then
+C
+                Call MPI_RECV(iminmax_temp(:,:,k),
+     &                        2*nbdim,MPI_INTEGER,k,etiquette,
+     &                        MPI_COMM_WORLD,statut,code)
+
+                imin_recv(:,k) = iminmax_temp(:,1,k)
+                imax_recv(:,k) = iminmax_temp(:,2,k)
+            endif
+
+C
+      enddo
+
+          End Subroutine ExchangeSamelevel_first          
+
+       Subroutine ExchangeSameLevel2(sendtoproc,recvfromproc,
+     &   nbdim,
+     &          pttruetabwhole,cetruetabwhole,imin,imax,
+     &          imin_recv,imax_recv,memberout,tempC,tempCextend)
+      Implicit None
+      INTEGER :: nbdim
+      INTEGER,DIMENSION(nbdim,0:Agrif_Nbprocs-1) :: imin,imax
+      INTEGER,DIMENSION(nbdim,0:Agrif_Nbprocs-1) :: pttruetabwhole,
+     &     cetruetabwhole
+      INTEGER,DIMENSION(nbdim,0:Agrif_Nbprocs-1) :: imin_recv,imax_recv
+      TYPE(Agrif_PVARIABLE) :: tempC,tempCextend
+      LOGICAL,DIMENSION(0:Agrif_Nbprocs-1)       :: sendtoproc
+      LOGICAL,DIMENSION(0:Agrif_Nbprocs-1)       :: recvfromproc
+      LOGICAL                                    :: res
+      LOGICAL :: memberout
+      TYPE(AGRIF_PVARIABLE), SAVE                      :: temprecv
+
+#include "mpif.h"
+          INTEGER :: i,k
+          INTEGER :: etiquette = 100
+          INTEGER :: code, datasize
+          INTEGER,DIMENSION(MPI_STATUS_SIZE)   :: statut
+
+      IF (memberout) THEN
+      Call Agrif_nbdim_allocation(tempCextend%var,
+     &                 pttruetabwhole(:,Agrif_ProcRank),
+     &                 cetruetabwhole(:,Agrif_ProcRank),nbdim)
+      call Agrif_nbdim_Full_VarEQreal(tempCextend%var,0.,nbdim)
+      ENDIF
+
+      IF (sendtoproc(Agrif_ProcRank)) THEN
+           Call Agrif_nbdim_VarEQvar(tempCextend%var,
+     &                               imin(:,Agrif_Procrank),
+     &                               imax(:,Agrif_Procrank),
+     &                               tempC%var,
+     &                               imin(:,Agrif_Procrank),
+     &                               imax(:,Agrif_Procrank),
+     &                               nbdim)
+      ENDIF
+
+      do k = 0,Agrif_ProcRank-1
+C
+C
+C
+            if (sendtoproc(k)) then
+C
+                datasize = 1
+C
+!CDIR SHORTLOOP
+                do i = 1,nbdim
+C
+                  datasize = datasize * (imax(i,k)-imin(i,k)+1)
+C
+                enddo
+C
+
+                SELECT CASE(nbdim)
+                CASE(1)
+                   Call MPI_SEND(tempC%var%array1(
+     &                        imin(1,k):imax(1,k)),
+     &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &                        MPI_COMM_WORLD,code)
+                CASE(2)               
+                   Call MPI_SEND(tempC%var%array2(
+     &                        imin(1,k):imax(1,k),
+     &                        imin(2,k):imax(2,k)),
+     &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &                        MPI_COMM_WORLD,code)
+                CASE(3)
+     
+                  Call Agrif_Send_3Darray(tempC%var%array3,
+     &             lbound(tempC%var%array3),imin(:,k),imax(:,k),k)
+                CASE(4)
+                   Call MPI_SEND(tempC%var%array4(
+     &                        imin(1,k):imax(1,k),
+     &                        imin(2,k):imax(2,k),
+     &                        imin(3,k):imax(3,k),
+     &                        imin(4,k):imax(4,k)),
+     &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &                        MPI_COMM_WORLD,code)
+                CASE(5)
+                   Call MPI_SEND(tempC%var%array5(
+     &                        imin(1,k):imax(1,k),
+     &                        imin(2,k):imax(2,k),
+     &                        imin(3,k):imax(3,k),
+     &                        imin(4,k):imax(4,k),
+     &                        imin(5,k):imax(5,k)),
+     &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &                        MPI_COMM_WORLD,code)
+                CASE(6)
+                   Call MPI_SEND(tempC%var%array6(
+     &                        imin(1,k):imax(1,k),
+     &                        imin(2,k):imax(2,k),
+     &                        imin(3,k):imax(3,k),
+     &                        imin(4,k):imax(4,k),
+     &                        imin(5,k):imax(5,k),
+     &                        imin(6,k):imax(6,k)),
+     &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &                        MPI_COMM_WORLD,code)
+                END SELECT
+C
+            endif
+
+C
+      enddo
+C
+C
+C     Reception from others processors of the necessary part of the parent grid
+      do k = Agrif_ProcRank+1,Agrif_Nbprocs-1
+
+C
+            if (recvfromproc(k)) then
+
+                datasize = 1
+C
+!CDIR SHORTLOOP
+                do i = 1,nbdim
+C
+                datasize = datasize * (imax_recv(i,k)-imin_recv(i,k)+1)
+C
+                enddo
+
+             IF (.Not.Associated(temprecv%var)) allocate(temprecv%var)
+             call Agrif_nbdim_allocation(temprecv%var,imin_recv(:,k),
+     &   imax_recv(:,k),nbdim)
+            SELECT CASE(nbdim)
+            CASE(1)
+              Call MPI_RECV(temprecv%var%array1,
+     &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &               MPI_COMM_WORLD,statut,code)
+            CASE(2)           
+              Call MPI_RECV(temprecv%var%array2,
+     &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &               MPI_COMM_WORLD,statut,code)
+            CASE(3)       
+              Call MPI_RECV(temprecv%var%array3,
+     &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &               MPI_COMM_WORLD,statut,code)
+
+            CASE(4)
+              Call MPI_RECV(temprecv%var%array4,
+     &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &               MPI_COMM_WORLD,statut,code)
+            CASE(5)
+              Call MPI_RECV(temprecv%var%array5,
+     &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &               MPI_COMM_WORLD,statut,code)
+            CASE(6)
+              Call MPI_RECV(temprecv%var%array6,
+     &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &               MPI_COMM_WORLD,statut,code)
+       END SELECT
+                        
+            Call where_valtabtotab_mpi(tempCextend%var,
+     &             temprecv%var,imin_recv(:,k),imax_recv(:,k),0.,nbdim)
+     
+                Call Agrif_nbdim_deallocation(temprecv%var,nbdim)
+C                deallocate(temprecv%var)
+
+            endif
+
+C
+      enddo
+
+C     Reception from others processors of the necessary part of the parent grid
+      do k = Agrif_ProcRank+1,Agrif_Nbprocs-1
+C
+C
+            if (sendtoproc(k)) then
+C
+                SELECT CASE(nbdim)
+                CASE(1)
+                datasize=SIZE(tempC%var%array1(
+     &                        imin(1,k):imax(1,k)))
+                   Call MPI_SEND(tempC%var%array1(
+     &                        imin(1,k):imax(1,k)),
+     &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &                        MPI_COMM_WORLD,code)
+                CASE(2)                
+                datasize=SIZE(tempC%var%array2(
+     &                        imin(1,k):imax(1,k),
+     &                        imin(2,k):imax(2,k)))
+                   Call MPI_SEND(tempC%var%array2(
+     &                        imin(1,k):imax(1,k),
+     &                        imin(2,k):imax(2,k)),
+     &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &                        MPI_COMM_WORLD,code)
+                CASE(3)
+                datasize=SIZE(tempC%var%array3(
+     &                        imin(1,k):imax(1,k),
+     &                        imin(2,k):imax(2,k),
+     &                        imin(3,k):imax(3,k)))
+                   Call MPI_SEND(tempC%var%array3(
+     &                        imin(1,k):imax(1,k),
+     &                        imin(2,k):imax(2,k),
+     &                        imin(3,k):imax(3,k)),
+     &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &                        MPI_COMM_WORLD,code)
+                CASE(4)
+                datasize=SIZE(tempC%var%array4(
+     &                        imin(1,k):imax(1,k),
+     &                        imin(2,k):imax(2,k),
+     &                        imin(3,k):imax(3,k),
+     &                        imin(4,k):imax(4,k)))
+                   Call MPI_SEND(tempC%var%array4(
+     &                        imin(1,k):imax(1,k),
+     &                        imin(2,k):imax(2,k),
+     &                        imin(3,k):imax(3,k),
+     &                        imin(4,k):imax(4,k)),
+     &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &                        MPI_COMM_WORLD,code)
+                CASE(5)
+                datasize=SIZE(tempC%var%array5(
+     &                        imin(1,k):imax(1,k),
+     &                        imin(2,k):imax(2,k),
+     &                        imin(3,k):imax(3,k),
+     &                        imin(4,k):imax(4,k),
+     &                        imin(5,k):imax(5,k)))
+                   Call MPI_SEND(tempC%var%array5(
+     &                        imin(1,k):imax(1,k),
+     &                        imin(2,k):imax(2,k),
+     &                        imin(3,k):imax(3,k),
+     &                        imin(4,k):imax(4,k),
+     &                        imin(5,k):imax(5,k)),
+     &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &                        MPI_COMM_WORLD,code)
+                CASE(6)
+                datasize=SIZE(tempC%var%array6(
+     &                        imin(1,k):imax(1,k),
+     &                        imin(2,k):imax(2,k),
+     &                        imin(3,k):imax(3,k),
+     &                        imin(4,k):imax(4,k),
+     &                        imin(5,k):imax(5,k),
+     &                        imin(6,k):imax(6,k)))
+                   Call MPI_SEND(tempC%var%array6(
+     &                        imin(1,k):imax(1,k),
+     &                        imin(2,k):imax(2,k),
+     &                        imin(3,k):imax(3,k),
+     &                        imin(4,k):imax(4,k),
+     &                        imin(5,k):imax(5,k),
+     &                        imin(6,k):imax(6,k)),
+     &                        datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &                        MPI_COMM_WORLD,code)
+                END SELECT
+C
+            endif
+
+C
+      enddo
+C
+C
+C     Reception from others processors of the necessary part of the parent grid
+      do k = Agrif_ProcRank-1,0,-1
+C
+
+C
+            if (recvfromproc(k)) then
+C
+             IF (.Not.Associated(temprecv%var)) allocate(temprecv%var)
+             call Agrif_nbdim_allocation(temprecv%var,
+     &   imin_recv(:,k),imax_recv(:,k),nbdim)
+            SELECT CASE(nbdim)
+            CASE(1)
+              datasize=SIZE(temprecv%var%array1)
+              Call MPI_RECV(temprecv%var%array1,
+     &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &               MPI_COMM_WORLD,statut,code)
+            CASE(2)           
+              datasize=SIZE(temprecv%var%array2)
+              Call MPI_RECV(temprecv%var%array2,
+     &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &               MPI_COMM_WORLD,statut,code)
+            CASE(3)           
+              datasize=SIZE(temprecv%var%array3)
+              Call MPI_RECV(temprecv%var%array3,
+     &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &               MPI_COMM_WORLD,statut,code)
+
+            CASE(4)
+              datasize=SIZE(temprecv%var%array4)
+              Call MPI_RECV(temprecv%var%array4,
+     &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &               MPI_COMM_WORLD,statut,code)
+            CASE(5)
+              datasize=SIZE(temprecv%var%array5)
+              Call MPI_RECV(temprecv%var%array5,
+     &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &               MPI_COMM_WORLD,statut,code)
+            CASE(6)
+              datasize=SIZE(temprecv%var%array6)
+              Call MPI_RECV(temprecv%var%array6,
+     &               datasize,MPI_DOUBLE_PRECISION,k,etiquette,
+     &               MPI_COMM_WORLD,statut,code)
+          END SELECT
+            
+            Call where_valtabtotab_mpi(tempCextend%var,
+     &             temprecv%var,imin_recv(:,k),imax_recv(:,k)
+     &            ,0.,nbdim)
+     
+                Call Agrif_nbdim_deallocation(temprecv%var,nbdim)
+C                deallocate(temprecv%var)
+            endif
+
+C
+      enddo
+                  
+          End Subroutine ExchangeSamelevel2
+          
           Subroutine Agrif_Send_3Darray(tab3D,bounds,imin,imax,k)
           integer, dimension(3) :: bounds, imin, imax
           real,dimension(bounds(1):,bounds(2):,bounds(3):),target

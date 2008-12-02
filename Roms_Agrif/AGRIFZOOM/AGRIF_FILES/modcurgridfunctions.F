@@ -1,5 +1,5 @@
 !
-! $Id: modcurgridfunctions.F,v 1.4 2005/08/22 15:11:29 agrif Exp $
+! $Id: modcurgridfunctions.F 774 2007-12-18 16:45:53Z rblod $
 !
 C     AGRIF (Adaptive Grid Refinement In Fortran)
 C
@@ -801,4 +801,170 @@ C
       ENDIF
       End Subroutine Agrif_Set_Regridding
 C
+C
+C     **************************************************************************
+CCC   subroutine Agrif_Set_coeffref_x
+C     **************************************************************************
+      subroutine Agrif_Set_coeffref_x(coefref)
+
+      integer :: coefref
+
+      if (coefref.LT.0) then
+         write(*,*)'Coefficient of raffinement should be positive'
+         stop
+      else
+         AGRIF_coeffref(1) = coefref
+      endif
+      end subroutine Agrif_Set_coeffref_x
+C
+C     **************************************************************************
+CCC   subroutine Agrif_Set_coeffref_y
+C     **************************************************************************
+      subroutine Agrif_Set_coeffref_y(coefref)
+
+      integer :: coefref
+
+      if (coefref.LT.0) then
+         write(*,*)'Coefficient of raffinement should be positive'
+         stop
+      else
+         AGRIF_coeffref(2) = coefref
+      endif
+      end subroutine Agrif_Set_coeffref_y
+C
+C     **************************************************************************
+CCC   subroutine Agrif_Set_coeffref_z
+C     **************************************************************************
+      subroutine Agrif_Set_coeffref_z(coefref)
+
+      integer :: coefref
+
+      if (coefref.LT.0) then
+         write(*,*)'Coefficient of raffinement should be positive'
+         stop
+      else
+         AGRIF_coeffref(3) = coefref
+      endif
+      end subroutine Agrif_Set_coeffref_z
+C
+C     **************************************************************************
+CCC   subroutine Agrif_Set_coeffreft_x
+C     **************************************************************************
+      subroutine Agrif_Set_coeffreft_x(coefref)
+
+      integer :: coefref
+
+      if (coefref.LT.0) then
+         write(*,*)'Coefficient of time raffinement should be positive'
+         stop
+      else
+         AGRIF_coeffreft(1) = coefref
+      endif
+      end subroutine Agrif_Set_coeffreft_x
+C
+C     **************************************************************************
+CCC   subroutine Agrif_Set_coeffreft_y
+C     **************************************************************************
+      subroutine Agrif_Set_coeffreft_y(coefref)
+
+      integer :: coefref
+
+      if (coefref.LT.0) then
+         write(*,*)'Coefficient of time raffinement should be positive'
+         stop
+      else
+         AGRIF_coeffreft(2) = coefref
+      endif
+      end subroutine Agrif_Set_coeffreft_y
+C
+C     **************************************************************************
+CCC   subroutine Agrif_Set_coeffreft_z
+C     **************************************************************************
+      subroutine Agrif_Set_coeffreft_z(coefref)
+
+      integer :: coefref
+
+      if (coefref.LT.0) then
+         write(*,*)'Coefficient of time raffinement should be positive'
+         stop
+      else
+         AGRIF_coeffreft(3) = coefref
+      endif
+      end subroutine Agrif_Set_coeffreft_z
+C
+C     **************************************************************************
+CCC   subroutine Agrif_Set_Minwidth
+C     **************************************************************************
+      subroutine Agrif_Set_Minwidth(coefminwidth)
+
+      integer :: coefminwidth
+
+      if (coefminwidth.LT.0) then
+         write(*,*)'Coefficient of Minwidth should be positive'
+         stop
+      else
+         Agrif_Minwidth = coefminwidth
+      endif
+      end subroutine Agrif_Set_Minwidth
+C
+C     **************************************************************************
+CCC   subroutine Agrif_Set_Rafmax
+C     **************************************************************************
+      subroutine Agrif_Set_Rafmax(coefrafmax)
+
+      integer :: coefrafmax
+      integer :: i
+      real :: res
+
+      if (coefrafmax.LT.0) then
+         write(*,*)'Coefficient of  should be positive'
+         stop
+      else
+         res = 1.
+         do i = 1 , coefrafmax - 1
+            res = res * FLOAT(AGRIF_coeffref(1))
+         enddo
+         if ( res .EQ. 0 ) res = 1
+         Agrif_Mind(1) = 1. / res
+C
+         res = 1.
+         do i = 1 , coefrafmax - 1
+            res = res * FLOAT(AGRIF_coeffref(2))
+         enddo
+         if ( res .EQ. 0 ) res = 1
+         Agrif_Mind(2) = 1. / res
+C
+         res = 1.
+         do i = 1 , coefrafmax - 1
+            res = res * FLOAT(AGRIF_coeffref(3))
+         enddo
+         if ( res .EQ. 0 ) res = 1
+         Agrif_Mind(3) = 1. / res
+C
+      endif
+      end subroutine Agrif_Set_Rafmax
+C
+C     **************************************************************************
+CCC   subroutine Agrif_Open_File
+C     **************************************************************************
+      subroutine Agrif_Open_File(num_id,name_file)
+
+      integer :: num_id
+      character(*) :: name_file
+
+      num_id = Agrif_Get_Unit()
+      if ( .NOT. Agrif_Root() ) then
+         name_file = TRIM(Agrif_CFixed())//'_'//TRIM(name_file)
+      endif
+
+      end subroutine Agrif_Open_File
+
+C     **************************************************************************
+CCC    subroutine Agrif_Set_MaskMaxSearch
+C     **************************************************************************
+      subroutine Agrif_Set_MaskMaxSearch(mymaxsearch)
+      integer mymaxsearch
+      MaxSearch = mymaxsearch
+      end subroutine Agrif_Set_MaskMaxSearch
+
       End Module Agrif_CurgridFunctions 

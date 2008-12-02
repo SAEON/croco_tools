@@ -1,5 +1,5 @@
 !
-! $Id: modinitvars.F,v 1.1.1.1 2005/05/27 11:49:54 agrif Exp $
+! $Id: modinitvars.F 662 2007-05-25 15:58:52Z opalod $
 !
 C     Agrif (Adaptive Grid Refinement In Fortran)
 C

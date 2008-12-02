@@ -1,5 +1,5 @@
 !
-! $Id: modinterpbasic.F,v 1.4 2005/08/22 15:11:29 agrif Exp $
+! $Id: modinterpbasic.F 779 2007-12-22 17:04:17Z rblod $
 !
 C     AGRIF (Adaptive Grid Refinement In Fortran)
 C
@@ -36,7 +36,14 @@ C
       IMPLICIT NONE
 C             
       Real,Dimension(Agrif_MaxRaff) :: tabdiff2, tabdiff3
-      Real,Dimension(:),Allocatable::tabtest4      
+      Real,Dimension(5,Agrif_MaxRaff,3) :: tabppm
+      Real,Dimension(:),Allocatable::tabtest4   
+      Integer, Dimension(:,:), Allocatable :: indparent
+      Integer, Dimension(:,:), Allocatable :: 
+     &           indparentppm,indchildppm
+      Integer, Dimension(:), Allocatable :: 
+     &           indparentppm_1d,indchildppm_1d
+      Real, Dimension(:,:),Allocatable :: coeffparent   
        
       CONTAINS
 C     Define procedures contained in this module
@@ -139,6 +146,253 @@ C
 C
 C       
       End Subroutine Linear1d   
+      
+      Subroutine Linear1dprecompute2d(np2, np,nc,
+     &                    s_parent,s_child,ds_parent,ds_child,dir)
+C
+CCC   Description:
+CCC   Subroutine to compute 2D coefficient and index for a linear 1D interpolation
+CCC   on a child grid (vector y) from its parent grid (vector x).
+C
+CC    Method:
+C
+C     Declarations:
+C
+
+C        
+C     Arguments
+      INTEGER             :: np,nc,np2,dir
+      REAL                :: s_parent,s_child,ds_parent,ds_child
+C
+C     Local scalars
+      INTEGER :: i,j,coeffraf,locind_parent_left,inc,inc1,inc2,toto 
+      Integer, Dimension(:,:), Allocatable :: indparent_tmp
+      Real, Dimension(:,:), Allocatable :: coeffparent_tmp
+      REAL    :: ypos,globind_parent_left,globind_parent_right
+      REAL    :: invds, invds2
+      REAL :: ypos2,diff
+C
+C
+
+      coeffraf = nint(ds_parent/ds_child)
+C
+      ypos = s_child
+
+      locind_parent_left = 1 + agrif_int((ypos - s_parent)/ds_parent)
+
+        globind_parent_left = s_parent
+     &                        + (locind_parent_left - 1)*ds_parent
+
+        globind_parent_right = globind_parent_left + ds_parent
+
+C
+      invds = 1./ds_parent
+      invds2 = ds_child/ds_parent
+
+      ypos2 = ypos*invds
+      globind_parent_right=globind_parent_right*invds
+
+      if (.not.allocated(indparent)) then
+      allocate(indparent(nc*np2,3),coeffparent(nc*np2,3))
+      else
+      if (size(indparent,1)<nc*np2) then
+      allocate(coeffparent_tmp(size(indparent,1),size(indparent,2)))
+      allocate(indparent_tmp(size(indparent,1),size(indparent,2)))
+      coeffparent_tmp=coeffparent 
+      indparent_tmp=indparent 
+      deallocate(indparent,coeffparent)
+      allocate(indparent(nc*np2,3),coeffparent(nc*np2,3))
+      coeffparent(1:size(coeffparent_tmp,1),1:size(coeffparent_tmp,2))
+     &  = coeffparent_tmp 
+      indparent(1:size(indparent_tmp,1),1:size(indparent_tmp,2))
+     & = indparent_tmp
+      deallocate(indparent_tmp,coeffparent_tmp)
+      endif
+      endif
+
+      do i = 1,nc-1
+C
+        if (ypos2 > globind_parent_right) then
+           locind_parent_left = locind_parent_left + 1
+           globind_parent_right = globind_parent_right + 1.
+        endif
+        
+        diff=(globind_parent_right - ypos2)
+        indparent(i,dir) = locind_parent_left
+        coeffparent(i,dir) = diff
+        
+        ypos2 = ypos2 + invds2
+C
+      enddo
+C
+      ypos = s_child + (nc-1)*ds_child
+      locind_parent_left = 1 + agrif_int((ypos - s_parent)/ds_parent)
+
+      if (locind_parent_left == np) then
+      indparent(nc,dir) = locind_parent_left-1
+      coeffparent(nc,dir) = 0.
+        else
+C
+          globind_parent_left = s_parent
+     &                        + (locind_parent_left - 1)*ds_parent
+C      
+       indparent(nc,dir) = locind_parent_left
+       
+         coeffparent(nc,dir) = (globind_parent_left + ds_parent - ypos)
+     &       * invds
+      endif                                           
+
+      do i=2, np2
+      inc  =  i*nc
+      inc1 = (i-1)*nc
+      inc2 = (i-2)*nc 
+!CDIR ALTCODE
+      indparent(1+inc1:inc,dir) = indparent(1+inc2:inc1,dir)+np
+!CDIR ALTCODE
+      coeffparent(1+inc1:inc,dir) =coeffparent(1:nc,dir)
+      enddo      
+
+      Return
+C
+C       
+      End Subroutine Linear1dprecompute2d
+
+
+
+      Subroutine Linear1dprecompute(np,nc,
+     &                    s_parent,s_child,ds_parent,ds_child) 
+C
+CCC   Description:
+CCC   Subroutine to compute 1D coefficient and index for a linear 1D interpolation
+CCC   on a child grid (vector y) from its parent grid (vector x).
+C
+CC    Method:
+C
+C     Declarations:
+C
+      
+C        
+C     Arguments
+      INTEGER             :: np,nc 
+      REAL                :: s_parent,s_child,ds_parent,ds_child
+C
+C     Local scalars
+      INTEGER :: i,coeffraf,locind_parent_left
+      REAL    :: ypos,globind_parent_left,globind_parent_right
+      REAL    :: invds, invds2
+      REAL :: ypos2,diff
+C
+C
+
+      coeffraf = nint(ds_parent/ds_child)
+C
+      if (coeffraf == 1) then
+C
+          return
+C
+      endif                          
+C
+      ypos = s_child 
+
+      locind_parent_left = 1 + agrif_int((ypos - s_parent)/ds_parent)
+
+        globind_parent_left = s_parent 
+     &                        + (locind_parent_left - 1)*ds_parent
+
+        globind_parent_right = globind_parent_left + ds_parent
+
+C
+      invds = 1./ds_parent
+      invds2 = ds_child/ds_parent
+      
+      ypos2 = ypos*invds
+      globind_parent_right=globind_parent_right*invds
+      
+      if (.not.allocated(indparent)) then
+      allocate(indparent(nc,1),coeffparent(nc,1))
+      else
+      if (size(indparent)<nc) then
+      deallocate(indparent,coeffparent)
+      allocate(indparent(nc,1),coeffparent(nc,1))
+      endif
+      endif
+      
+      do i = 1,nc-1
+C
+        if (ypos2 > globind_parent_right) then
+           locind_parent_left = locind_parent_left + 1
+           globind_parent_right = globind_parent_right + 1.
+        endif
+        
+        diff=(globind_parent_right - ypos2)
+        indparent(i,1) = locind_parent_left
+        coeffparent(i,1) = diff
+        ypos2 = ypos2 + invds2
+C
+      enddo
+C
+      ypos = s_child + (nc-1)*ds_child
+      locind_parent_left = 1 + agrif_int((ypos - s_parent)/ds_parent)
+      
+      if (locind_parent_left == np) then
+      indparent(nc,1) = locind_parent_left-1
+      coeffparent(nc,1) = 0.
+        else
+C
+          globind_parent_left = s_parent 
+     &                        + (locind_parent_left - 1)*ds_parent  
+C      
+       indparent(nc,1) = locind_parent_left
+       
+         coeffparent(nc,1) = (globind_parent_left + ds_parent - ypos)
+     &       * invds
+      endif                                          
+C           
+      Return
+C
+C       
+      End Subroutine Linear1dprecompute 
+      
+      Subroutine Linear1daftercompute(x,y,np,nc,
+     &                    s_parent,s_child,ds_parent,ds_child,dir) 
+C
+CCC   Description:
+CCC   Subroutine to do a linear 1D interpolation on a child grid (vector y) from
+CCC   its parent grid (vector x) using precomputed coefficient and index.  
+C
+CC    Method:
+C
+C     Declarations:
+C
+      
+C        
+C     Arguments
+      INTEGER             :: np,nc,dir      
+      REAL,INTENT(IN), DIMENSION(np) :: x      
+      REAL,INTENT(OUT), DIMENSION(nc) :: y  
+      REAL                :: s_parent,s_child,ds_parent,ds_child
+C
+C     Local scalars
+      INTEGER :: i,coeffraf,locind_parent_left
+      REAL    :: ypos,globind_parent_left,globind_parent_right
+      REAL    :: invds, invds2
+      REAL :: ypos2,diff
+C
+C
+
+!CDIR ALTCODE
+!CDIR NODEP
+      do i = 1,nc
+C
+       y(i)=coeffparent(i,dir)*x(MAX(indparent(i,dir),1))+
+     &      (1.-coeffparent(i,dir))*x(indparent(i,dir)+1)
+C
+      enddo                                     
+C           
+      Return
+C
+C       
+      End Subroutine Linear1daftercompute            
        
 C
 C
@@ -568,6 +822,8 @@ C
 C
       If (coeffraf == 1) Then
           locind_parent_left = 1 + nint((s_child - s_parent)/ds_parent)
+!CDIR ALTCODE
+!CDIR SHORTLOOP
           y(1:nc) = x(locind_parent_left:locind_parent_left+nc-1)
           return
       End If
@@ -581,7 +837,8 @@ C
          deallocate( tabtest4 )
          Allocate(tabtest4(-2*coeffraf:nc+2*coeffraf))
          ENDIF
-      ENDIF  
+      ENDIF
+            
       ypos = s_child  
 C
       locind_parent_left = 1 + agrif_int((ypos - s_parent)/ds_parent) 
@@ -594,6 +851,7 @@ C
 C     
 C
       
+!CDIR NOVECTOR
       Do i=1,coeffraf
         tabdiff2(i)=(real(i)-0.5)*invcoeffraf
       EndDo
@@ -601,6 +859,7 @@ C
       a = invcoeffraf**2 
       tabdiff3(1) = (1./3.)*a
       a=2.*a
+!CDIR NOVECTOR
       Do i=2,coeffraf
         tabdiff3(i) = tabdiff3(i-1)+(real(i)-1)*a
       EndDo
@@ -620,16 +879,22 @@ C
       endif    
 C 
 C
+!CDIR ALTCODE
+!CDIR SHORTLOOP
       Do i = nmin,nmax
          slope(i) = x(i) - x(i-1)
       Enddo
 
+!CDIR ALTCODE
+!CDIR SHORTLOOP
       Do i = nmin+1,nmax-1
          xl(i)= 0.5*(x(i-1)+x(i))
      &      -0.08333333333333*(slope(i+1)-slope(i-1)) 
       Enddo
 C
 C apply parabolic monotonicity
+!CDIR ALTCODE
+!CDIR SHORTLOOP
        Do i = locind_parent_left,locind_parent_last
           delta(i) = xl(i+1) - xl(i)
           a6(i) = 6.*x(i)-3.*(xl(i) +xl(i+1))
@@ -643,6 +908,8 @@ C
 C               
         Do iparent = locind_parent_left,locind_parent_last       
              pos=1
+!CDIR ALTCODE
+!CDIR SHORTLOOP
              Do jj = ipos - coeffraf/2+diffmod,ipos + coeffraf/2
 C
                tabtest4(jj) = xl(iparent)   
@@ -652,13 +919,309 @@ C
              End do 
              ipos = ipos + coeffraf
 C
-        End do     
+        End do
 C
 C
+!CDIR ALTCODE
+!CDIR SHORTLOOP
         y(1:nc)=tabtest4(1:nc)
         
       Return
       End Subroutine ppm1d
+      
+
+      Subroutine ppm1dprecompute2d(np2,np,nc,
+     &                    s_parent,s_child,ds_parent,ds_child,dir)
+C
+CCC   Description:
+CCC   Subroutine to compute 2D coefficients and index for a 1D interpolation
+CCC   using piecewise parabolic method  
+CC    Method: 
+C
+C     Declarations:
+C
+      Implicit none
+C        
+C     Arguments
+      Integer             :: np2,np,nc,dir
+C      Real, Dimension(:),Allocatable :: ytemp
+      Real                :: s_parent,s_child,ds_parent,ds_child
+C
+C     Local scalars
+      Integer, Dimension(:,:), Allocatable :: indparent_tmp
+      Integer, Dimension(:,:), Allocatable :: indchild_tmp
+      Integer :: i,coeffraf,locind_parent_left,locind_parent_last
+      Integer :: iparent,ipos,pos,nmin,nmax
+      Real    :: ypos
+      integer :: i1,jj
+      Real :: xpmin,a
+C      
+      Real :: xrmin,xrmax,am3,s2,s1
+      Real, Dimension(np) :: xl,delta,a6,slope
+      INTEGER :: diffmod
+      REAL :: invcoeffraf
+C      
+      coeffraf = nint(ds_parent/ds_child)
+C
+      invcoeffraf = ds_child/ds_parent
+C 
+
+      if (.not.allocated(indparentppm)) then
+      allocate(
+     & indparentppm(np2*nc,3),
+     & indchildppm(np2*nc,3)
+     &        )
+      else
+      if (size(indparentppm,1)<np2*nc) then
+      allocate(
+     &  indparent_tmp(size(indparentppm,1),size(indparentppm,2)),
+     &  indchild_tmp(size(indparentppm,1),size(indparentppm,2)))
+      indparent_tmp = indparentppm 
+      indchild_tmp  = indchildppm 
+      deallocate(indparentppm,indchildppm)
+      allocate(
+     &indparentppm(np2*nc,3),
+     &indchildppm(np2*nc,3)
+     &        )
+      indparentppm(1:size(indparent_tmp,1),1:size(indparent_tmp,2))
+     & = indparent_tmp
+      indchildppm(1:size(indparent_tmp,1),1:size(indparent_tmp,2))
+     & = indchild_tmp
+      deallocate(indparent_tmp,indchild_tmp)
+      endif
+      endif
+
+      if (.not.allocated(indparentppm_1d)) then
+      allocate(indparentppm_1d(-2*coeffraf:nc+2*coeffraf),
+     &         indchildppm_1d(-2*coeffraf:nc+2*coeffraf))
+      else
+      if (size(indparentppm_1d)<nc+4*coeffraf+1) then
+      deallocate(indparentppm_1d,indchildppm_1d)
+      allocate(indparentppm_1d(-2*coeffraf:nc+2*coeffraf),
+     &         indchildppm_1d(-2*coeffraf:nc+2*coeffraf))
+      endif
+      endif
+
+
+      ypos = s_child
+C
+      locind_parent_left = 1 + agrif_int((ypos - s_parent)/ds_parent)
+      locind_parent_last = 1 +
+     &      agrif_ceiling((ypos +(nc - 1)
+     &      *ds_child - s_parent)/ds_parent)
+C
+      xpmin = s_parent + (locind_parent_left-1)*ds_parent
+      i1 = 1+agrif_int((xpmin-s_child)/ds_child)
+C     
+C
+
+      Do i=1,coeffraf
+        tabdiff2(i)=(real(i)-0.5)*invcoeffraf
+      EndDo
+
+      a = invcoeffraf**2
+      tabdiff3(1) = (1./3.)*a
+      a=2.*a
+!CDIR ALTCODE
+      Do i=2,coeffraf
+        tabdiff3(i) = tabdiff3(i-1)+(real(i)-1)*a
+      EndDo
+
+!CDIR ALTCODE
+      Do i=1,coeffraf
+      tabppm(1,i,dir) = 0.08333333333333*
+     &              (-1.+4*tabdiff2(i)-3*tabdiff3(i))
+      tabppm(2,i,dir) = 0.08333333333333*
+     &              (7.-26.*tabdiff2(i)+18.*tabdiff3(i))
+      tabppm(3,i,dir) = 0.08333333333333*
+     &              (7.+30*tabdiff2(i)-30*tabdiff3(i))
+      tabppm(4,i,dir) = 0.08333333333333*
+     &              (-1.-10.*tabdiff2(i)+18.*tabdiff3(i))
+      tabppm(5,i,dir) = 0.08333333333333*
+     &              (2*tabdiff2(i)-3*tabdiff3(i))                   
+      End Do
+C 
+C
+        diffmod = 0
+       IF (mod(coeffraf,2) == 0) diffmod = 1
+C
+        ipos = i1
+C               
+        Do iparent = locind_parent_left,locind_parent_last
+             pos=1
+!CDIR ALTCODE
+             Do jj = ipos - coeffraf/2+diffmod,ipos + coeffraf/2
+         indparentppm_1d(jj) = iparent-2
+         indchildppm_1d(jj) = pos
+               pos = pos+1
+             End do
+             ipos = ipos + coeffraf
+C
+        End do
+     
+       Do i=1,np2
+
+       indparentppm(1+(i-1)*nc:i*nc,dir) = 
+     &             indparentppm_1d(1:nc) + (i-1)*np
+       indchildppm (1+(i-1)*nc:i*nc,dir) = 
+     &             indchildppm_1d (1:nc) 
+
+       End do
+
+      Return
+      End Subroutine ppm1dprecompute2d
+
+
+      Subroutine ppm1dprecompute(np,nc,
+     &                    s_parent,s_child,ds_parent,ds_child) 
+C
+CCC   Description:
+CCC   Subroutine to compute coefficient and index for  a 1D interpolation 
+CCC   using piecewise parabolic method  
+CC    Method:
+C
+C     Declarations:
+C
+      Implicit none
+C        
+C     Arguments
+      Integer             :: np,nc
+C      Real, Dimension(:),Allocatable :: ytemp
+      Real                :: s_parent,s_child,ds_parent,ds_child
+C
+C     Local scalars
+      Integer :: i,coeffraf,locind_parent_left,locind_parent_last
+      Integer :: iparent,ipos,pos,nmin,nmax
+      Real    :: ypos
+      integer :: i1,jj
+      Real :: xpmin,a
+C      
+      Real :: xrmin,xrmax,am3,s2,s1  
+      Real, Dimension(np) :: xl,delta,a6,slope
+C      Real, Dimension(:),Allocatable  :: diff,diff2,diff3    
+      INTEGER :: diffmod
+      REAL :: invcoeffraf
+C      
+      coeffraf = nint(ds_parent/ds_child)
+C
+      If (coeffraf == 1) Then
+          return
+      End If
+      invcoeffraf = ds_child/ds_parent
+C 
+      
+      if (.not.allocated(indparentppm)) then
+      allocate(indparentppm(-2*coeffraf:nc+2*coeffraf,1),
+     &         indchildppm(-2*coeffraf:nc+2*coeffraf,1))
+      else
+      if (size(indparentppm,1)<nc+4*coeffraf+1) then
+      deallocate(indparentppm,indchildppm)
+      allocate(indparentppm(-2*coeffraf:nc+2*coeffraf,1),
+     &         indchildppm(-2*coeffraf:nc+2*coeffraf,1))
+      endif
+      endif
+            
+      ypos = s_child  
+C
+      locind_parent_left = 1 + agrif_int((ypos - s_parent)/ds_parent) 
+      locind_parent_last = 1 +
+     &      agrif_ceiling((ypos +(nc - 1) 
+     &      *ds_child - s_parent)/ds_parent)  
+C
+      xpmin = s_parent + (locind_parent_left-1)*ds_parent       
+      i1 = 1+agrif_int((xpmin-s_child)/ds_child)        
+C     
+C
+      
+      Do i=1,coeffraf
+        tabdiff2(i)=(real(i)-0.5)*invcoeffraf
+      EndDo
+
+      a = invcoeffraf**2 
+      tabdiff3(1) = (1./3.)*a
+      a=2.*a
+!CDIR ALTCODE
+!!!CDIR SHORTLOOP
+      Do i=2,coeffraf
+        tabdiff3(i) = tabdiff3(i-1)+(real(i)-1)*a
+      EndDo
+      
+!CDIR ALTCODE
+!!!CDIR SHORTLOOP
+      Do i=1,coeffraf
+      tabppm(1,i,1) = 0.08333333333333*(-1.+4*tabdiff2(i)-3*tabdiff3(i))
+      tabppm(2,i,1) = 0.08333333333333*
+     &              (7.-26.*tabdiff2(i)+18.*tabdiff3(i))
+      tabppm(3,i,1) =0.08333333333333*(7.+30*tabdiff2(i)-30*tabdiff3(i))
+      tabppm(4,i,1) = 0.08333333333333*
+     &              (-1.-10.*tabdiff2(i)+18.*tabdiff3(i))     
+      tabppm(5,i,1) = 0.08333333333333*(2*tabdiff2(i)-3*tabdiff3(i)) 
+      End Do   
+C 
+C
+        diffmod = 0
+       IF (mod(coeffraf,2) == 0) diffmod = 1
+C
+        ipos = i1
+C               
+        Do iparent = locind_parent_left,locind_parent_last       
+             pos=1
+!CDIR ALTCODE
+!CDIR SHORTLOOP
+             Do jj = ipos - coeffraf/2+diffmod,ipos + coeffraf/2
+         indparentppm(jj,1) = iparent-2
+         indchildppm(jj,1) = pos
+               pos = pos+1 
+             End do 
+             ipos = ipos + coeffraf
+C
+        End do
+        
+      Return
+      End Subroutine ppm1dprecompute
+      
+      Subroutine ppm1daftercompute(x,y,np,nc,
+     &                    s_parent,s_child,ds_parent,ds_child,dir) 
+C
+CCC   Description:
+CCC   Subroutine to do a 1D interpolation and apply monotonicity constraints
+CCC   using piecewise parabolic method  
+CCC   on a child grid (vector y) from its parent grid (vector x).
+CC    Method: Use precomputed coefficient and index
+C
+C     Declarations:
+C
+      Implicit none
+C        
+C     Arguments
+      Integer             :: np,nc,dir
+      Real, INTENT(IN),Dimension(np) :: x      
+      Real, INTENT(OUT),Dimension(nc) :: y
+C      Real, Dimension(:),Allocatable :: ytemp
+      Real                :: s_parent,s_child,ds_parent,ds_child
+C
+C     Local scalars
+      Integer :: i,coeffraf,locind_parent_left,locind_parent_last
+      Integer :: iparent,ipos,pos,nmin,nmax
+      Real    :: ypos
+      integer :: i1,jj
+      Real :: xpmin,a
+C      
+      Real :: xrmin,xrmax,am3,s2,s1  
+      Real, Dimension(np) :: xl,delta,a6,slope
+      INTEGER :: diffmod
+C      
+C
+      do i=1,nc
+      y(i)=tabppm(1,indchildppm(i,dir),dir)*x(indparentppm(i,dir))+
+     &        tabppm(2,indchildppm(i,dir),dir)*x(indparentppm(i,dir)+1)+
+     &        tabppm(3,indchildppm(i,dir),dir)*x(indparentppm(i,dir)+2)+
+     &        tabppm(4,indchildppm(i,dir),dir)*x(indparentppm(i,dir)+3)+
+     &        tabppm(5,indchildppm(i,dir),dir)*x(indparentppm(i,dir)+4)
+      enddo
+        
+      Return
+      End Subroutine ppm1daftercompute            
       
 C     **************************************************************************  
 CCC   Subroutine weno1d

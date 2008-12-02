@@ -1,5 +1,5 @@
 !
-! $Id: modupdatebasic.F,v 1.2 2005/08/22 15:11:29 agrif Exp $
+! $Id: modupdatebasic.F 779 2007-12-22 17:04:17Z rblod $
 !
 C     AGRIF (Adaptive Grid Refinement In Fortran)
 C
@@ -36,6 +36,9 @@ C
       USE Agrif_types
       
       IMPLICIT NONE
+      
+      integer,dimension(:,:),allocatable :: indchildcopy
+      integer,dimension(:,:),allocatable :: indchildaverage
 C             
 
       CONTAINS
@@ -77,6 +80,7 @@ C
 C
           locind_child_left = 1 + nint((s_parent - s_child)/ds_child)
 C        
+!CDIR ALTCODE
           x(1:np) = y(locind_child_left:locind_child_left+np-1)
 C
           return
@@ -86,6 +90,7 @@ C
       
       locind_child_left = 1 + nint((s_parent - s_child)/ds_child)
       
+!CDIR ALTCODE
       do i = 1,np
 C      
          x(i) = y(locind_child_left)
@@ -99,8 +104,174 @@ C
 C
 C
       End Subroutine agrif_copy1d
+
+C     **************************************************************************  
+CCC   Subroutine Copy1dprecompute  
+C     ************************************************************************** 
+C
+      Subroutine copy1dprecompute2d(nc2,np,nc,
+     &                  s_parent,s_child,ds_parent,ds_child,dir)
+C
+CCC   Description:
+CCC   Subroutine to precompute index for a copy on a parent grid (vector x) from
+CCC   its child grid (vector y).
+C
+CC    Method:
+C
+C     Declarations:
+C
+
+C        
+C     Arguments
+      INTEGER             :: nc2,np,nc
+      INTEGER             :: dir   
+      REAL                :: s_parent,s_child
+      REAL                :: ds_parent,ds_child
+C
+C     Local variables
+      INTEGER,DIMENSION(:,:),ALLOCATABLE :: indchildcopy_tmp
+      INTEGER :: i,locind_child_left,coeffraf
+C 
+C
+      coeffraf = nint(ds_parent/ds_child)
+C
+      locind_child_left = 1 + nint((s_parent - s_child)/ds_child)
+
+      if (.not.allocated(indchildcopy)) then
+      allocate(indchildcopy(np*nc2,3))
+      else
+      if (size(indchildcopy,1)<np*nc2) then
+      allocate( indchildcopy_tmp(
+     &         size(indchildcopy,1),size(indchildcopy,2)))
+      indchildcopy_tmp = indchildcopy
+      deallocate(indchildcopy)
+      allocate(indchildcopy(np*nc2,3))
+      indchildcopy(1:size(indchildcopy_tmp,1),
+     &              1:size(indchildcopy_tmp,2)) = indchildcopy_tmp
+      deallocate(indchildcopy_tmp)
+      endif
+      endif
+
+
+      do i = 1,np
+C      
+         indchildcopy(i,dir) = locind_child_left
+         locind_child_left = locind_child_left + coeffraf
+C         
+      enddo
+
+      do i =2, nc2
+        indchildcopy(1+(i-1)*np:i*np,dir)=
+     &       indchildcopy(1+(i-2)*np:(i-1)*np,dir) + nc 
+      enddo
+
+C
+      Return
 C
 C
+      End Subroutine copy1dprecompute2d
+
+C
+C
+C     **************************************************************************  
+CCC   Subroutine Copy1dprecompute  
+C     ************************************************************************** 
+C
+      Subroutine copy1dprecompute(np,nc,
+     &                  s_parent,s_child,ds_parent,ds_child,dir)
+C
+CCC   Description:
+CCC   Subroutine to precompute index for a copy on a parent grid (vector x) from
+CCC   its child grid (vector y).
+C
+CC    Method:
+C
+C     Declarations:
+C
+
+C        
+C     Arguments
+      INTEGER             :: np,nc
+      INTEGER             :: dir
+      REAL                :: s_parent,s_child
+      REAL                :: ds_parent,ds_child
+C
+C     Local variables
+      INTEGER :: i,locind_child_left,coeffraf
+C 
+C
+      coeffraf = nint(ds_parent/ds_child)
+C
+      locind_child_left = 1 + nint((s_parent - s_child)/ds_child)
+
+      if (.not.allocated(indchildcopy)) then
+      allocate(indchildcopy(np,1))
+      else
+      if (size(indchildcopy)<np) then
+      deallocate(indchildcopy)
+      allocate(indchildcopy(np,1))
+      endif
+      endif
+
+!CDIR ALTCODE
+      do i = 1,np
+C      
+         indchildcopy(i,1) = locind_child_left
+         locind_child_left = locind_child_left + coeffraf
+C         
+      enddo
+
+C
+      Return
+C
+C
+      End Subroutine copy1dprecompute
+C
+C
+C     **************************************************************************  
+CCC   Subroutine Copy1daftercompute  
+C     ************************************************************************** 
+C
+      Subroutine copy1daftercompute(x,y,np,nc,
+     &                  s_parent,s_child,ds_parent,ds_child,dir)
+C
+CCC   Description:
+CCC   Subroutine to do a copy on a parent grid (vector x) from its child grid 
+CCC   (vector y) using precomputed index.  
+C
+CC    Method:
+C
+C     Declarations:
+C
+  
+C        
+C     Arguments
+      INTEGER             :: np,nc
+      INTEGER             :: dir
+      REAL, DIMENSION(np) :: x
+      REAL, DIMENSION(nc) :: y
+      REAL                :: s_parent,s_child
+      REAL                :: ds_parent,ds_child
+C
+C     Local variables
+      INTEGER :: i
+C 
+C
+      
+!CDIR ALTCODE
+      do i = 1,np
+C      
+         x(i) = y(indchildcopy(i,dir))
+C
+      enddo
+  
+C
+      Return
+C
+C
+      End Subroutine copy1daftercompute
+
+
 C
 C     **************************************************************************  
 CCC   Subroutine Average1d  
@@ -122,12 +293,13 @@ C     Arguments
 C
 C     Local variables
       INTEGER :: i,locind_child_left,coeffraf,ii
-      REAL    :: xpos 
+      REAL    :: xpos, invcoeffraf 
       INTEGER :: nbnonnuls
       INTEGER :: diffmod
 C 
 C
       coeffraf = nint(ds_parent/ds_child)
+      invcoeffraf = 1./coeffraf
 C
       if (coeffraf == 1) then
 C
@@ -148,51 +320,226 @@ C
       IF ( mod(coeffraf,2) == 0 ) diffmod = 1
 
         locind_child_left = 1 + agrif_int((xpos - s_child)/ds_child)
-      
-      do i = 1,np
 C
+      IF (Agrif_UseSpecialValueInUpdate) THEN
 
-C
-c        if ((locind_child_left-1 < 1) 
-c     &      .OR. (locind_child_left+1 > nc)) then 
-C
-c            x(i) = y(locind_child_left)                
-C
-c          else 
+      do i = 1,np
           nbnonnuls = 0
+!CDIR NOVECTOR
           Do ii = -coeffraf/2+locind_child_left+diffmod,
      &                coeffraf/2+locind_child_left
 C 
-            IF (Agrif_UseSpecialValueInUpdate) THEN
-            IF (y(ii) .NE. Agrif_SpecialValueFineGrid) THEN
+               IF (y(ii) .NE. Agrif_SpecialValueFineGrid) THEN
                nbnonnuls = nbnonnuls + 1
                x(i) = x(i) + y(ii)
-            ENDIF
-            ELSE
-               x(i) = x(i) + y(ii)
-            ENDIF
+               ENDIF
           End Do
-            IF (Agrif_UseSpecialValueInUpdate) THEN
-                 IF (nbnonnuls .NE. 0) THEN
-                    x(i) = x(i)/nbnonnuls
-                 ELSE
-                    x(i) = Agrif_SpecialValueFineGrid
-                 ENDIF
-            ELSE
-                 x(i) = x(i)/coeffraf
-            ENDIF
-C
-c       endif
-C
-c        xpos = xpos + ds_parent
+               IF (nbnonnuls .NE. 0) THEN
+                  x(i) = x(i)/nbnonnuls
+               ELSE
+                  x(i) = Agrif_SpecialValueFineGrid
+               ENDIF
         locind_child_left = locind_child_left + coeffraf
-C
       enddo
-C
+
+      ELSE 
+
+!CDIR ALTCODE
+      do i = 1,np
+!CDIR NOVECTOR
+          Do ii = -coeffraf/2+locind_child_left+diffmod,
+     &                coeffraf/2+locind_child_left
+C 
+               x(i) = x(i) + y(ii)
+          End Do
+                 x(i) = x(i)*invcoeffraf
+        locind_child_left = locind_child_left + coeffraf
+      enddo
+
+      ENDIF
+
       Return 
 C            
 C     
       End Subroutine average1d
+      
+      Subroutine average1dprecompute2d(nc2,np,nc,
+     &                     s_parent,s_child,ds_parent,ds_child,dir)
+C
+CCC   Description:
+CCC   Subroutine to do an update by average on a parent grid (vector x)from its 
+CCC   child grid (vector y).
+C
+C     Arguments
+      INTEGER             :: nc2,np,nc,dir
+      REAL                :: s_parent,s_child
+      REAL                :: ds_parent,ds_child
+C
+C     Local variables
+      INTEGER :: i,locind_child_left,coeffraf,ii
+      INTEGER,DIMENSION(:,:),ALLOCATABLE :: indchildaverage_tmp
+      REAL    :: xpos, invcoeffraf
+      INTEGER :: nbnonnuls
+      INTEGER :: diffmod
+C 
+C
+      coeffraf = nint(ds_parent/ds_child)
+C
+      xpos = s_parent
+C
+      diffmod = 0
+
+      IF ( mod(coeffraf,2) == 0 ) diffmod = 1
+
+      locind_child_left = 1 + agrif_int((xpos - s_child)/ds_child)
+
+      if (.not.allocated(indchildaverage)) then
+      allocate(indchildaverage(np*nc2,3))
+      else
+      if (size(indchildaverage,1)<np*nc2) then
+      allocate( indchildaverage_tmp(
+     &         size(indchildaverage,1),size(indchildaverage,2)))
+      indchildaverage_tmp = indchildaverage
+      deallocate(indchildaverage)
+      allocate(indchildaverage(np*nc2,3))
+      indchildaverage(1:size(indchildaverage_tmp,1),
+     &              1:size(indchildaverage_tmp,2)) = indchildaverage_tmp
+      deallocate(indchildaverage_tmp)
+      endif
+      endif
+
+      do i = 1,np
+        indchildaverage(i,dir)= -coeffraf/2+locind_child_left
+     &                                    +diffmod
+        locind_child_left = locind_child_left + coeffraf
+      enddo
+      do i = 2,nc2
+        indchildaverage(1+(i-1)*np:i*np,dir)= 
+     &                 indchildaverage(1+(i-2)*np:(i-1)*np,dir) + nc 
+      enddo
+
+      Return 
+C            
+C     
+      End Subroutine average1dprecompute2d
+      
+
+      Subroutine average1dprecompute(np,nc,
+     &                     s_parent,s_child,ds_parent,ds_child) 
+C
+CCC   Description:
+CCC   Subroutine to do an update by average on a parent grid (vector x)from its 
+CCC   child grid (vector y).
+C
+C     Arguments
+      INTEGER             :: np,nc 
+      REAL                :: s_parent,s_child
+      REAL                :: ds_parent,ds_child
+C
+C     Local variables
+      INTEGER :: i,locind_child_left,coeffraf,ii
+      REAL    :: xpos, invcoeffraf 
+      INTEGER :: nbnonnuls
+      INTEGER :: diffmod
+C 
+C
+      coeffraf = nint(ds_parent/ds_child)
+
+C
+      if (coeffraf == 1) then
+C
+          return
+C
+      endif
+            
+C
+      xpos = s_parent
+C
+      diffmod = 0
+      
+      IF ( mod(coeffraf,2) == 0 ) diffmod = 1
+
+        locind_child_left = 1 + agrif_int((xpos - s_child)/ds_child)
+
+      if (.not.allocated(indchildaverage)) then
+      allocate(indchildaverage(np,1))
+      else
+      if (size(indchildaverage,1)<np) then
+      deallocate(indchildaverage)
+      allocate(indchildaverage(np,1))
+      endif
+      endif
+      
+!CDIR ALTCODE
+      do i = 1,np
+C 
+        indchildaverage(i,1)=-coeffraf/2+locind_child_left+diffmod
+        locind_child_left = locind_child_left + coeffraf
+      enddo
+
+      Return 
+C            
+C     
+      End Subroutine average1dprecompute
+      
+      Subroutine average1daftercompute(x,y,np,nc,
+     &                     s_parent,s_child,ds_parent,ds_child,dir) 
+C
+CCC   Description:
+CCC   Subroutine to do an update by average on a parent grid (vector x)from its 
+CCC   child grid (vector y).
+C
+C     Arguments
+      INTEGER             :: np,nc,dir      
+      REAL, DIMENSION(np) :: x      
+      REAL, DIMENSION(nc) :: y  
+      REAL                :: s_parent,s_child
+      REAL                :: ds_parent,ds_child
+C
+C     Local variables
+      INTEGER :: i,locind_child_left,coeffraf,ii,j
+      REAL    :: xpos, invcoeffraf 
+      REAL, PARAMETER :: one_third=1./3.
+      INTEGER, DIMENSION(np) :: nbnonnuls
+      INTEGER :: diffmod
+      REAL, DIMENSION(0:5) :: invcoeff=(/1.,1.,0.5,one_third,0.25,0.2/)
+C 
+C
+      coeffraf = nint(ds_parent/ds_child)
+      invcoeffraf = 1./coeffraf      
+C      
+C
+      IF (Agrif_UseSpecialValueInUpdate) THEN
+
+      nbnonnuls = 0
+      do  j =1, coeffraf
+          do i=1, np
+               IF (y(indchildaverage(i,dir) + j -1) .NE. 
+     &               Agrif_SpecialValueFineGrid) THEN
+               nbnonnuls(i) = nbnonnuls(i) + 1
+               x(i) = x(i) +  y(indchildaverage(i,dir) + j -1 )
+               ENDIF
+          End Do
+      enddo
+      do i=1,np
+      x(i)= x(i)*invcoeff(nbnonnuls(i)) 
+      enddo
+
+      ELSE
+!CDIR NOLOOPCHG
+      do  j =1, coeffraf
+!CDIR VECTOR
+          do i=1, np
+             x(i) = x(i) + y(indchildaverage(i,dir) + j -1 )
+          enddo
+      enddo
+       x = x * invcoeffraf
+      ENDIF
+
+      Return 
+C            
+C     
+      End Subroutine average1daftercompute            
 C
 C
 C

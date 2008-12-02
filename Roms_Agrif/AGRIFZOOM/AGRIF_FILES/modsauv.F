@@ -1,5 +1,5 @@
 !
-! $Id: modsauv.F,v 1.2 2005/06/13 13:04:03 agrif Exp $
+! $Id: modsauv.F 662 2007-05-25 15:58:52Z opalod $
 !
 C     AGRIF (Adaptive Grid Refinement In Fortran)
 C
@@ -60,7 +60,7 @@ C
 C      
 C     Pointer argument    
       TYPE(Agrif_Grid),pointer   :: Agrif_Gr ! Pointer on the current grid
-      INTEGER i
+      INTEGER i 
 C
 C   
       do i = 1 , AGRIF_NbVariables
@@ -163,8 +163,16 @@ C
             if (associated(Agrif_Gr%tabvars(i)%var%interptab)) then
                Deallocate(Agrif_Gr%tabvars(i)%var%interptab)
             endif  
-                             
+            
+       endif
+           
 C
+       if (associated(Agrif_Gr%tabvars(i)%var%list_interp)) then
+         Call Agrif_Free_list_interp
+     &                          (Agrif_Gr%tabvars(i)%var%list_interp)
+       endif                             
+C
+       if ( .NOT. Agrif_Mygrid % tabvars(i) % var % restaure) then
             Deallocate(Agrif_Gr%tabvars(i)%var)
 C 
         endif
@@ -184,6 +192,23 @@ C
       End Subroutine Agrif_Free_data_before
 C
 C
+      Recursive Subroutine Agrif_Free_list_interp(list_interp)
+      TYPE(Agrif_List_Interp_Loc), Pointer :: list_interp
+      
+      if (associated(list_interp%suiv))
+     &      Call Agrif_Free_list_interp(list_interp%suiv)
+     
+#ifdef AGRIF_MPI
+       Deallocate(list_interp%interp_loc%tab4t)
+       Deallocate(list_interp%interp_loc%memberinall)
+       Deallocate(list_interp%interp_loc%sendtoproc1)
+       Deallocate(list_interp%interp_loc%recvfromproc1)
+#endif
+       Deallocate(list_interp%interp_loc)
+       Deallocate(list_interp)
+       Nullify(list_interp)
+
+      End Subroutine Agrif_Free_list_interp      
 C
 C     **************************************************************************
 CCC   Subroutine Agrif_Free_data_after
@@ -306,7 +331,7 @@ C
             
             if (associated(Agrif_Gr%tabvars(i)%var%interptab)) then
                Deallocate(Agrif_Gr%tabvars(i)%var%interptab)
-            endif              
+            endif                  
 !
             Deallocate(Agrif_Gr%tabvars(i)%var)
 ! 

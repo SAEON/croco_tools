@@ -1,5 +1,5 @@
 !
-! $Id: modcluster.F,v 1.1.1.1 2005/05/27 11:49:54 agrif Exp $
+! $Id: modcluster.F 662 2007-05-25 15:58:52Z opalod $
 !
 C     AGRIF (Adaptive Grid Refinement In Fortran)
 C
@@ -1306,7 +1306,9 @@ C
 C           Allocation of the arrays containing values of the variables of the
 C           grid pointed by parcours%gr      
 C      
-            Call Agrif_Allocation (parcours % gr)     
+            Call Agrif_Allocation (parcours % gr)   
+C            
+            Call Agrif_initialisations(parcours % gr)              
 C       
             Call Agrif_Instance(parcours % gr)
 C
