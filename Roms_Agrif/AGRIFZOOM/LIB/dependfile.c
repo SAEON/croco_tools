@@ -2,8 +2,8 @@
 /*                                                                            */
 /*     CONV (converter) for Agrif (Adaptive Grid Refinement In Fortran)       */
 /*                                                                            */
-/* Copyright or © or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
-/*                        Cyril Mazauric (Cyril.Mazauric@imag.fr)             */
+/* Copyright or   or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
+/*                        Cyril Mazauric (Cyril_Mazauric@yahoo.fr)            */
 /* This software is governed by the CeCILL-C license under French law and     */
 /* abiding by the rules of distribution of free software.  You can  use,      */
 /* modify and/ or redistribute the software under the terms of the CeCILL-C   */
@@ -30,7 +30,7 @@
 /* The fact that you are presently reading this means that you have had       */
 /* knowledge of the CeCILL-C license and that you accept its terms.           */
 /******************************************************************************/
-/* version 1.3                                                                */
+/* version 1.7                                                                */
 /******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -72,51 +72,80 @@ void Writethedependnbxnbyfile()
   FILE *dependfileoutput;
   listvar *parcours;
   int out;
-   
+
   /* We are looking for all the variable of the current filetoparse file      */
-  /*    in the globliste                                                      */
-  parcours =globliste;
+  /*    in the List_Global_Var                                                */
+  parcours =List_Global_Var;
   out = 0;
   while (parcours && out == 0 )
   {
-     if ( !strcasecmp(parcours->var->nomvar,nbmaillesX) ) out = 1;
+     if ( !strcasecmp(parcours->var->v_nomvar,nbmaillesX) ) out = 1;
      else parcours = parcours->suiv;
   }
-  if ( out == 1 ) 
+  if ( out == 0 )
   {
+     parcours =List_Common_Var;
+     while (parcours && out == 0 )
+     {
+        if ( !strcasecmp(parcours->var->v_nomvar,nbmaillesX) ) out = 1;
+        else parcours = parcours->suiv;
+     }
+  }
+  NbMailleXDefined = 0;
+  if ( out == 1 )
+  {
+     NbMailleXDefined = 1;
      dependfileoutput = fopen(".dependnbxnby","w");
-     fprintf(dependfileoutput,"%d\n",parcours->var->indicetabvars);
-     IndicenbmaillesX = parcours->var->indicetabvars;
+     fprintf(dependfileoutput,"%d\n",parcours->var->v_indicetabvars);
+     IndicenbmaillesX = parcours->var->v_indicetabvars;
 
      if ( dimprob > 1 )
      {
-        parcours =globliste;
+        parcours =List_Global_Var;
         out = 0;
         while (parcours && out == 0 )
         {
-           if ( !strcasecmp(parcours->var->nomvar,nbmaillesY) ) out = 1;
+           if ( !strcasecmp(parcours->var->v_nomvar,nbmaillesY) ) out = 1;
            else parcours = parcours->suiv;
         }
-        if ( out == 1 ) 
+        if ( out == 0 )
         {
-           fprintf(dependfileoutput,"%d\n",parcours->var->indicetabvars);
-           IndicenbmaillesY = parcours->var->indicetabvars;
+           parcours =List_Common_Var;
+           while (parcours && out == 0 )
+           {
+              if ( !strcasecmp(parcours->var->v_nomvar,nbmaillesY) ) out = 1;
+              else parcours = parcours->suiv;
+           }
+        }
+        if ( out == 1 )
+        {
+           fprintf(dependfileoutput,"%d\n",parcours->var->v_indicetabvars);
+           IndicenbmaillesY = parcours->var->v_indicetabvars;
         }
      }
 
      if ( dimprob > 2 )
      {
-        parcours =globliste;
+        parcours =List_Global_Var;
         out = 0;
         while (parcours && out == 0 )
         {
-           if ( !strcasecmp(parcours->var->nomvar,nbmaillesZ) ) out = 1;
+           if ( !strcasecmp(parcours->var->v_nomvar,nbmaillesZ) ) out = 1;
            else parcours = parcours->suiv;
         }
-        if ( out == 1 ) 
+        if ( out == 0 )
         {
-           fprintf(dependfileoutput,"%d\n",parcours->var->indicetabvars);
-           IndicenbmaillesZ = parcours->var->indicetabvars;
+           parcours =List_Common_Var;
+           while (parcours && out == 0 )
+           {
+              if ( !strcasecmp(parcours->var->v_nomvar,nbmaillesZ) ) out = 1;
+              else parcours = parcours->suiv;
+           }
+        }
+        if ( out == 1 )
+        {
+           fprintf(dependfileoutput,"%d\n",parcours->var->v_indicetabvars);
+           IndicenbmaillesZ = parcours->var->v_indicetabvars;
         }
      }
 
@@ -140,8 +169,8 @@ void Writethedependnbxnbyfile()
 void Readthedependnbxnbyfile()
 {
   FILE *dependfileoutput;
-   
-  if ((dependfileoutput = fopen(".dependnbxnby","r"))!=NULL) 
+
+  if ((dependfileoutput = fopen(".dependnbxnby","r"))!=NULL)
   {
      fscanf(dependfileoutput,"%d\n",&IndicenbmaillesX);
      if ( dimprob > 1 ) fscanf(dependfileoutput,"%d\n",&IndicenbmaillesY);
@@ -166,19 +195,26 @@ void Writethedependlistofmoduleused(char *NameTampon )
 {
   FILE *dependfileoutput;
   listusemodule *parcours;
-  char ligne[LONGNOM];
-   
-  if ( listofmodulebysubroutine )
+  char ligne[LONG_C];
+
+
+  if ( List_NameOfModuleUsed )
   {
      convert2lower(NameTampon);
      sprintf(ligne,".dependuse%s",NameTampon);
      dependfileoutput = fopen(ligne,"w");
-     /* We are looking for all the variable of the current filetoparse file   */
-     /*    in the globliste                                                   */
-     parcours = listofmodulebysubroutine;
+     /*                                                                       */
+     parcours = List_NameOfModuleUsed;
      while (parcours)
      {
-        fprintf(dependfileoutput,"%s\n",parcours->usemodule);
+        if ( !strcasecmp(NameTampon,parcours->u_modulename) &&
+             !strcasecmp(parcours->u_cursubroutine,"")
+           )
+        {
+           /* We are looking for all the variable of the current              */
+           /*    filetoparse file in the List_Global_Var                      */
+           fprintf(dependfileoutput,"%s\n",parcours->u_usemodule);
+        }
         parcours = parcours->suiv;
      }
      fclose(dependfileoutput);
@@ -201,13 +237,13 @@ void Readthedependlistofmoduleused(char *NameTampon)
 {
   FILE *dependfileoutput;
   listusemodule *parcours;
-  char ligne[LONGNOM];
+  char ligne[LONG_C];
 
   convert2lower(NameTampon);
   sprintf(ligne,".dependuse%s",NameTampon);
-  
+
   tmpuselocallist = (listusemodule *)NULL;
-  if ((dependfileoutput = fopen(ligne,"r"))==NULL) 
+  if ((dependfileoutput = fopen(ligne,"r"))==NULL)
   {
   }
   else
@@ -216,7 +252,7 @@ void Readthedependlistofmoduleused(char *NameTampon)
       while (!feof(dependfileoutput))
       {
          parcours=(listusemodule *)malloc(sizeof(listusemodule));
-         fscanf(dependfileoutput,"%s\n",parcours->usemodule);
+         fscanf(dependfileoutput,"%s\n",parcours->u_usemodule);
 
          parcours->suiv = tmpuselocallist;
          tmpuselocallist = parcours;
@@ -244,22 +280,25 @@ void WritedependParameterList(char *NameTampon )
 {
   FILE *dependfileoutput;
   listvar *parcours;
-  char ligne[LONGNOM];
-   
-  if ( globparam )
-  {
-  convert2lower(NameTampon);
-  sprintf(ligne,".dependparameter%s",NameTampon);
-  dependfileoutput = fopen(ligne,"w");
+  char ligne[LONG_C];
 
-  parcours =globparam;
-  while (parcours)
+  if ( List_GlobalParameter_Var )
   {
-     fprintf(dependfileoutput,"%s\n",parcours->var->nomvar);
-     fprintf(dependfileoutput,"%s\n",parcours->var->modulename);
-     parcours = parcours->suiv;
-  }
-  fclose(dependfileoutput);
+     convert2lower(NameTampon);
+     sprintf(ligne,".dependparameter%s",NameTampon);
+     dependfileoutput = fopen(ligne,"w");
+     /*                                                                       */
+     parcours = List_GlobalParameter_Var;
+     while (parcours)
+     {
+        if ( !strcasecmp(NameTampon,parcours->var->v_modulename) )
+        {
+           fprintf(dependfileoutput,"%s\n",parcours->var->v_nomvar);
+           fprintf(dependfileoutput,"%s\n",parcours->var->v_modulename);
+        }
+        parcours = parcours->suiv;
+     }
+     fclose(dependfileoutput);
   }
 }
 
@@ -280,12 +319,12 @@ listparameter *ReaddependParameterList(char *NameTampon,listparameter *listout)
 {
   FILE *dependfileoutput;
   listparameter *parcours;
-  char ligne[LONGNOM];
+  char ligne[LONG_C];
 
   convert2lower(NameTampon);
   sprintf(ligne,".dependparameter%s",NameTampon);
 
-  if ((dependfileoutput = fopen(ligne,"r"))==NULL) 
+  if ((dependfileoutput = fopen(ligne,"r"))==NULL)
   {
   }
   else
@@ -294,8 +333,8 @@ listparameter *ReaddependParameterList(char *NameTampon,listparameter *listout)
       while (!feof(dependfileoutput))
       {
          parcours=(listparameter *)malloc(sizeof(listparameter));
-         fscanf(dependfileoutput,"%s\n",parcours->name);
-         fscanf(dependfileoutput,"%s\n",parcours->modulename);
+         fscanf(dependfileoutput,"%s\n",parcours->p_name);
+         fscanf(dependfileoutput,"%s\n",parcours->p_modulename);
 
          parcours->suiv = listout;
          listout = parcours;
@@ -332,11 +371,11 @@ void Writethedependfile(char *NameTampon, listvar *input )
   FILE *dependfileoutput;
   listvar *parcours;
   listdim *dims;
-  char ligne[LONGNOM];
-  char listdimension[LONGNOM];
-  char curname[LONGNOM];
+  char ligne[LONG_C];
+  char listdimension[LONG_C];
+  char curname[LONG_C];
   int out;
-   
+
   if ( input )
   {
   convert2lower(NameTampon);
@@ -350,75 +389,88 @@ void Writethedependfile(char *NameTampon, listvar *input )
   strcpy(curname,"");
   while (parcours && out == 0 )
   {
-     if ( !strcasecmp(parcours->var->modulename,NameTampon) ||
-          !strcasecmp(parcours->var->commonname,NameTampon) )
+     if ( !strcasecmp(parcours->var->v_modulename,NameTampon) ||
+          !strcasecmp(parcours->var->v_commonname,NameTampon) )
      {
         /*                                                                    */
-        if (  strcasecmp(curname,"") && 
-             !strcasecmp(curname,parcours->var->nomvar) ) out = 1 ;
-        if ( !strcasecmp(curname,"") ) strcpy(curname,parcours->var->nomvar);
+        if (  strcasecmp(curname,"") &&
+             !strcasecmp(curname,parcours->var->v_nomvar) ) out = 1 ;
+        if ( !strcasecmp(curname,"") ) strcpy(curname,parcours->var->v_nomvar);
         /*                                                                    */
         if ( out == 0 )
         {
-           fprintf(dependfileoutput,"%s\n",parcours->var->typevar);
-           fprintf(dependfileoutput,"%s\n",parcours->var->nomvar);
-           if ( strcasecmp(parcours->var->dimchar,"") )
+           /********** TYPEVAR ************************************************/
+           fprintf(dependfileoutput,"%s\n",parcours->var->v_typevar);
+           /********** NOMVAR *************************************************/
+           fprintf(dependfileoutput,"%s\n",parcours->var->v_nomvar);
+           /********** DIMCHAR ************************************************/
+           if ( strcasecmp(parcours->var->v_dimchar,"") )
            {
-              fprintf(dependfileoutput,"%s\n",parcours->var->dimchar);
+              fprintf(dependfileoutput,"%s\n",parcours->var->v_dimchar);
            }
            else
            {
               fprintf(dependfileoutput,"T\n");
            }
-           if ( strcasecmp(parcours->var->commoninfile,"") )
+           /********** COMMONINFILE *******************************************/
+           if ( strcasecmp(parcours->var->v_commoninfile,"") )
            {
-              fprintf(dependfileoutput,"%s\n",parcours->var->commoninfile);
+              fprintf(dependfileoutput,"%s\n",parcours->var->v_commoninfile);
            }
            else
            {
               fprintf(dependfileoutput,"T\n");
            }
-           if ( strcasecmp(parcours->var->commonname,"") )
+           /********** COMMONNAME *********************************************/
+           if ( strcasecmp(parcours->var->v_commonname,"") )
            {
-              fprintf(dependfileoutput,"%s\n",parcours->var->commonname);
+              fprintf(dependfileoutput,"%s\n",parcours->var->v_commonname);
            }
            else
            {
               fprintf(dependfileoutput,"T\n");
            }
-           fprintf(dependfileoutput,"%d\n",parcours->var->nbdim);
-           fprintf(dependfileoutput,"%d\n",parcours->var->dimensiongiven);
-           fprintf(dependfileoutput,"%d\n",parcours->var->typegiven);
-           fprintf(dependfileoutput,"%d\n",parcours->var->allocatable);
-           fprintf(dependfileoutput,"%d\n",parcours->var->pointerdeclare);
-           if ( strcasecmp(parcours->var->precision,"") )
+           /********** NBDIM **************************************************/
+/*           fprintf(dependfileoutput,"%d\n",parcours->var->v_nbdim);*/
+           /********** DIMENSIONGIVEN *****************************************/
+/*           fprintf(dependfileoutput,"%d\n",parcours->var->v_dimensiongiven);*/
+           /********** ALLOCATABLE ********************************************/
+           fprintf(dependfileoutput,"%d\n",parcours->var->v_allocatable);
+           /********** POINTERDECLARE *****************************************/
+           fprintf(dependfileoutput,"%d\n",parcours->var->v_pointerdeclare);
+           /********** PRECISION **********************************************/
+           if ( strcasecmp(parcours->var->v_precision,"") )
            {
-              fprintf(dependfileoutput,"%s\n",parcours->var->precision); 
+              fprintf(dependfileoutput,"%s\n",parcours->var->v_precision);
            }
            else
            {
               fprintf(dependfileoutput,"T\n");
            }
-           if ( strcasecmp(parcours->var->initialvalue,"") )
+           /********** INITIALVALUE *******************************************/
+/*           if ( strcasecmp(parcours->var->v_initialvalue,"") )
            {
-              fprintf(dependfileoutput,"%s\n",parcours->var->initialvalue); 
+              fprintf(dependfileoutput,"%s\n",parcours->var->v_initialvalue);
+           }
+           else
+           {
+              fprintf(dependfileoutput,"T\n");
+           }*/
+           /********** NAMEINTYPENAME *****************************************/
+           if ( strcasecmp(parcours->var->v_nameinttypename,"") )
+           {
+              fprintf(dependfileoutput,"%s\n",parcours->var->v_nameinttypename);
            }
            else
            {
               fprintf(dependfileoutput,"T\n");
            }
-           if ( strcasecmp(parcours->var->nameinttypename,"") )
+           /********** INDICETABVARS ******************************************/
+           fprintf(dependfileoutput,"%d\n",parcours->var->v_indicetabvars);
+           /********** READEDLISTDIMENSION ************************************/
+           if ( parcours->var->v_dimensiongiven == 1 )
            {
-              fprintf(dependfileoutput,"%s\n",parcours->var->nameinttypename); 
-           }
-           else
-           {
-              fprintf(dependfileoutput,"T\n");
-           }
-           fprintf(dependfileoutput,"%d\n",parcours->var->indicetabvars);
-           if ( parcours->var->dimensiongiven == 1 )
-           {
-              dims = parcours->var->dimension;
+              dims = parcours->var->v_dimension;
               strcpy(listdimension,"");
               while (dims)
               {
@@ -426,16 +478,17 @@ void Writethedependfile(char *NameTampon, listvar *input )
                  strcat(listdimension,ligne);
                  if ( dims->suiv )
                  {
-                    strcat(listdimension,",");     
+                    strcat(listdimension,",");
                  }
                  dims = dims->suiv;
               }
-              fprintf(dependfileoutput,"%s\n",listdimension);    
+              fprintf(dependfileoutput,"%s\n",listdimension);
            }
            else
            {
               fprintf(dependfileoutput,"T\n");
            }
+           /*******************************************************************/
            fprintf(dependfileoutput,"------------------------\n");
         }
      }
@@ -452,25 +505,26 @@ void Writethedependfile(char *NameTampon, listvar *input )
 /*    information in the listout list.                                        */
 /******************************************************************************/
 /*                                                                            */
-/*           .dependmodule -------->  globalvarofusefile = list of var        */
+/*           .dependmodule -------->                      = list of var       */
 /*                                                                            */
 /*        not.dependmodule -------->                                          */
 /*                                                                            */
 /******************************************************************************/
 listvar *Readthedependfile( char *NameTampon , listvar *listout)
 {
-  char ligne[LONGNOM];
+  char ligne[LONG_C];
   FILE *dependfileoutput;
   listvar *parcours0;
   listvar *parcours;
   listvar *parcoursprec;
-  char nothing[LONGNOM];
+  char nothing[LONG_C];
+  int i;
 
   parcoursprec = (listvar *)NULL;
-  /* we should free the listvar globalvarofusefile                            */
+
   convert2lower(NameTampon);
   sprintf(ligne,".depend%s",NameTampon);
-  if ((dependfileoutput = fopen(ligne,"r"))==NULL) 
+  if ((dependfileoutput = fopen(ligne,"r"))==NULL)
   {
     /* if the file doesn't exist it means that it is the first time           */
     /*    we tried to parse this file                                         */
@@ -482,84 +536,95 @@ listvar *Readthedependfile( char *NameTampon , listvar *listout)
       {
          parcours=(listvar *)malloc(sizeof(listvar));
          parcours->var=(variable *)malloc(sizeof(variable));
-         parcours->var->nbdim=0;
-         parcours->var->common=0;
-         parcours->var->positioninblock=0;
-         parcours->var->module=0; 
-         parcours->var->save=0;
-         parcours->var->VariableIsParameter=0;
-         parcours->var->PublicDeclare=0;
-         parcours->var->PrivateDeclare=0;
-         parcours->var->ExternalDeclare=0;
-         parcours->var->pointedvar=0;
-         parcours->var->dimensiongiven=0;
-         parcours->var->c_star=0;
-         parcours->var->typegiven=0;
-         parcours->var->indicetabvars=0; 
-         parcours->var->pointerdeclare=0; 
-         parcours->var->optionaldeclare=0;
-         parcours->var->allocatable=0; 
-         parcours->var->dimsempty=0;
-         strcpy(parcours->var->vallengspec,"");
-         strcpy(parcours->var->nameinttypename,"");
-         strcpy(parcours->var->IntentSpec,"");
-         parcours->var->dimension=(listdim *)NULL;
-         fscanf(dependfileoutput,"%s\n",parcours->var->typevar);
-         fscanf(dependfileoutput,"%s\n",parcours->var->nomvar);
-         fscanf(dependfileoutput,"%s\n",parcours->var->dimchar);
-         if ( !strcasecmp(parcours->var->dimchar,"T") )
-         { 
-            strcpy(parcours->var->dimchar,"");
-         }
-         fscanf(dependfileoutput,"%s\n",parcours->var->commoninfile);
-         if ( !strcasecmp(parcours->var->commoninfile,"T") )
-         { 
-            strcpy(parcours->var->commoninfile,"");
-         }
-         fscanf(dependfileoutput,"%s\n",parcours->var->commonname);
-         if ( !strcasecmp(parcours->var->commonname,"T") )
-         { 
-            strcpy(parcours->var->commonname,"");
-         }
-         fscanf(dependfileoutput,"%d\n",&parcours->var->nbdim);
-         fscanf(dependfileoutput,"%d\n",&parcours->var->dimensiongiven);
-         fscanf(dependfileoutput,"%d\n",&parcours->var->typegiven);
-         fscanf(dependfileoutput,"%d\n",&parcours->var->allocatable);
-         if ( parcours->var->allocatable == 1 )
-	 {
-            AddNameToTheAllocateList_1(parcours->var->nomvar,
-                                       parcours->var->commonname);
-         }
-         fscanf(dependfileoutput,"%d\n",&parcours->var->pointerdeclare);
-         if ( parcours->var->pointerdeclare == 1 )
-	 {
-            AddNameToThelistpointer_1(parcours->var->nomvar);
-         }
-         fscanf(dependfileoutput,"%[^\n] \n",parcours->var->precision);
-         if ( !strcasecmp(parcours->var->precision,"T") )
+         /*                                                                   */
+         Init_Variable(parcours->var);
+         /*                                                                   */
+           /********** TYPEVAR ************************************************/
+         fscanf(dependfileoutput,"%s\n",parcours->var->v_typevar);
+           /********** NOMVAR *************************************************/
+         fscanf(dependfileoutput,"%s\n",parcours->var->v_nomvar);
+           /********** DIMCHAR ************************************************/
+         fscanf(dependfileoutput,"%s\n",parcours->var->v_dimchar);
+         if ( !strcasecmp(parcours->var->v_dimchar,"T") )
          {
-            strcpy(parcours->var->precision,"");
+            strcpy(parcours->var->v_dimchar,"");
          }
-         fscanf(dependfileoutput,"%[^\n] \n",parcours->var->initialvalue);
-         if ( !strcasecmp(parcours->var->initialvalue,"T") )
+           /********** COMMONINFILE *******************************************/
+         fscanf(dependfileoutput,"%s\n",parcours->var->v_commoninfile);
+         if ( !strcasecmp(parcours->var->v_commoninfile,"T") )
          {
-            strcpy(parcours->var->initialvalue,"");
+            strcpy(parcours->var->v_commoninfile,"");
          }
-         fscanf(dependfileoutput,"%[^\n] \n",parcours->var->nameinttypename);
-         if ( !strcasecmp(parcours->var->nameinttypename,"T") )
+           /********** COMMONNAME *********************************************/
+         fscanf(dependfileoutput,"%s\n",parcours->var->v_commonname);
+         if ( !strcasecmp(parcours->var->v_commonname,"T") )
          {
-            strcpy(parcours->var->nameinttypename,"");
+            strcpy(parcours->var->v_commonname,"");
          }
-         fscanf(dependfileoutput,"%d\n",&parcours->var->indicetabvars);
-         fscanf(dependfileoutput,"%s\n",parcours->var->readedlistdimension);
-         if ( !strcasecmp(parcours->var->readedlistdimension,"T") )
+           /********** NBDIM **************************************************/
+/*         fscanf(dependfileoutput,"%d\n",&parcours->var->v_nbdim);*/
+           /********** DIMENSIONGIVEN *****************************************/
+/*         fscanf(dependfileoutput,"%d\n",&parcours->var->v_dimensiongiven);*/
+           /********** ALLOCATABLE ********************************************/
+         fscanf(dependfileoutput,"%d\n",&parcours->var->v_allocatable);
+         if ( parcours->var->v_allocatable == 1 )
          {
-            strcpy(parcours->var->readedlistdimension,"");
+            Add_Allocate_Var_1(parcours->var->v_nomvar,
+                               parcours->var->v_commonname);
          }
+           /********** POINTERDECLARE *****************************************/
+         fscanf(dependfileoutput,"%d\n",&parcours->var->v_pointerdeclare);
+         if ( parcours->var->v_pointerdeclare == 1 )
+         {
+            Add_Pointer_Var_1(parcours->var->v_nomvar);
+         }
+           /********** PRECISION **********************************************/
+         fscanf(dependfileoutput,"%[^\n] \n",parcours->var->v_precision);
+         if ( !strcasecmp(parcours->var->v_precision,"T") )
+         {
+            strcpy(parcours->var->v_precision,"");
+         }
+           /********** INITIALVALUE *******************************************/
+/*         fscanf(dependfileoutput,"%[^\n] \n",parcours->var->v_initialvalue);
+         if ( !strcasecmp(parcours->var->v_initialvalue,"T") )
+         {
+            strcpy(parcours->var->v_initialvalue,"");
+         }*/
+           /********** NAMEINTYPENAME *****************************************/
+         fscanf(dependfileoutput,"%[^\n] \n",parcours->var->v_nameinttypename);
+         if ( !strcasecmp(parcours->var->v_nameinttypename,"T") )
+         {
+            strcpy(parcours->var->v_nameinttypename,"");
+         }
+           /********** INDICETABVARS ******************************************/
+         fscanf(dependfileoutput,"%d\n",&parcours->var->v_indicetabvars);
+           /********** READEDLISTDIMENSION ************************************/
+         fscanf(dependfileoutput,"%s\n",parcours->var->v_readedlistdimension);
+         if ( !strcasecmp(parcours->var->v_readedlistdimension,"T") )
+         {
+            strcpy(parcours->var->v_readedlistdimension,"");
+         }
+         else
+         {
+            parcours->var->v_dimensiongiven = 1;
+            parcours->var->v_nbdim = 1;
+            i = 1;
+            /*                                                                */
+            while ( i < strlen(parcours->var->v_readedlistdimension) )
+            {
+               if ( parcours->var->v_readedlistdimension[i] == ',' )
+               {
+                  parcours->var->v_nbdim = parcours->var->v_nbdim + 1 ;
+               }
+               /*                                                             */
+               i=i+1;
+            }
+         }
+           /*******************************************************************/
          fscanf(dependfileoutput,"%s\n",nothing);
-         parcours->suiv = NULL; 
+         parcours->suiv = NULL;
          if ( !listout )
-         { 
+         {
             listout = parcours;
             parcoursprec = parcours;
          }
@@ -585,6 +650,59 @@ listvar *Readthedependfile( char *NameTampon , listvar *listout)
   return listout;
 }
 
+void Write_Subroutine_For_Alloc()
+{
+   FILE *dependfileoutput;
+   listnom *parcours;
+
+   if ( List_Subroutine_For_Alloc )
+   {
+      if ((dependfileoutput=fopen(".dependAllocAgrif","w"))!=NULL)
+      {
+         parcours = List_Subroutine_For_Alloc;
+         while (parcours)
+         {
+            fprintf(dependfileoutput,"%s\n",parcours->o_nom);
+            parcours = parcours->suiv;
+         }
+         fclose(dependfileoutput);
+      }
+   }
+}
+
+void Read_Subroutine_For_Alloc()
+{
+  FILE *dependfileoutput;
+  listnom *parcours;
+  listnom *ref;
+
+  ref = (listnom *)NULL;
+  if ((dependfileoutput=fopen(".dependAllocAgrif","r"))!=NULL)
+  {
+     List_Subroutine_For_Alloc = (listnom *)NULL;
+     while (!feof(dependfileoutput))
+     {
+        parcours=(listnom *)malloc(sizeof(listnom));
+        strcpy(parcours->o_nom,"");
+
+        fscanf(dependfileoutput,"%s\n",&parcours->o_nom);
+        parcours->suiv = NULL;
+
+        if ( !List_Subroutine_For_Alloc )
+        {
+           List_Subroutine_For_Alloc = parcours;
+           ref = parcours;
+        }
+        else
+        {
+            ref->suiv = parcours;
+            ref = parcours;
+        }
+     }
+     fclose(dependfileoutput);
+  }
+}
+
 /******************************************************************************/
 /*                        Writethedependavailablefile                         */
 /******************************************************************************/
@@ -606,22 +724,19 @@ void Writethedependavailablefile()
   FILE *dependfileoutput;
   listindice *parcours;
 
-  if ( Listofavailableindices )
-  {
-  if ((dependfileoutput=fopen(".dependavailable","w"))!=NULL) 
+  if ((dependfileoutput=fopen(".dependavailable","w"))!=NULL)
   {
      /* We are looking for all the indices of the Listofavailableindices      */
      parcours = Listofavailableindices;
      while (parcours)
      {
-        if ( parcours->indice != 0 )
+        if ( parcours->i_indice != 0 )
         {
-           fprintf(dependfileoutput,"%d\n",parcours->indice);
+           fprintf(dependfileoutput,"%d\n",parcours->i_indice);
         }
         parcours = parcours->suiv;
      }
      fclose(dependfileoutput);
-  }
   }
 }
 
@@ -646,15 +761,15 @@ void Readthedependavailablefile()
   FILE *dependfileoutput;
   listindice *parcours;
 
-  if ((dependfileoutput=fopen(".dependavailable","r"))!=NULL) 
+  if ((dependfileoutput=fopen(".dependavailable","r"))!=NULL)
   {
      /* We are looking for all the indices of the Listofavailableindices      */
      Listofavailableindices = (listindice *)NULL;
      while (!feof(dependfileoutput))
      {
         parcours=(listindice *)malloc(sizeof(listindice));
-        fscanf(dependfileoutput,"%d\n",&parcours->indice);
-        if ( parcours->indice != 0 && parcours->indice < 10000000 )
+        fscanf(dependfileoutput,"%d\n",&parcours->i_indice);
+        if ( parcours->i_indice != 0 && parcours->i_indice < 10000000 )
         {
            parcours -> suiv = Listofavailableindices;
            Listofavailableindices = parcours;
@@ -680,12 +795,12 @@ void Readthedependavailablefile()
 int Did_filetoparse_readed(char *NameTampon)
 {
   FILE *dependfileoutput;
-  char ligne[LONGNOM];
+  char ligne[LONG_C];
   int out;
 
   convert2lower(NameTampon);
   sprintf(ligne,".depend%s",NameTampon);
-  if ((dependfileoutput = fopen(ligne,"r"))==NULL) 
+  if ((dependfileoutput = fopen(ligne,"r"))==NULL)
   {
       out = 0;
   }
@@ -695,4 +810,307 @@ int Did_filetoparse_readed(char *NameTampon)
       fclose(dependfileoutput);
   }
   return out;
+}
+
+
+/******************************************************************************/
+/*                      Did_module_common_treaded                             */
+/******************************************************************************/
+/* This subroutine is used to know if the .depend<NameTampon> exist           */
+/*    it means if the file has been ever parsed                               */
+/******************************************************************************/
+/*                                                                            */
+/******************************************************************************/
+int Did_module_common_treaded(char *NameTampon)
+{
+  FILE *dependfileoutput;
+  char ligne[LONG_C];
+  int out;
+
+  convert2lower(NameTampon);
+  sprintf(ligne,".depend%s",NameTampon);
+  if ((dependfileoutput = fopen(ligne,"r"))==NULL)
+  {
+      out = 0;
+  }
+  else
+  {
+      out = 1;
+      fclose(dependfileoutput);
+  }
+  return out;
+}
+
+
+
+void Write_val_max()
+{
+  FILE *dependfileoutput;
+
+  if ((dependfileoutput=fopen(".dependvalmax","w"))!=NULL)
+  {
+     fprintf(dependfileoutput,"length_last\n");
+     fprintf(dependfileoutput,"%d\n",length_last);
+     fprintf(dependfileoutput,"length_first\n");
+     fprintf(dependfileoutput,"%d\n",length_first);
+     fprintf(dependfileoutput,"length_v_typevar\n");
+     fprintf(dependfileoutput,"%d\n",length_v_typevar);
+     fprintf(dependfileoutput,"length_v_nomvar\n");
+     fprintf(dependfileoutput,"%d\n",length_v_nomvar);
+     fprintf(dependfileoutput,"length_v_dimchar\n");
+     fprintf(dependfileoutput,"%d\n",length_v_dimchar);
+     fprintf(dependfileoutput,"length_v_modulename\n");
+     fprintf(dependfileoutput,"%d\n",length_v_modulename);
+     fprintf(dependfileoutput,"length_v_commonname\n");
+     fprintf(dependfileoutput,"%d\n",length_v_commonname);
+     fprintf(dependfileoutput,"length_v_vallengspec\n");
+     fprintf(dependfileoutput,"%d\n",length_v_vallengspec);
+     fprintf(dependfileoutput,"length_v_nameinttypename\n");
+     fprintf(dependfileoutput,"%d\n",length_v_nameinttypename);
+     fprintf(dependfileoutput,"length_v_commoninfile\n");
+     fprintf(dependfileoutput,"%d\n",length_v_commoninfile);
+     fprintf(dependfileoutput,"length_v_subroutinename\n");
+     fprintf(dependfileoutput,"%d\n",length_v_subroutinename);
+     fprintf(dependfileoutput,"length_v_precision\n");
+     fprintf(dependfileoutput,"%d\n",length_v_precision);
+     fprintf(dependfileoutput,"length_v_IntentSpec\n");
+     fprintf(dependfileoutput,"%d\n",length_v_IntentSpec);
+     fprintf(dependfileoutput,"length_v_initialvalue\n");
+     fprintf(dependfileoutput,"%d\n",length_v_initialvalue);
+     fprintf(dependfileoutput,"length_v_readedlistdimension\n");
+     fprintf(dependfileoutput,"%d\n",length_v_readedlistdimension);
+     fprintf(dependfileoutput,"length_u_usemodule\n");
+     fprintf(dependfileoutput,"%d\n",length_u_usemodule);
+     fprintf(dependfileoutput,"length_u_charusemodule\n");
+     fprintf(dependfileoutput,"%d\n",length_u_charusemodule);
+     fprintf(dependfileoutput,"length_u_cursubroutine\n");
+     fprintf(dependfileoutput,"%d\n",length_u_cursubroutine);
+     fprintf(dependfileoutput,"length_u_modulename\n");
+     fprintf(dependfileoutput,"%d\n",length_u_modulename);
+     fprintf(dependfileoutput,"length_n_name\n");
+     fprintf(dependfileoutput,"%d\n",length_n_name);
+     fprintf(dependfileoutput,"length_c_namevar\n");
+     fprintf(dependfileoutput,"%d\n",length_c_namevar);
+     fprintf(dependfileoutput,"length_c_namepointedvar\n");
+     fprintf(dependfileoutput,"%d\n",length_c_namepointedvar);
+     fprintf(dependfileoutput,"length_o_nom\n");
+     fprintf(dependfileoutput,"%d\n",length_o_nom);
+     fprintf(dependfileoutput,"length_o_module\n");
+     fprintf(dependfileoutput,"%d\n",length_o_module);
+     fprintf(dependfileoutput,"length_a_nomvar\n");
+     fprintf(dependfileoutput,"%d\n",length_a_nomvar);
+     fprintf(dependfileoutput,"length_a_subroutine\n");
+     fprintf(dependfileoutput,"%d\n",length_a_subroutine);
+     fprintf(dependfileoutput,"length_a_module\n");
+     fprintf(dependfileoutput,"%d\n",length_a_module);
+     fprintf(dependfileoutput,"length_usemodule\n");
+     fprintf(dependfileoutput,"%d\n",length_t_usemodule);
+     fprintf(dependfileoutput,"length_cursubroutine\n");
+     fprintf(dependfileoutput,"%d\n",length_t_cursubroutine);
+     fprintf(dependfileoutput,"length_curfilename\n");
+     fprintf(dependfileoutput,"%d\n",length_curfilename);
+     fprintf(dependfileoutput,"length_nomfileoutput\n");
+     fprintf(dependfileoutput,"%d\n",length_nomfileoutput);
+     fprintf(dependfileoutput,"length_motparse\n");
+     fprintf(dependfileoutput,"%d\n",length_motparse);
+     fprintf(dependfileoutput,"length_mainfile\n");
+     fprintf(dependfileoutput,"%d\n",length_mainfile);
+     fprintf(dependfileoutput,"length_nomdir\n");
+     fprintf(dependfileoutput,"%d\n",length_nomdir);
+     fprintf(dependfileoutput,"length_commondirout\n");
+     fprintf(dependfileoutput,"%d\n",length_commondirout);
+     fprintf(dependfileoutput,"length_commondirin\n");
+     fprintf(dependfileoutput,"%d\n",length_commondirin);
+     fprintf(dependfileoutput,"length_filetoparse\n");
+     fprintf(dependfileoutput,"%d\n",length_filetoparse);
+     fprintf(dependfileoutput,"length_curbuf\n");
+     fprintf(dependfileoutput,"%d\n",length_curbuf);
+     fprintf(dependfileoutput,"length_toprintglob\n");
+     fprintf(dependfileoutput,"%d\n",length_toprintglob);
+     fprintf(dependfileoutput,"Size_char0d\n");
+     fprintf(dependfileoutput,"%d\n",value_char_size);
+     fprintf(dependfileoutput,"Size_char1d\n");
+     fprintf(dependfileoutput,"%d\n",value_char_size1);
+     fprintf(dependfileoutput,"Size_char2d\n");
+     fprintf(dependfileoutput,"%d\n",value_char_size2);
+     fprintf(dependfileoutput,"Size_char3d\n");
+     fprintf(dependfileoutput,"%d\n",value_char_size3);
+     fprintf(dependfileoutput,"length_tmpvargridname\n");
+     fprintf(dependfileoutput,"%d\n",length_tmpvargridname);
+     fprintf(dependfileoutput,"length_ligne_Subloop\n");
+     fprintf(dependfileoutput,"%d\n",length_ligne_Subloop);
+     fprintf(dependfileoutput,"length_lvargridname_toamr\n");
+     fprintf(dependfileoutput,"%d\n",length_lvargridname_toamr);
+     fprintf(dependfileoutput,"length_toprint_toamr\n");
+     fprintf(dependfileoutput,"%d\n",length_toprint_utilagrif);
+     fprintf(dependfileoutput,"length_toprinttmp_utilchar\n");
+     fprintf(dependfileoutput,"%d\n",length_toprinttmp_utilchar);
+     fprintf(dependfileoutput,"length_ligne_writedecl\n");
+     fprintf(dependfileoutput,"%d\n",length_ligne_writedecl);
+     fprintf(dependfileoutput,"length_newname_toamr\n");
+     fprintf(dependfileoutput,"%d\n",length_newname_toamr);
+     fprintf(dependfileoutput,"length_newname_writedecl\n");
+     fprintf(dependfileoutput,"%d\n",length_newname_writedecl);
+     fprintf(dependfileoutput,"length_ligne_toamr\n");
+     fprintf(dependfileoutput,"%d\n",length_ligne_toamr);
+     fprintf(dependfileoutput,"length_tmpligne_writedecl\n");
+     fprintf(dependfileoutput,"%d\n",length_tmpligne_writedecl);
+/*     fprintf(dependfileoutput,"\n");
+     fprintf(dependfileoutput,"%d\n",);
+     fprintf(dependfileoutput,"\n");
+     fprintf(dependfileoutput,"%d\n",);
+     fprintf(dependfileoutput,"\n");
+     fprintf(dependfileoutput,"%d\n",);
+     fprintf(dependfileoutput,"\n");
+     fprintf(dependfileoutput,"%d\n",);
+     fprintf(dependfileoutput,"\n");
+     fprintf(dependfileoutput,"%d\n",);
+     fprintf(dependfileoutput,"\n");
+     fprintf(dependfileoutput,"%d\n",);
+     fprintf(dependfileoutput,"\n");
+     fprintf(dependfileoutput,"%d\n",);
+     fprintf(dependfileoutput,"\n");
+     fprintf(dependfileoutput,"%d\n",);
+     fprintf(dependfileoutput,"\n");
+     fprintf(dependfileoutput,"%d\n",);*/
+
+     fclose(dependfileoutput);
+  }
+}
+
+
+void Read_val_max()
+{
+  char nothing[LONG_C];
+  FILE *dependfileoutput;
+
+  if ((dependfileoutput=fopen(".dependvalmax","r"))!=NULL)
+  {
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_last);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_first);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_v_typevar);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_v_nomvar);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_v_dimchar);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_v_modulename);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_v_commonname);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_v_vallengspec);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_v_nameinttypename);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_v_commoninfile);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_v_subroutinename);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_v_precision);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_v_IntentSpec);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_v_initialvalue);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_v_readedlistdimension);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_u_usemodule);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_u_charusemodule);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_u_cursubroutine);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_u_modulename);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_n_name);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_c_namevar);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_c_namepointedvar);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_o_nom);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_o_module);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_a_nomvar);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_a_subroutine);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_a_module);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_t_usemodule);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_t_cursubroutine);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_curfilename);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_nomfileoutput);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_motparse);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_mainfile);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_nomdir);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_commondirout);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_commondirin);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_filetoparse);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_curbuf);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_toprintglob);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&value_char_size);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&value_char_size1);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&value_char_size2);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&value_char_size3);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_tmpvargridname);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_ligne_Subloop);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_lvargridname_toamr);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_toprint_utilagrif);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_toprinttmp_utilchar);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_ligne_writedecl);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_newname_toamr);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_newname_writedecl);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_ligne_toamr);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&length_tmpligne_writedecl);
+/*     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&);
+     fscanf(dependfileoutput,"%s\n",nothing);
+     fscanf(dependfileoutput,"%d\n",&);*/
+
+     fclose(dependfileoutput);
+  }
 }

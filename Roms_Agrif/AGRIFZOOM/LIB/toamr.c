@@ -2,8 +2,8 @@
 /*                                                                            */
 /*     CONV (converter) for Agrif (Adaptive Grid Refinement In Fortran)       */
 /*                                                                            */
-/* Copyright or © or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
-/*                        Cyril Mazauric (Cyril.Mazauric@imag.fr)             */
+/* Copyright or   or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
+/*                        Cyril Mazauric (Cyril_Mazauric@yahoo.fr)            */
 /* This software is governed by the CeCILL-C license under French law and     */
 /* abiding by the rules of distribution of free software.  You can  use,      */
 /* modify and/ or redistribute the software under the terms of the CeCILL-C   */
@@ -30,14 +30,14 @@
 /* The fact that you are presently reading this means that you have had       */
 /* knowledge of the CeCILL-C license and that you accept its terms.           */
 /******************************************************************************/
-/* version 1.3                                                                */
+/* version 1.7                                                                */
 /******************************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "decl.h"
-char lvargridname[LONGNOM];
-char lvargridname2[LONGNOM];
+char lvargridname[LONG_4C];
+char lvargridname2[LONG_4C];
 
 
 /******************************************************************************/
@@ -53,8 +53,8 @@ char *variablenameroottabvars (variable * var)
 {
   char *ligne;
 
-  ligne = (char *) malloc (LONGLIGNE * sizeof (char));
-  sprintf (ligne, "Agrif_Mygrid %% tabvars(%d) %% var ", var->indicetabvars);
+  ligne = (char *) malloc (LONG_C * sizeof (char));
+  sprintf (ligne, "Agrif_Mygrid %% tabvars(%d) %% var ", var->v_indicetabvars);
   return ligne;
 }
 
@@ -74,9 +74,9 @@ char *variablenametabvars (variable * var, int iorindice)
 {
   char *ligne;
 
-  ligne = (char *) malloc (LONGLIGNE * sizeof (char));
+  ligne = (char *) malloc (LONG_C * sizeof (char));
   if ( iorindice == 0 ) sprintf (ligne, " Agrif_Gr %% tabvars(%d)%% var",
-                                 var->indicetabvars);
+                                 var->v_indicetabvars);
   else sprintf (ligne, " Agrif_Gr %% tabvars(i)%% var");
   return ligne;
 }
@@ -94,23 +94,82 @@ char *variablecurgridtabvars (variable * var,int ParentOrCurgrid)
 {
   char *ligne;
 
-  ligne = (char *) malloc (LONGLIGNE * sizeof (char));
+  ligne = (char *) malloc (LONG_C * sizeof (char));
   if ( ParentOrCurgrid == 0 ) sprintf (ligne, " Agrif_tabvars(%d) %% var",
-                              var->indicetabvars);
-  else if ( ParentOrCurgrid == 1 ) sprintf (ligne, 
+                              var->v_indicetabvars);
+  else if ( ParentOrCurgrid == 1 ) sprintf (ligne,
                               " Agrif_tabvars(%d) %% parent_var %% var",
-                               var->indicetabvars);
-  else if ( ParentOrCurgrid == 2 ) sprintf (ligne, 
+                               var->v_indicetabvars);
+  else if ( ParentOrCurgrid == 2 ) sprintf (ligne,
                               " Agrif_Mygrid %% tabvars(%d) %% var",
-                               var->indicetabvars);
-  else if ( ParentOrCurgrid == 3 ) sprintf (ligne, 
+                               var->v_indicetabvars);
+  else if ( ParentOrCurgrid == 3 ) sprintf (ligne,
                               " Agrif_Curgrid %% tabvars(%d) %% var",
-                               var->indicetabvars);
+                               var->v_indicetabvars);
   else sprintf (ligne, " AGRIF_Mygrid %% tabvars(%d) %% var",
-                               var->indicetabvars);
+                               var->v_indicetabvars);
   return ligne;
 }
 
+void WARNING_CharSize(variable *var)
+{
+   if ( var->v_nbdim == 0 )
+   {
+      if ( convert2int(var->v_dimchar) > 2050 )
+      {
+         printf("WARNING : The dimension of the character  %s   \n",
+                                                              var->v_nomvar);
+         printf("   is upper than 2050. You must change         \n");
+         printf("   the dimension of carray0                    \n");
+         printf("   in the file AGRIF/AGRIF_FILES/modtypes.F    \n");
+         printf("   line 247. Replace 300 with %d.              \n",
+                                            convert2int(var->v_dimchar)+100);
+      }
+      Save_Length_int(convert2int(var->v_dimchar),1);
+   }
+   else if ( var->v_nbdim == 1 )
+   {
+      if ( convert2int(var->v_dimchar) > 300 )
+      {
+         printf("WARNING : The dimension of the character  %s   \n",
+                                                              var->v_nomvar);
+         printf("   is upper than 300. You must change          \n");
+         printf("   the dimension of carray1                    \n");
+         printf("   in the file AGRIF/AGRIF_FILES/modtypes.F    \n");
+         printf("   line 247. Replace 300 with %d.              \n",
+                                            convert2int(var->v_dimchar)+100);
+      }
+      Save_Length_int(convert2int(var->v_dimchar),2);
+   }
+   else if ( var->v_nbdim == 2 )
+   {
+      if ( convert2int(var->v_dimchar) > 300 )
+      {
+         printf("WARNING : The dimension of the character  %s   \n",
+                                                              var->v_nomvar);
+         printf("   is upper than 300. You must change          \n");
+         printf("   the dimension of carray2                    \n");
+         printf("   in the file AGRIF/AGRIF_FILES/modtypes.F    \n");
+         printf("   line 247. Replace 300 with %d.              \n",
+                                            convert2int(var->v_dimchar)+100);
+      }
+      Save_Length_int(convert2int(var->v_dimchar),3);
+   }
+   else if ( var->v_nbdim == 3 )
+   {
+      if ( convert2int(var->v_dimchar) > 300 )
+      {
+         printf("WARNING : The dimension of the character  %s   \n",
+                                                              var->v_nomvar);
+         printf("   is upper than 300. You must change          \n");
+         printf("   the dimension of carray3                    \n");
+         printf("   in the file AGRIF/AGRIF_FILES/modtypes.F    \n");
+         printf("   line 247. Replace 300 with %d.              \n",
+                                            convert2int(var->v_dimchar)+100);
+      }
+      Save_Length_int(convert2int(var->v_dimchar),4);
+   }
+}
 /******************************************************************************/
 /*                           vargridnametabvars                               */
 /******************************************************************************/
@@ -125,33 +184,39 @@ char *variablecurgridtabvars (variable * var,int ParentOrCurgrid)
 char *vargridnametabvars (variable * var,int iorindice)
 {
   char *tmp;
-  char tmp1[LONGNOM];
-  
+  char tmp1[LONG_C];
+
   tmp = variablenametabvars (var,iorindice);
   strcpy(tmp1,tmp);
   if ( todebugfree == 1 ) free(tmp);
-  
+
   sprintf (lvargridname, "%s", tmp1);
-  if (!strcasecmp (var->typevar, "REAL"))
+  if (!strcasecmp (var->v_typevar, "REAL"))
     {
-      if ( !strcasecmp(var->nameinttypename,"8") ) sprintf (lvargridname2, "%% darray%d", var->nbdim);
-      else sprintf (lvargridname2, "%% array%d", var->nbdim);
+      if ( !strcasecmp(var->v_nameinttypename,"8") )
+                           sprintf (lvargridname2, "%% darray%d", var->v_nbdim);
+      else if ( !strcasecmp(var->v_nameinttypename,"4") )
+                           sprintf (lvargridname2, "%% sarray%d", var->v_nbdim);
+      else sprintf (lvargridname2, "%% array%d", var->v_nbdim);
     }
-  else if (!strcasecmp (var->typevar, "INTEGER"))
+  else if (!strcasecmp (var->v_typevar, "INTEGER"))
     {
-      sprintf (lvargridname2, "%% iarray%d", var->nbdim);
+      sprintf (lvargridname2, "%% iarray%d", var->v_nbdim);
     }
-  else if (!strcasecmp (var->typevar, "LOGICAL"))
+  else if (!strcasecmp (var->v_typevar, "LOGICAL"))
     {
-      sprintf (lvargridname2, "%% larray%d", var->nbdim);
+      sprintf (lvargridname2, "%% larray%d", var->v_nbdim);
     }
-  else if (!strcasecmp (var->typevar, "CHARACTER"))
+  else if (!strcasecmp (var->v_typevar, "CHARACTER"))
     {
-      sprintf (lvargridname2, "%% carray%d", var->nbdim);
+      WARNING_CharSize(var);
+      sprintf (lvargridname2, "%% carray%d", var->v_nbdim);
     }
 
   strcat (lvargridname, lvargridname2);
 
+  Save_Length(lvargridname,42);
+  Save_Length(lvargridname2,42);
   return lvargridname;
 }
 
@@ -171,38 +236,52 @@ char *vargridnametabvars (variable * var,int iorindice)
 char *vargridcurgridtabvars (variable * var,int ParentOrCurgrid)
 {
   char *tmp;
-  char tmp1[LONGNOM];
-  
+  char tmp1[LONG_C];
+
+ if (!strcasecmp(var->v_typevar,"type"))
+  {
+  strcpy(lvargridname2,"");
+  sprintf(lvargridname,"Agrif_%s_var(Agrif_Curgrid%%fixedrank)%%%s",var->v_modulename,var->v_nomvar);
+  }
+  else
+  {
   tmp = variablecurgridtabvars (var,ParentOrCurgrid);
   strcpy(tmp1,tmp);
   if ( todebugfree == 1 ) free(tmp);
-  
+
   sprintf (lvargridname, "%s", tmp1);
-  if (!strcasecmp (var->typevar, "REAL"))
+  if (!strcasecmp (var->v_typevar, "REAL"))
     {
-      if ( !strcasecmp(var->nameinttypename,"8") ) sprintf (lvargridname2, "%% darray%d", var->nbdim);
-      else sprintf (lvargridname2, "%% array%d", var->nbdim);
+      if ( !strcasecmp(var->v_nameinttypename,"8") )
+                           sprintf (lvargridname2, "%% darray%d", var->v_nbdim);
+      else if ( !strcasecmp(var->v_nameinttypename,"4") )
+                           sprintf (lvargridname2, "%% sarray%d", var->v_nbdim);
+      else sprintf (lvargridname2, "%% array%d", var->v_nbdim);
     }
-  else if (!strcasecmp (var->typevar, "INTEGER"))
+  else if (!strcasecmp (var->v_typevar, "INTEGER"))
     {
-      sprintf (lvargridname2, "%% iarray%d", var->nbdim);
+      sprintf (lvargridname2, "%% iarray%d", var->v_nbdim);
     }
-  else if (!strcasecmp (var->typevar, "LOGICAL"))
+  else if (!strcasecmp (var->v_typevar, "LOGICAL"))
     {
-      sprintf (lvargridname2, "%% larray%d", var->nbdim);
+      sprintf (lvargridname2, "%% larray%d", var->v_nbdim);
     }
-  else if (!strcasecmp (var->typevar, "CHARACTER"))
+  else if (!strcasecmp (var->v_typevar, "CHARACTER"))
     {
-      sprintf (lvargridname2, "%% carray%d", var->nbdim);
+      WARNING_CharSize(var);
+      sprintf (lvargridname2, "%% carray%d", var->v_nbdim);
     }
+  }
 
   strcat (lvargridname, lvargridname2);
 
+  Save_Length(lvargridname,42);
+  Save_Length(lvargridname2,42);
   return lvargridname;
 }
 
 /******************************************************************************/
-/*                           vargridcurgridtabvarswithoutAgrif_Gr                            */
+/*                  vargridcurgridtabvarswithoutAgrif_Gr                      */
 /******************************************************************************/
 /* This subroutine is used to create the string                               */
 /******************************************************************************/
@@ -210,29 +289,35 @@ char *vargridcurgridtabvars (variable * var,int ParentOrCurgrid)
 /******************************************************************************/
 char *vargridcurgridtabvarswithoutAgrif_Gr (variable * var)
 {
-    
-  sprintf (lvargridname, "(%d) %% var", var->indicetabvars);
 
-  if (!strcasecmp (var->typevar, "REAL"))
+  sprintf (lvargridname, "(%d) %% var", var->v_indicetabvars);
+
+  if (!strcasecmp (var->v_typevar, "REAL"))
     {
-      if ( !strcasecmp(var->nameinttypename,"8") ) sprintf (lvargridname2, "%% darray%d", var->nbdim);
-      else sprintf (lvargridname2, "%% array%d", var->nbdim);
+      if ( !strcasecmp(var->v_nameinttypename,"8") )
+                           sprintf (lvargridname2, "%% darray%d", var->v_nbdim);
+      else if ( !strcasecmp(var->v_nameinttypename,"4") )
+                           sprintf (lvargridname2, "%% sarray%d", var->v_nbdim);
+      else sprintf (lvargridname2, "%% array%d", var->v_nbdim);
     }
-  else if (!strcasecmp (var->typevar, "INTEGER"))
+  else if (!strcasecmp (var->v_typevar, "INTEGER"))
     {
-      sprintf (lvargridname2, "%% iarray%d", var->nbdim);
+      sprintf (lvargridname2, "%% iarray%d", var->v_nbdim);
     }
-  else if (!strcasecmp (var->typevar, "LOGICAL"))
+  else if (!strcasecmp (var->v_typevar, "LOGICAL"))
     {
-      sprintf (lvargridname2, "%% larray%d", var->nbdim);
+      sprintf (lvargridname2, "%% larray%d", var->v_nbdim);
     }
-  else if (!strcasecmp (var->typevar, "CHARACTER"))
+  else if (!strcasecmp (var->v_typevar, "CHARACTER"))
     {
-      sprintf (lvargridname2, "%% carray%d", var->nbdim);
+      WARNING_CharSize(var);
+      sprintf (lvargridname2, "%% carray%d", var->v_nbdim);
     }
 
   strcat (lvargridname, lvargridname2);
 
+  Save_Length(lvargridname,42);
+  Save_Length(lvargridname2,42);
   return lvargridname;
 }
 
@@ -250,9 +335,9 @@ char *vargridparam (variable * v, int whichone)
 {
   typedim dim;
   listdim *newdim;
-  char newname[LONGNOM];
-    
-  newdim = v->dimension;
+  char newname[LONG_4C];
+
+  newdim = v->v_dimension;
   if (!newdim) return "";
 
   strcpy (tmpvargridname, "(");
@@ -261,35 +346,37 @@ char *vargridparam (variable * v, int whichone)
      dim = newdim->dim;
 
      strcpy(newname,"");
-     strcpy(newname, 
-            ChangeTheInitalvaluebyTabvarsName(dim.first,globliste,whichone));   
-     if ( !strcasecmp(newname,dim.first))
-     {
-        strcpy(newname,"");     
-        /* la liste des use de cette subroutine                               */
-        if ( !globalvarofusefile ) RecordUseModulesVariables();
-        strcpy(newname,ChangeTheInitalvaluebyTabvarsName(dim.first,
-                       globalvarofusefile,whichone));
-     }
+     strcpy(newname,
+            ChangeTheInitalvaluebyTabvarsName(dim.first,List_Global_Var,
+                                                                     whichone));
+                                                                     
+        strcpy(newname,ChangeTheInitalvaluebyTabvarsName(newname,
+                       List_Common_Var,whichone));
+
+        strcpy(newname,ChangeTheInitalvaluebyTabvarsName(newname,
+                       List_ModuleUsed_Var,whichone));
+
      strcat (tmpvargridname, newname);
      strcat (tmpvargridname, " : ");
+
      strcpy(newname,"");
      strcpy(newname,ChangeTheInitalvaluebyTabvarsName
-                        (dim.last,globliste,whichone));   
-     if ( !strcasecmp(newname,dim.last))
-     {
-        strcpy(newname,"");     
-        /* la liste des use de cette subroutine                               */
-        if ( !globalvarofusefile ) RecordUseModulesVariables();
+                        (dim.last,List_Global_Var,whichone));
+                        
         strcpy(newname,ChangeTheInitalvaluebyTabvarsName
-                       (dim.last, globalvarofusefile,whichone));
-     }
+                       (newname, List_Common_Var,whichone));   
+                       
+        strcpy(newname,ChangeTheInitalvaluebyTabvarsName
+                       (newname, List_ModuleUsed_Var,whichone));                                            
+                        
+     Save_Length(tmpvargridname,46);
      strcat (tmpvargridname, newname);
      newdim = newdim->suiv;
      if (newdim) strcat (tmpvargridname, ",");
   }
   strcat (tmpvargridname, ")");
   strcat (tmpvargridname, "\0");
+  Save_Length(tmpvargridname,40);
   return tmpvargridname;
 }
 
@@ -307,8 +394,8 @@ char *vargridparam (variable * v, int whichone)
 void write_probdimagrif_file()
 {
   FILE *probdim;
-  char ligne[LONGLIGNE*100];
-  
+  char ligne[LONG_C];
+
   probdim = associate("probdim_agrif.h");
   sprintf (ligne, "Agrif_Probdim = %d", dimprob);
   tofich (probdim, ligne,1);
@@ -336,9 +423,10 @@ void write_keysagrif_file()
   fprintf(keys,"      AGRIF_USE_FIXED_GRIDS = 0\n");
   fprintf(keys,"      AGRIF_USE_ONLY_FIXED_GRIDS = 0\n");
   if (fixedgrids     == 1) fprintf(keys,"      AGRIF_USE_FIXED_GRIDS = 1\n");
-  if (onlyfixedgrids == 1) fprintf(keys,"      AGRIF_USE_ONLY_FIXED_GRIDS = 1\n");
+  if (onlyfixedgrids == 1)
+                         fprintf(keys,"      AGRIF_USE_ONLY_FIXED_GRIDS = 1\n");
 
-  fclose(keys); 
+  fclose(keys);
 }
 
 /******************************************************************************/
@@ -354,7 +442,7 @@ void write_keysagrif_file()
 /******************************************************************************/
 void write_modtypeagrif_file()
 {
-  char ligne[LONGLIGNE*100];
+  char ligne[LONG_C];
   FILE *typedata;
 
   typedata = associate ("modtype_agrif.h");
@@ -376,16 +464,16 @@ void write_modtypeagrif_file()
 void write_createvarnameagrif_file(variable *v,FILE *createvarname,
                                                        int *InitEmpty)
 {
-  char ligne[LONGLIGNE*100];
+  char ligne[LONG_C];
   char *tmp;
-  char temp1[LONGLIGNE];
-  
+  char temp1[LONG_C];
+
   tmp =  variablenametabvars(v,0);
   strcpy (temp1, tmp);
   if ( todebugfree == 1 ) free(tmp);
 
   *InitEmpty = 0 ;
-  sprintf(ligne, "%s %% namevar = \"%s\"",temp1,v->nomvar);
+  sprintf(ligne, "%s %% namevar = \"%s\"",temp1,v->v_nomvar);
   tofich(createvarname,ligne,1);
 }
 
@@ -398,22 +486,24 @@ void write_createvarnameagrif_file(variable *v,FILE *createvarname,
 /*              Agrif_Gr % n(i) = nbmailles                                   */
 /*                                                                            */
 /******************************************************************************/
-void write_Setnumberofcells_file()
+void write_Setnumberofcells_file(char *name)
 {
-  char ligne[LONGLIGNE*100];
+  char ligne[LONG_C];
   FILE *setnumberofcells;
 
-  setnumberofcells=associate("SetNumberofcells.h");
-  
+  if ( IndicenbmaillesX != 0 )
+  {
+  setnumberofcells=associate(name);
+
   if (onlyfixedgrids != 1 )
   {
-  sprintf (ligne, 
+  sprintf (ligne,
            "Agrif_Gr %% nb(1) = Agrif_Gr %% tabvars(%d) %% var %% iarray0",
            IndicenbmaillesX);
   }
   else
   {
-  sprintf (ligne, 
+  sprintf (ligne,
            "Agrif_Gr %% nb(1) = Agrif_Curgrid %% tabvars(%d) %% var %% iarray0",
            IndicenbmaillesX);
   }
@@ -422,13 +512,13 @@ void write_Setnumberofcells_file()
   {
      if (onlyfixedgrids != 1 )
      {
-     sprintf (ligne, 
+     sprintf (ligne,
            "Agrif_Gr %% nb(2) = Agrif_Gr %% tabvars(%d) %% var %% iarray0",
            IndicenbmaillesY);
      }
      else
      {
-     sprintf (ligne, 
+     sprintf (ligne,
            "Agrif_Gr %% nb(2) = Agrif_Curgrid %% tabvars(%d) %% var %% iarray0",
            IndicenbmaillesY);
      }
@@ -439,13 +529,13 @@ void write_Setnumberofcells_file()
   {
      if (onlyfixedgrids != 1 )
      {
-     sprintf (ligne, 
+     sprintf (ligne,
            "Agrif_Gr %% nb(3) = Agrif_Gr %% tabvars(%d) %% var %% iarray0",
            IndicenbmaillesZ);
      }
      else
      {
-     sprintf (ligne, 
+     sprintf (ligne,
            "Agrif_Gr %% nb(3) = Agrif_Curgrid %% tabvars(%d) %% var %% iarray0",
            IndicenbmaillesZ);
      }
@@ -453,6 +543,7 @@ void write_Setnumberofcells_file()
   }
 
   fclose (setnumberofcells);
+  }
 }
 
 /******************************************************************************/
@@ -464,13 +555,15 @@ void write_Setnumberofcells_file()
 /*              nbmailles = Agrif_Gr % n(i)                                   */
 /*                                                                            */
 /******************************************************************************/
-void write_Getnumberofcells_file()
+void write_Getnumberofcells_file(char *name)
 {
-  char ligne[LONGLIGNE*100];
+  char ligne[LONG_C];
   FILE *getnumberofcells;
 
-  getnumberofcells=associate("GetNumberofcells.h");
-  sprintf (ligne, 
+  if ( IndicenbmaillesX != 0 )
+  {
+  getnumberofcells=associate(name);
+  sprintf (ligne,
            "Agrif_Curgrid %% tabvars(%d) %% var %% iarray0 = Agrif_Gr %% nb(1)",
            IndicenbmaillesX);
   tofich (getnumberofcells, ligne,1);
@@ -483,12 +576,13 @@ void write_Getnumberofcells_file()
     }
   if (dimprob > 2)
     {
-      sprintf (ligne, 
+      sprintf (ligne,
            "Agrif_Curgrid %% tabvars(%d) %% var %% iarray0 = Agrif_Gr %% nb(3)",
            IndicenbmaillesZ);
       tofich (getnumberofcells, ligne,1);
-    }    
+    }
   fclose (getnumberofcells);
+  }
 }
 
 
@@ -505,170 +599,189 @@ void write_Getnumberofcells_file()
 void write_initialisationsagrif_file(variable *v,FILE *initproc,
                                      int *VarnameEmpty)
 {
-  char ligne[LONGLIGNE*100];
-  char temp1[LONGLIGNE];
+  char ligne[LONG_C];
+  char temp1[LONG_C];
   char *tmp;
 
   tmp = variablenameroottabvars (v);
   strcpy (temp1, tmp);
   if ( todebugfree == 1 ) free(tmp);
 
-  if ( v->nbdim != 0 ) 
+  if ( v->v_nbdim != 0 )
   {
      *VarnameEmpty = 0 ;
-     sprintf (ligne, "%s %% nbdim = %d", temp1, v->nbdim);
+     sprintf (ligne, "%s %% nbdim = %d", temp1, v->v_nbdim);
      tofich (initproc, ligne,1);
   }
 }
 
-/******************************************************************************/
-/*                        write_allocation                                    */
-/******************************************************************************/
-/* This subroutine is used to create the file allocationagrif                 */
-/******************************************************************************/
-/*                                                                            */
-/*                 allocations_calls_agrif.h                                  */
-/*                 Call Alloc_agrif_module (Agrif_Gr)                         */
-/*                                                                            */
-/*                 alloc_agrif_module.h                                       */
-/*                 Subroutine Alloc_agrif_module (Agrif_Gr)                   */
-/*                 allocate(Agrif_Gr%tabvars(i)%var%array1(jpi)               */
-/*                 variable =>Agrif_Gr%tabvars(i)%var%array1                  */
-/*                                                                            */
-/******************************************************************************/
-listnom *write_allocation(listvar *newvar,variable *v,
-                          listnom *listedesnoms,
-                          FILE *alloccalls,
-                          FILE *AllocUSE,
-                          FILE *modulealloc,
-                          int *IndiceMax)
+
+void Write_Alloc_Agrif_Files()
 {
-  char ligne[LONGLIGNE*100];
-  char curname[LONGNOM];
-  char initialvalue[LONGNOM];
-  char name1[LONGNOM];
-  listvar *parcours;
-  listnom *parcoursnom;
-  int compteur;
-  int ValeurMax;
-  int donotwrite=0;
-  int out;
-  FILE *alloc_agrif;
-  
-  ValeurMax = 2;
-  if (v->common == 1) strcpy(curname,v->commonname);     
-  if (v->module == 1) strcpy(curname,v->modulename);  
-  
-  if ( strcasecmp(curname,Alloctreatedname) )
-  {
-     strcpy(Alloctreatedname,curname);     
+   listnom *parcours;
+   FILE *alloccalls;
+   FILE *AllocUSE;
 
-/******************************************************************************/
-/*                 alloc_agrif_module.h                                       */
-/*                 Subroutine Alloc_agrif_module (Agrif_Gr)                   */
-/******************************************************************************/
-     if ( v->common == 1 ) strcpy(name1,v->commonname);
-     else if ( v->module == 1 )  strcpy(name1,v->modulename);
-     else exit(1);
+   AllocUSE= associate("include_use_Alloc_agrif.h");
+   alloccalls = associate("allocations_calls_agrif.h");
 
-     sprintf(ligne,"alloc_agrif_%s.h",name1);
-     allocationagrif = associate (ligne);
+   parcours = List_Subroutine_For_Alloc;
+   while ( parcours )
+   {
+      fprintf(AllocUSE,"      USE %s\n", parcours -> o_nom );
+      fprintf (alloccalls,"      Call Alloc_agrif_%s(Agrif_Gr)\n",
+                                                            parcours -> o_nom );
+      parcours = parcours -> suiv;
+   }
 
-     *IndiceMax = 0;
-     AllocEmpty = 1;
+   fclose (AllocUSE);
+   fclose (alloccalls);
+}
 
-     sprintf (ligne, "Subroutine Alloc_agrif_%s(Agrif_Gr)", curname);
-     tofich(allocationagrif,ligne,1);
-     if ( ModuleIsDefineInInputFile(curname) == 1 )
-     {
-        strcpy(ligne,"Use Agrif_Util");
-        tofich(allocationagrif,ligne,1);
-     }
-     else
-     {
-        if ( fortran77 == 1 )
-        {
-           strcpy(ligne,"Use Agrif_Types, ONLY : Agrif_tabvars");
-           tofich(allocationagrif,ligne,1);
-           strcpy(ligne,"Use Agrif_Types, ONLY : Agrif_grid");
-           tofich(allocationagrif,ligne,1);
-        }
-     }
-     strcpy (ligne, "Type(Agrif_grid), Pointer :: Agrif_Gr");
-     tofich(allocationagrif,ligne,1);
-     /* Add the declaration of I into the allocationagrif file                */
-     strcpy(ligne, "INTEGER :: i");
-     tofich (allocationagrif, ligne,1);
+int IndiceInlist(int indic, listindice *listin)
+{
+   listindice *parcoursindic;
+   int out;
 
-     if ( fortran77 == 1 )
-     {
-        writedeclarationintoamr(parameterlist,allocationagrif,newvar,curname);
-     }
-     if ( ModuleIsDefineInInputFile(curname) == 1 )
-     {
-         /* add the call to initworkspace                                     */
-         tofich(allocationagrif,"if ( .NOT. Agrif_Root() ) then ",1);
-         fprintf(allocationagrif,"#include \"GetNumberofcells.h\" \n");
-         tofich(allocationagrif,"else ",1);
-         fprintf(allocationagrif,"#include \"SetNumberofcells.h\" \n");
-         tofich(allocationagrif,"endif ",1);
-         tofich(allocationagrif,"Call Agrif_InitWorkspace ",1);
-     }
-  }
+   out = 0 ;
+
+   parcoursindic = listin;
+   while ( parcoursindic && out == 0 )
+   {
+      if ( parcoursindic->i_indice == indic ) out = 1;
+      else parcoursindic = parcoursindic -> suiv;
+   }
+
+   return out;
+}
+void write_allocation_Common_0()
+{
+   listnom *parcours_nom;
+   listnom *neededparameter;
+   listvar *parcours;
+   listvar *parcoursprec;
+   listvar *parcours1;
+   FILE *allocationagrif;
+   FILE *paramtoamr;
+   char ligne[LONGNOM];
+   variable *v;
+   int IndiceMax;
+   int IndiceMin;
+   int compteur;
+   int out;
+   int indiceprec;
+   int ValeurMax;
+   char initialvalue[LONG_4C];
+   listindice *list_indic;
+   listindice *parcoursindic;
+   int i;
+
+   parcoursprec = (listvar *)NULL;
+   parcours_nom = List_NameOfCommon;
+   ValeurMax = 2;
+   while ( parcours_nom  )
+   {
+      /*                                                                      */
+      if ( parcours_nom->o_val == 1 )
+      {
+         /* Open the file to create the Alloc_agrif subroutine                */
+         sprintf(ligne,"alloc_agrif_%s.h",parcours_nom->o_nom);
+         allocationagrif = associate (ligne);
+         /*                                                                   */
+         fprintf(allocationagrif,"#include \"Param_toamr_%s.h\" \n",
+                                                           parcours_nom->o_nom);
+         /*                                                                   */
+         sprintf(ligne,"Param_toamr_%s.h",parcours_nom->o_nom);
+         paramtoamr = associate (ligne);
+         neededparameter = (listnom * )NULL;
+         /*                                                                   */
+         list_indic = (listindice *)NULL;
+         /*                                                                   */
+         shouldincludempif = 1 ;
+         parcours = List_Common_Var;
+         while ( parcours )
+         {
+            if ( !strcasecmp(parcours->var->v_commonname,parcours_nom->o_nom) &&
+                  IndiceInlist(parcours->var->v_indicetabvars,list_indic) == 0
+               )
+            {
+               /***************************************************************/
+               /***************************************************************/
+               /***************************************************************/
+               v = parcours->var;
+               IndiceMax = 0;
+               IndiceMin = indicemaxtabvars;
   /* body of the file                                                         */
-  if ( !strcasecmp(v->commonname,Alloctreatedname) ||
-       !strcasecmp(v->modulename,Alloctreatedname) )
+  if ( !strcasecmp(v->v_commoninfile,mainfile) )
   {
-     if (onlyfixedgrids != 1 && v->nbdim!=0) 
+     if (onlyfixedgrids != 1 && v->v_nbdim!=0)
      {
         strcpy (ligne, "If (.not. associated(");
         strcat (ligne, vargridnametabvars(v,0));
         strcat (ligne, "))                       then");
+        Save_Length(ligne,48);
         tofich (allocationagrif, ligne,1);
-        AllocEmpty = 0;
      }
-     if ( v->allocatable != 1 && ( v->dimsempty != 1) )
+     if ( v->v_allocatable != 1 && ( v->v_dimsempty != 1) )
      {
         /*                ALLOCATION                                          */
-        if ( v->dimension != 0  )
+        if ( v->v_dimension != 0  )
         {
-           if ( v->indicetabvars > *IndiceMax )
+           if ( v->v_indicetabvars < IndiceMin ||
+                v->v_indicetabvars > IndiceMax )
            {
-              parcours = newvar;
+              parcours1 = parcours;
               compteur = -1;
-	      out = 0;
-              while ( parcours && out == 0 &&
-                      !strcasecmp(  newvar->var->readedlistdimension,
-                                  parcours->var->readedlistdimension) &&
-                      !strcasecmp(  newvar->var->typevar,
-		                  parcours->var->typevar) )
+              out = 0;
+              indiceprec = parcours->var->v_indicetabvars -1 ;
+              while ( parcours1 && out == 0 &&
+                      !strcasecmp(  parcours->var->v_readedlistdimension,
+                                  parcours1->var->v_readedlistdimension) &&
+                      !strcasecmp(  parcours->var->v_typevar,
+                                  parcours1->var->v_typevar) &&
+                            ( parcours1->var->v_indicetabvars == indiceprec+1 )
+                     )
               {
-	         if ( fortran77 == 1 )
-		 {
-		    if ( !strcasecmp(parcours->var->commonname,curname) ) compteur = compteur +1 ;
-		    else out = 1;
-		 }
-		 else
-		 {
-		    if ( !strcasecmp(parcours->var->modulename,curname) ) compteur = compteur +1 ;		 
-		    else out = 1;
-		 }
-                 parcours = parcours->suiv;
+
+               if ( !strcasecmp(parcours1->var->v_modulename,
+                                parcours_nom->o_nom) ||
+                    !strcasecmp(parcours1->var->v_commonname,
+                                parcours_nom->o_nom) )
+                 {
+                      compteur = compteur +1 ;
+                      indiceprec = parcours1->var->v_indicetabvars;
+                      parcoursprec = parcours1;
+                      parcours1 = parcours1->suiv;
+                 }
+                 else out = 1;
               }
+
               if ( compteur > ValeurMax )
               {
-                 fprintf(allocationagrif,"      DO i = %d , %d\n", 
-                                          newvar->var->indicetabvars,
-                                          newvar->var->indicetabvars+compteur);
-                *IndiceMax = newvar->var->indicetabvars+compteur;
+                 fprintf(allocationagrif,"      DO i = %d , %d\n",
+                                         parcours->var->v_indicetabvars,
+                                       parcours->var->v_indicetabvars+compteur);
+                 IndiceMin = parcours->var->v_indicetabvars;
+                 IndiceMax = parcours->var->v_indicetabvars+compteur;
                  strcpy (ligne, "allocate ");
                  strcat (ligne, "(");
                  strcat (ligne, vargridnametabvars(v,1));
                  strcat (ligne, vargridparam(v,0));
                  strcat (ligne, ")");
+                 Save_Length(ligne,48);
                  tofich (allocationagrif, ligne,1);
-                 fprintf(allocationagrif,"      end do\n");           
-                 AllocEmpty = 0;
+                 fprintf(allocationagrif,"      end do\n");
+                 i=parcours->var->v_indicetabvars;
+                 do
+                 {
+                    parcoursindic =  (listindice *)malloc(sizeof(listindice));
+                    parcoursindic -> i_indice = i;
+                    parcoursindic -> suiv = list_indic;
+                    list_indic = parcoursindic;
+                    i = i + 1;
+                 } while ( i <= parcours->var->v_indicetabvars+compteur );
+                 parcours = parcoursprec;
+                 /*                                                           */
               }
               else
               {
@@ -677,161 +790,277 @@ listnom *write_allocation(listvar *newvar,variable *v,
                  strcat (ligne, vargridnametabvars(v,0));
                  strcat (ligne, vargridparam(v,0));
                  strcat (ligne, ")");
-                 tofich (allocationagrif, ligne,1); 
-                 AllocEmpty = 0;
+                 Save_Length(ligne,48);
+                 tofich (allocationagrif, ligne,1);
+                 /*                                                           */
+                 parcoursindic =  (listindice *)malloc(sizeof(listindice));
+                 parcoursindic -> i_indice = parcours->var->v_indicetabvars;
+                 parcoursindic -> suiv = list_indic;
+                 list_indic = parcoursindic;
               }
+                neededparameter = writedeclarationintoamr(List_Parameter_Var,
+                              paramtoamr,v,parcours_nom->o_nom,neededparameter,
+                                                               v->v_commonname);
+              /*                                                              */
            }
         } /* end of the allocation part                                       */
         /*                INITIALISATION                                      */
-        if ( strcasecmp(v->initialvalue,"") ) 
+        if ( strcasecmp(v->v_initialvalue,"") )
         {
            strcpy (ligne, "");
            strcat (ligne, vargridnametabvars(v,0));
            /* We should modify the initialvalue in the case of variable has   */
-           /*    benn defined with others variables                           */
+           /*    been defined with others variables                           */
+                      
            strcpy(initialvalue,
                   ChangeTheInitalvaluebyTabvarsName
-                                      (v->initialvalue,globliste,0));
-           if ( !strcasecmp(initialvalue,v->initialvalue) )
+                                      (v->v_initialvalue,List_Global_Var,0));
+           if ( !strcasecmp(initialvalue,v->v_initialvalue) )
            {
-              strcpy(initialvalue,"");     
-              /* la liste des use de cette subroutine                         */
-              if ( !globalvarofusefile ) RecordUseModulesVariables();
+              strcpy(initialvalue,"");
               strcpy(initialvalue,ChangeTheInitalvaluebyTabvarsName
-                                      (v->initialvalue,globalvarofusefile,0));
+                                      (v->v_initialvalue,List_Common_Var,0));
            }
-           strcat (ligne," = "); 
-           strcat (ligne,initialvalue); 
+           if ( !strcasecmp(initialvalue,v->v_initialvalue) )
+           {
+              strcpy(initialvalue,"");
+              strcpy(initialvalue,ChangeTheInitalvaluebyTabvarsName
+                                     (v->v_initialvalue,List_ModuleUsed_Var,0));
+           }
+           strcat (ligne," = ");
+           strcat (ligne,initialvalue);
            /*                                                                 */
+           Save_Length(ligne,48);
            tofich (allocationagrif, ligne,1);
-           AllocEmpty = 0;
         }
      }
-     if (onlyfixedgrids != 1 && v->nbdim!=0) 
+     if (onlyfixedgrids != 1 && v->v_nbdim!=0)
      {
         strcpy (ligne, "   End if");
         tofich (allocationagrif, ligne,1);
-     }     
-  } 
-  /* closing of the file                                                      */
-  if ( newvar->suiv == NULL ||
-       ( v->common == 1 &&
-         strcasecmp(newvar->suiv->var->commonname,Alloctreatedname) ) ||
-       ( v->module == 1 &&
-         strcasecmp(newvar->suiv->var->modulename,Alloctreatedname) ) 
-     )
-  {
-     if ( ModuleIsDefineInInputFile(curname) == 1 )
-     {
-         /* add the call to initworkspace                                     */
-         tofich(allocationagrif,"if ( .NOT. Agrif_Root() ) then ",1);
-         fprintf(allocationagrif,"#include \"GetNumberofcells.h\" \n");
-         tofich(allocationagrif,"else ",1);
-         fprintf(allocationagrif,"#include \"SetNumberofcells.h\" \n");
-         tofich(allocationagrif,"endif ",1);
-         tofich(allocationagrif,"Call Agrif_InitWorkspace ",1);
      }
-     strcpy (ligne, "Return");
-     tofich(allocationagrif,ligne,1);
-     sprintf (ligne, "End Subroutine Alloc_agrif_%s",curname);
-     tofich(allocationagrif,ligne,1);
-     fclose(allocationagrif);
-     allocationagrif = (FILE *)NULL;
-
-/******************************************************************************/
-/*                 NewModule_module.h                                         */
-/*                 module <module> ETC ...                                    */
-/******************************************************************************/
-     if ( fortran77 == 1 )
-     {
-        donotwrite = 0 ;
-        if ( strcasecmp(v->commoninfile,mainfile)) donotwrite = 1 ;
-        else 
-        {
-           /* we should verify that this module has not been write in this fil*/
-           parcoursnom = listedesnoms;
-           sprintf(ligne,"USE %s",curname);
-           while ( parcoursnom && donotwrite == 0 )
-           {
-              if ( !strcasecmp(parcoursnom->nom,ligne) ) donotwrite = 1;
-              else parcoursnom = parcoursnom ->suiv;
-           }
-        }
-
-        if ( donotwrite == 0 ) 
-        {
-           if ( ModuleIsDefineInInputFile(curname) == 1 ) AllocEmpty = 0;
-           if ( AllocEmpty == 1 )
-           {
-            sprintf (ligne, "\n#include \"agrif_alloc_%s.h\"\n", curname);
-            fprintf(alloccalls,ligne);
-            sprintf (ligne, "agrif_alloc_%s.h", curname);
-            alloc_agrif = associate(ligne);
-            sprintf (ligne, "!", curname);
-            tofich (alloc_agrif, ligne,1);
-
-            fprintf(modulealloc,"! empty module alloc %s \n",curname );
-	    fclose(alloc_agrif);
-           }
-           else
-           {
-/******************************************************************************/
-/*                 include_use_Alloc_agrif.h                               */
-/*                 USE mod                                                    */
-/******************************************************************************/
-            sprintf (ligne, "USE %s", curname);
-            tofich (AllocUSE, ligne,1);
-/******************************************************************************/
-/*                 allocations_calls_agrif.h                                  */
-/*                 Call Alloc_agrif_module (Agrif_Gr)                         */
-/******************************************************************************/
-            sprintf (ligne, "\n#include \"agrif_alloc_%s.h\"\n", curname);
-            fprintf(alloccalls,ligne);
-            sprintf (ligne, "agrif_alloc_%s.h", curname);
-            alloc_agrif = associate(ligne);
-            sprintf (ligne, "Call Alloc_agrif_%s(Agrif_Gr)", curname);
-            tofich (alloc_agrif, ligne,1);
-	    fclose(alloc_agrif);
-/******************************************************************************/
-/******************************************************************************/
-            fprintf(modulealloc,"      module %s \n",curname);
-            fprintf(modulealloc,"      IMPLICIT NONE \n");
-            fprintf(modulealloc,"      PUBLIC Alloc_agrif_%s \n",curname);
-            fprintf(modulealloc,"      CONTAINS \n");
-            fprintf(modulealloc,"#include \"alloc_agrif_%s.h\" \n",curname);
-            fprintf(modulealloc,"      end module %s \n",curname);
-/******************************************************************************/
-/******************************************************************************/
-            sprintf(ligne,"USE %s",curname);
-            listedesnoms = Addtolistnom(ligne,listedesnoms);
-           }
-        }
-     }
-        else
-        {
-           if ( Did_filetoparse_treated == 0 && AllocEmpty == 0 )
-           {
-/******************************************************************************/
-/*                 include_use_Alloc_agrif.h                                  */
-/*                 USE mod                                                    */
-/******************************************************************************/
-              sprintf (ligne, "USE %s", curname);
-              tofich (AllocUSE, ligne,1);
-/******************************************************************************/
-/*                 allocations_calls_agrif.h                                  */
-/*                 Call Alloc_agrif_module (Agrif_Gr)                         */
-/******************************************************************************/
-              sprintf (ligne, "#include \"agrif_alloc_%s.h\" \n", curname);
-              fprintf (alloccalls, ligne);
-              sprintf (ligne, "agrif_alloc_%s.h", curname);
-              alloc_agrif = associate(ligne);
-              sprintf (ligne, "Call Alloc_agrif_%s(Agrif_Gr)", curname);
-              tofich (alloc_agrif, ligne,1);
-	      fclose(alloc_agrif);
-           }
-        }
   }
-  return listedesnoms;
+               /***************************************************************/
+               /***************************************************************/
+               /***************************************************************/
+            }
+            parcours = parcours -> suiv;
+         }
+         /* Close the file Alloc_agrif                                        */
+         fclose(allocationagrif);
+         fclose(paramtoamr);
+      }
+      /*                                                                      */
+      parcours_nom = parcours_nom -> suiv;
+   }
+
+}
+
+
+
+void write_allocation_Global_0()
+{
+   listnom *parcours_nom;
+   listvar *parcours;
+   listvar *parcoursprec;
+   listvar *parcours1;
+   FILE *allocationagrif;
+   char ligne[LONGNOM];
+   variable *v;
+   int IndiceMax;
+   int IndiceMin;
+   int compteur;
+   int out;
+   int indiceprec;
+   int ValeurMax;
+   char initialvalue[LONG_4C];
+   int typeiswritten ;
+
+   parcoursprec = (listvar *)NULL;
+   parcours_nom = List_NameOfModule;
+   ValeurMax = 2;
+   while ( parcours_nom  )
+   {
+      /*                                                                      */
+      if ( parcours_nom->o_val == 1 )
+      {
+         IndiceMax = 0;
+         IndiceMin = indicemaxtabvars;
+         /* Open the file to create the Alloc_agrif subroutine                */
+         sprintf(ligne,"alloc_agrif_%s.h",parcours_nom->o_nom);
+         allocationagrif = associate (ligne);
+         /*                                                                   */
+         if ( ModuleIsDefineInInputFile(parcours_nom->o_nom) == 1 )
+         {
+             /* add the call to initworkspace                                 */
+            tofich(allocationagrif,"if ( .NOT. Agrif_Root() ) then ",1);
+            fprintf(allocationagrif,"#include \"GetNumberofcells.h\" \n");
+            tofich(allocationagrif,"else ",1);
+            fprintf(allocationagrif,"#include \"SetNumberofcells.h\" \n");
+            tofich(allocationagrif,"endif ",1);
+            tofich(allocationagrif,"Call Agrif_InitWorkspace ",1);
+         }
+
+         typeiswritten = 0;
+
+         parcours = List_Global_Var;
+         while ( parcours )
+         {
+            if ( !strcasecmp(parcours->var->v_modulename,parcours_nom->o_nom) &&
+                 parcours->var->v_VariableIsParameter == 0                  &&
+                 parcours->var->v_notgrid == 0                              &&
+                 !strcasecmp(parcours->var->v_modulename,parcours_nom->o_nom)  )
+            {
+               /***************************************************************/
+               /***************************************************************/
+               /***************************************************************/
+               v = parcours->var;
+               IndiceMax = 0;
+               IndiceMin = indicemaxtabvars;
+  /* body of the file                                                         */
+  if ( !strcasecmp(v->v_commoninfile,mainfile) )
+  {
+     if (onlyfixedgrids != 1 && v->v_nbdim!=0)
+     {
+        strcpy (ligne, "If (.not. associated(");
+        strcat (ligne, vargridnametabvars(v,0));
+        strcat (ligne, "))                       then");
+        Save_Length(ligne,48);
+        tofich (allocationagrif, ligne,1);
+     }
+     if ( v->v_allocatable != 1 && ( v->v_dimsempty != 1) )
+     {
+        /*                ALLOCATION                                          */
+        if ( v->v_dimension != 0  )
+        {
+           if ( v->v_indicetabvars < IndiceMin ||
+                v->v_indicetabvars > IndiceMax )
+           {
+              parcours1 = parcours;
+              compteur = -1;
+              out = 0;
+              indiceprec = parcours->var->v_indicetabvars -1 ;
+              while ( parcours1 && out == 0 &&
+                      !strcasecmp(  parcours->var->v_readedlistdimension,
+                                  parcours1->var->v_readedlistdimension) &&
+                      !strcasecmp(  parcours->var->v_typevar,
+                                  parcours1->var->v_typevar) &&
+                             ( parcours1->var->v_indicetabvars == indiceprec+1 )
+                     )
+              {
+
+               if ( !strcasecmp(parcours1->var->v_modulename,
+                                parcours_nom->o_nom) ||
+                    !strcasecmp(parcours1->var->v_commonname,
+                                parcours_nom->o_nom) )
+                 {
+                      compteur = compteur +1 ;
+                      indiceprec = parcours1->var->v_indicetabvars;
+                      parcoursprec = parcours1;
+                      parcours1 = parcours1->suiv;
+                 }
+                 else out = 1;
+              }
+              if ( compteur > ValeurMax )
+              {
+                 fprintf(allocationagrif,"      DO i = %d , %d\n",
+                                          parcours->var->v_indicetabvars,
+                                       parcours->var->v_indicetabvars+compteur);
+                 IndiceMin = parcours->var->v_indicetabvars;
+                 IndiceMax = parcours->var->v_indicetabvars+compteur;
+                 strcpy (ligne, "allocate ");
+                 strcat (ligne, "(");
+                 strcat (ligne, vargridnametabvars(v,1));
+                 strcat (ligne, vargridparam(v,0));
+                 strcat (ligne, ")");
+                 Save_Length(ligne,48);
+                 tofich (allocationagrif, ligne,1);
+                 fprintf(allocationagrif,"      end do\n");
+                 parcours = parcoursprec;
+              }
+              else
+              {
+                 strcpy (ligne, "allocate ");
+                 strcat (ligne, "(");
+                 strcat (ligne, vargridnametabvars(v,0));
+                 strcat (ligne, vargridparam(v,0));
+                 strcat (ligne, ")");
+                 Save_Length(ligne,48);
+                 tofich (allocationagrif, ligne,1);
+              }
+           }
+        } /* end of the allocation part                                       */
+
+        /*                INITIALISATION                                      */
+        if ( strcasecmp(v->v_initialvalue,"") )
+        {
+           strcpy (ligne, "");
+           strcat (ligne, vargridnametabvars(v,0));
+           /* We should modify the initialvalue in the case of variable has   */
+           /*    been defined with others variables                           */
+
+           strcpy(initialvalue,
+                  ChangeTheInitalvaluebyTabvarsName
+                                      (v->v_initialvalue,List_Global_Var,0));
+           if ( !strcasecmp(initialvalue,v->v_initialvalue) )
+           {
+              strcpy(initialvalue,"");
+              strcpy(initialvalue,ChangeTheInitalvaluebyTabvarsName
+                                      (v->v_initialvalue,List_Common_Var,0));
+           }
+           if ( !strcasecmp(initialvalue,v->v_initialvalue) )
+           {
+              strcpy(initialvalue,"");
+              strcpy(initialvalue,ChangeTheInitalvaluebyTabvarsName
+                                     (v->v_initialvalue,List_ModuleUsed_Var,0));
+           }
+           strcat (ligne," = ");
+           strcat (ligne,initialvalue);
+           /*                                                                 */
+           Save_Length(ligne,48);
+           tofich (allocationagrif, ligne,1);
+        }
+     }
+/* Case of structure types */
+        if ((typeiswritten == 0) && !strcasecmp(v->v_typevar,"type"))
+        {
+        sprintf(ligne,"If (.Not.Allocated(Agrif_%s_var)) Then",v->v_modulename);
+        tofich(allocationagrif, ligne, 1);
+        sprintf(ligne,"Allocate(Agrif_%s_var(0:Agrif_NbMaxGrids))",v->v_modulename);
+        tofich(allocationagrif, ligne, 1);
+        strcpy(ligne,"End If");
+        tofich(allocationagrif, ligne, 1);
+        typeiswritten = 1;
+        }
+     if (onlyfixedgrids != 1 && v->v_nbdim!=0)
+     {
+        strcpy (ligne, "   End if");
+        tofich (allocationagrif, ligne,1);
+     }
+  }
+               /***************************************************************/
+               /***************************************************************/
+               /***************************************************************/
+            }
+            parcours = parcours -> suiv;
+         }
+         /*                                                                   */
+         if ( ModuleIsDefineInInputFile(parcours_nom->o_nom) == 1 )
+         {
+            /* add the call to initworkspace                                  */
+            tofich(allocationagrif,"if ( .NOT. Agrif_Root() ) then ",1);
+            fprintf(allocationagrif,"#include \"GetNumberofcells.h\" \n");
+            tofich(allocationagrif,"else ",1);
+            fprintf(allocationagrif,"#include \"SetNumberofcells.h\" \n");
+            tofich(allocationagrif,"endif ",1);
+            tofich(allocationagrif,"Call Agrif_InitWorkspace ",1);
+         }
+         /* Close the file Alloc_agrif                                        */
+         fclose(allocationagrif);
+      } /* end parcours_nom == 1                                              */
+      /*                                                                      */
+      parcours_nom = parcours_nom -> suiv;
+   }
 }
 
 /******************************************************************************/
@@ -846,46 +1075,35 @@ void creefichieramr (char *NameTampon)
   listvar *newvar;
   variable *v;
   int erreur;
-  char filefich[LONGNOM];
-  char ligne[LONGNOM];
+  char filefich[LONG_C];
+  char ligne[LONG_C];
   int IndiceMax;
+  int IndiceMin;
   int InitEmpty;
   int VarnameEmpty;
   int donotwrite;
-  listnom *listedesnoms;
-  
+
   FILE *initproc;
   FILE *initglobal;
   FILE *createvarname;
   FILE *createvarnameglobal;
-  FILE *alloccalls;
-  FILE *AllocUSE;
-  FILE *modulealloc;
-  
+
   if ( todebug == 1 ) printf("Enter in creefichieramr\n");
   strcpy (filefich, "cd ");
   strcat (filefich, nomdir);
   erreur = system (filefich);
   if (erreur)
-    {
-      strcpy (filefich, "mkdir ");
-      strcat (filefich, nomdir);
-      system (filefich);
-      printf ("%s: Directory created\n", nomdir);
-    }
+  {
+     strcpy (filefich, "mkdir ");
+     strcat (filefich, nomdir);
+     system (filefich);
+     printf ("%s: Directory created\n", nomdir);
+  }
 
 /******************************************************************************/
 /******************** Creation of AGRIF_INC files *****************************/
 /******************************************************************************/
-  /*--------------------------------------------------------------------------*/
-  /*   Record the list of module used in the file include_use_Alloc_agrif     */
-  listedesnoms = (listnom *)NULL;
 
-  strcpy(Alloctreatedname,"");     
-/*----------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------*/
-/*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
   if ( todebug == 1 )
   {
@@ -902,18 +1120,13 @@ void creefichieramr (char *NameTampon)
      InitEmpty = 1 ;
      VarnameEmpty = 1 ;
 
-     newvar = globliste;
+     newvar = List_Global_Var;
      while ( newvar && todebug == 1 )
      {
         donotwrite = 0;
         v = newvar->var;
 
-        if ( fortran77 == 1 )
-        {
-           if ( v->indicetabvars <= oldindicemaxtabvars ) donotwrite = 1;
-        }
-
-        if ( ( v->common == 1 || v->module == 1 ) && donotwrite == 0 )
+        if ( ( v->v_common == 1 || v->v_module == 1 ) && donotwrite == 0 )
         {
           write_createvarnameagrif_file(v,createvarname,&VarnameEmpty);
           write_initialisationsagrif_file(v,initproc,&InitEmpty);
@@ -921,10 +1134,10 @@ void creefichieramr (char *NameTampon)
         newvar = newvar->suiv;
      }
   /*                                                                          */
-     fclose (createvarname); 
+     fclose (createvarname);
      fclose (initproc);
   /*--------------------------------------------------------------------------*/
-     if ( Did_filetoparse_treated == 0 )  
+     if ( Did_filetoparse_readed(curmodulename) == 0 )
      {
         if ( InitEmpty != 1  )
         {
@@ -933,7 +1146,7 @@ void creefichieramr (char *NameTampon)
            strcat(ligne,NameTampon);
            strcat(ligne,".h\"\n");
            fprintf(initglobal,ligne);
-           fclose(initglobal);     
+           fclose(initglobal);
         }
   /*--------------------------------------------------------------------------*/
         if ( VarnameEmpty != 1 )
@@ -943,7 +1156,7 @@ void creefichieramr (char *NameTampon)
            strcat(ligne,NameTampon);
            strcat(ligne,".h\"\n");
            fprintf(createvarnameglobal,ligne);
-           fclose(createvarnameglobal);     
+           fclose(createvarnameglobal);
         }
      }
   }
@@ -952,38 +1165,29 @@ void creefichieramr (char *NameTampon)
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
 /*----------------------------------------------------------------------------*/
-  AllocUSE= associateaplus("include_use_Alloc_agrif.h");
-  alloccalls = associateaplus("allocations_calls_agrif.h");
-  convert2lower(NameTampon);
-  sprintf(ligne,"NewModule_%s.h",NameTampon);
-  modulealloc=associate(ligne);
-  /*--------------------------------------------------------------------------*/
   IndiceMax = 0;
+  IndiceMin = 0;
 
-  newvar = globliste;
-  while (newvar)
-  {
-     v = newvar->var;
-     if ( (v->common == 1) || (v->module == 1) )
-     {
-        listedesnoms = write_allocation(newvar,v,
-                                       listedesnoms,
-                                       alloccalls,
-                                       AllocUSE,
-                                       modulealloc,
-                                       &IndiceMax);
-     }
-     newvar = newvar->suiv;
-  }
-  
-  fclose (AllocUSE);
-  fclose (alloccalls);
-  fclose (modulealloc);
-  if ( agrif2modelf77 == 0 ) retour77 = 0 ;
+  write_allocation_Common_0();
+  write_allocation_Global_0();
+
+  Write_Alloc_Agrif_Files();
   write_probdimagrif_file();
   write_keysagrif_file();
-  write_modtypeagrif_file();     
-  write_Setnumberofcells_file();
-  write_Getnumberofcells_file();     
+  write_modtypeagrif_file();
+  if ( NbMailleXDefined == 1 )
+                             write_Setnumberofcells_file("SetNumberofcells.h");
+  if ( NbMailleXDefined == 1 )
+                             write_Getnumberofcells_file("GetNumberofcells.h");
+  retour77 = 0;
+  if ( NbMailleXDefined == 1 )
+                          write_Setnumberofcells_file("SetNumberofcellsFree.h");
+  if ( NbMailleXDefined == 1 )
+                          write_Getnumberofcells_file("GetNumberofcellsFree.h");
+  retour77 = 1;
+  if ( NbMailleXDefined == 1 )
+                         write_Setnumberofcells_file("SetNumberofcellsFixed.h");
+  if ( NbMailleXDefined == 1 )
+                         write_Getnumberofcells_file("GetNumberofcellsFixed.h");
   if ( todebug == 1 ) printf("Out of creefichieramr\n");
 }

@@ -1,5 +1,5 @@
 # Compilation:
-CC		= cc -g -O
+CC		= cc -O -g
 LEX		= flex
 
 # option de flex et pas de lex
@@ -14,7 +14,8 @@ OBJS = main.o WriteInFile.o toamr.o fortran.o  \
        UtilNotGridDep.o WorkWithlistdatavariable.o \
        DiversListe.o UtilAgrif.o WorkWithAllocatelist.o \
        UtilCharacter.o UtilListe.o UtilFile.o \
-       WorkWithlistofmodulebysubroutine.o WorkWithlistmoduleinfile.o
+       WorkWithlistofmodulebysubroutine.o WorkWithlistmoduleinfile.o \
+       WorkWithlistofcoupled.o
 
 .SUFFIXES:
 .SUFFIXES: .c .o
@@ -29,19 +30,19 @@ main.c : convert.tab.c  convert.yy.c
 	rm -f main.c
 	cat convert.tab.c  convert.yy.c > main.c
 	rm -f convert.yy.c convert.tab.c
-fortran.o : fortran.c	
+fortran.o : fortran.c
 fortran.c : fortran.tab.c fortran.yy.c
 	rm -f fortran.c
-	cat fortran.tab.c  fortran.yy.c > fortran.c	
-	rm -f fortran.yy.c fortran.tab.c
+	cat fortran.tab.c  fortran.yy.c > fortran.c
+#rm -f fortran.yy.c fortran.tab.c
 convert.tab.c : convert.y decl.h
 	$(YACC) convert.y
 	mv -f y.tab.c convert.tab.c
 fortran.tab.c : fortran.y decl.h
 	$(YACC) -p fortran fortran.y
-	mv -f y.tab.c fortran.tab.c	
+	mv -f y.tab.c fortran.tab.c
 convert.yy.c : convert.lex
-	$(LEX) $(LEXFLAGS) -oconvert.yy.c convert.lex 
+	$(LEX) $(LEXFLAGS) -oconvert.yy.c convert.lex
 fortran.yy.c : fortran.lex
 	$(LEX) $(LEXFLAGS) -Pfortran -ofortran.yy.c fortran.lex
 	
@@ -65,6 +66,7 @@ UtilListe.o : UtilListe.c decl.h
 UtilFile.o : UtilFile.c decl.h
 WorkWithlistofmodulebysubroutine.o : WorkWithlistofmodulebysubroutine.c decl.h
 WorkWithlistmoduleinfile.o : WorkWithlistmoduleinfile.c decl.h
+WorkWithlistofcoupled.o : WorkWithlistofcoupled.c decl.h
 clean : 
 	/bin/rm -f *.o y.tab.c main.c lex.yy.c fortran.c \
 	fortran.tab.c fortran.yy.c convert.tab.c convert.yy.c \

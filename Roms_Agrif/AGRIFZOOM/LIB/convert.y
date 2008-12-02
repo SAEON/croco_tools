@@ -2,8 +2,8 @@
 /*                                                                            */
 /*     CONV (converter) for Agrif (Adaptive Grid Refinement In Fortran)       */
 /*                                                                            */
-/* Copyright or © or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
-/*                        Cyril Mazauric (Cyril.Mazauric@imag.fr)             */
+/* Copyright or   or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
+/*                        Cyril Mazauric (Cyril_Mazauric@yahoo.fr)            */
 /* This software is governed by the CeCILL-C license under French law and     */
 /* abiding by the rules of distribution of free software.  You can  use,      */
 /* modify and/ or redistribute the software under the terms of the CeCILL-C   */
@@ -30,7 +30,7 @@
 /* The fact that you are presently reading this means that you have had       */
 /* knowledge of the CeCILL-C license and that you accept its terms.           */
 /******************************************************************************/
-/* version 1.2                                                                */
+/* version 1.7                                                                */
 /******************************************************************************/
 %{
 #include <stdlib.h>
@@ -41,7 +41,7 @@
 
 %union {
        int ival;
-       char na[LONGNOM];
+       char na[LONG_C];
        listnom * ln;
        }
 
@@ -56,7 +56,7 @@
 %token ';'
 %token ':'
 %token '('
-%token ')'   
+%token ')'
 %token '['
 %token ']'
 %%
@@ -64,21 +64,19 @@ input :
       | input line
 ;
 line :'\n'
-      | TOK_PROBTYPE TOK_NAME ';'                  {initdimprob(1,$2,"0","0");}
-      | TOK_PROBTYPE TOK_NAME ',' TOK_NAME ';'     {initdimprob(2,$2, $4,"0");} 
+      | TOK_PROBTYPE TOK_NAME ';'                   {initdimprob(1,$2,"0","0");}
+      | TOK_PROBTYPE TOK_NAME ',' TOK_NAME ';'      {initdimprob(2,$2, $4,"0");}
       | TOK_PROBTYPE TOK_NAME ',' TOK_NAME ',' TOK_NAME ';'
-                                                   {initdimprob(3,$2, $4, $6);}
-      | TOK_MODULEMAIN TOK_NAME ';'            
-                               {listofmodules = Addtolistnom($2,listofmodules);
-                                Addmoduletothelist($2);}
-      | TOK_NOTGRIDDEP TOK_SEP TOK_NAME ';'             {ajoutenotgriddep($3);}
+                                                    {initdimprob(3,$2, $4, $6);}
+      | TOK_MODULEMAIN TOK_NAME ';'
+                             {listofmodules = Addtolistnom($2,listofmodules,0);
+                                                        Addmoduletothelist($2);}
+      | TOK_NOTGRIDDEP TOK_SEP TOK_NAME ';'       {Add_NotGridDepend_Var_1($3);}
       | TOK_USE TOK_USEITEM ';'  {
                                     if (!strcasecmp($2,"FIXED_GRIDS"))
                                                                  fixedgrids=1;
                                     if (!strcasecmp($2,"ONLY_FIXED_GRIDS"))
                                                              onlyfixedgrids=1;
-                                    if (!strcasecmp($2,"F77"))
-                                                             agrif2modelf77=1;
                                  }
       ;
 %%
@@ -87,56 +85,116 @@ int main(int argc,char *argv[])
 {
    extern FILE * yyin ;
    FILE *dependglobaloutput;
-   char *tmp;
    int i;
    listnom *parcours;
+   listvar *newvar;
+   int stylegiven = 0;
+   int infreegiven ;
+   int infixedgiven ;
+   int lengthmainfile;
 
-   if (argc < 2) 
+   if (argc < 2)
    {
        printf("usage : conv <file> [-rm] [-incdir <directory>] \n");
        printf(" [-comdirin   <directory>] [-comdirout <directory>]\n");
-       printf(" [-convfile  <FILENAME >] -SubloopScalar -SubloopScalar1 \n"); 
-       printf(" -f77\n"); 
+       printf(" [-convfile  <FILENAME >] -SubloopScalar -SubloopScalar1 \n");
+       printf(" [-free|-fixed]\n");
        exit(0);
    }
 /******************************************************************************/
 /*  1-  Variables initialization                                              */
 /******************************************************************************/
-   globliste=(listvar *)NULL;
-   listenamelist=(listnamelist *)NULL;
-   globparam=(listvar *)NULL;
-   AllocateList=(listallocate *)NULL;
-   commonlist=(listvarcommon *)NULL;
-   listofsubroutinewhereagrifisused=(listnom *)NULL;
-   listofincludebysubroutine=(listusemodule *)NULL;
-   listofmodulebysubroutine=(listusemodule *)NULL;
+   List_Global_Var=(listvar *)NULL;
+   List_GlobalParameter_Var=(listvar *)NULL;
+   List_Allocate_Var=(listallocate *)NULL;
+   List_Common_Var=(listvar *)NULL;
+   List_SubroutineWhereAgrifUsed=(listnom *)NULL;
+   List_Subroutine_For_Alloc=(listnom *)NULL;
+   List_Include=(listusemodule *)NULL;
+   List_NameOfModuleUsed=(listusemodule *)NULL;
    listofmoduletmp=(listusemodule *)NULL;
-   listmoduleinfile=(listmodule *)NULL;
-   varofsubroutineliste=(listvar *)NULL;
-   varsubroutine=(listvar *)NULL;
-   listvarindoloop=(listvar *)NULL;
-   listenotgriddepend=(listvar *)NULL;
+   List_SubroutineDeclaration_Var=(listvar *)NULL;
+   List_UsedInSubroutine_Var=(listvar *)NULL;
+   List_NotGridDepend_Var=(listvar *)NULL;
    Listofavailableindices=(listindice *)NULL;
-   Listofvarpointtovar=(listvarpointtovar *)NULL;
-   globalvarofusefile = (listvar *)NULL;
-   globalvarofusefile2 = (listvar *)NULL;
-   tmpparameterlocallist = (listparameter *)NULL;
-   tmpparameterlocallist2 = (listparameter *)NULL;
-   
-   strcpy(mainfile,argv[1]);    
+   List_CouplePointed_Var=(listvarpointtovar *)NULL;
+   List_ModuleUsed_Var = (listvar *)NULL;
+   List_ModuleUsedInModuleUsed_Var = (listvar *)NULL;
+   List_GlobParamModuleUsed_Var = (listparameter *)NULL;
+   List_GlobParamModuleUsedInModuleUsed_Var = (listparameter *)NULL;
+   List_SubroutineArgument_Var = (listvar *)NULL;
+   List_FunctionType_Var = (listvar *)NULL;
+   tmpuselocallist = (listusemodule *)NULL;
+   List_ContainsSubroutine = (listnom *)NULL;
+   oldfortranout = (FILE *)NULL;
+
+   strcpy(mainfile,argv[1]);
    strcpy(nomdir,"AGRIF_INC");
    strcpy(commondirin,".");
    strcpy(commondirout,".");
-   strcpy(filetoparse," "); 
-   strcpy(subofagrifinitgrids,""); 
+   strcpy(filetoparse," ");
+   strcpy(subofagrifinitgrids,"");
    strcpy(meetagrifinitgrids,"");
-   strcpy(meetmpiinit,"");
    strcpy(mpiinitvar,"");
 
-   listofvarofusemodulecreated=0;
+   length_last = 0 ;
+   length_first = 0 ;
+   length_v_typevar = 0 ;
+   length_v_nomvar = 0 ;
+   length_v_dimchar = 0 ;
+   length_v_modulename = 0 ;
+   length_v_commonname = 0 ;
+   length_v_vallengspec = 0 ;
+   length_v_nameinttypename = 0 ;
+   length_v_commoninfile = 0 ;
+   length_v_subroutinename = 0 ;
+   length_v_precision = 0 ;
+   length_v_IntentSpec = 0 ;
+   length_v_initialvalue = 0 ;
+   length_v_readedlistdimension = 0 ;
+   length_u_usemodule = 0 ;
+   length_u_charusemodule = 0 ;
+   length_u_cursubroutine = 0 ;
+   length_u_modulename = 0 ;
+   length_n_name = 0 ;
+   length_c_namevar = 0 ;
+   length_c_namepointedvar = 0 ;
+   length_o_nom = 0 ;
+   length_o_module = 0 ;
+   length_a_nomvar = 0 ;
+   length_a_subroutine = 0 ;
+   length_a_module = 0 ;
+   length_t_usemodule = 0 ;
+   length_t_cursubroutine = 0 ;
+   length_curfilename = 0 ;
+   length_nomfileoutput = 0 ;
+   length_motparse = 0 ;
+   length_mainfile = 0 ;
+   length_nomdir = 0 ;
+   length_commondirout = 0 ;
+   length_commondirin = 0 ;
+   length_filetoparse = 0 ;
+   length_curbuf = 0 ;
+   length_toprintglob = 0 ;
+   length_tmpvargridname = 0 ;
+   length_ligne_Subloop = 0 ;
+   length_lvargridname_toamr = 0 ;
+   length_toprint_utilagrif = 0 ;
+   length_toprinttmp_utilchar = 0 ;
+   length_ligne_writedecl = 0 ;
+   length_newname_toamr = 0 ;
+   length_newname_writedecl = 0 ;
+   length_ligne_toamr = 0 ;
+   length_tmpligne_writedecl = 0 ;
+   value_char_size = 0 ;
+   value_char_size1 = 0 ;
+   value_char_size2 = 0 ;
+   value_char_size3 = 0 ;
+   inallocate = 0;
+   infixed = 1;
+   infree  = 0;
+
    checkexistcommon=1;
-   fortran77 = 0 ;
-   Did_filetoparse_treated = 0 ;
    todebug=0;
    onlyfixedgrids=0;
    fixedgrids=0;
@@ -146,32 +204,33 @@ int main(int argc,char *argv[])
    IndicenbmaillesZ=0;
    created_dimensionlist = 1;
    indicemaxtabvars = 0;   /* current indice in the table tabvars             */
-   oldindicemaxtabvars = 0;/* current indice in the table tabvars             */
    SubloopScalar = 0;
    todebug = 0;
    todebugfree = 0;
    retour77 = 1 ;
-   agrif2modelf77 = 0;
+   mark = 0 ;
+   shouldincludempif = 0 ;
+   Read_val_max();
 /******************************************************************************/
 /*  2-  Program arguments                                                     */
 /******************************************************************************/
 
-   if ((yyin=fopen(argv[1],"r"))==NULL) 
+   if ((yyin=fopen(argv[1],"r"))==NULL)
    {
       printf("the file %s doesn't exist \n",argv[1]);
-      exit(0);    
+      exit(0);
    }
 
    i=2;
    while (i<argc)
    {
-      if (!strcasecmp(argv[i],"-incdir")) 
+      if (!strcasecmp(argv[i],"-incdir"))
       {
          strcpy(nomdir,argv[i+1]);
          i++;
       }
       else if (!strcasecmp(argv[i],"-comdirin")) /* input directory           */
-      {     
+      {
          strcpy(commondirin,argv[i+1]);
          i++;
       }
@@ -179,58 +238,92 @@ int main(int argc,char *argv[])
       {
          strcpy(commondirout,argv[i+1]);
          i++;
-      }      
+      }
       else if (!strcasecmp(argv[i],"-convfile")) /* file to parse             */
-      {     
+      {
          strcpy(filetoparse,argv[i+1]);
          i++;
+         lengthmainfile = strlen(filetoparse);
+         if (!strcasecmp(&filetoparse[lengthmainfile-4],".f90"))
+         {
+         infixed = 0;
+         infree = 1;
+         }
+         else
+         {
+         infixed = 1;
+         infree = 0;
+         }
+      }
+      else if (!strcasecmp(argv[i],"-free")) /* file to parse        */
+      {
+         stylegiven = 1;
+         infreegiven  = 1 ;
+         infixedgiven = 0;
       }   
-      else if (!strcasecmp(argv[i],"-f77")) /* fortran 77 file to parse       */
-      {     
-         fortran77 = 1 ;
-      }   
+      else if (!strcasecmp(argv[i],"-fixed")) /* file to parse        */
+      {
+         stylegiven = 1;
+         infreegiven  = 0;
+         infixedgiven = 1;
+      }         
       else if (!strcasecmp(argv[i],"-SubloopScalar")) /* file to parse        */
-      {     
+      {
          SubloopScalar = 1 ;
-      }   
+      }
       else if (!strcasecmp(argv[i],"-SubloopScalar1")) /* file to parse       */
-      {     
+      {
          SubloopScalar = 2 ;
-      }   
+      }
       else if (!strcasecmp(argv[i],"-todebug")) /* file to parse       */
-      {     
+      {
          todebug = 1 ;
-      }   
+      }
+      else if (!strcasecmp(argv[i],"-mark")) /* file to parse       */
+      {
+         mark = 1 ;
+      }
       else if (!strcasecmp(argv[i],"-todebugfree")) /* file to parse       */
-      {     
+      {
          todebugfree = 1 ;
-      }   
-      else if (!strcasecmp(argv[i],"-rm")) 
-      {     
+      }
+      else if (!strcasecmp(argv[i],"-rm"))
+      {
          checkexistcommon=0;
       }
-      else 
+      else
       {
          printf("Unkwon option : %s\n",argv[i]);
          exit(0);
       }
-      i++;       
-   }  
+      i++;
+   }
+
+   if (stylegiven == 1) 
+   {
+   infree = infreegiven;
+   infixed = infixedgiven;   
+   }
+   Save_Length(nomdir,34);
+   Save_Length(commondirout,35);
+   Save_Length(commondirin,36);
+   Save_Length(filetoparse,37);
 
 /******************************************************************************/
 /*  3-  Parsing of the  conv file <name>.in                                   */
 /******************************************************************************/
 
-   if ((yyin=fopen(argv[1],"r"))==NULL) 
+   if ((yyin=fopen(argv[1],"r"))==NULL)
    {
        printf("the file %s doesn't exist \n",argv[1]);
-       exit(0);    
+       exit(0);
    }
-   strcpy(mainfile,argv[1]);    
+   strcpy(mainfile,argv[1]);
+   Save_Length(mainfile,33);
 
    if ( strstr(filetoparse,".f90") ||
         strstr(filetoparse,".F90") ) retour77 = 0;
-	
+
    yyparse();
 
 /******************************************************************************/
@@ -239,131 +332,119 @@ int main(int argc,char *argv[])
    if ((yyin=fopen(filetoparse,"r"))==NULL) /* Is the file to parse exist ?   */
    {
       printf("the file %s doesn't exist \n",filetoparse);
-      exit(0);    
+      exit(0);
    }
-   /* NameTamponfile : the name of the model file extract from the name       */
-   /*    of agrif_module_<NameTamponfile>                                     */
-   tmp = strchr(filetoparse, '.');
-   NameTamponfile=(char *)malloc(
-                              (strlen(filetoparse)-strlen(tmp)+1)*sizeof(char));
-   strncpy(NameTamponfile,filetoparse,strlen(filetoparse)-strlen(tmp)+1);
-   strcpy (&NameTamponfile[strlen(filetoparse)-strlen(tmp)], "\0");
    /* mainfile : the name of the file to parse                                */
-   strcpy(mainfile,filetoparse);    
-   /* We should verify that this file has not been read before                */
-   /* if it is the case we record the old globliste in the tmplocallist       */
-   tmplocallist = (listvar *)NULL;
-   tmpuselocallist = (listusemodule *)NULL;
-   Did_filetoparse_treated = Did_filetoparse_readed(NameTamponfile);
-   /* if  Did_filetoparse_treated = 1 then the file to parse has been treated */
-   if ( Did_filetoparse_treated == 0 ) 
+   strcpy(mainfile,filetoparse);
+   /*                                                                         */
+   if ((dependglobaloutput=fopen(".dependglobal_agrif","r"))!=NULL)
    {
-     /* if the filetoparse has not been treated, we should know the last      */
-     /*    tabvars indices which has been used                                */
-     if ((dependglobaloutput=fopen(".dependglobal","r"))!=NULL) 
-     {
-        fscanf(dependglobaloutput,"%d\n",&indicemaxtabvars);
-        fclose(dependglobaloutput);
-        oldindicemaxtabvars = indicemaxtabvars;
-     }
-   }   
-   /* Read the .dependnbxnby file which contains indices of nbmaillsX,       */
+      fscanf(dependglobaloutput,"%d\n",&indicemaxtabvars);
+      fclose(dependglobaloutput);
+   }
+   Readthedependavailablefile();
+   /* Read the .dependnbxnby file which contains indices of nbmaillsX,        */
    /*    nbmailleY and nbmailleZ                                              */
    Readthedependnbxnbyfile();
-
+   Read_Subroutine_For_Alloc();
 /******************************************************************************/
-/*  4-  Parsing of the input file (2 times)                                   */
+/*  5-  Parsing of the input file (2 times)                                   */
 /******************************************************************************/
-
-   firstpass = 1; 
-   processfortran(filetoparse); 
-   firstpass = 0; 
+   /* Record all variable in list                                             */
+   firstpass = 1;
+   processfortran(filetoparse);
+   /*                                                                         */
+   CompleteThelistvarindoloop();
+   /* Read list of module used                                                */
+   RecordUseModulesVariables();
+   /* Read list of module used in module used                                 */
+   RecordUseModulesUseModulesVariables();
+   /* Save variables are considered as globals ones                           */
+   Update_List_Global_Var_From_List_Save_Var();
+   /* Update all lists                                                        */
+   ListUpdate();
+   /*                                                                         */
+   Clean_List_Global_Var();
+   /* Indice tabvars identification                                           */
+   IndiceTabvarsIdentification();
+   /* Update all lists                                                        */
+   ListUpdate();
+   /* The allocation subroutine is necessary ????                             */
+   New_Allocate_Subroutine_Is_Necessary();
+   /* The allocation subroutine is necessary for common list                  */
+   New_Allocate_Subroutine_For_Common_Is_Necessary();
+   /* Sort List_SubroutineArgument_Var                                        */
+   Sort_List_SubroutineArgument_Var();
+   /* Clean all lists                                                         */
+   ListClean();
+   /* Update Indice of List_UsedInSubroutine_Var from module used             */
+   List_UsedInSubroutine_Var_Update_From_Module_Used();
+   /* Update List_SubroutineWhereAgrifUsed                                    */
+   UpdateList_SubroutineWhereAgrifUsed();
+   /* Update List_UsedInSubroutine_Var with v_readedlistdimension             */
+   UpdateList_UsedInSubroutine_With_dimension();;
+   /*                                                                         */
+   ModifyThelistvarindoloop();
+   /*                                                                         */
+   UpdateListDeclarationWithDimensionList();
+   /*                                                                         */
+   GiveTypeOfVariables();
+   Affiche();
+   /* Build new subroutines                                                   */
+   firstpass = 0;
    processfortran(filetoparse);
 
-/******************************************************************************/
-/*  5-  Write informations in output files                                    */
-/******************************************************************************/
-
-   if ( Did_filetoparse_treated == 0 ) /* if the file has never been treated  */
+   newvar = (listvar *)NULL;
+/*newvar = List_Global_Var; */
+   while ( newvar )
    {
-      /* Write the .dependglobal file which contain the max indice            */
-      /*    of the tabvars table                                              */
-      dependglobaloutput = fopen(".dependglobal","w");
-      fprintf(dependglobaloutput,"%d\n",indicemaxtabvars);
-      fclose(dependglobaloutput);
-      /* Write the .depend<namefile> file which contain general informations  */
-      /*    about variable of this file                                       */
-      parcours = modulelist;
-      while( parcours )
-      {
-         Writethedependfile(parcours->nom,globliste);
-         parcours=parcours->suiv;
-      }
+      printf("++++ %s %d %s %s %s\n",
+      newvar->var->v_nomvar,
+      newvar->var->v_nbdim,
+      newvar->var->v_subroutinename,
+      newvar->var->v_modulename,
+      newvar->var->v_typevar
+             );
+      newvar = newvar->suiv;
    }
-
 /******************************************************************************/
-/*  7-  Remove the non grid dependent variables                               */
-/******************************************************************************/
-
-   /* we should remove from the globliste the non grid dependent variables    */
-   RemoveNotgriddependFromGlobliste();
-
-/******************************************************************************/
-/*  8-  Write informations in output files                                    */
+/*  6-  Write informations in output files                                    */
 /******************************************************************************/
 
-   /* if this file has been treated in past called,                           */
-   /*    we should compare the old parsing (record in the tmplocallist)       */
-   /*    and the new one contained in the globliste                           */
-   if ( Did_filetoparse_treated == 1 ) 
-   {
-      parcours = modulelist;
-      while( parcours )
-      {
-         tmplocallist= Readthedependfile( parcours->nom  ,tmplocallist );
-         parcours=parcours->suiv;
-      }
-      /* if the filetoparse has not been treated, we should know              */
-      /*    the last tabvars indices which has been used                      */
-     if ((dependglobaloutput=fopen(".dependglobal","r"))!=NULL) 
-     {
-        fscanf(dependglobaloutput,"%d\n",&indicemaxtabvars);
-        fclose(dependglobaloutput);
-        oldindicemaxtabvars = indicemaxtabvars;
-     }
-     /* Read the list of available indice                                     */
-     Readthedependavailablefile();
-     /* the old treatement has been recorded in the tmplocallist              */
-     /* Now we should compare the old treatement with the new one             */
-/*mazauric for each module */
-     CompareNewparsingandoldone();
-     /* Write the .dependglobal file which contain general informations       */
-     /*    about globlist                                                     */
-     dependglobaloutput = fopen(".dependglobal","w");
-     fprintf(dependglobaloutput,"%d\n",indicemaxtabvars);
-     fclose(dependglobaloutput);
-     /* Write the list of available indice                                    */
-     Writethedependavailablefile();  
-     /* Write the .depend<namefile> file which contain general                */
-     /*    informations about variable of this file                           */
-     parcours = modulelist;
-     while( parcours )
-     {
-        Writethedependfile(parcours->nom,globliste);
-        parcours=parcours->suiv;
-     }
-     /* Write the .dependnbxnby file which contains indices of nbmaillsX,     */
-     /*    nbmailleY and nbmailleZ                                            */
-     Writethedependnbxnbyfile();
-   }
+   /* Write the .dependglobal_agrif file which contain the max indice         */
+   /*    of the tabvars table                                                 */
+   dependglobaloutput = fopen(".dependglobal_agrif","w");
+   fprintf(dependglobaloutput,"%d\n",indicemaxtabvars);
+   fclose(dependglobaloutput);
+   /* Write the list of available indice                                      */
+   Writethedependavailablefile();
    /* Write the .dependnbxnby file which contains indices of nbmaillsX,       */
    /*    nbmailleY and nbmailleZ                                              */
    Writethedependnbxnbyfile();
+   /* Write the .depend<namefile> file which contain general informations     */
+   /*    about variable of this file                                          */
+   parcours = List_NameOfModule;
+   while( parcours )
+   {
+      Writethedependlistofmoduleused(parcours->o_nom);
+      WritedependParameterList(parcours->o_nom);
+      Writethedependfile(parcours->o_nom,List_Global_Var);
+      parcours=parcours->suiv;
+   }
+   parcours = List_NameOfCommon;
+   while( parcours )
+   {
+      Writethedependfile(parcours->o_nom,List_Common_Var);
+      parcours=parcours->suiv;
+   }
+   Write_Subroutine_For_Alloc();
 /******************************************************************************/
-/*  8-  Create files in AGRIF_INC directory                                   */
+/*  7-  Create files in AGRIF_INC directory                                   */
 /******************************************************************************/
    creefichieramr(NameTamponfile);
-   if ( todebugfree == 1 ) deallocation_all();
+
+   Write_val_max();
+
    if ( todebug == 1 ) printf("Out of CONV \n");
    return 0;
 }

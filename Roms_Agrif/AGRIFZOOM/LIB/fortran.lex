@@ -2,8 +2,8 @@
 /*                                                                            */
 /*     CONV (converter) for Agrif (Adaptive Grid Refinement In Fortran)       */
 /*                                                                            */
-/* Copyright or © or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
-/*                        Cyril Mazauric (Cyril.Mazauric@imag.fr)             */
+/* Copyright or   or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
+/*                        Cyril Mazauric (Cyril_Mazauric@yahoo.fr)            */
 /* This software is governed by the CeCILL-C license under French law and     */
 /* abiding by the rules of distribution of free software.  You can  use,      */
 /* modify and/ or redistribute the software under the terms of the CeCILL-C   */
@@ -30,10 +30,13 @@
 /* The fact that you are presently reading this means that you have had       */
 /* knowledge of the CeCILL-C license and that you accept its terms.           */
 /******************************************************************************/
-/* version 1.2                                                                */
+/* version 1.7                                                                */
 /******************************************************************************/
 %x parameter
 %s character
+%x donottreat
+%s fortran77style
+%s fortran90style
 %{
 #include <math.h>
 #include <stdlib.h>
@@ -57,19 +60,21 @@ char tmpc;
 /*            Normalement NEXTLINEF77 \n+[ ]{5}[^ ]                           */
 /******************************************************************************/
 #define YY_USER_ACTION \
-	{\
-	   if (firstpass == 0) \
+        {\
+           if (firstpass == 0) \
            {\
               strcat(curbuf,yytext); \
-	      strcpy(motparse,yytext);\
+              Save_Length(curbuf,38); \
+              strcpy(motparse,yytext);\
+              Save_Length(motparse,32); \
               colnum = colnum + strlen(motparse);\
-	      /*printf("motparse = %s %d\n",motparse,strlen(motparse));*/ \
               ECHO; \
            }\
            strcpy(motparse1,yytext);\
-	/*if ( firstpass == 1 ) 
+           /*printf("yytext = %s\n",yytext);*/\
+        /*if ( firstpass == 1 ) 
                       printf("yytext = %s %d\n",yytext,strlen(yytext));*/\
-	}
+        }
 %}
 AGRIFDEB "Agrif_debut"
 AGRIFFIN "Agrif_fin"
@@ -97,8 +102,10 @@ COMMENTAIRESFORTRAN77 ^([Cc*](([ \t]*\n)|([^AaHhOo\n]{NIMPORTEQUOI}*\n)))
 COMMENTAIRESFORTRAN90 ^([ \t]*!{NIMPORTEQUOI}*\n)
 COMMENTAIRESFORTRAN90_2 (!{NIMPORTEQUOI}*)
 NEXTLINEF90 "&"{NIMPORTEQUOI}*[\n]*
-NEXTLINEF77 \n[ \t]{5}("&"|"+"|"$"|"*"|"1")
+NEXTLINEF77 \n[ \t]{5}("&"|"+"|"$"|"*"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"."|"#")
 %%
+  if (infixed) BEGIN(fortran77style) ;
+  if (infree) BEGIN(fortran90style)  ;
 
 ^C${AGRIFDEB}            return TOK_DEBUT;
 ^C${AGRIFFIN}            return TOK_FIN;
@@ -108,8 +115,8 @@ NEXTLINEF77 \n[ \t]{5}("&"|"+"|"$"|"*"|"1")
 {REAL8}                 {return TOK_REAL8;}
 subroutine              {return TOK_SUBROUTINE;}
 program                 {return TOK_PROGRAM;}
-allocate                {return TOK_ALLOCATE;}
-deallocate              {return TOK_DEALLOCATE;}
+allocate                {inallocate = 1; return TOK_ALLOCATE;}
+deallocate              {inallocate = 1; return TOK_DEALLOCATE;}
 result                  {return TOK_RESULT;}
 function                {return TOK_FUNCTION;}
 end[ \t]*subroutine     {strcpy(yylval.na,yytext);return TOK_ENDSUBROUTINE;}
@@ -121,10 +128,10 @@ include                  return TOK_INCLUDE;
                             strcpy(yylval.na,yytext);
                             tmpc = input();
                             unput(tmpc);
-                            if ( ( 
-                               tmpc >= 'a' && tmpc <= 'z' 
+                            if ( (
+                               tmpc >= 'a' && tmpc <= 'z'
                                   ) || (
-                               tmpc >= 'A' && tmpc <= 'Z' 
+                               tmpc >= 'A' && tmpc <= 'Z'
                                )  )
                                {
                                   return TOK_USE;
@@ -142,11 +149,13 @@ call                     return TOK_CALL;
 .false.                  return TOK_FALSE;
 \=\>                    {return TOK_POINT_TO;}
 \*\*                    {strcpy(yylval.na,yytext);return TOK_DASTER;}
+\.[ \t]*eqv\.            {strcpy(yylval.na,yytext);return TOK_EQV;}
 \.[ \t]*eq\.            {strcpy(yylval.na,yytext);return TOK_EQ;}
 \.[ \t]*gt\.            {strcpy(yylval.na,yytext);return TOK_GT;}
 \.[ \t]*ge\.            {strcpy(yylval.na,yytext);return TOK_GE;}
 \.[ \t]*lt\.            {strcpy(yylval.na,yytext);return TOK_LT;}
 \.[ \t]*le\.            {strcpy(yylval.na,yytext);return TOK_LE;}
+\.[ \t]*neqv\.          {strcpy(yylval.na,yytext);return TOK_NEQV;}
 \.[ \t]*ne\.            {strcpy(yylval.na,yytext);return TOK_NE;}
 \.[ \t]*not\.           {strcpy(yylval.na,yytext);return TOK_NOT;}
 \.[ \t]*or\.            {strcpy(yylval.na,yytext);return TOK_OR;}
@@ -175,16 +184,17 @@ complex                 {return TOK_COMPLEX;}
 ^[ \t]*contains         {return TOK_CONTAINS;}
 only                    {return TOK_ONLY;}
 parameter               {return TOK_PARAMETER;}
+recursive               {return TOK_RECURSIVE;}
 common                  {return TOK_COMMON;}
-global                  {return TOK_GLOBAL;}
+^[ \t]*global[ \t]+     {return TOK_GLOBAL;}
 external                {return TOK_EXTERNAL;}
 intent                  {return TOK_INTENT;}
 pointer                 {return TOK_POINTER;}
 optional                {return TOK_OPTIONAL;}
 save                    {return TOK_SAVE;}
-^[ \t]*type[ \t]+       {return TOK_TYPE;}
+^[ \t]*type[ \t\,]+       {return TOK_TYPE;}
 ^[ \t]*type[ \t]*\(     {return TOK_TYPEPAR;}
-stat                    {return TOK_STAT;}
+stat                    {if (inallocate == 1) return TOK_STAT; else {strcpy(yylval.na,yytext);return TOK_NAME;}}
 end[ \t]*type           {return TOK_ENDTYPE;}
 open                     return TOK_OPEN;
 return                   return TOK_RETURN;
@@ -197,12 +207,12 @@ write                   {return TOK_WRITE;}
 target                  {return TOK_TARGET;}
 public                  {return TOK_PUBLIC;}
 private                 {return TOK_PRIVATE;}
-\([ \t]*in[ \t]*\)      {return TOK_IN;}
-^[ \t]*data             {return TOK_DATA;} 
+in                      {strcpy(yylval.nac,yytext);return TOK_IN;}
+^[ \t]*data[ \t]+       {strcpy(yylval.na,yytext);return TOK_DATA;}
 continue                 return TOK_CONTINUE;
 go[ \t]*to              {return TOK_PLAINGOTO;}
-\([ \t]*out[ \t]*\)     {return TOK_OUT;}
-\([ \t]*inout[ \t]*\)   {return TOK_INOUT;}
+out                     {strcpy(yylval.nac,yytext);return TOK_OUT;}
+inout                   {strcpy(yylval.nac,yytext);return TOK_INOUT;}
 intrinsic               {return TOK_INTRINSIC;}
 then                    {return TOK_THEN;}
 else[ \t]*if            {return TOK_ELSEIF;}
@@ -216,15 +226,14 @@ maxval                  {return TOK_MAXVAL;}
 trim                    {return TOK_TRIM;}
 sqrt\(                  {return TOK_SQRT;}
 select[ \t]*case        {return TOK_SELECTCASE;}
-case                    {return TOK_CASE;}
-case[ \t]*default       {return TOK_CASEDEFAULT;}
+^[ \t]*case[ \t]*\(     {return TOK_CASE;}
+^[ \t]*case[ \t]*default       {return TOK_CASEDEFAULT;}
 end[ \t]*select         {return TOK_ENDSELECT;}
 file[ \t]*\=            {return TOK_FILE;}
 end[ \t]*\=             {return TOK_END;}
 err[ \t]*\=             {return TOK_ERR;}
 exist[ \t]*\=           {return TOK_EXIST;}
 min[ \t]*\(             {return TOK_MIN;}
-int                     {return TOK_INT;}
 nint                    {return TOK_NINT;}
 float                   {return TOK_FLOAT;}
 exp                     {return TOK_EXP;}
@@ -238,7 +247,7 @@ log                     {return TOK_LOG;}
 tan                     {return TOK_TAN;}
 atan                    {return TOK_ATAN;}
 cycle                   {return TOK_CYCLE;}
-abs\(                     {return TOK_ABS;}
+abs\(                   {return TOK_ABS;}
 mod                     {return TOK_MOD;}
 sign                    {return TOK_SIGN;}
 minloc                  {return TOK_MINLOC;}
@@ -249,7 +258,7 @@ backspace               {return TOK_BACKSPACE;}
 end[ \t]*interface      {return TOK_ENDINTERFACE;}
 \({SLASH}               {return TOK_LEFTAB;}
 {SLASH}\)               {return TOK_RIGHTAB;}
-format                  {return TOK_FORMAT;}
+format[ \t]*\(({NIMPORTEQUOI}|{NEXTLINEF90}|{NEXTLINEF77})*\)  {return TOK_FORMAT;}
 {DOUBLEPRECISION}       {strcpy(yylval.na,yytext);return TOK_DOUBLEPRECISION;}
 {DOUBLECOMPLEX}         {strcpy(yylval.na,yytext);return TOK_DOUBLECOMPLEX;}
 {SLASH}                 {strcpy(yylval.na,yytext);return TOK_SLASH;}
@@ -263,13 +272,13 @@ DSLASH                  {strcpy(yylval.na,yytext);return TOK_DSLASH;}
 {REALDP}                {strcpy(yylval.na,yytext);return TOK_CSTREALDP;}
 {REALQP}                {strcpy(yylval.na,yytext);return TOK_CSTREALQP;}
 ({DIGIT}\.)/[^{NAME}|"and."|"false."|"true."|"eq."|"or."|"gt."|"ge."|"lt."|"le."|"not."|"ne."] {strcpy(yylval.na,yytext);return TOK_CSTREAL;}
-\.                      {return TOK_POINT;}
 {INT}                   {strcpy(yylval.na,yytext);return TOK_CSTINT;}
 \$ {}
 \'|\"                   {return TOK_QUOTE;}
-;|\(|\)|:|\[|\]|\+|\-|\*|\% {strcpy(yylval.na,yytext);return (int) *yytext;} 
+\.                      {}
+\(|\)|:|\[|\]|\+|\-|\*|\% {strcpy(yylval.na,yytext);return (int) *yytext;}
+\;                      {return TOK_SEMICOLON;}
 \,                      {return (int) *yytext;}
-\;                      {return (int) *yytext;}
 \=                      {return (int) *yytext;}
 \<                      {return (int) *yytext;}
 \>                      {return (int) *yytext;}
@@ -281,28 +290,31 @@ DSLASH                  {strcpy(yylval.na,yytext);return TOK_DSLASH;}
 [ \t]+ ;
 {NEXTLINEF90}           {line_num_fortran++;line_num_fortran_common++;newlinef90=1;colnum=0;}
 {NEXTLINEF77}           {line_num_fortran++;line_num_fortran_common++;colnum=0;}
-{COMMENTAIRESFORTRAN77} {
+<fortran77style>{COMMENTAIRESFORTRAN77} {
                            convert2lower(motparse1);
-                           if ( strstr(motparse1,"contains")  )
+                           if ( strncasecmp(motparse1,"contains",8) == 0 )
                            {
                               return TOK_CONTAINS;
                            }
                            else
                            {
-                              colnum=0;line_num_fortran++;line_num_fortran_common++;                           
-                             if ( !strcasecmp(motparse1,"C$AGRIF_DO_NOT_TREAT\n")) return TOK_DONOTTREAT; 
-                             if ( !strcasecmp(motparse1,"C$AGRIF_END_DO_NOT_TREAT\n")) return TOK_ENDDONOTTREAT; 
+                              colnum=0;line_num_fortran++;line_num_fortran_common++;
+                             if ( !strcasecmp(motparse1,"C$AGRIF_DO_NOT_TREAT\n")) return TOK_DONOTTREAT;
+                             if ( !strcasecmp(motparse1,"C$AGRIF_END_DO_NOT_TREAT\n")) return TOK_ENDDONOTTREAT;
                            }
                          }
+^"!$AGRIF_DO_NOT_TREAT\n" BEGIN(donottreat);
+<donottreat>^"!$AGRIF_END_DO_NOT_TREAT\n" BEGIN(INITIAL);
+<donottreat>.*\n
 {COMMENTAIRESFORTRAN90}   {
                              colnum = 0;
-                             if ( !strcasecmp(motparse1,"!$AGRIF_DO_NOT_TREAT\n")) return TOK_DONOTTREAT; 
-                             if ( !strcasecmp(motparse1,"!$AGRIF_END_DO_NOT_TREAT\n")) return TOK_ENDDONOTTREAT; 
+                             if ( !strcasecmp(motparse1,"!$AGRIF_DO_NOT_TREAT\n")) return TOK_DONOTTREAT;
+                             if ( !strcasecmp(motparse1,"!$AGRIF_END_DO_NOT_TREAT\n")) return TOK_ENDDONOTTREAT;
                           }
 {COMMENTAIRESFORTRAN90_2} {
                              colnum = 0;
-                             if ( !strcasecmp(motparse1,"!$AGRIF_DO_NOT_TREAT\n")) return TOK_DONOTTREAT; 
-                             if ( !strcasecmp(motparse1,"!$AGRIF_END_DO_NOT_TREAT\n")) return TOK_ENDDONOTTREAT; 
+                             if ( !strcasecmp(motparse1,"!$AGRIF_DO_NOT_TREAT\n")) return TOK_DONOTTREAT;
+                             if ( !strcasecmp(motparse1,"!$AGRIF_END_DO_NOT_TREAT\n")) return TOK_ENDDONOTTREAT;
                           }
 %%
 
@@ -310,12 +322,13 @@ fortranerror(char *s)
 {
    if (!strcasecmp(curfile,mainfile))
    {
-      printf("%s line %d, fichier %s\n",s,line_num_fortran,curfile);
+      printf("%s line %d, file %s\n",s,line_num_fortran,curfile);
    }
    else
    {
-      printf("%s line %d, fichier %s\n",s,line_num_fortran_common,curfile);
+      printf("%s line %d, file %s\n",s,line_num_fortran_common,curfile);
    }
+   /*exit(0);*/
 }
 
 int fortranwrap()

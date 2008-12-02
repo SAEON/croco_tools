@@ -2,8 +2,8 @@
 /*                                                                            */
 /*     CONV (converter) for Agrif (Adaptive Grid Refinement In Fortran)       */
 /*                                                                            */
-/* Copyright or © or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
-/*                        Cyril Mazauric (Cyril.Mazauric@imag.fr)             */
+/* Copyright or   or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
+/*                        Cyril Mazauric (Cyril_Mazauric@yahoo.fr)            */
 /* This software is governed by the CeCILL-C license under French law and     */
 /* abiding by the rules of distribution of free software.  You can  use,      */
 /* modify and/ or redistribute the software under the terms of the CeCILL-C   */
@@ -30,7 +30,7 @@
 /* The fact that you are presently reading this means that you have had       */
 /* knowledge of the CeCILL-C license and that you accept its terms.           */
 /******************************************************************************/
-/* version 1.2                                                                */
+/* version 1.7                                                                */
 /******************************************************************************/
 %s character
 %{
@@ -43,7 +43,7 @@ extern FILE * yyin;
 YY_BUFFER_STATE include_stack[MAX_INCLUDE_DEPTH];
 %}
 
-COMMENT "%"  
+COMMENT "%"
 SEPARATEUR "::"
 NIMPORTEQUOI .
 COMMENTAIRES1 {COMMENT}{NIMPORTEQUOI}*{COMMENT}

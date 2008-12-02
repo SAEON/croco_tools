@@ -2,8 +2,8 @@
 /*                                                                            */
 /*     CONV (converter) for Agrif (Adaptive Grid Refinement In Fortran)       */
 /*                                                                            */
-/* Copyright or © or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
-/*                        Cyril Mazauric (Cyril.Mazauric@imag.fr)             */
+/* Copyright or   or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
+/*                        Cyril Mazauric (Cyril_Mazauric@yahoo.fr)            */
 /* This software is governed by the CeCILL-C license under French law and     */
 /* abiding by the rules of distribution of free software.  You can  use,      */
 /* modify and/ or redistribute the software under the terms of the CeCILL-C   */
@@ -30,7 +30,7 @@
 /* The fact that you are presently reading this means that you have had       */
 /* knowledge of the CeCILL-C license and that you accept its terms.           */
 /******************************************************************************/
-/* version 1.3                                                                */
+/* version 1.7                                                                */
 /******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,110 +38,69 @@
 #include "decl.h"
 
 /******************************************************************************/
-/*                       AddvartoParamlist_1                                  */
+/*                       Add_GlobalParameter_Var_1                            */
 /******************************************************************************/
 /*  This subroutines is used to add the variable defined in common in the     */
 /******************************************************************************/
 /*                                                                            */
 /******************************************************************************/
-void AddvartoParamlist_1(listvar *listin)
+void Add_GlobalParameter_Var_1(listvar *listin)
 {
-   listvar *parcours;
-   
    if ( firstpass == 1 )
    {
-      if ( !parameterlist )
+      if ( VariableIsParameter == 1 ) List_GlobalParameter_Var =
+                         AddListvarToListvar(listin,List_GlobalParameter_Var,1);
+   }
+}
+
+/******************************************************************************/
+/*                       Add_Parameter_Var_1                                  */
+/******************************************************************************/
+/*  This subroutines is used to add the variable defined in common in the     */
+/******************************************************************************/
+/*                                                                            */
+/******************************************************************************/
+void Add_Parameter_Var_1(listvar *listin)
+{
+   listvar *parcours;
+
+   if ( firstpass == 1 && VariableIsParameter == 1 )
+   {
+      if ( !List_Parameter_Var )
       {
-         parameterlist = listin;
+         List_Parameter_Var = listin;
       }
       else
       {
-         parcours = parameterlist;
+         parcours = List_Parameter_Var;
          while (parcours->suiv) parcours=parcours->suiv;
-      
          parcours->suiv = listin;
       }
    }
 }
 
 /******************************************************************************/
-/*                   UpdateparameterlistWithlistvarindoloop_1                 */
+/*                       Add_Dimension_Var_1                                  */
 /******************************************************************************/
 /*  This subroutines is used to add the variable defined in common in the     */
 /******************************************************************************/
 /*                                                                            */
 /******************************************************************************/
-void UpdateparameterlistWithlistvarindoloop_1()
+void Add_Dimension_Var_1(listvar *listin)
 {
    listvar *parcours;
-   listvar *parcours2;
-   listvar *parcours3;
-   listvar *parcoursprec;
-   int out;
-   
-   parcoursprec = (listvar * )NULL;
-   parcours = parameterlist;
-   while ( parcours )
+
+   if ( firstpass == 1 )
    {
-   if ( !strcasecmp(parcours->var->subroutinename,subroutinename) )
-   { 
-      /* We should look in the listvarindoloop if this variable is present    */
-      parcours2=listvarindoloop;
-      out=0;
-      while( parcours2 && out == 0 )
+      if ( !List_Dimension_Var )
       {
-         if ( !strcasecmp(parcours->var->nomvar,parcours2->var->nomvar) &&
-              !strcasecmp(parcours->var->subroutinename,
-                                            parcours2->var->modulename) 
-            )
-         {
-            parcours->var->VariableIsParameter = 1;
-            /* we should find in the globliste the type of this variable      */
-            parcours3 = globliste;
-            while ( parcours3 && out == 0 )
-            {
-               if ( !strcasecmp(parcours3->var->nomvar,parcours->var->nomvar) )
-               {
-                  out = 1 ;
-                  strcpy(parcours->var->typevar,parcours3->var->typevar);
-               }
-               else
-               {
-                  parcours3 = parcours3->suiv;
-               }
-            }            
-            out = 1 ;
-         }
-         else
-         {
-            parcours2 = parcours2->suiv;
-         }
-      }
-      if ( out == 0 )
-      {
-         /* we did not find it                                                */
-         /* we should remove the variable from the parameterlist              */
-         if ( parcours ==  parameterlist)
-         {
-            parameterlist = parameterlist->suiv;
-            parcours = parameterlist;
-         }
-         else
-         {
-            parcoursprec->suiv = parcours->suiv;
-            parcours = parcoursprec->suiv;
-         }
+         List_Dimension_Var = listin;
       }
       else
       {
-         parcoursprec = parcours;
-         parcours = parcours->suiv;
+         parcours = List_Dimension_Var;
+         while (parcours->suiv) parcours=parcours->suiv;
+         parcours->suiv = listin;
       }
-   }
-   else
-   {
-      parcoursprec = parcours;
-      parcours = parcours->suiv;
-   }
    }
 }

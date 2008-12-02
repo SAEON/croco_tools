@@ -2,8 +2,8 @@
 /*                                                                            */
 /*     CONV (converter) for Agrif (Adaptive Grid Refinement In Fortran)       */
 /*                                                                            */
-/* Copyright or © or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
-/*                        Cyril Mazauric (Cyril.Mazauric@imag.fr)             */
+/* Copyright or   or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
+/*                        Cyril Mazauric (Cyril_Mazauric@yahoo.fr)            */
 /* This software is governed by the CeCILL-C license under French law and     */
 /* abiding by the rules of distribution of free software.  You can  use,      */
 /* modify and/ or redistribute the software under the terms of the CeCILL-C   */
@@ -30,7 +30,7 @@
 /* The fact that you are presently reading this means that you have had       */
 /* knowledge of the CeCILL-C license and that you accept its terms.           */
 /******************************************************************************/
-/* version 1.3                                                                */
+/* version 1.7                                                                */
 /******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,119 +41,77 @@
 /******************************************************************************/
 /*     preparation and write of the argument list of a subroutine             */
 /******************************************************************************/
- 
- 
+
+
 /******************************************************************************/
 /*                             writeheadnewsub_0                              */
 /******************************************************************************/
 /* Firstpass 0                                                                */
 /* We should write the head of the subroutine sub_loop_<subroutinename>       */
-/* suborfunc = 1 from subroutine                                              */
-/* suborfunc = 2 from function                                                */
 /******************************************************************************/
 /*                                                                            */
 /******************************************************************************/
-void writeheadnewsub_0(int suborfunc)
+void writeheadnewsub_0()
 {
-   int out;
-   listusemodule *newmodule;
+   char ligne[LONG_C];
 
    if ( firstpass == 0 && IsTabvarsUseInArgument_0() == 1 )
    {
       if ( todebug == 1 ) printf("Enter in writeheadnewsub_0\n");
-      /* we should add the use agrif_util if it is necessary                  */
-      newmodule = listofmodulebysubroutine;
-      out = 0 ;
-      if ( adduseagrifutil != 1 && inmodulemeet == 0 )
-      {
-         while ( newmodule && out == 0 )
-         {
-             if ( !strcasecmp(newmodule->cursubroutine,subroutinename) ||
-                  !strcasecmp(newmodule->cursubroutine," ")
-                 )
-             {
-                if ( !strcasecmp(newmodule->charusemodule,"Agrif_Util") ) 
-                                                                        out = 1;
-             }
-             newmodule = newmodule ->suiv;  
-         }
-         if ( out == 0 ) tofich(fortranout,
-                             "\n      USE Agrif_Types, ONLY : Agrif_tabvars",1);
-      }
-      /* we should modify the name of the variable in the                     */
-      /* listvarindoloop which has been declared by the way of the            */
-      /* USE fortran  function : USE MOD, U => V                              */
-      if ( suborfunc == 1 ) ModifyThelistvarindoloop();
-      WriteHeadofSubroutineLoop();   
-      if ( IsAllocateInThisSubroutine_0() == 1 && inmodulemeet == 0 )
-           tofich(fortranout,"\n      USE Agrif_Types, ONLY : Agrif_tabvars",1);
-      else if ( out == 1 && fortran77 == 1 ) tofich(fortranout,
-                                                    "\n      USE Agrif_Util",1);
+      /* we should add the use agrif_uti l if it is necessary                 */
+      WriteHeadofSubroutineLoop();
       WriteUsemoduleDeclaration();
       if ( ImplicitNoneInSubroutine() == 1 ) fprintf(fortranout,
                                                        "      IMPLICIT NONE\n");
       WriteIncludeDeclaration();
+      /*                                                                      */
       /* We should write once the declaration of tables (extract              */
       /*    from pointer) in the new subroutine                               */
-      tmpdeclaration_everdone = 1;
-      if ( todebug == 1 ) fprintf(fortranout,"!!! 111111111111111 \n");
-      if ( fortran77 == 1 ) writesub_loopdeclaration
-                                                     (parameterlist,fortranout);
-      if ( todebug == 1 ) fprintf(fortranout,"!!! 222222222222222 \n");
-      writesub_loopdeclaration(listvarindoloop,fortranout);
-      if ( todebug == 1 ) fprintf(fortranout,"!!! 333333333333333 \n");
-      if ( fortran77 == 1 ) writesub_loopdeclaration
-                                                     (varsubroutine,fortranout);
-      if ( todebug == 1 ) fprintf(fortranout,"!!! 444444444444444 \n");
-      if ( fortran77 == 1 ) writesub_loopdeclaration
-                                              (varofsubroutineliste,fortranout);
-      if ( todebug == 1 ) fprintf(fortranout,"!!! 555555555555555 \n");
+      if ( mark == 1 ) fprintf(fortranout,"!!! 000000000000000 \n");
+      if ( SubInList_ContainsSubroutine() == 0 ) WriteLocalParamDeclaration();
+      if ( mark == 1 ) fprintf(fortranout,"!!! 111111111111111 \n");
+
+      sprintf(ligne,"\n#include \"ParamFile%s.h\" \n",subroutinename);
+      tofich(fortranout,ligne,1);
+
+      WriteArgumentDeclaration_Sort();
+
+      if ( mark == 1 ) fprintf(fortranout,"!!! 222222222222222 \n");
+      writesub_loopdeclaration_tab(List_UsedInSubroutine_Var,fortranout);
+      if ( mark == 1 ) fprintf(fortranout,"!!! 333333333333333 \n");
+      writesub_loopdeclaration_scalar(List_UsedInSubroutine_Var,paramout);
+      if ( mark == 1 ) fprintf(fortranout,"!!! 444444444444444 \n");
       /* now we should write the function declaration                         */
       /*    case if it is the                                                 */
-      writedeclaration (functionlistvar, fortranout,varofsubroutineliste);
-      if ( todebug == 1 ) fprintf(fortranout,"!!! 666666666666666 \n");
+      WriteFunctionDeclaration(1);
+      if ( mark == 1 ) fprintf(fortranout,"!!! 555555555555555 \n");
+
+//      if ( SubInList_ContainsSubroutine() == 0 ) WriteSubroutineDeclaration(1);
+  
+      if ( mark == 1 ) fprintf(fortranout,"!!! 666666666666666 \n");
       if ( todebug == 1 ) printf("Out of writeheadnewsub_0\n");
    }
-   else if ( firstpass == 0 ) 
+   else if ( firstpass == 0 )
    {
+      AddUseAgrifUtil_0(fortranout);
       WriteUsemoduleDeclaration();
       WriteIncludeDeclaration();
+      if ( ImplicitNoneInSubroutine() == 1 ) fprintf(fortranout,
+                                                       "      IMPLICIT NONE\n");
+      if ( mark == 1 ) fprintf(fortranout,"!!! aaaaaaaaaaaaaaa \n");
+      WriteLocalParamDeclaration();
+      if ( mark == 1 ) fprintf(fortranout,"!!! bbbbbbbbbbbbbbb \n");
+      if ( functiondeclarationisdone == 0 ) WriteFunctionDeclaration(1);
+      WriteArgumentDeclaration_beforecall();
+/*      writesub_loopdeclaration_scalar(List_SubroutineArgument_Var,fortranout);
+      writesub_loopdeclaration_tab(List_SubroutineArgument_Var,fortranout);*/
+      if ( mark == 1 ) fprintf(fortranout,"!!! ccccccccccccccc \n");
+      if ( mark == 1 ) fprintf(fortranout,"!!! ddddddddddddddd \n");
+//      WriteSubroutineDeclaration(1);
+      if ( mark == 1 ) fprintf(fortranout,"!!! eeeeeeeeeeeeeee \n");
    }
 }
 
-
-/******************************************************************************/
-/*                    writesubroutinedeclaration_0                            */
-/******************************************************************************/
-/* Firstpass 0                                                                */
-/* We should write the declaration of the subroutine in order to              */
-/* create the new sub_loop subroutine                                         */
-/******************************************************************************/
-/*                                                                            */
-/******************************************************************************/
-void writesubroutinedeclaration_0(listvar *listtomodify)
-{
-   if ( VariableIsParameter == 0 && SaveDeclare == 0)
-   {
-      if (firstpass == 0 && IsTabvarsUseInArgument_0() == 1 )
-      {
-          if ( todebug == 1 ) printf("Enter in writesubroutinedeclaration_0\n");
-         /* We should write this declaration into the original                */
-         /*    subroutine too                                                 */
-        if ( fortran77 == 1                 && 
-             paramdeclaration_everdone == 0 && 
-             varofsubroutineliste 
-           )
-        {
-           paramdeclaration_everdone = 1;
-           writedeclarationsubroutinedeclaration
-                             (parameterlist,oldfortranout,varofsubroutineliste);
-        }
-        writedeclaration (listtomodify, oldfortranout,varofsubroutineliste);
-        if ( todebug == 1 ) printf("Out of writesubroutinedeclaration_0\n");
-      }
-   }
-}
 
 /******************************************************************************/
 /*                    WriteVariablelist_subloop                               */
@@ -163,58 +121,51 @@ void writesubroutinedeclaration_0(listvar *listtomodify)
 /* The first part is composed by the list of the local variables              */
 /******************************************************************************/
 /*                                                                            */
-/*    varofsubroutineliste              a,b,c,  &                             */
+/*    List_SubroutineDeclaration_Var    a,b,c,  &                             */
 /*                                      d,e,f,  &                             */
 /*     a,b,c,d,e,f,g,h     ========>    g,h                                   */
 /*                                                                            */
 /******************************************************************************/
-void WriteVariablelist_subloop(FILE *outputfile)
+void WriteVariablelist_subloop(FILE *outputfile,char *ligne)
 {
-   listvar *parcours;   
-   char ligne[LONGNOM];
+   listvar *parcours;
    int compteur;
-   
+
    if ( todebug == 1 ) printf("Enter in WriteVariablelist_subloop\n");
-   parcours = varofsubroutineliste;
+   parcours = List_SubroutineArgument_Var;
    didvariableadded = 0;
    compteur = 0 ;
-   
-   while ( parcours )   
+
+   while ( parcours )
    {
+
       /* if the readed variable is a variable of the subroutine               */
       /*    subroutinename we should write the name of this variable          */
       /*    in the output file                                                */
-      if ( !strcasecmp(parcours->var->modulename,subroutinename) )
-      {      
-         if ( didvariableadded == 0 )
+      if ( !strcasecmp(parcours->var->v_subroutinename,subroutinename) )
+      {
+         if ( didvariableadded == 1 )
          {
-            strcpy(ligne,"");
-         }
-         else
-         {
-            if ( compteur == 0 ) strcpy(ligne,"");
             strcat(ligne,",");
          }
-         strcat(ligne,parcours->var->nomvar);
+         strcat(ligne,parcours->var->v_nomvar);
          didvariableadded = 1;
-         compteur = compteur + 1;
-         if ( compteur == 3 ) 
-         {
-            if ( retour77 == 0 ) 
-	    {
-	       strcat(ligne," &");
-               fprintf(outputfile,"\n      %s",ligne);
-	    }
-            else fprintf(outputfile,"\n     & %s",ligne);
-            compteur = 0;
-         }
       }
-      parcours = parcours -> suiv;   
+      parcours = parcours -> suiv;
    }
-   if ( compteur != 3 && compteur != 0 ) 
+   parcours = List_FunctionType_Var;
+   while ( parcours )
    {
-      if ( retour77 == 0 ) fprintf(outputfile,"\n      %s &",ligne);
-      else fprintf(outputfile,"\n     & %s ",ligne);
+      if ( !strcasecmp(parcours->var->v_subroutinename,subroutinename) )
+      {
+         if ( didvariableadded == 1 )
+         {
+            strcat(ligne,",");
+         }
+         strcat(ligne,parcours->var->v_nomvar);
+         didvariableadded = 1;
+      }
+      parcours = parcours -> suiv;
    }
    if ( todebug == 1 ) printf("Out of WriteVariablelist_subloop\n");
 }
@@ -228,54 +179,53 @@ void WriteVariablelist_subloop(FILE *outputfile)
 /* The second part is composed by the list of the global table                */
 /******************************************************************************/
 /*                                                                            */
-/*      listvarindoloop        SubloopScalar = 0 | SubloopScalar = 1          */
+/*   List_UsedInSubroutine_Var SubloopScalar = 0 | SubloopScalar = 1          */
 /*                                a,b,c,  &      |  a,b(1,1),c,      &        */
 /*     a,b,c,d,e,f,g,h  =====>    d,e,f,  &      |  d(1),e(1,1,1),f, &        */
 /*                                g,h            |  g,h(1,1)                  */
 /*                                                                            */
 /******************************************************************************/
-void  WriteVariablelist_subloop_Call(FILE *outputfile)
+void WriteVariablelist_subloop_Call(FILE *outputfile,char *ligne)
 {
-   listvar *parcours;   
-   char ligne[LONGNOM*100];
+   listvar *parcours;
    char ligne2[10];
    int i;
-   
+   int compteur ;
+
    if ( todebug == 1 ) printf("Enter in WriteVariablelist_subloop_Call\n");
-   parcours = listvarindoloop;
-   while ( parcours )   
+   parcours = List_UsedInSubroutine_Var;
+   compteur = 0 ;
+   while ( parcours )
    {
       /* if the readed variable is a variable of the subroutine               */
       /*    subroutinename we should write the name of this variable          */
       /*    in the output file                                                */
-      if ( !strcasecmp(parcours->var->modulename,subroutinename) )
+      if ( !strcasecmp(parcours->var->v_subroutinename,subroutinename)  &&
+          (parcours->var->v_allocatable == 0  || !strcasecmp(parcours->var->v_typevar,"type"))      &&
+           parcours->var->v_pointerdeclare == 0
+         )
       {
-         if ( didvariableadded == 0 )
+         if ( didvariableadded == 1 )
          {
-            strcpy(ligne,"");
-         }
-         else
-         {
-            strcpy(ligne,"");
-            strcat(ligne,",");
+            strcat(ligne," , ");
          }
          strcat(ligne,vargridcurgridtabvars(parcours->var,0));
          /* if it is asked in the call of the conv we should give             */
          /* scalar in argument, so we should put (1,1,1) after the            */
          /* the name of the variable                                          */
-         if (  SubloopScalar != 0 && 
-               (IsVarAllocatable_0(parcours->var->nomvar) == 0 && 
-	       parcours->var->pointerdeclare == 0 ) &&
-               parcours->var->nbdim != 0 )
+         if (  SubloopScalar != 0 &&
+               (IsVarAllocatable_0(parcours->var->v_nomvar) == 0 &&
+               parcours->var->v_pointerdeclare == 0 ) &&
+               parcours->var->v_nbdim != 0 )
          {
              i = 1;
-             while ( i <=  parcours->var->nbdim )
+             while ( i <=  parcours->var->v_nbdim )
              {
                 if ( i == 1 ) strcat(ligne,"( ");
                 if ( SubloopScalar == 2 )
                 {
                    strcat(ligne,":");
-                   if ( i != parcours->var->nbdim ) strcat(ligne,",");
+                   if ( i != parcours->var->v_nbdim ) strcat(ligne,",");
                 }
                 else
                 {
@@ -285,26 +235,30 @@ void  WriteVariablelist_subloop_Call(FILE *outputfile)
                    strcpy(ligne2,"");
                    sprintf(ligne2,"%d",i);
                    strcat(ligne,ligne2);
-                   if ( i != parcours->var->nbdim ) strcat(ligne,"),");
+                   if ( i != parcours->var->v_nbdim ) strcat(ligne,"),");
                 }
-                if ( i == parcours->var->nbdim ) strcat(ligne,"))");
+                if ( i == parcours->var->v_nbdim ) strcat(ligne,"))");
                 i++;
              }
          }
          didvariableadded = 1;
-         if ( retour77 == 0 ) 
-	 {
-	    strcat(ligne," &");
+         compteur = compteur +1 ;
+         /*if ( retour77 == 0 )
+         {
+            strcat(ligne," &");
             fprintf(outputfile,"\n");
-	 }
-         else fprintf(outputfile,"\n     & ");
-         tofich(outputfile,ligne,0);
+         }
+         else fprintf(outputfile,"\n     & ");*/
+         /*tofich(outputfile,ligne,0);*/
       }
-      parcours = parcours -> suiv;   
+      parcours = parcours -> suiv;
    }
+   
+//   Save_Length(ligne,41);
+//   tofich(outputfile,ligne,0);
    /* Now we should replace the last ", &" by " &"                            */
-   if ( didvariableadded != 0 && retour77 == 0 ) fseek(outputfile,-1,SEEK_CUR);
-   if ( didvariableadded == 0 ) fseek(outputfile,-2,SEEK_CUR);
+/*   if ( didvariableadded != 0 && retour77 == 0 ) fseek(outputfile,-1,SEEK_CUR);
+   if ( didvariableadded == 0 ) fseek(outputfile,-1,SEEK_CUR);*/
    if ( todebug == 1 ) printf("Out of WriteVariablelist_subloop_Call\n");
 }
 
@@ -318,64 +272,55 @@ void  WriteVariablelist_subloop_Call(FILE *outputfile)
 /* <name>_tmp                                                                 */
 /******************************************************************************/
 /*                                                                            */
-/*       listvarindoloop                                                      */
+/*       List_UsedInSubroutine_Var                                            */
 /*                                a-tmp,b-tmp,c_tmp, &                        */
 /*     a,b,c,d,e,f,g,h  =====>    d_tmp,e_tmp,f_tmp, &                        */
 /*                                g_tmp,h_tmp                                 */
 /*                                                                            */
 /******************************************************************************/
-void  WriteVariablelist_subloop_Def(FILE *outputfile)
+void WriteVariablelist_subloop_Def(FILE *outputfile, char *ligne)
 {
-   listvar *parcours;   
-   char ligne[LONGNOM];
+   listvar *parcours;
+/*   char ligne[LONG_40M];*/
    int compteur;
 
    if ( todebug == 1 ) printf("Enter in WriteVariablelist_subloop_Def\n");
-   parcours = listvarindoloop;
+   parcours = List_UsedInSubroutine_Var;
    compteur = 0 ;
-   while ( parcours )   
+   while ( parcours )
    {
       /* if the readed variable is a variable of the subroutine               */
       /*    subrotinename we should write the name of this variable           */
       /*    in the output file                                                */
-      if ( !strcasecmp(parcours->var->modulename,subroutinename) )
+      if ( !strcasecmp(parcours->var->v_subroutinename,subroutinename)  &&
+          (parcours->var->v_allocatable == 0  || !strcasecmp(parcours->var->v_typevar,"type"))      &&
+           parcours->var->v_pointerdeclare == 0
+         )
       {
-         if ( didvariableadded == 0 )
+         if ( didvariableadded == 1 )
          {
-            strcpy(ligne,"");
-         }
-         else
-         {
-            if ( compteur == 0 ) strcpy(ligne,"");
             strcat(ligne,",");
          }
-         strcat(ligne,parcours->var->nomvar);
-         compteur = compteur + 1;
+         strcat(ligne,parcours->var->v_nomvar);
          didvariableadded = 1;
-         if ( compteur == 3 ) 
-         {
-            if ( retour77 == 0 ) 
-	    {
-	       strcat(ligne," &");
-               fprintf(outputfile,"\n      %s",ligne);
-	    }
-            else fprintf(outputfile,"\n     & %s",ligne);
-            compteur = 0;
-         }
       }
-      parcours = parcours -> suiv;   
-   }   
-   if ( compteur != 3 && compteur != 0 )
+      parcours = parcours -> suiv;
+   }
+ /*  if ( compteur != 3 && compteur != 0 )
    {
       if ( retour77 == 0 ) fprintf(outputfile,"\n      %s &",ligne);
       else fprintf(outputfile,"\n     & %s",ligne);
-   }
+   }*/
+   Save_Length(ligne,41);
+ //  tofich(outputfile,ligne,0);
 
    /* Now we should replace the last ", &" by " &"                            */
-   if ( didvariableadded != 0 && retour77 == 0 ) fseek(outputfile,-1,SEEK_CUR);
-   if ( didvariableadded == 0 ) fseek(outputfile,-1,SEEK_CUR);
+  /* if ( didvariableadded != 0 && retour77 == 0 ) fseek(outputfile,-1,SEEK_CUR);
+   if ( didvariableadded == 0 ) fseek(outputfile,-1,SEEK_CUR);*/
    if ( todebug == 1 ) printf("Out of WriteVariablelist_subloop_Def\n");
+   
 }
+
 
 
 /******************************************************************************/
@@ -391,13 +336,11 @@ void  WriteVariablelist_subloop_Def(FILE *outputfile)
 /* SubLoopScalar   d,e(1,1),f(1,1,1), &                                       */
 /*                 g,h  &                                                     */
 /*                 )                                                          */
-/* adduseagrifutil USE Agrif_Util                                             */
 /******************************************************************************/
-void  WriteHeadofSubroutineLoop()
+void WriteHeadofSubroutineLoop()
 {
-   char ligne[LONGNOM];
+   char ligne[LONG_40M];
    FILE * subloop;
-
 
    if ( todebug == 1 ) printf("Enter in WriteHeadofSubroutineLoop\n");
    tofich(fortranout,"\n",1);
@@ -405,18 +348,15 @@ void  WriteHeadofSubroutineLoop()
    sprintf(ligne,"Sub_Loop_%s.h",subroutinename);
    subloop = associate(ligne);
    /*                                                                         */
-   if ( retour77 == 0 ) sprintf(ligne,"      subroutine Sub_Loop_%s( &"
-                                                               ,subroutinename);
-   else sprintf(ligne,"      subroutine Sub_Loop_%s( ",subroutinename);
-   fprintf(subloop,ligne);
+   sprintf(ligne,"      subroutine Sub_Loop_%s(",subroutinename);
    /*                                                                         */
-   WriteVariablelist_subloop(subloop);
-   WriteVariablelist_subloop_Def(subloop);
+   WriteVariablelist_subloop(subloop,ligne);
+   WriteVariablelist_subloop_Def(subloop,ligne);
    /*                                                                         */
-   sprintf(ligne,")");
-   tofich(subloop,ligne,1);   
-   /* if USE agrif_Util should be add                                         */
-   if ( adduseagrifutil == 1 ) fprintf(subloop,"\n      USE Agrif_Util\n");
+     strcat(ligne,")");
+   tofich(subloop,ligne,1);
+   /* if USE agrif_Uti l should be add                                        */
+   AddUseAgrifUtil_0(subloop);
    /*                                                                         */
    oldfortranout = fortranout;
    fortranout = subloop;
@@ -436,12 +376,11 @@ void  WriteHeadofSubroutineLoop()
 /******************************************************************************/
 /*                                                                            */
 /******************************************************************************/
-void closeandcallsubloopandincludeit_0(int suborfun, char endsub[LONGNOM],
-                                                          char optname[LONGNOM])
+void closeandcallsubloopandincludeit_0(int suborfun)
 {
-   char ligne[LONGNOM];
+   char ligne[LONG_40M];
 
-   if ( firstpass == 0 ) 
+   if ( firstpass == 0 )
    {
    if ( todebug == 1 ) printf("Enter in closeandcallsubloopandincludeit_0\n");
    if ( IsTabvarsUseInArgument_0() == 1 )
@@ -452,26 +391,28 @@ void closeandcallsubloopandincludeit_0(int suborfun, char endsub[LONGNOM],
       /* We should close the loop subroutine                                  */
       sprintf(ligne,"\n      end subroutine Sub_Loop_%s",subroutinename);
       tofich(fortranout,ligne,1);
-      fclose(fortranout);  
+      fclose(fortranout);
       fortranout = oldfortranout;
+
+
+      AddUseAgrifUtilBeforeCall_0(fortranout);
+      if ( functiondeclarationisdone == 0 ) WriteFunctionDeclaration(0);
+      WriteArgumentDeclaration_beforecall();
+      if ( !strcasecmp(subofagrifinitgrids,subroutinename) )
+                     fprintf(oldfortranout,"      Call Agrif_Init_Grids () \n");
       /* Now we add the call af the new subroutine                            */
-      if ( retour77 == 0 ) sprintf(ligne,"\n      Call Sub_Loop_%s( &"
-                                                               ,subroutinename);
-      else sprintf(ligne,"\n      Call Sub_Loop_%s( ",subroutinename);
-      fprintf(fortranout,ligne);
+      sprintf(ligne,"\n      Call Sub_Loop_%s( ",subroutinename);
       /* Write the list of the local variables used in this new subroutine    */
-      WriteVariablelist_subloop(fortranout);
+      WriteVariablelist_subloop(fortranout,ligne);
       /* Write the list of the global tables used in this new subroutine      */
       /*    in doloop                                                         */
-      WriteVariablelist_subloop_Call(fortranout);  
+      WriteVariablelist_subloop_Call(fortranout,ligne);
       /* Close the parenthesis of the new subroutine called                   */
-      sprintf(ligne,")");
-      tofich(fortranout,ligne,1);  
+       strcat(ligne,")");
+      
+      tofich(fortranout,ligne,1);
+
       /* We should close the original subroutine                              */
-      if ( !strcasecmp(subofagrifinitgrids,subroutinename) )
-      {
-/*         fprintf(fortranout,"      CALL Agrif_Deallocation\n");*/
-      }
       if ( suborfun == 3 ) sprintf(ligne,"\n      end program %s"
                                                                ,subroutinename);
       if ( suborfun == 2 ) sprintf(ligne,"\n      end");
@@ -484,6 +425,60 @@ void closeandcallsubloopandincludeit_0(int suborfun, char endsub[LONGNOM],
       sprintf(ligne,"\n#include \"Sub_Loop_%s.h\" \n",subroutinename);
       tofich(fortranout,ligne,1);
       }
+    oldfortranout = (FILE *)NULL;      
+   if ( todebug == 1 ) printf("Out of closeandcallsubloopandincludeit_0\n");
+   }
+   
+}
+
+
+
+
+void closeandcallsubloop_contains_0()
+{
+   char ligne[LONG_40M];
+
+   if ( firstpass == 0 )
+   {
+   if ( todebug == 1 ) printf("Enter in closeandcallsubloopandincludeit_0\n");
+   if ( IsTabvarsUseInArgument_0() == 1 )
+   {
+      Remove_Word_Contains_0();
+      sprintf(ligne,"\n      end subroutine Sub_Loop_%s",subroutinename);
+      tofich(fortranout,ligne,1);
+      fclose(fortranout);
+      fortranout = oldfortranout;
+
+      AddUseAgrifUtilBeforeCall_0(fortranout);
+      if ( ImplicitNoneInSubroutine() == 1 ) fprintf(fortranout,
+                                                       "      IMPLICIT NONE\n");
+      WriteLocalParamDeclaration();
+      if ( functiondeclarationisdone == 0 ) WriteFunctionDeclaration(0);
+      WriteArgumentDeclaration_beforecall();
+      WriteSubroutineDeclaration(0);
+      if ( !strcasecmp(subofagrifinitgrids,subroutinename) )
+                     fprintf(oldfortranout,"      Call Agrif_Init_Grids () \n");
+      /* Now we add the call af the new subroutine                            */
+      if ( retour77 == 0 ) sprintf(ligne,"\n      Call Sub_Loop_%s( &"
+                                                               ,subroutinename);
+      else sprintf(ligne,"\n      Call Sub_Loop_%s( ",subroutinename);
+      fprintf(fortranout,ligne);
+      /* Write the list of the local variables used in this new subroutine    */
+      WriteVariablelist_subloop(fortranout,ligne);
+      /* Write the list of the global tables used in this new subroutine      */
+      /*    in doloop                                                         */
+      WriteVariablelist_subloop_Call(fortranout,ligne);
+      /* Close the parenthesis of the new subroutine called                   */
+      sprintf(ligne,")");
+      tofich(fortranout,ligne,1);
+      /* We should close the original subroutine                              */
+      sprintf(ligne,"\n      contains");
+      tofich(fortranout,ligne,1);
+      /* we should include the above file in the original code                */
+      sprintf(ligne,"\n#include \"Sub_Loop_%s.h\" \n",subroutinename);
+      tofich(fortranout,ligne,1);
+      }
+   oldfortranout = (FILE *)NULL;
    if ( todebug == 1 ) printf("Out of closeandcallsubloopandincludeit_0\n");
    }
 }

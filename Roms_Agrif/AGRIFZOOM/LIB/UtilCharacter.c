@@ -2,8 +2,8 @@
 /*                                                                            */
 /*     CONV (converter) for Agrif (Adaptive Grid Refinement In Fortran)       */
 /*                                                                            */
-/* Copyright or © or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
-/*                        Cyril Mazauric (Cyril.Mazauric@imag.fr)             */
+/* Copyright or   or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
+/*                        Cyril Mazauric (Cyril_Mazauric@yahoo.fr)            */
 /* This software is governed by the CeCILL-C license under French law and     */
 /* abiding by the rules of distribution of free software.  You can  use,      */
 /* modify and/ or redistribute the software under the terms of the CeCILL-C   */
@@ -30,7 +30,7 @@
 /* The fact that you are presently reading this means that you have had       */
 /* knowledge of the CeCILL-C license and that you accept its terms.           */
 /******************************************************************************/
-/* version 1.3                                                                */
+/* version 1.7                                                                */
 /******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,27 +50,35 @@
 /* if  whichone = 1 ----> Agrif_tabvars(i) % parentvar % var % array2         */
 /*                                                                            */
 /******************************************************************************/
-void FindAndChangeNameToTabvars(char name[LONGNOM],char toprint[LONGNOM],
-                                listvar * listtosee, int whichone)
+void FindAndChangeNameToTabvars(char name[LONG_C],char toprint[LONG_4C],
+                                              listvar * listtosee, int whichone)
 {
    listvar *newvar;
    int out;
    
+
    if ( strcasecmp(name,"") )
    {
       newvar=listtosee;
       out=0;
       while( newvar && out == 0 )
       {
-         if ( !strcasecmp(newvar->var->nomvar,name) )
+         if ( !strcasecmp(newvar->var->v_nomvar,name) )
          {
-            out = 1;
-            strcat(toprint,vargridcurgridtabvars(newvar->var,whichone));
+
+            if ( LookingForVariableInListName(
+                             List_SubroutineArgument_Var,name) == 0 )
+            {
+               out = 1;
+               strcat(toprint,vargridcurgridtabvars(newvar->var,whichone));
+            }
+            else newvar=newvar->suiv;
          }
          else newvar=newvar->suiv;
       }
       if ( out == 0 ) strcat(toprint,name);
    }
+   Save_Length(toprint,44);
 }
 
 
@@ -83,25 +91,27 @@ void FindAndChangeNameToTabvars(char name[LONGNOM],char toprint[LONGNOM],
 /*                                                                            */
 /*                                                                            */
 /******************************************************************************/
-char *ChangeTheInitalvaluebyTabvarsName(char *nom,listvar *listtoread, int whichone)
+char *ChangeTheInitalvaluebyTabvarsName(char *nom,listvar *listtoread,
+                                                                   int whichone)
 {
-   char toprinttmp[LONGNOM];
+   char toprinttmp[LONG_4C];
    int i;
    char chartmp[2];
-   
+
    i=0;
    strcpy(toprintglob,"");
    strcpy(toprinttmp,"");
+
    /*                                                                         */
    while ( i < strlen(nom) )
    {
-      if ( nom[i] == '+' ) 
+      if ( nom[i] == '+' )
       {
-         FindAndChangeNameToTabvars(toprinttmp,toprintglob,listtoread,whichone);
+        FindAndChangeNameToTabvars(toprinttmp,toprintglob,listtoread,whichone);
          strcpy(toprinttmp,"");
          strcat(toprintglob,"+");
       }
-      else if ( nom[i] == '-' ) 
+      else if ( nom[i] == '-' )
       {
          FindAndChangeNameToTabvars(toprinttmp,toprintglob,listtoread,whichone);
          strcpy(toprinttmp,"");
@@ -145,7 +155,7 @@ char *ChangeTheInitalvaluebyTabvarsName(char *nom,listvar *listtoread, int which
       }
       else
       {
-         sprintf(chartmp,"%c",nom[i]);        
+         sprintf(chartmp,"%c",nom[i]);
          strcat(toprinttmp,chartmp);
       }
       /*                                                                      */
@@ -153,7 +163,10 @@ char *ChangeTheInitalvaluebyTabvarsName(char *nom,listvar *listtoread, int which
    }
    FindAndChangeNameToTabvars(toprinttmp,toprintglob,listtoread,whichone);
    strcpy(toprinttmp,"");
-   
+
+   Save_Length(toprinttmp,44);
+   Save_Length(toprintglob,39);
+
    /*                                                                         */
    return toprintglob;
 }
@@ -170,7 +183,7 @@ char *ChangeTheInitalvaluebyTabvarsName(char *nom,listvar *listtoread, int which
 int IsVariableReal(char *nom)
 {
    int Real;
-   
+
    Real = 0;
    if ( ( nom[0] >= 'a' && nom[0] <= 'h' ) ||
         ( nom[0] >= 'A' && nom[0] <= 'H' ) ||
@@ -200,66 +213,81 @@ void IsVarInUseFile(char *nom)
 
    out = 0;
 
-   parcours = globliste;
+   parcours = List_Global_Var;
    while( parcours && out == 0 )
    {
-      if ( !strcasecmp(nom,parcours->var->nomvar) ) out =1 ;
+      if ( !strcasecmp(nom,parcours->var->v_nomvar) ) out =1 ;
      else parcours=parcours->suiv;
    }
    if ( out == 0 )
    {
-      parcours = globparam;
+      parcours = List_Common_Var;
       while( parcours && out == 0 )
       {
-         if ( !strcasecmp(nom,parcours->var->nomvar) ) out =1 ;
+         if ( !strcasecmp(nom,parcours->var->v_nomvar) ) out =1 ;
         else parcours=parcours->suiv;
       }
    }
    if ( out == 0 )
    {
-      parcours = parameterlist;
+      parcours = List_GlobalParameter_Var;
       while( parcours && out == 0 )
       {
-         if ( !strcasecmp(nom,parcours->var->nomvar) ) out =1 ;
+         if ( !strcasecmp(nom,parcours->var->v_nomvar) ) out =1 ;
         else parcours=parcours->suiv;
       }
    }
    if ( out == 0 )
    {
-      parcoursparam = tmpparameterlocallist;
+      parcours = List_Parameter_Var;
+      while( parcours && out == 0 )
+      {
+         if ( !strcasecmp(nom,parcours->var->v_nomvar) ) out =1 ;
+        else parcours=parcours->suiv;
+      }
+   }
+   if ( out == 0 )
+   {
+      parcoursparam = List_GlobParamModuleUsed_Var;
       while( parcoursparam && out == 0 )
       {
-         if ( !strcasecmp(nom,parcoursparam->name) ) out =2 ;
+         if ( !strcasecmp(nom,parcoursparam->p_name) ) out =2 ;
          else parcoursparam=parcoursparam->suiv;
       }
    }
    if ( out == 0 )
    {
-      parcours = globalvarofusefile;
+      parcours = List_ModuleUsed_Var;
       while( parcours && out == 0 )
       {
-         if ( !strcasecmp(nom,parcours->var->nomvar) ) out =2 ;
+         if ( !strcasecmp(nom,parcours->var->v_nomvar) ) out =2 ;
         else parcours=parcours->suiv;
       }
    }
    if ( out == 0 || out == 2 )
    {
-      parcoursparam = tmpparameterlocallist2;
+      parcoursparam = List_GlobParamModuleUsedInModuleUsed_Var;
       while( parcoursparam && out != 1 )
       {
-         if ( !strcasecmp(nom,parcoursparam->name) ) out =1 ;
+         if ( !strcasecmp(nom,parcoursparam->p_name) ) out =1 ;
          else parcoursparam=parcoursparam->suiv;
       }
-      if ( out == 1 ) 
+      if ( out == 1 )
       {
-         strcpy(charusemodule,parcoursparam->modulename);
-         Addmoduletothelist(parcoursparam->modulename);
+         strcpy(charusemodule,parcoursparam->p_modulename);
+         Addmoduletothelist(parcoursparam->p_modulename);
       }
    }
-   if ( out == 0 ) printf("--- in UtilCharacter we do not found the \n");
-   if ( out == 0 ) printf("---  variable %s, the module where this \n",nom);
-   if ( out == 0 ) printf("---  variable has been defined has not been\n");
-   if ( out == 0 ) printf("---  found.\n");
+   if ( out == 0 &&
+        strcasecmp(nom,"MAX")             &&
+        strcasecmp(nom,"mpi_status_size")
+      )
+   {
+      printf("--- in UtilCharacter we do not found the \n");
+      printf("---  variable %s, the module where this \n",nom);
+      printf("---  variable has been defined has not been\n");
+      printf("---  found.\n");
+   }
 }
 
 /******************************************************************************/
@@ -272,10 +300,10 @@ void IsVarInUseFile(char *nom)
 /******************************************************************************/
 listnom *DecomposeTheNameinlistnom(char *nom, listnom * listout)
 {
-   char toprinttmp[LONGNOM];
+   char toprinttmp[LONG_4C];
    int i;
    char chartmp[2];
-   
+
    i=0;
    strcpy(toprinttmp,"");
    /*                                                                         */
@@ -288,31 +316,31 @@ listnom *DecomposeTheNameinlistnom(char *nom, listnom * listout)
            nom[i] == ')' ||
            nom[i] == '(' ||
            nom[i] == ',' ||
-           nom[i] == ':' 
-         ) 
+           nom[i] == ':'
+         )
       {
          if (strcasecmp(toprinttmp,"") && ( toprinttmp[0] >= 'A' ) )
-         { 
-             listout = Addtolistnom(toprinttmp,listout);
-             
+         {
+             listout = Addtolistnom(toprinttmp,listout,0);
          }
          strcpy(toprinttmp,"");
       }
       else
       {
-         sprintf(chartmp,"%c",nom[i]);        
+         sprintf(chartmp,"%c",nom[i]);
          strcat(toprinttmp,chartmp);
       }
       /*                                                                      */
       i=i+1;
    }
-   if (strcasecmp(toprinttmp,"") && ( toprinttmp[0] >= 'A' ) ) 
-   { 
-      listout = Addtolistnom(toprinttmp,listout);
+   if (strcasecmp(toprinttmp,"") && ( toprinttmp[0] >= 'A' ) )
+   {
+      listout = Addtolistnom(toprinttmp,listout,0);
    }
    strcpy(toprinttmp,"");
- 
-   return listout;   
+   Save_Length(toprinttmp,44);
+
+   return listout;
 }
 
 
@@ -327,10 +355,10 @@ listnom *DecomposeTheNameinlistnom(char *nom, listnom * listout)
 /******************************************************************************/
 void DecomposeTheName(char *nom)
 {
-   char toprinttmp[LONGNOM];
+   char toprinttmp[LONG_4C];
    int i;
    char chartmp[2];
-   
+
    i=0;
    strcpy(toprinttmp,"");
    /*                                                                         */
@@ -343,11 +371,11 @@ void DecomposeTheName(char *nom)
            nom[i] == ')' ||
            nom[i] == '(' ||
            nom[i] == ',' ||
-           nom[i] == ':' 
-         ) 
+           nom[i] == ':'
+         )
       {
          if (strcasecmp(toprinttmp,"") && ( toprinttmp[0] >= 'A' ) )
-         { 
+         {
             ajoutevarindoloop_definedimension (toprinttmp);
             /* Is this variable present in globvarofusefile                   */
             IsVarInUseFile(toprinttmp);
@@ -356,52 +384,62 @@ void DecomposeTheName(char *nom)
       }
       else
       {
-         sprintf(chartmp,"%c",nom[i]);        
+         sprintf(chartmp,"%c",nom[i]);
          strcat(toprinttmp,chartmp);
       }
       /*                                                                      */
       i=i+1;
    }
-   if (strcasecmp(toprinttmp,"") && ( toprinttmp[0] >= 'A' ) ) 
-   { 
+   Save_Length(toprinttmp,44);
+   if (strcasecmp(toprinttmp,"") && ( toprinttmp[0] >= 'A' ) )
+   {
       ajoutevarindoloop_definedimension (toprinttmp);
       /* Is this variable present in globvarofusefile                         */
       IsVarInUseFile(toprinttmp);
    }
    strcpy(toprinttmp,"");
-   
+
 }
 
 void convert2lower(char *name)
-{ 
+{
    int l;
    int i;
    int caractere;
 
-   l=strlen(name)-1; 
-   for (i=0;i<=l;i++) 
-   { 
-      caractere=name[i]; 
-      if ((caractere>=65 && caractere<=90)||(caractere>=192 && caractere<=221)) 
-      { 
+   l=strlen(name)-1;
+   for (i=0;i<=l;i++)
+   {
+      caractere=name[i];
+      if ((caractere>=65 && caractere<=90)||(caractere>=192 && caractere<=221))
+      {
          name[i]+=32;
       }
    }
-} 
+}
 
-int stringblanc(char *name)
-{ 
-   int l;
+int convert2int(char *name)
+{
    int i;
    int caractere;
-   int blanc;
+   int value;
+   int value_tmp;
+   int longueur;
 
-   l=strlen(name)-1; 
-   blanc = 1;
-   for (i=0;i<=l;i++) 
-   { 
-      caractere=name[i]; 
-      if ( caractere != 32 ) blanc=0;
+   value = 0;
+
+   longueur = strlen(name) - 1;
+   for (i=0;i<=longueur;i++)
+   {
+      caractere=name[i];
+      value_tmp = caractere -'0';
+      if ( value_tmp > 9 ) return 0;
+           if ( longueur+1-i == 6 ) value = value + value_tmp *100000;
+      else if ( longueur+1-i == 5 ) value = value + value_tmp *10000;
+      else if ( longueur+1-i == 4 ) value = value + value_tmp *1000;
+      else if ( longueur+1-i == 3 ) value = value + value_tmp *100;
+      else if ( longueur+1-i == 2 ) value = value + value_tmp *10;
+      else if ( longueur+1-i == 1 ) value = value + value_tmp *1;
    }
-   return blanc;
-} 
+   return value;
+}

@@ -2,8 +2,8 @@
 /*                                                                            */
 /*     CONV (converter) for Agrif (Adaptive Grid Refinement In Fortran)       */
 /*                                                                            */
-/* Copyright or © or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
-/*                        Cyril Mazauric (Cyril.Mazauric@imag.fr)             */
+/* Copyright or   or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
+/*                        Cyril Mazauric (Cyril_Mazauric@yahoo.fr)            */
 /* This software is governed by the CeCILL-C license under French law and     */
 /* abiding by the rules of distribution of free software.  You can  use,      */
 /* modify and/ or redistribute the software under the terms of the CeCILL-C   */
@@ -30,7 +30,7 @@
 /* The fact that you are presently reading this means that you have had       */
 /* knowledge of the CeCILL-C license and that you accept its terms.           */
 /******************************************************************************/
-/* version 1.3                                                                */
+/* version 1.7                                                                */
 /******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,7 +45,7 @@
 /******************************************************************************/
 FILE * associate (char *filename)
 {
-  char filefich[LONGNOM];
+  char filefich[LONG_C];
   sprintf(filefich,"%s/%s",nomdir,filename);
   return fopen (filefich, "w");
 }
@@ -58,11 +58,26 @@ FILE * associate (char *filename)
 /******************************************************************************/
 FILE * associateaplus (char *filename)
 {
-  char filefich[LONGNOM];
+  char filefich[LONG_C];
   sprintf(filefich,"%s/%s",nomdir,filename);
   return fopen (filefich, "a+");
 }
 
+
+/******************************************************************************/
+/*                           setposcurname                                       */
+/******************************************************************************/
+/* This subroutine is used to know the current position in the file in argument    */
+/******************************************************************************/
+/*                                                                            */
+/*                      setposcur ---------> position in file                 */
+/*                                                                            */
+/******************************************************************************/
+long int setposcurname(FILE *fileout)
+{
+   fflush(fileout);
+   return ftell(fileout);
+}
 
 /******************************************************************************/
 /*                           setposcur                                        */

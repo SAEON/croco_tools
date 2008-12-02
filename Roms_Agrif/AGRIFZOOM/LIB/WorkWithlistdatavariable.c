@@ -2,8 +2,8 @@
 /*                                                                            */
 /*     CONV (converter) for Agrif (Adaptive Grid Refinement In Fortran)       */
 /*                                                                            */
-/* Copyright or © or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
-/*                        Cyril Mazauric (Cyril.Mazauric@imag.fr)             */
+/* Copyright or   or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
+/*                        Cyril Mazauric (Cyril_Mazauric@yahoo.fr)            */
 /* This software is governed by the CeCILL-C license under French law and     */
 /* abiding by the rules of distribution of free software.  You can  use,      */
 /* modify and/ or redistribute the software under the terms of the CeCILL-C   */
@@ -30,16 +30,16 @@
 /* The fact that you are presently reading this means that you have had       */
 /* knowledge of the CeCILL-C license and that you accept its terms.           */
 /******************************************************************************/
-/* version 1.3                                                                */
+/* version 1.7                                                                */
 /******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "decl.h"
 /******************************************************************************/
-/*                          COMPLETEDATALIST                                  */
+/*                          Add_Data_Var_1                                    */
 /******************************************************************************/
-/* This subroutine is used to add a record to listdatavariable                */
+/* This subroutine is used to add a record to List_Data_Var                   */
 /******************************************************************************/
 /*        _______     _______     _______     _______     _______             */
 /*       +      +    +      +    +      +    +      +    +      +             */
@@ -47,121 +47,38 @@
 /*       +______+    +______+    +______+    +______+    +______+             */
 /*                                                                            */
 /******************************************************************************/
-void CompleteDataList (char *name,char *values)
+void Add_Data_Var_1 (char *name,char *values)
 {
   listvar *newvar;
-  
-  newvar=(listvar *)malloc(sizeof(listvar));
-  newvar->var=(variable *)malloc(sizeof(variable));
-  newvar->var->nbdim=0;
-  newvar->var->common=0;
-  newvar->var->positioninblock=0;
-  newvar->var->module=0; 
-  newvar->var->save=0;
-  newvar->var->VariableIsParameter=0;
-  newvar->var->PublicDeclare=0;
-  newvar->var->PrivateDeclare=0;
-  newvar->var->ExternalDeclare=0;
-  newvar->var->pointedvar=0;
-  newvar->var->dimensiongiven=0;
-  newvar->var->c_star=0;
-  newvar->var->typegiven=0;
-  newvar->var->indicetabvars=0; 
-  newvar->var->pointerdeclare=0; 
-  newvar->var->optionaldeclare=0;
-  newvar->var->allocatable=0; 
-  newvar->var->dimsempty=0;
-  newvar->var->dimension=(listdim *)NULL;
-  strcpy(newvar->var->vallengspec,"");
-  strcpy(newvar->var->nameinttypename,"");
-  strcpy(newvar->var->IntentSpec,"");
-  strcpy(newvar->var->nomvar,name);  
-  strcpy(newvar->var->dimchar,"");
-  strcpy(newvar->var->precision,"");  
-  strcpy(newvar->var->initialvalue,values); 
-  newvar->suiv = NULL; 
-
-  if ( !listdatavariable )
-  {
-     listdatavariable  = newvar ;
-  }
-  else
-  {
-     newvar->suiv = listdatavariable;
-     listdatavariable = newvar;
-  }
-}
-
-
-/******************************************************************************/
-/*                    COMPLETEGLOBLISTEWITHDATALIST_1                         */
-/******************************************************************************/
-/* This subroutine is used to complete the variable initialisation            */
-/* in the globliste with the listdatavariable                                 */
-/******************************************************************************/
-/*        _______     _______     _______     _______     _______             */
-/*       +      +    +      +    +      +    +      +    +      +             */
-/*       + data +--->+ data +--->+ data +--->+ data +--->+ data +             */
-/*       +______+    +______+    +______+    +______+    +______+             */
-/*                                  ||                                        */
-/*                                  ||                                        */
-/*                                  ||                                        */
-/*                                  ||                                        */
-/*                            initialvalue                                    */
-/*                                  ||                                        */
-/*                                  ||                                        */
-/*        _______     _______     __\/___     _______     _______             */
-/*       +      +    +      +    +      +    +      +    +      +             */
-/*       + glob +--->+ glob +--->+ glob +--->+ glob +--->+ glob +             */
-/*       +______+    +______+    +______+    +______+    +______+             */
-/*                                                                            */
-/******************************************************************************/
-void CompleteGlobListeWithDatalist_1()
-{
-  listvar *newvar;
-  listvar *globlistetmp;
-  int out;
 
   if ( firstpass == 1 )
-  {  
-  /* We are looking for each variable of the listdatavariable where           */
-  /* are they located in the globliste                                        */
-  newvar = listdatavariable;
-  while ( newvar )
   {
-     globlistetmp = globliste;
-     out = 0 ;
-     while( globlistetmp && out == 0 )
+     newvar=(listvar *)malloc(sizeof(listvar));
+     newvar->var=(variable *)malloc(sizeof(variable));
+     /*                                                                       */
+     Init_Variable(newvar->var);
+     /*                                                                       */
+     if ( inmoduledeclare == 1 ) newvar->var->v_module=1;
+     strcpy(newvar->var->v_nomvar,name);
+     Save_Length(name,4);
+     strcpy(newvar->var->v_subroutinename,subroutinename);
+     Save_Length(subroutinename,11);
+     strcpy(newvar->var->v_modulename,curmodulename);
+     Save_Length(curmodulename,6);
+     strcpy(newvar->var->v_commoninfile,mainfile);
+     Save_Length(mainfile,10);
+     strcpy(newvar->var->v_initialvalue,values);
+     Save_Length(values,14);
+     newvar->suiv = NULL;
+
+     if ( !List_Data_Var )
      {
-        if ( !strcasecmp(newvar->var->nomvar,globlistetmp->var->nomvar) )
-	{
-           out = 1;
-	   if ( strcasecmp(globlistetmp->var->initialvalue,"") )
-	   {
-              printf("The variable %s has ever a initial value \n"
-                                                         , newvar->var->nomvar);
-              printf("Error in the CompleteGlobListeWithDatalist routine \n");
-              exit(0);	      
-	   }
-	   else
-	   {
-              strcpy(globlistetmp->var->initialvalue,newvar->var->initialvalue);
-	   }
-	}
-	else
-	{
-        globlistetmp = globlistetmp->suiv;
-	}
+        List_Data_Var  = newvar ;
      }
-     if ( !globlistetmp )
+     else
      {
-        printf("The variable %s has not bee found in the globliste \n"
-                                                         , newvar->var->nomvar);
-        printf("Error in the CompleteGlobListeWithDatalist routine \n");
-	exit(0);
+        newvar->suiv = List_Data_Var;
+        List_Data_Var = newvar;
      }
-     newvar = newvar->suiv;
-  }
   }
 }
-

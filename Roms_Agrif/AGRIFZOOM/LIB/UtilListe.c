@@ -2,8 +2,8 @@
 /*                                                                            */
 /*     CONV (converter) for Agrif (Adaptive Grid Refinement In Fortran)       */
 /*                                                                            */
-/* Copyright or © or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
-/*                        Cyril Mazauric (Cyril.Mazauric@imag.fr)             */
+/* Copyright or   or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
+/*                        Cyril Mazauric (Cyril_Mazauric@yahoo.fr)            */
 /* This software is governed by the CeCILL-C license under French law and     */
 /* abiding by the rules of distribution of free software.  You can  use,      */
 /* modify and/ or redistribute the software under the terms of the CeCILL-C   */
@@ -30,7 +30,7 @@
 /* The fact that you are presently reading this means that you have had       */
 /* knowledge of the CeCILL-C license and that you accept its terms.           */
 /******************************************************************************/
-/* version 1.3                                                                */
+/* version 1.7                                                                */
 /******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,6 +38,42 @@
 #include "decl.h"
 
 
+void Init_Variable(variable *var)
+{
+   strcpy(var->v_typevar            ,"");
+   strcpy(var->v_nomvar             ,"");
+   strcpy(var->v_oldname            ,"");
+   strcpy(var->v_dimchar            ,"");
+   strcpy(var->v_modulename         ,"");
+   strcpy(var->v_commonname         ,"");
+   strcpy(var->v_vallengspec        ,"");
+   strcpy(var->v_nameinttypename    ,"");
+   strcpy(var->v_commoninfile       ,"");
+   strcpy(var->v_subroutinename     ,"");
+   strcpy(var->v_precision          ,"");
+   strcpy(var->v_initialvalue       ,"");
+   strcpy(var->v_IntentSpec         ,"");
+   strcpy(var->v_readedlistdimension,"");
+   var->v_nbdim               = 0 ;
+   var->v_common              = 0 ;
+   var->v_positioninblock     = 0 ;
+   var->v_module              = 0 ;
+   var->v_save                = 0 ;
+   var->v_VariableIsParameter = 0 ;
+   var->v_PublicDeclare       = 0 ;
+   var->v_PrivateDeclare      = 0 ;
+   var->v_ExternalDeclare     = 0 ;
+   var->v_pointedvar          = 0 ;
+   var->v_notgrid             = 0 ;
+   var->v_dimensiongiven      = 0 ;
+   var->v_c_star              = 0 ;
+   var->v_indicetabvars       = 0 ;
+   var->v_pointerdeclare      = 0 ;
+   var->v_optionaldeclare     = 0 ;
+   var->v_allocatable         = 0 ;
+   var->v_dimsempty           = 0 ;
+   var->v_dimension = (listdim *)NULL;
+}
 /******************************************************************************/
 /*                            AddListvartolistvar                             */
 /******************************************************************************/
@@ -54,7 +90,6 @@
 listvar * AddListvarToListvar(listvar *l,listvar *glob,int ValueFirstpass)
 {
    listvar *newvar;
-
    if ( firstpass == ValueFirstpass )
    {
       if ( !glob) glob = l ;
@@ -75,47 +110,56 @@ listvar * AddListvarToListvar(listvar *l,listvar *glob,int ValueFirstpass)
 /* list of declaration                                                        */
 /******************************************************************************/
 /*                                                                            */
-/*                                                                            */
-/*                                                                            */
-/*                                                                            */
-/*                                                                            */
-/*                                                                            */
 /******************************************************************************/
-void CreateAndFillin_Curvar(char *type,char *tokname,
-                            listdim *dims,variable *curvar)
+void CreateAndFillin_Curvar(char *type,variable *curvar)
 {
    if (!strcasecmp(type,"character") && strcasecmp(CharacterSize,"") )
-                            strcpy(curvar->dimchar,CharacterSize);
+   {
+      strcpy(curvar->v_dimchar,CharacterSize);
+      Save_Length(CharacterSize,5);
+   }
 
   /* On donne la precision de la variable si elle a ete donnee                */
-  curvar->c_star = 0;
-  if ( c_star == 1 ) curvar->c_star = 1;
+  curvar->v_c_star = 0;
+  if ( c_star == 1 ) curvar->v_c_star = 1;
   /*                                                                          */
-  strcpy(curvar->vallengspec,"");
-  if ( strcasecmp(vallengspec,"") ) strcpy(curvar->vallengspec,vallengspec);
+  strcpy(curvar->v_vallengspec,"");
+  if ( strcasecmp(vallengspec,"") )
+  {
+     strcpy(curvar->v_vallengspec,vallengspec);
+     Save_Length(vallengspec,8);
+  }
 
-  strcpy(curvar->precision,"");
-  if ( strcasecmp(NamePrecision,"") ) strcpy(curvar->precision,NamePrecision);
+  strcpy(curvar->v_precision,"");
+  if ( strcasecmp(NamePrecision,"") )
+  {
+     strcpy(curvar->v_precision,NamePrecision);
+     Save_Length(NamePrecision,12);
+  }
   /* Si cette variable a ete declaree dans un module on met curvar->module=1  */
   if ( inmoduledeclare == 1 || SaveDeclare == 1)
   {
-      curvar->module = 1;
-      /* Puis on donne le nom du module dans curvar->modulename               */
-      strcpy(curvar->modulename,curmodulename);
+      curvar->v_module = 1;
    }
-   else if (insubroutinedeclare == 1 )
-   /* we give the name of the subroutine to the modulename                    */
-   {
-      strcpy(curvar->modulename,subroutinename);
-   }
+   /* Puis on donne le nom du module dans curvar->v_modulename                */
+   strcpy(curvar->v_modulename,curmodulename);
+   Save_Length(curmodulename,6);
    /* Si cette variable a ete initialisee                                     */
-   if (InitialValueGiven == 1 ) strcpy(curvar->initialvalue,InitValue); 
+   if (InitialValueGiven == 1 )
+   {
+      strcpy(curvar->v_initialvalue,InitValue);
+      Save_Length(InitValue,14);
+   }
    /* Si cette variable est declaree en save                                  */
-   if (SaveDeclare == 1 ) curvar->save = 1;
-   /* Si cette variable est allocatable                                       */
-   if (Allocatabledeclare == 1 ) curvar->allocatable=1;
+   if (SaveDeclare == 1 ) curvar->v_save = 1;
+   /* Si cette variable est v_allocatable                                     */
+   if (Allocatabledeclare == 1 ) curvar->v_allocatable=1;
    /* if INTENT spec has been given                                           */
-   if ( strcasecmp(IntentSpec,"") ) strcpy(curvar->IntentSpec,IntentSpec);
+   if ( strcasecmp(IntentSpec,"") )
+   {
+      strcpy(curvar->v_IntentSpec,IntentSpec);
+      Save_Length(IntentSpec,13);
+   }
 }
 
 
@@ -124,7 +168,7 @@ void CreateAndFillin_Curvar(char *type,char *tokname,
 /******************************************************************************/
 /*                                                                            */
 /******************************************************************************/
-void duplicatelistvar(listvar * orig)
+void duplicatelistvar(listvar *orig)
 {
    listvar *parcours;
    listvar *tmplistvar;
@@ -138,63 +182,47 @@ void duplicatelistvar(listvar * orig)
    {
       tmplistvar = (listvar *)malloc(sizeof(listvar));
       tmpvar = (variable *)malloc(sizeof(variable));
-      tmpvar->nbdim=0;
-      tmpvar->common=0;
-      tmpvar->positioninblock=0;
-      tmpvar->module=0; 
-      tmpvar->save=0;
-      tmpvar->VariableIsParameter=0;
-      tmpvar->PublicDeclare=0;
-      tmpvar->PrivateDeclare=0;
-      tmpvar->ExternalDeclare=0;
-      tmpvar->pointedvar=0;
-      tmpvar->dimensiongiven=0;
-      tmpvar->c_star=0;
-      tmpvar->typegiven=0;
-      tmpvar->indicetabvars=0; 
-      tmpvar->pointerdeclare=0; 
-      tmpvar->optionaldeclare=0;
-      tmpvar->allocatable=0; 
-      tmpvar->dimsempty=0;
-      strcpy(tmpvar->vallengspec,"");
-      strcpy(tmpvar->nameinttypename,"");
-      strcpy(tmpvar->IntentSpec,"");
-      strcpy(tmpvar->dimchar,"");
-      tmpvar->dimension=(listdim *)NULL;
       /*                                                                      */
-      strcpy(tmpvar->typevar,parcours->var->typevar);      
-      strcpy(tmpvar->nomvar,parcours->var->nomvar);      
-      strcpy(tmpvar->oldname,parcours->var->oldname);      
-      strcpy(tmpvar->dimchar,parcours->var->dimchar);      
-      if ( parcours->var->dimension )
+      Init_Variable(tmpvar);
+      /*                                                                      */
+      strcpy(tmpvar->v_typevar,parcours->var->v_typevar);
+      strcpy(tmpvar->v_nomvar,parcours->var->v_nomvar);
+      strcpy(tmpvar->v_oldname,parcours->var->v_oldname);
+      strcpy(tmpvar->v_dimchar,parcours->var->v_dimchar);
+      if ( parcours->var->v_dimension )
       {
          tmplistdim = (listdim *)malloc(sizeof(listdim));
-         tmplistdim = parcours->var->dimension;
-         tmpvar->dimension = tmplistdim;
+         tmplistdim = parcours->var->v_dimension;
+         tmpvar->v_dimension = tmplistdim;
       }
-      tmpvar->nbdim=parcours->var->nbdim;
-      tmpvar->common=parcours->var->common;
-      tmpvar->positioninblock=parcours->var->positioninblock;
-      tmpvar->module=parcours->var->module;
-      tmpvar->save=parcours->var->save;
-      tmpvar->VariableIsParameter=parcours->var->VariableIsParameter;
-      strcpy(tmpvar->modulename,parcours->var->modulename);      
-      strcpy(tmpvar->commonname,parcours->var->commonname);      
-      strcpy(tmpvar->vallengspec,parcours->var->vallengspec);
-      strcpy(tmpvar->nameinttypename,parcours->var->nameinttypename);
-      tmpvar->pointedvar=parcours->var->pointedvar;
-      strcpy(tmpvar->commoninfile,parcours->var->commoninfile);      
-      strcpy(tmpvar->subroutinename,parcours->var->subroutinename);      
-      tmpvar->dimensiongiven=parcours->var->dimensiongiven;
-      tmpvar->c_star=parcours->var->c_star;
-      strcpy(tmpvar->precision,parcours->var->precision);
-      strcpy(tmpvar->initialvalue,parcours->var->initialvalue);
-      tmpvar->pointerdeclare=parcours->var->pointerdeclare;
-      tmpvar->optionaldeclare=parcours->var->optionaldeclare;
-      tmpvar->allocatable=parcours->var->allocatable;
-      strcpy(tmpvar->IntentSpec,parcours->var->IntentSpec);
-      tmpvar->dimsempty=parcours->var->dimsempty;
-      strcpy(tmpvar->readedlistdimension,parcours->var->readedlistdimension);
+      tmpvar->v_nbdim=parcours->var->v_nbdim;
+      tmpvar->v_common=parcours->var->v_common;
+      tmpvar->v_positioninblock=parcours->var->v_positioninblock;
+      tmpvar->v_module=parcours->var->v_module;
+      tmpvar->v_save=parcours->var->v_save;
+      tmpvar->v_VariableIsParameter=parcours->var->v_VariableIsParameter;
+      tmpvar->v_indicetabvars=parcours->var->v_indicetabvars;
+      strcpy(tmpvar->v_modulename,parcours->var->v_modulename);
+      strcpy(tmpvar->v_commonname,parcours->var->v_commonname);
+      strcpy(tmpvar->v_vallengspec,parcours->var->v_vallengspec);
+
+      strcpy(tmpvar->v_nameinttypename,parcours->var->v_nameinttypename);
+            
+      tmpvar->v_pointedvar=parcours->var->v_pointedvar;
+      strcpy(tmpvar->v_commoninfile,mainfile);
+      Save_Length(mainfile,10);
+      strcpy(tmpvar->v_subroutinename,parcours->var->v_subroutinename);
+      tmpvar->v_dimensiongiven=parcours->var->v_dimensiongiven;
+      tmpvar->v_c_star=parcours->var->v_c_star;
+      strcpy(tmpvar->v_precision,parcours->var->v_precision);
+      strcpy(tmpvar->v_initialvalue,parcours->var->v_initialvalue);
+      tmpvar->v_pointerdeclare=parcours->var->v_pointerdeclare;
+      tmpvar->v_optionaldeclare=parcours->var->v_optionaldeclare;
+      tmpvar->v_allocatable=parcours->var->v_allocatable;
+      strcpy(tmpvar->v_IntentSpec,parcours->var->v_IntentSpec);
+      tmpvar->v_dimsempty=parcours->var->v_dimsempty;
+      strcpy(tmpvar->v_readedlistdimension,
+                                          parcours->var->v_readedlistdimension);
       /*                                                                      */
       tmplistvar->var = tmpvar;
       tmplistvar->suiv = NULL;
@@ -234,7 +262,7 @@ listdim * insertdim(listdim *lin,typedim nom)
    newdim=(listdim *) malloc (sizeof (listdim));
    newdim->dim=nom;
    newdim->suiv=NULL;
-   
+
    if ( ! lin )
    {
       lin = newdim;
@@ -245,7 +273,7 @@ listdim * insertdim(listdim *lin,typedim nom)
       while ( parcours->suiv ) parcours=parcours->suiv;
       parcours->suiv = newdim;
    }
-   
+
    return lin;
 }
 
@@ -264,13 +292,13 @@ void change_dim_char(listdim *lin,listvar * l)
 {
    listvar *parcours_var;
    variable *v;
-  
-   
+
    parcours_var=l;
    while(parcours_var)
-   { 
+   {
       v=parcours_var->var;
-      strcpy(v->dimchar,(lin->dim).last);
+      strcpy(v->v_dimchar,(lin->dim).last);
+      Save_Length((lin->dim).last,5);
       parcours_var=parcours_var->suiv;
    }
 }
@@ -296,7 +324,7 @@ int num_dims(listdim *d)
      compteur++;
      parcours=parcours->suiv;
    }
-   return compteur;  
+   return compteur;
 }
 
 
@@ -310,86 +338,44 @@ variable * createvar(char *nom,listdim *d)
 {
   variable *var;
   listdim *dims;
-  char ligne[LONGNOM];
-  char listdimension[LONGNOM];
+  char ligne[LONG_C];
+  char listdimension[LONG_C];
 
    var=(variable *) malloc(sizeof(variable));
-   var->nbdim=0;
-   var->common=0;
-   var->positioninblock=0;
-   var->module=0; 
-   var->save=0;
-   var->VariableIsParameter=0;
-   var->PublicDeclare=0;
-   var->PrivateDeclare=0;
-   var->ExternalDeclare=0;
-   var->pointedvar=0;
-   var->dimensiongiven=0;
-   var->c_star=0;
-   var->typegiven=0;
-   var->indicetabvars=0; 
-   var->pointerdeclare=0; 
-   var->optionaldeclare=0;
-   var->allocatable=0; 
-   var->dimsempty=0;
-   strcpy(var->vallengspec,"");
-   strcpy(var->nameinttypename,"");
-   strcpy(var->IntentSpec,"");
-   strcpy(var->dimchar,"");
-   var->dimension=(listdim *)NULL;
-   strcpy(var->nomvar,nom);
-   /* Definition of the number of this variable in the table tabvars          */
-   var->indicetabvars = 0;
-   if ( firstpass == 1 && ( aftercontainsdeclare == 0 || 
-                            SaveDeclare == 1          ||
-                            fortran77 == 1 ) 
-      )
-   {
-      indicemaxtabvars = indicemaxtabvars + 1;
-      var->indicetabvars = indicemaxtabvars;
-   }
    /*                                                                         */
-   var->pointerdeclare=0;
-   var->dimsempty=0;
-   var->optionaldeclare=0;
-   var->dimensiongiven=0;
-   var->positioninblock=0;
-   var->VariableIsParameter = 0;
-   var->PublicDeclare = 0;
-   var->PrivateDeclare = 0;
-   var->ExternalDeclare = 0;
-   var->common=0;
-   var->allocatable=0;
-   var->module=0; 
-   var->save=0;
+   Init_Variable(var);
    /*                                                                         */
-   strcpy(var->nameinttypename,"");
+   strcpy(var->v_nomvar,nom);
+   Save_Length(nom,4);
+   /*                                                                         */
    strcpy(listdimension,"");
-   strcpy(var->modulename,"");
-   strcpy(var->commonname,"");
-   strcpy(var->commoninfile,mainfile);
-   strcpy(var->subroutinename,subroutinename);
-   strcpy(var->dimchar,"");
-   strcpy(var->oldname,"");
-   strcpy(var->precision,""); 
-   strcpy(var->initialvalue,""); 
-   strcpy(var->IntentSpec,""); 
+   strcpy(var->v_modulename,curmodulename);
+   Save_Length(curmodulename,6);
+   strcpy(var->v_commoninfile,mainfile);
+   Save_Length(mainfile,10);
+   strcpy(var->v_subroutinename,subroutinename);
+   Save_Length(subroutinename,11);
    /*                                                                         */
-   if ( strcasecmp(nameinttypename,"") ) 
-                                   strcpy(var->nameinttypename,nameinttypename);
-   if ( optionaldeclare     == 1 ) var->optionaldeclare = 1;
-   if ( pointerdeclare      == 1 ) var->pointerdeclare = 1;
-   if ( VariableIsParameter == 1 ) var->VariableIsParameter = 1 ;
-   if ( PublicDeclare       == 1 ) var->PublicDeclare = 1 ;
-   if ( PrivateDeclare      == 1 ) var->PrivateDeclare = 1;
-   if ( ExternalDeclare     == 1 ) var->ExternalDeclare = 1; 
+   if ( strcasecmp(nameinttypename,"") )
+   {
+      strcpy(var->v_nameinttypename,nameinttypename);
+      Save_Length(nameinttypename,9);
+   }
+         
+   if ( optionaldeclare     == 1 ) var->v_optionaldeclare = 1;
+   if ( pointerdeclare      == 1 ) var->v_pointerdeclare = 1;
+   if ( VariableIsParameter == 1 ) var->v_VariableIsParameter = 1 ;
+   if ( PublicDeclare       == 1 ) var->v_PublicDeclare = 1 ;
+   if ( PrivateDeclare      == 1 ) var->v_PrivateDeclare = 1;
+   if ( ExternalDeclare     == 1 ) var->v_ExternalDeclare = 1;
    /*                                                                         */
-   var->dimension=d;
+   var->v_dimension=d;
+
    /* Creation of the string for the dimension of this variable               */
    dimsempty = 1;
    if ( d )
    {
-      var->dimensiongiven=1;
+      var->v_dimensiongiven=1;
       dims = d;
       while (dims)
       {
@@ -399,15 +385,16 @@ variable * createvar(char *nom,listdim *d)
          strcat(listdimension,ligne);
          if ( dims->suiv )
          {
-            strcat(listdimension,",");	     
+            strcat(listdimension,",");
          }
          dims = dims->suiv;
       }
-      if ( dimsempty == 1 ) var->dimsempty=1;
+      if ( dimsempty == 1 ) var->v_dimsempty=1;
    }
-   strcpy(var->readedlistdimension,listdimension);
+   strcpy(var->v_readedlistdimension,listdimension);
+   Save_Length(listdimension,15);
    /*                                                                         */
-   var->nbdim=num_dims(d);
+   var->v_nbdim=num_dims(d);
    /*                                                                         */
    return var;
 }
@@ -445,7 +432,7 @@ listvar * insertvar(listvar *lin,variable *v)
       {
          tmpvar = tmpvar ->suiv ;
       }
-      tmpvar -> suiv = newvar;   
+      tmpvar -> suiv = newvar;
    }
    return lin;
 }
@@ -472,510 +459,161 @@ listvar *settype(char *nom,listvar *lin)
    while (newvar)
    {
       v=newvar->var;
-      strcpy(v->typevar,nom);
+      strcpy(v->v_typevar,nom);
+      Save_Length(nom,3);
       newvar=newvar->suiv;
    }
    newvar=lin;
    return newvar ;
 }
 
-/******************************************************************************/
-/*                          deallocation_all                                  */
-/******************************************************************************/
-/* This subroutine is used to deallocate every strucuture                     */
-/******************************************************************************/
-/*                                                                            */
-/*                                                                            */
-/*                                                                            */
-/*                                                                            */
-/*                                                                            */
-/*                                                                            */
-/******************************************************************************/
-void deallocation_all()
-{
-   int compt;
-   listparameter *newparam;
-   listvar *newlistvar;
-   variable *newvar;
-   listdim *newdim;
-   listvarcommon *newvarcommon;
-   listname *newname;
-   listusemodule *newusemodule;
-   listmodule *newmodule;
-   listnamelist *newnamelist;
-   listnom *newnom;
-   listallocate *newallocate;
-   listvarpointtovar *newvarpointtovar; 
-   listindice *newindice; 
-  
-   /* deallocation globliste                                                  */
-   compt = 0;
-   while ( globliste )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation globliste\n");
-	 compt = 1;
-      }
-      newlistvar =  globliste -> suiv;
-      free(globliste->var->dimension);
-      free(globliste->var);
-      free(globliste);
-      globliste = newlistvar;
-   }
-   /* deallocation globparam                                                  */
-   compt = 0;
-   while ( globparam )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation globparam\n");
-	 compt = 1;
-      }
-      newlistvar =  globparam -> suiv;
-      free(globparam->var->dimension);
-      free(globparam->var);
-      free(globparam);
-      globparam = newlistvar;
-   }
-   /* deallocation listdatavariable                                           */
-   compt = 0;
-   while ( listdatavariable )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation listdatavariable\n");
-	 compt = 1;
-      }
-      newlistvar =  listdatavariable -> suiv;
-      free(listdatavariable->var->dimension);
-      free(listdatavariable->var);
-      free(listdatavariable);
-      listdatavariable = newlistvar;
-   }
-   /* deallocation listargsubroutine                                          */
-   compt = 0;
-   while ( listargsubroutine )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation listargsubroutine\n");
-	 compt = 1;
-      }
-      newlistvar =  listargsubroutine -> suiv;
-      free(listargsubroutine->var->dimension);
-      free(listargsubroutine->var);
-      free(listargsubroutine);
-      listargsubroutine = newlistvar;
-   }
-   /* deallocation varofsubroutineliste                                       */
-   compt = 0;
-   while ( varofsubroutineliste )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation varofsubroutineliste\n");
-	 compt = 1;
-      }
-      newlistvar =  varofsubroutineliste -> suiv;
-      free(varofsubroutineliste->var->dimension);
-      free(varofsubroutineliste->var);
-      free(varofsubroutineliste);
-      varofsubroutineliste = newlistvar;
-   }
-   /* deallocation varsubroutine                                              */
-   compt = 0;
-   while ( varsubroutine )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation varsubroutine\n");
-	 compt = 1;
-      }
-      newlistvar =  varsubroutine -> suiv;
-      free(varsubroutine->var->dimension);
-      free(varsubroutine->var);
-      free(varsubroutine);
-      varsubroutine = newlistvar;
-   }
-   /* deallocation listvarindoloop                                            */
-   compt = 0;
-   while ( listvarindoloop )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation listvarindoloop\n");
-	 compt = 1;
-      }
-      newlistvar =  listvarindoloop -> suiv;
-      free(listvarindoloop->var->dimension);
-      free(listvarindoloop->var);
-      free(listvarindoloop);
-      listvarindoloop = newlistvar;
-   }
-   /* deallocation finglobliste                                               */
-   compt = 0;
-   while ( finglobliste )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation finglobliste\n");
-	 compt = 1;
-      }
-      newlistvar =  finglobliste -> suiv;
-      free(finglobliste->var->dimension);
-      free(finglobliste->var);
-      free(finglobliste);
-      finglobliste = newlistvar;
-   }
-   /* deallocation tmplocallist                                               */
-   compt = 0;
-   while ( tmplocallist )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation tmplocallist\n");
-	 compt = 1;
-      }
-      newlistvar =  tmplocallist -> suiv;
-      free(tmplocallist->var->dimension);
-      free(tmplocallist->var);
-      free(tmplocallist);
-      tmplocallist = newlistvar;
-   }
-   /* deallocation parameterlist                                              */
-   compt = 0;
-   while ( parameterlist )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation parameterlist\n");
-	 compt = 1;
-      }
-      newlistvar =  parameterlist -> suiv;
-      free(parameterlist->var->dimension);
-      free(parameterlist->var);
-      free(parameterlist);
-      parameterlist = newlistvar;
-   }
-   /* deallocation globalvarofusefile2                                        */
-   compt = 0;
-   while ( globalvarofusefile2 )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation globalvarofusefile2\n");
-	 compt = 1;
-      }
-      newlistvar =  globalvarofusefile2 -> suiv;
-/*      free(globalvarofusefile2->var->dimension);*/
-      free(globalvarofusefile2->var);
-      free(globalvarofusefile2);
-      globalvarofusefile2 = newlistvar;
-   }
-   /* deallocation globalvarofusefile                                         */
-   compt = 0;
-   while ( globalvarofusefile )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation globalvarofusefile\n");
-	 compt = 1;
-      }
-      newlistvar =  globalvarofusefile -> suiv;
-      free(globalvarofusefile->var->dimension);
-      free(globalvarofusefile->var);
-      free(globalvarofusefile);
-      globalvarofusefile = newlistvar;
-   }
-   /* deallocation functionlistvar                                            */
-   compt = 0;
-   while ( functionlistvar )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation functionlistvar\n");
-	 compt = 1;
-      }
-      newlistvar =  functionlistvar -> suiv;
-      free(functionlistvar->var->dimension);
-      free(functionlistvar->var);
-      free(functionlistvar);
-      functionlistvar = newlistvar;
-   }
-   /* deallocation listenotgriddepend                                         */
-   compt = 0;
-   while ( listenotgriddepend )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation listenotgriddepend\n");
-	 compt = 1;
-      }
-      newlistvar =  listenotgriddepend -> suiv;
-      free(listenotgriddepend->var->dimension);
-      free(listenotgriddepend->var);
-      free(listenotgriddepend);
-      listenotgriddepend = newlistvar;
-   }
-   /* deallocation commonlist                                                 */
-   compt = 0;
-   while ( commonlist )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation commonlist\n");
-	 compt = 1;
-      }
-      newvarcommon =  commonlist -> suiv;
-      free(commonlist->dimension);
-      free(commonlist);
-      commonlist = newvarcommon;
-   }
-   /* deallocation listimplicitnone                                           */
-   compt = 0;
-   while ( listimplicitnone )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation listimplicitnone\n");
-	 compt = 1;
-      }
-      newname =  listimplicitnone -> suiv;
-      free(listimplicitnone);
-      listimplicitnone = newname;
-   }
-   /* deallocation listofmodulebysubroutine                                   */
-   compt = 0;
-   while ( listofmodulebysubroutine )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation listofmodulebysubroutine\n");
-	 compt = 1;
-      }
-      newusemodule =  listofmodulebysubroutine -> suiv;
-      free(listofmodulebysubroutine);
-      listofmodulebysubroutine = newusemodule;
-   }
-   /* deallocation listofincludebysubroutine                                  */
-   compt = 0;
-   while ( listofincludebysubroutine )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation listofincludebysubroutine\n");
-	 compt = 1;
-      }
-      newusemodule =  listofincludebysubroutine -> suiv;
-      free(listofincludebysubroutine);
-      listofincludebysubroutine = newusemodule;
-   }
-   /* deallocation listofmoduletmp                                            */
-   compt = 0;
-   while ( listofmoduletmp )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation listofmoduletmp\n");
-	 compt = 1;
-      }
-      newusemodule =  listofmoduletmp -> suiv;
-      free(listofmoduletmp);
-      listofmoduletmp = newusemodule;
-   }
-   /* deallocation tmpuselocallist                                            */
-   compt = 0;
-   while ( tmpuselocallist )
-   {
-      if ( todebug == 1 && compt == 0 ) 
-      {
-         printf("Deallocation tmpuselocallist\n");
-	 compt = 1;
-      }
-      newusemodule =  tmpuselocallist -> suiv;
-      free(tmpuselocallist);
-      tmpuselocallist = newusemodule;
-   }
-   /* deallocation tmpparameterlocallist2                                     */
-   compt = 0;
-   while ( tmpparameterlocallist2 )
-   {
-      if ( todebug == 1 && compt == 0 )
-      {
-         printf("Deallocation tmpparameterlocallist2\n");
-	 compt = 1;
-      }
-      newparam = tmpparameterlocallist2 -> suiv;
-      free(tmpparameterlocallist2);
-      tmpparameterlocallist2 = newparam;
-   }
-   /* deallocation tmpparameterlocallist                                      */
-   compt = 0;
-   while ( tmpparameterlocallist )
-   {
-      if ( todebug == 1 && compt == 0 )
-      {
-         printf("Deallocation tmpparameterlocallist\n");
-	 compt = 1;
-      }
-      newparam = tmpparameterlocallist -> suiv;
-      free(tmpparameterlocallist);
-      tmpparameterlocallist = newparam;
-   }
-   /* deallocation listmoduleinfile                                           */
-   compt = 0;
-   while ( listmoduleinfile )
-   {
-      if ( todebug == 1 && compt == 0 )
-      {
-         printf("Deallocation listmoduleinfile\n");
-	 compt = 1;
-      }
-      newmodule = listmoduleinfile -> suiv;
-      free(listmoduleinfile);
-      listmoduleinfile = newmodule;
-   }
-   /* deallocation listenamelist                                              */
-   compt = 0;
-   while ( listenamelist )
-   {
-      if ( todebug == 1 && compt == 0 )
-      {
-         printf("Deallocation listenamelist\n");
-	 compt = 1;
-      }
-      newnamelist = listenamelist -> suiv;
-      free(listenamelist);
-      listenamelist = newnamelist;
-   }
-   /* deallocation NewModuleList                                              */
-   compt = 0;
-   while ( NewModuleList )
-   {
-      if ( todebug == 1 && compt == 0 )
-      {
-         printf("Deallocation NewModuleList\n");
-	 compt = 1;
-      }
-      newnom = NewModuleList -> suiv;
-      free(NewModuleList);
-      NewModuleList = newnom;
-   }
-   /* deallocation listofmodules                                              */
-   compt = 0;
-   while ( listofmodules )
-   {
-      if ( todebug == 1 && compt == 0 )
-      {
-         printf("Deallocation listofmodules\n");
-	 compt = 1;
-      }
-      newnom = listofmodules -> suiv;
-      free(listofmodules);
-      listofmodules = newnom;
-   }
-   /* deallocation modulelist                                                 */
-   compt = 0;
-   while ( modulelist )
-   {
-      if ( todebug == 1 && compt == 0 )
-      {
-         printf("Deallocation modulelist\n");
-	 compt = 1;
-      }
-      newnom = modulelist -> suiv;
-      free(modulelist);
-      modulelist = newnom;
-   }
-   /* deallocation Listofvariableinagriffunction                              */
-   compt = 0;
-   while ( Listofvariableinagriffunction )
-   {
-      if ( todebug == 1 && compt == 0 )
-      {
-         printf("Deallocation Listofvariableinagriffunction\n");
-	 compt = 1;
-      }
-      newnom = Listofvariableinagriffunction -> suiv;
-      free(Listofvariableinagriffunction);
-      Listofvariableinagriffunction = newnom;
-   }
-   /* deallocation listofsubroutinewhereagrifisused                           */
-   compt = 0;
-   while ( listofsubroutinewhereagrifisused )
-   {
-      if ( todebug == 1 && compt == 0 )
-      {
-         printf("Deallocation listofsubroutinewhereagrifisused\n");
-	 compt = 1;
-      }
-      newnom = listofsubroutinewhereagrifisused -> suiv;
-      free(listofsubroutinewhereagrifisused);
-      listofsubroutinewhereagrifisused = newnom;
-   }
-   /* deallocation AllocateList                                               */
-   compt = 0;
-   while ( AllocateList )
-   {
-      if ( todebug == 1 && compt == 0 )
-      {
-         printf("Deallocation AllocateList\n");
-	 compt = 1;
-      }
-      newallocate = AllocateList -> suiv;
-      free(AllocateList);
-      AllocateList = newallocate;
-   }
-   /* deallocation Listofvarpointtovar                                        */
-   compt = 0;
-   while ( Listofvarpointtovar )
-   {
-      if ( todebug == 1 && compt == 0 )
-      {
-         printf("Deallocation Listofvarpointtovar\n");
-	 compt = 1;
-      }
-      newvarpointtovar = Listofvarpointtovar -> suiv;
-      free(Listofvarpointtovar);
-      Listofvarpointtovar = newvarpointtovar;
-   }
-   /* deallocation Listofavailableindices                                     */
-   compt = 0;
-   while ( Listofavailableindices )
-   {
-      if ( todebug == 1 && compt == 0 )
-      {
-         printf("Deallocation Listofavailableindices\n");
-	 compt = 1;
-      }
-      newindice = Listofavailableindices -> suiv;
-      free(Listofavailableindices);
-      Listofavailableindices = newindice;
-   }
+/******************************************************************/
+/* printliste  */
+/* print the list given in argulent */
+/******************************************************************/
 
-   
+void printliste(listvar * lin)
+{
+   listvar *newvar;
+   variable *v;
+
+   newvar=lin;
+   while (newvar)
+   {
+      v=newvar->var;
+      printf("nom = %s, allocatable = %d dim = %s\n",v->v_nomvar,v->v_allocatable,(v->v_dimension)->dim.last);
+      newvar=newvar->suiv;
+   }
 }
 
-
-
-void deallocation_curdim()
+/******************************************************************************/
+/*   IsinListe : return 1 if name nom is in list lin                          */
+/*                                                                            */
+/******************************************************************************/
+ int IsinListe(listvar *lin,char *nom)
 {
-   int compt;
-   listdim *newdim;
+   listvar *newvar;
+   variable *v;
+   int out ;
    
-   /* deallocation listdim                                                    */
-   compt = 0;
-   while ( curdim )
+   newvar=lin;
+   out = 0;
+   while (newvar && (out == 0))
    {
-      if ( todebug == 1 && compt == 0 )
-      {
-         printf("Deallocation curdim\n");
-	 compt = 1;
+      v=newvar->var;
+      if (!strcasecmp(v->v_nomvar,nom) && !strcasecmp(v->v_subroutinename,subroutinename)) {
+      out = 1;
       }
-      newdim = curdim -> suiv;
-      free(curdim);
-      curdim = newdim;
+      newvar=newvar->suiv;
    }
+
+   return out ;
+}
+
+listname *Insertname(listname *lin,char *nom)
+{
+   listname *newvar ;
+   listname *tmpvar;
+
+   newvar=(listname *) malloc (sizeof (listname));
+   strcpy(newvar->n_name,nom);
+   newvar->suiv = NULL;
+   if (!lin)
+   {
+      newvar->suiv=NULL;
+      lin = newvar;
+   }
+   else
+   {
+      tmpvar = lin ;
+      while (tmpvar->suiv)
+      {
+         tmpvar = tmpvar ->suiv ;
+      }
+      tmpvar -> suiv = newvar;
+   }
+   return lin;
+}
+
+/******************************************************************/
+/* printname  */
+/* print the list given in argulent */
+/******************************************************************/
+
+void printname(listname * lin)
+{
+   listname *newvar;
+
+   newvar=lin;
+   while (newvar)
+   {
+      printf("nom = %s \n",newvar->n_name);
+      newvar=newvar->suiv;
+   }
+}
+
+void removeglobfromlist(listname **lin)
+{
+  listname *listemp;
+  listname *parcours1;
+  listvar *parcours2;
+  listname * parcourspres;
+  int out;
+  
+  parcours1 = *lin;
+  parcourspres = (listname *)NULL;
+  
+  while (parcours1)
+  {
+  parcours2 = List_Global_Var;
+  out = 0;
+  while (parcours2 && out == 0)
+  {
+    if (!strcasecmp(parcours2->var->v_nomvar,parcours1->n_name))
+    {
+    out = 1;
+    }
+    parcours2 = parcours2->suiv;
+  }
+  if (out == 1)
+  {
+  if (parcours1 == *lin)
+   {
+   *lin = (*lin)->suiv;
+   parcours1 = *lin;
+   }
+   else
+   {
+   parcourspres->suiv = parcours1->suiv;
+   parcours1 = parcourspres->suiv;
+   }
+   }
+   else
+   {
+   parcourspres = parcours1;
+    parcours1 = parcours1->suiv;  
+    }
+  }
+}
+
+void writelistpublic(listname *lin)
+{
+  listname *parcours1;
+  char ligne[LONG_40M];
+  char tempname[LONG_4M];
+  
+  if (lin)
+  {
+  sprintf(ligne,"public :: ");
+  parcours1 = lin;
+  
+  while (parcours1)
+  {
+    strcat(ligne,parcours1->n_name);
+    if (parcours1->suiv) strcat(ligne,", ");
+    parcours1 = parcours1->suiv;  
+  }
+  tofich(fortranout,ligne,1);
+  }
 
 }

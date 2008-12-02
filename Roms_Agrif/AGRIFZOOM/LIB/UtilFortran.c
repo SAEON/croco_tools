@@ -2,8 +2,8 @@
 /*                                                                            */
 /*     CONV (converter) for Agrif (Adaptive Grid Refinement In Fortran)       */
 /*                                                                            */
-/* Copyright or © or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
-/*                        Cyril Mazauric (Cyril.Mazauric@imag.fr)             */
+/* Copyright or   or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
+/*                        Cyril Mazauric (Cyril_Mazauric@yahoo.fr)            */
 /* This software is governed by the CeCILL-C license under French law and     */
 /* abiding by the rules of distribution of free software.  You can  use,      */
 /* modify and/ or redistribute the software under the terms of the CeCILL-C   */
@@ -30,7 +30,7 @@
 /* The fact that you are presently reading this means that you have had       */
 /* knowledge of the CeCILL-C license and that you accept its terms.           */
 /******************************************************************************/
-/* version 1.3                                                                */
+/* version 1.7                                                                */
 /******************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -68,13 +68,12 @@ int Variableshouldberemove(char *nom)
 {
 
    int remove;
-   
-   remove = 0 ; 
-   
-   if ( remove == 0 && !strcasecmp(nom,"RESHAPE") ) remove = 1 ;  
-   if ( remove == 0 && Agrif_in_Tok_NAME(nom) == 1 ) remove = 1 ;  
 
-   return remove;   
+   remove = 0 ;
+
+   if ( remove == 0 && Agrif_in_Tok_NAME(nom) == 1 ) remove = 1 ;
+
+   return remove;
 }
 
 /******************************************************************************/
@@ -92,22 +91,23 @@ int variableisglobal(listvar *curvar, listvar *listin)
   newvar = listin;
   while ( newvar && Globalite == 0 )
   {
-     if ( !strcasecmp(newvar->var->nomvar,curvar->var->nomvar) )
+     if ( !strcasecmp(newvar->var->v_nomvar,curvar->var->v_nomvar) )
      {
         Globalite = 1;
         /* Now we should give the definition of the variable in the           */
-        /* table listvarindoloop                                              */
-        strcpy(curvar->var->typevar,newvar->var->typevar);
-        strcpy(curvar->var->dimchar,newvar->var->dimchar);
-        curvar->var->nbdim = newvar->var->nbdim;
-        curvar->var->dimensiongiven = newvar->var->dimensiongiven;
-        curvar->var->allocatable = newvar->var->allocatable;
-        curvar->var->pointerdeclare = newvar->var->pointerdeclare;
-        curvar->var->indicetabvars = newvar->var->indicetabvars;
-        strcpy(curvar->var->nameinttypename,newvar->var->nameinttypename);
-        strcpy(curvar->var->precision,newvar->var->precision);
-        strcpy(curvar->var->readedlistdimension,
-                                              newvar->var->readedlistdimension);
+        /* table List_UsedInSubroutine_Var                                    */
+        strcpy(curvar->var->v_typevar,newvar->var->v_typevar);
+        strcpy(curvar->var->v_dimchar,newvar->var->v_dimchar);
+        curvar->var->v_nbdim = newvar->var->v_nbdim;
+        curvar->var->v_dimensiongiven = newvar->var->v_dimensiongiven;
+        curvar->var->v_allocatable = newvar->var->v_allocatable;
+        curvar->var->v_pointerdeclare = newvar->var->v_pointerdeclare;
+        curvar->var->v_indicetabvars = newvar->var->v_indicetabvars;
+        strcpy(curvar->var->v_nameinttypename,newvar->var->v_nameinttypename);
+        strcpy(curvar->var->v_precision,newvar->var->v_precision);
+        strcpy(curvar->var->v_readedlistdimension,
+                                            newvar->var->v_readedlistdimension);
+        strcpy(curvar->var->v_commoninfile,newvar->var->v_commoninfile);
      }
      else
      {
@@ -118,12 +118,56 @@ int variableisglobal(listvar *curvar, listvar *listin)
   return Globalite ;
 }
 
+int VariableIsInListCommon(listvar *curvar,listvar *listin)
+{
+  int present;
+  listvar *newvar;
+
+  present = 0;
+  newvar = listin;
+  while ( newvar && present == 0 )
+  {
+     if ( !strcasecmp(newvar->var->v_nomvar,curvar->var->v_nomvar) &&
+          !strcasecmp(newvar->var->v_subroutinename,
+                                    curvar->var->v_subroutinename)
+        )
+     {
+        strcpy(curvar->var->v_commoninfile,newvar->var->v_commoninfile);
+        CopyRecord(curvar->var,newvar->var);
+        present = 1;
+     }
+     else newvar = newvar->suiv;
+  }
+
+  return present;
+}
+
+int VariableIsInList(listvar *curvar,listvar *listin)
+{
+  int present;
+  listvar *newvar;
+
+  present = 0;
+  newvar = listin;
+  while ( newvar && present == 0 )
+  {
+     if ( !strcasecmp(newvar->var->v_nomvar,curvar->var->v_nomvar) )
+     {
+        CopyRecord(curvar->var,newvar->var);
+        present = 1;
+     }
+     else newvar = newvar->suiv;
+  }
+
+  return present;
+}
+
 /******************************************************************************/
-/*                      variableisglobalinmodule                                      */
+/*                      variableisglobalinmodule                              */
 /******************************************************************************/
 /* This subroutine is to know if a variable is global                         */
 /******************************************************************************/
-void variableisglobalinmodule(listcouple *listin, char *module, FILE *fileout)
+void variableisglobalinmodule(listcouple *listin, char *module, FILE *fileout, long int oldposcuruse)
 {
   int Globalite;
   listcouple *newvar;
@@ -131,33 +175,44 @@ void variableisglobalinmodule(listcouple *listin, char *module, FILE *fileout)
   listvar *tempo;
   listvar *newvar2;
   int out;
+  char truename[LONG_C];  
 
   Globalite = 1;
+  newvarprec = (listcouple *)NULL;
   tempo = (listvar *)NULL;
   tempo = Readthedependfile(module,tempo);
   newvar = listin;
+
   while ( newvar )
   {
+     if (!strcmp(newvar->c_namepointedvar,"")) {
+       strcpy(truename,newvar->c_namevar);
+     }
+     else
+     {
+       strcpy(truename,newvar->c_namepointedvar);
+     }
+     
      out = 0;
      newvar2 = tempo;
      while ( newvar2 && out == 0 )
      {
-        if ( !strcasecmp(newvar2->var->nomvar,newvar->namevar) ) out = 1;
-	else newvar2 = newvar2 ->suiv;
+        if ( !strcasecmp(newvar2->var->v_nomvar,truename) ) out = 1;
+        else newvar2 = newvar2 ->suiv;
      }
      if ( out == 1 )
      {
         /* remove from the listin                                             */
-	if ( newvar == listin )
-	{
-	   listin = listin->suiv;
+        if ( newvar == listin )
+        {
+           listin = listin->suiv;
            newvar = listin;
-	}
-	else
-	{
+        }
+        else
+        {
            newvarprec->suiv = newvar->suiv;
-	   newvar = newvar->suiv;
-	}
+           newvar = newvar->suiv;
+        }
      }
      else
      {
@@ -168,114 +223,339 @@ void variableisglobalinmodule(listcouple *listin, char *module, FILE *fileout)
   }
   if ( Globalite == 0 || !newvar)
   {
-     pos_end = setposcur();
-     RemoveWordSET_0(fileout,pos_curuse,
-                                pos_end-pos_curuse);
+     pos_end = setposcurname(fileout);
+     RemoveWordSET_0(fileout,oldposcuruse,
+                                pos_end-oldposcuruse);
+                                  
      newvar = listin;
      while ( newvar )
      {
-        fprintf(fileout,"      USE %s, ONLY : %s \n",module,newvar->namevar);
-	newvar = newvar->suiv;
+        fprintf(fileout,"      USE %s, ONLY : %s \n",module,newvar->c_namevar);
+        newvar = newvar->suiv;
      }
   }
 }
 
-/******************************************************************************/
-/*                     variableisparameterglobal                              */
-/******************************************************************************/
-/* This subroutine is to know if a variable is global                         */
-/******************************************************************************/
-int variableisparameterglobal(listvar *curvar, listparameter *listin)
+
+void Remove_Word_Contains_0()
 {
-  int Globalite;
-  listparameter *newvar;
-
-  Globalite = 0;
-  newvar = listin;
-  while ( newvar && Globalite == 0 )
-  {
-     if ( !strcasecmp(newvar->name,curvar->var->nomvar) ) Globalite = 1;
-     else newvar = newvar->suiv;
-  }
-
-  return Globalite ;
-}
-
-
-/******************************************************************************/
-/*                           addsubroutine_alloc_0                            */
-/******************************************************************************/
-/* Firstpass 0                                                                */
-/* We should add subroutine of allocation                                     */
-/* if moduleorcontains = 1 we are at the end module keyword                   */
-/* if moduleorcontains = 0 we are at the contains   keyword                   */
-/******************************************************************************/
-void addsubroutine_alloc_0(int moduleorcontains)
-{
-   char ligne[LONGNOM];
-   int Allocisempty;
-   listvar *newvar;
-   
-
-   if ( firstpass == 0)
+   if ( firstpass == 0 )
    {
-     /* It is necessary to know if this subroutine is not empty               */
-     Allocisempty = 0;
-     newvar = globliste;
-     while ( newvar && Allocisempty == 0 )
-     {
-        if ( !strcasecmp(newvar->var->modulename,curmodulename)) Allocisempty=1;
-        else newvar = newvar->suiv;
-     }
-     if ( Allocisempty == 1 )
-     {
-         while ( newvar &&
-                 !strcasecmp(newvar->var->modulename,curmodulename) &&
-                 Allocisempty == 1 )
-         {
-            if ( (newvar->var->nbdim !=0          &&
-                  newvar->var->allocatable != 1 ) ||
-                 (newvar->var->nbdim == 0         &&
-                  strcasecmp(newvar->var->initialvalue,"")) ) Allocisempty = 0;
-            else newvar = newvar->suiv;
-         }
-     }
-     if ( Allocisempty == 0 )
-     {
-      if ( AllocInModule() == 1)
-      {
-         /* we should remove end module <name>                                */
-         if ( moduleorcontains == 1 )
-         {
-            RemoveWordCUR_0(fortranout,(long)(-strlen(curmodulename)-12),
-                                          strlen(curmodulename)+11);
-         }
-         /* we should remove contains                                         */
-         if ( moduleorcontains == 0 )
-         {
-            RemoveWordCUR_0(fortranout,(long)(-9),9);
-         }
-         strcpy (ligne, "\n      PUBLIC Alloc_agrif_");
-         strcat (ligne, curmodulename);
-         strcat (ligne, "\n");
-         fprintf(fortranout,ligne);
-      }
-      if (AllocInModule() == 1)
-      {      
-         fprintf(fortranout,"\n      contains\n"); 
-         strcpy (ligne, "\n#include \"alloc_agrif_");
-         strcat (ligne, curmodulename);
-         strcat (ligne, ".h\"\n");
-         fprintf(fortranout,ligne);
-         /* On reecrit la mot cle end module qui a ete efface du fichier      */
-         /*    d'origine                                                      */
-         if ( moduleorcontains == 1 ) fprintf(fortranout,"\n      end module %s"
-                                                                ,curmodulename);
-      }
-     }
+      RemoveWordCUR_0(fortranout,(long)(-9),9);
    }
 }
 
+void Remove_Word_end_module_0(int modulenamelength)
+{
+   if ( firstpass == 0 )
+   {
+      RemoveWordCUR_0(fortranout,(long)(-modulenamelength-12),
+                                         modulenamelength+11);
+   }
+}
+
+void Write_Word_Contains_0()
+{
+   if ( firstpass == 0 )
+   {
+      fprintf(fortranout,"\n      contains\n");
+   }
+}
+
+
+void Write_Word_end_module_0()
+{
+   if ( firstpass == 0 )
+   {
+      fprintf(fortranout,"\n      end module %s",curmodulename);
+   }
+}
+
+void Add_Subroutine_For_Alloc(char *nom)
+{
+   listnom *parcours;
+   listnom *newvar;
+   int out;
+
+   newvar = (listnom *)malloc(sizeof(listnom));
+   strcpy(newvar->o_nom,nom);
+   Save_Length(nom,23);
+   newvar->suiv = NULL;
+
+   if ( !List_Subroutine_For_Alloc )
+   {
+      List_Subroutine_For_Alloc = newvar;
+   }
+   else
+   {
+      parcours = List_Subroutine_For_Alloc;
+      out = 0 ;
+      while ( parcours->suiv && out == 0 )
+      {
+         if ( !strcasecmp(parcours->o_nom,nom) ) out = 1 ;
+         else parcours = parcours ->suiv;
+      }
+      /*                                                                      */
+      if ( out == 0 )
+      {
+         if ( strcasecmp(parcours->o_nom,nom) ) parcours->suiv = newvar;
+      }
+   }
+}
+
+
+void Write_Alloc_Subroutine_0()
+{
+   listnom *parcours_nom;
+   listnom *parcours_nomprec;
+   int out;
+   char ligne[LONG_C];
+
+   if ( firstpass == 0 )
+   {
+      parcours_nomprec = (listnom *)NULL;
+      parcours_nom = List_NameOfModule;
+      out = 0 ;
+      while ( parcours_nom && out == 0 )
+      {
+         /*                                                                   */
+         if ( !strcasecmp(curmodulename,parcours_nom->o_nom) ) out = 1;
+         else parcours_nom = parcours_nom -> suiv;
+      }
+      if ( out == 1 )
+      {
+         if ( parcours_nom->o_val == 1 )
+         {
+            strcpy (ligne, "\n      PUBLIC Alloc_agrif_");
+            strcat (ligne, curmodulename);
+            strcat (ligne, "\n");
+            convert2lower(ligne);
+            fprintf(fortranout,ligne);
+         }
+      }
+      Write_Word_Contains_0();
+      if ( out == 1 )
+      {
+         if ( parcours_nom->o_val == 1 )
+         {
+            sprintf (ligne, "Subroutine Alloc_agrif_%s(Agrif_Gr)",
+                                                                 curmodulename);
+            tofich(fortranout,ligne,1);
+            strcpy(ligne,"Use Agrif_Util");
+            tofich(fortranout,ligne,1);
+            strcpy (ligne, "Type(Agrif_grid), Pointer :: Agrif_Gr");
+            tofich(fortranout,ligne,1);
+            strcpy(ligne, "INTEGER :: i");
+            tofich (fortranout, ligne,1);
+            strcpy (ligne, "\n#include \"alloc_agrif_");
+            strcat (ligne, curmodulename);
+            strcat (ligne, ".h\"\n");
+            convert2lower(ligne);
+            fprintf(fortranout,ligne);
+            strcpy (ligne, "Return");
+            tofich(fortranout,ligne,1);
+            sprintf (ligne, "End Subroutine Alloc_agrif_%s",curmodulename);
+            tofich(fortranout,ligne,1);
+            /* List all Call Alloc_agrif_                                     */
+            Add_Subroutine_For_Alloc(curmodulename);
+         }
+         else
+         {
+            parcours_nom = List_Subroutine_For_Alloc;
+            out = 0;
+            while ( parcours_nom && out == 0 )
+            {
+               if ( !strcasecmp(parcours_nom->o_nom,curmodulename) ) out = 1;
+               else
+               {
+                  parcours_nomprec = parcours_nom;
+                  parcours_nom = parcours_nom->suiv;
+               }
+            }
+            if ( out == 1 )
+            {
+               if ( parcours_nom == List_Subroutine_For_Alloc)
+               {
+                  List_Subroutine_For_Alloc = List_Subroutine_For_Alloc->suiv;
+               }
+               else
+               {
+                  parcours_nomprec->suiv = parcours_nom->suiv;
+                  parcours_nom = parcours_nomprec->suiv ;
+               }
+            }
+         }
+      }
+   }
+}
+
+
+void Write_Alloc_Subroutine_For_End_0()
+{
+   listnom *parcours_nom;
+   listnom *parcours_nomprec;
+   int out;
+   char ligne[LONG_C];
+
+   if ( firstpass == 0 )
+   {
+      parcours_nomprec = (listnom *)NULL;
+      parcours_nom = List_NameOfModule;
+      out = 0 ;
+      while ( parcours_nom && out == 0 )
+      {
+         /*                                                                   */
+         if ( !strcasecmp(curmodulename,parcours_nom->o_nom) ) out = 1;
+         else parcours_nom = parcours_nom -> suiv;
+      }
+      if ( out == 1 )
+      {
+         if ( parcours_nom->o_val == 1 )
+         {
+            strcpy (ligne, "\n      PUBLIC Alloc_agrif_");
+            strcat (ligne, curmodulename);
+            strcat (ligne, "\n");
+            convert2lower(ligne);
+            fprintf(fortranout,ligne);
+            strcpy (ligne, "\n      contains\n");
+            fprintf(fortranout,ligne);
+            sprintf (ligne, "Subroutine Alloc_agrif_%s(Agrif_Gr)",
+                                                                 curmodulename);
+            tofich(fortranout,ligne,1);
+            strcpy(ligne,"Use Agrif_Util");
+            tofich(fortranout,ligne,1);
+            strcpy (ligne, "Type(Agrif_grid), Pointer :: Agrif_Gr");
+            tofich(fortranout,ligne,1);
+            strcpy(ligne, "INTEGER :: i");
+            tofich (fortranout, ligne,1);
+            strcpy (ligne, "\n#include \"alloc_agrif_");
+            strcat (ligne, curmodulename);
+            strcat (ligne, ".h\"\n");
+            convert2lower(ligne);
+            fprintf(fortranout,ligne);
+            strcpy (ligne, "Return");
+            tofich(fortranout,ligne,1);
+            sprintf (ligne, "End Subroutine Alloc_agrif_%s",curmodulename);
+            tofich(fortranout,ligne,1);
+            /* List all Call Alloc_agrif                                      */
+            Add_Subroutine_For_Alloc(parcours_nom->o_nom);
+         }
+         else
+         {
+            parcours_nom = List_Subroutine_For_Alloc;
+            out = 0;
+            while ( parcours_nom && out == 0 )
+            {
+               if ( !strcasecmp(parcours_nom->o_nom,curmodulename) ) out = 1;
+               else
+               {
+                  parcours_nomprec = parcours_nom;
+                  parcours_nom = parcours_nom->suiv;
+               }
+            }
+            if ( out == 1 )
+            {
+               if ( parcours_nom == List_Subroutine_For_Alloc)
+               {
+                  List_Subroutine_For_Alloc = List_Subroutine_For_Alloc->suiv;
+               }
+               else
+               {
+                  parcours_nomprec->suiv = parcours_nom->suiv;
+                  parcours_nom = parcours_nomprec->suiv ;
+               }
+            }
+         }
+      }
+   }
+}
+
+void Write_GlobalParameter_Declaration_0()
+{
+   listvar *parcours;
+
+   if ( firstpass == 0 )
+   {
+      parcours = List_GlobalParameter_Var;
+      while( parcours )
+      {
+         if ( !strcasecmp(parcours->var->v_modulename,curmodulename) )
+         {
+            writevardeclaration(parcours,module_declar,0,1);
+         }
+         parcours = parcours -> suiv;
+      }
+   }
+}
+
+void Write_GlobalType_Declaration_0()
+{
+   listvar *parcours;
+   int out = 0;
+   int headtypewritten = 0;
+   char ligne[LONGNOM];
+   int changeval;
+
+   if ( firstpass == 0 )
+   {
+      parcours = List_Global_Var;
+      while( parcours )
+      {
+         if ( !strcasecmp(parcours->var->v_modulename,curmodulename) )
+         {
+           if (!strcasecmp(parcours->var->v_typevar,"type"))
+           {
+            out = 1;
+            if (headtypewritten == 0)
+              {
+                sprintf(ligne,"TYPE :: Agrif_%s",curmodulename);
+                tofich(module_declar,ligne,1);
+                headtypewritten = 1;
+              }
+            changeval = 0;
+            if (parcours->var->v_allocatable == 1)
+             {
+               changeval = 1;
+               parcours->var->v_allocatable = 0;
+               parcours->var->v_pointerdeclare = 1;
+             }
+            writevardeclaration(parcours,module_declar,0,0);
+            if (changeval == 1)
+              {
+               parcours->var->v_allocatable = 1;
+               parcours->var->v_pointerdeclare = 0;
+              }
+            }
+         }
+         parcours = parcours -> suiv;
+      }
+      if (out == 1)
+        {
+                sprintf(ligne,"END TYPE Agrif_%s",curmodulename);
+                tofich(module_declar,ligne,1);
+                sprintf(ligne,"TYPE(Agrif_%s), DIMENSION(:), ALLOCATABLE :: Agrif_%s_var",curmodulename,curmodulename); 
+                tofich(module_declar,ligne,1);
+        }
+   }
+}
+
+void Write_NotGridDepend_Declaration_0()
+{
+   listvar *parcours;
+
+   if ( firstpass == 0 )
+   {
+      parcours = List_NotGridDepend_Var;
+      while( parcours )
+      {
+         if ( !strcasecmp(parcours->var->v_modulename,curmodulename) )
+         {
+            writevardeclaration(parcours,fortranout,0,1);
+         }
+         parcours = parcours -> suiv;
+      }
+   }
+}
 
 /******************************************************************************/
 /*                          IsTabvarsUseInArgument_0                          */
@@ -288,17 +568,17 @@ int IsTabvarsUseInArgument_0()
 {
    int out;
    int doloopout;
-   listvar *parcours;   
+   listvar *parcours;
 
    out=1;
-  
-   if ( listvarindoloop )
+
+   if ( List_UsedInSubroutine_Var )
    {
       doloopout = 0;
-      parcours = listvarindoloop;
-      while ( parcours && doloopout == 0 )   
+      parcours = List_UsedInSubroutine_Var;
+      while ( parcours && doloopout == 0 )
       {
-         if ( !strcasecmp(parcours->var->modulename,subroutinename) ) 
+         if ( !strcasecmp(parcours->var->v_subroutinename,subroutinename) )
                                                                   doloopout = 1;
          else parcours = parcours->suiv;
       }
@@ -323,57 +603,80 @@ int ImplicitNoneInSubroutine()
   listname *parcours;
   int out;
 
-  parcours= listimplicitnone;
+  parcours= List_ImplicitNoneSubroutine;
   out = 0 ;
   while ( parcours && out == 0 )
   {
-     if ( !strcasecmp(parcours->name,subroutinename) ) out = 1;
+     if ( !strcasecmp(parcours->n_name,subroutinename) ) out = 1;
      else parcours = parcours->suiv;
-  
   }
   return out;
 }
 
 /******************************************************************************/
-/*                            AddNameToThelistpointer_1                       */
+/*                            Add_Pointer_Var_From_List_1                     */
 /******************************************************************************/
 /* Firstpass 1                                                                */
 /******************************************************************************/
 /*                                                                            */
 /******************************************************************************/
-void AddNameToThelistpointer_1(char *nom)
+void Add_Pointer_Var_From_List_1(listvar *listin)
+{
+   listvar *parcours;
+
+   if ( firstpass == 1 )
+   {
+       parcours = listin;
+       while ( parcours )
+       {
+          Add_Pointer_Var_1(parcours->var->v_nomvar);
+          parcours = parcours -> suiv ;
+       }
+   }
+}
+
+/******************************************************************************/
+/*                            Add_Pointer_Var_1                               */
+/******************************************************************************/
+/* Firstpass 1                                                                */
+/******************************************************************************/
+/*                                                                            */
+/******************************************************************************/
+void Add_Pointer_Var_1(char *nom)
 {
    listname *newvar;
    listname *parcours;
    int out;
 
-   if ( firstpass == 1 ) 
+   if ( firstpass == 1 )
    {
-      if ( !listpointer )
+      if ( !List_Pointer_Var )
       {
          newvar = (listname *)malloc(sizeof(listname));
-         strcpy(newvar->name,nom);
+         strcpy(newvar->n_name,nom);
+         Save_Length(nom,20);
          newvar->suiv = NULL;
-         listpointer = newvar;
+         List_Pointer_Var = newvar;
       }
       else
       {
-         parcours = listpointer;
-         out = 0 ; 
+         parcours = List_Pointer_Var;
+         out = 0 ;
          while ( parcours->suiv && out == 0 )
          {
-            if (  !strcasecmp(parcours->name,nom) ) out = 1;
+            if (  !strcasecmp(parcours->n_name,nom) ) out = 1;
             else
-               parcours=parcours->suiv;               
+               parcours=parcours->suiv;
          }
-         if ( out == 0 ) 
+         if ( out == 0 )
          {
-            if (  !strcasecmp(parcours->name,nom) ) out = 1;
+            if (  !strcasecmp(parcours->n_name,nom) ) out = 1;
             else
             {
                /* add the record                                              */
               newvar = (listname *)malloc(sizeof(listname));
-              strcpy(newvar->name,nom);
+              strcpy(newvar->n_name,nom);
+              Save_Length(nom,20);
               newvar->suiv = NULL;
               parcours->suiv = newvar;
             }
@@ -391,18 +694,45 @@ void AddNameToThelistpointer_1(char *nom)
 /******************************************************************************/
 int varispointer_0(char *ident)
 {
-   listvar *newvar;
    listname *newname;
    int out;
 
    out =0;
-   if (firstpass == 0 )
+   if ( firstpass == 0 )
    {
-      newname = listpointer;
-      while( newname && out == 0 ) 
+      newname = List_Pointer_Var;
+      while( newname && out == 0 )
       {
-         if ( !strcasecmp(ident,newname->name) ) out = 1 ;
-	 else newname = newname->suiv;
+         if ( !strcasecmp(ident,newname->n_name) ) out = 1 ;
+         else newname = newname->suiv;
+      }
+   }
+   return out;
+}
+
+/******************************************************************************/
+/*                          varistyped_0                                    */
+/******************************************************************************/
+/* Firstpass 0                                                                */
+/******************************************************************************/
+/*                                                                            */
+/******************************************************************************/
+int varistyped_0(char *ident)
+{
+   listvar *parcours;
+   int out;
+
+   out =0;
+   if ( firstpass == 0 )
+   {
+      parcours = List_Global_Var;
+      while( parcours && out == 0 )
+      {
+         if ( !strcasecmp(ident,parcours->var->v_nomvar) ) 
+             {
+             if (!strcasecmp(parcours->var->v_typevar,"type")) out = 1;
+             }
+         parcours = parcours->suiv;
       }
    }
    return out;
@@ -412,7 +742,7 @@ int varispointer_0(char *ident)
 /******************************************************************************/
 /*                          VariableIsNotFunction                             */
 /******************************************************************************/
-/* 
+/*                                                                            */
 /******************************************************************************/
 int VariableIsNotFunction(char *ident)
 {
@@ -424,14 +754,14 @@ int VariableIsNotFunction(char *ident)
    if ( !strcasecmp(ident,"size") ||
         !strcasecmp(ident,"if")   ||
         !strcasecmp(ident,"max")  ||
-        !strcasecmp(ident,"min") 
+        !strcasecmp(ident,"min")
       )
    {
-      newvar = varofsubroutineliste;
+      newvar = List_SubroutineDeclaration_Var;
       while ( newvar && out == 0 )
       {
-         if ( !strcasecmp(subroutinename, newvar->var->subroutinename) &&
-	      !strcasecmp(ident, newvar->var->nomvar) ) out = 1;
+         if ( !strcasecmp(subroutinename, newvar->var->v_subroutinename) &&
+              !strcasecmp(ident, newvar->var->v_nomvar) ) out = 1;
          newvar = newvar -> suiv ;
       }
       if ( out == 1 ) out = 0;
@@ -440,10 +770,10 @@ int VariableIsNotFunction(char *ident)
       if ( out == 1 )
       {
          out = 0;
-         newvar = globliste;
+         newvar = List_Global_Var;
          while ( newvar && out == 0 )
          {
-            if ( !strcasecmp(ident, newvar->var->nomvar) ) out = 1;
+            if ( !strcasecmp(ident, newvar->var->v_nomvar) ) out = 1;
             newvar = newvar -> suiv ;
          }
          if ( out == 1 ) out = 0;

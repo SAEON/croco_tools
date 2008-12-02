@@ -1,7 +1,7 @@
 #- option to debug
 C_D = -g # -g -Wall
 # Compilation:
-CC		= cc -O3
+CC		= cc -O
 #-
 OBJS = main.o WriteInFile.o toamr.o fortran.o  \
        dependfile.o SubLoopCreation.o WorkWithlistvarindoloop.o \
@@ -10,7 +10,9 @@ OBJS = main.o WriteInFile.o toamr.o fortran.o  \
        UtilNotGridDep.o WorkWithlistdatavariable.o \
        DiversListe.o UtilAgrif.o WorkWithAllocatelist.o \
        UtilCharacter.o UtilListe.o UtilFile.o \
-       WorkWithlistofmodulebysubroutine.o WorkWithlistmoduleinfile.o
+       WorkWithlistofmodulebysubroutine.o WorkWithlistmoduleinfile.o \
+       WorkWithlistofcoupled.o
+
 
 .SUFFIXES:
 .SUFFIXES: .c .o
@@ -43,5 +45,6 @@ UtilListe.o : UtilListe.c decl.h
 UtilFile.o : UtilFile.c decl.h
 WorkWithlistofmodulebysubroutine.o : WorkWithlistofmodulebysubroutine.c decl.h
 WorkWithlistmoduleinfile.o : WorkWithlistmoduleinfile.c decl.h
+WorkWithlistofcoupled.o : WorkWithlistofcoupled.c decl.h
 clean : 
 	/bin/rm -f *.o y.output

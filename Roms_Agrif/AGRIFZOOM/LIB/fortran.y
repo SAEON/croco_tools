@@ -2,13 +2,13 @@
 /*                                                                            */
 /*     CONV (converter) for Agrif (Adaptive Grid Refinement In Fortran)       */
 /*                                                                            */
-/* Copyright or © or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
-/*                        Cyril Mazauric (Cyril.Mazauric@imag.fr)             */
+/* Copyright or   or Copr. Laurent Debreu (Laurent.Debreu@imag.fr)            */
+/*                        Cyril Mazauric (Cyril_Mazauric@yahoo.fr)            */
 /* This software is governed by the CeCILL-C license under French law and     */
 /* abiding by the rules of distribution of free software.  You can  use,      */
 /* modify and/ or redistribute the software under the terms of the CeCILL-C   */
 /* license as circulated by CEA, CNRS and INRIA at the following URL          */
-/* "http://www.cecill.info".                                                  */
+/* "http ://www.cecill.info".                                                  */
 /*                                                                            */
 /* As a counterpart to the access to the source code and  rights to copy,     */
 /* modify and redistribute granted by the license, users are provided only    */
@@ -30,7 +30,7 @@
 /* The fact that you are presently reading this means that you have had       */
 /* knowledge of the CeCILL-C license and that you accept its terms.           */
 /******************************************************************************/
-/* version 1.2                                                                */
+/* version 1.7                                                                */
 /******************************************************************************/
 %{
 #include <stdlib.h>
@@ -40,24 +40,28 @@
 extern int line_num_fortran;
 extern int line_num_fortran_common;
 char *tmp;
-char c_selectorname[LONGNOM];
-char ligne[LONGNOM];
-char identcopy[LONGNOM];
+char c_selectorname[LONG_C];
+char ligne[LONG_C];
+char truename[LONGNOM];
+char identcopy[LONG_C];
 int c_selectorgiven=0;
 int incom;
 listvar *curlistvar;
 typedim c_selectordim;
 listcouple *coupletmp;
+listdim *parcoursdim;
 int removeline=0;
+listvar *test;
 %}
 
 %union {
+       char      nac[LONG_C];
        char      na[LONGNOM];
        listdim  *d;
        listvar  *l;
-       listvarcommon *lcom;
        listnom  *ln;
        listcouple  *lc;
+       listname *lnn;
        typedim   dim1;
        variable *v;
        }
@@ -66,7 +70,7 @@ int removeline=0;
 %nonassoc ':'
 %right '='
 %left TOK_BINARY_OP
-%left EQV NEQV
+%left TOK_EQV TOK_NEQV
 %left TOK_OR TOK_XOR
 %left TOK_AND
 %left TOK_NOT
@@ -78,6 +82,7 @@ int removeline=0;
 %right TOK_DASTER
 
 %token TOK_SEP
+%token TOK_SEMICOLON
 %token TOK_NEXTLINE
 %token TOK_PARAMETER
 %token TOK_RESULT
@@ -107,7 +112,6 @@ int removeline=0;
 %token TOK_ENDDONOTTREAT
 %token TOK_EXIST
 %token TOK_MIN
-%token TOK_INT
 %token TOK_FLOAT
 %token TOK_EXP
 %token TOK_COS
@@ -123,18 +127,17 @@ int removeline=0;
 %token TOK_LOG
 %token TOK_TAN
 %token TOK_ATAN
+%token TOK_RECURSIVE
 %token TOK_ABS
 %token TOK_MOD
 %token TOK_SIGN
 %token TOK_MINLOC
-/*%token TOK_REC*/
 %token TOK_MAXLOC
 %token TOK_EXIT
 %token TOK_MINVAL
 %token TOK_PUBLIC
 %token TOK_PRIVATE
 %token TOK_ALLOCATABLE
-%token TOK_IN
 %token TOK_RETURN
 %token TOK_THEN
 %token TOK_ELSEIF
@@ -161,22 +164,18 @@ int removeline=0;
 %token TOK_NULLIFY
 %token TOK_FIN
 %token TOK_DEBUT
-%token TOK_OUT
-%token TOK_INOUT
 %token TOK_DIMENSION
 %token TOK_ENDSELECT
 %token TOK_EXTERNAL
 %token TOK_INTENT
 %token TOK_INTRINSIC
-%token TOK_NAMELIST 
-%token TOK_CASEDEFAULT 
+%token TOK_NAMELIST
+%token TOK_CASEDEFAULT
 %token TOK_OPTIONAL
 %token TOK_POINTER
 %token TOK_CONTINUE
 %token TOK_SAVE
 %token TOK_TARGET
-%token TOK_POINT
-%token TOK_DATA 
 %token TOK_QUOTE
 %token TOK_IMPLICIT
 %token TOK_NONE
@@ -185,143 +184,149 @@ int removeline=0;
 %token TOK_POINT_TO
 %token TOK_COMMON
 %token TOK_GLOBAL
-%token TOK_INTERFACE 
-%token TOK_ENDINTERFACE 
-%token TOK_LEFTAB 
-%token TOK_RIGHTAB 
+%token TOK_INTERFACE
+%token TOK_ENDINTERFACE
+%token TOK_LEFTAB
+%token TOK_RIGHTAB
 %token TOK_PAUSE
 %token TOK_PROCEDURE
 %token TOK_STOP
 %token TOK_NAMEEQ
 %token TOK_REAL8
-%token <na> TOK_USE
-%token <na> TOK_DSLASH
-%token <na> TOK_DASTER
-%token <na> TOK_EQ
-%token <na> TOK_GT
-%token <na> TOK_LT
-%token <na> TOK_GE
-%token <na> TOK_NE
-%token <na> TOK_LE
-%token <na> TOK_OR
-%token <na> TOK_XOR
-%token <na> TOK_NOT
-%token <na> TOK_AND
-%token <na> TOK_TRUE 
-%token <na> TOK_FALSE 
-%token <na> TOK_LABEL
-%token <na> TOK_TYPE
-%token <na> TOK_TYPEPAR
-%token <na> TOK_ENDTYPE
-%token <na> TOK_REAL
-%token <na> TOK_INTEGER
-%token <na> TOK_LOGICAL
-%token <na> TOK_DOUBLEPRECISION
-%token <na> TOK_DOUBLEREAL
-%token <na> TOK_ENDSUBROUTINE
-%token <na> TOK_ENDFUNCTION
-%token <na> TOK_ENDPROGRAM
-%token <na> TOK_ENDUNIT
-%token <na> TOK_CHARACTER
-%token <na> TOK_CHAR_CONSTANT
-%token <na> TOK_CHAR_CUT
-%token <na> TOK_CHAR_INT
-%token <na> TOK_CHAR_MESSAGE 
-%token <na> TOK_CSTREAL
-%token <na> TOK_CSTREALDP
-%token <na> TOK_CSTREALQP
-%token <na> TOK_SFREAL 
-%token <na> TOK_COMPLEX
-%token <na> TOK_DOUBLECOMPLEX
-%token <na> TOK_NAME
-%token <na> TOK_NAME_CHAR
-%token <na> TOK_PROBTYPE  /* dimension of the problem                         */
-%token <na> TOK_INTERPTYPE/* kind of interpolation                            */
-%token <na> TOK_VARTYPE   /* posit ion of the grid variable on the cells of   */
+%token <nac> TOK_OUT
+%token <nac> TOK_INOUT
+%token <nac> TOK_IN
+%token <nac> TOK_USE
+%token <nac> TOK_DSLASH
+%token <nac> TOK_DASTER
+%token <nac> TOK_EQ
+%token <nac> TOK_EQV
+%token <nac> TOK_GT
+%token <nac> TOK_LT
+%token <nac> TOK_GE
+%token <nac> TOK_NE
+%token <nac> TOK_NEQV
+%token <nac> TOK_LE
+%token <nac> TOK_OR
+%token <nac> TOK_XOR
+%token <nac> TOK_NOT
+%token <nac> TOK_AND
+%token <nac> TOK_TRUE
+%token <nac> TOK_FALSE
+%token <nac> TOK_LABEL
+%token <nac> TOK_TYPE
+%token <nac> TOK_TYPEPAR
+%token <nac> TOK_ENDTYPE
+%token <nac> TOK_REAL
+%token <nac> TOK_INTEGER
+%token <nac> TOK_LOGICAL
+%token <nac> TOK_DOUBLEPRECISION
+%token <nac> TOK_DOUBLEREAL
+%token <nac> TOK_ENDSUBROUTINE
+%token <nac> TOK_ENDFUNCTION
+%token <nac> TOK_ENDPROGRAM
+%token <nac> TOK_ENDUNIT
+%token <nac> TOK_CHARACTER
+%token <nac> TOK_CHAR_CONSTANT
+%token <nac> TOK_CHAR_CUT
+%token <nac> TOK_DATA
+%token <nac> TOK_CHAR_INT
+%token <nac> TOK_CHAR_MESSAGE
+%token <nac> TOK_CSTREAL
+%token <nac> TOK_CSTREALDP
+%token <nac> TOK_CSTREALQP
+%token <nac> TOK_SFREAL
+%token <nac> TOK_COMPLEX
+%token <nac> TOK_DOUBLECOMPLEX
+%token <nac> TOK_NAME
+%token <nac> TOK_NAME_CHAR
+%token <nac> TOK_PROBTYPE  /* dimension of the problem                        */
+%token <nac> TOK_INTERPTYPE/* kind of interpolation                           */
+%token <nac> TOK_VARTYPE   /* posit ion of the grid variable on the cells of  */
                           /*     the mesh                                     */
-%token <na> TOK_SLASH
-%token <na> TOK_BC        /* calculation of the boundary conditions           */
-%token <na> TOK_OP
-%token <na> TOK_CSTINT
-%token <na> TOK_COMMENT 
-%token <na> TOK_FILENAME
+%token <nac> TOK_SLASH
+%token <nac> TOK_BC        /* calculation of the boundary conditions           */
+%token <nac> TOK_OP
+%token <nac> TOK_CSTINT
+%token <nac> TOK_COMMENT
+%token <nac> TOK_FILENAME
 %token ','
-%token ';'
 %token ':'
 %token '('
-%token ')'   
+%token ')'
 %token '['
 %token ']'
 %token '!'
-%token '_' 
-%token '<' 
-%token '>' 
+%token '_'
+%token '<'
+%token '>'
 %type <l> dcl
+%type <l> after_type
 %type <l> dimension
 %type <l> paramlist
-%type <l> args  
+%type <l> args
+%type <l> arglist
 %type <lc> only_list
 %type <lc> only_name
 %type <lc> rename_list
 %type <lc> rename_name
-%type <lcom> common
-%type <lcom> var_common
-%type <lcom> var_common_list
 %type <d> dims
 %type <d> dimlist
 %type <dim1> dim
 %type <v> paramitem
-%type <na> comblock
-%type <na> name_routine
+%type <nac> comblock
+%type <nac> name_routine
+%type <nac> module_name
+%type <nac> opt_name
+%type <nac> type
+%type <nac> word_endsubroutine
+%type <nac> word_endfunction
+%type <nac> word_endprogram
+%type <nac> word_endunit
+%type <nac> typename
+%type <nac> typespec
+%type <nac> string_constant
+%type <nac> simple_const
+%type <nac> ident
+%type <nac> do_var
+%type <nac> intent_spec
+%type <nac> signe
+%type <nac> opt_signe
+%type <nac> filename
+%type <na> attribute
+%type <na> complex_const
 %type <na> begin_array
-%type <na> module_name
-%type <na> opt_name
 %type <na> clause
-%type <na> type
 %type <na> arg
-%type <na> typename
-%type <na> typespec
 %type <na> uexpr
 %type <na> minmaxlist
-%type <na> complex_const
 %type <na> lhs
-%type <na> simple_const
 %type <na> vec
-%type <na> outlist 
-%type <na> out2 
-%type <na> other 
-%type <na> dospec 
-%type <na> expr_data 
-%type <na> beforefunctionuse 
-%type <na> ident 
-%type <na> structure_component 
-%type <na> array_ele_substring_func_ref  
-%type <na> funarglist  
-%type <na> funarg  
-%type <na> funargs  
-%type <na> triplet  
-%type <na> substring  
-%type <na> string_constant  
-%type <na> opt_substring  
-%type <na> opt_expr  
-%type <na> optexpr  
-%type <na> datavallist  
-%type <na> after_slash  
+%type <na> outlist
+%type <na> out2
+%type <na> other
+%type <na> dospec
+%type <na> expr_data
+%type <na> structure_component
+%type <na> array_ele_substring_func_ref
+%type <na> funarglist
+%type <na> funarg
+%type <na> funargs
+%type <na> triplet
+%type <na> substring
+%type <na> opt_substring
+%type <na> opt_expr
+%type <na> optexpr
+%type <na> datavallist
+%type <na> after_slash
 %type <na> after_equal
 %type <na> predefinedfunction
-%type <na> do_var  
 %type <na> expr
-%type <na> word_endsubroutine
-%type <na> word_endfunction
-%type <na> word_endprogram
-%type <na> word_endunit
-%type <na> intent_spec
 %type <na> ubound
-%type <na> signe
-%type <na> opt_signe
 %type <na> operation
-%type <na> filename
 %type <na> proper_lengspec
+%type <lnn> use_name_list
+%type <lnn> public
 
 %left TOK_OP
 %%
@@ -333,17 +338,16 @@ line :  '\n' position
       | TOK_COMMENT
       | keyword cmnt writedeclar
       | error writedeclar nulcurbuf
-                   {yyerrok;yyclearin;}    
+                   {yyerrok;yyclearin;}
       ;
 suite_line_list : suite_line
-      |   suite_line ';' suite_line_list
+      |   suite_line_list TOK_SEMICOLON suite_line
       ;
-suite_line : entry fin_line/* subroutine, function, module                    */
+suite_line : entry fin_line  /* subroutine, function, module                    */
       | spec fin_line      /* declaration                                     */
       | before_include filename fin_line
                   {
-                     if (inmoduledeclare == 0 && 
-                         couldaddvariable == 1 )
+                     if (inmoduledeclare == 0 )
                      {
                         pos_end = setposcur();
                         RemoveWordSET_0(fortranout,pos_curinclude,
@@ -351,20 +355,20 @@ suite_line : entry fin_line/* subroutine, function, module                    */
                      }
                   }
       | exec cmnt writedeclar /* if, do etc ...                               */
-      | instr fin_line    /* instruction ident : do i = 1 ...                 */
+      | instr fin_line    /* instruction ident  : do i = 1 ...                */
       ;
 instr : ident ':'
       ;
 fin_line : position cmnt
       ;
-keyword : TOK_DONOTTREAT 
+keyword : TOK_DONOTTREAT
          {
-            /* we should ignore the declaration until the keyword   */
-            /*    TOK_ENDDONOTTREAT                                 */
+            /* we should ignore the declaration until the keyword             */
+            /*    TOK_ENDDONOTTREAT                                           */
             couldaddvariable = 0 ;
             RemoveWordCUR_0(fortranout,-20,20);
          }
-      | TOK_ENDDONOTTREAT 
+      | TOK_ENDDONOTTREAT
          {
              couldaddvariable = 1 ;
              RemoveWordCUR_0(fortranout,-24,24);
@@ -372,268 +376,275 @@ keyword : TOK_DONOTTREAT
       | TOK_OMP
       | TOK_DOLLAR
       ;
-position: {pos_cur = setposcur();}
+position : {pos_cur = setposcur();}
       ;
-thislabel: 
+thislabel :
       | TOK_LABEL nulcurbuf
       ;
-cmnt:
+cmnt :
       | TOK_COMMENT
       ;
-incomment:
+incomment :
                    {incom = 1;}
       ;
-nulcurbuf:
+nulcurbuf :
                    {if (incom !=1) {strcpy(curbuf,"");incom=0;}}
       ;
-entry: 
-      | TOK_SUBROUTINE name_routine arglist
+opt_recursive :
+      | TOK_RECURSIVE
+      ;
+entry :
+      | opt_recursive TOK_SUBROUTINE name_routine arglist
                    {
-                      Listofvariableinagriffunction=(listnom *)NULL;
-                      strcpy(subroutinename,$2);
+                      if ( couldaddvariable == 1 )
+                      {
+                      /* open param file                                      */
+                      if ( firstpass == 0 )
+                      {
+                         sprintf(ligne,"%s/ParamFile%s.h",nomdir,$3);
+                         paramout=fopen(ligne,"w");
+                         if ( retour77 == 0 ) fprintf(paramout,"!\n");
+                         else fprintf(paramout,"C\n");
+
+                      }
+                      Add_SubroutineArgument_Var_1($4);
                       if ( inmodulemeet == 1 )
                       {
-                         tmpdeclaration_everdone = 0;
-                         paramdeclaration_everdone = 0;
                          insubroutinedeclare = 1;
-                         AddUseAgrifUtil_0();
                          /* in the second step we should write the head of    */
                          /*    the subroutine sub_loop_<subroutinename>       */
                          writeheadnewsub_0(1);
-                         adduseagrifutil = 0 ; 
                       }
                       else
                       {
-                            tmpdeclaration_everdone = 0;
-                            paramdeclaration_everdone = 0;
                             insubroutinedeclare = 1;
-                            AddUseAgrifUtil_0();
                             writeheadnewsub_0(1);
-                            adduseagrifutil = 0 ; 
+                      }
                       }
                    }
       | TOK_PROGRAM name_routine
                    {
-                      Listofvariableinagriffunction=(listnom *)NULL;
+                      /* open param file                                      */
+                      if ( firstpass == 0 )
+                      {
+                         sprintf(ligne,"%s/ParamFile%s.h",nomdir,$2);
+                         paramout=fopen(ligne,"w");
+                         if ( retour77 == 0 ) fprintf(paramout,"!\n");
+                         else fprintf(paramout,"C\n");
+
+                      }
                       strcpy(subroutinename,$2);
                       /* Common case                                          */
-                         tmpdeclaration_everdone = 0;
-                         paramdeclaration_everdone = 0;
-                         insubroutinedeclare = 1;
-                         AddUseAgrifUtil_0();
-                         /* in the second step we should write the head of    */
-                         /*    the subroutine sub_loop_<subroutinename>       */
-                         writeheadnewsub_0(1);
-                         adduseagrifutil = 0 ;                       
+                      insubroutinedeclare = 1;
+                      /* in the second step we should write the head of       */
+                      /*    the subroutine sub_loop_<subroutinename>          */
+                      writeheadnewsub_0(1);
                    }
       | TOK_FUNCTION name_routine arglist TOK_RESULT arglist1
                    {
-                      Listofvariableinagriffunction=(listnom *)NULL;
+                      /* open param file                                      */
+                      if ( firstpass == 0 )
+                      {
+                         sprintf(ligne,"%s/ParamFile%s.h",nomdir,$2);
+                         paramout=fopen(ligne,"w");
+                         if ( retour77 == 0 ) fprintf(paramout,"!\n");
+                         else fprintf(paramout,"C\n");
+                      }
                       strcpy(subroutinename,$2);
                       if ( inmodulemeet == 1 )
                       {
-                         tmpdeclaration_everdone = 0;
-                         paramdeclaration_everdone = 0;
                          insubroutinedeclare = 1;
-                         AddUseAgrifUtil_0();
                          /* we should to list of the subroutine argument the  */
                          /*    name of the function which has to be defined   */
-                         if ( firstpass == 1 ) 
-                         {
-                            curvar=createvar($2,NULL);
-                            curlistvar=insertvar(NULL,curvar);
-                            listargsubroutine = AddListvarToListvar(curlistvar,listargsubroutine,1);
-                         }
+                         Add_SubroutineArgument_Var_1($3);
+                         strcpy(DeclType,"");
                          /* in the second step we should write the head of    */
                          /*    the subroutine sub_loop_<subroutinename>       */
                          writeheadnewsub_0(2);
-                         adduseagrifutil = 0 ; 
                       }
                       else
                       {
-                            tmpdeclaration_everdone = 0;
-                            paramdeclaration_everdone = 0;
                             insubroutinedeclare = 1;
-                            AddUseAgrifUtil_0();
                             /* we should to list of the subroutine argument   */
                             /* name of the function which has to be defined   */
-                            if ( firstpass == 1 ) 
-                            {
-                               curvar=createvar($2,NULL);
-                               curlistvar=insertvar(NULL,curvar);
-                               listargsubroutine = AddListvarToListvar
-                                               (curlistvar,listargsubroutine,1);
-                            }
+                            Add_SubroutineArgument_Var_1($3);
+                            strcpy(DeclType,"");
+                            Add_FunctionType_Var_1($2);
                             writeheadnewsub_0(2);
-                            adduseagrifutil = 0 ; 
                       }
                    }
       | TOK_FUNCTION name_routine arglist
                    {
-                      Listofvariableinagriffunction=(listnom *)NULL;
+                      /* open param file                                      */
+                      if ( firstpass == 0 )
+                      {
+                         sprintf(ligne,"%s/ParamFile%s.h",nomdir,$2);
+                         paramout=fopen(ligne,"w");
+                         if ( retour77 == 0 ) fprintf(paramout,"!\n");
+                         else fprintf(paramout,"C\n");
+                      }
                       strcpy(subroutinename,$2);
                       if ( inmodulemeet == 1 )
                       {
-                         tmpdeclaration_everdone = 0;
-                         paramdeclaration_everdone = 0;
                          insubroutinedeclare = 1;
-                         AddUseAgrifUtil_0();
                          /* we should to list of the subroutine argument the  */
                          /*    name of the function which has to be defined   */
-                         if ( firstpass == 1 ) 
-                         {
-                            curvar=createvar($2,NULL);
-                            curlistvar=insertvar(NULL,curvar);
-                            listargsubroutine = AddListvarToListvar
-                                               (curlistvar,listargsubroutine,1);
-                         }
+                         Add_SubroutineArgument_Var_1($3);
+                         strcpy(DeclType,"");
+                         Add_FunctionType_Var_1($2);
                          /* in the second step we should write the head of    */
                          /*    the subroutine sub_loop_<subroutinename>       */
                          writeheadnewsub_0(2);
-                         adduseagrifutil = 0 ; 
                       }
                       else
                       {
-                            tmpdeclaration_everdone = 0;
-                            paramdeclaration_everdone = 0;
                             insubroutinedeclare = 1;
-                            AddUseAgrifUtil_0();
                             /* we should to list of the subroutine argument   */
                             /* name of the function which has to be defined   */
-                            if ( firstpass == 1 ) 
-                            {
-                               curvar=createvar($2,NULL);
-                               curlistvar=insertvar(NULL,curvar);
-                               listargsubroutine = AddListvarToListvar
-                                               (curlistvar,listargsubroutine,1);
-                            }
+                            Add_SubroutineArgument_Var_1($3);
+                            strcpy(DeclType,"");
+                            Add_FunctionType_Var_1($2);
                             writeheadnewsub_0(2);
-                            adduseagrifutil = 0 ; 
                       }
                    }
       | TOK_MODULE TOK_NAME
                    {
+                      GlobalDeclaration = 0;
                       strcpy(curmodulename,$2);
-                      Add_ModuleTo_Modulelist_1($2);
+                      strcpy(subroutinename,"");
+                      Add_NameOfModule_1($2);
                       if ( inmoduledeclare == 0 )
-                      { 
-                         /* Alloc should be create ?                          */
-                         FillInlistmodule_1();   
+                      {
                          /* To know if there are in the module declaration    */
                          inmoduledeclare = 1;
                          /* to know if a module has been met                  */
                          inmodulemeet = 1;
                          /* to know if we are after the keyword contains      */
                          aftercontainsdeclare = 0 ;
-                      }      
-                      /* WE should use Agrif_Util if it is necessary          */
-                      AddUseAgrifInModuleDeclaration_0();
+                      }
                    }
       ;
-name_routine : TOK_NAME {strcpy($$,$1);strcpy(subroutinename,$1);}
+name_routine : TOK_NAME
+                   {
+                      if ( couldaddvariable == 1 )
+                      {
+                         strcpy($$,$1);strcpy(subroutinename,$1);
+                      }
+                   }
 writedeclar :
       ;
 before_include : TOK_INCLUDE
                    {
                       pos_curinclude = setposcur()-9;
-                   }      
-filename: TOK_CHAR_CONSTANT
+                   }
+filename : TOK_CHAR_CONSTANT
                    {
-                      if ( couldaddvariable == 1 )
-                      {
-                         Addincludetothelist_1($1);
-                      }                   
+                      if ( couldaddvariable == 1 ) Add_Include_1($1);
                    }
       ;
-arglist: 
+arglist :           {
+                      if ( firstpass == 1 && couldaddvariable == 1) $$=NULL;
+                   }
       | '(' ')'    {
-                      if ( firstpass == 1 ) listargsubroutine=NULL;
+                      if ( firstpass == 1 && couldaddvariable == 1 ) $$=NULL;
                    }
       | '(' args ')'
                    {
-                       if ( firstpass == 1 ) listargsubroutine=$2;
+                       if ( firstpass == 1 && couldaddvariable == 1 ) $$=$2;
                    }
       ;
-arglist1: 
+arglist1:
       | '(' ')'
       | '(' args ')'
                    {
-                       listargsubroutine = AddListvarToListvar
-                                                       ($2,listargsubroutine,1);
-                   }
-      ;
-args:arg           {
-                      if ( firstpass == 1 )
+                      if ( couldaddvariable == 1 )
                       {
-                         curvar=createvar($1,curdim);
-                         curlistvar=insertvar(NULL,curvar);
-                         $$=settype($1,curlistvar);
+                         Add_SubroutineArgument_Var_1($2);
                       }
                    }
-      | args ',' arg 
-                   {
-                      if ( firstpass == 1 )
+      ;
+args :arg           {
+                      if ( firstpass == 1  && couldaddvariable == 1)
                       {
-                         curvar=createvar($3,curdim);
+                         strcpy(nameinttypenameback,nameinttypename);
+                         strcpy(nameinttypename,"");
+                         curvar=createvar($1,NULL);
+                        strcpy(nameinttypename,nameinttypenameback);
+                         curlistvar=insertvar(NULL,curvar);
+                         $$=settype("",curlistvar);
+                      }
+                   }
+      | args ',' arg
+                   {
+                      if ( firstpass == 1  && couldaddvariable == 1)
+                      {
+                         strcpy(nameinttypenameback,nameinttypename);
+                         strcpy(nameinttypename,"");                      
+                         curvar=createvar($3,NULL);
+                         strcpy(nameinttypename,nameinttypenameback);                         
                          $$=insertvar($1,curvar);
                       }
                    }
       ;
-arg: TOK_NAME      {strcpy($$,$1);}
-      | '*'        {strcpy($$,"*");}
-      ; 
-spec: type after_type
+arg : TOK_NAME      {if ( couldaddvariable == 1 ) strcpy($$,$1);}
+      | '*'        {if ( couldaddvariable == 1 ) strcpy($$,"*");}
+      ;
+spec : type after_type
                    {
-                      /* remove declaration                                   */
-                      if ( fortran77 == 1                       && 
-                           infunctiondeclare == 0               && 
-                           IsTabvarsUseInArgument_0() == 1      &&
-                           couldaddvariable == 1 ) 
-/*                           commonlist                           && */
+                      if ( VarTypepar == 1 )
                       {
+                         couldaddvariable = 1 ;
+                         VarTypepar = 0;
+                      }
+                   }
+      | TOK_TYPE opt_spec opt_sep opt_name
+                   {
+                      if ( couldaddvariable == 1 )
+                      {
+                         VarType = 1;
+                         couldaddvariable = 0 ;
+                      }
+                   }
+      | TOK_ENDTYPE opt_name
+                   {
+                      if ( VarType == 1 ) couldaddvariable = 1 ;
+                      VarType = 0;
+                      VarTypepar = 0;
+                   }
+      | TOK_POINTER list_couple
+      | before_parameter  '(' paramlist ')'
+                   {
+                      if ( couldaddvariable == 1 )
+                      {
+                         if ( insubroutinedeclare == 0 )
+                                                  Add_GlobalParameter_Var_1($3);
+                         else Add_Parameter_Var_1($3);
+                         pos_end = setposcur();
+                        RemoveWordSET_0(fortranout,pos_cur_decl,
+                                                    pos_end-pos_cur_decl);
+                      }
+                      VariableIsParameter =  0 ;
+                   }
+      | before_parameter  paramlist
+                   {
+                     if ( couldaddvariable == 1 )
+                     {
+                        if ( insubroutinedeclare == 0 )
+                                                  Add_GlobalParameter_Var_1($2);
+                         else Add_Parameter_Var_1($2);
                          pos_end = setposcur();
                          RemoveWordSET_0(fortranout,pos_cur_decl,
-                                               pos_end-pos_cur_decl);
+                                                    pos_end-pos_cur_decl);
                       }
-                      infunctiondeclare = 0 ;
-                   }
-      | TOK_TYPE opt_sep opt_name
-/*      {
-         couldaddvariable = 0;
-      }*/
-      | TOK_ENDTYPE opt_name
-/*      {
-         couldaddvariable = 1;
-      }*/
-      | TOK_POINTER list_couple
-      | before_parameter  '(' paramlist ')' 
-                   {
-                      AddvartoParamlist_1($3);
-                      if ( fortran77 == 1  && 
-                           commonlist      && 
-                           listvarindoloop && 
-                           IsTabvarsUseInArgument_0() == 1 )
-                      {
-                         pos_end = setposcur();
-                         RemoveWordSET_0(fortranout,pos_curparameter,
-                                               pos_end-pos_curparameter);
-                      }
-                   }
-      | before_parameter  paramlist 
-                   {
-                      AddvartoParamlist_1($2);
-                      if ( fortran77 == 1  && 
-                           commonlist      && 
-                           listvarindoloop && 
-                           IsTabvarsUseInArgument_0() == 1 )
-                      {
-                         pos_end = setposcur();
-                         RemoveWordSET_0(fortranout,pos_curparameter,
-                                               pos_end-pos_curparameter);
-                      }
+                      VariableIsParameter =  0 ;
                    }
       | common
       | save
+                  {
+                     pos_end = setposcur();
+                     RemoveWordSET_0(fortranout,pos_cursave,
+                                                pos_end-pos_cursave);
+                  }
       | implicit
       | dimension
                   {
@@ -642,53 +653,74 @@ spec: type after_type
                    /*    create a copy of it on each grid                     */
                       if ( couldaddvariable == 1 )
                       {
-                         ajoutevar_1($1);
-                         NonGridDepDeclaration_0($1);
-                         /* if variables has been declared in a subroutine    */
+                         Add_Globliste_1($1);
+                         /* if variableparamlists has been declared in a      */
+                         /*    subroutine                                     */
                          if ( insubroutinedeclare == 1 )
                          {
-                           ajoutvarofsubroutine_1($1);
-                           writesubroutinedeclaration_0($1);
+                            Add_Dimension_Var_1($1);
                          }
+                         pos_end = setposcur();
+                         RemoveWordSET_0(fortranout,pos_curdimension,
+                                                pos_end-pos_curdimension);
                       }
-                      /* Case of common block                                 */
-                      indeclarationvar=0;
-                      PublicDeclare = 0;  
-                      PrivateDeclare = 0; 
-                      ExternalDeclare = 0; 
-                      strcpy(NamePrecision,"");  
+                      /*                                                      */
+                      PublicDeclare = 0;
+                      PrivateDeclare = 0;
+                      ExternalDeclare = 0;
+                      strcpy(NamePrecision,"");
                       c_star = 0;
                       InitialValueGiven = 0 ;
                       strcpy(IntentSpec,"");
-                      VariableIsParameter =  0 ; 
+                      VariableIsParameter =  0 ;
                       Allocatabledeclare = 0 ;
                       SaveDeclare = 0;
                       pointerdeclare = 0;
                       optionaldeclare = 0 ;
                       dimsgiven=0;
                       c_selectorgiven=0;
-                      strcpy(nameinttypename,"");  
+                      strcpy(nameinttypename,"");
+                      strcpy(c_selectorname,"");
                    }
       | public
+      {
+      if (firstpass == 0)
+      {
+      if ($1)
+      {
+      removeglobfromlist(&($1));
+      pos_end = setposcur();
+           RemoveWordSET_0(fortranout,pos_cur,pos_end-pos_cur);
+      writelistpublic($1);
+      }
+      }
+      }
       | private
       | use_stat
       | module_proc_stmt
-      | interface 
+      | interface
       | namelist
       | TOK_BACKSPACE '(' expr ')'
       | TOK_EXTERNAL opt_sep use_name_list
       | TOK_INTRINSIC opt_sep use_intrinsic_list
-      | TOK_EQUIVALENCE '(' list_expr ')'
+      | TOK_EQUIVALENCE list_expr_equi
       | before_data data '\n'
                    {
                       /* we should remove the data declaration                */
-                     if ( aftercontainsdeclare == 0 )
-                     {
+                      if ( couldaddvariable == 1 && aftercontainsdeclare == 0 )
+                      {
                         pos_end = setposcur();
                         RemoveWordSET_0(fortranout,pos_curdata,
                                               pos_end-pos_curdata);
-                     }
+                      }
                   }
+      ;
+opt_spec :
+      | access_spec
+      {
+         PublicDeclare = 0 ;
+         PrivateDeclare = 0 ;
+      }
       ;
 name_intrinsic : TOK_SUM
       | TOK_TANH
@@ -717,147 +749,172 @@ name_intrinsic : TOK_SUM
       ;
 use_intrinsic_list : name_intrinsic
       | use_intrinsic_list ',' name_intrinsic
-list_couple : '(' list_expr ')' 
-      | list_couple ',' '(' list_expr ')' 
+      ;
+list_couple : '(' list_expr ')'
+      | list_couple ',' '(' list_expr ')'
+      ;
+list_expr_equi : expr_equi
+      | list_expr_equi ',' expr_equi
+      ;
+expr_equi : '(' list_expr_equi1 ')'
+      ;
+list_expr_equi1 : ident dims
+      | list_expr_equi1 ',' ident dims
+      ;
 list_expr : expr
       | list_expr ',' expr
+      ;
 opt_sep :
       | ':' ':'
       ;
-after_type : dcl nodimsgiven 
+after_type : dcl nodimsgiven
                    {
-                   /* if the variable is a parameter we can suppose that is   */
-                   /*    value is the same on each grid. It is not useless to */
-                   /*    create a copy of it on each grid                     */
+                      /* if the variable is a parameter we can suppose that is*/
+                      /*    value is the same on each grid. It is not useless */
+                      /*    to create a copy of it on each grid               */
                       if ( couldaddvariable == 1 )
                       {
-                         ajoutevar_1($1);
-                         if ( VariableIsParameter == 1 ) globparam =
-                                            AddListvarToListvar($1,globparam,1);
-                         NonGridDepDeclaration_0($1);
+                      pos_end = setposcur();
+                      /*if (insubroutinedeclare == 0)
+                        {   */
+                         RemoveWordSET_0(fortranout,pos_cur_decl,
+                                                 pos_end-pos_cur_decl);
+                                         
+                       /* }
+                      else
+                       {*/
+                        ReWriteDeclarationAndAddTosubroutine_01($1);
+                        pos_cur_decl = setposcur();
+                        
+                       /*}*/
+                      if ( firstpass == 0 &&
+                           GlobalDeclaration == 0 &&
+                           insubroutinedeclare == 0 )
+                      {
+                         sprintf(ligne,"\n#include \"Module_Declar_%s.h\"\n"
+                                                                ,curmodulename);
+                         tofich(fortranout,ligne,1);
+                         sprintf (ligne, "Module_Declar_%s.h",curmodulename);
+                         module_declar = associate(ligne);
+                         sprintf (ligne, " ");
+                         tofich (module_declar, ligne,1);
+                         GlobalDeclaration = 1 ;
+                      }
+                         $$ = $1;
+                         Add_Globliste_1($1);
+                                                  
+                         if ( insubroutinedeclare == 0 )
+                                                  Add_GlobalParameter_Var_1($1);
+                         else
+                         {
+                            if ( pointerdeclare == 1 )
+                                                Add_Pointer_Var_From_List_1($1);
+                            Add_Parameter_Var_1($1);
+                         }
+
                          /* if variables has been declared in a subroutine    */
                          if ( insubroutinedeclare == 1 )
-                         {
-                           ajoutvarofsubroutine_1($1);
-                           writesubroutinedeclaration_0($1);
+                         { 
+                       /*    Add_SubroutineDeclaration_Var_1($1);*/
                          }
                          /* If there are a SAVE declarations in module's      */
                          /*    subroutines we should remove it from the       */
                          /*    subroutines declaration and add it in the      */
                          /*    global declarations                            */
-                         if ( aftercontainsdeclare == 1 ) 
+                         if ( aftercontainsdeclare == 1 &&
+                              SaveDeclare == 1 && firstpass == 1 )
                          {
-                            ajoutevarsave_1($1);
-                            if ( VariableIsParameter == 0 && SaveDeclare == 1) 
-                            {
-                               pos_end = setposcur();
-                               RemoveWordSET_0(fortranout,pos_cur,
-                                               pos_end-pos_cur);
-                            }
+                              if ( inmodulemeet == 0 ) Add_Save_Var_dcl_1($1);
+                              else  Add_SubroutineDeclarationSave_Var_1($1);
                          }
                       }
-                      /* Case of common block                                 */
-                      indeclarationvar=0;
-                      PublicDeclare = 0;  
-                      PrivateDeclare = 0; 
-                      ExternalDeclare = 0; 
-                      strcpy(NamePrecision,"");  
+                      /*                                                      */
+                      PublicDeclare = 0;
+                      PrivateDeclare = 0;
+                      ExternalDeclare = 0;
+                      strcpy(NamePrecision,"");
                       c_star = 0;
                       InitialValueGiven = 0 ;
                       strcpy(IntentSpec,"");
-                      VariableIsParameter =  0 ; 
+                      VariableIsParameter =  0 ;
                       Allocatabledeclare = 0 ;
                       SaveDeclare = 0;
                       pointerdeclare = 0;
                       optionaldeclare = 0 ;
                       dimsgiven=0;
                       c_selectorgiven=0;
-                      strcpy(nameinttypename,"");  
+                      strcpy(nameinttypename,"");
+                      strcpy(c_selectorname,"");
                    }
-      | TOK_FUNCTION TOK_NAME arglist
+      | before_function name_routine arglist
                    {
-                      infunctiondeclare = 1 ;
-                      Listofvariableinagriffunction=(listnom *)NULL;
+                      /* open param file                                      */
+                      if ( firstpass == 0 )
+                      {
+                         sprintf(ligne,"%s/ParamFile%s.h",nomdir,$2);
+                         paramout=fopen(ligne,"w");
+                         if ( retour77 == 0 ) fprintf(paramout,"!\n");
+                         else fprintf(paramout,"C\n");
+                      }
                       strcpy(subroutinename,$2);
                       if ( inmodulemeet == 1 )
                       {
-                         tmpdeclaration_everdone = 0;
-                         paramdeclaration_everdone = 0;
                          insubroutinedeclare = 1;
-                         AddUseAgrifUtil_0();
                          /* we should to list of the subroutine argument the  */
                          /*    name of the function which has to be defined   */
-                         if ( firstpass == 1 ) 
-                         {
-                            curvar=createvar($2,NULL);
-                            strcpy(curvar->typevar,DeclType);
-                            curlistvar=insertvar(NULL,curvar);
-                            listargsubroutine = AddListvarToListvar
-                                               (curlistvar,listargsubroutine,1);
-                            curvar=createvar($2,NULL);
-                            strcpy(curvar->typevar,DeclType);
-                            strcpy(curvar->modulename,subroutinename);
-                            curlistvar=insertvar(NULL,curvar);        
-                            varofsubroutineliste = AddListvarToListvar
-                                            (curlistvar,varofsubroutineliste,1);
-                         }
-                         if ( firstpass == 0 )
-                         {
-                            curvar=createvar($2,NULL);
-                            strcpy(curvar->typevar,DeclType);
-                            functionlistvar=insertvar(NULL,curvar);
-                         }
+                         Add_SubroutineArgument_Var_1($3);
+                         Add_FunctionType_Var_1($2);
                          /* in the second step we should write the head of    */
                          /*    the subroutine sub_loop_<subroutinename>       */
                          writeheadnewsub_0(2);
-                         adduseagrifutil = 0 ; 
                       }
                       else
                       {
-                         tmpdeclaration_everdone = 0;
-                         paramdeclaration_everdone = 0;
                          insubroutinedeclare = 1;
-                         AddUseAgrifUtil_0();
                          /* we should to list of the subroutine argument the  */
                          /*    name of the function which has to be defined   */
-                         if ( firstpass == 1 ) 
-                         {
-                            curvar=createvar($2,NULL);
-                            strcpy(curvar->typevar,DeclType);
-                            curlistvar=insertvar(NULL,curvar);
-                            listargsubroutine = AddListvarToListvar
-                                               (curlistvar,listargsubroutine,1);
-                            curvar=createvar($2,NULL);
-                            strcpy(curvar->typevar,DeclType);
-                            strcpy(curvar->modulename,subroutinename);
-                            curlistvar=insertvar(NULL,curvar);        
-                            varofsubroutineliste = AddListvarToListvar
-                                            (curlistvar,varofsubroutineliste,1);
-                         }
+                         Add_SubroutineArgument_Var_1($3);
+                         Add_FunctionType_Var_1($2);
                          /* in the second step we should write the head of    */
                          /*    the subroutine sub_loop_<subroutinename>       */
                          writeheadnewsub_0(2);
-                         adduseagrifutil = 0 ; 
                       }
+                      strcpy(nameinttypename,"");
+
                    }
       ;
+before_function : TOK_FUNCTION
+                   {
+                       functiondeclarationisdone = 1;
+                   }
+                   ;
+
 before_parameter : TOK_PARAMETER
                    {
+                      VariableIsParameter = 1;
                       pos_curparameter = setposcur()-9;
-                   }      
+                   }
 before_data : TOK_DATA
                    {
-                      pos_curdata = setposcur()-4;
+                      pos_curdata = setposcur()-strlen($1);
                    }
-data: TOK_NAME TOK_SLASH datavallist TOK_SLASH
+data : TOK_NAME TOK_SLASH datavallist TOK_SLASH
                    {
-                      sprintf(ligne,"(/ %s /)",$3);
-                      CompleteDataList($1,ligne);
+                      if ( couldaddvariable == 1 )
+                      {
+                      if ( aftercontainsdeclare == 1 ) strcpy(ligne,"");
+                      else sprintf(ligne,"(/ %s /)",$3);
+                      Add_Data_Var_1($1,ligne);
+                      }
                    }
       | data opt_comma TOK_NAME TOK_SLASH datavallist TOK_SLASH
                    {
-                      sprintf(ligne,"(/ %s /)",$5);
-                      CompleteDataList($3,ligne);
+                      if ( couldaddvariable == 1 )
+                      {
+                      if ( aftercontainsdeclare == 1 ) strcpy(ligne,"");
+                      else sprintf(ligne,"(/ %s /)",$5);
+                      Add_Data_Var_1($3,ligne);
+                      }
                    }
       | datanamelist TOK_SLASH datavallist TOK_SLASH
                    {
@@ -870,89 +927,90 @@ data: TOK_NAME TOK_SLASH datavallist TOK_SLASH
                        /*******************************************************/
                    }
       ;
-datanamelist : TOK_NAME
-      | datanamelist ',' TOK_NAME
-      ;
 datavallist : expr_data
                    {
-                      strcpy($$,$1);
+                      if ( couldaddvariable == 1 )
+                      {
+                         strcpy($$,$1);
+                      }
                    }
-      | expr_data ',' datavallist 
+      | expr_data ',' datavallist
                    {
-                      sprintf($$,"%s,%s",$1,$3);
+                      if ( couldaddvariable == 1 )
+                      {
+                         sprintf($$,"%s,%s",$1,$3);
+                      }
                    }
+      ;
+
+save :  before_save varsave
+      | before_save  comblock varsave
+      | save opt_comma comblock opt_comma varsave
+      | save ',' varsave
+      ;
+before_save : TOK_SAVE
+                  {
+                     pos_cursave = setposcur()-4;
+                  }
+      ;
+varsave :
+      | TOK_NAME dims
+                  {
+                     if ( couldaddvariable == 1 ) Add_Save_Var_1($1,$2);
+                  }
+      ;
+datanamelist : TOK_NAME
+      | TOK_NAME '(' expr ')'
+      | datanamelist ',' datanamelist
       ;
 expr_data : opt_signe simple_const
-                   {sprintf($$,"%s%s",$1,$2);}
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s%s",$1,$2);}
       | expr_data '+' expr_data
-                   {sprintf($$,"%s+%s",$1,$3);}
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s+%s",$1,$3);}
       | expr_data '-' expr_data
-                   {sprintf($$,"%s-%s",$1,$3);}
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s-%s",$1,$3);}
       | expr_data '*' expr_data
-                   {sprintf($$,"%s*%s",$1,$3);}
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s*%s",$1,$3);}
       | expr_data '/' expr_data
-                   {sprintf($$,"%s/%s",$1,$3);}
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s/%s",$1,$3);}
       ;
-opt_signe : 
-                   {strcpy($$,"");}
+opt_signe :
+                   {if ( couldaddvariable == 1 ) strcpy($$,"");}
       | signe
-                   {strcpy($$,$1);}
+                   {if ( couldaddvariable == 1 ) strcpy($$,$1);}
       ;
-namelist:  namelist_action after_namelist
+namelist :  namelist_action after_namelist
       ;
-namelist_action : TOK_NAMELIST  ident 
+namelist_action : TOK_NAMELIST  ident
       | TOK_NAMELIST  comblock ident
-      {
-         AddNameToListNamelist_1($2);
-      }
       | namelist_action opt_comma comblock opt_comma ident
-      {
-         AddNameToListNamelist_1($3);
-      }
       | namelist_action ',' ident
       ;
 after_namelist :
       ;
-interface: TOK_INTERFACE opt_name
+interface : TOK_INTERFACE opt_name
       | TOK_ENDINTERFACE opt_name
       ;
-dimension: TOK_DIMENSION  opt_comma TOK_NAME dims lengspec
+before_dimension : TOK_DIMENSION
+                   {
+                      positioninblock=0;
+                      pos_curdimension = setposcur()-9;
+                   }
+
+dimension :  before_dimension opt_comma TOK_NAME dims lengspec
       {
          if ( couldaddvariable == 1 )
          {
-            if ( inmoduledeclare == 1 || SaveDeclare == 1 )
-            {
-               if ( AllocShouldMadeInModule() == 1 ) 
-               {
-                 AllocTo1InModule_1();
-               }
-            }      
             /*                                                                */
             curvar=createvar($3,$4);
             /*                                                                */
-            if ( IsVariableReal($3) == 1 )
-            {
-               /*                                                             */
-               CreateAndFillin_Curvar("REAL",$3,$4,curvar);
-               /*                                                             */
-               curlistvar=insertvar(NULL,curvar);
-               /*                                                             */
-               $$=settype("REAL",curlistvar);
-            }
-            else
-            {
-               /*                                                             */
-               CreateAndFillin_Curvar("INTEGER",$3,$4,curvar);
-               /*                                                             */
-               curlistvar=insertvar(NULL,curvar);
-               /*                                                             */
-               $$=settype("INTEGER",curlistvar);
-            }
+            CreateAndFillin_Curvar("",curvar);
+            /*                                                                */
+            curlistvar=insertvar(NULL,curvar);
+            /*                                                                */
+            $$=settype("",curlistvar);
+            /*                                                                */
             strcpy(vallengspec,"");
-         }
-         else
-         {
-            /* mazauric*/
          }
       }
       | dimension ',' TOK_NAME dims lengspec
@@ -962,63 +1020,52 @@ dimension: TOK_DIMENSION  opt_comma TOK_NAME dims lengspec
             /*                                                                */
             curvar=createvar($3,$4);
             /*                                                                */
-            if ( IsVariableReal($3) == 1 )
-            {
-               /*                                                             */
-               CreateAndFillin_Curvar("REAL",$3,$4,curvar);
-               /*                                                             */
-               curlistvar=insertvar($1,curvar);
-               /*                                                             */
-               $$=curlistvar;
-            }
-            else
-            {
-               /*                                                             */
-               CreateAndFillin_Curvar("INTEGER",$3,$4,curvar);
-               /*                                                             */
-               curlistvar=insertvar($1,curvar);
-               /*                                                             */
-               $$=curlistvar;
-            }
+            CreateAndFillin_Curvar("",curvar);
+            /*                                                                */
+            curlistvar=insertvar($1,curvar);
+            /*                                                                */
+            $$=curlistvar;
+            /*                                                                */
             strcpy(vallengspec,"");
-         }         
-         else
-         {
-            /* mazauric*/
          }
       }
       ;
-private: TOK_PRIVATE '\n'
+private : TOK_PRIVATE '\n'
       | TOK_PRIVATE opt_sep use_name_list
       ;
-public: TOK_PUBLIC '\n'
-      | TOK_PUBLIC opt_sep use_name_list 
+public : TOK_PUBLIC '\n'
+        {
+        $$=(listname *)NULL;
+        }
+      | TOK_PUBLIC opt_sep use_name_list
+         {
+          $$=$3;
+         }
       ;
-use_name_list: TOK_NAME 
+use_name_list : TOK_NAME
+           {
+           $$ = Insertname(NULL,$1);
+           }
       | use_name_list ',' TOK_NAME
+          {
+          $$ = Insertname($1,$3);
+          }
       ;
-common: before_common var_common_list
+common : before_common var_common_list
                    {
-                         if (fortran77 == 1 &&
-                             couldaddvariable == 1 )
-                         {
-                            pos_end = setposcur();
-                            RemoveWordSET_0(fortranout,pos_curcommon,
+                         pos_end = setposcur();
+                         RemoveWordSET_0(fortranout,pos_curcommon,
                                                   pos_end-pos_curcommon);
-                         }
                    }
       | before_common comblock var_common_list
                    {
                          if ( couldaddvariable == 1 )
                          {
                             sprintf(charusemodule,"%s",$2);
-                            Add_ModuleTo_Modulelist_1($2);
-                            if ( fortran77 == 1 )
-                            {
-                               pos_end = setposcur();
-                               RemoveWordSET_0(fortranout,pos_curcommon,
-                                                     pos_end-pos_curcommon);
-                            }
+                            Add_NameOfCommon_1($2);
+                            pos_end = setposcur();
+                            RemoveWordSET_0(fortranout,pos_curcommon,
+                                                       pos_end-pos_curcommon);
                          }
                    }
       | common opt_comma comblock opt_comma var_common_list
@@ -1026,13 +1073,10 @@ common: before_common var_common_list
                          if ( couldaddvariable == 1 )
                          {
                             sprintf(charusemodule,"%s",$3);
-                            Add_ModuleTo_Modulelist_1($3);
-                            if ( fortran77 == 1 )
-                            {
-                               pos_end = setposcur();
-                               RemoveWordSET_0(fortranout,pos_curcommon,
-                                                     pos_end-pos_curcommon);
-                            }
+                            Add_NameOfCommon_1($3);
+                            pos_end = setposcur();
+                            RemoveWordSET_0(fortranout,pos_curcommon,
+                                                       pos_end-pos_curcommon);
                          }
                    }
       ;
@@ -1049,16 +1093,16 @@ before_common : TOK_COMMON
       ;
 var_common_list : var_common
                    {
-                      if ( couldaddvariable == 1 ) Addtolistvarcommon();
+                      if ( couldaddvariable == 1 ) Add_Common_var_1();
                    }
 
      | var_common_list ',' var_common
                    {
-                      if ( couldaddvariable == 1 ) Addtolistvarcommon();
+                      if ( couldaddvariable == 1 ) Add_Common_var_1();
                    }
-var_common: TOK_NAME dims  
+var_common : TOK_NAME dims
                    {
-                      if ( couldaddvariable == 1 ) 
+                      if ( couldaddvariable == 1 )
                       {
                          positioninblock = positioninblock + 1 ;
                          strcpy(commonvar,$1);
@@ -1066,18 +1110,18 @@ var_common: TOK_NAME dims
                       }
                    }
       ;
-comblock: TOK_DSLASH 
+comblock : TOK_DSLASH
                    {
-                      if ( couldaddvariable == 1 ) 
+                      if ( couldaddvariable == 1 )
                       {
                          strcpy($$,"");
                          positioninblock=0;
                          strcpy(commonblockname,"");
                       }
                    }
-      | TOK_SLASH TOK_NAME TOK_SLASH 
+      | TOK_SLASH TOK_NAME TOK_SLASH
                    {
-                      if ( couldaddvariable == 1 ) 
+                      if ( couldaddvariable == 1 )
                       {
                          strcpy($$,$2);
                          positioninblock=0;
@@ -1085,83 +1129,54 @@ comblock: TOK_DSLASH
                       }
                    }
       ;
-save: TOK_SAVE varsave
-      | TOK_SAVE  comblock varsave
-      | save opt_comma comblock opt_comma varsave
-      | save ',' varsave
-      ;
-varsave: 
-      | TOK_NAME before_dims dims 
-      {created_dimensionlist = 1;}
-      ;
-      
-opt_comma:
+opt_comma :
       | ','
       ;
-paramlist: paramitem
+paramlist : paramitem
                    {
-                      if ( firstpass == 1 ) $$=insertvar(NULL,$1);
+                      if ( couldaddvariable == 1 ) $$=insertvar(NULL,$1);
                    }
       | paramlist ',' paramitem
                    {
-                      if ( firstpass == 1 ) $$=insertvar($1,$3);
+                      if ( couldaddvariable == 1 ) $$=insertvar($1,$3);
                    }
       ;
 paramitem : TOK_NAME '=' expr
                    {
-                      if ( firstpass == 1 )
-                      {
+                     if ( couldaddvariable == 1 )
+                     {
                          curvar=(variable *) malloc(sizeof(variable));
-                         curvar->dimension=(listdim *)NULL;
-                         curvar->nbdim=0;
-                         curvar->common=0;
-                         curvar->positioninblock=0;
-                         curvar->module=0; 
-                         curvar->save=0;
-                         curvar->VariableIsParameter=0;
-                         curvar->PublicDeclare=0;
-                         curvar->PrivateDeclare=0;
-                         curvar->ExternalDeclare=0;
-                         curvar->pointedvar=0;
-                         curvar->dimensiongiven=0;
-                         curvar->c_star=0;
-                         curvar->typegiven=0;
-                         curvar->indicetabvars=0; 
-                         curvar->pointerdeclare=0; 
-                         curvar->optionaldeclare=0;
-                         curvar->allocatable=0; 
-                         curvar->dimsempty=0;
-                         strcpy(curvar->nomvar,$1);
-                         strcpy(curvar->subroutinename,subroutinename);
-                         strcpy(curvar->modulename,subroutinename);
-                         strcpy(curvar->vallengspec,"");
-                         strcpy(curvar->precision,"");
-                         strcpy(curvar->nameinttypename,"");
-                         strcpy(curvar->IntentSpec,"");
-                         strcpy(curvar->dimchar,"");
-                         strcpy(curvar->initialvalue,$3);
+                         /*                                                   */
+                         Init_Variable(curvar);
+                         /*                                                   */
+                         curvar->v_VariableIsParameter=1;
+                         strcpy(curvar->v_nomvar,$1);
+                         Save_Length($1,4);
+                         strcpy(curvar->v_subroutinename,subroutinename);
+                         Save_Length(subroutinename,11);
+                         strcpy(curvar->v_modulename,curmodulename);
+                         Save_Length(curmodulename,6);
+                         strcpy(curvar->v_initialvalue,$3);
+                         Save_Length($3,14);
+                         strcpy(curvar->v_commoninfile,mainfile);
+                         Save_Length(mainfile,10);
                          $$=curvar;
                       }
                    }
       ;
-module_proc_stmt: TOK_PROCEDURE proc_name_list
+module_proc_stmt : TOK_PROCEDURE proc_name_list
       ;
-proc_name_list: TOK_NAME
+proc_name_list : TOK_NAME
       | proc_name_list ',' TOK_NAME
       ;
-implicit: TOK_IMPLICIT TOK_NONE
+implicit : TOK_IMPLICIT TOK_NONE
                     {
-                       if ( firstpass == 1 && insubroutinedeclare == 1 )
+                       if ( insubroutinedeclare == 1 )
                        {
-                           listimplicitnone = Addtolistname
-                                              (subroutinename,listimplicitnone);
-                       }
-                       if ( tmpdeclaration_everdone == 1 && 
-                            inmoduledeclare == 0 )
-                       {
-                         pos_end = setposcur();
-                         RemoveWordSET_0(fortranout,pos_end-13,
-                                               13);
+                          Add_ImplicitNoneSubroutine_1();
+                          pos_end = setposcur();
+                          RemoveWordSET_0(fortranout,pos_end-13,
+                                                             13);
                        }
                     }
       | TOK_IMPLICIT TOK_REAL8
@@ -1172,15 +1187,8 @@ dcl : options opt_retour TOK_NAME dims lengspec initial_value
                    {
                       if ( couldaddvariable == 1 )
                       {
-                         if ( inmoduledeclare == 1 || SaveDeclare == 1 )
-                         {
-                            if ( AllocShouldMadeInModule() == 1 ) 
-                            {
-                               AllocTo1InModule_1();
-                            }
-                         }      
                          /*                                                   */
-                         if (dimsgiven == 1) 
+                         if (dimsgiven == 1)
                          {
                             curvar=createvar($3,curdim);
                          }
@@ -1189,24 +1197,21 @@ dcl : options opt_retour TOK_NAME dims lengspec initial_value
                             curvar=createvar($3,$4);
                          }
                          /*                                                   */
-                         CreateAndFillin_Curvar(DeclType,$3,$4,curvar);
+                         CreateAndFillin_Curvar(DeclType,curvar);
                          /*                                                   */
                          curlistvar=insertvar(NULL,curvar);
-                         if (!strcasecmp(DeclType,"character")) 
+                         if (!strcasecmp(DeclType,"character"))
                          {
-                            if (c_selectorgiven == 1) 
+                            if (c_selectorgiven == 1)
                             {
                                strcpy(c_selectordim.first,"1");
                                strcpy(c_selectordim.last,c_selectorname);
+                               Save_Length(c_selectorname,1);
                                change_dim_char
                                      (insertdim(NULL,c_selectordim),curlistvar);
                             }
                          }
                          $$=settype(DeclType,curlistvar);
-                      }
-                      else
-                      {
-                         /* mazauric*/
                       }
                       strcpy(vallengspec,"");
                    }
@@ -1214,7 +1219,7 @@ dcl : options opt_retour TOK_NAME dims lengspec initial_value
                    {
                       if ( couldaddvariable == 1 )
                       {
-                         if (dimsgiven == 1) 
+                         if (dimsgiven == 1)
                          {
                             curvar=createvar($4,curdim);
                          }
@@ -1222,233 +1227,236 @@ dcl : options opt_retour TOK_NAME dims lengspec initial_value
                          {
                             curvar=createvar($4,$5);
                          }
-                         /*                                                   */ 
-                         CreateAndFillin_Curvar($1->var->typevar,$4,$5,curvar);
                          /*                                                   */
-                         strcpy(curvar->typevar,($1->var->typevar));
+                         CreateAndFillin_Curvar($1->var->v_typevar,curvar);
+                         /*                                                   */
+                         strcpy(curvar->v_typevar,($1->var->v_typevar));
+                         Save_Length($1->var->v_typevar,3);
                          /*                                                   */
                          curlistvar=insertvar($1,curvar);
-                         if (!strcasecmp(DeclType,"character")) 
+                         if (!strcasecmp(DeclType,"character"))
                          {
-                            if (c_selectorgiven == 1) 
+                            if (c_selectorgiven == 1)
                             {
                                strcpy(c_selectordim.first,"1");
                                strcpy(c_selectordim.last,c_selectorname);
+                               Save_Length(c_selectorname,1);
                                change_dim_char
                                      (insertdim(NULL,c_selectordim),curlistvar);
                             }
                          }
                          $$=curlistvar;
                       }
-                      else
-                      {
-                         /* mazauric*/
-                      }
                       strcpy(vallengspec,"");
                    }
-      ;      
-nodimsgiven:       {dimsgiven=0;}
       ;
-type:typespec selector 
-                   {strcpy(DeclType,$1);indeclarationvar=1;}
-      | before_character c_selector 
+nodimsgiven :       {dimsgiven=0;}
+      ;
+type : typespec selector
+                   {strcpy(DeclType,$1);}
+      | before_character c_selector
                    {
-                      indeclarationvar=1;
                       strcpy(DeclType,"CHARACTER");
-                      if (inmoduledeclare == 1 ) 
-                      {
-                         AllocShouldMadeTo1InModule_1();
-                      }
                    }
       | typename '*' TOK_CSTINT
                    {
-                      indeclarationvar=1;
                       strcpy(DeclType,$1);
                       strcpy(nameinttypename,$3);
                    }
-      | TOK_TYPEPAR attribute ')' 
+      | before_typepar attribute ')'
                    {
-                      pos_cur_decl = setposcur()-5;
                       strcpy(DeclType,"TYPE");
-		      indeclarationvar=1;
                    }
       ;
-c_selector:
-      | '*' TOK_CSTINT 
+before_typepar : TOK_TYPEPAR
+                   {
+                 /*     if ( couldaddvariable == 1 ) VarTypepar = 1 ;
+                      couldaddvariable = 0 ;
+                      pos_cur_decl = setposcur()-5;*/
+                   pos_cur_decl = setposcur()-5;
+                   }
+      ;
+c_selector :
+      | '*' TOK_CSTINT
                    {c_selectorgiven=1;strcpy(c_selectorname,$2);}
       | '*' '(' c_attribute ')' {c_star = 1;}
-      | '(' c_attribute ')' 
+      | '(' c_attribute ')'
       ;
-c_attribute: TOK_NAME clause opt_clause 
-      | TOK_NAME '=' clause opt_clause 
-      | clause opt_clause 
+c_attribute : TOK_NAME clause opt_clause
+      | TOK_NAME '=' clause opt_clause
+      | clause opt_clause
       ;
 before_character : TOK_CHARACTER
                    {
                       pos_cur_decl = setposcur()-9;
                    }
       ;
-typespec: typename {strcpy($$,$1);}
+typespec : typename {strcpy($$,$1);}
       ;
-typename: TOK_INTEGER 
+typename : TOK_INTEGER
                    {
                       strcpy($$,"INTEGER");
                       pos_cur_decl = setposcur()-7;
-                      if (inmoduledeclare == 1 ) 
-                      {
-                         AllocShouldMadeTo1InModule_1();
-                       }
                    }
       | TOK_REAL   {
-                      strcpy($$,"REAL"); 
+                      strcpy($$,"REAL");
                       pos_cur_decl = setposcur()-4;
-                      if (inmoduledeclare == 1 ) 
-                      {
-                         AllocShouldMadeTo1InModule_1();
-                      }
                    }
-      | TOK_COMPLEX      
-                   {strcpy($$,"COMPLEX");}
-      | TOK_DOUBLEPRECISION 
+      | TOK_COMPLEX
+                   {strcpy($$,"COMPLEX");
+                   pos_cur_decl = setposcur()-7;}
+      | TOK_DOUBLEPRECISION
                    {
-		      strcpy($$,"REAL");
+                      pos_cur_decl = setposcur()-16;
+                      strcpy($$,"REAL");
                       strcpy(nameinttypename,"8");
                    }
-      | TOK_DOUBLECOMPLEX 
+      | TOK_DOUBLECOMPLEX
                    {strcpy($$,"DOUBLE COMPLEX");}
-      | TOK_LOGICAL      
+      | TOK_LOGICAL
                    {
                       strcpy($$,"LOGICAL");
                       pos_cur_decl = setposcur()-7;
-                      if (inmoduledeclare == 1 ) 
-                      {
-                         AllocShouldMadeTo1InModule_1();
-                      }
                    }
-/*      | TOK_TYPE      
-                   {
-                      pos_cur_decl = setposcur()-5;
-                      strcpy($$,"TYPE");
-                   }*/
       ;
-lengspec:
+lengspec :
       | '*' proper_lengspec {strcpy(vallengspec,$2);}
       ;
-proper_lengspec: expr {sprintf($$,"*%s",$1);}
+proper_lengspec : expr {sprintf($$,"*%s",$1);}
       | '(' '*' ')'{strcpy($$,"*(*)");}
       ;
-selector:
+selector :
       | '*' proper_selector
-      | '(' attribute ')' 
+      | '(' attribute ')'
       ;
-proper_selector: expr
+proper_selector : expr
       | '(' '*' ')'
       ;
-attribute: TOK_NAME clause 
-      | TOK_NAME '=' clause  
+attribute : TOK_NAME clause
+      | TOK_NAME '=' clause
                    {
-		      if ( strstr($3,"0.d0") ) 
-		      {
-		         strcpy(nameinttypename,"8");
-                         sprintf(NamePrecision,"");  
+                      if ( strstr($3,"0.d0") )
+                      {
+                         strcpy(nameinttypename,"8");
+                         sprintf(NamePrecision,"");
                       }
-		      else sprintf(NamePrecision,"%s = %s",$1,$3);  
+                      else sprintf(NamePrecision,"%s = %s",$1,$3);
                    }
       | TOK_NAME
                    {
-                      strcpy(NamePrecision,$1);  
+                      strcpy(NamePrecision,$1);
                    }
       | TOK_CSTINT
                    {
-                      strcpy(NamePrecision,$1);  
+                      strcpy(NamePrecision,$1);
                    }
       ;
-clause: expr       {strcpy(CharacterSize,$1);
+clause : expr       {strcpy(CharacterSize,$1);
                     strcpy($$,$1);}
       | '*'        {strcpy(CharacterSize,"*");
-                    strcpy($$,"*");} 
+                    strcpy($$,"*");}
       ;
-opt_clause: 
+opt_clause :
       | ',' TOK_NAME clause
       ;
-options:
+options :
       | ':' ':'
       | ',' attr_spec_list ':' ':'
       ;
-attr_spec_list: attr_spec
+attr_spec_list : attr_spec
       | attr_spec_list ',' attr_spec
       ;
-attr_spec: TOK_PARAMETER 
+attr_spec : TOK_PARAMETER
                    {
                       VariableIsParameter = 1;
-                      if (inmoduledeclare == 1 ) 
-                      {
-                         AllocShouldMadeTo0InModule_1();
-                      }
                    }
       | access_spec
-      | TOK_ALLOCATABLE 
+      | TOK_ALLOCATABLE
                    {Allocatabledeclare = 1;}
-      | TOK_DIMENSION dims 
+      | TOK_DIMENSION dims
                    {
-                      dimsgiven=1; 
+                      dimsgiven=1;
                       curdim=$2;
                    }
-      | TOK_EXTERNAL  
-                   {ExternalDeclare = 1;} 
-      | TOK_INTENT intent_spec
-                   {strcpy(IntentSpec,$2);}
+      | TOK_EXTERNAL
+                   {ExternalDeclare = 1;}
+      | TOK_INTENT '(' intent_spec ')'
+                   {strcpy(IntentSpec,$3);}
       | TOK_INTRINSIC
       | TOK_OPTIONAL{optionaldeclare = 1 ;}
       | TOK_POINTER {pointerdeclare = 1 ;}
       | TOK_SAVE    {
-                       if ( inmodulemeet == 1 )
-                       {
+/*                       if ( inmodulemeet == 1 )
+                       {*/
                           SaveDeclare = 1 ;
-                          Savemeet = 1;
-                          AllocShouldMadeTo1InModule_1();
-                       }
+                     /*  }*/
                     }
       | TOK_TARGET
       ;
-intent_spec: TOK_IN {sprintf($$,"in");}
-      | TOK_OUT     {sprintf($$,"out");}
-      | TOK_INOUT   {sprintf($$,"inout");}
-      ; 
-access_spec: TOK_PUBLIC 
-                   {PublicDeclare = 1;} 
-      | TOK_PRIVATE 
-                   {PrivateDeclare = 1;} 
+intent_spec : TOK_IN {strcpy($$,$1);}
+      | TOK_OUT     {strcpy($$,$1);}
+      | TOK_INOUT   {strcpy($$,$1); }
       ;
-dims:              {if ( created_dimensionlist == 1 ) $$=(listdim *)NULL;}
-      | '(' dimlist ')'  
-                   {if ( created_dimensionlist == 1 || 
-		         agrif_parentcall      == 1 ) $$=$2;}
+access_spec : TOK_PUBLIC
+                   {PublicDeclare = 1;}
+      | TOK_PRIVATE
+                   {PrivateDeclare = 1;}
       ;
-dimlist:   dim     {if ( created_dimensionlist == 1 ||
+dims :              {if ( created_dimensionlist == 1 )
+                       {
+                           $$=(listdim *)NULL;
+                       }
+                   }
+      | '(' dimlist ')'
+                   {if ( created_dimensionlist == 1 ||
+                         agrif_parentcall      == 1 ) $$=$2;}
+      ;
+dimlist :   dim     {if ( created_dimensionlist == 1 ||
                          agrif_parentcall      == 1 ) $$=insertdim(NULL,$1);}
-      | dimlist ',' dim 
-                   {if ( created_dimensionlist == 1 ) $$=insertdim($1,$3);}
+      | dimlist ',' dim
+                   {if ( couldaddvariable == 1 )
+                         if ( created_dimensionlist == 1 ) $$=insertdim($1,$3);}
       ;
-dim:ubound         {strcpy($$.first,"1");strcpy($$.last,$1);}
-      | ':'        {strcpy($$.first,"");strcpy($$.last,"");}
-      | expr ':'   {strcpy($$.first,$1);strcpy($$.last,"");}
-      | ':' expr   {strcpy($$.first,"");strcpy($$.last,$2);}
+dim : ubound         {
+                      strcpy($$.first,"1");
+                      strcpy($$.last,$1);
+                      Save_Length($1,1);
+                   }
+      | ':'        {
+                      strcpy($$.first,"");
+                      strcpy($$.last,"");
+                   }
+      | expr ':'   {
+                      strcpy($$.first,$1);
+                      Save_Length($1,2);
+                      strcpy($$.last,"");
+                   }
+      | ':' expr   {
+                      strcpy($$.first,"");
+                      strcpy($$.last,$2);
+                      Save_Length($2,1);
+                   }
       | expr ':' ubound
-                   {strcpy($$.first,$1);strcpy($$.last,$3);}
+                   {
+                      strcpy($$.first,$1);
+                      Save_Length($1,2);
+                      strcpy($$.last,$3);
+                      Save_Length($3,1);
+                   }
       ;
-ubound:  '*'       {strcpy($$,"*");}
+ubound :  '*'       {strcpy($$,"*");}
       | expr       {strcpy($$,$1);}
       ;
-expr:  uexpr       {strcpy($$,$1);}
-      | '(' expr ')' 
-                   {sprintf($$,"(%s)",$2);}
-      | complex_const 
-                   {strcpy($$,$1);}
+expr :  uexpr       {if ( couldaddvariable == 1 ) strcpy($$,$1);}
+      | '(' expr ')'
+                   {if ( couldaddvariable == 1 ) sprintf($$,"(%s)",$2);}
+      | complex_const
+                   {if ( couldaddvariable == 1 ) strcpy($$,$1);}
       | predefinedfunction
+                   {if ( couldaddvariable == 1 ) strcpy($$,$1);}
       ;
-      
-predefinedfunction : TOK_SUM minmaxlist ')' 
+
+predefinedfunction : TOK_SUM minmaxlist ')'
                    {sprintf($$,"SUM(%s)",$2);}
       | TOK_MAX minmaxlist ')'
                    {sprintf($$,"MAX(%s)",$2);}
@@ -1466,10 +1474,8 @@ predefinedfunction : TOK_SUM minmaxlist ')'
                    {sprintf($$,"SQRT(%s)",$2);}
       | TOK_REAL '(' minmaxlist ')'
                    {sprintf($$,"REAL(%s)",$3);}
-      | TOK_INT '(' expr ')'
-                   {sprintf($$,"INT(%s)",$3);}                   
       | TOK_NINT '(' expr ')'
-                   {sprintf($$,"NINT(%s)",$3);}                   
+                   {sprintf($$,"NINT(%s)",$3);}
       | TOK_FLOAT '(' expr ')'
                    {sprintf($$,"FLOAT(%s)",$3);}
       | TOK_EXP '(' expr ')'
@@ -1504,145 +1510,164 @@ predefinedfunction : TOK_SUM minmaxlist ')'
                    {sprintf($$,"MAXLOC(%s)",$3);}
       ;
 minmaxlist : expr {strcpy($$,$1);}
-      | minmaxlist ',' expr 
-                   {strcpy($$,$1);strcat($$,",");strcat($$,$3);}
+      | minmaxlist ',' expr
+                   {if ( couldaddvariable == 1 )
+                   { strcpy($$,$1);strcat($$,",");strcat($$,$3);}}
       ;
-uexpr:  lhs        {strcpy($$,$1);} 
-      | simple_const 
-                   {strcpy($$,$1);} 
-      | vec 
-                   {strcpy($$,$1);} 
+uexpr :  lhs        {if ( couldaddvariable == 1 ) strcpy($$,$1);}
+      | simple_const
+                   {if ( couldaddvariable == 1 ) strcpy($$,$1);}
+      | vec
+                   {if ( couldaddvariable == 1 ) strcpy($$,$1);}
       | expr operation
-                   {sprintf($$,"%s%s",$1,$2);}
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s%s",$1,$2);}
       | signe expr %prec '* ' 
-                   {sprintf($$,"%s%s",$1,$2);}
-      | TOK_NOT expr 
-                   {sprintf($$,"%s%s",$1,$2);}
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s%s",$1,$2);}
+      | TOK_NOT expr
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s%s",$1,$2);}
       ;
-signe : '+'        {strcpy($$,"+");}
-      | '-'        {strcpy($$,"-");}
+signe : '+'        {if ( couldaddvariable == 1 ) strcpy($$,"+");}
+      | '-'        {if ( couldaddvariable == 1 ) strcpy($$,"-");}
       ;
-operation : '+' expr %prec '+' 
-                   {sprintf($$,"+%s",$2);}
-      |  '-' expr %prec '+' 
-                   {sprintf($$,"-%s",$2);}
-      |  '*' expr 
-                   {sprintf($$,"*%s",$2);}
-      |  TOK_DASTER expr 
-                   {sprintf($$,"%s%s",$1,$2);}
-      |  TOK_EQ expr %prec TOK_EQ 
-                   {sprintf($$,"%s%s",$1,$2);}
-      |  TOK_GT expr %prec TOK_EQ 
-                   {sprintf($$,"%s%s",$1,$2);}
-      |  '>' expr %prec TOK_EQ 
-                   {sprintf($$," > %s",$2);}
-      |  TOK_LT expr %prec TOK_EQ 
-                   {sprintf($$,"%s%s",$1,$2);}
-      |  '<' expr %prec TOK_EQ 
-                   {sprintf($$," < %s",$2);}
-      |  TOK_GE expr %prec TOK_EQ 
-                   {sprintf($$,"%s%s",$1,$2);}
-      |  '>''=' expr %prec TOK_EQ 
-                   {sprintf($$," >= %s",$3);}
+operation : '+' expr %prec '+'
+                   {if ( couldaddvariable == 1 ) sprintf($$,"+%s",$2);}
+      |  '-' expr %prec '+'
+                   {if ( couldaddvariable == 1 ) sprintf($$,"-%s",$2);}
+      |  '*' expr
+                   {if ( couldaddvariable == 1 ) sprintf($$,"*%s",$2);}
+      |  TOK_DASTER expr
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s%s",$1,$2);}
+      |  TOK_EQ expr %prec TOK_EQ
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s%s",$1,$2);}
+      |  TOK_EQV expr %prec TOK_EQV
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s%s",$1,$2);}                   
+      |  TOK_GT expr %prec TOK_EQ
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s%s",$1,$2);}
+      |  '>' expr %prec TOK_EQ
+                   {if ( couldaddvariable == 1 ) sprintf($$," > %s",$2);}
+      |  TOK_LT expr %prec TOK_EQ
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s%s",$1,$2);}
+      |  '<' expr %prec TOK_EQ
+                   {if ( couldaddvariable == 1 ) sprintf($$," < %s",$2);}
+      |  TOK_GE expr %prec TOK_EQ
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s%s",$1,$2);}
+      |  '>''=' expr %prec TOK_EQ
+                   {if ( couldaddvariable == 1 ) sprintf($$," >= %s",$3);}
       |  TOK_LE expr %prec TOK_EQ
-                   {sprintf($$,"%s%s",$1,$2);}
-      |  '<''=' expr %prec TOK_EQ 
-                   {sprintf($$," <= %s",$3);}
-      |  TOK_NE expr %prec TOK_EQ 
-                   {sprintf($$,"%s%s",$1,$2);}
-      |  TOK_XOR expr 
-                   {sprintf($$,"%s%s",$1,$2);}
-      |  TOK_OR expr 
-                   {sprintf($$,"%s%s",$1,$2);}
-      |  TOK_AND expr 
-                   {sprintf($$,"%s%s",$1,$2);}
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s%s",$1,$2);}
+      |  '<''=' expr %prec TOK_EQ
+                   {if ( couldaddvariable == 1 ) sprintf($$," <= %s",$3);}
+      |  TOK_NE expr %prec TOK_EQ
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s%s",$1,$2);}
+      |  TOK_NEQV expr %prec TOK_EQV
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s%s",$1,$2);}                   
+      |  TOK_XOR expr
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s%s",$1,$2);}
+      |  TOK_OR expr
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s%s",$1,$2);}
+      |  TOK_AND expr
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s%s",$1,$2);}
       |  TOK_SLASH after_slash
-                   {sprintf($$,"%s",$2);}
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s",$2);}
       |  '=' after_equal
-                   {sprintf($$,"%s",$2);}
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s",$2);}
 
 after_slash : {strcpy($$,"");}
-      | expr 
+      | expr
                    {sprintf($$,"/%s",$1);}
-      | '=' expr %prec TOK_EQ 
+      | '=' expr %prec TOK_EQ
                    {sprintf($$,"/= %s",$2);}
       | TOK_SLASH expr
                    {sprintf($$,"//%s",$2);}
       ;
-after_equal : '=' expr %prec TOK_EQ 
-                   {sprintf($$,"==%s",$2);}
+after_equal : '=' expr %prec TOK_EQ
+                   {if ( couldaddvariable == 1 ) sprintf($$,"==%s",$2);}
       | expr
-                   {sprintf($$,"= %s",$1);}
+                   {if ( couldaddvariable == 1 ) sprintf($$,"= %s",$1);}
       ;
-      
-lhs: ident         {strcpy($$,$1);} 
-      | structure_component 
-                   {strcpy($$,$1);} 
-      | array_ele_substring_func_ref 
-                   {strcpy($$,$1);} 
+
+lhs : ident         {if ( couldaddvariable == 1 ) strcpy($$,$1);}
+      | structure_component
+                   {if ( couldaddvariable == 1 ) strcpy($$,$1);}
+      | array_ele_substring_func_ref
+                   {if ( couldaddvariable == 1 ) strcpy($$,$1);}
       ;
 beforefunctionuse : {
                       agrif_parentcall =0;
                       if (!strcasecmp(identcopy,"Agrif_Parent") )
                                                             agrif_parentcall =1;
                       if ( Agrif_in_Tok_NAME(identcopy) == 1 )
-                      { 
+                      {
                          inagrifcallargument = 1;
-                         AddsubroutineTolistsubwhereagrifused();
+                         Add_SubroutineWhereAgrifUsed_1(subroutinename,
+                                                        curmodulename);
                       }
                    }
       ;
-array_ele_substring_func_ref: begin_array
+array_ele_substring_func_ref : begin_array
                    {
                      strcpy($$,$1);
                      if ( incalldeclare == 0 ) inagrifcallargument = 0;
                    }
-      | begin_array substring 
-                   {sprintf($$," %s %s ",$1,$2);}
-      | structure_component '(' funarglist ')' 
-                   {sprintf($$," %s ( %s )",$1,$3);}
-      | structure_component '(' funarglist ')' substring 
-                   {sprintf($$," %s ( %s ) %s ",$1,$3,$5);}
+      | begin_array substring
+                   {if ( couldaddvariable == 1 ) sprintf($$," %s %s ",$1,$2);}
+      | structure_component '(' funarglist ')'
+                   {if ( couldaddvariable == 1 )
+                                                sprintf($$," %s ( %s )",$1,$3);}
+      | structure_component '(' funarglist ')' substring
+                   {if ( couldaddvariable == 1 )
+                                         sprintf($$," %s ( %s ) %s ",$1,$3,$5);}
       ;
 begin_array : ident '(' funarglist ')'
                    {
-                      sprintf($$," %s ( %s )",$1,$3);
-                      ModifyTheAgrifFunction_0($3);
-                      agrif_parentcall =0; 
+                      if ( couldaddvariable == 1 )
+                      {
+                         sprintf($$," %s ( %s )",$1,$3);
+                         ModifyTheAgrifFunction_0($3);
+                         agrif_parentcall =0;
+                      }
                    }
       ;
-structure_component: lhs '%' lhs 
+structure_component : lhs '%' lhs
                    {
                       sprintf($$," %s %% %s ",$1,$3);
-                     if ( incalldeclare == 0 ) inagrifcallargument = 0;
+                      if ( incalldeclare == 0 ) inagrifcallargument = 0;
                    }
       ;
-vec:  TOK_LEFTAB outlist TOK_RIGHTAB 
-                   {sprintf($$,"(/%s/)",$2);} 
+vec :  TOK_LEFTAB outlist TOK_RIGHTAB
+                   {sprintf($$,"(/%s/)",$2);}
       ;
-funarglist: beforefunctionuse    {strcpy($$," ");}
-      | beforefunctionuse funargs  
+funarglist : beforefunctionuse    {strcpy($$," ");}
+      | beforefunctionuse funargs
                    {strcpy($$,$2);}
       ;
-funargs: funarg     {strcpy($$,$1);}
-      | funargs ',' funarg 
-                    {sprintf($$,"%s,%s",$1,$3);} 
+funargs : funarg     {if ( couldaddvariable == 1 ) strcpy($$,$1);}
+      | funargs ',' funarg
+                    {if ( couldaddvariable == 1 ) sprintf($$,"%s,%s",$1,$3);}
       ;
-funarg: expr       {strcpy($$,$1);}
+funarg : expr       {strcpy($$,$1);}
       | triplet    {strcpy($$,$1);}
       ;
-triplet: expr ':' expr 
-                    {sprintf($$,"%s:%s",$1,$3);} 
-      | expr ':' expr ':' expr 
-                    {sprintf($$,"%s:%s:%s",$1,$3,$5);} 
-      | ':' expr ':' expr 
-                    {sprintf($$,":%s:%s",$2,$4);} 
-      | ':' ':' expr{sprintf($$,": : %s",$3);} 
-      | ':' expr    {sprintf($$,":%s",$2);} 
-      | expr ':'     {sprintf($$,"%s:",$1);} 
-      | ':'         {sprintf($$,":");} 
+triplet : expr ':' expr
+                    {if ( couldaddvariable == 1 ) sprintf($$,"%s :%s",$1,$3);}
+      | expr ':' expr ':' expr
+                    {if ( couldaddvariable == 1 )
+                                               sprintf($$,"%s :%s :%s",$1,$3,$5);}
+      | ':' expr ':' expr
+                    {if ( couldaddvariable == 1 ) sprintf($$,":%s :%s",$2,$4);}
+      | ':' ':' expr{if ( couldaddvariable == 1 ) sprintf($$,": : %s",$3);}
+      | ':' expr    {if ( couldaddvariable == 1 ) sprintf($$,":%s",$2);}
+      | expr ':'    {if ( couldaddvariable == 1 ) sprintf($$,"%s :",$1);}
+      | ':'         {if ( couldaddvariable == 1 ) sprintf($$,":");}
       ;
-ident : TOK_NAME    {  
+ident : TOK_NAME    {
+                       if ( couldaddvariable == 1 )
+                       {
+                       if ( Vartonumber($1) == 1 )
+                       {
+                          Add_SubroutineWhereAgrifUsed_1(subroutinename,
+                                                        curmodulename);
+                       }
                        if (!strcasecmp($1,"Agrif_Parent") )
                                                             agrif_parentcall =1;
                        if ( VariableIsNotFunction($1) == 0 )
@@ -1657,75 +1682,119 @@ ident : TOK_NAME    {
                           }
                           strcpy(identcopy,$1);
                           pointedvar=0;
+                          strcpy(truename,$1);
+                          if (variscoupled_0($1)) strcpy(truename,getcoupledname_0($1));
+/*
                           if ( VarIsNonGridDepend($1) == 0 &&
-                               formatdeclare == 0 
-                             )
+                               Variableshouldberemove($1) == 0 )
                           {
                              if ( inagrifcallargument == 1 ||
                                   varisallocatable_0($1) == 1 ||
                                   varispointer_0($1) == 1 )
                              {
-                                ModifyTheVariableName_0($1);
+                            if ((IsinListe(List_UsedInSubroutine_Var,$1) == 1) || (inagrifcallargument == 1))
+                             {
+                              if (varistyped_0($1) == 0)
+                                 {
+                                 ModifyTheVariableName_0($1);
+                                 }
+                                 }
+                                 else
+                                 {
+                                 }
                              }
-                             if ( inagrifcallargument != 1 || sameagrifargument ==1 )
-                                  ajoutevarindoloop_1($1);
+                             if (variscoupled_0($1) == 1)
+                             {
+      printf("mla variable %s est couplee %s\n",$1,getcoupledname_0($1));
+                             ModifyTheVariableNamecoupled_0($1,getcoupledname_0($1));
+                             }
+                             if ( inagrifcallargument != 1 ||
+                                  sameagrifargument ==1 )
+                                  Add_UsedInSubroutine_Var_1($1);
                           }
                           NotifyAgrifFunction_0($1);
+*/
+                          if ( VarIsNonGridDepend(truename) == 0 &&
+                               Variableshouldberemove(truename) == 0 )
+                          {
+                             if ( inagrifcallargument == 1 ||
+                                  varisallocatable_0(truename) == 1 ||
+                                  varispointer_0(truename) == 1 )
+                             {
+                            if ((IsinListe(List_UsedInSubroutine_Var,$1) == 1) || (inagrifcallargument == 1))
+                             {
+                              if (varistyped_0(truename) == 0)
+                                 {
+                                 ModifyTheVariableName_0(truename,strlen($1));
+                                 }
+                                 }
+                             }
+                             if ( inagrifcallargument != 1 ||
+                                  sameagrifargument ==1 )
+                                  Add_UsedInSubroutine_Var_1(truename);
+                          }
+                          NotifyAgrifFunction_0(truename);
                        }
-		    }
+                       }
+                    }
       ;
-simple_const: TOK_TRUE 
-                     {strcpy($$,".TRUE.");}
-      | TOK_FALSE    {strcpy($$,".FALSE.");}
-      | TOK_CSTINT   {strcpy($$,$1);}
-      | TOK_CSTREAL  {strcpy($$,$1);}
-      | TOK_CSTREALDP{strcpy($$,$1);}
-      | TOK_CSTREALQP{strcpy($$,$1);}
-      | simple_const TOK_NAME 
-                     {sprintf($$,"%s%s",$1,$2);}
+simple_const : TOK_TRUE
+                     {if ( couldaddvariable == 1 ) strcpy($$,".TRUE.");}
+      | TOK_FALSE    {if ( couldaddvariable == 1 ) strcpy($$,".FALSE.");}
+      | TOK_CSTINT   {if ( couldaddvariable == 1 ) strcpy($$,$1);}
+      | TOK_CSTREAL  {if ( couldaddvariable == 1 ) strcpy($$,$1);}
+      | TOK_CSTREALDP{if ( couldaddvariable == 1 ) strcpy($$,$1);}
+      | TOK_CSTREALQP{if ( couldaddvariable == 1 ) strcpy($$,$1);}
+      | simple_const TOK_NAME
+                     {if ( couldaddvariable == 1 ) sprintf($$,"%s%s",$1,$2);}
       | string_constant opt_substring
       ;
-string_constant: TOK_CHAR_CONSTANT 
-                     {strcpy($$,$1);}
-      | string_constant TOK_CHAR_CONSTANT 
-      | TOK_CHAR_MESSAGE 
-                     {strcpy($$,$1);}
+string_constant : TOK_CHAR_CONSTANT
+                     {if ( couldaddvariable == 1 ) strcpy($$,$1);}
+      | string_constant TOK_CHAR_CONSTANT
+      | TOK_CHAR_MESSAGE
+                     {if ( couldaddvariable == 1 ) strcpy($$,$1);}
       | TOK_CHAR_CUT
-                     {strcpy($$,$1);}
+                     {if ( couldaddvariable == 1 ) strcpy($$,$1);}
       ;
-opt_substring:      {strcpy($$," ");}
-      | substring   {strcpy($$,$1);}
+opt_substring :      {if ( couldaddvariable == 1 ) strcpy($$," ");}
+      | substring   {if ( couldaddvariable == 1 ) strcpy($$,$1);}
       ;
-substring: '(' optexpr ':' optexpr ')' 
-                    {sprintf($$,"(%s:%s)",$2,$4);} 
+substring : '(' optexpr ':' optexpr ')'
+                    {if ( couldaddvariable == 1 ) sprintf($$,"(%s :%s)",$2,$4);}
       ;
-optexpr:           {strcpy($$," ");}
-      | expr        {strcpy($$,$1);}
+optexpr :           {if ( couldaddvariable == 1 ) strcpy($$," ");}
+      | expr        {if ( couldaddvariable == 1 ) strcpy($$,$1);}
       ;
-opt_expr: '\n'          {strcpy($$," ");}
-      | expr        {strcpy($$,$1);}
+opt_expr : '\n'          {if ( couldaddvariable == 1 ) strcpy($$," ");}
+      | expr        {if ( couldaddvariable == 1 ) strcpy($$,$1);}
       ;
-initial_value:      {InitialValueGiven = 0;}
-      | before_initial '=' expr    
+initial_value :      {InitialValueGiven = 0;}
+      | before_initial '=' expr
                     {
-                       strcpy(InitValue,$3);
-                       InitialValueGiven = 1;
-                    } 
+                       if ( couldaddvariable == 1 )
+                       {
+                          strcpy(InitValue,$3);
+                          InitialValueGiven = 1;
+                       }
+                    }
       ;
 before_initial : {pos_curinit = setposcur();}
       ;
-complex_const: '(' uexpr ',' uexpr ')' 
-                    {sprintf($$,"(%s,%s)",$2,$4);} 
+complex_const : '(' uexpr ',' uexpr ')'
+                    {sprintf($$,"(%s,%s)",$2,$4);}
       ;
-use_stat: word_use  module_name
+use_stat : word_use  module_name
                     {
+                      if ( couldaddvariable == 1 )
+                      {
                       /* if variables has been declared in a subroutine       */
                       if (insubroutinedeclare == 1)
                       {
                          copyuse_0($2);
                       }
                       sprintf(charusemodule,"%s",$2);
-                      Addmoduletothelist_1($2);
+                      Add_NameOfModuleUsed_1($2);
 
                       if ( inmoduledeclare == 0 )
                       {
@@ -1733,14 +1802,17 @@ use_stat: word_use  module_name
                          RemoveWordSET_0(fortranout,pos_curuse,
                                                pos_end-pos_curuse);
                       }
-                    }    
+                      }
+                    }
       | word_use  module_name ',' rename_list
                     {
+                       if ( couldaddvariable == 1 )
+                       {
                       if (insubroutinedeclare == 1)
                       {
-                         completelistvarpointtovar_1($2,$4);
+                         Add_CouplePointed_Var_1($2,$4);
                       }
-                      if ( firstpass == 1 ) 
+                      if ( firstpass == 1 )
                       {
                          if ( insubroutinedeclare == 1 )
                          {
@@ -1748,15 +1820,15 @@ use_stat: word_use  module_name
                             strcpy(ligne,"");
                             while ( coupletmp )
                             {
-                               strcat(ligne,coupletmp->namevar);
+                               strcat(ligne,coupletmp->c_namevar);
                                strcat(ligne," => ");
-                               strcat(ligne,coupletmp->namepointedvar);
+                               strcat(ligne,coupletmp->c_namepointedvar);
                                coupletmp = coupletmp->suiv;
                                if ( coupletmp ) strcat(ligne,",");
                             }
                             sprintf(charusemodule,"%s",$2);
                          }
-                         Addmoduletothelist_1($2);
+                         Add_NameOfModuleUsed_1($2);
                       }
                       if ( inmoduledeclare == 0 )
                       {
@@ -1764,16 +1836,19 @@ use_stat: word_use  module_name
                          RemoveWordSET_0(fortranout,pos_curuse,
                                                pos_end-pos_curuse);
                       }
-                    }    
+                      }
+                    }
       | word_use  module_name ',' TOK_ONLY ':' '\n'
                     {
+                       if ( couldaddvariable == 1 )
+                       {
                       /* if variables has been declared in a subroutine       */
                       if (insubroutinedeclare == 1)
                       {
                          copyuseonly_0($2);
                       }
                       sprintf(charusemodule,"%s",$2);
-                      Addmoduletothelist_1($2);
+                      Add_NameOfModuleUsed_1($2);
 
                        if ( inmoduledeclare == 0 )
                        {
@@ -1781,15 +1856,18 @@ use_stat: word_use  module_name
                           RemoveWordSET_0(fortranout,pos_curuse,
                                                 pos_end-pos_curuse);
                        }
-                    }    
+                       }
+                    }
       | word_use  module_name ',' TOK_ONLY ':' only_list
                     {
+                       if ( couldaddvariable == 1 )
+                       {
                        /* if variables has been declared in a subroutine      */
                        if (insubroutinedeclare == 1)
                        {
-                          completelistvarpointtovar_1($2,$6);
+                          Add_CouplePointed_Var_1($2,$6);
                        }
-                       if ( firstpass == 1 ) 
+                       if ( firstpass == 1 )
                        {
                          if ( insubroutinedeclare == 1 )
                          {
@@ -1797,97 +1875,139 @@ use_stat: word_use  module_name
                              strcpy(ligne,"");
                              while ( coupletmp )
                              {
-                                strcat(ligne,coupletmp->namevar);
-                                if ( strcasecmp(coupletmp->namepointedvar,"") )
+                                strcat(ligne,coupletmp->c_namevar);
+                               if ( strcasecmp(coupletmp->c_namepointedvar,"") )
                                                            strcat(ligne," => ");
-                                strcat(ligne,coupletmp->namepointedvar);
+                                strcat(ligne,coupletmp->c_namepointedvar);
                                 coupletmp = coupletmp->suiv;
                                 if ( coupletmp ) strcat(ligne,",");
                              }
                              sprintf(charusemodule,"%s",$2);
                           }
-                          Addmoduletothelist_1($2);
+                          Add_NameOfModuleUsed_1($2);
                        }
                        if ( firstpass == 0 )
-		       {
+                       {
                           if ( inmoduledeclare == 0 )
                           {
-                             pos_end = setposcur();
+
+                            pos_end = setposcur();
                              RemoveWordSET_0(fortranout,pos_curuse,
                                                    pos_end-pos_curuse);
+                       if (oldfortranout) 
+                         variableisglobalinmodule($6,$2,oldfortranout,pos_curuseold);
+                        
                           }
-		          else
-		          {
-   		             /* if we are in the module declare and if the    */
-	   	             /* onlylist is a list of global variable         */
-		             variableisglobalinmodule($6, $2, fortranout);
-		          }
+                          else
+                          {
+
+                             /* if we are in the module declare and if the    */
+                             /* onlylist is a list of global variable         */
+                             variableisglobalinmodule($6, $2, fortranout,pos_curuse);
+                          }
                        }
-                    }    
+                       }
+                    }
       ;
 word_use : TOK_USE
                    {
                       pos_curuse = setposcur()-strlen($1);
+                     if (firstpass == 0 && oldfortranout) {
+                     pos_curuseold = setposcurname(oldfortranout);
+                     }
                    }
       ;
-module_name: TOK_NAME 
+module_name : TOK_NAME
                     {strcpy($$,$1);}
       ;
-rename_list: rename_name
+rename_list : rename_name
                     {
-                       $$ = $1;
-                    }                    
+                       if ( couldaddvariable == 1 ) $$ = $1;
+                    }
       | rename_list ',' rename_name
                     {
+                        if ( couldaddvariable == 1 )
+                        {
                         /* insert the variable in the list $1                 */
                         $3->suiv = $1;
                         $$ = $3;
+                        }
                     }
       ;
-rename_name: TOK_NAME TOK_POINT_TO TOK_NAME
+rename_name : TOK_NAME TOK_POINT_TO TOK_NAME
                     {
                        coupletmp =(listcouple *)malloc(sizeof(listcouple));
-                       strcpy(coupletmp->namevar,$1);
-                       strcpy(coupletmp->namepointedvar,$3);
+                       strcpy(coupletmp->c_namevar,$1);
+                       Save_Length($1,21);
+                       strcpy(coupletmp->c_namepointedvar,$3);
+                       Save_Length($3,22);
                        coupletmp->suiv = NULL;
                        $$ = coupletmp;
                      }
       ;
-only_list: only_name 
+only_list : only_name
                     {
-                       $$ = $1;
-                    }                    
+                       if ( couldaddvariable == 1 ) $$ = $1;
+                    }
       | only_list ',' only_name
                     {
+                        if ( couldaddvariable == 1 )
+                        {
                         /* insert the variable in the list $1                 */
                         $3->suiv = $1;
                         $$ = $3;
+                        }
                     }
       ;
-only_name: TOK_NAME TOK_POINT_TO TOK_NAME 
+only_name : TOK_NAME TOK_POINT_TO TOK_NAME
                     {
                        coupletmp =(listcouple *)malloc(sizeof(listcouple));
-                       strcpy(coupletmp->namevar,$1);
-                       strcpy(coupletmp->namepointedvar,$3);
+                       strcpy(coupletmp->c_namevar,$1);
+                       Save_Length($1,21);
+                       strcpy(coupletmp->c_namepointedvar,$3);
+                       Save_Length($3,22);
                        coupletmp->suiv = NULL;
                        $$ = coupletmp;
                        pointedvar=1;
-                       ajoutevarindoloop_1($1);
+                       Add_UsedInSubroutine_Var_1($1);
                     }
       | TOK_NAME    {
                        coupletmp =(listcouple *)malloc(sizeof(listcouple));
-                       strcpy(coupletmp->namevar,$1);
-                       strcpy(coupletmp->namepointedvar,"");
+                       strcpy(coupletmp->c_namevar,$1);
+                       Save_Length($1,21);
+                       strcpy(coupletmp->c_namepointedvar,"");
                        coupletmp->suiv = NULL;
                        $$ = coupletmp;
                      }
       ;
-exec: iffable
+exec : iffable
       | TOK_ALLOCATE '(' allocation_list opt_stat_spec ')'
+                     {
+                         Add_SubroutineWhereAgrifUsed_1(subroutinename,
+                                                        curmodulename);
+                                                        inallocate = 0;
+                     }
       | TOK_DEALLOCATE '(' allocate_object_list opt_stat_spec ')'
+                     {
+                          Add_SubroutineWhereAgrifUsed_1(subroutinename,
+                                                         curmodulename);
+                                                         inallocate = 0;
+                     }
       | TOK_NULLIFY '(' pointer_name_list ')'
       | word_endunit /* end                                                   */
                     {
+                       GlobalDeclaration = 0 ;
+                       if ( firstpass == 0 &&
+                            strcasecmp(subroutinename,"") )
+                       {
+                          if ( module_declar && insubroutinedeclare == 0 )
+                          {
+                              fclose(module_declar);
+                          }
+                       }
+                       if ( couldaddvariable == 1 &&
+                            strcasecmp(subroutinename,"") )
+                       {
                        if ( inmodulemeet == 1 )
                        {
                          /* we are in a module                                */
@@ -1895,111 +2015,124 @@ exec: iffable
                          {
                             /* it is like an end subroutine <name>            */
                             insubroutinedeclare = 0 ;
-                            paramdeclaration_everdone = 0;
-                            tmpdeclaration_everdone = 0;
                             /*                                                */
-                            pos_cur = setposcur();		       
-                            closeandcallsubloopandincludeit_0(1,$1,"");
-                            /* at the end of the firstpas  we should remove   */
-                            /*    from the listvarindoloop all variables      */
-                            /*    which has not been declared as table in the */
-                            /*    globliste                                   */
-                            cleanlistvarfordoloop_1(1);
+                            pos_cur = setposcur();
+                            closeandcallsubloopandincludeit_0(1);
+                            functiondeclarationisdone = 0;
                          }
                          else
                          {
-                            /* if we never meet the contains keyword          */
-                            if ( inmoduledeclare == 1 )
-                            {
-                               if ( aftercontainsdeclare == 0 )
-                               {
-                                 CompleteGlobListeWithDatalist_1();
-                                 addsubroutine_alloc_0(1);
-                               }
-                            }
                             /* it is like an end module <name>                */
-                            inmoduledeclare = 0 ; 
-                            inmodulemeet = 0 ; 
+                            inmoduledeclare = 0 ;
+                            inmodulemeet = 0 ;
                          }
                        }
                        else
                        {
-                          paramdeclaration_everdone = 0;
-                          tmpdeclaration_everdone = 0;
                           insubroutinedeclare = 0;
                           /*                                                  */
-                          pos_cur = setposcur();		       
-                          closeandcallsubloopandincludeit_0(2,$1,"");
-                          /* it is like end subroutine or end program         */
-                          /*  Common case                                     */
-                          /* at the end of the firstpas  we should remove     */
-                          /*    from the listvarindoloop all variables which  */
-                          /*    has not been declared as table in the         */
-                          /*    globliste                                     */
-                          cleanlistvarfordoloop_1(1);
-                       }
+                          pos_cur = setposcur();                        
+                          closeandcallsubloopandincludeit_0(2);
+                            functiondeclarationisdone = 0;
+                          if ( firstpass == 0 )
+                          {
+                             if ( retour77 == 0 ) fprintf(paramout,"!\n");
+                             else fprintf(paramout,"C\n");
+                             fclose(paramout);
+                           }
+                        }
+                      }
+                      strcpy(subroutinename,"");
                     }
       | word_endprogram opt_name
                     {
-                       tmpdeclaration_everdone = 0;
-                         paramdeclaration_everdone = 0;
+                       if ( couldaddvariable == 1 )
+                       {
                        insubroutinedeclare = 0;
                        /*                                                     */
-                       pos_cur = setposcur();		       
-                       closeandcallsubloopandincludeit_0(3,$1,$2);
-                       /*  Common case                                        */
-                       /* at the end of the firstpas  we should remove from   */
-                       /*    the listvarindoloop all variables which has not  */
-                       /*    been declared as table in the globliste          */
-                       cleanlistvarfordoloop_1(3);
+                       pos_cur = setposcur();                      
+                       closeandcallsubloopandincludeit_0(3);
+                            functiondeclarationisdone = 0;
+                      if ( firstpass == 0 )
+                      {
+                         if ( retour77 == 0 ) fprintf(paramout,"!\n");
+                         else fprintf(paramout,"C\n");
+                         fclose(paramout);
+                      }
+                      strcpy(subroutinename,"");
+                      }
                     }
       | word_endsubroutine opt_name
                     {
-                       tmpdeclaration_everdone = 0;
-                       paramdeclaration_everdone = 0;
+                       if ( couldaddvariable == 1 &&
+                            strcasecmp(subroutinename,"") )
+                       {
                        insubroutinedeclare = 0;
                        /*                                                     */
-                       pos_cur = setposcur();		       
-                       closeandcallsubloopandincludeit_0(1,$1,$2);
-                       /*  Common case                                        */
-                       /* at the end of the firstpas  we should remove from   */
-                       /*    the listvarindoloop all variables which has not  */
-                       /*    been declared as table in the globliste          */
-                       cleanlistvarfordoloop_1(1);
+                       pos_cur = setposcur();
+                                             
+                       closeandcallsubloopandincludeit_0(1);
+                            functiondeclarationisdone = 0;
+                      if ( firstpass == 0 )
+                      {
+                         if ( retour77 == 0 ) fprintf(paramout,"!\n");
+                         else fprintf(paramout,"C\n");
+                         fclose(paramout);
+                      }
+                      strcpy(subroutinename,"");
+                      }
                     }
       | word_endfunction opt_name
                     {
-                       tmpdeclaration_everdone = 0;
-                       paramdeclaration_everdone = 0;
+                       if ( couldaddvariable == 1 )
+                       {
                        insubroutinedeclare = 0;
                        /*                                                     */
-                       pos_cur = setposcur();		       
-                       closeandcallsubloopandincludeit_0(0,$1,$2);
-                       /*  Common case                                        */
-                       /* at the end of the firstpas  we should remove from   */
-                       /*    the listvarindoloop all variables which has not  */
-                       /*    been declared as table in the globliste          */
-                       cleanlistvarfordoloop_1(0);
+                       pos_cur = setposcur();
+
+                       closeandcallsubloopandincludeit_0(0);
+                            functiondeclarationisdone = 0;
+                      if ( firstpass == 0 )
+                      {
+                         if ( retour77 == 0 ) fprintf(paramout,"!\n");
+                         else fprintf(paramout,"C\n");
+                         fclose(paramout);
+                      }
+                      strcpy(subroutinename,"");
+                      }
                     }
       | TOK_ENDMODULE opt_name
                     {
+                       if ( couldaddvariable == 1 )
+                       {
                        /* if we never meet the contains keyword               */
+                      Remove_Word_end_module_0(strlen($2));
                        if ( inmoduledeclare == 1 )
                        {
                           if ( aftercontainsdeclare == 0 )
                           {
-                             CompleteGlobListeWithDatalist_1();
-                             addsubroutine_alloc_0(1);
+                             Write_GlobalParameter_Declaration_0();
+                             Write_NotGridDepend_Declaration_0();
+                             Write_GlobalType_Declaration_0();
+                             Write_Alloc_Subroutine_For_End_0();
                           }
                        }
-                       inmoduledeclare = 0 ; 
-                       inmodulemeet = 0 ; 
-                       /* Write the list of module used in this file          */
-		       if ( firstpass == 0 )
-		       {
-                          Writethedependlistofmoduleused(curmodulename);
-                          WritedependParameterList(curmodulename);
-                       }
+                                           
+                       inmoduledeclare = 0 ;
+                       inmodulemeet = 0 ;
+
+                      Write_Word_end_module_0();
+                      strcpy(curmodulename,"");
+                      aftercontainsdeclare = 1;
+                      if ( firstpass == 0 )
+                      {
+                         if ( module_declar && insubroutinedeclare == 0)
+                         {
+                           fclose(module_declar);
+                         }
+                      }
+                      GlobalDeclaration = 0 ;
+                      }
                   }
       | boucledo
       | logif iffable
@@ -2008,9 +2141,9 @@ exec: iffable
       | TOK_ENDWHERE
       | logif TOK_THEN
       | TOK_ELSEIF  '(' expr ')' TOK_THEN
-      | TOK_ELSE 
+      | TOK_ELSE
       | TOK_ENDIF opt_name
-      | TOK_CASE '(' caselist ')'
+      | TOK_CASE caselist ')'
       | TOK_SELECTCASE '(' expr ')'
       | TOK_CASEDEFAULT
       | TOK_ENDSELECT
@@ -2018,49 +2151,87 @@ exec: iffable
                    {
                       if (inmoduledeclare == 1 )
                       {
-                         CompleteGlobListeWithDatalist_1();
-                         addsubroutine_alloc_0(0);
+                         Remove_Word_Contains_0();
+                         Write_GlobalParameter_Declaration_0();
+                         Write_GlobalType_Declaration_0();
+                         Write_NotGridDepend_Declaration_0();
+                         Write_Alloc_Subroutine_0();
+                         inmoduledeclare = 0 ;
+                         aftercontainsdeclare = 1;
                       }
-                      inmoduledeclare = 0 ; 
-                      aftercontainsdeclare = 1;
+                      else
+                      {
+                       if ( couldaddvariable == 1 )
+                       {
+                          if ( firstpass == 1 ) List_ContainsSubroutine =
+                                                Addtolistnom(subroutinename,
+                                                     List_ContainsSubroutine,0);
+                          insubroutinedeclare = 0;
+                          /*                                                  */
+
+                          closeandcallsubloop_contains_0();
+                            functiondeclarationisdone = 0;
+                         if ( firstpass == 0 )
+                         {
+                            if ( retour77 == 0 ) fprintf(paramout,"!\n");
+                            else fprintf(paramout,"C\n");
+                            fclose(paramout);
+                         }
+                         }
+                         strcpy(subroutinename,"");
+                      }
                    }
       ;
-      
-word_endsubroutine: TOK_ENDSUBROUTINE
+word_endsubroutine : TOK_ENDSUBROUTINE
                     {
-		       strcpy($$,$1);
+                      if ( couldaddvariable == 1 )
+                      {
+                       strcpy($$,$1);
                        pos_endsubroutine = setposcur()-strlen($1);
-		    }
+                       functiondeclarationisdone = 0;
+                       }
+                    }
       ;
-word_endunit: TOK_ENDUNIT
+word_endunit : TOK_ENDUNIT
                     {
-		       strcpy($$,$1);
+                      if ( couldaddvariable == 1 )
+                      {
+                       strcpy($$,$1);
                        pos_endsubroutine = setposcur()-strlen($1);
-		    }
+                       }
+                    }
       ;
-word_endprogram:  TOK_ENDPROGRAM
+word_endprogram :  TOK_ENDPROGRAM
                     {
-		       strcpy($$,$1);
+                      if ( couldaddvariable == 1 )
+                      {
+                       strcpy($$,$1);
                        pos_endsubroutine = setposcur()-strlen($1);
-		    }
+                       }
+                    }
       ;
-word_endfunction: TOK_ENDFUNCTION
+word_endfunction : TOK_ENDFUNCTION
                     {
-		       strcpy($$,$1);
+                      if ( couldaddvariable == 1 )
+                      {
+                       strcpy($$,$1);
                        pos_endsubroutine = setposcur()-strlen($1);
-		    }
+                       }
+                    }
       ;
-caselist: expr
+caselist : expr
       | caselist ',' expr
       | caselist ':' expr
       ;
-boucledo : worddo opt_int do_var '=' expr ',' expr
-      | worddo opt_int do_var '=' expr ',' expr ',' expr
+boucledo : worddo opt_int do_arg
       | wordwhile expr
       | TOK_ENDDO optname
       ;
-opt_int : 
-      | TOK_CSTINT
+do_arg :
+      | do_var '=' expr ',' expr
+      | do_var '=' expr ',' expr ',' expr
+opt_int :
+      | TOK_CSTINT opt_comma
       ;
 opt_name : '\n'  {strcpy($$,"");}
       | TOK_NAME {strcpy($$,$1);}
@@ -2071,19 +2242,29 @@ optname :
 worddo :  TOK_PLAINDO
       ;
 wordwhile :TOK_DOWHILE
-      ;     
+      ;
 
-dotarget:
+dotarget :
       | TOK_CSTINT
       ;
 
-iffable: TOK_CONTINUE
+iffable : TOK_CONTINUE
       | ident_dims after_ident_dims
       | goto
       | io
-      | call 
+      | call
       | TOK_ALLOCATE '(' allocation_list opt_stat_spec ')'
+                     {
+                          Add_SubroutineWhereAgrifUsed_1(subroutinename,
+                                                        curmodulename);
+                                                        inallocate = 0;
+                     }
       | TOK_DEALLOCATE '(' allocate_object_list opt_stat_spec ')'
+                     {
+                          Add_SubroutineWhereAgrifUsed_1(subroutinename,
+                                                        curmodulename);
+                                                        inallocate = 0;
+                     }
       | TOK_EXIT optexpr
       | TOK_RETURN opt_expr
       | TOK_CYCLE opt_expr
@@ -2093,12 +2274,12 @@ iffable: TOK_CONTINUE
 before_dims : {if ( couldaddvariable == 1 ) created_dimensionlist = 0;}
 ident_dims : ident before_dims dims dims
               {
-	          created_dimensionlist = 1;
-		  if  ( agrif_parentcall == 1 )
-		  {
+                  created_dimensionlist = 1;
+                  if  ( agrif_parentcall == 1 )
+                  {
                       ModifyTheAgrifFunction_0($3->dim.last);
                       agrif_parentcall =0;
-		      fprintf(fortranout," = ");
+                      fprintf(fortranout," = ");
                   }
               }
       | ident_dims '%' ident before_dims dims dims
@@ -2106,132 +2287,109 @@ ident_dims : ident before_dims dims dims
 int_list : TOK_CSTINT
       | int_list ',' TOK_CSTINT
       ;
-after_ident_dims : '=' expr 
-      | TOK_POINT_TO expr 
+after_ident_dims : '=' expr
+      | TOK_POINT_TO expr
       ;
-call: keywordcall opt_call 
+call : keywordcall opt_call
                    {
                       inagrifcallargument = 0 ;
                       incalldeclare=0;
-                      if ( oldfortranout && 
-                           !strcasecmp(meetagrifinitgrids,subroutinename) && 
+                      if ( oldfortranout &&
+                           !strcasecmp(meetagrifinitgrids,subroutinename) &&
                            firstpass == 0 &&
                            callmpiinit == 1)
                       {
-                         pos_end = setposcur();
+                      /*   pos_end = setposcur();
                          RemoveWordSET_0(fortranout,pos_curcall,
                                                pos_end-pos_curcall);
                          fprintf(oldfortranout,"      Call MPI_Init (%s) \n"
-                                                                   ,mpiinitvar);
+                                                                   ,mpiinitvar);*/
                       }
-                      if ( oldfortranout           && 
-                           callagrifinitgrids == 1 && 
+                      if ( oldfortranout           &&
+                           callagrifinitgrids == 1 &&
                            firstpass == 0 )
                       {
                          pos_end = setposcur();
                          RemoveWordSET_0(fortranout,pos_curcall,
                                                pos_end-pos_curcall);
-                         fprintf(oldfortranout,
-                                           "      Call Agrif_Init_Grids () \n");
+
                          strcpy(subofagrifinitgrids,subroutinename);
                       }
                       Instanciation_0(sameagrifname);
                    }
       ;
-opt_call : 
+opt_call :
       | '(' opt_callarglist  ')'
       ;
 opt_callarglist :
       | callarglist
       ;
-keywordcall : before_call TOK_NAME 
+keywordcall : before_call TOK_NAME
                     {
-                       if (!strcasecmp($2,"MPI_Init") ) 
+                       if (!strcasecmp($2,"MPI_Init") )
                        {
                           callmpiinit = 1;
-                          strcpy(meetmpiinit,subroutinename);
                        }
                        else
                        {
                           callmpiinit = 0;
                        }
-                       if (!strcasecmp($2,"Agrif_Init_Grids") ) 
+                       if (!strcasecmp($2,"Agrif_Init_Grids") )
                        {
                           callagrifinitgrids = 1;
                           strcpy(meetagrifinitgrids,subroutinename);
                        }
                        else callagrifinitgrids = 0;
-                       if ( Vartonumber($2) == 1 ) 
+                       if ( !strcasecmp($2,"Agrif_Open_File") )
+                       {
+                          Add_SubroutineWhereAgrifUsed_1(subroutinename,
+                                                        curmodulename);
+                       }
+                       if ( Vartonumber($2) == 1 )
                        {
                           incalldeclare=1;
                           inagrifcallargument = 1 ;
-                          AddsubroutineTolistsubwhereagrifused();
+                          Add_SubroutineWhereAgrifUsed_1(subroutinename,
+                                                        curmodulename);
                        }
                     }
       ;
 before_call : TOK_CALL
                     {pos_curcall=setposcur()-4;}
-callarglist:  callarg
+callarglist :  callarg
       | callarglist ',' callarg
       ;
 
-callarg:  expr {
-                  if ( callmpiinit == 1 ) 
+callarg :  expr {
+                  if ( callmpiinit == 1 )
                   {
                      strcpy(mpiinitvar,$1);
-                     if ( firstpass == 1 ) 
+                     if ( firstpass == 1 )
                      {
-                        curvar=createvar($1,NULL);
+                        Add_UsedInSubroutine_Var_1 (mpiinitvar);
+/*                        curvar=createvar($1,NULL);
                         curlistvar=insertvar(NULL,curvar);
-                        listargsubroutine = AddListvarToListvar
-                                               (curlistvar,listargsubroutine,1);
+                        List_Subr outineArgument_Var = AddListvarToListvar
+                         (curlistvar,List_SubroutineAr gument_Var,1);*/
                      }
                   }
                }
       | '*' label
       ;
 
-stop: TOK_PAUSE
+stop : TOK_PAUSE
       | TOK_STOP
       ;
 
-io: iofctl ioctl
+io : iofctl ioctl
       | read option_read
+      | write ioctl
+      | write ioctl outlist
       | TOK_REWIND after_rewind
-      | wordformat debut_format ioctl_format fin_format
-                    {formatdeclare = 0;}
+      | TOK_FORMAT
       ;
-wordformat : TOK_FORMAT
-                    {formatdeclare = 1;}
-opt_ioctlformat : 
-      | ioctl_format
-      ;
-opt_ioctl_format : 
-      | ',' ioctl_format
-      | ',' '*'
-      ;
-debut_format : TOK_LEFTAB opt_comma
-      | '('
-      ;
-ioctl_format : format_expr
-      |   ioctl_format ',' format_expr
-      ;
-format_expr : 
-      | uexpr
-      | TOK_CSTINT TOK_CHAR_INT
-      | TOK_CSTINT debut_format ioctl_format fin_format
-      | TOK_SLASH opt_CHAR_INT
-      | TOK_CHAR_INT TOK_SLASH format_expr
-      | TOK_SLASH TOK_SLASH
-      | TOK_CHAR_INT
-      | '(' format_expr ')'
-      | '(' uexpr ')'
-      ;
-opt_CHAR_INT : 
+opt_CHAR_INT :
       | TOK_CSTINT TOK_NAME
-      ;
-fin_format : opt_comma TOK_RIGHTAB opt_comma
-      | ')'
       ;
 idfile : '*'
       | TOK_CSTINT
@@ -2252,40 +2410,46 @@ opt_outlist :
 opt_inlist :
       | ',' inlist
       ;
-ioctl:  '(' ctllist ')'
-      | '(' fexpr ')' 
+ioctl :  '(' ctllist ')'
+      | '(' fexpr ')'
       ;
-after_rewind:  '(' ident ')'
+after_rewind :  '(' ident ')'
+      | '(' TOK_CSTINT ')'
+      | TOK_CSTINT
+      | '(' uexpr ')'
       | TOK_NAME
       ;
-ctllist: ioclause
+ctllist : ioclause
       | ctllist ',' ioclause
       ;
-ioclause: fexpr 
+ioclause : fexpr
       | '*'
       | TOK_DASTER
-      | TOK_NAME expr 
+      | TOK_NAME expr
       | TOK_NAME expr '%' ident_dims
       | TOK_NAME '(' triplet ')'
-      | TOK_NAME '*' 
-      | TOK_NAME TOK_DASTER 
+      | TOK_NAME '*'
+      | TOK_NAME TOK_DASTER
       ;
-iofctl: TOK_OPEN
+iofctl : TOK_OPEN
       | TOK_CLOSE
       ;
-infmt:  unpar_fexpr
+infmt :  unpar_fexpr
       | '*'
       ;
 
-read:TOK_READ
+read :TOK_READ
       | TOK_INQUIRE
-      | TOK_WRITE
       | TOK_PRINT
       ;
-fexpr: unpar_fexpr
+
+write : TOK_WRITE
+      ;
+
+fexpr : unpar_fexpr
       | '(' fexpr ')'
       ;
-unpar_fexpr: lhs
+unpar_fexpr : lhs
       | simple_const
       | fexpr addop fexpr %prec '+'
       | fexpr '*' fexpr
@@ -2299,101 +2463,105 @@ unpar_fexpr: lhs
       | TOK_END expr
       | TOK_NAME '=' expr
       ;
-addop: '+'
+addop : '+'
       | '-'
       ;
-inlist: inelt
+inlist : inelt
       | inlist ',' inelt
       ;
-opt_lhs : 
+opt_lhs :
       | lhs
       ;
-inelt: opt_lhs opt_operation
+inelt : opt_lhs opt_operation
       | '(' inlist ')' opt_operation
       | predefinedfunction opt_operation
-      | simple_const opt_operation 
+      | simple_const opt_operation
       | '(' inlist ',' dospec ')'
       ;
 opt_operation :
       | operation
       | opt_operation operation
-      ;      
-outlist: other      {strcpy($$,$1);} 
-      | out2       {strcpy($$,$1);} 
+      ;
+outlist : uexpr    {if ( couldaddvariable == 1 ) strcpy($$,$1);}
+      | other      {if ( couldaddvariable == 1 ) strcpy($$,$1);}
+      | out2       {if ( couldaddvariable == 1 ) strcpy($$,$1);}
       ;
 out2: uexpr ',' expr
-                   {sprintf($$,"%s,%s",$1,$3);} 
-      | uexpr ',' other 
-                   {sprintf($$,"%s,%s",$1,$3);} 
-      | other ',' expr 
-                   {sprintf($$,"%s,%s",$1,$3);} 
-      | other ',' other 
-                   {sprintf($$,"%s,%s",$1,$3);} 
-      | out2 ',' expr 
-                   {sprintf($$,"%s,%s",$1,$3);} 
-      | out2 ',' other 
-                   {sprintf($$,"%s,%s",$1,$3);} 
-      | uexpr     {strcpy($$,$1);} 
-      | predefinedfunction {strcpy($$,$1);} 
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s,%s",$1,$3);}
+      | uexpr ',' other
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s,%s",$1,$3);}
+      | other ',' expr
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s,%s",$1,$3);}
+      | other ',' other
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s,%s",$1,$3);}
+      | out2 ',' expr
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s,%s",$1,$3);}
+      | out2 ',' other
+                   {if ( couldaddvariable == 1 ) sprintf($$,"%s,%s",$1,$3);}
+      | uexpr     {if ( couldaddvariable == 1 ) strcpy($$,$1);}
+      | predefinedfunction {if ( couldaddvariable == 1 ) strcpy($$,$1);}
       ;
-other:  complex_const 
-                   {strcpy($$,$1);} 
-      | '(' expr ')' 
-                   {sprintf($$," (%s)",$2);} 
+other :  complex_const
+                   {if ( couldaddvariable == 1 ) strcpy($$,$1);}
+      | '(' expr ')'
+                   {if ( couldaddvariable == 1 ) sprintf($$," (%s)",$2);}
       | '(' uexpr ',' dospec ')'
-                   {sprintf($$,"(%s,%s)",$2,$4);} 
+                   {if ( couldaddvariable == 1 ) sprintf($$,"(%s,%s)",$2,$4);}
       | '(' other ',' dospec ')'
-                   {sprintf($$,"(%s,%s)",$2,$4);} 
+                   {if ( couldaddvariable == 1 ) sprintf($$,"(%s,%s)",$2,$4);}
       | '(' out2 ',' dospec ')'
-                   {sprintf($$,"(%s,%s)",$2,$4);} 
+                   {if ( couldaddvariable == 1 ) sprintf($$,"(%s,%s)",$2,$4);}
       ;
 
-dospec: TOK_NAME '=' expr ',' expr 
-                   {sprintf($$,"%s=%s,%s)",$1,$3,$5);} 
-      | TOK_NAME '=' expr ',' expr ',' expr 
-                   {sprintf($$,"%s=%s,%s,%s)",$1,$3,$5,$7);} 
+dospec : TOK_NAME '=' expr ',' expr
+                   {if ( couldaddvariable == 1 )
+                                              sprintf($$,"%s=%s,%s)",$1,$3,$5);}
+      | TOK_NAME '=' expr ',' expr ',' expr
+                   {if ( couldaddvariable == 1 )
+                                        sprintf($$,"%s=%s,%s,%s)",$1,$3,$5,$7);}
       ;
-labellist: label
+labellist : label
       | labellist ',' label
       ;
-label: TOK_CSTINT
+label : TOK_CSTINT
       ;
-goto: TOK_PLAINGOTO label
+goto : TOK_PLAINGOTO '(' expr ',' expr ')' ',' expr
+      | TOK_PLAINGOTO label
       ;
-allocation_list: allocate_object
+allocation_list : allocate_object
       | ident_dims
       | allocation_list ',' allocate_object
       ;
-allocate_object: ident
-                   {AddIdentToTheAllocateList_1($1);}
+allocate_object : ident
+                   {Add_Allocate_Var_1($1,curmodulename);}
       | structure_component
       | array_element
       ;
-array_element: ident '(' funargs ')' 
-                   {AddIdentToTheAllocateList_1($1);}
+array_element : ident '(' funargs ')'
+                   {Add_Allocate_Var_1($1,curmodulename);}
       ;
-subscript_list: expr 
-      | subscript_list ',' expr 
+subscript_list : expr
+      | subscript_list ',' expr
       ;
 
-allocate_object_list:allocate_object
+allocate_object_list :allocate_object
       | allocate_object_list ',' allocate_object
       ;
-opt_stat_spec:
+opt_stat_spec :
       | ',' TOK_STAT '=' ident
       ;
-pointer_name_list: ident
+pointer_name_list : ident
       | pointer_name_list ',' ident
       ;
-opt_construct_name:
+opt_construct_name :
       | TOK_NAME
       ;
-opt_construct_name_colon:
+opt_construct_name_colon :
       | TOK_CONSTRUCTID ':'
       ;
-logif: TOK_LOGICALIF expr ')'
+logif : TOK_LOGICALIF expr ')'
       ;
-do_var: ident {strcpy($$,$1);}
+do_var : ident {strcpy($$,$1);}
       ;
 %%
 
@@ -2401,104 +2569,101 @@ void processfortran(char *fichier_entree)
 {
    extern FILE *fortranin;
    extern FILE *fortranout;
-   char nomfile[LONGNOM];
+   char nomfile[LONG_C];
    int c;
    int confirmyes;
 
    /*fortrandebug = 1;*/
-   if ( todebug == 1 ) printf("Firstpass == %d \n",firstpass);
+   if ( mark == 1 ) printf("Firstpass == %d \n",firstpass);
 /******************************************************************************/
 /*  1-  Open input and output files                                           */
 /******************************************************************************/
-   strcpy(OriginalFileName,fichier_entree); 
    strcpy(nomfile,commondirin);
    strcat(nomfile,"/");
    strcat(nomfile,fichier_entree);
    fortranin=fopen( nomfile,"r");
-   if (! fortranin) 
+   if (! fortranin)
    {
       printf("Error : File %s does not exist\n",nomfile);
       exit(1);
    }
-   
+
    strcpy(curfile,nomfile);
    strcpy(nomfile,commondirout);
-   strcat(nomfile,"/");  
+   strcat(nomfile,"/");
    strcat(nomfile,fichier_entree);
    strcpy(nomfileoutput,nomfile);
-   if (firstpass == 1) 
+   Save_Length(nomfileoutput,31);
+   if (firstpass == 1)
    {
-      if (checkexistcommon == 1) 
+      if (checkexistcommon == 1)
       {
-         if (fopen(nomfile,"r")) 
+         if (fopen(nomfile,"r"))
          {
             printf("Warning : file %s already exist\n",nomfile);
             confirmyes = 0;
-            while (confirmyes==0) 
+            while (confirmyes==0)
             {
                printf("Override file %s ? [Y/N]\n",nomfile);
                c=getchar();
-               getchar();    
-               if (c==79 || c==110) 
+               getchar();
+               if (c==79 || c==110)
                {
                   printf("We stop\n");
                   exit(1);
                }
-               if (c==89 || c==121) 
+               if (c==89 || c==121)
                {
                   confirmyes=1;
                }
             }
          }
       }
-   }  
+   }
 
 /******************************************************************************/
 /*  2-  Variables initialization                                              */
 /******************************************************************************/
 
-   line_num_fortran_common=1; 
+   line_num_fortran_common=1;
    line_num_fortran=1;
-   PublicDeclare = 0;  
-   PrivateDeclare = 0; 
-   formatdeclare = 0;
-   ExternalDeclare = 0; 
+   PublicDeclare = 0;
+   PrivateDeclare = 0;
+   ExternalDeclare = 0;
    SaveDeclare = 0;
-   indeclarationvar=0;
    pointerdeclare = 0;
    optionaldeclare = 0;
    incalldeclare = 0;
-   infunctiondeclare = 0 ;
+   VarType = 0;
+   VarTypepar = 0;
    Allocatabledeclare = 0 ;
-   strcpy(NamePrecision," "); 
-   VariableIsParameter =  0 ; 
-   strcpy(NamePrecision,"");  
-   c_star = 0 ; 
+   strcpy(NamePrecision," ");
+   VariableIsParameter =  0 ;
+   strcpy(NamePrecision,"");
+   c_star = 0 ;
+   functiondeclarationisdone = 0;
    insubroutinedeclare = 0 ;
-   strcpy(subroutinename," "); 
-   InitialValueGiven = 0 ; 
-   strcpy(EmptyChar," "); 
+   strcpy(subroutinename," ");
+   InitialValueGiven = 0 ;
+   strcpy(EmptyChar," ");
    inmoduledeclare = 0;
    colnum=0;
    incom=0;
    couldaddvariable=1;
    aftercontainsdeclare = 1;
+   strcpy(nameinttypename,"");
    /* Name of the file without format                                         */
    tmp = strchr(fichier_entree, '.');
-   strncpy(curfilename,fichier_entree,strlen(fichier_entree)-strlen(tmp)); 
+   strncpy(curfilename,fichier_entree,strlen(fichier_entree)-strlen(tmp));
+   Save_Length(curfilename,30);
 /******************************************************************************/
-/*  2-  Parsing of the input file (1 time)                                    */
+/*  3-  Parsing of the input file (1 time)                                    */
 /******************************************************************************/
-   if (firstpass == 0 ) 
+   if (firstpass == 0 )
    {
       fortranout=fopen(nomfileoutput,"w");
-      /* we should add the new module comes from common block                 */
-      if (fortran77 == 1 ) 
-      {
-         convert2lower(curfilename);
-         fprintf
-                      (fortranout,"#include \"NewModule_%s.h\" \n",curfilename);
-      }
+
+      NewModule_Creation_0();
    }
 
    fortranparse();
