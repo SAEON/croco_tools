@@ -242,15 +242,18 @@
       integer Istr,Iend,Jstr,Jend, i,j
       real Ewind, Nwind, dircoef, windamp
       real cff1, cff2
-      data windamp /0./ 
+!     data windamp /0./ 
       data Ewind, Nwind, dircoef /0., 0., 0./
-      save windamp
+!     save windamp
 !
 # include "compute_auxiliary_bounds.h"
 !
 !  Set kinematic surface momentum flux (wind stress) component in the
 !  XI-direction (m^2/s^2) at horizontal U-points.
 !
+
+      windamp = 0.
+
 # ifdef BASIN
       cff1=0.0001 * 0.5*(1.+tanh((time-6.*86400.)/(3.*86400.)))
       cff2=2.*pi/el
