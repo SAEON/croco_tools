@@ -237,50 +237,27 @@ czz     cff3=0.0088
       enddo 
       
 #ifdef AGRIF
+
       if (FIRST_2D_STEP) then
-      if (WESTERN_EDGE) then
-          do j=JstrR,JendR  
-          do i=0,2*irhox            
-           Zeta_west3(i,j,0) = zeta(i,j,kstp)     
-           dv_west3(i,j,0)   = DVom(i,j)
-          enddo
-          do i=1,2*irhox                 
-           du_west3(i,j,0)   = DUon(i,j)
-          enddo          
-          enddo            
-      endif      
-      if (EASTERN_EDGE) then
-          do j=JstrR,JendR 
-          do i=IendR-2*irhox,IendR 
-          Zeta_east3(i,j,0) = zeta(i,j,kstp)          
-          DU_east3(i,j,0)   = DUon(i,j)
-          DV_east3(i,j,0)   = DVom(i,j)
-          enddo
-          enddo      
-      endif  
-      if (SOUTHERN_EDGE) then
-          do j=0,2*irhoy
-          do i=IstrR,IendR
-          Zeta_south3(i,j,0) = zeta(i,j,kstp)          
-          DU_south3(i,j,0)   = DUon(i,j)
-          enddo
-          enddo 
-          do j=1,2*irhoy
-          do i=IstrR,IendR          
-          DV_south3(i,j,0)   = DVom(i,j)
-          enddo
-          enddo               
-      endif      
-      if (NORTHERN_EDGE) then
-          do j=JendR-2*irhoy,JendR 
-          do i=IstrR,IendR
-          Zeta_north3(i,j,0) = zeta(i,j,kstp)          
-          DU_north3(i,j,0)   = DUon(i,j)
-          DV_north3(i,j,0)   = DVom(i,j)
-          enddo
-          enddo       
-      endif 
-      endif         
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          Zt_avg3(i,j,0)=zeta(i,j,kstp)       
+        enddo
+      enddo 
+      
+      do j=JstrR,JendR
+        do i=Istr,IendR
+        du_avg3(i,j,0)   = DUon(i,j)
+        enddo
+      enddo 
+      
+      do j=Jstr,JendR
+        do i=IstrR,IendR
+        dv_avg3(i,j,0)   = DVom(i,j)
+        enddo
+      enddo 
+      endif
+        
 #endif         
                   
 !
@@ -880,75 +857,30 @@ czz     cff3=0.0088
 
 #ifdef AGRIF
 
-       IF (.NOT.Agrif_Root()) THEN
+       if (.NOT.Agrif_Root()) THEN
       
-      if (WESTERN_EDGE) then
-          do j=JstrR,JendR  
-          do i=0,2*irhox            
-           Zeta_west3(i,j,iif) = zeta(i,j,knew)
-          enddo
-          do i=1,2*irhox                 
-           du_west3(i,j,iif)   = 0.5*(h(i,j)+zeta(i,j,knew)+
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          Zt_avg3(i,j,iif)=zeta(i,j,knew)
+        enddo
+      enddo 
+      
+      do j=JstrR,JendR
+        do i=Istr,IendR
+        du_avg3(i,j,iif)   = 0.5*(h(i,j)+zeta(i,j,knew)+
      &          h(i-1,j)+zeta(i-1,j,knew)) *on_u(i,j)*ubar(i,j,knew)
-          enddo          
-          enddo  
-          do j=JstrV,JendR
-          do i=0,2*irhox  
-           dv_west3(i,j,iif)   = 0.5*(h(i,j)+zeta(i,j,knew)+
+        enddo
+      enddo 
+      
+      do j=Jstr,JendR
+        do i=IstrR,IendR
+        dv_avg3(i,j,iif)   = 0.5*(h(i,j)+zeta(i,j,knew)+
      &          h(i,j-1)+zeta(i,j-1,knew)) *om_v(i,j)*vbar(i,j,knew)
-          enddo        
-          enddo                     
-      endif      
-      if (EASTERN_EDGE) then
-          do j=JstrR,JendR 
-          do i=IendR-2*irhox,IendR 
-          Zeta_east3(i,j,iif) = zeta(i,j,knew)          
-          DU_east3(i,j,iif)   = 0.5*(h(i,j)+zeta(i,j,knew)+
-     &          h(i-1,j)+zeta(i-1,j,knew)) *on_u(i,j)*ubar(i,j,knew)
-          enddo
-          enddo 
-          do j=JstrV,JendR
-          do i=IendR-2*irhox,IendR
-          DV_east3(i,j,iif)   = 0.5*(h(i,j)+zeta(i,j,knew)+
-     &          h(i,j-1)+zeta(i,j-1,knew)) *om_v(i,j)*vbar(i,j,knew)
-          enddo
-          enddo                
-      endif  
-      if (SOUTHERN_EDGE) then
-          do j=0,2*irhoy
-          do i=IstrR,IendR
-          Zeta_south3(i,j,iif) = zeta(i,j,knew)
-          enddo
-          enddo 
-          do j=0,2*irhoy
-          do i=IstrU,IendR          
-          DU_south3(i,j,iif)   = 0.5*(h(i,j)+zeta(i,j,knew)+
-     &          h(i-1,j)+zeta(i-1,j,knew)) *on_u(i,j)*ubar(i,j,knew)
-          enddo
-          enddo           
-          do j=1,2*irhoy
-          do i=IstrR,IendR          
-          DV_south3(i,j,iif)   = 0.5*(h(i,j)+zeta(i,j,knew)+
-     &          h(i,j-1)+zeta(i,j-1,knew)) *om_v(i,j)*vbar(i,j,knew)
-          enddo
-          enddo               
-      endif      
-      if (NORTHERN_EDGE) then
-          do j=JendR-2*irhoy,JendR 
-          do i=IstrR,IendR
-          Zeta_north3(i,j,iif) = zeta(i,j,knew)
-          DV_north3(i,j,iif)   = 0.5*(h(i,j)+zeta(i,j,knew)+
-     &          h(i,j-1)+zeta(i,j-1,knew)) *om_v(i,j)*vbar(i,j,knew)
-          enddo
-          enddo 
-          do j=JendR-2*irhoy,JendR 
-          do i=IstrU,IendR          
-          DU_north3(i,j,iif)   = 0.5*(h(i,j)+zeta(i,j,knew)+
-     &          h(i-1,j)+zeta(i-1,j,knew)) *on_u(i,j)*ubar(i,j,knew)
-          enddo
-          enddo                
-      endif 
-       ENDIF     
+        enddo
+      enddo
+    
+      endif
+
 #endif
 
 !

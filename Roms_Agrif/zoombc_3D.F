@@ -25,6 +25,7 @@
       integer :: irhot
       real :: rrhot
       integer :: nsource, ndest
+      integer :: parentnbstep
       
       real :: gamma
 !
@@ -43,9 +44,13 @@
 
 C$OMP BARRIER
 C$OMP MASTER
-       IF (((nbcoarse == 1).AND.(nnew == 3)).OR.
-     &   ((nbcoarse == irhot).AND.(nnew /=3))) THEN
-           
+
+      parentnbstep=Agrif_Parent_Nb_Step()
+      
+       IF ((((nbcoarse == 1).AND.(nnew == 3)).OR.
+     &   ((nbcoarse == irhot).AND.(nnew /=3))).AND.
+     &    (UTimeindex.NE.parentnbstep)) THEN
+
         Allocate(uext(GLOBAL_2D_ARRAY,N))
         tinterp=1. 
 #ifdef MASKING      
@@ -121,6 +126,9 @@ C$OMP MASTER
 #   endif                            
 #  endif
         deallocate(uext)
+
+        UTimeindex = parentnbstep
+
       endif
 C$OMP END MASTER
 C$OMP BARRIER
@@ -352,6 +360,7 @@ C$OMP BARRIER
       real :: rrhot
       integer :: nsource, ndest
       real :: gamma
+      integer :: parentnbstep
     
 !
 #  include "compute_auxiliary_bounds.h"
@@ -370,9 +379,12 @@ C$OMP BARRIER
 C$OMP BARRIER
 C$OMP MASTER
       
-       IF (((nbcoarse == 1).AND.(nnew == 3)).OR.
-     &   ((nbcoarse == irhot).AND.(nnew /=3))) THEN
-           
+      parentnbstep=Agrif_Parent_Nb_Step()
+      
+       IF ((((nbcoarse == 1).AND.(nnew == 3)).OR.
+     &   ((nbcoarse == irhot).AND.(nnew /=3))).AND.
+     &    (VTimeindex.NE.parentnbstep)) THEN 
+
         allocate(vext(GLOBAL_2D_ARRAY,N))
         tinterp=1.
 
@@ -446,6 +458,9 @@ C$OMP MASTER
 #   endif                               
 #  endif
         deallocate(vext)
+
+        VTimeindex=parentnbstep
+
       endif
 C$OMP END MASTER
 C$OMP BARRIER
@@ -631,7 +646,9 @@ C$OMP BARRIER
       real ainterp(4)
       integer :: irhot
       real :: rrhot
-      integer :: nsource, ndest      
+      integer :: nsource, ndest
+      integer :: parentnbstep
+
 !
 #  include "compute_auxiliary_bounds.h"
 !
@@ -651,8 +668,13 @@ C$OMP BARRIER
 
 C$OMP BARRIER
 C$OMP MASTER
+
+      parentnbstep=Agrif_Parent_Nb_Step()
+
        IF ((((nbcoarse == 1).AND.(nnew == 3)).OR.
-     &   ((nbcoarse == irhot).AND.(nnew /=3))).AND.(itrc == 1)) THEN
+     &   ((nbcoarse == irhot).AND.(nnew /=3))).AND.
+     &    (TTimeindex.NE.parentnbstep)) THEN 
+
         allocate(text(GLOBAL_2D_ARRAY,N,NT))
         tinterp=1.
 #ifdef MASKING        
@@ -729,7 +751,10 @@ C$OMP MASTER
 #   endif                           
 #  endif
         
-        deallocate(text)     
+        deallocate(text)
+
+         TTimeindex=parentnbstep 
+
       endif
 C$OMP END MASTER
 C$OMP BARRIER

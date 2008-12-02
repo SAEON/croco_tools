@@ -11,13 +11,6 @@
 
 #ifdef AGRIF
 # ifdef AGRIF_OBC_WEST
-      real Zeta_west3(-1:7,-1:Mm+2+padd_E,0:NWEIGHT)
-      common/zoom2D_ZetaW/Zeta_west3
-      real DU_west3(-1:7,-1:Mm+2+padd_E,0:NWEIGHT)
-      common/zoom2D_UW/DU_west3
-      real DV_west3(-1:7,-1:Mm+2+padd_E,0:NWEIGHT)    
-      common/zoom2D_VW/DV_west3
-
 #  ifdef SOLVE3D
       real T_west(0:1,-1:Mm+2+padd_E,N,4,NT)
       common/zoom3D_TW/T_west
@@ -28,12 +21,6 @@
 #  endif
 # endif
 # ifdef AGRIF_OBC_EAST
-      real Zeta_east3(Lm-7:Lm+2+padd_X,-1:Mm+2+padd_E,0:NWEIGHT)
-      common/zoom2D_ZetaE/Zeta_east3
-      real DU_east3(Lm-7:Lm+2+padd_X,-1:Mm+2+padd_E,0:NWEIGHT)
-      common/zoom2D_UE/DU_east3
-      real DV_east3(Lm-7:Lm+2+padd_X,-1:Mm+2+padd_E,0:NWEIGHT)
-      common/zoom2D_VE/DV_east3
 #  ifdef SOLVE3D
       real T_east(LOCALLM:LOCALLM+1,-1:Mm+2+padd_E,N,4,NT)
       common/zoom3D_TE/T_east
@@ -44,12 +31,6 @@
 #  endif
 # endif
 # ifdef AGRIF_OBC_SOUTH   
-      real Zeta_south3(-1:Lm+2+padd_X,-1:7,0:NWEIGHT)       
-      common/zoom2D_ZetaS/Zeta_south3
-      real DU_south3(-1:Lm+2+padd_X,-1:7,0:NWEIGHT)
-      common/zoom2D_US/DU_south3
-      real DV_south3(-1:Lm+2+padd_X,-1:7,0:NWEIGHT)
-      common/zoom2D_VS/DV_south3
 #  ifdef SOLVE3D
       real T_south(-1:Lm+2+padd_X,0:1,N,4,NT)
       common/zoom3D_TS/T_south
@@ -60,12 +41,6 @@
 #  endif
 # endif
 # ifdef AGRIF_OBC_NORTH  
-      real Zeta_north3(-1:Lm+2+padd_X,Mm-7:Mm+2+padd_E,0:NWEIGHT)
-      common/zoom2D_ZetaN/Zeta_north3
-      real DU_north3(-1:Lm+2+padd_X,Mm-7:Mm+2+padd_E,0:NWEIGHT)
-      common/zoom2D_UN/DU_north3
-      real DV_north3(-1:Lm+2+padd_X,Mm-7:Mm+2+padd_E,0:NWEIGHT)
-      common/zoom2D_VN/DV_north3
 #  ifdef SOLVE3D
       real T_north(-1:Lm+2+padd_X,LOCALMM:LOCALMM+1,N,4,NT)     
       common/zoom3D_TN/T_north
@@ -75,12 +50,12 @@
       common/zoom3D_VN/V_north
 #  endif
 # endif
-      integer Zetatimeindex
-      common/zoom2D_ZetaT/Zetatimeindex
-      integer U2DTimeindex
-      common/zoom2D_UT/U2DTimeindex    
-      integer V2DTimeindex
-      common/zoom2D_VT/V2DTimeindex 
+      integer Zetatimeindex, Zetatimeindex2
+      common/zoom2D_ZetaT/Zetatimeindex, Zetatimeindex2
+      integer U2DTimeindex, U2DTimeindex2
+      common/zoom2D_UT/U2DTimeindex, U2DTimeindex2
+      integer V2DTimeindex, V2DTimeindex2
+      common/zoom2D_VT/V2DTimeindex, V2DTimeindex2
 # ifdef SOLVE3D
       integer Ttimeindex
       common/zoom3D_TT/Ttimeindex
@@ -106,12 +81,14 @@
       real myfy(GLOBAL_2D_ARRAY,N,NT)
       common/myfluxes/myfx,myfy
        
-      real Zt_avg3(GLOBAL_2D_ARRAY,4)
-      common/averagebaro/Zt_avg3
+      real Zt_avg2(GLOBAL_2D_ARRAY,4)
+      common/averagebaro/Zt_avg2
       
-      real dinterp(GLOBAL_2D_ARRAY)
-      common/zoombc2D/dinterp
-      
+      real dZtinterp(GLOBAL_2D_ARRAY)
+      real dUinterp(GLOBAL_2D_ARRAY)
+      real dVinterp(GLOBAL_2D_ARRAY)            
+      common/zoombc2D/dZtinterp,dUinterp,dVinterp
+
       logical Alreadyupdated(GLOBAL_2D_ARRAY,3)
       common/updateprestep/Alreadyupdated
 
@@ -120,6 +97,13 @@
        real tsponge(GLOBAL_2D_ARRAY,N,NT)
        common/sponge_com/usponge, vsponge, tsponge
 
+      real Zt_avg3(GLOBAL_2D_ARRAY,0:NWEIGHT)
+      common/zoom2D_Zeta2/Zt_avg3
+      real DU_avg3(GLOBAL_2D_ARRAY,0:NWEIGHT)
+      common/zoom2D_U2/DU_avg3
+      real DV_avg3(GLOBAL_2D_ARRAY,0:NWEIGHT)    
+      common/zoom2D_V2/DV_avg3 
+       
 #  ifdef SOLVE3D
       real T_sponge_west(0:10,-1:Mm+2+padd_E,N,2,NT)
       common/zoom3D_sponge_TW/T_sponge_west
@@ -154,4 +138,13 @@
             
 #  endif
             
+      real A1dXI(GLOBAL_1D_ARRAYXI,10*NWEIGHT)
+      real A1dETA(GLOBAL_1D_ARRAYETA,10*NWEIGHT)
+      common/work_agrif/A1dXI,A1dETA 
+
+      integer TspongeTimeindex, TspongeTimeindex2
+      integer UspongeTimeindex, UspongeTimeindex2
+      common/zoom3D_sponge/TspongeTimeindex, UspongeTimeindex,
+     &      TspongeTimeindex2, UspongeTimeindex2 
+
 #endif

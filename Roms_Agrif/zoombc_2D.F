@@ -29,14 +29,12 @@
       integer :: ipu, jpu, parentnnew
       integer :: parentnbstep
       real :: cffx, cffy
-      real,dimension(PRIVATE_1DETA_SCRATCH_ARRAY) :: DU_west, DU_east,
-     &  DU_west6,DU_east6
-      real,dimension(PRIVATE_1DETA_SCRATCH_ARRAY,0:NWEIGHT) :: 
-     &                      DU_west4, DU_east4
-      real,dimension(PRIVATE_1DXI_SCRATCH_ARRAY) :: DU_south,DU_north,
-     &                      DU_south6,DU_north6
-      real,dimension(PRIVATE_1DXI_SCRATCH_ARRAY,0:NWEIGHT) :: 
-     &                      DU_south4,DU_north4     
+      real,dimension(PRIVATE_1DETA_SCRATCH_ARRAY) :: DU_west, DU_east
+      real,dimension(GLOBAL_1D_ARRAYETA) :: DU_west6,DU_east6     
+      real,dimension(GLOBAL_1D_ARRAYETA,0:NWEIGHT) :: DU_west4, DU_east4
+      real,dimension(PRIVATE_1DXI_SCRATCH_ARRAY) :: DU_south,DU_north
+      real,dimension(GLOBAL_1D_ARRAYXI) :: DU_south6,DU_north6     
+      real,dimension(GLOBAL_1D_ARRAYXI,0:NWEIGHT) :: DU_south4,DU_north4
       real :: lastcff
 !$AGRIF_DO_NOT_TREAT
       real,dimension(:,:,:),pointer :: coarsevalues
@@ -69,14 +67,10 @@
       parentnbstep=Agrif_Parent_Nb_Step()
       if (U2DTimeindex .NE. parentnbstep) then
 
-        do J=JstrR,JendR
-        do i=IstrR,IendR
-        dinterp(i,j) = 0.
-        enddo
-        enddo
-              
 C$OMP BARRIER
 C$OMP MASTER      
+
+        dUinterp = 0.
 
         tinterp=1.
 # ifdef MASKING
@@ -87,12 +81,17 @@ C$OMP MASTER
         nbgrid = Agrif_Fixed()
 C        indinterp = 0 indinterp is set to zero in zetabc
            
-        Call Agrif_Bc_variable(dinterp,DU_avg2,calledweight=tinterp,
+        Call Agrif_Bc_variable(dUinterp,DU_avg2,calledweight=tinterp,
      &    procname = u2dinterp)
                   
         Agrif_UseSpecialvalue=.false. 
 C$OMP END MASTER
 C$OMP BARRIER
+        U2DTimeindex = parentnbstep
+        U2DTimeindex2 = agrif_nb_step()
+      endif
+
+       if (agrif_nb_step() .EQ. U2DTimeindex2) then
 
           lastcff=0.
           do iter=iif,iif+irhot-1
@@ -107,11 +106,11 @@ C$OMP BARRIER
           i = Istr
 
           do j=Jstr,Jend
-          DU_west4(j,iif-1) = DU_west3(i,j,iif-1)
+          DU_west4(j,iif-1) = DU_avg3(i,j,iif-1)
           enddo
           
           if (iif+irhot-1<=nfast) then
-           DU_west6=0.
+           DU_west6(Jstr:Jend)=0.
           do iter=0,iif-1
           cff1=weight2(iif+irhot-1,iter)
             do j=Jstr,Jend
@@ -129,7 +128,7 @@ C$OMP BARRIER
 
           
           do j=Jstr,Jend
-          DU_west6(j)=lastcff*((dinterp(i,j)/rrhoy)-DU_west6(j))
+          DU_west6(j)=lastcff*((dUinterp(i,j)/rrhoy)-DU_west6(j))
 #  ifdef MASKING
      &                               * umask(i,j)
 #  endif                     
@@ -147,11 +146,11 @@ C$OMP BARRIER
           i=Iend+1         
           
           do j=Jstr,Jend
-          DU_east4(j,iif-1) = DU_east3(i,j,iif-1)
+          DU_east4(j,iif-1) = DU_avg3(i,j,iif-1)
           enddo
           
           if (iif+irhot-1<=nfast) then
-           DU_east6=0.
+           DU_east6(Jstr:Jend)=0.
           do iter=0,iif-1
           cff1=weight2(iif+irhot-1,iter)
             do j=Jstr,Jend
@@ -167,7 +166,7 @@ C$OMP BARRIER
           enddo
 
           do j=Jstr,Jend
-          DU_east6(j)=lastcff*((dinterp(i,j)/rrhoy)-DU_east6(j))
+          DU_east6(j)=lastcff*((dUinterp(i,j)/rrhoy)-DU_east6(j))
 #  ifdef MASKING
      &                               * umask(i,j)
 #  endif          
@@ -187,11 +186,11 @@ C$OMP BARRIER
           j=Jstr-1
           
           do i=Istr,Iend
-          DU_south4(i,iif-1) = DU_south3(i,j,iif-1)
+          DU_south4(i,iif-1) = DU_avg3(i,j,iif-1)
           enddo
           
           if (iif+irhot-1<=nfast) then
-           DU_south6=0.
+           DU_south6(Istr:Iend)=0.
           do iter=0,iif-1
           cff1=weight2(iif+irhot-1,iter)
             do i=Istr,Iend
@@ -207,7 +206,7 @@ C$OMP BARRIER
           enddo
           
           do i=Istr,Iend
-          DU_south6(i)=lastcff*((dinterp(i,j)/rrhox)-DU_south6(i))
+          DU_south6(i)=lastcff*((dUinterp(i,j)/rrhox)-DU_south6(i))
 #  ifdef MASKING
      &                               * umask(i,j)
 #  endif          
@@ -226,11 +225,11 @@ C$OMP BARRIER
           j=Jend+1
           
           do i=Istr,Iend
-          DU_north4(i,iif-1) = DU_north3(i,j,iif-1)
+          DU_north4(i,iif-1) = DU_avg3(i,j,iif-1)
           enddo
           
           if (iif+irhot-1<=nfast) then
-           DU_north6=0.
+           DU_north6(Istr:Iend)=0.
           do iter=0,iif-1
           cff1=weight2(iif+irhot-1,iter)
             do i=Istr,Iend
@@ -248,7 +247,7 @@ C$OMP BARRIER
 
           
           do i=Istr,Iend
-          DU_north6(i)=lastcff*((dinterp(i,j)/rrhox)-DU_north6(i))
+          DU_north6(i)=lastcff*((dUinterp(i,j)/rrhox)-DU_north6(i))
 #  ifdef MASKING
      &                               * umask(i,j)
 #  endif             
@@ -261,7 +260,6 @@ C$OMP BARRIER
 
       endif
 # endif
-        U2DTimeindex = parentnbstep
       endif
 
 # ifdef AGRIF_OBC_WEST
@@ -269,7 +267,7 @@ C$OMP BARRIER
           i = Istr        
 
           do j=Jstr,Jend
-           DU_west4(j,iif-1) = DU_west3(i,j,iif-1)
+           DU_west4(j,iif-1) = DU_avg3(i,j,iif-1)
           enddo
            
           do j=Jstr,Jend
@@ -283,7 +281,7 @@ C$OMP BARRIER
           i=Iend+1
           
           do j=Jstr,Jend
-           DU_east4(j,iif-1) = DU_east3(i,j,iif-1)
+           DU_east4(j,iif-1) = DU_avg3(i,j,iif-1)
           enddo
            
           do j=Jstr,Jend
@@ -297,7 +295,7 @@ C$OMP BARRIER
           j=Jstr-1
           
           do i=Istr,Iend
-           DU_south4(i,iif-1) = DU_south3(i,j,iif-1)
+           DU_south4(i,iif-1) = DU_avg3(i,j,iif-1)
           enddo
            
           do i=Istr,Iend
@@ -311,7 +309,7 @@ C$OMP BARRIER
           j=Jend+1
 
           do i=Istr,Iend
-           DU_north4(i,iif-1) = DU_north3(i,j,iif-1)
+           DU_north4(i,iif-1) = DU_avg3(i,j,iif-1)
           enddo
            
           do i=Istr,Iend
@@ -328,7 +326,7 @@ C$OMP BARRIER
       cffx = g*dtfast*2./(1.+rrhox)
 
 #  ifdef AGRIF_2WAY
-      cffx = 0.
+!     cffx = 0.
 #  endif
 
 #  ifdef AGRIF_OBC_WEST
@@ -433,6 +431,7 @@ C$OMP BARRIER
 # include "grid.h"
 # include "ocean2d.h"
 # include "scalars.h"
+# include "zoom.h"
 
        integer i1,i2,j1,j2
        real tabres(i1:i2,j1:j2)
@@ -517,14 +516,12 @@ C$OMP BARRIER
       integer :: iter  
       integer :: parentnbstep    
       real :: cffy
-      real,dimension(PRIVATE_1DETA_SCRATCH_ARRAY) :: DV_west, DV_east,
-     &  DV_west6,DV_east6
-      real,dimension(PRIVATE_1DETA_SCRATCH_ARRAY,0:NWEIGHT) :: 
-     &                      DV_west4, DV_east4
-      real,dimension(PRIVATE_1DXI_SCRATCH_ARRAY) :: DV_south,DV_north,
-     &                      DV_south6,DV_north6
-      real,dimension(PRIVATE_1DXI_SCRATCH_ARRAY,0:NWEIGHT) :: 
-     &                      DV_south4,DV_north4 
+      real,dimension(PRIVATE_1DETA_SCRATCH_ARRAY) :: DV_west, DV_east
+      real,dimension(GLOBAL_1D_ARRAYETA) :: DV_west6,DV_east6     
+      real,dimension(GLOBAL_1D_ARRAYETA,0:NWEIGHT) :: DV_west4, DV_east4
+      real,dimension(PRIVATE_1DXI_SCRATCH_ARRAY) :: DV_south,DV_north
+      real,dimension(GLOBAL_1D_ARRAYXI) :: DV_south6,DV_north6     
+      real,dimension(GLOBAL_1D_ARRAYXI,0:NWEIGHT) :: DV_south4,DV_north4
 
       real :: lastcff
 !$AGRIF_DO_NOT_TREAT
@@ -561,14 +558,10 @@ C$OMP BARRIER
       if (V2DTimeindex .NE. parentnbstep) then
 
         
-        do J=JstrR,JendR
-        do i=IstrR,IendR
-        dinterp(i,j) = 0.
-        enddo
-        enddo
-
 C$OMP BARRIER
 C$OMP MASTER
+
+        dVinterp = 0.
 
         tinterp=1.
 #ifdef MASKING        
@@ -579,12 +572,17 @@ C$OMP MASTER
         
         nbgrid = Agrif_Fixed()
 C        indinterp = 0 indinterp is set to zero in zetabc
-        Call Agrif_Bc_variable(dinterp,DV_avg2,calledweight=tinterp,
+        Call Agrif_Bc_variable(dVinterp,DV_avg2,calledweight=tinterp,
      &   procname = v2dinterp)
                   
         Agrif_UseSpecialvalue=.false.
 C$OMP END MASTER
 C$OMP BARRIER
+        V2DTimeindex = parentnbstep
+        V2DTimeindex2 = agrif_nb_step()
+      endif
+      
+      if (agrif_nb_step() .EQ. V2DTimeindex2) then
 
           lastcff=0.
           do iter=iif,iif+irhot-1
@@ -599,11 +597,11 @@ C$OMP BARRIER
           j=Jstr
           
           do i=Istr,Iend
-          DV_south4(i,iif-1) = DV_south3(i,j,iif-1)
+          DV_south4(i,iif-1) = DV_avg3(i,j,iif-1)
           enddo
           
           if (iif+irhot-1<=nfast) then
-           DV_south6=0.
+           DV_south6(Istr:Iend)=0.
           do iter=0,iif-1
           cff1=weight2(iif+irhot-1,iter)
             do i=Istr,Iend
@@ -619,7 +617,7 @@ C$OMP BARRIER
           enddo
           
           do i=Istr,Iend
-          DV_south6(i)=lastcff*((dinterp(i,j)/rrhox)-DV_south6(i))
+          DV_south6(i)=lastcff*((dVinterp(i,j)/rrhox)-DV_south6(i))
 #  ifdef MASKING
      &                               * vmask(i,j)
 #   endif          
@@ -638,11 +636,11 @@ C$OMP BARRIER
           j=Jend+1
           
           do i=Istr,Iend
-          DV_north4(i,iif-1) = DV_north3(i,j,iif-1)
+          DV_north4(i,iif-1) = DV_avg3(i,j,iif-1)
           enddo
           
           if (iif+irhot-1<=nfast) then
-           DV_north6=0.
+           DV_north6(Istr:Iend)=0.
           do iter=0,iif-1
           cff1=weight2(iif+irhot-1,iter)
             do i=Istr,Iend
@@ -660,7 +658,7 @@ C$OMP BARRIER
 
           
           do i=Istr,Iend
-          DV_north6(i)=lastcff*((dinterp(i,j)/rrhox)-DV_north6(i))
+          DV_north6(i)=lastcff*((dVinterp(i,j)/rrhox)-DV_north6(i))
 #  ifdef MASKING
      &                               * vmask(i,j)
 #   endif             
@@ -679,11 +677,11 @@ C$OMP BARRIER
           i = Istr-1
 
           do j=Jstr,Jend
-          DV_west4(j,iif-1) = DV_west3(i,j,iif-1)
+          DV_west4(j,iif-1) = DV_avg3(i,j,iif-1)
           enddo
           
           if (iif+irhot-1<=nfast) then
-           DV_west6=0.
+           DV_west6(Jstr:Jend)=0.
           do iter=0,iif-1
           cff1=weight2(iif+irhot-1,iter)
             do j=Jstr,Jend
@@ -701,7 +699,7 @@ C$OMP BARRIER
 
           
           do j=Jstr,Jend
-          DV_west6(j)=lastcff*((dinterp(i,j)/rrhoy)-DV_west6(j))
+          DV_west6(j)=lastcff*((dVinterp(i,j)/rrhoy)-DV_west6(j))
 #  ifdef MASKING
      &                               * vmask(i,j)
 #   endif                     
@@ -720,11 +718,11 @@ C$OMP BARRIER
           i=Iend+1         
           
           do j=Jstr,Jend
-          DV_east4(j,iif-1) = DV_east3(i,j,iif-1)
+          DV_east4(j,iif-1) = DV_avg3(i,j,iif-1)
           enddo
           
           if (iif+irhot-1<=nfast) then
-           DV_east6=0.
+           DV_east6(Jstr:Jend)=0.
           do iter=0,iif-1
           cff1=weight2(iif+irhot-1,iter)
             do j=Jstr,Jend
@@ -740,7 +738,7 @@ C$OMP BARRIER
           enddo
           
           do j=Jstr,Jend
-          DV_east6(j)=lastcff*((dinterp(i,j)/rrhoy)-DV_east6(j))
+          DV_east6(j)=lastcff*((dVinterp(i,j)/rrhoy)-DV_east6(j))
 #  ifdef MASKING
      &                               * vmask(i,j)
 #   endif          
@@ -753,7 +751,6 @@ C$OMP BARRIER
                                  
       endif
 # endif
-        V2DTimeindex = parentnbstep
       endif
           
 
@@ -763,7 +760,7 @@ C$OMP BARRIER
           j=Jstr
           
           do i=Istr,Iend
-           DV_south4(i,iif-1) = DV_south3(i,j,iif-1)
+           DV_south4(i,iif-1) = DV_avg3(i,j,iif-1)
           enddo
            
           do i=Istr,Iend
@@ -778,7 +775,7 @@ C$OMP BARRIER
           j=Jend+1
 
           do i=Istr,Iend
-           DV_north4(i,iif-1) = DV_north3(i,j,iif-1)
+           DV_north4(i,iif-1) = DV_avg3(i,j,iif-1)
           enddo
            
           do i=Istr,Iend
@@ -793,7 +790,7 @@ C$OMP BARRIER
           i = Istr-1         
 
           do j=Jstr,Jend
-           DV_west4(j,iif-1) = DV_west3(i,j,iif-1)
+           DV_west4(j,iif-1) = DV_avg3(i,j,iif-1)
           enddo
            
           do j=Jstr,Jend
@@ -808,7 +805,7 @@ C$OMP BARRIER
           i=Iend+1
           
           do j=Jstr,Jend
-           DV_east4(j,iif-1) = DV_east3(i,j,iif-1)
+           DV_east4(j,iif-1) = DV_avg3(i,j,iif-1)
           enddo
            
           do j=Jstr,Jend
@@ -825,7 +822,7 @@ C$OMP BARRIER
       cffy = g*dtfast*2./(1.+rrhoy)
 
 #  ifdef AGRIF_2WAY
-      cffy = 0.
+!     cffy = 0.
 #  endif
 
 #  ifdef AGRIF_OBC_SOUTH
@@ -927,6 +924,7 @@ C$OMP BARRIER
 # include "grid.h"
 # include "ocean2d.h"
 # include "scalars.h"
+# include "zoom.h"
 
        integer i1,i2,j1,j2
        real tabres(i1:i2,j1:j2)
@@ -1059,24 +1057,17 @@ C$OMP BARRIER
       integer :: iter
       real :: onemtinterp
       integer :: parentnbstep
-      real,dimension(Istr-1:Istr,PRIVATE_1DETA_SCRATCH_ARRAY) ::
-     &                    Zeta_west6
-      real,dimension(Iend:Iend+1,PRIVATE_1DETA_SCRATCH_ARRAY) ::
-     &                    Zeta_east6     
-      real,dimension(PRIVATE_1DXI_SCRATCH_ARRAY,Jstr-1:Jstr) ::
-     &                    Zeta_south6
-      real,dimension(PRIVATE_1DXI_SCRATCH_ARRAY,Jend:Jend+1) ::
-     &         Zeta_north6 
+
+      real,dimension(Istr-1:Istr,GLOBAL_1D_ARRAYETA) :: Zeta_west6
+      real,dimension(Iend:Iend+1,GLOBAL_1D_ARRAYETA) :: Zeta_east6     
+      real,dimension(GLOBAL_1D_ARRAYXI,Jstr-1:Jstr) :: Zeta_south6
+      real,dimension(GLOBAL_1D_ARRAYXI,Jend:Jend+1) :: Zeta_north6 
      
-      real,dimension(Istr-1:Istr,
-     &          PRIVATE_1DETA_SCRATCH_ARRAY,0:NWEIGHT) :: Zeta_west4
-      real,dimension(Iend:Iend+1,
-     &          PRIVATE_1DETA_SCRATCH_ARRAY,0:NWEIGHT) :: Zeta_east4     
-      real,dimension(PRIVATE_1DXI_SCRATCH_ARRAY,
-     &          Jstr-1:Jstr,0:NWEIGHT) :: Zeta_south4
-      real,dimension(PRIVATE_1DXI_SCRATCH_ARRAY,
-     &          Jend:Jend+1,0:NWEIGHT) :: Zeta_north4
-              
+      real,dimension(Istr-1:Istr,GLOBAL_1D_ARRAYETA,0:NWEIGHT) :: Zeta_west4
+      real,dimension(Iend:Iend+1,GLOBAL_1D_ARRAYETA,0:NWEIGHT) :: Zeta_east4
+      real,dimension(GLOBAL_1D_ARRAYXI,Jstr-1:Jstr,0:NWEIGHT) :: Zeta_south4
+      real,dimension(GLOBAL_1D_ARRAYXI,Jend:Jend+1,0:NWEIGHT) :: Zeta_north4
+
       real lastcff
 !$AGRIF_DO_NOT_TREAT
       real,dimension(:,:,:),pointer :: coarsevalues
@@ -1107,14 +1098,10 @@ C$OMP BARRIER
 
       if (ZetaTimeindex .NE. parentnbstep) then
       
-        do J=JstrR,JendR
-        do i=IstrR,IendR
-        dinterp(i,j) = 0.
-        enddo
-        enddo
-
 C$OMP BARRIER
 C$OMP MASTER
+
+        dZtinterp = 0.
 
             tinterp=1.
                           
@@ -1126,12 +1113,17 @@ C$OMP MASTER
         nbgrid = Agrif_Fixed()
         indinterp = 0
                
-            Call Agrif_Bc_variable(dinterp,Zt_avg1,
+            Call Agrif_Bc_variable(dZtinterp,Zt_avg1,
      &                                        calledweight=tinterp,
      &                                        procname=zetainterp)
             Agrif_UseSpecialvalue=.false. 
 C$OMP END MASTER
 C$OMP BARRIER
+            ZetaTimeindex = parentnbstep
+            ZetaTimeindex2 = agrif_nb_step()
+          endif       
+          
+          if (agrif_nb_step() .EQ. ZetaTimeindex2) then
 
           lastcff=0.
           do iter=iif,iif+irhot-1
@@ -1146,12 +1138,12 @@ C$OMP BARRIER
 
           do j=Jstr-1,Jstr
           do i=Istr,Iend
-          Zeta_south4(i,j,iif-1) = Zeta_south3(i,j,iif-1)
+          Zeta_south4(i,j,iif-1) = Zt_avg3(i,j,iif-1)
           enddo
           enddo
           
           if (iif+irhot-1<=nfast) then
-           Zeta_south6=0.
+           Zeta_south6(Istr:Iend,Jstr-1:Jstr)=0.
           do iter=0,iif-1
           cff1=weight2(iif+irhot-1,iter)
             do j=Jstr-1,Jstr
@@ -1174,7 +1166,7 @@ C$OMP BARRIER
 
           do j=Jstr-1,Jstr         
           do i=Istr,Iend
-          Zeta_south6(i,j)=lastcff*(dinterp(i,j)-Zeta_south6(i,j))
+          Zeta_south6(i,j)=lastcff*(dZtinterp(i,j)-Zeta_south6(i,j))
           enddo
           enddo                
           
@@ -1194,12 +1186,12 @@ C$OMP BARRIER
              
           do j=Jend,Jend+1
           do i=Istr,Iend
-          Zeta_north4(i,j,iif-1) = Zeta_north3(i,j,iif-1)
+          Zeta_north4(i,j,iif-1) = Zt_avg3(i,j,iif-1)
           enddo
           enddo
           
           if (iif+irhot-1<=nfast) then
-           Zeta_north6=0.
+           Zeta_north6(Istr:Iend,Jend:Jend+1)=0.
           do iter=0,iif-1
           cff1=weight2(iif+irhot-1,iter)
             do j=Jend,Jend+1
@@ -1222,7 +1214,7 @@ C$OMP BARRIER
 
           do j=Jend,Jend+1         
           do i=Istr,Iend
-          Zeta_north6(i,j)=lastcff*(dinterp(i,j)-Zeta_north6(i,j))
+          Zeta_north6(i,j)=lastcff*(dZtinterp(i,j)-Zeta_north6(i,j))
           enddo
           enddo                
           
@@ -1241,12 +1233,12 @@ C$OMP BARRIER
 
           do j=Jstr,Jend
           do i=Istr-1,Istr
-          Zeta_west4(i,j,iif-1) = Zeta_west3(i,j,iif-1)
+          Zeta_west4(i,j,iif-1) = Zt_avg3(i,j,iif-1)
           enddo
           enddo
           
           if (iif+irhot-1<=nfast) then
-           Zeta_west6=0.
+           Zeta_west6(Istr-1:Istr,Jstr:Jend)=0.
           do iter=0,iif-1
           cff1=weight2(iif+irhot-1,iter)
             do j=Jstr,Jend
@@ -1269,7 +1261,7 @@ C$OMP BARRIER
 
           do j=Jstr,Jend         
           do i=Istr-1,Istr
-          Zeta_west6(i,j)=lastcff*(dinterp(i,j)-Zeta_west6(i,j))
+          Zeta_west6(i,j)=lastcff*(dZtinterp(i,j)-Zeta_west6(i,j))
           enddo
           enddo                
           
@@ -1289,12 +1281,12 @@ C$OMP BARRIER
 
           do j=Jstr,Jend
           do i=Iend,Iend+1
-          Zeta_east4(i,j,iif-1) = Zeta_east3(i,j,iif-1)
+          Zeta_east4(i,j,iif-1) = Zt_avg3(i,j,iif-1)
           enddo
           enddo
           
           if (iif+irhot-1<=nfast) then
-           Zeta_east6=0.
+           Zeta_east6(Iend:Iend+1,Jstr:Jend)=0.
           do iter=0,iif-1
           cff1=weight2(iif+irhot-1,iter)
             do j=Jstr,Jend
@@ -1317,7 +1309,7 @@ C$OMP BARRIER
 
           do j=Jstr,Jend         
           do i=Iend,Iend+1
-          Zeta_east6(i,j)=lastcff*(dinterp(i,j)-Zeta_east6(i,j))
+          Zeta_east6(i,j)=lastcff*(dZtinterp(i,j)-Zeta_east6(i,j))
           enddo
           enddo                
           
@@ -1331,7 +1323,6 @@ C$OMP BARRIER
                                          
       endif
 # endif
-            ZetaTimeindex = parentnbstep
           endif
 
 #  ifdef AGRIF_OBC_SOUTH             
@@ -1339,7 +1330,7 @@ C$OMP BARRIER
           
           do j=Jstr-1,Jstr
           do i=Istr,Iend
-          Zeta_south4(i,j,iif-1) = Zeta_south3(i,j,iif-1)
+          Zeta_south4(i,j,iif-1) = Zt_avg3(i,j,iif-1)
           enddo
           enddo
 #   ifdef ZNUDGING
@@ -1357,7 +1348,7 @@ C$OMP BARRIER
           
           do j=Jend,Jend+1
           do i=Istr,Iend
-          Zeta_north4(i,j,iif-1) = Zeta_north3(i,j,iif-1)
+          Zeta_north4(i,j,iif-1) = Zt_avg3(i,j,iif-1)
           enddo
           enddo
 #   ifdef ZNUDGING
@@ -1374,7 +1365,7 @@ C$OMP BARRIER
           
           do j=Jstr,Jend
           do i=Istr-1,Istr
-          Zeta_west4(i,j,iif-1) = Zeta_west3(i,j,iif-1)
+          Zeta_west4(i,j,iif-1) = Zt_avg3(i,j,iif-1)
           enddo
           enddo
 #   ifdef ZNUDGING
@@ -1391,7 +1382,7 @@ C$OMP BARRIER
           
           do j=Jstr,Jend
           do i=Iend,Iend+1
-          Zeta_east4(i,j,iif-1) = Zeta_east3(i,j,iif-1)
+          Zeta_east4(i,j,iif-1) = Zt_avg3(i,j,iif-1)
           enddo
           enddo
 #   ifdef ZNUDGING
@@ -1412,6 +1403,7 @@ C$OMP BARRIER
 # include "param.h"
 # include "ocean2d.h"
 # include "scalars.h"
+# include "zoom.h"
 
        integer i1,i2,j1,j2
        real tabres(i1:i2,j1:j2)

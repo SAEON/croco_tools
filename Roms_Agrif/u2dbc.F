@@ -60,6 +60,7 @@ C$    integer omp_get_thread_num
 #include "grid.h"
 #include "ocean2d.h"
 #include "scalars.h"
+#include "zoom.h"
 !
 #include "compute_auxiliary_bounds.h"
 !
@@ -71,14 +72,14 @@ C$    integer omp_get_thread_num
       trd=0
 C$    trd=omp_get_thread_num()
       call u2dbc_interp_tile(Istr,Iend,Jstr,Jend
-     &                    ,A1dETA(1,5+3*NWEIGHT,trd)
-     &                    ,A1dETA(1,6+4*NWEIGHT,trd)
-     &                    ,A1dETA(1,7+5*NWEIGHT,trd)
-     &                    ,A1dETA(1,8+5*NWEIGHT,trd)     
-     &                    ,A1dXI(1,5+3*NWEIGHT,trd)
-     &                    ,A1dXI(1,6+4*NWEIGHT,trd)
-     &                    ,A1dXI(1,7+5*NWEIGHT,trd)
-     &                    ,A1dXI(1,8+5*NWEIGHT,trd))
+     &                    ,A1dETA(1,5+3*NWEIGHT)
+     &                    ,A1dETA(1,6+4*NWEIGHT)
+     &                    ,A1dETA(1,7+5*NWEIGHT)
+     &                    ,A1dETA(1,8+5*NWEIGHT)     
+     &                    ,A1dXI(1,5+3*NWEIGHT)
+     &                    ,A1dXI(1,6+4*NWEIGHT)
+     &                    ,A1dXI(1,7+5*NWEIGHT)
+     &                    ,A1dXI(1,8+5*NWEIGHT))
 #  else
       Some coding is needed to have AGRIF without SOLVE3D.....
 #  endif

@@ -47,7 +47,7 @@ C      real*8 start_time2, start_time1, exe_time
 
 # include "dynderivparam.h"
 
-#ifdef MPI
+#if defined MPI && !defined AGRIF
       call MPI_Init (ierr)
 #endif   
 

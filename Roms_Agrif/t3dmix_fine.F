@@ -42,6 +42,7 @@
        integer :: nold
        integer :: irhot
        external interpsponget
+       integer :: parentnbstep
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -49,19 +50,16 @@
       irhot = Agrif_Irhot()
       rrhot = real(irhot)
       decal = 2*max(Agrif_Irhox(),Agrif_Irhoy())+1
-      If (nbcoarse == 1) THEN
-      do itrc=1,NT
-      do k=1,N
-      do j=JstrR,JendR
-      do i=IstrR,IendR
-      tsponge(i,j,k,itrc) = 0.
-      enddo
-      enddo
-      enddo
-      enddo
+
+      parentnbstep=Agrif_Parent_Nb_Step()
+
 C$OMP BARRIER
 C$OMP MASTER
-      
+
+      If ((nbcoarse == 1).AND.(TspongeTimeindex .NE. parentnbstep)) THEN
+
+      tsponge = 0.
+
       Call Agrif_Set_bc(tsponge,(/-decal,0/),
      &     InterpolationShouldbemade=.TRUE.)
 #ifdef MASKING
@@ -77,9 +75,15 @@ C$OMP MASTER
 
        TTimesponge = 3 - TTimesponge
        
+        TspongeTimeindex = parentnbstep
+        TspongeTimeindex2 = agrif_nb_step()
+        ENDIF
+
 C$OMP END MASTER
 C$OMP BARRIER
        
+       if (agrif_nb_step() .EQ. TspongeTimeindex2) then
+
        if (SOUTHERN_EDGE) then  
          do itrc=1,NT
          do k=1,N
@@ -132,8 +136,6 @@ C$OMP BARRIER
          enddo
          enddo  
        endif
-    
-C$OMP BARRIER
     
       ENDIF
       

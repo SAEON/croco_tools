@@ -50,8 +50,18 @@
 # include "parameter.h"
 #endif
       integer size_XI,size_ETA,se,sse, sz,ssz
+!$AGRIF_DO_NOT_TREAT
+      logical, SAVE :: MPIisinitialize = .FALSE.
+!$AGRIF_END_DO_NOT_TREAT
+
       IF (Agrif_Root()) THEN
 # include "dynparam.h"
+#ifdef MPI
+        IF (.Not.MPIisinitialize) THEN
+           Call MPI_Init(ierr)
+           MPIisinitialize = .TRUE.
+        ENDIF
+#endif
       ENDIF
 # include "dynderivparam.h"
 # ifdef MPI
@@ -118,7 +128,6 @@
 #  define LOCALMM Mm
 # endif 
       
-# include "compute_tile_bounds.h"
 # include "dynderivparam.h"
 # ifdef SEDIMENT
       Agrif_lev_sedim=Agrif_Nb_Fine_Grids()
@@ -305,6 +314,9 @@ CR      write(*,*) '  0' MYID
       Vtimeindex = -1
 # endif
 
+      TspongeTimeindex = -1
+      UspongeTimeindex = -1
+
       Call Agrif_Set_type(zeta,(/2,2,0/),(/1,1,0/))
       Call Agrif_Set_raf(zeta,(/'x','y','N'/))
 #ifdef SOLVE3D
@@ -335,8 +347,8 @@ CR      write(*,*) '  0' MYID
       Call Agrif_Set_type(Zt_avg1,(/2,2/),(/1,1/))
       Call Agrif_Set_raf(Zt_avg1,(/'x','y'/))
 
-      Call Agrif_Set_type(Zt_avg3,(/2,2,0/),(/1,1,0/))
-      Call Agrif_Set_raf(Zt_avg3,(/'x','y','N'/))
+      Call Agrif_Set_type(Zt_avg2,(/2,2,0/),(/1,1,0/))
+      Call Agrif_Set_raf(Zt_avg2,(/'x','y','N'/))
             
       Call Agrif_Set_type(h,(/2,2/),(/1,1/))
       Call Agrif_Set_raf(h,(/'x','y'/))  
@@ -469,7 +481,7 @@ CR      write(*,*) '  0' MYID
       Call Agrif_Set_UpdateType(Zt_avg1,update=
      &Agrif_Update_full_weighting)  
 
-      Call Agrif_Set_UpdateType(Zt_avg3,update=
+      Call Agrif_Set_UpdateType(Zt_avg2,update=
      &Agrif_Update_full_weighting)
 
 !       Call Agrif_Set_UpdateType(updateTprof,update=
@@ -499,7 +511,7 @@ CR      write(*,*) '  0' MYID
 !       Call Agrif_Set_UpdateType(Zt_avg1,update=
 !      &Agrif_Update_Average)  
 ! 
-!       Call Agrif_Set_UpdateType(Zt_avg3,update=
+!       Call Agrif_Set_UpdateType(Zt_avg2,update=
 !      &Agrif_Update_Average)
 
 
@@ -533,7 +545,7 @@ CR      write(*,*) '  0' MYID
 !       Call Agrif_Set_UpdateType(Zt_avg1,update=
 !      &Agrif_Update_Average)
 ! 
-!       Call Agrif_Set_UpdateType(Zt_avg3,update=
+!       Call Agrif_Set_UpdateType(Zt_avg2,update=
 !      &Agrif_Update_Average)
 
 

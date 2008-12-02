@@ -50,7 +50,7 @@
 #  define LOCALMM Mm
 # endif 
       
-!       return
+!      return
 
       irhot = Agrif_Irhot()
       
@@ -88,19 +88,30 @@ C$OMP SINGLE
       
       global_update_2d = .FALSE.
            
-      Call Agrif_Update_Variable(tabtemp,Zt_avg3,
-     &         locupdate=(/0,0/),procname = updatezeta)
+!     Call Agrif_Update_Variable(tabtemp,Zt_avg2,
+!    &         locupdate=(/0,0/),procname = updatezeta)
+
+!     Agrif_UseSpecialValueInUpdate = .FALSE.
+            
+!     Call Agrif_Update_Variable(tabtemp,DU_avg1,
+!    &         locupdate=(/0,0/),procname = updateubar)
+     
+!     Call Agrif_Update_Variable(tabtemp,DV_avg1,
+!    &         locupdate=(/0,0/),procname = updatevbar) 
+
+
+       Call Agrif_Update_Variable(tabtemp,Zt_avg2,
+     &         locupdate=(/1,2/),procname = updatezeta)
 
       Agrif_UseSpecialValueInUpdate = .FALSE.
             
       Call Agrif_Update_Variable(tabtemp,DU_avg1,
-     &         locupdate=(/0,0/),procname = updateubar)
+     &     locupdate1=(/0,1/),locupdate2=(/1,2/),
+     &     procname = updateubar)
      
       Call Agrif_Update_Variable(tabtemp,DV_avg1,
-     &         locupdate=(/0,0/),procname = updatevbar) 
-
-
-          
+     &     locupdate1=(/1,2/),locupdate2=(/0,1/),
+     &     procname = updatevbar)          
       
       IF (iif == nfast) THEN
         
@@ -113,14 +124,29 @@ C$OMP SINGLE
 #endif
       Agrif_SpecialValueFineGrid = 0.
       
-      Call Agrif_Update_Variable(tabtemp,Zt_avg3,
-     &         procname = updatezeta)
+!     Call Agrif_Update_Variable(tabtemp,Zt_avg2,
+!    &         procname = updatezeta)
+!     
+!     Call Agrif_Update_Variable(tabtemp,DU_avg1,
+!    &         procname = updateubar)
+!    
+!     Call Agrif_Update_Variable(tabtemp,DV_avg1,
+!    &         procname = updatevbar) 
+
+      Call Agrif_Update_Variable(tabtemp,Zt_avg2,
+     &         locupdate=(/1,0/),procname = updatezeta)
       
+      Agrif_UseSpecialValueInUpdate = .FALSE.
+
       Call Agrif_Update_Variable(tabtemp,DU_avg1,
-     &         procname = updateubar)
+     &     locupdate1=(/0,-1/),locupdate2=(/1,-2/),
+     &     procname = updateubar)
      
       Call Agrif_Update_Variable(tabtemp,DV_avg1,
-     &         procname = updatevbar)      
+     &     locupdate1=(/1,-2/),locupdate2=(/0,-1/),
+     &     procname = updatevbar)    
+
+     
       
 !      Call Agrif_Update_Variable(tabtemp(:,:,1),DU_avg2,
 !     &         procname = updateduavg2)
@@ -282,47 +308,21 @@ C$OMP END SINGLE
          
          western_side  = (nb == 1).AND.(ndir == 1)
          eastern_side  = (nb == 1).AND.(ndir == 2)
-         southern_side = (nb == 2).AND.(ndir == 1) 
-         northern_side = (nb == 2).AND.(ndir == 2)                                   
+         southern_side = (nb == 2).AND.(ndir == 1)
+         northern_side = (nb == 2).AND.(ndir == 2)
 
          ibegin = min(irhot,iif+1)
-	 IF (iif .LE. irhot) THEN
-	 ibegin = iif + 1
-	 ENDIF
-	                 
-         IF (western_side) THEN      
+          IF (iif .LE. irhot) THEN
+          ibegin = iif + 1
+          ENDIF
+
           do iter=1,ibegin
           do j=j1,j2  
           do i=i1,i2                 
-          tabres(i,j,iter) = du_west3(i,j,iif-iter+1)
+          tabres(i,j,iter) = du_avg3(i,j,iif-iter+1)
           enddo
           enddo          
           enddo
-         ELSE IF (eastern_side) THEN
-          do iter=1,ibegin
-          do j=j1,j2  
-          do i=i1,i2                 
-          tabres(i,j,iter) = du_east3(i,j,iif-iter+1)
-          enddo
-          enddo           
-          enddo
-         ELSE IF (northern_side) THEN
-          do iter=1,ibegin
-          do j=j1,j2  
-          do i=i1,i2                 
-          tabres(i,j,iter) = du_north3(i,j,iif-iter+1)
-          enddo
-          enddo           
-          enddo
-         ELSE IF (southern_side) THEN
-          do iter=1,ibegin
-          do j=j1,j2  
-          do i=i1,i2                 
-          tabres(i,j,iter) = du_south3(i,j,iif-iter+1)
-          enddo
-          enddo           
-          enddo
-         ENDIF
          
          tabres = rrhoy * tabres
          
@@ -338,10 +338,10 @@ C$OMP END SINGLE
               
        ibegin = min(irhotfine,iiffine+1)
 
-	 IF (iiffine .LE. irhotfine) THEN
-	 ibegin = iiffine + 1
-	 ENDIF
-	        
+        IF (iiffine .LE. irhotfine) THEN
+         ibegin = iiffine + 1
+        ENDIF
+
        isize = (j2-j1+1)*(i2-i1+1)
        
        IF ((nbstep3d == 0).AND.(iif == 1)) THEN
@@ -392,7 +392,7 @@ C$OMP END SINGLE
                                
          DO j=j1,j2
            DO i=i1,i2
-	   t1 = 0.5*(zeta(i,j,knew)+h(i,j)+
+        t1 = 0.5*(zeta(i,j,knew)+h(i,j)+
      &  zeta(i-1,j,knew)+h(i-1,j))*on_u(i,j)
             
            t2 = tabtemp(i,j)
@@ -460,49 +460,22 @@ C$OMP END SINGLE
          western_side  = (nb == 1).AND.(ndir == 1)
          eastern_side  = (nb == 1).AND.(ndir == 2)
          southern_side = (nb == 2).AND.(ndir == 1) 
-         northern_side = (nb == 2).AND.(ndir == 2)                                   
+         northern_side = (nb == 2).AND.(ndir == 2)
 
          ibegin = min(irhot,iif+1)
-	 
-	 IF (iif .LE. irhot) THEN
-	 ibegin = iif + 1
-	 ENDIF
-                
-         IF (western_side) THEN   
-	   
+
+         IF (iif .LE. irhot) THEN
+            ibegin = iif + 1
+         ENDIF  
+
           do iter=1,ibegin
           do j=j1,j2  
           do i=i1,i2                 
-          tabres(i,j,iter) = Zeta_west3(i,j,iif-iter+1)
+          tabres(i,j,iter) = Zt_avg3(i,j,iif-iter+1)
           enddo
           enddo          
           enddo
-         ELSE IF (eastern_side) THEN
-          do iter=1,ibegin
-          do j=j1,j2  
-          do i=i1,i2                 
-          tabres(i,j,iter) = Zeta_east3(i,j,iif-iter+1)
-          enddo
-          enddo           
-          enddo
-         ELSE IF (northern_side) THEN
-          do iter=1,ibegin
-          do j=j1,j2  
-          do i=i1,i2                 
-          tabres(i,j,iter) = Zeta_north3(i,j,iif-iter+1)
-          enddo
-          enddo           
-          enddo
-         ELSE IF (southern_side) THEN
-          do iter=1,ibegin
-          do j=j1,j2  
-          do i=i1,i2                 
-          tabres(i,j,iter) = Zeta_south3(i,j,iif-iter+1)
-          enddo
-          enddo           
-          enddo
-         ENDIF
-         
+
        ELSE
 
        IF (global_update_2d) THEN
@@ -515,9 +488,9 @@ C$OMP END SINGLE
               
        ibegin = min(irhotfine,iiffine+1)
        
-	 IF (iiffine .LE. irhotfine) THEN
-	 ibegin = iiffine + 1
-	 ENDIF
+       IF (iiffine .LE. irhotfine) THEN
+        ibegin = iiffine + 1
+       ENDIF
        
        isize = (j2-j1+1)*(i2-i1+1)
        
@@ -641,43 +614,17 @@ C$OMP END SINGLE
          northern_side = (nb == 2).AND.(ndir == 2)
 
          ibegin = min(irhot,iif+1)
-	 IF (iif .LE. irhot) THEN
-	 ibegin = iif + 1
-	 ENDIF
-
-         IF (western_side) THEN      
+         IF (iif .LE. irhot) THEN
+           ibegin = iif + 1
+         ENDIF
+     
           do iter=1,ibegin
           do j=j1,j2  
           do i=i1,i2                 
-          tabres(i,j,iter) = dv_west3(i,j,iif-iter+1)
+          tabres(i,j,iter) = dv_avg3(i,j,iif-iter+1)
           enddo
           enddo          
           enddo
-         ELSE IF (eastern_side) THEN
-          do iter=1,ibegin
-          do j=j1,j2
-          do i=i1,i2
-          tabres(i,j,iter) = dv_east3(i,j,iif-iter+1)
-          enddo
-          enddo           
-          enddo
-         ELSE IF (northern_side) THEN
-          do iter=1,ibegin
-          do j=j1,j2
-          do i=i1,i2
-          tabres(i,j,iter) = dv_north3(i,j,iif-iter+1)
-          enddo
-          enddo
-          enddo
-         ELSE IF (southern_side) THEN
-          do iter=1,ibegin
-          do j=j1,j2
-          do i=i1,i2
-          tabres(i,j,iter) = dv_south3(i,j,iif-iter+1)
-          enddo
-          enddo
-          enddo
-         ENDIF
 
          tabres = rrhox * tabres
 
@@ -693,10 +640,10 @@ C$OMP END SINGLE
 
        ibegin = min(irhotfine,iiffine+1)
 
-	 IF (iiffine .LE. irhotfine) THEN
-	 ibegin = iiffine + 1
-	 ENDIF
-	        
+       IF (iiffine .LE. irhotfine) THEN
+         ibegin = iiffine + 1
+       ENDIF
+
        isize = (j2-j1+1)*(i2-i1+1)
        
        IF ((nbstep3d == 0).AND.(iif == 1)) THEN
@@ -747,7 +694,7 @@ C$OMP END SINGLE
                                
          DO j=j1,j2
            DO i=i1,i2
-	   t1 = 0.5*(zeta(i,j,knew)+h(i,j)+
+         t1 = 0.5*(zeta(i,j,knew)+h(i,j)+
      &  zeta(i,j-1,knew)+h(i,j-1))*om_v(i,j)
             
            t2 = tabtemp(i,j)
@@ -780,7 +727,7 @@ C$OMP END SINGLE
       IF (before) THEN
       
          rrhoy = real(Agrif_Irhoy())
-	   
+
          tabres(i1:i2,j1:j2) = rrhoy * DU_avg1(i1:i2,j1:j2,4) 
          
        ELSE
@@ -811,7 +758,7 @@ C$OMP END SINGLE
       IF (before) THEN
       
          rrhox = real(Agrif_Irhox())
-	   
+
          tabres(i1:i2,j1:j2) = rrhox * DV_avg1(i1:i2,j1:j2,4) 
          
        ELSE

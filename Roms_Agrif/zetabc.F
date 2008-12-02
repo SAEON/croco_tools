@@ -52,6 +52,7 @@ c        call zetabc_interp_tile(Istr,Iend,Jstr,Jend)
 #include "scalars.h"
 #ifdef AGRIF
 #include "private_scratch.h"
+#include "zoom.h"
       integer trd
 C$    integer omp_get_thread_num
 #endif
@@ -64,14 +65,14 @@ C$    integer omp_get_thread_num
       trd=0
 C$    trd=omp_get_thread_num()
       call zetabc_interp_tile(Istr,Iend,Jstr,Jend
-     &                    ,A1dETA(1,9+5*NWEIGHT,trd)
-     &                    ,A1dETA(1,11+7*NWEIGHT,trd)
-     &                    ,A1dETA(1,13+9*NWEIGHT,trd)
-     &                    ,A1dETA(1,15+9*NWEIGHT,trd)     
-     &                    ,A1dXI(1,9+5*NWEIGHT,trd)
-     &                    ,A1dXI(1,11+7*NWEIGHT,trd)
-     &                    ,A1dXI(1,13+9*NWEIGHT,trd)
-     &                    ,A1dXI(1,15+9*NWEIGHT,trd))
+     &                    ,A1dETA(1,9+5*NWEIGHT)
+     &                    ,A1dETA(1,11+7*NWEIGHT)
+     &                    ,A1dETA(1,13+9*NWEIGHT)
+     &                    ,A1dETA(1,15+9*NWEIGHT)     
+     &                    ,A1dXI(1,9+5*NWEIGHT)
+     &                    ,A1dXI(1,11+7*NWEIGHT)
+     &                    ,A1dXI(1,13+9*NWEIGHT)
+     &                    ,A1dXI(1,15+9*NWEIGHT))
 #endif
 ! 
 #ifndef EW_COM_PERIODIC
