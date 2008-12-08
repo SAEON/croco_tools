@@ -1,6 +1,9 @@
 #include "cppdefs.h"
 #ifdef AUTOTILING
         subroutine init_auto_tiling
+#ifdef AGRIF
+        Use Agrif_Util
+#endif
         implicit none
 #include "param.h"
 #include "autotiling.h"
@@ -12,6 +15,9 @@
         nullify(A2d)
         nullify(A3d)
 
+        cpu_domain(0) = 0.
+        cpu_domain(1) = 0.
+
         call allocate_private_scratch
 
         return
@@ -21,6 +27,8 @@
       implicit none
 #include "param.h"
 #include "private_scratch.h"
+#include "ncscrum.h"
+#include "autotiling.h"
       integer size_XI,size_ETA,se,sse, sz,ssz
 
 # include "dynderivparam.h"
@@ -46,11 +54,42 @@
         call cpu_time(curtime)
       end
 
+      subroutine begin_timing
+      implicit none
+#include "param.h"
+#include "private_scratch.h"
+#include "scalars.h"
+#include "ncscrum.h"
+#include "autotiling.h"
+
+      real curtime
+
+      cpu_domain(0) = curtime()
+ 
+      return
+      end
+
+      subroutine end_timing
+      implicit none
+#include "param.h"
+#include "private_scratch.h"
+#include "scalars.h"
+#include "ncscrum.h"
+#include "autotiling.h"
+
+      real curtime
+
+      cpu_domain(1) = cpu_domain(1)+curtime()-cpu_domain(0)
+ 
+      return
+      end
+
       subroutine auto_tiling
       implicit none
 #include "param.h"
 #include "private_scratch.h"
 #include "scalars.h"
+#include "ncscrum.h"
 #include "autotiling.h"
       integer size_XI,size_ETA,se,sse, sz,ssz
       real timemean(MAX_NSUB_X,MAX_NSUB_E)      
@@ -75,13 +114,14 @@
     
       if (iic <= nbsampling+1) then
  
-      cpu_domain(0) = curtime()
+      cpu_domain(1) = 0.
+
       nbinst = 0
       lastiic = iic
       
       nsub_xmin = 1
       nsub_xmax = MAX_NSUB_X
-      nsub_emin = 1
+      nsub_emin = NPP
       nsub_emax = MAX_NSUB_E
 
       nsub_decalx = max((nsub_xmax-nsub_xmin)/nbx,1)
@@ -91,7 +131,7 @@
       
       do j=1,MAX_NSUB_E
       do i=1,MAX_NSUB_X
-        if (i*j < NPP) then
+        if (mod(i*j,NPP) /= 0) then
           nbinst(i,j) = nbdistrib * nbvalid
           times(i,j,:) = Huge(1.)
         endif
@@ -101,10 +141,9 @@
 
       else
       
-      cpu_domain(1) = curtime()
-      
       lastiic = iic
-      cfft = cpu_domain(1)-cpu_domain(0)
+      cfft = cpu_domain(1)
+      cpu_domain(1) = 0.
 
 #ifdef MPI
       call MPI_allreduce(cfft,cputot,1,
@@ -114,15 +153,12 @@
 
       if (cfft < 0.1) then
          nbsampling = nbsampling + 1
-         cpu_domain(0) = curtime()
          return
       endif
       
       nbinst(NSUB_X,NSUB_E)=nbinst(NSUB_X,NSUB_E)+1  
       times(NSUB_X,NSUB_E,nbinst(NSUB_X,NSUB_E)) = cfft/nbsampling
             
-      cpu_domain(0)=cpu_domain(1)
-      
       reducecluster = 1
       do j=nsub_emin,nsub_emax,nsub_decale
       do i=nsub_xmin,nsub_xmax,nsub_decalx      
@@ -136,8 +172,9 @@
       enddo
  10   continue      
  
-!      print *,'nsub = ',NSUB_X,NSUB_E
+       print *,'nsub = ',NSUB_X,NSUB_E
 
+!      print *,'sur la grille = ',Agrif_Fixed()
 !      print *,'reducecluster = ',reducecluster,nbinst(nsub_xmin,nsub_emin)
 !      print *,'nsub = ',nsub_xmin,nsub_emin
 
@@ -171,7 +208,11 @@
          enddo
          enddo
          
-         valmin= Huge(1.)
+         valmin= Huge(1.)/2.
+
+         min_X = NSUB_X
+         min_E = NSUB_E
+
          do j=nsub_emin,nsub_emax,nsub_decale
          do i=nsub_xmin,nsub_xmax,nsub_decalx
            if (timemean(i,j) < valmin) then
@@ -190,16 +231,21 @@
 
 !         print *,'Gain = ',timemean(1,1)/timemean(min_X,min_E)
 !         print *,'temps diff = ',timemean(1,1),timemean(min_X,min_E)
+#ifdef AGRIF
+         print *,'Current Grid = ',Agrif_Fixed()
+#endif
          print *,'Current optimal distribution = ',min_X,min_E
          nsub_xmin = max(min_X-nsub_decalx/2,1)
          nsub_xmax = min(min_X+nsub_decalx/2,MAX_NSUB_X)
          nsub_emin = max(min_E-nsub_decale/2,1)
          nsub_emax = min(min_E+nsub_decale/2,MAX_NSUB_E)
-!         print *,'New distribution = ',nsub_xmin,nsub_xmax,nsub_emin,nsub_emax
+          print *,'New distribution = ',nsub_xmin,nsub_xmax,nsub_emin,nsub_emax
+          print *,'min_X = ',min_X,min_E
          nsub_decalx = max((nsub_xmax-nsub_xmin)/nbx,1)
          nsub_decale = max((nsub_emax-nsub_emin)/nbe,1)
-           NSUB_X=nsub_xmin
-           NSUB_E=nsub_emin         
+           NSUB_X=min_X
+           NSUB_E=min_E
+         print *,'NEWNSUB = ',NSUB_X,NSUB_E
          if ((nsub_xmax == nsub_xmin) .AND. (nsub_emin == nsub_emax)) then
 !           nbsampling = -1 ! end of optimization
            if (curdistrib < nbdistrib) then
@@ -222,8 +268,6 @@
        
        call allocate_private_scratch
 
-       cpu_domain(0) = curtime()
-     
       endif ! <- iic == nbsampling
       
       return

@@ -1,9 +1,14 @@
          integer nbsampling, lastiic
          common/dyndistribution/nbsampling, lastiic
 
-
+#if !defined AGRIF
       integer, parameter :: MAX_NSUB_X=Lm/6
       integer, parameter :: MAX_NSUB_E=Mm/6
+#else
+      integer :: MAX_NSUB_X
+      integer :: MAX_NSUB_E
+      common/autotilingparams/MAX_NSUB_X,MAX_NSUB_E
+#endif
       
       integer, parameter :: nbvalid = 3
       integer, parameter :: nbdistrib = 4
