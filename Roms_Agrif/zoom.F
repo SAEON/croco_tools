@@ -49,6 +49,9 @@
 #ifdef PISCES
 # include "parameter.h"
 #endif
+#ifdef AUTOTILING
+# include "autotiling.h"
+#endif
       integer size_XI,size_ETA,se,sse, sz,ssz
 !$AGRIF_DO_NOT_TREAT
       logical, SAVE :: MPIisinitialize = .FALSE.
@@ -63,6 +66,12 @@
         ENDIF
 #endif
       ENDIF
+#ifdef AUTOTILING
+      If (Agrif_Nb_Step() == 0) Then
+        NSUB_X = 1
+        NSUB_E = NPP
+      EndIf
+#endif
 # include "dynderivparam.h"
 # ifdef MPI
       Call MPI_Setup(ierr)
@@ -92,6 +101,9 @@
 # include "coupling.h"
 # include "ocean3d.h"
 #endif
+#ifdef AUTOTILING
+# include "autotiling.h"
+#endif
 
       integer size_XI,size_ETA,se,sse, sz,ssz
       real res1,res2,res3,res4,res5,res6,cff1,cff2
@@ -114,7 +126,7 @@
       integer iprmin,iprmax,jprmin,jprmax
       real,dimension(:,:),allocatable :: hconstraint,constraints,
      &gradconstraints
-      external hinterp     
+      external hinterp, updateh   
 !$AGRIF_DO_NOT_TREAT
        integer isens
        common/interph/isens
@@ -129,6 +141,11 @@
 # endif 
       
 # include "dynderivparam.h"
+
+#ifdef AUTOTILING
+      call init_auto_tiling
+#endif
+
 # ifdef SEDIMENT
       Agrif_lev_sedim=Agrif_Nb_Fine_Grids()
 # endif
@@ -315,7 +332,7 @@ CR      write(*,*) '  0' MYID
 # endif
 
       TspongeTimeindex = -1
-      UspongeTimeindex = -1
+      UVspongeTimeindex = -1
 
       Call Agrif_Set_type(zeta,(/2,2,0/),(/1,1,0/))
       Call Agrif_Set_raf(zeta,(/'x','y','N'/))
@@ -381,31 +398,31 @@ CR      write(*,*) '  0' MYID
                       
 #ifdef SOLVE3D
 
-      Call Agrif_Set_bcinterp(Zt_avg1,AGRIF_lagrange)
+      Call Agrif_Set_bcinterp(Zt_avg1,AGRIF_linear)
       Call Agrif_Set_bc(Zt_avg1,(/-1,0/))
       
-      Call Agrif_Set_bcinterp(u,interp1=agrif_lagrange
+      Call Agrif_Set_bcinterp(u,interp1=agrif_linear
      &  ,interp2=agrif_ppm)
       Call Agrif_Set_bcinterp(v,interp1=agrif_ppm
-     &  ,interp2=agrif_lagrange)
+     &  ,interp2=agrif_linear)
       Call Agrif_Set_bc(u,(/0,0/))
       Call Agrif_Set_bc(v,(/0,0/))
       
       
-      Call Agrif_Set_bcinterp(t,AGRIF_lagrange)
+      Call Agrif_Set_bcinterp(t,AGRIF_linear)
       Call Agrif_Set_bc(t,(/-1,0/))
 
-      Call Agrif_Set_bcinterp(DU_avg2,interp1=agrif_lagrange
+      Call Agrif_Set_bcinterp(DU_avg2,interp1=agrif_linear
      &   ,interp2=agrif_ppm)
       Call Agrif_Set_bcinterp(DV_avg2,interp1=agrif_ppm
-     &  ,interp2=agrif_lagrange)
+     &  ,interp2=agrif_linear)
       Call Agrif_Set_bc(DU_avg2,(/0,0/))
       Call Agrif_Set_bc(DV_avg2,(/0,0/))
 
-      Call Agrif_Set_bcinterp(DU_avg1,interp1=agrif_lagrange
+      Call Agrif_Set_bcinterp(DU_avg1,interp1=agrif_linear
      &   ,interp2=agrif_ppm)
       Call Agrif_Set_bcinterp(DV_avg1,interp1=agrif_ppm
-     &  ,interp2=agrif_lagrange)
+     &  ,interp2=agrif_linear)
       Call Agrif_Set_bc(DU_avg1,(/0,0/))
       Call Agrif_Set_bc(DV_avg1,(/0,0/))
       Call Agrif_Set_type(updateTprof,(/2,2,0,0/),(/1,1,0,0/))
@@ -422,26 +439,26 @@ CR      write(*,*) '  0' MYID
       Call Agrif_Set_type(vsponge,(/2,1,0/),(/1,1,0/))
       Call Agrif_Set_raf(vsponge,(/'x','y','N'/))      
           
-      Call Agrif_Set_bcinterp(updateTprof,agrif_lagrange)
+      Call Agrif_Set_bcinterp(updateTprof,agrif_linear)
       Call Agrif_Set_bc(updateTprof,(/-1,0/))     
 
-      Call Agrif_Set_bcinterp(tsponge,agrif_lagrange)
+      Call Agrif_Set_bcinterp(tsponge,agrif_linear)
       Call Agrif_Set_bc(tsponge,(/-1,0/))           
       
-      Call Agrif_Set_bcinterp(Huon,interp1=agrif_lagrange
+      Call Agrif_Set_bcinterp(Huon,interp1=agrif_linear
      &    ,interp2=agrif_ppm)
       Call Agrif_Set_bc(Huon,(/0,0/))     
       
       Call Agrif_Set_bcinterp(Hvom,interp1=agrif_ppm
-     &   ,interp2=agrif_lagrange)
+     &   ,interp2=agrif_linear)
       Call Agrif_Set_bc(Hvom,(/0,0/))
 
-      Call Agrif_Set_bcinterp(usponge,interp1=agrif_lagrange
+      Call Agrif_Set_bcinterp(usponge,interp1=agrif_linear
      &    ,interp2=agrif_ppm)
       Call Agrif_Set_bc(usponge,(/0,0/))     
       
       Call Agrif_Set_bcinterp(vsponge,interp1=agrif_ppm
-     &   ,interp2=agrif_lagrange)
+     &   ,interp2=agrif_linear)
       Call Agrif_Set_bc(vsponge,(/0,0/))
 #else
       Call Agrif_Set_bcinterp(ubar,AGRIF_linearconserv)
@@ -558,15 +575,35 @@ CR      write(*,*) '  0' MYID
       nbstep3d = 0
       
       TTimesponge = 1
-      UTimesponge = 1
-      VTimesponge = 1
+      UVTimesponge = 1
+
+      usponge = 0.
+      vsponge = 0.
       
       myfx = 0.
       myfy = 0.
 
 
-#if defined AGRIF_2WAY      
-      Call Agrif_Update_Variable(h,h)
+#if defined AGRIF_2WAY   
+
+#ifdef MASKING
+      Agrif_UseSpecialValueInUpdate = .TRUE.
+      Agrif_SpecialValueFineGrid = 0.
+      
+      Call Agrif_Update_Variable(rmask,rmask)
+      
+      Agrif_UseSpecialValueInUpdate = .FALSE.   
+
+      Call Agrif_ChildGrid_To_ParentGrid()
+      Call ResetMask()
+      Call Agrif_ParentGrid_To_ChildGrid()
+#endif 
+   
+      Agrif_UseSpecialValueInUpdate = .TRUE.
+      Agrif_SpecialValueFineGrid = 0.   
+      Call Agrif_Update_Variable(h,h,locupdate=(/1,0/),
+     &     procname=updateh)
+      Agrif_UseSpecialValueInUpdate = .FALSE.
 
       isens = 1
       Call Agrif_Bc_Variable(hbis,DU_avg2,calledweight=1.,
@@ -624,18 +661,11 @@ CR      write(*,*) '  0' MYID
 #   endif 
 #  endif 
 
-#ifdef MASKING
       Agrif_UseSpecialValueInUpdate = .TRUE.
-      Agrif_SpecialValueFineGrid = 0.
-      
-      Call Agrif_Update_Variable(rmask,rmask)
-      
-      Agrif_UseSpecialValueInUpdate = .FALSE.   
-
-      Call Agrif_ChildGrid_To_ParentGrid()
-      Call ResetMask()
-      Call Agrif_ParentGrid_To_ChildGrid()
-#endif            
+      Agrif_SpecialValueFineGrid = 0.   
+      Call Agrif_Update_Variable(h,h,locupdate=(/1,0/),
+     &     procname=updateh)
+      Agrif_UseSpecialValueInUpdate = .FALSE.           
 
 #endif     <-  AGRIF_2WAY
      
@@ -672,6 +702,45 @@ CR      write(*,*) '  0' MYID
        end subroutine ResetMask
 #endif      
 
+      Subroutine Updateh(tabres,i1,i2,j1,j2,before)
+      implicit none
+#  include "param.h"
+#  include "grid.h"
+#  include "ocean2d.h"
+#  include "coupling.h"
+#  include "scalars.h"
+#  include "zoom.h"
+      integer i1,i2,j1,j2
+      real tabres(i1:i2,j1:j2)
+      logical before
+      
+      integer i,j  
+       real tabtemp(i1:i2,j1:j2) 
+              
+      IF (before) THEN
+ 
+           tabres(i1:i2,j1:j2) = h(i1:i2,j1:j2)
+#ifdef MASKING
+     &       *rmask(i1:i2,j1:j2)
+#endif
+         
+       ELSE
+
+c         h(i1+1:i2-1,j1+1:j2-1) = tabres(i1+1:i2-1,j1+1:j2-1)
+#ifdef MASKING
+c     &             *rmask(i1+1:i2-1,j1+1:j2-1)
+#endif
+       do j=j1+1,j2-1
+       do i=i1+1,i2-1
+       h(i,j)=max(tabres(i,j),hc)
+       enddo
+       enddo
+	 	 
+       ENDIF
+      
+      return
+      end
+      
       subroutine hinterp(tabres,i1,i2,j1,j2)
       implicit none
 # include "param.h"

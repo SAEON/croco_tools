@@ -133,8 +133,8 @@
       real V_sponge_north(-1:Lm+2+padd_X,LOCALMM-9:LOCALMM+1,N,2)
       common/zoom3D_sponge_VN/V_sponge_north
       
-      integer TTimesponge, UTimesponge, VTimesponge
-      common/zoom3D_sponge_times/TTimesponge, UTimesponge, VTimesponge
+      integer TTimesponge, UVTimesponge
+      common/zoom3D_sponge_times/TTimesponge, UVTimesponge
             
 #  endif
             
@@ -143,8 +143,8 @@
       common/work_agrif/A1dXI,A1dETA 
 
       integer TspongeTimeindex, TspongeTimeindex2
-      integer UspongeTimeindex, UspongeTimeindex2
-      common/zoom3D_sponge/TspongeTimeindex, UspongeTimeindex,
-     &      TspongeTimeindex2, UspongeTimeindex2 
+      integer UVspongeTimeindex, UVspongeTimeindex2
+      common/zoom3D_sponge/TspongeTimeindex, UVspongeTimeindex,
+     &      TspongeTimeindex2, UVspongeTimeindex2 
 
 #endif
