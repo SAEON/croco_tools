@@ -118,7 +118,7 @@
 #ifdef AUTOTILING
       common/distrib/NSUB_X, NSUB_E
 #else
-      parameter (NSUB_X=1, NSUB_E=2)
+      parameter (NSUB_X=1, NSUB_E=NPP)
 #endif
 
 !

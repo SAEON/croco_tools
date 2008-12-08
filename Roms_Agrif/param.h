@@ -39,7 +39,7 @@
 #elif defined SHELFRONT
       parameter (LLm0=4,   MMm0=40,  N=10)
 #elif defined SOLITON
-      parameter (LLm0=96*8,  MMm0=32*8,  N=10)
+      parameter (LLm0=96,  MMm0=32,  N=10)
 #elif defined UPWELLING
       parameter (LLm0=16,  MMm0=64,  N=16)
 #elif defined VORTEX
@@ -118,7 +118,7 @@
 #ifdef AUTOTILING
       common/distrib/NSUB_X, NSUB_E
 #else
-      parameter (NSUB_X=1, NSUB_E=1)
+      parameter (NSUB_X=1, NSUB_E=NPP)
 #endif
 
 !
