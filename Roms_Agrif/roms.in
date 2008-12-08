@@ -30,12 +30,12 @@ averages: NTSAVG, NAVG, NRPFAVG / filename
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
                           T    T   T   T  T    30*T
 auxiliary_history_fields:   rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr UWstr VWstr rsw rlw lat sen HEL
-                             F   F     T   F    T    F    T   T    T     T    T    T     4*F             F
+                             F   F     T   F    T    F    T   T    T     T    T    T     10*F             
 
 primary_averages: zeta UBAR VBAR  U  V   wrtT(1:NT)
                    T    T    T    T  T   30*T
 auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Wstr UWst  rsw rlw lat sen HEL
-                     F   T     T   F    T    F    T   T    T     T   T    T     4*F             F
+                     F   T     T   F    T    F    T   T    T     T   T    T     10*F             
 
 rho0:
       1025.d0
