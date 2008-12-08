@@ -2,7 +2,7 @@
 #include "cppdefs.h"
 # if defined SOLVE3D && defined SPONGE_VIS2
 !
-# define MIX_S_UV_SPG
+# define MIX_S_UV_SPONGE
 !
 # if defined M3CLIMATOLOGY
 #  define CLIMAT_UV_SPONGE
@@ -605,7 +605,7 @@
         endif
       enddo
 
-# endif /* MIX_S_UV_SPG */
+# endif /* MIX_S_UV_SPONGE */
 
       return
       end
