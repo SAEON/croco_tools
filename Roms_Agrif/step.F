@@ -17,13 +17,6 @@
 #include "ocean3d.h"
 #include "ocean2d.h"
 
-!$AGRIF_DO_NOT_TREAT
-      integer ntrds,trd,
-     &        my_first,my_last, tile, my_iif
-      common /tile_ranges/ ntrds, trd, my_first,my_last
-!$AGRIF_END_DO_NOT_TREAT
-C$OMP THREADPRIVATE (/tile_ranges/)
-
       integer :: iifparent
 
 #ifdef AGRIF       
@@ -116,16 +109,14 @@ C$OMP END PARALLEL
 # include "floats.h"
 #endif
 #include "ocean2d.h"
+#include "ocean3d.h"
 #ifdef STATIONS
 # include "sta.h"
 #endif
        integer range
-!$AGRIF_DO_NOT_TREAT
       integer ntrds,trd,
      &        my_first,my_last, tile, my_iif
-      common /tile_ranges/ ntrds, trd, my_first,my_last
-!$AGRIF_END_DO_NOT_TREAT
-C$OMP THREADPRIVATE (/tile_ranges/)
+
 #ifdef FLOATS
        integer chunk_size_flt, Lstr,Lend, flt_str
        common /floats_step/ flt_str
@@ -151,7 +142,9 @@ C$OMP BARRIER
       my_last=min(my_first + range-1, NSUB_X*NSUB_E-1)
 
 C$OMP MASTER
-
+#ifdef AUTOTILING
+      call begin_timing
+#endif
       time=time_start+dt*float(iic-ntstart)
       tdays=time*sec2day
 
@@ -311,6 +304,7 @@ C$OMP BARRIER
 # endif
       enddo
 C$OMP BARRIER
+
       do tile=my_first,my_last
         call prsgrd (tile)
         call rhs3d (tile)
@@ -322,6 +316,12 @@ C$OMP BARRIER
          call uv3dmix_fine (tile)
       endif
 #   endif
+# endif
+      enddo
+C$OMP BARRIER
+
+      do tile=my_first,my_last
+# if defined UV_VIS2 || defined UV_VIS4
         call uv3dmix (tile)
 #  if defined SPONGE_VIS2
         call uv3dmix_spg (tile)
@@ -370,7 +370,6 @@ C$OMP SINGLE
       endif
 C$OMP END SINGLE
 #endif /*AGRIF && AGRIF_2WAY*/
-
       return
       end
 !
@@ -395,12 +394,9 @@ C$OMP END SINGLE
 # include "sta.h"
 #endif
        integer range
-!$AGRIF_DO_NOT_TREAT
       integer ntrds,trd,
      &        my_first,my_last, tile, my_iif
-      common /tile_ranges/ ntrds, trd, my_first,my_last
-!$AGRIF_END_DO_NOT_TREAT
-C$OMP THREADPRIVATE (/tile_ranges/)
+
 #ifdef FLOATS
        integer chunk_size_flt, Lstr,Lend, flt_str
        common /floats_step/ flt_str
@@ -413,6 +409,13 @@ C$OMP THREADPRIVATE (/tile_ranges/)
       integer Agrif_lev_sedim
 #endif
       integer omp_get_num_threads, omp_get_thread_num 
+
+      ntrds=omp_get_num_threads()
+      trd=omp_get_thread_num()
+C$OMP BARRIER
+      range=(NSUB_X*NSUB_E+ntrds-1)/ntrds
+      my_first=trd*range
+      my_last=min(my_first + range-1, NSUB_X*NSUB_E-1)
 
 #ifdef AGRIF
       Agrif_lev_sedim=Agrif_Nb_Fine_Grids()
@@ -544,13 +547,10 @@ C$OMP BARRIER
 #include "autotiling.h"
 #endif
        integer range
-!$AGRIF_DO_NOT_TREAT
       integer ntrds,trd,
      &        my_first,my_last, tile, my_iif
-      common /tile_ranges/ ntrds, trd, my_first,my_last
       integer i,j,k
-!$AGRIF_END_DO_NOT_TREAT
-C$OMP THREADPRIVATE (/tile_ranges/)
+
 #ifdef FLOATS
        integer chunk_size_flt, Lstr,Lend, flt_str
        common /floats_step/ flt_str
@@ -566,6 +566,13 @@ C$OMP THREADPRIVATE (/tile_ranges/)
       
       
       real t1,t2,t3
+
+      ntrds=omp_get_num_threads()
+      trd=omp_get_thread_num()
+C$OMP BARRIER
+      range=(NSUB_X*NSUB_E+ntrds-1)/ntrds
+      my_first=trd*range
+      my_last=min(my_first + range-1, NSUB_X*NSUB_E-1)
 
 #ifdef AGRIF
       Agrif_lev_sedim=Agrif_Nb_Fine_Grids()
@@ -620,6 +627,13 @@ C$OMP BARRIER
          call t3dmix_fine (tile)
       endif
 #   endif
+# endif
+
+      enddo
+C$OMP BARRIER
+
+      do tile=my_first,my_last
+# if defined TS_DIF2 || defined TS_DIF4
         call t3dmix (tile)
 #  if defined SPONGE_DIF2
         call t3dmix_spg (tile)
@@ -672,6 +686,7 @@ C$OMP END MASTER
 
 C$OMP MASTER
 #ifdef AUTOTILING
+      call end_timing
       if (iic-lastiic == nbsampling) call auto_tiling
 #endif
 
