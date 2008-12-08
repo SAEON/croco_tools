@@ -180,7 +180,7 @@
      &                       ( wrk(i,j  )+wrk(i-1,j  )
      &                        +wrk(i,j-1)+wrk(i-1,j-1) )
 #   else
-          visc2_sponge_p(i,j)=0.5*v_sponge*
+          visc2_sponge_p(i,j)=0.25*v_sponge*
      &                      ( wrk(i,j  )+wrk(i-1,j  )
      &                       +wrk(i,j-1)+wrk(i-1,j-1) )
 #   endif

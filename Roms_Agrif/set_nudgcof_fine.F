@@ -145,7 +145,11 @@
 #   ifdef SPONGE_GRID
           visc2_sponge_r(i,j)=5*uscale*grdmax/12*wrk(i,j)
 #   else
-          visc2_sponge_r(i,j)=v_sponge*wrk(i,j)
+!          visc2_sponge_r(i,j)=v_sponge*wrk(i,j)
+
+          visc2_sponge_r(i,j)=(0.005/(pm(i,j)*pn(i,j)*dt))*wrk(i,j)          
+          
+          
 #   endif
 !#   if defined UV_VIS2 || defined SPONGE_VIS2
 !          visc2_r(i,j)=visc2_sponge*wrk(i,j) + visc2_r(i,j)
@@ -165,9 +169,14 @@
      &         0.5*( wrk(i,j  )+wrk(i-1,j  )
      &                 +wrk(i,j-1)+wrk(i-1,j-1) )
 #   else
-          visc2_sponge_p(i,j)=0.5*v_sponge*
+!          visc2_sponge_p(i,j)=0.25*v_sponge*
+!     &                 ( wrk(i,j  )+wrk(i-1,j  )
+!     &                 +wrk(i,j-1)+wrk(i-1,j-1) )
+     
+           visc2_sponge_p(i,j)=0.25*(0.005/(pm(i,j)*pn(i,j)*dt))*
      &                 ( wrk(i,j  )+wrk(i-1,j  )
      &                 +wrk(i,j-1)+wrk(i-1,j-1) )
+     
 #   endif
 !#   if defined UV_VIS2 || defined SPONGE_VIS2
 !          visc2_p(i,j)=0.25*visc2_sponge*( wrk(i,j  )+wrk(i-1,j  )
@@ -193,7 +202,8 @@
 #   ifdef SPONGE_GRID
             diff2_sponge(i,j)=5*uscale*grdmax/12.*wrk(i,j)
 #   else
-            diff2_sponge(i,j)=v_sponge*wrk(i,j)
+!            diff2_sponge(i,j)=v_sponge*wrk(i,j)
+          diff2_sponge(i,j)=(0.01/(pm(i,j)*pn(i,j)*dt))*wrk(i,j)
 #   endif
 !#   if defined TS_DIF2 || defined SPONGE_DIF2
 !            diff2(i,j,itrc)=diff2(i,j,itrc)
