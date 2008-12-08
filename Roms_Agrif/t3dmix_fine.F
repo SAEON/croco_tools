@@ -49,7 +49,7 @@
 
       irhot = Agrif_Irhot()
       rrhot = real(irhot)
-      decal = 2*max(Agrif_Irhox(),Agrif_Irhoy())+1
+      decal = 2*max(Agrif_Irhox(),Agrif_Irhoy())
 
       parentnbstep=Agrif_Parent_Nb_Step()
 
@@ -58,7 +58,7 @@ C$OMP MASTER
 
       If ((nbcoarse == 1).AND.(TspongeTimeindex .NE. parentnbstep)) THEN
 
-      tsponge = 0.
+!     tsponge = 0.
 
       Call Agrif_Set_bc(tsponge,(/-decal,0/),
      &     InterpolationShouldbemade=.TRUE.)
@@ -87,8 +87,8 @@ C$OMP BARRIER
        if (SOUTHERN_EDGE) then  
          do itrc=1,NT
          do k=1,N
-         do j=0,decal
-         do i=Istr-1,Iend+1 
+         do j=JstrR,JstrR+decal
+         do i=IstrR,IendR
           T_sponge_south(i,j,k,TTimesponge,itrc)=
      &              tsponge(i,j,k,itrc)          
          enddo
@@ -100,8 +100,8 @@ C$OMP BARRIER
       if (NORTHERN_EDGE) then
          do itrc=1,NT
          do k=1,N
-         do j=Jend-decal,Jend+1
-         do i=Istr-1,Iend+1     
+         do j=JendR-decal,JendR
+         do i=IstrR,IendR
           T_sponge_north(i,j,k,TTimesponge,itrc)=
      &              tsponge(i,j,k,itrc)          
          enddo
@@ -114,8 +114,8 @@ C$OMP BARRIER
       if (WESTERN_EDGE) then
          do itrc=1,NT
          do k=1,N
-         do j=Jstr-1,Jend+1
-         do i=0,decal      
+         do j=JstrR,JendR
+         do i=IstrR,IstrR+decal      
           T_sponge_west(i,j,k,TTimesponge,itrc)=
      &              tsponge(i,j,k,itrc)          
          enddo
@@ -127,8 +127,8 @@ C$OMP BARRIER
       if (EASTERN_EDGE) then      
          do itrc=1,NT
          do k=1,N
-         do j=Jstr-1,Jend+1
-         do i=Iend-decal,Iend+1    
+         do j=JstrR,JendR
+         do i=IendR-decal,IendR
           T_sponge_east(i,j,k,TTimesponge,itrc)=
      &              tsponge(i,j,k,itrc)          
          enddo
@@ -140,18 +140,19 @@ C$OMP BARRIER
       ENDIF
       
       
-       tinterp = real(nbcoarse-1)/rrhot
-       IF (nbstep3d .LT. irhot) tinterp = 0.
-       onemtinterp = -tinterp
-       tinterp = 1.+tinterp
+       tinterp = 0.5+(real(nbcoarse)-0.5)/rrhot
+
+       IF (nbstep3d .LT. irhot) tinterp = 1.
+
+       onemtinterp = 1.-tinterp
        
        nold = 3 - TTimesponge
 
        if (SOUTHERN_EDGE) then
        do itrc=1,NT
        do k=1,N
-       do j=0,decal
-       do i=Istr-1,Iend+1
+       do j=JstrR,JstrR+decal
+       do i=IstrR,IendR
           tsponge(i,j,k,itrc) =
      &       onemtinterp*T_sponge_south(i,j,k,nold,itrc)
      &       +tinterp*T_sponge_south(i,j,k,TTimesponge,itrc)
@@ -164,8 +165,8 @@ C$OMP BARRIER
        if (NORTHERN_EDGE) then
        do itrc=1,NT
        do k=1,N
-       do j=Jend-decal,Jend+1
-       do i=Istr-1,Iend+1
+       do j=JendR-decal,JendR
+       do i=IstrR,IendR
            tsponge(i,j,k,itrc) =
      &       onemtinterp*T_sponge_north(i,j,k,nold,itrc)
      &       +tinterp*T_sponge_north(i,j,k,TTimesponge,itrc)
@@ -178,8 +179,8 @@ C$OMP BARRIER
       if (WESTERN_EDGE) then
          do itrc=1,NT
          do k=1,N
-         do j=Jstr-1,Jend+1
-         do i=0,decal
+         do j=JstrR,JendR
+         do i=IstrR,IstrR+decal
             tsponge(i,j,k,itrc) =
      &                onemtinterp*T_sponge_west(i,j,k,nold,itrc)
      &                + tinterp*T_sponge_west(i,j,k,TTimesponge,itrc)
@@ -192,8 +193,8 @@ C$OMP BARRIER
       if (EASTERN_EDGE) then      
          do itrc=1,NT
          do k=1,N
-         do j=Jstr-1,Jend+1
-         do i=Iend-decal,Iend+1   
+         do j=JstrR,JendR
+         do i=IendR-decal,IendR
            tsponge(i,j,k,itrc)=
      &               onemtinterp*T_sponge_east(i,j,k,nold,itrc)
      &               + tinterp*T_sponge_east(i,j,k,TTimesponge,itrc)  
@@ -216,7 +217,7 @@ C$OMP BARRIER
        real tabres(i1:i2,j1:j2,k1:k2,m1:m2)
        
        tabres(i1:i2,j1:j2,k1:k2,m1:m2) = 
-     &               t(i1:i2,j1:j2,k1:k2,nstp,m1:m2)
+     &               t(i1:i2,j1:j2,k1:k2,nrhs,m1:m2)
       
       return
       end  
