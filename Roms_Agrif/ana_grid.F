@@ -180,6 +180,8 @@
 # ifdef MPI
       x0=float(ii)*Length_XI/float(NP_XI)   ! Coordinate of south-west
       y0=float(jj)*Length_ETA/float(NP_ETA) ! corner of the PI subdomain
+      x0 = dx*(iminmpi-1)
+      y0 = dy*(jminmpi-1)
 # else
       x0=0.
       y0=0.
@@ -199,7 +201,7 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
           yp(i,j)=y0+dy*float(j-1)        ! PSI- and RHO-points.
           yr(i,j)=y0+dy*(float(j-1)+0.5)
 # ifdef MPI
-          yr(i,j)=dy*(float(j+jj*Mm)-0.5)
+!         yr(i,j)=dy*(float(j+jj*Mm)-0.5) is this useful anymore ??
 # endif
 # ifdef EQUATOR
           yr(i,j)=yr(i,j)-0.5*el
