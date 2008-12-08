@@ -36,7 +36,7 @@
       
       
 !
-       return
+      return
 
       nbcoarsechild = nbcoarse
 
@@ -51,17 +51,29 @@
             
 
       
-      Call Agrif_Update_Variable(tabtemp,updateTprof,
-     &         locupdate=(/0,2/),procname = updateTranp1pre)  
+!     Call Agrif_Update_Variable(tabtemp,updateTprof,
+!    &         locupdate=(/0,2/),procname = updateTranp1pre)  
 
+!     Agrif_UseSpecialValueInUpdate = .FALSE.
+           
+!     Call Agrif_Update_Variable(tabtemp(:,:,:,1),Huon,
+!    &         locupdate=(/0,2/),procname = updateunp1pre)
+
+!     Call Agrif_Update_Variable(tabtemp(:,:,:,1),Hvom,
+!    &         locupdate=(/0,2/),procname = updatevnp1pre) 
+      
+      Call Agrif_Update_Variable(tabtemp,updateTprof,
+     &         locupdate=(/1,2/),procname = updateTranp1pre)
+     
       Agrif_UseSpecialValueInUpdate = .FALSE.
            
       Call Agrif_Update_Variable(tabtemp(:,:,:,1),Huon,
-     &         locupdate=(/0,2/),procname = updateunp1pre)
-
+     &     locupdate1=(/0,2/),locupdate2=(/1,3/),
+     &     procname = updateunp1pre)
       Call Agrif_Update_Variable(tabtemp(:,:,:,1),Hvom,
-     &         locupdate=(/0,2/),procname = updatevnp1pre) 
-      
+     &     locupdate1=(/1,3/),locupdate2=(/0,2/),
+     &     procname = updatevnp1pre)
+
       return
       end  
       
@@ -105,6 +117,7 @@
       real tind(5)
       integer j1
       integer irhot
+      integer idecal
 !
 
 !      return
@@ -130,9 +143,9 @@
 
 !     Call Agrif_Update_Variable(tabtemp,updateTprof,
 !    &         procname = updateTranp1)
-!    
+     
 !     Agrif_UseSpecialValueInUpdate = .FALSE.
-!          
+           
 !     Call Agrif_Update_Variable(tabtemp(:,:,:,1),Huon,
 !    &         procname = updateunp1)
 !     Call Agrif_Update_Variable(tabtemp(:,:,:,1),Hvom,
@@ -153,9 +166,9 @@
 
 !     Call Agrif_Update_Variable(tabtemp,updateTprof,
 !    &         locupdate=(/0,2/),procname = updateTranp1)
-!    
+     
 !     Agrif_UseSpecialValueInUpdate = .FALSE.
-!          
+           
 !     Call Agrif_Update_Variable(tabtemp(:,:,:,1),Huon,
 !    &         locupdate=(/0,2/),procname = updateunp1)
 !     Call Agrif_Update_Variable(tabtemp(:,:,:,1),Hvom,
@@ -199,12 +212,15 @@
       nnewparent=
      &Agrif_Parent(nnew)
                
-      i=1
+      idecal = 0
+!     i=1
+      i=1+idecal
       ipu=Agrif_ix()+1-1+(i-1)/3
       
       do itrc=1,NT
       do k=1,N
-      do j=2,Mm-1,3
+!     do j=2,Mm-1,3
+      do j=2+idecal,Mm-1-idecal,3
       jpu=Agrif_iy()+1-1+(j-2)/3
       t1=myfxparent(ipu,jpu,k,itrc)
       
@@ -222,12 +238,14 @@
       enddo
       enddo
       
-      i=Lm+1
+!     i=Lm+1
+      i=Lm+1-idecal
       ipu=Agrif_ix()+1-1+(i-1)/3
       
       do itrc=1,NT
       do k=1,N
-      do j=2,Mm-1,3
+!     do j=2,Mm-1,3
+      do j=2+idecal,Mm-1-idecal,3
       jpu=Agrif_iy()+1-1+(j-2)/3
       t1=myfxparent(ipu,jpu,k,itrc)
       
@@ -243,12 +261,14 @@
       enddo
       enddo      
       
-      j=1
+!     j=1
+      j=1+idecal
       jpv=Agrif_iy()+1-1+(j-1)/3
       
       do itrc=1,NT
       do k=1,N
-      do i=2,Lm-1,3
+!     do i=2,Lm-1,3
+      do i=2+idecal,Lm-1-idecal,3
       ipv=Agrif_ix()+1-1+(i-2)/3
       t1=myfyparent(ipv,jpv,k,itrc)
       
@@ -265,12 +285,14 @@
       enddo
       enddo
 
-      j=Mm+1
+!     j=Mm+1
+      j=Mm+1-idecal
       jpv=Agrif_iy()+1-1+(j-1)/3
       
       do itrc=1,NT
       do k=1,N
-      do i=2,Lm-1,3
+!     do i=2,Lm-1,3
+      do i=2+idecal,Lm-1-idecal,3
       ipv=Agrif_ix()+1-1+(i-2)/3
       t1=myfyparent(ipv,jpv,k,itrc)
       
@@ -299,6 +321,7 @@
 #  include "ocean3d.h"
 #  include "scalars.h"
 #  include "zoom.h"
+#  include "grid.h"
 !$AGRIF_DO_NOT_TREAT
       integer :: nbcoarsechild
       common/updateprestepint/nbcoarsechild
@@ -517,6 +540,7 @@
 #  include "param.h"
 #  include "ocean3d.h"
 #  include "scalars.h"
+#  include "grid.h"
       integer i1,i2,j1,j2,k1,k2,l1,l2
       real tabres(i1:i2,j1:j2,k1:k2,l1:l2)
       logical before
