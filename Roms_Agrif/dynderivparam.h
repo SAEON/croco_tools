@@ -64,3 +64,7 @@
       N3d=size_XI*size_ETA*Np
 #endif
 
+#if defined AGRIF && defined AUTOTILING
+      MAX_NSUB_X=Lm/6
+      MAX_NSUB_E=Mm/6 
+#endif
