@@ -20,6 +20,7 @@
 CSDISTRIBUTE_RESHAPE A(BLOCK_PATTERN) BLOCK_CLAUSE
       integer Istr,Iend,Jstr,Jend, i,j,k, isize,jsize,ksize,
      &        req(8), status(MPI_STATUS_SIZE,8), ierr
+      integer iter, mdii, mdjj
 
       integer sub_X,size_X, sub_E,size_E, size_Z
 #if ! defined AGRIF      
@@ -56,6 +57,7 @@ c     &     buf_rev1,     ibuf_revS,     buf_rev3
 c**
 !
 #include "compute_message_bounds.h"
+
 #if defined AGRIF
            size_Z=4*(N+1)
            sub_X=(Lm+NSUB_X-1)/NSUB_X
@@ -77,20 +79,38 @@ c**
 !
 ! Prepare to receive and send: sides....
 !
+                            !  Message passing split into two stages
+                            !  in order to optimize Send-Recv pairing
+                            !  in such a way that if one subdomain
+      do iter=0,1           !  sends message to, say, its WESTERN
+       mdii=mod(ii+iter,2)  !  neighbor, that neighbor is preparing
+       mdjj=mod(jj+iter,2)  !  to receive this message first (i.e.
+                            !  message coming from its EASTERN side),
+                            !  rather than! rather than send his WEST
+                            !  bound message, similarly to the first
+                            !  subdomain.
 
-      if (WEST_INTER) then
+!
+! Prepare to receive and send: sides....
+        if (mdii.eq.0) then
+
+      if ((WEST_INTER)) then
         do k=1,nmax
           do j=jmin,jmax
             jbuf_sndW(k+nmax*(j-jmin      ))=A(1,j,k)
             jbuf_sndW(k+nmax*(j-jmin+jshft))=A(2,j,k)
           enddo
         enddo
+        
         call MPI_Irecv (jbuf_revW, jsize, MPI_DOUBLE_PRECISION,
      &                     p_W, 2, MPI_COMM_WORLD, req(1), ierr)
+     
         call MPI_Send  (jbuf_sndW, jsize, MPI_DOUBLE_PRECISION,
      &                     p_W, 1, MPI_COMM_WORLD,         ierr)
       endif
 
+       else
+       
       if (EAST_INTER) then
         do k=1,nmax
           do j=jmin,jmax
@@ -98,12 +118,16 @@ c**
             jbuf_sndE(k+nmax*(j-jmin+jshft))=A(Lmmpi  ,j,k)
           enddo
         enddo
+        
         call MPI_Irecv (jbuf_revE, jsize, MPI_DOUBLE_PRECISION,
      &                     p_E, 1, MPI_COMM_WORLD, req(2), ierr)
+     
         call MPI_Send  (jbuf_sndE, jsize, MPI_DOUBLE_PRECISION,
      &                     p_E, 2, MPI_COMM_WORLD,         ierr)
       endif
+      endif
        
+      if (mdjj.eq.0) then
       if (SOUTH_INTER) then
       ibuf_snds = 0.
       
@@ -118,8 +142,9 @@ c**
         call MPI_Send  (ibuf_sndS, isize, MPI_DOUBLE_PRECISION,
      &                     p_S, 3, MPI_COMM_WORLD,         ierr)
       endif
-
+      else
       if (NORTH_INTER) then
+      
       ibuf_sndn = 0.
         do k=1,nmax
           do i=imin,imax
@@ -133,10 +158,12 @@ c**
         call MPI_Send  (ibuf_sndN, isize, MPI_DOUBLE_PRECISION,
      &                     p_N, 4, MPI_COMM_WORLD,         ierr)
       endif
+      endif
        
 !
 ! ...corners:
 !
+      if (mdii.eq.0) then
       if (SOUTH_INTER .and. WEST_INTER) then
         do k=1,nmax
           buf_snd1(k       )=A(1,1,k)
@@ -149,8 +176,9 @@ c**
         call MPI_Send  (buf_snd1, ksize, MPI_DOUBLE_PRECISION, p_SW,
      &                                5, MPI_COMM_WORLD,        ierr)
       endif
-
+      else
       if (NORTH_INTER .and. EAST_INTER) then
+      
         do k=1,nmax
           buf_snd2(k       )=A(Lmmpi-1,Mmmpi-1,k)
           buf_snd2(k+nmax  )=A(Lmmpi  ,Mmmpi-1,k)
@@ -162,8 +190,11 @@ c**
         call MPI_Send  (buf_snd2, ksize, MPI_DOUBLE_PRECISION, p_NE,
      &                                6, MPI_COMM_WORLD,        ierr)
       endif
+      endif
 
+      if (mdii.eq.1) then
       if (SOUTH_INTER .and. EAST_INTER) then
+      
         do k=1,nmax
           buf_snd3(k       )=A(Lmmpi-1,1,k)
           buf_snd3(k+nmax  )=A(Lmmpi  ,1,k)
@@ -175,8 +206,9 @@ c**
         call MPI_Send  (buf_snd3, ksize, MPI_DOUBLE_PRECISION, p_SE,
      &                                7, MPI_COMM_WORLD,        ierr)
       endif
-
+      else
       if (NORTH_INTER .and. WEST_INTER) then
+      
         do k=1,nmax
           buf_snd4(k       )=A(1,Mmmpi-1,k)
           buf_snd4(k+nmax  )=A(2,Mmmpi-1,k)
@@ -188,10 +220,15 @@ c**
         call MPI_Send  (buf_snd4, ksize, MPI_DOUBLE_PRECISION, p_NW,
      &                                8, MPI_COMM_WORLD,        ierr)
       endif
+      endif
+      enddo   !<-- iter
+
 !
 ! Wait for completion of receive and fill ghost points: sides...
 !
+       
       if (WEST_INTER) then
+      
         call MPI_Wait (req(1),status(1,1),ierr)
         
         do k=1,nmax
@@ -203,6 +240,7 @@ c**
       endif
 
       if (EAST_INTER) then
+      
         call MPI_Wait (req(2),status(1,2),ierr)
         
         do k=1,nmax
@@ -214,6 +252,7 @@ c**
       endif
 
       if (SOUTH_INTER) then
+
         call MPI_Wait (req(3),status(1,3),ierr)
         
         do k=1,nmax
@@ -225,6 +264,7 @@ c**
       endif
 
       if (NORTH_INTER) then
+
         call MPI_Wait (req(4),status(1,4),ierr)
         
         do k=1,nmax
