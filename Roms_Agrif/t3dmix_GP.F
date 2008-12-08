@@ -50,7 +50,7 @@
 !
 ! CHILD
 !
-      subroutine t3dmix_child_tile(Istr,Iend,Jstr,Jend, itrc,
+      subroutine t3dmix_child_tile(Istr,Iend,Jstr,Jend, itrc,LapT,
      &                     FX,FE, FC,dTdz, dTdx,dTde,dZdx,dZde)
 !
 #endif /* CHILD_SPG */
@@ -320,7 +320,7 @@
             do i=imin,imax
               cff=0.5*(pn(i,j)+pn(i,j-1)) 
 #    ifdef MASKING
-      &                                         * vmask(i,j)
+     &                                         * vmask(i,j)
 #    endif
               dZde(i,j,k2)=cff*(z_r(i,j,k+1)-z_r(i,j-1,k+1))
 !              dTde(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)-
