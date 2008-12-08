@@ -29,13 +29,13 @@ averages: NTSAVG, NAVG, NRPFAVG / filename
 
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
                           T    F   F   F  F    10*F
-auxiliary_history_fields:   rho Omega  W  Akv  Akt  Aks  HBL  Bostr
-                             F   F     F   F    F    F    F    F
+auxiliary_history_fields:   rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr UWstr VWstr rsw rlw lat sen HEL
+			     F   F     T   F    T    F    T   T    T     T   T    T     10*F             
 
 primary_averages: zeta UBAR VBAR  U  V   wrtT(1:NT)
                    T    T    T    T  T   10*T
-auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL  Bostr
-                     F   T     T   F    T    F    T    T
+auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL  HBBL Bostr Wstr UWstr VWstr rsw rlw lat sen HEL
+                     F   T     T   F    T    F    T    T     T   T    T     10*F             
 
 
 rho0:
@@ -46,6 +46,9 @@ lateral_visc:   VISC2,    VISC4    [m^2/sec for all]
 
 tracer_diff2: TNU2(1:NT)           [m^2/sec for all]
                10*0.d0 
+
+tracer_diff4: TNU4(1:NT)           [m^4/sec for all]
+               30*0.d11
 
 bottom_drag:     RDRG [m/s],  RDRG2,  Zob [m],  Cdb_min, Cdb_max
                  0.0d-04      0.d-3    1.d-2     1.d-4    1.d-1 
