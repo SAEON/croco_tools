@@ -72,7 +72,7 @@
           enddo
         enddo
       enddo
-# elif defined VORTEX
+# elif defined VORTEX || defined INTERNAL
       do k=1,N-1
         do j=Jstr,Jend
           do i=Istr,Iend

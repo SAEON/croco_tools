@@ -109,7 +109,7 @@
   || defined EQUATOR   || defined GRAV_ADJ  || defined INNERSHELF \
   || defined OVERFLOW  || defined REGIONAL  || defined RIVER      \
   || defined SEAMOUNT  || defined SED_TEST2 || defined SHELFRONT  \
-  || defined UPWELLING || defined VORTEX
+  || defined UPWELLING || defined VORTEX    || defined INTERNAL
         do j=JstrR,JendR
           do i=IstrR,IendR
             btflx(i,j,itemp)=0.
@@ -294,9 +294,10 @@
           sustr(i,j)=windamp
         enddo
       enddo
-# elif defined GRAV_ADJ  || defined OVERFLOW || defined SEAMOUNT \
+# elif defined GRAV_ADJ  || defined OVERFLOW || defined SEAMOUNT   \
     || defined SHELFRONT || defined SOLITON  || defined INNERSHELF \
-    || defined RIVER     || defined VORTEX   || defined REGIONAL
+    || defined RIVER     || defined VORTEX   || defined REGIONAL   \
+    || defined INTERNAL
       do j=JstrR,JendR
         do i=Istr,IendR
           sustr(i,j)=0.
@@ -317,7 +318,7 @@
   || defined EQUATOR   || defined GRAV_ADJ  || defined OVERFLOW  \
   || defined REGIONAL  || defined RIVER     || defined SEAMOUNT  \
   || defined SHELFRONT || defined SOLITON   || defined UPWELLING \
-  || defined VORTEX     
+  || defined VORTEX    || defined INTERNAL    
       do j=Jstr,JendR
         do i=IstrR,IendR
           svstr(i,j)=0.
@@ -369,7 +370,8 @@
 !
 # if defined EQUATOR   || defined INNERSHELF || defined OVERFLOW \
   || defined REGIONAL  || defined RIVER      || defined SEAMOUNT \
-  || defined SHELFRONT || defined UPWELLING  || defined VORTEX
+  || defined SHELFRONT || defined UPWELLING  || defined VORTEX \
+  || defined INTERNAL
       do j=JstrR,JendR
         do i=IstrR,IendR
           srflx(i,j)=0.
@@ -408,6 +410,9 @@
 # include "climat.h"
 # include "scalars.h"
       integer Istr,Iend,Jstr,Jend, i,j
+# ifdef INTERNAL
+      real U0,omega,kwave,ETA0
+# endif
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -417,6 +422,16 @@
       do j=JstrR,JendR
         do i=IstrR,IendR
           ssh(i,j)=0.
+        enddo
+      enddo
+# elif defined INTERNAL
+      U0=0.02
+      omega=2.*pi/(12.4*3600)
+      kwave=((omega*omega)-(f(1,1)*f(1,1)))/(g*h(1,1))
+      ETA0=kwave*h(1,1)*U0/omega
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          ssh(i,j)=ETA0*sin(omega*time-kwave*(xr(i,j)))
         enddo
       enddo
 # else
@@ -549,7 +564,7 @@ c
  || defined EQUATOR  || defined GRAV_ADJ  || defined INNERSHELF \
  || defined OVERFLOW || defined REGIONAL  || defined RIVER      \
  || defined SEAMOUNT || defined SHELFRONT || defined UPWELLING  \
- || defined VORTEX
+ || defined VORTEX   || defined INTERNAL
 
         do j=JstrR,JendR
           do i=IstrR,IendR
@@ -875,8 +890,27 @@ c
 # include "climat.h"
 # include "scalars.h"
       integer Istr,Iend,Jstr,Jend, i,j,k
+# ifdef INTERNAL
+      real U0,omega,kwave,V0
+# endif
 !
 # include "compute_auxiliary_bounds.h"
+!
+# ifdef EW_PERIODIC
+#  define IU_RANGE Istr,Iend
+#  define IV_RANGE Istr,Iend
+# else
+#  define IU_RANGE Istr,IendR
+#  define IV_RANGE IstrR,IendR
+# endif
+
+# ifdef NS_PERIODIC
+#  define JU_RANGE Jstr,Jend
+#  define JV_RANGE Jstr,Jend
+# else
+#  define JU_RANGE JstrR,JendR
+#  define JV_RANGE Jstr,JendR
+# endif
 !
 # if defined ANA_M2CLIMA && defined M2CLIMATOLOGY
 #  if defined REGIONAL
@@ -886,6 +920,21 @@ c
           vbclm(i,j)=0.
         enddo
       enddo
+#  elif defined INTERNAL
+      U0=0.02
+      omega=2.*pi/(12.4*3600)
+      kwave=((omega*omega)-(f(1,1)*f(1,1)))/(g*h(1,1))
+      V0=f(1,1)*U0/omega
+      do j=JU_RANGE
+        do i=IU_RANGE
+          ubclm(i,j)=U0*sin(omega*time-kwave*0.5*(xr(i,j)+xr(i-1,j)))
+        enddo
+      enddo
+      do j=JV_RANGE
+        do i=IV_RANGE
+          vbclm(i,j)=V0*cos(omega*time-kwave*0.5*(xr(i,j)+xr(i,j-1)))
+        enddo
+      enddo
 #  else
       do j=JstrR,JendR
         do i=IstrR,IendR
@@ -893,7 +942,11 @@ c
           vbclm(i,j)=???
         enddo
       enddo
-#   endif
+#  endif
+#  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      call exchange_u2d_tile (Istr,Iend,Jstr,Jend,  ubclm)
+      call exchange_v2d_tile (Istr,Iend,Jstr,Jend,  vbclm)
+#  endif
 # endif
 # if defined ANA_M3CLIMA && defined M3CLIMATOLOGY && defined SOLVE3D
 #  if defined REGIONAL
@@ -916,6 +969,10 @@ c
       enddo
 #  endif
 # endif
+# undef IU_RANGE
+# undef JU_RANGE
+# undef IV_RANGE
+# undef JV_RANGE
       return
       end
 #endif /* ANA_M2CLIMA && M2CLIMATOLOGY || (ANA_M3CLIMA && M3CLIMATOLOGY) */

@@ -49,6 +49,9 @@
       real Length_XI,Length_ETA, depth, f0,beta, 
      &     cff,y, x0,y0,dx,dy, NSUB
 
+# if defined INTERNAL
+      real cff1, ridge_width, ridge_height
+# endif
 !
 # include "compute_extended_bounds.h"
 !
@@ -68,6 +71,16 @@
                      depth=20.
                      f0=0.
                      beta=0.
+# elif defined INNERSHELF
+                     depth=5000.
+                     f0=5.e-5
+                     beta=0.
+# elif defined INTERNAL
+                     depth=2000.
+                     f0=1.e-4
+                     beta=0.
+		     ridge_width=30.e3
+		     ridge_height=1600.
 # elif defined OVERFLOW
                      depth=40.
                      f0=0.
@@ -91,10 +104,6 @@
 # elif defined SED_TEST2
                      depth=10.0    
                      f0=1.E-4
-                     beta=0.
-# elif defined INNERSHELF
-                     depth=5000.
-                     f0=5.e-5
                      beta=0.
 # elif defined RIVER
                      depth=150.
@@ -120,6 +129,14 @@
 # elif defined GRAV_ADJ
                      Length_XI =64.0E+3
                      Length_ETA=2.0E+3
+# elif defined INNERSHELF
+                     Length_XI =320.0e+3
+                     Length_ETA=15.0e+3
+# elif defined INTERNAL
+!                     Length_XI =2400.0e+3
+                     Length_XI =1200.0e+3
+!                     Length_ETA=100.0e+3
+                     Length_ETA=6.0e+3
 # elif defined OVERFLOW
                      Length_XI =2.0E+3
                      Length_ETA=64.0E+3
@@ -138,9 +155,6 @@
 # elif defined SED_TEST2
                      Length_XI =25000.0
                      Length_ETA=2500.0
-# elif defined INNERSHELF
-                     Length_XI =320.0e+3
-                     Length_ETA=15.0e+3
 # elif defined RIVER
                      Length_ETA=8.E+4
                      Length_XI =LLm*Length_ETA/MMm
@@ -189,6 +203,10 @@
 !CR# ifdef EQUATOR
 !CR      y0=y0-0.5*el
 !CR# endif
+# ifdef INTERNAL
+      x0=y0-0.5*Length_XI
+      y0=y0-0.5*Length_ETA  
+# endif
 
 CR      write(*,'(4(A3,pe15.9,1x),I3)') 'dx=',dx, 'dy=',dy,
 CR     &                                'x0=',x0, 'y0=',y0, mynode
@@ -248,6 +266,31 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
           h(i,j)=20.+0.5*(depth-20.)*(1.+tanh((yr(i,j)-cff)/10000.))
         enddo
       enddo
+# elif defined INNERSHELF
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          h(i,j)=30.+0.5*1000.*(1+sinh((150.e3-xr(i,j))/40.e3)
+     &               /cosh((150.e3-xr(i,j))/40.e3))
+        enddo
+      enddo
+# elif defined INTERNAL
+      cff1=1./(ridge_width*ridge_width)
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+	  if ((xr(i,j).gt.ridge_width).or.
+     &	      (xr(i,j).lt.(-ridge_width))) then
+            cff=0.
+	  else
+	    cff=1-(xr(i,j)*xr(i,j)*cff1);
+	  endif
+          h(i,j)=depth-ridge_height*cff*cff;
+#   ifdef INTERNALSHELF
+	  if (xr(i,j).ge.0.) then
+	    h(i,j)=depth-ridge_height
+	  endif
+#   endif
+        enddo
+      enddo
 # elif defined OVERFLOW
       do j=JstrR,JendR
         do i=IstrR,IendR
@@ -301,13 +344,6 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
         cff=min(depth,84.5+66.526*tanh(0.00015*(y-0.125*Length_ETA)))
         do i=IstrR,IendR
           h(i,j)=cff
-        enddo
-      enddo
-# elif defined INNERSHELF
-      do j=JstrR,JendR
-        do i=IstrR,IendR
-          h(i,j)=30.+0.5*1000.*(1+sinh((150.e3-xr(i,j))/40.e3)
-     &               /cosh((150.e3-xr(i,j))/40.e3))
         enddo
       enddo
 # elif defined RIVER

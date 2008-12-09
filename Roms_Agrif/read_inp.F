@@ -59,6 +59,8 @@
       fname='TEST_CASES/roms.in.Grav_adj'
 #elif defined INNERSHELF
       fname='TEST_CASES/roms.in.Innershelf'
+#elif defined INTERNAL
+      fname='TEST_CASES/roms.in.Internal'
 #elif defined OVERFLOW
       fname='TEST_CASES/roms.in.Overflow'
 #elif defined RIVER

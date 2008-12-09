@@ -18,6 +18,7 @@
 #undef SOLITON         /* Equatorial Rossby Wave Example */
 #undef UPWELLING       /* Upwelling Example */
 #undef VORTEX          /* Baroclinic Vortex Example */
+#undef INTERNAL        /* Internal Tide Example */
 #define REGIONAL       /* REGIONAL Applications */
 
 
@@ -415,6 +416,56 @@
 # define LMD_RIMIX
 # define LMD_CONVEC
 # define NS_PERIODIC
+
+#elif defined INTERNAL
+/*
+!                       Internal Tide Example
+!                       ======== ==== =======
+! Di Lorenzo, E, W.R. Young and S.L. Smith, 2006, Numerical and anlytical estimates of M2
+! tidal conversion at steep oceanic ridges, J. Phys. Oceanogr., 36, 1072-1084.  
+*/
+# undef  ETALON_CHECK
+# undef  OPENMP
+# undef  MPI
+# define SOLVE3D
+# define UV_COR
+# define UV_ADV
+# define BODYTIDE
+# define ANA_GRID
+# undef  INTERNALSHELF
+# define ANA_INITIAL
+# define ANA_BTFLUX
+# define ANA_SMFLUX
+# define ANA_SRFLUX
+# define ANA_STFLUX
+# define ANA_VMIX
+
+# define EW_PERIODIC
+# define NS_PERIODIC
+
+# undef  UV_VIS2
+# undef  MIX_GP_UV
+# undef  TS_DIF2
+# undef  MIX_GP_TS
+# undef  SPONGE
+# undef  ANA_SSH
+# undef  ANA_M2CLIMA
+# undef  ANA_M3CLIMA
+# undef  ANA_TCLIMA
+# undef  ZCLIMATOLOGY
+# undef  M2CLIMATOLOGY
+# undef  M3CLIMATOLOGY
+# undef  TCLIMATOLOGY
+# undef  ZNUDGING
+# undef  M2NUDGING
+# undef  M3NUDGING
+# undef  TNUDGING
+# undef  OBC_EAST
+# undef  OBC_WEST
+# undef  OBC_M2CHARACT
+# undef  OBC_M2FLATHER
+# undef  OBC_TORLANSKI
+# undef  OBC_M3ORLANSKI
 
 #elif defined RIVER
 /*

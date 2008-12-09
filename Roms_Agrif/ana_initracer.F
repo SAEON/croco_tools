@@ -52,7 +52,7 @@
   || defined CANYON_A   || defined CANYON_B  || defined EQUATOR \
   || defined GRAV_ADJ   || defined OVERFLOW   || defined SEAMOUNT  \
   || defined SOLITON    || defined SHELFRONT  || defined RIVER \
-  || defined VORTEX
+  || defined VORTEX     || defined INTERNAL
       do k=1,N
         do j=JR_RANGE
           do i=IR_RANGE

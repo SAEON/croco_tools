@@ -36,6 +36,9 @@
 # ifdef BASIN
       real cff1,cff2
 # endif
+# ifdef INTERNAL
+      real cff
+# endif
 # ifdef BIOLOGY
       real temp, SiO4
 # endif
@@ -50,10 +53,11 @@
 !  Initial conditions for free surface and 2D momentum components.
 !------------------------------------------------------------------
 !
-# if defined BASIN      || defined CANYON_A  || defined CANYON_B   \
+# if defined BASIN      || defined CANYON_A  || defined CANYON_B  \
    || defined EQUATOR   || defined GRAV_ADJ  || defined OVERFLOW  \
    || defined SEAMOUNT  || defined SHELFRONT || defined UPWELLING \
-   || defined INNERSHELF || defined REGIONAL  || defined RIVER
+   || defined INNERSHELF || defined INTERNAL || defined REGIONAL  \
+   || defined RIVER
       do j=JR_RANGE
         do i=IR_RANGE
           zeta(i,j,1)=0.
@@ -121,10 +125,11 @@
 !  Initial conditions for momentum components [m/s].
 !--------------------------------------------------------------------
 !
-#  if defined BASIN     || defined CANYON_A  || defined CANYON_B   \
+#  if defined BASIN     || defined CANYON_A  || defined CANYON_B  \
    || defined EQUATOR   || defined GRAV_ADJ  || defined OVERFLOW  \
    || defined SEAMOUNT  || defined SHELFRONT || defined UPWELLING \
-   || defined INNERSHELF || defined REGIONAL  || defined RIVER
+   || defined INNERSHELF  || defined INTERNAL || defined REGIONAL \
+   || defined RIVER
       do k=1,N
         do j=JR_RANGE
           do i=IR_RANGE
@@ -206,6 +211,42 @@
           enddo
         enddo
       enddo
+#  elif defined INNERSHELF
+      do k=1,N
+        do j=JR_RANGE
+          do i=IR_RANGE
+#   define Z0 (-80.)
+#   define THKNSS 50.
+#   define Z1 0.
+#   define STRAT 1000.
+           t(i,j,k,1,itemp)=14.+5.*THKNSS*log(
+     &                            cosh((z_w(i,j,k )-Z0)/THKNSS)
+     &                           /cosh((z_w(i,j,k-1)-Z0)/THKNSS)
+     &                               )/(z_w(i,j,k)-z_w(i,j,k-1))
+     &               +((z_w(i,j,k)+z_w(i,j,k-1))/2.-Z1)/STRAT
+#   undef Z0
+#   undef THKNSS
+#   undef Z1
+#   undef STRAT
+            t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
+#   ifdef SALINITY
+            t(i,j,k,1,isalt)=35.
+            t(i,j,k,2,isalt)=t(i,j,k,1,isalt)
+#   endif
+          enddo
+        enddo
+      enddo
+#  elif defined  INTERNAL
+#   define BVFREQ 2.e-3
+      cff=BVFREQ*BVFREQ/g
+      do k=1,N
+        do j=JR_RANGE
+          do i=IR_RANGE
+            t(i,j,k,1,itemp)=rho0*(1-cff*z_r(i,j,k))
+            t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
+          enddo
+        enddo
+      enddo
 #  elif defined OVERFLOW
       do k=1,N
         do j=JR_RANGE
@@ -214,6 +255,17 @@
             t(i,j,k,1,itemp)=T0*(0.5-0.5*tanh( yr(i,j)/1000.-25.))
 
             t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
+          enddo
+        enddo
+      enddo
+#  elif defined  RIVER
+      do k=1,N
+        do j=JR_RANGE
+          do i=IR_RANGE
+            t(i,j,k,1,itemp)=10.  !4.+10.*exp(z_r(i,j,k)/50.)
+            t(i,j,k,1,isalt)=36.
+            t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
+            t(i,j,k,2,isalt)=t(i,j,k,1,isalt)
           enddo
         enddo
       enddo
@@ -274,42 +326,6 @@
             t(i,j,k,1,isalt)=35.
             t(i,j,k,2,isalt)=t(i,j,k,1,isalt)
 #   endif
-          enddo
-        enddo
-      enddo
-#  elif defined INNERSHELF
-      do k=1,N
-        do j=JR_RANGE
-          do i=IR_RANGE
-#   define Z0 (-80.)
-#   define THKNSS 50.
-#   define Z1 0.
-#   define STRAT 1000.
-           t(i,j,k,1,itemp)=14.+5.*THKNSS*log(
-     &                            cosh((z_w(i,j,k )-Z0)/THKNSS)
-     &                           /cosh((z_w(i,j,k-1)-Z0)/THKNSS)
-     &                               )/(z_w(i,j,k)-z_w(i,j,k-1))
-     &               +((z_w(i,j,k)+z_w(i,j,k-1))/2.-Z1)/STRAT
-#   undef Z0
-#   undef THKNSS
-#   undef Z1
-#   undef STRAT
-            t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
-#   ifdef SALINITY
-            t(i,j,k,1,isalt)=35.
-            t(i,j,k,2,isalt)=t(i,j,k,1,isalt)
-#   endif
-          enddo
-        enddo
-      enddo
-#  elif defined  RIVER
-      do k=1,N
-        do j=JR_RANGE
-          do i=IR_RANGE
-            t(i,j,k,1,itemp)=10.  !4.+10.*exp(z_r(i,j,k)/50.)
-            t(i,j,k,1,isalt)=36.
-            t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
-            t(i,j,k,2,isalt)=t(i,j,k,1,isalt)
           enddo
         enddo
       enddo

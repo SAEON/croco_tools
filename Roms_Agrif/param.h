@@ -30,6 +30,10 @@
       parameter (LLm0=128, MMm0=4,   N=10)
 #elif defined INNERSHELF
       parameter (LLm0=64,  MMm0=3,   N=40)
+#elif defined INTERNAL
+!      parameter (LLm0=120,  MMm0=10,  N=40)   ! 10 km resolution
+!      parameter (LLm0=800,  MMm0=4,  N=40)   ! 1.5 km resolution
+      parameter (LLm0=1600,  MMm0=4,  N=40)   ! 1.5 km resolution
 #elif defined OVERFLOW
       parameter (LLm0=4,   MMm0=128, N=10)
 #elif defined RIVER

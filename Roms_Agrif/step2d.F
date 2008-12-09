@@ -65,6 +65,9 @@ C$    trd=omp_get_thread_num()
 #include "zoom.h"
         integer irhox, irhoy, irhot
 #endif
+# if defined INTERNAL || defined BODYTIDE
+      real U0, omega
+# endif
 !
 # ifdef MPI
 #  define LOCALLM Lmmpi
@@ -706,6 +709,35 @@ czz     cff3=0.0088
 # ifdef MASKING
      &                 * vmask(i,j)
 # endif          
+          vbar(i,j,knew)=vbar(i,j,knew) + DVnew
+#ifdef SOLVE3D
+          DV_avg1(i,j,nnew)=DV_avg1(i,j,nnew) +cff1*DVnew*
+     &                         (Dnew(i,j)+Dnew(i,j-1))*om_v(i,j)
+#endif
+
+        enddo
+      enddo
+#endif
+!
+!  Body force for the Internal Tide test case
+!
+#if defined INTERNAL || defined BODYTIDE
+      omega=2.*pi/(12.4*3600.)
+      U0=0.02
+      do j=Jstr,Jend
+        do i=IstrU,Iend
+          DUnew = dtfast*omega*U0*cos(omega*time)
+          ubar(i,j,knew)=ubar(i,j,knew) + DUnew
+#ifdef SOLVE3D
+          DU_avg1(i,j,nnew)=DU_avg1(i,j,nnew) +cff1*DUnew*
+     &                         (Dnew(i,j)+Dnew(i-1,j))*on_u(i,j)
+#endif
+        enddo
+      enddo
+      do j=JstrV,Jend
+        do i=Istr,Iend
+          DVnew = dtfast*0.5*(f(i,j)+f(i,j-1))*
+     &                   U0*sin(omega*time)
           vbar(i,j,knew)=vbar(i,j,knew) + DVnew
 #ifdef SOLVE3D
           DV_avg1(i,j,nnew)=DV_avg1(i,j,nnew) +cff1*DVnew*
