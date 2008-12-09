@@ -108,7 +108,7 @@ Select MOMENTUM VERTICAL advection scheme:
 */
 #if defined SPONGE
 # define SPONGE_DIF2
-# undef SPONGE_VIS2
+# define SPONGE_VIS2
 #endif
 
 /*
