@@ -191,13 +191,18 @@
 #  elif defined GRAV_ADJ
       do k=1,N
         do j=JstrR,JendR
-          do i=IstrR,min(LLm/2,IendR)  !<-- incompatible with MPI
+          do i=IstrR,IendR
+#ifdef MPI
+           if (i+iminmpi-1 .LE. LLm/2) then
+#else
+           if (i .LE. LLm/2) then
+#endif            
             t(i,j,k,1,itemp)=T0+5.
-            t(i,j,k,2,itemp)=T0+5.
-          enddo
-          do i=max(LLm/2+1,IstrR),IendR
+            t(i,j,k,2,itemp)=T0+5
+            else
             t(i,j,k,1,itemp)=T0
-            t(i,j,k,2,itemp)=T0
+            t(i,j,k,2,itemp)=T0            
+            endif
           enddo
         enddo
       enddo
