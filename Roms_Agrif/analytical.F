@@ -923,7 +923,7 @@ c
 #  elif defined INTERNAL
       U0=0.02
       omega=2.*pi/(12.4*3600)
-      kwave=((omega*omega)-(f(1,1)*f(1,1)))/(g*h(1,1))
+      kwave=sqrt(((omega*omega)-(f(1,1)*f(1,1)))/(g*h(1,1)))
       V0=f(1,1)*U0/omega
       do j=JU_RANGE
         do i=IU_RANGE
