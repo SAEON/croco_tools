@@ -2,7 +2,7 @@ function fname=get_GFS_fname(time,gfs_run_time,gfstype)
 %
 %  fname=get_GFS_fname(time,gfs_run_time)
 %
-%  Gifve the GFS url for a given date.
+%  Give the GFS url for a given date.
 % 
 %  Further Information:  
 %  http://www.brest.ird.fr/Roms_tools/
@@ -32,6 +32,8 @@ function fname=get_GFS_fname(time,gfs_run_time,gfstype)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+%url='http://nomads6.ncdc.noaa.gov:9090';
+%url='http://nomad3.ncep.noaa.gov:9090';
 url='http://nomad1.ncep.noaa.gov:9090';
 if gfstype==0
   gfsname='gdas/rotating/gdas';
@@ -62,15 +64,15 @@ gdasdir=[url,'/dods/',gfsname,stry,strm,strd];
 % Get the grid
 %
 if gfs_run_time < 10
-if gfstype==0
-  fname=[gdasdir,'0',num2str(gfs_run_time)];
+  if gfstype==0
+    fname=[gdasdir,'0',num2str(gfs_run_time)];
+  else
+    fname=[gfsdir,gfsname1,'_0',num2str(gfs_run_time),'z'];
+  end
 else
-  fname=[gfsdir,gfsname1,'_0',num2str(gfs_run_time),'z'];
-end
-else
-if gfstype==0
-  fname=[gdasdir,num2str(gfs_run_time)];
-else
-  fname=[gfsdir,gfsname1,'_',num2str(gfs_run_time),'z'];
-end
+  if gfstype==0
+    fname=[gdasdir,num2str(gfs_run_time)];
+  else
+    fname=[gfsdir,gfsname1,'_',num2str(gfs_run_time),'z'];
+  end
 end
