@@ -7,20 +7,11 @@
 %
 %  Version of 2-Oct-2002
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-clear allls
+clear all
 close all
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Grid file name
-%
-grdname='roms_grd.nc';
-%
-%  Vertical grid parameters
-%
-theta_s=4.;
-theta_b=0.;
-hc=1.;
-N=20; % number of vertical levels (rho)
+romstools_param
 %
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
