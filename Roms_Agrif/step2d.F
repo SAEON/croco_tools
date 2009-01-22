@@ -267,7 +267,10 @@ czz     cff3=0.0088
 ! Set boundary conditions for the free-surface:
 !
       call zetabc_tile (Istr,Iend,Jstr,Jend)
-
+#if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+      call exchange_r2d_tile (istr,iend,jstr,jend,
+     &                   zeta(START_2D_ARRAY,knew))
+#endif
 !
 ! Compute time averaged fields over all short timesteps.
 !-------- ---- -------- ------ ---- --- ----- ----------
