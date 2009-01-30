@@ -101,6 +101,9 @@
 # include "coupling.h"
 # include "ocean3d.h"
 #endif
+#ifdef PISCES
+# include "parameter.h"
+#endif
 #ifdef AUTOTILING
 # include "autotiling.h"
 #endif

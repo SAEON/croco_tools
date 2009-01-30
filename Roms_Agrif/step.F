@@ -321,12 +321,21 @@ C$OMP BARRIER
 C$OMP BARRIER
 
       do tile=my_first,my_last
-# if defined UV_VIS2 || defined UV_VIS4
-        call uv3dmix (tile)
+
+!# if defined UV_VIS2 || defined UV_VIS4
+!        call uv3dmix (tile)
+!#  if defined SPONGE_VIS2
+!        call uv3dmix_spg (tile)
+!#  endif
+!# endif
+# if defined UV_VIS4 || (defined UV_VIS2 && !defined SPONGE_VIS2) 
+       call uv3dmix (tile)
+# end
 #  if defined SPONGE_VIS2
         call uv3dmix_spg (tile)
 #  endif
-# endif
+
+
 
 # ifdef AVERAGES
         call set_avg (tile)
@@ -633,12 +642,19 @@ C$OMP BARRIER
 C$OMP BARRIER
 
       do tile=my_first,my_last
-# if defined TS_DIF2 || defined TS_DIF4
+!# if defined TS_DIF2 || defined TS_DIF4
+!        call t3dmix (tile)
+!#  if defined SPONGE_DIF2
+!        call t3dmix_spg (tile)
+!#  endif
+!# endif
+# if defined TS_DIF4 || (defined TS_DIF2 && !defined SPONGE_DIF2) 
         call t3dmix (tile)
+# endif
 #  if defined SPONGE_DIF2
         call t3dmix_spg (tile)
 #  endif
-# endif
+
 
       enddo
 C$OMP BARRIER

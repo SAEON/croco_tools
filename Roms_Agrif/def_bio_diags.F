@@ -383,7 +383,7 @@ c        v3dgrd(4)=timedim
         do iflux = 1, NumFluxTerms
           lvar=lenstr(vname(1,indxbioFlux+iflux-1))
           ierr=nf_inq_varid (ncid, vname(1,indxbioFlux+iflux-1)(1:lvar),
-     &                                               vidFlux(iflux))
+     &                       vidFlux(iflux))
           if (ierr .ne. nf_noerr) then
             write(stdout,1) vname(1,indxbioFlux+iflux-1)(1:lvar),
      &                                         ncname(1:lstr)
@@ -396,7 +396,7 @@ c        v3dgrd(4)=timedim
         do iflux = 1, NumVSinkTerms
           lvar=lenstr(vname(1,indxbioVSink+iflux-1))
           ierr=nf_inq_varid(ncid,vname(1,indxbioVSink+iflux-1)(1:lvar),
-     &                                              vidVSink(iflux))
+     &                      vidVSink(iflux))
           if (ierr .ne. nf_noerr) then
             write(stdout,1) vname(1,indxbioVSink+iflux-1)(1:lvar),
      &                                         ncname(1:lstr) 

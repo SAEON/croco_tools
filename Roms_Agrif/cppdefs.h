@@ -37,18 +37,18 @@
 # define PERU
                       /* Parallelization */
 # undef OPENMP
-# undef MPI
+# define MPI
                       /* Nesting */
-# undef AGRIF
-# undef AGRIF_2WAY
+# define AGRIF
+# define AGRIF_2WAY
                       /* Open Boundary Conditions */
 # undef TIDES
-# define OBC_EAST
+# undef OBC_EAST
 # define OBC_WEST
 # define OBC_NORTH
 # define OBC_SOUTH
                       /* Applications */
-# undef BIOLOGY
+# define BIOLOGY
 # undef FLOATS
 # undef STATIONS
 # undef PASSIVE_TRACER
@@ -63,6 +63,7 @@
 # ifdef MPI
 #  undef PARALLEL_FILES
 # endif
+# undef AUTOTILING
                       /* Model dynamics */
 # define SOLVE3D
 # define UV_COR
@@ -84,28 +85,8 @@
 # undef VIS_SMAGO
                       /* Lateral Tracer Mixing */
 # define MIX_GP_TS
-!-------------------------------------------------------------
-! Explanations:
-! ***********
-! Choose diffusion  :
-!     MIX_GP_TS: along geopotential surface
-! or  MIX_S_TS : along sigma surface       
-! or  MIX_EN_TS : along isopyncnal surface  
-!--------------------------------------------------------------
 # define TS_DIF2
 # undef TS_SPLIT_UP3
-# ifdef TS_SPLIT_UP3
-#  undef TS_DIF2
-# endif 
-!---------------------------------------------------------------
-! Explanations:
-! ***********
-! Choose diffusion schemes :
-!     - TS_DIF2 : constant mixing coefficient + laplacian 
-!  or - TS_DIF4 : constant mixing coefficient + bilaplacian
-!  or - TS_SPLIT_UP3 : 3d mixing coefficient +
-!      4th order centered advection and + bilaplacian hyperdiffusion   
-!--------------------------------------------------------------
                       /* Vertical Mixing */
 # undef BODYFORCE
 # undef BVF_MIXING
@@ -159,7 +140,7 @@
 #  undef ROBUST_DIAG
 # endif
 
-# undef FRC_BRY
+# define FRC_BRY
 # ifdef FRC_BRY
 #  define Z_FRC_BRY
 #  define M2_FRC_BRY

@@ -608,7 +608,7 @@ c        close(testunit)
      &    , wrthis(indxV),  'write V    ', '3D V-momentum component.'
         do itrc=1,NT
           if (wrthis(indxT+itrc-1)) wrthis(indxTime)=.true.
-          MPI_master_only write(stdout, '(6x,L1,2x,A,I1,A,I2,A)')
+          MPI_master_only write(stdout, '(6x,L1,2x,A,I2,A,I2,A)')
      &                     wrthis(indxT+itrc-1), 'write T(', itrc,
      &                              ')  Tracer of index', itrc,'.'
         enddo
@@ -788,7 +788,7 @@ c        close(testunit)
         do itrc=1,NT
           if (wrtavg(indxT+itrc-1)) wrtavg(indxTime)=.true.
           MPI_master_only write(stdout,
-     &                     '(6x,L1,2x,A,I1,A,2x,A,I2,A)')
+     &                     '(6x,L1,2x,A,I2,A,2x,A,I2,A)')
      &                      wrtavg(indxT+itrc-1), 'write T(',
      &                      itrc,')', 'Tracer of index', itrc,'.'
         enddo
@@ -897,6 +897,7 @@ c        close(testunit)
      &  , wrtavg(indxHbbl),  'write Hbbl  ',
      &                    'Depth of the bottom planetary boundary layer'
 #  endif
+#  ifdef BULK_FLUX
      &  , wrtavg(indxShflx_rsw), 'write shflx_rsw', 
      &                                'Solar Heat Flux'
      &  , wrtavg(indxShflx_rlw), 'write shflx_rlw', 
@@ -905,6 +906,7 @@ c        close(testunit)
      &                                 'Latente heat flux'
      &  , wrtavg(indxShflx_sen), 'write shflx_sen',
      &                                 'Sensible heta flux'
+#  endif
 #  ifdef BIOLOGY
      &  , wrtavg(indxHel),'write Hel  ',
      &                          'Depth of the euphotic layer'
@@ -1074,8 +1076,8 @@ c        close(testunit)
         read(input,*,err=95) (tnu2(itrc),itrc=1,NT)
         do itrc=1,NT
           MPI_master_only write(stdout,7) tnu2(itrc), itrc, itrc
-   7      format(1pe10.3,'  tnu2(',i1,')  Horizontal Laplacian '
-     &     ,'mixing coefficient (m2/s)',/,32x,'for tracer ',i1,'.')
+   7      format(1pe10.3,'  tnu2(',i2,')  Horizontal Laplacian '
+     &     ,'mixing coefficient (m2/s)',/,32x,'for tracer ',i2,'.')
         enddo
 # endif
 # ifdef TS_DIF4
@@ -1087,8 +1089,8 @@ c        close(testunit)
         read(input,*,err=95) (tnu4(itrc),itrc=1,NT)
         do itrc=1,NT
           MPI_master_only write(stdout,8) tnu4(itrc), itrc, itrc
-   8      format(1pe10.3,'  tnu4(',i1,')  Horizontal biharmonic'
-     &    ,' mixing coefficient [m4/s]',/,32x,'for tracer ',i1,'.')
+   8      format(1pe10.3,'  tnu4(',i2,')  Horizontal biharmonic'
+     &    ,' mixing coefficient [m4/s]',/,32x,'for tracer ',i2,'.')
         enddo
 
 # endif
@@ -1105,7 +1107,7 @@ c        close(testunit)
      &                                     'coefficient, m2/s.'
         do itrc=1,NT
           MPI_master_only write(stdout,
-     &           '(1pe10.3,2x,A,I1,A,1x,A/32x,A,I3,A)')
+     &           '(1pe10.3,2x,A,I2,A,1x,A/32x,A,I2,A)')
      &            Akt_bak(itrc), 'Akt_bak(', itrc, ')',
      &           'Background vertical mixing coefficient, m2/s,',
      &                                  'for tracer ', itrc, '.' 
@@ -1244,7 +1246,7 @@ c        close(testunit)
      &  , wrthis(indxBPOR), 'write bed_poros ', 
      &                             'porosity of sediment bed layer.'
         do itrc=1,NST
-            MPI_master_only write(stdout, '(6x,L1,2x,A,I1,A,I2,A)')
+            MPI_master_only write(stdout, '(6x,L1,2x,A,I2,A,I2,A)')
      &          wrthis(indxBFRA+itrc-1), 'write bed_frac(',itrc,
      &                   ') Sediment fraction of index ',itrc,'.'
         enddo
@@ -1297,13 +1299,13 @@ c        close(testunit)
      &    Qbar(is), 'Total transport at point source'
           do itrc=1,NT
             MPI_master_only write(stdout,
-     &                     '(6x,L1,2x,A,I1,A,2x,A,I2,A)')
+     &                     '(6x,L1,2x,A,I2,A,2x,A,I2,A)')
      &                      Lsrc(is,itrc), 'write Lsrc(',
      &                      itrc,')', 'Tracer of index', itrc,'.'
           enddo
           do itrc=1,NT
             MPI_master_only write(stdout,
-     &                     '(6x,1pe10.3,2x,A,I1,A,2x,A,I2,A)')
+     &                     '(6x,1pe10.3,2x,A,I2,A,2x,A,I2,A)')
      &                      Tsrc0(is,itrc), 'write Tsrc(',
      &                      itrc,')', 'Tracer of index', itrc,'.'
           enddo

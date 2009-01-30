@@ -104,10 +104,13 @@ Select MOMENTUM VERTICAL advection scheme:
 
 /*
     Sponge behavior
-    (Default is laplacien diffusion on field-climatology)
 */
-#if defined SPONGE
+
+#if defined SPONGE && !defined TS_DIF2
 # define SPONGE_DIF2
+#endif
+
+#if defined SPONGE && !defined UV_VIS2
 # define SPONGE_VIS2
 #endif
 
