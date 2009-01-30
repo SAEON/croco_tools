@@ -63,7 +63,7 @@ C
 ! 1. Initialization
 ! --------------
 
-        zstep=rfact2/rjjss
+        zstep=rfacts
 
         ztraz  = 0
         zkz    = 0

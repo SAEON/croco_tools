@@ -39,9 +39,14 @@ CC----------------------------------------------------------------------
 CC local declarations
 CC ==================
       INTEGER ji, jj, jk, mrgb
-      REAL xchl,ekg(PRIV_3D_BIOARRAY),ekr(PRIV_3D_BIOARRAY)
-      REAL ekb(PRIV_3D_BIOARRAY),e3(PRIV_3D_BIOARRAY)
-      REAL parlux,e1(PRIV_3D_BIOARRAY),e2(PRIV_3D_BIOARRAY)
+      REAL xchl, cff1
+      REAL ekg(PRIV_3D_BIOARRAY)
+      REAL ekr(PRIV_3D_BIOARRAY)
+      REAL ekb(PRIV_3D_BIOARRAY)
+      REAL parlux
+      REAL e1(PRIV_3D_BIOARRAY)
+      REAL e2(PRIV_3D_BIOARRAY)
+      REAL e3(PRIV_3D_BIOARRAY)
       REAL zdepmoy(Istr:Iend,Jstr:Jend)
       REAL etmp(Istr:Iend,Jstr:Jend)
       REAL zrlight,zblight,zglight
@@ -88,13 +93,13 @@ C
 C     Separation in three light bands: red, green, blue
 C     -------------------------------------------------
 C
-        zblight=0.5*ekb(ji,jj,1)*fse3t(ji,jj,1)
-        zglight=0.5*ekg(ji,jj,1)*fse3t(ji,jj,1)
-        zrlight=0.5*ekr(ji,jj,1)*fse3t(ji,jj,1)
+          zblight=0.5*ekb(ji,jj,1)*fse3t(ji,jj,1)
+          zglight=0.5*ekg(ji,jj,1)*fse3t(ji,jj,1)
+          zrlight=0.5*ekr(ji,jj,1)*fse3t(ji,jj,1)
 C
-        e1(ji,jj,1) = parlux*qsr(ji,jj)*exp(-zblight)
-        e2(ji,jj,1) = parlux*qsr(ji,jj)*exp(-zglight)
-        e3(ji,jj,1) = parlux*qsr(ji,jj)*exp(-zrlight)
+          e1(ji,jj,1) = parlux*qsr(ji,jj)*exp(-zblight)
+          e2(ji,jj,1) = parlux*qsr(ji,jj)*exp(-zglight)
+          e3(ji,jj,1) = parlux*qsr(ji,jj)*exp(-zrlight)
 C
         END DO
       END DO
@@ -106,16 +111,13 @@ C
 C     Separation in three light bands: red, green, blue
 C     -------------------------------------------------
 C
-        zblight=0.5*(ekb(ji,jj,jk-1)*fse3t(ji,jj,jk-1)
-     &    +ekb(ji,jj,jk)*fse3t(ji,jj,jk))
-        zglight=0.5*(ekg(ji,jj,jk-1)*fse3t(ji,jj,jk-1)
-     &    +ekg(ji,jj,jk)*fse3t(ji,jj,jk))
-        zrlight=0.5*(ekr(ji,jj,jk-1)*fse3t(ji,jj,jk-1)
-     &    +ekr(ji,jj,jk)*fse3t(ji,jj,jk))
-C
-        e1(ji,jj,jk) = e1(ji,jj,jk-1)*exp(-zblight)
-        e2(ji,jj,jk) = e2(ji,jj,jk-1)*exp(-zglight)
-        e3(ji,jj,jk) = e3(ji,jj,jk-1)*exp(-zrlight)
+            zblight=ekb(ji,jj,jk)*fse3w(ji,jj,jk)
+            zglight=ekg(ji,jj,jk)*fse3w(ji,jj,jk)
+            zrlight=ekr(ji,jj,jk)*fse3w(ji,jj,jk)
+
+            e1(ji,jj,jk) = e1(ji,jj,jk-1)*exp(-zblight)
+            e2(ji,jj,jk) = e2(ji,jj,jk-1)*exp(-zglight)
+            e3(ji,jj,jk) = e3(ji,jj,jk-1)*exp(-zrlight)
 C
           END DO
         END DO
@@ -124,7 +126,7 @@ C
       DO jk = 1,jpk
         DO jj=Jstr, Jend
           DO ji=Istr, Iend
-        etot(ji,jj,jk) = e1(ji,jj,jk)+e2(ji,jj,jk)+e3(ji,jj,jk)
+            etot(ji,jj,jk) = e1(ji,jj,jk)+e2(ji,jj,jk)+e3(ji,jj,jk)
           END DO
         END DO
       END DO
@@ -134,24 +136,33 @@ C     ---------------------------------
 C    
       DO jj=Jstr, Jend
          DO ji=Istr, Iend
-            zmeu(ji,jj) = 0.
-            zmeuindex(ji,jj) = 1
+            zmeu(ji,jj) = fsdept(ji,jj,jpk)-fsdepw(ji,jj,1)
+            zmeuindex(ji,jj) = jpk
          END DO
       END DO
 
-      DO jk = 1,jpk
+      DO jk = 2,jpk
          DO jj=Jstr, Jend
             DO ji=Istr, Iend
-               IF (etot(ji,jj,jk).GT.0.0043*qsr(ji,jj)) THEN
-                  zmeu(ji,jj) = fsdepw(ji,jj,jk+1)
-                  zmeuindex(ji,jj)=jk
+               cff1=0.0043*qsr(ji,jj)
+               IF (zmeuindex(ji,jj).eq.jpk .and. cff1.EQ.0) THEN
+                  zmeu(ji,jj)=0.
+                  zmeuindex(ji,jj)=1
+               ELSEIF (zmeuindex(ji,jj).eq.jpk .and.
+     &                              etot(ji,jj,jk).LT.cff1) THEN
+                  zmeu(ji,jj) = fsdept(ji,jj,jk)-
+     &                          (fsdept(ji,jj,jk)-fsdept(ji,jj,jk-1))*
+     &                          (cff1-etot(ji,jj,jk))/
+     &                          (etot(ji,jj,jk-1)-etot(ji,jj,jk))
+                  zmeuindex(ji,jj)=jk-1
+                  zmeu(ji,jj)=zmeu(ji,jj)-fsdepw(ji,jj,1)
                ENDIF
             END DO
          END DO
       END DO
 C
 C
-C    Computation of the mean light over the mixed layer depth
+C    Computation of mean light over the mixed layer depth
 C    --------------------------------------------------------
 C
       DO jj=Jstr, Jend

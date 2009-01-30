@@ -41,10 +41,9 @@ CC ======================
 CC----------------------------------------------------------------------
 CC local declarations
 CC ==================
-      INTEGER jksed, ji, jj, jk, jnt
+      INTEGER jksed, ji, jj, jk, jnt, iter1, iter2
       REAL xagg1,xagg2,xagg3,xagg4
-      REAL zfact,zstep,wsmax
-      REAL zmin(jpk),zminw(jpk)
+      REAL zfact,zstep,wsmax,rfacts1,rfacts2,cfl1,cfl2
 C
 C
 C    Time step duration for biology
@@ -56,9 +55,6 @@ C    Sinking speeds of detritus is increased with depth as shown
 C    by data and from the coagulation theory
 C    -----------------------------------------------------------
 C
-C Menkes: arbitrary jksed=10 is replaced by zmeuindex
-C       jksed=10
-C
       DO jk=1,jpk
         DO jj=Jstr, Jend
           DO ji=Istr, Iend
@@ -67,19 +63,6 @@ c            zfact=min(1.,zfact)
             wsbio4(ji,jj,jk)=wsbio2+(200.-wsbio2)*zfact
             wsbio3(ji,jj,jk)=wsbio
             wscal(ji,jj,jk)=wsbio4(ji,jj,jk)
-          END DO
-        END DO
-      END DO
-C
-C      LIMIT THE VALUES OF THE SINKING SPEEDS 
-C      TO AVOID NUMERICAL INSTABILITIES
-C
-      DO jk=1,jpk
-        DO jj=Jstr, Jend
-          DO ji=Istr, Iend
-            wsmax=0.8*fse3t(ji,jj,jk)/zstep
-            wsbio4(ji,jj,jk)=min(wsbio4(ji,jj,jk),wsmax)
-            wsbio3(ji,jj,jk)=min(wsbio3(ji,jj,jk),wsmax)
           END DO
         END DO
       END DO
@@ -101,15 +84,39 @@ C
       END DO
 C
 C   Compute the sedimentation term using p4zsink2 for all
-C   the sinking particles
+C   sinking particles. Apply time-splitting for CFL conditions
 C   -----------------------------------------------------
 C
-      CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio3,sinking,jppoc)
-      CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio3,sinkfer,jpsfe)
-      CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio4,sinking2,jpgoc)
-      CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio4,sinkfer2,jpbfe)
-      CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio4,sinksil,jpdsi)
-      CALL p4zsink2(Istr,Iend,Jstr,Jend,wscal,sinkcal,jpcal)
+      wsmax=0.1/zstep
+      iter1=max(1,int(wsbio/wsmax))
+      iter2=max(1,int(wsbio2/wsmax))
+      ! Check CFL condition
+      DO jk=1,jpk
+        DO jj=Jstr, Jend
+          DO ji=Istr, Iend
+            wsmax=fse3t(ji,jj,jk)/zstep
+            cfl1=wsbio3(ji,jj,jk)/wsmax/iter1
+            cfl2=wsbio4(ji,jj,jk)/wsmax/iter2
+            if (cfl1.gt.1 .or. cfl2.gt.1) then
+              print *,'WARNING PISCES/P4ZSINK: CFL CONDITION VIOLATED'
+     &               ,cfl1,cfl2
+            endif 
+          END DO
+        END DO
+      END DO
+
+      DO jnt=1,iter1
+        rfacts1=rfact/float(iter1)
+        CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio3,sinking,jppoc,rfacts1)
+        CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio3,sinkfer,jpsfe,rfacts1)
+      END DO
+      DO jnt=1,iter2
+        rfacts2=rfact2/float(iter2)
+        CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio4,sinking2,jpgoc,rfacts2)
+        CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio4,sinkfer2,jpbfe,rfacts2)
+        CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio4,sinksil,jpdsi,rfacts2)
+        CALL p4zsink2(Istr,Iend,Jstr,Jend,wscal,sinkcal,jpcal,rfacts2)
+      END DO
 C
 C  Exchange between organic matter compartments due to
 C  coagulation/disaggregation
