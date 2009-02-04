@@ -682,17 +682,11 @@
 ! Set variable horizontal viscosities and tracer diffusion
 ! coefficients (see "mixing.h") to their background values.
 !
-#ifdef UV_VIS2
+#if defined UV_VIS2 || defined SPONGE_VIS2
         do j=JstrR,JendR
           do i=IstrR,IendR
             visc2_r(i,j)=visc2
             visc2_p(i,j)=visc2
-          enddo
-        enddo
-#endif
-#ifdef SPONGE_VIS2
-        do j=JstrR,JendR
-          do i=IstrR,IendR
             visc2_sponge_r(i,j)=init
             visc2_sponge_p(i,j)=init
           enddo
@@ -703,6 +697,8 @@
           do i=IstrR,IendR
             visc4_r(i,j)=visc4
             visc4_p(i,j)=visc4
+            visc4_sponge_r(i,j)=init
+            visc4_sponge_p(i,j)=init
           enddo
         enddo
 #endif
@@ -729,7 +725,7 @@
         enddo
 # endif
 #endif
-#ifdef TS_DIF2
+#if defined TS_DIF2 || defined SPONGE_DIF2
         do itrc=1,NT
           do j=JstrR,JendR
             do i=IstrR,IendR
@@ -737,16 +733,6 @@
             enddo
           enddo
         enddo
-!#elif defined SPONGE_DIF2
-!        do itrc=1,NT
-!          do j=JstrR,JendR
-!            do i=IstrR,IendR
-!              diff2(i,j,itrc)=0.
-!            enddo
-!          enddo
-!        enddo
-#endif
-#ifdef SPONGE_DIF2
           do j=JstrR,JendR
             do i=IstrR,IendR
               diff2_sponge(i,j)=init
@@ -761,6 +747,11 @@
             enddo
           enddo
         enddo
+          do j=JstrR,JendR
+            do i=IstrR,IendR
+              diff4_sponge(i,j)=init
+            enddo
+          enddo
 #endif
 #ifdef DIF_COEF_3D
         do k=1,N

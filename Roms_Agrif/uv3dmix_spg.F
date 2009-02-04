@@ -185,7 +185,7 @@
       do k=1,N
         do j=JstrV-1,Jend
           do i=IstrU-1,Iend
-            cff=Hz(i,j,k)*visc2_sponge_r(i,j)*
+            cff=Hz(i,j,k)*visc2_r(i,j)*
 #  if defined CLIMAT_UV_SPONGE || defined CLIMAT_UV_SPONGE_FINE
      &    ( on_r(i,j)*pm(i,j)*
      &        ( pn_u(i+1,j)*(u(i+1,j,k,nstp)-UCLM(i+1,j,k))
@@ -205,7 +205,7 @@
         enddo
         do j=Jstr,Jend+1
           do i=Istr,Iend+1
-            cff=0.0625*visc2_sponge_p(i,j)*
+            cff=0.0625*visc2_p(i,j)*
      &      (Hz(i-1,j,k)+Hz(i,j,k)+Hz(i-1,j-1,k)+Hz(i,j-1,k))*
 #  if defined CLIMAT_UV_SPONGE || defined CLIMAT_UV_SPONGE_FINE
      &      (  (pm(i-1,j)+pm(i,j)+pm(i-1,j-1)+pm(i,j-1))*on_p(i,j)
@@ -411,7 +411,7 @@
         if (k.gt.0) then
           do j=JstrV-1,Jend
             do i=IstrU-1,Iend
-              cff=visc2_sponge_r(i,j)*Hz(i,j,k)*(
+              cff=visc2_r(i,j)*Hz(i,j,k)*(
      &         om_r(i,j)*( dnUdx(i,j,k1) - 0.5*pn(i,j)*(
      &           min(dZdx_r(i,j,k1),0.)*(dUdz(i,j,k1)+dUdz(i+1,j,k2))
      &          +max(dZdx_r(i,j,k1),0.)*(dUdz(i,j,k2)+dUdz(i+1,j,k1))
@@ -430,7 +430,7 @@
           enddo
           do j=Jstr,Jend+1
             do i=Istr,Iend+1
-              cff=0.25*visc2_sponge_p(i,j)
+              cff=0.25*visc2_p(i,j)
      &             *(Hz(i,j,k)+Hz(i-1,j,k)+Hz(i,j-1,k)+Hz(i-1,j-1,k))
      &       *( om_p(i,j)*( dnVdx(i,j,k1)-0.125*( pn(i,j)+pn(i-1,j)
      &                                        +pn(i,j-1)+pn(i-1,j-1))
@@ -504,8 +504,8 @@
      &                         +cff3*(cff7*dnVdz-dnVdx(i,j  ,k2))
      &                         +cff4*(cff8*dnVdz-dnVdx(i,j+1,k1))
      &                                                          )
-                UFs(i,j,k2)=0.25*(visc2_sponge_r(i-1,j)
-     &                                   +visc2_sponge_r(i,j))*cff
+                UFs(i,j,k2)=0.25*(visc2_r(i-1,j)
+     &                                   +visc2_r(i,j))*cff
               enddo
             enddo
  
@@ -559,8 +559,8 @@
      &                         +cff3*(cff7*dnUdz-dnUdx(i,j-1,k2))
      &                         +cff4*(cff8*dnUdz-dnUdx(i,j  ,k1))
      &                                                          )
-                VFs(i,j,k2)=0.25*(visc2_sponge_r(i,j-1)
-     &                                    +visc2_sponge_r(i,j))*cff
+                VFs(i,j,k2)=0.25*(visc2_r(i,j-1)
+     &                                    +visc2_r(i,j))*cff
               enddo
             enddo
           endif

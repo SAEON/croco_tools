@@ -4,32 +4,40 @@
 ! This is include file "mixing.h"
 !  ==== == ======= ==== ==========
 !
-# if defined UV_VIS2
+# if defined UV_VIS2 || defined SPONGE_VIS2
       real visc2_r(GLOBAL_2D_ARRAY)
       real visc2_p(GLOBAL_2D_ARRAY)
-      common /mixing_visc2_r/visc2_r /mixing_visc2_p/visc2_p
-# endif
-#ifdef SPONGE_VIS2
       real visc2_sponge_r(GLOBAL_2D_ARRAY)
       real visc2_sponge_p(GLOBAL_2D_ARRAY)
+      common /mixing_visc2_r/visc2_r /mixing_visc2_p/visc2_p
       common /mixing_visc2_sponge_r/visc2_sponge_r 
      &       /mixing_visc2_sponge_p/visc2_sponge_p
 # endif
 #ifdef UV_VIS4
+      real visc2_sponge_r(GLOBAL_2D_ARRAY)
+      real visc2_sponge_p(GLOBAL_2D_ARRAY)
+      real visc4_sponge_r(GLOBAL_2D_ARRAY)
+      real visc4_sponge_p(GLOBAL_2D_ARRAY)
       real visc4_r(GLOBAL_2D_ARRAY)
       real visc4_p(GLOBAL_2D_ARRAY)
+      common /mixing_visc2_sponge_r/visc2_sponge_r 
+     &       /mixing_visc2_sponge_p/visc2_sponge_p
+      common /mixing_visc4_sponge_r/visc4_sponge_r
+      common /mixing_visc4_sponge_p/visc4_sponge_p
       common /mixing_visc4_r/visc4_r /mixing_visc4_p/visc4_p
 #endif
-# ifdef TS_DIF2
+# if defined TS_DIF2 || defined SPONGE_DIF2
+      real diff2_sponge(GLOBAL_2D_ARRAY)
       real diff2(GLOBAL_2D_ARRAY,NT)
+      common /mixing_diff2_sponge/diff2_sponge
       common /mixing_diff2/diff2
 # endif
-# ifdef SPONGE_DIF2
-      real diff2_sponge(GLOBAL_2D_ARRAY)
-      common /mixing_diff2_spg/diff2_sponge
-# endif
 #ifdef TS_DIF4
+      real diff2_sponge(GLOBAL_2D_ARRAY)
+      real diff4_sponge(GLOBAL_2D_ARRAY)
       real diff4(GLOBAL_2D_ARRAY,NT)
+      common /mixing_diff2_sponge/diff2_sponge
+      common /mixing_diff4_sponge/diff4_sponge
       common /mixing_diff4/diff4
 #endif
 #ifdef VIS_COEF_3D

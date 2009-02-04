@@ -27,7 +27,7 @@
 # include "mixing.h"
 # include "scalars.h"
       integer Istr,Iend,Jstr,Jend, i, j, k, isp, itrc, ibnd
-      real visc4_sponge, diff4_sponge
+!      real visc4_sponge, diff4_sponge
       real wrk(PRIVATE_2D_SCRATCH_ARRAY)
 # ifdef SPONGE_GRID
       real uscale
@@ -142,67 +142,42 @@
 !
       do j=JstrR,JendR
         do i=IstrR,IendR
-
-#  if defined SPONGE_VIS2
 #   ifdef SPONGE_GRID
-          visc2_sponge_r(i,j)=5*uscale*grdmax/12*wrk(i,j)
+          visc2_sponge_r(i,j)=5*uscale*grdmax/12*wrk(i,j) 
 #   else
-          visc2_sponge_r(i,j)=(0.005/(pm(i,j)*pn(i,j)*dt))*wrk(i,j)          
+          visc2_sponge_r(i,j)=(0.005/(pm(i,j)*pn(i,j)*dt))*wrk(i,j) 
 #   endif
-!#   if defined UV_VIS2 || defined SPONGE_VIS2
-!          visc2_r(i,j)=visc2_sponge*wrk(i,j) + visc2_r(i,j)
-!#   elif defined UV_VIS4
-!          visc4_sponge=visc2_sponge/(pm(i,j)*pn(i,j))
-!          visc4_r(i,j)=visc4_sponge*wrk(i,j) + visc4_r(i,j)
-!#   endif
-#  else
-#   ifdef SPONGE_GRID
-         visc2_r(i,j)=.5*uscale*grdmax*wrk(i,j)+visc2_r(i,j)
-#   else
-         visc2_r(i,j)=(0.005/(pm(i,j)*pn(i,j)*dt))*wrk(i,j)+visc2_r(i,j)
+#   if defined UV_VIS2 || defined SPONGE_VIS2
+          visc2_r(i,j)=visc2_sponge_r(i,j) + visc2_r(i,j)
+#   elif defined UV_VIS4
+          visc4_sponge_r(i,j)=visc2_sponge_r(i,j)/(pm(i,j)*pn(i,j))
+          visc4_r(i,j)=visc4_sponge_r(i,j)+ visc4_r(i,j)
 #   endif
-#  endif  /* SPONGE_VIS2 */
-        enddo
+       enddo
       enddo
-
 !
 !  Interpolate Viscosity at psi points
 !
       do j=Jstr,JendR
         do i=Istr,IendR
-
-#  if defined SPONGE_VIS2
 #   ifdef SPONGE_GRID
           visc2_sponge_p(i,j)=5*uscale*grdmax/12*
-     &         0.5*( wrk(i,j  )+wrk(i-1,j  )
+     &         0.25*( wrk(i,j  )+wrk(i-1,j  )
      &                 +wrk(i,j-1)+wrk(i-1,j-1) )
 #   else
-           visc2_sponge_p(i,j)=0.25*(0.005/(pm(i,j)*pn(i,j)*dt))*
+          visc2_sponge_p(i,j)=0.25*(0.005/(pm(i,j)*pn(i,j)*dt))*
      &                 ( wrk(i,j  )+wrk(i-1,j  )
      &                 +wrk(i,j-1)+wrk(i-1,j-1) )
 #   endif
-#  else  
-#   ifdef SPONGE_GRID
-          visc2_p(i,j)=.5*uscale*grdmax*wrk(i,j)+visc2_p(i,j)
-#   else
-         visc2_p(i,j)=(0.005/(pm(i,j)*pn(i,j)*dt))*wrk(i,j)+visc2_p(i,j)
+#   if defined UV_VIS2 || defined SPONGE_VIS2
+          visc2_p(i,j)=visc2_sponge_p(i,j) + visc2_p(i,j)
+#   elif defined UV_VIS4
+          visc4_sponge_p(i,j)=visc2_sponge_p(i,j)/(pm(i,j)*pn(i,j))
+          visc4_p(i,j)=visc4_sponge_p(i,j)+ visc4_p(i,j)
 #   endif
-
-#  endif  /* SPONGE_VIS2 */
-         enddo
-      enddo
-!#   if defined UV_VIS2 || defined SPONGE_VIS2
-!          visc2_p(i,j)=0.25*visc2_sponge*( wrk(i,j  )+wrk(i-1,j  )
-!     &                                    +wrk(i,j-1)+wrk(i-1,j-1))
-!     &                                               + visc2_p(i,j)
-!#   elif defined UV_VIS4
-!          visc4_sponge=visc2_sponge/(pm(i,j)*pn(i,j))
-!          visc4_p(i,j)=0.25*visc4_sponge*( wrk(i,j  )+wrk(i-1,j  )
-!     &                                    +wrk(i,j-1)+wrk(i-1,j-1))
-!     &                                               + visc4_p(i,j)
-!#   endif
-
-#  endif /* UV_VIS2 || UV_VIS4 */
+        enddo
+       enddo
+#   endif  /* UV_VIS2 || UV_VIS4 */
 
 #  if defined TS_DIF2 || defined TS_DIF4
 !
@@ -211,36 +186,24 @@
        do itrc=1,NT
         do j=JstrR,JendR
           do i=IstrR,IendR
-
-# if defined SPONGE_DIF2  
 #   ifdef SPONGE_GRID   
-            diff2_sponge(i,j)=5*uscale*grdmax/12.*wrk(i,j)
+          diff2_sponge(i,j)=5*uscale*grdmax/12.*wrk(i,j)
 #   else
 !            diff2_sponge(i,j)=v_sponge*wrk(i,j)
           diff2_sponge(i,j)=(0.01/(pm(i,j)*pn(i,j)*dt))*wrk(i,j)
 #   endif
-# else  
-#   ifdef SPONGE_GRID
-            diff2(i,j,itrc)=.5*uscale*grdmax*wrk(i,j)+diff2(i,j,itrc)
-#   else
-            diff2(i,j,itrc)=(0.01/(pm(i,j)*pn(i,j)*dt))*wrk(i,j)
-     &                                           +diff2(i,j,itrc)
-#   endif
-# endif /* SPONGE_DIF2 */
-
-!#   if defined TS_DIF2 || defined SPONGE_DIF2
-!            diff2(i,j,itrc)=diff2(i,j,itrc)
-!#   elif defined TS_DIF4
-!            diff4_sponge=diff2_sponge/(pm(i,j)*pn(i,j))
-!            diff4(i,j,itrc)=diff4_sponge*wrk(i,j)+diff4(i,j,itrc)
-!#   endif
+# if defined TS_DIF2 || defined SPONGE_DIF2
+          diff2(i,j,itrc)=diff2_sponge(i,j) + diff2(i,j,itrc)
+# elif defined TS_DIF4
+          diff4_sponge(i,j)=diff2_sponge(i,j)/(pm(i,j)*pn(i,j))
+          diff4(i,j,itrc)=diff4_sponge(i,j)+diff4(i,j,itrc)
+# endif
         enddo
        enddo
       enddo
 #  endif /* TS_DIF2 || TS_DIF4 */
 
 # endif /* SPONGE */
-
 !
 !-------------------------------------------------------------------
 !  add configuration specific stuff
