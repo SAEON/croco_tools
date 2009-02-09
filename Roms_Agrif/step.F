@@ -330,7 +330,7 @@ C$OMP BARRIER
 !# endif
 # if defined UV_VIS4 || (defined UV_VIS2 && !defined SPONGE_VIS2) 
        call uv3dmix (tile)
-# end
+# endif
 #  if defined SPONGE_VIS2
         call uv3dmix_spg (tile)
 #  endif
