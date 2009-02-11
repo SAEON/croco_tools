@@ -31,10 +31,9 @@ function [lat,lon,rmask,psi]=get_transfunc(hisfile,gridfile,tindex,coef)
 %
 % Get the grid parameters
 %
+[lat,lon,rmask]=read_latlonmask(gridfile,'r');
+rmask(isnan(rmask))=0;
 nc=netcdf(gridfile);
-lon=nc{'lon_rho'}(:);
-lat=nc{'lat_rho'}(:);
-rmask=nc{'mask_rho'}(:);
 pm=nc{'pm'}(:);
 pn=nc{'pn'}(:);
 h=nc{'h'}(:);

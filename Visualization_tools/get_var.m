@@ -34,10 +34,8 @@ if isempty(gridfile)
 end
 %
 if strcmp(vname,'h') | strcmp(vname,'pm') | strcmp(vname,'pn')
+  [lat,lon,mask]=read_latlonmask(gridfile,'r');
   nc=netcdf(gridfile);
-  lon=nc{'lon_rho'}(:);
-  lat=nc{'lat_rho'}(:);
-  mask=nc{'mask_rho'}(:);
   var=nc{vname}(:);
   close(nc)
   mask(mask==0)=NaN;

@@ -46,9 +46,12 @@ function [lat,lon,mask]=read_latlonmask(fname,type);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 nc=netcdf(fname);
-lat=nc{'lat_rho'}(:);
-lon=nc{'lon_rho'}(:);
+lat=readlat(nc);
+lon=readlon(nc);
 mask=nc{'mask_rho'}(:);
+if isempty(mask)
+  mask=1+0*lon;
+end
 close(nc);
 %
 [Mp,Lp]=size(mask);
@@ -65,4 +68,5 @@ if (type=='v')
 end
 %
 mask(mask==0)=NaN;
+%
 return

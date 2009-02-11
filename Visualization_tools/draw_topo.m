@@ -44,10 +44,8 @@ if nargin < 3
   options='k';
 end
 
+[lat,lon,mask]=read_latlonmask(fname,'r');
 nc=netcdf(fname);
-lat=nc{'lat_rho'}(:);
-lon=nc{'lon_rho'}(:);
-mask=nc{'mask_rho'}(:);
 topo=nc{'h'}(:);
 close(nc);
 lat=rempoints(lat,npts);

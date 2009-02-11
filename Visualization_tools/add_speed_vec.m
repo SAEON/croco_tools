@@ -63,19 +63,15 @@ if nargin < 6
   scale=1;
 end
 
+[lat,lon,mask]=read_latlonmask(gname,'r');
 nc=netcdf(gname);
-lat=nc{'lat_rho'}(:);
-lon=nc{'lon_rho'}(:);
-mask=nc{'mask_rho'}(:);
 angle=nc{'angle'}(:);
 if isempty(angle)
  disp('Warning: no angle found in history file')
  angle=0*lat;
 end
 close(nc);
-warning off
-mask=mask./mask;
-warning on
+mask(mask==0)=NaN;
 
 
 if level==0
