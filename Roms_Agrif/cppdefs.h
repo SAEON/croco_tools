@@ -332,7 +332,6 @@
 # define SALINITY
 # define TS_DIF2
 # define MIX_S_TS
-# undef BODYFORCE
 # define ANA_GRID
 # define ANA_INITIAL
 # define ANA_SMFLUX
@@ -343,7 +342,7 @@
 # define ANA_BSFLUX
 # define QCORRECTION
 # define ANA_SST
-# define LMD_SKPP
+c--# define LMD_SKPP /* problem with MPI in Xi direction */
 # define LMD_MIXING
 # define LMD_RIMIX
 # define LMD_CONVEC

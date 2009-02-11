@@ -8,7 +8,7 @@ unalias cp
 #
 # set source, compilation and run directories
 #
-set SOURCE=/home/gcambon/SVN/romsagrif/Roms_tools/Roms_Agrif/
+set SOURCE=../Roms_Agrif
 set SCRDIR=../Compile
 set RUNDIR=`pwd`
 #

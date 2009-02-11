@@ -20,7 +20,8 @@ echo OPERATING SYSTEM IS: $OS
 # Linux compiler options (only relevant to Linux OS)
 #
 if ($OS == Linux) then
-  set LINUX_FC=ifort
+  set LINUX_FC=gfortran
+#  set LINUX_FC=ifort
 #  set LINUX_FC=ifc
 #  set LINUX_FC=g95
 #  set LINUX_FC=g77
@@ -54,6 +55,14 @@ if ($OS == Linux) then
     if ($BITS == THIRTYTWO) then
       set NETCDFLIB=-L../netcdf_ifc/
       set NETCDFINC=-I../netcdf_ifc/
+    else
+      set NETCDFLIB=-L../netcdf_x86_64
+      set NETCDFINC=-I../netcdf_x86_64
+    endif
+  else if ($LINUX_FC == gfortran) then
+    if ($BITS == THIRTYTWO) then
+      set NETCDFLIB=-L../netcdf_g77/
+      set NETCDFINC=-I../netcdf_g77/
     else
       set NETCDFLIB=-L../netcdf_x86_64
       set NETCDFINC=-I../netcdf_x86_64
@@ -118,10 +127,15 @@ setenv CPPFLAGS1 "$NETCDFINC -IROMSFILES/AGRIF_INC"
 #
 if ($OS == Linux) then          # LINUX
   set OS = Linux
-  if ($LINUX_FC == ifort || $LINUX_FC == ifc) then
+  if ($LINUX_FC == gfortran) then
+    setenv CPP1 "cpp -traditional -DLinux"
+    setenv CFT1 gfortran
+    setenv FFLAGS1 "-O3 -i4 -fdefault-real-8 -Wall -fno-second-underscore -ffixed-line-length-132"
+    setenv LDFLAGS1 "$LDFLAGS1"
+  else if ($LINUX_FC == ifort || $LINUX_FC == ifc) then
     setenv CPP1 "fpp -free"
     setenv CFT1 ifort
-    setenv FFLAGS1 "-O3 -w90 -w95 -cm -72 -fno-alias -i4 -r8 -Vaxlib"
+    setenv FFLAGS1 "-O3 -w90 -w95 -cm -72 -fno-alias -i4 -r8 -Vaxlib -fp-model precise"
     setenv LDFLAGS1 "-Vaxlib $LDFLAGS1"
   else if ($LINUX_FC == g95) then
     setenv CPP1 "cpp -traditional -DLinux"

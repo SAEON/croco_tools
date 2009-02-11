@@ -9,7 +9,7 @@ title:
 ! The Thermal Structure of the Upper Ocean, J.Phys.Oceanogr., 34, 888-902.
 !
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
-               3600     8640     45       40
+               3600     8640     45       1
 
 S-coord: THETA_S,   THETA_B,    Hc (m)
          5.0d0      0.0d0       10.d0

@@ -271,7 +271,7 @@
       enddo
 # elif defined EQUATOR
       do j=JstrR,JendR
-        do i=Istr,IendR
+        do i=IstrR,IendR
           sustr(i,j)=-0.05/rho0
         enddo
       enddo

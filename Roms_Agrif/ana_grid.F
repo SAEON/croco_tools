@@ -200,11 +200,11 @@
       x0=0.
       y0=0.
 # endif
-!CR# ifdef EQUATOR
-!CR      y0=y0-0.5*el
-!CR# endif
+# ifdef EQUATOR
+      y0=y0-0.5*Length_ETA  
+# endif
 # ifdef INTERNAL
-      x0=y0-0.5*Length_XI
+      x0=x0-0.5*Length_XI
       y0=y0-0.5*Length_ETA  
 # endif
 
@@ -220,10 +220,6 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
           yr(i,j)=y0+dy*(float(j-1)+0.5)
 # ifdef MPI
 !         yr(i,j)=dy*(float(j+jj*Mm)-0.5) is this useful anymore ??
-# endif
-# ifdef EQUATOR
-          yr(i,j)=yr(i,j)-0.5*el
-          yp(i,j)=yp(i,j)-0.5*el
 # endif
         enddo
       enddo

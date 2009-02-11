@@ -310,7 +310,6 @@
 ! Boccaletti, G., R.C. Pacanowski, G.H. Philander and A.V. Fedorov, 2004,
 ! The Thermal Structure of the Upper Ocean, J.Phys.Oceanogr., 34, 888-902.
 */
-# define OPENMP
 # define UV_ADV
 # define UV_COR
 # define UV_VIS2
@@ -319,7 +318,6 @@
 # define SALINITY
 # define TS_DIF2
 # define MIX_S_TS
-# undef BODYFORCE
 # define ANA_GRID
 # define ANA_INITIAL
 # define ANA_SMFLUX
@@ -330,7 +328,7 @@
 # define ANA_BSFLUX
 # define QCORRECTION
 # define ANA_SST
-# define LMD_SKPP
+c--# define LMD_SKPP /* problem with MPI in Xi direction */
 # define LMD_MIXING
 # define LMD_RIMIX
 # define LMD_CONVEC
