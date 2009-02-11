@@ -121,7 +121,7 @@
 !
         do j=Jstr,Jend
           do i=Istr,Iend+1
-          FX(i,j)=0.25*(diff2(i,j,itrc)+diff2(i-1,j,,itrc))
+          FX(i,j)=0.25*(diff2(i,j,itrc)+diff2(i-1,j,itrc))
      &                   *pmon_u(i,j)*(Hz(i,j,k)+Hz(i-1,j,k))*(
      &                t(i,j,k,nrhs,itrc)-t(i-1,j,k,nrhs,itrc)
 # if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE 

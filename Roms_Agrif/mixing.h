@@ -13,15 +13,17 @@
       common /mixing_visc2_sponge_r/visc2_sponge_r 
      &       /mixing_visc2_sponge_p/visc2_sponge_p
 # endif
-#ifdef UV_VIS4
+#if defined UV_VIS4 
+# if !defined SPONGE_VIS2
       real visc2_sponge_r(GLOBAL_2D_ARRAY)
       real visc2_sponge_p(GLOBAL_2D_ARRAY)
+      common /mixing_visc2_sponge_r/visc2_sponge_r 
+     &       /mixing_visc2_sponge_p/visc2_sponge_p
+#endif
       real visc4_sponge_r(GLOBAL_2D_ARRAY)
       real visc4_sponge_p(GLOBAL_2D_ARRAY)
       real visc4_r(GLOBAL_2D_ARRAY)
       real visc4_p(GLOBAL_2D_ARRAY)
-      common /mixing_visc2_sponge_r/visc2_sponge_r 
-     &       /mixing_visc2_sponge_p/visc2_sponge_p
       common /mixing_visc4_sponge_r/visc4_sponge_r
       common /mixing_visc4_sponge_p/visc4_sponge_p
       common /mixing_visc4_r/visc4_r /mixing_visc4_p/visc4_p
@@ -32,11 +34,13 @@
       common /mixing_diff2_sponge/diff2_sponge
       common /mixing_diff2/diff2
 # endif
-#ifdef TS_DIF4
+#if defined TS_DIF4 
+# if !defined SPONGE_DIF2
       real diff2_sponge(GLOBAL_2D_ARRAY)
+      common /mixing_diff2_sponge/diff2_sponge
+# endif
       real diff4_sponge(GLOBAL_2D_ARRAY)
       real diff4(GLOBAL_2D_ARRAY,NT)
-      common /mixing_diff2_sponge/diff2_sponge
       common /mixing_diff4_sponge/diff4_sponge
       common /mixing_diff4/diff4
 #endif

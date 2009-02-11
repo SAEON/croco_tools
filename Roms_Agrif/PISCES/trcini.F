@@ -128,6 +128,8 @@ C
         endif
         ierr=nf_inq_dimid(ncid,"dust_time",dimid)
         ierr=nf_inq_dimlen(ncid,dimid,nrec_dust)
+!        write(*,*)'NREC_DUST=',nrec_dust
+!        write(*,*)'-----------------------------'
         do irec=1,nrec_dust
           ierr=nf_fread(dustmp(START_2D_ARRAY,irec), ncid, varid,
      &                                              irec, r2dvar)
@@ -157,8 +159,10 @@ C
         enddo
 
       ELSE
-
-        do irec=1,nrec_dust
+!        write(*,*)'----------------------------'
+!        write(*,*)'BDUSTFER=',bdustfer
+!        write(*,*)'-----------------------------'
+        do irec=1,12
           do j=1,LOCALMM
             do i=1,LOCALLM
               dustmo(i,j,irec)=0.

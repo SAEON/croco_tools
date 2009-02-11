@@ -1,4 +1,4 @@
-!
+		!
 ! $Id: cppdefs.h,v 1.28 2005/10/27 09:58:11 pmarches Exp $
 !
 /*
@@ -34,26 +34,26 @@
 !
 */
                       /* Configuration Namea */
-# define BENGUELA
+# define PERU
                       /* Parallelization */
 # undef OPENMP
-# undef  MPI
+# define MPI
                       /* Nesting */
-# undef  AGRIF
-# undef  AGRIF_2WAY
+# define AGRIF
+# define AGRIF_2WAY
                       /* Open Boundary Conditions */
 # undef TIDES
-# define OBC_EAST
+# undef OBC_EAST
 # define OBC_WEST
 # define OBC_NORTH
 # define OBC_SOUTH
                       /* Applications */
-# undef  BIOLOGY
-# undef  FLOATS
-# undef  STATIONS
-# undef  PASSIVE_TRACER
-# undef  SEDIMENT
-# undef  BBL
+# define BIOLOGY
+# undef FLOATS
+# undef STATIONS
+# undef PASSIVE_TRACER
+# undef SEDIMENT
+# undef BBL
 /*!
 !------------------------
 ! PRE-SELECTED OPTIONS
@@ -61,8 +61,9 @@
 */
                       /* Parallelization */
 # ifdef MPI
-#  undef  PARALLEL_FILES
+#  undef PARALLEL_FILES
 # endif
+# undef AUTOTILING
                       /* Model dynamics */
 # define SOLVE3D
 # define UV_COR
@@ -76,11 +77,28 @@
 # define CURVGRID
 # define SPHERICAL
 # define MASKING
-                      /* Input/Output & Diagnostics */
-# define AVERAGES
-# define AVERAGES_K
-# undef  DIAGNOSTICS_TS
-# undef  DIAGNOSTICS_UV
+!
+                      /* Lateral Momentum Mixing */
+# define UV_VIS2
+# define MIX_GP_UV
+# undef UV_SPLIT_UP3
+# undef VIS_SMAGO
+                      /* Lateral Tracer Mixing */
+# define MIX_GP_TS
+# define TS_DIF2
+# undef TS_SPLIT_UP3
+                      /* Vertical Mixing */
+# undef BODYFORCE
+# undef BVF_MIXING
+# define LMD_MIXING
+# ifdef LMD_MIXING
+#  define LMD_SKPP
+#  define LMD_BKPP
+#  define LMD_RIMIX
+#  define LMD_CONVEC
+#  undef LMD_DDMIX
+#  undef LMD_NONLOCAL
+# endif
                       /* Equation of State */
 # define SALINITY
 # define NONLIN_EOS
@@ -90,15 +108,16 @@
 # define SFLX_CORR
 # define DIURNAL_SRFLUX
 
-# undef  BULK_FLUX
+# undef BULK_FLUX
 # ifdef BULK_FLUX
+# define LW_ONLINE
 #  define BULK_EP
-#  define BULK_SMFLUX
-#  undef  DIURNAL_SRFLUX
+#  undef BULK_SMFLUX
+#  define DIURNAL_SRFLUX
 # endif
 # ifdef BULK_EP
-#  undef  QCORRECTION
-#  undef  SFLX_CORR
+#  undef QCORRECTION
+#  undef SFLX_CORR
 # endif
 # ifdef BULK_SMFLUX
 #  undef BULK_WVEC
@@ -118,10 +137,10 @@
 #  define M2NUDGING
 #  define M3NUDGING
 #  define TNUDGING
-#  undef  ROBUST_DIAG
+#  undef ROBUST_DIAG
 # endif
 
-# undef FRC_BRY
+# define FRC_BRY
 # ifdef FRC_BRY
 #  define Z_FRC_BRY
 #  define M2_FRC_BRY
@@ -132,50 +151,33 @@
 # define ANA_BSFLUX
 # define ANA_BTFLUX
                       /* Point Sources - Rivers */
-# undef  PSOURCE
-# undef  ANA_PSOURCE
-                      /* Lateral Mixing */
-# define UV_VIS2
-# define MIX_GP_UV
-# define TS_DIF2
-# define MIX_GP_TS
-# undef  SMAGORINSKY
-# ifdef SMAGORINSKY
-#  define SMAGO_UV
-#  undef  SMAGO_TS
-# endif
-# if defined TCLIMATOLOGY & !defined AGRIF
-#  define CLIMAT_TS_MIXH
-# endif
-                      /* Vertical Mixing */
-# undef  BODYFORCE
-# undef  BVF_MIXING
-# define LMD_MIXING
-# ifdef LMD_MIXING
-#  define LMD_SKPP
-#  define LMD_BKPP
-#  define LMD_RIMIX
-#  define LMD_CONVEC
-#  undef  LMD_DDMIX
-#  undef  LMD_NONLOCAL
-# endif
+# undef PSOURCE
+# undef ANA_PSOURCE
                       /* Open Boundary Conditions */
 # ifdef TIDES
 #  define OBC_M2FLATHER
 # else
-#  undef  OBC_M2SPECIFIED
-#  undef  OBC_M2FLATHER
-#  undef  OBC_M2CHARACT
-#  define OBC_M2ORLANSKI
+#  undef OBC_M2SPECIFIED
+#  undef OBC_M2FLATHER
+#  define OBC_M2CHARACT
+#  undef OBC_M2ORLANSKI
 #  ifdef OBC_M2ORLANSKI
 #   define OBC_VOLCONS
 #  endif
 # endif
 # define OBC_M3ORLANSKI
 # define OBC_TORLANSKI
-# undef  OBC_M3SPECIFIED
-# undef  OBC_TSPECIFIED
-
+# undef OBC_M3SPECIFIED
+# undef OBC_TSPECIFIED
+                      /* Input/Output & Diagnostics */
+# define AVERAGES
+# define AVERAGES_K
+# undef DIAGNOSTICS_TS
+# ifdef DIAGNOSTICS_TS
+# undef DIAGNOSTICS_TS_ADV
+# undef DIAGNOSTICS_TS_MLD
+# endif
+# undef DIAGNOSTICS_UV
 /*
 !           Applications:
 !---------------------------------
@@ -185,14 +187,14 @@
 */
 # ifdef BIOLOGY
 #  define PISCES
-#  undef  BIO_NPZD
-#  undef  BIO_N2P2Z2D2
-#  undef  BIO_N2PZD2
+#  undef BIO_NPZD
+#  undef BIO_N2P2Z2D2
+#  undef BIO_N2PZD2
 /*      BIOLOGY OPTIONS  */
 #  ifdef PISCES
 #   define key_trc_pisces
 #   define key_passivetrc
-#   define DIAGNOSTICS_BIO
+#   undef DIAGNOSTICS_BIO
 #   ifdef DIAGNOSTICS_BIO
 #     define key_trc_diaadd
 #     define key_trc_dia3d
@@ -202,7 +204,7 @@
 #   undef OXYGEN      /* Under Development */
 #  endif
 #  if defined BIO_NPZD || defined BIO_N2P2Z2D2
-#   define  DIAGNOSTICS_BIO
+#   define DIAGNOSTICS_BIO
 #  endif
 #  ifdef BIO_N2P2Z2D2
 #   undef VAR_CHL_C
@@ -227,16 +229,16 @@
 # ifdef SEDIMENT
 #  define ANA_SEDIMENT
 #  undef BED_ARMOR
-#  undef  ANA_SPFLUX
-#  undef  ANA_BPFLUX
+#  undef ANA_SPFLUX
+#  undef ANA_BPFLUX
 #  define LINEAR_CONTINUATION
-#  undef  NEUMANN
+#  undef NEUMANN
 # endif
 
 # ifdef BBL
 #  define ANA_WWAVE
 #  ifdef SEDIMENT
-#   undef  ANA_BSEDIM
+#   undef ANA_BSEDIM
 #  else
 #   define ANA_BSEDIM
 #  endif
@@ -258,6 +260,9 @@
 !                       Basin Example
 !                       ===== =======
 */
+# define ETALON_CHECK
+# undef OPENMP
+# undef MPI
 # define UV_ADV
 # define UV_COR
 # define UV_VIS2
@@ -277,6 +282,9 @@
 !                       First Canyon Example
 !                       ===== ====== =======
 */
+# define ETALON_CHECK
+# undef OPENMP
+# undef MPI
 # define UV_ADV
 # define UV_COR
 # define SOLVE3D
@@ -292,6 +300,9 @@
 !                       Second Canyon Example
 !                       ====== ====== =======
 */
+# define ETALON_CHECK
+# undef OPENMP
+# undef MPI
 # define UV_ADV
 # define UV_COR
 # define SOLVE3D
@@ -310,6 +321,9 @@
 ! Boccaletti, G., R.C. Pacanowski, G.H. Philander and A.V. Fedorov, 2004,
 ! The Thermal Structure of the Upper Ocean, J.Phys.Oceanogr., 34, 888-902.
 */
+# define ETALON_CHECK
+# undef OPENMP
+# undef MPI
 # define UV_ADV
 # define UV_COR
 # define UV_VIS2
@@ -338,6 +352,9 @@ c--# define LMD_SKPP /* problem with MPI in Xi direction */
 !                       Gravitational Adjustment Example
 !                       ============= ========== =======
 */
+# define ETALON_CHECK
+# undef OPENMP
+# undef MPI
 # define UV_ADV
 # define UV_VIS2
 # define MIX_S_UV
@@ -355,6 +372,9 @@ c--# define LMD_SKPP /* problem with MPI in Xi direction */
 !                       Inner Shelf Example
 !                       ===== ===== =======
 */
+# define ETALON_CHECK
+# undef OPENMP
+# undef MPI
 # define SOLVE3D
 # define UV_COR
 # define UV_ADV
@@ -432,6 +452,9 @@ c--# define LMD_SKPP /* problem with MPI in Xi direction */
 !                       River run-off test problem
 !                       ==========================
 */
+# define ETALON_CHECK
+# undef OPENMP
+# undef MPI
 # define SOLVE3D
 # define UV_ADV
 # define UV_COR
@@ -471,6 +494,9 @@ c--# define LMD_SKPP /* problem with MPI in Xi direction */
 !                       Seamount Example
 !                       ======== =======
 */
+# define ETALON_CHECK
+# undef OPENMP
+# undef MPI
 # define UV_ADV
 # define UV_COR
 # define SOLVE3D
@@ -491,6 +517,9 @@ c--# define LMD_SKPP /* problem with MPI in Xi direction */
 !                       Shelf Front Example
 !                       ===== ===== =======
 */
+# define ETALON_CHECK
+# undef OPENMP
+# undef MPI
 # define UV_ADV
 # define UV_COR
 # define SOLVE3D
@@ -510,6 +539,9 @@ c--# define LMD_SKPP /* problem with MPI in Xi direction */
 !                       Equatorial Rossby Wave Example
 !                       ========== ====== ==== =======
 */
+# define ETALON_CHECK
+# undef OPENMP
+# undef MPI
 # define UV_COR
 # define UV_ADV
 # define ANA_GRID
@@ -523,6 +555,9 @@ c--# define LMD_SKPP /* problem with MPI in Xi direction */
 !                       Gravitational/Overflow Example
 !                       ====================== =======
 */
+# define ETALON_CHECK
+# undef OPENMP
+# undef MPI
 # define UV_ADV
 # define UV_COR
 # define UV_VIS2
@@ -541,6 +576,9 @@ c--# define LMD_SKPP /* problem with MPI in Xi direction */
 !                       Upwelling Example
 !                       ========= =======
 */
+# define ETALON_CHECK
+# undef OPENMP
+# undef MPI
 # define SOLVE3D
 # define UV_COR
 # define UV_ADV
@@ -568,10 +606,12 @@ c--# define LMD_SKPP /* problem with MPI in Xi direction */
 !                       Baroclinic Vortex Example (TEST AGRIF)
 !                       ========== ====== ======= ===== ======
 */
-# define OPENMP
-# undef  MPI
+# define ETALON_CHECK
+# undef OPENMP
+# undef MPI
 # define AGRIF
 # define AGRIF_2WAY
+# define MASKING
 # define SOLVE3D
 # define UV_COR
 # define UV_ADV
