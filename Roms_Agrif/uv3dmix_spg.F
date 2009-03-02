@@ -82,7 +82,7 @@
      &                             dZdx_r,  dZdx_p,  dZde_r, dZde_p)
 
 ! Compute laplacien diffusion in the child sponge using 
-! t3dmix_fine.F. Diffusion applied on T-TCLM (cpp keys :CLIMAT_UV_SPONGE_FINE)
+! t3dmix_fine.F. Diffusion applied on U-UCLM (cpp keys :CLIMAT_UV_SPONGE_FINE)
 
 #define CLIMAT_UV_SPONGE_FINE
         

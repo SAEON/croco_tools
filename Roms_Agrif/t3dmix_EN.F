@@ -16,7 +16,7 @@
      &                      A2d(1,3,trd), A2d(1, 5,trd), A2d(1, 7,trd),
      &                      A2d(1,9,trd), A2d(1,11,trd), A2d(1,13,trd))
        else
-        call t3dmix_child_tile (istr,iend,jstr,jend, itrc, A3d(1,1,trd),
+        call t3dmix_child_tile(istr,iend,jstr,jend, itrc, A3d(1,1,trd),
      &                                    A2d(1, 1,trd), A2d(1, 2,trd),
      &                      A2d(1,3,trd), A2d(1, 5,trd), A2d(1, 7,trd),
      &                      A2d(1,9,trd), A2d(1,11,trd), A2d(1,13,trd))
