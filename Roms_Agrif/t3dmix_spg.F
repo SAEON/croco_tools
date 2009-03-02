@@ -63,13 +63,9 @@
      &                     FX,FE, FC,dTdz, dTdx,dTde,dZdx,dZde)
 
 ! Compute laplacien diffusion in the child sponge using 
-! t3dmix_fine.F
+! t3dmix_fine.F. Diffusion applied on T-TCLM (cpp keys :CLIMAT_UV_SPONGE_FINE)
 
-# if !defined TS_SPLIT_UP3 
 #  define CLIMAT_TS_SPONGE_FINE
-# endif
-! define CLIMAT_TS_MIXH if AGRIF + CHILD GRID and undef TS_SPLIT_UP3
-
       
 #endif /* CHILD_SPG */
 !
