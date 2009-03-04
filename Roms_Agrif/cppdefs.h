@@ -33,7 +33,7 @@
 !------------------------
 !
 */
-                      /* Configuration Namea */
+# define GILDAS                      /* Configuration Namea */
 # define PERU
                       /* Parallelization */
 # undef OPENMP
