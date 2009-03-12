@@ -213,7 +213,7 @@
           do j=Jstr-1,Jend+1
             do i=Istr-1,Iend+1
               dTdz(i,j,k2)=(t(i,j,k+1,nrhs,itrc)-t(i,j,k,nrhs,itrc)
-# if defined CLIMAT_TS_SPONGE || CLIMAT_TS_SPONGE_FINE
+# if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE
      &                          -TCLM(i,j,k+1,itrc)+TCLM(i,j,k,itrc)
 # endif
      &                                   )/(z_r(i,j,k+1)-z_r(i,j,k))

@@ -33,14 +33,14 @@
 !------------------------
 !
 */
-# define GILDAS                      /* Configuration Namea */
+                      /* Configuration Name */
 # define PERU
                       /* Parallelization */
 # undef OPENMP
-# define MPI
+# undef MPI
                       /* Nesting */
-# define AGRIF
-# define AGRIF_2WAY
+# undef AGRIF
+# undef AGRIF_2WAY
                       /* Open Boundary Conditions */
 # undef TIDES
 # undef OBC_EAST
@@ -48,7 +48,7 @@
 # define OBC_NORTH
 # define OBC_SOUTH
                       /* Applications */
-# define BIOLOGY
+# undef BIOLOGY
 # undef FLOATS
 # undef STATIONS
 # undef PASSIVE_TRACER
@@ -140,7 +140,7 @@
 #  undef ROBUST_DIAG
 # endif
 
-# define FRC_BRY
+# undef FRC_BRY
 # ifdef FRC_BRY
 #  define Z_FRC_BRY
 #  define M2_FRC_BRY
