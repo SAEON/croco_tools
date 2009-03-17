@@ -321,7 +321,7 @@ QSCAT_dir        = [FORC_DATA_DIR,'QSCAT_',ROMS_config,'/']; % QSCAT data direct
 QSCAT_frc_prefix = [frc_prefix,'_QSCAT_']; % generic forcing file name
                                            % for interannual roms simulations with QuickCAT.
 QSCAT_clim_file  = [DATADIR,'QuikSCAT_clim/',...   % QuikSCAT climatology
-                    'QSCAT_global_clim_jul99_aug06.nc']; % file for make_QSCAT_clim.
+                    'roms_QSCAT_month_clim_2000_2007.nc']; % file for make_QSCAT_clim.
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
