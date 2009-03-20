@@ -3,7 +3,7 @@
 !
 #include "cppdefs.h"
 #if defined SOLVE3D && defined AGRIF
-      subroutine t3dmix_fine (tile)
+      subroutine t3dpremix (tile)
       implicit none
       integer tile, trd, omp_get_thread_num
 # include "param.h"
@@ -11,12 +11,12 @@
 # include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
       
-        call t3dmix_fine_tile (Istr,Iend,Jstr,Jend)
+        call t3dpremix_tile (Istr,Iend,Jstr,Jend)
       
       return
       end
 
-      subroutine t3dmix_fine_tile (Istr,Iend,Jstr,Jend)
+      subroutine t3dpremix_tile (Istr,Iend,Jstr,Jend)
 
       implicit none
 # include "param.h"
@@ -222,6 +222,6 @@ C$OMP BARRIER
       return
       end  
 #else
-      subroutine t3dmix_fine_empty
+      subroutine t3dpremix_empty
       end
 # endif /* SOLVE3D && TS_DIF2 && MIX_S_TS */

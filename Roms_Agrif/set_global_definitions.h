@@ -55,10 +55,16 @@
 # define VIS_COEF_3D
 #endif
 
-!# if defined M3CLIMATOLOGY  && !defined UV_SPLIT_UP3\
-!      && !defined VIS_SMAGO
-!#  define CLIMAT_UV_MIXH
-!# endif
+/*   
+   Apply diffusion in the interior
+   over an anomaly only, with respect 
+   to a reference frame (climatology)
+*/
+
+# if defined M3CLIMATOLOGY  && !defined UV_SPLIT_UP3\
+      && !defined VIS_SMAGO
+#  define CLIMAT_UV_MIXH
+# endif
 
 /*    
 Select MOMENTUM VERTICAL advection scheme:
@@ -82,17 +88,19 @@ Select MOMENTUM VERTICAL advection scheme:
 #endif
 #undef   HADV_AKIMA_TS    /* 4th-order Akima horiz. advection */
 
-!# if defined TCLIMATOLOGY && !defined TS_SPLIT_UP3 && !defined DIF_SMAGO
-!#  define CLIMAT_TS_MIXH
-!# endif
 
-/* 
+/*   
    Apply diffusion in the interior
    over an anomaly only, with respect 
    to a reference frame (climatology)
 */
-#undef CLIMAT_TS_MIXH
-#undef CLIMAT_UV_MIXH
+
+# if defined TCLIMATOLOGY && !defined TS_SPLIT_UP3 && !defined DIF_SMAGO
+#  define CLIMAT_TS_MIXH
+# endif
+
+!#undef CLIMAT_TS_MIXH
+!#undef CLIMAT_UV_MIXH
 
 /*
     Select model dynamics for TRACER vertical advection
@@ -103,7 +111,20 @@ Select MOMENTUM VERTICAL advection scheme:
 #undef   VADV_C2_TS        /* 2nd-order centered vertical advection */
 
 /*
-    Sponge behavior
+    Default laplacian type for mixing
+*/
+# if !defined TS_DIF2 && !defined TS_DIF4
+#  define TS_DIF2
+#  define MIX_S_TS
+# endif
+# if !defined UV_VIS2 && !defined UV_VIS4
+#  define UV_VIS2
+#  define MIX_S_UV
+# endif
+
+/* 
+   Sponge behavior     
+   SPONGE_DIF2 and SPONGE_VIS2 behavior
 */
 
 #if defined SPONGE && !defined TS_DIF2

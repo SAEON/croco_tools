@@ -1,11 +1,11 @@
 !
 #include "cppdefs.h"
 #if defined SOLVE3D && defined SPONGE_DIF2
-
+!
 # if defined TCLIMATOLOGY
 #  define CLIMAT_TS_SPONGE
 # endif
-
+!
 #ifndef CHILD_SPG
        subroutine t3dmix_spg (tile)
       implicit none
@@ -63,7 +63,8 @@
      &                     FX,FE, FC,dTdz, dTdx,dTde,dZdx,dZde)
 
 ! Compute laplacien diffusion in the child sponge using 
-! t3dmix_fine.F. Diffusion applied on T-TCLM (cpp keys :CLIMAT_UV_SPONGE_FINE)
+! t3dmix_fine.F. Diffusion always applied applied on T-TCLM in fine grids
+! (cpp keys :CLIMAT_TS_SPONGE_FINE)
 
 #  define CLIMAT_TS_SPONGE_FINE
       
@@ -88,7 +89,9 @@
 # include "grid.h"
 # include "ocean3d.h"
 # include "mixing.h"
+# ifdef CLIMAT_TS_SPONGE
 # include "climat.h"
+# endif
 # include "scalars.h"
 # ifdef DIAGNOSTICS_TS
 #  include "diagnostics.h"

@@ -45,7 +45,8 @@
       jpjm1 = jpj - 1
 #endif
 
-#endif  ! <- key AGRIF
+#endif  
+! <- key AGRIF
 
 !********************************************************************
 #if defined AGRIF || defined AUTOTILING

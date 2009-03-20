@@ -43,6 +43,7 @@
 ! 
       subroutine t3dmix_tile (istr,iend,jstr,jend, itrc, LapT, 
      &                   FX,FE, FC,dTdr, dTdx,dTde,dRdx,dRde)
+#undef CLIMAT_TS_MIXH_FINE
 !
 #else
 !
@@ -50,6 +51,7 @@
 !
       subroutine t3dmix_child_tile (istr,iend,jstr,jend, itrc, LapT,
      $                     FX,FE,FC,dTdr, dTdx,dTde,dRdx,dRde)
+#define CLIMAT_TS_MIXH_FINE
 !
 #endif /* CHILD_SPG */
 !
@@ -73,7 +75,9 @@
 #include "grid.h"
 #include "ocean3d.h"
 #include "mixing.h"
+#ifdef CLIMAT_TS_MIXH
 #include "climat.h"
+#endif
 #include "scalars.h"
 # ifdef DIAGNOSTICS_TS
 #  include "diagnostics.h"
@@ -122,7 +126,7 @@ c-#define MIN_STRAT  0.1
               dRdx(i,j,k2)=cff*(rho(i,j,k+1) -rho(i-1,j,k+1))
               dTdx(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)
      &                               -t(i-1,j,k+1,nrhs,itrc)
-# if defined CLIMAT_TS_MIXH 
+# if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
      &               -TCLM(i,j,k+1,itrc)+TCLM(i-1,j,k+1,itrc)
 # endif
      &                                                      )
@@ -138,7 +142,7 @@ c-#define MIN_STRAT  0.1
               dRde(i,j,k2)=cff*(rho(i,j,k+1) -rho(i,j-1,k+1))
               dTde(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)
      &                               -t(i,j-1,k+1,nrhs,itrc)
-# if defined CLIMAT_TS_MIXH
+# if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
      &               -TCLM(i,j,k+1,itrc)+TCLM(i,j-1,k+1,itrc)
 # endif
      &                                                      )
@@ -174,7 +178,7 @@ c-#define MIN_STRAT  0.1
 # endif
               dTdr(i,j,k2)=cff1*( t(i,j,k+1,nrhs,itrc)
      &                                            -t(i,j,k,nrhs,itrc)
-# if defined CLIMAT_TS_MIXH
+# if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
      &                           -TCLM(i,j,k+1,itrc)+TCLM(i,j,k,itrc)
 # endif
      &                                                              )
@@ -317,7 +321,7 @@ c-#define MIN_STRAT  0.1
               dRdx(i,j,k2)=cff*(rho(i,j,k+1)-rho(i-1,j,k+1))
               dTdx(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)-
      &                               t(i-1,j,k+1,nrhs,itrc)
-# if defined CLIMAT_TS_MIXH
+# if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
      &               -TCLM(i,j,k+1,itrc)+TCLM(i-1,j,k+1,itrc)
 # endif
      &                                                      )
@@ -332,7 +336,7 @@ c-#define MIN_STRAT  0.1
               dRde(i,j,k2)=cff*(rho(i,j,k+1)-rho(i,j-1,k+1))
               dTde(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)-
      &                               t(i,j-1,k+1,nrhs,itrc)
-# if defined CLIMAT_TS_MIXH
+# if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
      &               -TCLM(i,j,k+1,itrc)+TCLM(i,j-1,k+1,itrc)
 # endif
      &                          )
@@ -370,7 +374,7 @@ c-#define MIN_STRAT  0.1
               FC(i,j,k2)=cff1*(z_r(i,j,k+1)-z_r(i,j,k))
               dTdr(i,j,k2)=cff1*(t(i,j,k+1,nrhs,itrc)
      &                             -t(i,j,k,nrhs,itrc)
-#  if defined CLIMAT_TS_MIXH
+#  if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
      &                         -TCLM(i,j,k+1,itrc)+TCLM(i,j,k,itrc)
 #  endif
      &                          )

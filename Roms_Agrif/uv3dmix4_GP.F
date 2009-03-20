@@ -85,6 +85,9 @@
      &                              UFe,VFx,VFe,UFs,VFs,dnUdx,dmUde,
      &                              dUdz,dnVdx,dmVde,dVdz,dZdx_r,
      &                              dZdx_p,dZde_r,dZde_p)
+
+#undef CLIMAT_UV_MIXH_FINE
+!
 #else
 !
 ! CHILD
@@ -93,6 +96,10 @@
      &                              UFe,VFx,VFe,UFs,VFs,dnUdx,dmUde,
      &                              dUdz,dnVdx,dmVde,dVdz,dZdx_r,
      &                              dZdx_p,dZde_r,dZde_p)
+!
+! Diffusion always applied on U-UCLM in fine grid
+#define CLIMAT_UV_MIXH_FINE
+!
 #endif /* CHILD_SPG */
 !
 !---------------------------------------------------------------------
@@ -106,6 +113,9 @@
 # include "coupling.h"
 # include "ocean3d.h"
 # include "scalars.h"
+# ifdef CLIMAT_UV_MIXH
+#  include "climat.h"
+# endif
 # ifdef DIAGNOSTICS_UV
 #  include "diagnostics.h"
 # endif
@@ -236,14 +246,25 @@
           do j=jminV-1,jmax
             do i=iminU-1,imax
               dnUdx(i,j,k2)=pm(i,j)*
+# if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
+     &         (pn_u(i+1,j)*(u(i+1,j,k+1,nstp)- UCLM(i+1,j,k+1)) -
+     &          pn_u(i  ,j)*(u(i  ,j,k+1,nstp)- UCLM(i  ,j,k+1)) )
+# else
      &                      (pn_u(i+1,j)*u(i+1,j,k+1,nstp)-
      &                       pn_u(i  ,j)*u(i  ,j,k+1,nstp))
+# endif
 #    ifdef MASKING
      &                                     * rmask(i,j)
 #    endif
+
               dmVde(i,j,k2)=pn(i,j)*
+# if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
+     &         (pm_v(i,j+1)*( v(i,j+1,k+1,nstp)- VCLM(i,j+1,k+1)) -
+     &          pm_v(i,j  )*( v(i,j  ,k+1,nstp)- VCLM(i,j  ,k+1)) )
+# else
      &                      (pm_v(i,j+1)*v(i,j+1,k+1,nstp)-
      &                       pm_v(i,j  )*v(i,j  ,k+1,nstp))
+# endif
 #    ifdef MASKING
      &                                     * rmask(i,j)
 #    endif
@@ -255,15 +276,26 @@
             do i=imin,imax+1
               dmUde(i,j,k2)=0.25*(pn(i-1,j  )+pn(i,j  )+
      &                            pn(i-1,j-1)+pn(i,j-1))*
+# if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
+     &         (pm_u(i,j  )*(u(i,j  ,k+1,nstp)-UCLM(i,j  ,k+1)) -
+     &          pm_u(i,j-1)*(u(i,j-1,k+1,nstp)-UCLM(i,j-1,k+1)) )
+# else
      &                      (pm_u(i,j  )*u(i,j  ,k+1,nstp)-
      &                       pm_u(i,j-1)*u(i,j-1,k+1,nstp))
+# endif
 #    ifdef MASKING
      &                                     * pmask(i,j)
 #    endif
+
               dnVdx(i,j,k2)=0.25*(pm(i-1,j  )+pm(i,j  )+
      &                            pm(i-1,j-1)+pm(i,j-1))*
+# if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
+     &         (pn_v(i  ,j)*(v(i  ,j,k+1,nstp)-VCLM(i  ,j,k+1)) -
+     &          pn_v(i-1,j)*(v(i-1,j,k+1,nstp)-VCLM(i-1,j,k+1)) )
+# else
      &                      (pn_v(i  ,j)*v(i  ,j,k+1,nstp)-
      &                       pn_v(i-1,j)*v(i-1,j,k+1,nstp))
+# endif
 #    ifdef MASKING
      &                                     * pmask(i,j)
 #    endif

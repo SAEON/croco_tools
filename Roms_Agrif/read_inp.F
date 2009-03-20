@@ -1035,7 +1035,7 @@ c        close(testunit)
         call cancel_kwd (keyword(1:kwlen), ierr)
         read(input,*,err=95) visc2, visc4
 #endif
-#ifdef UV_VIS2
+#if defined UV_VIS2 || defined SPONGE_VIS2
         MPI_master_only write(stdout,9) visc2
    9    format(1pe10.3,2x,'visc2    Horizontal Laplacian ',
      &       'mixing coefficient [m2/s]',/,32x,'for momentum.')
@@ -1067,7 +1067,7 @@ c        close(testunit)
      &     gamma2, 'gamma2   Slipperiness parameter:',
      &                     'free-slip +1, or no-slip -1.'
 #ifdef SOLVE3D
-# ifdef TS_DIF2
+# if defined TS_DIF2 || defined SPONGE_VIS2
 !
 ! Horizontal Laplacian mixing coefficients for tracers.
 !

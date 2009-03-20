@@ -44,6 +44,8 @@
      &                             VFx,VFe, UFs,VFs, dnUdx,  dmUde,
      &                             dUdz,    dnVdx,   dmVde,  dVdz,
      &                             dZdx_r,  dZdx_p,  dZde_r, dZde_p)
+#undef CLIMAT_UV_MIXH_FINE
+!
 #else
 !
 ! CHILD
@@ -52,6 +54,9 @@
      &                             VFx,VFe, UFs,VFs, dnUdx,  dmUde,
      &                             dUdz,    dnVdx,   dmVde,  dVdz,
      &                             dZdx_r,  dZdx_p,  dZde_r, dZde_p)
+! Diffusion always applied on U-UCLM in fine grid
+#define CLIMAT_UV_MIXH_FINE
+!
 #endif /* CHILD_SPG */
 !
 !--------------------------------------------------------------------
@@ -185,7 +190,7 @@
           do j=JstrV-1,Jend
             do i=IstrU-1,Iend
               dnUdx(i,j,k2)=pm(i,j)*
-#  if defined CLIMAT_UV_MIXH
+#  if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
      &        ( pn_u(i+1,j)*(u(i+1,j,k+1,nstp)-UCLM(i+1,j,k+1))
      &         -pn_u(i  ,j)*(u(i  ,j,k+1,nstp)-UCLM(i  ,j,k+1)) )
 #  else
@@ -196,7 +201,7 @@
      &                                       * rmask(i,j)
 #    endif
               dmVde(i,j,k2)=pn(i,j)*
-#  if defined CLIMAT_UV_MIXH
+#  if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
      &        ( pm_v(i,j+1)*(v(i,j+1,k+1,nstp)-VCLM(i,j+1,k+1))
      &         -pm_v(i,j  )*(v(i,j  ,k+1,nstp)-VCLM(i,j  ,k+1)) )
 #  else
@@ -214,7 +219,7 @@
             do i=Istr,Iend+1
               dmUde(i,j,k2)=0.25*(pn(i,j)+pn(i-1,j)+pn(i,j-1)
      &                                            +pn(i-1,j-1))
-#  if defined CLIMAT_UV_MIXH
+#  if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
      &       *( pm_u(i,j  )*(u(i,j  ,k+1,nstp)-UCLM(i,j,k+1))
      &         -pm_u(i,j-1)*(u(i,j-1,k+1,nstp)-UCLM(i,j-1,k+1)) )
 #  else
@@ -226,7 +231,7 @@
 #    endif
               dnVdx(i,j,k2)=0.25*(pm(i,j)+pm(i-1,j)+pm(i,j-1)
      &                                            +pm(i-1,j-1))
-#  if defined CLIMAT_UV_MIXH
+#  if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
      &       *( pn_v(i  ,j)*(v(i  ,j,k+1,nstp)-VCLM(i  ,j,k+1))
      &         -pn_v(i-1,j)*(v(i-1,j,k+1,nstp)-VCLM(i-1,j,k+1)) )
 #  else
@@ -258,7 +263,7 @@
         else
           do j=Jstr-1,Jend+1
             do i=IstrU-1,Iend+1
-#  if defined CLIMAT_UV_MIXH
+#  if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
               dUdz(i,j,k2)=2.*(u(i,j,k+1,nstp)-u(i,j,k,nstp)
      &                            -UCLM(i,j,k+1)+UCLM(i,j,k))
 #  else
@@ -270,7 +275,7 @@
           enddo
           do j=JstrV-1,Jend+1
             do i=Istr-1,Iend+1
-#  if defined CLIMAT_UV_MIXH
+#  if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
               dVdz(i,j,k2)=2.*(v(i,j,k+1,nstp)-v(i,j,k,nstp)
      &                            -VCLM(i,j,k+1)+VCLM(i,j,k))
 #  else

@@ -71,8 +71,8 @@ include Makedefs
 	def_sta.F	init_arrays_sta.F\
 \
         zoom.F		update2D.F	set_nudgcof_fine.F\
-	zoombc_2D.F	zoombc_3D.F	uv3dmix_fine.F\
-        t3dmix_fine.F   update3D.F\
+	zoombc_2D.F	zoombc_3D.F	uv3dpremix.F\
+        t3dpremix.F     update3D.F\
 \
 	ropigrid.F	ropistep.F	pirostep.F\
 	trcini.F	trclsm.F	pisces_ini.F\

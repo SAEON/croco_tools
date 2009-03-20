@@ -36,6 +36,7 @@
 ! 
       subroutine t3dmix_tile (istr,iend,jstr,jend, itrc,
      &                    FX,FE, LapT)
+#undef CLIMAT_TS_MIXH_FINE
 !
 #else
 !
@@ -43,6 +44,8 @@
 !
       subroutine t3dmix_child_tile(istr,iend,jstr,jend, itrc,
      &                     FX,FE, LapT)
+#define CLIMAT_TS_MIXH_FINE
+!
 #endif /* CHILD_SPG */
 !
 !---------------------------------------------------------------------
@@ -59,7 +62,9 @@
 #include "grid.h"
 #include "ocean3d.h"
 #include "mixing.h"
+# ifdef CLIMAT_TS_MIXH
 #include "climat.h"
+#endif
 #include "scalars.h"
 #ifdef DIAGNOSTICS_TS
 # include "diagnostics.h"
@@ -96,6 +101,9 @@
 #endif
      &                   *pmon_u(i,j)*(Hz(i,j,k)+Hz(i-1,j,k))*(
      &                     t(i,j,k,nrhs,itrc)-t(i-1,j,k,nrhs,itrc)
+# if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
+     &                          -TCLM(i,j,k,itrc)+TCLM(i,j-1,k,itrc)
+# endif
      &                                              ) 
 #    ifdef MASKING
      &                                            * umask(i,j)
@@ -111,6 +119,9 @@
 # endif
      &                     *pnom_v(i,j)*(Hz(i,j,k)+Hz(i,j-1,k))*(
      &                      t(i,j,k,nrhs,itrc)-t(i,j-1,k,nrhs,itrc)
+# if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
+     &                          -TCLM(i,j,k,itrc)+TCLM(i,j-1,k,itrc)
+# endif
      &                                              ) 
 #    ifdef MASKING
      &                                              * vmask(i,j)
@@ -178,7 +189,7 @@
             do i=imin,imax+1
             FX(i,j)=pmon_u(i,j)*0.5*(Hz(i,j,k)+Hz(i-1,j,k))*(
      &                      t(i,j,k,nrhs,itrc)-t(i-1,j,k,nrhs,itrc)
-# if defined CLIMAT_TS_MIXH
+# if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
      &                          -TCLM(i,j,k,itrc)+TCLM(i-1,j,k,itrc)
 # endif
      &                                              ) 
@@ -194,7 +205,7 @@
           do i=imin,imax
             FE(i,j)=pnom_v(i,j)*0.5*(Hz(i,j,k)+Hz(i,j-1,k))*(
      &                     t(i,j,k,nrhs,itrc)-t(i,j-1,k,nrhs,itrc)
-# if defined CLIMAT_TS_MIXH
+# if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
      &                          -TCLM(i,j,k,itrc)+TCLM(i,j-1,k,itrc)
 # endif
      &                                              ) 

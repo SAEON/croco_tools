@@ -68,9 +68,8 @@
      &                             dZdx_r,  dZdx_p,  dZde_r, dZde_p)
 
 #undef CLIMAT_UV_SPONGE_FINE
-
+!
 ! Compute laplacien diffusion in the parent grid sponge. 
-! Diffusion applied on T-TCLM if CLIMAT_UV_SPONGE_FINE
 #else
 !
 ! CHILD
@@ -82,8 +81,8 @@
      &                             dZdx_r,  dZdx_p,  dZde_r, dZde_p)
 
 ! Compute laplacien diffusion in the child sponge using 
-! t3dmix_fine.F. Diffusion applied on U-UCLM (cpp keys :CLIMAT_UV_SPONGE_FINE)
-
+! u3dmix_fine.F. Diffusion always applied on U-UCLM in fine grids 
+! (cpp keys :CLIMAT_UV_SPONGE_FINE)
 #define CLIMAT_UV_SPONGE_FINE
         
 #endif /* CHILD_SPG */
@@ -148,7 +147,9 @@
 # include "ocean3d.h"
 # include "coupling.h"
 # include "mixing.h"
-# include "climat.h"
+# ifdef  CLIMAT_UV_SPONGE
+#  include "climat.h"
+# endif
 # ifdef DIAGNOSTICS_UV
 #  include "diagnostics.h"
 # endif

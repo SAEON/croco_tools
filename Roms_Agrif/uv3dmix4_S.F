@@ -73,6 +73,7 @@
 !
       subroutine uv3dmix_tile (Istr,Iend,Jstr,Jend,UFx,UFe,LapU,
      &                            VFx,VFe,LapV)
+#undef CLIMAT_UV_MIXH_FINE
 !
 #else
 !
@@ -80,6 +81,10 @@
 !
       subroutine uv3dmix_child_tile (Istr,Iend,Jstr,Jend,UFx,UFe,LapU,
      &                            VFx,VFe,LapV)
+!
+!Diffusion always applied on U-UCLM in fine grid
+#define CLIMAT_UV_MIXH_FINE
+!
 #endif /* CHILD_SPG */
 !
 !---------------------------------------------------------------------
@@ -182,8 +187,7 @@
         do j=jminV-1,jmax
           do i=iminU-1,imax
             cff=pmon_r(i,j)*
-
-#  if defined CLIMAT_UV_MIXH
+#  if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
      &           (pn_u(i+1,j)*(u(i+1,j,k,nstp)-UCLM(i+1,j,k))-
      &            pn_u(i  ,j)*(u(i  ,j,k,nstp)-UCLM(i  ,j,k)) ) - 
 # else
@@ -191,7 +195,7 @@
      &            pn_u(i  ,j)*u(i  ,j,k,nstp) ) -
 # endif
      &          pnom_r(i,j)*
-#  if defined CLIMAT_UV_MIXH
+#  if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
      &           (pm_v(i,j+1)*(v(i,j+1,k,nstp)-VCLM(i,j+1,k))-
      &            pm_v(i,j  )*(v(i,j  ,k,nstp)-VCLM(i,j  ,k)) )
 # else
@@ -209,8 +213,7 @@
         do j=jmin,jmax+1
           do i=imin,imax+1
             cff=pmon_p(i,j)*
-
-#  if defined CLIMAT_UV_MIXH
+#  if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
      &           (pn_v(i  ,j)*(v(i  ,j,k,nstp)-VCLM(i  ,j,k)) -
      &            pn_v(i-1,j)*(v(i-1,j,k,nstp)-VCLM(i-1,j,k)) )+
 # else
@@ -218,7 +221,7 @@
      &            pn_v(i-1,j)*v(i-1,j,k,nstp))+
 # endif
      &          pnom_p(i,j)*
-#  if defined CLIMAT_UV_MIXH
+#  if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
      &           (pm_u(i,j  )*( u(i,j  ,k,nstp)-UCLM(i,j  ,k))-
      &            pm_u(i,j-1)*( u(i,j-1,k,nstp)-UCLM(i,j-1,k)) )
 # else

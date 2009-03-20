@@ -313,7 +313,7 @@ C$OMP BARRIER
 # if defined UV_VIS2 || defined UV_VIS4
 #   if defined AGRIF
       if (.Not.Agrif_Root()) then
-         call uv3dmix_fine (tile)
+         call uv3dpremix (tile)
       endif
 #   endif
 # endif
@@ -633,7 +633,7 @@ C$OMP BARRIER
 # if defined TS_DIF2 || defined TS_DIF4
 #   if defined AGRIF
       if (.Not.Agrif_Root()) then
-         call t3dmix_fine (tile)
+         call t3dpremix (tile)
       endif
 #   endif
 # endif

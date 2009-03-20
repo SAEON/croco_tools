@@ -4,7 +4,7 @@
 #include "cppdefs.h"
 # if defined SOLVE3D && defined AGRIF
  
-      subroutine uv3dmix_fine (tile)
+      subroutine uv3dpremix (tile)
       implicit none
       integer tile, trd, omp_get_thread_num
 # include "param.h"
@@ -12,12 +12,12 @@
 # include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
 
-      call uv3dmix_fine_tile (Istr,Iend,Jstr,Jend,
+      call uv3dpremix_tile (Istr,Iend,Jstr,Jend,
      &        A3d(1,1,trd),A3d(1,2,trd))
       return
       end
  
-      subroutine uv3dmix_fine_tile (Istr,Iend,Jstr,Jend,CF,DC)
+      subroutine uv3dpremix_tile (Istr,Iend,Jstr,Jend,CF,DC)
 !
 ! Computes harmonic mixing of momentum, along constant S-surfaces
 ! as horizontal divergence of the stress tensor. Components of the
@@ -410,7 +410,7 @@ C$OMP BARRIER
       end      
             
 #else
-      subroutine nestingvisc3d_empty
+      subroutine uv3dpremix_empty
       end
 #endif
  

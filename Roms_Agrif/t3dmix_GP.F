@@ -45,6 +45,7 @@
 ! 
       subroutine t3dmix_tile (istr,iend,jstr,jend, itrc, LapT,
      &                    FX,FE, FC,dTdz, dTdx,dTde,dZdx,dZde)
+#undef CLIMAT_TS_MIXH_FINE
 !
 #else
 !
@@ -52,6 +53,7 @@
 !
       subroutine t3dmix_child_tile(Istr,Iend,Jstr,Jend, itrc,LapT,
      &                     FX,FE, FC,dTdz, dTdx,dTde,dZdx,dZde)
+#define CLIMAT_TS_MIXH_FINE
 !
 #endif /* CHILD_SPG */
 !
@@ -77,7 +79,9 @@
 # include "grid.h"
 # include "ocean3d.h"
 # include "mixing.h"
+# ifdef CLIMAT_TS_MIXH
 # include "climat.h"
+# endif
 # include "scalars.h"
 # ifdef DIAGNOSTICS_TS
 #  include "diagnostics.h"
@@ -119,7 +123,7 @@
               dZdx(i,j,k2)=cff*(z_r(i,j,k+1) -z_r(i-1,j,k+1))
               dTdx(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)
      &                               -t(i-1,j,k+1,nrhs,itrc)
-#  if defined CLIMAT_TS_MIXH
+#  if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
      &               -TCLM(i,j,k+1,itrc)+TCLM(i-1,j,k+1,itrc)
 #  endif
      &                                                      )
@@ -134,7 +138,7 @@
               dZde(i,j,k2)=cff*(z_r(i,j,k+1) -z_r(i,j-1,k+1))
               dTde(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)
      &                               -t(i,j-1,k+1,nrhs,itrc)
-#  if defined CLIMAT_TS_MIXH
+#  if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
      &               -TCLM(i,j,k+1,itrc)+TCLM(i,j-1,k+1,itrc)
 #  endif
      &                                                      )
@@ -153,7 +157,7 @@
           do j=jstr-1,jend+1
             do i=istr-1,iend+1
               dTdz(i,j,k2)=(t(i,j,k+1,nrhs,itrc)-t(i,j,k,nrhs,itrc)
-#  if defined CLIMAT_TS_MIXH
+#  if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
      &                          -TCLM(i,j,k+1,itrc)+TCLM(i,j,k,itrc)
 #  endif
      &                                   )/(z_r(i,j,k+1)-z_r(i,j,k))
@@ -310,7 +314,7 @@
      &                                 t(i-1,j,k+1,nrhs,itrc))
      &                          +0.25*(t(i,j,k+1,nstp,itrc)-
      &                                 t(i-1,j,k+1,nstp,itrc))
-#  if defined CLIMAT_TS_MIXH
+#  if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
      &                -TCLM(i,j,k+1,itrc)+TCLM(i-1,j,k+1,itrc)
 #  endif
      &                         )
@@ -329,7 +333,7 @@
      &                                 t(i,j-1,k+1,nrhs,itrc))
      &                          +0.25*(t(i,j,k+1,nstp,itrc)-
      &                                 t(i,j-1,k+1,nstp,itrc))
-#  if defined CLIMAT_TS_MIXH
+#  if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
      &                -TCLM(i,j,k+1,itrc)+TCLM(i,j-1,k+1,itrc)
 #  endif
      &                         )
@@ -352,7 +356,7 @@
      &                            -t(i,j,k,nrhs,itrc))
      &                      +0.25*(t(i,j,k+1,nstp,itrc)
      &                            -t(i,j,k,nstp,itrc))
-#  if defined CLIMAT_TS_MIXH
+#  if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
      &                      -TCLM(i,j,k+1,itrc)+TCLM(i,j,k,itrc)
 #  endif
      &                     )/(z_r(i,j,k+1)-z_r(i,j,k))
