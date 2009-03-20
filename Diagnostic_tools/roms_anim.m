@@ -34,6 +34,9 @@ close all
 %
 romstools_param
 %
+anim_mpeg=1;
+anim_fli=1;
+%
 % Directory and file names
 %
 directory=[RUN_dir,'SCRATCH/'];
@@ -57,7 +60,7 @@ vlevel=32;
 % Plot properties
 %
 zoom=0;          % Increase or reduce the size of the image.
-skipanim=3;      % Using an image every .. images for the animation.
+skipanim=2;      % Using an image every .. images for the animation.
 rempts=[0 0 0 0]; % Remove .. points from the boundary 
 gridlevs=0;      % Number of embedded grids
 pltstyle=2;      % Plot style: 1:pcolor, 2: contourf, 3: contour, ...
@@ -81,9 +84,12 @@ cunit=1;
 %
 coastfile='coastline_l.mat';
 townfile='';
-gridfile=[directory,model,'_grd.nc'];
+gridfile=[directory,model,'_',filetype,'_Y',num2str(Ymin),'M',num2str(Mmin),'.nc']
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
+%
+vizdir=which('animation');
+vizdir=vizdir(1:end-11);
 %
 [lat,lon,mask]=read_latlonmask(gridfile,'r');
 lonmin=min(min(lon))-zoom;
@@ -144,4 +150,12 @@ for Y=Ymin:Ymax
     end
   end
 end
-fli_end(fid,moviename);
+if anim_mpeg==1
+  eval(['!ppmtompeg ',vizdir,'inp_ppm2mpeg'])
+  eval(['!mv movie.mpg ',vname,'_z',num2str(vlevel),'.mpg']);
+end
+if anim_fli==1
+  fli_end(fid,moviename);
+else
+  eval(['!rm -f ','.ppm.list'])
+end
