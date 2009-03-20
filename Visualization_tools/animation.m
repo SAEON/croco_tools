@@ -34,7 +34,8 @@ function animation(handles)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-romstools_param
+mydir=which('animation');
+mydir=mydir(1:end-11);
 %
 anim_mpeg=1;
 anim_fli=1;
@@ -76,7 +77,7 @@ for tindex=1:ntime
   end
 end
 if anim_mpeg==1
-  eval(['!ppmtompeg ',ROMSTOOLS_dir,'Visualization_tools/inp_ppm2mpeg'])
+  eval(['!ppmtompeg ',mydir,'inp_ppm2mpeg'])
   eval(['!mv movie.mpg ',handles.vname,'_z',num2str(handles.vlevel),'.mpg']);
 end
 if anim_fli==1
