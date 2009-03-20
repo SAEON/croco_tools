@@ -34,13 +34,13 @@ function animation(handles)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-mydir=which('animation');
-mydir=mydir(1:end-11);
-%
 anim_mpeg=1;
 anim_fli=1;
 %
 moviename=[handles.vname,'_z',num2str(handles.vlevel),'.fli'];
+%
+vizdir=which('animation');
+vizdir=vizdir(1:end-11);
 %
 % Initialise the animation 
 %
@@ -77,7 +77,7 @@ for tindex=1:ntime
   end
 end
 if anim_mpeg==1
-  eval(['!ppmtompeg ',mydir,'inp_ppm2mpeg'])
+  eval(['!ppmtompeg ',vizdir,'inp_ppm2mpeg'])
   eval(['!mv movie.mpg ',handles.vname,'_z',num2str(handles.vlevel),'.mpg']);
 end
 if anim_fli==1
