@@ -233,11 +233,11 @@ c          endif
 #    endif
      &                                      -hx*( zx
 #   ifdef Z_FRC_BRY
-     &                                           -zetabry_west(j))
+     &                                           -zetabry_west(j)
 #   elif defined ZNUDGING
-     &                                             -ssh(Istr-1,j))
+     &                                             -ssh(Istr-1,j)
 #   endif
-     &                           ) !*grad(Istr,j)
+     &                           )) !*grad(Istr,j)
 #   ifdef MASKING
           ubar(Istr,j,knew)=ubar(Istr,j,knew)*umask(Istr,j)
 #   endif
@@ -389,11 +389,11 @@ c          endif
 #    endif
      &                                      +hx*( zx
 #   ifdef Z_FRC_BRY
-     &                                           -zetabry_east(j))
+     &                                           -zetabry_east(j)
 #   elif defined ZNUDGING
-     &                                               -ssh(Iend,j))
+     &                                               -ssh(Iend,j)
 #   endif
-     &                             ) !*grad(Iend+1,j)
+     &                             )) !*grad(Iend+1,j)
 #   ifdef MASKING
           ubar(Iend+1,j,knew)=ubar(Iend+1,j,knew)*umask(Iend+1,j)
 #   endif

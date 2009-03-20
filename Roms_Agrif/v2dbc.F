@@ -231,11 +231,11 @@ C$    trd=omp_get_thread_num()
 #    endif
      &                                      -hx*( zx
 #   ifdef Z_FRC_BRY
-     &                                           -zetabry_south(i))
+     &                                           -zetabry_south(i)
 #   elif defined ZNUDGING
-     &                                              -ssh(i,Jstr-1))
+     &                                              -ssh(i,Jstr-1)
 #   endif
-     &                           ) !*grad(i,Jstr)
+     &                           ) ) !*grad(i,Jstr)
 #   ifdef MASKING
           vbar(i,Jstr,knew)=vbar(i,Jstr,knew)*vmask(i,Jstr)
 #   endif
@@ -386,11 +386,11 @@ C$    trd=omp_get_thread_num()
 #    endif
      &                                     +hx*( zx
 #   ifdef Z_FRC_BRY
-     &                                          -zetabry_north(i))
+     &                                          -zetabry_north(i)
 #   elif defined ZNUDGING
-     &                                               -ssh(i,Jend)) 
+     &                                               -ssh(i,Jend) 
 #   endif
-     &                             )  !*grad(i,Jend+1)
+     &                            ) )  !*grad(i,Jend+1)
 #   ifdef MASKING
           vbar(i,Jend+1,knew)=vbar(i,Jend+1,knew)*vmask(i,Jend+1)
 #   endif
