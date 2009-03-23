@@ -55,7 +55,9 @@
      &                             dUdz,    dnVdx,   dmVde,  dVdz,
      &                             dZdx_r,  dZdx_p,  dZde_r, dZde_p)
 ! Diffusion always applied on U-UCLM in fine grid
+#if !defined UV_SPLIT_UP3
 #define CLIMAT_UV_MIXH_FINE
+#endif
 !
 #endif /* CHILD_SPG */
 !

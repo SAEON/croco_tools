@@ -46,7 +46,9 @@
      &                                         UFx,UFe,VFx,VFe)
 !
 ! Diffusion always applied on U-UCLM in fine grid
+#if !defined UV_SPLIT_UP3
 #define CLIMAT_UV_MIXH_FINE
+#endif
 !
 #endif /* CHILD_SPG */
 !

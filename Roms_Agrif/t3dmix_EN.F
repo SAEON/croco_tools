@@ -51,7 +51,9 @@
 !
       subroutine t3dmix_child_tile (istr,iend,jstr,jend, itrc, LapT,
      $                     FX,FE,FC,dTdr, dTdx,dTde,dRdx,dRde)
+#if !defined TS_SPLIT_UP3
 #define CLIMAT_TS_MIXH_FINE
+#endif
 !
 #endif /* CHILD_SPG */
 !
