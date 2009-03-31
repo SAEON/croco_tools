@@ -110,18 +110,6 @@ Select MOMENTUM VERTICAL advection scheme:
 #define  VADV_AKIMA_TS     /* 4th-order Akima vertical advection */
 #undef   VADV_C2_TS        /* 2nd-order centered vertical advection */
 
-/*
-    Default laplacian type for mixing
-*/
-# if !defined TS_DIF2 && !defined TS_DIF4
-#  define TS_DIF2
-#  define MIX_S_TS
-# endif
-# if !defined UV_VIS2 && !defined UV_VIS4
-#  define UV_VIS2
-#  define MIX_S_UV
-# endif
-
 /* 
    Sponge behavior     
    SPONGE_DIF2 and SPONGE_VIS2 behavior
@@ -134,6 +122,21 @@ Select MOMENTUM VERTICAL advection scheme:
 #if defined SPONGE && !defined UV_VIS2
 # define SPONGE_VIS2
 #endif
+
+/*
+    Default laplacian type for mixing in sponge layer (if SPONGE)
+*/
+# if defined SPONGE && !defined TS_DIF2 && !defined TS_DIF4\
+      && !defined SPONGE_DIF2
+#  define TS_DIF2
+#  define MIX_S_TS
+# endif
+# if defined SPONGE && !defined UV_VIS2 && !defined UV_VIS4\
+      && !defined SPONGE_VIS2
+#  define UV_VIS2
+#  define MIX_S_UV
+# endif
+
 
 /*
     Constant tracer option
