@@ -30,7 +30,8 @@ function  create_bulk(frcname,grdname,title,bulkt,bulkc)
 %  e-mail:Patrick.Marchesiello@ird.fr  
 %
 %  Updated 14-Oct-2005 add sustr,svstr,uwnd,vwnd vars
-%
+%  Updated    25-Oct-2006 by Pierrick Penven (uwnd and vwnd)
+%  Updated  8-Apr-2009 by Gildas Cambon (add longwave in)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 nc=netcdf(grdname);
 L=length(nc('xi_psi'));
@@ -91,6 +92,16 @@ nw{'radlw'}.units      = ncchar('Watts meter-2');
 nw{'radlw'}.units      = 'Watts meter-2';
 nw{'radlw'}.positive   = ncchar('upward flux, cooling water');
 nw{'radlw'}.positive   = 'upward flux, cooling water';
+
+nw{'radlw_in'}            = ncdouble('bulk_time', 'eta_rho', 'xi_rho');
+nw{'radlw_in'}.long_name  = ncchar('ingoing longwave radiation');
+nw{'radlw_in'}.long_name  = 'ingoing longwave radiation';
+nw{'radlw_in'}.units      = ncchar('Watts meter-2');
+nw{'radlw_in'}.units      = 'Watts meter-2';
+nw{'radlw_in'}.positive   = ncchar('downward flux, warming water');
+nw{'radlw_in'}.positive   = 'downward flux, warming water';
+nw{'radlw_in'}.positive   = ncchar('downward flux, warming water');
+nw{'radlw_in'}.positive   = 'downward flux, warming water';
 
 nw{'radsw'}            = ncdouble('bulk_time', 'eta_rho', 'xi_rho');
 nw{'radsw'}.long_name  = ncchar('solar shortwave radiation');
