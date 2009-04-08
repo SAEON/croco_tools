@@ -8,6 +8,7 @@ function interp_NCEP(NCEP_dir,Y,M,Roa,interp_method,...
 % Pierrick 2005
 % Menkes 2007
 % Update, Feb-2008, J. Lefevre to use Nomads3 server
+% Update, March-2009, G. Cambon & F. Marin Compute net solar short wave
 %---------------------------------------------------------------------------------
 %
 % 1: Air temperature: Convert from Kelvin to Celsius
@@ -48,13 +49,39 @@ prate(abs(prate)<1.e-4)=0;
 %
 % 4: Net shortwave flux: [W/m^2]
 %      ROMS convention: downward = positive
-  nc=netcdf([NCEP_dir,'dswrfsfc_Y',num2str(Y),'M',num2str(M),'.nc']);
+%
+% Downward solar shortwave
+%
+nc=netcdf([NCEP_dir,'dswrfsfc_Y',num2str(Y),'M',num2str(M),'.nc']);
   dswrs=squeeze(nc{'dswrfsfc'}(tin,:,:));
   close(nc);
-%  dswrs=get_missing_val(lon1,lat1,mask1.*dswrs);
+%  
+% Upward solar shortwave
+% 
+  nc=netcdf([NCEP_dir,'uswrfsfc_Y',num2str(Y),'M',num2str(M),'.nc']);
+  uswrs=squeeze(nc{'uswrfsfc'}(tin,:,:));
+  close(nc);
+  
+%%%%%%  dswrs=get_missing_val(lon1,lat1,mask1.*dswrs);
   dswrs=get_missing_val(lon1,lat1,mask1.*dswrs,nan,Roa,nan);
-  radsw=interp2(lon1,lat1,dswrs,lon,lat,interp_method);
+  uswrs=get_missing_val(lon1,lat1,mask1.*uswrs,nan,Roa,nan);
+%  
+%Net solar shortwave radiation  
+%
+   nswrs=dswrs - uswrs;
+%----------------------------------------------------  
+% GC le 31 03 
+%  radsw is NET soalr shortwave radiation
+%  no more downward only solar radiation
+% GC  bug fixe by F. Marin IRD/LEGOS
+%-----------------------------------------------------
+
+% $$$   radsw=interp2(lon1,lat1,dswrs,lon,lat,interp_method);
+% $$$   radsw(radsw<1.e-10)=0;
+  
+  radsw=interp2(lon1,lat1,nswrs,lon,lat,interp_method);
   radsw(radsw<1.e-10)=0;
+  
 %
 % 5: Net outgoing Longwave flux:  [W/m^2]
 %      ROMS convention: positive upward (opposite to nswrs)

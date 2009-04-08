@@ -64,24 +64,26 @@ elseif NCEP_version==2
 	   '6hr/flx/flx' ...
 	   '6hr/flx/flx' ...
 	   '6hr/flx/flx' ...
+	   '6hr/flx/flx' ...
 	   '6hr/flx/flx'};  
   vnames={'landsfc' ...    % surface land-sea mask [1=land; 0=sea] 
           'tmp2m' ...      % 2 m temp. [k]
           'dlwrfsfc' ...   % surface downward long wave flux [w/m^2] 
           'tmpsfc' ...     % surface temp. [k]   
-	  'dswrfsfc' ...   % surface downward solar radiation flux [w/m^2] 
+	  'dswrfsfc' ...   % surface downward solar radiation flux [w/m^2]
+	  'uswrfsfc' ...   % surface upward solar radiation flux [w/m^2] 
 	  'pratesfc' ...   % surface precipitation rate [kg/m^2/s] 
 	  'ugrd10m' ...    % 10 m u wind [m/s]
 	  'vgrd10m' ...    % 10 m v wind [m/s]
 	  'spfh2m'};       % 2 m specific humidity [kg/kg]
-  level ={'' '' '' '' '' '' '' '' ''};
+  level ={'' '' '' '' '' '' '' '' '' ''};
 
 else
   error('Wrong NCEP version')
 end
-%
-% start
-%
+
+  %-----------------------------------------------------------------------
+
 disp([' '])
 disp(['Get NCEP data from ',num2str(Ymin),' to ',num2str(Ymax)])
 disp(['From ',ncep_url]);
@@ -99,7 +101,11 @@ eval(['!mkdir ',NCEP_dir])
 
 
 for k=1:length(vnames)
-
+disp(['-------------------------'])
+disp([''])
+disp([''])
+disp(['VNAME IS ',char(vnames(k))]);
+disp(['--------------------------'])
 % Get attribute
  x=loaddap('-A -e +v',[ncep_url,char(catalog(k))]);
  if (dods_err==1)
@@ -127,13 +133,35 @@ startime = [1,1,1,0,0,0]; %[year, month, day, hour, minute, second]
  time = time*time_scale;
 
 %% time = time - time(1);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  TIME_OFFSET=(mjd(Yorig,1,1,0)-mjd(startime(1),startime(2),startime(3),startime(4))); 
- time = time - TIME_OFFSET; % This is time in days from Yorig
- [year,month,days,hour,min,sec]=datevec(time+datenum(Yorig,1,1));
- 
+% time = time - TIME_OFFSET; % This is time in days from Yorig
+time = time - TIME_OFFSET - 2;    %  This is time in days from Yorig
+                                  %  We have to remove at the end to be 
+				  %  OK with the date  !!!!
+				  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+[year,month,days,hour,min,sec]=datevec(time+datenum(Yorig,1,1));
+
+%year' ;
+%month';
+%time(1:4)
+%year(1:4)
+%month(1:4)
+%disp('---------')
+%time(end-3:end)
+%year(end-3:end)
+%month(end-3:end)
+%disp('---------')
+%size(time)
+%year(1:10)
+%month(1:10)
+
+
 % Find a subset of the NCEP grid
  [i1min,i1max,i2min,i2max,i3min,i3max,jrange,lon,lat]=...
  get_NCEP_grid([ncep_url,char(catalog(k))],lonmin,lonmax,latmin,latmax);
+ 
 
 disp(['latmax=',num2str(latmax)])
 % 
@@ -175,6 +203,7 @@ else
 %----------------------------------------------
 
     trange=['[',num2str(tndx(1)-1),':',num2str(tndx(end)-1),']'];
+disp(['TRANGE=',num2str(trange)])
    % Get the subset
     extract_NCEP(NCEP_dir,ncep_url,char(catalog(k)),char(vnames(k)),Y,M,...
               lon,lat,time(tndx),...
