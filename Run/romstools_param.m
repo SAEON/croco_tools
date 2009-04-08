@@ -33,7 +33,7 @@
 %  Updated    6-Sep-2006 by Pierrick Penven
 %  Updated    2006/10/05 by Pierrick Penven (add tidegauge observations)
 %  Updated    24-Oct-2006 by Pierrick Penven (diagnostics, chla etc...)
-%
+%  Updated    08-Apr-2009 by Gildas Cambon
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % 1 General parameters
@@ -51,6 +51,8 @@ ROMS_files_dir=[RUN_dir,'ROMS_FILES/'];
 %
 % ROMS file names (grid, forcing, bulk, climatology, initial)
 %
+bioname=[ROMS_files_dir,'roms_lr_frcbio.nc'];  %Iron Dust forcing 
+                                               %file with PISCES
 grdname=[ROMS_files_dir,'roms_grd.nc'];
 frcname=[ROMS_files_dir,'roms_frc.nc'];
 blkname=[ROMS_files_dir,'roms_blk.nc'];
