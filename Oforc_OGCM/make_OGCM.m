@@ -70,7 +70,8 @@ elseif strcmp(OGCM,'ECCO')
 % Kalman filter 
 %
 %  url = 'http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/kf049f/kf049f_'; 
-  url = 'http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/kf066b/kf066b_'; 
+%  url = 'http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/kf066b/kf066b_'; 
+  url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf066b/kf066b_'; 
 %
 else
   error(['Unknown OGCM: ',OGCM])
