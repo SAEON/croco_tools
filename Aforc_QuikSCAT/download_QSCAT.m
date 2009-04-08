@@ -67,6 +67,18 @@ eval(['!mkdir ',QSCAT_dir])
 %
 [i1min,i1max,i2min,i2max,i3min,i3max,jrange,lon,lat]=...
 get_QSCAT_grid(url,lonmin,lonmax,latmin,latmax);
+
+
+disp(['...DOWNLOAD.....'])
+disp(['...INFO.....'])
+url
+lonmin
+lonmax
+latmin
+latmax
+disp(['SIZE LON=',num2str(size(lon))])
+disp(['SIZE LAT=',num2str(size(lat))])
+disp(['........'])
 %
 % Get the time
 %
@@ -74,8 +86,12 @@ time=readdap(url,'time',[]);
 %
 % Convert the time into "Yorig" time (i.e in days since Yorig/1/1 00:00:0.0)
 %
+disp('TIME is=')
+time(1:10)
 time=time+datenum(1,1,1)-datenum(Yorig,1,1)-2; %-2 to match with CERSAT dates%
 [year,month,days,hour,min,sec]=datevec(time+datenum(Yorig,1,1));
+disp(['TIME is='])
+time(1:10)
 %
 % Loop on the years
 %
@@ -147,17 +163,17 @@ for Y=Ymin:Ymax
       end  
     end
 
-% $$$ figure
-% $$$ pcolor(lon,lat,squeeze(uwnd(10,:,:)))
     %  
     disp('Checking filling of the maps...')
+disp(['...INFO.....'])
+size(lon)
+size(lat)
+disp(['........'])    
+    
     tot=length(lat)*length(lon);
+    
     nbmask=max(sum(sum(squeeze(floor(mean(isnan(taux(1:n,:,:)),1))))),1);
-    size( sum(sum(squeeze(floor(mean(isnan(taux(1:n,:,:)),1))))) )
-%    disp('MASK')
-%    size(nbmask)
-%    nbmask
-    %    
+    size( sum(sum(squeeze(floor(mean(isnan(taux(1:n,:,:)),1))))) ) 
     to_keep=[];
     for k=1:n
        tab=squeeze(taux(k,:,:));
@@ -206,7 +222,7 @@ if QSCAT_blk
 %    x_ind=find( abs(taux-med(ones(nt,1),:,:)) >= 5*max(max(abs(med))) );
     x_ind=find( abs(uwnd-repmat(med,[nt,1,1])) >= 5*max(max(abs(med))) );
     uwnd(x_ind)=NaN;
-%
+%   
     med=median(vwnd,1);
 %    y_ind=find( abs(tauy-med(ones(nt,1),:,:)) >= 5*max(max(abs(med))) );
     y_ind=find( abs(vwnd-repmat(med,[nt,1,1])) >= 5*max(max(abs(med))) );

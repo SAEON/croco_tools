@@ -176,8 +176,12 @@ for Y=Ymin:Ymax
     tlen=length(QSCAT_time)+2;
     time=0*(1:tlen);
     time(2:end-1)=QSCAT_time;
+%
+%
+%
     time(1)=datenum(Y,M,1)-datenum(Yorig,1,1)-1-dt/2;
     time(end)=datenum(Y,M,31)-datenum(Yorig,1,1)+1+dt/2;
+    %%%..........
 %
 % Create a ROMS forcing file for each month
 %
@@ -190,55 +194,55 @@ for Y=Ymin:Ymax
                    0,coads_cycle,coads_cycle,...
                    coads_cycle,coads_cycle,coads_cycle)
     nc_frc=netcdf(frcname,'write');
-%
-% Add the heat flux
-%
-    for tindex=1:length(coads_time)
-      time=nc_frc{'shf_time'}(tindex);
-      nc_frc{'shflux'}(tindex,:,:)=ext_data(shf_file,shf_name,tindex,...
-                                        lon,lat,time,Roa,1);
-    end
-%
-% Add the fresh water flux
-%
-    for tindex=1:length(coads_time)
-      time=nc_frc{'swf_time'}(tindex);
-%
-% coeff = mm/(3hour) -> centimeter day-1 (!!!!!)
-%
-      nc_frc{'swflux'}(tindex,:,:)=0.8*ext_data(swf_file,swf_name,tindex,...
-                                        lon,lat,time,Roa,1);
-    end
-%
-% Add dQdSST
-%
-    for tindex=1:length(coads_time)
-      time=nc_frc{'sst_time'}(tindex);
-      sst=ext_data(sst_file,sst_name,tindex,lon,lat,time,Roa,2);
-      sat=ext_data(sat_file,sat_name,tindex,lon,lat,time,Roa,2);
-      airdens=ext_data(airdens_file,airdens_name,tindex,lon,lat,time,Roa,2);
-      w3=ext_data(w3_file,w3_name,tindex,lon,lat,time,Roa,2);
-      qsea=0.001*ext_data(qsea_file,qsea_name,tindex,lon,lat,time,Roa,2);
-      dqdsst=get_dqdsst(sst,sat,airdens,w3,qsea);
-      nc_frc{'SST'}(tindex,:,:)=sst;
-      nc_frc{'dQdSST'}(tindex,:,:)=dqdsst;
-    end
-%
-% Add SSS
-%
-    for tindex=1:length(coads_time)
-      time=nc_frc{'sss_time'}(tindex);
-      nc_frc{'SSS'}(tindex,:,:)=ext_data(sss_file,sss_name,tindex,...
-                                     lon,lat,time,Roa,1);			 
-    end
-%
-% Add short wave radiation
-%
-    for tindex=1:length(coads_time)
-      time=nc_frc{'srf_time'}(tindex);
-      nc_frc{'swrad'}(tindex,:,:)=ext_data(srf_file,srf_name,tindex,...
-                                       lon,lat,time,Roa,1);
-    end
+
+% $$$ % Add the heat flux
+% $$$ %
+% $$$ %    for tindex=1:length(coads_time)
+% $$$ %       time=nc_frc{'shf_time'}(tindex);
+% $$$ %       nc_frc{'shflux'}(tindex,:,:)=ext_data(shf_file,shf_name,tindex,...
+% $$$ %                                         lon,lat,time,Roa,1);
+% $$$ %    end
+% $$$ %
+% $$$ % Add the fresh water flux
+% $$$ %
+% $$$     for tindex=1:length(coads_time)
+% $$$       time=nc_frc{'swf_time'}(tindex);
+% $$$ %
+% $$$ % coeff = mm/(3hour) -> centimeter day-1 (!!!!!)
+% $$$ %
+% $$$       nc_frc{'swflux'}(tindex,:,:)=0.8*ext_data(swf_file,swf_name,tindex,...
+% $$$                                         lon,lat,time,Roa,1);
+% $$$     end
+% $$$ %
+% $$$ % Add dQdSST
+% $$$ %
+% $$$     for tindex=1:length(coads_time)
+% $$$       time=nc_frc{'sst_time'}(tindex);
+% $$$       sst=ext_data(sst_file,sst_name,tindex,lon,lat,time,Roa,2);
+% $$$       sat=ext_data(sat_file,sat_name,tindex,lon,lat,time,Roa,2);
+% $$$       airdens=ext_data(airdens_file,airdens_name,tindex,lon,lat,time,Roa,2);
+% $$$       w3=ext_data(w3_file,w3_name,tindex,lon,lat,time,Roa,2);
+% $$$       qsea=0.001*ext_data(qsea_file,qsea_name,tindex,lon,lat,time,Roa,2);
+% $$$       dqdsst=get_dqdsst(sst,sat,airdens,w3,qsea);
+% $$$       nc_frc{'SST'}(tindex,:,:)=sst;
+% $$$       nc_frc{'dQdSST'}(tindex,:,:)=dqdsst;
+% $$$     end
+% $$$ %
+% $$$ % Add SSS
+% $$$ %
+% $$$     for tindex=1:length(coads_time)
+% $$$       time=nc_frc{'sss_time'}(tindex);
+% $$$       nc_frc{'SSS'}(tindex,:,:)=ext_data(sss_file,sss_name,tindex,...
+% $$$                                      lon,lat,time,Roa,1);			 
+% $$$     end
+% $$$ %
+% $$$ % Add short wave radiation
+% $$$ %
+% $$$     for tindex=1:length(coads_time)
+% $$$       time=nc_frc{'srf_time'}(tindex);
+% $$$       nc_frc{'swrad'}(tindex,:,:)=ext_data(srf_file,srf_name,tindex,...
+% $$$                                        lon,lat,time,Roa,1);
+% $$$     end
 %
 % Add the wind
 %
@@ -378,13 +382,11 @@ for Y=Ymin:Ymax
   end
 end
 %#########################################################################
-%
 %               ADD THIS TO COMPUTE THE SPIN-UP PERIOD
 %               --------------------------------------
-%
 % Spin-up: (reproduce the first year 'SPIN_Long' times)
 % just copy the files for the first year and change the time
-%
+%------------------------------------------------------------------------
 
 if SPIN_Long>0
   M=Mmin-1;
@@ -415,6 +417,33 @@ if SPIN_Long>0
       time=datenum(y,m,d,h,mi,s)-datenum(Yorig,1,1);
 %      disp(datestr(time+datenum(Yorig,1,1)))
       nc{'sms_time'}(:)=time;
+%------------------------------------------------------------
+%Test case for February      
+%----------------------
+         if M==2
+	 disp('------------------------------------------')
+	 disp('Check February month case : ')
+	 disp('If first year is leap, remove the 29th feb.')
+	 disp('------------------------------------------')
+	 time2=time;
+	 I=find(squeeze(time(2:end)-time(1:end-1)) <0);
+	 time2(I:end)=squeeze(time(I-1));
+	 nc{'sms_time'}(:)=time2;
+	 end
+%Test case for March   
+%-------------------
+         if M==3
+	 disp('------------------------------------------')  
+	 disp('Check March month case ...')
+	 disp('If first year is leap, remove the 29th feb. at the begining')
+	 disp('------------------------------------------')
+	 time2=time;
+	 I=find(squeeze(time(2:end)-time(1:end-1))==0);
+	 time2(1)=time(1)-1;
+	 nc{'sms_time'}(:)=time2;
+	 end
+	 
+%--------------------------------------------------------------      
       close(nc)
     end
   end
@@ -431,18 +460,18 @@ if makeplot==1
   disp(' ')
   disp(' Make a few plots...')
   test_forcing(frcname,grdname,'spd',[1 4 7 10],3,coastfileplot)
-  figure
-  test_forcing(frcname,grdname,'shflux',[1 4 7 10],3,coastfileplot)
-  figure
-  test_forcing(frcname,grdname,'swflux',[1 4 7 10],3,coastfileplot)
-  figure
-  test_forcing(frcname,grdname,'SST',[1 4 7 10],3,coastfileplot)
-  figure
-  test_forcing(frcname,grdname,'SSS',[1 4 7 10],3,coastfileplot)
-  figure
-  test_forcing(frcname,grdname,'dQdSST',[1 4 7 10],3,coastfileplot)
-  figure
-  test_forcing(frcname,grdname,'swrad',[1 4 7 10],3,coastfileplot)
+% $$$   figure
+% $$$   test_forcing(frcname,grdname,'shflux',[1 4 7 10],3,coastfileplot)
+% $$$   figure
+% $$$   test_forcing(frcname,grdname,'swflux',[1 4 7 10],3,coastfileplot)
+% $$$   figure
+% $$$   test_forcing(frcname,grdname,'SST',[1 4 7 10],3,coastfileplot)
+% $$$   figure
+% $$$   test_forcing(frcname,grdname,'SSS',[1 4 7 10],3,coastfileplot)
+% $$$   figure
+% $$$   test_forcing(frcname,grdname,'dQdSST',[1 4 7 10],3,coastfileplot)
+% $$$   figure
+% $$$   test_forcing(frcname,grdname,'swrad',[1 4 7 10],3,coastfileplot)
 end
 %
 % End
