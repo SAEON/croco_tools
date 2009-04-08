@@ -41,6 +41,7 @@ disp(['    Download SODA for ',num2str(year),...
 %
 % Get the dataset attributes
 %
+disp('Get the dataset attributes')
 x=readattribute(url);		
 %
 % Get SSH

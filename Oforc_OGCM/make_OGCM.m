@@ -56,13 +56,12 @@ if strcmp(OGCM,'SODA')
 % SODA 1.4.3: Jan 2000 to Dec 2004 (QuickSCAT)
 %  url =  'http://iridl.ldeo.columbia.edu./SOURCES/.CARTON-GIESE/.SODA/.v1p4p3'
 % SODA 2.0.2-3.
-%  url=    'http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p0p2-3'
+%url= 'http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p0p2-3'
 % SODA 2.0.2-4.
 url= 'http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p0p2-4'
-
 disp({'!! Change from 1.4.3 version';
-      '   New variables : taux, tauy, u, v';
-      '   in m and m/s and no more in cm and cm/s'})
+      '   New variables : u, v';
+      '   m/s and no more in cm/s'})
 
 elseif strcmp(OGCM,'ECCO')
 %
@@ -198,10 +197,15 @@ if makeclim==1 | makebry==1
 	else
           dt=max(gradient(OGCM_time)); 
 	end
-	roms_time=0*(1:ntimes+2);
-	roms_time(2:end-1)=OGCM_time;
+%gc cat	roms_time=0*(1:ntimes+2);
+        roms_time=0*(1:ntimes+3);
+	roms_time(2:end-2)=OGCM_time;
 	roms_time(1)=roms_time(2)-dt;
-	roms_time(end)=roms_time(end-1)+dt;
+
+%gc cat roms_time(end)=roms_time(end-1)+dt;
+
+        roms_time(end-1)=roms_time(end-2)+dt;
+        roms_time(end)=roms_time(end-1)+dt;
 	close(nc)
 %
 % Create and open the ROMS files
@@ -314,7 +318,7 @@ if SPIN_Long>0
     time=time/(24*3600)+datenum(Yorig,1,1);
     [y,m,d,h,mi,s]=datevec(time);
     time=datenum(y-SPIN_Long,m,d,h,mi,s)-datenum(Yorig,1,1);
-%    disp(datestr(time+datenum(Yorig,1,1)))
+   disp(datestr(time+datenum(Yorig,1,1)))
     nc{'scrum_time'}(:)=time*(24*3600);
     close(nc)
   end
@@ -347,7 +351,7 @@ if SPIN_Long>0
       dy=Ymin-Y;
       y=y-dy;
       time=datenum(y,m,d,h,mi,s)-datenum(Yorig,1,1);
-%      disp(datestr(time+datenum(Yorig,1,1)))
+      disp(datestr(time+datenum(Yorig,1,1)))
       nc{'tclm_time'}(:)=time;
       nc{'temp_time'}(:)=time;
       nc{'sclm_time'}(:)=time;
@@ -380,7 +384,7 @@ if SPIN_Long>0
       dy=Ymin-Y;
       y=y-dy;
       time=datenum(y,m,d,h,mi,s)-datenum(Yorig,1,1);
-%      disp(datestr(time+datenum(Yorig,1,1)))
+      disp(datestr(time+datenum(Yorig,1,1)))
       nc{'bry_time'}(:)=time;
       close(nc)
     end
