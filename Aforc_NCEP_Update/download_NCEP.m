@@ -134,12 +134,11 @@ startime = [1,1,1,0,0,0]; %[year, month, day, hour, minute, second]
 
 %% time = time - time(1);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- TIME_OFFSET=(mjd(Yorig,1,1,0)-mjd(startime(1),startime(2),startime(3),startime(4))); 
+TIME_OFFSET=(mjd(Yorig,1,1,0)-mjd(startime(1),startime(2),startime(3),startime(4))); 
 % time = time - TIME_OFFSET; % This is time in days from Yorig
 time = time - TIME_OFFSET - 2;    %  This is time in days from Yorig
                                   %  We have to remove at the end to be 
-				  %  OK with the date  !!!!
-				  
+				  %  OK with the date  !!!!				  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [year,month,days,hour,min,sec]=datevec(time+datenum(Yorig,1,1));
 
