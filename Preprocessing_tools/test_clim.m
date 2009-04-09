@@ -88,6 +88,10 @@ for j=1:jstep:M
   xrad=xrad/1000;
   x=x/1000;
   field=masksection.*field;
+% $$$   x
+% $$$   squeeze(z(:,j,:))
+% $$$   field
+  
   pcolor(x,squeeze(z(:,j,:)),field) 
   drawnow
   colorbar

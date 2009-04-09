@@ -25,7 +25,7 @@ function add_po4(oafile,climfile,inifile,gridfile,seas_datafile,...
 %
 %   output:
 %
-%    [longrd,latgrd,no3] : surface field to plot (as an illustration)
+%    [longrd,latgrd,po4] : surface field to plot (as an illustration)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %

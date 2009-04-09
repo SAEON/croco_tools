@@ -120,10 +120,10 @@ for obcndx=1:4
     end
     x1=x1/1000;
     x=x/1000;
-    temp=masksection.*temp;
+    temp=masksection.*temp; 
 % $$$     disp(['Size x =   ',num2str(size(x))])
 % $$$     disp(['Size z =   ',num2str(size(z))])
-% $$$     disp(['Size temp =',num2str(size(temp))])
+% $$$     disp(['Size temp =',num2str(size(temp))])   
     pcolor(x,z,temp) 
     colorbar
     shading interp

@@ -38,6 +38,7 @@ end
 disp(['Getting ',dataname,' for time index ',num2str(tindex)])
 %
 default=NaN;
+%%%%%default=0;
 %
 %
 %

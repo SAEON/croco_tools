@@ -8,7 +8,7 @@ function add_o2(oafile,climfile,inifile,gridfile,seas_datafile,...
 %
 %  pierrick 2001
 %
-%  Add nitrate (mMol N m-3) in a ROMS climatology file
+%  Add oxygen (mMol 0 m-3) in a ROMS climatology file
 %  take seasonal data for the upper levels and annual data for the
 %  lower levels
 %
@@ -25,7 +25,7 @@ function add_o2(oafile,climfile,inifile,gridfile,seas_datafile,...
 %
 %   output:
 %
-%    [longrd,latgrd,no3] : surface field to plot (as an illustration)
+%    [longrd,latgrd,o2] : surface field to plot (as an illustration)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %

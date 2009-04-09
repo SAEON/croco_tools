@@ -8,7 +8,7 @@ function add_fer(oafile,climfile,inifile,gridfile,seas_datafile,...
 %
 %  pierrick 2001
 %
-%  Add nitrate (mMol N m-3) in a ROMS climatology file
+%  Add iron (mMol Fe m-3) in a ROMS climatology file
 %  take seasonal data for the upper levels and annual data for the
 %  lower levels
 %

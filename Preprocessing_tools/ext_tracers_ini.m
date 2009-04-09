@@ -2,7 +2,7 @@ function ext_tracers_ini(ininame,grdname,seas_datafile,ann_datafile,...
                          dataname,vname,type,tini);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% P. Marchesiello - 2005. Adapted from P. Penven's ext_racers.m 
+% P. Marchesiello - 2005. Adapted from P. Penven's ext_tracers.m 
 %
 %  Ext tracers in a ROMS initial file
 %  take seasonal data for the upper levels and annual data for the

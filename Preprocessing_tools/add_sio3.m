@@ -25,7 +25,7 @@ function add_sio3(oafile,climfile,inifile,gridfile,seas_datafile,...
 %
 %   output:
 %
-%    [longrd,latgrd,no3] : surface field to plot (as an illustration)
+%    [longrd,latgrd,SiO3] : surface field to plot (as an illustration)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
