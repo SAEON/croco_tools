@@ -31,7 +31,7 @@ function  create_bulk(frcname,grdname,title,bulkt,bulkc)
 %
 %  Updated 14-Oct-2005 add sustr,svstr,uwnd,vwnd vars
 %  Updated    25-Oct-2006 by Pierrick Penven (uwnd and vwnd)
-%  Updated  8-Apr-2009 by Gildas Cambon (add longwave in)
+%  Updated    8-Apr-2009 by Gildas Cambon (add longwave in)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 nc=netcdf(grdname);
 L=length(nc('xi_psi'));
