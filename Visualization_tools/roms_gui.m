@@ -1269,6 +1269,7 @@ return
 % ------------------------------------------------------------
 function varargout = animation_Callback(h, eventdata, handles, varargin)
 animation(handles)
+
 return
 function varargout = editskipanim_Callback(h, eventdata, handles, varargin)
 handles.skipanim=floor(abs(str2num(get(handles.editskipanim,'String'))));
