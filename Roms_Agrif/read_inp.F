@@ -806,17 +806,16 @@ c        close(testunit)
 #  ifdef LMD_BKPP
      &                                          ,  wrtavg(indxHbbl)
 #  endif
-#  endif
      &                                          ,  wrtavg(indxBostr)
      &                                          ,  wrtavg(indxWstr)
      &                                          ,  wrtavg(indxUWstr)
      &                                          ,  wrtavg(indxVWstr)
-# ifdef BULK_FLUX
+#  ifdef BULK_FLUX
      &                                          ,  wrtavg(indxShflx_rsw)
      &                                          ,  wrtavg(indxShflx_rlw)
      &                                          ,  wrtavg(indxShflx_lat)
      &                                          ,  wrtavg(indxShflx_sen)
-# endif
+#  endif
 #  ifdef BIOLOGY
      &                                          ,  wrtavg(indxHel)
 #   ifdef BIO_NPZD
@@ -830,7 +829,7 @@ c        close(testunit)
      &                                          ,  wrtavg(indxChC1)
      &                                          ,  wrtavg(indxChC2)
 #   endif
-
+#  endif
 
         if ( wrtavg(indxR) .or. wrtavg(indxO) .or. wrtavg(indxW)
      &                   .or. wrtavg(indxAkv) .or. wrtavg(indxAkt)
@@ -848,12 +847,12 @@ c        close(testunit)
      &                                        .or. wrtavg(indxUWstr)
      &                                        .or. wrtavg(indxVWstr)
      &     
-# if defined BULK_FLUX
+#  if defined BULK_FLUX
      &                                        .or. wrthis(indxShflx_rsw)
      &                                        .or. wrthis(indxShflx_rlw)
      &                                        .or. wrthis(indxShflx_lat)
      &                                        .or. wrthis(indxShflx_sen)
-# endif 
+#  endif 
 #  ifdef BIOLOGY
      &                                        .or. wrtavg(indxHel)
 #   ifdef BIO_NPZD
@@ -868,7 +867,6 @@ c        close(testunit)
      &                                        .or. wrtavg(indxChC2)
 #   endif
 #  endif
-
      &     ) wrtavg(indxTime)=.true.
 
 #  ifdef VIS_COEF_3D
