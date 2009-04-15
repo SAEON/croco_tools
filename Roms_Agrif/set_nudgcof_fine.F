@@ -68,7 +68,7 @@
 #  endif
 # else
 #  ifdef AGRIF_OBC_WEST
-          ibnd=min(ibnd,i++iminmpi-1)
+          ibnd=min(ibnd,i+iminmpi-1)
 #  endif
 #  ifdef AGRIF_OBC_EAST
           ibnd=min(ibnd,LLm+1-(i+iminmpi-1))
