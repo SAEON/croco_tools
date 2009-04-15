@@ -281,11 +281,13 @@ C$OMP END SINGLE
 !$AGRIF_DO_NOT_TREAT
       logical global_update_2d
       common/globalupdate/global_update_2d
-      real,dimension(:,:,:),pointer :: finevalues
-      real,dimension(:,:,:),pointer :: coarsevalues
+!      real,dimension(:,:,:),pointer :: finevalues
+!      real,dimension(:,:,:),pointer :: coarsevalues
       integer :: iiffine, irhotfine, nbgrid
-      common/updateubar2val/finevalues,coarsevalues, iiffine,irhotfine,
-     &   nbgrid
+      common/updateubar2val/iiffine,irhotfine,
+     &   nbgrid      
+!      common/updateubar2val/finevalues,coarsevalues, iiffine,irhotfine,
+!     &   nbgrid
 !$AGRIF_END_DO_NOT_TREAT  
        integer irhot, ibegin,isize  
        real tabtemp(i1:i2,j1:j2) 
@@ -346,8 +348,8 @@ C$OMP END SINGLE
        
        IF ((nbstep3d == 0).AND.(iif == 1)) THEN
        IF (.NOT.Associated(finevalues)) THEN
-       Allocate(finevalues(isize,0:nfast,1))
-       Allocate(coarsevalues(isize,0:nfast,1))
+       Allocate(finevalues(isize,0:nfast))
+       Allocate(coarsevalues(isize,0:nfast))
        ELSE       
        CALL checksize(indupdate+isize,nfast)
        ENDIF
@@ -358,7 +360,7 @@ C$OMP END SINGLE
           do j=j1,j2  
           do i=i1,i2
           oldindupdate = oldindupdate + 1
-          finevalues(oldindupdate,iiffine-iter+1,nbgrid)
+          finevalues(oldindupdate,iiffine-iter+1)
      &         = tabres(i,j,iter)
           enddo
           enddo          
@@ -369,7 +371,7 @@ C$OMP END SINGLE
           do j=j1,j2
           do i=i1,i2
           oldindupdate = oldindupdate + 1
-          coarsevalues(oldindupdate,0,nbgrid) = DU_avg1(i,j,nstp)
+          coarsevalues(oldindupdate,0) = DU_avg1(i,j,nstp)
           enddo
           enddo        
           ENDIF   
@@ -378,13 +380,13 @@ C$OMP END SINGLE
          tabtemp = 0.
          do iter=0,iif-1
          cff = -weight2(iif,iter)
-         call copy1d(tabtemp,coarsevalues(indupdate+1,iter,nbgrid),
+         call copy1d(tabtemp,coarsevalues(indupdate+1,iter),
      &               cff,isize)
          enddo    
          
          do iter=0,iiffine
          cff=weight2(iiffine,iter)
-         call copy1d(tabtemp,finevalues(indupdate+1,iter,nbgrid),
+         call copy1d(tabtemp,finevalues(indupdate+1,iter),
      &               cff,isize)
          enddo
          
@@ -401,7 +403,7 @@ C$OMP END SINGLE
 #endif
           ubar(i,j,knew) = t2/t1
          indupdate = indupdate + 1
-          coarsevalues(indupdate,iif,nbgrid) = tabtemp(i,j)
+          coarsevalues(indupdate,iif) = tabtemp(i,j)
               
           ENDDO
          ENDDO 
@@ -434,10 +436,8 @@ C$OMP END SINGLE
 !$AGRIF_DO_NOT_TREAT
       logical global_update_2d
       common/globalupdate/global_update_2d
-      real,dimension(:,:,:),pointer :: finevalues
-      real,dimension(:,:,:),pointer :: coarsevalues
       integer :: iiffine, irhotfine, nbgrid
-      common/updateubar2val/finevalues,coarsevalues, iiffine,irhotfine,
+      common/updateubar2val/iiffine,irhotfine,
      &   nbgrid
 !$AGRIF_END_DO_NOT_TREAT  
        integer irhot, ibegin,isize  
@@ -496,8 +496,8 @@ C$OMP END SINGLE
        
        IF ((nbstep3d == 0).AND.(iif == 1)) THEN
        IF (.NOT.Associated(finevalues)) THEN
-       Allocate(finevalues(isize,0:nfast,1))
-       Allocate(coarsevalues(isize,0:nfast,1))
+       Allocate(finevalues(isize,0:nfast))
+       Allocate(coarsevalues(isize,0:nfast))
        ELSE       
        CALL checksize(indupdate+isize,nfast)
        ENDIF
@@ -508,7 +508,7 @@ C$OMP END SINGLE
           do j=j1,j2  
           do i=i1,i2
           oldindupdate = oldindupdate + 1
-          finevalues(oldindupdate,iiffine-iter+1,nbgrid)
+          finevalues(oldindupdate,iiffine-iter+1)
      &         = tabres(i,j,iter)
           enddo
           enddo          
@@ -519,7 +519,7 @@ C$OMP END SINGLE
           do j=j1,j2
           do i=i1,i2
           oldindupdate = oldindupdate + 1
-          coarsevalues(oldindupdate,0,nbgrid) = zeta(i,j,kstp)
+          coarsevalues(oldindupdate,0) = zeta(i,j,kstp)
           enddo
           enddo        
           ENDIF   
@@ -528,13 +528,13 @@ C$OMP END SINGLE
          tabtemp = 0.
          do iter=0,iif-1
          cff = -weight2(iif,iter)
-         call copy1d(tabtemp,coarsevalues(indupdate+1,iter,nbgrid),
+         call copy1d(tabtemp,coarsevalues(indupdate+1,iter),
      &               cff,isize)
          enddo    
          
          do iter=0,iiffine
          cff=weight2(iiffine,iter)
-         call copy1d(tabtemp,finevalues(indupdate+1,iter,nbgrid),
+         call copy1d(tabtemp,finevalues(indupdate+1,iter),
      &               cff,isize)        
          enddo
          
@@ -549,7 +549,7 @@ C$OMP END SINGLE
 #endif
           zeta(i,j,knew) = t2
          indupdate = indupdate + 1
-          coarsevalues(indupdate,iif,nbgrid) = tabtemp(i,j)
+          coarsevalues(indupdate,iif) = tabtemp(i,j)
               
           ENDDO
          ENDDO 
@@ -583,10 +583,8 @@ C$OMP END SINGLE
 !$AGRIF_DO_NOT_TREAT
       logical global_update_2d
       common/globalupdate/global_update_2d
-      real,dimension(:,:,:),pointer :: finevalues
-      real,dimension(:,:,:),pointer :: coarsevalues
       integer :: iiffine, irhotfine, nbgrid
-      common/updateubar2val/finevalues,coarsevalues, iiffine,irhotfine,
+      common/updateubar2val/iiffine,irhotfine,
      &   nbgrid
 !$AGRIF_END_DO_NOT_TREAT  
        integer irhot, ibegin,isize  
@@ -648,8 +646,8 @@ C$OMP END SINGLE
        
        IF ((nbstep3d == 0).AND.(iif == 1)) THEN
        IF (.NOT.Associated(finevalues)) THEN
-       Allocate(finevalues(isize,0:nfast,1))
-       Allocate(coarsevalues(isize,0:nfast,1))
+       Allocate(finevalues(isize,0:nfast))
+       Allocate(coarsevalues(isize,0:nfast))
        ELSE       
        CALL checksize(indupdate+isize,nfast)
        ENDIF
@@ -660,7 +658,7 @@ C$OMP END SINGLE
           do j=j1,j2  
           do i=i1,i2
           oldindupdate = oldindupdate + 1
-          finevalues(oldindupdate,iiffine-iter+1,nbgrid)
+          finevalues(oldindupdate,iiffine-iter+1)
      &         = tabres(i,j,iter)
           enddo
           enddo          
@@ -671,7 +669,7 @@ C$OMP END SINGLE
           do j=j1,j2
           do i=i1,i2
           oldindupdate = oldindupdate + 1
-          coarsevalues(oldindupdate,0,nbgrid) = DV_avg1(i,j,nstp)
+          coarsevalues(oldindupdate,0) = DV_avg1(i,j,nstp)
           enddo
           enddo        
           ENDIF   
@@ -680,13 +678,13 @@ C$OMP END SINGLE
          tabtemp = 0.
          do iter=0,iif-1
          cff = -weight2(iif,iter)
-         call copy1d(tabtemp,coarsevalues(indupdate+1,iter,nbgrid),
+         call copy1d(tabtemp,coarsevalues(indupdate+1,iter),
      &               cff,isize)
          enddo    
          
          do iter=0,iiffine
          cff=weight2(iiffine,iter)
-         call copy1d(tabtemp,finevalues(indupdate+1,iter,nbgrid),
+         call copy1d(tabtemp,finevalues(indupdate+1,iter),
      &               cff,isize)
          enddo
          
@@ -703,7 +701,7 @@ C$OMP END SINGLE
 #endif
           vbar(i,j,knew) = t2/t1
          indupdate = indupdate + 1
-          coarsevalues(indupdate,iif,nbgrid) = tabtemp(i,j)
+          coarsevalues(indupdate,iif) = tabtemp(i,j)
               
           ENDDO
          ENDDO 
@@ -776,48 +774,36 @@ C$OMP END SINGLE
 
       subroutine checksize(isize,nfast)
       integer :: isize,nfast
-      real,dimension(:,:,:),allocatable :: tempvalues
+      real,dimension(:,:),allocatable :: tempvalues
       integer :: n1,n3
+#  include "param.h"
+#  include "grid.h"
+#  include "ocean2d.h"
+#  include "coupling.h"
+#  include "scalars.h"
+#  include "zoom.h"     
 !$AGRIF_DO_NOT_TREAT
       logical global_update_2d
       common/globalupdate/global_update_2d
-      real,dimension(:,:,:),pointer :: finevalues
-      real,dimension(:,:,:),pointer :: coarsevalues
       integer :: iiffine, irhotfine, nbgrid
-      common/updateubar2val/finevalues,coarsevalues, iiffine,irhotfine,
-     &  nbgrid
+      common/updateubar2val/iiffine,irhotfine,
+     &   nbgrid
 !$AGRIF_END_DO_NOT_TREAT
 
        IF (size(finevalues,1).LT.(isize)) THEN
        n1 = size(finevalues,1)
-       n3 = size(finevalues,3)
-       allocate(tempvalues(n1,0:nfast,n3))
-       tempvalues=finevalues(1:n1,0:nfast,1:n3)
+       allocate(tempvalues(n1,0:nfast))
+       tempvalues=finevalues(1:n1,0:nfast)
        deallocate(finevalues)
-       allocate(finevalues(isize,0:nfast,n3))
-       finevalues(1:n1,0:nfast,1:n3) = tempvalues
+       allocate(finevalues(isize,0:nfast))
+       finevalues(1:n1,0:nfast) = tempvalues
        
-       tempvalues=coarsevalues(1:n1,0:nfast,1:n3)
+       tempvalues=coarsevalues(1:n1,0:nfast)
        deallocate(coarsevalues)
-       allocate(coarsevalues(isize,0:nfast,n3))
-       coarsevalues(1:n1,0:nfast,1:n3) = tempvalues
+       allocate(coarsevalues(isize,0:nfast))
+       coarsevalues(1:n1,0:nfast) = tempvalues
               
-       deallocate(tempvalues)
-       ELSE IF (nbgrid.GT.size(finevalues,3)) THEN
-       n1 = size(finevalues,1)
-       n3 = size(finevalues,3)
-       allocate(tempvalues(n1,0:nfast,n3))
-       tempvalues=finevalues(1:n1,0:nfast,1:n3)
-       deallocate(finevalues)
-       allocate(finevalues(n1,0:nfast,nbgrid))
-       finevalues(1:n1,0:nfast,1:n3) = tempvalues
-       
-       tempvalues=coarsevalues(1:n1,0:nfast,1:n3)
-       deallocate(coarsevalues)
-       allocate(coarsevalues(n1,0:nfast,nbgrid))
-       coarsevalues(1:n1,0:nfast,1:n3) = tempvalues
-              
-       deallocate(tempvalues)       
+       deallocate(tempvalues)      
        ENDIF      
       return
       end

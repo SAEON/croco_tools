@@ -42,6 +42,13 @@
 
       start(1)=1
       start(2)=1
+#if defined AGRIF && defined AGRIF_ADAPTIVE && !defined WRITER
+      if (.Not.Agrif_Root()) then
+        start(1)=1+(Agrif_ix()-1)*Agrif_irhox()
+        start(2)=1+(Agrif_iy()-1)*Agrif_irhoy()
+      endif
+#endif
+     
 #ifdef MPI
 # ifdef PARALLEL_FILES
 #  ifdef EW_PERIODIC
@@ -131,6 +138,7 @@ C**  &                         'jj=',jj, 'jmin=',jmin, 'jmax=',jmax
 #endif
         return
       endif
+      
 !
 ! Read/Write array from the disk.
 !===== ===== ===== ==== === =====

@@ -14,5 +14,7 @@ parammodule comm_setup_mpi;
 %
 % Misc
 %
+#if !defined AGRIF_ADAPTIVE
 USE ONLY_FIXED_GRIDS;
+#endif
 USE F77;

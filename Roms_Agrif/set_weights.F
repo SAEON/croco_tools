@@ -25,7 +25,7 @@ c--# define TEST_WEIGHTS
 # endif     
       
       nfast=0
-      do i=1,2*ndtfast                  ! Reset both sets of
+      do i=0,2*ndtfast                  ! Reset both sets of
         weight(1,i)=0.                  ! weights to all-zeros.
         weight(2,i)=0.
       enddo
@@ -175,7 +175,6 @@ c**     write(*,*) shft/sum, ndtfast
       weight2 = 0.
        
       weight2(nfast,:) = weight(1,:)
-      
             
       do j=nfast-1,1,-1
       

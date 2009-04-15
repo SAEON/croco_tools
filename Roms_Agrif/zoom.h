@@ -147,4 +147,14 @@
       common/zoom3D_sponge/TspongeTimeindex, UVspongeTimeindex,
      &      TspongeTimeindex2, UVspongeTimeindex2 
 
+      real,dimension(:,:),pointer :: finevalues
+      real,dimension(:,:),pointer :: coarsevalues
+      common/gridinter/finevalues,coarsevalues
+      
+      real,dimension(:,:),pointer :: coarsevaluesinterp
+      common/gridinter2/coarsevaluesinterp
+      
+      integer zetaid,ubarid,vbarid,uid,vid,tid
+      common/varids/zetaid,ubarid,vbarid,uid,vid,tid      
+      
 #endif

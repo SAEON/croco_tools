@@ -92,7 +92,11 @@
 #ifdef AGRIF
       if (.Not.Agrif_Root()) then
         lstr=lenstr(fname)
+#ifdef AGRIF_ADAPTIVE
+        fname=fname(1:lstr) / / '.1'  
+#else        
         fname=fname(1:lstr) / / '.' / / Agrif_Cfixed()
+#endif 
         lstr=lenstr(fname)
       endif
 #endif

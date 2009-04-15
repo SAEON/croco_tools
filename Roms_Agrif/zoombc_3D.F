@@ -46,7 +46,7 @@ C$OMP BARRIER
 C$OMP MASTER
 
       parentnbstep=Agrif_Parent_Nb_Step()
-      
+
        IF ((((nbcoarse == 1).AND.(nnew == 3)).OR.
      &   ((nbcoarse == irhot).AND.(nnew /=3))).AND.
      &    (UTimeindex.NE.parentnbstep)) THEN
@@ -171,6 +171,11 @@ C$OMP BARRIER
        ainterp = 0.
        ainterp(2) = 1.
        ENDIF
+       
+       if (nbstep3d .LE. (Agrif_irhot()-1)) then
+        ainterp = 0.
+        ainterp(2) = 1.
+       endif
 
       IF ((nbstep3dparent .NE. 0) .AND. (nnew ==3)) THEN
 !      ainterp(1)=0.
@@ -213,6 +218,7 @@ C$OMP BARRIER
 #   ifdef MASKING     
      &    *umask(i,Jstr-1)
 #   endif
+
           enddo
         enddo
       endif
@@ -241,6 +247,7 @@ C$OMP BARRIER
         enddo
       endif      
 #  endif
+ 
 #  ifdef AGRIF_OBC_WEST
       if (WESTERN_EDGE) then      
         do k=1,N      
@@ -285,8 +292,8 @@ C$OMP BARRIER
           enddo
         enddo
       endif
-#  endif    
-
+#  endif
+    
       return
       end
 # endif /* SOLVE3D */
@@ -503,6 +510,11 @@ C$OMP BARRIER
        ainterp(2) = 1.
        ENDIF
 
+       if (nbstep3d .LE. (Agrif_irhot()-1)) then
+        ainterp = 0.
+        ainterp(2) = 1.
+       endif
+       
       IF ((nbstep3dparent .NE. 0) .AND. (nnew ==3)) THEN
 !      ainterp(1)=0.
 !      ainterp(2)=-(1.-2*gamma)*(1./(-2.+4*gamma))*(-2.)/rrhot
@@ -791,7 +803,12 @@ C$OMP BARRIER
        ainterp = 0.
        ainterp(2) = 1.
        ENDIF
-                     
+
+       if (nbstep3d .LE. (Agrif_irhot()-1)) then
+        ainterp = 0.
+        ainterp(2) = 1.
+       endif
+                           
        IF ((nnew/=3).AND.(nbcoarse == irhot)) THEN
          ainterp    = 0.
          ainterp(4) = 1.

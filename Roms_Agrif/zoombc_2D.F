@@ -37,9 +37,11 @@
       real,dimension(GLOBAL_1D_ARRAYXI,0:NWEIGHT) :: DU_south4,DU_north4
       real :: lastcff
 !$AGRIF_DO_NOT_TREAT
-      real,dimension(:,:,:),pointer :: coarsevalues
-      integer :: nbgrid, indinterp
-      common/interp2d/coarsevalues, nbgrid, indinterp
+!      real,dimension(:,:,:),pointer :: coarsevalues
+!      integer :: nbgrid, indinterp
+!      common/interp2d/coarsevalues, nbgrid, indinterp
+      integer :: indinterp
+      common/interp2d/indinterp
 !$AGRIF_END_DO_NOT_TREAT     
 # ifdef MPI
        include 'mpif.h'
@@ -438,9 +440,8 @@ C$OMP BARRIER
        integer i,j,iter, isize
        real :: cff1
 !$AGRIF_DO_NOT_TREAT
-      real,dimension(:,:,:),pointer :: coarsevalues
-      integer :: nbgrid, indinterp
-      common/interp2d/coarsevalues, nbgrid, indinterp 
+      integer :: indinterp
+      common/interp2d/indinterp
 !$AGRIF_END_DO_NOT_TREAT  
 
        integer :: oldindinterp
@@ -448,8 +449,8 @@ C$OMP BARRIER
        isize = (j2-j1+1)*(i2-i1+1)
        
        IF (iif == 1) THEN
-       IF (.NOT.Associated(coarsevalues)) THEN
-       Allocate(coarsevalues(isize,0:nfast,1))
+       IF (.NOT.Associated(coarsevaluesinterp)) THEN
+       Allocate(coarsevaluesinterp(isize,0:nfast))
        ELSE       
        CALL checksizeinterp(indinterp+isize,nfast)
        ENDIF
@@ -459,7 +460,7 @@ C$OMP BARRIER
        do j=j1,j2
        do i=max(i1,lbound(h,1)+1),i2
        oldindinterp=oldindinterp+1
-       coarsevalues(oldindinterp,0,nbgrid) = 
+       coarsevaluesinterp(oldindinterp,0) = 
      &  0.5*(h(i-1,j)+zeta(i-1,j,kstp)+h(i,j)+
      &  zeta(i,j,kstp))*on_u(i,j)*ubar(i,j,kstp)
        enddo
@@ -472,7 +473,7 @@ C$OMP BARRIER
        do j=j1,j2
        do i=max(i1,lbound(h,1)+1),i2
        oldindinterp=oldindinterp+1
-       coarsevalues(oldindinterp,iif,nbgrid) =
+       coarsevaluesinterp(oldindinterp,iif) =
      &   0.5*(h(i-1,j)+zeta(i-1,j,knew)+h(i,j)+
      &  zeta(i,j,knew))*on_u(i,j)*ubar(i,j,knew)
        enddo
@@ -480,7 +481,7 @@ C$OMP BARRIER
           
        do iter=0,iif
           cff1 = weight2(iif,iter)
-          call copy1d(tabres,coarsevalues(indinterp+1,iter,nbgrid),
+          call copy1d(tabres,coarsevaluesinterp(indinterp+1,iter),
      &                cff1,isize)
        enddo
        
@@ -525,9 +526,8 @@ C$OMP BARRIER
 
       real :: lastcff
 !$AGRIF_DO_NOT_TREAT
-      real,dimension(:,:,:),pointer :: coarsevalues
-      integer :: nbgrid, indinterp
-      common/interp2d/coarsevalues, nbgrid, indinterp
+      integer :: indinterp
+      common/interp2d/indinterp
 !$AGRIF_END_DO_NOT_TREAT      
 #ifdef MPI
        include 'mpif.h'
@@ -931,9 +931,8 @@ C$OMP BARRIER
        integer i,j,iter, isize
        real :: cff1
 !$AGRIF_DO_NOT_TREAT
-      real,dimension(:,:,:),pointer :: coarsevalues
-      integer :: nbgrid, indinterp
-      common/interp2d/coarsevalues, nbgrid, indinterp 
+      integer :: indinterp
+      common/interp2d/indinterp 
 !$AGRIF_END_DO_NOT_TREAT  
 
        integer :: oldindinterp
@@ -941,8 +940,8 @@ C$OMP BARRIER
        isize = (j2-j1+1)*(i2-i1+1)
        
        IF (iif == 1) THEN
-       IF (.NOT.Associated(coarsevalues)) THEN
-       Allocate(coarsevalues(isize,0:nfast,1))
+       IF (.NOT.Associated(coarsevaluesinterp)) THEN
+       Allocate(coarsevaluesinterp(isize,0:nfast))
        ELSE       
        CALL checksizeinterp(indinterp+isize,nfast)
        ENDIF
@@ -952,7 +951,7 @@ C$OMP BARRIER
        do j=max(j1,lbound(h,2)+1),j2
        do i=i1,i2
        oldindinterp=oldindinterp+1
-       coarsevalues(oldindinterp,0,nbgrid) = 
+       coarsevaluesinterp(oldindinterp,0) = 
      &  0.5*(h(i,j-1)+zeta(i,j-1,kstp)+h(i,j)+
      &  zeta(i,j,kstp))*om_v(i,j)*vbar(i,j,kstp)
        enddo
@@ -965,7 +964,7 @@ C$OMP BARRIER
        do j=max(j1,lbound(h,2)+1),j2
        do i=i1,i2
        oldindinterp=oldindinterp+1
-       coarsevalues(oldindinterp,iif,nbgrid) =
+       coarsevaluesinterp(oldindinterp,iif) =
      &   0.5*(h(i,j-1)+zeta(i,j-1,knew)+h(i,j)+
      &  zeta(i,j,knew))*om_v(i,j)*vbar(i,j,knew)
        enddo
@@ -973,7 +972,7 @@ C$OMP BARRIER
           
        do iter=0,iif
           cff1 = weight2(iif,iter)
-          call copy1d(tabres,coarsevalues(indinterp+1,iter,nbgrid),
+          call copy1d(tabres,coarsevaluesinterp(indinterp+1,iter),
      &                cff1,isize)
        enddo
        
@@ -995,34 +994,28 @@ C$OMP BARRIER
 !
       subroutine checksizeinterp(isize,nfast)
       integer :: isize,nfast
-      real,dimension(:,:,:),allocatable :: tempvalues
-      integer :: n1,n3
+      real,dimension(:,:),allocatable :: tempvalues
+      integer :: n1
+# include "param.h"
+# include "grid.h"
+# include "ocean2d.h"
+# include "scalars.h"
+# include "zoom.h"      
 !$AGRIF_DO_NOT_TREAT
-      real,dimension(:,:,:),pointer :: coarsevalues
-      integer :: nbgrid, indinterp
-      common/interp2d/coarsevalues, nbgrid, indinterp
+      integer :: indinterp
+      common/interp2d/indinterp
 !$AGRIF_END_DO_NOT_TREAT 
 
-       IF (size(coarsevalues,1).LT.(isize)) THEN
-       n1 = size(coarsevalues,1)
-       n3 = size(coarsevalues,3)
-       allocate(tempvalues(n1,0:nfast,n3))
-       tempvalues=coarsevalues(1:n1,0:nfast,1:n3)
-       deallocate(coarsevalues)
-       allocate(coarsevalues(isize,0:nfast,n3))
-       coarsevalues(1:n1,0:nfast,1:n3) = tempvalues
+       IF (size(coarsevaluesinterp,1).LT.(isize)) THEN
+       n1 = size(coarsevaluesinterp,1)
+       allocate(tempvalues(n1,0:nfast))
+       tempvalues=coarsevaluesinterp(1:n1,0:nfast)
+       deallocate(coarsevaluesinterp)
+       allocate(coarsevaluesinterp(isize,0:nfast))
+       coarsevaluesinterp(1:n1,0:nfast) = tempvalues
               
        deallocate(tempvalues)
-       ELSE IF (nbgrid.GT.size(coarsevalues,3)) THEN
-       n1 = size(coarsevalues,1)
-       n3 = size(coarsevalues,3)
-       allocate(tempvalues(n1,0:nfast,n3))
-       tempvalues=coarsevalues(1:n1,0:nfast,1:n3)
-       deallocate(coarsevalues)
-       allocate(coarsevalues(n1,0:nfast,nbgrid))
-       coarsevalues(1:n1,0:nfast,1:n3) = tempvalues
-              
-       deallocate(tempvalues)       
+       
        ENDIF      
       return
       end                 
@@ -1070,9 +1063,8 @@ C$OMP BARRIER
 
       real lastcff
 !$AGRIF_DO_NOT_TREAT
-      real,dimension(:,:,:),pointer :: coarsevalues
-      integer :: nbgrid, indinterp
-      common/interp2d/coarsevalues, nbgrid, indinterp
+      integer :: indinterp
+      common/interp2d/indinterp
 !$AGRIF_END_DO_NOT_TREAT 
                  
 #  ifdef MPI
@@ -1211,19 +1203,20 @@ C$OMP BARRIER
           enddo
           enddo          
           
-
+          
           do j=Jend,Jend+1         
           do i=Istr,Iend
           Zeta_north6(i,j)=lastcff*(dZtinterp(i,j)-Zeta_north6(i,j))
           enddo
-          enddo                
-          
+          enddo
+                   
           do j=Jend,Jend+1
           do i=Istr,Iend
           Zeta_north6(i,j)=(Zeta_north6(i,j)-Zeta_north4(i,j,iif-1))
      &                           /rrhot
           enddo 
-          enddo          
+          enddo
+                             
           endif                              
       endif
 # endif
@@ -1410,9 +1403,8 @@ C$OMP BARRIER
        integer i,j,iter, isize
        real :: cff1
 !$AGRIF_DO_NOT_TREAT
-      real,dimension(:,:,:),pointer :: coarsevalues
-      integer :: nbgrid, indinterp
-      common/interp2d/coarsevalues, nbgrid, indinterp 
+      integer :: indinterp
+      common/interp2d/indinterp
 !$AGRIF_END_DO_NOT_TREAT  
 
        integer :: oldindinterp
@@ -1420,8 +1412,8 @@ C$OMP BARRIER
        isize = (j2-j1+1)*(i2-i1+1)
        
        IF (iif == 1) THEN
-       IF (.NOT.Associated(coarsevalues)) THEN
-       Allocate(coarsevalues(isize,0:nfast,1))
+       IF (.NOT.Associated(coarsevaluesinterp)) THEN
+       Allocate(coarsevaluesinterp(isize,0:nfast))
        ELSE       
        CALL checksizeinterp(indinterp+isize,nfast)
        ENDIF
@@ -1431,7 +1423,7 @@ C$OMP BARRIER
        do j=j1,j2
        do i=i1,i2
        oldindinterp=oldindinterp+1
-       coarsevalues(oldindinterp,0,nbgrid) = 
+       coarsevaluesinterp(oldindinterp,0) = 
      &  zeta(i,j,kstp)
        enddo
        enddo
@@ -1443,14 +1435,14 @@ C$OMP BARRIER
        do j=j1,j2
        do i=i1,i2
        oldindinterp=oldindinterp+1
-       coarsevalues(oldindinterp,iif,nbgrid) =
+       coarsevaluesinterp(oldindinterp,iif) =
      &   zeta(i,j,knew)
        enddo
        enddo
           
        do iter=0,iif
           cff1 = weight2(iif,iter)
-          call copy1d(tabres,coarsevalues(indinterp+1,iter,nbgrid),
+          call copy1d(tabres,coarsevaluesinterp(indinterp+1,iter),
      &                cff1,isize)
        enddo
        
