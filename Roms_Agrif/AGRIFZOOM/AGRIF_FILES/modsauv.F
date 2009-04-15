@@ -34,6 +34,7 @@ C
       Use Agrif_Types
       Use Agrif_Link
       Use Agrif_Arrays
+      Use Agrif_Variables
 C
       IMPLICIT NONE
 C
@@ -41,6 +42,109 @@ C
 C     Definition of procedures contained in this module.
 C
 C
+      Subroutine Agrif_Deallocate_Arrays(Var)
+      type(Agrif_Variable), pointer :: Var
+      
+            if (associated(var%array1)) then
+               Deallocate(var%array1)
+            endif
+            if (associated(var%array2)) then
+               Deallocate(var%array2)
+            endif
+            if (associated(var%array3)) then
+               Deallocate(var%array3)
+            endif
+            if (associated(var%array4)) then
+               Deallocate(var%array4)
+            endif
+            if (associated(var%array5)) then
+               Deallocate(var%array5)
+            endif
+            if (associated(var%array6)) then
+               Deallocate(var%array6)
+            endif
+C
+            if (associated(var%darray1)) then
+               Deallocate(var%darray1)
+            endif
+            if (associated(var%darray2)) then
+               Deallocate(var%darray2)
+            endif
+            if (associated(var%darray3)) then
+               Deallocate(var%darray3)
+            endif
+            if (associated(var%darray4)) then
+               Deallocate(var%darray4)
+            endif
+            if (associated(var%darray5)) then
+               Deallocate(var%darray5)
+            endif
+            if (associated(var%darray6)) then
+               Deallocate(var%darray6)
+            endif
+C
+            if (associated(var%larray1)) then
+               Deallocate(var%larray1)
+            endif
+            if (associated(var%larray2)) then
+               Deallocate(var%larray2)
+            endif
+            if (associated(var%larray3)) then
+               Deallocate(var%larray3)
+            endif
+            if (associated(var%larray4)) then
+               Deallocate(var%larray4)
+            endif
+            if (associated(var%larray5)) then
+               Deallocate(var%larray5)
+            endif
+            if (associated(var%larray6)) then
+               Deallocate(var%larray6)
+            endif
+C
+            if (associated(var%iarray1)) then
+               Deallocate(var%iarray1)
+            endif
+            if (associated(var%iarray2)) then
+               Deallocate(var%iarray2)
+            endif
+            if (associated(var%iarray3)) then
+               Deallocate(var%iarray3)
+            endif
+            if (associated(var%iarray4)) then
+               Deallocate(var%iarray4)
+            endif
+            if (associated(var%iarray5)) then
+               Deallocate(var%iarray5)
+            endif
+            if (associated(var%iarray6)) then
+               Deallocate(var%iarray6)
+            endif
+C
+            if (associated(var%carray1)) then
+               Deallocate(var%carray1)
+            endif
+            if (associated(var%carray2)) then
+               Deallocate(var%carray2)
+            endif
+C
+            if (associated(var%oldvalues2D)) then
+               Deallocate(var%oldvalues2D)
+            endif
+            if (associated(var%interpIndex)) then
+               Deallocate(var%interpIndex)
+            endif
+            
+            if (associated(var%posvar)) then
+               Deallocate(var%posvar)
+            endif     
+            
+            if (associated(var%interptab)) then
+               Deallocate(var%interptab)
+            endif
+            
+      Return
+      End Subroutine Agrif_Deallocate_Arrays    
 C
 C     **************************************************************************
 CCC   Subroutine Agrif_Free_data_before
@@ -61,121 +165,44 @@ C
 C     Pointer argument    
       TYPE(Agrif_Grid),pointer   :: Agrif_Gr ! Pointer on the current grid
       INTEGER i 
+      Type(Agrif_List_Variables), pointer :: parcours      
 C
 C   
       do i = 1 , AGRIF_NbVariables
          if ( .NOT. Agrif_Mygrid % tabvars(i) % var % restaure) then
 C 
-            if (associated(Agrif_Gr%tabvars(i)%var%array1)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%array1)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%array2)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%array2)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%array3)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%array3)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%array4)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%array4)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%array5)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%array5)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%array6)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%array6)
-            endif
-C
-            if (associated(Agrif_Gr%tabvars(i)%var%darray1)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%darray1)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%darray2)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%darray2)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%darray3)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%darray3)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%darray4)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%darray4)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%darray5)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%darray5)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%darray6)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%darray6)
-            endif
-C
-            if (associated(Agrif_Gr%tabvars(i)%var%larray1)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%larray1)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%larray2)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%larray2)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%larray3)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%larray3)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%larray4)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%larray4)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%larray5)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%larray5)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%larray6)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%larray6)
-            endif
-C
-            if (associated(Agrif_Gr%tabvars(i)%var%iarray1)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%iarray1)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%iarray2)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%iarray2)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%iarray3)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%iarray3)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%iarray4)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%iarray4)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%iarray5)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%iarray5)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%iarray6)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%iarray6)
-            endif
-C
-            if (associated(Agrif_Gr%tabvars(i)%var%carray1)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%carray1)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%carray2)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%carray2)
-            endif
-C
-            if (associated(Agrif_Gr%tabvars(i)%var%oldvalues2D)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%oldvalues2D)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%interpIndex)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%interpIndex)
-            endif
+            call Agrif_Deallocate_Arrays(Agrif_Gr%tabvars(i)%var)
             
-            if (associated(Agrif_Gr%tabvars(i)%var%posvar)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%posvar)
-            endif     
-            
-            if (associated(Agrif_Gr%tabvars(i)%var%interptab)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%interptab)
-            endif  
-            
-       endif
+          endif
            
 C
-       if (associated(Agrif_Gr%tabvars(i)%var%list_interp)) then
-         Call Agrif_Free_list_interp
+         if (associated(Agrif_Gr%tabvars(i)%var%list_interp)) then
+           Call Agrif_Free_list_interp
      &                          (Agrif_Gr%tabvars(i)%var%list_interp)
-       endif                             
+         endif                             
 C
        if ( .NOT. Agrif_Mygrid % tabvars(i) % var % restaure) then
             Deallocate(Agrif_Gr%tabvars(i)%var)
 C 
         endif
+      enddo
+      
+      parcours => Agrif_Gr%variables
+    
+      do i=1,Agrif_Gr%NbVariables
+       if (.NOT. parcours%pvar%var%root_var%restaure) then
+        call Agrif_Deallocate_Arrays(parcours%pvar%var)
+       endif
+        if (associated(parcours%pvar%var%list_interp)) then
+           Call Agrif_Free_list_interp
+     &                          (parcours%pvar%var%list_interp)
+         endif                             
+C
+       if ( .NOT. parcours%pvar%var%root_var % restaure) then
+            Deallocate(parcours%pvar%var)
+C 
+        endif
+        parcours => parcours%nextvariable
       enddo
 C
 C 
@@ -230,113 +257,33 @@ C
 C     Pointer argument    
       TYPE(Agrif_Grid),pointer   :: Agrif_Gr  ! Pointer on the current grid
       INTEGER i
+      Type(Agrif_List_Variables), pointer :: parcours, rootparcours
 C
 C      
       do i = 1 , AGRIF_NbVariables
          if ( Agrif_Mygrid % tabvars(i) % var % restaure) then
-C 
-            if (associated(Agrif_Gr%tabvars(i)%var%array1)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%array1)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%array2)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%array2)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%array3)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%array3)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%array4)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%array4)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%array5)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%array5)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%array6)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%array6)
-            endif
-!
-            if (associated(Agrif_Gr%tabvars(i)%var%darray1)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%darray1)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%darray2)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%darray2)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%darray3)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%darray3)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%darray4)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%darray4)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%darray5)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%darray5)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%darray6)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%darray6)
-            endif
-!
-            if (associated(Agrif_Gr%tabvars(i)%var%larray1)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%larray1)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%larray2)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%larray2)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%larray3)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%larray3)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%larray4)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%larray4)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%larray5)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%larray5)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%larray6)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%larray6)
-            endif
-!
-            if (associated(Agrif_Gr%tabvars(i)%var%iarray1)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%iarray1)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%iarray2)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%iarray2)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%iarray3)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%iarray3)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%iarray4)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%iarray4)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%iarray5)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%iarray5)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%iarray6)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%iarray6)
-            endif
-!
-            if (associated(Agrif_Gr%tabvars(i)%var%carray1)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%carray1)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%carray2)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%carray2)
-            endif
-!
-            if (associated(Agrif_Gr%tabvars(i)%var%oldvalues2D)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%oldvalues2D)
-            endif
-            if (associated(Agrif_Gr%tabvars(i)%var%interpIndex)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%interpIndex)
-            endif
-            
-            if (associated(Agrif_Gr%tabvars(i)%var%posvar)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%posvar)
-            endif     
-            
-            if (associated(Agrif_Gr%tabvars(i)%var%interptab)) then
-               Deallocate(Agrif_Gr%tabvars(i)%var%interptab)
-            endif                  
-!
+         
+         call Agrif_Deallocate_Arrays(Agrif_Gr%tabvars(i)%var)
+         !
             Deallocate(Agrif_Gr%tabvars(i)%var)
 ! 
          endif
       enddo
+      
+      parcours => Agrif_Gr%variables
+      rootparcours=>Agrif_Mygrid%variables
+    
+      do i=1,Agrif_Gr%NbVariables
+       if (rootparcours%pvar%var%restaure) then
+        call Agrif_Deallocate_Arrays(parcours%pvar%var)
+      
+            Deallocate(parcours%pvar%var)
+C 
+        endif
+        parcours => parcours%nextvariable
+        rootparcours => rootparcours%nextvariable        
+      enddo
+            
 C
 C      
       Return
@@ -463,6 +410,130 @@ C
 C
 C      
       End Subroutine Agrif_CopyFromold
+      
+CC    **************************************************************************
+CCC   Subroutine AGRIF_CopyFromold_AllOneVar
+C     **************************************************************************
+C
+      Recursive Subroutine AGRIF_CopyFromold_AllOneVar(g,oldchildgrids,indic)
+C
+CCC   Description:
+CCC   Routine called in the Agrif_Init_Hierarchy procedure 
+C       (Agrif_Clustering module). 
+C
+CC    Method:        
+C
+C     Declarations:
+C
+      
+C      
+C     Pointer argument    
+      TYPE(AGRIF_grid),pointer   :: g ! Pointer on the current grid
+      TYPE(AGRIF_pgrid),pointer   :: oldchildgrids
+      integer :: indic
+C
+C     Local pointer
+      TYPE(AGRIF_pgrid),pointer  :: parcours ! Pointer for the recursive 
+                                             ! procedure 
+      REAL g_eps,eps,oldgrid_eps
+      INTEGER :: out
+      INTEGER :: iii
+C
+      out = 0
+C                                                                           
+      parcours => oldchildgrids  
+C
+      do while (associated(parcours))
+C 
+        if ((.NOT. g % fixed) .AND. (parcours % gr %oldgrid)) then
+C        
+            g_eps = huge(1.)
+            oldgrid_eps = huge(1.)
+            do iii = 1 , Agrif_Probdim
+               g_eps = min(g_eps,g % Agrif_d(iii))
+               oldgrid_eps = min(oldgrid_eps,
+     &                       parcours % gr % Agrif_d(iii))
+            enddo
+C
+            eps = min(g_eps,oldgrid_eps)/100.                  
+C
+            do iii = 1 , Agrif_Probdim
+
+               if (g % Agrif_d(iii) .LT. 
+     &             (parcours % gr % Agrif_d(iii) - eps)) then
+C            
+                   parcours => parcours % next
+C            
+                   out = 1
+C   
+                   Exit
+C             
+               endif
+C      
+            enddo
+        if ( out .EQ. 1 ) Cycle
+C
+            Call AGRIF_CopyFromOldOneVar(g,parcours%gr,indic)
+C
+        endif
+C                     
+        Call Agrif_CopyFromold_AllOneVar
+     &             (g, parcours % gr % child_grids,indic)
+C        
+        parcours => parcours % next
+C        
+      enddo
+C
+C     
+      Return      
+C
+C
+      End Subroutine AGRIF_CopyFromold_AllOneVar
+C
+C
+C      
+C     **************************************************************************
+CCC   Subroutine Agrif_CopyFromoldOneVar
+C     **************************************************************************
+C      
+      Subroutine Agrif_CopyFromoldOneVar(Agrif_New_Gr,Agrif_Old_Gr,indic)
+C
+CCC   Description:
+CCC   Call to the Agrif_Copy procedure.
+C
+CC    Method:
+CC            
+C
+C     Declarations:
+C
+      
+C      
+C     Pointer argument    
+      TYPE(Agrif_Grid),Pointer   :: Agrif_New_Gr  ! Pointer on the current grid
+      TYPE(Agrif_Grid),Pointer :: Agrif_Old_Gr    ! Pointer on an old grid
+      INTEGER :: indic
+      INTEGER :: i
+      TYPE(Agrif_PVariable),Pointer ::tabvars,oldtabvars      
+C
+C      
+      tabvars => Agrif_Search_Variable(Agrif_New_Gr,-indic)
+      oldtabvars => Agrif_Search_Variable(Agrif_Old_Gr,-indic)
+
+      Call Agrif_Nbdim_Allocation(tabvars%var,
+     &  tabvars%var%lb,tabvars%var%ub,
+     &  tabvars%var%nbdim)
+     
+      Call Agrif_Copy(Agrif_New_Gr,Agrif_Old_Gr,
+     &           tabvars,oldtabvars)
+
+
+C      
+C            
+      Return
+C
+C      
+      End Subroutine Agrif_CopyFromoldOneVar      
+      
 C
 C
 CC
@@ -752,6 +823,7 @@ C
          i0 = i0 + int(dsnew(1)/dsold(1))
          enddo
       CASE (2)
+
         i0 = ind_gmin(1)
         do i = ind_newmin(1),ind_newmax(1)
         j0 = ind_gmin(2)

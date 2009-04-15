@@ -14,6 +14,7 @@ $(AGRIFOBJS)/modbcfunction.o: $(AGRIFOBJS)/modinterp.o
 $(AGRIFOBJS)/modbcfunction.o: $(AGRIFOBJS)/modbc.o 
 $(AGRIFOBJS)/modbcfunction.o: $(AGRIFOBJS)/modupdate.o 
 $(AGRIFOBJS)/modbcfunction.o: $(AGRIFOBJS)/modflux.o
+$(AGRIFOBJS)/modbcfunction.o: $(AGRIFOBJS)/modvariables.o
 
 $(AGRIFOBJS)/modcluster.o: $(AGRIFOBJS)/modcurgridfunctions.o $(AGRIFOBJS)/modinitvars.o
 $(AGRIFOBJS)/modcluster.o: $(AGRIFOBJS)/modsauv.o $(AGRIFOBJS)/modlinktomodel.o
@@ -35,12 +36,15 @@ $(AGRIFOBJS)/modmask.o: $(AGRIFOBJS)/modtypes.o
 
 $(AGRIFOBJS)/modsauv.o: $(AGRIFOBJS)/modtypes.o
 $(AGRIFOBJS)/modsauv.o: $(AGRIFOBJS)/modlinktomodel.o
+$(AGRIFOBJS)/modsauv.o: $(AGRIFOBJS)/modvariables.o
 
 $(AGRIFOBJS)/modutil.o: $(AGRIFOBJS)/modcluster.o $(AGRIFOBJS)/modsauv.o 
 $(AGRIFOBJS)/modutil.o: $(AGRIFOBJS)/modlinktomodel.o $(AGRIFOBJS)/modtypes.o 
 $(AGRIFOBJS)/modutil.o: $(AGRIFOBJS)/modbcfunction.o
 
 $(AGRIFOBJS)/modupdate.o: $(AGRIFOBJS)/modupdatebasic.o $(AGRIFOBJS)/modinterp.o
+
+$(AGRIFOBJS)/modvariables.o: $(AGRIFOBJS)/modcurgridfunctions.o
 
 clean : FORCE
 	$(SRM) $(OBJS) libagrif.a *.mod

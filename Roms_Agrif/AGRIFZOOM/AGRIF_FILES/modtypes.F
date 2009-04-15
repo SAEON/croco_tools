@@ -372,7 +372,7 @@ C
       ! Special values on the current grid
       REAL                  :: Agrif_SpecialValueFineGrid
 C   clustering PARAMETERs
-      INTEGER               :: Agrif_Regridding
+      INTEGER               :: Agrif_Regridding = 10
       INTEGER               :: Agrif_Minwidth
       REAL                  :: Agrif_Efficiency = 0.7
       INTEGER               :: MaxSearch = 5

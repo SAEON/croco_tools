@@ -216,6 +216,8 @@ C         Creation of the grid hierarchy from coarsegrid_fixed
       endif
 C
       if ( Agrif_USE_ONLY_FIXED_GRIDS .EQ. 0 ) then
+C
+      Call Agrif_Save_All(Agrif_oldmygrid)      
 C      
       Call Agrif_Free_before_All(Agrif_oldmygrid)
 C 
@@ -304,6 +306,7 @@ C
 C  
 C     Detection (Agrif_detect is a user s routine)
 C      
+     
       do iii = 1 , Agrif_Probdim
          size(iii) = g%nb(iii) + 1
       enddo
@@ -422,6 +425,44 @@ C
 C
 C
       End Subroutine Agrif_Free_before_All
+C     **************************************************************************
+CCC   Subroutine Agrif_Save_All
+C     **************************************************************************
+C
+      Recursive Subroutine Agrif_Save_All(g)
+C
+CCC   Description:
+C
+CC    Method:        
+C
+C     Declarations:
+C
+C     Pointer argument    
+      Type(Agrif_pgrid),pointer   :: g        ! Pointer on the current grid
+C
+C     Local pointer
+      Type(Agrif_pgrid),pointer  :: parcours ! Pointer for the recursive 
+                                             ! procedure      
+C
+C
+      parcours => g        
+C      
+      Do while (associated(parcours))     
+        If (.not. parcours%gr%fixed) Then
+            Call Agrif_Instance(parcours%gr)
+            Call Agrif_Before_Regridding()
+            parcours % gr % oldgrid = .TRUE.        
+        endif
+C
+        Call Agrif_Save_All (parcours % gr % child_grids)
+C  
+        parcours => parcours % next             
+      enddo
+C     
+      Return      
+C
+C
+      End Subroutine Agrif_Save_All      
 C
 C
 C
@@ -706,12 +747,14 @@ C     Initialization of the other fields of the root grid variables (number of
 C     cells, positions, number and type of its dimensions, ...)  
       Call Agrif_Set_numberofcells(Agrif_Mygrid)
 C      
-      Call Agrif_Instance (Agrif_Mygrid)        
+      Call Agrif_Instance (Agrif_Mygrid)      
+C
+      Call Agrif_Set_numberofcells(Agrif_Mygrid)          
 C             
 C     Allocation of the array containing the values of the grid variables
       Call Agrif_Allocation (Agrif_Mygrid)
 C        
-      Call Agrif_initialisations(Agrif_Mygrid)
+      Call Agrif_initialisations(Agrif_Mygrid)    
 C      
       nullify(Agrif_Mygrid % child_grids)
 C 

@@ -34,6 +34,7 @@ C
       Use Agrif_Boundary
       Use Agrif_Update
       Use Agrif_fluxmod
+      Use Agrif_Save
 C             
       IMPLICIT NONE
 C
@@ -64,7 +65,8 @@ C
           module procedure Agrif_Init_variable0d,
      &                     Agrif_Init_variable1d,
      &                     Agrif_Init_variable2d,
-     &                     Agrif_Init_variable3d
+     &                     Agrif_Init_variable3d,
+     &                     Agrif_Init_variable4d
       end interface       
 C
       interface Agrif_update_variable
@@ -74,7 +76,14 @@ C
      &                     Agrif_update_var3d,
      &                     Agrif_update_var4d,
      &                     Agrif_update_var5d
-      end interface       
+      end interface      
+      
+      interface Agrif_Save_Forrestore
+         module procedure Agrif_Save_Forrestore0d,    
+     &                    Agrif_Save_Forrestore2d,    
+     &                    Agrif_Save_Forrestore3d,    
+     &                    Agrif_Save_Forrestore4d
+      end interface
 C
       Contains 
 C
@@ -254,7 +263,7 @@ C
       INTEGER, DIMENSION(2) :: point
       LOGICAL, OPTIONAL :: Interpolationshouldbemade
 C
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic, indic ! indice of the variable in tabvars
       TYPE(Agrif_PVariable),Pointer ::tabvars
       
     
@@ -264,10 +273,17 @@ C     Begin
 C
 C     
 
-      if (tabvarsindic <=0) then
-      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-tabvarsindic)
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif
+      
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-indic)
       else
-      tabvars=>Agrif_Curgrid % tabvars(tabvarsindic)
+      tabvars=>Agrif_Curgrid % tabvars(indic)
       endif  
       
       if (Agrif_Curgrid % fixedrank .NE. 0) then  
@@ -306,26 +322,46 @@ C     Arguments
 C
       INTEGER, OPTIONAL      :: interp,interp1,interp2,interp3
 C
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic, indic ! indice of the variable in tabvars
+      TYPE(Agrif_PVariable),Pointer ::tabvars
+      
+    
+C
 C
 C     Begin 
 C
-      Agrif_Mygrid % tabvars(tabvarsindic)% var % Typeinterp = 
+C     
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif 
+      
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)
+      else
+      tabvars=>Agrif_Mygrid % tabvars(indic)
+      endif      
+C
+C     Begin 
+C
+      tabvars % var % Typeinterp = 
      &    Agrif_Constant
       IF (present(interp)) THEN
-      Agrif_Mygrid % tabvars(tabvarsindic)% var % Typeinterp = 
+      tabvars % var % Typeinterp = 
      &           interp
       ENDIF
       IF (present(interp1)) THEN
-      Agrif_Mygrid % tabvars(tabvarsindic)% var % Typeinterp(1) = 
+      tabvars % var % Typeinterp(1) = 
      &           interp1
       ENDIF
       IF (present(interp2)) THEN
-      Agrif_Mygrid % tabvars(tabvarsindic)% var % Typeinterp(2) = 
+      tabvars % var % Typeinterp(2) = 
      &           interp2
       ENDIF
       IF (present(interp3)) THEN
-      Agrif_Mygrid % tabvars(tabvarsindic)% var % Typeinterp(3) = 
+      tabvars % var % Typeinterp(3) = 
      &           interp3
       ENDIF
 C
@@ -352,7 +388,7 @@ C
       INTEGER, OPTIONAL      :: interp,interp1,interp2,interp3
       INTEGER, OPTIONAL      :: interp11,interp12,interp21,interp22
 C
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic, indic ! indice of the variable in tabvars
       TYPE(Agrif_PVariable),Pointer ::tabvars
       
     
@@ -362,10 +398,17 @@ C     Begin
 C
 C     
 
-      if (tabvarsindic <=0) then
-      tabvars => Agrif_Search_Variable(Agrif_Mygrid,-tabvarsindic)
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif 
+      
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)
       else
-      tabvars=>Agrif_Mygrid % tabvars(tabvarsindic)
+      tabvars=>Agrif_Mygrid % tabvars(indic)
       endif 
 C
       tabvars% var % bctypeinterp = 
@@ -529,18 +572,25 @@ C     **************************************************************************
      &        procname)
 
       INTEGER :: tabvarsindic0 ! indice of the variable in tabvars
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic,indic ! indice of the variable in tabvars
       External :: procname
       Optional ::  procname
 C
       if (Agrif_Root()) Return
 C      
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif 
+      
       if (present(procname)) then
-      CALL Agrif_Interp_variable(tabvarsindic0,tabvarsindic,procname)
-      CALL Agrif_Bc_variable(tabvarsindic0,tabvarsindic,1.,procname)
+      CALL Agrif_Interp_variable(tabvarsindic0,indic,procname)
+      CALL Agrif_Bc_variable(tabvarsindic0,indic,1.,procname)
       else
-      CALL Agrif_Interp_variable(tabvarsindic0,tabvarsindic)
-      CALL Agrif_Bc_variable(tabvarsindic0,tabvarsindic,1.)
+      CALL Agrif_Interp_variable(tabvarsindic0,indic)
+      CALL Agrif_Bc_variable(tabvarsindic0,indic,1.)
       endif
 
       End Subroutine Agrif_Init_variable0d
@@ -552,19 +602,26 @@ C     **************************************************************************
       Subroutine Agrif_Init_variable1d(q,tabvarsindic,procname)
 
       REAL, DIMENSION(:) :: q
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic, indic ! indice of the variable in tabvars
       External :: procname
       Optional ::  procname
 
 C
       if (Agrif_Root()) Return
+C      
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif      
 C
       if (present(procname)) then
-      CALL Agrif_Interp_variable(q,tabvarsindic,procname)
-      CALL Agrif_Bc_variable(q,tabvarsindic,1.,procname)
+      CALL Agrif_Interp_variable(q,indic,procname)
+      CALL Agrif_Bc_variable(q,indic,1.,procname)
       else
-      CALL Agrif_Interp_variable(q,tabvarsindic)
-      CALL Agrif_Bc_variable(q,tabvarsindic,1.)
+      CALL Agrif_Interp_variable(q,indic)
+      CALL Agrif_Bc_variable(q,indic,1.)
       endif
 
       End Subroutine Agrif_Init_variable1d
@@ -578,16 +635,24 @@ C     **************************************************************************
       INTEGER :: tabvarsindic ! indice of the variable in tabvars
       External :: procname
       Optional ::  procname
+      integer :: indic
 
 C
       if (Agrif_Root()) Return
 C
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif 
+      
       if (present(procname)) then
-      CALL Agrif_Interp_variable(q,tabvarsindic,procname)
-      CALL Agrif_Bc_variable(q,tabvarsindic,1.,procname)
+      CALL Agrif_Interp_variable(q,indic,procname)
+      CALL Agrif_Bc_variable(q,indic,1.,procname)
       else
-      CALL Agrif_Interp_variable(q,tabvarsindic)
-      CALL Agrif_Bc_variable(q,tabvarsindic,1.)
+      CALL Agrif_Interp_variable(q,indic)
+      CALL Agrif_Bc_variable(q,indic,1.)
       endif
 
 
@@ -600,18 +665,25 @@ C     **************************************************************************
       Subroutine Agrif_Init_variable3d(q,tabvarsindic,procname)
 
       REAL,  DIMENSION(:,:,:) :: q
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic,indic ! indice of the variable in tabvars
       External :: procname
       Optional ::  procname
 C
       if (Agrif_Root()) Return
+C      
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif      
 C
       if (present(procname)) then
-      CALL Agrif_Interp_variable(q,tabvarsindic,procname)
-      CALL Agrif_Bc_variable(q,tabvarsindic,1.,procname)
+      CALL Agrif_Interp_variable(q,indic,procname)
+      CALL Agrif_Bc_variable(q,indic,1.,procname)
       else
-      CALL Agrif_Interp_variable(q,tabvarsindic)
-      CALL Agrif_Bc_variable(q,tabvarsindic,1.)
+      CALL Agrif_Interp_variable(q,indic)
+      CALL Agrif_Bc_variable(q,indic,1.)
       endif
 
 C
@@ -624,18 +696,25 @@ C     **************************************************************************
       Subroutine Agrif_Init_variable4d(q,tabvarsindic,procname)
 
       REAL,  DIMENSION(:,:,:,:) :: q
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic, indic ! indice of the variable in tabvars
       External :: procname
       Optional ::  procname
 C
       if (Agrif_Root()) Return
+C      
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif       
 C
       if (present(procname)) then
-      CALL Agrif_Interp_variable(q,tabvarsindic,procname)
-      CALL Agrif_Bc_variable(q,tabvarsindic,1.,procname)
+      CALL Agrif_Interp_variable(q,indic,procname)
+      CALL Agrif_Bc_variable(q,indic,1.,procname)
       else
-      CALL Agrif_Interp_variable(q,tabvarsindic)
-      CALL Agrif_Bc_variable(q,tabvarsindic,1.)
+      CALL Agrif_Interp_variable(q,indic)
+      CALL Agrif_Bc_variable(q,indic,1.)
       endif
 
 C
@@ -797,7 +876,7 @@ C     **************************************************************************
       REAL   , Dimension(:)          :: q
       External :: procname
       Optional ::  procname
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic, indic ! indice of the variable in tabvars
 C        
       REAL, OPTIONAL :: calledweight
       REAL    :: weight
@@ -807,6 +886,13 @@ C
 C      
 C      
       If (Agrif_Root()) Return
+C      
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif         
       
       if ( PRESENT(calledweight) ) then
         weight=calledweight      
@@ -816,14 +902,14 @@ C
         pweight = .FALSE.
       endif
       
-      if (tabvarsindic <=0) then
-      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-tabvarsindic)
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-indic)
       parenttabvars => tabvars%parent_var
-      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-tabvarsindic)
+      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)
       else
-      tabvars=>Agrif_Curgrid % tabvars(tabvarsindic)
-      parenttabvars => Agrif_Curgrid % parent % tabvars(tabvarsindic)
-      roottabvars => Agrif_Mygrid % tabvars(tabvarsindic)
+      tabvars=>Agrif_Curgrid % tabvars(indic)
+      parenttabvars => Agrif_Curgrid % parent % tabvars(indic)
+      roottabvars => Agrif_Mygrid % tabvars(indic)
       endif
             
       IF (present(procname)) THEN
@@ -855,7 +941,7 @@ C     **************************************************************************
       REAL   , Dimension(:,:)          :: q
       External :: procname
       Optional ::  procname
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic, indic ! indice of the variable in tabvars
 C        
       REAL, OPTIONAL :: calledweight
       REAL    :: weight
@@ -865,6 +951,13 @@ C
 C      
 C      
       If (Agrif_Root()) Return
+C      
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif       
       
       if ( PRESENT(calledweight) ) then
         weight=calledweight      
@@ -874,14 +967,14 @@ C
         pweight = .FALSE.
       endif
       
-      if (tabvarsindic <=0) then
-      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-tabvarsindic)
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-indic)
       parenttabvars => tabvars%parent_var
-      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-tabvarsindic)
+      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)
       else
-      tabvars=>Agrif_Curgrid % tabvars(tabvarsindic)
-      parenttabvars => Agrif_Curgrid % parent % tabvars(tabvarsindic)
-      roottabvars => Agrif_Mygrid % tabvars(tabvarsindic)
+      tabvars=>Agrif_Curgrid % tabvars(indic)
+      parenttabvars => Agrif_Curgrid % parent % tabvars(indic)
+      roottabvars => Agrif_Mygrid % tabvars(indic)
       endif
             
       IF (present(procname)) THEN
@@ -913,7 +1006,7 @@ C     **************************************************************************
       REAL   , Dimension(:,:,:)          :: q
       External :: procname
       Optional ::  procname
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic, indic ! indice of the variable in tabvars
 C        
       REAL, OPTIONAL :: calledweight
       REAL    :: weight
@@ -923,6 +1016,13 @@ C
 C      
 C      
       If (Agrif_Root()) Return
+C      
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif       
       
       if ( PRESENT(calledweight) ) then
         weight=calledweight      
@@ -932,14 +1032,14 @@ C
         pweight = .FALSE.
       endif
       
-      if (tabvarsindic <=0) then
-      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-tabvarsindic)
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-indic)
       parenttabvars => tabvars%parent_var
-      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-tabvarsindic)
+      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)
       else
-      tabvars=>Agrif_Curgrid % tabvars(tabvarsindic)
-      parenttabvars => Agrif_Curgrid % parent % tabvars(tabvarsindic)
-      roottabvars => Agrif_Mygrid % tabvars(tabvarsindic)
+      tabvars=>Agrif_Curgrid % tabvars(indic)
+      parenttabvars => Agrif_Curgrid % parent % tabvars(indic)
+      roottabvars => Agrif_Mygrid % tabvars(indic)
       endif
             
       IF (present(procname)) THEN
@@ -971,7 +1071,7 @@ C     **************************************************************************
       REAL   , Dimension(:,:,:,:)          :: q
       External :: procname
       Optional ::  procname
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic, indic ! indice of the variable in tabvars
 C        
       REAL, OPTIONAL :: calledweight
       REAL    :: weight
@@ -982,6 +1082,14 @@ C
 C      
       If (Agrif_Root()) Return
       
+C      
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif      
+      
       if ( PRESENT(calledweight) ) then
         weight=calledweight      
         pweight = .TRUE.
@@ -990,14 +1098,14 @@ C
         pweight = .FALSE.
       endif
       
-      if (tabvarsindic <=0) then
-      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-tabvarsindic)
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-indic)
       parenttabvars => tabvars%parent_var
-      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-tabvarsindic)
+      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)
       else
-      tabvars=>Agrif_Curgrid % tabvars(tabvarsindic)
-      parenttabvars => Agrif_Curgrid % parent % tabvars(tabvarsindic)
-      roottabvars => Agrif_Mygrid % tabvars(tabvarsindic)
+      tabvars=>Agrif_Curgrid % tabvars(indic)
+      parenttabvars => Agrif_Curgrid % parent % tabvars(indic)
+      roottabvars => Agrif_Mygrid % tabvars(indic)
       endif
             
       IF (present(procname)) THEN
@@ -1029,7 +1137,7 @@ C     **************************************************************************
       REAL   , Dimension(:,:,:,:,:)          :: q
       External :: procname
       Optional ::  procname
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic, indic ! indice of the variable in tabvars
 C        
       REAL, OPTIONAL :: calledweight
       REAL    :: weight
@@ -1039,6 +1147,13 @@ C
 C      
 C      
       If (Agrif_Root()) Return
+C      
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif      
       
       if ( PRESENT(calledweight) ) then
         weight=calledweight      
@@ -1048,14 +1163,14 @@ C
         pweight = .FALSE.
       endif
       
-      if (tabvarsindic <=0) then
-      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-tabvarsindic)
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-indic)
       parenttabvars => tabvars%parent_var
-      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-tabvarsindic)
+      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)
       else
-      tabvars=>Agrif_Curgrid % tabvars(tabvarsindic)
-      parenttabvars => Agrif_Curgrid % parent % tabvars(tabvarsindic)
-      roottabvars => Agrif_Mygrid % tabvars(tabvarsindic)
+      tabvars=>Agrif_Curgrid % tabvars(indic)
+      parenttabvars => Agrif_Curgrid % parent % tabvars(indic)
+      roottabvars => Agrif_Mygrid % tabvars(indic)
       endif
             
       IF (present(procname)) THEN
@@ -1085,132 +1200,139 @@ C
       Subroutine Agrif_Interp_var0d(tabvarsindic0,tabvarsindic,procname)
 
       INTEGER :: tabvarsindic0 ! indice of the variable in tabvars
-      INTEGER :: tabvarsindic  ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic, indic  ! indice of the variable in tabvars
       INTEGER :: dimensio  ! indice of the variable in tabvars
       External :: procname
       Optional ::  procname
 C      
       if (Agrif_Root()) Return
+C      
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif       
 C     
-      dimensio = Agrif_Mygrid % tabvars(tabvarsindic) % var % nbdim 
+      dimensio = Agrif_Mygrid % tabvars(indic) % var % nbdim 
 C
       if ( dimensio .EQ. 1 ) then
        if (present(procname)) then
        Call Agrif_Interp_1D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),
+     & Agrif_Mygrid % tabvars(indic) % var %  TypeInterp,
+     & Agrif_Curgrid % parent % tabvars(indic),
+     & Agrif_Curgrid % tabvars(indic),
      & Agrif_Curgrid % tabvars(tabvarsindic0) % var % array1 ,     
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim,procname)
+     & Agrif_Mygrid % tabvars(indic) % var % restaure,
+     & Agrif_Mygrid % tabvars(indic) %var % nbdim,procname)
        else
        Call Agrif_Interp_1D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),
+     & Agrif_Mygrid % tabvars(indic) % var %  TypeInterp,
+     & Agrif_Curgrid % parent % tabvars(indic),
+     & Agrif_Curgrid % tabvars(indic),
      & Agrif_Curgrid % tabvars(tabvarsindic0) % var % array1 ,     
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim)
+     & Agrif_Mygrid % tabvars(indic) % var % restaure,
+     & Agrif_Mygrid % tabvars(indic) %var % nbdim)
        endif
        endif
 C
       if ( dimensio .EQ. 2 ) then
       if (present(procname)) then
        Call Agrif_Interp_2D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),
+     & Agrif_Mygrid % tabvars(indic) % var %  TypeInterp,
+     & Agrif_Curgrid % parent % tabvars(indic),
+     & Agrif_Curgrid % tabvars(indic),
      & Agrif_Curgrid % tabvars(tabvarsindic0) % var % array2 ,     
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim,procname)
+     & Agrif_Mygrid % tabvars(indic) % var % restaure,
+     & Agrif_Mygrid % tabvars(indic) %var % nbdim,procname)
       else
        Call Agrif_Interp_2D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),
+     & Agrif_Mygrid % tabvars(indic) % var %  TypeInterp,
+     & Agrif_Curgrid % parent % tabvars(indic),
+     & Agrif_Curgrid % tabvars(indic),
      & Agrif_Curgrid % tabvars(tabvarsindic0) % var % array2 ,     
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim)
+     & Agrif_Mygrid % tabvars(indic) % var % restaure,
+     & Agrif_Mygrid % tabvars(indic) %var % nbdim)
       endif
       endif
 C
       if ( dimensio .EQ. 3 ) then
       if (present(procname)) then
        Call Agrif_Interp_3D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),
+     & Agrif_Mygrid % tabvars(indic) % var %  TypeInterp,
+     & Agrif_Curgrid % parent % tabvars(indic),
+     & Agrif_Curgrid % tabvars(indic),
      & Agrif_Curgrid % tabvars(tabvarsindic0) % var % array3 ,     
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim,procname)
+     & Agrif_Mygrid % tabvars(indic) % var % restaure,
+     & Agrif_Mygrid % tabvars(indic) %var % nbdim,procname)
       else
        Call Agrif_Interp_3D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),
+     & Agrif_Mygrid % tabvars(indic) % var %  TypeInterp,
+     & Agrif_Curgrid % parent % tabvars(indic),
+     & Agrif_Curgrid % tabvars(indic),
      & Agrif_Curgrid % tabvars(tabvarsindic0) % var % array3 ,     
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim)
+     & Agrif_Mygrid % tabvars(indic) % var % restaure,
+     & Agrif_Mygrid % tabvars(indic) %var % nbdim)
       endif
       endif
 C
       if ( dimensio .EQ. 4 ) then
       if (present(procname)) then
        Call Agrif_Interp_4D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),
+     & Agrif_Mygrid % tabvars(indic) % var %  TypeInterp,
+     & Agrif_Curgrid % parent % tabvars(indic),
+     & Agrif_Curgrid % tabvars(indic),
      & Agrif_Curgrid % tabvars(tabvarsindic0) % var % array4 ,     
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim,procname)
+     & Agrif_Mygrid % tabvars(indic) % var % restaure,
+     & Agrif_Mygrid % tabvars(indic) %var % nbdim,procname)
       else
        Call Agrif_Interp_4D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),
+     & Agrif_Mygrid % tabvars(indic) % var %  TypeInterp,
+     & Agrif_Curgrid % parent % tabvars(indic),
+     & Agrif_Curgrid % tabvars(indic),
      & Agrif_Curgrid % tabvars(tabvarsindic0) % var % array4 ,     
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim)
+     & Agrif_Mygrid % tabvars(indic) % var % restaure,
+     & Agrif_Mygrid % tabvars(indic) %var % nbdim)
       endif
       endif
 C
       if ( dimensio .EQ. 5 ) then
       if (present(procname)) then
        Call Agrif_Interp_5D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),
+     & Agrif_Mygrid % tabvars(indic) % var %  TypeInterp,
+     & Agrif_Curgrid % parent % tabvars(indic),
+     & Agrif_Curgrid % tabvars(indic),
      & Agrif_Curgrid % tabvars(tabvarsindic0) % var % array5 ,     
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim,procname)
+     & Agrif_Mygrid % tabvars(indic) % var % restaure,
+     & Agrif_Mygrid % tabvars(indic) %var % nbdim,procname)
       else
        Call Agrif_Interp_5D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),
+     & Agrif_Mygrid % tabvars(indic) % var %  TypeInterp,
+     & Agrif_Curgrid % parent % tabvars(indic),
+     & Agrif_Curgrid % tabvars(indic),
      & Agrif_Curgrid % tabvars(tabvarsindic0) % var % array5 ,     
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim)
+     & Agrif_Mygrid % tabvars(indic) % var % restaure,
+     & Agrif_Mygrid % tabvars(indic) %var % nbdim)
        endif
        endif
 C
       if ( dimensio .EQ. 6 ) then
       if (present(procname)) then
        Call Agrif_Interp_6D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),
+     & Agrif_Mygrid % tabvars(indic) % var %  TypeInterp,
+     & Agrif_Curgrid % parent % tabvars(indic),
+     & Agrif_Curgrid % tabvars(indic),
      & Agrif_Curgrid % tabvars(tabvarsindic0) % var % array6 ,     
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim,procname)
+     & Agrif_Mygrid % tabvars(indic) % var % restaure,
+     & Agrif_Mygrid % tabvars(indic) %var % nbdim,procname)
       else
        Call Agrif_Interp_6D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),
+     & Agrif_Mygrid % tabvars(indic) % var %  TypeInterp,
+     & Agrif_Curgrid % parent % tabvars(indic),
+     & Agrif_Curgrid % tabvars(indic),
      & Agrif_Curgrid % tabvars(tabvarsindic0) % var % array6 ,     
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim)
+     & Agrif_Mygrid % tabvars(indic) % var % restaure,
+     & Agrif_Mygrid % tabvars(indic) %var % nbdim)
       endif
       endif
 C
@@ -1224,26 +1346,46 @@ C
       Subroutine Agrif_Interp_var1d(q,tabvarsindic,procname)
 
       REAL, DIMENSION(:) :: q
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic, indic ! indice of the variable in tabvars
       External :: procname
       Optional ::  procname
+      TYPE(Agrif_PVariable),Pointer ::tabvars,parenttabvars,roottabvars      
 C
       if (Agrif_Root()) Return
 C      
+C      
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif 
+      
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-indic)
+      parenttabvars => tabvars%parent_var
+      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)
+      else
+      tabvars=>Agrif_Curgrid % tabvars(indic)
+      parenttabvars => Agrif_Curgrid % parent % tabvars(indic)
+      roottabvars => Agrif_Mygrid % tabvars(indic)
+      endif
+      
       if (present(procname)) then
       Call Agrif_Interp_1D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim,procname)
+     & roottabvars % var %  TypeInterp,
+     & parenttabvars,
+     & tabvars,q,
+     & roottabvars % var % restaure,
+     & roottabvars %var % nbdim,procname)
       else
       Call Agrif_Interp_1D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim)
+     & roottabvars % var %  TypeInterp,
+     & parenttabvars,
+     & tabvars,q,
+     & roottabvars % var % restaure,
+     & roottabvars %var % nbdim)
+     
       endif
       Return
       End Subroutine Agrif_Interp_var1d
@@ -1255,28 +1397,53 @@ C
       Subroutine Agrif_Interp_var2d(q,tabvarsindic,procname)
 
       REAL,  DIMENSION(:,:) :: q
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic, indic ! indice of the variable in tabvars
       External :: procname
       Optional ::  procname
+      TYPE(Agrif_PVariable),Pointer ::tabvars,parenttabvars,roottabvars      
+C
+      if (Agrif_Root()) Return
+C      
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif 
+      
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-indic)
+      parenttabvars => tabvars%parent_var
+      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)
+      if (tabvars%var%restaure) then
+        if (agrif_curgrid%ngridstep == 0) then
+          call AGRIF_CopyFromold_AllOneVar
+     &            (Agrif_Curgrid,Agrif_OldMygrid,indic)
+        endif
+      endif
+      else
+      tabvars=>Agrif_Curgrid % tabvars(indic)
+      parenttabvars => Agrif_Curgrid % parent % tabvars(indic)
+      roottabvars => Agrif_Mygrid % tabvars(indic)
+      endif
 
-C
-       if (Agrif_Root()) Return
-C
-       if (present(procname)) then
-       Call Agrif_Interp_2D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim,procname)
-       else
-       Call Agrif_Interp_2D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim)
-       endif
+            
+      if (present(procname)) then
+      Call Agrif_Interp_2D(
+     & roottabvars % var %  TypeInterp,
+     & parenttabvars,
+     & tabvars,q,
+     & roottabvars % var % restaure,
+     & roottabvars %var % nbdim,procname)
+      else
+      Call Agrif_Interp_2D(
+     & roottabvars % var %  TypeInterp,
+     & parenttabvars,
+     & tabvars,q,
+     & roottabvars % var % restaure,
+     & roottabvars %var % nbdim)
+     
+      endif 
       Return
       End Subroutine Agrif_Interp_var2d
 C
@@ -1287,28 +1454,53 @@ C
       Subroutine Agrif_Interp_var3d(q,tabvarsindic,procname)
 
       REAL,  DIMENSION(:,:,:) :: q
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic, indic ! indice of the variable in tabvars
       External :: procname
       Optional ::  procname
-
+      TYPE(Agrif_PVariable),Pointer ::tabvars,parenttabvars,roottabvars      
 C
       if (Agrif_Root()) Return
-C
+C      
+
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif 
+      
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-indic)
+      parenttabvars => tabvars%parent_var
+      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)
+      if (tabvars%var%restaure) then
+        if (agrif_curgrid%ngridstep == 0) then
+          call AGRIF_CopyFromold_AllOneVar
+     &            (Agrif_Curgrid,Agrif_OldMygrid,indic)
+        endif
+      endif      
+      else
+      tabvars=>Agrif_Curgrid % tabvars(indic)
+      parenttabvars => Agrif_Curgrid % parent % tabvars(indic)
+      roottabvars => Agrif_Mygrid % tabvars(indic)
+      endif
+
       if (present(procname)) then
       Call Agrif_Interp_3D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim,procname)
+     & roottabvars % var %  TypeInterp,
+     & parenttabvars,
+     & tabvars,q,
+     & roottabvars % var % restaure,
+     & roottabvars %var % nbdim,procname)
       else
       Call Agrif_Interp_3D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim)
-      endif
+     & roottabvars % var %  TypeInterp,
+     & parenttabvars,
+     & tabvars,q,
+     & roottabvars % var % restaure,
+     & roottabvars %var % nbdim)
+     
+      endif   
       Return
       End Subroutine Agrif_Interp_var3d
 C
@@ -1319,28 +1511,53 @@ C
       Subroutine Agrif_Interp_var4d(q,tabvarsindic,procname)
 
       REAL,  DIMENSION(:,:,:,:) :: q
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic, indic ! indice of the variable in tabvars
       External :: procname
       Optional ::  procname
-
+      TYPE(Agrif_PVariable),Pointer ::tabvars,parenttabvars,roottabvars      
 C
       if (Agrif_Root()) Return
-C
+C      
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif 
+      
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-indic)
+      parenttabvars => tabvars%parent_var
+      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)
+      if (tabvars%var%restaure) then
+        if (agrif_curgrid%ngridstep == 0) then
+          call AGRIF_CopyFromold_AllOneVar
+     &            (Agrif_Curgrid,Agrif_OldMygrid,indic)
+        endif
+      endif      
+      else
+      tabvars=>Agrif_Curgrid % tabvars(indic)
+      parenttabvars => Agrif_Curgrid % parent % tabvars(indic)
+      roottabvars => Agrif_Mygrid % tabvars(indic)
+      endif
+            
       if (present(procname)) then
       Call Agrif_Interp_4D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim,procname)
+     & roottabvars % var %  TypeInterp,
+     & parenttabvars,
+     & tabvars,q,
+     & roottabvars % var % restaure,
+     & roottabvars %var % nbdim,procname)
       else
       Call Agrif_Interp_4D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim)
-      endif
+     & roottabvars % var %  TypeInterp,
+     & parenttabvars,
+     & tabvars,q,
+     & roottabvars % var % restaure,
+     & roottabvars %var % nbdim)
+     
+      endif      
+
       Return
       End Subroutine Agrif_Interp_var4d     
 C
@@ -1351,27 +1568,46 @@ C
       Subroutine Agrif_Interp_var5d(q,tabvarsindic,procname)
 
       REAL,  DIMENSION(:,:,:,:,:) :: q
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic, indic ! indice of the variable in tabvars
       External :: procname
       Optional ::  procname
-
+      TYPE(Agrif_PVariable),Pointer ::tabvars,parenttabvars,roottabvars      
 C
       if (Agrif_Root()) Return
-C
+C      
+
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif 
+      
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-indic)
+      parenttabvars => tabvars%parent_var
+      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)
+      else
+      tabvars=>Agrif_Curgrid % tabvars(indic)
+      parenttabvars => Agrif_Curgrid % parent % tabvars(indic)
+      roottabvars => Agrif_Mygrid % tabvars(indic)
+      endif
+      
       if (present(procname)) then
       Call Agrif_Interp_5D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim,procname)
+     & roottabvars % var %  TypeInterp,
+     & parenttabvars,
+     & tabvars,q,
+     & roottabvars % var % restaure,
+     & roottabvars %var % nbdim,procname)
       else
       Call Agrif_Interp_5D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var %  TypeInterp,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % restaure,
-     & Agrif_Mygrid % tabvars(tabvarsindic) %var % nbdim)
+     & roottabvars % var %  TypeInterp,
+     & parenttabvars,
+     & tabvars,q,
+     & roottabvars % var % restaure,
+     & roottabvars %var % nbdim)
+     
       endif
       Return
       End Subroutine Agrif_Interp_var5d       
@@ -1951,98 +2187,7 @@ C
       
       End Subroutine Agrif_Flux_Correction
 
-      Subroutine Agrif_Declare_Variable(posvar,firstpoint,
-     &    raf,lb,ub,varid)
-      character*(80) :: variablename
-      Type(Agrif_List_Variables), Pointer :: newvariable,newvariablep
-      INTEGER, DIMENSION(:) :: posvar
-      INTEGER, DIMENSION(:) :: lb,ub
-      INTEGER, DIMENSION(:) :: firstpoint
-      CHARACTER(*) ,DIMENSION(:) :: raf        
-      TYPE(Agrif_Pvariable), Pointer :: parent_var,root_var
-      INTEGER :: dimensio
-      INTEGER :: varid
-            
-      if (agrif_root()) return
 
-      dimensio = SIZE(posvar)
-C
-C    
-      Allocate(newvariable)
-      Allocate(newvariable%pvar)
-      Allocate(newvariable%pvar%var)
-      Allocate(newvariable%pvar%var%posvar(dimensio))
-      Allocate(newvariable%pvar%var%interptab(dimensio))
-      newvariable%pvar%var%variablename = variablename
-      newvariable%pvar%var%interptab = raf
-      newvariable%pvar%var%nbdim = dimensio
-      newvariable%pvar%var%posvar = posvar
-      newvariable%pvar%var%point(1:dimensio) = firstpoint
-      newvariable%pvar%var%lb(1:dimensio) = lb(1:dimensio)
-      newvariable%pvar%var%ub(1:dimensio) = ub(1:dimensio)
-      
-      newvariable % nextvariable => Agrif_Curgrid%variables
-      
-      Agrif_Curgrid%variables => newvariable
-      Agrif_Curgrid%Nbvariables = Agrif_Curgrid%Nbvariables + 1
-      
-      varid = -Agrif_Curgrid%Nbvariables
-      
-       if (agrif_curgrid%parent%nbvariables < agrif_curgrid%nbvariables)
-     &       then
-      Allocate(newvariablep)
-      Allocate(newvariablep%pvar)
-      Allocate(newvariablep%pvar%var)      
-      Allocate(newvariablep%pvar%var%posvar(dimensio))
-      Allocate(newvariablep%pvar%var%interptab(dimensio))
-      newvariablep%pvar%var%variablename = variablename
-      newvariablep%pvar%var%interptab = raf
-      newvariablep%pvar%var%nbdim = dimensio
-      newvariablep%pvar%var%posvar = posvar
-      newvariablep%pvar%var%point(1:dimensio) = firstpoint
-      
-      newvariablep % nextvariable => Agrif_Curgrid%parent%variables
-      
-      Agrif_Curgrid%parent%variables => newvariablep       
-      
-      Agrif_Curgrid%parent%Nbvariables = 
-     &    Agrif_Curgrid%parent%Nbvariables + 1
-      parent_var=>newvariablep%pvar
-      else
-      parent_var=>Agrif_Search_Variable
-     &              (Agrif_Curgrid%parent,Agrif_Curgrid%nbvariables)
-       endif
-       
-       newvariable%pvar%parent_var=>parent_var
-      
-      root_var=>Agrif_Search_Variable
-     &              (Agrif_Mygrid,Agrif_Curgrid%nbvariables)
-     
-      newvariable%pvar%var%root_var=>root_var%var
-      
-           
-      End Subroutine Agrif_Declare_Variable
-
-      FUNCTION Agrif_Search_Variable(grid,varid)
-      integer :: varid
-      Type(Agrif_Pvariable), Pointer :: Agrif_Search_variable
-      Type(Agrif_grid), Pointer :: grid
-      
-      Type(Agrif_List_Variables), pointer :: parcours
-      Logical :: foundvariable
-      integer nb
-      
-      foundvariable = .FALSE.
-      parcours => grid%variables
-      
-      do nb=1,varid-1
-         parcours => parcours%nextvariable
-      End Do
-      
-      Agrif_Search_variable => parcours%pvar
-      
-      
-      End Function Agrif_Search_variable
                               
       Subroutine Agrif_Declare_Profile_flux(profilename,posvar,
      &    firstpoint,raf)
@@ -2070,6 +2215,123 @@ C
       Agrif_myprofiles => newprofile
       
       End Subroutine Agrif_Declare_Profile_flux
-              
+
+      Subroutine Agrif_Save_ForRestore0D(tabvarsindic0,tabvarsindic)
+      integer :: tabvarsindic0, tabvarsindic
+      integer :: dimensio
+      
+      dimensio =  Agrif_Mygrid % tabvars(tabvarsindic0) % var % nbdim
+      
+      select case(dimensio)
+      case(2)
+          call Agrif_Save_ForRestore2D(
+     &      Agrif_Curgrid % tabvars(tabvarsindic0) % var % array2,
+     &      tabvarsindic)
+      case(3)
+          call Agrif_Save_ForRestore3D(
+     &      Agrif_Curgrid % tabvars(tabvarsindic0) % var % array3,
+     &      tabvarsindic)
+      case(4)
+          call Agrif_Save_ForRestore4D(
+     &      Agrif_Curgrid % tabvars(tabvarsindic0) % var % array4,
+     &      tabvarsindic)     
+      end select
+
+      Return
+      End Subroutine Agrif_Save_ForRestore0D 
+      
+    
+      
+      Subroutine Agrif_Save_ForRestore2D(q,tabvarsindic)
+      real,dimension(:,:) :: q
+      integer :: tabvarsindic, indic
+      TYPE(Agrif_PVariable),Pointer ::tabvars, roottabvars    
+ 
+       indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif
+      
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-indic)
+      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)
+      else
+      tabvars=>Agrif_Curgrid % tabvars(indic)
+      roottabvars => Agrif_Mygrid % tabvars(indic)
+      endif      
+      if (.not.associated(tabvars%var%array2)) then      
+      allocate(tabvars%var%array2(tabvars%var%lb(1):tabvars%var%ub(1),
+     &                            tabvars%var%lb(2):tabvars%var%ub(2)))
+      endif
+      tabvars%var%array2 = q
+      roottabvars%var%restaure = .true.
+      
+      Return
+      End Subroutine Agrif_Save_ForRestore2D  
+      
+      Subroutine Agrif_Save_ForRestore3D(q,tabvarsindic)
+      real,dimension(:,:,:) :: q
+      integer :: tabvarsindic, indic
+      TYPE(Agrif_PVariable),Pointer ::tabvars, roottabvars    
+ 
+       indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif
+      
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-indic)
+      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)
+      else
+      tabvars=>Agrif_Curgrid % tabvars(indic)
+      roottabvars => Agrif_Mygrid % tabvars(indic)
+      endif      
+
+      if (.not.associated(tabvars%var%array3)) then
+      allocate(tabvars%var%array3(tabvars%var%lb(1):tabvars%var%ub(1),
+     &                            tabvars%var%lb(2):tabvars%var%ub(2),
+     &                            tabvars%var%lb(3):tabvars%var%ub(3)))
+      endif
+      tabvars%var%array3 = q
+      roottabvars%var%restaure = .true.
+      
+      Return
+      End Subroutine Agrif_Save_ForRestore3D
+      
+      Subroutine Agrif_Save_ForRestore4D(q,tabvarsindic)
+      real,dimension(:,:,:,:) :: q
+      integer :: tabvarsindic, indic
+      TYPE(Agrif_PVariable),Pointer ::tabvars, roottabvars    
+ 
+       indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif
+      
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-indic)
+      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)
+      else
+      tabvars=>Agrif_Curgrid % tabvars(indic)
+      roottabvars => Agrif_Mygrid % tabvars(indic)
+      endif
+
+      if (.not.associated(tabvars%var%array4)) then         
+      allocate(tabvars%var%array4(tabvars%var%lb(1):tabvars%var%ub(1),
+     &                            tabvars%var%lb(2):tabvars%var%ub(2),
+     &                            tabvars%var%lb(3):tabvars%var%ub(3),
+     &                            tabvars%var%lb(4):tabvars%var%ub(4)))
+      endif
+      tabvars%var%array4 = q
+      roottabvars%var%restaure = .true.
+      
+      Return
+      End Subroutine Agrif_Save_ForRestore4D                   
 C
       End module Agrif_bcfunction

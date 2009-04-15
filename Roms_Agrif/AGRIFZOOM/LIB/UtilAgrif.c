@@ -66,6 +66,7 @@ int Vartonumber(char *tokname)
    else if ( !strcasecmp(tokname,"Agrif_Set_Update")     ) agrifintheword = 1;
    else if ( !strcasecmp(tokname,"Agrif_Set_UpdateType") ) agrifintheword = 1;
    else if ( !strcasecmp(tokname,"Agrif_Set_restore")    ) agrifintheword = 1;
+   else if ( !strcasecmp(tokname,"Agrif_Save_Forrestore")) agrifintheword = 1;
    else if ( !strcasecmp(tokname,"agrif_init_grids")     ) agrifintheword = 1;
    else if ( !strcasecmp(tokname,"agrif_step")           ) agrifintheword = 1;
 

@@ -11,7 +11,8 @@ AGRIFYOURFILES=AGRIF_YOURFILES
 FILENAMES= modbc modcluster modinit modinitvars modinterp modinterpbasic \
 	   modtypes modutil modbcfunction modcurgridfunctions \
 	   modmask modsauv modupdate \
-	   modupdatebasic modlinktomodel modmpp modarrays modflux
+	   modupdatebasic modlinktomodel modmpp modarrays modflux \
+	modvariables
 	   
 OBJS1=$(addprefix $(AGRIFOBJS)/,$(FILENAMES))
 OBJS=$(addsuffix .o,$(OBJS1))

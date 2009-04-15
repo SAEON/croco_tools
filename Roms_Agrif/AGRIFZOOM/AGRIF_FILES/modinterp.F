@@ -572,7 +572,7 @@ CCC   Subroutine to set some arguments of subroutine Agrif_InterpnD, n being the
 CCC   DIMENSION of the grid variable.
 C
 CC    Declarations:
-C      
+C       
 c      
 C      
 C
@@ -834,8 +834,6 @@ C
      &     parentarray(:,1,1),parentarray(:,2,1),nbdim)
 
       Call Agrif_nbdim_Full_VarEQreal(tempP%var,0.,nbdim)
-
-
 
       IF (present(procname)) THEN
       Call Agrif_ChildGrid_to_ParentGrid()
