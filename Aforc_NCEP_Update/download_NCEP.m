@@ -34,6 +34,7 @@ if NCEP_version==1
   ncep_url='http://nomad1.ncep.noaa.gov:9090/dods/reanalyses/reanalysis-1/';
   catalog={'6hr/grb2d/grb2d' ...
            '6hr/grb2d/grb2d' ...
+           '6hr/grb2d/grb2d' ...
 	   '6hr/grb2d/grb2d' ...
 	   '6hr/grb2d/grb2d' ...
 	   '6hr/grb2d/grb2d' ...
@@ -45,12 +46,13 @@ if NCEP_version==1
           'tmp2m' ...        % 2 m temp. [k]
           'dlwrfsfc' ...     % surface downward long wave flux [w/m^2] 
           'tmpsfc' ...       % surface temp. [k]   		  
-	  'dswrfsfc' ...     % surface downward solar radiation flux [w/m^2] 
+	  'dswrfsfc' ...     % surface downward solar radiation flux [w/m^2]
+	  'uswrfsfc' ...     % surface upward solar radiation flux [w/m^2]  
 	  'pratesfc' ...     % surface precipitation rate [kg/m^2/s] 
 	  'ugrd10m' ...      % 10 m u wind [m/s]
 	  'vgrd10m' ...      % 10 m v wind [m/s]
 	  'spfh2m'};         % 2 m specific humidity [kg/kg]
-  level ={'' '' '' '' '' '' '' '' ''};
+  level ={'' '' '' '' '' '' '' '' '' ''};
 %
 elseif NCEP_version==2
 %http://nomad3.ncep.noaa.gov:9090/dods/reanalyses/reanalysis-2/month/flx/flx
@@ -210,7 +212,7 @@ disp(['TRANGE=',num2str(trange)])
               i1min,i1max,i2min,i2max,i3min,i3max,...
               Yorig)
    else
-    disp(['File ',recipe_file,' already exist, abord.']);
+    disp(['File ',recipe_file,' already exists, abort.']);
    end % if file exist 
   end % end loop month
  end % end loop year
