@@ -112,10 +112,10 @@ C
         if (ypos2 > globind_parent_right) then
            locind_parent_left = locind_parent_left + 1.
            globind_parent_right = globind_parent_right + 1.
+           ypos2 = ypos*invds+(i-1)*invds2           
         endif
         
         diff=(globind_parent_right - ypos2)
-        
         y(i) = (diff*x(locind_parent_left)
      &        + (1.-diff)*x(locind_parent_left+1))
 C
@@ -215,8 +215,9 @@ C
         if (ypos2 > globind_parent_right) then
            locind_parent_left = locind_parent_left + 1
            globind_parent_right = globind_parent_right + 1.
+           ypos2 = ypos*invds+(i-1)*invds2
         endif
-        
+
         diff=(globind_parent_right - ypos2)
         indparent(i,dir) = locind_parent_left
         coeffparent(i,dir) = diff
@@ -322,6 +323,7 @@ C
         if (ypos2 > globind_parent_right) then
            locind_parent_left = locind_parent_left + 1
            globind_parent_right = globind_parent_right + 1.
+           ypos2 = ypos*invds+(i-1)*invds2           
         endif
         
         diff=(globind_parent_right - ypos2)
