@@ -305,7 +305,6 @@ C$OMP BARRIER
          enddo 
        endif
 
-
          do j=JstrR,JendR
          do i=IstrR,IendR
           DC(i,j,0) = 0.
@@ -377,6 +376,13 @@ C$OMP BARRIER
          enddo
          enddo
          enddo
+
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      call exchange_u3d_tile (Istr,Iend,Jstr,Jend,
+     &                                 usponge(START_2D_ARRAY,1))
+      call exchange_v3d_tile (Istr,Iend,Jstr,Jend,
+     &                                 vsponge(START_2D_ARRAY,1))
+# endif
 
       return
       end
