@@ -47,11 +47,11 @@ close all
 romstools_param
 %
 if NCEP_version==1
-frc_prefix=[frc_prefix,'_NCEP1_'];                           
-blk_prefix=[blk_prefix,'_NCEP1_'];
+  frc_prefix=[frc_prefix,'_NCEP1_'];                           
+  blk_prefix=[blk_prefix,'_NCEP1_'];
 elseif NCEP_version==2
-frc_prefix=[frc_prefix,'_NCEP2_'];                           
-blk_prefix=[blk_prefix,'_NCEP2_'];
+  frc_prefix=[frc_prefix,'_NCEP2_'];                           
+  blk_prefix=[blk_prefix,'_NCEP2_'];
 end
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -59,8 +59,13 @@ close all
 romstools_param
 %
 %
-ncep_frc_prefix=[frc_prefix,'_NCEP_'];
-ncep_blk_prefix=[blk_prefix,'_NCEP_'];
+if NCEP_version==1
+  ncep_frc_prefix=[frc_prefix,'_NCEP1_'];                           
+  ncep_blk_prefix=[blk_prefix,'_NCEP1_'];
+elseif NCEP_version==2
+  ncep_frc_prefix=[frc_prefix,'_NCEP2_'];                           
+  ncep_blk_prefix=[blk_prefix,'_NCEP2_'];
+end
 %
 %
 %
