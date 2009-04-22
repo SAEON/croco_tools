@@ -109,6 +109,8 @@ close(nc)
 cosa = cos(angle);
 sina = sin(angle);
 %
+[MMp,LLp]=size(lon);
+%
 % Extract data over the internet
 %
 if Download_data==1
@@ -179,7 +181,16 @@ for Y=Ymin:Ymax
     time(1)=datenum(Y,M,1)-datenum(Yorig,1,1)-1+dt/2;  
     time(end)=datenum(Y,M,eomday(Y,M))-datenum(Yorig,1,1)+1+dt/2; %%%% Modified by Serena
 %    time(end)=datenum(Y,M,eomday(Y,M))-datenum(Yorig,1,1)+2+dt/2; %%%% Modified by Serena
-
+%
+% Initialize array 
+%
+    u=zeros(MMp,LLp,tlen);
+    v=u;
+    if QSCAT_blk==1  
+      xu=u;    
+      yv=u;
+      ws=u;
+    end
 %
 % Create a ROMS forcing/bulk file for each month
 %
