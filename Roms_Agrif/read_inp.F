@@ -228,15 +228,17 @@
      &                   'Grid File:', grdname(1:lstr)
 #endif
 #if !defined ANA_SMFLUX  || defined SOLVE3D && (\
-        !defined ANA_STFLUX  || !defined ANA_BTFLUX  \
+        (!defined ANA_STFLUX && !defined BULK_FLUX) \
+      ||!defined ANA_BTFLUX   \
       ||(defined BBL         && !defined ANA_BSEDIM && !defined SEDIMENT) \
       ||(defined BBL         && !defined ANA_WWAVE)  \
       ||(defined QCORRECTION && !defined ANA_SST)    \
-      ||(defined SALINITY    && !defined ANA_SSFLUX) \
-      ||(defined LMD_SKPP    && !defined ANA_SRFLUX) \
+      ||(defined SALINITY    && !defined ANA_SSFLUX && \
+         !defined BULK_FLUX  && !defined BULK_EP) \
       ||(defined SALINITY    && defined QCORRECTION && \
          defined SFLX_CORR   && !defined ANA_SSS) \
-      || defined BULK_FLUX)
+      ||(defined LMD_SKPP    && !defined ANA_SRFLUX && !defined BULK_FLUX) \
+      ||(defined BULK_FLUX   && (!defined BULK_SMFLUX || !defined BULK_EP)) )
 !
 ! Forcing file name. Check its availability.
 !
@@ -252,40 +254,40 @@
         frcname=fname(1:lstr)
         MPI_master_only write(stdout,'(2x,A,2x,A)')
      &             'Forcing Data File:', frcname(1:lstr)
+#endif
 !
 ! Biology forcing: iron dust deposition. 
 !
-# ifdef BIOLOGY
+#if defined BIOLOGY && defined PISCES
       elseif (keyword(1:kwlen).eq.'biology') then
         call cancel_kwd (keyword(1:kwlen), ierr)
         read(input,'(A)',err=95) fname
         lstr=lenstr(fname)
-#  if defined MPI && defined PARALLEL_FILES
+# if defined MPI && defined PARALLEL_FILES
         call insert_node (fname, lstr, mynode, NNODES, ierr)
-#  endif
+# endif
 c        open (testunit, file=fname(1:lstr), status='old', err=97)
 c        close(testunit)
         bioname=fname(1:lstr)
         MPI_master_only write(stdout,'(2x,A,2x,A)')
      &             'Biology Forcing Data File:', bioname(1:lstr)
-# endif
+#endif
 !
 ! Bulk file name. Check its availability.
 !
-# if defined BULK_FLUX
+#if defined BULK_FLUX
         elseif (keyword(1:kwlen).eq.'bulk_forcing') then
           call cancel_kwd (keyword(1:kwlen), ierr)
           read(input,'(A)',err=95) fname
           lstr=lenstr(fname)
-#  if defined MPI && defined PARALLEL_FILES
+# if defined MPI && defined PARALLEL_FILES
           call insert_node (fname, lstr, mynode, NNODES, ierr)
-#  endif
+# endif
           open (testunit, file=fname(1:lstr), status='old', err=97)
           close(testunit)
           bulkname=fname(1:lstr)
           MPI_master_only write(stdout,'(2x,A,2x,A)')
      &               '   Bulk Data File:', bulkname(1:lstr)
-# endif
 #endif
 #if (defined TCLIMATOLOGY  && !defined ANA_TCLIMA) || \
       (defined ZCLIMATOLOGY  && !defined ANA_SSH) || \
