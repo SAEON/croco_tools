@@ -390,7 +390,11 @@ c-# define TANH dtanh
  Decide which time step of fast variables zeta, ubar, vbar goes
  to output.
 */ 
+#ifdef SOLVE3D
 # define fast_indx_out knew
+#else
+# define fast_indx_out kstp
+#endif
 
 /*
   Default boundary conditions for nesting 
