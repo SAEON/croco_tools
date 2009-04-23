@@ -177,7 +177,8 @@ c        enddo
           do j=Jstr,Jend
             do i=Istr,Iend
               expide=min(8.,(fsdept(i,j,k)/500.)**(-1.5))
-              denitide=-0.9543+0.7662*log(expide)-0.235*log(expide)**2
+              denitide=-0.9543+0.7662*log(expide)-
+     &                                0.235*log(expide)**2
               cmask(i,j,k)=cmask(i,j,k)*min(1.,exp(denitide)/0.5)
             enddo
           enddo
