@@ -76,6 +76,8 @@
       parameter (LLm0=170, MMm0=60,  N=30) ! <-- Pacific
 #  elif defined  CORAL
       parameter (LLm0=81, MMm0=77,  N=32)  ! <-- CORAL sea
+#  elif defined  BENGUELA_LR
+      parameter (LLm0=41, MMm0=42,  N=32)  ! <-- BENGUELA_LR
 #  else
       parameter (LLm0=39,  MMm0=32,  N=20)
 #  endif
@@ -379,7 +381,11 @@
 # endif
       parameter (NT=itemp+ntrc_salt+ntrc_pas+ntrc_bio+ntrc_sed)
 # ifdef DIAGNOSTICS_TS
+#  ifdef DIAGNOSTICS_TS_MLD
+      parameter (ntrc_diats=15*NT)
+#  else
       parameter (ntrc_diats=7*NT)
+#  endif
 # else
       parameter (ntrc_diats=0)
 # endif
