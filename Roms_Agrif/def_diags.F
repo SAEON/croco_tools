@@ -736,9 +736,9 @@
 !
 ! indxTXadv on MLD
 !
-          lvar=lenstr(vname(1,indxTXadv_mld+itrc-1))
-          ierr=nf_inq_varid (ncid,vname(1,indxTXadv_mld+itrc-1)(1:lvar),
-     &                                               vidTXadv_mld(itrc))
+        lvar=lenstr(vname(1,indxTXadv_mld+itrc-1))
+        ierr=nf_inq_varid (ncid,vname(1,indxTXadv_mld+itrc-1)(1:lvar),
+     &                                           vidTXadv_mld(itrc))
           if (ierr .ne. nf_noerr) then
             write(stdout,1) vname(1,indxTXadv_mld+itrc-1)(1:lvar),
      &                                         ncname(1:lstr) 
@@ -747,9 +747,9 @@
 !
 ! indxTYadv on MLD
 !
-          lvar=lenstr(vname(1,indxTYadv_mld+itrc-1))
-          ierr=nf_inq_varid (ncid,vname(1,indxTYadv_mld+itrc-1)(1:lvar),
-     &                                               vidTYadv_mld(itrc))
+        lvar=lenstr(vname(1,indxTYadv_mld+itrc-1))
+        ierr=nf_inq_varid (ncid,vname(1,indxTYadv_mld+itrc-1)(1:lvar),
+     &                                           vidTYadv_mld(itrc))
           if (ierr .ne. nf_noerr) then
             write(stdout,1) vname(1,indxTYadv_mld+itrc-1)(1:lvar),
      &                                         ncname(1:lstr) 
@@ -758,9 +758,9 @@
 !
 ! indxTVadv on MLD
 !
-          lvar=lenstr(vname(1,indxTVadv_mld+itrc-1))
-          ierr=nf_inq_varid (ncid,vname(1,indxTVadv_mld+itrc-1)(1:lvar),
-     &                                               vidTVadv_mld(itrc))
+        lvar=lenstr(vname(1,indxTVadv_mld+itrc-1))
+        ierr=nf_inq_varid (ncid,vname(1,indxTVadv_mld+itrc-1)(1:lvar),
+     &                                           vidTVadv_mld(itrc))
           if (ierr .ne. nf_noerr) then
             write(stdout,1) vname(1,indxTVadv_mld+itrc-1)(1:lvar),
      &                                         ncname(1:lstr) 
@@ -769,9 +769,9 @@
 !
 ! indxTHmix on MLD
 !
-          lvar=lenstr(vname(1,indxTHmix_mld+itrc-1))
-          ierr=nf_inq_varid (ncid,vname(1,indxTHmix_mld+itrc-1)(1:lvar),
-     &                                               vidTHmix_mld(itrc))
+        lvar=lenstr(vname(1,indxTHmix_mld+itrc-1))
+        ierr=nf_inq_varid (ncid,vname(1,indxTHmix_mld+itrc-1)(1:lvar),
+     &                                          vidTHmix_mld(itrc))
           if (ierr .ne. nf_noerr) then
             write(stdout,1) vname(1,indxTHmix_mld+itrc-1)(1:lvar),
      &                                         ncname(1:lstr)
@@ -780,9 +780,9 @@
 !
 ! indxTVmix on MLD
 !
-          lvar=lenstr(vname(1,indxTVmix_mld+itrc-1))
-          ierr=nf_inq_varid (ncid,vname(1,indxTVmix_mld+itrc-1)(1:lvar),
-     &                                               vidTVmix_mld(itrc))
+        lvar=lenstr(vname(1,indxTVmix_mld+itrc-1))
+        ierr=nf_inq_varid (ncid,vname(1,indxTVmix_mld+itrc-1)(1:lvar),
+     &                                          vidTVmix_mld(itrc))
           if (ierr .ne. nf_noerr) then
             write(stdout,1) vname(1,indxTVmix_mld+itrc-1)(1:lvar),
      &                                         ncname(1:lstr) 
@@ -791,9 +791,9 @@
 !
 ! indxTForc on MLD
 !
-          lvar=lenstr(vname(1,indxTForc_mld+itrc-1))
-          ierr=nf_inq_varid (ncid,vname(1,indxTForc_mld+itrc-1)(1:lvar),
-     &                                               vidTForc_mld(itrc))
+        lvar=lenstr(vname(1,indxTForc_mld+itrc-1))
+        ierr=nf_inq_varid (ncid,vname(1,indxTForc_mld+itrc-1)(1:lvar),
+     &                                           vidTForc_mld(itrc))
           if (ierr .ne. nf_noerr) then
             write(stdout,1) vname(1,indxTForc_mld+itrc-1)(1:lvar),
      &                                         ncname(1:lstr) 
@@ -802,9 +802,9 @@
 !
 ! indxTrate on MLD
 !
-          lvar=lenstr(vname(1,indxTrate_mld+itrc-1))
-          ierr=nf_inq_varid (ncid,vname(1,indxTrate_mld+itrc-1)(1:lvar),
-     &                                               vidTrate_mld(itrc))
+        lvar=lenstr(vname(1,indxTrate_mld+itrc-1))
+        ierr=nf_inq_varid (ncid,vname(1,indxTrate_mld+itrc-1)(1:lvar),
+     &                                      vidTrate_mld(itrc))
           if (ierr .ne. nf_noerr) then
             write(stdout,1) vname(1,indxTrate_mld+itrc-1)(1:lvar),
      &                                         ncname(1:lstr) 
@@ -813,9 +813,9 @@
 !
 ! indxTentr on MLD
 !
-          lvar=lenstr(vname(1,indxTentr_mld+itrc-1))
-          ierr=nf_inq_varid (ncid,vname(1,indxTentr_mld+itrc-1)(1:lvar),
-     &                                               vidTentr_mld(itrc))
+        lvar=lenstr(vname(1,indxTentr_mld+itrc-1))
+        ierr=nf_inq_varid (ncid,vname(1,indxTentr_mld+itrc-1)(1:lvar),
+     &                                        vidTentr_mld(itrc))
           if (ierr .ne. nf_noerr) then
             write(stdout,1) vname(1,indxTentr_mld+itrc-1)(1:lvar),
      &                                         ncname(1:lstr)
