@@ -327,6 +327,7 @@
 !
 ! Compute tracer diagnostics averaged over the MLD
 !
+#  ifdef DIAGNOSTICS_TS_MLD
        do j=Jstr,Jend
          do i=Istr,Iend
            ! THmix_mld(i,j,itrc)=0.
@@ -336,11 +337,11 @@
        do k=N,kmld,-1
          do j=Jstr,Jend
            do i=Istr,Iend
-#  ifdef LMD_SKPP
+#   ifdef LMD_SKPP
              kmld=kbl(i,j)
-#  else
+#   else
              kmld=N-5
-#  endif
+#   endif
              cff=Hz(i,j,k)/(z_w(i,j,N)-z_w(i,j,kmld-1))
              THmix_mld(i,j,itrc)=THmix_mld(i,j,itrc)+
      &                           THmix(i,j,k,itrc)*cff
@@ -349,6 +350,7 @@
            enddo
          enddo
        enddo
+#  endif
 # endif /* DIAGNOSTICS_TS */
 
 !
