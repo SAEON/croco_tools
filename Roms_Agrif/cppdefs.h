@@ -186,25 +186,25 @@
 !---------------------------------
 */
 # ifdef BIOLOGY
-#  define PISCES
-#  undef BIO_NPZD
-#  undef BIO_N2P2Z2D2
-#  undef BIO_N2PZD2
+#  undef PISCES
+#  define BIO_NChlPZD
+#  undef  BIO_N2P2Z2D2
+#  undef  BIO_N2ChlPZD2  
 /*      BIOLOGY OPTIONS  */
 #  ifdef PISCES
 #   define key_trc_pisces
 #   define key_passivetrc
 #   undef DIAGNOSTICS_BIO
-#   ifdef DIAGNOSTICS_BIO
+#   if defined DIAGNOSTICS_BIO && defined PISCES
 #     define key_trc_diaadd
 #     define key_trc_dia3d
 #   endif
 #  endif
-#  ifdef BIO_NPZD
-#   undef OXYGEN      /* Under Development */
+#  ifdef BIO_NChlPZD
+#   undef OXYGEN  /* Under Development */
 #  endif
-#  if defined BIO_NPZD || defined BIO_N2P2Z2D2
-#   define DIAGNOSTICS_BIO
+#  if defined BIO_NChlPZD || defined BIO_N2P2Z2D2
+#    define  DIAGNOSTICS_BIO
 #  endif
 #  ifdef BIO_N2P2Z2D2
 #   undef VAR_CHL_C

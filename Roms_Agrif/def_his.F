@@ -67,7 +67,7 @@
 # define vidHbbl hisHbbl
 # ifdef BIOLOGY
 #  define vidHel hisHel
-#  ifdef BIO_NPZD
+#  ifdef BIO_NChlPZD
 #   define vidChC hisChC
 #   ifdef OXYGEN
 #     define vidU10 hisU10
@@ -115,7 +115,7 @@
 # define vidHbbl avgHbbl
 # ifdef BIOLOGY
 #  define vidHel avgHel
-#  ifdef BIO_NPZD
+#  ifdef BIO_NChlPZD
 #   define vidChC avgChC
 #   ifdef OXYGEN
 #    define vidU10 avgU10
@@ -230,7 +230,7 @@
 #endif
         ierr=nf_def_dim (ncid, 'time', nf_unlimited, timedim)
         ierr=nf_def_dim (ncid, 'auxil',    4,        auxil(1))
-
+        
         auxil(2)=timedim
 
         r2dgrd(3)=timedim           ! Free surface
@@ -240,7 +240,7 @@
 
         v2dgrd(1)=r2dgrd(1)         ! 2D VBAR-type
         v2dgrd(3)=timedim
-
+        
         b3dgrd(1)=r2dgrd(1)         !
         b3dgrd(2)=r2dgrd(2)         ! 3D BED-type
         b3dgrd(4)=timedim           !
@@ -818,7 +818,7 @@
 !
 ! Chlorophyll/Carbon ratio
 !
-#  ifdef BIO_NPZD
+#  ifdef BIO_NChlPZD
         if (wrt(indxChC)) then
           lvar=lenstr(vname(1,indxChC))
           ierr=nf_def_var (ncid, vname(1,indxChC)(1:lvar),
@@ -993,12 +993,12 @@
 # endif /* SEDIMENT */
 # if defined BBL && !defined AVRH
 !
-! Abed       Wind-induced, bed wave excursion amplitude (m)
-! Hripple    Bed ripple height (m)
-! Lripple    Bed ripple length (m)
+! Abed       Wind-induced, bed wave excursion amplitude (m)  
+! Hripple    Bed ripple height (m)                           
+! Lripple    Bed ripple length (m)                             
 ! Zbnot      Physical hydraulic bottom roughness (grain roughness) (m)
-! Zbapp      Effective apparent hydraulic bottom roughness
-! bostrw     Wave-induced kinematic bottom stress (N/m2)
+! Zbapp      Effective apparent hydraulic bottom roughness         
+! bostrw     Wave-induced kinematic bottom stress (N/m2)   
 !
         do itrc=1,6
          indxWrk=indxBBL+itrc-1
@@ -1041,7 +1041,7 @@
         lvar=lenstr(vname(3,indxShflx_rsw))
         ierr=nf_put_att_text (ncid, vidShflx_rsw, 'units',     lvar,
      &                               vname(3,indxShflx_rsw)(1:lvar))
-      endif 
+      endif
 ! Long wave SHFLX
       if (wrt(indxShflx_rlw)) then
         lvar=lenstr(vname(1,indxShflx_rlw))
@@ -1053,7 +1053,7 @@
      &                               vname(2,indxShflx_rlw)(1:lvar))
 #  else
         text='averaged '/ /vname(2,indxShflx_rlw)
-        lvar=lenstr(text)
+        lvar=lenstr(text) 
         ierr=nf_put_att_text (ncid, vidShflx_rlw, 'long_name', lvar,
      &                                             text(1:lvar))
 #  endif
@@ -1220,6 +1220,7 @@
             goto 99                                       !--> ERROR
           endif
         endif
+
 !
 ! bostr     Kinematic bottom stress (N/m2)
 !
@@ -1428,7 +1429,7 @@
 !
 ! Chlorophyll/Carbon ratio.
 !
-#  ifdef BIO_NPZD
+#  ifdef BIO_NChlPZD
         if (wrt(indxChC)) then
           lvar=lenstr(vname(1,indxChC))
           ierr=nf_inq_varid (ncid,vname(1,indxChC)(1:lvar), vidChC)
@@ -1659,7 +1660,7 @@
 #undef vidHbbl
 #ifdef BIOLOGY
 # undef vidHel
-# ifdef BIO_NPZD
+# ifdef BIO_NChlPZD
 #  undef vidChC
 #  ifdef OXYGEN
 #   undef vidU10

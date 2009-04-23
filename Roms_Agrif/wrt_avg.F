@@ -400,7 +400,7 @@
 !
 !  Write out Chlorophyll to Carbon ratio (m).
 !
-#   ifdef BIO_NPZD
+#   ifdef BIO_NChlPZD
       if (wrtavg(indxChC)) then
         ierr=nf_fwrite(theta_avg, ncidavg, avgChC, record, r3dvar)
         if (ierr .ne. nf_noerr) then

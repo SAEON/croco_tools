@@ -105,7 +105,7 @@
 ! Set kinematic bottom heat flux [degC m/s] at horizontal RHO-points.
 !--------------------------------------------------------------------
 !
-#  if defined BASIN    || defined CANYON_A  || defined CANYON_B   \
+#  if defined BASIN     || defined CANYON_A  || defined CANYON_B  \
   || defined EQUATOR   || defined GRAV_ADJ  || defined INNERSHELF \
   || defined OVERFLOW  || defined REGIONAL  || defined RIVER      \
   || defined SEAMOUNT  || defined SED_TEST2 || defined SHELFRONT  \
@@ -318,7 +318,7 @@
   || defined EQUATOR   || defined GRAV_ADJ  || defined OVERFLOW  \
   || defined REGIONAL  || defined RIVER     || defined SEAMOUNT  \
   || defined SHELFRONT || defined SOLITON   || defined UPWELLING \
-  || defined VORTEX    || defined INTERNAL    
+  || defined VORTEX    || defined INTERNAL
       do j=Jstr,JendR
         do i=IstrR,IendR
           svstr(i,j)=0.
@@ -480,20 +480,20 @@
       do j=JstrR,JendR
         do i=IstrR,IendR
           sst(i,j)=sst1
-	  if ((yr(i,j).gt.-y1).and.(yr(i,j).lt.y1)) then
+          if ((yr(i,j).gt.-y1).and.(yr(i,j).lt.y1)) then
             sst(i,j)=sst2
-	  else
-	    if ((yr(i,j).gt.-y2).and.(yr(i,j).lt.-y1)) then
+          else
+            if ((yr(i,j).gt.-y2).and.(yr(i,j).lt.-y1)) then
               sst(i,j)=((sst2-sst1)*yr(i,j)-sst1*y1+y2*sst2)/(y2-y1)
-	    endif
-	    if ((yr(i,j).gt.y1).and.(yr(i,j).lt.y2)) then
+            endif
+            if ((yr(i,j).gt.y1).and.(yr(i,j).lt.y2)) then
               sst(i,j)=((sst2-sst1)*yr(i,j)+sst1*y1-y2*sst2)/(y1-y2)
-	    endif
-	  endif
+            endif
+          endif
           dqdt(i,j)=-50.0/(rho0*Cp)
         enddo
       enddo
-# else 
+# else
       do j=JstrR,JendR
         do i=IstrR,IendR
           sst(i,j)=???
@@ -587,7 +587,7 @@ c
 # if defined EQUATOR || defined INNERSHELF || defined REGIONAL  \
   || defined RIVER   || defined SEAMOUNT   || defined SHELFRONT \
   || defined UPWELLING
-      
+
         do j=JstrR,JendR
           do i=IstrR,IendR
             stflx(i,j,isalt)=0.
@@ -708,7 +708,7 @@ c
             tclm(i,j,k,iPhy1)=0.1
             tclm(i,j,k,iZoo1)=0.06
             tclm(i,j,k,iDet1)=0.02
-#   elif defined BIO_N2ChlPZD2
+#   elif defined BIO_N2PZD2
             tclm(i,j,k,iNH4_)=0.1
             tclm(i,j,k,iChla)=0.08
             tclm(i,j,k,iPhy1)=0.06
@@ -739,7 +739,7 @@ c
                 SiO4=0.
               endif
               tclm(i,j,k,iNO3_)=1.67+0.5873*SiO4+0.0144*SiO4**2
-     &                               +0.0003099*SiO4**3
+     &                              +0.0003099*SiO4**3
             endif
 #   ifdef PISCES
             if (.not.got_tclm(iDIC_)) tclm(i,j,k,iDIC_)=2150.
@@ -785,7 +785,7 @@ c
             if (.not.got_tclm(iPhy1)) tclm(i,j,k,iPhy1)=0.1
             if (.not.got_tclm(iZoo1)) tclm(i,j,k,iZoo1)=0.06
             if (.not.got_tclm(iDet1)) tclm(i,j,k,iDet1)=0.02
-#   elif defined BIO_N2ChlPZD2
+#   elif defined BIO_N2PZD2
             if (.not.got_tclm(iNH4_)) tclm(i,j,k,iNH4_)=0.1
             if (.not.got_tclm(iChla)) tclm(i,j,k,iChla)=0.08
             if (.not.got_tclm(iPhy1)) tclm(i,j,k,iPhy1)=0.06
@@ -851,7 +851,7 @@ c
         if (.not.got_tclm(itrc)) then
 #  endif
           call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
-     &                          tclm(START_2D_ARRAY,1,itrc))
+     &                            tclm(START_2D_ARRAY,1,itrc))
 #  ifndef ANA_TCLIMA
         endif
 #  endif
@@ -1450,8 +1450,8 @@ c
       return
       end
 !
-      subroutine ana_bry_bio_tile (Istr,Iend,Jstr,Jend) 
-      implicit none          
+      subroutine ana_bry_bio_tile (Istr,Iend,Jstr,Jend)
+      implicit none
       integer Istr,Iend,Jstr,Jend, i,j,k, itrc
       real    xno3,temp,SiO4
 # include "param.h"
@@ -1480,43 +1480,43 @@ c
                xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
      &              +0.0003099*SiO4**3
                itrc=iCAL_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_west(j,k,itrc)=0.01
                endif
                itrc=iPOC_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_west(j,k,itrc)=0.01
                endif
                itrc=iPHY_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_west(j,k,itrc)=0.01
                endif
                itrc=iZOO_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_west(j,k,itrc)=0.01
                endif
                itrc=iDIA_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_west(j,k,itrc)=0.01
                endif
                itrc=iBSI_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_west(j,k,itrc)=1.5e-3
                endif
                itrc=iBFE_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_west(j,k,itrc)=1.e-2*5.e-6
                endif
                itrc=iGOC_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_west(j,k,itrc)=0.01
                endif
                itrc=iSFE_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_west(j,k,itrc)=1.e-2*5.e-6
                endif
                itrc=iDFE_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_west(j,k,itrc)=1.e-2*5.e-6
                endif
                itrc=iDSI_
@@ -1524,19 +1524,19 @@ c
                   tbry_west(j,k,itrc)=1.e-2*0.15
                endif
                itrc=iNFE_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_west(j,k,itrc)=1.e-2*5e-6
                endif
                itrc=iNCH_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_west(j,k,itrc)=1.e-2*12./55.
                endif
                itrc=iDCH_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_west(j,k,itrc)=1.e-2*12./55.
                endif
                itrc=iNH4_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_west(j,k,itrc)=1.e-2
                endif
             enddo
@@ -1563,43 +1563,43 @@ c
                xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
      &              +0.0003099*SiO4**3
                itrc=iCAL_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_east(j,k,itrc)=0.01
                endif
                itrc=iPOC_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_east(j,k,itrc)=0.01
                endif
                itrc=iPHY_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_east(j,k,itrc)=0.01
                endif
                itrc=iZOO_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_east(j,k,itrc)=0.01
                endif
                itrc=iDIA_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_east(j,k,itrc)=0.01
                endif
                itrc=iBSI_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_east(j,k,itrc)=1.5e-3
                endif
                itrc=iBFE_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_east(j,k,itrc)=1.e-2*5.e-6
                endif
                itrc=iGOC_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_east(j,k,itrc)=0.01
                endif
                itrc=iSFE_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_east(j,k,itrc)=1.e-2*5.e-6
                endif
                itrc=iDFE_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_east(j,k,itrc)=1.e-2*5.e-6
                endif
                itrc=iDSI_
@@ -1607,19 +1607,19 @@ c
                   tbry_east(j,k,itrc)=1.e-2*0.15
                endif
                itrc=iNFE_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_east(j,k,itrc)=1.e-2*5e-6
                endif
                itrc=iNCH_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_east(j,k,itrc)=1.e-2*12./55.
                endif
                itrc=iDCH_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_east(j,k,itrc)=1.e-2*12./55.
                endif
                itrc=iNH4_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_east(j,k,itrc)=1.e-2
                endif
             enddo
@@ -1646,63 +1646,63 @@ c
                xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
      &              +0.0003099*SiO4**3
                itrc=iCAL_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_north(j,k,itrc)=0.01
                endif
                itrc=iPOC_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_north(j,k,itrc)=0.01
                endif
                itrc=iPHY_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_north(j,k,itrc)=0.01
                endif
                itrc=iZOO_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_north(j,k,itrc)=0.01
                endif
                itrc=iDIA_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_north(j,k,itrc)=0.01
                endif
                itrc=iBSI_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_north(j,k,itrc)=1.5e-3
                endif
                itrc=iBFE_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_north(j,k,itrc)=1.e-2*5.e-6
                endif
                itrc=iGOC_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_north(j,k,itrc)=0.01
                endif
                itrc=iSFE_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_north(j,k,itrc)=1.e-2*5.e-6
                endif
                itrc=iDFE_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_north(j,k,itrc)=1.e-2*5.e-6
                endif
                itrc=iDSI_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_north(j,k,itrc)=1.e-2*0.15
                endif
                itrc=iNFE_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_north(j,k,itrc)=1.e-2*5e-6
                endif
                itrc=iNCH_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_north(j,k,itrc)=1.e-2*12./55.
                endif
                itrc=iDCH_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_north(j,k,itrc)=1.e-2*12./55.
                endif
                itrc=iNH4_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_north(j,k,itrc)=1.e-2
                endif
             enddo
@@ -1727,65 +1727,65 @@ c
                   SiO4=0.
                endif
                xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
-     &              +0.0003099*SiO4**3
+     &              +0.0003099*SiO4**3 
                itrc=iCAL_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_south(j,k,itrc)=0.01
                endif
                itrc=iPOC_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_south(j,k,itrc)=0.01
                endif
                itrc=iPHY_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_south(j,k,itrc)=0.01
                endif
                itrc=iZOO_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_south(j,k,itrc)=0.01
                endif
                itrc=iDIA_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_south(j,k,itrc)=0.01
                endif
                itrc=iBSI_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_south(j,k,itrc)=1.5e-3
                endif
                itrc=iBFE_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_south(j,k,itrc)=1.e-2*5.e-6
                endif
                itrc=iGOC_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_south(j,k,itrc)=0.01
                endif
                itrc=iSFE_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_south(j,k,itrc)=1.e-2*5.e-6
                endif
                itrc=iDFE_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_south(j,k,itrc)=1.e-2*5.e-6
                endif
                itrc=iDSI_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_south(j,k,itrc)=1.e-2*0.15
                endif
                itrc=iNFE_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_south(j,k,itrc)=1.e-2*5e-6
                endif
                itrc=iNCH_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_south(j,k,itrc)=1.e-2*12./55.
                endif
                itrc=iDCH_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_south(j,k,itrc)=1.e-2*12./55.
                endif
                itrc=iNH4_
-               if(.not.got_tbry(itrc)) then 
+               if(.not.got_tbry(itrc)) then
                   tbry_south(j,k,itrc)=1.e-2
                endif
             enddo
@@ -1798,9 +1798,10 @@ c
 # endif /* PISCES */
       return
       end
-#else
+#else 
       subroutine empty_analytical
       return
       end
 #endif /* BIOLOGY && defined T_FRC_BRY */
+
 

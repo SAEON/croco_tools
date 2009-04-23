@@ -279,7 +279,7 @@
 # ifdef LMD_BKPP
 # endif
 # ifdef BIOLOGY
-#  ifdef BIO_NPZD
+#  ifdef BIO_NChlPZD
 #   ifdef OXYGEN
 #   endif
 #  elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
@@ -292,7 +292,7 @@
 # ifdef LMD_BKPP
 # endif
 # ifdef BIOLOGY
-#  ifdef BIO_NPZD
+#  ifdef BIO_NChlPZD
 #   ifdef OXYGEN
 #   endif
 #  elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
@@ -307,7 +307,7 @@
 # ifdef LMD_BKPP
 # endif
 # ifdef BIOLOGY
-#  ifdef BIO_NPZD
+#  ifdef BIO_NChlPZD
 #   ifdef OXYGEN
 #   endif
 #  elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
@@ -339,7 +339,7 @@
 #  ifdef LMD_BKPP
 #  endif
 #  ifdef BIOLOGY
-#   ifdef BIO_NPZD
+#   ifdef BIO_NChlPZD
 #    ifdef OXYGEN
 #    endif
 #   elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
@@ -352,7 +352,7 @@
 #  ifdef LMD_BKPP
 #  endif
 #  ifdef BIOLOGY
-#   ifdef BIO_NPZD
+#   ifdef BIO_NChlPZD
 #    ifdef OXYGEN
 #    endif
 #   elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
@@ -367,7 +367,7 @@
 #  ifdef LMD_BKPP
 #  endif
 #  ifdef BIOLOGY
-#   ifdef BIO_NPZD
+#   ifdef BIO_NChlPZD
 #    ifdef OXYGEN
 #    endif
 #   elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C

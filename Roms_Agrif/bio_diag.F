@@ -2,7 +2,7 @@
 ! $Id: bio_diag.F,v 1.4 2004/12/01 14:37:07 pmarches Exp $
 !
 #include "cppdefs.h"
-#if defined BIOLOGY && !defined MPI
+#ifdef BIOLOGY
       subroutine bio_diag (tile)
       implicit none
 # include "param.h"
@@ -24,6 +24,12 @@
 !
       real cff1, NSUB
       real*QUAD cff, my_sum(0:2*NT+1)
+#ifdef MPI
+      include 'mpif.h'
+      integer size, step, status(MPI_STATUS_SIZE), ierr
+      real*QUAD buff(0:2*NT+1)
+      common /xyz/ buff
+#endif
 # undef  ETALON_CHECK
 # ifdef ETALON_CHECK
       integer ncheck, nparam
@@ -86,7 +92,26 @@ C$OMP CRITICAL (bio_cr_rgn)
           if (bio_count.eq.NSUB) then      ! the last thread, whoever
             bio_count=0                    ! it is, not always master.
 # ifdef MPI
-  Reduce sequence here
+            if (NNODES.gt.1) then         ! Perform global summation 
+              size=NNODES                 ! among MPI processes
+   10          step=(size+1)/2
+                if (mynode.ge.step .and. mynode.lt.size) then
+                  do itrc=1,2*NT+1
+                    buff(itrc)=global_sum(itrc)  ! This is MPI_Reduce
+                  enddo
+                  call MPI_Send (buff,  6, MPI_DOUBLE_PRECISION,
+     &                 mynode-step, 17, MPI_COMM_WORLD,      ierr)
+                elseif (mynode .lt. size-step) then
+                  call MPI_Recv (buff,  6, MPI_DOUBLE_PRECISION,
+     &                 mynode+step, 17, MPI_COMM_WORLD, status, ierr)
+                  do itrc=1,2*NT+1
+                    global_sum(itrc)=global_sum(itrc)+buff(itrc)
+                  enddo
+                endif
+               size=step
+              if (size.gt.1) goto 10
+            endif
+            if (mynode.eq.0) then
 # endif
             trd=omp_get_thread_num()
 
@@ -98,13 +123,13 @@ C$OMP CRITICAL (bio_cr_rgn)
             enddo
             if (first_time.eq.0) then
               first_time=1
-# ifdef BIO_NPZD
+# ifdef BIO_NChlPZD
               write(stdout,1) 'STEP','time[DAYS]','       NO3',
      &                   '     PHYTO','       ZOO','    DETRIT'
 #  ifdef OXYGEN
      &                   ,'        O2'
 #  endif
-# elif defined BIO_N2PZD2
+# elif defined BIO_N2ChlPZD2
               write(stdout,1) 'STEP','time[DAYS]','       NO3',
      &                   '     NH4 ','     PHYTO','       ZOO',
      &                   '    DET1+2','trd'
@@ -122,7 +147,7 @@ C$OMP CRITICAL (bio_cr_rgn)
               global_sum(2*itrc+1)=max(0.,global_sum(2*itrc+1))**0.5
             enddo
 
-# ifdef BIO_NPZD
+# ifdef BIO_NChlPZD
             write(stdout,2) iic-1,tdays, 
      &                      global_sum(2*iNO3_),  
      &                      global_sum(2*iPhy1), 
@@ -187,6 +212,9 @@ C$OMP CRITICAL (bio_cr_rgn)
               endif
             enddo
 # endif
+# ifdef MPI
+            endif    ! <-- mynode.eq.0
+# endif
           endif
 C$OMP END CRITICAL (bio_cr_rgn)
       endif
@@ -196,5 +224,5 @@ C$OMP END CRITICAL (bio_cr_rgn)
       subroutine bio_diag_empty
       return
       end
-#endif /* BIOLOGY && !MPI */
+#endif /* BIOLOGY */
 

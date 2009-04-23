@@ -212,6 +212,7 @@
           enddo
         enddo
       enddo
+#  ifdef DIAGNOSTICS_TS_MLD
       do itrc=1,NT
         do j=JstrR,JendR
           do i=IstrR,IendR
@@ -236,6 +237,7 @@
           enddo
         enddo
       enddo
+#  endif
 # endif /*DIAGNOSTICS_TS*/
 
 # ifdef DIAGNOSTICS_BIO

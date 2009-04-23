@@ -139,25 +139,30 @@
 
 # ifdef DIAGNOSTICS_TS
       integer indxTXadv,indxTYadv,indxTVadv, 
-     &        indxTHmix,indxTVmix,indxTForc,indxTrate,
-     &        indxTXadv_mld,indxTYadv_mld,indxTVadv_mld,
+     &        indxTHmix,indxTVmix,indxTForc,indxTrate
+#  if defined DIAGNOSTICS_TS_MLD
+     &      , indxTXadv_mld,indxTYadv_mld,indxTVadv_mld,
      &        indxTHmix_mld,indxTVmix_mld,indxTForc_mld,indxTrate_mld,
      &        indxTentr_mld
+#  endif
       parameter (indxTXadv=indxT+ntrc_salt+ntrc_pas+ntrc_bio+ntrc_sed+1,
      &           indxTYadv=indxTXadv+NT,
      &           indxTVadv=indxTYadv+NT,
      &           indxTHmix=indxTVadv+NT,
      &           indxTVmix=indxTHmix+NT, 
      &           indxTForc=indxTVmix+NT,
-     &           indxTrate=indxTForc+NT,
-     &           indxTXadv_mld=indxTrate+NT,
+     &           indxTrate=indxTForc+NT
+#  if defined DIAGNOSTICS_TS_MLD
+     &          ,indxTXadv_mld=indxTrate+NT,
      &           indxTYadv_mld=indxTXadv_mld+NT,
      &           indxTVadv_mld=indxTYadv_mld+NT,
      &           indxTHmix_mld=indxTVadv_mld+NT,
      &           indxTVmix_mld=indxTHmix_mld+NT,
      &           indxTForc_mld=indxTVmix_mld+NT,
      &           indxTrate_mld=indxTForc_mld+NT,
-     &           indxTentr_mld=indxTrate_mld+NT  )
+     &           indxTentr_mld=indxTrate_mld+NT  
+#  endif
+     &                                         )
 # endif
 # ifdef DIAGNOSTICS_UV
       integer indxMXadv,indxMYadv,indxMVadv,indxMCor,
@@ -208,7 +213,7 @@
       integer indxSSH
 #ifdef BIOLOGY
       integer indxHel
-# ifdef BIO_NPZD
+# ifdef BIO_NChlPZD
      &      , indxChC
 #  ifdef OXYGEN
      &      , indxU10, indxKvO2, indxO2sat
@@ -220,7 +225,7 @@
 #ifdef SOLVE3D
 # ifdef BIOLOGY
       parameter (indxHel=indxAkt+4)
-#  ifdef BIO_NPZD
+#  ifdef BIO_NChlPZD
       parameter (indxChC=indxHel+1)
 #   ifdef OXYGEN
       parameter (indxU10=indxChC+1)
@@ -247,7 +252,7 @@
 #else
 # ifdef BIOLOGY
       parameter (indxHel=indxVb+1)
-#  ifdef BIO_NPZD
+#  ifdef BIO_NChlPZD
       parameter (indxChC=indxHel+1)
 #   ifdef OXYGEN
       parameter (indxU10=indxChC+1)
@@ -473,7 +478,7 @@
 # endif
 # ifdef BIOLOGY
      &      , hisHel
-#  ifdef BIO_NPZD
+#  ifdef BIO_NChlPZD
      &      , hisChC
 #   ifdef OXYGEN
      &      , hisU10, hisKvO2, hisO2sat
@@ -495,9 +500,11 @@
      &      , diaTXadv(NT), diaTYadv(NT), diaTVadv(NT)
      &      , diaTHmix(NT), diaTVmix(NT)
      &      , diaTForc(NT), diaTrate(NT)
+#  if defined DIAGNOSTICS_TS_MLD
      &      , diaTXadv_mld(NT), diaTYadv_mld(NT), diaTVadv_mld(NT)
      &      , diaTHmix_mld(NT), diaTVmix_mld(NT)
      &      , diaTForc_mld(NT), diaTrate_mld(NT), diaTentr_mld(NT)
+#  endif
 # endif
 # ifdef DIAGNOSTICS_UV
         integer nciddiaM, nrecdiaM, nrpfdiaM
@@ -524,7 +531,7 @@
      &      , avgAkv, avgAkt, avgAks
 # ifdef BIOLOGY
      &      , avgHel
-#  ifdef BIO_NPZD
+#  ifdef BIO_NChlPZD
      &      , avgChC
 #   ifdef OXYGEN
      &      , avgU10, avgKvO2, avgO2sat
@@ -550,9 +557,11 @@
      &      , diaTXadv_avg(NT), diaTYadv_avg(NT), diaTVadv_avg(NT)
      &      , diaTHmix_avg(NT), diaTVmix_avg(NT)
      &      , diaTForc_avg(NT), diaTrate_avg(NT)
+#   if defined DIAGNOSTICS_TS_MLD
      &      , diaTXadv_mld_avg(NT), diaTYadv_mld_avg(NT), diaTVadv_mld_avg(NT)
      &      , diaTHmix_mld_avg(NT), diaTVmix_mld_avg(NT)
      &      , diaTForc_mld_avg(NT), diaTrate_mld_avg(NT), diaTentr_mld_avg(NT)
+#   endif
 #  endif
 #  ifdef DIAGNOSTICS_UV
        integer nciddiaM_avg, nrecdiaM_avg, nrpfdiaM_avg
@@ -638,7 +647,7 @@
 #  endif
 # ifdef BIOLOGY
      &      , hisHel
-#  ifdef BIO_NPZD
+#  ifdef BIO_NChlPZD
      &      , hisChC
 #   ifdef OXYGEN
      &      , hisU10, hisKvO2, hisO2sat
@@ -659,17 +668,21 @@
      &      , diaTime, diaTstep
      &      , diaTXadv, diaTYadv, diaTVadv, diaTHmix
      &      , diaTVmix, diaTForc, diaTrate
+# if defined DIAGNOSTICS_TS_MLD
      &      , diaTXadv_mld, diaTYadv_mld, diaTVadv_mld, diaTHmix_mld
      &      , diaTVmix_mld, diaTForc_mld, diaTrate_mld, diaTentr_mld
+# endif
 # ifdef AVERAGES
      &      , nciddia_avg, nrecdia_avg, nrpfdia_avg
      &      , diaTime_avg, diaTstep_avg
      &      , diaTXadv_avg, diaTYadv_avg, diaTVadv_avg
      &      , diaTHmix_avg, diaTVmix_avg, diaTForc_avg
      &      , diaTrate_avg
+#  if defined DIAGNOSTICS_TS_MLD
      &      , diaTXadv_mld_avg, diaTYadv_mld_avg, diaTVadv_mld_avg
      &      , diaTHmix_mld_avg, diaTVmix_mld_avg, diaTForc_mld_avg
      &      , diaTrate_mld_avg, diaTentr_mld_avg
+#  endif
 # endif
 #endif
 #ifdef DIAGNOSTICS_UV
@@ -708,7 +721,7 @@
      &      , avgHbl,  avgHbbl
 #  ifdef BIOLOGY
      &      , avgHel
-#   ifdef BIO_NPZD
+#   ifdef BIO_NChlPZD
      &      , avgChC
 #    ifdef OXYGEN
      &      , avgU10, avgKvO2, avgO2sat

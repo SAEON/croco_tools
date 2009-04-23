@@ -69,13 +69,14 @@
 # elif defined UPWELLING
 #  include "etalon_data.h.Upwelling"
 # elif defined VORTEX
-#  if defined AGRIF && defined AGRIF_2WAY
-#      include "etalon_data.h.VortexAgrif2W"
-#  elif defined AGRIF && !defined AGRIF_2WAY
-#       include "etalon_data.h.VortexAgrif"
-#  elif !defined AGRIF 
-#   include "etalon_data.h.Vortex"
-#  endif
+#  include "etalon_data.h.Vortex"
+!#  if defined AGRIF && defined AGRIF_2WAY
+!#      include "etalon_data.h.VortexAgrif2W"
+!#  elif defined AGRIF && !defined AGRIF_2WAY
+!#       include "etalon_data.h.VortexAgrif"
+!#  elif !defined AGRIF 
+!#   include "etalon_data.h.Vortex"
+!#  endif
 # else
 #  include "etalon_data.h"
 # endif

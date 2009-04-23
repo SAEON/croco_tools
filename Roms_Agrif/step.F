@@ -255,7 +255,7 @@ C$OMP BARRIER
 # endif
         call rho_eos (tile)
         call set_HUV (tile)
-# if defined BIOLOGY && !defined MPI && !defined PISCES
+# if defined BIOLOGY && !defined PISCES
         call bio_diag (tile)
 # else
         call diag(tile)

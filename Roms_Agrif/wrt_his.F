@@ -445,7 +445,7 @@ CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
 !
 !  Write out depth of the euphotic layer (m).
 !
-#  ifdef BIO_NPZD
+#  ifdef BIO_NChlPZD
       if (wrthis(indxChC)) then
         ierr=nf_fwrite(theta, ncidhis, hisChC, record, r3dvar)
         if (ierr .ne. nf_noerr) then

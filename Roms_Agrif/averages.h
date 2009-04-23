@@ -50,7 +50,7 @@
 #  ifdef BIOLOGY
       real hel_avg(GLOBAL_2D_ARRAY)
       common /avg_hel/hel_avg
-#   ifdef BIO_NPZD
+#   ifdef BIO_NChlPZD
       real theta_avg(GLOBAL_2D_ARRAY,N)
       common /avg_theta/theta_avg
 #    ifdef OXYGEN
@@ -58,7 +58,7 @@
       real Kv_O2_avg(GLOBAL_2D_ARRAY)
       real O2satu_avg(GLOBAL_2D_ARRAY)
       common /avg_O2_GE/ u10_avg, Kv_O2_avg, O2satu_avg
-#    endif
+#    endif /* OXYGEN */
 #   elif defined BIO_N2P2Z2D2 && defined AVG_CHL_C
       real theta1_avg(GLOBAL_2D_ARRAY,N)
      &   , theta2_avg(GLOBAL_2D_ARRAY,N)

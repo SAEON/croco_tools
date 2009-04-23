@@ -34,7 +34,7 @@
       real rho(GLOBAL_2D_ARRAY,N)
       common /ocean_rho1/rho1 /ocean_rho/rho
 # ifdef BIOLOGY
-#  ifdef BIO_NPZD
+#  ifdef BIO_NChlPZD
       real theta(GLOBAL_2D_ARRAY,N)
       common /ocean_theta/theta
 #  elif defined BIO_N2P2Z2D2 && defined AVG_CHL_C

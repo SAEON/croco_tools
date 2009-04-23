@@ -282,7 +282,7 @@
               enddo
             enddo
           endif
-#   ifdef BIO_NPZD
+#   ifdef BIO_NChlPZD
           if (wrtavg(indxChC)) then
             do k=1,N
               do j=JstrR,JendR
@@ -560,7 +560,7 @@
               enddo
             enddo
           endif
-#   ifdef BIO_NPZD
+#   ifdef BIO_NChlPZD
           if (wrtavg(indxChC)) then
             do k=1,N
               do j=JstrR,JendR
@@ -851,7 +851,7 @@
               enddo
             enddo
           endif
-#   ifdef BIO_NPZD
+#   ifdef BIO_NChlPZD
           if (wrtavg(indxChC)) then
             do k=1,N
               do j=JstrR,JendR

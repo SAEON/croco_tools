@@ -14,6 +14,7 @@
       real TForc(GLOBAL_2D_ARRAY,N,NT)
       real Trate(GLOBAL_2D_ARRAY,N,NT)
 !
+# ifdef DIAGNOSTICS_TS_MLD
       real TXadv_mld(GLOBAL_2D_ARRAY,NT)
       real TYadv_mld(GLOBAL_2D_ARRAY,NT)
       real TVadv_mld(GLOBAL_2D_ARRAY,NT)
@@ -22,6 +23,7 @@
       real TForc_mld(GLOBAL_2D_ARRAY,NT)
       real Trate_mld(GLOBAL_2D_ARRAY,NT)
       real Tentr_mld(GLOBAL_2D_ARRAY,NT)
+# endif
 # ifdef AVERAGES
       real timedia_avg
       real TXadv_avg(GLOBAL_2D_ARRAY,N,NT)
@@ -32,6 +34,7 @@
       real TForc_avg(GLOBAL_2D_ARRAY,N,NT)
       real Trate_avg(GLOBAL_2D_ARRAY,N,NT)
 !
+#  ifdef DIAGNOSTICS_TS_MLD
       real TXadv_mld_avg(GLOBAL_2D_ARRAY,NT)
       real TYadv_mld_avg(GLOBAL_2D_ARRAY,NT)
       real TVadv_mld_avg(GLOBAL_2D_ARRAY,NT)
@@ -40,6 +43,7 @@
       real TForc_mld_avg(GLOBAL_2D_ARRAY,NT)
       real Trate_mld_avg(GLOBAL_2D_ARRAY,NT)
       real Tentr_mld_avg(GLOBAL_2D_ARRAY,NT)
+#  endif
 # endif	
       common /diag_TXadv/TXadv   
      &       /diag_TYadv/TYadv
@@ -49,6 +53,7 @@
      &       /diag_TForc/TForc
      &       /diag_Trate/Trate
 !
+# ifdef DIAGNOSTICS_TS_MLD
       common /diag_TXadv_mld/TXadv_mld
      &       /diag_TYadv_mld/TYadv_mld
      &       /diag_TVadv_mld/TVadv_mld
@@ -57,6 +62,7 @@
      &       /diag_TForc_mld/TForc_mld
      &       /diag_Trate_mld/Trate_mld
      &       /diag_Tentr_mld/Tentr_mld	  
+# endif
 # ifdef AVERAGES
       common /diag_timedia_avg/timedia_avg
       common /diag_TXadv_avg/TXadv_avg  
@@ -67,6 +73,7 @@
      &       /diag_TForc_avg/TForc_avg
      &       /diag_Trate_avg/Trate_avg
 !
+#  ifdef DIAGNOSTICS_TS_MLD
       common /diag_TXadv_mld_avg/TXadv_mld_avg
      &       /diag_TYadv_mld_avg/TYadv_mld_avg
      &       /diag_TVadv_mld_avg/TVadv_mld_avg
@@ -75,6 +82,7 @@
      &       /diag_TForc_mld_avg/TForc_mld_avg
      &       /diag_Trate_mld_avg/Trate_mld_avg
      &       /diag_Tentr_mld_avg/Tentr_mld_avg
+#  endif       	
 # endif       	
 #endif /* DIAGNOSTICS_TS */
 !

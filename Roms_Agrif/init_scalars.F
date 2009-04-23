@@ -425,7 +425,7 @@ CR      write(stdout,'(1x,A,I3)') 'ntrc_bio =',ntrc_bio
 CR      write(stdout,'(1x,A,I3)') 'ntrc_sed =',ntrc_sed
 CR      write(stdout,'(1x,A,I3)') 'ntrc_diabio=',ntrc_diabio
 
-#  elif defined BIO_N2PZD2
+#  elif defined BIO_N2ChlPZD2
 
 CR      write(stdout,'(1x,A,I3)') 'indxNO3 =',indxNO3
       vname(1,indxNO3)='NO3                                       '
@@ -688,7 +688,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxHel =',indxHel
       vname(2,indxHel)='depth of euphotic layer                   '
       vname(3,indxHel)='meter                                     '
       vname(4,indxHel)='hel, scalar, series                       '
-#  ifdef BIO_NPZD
+#  ifdef BIO_NChlPZD
 CR      write(stdout,'(1x,A,I3)') 'indxChC =',indxChC
       vname(1,indxChC)='theta                                     '
       vname(2,indxChC)='Chlorophyll to Carbon ratio               '
@@ -964,6 +964,7 @@ CR       write(stdout,'(20x,A)') vname(1,indxTrate+itrc-1)
 !
 ! Tracer diagnostics variables averaged over the MLD
 !
+#  ifdef DIAGNOSTICS_TS_MLD
 CR       write(stdout,'(1x,A,I3)') 'indxTXadv_mld = ',indxTXadv_mld+itrc-1
        lvar=lenstr(vname(1,indxT+itrc-1))
        nametrc=vname(1,indxT+itrc-1)(1:lvar)
@@ -1045,6 +1046,7 @@ CR       write(stdout,'(20x,A)') vname(1,indxTentr_mld+itrc-1)
        vname(2,indxTentr_mld+itrc-1)='MLD entrainment rate        '
        write(vname3,*) trim(unitt),' second-1                     '
        vname(3,indxTentr_mld+itrc-1)=vname3
+#  endif
 
       enddo
 # endif  /* DIAGNOSTICS_TS */
@@ -1136,7 +1138,7 @@ CR       write(stdout,'(20x,A)') vname(1,indxMrate+itrc-1)
 # endif /* DIAGNOSTICS_UV */
 
 # ifdef DIAGNOSTICS_BIO
-#   ifdef BIO_NPZD
+#   ifdef BIO_NChlPZD
 CR      write(stdout,'(1x,A,I3)') 'indxbioFlux(NFlux_NewProd)='
 CR     &                          ,indxbioFlux+NFlux_NewProd-1
       vname(1,indxbioFlux+NFlux_NewProd-1)=
