@@ -12,7 +12,7 @@
                                                      free surface.
    tssh       time of read in sea surface height climatology.
 */
-#if defined ZCLIMATOLOGY || (defined AGRIF && !defined Z_FRC_BRY)
+#if defined ZCLIMATOLOGY || defined AGRIF
       real ssh(GLOBAL_2D_ARRAY)
       common /climat_ssh/ssh
 #endif
