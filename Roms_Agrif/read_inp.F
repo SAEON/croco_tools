@@ -1071,7 +1071,7 @@ c        close(testunit)
      &     gamma2, 'gamma2   Slipperiness parameter:',
      &                     'free-slip +1, or no-slip -1.'
 #ifdef SOLVE3D
-# if defined TS_DIF2 || defined SPONGE_VIS2
+# if defined TS_DIF2 || defined SPONGE_DIF2
 !
 ! Horizontal Laplacian mixing coefficients for tracers.
 !
