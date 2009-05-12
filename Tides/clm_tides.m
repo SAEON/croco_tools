@@ -47,8 +47,8 @@ close(nc)
 %
 % Find j,i indices for the tidegauge
 %
-[J,I]=find((lat(1:end-1,1:end-1)<lat0 & lat(2:end,2:end)>lat0 &...
-            lon(2:end,1:end-1)<lon0 & lon(1:end-1,2:end)>lon0)==1);
+[J,I]=find((lat(1:end-1,1:end-1)<lat0 & lat(2:end,2:end)>=lat0 &...
+            lon(1:end-1,1:end-1)<lon0 & lon(2:end,2:end)>=lon0)==1);
 if isempty(I) |  isempty(J)
   disp('Warning: tide gauge place not found')
   [M,L]=size(lon);
