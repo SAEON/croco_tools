@@ -303,7 +303,23 @@ add_tides     = 0;                     % 1: Add the tides (To be done...)
 %
 NCEP_version  = 1;                            % NCEP version:
 %                                 (1: NCEP/NCAR Reanalysis, 1/1/1948 - present
-%                                  2: NCEP-DOE Reanalysis, 1/1/1979 - 12/31/2001)
+%                                  2: NCEP-DOE Reanalysis, 1/1/1979 -  present
+%                                  12/31/2001)
+%----------------------------------------------
+% Path and option for using my data
+%
+Get_My_data = 1; 
+%
+%%----------------------------------------------
+%
+if NCEP_version  == 1;
+My_NCEP_dir  = [''];
+%define where are your NCEP1 data in local
+elseif NCEP_version  == 2;
+My_NCEP_dir  = [''];
+%define where are your NCEP2 data in local
+end
+%----------------------------------------------
 %
 %  Options for make_OGCM 
 %

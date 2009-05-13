@@ -3,7 +3,8 @@ function download_NCEP_Mydata(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,..
 %-----------------------------------------------------------------------
 if NCEP_version==1
 disp('Use my own ncep data NCEP1')
-      ncep_url='/data1/gcambon/NCEP_REA1/';
+%      ncep_url='/data1/gcambon/NCEP_REA1/';
+       ncep_url=My_NCEP_dir
       catalog={'land.sfc.gauss' ...
               'air.2m.gauss' ...
               'dlwrf.sfc.gauss' ...
@@ -26,7 +27,8 @@ disp('Use my own ncep data NCEP1')
   level ={'' '' '' '' '' '' '' '' ''};
 else
 disp('Use my own ncep data NCEP2')
-      ncep_url='/data1/gcambon/NCEP_REA2/';
+%      ncep_url='/data1/gcambon/NCEP_REA2/';
+       ncep_url=My_NCEP_dir
       catalog={'land.sfc.gauss' ...
                'air.2m.gauss' ...
                'dlwrf.sfc.gauss' ...
