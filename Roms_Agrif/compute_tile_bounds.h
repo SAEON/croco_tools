@@ -30,6 +30,8 @@
 
 #ifdef  ALLOW_SINGLE_BLOCK_MODE
       if (tile.eq.NSUB_X*NSUB_E) then
+C$      trd=omp_get_thread_num()
+C$      if (trd.gt.0) return !--> just return, if not master thread
         Istr=1
         Iend=LOCALLM       ! MONOBLOCK VERSION:
         Jstr=1        ! DO NOT DO THE PARTITION 

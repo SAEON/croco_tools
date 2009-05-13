@@ -5,8 +5,9 @@
 #ifdef ANA_GRID
       subroutine ana_grid (tile)
       implicit none
-      integer tile
 # include "param.h"
+      integer tile, trd
+C$    integer omp_get_thread_num
 # include "compute_tile_bounds.h"
       call ana_grid_tile (Istr,Iend,Jstr,Jend)
       return

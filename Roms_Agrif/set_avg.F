@@ -5,12 +5,13 @@
 #ifdef AVERAGES
       subroutine set_avg (tile)
       implicit none
-      integer tile
 # include "param.h"
 # ifdef SOLVE3D
 #  include "work.h"
 #  include "ncscrum.h"
 # endif
+      integer tile, trd
+C$    integer omp_get_thread_num
 # include "compute_tile_bounds.h"
 
 # ifdef SOLVE3D

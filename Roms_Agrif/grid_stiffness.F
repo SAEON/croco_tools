@@ -6,8 +6,9 @@
 
       subroutine grid_stiffness (tile)
       implicit none
-      integer tile
 # include "param.h"
+      integer tile, trd
+C$    integer omp_get_thread_num
 # include "compute_tile_bounds.h"
       call grid_stiffness_tile (Istr,Iend,Jstr,Jend)
       return

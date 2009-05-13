@@ -6,7 +6,8 @@
       subroutine ana_initracer (tile)
       implicit none
 #include "param.h"
-      integer tile
+      integer tile, trd
+C$    integer omp_get_thread_num
 #include "compute_tile_bounds.h"
       call ana_initracer_tile (Istr,Iend,Jstr,Jend)
       return

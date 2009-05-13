@@ -6,8 +6,9 @@
 
       subroutine set_depth (tile)
       implicit none
-      integer tile
 #include "param.h"
+      integer tile, trd
+C$    integer omp_get_thread_num
 #include "compute_tile_bounds.h"
       call set_depth_tile (Istr,Iend,Jstr,Jend)
       return
@@ -101,8 +102,9 @@ c**         z_r(i,j,k)=cff_r+cff1_r*h(i,j)+cff2_r*Zt_avg1(i,j)     !>
 
       subroutine set_HUV (tile)
       implicit none
-      integer tile
 #include "param.h"
+      integer tile, trd
+C$    integer omp_get_thread_num
 #include "compute_tile_bounds.h"
       call set_HUV_tile (Istr,Iend,Jstr,Jend)
       return
@@ -187,8 +189,9 @@ c**         z_r(i,j,k)=cff_r+cff1_r*h(i,j)+cff2_r*Zt_avg1(i,j)     !>
 
       subroutine set_HUV1 (tile)
       implicit none
-      integer tile
 #include "param.h"
+      integer tile, trd
+C$    integer omp_get_thread_num
 #include "compute_tile_bounds.h"
       call set_HUV1_tile (Istr,Iend,Jstr,Jend)
       return

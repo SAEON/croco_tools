@@ -5,8 +5,9 @@
                                             ! Setting up curvilinear
       subroutine setup_grid1 (tile)         ! grid: Compute various
       implicit none                         ! combinations of metric
-      integer tile                          ! terms.
+      integer tile, trd                     ! terms.
 #include "param.h"
+C$    integer omp_get_thread_num
 #include "compute_tile_bounds.h"
       call setup_grid1_tile (Istr,Iend,Jstr,Jend)
       return
