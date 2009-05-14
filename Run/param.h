@@ -32,8 +32,8 @@
       parameter (LLm0=64,  MMm0=3,   N=40)
 #elif defined INTERNAL
 !      parameter (LLm0=120,  MMm0=10,  N=40)   ! 10 km resolution
-      parameter (LLm0=800,  MMm0=4,  N=40)   ! 1.5 km resolution
-!      parameter (LLm0=1600,  MMm0=4,  N=40)   ! 1.5 km resolution
+!      parameter (LLm0=800,  MMm0=4,  N=40)   ! 1.5 km resolution
+      parameter (LLm0=1600,  MMm0=4,  N=40)   ! 1.5 km resolution
 #elif defined OVERFLOW
       parameter (LLm0=4,   MMm0=128, N=10)
 #elif defined RIVER
@@ -76,6 +76,8 @@
       parameter (LLm0=170, MMm0=60,  N=30) ! <-- Pacific
 #  elif defined  CORAL
       parameter (LLm0=81, MMm0=77,  N=32)  ! <-- CORAL sea
+#  elif defined  BENGUELA_LR
+      parameter (LLm0=41, MMm0=42,  N=32)  ! <-- BENGUELA_LR
 #  else
       parameter (LLm0=39,  MMm0=32,  N=20)
 #  endif
@@ -113,16 +115,17 @@
       integer NP_XI, NP_ETA, NNODES     
       parameter (NP_XI=1, NP_ETA=4,  NNODES=NP_XI*NP_ETA)
       parameter (NPP=1)
-#elif defined OPENMP
-      parameter (NPP=2)
+      parameter (NSUB_X=1, NSUB_E=1)
 #else
       parameter (NPP=1)
-#endif
-
-#ifdef AUTOTILING
+# ifdef OPENMP
+      parameter (NPP=2)
+# endif
+# ifdef AUTOTILING
       common/distrib/NSUB_X, NSUB_E
-#else
+# else
       parameter (NSUB_X=1, NSUB_E=NPP)
+# endif
 #endif
 
 !
@@ -379,7 +382,11 @@
 # endif
       parameter (NT=itemp+ntrc_salt+ntrc_pas+ntrc_bio+ntrc_sed)
 # ifdef DIAGNOSTICS_TS
+#  ifdef DIAGNOSTICS_TS_MLD
+      parameter (ntrc_diats=15*NT)
+#  else
       parameter (ntrc_diats=7*NT)
+#  endif
 # else
       parameter (ntrc_diats=0)
 # endif
