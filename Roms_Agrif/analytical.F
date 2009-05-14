@@ -246,7 +246,7 @@
       data Ewind, Nwind, dircoef /0., 0., 0./
 !     save windamp
 !
-# include "compute_auxiliary_bounds.h"
+#include "compute_extended_bounds.h"
 !
 !  Set kinematic surface momentum flux (wind stress) component in the
 !  XI-direction (m^2/s^2) at horizontal U-points.
@@ -258,13 +258,13 @@
       cff1=0.0001 * 0.5*(1.+tanh((time-6.*86400.)/(3.*86400.)))
       cff2=2.*pi/el
       do j=JstrR,JendR
-        do i=Istr,IendR
+        do i=IstrR,IendR
           sustr(i,j)=-cff1*cos(cff2*yr(i,j))
        enddo
       enddo
 # elif defined CANYON_A || defined CANYON_B
       do j=JstrR,JendR
-        do i=Istr,IendR
+        do i=IstrR,IendR
           sustr(i,j)=0.0001*0.5*sin(2.*pi*tdays/10.)*
      &               (1.-tanh((yr(i,j)-0.5*el)/10000.))
         enddo
@@ -290,7 +290,7 @@
         windamp=-0.1/rho0
       endif
       do j=JstrR,JendR
-        do i=Istr,IendR
+        do i=IstrR,IendR
           sustr(i,j)=windamp
         enddo
       enddo
@@ -299,13 +299,13 @@
     || defined RIVER     || defined VORTEX   || defined REGIONAL   \
     || defined INTERNAL
       do j=JstrR,JendR
-        do i=Istr,IendR
+        do i=IstrR,IendR
           sustr(i,j)=0.
         enddo
       enddo
 # else
       do j=JstrR,JendR
-        do i=Istr,IendR
+        do i=IstrR,IendR
           sustr(i,j)=???
         enddo
       enddo
@@ -319,7 +319,7 @@
   || defined REGIONAL  || defined RIVER     || defined SEAMOUNT  \
   || defined SHELFRONT || defined SOLITON   || defined UPWELLING \
   || defined VORTEX    || defined INTERNAL
-      do j=Jstr,JendR
+      do j=JstrR,JendR
         do i=IstrR,IendR
           svstr(i,j)=0.
         enddo
@@ -333,13 +333,13 @@
         enddo
       enddo
 # elif defined INNERSHELF
-      do j=Jstr,JendR
+      do j=JstrR,JendR
         do i=IstrR,IendR
           svstr(i,j)=-1.e-4
         enddo
       enddo
 # else
-      do j=Jstr,JendR
+      do j=JstrR,JendR
         do i=IstrR,IendR
           svstr(i,j)=???
         enddo
