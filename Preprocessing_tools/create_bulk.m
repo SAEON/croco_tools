@@ -50,6 +50,10 @@ nw('xi_rho') = Lp;
 nw('eta_rho') = Mp;
 nw('xi_psi') = L;
 nw('eta_psi') = M;
+nw('xi_u') = L;
+nw('eta_u') = Mp;
+nw('xi_v') = Lp;
+nw('eta_v') = M;
 nw('bulk_time') = length(bulkt);
 %
 %  Create variables and attributes
