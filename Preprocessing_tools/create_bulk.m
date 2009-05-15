@@ -31,7 +31,7 @@ function  create_bulk(frcname,grdname,title,bulkt,bulkc)
 %
 %  Updated 14-Oct-2005 add sustr,svstr,uwnd,vwnd vars
 %  Updated    25-Oct-2006 by Pierrick Penven (uwnd and vwnd)
-%
+%  Updated    8-Apr-2009 by Gildas Cambon (add longwave in)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 nc=netcdf(grdname);
 L=length(nc('xi_psi'));
@@ -48,6 +48,8 @@ result = redef(nw);
 %
 nw('xi_rho') = Lp;
 nw('eta_rho') = Mp;
+nw('xi_psi') = L;
+nw('eta_psi') = M;
 nw('bulk_time') = length(bulkt);
 %
 %  Create variables and attributes
@@ -77,6 +79,12 @@ nw{'prate'}.long_name  = 'precipitation rate';
 nw{'prate'}.units      = ncchar('cm day-1');
 nw{'prate'}.units      = 'cm day-1';
 
+nw{'wspd'}             = ncdouble('bulk_time', 'eta_rho', 'xi_rho');
+nw{'wspd'}.long_name   = ncchar('wind speed 10m');
+nw{'wspd'}.long_name   = 'wind speed 10m';
+nw{'wspd'}.units       = ncchar('m s-1');
+nw{'wspd'}.units       = 'm s-1';
+
 nw{'radlw'}            = ncdouble('bulk_time', 'eta_rho', 'xi_rho');
 nw{'radlw'}.long_name  = ncchar('outgoing longwave radiation');
 nw{'radlw'}.long_name  = 'outgoing longwave radiation';
@@ -103,37 +111,29 @@ nw{'radsw'}.units      = 'Watts meter-2';
 nw{'radsw'}.positive   = ncchar('downward flux, heating water');
 nw{'radsw'}.positive   = 'downward flux, heating water';
 
-nw{'uwnd'} = ncdouble('bulk_time', 'eta_rho', 'xi_rho');
+nw{'sustr'} = ncdouble('bulk_time', 'eta_u', 'xi_u');
+nw{'sustr'}.long_name = ncchar('surface u-momentum stress');
+nw{'sustr'}.long_name = 'surface u-momentum stress';
+nw{'sustr'}.units = ncchar('Newton meter-2');
+nw{'sustr'}.units = 'Newton meter-2';
+
+nw{'svstr'} = ncdouble('bulk_time', 'eta_v', 'xi_v');
+nw{'svstr'}.long_name = ncchar('surface v-momentum stress');
+nw{'svstr'}.long_name = 'surface v-momentum stress';
+nw{'svstr'}.units = ncchar('Newton meter-2');
+nw{'svstr'}.units = 'Newton meter-2';
+
+nw{'uwnd'} = ncdouble('bulk_time', 'eta_u', 'xi_u');
 nw{'uwnd'}.long_name = ncchar('10m u-wind component');
 nw{'uwnd'}.long_name = 'u-wind';
 nw{'uwnd'}.units = ncchar('meter second-1');
 nw{'uwnd'}.units = 'm/s';
 
-nw{'vwnd'} = ncdouble('bulk_time', 'eta_rho', 'xi_rho');
+nw{'vwnd'} = ncdouble('bulk_time', 'eta_v', 'xi_v');
 nw{'vwnd'}.long_name = ncchar('10m v-wind component');
 nw{'vwnd'}.long_name = 'v-wind';
 nw{'vwnd'}.units = ncchar('meter second-1');
 nw{'vwnd'}.units = 'm/s';
-
-%
-% Will be soon obsolete...
-%
-nw{'wspd'}             = ncdouble('bulk_time', 'eta_rho', 'xi_rho');
-nw{'wspd'}.long_name   = ncchar('wind speed 10m');
-nw{'wspd'}.long_name   = 'wind speed 10m';
-nw{'wspd'}.units       = ncchar('m s-1');
-nw{'wspd'}.units       = 'm s-1';
-
-nw{'sustr'} = ncdouble('bulk_time', 'eta_rho', 'xi_rho');
-nw{'sustr'}.long_name = ncchar('surface u-momentum stress');
-nw{'sustr'}.long_name = 'surface u-momentum stress';
-nw{'sustr'}.units = ncchar('Newton meter-2');
-nw{'sustr'}.units = 'Newton meter-2';
-nw{'svstr'} = ncdouble('bulk_time', 'eta_rho', 'xi_rho');
-nw{'svstr'}.long_name = ncchar('surface v-momentum stress');
-nw{'svstr'}.long_name = 'surface v-momentum stress';
-nw{'svstr'}.units = ncchar('Newton meter-2');
-nw{'svstr'}.units = 'Newton meter-2';
 
 result = endef(nw);
 
