@@ -71,8 +71,9 @@ C     Arguments
                                               ! are done on the fine grid       
       External :: procname
       Optional ::  procname      
-      REAL, DIMENSION(lbound(child%var%array1,1):
-     &                ubound(child%var%array1,1)), Target :: tab  ! Results
+      REAL, DIMENSION(
+     &         child%var%lb(1):child%var%ub(1)
+     &         ), Target :: tab    ! Result
 C
 C
 C     Definition of a temporary AGRIF_PVariable data TYPE  
@@ -138,9 +139,9 @@ C     Arguments
       Optional ::  procname
                                                           
       REAL, DIMENSION(
-     &      lbound(child%var%array2,1):ubound(child%var%array2,1),
-     &      lbound(child%var%array2,2):ubound(child%var%array2,2)),
-     &      Target :: tab  ! Results
+     &         child%var%lb(1):child%var%ub(1),
+     &         child%var%lb(2):child%var%ub(2)
+     &    ), Target :: tab    ! Result
 C
 C
 C     Definition of a temporary AGRIF_PVariable data TYPE
@@ -202,10 +203,10 @@ C     Arguments
       Optional ::  procname
                                                        
       REAL, DIMENSION(
-     &      lbound(child%var%array3,1):ubound(child%var%array3,1),
-     &      lbound(child%var%array3,2):ubound(child%var%array3,2),
-     &      lbound(child%var%array3,3):ubound(child%var%array3,3)),
-     &      Target :: tab  ! Results    
+     &         child%var%lb(1):child%var%ub(1),
+     &         child%var%lb(2):child%var%ub(2),
+     &         child%var%lb(3):child%var%ub(3)
+     &      ), Target :: tab  ! Results  
 C
 C
 C     Definition of a temporary AGRIF_PVariable data TYPE  
@@ -267,11 +268,11 @@ C     Arguments
       External :: procname
       Optional ::  procname        
       REAL, DIMENSION(
-     &      lbound(child%var%array4,1):ubound(child%var%array4,1),
-     &      lbound(child%var%array4,2):ubound(child%var%array4,2),
-     &      lbound(child%var%array4,3):ubound(child%var%array4,3),
-     &      lbound(child%var%array4,4):ubound(child%var%array4,4)),
-     &      Target :: tab  ! Results
+     &         child%var%lb(1):child%var%ub(1),
+     &         child%var%lb(2):child%var%ub(2),
+     &         child%var%lb(3):child%var%ub(3),
+     &         child%var%lb(4):child%var%ub(4)
+     &      ), Target :: tab  ! Results
 C
 C
 C     Definition of a temporary AGRIF_PVariable data TYPE  
@@ -335,12 +336,12 @@ C     Arguments
       Optional ::  procname
               
       REAL, DIMENSION(
-     &      lbound(child%var%array5,1):ubound(child%var%array5,1),
-     &      lbound(child%var%array5,2):ubound(child%var%array5,2),
-     &      lbound(child%var%array5,3):ubound(child%var%array5,3),
-     &      lbound(child%var%array5,4):ubound(child%var%array5,4),
-     &      lbound(child%var%array5,5):ubound(child%var%array5,5)),
-     &      Target :: tab  ! Results
+     &         child%var%lb(1):child%var%ub(1),
+     &         child%var%lb(2):child%var%ub(2),
+     &         child%var%lb(3):child%var%ub(3),
+     &         child%var%lb(4):child%var%ub(4),
+     &         child%var%lb(5):child%var%ub(5)
+     &      ),  Target :: tab  ! Results
 C
 C
 C     Definition of a temporary AGRIF_PVariable data TYPE  
@@ -400,13 +401,13 @@ C     Arguments
       INTEGER, DIMENSION(6) :: deb,fin       ! Positions where interpolations 
                                               ! are done on the fine grid       
       REAL, DIMENSION(
-     &      lbound(child%var%array6,1):ubound(child%var%array6,1),
-     &      lbound(child%var%array6,2):ubound(child%var%array6,2),
-     &      lbound(child%var%array6,3):ubound(child%var%array6,3),
-     &      lbound(child%var%array6,4):ubound(child%var%array6,4),
-     &      lbound(child%var%array6,5):ubound(child%var%array6,5),
-     &      lbound(child%var%array6,6):ubound(child%var%array6,6)),
-     &      Target :: tab  ! Results
+     &         child%var%lb(1):child%var%ub(1),
+     &         child%var%lb(2):child%var%ub(2),
+     &         child%var%lb(3):child%var%ub(3),
+     &         child%var%lb(4):child%var%ub(4),
+     &         child%var%lb(5):child%var%ub(5),
+     &         child%var%lb(6):child%var%ub(6)
+     &      ),  Target :: tab  ! Results
 C
 C
 C     Definition of a temporary AGRIF_PVariable data TYPE  
@@ -521,22 +522,8 @@ C
 C
           case('N') ! No space DIMENSION      
 C
-            select case (nbdim) 
-C      
-              case(1)
-                nbtab_Child(n) = SIZE(child % var % array1,n) - 1
-              case(2)
-                nbtab_Child(n) = SIZE(child % var % array2,n) - 1
-              case(3)
-                nbtab_Child(n) = SIZE(child % var % array3,n) - 1
-              case(4)
-                nbtab_Child(n) = SIZE(child % var % array4,n) - 1
-              case(5)
-                nbtab_Child(n) = SIZE(child % var % array5,n) - 1  
-              case(6)
-                nbtab_Child(n) = SIZE(child % var % array6,n) - 1 
-C
-            end select
+            
+            nbtab_Child(n) = child % var % ub(n) - child % var % lb(n)
 C
 C           No interpolation but only a copy of the values of the grid variable      
 C      
@@ -559,7 +546,7 @@ C     the grid variable
         if ((deb(n) == -99).AND.(deb(n)==fin(n))) wholeupdate=.TRUE.
       endif
       enddo
-     
+
        IF (present(procname)) THEN
 
           IF (wholeupdate) THEN
@@ -762,7 +749,6 @@ C
 C
 #endif 
 C
-
       indtruetab(1:nbdim,1,1) = max(indtab(1:nbdim,1,1),
      &     lubglob(1:nbdim,1))
       indtruetab(1:nbdim,1,2) = min(indtab(1:nbdim,1,2),
@@ -1208,8 +1194,6 @@ C
      &                 pttruetab,cetruetab,nbdim)
 
       Call Agrif_nbdim_Full_VarEQreal(tempC%var,0.,nbdim)
-
-
 
       IF (present(procname)) THEN
         SELECT CASE (nbdim)

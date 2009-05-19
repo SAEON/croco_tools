@@ -153,8 +153,19 @@
       
       real,dimension(:,:),pointer :: coarsevaluesinterp
       common/gridinter2/coarsevaluesinterp
-      
+
+      integer j1t,i1t,i2t,j2t
+      integer i1u,i2u,j1v,j2v
+      common/arraysindices/i1t,j1t,i2t,j2t,
+     &     i1u,i2u,j1v,j2v
+            
       integer zetaid,ubarid,vbarid,uid,vid,tid
-      common/varids/zetaid,ubarid,vbarid,uid,vid,tid      
+      integer tspongeid, uspongeid, vspongeid
+      common/varids/zetaid,ubarid,vbarid,uid,vid,tid,
+     &  tspongeid, uspongeid, vspongeid
+      integer updatezetaid, updateubarid, updatevbarid
+      integer updatetid, updateuid, updatevid
+      common/varidsupdate/updatezetaid, updateubarid, updatevbarid,
+     &       updatetid, updateuid, updatevid  
       
 #endif

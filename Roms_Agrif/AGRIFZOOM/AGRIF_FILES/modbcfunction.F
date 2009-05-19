@@ -502,36 +502,52 @@ C
       INTEGER, OPTIONAL           :: update, update1,
      &       update2, update3,update4,update5
 C
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic,indic ! indice of the variable in tabvars
+      TYPE(Agrif_PVariable),Pointer :: roottabvars      
 C
 C
 C     Begin 
+
+      indic = tabvarsindic
+
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif 
+      
+      if (indic <=0) then
+      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)      
+      else
+      roottabvars => Agrif_Mygrid % tabvars(indic)
+      endif
+      
 C
-      Agrif_Mygrid % tabvars(tabvarsindic) % var % typeupdate = 
+      roottabvars% var % typeupdate = 
      &                   Agrif_Update_Copy
       
       IF (present(update)) THEN
-        Agrif_Mygrid % tabvars(tabvarsindic)% var % typeupdate = 
+        roottabvars% var % typeupdate = 
      &           update
       ENDIF
       IF (present(update1)) THEN
-        Agrif_Mygrid % tabvars(tabvarsindic)% var % typeupdate(1) = 
+        roottabvars% var % typeupdate(1) = 
      &           update1
       ENDIF  
       IF (present(update2)) THEN
-        Agrif_Mygrid % tabvars(tabvarsindic)% var % typeupdate(2) = 
+        roottabvars% var % typeupdate(2) = 
      &           update2
       ENDIF  
       IF (present(update3)) THEN
-        Agrif_Mygrid % tabvars(tabvarsindic)% var % typeupdate(3) = 
+        roottabvars% var % typeupdate(3) = 
      &           update3
       ENDIF 
       IF (present(update4)) THEN
-        Agrif_Mygrid % tabvars(tabvarsindic)% var % typeupdate(4) = 
+        roottabvars% var % typeupdate(4) = 
      &           update4
       ENDIF       
       IF (present(update5)) THEN
-        Agrif_Mygrid % tabvars(tabvarsindic)% var % typeupdate(5) = 
+        roottabvars% var % typeupdate(5) = 
      &           update5
       ENDIF                  
 C
@@ -555,12 +571,18 @@ C     Declarations:
 C      
 C     Arguments      
 C
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic,indic ! indice of the variable in tabvars
 C
 C     Begin 
 C
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif  
 C
-      Agrif_Mygrid%tabvars(tabvarsindic)%var % restaure = .TRUE.
+      Agrif_Mygrid%tabvars(indic)%var % restaure = .TRUE.
 C
       End Subroutine Agrif_Set_restore
 C
@@ -1514,7 +1536,7 @@ C
       INTEGER :: tabvarsindic, indic ! indice of the variable in tabvars
       External :: procname
       Optional ::  procname
-      TYPE(Agrif_PVariable),Pointer ::tabvars,parenttabvars,roottabvars      
+      TYPE(Agrif_PVariable),Pointer ::tabvars,parenttabvars,roottabvars  
 C
       if (Agrif_Root()) Return
 C      
@@ -1773,56 +1795,75 @@ C
      &  locupdate1,locupdate2,procname)
 
       REAL,  DIMENSION(:) :: q
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic,indic ! indice of the variable in tabvars
       External :: procname
       Optional ::  procname      
       INTEGER, DIMENSION(2), OPTIONAL :: locupdate
       INTEGER, DIMENSION(2), OPTIONAL :: locupdate1
       INTEGER, DIMENSION(2), OPTIONAL :: locupdate2        
+      TYPE(Agrif_PVariable),Pointer ::tabvars,parenttabvars,roottabvars   
 C      
       if (Agrif_Root()) Return
 C     
+
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif 
+      
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-indic)
+      parenttabvars => tabvars%parent_var
+      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)      
+      else
+      tabvars=>Agrif_Curgrid % tabvars(indic)
+      parenttabvars => Agrif_Curgrid % parent % tabvars(indic)
+      roottabvars => Agrif_Mygrid % tabvars(indic)
+      endif
+      
       IF (present(locupdate)) THEN
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(1:1) 
+      tabvars%var % updateinf(1:1) 
      &      = locupdate(1)
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(1:1) 
+      tabvars%var % updatesup(1:1) 
      &      = locupdate(2)
       ELSE
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(1:1) 
+      tabvars%var % updateinf(1:1) 
      &      = -99
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(1:1) 
+      tabvars%var % updatesup(1:1) 
      &      = -99
       ENDIF
       
       IF (present(locupdate1)) THEN
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(1) 
+      tabvars%var % updateinf(1) 
      &      = locupdate1(1)
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(1) 
+      tabvars%var % updatesup(1) 
      &      = locupdate1(2)
       ENDIF  
       
       IF (present(locupdate2)) THEN
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(2) 
+      tabvars%var % updateinf(2) 
      &      = locupdate2(1)
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(2) 
+      tabvars%var % updatesup(2) 
      &      = locupdate2(2)
       ENDIF       
  
       IF (present(procname)) THEN
       Call Agrif_Update_1D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % typeupdate,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updateinf,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updatesup,
+     & roottabvars % var % typeupdate,
+     & parenttabvars,
+     & tabvars,q,
+     & tabvars % var % updateinf,
+     & tabvars % var % updatesup,
      & procname)
-      ELSE
+      ELSE 
       Call Agrif_Update_1D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % typeupdate,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updateinf,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updatesup)      
+     & roottabvars % var % typeupdate,
+     & parenttabvars,
+     & tabvars,q,
+     & tabvars % var % updateinf,
+     & tabvars % var % updatesup)       
       ENDIF
 
       Return
@@ -1842,52 +1883,70 @@ C
       INTEGER, DIMENSION(2), OPTIONAL :: locupdate 
       INTEGER, DIMENSION(2), OPTIONAL :: locupdate1
       INTEGER, DIMENSION(2), OPTIONAL :: locupdate2        
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic,indic ! indice of the variable in tabvars
+      TYPE(Agrif_PVariable),Pointer ::tabvars,parenttabvars,roottabvars       
 C      
       IF (Agrif_Root()) RETURN
       
 C 
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif 
+      
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-indic)
+      parenttabvars => tabvars%parent_var
+      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)      
+      else
+      tabvars=>Agrif_Curgrid % tabvars(indic)
+      parenttabvars => Agrif_Curgrid % parent % tabvars(indic)
+      roottabvars => Agrif_Mygrid % tabvars(indic)
+      endif
+      
       IF (present(locupdate)) THEN
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(1:2) 
+      tabvars%var % updateinf(1:2) 
      &      = locupdate(1)
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(1:2) 
+      tabvars%var % updatesup(1:2) 
      &      = locupdate(2)
       ELSE
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(1:2) 
+      tabvars%var % updateinf(1:2) 
      &      = -99
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(1:2) 
+      tabvars%var % updatesup(1:2) 
      &      = -99
       ENDIF
       
       IF (present(locupdate1)) THEN
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(1) 
+      tabvars%var % updateinf(1) 
      &      = locupdate1(1)
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(1) 
+      tabvars%var % updatesup(1) 
      &      = locupdate1(2)
       ENDIF  
       
       IF (present(locupdate2)) THEN
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(2) 
+      tabvars%var % updateinf(2) 
      &      = locupdate2(1)
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(2) 
+      tabvars%var % updatesup(2) 
      &      = locupdate2(2)
       ENDIF
  
       IF (present(procname)) THEN
       Call Agrif_Update_2D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % typeupdate,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updateinf,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updatesup,
+     & roottabvars % var % typeupdate,
+     & parenttabvars,
+     & tabvars,q,
+     & tabvars % var % updateinf,
+     & tabvars % var % updatesup,
      & procname)
-      ELSE
+      ELSE 
       Call Agrif_Update_2D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % typeupdate,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updateinf,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updatesup)      
+     & roottabvars % var % typeupdate,
+     & parenttabvars,
+     & tabvars,q,
+     & tabvars % var % updateinf,
+     & tabvars % var % updatesup)       
       ENDIF
 
       Return
@@ -1907,52 +1966,69 @@ C
       INTEGER, DIMENSION(2), OPTIONAL :: locupdate
       INTEGER, DIMENSION(2), OPTIONAL :: locupdate1
       INTEGER, DIMENSION(2), OPTIONAL :: locupdate2        
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic,indic ! indice of the variable in tabvars
+      TYPE(Agrif_PVariable),Pointer ::tabvars,parenttabvars,roottabvars       
 C      
       IF (Agrif_Root()) RETURN 
 C      
-
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif 
+      
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-indic)
+      parenttabvars => tabvars%parent_var
+      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)      
+      else
+      tabvars=>Agrif_Curgrid % tabvars(indic)
+      parenttabvars => Agrif_Curgrid % parent % tabvars(indic)
+      roottabvars => Agrif_Mygrid % tabvars(indic)
+      endif
+      
       IF (present(locupdate)) THEN
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(1:3) 
+      tabvars%var % updateinf(1:3) 
      &      = locupdate(1)
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(1:3) 
+      tabvars%var % updatesup(1:3) 
      &      = locupdate(2)
       ELSE
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(1:3) 
+      tabvars%var % updateinf(1:3) 
      &      = -99
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(1:3) 
+      tabvars%var % updatesup(1:3) 
      &      = -99
       ENDIF      
       
       IF (present(locupdate1)) THEN
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(1) 
+      tabvars%var % updateinf(1) 
      &      = locupdate1(1)
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(1) 
+      tabvars%var % updatesup(1) 
      &      = locupdate1(2)
       ENDIF  
       
       IF (present(locupdate2)) THEN
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(2) 
+      tabvars%var % updateinf(2) 
      &      = locupdate2(1)
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(2) 
+      tabvars%var % updatesup(2) 
      &      = locupdate2(2)
       ENDIF
 
       IF (present(procname)) THEN
       Call Agrif_Update_3D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % typeupdate,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updateinf,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updatesup,
+     & roottabvars % var % typeupdate,
+     & parenttabvars,
+     & tabvars,q,
+     & tabvars % var % updateinf,
+     & tabvars % var % updatesup,
      & procname)
-      ELSE
+      ELSE 
       Call Agrif_Update_3D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % typeupdate,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updateinf,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updatesup)      
+     & roottabvars % var % typeupdate,
+     & parenttabvars,
+     & tabvars,q,
+     & tabvars % var % updateinf,
+     & tabvars % var % updatesup)       
       ENDIF
 
       Return
@@ -1972,51 +2048,68 @@ C
       INTEGER, DIMENSION(2), OPTIONAL :: locupdate
       INTEGER, DIMENSION(2), OPTIONAL :: locupdate1
       INTEGER, DIMENSION(2), OPTIONAL :: locupdate2        
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic,indic ! indice of the variable in tabvars
+      TYPE(Agrif_PVariable),Pointer ::tabvars,parenttabvars,roottabvars       
 C      
       IF (Agrif_Root()) RETURN
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif 
+      
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-indic)
+      parenttabvars => tabvars%parent_var
+      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)     
+      else
+      tabvars=>Agrif_Curgrid % tabvars(indic)
+      parenttabvars => Agrif_Curgrid % parent % tabvars(indic)
+      roottabvars => Agrif_Mygrid % tabvars(indic)
+      endif      
 C      
       IF (present(locupdate)) THEN
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(1:4) 
+      tabvars%var % updateinf(1:4) 
      &      = locupdate(1)
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(1:4) 
+      tabvars%var % updatesup(1:4) 
      &      = locupdate(2)
       ELSE
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(1:4) 
+      tabvars%var % updateinf(1:4) 
      &      = -99
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(1:4) 
+      tabvars%var % updatesup(1:4) 
      &      = -99
       ENDIF
       
       IF (present(locupdate1)) THEN
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(1) 
+      tabvars%var % updateinf(1) 
      &      = locupdate1(1)
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(1) 
+      tabvars%var % updatesup(1) 
      &      = locupdate1(2)
       ENDIF  
       
       IF (present(locupdate2)) THEN
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(2) 
+      tabvars%var % updateinf(2) 
      &      = locupdate2(1)
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(2) 
+      tabvars%var % updatesup(2) 
      &      = locupdate2(2)
       ENDIF
 
       IF (present(procname)) THEN
       Call Agrif_Update_4D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % typeupdate,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updateinf,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updatesup,
+     & roottabvars % var % typeupdate,
+     & parenttabvars,
+     & tabvars,q,
+     & tabvars % var % updateinf,
+     & tabvars % var % updatesup,
      & procname)
-      ELSE
+      ELSE 
       Call Agrif_Update_4D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % typeupdate,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updateinf,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updatesup)      
+     & roottabvars % var % typeupdate,
+     & parenttabvars,
+     & tabvars,q,
+     & tabvars % var % updateinf,
+     & tabvars % var % updatesup)       
       ENDIF
 
       Return
@@ -2036,51 +2129,69 @@ C
       INTEGER, DIMENSION(2), OPTIONAL :: locupdate
       INTEGER, DIMENSION(2), OPTIONAL :: locupdate1
       INTEGER, DIMENSION(2), OPTIONAL :: locupdate2        
-      INTEGER :: tabvarsindic ! indice of the variable in tabvars
+      INTEGER :: tabvarsindic,indic ! indice of the variable in tabvars
+      TYPE(Agrif_PVariable),Pointer ::tabvars,parenttabvars,roottabvars       
 C
       IF (Agrif_Root()) RETURN
-C      
+C     
+      indic = tabvarsindic
+      if (tabvarsindic >=0) then
+        if (agrif_curgrid%tabvars(tabvarsindic)%var%nbdim == 0) then
+          indic = agrif_curgrid%tabvars(tabvarsindic)%var%iarray0
+        endif
+      endif 
+      
+      if (indic <=0) then
+      tabvars => Agrif_Search_Variable(Agrif_Curgrid,-indic)
+      parenttabvars => tabvars%parent_var
+      roottabvars => Agrif_Search_Variable(Agrif_Mygrid,-indic)      
+      else
+      tabvars=>Agrif_Curgrid % tabvars(indic)
+      parenttabvars => Agrif_Curgrid % parent % tabvars(indic)
+      roottabvars => Agrif_Mygrid % tabvars(indic)
+      endif
+       
       IF (present(locupdate)) THEN
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(1:5) 
+      tabvars%var % updateinf(1:5) 
      &      = locupdate(1)
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(1:5) 
+      tabvars%var % updatesup(1:5) 
      &      = locupdate(2)
       ELSE
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(1:5) 
+      tabvars%var % updateinf(1:5) 
      &      = -99
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(1:5) 
+      tabvars%var % updatesup(1:5) 
      &      = -99
       ENDIF
       
       IF (present(locupdate1)) THEN
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(1) 
+      tabvars%var % updateinf(1) 
      &      = locupdate1(1)
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(1) 
+      tabvars%var % updatesup(1) 
      &      = locupdate1(2)
       ENDIF  
       
       IF (present(locupdate2)) THEN
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updateinf(2) 
+      tabvars%var % updateinf(2) 
      &      = locupdate2(1)
-      Agrif_Curgrid%tabvars(tabvarsindic)%var % updatesup(2) 
+      tabvars%var % updatesup(2) 
      &      = locupdate2(2)
       ENDIF
 
       IF (present(procname)) THEN
       Call Agrif_Update_5D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % typeupdate,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updateinf,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updatesup,
+     & roottabvars % var % typeupdate,
+     & parenttabvars,
+     & tabvars,q,
+     & tabvars % var % updateinf,
+     & tabvars % var % updatesup,
      & procname)
-      ELSE
+      ELSE 
       Call Agrif_Update_5D(
-     & Agrif_Mygrid % tabvars(tabvarsindic) % var % typeupdate,
-     & Agrif_Curgrid % parent % tabvars(tabvarsindic),
-     & Agrif_Curgrid % tabvars(tabvarsindic),q,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updateinf,
-     & Agrif_Curgrid % tabvars(tabvarsindic) % var % updatesup)      
+     & roottabvars % var % typeupdate,
+     & parenttabvars,
+     & tabvars,q,
+     & tabvars % var % updateinf,
+     & tabvars % var % updatesup)       
       ENDIF
 
       Return

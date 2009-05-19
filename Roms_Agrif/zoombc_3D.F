@@ -51,15 +51,15 @@ C$OMP MASTER
      &   ((nbcoarse == irhot).AND.(nnew /=3))).AND.
      &    (UTimeindex.NE.parentnbstep)) THEN
 
-        Allocate(uext(GLOBAL_2D_ARRAY,N))
+        Allocate(uext(i1u:i2u,j1t:j2t,N))
         tinterp=1. 
 #ifdef MASKING      
         Agrif_UseSpecialvalue=.true.
 #endif        
         Agrif_Specialvalue=0.
         uext=0.   
-        Call Agrif_Set_bc(Huon,(/0,0/),InterpolationShouldbemade=.TRUE.)
-        Call Agrif_Bc_variable(uext,Huon,calledweight=tinterp,
+        Call Agrif_Set_bc(uid,(/0,0/),InterpolationShouldbemade=.TRUE.)
+        Call Agrif_Bc_variable(uext,uid,calledweight=tinterp,
      &procname=u3dinterp)
         Agrif_UseSpecialValue=.false.
 
@@ -392,7 +392,7 @@ C$OMP MASTER
      &   ((nbcoarse == irhot).AND.(nnew /=3))).AND.
      &    (VTimeindex.NE.parentnbstep)) THEN 
 
-        allocate(vext(GLOBAL_2D_ARRAY,N))
+        allocate(vext(i1t:i2t,j1v:j2v,N))
         tinterp=1.
 
 #ifdef MASKING
@@ -400,8 +400,8 @@ C$OMP MASTER
 #endif        
         AGRIF_Specialvalue=0.
         vext=0.
-        Call Agrif_Set_bc(Hvom,(/0,0/),InterpolationShouldbemade=.TRUE.)
-        Call Agrif_Bc_variable(vext,Hvom,calledweight=tinterp,
+        Call Agrif_Set_bc(vid,(/0,0/),InterpolationShouldbemade=.TRUE.)
+        Call Agrif_Bc_variable(vext,vid,calledweight=tinterp,
      &procname=v3dinterp)     
         AGRIF_UseSpecialValue=.false.
 
@@ -687,16 +687,16 @@ C$OMP MASTER
      &   ((nbcoarse == irhot).AND.(nnew /=3))).AND.
      &    (TTimeindex.NE.parentnbstep)) THEN 
 
-        allocate(text(GLOBAL_2D_ARRAY,N,NT))
+        allocate(text(i1t:i2t,j1t:j2t,N,NT))
         tinterp=1.
 #ifdef MASKING        
         Agrif_UseSpecialvalue=.true.
 #endif        
         Agrif_Specialvalue=0.
         text=0. 
-        Call Agrif_Set_bc(updateTprof,(/-1,0/),
+        Call Agrif_Set_bc(tid,(/-1,0/),
      &     InterpolationShouldbemade=.TRUE.)        
-        Call Agrif_Bc_variable(text,updateTprof,calledweight=tinterp,
+        Call Agrif_Bc_variable(text,tid,calledweight=tinterp,
      & procname = t3dinterp)
       
         Agrif_UseSpecialValue=.false.

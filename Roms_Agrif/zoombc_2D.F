@@ -36,6 +36,7 @@
       real,dimension(GLOBAL_1D_ARRAYXI) :: DU_south6,DU_north6     
       real,dimension(GLOBAL_1D_ARRAYXI,0:NWEIGHT) :: DU_south4,DU_north4
       real :: lastcff
+      real,dimension(:,:),allocatable :: tabtemp2d
 !$AGRIF_DO_NOT_TREAT
 !      real,dimension(:,:,:),pointer :: coarsevalues
 !      integer :: nbgrid, indinterp
@@ -82,9 +83,13 @@ C$OMP MASTER
 
         nbgrid = Agrif_Fixed()
 C        indinterp = 0 indinterp is set to zero in zetabc
-           
-        Call Agrif_Bc_variable(dUinterp,DU_avg2,calledweight=tinterp,
-     &    procname = u2dinterp)
+        
+        allocate(tabtemp2d(i1u:i2u,j1t:j2t))
+        Call Agrif_Bc_variable(tabtemp2d,ubarid,
+     &    calledweight=tinterp,procname = u2dinterp)
+        dUinterp(i1u:i2u,j1t:j2t)=tabtemp2d
+        deallocate(tabtemp2d)
+       
                   
         Agrif_UseSpecialvalue=.false. 
 C$OMP END MASTER
@@ -341,6 +346,7 @@ C$OMP BARRIER
 #   endif
      &                   (cffx/om_u(Istr,j))*
      &                   (SSH(Istr,j)-zeta(Istr,j,knew))  +
+
 #   ifdef AGRIF_FLUX_BC
      &              (2.*DU_west(j)/((h(Istr-1,j)+zeta(Istr-1,j,knew)
      &                                 +h(Istr,j)+zeta(Istr,j,knew))
@@ -362,10 +368,11 @@ C$OMP BARRIER
 #   ifdef M2_FRC_BRY
           ubarbry_east(j)=
 #   else
-          ubclm(Iend+1,j)= 
+          ubclm(Iend+1,j)=
 #   endif
-     &                   -(cffx/om_u(Iend+1,j))*
+     &                    -(cffx/om_u(Iend+1,j))*
      &                     (SSH(Iend,j)-zeta(Iend,j,knew)) +
+
 #   ifdef AGRIF_FLUX_BC
      &                  (2.*DU_east(j)/(( h(Iend,j)+zeta(Iend,j,knew)
      &                              +h(Iend+1,j)+zeta(Iend+1,j,knew))
@@ -460,7 +467,7 @@ C$OMP BARRIER
        oldindinterp = indinterp
        
        do j=j1,j2
-       do i=max(i1,lbound(h,1)+1),i2
+       do i=i1,i2
        oldindinterp=oldindinterp+1
        coarsevaluesinterp(oldindinterp,0) = 
      &  0.5*(h(i-1,j)+zeta(i-1,j,kstp)+h(i,j)+
@@ -473,7 +480,7 @@ C$OMP BARRIER
        oldindinterp = indinterp
        
        do j=j1,j2
-       do i=max(i1,lbound(h,1)+1),i2
+       do i=i1,i2
        oldindinterp=oldindinterp+1
        coarsevaluesinterp(oldindinterp,iif) =
      &   0.5*(h(i-1,j)+zeta(i-1,j,knew)+h(i,j)+
@@ -527,6 +534,7 @@ C$OMP BARRIER
       real,dimension(GLOBAL_1D_ARRAYXI,0:NWEIGHT) :: DV_south4,DV_north4
 
       real :: lastcff
+      real,dimension(:,:),allocatable :: tabtemp2d
 !$AGRIF_DO_NOT_TREAT
       integer :: indinterp
       common/interp2d/indinterp
@@ -574,8 +582,11 @@ C$OMP MASTER
         
         nbgrid = Agrif_Fixed()
 C        indinterp = 0 indinterp is set to zero in zetabc
-        Call Agrif_Bc_variable(dVinterp,DV_avg2,calledweight=tinterp,
+        allocate(tabtemp2d(i1t:i2t,j1v:j2v))
+        Call Agrif_Bc_variable(tabtemp2d,vbarid,calledweight=tinterp,
      &   procname = v2dinterp)
+        dVinterp(i1t:i2t,j1v:j2v)=tabtemp2d
+        deallocate(tabtemp2d)
                   
         Agrif_UseSpecialvalue=.false.
 C$OMP END MASTER
@@ -837,6 +848,7 @@ C$OMP BARRIER
 #   endif
      &                   (cffy/on_v(i,Jstr))*
      &                   (SSH(i,Jstr)-zeta(i,Jstr,knew))   +
+
 #   ifdef AGRIF_FLUX_BC
      &              (2.*DV_south(i)/((h(i,Jstr-1)+zeta(i,Jstr-1,knew)
      &                                  +h(i,Jstr)+zeta(i,Jstr,knew))
@@ -861,6 +873,7 @@ C$OMP BARRIER
 #   endif
      &                    -(cffy/on_v(i,Jend+1))*
      &                     (SSH(i,Jend)-zeta(i,Jend,knew))  +
+
 #   ifdef AGRIF_FLUX_BC
      &                  (2.*DV_north(i)/(( h(i,Jend)+zeta(i,Jend,knew)
      &                               +h(i,Jend+1)+zeta(i,Jend+1,knew))
@@ -952,7 +965,7 @@ C$OMP BARRIER
        
        oldindinterp = indinterp
        
-       do j=max(j1,lbound(h,2)+1),j2
+       do j=j1,j2
        do i=i1,i2
        oldindinterp=oldindinterp+1
        coarsevaluesinterp(oldindinterp,0) = 
@@ -965,7 +978,7 @@ C$OMP BARRIER
        
        oldindinterp = indinterp
        
-       do j=max(j1,lbound(h,2)+1),j2
+       do j=j1,j2
        do i=i1,i2
        oldindinterp=oldindinterp+1
        coarsevaluesinterp(oldindinterp,iif) =
@@ -1064,7 +1077,7 @@ C$OMP BARRIER
       real,dimension(Iend:Iend+1,GLOBAL_1D_ARRAYETA,0:NWEIGHT) :: Zeta_east4
       real,dimension(GLOBAL_1D_ARRAYXI,Jstr-1:Jstr,0:NWEIGHT) :: Zeta_south4
       real,dimension(GLOBAL_1D_ARRAYXI,Jend:Jend+1,0:NWEIGHT) :: Zeta_north4
-
+      real,dimension(:,:),allocatable :: tabtemp2d
       real lastcff
 !$AGRIF_DO_NOT_TREAT
       integer :: indinterp
@@ -1108,10 +1121,12 @@ C$OMP MASTER
 
         nbgrid = Agrif_Fixed()
         indinterp = 0
-               
-            Call Agrif_Bc_variable(dZtinterp,Zt_avg1,
+        allocate(tabtemp2d(i1t:i2t,j1t:j2t))     
+            Call Agrif_Bc_variable(tabtemp2d,zetaid,
      &                                        calledweight=tinterp,
      &                                        procname=zetainterp)
+       dZtinterp(i1t:i2t,j1t:j2t)=tabtemp2d
+       deallocate(tabtemp2d)
             Agrif_UseSpecialvalue=.false. 
 C$OMP END MASTER
 C$OMP BARRIER
@@ -1383,7 +1398,7 @@ C$OMP BARRIER
               zetabry_west(j)=Zeta_west4(Istr-1,j,iif-1)+
      &                        Zeta_west6(Istr-1,j)
             enddo
-#   endif
+#   endif          
           endif
 #  endif
 #  ifdef AGRIF_OBC_EAST

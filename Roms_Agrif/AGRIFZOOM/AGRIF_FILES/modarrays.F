@@ -125,27 +125,9 @@ C
 C
 C     Local variables
 C
-      SELECT CASE (nbdim)
-      CASE (1)
-           lower = lbound(Variable % array1,indice)
-           upper = ubound(Variable % array1,indice)
-      CASE (2)
-           lower = lbound(Variable % array2,indice)
-           upper = ubound(Variable % array2,indice)
-      CASE (3)
-           lower = lbound(Variable % array3,indice)
-           upper = ubound(Variable % array3,indice)
-      CASE (4)
-           lower = lbound(Variable % array4,indice)
-           upper = ubound(Variable % array4,indice)
-      CASE (5)
-           lower = lbound(Variable % array5,indice)
-           upper = ubound(Variable % array5,indice)
-      CASE (6)
-           lower = lbound(Variable % array6,indice)
-           upper = ubound(Variable % array6,indice)
-      END SELECT
-C
+
+      lower = Variable % lb(indice)
+      upper = Variable % ub(indice)
       return
 C
       End Subroutine Agrif_nbdim_Get_bound       

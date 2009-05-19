@@ -43,6 +43,7 @@
        integer :: irhot
        external interpsponget
        integer :: parentnbstep
+       real, dimension(:,:,:,:), allocatable :: text
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -60,7 +61,7 @@ C$OMP MASTER
 
 !     tsponge = 0.
 
-      Call Agrif_Set_bc(tsponge,(/-decal,0/),
+      Call Agrif_Set_bc(tspongeid,(/-decal,0/),
      &     InterpolationShouldbemade=.TRUE.)
 #ifdef MASKING
         Agrif_UseSpecialvalue=.true.
@@ -68,9 +69,12 @@ C$OMP MASTER
       Agrif_Specialvalue=0.
 
        tinterp = 1.
-
-      Call Agrif_Bc_Variable(tsponge,tsponge,calledweight=tinterp,
+      allocate(text(i1t:i2t,j1t:j2t,N,NT))
+      Call Agrif_Bc_Variable(text,tspongeid,calledweight=tinterp,
      &                           procname=interpsponget)
+      tsponge(i1t:i2t,j1t:j2t,1:N,1:NT) = text
+      deallocate(text)
+      
       Agrif_UseSpecialvalue=.false.
 
        TTimesponge = 3 - TTimesponge

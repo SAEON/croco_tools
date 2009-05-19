@@ -100,16 +100,16 @@ C$OMP SINGLE
 !    &         locupdate=(/0,0/),procname = updatevbar) 
 
 
-       Call Agrif_Update_Variable(tabtemp,Zt_avg2,
+       Call Agrif_Update_Variable(tabtemp,updatezetaid,
      &         locupdate=(/1,2/),procname = updatezeta)
 
       Agrif_UseSpecialValueInUpdate = .FALSE.
             
-      Call Agrif_Update_Variable(tabtemp,DU_avg1,
+      Call Agrif_Update_Variable(tabtemp,updateubarid,
      &     locupdate1=(/0,1/),locupdate2=(/1,2/),
      &     procname = updateubar)
      
-      Call Agrif_Update_Variable(tabtemp,DV_avg1,
+      Call Agrif_Update_Variable(tabtemp,updatevbarid,
      &     locupdate1=(/1,2/),locupdate2=(/0,1/),
      &     procname = updatevbar)          
       
@@ -133,16 +133,16 @@ C$OMP SINGLE
 !     Call Agrif_Update_Variable(tabtemp,DV_avg1,
 !    &         procname = updatevbar) 
 
-      Call Agrif_Update_Variable(tabtemp,Zt_avg2,
+      Call Agrif_Update_Variable(tabtemp,updatezetaid,
      &         locupdate=(/1,0/),procname = updatezeta)
-      
+
       Agrif_UseSpecialValueInUpdate = .FALSE.
 
-      Call Agrif_Update_Variable(tabtemp,DU_avg1,
+      Call Agrif_Update_Variable(tabtemp,updateubarid,
      &     locupdate1=(/0,-1/),locupdate2=(/1,-2/),
      &     procname = updateubar)
      
-      Call Agrif_Update_Variable(tabtemp,DV_avg1,
+      Call Agrif_Update_Variable(tabtemp,updatevbarid,
      &     locupdate1=(/1,-2/),locupdate2=(/0,-1/),
      &     procname = updatevbar)    
 
@@ -443,7 +443,7 @@ C$OMP END SINGLE
        integer irhot, ibegin,isize  
        real tabtemp(i1:i2,j1:j2) 
        integer :: n1,n2,n3 
-              
+
       IF (before) THEN
  
          IF (global_update_2d) THEN
@@ -470,7 +470,7 @@ C$OMP END SINGLE
 
           do iter=1,ibegin
           do j=j1,j2  
-          do i=i1,i2                 
+          do i=i1,i2    
           tabres(i,j,iter) = Zt_avg3(i,j,iif-iter+1)
           enddo
           enddo          
@@ -482,7 +482,7 @@ C$OMP END SINGLE
          Zt_avg1(i1:i2,j1:j2) = tabres(i1:i2,j1:j2,1)
 #ifdef MASKING
      &             *rmask(i1:i2,j1:j2)
-#endif         
+#endif
          RETURN
        ENDIF
               

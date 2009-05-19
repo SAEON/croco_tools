@@ -76,6 +76,7 @@
        integer :: parentnbstep
        real DC(Istr-1:Iend+1,Jstr-1:Jend+1,0:N)
        real CF(Istr-1:Iend+1,Jstr-1:Jend+1,0:N)
+       real,dimension(:,:,:),allocatable :: uext, vext
 !
 # include "compute_auxiliary_bounds.h"
 
@@ -93,17 +94,25 @@ C$OMP MASTER
 !     usponge = 0.
 !     vsponge = 0.
 
-      Call Agrif_Set_bc(usponge,(/-decal,0/),
+      allocate(uext(i1u:i2u,j1t:j2t,N))
+      allocate(vext(i1t:i2t,j1v:j2v,N))
+      
+      Call Agrif_Set_bc(uspongeid,(/-decal,0/),
      &         InterpolationShouldbemade=.TRUE.)
-      Call Agrif_Set_bc(vsponge,(/-decal,0/),
+      Call Agrif_Set_bc(vspongeid,(/-decal,0/),
      &         InterpolationShouldbemade=.TRUE.)
 
        tinterp = 1.
                
-      Call Agrif_Bc_Variable(usponge,usponge,calledweight=tinterp,
+      Call Agrif_Bc_Variable(uext,uspongeid,calledweight=tinterp,
      &                         procname=interpspongeu)
-      Call Agrif_Bc_Variable(vsponge,vsponge,calledweight=tinterp,
+      Call Agrif_Bc_Variable(vext,vspongeid,calledweight=tinterp,
      &                         procname=interpspongev)
+     
+      usponge(i1u:i2u,j1t:j2t,1:N) = uext
+      vsponge(i1t:i2t,j1v:j2v,1:N) = vext      
+      
+      deallocate(uext,vext)
 
       UVTimesponge = 3 - UVTimesponge
         UVspongeTimeindex = parentnbstep

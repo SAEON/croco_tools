@@ -130,14 +130,14 @@
       irhot=Agrif_Irhot()
       IF (mod(nbstep3d,5) == (irhot-1)) THEN
 
-      Call Agrif_Update_Variable(tabtemp,updateTprof,
+      Call Agrif_Update_Variable(tabtemp,updatetid,
      &         procname = updateTranp1,locupdate=(/1,0/))
       Agrif_UseSpecialValueInUpdate = .FALSE.
            
-      Call Agrif_Update_Variable(tabtemp(:,:,:,1),Huon,
+      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updateuid,
      &     locupdate1=(/0,-1/),locupdate2=(/1,-2/),
      &     procname = updateunp1)
-      Call Agrif_Update_Variable(tabtemp(:,:,:,1),Hvom,
+      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updatevid,
      &     locupdate1=(/1,-2/),locupdate2=(/0,-1/),
      &     procname = updatevnp1)
 
@@ -152,15 +152,15 @@
 !    &         procname = updatevnp1)
       ELSE
 
-      Call Agrif_Update_Variable(tabtemp,updateTprof,
+      Call Agrif_Update_Variable(tabtemp,updatetid,
      &         locupdate=(/1,2/),procname = updateTranp1)
      
       Agrif_UseSpecialValueInUpdate = .FALSE.
            
-      Call Agrif_Update_Variable(tabtemp(:,:,:,1),Huon,
+      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updateuid,
      &     locupdate1=(/0,2/),locupdate2=(/1,3/),
      &     procname = updateunp1)
-      Call Agrif_Update_Variable(tabtemp(:,:,:,1),Hvom,
+      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updatevid,
      &     locupdate1=(/1,3/),locupdate2=(/0,2/),
      &     procname = updatevnp1) 
 
