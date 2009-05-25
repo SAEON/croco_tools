@@ -121,7 +121,7 @@ C$OMP BARRIER
          do j=JstrR,JendR
          do i=IstrR,IstrR+decal      
           T_sponge_west(i,j,k,TTimesponge,itrc)=
-     &              tsponge(i,j,k,itrc)          
+     &              tsponge(i,j,k,itrc)              
          enddo
          enddo
          enddo
@@ -187,7 +187,7 @@ C$OMP BARRIER
          do i=IstrR,IstrR+decal
             tsponge(i,j,k,itrc) =
      &                onemtinterp*T_sponge_west(i,j,k,nold,itrc)
-     &                + tinterp*T_sponge_west(i,j,k,TTimesponge,itrc)
+     &                + tinterp*T_sponge_west(i,j,k,TTimesponge,itrc)     
          enddo
          enddo
          enddo
@@ -208,6 +208,13 @@ C$OMP BARRIER
          enddo  
        endif
 
+      do itrc=1,NT
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+        call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
+     &                          tsponge(START_2D_ARRAY,1,itrc))
+# endif
+      enddo
+     
       return
       end
       

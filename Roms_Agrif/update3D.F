@@ -598,9 +598,7 @@
       IF (before) THEN
         DO k=k1,k2
          DO j=j1,j2
-           DO i=max(lbound(Hz,1)+1,i1),i2
-!            tabres(i,j,k) = 0.5*(Hz(i,j,k)+Hz(i-1,j,k))
-!     &                     *on_u(i,j)*u(i,j,k,nnew)
+           DO i=i1,i2
             tabres(i,j,k) = u(i,j,k,nnew)
             ENDDO
          ENDDO
@@ -608,12 +606,7 @@
        ELSE
         DO k=k1,k2
          DO j=j1,j2
-           DO i=max(lbound(Hz,1)+1,i1),i2
-!          hzu = 0.5*(Hz(i,j,k)+Hz(i-1,j,k))*on_u(i,j)
-!          IF (hzu .NE.0.) THEN
-!              u(i,j,k,nnew) = 3.*tabres(i,j,k)/hzu
-!              u(i,j,k,nnew) = u(i,j,k,nnew)*umask(i,j)
-!          ENDIF
+           DO i=i1,i2
           u(i,j,k,nnew) = tabres(i,j,k)
 #ifdef MASKING
      &           * umask(i,j)
@@ -642,23 +635,16 @@
       
       IF (before) THEN
         DO k=k1,k2
-         DO j=max(lbound(Hz,2)+1,j1),j2
+         DO j=j1,j2
            DO i=i1,i2
-!            tabres(i,j,k) = 0.5*(Hz(i,j,k)+Hz(i,j-1,k))
-!     &                     *om_v(i,j)*v(i,j,k,nnew)
              tabres(i,j,k) = v(i,j,k,nnew)
             ENDDO
          ENDDO
         ENDDO
        ELSE
         DO k=k1,k2
-         DO j=max(lbound(Hz,2)+1,j1),j2
+         DO j=j1,j2
           DO i=i1,i2
-!          hzv = 0.5*(Hz(i,j,k)+Hz(i,j-1,k))*om_v(i,j)
-!          IF (hzv .NE.0.) THEN
-!              v(i,j,k,nnew) = 3.*tabres(i,j,k)/hzv
-!              v(i,j,k,nnew) = v(i,j,k,nnew)*vmask(i,j)
-!          ENDIF
           v(i,j,k,nnew) = tabres(i,j,k)
 #ifdef MASKING
      &              * vmask(i,j)

@@ -169,7 +169,7 @@ C     Local scalars
       Integer, Dimension(:,:), Allocatable :: indparent_tmp
       Real, Dimension(:,:), Allocatable :: coeffparent_tmp
       REAL    :: ypos,globind_parent_left,globind_parent_right
-      REAL    :: invds, invds2
+      REAL    :: invds, invds2, invds3
       REAL :: ypos2,diff
 C
 C
@@ -188,6 +188,7 @@ C
 C
       invds = 1./ds_parent
       invds2 = ds_child/ds_parent
+      invds3 = 0.5/real(coeffraf)
 
       ypos2 = ypos*invds
       globind_parent_right=globind_parent_right*invds
@@ -219,7 +220,9 @@ C
         endif
 
         diff=(globind_parent_right - ypos2)
+        diff = invds3*nint(2*coeffraf*diff)
         indparent(i,dir) = locind_parent_left
+
         coeffparent(i,dir) = diff
         
         ypos2 = ypos2 + invds2
@@ -238,10 +241,11 @@ C
      &                        + (locind_parent_left - 1)*ds_parent
 C      
        indparent(nc,dir) = locind_parent_left
-       
-         coeffparent(nc,dir) = (globind_parent_left + ds_parent - ypos)
+       diff = (globind_parent_left + ds_parent - ypos)
      &       * invds
-      endif                                           
+        diff = invds3*nint(2*coeffraf*diff)
+         coeffparent(nc,dir) = diff
+        endif                                           
 
       do i=2, np2
       inc  =  i*nc
@@ -280,7 +284,7 @@ C
 C     Local scalars
       INTEGER :: i,coeffraf,locind_parent_left
       REAL    :: ypos,globind_parent_left,globind_parent_right
-      REAL    :: invds, invds2
+      REAL    :: invds, invds2, invds3
       REAL :: ypos2,diff
 C
 C
@@ -305,6 +309,7 @@ C
 C
       invds = 1./ds_parent
       invds2 = ds_child/ds_parent
+      invds3 = 0.5/real(coeffraf)      
       
       ypos2 = ypos*invds
       globind_parent_right=globind_parent_right*invds
@@ -327,7 +332,11 @@ C
         endif
         
         diff=(globind_parent_right - ypos2)
+        
+        diff = invds3*nint(2*coeffraf*diff)
+                
         indparent(i,1) = locind_parent_left
+
         coeffparent(i,1) = diff
         ypos2 = ypos2 + invds2
 C
@@ -345,10 +354,12 @@ C
      &                        + (locind_parent_left - 1)*ds_parent  
 C      
        indparent(nc,1) = locind_parent_left
-       
-         coeffparent(nc,1) = (globind_parent_left + ds_parent - ypos)
+ 
+       diff = (globind_parent_left + ds_parent - ypos)
      &       * invds
-      endif                                          
+        diff = invds3*nint(2*coeffraf*diff)
+         coeffparent(nc,1) = diff
+         endif                                          
 C           
       Return
 C

@@ -16,7 +16,7 @@
       LOGICAL, OPTIONAL :: torestore
       LOGICAL :: restaure
             
-      if (agrif_root()) return
+!      if (agrif_root()) return
       
       restaure = .FALSE.
       if (agrif_mygrid%ngridstep /= 0) then
@@ -37,7 +37,6 @@ C
       newvariable%pvar%var%posvar = posvar
       newvariable%pvar%var%point(1:dimensio) = firstpoint
       newvariable%pvar%var%restaure = restaure
-      
 
       newvariable%pvar%var%lb(1:dimensio) = lb(1:dimensio)
       newvariable%pvar%var%ub(1:dimensio) = ub(1:dimensio)
@@ -72,39 +71,44 @@ C
       
       Agrif_Curgrid%variables => newvariable
       Agrif_Curgrid%Nbvariables = Agrif_Curgrid%Nbvariables + 1
-      
+
       varid = -Agrif_Curgrid%Nbvariables
 
-       if (agrif_curgrid%parent%nbvariables < agrif_curgrid%nbvariables)
-     &       then
-      Allocate(newvariablep)
-      Allocate(newvariablep%pvar)
-      Allocate(newvariablep%pvar%var)      
-      Allocate(newvariablep%pvar%var%posvar(dimensio))
-      Allocate(newvariablep%pvar%var%interptab(dimensio))
-      newvariablep%pvar%var%variablename = variablename
-      newvariablep%pvar%var%interptab = raf
-      newvariablep%pvar%var%nbdim = dimensio
-      newvariablep%pvar%var%posvar = posvar
-      newvariablep%pvar%var%point(1:dimensio) = firstpoint
-      newvariablep%pvar%var%restaure = restaure      
- 
-      newvariablep%pvar%var%lb(1:dimensio) = lb(1:dimensio)
-      newvariablep%pvar%var%ub(1:dimensio) = ub(1:dimensio)
-           
-      newvariablep % nextvariable => Agrif_Curgrid%parent%variables
-      
-      Agrif_Curgrid%parent%variables => newvariablep       
-      
-      Agrif_Curgrid%parent%Nbvariables = 
-     &    Agrif_Curgrid%parent%Nbvariables + 1
-      parent_var=>newvariablep%pvar
-      else
+!       if (agrif_curgrid%parent%nbvariables < agrif_curgrid%nbvariables)
+!     &       then
+!      Allocate(newvariablep)
+!      Allocate(newvariablep%pvar)
+!      Allocate(newvariablep%pvar%var)      
+!      Allocate(newvariablep%pvar%var%posvar(dimensio))
+!      Allocate(newvariablep%pvar%var%interptab(dimensio))
+!      newvariablep%pvar%var%variablename = variablename
+!      newvariablep%pvar%var%interptab = raf
+!      newvariablep%pvar%var%nbdim = dimensio
+!      newvariablep%pvar%var%posvar = posvar
+!      newvariablep%pvar%var%point(1:dimensio) = firstpoint
+!      newvariablep%pvar%var%restaure = restaure      
+! 
+!      newvariablep%pvar%var%lb(1:dimensio) = lb(1:dimensio)
+!      newvariablep%pvar%var%ub(1:dimensio) = ub(1:dimensio)
+!           
+!      newvariablep % nextvariable => Agrif_Curgrid%parent%variables
+!      
+!      Agrif_Curgrid%parent%variables => newvariablep       
+!      
+!      Agrif_Curgrid%parent%Nbvariables = 
+!     &    Agrif_Curgrid%parent%Nbvariables + 1
+!      parent_var=>newvariablep%pvar
+!      else
+!      parent_var=>Agrif_Search_Variable
+!     &              (Agrif_Curgrid%parent,Agrif_Curgrid%nbvariables)
+!       endif
+       
+       if (.not.agrif_root()) then
       parent_var=>Agrif_Search_Variable
-     &              (Agrif_Curgrid%parent,Agrif_Curgrid%nbvariables)
-       endif
+     &              (Agrif_Curgrid%parent,Agrif_Curgrid%nbvariables)       
        
        newvariable%pvar%parent_var=>parent_var
+       endif       
       
       root_var=>Agrif_Search_Variable
      &              (Agrif_Mygrid,Agrif_Curgrid%nbvariables)

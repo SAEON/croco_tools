@@ -75,6 +75,7 @@
         Call Agrif_Set_Regridding(300*(nfast+2))
       EndIf
 #endif
+
       ENDIF
 #ifdef AUTOTILING
       If (Agrif_Nb_Step() == 0) Then
@@ -336,134 +337,7 @@
      &Agrif_Update_full_weighting)
      
       
-      i1t = 0
-      i2t = Lm+1
-      j1t = 0
-      j2t = Mm+1
-
-#ifdef MPI
-      if (WEST_INTER) then
-        i1t = -1
-      endif
-      if (EAST_INTER) then
-        i2t = Lmmpi+2
-      else
-        i2t = Lmmpi+1
-      endif 
-      if (SOUTH_INTER) then
-        j1t = -1
-      endif
-      if (NORTH_INTER) then
-        j2t = Mmmpi+2
-      else
-        j2t = Mmmpi+1
-      endif           
-#endif    
-      i1u = i1t + 1
-      i2u = i2t
-      j1v = j1t + 1
-      j2v = j2t
-      
-      Call Agrif_Declare_Variable((/2,2,0/),(/1,1,0/),
-     &    (/'x','y','N'/),(/i1t,j1t,1/),
-     &    (/i2t,j2t,4/),updatezetaid)
-          
-      Call Agrif_Set_UpdateType(updatezetaid,update=
-     &Agrif_Update_full_weighting) 
-     
-      Call Agrif_Declare_Variable((/1,2,0/),(/1,1,0/),
-     &    (/'x','y','N'/),(/i1u,j1t,1/),
-     &    (/i2u,j2t,4/),updateubarid)
-          
-      Call Agrif_Set_UpdateType(updateubarid,update=
-     &Agrif_Update_full_weighting)
-     
-      Call Agrif_Declare_Variable((/2,1,0/),(/1,1,0/),
-     &    (/'x','y','N'/),(/i1t,j1v,1/),
-     &    (/i2t,j2v,4/),updatevbarid)
-          
-      Call Agrif_Set_UpdateType(updatevbarid,update=
-     &Agrif_Update_full_weighting)  
-     
-      Call Agrif_Declare_Variable((/2,2,0,0/),(/1,1,0,0/),
-     &    (/'x','y','N','N'/),(/i1t,j1t,1,1/),
-     &    (/i2t,j2t,N,NT/),updatetid)
-          
-      Call Agrif_Set_UpdateType(updatetid,update=
-     &Agrif_Update_full_weighting) 
-     
-      Call Agrif_Declare_Variable((/1,2,0/),(/1,1,0/),
-     &    (/'x','y','N'/),(/i1u,j1t,1/),
-     &    (/i2u,j2t,N/),updateuid)
-          
-      Call Agrif_Set_UpdateType(updateuid,update=
-     &Agrif_Update_full_weighting)
-     
-      Call Agrif_Declare_Variable((/2,1,0/),(/1,1,0/),
-     &    (/'x','y','N'/),(/i1t,j1v,1/),
-     &    (/i2t,j2v,N/),updatevid)
-          
-      Call Agrif_Set_UpdateType(updatevid,update=
-     &Agrif_Update_full_weighting) 
-     
-     
-        call Agrif_Declare_Variable((/2,2/),(/1,1/),(/'x','y'/),
-     &   (/i1t,j1t/),(/i2t,j2t/),zetaid)
-        call Agrif_Declare_Variable((/1,2/),(/1,1/),(/'x','y'/),
-     &   (/i1u,j1t/),(/i2u,j2t/),ubarid)
-        call Agrif_Declare_Variable((/2,1/),(/1,1/),(/'x','y'/),
-     &   (/i1t,j1v/),(/i2t,j2v/),vbarid)    
-             
-        call Agrif_Declare_Variable((/2,2,0,0/),(/1,1,0,0/),
-     &    (/'x','y','N','N'/),(/i1t,j1t,1,1/),
-     &    (/i2t,j2t,N,NT/),tid)
-     
-        call Agrif_Declare_Variable((/2,2,0,0/),(/1,1,0,0/),
-     &    (/'x','y','N','N'/),(/i1t,j1t,1,1/),
-     &    (/i2t,j2t,N,NT/),tspongeid)
-          
-        call Agrif_Declare_Variable((/1,2,0/),(/1,1,0/),
-     &   (/'x','y','N'/),(/i1u,j1t,1/),
-     &   (/i2u,j2t,N/),uid)
-     
-        call Agrif_Declare_Variable((/1,2,0/),(/1,1,0/),
-     &   (/'x','y','N'/),(/i1u,j1t,1/),
-     &   (/i2u,j2t,N/),uspongeid)
-          
-        call Agrif_Declare_Variable((/2,1,0/),(/1,1,0/),
-     &   (/'x','y','N'/),(/i1t,j1v,1/),
-     &   (/i2t,j2v,N/),vid)
-     
-        call Agrif_Declare_Variable((/2,1,0/),(/1,1,0/),
-     &   (/'x','y','N'/),(/i1t,j1v,1/),
-     &   (/i2t,j2v,N/),vspongeid)     
-             
-        call Agrif_Set_bc(zetaid,(/-1,0/))     
-        call Agrif_Set_bc(ubarid,(/0,0/))
-        call Agrif_Set_bc(vbarid,(/0,0/))
-        call Agrif_Set_bc(tid,(/-1,0/))     
-        call Agrif_Set_bc(uid,(/0,0/))
-        call Agrif_Set_bc(vid,(/0,0/))
-        
-        call Agrif_Set_bcinterp(zetaid,interp=Agrif_linear)        
-        call Agrif_Set_bcinterp(ubarid,interp1=Agrif_linear,
-     &                                 interp2=Agrif_ppm)
-        call Agrif_Set_bcinterp(vbarid,interp1=Agrif_ppm,
-     &                                 interp2=Agrif_linear)
-        call Agrif_Set_bcinterp(tid,interp=Agrif_linear)
-        call Agrif_Set_bcinterp(tspongeid,interp=Agrif_linear)
-        
-        call Agrif_Set_bcinterp(uid,interp1=Agrif_linear,
-     &                                 interp2=Agrif_ppm)
-     
-        call Agrif_Set_bcinterp(uspongeid,interp1=Agrif_linear,
-     &                                 interp2=Agrif_ppm)
-          
-        call Agrif_Set_bcinterp(vid,interp1=Agrif_ppm,
-     &                                 interp2=Agrif_linear)
-     
-        call Agrif_Set_bcinterp(vspongeid,interp1=Agrif_ppm,
-     &                                 interp2=Agrif_linear)     
+       call declare_zoom_variables()
                              
 
 !       Call Agrif_Set_UpdateType(updateTprof,update=
@@ -1063,7 +937,147 @@ CR      write(*,*) '  0' MYID
      
       return
       end
+
+      subroutine declare_zoom_variables()
+      use AGRIF_UTIL
+      implicit none
+# include "param.h"
+# include "ncscrum.h"
+# include "scalars.h"
+# include "zoom.h"
       
+      i1t = 0
+      i2t = Lm+1
+      j1t = 0
+      j2t = Mm+1
+
+#ifdef MPI
+      if (WEST_INTER) then
+        i1t = -1
+      endif
+      if (EAST_INTER) then
+        i2t = Lmmpi+2
+      else
+        i2t = Lmmpi+1
+      endif 
+      if (SOUTH_INTER) then
+        j1t = -1
+      endif
+      if (NORTH_INTER) then
+        j2t = Mmmpi+2
+      else
+        j2t = Mmmpi+1
+      endif           
+#endif    
+
+      i1u = i1t
+      i2u = i2t
+      j1v = j1t
+      j2v = j2t
+      
+      Call Agrif_Declare_Variable((/2,2,0/),(/1,1,0/),
+     &    (/'x','y','N'/),(/i1t,j1t,1/),
+     &    (/i2t,j2t,4/),updatezetaid)
+          
+      Call Agrif_Set_UpdateType(updatezetaid,update=
+     &Agrif_Update_full_weighting) 
+     
+      Call Agrif_Declare_Variable((/1,2,0/),(/1,1,0/),
+     &    (/'x','y','N'/),(/i1u,j1t,1/),
+     &    (/i2u,j2t,4/),updateubarid)
+          
+      Call Agrif_Set_UpdateType(updateubarid,update=
+     &Agrif_Update_full_weighting)
+     
+      Call Agrif_Declare_Variable((/2,1,0/),(/1,1,0/),
+     &    (/'x','y','N'/),(/i1t,j1v,1/),
+     &    (/i2t,j2v,4/),updatevbarid)
+          
+      Call Agrif_Set_UpdateType(updatevbarid,update=
+     &Agrif_Update_full_weighting)  
+     
+      Call Agrif_Declare_Variable((/2,2,0,0/),(/1,1,0,0/),
+     &    (/'x','y','N','N'/),(/i1t,j1t,1,1/),
+     &    (/i2t,j2t,N,NT/),updatetid)
+          
+      Call Agrif_Set_UpdateType(updatetid,update=
+     &Agrif_Update_full_weighting) 
+     
+      Call Agrif_Declare_Variable((/1,2,0/),(/1,1,0/),
+     &    (/'x','y','N'/),(/i1u,j1t,1/),
+     &    (/i2u,j2t,N/),updateuid)
+          
+      Call Agrif_Set_UpdateType(updateuid,update=
+     &Agrif_Update_full_weighting)
+     
+      Call Agrif_Declare_Variable((/2,1,0/),(/1,1,0/),
+     &    (/'x','y','N'/),(/i1t,j1v,1/),
+     &    (/i2t,j2v,N/),updatevid)
+          
+      Call Agrif_Set_UpdateType(updatevid,update=
+     &Agrif_Update_full_weighting) 
+     
+     
+        call Agrif_Declare_Variable((/2,2/),(/1,1/),(/'x','y'/),
+     &   (/i1t,j1t/),(/i2t,j2t/),zetaid)
+        call Agrif_Declare_Variable((/1,2/),(/1,1/),(/'x','y'/),
+     &   (/i1u,j1t/),(/i2u,j2t/),ubarid)
+        call Agrif_Declare_Variable((/2,1/),(/1,1/),(/'x','y'/),
+     &   (/i1t,j1v/),(/i2t,j2v/),vbarid)    
+             
+        call Agrif_Declare_Variable((/2,2,0,0/),(/1,1,0,0/),
+     &    (/'x','y','N','N'/),(/i1t,j1t,1,1/),
+     &    (/i2t,j2t,N,NT/),tid)
+     
+        call Agrif_Declare_Variable((/2,2,0,0/),(/1,1,0,0/),
+     &    (/'x','y','N','N'/),(/i1t,j1t,1,1/),
+     &    (/i2t,j2t,N,NT/),tspongeid)
+          
+        call Agrif_Declare_Variable((/1,2,0/),(/1,1,0/),
+     &   (/'x','y','N'/),(/i1u,j1t,1/),
+     &   (/i2u,j2t,N/),uid)
+     
+        call Agrif_Declare_Variable((/1,2,0/),(/1,1,0/),
+     &   (/'x','y','N'/),(/i1u,j1t,1/),
+     &   (/i2u,j2t,N/),uspongeid)
+          
+        call Agrif_Declare_Variable((/2,1,0/),(/1,1,0/),
+     &   (/'x','y','N'/),(/i1t,j1v,1/),
+     &   (/i2t,j2v,N/),vid)
+     
+        call Agrif_Declare_Variable((/2,1,0/),(/1,1,0/),
+     &   (/'x','y','N'/),(/i1t,j1v,1/),
+     &   (/i2t,j2v,N/),vspongeid)     
+             
+        call Agrif_Set_bc(zetaid,(/-1,0/))     
+        call Agrif_Set_bc(ubarid,(/0,0/))
+        call Agrif_Set_bc(vbarid,(/0,0/))
+        call Agrif_Set_bc(tid,(/-1,0/))     
+        call Agrif_Set_bc(uid,(/0,0/))
+        call Agrif_Set_bc(vid,(/0,0/))
+        
+        call Agrif_Set_bcinterp(zetaid,interp=Agrif_linear)        
+        call Agrif_Set_bcinterp(ubarid,interp1=Agrif_linear,
+     &                                 interp2=Agrif_ppm)
+        call Agrif_Set_bcinterp(vbarid,interp1=Agrif_ppm,
+     &                                 interp2=Agrif_linear)
+        call Agrif_Set_bcinterp(tid,interp=Agrif_linear)
+        call Agrif_Set_bcinterp(tspongeid,interp=Agrif_linear)
+        
+        call Agrif_Set_bcinterp(uid,interp1=Agrif_linear,
+     &                                 interp2=Agrif_ppm)
+     
+        call Agrif_Set_bcinterp(uspongeid,interp1=Agrif_linear,
+     &                                 interp2=Agrif_ppm)
+          
+        call Agrif_Set_bcinterp(vid,interp1=Agrif_ppm,
+     &                                 interp2=Agrif_linear)
+     
+        call Agrif_Set_bcinterp(vspongeid,interp1=Agrif_ppm,
+     &                                 interp2=Agrif_linear) 
+           
+      end subroutine declare_zoom_variables
+            
 #ifdef MASKING
        subroutine ResetMask()
 #  include "param.h"

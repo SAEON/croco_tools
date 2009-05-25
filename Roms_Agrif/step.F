@@ -527,6 +527,12 @@ C$OMP BARRIER
         endif
 #endif
 
+#ifdef DEBUG
+       call check_tab2d(zeta(:,:,knew),'zeta','u')
+       call check_tab2d(ubar(:,:,knew),'ubar','u')
+       call check_tab2d(vbar(:,:,knew),'vbar','v')       
+#endif
+
       return
       end
 !
@@ -572,7 +578,7 @@ C$OMP BARRIER
       integer Agrif_lev_sedim
 #endif
       integer omp_get_num_threads, omp_get_thread_num 
-      
+      integer itrc
       
       real t1,t2,t3
 
@@ -713,6 +719,14 @@ C$OMP MASTER
 #endif      
 C$OMP END MASTER
 C$OMP BARRIER
+
+#ifdef DEBUG
+      do itrc=1,NT
+      call check_tab3d(t(:,:,:,nnew,itrc),'t','r')
+      enddo
+      call check_tab3d(u(:,:,:,nnew),'u','u')
+      call check_tab3d(v(:,:,:,nnew),'v','v')    
+#endif
 
       return
       end            

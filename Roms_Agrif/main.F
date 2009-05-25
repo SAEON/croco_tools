@@ -53,6 +53,7 @@ C      real*8 start_time2, start_time1, exe_time
 
 #ifdef AGRIF
       call Agrif_Init_Grids()
+      call declare_zoom_variables()
       open(iunit,file='AGRIF_FixedGrids.in',form='formatted',
      &                                   status="old",err=70)
       read(iunit,*,err=80) Agrif_lev_sedim
@@ -67,7 +68,9 @@ C      real*8 start_time2, start_time1, exe_time
 #ifdef AUTOTILING
       call init_auto_tiling
 #endif
-
+#ifdef DEBUG
+       call debug_ini
+#endif       
 #ifdef MPI
 C     start_time1=PMPI_Wtime()
       call MPI_Setup (ierr)
