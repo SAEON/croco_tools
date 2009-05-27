@@ -1073,6 +1073,11 @@ C$OMP BARRIER
       real,dimension(GLOBAL_1D_ARRAYXI,Jstr-1:Jstr) :: Zeta_south6
       real,dimension(GLOBAL_1D_ARRAYXI,Jend:Jend+1) :: Zeta_north6 
      
+      real,dimension(Istr-1:Istr,Jstr-1:Jend+1) :: Zeta_west7
+      real,dimension(Iend:Iend+1,Jstr-1:Jend+1) :: Zeta_east7     
+      real,dimension(Istr-1:Iend+1,Jstr-1:Jstr) :: Zeta_south7
+      real,dimension(Istr-1:Iend+1,Jend:Jend+1) :: Zeta_north7 
+
       real,dimension(Istr-1:Istr,GLOBAL_1D_ARRAYETA,0:NWEIGHT) :: Zeta_west4
       real,dimension(Iend:Iend+1,GLOBAL_1D_ARRAYETA,0:NWEIGHT) :: Zeta_east4
       real,dimension(GLOBAL_1D_ARRAYXI,Jstr-1:Jstr,0:NWEIGHT) :: Zeta_south4
@@ -1148,18 +1153,18 @@ C$OMP BARRIER
       if (SOUTHERN_EDGE) then
 
           do j=Jstr-1,Jstr
-          do i=Istr,Iend
+          do i=IstrU-1,Iend
           Zeta_south4(i,j,iif-1) = Zt_avg3(i,j,iif-1)
           enddo
           enddo
           
           if (iif+irhot-1<=nfast) then
-           Zeta_south6(Istr:Iend,Jstr-1:Jstr)=0.
+           Zeta_south7(IstrU-1:Iend,Jstr-1:Jstr)=0.
           do iter=0,iif-1
           cff1=weight2(iif+irhot-1,iter)
             do j=Jstr-1,Jstr
-            do i=Istr,Iend
-             Zeta_south6(i,j) = Zeta_south6(i,j)
+            do i=IstrU-1,Iend
+             Zeta_south7(i,j) = Zeta_south7(i,j)
      &                         +cff1*Zeta_south4(i,j,iter)
             enddo
             enddo
@@ -1167,8 +1172,8 @@ C$OMP BARRIER
           
           do iter=iif,iif+irhot-2
           do j=Jstr-1,Jstr          
-          do i=Istr,Iend
-          Zeta_south6(i,j)=Zeta_south6(i,j)+((iif+irhot-1-iter)/rrhot)*
+          do i=IstrU-1,Iend
+          Zeta_south7(i,j)=Zeta_south7(i,j)+((iif+irhot-1-iter)/rrhot)*
      &        weight2(iif+irhot-1,iter)*Zeta_south4(i,j,iif-1)
           enddo
           enddo
@@ -1176,14 +1181,14 @@ C$OMP BARRIER
           
 
           do j=Jstr-1,Jstr         
-          do i=Istr,Iend
-          Zeta_south6(i,j)=lastcff*(dZtinterp(i,j)-Zeta_south6(i,j))
+          do i=IstrU-1,Iend
+          Zeta_south7(i,j)=lastcff*(dZtinterp(i,j)-Zeta_south7(i,j))
           enddo
           enddo                
           
           do j=Jstr-1,Jstr
-          do i=Istr,Iend
-          Zeta_south6(i,j)=(Zeta_south6(i,j)-Zeta_south4(i,j,iif-1))
+          do i=IstrU-1,Iend
+          Zeta_south6(i,j)=(Zeta_south7(i,j)-Zeta_south4(i,j,iif-1))
      &                           /rrhot
           enddo 
           enddo          
@@ -1196,18 +1201,18 @@ C$OMP BARRIER
       if (NORTHERN_EDGE) then
              
           do j=Jend,Jend+1
-          do i=Istr,Iend
+          do i=IstrU-1,Iend
           Zeta_north4(i,j,iif-1) = Zt_avg3(i,j,iif-1)
           enddo
           enddo
           
           if (iif+irhot-1<=nfast) then
-           Zeta_north6(Istr:Iend,Jend:Jend+1)=0.
+           Zeta_north7(IstrU-1:Iend,Jend:Jend+1)=0.
           do iter=0,iif-1
           cff1=weight2(iif+irhot-1,iter)
             do j=Jend,Jend+1
-            do i=Istr,Iend
-             Zeta_north6(i,j) = Zeta_north6(i,j)
+            do i=IstrU-1,Iend
+             Zeta_north7(i,j) = Zeta_north7(i,j)
      &                         +cff1*Zeta_north4(i,j,iter)
             enddo
             enddo
@@ -1215,8 +1220,8 @@ C$OMP BARRIER
           
           do iter=iif,iif+irhot-2
           do j=Jend,Jend+1          
-          do i=Istr,Iend
-          Zeta_north6(i,j)=Zeta_north6(i,j)+((iif+irhot-1-iter)/rrhot)*
+          do i=IstrU-1,Iend
+          Zeta_north7(i,j)=Zeta_north7(i,j)+((iif+irhot-1-iter)/rrhot)*
      &        weight2(iif+irhot-1,iter)*Zeta_north4(i,j,iif-1)
           enddo
           enddo
@@ -1224,14 +1229,14 @@ C$OMP BARRIER
           
           
           do j=Jend,Jend+1         
-          do i=Istr,Iend
-          Zeta_north6(i,j)=lastcff*(dZtinterp(i,j)-Zeta_north6(i,j))
+          do i=IstrU-1,Iend
+          Zeta_north7(i,j)=lastcff*(dZtinterp(i,j)-Zeta_north7(i,j))
           enddo
           enddo
                    
           do j=Jend,Jend+1
-          do i=Istr,Iend
-          Zeta_north6(i,j)=(Zeta_north6(i,j)-Zeta_north4(i,j,iif-1))
+          do i=IstrU-1,Iend
+          Zeta_north6(i,j)=(Zeta_north7(i,j)-Zeta_north4(i,j,iif-1))
      &                           /rrhot
           enddo 
           enddo
@@ -1243,43 +1248,43 @@ C$OMP BARRIER
 # ifdef AGRIF_OBC_WEST             
       if (WESTERN_EDGE) then           
 
-          do j=Jstr,Jend
+          do j=JstrV-1,Jend
           do i=Istr-1,Istr
           Zeta_west4(i,j,iif-1) = Zt_avg3(i,j,iif-1)
           enddo
           enddo
           
           if (iif+irhot-1<=nfast) then
-           Zeta_west6(Istr-1:Istr,Jstr:Jend)=0.
+           Zeta_west7(Istr-1:Istr,JstrV-1:Jend)=0.
           do iter=0,iif-1
           cff1=weight2(iif+irhot-1,iter)
-            do j=Jstr,Jend
+            do j=JstrV-1,Jend
             do i=Istr-1,Istr
-             Zeta_west6(i,j) = Zeta_west6(i,j)
+             Zeta_west7(i,j) = Zeta_west7(i,j)
      &                         +cff1*Zeta_west4(i,j,iter)
             enddo
             enddo
           enddo
           
           do iter=iif,iif+irhot-2
-          do j=Jstr,Jend          
+          do j=JstrV-1,Jend
           do i=Istr-1,Istr
-          Zeta_west6(i,j)=Zeta_west6(i,j)+((iif+irhot-1-iter)/rrhot)*
+          Zeta_west7(i,j)=Zeta_west7(i,j)+((iif+irhot-1-iter)/rrhot)*
      &        weight2(iif+irhot-1,iter)*Zeta_west4(i,j,iif-1)
           enddo
           enddo
           enddo          
           
 
-          do j=Jstr,Jend         
+          do j=JstrV-1,Jend
           do i=Istr-1,Istr
-          Zeta_west6(i,j)=lastcff*(dZtinterp(i,j)-Zeta_west6(i,j))
+          Zeta_west7(i,j)=lastcff*(dZtinterp(i,j)-Zeta_west7(i,j))
           enddo
           enddo                
           
-          do j=Jstr,Jend
+          do j=JstrV-1,Jend
           do i=Istr-1,Istr
-          Zeta_west6(i,j)=(Zeta_west6(i,j)-Zeta_west4(i,j,iif-1))
+          Zeta_west6(i,j)=(Zeta_west7(i,j)-Zeta_west4(i,j,iif-1))
      &                           /rrhot
           enddo 
           enddo          
@@ -1291,43 +1296,43 @@ C$OMP BARRIER
 # ifdef AGRIF_OBC_EAST       
       if (EASTERN_EDGE) then
 
-          do j=Jstr,Jend
+          do j=JstrV-1,Jend
           do i=Iend,Iend+1
           Zeta_east4(i,j,iif-1) = Zt_avg3(i,j,iif-1)
           enddo
           enddo
           
           if (iif+irhot-1<=nfast) then
-           Zeta_east6(Iend:Iend+1,Jstr:Jend)=0.
+           Zeta_east7(Iend:Iend+1,JstrV-1:Jend)=0.
           do iter=0,iif-1
           cff1=weight2(iif+irhot-1,iter)
-            do j=Jstr,Jend
+            do j=JstrV-1,Jend
             do i=Iend,Iend+1
-             Zeta_east6(i,j) = Zeta_east6(i,j)
+             Zeta_east7(i,j) = Zeta_east7(i,j)
      &                         +cff1*Zeta_east4(i,j,iter)
             enddo
             enddo
           enddo
           
           do iter=iif,iif+irhot-2
-          do j=Jstr,Jend          
+          do j=JstrV-1,Jend
           do i=Iend,Iend+1
-          Zeta_east6(i,j)=Zeta_east6(i,j)+((iif+irhot-1-iter)/rrhot)*
+          Zeta_east7(i,j)=Zeta_east7(i,j)+((iif+irhot-1-iter)/rrhot)*
      &        weight2(iif+irhot-1,iter)*Zeta_east4(i,j,iif-1)
           enddo
           enddo
-          enddo          
+          enddo
           
 
-          do j=Jstr,Jend         
+          do j=JstrV-1,Jend         
           do i=Iend,Iend+1
-          Zeta_east6(i,j)=lastcff*(dZtinterp(i,j)-Zeta_east6(i,j))
+          Zeta_east7(i,j)=lastcff*(dZtinterp(i,j)-Zeta_east7(i,j))
           enddo
           enddo                
           
-          do j=Jstr,Jend
+          do j=JstrV-1,Jend
           do i=Iend,Iend+1
-          Zeta_east6(i,j)=(Zeta_east6(i,j)-Zeta_east4(i,j,iif-1))
+          Zeta_east6(i,j)=(Zeta_east7(i,j)-Zeta_east4(i,j,iif-1))
      &                           /rrhot
           enddo 
           enddo          
@@ -1341,17 +1346,17 @@ C$OMP BARRIER
           if (SOUTHERN_EDGE) then
           
           do j=Jstr-1,Jstr
-          do i=Istr,Iend
+          do i=IstrU-1,Iend
           Zeta_south4(i,j,iif-1) = Zt_avg3(i,j,iif-1)
           enddo
           enddo
           do j=Jstr-1,Jstr
-          do i=Istr,Iend
+          do i=IstrU-1,Iend
           SSH(i,j)=Zeta_south4(i,j,iif-1)+Zeta_south6(i,j)
           enddo
           enddo
 #   if defined Z_FRC_BRY
-            do i=Istr,Iend
+            do i=IstrU-1,Iend
               zetabry_south(i)=Zeta_south4(i,Jstr-1,iif-1)+
      &                         Zeta_south6(i,Jstr-1)
             enddo
@@ -1363,17 +1368,17 @@ C$OMP BARRIER
           if (NORTHERN_EDGE) then
           
           do j=Jend,Jend+1
-          do i=Istr,Iend
+          do i=IstrU-1,Iend
           Zeta_north4(i,j,iif-1) = Zt_avg3(i,j,iif-1)
           enddo
           enddo
           do j=Jend,Jend+1
-          do i=Istr,Iend
+          do i=IstrU-1,Iend
           SSH(i,j)=Zeta_north4(i,j,iif-1)+Zeta_north6(i,j)
           enddo
           enddo
 #   if defined Z_FRC_BRY
-            do i=Istr,Iend
+            do i=IstrU-1,Iend
               zetabry_north(i)=Zeta_north4(i,Jend+1,iif-1)+
      &                         Zeta_north6(i,Jend+1)
             enddo
@@ -1383,18 +1388,18 @@ C$OMP BARRIER
 #  ifdef AGRIF_OBC_WEST 
           if (WESTERN_EDGE) then
           
-          do j=Jstr,Jend
+          do j=JstrV-1,Jend
           do i=Istr-1,Istr
           Zeta_west4(i,j,iif-1) = Zt_avg3(i,j,iif-1)
           enddo
           enddo
-          do j=Jstr,Jend
+          do j=JstrV-1,Jend
           do i=Istr-1,Istr
           SSH(i,j)=Zeta_west4(i,j,iif-1)+Zeta_west6(i,j)
           enddo
           enddo
 #   if defined Z_FRC_BRY
-            do j=Jstr,Jend
+            do j=JstrV-1,Jend
               zetabry_west(j)=Zeta_west4(Istr-1,j,iif-1)+
      &                        Zeta_west6(Istr-1,j)
             enddo
@@ -1404,18 +1409,18 @@ C$OMP BARRIER
 #  ifdef AGRIF_OBC_EAST
           if (EASTERN_EDGE) then
           
-          do j=Jstr,Jend
+          do j=JstrV-1,Jend
           do i=Iend,Iend+1
           Zeta_east4(i,j,iif-1) = Zt_avg3(i,j,iif-1)
           enddo
           enddo
-          do j=Jstr,Jend
+          do j=JstrV-1,Jend
           do i=Iend,Iend+1
           SSH(i,j)=Zeta_east4(i,j,iif-1)+Zeta_east6(i,j)
           enddo
           enddo
 #   if defined Z_FRC_BRY
-            do j=Jstr,Jend
+            do j=JstrV-1,Jend
               zetabry_east(j)=Zeta_east4(Iend+1,j,iif-1)+
      &                        Zeta_east6(Iend+1,j)
             enddo

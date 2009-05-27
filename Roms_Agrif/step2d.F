@@ -242,8 +242,8 @@ czz     cff3=0.0088
 #ifdef AGRIF
 
       if (FIRST_2D_STEP) then
-      do j=JstrR,JendR
-        do i=IstrR,IendR
+      do j=Jstr-1,Jend+1
+        do i=Istr-1,Iend+1
           Zt_avg3(i,j,0)=zeta(i,j,kstp)       
         enddo
       enddo 
@@ -894,8 +894,8 @@ czz     cff3=0.0088
 
        if (.NOT.Agrif_Root()) THEN
       
-      do j=JstrR,JendR
-        do i=IstrR,IendR
+      do j=Jstr-1,Jend+1
+        do i=Istr-1,Iend+1
           Zt_avg3(i,j,iif)=zeta(i,j,knew)
         enddo
       enddo 
