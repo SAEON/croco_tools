@@ -116,6 +116,7 @@ C$OMP END PARALLEL
        integer range
       integer ntrds,trd,
      &        my_first,my_last, tile, my_iif
+      integer itrc
 
 #ifdef FLOATS
        integer chunk_size_flt, Lstr,Lend, flt_str
@@ -153,6 +154,7 @@ C$OMP MASTER
       nrhs=nstp
       nnew=3
 #endif
+
 
 #ifdef FLOATS
       nfp1=MOD(nfp1+1,NFT+1)  ! Shift time indices
@@ -353,6 +355,15 @@ C$OMP BARRIER
 
 C$OMP BARRIER
 C$OMP MASTER
+
+#ifdef DEBUG
+      do itrc=1,NT
+      call check_tab3d(t(:,:,:,nnew,itrc),'t','r')
+      enddo
+      call check_tab3d(u(:,:,:,nnew),'u','u')
+      call check_tab3d(v(:,:,:,nnew),'v','v')
+#endif
+
       nrhs=3
       nnew=3-nstp
 !
@@ -379,6 +390,8 @@ C$OMP SINGLE
       endif
 C$OMP END SINGLE
 #endif /*AGRIF && AGRIF_2WAY*/
+
+
       return
       end
 !
@@ -510,7 +523,6 @@ C$OMP BARRIER
                   ! since mpc will reverse one of
                   ! these loops to make zig-zag
                   ! tile-processing sequence.               
-
         if (mod(knew,2).eq.0) then
           do tile=my_first,my_last
             call     step2d (tile)
@@ -528,9 +540,12 @@ C$OMP BARRIER
 #endif
 
 #ifdef DEBUG
-       call check_tab2d(zeta(:,:,knew),'zeta','u')
+C$OMP BARRIER
+C$OMP MASTER
+       call check_tab2d(zeta(:,:,knew),'zeta','r')
        call check_tab2d(ubar(:,:,knew),'ubar','u')
-       call check_tab2d(vbar(:,:,knew),'vbar','v')       
+       call check_tab2d(vbar(:,:,knew),'vbar','v')
+C$OMP END MASTER       
 #endif
 
       return
@@ -721,11 +736,14 @@ C$OMP END MASTER
 C$OMP BARRIER
 
 #ifdef DEBUG
+C$OMP BARRIER
+C$OMP MASTER
       do itrc=1,NT
       call check_tab3d(t(:,:,:,nnew,itrc),'t','r')
       enddo
       call check_tab3d(u(:,:,:,nnew),'u','u')
       call check_tab3d(v(:,:,:,nnew),'v','v')    
+C$OMP END MASTER      
 #endif
 
       return
