@@ -85,7 +85,6 @@
       parameter (LLm0=??, MMm0=??, N=??)
 #endif
       
-#ifdef MPI
 !
 ! MPI related variables
 ! === ====== =========
@@ -93,7 +92,6 @@
       integer Lmmpi,Mmmpi,iminmpi,imaxmpi,jminmpi,jmaxmpi
       common /comm_setup_mpi/ Lmmpi,Mmmpi,
      &                    iminmpi,imaxmpi,jminmpi,jmaxmpi
-#endif     
 
 #ifdef AGRIF
       common /scrum_physical_grid/ LLm,Lm,LLmm2,MMm,Mm,MMmm2
@@ -116,12 +114,11 @@
       parameter (NP_XI=1, NP_ETA=4,  NNODES=NP_XI*NP_ETA)
       parameter (NPP=1)
       parameter (NSUB_X=1, NSUB_E=1)
-#elif defined OPENMP
-      parameter (NPP=4)
-#else 
+#else
       parameter (NPP=1)
-#endif
-#ifndef MPI
+# ifdef OPENMP
+      parameter (NPP=2)
+# endif
 # ifdef AUTOTILING
       common/distrib/NSUB_X, NSUB_E
 # else
