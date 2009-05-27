@@ -342,7 +342,7 @@
 # define ANA_BSFLUX
 # define QCORRECTION
 # define ANA_SST
-c--# define LMD_SKPP /* problem with MPI in Xi direction */
+# define LMD_SKPP /* problem with MPI in Xi direction */
 # define LMD_MIXING
 # define LMD_RIMIX
 # define LMD_CONVEC
