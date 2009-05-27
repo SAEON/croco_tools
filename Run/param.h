@@ -85,7 +85,6 @@
       parameter (LLm0=??, MMm0=??, N=??)
 #endif
       
-#ifdef MPI
 !
 ! MPI related variables
 ! === ====== =========
@@ -93,7 +92,6 @@
       integer Lmmpi,Mmmpi,iminmpi,imaxmpi,jminmpi,jmaxmpi
       common /comm_setup_mpi/ Lmmpi,Mmmpi,
      &                    iminmpi,imaxmpi,jminmpi,jmaxmpi
-#endif     
 
 #ifdef AGRIF
       common /scrum_physical_grid/ LLm,Lm,LLmm2,MMm,Mm,MMmm2

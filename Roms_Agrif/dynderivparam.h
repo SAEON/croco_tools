@@ -69,3 +69,11 @@
       MAX_NSUB_X=Lm/6
       MAX_NSUB_E=Mm/6 
 #endif
+
+#if !defined MPI
+      iminmpi = 1
+      jminmpi = 1
+      Lmmpi = Lm
+      Mmmpi = Mm
+#endif
+
