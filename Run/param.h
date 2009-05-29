@@ -114,18 +114,21 @@
       parameter (NP_XI=1, NP_ETA=4,  NNODES=NP_XI*NP_ETA)
       parameter (NPP=1)
       parameter (NSUB_X=1, NSUB_E=1)
+#elif defined OPENMP
+      parameter (NPP=2)
+# ifdef AUTOTILING
+      common/distrib/NSUB_X, NSUB_E
+# else
+      parameter (NSUB_X=1, NSUB_E=NPP)
+# endif
 #else
       parameter (NPP=1)
-# ifdef OPENMP
-      parameter (NPP=2)
-# endif
 # ifdef AUTOTILING
       common/distrib/NSUB_X, NSUB_E
 # else
       parameter (NSUB_X=1, NSUB_E=NPP)
 # endif
 #endif
-
 !
 ! Number of tracers and tracer identification indices:
 ! ====== == ======= === ====== ============== ========

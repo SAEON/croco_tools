@@ -302,6 +302,8 @@
       Call Agrif_Set_bc(vbar,(/0,2/))
 #endif /* SOLVE3D */
 
+      call declare_zoom_variables()
+
 #ifdef AGRIF_2WAY
       Call Agrif_Set_UpdateType(updateTprof,update=
      &   Agrif_Update_full_weighting)
@@ -334,11 +336,7 @@
      &Agrif_Update_full_weighting)  
 
       Call Agrif_Set_UpdateType(Zt_avg2,update=
-     &Agrif_Update_full_weighting)
-     
-      
-       call declare_zoom_variables()
-                             
+     &Agrif_Update_full_weighting)                       
 
 !       Call Agrif_Set_UpdateType(updateTprof,update=
 !      &   Agrif_Update_Average)
@@ -406,6 +404,8 @@
 
 
 #endif
+
+
        
 # ifdef SEDIMENT
       Agrif_lev_sedim=Agrif_Nb_Fine_Grids()
