@@ -1,0 +1,1053 @@
+\section{CPP-keys description \textit{cppdefs.h}} \label{cppkeydesc} 
+
+
+In this section, we present the differents cpp keys used to define the numerical or
+physical options in ROMS\_AGRIF. These latters are ordered in differents sections and
+described in Table \ref{tab:cppkeys1}.
+%------------------------------
+
+\begin{longtable}
+   {|p{0.5\linewidth}|p{0.5\linewidth}|}
+   \hline
+    TYPE & CPP KEYS NAME \\ 
+   \endfirsthead
+   \hline
+   TYPE & CPP KEYS NAME \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+%    \hline \\
+% %    \multicolumn{2}{|p{0.6666\linewidth}|}{C'est fini} \\
+%    \hline
+   \endlastfoot 
+\hline
+
+%-------------------------------------------
+                 &                      \\
+\underline{TEST CASE}      &                      \\
+                 &        BASIN           \\
+                 &        CANYON\_A       \\
+                 &        CANYON\_B       \\
+                 &        GRAV\_ADJ       \\
+                 &        INNERSHELF      \\
+                 &        OVERFLOW        \\
+                 &        SEAMOUNT        \\
+                 &        SHELFRONT       \\
+                 &        SOLITON         \\
+                 &        UPWELLING       \\
+                 &        INTERNAL        \\
+                 &        VORTEX          \\
+                 &        REGIONAL : realistric configuration   \\
+%------------------------------------------
+\hline
+\multicolumn{2}{|p{1\linewidth}|}{\centering Basic options} \\
+\hline
+
+Configuration Name &                \\
+&  BENGUELA \\
+
+
+Parallelization    &                      \\
+                   &    OPENMP            \\
+                   &    MPI               \\
+& PARALLEL\_FILES \\
+& AUTOTILING     \\
+
+
+
+
+Embedding          &                      \\
+                   &         AGRIF        \\
+                   &         AGRIF\_2WAY  \\
+
+
+Open Boundary Conditions  &                \\
+ &  TIDES                     \\
+ &  OBC\_EAST                 \\
+ &  OBC\_WEST                 \\
+ &  OBC\_NORTH                \\
+ &  OBC\_SOUTH                \\
+
+
+Tides &                \\
+& TIDES      \\
+& SSH\_TIDES  \\
+& UV\_TIDES   \\
+& TIDERAMP   \\
+
+
+Applications          &                     \\
+&    BIOLOGY              \\
+&    FLOATS               \\
+&    STATIONS             \\
+&    PASSIVE\_TRACER      \\
+&    SEDIMENT  \\
+&    BBL  \\
+& \\
+\hline
+\multicolumn{2}{|p{1\linewidth}|}{\centering More advanced options} \\
+\hline
+Model dynamics         &                      \\
+&  SOLVE3D                    \\
+&  UV\_COR                     \\
+&  UV\_ADV                     \\
+
+Grid configuration     &                      \\
+&    CURVGRID          \\
+&    SPHERICAL         \\
+&    MASKING            \\
+
+Input/Output and Diagnostics     &               \\
+&     AVERAGES                  \\
+&     AVERAGES\_K                \\
+&     DIAGNOSTICS\_TS            \\
+&     DIAGNOSTICS\_TS\_ADV        \\
+&     DIAGNOSTICS\_TS\_MLD        \\
+&     DIAGNOSTICS\_UV \\
+    
+Equation of State      &                      \\
+&                        SALINITY  \\
+&                        NONLIN\_EOS  \\
+&                        SPLIT\_EOS  \\
+
+Surface Forcing     &                      \\
+&                        QCORRECTION \\
+&                        SFLX\_CORR \\
+&                        DIURNAL\_SRFLUX \\
+&                        BULK\_FLUX \\
+&                        LW\_ONLINE \\
+&                        BULK\_EP \\
+&                        BULK\_SMFLUX \\
+&                        BULK\_WVEC \\
+&                        BULK\_WSTR \\
+
+Lateral Tracer Mixing     &                      \\
+&                       MIX\_GP\_TS \\
+&                       MIX\_S\_TS \\
+&                       MIX\_EN\_TS \\
+&                       TS\_DIF2 \\
+&                       TS\_DIF4 \\
+&                       TS\_SPLIT\_UP3 \\
+
+Lateral Momentum Mixing     &                      \\
+&                        MIX\_GP\_UV \\
+&                        MIX\_S\_GP \\
+&                        UV\_VIS2 \\
+&                        UV\_VIS4 \\
+&                        UV\_SPLIT\_UP3 \\
+
+Sponge Layer     &                      \\
+&                        SPONGE \\
+
+
+Lateral Forcing  &                      \\ 
+ &                      \\ 
+\textit{1-Climatology strategy : 3D fields covering the  whole domain }  &           \\
+&                        CLIMATOLOGY \\
+&                        ZCLIMATOLOGY \\
+&                        M2CLIMATOLOGY \\
+&                        M3CLIMATOLOGY \\
+&                        TCLIMATOLOGY \\
+& \\
+\textit{2-Boundary strategy : 1D fields only on OBC points} &       \\
+&                        FRC\_BRY \\
+&                        Z\_FRC\_BRY \\
+&                        M2\_FRC\_BRY \\
+&                        M3\_FRC\_BRY \\
+&                        T\_FRC\_BRY \\
+
+
+Nudging         &                      \\
+&                        ZNUDGING \\
+&                        M2NUDGING \\
+&                        M3NUDGING \\
+&                        TNUDGING \\
+&                        ROBUST\_DIAG \\
+
+Bottom Forcing     &                     \\
+&                        ANA\_BSFLUX \\
+&                        ANA\_BTFLUX \\
+
+Point Sources - Rivers     &                      \\
+&                        PSOURCE \\
+&                        ANA\_PSOURCE  \\
+
+
+Vertical Mixing      &                      \\
+&                     BODYFORCE  \\
+&                     BVF\_MIXING  \\
+&                     LMD\_MIXING  \\
+&                     LMD\_SKPP  \\
+&                     LMD\_BKPP  \\
+&                     LMD\_RIMIX  \\
+&                     LMD\_CONVEC  \\
+&                     LMD\_DDMIX  \\
+&                     LMD\_NONLOCAL  \\
+
+Open Boundary Conditions     &                      \\
+&                        OBC\_M2SPECIFIED \\
+&                        OBC\_M2FLATHER \\
+&                        OBC\_M2CHARACT \\
+&                        OBC\_M2ORLANSKI \\
+&                        OBC\_M2ORLANSKI \\
+&                        OBC\_VOLCONS \\
+&                        OBC\_M3ORLANSKI \\
+&                        OBC\_TORLANSKI \\
+&                        OBC\_M3SPECIFIED \\
+&                        OBC\_TSPECIFIED \\
+%-------------------------------------------
+\hline
+
+%--------------------------------------------------------------
+\caption{Description of the CPP keys used in the cppdefs.h file}
+\label{tab:cppkeys1}
+\end{longtable}
+
+\subsection*{Test Case}
+
+\begin{longtable}
+   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   \hline
+    CPP KEYS NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEYS NAME  & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+
+   \endlastfoot 
+\hline
+%-------------------------------------------
+BASIN & Must be defined for running the Basin Example.   \\
+CANYON\_A & Must be defined for running the Canyon\_A Example.   \\
+CANYON\_B  & Must be defined for running the Canyon\_B Example.    \\
+GRAV\_ADJ & Must be defined for running the Gravitational Adjustment Example.   \\
+INNERSHELF & Must be defined for running the Inner Shelf Example.   \\
+OVERFLOW & Must be defined for running the Gravitational/Overflow Example.   \\
+SEAMOUNT & Must be defined for running the Seamount Example.   \\
+SHELFRONT & Must be defined for running the Shelf Front Example.     \\
+SOLITON &  Must be defined for running the Equatorial Rossby Wave Example.  \\
+UPWELLING & Must be defined for running the Upwelling Example.   \\
+INTERNAL &  Must be defined for running the Internal tides example.  \\
+VORTEX & Must be defined for running the Baroclinic Vortex Example.   \\
+REGIONAL & Must be defined if running realistic regional simulations.   \\
+
+
+
+%-------------------------------------------
+\hline
+
+\caption{Test Case related CPP keys}
+\label{tab:cppkeysTestCase}
+\end{longtable}
+
+\subsection*{Parallelization}
+
+\begin{longtable}
+   {|p{0.25\linewidth}|p{0.75\linewidth}|}
+   \hline
+    CPP KEYS NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEYS NAME  & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+
+   \endlastfoot 
+\hline
+%-------------------------------------------
+OPENMP & Activate the Open-MP parallelization protocol.      \\
+MPI & Activate the MPI parallelization protocol.   \\
+PARALLEL\_FILES & Activate the I/O writing on multiprocessor.    \\
+AUTOTILING & Activate the subdomains partitionning optimization.    \\
+%-------------------------------------------
+\hline
+\caption{Parallelization related CPP keys}
+\label{tab:cppkeysparallelization}
+\end{longtable}
+
+\paragraph{Preselected options } \\
+\noindent
+\# ifdef MPI \\
+\# $~$$~$undef PARALLEL\_FILES \\
+\# endif \\
+\# undef AUTOTILING \\
+
+
+\subsection*{Embedding}
+\begin{longtable}
+   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   \hline
+    CPP KEY NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEY NAME  & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+
+   \endlastfoot 
+\hline
+%-------------------------------------------
+AGRIF & Activate the (1-WAYS) nesting capabilities.   \\
+AGRIF\_2WAYS & Add the the 2-WAYS nesting (feedback from child to parent grid) capabilities.   \\
+%-------------------------------------------
+\hline
+
+\caption{Embedding related CPP keys}
+\label{tab:cppkeyNesting}
+\end{longtable}
+
+\subsection*{Open Boundary Conditions I }
+
+\begin{longtable}
+   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   \hline
+    CPP KEY NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEY NAME  & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+
+   \endlastfoot 
+\hline
+%-------------------------------------------
+OBC\_EAST & Open eastern boundary.    \\
+OBC\_WEST & Open western boundary.   \\
+OBC\_SOUTH & Open southern boundary.     \\
+OBC\_NORTH & Open northern boundary.    \\
+%-------------------------------------------
+\hline
+
+\caption{Open Boundary Conditions (basic) related CPP keys}
+\label{tab:cppkeysOBCbasic}
+\end{longtable}
+
+
+
+
+
+\subsection*{Tides}
+
+\begin{longtable}
+   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   \hline
+    CPP KEY NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEY NAME  & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+
+   \endlastfoot 
+\hline
+%-------------------------------------------
+TIDES & Activate the forcing og tides at open-boundaries.  \\
+SSH\_TIDES & Define for processing sea surface elevation tidal data at the model boundaries.   \\
+UV\_TIDES &  Define for processing ocean current tidal data at the model boundaries.  \\
+TIDERAMP & Apply a ramping of the tidal current, (in general 2 days) at
+initialization.
+Warning! This should be off when restarting the model.   \\
+%-------------------------------------------
+\hline
+\caption{Tides forcing related CPP keys}
+\label{tab:cppkeysTides}
+\end{longtable}
+
+
+\paragraph{Preselected options } \\
+\noindent
+\# ifdef TIDES \\
+\#  define SSH\_TIDES \\
+\#  define UV\_TIDES\\
+\#  define TIDERAMP \\ 
+\# endif \\
+
+
+
+
+\newpage
+\subsection*{Applications}
+
+\begin{longtable}
+   {|p{0.25\linewidth}|p{0.75\linewidth}|}
+   \hline
+    CPP KEY NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEY NAME  & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+
+   \endlastfoot 
+\hline
+%-------------------------------------------
+BIOLOGY        &  Activate the biogeochemical module.  \\
+FLOATS         &  Activate floats.  \\
+STATIONS       &  Store model outputs for each time step at different station locations.  \\
+PASSIVE\_TRACER & Add a passive tracer.   \\
+SEDIMENT       &  Activate the sediment module.  \\
+BBL            &  Activate the bottom boundary layer module.  \\
+%-------------------------------------------
+\hline
+
+\caption{related CPP keys}
+\label{tab:cppkeysApplication}
+\end{longtable}
+
+
+\paragraph{Preselected options: } \\
+\noindent
+\# undef BIOLOGY \\
+\# undef FLOATS \\
+\# undef STATIONS \\
+\# undef PASSIVE\_TRACER \\
+\# undef SEDIMENT \\
+\# undef BBL \\
+
+
+
+\subsection*{Model dynamics}
+
+\begin{longtable}
+   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   \hline
+    CPP KEY NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEY NAME & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+   \endlastfoot 
+
+%-------------------------------------------
+\hline
+SOLVE3D  & Define if solving 3D primitive equations.     \\
+UV\_COR  & Activate Coriolis terms.    \\
+UV\_ADV  & Activate advection terms.   \\
+\hline
+%-------------------------------------------
+
+\caption{Model dynamics related CPP keys}
+\label{tab:cppkeysSurForc}
+\end{longtable}
+
+
+\paragraph{Preselected options: } \\
+\noindent
+\# define SOLVE3D\\ 
+\# define UV\_COR \\
+\# define UV\_ADV \\
+\# ifdef TIDES \\
+\# $~~$ define SSH\_TIDES \\
+\# $~~$ define UV\_TIDES \\
+\# $~~$ define TIDERAMP \\
+\# endif
+
+\newpage
+\subsection*{Grid configuration}
+
+\begin{longtable}
+   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   \hline
+    CPP KEY NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEY NAME & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+   \endlastfoot 
+
+%-------------------------------------------
+\hline
+CURVGRID  & Activate curvilinear coordinate grid option.   \\
+SPHERICAL & Activate longitude/latitude grid positioning.   \\
+MASKING   & Activate land masking in the domain. \\
+\hline
+%-------------------------------------------
+\caption{Model grid related CPP keys}
+\label{tab:cppkeysGrid}
+\end{longtable}
+
+
+\paragraph{Preselected options:  } \\
+\noindent
+\# define CURVGRID \\
+\# define SPHERICAL \\
+\# define MASKING \\
+
+
+\subsection*{Input - Output and Diagnostics}
+\begin{longtable}
+   {|p{0.32\linewidth}|p{0.68\linewidth}|}
+   \hline
+    CPP KEY NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEY NAME & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+   \endlastfoot 
+
+%-------------------------------------------
+\hline
+AVERAGES & Define if writing out time-averaged data.   \\
+AVERAGES\_K & Define if writing out time-averaged vertical mixing.   \\
+DIAGNOSTICS\_TS  & Define if writing out tendency terms for the tracer equations.   \\
+DIAGNOSTICS\_TS\_ADV  & Activate advection formulation for tendency term for the
+tracer equations.   \\
+DIAGNOSTICS\_TS\_MLD  & Activate integration over the mixed-layer (MLD) for the
+tendency term for the tracer equation.\\
+DIAGNOSTICS\_UV & Define if writing out tendency terms for the momentum equations.   \\
+\hline
+%-------------------------------------------
+
+\caption{I/O related CPP keys}
+\label{tab:cppkeysIODiag}
+\end{longtable}
+
+
+
+\paragraph{Preselected options: } \\
+\noindent
+\# define AVERAGES \\
+\# define AVERAGES\_K \\
+\# undef DIAGNOSTICS\_TS \\
+\# ifdef DIAGNOSTICS\_TS \\
+\# $~~$undef DIAGNOSTICS\_TS\_ADV \\
+\# $~~$undef DIAGNOSTICS\_TS\_MLD \\
+\# endif \\
+\# undef DIAGNOSTICS\_UV \\
+
+\newpage
+\subsection*{Equation of state}
+\begin{longtable}{|p{0.2\linewidth}|p{0.8\linewidth}|}
+   \hline
+    CPP KEY NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEY NAME & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+   \endlastfoot 
+
+%-------------------------------------------
+\hline
+SALINITY   & Define if using salinity.   \\
+NONLIN\_EOS & Activate the nonlinear equation of state.   \\
+SPLIT\_EOS  & Activate the split of the nonlinear equation of state in a
+adiabatic part and a compressible part for the reduction of pressure gradient errors
+\citep{Shc03a}.   \\
+\hline
+%-------------------------------------------
+\caption{Equation of state related CPP keys}
+\label{tab:cppkeyEqState}
+\end{longtable}
+
+
+\paragraph{Preselected options: } \\
+\noindent
+\# define SALINITY \\
+\# define NONLIN\_EOS \\
+\# define SPLIT\_EOS \\
+
+
+
+\subsection*{Surface Forcing}
+\begin{longtable}
+   {|p{0.24\linewidth}|p{0.76\linewidth}|}
+   \hline
+    CPP KEY NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEY NAME & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+   \endlastfoot 
+
+%-------------------------------------------
+\hline
+QCORRECTION & Activate net heat flux correction. \\
+SFLX\_CORR &  Activate freshwater flux correction. \\
+DIURNAL\_SRFLUX & Activate diurnal modulation of the short wave radiation flux. \\
+BULK\_FLUX & Activate the bulk parametrization. \\
+BULK\_EP &  Activate the bulk parametrization for salinity fluxes. \\
+LW\_ONLINE & Activate online long-wave radiation calculation using model sst. \\
+BULK\_SMFLUX & Activate the bulk parametrization for surface momentum stress and/or wind \\
+BULK\_WVEC & Compute the wind speed amplitude from the wind speed vector (uwnd and vwnd)
+read in the bulk file. \\
+BULK\_WSTR & Activate the bulk parametrization for wind stress calculation. Compute
+the windstress (sustr and svstr) from the wind speed vector, mentioned above.  \\
+\hline
+%-------------------------------------------
+
+\caption{Surface forcing related CPP keys}
+\label{tab:cppkeysSurForc}
+\end{longtable}
+
+\paragraph{Preselected options: }  \\
+\noindent
+\# define QCORRECTION \\
+\# define SFLX\_CORR \\
+\# define DIURNAL\_SRFLUX \\
+\# undef BULK\_FLUX \\
+\# ifdef BULK\_FLUX \\
+\# $~$$~$define LW\_ONLINE \\ 
+\# $~$$~$define BULK\_EP  \\
+\# $~$$~$undef BULK\_SMFLUX \\
+\# $~$$~$define DIURNAL\_SRFLUX \\
+\# endif \\
+\# ifdef BULK\_EP \\
+\#  $~$$~$undef QCORRECTION \\
+\#  $~$$~$undef SFLX\_CORR \\
+\# endif \\
+\# ifdef BULK\_SMFLUX \\
+\#  $~$$~$undef BULK\_WVEC \\
+\#  $~$$~$define BULK\_WSTR \\
+\# endif \\
+
+
+\subsection*{Lateral Tracer mixing}
+
+\begin{longtable}
+   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   \hline
+    CPP KEY NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEY NAME  & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+   \endlastfoot 
+\hline
+%-------------------------------------------
+MIX\_GP\_TS & Activate mixing on geopotential (constant Z) surfaces. \\
+MIX\_S\_TS &  Activate mixing on iso-sigma level surfaces.  \\
+MIX\_EN\_TS & Activate mixing on isopygnal level surfaces.   \\
+TS\_DIF2 &  Activate Laplacian horizontal mixing of tracer.  \\
+TS\_DIF4 &  Activate Bilaplacian horizontal mixing of tracer.  \\
+TS\_SPLIT\_UP3 & Activate the rotated split upstream advection-diffusion scheme for
+tracer equation.
+\citep{Marches09} \\
+%-------------------------------------------
+\hline
+
+\caption{Lateral Tracer mixing related CPP keys}
+\label{tab:cppkeysLateralTracerMixing}
+\end{longtable}
+
+\paragraph{Preselected options: }  \\
+\noindent 
+\# define MIX\_GP\_TS \\
+\# define TS\_DIF2 \\
+\# undef TS\_SPLIT\_UP3 \\
+
+
+
+
+
+\subsection*{Lateral Momentum Mixing}
+\
+\begin{longtable}
+   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   \hline
+    CPP KEY NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEY NAME  & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+
+   \endlastfoot 
+\hline
+%-------------------------------------------
+MIX\_GP\_UV & Activate mixing on geopotential (constant Z) surfaces.     \\
+MIX\_S\_UV & Activate mixing on iso-sigma (constant sigma) surfaces.   \\
+UV\_VIS2 & Activate Laplacian horizontal mixing of momentum. \\
+UV\_VIS4 & Activate Bilaplacian horizontal mixing of momentum. \\
+%-------------------------------------------
+\hline
+
+\caption{Lateral Momentum mixing related CPP keys}
+\label{tab:cppkeysLateralMomentumMixing}
+\end{longtable}
+
+\paragraph{Preselected options: }  \\
+\noindent
+\# define UV\_VIS2 \\
+\# define MIX\_GP\_UV  \\
+\# undef UV\_SPLIT\_UP3 \\
+\# undef VIS\_SMAGO
+
+
+
+\subsection*{Sponge Layer}
+
+\begin{longtable}{|p{0.2\linewidth}|p{0.8\linewidth}|}
+   \hline
+    CPP KEY NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEY NAME  & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+
+   \endlastfoot 
+\hline
+%-------------------------------------------
+SPONGE &  Activate areas of enhanced viscosity/diffusion close to the 
+lateral open boundaries.   \\
+
+%-------------------------------------------
+\hline
+
+\caption{Sponge layer related CPP keys}
+\label{tab:cppkeysSpongeLayer}
+\end{longtable}
+
+
+
+\subsection*{Lateral forcing}
+
+\begin{longtable}
+   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   \hline
+    CPP KEY NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEY NAME  & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+
+   \endlastfoot 
+\hline
+%-------------------------------------------
+CLIMATOLOGY &  Activate processing of climatology data.  \\
+ZCLIMATOLOGY & Activate processing of  sea surface height climatology.   \\
+M2CLIMATOLOGY & Activate processing of  barotropic velocities climatology.   \\
+M3CLIMATOLOGY & Activate processing of  baroclinic velocities climatology.   \\
+TCLIMATOLOGY &  Activate processing of tracer climatology.  \\
+%-------------------------------------------
+\hline
+FRC\_BRY &  Activate direct boundary forcing   \\
+Z\_FRC\_BRY & Activate boundary forcing for zeta.   \\
+M2\_FRC\_BRY & Activate boundary forcing for barotropic velocities.   \\
+M3\_FRC\_BRY & Activate boundary forcing for baroclinic velocities   \\
+T\_FRC\_BRY &  Activate boundary forcing for tracers.  \\
+\hline
+
+\caption{Lateral forcing related CPP keys}
+\label{tab:cppkeysLateralForcing}
+\end{longtable}
+
+
+\paragraph{Preselected options: }  \\
+\noindent
+\# define CLIMATOLOGY \\
+\# ifdef CLIMATOLOGY \\ 
+\# $~$ define ZCLIMATOLOGY \\
+\# $~$ define M2CLIMATOLOGY \\
+\# $~$ define M3CLIMATOLOGY \\
+\# $~$ define TCLIMATOLOGY \\
+...... \\
+ \\
+\# endif \\
+ \\
+\# undef FRC\_BRY \\
+\# ifdef FRC\_BRY \\
+\#  $~$define Z\_FRC\_BRY \\
+\#  $~$define M2\_FRC\_BRY \\
+\#  $~$define M3\_FRC\_BRY \\
+\#  $~$define T\_FRC\_BRY \\
+\# endif \\
+
+\newpage
+\subsection*{Nudging}
+
+\begin{longtable}
+   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   \hline
+    CPP KEY NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEY NAME  & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+
+   \endlastfoot 
+\hline
+%-------------------------------------------
+ZNUDGING    &  Activate nudging layer for zeta.   \\
+M2NUDGING   &  Activate nudging layer for barotropic velocities.   \\
+M3NUDGING   &  Activate nudging layer for baroclinic velocities.   \\
+TNUDGING    &  Activate nudging layer for tracer.   \\
+ROBUST\_DIAG & Activate strong tracer nudging in the interior for diagnostic simulations.  \\
+
+%-------------------------------------------
+\hline
+\caption{Nudging related CPP keys}
+\label{tab:cppkeysNudging}
+\end{longtable}
+
+The nudging layer has the same location than sponge layer. In the sponge/nudging
+layer, the signal, tracers and momentum, is nudged towards climatology using a
+nudging coefficient $\tau_{out}$ expressed in $s{-1}$, equal to the inverse of the
+coefficient $TauM_{out}/TauT_{in}$ in the namelist roms.in
+
+\paragraph{Preselected options: }  \\
+\noindent
+\# define CLIMATOLOGY \\
+\# ifdef CLIMATOLOGY \\
+..... \\
+\#  $~$$~$define ZNUDGING \\ 
+\#  $~$$~$define M2NUDGING \\ 
+\#  $~$$~$define M3NUDGING \\ 
+\#  $~$$~$define TNUDGING \\ 
+\#  $~$$~$undef ROBUST\_DIAG \\ 
+\# endif \\
+
+
+%\hrule
+\subsection*{Bottom forcing}
+\begin{longtable}
+   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   \hline
+    CPP KEY NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEY NAME  & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+
+   \endlastfoot 
+\hline
+%-------------------------------------------
+ANA\_BSFLUX & Define if using analytical bottom salinity flux     \\
+ANA\_BTFLUX &  Define if using analytical bottom temperature flux.\\ 
+%-------------------------------------------
+\hline
+
+\caption{Bottom forcing related CPP keys}
+\label{tab:cppkeysBottomForcing}
+\end{longtable}
+
+\paragraph{Preselected options: }  \\
+\noindent
+\# define ANA\_BSFLUX \\ 
+\# define ANA\_BTFLUX \\
+
+\newpage
+\subsection*{Point Sources - Rivers}
+
+\begin{longtable}
+   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   \hline
+    CPP KEY NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEY NAME  & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+
+   \endlastfoot 
+\hline
+%-------------------------------------------
+PSOURCES & Define if using point sources (rivers)     \\
+ANA\_PSOURCES & Define if using analytical vertical profiles for the point sources
+(using fluxes defined in roms.in)  \\
+
+%-------------------------------------------
+\hline
+
+\caption{Point Sources and Rivers related CPP keys}
+\label{tab:cppkeysRivers}
+\end{longtable}
+
+\paragraph{Preselected options: }  \\
+\noindent
+\# undef PSOURCE \\ 
+\# undef ANA\_PSOURCE
+
+%\hrule
+\subsection*{Vertical Mixing}
+
+\begin{longtable}
+   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   \hline
+    CPP KEY NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEY NAME  & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+
+   \endlastfoot 
+\hline
+%-------------------------------------------
+BODYFORCE & Define if applying surface and bottom stresses as bodyforces   \\
+BVF\_MIXING & Activate a simple mixing scheme based on the Brunt-V\"ais\"al\"a frequency   \\
+LMD\_MIXING & Activate Large/McWilliams/Doney mixing (LMD-KPP closure)   \\
+LMD\_SKPP &  Activate surface boundary layer KPP mixing (LMD-KPP closure)  \\
+LMD\_BKPP &  Activate bottom boundary layer KPP mixing (LMD-KPP closure)  \\
+LMD\_RIMIX & Activate shear instability interior mixing (LMD-KPP closure)   \\
+LMD\_CONVEC & Activate convection interior mixing (LMD-KPP closure)     \\
+LMD\_DDMIX & Activate double diffusion interior mixing (LMD-KPP closure)   \\
+LMD\_NONLOCAL & Activate nonlocal transport (LMD-KPP closure)   \\
+%-------------------------------------------
+\hline
+
+\caption{Vertical mixing related CPP keys}
+\label{tab:cppkeysVerticalMixing}
+\end{longtable}
+
+
+\paragraph{Preselected options: }  \\
+\noindent
+\# undef BODYFORCE \\
+\# undef BVF\_MIXING \\ 
+\# define LMD\_MIXING \\
+\# ifdef LMD\_MIXING \\
+\# $~$$~$ define LMD\_SKPP \\
+\# $~$$~$ define LMD\_BKPP \\
+\# $~$$~$ define LMD\_RIMIX \\
+\# $~$$~$ define LMD\_CONVEC \\
+\# $~$$~$ undef LMD\_DDMIX \\
+\# $~$$~$ undef LMD\_NONLOCAL \\
+\# endif \\
+\vspace{0.5cm}
+
+\newpage
+\subsection*{Open Boundary Conditions  II }
+\begin{longtable}
+   {|p{0.3\linewidth}|p{0.7\linewidth}|}
+   \hline
+    CPP KEY NAME & Description \\ 
+   \endfirsthead
+   \hline
+    CPP KEY NAME  & Description \\ 
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot 
+
+   \endlastfoot 
+%\hline
+%-------------------------------------------
+OBC\_VOLCONS &  Activate mass conservation enforcement at open boundaries.          \\
+OBC\_M2SPECIFIED & Activate specified open boundary conditions for ubar and vbar.   \\
+OBC\_M2ORLANSKI & Activate 2D radiation open boundary conditions for ubar and vbar. \\
+OBC\_M2FLATHER  & Activate Flather open boundary conditions for ubar and vbar.      \\
+OBC\_M2CHARACT &  Activate open boundary conditions based on characteristic methods. \\
+OBC\_M3SPECIFIED &  Activate specified open boundary conditions for u and v.  \\
+OBC\_M3ORLANSKI & Activate 2D radiation open boundary conditions for u and v.    \\
+OBC\_M3CHARACT &  Activate open boundary conditions based on characteristic methods 
+for u and v.    \\
+OBC\_TSPECIFIED &  Activate specified open boundary conditions for tracers.   \\
+OBC\_TORLANSKI &   Activate 2D radiation open boundary conditions for tracers.   \\
+OBC\_TUPWIND &     Activate upwind open boundary conditions for tracers.   \\
+%-------------------------------------------
+\hline
+
+\caption{Open Boundary Condition related CPP keys}
+\label{tab:cppkeysOBC}
+\end{longtable}
+
+
+\paragraph{Preselected options: }  \\
+\noindent
+\# ifdef TIDES \\
+\#$~$ define OBC\_M2FLATHER \\ 
+\# else \\
+\#$~$ undef OBC\_M2SPECIFIED \\
+\#$~$ undef OBC\_M2FLATHER \\
+\#$~$  define OBC\_M2CHARACT \\
+\#$~$  undef OBC\_M2ORLANSKI\\ 
+\#$~$  ifdef OBC\_M2ORLANSKI \\
+\#$~$$~$ define OBC\_VOLCONS \\
+\#$~$  endif \\
+\# endif \\
+\# define OBC\_M3ORLANSKI \\
+\# define OBC\_TORLANSKI \\
+\# undef OBC\_M3SPECIFIED \\
+\# undef OBC\_TSPECIFIED \\

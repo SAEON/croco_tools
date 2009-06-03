@@ -1,0 +1,34 @@
+% This guide presents a series of Matlab routines which could be useful for the pre-
+% and post-processing of oceanic regional ROMS simulations.
+
+% This report is a basic users guide presenting the details of the methods and datasets
+% are described in \citet{Pen07} and some
+
+The Regional Ocean Modeling System (ROMS) is a new generation ocean circulation model
+\citep{Shc03b} that has been specially designed for accurate simulations of regional
+oceanic systems.  The reader is referred to \citet{Shc03a} and to \citet{Shc03b} for
+a complete description of the model.  ROMS has been applied for the regional
+simulation of a variety of different regions of the world oceans
+\citep[e.g.][]{Bla02,Dil03,Hai00,Mac02,Mar03,Pen01}. \\
+
+To perform a regional simulation using ROMS, the modeler needs to provide several
+data files in a specific format: horizontal grid, bottom topography, surface forcing,
+lateral boundary conditions... He also needs to analyze the model outputs. The tools
+which are described here have been designed to perform these tasks.  The goal is to
+be able to build a standard regional model configuration in a minimum time. \\
+
+In the first chapter, the system requirements and the installation process are
+exposed. A short note on ROMS model is presented in chapter 2. A tutorial on the use
+of ROMSTOOLS is shown in the third section. Tidal simulations, inter-annual
+simulations, nesting tools, biology and operational regional modeling are presented
+in section 4,
+5, 6, 7 and 8. \\
+
+In the second chapter, some details of the IRD version of ROMS new release, named
+roms\_agrif $2.0$, using the AGRIF nesting procedure are presented. \\
+First, the new AGRIF 2-ways nesting procedure implemented in the code is described,
+then new numerical and physical schemes and parametrization are exposed. Then a
+changelog section since the last roms\_agrif $1.0$ offical version is presented.
+Finally, the cpp-keys, parameters and input files are described in details to
+correctly configure the model options.
+

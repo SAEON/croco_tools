@@ -1,0 +1,54 @@
+\section{Parameters description : \textit{parameter.h}}\label{paramdesc}
+
+In this section, we present the more important parameters to configure your own
+roms\_agrif $2.0$ run. These parameters are : 
+\begin{itemize}
+\item \textbf{Test case or realistic run}: \\
+...  \\
+\#if defined BASIN $----->$ {\color{red}\textbf{\textit{Test case}}} \\
+      parameter (LLm0$=60$,  MMm0$=50$,  N$=10$) \\
+\#elif defined REGIONAL $----->$ {\color{red}\textbf{\textit{Realistic run}}} \\
+\#$~~$  elif defined  BENGUELA\_LR \\
+$~~~~~$      parameter (LLm0$=41$, MMm0$=42$,  N$=32$)  $!$ $<--$ BENGUELA\_LR \\
+\#$~~$  else \\ 
+$~~~~~$      parameter (LLm0=$39$,  MMm0$=32$,  N$=20$) \\
+\#$~~$  endif \\
+... \\
+LLm0  
+MMm0
+N
+
+\item \textbf{Grid size}:
+  \begin{itemize}
+\item LLm0: Dimension (ghost points included) in  the $\xi$ direction.
+\item MMm0: Dimension (ghost points included) in  the $\eta$ direction.
+\item N: Number of $\rho$-vertical points, in the vertical grid.
+  \end{itemize}
+
+
+\item \textbf{Parallelization}: \\
+....\\
+$!$ \\
+$!$ Domain subdivision parameters: \\
+$!$ ====== =========== =========== \\
+$!$ NPP            Maximum allowed number of parallel threads; \\
+$!$ NSUB\_X,NSUB\_E  Number of SHARED memory subdomains in XI- and \\
+$!$                                                ETA-directions; \\
+$!$ NNODES        Total number of MPI processes (nodes); \\
+$!$ NP\_XI,NP\_ETA  Number of MPI subdomains in XI- and ETA-directions; \\
+$!$ \\
+
+AUTOTLING : cppkeys that enable to compute the optimum subdomains partition in terms
+of computation time. This is computed during the 100 first time step of the Run
+(implemented by Laurent Debreu).
+
+\item \textbf{Tides}: \\
+... \\
+\#if defined SSH\_TIDES || defined UV\_TIDES \\
+$~~~~~~~~~$      integer Ntides$~~~~~$    \\
+$~~~~~~~~~$      parameter (Ntides=8)$--->$ {\color{red}\textit{\textbf{Number of wave in
+    the total tidal signal}}} \\
+\#endif \\ 
+... \\
+
+\end{itemize}

@@ -1,0 +1,83 @@
+\section{Nesting capabilities, 1-WAYS and 2-WAYS using the AGRIF procedure}
+
+\subsection{Introduction}
+\label{sec:introduction}
+
+To address the challenge of bridging the gap between near-shore and offshore
+dynamics, a nesting capability has been added to ROMS and tested for the California
+Upwelling System \citep{Pen04}.  The method chosen for embedded griding takes
+advantage of the AGRIF (Adaptive Grid Refinement in Fortran) package
+\citep{Bla99,Deb00, Deb03a,Deb03b,Deb08}.  AGRIF is a Fortran 95 package for the
+inclusion of adaptive mesh refinement features within a finite difference numerical
+model. One of the major advantages of AGRIF in static-grid embedding is the ability
+to manage an arbitrary number of fixed grids and an arbitrary number of embedding
+levels.
+
+\begin{figure}[htbp]
+\centerline{\psfig{figure=nesting_fig1.eps,width=15cm}}
+\caption{Temporal coupling between a parent and a child grid for a refinement factor
+  of 3.  The coupling is done at the baroclinic time step.}
+\label{fig:temp_coupling}
+\end{figure}
+
+A recursive integration procedure manages the time evolution for the child grids
+during the time step of the parent grids (Figure \ref{fig:temp_coupling}). In order
+to preserve the CFL criterion, for a typical coefficient of refinement (say, a factor
+of 3 for a 5 km resolution grid embedded in a 15 km grid), for each parent time step
+the child must be advanced using a time step divided by the coefficient of refinement
+as many time as necessary to reach the time of the parent (Figure
+(\ref{fig:temp_coupling})).  For simple 2-level embedding, the
+procedure is as follows:\\
+\begin{enumerate}
+\item Advance the parent grid by one parent time step.
+\item Interpolate the relevant parent variables in space and time to get the boundary
+  conditions for the child grid.
+\item Advance the child grid by as much child time steps as necessary
+to reach the new parent model time.
+\item Update point by point the parent model by averaging the more accurate values of
+  the child model (in the case of 2-way embedding).
+\end{enumerate}
+The recursive approach used in AGRIF allows the specification of any number of
+embedding level. Other cpp keys are related to AGRIF, they are in
+  set\_global\_definitions.h and set\_obc\_definitions.h files. These ones are the
+  default conditions, are located in the ROMS\_AGRIF code sources and should not be
+  edit by standard user.
+
+\subsection{2-WAYS nesting:  feed-back from child to parent grid}
+\label{sec:2-ways-nesting}
+\textbf{To be continued ...}
+
+
+% \subsection{Specification in the ROMS\_AGRIF $2.0$ code}\label{sec:spec_romsagrif2.0}
+% Here are the main cpp-keys related to AGRIF nesting procedure.
+% \begin{itemize}
+% \item AGRIF\_OBC\_EAST : Open eastern boundary for the child grids.
+% \item AGRIF\_OBC\_WEST : Open western boundary for the child grids.
+% \item AGRIF\_OBC\_SOUTH : Open southern boundary for the child grids.
+% \item AGRIF\_OBC\_NORTH : Open northern boundary for the child grids.
+% \item AGRIF\_FLUX\_BC : Apply parent/child barotropic boundary conditions as fluxes.
+% \item AGRIF\_OBC\_M2FLATHER :  Activate Flather open boundary conditions for ubar and vbar
+% for the child model .
+% \item AGRIF\_OBC\_M2ORLANSKI : Activate 2D radiation open boundary conditions for ubar and vbar
+% for the child model.
+% \item AGRIF\_OBC\_M2SPECIFIED : Activate specified open boundary conditions for ubar and vbar
+% for the child model.
+% \item AGRIF\_OBC\_M2CHARACT : Activate open boundary conditions based on
+%   characteristic methods for ubar and vbar for the child model.
+% \item AGRIF\_OBC\_M3ORLANSKI : Activate 2D radiation open boundary conditions for u and v
+% for the child model.
+% \item AGRIF\_OBC\_M3SPECIFIED : Activate specified open boundary conditions for u and v
+% for the child model.
+% \item AGRIF\_OBC\_M3CHARACT : Activate open boundary conditions based on characteristic methods 
+% for u and v for the child model.
+% \item AGRIF\_OBC\_TORLANSKI :  Activate 2D radiation open boundary conditions for tracers
+% for the child model .
+% \item AGRIF\_OBC\_TUPWIND : Activate upwind open boundary conditions for tracers
+% for the child model.
+% \item AGRIF\_OBC\_TSPECIFIED  : Activate specified open boundary conditions for tracers
+% for the child model.
+% \end{itemize}
+
+% \begin{center}
+%   \bf The default definitions should be sufficient for most of the applications.
+%\end{center}

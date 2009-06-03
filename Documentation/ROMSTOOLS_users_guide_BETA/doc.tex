@@ -1,0 +1,96 @@
+ \documentclass[11pt]{book}
+ \usepackage{psfig}
+ \usepackage{epsf}
+ \usepackage{multicol}
+ \usepackage{natbib}
+ \usepackage{lscape,graphicx}
+ \usepackage{subfigure}
+ \usepackage{longtable}
+ \usepackage{color}
+\textwidth 15cm
+\textheight 23cm
+\topmargin -1.cm
+\oddsidemargin 1.cm
+\evensidemargin 0.cm
+
+\begin{document}
+
+\pagestyle{empty}
+\begin{center}
+\vspace{3 cm}
+{\huge \bf ROMS\_AGRIF 2.0 User's Guide }\\
+\vspace{2 cm}
+{\Large Pierrick Penven, Gildas Cambon, \\ 
+Patrick Marchesiello and Laurent Debreu}\\ 
+\vspace{1 cm}
+{\Large Institut de Recherche pour le D\'eveloppement (IRD)}\\
+\vspace{0.5 cm}
+{\large 44 Boulevard de Dunkerque} \\
+{\large CS 90009} \\
+{\large 13572 Marseille cedex 02} \\
+{\Large France} \\
+\vspace{2cm}
+\centerline{\psfig{figure=roms_gui.eps,width=11cm}}
+\vspace{1cm}
+{June, 2009}
+\end{center}
+
+\chapter*{Introduction}
+\input{abstract}
+\newpage
+\tableofcontents
+\newpage
+\chapter{ROMSTOOLS matlab toolbox}
+\input{intro_romstools}
+
+
+
+
+\section{Tutorial : the Southern Benguela example}
+\input{tutorial}
+
+\section{Tides}
+\input{tides}
+
+\section{Inter-Annual simulations}
+\input{inter_annual_simulation}
+
+\section{Embedding}
+\input{nesting}
+
+\section{Biology}
+\input{biology}
+
+\newpage
+\section{Operational coastal modeling system}
+\input{forecast}
+
+
+\chapter{ROMS\_AGRIF 2.0}
+\input{roms}
+%------------------------------
+\newpage
+\input{roms_agrif_embedding}
+%------------------------------
+\newpage
+\input{ann_changelog}
+
+\newpage
+\input{ann_param}
+%------------------------------
+\newpage
+\input{ann_cpp}
+%------------------------------
+\newpage
+\input{ann_namelist}
+
+\newpage
+\begin{thebibliography}{}
+\input{biblio}
+\end{thebibliography}
+
+
+
+
+\end{document}
+

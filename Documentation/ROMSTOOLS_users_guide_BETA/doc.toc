@@ -1,0 +1,69 @@
+\contentsline {chapter}{\numberline {1}ROMSTOOLS matlab toolbox}{7}
+\contentsline {section}{\numberline {1.1}Installation}{7}
+\contentsline {subsection}{\numberline {1.1.1}System requirement}{7}
+\contentsline {subsection}{\numberline {1.1.2}Getting the files}{7}
+\contentsline {subsection}{\numberline {1.1.3}Extracting the files}{8}
+\contentsline {section}{\numberline {1.2}LibDAP and LoadDAP}{10}
+\contentsline {section}{\numberline {1.3}Future plans}{12}
+\contentsline {section}{\numberline {1.4}Warnings}{12}
+\contentsline {section}{\numberline {1.5}Tutorial : the Southern Benguela example}{13}
+\contentsline {subsection}{\numberline {1.5.1}Getting started : Processing input files}{13}
+\contentsline {subsection}{\numberline {1.5.2}Building the grid}{16}
+\contentsline {subsection}{\numberline {1.5.3}Getting the wind and other surface fluxes}{20}
+\contentsline {subsection}{\numberline {1.5.4}Getting the initial and the lateral boundary conditions}{22}
+\contentsline {subsection}{\numberline {1.5.5}Compiling the model}{26}
+\contentsline {subsubsection}{Parameters of the configuration : param.h}{26}
+\contentsline {subsubsection}{Numerical and physical options : cppdefs.h}{26}
+\contentsline {subsubsection}{Compilation script : jobcomp}{27}
+\contentsline {subsection}{\numberline {1.5.6}Running the model}{27}
+\contentsline {subsection}{\numberline {1.5.7}Long simulations}{31}
+\contentsline {subsection}{\numberline {1.5.8}Getting the results}{33}
+\contentsline {subsubsection}{roms\_gui}{33}
+\contentsline {subsubsection}{Diagnostics}{35}
+\contentsline {section}{\numberline {1.6}Tides}{36}
+\contentsline {section}{\numberline {1.7}Inter-Annual simulations}{38}
+\contentsline {subsection}{\numberline {1.7.1}Getting the surface forcing data from NCEP}{38}
+\contentsline {subsection}{\numberline {1.7.2}Getting the surface windstress data from QuickSCAT}{40}
+\contentsline {subsection}{\numberline {1.7.3}Getting the lateral boundary conditions}{41}
+\contentsline {subsection}{\numberline {1.7.4}Running the model for interannual runs}{42}
+\contentsline {section}{\numberline {1.8}Embedding}{44}
+\contentsline {subsection}{\numberline {1.8.1}Embedded (child) model preparation}{44}
+\contentsline {subsection}{\numberline {1.8.2}Compiling and running the model}{47}
+\contentsline {section}{\numberline {1.9}Biology}{47}
+\contentsline {subsection}{\numberline {1.9.1}Idealized biogeochemical model : NChlPZD, N$2$ChlPZD$2$, N$2$P$2$Z$2$D$2$}{47}
+\contentsline {subsection}{\numberline {1.9.2}PISCES biogeochemical model}{49}
+\contentsline {section}{\numberline {1.10}Operational coastal modeling system}{53}
+\contentsline {chapter}{\numberline {2}ROMS\_AGRIF 2.0}{55}
+\contentsline {section}{\numberline {2.1}The ROMS model}{55}
+\contentsline {section}{\numberline {2.2}Nesting capabilities, 1-WAYS and 2-WAYS using the AGRIF procedure}{56}
+\contentsline {subsection}{\numberline {2.2.1}Introduction}{56}
+\contentsline {subsection}{\numberline {2.2.2}2-WAYS nesting: feed-back from child to parent grid}{57}
+\contentsline {section}{\numberline {2.3}Changelog since ROMS\_AGRIF $1.0$}{58}
+\contentsline {subsection}{\numberline {2.3.1}Numerical issues}{58}
+\contentsline {subsubsection}{Advection-Diffusion schemes}{58}
+\contentsline {subsubsection}{2D-3D coupling}{58}
+\contentsline {subsubsection}{MPI paralleization}{58}
+\contentsline {subsection}{\numberline {2.3.2}Nesting}{58}
+\contentsline {subsection}{\numberline {2.3.3}Online diagnostics and I/O}{58}
+\contentsline {subsection}{\numberline {2.3.4}PISCES biogeochemical model}{58}
+\contentsline {section}{\numberline {2.4}Parameters description : \textit {parameter.h}}{59}
+\contentsline {section}{\numberline {2.5}CPP-keys description \textit {cppdefs.h}}{60}
+\contentsline {paragraph}{Preselected options }{63}
+\contentsline {paragraph}{Preselected options }{64}
+\contentsline {paragraph}{Preselected options: }{65}
+\contentsline {paragraph}{Preselected options: }{65}
+\contentsline {paragraph}{Preselected options:  }{66}
+\contentsline {paragraph}{Preselected options: }{66}
+\contentsline {paragraph}{Preselected options: }{67}
+\contentsline {paragraph}{Preselected options: }{67}
+\contentsline {paragraph}{Preselected options: }{68}
+\contentsline {paragraph}{Preselected options: }{68}
+\contentsline {paragraph}{Preselected options: }{69}
+\contentsline {paragraph}{Preselected options: }{70}
+\contentsline {paragraph}{Preselected options: }{70}
+\contentsline {paragraph}{Preselected options: }{71}
+\contentsline {paragraph}{Preselected options: }{71}
+\contentsline {paragraph}{Preselected options: }{72}
+\contentsline {section}{\numberline {2.6}Namelist description : \textit {roms.in}}{73}
+\contentsline {subsection}{\numberline {2.6.1}Exemple of South Benguela Test Case}{73}
+\contentsline {subsection}{\numberline {2.6.2}Description}{75}

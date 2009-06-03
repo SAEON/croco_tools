@@ -1,0 +1,376 @@
+\section{Namelist description : \textit{roms.in}}\label{namelistdesc}
+
+\subsection{Exemple of South Benguela Test Case}
+\textbf{title}: \\
+        South Benguela TEST MODEL \\
+\textbf{time\_stepping}: NTIMES   dt[sec]  NDTFAST  NINFO \\
+                $720$      $3600$     $60$      $1$ \\
+\textbf{S-coord}: THETA\_S,   THETA\_B,    Hc (m) \\
+           $7.0d0$      $0.0d0$      $5.0d0$ \\
+\textbf{grid}:  filename \\
+                          roms\_grd.nc \\
+\textbf{forcing}: filename \\
+                          roms\_frc.nc \\
+\textbf{bulk\_forcing}: filename \\
+                          roms\_bulk.nc \\
+\textbf{climatology}: filename \\ 
+                          roms\_clm.nc\\ 
+\textbf{boundary}: filename \\
+                          roms\_bry.nc \\
+\textbf{initial}: NRREC  filename \\
+          $1$  \\
+                          roms\_ini.nc \\
+\textbf{restart}:          NRST, NRPFRST / filename \\
+                   $720$    $-1$ \\
+                          roms\_rst.nc \\
+\textbf{history}: LDEFHIS, NWRT, NRPFHIS / filename  \\
+            $T$      $72$     $0$ \\ 
+                          roms\_his.nc \\
+\textbf{averages}: NTSAVG, NAVG, NRPFAVG / filename \\
+            $1$      $72$     $0$ \\
+                          roms\_avg.nc \\
+\textbf{primary\_history\_fields}: zeta UBAR VBAR  U  V   wrtT(1:NT) \\
+                          T    T   T   T  T    $30$*T \\
+\textbf{auxiliary\_history\_fields}:   rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr UWstr VWstr rsw rlw lat sen HEL \\
+                             F   F     T   F    T    F    T   T    T     T    T    T $10$*F \\         
+\textbf{primary\_averages}: zeta UBAR VBAR  U  V   wrtT(1:NT) \\
+                   T    T    T    T  T   $30$*T      \\
+\textbf{auxiliary\_averages}: rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Wstr UWst  rsw rlw lat sen HEL \\
+                     F   T     T   F    T    F    T   T    T     T   T    T     $10$*F\\              
+\textbf{rho0}: \\
+      $1025.d0$ \\
+\textbf{lateral\_visc}:   VISC2,    VISC4    [$m^{2}$/sec for all] \\
+                 $0.$       $0.$\\
+\textbf{tracer\_diff2}: TNU2(1:NT)           [$m^2$/sec for all] \\
+               $30*0.d0$ \\
+\textbf{tracer\_diff4}: TNU4(1:NT)           [$m^4$/sec for all] \\
+               $30*0.d11$ \\
+\textbf{vertical\_mixing}: Akv\_bak, Akt\_bak [$m^2$/sec] \\
+                   $0.$d$0$    $30*0.$d$0$ \\
+\textbf{bottom\_drag}:     RDRG [m/s],  RDRG2,  Zob [m],  Cdb\_min, Cdb\_max \\
+                 $3.0$d$-04$      $0.$d$-3$    $0$.d$-3$     $1$.d$-4$    $1$.d$-1$ \\
+\textbf{gamma2}: \\
+                 $1.$d$0$ \\
+\textbf{sponge}:          X\_SPONGE [m],    V\_SPONGE [$m^2$ / sec] \\ 
+                   $150.e3$           $100.$ \\
+\textbf{nudg\_cof}:    TauT\_in, TauT\_out, TauM\_in, TauM\_out  [days for all]\\
+                $1.$       $360.$      $3.$      $360.$ \\
+\textbf{diagnostics}:   ldefdia   nwrtdia    nrpfdia /filename \\
+                  T        $72$         $0$ \\
+                                 roms\_dia.nc \\
+\textbf{diag\_avg}: ldefdia\_avg  ntsdia\_avg  nwrtdia\_avg  nprfdia\_avg /filename \\
+               T          $1 $          $72$            0 \\
+                                 roms\_dia\_avg.nc \\
+\textbf{diagnosticsM}:   ldefdiaM   nwrtdiaM    nrpfdiaM /filename \\
+                   T          $72$          $0$ \\
+                                 roms\_diaM.nc \\
+\textbf{diagM\_avg}: ldefdiaM\_avg  ntsdiaM\_avg  nwrtdiaM\_avg  nprfdiaM\_avg /filename \\
+               T          $1$           $72$            $0$ \\
+                                 roms\_diaM\_avg.nc \\
+\textbf{diagnostics\_bio}:   ldefdiabio   nwrtdiabio    nrpfdiabio /filename \\
+                        T          $72$             $0$ \\
+                                 roms\_diabio.nc \\
+\textbf{diagbio\_avg}: ldefdiabio\_avg  ntsdiabio\_avg  nwrtdiabio\_avg  nprfdiabio\_avg
+/filename \\
+                  T              $1$             $72$              $0$ \\
+                                 roms\_diabio\_avg.nc \\
+\textbf{biology}:   forcing file \\
+           roms\_frcbio.nc \\
+\textbf{sediments}: input file \\
+           sediment.in \\
+\textbf{sediment\_history\_fields}: bed\_thick bed\_poros be3d\_fra(sand,silt) \\
+                            T         F        T  T \\
+\textbf{bbl\_history\_fields}: Abed Hripple Lripple Zbnot Zbapp Bostrw \\
+                     T      F       F      T     F     T \\
+\textbf{floats}: LDEFFLT, NFLT, NRPFFLT / inpname, hisname \\
+           T       $6$      $0$ \\
+                                   floats.in \\
+                                   floats.nc \\
+\textbf{float\_fields}:  Grdvar Temp Salt Rho Vel \\
+                 F     F    F    F   F \\
+\textbf{stations}: LDEFSTA, NSTA, NRPFSTA / inpname, hisname \\
+             T      $400$      $0$ \\
+                                    stations.in \\
+                                    stations.nc \\
+\textbf{station\_fields}:  Grdvar Temp Salt Rho Vel \\
+                   T     T    T    T   T \\
+\textbf{psource}:   Nsrc  Isrc  Jsrc  Dsrc  Qbar [m3/s]    Lsrc        Tsrc \\
+            $2$ \\
+            $3$    $54$     $1$    $200. $   T T      $5. 0.$ \\
+            $3$    $40$     0    $200.$      T T      $5. 0.$ \\
+ 
+
+\subsection{Description}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{longtable}{|p{0.25\linewidth}|p{0.75\linewidth}|}
+ \hline
+ \textsc{Keywords}  &  \textsc{Descriptions} \\
+ \endfirsthead
+\hline
+ \textsc{Keywords}  &  \textsc{Descriptions} \\
+   \hline
+   \endhead
+   \hline
+   \multicolumn{2}{|p{0.6666\linewidth}|}{\textit{Next page}$\rightarrow$} \\
+   \hline
+   \endfoot
+    \endlastfoot 
+\hline
+\large{\textbf{title}} &  \\
+&   \\ 
+\large{\textbf{time\_stepping}} &     \\ 
+&   NTIMES : Number of time step for the run. \\ 
+&   dt  : Baroclinic time step for the run [in s] \\ 
+&   NDTFAST : Number of bariotropic time step in one baroclinic time step.  \\
+&   NINFO : frequency of output in time steps. \\
+
+\large{\textbf{S-coord}} &    \\ 
+&  THETA\_S: $s$-coordinate surface control parameter,
+$0$ $<$ \textbf{theta\_s} $<$ $20$ \\ 
+&  THETA\_B: $s$-coordinate bottom control parameter,
+$0$ $<$ \textbf{theta\_b} $<$ $1$ \\ 
+&  Hc(m): Width of the surface or bottom topography layer in which higher vertical
+resolution is required during stretching. \\ 
+
+\large{\textbf{grid}} &    \\
+&/filename:  Name of the grid file. \\ 
+&  \\ 
+
+\large{\textbf{forcing}} &     \\
+&/filename: Name of the surface forcing file : wind stress, atmospheric fluxes (E-P,
+net heat fluxes) and nudging coefficients towards dQ/dSST.\\
+&  \\
+
+\large{\textbf{bulk\_forcing}}    &  \\ 
+&/filename:  Name of the bulk forcing file for atmospheric forcings.\\ 
+
+
+\large{\textbf{climatology} }   &  \\
+&/filename: Name of the open boundaries conditions (t, s, $\bar u$, $\bar v$, $u$,
+$v$). These files are 3d in space, covering the whole domain. \\ 
+&  \\ 
+
+
+\large{\textbf{boundary}} &  \\
+&/filename: Name of the open boundaries conditions (T, S, $\bar u$, $\bar v$, $u$,
+$v$). These files are covering only the open-boundaries slices, inducing files much
+smaller than the ``climatology'' ones.    \\ 
+&  \\ 
+
+\large{\textbf{initial}} &     \\ 
+&  NRREC: Record number of the restartfile to read as the initial conditions.    \\ 
+& /filename: Name of the file containing initial state.\\ 
+&  \\ 
+
+
+
+\large{\textbf{restart}} &     \\ 
+%\hline
+&   NRST:      Frequency of writing\\ 
+&   NRPFRST   0: writing several records every NRST time steps. -1: overwriting record
+every NRST time steps\\ 
+&  /filename  \\ 
+&  \\ 
+
+\large{\textbf{history}} &     \\ 
+%\hline
+&  LDEFHIS: flag (T/F) if writing history files  \\ 
+&  NWRT: Frequency of writing \\ 
+&  NRPFHIS: 0: writing several records every NWRT time steps. -1: overwriting record
+every NRST time steps   \\ 
+&  /filename: Name of the gistory file  \\ 
+&  \\ 
+
+
+\large{\textbf{averages}} &     \\ 
+%\hline
+&   NTSAVG: Starting timestep for the accumulation of output time-averaged data. For
+instance, you might want to average over the last day of a thirty-day run.  \\ 
+&   NAVG: frequency of writing \\ 
+&   NRPFAVG: 0: writing several records every NWRT time steps. -1: overwriting record
+every NAVG time steps  \\ 
+&  /filename  \\ 
+&  \\ 
+
+
+\large{\textbf{primary\_history \_fields}} &     \\ 
+&   Flags of written variables \\ 
+&  \\ 
+
+\large{\textbf{auxiliary\_history \_fields}} &     \\ 
+&  Flags of written variables \\ 
+&  \\ 
+
+\large{\textbf{primary\_averages}} &     \\ 
+&  Flags of written variables \\ 
+&  \\ 
+
+\large{\textbf{auxiliary\_averages}} &     \\ 
+&  Flags of written variables \\ 
+&  \\ 
+
+\large{\textbf{rho0}} & Mean density used in the Boussinesq equation. \\ 
+&  \\  
+
+\large{\textbf{lateral\_visc}} &     \\ 
+&  VISC2: Laplaplacian background viscosity \\
+&  VISC4: Bilaplacian  background viscosity \\
+&  \\ 
+
+\large{\textbf{tracer\_diff2}} &     \\ 
+& TNU2(1:NT): Laplacian background diffusivity for  each tracer.  \\
+&  \\ 
+
+\large{\textbf{tracer\_diff4}} &     \\ 
+& TNU4(1:NT): Laplacian background diffusivity for  each tracer.  \\
+&  \\ 
+
+\large{\textbf{vertical\_mixing}} &     \\ 
+& Coefficient in case of use of analytical vertical mixing scheme.  \\ 
+&  \\ 
+
+\large{\textbf{bottom\_drag}} &     \\ 
+& RDRG [m/s]: Drag coefficient in case of linear bottom stress formulation. \\
+& \\
+& RDRG2: Drag coefficient in case of constant quadratic bottom stress formulation. \\
+& \\
+& Zob [m]: Rugosity length in case of Von-Karman quadratic bottom stress formulation \\
+& Cdb\_min: Minimum value of the drag coefficient in case Von-Karman quadratic bottom stress formulation. \\
+& Cdb\_max: Maximum value of the drag coefficient in case Von-Karman quadratic bottom stress formulation. \\
+&  \\ 
+
+\large{\textbf{gamma2}} &     \\ 
+&  Free slip boundary condition. 1 mean free slip condition are ON. \\
+&  \\ 
+%\hline
+\large{\textbf{sponge}} &     \\
+&     X\_SPONGE [m]: widthness of the sponge layers.\\
+&     V\_SPONGE [$m^2/sec$]: Value of the viscosity and diffusity enhanced value at
+the boundary point in the nudging/sponge layer. These value are enhanced following a
+linear profil in the sponge/nudging layer, from the interior value to the max value
+V\_SPONGE at boundary.\\
+&  \\ 
+
+%\hline
+\large{\textbf{nudg\_cof}} &     \\
+& TauT\_in  [days]: Nudging time scale for tracer signal going inward the
+domain. This coefficient is used at boundary point and impose a
+strong nudging towards climatology external data.  \\
+& \\
+& TauT\_out [days]: Nudging time scale for tracer signal going outward the domain. This coefficient is used at boundary point and impose a
+smooth nudging towards climatology external data. This coefficient is also used in
+the nudging/sponge layer to add a smooth nudging towards data. This is on only if the
+CLIMATOLOGY boundary stategy is used, not the BRY one.\\
+& \\
+& TauM\_in  [days]: Same as above, but concerning the momentum equations. \\
+& \\
+& TauM\_out [days]: Same as above, but concerning the momentum equations. \\
+&  \\ 
+
+%\hline
+\large{\textbf{diagnostics}} &     \\
+&ldefdia: Boolean flag to activate the tracer equation "snap-shot" diagnostic file writing \\
+&nwrtdia: Frequency of writing     \\
+&nrpfdia: nrpfdia: 0: writing several records every nwrtdia time steps. -1: overwriting record
+every nwrtdia time steps   \\
+&/filename: Name of the file tracer equation diagnostic file.\\
+
+\large{\textbf{diag\_avg}} &     \\
+&ldefdia\_avg: Boolean flag to activate the tracer equation average diagnostic file writing  \\
+&ntsdia\_avg: Starting timestep for the accumulation of output time-averaged data. For
+instance, you might want to average over the last day of a thirty-day run.  \\
+&nwrtdia\_avg: Frequency of writing and average time.   \\
+&nprfdia\_avg: nrpfdia\_avg: 0: writing several records every nwrtdia\_avg time steps. -1: overwriting record
+every nwrtdia\_avg time steps \\
+&/filename: Name of the file tracer equation average diagnostic file. \\
+&  \\ 
+
+\large{\textbf{diagnosticsM}} &   Same format as \large{\textbf{diagnostics}} but for the momentum equation. \\
+&ldefdiaM:     \\
+&nwrtdiaM:     \\
+&nrpfdiaM:     \\
+&/filename:    \\
+ &  \\ 
+
+\large{\textbf{diagM\_avg}} &  Same format as \large{\textbf{diag\_avg}} but for the momentum equation. \\
+&ldefdiaM\_avg:     \\
+&ntsdiaM\_avg:      \\
+&nwrtdiaM\_avg:     \\
+&nprfdiaM\_avg:     \\
+&/filename          \\
+&  \\ 
+
+\large{\textbf{diagnostics\_bio}} & Same format as \large{\textbf{diagnostics}}     \\
+&ldefdiabio   \\
+&nwrtdiabio   \\
+&nrpfdiabio   \\
+&/ filename    \\
+&  \\ 
+
+\large{\textbf{diagbio\_avg}} & Same format as \large{\textbf{diag\_avg}}  \\
+&ldefdiabio\_avg  \\
+&ntsdiabio\_avg   \\
+&nwrtdiabio\_avg  \\
+&nprfdiabio\_avg  \\
+&/ filename \\
+&  \\ 
+
+\large{\textbf{biology}} &     \\
+& Name of the file containing the Iron dust forcing if using PISCES biogeochemical
+mode. \\
+&  \\ 
+
+\large{\textbf{sediments}} &     \\
+&  \\ 
+
+\large{\textbf{sediment\_history \_fields}} &     \\
+& bed\_thick  \\
+& bed\_poros \\ 
+& bed\_fra(sand,silt) \\
+&  \\ 
+
+\large{\textbf{bbl\_history\_fields}} &     \\
+& Abed  \\
+& Hripple  \\
+& Lripple  \\
+& Zbnot  \\
+& Zbapp  \\
+& Bostrw \\
+&  \\ 
+
+\large{\textbf{floats}} & Lagrangian floats application \\
+& Same format as \large{\textbf{diagnostics}}  \\
+& LDEFFLT \\
+& NFLT \\
+& NRPFFLT  \\
+& / inpname, hisname \\
+&  \\ 
+
+\large{\textbf{floats\_fields}} &     \\
+& Type of fields computed for each lagrangian floats. \\
+&  \\ 
+
+\large{\textbf{station\_fields}} &  Fixed station application.   \\
+& Same format as \large{\textbf{diagnostics}}  \\
+& LDEFSTA \\
+& NSTA    \\
+& NRPFSTA \\
+&/ inpname, hisname \\
+&    \\
+
+\large{\textbf{psource}} &     \\
+& Nsrc   \\
+& Isrc   \\
+& Jsrc   \\
+& Dsrc   \\
+& Qbar [m3/s]   \\  
+& Lsrc   \\      
+& Tsrc   \\
+&  \\ 
+\hline
+\caption{Description of the roms.in file}
+\label{ta:desc_roms.in}
+\end{longtable}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

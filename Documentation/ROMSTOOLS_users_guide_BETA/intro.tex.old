@@ -1,0 +1,334 @@
+\section{Installation}
+\subsection{System requirement}
+This toolbox has been designed for Matlab. It needs at least 
+2 Gbites of disk space. It has been tested on several 
+Matlab versions ranging from Matlab6 to Matlab2006a. It has been 
+mostly tested on Linux workstations, but it could be used 
+on any platform if a NetCDF and a LoadDAP  Matlab Mex files  
+are provided. The NetCDF Matlab Mex file is needed to read 
+and write into NetCDF files and it can be found at the web 
+location: http://mexcdf.sourceforge.net/. The LoadDAP Matlab Mex file
+is used to download data from OpenDAP servers for inter-annual and forecast 
+simulations. It can be found at the web location: 
+http://www.opendap.org/download/ml-structs.html. The Matlab 
+LoadDAP Mex file provides a way to read any OpenDAP-accessible 
+data into Matlab. Note that the LibDAP library must be installed
+on your system before installing LoadDAP. Details can be found 
+at the web location: http://www.opendap.org. MexCDF and LoadDAP mex 
+files are provided for Linux (system FEDORA 32bits: mexcdf and 
+Opendap\_tools/FEDORA ; system CENTOS or FEDORA 64bits: 
+mexnc and Opendap\_tools/FEDORA\_X64), but they are not working 
+on all the plateforms.
+
+All the other necessary Matlab toolboxes (i.e. air-sea, mask, 
+netcdf or m\_map...) are included in the ROMSTOOLS package. 
+Global datasets, such as topography \citep{Smi97}, 
+hydrography \citep{Con02} or surface fluxes \citep{Das94}, are 
+also included.
+
+\subsection{Getting the files}
+
+All the necessary compressed tar files (XXX.tar.gz) containing 
+the Matlab programs, several datasets  and other toolboxes and 
+softwares needed by ROMSTOOLS are located at:
+\begin{center}
+http://roms.mpl.ird.fr/Roms\_tools/index.html 
+\end{center}
+For the ROMS source code you should download ROMS\_AGRIF version
+V2.0.\\\\\\\\\\\\
+
+
+\subsection{Extracting the files}
+
+Download all the compressed tar files. Uncompress and untar all 
+the files (gunzip and tar -xvf). You should obtain the following 
+directory tree : \\
+\\
+Roms\_tools
+
+$|$-- Aforc\_NCEP
+
+$|$-- Aforc\_QuikSCAT
+
+$|$-- air\_sea 
+
+$|$-- COADS05  
+
+$|$-- Compile
+
+$|$-- Diagnostic\_tools
+
+$|$-- Documentation
+
+$|$\hspace{0.5cm}$|$-- User\_guide
+
+$|$-- Forecast\_tools
+
+$|$-- mask
+
+$|$-- mex60
+
+$|$-- mexnc
+
+$|$\hspace{0.5cm}$|$-- tests
+
+$|$-- m\_map
+
+$|$\hspace{0.5cm}$|$-- private
+
+$|$-- Nesting\_tools
+
+$|$-- netcdf\_g77
+
+$|$-- netcdf\_ifc
+
+$|$-- netcdf\_matlab
+
+$|$\hspace{0.5cm}$|$-- listpick
+
+$|$\hspace{0.5cm}$|$-- ncatt
+
+$|$\hspace{0.5cm}$|$-- ncbrowser
+
+$|$\hspace{0.5cm}$|$-- ncdim
+
+$|$\hspace{0.5cm}$|$-- ncfiles
+
+$|$\hspace{0.5cm}$|$-- ncitem
+
+$|$\hspace{0.5cm}$|$-- ncrec
+
+$|$\hspace{0.5cm}$|$-- nctype
+
+$|$\hspace{0.5cm}$|$-- ncutility
+
+$|$\hspace{0.5cm}$|$-- ncvar
+
+$|$\hspace{0.5cm}$|$-- netcdf
+
+$|$-- netcdf\_x86\_64
+
+$|$-- Oforc\_OGCM
+
+$|$-- Opendap\_tools
+
+$|$\hspace{0.5cm}$|$-- FEDORA
+
+$|$\hspace{0.5cm}$|$-- FEDORA\_X64
+
+$|$-- Preprocessing\_tools
+
+$|$-- Roms\_Agrif
+
+$|$\hspace{0.5cm}$|$-- AGRIFZOOM
+
+$|$\hspace{0.5cm}$|$\hspace{0.5cm}$|$-- AGRIF\_FILES
+
+$|$\hspace{0.5cm}$|$\hspace{0.5cm}$|$-- AGRIF\_INC
+
+$|$\hspace{0.5cm}$|$\hspace{0.5cm}$|$-- AGRIF\_OBJS
+
+$|$\hspace{0.5cm}$|$\hspace{0.5cm}$|$-- AGRIF\_YOURFILES
+
+$|$\hspace{0.5cm}$|$\hspace{0.5cm}$|$-- LIB.clean
+
+$|$-- Run
+
+$|$\hspace{0.5cm}$|$-- DATA
+
+
+$|$\hspace{0.5cm}$|$-- FORECAST
+
+$|$\hspace{0.5cm}$|$-- ROMS\_FILES
+
+$|$\hspace{0.5cm}$|$-- SCRATCH
+
+$|$\hspace{0.5cm}$|$-- TEST\_CASES
+
+$|$-- SeaWifs
+
+$|$-- SST\_pathfinder
+
+$|$-- Tides
+
+$|$-- Topo
+
+$|$\hspace{0.5cm}$|$-- Matlab
+
+$|$-- TPX06
+
+$|$-- TPX07
+
+$|$-- Visualization\_tools
+
+$|$-- WOA2001
+
+$|$-- WOA2005
+\\
+\\
+Definition of the different directories :
+\begin{itemize}
+\item Aforc\_NCEP : Scripts for the recovery of surface forcing data 
+      (based on NCEP reanalysis) for inter-annual simulations.
+\item Aforc\_QuikSCAT : Scripts for the recovery of wind stress from 
+      satellite scatterometer data (QuickSCAT).
+\item COADS05 : Directory of the surface fluxes global monthly 
+      climatology at $0.5^\circ$ resolution \citep{Das94}.
+\item Compile : Empty scratch directory for ROMS compilation.
+\item Diagnostic\_tools : A few Matlab scripts for animations and
+      basic statistical analysis.
+\item Documentation : Location of the ROMSTOOLS user guide.
+\item Forecast\_tools : Scripts for the generation of an operational
+      modeling system 
+\item mask : Land mask edition toolbox developed by A.Y. Shcherbina.
+\item mex60 : Matlab NetCDF interface for 32 bits Linux architectures.
+\item mexnc : Matlab NetCDF interface for 64 bits Linux architectures.
+%\item \textbf{mexnc32} : 
+%\item \textbf{mexnc64} : 
+\item m\_map : The Matlab mapping toolbox 
+      (http://www2.ocgy.ubc.ca/$\sim$rich/map.html).
+\item Nesting\_tools : Preprocessing tools used to prepare nested
+      models.
+\item netcdf\_g77 : The NetCDF Fortran library for Linux, compiled using g77\\
+      (http://www.unidata.ucar.edu/packages/netcdf/index.html).
+\item netcdf\_ifc : The NetCDF Fortran library for Linux, compiled with ifort. 
+      The Intel Fortran Compiler (ifort) is available at \\
+      http://www.intel.com/software/products/compilers/flin/noncom.htm.
+\item netcdf\_matlab : The Matlab NetCDF toolbox  \\
+      ({\small
+      http://woodshole.er.usgs.gov/staffpages/cdenham/public\_html/MexCDF/nc4ml5.html}).
+\item netcdf\_x86\_64 : The NetCDF Fortran library for Linux, compiled with ifort
+      on a 64 bits architecture.
+\item Oforc\_OGCM : Scripts for the recovery of initial and lateral boundary 
+      conditions from global OGCMs (SODA \citep{Car05} or ECCO \citep{Sta99}) for 
+      inter-annual simulations.
+\item Opendap\_tools : LoadDAP mexcdf and several scripts to automatically
+      download data over the Internet.
+\item Preprocessing\_tools : Preprocessing Matlab scripts (make\_grid.m, 
+      make\_forcing, etc...).
+\item Roms\_Agrif : ROMS Fortran sources.
+\item Run : Working directory. This is where the ROMS input files
+      are generated and where the model is running.
+\item SeaWifs : surface chlorophyll-a climatology based on SeaWifs observations.
+\item SST\_pathfinder : Directory of a higher resolution SST climatology 
+      \citep{Rey94} for the thermal correction term.
+\item Tides : Matlab routines to prepare ROMS tidal simulations. Tidal data
+      are derived from the Oregon State University global models of ocean tides 
+      TPXO6 and TPXO7 \citep{Egb02}: 
+      http://www.oce.orst.edu/research/po/research/tide/global.html.
+\item Topo : Location of the global topography dataset at $2'$ resolution
+      \citep{Smi97}. Original data can be found at:
+      http://topex.ucsd.edu/cgi-bin/get\_data.cgi
+\item TPX06 : Directory of the global model of ocean tides TPXO6 \citep{Egb02}.
+\item TPX07 : Directory of the global model of ocean tides TPXO7 \citep{Egb02}.
+\item Visualization\_tools : Matlab scripts for the ROMS visualization
+      graphic user interface.
+\item WOA2001 : World Ocean Atlas 2001 global dataset 
+      (monthly climatology at $1^\circ$ resolution) \citep{Con02}.
+\item WOA2005 : World Ocean Atlas 2005 global dataset 
+\end{itemize}
+
+
+
+\section{LibDAP and  LoadDAP}
+It is sometimes difficult to compile LoadDAP.  LibDAP must be installed before
+installing LoadDAP. You have to declare the LibDAP binary and library in tour
+~/.bashrc with th command PATH and LD\_LIBRARY\_PATH. Once, compile and install
+LoadDAP.
+
+Here are a few instructions for the installation of these libraries:\\
+\begin{itemize}
+\item Download libDAP and loadDAP tar.gz version at the web location
+http://www.opendap.org
+\item To build the libDAP library, follow these steps:\\
+\item log you as a root
+\item Uncompress and untar the file libdap.tar.gz (gunzip and tar -xvf)
+\item $>$: cd libdap\_directory
+\item Type './configure' at the prompt. Some libraries must be installed 
+on your system to successfully run configure and build libDAP library : libcurl 
+(http://curl.haxx.se/) and libxml2 (http://xmlsoft.org/).\\
+Example:\\
+------------------------------------------------------------------------------------------\\
+checking for a BSD-compatible install... /usr/bin/install -c\\
+checking whether build environment is sane... yes\\
+checking whether make sets (MAKE)... yes\\
+checking build system type... i686-pc-linux-gnu\\
+checking host system type... i686-pc-linux-gnu\\
+checking for gawk... (cached) mawk\\
+checking for g++... g++\\
+checking for C++ compiler default output file name... a.out\\
+...\\
+config.status: dods-datatypes.h is unchanged\\
+config.status: executing depfiles commands\\
+------------------------------------------------------------------------------------------\\
+\item Type 'make' to build the library.\\
+Example :\\
+------------------------------------------------------------------------------------------\\
+make[1]: Entering directory '/home/tropic/tan/soft/libdap-3.6.2'\\
+Making all in gl\\
+make[2]: Entering directory '/home/tropic/tan/soft/libdap-3.6.2/gl'\\
+make  all-am\\
+make[3]: Entering directory '/home/tropic/tan/soft/libdap-3.6.2/gl'\\
+...\\
+------------------------------------------------------------------------------------------\\
+\item Type 'make check' to run the tests. To pass this step you 
+must have DejaGNU framework (GNU FTP mirror list:
+http://www.gnu.org/prep/ftp.html).\\
+Example :\\
+------------------------------------------------------------------------------------------\\
+make[1]: Entering directory `/home/tropic/tan/soft/libdap-3.6.2/gl'\\
+dejagnu\_driver.sh\\
+...\\
+Test Run By tan on Thu Jul 19 11:19:02 2007\\
+Native configuration is i686-pc-linux-gnu\\
+                ===== das-test tests =====\\
+		Running ...\\
+                ===== das-test Summary =====\\		
+                ===== dds-test tests =====\\
+		Running ...\\
+		===== dds-test Summary =====\\
+                ===== expr-test tests =====\\
+		Running ...\\
+                ===== expr-test Summary =====\\
+PASS: dejagnu\_driver.sh\\
+==================\\
+All 1 tests passed\\
+==================\\
+make[2]: Leaving directory `/home/tropic/tan/soft/libdap-3.6.2/tests'\\
+make[1]: Leaving directory `/home/tropic/tan/soft/libdap-3.6.2/tests'\\
+------------------------------------------------------------------------------------------\\
+\item Type 'make install' to install the library. By default the files are installed under
+/usr/local/lib/. You can specify a different root directory using the following control :
+'make install root\_directory'.\\
+\item Go to the .bashrc and add \\EXPORT LD\_LIBRARY\_PATH=\$LD\_LIBRARY\_PATH
+: root\_directory.'\\
+
+\item The installation of the loadDAP library is done as for libDAP. 
+By default the files are installed under
+/usr/local/share/.
+
+\item Go in the .dodsrc file, add the PROXY\_SERVER configuration, if needed,
+    for example PROXY\_SERVER http,proxy.legos.obs-mip.fr:$3128$
+\end{itemize}
+
+\section{Future plans}
+\begin{itemize}
+\item A graphic user interface could be useful for the preprocessing tools.
+\item There is need for an improvement of the extrapolation and interpolation
+methods.
+\end{itemize}
+
+\section{Warnings}
+\begin{itemize}
+\item Since Geostrophy is used to obtain the horizontal currents for
+the lateral boundary conditions, this method should be applied with 
+care close to the Equator. An extrapolation of the currents outside 
+an equatorial band (2$^\circ$S-2$^\circ$N) is performed to get an 
+approximation of the equatorial currents.
+\item On extended grids, the objective analysis used for data 
+extrapolation can be relatively costly in memory and CPU time. 
+The "nearest" Matlab function that is less costly can be used instead.
+If the computer starts to swap, you should think of reducing the 
+dimension of your model's domain.
+\end{itemize}
+\newpage
