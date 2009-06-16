@@ -84,10 +84,10 @@ C$OMP MASTER
         nbgrid = Agrif_Fixed()
 C        indinterp = 0 indinterp is set to zero in zetabc
         
-        allocate(tabtemp2d(i1u:i2u,j1t:j2t))
+        allocate(tabtemp2d(0:i2u,j1t:j2t))
         Call Agrif_Bc_variable(tabtemp2d,ubarid,
      &    calledweight=tinterp,procname = u2dinterp)
-        dUinterp(i1u:i2u,j1t:j2t)=tabtemp2d
+        dUinterp(0:i2u,j1t:j2t)=tabtemp2d
         deallocate(tabtemp2d)
        
                   
@@ -465,7 +465,7 @@ C$OMP BARRIER
        ENDIF
        
        oldindinterp = indinterp
-       
+
        do j=j1,j2
        do i=i1,i2
        oldindinterp=oldindinterp+1
@@ -582,10 +582,10 @@ C$OMP MASTER
         
         nbgrid = Agrif_Fixed()
 C        indinterp = 0 indinterp is set to zero in zetabc
-        allocate(tabtemp2d(i1t:i2t,j1v:j2v))
+        allocate(tabtemp2d(i1t:i2t,0:j2v))
         Call Agrif_Bc_variable(tabtemp2d,vbarid,calledweight=tinterp,
      &   procname = v2dinterp)
-        dVinterp(i1t:i2t,j1v:j2v)=tabtemp2d
+        dVinterp(i1t:i2t,0:j2v)=tabtemp2d
         deallocate(tabtemp2d)
                   
         Agrif_UseSpecialvalue=.false.

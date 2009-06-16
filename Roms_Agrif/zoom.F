@@ -866,9 +866,13 @@ CR      write(*,*) '  0' MYID
       Agrif_UseSpecialValueInUpdate = .FALSE.
 
       isens = 1
-      Call Agrif_Bc_Variable(hbis,DU_avg2,calledweight=1.,
+      
+        allocate(tabtemp2d(0:i2u,j1t:j2t))
+      Call Agrif_Bc_Variable(tabtemp2d,ubarid,calledweight=1.,
      &procname=hinterp)
-
+        hbis(0:i2u,j1t:j2t)=tabtemp2d
+        deallocate(tabtemp2d)  
+           
 #  ifdef AGRIF_OBC_WEST
 #   ifdef MPI           
         if (.not.WEST_INTER) then
@@ -894,9 +898,12 @@ CR      write(*,*) '  0' MYID
 #  endif       
           
       isens = 2
-      Call Agrif_Bc_Variable(hbis,DV_avg2,calledweight=1.,
+        allocate(tabtemp2d(i1t:i2t,0:j2v))
+      Call Agrif_Bc_Variable(tabtemp2d,vbarid,calledweight=1.,
      &procname=hinterp)
-      
+        hbis(i1t:i2t,0:j2v)=tabtemp2d
+        deallocate(tabtemp2d)
+              
 #  ifdef AGRIF_OBC_SOUTH
 #   ifdef MPI           
         if (.not.SOUTH_INTER) then
@@ -983,14 +990,14 @@ CR      write(*,*) '  0' MYID
      &Agrif_Update_full_weighting) 
      
       Call Agrif_Declare_Variable((/1,2,0/),(/1,1,0/),
-     &    (/'x','y','N'/),(/i1u,j1t,1/),
+     &    (/'x','y','N'/),(/0,j1t,1/),
      &    (/i2u,j2t,4/),updateubarid)
           
       Call Agrif_Set_UpdateType(updateubarid,update=
      &Agrif_Update_full_weighting)
      
       Call Agrif_Declare_Variable((/2,1,0/),(/1,1,0/),
-     &    (/'x','y','N'/),(/i1t,j1v,1/),
+     &    (/'x','y','N'/),(/i1t,0,1/),
      &    (/i2t,j2v,4/),updatevbarid)
           
       Call Agrif_Set_UpdateType(updatevbarid,update=
@@ -1021,9 +1028,9 @@ CR      write(*,*) '  0' MYID
         call Agrif_Declare_Variable((/2,2/),(/1,1/),(/'x','y'/),
      &   (/i1t,j1t/),(/i2t,j2t/),zetaid)
         call Agrif_Declare_Variable((/1,2/),(/1,1/),(/'x','y'/),
-     &   (/i1u,j1t/),(/i2u,j2t/),ubarid)
+     &   (/0,j1t/),(/i2u,j2t/),ubarid)
         call Agrif_Declare_Variable((/2,1/),(/1,1/),(/'x','y'/),
-     &   (/i1t,j1v/),(/i2t,j2v/),vbarid)    
+     &   (/i1t,0/),(/i2t,j2v/),vbarid)    
              
         call Agrif_Declare_Variable((/2,2,0,0/),(/1,1,0,0/),
      &    (/'x','y','N','N'/),(/i1t,j1t,1,1/),
@@ -1164,12 +1171,12 @@ c     &             *rmask(i1+1:i2-1,j1+1:j2-1)
        
        IF (isens == 1) THEN
        do j=j1,j2
-       do i=i1,i2
+       do i=max(i1,lbound(h,1)+1),i2
          tabres(i,j) = 0.5*(h(i-1,j)+h(i,j))
        enddo
        enddo       
        ELSE
-       do j=j1,j2
+       do j=max(j1,lbound(h,2)+1),j2
        do i=i1,i2
          tabres(i,j) = 0.5*(h(i,j-1)+h(i,j))
        enddo

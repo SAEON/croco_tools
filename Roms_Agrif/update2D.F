@@ -394,9 +394,12 @@ C$OMP END SINGLE
                                
          DO j=j1,j2
            DO i=i1,i2
+!           if (i>lbound(h,1)) then
         t1 = 0.5*(zeta(i,j,knew)+h(i,j)+
      &  zeta(i-1,j,knew)+h(i-1,j))*on_u(i,j)
-            
+!            else
+!            t1 = 1.
+!            endif
            t2 = tabtemp(i,j)
 #ifdef MASKING
      &           * umask(i,j)
@@ -694,7 +697,6 @@ C$OMP END SINGLE
            DO i=i1,i2
          t1 = 0.5*(zeta(i,j,knew)+h(i,j)+
      &  zeta(i,j-1,knew)+h(i,j-1))*om_v(i,j)
-            
            t2 = tabtemp(i,j)
 #ifdef MASKING
      &           * vmask(i,j)
