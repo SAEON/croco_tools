@@ -145,7 +145,8 @@
      &gradconstraints
       real,dimension(:,:,:,:),allocatable :: text
       real,dimension(:,:),allocatable :: tabtemp2d
-      real,dimension(:,:,:),allocatable :: tabtemp3d      
+      real,dimension(:,:,:),allocatable :: tabtemp3d   
+      integer :: irhot   
       external hinterp, updateh   
       external initzeta,initubar,initvbar
       external initu,initv,initt
@@ -952,6 +953,7 @@ CR      write(*,*) '  0' MYID
 # include "ncscrum.h"
 # include "scalars.h"
 # include "zoom.h"
+      integer :: irhot
       
       i1t = 0
       i2t = Lm+1
@@ -982,23 +984,25 @@ CR      write(*,*) '  0' MYID
       j1v = j1t
       j2v = j2t
       
+      irhot = Agrif_Irhot()
+      
       Call Agrif_Declare_Variable((/2,2,0/),(/1,1,0/),
      &    (/'x','y','N'/),(/i1t,j1t,1/),
-     &    (/i2t,j2t,4/),updatezetaid)
+     &    (/i2t,j2t,irhot+1/),updatezetaid)
           
       Call Agrif_Set_UpdateType(updatezetaid,update=
      &Agrif_Update_full_weighting) 
      
       Call Agrif_Declare_Variable((/1,2,0/),(/1,1,0/),
      &    (/'x','y','N'/),(/0,j1t,1/),
-     &    (/i2u,j2t,4/),updateubarid)
+     &    (/i2u,j2t,irhot+1/),updateubarid)
           
       Call Agrif_Set_UpdateType(updateubarid,update=
      &Agrif_Update_full_weighting)
      
       Call Agrif_Declare_Variable((/2,1,0/),(/1,1,0/),
      &    (/'x','y','N'/),(/i1t,0,1/),
-     &    (/i2t,j2v,4/),updatevbarid)
+     &    (/i2t,j2v,irhot+1/),updatevbarid)
           
       Call Agrif_Set_UpdateType(updatevbarid,update=
      &Agrif_Update_full_weighting)  

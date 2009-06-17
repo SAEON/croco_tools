@@ -702,10 +702,11 @@ C in the update scheme
         ELSE
           indtab(i,1,1) = indtab(i,1,1) - coeffraf
           indtab(i,1,2) = indtab(i,1,2) - 1
+C at this point, indices are OK for an average          
           IF ((TypeUpdate(i) .EQ. Agrif_Update_Full_Weighting)
      &                            .AND.(mod(coeffraf,2) == 1)) THEN
-            indtab(i,1,1) = indtab(i,1,1) - 1
-            indtab(i,1,2) = indtab(i,1,2) + 1
+            indtab(i,1,1) = indtab(i,1,1) - coeffraf/2
+            indtab(i,1,2) = indtab(i,1,2) + coeffraf/2
           ENDIF
         ENDIF
         IF (loctab_child(i) == -3) THEN
@@ -776,6 +777,7 @@ C
      &              posvartab_child,loctab_Child,
      &              nbdim)           
            ENDIF
+           
 C
 C      
 C  
@@ -884,10 +886,10 @@ C
           indtab(i,1,2) = indtab(i,1,2) - 1
           indtab(i,2,2) = indtab(i,2,2) + coeffraf - 1
           IF (TypeUpdate(i) .EQ. Agrif_Update_Full_Weighting) THEN
-            indtab(i,1,1) = indtab(i,1,1) - 1
-            indtab(i,1,2) = indtab(i,1,2) + 1
-            indtab(i,2,1) = indtab(i,2,1) - 1
-            indtab(i,2,2) = indtab(i,2,2) + 1
+            indtab(i,1,1) = indtab(i,1,1) - coeffraf/2
+            indtab(i,1,2) = indtab(i,1,2) + coeffraf/2
+            indtab(i,2,1) = indtab(i,2,1) - coeffraf/2
+            indtab(i,2,2) = indtab(i,2,2) + coeffraf/2
           ENDIF          
         ENDIF
       ENDDO
