@@ -1755,10 +1755,11 @@ C
           positionmin = positionmin - (ds_Parent(i)-ds_Child(i))
           ENDIF
         ELSE
-        positionmin = positionmin - ds_Parent(i)/2.
-        IF (TypeUpdate(i) .EQ. Agrif_Update_Full_Weighting) THEN
-          positionmin = positionmin - ds_Child(i)
-        ENDIF
+          IF (TypeUpdate(i).NE.Agrif_Update_Full_Weighting) THEN
+            positionmin = positionmin - ds_Parent(i)/2.
+          ELSE
+          positionmin = positionmin - (ds_Parent(i)-ds_Child(i))
+          ENDIF
         ENDIF
         ENDIF
         imin = pttab_Child(i) +
@@ -1779,10 +1780,11 @@ C
           positionmax = positionmax  + (ds_Parent(i)-ds_Child(i))
           ENDIF
         ELSE
-        positionmax = positionmax  + ds_Parent(i)/2.
-        IF (TypeUpdate(i) .EQ. Agrif_Update_Full_Weighting) THEN
-          positionmax = positionmax + ds_Child(i)
-        ENDIF        
+          IF (TypeUpdate(i).NE.Agrif_Update_Full_Weighting) THEN        
+            positionmax = positionmax  + ds_Parent(i)/2.
+          ELSE
+            positionmax = positionmax  + (ds_Parent(i)-ds_Child(i))
+          ENDIF        
         ENDIF
         ENDIF
         imax = pttab_Child(i) +
