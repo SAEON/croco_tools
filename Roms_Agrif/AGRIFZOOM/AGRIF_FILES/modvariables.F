@@ -17,6 +17,8 @@
       LOGICAL :: restaure
             
 !      if (agrif_root()) return
+
+      variablename = 'xxx'
       
       restaure = .FALSE.
       if (agrif_mygrid%ngridstep /= 0) then
@@ -108,6 +110,12 @@ C
      &              (Agrif_Curgrid%parent,Agrif_Curgrid%nbvariables)       
        
        newvariable%pvar%parent_var=>parent_var
+       do i=1,dimensio
+         if (parent_var%var%interptab(i)=='N') then
+           parent_var%var%lb(i)=lb(i)
+           parent_var%var%ub(i)=ub(i)
+         endif
+       enddo
        endif       
       
       root_var=>Agrif_Search_Variable
