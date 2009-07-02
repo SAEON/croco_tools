@@ -32,7 +32,7 @@
 !      real visc2_sponge, visc4_sponge, diff2_sponge, diff4_sponge
       real wrk(PRIVATE_2D_SCRATCH_ARRAY)
 # if defined CANARY  || defined IBERIA
-      real lon0,lat0, rsponge, dx,dy,dr,cff,cff1,cff2,
+      real lon0,lat0, rsponge, dx,dy,dr,cff,cff1,cff2
 # endif
 # undef SPONGE_GRID
 ! if SPONGE_GRID, vsponge is defined as :
