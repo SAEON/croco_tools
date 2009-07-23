@@ -22,6 +22,9 @@
 #include "ncscrum.h"
 #include "diagnostics.h"
 #include "boundary.h"
+#if defined TCLIMATOLOGY
+#  include "climat.h"
+#endif /* TCLIMATOLOGY */
 
 !      call system('uname -prs')
       
@@ -1721,6 +1724,13 @@ CR     &                          ,indxbioVSink+NFlux_VSinkD2-1
 
 #   endif /* PISCES */
 # endif /* DIAGNOSTICS_BIO */
-
+#if defined TCLIMATOLOGY
+!
+! flag to read in climatology for tracer type variables.
+!
+      do itrc=1,NT
+        got_tclm(itrc)=.false.
+      enddo
+#endif /* TCLIMATOLOGY */
       return
       end
