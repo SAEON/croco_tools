@@ -44,7 +44,7 @@
       lstr=lenstr(ininame)
       ierr=nf_open(ininame(1:lstr), nf_nowrite, ncid)
       if (ierr .eq. nf_noerr) then
-        ierr=checkdims (ncid, ininame(1:lstr), lstr, indx)
+        ierr=checkdims (ncid, ininame, lstr, indx)
         if (ierr. ne. nf_noerr) then
           goto 99
         elseif (indx.eq.0) then

@@ -21,7 +21,7 @@
       lstr=lenstr(grdname)
       ierr=nf_open(grdname(1:lstr), nf_nowrite, ncid)
       if (ierr .eq. nf_noerr) then
-        ierr=checkdims (ncid, grdname(1:lstr), lstr, varid)
+        ierr=checkdims (ncid, grdname, lstr, varid)
         if (ierr. ne. nf_noerr) goto 99
       else
         write(stdout,'(/3(1x,A)/)') 'GET_GRID ERROR: Cannot open',

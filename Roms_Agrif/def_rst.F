@@ -472,7 +472,7 @@
       elseif (ncid.eq.-1) then
         ierr=nf_open (rstname(1:lstr), nf_write, ncid)
         if (ierr. eq. nf_noerr) then
-          ierr=checkdims (ncid, rstname(1:lstr), lstr, rec)
+          ierr=checkdims (ncid, rstname, lstr, rec)
           if (ierr .eq. nf_noerr) then
             if (nrpfrst.eq.0) then
               ierr=rec+1 - nrecrst
