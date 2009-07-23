@@ -172,7 +172,8 @@ c**     write(*,*) shft/sum, ndtfast
             
 # ifdef AGRIF
        
-      weight2 = 0.
+!      weight2 = 0.
+      weight2 = 1.  !-- Quick fix to prevent division by zero in zetabc_interp
        
       weight2(nfast,:) = weight(1,:)
             
