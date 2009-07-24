@@ -21,7 +21,9 @@
 # include "sta.h"
 # include "nc_sta.h"
 #endif
-      
+#ifdef AGRIF
+       Type(Agrif_pgrid),pointer  :: parcours     
+#endif 
 #ifdef MPI
       include 'mpif.h'
 C      real*8 start_time2, start_time1, exe_time
@@ -409,6 +411,17 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Stop timers and
         call stop_timers()
       enddo
       call closecdf
+#ifdef AGRIF
+!
+!  Close the netcdf files also for the child grids
+!
+      parcours=>Agrif_Curgrid%child_grids
+      do while (associated(parcours))
+        Call Agrif_Instance(parcours % gr)
+        call closecdf
+        parcours => parcours % next             
+      enddo
+#endif
 
  100  continue
 #ifdef MPI
