@@ -95,7 +95,9 @@ C$OMP MASTER
 !     vsponge = 0.
 
       allocate(uext(i1u:i2u,j1t:j2t,N))
+      uext = 0.
       allocate(vext(i1t:i2t,j1v:j2v,N))
+      vext = 0.
       
       Call Agrif_Set_bc(uspongeid,(/-decal,0/),
      &         InterpolationShouldbemade=.TRUE.)

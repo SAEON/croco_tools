@@ -70,6 +70,7 @@ C$OMP MASTER
 
        tinterp = 1.
       allocate(text(i1t:i2t,j1t:j2t,N,NT))
+      text = 0.
       Call Agrif_Bc_Variable(text,tspongeid,calledweight=tinterp,
      &                           procname=interpsponget)
       tsponge(i1t:i2t,j1t:j2t,1:N,1:NT) = text
