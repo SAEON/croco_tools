@@ -544,7 +544,7 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
                 cff=0.5*(angler(i,j)+angler(i,j-1))
                 cff8=-val7*sin(cff)+val8*cos(cff)
 #  else
-                cff8=vstress
+                cff8=val8
 #  endif
 #  ifdef BULK_WVEC
                 vwnd(i,j)=cff8
@@ -653,7 +653,7 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
               cff=0.5*(angler(i,j)+angler(i,j-1))
               cff8=-val7*sin(cff)+val8*cos(cff)
 #  else
-              cff8=vstress
+              cff8=val8
 #  endif
 #  ifdef BULK_WVEC
               vwnd(i,j)=cff8
