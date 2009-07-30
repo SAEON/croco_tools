@@ -307,9 +307,9 @@
           do j=jmin,jmax
             do i=imin,imax+1
               cff=0.5*(pm(i,j)+pm(i-1,j)) 
-
+#  ifdef MASKING
      &                                        * umask(i,j)
-
+#  endif
               dZdx(i,j,k2)=cff*(z_r(i,j,k+1)-z_r(i-1,j,k+1))
 !              dTdx(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)-
 !     &                                 t(i-1,j,k+1,nrhs,itrc)
