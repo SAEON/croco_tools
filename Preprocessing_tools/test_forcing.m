@@ -48,14 +48,12 @@ for time=thetime
     u=nc{'uwnd'}(time,:,:);
     v=nc{'vwnd'}(time,:,:);
     if thefield(1:3)=='spd'
-      field=sqrt(u.^2+v.^2);
+      field=sqrt((u2rho_2d(u)).^2+(v2rho_2d(v)).^2);
       fieldname='wind speed';
     else
       field=nc{thefield}(time,:,:);
       fieldname=nc{thefield}.long_name(:);
     end
-    u=rho2u_2d(u);
-    v=rho2v_2d(v);
   else  
     u=nc{'sustr'}(time,:,:);
     v=nc{'svstr'}(time,:,:);
@@ -72,11 +70,11 @@ for time=thetime
 % Read the grid
 %
   nc=netcdf(grdname);
-  if strcmp(thefield,'sustr')
+  if strcmp(thefield,'sustr') | strcmp(thefield,'uwnd')
     lon=nc{'lon_u'}(:);
     lat=nc{'lat_u'}(:);
     mask=nc{'mask_u'}(:);
-  elseif strcmp(thefield,'svstr')
+  elseif strcmp(thefield,'svstr') | strcmp(thefield,'vwnd')
     lon=nc{'lon_v'}(:);
     lat=nc{'lat_v'}(:);
     mask=nc{'mask_v'}(:);

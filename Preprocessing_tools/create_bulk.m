@@ -54,7 +54,7 @@ nw('xi_u') = L;
 nw('eta_u') = Mp;
 nw('xi_v') = Lp;
 nw('eta_v') = M;
-nw('bulk_time') = length(bulkt);
+nw('bulk_time') = 0;
 %
 %  Create variables and attributes
 %
@@ -157,7 +157,10 @@ nw.type = 'ROMS heat flux bulk forcing file';
 %
 % Write time variables
 %
-
-nw{'bulk_time'}(:) = bulkt;
-
+for tndx=1:length(bulkt)
+   if mod(tndx,20)==0
+     disp(['  Step: ',num2str(tndx),' of ',num2str(length(bulkt))])
+   end
+  nw{'bulk_time'}(tndx) = bulkt(tndx);
+end
 close(nw);
