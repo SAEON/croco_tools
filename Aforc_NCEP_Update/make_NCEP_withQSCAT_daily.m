@@ -344,13 +344,13 @@ for Y=Ymin:Ymax
 disp(['Proceed time interpolation on NCEP time axis...'])    
     for ii=1:nx
       for jj=1:ny
-        uu(jj,ii,:)=interp1(time,squeeze(u(jj,ii,:)),sms_time_ncep);  
-        vv(jj,ii,:)=interp1(time,squeeze(v(jj,ii,:)),sms_time_ncep); 
+        uu(jj,ii,:)=interp1(time,squeeze(u(jj,ii,:)),sms_time_ncep,'cubic');  
+        vv(jj,ii,:)=interp1(time,squeeze(v(jj,ii,:)),sms_time_ncep,'cubic'); 
 	
         if QSCAT_blk==1   
-          uuwnd(jj,ii,:)=interp1(time,squeeze(xu(jj,ii,:)),blk_time_ncep);  
-          vvwnd(jj,ii,:)=interp1(time,squeeze(yv(jj,ii,:)),blk_time_ncep);  
-          wwnds(jj,ii,:)=interp1(time,squeeze(ws(jj,ii,:)),blk_time_ncep);
+          uuwnd(jj,ii,:)=interp1(time,squeeze(xu(jj,ii,:)),blk_time_ncep,'cubic');  
+          vvwnd(jj,ii,:)=interp1(time,squeeze(yv(jj,ii,:)),blk_time_ncep,'cubic');  
+          wwnds(jj,ii,:)=interp1(time,squeeze(ws(jj,ii,:)),blk_time_ncep,'cubic');
         end
 	
       end
@@ -365,8 +365,14 @@ disp(['Proceed time interpolation on NCEP time axis...'])
       nc_frc{'svstr'}(ll,:,:)=rho2v_2d(v.*cosa - u.*sina);
       
       if QSCAT_blk==1  
-        nc_blk{'uwnd'}(ll,:,:)=squeeze(uuwnd(:,:,ll));
-        nc_blk{'vwnd'}(ll,:,:)=squeeze(vvwnd(:,:,ll));     
+
+        nc_blk{'sustr'}(ll,:,:)=rho2u_2d(u.*cosa + v.*sina);
+        nc_blk{'svstr'}(ll,:,:)=rho2v_2d(v.*cosa - u.*sina);
+
+        u=squeeze(uuwnd(:,:,ll));
+        v=squeeze(vvwnd(:,:,ll));      
+        nc_blk{'uwnd'}(ll,:,:)=rho2u_2d(u.*cosa + v.*sina);
+        nc_blk{'vwnd'}(ll,:,:)=rho2v_2d(v.*cosa - u.*sina); 
         nc_blk{'wspd'}(ll,:,:)=squeeze(wwnds(:,:,ll));     
       end
       
@@ -380,7 +386,27 @@ disp(['Proceed time interpolation on NCEP time axis...'])
   end
 end
 disp(['Finish, you have now NCEP file (frc and/or bulk files) with',...
-     ' wind speed and wind stress from QSCAT'])
+     ' wind speed and wind stress from QSCAT (maybe with the correct',...
+     ' orientation...)'])
 						  
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%---------------------------------------------------------------
+% Make a few plots
+%---------------------------------------------------------------
+if makeplot==1
+  disp(' ')
+  disp(' Make a few plots...')
+  slides=[1 25 50 75];
+  test_forcing(file_frc_qscat,grdname,'svstr',slides,3,coastfileplot)
+  figure
+  test_forcing(file_frc_qscat,grdname,'sustr',slides,3,coastfileplot)
+  if QSCAT_blk==1  
+    figure
+    test_forcing(file_blk_qscat,grdname,'uwnd',slides,3,coastfileplot)
+    figure
+    test_forcing(file_blk_qscat,grdname,'vwnd',slides,3,coastfileplot)
+    figure
+    test_forcing(file_blk_qscat,grdname,'wspd',slides,3,coastfileplot)
+  end
+end
