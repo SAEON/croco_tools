@@ -315,9 +315,7 @@ c        close(testunit)
        endif
 # endif
 #endif
-#if defined T_FRC_BRY || defined M2_FRC_BRY || \
-      defined M3_FRC_BRY || defined Z_FRC_BRY
-# ifndef ANA_BRY
+#if !defined ANA_BRY && defined FRC_BRY
 !
 ! Boundary file name. Check availability.
 !
@@ -339,7 +337,6 @@ c        close(testunit)
 #  ifdef AGRIF
        endif
 #  endif
-# endif
 #endif
 !
 ! Restart file name.

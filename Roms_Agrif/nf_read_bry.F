@@ -42,63 +42,6 @@
       if (ierr.eq.0) then
 !
 !---------------------------------------------------------------
-! Find subdomain indices for extracting data from input files
-!---------------------------------------------------------------
-!
-        start(1)=1
-        start(2)=1
-#ifdef MPI
-# ifdef PARALLEL_FILES
-#  ifdef EW_PERIODIC
-        imin=1
-        imax=Lm
-#  else
-        if (ii.gt.0) imin=1
-        if (ii.eq.NP_XI-1) then
-          imax=Lm+1
-        else
-          imax=Lm
-        endif
-#  endif
-#  ifdef NS_PERIODIC
-        jmin=1
-        jmax=Mm
-#  else
-        if (jj.gt.0) jmin=1
-        if (jj.eq.NP_ETA-1) then
-          jmax=Mm+1
-        else
-          jmax=Mm
-        endif
-#  endif
-# else
-        if (ii.gt.0) then
-          start(1)=1-imin+iminmpi
-          imin=1
-        endif
-        if (ii.eq.NP_XI-1) then
-          imax=Lmmpi+1
-        else
-          imax=Lmmpi
-        endif
-        if (jj.gt.0) then
-          start(2)=1-jmin+jminmpi
-          jmin=1
-        endif
-        if (jj.eq.NP_ETA-1) then
-          jmax=Mmmpi+1
-        else
-          jmax=Mmmpi
-        endif
-# endif
-#else
-        imax=Lm+1
-        jmax=Mm+1
-#endif
-        count(1)=imax-imin+1
-        count(2)=jmax-jmin+1
-!
-!---------------------------------------------------------------
 ! Collapse one of the two horizontal dimensions
 !---------------------------------------------------------------
 !
@@ -115,6 +58,7 @@
 ! Read array from the disk.
 !---------------------------------------------------------------
 !
+!	print*, 'nf_read_bry - ',ii,start,count
         ierr=nf_get_vara_FTYPE (ncid, varid, start, count, buff)
         if (ierr .eq. nf_noerr) then
           do k=1,count(2)

@@ -279,8 +279,7 @@ C#endif
 #if defined ZCLIMATOLOGY && !defined ANA_SSH
       call get_ssh
 #endif
-# if  defined T_FRC_BRY  || defined M2_FRC_BRY || \
-      defined M3_FRC_BRY || defined Z_FRC_BRY && !defined ANA_BRY
+#if !defined ANA_BRY && defined FRC_BRY
       call get_bry
 #  ifdef BIOLOGY 
       call get_bry_bio
