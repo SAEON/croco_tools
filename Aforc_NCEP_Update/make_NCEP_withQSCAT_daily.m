@@ -386,8 +386,7 @@ disp(['Proceed time interpolation on NCEP time axis...'])
   end
 end
 disp(['Finish, you have now NCEP file (frc and/or bulk files) with',...
-     ' wind speed and wind stress from QSCAT (maybe with the correct',...
-     ' orientation...)'])
+     ' wind speed and wind stress from QSCAT'])
 						  
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

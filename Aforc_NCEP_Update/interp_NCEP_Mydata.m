@@ -126,8 +126,8 @@ svstr=rho2v_2d(ty.*cosa-tx.*sina);
 %
 % uwnd et vwnd sont aux points 'rho'
 %
-u10=uwnd.*cosa+vwnd.*sina;
-v10=vwnd.*cosa-uwnd.*sina;
+u10=rho2u_2d(uwnd.*cosa+vwnd.*sina);
+v10=rho2v_2d(vwnd.*cosa-uwnd.*sina);
 %
 % Fill the ROMS files
 %
