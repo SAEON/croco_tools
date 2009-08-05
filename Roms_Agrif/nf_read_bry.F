@@ -58,7 +58,6 @@
 ! Read array from the disk.
 !---------------------------------------------------------------
 !
-!	print*, 'nf_read_bry - ',ii,start,count
         ierr=nf_get_vara_FTYPE (ncid, varid, start, count, buff)
         if (ierr .eq. nf_noerr) then
           do k=1,count(2)
