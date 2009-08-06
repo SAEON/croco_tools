@@ -73,19 +73,19 @@ if isnan(Yorig)
 % Climatolgoy simulation
 %
   year=floor(1+time/(24*3600*360));
+  if time<=0
+    time=time-(year-1)*24*3600*360;
+  end
   imonth=floor(1+rem(time/(24*3600*30),12));
-  month=Month(imonth,:);
   day=floor(1+rem(time/(24*3600),30));
-  thedate=[num2str(day),' ',month,...
-           ' of model year ',num2str(year)];
 else
 %
 % "Real time" simulation
 %
-  d=time/(24*3600);
   [year,imonth,day,h,mi,s]=datevec(time/(24*3600)+datenum(Yorig,1,1));
-  month=Month(imonth,:);
-  thedate=[num2str(day),' ',month,' ',num2str(year)];
 end
+%
+month=Month(imonth,:);
+thedate=[num2str(day),' ',month,' ',num2str(year)];
 %
 return
