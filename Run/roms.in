@@ -9,7 +9,7 @@ grid:  filename
 forcing: filename
                           ROMS_FILES/roms_frc.nc
 bulk_forcing: filename
-                          ROMS_FILES/roms_bulk.nc
+                          ROMS_FILES/roms_blk.nc
 climatology: filename
                           ROMS_FILES/roms_clm.nc
 boundary: filename
