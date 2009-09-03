@@ -45,6 +45,7 @@ function h = smoothgrid(h,maskr,hmin,hmax_coast,rmax,n_filter_deep_topo,n_filter
 % Cut the topography
 %
 h(h<hmin)=hmin;
+h(h>5000)=5000;
 %
 %
 % 1: Deep Ocean Filter

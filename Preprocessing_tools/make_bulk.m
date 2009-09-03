@@ -68,6 +68,8 @@ as_consts
 %
 sat_file     =[coads_dir,'sat.cdf'];
 sat_name     ='sat';
+sst_file     =[coads_dir,'sst.cdf'];
+sst_name     ='sst';
 airdens_file =[coads_dir,'airdens.cdf'];
 airdens_name ='airdens';
 u3_file      =[coads_dir,'u3.cdf'];
@@ -139,12 +141,12 @@ end
 for tindex=1:length(coads_time)
   time=nc{'bulk_time'}(tindex); 
   nc{'uwnd'}(tindex,:,:) = ext_data(u3_file,u3_name,tindex,...
-                                        lon,lat,time,Roa,1);
+                                        lonu,latu,time,Roa,1);
 end
 for tindex=1:length(coads_time)
   time=nc{'bulk_time'}(tindex);
   nc{'vwnd'}(tindex,:,:) = ext_data(v3_file,v3_name,tindex,...
-                                        lon,lat,time,Roa,1);
+                                        lonv,latv,time,Roa,1);
 end
 for tindex=1:length(coads_time)
   time=nc{'bulk_time'}(tindex);
@@ -153,8 +155,16 @@ for tindex=1:length(coads_time)
 end
 for tindex=1:length(coads_time)
   time=nc{'bulk_time'}(tindex);
-  nc{'radlw'}(tindex,:,:)= ext_data(lrf_file,lrf_name,tindex,...
+  radlw=ext_data(lrf_file,lrf_name,tindex,...
                                         lon,lat,time,Roa,1);
+  nc{'radlw'}(tindex,:,:)=radlw;
+
+  % radlw_in: substract upward gray-body longwave flux 
+  % and make it positive downward
+  sst= ext_data(sst_file,sst_name,tindex,...
+                                        lon,lat,time,Roa,1);
+  lwup=emiss_lw.*sigmaSB.*((sst+CtoK).^4);
+  nc{'radlw_in'}(tindex,:,:)=-(radlw-lwup);
 end
 for tindex=1:length(coads_time)
   time=nc{'bulk_time'}(tindex);
@@ -185,6 +195,8 @@ if makeplot==1
   test_forcing(blkname,grdname,'wspd',[1 4 7 10],3,coastfileplot)
   figure
   test_forcing(blkname,grdname,'radlw',[1 4 7 10],3,coastfileplot)
+  figure
+  test_forcing(blkname,grdname,'radlw_in',[1 4 7 10],3,coastfileplot)
   figure
   test_forcing(blkname,grdname,'radsw',[1 4 7 10],3,coastfileplot)
 end

@@ -38,7 +38,6 @@ end
 disp(['Getting ',dataname,' for time index ',num2str(tindex)])
 %
 default=NaN;
-%%%%%default=0;
 %
 %
 %
@@ -149,7 +148,7 @@ end
 %
 % Interpolation on the ROMS grid
 %
-data=interp2(x,y,data,lon,lat,'cubic');
+data=interp2(x,y,data,lon,lat,'linear');
 %
 % Apply offset
 %

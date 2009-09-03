@@ -69,6 +69,6 @@ maskred=mask(jmin:skip:jmax,imin:skip:imax);
 %
 ured=maskred.*ured;
 vred=maskred.*vred;
-lonred=maskred.*lonred;
-latred=maskred.*latred;
+lonred=lonred;
+latred=latred;
 return

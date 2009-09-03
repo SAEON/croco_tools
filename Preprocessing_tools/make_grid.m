@@ -231,7 +231,7 @@ if makeplot==1
   clabel(C1,h1,'LabelSpacing',1000,'Rotation',0,'Color','r')
   if ~isempty(coastfileplot)
     m_usercoast(coastfileplot,'color','r');
-    m_usercoast(coastfileplot,'speckle','color','r');
+    %m_usercoast(coastfileplot,'speckle','color','r');
   else
     m_gshhs_l('color','r');
     m_gshhs_l('speckle','color','r');

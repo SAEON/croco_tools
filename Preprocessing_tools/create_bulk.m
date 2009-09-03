@@ -90,20 +90,18 @@ nw{'wspd'}.units       = ncchar('m s-1');
 nw{'wspd'}.units       = 'm s-1';
 
 nw{'radlw'}            = ncdouble('bulk_time', 'eta_rho', 'xi_rho');
-nw{'radlw'}.long_name  = ncchar('outgoing longwave radiation');
-nw{'radlw'}.long_name  = 'outgoing longwave radiation';
+nw{'radlw'}.long_name  = ncchar('net outgoing longwave radiation');
+nw{'radlw'}.long_name  = 'net outgoing longwave radiation';
 nw{'radlw'}.units      = ncchar('Watts meter-2');
 nw{'radlw'}.units      = 'Watts meter-2';
 nw{'radlw'}.positive   = ncchar('upward flux, cooling water');
 nw{'radlw'}.positive   = 'upward flux, cooling water';
 
 nw{'radlw_in'}            = ncdouble('bulk_time', 'eta_rho', 'xi_rho');
-nw{'radlw_in'}.long_name  = ncchar('ingoing longwave radiation');
-nw{'radlw_in'}.long_name  = 'ingoing longwave radiation';
+nw{'radlw_in'}.long_name  = ncchar('downward longwave radiation');
+nw{'radlw_in'}.long_name  = 'downward longwave radiation';
 nw{'radlw_in'}.units      = ncchar('Watts meter-2');
 nw{'radlw_in'}.units      = 'Watts meter-2';
-nw{'radlw_in'}.positive   = ncchar('downward flux, warming water');
-nw{'radlw_in'}.positive   = 'downward flux, warming water';
 nw{'radlw_in'}.positive   = ncchar('downward flux, warming water');
 nw{'radlw_in'}.positive   = 'downward flux, warming water';
 

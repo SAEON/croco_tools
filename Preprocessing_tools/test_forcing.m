@@ -100,12 +100,12 @@ for time=thetime
        'lon',[domaxis(1) domaxis(2)],...
        'lat',[domaxis(3) domaxis(4)]);
 
-    m_pcolor(lon,lat,mask.*field)
+    m_pcolor(lon,lat,mask.*field);
     shading flat
     drawnow
     colorbar
     hold on
-    m_quiver(lonred,latred,ured,vred,'k')
+    m_quiver(lonred,latred,ured,vred,'k');
     if ~isempty(coastfileplot)
       m_usercoast(coastfileplot,'patch',[.9 .9 .9]);
     end
