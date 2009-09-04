@@ -88,6 +88,11 @@ srf_file     =[coads_dir,'shortrad.cdf'];
 srf_name     ='shortrad';
 lrf_file     =[coads_dir,'longrad.cdf'];
 lrf_name     ='longrad';
+taux_file      =[coads_dir,'taux.cdf'];
+taux_name      ='taux';
+tauy_file      =[coads_dir,'tauy.cdf'];
+tauy_name      ='tauy';
+
 %
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
@@ -110,7 +115,10 @@ lonu=nc{'lon_u'}(:);
 latu=nc{'lat_u'}(:);
 lonv=nc{'lon_v'}(:);
 latv=nc{'lat_v'}(:);
+angle=nc{'angle'}(:);
 result=close(nc);
+cosa=cos(angle);
+sina=sin(angle);
 %
 % Create the forcing file
 %
@@ -139,21 +147,6 @@ for tindex=1:length(coads_time)
                                         lon,lat,time,Roa,1);
 end
 for tindex=1:length(coads_time)
-  time=nc{'bulk_time'}(tindex); 
-  nc{'uwnd'}(tindex,:,:) = ext_data(u3_file,u3_name,tindex,...
-                                        lonu,latu,time,Roa,1);
-end
-for tindex=1:length(coads_time)
-  time=nc{'bulk_time'}(tindex);
-  nc{'vwnd'}(tindex,:,:) = ext_data(v3_file,v3_name,tindex,...
-                                        lonv,latv,time,Roa,1);
-end
-for tindex=1:length(coads_time)
-  time=nc{'bulk_time'}(tindex);
-  nc{'wspd'}(tindex,:,:) = ext_data(w3_file,w3_name,tindex,...
-                                        lon,lat,time,Roa,1);
-end
-for tindex=1:length(coads_time)
   time=nc{'bulk_time'}(tindex);
   radlw=ext_data(lrf_file,lrf_name,tindex,...
                                         lon,lat,time,Roa,1);
@@ -171,10 +164,37 @@ for tindex=1:length(coads_time)
   nc{'radsw'}(tindex,:,:)= ext_data(srf_file,srf_name,tindex,...
                                         lon,lat,time,Roa,1);
 end
-%  nc{'airdens'}(tindex,:,:)= ...
-%            ext_data(airdens_file,airdens_name,tindex,lon,lat,time,Roa);
-%  nc{'shum'}(tindex,:,:)= ...
-%            0.001*ext_data(qsea_file,qsea_name,tindex,lon,lat,time,Roa);
+%
+% Compute wind rotated and at u,v points
+%
+for tindex=1:length(coads_time)
+  time=nc{'bulk_time'}(tindex);
+  nc{'wspd'}(tindex,:,:) = ext_data(w3_file,w3_name,tindex,...
+                                        lon,lat,time,Roa,1);
+end
+for tindex=1:length(coads_time)
+  time=nc{'bulk_time'}(tindex);
+  uwnd = ext_data(u3_file,u3_name,tindex,...
+                                        lon,lat,time,Roa,1);
+  vwnd = ext_data(v3_file,v3_name,tindex,...
+                                        lon,lat,time,Roa,1);
+  u10=rho2u_2d(uwnd.*cosa+vwnd.*sina);
+  v10=rho2v_2d(vwnd.*cosa-uwnd.*sina);
+  nc{'uwnd'}(tindex,:,:) = u10;
+  nc{'vwnd'}(tindex,:,:) = v10;
+end
+%
+% Compute wind stress rotated and at u,v points
+%
+for tindex=1:length(coads_time)
+  time=nc{'sms_time'}(tindex);
+  tx=ext_data(taux_file,taux_name,tindex,...
+             lon,lat,time,Roa,2);
+  ty=ext_data(tauy_file,tauy_name,tindex,...
+             lon,lat,time,Roa,2);
+  nc{'sustr'}(tindex,:,:)=rho2u_2d(tx.*cosa + ty.*sina);
+  nc{'svstr'}(tindex,:,:)=rho2v_2d(ty.*cosa - tx.*sina);
+end
 close(nc)
 %
 % Make a few plots
