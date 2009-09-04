@@ -46,7 +46,6 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
           goto 99                                         !--> ERROR
         endif
 
-# ifndef BULK_WVEC
         lvar=lenstr(vname(1,indxWSPD))
         ierr=nf_inq_varid (ncidbulk, vname(1,indxWSPD)(1:lvar), wspd_id)
         if (ierr .eq. nf_noerr) then
@@ -63,7 +62,6 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
           write(stdout,3) vname(1,indxWSPD)(1:lvar), bulkname(1:lstr)
           goto 99                                         !--> ERROR
         endif
-# endif
 
         lvar=lenstr(vname(1,indxTAIR))
         ierr=nf_inq_varid (ncidbulk, vname(1,indxTAIR)(1:lvar),tair_id)
@@ -270,7 +268,6 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
         bulk_time(i)=cff*day2sec+bulk_cycle*bulk_ncycle
         if (bulk_time(itbulk).eq.-1.E+20) 
      &          bulk_time(itbulk)=bulk_time(i)
-# ifndef BULK_WVEC
 !
 ! wspd
 !
@@ -284,7 +281,6 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
           write(stdout,6) 'WSPD', bulk_rec
           goto 99                                         !--> ERROR
         endif
-# endif
 !
 ! tair
 !
@@ -360,7 +356,7 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
           ierr=nf_fread(uwndg(START_2D_ARRAY,i), ncidbulk, uwnd_id,
      &                                              bulk_rec, u2dvar)
         else
-          ierr=nf_get_var1_FTYPE(ncidbulk,uwnd_id,bulk_rec,sustrp(i))
+          ierr=nf_get_var1_FTYPE(ncidbulk,uwnd_id,bulk_rec,uwndp(i))
         endif
         if (ierr .ne. nf_noerr) then
           write(stdout,6) 'uwnd', bulk_rec
@@ -477,9 +473,7 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
           if (ltairgrd.eq.1) then
             do j=JstrR,JendR
               do i=IstrR,IendR
-# ifndef BULK_WVEC
                 wspd(i,j)=wspdg(i,j,itbulk)
-# endif
                 tair(i,j)=tairg(i,j,itbulk)
                 rhum(i,j)=rhumg(i,j,itbulk)
                 radlw(i,j)=srf_scale*radlwg(i,j,itbulk)
@@ -498,9 +492,7 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
               enddo
             enddo
           else
-# ifndef BULK_WVEC
             val1=wspdp(itbulk)
-# endif
             val2=tairp(itbulk)
             val3=rhump(itbulk)
             val4=srf_scale*radlwp(itbulk)
@@ -517,9 +509,7 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
 # endif
             do j=JstrR,JendR
               do i=IstrR,IendR
-# ifndef BULK_WVEC
                 wspd(i,j)=val1
-# endif
                 tair(i,j)=val2
                 rhum(i,j)=val3
                 radlw(i,j)=val4
@@ -528,29 +518,12 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
 # ifdef BULK_EP
                 prate(i,j)=val6
 # endif
-# if defined BULK_WVEC || defined BULK_WSTR
-#  ifdef CURVGRID
-                cff=0.5*(angler(i,j)+angler(i-1,j))
-                cff7=val7*cos(cff)+val8*sin(cff)
-#  else
-                cff7=val7
-#  endif
-#  ifdef BULK_WVEC
-                uwnd(i,j)=cff7
-#  else
-                sustr(i,j)=cff7
-#  endif
-#  ifdef CURVGRID
-                cff=0.5*(angler(i,j)+angler(i,j-1))
-                cff8=-val7*sin(cff)+val8*cos(cff)
-#  else
-                cff8=val8
-#  endif
-#  ifdef BULK_WVEC
-                vwnd(i,j)=cff8
-#  else
-                svstr(i,j)=cff8
-#  endif
+# ifdef BULK_WVEC
+                uwnd(i,j)=val7
+                vwnd(i,j)=val8
+# else
+                sustr(i,j)=val7
+                svstr(i,j)=val8
 # endif /* BULK_WVEC || BULK_WSTR */
               enddo
             enddo
@@ -586,9 +559,7 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
         if (ltairgrd.eq.1) then
           do j=JstrR,JendR
             do i=IstrR,IendR
-# ifndef BULK_WVEC
               wspd(i,j)=cff1*wspdg(i,j,it1)+cff2*wspdg(i,j,it2)
-# endif
               tair(i,j)=cff1*tairg(i,j,it1)+cff2*tairg(i,j,it2)
               rhum(i,j)=cff1*rhumg(i,j,it1)+cff2*rhumg(i,j,it2)
               radlw(i,j)=cff3*radlwg(i,j,it1)+cff4*radlwg(i,j,it2)
@@ -607,9 +578,7 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
             enddo
           enddo
         else
-# ifndef BULK_WVEC
           val1=cff1*wspdp(it1)+cff2*wspdp(it2)
-# endif
           val2=cff1*tairp(it1)+cff2*tairp(it2)
           val3=cff1*rhump(it1)+cff2*rhump(it2)
           val4=cff3*radlwp(it1)+cff4*radlwp(it2)
@@ -626,9 +595,7 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
 # endif
           do j=JstrR,JendR
             do i=IstrR,IendR
-# ifndef BULK_WVEC
               wspd(i,j)=val1
-# endif
               tair(i,j)=val2
               rhum(i,j)=val3
               radlw(i,j)=val4
@@ -637,29 +604,12 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
 # ifdef BULK_EP
               prate(i,j)=val6
 # endif
-# if defined BULK_WVEC || defined BULK_WSTR
-#  ifdef CURVGRID
-              cff=0.5*(angler(i,j)+angler(i-1,j))
-              cff7=val7*cos(cff)+val8*sin(cff)
-#  else
-              cff7=val7
-#  endif
-#  ifdef BULK_WVEC
-              uwnd(i,j)=cff7
-#  else
-              sustr(i,j)=cff7
-#  endif
-#  ifdef CURVGRID
-              cff=0.5*(angler(i,j)+angler(i,j-1))
-              cff8=-val7*sin(cff)+val8*cos(cff)
-#  else
-              cff8=val8
-#  endif
-#  ifdef BULK_WVEC
-              vwnd(i,j)=cff8
-#  else
-              svstr(i,j)=cff8
-#  endif
+# ifdef BULK_WVEC
+              uwnd(i,j)=val7
+              vwnd(i,j)=val8
+# else
+              sustr(i,j)=val7
+              svstr(i,j)=val8
 # endif /* BULK_WVEC || BULK_WSTR */
             enddo
           enddo

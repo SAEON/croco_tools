@@ -242,11 +242,10 @@
       real prate(GLOBAL_2D_ARRAY)
       real radlw(GLOBAL_2D_ARRAY)
       real radsw(GLOBAL_2D_ARRAY)
+      real wspd(GLOBAL_2D_ARRAY)
 # ifdef BULK_WVEC
       real uwnd(GLOBAL_2D_ARRAY)
       real vwnd(GLOBAL_2D_ARRAY)
-# else
-      real wspd(GLOBAL_2D_ARRAY)
 # endif
 
       common /bulk_tair/tair
@@ -254,11 +253,10 @@
      &       /bulk_prate/prate
      &       /bulk_radlw/radlw 
      &       /bulk_radsw/radsw
+     &       /bulk_wspd/wspd
 # ifdef BULK_WVEC
      &       /bulk_uwnd/uwnd 
      &       /bulk_vwnd/vwnd
-# else
-     &       /bulk_wspd/wspd
 # endif
 
       real tairg(GLOBAL_2D_ARRAY,2)
@@ -266,11 +264,10 @@
       real prateg(GLOBAL_2D_ARRAY,2)
       real radlwg(GLOBAL_2D_ARRAY,2)
       real radswg(GLOBAL_2D_ARRAY,2)
+      real wspdg(GLOBAL_2D_ARRAY,2)
 # ifdef BULK_WVEC
       real uwndg(GLOBAL_2D_ARRAY,2)
       real vwndg(GLOBAL_2D_ARRAY,2)
-# else
-      real wspdg(GLOBAL_2D_ARRAY,2)
 # endif
 
       common /bulkdat_tairg/tairg
@@ -278,26 +275,23 @@
      &       /bulkdat_prateg/prateg
      &       /bulkdat_radlwg/radlwg
      &       /bulkdat_radswg/radswg
+     &       /bulkdat_wspdg/wspdg
 # ifdef BULK_WVEC
      &       /bulk_uwndg/uwndg
      &       /bulk_vwndg/vwndg
-# else
-     &       /bulkdat_wspdg/wspdg
 # endif
 
       real    tairp(2),rhump(2),pratep(2),radlwp(2),radswp(2)
+     &       ,wspdp(2)
 # ifdef BULK_WVEC
      &       ,uwndp(2),vwndp(2)
-# else
-     &       ,wspdp(2)
 # endif
       real    bulk_time(2), bulk_cycle
       integer tair_id,rhum_id,prate_id,radlw_id,radsw_id,
      &        ltairgrd,lrhumgrd,lprategrd,lradlwgrd,lradswgrd
+     &       ,wspd_id,lwspdgrd
 # ifdef BULK_WVEC
      &       ,uwnd_id,vwnd_id,luwndgrd,lvwndgrd
-# else
-     &       ,wspd_id,lwspdgrd
 # endif
       integer itbulk,bulk_ncycle,bulk_rec,bulk_tid,
      &        bulkunused
@@ -307,18 +301,16 @@
      &        ltairgrd,lrhumgrd,lprategrd,lradlwgrd,lradswgrd, 
      &        itbulk, bulk_ncycle, bulk_rec, bulk_tid, 
      &        bulkunused
+     &       ,wspd_id,lwspdgrd
 # ifdef BULK_WVEC
      &       ,uwnd_id,vwnd_id,luwndgrd,lvwndgrd
-# else
-     &       ,wspd_id,lwspdgrd
 # endif
       common /bulkdat2/
      &        tairp,rhump,pratep,radlwp,radswp,
      &        bulk_time, bulk_cycle
+     &       ,wspdp
 # ifdef BULK_WVEC
      &       ,uwndp,vwndp
-# else
-     &       ,wspdp
 # endif
 #endif /* BULK_FLUX */
 !

@@ -371,11 +371,10 @@ C$    integer omp_get_thread_num
           prate (i,j)=init
           radlw (i,j)=init
           radsw (i,j)=init
+          wspd(i,j)=init
 #  ifdef BULK_WVEC
           uwnd(i,j)=init
           vwnd(i,j)=init
-#  else
-          wspd(i,j)=init
 #  endif
 
           tairg(i,j,1)=init
@@ -388,14 +387,13 @@ C$    integer omp_get_thread_num
           prateg (i,j,2)=init
           radlwg (i,j,2)=init
           radswg (i,j,2)=init
+          wspdg(i,j,1)=init
+          wspdg(i,j,2)=init
 #  ifdef BULK_WVEC
           uwndg(i,j,1)=init
           vwndg(i,j,1)=init
           uwndg(i,j,2)=init
           vwndg(i,j,2)=init
-#  else
-          wspdg(i,j,1)=init
-          wspdg(i,j,2)=init
 #  endif
           shflx_rsw(i,j)=init
           shflx_rlw(i,j)=init

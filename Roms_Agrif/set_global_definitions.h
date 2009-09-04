@@ -90,8 +90,8 @@ Select MOMENTUM VERTICAL advection scheme:
 
 
 /*   
-   Apply diffusion in the interior
-   over an anomaly only, with respect 
+   Apply interior diffusion 
+   over tracer anomalies, with respect 
    to a reference frame (climatology)
 */
 
@@ -137,12 +137,26 @@ Select MOMENTUM VERTICAL advection scheme:
 #  define MIX_S_UV
 # endif
 
-
 /*
     Constant tracer option
 */
 #undef   CONST_TRACERS
 
+/*
+    Bulk flux option
+*/
+#ifdef BULK_FLUX
+# ifdef BULK_EP
+#  undef QCORRECTION
+#  undef SFLX_CORR
+# endif
+# ifdef BULK_SMFLUX
+#  define BULK_WVEC
+#  undef  BULK_WSTR
+# else
+#  undef  BULK_WVEC
+#  undef  BULK_WSTR
+# endif
 
 /* Switch ON/OFF double precision for real type variables (since this
  is mostly controlled by mpc and/or compuler options, this CPP-switch

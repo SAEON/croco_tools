@@ -852,7 +852,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxRHUM =',indxRHUM
       vname(3,indxRHUM)='fraction                                 '
       vname(4,indxRHUM)='surface relative humidity, scalar, series'
 
-#ifndef LW_ONLINE
+#ifndef BULK_LW
 CR      write(stdout,'(1x,A,I3)') 'indxRADLW =',indxRADLW
       vname(1,indxRADLW)='radlw                                   '
       vname(2,indxRADLW)='net terrestrial longwave radiation      '
@@ -864,7 +864,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxRADLW =',indxRADLW
       vname(2,indxRADLW)='downward longwave radiation             '
       vname(3,indxRADLW)='Watts meter-2                           '
       vname(4,indxRADLW)='downward longwave, scalar, series       '
-#endif  /* LW_ONLINE */ 
+#endif  /* BULK_LW */ 
 CR      write(stdout,'(1x,A,I3)') 'indxRADSW =',indxRADSW
       vname(1,indxRADSW)='radsw                                   '
       vname(2,indxRADSW)='net solar shortwave radiation           '

@@ -104,24 +104,16 @@
 # define NONLIN_EOS
 # define SPLIT_EOS
                       /* Surface Forcing */
-# define QCORRECTION
-# define SFLX_CORR
-# define DIURNAL_SRFLUX
-
 # undef BULK_FLUX
 # ifdef BULK_FLUX
-# define LW_ONLINE
+#  define BULK_FAIRALL
+#  define BULK_LW
 #  define BULK_EP
-#  undef BULK_SMFLUX
+#  define BULK_SMFLUX
+# else
+#  define QCORRECTION
+#  define SFLX_CORR
 #  define DIURNAL_SRFLUX
-# endif
-# ifdef BULK_EP
-#  undef QCORRECTION
-#  undef SFLX_CORR
-# endif
-# ifdef BULK_SMFLUX
-#  undef BULK_WVEC
-#  define BULK_WSTR
 # endif
                       /* Lateral Forcing */
 # define SPONGE

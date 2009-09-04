@@ -668,7 +668,7 @@ C$    integer omp_get_thread_num
           if (wrtavg(indxUWstr)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
-                wstr_avg(i,j)=cff*(sustr_avg(i,j)+
+                sustr_avg(i,j)=cff*(sustr_avg(i,j)+
      &                         sustr(i,j)*rho0)
               enddo
             enddo
@@ -676,7 +676,7 @@ C$    integer omp_get_thread_num
           if (wrtavg(indxVWstr)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
-                wstr_avg(i,j)=cff*(svstr_avg(i,j)+
+                svstr_avg(i,j)=cff*(svstr_avg(i,j)+
      &                         svstr(i,j)*rho0)
               enddo
             enddo
