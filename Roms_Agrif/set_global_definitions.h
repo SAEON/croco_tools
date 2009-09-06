@@ -157,6 +157,7 @@ Select MOMENTUM VERTICAL advection scheme:
 #  undef  BULK_WVEC
 #  undef  BULK_WSTR
 # endif
+#endif
 
 /* Switch ON/OFF double precision for real type variables (since this
  is mostly controlled by mpc and/or compuler options, this CPP-switch
