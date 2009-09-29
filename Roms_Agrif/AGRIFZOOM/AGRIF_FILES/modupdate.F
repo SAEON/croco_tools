@@ -703,8 +703,7 @@ C in the update scheme
           indtab(i,1,1) = indtab(i,1,1) - coeffraf
           indtab(i,1,2) = indtab(i,1,2) - 1
 C at this point, indices are OK for an average          
-          IF ((TypeUpdate(i) .EQ. Agrif_Update_Full_Weighting)
-     &                            .AND.(mod(coeffraf,2) == 1)) THEN
+          IF ((TypeUpdate(i) .EQ. Agrif_Update_Full_Weighting)) THEN
             indtab(i,1,1) = indtab(i,1,1) - coeffraf/2
             indtab(i,1,2) = indtab(i,1,2) + coeffraf/2
           ENDIF
@@ -757,7 +756,6 @@ C
 
 C
 C
-
            IF (present(procname)) THEN
               Call Agrif_UpdatenD              
      &             (TypeUpdate,parent,child,
@@ -776,8 +774,7 @@ C
      &              ds_Child(1:nbdim),ds_Parent(1:nbdim),
      &              posvartab_child,loctab_Child,
      &              nbdim)           
-           ENDIF
-           
+           ENDIF        
 C
 C      
 C  
@@ -1727,6 +1724,7 @@ C     Local variables
       INTEGER,DIMENSION(nbdim)    :: pttruetabwhole,cetruetabwhole
       REAL :: positionmin,positionmax
       INTEGER :: imin,imax
+      INTEGER :: coeffraf
 #endif
 C
 C
@@ -1758,7 +1756,12 @@ C
           IF (TypeUpdate(i).NE.Agrif_Update_Full_Weighting) THEN
             positionmin = positionmin - ds_Parent(i)/2.
           ELSE
-          positionmin = positionmin - (ds_Parent(i)-ds_Child(i))
+          coeffraf = nint(ds_Parent(i)/ds_Child(i))
+          if (mod(coeffraf,2) == 1) then
+            positionmin = positionmin - (ds_Parent(i)-ds_Child(i))
+          else
+            positionmin = positionmin - (ds_Parent(i)-ds_Child(i))-ds_Child(i)/2.
+          endif
           ENDIF
         ENDIF
         ENDIF
@@ -1783,7 +1786,13 @@ C
           IF (TypeUpdate(i).NE.Agrif_Update_Full_Weighting) THEN        
             positionmax = positionmax  + ds_Parent(i)/2.
           ELSE
-            positionmax = positionmax  + (ds_Parent(i)-ds_Child(i))
+          coeffraf = nint(ds_Parent(i)/ds_Child(i))
+          if (mod(coeffraf,2) == 1) then
+            positionmax = positionmax + (ds_Parent(i)-ds_Child(i))
+          else
+            positionmax = positionmax + (ds_Parent(i)-ds_Child(i)) + ds_Child(i)/2.
+          endif
+
           ENDIF        
         ENDIF
         ENDIF

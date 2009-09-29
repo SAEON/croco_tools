@@ -570,7 +570,7 @@ C     Local variables
       INTEGER :: it1,it2
       INTEGER :: i1,i2
       REAL :: invsumweight
-      REAL :: weights(-(coeffraf-1):coeffraf-1)
+      REAL :: weights(-(coeffraf):coeffraf)
       
 C
 C
@@ -593,18 +593,30 @@ C
           diffmod = 1
        ENDIF
 C
-             
-       it1 = -(coeffraf-1)
-       i1 = -(coeffraf-1)+locind_child_left+diffmod
-       i2 = 2*coeffraf - 2
        
-      invsumweight=1./coeffraf**2
-      do i=-(coeffraf-1),0
-        weights(i) = invsumweight*(coeffraf + i)
-      enddo
-      do i=1,coeffraf-1
-        weights(i) = invsumweight*(coeffraf - i)
-      enddo
+      if (diffmod == 1) THEN
+        invsumweight=1./(2.*coeffraf**2)
+        do i=-coeffraf,-1
+          weights(i) = invsumweight*(2*(coeffraf+i)+1)
+        enddo
+        do i=0,coeffraf-1
+          weights(i)=weights(-(i+1))
+        enddo
+        it1 = -coeffraf
+        i1 = -(coeffraf-1)+locind_child_left
+        i2 = 2*coeffraf - 1
+      else
+        invsumweight=1./coeffraf**2
+        do i=-(coeffraf-1),0
+          weights(i) = invsumweight*(coeffraf + i)
+        enddo
+        do i=1,coeffraf-1
+          weights(i) = invsumweight*(coeffraf - i)
+        enddo
+        it1 = -(coeffraf-1)
+        i1 = -(coeffraf-1)+locind_child_left
+        i2 = 2*coeffraf - 2
+      endif
 
       sumweight = 0                    
       do i = 1,np
@@ -637,6 +649,7 @@ C
 C
       enddo    
 C
+
       Return 
 C            
 C
