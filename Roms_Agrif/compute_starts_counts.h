@@ -75,23 +75,23 @@
 #  endif
 # else
       if (ii.gt.0) then
-        start(1)=2-imin+ii*Lm
+        start(1)=1-imin+iminmpi
         imin=1
       endif
       if (ii.eq.NP_XI-1) then
-        imax=Lm+1
+        imax=Lmmpi+1
       else
-        imax=Lm
+        imax=Lmmpi
       endif
       if (jj.gt.0) then
-        start(2)=2-jmin+jj*Mm
+        start(2)=1-jmin+jminmpi
         jmin=1
       endif
       if (jj.eq.NP_ETA-1) then
-        jmax=Mm+1
+        jmax=Mmmpi+1
       else
-        jmax=Mm
-      endif
+        jmax=Mmmpi
+      endif       
 # endif
 #else
       imax=Lm+1
