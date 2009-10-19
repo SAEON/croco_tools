@@ -33,14 +33,14 @@
 !------------------------
 !
 */
-                      /* Configuration Namea */
-# define PERU
+                      /* Configuration Name */
+# define BENGUELA_LR
                       /* Parallelization */
 # undef OPENMP
 # undef MPI
                       /* Nesting */
-# define AGRIF
-# define AGRIF_2WAY
+# undef AGRIF
+# undef AGRIF_2WAY
                       /* Open Boundary Conditions */
 # undef TIDES
 # undef OBC_EAST
@@ -104,24 +104,16 @@
 # define NONLIN_EOS
 # define SPLIT_EOS
                       /* Surface Forcing */
-# define QCORRECTION
-# define SFLX_CORR
-# define DIURNAL_SRFLUX
-
 # undef BULK_FLUX
 # ifdef BULK_FLUX
-# define LW_ONLINE
+#  define BULK_FAIRALL
+#  define BULK_LW
 #  define BULK_EP
-#  undef BULK_SMFLUX
+#  define BULK_SMFLUX
+# else
+#  define QCORRECTION
+#  define SFLX_CORR
 #  define DIURNAL_SRFLUX
-# endif
-# ifdef BULK_EP
-#  undef QCORRECTION
-#  undef SFLX_CORR
-# endif
-# ifdef BULK_SMFLUX
-#  undef BULK_WVEC
-#  define BULK_WSTR
 # endif
                       /* Lateral Forcing */
 # define SPONGE
@@ -186,25 +178,25 @@
 !---------------------------------
 */
 # ifdef BIOLOGY
-#  define PISCES
-#  undef BIO_NPZD
-#  undef BIO_N2P2Z2D2
-#  undef BIO_N2PZD2
+#  undef PISCES
+#  define BIO_NChlPZD
+#  undef  BIO_N2P2Z2D2
+#  undef  BIO_N2ChlPZD2  
 /*      BIOLOGY OPTIONS  */
 #  ifdef PISCES
 #   define key_trc_pisces
 #   define key_passivetrc
 #   undef DIAGNOSTICS_BIO
-#   ifdef DIAGNOSTICS_BIO
+#   if defined DIAGNOSTICS_BIO && defined PISCES
 #     define key_trc_diaadd
 #     define key_trc_dia3d
 #   endif
 #  endif
-#  ifdef BIO_NPZD
-#   undef OXYGEN      /* Under Development */
+#  ifdef BIO_NChlPZD
+#   undef OXYGEN  /* Under Development */
 #  endif
-#  if defined BIO_NPZD || defined BIO_N2P2Z2D2
-#   define DIAGNOSTICS_BIO
+#  if defined BIO_NChlPZD || defined BIO_N2P2Z2D2
+#    define  DIAGNOSTICS_BIO
 #  endif
 #  ifdef BIO_N2P2Z2D2
 #   undef VAR_CHL_C
