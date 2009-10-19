@@ -34,7 +34,7 @@
 !
 */
                       /* Configuration Name */
-# define PERU
+# define BENGUELA_LR
                       /* Parallelization */
 # undef OPENMP
 # undef MPI
