@@ -35,6 +35,7 @@
 */
                       /* Configuration Name */
 # define BENGUELA_LR
+# undef ETALON_CHECK
                       /* Parallelization */
 # undef OPENMP
 # undef MPI
@@ -43,7 +44,7 @@
 # undef AGRIF_2WAY
                       /* Open Boundary Conditions */
 # undef TIDES
-# undef OBC_EAST
+# define OBC_EAST
 # define OBC_WEST
 # define OBC_NORTH
 # define OBC_SOUTH
