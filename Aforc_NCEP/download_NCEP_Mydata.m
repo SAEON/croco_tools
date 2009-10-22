@@ -3,8 +3,7 @@ function download_NCEP_Mydata(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,..
 %-----------------------------------------------------------------------
 if NCEP_version==1
 disp('Use my own ncep data NCEP1')
-%      ncep_url='/data1/gcambon/NCEP_REA1/';
-       ncep_url=My_NCEP_dir
+      ncep_url='/data1/gcambon/NCEP_REA1/';
       catalog={'land.sfc.gauss' ...
               'air.2m.gauss' ...
               'dlwrf.sfc.gauss' ...
@@ -27,8 +26,7 @@ disp('Use my own ncep data NCEP1')
   level ={'' '' '' '' '' '' '' '' ''};
 else
 disp('Use my own ncep data NCEP2')
-%      ncep_url='/data1/gcambon/NCEP_REA2/';
-       ncep_url=My_NCEP_dir
+      ncep_url='/data1/gcambon/NCEP_REA2/';
       catalog={'land.sfc.gauss' ...
                'air.2m.gauss' ...
                'dlwrf.sfc.gauss' ...
@@ -140,7 +138,6 @@ elseif NCEP_version  ==  2;
 disp(['NCEP_version is ',num2str(NCEP_version)])
 startime = [1800,1,1,0,0,0]; %[year, month, day, hour, minute, second]
 end
-%---------------------------------------------------------------------------------
 
 %---------------------------------------------------------------------------------
 time = time.*time_scale;
@@ -152,7 +149,6 @@ time = time - TIME_OFFSET - 2;    %  This is time in days from Yorig
 				  %  OK with the date ??!! !!!!
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [year,month,days,hour,min,sec]=datevec(time+datenum(Yorig,1,1)); 
-
 % $$$ year' ;
 % $$$ month';
 % $$$ disp('time(1:4)')
@@ -208,7 +204,6 @@ time = time - TIME_OFFSET - 2;    %  This is time in days from Yorig
 %
 % Get the subset  
 %
-
 % $$$   NCEP_dir
 % $$$   ncep_url
 % $$$   char(catalog(k))

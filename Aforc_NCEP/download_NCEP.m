@@ -143,7 +143,6 @@ time = time - TIME_OFFSET - 2;    %  This is time in days from Yorig
 				  %  OK with the date  !!!!				  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [year,month,days,hour,min,sec]=datevec(time+datenum(Yorig,1,1));
-
 %year' ;
 %month';
 %time(1:4)

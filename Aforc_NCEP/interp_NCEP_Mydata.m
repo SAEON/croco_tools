@@ -2,10 +2,10 @@ function interp_NCEP_Mydata(NCEP_dir,Y,M,Roa,interp_method,...
                      lon1,lat1,mask1,tin,...
 		     nc_frc,nc_blk,lon,lat,angle,tout)
 %
-% Read the local NCEP files and perform the interpolations
+% Read the local NCEP files and perform the interpolations, but in case
+% of ftp download directly from the server
 %
-% Pierrick 2005
-% Menkes 2007
+% Updated: Gildas Cambon, 13-Sep 2009 : 
 %---------------------------------------------------------------------------------
 %
 % 1: Air temperature: Convert from Kelvin to Celsius
@@ -26,8 +26,6 @@ nc=netcdf([NCEP_dir,'shum_Y',num2str(Y),'M',num2str(M),'.nc']);
 shum=squeeze(nc{'shum'}(tin,:,:));
 close(nc);
 [NCEP_dir,'shum_Y',num2str(Y),'M',num2str(M),'.nc'];
-%size(mask1)
-%size(shum)
 %shum=get_missing_val(lon1,lat1,mask1.*shum);
 shum=get_missing_val(lon1,lat1,mask1.*shum,nan,Roa,nan);
 shum=interp2(lon1,lat1,shum,lon,lat,interp_method);
