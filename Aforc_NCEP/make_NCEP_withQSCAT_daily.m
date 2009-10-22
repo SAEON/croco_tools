@@ -143,6 +143,7 @@ for Y=Ymin:Ymax
     mo_max=12;
   end
   for M=mo_min:mo_max
+    disp('====================================================== ')
     disp(' ')
     disp(['Processing  year ',num2str(Y),' - month ',num2str(M)])
     disp(' ')
@@ -152,7 +153,7 @@ for Y=Ymin:Ymax
 %stress forcing and bulk file
 %    
     file_frc_ncep=[ncep_frc_prefix,'Y',num2str(Y),'M',num2str(M),'.nc'];
-    file_frc_qscat=[QSCAT_frc_prefix,'Y',num2str(Y),'M',num2str(M),'.nc']; ...
+    file_frc_qscat=[QSCAT_frc_prefix,'Y',num2str(Y),'M',num2str(M),'.nc'];
     disp(['Copying NCEP file ',file_frc_ncep,' in NCEP_wQS file : ',file_frc_qscat])     
     copyfile(file_frc_ncep,file_frc_qscat,'f')
     
@@ -170,7 +171,7 @@ for Y=Ymin:Ymax
     nc=netcdf([QSCAT_dir,'tauxY',num2str(Y),'M',num2str(M),'.nc']);
     QSCAT_time=nc{'time'}(:);
     close(nc);
-    dt=round(mean(gradient(QSCAT_time)));  %%%% Mofified by S.Illig
+    dt=round(mean(gradient(QSCAT_time)));  
 %
 % Add 2 times step in the ROMS files: 1 at the beginning and 2 at the end 
 % (otherwise.. ROMS crashes)
@@ -212,7 +213,7 @@ for Y=Ymin:Ymax
       Mm=12;
       Ym=Y-1;
     end
-    taux_file=[QSCAT_dir,'tauxY',num2str(Ym),'M',num2str(Mm),'.nc']
+    taux_file=[QSCAT_dir,'tauxY',num2str(Ym),'M',num2str(Mm),'.nc'];
     if exist(taux_file)==0
       disp(['   No data for the previous month: using current month'])
       tindex=1;
@@ -236,8 +237,7 @@ for Y=Ymin:Ymax
     v(:,:,1)=ext_data(tauy_file,tauy_name,tindex,...
                lon,lat,[],Roa,2);
     
-    if QSCAT_blk==1
-      
+    if QSCAT_blk==1   
       uwnd_file=[QSCAT_dir,'uwndY',num2str(Ym),'M',num2str(Mm),'.nc'];
       vwnd_file=[QSCAT_dir,'vwndY',num2str(Ym),'M',num2str(Mm),'.nc']; 
       wnds_file=[QSCAT_dir,'wndsY',num2str(Ym),'M',num2str(Mm),'.nc'];       
@@ -273,8 +273,6 @@ for Y=Ymin:Ymax
                lon,lat,[],Roa,2); 
       end
     end
-    
-    
 %
 % 4. Read the QSCAT file for the next month
 %
@@ -320,7 +318,7 @@ for Y=Ymin:Ymax
                lon,lat,[],Roa,2);         
     end    
     %
-    
+
     ny=size(u,1);
     nx=size(u,2); 
     nt=size(u,3); 
@@ -341,7 +339,11 @@ for Y=Ymin:Ymax
 % 4X daily generaly
 %
 
+disp('--------------')
 disp(['Proceed time interpolation on NCEP time axis...'])    
+disp('--------------')
+
+tic
     for ii=1:nx
       for jj=1:ny
         uu(jj,ii,:)=interp1(time,squeeze(u(jj,ii,:)),sms_time_ncep,'cubic');  
@@ -355,9 +357,14 @@ disp(['Proceed time interpolation on NCEP time axis...'])
 	
       end
     end
+toc
 %
 % Fill the frc and/or bulk file 
 %
+disp('--------------')
+disp('Fill the frc and/or bulk file')
+disp('--------------')
+
     for ll=1:nt2
       u=squeeze(uu(:,:,ll));
       v=squeeze(vv(:,:,ll));      
@@ -385,9 +392,76 @@ disp(['Proceed time interpolation on NCEP time axis...'])
   %
   end
 end
+disp('--------------')
 disp(['Finish, you have now NCEP file (frc and/or bulk files) with',...
      ' wind speed and wind stress from QSCAT'])
-						  
+disp('--------------')	
+
+%
+% Spin-up: (reproduce the first year 'SPIN_Long' times)
+% just copy the files for the first year and change the time
+%
+if SPIN_Long>0
+  M=Mmin-1;
+  Y=Ymin-SPIN_Long;
+  for month=1:12*SPIN_Long
+    M=M+1;
+    if M==13
+      M=1; 
+      Y=Y+1;
+    end
+%
+% Forcing files
+%
+    if makefrc==1
+%
+% Copy the file
+%
+      frcname=[QSCAT_frc_prefix,'Y',num2str(Ymin),'M',num2str(M),nc_suffix];
+      frcname2=[QSCAT_frc_prefix,'Y',num2str(Y),'M',num2str(M),nc_suffix];
+      disp(['Create ',frcname2]) 
+      eval(['!cp ',frcname,' ',frcname2]) 
+%
+% Change the time
+%
+      nc=netcdf(frcname2,'write');
+      time=nc{'sms_time'}(:)+datenum(Yorig,1,1);
+      [y,m,d,h,mi,s]=datevec(time);
+      dy=Ymin-Y;
+      y=y-dy;
+      time=datenum(y,m,d,h,mi,s)-datenum(Yorig,1,1);
+%      disp(datestr(time+datenum(Yorig,1,1)))
+      nc{'sms_time'}(:)=time;
+      close(nc)
+    end
+%
+% Bulk files
+%
+    if makeblk==1
+%
+% Copy the file
+%
+      blkname=[QSCAT_blk_prefix,'Y',num2str(Ymin),'M',num2str(M),nc_suffix];
+      blkname2=[QSCAT_blk_prefix,'Y',num2str(Y),'M',num2str(M),nc_suffix];
+      disp(['Create ',blkname2]) 
+      eval(['!cp ',blkname,' ',blkname2]) 
+%
+% Change the time
+%
+      nc=netcdf(blkname2,'write');
+      time=nc{'bulk_time'}(:)+datenum(Yorig,1,1);
+      [y,m,d,h,mi,s]=datevec(time);
+      dy=Ymin-Y;
+      y=y-dy;
+      time=datenum(y,m,d,h,mi,s)-datenum(Yorig,1,1);
+%      disp(datestr(time+datenum(Yorig,1,1)))
+      nc{'bulk_time'}(:)=time;
+      close(nc)
+    end
+  end
+end
+
+
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %---------------------------------------------------------------
