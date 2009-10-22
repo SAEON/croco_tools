@@ -34,9 +34,9 @@
 %                   and F. Colberg (UCT)
 %
 %  Updated    6-Sep-2006 by Pierrick Penven
-%
+%  Update     13 -Sep-2009 by Gildas Cambon
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-start % to be used in batch mode %
+%start % to be used in batch mode %
 clear all
 close all
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
@@ -209,6 +209,7 @@ if makeclim==1 | makebry==1
         roms_time(end-1)=roms_time(end-2)+dt;
         roms_time(end)=roms_time(end-1)+dt;
 	close(nc)
+%-----------------------------------------------------	
 %
 % Create and open the ROMS files
 %
@@ -256,6 +257,8 @@ if makeclim==1 | makebry==1
 %
 % Perform the interpolations for the current month
 %
+      disp(' Current month :')
+      disp(' ===============')
       for tndx_OGCM=1:ntimes
         disp([' Time step : ',num2str(tndx_OGCM),' of ',num2str(ntimes),' :'])
         interp_OGCM(OGCM_dir,OGCM_prefix,Y,M,Roa,interp_method,...
