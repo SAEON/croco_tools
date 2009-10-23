@@ -181,7 +181,7 @@ for Y=Ymin:Ymax
 %
     time(1)=datenum(Y,M,1)-datenum(Yorig,1,1)-1-dt/2;
     time(end)=datenum(Y,M,31)-datenum(Yorig,1,1)+1+dt/2;
-    %%%..........
+
 %
 % Create a ROMS forcing file for each month
 %
@@ -442,7 +442,6 @@ if SPIN_Long>0
 	 time2(1)=time(1)-1;
 	 nc{'sms_time'}(:)=time2;
 	 end
-	 
 %--------------------------------------------------------------      
       close(nc)
     end
@@ -450,9 +449,6 @@ if SPIN_Long>0
 %
 %
 %#########################################################################
-
-
-
 %
 % Make a few plots
 %
