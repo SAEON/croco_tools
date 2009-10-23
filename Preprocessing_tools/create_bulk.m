@@ -157,7 +157,7 @@ nw.type = 'ROMS heat flux bulk forcing file';
 %
 for tndx=1:length(bulkt)
    if mod(tndx,20)==0
-     disp(['  Step: ',num2str(tndx),' of ',num2str(length(bulkt))])
+     disp(['Time Step Bulk: ',num2str(tndx),' of ',num2str(length(bulkt))])
    end
   nw{'bulk_time'}(tndx) = bulkt(tndx);
 end
