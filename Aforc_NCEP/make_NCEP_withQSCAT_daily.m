@@ -85,6 +85,7 @@ if QSCAT_blk==1
 end
 %
 %
+%
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Title
@@ -173,15 +174,25 @@ for Y=Ymin:Ymax
     close(nc);
     dt=round(mean(gradient(QSCAT_time)));  
 %
-% Add 2 times step in the ROMS files: 1 at the beginning and 2 at the end 
-% (otherwise.. ROMS crashes)
-%
-    tlen=length(QSCAT_time)+2;
+%   Add Overlapping points. 
+% 
+    tlen0=length(QSCAT_time);
+    tlen=tlen0+2*itolap_ncep;
+    disp(['tlen=',num2str(tlen)])
+    disp(['Overlap is ',num2str(itolap_ncep),' it of 1 days (time res. QSCAT)'])
+    
     time=0*(1:tlen);
-    time(2:end-1)=QSCAT_time;
-    time(1)=datenum(Y,M,1)-datenum(Yorig,1,1)-1+dt/2;  
-    time(end)=datenum(Y,M,eomday(Y,M))-datenum(Yorig,1,1)+1+dt/2; %%%% Modified by Serena
-%    time(end)=datenum(Y,M,eomday(Y,M))-datenum(Yorig,1,1)+2+dt/2; %%%% Modified by Serena
+    time(itolap_ncep+1:end-itolap_ncep)=QSCAT_time;
+    
+
+      for aa=1:itolap_ncep
+	time(aa)=time(itolap_ncep+1)-(itolap_ncep+1-aa)*dt;
+      end    
+      
+
+      for aa=1:itolap_ncep
+	time(tlen0+itolap_ncep+aa)=time(tlen0+itolap_ncep) + aa*dt;
+      end     
 %
 % Initialize array 
 %
@@ -216,60 +227,75 @@ for Y=Ymin:Ymax
     taux_file=[QSCAT_dir,'tauxY',num2str(Ym),'M',num2str(Mm),'.nc'];
     if exist(taux_file)==0
       disp(['   No data for the previous month: using current month'])
-      tindex=1;
+      tindex=ones(1,itolap_ncep);%on repete l'index tempo itolap_ncep fois !
       Mm=M;
       Ym=Y;
     else
       nc=netcdf(taux_file);
-      tindex=length(nc('time'));
+      pp=length(nc('time'));
+      tindex=[pp-itolap_ncep+1:1:pp]
+%On prend les derniers pas de temps
+%ie les itolap_ncep denier pas de temps du mois prec.
       close(nc)
     end
 %
 % 2. Perform the interpolations for the previous month
 %
-    disp(['Perform the interpolations of QSCAT data ...'])
-    disp(['...'])
-    disp('First step')
+    disp(['-------'])
+    disp(['Perform the interpolations for the previous month, quite long...'])
+    disp(['-------'])
     taux_file=[QSCAT_dir,'tauxY',num2str(Ym),'M',num2str(Mm),'.nc'];
     tauy_file=[QSCAT_dir,'tauyY',num2str(Ym),'M',num2str(Mm),'.nc'];
-    u(:,:,1)=ext_data(taux_file,taux_name,tindex,...
+
+    for i=1:itolap_ncep
+    u(:,:,i)=ext_data(taux_file,taux_name,tindex(i),...
                lon,lat,[],Roa,2);
-    v(:,:,1)=ext_data(tauy_file,tauy_name,tindex,...
+    v(:,:,i)=ext_data(tauy_file,tauy_name,tindex(i),...
                lon,lat,[],Roa,2);
+    end
     
-    if QSCAT_blk==1   
+    if QSCAT_blk==1
       uwnd_file=[QSCAT_dir,'uwndY',num2str(Ym),'M',num2str(Mm),'.nc'];
       vwnd_file=[QSCAT_dir,'vwndY',num2str(Ym),'M',num2str(Mm),'.nc']; 
-      wnds_file=[QSCAT_dir,'wndsY',num2str(Ym),'M',num2str(Mm),'.nc'];       
-      xu(:,:,1)=ext_data(uwnd_file,uwnd_name,tindex,...
+      wnds_file=[QSCAT_dir,'wndsY',num2str(Ym),'M',num2str(Mm),'.nc'];		
+		
+   for 	i=1:itolap_ncep	
+      xu(:,:,i)=ext_data(uwnd_file,uwnd_name,tindex(i),...
                lon,lat,[],Roa,2);
-      yv(:,:,1)=ext_data(vwnd_file,vwnd_name,tindex,...
+      yv(:,:,i)=ext_data(vwnd_file,vwnd_name,tindex(i),...
                lon,lat,[],Roa,2); 
-      ws(:,:,1)=ext_data(wnds_file,wnds_name,tindex,...
+      ws(:,:,i)=ext_data(wnds_file,wnds_name,tindex(i),...
                lon,lat,[],Roa,2); 
+      
+   end
+   
     end
 %
 % 3. Perform the interpolations for the current month
 %
+    disp(['-------'])
+    disp(['Perform the interpolations for the current month ...'])
+    disp(['-------'])
     taux_file=[QSCAT_dir,'tauxY',num2str(Y),'M',num2str(M),'.nc'];
     tauy_file=[QSCAT_dir,'tauyY',num2str(Y),'M',num2str(M),'.nc'];
-    for tindex=2:tlen-1
-      u(:,:,tindex)=ext_data(taux_file,taux_name,tindex-1,...
+    for tindex=itolap_ncep+1:tlen-itolap_ncep
+      u(:,:,tindex)=ext_data(taux_file,taux_name,tindex-itolap_ncep,...
                  lon,lat,[],Roa,2);
-      v(:,:,tindex)=ext_data(tauy_file,tauy_name,tindex-1,...
+      v(:,:,tindex)=ext_data(tauy_file,tauy_name,tindex-itolap_ncep,...
                  lon,lat,[],Roa,2);
     end
     
     if QSCAT_blk==1 
       uwnd_file=[QSCAT_dir,'uwndY',num2str(Y),'M',num2str(M),'.nc'];
       vwnd_file=[QSCAT_dir,'vwndY',num2str(Y),'M',num2str(M),'.nc']; 
-      wnds_file=[QSCAT_dir,'wndsY',num2str(Y),'M',num2str(M),'.nc'];    
-      for tindex=2:tlen-1
-        xu(:,:,tindex)=ext_data(uwnd_file,uwnd_name,tindex-1,...
+      wnds_file=[QSCAT_dir,'wndsY',num2str(Y),'M',num2str(M),'.nc'];
+      
+      for tindex=itolap_ncep+1:tlen-itolap_ncep
+        xu(:,:,tindex)=ext_data(uwnd_file,uwnd_name,tindex-itolap_ncep,...
                lon,lat,[],Roa,2);
-        yv(:,:,tindex)=ext_data(vwnd_file,vwnd_name,tindex-1,...
+        yv(:,:,tindex)=ext_data(vwnd_file,vwnd_name,tindex-itolap_ncep,...
                lon,lat,[],Roa,2); 
-        ws(:,:,tindex)=ext_data(wnds_file,wnds_name,tindex-1,...
+        ws(:,:,tindex)=ext_data(wnds_file,wnds_name,tindex-itolap_ncep,...
                lon,lat,[],Roa,2); 
       end
     end
@@ -284,40 +310,52 @@ for Y=Ymin:Ymax
     end
     taux_file=[QSCAT_dir,'tauxY',num2str(Yp),'M',num2str(Mp),'.nc'];
     if exist(taux_file)==0
-      disp(['   No data for the next month: using current month'])
-      tindex=tlen-2;
+      disp(['No data for the next month: using current month'])
+%      tindex=tlen-2;
+      tindex = (tlen-2*itolap_ncep).*ones(1,itolap_ncep)
       Mp=M;
       Yp=Y;
     else
-      nc=netcdf(taux_file);
-      tindex=1;
-      nc_frc{'sms_time'}(tlen)=nc{'time'}(tindex);
-      close(nc)
+      tindex=[1:itolap_ncep];
     end
+    
+%return
 %
 % 5. Perform the interpolations for the next month
 %
-    disp('Last step')
+    disp(['-------'])
+    disp(['Perform the interpolations for the next month ...'])
+    disp(['-------'])
     taux_file=[QSCAT_dir,'tauxY',num2str(Yp),'M',num2str(Mp),'.nc'];
     tauy_file=[QSCAT_dir,'tauyY',num2str(Yp),'M',num2str(Mp),'.nc'];
-    u(:,:,tlen)=ext_data(taux_file,taux_name,tindex,...
-               lon,lat,[],Roa,2);
-    v(:,:,tlen)=ext_data(tauy_file,tauy_name,tindex,...
-               lon,lat,[],Roa,2);
- 
     
+    for i=tlen-itolap_ncep+1 : tlen
+    disp(['i - (itolap_ncep+tlen0)=',num2str( i - (itolap_ncep+tlen0) )])
+    disp(['tindex(i - (itolap_ncep+tlen0))=',num2str( tindex(i - (itolap_ncep+tlen0)) )])
+    u(:,:,i)=ext_data(taux_file,taux_name,tindex(i - (itolap_ncep+tlen0)  ),...
+               lon,lat,[],Roa,2);
+    v(:,:,i)=ext_data(tauy_file,tauy_name,tindex(i - (itolap_ncep+tlen0) ),...
+               lon,lat,[],Roa,2);
+    end
+%    
     if QSCAT_blk==1 
       uwnd_file=[QSCAT_dir,'uwndY',num2str(Yp),'M',num2str(Mp),'.nc'];
       vwnd_file=[QSCAT_dir,'vwndY',num2str(Yp),'M',num2str(Mp),'.nc']; 
-      wnds_file=[QSCAT_dir,'wndsY',num2str(Yp),'M',num2str(Mp),'.nc'];       
-      xu(:,:,tlen)=ext_data(uwnd_file,uwnd_name,tindex,...
-               lon,lat,[],Roa,2);
-      yv(:,:,tlen)=ext_data(vwnd_file,vwnd_name,tindex,...
-               lon,lat,[],Roa,2); 
-      ws(:,:,tlen)=ext_data(wnds_file,wnds_name,tindex,...
-               lon,lat,[],Roa,2);         
+      wnds_file=[QSCAT_dir,'wndsY',num2str(Yp),'M',num2str(Mp),'.nc'];
+      
+      for i=tlen-itolap_ncep+1 : tlen 	
+      xu(:,:,i)=ext_data(uwnd_file,uwnd_name,tindex(i - (itolap_ncep+tlen0) ),lon,lat,[],Roa,2);
+      yv(:,:,i)=ext_data(vwnd_file,vwnd_name,tindex(i - (itolap_ncep+tlen0) ),lon,lat,[],Roa,2); 
+      ws(:,:,i)=ext_data(wnds_file,wnds_name,tindex(i - (itolap_ncep+tlen0) ),lon,lat,[],Roa,2);
+      end
     end    
-    %
+%
+% Initialisation of fields for the time interpolation
+% QSCAT TIME (1per day -->  NCEP_TIME 4 per day)
+%
+disp(['-------'])
+disp(['Initialization of field to be interpolated in time'])
+disp(['-------'])
 
     ny=size(u,1);
     nx=size(u,2); 
@@ -372,7 +410,6 @@ disp('--------------')
       nc_frc{'svstr'}(ll,:,:)=rho2v_2d(v.*cosa - u.*sina);
       
       if QSCAT_blk==1  
-
         nc_blk{'sustr'}(ll,:,:)=rho2u_2d(u.*cosa + v.*sina);
         nc_blk{'svstr'}(ll,:,:)=rho2v_2d(v.*cosa - u.*sina);
 
@@ -380,6 +417,8 @@ disp('--------------')
         v=squeeze(vvwnd(:,:,ll));      
         nc_blk{'uwnd'}(ll,:,:)=rho2u_2d(u.*cosa + v.*sina);
         nc_blk{'vwnd'}(ll,:,:)=rho2v_2d(v.*cosa - u.*sina); 
+	
+	
         nc_blk{'wspd'}(ll,:,:)=squeeze(wwnds(:,:,ll));     
       end
       
