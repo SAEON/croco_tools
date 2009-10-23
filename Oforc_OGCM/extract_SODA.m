@@ -4,7 +4,6 @@ function extract_SODA(SODA_dir,SODA_prefix,url,year,month,...
                       i1min,i1max,i2min,i2max,i3min,i3max,...
                       Yorig)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
 % Extract a subset from SODA using OPENDAP
 % Write it in a local file (keeping the classic
 % SODA netcdf format) 
@@ -32,8 +31,9 @@ function extract_SODA(SODA_dir,SODA_prefix,url,year,month,...
 %  Copyright (c) 2005-2006 by Pierrick Penven 
 %  e-mail:Pierrick.Penven@ird.fr  
 %
-%  Updated    6-Sep-2006 by Pierrick Penven
-%
+%  Updated   6-Sep-2006 by Pierrick Penven
+%  Updated : 23-Oct-2009 by Gildas Cambon Adapatation for the special tratment 
+%            for the bry file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 disp(['    Download SODA for ',num2str(year),...

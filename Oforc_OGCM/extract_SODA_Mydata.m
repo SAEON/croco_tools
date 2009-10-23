@@ -6,10 +6,6 @@ function [u,v,temp,salt,taux,tauy,ssh]=extract_SODA_Mydata(SODA_dir,SODA_prefix,
                       i1min,i1max,i2min,i2max,i3min,i3max,...
                       Yorig)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-% !!In case of specific data, in local, not using the OpenDap procedure !!
-% !! Take care of the shiftdim....!!
-% 
 % Extract a subset from SODA using OPENDAP
 % Write it in a local file (keeping the classic
 % SODA netcdf format) 
@@ -39,7 +35,8 @@ function [u,v,temp,salt,taux,tauy,ssh]=extract_SODA_Mydata(SODA_dir,SODA_prefix,
 %
 %  Updated    6-Sep-2006 by Pierrick Penven
 %  Updated : 13-Sep-2009 by Gildas Cambon Adapatation for the 
-%  case without OpenDap. Take care, of the vertical axis. Here no flipdim
+%  case without OpenDap. Take care, of the vertical axis. 
+%  Here no flipdim
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 disp(['    Compute SODA forcing 5d mean from my data for ',num2str(year),...

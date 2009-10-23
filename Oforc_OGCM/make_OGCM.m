@@ -71,17 +71,33 @@ elseif strcmp(OGCM,'ECCO')
 %
 %  url = 'http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/kf049f/kf049f_'; 
 %  url = 'http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/kf066b/kf066b_'; 
-%  url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf066b/kf066b_'; 
-  url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf076/kf076_'; 
+  url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf066b/kf066b_'; 
+%  url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf076/kf076_'; 
 %
 else
   error(['Unknown OGCM: ',OGCM])
 end
+% Treatment of  special cases ...
+if strcmp(url,'http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p0p2-4')==1;
+   disp(['Overlapping parameters value fixed : special case'])
+   disp(['...'])   
+   itolap_a=1;
+   itolap_p=1;
+end
+%
+   itolap_tot=itolap_a + itolap_p;
+   disp(['Overlap before =',num2str(itolap_a)])
+   disp(['Overlap after  =',num2str(itolap_p)])
+   disp(['Totalm overlap =',num2str(itolap_tot)])
+   disp(['...'])   
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % end of user input  parameters
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+disp(['==================='])
+disp([' Compute time axis '])
+disp(['==================='])
 if level==0
   nc_suffix='.nc';
 else
@@ -111,11 +127,22 @@ if Download_data==1
 %
 % Download data with DODS (the download matlab routine depends on the OGCM)
 % 
+  if Get_My_data==0
   disp('Download data...')
   eval(['download_',OGCM,'(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,',...
                          'OGCM_dir,OGCM_prefix,url,Yorig)'])
-%
+  else
+  url_mydata='/media/disk/LINUX/GALA6/SODA_2.0.1/5dmean/';
+  disp('Use my own data...')
+  disp(['Located on ',url_mydata])
+  eval(['download_',OGCM,'_Mydata(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,',...
+                         'OGCM_dir,OGCM_prefix,url_mydata,Yorig)'])  
+    
+  end
+  
 end
+%
+%------------------------------------------------------------------------------------
 %
 % Get the OGCM grid 
 % 
@@ -197,17 +224,37 @@ if makeclim==1 | makebry==1
 	if ntimes==1
 	  dt=30; % monthly files (SODA..)
 	else
-          dt=max(gradient(OGCM_time)); 
+          dt=max(gradient(OGCM_time));
 	end
-%gc cat	roms_time=0*(1:ntimes+2);
-        roms_time=0*(1:ntimes+3);
-	roms_time(2:end-2)=OGCM_time;
-	roms_time(1)=roms_time(2)-dt;
+%
+%% Fill the time axis
+%
+        roms_time=0*(1:ntimes+itolap_tot);
+%Current month	
+	roms_time(itolap_a+1:end-itolap_p)=OGCM_time;
+%
+%Previous  month
+%
+       disp(['==================================='])
+	for aa= 1:itolap_a
+	disp(['Compute beginning overlap, time index:',num2str(aa)])
+	
+	disp(['Add ',num2str(-(itolap_a + 1 - aa)), ' timestep dt'])
+	disp(['--------'])
+	roms_time(aa) = roms_time(itolap_a+1) - ((itolap_a + 1 - aa).* dt);
+	end
 
-%gc cat roms_time(end)=roms_time(end-1)+dt;
-
-        roms_time(end-1)=roms_time(end-2)+dt;
-        roms_time(end)=roms_time(end-1)+dt;
+%
+%Next month	
+%
+      disp(['==================================='])	
+	for aa= 1:itolap_p
+	disp(['Compute end overlap, time index:',num2str(ntimes+itolap_tot - itolap_p + aa)])
+	disp(['Add ',num2str(aa), ' timestep dt'])
+	disp(['--------'])
+	roms_time(end - itolap_p +  aa   ) = roms_time(end - itolap_p) +  aa.* dt;
+	end
+      disp(['==================================='])
 	close(nc)
 %-----------------------------------------------------	
 %
@@ -241,51 +288,64 @@ if makeclim==1 | makebry==1
         disp(['   No data for the previous month: using current month'])
         Mm=M;
         Ym=Y;
-	tndx_OGCM=1;
+	tndx_OGCM=ones(itolap_a,1);
       else
         nc=netcdf(fname);
-        tndx_OGCM=length(nc('time'));
+        tndx_OGCM=[(length(nc('time'))- (itolap_a -1) ):1: (length(nc('time')))];
         close(nc)
       end
 %
 % Perform the interpolations for the previous month
 %
       disp(' Previous month :')
-      interp_OGCM(OGCM_dir,OGCM_prefix,Ym,Mm,Roa,interp_method,...
-                  lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM,...
-	  	  nc_clm,nc_bry,lon,lat,angle,h,1)
+      disp(' ===============')
+      for aa=1:itolap_a
+       disp(['Beg overlap # ', num2str(aa),' ->tindex ',num2str(aa)])
+       disp(['It. of prev month used for it= ',num2str(tndx_OGCM(aa))])
+       interp_OGCM(OGCM_dir,OGCM_prefix,Ym,Mm,Roa,interp_method,...
+                   lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM(aa),...
+	  	   nc_clm,nc_bry,lon,lat,angle,h,aa)
+      end
 %
 % Perform the interpolations for the current month
 %
+
       disp(' Current month :')
       disp(' ===============')
       for tndx_OGCM=1:ntimes
         disp([' Time step : ',num2str(tndx_OGCM),' of ',num2str(ntimes),' :'])
         interp_OGCM(OGCM_dir,OGCM_prefix,Y,M,Roa,interp_method,...
                     lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM,...
-		    nc_clm,nc_bry,lon,lat,angle,h,tndx_OGCM+1)
+		    nc_clm,nc_bry,lon,lat,angle,h,tndx_OGCM+itolap_a)
       end
 %
 % Read the OGCM file for the next month
 %
       fname=[OGCM_dir,OGCM_prefix,'Y',num2str(Yp),'M',num2str(Mp),'.cdf'];
       if exist(fname)==0
-         disp(['   No data for the next month: using current month'])
-        Mp=M;
-        Yp=Y;
-	tndx_OGCM=ntimes;
+          disp(['   No data for the next month: using current month'])
+          Mp=M;
+          Yp=Y;
+	  for aa=1:itolap_p    
+	   tndx_OGCM(aa)=ntimes;
+	  end
       else
-        nc=netcdf(fname);
-	tndx_OGCM=1;
-        close(nc)
+	  for aa=1:itolap_p  
+	   tndx_OGCM(aa)=aa;
+	   end;
       end
 %
 % Perform the interpolations for the next month
 %
       disp(' Next month :')
+      disp(' ===============')
+      for aa=1:itolap_p
+      disp(['End Overlap #',num2str(aa),' ->tindex ',num2str(ntimes+itolap_a+aa)])
+      disp(['It. of next month used for it= ',num2str(tndx_OGCM(aa))])
       interp_OGCM(OGCM_dir,OGCM_prefix,Yp,Mp,Roa,interp_method,...
-                  lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM,...
-		  nc_clm,nc_bry,lon,lat,angle,h,ntimes+2)
+                  lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM(aa),...
+		  nc_clm,nc_bry,lon,lat,angle,h,ntimes+itolap_a+aa)
+      end
 %
 % Close the ROMS files
 %
