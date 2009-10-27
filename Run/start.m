@@ -36,7 +36,7 @@ mypath='../';
 %
 % ROMSTOOLS directories
 %
-addpath([mypath,'Aforc_NCEP_Update'])
+addpath([mypath,'Aforc_NCEP'])
 addpath([mypath,'Aforc_QuikSCAT'])
 addpath([mypath,'Diagnostic_tools'])
 addpath([mypath,'Forecast_tools'])
