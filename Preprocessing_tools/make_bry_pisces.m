@@ -69,7 +69,9 @@ cycle=woa_cycle;           % cycle
 %
 %  Data climatologies file names:
 %
-DATADIR='../';
+%Path where are the WOAPISCES data
+DATADIR='/data1/gcambon/PC133/GILDAS/Data_Roms_Local/';
+%
 no3_seas_data  = [DATADIR,'WOAPISCES/no3_seas.cdf'];
 no3_ann_data   = [DATADIR,'WOAPISCES/no3_ann.cdf'];
 po4_seas_data  = [DATADIR,'WOAPISCES/po4_seas.cdf'];
