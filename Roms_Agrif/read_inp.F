@@ -642,7 +642,7 @@ c        close(testunit)
 # endif
 # ifdef BIOLOGY
      &                                          ,  wrthis(indxHel)
-#  ifdef BIO_NPZD
+#  ifdef BIO_NChlPZD
      &                                          ,  wrthis(indxChC)
 #   ifdef OXYGEN
      &                                          ,  wrthis(indxU10)
@@ -680,7 +680,7 @@ c        close(testunit)
 # endif
 # ifdef BIOLOGY
      &                                        .or. wrthis(indxHel)
-#  ifdef BIO_NPZD
+#  ifdef BIO_NChlPZD
      &                                        .or. wrthis(indxChC)
 #   ifdef OXYGEN
      &                                        .or. wrthis(indxU10)
@@ -733,7 +733,7 @@ c        close(testunit)
 # ifdef BIOLOGY
      &  , wrthis(indxHel),   'write Hel  ',
      &                          'Depth of the euphotic layer'
-#  ifdef BIO_NPZD
+#  ifdef BIO_NChlPZD
      &  , wrthis(indxChC),   'write ChC  ',
      &                          'Chlorophyll to Carbon ratio'
 #   ifdef OXYGEN
@@ -821,7 +821,7 @@ c        close(testunit)
 #  endif
 #  ifdef BIOLOGY
      &                                          ,  wrtavg(indxHel)
-#   ifdef BIO_NPZD
+#   ifdef BIO_NChlPZD
      &                                          ,  wrtavg(indxChC)
 #    ifdef OXYGEN
      &                                          ,  wrtavg(indxU10)
@@ -858,7 +858,7 @@ c        close(testunit)
 #  endif 
 #  ifdef BIOLOGY
      &                                        .or. wrtavg(indxHel)
-#   ifdef BIO_NPZD
+#   ifdef BIO_NChlPZD
      &                                        .or. wrtavg(indxChC)
 #    ifdef OXYGEN
      &                                        .or. wrtavg(indxU10)
@@ -911,7 +911,7 @@ c        close(testunit)
 #  ifdef BIOLOGY
      &  , wrtavg(indxHel),'write Hel  ',
      &                          'Depth of the euphotic layer'
-#   ifdef BIO_NPZD
+#   ifdef BIO_NChlPZD
      &  , wrtavg(indxChC),'write ChC  ',
      &                          'Chlorophyll to Carbon ratio'
 #    ifdef OXYGEN

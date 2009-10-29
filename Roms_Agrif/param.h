@@ -169,7 +169,7 @@
 #    endif
 #   endif
      &          , NumFluxTerms,NumVSinkTerms,NumGasExcTerms
-#  elif defined BIO_NPZD
+#  elif defined BIO_NChlPZD
      &          , iNO3_, iChla, iPhy1, iZoo1
      &          , iDet1
 #   ifdef OXYGEN
@@ -184,7 +184,7 @@
      &          , OGain_NewProd, OLoss_Zmetab
      &          , OLoss_ReminD, NumFluxTermsO, OFlux_GasExc
 #   endif
-#  elif defined BIO_N2PZD2
+#  elif defined BIO_N2ChlPZD2
      &          , iNO3_, iNH4_, iChla, iPhy1, iZoo1
      &          , iDet1, iDet2
 #  elif defined BIO_N2P2Z2D2
@@ -271,7 +271,7 @@
 #   else
        parameter (NumGasExcTerms = 0, NumVSinkTerms = 0)
 #   endif
-#  elif defined BIO_NPZD
+#  elif defined BIO_NChlPZD
 #   ifdef OXYGEN
       parameter (ntrc_bio=6,itrc_bio=itemp+ntrc_salt+ntrc_pas+1)
 #   else
@@ -307,7 +307,7 @@
      &           NFlux_VSinkP1  = 1,
      &           NFlux_VSinkD1  = 2,
      &           NumVSinkTerms  = 2)
-#  elif defined BIO_N2PZD2
+#  elif defined BIO_N2ChlPZD2
       parameter (ntrc_bio=7,itrc_bio=itemp+ntrc_salt+ntrc_pas+1) 
       parameter (iNO3_=itrc_bio, iNH4_=iNO3_+1, iChla=iNO3_+2,   
      &           iPhy1=iNO3_+3,
@@ -356,7 +356,7 @@
      &           NFlux_VSinkD2 = 3,
      &           NumVSinkTerms = 3)
 #  endif
-#  if defined BIO_N2P2Z2D2 || defined BIO_NPZD || defined PISCES
+#  if defined BIO_N2P2Z2D2 || defined BIO_NChlPZD || defined PISCES
 #   ifdef DIAGNOSTICS_BIO
       parameter (ntrc_diabio=NumFluxTerms+
      &              NumGasExcTerms+NumVSinkTerms)
