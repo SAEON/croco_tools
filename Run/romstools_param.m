@@ -202,9 +202,9 @@ zref = -1000;
 %  (and also in make_OGCM.m and make_OGCM_frcst.m)
 makeini=1;      %1: process initial data
 makeclim=1;     %1: process lateral boundary data
-makebry=0;      %1: process boundary data
+makebry=1;      %1: process boundary data
 %
-makeoa=1;       %1: process oa data (intermediate file)
+makeoa=0;       %1: process oa data (intermediate file)
 insitu2pot=1;   %1: transform in-situ temperature to potential temperature
 makeZbry=1;     %1: process data in Z coordinate
 %
@@ -316,19 +316,20 @@ My_SODA_dir  = [''];
 My_ECCO_dir  = [''];
 end
 
-if Get_My_data  == 0;
-  NCEP_dir=My_NCEP_dir;
-  QSCAT_dir=My_QSCAT_dir;
-  SODA_dir=My_SODA_dir;
-  ECCO_dir=My_ECCO_dir;
-end
+%f Get_My_Data  == 0;
+% NCEP_dir=My_NCEP_dir;
+% QSCAT_dir=My_QSCAT_dir;
+% SODA_dir=My_SODA_dir;
+% ECCO_dir=My_ECCO_dir;
+%nd
+
 %===================================================================
 %  Options for make_NCEP and make_QSCAT_daily
 %
 NCEP_dir= [FORC_DATA_DIR,'NCEP_',ROMS_config,'/']; % NCEP data directory
 makefrc      = 1;                            % 1: Create forcing files
 makeblk      = 1;                            % 1: Create bulk files
-QSCAT_blk    = 1;                            % 1: -a) Correct NCEP
+QSCAT_blk    = 0;                            % 1: -a) Correct NCEP
                                              %     frc/bulk file with the
                                              %     u,v,wspd fields from
                                              %     QSCAT daily data 
@@ -336,8 +337,23 @@ QSCAT_blk    = 1;                            % 1: -a) Correct NCEP
                                              %         in the QSCAT frc file
 add_tides    = 0;                            % 1: Add the tides (To be
                                              % done...)
-%Overlap parameters :                                          
-itolap_ncep=40;  %10 days if 6h NCEP	    
+%Overlap parameters :  
+itolap_qscat=11;  %11 days if 1d time reso. QSCAT (should be <28 
+itolap_ncep=40;   %10 days if 6h time res.  NCEP  (should be <4* 28 =112
+%----
+%=================================================================
+if ( itolap_qscat > 28 )
+  error(['QSCAT overlap have to be less than 28 days'])
+end
+if ( itolap_ncep >= 28*4 )
+  error(['NCEP overlap have to be less than 28 days'])
+end
+
+ if ( QSCAT_blk ==1 &&  itolap_qscat < itolap_ncep./4 )
+   error(['QSCAT overlap have to be >= 4* NCEP ',... 
+          'overlap in case of QSCAT_blk',...
+          'because time interpolation in make_NCEP_withQSCAT'])
+end
 %===================================================================
 %  Options for make_OGCM 
 %
@@ -352,8 +368,8 @@ rmdepth     = 2;                                     % Number of bottom levels t
 %                        i.e if the depth in the domain is shallower than
 %                        the OGCM depth)
 %Overlap parameters : before (_a) and after (_p) the months.
-itolap_a=2;           %Overlap parameters : before (_a) 
-itolap_p=2;           % and after (_p) the months.
+itolap_a=2;           %Overlap parameters
+itolap_p=2; 
 %====================================================================
 %  Options for make_QSCAT_daily and make_QSCAT_clim   
 %
