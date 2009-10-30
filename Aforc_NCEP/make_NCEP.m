@@ -91,17 +91,21 @@ if Download_data==1
 % Download NCEP
 %
     if Get_My_data~=1
+  disp('==============================='])    
   disp('Download NCEP data with OPENDAP')
+  disp('==============================='])  
   download_NCEP(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,...
                 NCEP_dir,NCEP_version,Yorig)
     elseif Get_My_data==1
+   disp('==============================='])     
    disp('Download NCEP from my FTP data')
+   disp('==============================='])  
    download_NCEP_Mydata(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,...
                NCEP_dir,NCEP_version,Yorig)
    end
   
 end
-%pause
+
 %
 if makefrc==1 | makeblk==1
 %
@@ -158,8 +162,7 @@ end
       close(nc);
       dt=mean(gradient(NCEP_time));
       disp(['dt=',num2str(dt)])
-      
-      
+           
 % add timesteps at the end of the ROMS file to make a full month of 31 days
 % then add 3 more timestep: 1 at the beginning and 2 at the end
 

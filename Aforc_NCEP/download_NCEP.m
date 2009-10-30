@@ -202,7 +202,7 @@ else
 %intersect.m work for matlab7 check for matlab  6 
 %----------------------------------------------
 
-    trange=['[',num2str(tndx(1)-1),':',num2str(tndx(end)-1),']'];
+trange=['[',num2str(tndx(1)-1),':',num2str(tndx(end)-1),']'];
 disp(['TRANGE=',num2str(trange)])
    % Get the subset
     extract_NCEP(NCEP_dir,ncep_url,char(catalog(k)),char(vnames(k)),Y,M,...
