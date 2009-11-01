@@ -4,22 +4,22 @@
       INTEGER Istr,Jstr,Iend,Jend
 
 #if defined key_passivetrc && defined key_trc_pisces
-CCC---------------------------------------------------------------------
-CCC
-CCC             ROUTINE p4zopt : PISCES MODEL
-CCC             *****************************
-CCC
-CCC  PURPOSE :
-CCC  ---------
-CCC         Compute the light availability in the water column
-CCC         depending on the depth and the chlorophyll concentration
-CCC
+CC---------------------------------------------------------------------
+CC
+CC             ROUTINE p4zopt : PISCES MODEL
+CC             *****************************
+CC
+CC   PURPOSE :
+CC   ---------
+CC         Compute the light availability in the water column
+CC         depending on the depth and the chlorophyll concentration
+CC
 CC   INPUT :
 CC   -----
 CC      argument
 CC              None
 CC      common
-CC              all the common defined in opa
+CC              all the common defined in ROMS
 CC
 CC
 CC   OUTPUT :                   : no
@@ -28,6 +28,9 @@ CC
 CC   MODIFICATIONS:
 CC   --------------
 CC      original  : O. Aumont (2004)
+CC      modified  : P. Marchesiello, C. Menkes (2009)
+CC                  (zmeu interpolation, code structure)
+CC
 CC----------------------------------------------------------------------
 CC parameters and commons
 CC ======================
@@ -39,6 +42,7 @@ CC----------------------------------------------------------------------
 CC local declarations
 CC ==================
       INTEGER ji, jj, jk, mrgb
+      INTEGER kmld(Istr:Iend,Jstr:Jend)
       REAL xchl, cff1
       REAL ekg(PRIV_3D_BIOARRAY)
       REAL ekr(PRIV_3D_BIOARRAY)
@@ -65,33 +69,35 @@ C
           END DO
         END DO
       END DO
-
-      DO jk=1,jpk
-        DO jj=Jstr, Jend
-          DO ji=Istr, Iend
 C
 C     Separation in three light bands: red, green, blue
 C     -------------------------------------------------
 C
-        xchl=(trn(ji,jj,jk,jpnch)+trn(ji,jj,jk,jpdch)+rtrn)*1.E6
-        xchl=max(0.03,xchl)
-        xchl=min(10.,xchl)
-
-        mrgb = min(1,int(41+20.*log10(xchl)+rtrn))
-
-        ekb(ji,jj,jk)=xkrgb(1,mrgb)
-        ekg(ji,jj,jk)=xkrgb(2,mrgb)
-        ekr(ji,jj,jk)=xkrgb(3,mrgb)
+      DO jk=1,jpk
+        DO jj=Jstr, Jend
+          DO ji=Istr, Iend
+C
+            xchl=(trn(ji,jj,jk,jpnch)+trn(ji,jj,jk,jpdch)+rtrn)*1.E6
+            xchl=max(0.03,xchl)
+            xchl=min(10.,xchl)
+C
+            mrgb = int(41+20.*log10(xchl)+rtrn)
+C
+            ekb(ji,jj,jk)=xkrgb(1,mrgb)
+            ekg(ji,jj,jk)=xkrgb(2,mrgb)
+            ekr(ji,jj,jk)=xkrgb(3,mrgb)
 C
           END DO
         END DO
       END DO
 C
-      DO jj=Jstr, Jend
-        DO ji=Istr, Iend
-C
 C     Separation in three light bands: red, green, blue
 C     -------------------------------------------------
+C
+C     Surface
+C
+      DO jj=Jstr, Jend
+        DO ji=Istr, Iend
 C
           zblight=0.5*ekb(ji,jj,1)*fse3t(ji,jj,1)
           zglight=0.5*ekg(ji,jj,1)*fse3t(ji,jj,1)
@@ -103,18 +109,20 @@ C
 C
         END DO
       END DO
-
+C
+C     Sub-surface
+C
       DO jk = 2,jpk
         DO jj=Jstr, Jend
           DO ji=Istr, Iend
 C
-C     Separation in three light bands: red, green, blue
-C     -------------------------------------------------
+            zblight=0.5*(ekb(ji,jj,jk-1)*fse3t(ji,jj,jk-1)
+     &                  +ekb(ji,jj,jk  )*fse3t(ji,jj,jk  ))
+            zglight=0.5*(ekg(ji,jj,jk-1)*fse3t(ji,jj,jk-1)
+     &                  +ekg(ji,jj,jk  )*fse3t(ji,jj,jk  ))
+            zrlight=0.5*(ekr(ji,jj,jk-1)*fse3t(ji,jj,jk-1)
+     &                  +ekr(ji,jj,jk  )*fse3t(ji,jj,jk  ))
 C
-            zblight=ekb(ji,jj,jk)*fse3w(ji,jj,jk)
-            zglight=ekg(ji,jj,jk)*fse3w(ji,jj,jk)
-            zrlight=ekr(ji,jj,jk)*fse3w(ji,jj,jk)
-
             e1(ji,jj,jk) = e1(ji,jj,jk-1)*exp(-zblight)
             e2(ji,jj,jk) = e2(ji,jj,jk-1)*exp(-zglight)
             e3(ji,jj,jk) = e3(ji,jj,jk-1)*exp(-zrlight)
@@ -130,85 +138,69 @@ C
           END DO
         END DO
       END DO
-C    
+C
 C     Computation of the euphotic depth
 C     ---------------------------------
-C    
+C
       DO jj=Jstr, Jend
          DO ji=Istr, Iend
             zmeu(ji,jj) = fsdept(ji,jj,jpk)-fsdepw(ji,jj,1)
             zmeuindex(ji,jj) = jpk
          END DO
       END DO
-
       DO jk = 2,jpk
          DO jj=Jstr, Jend
             DO ji=Istr, Iend
                cff1=0.0043*qsr(ji,jj)
-               IF (zmeuindex(ji,jj).eq.jpk .and. cff1.EQ.0) THEN
+               IF (zmeuindex(ji,jj).eq.jpk .and. cff1.eq.0) THEN
                   zmeu(ji,jj)=0.
                   zmeuindex(ji,jj)=1
                ELSEIF (zmeuindex(ji,jj).eq.jpk .and.
-     &                              etot(ji,jj,jk).LT.cff1) THEN
-                  zmeu(ji,jj) = fsdept(ji,jj,jk)-
-     &                          (fsdept(ji,jj,jk)-fsdept(ji,jj,jk-1))*
+     &                              etot(ji,jj,jk).lt.cff1) THEN
+                  zmeu(ji,jj) = fsdept(ji,jj,jk)-fsdepw(ji,jj,1)-
+     &                          fse3w(ji,jj,jk)*
      &                          (cff1-etot(ji,jj,jk))/
      &                          (etot(ji,jj,jk-1)-etot(ji,jj,jk))
                   zmeuindex(ji,jj)=jk-1
-                  zmeu(ji,jj)=zmeu(ji,jj)-fsdepw(ji,jj,1)
                ENDIF
             END DO
          END DO
       END DO
 C
-C
-C    Computation of mean light over the mixed layer depth
-C    --------------------------------------------------------
+C    Computation of mean light in the mixed layer
+C    --------------------------------------------
 C
       DO jj=Jstr, Jend
          DO ji=Istr, Iend
-            zdepmoy(ji,jj)  = 0
-            etmp(ji,jj)  = 0.
+            etmp(ji,jj) = 0.
+            zdepmoy(ji,jj) = 0
          END DO
       END DO
-
       DO jk = 1,jpk
         DO jj=Jstr, Jend
           DO ji=Istr, Iend
-             emoy(ji,jj,jk)  = 0.
-          END DO
-       END DO
-      END DO
-
-      DO jk = 1,jpk
-        DO jj=Jstr, Jend
-          DO ji=Istr, Iend
-             if (fsdepw(ji,jj,jk+1).le.hmld(ji,jj)) then
+             IF (fsdepw(ji,jj,jk+1).le.hmld(ji,jj)) THEN
                 etmp(ji,jj) = etmp(ji,jj)+etot(ji,jj,jk)*fse3t(ji,jj,jk)
                 zdepmoy(ji,jj)=zdepmoy(ji,jj)+fse3t(ji,jj,jk)
-             endif
+             ENDIF
           END DO
        END DO
       END DO
-      
       DO jk = 1,jpk
          DO jj=Jstr, Jend
             DO ji=Istr, Iend
-               emoy(ji,jj,jk) = etot(ji,jj,jk)
-            END DO
-         END DO
-      END DO
-      
-      DO jk = 1,jpk
-         DO jj=Jstr, Jend
-            DO ji=Istr, Iend
-               IF (fsdepw(ji,jj,jk+1).LE.hmld(ji,jj)) THEN
+               IF (fsdepw(ji,jj,jk+1).le.hmld(ji,jj)) THEN
                   emoy(ji,jj,jk) = etmp(ji,jj)/(zdepmoy(ji,jj)+rtrn)
+               ELSE
+                  emoy(ji,jj,jk) = etot(ji,jj,jk)
                ENDIF
             END DO
          END DO
       END DO
-      
+C
+C     Store diagnostic terms
+C     ----------------------
+C
 #   if defined key_trc_diaadd
       DO jj=Jstr, Jend
          DO ji=Istr, Iend
@@ -220,8 +212,7 @@ C
       DO jk = 1,jpk
          DO jj=Jstr, Jend
             DO ji=Istr, Iend
-               bioFlux(ji,jj,jk,4)=etot(ji,jj,jk)
-     &              *tmask(ji,jj,jk)
+               bioFlux(ji,jj,jk,4)=etot(ji,jj,jk)*tmask(ji,jj,jk)
             END DO
          END DO
       ENDDO
