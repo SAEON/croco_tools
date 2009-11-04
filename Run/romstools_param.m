@@ -46,14 +46,14 @@
 ROMS_title  = 'Benguela Model';
 ROMS_config = 'Benguela_LR';
 
+ROMSTOOLS_dir = '../';
 
-DATADIR='/data1/gcambon/REZO/Data_Roms/';
-ROMSTOOLS_dir = './';
-RUN_dir=['./'];
+%DATADIR='/data1/gcambon/REZO/Data_Roms/'; 
+DATADIR=ROMSTOOLS_dir; 
+RUN_dir=[ROMSTOOLS_dir,'Run/'];
+ROMS_files_dir=[RUN_dir,'ROMS_FILES/'];
 
-ROMS_files_dir=['./'];
 eval(['!mkdir ',ROMS_files_dir])
-
 %
 % ROMS file names (grid, forcing, bulk, climatology, initial)
 %
@@ -349,7 +349,7 @@ if ( itolap_ncep >= 28*4 )
   error(['NCEP overlap have to be less than 28 days'])
 end
 
- if ( QSCAT_blk ==1 &&  itolap_qscat < itolap_ncep./4 )
+ if ( QSCAT_blk ==1 &  itolap_qscat < itolap_ncep./4 )
    error(['QSCAT overlap have to be >= 4* NCEP ',... 
           'overlap in case of QSCAT_blk',...
           'because time interpolation in make_NCEP_withQSCAT'])
