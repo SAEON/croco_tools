@@ -45,14 +45,27 @@
 %
 ROMS_title  = 'Benguela Model';
 ROMS_config = 'Benguela_LR';
-
+%
+%  ROMSTOOLS directory
+%
 ROMSTOOLS_dir = '../';
-
-%DATADIR='/data1/gcambon/REZO/Data_Roms/'; 
-DATADIR=ROMSTOOLS_dir; 
+%
+%  Run directory
+%
 RUN_dir=[ROMSTOOLS_dir,'Run/'];
+%
+%  ROMS input netcdf files directory
+%
 ROMS_files_dir=[RUN_dir,'ROMS_FILES/'];
-
+%
+%  Global data directory (etopo, coads, datasets download from ftp, etc..)
+%
+DATADIR=ROMSTOOLS_dir; 
+%
+%  Forcing data directory (ncep, quikscat, datasets download with opendap, etc..)
+%
+FORC_DATA_DIR = [RUN_dir,'DATA/'];
+%
 eval(['!mkdir ',ROMS_files_dir])
 %
 % ROMS file names (grid, forcing, bulk, climatology, initial)
@@ -204,7 +217,7 @@ makeini=1;      %1: process initial data
 makeclim=1;     %1: process lateral boundary data
 makebry=1;      %1: process boundary data
 %
-makeoa=0;       %1: process oa data (intermediate file)
+makeoa=1;       %1: process oa data (intermediate file)
 insitu2pot=1;   %1: transform in-situ temperature to potential temperature
 makeZbry=1;     %1: process data in Z coordinate
 %
@@ -288,11 +301,7 @@ SPIN_Long     = 0;                  % SPIN-UP duration in Years
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Path to Forcing data
-%
-FORC_DATA_DIR = [RUN_dir,'DATA/'];
-%
-Download_data = 0;                            % Get data from the OPENDAP
+Download_data = 1;                            % Get data from the OPENDAP
                                               % sites  
 level = 0;                                    % AGRIF level; 0=parent grid
 %					  
@@ -300,28 +309,19 @@ NCEP_version  = 2;                            % NCEP version:
 % 1: NCEP/NCAR Reanalysis, 1/1/1948 - present
 % 2: NCEP-DOE Reanalysis, 1/1/1979 - present
 %					      
-% Path and option for using my data
+% Path and option for using global datasets download from ftp
 %
 Get_My_data = 0; 
 %
 if NCEP_version  == 1;
-My_NCEP_dir  = ['/data1/gcambon/NCEP_REA1/'];
-My_QSCAT_dir = ['/data1/gcambon/NCEP_REA1/'];
-My_SODA_dir  = [''];
-My_ECCO_dir  = [''];
+  My_NCEP_dir  = [DATADIR,'NCEP_REA1/'];
 elseif NCEP_version  == 2;
-My_NCEP_dir  = ['/data1/gcambon/NCEP_REA2/'];
-My_QSCAT_dir = ['/data1/gcambon/NCEP_REA2/'];
-My_SODA_dir  = [''];
-My_ECCO_dir  = [''];
+  My_NCEP_dir  = [DATADIR,'NCEP_REA2/'];
 end
-
-%f Get_My_Data  == 0;
-% NCEP_dir=My_NCEP_dir;
-% QSCAT_dir=My_QSCAT_dir;
-% SODA_dir=My_SODA_dir;
-% ECCO_dir=My_ECCO_dir;
-%nd
+My_QSCAT_dir = [DATADIR,'QSCAT/'];
+My_SODA_dir  = [DATADIR,'SODA/'];
+My_ECCO_dir  = [DATADIR,'ECCO/'];
+%
 
 %===================================================================
 %  Options for make_NCEP and make_QSCAT_daily
