@@ -2,7 +2,7 @@
 ! $Id$
 !
 #include "cppdefs.h"
-#ifdef BIOLOGY && defined BIO_N2PZD2
+#ifdef BIOLOGY && defined BIO_N2ChlPZD2
 
       subroutine biology_tile (Istr,Iend,Jstr,Jend)
 !
