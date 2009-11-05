@@ -290,7 +290,13 @@ if { eval `$CPP1 testkeys.F | grep -i -q openmp` } then
     setenv FFLAGS1 "$FFLAGS1 -qsmp=omp"
     setenv CFT1 xlf95_r
   else if ($OS == Linux) then
-    setenv FFLAGS1 "$FFLAGS1 -openmp"
+    if ($LINUX_FC == gfortran) then
+      setenv FFLAGS1 "$FFLAGS1 -fopenmp"
+    else if ($LINUX_FC == ifort || $LINUX_FC == ifc) then
+      setenv FFLAGS1 "$FFLAGS1 -openmp"
+    else
+      setenv FFLAGS1 "$FFLAGS1 -openmp"
+    endif
   else if ($OS == OSF1) then
     setenv FFLAGS1 "$FFLAGS1 -omp"
   else if ($OS == IRIX64) then
