@@ -30,6 +30,38 @@ function nested_initial(child_grd,parent_ini,child_ini,...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 tindex=1;
+
+%Check the number of variables in the clim parents file
+a= netcdf(parent_ini);
+Vars = var(a);
+Varnames = [ncnames(Vars)];
+nvar=length(Varnames);
+%
+
+if nvar < 17
+
+elseif nvar < 20 
+biol=1;
+disp('Biol NPZD is on')
+else
+pisces=1;
+disp('Pisces is on')
+end
+
+if pisces & biol 
+   error(['Both Biol NPZD and Pisces are ON, no possible yet !'])
+end
+
+%Name, units etc .. of the variables
+namebiol={'N03';'CHLA';'PHYTO'};
+unitbiol={'mMol N m-3';'mg C l-1';'mMol N m-3'};
+fieldbiol=namebiol;
+%------------------
+namepisces={'NO3';'PO4';'Si';'O2';'DIC';'TALK';'DOC';'FER'};
+unitpisces={'mMol N m-3';'mMol P m-3';'mMol Si m-3';'mMol O m-3';'mMol C m-3';'mMol C m-3';'mMol C m-3';'uMol Fe m-3'};
+fieldpisces=namepisces;
+%-----------------------------------------------
+
 %
 % Title
 %
@@ -46,6 +78,11 @@ if extrapmask==1
 end
 if biol==1
  disp('Biology: on')
+
+end
+if pisces==1
+ disp('Pisces: on')
+
 end
 %
 % Read in the embedded grid
@@ -87,7 +124,8 @@ result=close(nc);
 disp(' ')
 disp(' Create the initial file...')
 ncini=create_nestedinitial(child_ini,child_grd,parent_ini,title,...
-                           theta_s,theta_b,Tcline,N,thetime,'clobber');
+                           theta_s,theta_b,Tcline,N,thetime,'clobber',...
+                            biol,pisces,namebiol,namepisces,unitbiol,unitpisces);
 %
 % parent indices
 %
@@ -127,6 +165,7 @@ for tindex=1:length(thetime)
   interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'temp',mask,tindex,N)
   disp('salt...')
   interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'salt',mask,tindex,N)
+%
   if (biol==1)
     disp('NO3...')
     interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'NO3',mask,tindex,N)
@@ -135,6 +174,26 @@ for tindex=1:length(thetime)
     disp('PHYTO...')
     interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'PHYTO',mask,tindex,N)
   end
+%
+  if (pisces==1)
+    disp('NO3...')
+    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'NO3',mask,tindex,N)
+    disp('PO4...')
+    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'PO4',mask,tindex,N)
+    disp('Si...')
+    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'Si',mask,tindex,N)
+    disp('O2...')
+    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'O2',mask,tindex,N)
+    disp('DIC...')
+    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'DIC',mask,tindex,N)
+    disp('TALK...')
+    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'TALK',mask,tindex,N)
+    disp('DOC...')
+   interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'DOC',mask,tindex,N)
+    disp('FER...')
+    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'FER',mask,tindex,N)
+  end
+%
 end
 result=close(np);
 result=close(ncini);
@@ -144,7 +203,7 @@ result=close(ncini);
 if (vertical_correc==1)
   for tindex=1:length(thetime)
     disp([' Time index : ',num2str(tindex),' of ',num2str(length(thetime))])                     
-    vert_correc(child_ini,tindex,biol)
+    vert_correc(child_ini,tindex,biol,pisces,namebiol,namepisces)
   end
 end
 %

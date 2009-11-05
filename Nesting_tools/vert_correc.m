@@ -1,4 +1,4 @@
-function vert_correc(ncfile,tindex,biol)
+function vert_correc(ncfile,tindex,biol,pisces,namebiol,namepisces)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Vertically reinterpolate embedded 3D variables
@@ -95,20 +95,28 @@ disp('salt...')
 nc{'salt'}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
                               squeeze(nc{'salt'}(tindex,:,:,:)),...
                               zrold,zrnew);
+%
 if (biol==1)
-  disp('NO3...')
-  nc{''}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
-                              squeeze(nc{''}(tindex,:,:,:)),...
-                              zrold,zrnew);
-  disp('CHLA...')
-  nc{'CHLA'}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
-                              squeeze(nc{'CHLA'}(tindex,:,:,:)),...
-                              zrold,zrnew);
-  disp('PHYTO...')
-  nc{'PHYTO'}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
-                              squeeze(nc{'PHYTO'}(tindex,:,:,:)),...
-                              zrold,zrnew);
+disp('vert_correc for biology variables')
+ for k=1:length(namebiol)
+     disp([namebiol(k),' ...'])
+     nc{char(namebiol(k))}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
+                           squeeze(nc{namebiol(k)}(tindex,:,:,:)),...
+                           zrold,zrnew);
+ end
 end
+%
+
+if (pisces==1)
+disp('vert_correc for pisces variables')
+ for k=1:length(namepisces)
+     disp([char(namepisces(k)),' ...'])
+     nc{char(namepisces(k))}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
+                           squeeze(nc{char(namepisces(k))}(tindex,:,:,:)),...
+                           zrold,zrnew);
+ end
+end
+%
 close(nc)
 
 return
