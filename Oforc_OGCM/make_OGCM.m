@@ -87,8 +87,8 @@ end
 %
    itolap_tot=itolap_a + itolap_p;
    disp(['Overlap before =',num2str(itolap_a)])
-   disp(['Overlap after  =',num2str(itolap_p)])
-   disp(['Totalm overlap =',num2str(itolap_tot)])
+   disp(['Overlap after =',num2str(itolap_p)])
+   disp(['Total overlap =',num2str(itolap_tot)])
    disp(['...'])   
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -127,17 +127,19 @@ if Download_data==1
 %
 % Download data with DODS (the download matlab routine depends on the OGCM)
 % 
-  if Get_My_data==0
+  if ~exist('Get_My_DataOGCM') | ( Get_My_DataOGCM == 0) ;
   disp('Download data...')
   eval(['download_',OGCM,'(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,',...
                          'OGCM_dir,OGCM_prefix,url,Yorig)'])
   else
-  url_mydata='/media/disk/LINUX/GALA6/SODA_2.0.1/5dmean/';
+%Reference to Oforc_OGCM/Mydata routines : specific routines to your own data
   disp('Use my own data...')
-  disp(['Located on ',url_mydata])
+  disp('Specific routines for your own OGCM datasets')
+  disp('Flag Get_My_DataOGCM declared and =1)
+  disp((' ')
+  disp(['Located at ',url_mydataOGCM])
   eval(['download_',OGCM,'_Mydata(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,',...
-                         'OGCM_dir,OGCM_prefix,url_mydata,Yorig)'])  
-    
+                         'OGCM_dir,OGCM_prefix,url_mydataOGCM,Yorig)'])  
   end
   
 end
@@ -237,13 +239,11 @@ if makeclim==1 | makebry==1
 %
        disp(['==================================='])
 	for aa= 1:itolap_a
-	disp(['Compute beginning overlap, time index:',num2str(aa)])
-	
+	disp(['Compute beginning overlap, time index:',num2str(aa)])	
 	disp(['Add ',num2str(-(itolap_a + 1 - aa)), ' timestep dt'])
 	disp(['--------'])
 	roms_time(aa) = roms_time(itolap_a+1) - ((itolap_a + 1 - aa).* dt);
 	end
-
 %
 %Next month	
 %
@@ -298,9 +298,9 @@ if makeclim==1 | makebry==1
 % Perform the interpolations for the previous month
 %
       disp(' Previous month :')
-      disp(' ===============')
+      disp('=================')
       for aa=1:itolap_a
-       disp(['Beg overlap # ', num2str(aa),' ->tindex ',num2str(aa)])
+       disp(['Beg overlap # ', num2str(aa),' -> tindex ',num2str(aa)])
        disp(['It. of prev month used for it= ',num2str(tndx_OGCM(aa))])
        interp_OGCM(OGCM_dir,OGCM_prefix,Ym,Mm,Roa,interp_method,...
                    lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM(aa),...
@@ -311,7 +311,7 @@ if makeclim==1 | makebry==1
 %
 
       disp(' Current month :')
-      disp(' ===============')
+      disp('================')
       for tndx_OGCM=1:ntimes
         disp([' Time step : ',num2str(tndx_OGCM),' of ',num2str(ntimes),' :'])
         interp_OGCM(OGCM_dir,OGCM_prefix,Y,M,Roa,interp_method,...
@@ -338,9 +338,9 @@ if makeclim==1 | makebry==1
 % Perform the interpolations for the next month
 %
       disp(' Next month :')
-      disp(' ===============')
+      disp('=============')
       for aa=1:itolap_p
-      disp(['End Overlap #',num2str(aa),' ->tindex ',num2str(ntimes+itolap_a+aa)])
+      disp(['End Overlap #',num2str(aa),' -> tindex ',num2str(ntimes+itolap_a+aa)])
       disp(['It. of next month used for it= ',num2str(tndx_OGCM(aa))])
       interp_OGCM(OGCM_dir,OGCM_prefix,Yp,Mp,Roa,interp_method,...
                   lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM(aa),...
@@ -383,7 +383,7 @@ if SPIN_Long>0
     time=time/(24*3600)+datenum(Yorig,1,1);
     [y,m,d,h,mi,s]=datevec(time);
     time=datenum(y-SPIN_Long,m,d,h,mi,s)-datenum(Yorig,1,1);
-   disp(datestr(time+datenum(Yorig,1,1)))
+    disp(datestr(time+datenum(Yorig,1,1)))
     nc{'scrum_time'}(:)=time*(24*3600);
     close(nc)
   end
