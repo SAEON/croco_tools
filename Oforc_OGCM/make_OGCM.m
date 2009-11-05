@@ -178,7 +178,7 @@ if makeini==1
   nc_ini=netcdf(ininame,'write');
   interp_OGCM(OGCM_dir,OGCM_prefix,Ymin,Mmin,Roa,interp_method,...
               lonU,latU,lonV,latV,lonT,latT,Z,1,...
-              nc_ini,[],lon,lat,angle,h,1)
+              nc_ini,[],lon,lat,angle,h,1,obc)
   close(nc_ini)
 end
 %
@@ -304,7 +304,7 @@ if makeclim==1 | makebry==1
        disp(['It. of prev month used for it= ',num2str(tndx_OGCM(aa))])
        interp_OGCM(OGCM_dir,OGCM_prefix,Ym,Mm,Roa,interp_method,...
                    lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM(aa),...
-	  	   nc_clm,nc_bry,lon,lat,angle,h,aa)
+	  	   nc_clm,nc_bry,lon,lat,angle,h,aa,obc)
       end
 %
 % Perform the interpolations for the current month
@@ -316,7 +316,7 @@ if makeclim==1 | makebry==1
         disp([' Time step : ',num2str(tndx_OGCM),' of ',num2str(ntimes),' :'])
         interp_OGCM(OGCM_dir,OGCM_prefix,Y,M,Roa,interp_method,...
                     lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM,...
-		    nc_clm,nc_bry,lon,lat,angle,h,tndx_OGCM+itolap_a)
+		    nc_clm,nc_bry,lon,lat,angle,h,tndx_OGCM+itolap_a,obc)
       end
 %
 % Read the OGCM file for the next month
@@ -344,7 +344,7 @@ if makeclim==1 | makebry==1
       disp(['It. of next month used for it= ',num2str(tndx_OGCM(aa))])
       interp_OGCM(OGCM_dir,OGCM_prefix,Yp,Mp,Roa,interp_method,...
                   lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM(aa),...
-		  nc_clm,nc_bry,lon,lat,angle,h,ntimes+itolap_a+aa)
+		  nc_clm,nc_bry,lon,lat,angle,h,ntimes+itolap_a+aa,obc)
       end
 %
 % Close the ROMS files
