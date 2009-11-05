@@ -52,7 +52,7 @@ ROMSTOOLS_dir = '../';
 %
 %  Run directory
 %
-RUN_dir=[ROMSTOOLS_dir,'Run/'];
+RUN_dir=[pwd,'/'];
 %
 %  ROMS input netcdf files directory
 %
@@ -70,21 +70,21 @@ eval(['!mkdir ',ROMS_files_dir])
 %
 % ROMS file names (grid, forcing, bulk, climatology, initial)
 %
-bioname=[ROMS_files_dir,'roms_lr_frcbio.nc'];  %Iron Dust forcing 
+bioname=[ROMS_files_dir,'roms_frcbio.nc'];  %Iron Dust forcing 
 					                           %file with PISCES
-grdname=[ROMS_files_dir,'roms_lr_grd.nc'];
-frcname=[ROMS_files_dir,'roms_lr_frc.nc'];
-blkname=[ROMS_files_dir,'roms_lr_blk.nc'];
-clmname=[ROMS_files_dir,'roms_lr_clm.nc'];
-ininame=[ROMS_files_dir,'roms_lr_ini.nc'];
-oaname =[ROMS_files_dir,'roms_lr_oa.nc'];    % oa file  : intermediate file not used
+grdname=[ROMS_files_dir,'roms_grd.nc'];
+frcname=[ROMS_files_dir,'roms_frc.nc'];
+blkname=[ROMS_files_dir,'roms_blk.nc'];
+clmname=[ROMS_files_dir,'roms_clm.nc'];
+ininame=[ROMS_files_dir,'roms_ini.nc'];
+oaname =[ROMS_files_dir,'roms_oa.nc'];    % oa file  : intermediate file not used
                                              %            in roms simulations
-bryname=[ROMS_files_dir,'roms_lr_bry.nc'];
-Zbryname=[ROMS_files_dir,'roms_lr_bry_Z.nc'];% Zbry file: intermediate file not used
+bryname=[ROMS_files_dir,'roms_bry.nc'];
+Zbryname=[ROMS_files_dir,'roms_bry_Z.nc'];% Zbry file: intermediate file not used
                                           %            in roms simulations
-frc_prefix=[ROMS_files_dir,'roms_lr_frc'];   % generic forcing file name 
+frc_prefix=[ROMS_files_dir,'roms_frc'];   % generic forcing file name 
                                           % for interannual roms simulations (NCEP or GFS)
-blk_prefix=[ROMS_files_dir,'roms_lr_blk'];   % generic bulk file name
+blk_prefix=[ROMS_files_dir,'roms_blk'];   % generic bulk file name
                                           % for interannual roms simulations (NCEP or GFS)
 %
 % Objective analysis decorrelation scale [m]
@@ -215,7 +215,7 @@ zref = -1000;
 %  (and also in make_OGCM.m and make_OGCM_frcst.m)
 makeini=1;      %1: process initial data
 makeclim=1;     %1: process lateral boundary data
-makebry=1;      %1: process boundary data
+makebry=0;      %1: process boundary data
 %
 makeoa=1;       %1: process oa data (intermediate file)
 insitu2pot=1;   %1: transform in-situ temperature to potential temperature
@@ -390,9 +390,9 @@ FRCST_prefix  = [OGCM,'_'];                    % generic OGCM file name
 if strcmp(OGCM,'ECCO')                         % nb of hindcast days
   hdays=1;
 elseif strcmp(OGCM,'mercator')
-  hdays=5
+  hdays=5;
 end
-timezone = +11                                 % Local time= UTC + timezone
+timezone = +1;                                 % Local time= UTC + timezone
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %

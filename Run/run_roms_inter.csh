@@ -34,11 +34,11 @@ set BOUNDARY_FILES=0
 #
 # Atmospheric surface forcing dataset used for the bulk formula (NCEP)
 #
-set ATMOS_BULK=NCEP
+set ATMOS_BULK=NCEP2
 #
 # Atmospheric surface forcing dataset used for the wind stress (NCEP, QSCAT)
 #
-set ATMOS_FRC=NCEP
+set ATMOS_FRC=NCEP2
 #
 # Oceanic boundary and initial dataset (SODA, ECCO,...)
 #
@@ -46,7 +46,7 @@ set OGCM=SODA
 #
 # Model time step [seconds]
 #
-set DT=5400
+set DT=3600
 #
 # number total of grid levels (1: No child grid)
 #

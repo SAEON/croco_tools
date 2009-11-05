@@ -27,7 +27,7 @@ set AGRIF_FILE=AGRIF_FixedGrids.in
 #
 # Model time step [seconds]
 #
-set DT=5400
+set DT=3600
 #
 # Number of days per month
 #
