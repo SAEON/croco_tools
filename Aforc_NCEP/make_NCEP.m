@@ -91,15 +91,15 @@ if Download_data==1
 % Download NCEP
 %
     if Get_My_data~=1
-  disp('==============================='])    
+  disp('===============================')    
   disp('Download NCEP data with OPENDAP')
-  disp('==============================='])  
+  disp('===============================')  
   download_NCEP(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,...
                 NCEP_dir,NCEP_version,Yorig)
     elseif Get_My_data==1
-   disp('==============================='])     
+   disp('===============================')     
    disp('Download NCEP from my FTP data')
-   disp('==============================='])  
+   disp('===============================')  
    download_NCEP_Mydata(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,...
                NCEP_dir,NCEP_version,Yorig)
    end
