@@ -45,58 +45,54 @@ disp(['    Compute SODA forcing 5d mean from my data for ',num2str(year),...
 % Get SSH
 %
 disp('    ...SSH')
-
-%Grille Ali,    on utilise i1min
-%-------------------------------
 myimin=i1min; 
 myimax=i1max; 
-
-
-
-nc=netcdf([url_mydata,'Coastal_SA_',num2str(year),'.cdf'])
-ssh=nc{'SSH'}(tndx3,jmin:jmax,myimin:myimax);   
+%
+%nc=netcdf([url_mydata,'Coastal_SA_',num2str(year),'.cdf'])
+nc=netcdf([url_mydataogcm,'/,'prefix_mydataogcm,'_',num2str(year),'.cdf'])
+ssh=nc{'SSH'}(tndx3,jmin:jmax,myimin:myimax); 
 missval=nc{'SSH'}.missing_value(:);
 ssh(ssh==missval)=NaN;
 %
 % Get TAUX
 %
 disp('    ...TAUX')
-taux=nc{'TAUX'}(tndx3,jmin:jmax,myimin:myimax)	;   
+taux=nc{'TAUX'}(tndx3,jmin:jmax,myimin:myimax); 
 missval=nc{'TAUX'}.missing_value(:);
 taux(taux==missval)=NaN;
 %
 % Get TAUY
 %
 disp('    ...TAUY')
-tauy=nc{'TAUY'}(tndx3,jmin:jmax,myimin:myimax)	;   
+tauy=nc{'TAUY'}(tndx3,jmin:jmax,myimin:myimax); 
 missval=nc{'TAUY'}.missing_value(:);
 tauy(tauy==missval)=NaN;
 %
 % Get U
 %
 disp('    ...U')
-u=nc{'U'}(tndx3,:,jmin:jmax,myimin:myimax)	;   
+u=nc{'U'}(tndx3,:,jmin:jmax,myimin:myimax);
 missval=nc{'U'}.missing_value(:);
 u(u==missval)=NaN;
 %
 % Get V
 %
 disp('    ...V')
-v=nc{'V'}(tndx3,:,jmin:jmax,myimin:myimax)	;   
+v=nc{'V'}(tndx3,:,jmin:jmax,myimin:myimax); 
 missval=nc{'V'}.missing_value(:);
 v(v==missval)=NaN;
 %
 % Get TEMP
 %
 disp('    ...TEMP')
-temp=nc{'TEMP'}(tndx3,:,jmin:jmax,myimin:myimax)	;   
+temp=nc{'TEMP'}(tndx3,:,jmin:jmax,myimin:myimax);
 missval=nc{'TEMP'}.missing_value(:);
 temp(temp==missval)=NaN;
 %
 % Get SALT
 %
 disp('    ...SALT')
-salt=nc{'SALT'}(tndx3,:,jmin:jmax,myimin:myimax)	;   
+salt=nc{'SALT'}(tndx3,:,jmin:jmax,myimin:myimax);
 missval=nc{'SALT'}.missing_value(:);
 salt(salt==missval)=NaN;
 close(nc)
