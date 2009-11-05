@@ -5,27 +5,27 @@ time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
 S-coord: THETA_S,   THETA_B,    Hc (m)
            6.0d0      0.0d0      10.0d0
 grid:  filename
-                          ROMS_FILES/roms_grd.nc
+                          ROMS_FILES/roms_lr_grd.nc
 forcing: filename
-                          ROMS_FILES/roms_frc.nc
+                          ROMS_FILES/roms_lr_frc.nc
 bulk_forcing: filename
-                          ROMS_FILES/roms_blk.nc
+                          ROMS_FILES/roms_lr_blk.nc
 climatology: filename
-                          ROMS_FILES/roms_clm.nc
+                          ROMS_FILES/roms_lr_clm.nc
 boundary: filename
-                          ROMS_FILES/roms_bry.nc
+                          ROMS_FILES/roms_lr_bry.nc
 initial: NRREC  filename
           1 
-                          ROMS_FILES/roms_ini.nc
+                          ROMS_FILES/roms_lr_ini.nc
 restart:          NRST, NRPFRST / filename
                    720    -1
-                          ROMS_FILES/roms_rst.nc
+                          ROMS_FILES/roms_lr_rst.nc
 history: LDEFHIS, NWRT, NRPFHIS / filename 
             T      72     0
-                          ROMS_FILES/roms_his.nc
+                          ROMS_FILES/roms_lr_his.nc
 averages: NTSAVG, NAVG, NRPFAVG / filename
             1      72     0
-                          ROMS_FILES/roms_avg.nc
+                          ROMS_FILES/roms_lr_avg.nc
 
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
                           T    T   T   T  T    30*T
