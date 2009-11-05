@@ -147,12 +147,21 @@ if (makeclim)
   disp(' Compute geostrophic currents')
   geost_currents(clmname,grdname,oaname,frcname,zref,obc,0)
 end
+
+if makepisces
+  disp('====================================== ')
+  disp('Compute Climatology for Pisces tracer')
+make_clim_pisces
+end
+
+
+
 %
 % Initial file
 %
-if (makeini)
-  disp(' ')
-  disp(' Initial')
+if makeini
+  disp('======================== ')
+  disp('Initial')
   create_inifile(ininame,grdname,ROMS_title,...
                  theta_s,theta_b,hc,N,...
                  tini,'clobber');
@@ -167,7 +176,18 @@ if (makeini)
     disp(' Compute potential temperature from in-situ...')
     getpot(ininame,grdname)
   end
-end		 
+
+if makepisces
+  disp('========================')
+  disp('Initial pisces variables')
+make_ini_pisces
+  disp('------------------------')
+  disp('Iron deposition file')
+make_dust
+end
+
+end
+
 %
 % Make a few plots
 %

@@ -188,6 +188,15 @@ if (makebry)
 % Remove avg SSH
 %
   rmavgssh(bryname,grdname,obc)
+
+%
+%% Compute bry for pisces variables
+%
+ if makepisces
+   disp('====================================== ')
+   disp('Compute boundary for Pisces tracer')
+   make_bry_pisces
+ end
 end
 %
 % Make a few plots

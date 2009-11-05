@@ -39,7 +39,7 @@ romstools_param
 %
 % Dust deposition file 
 %
-dust_file='../WOAPISCES/dust.iron.cdf';
+dust_file=[woapisces_dir,'dust.iron.cdf'];
 dust_name='irondep';
 %time=woa_time;
 time=[0.5:1:11.5];

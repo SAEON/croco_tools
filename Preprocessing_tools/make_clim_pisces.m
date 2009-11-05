@@ -24,27 +24,25 @@ romstools_param
 %
 % Climatology files
 %
-%Path where are the WOAPISCES data
-DATADIR='/data1/gcambon/PC133/GILDAS/Data_Roms_Local/';
 %
-no3_seas_data  = [DATADIR,'WOAPISCES/no3_seas.cdf'];
-no3_ann_data   = [DATADIR,'WOAPISCES/no3_ann.cdf'];
-po4_seas_data  = [DATADIR,'WOAPISCES/po4_seas.cdf'];
-po4_ann_data   = [DATADIR,'WOAPISCES/po4_ann.cdf'];
-o2_seas_data   = [DATADIR,'WOAPISCES/o2_seas.cdf'];
-o2_ann_data    = [DATADIR,'WOAPISCES/o2_ann.cdf'];
-sio3_seas_data = [DATADIR,'WOAPISCES/sio3_seas.cdf'];
-sio3_ann_data  = [DATADIR,'WOAPISCES/sio3_ann.cdf'];
-dic_seas_data  = [DATADIR,'WOAPISCES/dic_seas.cdf'];
-dic_ann_data   = [DATADIR,'WOAPISCES/dic_ann.cdf'];
-talk_seas_data = [DATADIR,'WOAPISCES/talk_seas.cdf'];
-talk_ann_data  = [DATADIR,'WOAPISCES/talk_ann.cdf'];
-doc_seas_data  = [DATADIR,'WOAPISCES/doc_seas.cdf'];
-doc_ann_data   = [DATADIR,'WOAPISCES/doc_ann.cdf'];
-fer_seas_data  = [DATADIR,'WOAPISCES/fer_seas.cdf'];
-fer_ann_data   = [DATADIR,'WOAPISCES/fer_ann.cdf'];
-dust_seas_data = [DATADIR,'WOAPISCES/dust_seas.cdf'];
-dust_ann_data  = [DATADIR,'WOAPISCES/dust_ann.cdf'];
+no3_seas_data  = [woapisces_dir,'no3_seas.cdf'];
+no3_ann_data   = [woapisces_dir,'no3_ann.cdf'];
+po4_seas_data  = [woapisces_dir,'po4_seas.cdf'];
+po4_ann_data   = [woapisces_dir,'po4_ann.cdf'];
+o2_seas_data   = [woapisces_dir,'o2_seas.cdf'];
+o2_ann_data    = [woapisces_dir,'o2_ann.cdf'];
+sio3_seas_data = [woapisces_dir,'sio3_seas.cdf'];
+sio3_ann_data  = [woapisces_dir,'sio3_ann.cdf'];
+dic_seas_data  = [woapisces_dir,'dic_seas.cdf'];
+dic_ann_data   = [woapisces_dir,'dic_ann.cdf'];
+talk_seas_data = [woapisces_dir,'talk_seas.cdf'];
+talk_ann_data  = [woapisces_dir,'talk_ann.cdf'];
+doc_seas_data  = [woapisces_dir,'doc_seas.cdf'];
+doc_ann_data   = [woapisces_dir,'doc_ann.cdf'];
+fer_seas_data  = [woapisces_dir,'fer_seas.cdf'];
+fer_ann_data   = [woapisces_dir,'fer_ann.cdf'];
+dust_seas_data = [woapisces_dir,'dust_seas.cdf'];
+dust_ann_data  = [woapisces_dir,'dust_ann.cdf'];
 %
 cycle=woa_cycle;
 %gc
@@ -80,7 +78,7 @@ add_fer(oaname,clmname,ininame,grdname,fer_seas_data,...
        fer_ann_data,cycle,makeoa,makeclim)
 
 %
-% Horizontal extrapolation of NO3
+% Horizontal extrapolation
 %
 if (makeoa)
   ext_tracers(oaname,no3_seas_data,no3_ann_data,...
