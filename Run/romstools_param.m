@@ -217,7 +217,7 @@ makeini=1;      %1: process initial data
 makeclim=1;     %1: process lateral boundary data
 makebry=0;      %1: process boundary data
 makebio=0;      %1: process initial and boundary data for idealized NPZD type bio model
-makepisces=1;   %1: process initial and boundary data for PISCES biogeochemical model
+makepisces=0;   %1: process initial and boundary data for PISCES biogeochemical model
 %
 makeoa=1;       %1: process oa data (intermediate file)
 insitu2pot=1;   %1: transform in-situ temperature to potential temperature
