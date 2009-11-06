@@ -216,6 +216,8 @@ zref = -1000;
 makeini=1;      %1: process initial data
 makeclim=1;     %1: process lateral boundary data
 makebry=0;      %1: process boundary data
+makebio=0;      %1: process initial and boundary data for idealized NPZD type bio model
+makepisces=1;   %1: process initial and boundary data for PISCES biogeochemical model
 %
 makeoa=1;       %1: process oa data (intermediate file)
 insitu2pot=1;   %1: transform in-situ temperature to potential temperature
@@ -228,6 +230,10 @@ tini=0;
 % World Ocean Atlas directory (WOA2001 or WOA2005) 
 %
 woa_dir=[DATADIR,'WOA2005/'];
+%
+% Pisces biogeochemical seasonal climatology (WOA2001 or WOA2005) 
+%
+woapisces_dir=[DATADIR,'WOAPISCES/'];
 %
 % Surface chlorophyll seasonal climatology (WOA2001 or SeaWifs)
 %
