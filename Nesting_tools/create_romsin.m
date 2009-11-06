@@ -32,14 +32,15 @@ fid1=fopen(parent_name,'r');
 eval(['!rm -f ',child_name])
 fid2=fopen(child_name,'w');
 maxlen=0;
-blankline='                                                                                          ';
+blankline=' ';
+blankline=repmat(blankline,1,200);
 lblank=length(blankline);
 while 1==1
   tline=fgetl(fid1);
   ltline=length(tline);
   myline=blankline;
   if ltline>1
-    myline(1:min([ltline,lblank]))=tline;
+    myline(1:min([ltline,lblank]))=tline(1:min([ltline,lblank]));
   end
   if ltline>=maxlen
     maxlen=ltline;
