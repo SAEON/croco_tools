@@ -54,9 +54,12 @@ C$    integer omp_get_thread_num
         enddo
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r2d_tile (Istr,Iend,Jstr,Jend, hinv)
-      call exchange_r2d_tile (Istr,Iend,Jstr,Jend, Zt_avg1)
 # endif
       endif
+
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend, Zt_avg1)
+# endif
 
       do j=J_RANGE              !!! WARNING: Setting old-new (!<,!>)
         do i=I_RANGE            !!!          must be consistent with
