@@ -192,15 +192,9 @@ C$    integer omp_get_thread_num
       dx=Length_XI/float(LLm)               ! Set grid spacings
       dy=Length_ETA/float(MMm)              ! for rectangular grids
 
-# ifdef MPI
-      x0=float(ii)*Length_XI/float(NP_XI)   ! Coordinate of south-west
-      y0=float(jj)*Length_ETA/float(NP_ETA) ! corner of the PI subdomain
-      x0 = dx*(iminmpi-1)
-      y0 = dy*(jminmpi-1)
-# else
       x0=0.
       y0=0.
-# endif
+
 # ifdef EQUATOR
       y0=y0-0.5*Length_ETA  
 # endif
@@ -215,13 +209,10 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
                   
       do j=JstrR,JendR
         do i=IstrR,IendR
-          xp(i,j)=x0+dx*float(i-1)        ! Setup rectangulag grid:
-          xr(i,j)=x0+dx*(float(i-1)+0.5)  ! coordinates (XI,ETA) at
-          yp(i,j)=y0+dy*float(j-1)        ! PSI- and RHO-points.
-          yr(i,j)=y0+dy*(float(j-1)+0.5)
-# ifdef MPI
-!         yr(i,j)=dy*(float(j+jj*Mm)-0.5) is this useful anymore ??
-# endif
+         xp(i,j) = x0 + dx*float(i+iminmpi-1-1)              ! Setup rectangulag grid:
+         xr(i,j) = x0 + dx*(float(i+iminmpi-1-1)+0.5)        ! coordinates (XI,ETA) at
+         yp(i,j) = y0 + dy*float(j+jminmpi-1-1)              ! PSI- and RHO-points.
+         yr(i,j) = y0 + dy*(float(j+jminmpi-1-1)+0.5)
         enddo
       enddo
 !
