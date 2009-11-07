@@ -41,6 +41,9 @@
 !$AGRIF_DO_NOT_TREAT
       logical global_update_2d
       common/globalupdate/global_update_2d
+      integer :: iiffine, irhotfine, nbgrid
+      common/updateubar2val/iiffine,irhotfine,
+     &   nbgrid      
 !$AGRIF_END_DO_NOT_TREAT      
 # ifdef MPI
 #  define LOCALLM Lmmpi
@@ -69,6 +72,10 @@
       
       IF ((mod(iif+(nbcoarse-1)*mod(nfast,irhot),irhot).NE.0)) RETURN
 
+         iiffine = iif
+         irhotfine = Agrif_Irhot()
+         nbgrid = Agrif_Fixed()
+         
 C$OMP BARRIER
 C$OMP SINGLE
         irhox = Agrif_Irhox()
@@ -301,12 +308,8 @@ C$OMP END SINGLE
            tabres(i1:i2,j1:j2,1) = rrhoy * DU_avg1(i1:i2,j1:j2,nnew)
            RETURN
          ENDIF
-                  
+
          irhot=Agrif_Irhot()
-         
-         iiffine = iif
-         irhotfine = irhot
-         nbgrid = Agrif_Fixed()
          
          western_side  = (nb == 1).AND.(ndir == 1)
          eastern_side  = (nb == 1).AND.(ndir == 2)
@@ -314,6 +317,7 @@ C$OMP END SINGLE
          northern_side = (nb == 2).AND.(ndir == 2)
 
          ibegin = min(irhot,iif+1)
+         
           IF (iif .LE. irhot) THEN
           ibegin = iif + 1
           ENDIF
@@ -455,10 +459,6 @@ C$OMP END SINGLE
          ENDIF
                  
          irhot=Agrif_Irhot()
-         
-         iiffine = iif
-         irhotfine = irhot
-         nbgrid = Agrif_Fixed()
          
          western_side  = (nb == 1).AND.(ndir == 1)
          eastern_side  = (nb == 1).AND.(ndir == 2)
@@ -604,10 +604,6 @@ C$OMP END SINGLE
          ENDIF
                   
          irhot=Agrif_Irhot()
-         
-         iiffine = iif
-         irhotfine = irhot
-         nbgrid = Agrif_Fixed()
          
          western_side  = (nb == 1).AND.(ndir == 1)
          eastern_side  = (nb == 1).AND.(ndir == 2)
