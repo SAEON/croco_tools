@@ -428,7 +428,7 @@ C$    integer omp_get_thread_num
             t(i,j,k,1,iO2)=250.0
             t(i,j,k,2,iO2)=t(i,j,k,1,iO2)
 #     endif
-#    elif defined BIO_N2PZD2
+#    elif defined BIO_N2ChlPZD2
             t(i,j,k,1,iNH4_)=0.1
             t(i,j,k,2,iNH4_)=t(i,j,k,1,iNH4_)
             t(i,j,k,1,iPhy1)=0.06

@@ -264,7 +264,7 @@ c              if (h(i,j).lt.300) then
               t(i,j,k,2,iO2)=t(i,j,k,1,iO2)
             endif
 #    endif
-#   elif defined BIO_N2PZD2
+#   elif defined BIO_N2ChlPZD2
             if (.not.got_tini(iNH4_))  then
                t(i,j,k,1,iNH4_)=0.1
                t(i,j,k,2,iNH4_)=t(i,j,k,1,iNH4_)
