@@ -2,7 +2,7 @@
 ! $Id$
 !
 #include "cppdefs.h"
-#ifdef BIOLOGY && defined BIO_N2ChlPZD2
+#if defined BIOLOGY && defined BIO_N2ChlPZD2
 
       subroutine biology_tile (Istr,Iend,Jstr,Jend)
 !
@@ -120,10 +120,10 @@
       do k=1,N
         NO3(k) =max(t(i,j,k,nnew,iNO3_)  ,0.)  ! Nitrate
         NH4(k) =max(t(i,j,k,nnew,iNH4_)  ,0.)  ! Ammonium
-        Phyt(k)=max(t(i,j,k,nnew,iPhyt)  ,0.)  ! Phytoplankton
-        Zoo(k) =max(t(i,j,k,nnew,iZoo_)  ,0.)  ! Zooplankton
-        SDet(k)=max(t(i,j,k,nnew,iSDet)  ,0.)  ! Small Detritus
-        LDet(k)=max(t(i,j,k,nnew,iLDet)  ,0.)  ! Large Detritus
+        Phyt(k)=max(t(i,j,k,nnew,iPhy1)  ,0.)  ! Phytoplankton
+        Zoo(k) =max(t(i,j,k,nnew,iZoo1)  ,0.)  ! Zooplankton
+        SDet(k)=max(t(i,j,k,nnew,iDet1)  ,0.)  ! Small Detritus
+        LDet(k)=max(t(i,j,k,nnew,iDet2)  ,0.)  ! Large Detritus
         theta(k)=max(t(i,j,k,nnew,iChla) ,0.)  ! Chla/Phyto ratio
      &        /(Phyt(k)*CN_Phyt*12. +1.E-20)
       enddo
@@ -351,10 +351,10 @@
           do k=1,N
            t(i,j,k,nnew,iNO3_)=min(t(i,j,k,nnew,iNO3_),0.) +NO3(k)
            t(i,j,k,nnew,iNH4_)=min(t(i,j,k,nnew,iNH4_),0.) +NH4(k)
-           t(i,j,k,nnew,iPhyt)=min(t(i,j,k,nnew,iPhyt),0.) +Phyt(k)
-           t(i,j,k,nnew,iZoo_)=min(t(i,j,k,nnew,iZoo_),0.) +Zoo(k)
-           t(i,j,k,nnew,iSDet)=min(t(i,j,k,nnew,iSDet),0.) +SDet(k)
-           t(i,j,k,nnew,iLDet)=min(t(i,j,k,nnew,iLDet),0.) +LDet(k)
+           t(i,j,k,nnew,iPhy1)=min(t(i,j,k,nnew,iPhy1),0.) +Phyt(k)
+           t(i,j,k,nnew,iZoo1)=min(t(i,j,k,nnew,iZoo1),0.) +Zoo(k)
+           t(i,j,k,nnew,iDet1)=min(t(i,j,k,nnew,iDet1),0.) +SDet(k)
+           t(i,j,k,nnew,iDet2)=min(t(i,j,k,nnew,iDet2),0.) +LDet(k)
            t(i,j,k,nnew,iChla)=min(t(i,j,k,nnew,iChla),0.) +
      &                                 CN_Phyt*12.*Phyt(k)*theta(k)
           enddo
