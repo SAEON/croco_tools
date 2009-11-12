@@ -35,7 +35,7 @@
 */
                       /* Configuration Name */
 # define BENGUELA_LR
-# undef ETALON_CHECK
+# define ETALON_CHECK
                       /* Parallelization */
 # undef OPENMP
 # undef MPI
@@ -254,6 +254,7 @@
 !                       ===== =======
 */
 # define ETALON_CHECK
+# undef DEBUG
 # undef OPENMP
 # undef MPI
 # define UV_ADV
@@ -276,6 +277,7 @@
 !                       ===== ====== =======
 */
 # define ETALON_CHECK
+# undef DEBUG
 # undef OPENMP
 # undef MPI
 # define UV_ADV
@@ -294,6 +296,7 @@
 !                       ====== ====== =======
 */
 # define ETALON_CHECK
+# undef DEBUG
 # undef OPENMP
 # undef MPI
 # define UV_ADV
@@ -315,6 +318,7 @@
 ! The Thermal Structure of the Upper Ocean, J.Phys.Oceanogr., 34, 888-902.
 */
 # define ETALON_CHECK
+# undef DEBUG
 # undef OPENMP
 # undef MPI
 # define UV_ADV
@@ -346,6 +350,7 @@
 !                       ============= ========== =======
 */
 # define ETALON_CHECK
+# undef DEBUG
 # undef OPENMP
 # undef MPI
 # define UV_ADV
@@ -366,6 +371,7 @@
 !                       ===== ===== =======
 */
 # define ETALON_CHECK
+# undef DEBUG
 # undef OPENMP
 # undef MPI
 # define SOLVE3D
@@ -398,6 +404,7 @@
 ! tidal conversion at steep oceanic ridges, J. Phys. Oceanogr., 36, 1072-1084.  
 */
 # undef  ETALON_CHECK
+# undef DEBUG
 # undef  OPENMP
 # undef  MPI
 # define SOLVE3D
@@ -446,6 +453,7 @@
 !                       ==========================
 */
 # define ETALON_CHECK
+# undef DEBUG
 # undef OPENMP
 # undef MPI
 # define SOLVE3D
@@ -488,6 +496,7 @@
 !                       ======== =======
 */
 # define ETALON_CHECK
+# undef DEBUG
 # undef OPENMP
 # undef MPI
 # define UV_ADV
@@ -511,6 +520,7 @@
 !                       ===== ===== =======
 */
 # define ETALON_CHECK
+# undef DEBUG
 # undef OPENMP
 # undef MPI
 # define UV_ADV
@@ -533,6 +543,7 @@
 !                       ========== ====== ==== =======
 */
 # define ETALON_CHECK
+# undef DEBUG
 # undef OPENMP
 # undef MPI
 # define UV_COR
@@ -549,6 +560,7 @@
 !                       ====================== =======
 */
 # define ETALON_CHECK
+# undef DEBUG
 # undef OPENMP
 # undef MPI
 # define UV_ADV
@@ -570,6 +582,7 @@
 !                       ========= =======
 */
 # define ETALON_CHECK
+# undef DEBUG
 # undef OPENMP
 # undef MPI
 # define SOLVE3D
@@ -599,6 +612,7 @@
 !                       Baroclinic Vortex Example (TEST AGRIF)
 !                       ========== ====== ======= ===== ======
 */
+# define DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
