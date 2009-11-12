@@ -302,7 +302,7 @@ c              goto 99                                     !--> ERROR
 c              goto 99                                     !--> ERROR
             endif
 #   endif
-#  elif defined BIO_N2PZD2
+#  elif defined BIO_N2ChlPZD2
           elseif (itrc.eq.iNO3_) then
             got_tclm(itrc)=.true.
             ierr=nf_inq_varid (ncidclm, 'no3_time', tclm_tid(itrc))

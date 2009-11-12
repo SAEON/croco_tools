@@ -101,7 +101,7 @@
 #   ifdef OXYGEN
       parameter (indxO2=indxNO3+5)
 #   endif
-#  elif defined BIO_N2PZD2
+#  elif defined BIO_N2ChlPZD2
       integer indxNO3, indxNH4, indxChla,
      &        indxPhy1, indxZoo1,
      &        indxDet1, indxDet2

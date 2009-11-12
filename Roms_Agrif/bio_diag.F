@@ -156,7 +156,7 @@ C$OMP CRITICAL (bio_cr_rgn)
 #  ifdef OXYGEN
      &                    , global_sum(2*iO2)
 #  endif
-# elif defined BIO_N2PZD2
+# elif defined BIO_N2ChlPZD2
             write(stdout,2) iic-1,tdays, 
      &                      global_sum(2*iNO3_),  
      &                      global_sum(2*iPhy1), 
