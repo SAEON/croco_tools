@@ -150,6 +150,14 @@ czz     cff3= 0.22
 #ifdef OBC_VOLCONS
         call set_DUV_bc_tile (Istr,Iend,Jstr,Jend, Drhs, DUon,DVom)
 #endif
+#ifdef DEBUG_ADVANCED
+C$OMP BARRIER
+C$OMP MASTER
+       call check_tab2d(zeta(:,:,knew),'zeta step2d #1','r')
+       call check_tab2d(ubar(:,:,knew),'ubar step2d #1','u')
+       call check_tab2d(vbar(:,:,knew),'vbar step2d #1','v')
+C$OMP END MASTER       
+#endif    
 !
 ! Advance free-surface:   Compute zeta_new, which is at new time
 !-------- ---- --------   step, and interpolate half-step backward
@@ -262,7 +270,14 @@ czz     cff3=0.0088
       endif
         
 #endif         
-                  
+#ifdef DEBUG_ADVANCED
+C$OMP BARRIER
+C$OMP MASTER
+       call check_tab2d(zeta(:,:,knew),'zeta step2d #2','r')
+       call check_tab2d(ubar(:,:,knew),'ubar step2d #2','u')
+       call check_tab2d(vbar(:,:,knew),'vbar step2d #2','v')
+C$OMP END MASTER       
+#endif       
 !
 ! Set boundary conditions for the free-surface:
 !
