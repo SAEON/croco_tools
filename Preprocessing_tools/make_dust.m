@@ -68,7 +68,7 @@ result = redef(nc);
 nc('xi_rho') = Lp;
 nc('eta_rho') = Mp;
 %
-nc('dust_time') = length(time);;
+nc('dust_time') = length(time);
 nc{'dust_time'} = ncdouble('dust_time') ;
 nc{'dust'} = ncdouble('dust_time','eta_rho','xi_rho') ;
 %
@@ -80,25 +80,31 @@ if cycle~=0
   nc{'dust_time'}.cycle_length = cycle;
 end
 %
-nc{'dust'}.long_name = ncchar('Dust');
-nc{'dust'}.long_name = 'Dust';
+nc{'dust'}.long_name = ncchar('Fe Dust Deposition');
+nc{'dust'}.long_name = 'Fe Dust Deposition';
 nc{'dust'}.units = ncchar('nMol Fe m-3');
 nc{'dust'}.units = 'nmol Fe m-3';
 nc{'dust'}.fields = ncchar('dust, scalar, series');
 nc{'dust'}.fields = 'dust, scalar, series';
 %
 endef(nc);
+
 % Create global attributes
-nw.title = ncchar(ROMS_title);
-nw.title = ROMS_title;
-nw.date = ncchar(date);
-nw.date = date;
-nw.grd_file = ncchar(bioname);
-nw.grd_file = grdname;
-nw.type = ncchar('ROMS biology forcing file');
-nw.type = 'ROMS biology forcing file';
-%
-nc{'dust_time'}(:)=time*30; % if time in month in the dataset !!!
+nc.title = ncchar(ROMS_title);
+nc.title = ROMS_title;
+nc.date = ncchar(date);
+nc.date = date;
+nc.grd_file = ncchar(bioname);
+nc.grd_file = grdname;
+nc.type = ncchar('ROMS biology forcing file');
+nc.type = 'ROMS biology forcing file';
+
+% Write time variable
+nc{'dust_time'}(:)=time.*30; % if time in month in the dataset !!!
+
+close(nc)
+
+nc=netcdf(bioname,'write');
 %
 % Loop on time
 %
