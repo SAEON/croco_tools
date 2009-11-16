@@ -20,6 +20,7 @@ echo OPERATING SYSTEM IS: $OS
 # Linux compiler options (only relevant to Linux OS)
 #
 if ($OS == Linux) then
+#  set LINUX_FC=gfortran
   set LINUX_FC=ifort
 #  set LINUX_FC=ifc
 #  set LINUX_FC=g95
@@ -50,7 +51,7 @@ if ($OS == Linux) then
       set NETCDFLIB=-L../netcdf_g77/
       set NETCDFINC=-I../netcdf_g77/
     endif
-  else if ($LINUX_FC == ifort) then
+  else if ($LINUX_FC == ifort || $LINUX_FC == gfortran) then
     if ($BITS == THIRTYTWO) then
       set NETCDFLIB=-L../netcdf_ifc/
       set NETCDFINC=-I../netcdf_ifc/
@@ -104,10 +105,6 @@ endif
 /bin/cp -f jobcomp $SCRDIR
 #/bin/cp -f amr.in $SCRDIR
 #
-# Etalon data
-#
-/bin/cp -f TEST_CASES/etalon_data.h* ${SCRDIR}
-#
 # Change directory
 #
 cd $SCRDIR
@@ -122,20 +119,15 @@ setenv CPPFLAGS1 "$NETCDFINC -IROMSFILES/AGRIF_INC"
 #
 if ($OS == Linux) then          # LINUX
   set OS = Linux
-  if ($LINUX_FC == ifort || $LINUX_FC == ifc) then
-    setenv CPP1 "fpp -free"
+ if ($LINUX_FC == ifort || $LINUX_FC == ifc) then
+    setenv CPP1 "cpp -traditional -DLinux"
     setenv CFT1 ifort
-    setenv FFLAGS1 "-O3 -w90 -w95 -cm -72 -fno-alias -i4 -r8 -Vaxlib -fp-model precise"
+    setenv FFLAGS1 "-O3 -w90 -w95 -cm -72 -fno-alias -i4 -r8 -fp-model precise"
     setenv LDFLAGS1 "-Vaxlib $LDFLAGS1"
-  else if ($LINUX_FC == g95) then
+  else if ($LINUX_FC== gfortran)
     setenv CPP1 "cpp -traditional -DLinux"
-    setenv CFT1 g95
-    setenv FFLAGS1 "-O3 -i4 -r8 -fno-second-underscore -ffixed-line-length-132" 
-    setenv LDFLAGS1 "$LDFLAGS1"
-  else if ($LINUX_FC == g77) then
-    setenv CPP1 "cpp -traditional -DLinux"
-    setenv CFT1 g77
-    setenv FFLAGS1 "-O3 -Wall"
+    setenv CFT1 gfortran
+    setenv FFLAGS1 "-O3 -fdefault-real-8"
     setenv LDFLAGS1 "$LDFLAGS1"
   endif
 
@@ -207,6 +199,7 @@ if { eval `$CPP1 testkeys.F | grep -i -q mpiisdefined` } then
   setenv LDFLAGS1 "$LDFLAGS1 $MPILIB"
   setenv CPPFLAGS1 "$CPPFLAGS1 $MPIINC"
   setenv FFLAGS1 "$FFLAGS1 $MPIINC"
+  setenv CFT mpif90
 endif
 
 
@@ -280,12 +273,20 @@ if { eval `$CPP1 testkeys.F | grep -i -q openmp` } then
     setenv FFLAGS1 "$FFLAGS1 -qsmp=omp"
     setenv CFT1 xlf95_r
   else if ($OS == Linux) then
-    setenv FFLAGS1 "$FFLAGS1 -openmp"
+    if ($LINUX_FC == gfortran) then
+      setenv FFLAGS1 "$FFLAGS1 -fopenmp"
+    else if ($LINUX_FC == ifort || $LINUX_FC == ifc) then
+      setenv FFLAGS1 "$FFLAGS1 -openmp"
+    else
+      setenv FFLAGS1 "$FFLAGS1 -openmp"
+    endif
   else if ($OS == OSF1) then
     setenv FFLAGS1 "$FFLAGS1 -omp"
   else if ($OS == IRIX64) then
     setenv FFLAGS1 "$FFLAGS1 -mp"
   else if ($OS == SunOS) then 
+    setenv FFLAGS1 "$FFLAGS1 -openmp"
+  else if ($OS == Darwin) then 
     setenv FFLAGS1 "$FFLAGS1 -openmp"
   endif
 endif
