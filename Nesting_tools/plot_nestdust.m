@@ -1,7 +1,7 @@
-function plot_nestforcing(child_frc,thefield,thetime,skip)
+function plot_nestdust(child_dust,thefield,thetime,skip)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Test the embedded bulk file.
+% Test the embedded dust forcing file.
 %
 %  Further Information:  
 %  http://www.brest.ird.fr/Roms_tools/
@@ -27,7 +27,6 @@ function plot_nestforcing(child_frc,thefield,thetime,skip)
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 npts=[0 0 0 0];
 i=0;
 for time=thetime
@@ -36,8 +35,8 @@ for time=thetime
   subplot(2,length(thetime),i)
 
 
-  nc=netcdf(child_frc);
-  parent_frc=nc.parent_file(:);
+  nc=netcdf(child_dust);
+  parent_dust=nc.parent_file(:);
   child_grd=nc.grd_file(:);
   fieldc=nc{thefield}(time,:,:);
   fieldname=nc{thefield}.long_name(:);
@@ -57,14 +56,15 @@ for time=thetime
   caxis([min(min(fieldc)) max(max(fieldc))])
   colorbar
   axis([min(min(lonc)) max(max(lonc)) min(min(latc)) max(max(latc))])
-
+  title(['\bf ',fieldname,' CHILD'])
 
   subplot(2,length(thetime),i+length(thetime))
-  nc=netcdf(parent_frc);
+  nc=netcdf(parent_dust);
   field=nc{thefield}(time,:,:);
   fieldname=nc{thefield}.long_name(:);
   result=close(nc);
-  nc=netcdf(parent_grd);
+  
+nc=netcdf(parent_grd);
   lon=nc{'lon_rho'}(:);
   lat=nc{'lat_rho'}(:);
   mask=nc{'mask_rho'}(:);
@@ -76,11 +76,8 @@ for time=thetime
   caxis([min(min(fieldc)) max(max(fieldc))])
   colorbar
   axis([min(min(lonc)) max(max(lonc)) min(min(latc)) max(max(latc))])
-  title(['\bf ',thefield])
+  title(['\bf ',fieldname,' PARENT'])
 end
 
 
 return
-
-
-

@@ -1,7 +1,7 @@
-function handles=reset_handle(fig,handles)
+function handles=interp_dust(h,handles);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Put all the handles.XX objects to their default values
+% Get everything in order to compute the child dust forcing file
 %
 %  Further Information:  
 %  http://www.brest.ird.fr/Roms_tools/
@@ -25,52 +25,29 @@ function handles=reset_handle(fig,handles)
 %
 %  Copyright (c) 2004-2006 by Pierrick Penven 
 %  e-mail:Pierrick.Penven@ird.fr  
-%
+%  Update Gildas Cambon 13 Oct 2009
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-handles.toponame=[];
-handles.parentgrid=[];
-handles.childgrid=[];
-handles.parentfrc=[];
-handles.childfrc=[];
-handles.parentdust=[];
-handles.childdust=[];
-handles.parentblk=[];
-handles.childblk=[];
-handles.parentini=[];
-handles.childini=[];
-handles.parentclm=[];
-handles.childclm=[];
-handles.parentrst=[];
-handles.childrst=[];
-handles.lonmin=[];
-handles.lonmax=[];
-handles.latmin=[];
-handles.latmax=[];
-handles.imin=[];
-handles.imax=[];
-handles.jmin=[];
-handles.jmax=[];
-handles.rcoeff=3;
-handles.Lparent=[];
-handles.Mparent=[];
-handles.Lchild=[];
-handles.Mchild=[];
-handles.rfactor=0.2;
-handles.nband=15;
-handles.hmin=[];
-handles.hmax_coast=500;
-handles.newtopo=0;
-handles.matchvolume=0;
-handles.vertical_correc=0;
-handles.extrapmask=0;
-handles.biol=0;
-handles.Isrcparent=[];
-handles.Jsrcparent=[];
-handles.Isrcchild=[];
-handles.Jsrcchild=[];
-
-handles.n_filter_deep=4;
-handles.n_filter_final=2;
-
-guidata(fig, handles);
+if isempty(handles.parentgrid)
+  handles=get_parentdustname(h,handles);
+end
+if isempty(handles.childgrid)
+  handles=get_childgrdname(h,handles); 
+end
+if isempty(handles.parentdust)
+  handles=get_parentdustname(h,handles);
+end
+lev=str2num(handles.parentdust(end));
+if isempty(lev)
+  childname=[handles.parentdust,'.1'];
+else
+  childname=[handles.parentdust(1:end-1),num2str(lev+1)];
+end
+Answer=questdlg(['Child dust name: ',childname,' OK ?'],'','Yes','Cancel','Yes');
+switch Answer
+case {'Cancel'}
+  return
+case 'Yes'
+  handles.childdust=childname;
+end
+nested_dust(handles.childgrid,handles.parentdust,handles.childdust)
 return

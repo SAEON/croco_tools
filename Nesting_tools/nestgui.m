@@ -80,6 +80,13 @@ handles=get_parentblkname(h,handles);
 guidata(h,handles)
 return
 %
+% MENU : OPEN PARENT DUST FILE
+%
+function varargout = parentdust_Callback(h, eventdata, handles, varargin)
+handles=get_parentdustname(h,handles);
+guidata(h,handles)
+return
+%
 % MENU : OPEN PARENT INITIAL FILE
 %
 function varargout = parentinitial_Callback(h, eventdata, handles, varargin)
@@ -247,6 +254,13 @@ return
 %
 function varargout=interpbulk_Callback(h, eventdata, handles, varargin)
 handles=interp_bulk(h,handles);
+guidata(h,handles)
+return
+%
+% Interp the child dust
+%
+function varargout=interpdust_Callback(h, eventdata, handles, varargin)
+handles=interp_dust(h,handles);
 guidata(h,handles)
 return
 %
