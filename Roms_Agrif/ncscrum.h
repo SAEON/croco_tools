@@ -581,7 +581,7 @@
 #endif /* AVERAGES */
  
 #ifdef SOLVE3D
-# define NWRTHIS 130+NT
+# define NWRTHIS 500+NT
 #else
 # define NWRTHIS 14
 #endif
@@ -809,7 +809,7 @@
 #endif
 
 #ifdef SOLVE3D
-      character*52  vname(4, 300)
+      character*52  vname(4, 500)
 #else
       character*52  vname(4, 39)
 #endif
