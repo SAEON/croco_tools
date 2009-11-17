@@ -93,8 +93,7 @@ while 1==1
     end
   end
   if strcmp(myline(1:12),'climatology:') | ...
-     strcmp(myline(1:9),'boundary:')  | ...
-     strcmp(myline(1:9),'nudg_cof:') 
+strcmp(myline(1:9),'boundary:')
     tline=fgetl(fid1);
     fprintf(fid2,'%s\n','  XXXXXXXXX');
   end
