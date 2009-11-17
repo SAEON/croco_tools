@@ -199,7 +199,7 @@ if { eval `$CPP1 testkeys.F | grep -i -q mpiisdefined` } then
   setenv LDFLAGS1 "$LDFLAGS1 $MPILIB"
   setenv CPPFLAGS1 "$CPPFLAGS1 $MPIINC"
   setenv FFLAGS1 "$FFLAGS1 $MPIINC"
-  setenv CFT mpif90
+  setenv CFT1 mpif90
 endif
 
 
