@@ -81,7 +81,7 @@ C
             xchl=max(0.03,xchl)
             xchl=min(10.,xchl)
 C
-            mrgb = int(41+20.*log10(xchl)+rtrn)
+            mrgb = max(1,int(41+20.*log10(xchl)+rtrn))
 C
             ekb(ji,jj,jk)=xkrgb(1,mrgb)
             ekg(ji,jj,jk)=xkrgb(2,mrgb)
