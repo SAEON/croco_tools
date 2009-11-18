@@ -1,5 +1,5 @@
 function nested_initial(child_grd,parent_ini,child_ini,...
-                        vertical_correc,extrapmask,biol)
+                        vertical_correc,extrapmask)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Compute the initial file of the embedded grid
@@ -56,11 +56,11 @@ end
 namebiol={'N03';'CHLA';'PHYTO'};
 unitbiol={'mMol N m-3';'mg C l-1';'mMol N m-3'};
 fieldbiol=namebiol;
-%------------------
+%
 namepisces={'NO3';'PO4';'Si';'O2';'DIC';'TALK';'DOC';'FER'};
 unitpisces={'mMol N m-3';'mMol P m-3';'mMol Si m-3';'mMol O m-3';'mMol C m-3';'mMol C m-3';'mMol C m-3';'uMol Fe m-3'};
 fieldpisces=namepisces;
-%-----------------------------------------------
+%
 
 %
 % Title
