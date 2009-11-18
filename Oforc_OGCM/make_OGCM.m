@@ -135,8 +135,8 @@ if Download_data==1
 %Reference to Oforc_OGCM/Mydata routines : specific routines to your own data
   disp('Use my own data...')
   disp('Specific routines for your own OGCM datasets')
-  disp('Flag Get_My_DataOGCM declared and =1)
-  disp((' ')
+  disp(['Flag Get_My_DataOGCM declared and =1'])
+  disp([' '])
   disp(['Located at ',url_mydataOGCM])
   eval(['download_',OGCM,'_Mydata(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,',...
                          'OGCM_dir,OGCM_prefix,url_mydataOGCM,Yorig)'])  
