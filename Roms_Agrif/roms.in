@@ -64,8 +64,6 @@ sponge:          X_SPONGE [m],    V_SPONGE [m^2/sec]
 nudg_cof:    TauT_in, TauT_out, TauM_in, TauM_out  [days for all]
                 1.       360.      3.      360.
 
-
-
 diagnostics:   ldefdia   nwrtdia    nrpfdia /filename
                   T        72         0
                                  ROMS_FILES/roms_dia.nc
