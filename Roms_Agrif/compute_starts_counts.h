@@ -57,9 +57,9 @@
 #  else
       if (ii.gt.0) imin=1
       if (ii.eq.NP_XI-1) then
-        imax=Lm+1
+        imax=Lmmpi+1
       else
-        imax=Lm
+        imax=Lmmpi
       endif
 #  endif
 #  ifdef NS_PERIODIC
@@ -68,9 +68,9 @@
 #  else
       if (jj.gt.0) jmin=1
       if (jj.eq.NP_ETA-1) then
-        jmax=Mm+1
+        jmax=Mmmpi+1
       else
-        jmax=Mm
+        jmax=Mmmpi
       endif
 #  endif
 # else

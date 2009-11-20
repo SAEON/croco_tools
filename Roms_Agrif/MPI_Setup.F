@@ -85,27 +85,6 @@
       p_NE=ii_E+NP_XI*jj_N
       p_SE=ii_E+NP_XI*jj_S
 
-#ifdef PARALLEL_FILES
-# ifndef EW_PERIODIC
-      xi_rho=Lm
-      xi_u=xi_rho
-      if (ii.eq.0) xi_rho=xi_rho+1
-      if (ii.eq.NP_XI-1) then
-        xi_rho=xi_rho+1
-        xi_u=xi_u+1
-      endif
-# endif
-# ifndef NS_PERIODIC
-      eta_rho=Mm
-      eta_v=eta_rho
-      if (jj.eq.0) eta_rho=eta_rho+1
-      if (jj.eq.NP_ETA-1) then
-        eta_rho=eta_rho+1
-        eta_v=eta_v+1
-      endif
-# endif
-#endif
-
       chunk_size_X=(LLm+NP_XI-1)/NP_XI        
       margin_X=(NP_XI*chunk_size_X-LLm)/2    
       chunk_size_E=(MMm+NP_ETA-1)/NP_ETA     
@@ -132,7 +111,28 @@
 
       jminmpi=jstrmpi
       jmaxmpi=jendmpi
-                
+
+#ifdef PARALLEL_FILES
+# ifndef EW_PERIODIC
+      xi_rho=Lmmpi
+      xi_u=xi_rho
+      if (ii.eq.0) xi_rho=xi_rho+1
+      if (ii.eq.NP_XI-1) then
+        xi_rho=xi_rho+1
+        xi_u=xi_u+1
+      endif
+# endif
+# ifndef NS_PERIODIC
+      eta_rho=Mmmpi
+      eta_v=eta_rho
+      if (jj.eq.0) eta_rho=eta_rho+1
+      if (jj.eq.NP_ETA-1) then
+        eta_rho=eta_rho+1
+        eta_v=eta_v+1
+      endif
+# endif
+#endif
+
       return
       end
 

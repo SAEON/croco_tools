@@ -62,6 +62,13 @@
      &      dimids(maxdims,maxvars),          ibuff(maxdims)
       common /partit_main/  buff,  ncid,  dimid,  dimsize, varid,
      &    vartype, vardims, start, count, start1, dimids,  ibuff
+      integer LLm, MMm
+      integer chunk_size_X, margin_X
+      integer chunk_size_E, margin_E      
+      integer istrmpi, jstrmpi
+      integer iendmpi, jendmpi
+      integer Lmmpi, Mmmpi
+      
 #include "netcdf.inc"
 !
 ! Check how many arguments are given, complain about the error,
@@ -240,6 +247,8 @@ c**       write(*,'(I3,1x,A,T16,I3)') i,dimname(i)(1:lvar),dimsize(i)
 ! respectively. If it cannot be divided, complain about the error
 ! and exit.
 !
+        LLm = xi_rho - 2
+        MMm = eta_rho - 2
         if (xi_rho .eq. xi_u) then
           XiPeriodic=.true.
           subXI=xi_rho/NP_XI
@@ -254,13 +263,16 @@ c**       write(*,'(I3,1x,A,T16,I3)') i,dimname(i)(1:lvar),dimsize(i)
         elseif (xi_rho .eq. xi_u+1) then 
           XiPeriodic=.false.
           subXI=(xi_rho-2)/NP_XI
-          if (subXI*NP_XI .ne. xi_rho-2) then
-            write(stdout,'(/8x,A,1x,A,I4,1x,A/15x,A,I3,1x,A/)')
-     &         'ERROR: Cannot partition XI-direction:', 'xi_rho-2 =',
-     &          xi_rho-2,  'is',  'not divisible by NP_XI =',  NP_XI,
-     &         'in nonperiodic XI case.'
-            goto 97
-          endif
+          chunk_size_X=(LLm+NP_XI-1)/NP_XI
+          margin_X=(NP_XI*chunk_size_X-LLm)/2
+          
+C          if (subXI*NP_XI .ne. xi_rho-2) then
+C            write(stdout,'(/8x,A,1x,A,I4,1x,A/15x,A,I3,1x,A/)')
+C     &         'ERROR: Cannot partition XI-direction:', 'xi_rho-2 =',
+C     &          xi_rho-2,  'is',  'not divisible by NP_XI =',  NP_XI,
+C     &         'in nonperiodic XI case.'
+C            goto 97
+C          endif
         else
           write(stdout,'(/8x,2A/)') 'ERROR: inconsistent ',
      &                'dimensions ''xi_rho'' and ''xi_u''.' 
@@ -270,6 +282,7 @@ c**       write(*,'(I3,1x,A,T16,I3)') i,dimname(i)(1:lvar),dimsize(i)
         if (eta_rho .eq. eta_v) then
           EtaPeriodic=.true.
           subETA=eta_rho/NP_ETA
+      
           if (subETA*NP_ETA .ne. eta_rho) then
             write(stdout,'(/8x,A,1x,A,I4,1x,A/15x,A,I3,1x,A/)')
      &         'ERROR: Cannot partition ETA-direction:', 'eta_rho =',
@@ -281,14 +294,17 @@ c**       write(*,'(I3,1x,A,T16,I3)') i,dimname(i)(1:lvar),dimsize(i)
         elseif (eta_rho .eq. eta_v+1) then
           EtaPeriodic=.false.
           subETA=(eta_rho-2)/NP_ETA
+          
+          chunk_size_E=(MMm+NP_ETA-1)/NP_ETA
+          margin_E=(NP_ETA*chunk_size_E-MMm)/2          
 
-          if (subETA*NP_ETA .ne. eta_rho-2) then
-            write(stdout,'(/8x,A,1x,A,I4,1x,A/15x,A,I3,1x,A/)')
-     &        'ERROR: Cannot partition ETA-direction:','eta_rho-2 =',
-     &         eta_rho-2, 'is',  'not divisible by NP_ETA =', NP_ETA,
-     &        'in nonperiodic ETA case.'
-            goto 97
-          endif
+C          if (subETA*NP_ETA .ne. eta_rho-2) then
+C            write(stdout,'(/8x,A,1x,A,I4,1x,A/15x,A,I3,1x,A/)')
+C     &        'ERROR: Cannot partition ETA-direction:','eta_rho-2 =',
+C     &         eta_rho-2, 'is',  'not divisible by NP_ETA =', NP_ETA,
+C     &        'in nonperiodic ETA case.'
+C            goto 97
+C          endif
         else
           write(stdout,'(/8x,A,1x,A/)') 'ERROR: inconsistent',
      &                 'dimensions ''eta_rho'' and ''eta_v''.'
@@ -318,27 +334,41 @@ c**       write(*,'(I3,1x,A,T16,I3)') i,dimname(i)(1:lvar),dimsize(i)
 !
           jj=node/NP_XI
           ii=node-jj*NP_XI
+          
+      istrmpi=1+ii*chunk_size_X-margin_X
+      iendmpi=istrmpi+chunk_size_X-1
+      istrmpi=max(istrmpi,1)
+      iendmpi=min(iendmpi,LLm)
+
+      jstrmpi=1+jj*chunk_size_E-margin_E
+      jendmpi=jstrmpi+chunk_size_E-1
+      jstrmpi=max(jstrmpi,1)
+      jendmpi=min(jendmpi,MMm)     
+ 
+      Lmmpi=iendmpi-istrmpi+1
+      Mmmpi=jendmpi-jstrmpi+1
+      
           do i=1,ndims
             size=dimsize(i)
             if (i .eq. id_xi_rho) then
-              size=subXI
+              size=Lmmpi
               if (.not.XiPeriodic) then
                 if (ii.eq.0      ) size=size+1
                 if (ii.eq.NP_XI-1) size=size+1
               endif
             elseif (i .eq. id_xi_u) then
-              size=subXI
+              size=Lmmpi
               if (.not.XiPeriodic) then
                 if (ii.eq.NP_XI-1) size=size+1 
               endif
             elseif (i .eq. id_eta_rho) then
-              size=subETA
+              size=Mmmpi
               if (.not.EtaPeriodic) then
                 if (jj.eq.0       ) size=size+1 
                 if (jj.eq.NP_ETA-1) size=size+1 
               endif
             elseif (i .eq. id_eta_v) then
-              size=subETA
+              size=Mmmpi
               if (.not.EtaPeriodic) then
                 if (jj.eq.NP_ETA-1) size=size+1 
               endif
@@ -628,11 +658,25 @@ c          ierr=nf_set_fill (ncid(node), nf_nofill, i)
                 do node=0,NNODES-1
                   jj=node/NP_XI
                   ii=node-jj*NP_XI
+                  
+      istrmpi=1+ii*chunk_size_X-margin_X
+      iendmpi=istrmpi+chunk_size_X-1
+      istrmpi=max(istrmpi,1)
+      iendmpi=min(iendmpi,LLm)
+
+      jstrmpi=1+jj*chunk_size_E-margin_E
+      jendmpi=jstrmpi+chunk_size_E-1
+      jstrmpi=max(jstrmpi,1)
+      jendmpi=min(jendmpi,MMm)     
+ 
+      Lmmpi=iendmpi-istrmpi+1
+      Mmmpi=jendmpi-jstrmpi+1
+      
                   size=1
                   do j=1,vardims(i)
                     if (dimids(j,i).eq.id_xi_rho) then
-                      start(j)=1+ii*subXI
-                      count(j)=subXI
+                      start(j)=istrmpi
+                      count(j)=Lmmpi
                       if (.not.XiPeriodic) then
                         if (ii.gt.0      ) start(j)=start(j)+1
                         if (ii.eq.0      ) count(j)=count(j)+1
@@ -641,16 +685,16 @@ c          ierr=nf_set_fill (ncid(node), nf_nofill, i)
                       start1(j)=1
 
                     elseif (dimids(j,i).eq.id_xi_u) then
-                      start(j)=1+ii*subXI
-                      count(j)=subXI
+                      start(j)=istrmpi
+                      count(j)=Lmmpi
                       if (.not.XiPeriodic) then
                         if (ii.eq.NP_XI-1) count(j)=count(j)+1
                       endif
                       start1(j)=1
 
                     elseif (dimids(j,i).eq.id_eta_rho) then
-                      start(j)=1+jj*subETA
-                      count(j)=subETA
+                      start(j)=jstrmpi
+                      count(j)=Mmmpi
                       if (.not.EtaPeriodic) then
                         if (jj.gt.0       ) start(j)=start(j)+1
                         if (jj.eq.0       ) count(j)=count(j)+1
@@ -659,8 +703,8 @@ c          ierr=nf_set_fill (ncid(node), nf_nofill, i)
                       start1(j)=1
 
                     elseif (dimids(j,i).eq.id_eta_v) then
-                      start(j)=1+jj*subETA
-                      count(j)=subETA
+                      start(j)=jstrmpi
+                      count(j)=Mmmpi
                       if (.not.EtaPeriodic) then
                         if (jj.eq.NP_ETA-1) count(j)=count(j)+1
                       endif
