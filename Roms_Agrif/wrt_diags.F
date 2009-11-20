@@ -107,6 +107,7 @@
 !
 ! indxTXadv
 !
+        if (wrtdia(indxTXadv+itrc-1)) then
           ierr=nf_fwrite(TXadv(START_2D_ARRAY,1,itrc), nciddia,
      &                               diaTXadv(itrc), record, r3dvar)
           if (ierr .ne. nf_noerr) then
@@ -115,9 +116,11 @@
      &           record, ierr MYID
             goto 99                                       !--> ERROR
           endif
+        endif
 !
 ! indxTYadv
 !
+        if (wrtdia(indxTYadv+itrc-1)) then
           ierr=nf_fwrite(TYadv(START_2D_ARRAY,1,itrc), nciddia,
      &                               diaTYadv(itrc), record, r3dvar)
           if (ierr .ne. nf_noerr) then
@@ -126,9 +129,11 @@
      &           record, ierr MYID
             goto 99                                       !--> ERROR
           endif
+        endif
 !
 ! indxTVadv
 !
+        if (wrtdia(indxTVadv+itrc-1)) then
           ierr=nf_fwrite(TVadv(START_2D_ARRAY,1,itrc), nciddia,
      &                               diaTVadv(itrc), record, r3dvar)
           if (ierr .ne. nf_noerr) then
@@ -137,9 +142,11 @@
      &           record, ierr MYID
             goto 99                                       !--> ERROR
           endif
+        endif
 !
 ! indxTHmix
 !
+        if (wrtdia(indxTHmix+itrc-1)) then
           ierr=nf_fwrite(THmix(START_2D_ARRAY,1,itrc), nciddia,
      &                               diaTHmix(itrc), record, r3dvar)
           if (ierr .ne. nf_noerr) then
@@ -148,9 +155,11 @@
      &           record, ierr MYID
             goto 99                                       !--> ERROR
           endif
+        endif
 !
 ! indxTVmix
 !
+        if (wrtdia(indxTVmix+itrc-1)) then
           ierr=nf_fwrite(TVmix(START_2D_ARRAY,1,itrc), nciddia,
      &                               diaTVmix(itrc), record, r3dvar)
           if (ierr .ne. nf_noerr) then
@@ -159,9 +168,11 @@
      &           record, ierr MYID
             goto 99                                       !--> ERROR
           endif
+        endif
 !
 ! indxTForc 
 !
+        if (wrtdia(indxTForc+itrc-1)) then
          ierr = nf_fwrite(TForc(START_2D_ARRAY,1,itrc), 
      &               nciddia, diaTForc(itrc), record, r3dvar)
          if (ierr .ne. nf_noerr) then
@@ -170,9 +181,11 @@
      &           record, ierr MYID 
             goto 99
          endif
+       endif
 !
 ! indxTrate
 !
+        if (wrtdia(indxTrate+itrc-1)) then
           ierr = nf_fwrite(Trate(START_2D_ARRAY,1,itrc), 
      &        nciddia, diaTrate(itrc), record, r3dvar)
           if (ierr .ne. nf_noerr) then
@@ -181,6 +194,7 @@
      &           record, ierr MYID 
             goto 99
           endif
+        endif
 !
 #ifdef DIAGNOSTICS_TS_MLD
 !
@@ -188,8 +202,9 @@
 ! Tracer diagnostic variables averaged over the MLD
 !---------------------------------------------------------------
 !
-! indxTXadv
+! indxTXadv_mld
 !
+        if (wrtdia(indxTXadv_mld+itrc-1)) then
           ierr=nf_fwrite(TXadv_mld(START_2D_ARRAY,itrc), nciddia,
      &                               diaTXadv_mld(itrc), record, r2dvar)
           if (ierr .ne. nf_noerr) then
@@ -198,9 +213,11 @@
      &           record, ierr MYID
             goto 99                                       !--> ERROR
           endif
+        endif
 !
-! indxTYadv
+! indxTYadv_mld
 !
+        if (wrtdia(indxTYadv_mld+itrc-1)) then
           ierr=nf_fwrite(TYadv_mld(START_2D_ARRAY,itrc), nciddia,
      &                               diaTYadv_mld(itrc), record, r2dvar)
           if (ierr .ne. nf_noerr) then
@@ -209,9 +226,11 @@
      &           record, ierr MYID
             goto 99                                       !--> ERROR
           endif
+        endif
 !
-! indxTVadv
+! indxTVadv_mld
 !
+        if (wrtdia(indxTVadv_mld+itrc-1)) then
           ierr=nf_fwrite(TVadv_mld(START_2D_ARRAY,itrc), nciddia,
      &                               diaTVadv_mld(itrc), record, r2dvar)
           if (ierr .ne. nf_noerr) then
@@ -220,9 +239,11 @@
      &           record, ierr MYID
             goto 99                                       !--> ERROR
           endif
+        endif
 !
 ! indxTHmix
 !
+        if (wrtdia(indxTHmix_mld+itrc-1)) then
           ierr=nf_fwrite(THmix_mld(START_2D_ARRAY,itrc), nciddia,
      &                               diaTHmix_mld(itrc), record, r2dvar)
           if (ierr .ne. nf_noerr) then
@@ -231,9 +252,11 @@
      &           record, ierr MYID
             goto 99                                       !--> ERROR
           endif
+       endif
 !
-! indxTVmix
+! indxTVmix_mld
 !
+        if (wrtdia(indxTVmix_mld+itrc-1)) then
           ierr=nf_fwrite(TVmix_mld(START_2D_ARRAY,itrc), nciddia,
      &                               diaTVmix_mld(itrc), record, r2dvar)
           if (ierr .ne. nf_noerr) then
@@ -242,9 +265,11 @@
      &           record, ierr MYID
             goto 99                                       !--> ERROR
           endif
+        endif
 !
-! indxTForc 
+! indxTForc_mld
 !
+        if (wrtdia(indxTVmix_mld+itrc-1)) then
          ierr = nf_fwrite(TForc_mld(START_2D_ARRAY,itrc), 
      &               nciddia, diaTForc_mld(itrc), record, r2dvar)
          if (ierr .ne. nf_noerr) then
@@ -252,10 +277,12 @@
             write(stdout,1) vname(1,indxTForc_mld+itrc-1)(1:lvar),
      &           record, ierr MYID 
             goto 99
-         endif
+         endif 
+       endif
 !
-! indxTrate
+! indxTrate_mld
 !
+        if (wrtdia(indxTrate_mld+itrc-1)) then
           ierr = nf_fwrite(Trate_mld(START_2D_ARRAY,itrc), 
      &        nciddia, diaTrate_mld(itrc), record, r2dvar)
           if (ierr .ne. nf_noerr) then
@@ -264,9 +291,11 @@
      &           record, ierr MYID 
             goto 99
           endif
+        endif
 !
-! indxTentr
+! indxTentr_mld
 !
+        if (wrtdia(indxTentr_mld+itrc-1)) then
           ierr = nf_fwrite(Tentr_mld(START_2D_ARRAY,itrc),
      &        nciddia, diaTentr_mld(itrc), record, r2dvar)
           if (ierr .ne. nf_noerr) then
@@ -275,6 +304,7 @@
      &           record, ierr MYID
             goto 99
           endif
+        endif
 !
 #endif /*DIAGNOSTICS_TS_MLD*/
 !
@@ -333,11 +363,13 @@
 
 
       if (ierr .eq. nf_noerr) then
-        write(stdout,'(6x,A,2(A,I4,1x),A,I3)') 'WRT_DIAG -- wrote ',
+        MPI_master_only write(stdout,'(6x,A,2(A,I4,1x),A,I3)') 
+     &            'WRT_DIAG -- wrote ',
      &            'diag fields into time record =', record, '/',
      &             nrecdia  MYID
       else
-        write(stdout,'(/1x,2A/)') 'WRT_DIAG ERROR: Cannot ',
+        MPI_master_only write(stdout,'(/1x,2A/)') 
+     &             'WRT_DIAG ERROR: Cannot ',
      &             'synchronize/close diag netCDF file.'
         may_day_flag=3
       endif

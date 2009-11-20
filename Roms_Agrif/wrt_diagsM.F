@@ -7,6 +7,7 @@
 !---------------------------------------------------------------
 ! Write diagnostics fields at requested levels into diagnostics 
 ! netCDF file.
+
 !---------------------------------------------------------------
 !
       subroutine wrt_diagsM
@@ -112,7 +113,7 @@
           else
             ivar=v3dvar
           endif
-
+        if (wrtdiaM(indxMXadv+itrc-1)) then
           ierr=nf_fwrite(MXadv(START_2D_ARRAY,1,itrc), nciddiaM,
      &                               diaMXadv(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -121,9 +122,11 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
+        endif       
 !
 ! indxMYadv
 !
+        if (wrtdiaM(indxMYadv+itrc-1)) then
           ierr=nf_fwrite(MYadv(START_2D_ARRAY,1,itrc), nciddiaM,
      &                               diaMYadv(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -132,9 +135,11 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
+         endif
 !
 ! indxMVadv
 !
+        if (wrtdiaM(indxMVadv+itrc-1)) then
           ierr=nf_fwrite(MVadv(START_2D_ARRAY,1,itrc), nciddiaM,
      &                               diaMVadv(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -143,9 +148,11 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
+         endif
 !
 ! indxMCor
 !
+        if (wrtdiaM(indxMCor+itrc-1)) then
           ierr=nf_fwrite(MCor(START_2D_ARRAY,1,itrc), nciddiaM,
      &                               diaMCor(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -154,9 +161,11 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
+         endif
 !
 ! indxMPrsgrd
 !
+        if (wrtdiaM(indxMPrsgrd+itrc-1)) then
           ierr=nf_fwrite(MPrsgrd(START_2D_ARRAY,1,itrc), nciddiaM,
      &                               diaMPrsgrd(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -165,9 +174,11 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
+         endif
 !
 ! indxMHmix
 !
+        if (wrtdiaM(indxMHmix+itrc-1)) then
           ierr=nf_fwrite(MHmix(START_2D_ARRAY,1,itrc), nciddiaM,
      &                               diaMHmix(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -176,9 +187,11 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
+         endif
 !
 ! indxMVmix
 !
+        if (wrtdiaM(indxMVmix+itrc-1)) then
           ierr=nf_fwrite(MVmix(START_2D_ARRAY,1,itrc), nciddiaM,
      &                               diaMVmix(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -187,9 +200,11 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
+         endif
 !
 ! indxMrate
 !
+        if (wrtdiaM(indxMrate+itrc-1)) then
           ierr = nf_fwrite(Mrate(START_2D_ARRAY,1,itrc), 
      &        nciddiaM, diaMrate(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -198,6 +213,8 @@
      &           record, ierr MYID 
             goto 99
           endif
+         endif
+!
       enddo
 !
 #  ifdef DEBUG
@@ -254,11 +271,13 @@
 
 
       if (ierr .eq. nf_noerr) then
-        write(stdout,'(6x,A,2(A,I4,1x),A,I3)') 'WRT_DIAGM -- wrote ',
-     &            'diag fields into time record =', record, '/',
+        MPI_master_only write(stdout,'(6x,A,2(A,I4,1x),A,I3)')
+     &            'WRT_DIAGM -- wrote',
+     &            ' diag fields into time record =', record, '/',
      &             nrecdiaM  MYID
       else
-        write(stdout,'(/1x,2A/)') 'WRT_DIAGM ERROR: Cannot ',
+        MPI_master_only write(stdout,'(/1x,2A/)') 
+     &             'WRT_DIAGM ERROR: Cannot ',
      &             'synchronize/close diag netCDF file.'
         may_day_flag=3
       endif

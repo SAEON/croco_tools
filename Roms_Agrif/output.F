@@ -38,15 +38,15 @@
      &    .or. (mod(ilc-1,navg).eq.0 .and. wrtavg(indxTime))
 #endif
 #if defined DIAGNOSTICS_TS
-     &    .or. (mod(ilc-1,nwrtdia).eq.0 .and. wrtdia)
+     &    .or. (mod(ilc-1,nwrtdia).eq.0 .and. wrtdia(indxTime))
 # ifdef AVERAGES
-     &    .or. (mod(ilc-1,nwrtdia_avg).eq.0 .and. wrtdia_avg)
+     &    .or. (mod(ilc-1,nwrtdia_avg).eq.0 .and. wrtdia_avg(indxTime))
 # endif
 #endif
 #if defined DIAGNOSTICS_UV
-     &    .or. (mod(ilc-1,nwrtdiaM).eq.0 .and. wrtdiaM)
+     &    .or. (mod(ilc-1,nwrtdiaM).eq.0 .and. wrtdiaM(indxTime))
 # ifdef AVERAGES
-     &    .or. (mod(ilc-1,nwrtdiaM_avg).eq.0 .and. wrtdiaM_avg)
+     &    .or. (mod(ilc-1,nwrtdiaM_avg).eq.0 .and. wrtdiaM_avg(indxTime))
 # endif
 #endif
 #ifdef DIAGNOSTICS_BIO
@@ -124,28 +124,30 @@
         if (mod(ilc-1,navg).eq.0 .and. wrtavg(indxTime)) call wrt_avg
 #endif
 #if defined DIAGNOSTICS_TS
-        if (mod(ilc-1,nwrtdia).eq.0 .and. wrtdia) call wrt_diags
+        if (mod(ilc-1,nwrtdia).eq.0 .and. wrtdia(indxTime)) 
+     &                                              call wrt_diags
 # ifdef AVERAGES
-       if (ldefdia_avg .and. mod(ilc-1,nwrtdia_avg).eq.0 
-     &                 .and. wrtdia_avg) call wrt_diags_avg
+        if (ldefdia_avg .and. mod(ilc-1,nwrtdia_avg).eq.0 
+     &                 .and. wrtdia_avg(indxTime))  call wrt_diags_avg
 # endif
 #endif
 #if defined DIAGNOSTICS_UV
-        if (mod(ilc-1,nwrtdiaM).eq.0 .and. wrtdiaM) call wrt_diagsM
+        if (mod(ilc-1,nwrtdiaM).eq.0 .and. wrtdiaM(indxTime)) 
+     &                                              call wrt_diagsM
 # ifdef AVERAGES
-       if (ldefdiaM_avg .and. mod(ilc-1,nwrtdiaM_avg).eq.0
-     &                 .and. wrtdiaM_avg) call wrt_diagsM_avg
+        if (ldefdiaM_avg .and. mod(ilc-1,nwrtdiaM_avg).eq.0
+     &                 .and. wrtdiaM_avg(indxTime)) call wrt_diagsM_avg
 # endif
 #endif
 #if defined DIAGNOSTICS_BIO
-       if (mod(ilc-1,nwrtdiabio).eq.0 .and. wrtdiabio) then
+        if (mod(ilc-1,nwrtdiabio).eq.0 .and. wrtdiabio) then
           call wrt_bio_diags
-       endif
+        endif
 # ifdef AVERAGES
-       if (ldefdiabio_avg .and. mod(ilc-1,nwrtdiabio_avg).eq.0
+        if (ldefdiabio_avg .and. mod(ilc-1,nwrtdiabio_avg).eq.0
      & .and. wrtdiabio_avg) then
            call wrt_bio_diags_avg
-       endif
+        endif
 # endif
 #endif
 #ifdef FLOATS

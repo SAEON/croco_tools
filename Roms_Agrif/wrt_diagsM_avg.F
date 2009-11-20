@@ -99,21 +99,22 @@
         goto 99                                           !--> ERROR
       endif
 
-!
-! Momentum diag variables.
-! -------- ---- ----------
+!---------------------------------------------------------------
+! Momentum diagnostic variables.
+!---------------------------------------------------------------
 !
 !
       do itrc=1,2
-!
-! indxMXadv
-!
+
           if (itrc.eq.1) then
             ivar=u3dvar
           else
             ivar=v3dvar
           endif
-
+!
+! indxMXadv
+!
+        if (wrtdiaM_avg(indxMYadv+itrc-1)) then
           ierr=nf_fwrite(MXadv_avg(START_2D_ARRAY,1,itrc), nciddiaM_avg,
      &                              diaMXadv_avg(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -122,9 +123,11 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
+        endif       
 !
 ! indxMYadv
 !
+        if (wrtdiaM_avg(indxMYadv+itrc-1)) then
           ierr=nf_fwrite(MYadv_avg(START_2D_ARRAY,1,itrc), nciddiaM_avg,
      &                               diaMYadv_avg(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -133,9 +136,11 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
+         endif
 !
 ! indxMVadv
 !
+        if (wrtdiaM_avg(indxMVadv+itrc-1)) then
           ierr=nf_fwrite(MVadv_avg(START_2D_ARRAY,1,itrc), nciddiaM_avg,
      &                               diaMVadv_avg(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -144,9 +149,11 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
+         endif
 !
 ! indxMCor
 !
+        if (wrtdiaM_avg(indxMCor+itrc-1)) then
           ierr=nf_fwrite(MCor_avg(START_2D_ARRAY,1,itrc), nciddiaM_avg,
      &                               diaMCor_avg(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -155,9 +162,11 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
+         endif
 !
 ! indxMPrsgrd
 !
+        if (wrtdiaM_avg(indxMPrsgrd+itrc-1)) then
           ierr=nf_fwrite(MPrsgrd_avg(START_2D_ARRAY,1,itrc),nciddiaM_avg,
      &                               diaMPrsgrd_avg(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -166,9 +175,11 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
+         endif
 !
 ! indxMHmix
 !
+        if (wrtdiaM_avg(indxMHmix+itrc-1)) then
           ierr=nf_fwrite(MHmix_avg(START_2D_ARRAY,1,itrc), nciddiaM_avg,
      &                               diaMHmix_avg(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -177,9 +188,11 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
+         endif
 !
 ! indxMVmix
 !
+        if (wrtdiaM_avg(indxMVmix+itrc-1)) then
           ierr=nf_fwrite(MVmix_avg(START_2D_ARRAY,1,itrc), nciddiaM_avg,
      &                               diaMVmix_avg(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -188,9 +201,11 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
+         endif
 !
 ! indxMrate
 !
+        if (wrtdiaM_avg(indxMrate+itrc-1)) then
           ierr = nf_fwrite(Mrate_avg(START_2D_ARRAY,1,itrc), 
      &        nciddiaM_avg, diaMrate_avg(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -199,6 +214,7 @@
      &           record, ierr MYID 
             goto 99
           endif
+         endif
 !
       enddo
 !
@@ -238,10 +254,11 @@
  100  continue
 
 !
+!---------------------------------------------------------------
 ! Synchronize netCDF file to disk to allow other processes
 ! to access data immediately after it is written.
+!---------------------------------------------------------------
 !
-
 #if defined MPI & !defined PARALLEL_FILES
       ierr=nf_close (nciddiaM_avg)
       if (nrpfdiaM_avg.gt.0 .and. record.ge.nrpfdiaM_avg) nciddiaM_avg=-1
@@ -256,11 +273,13 @@
 
 
       if (ierr .eq. nf_noerr) then
-       write(stdout,'(6x,A,2(A,I4,1x),A,I3)') 'WRT_DIAGM_AVG -- wrote ',
+       MPI_master_only write(stdout,'(6x,A,2(A,I4,1x),A,I3)') 
+     &            'WRT_DIAGM_AVG -- wrote ',
      &            'diagM_avg fields into time record =', record, '/',
      &             nrecdiaM_avg  MYID
       else
-        write(stdout,'(/1x,2A/)') 'WRT_DIAGM_AVG ERROR: Cannot ',
+        MPI_master_only write(stdout,'(/1x,2A/)') 
+     &             'WRT_DIAGM_AVG ERROR: Cannot ',
      &             'synchronize/close diag_avg netCDF file.'
         may_day_flag=3
       endif

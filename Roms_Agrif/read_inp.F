@@ -105,6 +105,20 @@
 #ifdef AVERAGES
       wrtavg(indxTime)=.false.
 #endif
+
+#ifdef DIAGNOSTICS_TS
+       wrtdia(indxTime)=.false.
+#ifdef AVERAGES
+      wrtdia_avg(indxTime)=.false.
+#endif
+#endif
+
+#ifdef DIAGNOSTICS_UV
+      wrtdiaM(indxTime)=.false.
+#ifdef AVERAGES
+      wrtdiaM_avg(indxTime)=.false.
+#endif
+#endif
 !
 ! Read in keyword: keep trying, until keyword is found.
 ! ==== == ======== ==== ======= ===== ======= == ======
@@ -443,8 +457,8 @@ c        close(testunit)
 # endif
         dianameM=fname(1:lstr)
         MPI_master_only write(stdout,
-     &    '(7x,A,2x,A/,32x,A,1x,L1,2x,A,I4,2x,A,I3)')
-     &    'Momemtum Diag File:', dianameM(1:lstr),  'Create new:',
+     &    '(5x,A,2x,A/,32x,A,1x,L1,2x,A,I4,2x,A,I3)')
+     &    'Momentum Diag File:', dianameM(1:lstr),  'Create new:',
      &    ldefdiaM, 'nwrt =', nwrtdiaM, 'rec/file =', nrpfdiaM
 !
 # ifdef AVERAGES
@@ -459,8 +473,8 @@ c        close(testunit)
 # endif
         dianameM_avg=fname(1:lstr)
         MPI_master_only write(stdout,
-     &    '(3x,A,2x,A/,32x,A,1x,L1,2x,A,I4,2x,A,I3,/32x,A,I10)')
-     &    'Momemtum AVG Diag File:',dianameM_avg(1:lstr),'Create new:',
+     &    '(5x,A,2x,A/,32x,A,1x,L1,2x,A,I4,2x,A,I3,/32x,A,I10)')
+     &    'Momentum AVG Diag File:',dianameM_avg(1:lstr),'Create new:',
      &    ldefdiaM_avg,'nwrt =',nwrtdiaM_avg,'rec/file =',nrpfdiaM_avg,
      &    'Starting timestep = ',ntsdiaM_avg
 
@@ -480,7 +494,7 @@ c        close(testunit)
 # endif
         dianamebio=fname(1:lstr)
         MPI_master_only write(stdout,
-     &    '(8x,A,2x,A/,32x,A,1x,L1,2x,A,I4,2x,A,I3)')
+     &    '(8x,A,2x,A/,32x,A,1x,L1,2x,A,I4,2x,A,I3)') 
      &    'Biology Diag File:', dianamebio(1:lstr),  'Create new:',
      &    ldefdiabio, 'nwrt =', nwrtdiabio, 'rec/file =', nrpfdiabio
 !
@@ -702,14 +716,14 @@ c        close(testunit)
 #  endif
 
         MPI_master_only write(stdout,'(8(/6x,l1,2x,A,1x,A))')
-     &    wrthis(indxR),    'write RHO  ', 'Density anomaly.'
+     &    wrthis(indxR),     'write RHO  ', 'Density anomaly.'
      &  , wrthis(indxO),    'write Omega', 'Omega vertical velocity.'
      &  , wrthis(indxW),    'write W    ', 'True vertical velocity.'
-     &  , wrthis(indxAkv),  'write Akv  ', 'Vertical viscosity.'
+     &  , wrthis(indxAkv), 'write Akv  ', 'Vertical viscosity.'
      &  , wrthis(indxAkt),  'write Akt  ',
      &                      'Vertical diffusivity for temperature.'
 # ifdef SALINITY
-     &  , wrthis(indxAks),  'write Aks  ',
+     &  , wrthis(indxAks), 'write Aks  ',
      &                         'Vertical diffusivity for salinity.'
 # endif
 # ifdef LMD_SKPP
@@ -761,6 +775,7 @@ c        close(testunit)
 #  ifdef DIF_COEF_3D
      &  , wrthis(indxDiff),  'write Visc3d', 'Horizontal viscosity.'
 #  endif
+
 #endif /* SOLVE3D */
 #ifdef AVERAGES
 !
@@ -851,10 +866,10 @@ c        close(testunit)
      &                                        .or. wrtavg(indxVWstr)
      &     
 #  if defined BULK_FLUX
-     &                                        .or. wrthis(indxShflx_rsw)
-     &                                        .or. wrthis(indxShflx_rlw)
-     &                                        .or. wrthis(indxShflx_lat)
-     &                                        .or. wrthis(indxShflx_sen)
+     &                                        .or. wrtavg(indxShflx_rsw)
+     &                                        .or. wrtavg(indxShflx_rlw)
+     &                                        .or. wrtavg(indxShflx_lat)
+     &                                        .or. wrtavg(indxShflx_sen)
 #  endif 
 #  ifdef BIOLOGY
      &                                        .or. wrtavg(indxHel)
@@ -971,20 +986,310 @@ c        close(testunit)
 !
 ! Switches for fields to be saved into tracer diagnostics file.
 !
-          wrtdia=.true.
+!!!!!         wrtdia=.true.
+      elseif (keyword(1:kwlen).eq.'diagnostics_history_fields') then
+        call cancel_kwd (keyword(1:kwlen), ierr)
+        read(input,*,err=95)  (wrtdia(itrc), 
+     &                      itrc=indxTXadv, indxTXadv+NT-1)
+     & ,  (wrtdia(itrc), itrc=indxTYadv,indxTYadv+NT-1)
+     & ,  (wrtdia(itrc), itrc=indxTVadv,indxTVadv+NT-1) 
+     & ,  (wrtdia(itrc), itrc=indxTHmix,indxTHmix+NT-1)
+     & ,  (wrtdia(itrc), itrc=indxTVmix,indxTVmix+NT-1) 
+     & ,  (wrtdia(itrc), itrc=indxTForc,indxTForc+NT-1) 
+     & ,  (wrtdia(itrc), itrc=indxTrate,indxTrate+NT-1)
+#ifdef DIAGNOSTICS_TS_MLD
+     &  ,  (wrtdia(itrc), itrc=indxTXadv_mld,indxTXadv_mld+NT-1)  
+     &  ,  (wrtdia(itrc), itrc=indxTYadv_mld,indxTYadv_mld+NT-1)
+     &  ,  (wrtdia(itrc), itrc=indxTVadv_mld,indxTVadv_mld+NT-1) 
+     &  ,  (wrtdia(itrc), itrc=indxTHmix_mld,indxTHmix_mld+NT-1)
+     &  ,  (wrtdia(itrc), itrc=indxTVmix_mld,indxTVmix_mld+NT-1)
+     &  ,  (wrtdia(itrc), itrc=indxTForc_mld,indxTForc_mld+NT-1)
+     &  ,  (wrtdia(itrc), itrc=indxTrate_mld,indxTrate_mld+NT-1)
+     &  ,  (wrtdia(itrc), itrc=indxTentr_mld,indxTentr_mld+NT-1)
+#endif  /* DIAGNOSTICS_TS_MLD */
+        do itrc=1,NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia(indxTXadv+itrc-1), 
+     &                     'write XADV equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia(indxTYadv+itrc-1),
+     &                     'write YADV equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia(indxTVadv+itrc-1),
+     &                     'write VADV equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia(indxTHmix+itrc-1),
+     &                     'write HMIX equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia(indxTVmix+itrc-1),
+     &                     'write VMIX equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia(indxTForc+itrc-1),
+     &                     'write FORC equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia(indxTrate+itrc-1),
+     &                     'write RATE equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+#ifdef DIAGNOSTICS_TS_MLD
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia(indxTXadv_mld+itrc-1),
+     &                     'write XADV_mld equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia(indxTYadv_mld+itrc-1),
+     &                     'write YADV_mld equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia(indxTVadv_mld+itrc-1),
+     &                     'write VADV_mld equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia(indxTHmix_mld+itrc-1),
+     &                     'write HMIX_mld equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia(indxTVmix_mld+itrc-1),
+     &                     'write VMIX_mld equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia(indxTForc_mld+itrc-1),
+     &                     'write FORC_mld equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia(indxTrate_mld+itrc-1),
+     &                     'write RATE_mld equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia(indxTentr_mld+itrc-1),
+     &                     'write ENTR_mld equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+#endif /* DIAGNOSTICS_TS_MLD */
+        enddo
+
+#if !defined DIAGNOSTICS_TS_MLD
+        do itrc=1,7*NT
+#else
+        do itrc=1,15*NT
+#endif
+          if (wrtdia(indxTXadv+itrc-1)) wrtdia(indxTime)=.true.
+        enddo
 # ifdef AVERAGES
-         wrtdia_avg=.true.
-# endif 
-#endif /*DIAGNOSTICS_TS */
+!!!!        wrtdia_avg=.true.
+!
+! Switches for fields to be saved into tracer diagnostics average file.
+!
+      elseif (keyword(1:kwlen).eq.'diagnostics_average_fields') then
+        call cancel_kwd (keyword(1:kwlen), ierr)
+        read(input,*,err=95) (wrtdia_avg(itrc), 
+     &    itrc=indxTXadv,indxTXadv+NT-1)
+     & ,  (wrtdia_avg(itrc), itrc=indxTYadv,indxTYadv+NT-1)
+     & ,  (wrtdia_avg(itrc), itrc=indxTVadv,indxTVadv+NT-1)
+     & ,  (wrtdia_avg(itrc), itrc=indxTHmix,indxTHmix+NT-1)
+     & ,  (wrtdia_avg(itrc), itrc=indxTVmix,indxTVmix+NT-1)
+     & ,  (wrtdia_avg(itrc), itrc=indxTForc,indxTForc+NT-1)
+     & ,  (wrtdia_avg(itrc), itrc=indxTrate,indxTrate+NT-1)
+#ifdef DIAGNOSTICS_TS_MLD
+     &  ,  (wrtdia_avg(itrc), itrc=indxTXadv_mld,indxTXadv_mld+NT-1) 
+     &  ,  (wrtdia_avg(itrc), itrc=indxTYadv_mld,indxTYadv_mld+NT-1)
+     &  ,  (wrtdia_avg(itrc), itrc=indxTVadv_mld,indxTVadv_mld+NT-1)
+     &  ,  (wrtdia_avg(itrc), itrc=indxTHmix_mld,indxTHmix_mld+NT-1)
+     &  ,  (wrtdia_avg(itrc), itrc=indxTVmix_mld,indxTVmix_mld+NT-1)
+     &  ,  (wrtdia_avg(itrc), itrc=indxTForc_mld,indxTForc_mld+NT-1)
+     &  ,  (wrtdia_avg(itrc), itrc=indxTrate_mld,indxTrate_mld+NT-1)
+     &  ,  (wrtdia_avg(itrc), itrc=indxTentr_mld,indxTentr_mld+NT-1)
+#endif  /* DIAGNOSTICS_TS_MLD */
+        do itrc=1,NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia_avg(indxTXadv+itrc-1), 
+     &                     'write averagered XADV equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia_avg(indxTYadv+itrc-1),
+     &                     'write averagered YADV equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia_avg(indxTVadv+itrc-1),
+     &                     'write averagered VADV equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia_avg(indxTHmix+itrc-1),
+     &                     'write averagered HMIX equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia_avg(indxTVmix+itrc-1),
+     &                     'write averagered VMIX equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia_avg(indxTForc+itrc-1),
+     &                     'write averagered FORC equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia_avg(indxTrate+itrc-1),
+     &                     'write averagered RATE equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+#ifdef DIAGNOSTICS_TS_MLD
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia_avg(indxTXadv_mld+itrc-1),
+     &                     'write averagered XADV_mld equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia_avg(indxTYadv_mld+itrc-1),
+     &                     'write averagered YADV_mld equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia_avg(indxTVadv_mld+itrc-1),
+     &                     'write averagered VADV_mld equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia_avg(indxTHmix_mld+itrc-1),
+     &                     'write averagered HMIX_mld equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia_avg(indxTVmix_mld+itrc-1),
+     &                     'write averagered VMIX_mld equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia_avg(indxTForc_mld+itrc-1),
+     &                     'write averagered FORC_mld equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia_avg(indxTrate_mld+itrc-1),
+     &                     'write averagered RATE_mld equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2,A,I4)')
+     &                     wrtdia_avg(indxTentr_mld+itrc-1),
+     &                     'write averagered ENTR_mld equation terms ',
+     &                     ' Tracer of index', itrc,'/',NT
+#endif /* DIAGNOSTICS_TS_MLD */
+        enddo
+
+#if !defined DIAGNOSTICS_TS_MLD
+        do itrc=1,7*NT
+#else
+        do itrc=1,15*NT
+#endif
+         if (wrtdia_avg(indxTXadv+itrc-1)) wrtdia_avg(indxTime)=.true.
+       enddo
+# endif /* AVERAGES  */
+#endif  /* DIAGNOSTICS_TS */
+
+
+
 #if defined DIAGNOSTICS_UV
 !
 ! Switches for fields to be saved into momentum diagnostics file.
 !
-          wrtdiaM=.true.
+!!          wrtdiaM=.true.
+      elseif (keyword(1:kwlen).eq.'diagnosticsM_history_fields') then
+        call cancel_kwd (keyword(1:kwlen), ierr)
+        read(input,*,err=95)  (wrtdiaM(itrc), 
+     &                       itrc=indxMXadv,indxMXadv+1)
+     &               ,  (wrtdiaM(itrc), itrc=indxMYadv,indxMYadv+1)
+     &               ,  (wrtdiaM(itrc), itrc=indxMVadv,indxMVadv+1)
+     &               ,  (wrtdiaM(itrc), itrc=indxMCor,indxMCor+1)
+     &               ,  (wrtdiaM(itrc), itrc=indxMPrsgrd,indxMPrsgrd+1)
+     &               ,  (wrtdiaM(itrc), itrc=indxMHmix,indxMHmix+1)
+     &               ,  (wrtdiaM(itrc), itrc=indxMVmix,indxMVmix+1)
+     &               ,  (wrtdiaM(itrc), itrc=indxMrate,indxMrate+1)
+         do itrc=1,2
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &                     wrtdiaM(indxMXadv+itrc-1), 
+     &                     'write averaged XADV equation terms ',
+     &                     ' Momentum of index', itrc
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &                     wrtdiaM(indxMYadv+itrc-1),
+     &                     'write averaged YADV equation terms ',
+     &                     ' Momentum of index', itrc
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &                     wrtdiaM(indxMVadv+itrc-1),
+     &                     'write averaged VADV equation terms ',
+     &                     ' Momentum of index', itrc
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &                     wrtdiaM(indxMCor+itrc-1),
+     &                     'write averaged MCOR equation terms ',
+     &                     ' Momentum of index', itrc
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &                     wrtdiaM(indxMPrsgrd+itrc-1),
+     &                     'write averaged MPRSGRD equation terms ',
+     &                     ' Momentum of index', itrc
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &                     wrtdiaM(indxMHmix+itrc-1),
+     &                     'write averaged HMIX equation terms ',
+     &                     ' Momentum of index', itrc
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &                     wrtdiaM(indxMVMIX+itrc-1),
+     &                     'write averaged VMIX equation terms ',
+     &                     ' Momentum of index', itrc
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &                     wrtdiaM(indxMrate+itrc-1),
+     &                     'write averaged RATE equation terms ',
+     &                     ' Momentum of index', itrc
+       enddo
+       do itrc=1,16
+          if (wrtdiaM(indxMXadv+itrc-1)) wrtdiaM(indxTime)=.true.
+       enddo
+
+
 # ifdef AVERAGES
-         wrtdiaM_avg=.true.
-# endif
+!!         wrtdiaM_avg=.true.
+      elseif (keyword(1:kwlen).eq.'diagnosticsM_average_fields') then
+        call cancel_kwd (keyword(1:kwlen), ierr)
+        read(input,*,err=95) (wrtdiaM_avg(itrc), 
+     &                    itrc=indxMXadv,indxMXadv+1)  
+     &            , (wrtdiaM_avg(itrc), itrc=indxMYadv,indxMYadv+1)
+     &            , (wrtdiaM_avg(itrc), itrc=indxMVadv,indxMVadv+1)
+     &            , (wrtdiaM_avg(itrc), itrc=indxMCor,indxMCor+1)
+     &            , (wrtdiaM_avg(itrc), itrc=indxMPrsgrd,indxMPrsgrd+1)
+     &            , (wrtdiaM_avg(itrc), itrc=indxMHmix,indxMHmix+1)
+     &            , (wrtdiaM_avg(itrc), itrc=indxMVmix,indxMVmix+1)
+     &            , (wrtdiaM_avg(itrc), itrc=indxMrate,indxMRate+1)
+
+        do itrc=1,2
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &                     wrtdiaM_avg(indxMXadv+itrc-1), 
+     &                     'write averaged XADV equation terms ',
+     &                     ' Momentum of index', itrc
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &                     wrtdiaM_avg(indxMYadv+itrc-1),
+     &                     'write averaged YADV equation terms ',
+     &                     ' Momentum of index', itrc
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &                     wrtdiaM_avg(indxMVadv+itrc-1),
+     &                     'write averaged VADV equation terms ',
+     &                     ' Momentum of index', itrc
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &                     wrtdiaM_avg(indxMCor+itrc-1),
+     &                     'write averaged MCor equation terms ',
+     &                     ' Momentum of index', itrc
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &                     wrtdiaM_avg(indxMPrsgrd+itrc-1),
+     &                     'write averaged MPRSGRD equation terms ',
+     &                     ' Momentum of index', itrc
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &                     wrtdiaM_avg(indxMHmix+itrc-1),
+     &                     'write averaged HMIX equation terms ',
+     &                     ' Momentum of index', itrc
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')                               
+     &                     wrtdiaM_avg(indxMVmix+itrc-1),
+     &                     'write averaged VMIX equation terms ',
+     &                     ' Momentum of index', itrc
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &                     wrtdiaM_avg(indxMrate+itrc-1),
+     &                     'write averaged RATE equation terms ',
+     &                     ' Momentum of index', itrc
+       enddo
+       do itrc=1,16
+         if (wrtdiaM_avg(indxMXadv+itrc-1)) wrtdiaM_avg(indxTime)=.true.
+       enddo
+# endif /* AVERAGES  */
 #endif /*DIAGNOSTICS_UV */
+
 #ifdef DIAGNOSTICS_BIO
 !
 ! Switches for fields to be saved into biology diagnostics file.

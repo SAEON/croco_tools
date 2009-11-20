@@ -590,15 +590,15 @@
      &      , wrtavg(NWRTHIS)
 #endif
 #if defined DIAGNOSTICS_TS 
-     &      , wrtdia
+     &      , wrtdia(NWRTHIS)
 # ifdef AVERAGES
-     &      , wrtdia_avg
+     &      , wrtdia_avg(NWRTHIS)
 # endif
 #endif
 #if defined DIAGNOSTICS_UV
-     &      , wrtdiaM
+     &      , wrtdiaM(NWRTHIS)
 # ifdef AVERAGES
-     &      , wrtdiaM_avg
+     &      , wrtdiaM_avg(NWRTHIS)
 # endif
 #endif
 #ifdef DIAGNOSTICS_BIO
