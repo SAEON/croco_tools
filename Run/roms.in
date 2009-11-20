@@ -64,20 +64,30 @@ sponge:          X_SPONGE [m],    V_SPONGE [m^2/sec]
 nudg_cof:    TauT_in, TauT_out, TauM_in, TauM_out  [days for all]
                 1.       360.      3.      360.
 
-
-
 diagnostics:   ldefdia   nwrtdia    nrpfdia /filename
-                  T        72         0
+                  T       5         0
                                  ROMS_FILES/roms_dia.nc
+diagnostics_history_fields:   TXadv(1:NT !!EXACT!!)  TYadv   TVadv   THmix  TVmix  Tforc  Trate  Xadvml  Yadvml   Vadvml  THmixml TVmixml Tforcml Tentml Trateml
+ T T       T F   T F     T F     T F     T F      T F    T F      T F       T F       T F    T F      T F      T F    T F  
+
 diag_avg: ldefdia_avg  ntsdia_avg  nwrtdia_avg  nprfdia_avg /filename
                T          1           72            0
                                  ROMS_FILES/roms_dia_avg.nc
+diagnostics_average_fields:  TXadv (1:NT !!EXACT!!)TYadv (1:NT)  TVadv(1:NT)   THmix(1:NT)   TVmix(1:NT)   Tforc(1:NT)   Trate(1:NT)
+ T T       T F   T F     T F     T F     T F      T F    T F      T F       T F       T F    T F      T F      T F    T F  
+
 diagnosticsM:   ldefdiaM   nwrtdiaM    nrpfdiaM /filename
                    T          72          0
                                  ROMS_FILES/roms_diaM.nc
+diagnosticsM_history_fields: MXadv MYadv MVadv MCor MPrsgrd MHmix MVmix MRate
+                                               T F     T F    T F       T F      T T       T T        T T        T T
+
 diagM_avg: ldefdiaM_avg  ntsdiaM_avg  nwrtdiaM_avg  nprfdiaM_avg /filename
                T          1           72            0
                                  ROMS_FILES/roms_diaM_avg.nc
+diagnosticsM_average_fields: MXadv MYadv MVadv MCor MPrsgrd MHmix MVmix MRate
+                                               T T     T T     T T       T F      T T       T T        T T        T T
+
 diagnostics_bio:   ldefdiabio   nwrtdiabio    nrpfdiabio /filename
                         T          72             0
                                  ROMS_FILES/roms_diabio.nc

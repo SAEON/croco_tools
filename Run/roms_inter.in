@@ -67,10 +67,27 @@ nudg_cof:    TauT_in, TauT_out, TauM_in, TauM_out  [days for all]
 
 diagnostics:   ldefdia   nwrtdia    nrpfdia /filename
                   T        144         0
-                                   roms_diags.nc
+                                   roms_dia.nc
+diagnostics_history_fields:   TXadv(1:NT !!EXACT!!) TYadv  TVadv  THmix TVmix  Tforc  Trate  TXadvml  TYadvml   TVadvml  THmixml TVmixml Tforcml Tentml Trateml
+ T T       T T   T T     T T     T T     T T      T T    T T      T T       T T       T T    T T      T T      T T    T T  
+
 diag_avg: ldefdia_avg  ntsdia_avg  nwrtdia_avg  nprfdia_avg /filename
                T          1           144            0
-                           roms_diags_avg.nc
+                           roms_dia_avg.nc
+diagnostics_average_fields:  TXadv (1:NT !EXACT!) TYadv  TVadv   THmix TVmix   Tforc   Trate TXadvml  TYadvml   TVadvml  THmixml TVmixml Tforcml Tentml Trateml
+ T T       T T   T T     T T     T T     T T      T T    T T      T T       T T       T T    T T      T T      T T    T T 
+
+diagnosticsM:   ldefdiaM   nwrtdiaM    nrpfdiaM /filename
+                   T          72          0
+                                 ROMS_FILES/roms_diaM.nc
+diagnosticsM_history_fields: MXadv MYadv MVadv MCor MPrsgrd MHmix MVmix MRate
+                                               T F     T T    T T       T T      T T       T T        T T        T T
+
+diagM_avg: ldefdiaM_avg  ntsdiaM_avg  nwrtdiaM_avg  nprfdiaM_avg /filename
+               T          1           72            0
+                                 ROMS_FILES/roms_diaM_avg.nc
+diagnosticsM_average_fields: MXadv MYadv MVadv MCor MPrsgrd MHmix MVmix MRate
+                                               T T     T T     T T       T T      T T       T T        T T        T T
 
 diagnostics_bio:   ldefdiabio   nwrtdiabio    nrpfdiabio /filename
                         T          20             0
