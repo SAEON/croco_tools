@@ -87,7 +87,7 @@
                     i0 = i+iminmpi-1
                     if (tabread(i0,j0)/=tab(i,j)) then
                        write(*,'(a6,a8,4i3,3e20.12)')'BUGBIN = ',
-     &                 comment,i0,j0,i,
+     &                 comment,i0,j0,i,j,
      &                 tabread(i0,j0),tab(i,j),
      &                 abs(tabread(i0,j0)-tab(i,j))
 !                       print *,'iif = ',iif,iic
