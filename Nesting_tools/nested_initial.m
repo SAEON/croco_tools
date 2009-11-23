@@ -28,8 +28,9 @@ function nested_initial(child_grd,parent_ini,child_ini,...
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 tindex=1;
+biol=0;
+pisces=0;
 
 %Check the number of variables in the clim parents file
 a= netcdf(parent_ini);
@@ -43,10 +44,23 @@ if nvar < 17
 elseif nvar < 20 
 biol=1;
 disp('Biol NPZD is on')
+disp('==========')
 else
 pisces=1;
 disp('Pisces is on')
+disp('==========')
 end
+
+if extrapmask==1
+disp('Extrapolation under mask is on')
+disp('====================')
+end
+
+if vertical_correc==1
+disp('Vertical correction is on')
+disp('====================')
+end
+
 
 if pisces & biol 
    error(['Both Biol NPZD and Pisces are ON, no possible yet !'])

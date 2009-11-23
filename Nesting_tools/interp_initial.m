@@ -51,5 +51,5 @@ case 'Yes'
   handles.childini=childname;
 end
 nested_initial(handles.childgrid,handles.parentini,handles.childini,...
-               handles.vertical_correc,handles.extrapmask,handles.biol)
+               handles.vertical_correc,handles.extrapmask)
 return
