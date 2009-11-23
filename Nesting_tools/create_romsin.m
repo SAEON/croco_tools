@@ -166,6 +166,86 @@ strcmp(myline(1:9),'boundary:')
       fprintf(fid2,'%s\n',['  ',fname]);
     end
   end
+  if strcmp(myline(1:12),'diagnostics:')
+    tline=fgetl(fid1);
+    A=sscanf(tline,'%s %f %f');
+    ldefdia=char(A(1));
+    nwrtdia=A(2);
+    nwrtdia=rfac*nwrtdia;
+    nrpfdia=A(3);
+    fprintf(fid2,'%s\n',['            ',ldefdia,...
+            '     ',num2str(nwrtdia),...
+            '     ',num2str(nrpfdia)]);
+    tline=fgetl(fid1);
+    fname=rem_blanks(tline);
+    if isempty(lev)
+      fprintf(fid2,'%s\n',['  ',fname,'.1']);
+    else
+      fname(end)=num2str(lev+1);
+      fprintf(fid2,'%s\n',['  ',fname]);
+    end
+  end
+  if strcmp(myline(1:9),'diag_avg:')
+    tline=fgetl(fid1);
+    A=sscanf(tline,'%s %f %f %f %f');
+    ldefdia_avg=char(A(1));
+    ntsdia_avg=A(2);
+    nwrtdia_avg=A(3);
+    nwrtdia_avg=rfac*nwrtdia_avg;
+    nrpfdia_avg=A(4);
+    fprintf(fid2,'%s\n',['    ',ldefdia_avg,...
+            '     ',num2str(ntsdia_avg),...
+            '     ',num2str(nwrtdia_avg),...
+            '     ',num2str(nrpfdia_avg)]);
+    tline=fgetl(fid1);
+    fname=rem_blanks(tline);
+    if isempty(lev)
+      fprintf(fid2,'%s\n',['  ',fname,'.1']);
+    else
+      fname(end)=num2str(lev+1);
+      fprintf(fid2,'%s\n',['  ',fname]);
+    end
+  end
+ if strcmp(myline(1:13),'diagnosticsM:')
+    tline=fgetl(fid1);
+    A=sscanf(tline,'%s %f %f');
+    ldefdiaM=char(A(1));
+    nwrtdiaM=A(2);
+    nwrtdiaM=rfac*nwrtdiaM;
+    nrpfdiaM=A(3);
+    fprintf(fid2,'%s\n',['    ',ldefdiaM,...
+            '    ',num2str(nwrtdiaM),...
+            '    ',num2str(nrpfdiaM)]);
+    tline=fgetl(fid1);
+    fname=rem_blanks(tline);
+    if isempty(lev)
+      fprintf(fid2,'%s\n',['  ',fname,'.1']);
+    else
+      fname(end)=num2str(lev+1);
+      fprintf(fid2,'%s\n',['  ',fname]);
+    end
+  end
+  if strcmp(myline(1:10),'diagM_avg:')
+    tline=fgetl(fid1);
+    A=sscanf(tline,'%s %f %f %f');
+    ldefdiaM_avg=char(A(1));
+    ntsdiaM_avg=A(2);
+    nwrtdiaM_avg=A(3);
+    nwrtdiaM_avg=rfac*nwrtdiaM_avg;
+    nrpfdiaM_avg=A(4);
+    fprintf(fid2,'%s\n',['     ',ldefdiaM_avg,...
+            '     ',num2str(ntsdiaM_avg),...
+            '     ',num2str(nwrtdiaM_avg),...
+            '     ',num2str(nrpfdiaM_avg)]);
+    tline=fgetl(fid1);
+    fname=rem_blanks(tline);
+    if isempty(lev)
+      fprintf(fid2,'%s\n',['  ',fname,'.1']);
+    else
+      fname(end)=num2str(lev+1);
+      fprintf(fid2,'%s\n',['  ',fname]);
+    end
+  end
   if strcmp(myline(1:7),'sponge:')
     tline=fgetl(fid1);
     A=sscanf(tline,'%f');
