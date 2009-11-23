@@ -8,8 +8,9 @@
 #include "param.h"
 #include "autotiling.h"
 #include "private_scratch.h"
-
-
+#ifdef PISCES
+# include "parameter.h"
+#endif
         nbsampling = 1
         lastiic = 0
         nullify(A2d)
@@ -29,10 +30,13 @@
 #include "private_scratch.h"
 #include "ncscrum.h"
 #include "autotiling.h"
+
       integer size_XI,size_ETA,se,sse, sz,ssz
 
 # include "dynderivparam.h"
- 
+#ifdef PISCES
+# include "parameter.h"
+#endif
       if (associated(A2d)) then
       deallocate(A2d,A3d)
       endif
@@ -44,6 +48,9 @@
       implicit none
 #include "param.h"
 #include "private_scratch.h"
+#ifdef PISCES
+# include "parameter.h"
+#endif
       integer size_XI,size_ETA,se,sse, sz,ssz
 
       deallocate(A2d, A3d)
@@ -61,7 +68,9 @@
 #include "scalars.h"
 #include "ncscrum.h"
 #include "autotiling.h"
-
+#ifdef PISCES
+# include "parameter.h"
+#endif
       real curtime
 
       cpu_domain(0) = curtime()
@@ -76,7 +85,9 @@
 #include "scalars.h"
 #include "ncscrum.h"
 #include "autotiling.h"
-
+#ifdef PISCES
+# include "parameter.h"
+#endif
       real curtime
 
       cpu_domain(1) = cpu_domain(1)+curtime()-cpu_domain(0)
@@ -91,6 +102,9 @@
 #include "scalars.h"
 #include "ncscrum.h"
 #include "autotiling.h"
+#ifdef PISCES
+# include "parameter.h"
+#endif
       integer size_XI,size_ETA,se,sse, sz,ssz
       real timemean(MAX_NSUB_X,MAX_NSUB_E)      
 
