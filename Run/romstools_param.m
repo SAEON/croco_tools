@@ -317,7 +317,7 @@ NCEP_version  = 2;                            % NCEP version:
 %					      
 % Path and option for using global datasets download from ftp
 %
-Get_My_data = 0; 
+Get_My_Data = 0; 
 %
 if NCEP_version  == 1;
   My_NCEP_dir  = [DATADIR,'NCEP_REA1/'];
