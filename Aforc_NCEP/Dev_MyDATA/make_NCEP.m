@@ -79,7 +79,7 @@ close(nc);
 %
 % Extract data over the internet
 %
-if Download_data==0
+if Download_data==1
 %
 % Get the model limits
 %

@@ -144,10 +144,10 @@ disp('Use my own ncep data NCEP2')
  end 
 end  %endif Get_My_Data
 
-%-----------------------------------------------------------------------
-%-----------------
+%
 %Common OpenDAP FTP
-%-----------------
+%
+
 disp([' '])
 disp(['Get NCEP data from ',num2str(Ymin),' to ',num2str(Ymax)])
 disp(['From ',ncep_url]);
@@ -171,8 +171,9 @@ for k=1:length(vnames)
    disp(['VNAME IS ',char(vnames(k))]);
    disp(['--------------------------'])
 
+%
 % Time unit (and time in case of opendap) section
-%=================================================
+%
 
 if Get_My_Data~=1
 disp(['------'])
@@ -207,24 +208,26 @@ disp(['------'])
 nc=netcdf([char(ncep_url),'prate.sfc.gauss.1995.nc']);
 xmi= nc{'time'}.units(:);
 close(nc)
-if isempty(xmi)
+    if isempty(xmi)
      error('No time unit found');
-end
+   end
 eval(['Tunits=xmi;'])
 
-if findstr('day',Tunits)
-   time_scale = 1;
- elseif findstr('hour',Tunits)
-   time_scale = 1/24;
- else
-   error('Time units is not days or hours. I assume NCEP datasets are all daily ??! ');
-end
-  end
-end %Get_My_Data~=1
+   if findstr('day',Tunits)
+     time_scale = 1;
+   elseif findstr('hour',Tunits)
+     time_scale = 1/24;
+   else
+     error('Time units is not days or hours. I assume NCEP datasets are all daily ??! ');
+   end
+  
+  end  %k==1
+end    %Get_My_Data~=1
 
-% Subgrid section
-% Find a subset of the NCEP grid
 %
+% Subgrid section :Find a subset of the NCEP grid
+%
+
 if k==1
 disp(['================================='])
 disp(['GET  SUBGRID time only k=1']);
@@ -248,9 +251,9 @@ disp(['lon(end)= ',num2str(lon(end))])
 disp(['lat(1)= ',num2str(lat(1))])
 disp(['lat(end)= ',num2str(lat(end))])
 disp(['================================='])
-end %if
+end %if k==1
 
-% 
+ 
 if k==1
   if Get_My_Data~=1
  disp('GET LAND MASK');
@@ -276,13 +279,12 @@ if k==1
                       i1min,i1max,i2min,i2max,i3min,i3max,...
                       jmin,jmax)
 
- end  %Get_My_Data
- 
+  end  %Get_My_Data
 else %if k==1
 
 %
 % Loop on the years
-% -----------------
+%
  for Y=Ymin:Ymax
   disp([' '])
   disp(['============================='])
@@ -290,64 +292,67 @@ else %if k==1
   disp(['============================='])
   disp([' '])
 
-if Get_My_Data==1    
+   if Get_My_Data==1    
 %Get the time indice to get into  monthly file
-%--------------------------------------------------
+%-------------------
 nc=netcdf([ncep_url,char(catalog(k)),'.',num2str(Y),'.nc']);
 time=nc{'time'}(:);
 close(nc);
-%!!!!!!
+%===================================
 %in case of Get_My_Data~=1, time is already loaded 
 %in the time unit section previoulsly 
-% !!!!!!!!!!!
-end
+%=====================================
+   end
 
-size(time)
-time(1)
-time(1)/24
+%size(time)
+%time(1)
+%time(1)/24
 
+%
 %Convertion of time and Yorig section
-%----------------------------------
+%
+%==========================================================
 %Convert time relative to Yorig
 %Here they are relative to start
 % NCEP reanalysis 1 and 2 from NOMADS : time origine is "days since 1-1-1 00:00:00"
 % NCEP reanalysis 1 from FTP: time origine is "days since 1-1-1 00:00:00"
 % NCEP reanalysis 2 from FTP: time origine is "days since 1800-1-1 00:00:00"
-%-----------------------------------------------------------------------------------
+%===========================================================
 
-if (NCEP_version == 1 && Get_My_Data~= 1)   ;             
+   if (NCEP_version == 1 && Get_My_Data~= 1)   ;             
 disp(['NCEP_version is ',num2str(NCEP_version)])
 startime = [1,1,1,0,0,0]; %[year, month, day, hour, minute, second]
 
-elseif (NCEP_version ==  2 && Get_My_Data ~= 1);
+   elseif (NCEP_version ==  2 && Get_My_Data ~= 1);
 disp(['NCEP_version is ',num2str(NCEP_version)])
 startime = [1,1,1,0,0,0]; %[year, month, day, hour, minute, second]
 
-elseif (NCEP_version ==  1 && Get_My_Data == 1);
+   elseif (NCEP_version ==  1 && Get_My_Data == 1);
 disp(['NCEP_version is ',num2str(NCEP_version)])
 startime = [1,1,1,0,0,0]; %[year, month, day, hour, minute, second]
 
-elseif (NCEP_version ==  2 && Get_My_Data == 1);
+   elseif (NCEP_version ==  2 && Get_My_Data == 1);
 disp(['NCEP_version is ',num2str(NCEP_version)])
 startime = [1800,1,1,0,0,0]; %[year, month, day, hour, minute, second]
 
-end
+   end
 time = time.*time_scale;
 TIME_OFFSET=(mjd(Yorig,1,1,0)-mjd(startime(1),startime(2),startime(3), ...
 				  startime(4))); 
-if Get_My_Data~= 1
+  if Get_My_Data~= 1
 time = time - TIME_OFFSET -2; 
 %                             This is time in days from Yorig
 %                             In case of OpenDap DATA
 %                             we have to remove at the end to be OK with the date
-else
+  else
 time = time - TIME_OFFSET  ;
 %                             This is time in days from Yorig
 %                             In case ofFTP DATA
 %                             we do not need to remove at the end
-end
+ end
 [year,month,days,hour,min,sec]=datevec(time+datenum(Yorig,1,1));
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 % Loop on the months
 %
   if Y==Ymin
@@ -364,30 +369,29 @@ end
   for M=mo_min:mo_max
    disp(['  Processing month: ',num2str(M)])
    recipe_file = [NCEP_dir,char(vnames(k)),'_Y',num2str(Y),'M',num2str(M),'.nc'];
-   if ~exist(recipe_file)
+    if ~exist(recipe_file)
 
-     
-disp(['month(1:10)= '])
-month(1:10)
-month(end-10:end)
-
-disp(['day(1:10)= '])
-days(1:10)
-days(end-10:end)
-
-disp(['year(1:end)= '])
-year(1:10)
-year(end-10:end)
+%disp(['month(1:10)= '])
+%month(1:10)
+%month(end-10:end)
+%disp(['day(1:10)= '])
+%days(1:10)
+%days(end-10:end)
+%disp(['year(1:end)= '])
+%year(1:10)
+%year(end-10:end)
 %year(1:end)
+
+%
 % Get the time indices for this month and year
+%
 tndx=intersect(find(month==M),find(year==Y));
-
 %intersect.m work for matlab7 check for matlab 6
-% $$$ size(month);
-% $$$ size(year);
-% $$$ Y;
-% $$$ tndx;
 
+%size(month);
+%size(year);
+%Y;
+%tndx;
 
 %trange=['[',num2str(tndx(1)-1),':',num2str(tndx(end)-1),']'];
 trange=['[',num2str(tndx(1)),':',num2str(tndx(end)),']'];
@@ -402,10 +406,9 @@ disp(['TRANGE=',num2str(trange)]);
               trange,char(level(k)),jrange,...
               i1min,i1max,i2min,i2max,i3min,i3max,...
               jmin,jmax,Yorig,Get_My_Data)
-   else
+    else
     disp(['File ',recipe_file,' already exists, abort.']);
-   end % if file exist 
-   
+    end % if file exist 
   end % end loop month
   
  end % end loop year

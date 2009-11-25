@@ -227,13 +227,13 @@ for Y=Ymin:Ymax
     taux_file=[QSCAT_dir,'tauxY',num2str(Ym),'M',num2str(Mm),'.nc'];
     if exist(taux_file)==0
       disp(['   No data for the previous month: using current month'])
-      tindex=ones(1,itolap_qscat);%on repete l'index tempo itolap_qscat fois !
+      tindex=ones(1,itolap_qscat);%on repete l''index tempo itolap_qscat fois !
       Mm=M;
       Ym=Y;
     else
       nc=netcdf(taux_file);
       pp=length(nc('time'));
-      tindex=[pp-itolap_qscat+1:1:pp]
+      tindex=[pp-itolap_qscat+1:1:pp];
 %On prend les derniers pas de temps
 %ie les itolap_qscat denier pas de temps du mois prec.
       close(nc)
@@ -330,8 +330,8 @@ for Y=Ymin:Ymax
     tauy_file=[QSCAT_dir,'tauyY',num2str(Yp),'M',num2str(Mp),'.nc']
     
     for i=tlen-itolap_qscat+1 : tlen
-    disp(['i - (itolap_qscat+tlen0)=',num2str( i - (itolap_qscat+tlen0) )])
-    disp(['tindex(i - (itolap_qscat+tlen0))=',num2str( tindex(i - (itolap_qscat+tlen0)) )])
+%    disp(['i - (itolap_qscat+tlen0)=',num2str( i - (itolap_qscat+tlen0) )])
+%    disp(['tindex(i - (itolap_qscat+tlen0))=',num2str( tindex(i - (itolap_qscat+tlen0)) )])
     u(:,:,i)=ext_data(taux_file,taux_name,tindex(i - (itolap_qscat+tlen0)  ),...
                lon,lat,[],Roa,2);
     v(:,:,i)=ext_data(tauy_file,tauy_name,tindex(i - (itolap_qscat+tlen0) ),...
