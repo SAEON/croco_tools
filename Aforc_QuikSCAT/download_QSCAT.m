@@ -71,11 +71,11 @@ get_QSCAT_grid(url,lonmin,lonmax,latmin,latmax);
 
 disp(['...DOWNLOAD.....'])
 disp(['...INFO.....'])
-url
-lonmin
-lonmax
-latmin
-latmax
+disp(['url= ',url])
+disp(['lonmin= ',num2str(lonmin)])
+disp(['lonmax= ',num2str(lonmax)])
+disp(['latmin= ',num2str(latmin)])
+disp(['latmax= ',num2str(latmax)])
 disp(['SIZE LON=',num2str(size(lon))])
 disp(['SIZE LAT=',num2str(size(lat))])
 disp(['........'])
@@ -86,12 +86,23 @@ time=readdap(url,'time',[]);
 %
 % Convert the time into "Yorig" time (i.e in days since Yorig/1/1 00:00:0.0)
 %
-disp('TIME is=')
-time(1:10)
+
+%disp('TIME is=')
+%time(1:10)
+
 time=time+datenum(1,1,1)-datenum(Yorig,1,1)-2; %-2 to match with CERSAT dates%
 [year,month,days,hour,min,sec]=datevec(time+datenum(Yorig,1,1));
-disp(['TIME is='])
-time(1:10)
+
+%disp(['TIME is='])
+%time(1:10)
+%year(1:10)
+%month(1:10)
+%days(1:10)
+%time(end-9:end)
+%year(end-9:end)
+%month(end-9:end)
+%days(end-9:end)
+
 %
 % Loop on the years
 %
