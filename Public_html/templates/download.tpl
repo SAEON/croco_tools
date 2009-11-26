@@ -181,10 +181,10 @@
     </ul>
 
 
-    <h3>ROMS_AGRIF development version VX.X-ALPHA </h3>
+    <h3>ROMS_AGRIF development version V2.0 </h3>
     <ul id="Develpment version">
         <li> !!! THIS IS NOT A STABLE VERSION !!!  </li>
-        <li> Development version VX.X-ALPHA on <a href="https://gforge.inria.fr/projects/romsagrif/">ROMS_AGRIF project on Inria Gforge</a>  </li>
+        <li> Development version V2.0 on <a href="https://gforge.inria.fr/projects/romsagrif/">ROMS_AGRIF project on Inria Gforge</a>  </li>
         <li> To register and download this version, send an email to Gildas.Cambon .at. ird.fr, then  use MOISE as INRIA Team collaboration to register </li>
         <li> Check the <a href="http://lists.gforge.inria.fr/pipermail/romsagrif-commits/">romsagrif-commits archives</a>   </li>
 
