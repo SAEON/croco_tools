@@ -41,7 +41,7 @@ nvar=length(Varnames);
 
 if nvar < 17
 
-elseif nvar < 20 
+elseif nvar < 21 
 biol=1;
 disp('Biol NPZD is on')
 disp('==========')
