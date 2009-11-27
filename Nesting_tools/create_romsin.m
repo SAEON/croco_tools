@@ -49,6 +49,9 @@ while 1==1
     break
   end
   fprintf(fid2,'%s\n',tline);
+%
+%%
+%
   if strcmp(myline(1:6),'title:');
     tline=fgetl(fid1);
     if isempty(lev)
@@ -62,6 +65,9 @@ while 1==1
       warning on
     end
   end
+%
+%%
+%
   if strcmp(myline(1:14),'time_stepping:');
     tline=fgetl(fid1);
     A=sscanf(tline,'%f');
@@ -80,6 +86,9 @@ while 1==1
                          '        ',num2str(ninfo)]);
     
   end
+%
+%%
+%
   if strcmp(myline(1:5),'grid:') | ...
      strcmp(myline(1:8),'forcing:') | ...
      strcmp(myline(1:13),'bulk_forcing:')
@@ -92,11 +101,17 @@ while 1==1
       fprintf(fid2,'%s\n',['  ',fname]);
     end
   end
+%
+%%
+%
   if strcmp(myline(1:12),'climatology:') | ...
 strcmp(myline(1:9),'boundary:')
     tline=fgetl(fid1);
     fprintf(fid2,'%s\n','  XXXXXXXXX');
   end
+%
+%%
+%
   if strcmp(myline(1:8),'initial:')
     tline=fgetl(fid1);
     A=sscanf(tline,'%f');
@@ -111,6 +126,9 @@ strcmp(myline(1:9),'boundary:')
       fprintf(fid2,'%s\n',['  ',fname]);
     end
   end
+%
+%%
+%
   if strcmp(myline(1:8),'restart:')
     tline=fgetl(fid1);
     A=sscanf(tline,'%f');
@@ -128,6 +146,9 @@ strcmp(myline(1:9),'boundary:')
       fprintf(fid2,'%s\n',['  ',fname]);
     end
   end
+%
+%%
+%
   if strcmp(myline(1:8),'history:')
     tline=fgetl(fid1);
     A=sscanf(tline,'%s %f %f');
@@ -166,6 +187,9 @@ strcmp(myline(1:9),'boundary:')
       fprintf(fid2,'%s\n',['  ',fname]);
     end
   end
+%
+%%
+%
   if strcmp(myline(1:12),'diagnostics:')
     tline=fgetl(fid1);
     A=sscanf(tline,'%s %f %f');
@@ -185,6 +209,7 @@ strcmp(myline(1:9),'boundary:')
       fprintf(fid2,'%s\n',['  ',fname]);
     end
   end
+%
   if strcmp(myline(1:9),'diag_avg:')
     tline=fgetl(fid1);
     A=sscanf(tline,'%s %f %f %f %f');
@@ -206,6 +231,9 @@ strcmp(myline(1:9),'boundary:')
       fprintf(fid2,'%s\n',['  ',fname]);
     end
   end
+%
+%%
+%
  if strcmp(myline(1:13),'diagnosticsM:')
     tline=fgetl(fid1);
     A=sscanf(tline,'%s %f %f');
@@ -225,6 +253,7 @@ strcmp(myline(1:9),'boundary:')
       fprintf(fid2,'%s\n',['  ',fname]);
     end
   end
+%
   if strcmp(myline(1:10),'diagM_avg:')
     tline=fgetl(fid1);
     A=sscanf(tline,'%s %f %f %f');
@@ -246,6 +275,66 @@ strcmp(myline(1:9),'boundary:')
       fprintf(fid2,'%s\n',['  ',fname]);
     end
   end
+%
+%%
+%
+ if strcmp(myline(1:16),'diagnostics_bio:')
+    tline=fgetl(fid1);
+    A=sscanf(tline,'%s %f %f');
+    ldefdiabio=char(A(1));
+    nwrtdiabio=A(2);
+    nwrtdiabio=rfac*nwrtdiabio;
+    nrpfdiabio=A(3);
+    fprintf(fid2,'%s\n',['    ',ldefdiabio,...
+            '    ',num2str(nwrtdiabio),...
+            '    ',num2str(nrpfdiabio)]);
+    tline=fgetl(fid1);
+    fname=rem_blanks(tline);
+    if isempty(lev)
+      fprintf(fid2,'%s\n',['  ',fname,'.1']);
+    else
+      fname(end)=num2str(lev+1);
+      fprintf(fid2,'%s\n',['  ',fname]);
+    end
+  end
+%
+  if strcmp(myline(1:12),'diagbio_avg:')
+    tline=fgetl(fid1);
+    A=sscanf(tline,'%s %f %f %f');
+    ldefdiabio_avg=char(A(1));
+    ntsdiabio_avg=A(2);
+    nwrtdiabio_avg=A(3);
+    nwrtdiabio_avg=rfac*nwrtdiabio_avg;
+    nrpfdiabio_avg=A(4);
+    fprintf(fid2,'%s\n',['     ',ldefdiabio_avg,...
+            '     ',num2str(ntsdiabio_avg),...
+            '     ',num2str(nwrtdiabio_avg),...
+            '     ',num2str(nrpfdiabio_avg)]);
+    tline=fgetl(fid1);
+    fname=rem_blanks(tline);
+    if isempty(lev)
+      fprintf(fid2,'%s\n',['  ',fname,'.1']);
+    else
+      fname(end)=num2str(lev+1);
+      fprintf(fid2,'%s\n',['  ',fname]);
+    end
+  end
+%
+%%
+%
+ if strcmp(myline(1:8),'biology:')
+    tline=fgetl(fid1);
+    fname=rem_blanks(tline);
+    if isempty(lev)
+      fprintf(fid2,'%s\n',['  ',fname,'.1']);
+    else
+      fname(end)=num2str(lev+1);
+      fprintf(fid2,'%s\n',['  ',fname]);
+    end
+  end
+%
+%%
+%
   if strcmp(myline(1:7),'sponge:')
     tline=fgetl(fid1);
     A=sscanf(tline,'%f');
