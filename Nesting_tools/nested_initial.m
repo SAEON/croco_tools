@@ -67,7 +67,7 @@ if pisces & biol
 end
 
 %Name, units etc .. of the variables
-namebiol={'N03';'CHLA';'PHYTO'};
+namebiol={'NO3';'CHLA';'PHYTO'};
 unitbiol={'mMol N m-3';'mg C l-1';'mMol N m-3'};
 fieldbiol=namebiol;
 %
