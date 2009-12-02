@@ -15,21 +15,27 @@ $>>$\\
 $>>$ nestgui
 \\ \\
 A window pops up, asking for a "PARENT GRID" NetCDF file 
-(Figure \ref{fig:nestgui1}). In our Benguela test case, you should select 
+(Figure \ref{fig:nestgui3}). In our Benguela test case, you should select 
 $\sim$/Roms\_tools/Run/ROMSFILES/roms\_grd.nc (grid file) and click "open".
-The main window appears (Figure \ref{fig:nestgui2}).
+The main window appears (Figure \ref{fig:nestgui4}).
 
 \begin{figure}[!ht]
-\centerline{\psfig{figure=nesting_select.eps,width=5cm}}
+\centerline{\psfig{figure=nestgui3.eps,width=5cm}}
 \caption{Entrance window of NestGUI}
-\label{fig:nestgui1}
+\label{fig:nestgui3}
 \end{figure}
- 
+
 \begin{figure}[!ht]
-\centerline{\psfig{figure=nesting.eps,width=12cm}}
+\centerline{\psfig{figure=nestgui4.eps,width=12cm}}
 \caption{The NestGUI main window}
-\label{fig:nestgui2}
-\end{figure}
+\label{fig:nestgui4}
+\end{figure} 
+
+% \begin{figure}[!ht]
+% \centerline{\psfig{figure=nesting.eps,width=12cm}}
+% \caption{The NestGUI main window}
+% \label{fig:nestgui4}
+% \end{figure}
 
 To generate the child model you should follow several steps:
 
@@ -90,12 +96,21 @@ will be created.
 If the topographies are different between the parent and 
 the child grids, the child initial conditions are 
 vertically re-interpolated. In this case you should check 
-if the options "vertical corrections" and "extrapolations"
-are selected.
-"Interp biology" can be used to interpolate
-parent biological variables for biogeochemical experiments.
-"Interp restart" generates a child restart file from 
-a parent restart file 
+if the options \textbf{"vertical corrections"} and \textbf{"extrapolations"}
+are selected. \textbf{It is preferable to always use these options.} \\
+If there are parent biological variables in the initial files, they are processed. In
+the case of NPZD type model, there are 4 more variable. In the case of PISCES
+biogeochemical model, ther is 8 more variables. 
+% "Interp biology" can be used to interpolate
+% parent biological variables for biogeochemical experiments.
+
+\item "Interp dust": It interpolates parent Iron dust forcing file conditions on the
+  child grid.  This is needed only in case of PISCES biogeochemical experiments.
+  Select the parent initial file (e.g.
+  $\sim$/Roms\_tools/Run/ROMSFILES/roms\_frcbio.nc).  The child initial file (e.g.
+  $\sim$/Roms\_tools/Run/ROMSFILES/roms\_frcbio.nc.1) will be created.
+\item "Interp restart" generates a child restart file from 
+a parent restart file \\
 (e.g. $\sim$/Roms\_tools/Run/ROMSFILES/roms\_rst.nc). 
 This can be done to "hot start" a child model after the 
 spin-up of the parent model.
@@ -106,8 +121,9 @@ file and click on "Create AGRIF\_FixedGrids.in" to
 generate a AGRIF\_FixedGrids.in file (the file which
 defines the child grid position in the parent grid).
 
-\item "river" can be used to locate the river on the coast.
-"Interp clim" can be useful to generate boundary conditions 
+\item "River" can be used to locate the river on the coast.
+
+\item "Interp clim" can be useful to generate boundary conditions 
 to test the child model alone. 
 \end{enumerate}
 \subsection{Compiling and running the model}

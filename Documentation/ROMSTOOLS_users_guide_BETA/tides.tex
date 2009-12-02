@@ -34,7 +34,6 @@ lon0=18.37;\\
 lat0=-33.91;   \% Cape Town location\\
 Z0=1;          \% Mean depth of the tidegauge in Cape Town\\
 \\
-
 Variables definitions :
 \begin{itemize}
 \item tidename=[ROMSTOOLS\_dir,'TPXO6/TPXO6.nc'] : Location of the netcdf tidal dataset. 
@@ -47,13 +46,12 @@ This value should be identical to the value of the parameter Ntides in param.h:
 "parameter (Ntides=10)".
 \item tidalrank=[1 2 3 4 5 6 7 8 9 10] : Order to select the different tidal components.
 \item lon0=18.37;lat0=-33.91;Z0=1 : Location of a tidal gauge to compare the interpolated values
-with observations. \\\\\\\\
+with observations. \\
 \end{itemize}
 An important aspect is the definition of time and especially the choice of a 
 time origin. This is defined in $\sim$/Roms\_tools/Run/romstools\_param.m:
-\\
-\\
-\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
 \%\\
 \% 6-Temporal parameters (used for make\_tides, make\_NCEP, make\_OGCM)\\
 \%\\
@@ -73,7 +71,8 @@ Min\_min       = 0;                  \% Minute of initialization\\
 Smin          = 0;                  \% Second of initialization\\
 \%\\
 SPIN\_Long     = 0;                  \% SPIN-UP duration in Years\\
-\\\\
+\\
+\%
 The origin of time (Yorig: 1 january of year Yorig) should be kept the same
 for all the preprocessing and postprocessing steps.
 Save romstools\_param.m and run make\_tides in the Matlab session:

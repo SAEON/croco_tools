@@ -36,8 +36,8 @@ In the Roms\_tools, some netcdf librarie for matlab are provided :
 \begin{itemize}
 \item mex60 : matlab12 (old) and $32$ bits architecture
 \item mexnc : matlab7 and $64$ bits architecture
-\item mexnc32 : matlab7 and $32$ bits architecture... to do
-\item mexnc64 : matlab7 and $64$ bits architecture... to do
+%\item mexnc32 : matlab7 and $32$ bits architecture... to do
+%\item mexnc64 : matlab7 and $64$ bits architecture... to do
 \end{itemize}
 
 In the Roms\_tools, some "opendap" bins and librarys are also provided :
@@ -68,13 +68,29 @@ file names:
 \%  ROMS title names and directories\\
 \%\\
 ROMS\_title  = 'Benguela Test Model';\\
-ROMS\_config = 'Benguela';\\
+ROMS\_config = 'Benguela\_LR';\\
+\%\\
 ROMSTOOLS\_dir = '../';\\
+\%\\
+\%\\ Run directory
+\%\\
 RUN\_dir=[ROMSTOOLS\_dir,'Run/'];\\
+\%\\
 ROMS\_files\_dir=[RUN\_dir,'ROMS\_FILES/'];\\
+\%\\
+\%  Global data directory (etopo, coads, datasets download from ftp, etc..)\\
+\%\\
+DATADIR=ROMSTOOLS\_dir; 
+\%\\
+\%  Forcing data directory (ncep, quikscat, datasets download with opendap, etc..)\\
+\%\\
+FORC\_DATA\_DIR = [RUN\_dir,'DATA/'];\\
 \%\\
 \% ROMS file names (grid, forcing, bulk, climatology, initial)\\
 \%\\
+eval(['!mkdir ',ROMS\_files\_dir]) \\
+\%\\
+bioname=[ROMS\_files\_dir,'roms\_frcbio.nc'];  \%Iron Dust forcing file with PISCES \\
 grdname=[ROMS\_files\_dir,'roms\_grd.nc'];\\
 frcname=[ROMS\_files\_dir,'roms\_frc.nc'];\\
 blkname=[ROMS\_files\_dir,'roms\_blk.nc'];\\
@@ -97,7 +113,7 @@ blk\_prefix=[ROMS\_files\_dir,'roms\_blk'];   \% generic forcing file name\\
 \%Roa=300e3;\\
 Roa=0;\\
 \%\\
-interp\_method = 'cubic';           \% Interpolation method: 'linear' or 'cubic'\\
+interp\_method = 'linear';           \% Interpolation method: 'linear' or 'cubic'\\
 \%\\
 makeplot     = 1;                 \% 1: create a few graphics after each preprocessing step\\
 \%\\
@@ -107,14 +123,18 @@ Variables description:
 \begin{itemize}
 \item title='Benguela Test Model' : General title. You can give any name 
 you want for your configuration.
-\item ROMS\_config = 'Benguela' : Name of the configuration. This is used for the storage of
+\item ROMS\_config = 'Benguela\_LR' : Name of the configuration. This is used for the storage of
 NCEP or OGCM data for a specific configuration.
 \item ROMSTOOLS\_dir = '../' : "Roms\_tools" directory.
 \item RUN\_dir=[ROMSTOOLS\_dir,'Run/'] : Roms\_tools/Run directory. This is where all 
 the work is done.
 \item ROMS\_files\_dir=[RUN\_dir,'ROMS\_FILES/'] : Roms\_tools/Run/ROMS\_FILES/ directory.
 This is where ROMS input NetCDF files are stored.
-%
+\item ROMS\_files\_dir=[RUN\_dir,'ROMS\_FILES/'] : 
+\item DATADIR=ROMSTOOLS\_dir;  : Global data directory (ETOPO, COADS, datasets download from ftp, etc..)
+\item FORC\_DATA\_DIR = [RUN\_dir,'DATA/'] :  Forcing data directory (NCEP, QUIKSCAT, datasets downloaded with opendap, etc..)
+
+\item bioname=[ROMS\_files\_dir,'roms\_frcbio.nc'] :  Name of the ROMS input NetCDF Iron dust forcing file for  PISCES biogeochemical model.
 \item grdname=[ROMS\_files\_dir,'roms\_grd.nc'] : Name of the ROMS input NetCDF grid file.
 This is where the horizontal grid parameters are stored. In general, we follow 
 the style : XXX\_grd.nc.
@@ -173,10 +193,10 @@ The part of the file romstools\_param.m that you should be edit is :
 \%\\
 \% Grid dimensions:\\
 \%\\
-lonmin =  12.3;   \% Minimum longitude [degree east]\\
-lonmax = 20.45;   \% Maximum longitude [degree east]\\
-latmin = -35.5;   \% Minimum latitude  [degree north]\\
-latmax = -26.5;   \% Maximum latitude  [degree north]\\
+lonmin =  8;   \% Minimum longitude [degree east]\\
+lonmax = 22;   \% Maximum longitude [degree east]\\
+latmin = -38;   \% Minimum latitude  [degree north]\\
+latmax = -26;   \% Maximum latitude  [degree north]\\
 \%\\
 \% Grid resolution [degree]\\
 \%\\
@@ -188,7 +208,7 @@ N = 32;\\
 \%\\
 \%  Vertical grid parameters (! should be the same in roms.in !)\\
 \%\\
-theta\_s = 6.;\\
+theta\_s = 8.;\\
 theta\_b = 0.;\\
 hc      =10.;\\
 \%\\
@@ -206,7 +226,7 @@ hmax\_coast = 500;\\
 \%  Topography netcdf file name (ETOPO 2 or any other netcdf file\\
 \%  in the same format)\\
 \%\\
-topofile = [ROMSTOOLS\_dir,'Topo/etopo2.nc'];\\
+topofile = [DATADIR,'Topo/etopo2.nc'];\\
 \%\\
 \% Slope parameter (r=grad(h)/h) maximum value for topography smoothing\\
 \%\\
@@ -235,12 +255,12 @@ coastfilemask = 'coastline\_l\_mask.mat';\\
 \\
 Variables description:
 \begin{itemize}
-\item lonmin =  12.3 : Western limit of the grid in longitude [-360$^\circ$, 360$^\circ$]. 
+\item lonmin =  8 : Western limit of the grid in longitude [-360$^\circ$, 360$^\circ$]. 
 The grid is rectangular in latitude/longitude.
-\item lonmax = 20.45 : Eastern limit [-360$^\circ$, 360$^\circ$]. 
+\item lonmax = 22 : Eastern limit [-360$^\circ$, 360$^\circ$]. 
 Should be superior to lonmin.
-\item latmin = -35.5 : Southern limit of the grid in latitude [-90$^\circ$, 90$^\circ$].
-\item latmax = -26.5 : Northern limit [-90$^\circ$, 90$^\circ$].
+\item latmin = -38 : Southern limit of the grid in latitude [-90$^\circ$, 90$^\circ$].
+\item latmax = -26 : Northern limit [-90$^\circ$, 90$^\circ$].
 Should be superior to latmin.
 \item l = 1/3 : Grid longitude resolution in degrees. The latitude spacing is deduced to
 obtain an isotropic grid using the relation: $d\phi=dl\cos(\phi)$.
@@ -306,29 +326,29 @@ Title: Benguela Test Model \\
 Resolution: 1/3 deg \\
 \\
 Create the grid file... \\
-LLm = 23 \\
-MMm = 31 \\
+LLm = 41 \\
+MMm = 42 \\
 \\
 Fill the grid file... \\
 \\
 Compute the metrics... \\
 \\
-Min dx=30.1583 km - Max dx=33.1863 km \\
-Min dy=30.2091 km - Max dy=33.057 km \\
+Min dx=29.1913 km - Max dx=33.3244 km \\
+Min dy=29.2434 km - Max dy=33.1967 km \\
 \\
 Fill the grid file... \\
 \\
 Add topography... \\
-  ROMS resolution : 31.7 km \\
-  Topography data resolution : 3.44 km \\
+  ROMS resolution : 31.3 km \\
+  Topography data resolution :  3.42 km \\
   Topography resolution halved 4 times \\
-   New topography resolution : 54.8 km \\
+   New topography resolution :  54.6 km \\
 Processing coastline\_l.mat ... \\
 Do you want to use editmask ? y,[n]\\
  Apply a filter on the Deep Ocean to remove the isolated seamounts :\\
    4 pass of a selective filter.\\
  Apply a selective filter on log(h) to reduce grad(h)/h :\\
-   13 iterations - rmax = 0.24879\\
+   13 iterations - rmax = 0.24381\\
  Smooth the topography a last time to prevent 2DX noise:\\
    2 pass of a hanning smoother.\\
  Write it down...\\
@@ -357,7 +377,7 @@ resolution (1/3$^\circ$), the topography has been strongly
 smoothed.
 
 \begin{figure}[h!]
-\centerline{\psfig{figure=make_grid_benguela.eps,width=6cm}}
+\centerline{\psfig{figure=make_grid_benguela.eps,width=12cm}}
 \caption{Result of make\_grid.m for the Benguela example}
 \label{fig:grid}
 \end{figure}
@@ -466,7 +486,7 @@ $>>$\\
 ------------------------------------------------------------------------------------------\\
 
 \begin{figure}[h!]
-\centerline{\psfig{figure=make_frcwind_benguela.eps,width=9cm}}
+\centerline{\psfig{figure=make_frcwind_benguela.eps,width=15cm}}
 \caption{Wind stress[N.m$^{-2}$] obtained using make\_forcing.m for the Benguela example.}
 \label{fig:forcing}
 \end{figure}
@@ -477,7 +497,11 @@ The last preprocessing step consists in generating the files containing
 the necessary informations for the ROMS initial and lateral open boundaries 
 conditions.
 This script generates two files : the climatology file (XXX\_clm.nc) which gives 
-the lateral boundary conditions, and the initial conditions file (XXX\_ini.nc).
+the lateral boundary conditions, and the initial conditions file (XXX\_ini.nc). \\
+The part which should be edited by the user in the file romstools\_param.m is. Note that you can 
+you can add the variables for the NPZD or PISCES biogeochemical models. For that, 
+define makebio or makepisces flags in the romstools\_param.m. \\
+\\ \\
 The part which should be edited by the user in the file romstools\_param.m is:
 \\ \\
 \%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
@@ -499,6 +523,8 @@ zref = -1000;\\
 makeini=1;      \%1: process initial data\\
 makeclim=1;     \%1: process lateral boundary data\\
 makebry=0;      \%1: process boundary data\\
+makebio=0;      \%1: process initial and boundary data for idealized NPZD type bio model
+makepisces=0;  \%1: process initial and boundary data for PISCES biogeochemical model
 \%\\
 makeoa=1;       \%1: process oa data (intermediate file)\\
 makeZbry=0;     \%1: process data in Z coordinate\\
@@ -543,8 +569,10 @@ Should be 1.
  This file is not used by ROMS.
 \item makebry=1 : Switch to define if the boundary file (roms\_bry.nc) is generated.
 Used only with make\_bry.
-\item makeZbry=1  :Switch to define if the boundary intermediate file on a z coordinate 
+\item makeZbry=1  : Switch to define if the boundary intermediate file on a z coordinate 
  (roms\_bry\_Z.nc) is generated. Used only with make\_bry.
+\item makebio=1;      Switch to process initial and boundary data for idealized NPZD type bio model
+\item makepisces=1 : Switch to process initial and boundary data for PISCES biogeochemical model
 \item insitu2pot=1 : Switch defined if it is in-situ temperature that is provided.
 In this case, in-situ temperature is converted into potential temperature.
 \item tini=0 : Day of initialization in climatology experiments (15 = January 15).
@@ -577,7 +605,7 @@ You should obtain :\\
  ...\\ 
  Make a few plots...\\ 
  $>>$\\
-------------------------------------------------------------------------------------------\\\\
+------------------------------------------------------------------------------------------\\
 This program can also take quite a long time to run.
 Figure (\ref{fig:clim}) presents 4 different sections
 of temperature for the initial condition file for the 
@@ -585,7 +613,7 @@ Benguela example. The sections are in the X-direction (East-West),
 the first section is for the Southern part of the domain and the last one 
 is for the Northern part of the domain.
 \begin{figure}[h!]
-\centerline{\psfig{figure=make_clim_benguela.eps,width=7cm}}
+\centerline{\psfig{figure=make_clim_benguela.eps,width=12cm}}
 \caption{Result of make\_clim.m for the Benguela example}
 \label{fig:clim}
 \end{figure}
@@ -606,7 +634,6 @@ You should obtain :\\
  Read in the grid... \\
 ... \\
 ------------------------------------------------------------------------------------------\\
-
 
 \subsection{Compiling the model}
 
@@ -744,7 +771,7 @@ for tracer 2.\\
 Activated C-preprocessing Options:\\
 \\
 REGIONAL\\
-BENGUELA\\
+BENGUELA\_LR\\
 OBC\_EAST\\
 OBC\_WEST\\
 OBC\_NORTH\\
@@ -964,13 +991,13 @@ A window pops up, asking for a ROMS history NetCDF file (Figure \ref{fig:open}).
 You should select roms\_his.nc (history file) or roms\_avg.nc (average file) and
 click "open".
 \begin{figure}[!ht]
-\centerline{\psfig{figure=roms_gui_select.eps,width=5cm}}
+\centerline{\psfig{figure=roms_gui_select2.eps,width=5cm}}
 \caption{Entrance window of roms\_gui}
 \label{fig:open}
 \end{figure}
 \\
 \begin{figure}[!ht]
-\centerline{\psfig{figure=roms_gui.eps,width=9cm}}
+\centerline{\psfig{figure=roms_gui2.eps,width=9cm}}
 \caption{roms\_gui}
 \label{fig:romsgui}
 \end{figure}

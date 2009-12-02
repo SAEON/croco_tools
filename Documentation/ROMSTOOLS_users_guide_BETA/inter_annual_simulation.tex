@@ -1,3 +1,4 @@
+
 ROMSTOOLS can help to realize inter-annual simulations. In this context, 
 we rely on Ocean Global Circulations Models (OGCM) for the lateral 
 boundary conditions and a global atmospheric reanalysis for the surface 
@@ -5,43 +6,61 @@ forcing (NCEP). To limit the volume of data which needs to be transfered
 over the Internet, we use Opendap to extract only the necessary subgrids. 
 
 \subsection{Getting the surface forcing data from NCEP}
-
-The Matlab script make\_NCEP.m is used to obtain the surface forcing data.
-It downloads the necessary NCEP surface forcing data (Sea Surface 
-Temperature, Wind stress ...) over the Internet, and interpolates them on 
-the model grid. Since make\_NCEP.m works with the bulk parameterization 
-(i.e. the 
-BULK\_FLUX and BULK\_EP cpp keys should be defined in cppdefs.h),
-a surface forcing NetCDF file and a bulk NetCDF file are generated for 
-each month of your simulation in the directory 
+The Matlab script make\_NCEP.m is used to obtain the surface forcing data.  It
+downloads the necessary NCEP surface forcing data (Sea Surface Temperature, Wind
+stress ...) over the Internet, and interpolates them on the model grid. Since
+make\_NCEP.m works with the bulk parameterization (i.e. the BULK\_FLUX and BULK\_EP
+cpp keys should be defined in cppdefs.h), a surface forcing NetCDF file and a bulk
+NetCDF file are generated for each month of your simulation in the directory
 $\sim$/Roms\_tools/Run/ROMSFILES/ .
 The part of the file romstools\_param.m that you should change is:\\\\
 \%\\
-\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
 \%\\
 \% 7 Parameters for Interannual forcing (SODA, ECCO, NCEP, ...)\\
 \%\\
-\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
-\%\\
-\% Path to Forcing data\\
-\%\\
-FORC\_DATA\_DIR = [RUN\_dir,'DATA/'];\\
-\%\\
-Download\_data = 1;                            \% Get data from the OPENDAP sites \\
-level         = 0;                            \% AGRIF level; 0=parent grid \\
-\%\\
-\%  Options for make\_NCEP\\
-\%\\
-NCEP\_dir= [FORC\_DATA\_DIR,'NCEP\_',ROMS\_config,'/']; \% NCEP data directory\\
-makefrc      = 1;                            \% 1: Create forcing files\\
-makeblk      = 1;                            \% 1: Create bulk files\\
-add\_tides     = 0;                     \% 1: Add the tides (To be done...)\\
-\%\\
-NCEP\_version  = 1;                            \% NCEP version:\\
-\%                                 (1: NCEP/NCAR Reanalysis, 1/1/1948 - present\\
-\%                                  2: NCEP-DOE Reanalysis, 1/1/1979 - 12/31/2001)\\
-\%\\
-\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+Download\_data = 1;             \% Get data from the OPENDAP sites   \\
+level = 0;                               \% AGRIF level; 0=parent grid  \\
+\%	 \\
+NCEP\_version  = 2;                            \% NCEP version:  \\
+\% 1: NCEP/NCAR Reanalysis, 1/1/1948 - present  \\
+\% 2: NCEP-DOE Reanalysis, 1/1/1979 - present  \\
+\%					       \\
+
+\noindent \% Path and option for using global datasets download from ftp  \\
+\%  \\
+Get\_My\_Data = 0;   \\
+\%  \\
+
+\noindent if NCEP\_version  == 1;  \\
+My\_NCEP\_dir  = [DATADIR,'NCEP\_REA1/'];  \\
+elseif NCEP\_version  == 2;  \\
+My\_NCEP\_dir  = [DATADIR,'NCEP\_REA2/'];  \\
+end  \\
+
+\noindent My\_QSCAT\_dir = [DATADIR,'QSCAT/'];  \\
+My\_SODA\_dir  = [DATADIR,'SODA/'];  \\
+My\_ECCO\_dir  = [DATADIR,'ECCO/'];  \\
+  \\
+
+\noindent \%======================================\\
+\%Options for make\_NCEP and make\_QSCAT\_daily  \\
+\%  \\
+NCEP\_dir= [FORC\_DATA\_DIR,'NCEP\_',ROMS\_config,'/'];  \% NCEP data directory \\
+makefrc     = 1;                      \% 1: Create forcing files \\
+makeblk     = 1;                       \% 1: Create bulk files \\
+QSCAT\_blk  = 1; \% Correct NCEP frc/bulk file with the u,v,wspd fields from QSCAT daily
+data. Download u, v, wspd in the QSCAT frc file  \\ 
+
+\noindent add\_tides = 0; \% 1: Add the tides (To be done...) \\
+
+
+\noindent \textit{\%Overlap parameters :}  \\
+itolap\_qscat=11;  \%11 days if 1d time reso. QSCAT (should be <28 ) \\
+itolap\_ncep=40;   \%10 days if 6h time res.  NCEP  (should be <4* 28 =112 \\
+\% ... \\
+
 Variables description :
 \begin{itemize}
 \item FORC\_DATA\_DIR : Directory where the different files downloaded over 
@@ -55,57 +74,139 @@ This is where NCEP data downloaded over the Internet are stored.
 \item add\_tides : Switch to define if the tidal forcing is added. 
 \item NCEP\_version : version of the NCEP reanalysis. 1: NCEP/NCAR Reanalysis, 1/1/1948 - present.
 2: NCEP-DOE Reanalysis, 1/1/1979 - 12/31/2001.
+\item Get\_My\_Data = 1
+\item My\_NCEP\_dir = Path to local global NCEP datasets
+\item QSCAT\_blk = Flag to use the QiuikSCAT wind in the NCEP bulk files
+\item itolap\_qscat = Overlap (ie number of recovering iteration between 2
+  consecutives months) parameters for the monthly roms forcing files using QuikSCAT daily wind stress.
+\item itolap\_ncep = Overlap (ie number of recovering iteration between 2
+  consecutives months) parameters for the monthly roms forcing (and/or bulk files) using NCEP1 or
+  NCEP2 wind stress( and/or heat fluxes)  monthly file
 \end{itemize}
 
 Save romstools\_param.m and run make\_NCEP in the Matlab session.
+
+\subsubsection{Using OpenDAP : Get\_My\_Data = 0}
+
 You should obtain:
 \\\\
 $>>$ make\_NCEP\\
-Add the paths of the different toolboxes\\
-Arch : x86\_64 - Matlab version : 2006a\\
-Use of mexnc and loaddap in 64 bits.\\
-Download NCEP data with OPENDAP\\
-\\
-Get NCEP data from 2000 to 2000\\
-Minimum Longitude: 12.3\\
-Maximum Longitude: 20.3\\
-Minimum Latitude: -35.5\\
-Maximum Latitude: -26.3815\\
-\\
-Making output data directory ../Run/DATA/NCEP\_Benguela/\\
-Process the first dataset: http://www.cdc.noaa.gov/cgi-bin/nph-nc/Datasets/ncep.reanalysis/surface\_gauss/\\
-    Create ../Run/DATA/NCEP\_Benguela/land.sfc.gauss.nc\\
-Processing year: 2000\\
-  Processing month: 1\\
-    Get air for year 2000 - month 1\\
+Read in the grid ROMS\_FILES/roms\_grd.nc \\
+\\ 
+$===========================================$ \\
+BEGIN DOWNLOAD STEP   \\
+$===========================================$ \\
+$===========================================$ \\
+Download NCEP data with OPENDAP or my FTP data \\
+$===========================================$ \\
+$===========================================$ \\
+OPENDAP Procedure \\
+$===========================================$ \\
+ 
+\noindent Get NCEP data from 2000 to 2000 \\
+From http://nomad1.ncep.noaa.gov:9090/dods/reanalyses/reanalysis-2/ \\
+
+\noindent Minimum Longitude: 8 \\
+Maximum Longitude: 22 \\
+Minimum Latitude: -38 \\
+Maximum Latitude: -25.8968
+\noindent Making output data directory \\
+......./Run/DATA/NCEP\_Benguela\_LR/ \\
+$=========================================$ \\
+VNAME IS landsfc \\
+$=========================================$ \\
+$------$ \\
+Get time units and time:  Get\_My\_Data is OFF  \\
+$------$ \\
+Reading: http://nomad1.ncep.noaa.gov:9090/dods/reanalyses/reanalysis-2/6hr/flx/flx \\
+  Constraint: time \\
+Server version: dods/3.2\\
 ...
 
 
+\subsubsection{Using FTP global dataset : Get\_My\_Data $=$ 1}
+$>>$ make\_NCEP \\
+Read in the grid ROMS\_FILES/roms\_grd.nc \\
+\\ 
+$============================================$ \\
+Download NCEP data with OPENDAP or my FTP data \\
+$============================================$ \\
+$============================================$ \\
+Direct FTP Procedure \\
+$============================================$ \\
+Use my own ncep data NCEP$2$ \\ 
+ 
+\noindent Get NCEP data from $2000$ to $2000$ \\
+From path/NCEP\_REA2/  \\
+ 
+\noindent Minimum Longitude: $8$ \\
+Maximum Longitude: $22$ \\
+Minimum Latitude: $-38$ \\
+Maximum Latitude: $-25.8968$ \\
+
+\noindent $============================================$ \\
+Get\_My\_Data = 1 \\
+Read subgrid from file/data1/gcambon/NCEP\_REA2/land.sfc.gauss.nc \\
+$============================================$ \\
+\noindent Get the Land Mask tindex = 1 \\
+\noindent In case of Get\_My\_Data ON \\
+
+\noindent Get the Land Mask by using extract\_NCEP\_Mask\_Mydata \\
+\noindent Execute extract\_NCEP\_Mask\_Mydata \\
+ 
+ 
+\noindent Get land for year 2000 - month 1 \\
+
+\noindent Create \textit{path}/Run/DATA/NCEP\_Benguela\_LR/land\_Y2000M1.nc \\
+$============================================$ \\
+VNAME IS air \\
+$============================================$ \\
+\\
+$============================================$ \\
+Processing year: 2000 \\
+$============================================$ \\
+
+
+
+
+
 \subsection{Getting the surface windstress data from QuickSCAT}
-\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+
+\subsubsection{QuikSCAT daily data from Ifremer OpenDap server}
+\label{sec:quikscat-daily-data}
+
+
+Similarly, The Matlab script make\_QuickSCAT\_daily.m is used to obtain the daily
+surface stress forcing provided by the OpenDAP server at Ifremer, France: \\
+http://www.ifremer.fr/dodsG/CERSAT/quikscat\_daily. \\
+A surface forcing NetCDF file NetCDF file is generated for each month of your
+simulation in the directory $\sim$/Roms\_tools/Run/ROMSFILES/. \\
+
+\noindent You shoud edit this part of the file romstools\_param.m: \\
+
+
+\noindent \%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
 \%\\
 \% 7 Parameters for Interannual forcing (SODA, ECCO, NCEP, ...)\\
 \%\\
-\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
 \%\\
 \% Path to Forcing data\\
 .....\\
 \%  Options for make\_QSCAT\_daily and make\_QSCAT\_clim\\
 \%\\
 QSCAT\_dir        = [FORC\_DATA\_DIR,'QSCAT\_',ROMS\_config,'/'];\% QSCAT data directory.\\
-QSCAT\_frc\_prefix = [frc\_prefix,'\_QSCAT\_'];                  \% generic forcing file name\\
-                                                                 \% for interannual roms simulations with QuickSCAT.\\
-QSCAT\_clim\_file  = [DATADIR,'QuikSCAT\_clim/',...              \% QuikSCAT climatology\\
-                    'roms\_QSCAT\_month\_clim\_2000\_2007.nc'];       \% file for make\_QSCAT\_clim.\\
-\%\\
-\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+QSCAT\_frc\_prefix = [frc\_prefix,'\_QSCAT\_'];  \% generic forcing file name for interannual roms simulations with QuickSCAT.\\
+QSCAT\_clim\_file = [DATADIR,'QuikSCAT\_clim/roms\_QSCAT\_month\_clim\_2000\_2007.nc'];   \% QuikSCAT climatology file for make\_QSCAT\_clim.\\
+\%
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
 
-If you want to use the QSCAT daily data, provided by the OpenDAP server at Ifremer,
-France: http://www.ifremer.fr/dodsG/CERSAT/quikscat\_daily. \\
 
+\noindent In a Matlab session, run make\_QSCAT\_daily  \\
+$>>$ \\
 $>>$ make\_QSCAT\_daily \\
 
-if you download data over the internet using OpenDAP, you should obtain that during
+\noindent if you download data over the internet using OpenDAP, you should obtain that during
 the dowload step : 
 
 \noindent $>>$ \\ 
@@ -125,12 +226,13 @@ Server version: apache-coyote/1.1\\
     Processing day: 2\\
 ....\\
 $>>$\\ 
-\\
+\subsubsection{QuikSCAT monthly climatology data}
+\label{sec:quikscat-daily-data}
+\noindent If you want to use the QSCAT climatology, computed over $2000$-$2007$, based over
+these previous QSCAT data, in a Matlab session, run make\_QSCAT\_clim.
 
-If you want to use the QSCAT climatology, computed over $2000$-$2007$, based over
-these previous QSCAT data :\\
-
-\noindent $>>$ make\_QSCAT\_clim \\
+\noindent $>>$ \\
+$>>$ make\_QSCAT\_clim \\
 $>>$ ...\\
 
 \subsection{Getting the lateral boundary conditions}
@@ -161,10 +263,12 @@ bry\_prefix  = [ROMS\_files\_dir,'roms\_bry\_',OGCM,'\_']; \\
 clm\_prefix  = [ROMS\_files\_dir,'roms\_clm\_',OGCM,'\_']; \\
 ini\_prefix  = [ROMS\_files\_dir,'roms\_ini\_',OGCM,'\_']; \\
 OGCM\_prefix = [OGCM,'\_'];                            \\
-rmdepth     = 2;                                    \\ 
-\%                             \\
+rmdepth     = 2;                                    \\ \\
+\noindent \%Overlap parameters : before (\_a) and after (\_p) the months.\\ 
+itolap\_a=2;~~~\%Overlap parameter at the begining of the months. \\ 
+itolap\_p=2;~~~\%Overlap parameter at the end of the months. \\ 
 \%                        \\
-\\\\\\
+\\
 Variables description :
 \begin{itemize}
 \item OGCM = 'SODA' : Name of the OGCM employed (SODA or ECCO).
@@ -183,6 +287,8 @@ stored.
 This is useful when there is no valid data at this level.
 For example, if the depth in the ROMS domain is shallower 
 than the OGCM depth.
+\item itolap\_a : Overlap parameter at the begining of the months. 
+\item itolap\_p : Overlap parameter at the end of the months. 
 \end{itemize}
 Save romstools\_param.m and run make\_OGCM in the Matlab session.
 You should obtain:

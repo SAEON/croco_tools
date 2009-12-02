@@ -7,6 +7,8 @@
  \usepackage{subfigure}
  \usepackage{longtable}
  \usepackage{color}
+%\usepackage[frenchb]{babel}
+\usepackage[latin1]{inputenc}
 \textwidth 15cm
 \textheight 23cm
 \topmargin -1.cm
@@ -14,8 +16,8 @@
 \evensidemargin 0.cm
 
 \begin{document}
-
-\pagestyle{empty}
+\thispagestyle{empty}
+\pagestyle{plain}
 \begin{center}
 \vspace{3 cm}
 {\huge \bf ROMS\_AGRIF 2.0 User's Guide }\\
@@ -30,11 +32,10 @@ Patrick Marchesiello and Laurent Debreu}\\
 {\large 13572 Marseille cedex 02} \\
 {\Large France} \\
 \vspace{2cm}
-\centerline{\psfig{figure=roms_gui.eps,width=11cm}}
+\centerline{\psfig{figure=roms_gui2.eps,width=13cm}}
 \vspace{1cm}
 {June, 2009}
 \end{center}
-
 \chapter*{Introduction}
 \input{abstract}
 \newpage
@@ -44,22 +45,20 @@ Patrick Marchesiello and Laurent Debreu}\\
 \input{intro_romstools}
 
 
-
-
 \section{Tutorial : the Southern Benguela example}
 \input{tutorial}
 
 \section{Tides}
 \input{tides}
 
+\section{Biology}
+\input{biology}
+
 \section{Inter-Annual simulations}
 \input{inter_annual_simulation}
 
 \section{Embedding}
 \input{nesting}
-
-\section{Biology}
-\input{biology}
 
 \newpage
 \section{Operational coastal modeling system}

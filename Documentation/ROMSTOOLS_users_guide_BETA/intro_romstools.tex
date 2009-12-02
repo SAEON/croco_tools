@@ -1,7 +1,5 @@
-
-
-\subsection{Installation}
-\subsubsection{System requirement}
+\section{Installation}
+\subsection{System requirement}
 This toolbox has been designed for Matlab. It needs at least 
 2 Gbites of disk space. It has been tested on several 
 Matlab versions ranging from Matlab6 to Matlab2006a. It has been 
@@ -28,7 +26,7 @@ Global datasets, such as topography \citep{Smi97},
 hydrography \citep{Con02} or surface fluxes \citep{Das94}, are 
 also included.
 
-\subsubsection{Getting the files}
+\subsection{Getting the files}
 
 All the necessary compressed tar files (XXX.tar.gz) containing 
 the Matlab programs, several datasets  and other toolboxes and 
@@ -40,7 +38,7 @@ For the ROMS source code you should download ROMS\_AGRIF version
 V1.1.\\\\\\\\\\\\
 
 
-\subsubsection{Extracting the files}
+\subsection{Extracting the files}
 
 Download all the compressed tar files. Uncompress and untar all 
 the files (gunzip and tar -xvf). You should obtain the following 
@@ -185,8 +183,8 @@ Definition of the different directories :
 \item mask : Land mask edition toolbox developed by A.Y. Shcherbina.
 \item mex60 : Matlab NetCDF interface for 32 bits Linux architectures.
 \item mexnc : Matlab NetCDF interface for 64 bits Linux architectures.
-\item \textbf{mexnc32} : 
-\item \textbf{mexnc64} : 
+%\item \textbf{mexnc32} : 
+%\item \textbf{mexnc64} : 
 \item m\_map : The Matlab mapping toolbox 
       (http://www2.ocgy.ubc.ca/$\sim$rich/map.html).
 \item Nesting\_tools : Preprocessing tools used to prepare nested
@@ -228,11 +226,13 @@ Definition of the different directories :
 \item WOA2001 : World Ocean Atlas 2001 global dataset 
       (monthly climatology at $1^\circ$ resolution) \citep{Con02}.
 \item WOA2005 : World Ocean Atlas 2005 global dataset 
+\item WOAPISCES : World Ocean Atlas Global dataset for biogeochemical PISCES data
+
 \end{itemize}
 
 
 
-\subsection{LibDAP and  LoadDAP}
+\section{LibDAP and  LoadDAP}
 It is sometimes difficult to compile LoadDAP.  LibDAP must be installed before
 installing LoadDAP. You have to declare the LibDAP binary and library in tour
 ~/.bashrc with th command PATH and LD\_LIBRARY\_PATH. Once, compile and install
@@ -313,14 +313,14 @@ By default the files are installed under
     for example PROXY\_SERVER http,proxy.legos.obs-mip.fr:$3128$
 \end{itemize}
 
-\subsection{Future plans}
+\section{Future plans}
 \begin{itemize}
 \item A graphic user interface could be useful for the preprocessing tools.
 \item There is need for an improvement of the extrapolation and interpolation
 methods.
 \end{itemize}
 
-\subsection{Warnings}
+\section{Warnings}
 \begin{itemize}
 \item Since Geostrophy is used to obtain the horizontal currents for
 the lateral boundary conditions, this method should be applied with 
