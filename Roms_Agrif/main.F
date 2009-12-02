@@ -14,6 +14,9 @@
 # include "floats.h"
 # include "ncscrum_floats.h"
 #endif
+#if defined DEBUG || defined DEBUG_ADVANCED
+# include "grid.h"
+#endif
 #ifdef STATIONS
 # if !defined FLOATS
 #  include "grid.h"
@@ -70,7 +73,7 @@ C      real*8 start_time2, start_time1, exe_time
 #ifdef AUTOTILING
       call init_auto_tiling
 #endif
-#ifdef DEBUG
+#if defined DEBUG || defined DEBUG_ADVANCED
        call debug_ini
 #endif       
 #ifdef MPI
@@ -114,6 +117,14 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Set horizontal curvilinear
       enddo                          ! GRID NetCDF file).
                                      ! Also read Land/Sea mask
                                      ! from GRID NetCDF file).
+# if defined DEBUG || defined DEBUG_ADVANCED
+C$OMP BARRIER
+C$OMP MASTER
+       call check_tab2d(h(:,:),'h initialisation #1','r')
+C$OMP END MASTER
+
+# endif
+
 #else
       call get_grid
       if (may_day_flag.ne.0) goto 99 !-->  EXIT
