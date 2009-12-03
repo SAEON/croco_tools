@@ -77,10 +77,11 @@ This is where NCEP data downloaded over the Internet are stored.
 \item Get\_My\_Data = 1
 \item My\_NCEP\_dir = Path to local global NCEP datasets
 \item QSCAT\_blk = Flag to use the QiuikSCAT wind in the NCEP bulk files
-\item itolap\_qscat = Overlap (ie number of recovering iteration between 2
-  consecutives months) parameters for the monthly roms forcing files using QuikSCAT daily wind stress.
-\item itolap\_ncep = Overlap (ie number of recovering iteration between 2
-  consecutives months) parameters for the monthly roms forcing (and/or bulk files) using NCEP1 or
+\item itolap\_qscat = Overlap parameters for the monthly roms forcing files using
+  QuikSCAT daily wind stress.  \\
+The overlap parameter is the number of "recovering"
+  time steps between 2 consecutives months
+\item itolap\_ncep = Overlap parameters for the monthly roms forcing (and/or bulk files) using NCEP1 or
   NCEP2 wind stress( and/or heat fluxes)  monthly file
 \end{itemize}
 
@@ -287,8 +288,11 @@ stored.
 This is useful when there is no valid data at this level.
 For example, if the depth in the ROMS domain is shallower 
 than the OGCM depth.
-\item itolap\_a : Overlap parameter at the begining of the months. 
-\item itolap\_p : Overlap parameter at the end of the months. 
+\item itolap\_a : Overlap parameter at the \underline{begining} of a month with the
+  next month. 
+\item itolap\_p : Overlap parameter at the \underline{end} of a months with the
+  previous months.\\
+Commonly, these two parameters are equal. 
 \end{itemize}
 Save romstools\_param.m and run make\_OGCM in the Matlab session.
 You should obtain:

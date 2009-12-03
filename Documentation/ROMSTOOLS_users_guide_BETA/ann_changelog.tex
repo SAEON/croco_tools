@@ -1,5 +1,49 @@
 \section{Changelog since ROMS\_AGRIF $1.0$} \label{changelog}
+\begin{itemize}
+\item New diffusive-advection schemes : RSUP3 \citep{Marches09} \\
 
+  To avoid unacceptable spurious diapycnal mixing, a new advection scheme has been
+  proposed and validate : the RSUP3 scheme. The diffusion is split from advection and
+  is represented by a rotated biharmonic diffusion scheme with flow-dependent
+  hyperdiffusivity satisfying the Peclet constraint. The rotated diffusion operator
+  is designed for numerical stability, which includes improvements of linear
+  stability limits and a clipping method adapted to the sigma-coordinate.
+
+  This scheme induce a time step smaller than the third-order upstream biaised
+  diffusive advective scheme used in the version $1.0$. It is activated by the use of
+  the cppkeys \textit{TS\_SPLIT\_UP3} for tracers and \textit{UV\_SPLIT\_UP3} for
+  momentum in the cppdefs.h file.
+
+  To avoid numerical instabilities in the sponge where there is enhanced
+  diffusion/siffsuivity, a classical laplacian diffusion can be applied by the use of
+  the cppkey \textit{SPONGE\_DIF2} and \textit{SPONGE\_VIS2} in the cppdefs.h file.
+
+
+
+
+
+\item Two-ways AGRIF nesting : \\
+
+As presented before, it is the capability of the fine grid to update data in the
+coarse grid. With this procedure, we are now able to get the impact of high
+resolution on the more coarser reolution, in a context of upscaling.
+
+\item Online diagnostics and I/O : \\
+
+
+
+
+\item PISCES biogeochemical model : \\
+
+
+
+
+
+\end{itemize}
+
+
+
+\paragraph { New advection-diffsion schemes \\}
 \subsection{Numerical issues}
 \subsubsection{Advection-Diffusion schemes}\label{sec:split3d}
 ...référence a votre papier Patrick et Laurent
