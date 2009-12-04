@@ -166,10 +166,9 @@ eval(['!mkdir ',NCEP_dir])
 %-----------------------
 
 for k=1:length(vnames)
-   disp([''])
-   disp(['=========================='])
+disp(['=========================='])
    disp(['VNAME IS ',char(vnames(k))]);
-   disp(['--------------------------'])
+disp(['=========================='])
 
 %
 % Time unit (and time in case of opendap) section
@@ -189,7 +188,7 @@ disp(['------'])
   end
 eval(['Tunits=x.time.units;']);  
 time=readdap([ncep_url,char(catalog(k))],'time',[]);
-time(1:20)
+%time(1:20)
  if findstr('day',Tunits)
    time_scale = 1;
  elseif findstr('hour',Tunits)
@@ -229,28 +228,29 @@ end    %Get_My_Data~=1
 %
 
 if k==1
-disp(['================================='])
+disp(['=========================='])
 disp(['GET  SUBGRID time only k=1']);
 disp(['USE VARIABLE: ',char(vnames(k))  ])
-disp(['================================='])
+disp(['=========================='])
+
 
 [i1min,i1max,i2min,i2max,i3min,i3max,jrange,jmin,jmax,lon,lat]=...
 get_NCEP_grid([ncep_url,char(catalog(k))],lonmin,lonmax,latmin,latmax,Get_My_Data);
 
-disp(['================================='])
-disp(['i1min=',num2str(i1min)])
-disp(['i1max=',num2str(i1max)])
-disp(['i2min=',num2str(i2min)])
-disp(['i2max=',num2str(i2max)])
-disp(['i3min=',num2str(i3min)])
-disp(['i3max=',num2str(i3max)])
-disp(['jmin=',num2str(jmin)])
-disp(['jmax=',num2str(jmax)])
-disp(['lon(1)= ',num2str(lon(1))])
-disp(['lon(end)= ',num2str(lon(end))])
-disp(['lat(1)= ',num2str(lat(1))])
-disp(['lat(end)= ',num2str(lat(end))])
-disp(['================================='])
+%disp(['=========================='])
+%disp(['i1min=',num2str(i1min)])
+%disp(['i1max=',num2str(i1max)])
+%disp(['i2min=',num2str(i2min)])
+%disp(['i2max=',num2str(i2max)])
+%disp(['i3min=',num2str(i3min)])
+%disp(['i3max=',num2str(i3max)])
+%disp(['jmin=',num2str(jmin)])
+%disp(['jmax=',num2str(jmax)])
+%disp(['lon(1)= ',num2str(lon(1))])
+%disp(['lon(end)= ',num2str(lon(end))])
+%disp(['lat(1)= ',num2str(lat(1))])
+%disp(['lat(end)= ',num2str(lat(end))])
+%disp(['=========================='])
 end %if k==1
 
  
@@ -266,8 +266,7 @@ if k==1
               jmin,jmax,Yorig,Get_My_Data) 
  
   elseif Get_My_Data==1
-   disp([' '])
-   disp(['============================='])
+disp(['=========================='])
    disp(['Get the Land Mask tindex = 1']);
    disp(['In case of Get_My_Data ON']);
    disp(['Get the Land Mask by using extract_NCEP_Mask_Mydata']);
@@ -286,11 +285,9 @@ else %if k==1
 % Loop on the years
 %
  for Y=Ymin:Ymax
-  disp([' '])
-  disp(['============================='])
+disp(['=========================='])
   disp(['Processing year: ',num2str(Y)])
-  disp(['============================='])
-  disp([' '])
+disp(['=========================='])
 
    if Get_My_Data==1    
 %Get the time indice to get into  monthly file

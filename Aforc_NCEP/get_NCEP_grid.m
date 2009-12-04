@@ -48,8 +48,8 @@ disp(['Get_My_Data =', num2str(Get_My_Data)])
 lon=readdap(url_path,'lon',[]);
 lat=readdap(url_path,'lat',[]);
 
-lat(1:3)
-lon(1:3)
+lat(1:2);
+lon(1:2);
 
 else
 disp(['Get_My_Data = ', num2str(Get_My_Data)])

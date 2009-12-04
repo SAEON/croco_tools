@@ -98,19 +98,14 @@ if Download_data==1
   disp(['!!!!!!!!!!!!!!!!!!!!!'])
   disp([' '])
 
-  disp(['==========================================='])
+  disp(['===================='])
   disp('Download NCEP data with OPENDAP or my FTP data')
-  disp(['==========================================='])
+  disp(['===================='])
   download_NCEP(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,...
                 NCEP_dir,NCEP_version,Yorig,Get_My_Data)
-  disp([' '])
-  disp(['!!!!!!!!!!!!!!!!!!!!!'])
   disp(['====================='])
   disp(['DOWNLOAD STEP FINISH'])
   disp(['====================='])
-  disp(['!!!!!!!!!!!!!!!!!!!!!'])
-  disp([' '])
-  
 end
 %
 if makefrc==1 | makeblk==1
@@ -142,11 +137,11 @@ end
 %
 %Loop on the years and the months
 %
-disp(['!!!!!!!!!!!!!!!!!!!!!!!!!'])
+disp(['====================='])
 disp(['INTERPOLATION STEP'])
-disp(['!!!!!!!!!!!!!!!!!!!!!!!!!'])
+disp(['====================='])
 disp(['Loop on the years and the months'])
-disp([' '])
+
 %
   for Y=Ymin:Ymax
     if Y==Ymin 
@@ -193,12 +188,9 @@ end
       disp(['Overlap is ',num2str(itolap_ncep/4),' days before and after'])     
       time=0*(1:tlen);
       time(itolap_ncep+1:tlen0+itolap_ncep)=NCEP_time;   %4 days overlap before and after !
-disp(' ')
-disp('=================')
+disp(['====================='])
 disp('Compute time for roms file')
-disp('............')
-disp('=================')
-disp(' ')
+disp(['====================='])
       for aa=1:itolap_ncep
         time(aa)=time(itolap_ncep+1)-(itolap_ncep+1-aa)*dt;
       end
@@ -206,11 +198,10 @@ disp(' ')
       for aa=1:itolap_ncep
 	time(tlen0+itolap_ncep+aa)=time(tlen0+itolap_ncep)+aa*dt;
       end
-disp(' ')
-disp('================================')
+
+disp(['====================='])
 disp('Create the frc/blk netcdf file')
-disp('=================================')
-disp([' '])
+disp(['====================='])
 % Create the ROMS forcing files
       blkname=[blk_prefix,'Y',num2str(Y),...
                'M',num2str(M),nc_suffix];
