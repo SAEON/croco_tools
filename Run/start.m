@@ -50,18 +50,18 @@ addpath([mypath,'Run/TEST_CASES'])
 %
 % Other software directories
 %
+addpath([mypath,'m_map'])
 addpath([mypath,'air_sea'])
 addpath([mypath,'mask'])
 %
 %-------------------------------------------------------
 %
-% Comment these lines if these directories 
-% are already in your matlab path
-addpath([mypath,'m_map'])
-addpath([mypath,'netcdf_matlab'])
-addpath([mypath,'netcdf_matlab/ncfiles'])
-addpath([mypath,'netcdf_matlab/nctype'])
-addpath([mypath,'netcdf_matlab/ncutility'])
+% If these directories are already in your matlab native path, 
+% you can comment these lines
+addpath([mypath,'netcdf_toolbox_matlab/netcdf'])
+addpath([mypath,'netcdf_toolbox_matlab/netcdf/ncfiles'])
+addpath([mypath,'netcdf_toolbox_matlab/netcdf/nctype'])
+addpath([mypath,'netcdf_toolbox_matlab/netcdf/ncutility'])
 %
 %-------------------------------------------------------
 %
@@ -77,13 +77,20 @@ myversion=str2num(matversion(1:2));
 disp(['Arch : ',mysystem,' - Matlab version : ',matversion])
 if (strcmp(mysystem(end-1:end),'64') & (myversion > 13))
   disp('Use of mexnc and loaddap in 64 bits.')
-  addpath([mypath,'mexnc']) % 64bits version of mexnc 
-  addpath([mypath,'Opendap_tools/FEDORA_X64']) % 64bits version of loaddap
+  addpath([mypath,'mexnc'])         % 64 bits version of mexnc 
 elseif (strcmp(mysystem(end-1:end),'86') | (myversion <= 13))
   disp('Use of mex60 and loaddap in 32 bits.')
-  addpath([mypath,'mex60']) % older version of mexcdf
-  addpath([mypath,'Opendap_tools/FEDORA']) % tested on matlab6 / fedora4
+  addpath([mypath,'mex60'])         % Older/32 bits version of mexcdf
 else
   disp(['Arch : ',mysystem,...
        ' you should provide the paths of your own loaddap and mexcdf directories'])
 end
+
+%-----------------------------------------------------------------
+% If your Linux distribution is FEDORA 4, you can try to install
+% opendap by uncommenting these lines. Otherwise you have to compile and
+% install the libdap and loaddap library and executable on tour computer manually
+% and add the specific path
+%
+%addpath([mypath,'Opendap_tools/FEDORA']) %tested on matlab6 / fedora4
+%addpath([mypath,'Opendap_tools/FEDORA_X64']) % 64bits version of loaddap
