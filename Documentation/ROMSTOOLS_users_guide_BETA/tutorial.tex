@@ -27,27 +27,29 @@ matlab setup and tour computer environnmemnt:
 \begin{itemize}
 \item What is the architecture of my machine 32 or 64 bits ? For that do uname -a.
 \item What are the native matlab installation library that I have ?
-\item Do I need to install manually the netcdf library ?
-\item Do I need to add manually the m\_map library ? For these questions, edit your
-  matlab path with the matlab command \textbf{path}. \\
+\item If I have already native netcdf routines and library with my Matlab version, I
+  don't need to use the netcdf library provided by Roms\_tools, so remove it from
+  start.m file.
+\item If I have already native m\_map routines with my Matlab version, I don't need to
+  use the netcdf library provided by Roms\_tools, so remove it from start.m file.
+\item For these questions, it can be useful to edit your
+  matlab path with the matlab command \textbf{path} in a matlab session. \\
 \end{itemize}
 
-In the Roms\_tools, some netcdf librarie for matlab are provided : 
+In the Roms\_tools, some netCDF libraries for matlab are provided : 
 \begin{itemize}
 \item mex60 : matlab12 (old) and $32$ bits architecture
 \item mexnc : matlab7 and $64$ bits architecture
-%\item mexnc32 : matlab7 and $32$ bits architecture... to do
-%\item mexnc64 : matlab7 and $64$ bits architecture... to do
 \end{itemize}
 
-In the Roms\_tools, some "opendap" bins and librarys are also provided :
+In the Roms\_tools, some "Opendap" bins and librarys are also provided :
 \begin{itemize}
 \item Opendap\_tools$/$FEDORA : LibDAP and LoadDAP bin and library for Fedora Linux
   distribution, $32$ bits architecture
 \item Opendap\_tools$/$FEDORA\_X64 : Same for $64$ bits architecture.
 \end{itemize}
 However, if your Linux distribution differs from Fedora, the best is to compile and
-install by your own the LibDAP and LoadDAP. \\
+install by your own the LibDAP and LoadDAP (section \ref{sec:libdap}) \\
 
 
 You are now ready to create a new configuration.  It is important to

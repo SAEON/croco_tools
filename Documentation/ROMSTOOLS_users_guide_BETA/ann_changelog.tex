@@ -1,6 +1,6 @@
-\section{Changelog since ROMS\_AGRIF $1.0$} \label{changelog}
+\section{Changelog since ROMS\_AGRIF 1.1} \label{changelog}
 \begin{itemize}
-\item New diffusive-advection schemes : RSUP3 \citep{Marches09} \\
+\item \underline{New diffusive-advection schemes} : RSUP3 \citep{Marches09} \\
 
   To avoid unacceptable spurious diapycnal mixing, a new advection scheme has been
   proposed and validate : the RSUP3 scheme. The diffusion is split from advection and
@@ -11,69 +11,100 @@
 
   This scheme induce a time step smaller than the third-order upstream biaised
   diffusive advective scheme used in the version $1.0$. It is activated by the use of
-  the cppkeys \textit{TS\_SPLIT\_UP3} for tracers and \textit{UV\_SPLIT\_UP3} for
+  the cppkeys \textbf{TS\_SPLIT\_UP3} for tracers and \textbf{UV\_SPLIT\_UP3} for
   momentum in the cppdefs.h file.
 
   To avoid numerical instabilities in the sponge where there is enhanced
-  diffusion/siffsuivity, a classical laplacian diffusion can be applied by the use of
-  the cppkey \textit{SPONGE\_DIF2} and \textit{SPONGE\_VIS2} in the cppdefs.h file.
+  diffusion/diffsuivity, a classical laplacian diffusion can be applied by the use of
+  the cppkey \textbf{SPONGE\_DIF2} and \textbf{SPONGE\_VIS2} in the cppdefs.h file.
 
 
 
 
 
-\item Two-ways AGRIF nesting : \\
+\item \underline{Two-ways AGRIF nesting} : Ref \citep{Debreu09-1, Debreu09-2} \\
 
-As presented before, it is the capability of the fine grid to update data in the
-coarse grid. With this procedure, we are now able to get the impact of high
-resolution on the more coarser reolution, in a context of upscaling.
-
-\item Online diagnostics and I/O : \\
-
-
+  As presented before, it is the capability of the fine grid to update data in the
+  coarse grid. With this procedure, we are now able to get the impact of high
+  resolution on the more coarser reolution, in a context of upscaling.  To activate
+  the two ways nesting, you need to define the \textbf{AGRIF} and
+  \textbf{AGRIF\_2WAY} cpp-keys.
 
 
-\item PISCES biogeochemical model : \\
+\item \underline{Bulk formulation} : \\
+Desciption of the bulk formulation coded by Patrick.
 
 
+\item \underline{Online diagnostics and I/O}: \\
 
+  New diagnostics and outputs are now available in the ROMS\_AGRIF $2.0$.  
+
+  Wind stresses, windspeed, and heat fluxes (latent, sensible, long-wave and solar
+  short wave) can be written in the netCDF history and average files. Moreover,
+  bottom boundary layer thickness and euphotic depth layer in case of biological
+  experiments can be saved. For more information, you can refer at the section
+  \ref{namelistdesc}.
+
+  Improvmement have also been carried out on the tracer and momentum equation term
+  diagnostics.  
+
+  From now, the tracer equation terms are in \textit{dia.nc} and \textit{dia\_avg.nc}
+  netcdf file with flags that permit to choose exactly the term
+  you want to write in the netCDF files.\\
+  By default this diagnostics are written in a divergence flux form, ($\partial{u
+    T}_{x}$, $\partial{v T}_{y}$, ...) but they can be written in an "advective form"
+  : $u\partial{T}_{x}$, $v
+  \partial{T}_{y}$, ... by using the \textbf{DIAGNOSTICS\_TS\_ADV} cpp key. \\
+  Some term have been added : the term integrated over the mixed layer depth (cppkeys
+  \textbf{DIAGNOSTICS\_TS\_MLD}. The mixed layer depth is computed online, from the
+  closure module.
+\\ \\
+The differents term of the tracer equation, that can be diagnose,
+for each tracer,  expressed in $^{o}C.s^{-1}$ ,  are:
+  \begin{itemize}
+   \item Time evolution term (called "rate" term)
+   \item Zonal advective term
+   \item Meridian advective term
+   \item Vertical advective term
+   \item Horizontal mixing term
+   \item Vertical mixing term
+   \item Nudging $+$ Surface forcing term (called Tforc term) 
+   \item In the case of use \textbf{DIAGNOSTICS\_TS\_MLD} some additional terms are
+     diagnosted :
+     \begin{itemize}
+     \item Time evolution term integrated over the surface mixed layer depth (MLD hereafter)
+     \item Zonal advective term integrated over the MLD
+     \item Meridian advective term integrated over the MLD
+     \item Vertical advective term integrated over the MLD
+     \item Horizontal mixing term integrated over the MLD
+     \item Vertical mixing term integrated over the MLD
+     \item Nudging $+$ Surface forcing term integrated over the MLD
+     \item Entrainement term at the base of the mixed layer
+     \end{itemize}
+  \end{itemize}
+
+
+  Concerning the momentum equation term, the differents term of the equation can be
+  saved in history \textit{diaM.nc} and average \textit{diaM\_avg.nc} netCDF files.
+  As the tracer, there are flags to choose exactly the term you want to write in the
+  netCDF file. \\
+
+  The differents terms of the momentum equation, expressed in $m.s^{-2}$, that can be diagnose (for u and v)
+  are :
+  \begin{itemize}
+   \item Time evolution term (called "rate" term)
+   \item Pressure gradient term
+   \item Coriolis term
+   \item Zonal advective
+   \item Meridian advective
+   \item Vertical advective
+   \item Horizontal mixing
+   \item Vertical mixing
+  \end{itemize}
 
 
 \end{itemize}
 
-
-
-\paragraph { New advection-diffsion schemes \\}
-\subsection{Numerical issues}
-\subsubsection{Advection-Diffusion schemes}\label{sec:split3d}
-...référence a votre papier Patrick et Laurent
-
-\subsubsection{2D-3D coupling}\label{sec:2d-3d-coupling}
-...reference au nouveau stepping ....??
-
-\subsubsection{MPI paralleization}\label{sec:2d-3d-coupling}
-... effort de parrallelisation MPI
-
-
-
-\subsection{Nesting}\label{sec:2d-3d-coupling}
-... référence au 2-ways nesting et au futur papier :-) uswc 5-15 
-
-
-
-\subsection{Online diagnostics and I/O} \label{sec:online-diagn-io}
-On parle ici de 
-\begin{itemize}
-\item Nouvelles variables sorties
-\item Diagnostics TS MLD/ADV
-\item Nouvelles cles pour les bulk
-\end{itemize}
-
-
-
-
-\subsection{PISCES biogeochemical model}\label{sec:pisces}
-... reférence au possibilitées de simulation avec le modele PISCES
 
 
 
