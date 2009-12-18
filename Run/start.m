@@ -56,31 +56,51 @@ addpath([mypath,'mask'])
 %
 %-------------------------------------------------------
 %
-% If these directories are already in your matlab native path, 
-% you can comment these lines
-addpath([mypath,'netcdf_toolbox_matlab/netcdf'])
-addpath([mypath,'netcdf_toolbox_matlab/netcdf/ncfiles'])
-addpath([mypath,'netcdf_toolbox_matlab/netcdf/nctype'])
-addpath([mypath,'netcdf_toolbox_matlab/netcdf/ncutility'])
-%
-%-------------------------------------------------------
-%
 % Get the path to the mexcdf (it depends on the architecture)
 % Comment  all these lines if you don't want to pass in these tests
-!uname -p > .mysystem
+!uname -m > .mysystem
 fid=fopen('.mysystem');
 mysystem=fscanf(fid,'%s');
+
+if ( strcmp(mysystem(end-1:end),'86') )
+ mysystem2='32';
+elseif ( strcmp(mysystem(end-1:end),'64') )
+ mysystem2='64';
+end
+
 fclose(fid); 
 matversion=version('-release');
 myversion=str2num(matversion(1:2));
 !rm -f .mysystem
 disp(['Arch : ',mysystem,' - Matlab version : ',matversion])
-if (strcmp(mysystem(end-1:end),'64') & (myversion > 13))
-  disp('Use of mexnc and loaddap in 64 bits.')
-  addpath([mypath,'mexnc'])         % 64 bits version of mexnc 
-elseif (strcmp(mysystem(end-1:end),'86') | (myversion <= 13))
+
+
+if ((myversion > 13)    )
+  disp(['Use of mexnc and loaddap in ',mysystem2,' bits.'])
+  addpath([mypath,'mexcdf/mexnc'])   % 32 and 64 bits version of mexnc 
+%
+% - If these directories are already in your matlab native path, 
+% you can comment these lines
+addpath([mypath,'mexcdf/netcdf_toolbox/netcdf'])
+addpath([mypath,'mexcdf/netcdf_toolbox/netcdf/ncsource'])
+addpath([mypath,'mexcdf/netcdf_toolbox/netcdf/nctype'])
+addpath([mypath,'mexcdf/netcdf_toolbox/netcdf/ncutility'])
+%
+%-------------------------------------------------------
+elseif (myversion <= 13)
   disp('Use of mex60 and loaddap in 32 bits.')
   addpath([mypath,'mex60'])         % Older/32 bits version of mexcdf
+
+% - If these directories are already in your matlab native path, 
+% you can comment these lines
+% - In this case, if problems with subsrefs.m ans subsasign.m,
+% it is because there is a conflict with another native subs.m routines in the
+% symbolic native toolbox
+addpath([mypath,'netcdf_matlab_60'])
+addpath([mypath,'netcdf_matlab_60/ncfiles'])
+addpath([mypath,'netcdf_matlab_60/nctype'])
+addpath([mypath,'netcdf_matlab_60/ncutility'])
+
 else
   disp(['Arch : ',mysystem,...
        ' you should provide the paths of your own loaddap and mexcdf directories'])
