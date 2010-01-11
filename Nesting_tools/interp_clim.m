@@ -51,5 +51,5 @@ case 'Yes'
   handles.childclm=childname;
 end
 nested_clim(handles.childgrid,handles.parentclm,handles.childclm,...
-            handles.vertical_correc,handles.extrapmask,handles.biol)
+            handles.vertical_correc,handles.extrapmask)
 return

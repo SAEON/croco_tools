@@ -50,5 +50,5 @@ case 'Yes'
   handles.childrst=childname;
 end
 nested_restart(handles.childgrid,handles.parentrst,handles.childrst, ...
-               handles.vertical_correc,handles.extrapmask,handles.biol)
+               handles.vertical_correc,handles.extrapmask)
 return

@@ -1,7 +1,13 @@
 function ncclim=create_nestedclim(climfile,gridfile,parentfile,title,...
                                 theta_s,theta_b,Tcline,N,...
                                 ttime,stime,utime,vtime,sshtime,...
-                                tcycle,scycle,ucycle,vcycle,sshcycle,clobber)
+                                tcycle,scycle,ucycle,vcycle,sshcycle,...
+                                no3p_time,po4_time,si_time,o2_time,dic_time,talk_time, doc_time,fer_time,...
+                                no3p_cycle,po4_cycle,si_cycle,o2_cycle,dic_cycle,talk_cycle,doc_cycle,fer_cycle,...
+                                no3_time,chla_time,phyto_time,zoo_time,...
+                                no3_cycle,chla_cycle,phyto_cycle,zoo_cycle,...     
+                                clobber,...    
+                                biol,pisces,namebiol,namepisces,unitbiol,unitpisces)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  function ncclim=create_climfile(climfile,gridfile,theta_s,...
@@ -60,6 +66,21 @@ function ncclim=create_nestedclim(climfile,gridfile,parentfile,title,...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp(' ')
 disp(' ')
+% $$$ biol
+% $$$ pisces
+% $$$ namebiol
+% $$$ namepisces
+% $$$ unitbiol
+% $$$ unitpisces
+% $$$ no3_time
+% $$$ chla_time
+% $$$ phyto_time
+% $$$ zoo_time
+% $$$ no3_cycle
+% $$$ chla_cycle
+% $$$ phyto_cycle
+% $$$ zoo_cycle
+
 disp(['Creating the file : ',climfile])
 disp(' ')
 %
@@ -96,6 +117,26 @@ ncclim('sclm_time') = size(stime);
 ncclim('uclm_time') = size(utime);
 ncclim('vclm_time') = size(vtime);
 ncclim('ssh_time') = size(sshtime);
+if biol
+%no3_time
+% size(no3_time);
+ncclim('no3_time')= length(no3_time);
+ncclim('chla_time') = length(chla_time);
+ncclim('phyto_time') = length(phyto_time);
+ncclim('zoo_time') = length(zoo_time);
+end
+if pisces
+ no3p_time
+ size(no3p_time)
+ncclim('no3_time') = length(no3p_time);
+ncclim('po4_time') = length(po4_time);
+ncclim('si_time') = length(si_time);
+ncclim('o2_time') = length(o2_time);
+ncclim('dic_time') = length(dic_time);
+ncclim('talk_time') = length(talk_time);
+ncclim('doc_time') = length(doc_time);
+ncclim('fer_time') = length(fer_time);
+end
 ncclim('one') = 1;
 %
 %  Create variables
@@ -120,6 +161,38 @@ ncclim{'v'} = ncdouble('vclm_time','s_rho','eta_v','xi_v') ;
 ncclim{'ubar'} = ncdouble('uclm_time','eta_u','xi_u') ;
 ncclim{'vbar'} = ncdouble('vclm_time','eta_v','xi_v') ;
 ncclim{'SSH'} = ncdouble('ssh_time','eta_rho','xi_rho') ;
+%
+if biol
+ncclim{'no3_time'} = ncdouble('no3_time') ;
+ncclim{'chla_time'} = ncdouble('chla_time') ;
+ncclim{'phyto_time'} = ncdouble('phyto_time') ;
+ncclim{'zoo_time'} = ncdouble('zoo_time') ;
+%
+ncclim{'NO3'} = ncdouble('no3_time','s_rho','eta_rho','xi_rho') ;
+ncclim{'CHLA'} = ncdouble('chla_time','s_rho','eta_rho','xi_rho') ;
+ncclim{'PHYTO'} = ncdouble('phyto_time','s_rho','eta_rho','xi_rho') ;
+ncclim{'ZOO'} = ncdouble('zoo_time','s_rho','eta_rho','xi_rho') ;
+end
+%
+if pisces
+ncclim{'no3_time'} = ncdouble('no3_time') ;
+ncclim{'po4_time'} = ncdouble('po4_time') ;
+ncclim{'si_time'} = ncdouble('si_time') ;
+ncclim{'o2_time'} = ncdouble('o2_time') ;
+ncclim{'dic_time'} = ncdouble('dic_time') ;
+ncclim{'talk_time'} = ncdouble('talk_time') ;
+ncclim{'doc_time'} = ncdouble('doc_time') ;
+ncclim{'fer_time'} = ncdouble('fer_time') ;
+% 
+ncclim{'NO3'} = ncdouble('no3_time','s_rho','eta_rho','xi_rho') ;
+ncclim{'PO4'} = ncdouble('po4_time','s_rho','eta_rho','xi_rho') ;
+ncclim{'Si'} = ncdouble('si_time','s_rho','eta_rho','xi_rho') ;
+ncclim{'O2'} = ncdouble('o2_time','s_rho','eta_rho','xi_rho') ;
+ncclim{'DIC'} = ncdouble('dic_time','s_rho','eta_rho','xi_rho') ;
+ncclim{'TALK'} = ncdouble('talk_time','s_rho','eta_rho','xi_rho') ;
+ncclim{'DOC'} = ncdouble('doc_time','s_rho','eta_rho','xi_rho') ;
+ncclim{'FER'} = ncdouble('fer_time','s_rho','eta_rho','xi_rho') ;
+end
 %
 %  Create attributes
 %
@@ -211,54 +284,143 @@ ncclim{'ssh_time'}.cycle_length = sshcycle;
 ncclim{'ssh_time'}.field = ncchar('ssh_time, scalar, serie');
 ncclim{'ssh_time'}.field = 'ssh_time, scalar, serie';
 %
-ncclim{'temp'}.long_name = ncchar('potential temperature');
-ncclim{'temp'}.long_name = 'potential temperature';
-ncclim{'temp'}.units = ncchar('Celsius');
-ncclim{'temp'}.units = 'Celsius';
-ncclim{'temp'}.field = ncchar('temperature, scalar, series');
-ncclim{'temp'}.field = 'temperature, scalar, series';
+if biol    
+ncclim{'no3_time'}.long_name = ncchar('time for Nitrate');
+ncclim{'no3_time'}.long_name = 'time for Nitrate';
+ncclim{'no3_time'}.units = ncchar('day');
+ncclim{'no3_time'}.units = 'day';
+ncclim{'no3_time'}.cycle_length = no3_cycle;
+ncclim{'no3_time'}.field = ncchar('no3_time, scalar, serie');
+ncclim{'no3_time'}.field = 'no3_time, scalar, serie';
 %
-ncclim{'salt'}.long_name = ncchar('salinity');
-ncclim{'salt'}.long_name = 'salinity';
-ncclim{'salt'}.units = ncchar('PSU');
-ncclim{'salt'}.units = 'PSU';
-ncclim{'salt'}.field = ncchar('salinity, scalar, series');
-ncclim{'salt'}.field = 'salinity, scalar, series';
+ncclim{'chla_time'}.long_name = ncchar('time for Chlorophyll');
+ncclim{'chla_time'}.long_name = 'time for Chlorophyll';
+ncclim{'chla_time'}.units = ncchar('day');
+ncclim{'chla_time'}.units = 'day';
+ncclim{'chla_time'}.cycle_length = chla_cycle;
+ncclim{'chla_time'}.field = ncchar('chla_time, scalar, serie');
+ncclim{'chla_time'}.field = 'chla_time, scalar, serie';
 %
-ncclim{'u'}.long_name = ncchar('u-momentum component');
-ncclim{'u'}.long_name = 'u-momentum component';
-ncclim{'u'}.units = ncchar('meter second-1');
-ncclim{'u'}.units = 'meter second-1';
-ncclim{'u'}.field = ncchar('u-velocity, scalar, series');
-ncclim{'u'}.field = 'u-velocity, scalar, series';
+ncclim{'phyto_time'}.long_name = ncchar('time for Phytoplankton');
+ncclim{'phyto_time'}.long_name = 'time for Phytoplankton';
+ncclim{'phyto_time'}.units = ncchar('day');
+ncclim{'phyto_time'}.units = 'day';
+ncclim{'phyto_time'}.cycle_length = phyto_cycle;
+ncclim{'phyto_time'}.field = ncchar('phyto_time, scalar, serie');
+ncclim{'phyto_time'}.field = 'phyto_time, scalar, serie';
 %
-ncclim{'v'}.long_name = ncchar('v-momentum component');
-ncclim{'v'}.long_name = 'v-momentum component';
-ncclim{'v'}.units = ncchar('meter second-1');
-ncclim{'v'}.units = 'meter second-1';
-ncclim{'v'}.field = ncchar('v-velocity, scalar, series');
-ncclim{'v'}.field = 'v-velocity, scalar, series';
+ncclim{'zoo_time'}.long_name = ncchar('time for Zooplankton');
+ncclim{'zoo_time'}.long_name = 'time for Zooplankton';
+ncclim{'zoo_time'}.units = ncchar('day');
+ncclim{'zoo_time'}.units = 'day';
+ncclim{'zoo_time'}.cycle_length = zoo_cycle;
+ncclim{'zoo_time'}.field = ncchar('zoo_time, scalar, serie');
+ncclim{'zoo_time'}.field = 'zoo_time, scalar, serie';
 %
-ncclim{'ubar'}.long_name = ncchar('vertically integrated u-momentum component');
-ncclim{'ubar'}.long_name = 'vertically integrated u-momentum component';
-ncclim{'ubar'}.units = ncchar('meter second-1');
-ncclim{'ubar'}.units = 'meter second-1';
-ncclim{'ubar'}.field = ncchar('ubar-velocity, scalar, series');
-ncclim{'ubar'}.field = 'ubar-velocity, scalar, series';
+  ncclim{'NO3'}.long_name = ncchar('Nitrate');
+  ncclim{'NO3'}.long_name = 'Nitrate';
+  ncclim{'NO3'}.units = ncchar('mMol N m-3');
+  ncclim{'NO3'}.units = 'mMol N m-3';
+  ncclim{'NO3'}.field = ncchar('NO3, scalar, series');
+  ncclim{'NO3'}.field = 'NO3, scalar, series';
 %
-ncclim{'vbar'}.long_name = ncchar('vertically integrated v-momentum component');
-ncclim{'vbar'}.long_name = 'vertically integrated v-momentum component';
-ncclim{'vbar'}.units = ncchar('meter second-1');
-ncclim{'vbar'}.units = 'meter second-1';
-ncclim{'vbar'}.field = ncchar('vbar-velocity, scalar, series');
-ncclim{'vbar'}.field = 'vbar-velocity, scalar, series';
+  ncclim{'CHLA'}.long_name = ncchar('Chlorophyll');
+  ncclim{'CHLA'}.long_name = 'Chlorophyll';
+  ncclim{'CHLA'}.units = ncchar('mg C l-1');
+  ncclim{'CHLA'}.units = 'mg C l-1';
+  ncclim{'CHLA'}.field = ncchar('CHLA, scalar, series');
+  ncclim{'CHLA'}.field = 'CHLA, scalar, series';
 %
-ncclim{'SSH'}.long_name = ncchar('sea surface height');
-ncclim{'SSH'}.long_name = 'sea surface height';
-ncclim{'SSH'}.units = ncchar('meter');
-ncclim{'SSH'}.units = 'meter';
-ncclim{'SSH'}.field = ncchar('SSH, scalar, series');
-ncclim{'SSH'}.field = 'SSH, scalar, series';
+  ncclim{'PHYTO'}.long_name = ncchar('Phytoplankton');
+  ncclim{'PHYTO'}.long_name = 'Phytoplankton';
+  ncclim{'PHYTO'}.units = ncchar('mMol N m-3');
+  ncclim{'PHYTO'}.units = 'mMol N m-3';
+  ncclim{'PHYTO'}.field = ncchar('PHYTO, scalar, series');
+  ncclim{'PHYTO'}.field = 'PHYTO, scalar, series';
+%  
+  ncclim{'ZOO'}.long_name = ncchar('Zooplankton');
+  ncclim{'ZOO'}.long_name = 'Zooplankton';
+  ncclim{'ZOO'}.units = ncchar('mMol N m-3');
+  ncclim{'ZOO'}.units = 'mMol N m-3';
+  ncclim{'ZOO'}.field = ncchar('ZOO, scalar, series');
+  ncclim{'ZOO'}.field = 'ZOO, scalar, series';
+end;
+%
+if pisces
+ncclim{'no3_time'}.long_name = ncchar('time for nitrate');
+ncclim{'no3_time'}.long_name = 'time for Nitrate';
+ncclim{'no3_time'}.units = ncchar('day');
+ncclim{'no3_time'}.units = 'day';
+ncclim{'no3_time'}.cycle_length = no3p_cycle;
+ncclim{'no3_time'}.field = ncchar('no3_time, scalar, serie');
+ncclim{'no3_time'}.field = 'no3_time, scalar, serie'; 
+%    
+ncclim{'po4_time'}.long_name = ncchar('time for phosphate');
+ncclim{'po4_time'}.long_name = 'time for Phosphate';
+ncclim{'po4_time'}.units = ncchar('day');
+ncclim{'po4_time'}.units = 'day';
+ncclim{'po4_time'}.cycle_length = po4_cycle;
+ncclim{'po4_time'}.field = ncchar('po4_time, scalar, serie');
+ncclim{'po4_time'}.field = 'po4_time, scalar, serie'; 
+%
+ncclim{'si_time'}.long_name = ncchar('time for silicate ');
+ncclim{'si_time'}.long_name = 'time for Nitrate';
+ncclim{'si_time'}.units = ncchar('day');
+ncclim{'si_time'}.units = 'day';
+ncclim{'si_time'}.cycle_length = si_cycle;
+ncclim{'si_time'}.field = ncchar('si_time, scalar, serie');
+ncclim{'si_time'}.field = 'si_time, scalar, serie'; 
+%
+ncclim{'o2_time'}.long_name = ncchar('time for oxygen');
+ncclim{'o2_time'}.long_name = 'time for Nitrate';
+ncclim{'o2_time'}.units = ncchar('day');
+ncclim{'o2_time'}.units = 'day';
+ncclim{'o2_time'}.cycle_length = o2_cycle;
+ncclim{'o2_time'}.field = ncchar('o2_time, scalar, serie');
+ncclim{'o2_time'}.field = 'o2_time, scalar, serie'; 
+%
+ncclim{'dic_time'}.long_name = ncchar('time for DIC');
+ncclim{'dic_time'}.long_name = 'time for Nitrate';
+ncclim{'dic_time'}.units = ncchar('day');
+ncclim{'dic_time'}.units = 'day';
+ncclim{'dic_time'}.cycle_length = dic_cycle;
+ncclim{'dic_time'}.field = ncchar('dic_time, scalar, serie');
+ncclim{'dic_time'}.field = 'dic_time, scalar, serie'; 
+%
+ncclim{'talk_time'}.long_name = ncchar('time for TALK');
+ncclim{'talk_time'}.long_name = 'time for Nitrate';
+ncclim{'talk_time'}.units = ncchar('day');
+ncclim{'talk_time'}.units = 'day';
+ncclim{'talk_time'}.cycle_length = talk_cycle;
+ncclim{'talk_time'}.field = ncchar('talk_time, scalar, serie');
+ncclim{'talk_time'}.field = 'talk_time, scalar, serie'; 
+%
+ncclim{'doc_time'}.long_name = ncchar('time for DOC');
+ncclim{'doc_time'}.long_name = 'time for Nitrate';
+ncclim{'doc_time'}.units = ncchar('day');
+ncclim{'doc_time'}.units = 'day';
+ncclim{'doc_time'}.cycle_length = doc_cycle;
+ncclim{'doc_time'}.field = ncchar('doc_time, scalar, serie');
+ncclim{'doc_time'}.field = 'doc_time, scalar, serie'; 
+%
+ncclim{'fer_time'}.long_name = ncchar('time for iron');
+ncclim{'fer_time'}.long_name = 'time for Nitrate';
+ncclim{'fer_time'}.units = ncchar('day');
+ncclim{'fer_time'}.units = 'day';
+ncclim{'fer_time'}.cycle_length = fer_cycle;
+ncclim{'fer_time'}.field = ncchar('fer_time, scalar, serie');
+ncclim{'fer_time'}.field = 'fer_time, scalar, serie'; 
+%
+ for k=1:length(namepisces)
+   disp(['K=',num2str(k)])
+   ncclim{char(namepisces(k))}.long_name = ncchar(char(namepisces(k)));
+   ncclim{char(namepisces(k))}.long_name = char(namepisces(k));
+   ncclim{char(namepisces(k))}.units = ncchar(char(unitpisces(k)));
+   ncclim{char(namepisces(k))}.units = char(unitpisces(k));
+   ncclim{char(namepisces(k))}.field = ncchar([char(namepisces(k)),', scalar, series']);
+   ncclim{char(namepisces(k))}.field = [char(namepisces(k)),', scalar, series'];
+ end
+end;
 %
 % Create global attributes
 %
@@ -314,6 +476,44 @@ ncclim{'vbar'}(:) =  0;
 ncclim{'SSH'}(:) =  0; 
 ncclim{'temp'}(:) =  0; 
 ncclim{'salt'}(:) =  0; 
+%
+if biol==1
+disp('Write variable biology')
+% size(no3_time)
+% chla_time
+ ncclim{'chla_time'}(:)=squeeze(chla_time);
+ ncclim{'no3_time'}(:)=no3_time;
+ ncclim{'phyto_time'}(:)=phyto_time;
+ ncclim{'zoo_time'}(:)=zoo_time;
+% 
+ ncclim{'NO3'}(:)=0;
+ ncclim{'CHLA'}(:)=0;
+ ncclim{'PHYTO'}(:)=0;
+ ncclim{'ZOO'}(:)=0;
+end
+
+%
+if pisces==1
+disp('Write variable pisces')
+ ncclim{'no3_time'}(:)=no3p_time;
+ ncclim{'po4_time'}(:)=po4_time;
+ ncclim{'si_time'}(:)=si_time;
+ ncclim{'o2_time'}(:)=o2_time;
+ ncclim{'dic_time'}(:)=dic_time;
+ ncclim{'talk_time'}(:)=talk_time;
+ ncclim{'doc_time'}(:)=doc_time;
+ ncclim{'fer_time'}(:)=fer_time;
+ %
+ ncclim{'NO3'}(:)=0;
+ ncclim{'PO4'}(:)=0;
+ ncclim{'Si'}(:)=0;
+ ncclim{'O2'}(:)=0;
+ ncclim{'DIC'}(:)=0;
+ ncclim{'TALK'}(:)=0;
+ ncclim{'DOC'}(:)=0;
+ ncclim{'FER'}(:)=0;
+end
+%
 %
 % Synchronize on disk
 %

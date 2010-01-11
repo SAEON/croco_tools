@@ -1,9 +1,18 @@
-function vert_correc(ncfile,tindex,biol,pisces,namebiol,namepisces)
+function vert_correc(ncfile,tindex,field)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Vertically reinterpolate embedded 3D variables
 % when the topography (and so the sigma grid) has
 % been changed
+%
+%
+%     vert_correc(ncfile,tindex,field)
+%
+%     ncfile : input clim file
+%
+%     tindex: time inde processed
+%
+%     field: variable ('r') processed. String
 %
 %  Further Information:  
 %  http://www.brest.ird.fr/Roms_tools/
@@ -31,7 +40,7 @@ function vert_correc(ncfile,tindex,biol,pisces,namebiol,namepisces)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 disp(' ')
-disp(' Vertical corrections... ')
+%disp(' Vertical corrections... ')
 nc=netcdf(ncfile,'write');
 N=length(nc('s_rho'));
 theta_s = nc{'theta_s'}(:);
@@ -67,9 +76,7 @@ result=close(ng);
 %
 % get the depths
 %
-disp('get the depths')
-%size(hold)
-%size(hnew)
+%disp('Get the depths')
 zrold=zlevs(hold,zeta,theta_s,theta_b,hc,N,'r');
 zrnew=zlevs(hnew,zeta,theta_s,theta_b,hc,N,'r');
 zuold=0.5*(zrold(:,:,1:end-1)+zrold(:,:,2:end));
@@ -79,43 +86,11 @@ zvnew=0.5*(zrnew(:,1:end-1,:)+zrnew(:,2:end,:));
 %
 % perform the modifications
 %
-disp('u...')
-nc{'u'}(tindex,:,:,:)=change_sigma(lonu,latu,masku,...
-                              squeeze(nc{'u'}(tindex,:,:,:)),...
-                              zuold,zunew);
-disp('v...')
-nc{'v'}(tindex,:,:,:)=change_sigma(lonv,latv,maskv,...
-                              squeeze(nc{'v'}(tindex,:,:,:)),...
-                              zvold,zvnew);
-disp('temp...')
-nc{'temp'}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
-                              squeeze(nc{'temp'}(tindex,:,:,:)),...
+disp(['Vert_correc for 3D (''rho'') variables: ',field])
+disp('==========================')
+nc{field}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
+                              squeeze(nc{field}(tindex,:,:,:)),...
                               zrold,zrnew);
-disp('salt...')
-nc{'salt'}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
-                              squeeze(nc{'salt'}(tindex,:,:,:)),...
-                              zrold,zrnew);
-%
-if (biol==1)
-disp('vert_correc for biology variables')
- for k=1:length(namebiol)
-     disp([namebiol(k),' ...'])
-     nc{char(namebiol(k))}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
-                           squeeze(nc{char(namebiol(k))}(tindex,:,:,:)),...
-                           zrold,zrnew);
- end
-end
-%
-
-if (pisces==1)
-disp('vert_correc for pisces variables')
- for k=1:length(namepisces)
-     disp([char(namepisces(k)),' ...'])
-     nc{char(namepisces(k))}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
-                           squeeze(nc{char(namepisces(k))}(tindex,:,:,:)),...
-                           zrold,zrnew);
- end
-end
 %
 close(nc)
 

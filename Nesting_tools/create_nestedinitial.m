@@ -52,9 +52,6 @@ function ncini=create_nestedinitial(inifile,gridfile,parentfile,title,...
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%biol=0;
-%pisces=1;
-%
 disp(' ')
 disp(' ')
 disp(['Creating the file : ',inifile])
@@ -113,6 +110,7 @@ if biol==1
  ncini{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
  ncini{'CHLA'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
  ncini{'PHYTO'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+ ncini{'ZOO'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 end
 if pisces==1
  ncini{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
@@ -253,6 +251,13 @@ if biol
   ncini{'PHYTO'}.units = 'mMol N m-3';
   ncini{'PHYTO'}.field = ncchar('PHYTO, scalar, series');
   ncini{'PHYTO'}.field = 'PHYTO, scalar, series';
+  %
+  ncini{'ZOO'}.long_name = ncchar('Zooplankton');
+  ncini{'ZOO'}.long_name = 'Zooplankton';
+  ncini{'ZOO'}.units = ncchar('mMol N m-3');
+  ncini{'ZOO'}.units = 'mMol N m-3';
+  ncini{'ZOO'}.field = ncchar('ZOO, scalar, series');
+  ncini{'ZOO'}.field = 'ZOO, scalar, series';
 end;
 %
 if pisces
@@ -324,6 +329,7 @@ disp('Write variable biology')
  ncini{'NO3'}(:)=0;
  ncini{'CHLA'}(:)=0;
  ncini{'PHYTO'}(:)=0;
+  ncini{'ZOO'}(:)=0;
 end
 %
 if pisces==1

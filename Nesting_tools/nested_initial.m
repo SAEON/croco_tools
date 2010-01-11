@@ -28,9 +28,7 @@ function nested_initial(child_grd,parent_ini,child_ini,...
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-tindex=1;
-biol=0;
-pisces=0;
+%tindex=1;
 
 %Check the number of variables in the clim parents file
 a= netcdf(parent_ini);
@@ -38,7 +36,13 @@ Vars = var(a);
 Varnames = [ncnames(Vars)];
 nvar=length(Varnames);
 %
-
+biol=0;
+pisces=0;
+namebiol={''};
+unitbiol={''};
+namepisces={''};
+unitpisces={''};
+%
 if nvar < 17
 
 elseif nvar < 21 
@@ -50,30 +54,27 @@ pisces=1;
 disp('Pisces is on')
 disp('==========')
 end
-
+%
 if extrapmask==1
 disp('Extrapolation under mask is on')
 disp('====================')
 end
-
+%
 if vertical_correc==1
 disp('Vertical correction is on')
 disp('====================')
 end
-
-
+%
 if pisces & biol 
    error(['Both Biol NPZD and Pisces are ON, no possible yet !'])
 end
-
+%
 %Name, units etc .. of the variables
 namebiol={'NO3';'CHLA';'PHYTO'};
 unitbiol={'mMol N m-3';'mg C l-1';'mMol N m-3'};
-fieldbiol=namebiol;
 %
 namepisces={'NO3';'PO4';'Si';'O2';'DIC';'TALK';'DOC';'FER'};
 unitpisces={'mMol N m-3';'mMol P m-3';'mMol Si m-3';'mMol O m-3';'mMol C m-3';'mMol C m-3';'mMol C m-3';'uMol Fe m-3'};
-fieldpisces=namepisces;
 %
 
 %
@@ -92,11 +93,9 @@ if extrapmask==1
 end
 if biol==1
  disp('Biology: on')
-
 end
 if pisces==1
  disp('Pisces: on')
-
 end
 %
 % Read in the embedded grid
@@ -139,7 +138,7 @@ disp(' ')
 disp(' Create the initial file...')
 ncini=create_nestedinitial(child_ini,child_grd,parent_ini,title,...
                            theta_s,theta_b,Tcline,N,thetime,'clobber',...
-                            biol,pisces,namebiol,namepisces,unitbiol,unitpisces);
+                           biol,pisces,namebiol,namepisces,unitbiol,unitpisces);
 %
 % parent indices
 %
@@ -187,6 +186,8 @@ for tindex=1:length(thetime)
     interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'CHLA',mask,tindex,N)
     disp('PHYTO...')
     interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'PHYTO',mask,tindex,N)
+    disp('ZOO...')
+    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'ZOO',mask,tindex,N)
   end
 %
   if (pisces==1)

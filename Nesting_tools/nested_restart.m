@@ -1,5 +1,5 @@
 function nested_restart(child_grd,parent_rst,child_rst,...
-                        vertical_correc,extrapmask,biol)
+                        vertical_correc,extrapmask)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Compute the restart file of the embedded grid
@@ -29,6 +29,83 @@ function nested_restart(child_grd,parent_rst,child_rst,...
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%Check the number of variables in the clim parents file
+a= netcdf(parent_rst);
+Vars = var(a);
+Varnames = [ncnames(Vars)];
+nvar=length(Varnames);
+%
+namebiol={''};
+unitbiol={''};
+namepisces={''};
+unitpisces={''};
+biol=0;
+biol_NPZD=0;
+biol_N2PZD2=0;
+biol_N2P2Z2D2=0;
+pisces=0;
+
+
+if nvar <= 20
+disp(['No biology'])
+elseif nvar == 25 
+biol_NPZD=1;
+%Name, units etc .. of the variables
+namebiol={'NO3';'CHLA';'PHYTO';'ZOO';'DET'};
+unitbiol={'mMol N m-3' ; 'mg C l-1' ; 'mMol N m-3';...
+                'mMol N m-3' ; 'mMol N m-3'};
+disp('Biol NPZD is on')
+disp('==========')
+elseif nvar ==27
+biol_N2PZD2=1;
+%Name, units etc .. of the variables
+namebiol={'NO3' ; 'NH4' ; 'CHLA' ; 'PHYTO' ; 'ZOO' ; 'SDET' ; 'LDET'};
+unitbiol={'mMol N m-3' ; 'mMol N m-3' ; 'mg C l-1' ; ...
+          'mMol N m-3' ; 'mMol N m-3' ; 'mMol N m-3' ; ...
+          'mMol N m-3'};
+disp('Biol N2PZD2 is on')
+disp('==========')
+elseif nvar==28
+biol_N2P2Z2D2=1;
+%Name, units etc .. of the variables
+namebiol={'NO3' ; 'NH4' ; 'SPHYTO' ; 'LPHYTO' ; 'SZOO' ; 'LZOO' ; 'SDET' ; 'LDET'};
+unitbiol={'mMol N m-3' ; 'mMol N m-3' ; 'mMol N m-3' ; ...
+          'mMol N m-3' ; 'mMol N m-3' ; 'mMol N m-3' ; ...
+          'mMol N m-3' ; 'mMol N m-3'};
+disp('Biol N2P2Z2D2 is on')
+disp('==========')
+else
+pisces=1;
+namepisces={'DIC' ; 'TALK' ; 'O2' ; 'CACO3'  ;  'PO4' ;  'POC' ; 
+            'Si'  ; 'NANO' ; 'ZOO'  ;  'DOC' ;  'DIA' ; 'MESO' ; 'BSI' ; 
+            'FER' ; 'BFE' ; 'GOC'; 'SFE' ; 'DFE' ; 'DSI' ; 'NFE' ; ...
+            'NCHL' ;  'DCHL';  'NO3' ; 'NH4'};
+unitpisces={'umol C L-1' ; 'umol C L-1' ; 'umol O L-1' ;  'umol C L-1' ;  'umol P L-1' ;  'umol C L-1' ; ...
+            'umol Si L-1' ;  'umol C L-1' ; 'umol C L-1'  ; 'umol C L-1' ; 'umol C L-1' ; 'umol C L-1' ; 'umol Si L-1' ; ...
+            'umol Fe L-1' ; 'umol Fe L-1' ;  'umol C L-1' ;  'umol Fe L-1' ; 'umol Fe L-1' ; 'umol Si L-1';'umol Fe L-1' ;...
+            'mg Chl m-3' ; 'mg Chl m-3' ; 'umol N L-1' ; 'umol N L-1'};
+disp('Pisces is on')
+disp('==========')
+end
+
+if  (biol_NPZD | biol_N2PZD2 | biol_N2P2Z2D2)
+biol=1;
+end
+
+if extrapmask==1
+disp('Extrapolation under mask is on')
+disp('====================')
+end
+
+if vertical_correc==1
+disp('Vertical correction is on')
+disp('====================')
+end
+
+if pisces & (biol_NPZD | biol_N2PZD2  | biol_N2P2Z2D2)
+   error(['Both Biol NPZD type  and Pisces are ON, no possible yet !'])
+end
+
 %
 % Title
 %
@@ -36,16 +113,6 @@ title=['restart file for the embedded grid :',child_rst,...
        ' using parent restart file: ',parent_rst];
 disp(' ')
 disp(title)
-%
-if vertical_correc==1
- disp('Vertical corrections: on')
-end
-if extrapmask==1
- disp('Under mask extrapolations: on')
-end
-if biol==1
- disp('Biology: on')
-end
 %
 % Read in the embedded grid
 %
@@ -82,7 +149,9 @@ result=close(nc);
 %
 disp(' ')
 disp(' Create the restart file...')
-ncrst=create_nestedrestart(child_rst,child_grd,parent_rst,title,'clobber');
+ncrst=create_nestedrestart(child_rst,child_grd,parent_rst,title,...
+                'clobber',biol,biol_NPZD,biol_N2PZD2,biol_N2P2Z2D2,...
+                 pisces,namebiol,namepisces,unitbiol,unitpisces);
 %
 % Get the parent indices
 %
@@ -126,14 +195,22 @@ for tindex=1:length(thetime)
   interpvar4d(np,ncrst,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'temp',mask,tindex,N)
   disp('salt...')
   interpvar4d(np,ncrst,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'salt',mask,tindex,N)
+%
   if (biol==1)
-    disp('NO3...')
-    interpvar4d(np,ncrst,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'NO3',mask,tindex,N)
-    disp('CHLA...')
-    interpvar4d(np,ncrst,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'CHLA',mask,tindex,N)
-    disp('PHYTO...')
-    interpvar4d(np,ncrst,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'PHYTO',mask,tindex,N)
+    for k=1:length(namebiol)
+      disp(char(namebiol(k)))
+      interpvar4d(np,ncrst,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,char(namebiol(k)),mask,tindex,N)
+    end
   end
+%
+  if (pisces==1)
+    for k=1:length(namepisces)
+      disp(['K=',num2str(k)])
+      disp(char(namepisces(k)))
+      interpvar4d(np,ncrst,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,char(namepisces(k)),mask,tindex,N)
+    end
+  end
+%
 end
   result=close(np);
   result=close(ncrst);
@@ -143,9 +220,10 @@ end
 if (vertical_correc==1)
   for tindex=1:length(thetime)
     disp([' Time index : ',num2str(tindex),' of ',num2str(length(thetime))])                     
-    vert_correc(child_rst,tindex,biol)
+    vert_correc(child_rst,tindex,biol,pisces,namebiol,namepisces)
   end
 end
+
 %
 % Make a plot
 %
