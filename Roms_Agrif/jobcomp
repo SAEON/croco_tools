@@ -124,7 +124,7 @@ if ($OS == Linux) then          # LINUX
     setenv CFT1 ifort
     setenv FFLAGS1 "-O3 -w90 -w95 -cm -72 -fno-alias -i4 -r8 -fp-model precise"
     setenv LDFLAGS1 "-Vaxlib $LDFLAGS1"
-  else if ($LINUX_FC== gfortran)
+  else if ($LINUX_FC == gfortran) then
     setenv CPP1 "cpp -traditional -DLinux"
     setenv CFT1 gfortran
     setenv FFLAGS1 "-O3 -fdefault-real-8"
