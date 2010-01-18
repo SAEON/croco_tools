@@ -301,8 +301,14 @@ return
 %
 %  Biologie switch
 %
-function varargout = biologie_Callback(h, eventdata, handles, varargin)
+function varargout = getbiolbutton_Callback(h, eventdata, handles, varargin)
 handles.biol=1-handles.biol;
+guidata(h,handles)
+return
+%
+% Pisces switch
+function varargout = getpiscesbutton_Callback(h, eventdata, handles, varargin)
+handles.pisces=1-handles.pisces;
 guidata(h,handles)
 return
 %

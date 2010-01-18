@@ -1,5 +1,5 @@
 function nested_initial(child_grd,parent_ini,child_ini,...
-                        vertical_correc,extrapmask)
+                        vertical_correc,extrapmask,biol,pisces)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Compute the initial file of the embedded grid
@@ -36,23 +36,28 @@ Vars = var(a);
 Varnames = [ncnames(Vars)];
 nvar=length(Varnames);
 %
-biol=0;
-pisces=0;
+
 namebiol={''};
 unitbiol={''};
 namepisces={''};
 unitpisces={''};
 %
+
+% pisces
+% biol
+
 if nvar < 17
 
-elseif nvar < 21 
-biol=1;
-disp('Biol NPZD is on')
-disp('==========')
+elseif ( nvar < 21 & biol) 
+disp('Compute Bio NPZD variables')
+disp('==================')
+elseif (pisces & nvar >= 21)
+disp('Compute Pisces biogeochemical variables')
+disp('=========================')
 else
-pisces=1;
-disp('Pisces is on')
-disp('==========')
+    error(sprintf(['You don''t have the neccesary variables in the clim file \n',...
+    'or you didn''t choose the right bio. model. \n', ...
+    'Check roms_ini.nc parent file and make_ini.m']))
 end
 %
 if extrapmask==1
@@ -62,11 +67,11 @@ end
 %
 if vertical_correc==1
 disp('Vertical correction is on')
-disp('====================')
+disp('===============')
 end
 %
 if pisces & biol 
-   error(['Both Biol NPZD and Pisces are ON, no possible yet !'])
+   error(['Both Biol NPZD and Pisces are ON, not possible yet... !'])
 end
 %
 %Name, units etc .. of the variables

@@ -1,5 +1,5 @@
 function nested_clim(child_grd,parent_clim,child_clim,...
-                     vertical_correc,extrapmask)
+                     vertical_correc,extrapmask,biol,pisces)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  compute the climatology of the embedded grid
@@ -30,15 +30,16 @@ function nested_clim(child_grd,parent_clim,child_clim,...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %Check the number of variables in the clim parents file
-a= netcdf(parent_clim)
+a= netcdf(parent_clim);
 Vars = var(a);
 Varnames = [ncnames(Vars)];
 nvar =length(Varnames);
 %
 % Initialisation
 %
-biol=0;
-pisces=0;
+% biol
+% pisces
+
 namebiol={''};
 unitbiol={''};
 % timebiol={''};
@@ -80,22 +81,25 @@ fer_cycle=[];
 % Chech type of clim file
 %
 if nvar <= 26
-elseif nvar <=  34
-biol=1;
+elseif (nvar <=  34 & biol)
 %Name, units etc .. of the variables
 namebiol={'NO3';'CHLA';'PHYTO';'ZOO'};
 unitbiol={'mMol N m-3';'mg C l-1';'mMol N m-3'};
 %timebiol={'no3_time';'chla_time';'phyto_time';'zoo_time'};
-disp('Biol NPZD is on')
-disp('==========')
-else
-pisces=1;
+disp(['Compute Biological variables type NPZD : '])
+disp(['NchlPZD or N2ChlZD2 or N2P2Z2D2         '])
+disp('==========================')
+elseif (pisces & nvar>=35)
 %Name, units etc .. of the variables
 namepisces={'NO3';'PO4';'Si';'O2';'DIC';'TALK';'DOC';'FER'};
 unitpisces={'mMol N m-3';'mMol P m-3';'mMol Si m-3';'mMol O m-3';'mMol C m-3';'mMol C m-3';'mMol C m-3';'uMol Fe m-3'};
 %timepisces={'no3_time';'po4_time';'si_time';'o2_time';'dic_time';'talk_time';'doc_time';'fer_time'};
-disp('Pisces is on')
-disp('==========')
+disp('Compute Pisces biogeochemical variables')
+disp('=========================')
+else
+error(sprintf(['You don''t have the neccesary variables in the clim file. \n',...
+    'or you didn''t choose the right bio. model. \n',...
+    'Check roms_ini.nc parent file and make_clim.m']))
 end
 %
 % Title
@@ -111,11 +115,11 @@ end
 %
 if vertical_correc==1
 disp('Vertical correction is on')
-disp('====================')
+disp('===============')
 end
 %
 if pisces & biol 
-  error(['Both Biol NPZD and Pisces are ON, no possible yet !'])
+  error(['Both Biol NPZD and Pisces are ON, no possible yet...!'])
 end
 %
 % Read in the embedded grid

@@ -126,8 +126,8 @@ ncclim('phyto_time') = length(phyto_time);
 ncclim('zoo_time') = length(zoo_time);
 end
 if pisces
- no3p_time
- size(no3p_time)
+%  no3p_time
+%  size(no3p_time)
 ncclim('no3_time') = length(no3p_time);
 ncclim('po4_time') = length(po4_time);
 ncclim('si_time') = length(si_time);

@@ -1,7 +1,7 @@
-function handles=reset_handle(fig,handles)
+function handles=getbiolbutton(h,handles);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Put all the handles.XX objects to their default values
+% Button to add the biological variables in the interpolation
 %
 %  Further Information:  
 %  http://www.brest.ird.fr/Roms_tools/
@@ -27,51 +27,6 @@ function handles=reset_handle(fig,handles)
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-handles.toponame=[];
-handles.parentgrid=[];
-handles.childgrid=[];
-handles.parentfrc=[];
-handles.childfrc=[];
-handles.parentdust=[];
-handles.childdust=[];
-handles.parentblk=[];
-handles.childblk=[];
-handles.parentini=[];
-handles.childini=[];
-handles.parentclm=[];
-handles.childclm=[];
-handles.parentrst=[];
-handles.childrst=[];
-handles.lonmin=[];
-handles.lonmax=[];
-handles.latmin=[];
-handles.latmax=[];
-handles.imin=[];
-handles.imax=[];
-handles.jmin=[];
-handles.jmax=[];
-handles.rcoeff=3;
-handles.Lparent=[];
-handles.Mparent=[];
-handles.Lchild=[];
-handles.Mchild=[];
-handles.rfactor=0.2;
-handles.nband=15;
-handles.hmin=[];
-handles.hmax_coast=500;
-handles.newtopo=0;
-handles.matchvolume=0;
-handles.vertical_correc=0;
-handles.extrapmask=0;
-handles.biol=0;
-handles.pisces=0;
-handles.Isrcparent=[];
-handles.Jsrcparent=[];
-handles.Isrcchild=[];
-handles.Jsrcchild=[];
-
-handles.n_filter_deep=4;
-handles.n_filter_final=2;
-
-guidata(fig, handles);
+a=get(handles.getbiolbutton,'Value');
+handles.biol = a;
 return
