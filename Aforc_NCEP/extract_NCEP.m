@@ -68,8 +68,8 @@ eval(['missing_value=x.',vname,'.missing_value;']);
 else %if Get_My_Data
 nc=netcdf([url,fname,'.',num2str(year),'.nc']);
   if ~isempty(i1min)
-      if strcmp(vname,'air')==1 || strcmp(vname,'uwnd')==1 || ...
-	 strcmp(vname,'vwnd')==1 || strcmp(vname,'shum')==1 
+      if strcmp(vname,'air')==1  | strcmp(vname,'uwnd')==1 | ...
+	 strcmp(vname,'vwnd')==1 | strcmp(vname,'shum')==1 
 	
 	var1=squeeze(nc{vname}(tndx,1,jmin:jmax,i1min:i1max));
 %        var10=flipdim(squeeze(nc{vname}(tndx,1,:,:)) , 2);
@@ -86,8 +86,8 @@ nc=netcdf([url,fname,'.',num2str(year),'.nc']);
   end
   
   if ~isempty(i2min)
-      if strcmp(vname,'air')==1 || strcmp(vname,'uwnd')==1 || ...
-	 strcmp(vname,'vwnd')==1 || strcmp(vname,'shum')==1 
+      if strcmp(vname,'air')==1  | strcmp(vname,'uwnd')==1 | ...
+	 strcmp(vname,'vwnd')==1 | strcmp(vname,'shum')==1 
 	
         var2=squeeze(nc{vname}(tndx,1,jmin:jmax,i2min:i2max));
 %	var20=flipdim(squeeze(nc{vname}(tndx,1,:,:)) , 2);
@@ -104,8 +104,8 @@ nc=netcdf([url,fname,'.',num2str(year),'.nc']);
   end
   
   if ~isempty(i3min)
-       if strcmp(vname,'air')==1 || strcmp(vname,'uwnd')==1 || ...
-	  strcmp(vname,'vwnd')==1 || strcmp(vname,'shum')==1 
+       if strcmp(vname,'air')==1  | strcmp(vname,'uwnd')==1 | ...
+	  strcmp(vname,'vwnd')==1 | strcmp(vname,'shum')==1 
 	
         var3=squeeze(nc{vname}(tndx,1,jmin:jmax,i3min:i3max));
 %	var30=flipdim(squeeze(nc{vname}(tndx,1,:,:)) , 2);

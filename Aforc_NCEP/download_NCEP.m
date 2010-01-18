@@ -266,7 +266,7 @@ if k==1
               jmin,jmax,Yorig,Get_My_Data) 
  
   elseif Get_My_Data==1
-disp(['=========================='])
+   disp(['=========================='])
    disp(['Get the Land Mask tindex = 1']);
    disp(['In case of Get_My_Data ON']);
    disp(['Get the Land Mask by using extract_NCEP_Mask_Mydata']);
@@ -316,37 +316,33 @@ close(nc);
 % NCEP reanalysis 2 from FTP: time origine is "days since 1800-1-1 00:00:00"
 %===========================================================
 
-   if (NCEP_version == 1 && Get_My_Data~= 1)   ;             
-disp(['NCEP_version is ',num2str(NCEP_version)])
-startime = [1,1,1,0,0,0]; %[year, month, day, hour, minute, second]
-
-   elseif (NCEP_version ==  2 && Get_My_Data ~= 1);
-disp(['NCEP_version is ',num2str(NCEP_version)])
-startime = [1,1,1,0,0,0]; %[year, month, day, hour, minute, second]
-
-   elseif (NCEP_version ==  1 && Get_My_Data == 1);
-disp(['NCEP_version is ',num2str(NCEP_version)])
-startime = [1,1,1,0,0,0]; %[year, month, day, hour, minute, second]
-
-   elseif (NCEP_version ==  2 && Get_My_Data == 1);
-disp(['NCEP_version is ',num2str(NCEP_version)])
-startime = [1800,1,1,0,0,0]; %[year, month, day, hour, minute, second]
-
-   end
+if (NCEP_version == 1 & Get_My_Data~= 1)   ;             
+  disp(['NCEP_version is ',num2str(NCEP_version)])
+  startime = [1,1,1,0,0,0]; %[year, month, day, hour, minute, second]
+elseif (NCEP_version ==  2 & Get_My_Data ~= 1);
+  disp(['NCEP_version is ',num2str(NCEP_version)])
+  startime = [1,1,1,0,0,0]; %[year, month, day, hour, minute, second]
+elseif (NCEP_version ==  1 & Get_My_Data == 1);
+  disp(['NCEP_version is ',num2str(NCEP_version)])
+  startime = [1,1,1,0,0,0]; %[year, month, day, hour, minute, second]
+elseif (NCEP_version ==  2 & Get_My_Data == 1);
+  disp(['NCEP_version is ',num2str(NCEP_version)])
+  startime = [1800,1,1,0,0,0]; %[year, month, day, hour, minute, second]
+end
 time = time.*time_scale;
 TIME_OFFSET=(mjd(Yorig,1,1,0)-mjd(startime(1),startime(2),startime(3), ...
 				  startime(4))); 
-  if Get_My_Data~= 1
-time = time - TIME_OFFSET -2; 
+if Get_My_Data~= 1
+  time = time - TIME_OFFSET -2; 
 %                             This is time in days from Yorig
 %                             In case of OpenDap DATA
 %                             we have to remove at the end to be OK with the date
-  else
-time = time - TIME_OFFSET  ;
+else
+  time = time - TIME_OFFSET  ;
 %                             This is time in days from Yorig
 %                             In case ofFTP DATA
 %                             we do not need to remove at the end
- end
+end
 [year,month,days,hour,min,sec]=datevec(time+datenum(Yorig,1,1));
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
