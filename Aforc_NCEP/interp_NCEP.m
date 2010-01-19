@@ -15,14 +15,13 @@ function interp_NCEP(NCEP_dir,Y,M,Roa,interp_method,...
 % 1: Air temperature: Convert from Kelvin to Celsius
 %
 if Get_My_Data ~=1
-vname='tmp2m';
+  vname='tmp2m';
 else
-vname='air';
+  vname='air';
 end
 nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
 tair=squeeze(nc{vname}(tin,:,:));
 close(nc);
-%tair=get_missing_val(lon1,lat1,mask1.*tair);
 tair=get_missing_val(lon1,lat1,mask1.*tair,nan,Roa,nan);
 tair=tair-273.15;
 tair=interp2(lon1,lat1,tair,lon,lat,interp_method);
@@ -32,14 +31,13 @@ tair=interp2(lon1,lat1,tair,lon,lat,interp_method);
 % Get Specific Humidity [Kg/Kg]
 %
 if Get_My_Data ~=1
-vname='spfh2m';
+  vname='spfh2m';
 else
-vname='shum';
+  vname='shum';
 end
 nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
 shum=squeeze(nc{vname}(tin,:,:));
 close(nc);
-%shum=get_missing_val(lon1,lat1,mask1.*shum);
 shum=get_missing_val(lon1,lat1,mask1.*shum,nan,Roa,nan);
 shum=interp2(lon1,lat1,shum,lon,lat,interp_method);
 %
@@ -51,9 +49,9 @@ rhum=shum./qsat(tair);
 % 3: Precipitation rate: Convert from [kg/m^2/s] to cm/day
 %
 if Get_My_Data ~=1
-vname='pratesfc';
+  vname='pratesfc';
 else
-vname='prate';
+  vname='prate';
 end
 nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
 prate=squeeze(nc{vname}(tin,:,:));
@@ -69,111 +67,100 @@ prate(abs(prate)<1.e-4)=0;
 % Downward solar shortwave
 %
 if Get_My_Data ~=1
-vname='dswrfsfc';
+  vname='dswrfsfc';
 else
-vname='dswrf';
+  vname='dswrf';
 end
 nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
-  dswrs=squeeze(nc{vname}(tin,:,:));
-  close(nc);
+dswrs=squeeze(nc{vname}(tin,:,:));
+close(nc);
+dswrs=get_missing_val(lon1,lat1,mask1.*dswrs,nan,Roa,nan);
 %  
 % Upward solar shortwave
 % 
 if Get_My_Data ~=1
-vname='uswrfsfc';
+  vname='uswrfsfc';
 else
-vname='uswrf';
+  vname='uswrf';
 end
-  nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
-  uswrs=squeeze(nc{vname}(tin,:,:));
-  close(nc);
-  
-%%%%%%  dswrs=get_missing_val(lon1,lat1,mask1.*dswrs);
-  dswrs=get_missing_val(lon1,lat1,mask1.*dswrs,nan,Roa,nan);
-  uswrs=get_missing_val(lon1,lat1,mask1.*uswrs,nan,Roa,nan);
+nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
+uswrs=squeeze(nc{vname}(tin,:,:));
+close(nc);
+uswrs=get_missing_val(lon1,lat1,mask1.*uswrs,nan,Roa,nan);
+mean(uswrs(isfinite(uswrs)))
 %  
-%Net solar shortwave radiation  
+%  Net solar shortwave radiation  
 %
-   nswrs=dswrs - uswrs;
+radsw=dswrs - uswrs;
 %----------------------------------------------------  
-% GC le 31 03 
-%  radsw is NET soalr shortwave radiation
+% GC le 31 03 2009
+%  radsw is NET solar shortwave radiation
 %  no more downward only solar radiation
-% GC  bug fixe by F. Marin IRD/LEGOS
+% GC  bug fix by F. Marin IRD/LEGOS
 %-----------------------------------------------------
-
-% $$$   radsw=interp2(lon1,lat1,dswrs,lon,lat,interp_method);
-% $$$   radsw(radsw<1.e-10)=0;
-  
-  radsw=interp2(lon1,lat1,nswrs,lon,lat,interp_method);
-  radsw(radsw<1.e-10)=0;
-  
+radsw=interp2(lon1,lat1,radsw,lon,lat,interp_method);
+radsw(radsw<1.e-10)=0;
 %
 % 5: Net outgoing Longwave flux:  [W/m^2]
 %      ROMS convention: positive upward (opposite to nswrs)
 %
 % get downward longwave flux [W/m^2]
 if Get_My_Data ~=1
-vname='dlwrfsfc';
+  vname='dlwrfsfc';
 else
-vname='dlwrf';
+  vname='dlwrf';
 end
-  nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
-  dlwrf=squeeze(nc{vname}(tin,:,:));
-  close(nc);
-%  dlwrf=get_missing_val(lon1,lat1,mask1.*dlwrf);
-  dlwrf=get_missing_val(lon1,lat1,mask1.*dlwrf,nan,Roa,nan);
+nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
+dlwrf=squeeze(nc{vname}(tin,:,:));
+close(nc);
+dlwrf=get_missing_val(lon1,lat1,mask1.*dlwrf,nan,Roa,nan);
 %
 % get skin temperature [K].
 %
 if Get_My_Data ~=1
-vname='tmpsfc';
+  vname='tmpsfc';
 else
-vname='skt';
+  vname='skt';
 end
-  nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
-  skt=squeeze(nc{vname}(tin,:,:));
-  close(nc);
+nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
+skt=squeeze(nc{vname}(tin,:,:));
+close(nc);
 %  skt=get_missing_val(lon1,lat1,mask1.*skt);
-  skt=get_missing_val(lon1,lat1,mask1.*skt,nan,Roa,nan);
-  skt=skt-273.15; 
+skt=get_missing_val(lon1,lat1,mask1.*skt,nan,Roa,nan);
+skt=skt-273.15; 
 %
 % computes net longwave heat flux following Dickey et al (1994) 
 % (see air_sea tools, fonction lwhf)
 %
-  nlwf = -lwhf(skt,dlwrf); 
-  radlw=interp2(lon1,lat1,nlwf,lon,lat,interp_method);
-
+nlwf = -lwhf(skt,dlwrf); 
+radlw=interp2(lon1,lat1,nlwf,lon,lat,interp_method);
 %
 % get the  downward longwave heat flux  
 %
-  radlw_in=interp2(lon1,lat1,dlwrf,lon,lat,interp_method);
-
+radlw_in=interp2(lon1,lat1,dlwrf,lon,lat,interp_method);
 %
 % 6: Wind & Wind stress [m/s]
 %
 if Get_My_Data ~=1
-vname='ugrd10m';
+  vname='ugrd10m';
 else
-vname='uwnd';
+  vname='uwnd';
 end
 nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
 uwnd=squeeze(nc{vname}(tin,:,:));
 close(nc)
 uwnd=get_missing_val(lon1,lat1,mask1.*uwnd,nan,Roa,nan);
-%uwnd=get_missing_val(lon1,lat1,mask1.*uwnd);
 uwnd=interp2(lon1,lat1,uwnd,lon,lat,interp_method);
 %
 if Get_My_Data ~=1
-vname='vgrd10m';
+  vname='vgrd10m';
 else
-vname='vwnd';
+  vname='vwnd';
 end
 nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
 vwnd=squeeze(nc{vname}(tin,:,:));
 close(nc)
 vwnd=get_missing_val(lon1,lat1,mask1.*vwnd,nan,Roa,nan);
-%vwnd=get_missing_val(lon1,lat1,mask1.*vwnd);
 vwnd=interp2(lon1,lat1,vwnd,lon,lat,interp_method);
 %
 % Compute the stress
