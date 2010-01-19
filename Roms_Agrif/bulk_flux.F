@@ -149,7 +149,12 @@
           shflx_rsw(i,j)=radsw(i,j)
           shflx_lat(i,j)=hflat
           shflx_sen(i,j)=hfsen
+# ifndef BULK_LW
           shflx_rlw(i,j)=-radlw(i,j)
+# else
+          shflx_rlw(i,j)=emiss_lw*(radlw(i,j)
+     &        -rho0i*cpi*sigmaSB*(t(i,j,N,nrhs,itemp)+CtoK)**4)
+# endif
 !
 !  Save for the calc of wind stress
 !
