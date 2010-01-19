@@ -40,17 +40,21 @@ if NCEP_version==1
 	   '6hr/grb2d/grb2d' ...
 	   '6hr/grb2d/grb2d' ...
 	   '6hr/grb2d/grb2d' ...
+	   '6hr/grb2d/grb2d' ...
+	   '6hr/grb2d/grb2d' ...
 	   '6hr/grb2d/grb2d'};  
   vnames={'landsfc' ...      % surface land-sea mask [1=land; 0=sea] 
           'tmp2m' ...        % 2 m temp. [k]
           'dlwrfsfc' ...     % surface downward long wave flux [w/m^2] 
+	  'ulwrfsfc' ...     % surface upward long wave flux [w/m^2]  
           'tmpsfc' ...       % surface temp. [k]   		  
-	  'dswrfsfc' ...     % surface downward solar radiation flux [w/m^2] 
+	  'dswrfsfc' ...     % surface downward solar radiation flux [w/m^2]  
+	  'uswrfsfc' ...     % surface upward solar radiation flux [w/m^2]  
 	  'pratesfc' ...     % surface precipitation rate [kg/m^2/s] 
 	  'ugrd10m' ...      % 10 m u wind [m/s]
 	  'vgrd10m' ...      % 10 m v wind [m/s]
 	  'spfh2m'};         % 2 m specific humidity [kg/kg]
-  level ={'' '' '' '' '' '' '' '' ''};
+  level ={'' '' '' '' '' '' '' '' '' '' ''};
 %
 elseif NCEP_version==2
 %http://nomad3.ncep.noaa.gov:9090/dods/reanalyses/reanalysis-2/month/flx/flx
@@ -69,7 +73,7 @@ elseif NCEP_version==2
           'tmp2m' ...      % 2 m temp. [k]
           'dlwrfsfc' ...   % surface downward long wave flux [w/m^2] 
           'tmpsfc' ...     % surface temp. [k]   
-	  'dswrfsfc' ...   % surface downward solar radiation flux [w/m^2] 
+	  'dswrfsfc' ...   % surface downward solar radiation flux [w/m^2]
 	  'pratesfc' ...   % surface precipitation rate [kg/m^2/s] 
 	  'ugrd10m' ...    % 10 m u wind [m/s]
 	  'vgrd10m' ...    % 10 m v wind [m/s]

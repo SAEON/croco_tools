@@ -57,7 +57,7 @@ nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
 prate=squeeze(nc{vname}(tin,:,:));
 close(nc);
 prate=get_missing_val(lon1,lat1,mask1.*prate,nan,Roa,nan);
-prate=prate*0.1*(24*60*60.0);
+prate=prate*0.1*(24.*60.*60.0);
 prate=interp2(lon1,lat1,prate,lon,lat,interp_method);
 prate(abs(prate)<1.e-4)=0;
 %
@@ -72,9 +72,9 @@ else
   vname='dswrf';
 end
 nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
-dswrs=squeeze(nc{vname}(tin,:,:));
+dswrf=squeeze(nc{vname}(tin,:,:));
 close(nc);
-dswrs=get_missing_val(lon1,lat1,mask1.*dswrs,nan,Roa,nan);
+dswrf=get_missing_val(lon1,lat1,mask1.*dswrf,nan,Roa,nan);
 %  
 % Upward solar shortwave
 % 
@@ -84,14 +84,13 @@ else
   vname='uswrf';
 end
 nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
-uswrs=squeeze(nc{vname}(tin,:,:));
+uswrf=squeeze(nc{vname}(tin,:,:));
 close(nc);
-uswrs=get_missing_val(lon1,lat1,mask1.*uswrs,nan,Roa,nan);
-mean(uswrs(isfinite(uswrs)))
+uswrf=get_missing_val(lon1,lat1,mask1.*uswrf,nan,Roa,nan);
 %  
 %  Net solar shortwave radiation  
 %
-radsw=dswrs - uswrs;
+radsw=dswrf - uswrf;
 %----------------------------------------------------  
 % GC le 31 03 2009
 %  radsw is NET solar shortwave radiation
@@ -102,9 +101,12 @@ radsw=interp2(lon1,lat1,radsw,lon,lat,interp_method);
 radsw(radsw<1.e-10)=0;
 %
 % 5: Net outgoing Longwave flux:  [W/m^2]
-%      ROMS convention: positive upward (opposite to nswrs)
+%      ROMS convention: positive upward (opposite to nswrf !!!!)
 %
-% get downward longwave flux [W/m^2]
+% Get the net longwave flux [W/m^2]
+%
+%  5.1 get the downward longwave flux [W/m^2]
+%
 if Get_My_Data ~=1
   vname='dlwrfsfc';
 else
@@ -115,25 +117,21 @@ dlwrf=squeeze(nc{vname}(tin,:,:));
 close(nc);
 dlwrf=get_missing_val(lon1,lat1,mask1.*dlwrf,nan,Roa,nan);
 %
-% get skin temperature [K].
+%  5.2 get the upward longwave flux [W/m^2]
 %
 if Get_My_Data ~=1
-  vname='tmpsfc';
+  vname='ulwrfsfc';
 else
-  vname='skt';
+  vname='ulwrf';
 end
 nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
-skt=squeeze(nc{vname}(tin,:,:));
+ulwrf=squeeze(nc{vname}(tin,:,:));
 close(nc);
-%  skt=get_missing_val(lon1,lat1,mask1.*skt);
-skt=get_missing_val(lon1,lat1,mask1.*skt,nan,Roa,nan);
-skt=skt-273.15; 
+ulwrf=get_missing_val(lon1,lat1,mask1.*ulwrf,nan,Roa,nan);
+%  
+%  Net longwave flux 
 %
-% computes net longwave heat flux following Dickey et al (1994) 
-% (see air_sea tools, fonction lwhf)
-%
-nlwf = -lwhf(skt,dlwrf); 
-radlw=interp2(lon1,lat1,nlwf,lon,lat,interp_method);
+radlw=interp2(lon1,lat1,ulwrf-dlwrf,lon,lat,interp_method);
 %
 % get the  downward longwave heat flux  
 %

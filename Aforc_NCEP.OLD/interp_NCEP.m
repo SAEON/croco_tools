@@ -49,11 +49,14 @@ prate(abs(prate)<1.e-4)=0;
 % 4: Net shortwave flux: [W/m^2]
 %      ROMS convention: downward = positive
   nc=netcdf([NCEP_dir,'dswrfsfc_Y',num2str(Y),'M',num2str(M),'.nc']);
-  dswrs=squeeze(nc{'dswrfsfc'}(tin,:,:));
+  dswrf=squeeze(nc{'dswrfsfc'}(tin,:,:));
   close(nc);
-%  dswrs=get_missing_val(lon1,lat1,mask1.*dswrs);
-  dswrs=get_missing_val(lon1,lat1,mask1.*dswrs,nan,Roa,nan);
-  radsw=interp2(lon1,lat1,dswrs,lon,lat,interp_method);
+  dswrf=get_missing_val(lon1,lat1,mask1.*dswrf,nan,Roa,nan);
+  nc=netcdf([NCEP_dir,'uswrfsfc_Y',num2str(Y),'M',num2str(M),'.nc']);
+  uswrf=squeeze(nc{'uswrfsfc'}(tin,:,:));
+  close(nc);
+  uswrf=get_missing_val(lon1,lat1,mask1.*uswrf,nan,Roa,nan);
+  radsw=interp2(lon1,lat1,dswrf-uswrf,lon,lat,interp_method);
   radsw(radsw<1.e-10)=0;
 %
 % 5: Net outgoing Longwave flux:  [W/m^2]
@@ -63,23 +66,12 @@ prate(abs(prate)<1.e-4)=0;
   nc=netcdf([NCEP_dir,'dlwrfsfc_Y',num2str(Y),'M',num2str(M),'.nc']);
   dlwrf=squeeze(nc{'dlwrfsfc'}(tin,:,:));
   close(nc);
-%  dlwrf=get_missing_val(lon1,lat1,mask1.*dlwrf);
   dlwrf=get_missing_val(lon1,lat1,mask1.*dlwrf,nan,Roa,nan);
-%
-% get skin temperature [K].
-%
-  nc=netcdf([NCEP_dir,'tmpsfc_Y',num2str(Y),'M',num2str(M),'.nc']);
-  skt=squeeze(nc{'tmpsfc'}(tin,:,:));
+  nc=netcdf([NCEP_dir,'ulwrfsfc_Y',num2str(Y),'M',num2str(M),'.nc']);
+  ulwrf=squeeze(nc{'ulwrfsfc'}(tin,:,:));
   close(nc);
-%  skt=get_missing_val(lon1,lat1,mask1.*skt);
-  skt=get_missing_val(lon1,lat1,mask1.*skt,nan,Roa,nan);
-  skt=skt-273.15; 
-%
-% computes net longwave heat flux following Dickey et al (1994) 
-% (see air_sea tools, fonction lwhf)
-%
-  nlwf = -lwhf(skt,dlwrf); 
-  radlw=interp2(lon1,lat1,nlwf,lon,lat,interp_method);
+  ulwrf=get_missing_val(lon1,lat1,mask1.*ulwrf,nan,Roa,nan);
+  radlw=interp2(lon1,lat1,ulwrf-dlwrf,lon,lat,interp_method);
 %
 % 6: Wind & Wind stress [m/s]
 %
@@ -131,10 +123,10 @@ if ~isempty(nc_blk)
   nc_blk{'wspd'}(tout,:,:)=wspd;
   nc_blk{'radlw'}(tout,:,:)=radlw;
   nc_blk{'radsw'}(tout,:,:)=radsw;
-  nc_blk{'uwnd'}(tout,:,:)=u10;
-  nc_blk{'vwnd'}(tout,:,:)=v10;
-%  nc_blk{'sustr'}(tout,:,:)=sustr;
-%  nc_blk{'svstr'}(tout,:,:)=svstr;
+  nc_blk{'uwnd'}(tout,:,:)=rho2u_2d(u10);
+  nc_blk{'vwnd'}(tout,:,:)=rho2v_2d(v10);
+  nc_blk{'sustr'}(tout,:,:)=sustr;
+  nc_blk{'svstr'}(tout,:,:)=svstr;
 end
 
 
