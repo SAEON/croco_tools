@@ -129,15 +129,16 @@
           hflat=-evap*htevap*cpi
           hfsen=-a*cs*(t(i,j,N,nrhs,itemp)-tair(i,j))*cpaircpi
 !
-# ifdef BULK_LW
-! compute net outgoing longwave flux
-          radlw(i,j) = -emiss_lw*(radlw(i,j)
-     &        -rho0i*cpi*sigmaSB*(t(i,j,N,nrhs,itemp)+CtoK)**4)
-# endif
-!
 !  Compute total surface heat flux.
 !
-          stflx(i,j,itemp)=radsw(i,j)-radlw(i,j)+hflat+hfsen
+          stflx(i,j,itemp)=radsw(i,j)+hflat+hfsen
+# ifndef BULK_LW
+     &                    -radlw(i,j)
+# else
+     &                    +emiss_lw*(radlw(i,j)
+     &        -rho0i*cpi*sigmaSB*(t(i,j,N,nrhs,itemp)+CtoK)**4)
+# endif
+
 
 # ifdef BULK_EP
           stflx(i,j,isalt)=(evap-prate(i,j))*t(i,j,N,nrhs,isalt)
