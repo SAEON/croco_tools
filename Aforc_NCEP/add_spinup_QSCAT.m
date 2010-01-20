@@ -70,51 +70,51 @@ if SPIN_Long>0
       M=1; 
       Y=Y+1;
     end
-%
-% Forcing files
-%
+    %
+    % Forcing files
+    %
     if makefrc==1
-%
-% Copy the file
-%
+      %
+      % Copy the file
+      %
       frcname=[QSCAT_frc_prefix,'Y',num2str(Ymin),'M',num2str(M),nc_suffix];
       frcname2=[QSCAT_frc_prefix,'Y',num2str(Y),'M',num2str(M),nc_suffix];
       disp(['Create ',frcname2]) 
       eval(['!cp ',frcname,' ',frcname2]) 
-%
-% Change the time
-%
+      %
+      % Change the time
+      %
       nc=netcdf(frcname2,'write');
       time=nc{'sms_time'}(:)+datenum(Yorig,1,1);
       [y,m,d,h,mi,s]=datevec(time);
       dy=Ymin-Y;
       y=y-dy;
       time=datenum(y,m,d,h,mi,s)-datenum(Yorig,1,1);
-%      disp(datestr(time+datenum(Yorig,1,1)))
+      %      disp(datestr(time+datenum(Yorig,1,1)))
       nc{'sms_time'}(:)=time;
       close(nc)
     end
-%
-% Bulk files
-%
+    %
+    % Bulk files
+    %
     if makeblk==1
-%
-% Copy the file
-%
+      %
+      % Copy the file
+      %
       blkname=[QSCAT_blk_prefix,'Y',num2str(Ymin),'M',num2str(M),nc_suffix];
       blkname2=[QSCAT_blk_prefix,'Y',num2str(Y),'M',num2str(M),nc_suffix];
       disp(['Create ',blkname2]) 
       eval(['!cp ',blkname,' ',blkname2]) 
-%
-% Change the time
-%
+      %
+      % Change the time
+      %
       nc=netcdf(blkname2,'write');
       time=nc{'bulk_time'}(:)+datenum(Yorig,1,1);
       [y,m,d,h,mi,s]=datevec(time);
       dy=Ymin-Y;
       y=y-dy;
       time=datenum(y,m,d,h,mi,s)-datenum(Yorig,1,1);
-%      disp(datestr(time+datenum(Yorig,1,1)))
+      %      disp(datestr(time+datenum(Yorig,1,1)))
       nc{'bulk_time'}(:)=time;
       close(nc)
     end

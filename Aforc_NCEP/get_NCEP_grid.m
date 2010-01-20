@@ -1,5 +1,5 @@
 function [i1min,i1max,i2min,i2max,i3min,i3max,jrange,jmin,jmax,lon,lat]=...
-get_NCEP_grid(url_path,lonmin,lonmax,latmin,latmax,Get_My_Data)
+    get_NCEP_grid(url_path,lonmin,lonmax,latmin,latmax,Get_My_Data)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Get the indices for a NCEP subgrid 
@@ -44,22 +44,20 @@ latmax=latmax+dl;
 % Get the global horizontal grid
 %
 if Get_My_Data~=1
-disp(['Get_My_Data =', num2str(Get_My_Data)])
-lon=readdap(url_path,'lon',[]);
-lat=readdap(url_path,'lat',[]);
-
-lat(1:2);
-lon(1:2);
-
+  disp(['Get_My_Data =', num2str(Get_My_Data)])
+  lon=readdap(url_path,'lon',[]);
+  lat=readdap(url_path,'lat',[]);
+% $$$   lat(1:2);
+% $$$   lon(1:2);
 else
-disp(['Get_My_Data = ', num2str(Get_My_Data)])
-disp(['Read subgrid from file',url_path,'.nc'])
-nc=netcdf([url_path,'.nc']);
-lon=nc{'lon'}(:);
-lat=nc{'lat'}(:);
-close(nc)
+  disp(['Get_My_Data = ', num2str(Get_My_Data)])
+  disp(['Read subgrid from file',url_path,'.nc'])
+  nc=netcdf([url_path,'.nc']);
+  lon=nc{'lon'}(:);
+  lat=nc{'lat'}(:);
+  close(nc)
 
-%lat=flipdim(lat,1);
+  %lat=flipdim(lat,1);
 % $$$ lat(1:3)
 % $$$ lon(1:3)
 % $$$ lat=flipdim(lat,1);
