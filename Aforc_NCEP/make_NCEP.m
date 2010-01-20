@@ -102,7 +102,7 @@ if Download_data==1
   disp('Download NCEP data with OPENDAP or my FTP data')
   disp(['===================='])
   download_NCEP(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,...
-                NCEP_dir,NCEP_version,Yorig,Get_My_Data)
+                NCEP_dir,NCEP_version,Yorig,Get_My_Data,My_NCEP_dir)
   disp(['====================='])
   disp(['DOWNLOAD STEP FINISH'])
   disp(['====================='])

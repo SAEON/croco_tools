@@ -1,5 +1,5 @@
 function download_NCEP(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,...
-                       NCEP_dir,NCEP_version,Yorig,Get_My_Data)
+                       NCEP_dir,NCEP_version,Yorig,Get_My_Data,My_NCEP_dir)
 %
 % Extract a subgrid from NCEP to get a ROMS forcing
 % Store that into monthly files (to limit the problems
@@ -25,8 +25,10 @@ if Get_My_Data ~= 1
     lonmax=-70;
     latmin=-20;
     latmax=-5;
-    NCEP_dir='../Forcing_data/NCEP_Peru/';
+    NCEP_dir='DATA/NCEP_Peru/';
     NCEP_version=1;
+    Get_My_Data=0;
+    My_NCEP_dir='../NCEP_REA1/';
   end
 %
   disp(['latmax=',num2str(latmax)])
@@ -94,7 +96,7 @@ elseif Get_My_Data == 1
  
   if NCEP_version==1
     disp('Use local ncep data NCEP1')
-    ncep_url=local_NCEP_dir; % A generaliser %
+    ncep_url=My_NCEP_dir;
     catalog={'land.sfc.gauss' ...
               'air.2m.gauss' ...
               'dlwrf.sfc.gauss' ...
@@ -119,7 +121,7 @@ elseif Get_My_Data == 1
     level ={'' '' '' '' '' '' '' '' '' ''};
   else
     disp('Use local ncep data NCEP2')
-    ncep_url=local_NCEP_dir;
+    ncep_url=My_NCEP_dir;
     catalog={'land.sfc.gauss' ...
              'air.2m.gauss' ...
              'dlwrf.sfc.gauss' ...
