@@ -1,4 +1,4 @@
-function vert_correc(ncfile,tindex,field)
+function vert_correc_onefield(ncfile,tindex,field)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Vertically reinterpolate embedded 3D variables
@@ -76,7 +76,6 @@ result=close(ng);
 %
 % get the depths
 %
-%disp('Get the depths')
 zrold=zlevs(hold,zeta,theta_s,theta_b,hc,N,'r');
 zrnew=zlevs(hnew,zeta,theta_s,theta_b,hc,N,'r');
 zuold=0.5*(zrold(:,:,1:end-1)+zrold(:,:,2:end));
@@ -89,8 +88,8 @@ zvnew=0.5*(zrnew(:,1:end-1,:)+zrnew(:,2:end,:));
 disp(['Vert_correc for 3D (''rho'') variables: ',field])
 disp('==========================')
 nc{field}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
-                              squeeze(nc{field}(tindex,:,:,:)),...
-                              zrold,zrnew);
+				     squeeze(nc{field}(tindex,:,:,:)),...
+				     zrold,zrnew);
 %
 close(nc)
 

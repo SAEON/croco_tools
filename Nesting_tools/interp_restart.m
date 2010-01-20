@@ -44,9 +44,9 @@ else
 end
 Answer=questdlg(['Child restart name: ',childname,' OK ?'],'','Yes','Cancel','Yes');
 switch Answer
-case {'Cancel'}
+ case {'Cancel'}
   return
-case 'Yes'
+ case 'Yes'
   handles.childrst=childname;
 end
 nested_restart(handles.childgrid,handles.parentrst,handles.childrst, ...

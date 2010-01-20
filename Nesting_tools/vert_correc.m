@@ -68,8 +68,6 @@ result=close(ng);
 % get the depths
 %
 disp('get the depths')
-%size(hold)
-%size(hnew)
 zrold=zlevs(hold,zeta,theta_s,theta_b,hc,N,'r');
 zrnew=zlevs(hnew,zeta,theta_s,theta_b,hc,N,'r');
 zuold=0.5*(zrold(:,:,1:end-1)+zrold(:,:,2:end));
@@ -81,43 +79,41 @@ zvnew=0.5*(zrnew(:,1:end-1,:)+zrnew(:,2:end,:));
 %
 disp('u...')
 nc{'u'}(tindex,:,:,:)=change_sigma(lonu,latu,masku,...
-                              squeeze(nc{'u'}(tindex,:,:,:)),...
-                              zuold,zunew);
+				   squeeze(nc{'u'}(tindex,:,:,:)),...
+				   zuold,zunew);
 disp('v...')
 nc{'v'}(tindex,:,:,:)=change_sigma(lonv,latv,maskv,...
-                              squeeze(nc{'v'}(tindex,:,:,:)),...
-                              zvold,zvnew);
+				   squeeze(nc{'v'}(tindex,:,:,:)),...
+				   zvold,zvnew);
 disp('temp...')
 nc{'temp'}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
-                              squeeze(nc{'temp'}(tindex,:,:,:)),...
-                              zrold,zrnew);
+				      squeeze(nc{'temp'}(tindex,:,:,:)),...
+				      zrold,zrnew);
 disp('salt...')
 nc{'salt'}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
-                              squeeze(nc{'salt'}(tindex,:,:,:)),...
-                              zrold,zrnew);
+				      squeeze(nc{'salt'}(tindex,:,:,:)),...
+				      zrold,zrnew);
 %
 if (biol==1)
-disp('vert_correc for biology variables')
- for k=1:length(namebiol)
-     disp([namebiol(k),' ...'])
-     nc{char(namebiol(k))}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
-                           squeeze(nc{char(namebiol(k))}(tindex,:,:,:)),...
-                           zrold,zrnew);
- end
+  disp('vert_correc for biology variables')
+  for k=1:length(namebiol)
+    disp([namebiol(k),' ...'])
+    nc{char(namebiol(k))}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
+						     squeeze(nc{char(namebiol(k))}(tindex,:,:,:)),...
+						     zrold,zrnew);
+  end
 end
 %
-
 if (pisces==1)
-disp('vert_correc for pisces variables')
- for k=1:length(namepisces)
-     disp([char(namepisces(k)),' ...'])
-     nc{char(namepisces(k))}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
-                           squeeze(nc{char(namepisces(k))}(tindex,:,:,:)),...
-                           zrold,zrnew);
- end
+  disp('vert_correc for pisces variables')
+  for k=1:length(namepisces)
+    disp([char(namepisces(k)),' ...'])
+    nc{char(namepisces(k))}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
+						  squeeze(nc{char(namepisces(k))}(tindex,:,:,:)),...
+						  zrold,zrnew);
+  end
 end
 %
 close(nc)
-
 return
 

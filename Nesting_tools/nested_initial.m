@@ -49,29 +49,29 @@ unitpisces={''};
 if nvar < 17
 
 elseif ( nvar < 21 & biol) 
-disp('Compute Bio NPZD variables')
-disp('==================')
+  disp('Compute Bio NPZD variables')
+  disp('==================')
 elseif (pisces & nvar >= 21)
-disp('Compute Pisces biogeochemical variables')
-disp('=========================')
+  disp('Compute Pisces biogeochemical variables')
+  disp('=========================')
 else
-    error(sprintf(['You don''t have the neccesary variables in the clim file \n',...
-    'or you didn''t choose the right bio. model. \n', ...
-    'Check roms_ini.nc parent file and make_ini.m']))
+  error(sprintf(['You don''t have the neccesary variables in the clim file \n',...
+		 'or you didn''t choose the right bio. model. \n', ...
+		 'Check roms_ini.nc parent file and make_ini.m']))
 end
 %
 if extrapmask==1
-disp('Extrapolation under mask is on')
-disp('====================')
+  disp('Extrapolation under mask is on')
+  disp('====================')
 end
 %
 if vertical_correc==1
-disp('Vertical correction is on')
-disp('===============')
+  disp('Vertical correction is on')
+  disp('===============')
 end
 %
 if pisces & biol 
-   error(['Both Biol NPZD and Pisces are ON, not possible yet... !'])
+  error(['Both Biol NPZD and Pisces are ON, not possible yet... !'])
 end
 %
 %Name, units etc .. of the variables
@@ -91,16 +91,16 @@ disp(' ')
 disp(title)
 %
 if vertical_correc==1
- disp('Vertical corrections: on')
+  disp('Vertical corrections: on')
 end
 if extrapmask==1
- disp('Under mask extrapolations: on')
+  disp('Under mask extrapolations: on')
 end
 if biol==1
- disp('Biology: on')
+  disp('Biology: on')
 end
 if pisces==1
- disp('Pisces: on')
+  disp('Pisces: on')
 end
 %
 % Read in the embedded grid
@@ -183,7 +183,7 @@ for tindex=1:length(thetime)
   interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'temp',mask,tindex,N)
   disp('salt...')
   interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'salt',mask,tindex,N)
-%
+  %
   if (biol==1)
     disp('NO3...')
     interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'NO3',mask,tindex,N)
@@ -194,7 +194,7 @@ for tindex=1:length(thetime)
     disp('ZOO...')
     interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'ZOO',mask,tindex,N)
   end
-%
+  %
   if (pisces==1)
     disp('NO3...')
     interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'NO3',mask,tindex,N)
@@ -209,11 +209,11 @@ for tindex=1:length(thetime)
     disp('TALK...')
     interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'TALK',mask,tindex,N)
     disp('DOC...')
-   interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'DOC',mask,tindex,N)
+    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'DOC',mask,tindex,N)
     disp('FER...')
     interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'FER',mask,tindex,N)
   end
-%
+  %
 end
 result=close(np);
 result=close(ncini);

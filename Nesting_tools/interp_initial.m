@@ -45,9 +45,9 @@ else
 end
 Answer=questdlg(['Child initial name: ',childname,' OK ?'],'','Yes','Cancel','Yes');
 switch Answer
-case {'Cancel'}
+ case {'Cancel'}
   return
-case 'Yes'
+ case 'Yes'
   handles.childini=childname;
 end
 nested_initial(handles.childgrid,handles.parentini,handles.childini,...

@@ -45,9 +45,9 @@ else
 end
 Answer=questdlg(['Child climatology name: ',childname,' OK ?'],'','Yes','Cancel','Yes');
 switch Answer
-case {'Cancel'}
+ case {'Cancel'}
   return
-case 'Yes'
+ case 'Yes'
   handles.childclm=childname;
 end
 nested_clim(handles.childgrid,handles.parentclm,handles.childclm,...

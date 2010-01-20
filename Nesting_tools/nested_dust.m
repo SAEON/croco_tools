@@ -33,7 +33,7 @@ extrapmask=0;
 % Title
 %
 title=['dust file for the embedded grid :',child_dust,...
-' using parent dust file: ',parent_dust];
+       ' using parent dust file: ',parent_dust];
 disp(' ')
 disp(title)
 %
@@ -73,7 +73,7 @@ result=close(nc);
 disp(' ')
 disp(' Create the dust file...')
 create_nesteddust(child_dust,parent_dust,child_grd,title,...
-                   dustt,dustc)
+		  dustt,dustc)
 %
 % parent indices
 %

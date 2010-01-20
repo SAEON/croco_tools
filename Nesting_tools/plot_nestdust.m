@@ -64,7 +64,7 @@ for time=thetime
   fieldname=nc{thefield}.long_name(:);
   result=close(nc);
   
-nc=netcdf(parent_grd);
+  nc=netcdf(parent_grd);
   lon=nc{'lon_rho'}(:);
   lat=nc{'lat_rho'}(:);
   mask=nc{'mask_rho'}(:);

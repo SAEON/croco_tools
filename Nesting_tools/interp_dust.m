@@ -44,9 +44,9 @@ else
 end
 Answer=questdlg(['Child dust name: ',childname,' OK ?'],'','Yes','Cancel','Yes');
 switch Answer
-case {'Cancel'}
+ case {'Cancel'}
   return
-case 'Yes'
+ case 'Yes'
   handles.childdust=childname;
 end
 nested_dust(handles.childgrid,handles.parentdust,handles.childdust)

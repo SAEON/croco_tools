@@ -1,6 +1,6 @@
 function ncrst=create_nestedrestart(rstfile,gridfile,parentfile,title,clobber,...
-               biol,biol_NPZD,biol_N2PZD2,biol_N2P2Z2D2,...
-               pisces,namebiol,namepisces,unitbiol,unitpisces)
+				    biol,biol_NPZD,biol_N2PZD2,biol_N2P2Z2D2,...
+				    pisces,namebiol,namepisces,unitbiol,unitpisces)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  function ncrst=create_nestedrestart(rstfile,gridfile,parentfile,...
@@ -114,35 +114,35 @@ ncrst{'salt'} = ncdouble('time','s_rho','eta_rho','xi_rho');
 %
 %
 if biol == 1
- if biol_NPZD == 1
-  ncrst{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  ncrst{'CHLA'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  ncrst{'PHYTO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  ncrst{'ZOO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  ncrst{'DET'} = ncdouble('time','s_rho','eta_rho','xi_rho');
- elseif biol_N2PZD2 == 1
-  ncrst{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  ncrst{'NH4'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  ncrst{'CHLA'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  ncrst{'PHYTO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  ncrst{'ZOO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  ncrst{'SDET'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  ncrst{'LDET'} = ncdouble('time','s_rho','eta_rho','xi_rho');
- elseif biol_N2P2Z2D2 == 1
-  ncrst{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  ncrst{'NH4'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  ncrst{'SPHYTO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  ncrst{'LPHYTO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  ncrst{'SZOO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  ncrst{'LZOO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  ncrst{'SDET'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  ncrst{'LDET'} = ncdouble('time','s_rho','eta_rho','xi_rho');
- end
+  if biol_NPZD == 1
+    ncrst{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+    ncrst{'CHLA'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+    ncrst{'PHYTO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+    ncrst{'ZOO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+    ncrst{'DET'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+  elseif biol_N2PZD2 == 1
+    ncrst{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+    ncrst{'NH4'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+    ncrst{'CHLA'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+    ncrst{'PHYTO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+    ncrst{'ZOO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+    ncrst{'SDET'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+    ncrst{'LDET'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+  elseif biol_N2P2Z2D2 == 1
+    ncrst{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+    ncrst{'NH4'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+    ncrst{'SPHYTO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+    ncrst{'LPHYTO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+    ncrst{'SZOO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+    ncrst{'LZOO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+    ncrst{'SDET'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+    ncrst{'LDET'} = ncdouble('time','s_rho','eta_rho','xi_rho');
+  end
 end
 if pisces ==1
-for k=1:length(namepisces)
-   ncrst{char(namepisces(k))}= ncdouble('time','s_rho','eta_rho','xi_rho');
-end
+  for k=1:length(namepisces)
+    ncrst{char(namepisces(k))}= ncdouble('time','s_rho','eta_rho','xi_rho');
+  end
 end
 %
 %  Create attributes
@@ -243,132 +243,128 @@ ncrst{'salt'}.units = 'PSU';
 
 %
 if  biol == 1
- if biol_NPZD == 1
-  ncrst{'NO3'}.long_name = ncchar('NO3 Nutrient');
-  ncrst{'NO3'}.long_name = 'NO3 Nutrient';
-  ncrst{'NO3'}.units = ncchar('mMol N m-3');
-  ncrst{'NO3'}.units = 'mMol N m-3';
-%
-  ncrst{'CHLA'}.long_name = ncchar('Chlorophyl A');
-  ncrst{'CHLA'}.long_name = 'Chlorophyl A';
-  ncrst{'CHLA'}.units = ncchar('mMol N m-3');
-  ncrst{'CHLA'}.units = 'mMol N m-3';
-%
-  ncrst{'PHYTO'}.long_name = ncchar('Phytoplankton');
-  ncrst{'PHYTO'}.long_name = 'Phytoplankton';
-  ncrst{'PHYTO'}.units = ncchar('mMol N m-3');
-  ncrst{'PHYTO'}.units = 'mMol N m-3';
-%
-  ncrst{'ZOO'}.long_name = ncchar('Zooplankton');
-  ncrst{'ZOO'}.long_name = 'Zooplankton';
-  ncrst{'ZOO'}.units = ncchar('mMol N m-3');
-  ncrst{'ZOO'}.units = 'mMol N m-3';
-%
-  ncrst{'DET'}.long_name = ncchar('Detritus Nutrient');
-  ncrst{'DET'}.long_name = 'Detritus Nutrient';
-  ncrst{'DET'}.units = ncchar('mMol N m-3');
-  ncrst{'DET'}.units = 'mMol N m-3';
+  if biol_NPZD == 1
+    ncrst{'NO3'}.long_name = ncchar('NO3 Nutrient');
+    ncrst{'NO3'}.long_name = 'NO3 Nutrient';
+    ncrst{'NO3'}.units = ncchar('mMol N m-3');
+    ncrst{'NO3'}.units = 'mMol N m-3';
+    %
+    ncrst{'CHLA'}.long_name = ncchar('Chlorophyl A');
+    ncrst{'CHLA'}.long_name = 'Chlorophyl A';
+    ncrst{'CHLA'}.units = ncchar('mMol N m-3');
+    ncrst{'CHLA'}.units = 'mMol N m-3';
+    %
+    ncrst{'PHYTO'}.long_name = ncchar('Phytoplankton');
+    ncrst{'PHYTO'}.long_name = 'Phytoplankton';
+    ncrst{'PHYTO'}.units = ncchar('mMol N m-3');
+    ncrst{'PHYTO'}.units = 'mMol N m-3';
+    %
+    ncrst{'ZOO'}.long_name = ncchar('Zooplankton');
+    ncrst{'ZOO'}.long_name = 'Zooplankton';
+    ncrst{'ZOO'}.units = ncchar('mMol N m-3');
+    ncrst{'ZOO'}.units = 'mMol N m-3';
+    %
+    ncrst{'DET'}.long_name = ncchar('Detritus Nutrient');
+    ncrst{'DET'}.long_name = 'Detritus Nutrient';
+    ncrst{'DET'}.units = ncchar('mMol N m-3');
+    ncrst{'DET'}.units = 'mMol N m-3';
 
- elseif biol_N2PZD2 == 1
-  ncrst{'NO3'}.long_name = ncchar('NO3 Nutrient');
-  ncrst{'NO3'}.long_name = 'NO3 Nutrient';
-  ncrst{'NO3'}.units = ncchar('mMol N m-3');
-  ncrst{'NO3'}.units = 'mMol N m-3';
-%
-  ncrst{'NH4'}.long_name = ncchar('NH4 Nutrient');
-  ncrst{'NH4'}.long_name = 'NH4 Nutrient';
-  ncrst{'NH4'}.units = ncchar('mMol N m-3');
-  ncrst{'NH4'}.units = 'mMol N m-3';
-%
-  ncrst{'CHLA'}.long_name = ncchar('Chlorophyl A');
-  ncrst{'CHLA'}.long_name = 'Chlorophyl A';
-  ncrst{'CHLA'}.units = ncchar('mMol N m-3');
-  ncrst{'CHLA'}.units = 'mMol N m-3';
-%
-  ncrst{'PHYTO'}.long_name = ncchar('Phytoplankton');
-  ncrst{'PHYTO'}.long_name = 'Phytoplankton';
-  ncrst{'PHYTO'}.units = ncchar('mMol N m-3');
-  ncrst{'PHYTO'}.units = 'mMol N m-3';
-%
-  ncrst{'ZOO'}.long_name = ncchar('Zooplankton');
-  ncrst{'ZOO'}.long_name = 'Zooplankton';
-  ncrst{'ZOO'}.units = ncchar('mMol N m-3');
-  ncrst{'ZOO'}.units = 'mMol N m-3';
-%
-  ncrst{'SDET'}.long_name = ncchar('Small Detritus Nutrient');
-  ncrst{'SDET'}.long_name = 'Small Detritus Nutrient';
-  ncrst{'SDET'}.units = ncchar('mMol N m-3');
-  ncrst{'SDET'}.units = 'mMol N m-3';
-%
-  ncrst{'LDET'}.long_name = ncchar('Large Detritus Nutrient');
-  ncrst{'LDET'}.long_name = 'Large Detritus Nutrient';
-  ncrst{'LDET'}.units = ncchar('mMol N m-3');
-  ncrst{'LDET'}.units = 'mMol N m-3';
-%
- elseif biol_N2P2Z2D2 == 1
-  ncrst{'NO3'}.long_name = ncchar('NO3 Nutrient');
-  ncrst{'NO3'}.long_name = 'NO3 Nutrient';
-  ncrst{'NO3'}.units = ncchar('mMol N m-3');
-  ncrst{'NO3'}.units = 'mMol N m-3';
-%
-  ncrst{'NH4'}.long_name = ncchar('NH4 Nutrient');
-  ncrst{'NH4'}.long_name = 'NH4 Nutrient';
-  ncrst{'NH4'}.units = ncchar('mMol N m-3');
-  ncrst{'NH4'}.units = 'mMol N m-3';
-%
-  ncrst{'CHLA'}.long_name = ncchar('Chlorophyl A');
-  ncrst{'CHLA'}.long_name = 'Chlorophyl A';
-  ncrst{'CHLA'}.units = ncchar('mMol N m-3');
-  ncrst{'CHLA'}.units = 'mMol N m-3';
-%
-  ncrst{'SPHYTO'}.long_name = ncchar('Small Phytoplankton');
-  ncrst{'SPHYTO'}.long_name = 'Small Phytoplankton';
-  ncrst{'SPHYTO'}.units = ncchar('mMol N m-3');
-  ncrst{'SPHYTO'}.units = 'mMol N m-3';
-%
-  ncrst{'LPHYTO'}.long_name = ncchar('Large Phytoplankton');
-  ncrst{'LPHYTO'}.long_name = 'Large Phytoplankton';
-  ncrst{'LPHYTO'}.units = ncchar('mMol N m-3');
-  ncrst{'LPHYTO'}.units = 'mMol N m-3';
-%
-  ncrst{'SZOO'}.long_name = ncchar('Small Zooplankton');
-  ncrst{'SZOO'}.long_name = 'Small Zooplankton';
-  ncrst{'SZOO'}.units = ncchar('mMol N m-3');
-  ncrst{'SZOO'}.units = 'mMol N m-3';
-%
-  ncrst{'LZOO'}.long_name = ncchar('Large Zooplankton');
-  ncrst{'LZOO'}.long_name = 'Large Zooplankton';
-  ncrst{'LZOO'}.units = ncchar('mMol N m-3');
-  ncrst{'LZOO'}.units = 'mMol N m-3';
-%
-  ncrst{'SDET'}.long_name = ncchar('Small Detritus Nutrient');
-  ncrst{'SDET'}.long_name = 'Small Detritus Nutrient';
-  ncrst{'SDET'}.units = ncchar('mMol N m-3');
-  ncrst{'SDET'}.units = 'mMol N m-3';
-%
-  ncrst{'LDET'}.long_name = ncchar('Large Detritus Nutrient');
-  ncrst{'LDET'}.long_name = 'Large Detritus Nutrient';
-  ncrst{'LDET'}.units = ncchar('mMol N m-3');
-  ncrst{'LDET'}.units = 'mMol N m-3';
- else 
- error([' Not a valid BIOL model !...'])
- end
+  elseif biol_N2PZD2 == 1
+    ncrst{'NO3'}.long_name = ncchar('NO3 Nutrient');
+    ncrst{'NO3'}.long_name = 'NO3 Nutrient';
+    ncrst{'NO3'}.units = ncchar('mMol N m-3');
+    ncrst{'NO3'}.units = 'mMol N m-3';
+    %
+    ncrst{'NH4'}.long_name = ncchar('NH4 Nutrient');
+    ncrst{'NH4'}.long_name = 'NH4 Nutrient';
+    ncrst{'NH4'}.units = ncchar('mMol N m-3');
+    ncrst{'NH4'}.units = 'mMol N m-3';
+    %
+    ncrst{'CHLA'}.long_name = ncchar('Chlorophyl A');
+    ncrst{'CHLA'}.long_name = 'Chlorophyl A';
+    ncrst{'CHLA'}.units = ncchar('mMol N m-3');
+    ncrst{'CHLA'}.units = 'mMol N m-3';
+    %
+    ncrst{'PHYTO'}.long_name = ncchar('Phytoplankton');
+    ncrst{'PHYTO'}.long_name = 'Phytoplankton';
+    ncrst{'PHYTO'}.units = ncchar('mMol N m-3');
+    ncrst{'PHYTO'}.units = 'mMol N m-3';
+    %
+    ncrst{'ZOO'}.long_name = ncchar('Zooplankton');
+    ncrst{'ZOO'}.long_name = 'Zooplankton';
+    ncrst{'ZOO'}.units = ncchar('mMol N m-3');
+    ncrst{'ZOO'}.units = 'mMol N m-3';
+    %
+    ncrst{'SDET'}.long_name = ncchar('Small Detritus Nutrient');
+    ncrst{'SDET'}.long_name = 'Small Detritus Nutrient';
+    ncrst{'SDET'}.units = ncchar('mMol N m-3');
+    ncrst{'SDET'}.units = 'mMol N m-3';
+    %
+    ncrst{'LDET'}.long_name = ncchar('Large Detritus Nutrient');
+    ncrst{'LDET'}.long_name = 'Large Detritus Nutrient';
+    ncrst{'LDET'}.units = ncchar('mMol N m-3');
+    ncrst{'LDET'}.units = 'mMol N m-3';
+    %
+  elseif biol_N2P2Z2D2 == 1
+    ncrst{'NO3'}.long_name = ncchar('NO3 Nutrient');
+    ncrst{'NO3'}.long_name = 'NO3 Nutrient';
+    ncrst{'NO3'}.units = ncchar('mMol N m-3');
+    ncrst{'NO3'}.units = 'mMol N m-3';
+    %
+    ncrst{'NH4'}.long_name = ncchar('NH4 Nutrient');
+    ncrst{'NH4'}.long_name = 'NH4 Nutrient';
+    ncrst{'NH4'}.units = ncchar('mMol N m-3');
+    ncrst{'NH4'}.units = 'mMol N m-3';
+    %
+    ncrst{'CHLA'}.long_name = ncchar('Chlorophyl A');
+    ncrst{'CHLA'}.long_name = 'Chlorophyl A';
+    ncrst{'CHLA'}.units = ncchar('mMol N m-3');
+    ncrst{'CHLA'}.units = 'mMol N m-3';
+    %
+    ncrst{'SPHYTO'}.long_name = ncchar('Small Phytoplankton');
+    ncrst{'SPHYTO'}.long_name = 'Small Phytoplankton';
+    ncrst{'SPHYTO'}.units = ncchar('mMol N m-3');
+    ncrst{'SPHYTO'}.units = 'mMol N m-3';
+    %
+    ncrst{'LPHYTO'}.long_name = ncchar('Large Phytoplankton');
+    ncrst{'LPHYTO'}.long_name = 'Large Phytoplankton';
+    ncrst{'LPHYTO'}.units = ncchar('mMol N m-3');
+    ncrst{'LPHYTO'}.units = 'mMol N m-3';
+    %
+    ncrst{'SZOO'}.long_name = ncchar('Small Zooplankton');
+    ncrst{'SZOO'}.long_name = 'Small Zooplankton';
+    ncrst{'SZOO'}.units = ncchar('mMol N m-3');
+    ncrst{'SZOO'}.units = 'mMol N m-3';
+    %
+    ncrst{'LZOO'}.long_name = ncchar('Large Zooplankton');
+    ncrst{'LZOO'}.long_name = 'Large Zooplankton';
+    ncrst{'LZOO'}.units = ncchar('mMol N m-3');
+    ncrst{'LZOO'}.units = 'mMol N m-3';
+    %
+    ncrst{'SDET'}.long_name = ncchar('Small Detritus Nutrient');
+    ncrst{'SDET'}.long_name = 'Small Detritus Nutrient';
+    ncrst{'SDET'}.units = ncchar('mMol N m-3');
+    ncrst{'SDET'}.units = 'mMol N m-3';
+    %
+    ncrst{'LDET'}.long_name = ncchar('Large Detritus Nutrient');
+    ncrst{'LDET'}.long_name = 'Large Detritus Nutrient';
+    ncrst{'LDET'}.units = ncchar('mMol N m-3');
+    ncrst{'LDET'}.units = 'mMol N m-3';
+  else 
+    error([' Not a valid BIOL model !...'])
+  end
 end
 %
 if pisces ==1
-for k=1:length(namepisces)
-disp(['K=',num2str(k)])
-%ncrst{'DIC'}.long_name = ncchar('DIC');
-%ncrst{'DIC'}.long_name = 'DIC';
-%ncrst{'DIC'}.units = ncchar('mMol N m-3');
-%ncrst{'DIC'}.units = 'mMol N m-3';
-   ncrst{char(namepisces(k))}.long_name = ncchar(char(namepisces(k)));
-   ncrst{char(namepisces(k))}.long_name = char(namepisces(k));
-   ncrst{char(namepisces(k))}.units = ncchar(char(unitpisces(k)));
-   ncrst{char(namepisces(k))}.units = char(unitpisces(k));
-   ncrst{char(namepisces(k))}.field = ncchar([char(namepisces(k)),', scalar, series']);
-   ncrst{char(namepisces(k))}.field = [char(namepisces(k)),', scalar, series'];
- end
+  for k=1:length(namepisces)
+    disp(['K=',num2str(k)])
+    ncrst{char(namepisces(k))}.long_name = ncchar(char(namepisces(k)));
+    ncrst{char(namepisces(k))}.long_name = char(namepisces(k));
+    ncrst{char(namepisces(k))}.units = ncchar(char(unitpisces(k)));
+    ncrst{char(namepisces(k))}.units = char(unitpisces(k));
+    ncrst{char(namepisces(k))}.field = ncchar([char(namepisces(k)),', scalar, series']);
+    ncrst{char(namepisces(k))}.field = [char(namepisces(k)),', scalar, series'];
+  end
 end;
 %
 % Create global attributes

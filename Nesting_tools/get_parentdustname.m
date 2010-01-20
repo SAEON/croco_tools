@@ -28,7 +28,7 @@ function handles=get_parentdustname(h,handles)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [filename, pathname] = uigetfile({'*.nc*', 'All netcdf-Files (*.nc*)'; ...
-		'*.*','All Files (*.*)'},'PARENT DUST');
+		    '*.*','All Files (*.*)'},'PARENT DUST');
 if isequal([filename,pathname],[0,0])
   return
 end

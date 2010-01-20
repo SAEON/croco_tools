@@ -46,9 +46,9 @@ if nargin == 0  % LAUNCH GUI
   end
 elseif ischar(varargin{1}) % INVOKE NAMED SUBFUNCTION OR CALLBACK
   try
-  [varargout{1:nargout}] = feval(varargin{:}); % FEVAL switchyard
+    [varargout{1:nargout}] = feval(varargin{:}); % FEVAL switchyard
   catch
-  disp(lasterr);
+    disp(lasterr);
   end
 end
 %
@@ -339,7 +339,7 @@ return
 %
 function create_romsin_Callback(h, eventdata, handles, varargin)
 [filename,pathname]=uigetfile({'*.in*','All input files (*.in*)';...
-		'*.*','All Files (*.*)'},'PARENT INPUT FILE');
+		    '*.*','All Files (*.*)'},'PARENT INPUT FILE');
 if isequal([filename,pathname],[0,0])
   return
 end

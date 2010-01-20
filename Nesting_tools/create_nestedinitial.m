@@ -1,6 +1,6 @@
 function ncini=create_nestedinitial(inifile,gridfile,parentfile,title,...
-                                   theta_s,theta_b,Tcline,N,time,clobber,...
-                                   biol,pisces,namebiol,namepisces,unitbiol,unitpisces)
+				    theta_s,theta_b,Tcline,N,time,clobber,...
+				    biol,pisces,namebiol,namepisces,unitbiol,unitpisces)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  function ncini=create_inifile(inifile,gridfile,theta_s,... 
@@ -107,20 +107,20 @@ ncini{'zeta'} = ncdouble('time','eta_rho','xi_rho') ;
 ncini{'temp'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 ncini{'salt'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 if biol==1
- ncini{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
- ncini{'CHLA'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
- ncini{'PHYTO'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
- ncini{'ZOO'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+  ncini{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+  ncini{'CHLA'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+  ncini{'PHYTO'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+  ncini{'ZOO'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 end
 if pisces==1
- ncini{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
- ncini{'PO4'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
- ncini{'Si'}  = ncdouble('time','s_rho','eta_rho','xi_rho') ;
- ncini{'O2'}  = ncdouble('time','s_rho','eta_rho','xi_rho') ;
- ncini{'DIC'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
- ncini{'TALK'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
- ncini{'DOC'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
- ncini{'FER'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+  ncini{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+  ncini{'PO4'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+  ncini{'Si'}  = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+  ncini{'O2'}  = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+  ncini{'DIC'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+  ncini{'TALK'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+  ncini{'DOC'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+  ncini{'FER'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 end
 
 %
@@ -237,14 +237,14 @@ if biol
   ncini{'NO3'}.units = 'mMol N m-3';
   ncini{'NO3'}.field = ncchar('NO3, scalar, series');
   ncini{'NO3'}.field = 'NO3, scalar, series';
-%
+  %
   ncini{'CHLA'}.long_name = ncchar('Chlorophyll');
   ncini{'CHLA'}.long_name = 'Chlorophyll';
   ncini{'CHLA'}.units = ncchar('mg C l-1');
   ncini{'CHLA'}.units = 'mg C l-1';
   ncini{'CHLA'}.field = ncchar('CHLA, scalar, series');
   ncini{'CHLA'}.field = 'CHLA, scalar, series';
-%
+  %
   ncini{'PHYTO'}.long_name = ncchar('Phytoplankton');
   ncini{'PHYTO'}.long_name = 'Phytoplankton';
   ncini{'PHYTO'}.units = ncchar('mMol N m-3');
@@ -261,15 +261,15 @@ if biol
 end;
 %
 if pisces
- for k=1:8
-   disp(['K=',num2str(k)])
-   ncini{char(namepisces(k))}.long_name = ncchar(char(namepisces(k)));
-   ncini{char(namepisces(k))}.long_name = char(namepisces(k));
-   ncini{char(namepisces(k))}.units = ncchar(char(unitpisces(k)));
-   ncini{char(namepisces(k))}.units = char(unitpisces(k));
-   ncini{char(namepisces(k))}.field = ncchar([char(namepisces(k)),', scalar, series']);
-   ncini{char(namepisces(k))}.field = [char(namepisces(k)),', scalar, series'];
- end
+  for k=1:8
+    disp(['K=',num2str(k)])
+    ncini{char(namepisces(k))}.long_name = ncchar(char(namepisces(k)));
+    ncini{char(namepisces(k))}.long_name = char(namepisces(k));
+    ncini{char(namepisces(k))}.units = ncchar(char(unitpisces(k)));
+    ncini{char(namepisces(k))}.units = char(unitpisces(k));
+    ncini{char(namepisces(k))}.field = ncchar([char(namepisces(k)),', scalar, series']);
+    ncini{char(namepisces(k))}.field = [char(namepisces(k)),', scalar, series'];
+  end
 end;
 %
 % Create global attributes
@@ -325,23 +325,23 @@ ncini{'temp'}(:)=0;
 ncini{'salt'}(:)=0; 
 %
 if biol==1
-disp('Write variable biology')
- ncini{'NO3'}(:)=0;
- ncini{'CHLA'}(:)=0;
- ncini{'PHYTO'}(:)=0;
+  disp('Write variable biology')
+  ncini{'NO3'}(:)=0;
+  ncini{'CHLA'}(:)=0;
+  ncini{'PHYTO'}(:)=0;
   ncini{'ZOO'}(:)=0;
 end
 %
 if pisces==1
-disp('Write variable pisces')
- ncini{'NO3'}(:)=0;
- ncini{'PO4'}(:)=0;
- ncini{'Si'}(:)=0;
- ncini{'O2'}(:)=0;
- ncini{'DIC'}(:)=0;
- ncini{'TALK'}(:)=0;
- ncini{'DOC'}(:)=0;
- ncini{'FER'}(:)=0;
+  disp('Write variable pisces')
+  ncini{'NO3'}(:)=0;
+  ncini{'PO4'}(:)=0;
+  ncini{'Si'}(:)=0;
+  ncini{'O2'}(:)=0;
+  ncini{'DIC'}(:)=0;
+  ncini{'TALK'}(:)=0;
+  ncini{'DOC'}(:)=0;
+  ncini{'FER'}(:)=0;
 end
 %
 %

@@ -47,63 +47,63 @@ pisces=0;
 
 
 if nvar <= 20
-disp(['No biology'])
+  disp(['No biology'])
 elseif nvar == 25 
-biol_NPZD=1;
-%Name, units etc .. of the variables
-namebiol={'NO3';'CHLA';'PHYTO';'ZOO';'DET'};
-unitbiol={'mMol N m-3' ; 'mg C l-1' ; 'mMol N m-3';...
-                'mMol N m-3' ; 'mMol N m-3'};
-disp('Biol NPZD is on')
-disp('==========')
+  biol_NPZD=1;
+  %Name, units etc .. of the variables
+  namebiol={'NO3';'CHLA';'PHYTO';'ZOO';'DET'};
+  unitbiol={'mMol N m-3' ; 'mg C l-1' ; 'mMol N m-3';...
+	    'mMol N m-3' ; 'mMol N m-3'};
+  disp('Biol NPZD is on')
+  disp('==========')
 elseif nvar ==27
-biol_N2PZD2=1;
-%Name, units etc .. of the variables
-namebiol={'NO3' ; 'NH4' ; 'CHLA' ; 'PHYTO' ; 'ZOO' ; 'SDET' ; 'LDET'};
-unitbiol={'mMol N m-3' ; 'mMol N m-3' ; 'mg C l-1' ; ...
-          'mMol N m-3' ; 'mMol N m-3' ; 'mMol N m-3' ; ...
-          'mMol N m-3'};
-disp('Biol N2PZD2 is on')
-disp('==========')
+  biol_N2PZD2=1;
+  %Name, units etc .. of the variables
+  namebiol={'NO3' ; 'NH4' ; 'CHLA' ; 'PHYTO' ; 'ZOO' ; 'SDET' ; 'LDET'};
+  unitbiol={'mMol N m-3' ; 'mMol N m-3' ; 'mg C l-1' ; ...
+	    'mMol N m-3' ; 'mMol N m-3' ; 'mMol N m-3' ; ...
+	    'mMol N m-3'};
+  disp('Biol N2PZD2 is on')
+  disp('==========')
 elseif nvar==28
-biol_N2P2Z2D2=1;
-%Name, units etc .. of the variables
-namebiol={'NO3' ; 'NH4' ; 'SPHYTO' ; 'LPHYTO' ; 'SZOO' ; 'LZOO' ; 'SDET' ; 'LDET'};
-unitbiol={'mMol N m-3' ; 'mMol N m-3' ; 'mMol N m-3' ; ...
-          'mMol N m-3' ; 'mMol N m-3' ; 'mMol N m-3' ; ...
-          'mMol N m-3' ; 'mMol N m-3'};
-disp('Biol N2P2Z2D2 is on')
-disp('==========')
+  biol_N2P2Z2D2=1;
+  %Name, units etc .. of the variables
+  namebiol={'NO3' ; 'NH4' ; 'SPHYTO' ; 'LPHYTO' ; 'SZOO' ; 'LZOO' ; 'SDET' ; 'LDET'};
+  unitbiol={'mMol N m-3' ; 'mMol N m-3' ; 'mMol N m-3' ; ...
+	    'mMol N m-3' ; 'mMol N m-3' ; 'mMol N m-3' ; ...
+	    'mMol N m-3' ; 'mMol N m-3'};
+  disp('Biol N2P2Z2D2 is on')
+  disp('==========')
 else
-pisces=1;
-namepisces={'DIC' ; 'TALK' ; 'O2' ; 'CACO3'  ;  'PO4' ;  'POC' ; 
-            'Si'  ; 'NANO' ; 'ZOO'  ;  'DOC' ;  'DIA' ; 'MESO' ; 'BSI' ; 
-            'FER' ; 'BFE' ; 'GOC'; 'SFE' ; 'DFE' ; 'DSI' ; 'NFE' ; ...
-            'NCHL' ;  'DCHL';  'NO3' ; 'NH4'};
-unitpisces={'umol C L-1' ; 'umol C L-1' ; 'umol O L-1' ;  'umol C L-1' ;  'umol P L-1' ;  'umol C L-1' ; ...
-            'umol Si L-1' ;  'umol C L-1' ; 'umol C L-1'  ; 'umol C L-1' ; 'umol C L-1' ; 'umol C L-1' ; 'umol Si L-1' ; ...
-            'umol Fe L-1' ; 'umol Fe L-1' ;  'umol C L-1' ;  'umol Fe L-1' ; 'umol Fe L-1' ; 'umol Si L-1';'umol Fe L-1' ;...
-            'mg Chl m-3' ; 'mg Chl m-3' ; 'umol N L-1' ; 'umol N L-1'};
-disp('Pisces is on')
-disp('==========')
+  pisces=1;
+  namepisces={'DIC' ; 'TALK' ; 'O2' ; 'CACO3'  ;  'PO4' ;  'POC' ; 
+	      'Si'  ; 'NANO' ; 'ZOO'  ;  'DOC' ;  'DIA' ; 'MESO' ; 'BSI' ; 
+	      'FER' ; 'BFE' ; 'GOC'; 'SFE' ; 'DFE' ; 'DSI' ; 'NFE' ; ...
+	      'NCHL' ;  'DCHL';  'NO3' ; 'NH4'};
+  unitpisces={'umol C L-1' ; 'umol C L-1' ; 'umol O L-1' ;  'umol C L-1' ;  'umol P L-1' ;  'umol C L-1' ; ...
+	      'umol Si L-1' ;  'umol C L-1' ; 'umol C L-1'  ; 'umol C L-1' ; 'umol C L-1' ; 'umol C L-1' ; 'umol Si L-1' ; ...
+	      'umol Fe L-1' ; 'umol Fe L-1' ;  'umol C L-1' ;  'umol Fe L-1' ; 'umol Fe L-1' ; 'umol Si L-1';'umol Fe L-1' ;...
+	      'mg Chl m-3' ; 'mg Chl m-3' ; 'umol N L-1' ; 'umol N L-1'};
+  disp('Pisces is on')
+  disp('==========')
 end
 
 if  (biol_NPZD | biol_N2PZD2 | biol_N2P2Z2D2)
-biol=1;
+  biol=1;
 end
 
 if extrapmask==1
-disp('Extrapolation under mask is on')
-disp('====================')
+  disp('Extrapolation under mask is on')
+  disp('====================')
 end
 
 if vertical_correc==1
-disp('Vertical correction is on')
-disp('====================')
+  disp('Vertical correction is on')
+  disp('====================')
 end
 
 if pisces & (biol_NPZD | biol_N2PZD2  | biol_N2P2Z2D2)
-   error(['Both Biol NPZD type  and Pisces are ON, no possible yet !'])
+  error(['Both Biol NPZD type  and Pisces are ON, no possible yet !'])
 end
 
 %
@@ -150,8 +150,8 @@ result=close(nc);
 disp(' ')
 disp(' Create the restart file...')
 ncrst=create_nestedrestart(child_rst,child_grd,parent_rst,title,...
-                'clobber',biol,biol_NPZD,biol_N2PZD2,biol_N2P2Z2D2,...
-                 pisces,namebiol,namepisces,unitbiol,unitpisces);
+			   'clobber',biol,biol_NPZD,biol_N2PZD2,biol_N2P2Z2D2,...
+			   pisces,namebiol,namepisces,unitbiol,unitpisces);
 %
 % Get the parent indices
 %
@@ -180,7 +180,7 @@ for tindex=1:length(thetime)
   disp([' Time index : ',num2str(tindex),' of ',num2str(length(thetime))])                     
   ncrst{'scrum_time'}(tindex)=thetime(tindex);
   ncrst{'time_step'}(tindex,:)= np{'time_step'}(tindex,:);
-%
+  %
   disp('zeta...')
   interpvar3d(np,ncrst,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'zeta',mask,tindex)
   disp('ubar...')
@@ -195,14 +195,14 @@ for tindex=1:length(thetime)
   interpvar4d(np,ncrst,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'temp',mask,tindex,N)
   disp('salt...')
   interpvar4d(np,ncrst,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'salt',mask,tindex,N)
-%
+  %
   if (biol==1)
     for k=1:length(namebiol)
       disp(char(namebiol(k)))
       interpvar4d(np,ncrst,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,char(namebiol(k)),mask,tindex,N)
     end
   end
-%
+  %
   if (pisces==1)
     for k=1:length(namepisces)
       disp(['K=',num2str(k)])
@@ -210,10 +210,9 @@ for tindex=1:length(thetime)
       interpvar4d(np,ncrst,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,char(namepisces(k)),mask,tindex,N)
     end
   end
-%
 end
-  result=close(np);
-  result=close(ncrst);
+result=close(np);
+result=close(ncrst);
 %
 %  Vertical corrections
 %
