@@ -46,50 +46,50 @@ close all
 romstools_param
 %
 if strcmp(OGCM,'SODA')
-%
-%  SODA DODS URL
-%
-% SODA 1.2:   Jan 1958 to Dec 2001 (now obsolete)
-%  url = 'http://iridl.ldeo.columbia.edu./SOURCES/.CARTON-GIESE/.SODA/.v1p2'; 
-% SODA 1.4.2: Jan 1958 to Dec 2001
-%  url = 'http://iridl.ldeo.columbia.edu./SOURCES/.CARTON-GIESE/.SODA/.v1p4p2'; 
-% SODA 1.4.3: Jan 2000 to Dec 2004 (QuickSCAT)
-%  url =  'http://iridl.ldeo.columbia.edu./SOURCES/.CARTON-GIESE/.SODA/.v1p4p3'
-% SODA 2.0.2-3.
-%url= 'http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p0p2-3'
-% SODA 2.0.2-4.
-url= 'http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p0p2-4'
-disp({'!! Change from 1.4.3 version';
-      '   New variables : u, v';
-      '   m/s and no more in cm/s'})
+  %
+  %  SODA DODS URL
+  %
+  % SODA 1.2:   Jan 1958 to Dec 2001 (now obsolete)
+  %  url = 'http://iridl.ldeo.columbia.edu./SOURCES/.CARTON-GIESE/.SODA/.v1p2'; 
+  % SODA 1.4.2: Jan 1958 to Dec 2001
+  %  url = 'http://iridl.ldeo.columbia.edu./SOURCES/.CARTON-GIESE/.SODA/.v1p4p2'; 
+  % SODA 1.4.3: Jan 2000 to Dec 2004 (QuickSCAT)
+  %  url =  'http://iridl.ldeo.columbia.edu./SOURCES/.CARTON-GIESE/.SODA/.v1p4p3'
+  % SODA 2.0.2-3.
+  %url= 'http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p0p2-3'
+  % SODA 2.0.2-4.
+  url= 'http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p0p2-4'
+  disp({'!! Change from 1.4.3 version';
+	'   New variables : u, v';
+	'   m/s and no more in cm/s'})
 
 elseif strcmp(OGCM,'ECCO')
-%
-%  ECCO DODS URL
-%
-% Kalman filter 
-%
-%  url = 'http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/kf049f/kf049f_'; 
-%  url = 'http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/kf066b/kf066b_'; 
+  %
+  %  ECCO DODS URL
+  %
+  % Kalman filter 
+  %
+  %  url = 'http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/kf049f/kf049f_'; 
+  %  url = 'http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/kf066b/kf066b_'; 
   url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf066b/kf066b_'; 
-%  url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf076/kf076_'; 
-%
+  %  url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf076/kf076_'; 
+  %
 else
   error(['Unknown OGCM: ',OGCM])
 end
 % Treatment of  special cases ...
 if strcmp(url,'http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p0p2-4')==1;
-   disp(['Overlapping parameters value fixed : special case'])
-   disp(['...'])   
-   itolap_a=1;
-   itolap_p=1;
+  disp(['Overlapping parameters value fixed : special case'])
+  disp(['...'])   
+  itolap_a=1;
+  itolap_p=1;
 end
 %
-   itolap_tot=itolap_a + itolap_p;
-   disp(['Overlap before =',num2str(itolap_a)])
-   disp(['Overlap after =',num2str(itolap_p)])
-   disp(['Total overlap =',num2str(itolap_tot)])
-   disp(['...'])   
+itolap_tot=itolap_a + itolap_p;
+disp(['Overlap before =',num2str(itolap_a)])
+disp(['Overlap after =',num2str(itolap_p)])
+disp(['Total overlap =',num2str(itolap_tot)])
+disp(['...'])   
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % end of user input  parameters
@@ -117,31 +117,31 @@ close(nc)
 % Extract data over the internet
 %
 if Download_data==1
-%
-% Get the model limits
-%
+  %
+  % Get the model limits
+  %
   lonmin=min(min(lon));
   lonmax=max(max(lon));
   latmin=min(min(lat));
   latmax=max(max(lat));
-%
-% Download data with DODS (the download matlab routine depends on the OGCM)
-% 
+  %
+  % Download data with DODS (the download matlab routine depends on the OGCM)
+  % 
   if ~exist('Get_My_DataOGCM') | ( Get_My_DataOGCM == 0) ;
-  disp('Download data...')
-  eval(['download_',OGCM,'(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,',...
-                         'OGCM_dir,OGCM_prefix,url,Yorig)'])
+    disp('Download data...')
+    eval(['download_',OGCM,'(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,',...
+	  'OGCM_dir,OGCM_prefix,url,Yorig)'])
   else
-%Reference to Oforc_OGCM/Mydata routines : specific routines to your own data
-  disp('Use my own data...')
-  disp('Specific routines for your own OGCM datasets')
-  disp(['Flag Get_My_DataOGCM declared and =1'])
-  disp([' '])
-  disp(['Located at ',url_mydataOGCM])
-  eval(['download_',OGCM,'_Mydata(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,',...
-                         'OGCM_dir,OGCM_prefix,url_mydataOGCM,Yorig)'])  
+    %Reference to Oforc_OGCM/Mydata routines : specific routines to your own data
+    disp('Use my own data...')
+    disp('Specific routines for your own OGCM datasets')
+    disp(['Flag Get_My_DataOGCM declared and =1'])
+    disp([' '])
+    disp(['Located at ',url_mydataOGCM])
+    eval(['download_',OGCM,'_Mydata(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,',...
+	  'OGCM_dir,OGCM_prefix,url_mydataOGCM,Yorig)'])  
   end
-  
+
 end
 %
 %------------------------------------------------------------------------------------
@@ -169,27 +169,27 @@ close(nc)
 %
 if makeini==1
   ininame=[ini_prefix,'Y',num2str(Ymin),'M',num2str(Mmin),nc_suffix];
-%
-% Process the time in Yorig time (i.e days since Yorig-01-01)
-%
+  %
+  % Process the time in Yorig time (i.e days since Yorig-01-01)
+  %
   tini=datenum(Ymin,Mmin,1)-datenum(Yorig,1,1);
   disp(['Create an initial file for ',datestr(tini+datenum(Yorig,1,1));])
   create_inifile(ininame,grdname,ROMS_title,...
-                 theta_s,theta_b,hc,N,...
-                 tini,'clobber');
+		 theta_s,theta_b,hc,N,...
+		 tini,'clobber');
   nc_ini=netcdf(ininame,'write');
   interp_OGCM(OGCM_dir,OGCM_prefix,Ymin,Mmin,Roa,interp_method,...
-              lonU,latU,lonV,latV,lonT,latT,Z,1,...
-              nc_ini,[],lon,lat,angle,h,1,obc)
+	      lonU,latU,lonV,latV,lonT,latT,Z,1,...
+	      nc_ini,[],lon,lat,angle,h,1,obc)
   close(nc_ini)
 end
 %
 % Clim and Bry files 
 %
 if makeclim==1 | makebry==1
-%
-% Loop on the years and the months
-%
+  %
+  % Loop on the years and the months
+  %
   for Y=Ymin:Ymax
     if Y==Ymin 
       mo_min=Mmin;
@@ -199,163 +199,163 @@ if makeclim==1 | makebry==1
     if Y==Ymax
       mo_max=Mmax;
     else
-    mo_max=12;
+      mo_max=12;
     end
     for M=mo_min:mo_max
       disp(' ')
       disp(['Processing  year ',num2str(Y),...
-          ' - month ',num2str(M)])
+	    ' - month ',num2str(M)])
       disp(' ')
-%
+      %
       Mm=M-1;Ym=Y;
       if Mm==0
-        Mm=12;
-        Ym=Y-1;
+	Mm=12;
+	Ym=Y-1;
       end
       Mp=M+1;Yp=Y;
       if Mp==13
-        Mp=1;
-        Yp=Y+1;
+	Mp=1;
+	Yp=Y+1;
       end
-%
-% Add 2 times step in the ROMS files: 1 at the beginning and 1 at the end 
-%
-        nc=netcdf([OGCM_dir,OGCM_prefix,'Y',num2str(Y),'M',num2str(M),'.cdf']);
-	OGCM_time=nc{'time'}(:);
-	ntimes=length(OGCM_time);
-	if ntimes==1
-	  dt=30; % monthly files (SODA..)
-	else
-          dt=max(gradient(OGCM_time));
-	end
-%
-%% Fill the time axis
-%
-        roms_time=0*(1:ntimes+itolap_tot);
-%Current month	
-	roms_time(itolap_a+1:end-itolap_p)=OGCM_time;
-%
-%Previous  month
-%
-       disp(['==================================='])
-	for aa= 1:itolap_a
+      %
+      % Add 2 times step in the ROMS files: 1 at the beginning and 1 at the end 
+      %
+      nc=netcdf([OGCM_dir,OGCM_prefix,'Y',num2str(Y),'M',num2str(M),'.cdf']);
+      OGCM_time=nc{'time'}(:);
+      ntimes=length(OGCM_time);
+      if ntimes==1
+	dt=30; % monthly files (SODA..)
+      else
+	dt=max(gradient(OGCM_time));
+      end
+      %
+      %% Fill the time axis
+      %
+      roms_time=0*(1:ntimes+itolap_tot);
+      %Current month	
+      roms_time(itolap_a+1:end-itolap_p)=OGCM_time;
+      %
+      %Previous  month
+      %
+      disp(['==================================='])
+      for aa= 1:itolap_a
 	disp(['Compute beginning overlap, time index:',num2str(aa)])	
 	disp(['Add ',num2str(-(itolap_a + 1 - aa)), ' timestep dt'])
 	disp(['--------'])
 	roms_time(aa) = roms_time(itolap_a+1) - ((itolap_a + 1 - aa).* dt);
-	end
-%
-%Next month	
-%
+      end
+      %
+      %Next month	
+      %
       disp(['==================================='])	
-	for aa= 1:itolap_p
+      for aa= 1:itolap_p
 	disp(['Compute end overlap, time index:',num2str(ntimes+itolap_tot - itolap_p + aa)])
 	disp(['Add ',num2str(aa), ' timestep dt'])
 	disp(['--------'])
 	roms_time(end - itolap_p +  aa   ) = roms_time(end - itolap_p) +  aa.* dt;
-	end
+      end
       disp(['==================================='])
-	close(nc)
-%-----------------------------------------------------	
-%
-% Create and open the ROMS files
-%
+      close(nc)
+      %-----------------------------------------------------	
+      %
+      % Create and open the ROMS files
+      %
       if makebry==1
-        bryname=[bry_prefix,'Y',num2str(Y),...
-               'M',num2str(M),nc_suffix];
-        create_bryfile(bryname,grdname,ROMS_title,[1 1 1 1],...
-                       theta_s,theta_b,hc,N,...
-                       roms_time,0,'clobber');
-        nc_bry=netcdf(bryname,'write');
+	bryname=[bry_prefix,'Y',num2str(Y),...
+		 'M',num2str(M),nc_suffix];
+	create_bryfile(bryname,grdname,ROMS_title,[1 1 1 1],...
+		       theta_s,theta_b,hc,N,...
+		       roms_time,0,'clobber');
+	nc_bry=netcdf(bryname,'write');
       else
-        nc_bry=[];
+	nc_bry=[];
       end
       if makeclim==1
-        clmname=[clm_prefix,'Y',num2str(Y),...
-                 'M',num2str(M),nc_suffix];
-        create_climfile(clmname,grdname,ROMS_title,...
-                        theta_s,theta_b,hc,N,...
-                        roms_time,0,'clobber');
-        nc_clm=netcdf(clmname,'write');
+	clmname=[clm_prefix,'Y',num2str(Y),...
+		 'M',num2str(M),nc_suffix];
+	create_climfile(clmname,grdname,ROMS_title,...
+			theta_s,theta_b,hc,N,...
+			roms_time,0,'clobber');
+	nc_clm=netcdf(clmname,'write');
       else
-        nc_clm=[];
+	nc_clm=[];
       end
-%
-% Check if there are OGCM files for the previous Month
-%
+      %
+      % Check if there are OGCM files for the previous Month
+      %
       fname=[OGCM_dir,OGCM_prefix,'Y',num2str(Ym),'M',num2str(Mm),'.cdf'];
       if exist(fname)==0
-        disp(['   No data for the previous month: using current month'])
-        Mm=M;
-        Ym=Y;
+	disp(['   No data for the previous month: using current month'])
+	Mm=M;
+	Ym=Y;
 	tndx_OGCM=ones(itolap_a,1);
       else
-        nc=netcdf(fname);
-        tndx_OGCM=[(length(nc('time'))- (itolap_a -1) ):1: (length(nc('time')))];
-        close(nc)
+	nc=netcdf(fname);
+	tndx_OGCM=[(length(nc('time'))- (itolap_a -1) ):1: (length(nc('time')))];
+	close(nc)
       end
-%
-% Perform the interpolations for the previous month
-%
+      %
+      % Perform the interpolations for the previous month
+      %
       disp(' Previous month :')
       disp('=================')
       for aa=1:itolap_a
-       disp(['Beg overlap # ', num2str(aa),' -> tindex ',num2str(aa)])
-       disp(['It. of prev month used for it= ',num2str(tndx_OGCM(aa))])
-       interp_OGCM(OGCM_dir,OGCM_prefix,Ym,Mm,Roa,interp_method,...
-                   lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM(aa),...
-	  	   nc_clm,nc_bry,lon,lat,angle,h,aa,obc)
+	disp(['Beg overlap # ', num2str(aa),' -> tindex ',num2str(aa)])
+	disp(['It. of prev month used for it= ',num2str(tndx_OGCM(aa))])
+	interp_OGCM(OGCM_dir,OGCM_prefix,Ym,Mm,Roa,interp_method,...
+		    lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM(aa),...
+		    nc_clm,nc_bry,lon,lat,angle,h,aa,obc)
       end
-%
-% Perform the interpolations for the current month
-%
+      %
+      % Perform the interpolations for the current month
+      %
 
       disp(' Current month :')
       disp('================')
       for tndx_OGCM=1:ntimes
-        disp([' Time step : ',num2str(tndx_OGCM),' of ',num2str(ntimes),' :'])
-        interp_OGCM(OGCM_dir,OGCM_prefix,Y,M,Roa,interp_method,...
-                    lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM,...
+	disp([' Time step : ',num2str(tndx_OGCM),' of ',num2str(ntimes),' :'])
+	interp_OGCM(OGCM_dir,OGCM_prefix,Y,M,Roa,interp_method,...
+		    lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM,...
 		    nc_clm,nc_bry,lon,lat,angle,h,tndx_OGCM+itolap_a,obc)
       end
-%
-% Read the OGCM file for the next month
-%
+      %
+      % Read the OGCM file for the next month
+      %
       fname=[OGCM_dir,OGCM_prefix,'Y',num2str(Yp),'M',num2str(Mp),'.cdf'];
       if exist(fname)==0
-          disp(['   No data for the next month: using current month'])
-          Mp=M;
-          Yp=Y;
-	  for aa=1:itolap_p    
-	   tndx_OGCM(aa)=ntimes;
-	  end
+	disp(['   No data for the next month: using current month'])
+	Mp=M;
+	Yp=Y;
+	for aa=1:itolap_p    
+	  tndx_OGCM(aa)=ntimes;
+	end
       else
-	  for aa=1:itolap_p  
-	   tndx_OGCM(aa)=aa;
-	   end;
+	for aa=1:itolap_p  
+	  tndx_OGCM(aa)=aa;
+	end;
       end
-%
-% Perform the interpolations for the next month
-%
+      %
+      % Perform the interpolations for the next month
+      %
       disp(' Next month :')
       disp('=============')
       for aa=1:itolap_p
-      disp(['End Overlap #',num2str(aa),' -> tindex ',num2str(ntimes+itolap_a+aa)])
-      disp(['It. of next month used for it= ',num2str(tndx_OGCM(aa))])
-      interp_OGCM(OGCM_dir,OGCM_prefix,Yp,Mp,Roa,interp_method,...
-                  lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM(aa),...
-		  nc_clm,nc_bry,lon,lat,angle,h,ntimes+itolap_a+aa,obc)
+	disp(['End Overlap #',num2str(aa),' -> tindex ',num2str(ntimes+itolap_a+aa)])
+	disp(['It. of next month used for it= ',num2str(tndx_OGCM(aa))])
+	interp_OGCM(OGCM_dir,OGCM_prefix,Yp,Mp,Roa,interp_method,...
+		    lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM(aa),...
+		    nc_clm,nc_bry,lon,lat,angle,h,ntimes+itolap_a+aa,obc)
       end
-%
-% Close the ROMS files
-%
+      %
+      % Close the ROMS files
+      %
       if ~isempty(nc_clm)
-        close(nc_clm);
+	close(nc_clm);
       end
       if ~isempty(nc_bry)
-        close(nc_bry);
+	close(nc_bry);
       end
-%
+      %
     end
   end
 end
@@ -364,20 +364,20 @@ end
 % just copy the files for the first year and change the time
 %
 if SPIN_Long>0
-%
-% Initial file
-%
+  %
+  % Initial file
+  %
   if makeini==1
-%
-% Copy the file
-%
+    %
+    % Copy the file
+    %
     ininame=[ini_prefix,'Y',num2str(Ymin),'M',num2str(Mmin),nc_suffix];
     ininame2=[ini_prefix,'Y',num2str(Ymin-SPIN_Long),'M',num2str(Mmin),nc_suffix];
     disp(['Create ',ininame2]) 
     eval(['!cp ',ininame,' ',ininame2])
-%
-% Change the time
-%
+    %
+    % Change the time
+    %
     nc=netcdf(ininame2,'write');
     time=nc{'scrum_time'}(:);
     time=time/(24*3600)+datenum(Yorig,1,1);
@@ -387,7 +387,7 @@ if SPIN_Long>0
     nc{'scrum_time'}(:)=time*(24*3600);
     close(nc)
   end
-%
+  %
   M=Mmin-1;
   Y=Ymin-SPIN_Long;
   for month=1:12*SPIN_Long
@@ -396,20 +396,20 @@ if SPIN_Long>0
       M=1; 
       Y=Y+1;
     end
-%
-% Climatology files
-%
+    %
+    % Climatology files
+    %
     if makeclim==1
-%
-% Copy the file
-%
+      %
+      % Copy the file
+      %
       clmname=[clm_prefix,'Y',num2str(Ymin),'M',num2str(M),nc_suffix];
       clmname2=[clm_prefix,'Y',num2str(Y),'M',num2str(M),nc_suffix];
       disp(['Create ',clmname2]) 
       eval(['!cp ',clmname,' ',clmname2]) 
-%
-% Change the time
-%
+      %
+      % Change the time
+      %
       nc=netcdf(clmname2,'write');
       time=nc{'tclm_time'}(:)+datenum(Yorig,1,1);
       [y,m,d,h,mi,s]=datevec(time);
@@ -429,20 +429,20 @@ if SPIN_Long>0
       nc{'zeta_time'}(:)=time;
       close(nc)
     end
-%
-% Boundary files
-%
+    %
+    % Boundary files
+    %
     if makebry==1
-%
-% Copy the file
-%
+      %
+      % Copy the file
+      %
       bryname=[bry_prefix,'Y',num2str(Ymin),'M',num2str(M),nc_suffix];
       bryname2=[bry_prefix,'Y',num2str(Y),'M',num2str(M),nc_suffix];
       disp(['Create ',bryname2]) 
       eval(['!cp ',bryname,' ',bryname2]) 
-%
-% Change the time
-%
+      %
+      % Change the time
+      %
       nc=netcdf(bryname2,'write');
       time=nc{'bry_time'}(:)+datenum(Yorig,1,1);
       [y,m,d,h,mi,s]=datevec(time);
@@ -487,5 +487,3 @@ if makeplot==1
     test_bry(bryname,grdname,'v',1,obc)
   end
 end
-
-

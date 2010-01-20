@@ -136,57 +136,57 @@ nc{'lonV'}(:)=lonV;
 %
 for tndx=1:length(time)
 %
-  nc{'time'}(tndx)=time(tndx);
+nc{'time'}(tndx)=time(tndx);
 %
-  if length(time)==1
-    nc{'ssh'}(tndx,:,:)=ssh;
-    nc{'taux'}(tndx,:,:)=taux;
-    nc{'tauy'}(tndx,:,:)=tauy;
-    u1=u;
-    v1=v;
-    nc{'u'}(tndx,:,:,:)=u1;
-    nc{'v'}(tndx,:,:,:)=v1;
-    nc{'temp'}(tndx,:,:,:)=temp;
-    nc{'salt'}(tndx,:,:,:)=salt;
-  else
-    nc{'ssh'}(tndx,:,:)=squeeze(ssh(tndx,:,:));
-    nc{'taux'}(tndx,:,:)=squeeze(taux(tndx,:,:));
-    nc{'tauy'}(tndx,:,:)=squeeze(tauy(tndx,:,:));
-    u1=squeeze(u(tndx,:,:,:));
-    v1=squeeze(v(tndx,:,:,:));
-    nc{'u'}(tndx,:,:,:)=u1;
-    nc{'v'}(tndx,:,:,:)=v1;
-    nc{'temp'}(tndx,:,:,:)=squeeze(temp(tndx,:,:,:));
-    nc{'salt'}(tndx,:,:,:)=squeeze(salt(tndx,:,:,:));
-  end
+if length(time)==1
+  nc{'ssh'}(tndx,:,:)=ssh;
+  nc{'taux'}(tndx,:,:)=taux;
+  nc{'tauy'}(tndx,:,:)=tauy;
+  u1=u;
+  v1=v;
+  nc{'u'}(tndx,:,:,:)=u1;
+  nc{'v'}(tndx,:,:,:)=v1;
+  nc{'temp'}(tndx,:,:,:)=temp;
+  nc{'salt'}(tndx,:,:,:)=salt;
+else
+  nc{'ssh'}(tndx,:,:)=squeeze(ssh(tndx,:,:));
+  nc{'taux'}(tndx,:,:)=squeeze(taux(tndx,:,:));
+  nc{'tauy'}(tndx,:,:)=squeeze(tauy(tndx,:,:));
+  u1=squeeze(u(tndx,:,:,:));
+  v1=squeeze(v(tndx,:,:,:));
+  nc{'u'}(tndx,:,:,:)=u1;
+  nc{'v'}(tndx,:,:,:)=v1;
+  nc{'temp'}(tndx,:,:,:)=squeeze(temp(tndx,:,:,:));
+  nc{'salt'}(tndx,:,:,:)=squeeze(salt(tndx,:,:,:));
+end
 %
 % Compute the barotropic velocities
 %
-  masku=isfinite(u1);
-  maskv=isfinite(v1);
-  u1(isnan(u1))=0;
-  v1(isnan(v1))=0;
-  dz=gradient(depth);
-  NZ=length(depth);
-  du=0*squeeze(u1(1,:,:));
-  zu=du;
-  dv=0*squeeze(v1(1,:,:));
-  zv=dv;
-  for k=1:NZ
-    du=du+dz(k)*squeeze(u1(k,:,:));
-    zu=zu+dz(k)*squeeze(masku(k,:,:));
-    dv=dv+dz(k)*squeeze(v1(k,:,:));
-    zv=zv+dz(k)*squeeze(maskv(k,:,:));
-  end
-  du(zu==0)=NaN;
-  dv(zv==0)=NaN;
-  zu(zu==0)=NaN;
-  zv(zv==0)=NaN;
-  ubar=du./zu;
-  vbar=dv./zv;
+masku=isfinite(u1);
+maskv=isfinite(v1);
+u1(isnan(u1))=0;
+v1(isnan(v1))=0;
+dz=gradient(depth);
+NZ=length(depth);
+du=0*squeeze(u1(1,:,:));
+zu=du;
+dv=0*squeeze(v1(1,:,:));
+zv=dv;
+for k=1:NZ
+  du=du+dz(k)*squeeze(u1(k,:,:));
+  zu=zu+dz(k)*squeeze(masku(k,:,:));
+  dv=dv+dz(k)*squeeze(v1(k,:,:));
+  zv=zv+dz(k)*squeeze(maskv(k,:,:));
+end
+du(zu==0)=NaN;
+dv(zv==0)=NaN;
+zu(zu==0)=NaN;
+zv(zv==0)=NaN;
+ubar=du./zu;
+vbar=dv./zv;
 %
-  nc{'ubar'}(tndx,:,:)=ubar;
-  nc{'vbar'}(tndx,:,:)=vbar;
+nc{'ubar'}(tndx,:,:)=ubar;
+nc{'vbar'}(tndx,:,:)=vbar;
 %
 end
 %

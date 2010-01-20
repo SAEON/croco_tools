@@ -48,8 +48,8 @@ x=readattribute(url);
 %
 disp('    ...SSH')
 ssh=getdap(url,'',...
-            'ssh',trange,'',jrange,...
-            i1min,i1max,i2min,i2max,i3min,i3max);
+	       'ssh',trange,'',jrange,...
+	       i1min,i1max,i2min,i2max,i3min,i3max);
 missval=x.ssh.missing_value;
 ssh(ssh<=missval)=NaN;
 %
@@ -57,8 +57,8 @@ ssh(ssh<=missval)=NaN;
 %
 disp('    ...TAUX')
 taux=getdap(url,'',...
-            'taux',trange,'',jrange,...
-            i1min,i1max,i2min,i2max,i3min,i3max);
+		'taux',trange,'',jrange,...
+		i1min,i1max,i2min,i2max,i3min,i3max);
 missval=x.taux.missing_value;
 taux(taux<=missval)=NaN;
 %
@@ -66,8 +66,8 @@ taux(taux<=missval)=NaN;
 %
 disp('    ...TAUY')
 tauy=getdap(url,'',...
-            'tauy',trange,'',jrange,...
-            i1min,i1max,i2min,i2max,i3min,i3max);
+		'tauy',trange,'',jrange,...
+		i1min,i1max,i2min,i2max,i3min,i3max);
 missval=x.tauy.missing_value;
 tauy(tauy<=missval)=NaN;
 %
@@ -75,8 +75,8 @@ tauy(tauy<=missval)=NaN;
 %
 disp('    ...U')
 u=getdap(url,'',...
-         'u',trange,krange,jrange,...
-          i1min,i1max,i2min,i2max,i3min,i3max);
+	     'u',trange,krange,jrange,...
+	     i1min,i1max,i2min,i2max,i3min,i3max);
 u=shiftdim(u,2);
 missval=x.u.missing_value;
 u(u<=missval)=NaN;
@@ -85,8 +85,8 @@ u(u<=missval)=NaN;
 %
 disp('    ...V')
 v=getdap(url,'',...
-         'v',trange,krange,jrange,...
-          i1min,i1max,i2min,i2max,i3min,i3max);
+	     'v',trange,krange,jrange,...
+	     i1min,i1max,i2min,i2max,i3min,i3max);
 v=shiftdim(v,2);
 missval=x.v.missing_value;
 v(v<=missval)=NaN;
@@ -95,8 +95,8 @@ v(v<=missval)=NaN;
 %
 disp('    ...TEMP')
 temp=getdap(url,'',...
-            'temp',trange,krange,jrange,...
-             i1min,i1max,i2min,i2max,i3min,i3max);
+		'temp',trange,krange,jrange,...
+		i1min,i1max,i2min,i2max,i3min,i3max);
 temp=shiftdim(temp,2);
 missval=x.temp.missing_value;
 temp(temp<=missval)=NaN;
@@ -105,8 +105,8 @@ temp(temp<=missval)=NaN;
 %
 disp('    ...SALT')
 salt=getdap(url,'',...
-            'salt',trange,krange,jrange,...
-             i1min,i1max,i2min,i2max,i3min,i3max);
+		'salt',trange,krange,jrange,...
+		i1min,i1max,i2min,i2max,i3min,i3max);
 salt=shiftdim(salt,2);
 missval=x.salt.missing_value;
 salt(salt<=missval)=NaN;

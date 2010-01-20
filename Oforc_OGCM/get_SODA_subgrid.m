@@ -1,5 +1,5 @@
 function [i1min,i1max,i2min,i2max,i3min,i3max,jrange,krange,lon,lat,depth]=...
-         get_SODA_subgrid(path,lonmin,lonmax,latmin,latmax)
+    get_SODA_subgrid(path,lonmin,lonmax,latmin,latmax)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Get the indices for a SODA subgrid 
