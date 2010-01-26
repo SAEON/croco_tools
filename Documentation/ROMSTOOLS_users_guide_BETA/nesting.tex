@@ -26,7 +26,7 @@ The main window appears (Figure \ref{fig:nestgui4}).
 \end{figure}
 
 \begin{figure}[!ht]
-\centerline{\psfig{figure=nestgui6.eps,width=12cm}}
+\centerline{\psfig{figure=nestgui7.eps,width=12cm}}
 \caption{The NestGUI main window}
 \label{fig:nestgui4}
 \end{figure} 
@@ -41,90 +41,93 @@ To generate the child model you should follow several steps:
 
 \begin{enumerate}
 
-\item To define the child domain, click "Define child" and create
-the child domain on the main window. The size of the grid child
-(Lchild and Mchild) is now visible. This operation can be redone 
-until you are satisfied with the size and the position of the child 
-domain. The child domain can be finely tuned using the imin, 
-imax, jmin and jmax boxes. 
-Be aware that the mask interpolation from the parent grid
-to the child grid is not optimal close to corners. Parent/Child
-boundaries should be placed where the mask is showing a straight
-coastline. A warning will be given during the interpolation
-procedure if this is not the case.
+\item To define the child domain, click "Define child" and create the child domain on
+  the main window. The size of the grid child (Lchild and Mchild) is now visible.
+  This operation can be redone until you are satisfied with the size and the position
+  of the child domain. The child domain can be finely tuned using the imin, imax,
+  jmin and jmax boxes.  Be aware that the mask interpolation from the parent grid to
+  the child grid is not optimal close to corners. Parent/Child boundaries should be
+  placed where the mask is showing a straight coastline. A warning will be given
+  during the interpolation procedure if this is not the case.
 
-\item "Interp child" : It generates the child grid file. Before, 
-you should select if you are using a new topography
-("New child topo" button) for the child
-grid or if you are just interpolating the parent topography
-on the child grid. In the first case, you should defines
-what topography file will be used (e.g. 
-$\sim$/Roms\_tools/Topo/etopo2.nc or another dataset).
-You should also define if you want the volume of the child grid 
-to match the volume of the parent close to the parent/child 
-boundaries ("Match volume" button, it should be "on" by default).
-You should also define define the r factor \citep{Bec93} 
-for topography smoothing ("r-factor", 0.25 is safe) and
-the number of points to connect the child topography to the
-parent topography ("n-band", it follows the relation 
-$h_{new}=\alpha.h_{child} + (1-\alpha).h_{parent}$, 
-where $\alpha$ is going from 0 to 1 in "n-band" points 
-from the parent/child boundaries).
-You should also select the child minimum depth ("Hmin",
-it should be lower or equal to the parent minimum depth),
-the maximum depth at the coast ("Hmax coast"), the 
-number of selective hanning filter passes for the deep 
-regions ("n filter deep") and the number of final 
-hanning filter passes ("n filter final").
+\item "Interp child" : It generates the child grid file. Before, you should select if
+  you are using a new topography ("New child topo" button) for the child grid or if
+  you are just interpolating the parent topography on the child grid. In the first
+  case, you should defines what topography file will be used (e.g.
+  $\sim$/Roms\_tools/Topo/etopo2.nc or another dataset).  You should also define if
+  you want the volume of the child grid to match the volume of the parent close to
+  the parent/child boundaries ("Match volume" button, it should be "on" by default).
+  You should also define  the \textbf{'r'} factor \citep{Bec93} for topography smoothing
+  ("r-factor", 0.25 is safe) and the number of points to connect the child topography
+  to the parent topography ("n-band", it follows the relation
+  $h_{new}=\alpha.h_{child} + (1-\alpha).h_{parent}$, where $\alpha$ is going from 0
+  to 1 in "n-band" points from the parent/child boundaries).  You should also select
+  the child minimum depth ("Hmin", it should be lower or equal to the parent minimum
+  depth), the maximum depth at the coast ("Hmax coast"), the number of selective
+  hanning filter passes for the deep regions ("n filter deep") and the number of
+  final hanning filter passes ("n filter final").
 
-\item "Interp forcing": It interpolates the parent 
-surface forcing  on the child grid. Select the parent forcing file
-to be interpolated (e.g. $\sim$/Roms\_tools/Run/ROMSFILES/roms\_frc.nc). 
-The child forcing file roms\_frc.nc.1 will be created. 
-The parent surface fluxes are interpolated on the child grid. 
-You can use "Interp bulk" if you are using a bulk formula.
-In this case, the parent bulk file 
-(e.g. $\sim$/Roms\_tools/Run/ROMSFILES/roms\_blk.nc) will be
-interpolated on the child grid.
+\item "Interp forcing": It interpolates the parent surface forcing on the child grid.
+  Select the parent forcing file to be interpolated (e.g.
+  $\sim$/Roms\_tools/Run/ROMSFILES/roms\_frc.nc).  The child forcing file
+  roms\_frc.nc.1 will be created.  The parent surface fluxes are interpolated on the
+  child grid.  You can use "Interp bulk" if you are using a bulk formula.  In this
+  case, the parent bulk file (e.g. $\sim$/Roms\_tools/Run/ROMSFILES/roms\_blk.nc)
+  will be interpolated on the child grid.
 
-\item "Interp initial": It interpolates parent initial
-conditions on the child grid. Select the parent initial file
-(e.g. $\sim$/Roms\_tools/Run/ROMSFILES/roms\_ini.nc).
-The child initial file 
-(e.g. $\sim$/Roms\_tools/Run/ROMSFILES/roms\_ini.nc.1) 
-will be created.
-If the topographies are different between the parent and 
-the child grids, the child initial conditions are 
-vertically re-interpolated. In this case you should check 
-if the options \textbf{"vertical corrections"} and \textbf{"extrapolations"}
-are selected. \textbf{It is preferable to always use these options.} \\
-If there are parent biological variables in the initial files, they are processed. In
-the case of NPZD type model, there are 4 more variable. In the case of PISCES
-biogeochemical model, ther is 8 more variables. 
+\item "Interp initial": It interpolates parent initial conditions on the child grid.
+  Select the parent initial file (e.g.
+  $\sim$/Roms\_tools/Run/ROMSFILES/roms\_ini.nc).  The child initial file (e.g.
+  $\sim$/Roms\_tools/Run/ROMSFILES/roms\_ini.nc.1) will be created.  If the
+  topographies are different between the parent and the child grids, the child
+  initial conditions are vertically re-interpolated. In this case you should check if
+  the options \textbf{"vertical corrections"} and \textbf{"extrapolations"}
+  are selected. \textbf{It is preferable to always use these options.} \\
+  If there are parent biological fields in the initial files, they can be processed
+  automatically, we have to define the type of biological models: either NPZD-type
+  (NChlPZD, N2ChlPZD2 or N2P2Z2D2) then click on the \textit{\textbf{'Biol'}}
+  button, either PISCES biogeochemical model, then click on the
+  \textit{\textbf{'Pisces'}} button. The fields needed for the initialization of
+  these biological model will be processed. \\
+  For information, in the case of NPZD type model, there are 4 more fields and in the
+  case of PISCES biogeochemical model, there is 8 more fields.
+
 % "Interp biology" can be used to interpolate
-% parent biological variables for biogeochemical experiments.
+% parent biological fields for biogeochemical experiments.
 
 \item "Interp dust": It interpolates parent Iron dust forcing file conditions on the
   child grid.  This is needed only in case of PISCES biogeochemical experiments.
   Select the parent initial file (e.g.
   $\sim$/Roms\_tools/Run/ROMSFILES/roms\_frcbio.nc).  The child initial file (e.g.
   $\sim$/Roms\_tools/Run/ROMSFILES/roms\_frcbio.nc.1) will be created.
-\item "Interp restart" generates a child restart file from 
-a parent restart file \\
-(e.g. $\sim$/Roms\_tools/Run/ROMSFILES/roms\_rst.nc). 
-This can be done to "hot start" a child model after the 
-spin-up of the parent model.
 
-\item You can click on "Create roms.in.*" to generate a
-child input file (roms.in.1) from the parent input
-file and click on "Create AGRIF\_FixedGrids.in" to 
-generate a AGRIF\_FixedGrids.in file (the file which
-defines the child grid position in the parent grid).
+\item "Interp restart" generates a child restart file from
+  a parent restart file \\
+  (e.g. $\sim$/Roms\_tools/Run/ROMSFILES/roms\_rst.nc).  This can be done to "hot
+  start" a child model after the spin-up of the parent model. As in the case of
+  initial files generation, there is the possibility to compute ans write in the
+  nested restart file either the biological fields from NPZD-type biological model,
+  either the PISCES biogeochemical fields.  For this purpose, click either on the
+  \textit{\textbf{'Biol'}} button, either on the the \textit{\textbf{'Pisces'}}
+  button.
+
+\item You can click on "Create roms.in.*" to generate a child input file (roms.in.1)
+  from the parent input file and click on "Create AGRIF\_FixedGrids.in" to generate a
+  AGRIF\_FixedGrids.in file (the file which defines the child grid position in the
+  parent grid).
 
 \item "River" can be used to locate the river on the coast.
 
-\item "Interp clim" can be useful to generate boundary conditions 
-to test the child model alone. 
+\item "Interp clim" can be useful to generate boundary conditions to test the child
+  model alone. As in the case of restart an initial nested files generation, during
+  the eventual phase of creation of a nested clim file, the fields related to the
+  NPZD-type biological models or the PISCES one can be computed and written in the
+  nested clim file.  As usual, click either on the \textit{\textbf{'Biol'}} button or
+  on the \textit{\textbf{'Pisces'}} button.
+
+
+
+
 \end{enumerate}
 \subsection{Compiling and running the model}
 The ROMS nesting procedure needs a Fortran 95 compiler. For Linux PCs,

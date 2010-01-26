@@ -50,17 +50,17 @@ Desciption of the bulk formulation coded by Patrick.
 
   From now, the tracer equation terms are in \textit{dia.nc} and \textit{dia\_avg.nc}
   netcdf file with flags that permit to choose exactly the term
-  you want to write in the netCDF files.\\
+  you want to write in the NetCDF files.\\
   By default this diagnostics are written in a divergence flux form, ($\partial{u
     T}_{x}$, $\partial{v T}_{y}$, ...) but they can be written in an "advective form"
   : $u\partial{T}_{x}$, $v
-  \partial{T}_{y}$, ... by using the \textbf{DIAGNOSTICS\_TS\_ADV} cpp key. \\
+  \partial{T}_{y}$, ... by using the \textbf{DIAGNOSTICS\_TS\_ADV} cpp key.
   Some term have been added : the term integrated over the mixed layer depth (cppkeys
   \textbf{DIAGNOSTICS\_TS\_MLD}. The mixed layer depth is computed online, from the
   closure module.
 \\ \\
 The differents term of the tracer equation, that can be diagnose,
-for each tracer,  expressed in $^{o}C.s^{-1}$ ,  are:
+for each tracer,  expressed in $C^{o}.s^{-1}$ ,  are:
   \begin{itemize}
    \item Time evolution term (called "rate" term)
    \item Zonal advective term

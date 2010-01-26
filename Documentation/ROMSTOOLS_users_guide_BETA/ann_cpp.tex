@@ -137,7 +137,6 @@ Lateral Momentum Mixing     &                      \\
 &                        MIX\_S\_GP \\
 &                        UV\_VIS2 \\
 &                        UV\_VIS4 \\
-&                        UV\_SPLIT\_UP3 \\
 
 Sponge Layer     &                      \\
 &                        SPONGE \\
@@ -209,7 +208,7 @@ Open Boundary Conditions     &                      \\
 \subsection*{Test Case}
 
 \begin{longtable}
-   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   {|p{0.25\linewidth}|p{0.75\linewidth}|}
    \hline
     CPP KEYS NAME & Description \\ 
    \endfirsthead
@@ -287,7 +286,7 @@ AUTOTILING & Activate the subdomains partitionning optimization.    \\
 
 \subsection*{Embedding}
 \begin{longtable}
-   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   {|p{0.25\linewidth}|p{0.75\linewidth}|}
    \hline
     CPP KEY NAME & Description \\ 
    \endfirsthead
@@ -315,7 +314,7 @@ AGRIF\_2WAYS & Add the the 2-WAYS nesting (feedback from child to parent grid) c
 \subsection*{Open Boundary Conditions I }
 
 \begin{longtable}
-   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   {|p{0.25\linewidth}|p{0.75\linewidth}|}
    \hline
     CPP KEY NAME & Description \\ 
    \endfirsthead
@@ -344,12 +343,10 @@ OBC\_NORTH & Open northern boundary.    \\
 
 
 
-
-
 \subsection*{Tides}
 
 \begin{longtable}
-   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   {|p{0.25\linewidth}|p{0.75\linewidth}|}
    \hline
     CPP KEY NAME & Description \\ 
    \endfirsthead
@@ -437,7 +434,7 @@ BBL            &  Activate the bottom boundary layer module.  \\
 \subsection*{Model dynamics}
 
 \begin{longtable}
-   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   {|p{0.25\linewidth}|p{0.75\linewidth}|}
    \hline
     CPP KEY NAME & Description \\ 
    \endfirsthead
@@ -479,7 +476,7 @@ UV\_ADV  & Activate advection terms.   \\
 \subsection*{Grid configuration}
 
 \begin{longtable}
-   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   {|p{0.25\linewidth}|p{0.75\linewidth}|}
    \hline
     CPP KEY NAME & Description \\ 
    \endfirsthead
@@ -514,7 +511,7 @@ MASKING   & Activate land masking in the domain. \\
 
 \subsection*{Input - Output and Diagnostics}
 \begin{longtable}
-   {|p{0.32\linewidth}|p{0.68\linewidth}|}
+   {|p{0.30\linewidth}|p{0.7\linewidth}|}
    \hline
     CPP KEY NAME & Description \\ 
    \endfirsthead
@@ -560,7 +557,7 @@ DIAGNOSTICS\_UV & Define if writing out tendency terms for the momentum equation
 
 \newpage
 \subsection*{Equation of state}
-\begin{longtable}{|p{0.2\linewidth}|p{0.8\linewidth}|}
+\begin{longtable}{|p{0.25\linewidth}|p{0.75\linewidth}|}
    \hline
     CPP KEY NAME & Description \\ 
    \endfirsthead
@@ -598,7 +595,7 @@ adiabatic part and a compressible part for the reduction of pressure gradient er
 
 \subsection*{Surface Forcing}
 \begin{longtable}
-   {|p{0.24\linewidth}|p{0.76\linewidth}|}
+   {|p{0.25\linewidth}|p{0.75\linewidth}|}
    \hline
     CPP KEY NAME & Description \\ 
    \endfirsthead
@@ -657,7 +654,7 @@ the windstress (sustr and svstr) from the wind speed vector, mentioned above.  \
 \subsection*{Lateral Tracer mixing}
 
 \begin{longtable}
-   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   {|p{0.25\linewidth}|p{0.75\linewidth}|}
    \hline
     CPP KEY NAME & Description \\ 
    \endfirsthead
@@ -700,7 +697,7 @@ tracer equation.
 \subsection*{Lateral Momentum Mixing}
 \
 \begin{longtable}
-   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   {|p{0.25\linewidth}|p{0.75\linewidth}|}
    \hline
     CPP KEY NAME & Description \\ 
    \endfirsthead
@@ -731,13 +728,11 @@ UV\_VIS4 & Activate Bilaplacian horizontal mixing of momentum. \\
 \noindent
 \# define UV\_VIS2 \\
 \# define MIX\_GP\_UV  \\
-\# undef UV\_SPLIT\_UP3 \\
-
 
 
 \subsection*{Sponge Layer}
 
-\begin{longtable}{|p{0.2\linewidth}|p{0.8\linewidth}|}
+\begin{longtable}{|p{0.25\linewidth}|p{0.75\linewidth}|}
    \hline
     CPP KEY NAME & Description \\ 
    \endfirsthead
@@ -768,7 +763,7 @@ lateral open boundaries.   \\
 \subsection*{Lateral forcing}
 
 \begin{longtable}
-   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   {|p{0.25\linewidth}|p{0.75\linewidth}|}
    \hline
     CPP KEY NAME & Description \\ 
    \endfirsthead
@@ -827,7 +822,7 @@ T\_FRC\_BRY &  Activate boundary forcing for tracers.  \\
 \subsection*{Nudging}
 
 \begin{longtable}
-   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   {|p{0.25\linewidth}|p{0.75\linewidth}|}
    \hline
     CPP KEY NAME & Description \\ 
    \endfirsthead
@@ -876,7 +871,7 @@ coefficient $TauM_{out}/TauT_{in}$ in the namelist roms.in
 %\hrule
 \subsection*{Bottom forcing}
 \begin{longtable}
-   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   {|p{0.25\linewidth}|p{0.75\linewidth}|}
    \hline
     CPP KEY NAME & Description \\ 
    \endfirsthead
@@ -910,7 +905,7 @@ ANA\_BTFLUX &  Define if using analytical bottom temperature flux.\\
 \subsection*{Point Sources - Rivers}
 
 \begin{longtable}
-   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   {|p{0.25\linewidth}|p{0.75\linewidth}|}
    \hline
     CPP KEY NAME & Description \\ 
    \endfirsthead
@@ -946,7 +941,7 @@ ANA\_PSOURCES & Define if using analytical vertical profiles for the point sourc
 \subsection*{Vertical Mixing}
 
 \begin{longtable}
-   {|p{0.2\linewidth}|p{0.8\linewidth}|}
+   {|p{0.25\linewidth}|p{0.75\linewidth}|}
    \hline
     CPP KEY NAME & Description \\ 
    \endfirsthead
@@ -997,7 +992,7 @@ LMD\_NONLOCAL & Activate nonlocal transport (LMD-KPP closure)   \\
 \newpage
 \subsection*{Open Boundary Conditions  II }
 \begin{longtable}
-   {|p{0.3\linewidth}|p{0.7\linewidth}|}
+   {|p{0.25\linewidth}|p{0.75\linewidth}|}
    \hline
     CPP KEY NAME & Description \\ 
    \endfirsthead
@@ -1039,8 +1034,8 @@ OBC\_TUPWIND &     Activate upwind open boundary conditions for tracers.   \\
 \#$~$ define OBC\_M2FLATHER \\ 
 \# else \\
 \#$~$ undef OBC\_M2SPECIFIED \\
-\#$~$ undef OBC\_M2FLATHER \\
-\#$~$  define OBC\_M2CHARACT \\
+\#$~$  define OBC\_M2FLATHER \\
+\#$~$  undef OBC\_M2CHARACT \\
 \#$~$  undef OBC\_M2ORLANSKI\\ 
 \#$~$  ifdef OBC\_M2ORLANSKI \\
 \#$~$$~$ define OBC\_VOLCONS \\

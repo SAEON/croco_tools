@@ -35,7 +35,7 @@ softwares needed by ROMSTOOLS are located at:
 http://roms.mpl.ird.fr/Roms\_tools/index.html 
 \end{center}
 For the ROMS source code you should download ROMS\_AGRIF version
-V1.1.\\\\\\\\\\\\
+V2.0.\\\\\\\\\\\\
 
 
 \subsection{Extracting the files}
@@ -68,9 +68,51 @@ $|$-- mask
 
 $|$-- mex60
 
-$|$-- mexnc
+$|$-- mexcdf
 
-$|$\hspace{0.5cm}$|$-- tests
+$|$\hspace{0.5cm}$|$-- mexnc
+
+$|$\hspace{1.0cm}$|$-- private
+
+$|$\hspace{1.0cm}$|$-- src
+
+$|$\hspace{1.0cm}$|$-- tests
+
+$|$\hspace{1.0cm}$|$-- win32
+
+$|$\hspace{1.0cm}$|$-- win64
+
+$|$\hspace{0.5cm}$|$-- netcdf\_toolbox
+
+$|$\hspace{1.0cm}$|$-- README
+
+$|$\hspace{1.0cm}$|$-- ChangeLog
+
+$|$\hspace{1.0cm}$|$-- netcdf
+
+$|$\hspace{2.0cm}$|$-- @listpick
+
+$|$\hspace{2.0cm}$|$-- @ncatt
+
+$|$\hspace{2.0cm}$|$-- @ncbrowser
+
+$|$\hspace{2.0cm}$|$-- @ncdim
+
+$|$\hspace{2.0cm}$|$-- @ncvar
+
+$|$\hspace{2.0cm}$|$-- @netcdf
+
+$|$\hspace{2.0cm}$|$-- @ncitem
+
+$|$\hspace{2.0cm}$|$-- @ncrec
+
+$|$\hspace{2.0cm}$|$-- nctype
+
+$|$\hspace{2.0cm}$|$-- ncutility
+
+$|$\hspace{2.0cm}$|$-- ncsources
+
+$|$\hspace{0.5cm}$|$-- snctools (\textit{unused yet})
 
 $|$-- m\_map
 
@@ -81,30 +123,6 @@ $|$-- Nesting\_tools
 $|$-- netcdf\_g77
 
 $|$-- netcdf\_ifc
-
-$|$-- netcdf\_matlab
-
-$|$\hspace{0.5cm}$|$-- listpick
-
-$|$\hspace{0.5cm}$|$-- ncatt
-
-$|$\hspace{0.5cm}$|$-- ncbrowser
-
-$|$\hspace{0.5cm}$|$-- ncdim
-
-$|$\hspace{0.5cm}$|$-- ncfiles
-
-$|$\hspace{0.5cm}$|$-- ncitem
-
-$|$\hspace{0.5cm}$|$-- ncrec
-
-$|$\hspace{0.5cm}$|$-- nctype
-
-$|$\hspace{0.5cm}$|$-- ncutility
-
-$|$\hspace{0.5cm}$|$-- ncvar
-
-$|$\hspace{0.5cm}$|$-- netcdf
 
 $|$-- netcdf\_x86\_64
 
@@ -181,10 +199,15 @@ Definition of the different directories :
 \item Forecast\_tools : Scripts for the generation of an operational
       modeling system 
 \item mask : Land mask edition toolbox developed by A.Y. Shcherbina.
-\item mex60 : Matlab NetCDF interface for 32 bits Linux architectures.
-\item mexnc : Matlab NetCDF interface for 64 bits Linux architectures.
-%\item \textbf{mexnc32} : 
-%\item \textbf{mexnc64} : 
+\item mex60 : Matlab NetCDF interface for 32 \& 64 bits Linux architectures and old
+  matlab version : 6 and before.
+\item mexcdf/mexnc : Matlab NetCDF interface for 32 \& 64 bits Linux architectures,
+  MatlabR14sp1 until R2008a (http://mexcdf.sourceforge.net/downloads/mexcdf-R2008a.r2691.zip) \\
+  For next releases of Matlab, R2008b, R2009a, it is more simpler, either use the native NetCDF
+  toobox of matlab or use the last release of mexcf at the same url for version
+  after R2008a.(http://mexcdf.sourceforge.net/downloads/mexcdf.r2802.zip)
+\item mexcdf/netcdf\_toolbox : The Matlab NetCDF toolbox available in the same mexcdf
+  package.
 \item m\_map : The Matlab mapping toolbox 
       (http://www2.ocgy.ubc.ca/$\sim$rich/map.html).
 \item Nesting\_tools : Preprocessing tools used to prepare nested
@@ -194,9 +217,6 @@ Definition of the different directories :
 \item netcdf\_ifc : The NetCDF Fortran library for Linux, compiled with ifort. 
       The Intel Fortran Compiler (ifort) is available at \\
       http://www.intel.com/software/products/compilers/flin/noncom.htm.
-\item netcdf\_matlab : The Matlab NetCDF toolbox  \\
-      ({\small
-      http://woodshole.er.usgs.gov/staffpages/cdenham/public\_html/MexCDF/nc4ml5.html}).
 \item netcdf\_x86\_64 : The NetCDF Fortran library for Linux, compiled with ifort
       on a 64 bits architecture.
 \item Oforc\_OGCM : Scripts for the recovery of initial and lateral boundary 
