@@ -42,6 +42,7 @@
     Select MOMENTUM LATERAL advection-diffusion scheme:
     (The default is third-order upstream biased)
 */
+#undef UV_SPLIT_UP3
 #undef  HADV_C4_UV        /* 4th-order centered lateral advection */
 #ifdef UV_SPLIT_UP3       /*    Split 3rd-order scheme into       */
 # define HADV_C4_UV       /*       4th order centered             */
@@ -299,6 +300,7 @@ Select MOMENTUM VERTICAL advection scheme:
 */
 
 #ifdef MPI
+#undef AUTOTILING
 #define SINGLE_TILE_MODE  Iend-Istr+Jend-Jstr.eq.Lmmpi+Mmmpi-2
 #else
 #define SINGLE_TILE_MODE  Iend-Istr+Jend-Jstr.eq.Lm+Mm-2

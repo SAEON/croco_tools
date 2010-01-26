@@ -82,7 +82,6 @@
                       /* Lateral Momentum Mixing */
 # define UV_VIS2
 # define MIX_GP_UV
-# undef UV_SPLIT_UP3
 # undef VIS_SMAGO
                       /* Lateral Tracer Mixing */
 # define MIX_GP_TS
@@ -151,8 +150,8 @@
 #  define OBC_M2FLATHER
 # else
 #  undef OBC_M2SPECIFIED
-#  undef OBC_M2FLATHER
-#  define OBC_M2CHARACT
+#  define OBC_M2FLATHER
+#  undef OBC_M2CHARACT
 #  undef OBC_M2ORLANSKI
 #  ifdef OBC_M2ORLANSKI
 #   define OBC_VOLCONS
