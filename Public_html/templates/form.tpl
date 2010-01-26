@@ -4,7 +4,7 @@
 	  ROMS_AGRIF is based on the Regional Ocean Modeling System (ROMS)
 	  and has benefited from developments made by the ROMS community. 
 	  If not done yet, we encourage you to also register at the 
-	  <a href=http://marine.rutgers.edu/po/index.php?page=&model=roms>
+	  <a href=http://www.myroms.org/>
 	  official ROMS website</a>.
 	</p>
 	<p class="disclaimer">
