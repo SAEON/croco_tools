@@ -84,9 +84,9 @@ end
 [u,v,lon,lat,mask]=uv_vec2rho(u,v,lon,lat,angle,mask,skp,npts);
   
 if nargin < 8
-  u=u*scale;
-  v=v*scale;
-  h=m_quiver(lon,lat,u,v,0,'k');
+  u=u*scale/20;
+  v=v*scale/20;
+  h=m_quiver_cst(lon,lat,u,v,0,'k');
 else
   h=m_quiver_fix(lon,lat,u,v,scale,x0,y0,u_unit,units,...
                          fontsize);
