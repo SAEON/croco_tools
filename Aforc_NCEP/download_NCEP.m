@@ -347,7 +347,7 @@ for k=1:length(vnames)
         disp(['  Processing month: ',num2str(M)])
         recipe_file = [NCEP_dir,char(vnames(k)),'_Y',num2str(Y),'M',num2str(M),'.nc'];
         if exist(recipe_file)
-          input(['    Warning : file ',recipe_file,' already exists. Press ''enter'' to continue']);
+          disp(['    Warning : file ',recipe_file,' already exists. Press ''enter'' to continue']);
         end
 %
 % Get the time indices for this month and year
