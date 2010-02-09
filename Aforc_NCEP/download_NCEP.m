@@ -1,38 +1,33 @@
 function download_NCEP(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,...
                        NCEP_dir,NCEP_version,Yorig,Get_My_Data,My_NCEP_dir)
 %
-% Extract a subgrid from NCEP to get a ROMS forcing
-% Store that into monthly files (to limit the problems
-% of bandwith...).
-% Take care of the Greenwitch Meridian.
-% 
-% Pierrick 2005
-%Update J. Lefevre, feb-2008 to use Nomads1 server(nomad3 is dead)
-%Update G. Cambon, Oct-2009
-
+if nargin < 1
+  Ymin=2007;
+  Ymax=2008;
+  Yorig=1900;
+  Mmin=12;
+  Mmax=1;
+  lonmin=10;
+  lonmax=30;
+  latmin=-40;
+  latmax=-20;
+  NCEP_dir='DATA/NCEP_Peru/';
+  NCEP_version=2;
+  Get_My_Data=0;
+  My_NCEP_dir='../NCEP_REA1/';
+end
+%
+% Definitions of names and directories
+%
 if Get_My_Data ~= 1
   disp(['================='])
   disp(['OPENDAP Procedure'])
   disp(['================='])
 %
-  if nargin < 1
-    Ymin=2003;
-    Ymax=2003;
-    Yorig=2003;
-    Mmin=1;
-    Mmax=1;
-    lonmin=-90;
-    lonmax=-70;
-    latmin=-20;
-    latmax=-5;
-    NCEP_dir='DATA/NCEP_Peru/';
-    NCEP_version=1;
-    Get_My_Data=0;
-    My_NCEP_dir='../NCEP_REA1/';
-  end
-%
   disp(['latmax=',num2str(latmax)])
   if NCEP_version==1
+%
+% Definitions of names and directories for NCEP1
 %
     ncep_url='http://nomad1.ncep.noaa.gov:9090/dods/reanalyses/reanalysis-1/';
     catalog={'6hr/grb2d/grb2d' ...
@@ -60,6 +55,8 @@ if Get_My_Data ~= 1
     level ={'' '' '' '' '' '' '' '' '' '' ''};
 %
   elseif NCEP_version==2
+%
+% Definitions of names and directories for NCEP1
 %
     ncep_url='http://nomad1.ncep.noaa.gov:9090/dods/reanalyses/reanalysis-2/';
     catalog={'6hr/flx/flx' ...
@@ -90,6 +87,9 @@ if Get_My_Data ~= 1
   end
 %
 elseif Get_My_Data == 1
+%
+% Definitions of names and directories in the case of ftp
+%
   disp(['================='])
   disp(['Direct FTP Procedure'])
   disp(['================='])
@@ -168,6 +168,9 @@ eval(['!mkdir ',NCEP_dir])
 % End Common OpenDap FTP 
 %-----------------------
 
+%
+% Global loop on variable names
+%
 for k=1:length(vnames)
   disp(['=========================='])
   disp(['VNAME IS ',char(vnames(k))]);
@@ -188,7 +191,7 @@ for k=1:length(vnames)
       error('No time unit found');
     end
     eval(['Tunits=x.time.units;']);  
-    time=readdap([ncep_url,char(catalog(k))],'time',[]);
+    time0=readdap([ncep_url,char(catalog(k))],'time',[]);
     if findstr('day',Tunits)
       time_scale = 1;
     elseif findstr('hour',Tunits)
@@ -242,7 +245,7 @@ for k=1:length(vnames)
       tndx = 1;
       trange = '[1:1]';
       extract_NCEP(NCEP_dir,ncep_url,char(catalog(k)),char(vnames(k)),Ymin,Mmin,...
-                   lon,lat,tndx,time(tndx),...
+                   lon,lat,tndx,0,...
                    trange,char(level(k)),jrange,...
                    i1min,i1max,i2min,i2max,i3min,i3max,...
                    jmin,jmax,Yorig,Get_My_Data) 
@@ -272,7 +275,7 @@ for k=1:length(vnames)
 %Get the time indice to get into  monthly file
 %-------------------
         nc=netcdf([ncep_url,char(catalog(k)),'.',num2str(Y),'.nc']);
-        time=nc{'time'}(:);
+        time0=nc{'time'}(:);
         close(nc)
 %===================================
 %in case of Get_My_Data~=1, time is already loaded 
@@ -289,35 +292,42 @@ for k=1:length(vnames)
 % NCEP reanalysis 1 from FTP: time origine is "days since 1-1-1 00:00:00"
 % NCEP reanalysis 2 from FTP: time origine is "days since 1800-1-1 00:00:00"
 %===========================================================
-
-      if (NCEP_version == 1 & Get_My_Data~= 1);             
-        disp(['NCEP_version is ',num2str(NCEP_version)])
-        startime = [1,1,1,0,0,0]; %[year, month, day, hour, minute, second]
-      elseif (NCEP_version ==  2 & Get_My_Data ~= 1);
-        disp(['NCEP_version is ',num2str(NCEP_version)])
-        startime = [1,1,1,0,0,0]; %[year, month, day, hour, minute, second]
-      elseif (NCEP_version ==  1 & Get_My_Data == 1);
-        disp(['NCEP_version is ',num2str(NCEP_version)])
-        startime = [1,1,1,0,0,0]; %[year, month, day, hour, minute, second]
-      elseif (NCEP_version ==  2 & Get_My_Data == 1);
-        disp(['NCEP_version is ',num2str(NCEP_version)])
-        startime = [1800,1,1,0,0,0]; %[year, month, day, hour, minute, second]
+%
+      if Get_My_Data ~= 1 % OpenDAP
+        if NCEP_version == 1            
+          disp(['NCEP_version is ',num2str(NCEP_version)])
+          startime = [1,1,1,0,0,0]; %[year, month, day, hour, minute, second]
+        elseif NCEP_version ==  2
+          disp(['NCEP_version is ',num2str(NCEP_version)])
+          startime = [1,1,1,0,0,0]; 
+        end
+      else               % FTP
+        if NCEP_version ==  1
+          disp(['NCEP_version is ',num2str(NCEP_version)])
+          startime = [1,1,1,0,0,0];
+        elseif NCEP_version ==  2
+          disp(['NCEP_version is ',num2str(NCEP_version)])
+          startime = [1800,1,1,0,0,0]; 
+        end
       end
-      time = time.*time_scale;
+%
+      time = time0.*time_scale;
       TIME_OFFSET=(mjd(Yorig,1,1,0)-mjd(startime(1),startime(2),startime(3), ...
 				  startime(4))); 
-      if Get_My_Data~= 1
+      if Get_My_Data~= 1 % OpenDAP
         time = time - TIME_OFFSET -2; 
 %                             This is time in days from Yorig
 %                             In case of OpenDap DATA
 %                             we have to remove at the end to be OK with the date
-      else
+      else               % FTP
         time = time - TIME_OFFSET  ;
 %                             This is time in days from Yorig
 %                             In case of FTP DATA
 %                             we do not need to remove at the end
       end
+%
       [year,month,days,hour,min,sec]=datevec(time+datenum(Yorig,1,1));
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Loop on the months
