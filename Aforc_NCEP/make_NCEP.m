@@ -80,16 +80,16 @@ close(nc);
 % Extract data over the internet
 %
 if Download_data==1
-%
-% Get the model limits
-%
+  %
+  % Get the model limits
+  %
   lonmin=min(min(lon));
   lonmax=max(max(lon));
   latmin=min(min(lat));
   latmax=max(max(lat));
-%
-% Download NCEP
-%
+  %
+  % Download NCEP
+  %
   disp([' '])
   disp(['!!!!!!!!!!!!!!!!!!!!!'])
   disp(['====================='])
@@ -109,17 +109,17 @@ if Download_data==1
 end
 %
 if makefrc==1 | makeblk==1
-%
-% Get the NCEP horizontal grids (it should be the same for every month)
-%
+  %
+  % Get the NCEP horizontal grids (it should be the same for every month)
+  %
 
-if Get_My_Data~=1
-  nc=netcdf([NCEP_dir,'landsfc_Y',num2str(Ymin),'M',num2str(Mmin),'.nc']);
-  disp(['Use this land file :',char([NCEP_dir,'landsfc_Y',num2str(Ymin),'M',num2str(Mmin),'.nc'])])
- elseif Get_My_Data==1
-  nc=netcdf([NCEP_dir,'land_Y',num2str(Ymin),'M',num2str(Mmin),'.nc']);
-  disp(['Use this land file :',char([NCEP_dir,'land_Y',num2str(Ymin),'M',num2str(Mmin),'.nc'])])
-end
+  if Get_My_Data~=1
+    nc=netcdf([NCEP_dir,'landsfc_Y',num2str(Ymin),'M',num2str(Mmin),'.nc']);
+    disp(['Use this land file :',char([NCEP_dir,'landsfc_Y',num2str(Ymin),'M',num2str(Mmin),'.nc'])])
+  elseif Get_My_Data==1
+    nc=netcdf([NCEP_dir,'land_Y',num2str(Ymin),'M',num2str(Mmin),'.nc']);
+    disp(['Use this land file :',char([NCEP_dir,'land_Y',num2str(Ymin),'M',num2str(Mmin),'.nc'])])
+  end
 
   lon1=nc{'lon'}(:);
   lat1=nc{'lat'}(:);
@@ -129,20 +129,19 @@ end
     mask=1-squeeze(nc{'landsfc'}(:));
   elseif Get_My_Data==1
     mask=1-squeeze(nc{'land'}(:));
-%    mask=flipdim(mask,1);
   end
-    mask(mask==0)=NaN;  
+  mask(mask==0)=NaN;  
   close(nc);
   
-%
-%Loop on the years and the months
-%
-disp(['====================='])
-disp(['INTERPOLATION STEP'])
-disp(['====================='])
-disp(['Loop on the years and the months'])
+  %
+  %Loop on the years and the months
+  %
+  disp(['====================='])
+  disp(['INTERPOLATION STEP'])
+  disp(['====================='])
+  disp(['Loop on the years and the months'])
 
-%
+  %
   for Y=Ymin:Ymax
     if Y==Ymin 
       mo_min=Mmin;
@@ -159,27 +158,22 @@ disp(['Loop on the years and the months'])
       disp(['Processing  year ',num2str(Y),...
             ' - month ',num2str(M)])
       disp(' ')
-%
-% Process time (here in days)
-%
-if Get_My_Data~=1
-      nc=netcdf([NCEP_dir,'tmp2m_Y',num2str(Y),'M',num2str(M),'.nc']);
- elseif Get_My_Data==1   
-      nc=netcdf([NCEP_dir,'prate_Y',num2str(Y),'M',num2str(M),'.nc']);
-end
+      %
+      % Process time (here in days)
+      %
+      if Get_My_Data~=1
+	nc=netcdf([NCEP_dir,'tmp2m_Y',num2str(Y),'M',num2str(M),'.nc']);
+      elseif Get_My_Data==1   
+	nc=netcdf([NCEP_dir,'prate_Y',num2str(Y),'M',num2str(M),'.nc']);
+      end
 
       NCEP_time=nc{'time'}(:);
       close(nc);
       dt=mean(gradient(NCEP_time));
       disp(['dt=',num2str(dt)])
-      
-      
-% add timesteps at the end of the ROMS file to make a full month of 31 days
-% then add 3 more timestep: 1 at the beginning and 2 at the end
-
-%-----------------------------------------------------------
-%Variable overlapping timeesteps : 2 at the beginning and 2 at the end
-%------------------------------------------------------------
+      %-----------------------------------------------------------
+      %Variable overlapping timeesteps : 2 at the beginning and 2 at the end
+      %------------------------------------------------------------
       tlen0=length(NCEP_time);
       disp(['tlen0=',num2str(tlen0)])
       tlen=tlen0+2*itolap_ncep;
@@ -187,10 +181,10 @@ end
       disp(['Overlap is ',num2str(itolap_ncep),' it of 6 hours'])
       disp(['Overlap is ',num2str(itolap_ncep/4),' days before and after'])     
       time=0*(1:tlen);
-      time(itolap_ncep+1:tlen0+itolap_ncep)=NCEP_time;   %4 days overlap before and after !
-disp(['====================='])
-disp('Compute time for roms file')
-disp(['====================='])
+      time(itolap_ncep+1:tlen0+itolap_ncep)=NCEP_time;   
+      disp(['====================='])
+      disp('Compute time for roms file')
+      disp(['====================='])
       for aa=1:itolap_ncep
         time(aa)=time(itolap_ncep+1)-(itolap_ncep+1-aa)*dt;
       end
@@ -199,10 +193,10 @@ disp(['====================='])
 	time(tlen0+itolap_ncep+aa)=time(tlen0+itolap_ncep)+aa*dt;
       end
 
-disp(['====================='])
-disp('Create the frc/blk netcdf file')
-disp(['====================='])
-% Create the ROMS forcing files
+      disp(['====================='])
+      disp('Create the frc/blk netcdf file')
+      disp(['====================='])
+      % Create the ROMS forcing files
       blkname=[blk_prefix,'Y',num2str(Y),...
                'M',num2str(M),nc_suffix];
       frcname=[frc_prefix,'Y',num2str(Y),...
@@ -220,14 +214,14 @@ disp(['====================='])
                        0,0,0,...
                        0,0,0,0,0,0)
       end
-%
-% Add the tides (needs to be tested for this version of make_NCEP)
-%
+      %
+      % Add the tides (needs to be tested for this version of make_NCEP)
+      %
       if add_tides==1
         add_tidal_data(tidename,grdname,frcname,Y,M)
       end
-%
-% Open the ROMS forcing files
+      %
+      % Open the ROMS forcing files
       if makefrc==1
         nc_frc=netcdf(frcname,'write');
       else
@@ -238,8 +232,8 @@ disp(['====================='])
       else
         nc_blk=[];
       end
-%
-% Check if there are NCEP files for the previous Month
+      %
+      % Check if there are NCEP files for the previous Month
       Mm=M-1;
       Ym=Y;
       if Mm==0
@@ -248,20 +242,20 @@ disp(['====================='])
       end
       
       if Get_My_Data~=1
-       fname = [NCEP_dir,'tmp2m_Y',num2str(Ym),'M',num2str(Mm),'.nc'];
-       nc=netcdf([NCEP_dir,'tmp2m_Y',num2str(Ym),'M',num2str(Mm),'.nc']);
-       
+	fname = [NCEP_dir,'tmp2m_Y',num2str(Ym),'M',num2str(Mm),'.nc'];
+	nc=netcdf([NCEP_dir,'tmp2m_Y',num2str(Ym),'M',num2str(Mm),'.nc']);
+	
       elseif Get_My_Data==1
-       fname = [NCEP_dir,'prate_Y',num2str(Ym),'M',num2str(Mm),'.nc'];
-       nc=netcdf([NCEP_dir,'prate_Y',num2str(Ym),'M',num2str(Mm),'.nc']);
+	fname = [NCEP_dir,'prate_Y',num2str(Ym),'M',num2str(Mm),'.nc'];
+	nc=netcdf([NCEP_dir,'prate_Y',num2str(Ym),'M',num2str(Mm),'.nc']);
       end
-%
-disp(' ')
-disp('======================================================')
-disp('Perform interpolations for the previous month')      
-disp('======================================================')
-disp(' ')
-if exist(fname)==0
+      %
+      disp(' ')
+      disp('======================================================')
+      disp('Perform interpolations for the previous month')      
+      disp('======================================================')
+      disp(' ')
+      if exist(fname)==0
         disp(['No data for the previous month: using current month'])
         tndx=1;
         Mm=M;
@@ -269,81 +263,54 @@ if exist(fname)==0
       else
         nc=netcdf(fname);
         tndx=length(nc('time'));
-%        disp('tndx...')
-%	tndx
-       if makefrc==1
+	if makefrc==1
           for aa=1:itolap_ncep
 	    nc_frc{'sms_time'}(aa)=nc{'time'}(tndx-(itolap_ncep-aa));
 	  end
-       end
- %
+	end
+	%
         if makeblk==1
           for aa=1:itolap_ncep
 	    nc_blk{'bulk_time'}(aa)=nc{'time'}(tndx-(itolap_ncep-aa));
 	  end
         end
-       close(nc)
+	close(nc)
       end
-%
-% Perform interpolations for the previous month or repeat the first one
-%
-% $$$ if Get_My_Data~=1
-% $$$   for aa=1:itolap_ncep
-% $$$     aa0=itolap_ncep-aa; 
-% $$$     interp_NCEP(NCEP_dir,Ym,Mm,Roa,interp_method,lon1,lat1,...
-% $$$                   mask,tndx-aa0,nc_frc,nc_blk,lon,lat,angle,aa)
-% $$$    end
-% $$$ elseif Get_My_Data==1
-% $$$    for aa=1:itolap_ncep
-% $$$      aa0=itolap_ncep-aa; 
-% $$$      interp_NCEP_Mydata(NCEP_dir,Ym,Mm,Roa,interp_method,lon1,lat1,...
-% $$$                   mask,tndx-aa0,nc_frc,nc_blk,lon,lat,angle,aa)
-% $$$    end  
+      %
+      % Perform interpolations for the previous month or repeat the first one
+      %
+      for aa=1:itolap_ncep
+	aa0=itolap_ncep-aa; 
+	interp_NCEP(NCEP_dir,Ym,Mm,Roa,interp_method,lon1,lat1,...
+		    mask,tndx-aa0,nc_frc,nc_blk,lon,lat,angle,aa,Get_My_Data)
+      end  
+      %######################################################################      
+      %   
+      disp(' ')
+      disp('======================================================')
+      disp('Perform interpolations for the current month')
+      disp('======================================================')
+      disp(' ')
 
-   for aa=1:itolap_ncep
-     aa0=itolap_ncep-aa; 
-     interp_NCEP(NCEP_dir,Ym,Mm,Roa,interp_method,lon1,lat1,...
-                  mask,tndx-aa0,nc_frc,nc_blk,lon,lat,angle,aa,Get_My_Data)
-   end
-   
-   
-%######################################################################      
-%   
-disp(' ')
-disp('======================================================')
-disp('Perform interpolations for the current month')
-disp('======================================================')
-disp(' ')
-
-% Perform interpolations for the current month
-%
+      % Perform interpolations for the current month
+      %
 
       for tndx=1:tlen0
         if mod(tndx,20)==0
           disp(['Step: ',num2str(tndx),' of ',num2str(tlen0)])
         end
-% $$$ 	if Get_My_Data~=1
-% $$$              interp_NCEP(NCEP_dir,Y,M,Roa,interp_method,lon1,lat1,...
-% $$$                    mask,tndx,nc_frc,nc_blk,lon,lat,angle,tndx+itolap_ncep)
-% $$$        elseif Get_My_Data==1
-% $$$              interp_NCEP_Mydata(NCEP_dir,Y,M,Roa,interp_method,lon1,lat1,...
-% $$$                    mask,tndx,nc_frc,nc_blk,lon,lat,angle,tndx+itolap_ncep)
-% $$$        end 
-	
-              interp_NCEP(NCEP_dir,Y,M,Roa,interp_method,lon1,lat1,...
-                   mask,tndx,nc_frc,nc_blk,lon,lat,angle,tndx+itolap_ncep,Get_My_Data)	
-	
-	
+	interp_NCEP(NCEP_dir,Y,M,Roa,interp_method,lon1,lat1,...
+		    mask,tndx,nc_frc,nc_blk,lon,lat,angle,tndx+itolap_ncep,Get_My_Data)	
       end
 
-disp(' ')      
-disp('======================================================')
-disp('Perform interpolations for next month')    
-disp('======================================================')
-disp(' ')
-%######################################################################
-% Read NCEP file for the next month
-%
+      disp(' ')      
+      disp('======================================================')
+      disp('Perform interpolations for next month')    
+      disp('======================================================')
+      disp(' ')
+      %######################################################################
+      % Read NCEP file for the next month
+      %
       Mp=M+1;
       Yp=Y;
       if Mp==13
@@ -352,25 +319,25 @@ disp(' ')
       end
       
       if Get_My_Data~=1
-         fname=[NCEP_dir,'tmp2m_Y',num2str(Yp),'M',num2str(Mp),'.nc'];
+	fname=[NCEP_dir,'tmp2m_Y',num2str(Yp),'M',num2str(Mp),'.nc'];
       elseif Get_My_Data==1
-         fname=[NCEP_dir,'prate_Y',num2str(Yp),'M',num2str(Mp),'.nc'];
+	fname=[NCEP_dir,'prate_Y',num2str(Yp),'M',num2str(Mp),'.nc'];
       end
-   
+      
       if exist(fname)==0
         disp(['No data for the next month: using current month'])
         tndx=tlen0;
         Mp=M;
         Yp=Y;
       else
-         nc=netcdf(fname);
-          if makefrc==1
-	     disp('sms_time')
-             for tndx=tlen0+itolap_ncep:tlen;
-                nc_frc{'sms_time'}(tndx)=nc{'time'}(tndx-tlen0-(itolap_ncep-1));
-             end;
-	  end
-%
+	nc=netcdf(fname);
+	if makefrc==1
+	  disp('sms_time')
+	  for tndx=tlen0+itolap_ncep:tlen;
+	    nc_frc{'sms_time'}(tndx)=nc{'time'}(tndx-tlen0-(itolap_ncep-1));
+	  end;
+	end
+	%
         if makeblk==1
 	  disp('bulk_time')
           for tndx=tlen0+itolap_ncep:tlen;
@@ -379,9 +346,9 @@ disp(' ')
         end
         close(nc)
       end
-%
-% Perform the interpolations for the next month
-%
+      %
+      % Perform the interpolations for the next month
+      %
       disp('Last steps')
       for tndx=tlen0+itolap_ncep+1:tlen;
         disp(['tndx= ',num2str(tndx)])
@@ -394,34 +361,21 @@ disp(' ')
           tin=tndx-tlen0-itolap_ncep;
 	  disp(['tin=',num2str(tin)])
         end
-        
-% $$$         if Get_My_Data~=1
-% $$$         interp_NCEP(NCEP_dir,Yp,Mp,Roa,interp_method,lon1,lat1,...
-% $$$                   mask,tin,nc_frc,nc_blk,lon,lat,angle,tout)   
-% $$$         elseif Get_My_Data==1
-% $$$          interp_NCEP_Mydata(NCEP_dir,Yp,Mp,Roa,interp_method,lon1,lat1,...
-% $$$                   mask,tin,nc_frc,nc_blk,lon,lat,angle,tout)   
-% $$$         end
-	
         interp_NCEP(NCEP_dir,Yp,Mp,Roa,interp_method,lon1,lat1,...
-                  mask,tin,nc_frc,nc_blk,lon,lat,angle,tout,Get_My_Data)           
+		    mask,tin,nc_frc,nc_blk,lon,lat,angle,tout,Get_My_Data)           
       end;
-
-%
-% Close the ROMS forcing files
-%
+      %
+      % Close the ROMS forcing files
+      %
       if ~isempty(nc_frc)
         close(nc_frc);
       end
       if ~isempty(nc_blk)
         close(nc_blk);
       end
-%
     end
   end
-%
 end
-
 %
 % Spin-up: (reproduce the first year 'SPIN_Long' times)
 % just copy the files for the first year and change the time
@@ -437,61 +391,54 @@ if SPIN_Long>0
       M=1; 
       Y=Y+1;
     end
-%
-% Forcing files
-%
+    %
+    % Forcing files
+    %
     if makefrc==1
-%
-% Copy the file
-%
+      %
+      % Copy the file
+      %
       frcname=[frc_prefix,'Y',num2str(Ymin),'M',num2str(M),nc_suffix];
       frcname2=[frc_prefix,'Y',num2str(Y),'M',num2str(M),nc_suffix];
       disp(['Create ',frcname2]) 
       eval(['!cp ',frcname,' ',frcname2]) 
-%
-% Change the time
-%
+      %
+      % Change the time
+      %
       nc=netcdf(frcname2,'write');
       time=nc{'sms_time'}(:)+datenum(Yorig,1,1);
       [y,m,d,h,mi,s]=datevec(time);
       dy=Ymin-Y;
       y=y-dy;
       time=datenum(y,m,d,h,mi,s)-datenum(Yorig,1,1);
-%      disp(datestr(time+datenum(Yorig,1,1)))
       nc{'sms_time'}(:)=time;
       close(nc)
     end
-%
-% Bulk files
-%
+    %
+    % Bulk files
+    %
     if makeblk==1
-%
-% Copy the file
-%
+      %
+      % Copy the file
+      %
       blkname=[blk_prefix,'Y',num2str(Ymin),'M',num2str(M),nc_suffix];
       blkname2=[blk_prefix,'Y',num2str(Y),'M',num2str(M),nc_suffix];
       disp(['Create ',blkname2]) 
       eval(['!cp ',blkname,' ',blkname2]) 
-%
-% Change the time
-%
+      %
+      % Change the time
+      %
       nc=netcdf(blkname2,'write');
       time=nc{'bulk_time'}(:)+datenum(Yorig,1,1);
       [y,m,d,h,mi,s]=datevec(time);
       dy=Ymin-Y;
       y=y-dy;
       time=datenum(y,m,d,h,mi,s)-datenum(Yorig,1,1);
-%      disp(datestr(time+datenum(Yorig,1,1)))
       nc{'bulk_time'}(:)=time;
       close(nc)
     end
   end
 end
-
-      figure
-      plot(time,'--+m')
-
-%pause
 %---------------------------------------------------------------
 % Make a few plots
 %---------------------------------------------------------------
@@ -522,7 +469,4 @@ if makeplot==1
     figure
     test_forcing(frcname,grdname,'svstr',slides,3,coastfileplot)  
   end
-  
-  
 end
-
