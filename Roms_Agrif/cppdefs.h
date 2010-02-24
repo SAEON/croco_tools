@@ -35,7 +35,7 @@
 */
                       /* Configuration Name */
 # define BENGUELA_LR
-# define ETALON_CHECK
+# undef ETALON_CHECK
                       /* Parallelization */
 # undef OPENMP
 # undef MPI

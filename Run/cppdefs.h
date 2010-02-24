@@ -82,7 +82,6 @@
                       /* Lateral Momentum Mixing */
 # define UV_VIS2
 # define MIX_GP_UV
-# undef UV_SPLIT_UP3
 # undef VIS_SMAGO
                       /* Lateral Tracer Mixing */
 # define MIX_GP_TS
