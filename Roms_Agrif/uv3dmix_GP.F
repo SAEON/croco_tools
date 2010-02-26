@@ -295,7 +295,7 @@
         if (k.gt.0) then
           do j=JstrV-1,Jend
             do i=IstrU-1,Iend
-# ifdef SMAGO_UV
+# ifdef VIS_SMAGO
               cff=(visc2_r(i,j)+visc3d_r(i,j,k))*Hz(i,j,k)*(
 # else
               cff=visc2_r(i,j)*Hz(i,j,k)*(
@@ -317,7 +317,7 @@
           enddo
           do j=Jstr,Jend+1
             do i=Istr,Iend+1
-# ifdef SMAGO_UV
+# ifdef VIS_SMAGO
               cff=0.25*(visc2_p(i,j)+visc3d_p(i,j,k))
 # else
               cff=0.25*visc2_p(i,j)
@@ -396,7 +396,7 @@
      &                         +cff4*(cff8*dnVdz-dnVdx(i,j+1,k1))
      &                                                          )
  
-# ifdef SMAGO_UV
+# ifdef VIS_SMAGO
                 UFs(i,j,k2)=0.25*(visc2_r(i-1,j)+visc2_r(i,j)+
      &                      visc3d_r(i-1,j,k)+visc3d_r(i,j,k))*cff
 # else
@@ -456,7 +456,7 @@
      &                         +cff4*(cff8*dnUdz-dnUdx(i,j  ,k1))
      &                                                          )
  
-# ifdef SMAGO_UV
+# ifdef VIS_SMAGO
                 VFs(i,j,k2)=0.25*(visc2_r(i,j-1)+visc2_r(i,j)+
      &                      visc3d_r(i,j-1,k)+visc3d_r(i,j,k))*cff
 # else
