@@ -773,7 +773,7 @@ c        close(testunit)
      &  , wrthis(indxVisc),  'write Visc3d', 'Horizontal viscosity.'
 #  endif
 #  ifdef DIF_COEF_3D
-     &  , wrthis(indxDiff),  'write Visc3d', 'Horizontal viscosity.'
+     &  , wrthis(indxDiff),  'write Visc3d', 'Horizontal diffusivity.'
 #  endif
 
 #endif /* SOLVE3D */
@@ -952,7 +952,7 @@ c        close(testunit)
      &  , wrtavg(indxVisc),'write Visc3d', 'Horizontal viscosity'
 #  endif
 #  ifdef DIF_COEF_3D
-     &  , wrtavg(indxDiff),'write Visc3d', 'Horizontal viscosity'
+     &  , wrtavg(indxDiff),'write Visc3d', 'Horizontal diffusivity'
 #  endif
 # endif /* SOLVE3D */
 #endif /* AVERAGES */

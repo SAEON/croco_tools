@@ -100,9 +100,6 @@ Select MOMENTUM VERTICAL advection scheme:
 #  define CLIMAT_TS_MIXH
 # endif
 
-!#undef CLIMAT_TS_MIXH
-!#undef CLIMAT_UV_MIXH
-
 /*
     Select model dynamics for TRACER vertical advection
     (The default is 4th-order centered)
@@ -123,20 +120,6 @@ Select MOMENTUM VERTICAL advection scheme:
 #if defined SPONGE && !defined UV_VIS2
 # define SPONGE_VIS2
 #endif
-
-/*
-    Default laplacian type for mixing in sponge layer (if SPONGE)
-*/
-# if defined SPONGE && !defined TS_DIF2 && !defined TS_DIF4\
-      && !defined SPONGE_DIF2
-#  define TS_DIF2
-#  define MIX_S_TS
-# endif
-# if defined SPONGE && !defined UV_VIS2 && !defined UV_VIS4\
-      && !defined SPONGE_VIS2
-#  define UV_VIS2
-#  define MIX_S_UV
-# endif
 
 /*
     Constant tracer option
