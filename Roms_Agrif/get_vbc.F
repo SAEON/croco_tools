@@ -438,15 +438,26 @@
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
       call exchange_u2d_tile (Istr,Iend,Jstr,Jend,bustr(START_2D_ARRAY))
       call exchange_v2d_tile (Istr,Iend,Jstr,Jend,bvstr(START_2D_ARRAY))
-#   if defined BULK_WVEC
-      call exchange_u2d_tile (Istr,Iend,Jstr,Jend,sustr(START_2D_ARRAY))
-      call exchange_v2d_tile (Istr,Iend,Jstr,Jend,svstr(START_2D_ARRAY))
-#   endif
 #  endif
 # endif /* SOLVE3D */
 #endif /* BBL */
+
 #if defined BBL && defined AGRIF
       ENDIF
+#endif
+
+#ifdef SOLVE3D
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      call exchange_u2d_tile (Istr,Iend,Jstr,Jend,sustr(START_2D_ARRAY))
+      call exchange_v2d_tile (Istr,Iend,Jstr,Jend,svstr(START_2D_ARRAY))
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                                      stflx(START_2D_ARRAY,itemp))
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,srflx(START_2D_ARRAY))
+#  ifdef SALINITY
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                                      stflx(START_2D_ARRAY,isalt))
+#  endif
+# endif
 #endif
 
 #ifdef ANA_PSOURCE

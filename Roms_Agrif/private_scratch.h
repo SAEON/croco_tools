@@ -6,7 +6,7 @@
 #else
       real A2d(N2d,NSA,0:NPP-1), A3d(N3d,4,0:NPP-1)
 #endif
-#  ifdef SEDIMENT
+#  if defined SEDIMENT || defined LMD_MIXING
       integer B2d(N2d,0:NPP-1)
 #  endif
       common /private_scratch/ A2d,A3d

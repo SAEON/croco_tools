@@ -4,9 +4,10 @@
 #include "cppdefs.h"
 #ifdef LMD_SKPP
       subroutine lmd_skpp_tile (Istr,Iend,Jstr,Jend, Kv,Kt,Ks,
-     &                               sl_dpth, Bo,Bosol, Bflux,
+     &                                my_hbl, Bo,Bosol, Bflux,
      &                     Gm1,dGm1dS, Gt1,dGt1dS, Gs1,dGs1dS,
-     &                                    wrk1,wrk2,wrk3, Rib)
+     &                                    wrk1,wrk2,wrk3, Rib,
+     &                                                 my_kbl)
       implicit none
 # include "param.h"
 # include "grid.h"
@@ -15,11 +16,13 @@
 # include "mixing.h"
 # include "scalars.h"
       integer Istr,Iend,Jstr,Jend, i,j,k, ka,ku,ksave
+      integer imin,imax,jmin,jmax
+      integer my_kbl(PRIVATE_2D_SCRATCH_ARRAY)
       real    Kv(PRIVATE_2D_SCRATCH_ARRAY,0:N),
      &        Kt(PRIVATE_2D_SCRATCH_ARRAY,0:N),
      &        Ks(PRIVATE_2D_SCRATCH_ARRAY,0:N),
 
-     &       sl_dpth(PRIVATE_2D_SCRATCH_ARRAY),
+     &        my_hbl(PRIVATE_2D_SCRATCH_ARRAY),
      &            Bo(PRIVATE_2D_SCRATCH_ARRAY),
      &         Bosol(PRIVATE_2D_SCRATCH_ARRAY),
      &         Bflux(PRIVATE_2D_SCRATCH_ARRAY),
@@ -37,7 +40,7 @@
      &          Rib(PRIVATE_2D_SCRATCH_ARRAY,2)
 
       real Vtc,    hekman,  hmonob, dVsq,   Vtsq,
-     &             sl_dnew, sig,    Kv_bl,  Kt_bl,  Ks_bl,
+     &     sl_dpth,sl_dnew, sig,    Kv_bl,  Kt_bl,  Ks_bl,
      &     cff,    lmd_a1, dKv_bl, dKt_bl, dKs_bl,
      &     cff_up, lmd_a2, Gm,     Gt,     Gs,
      &     cff_dn, Ritop,   lmd_a3
@@ -82,25 +85,50 @@
      &                                                           )
 
 # undef LMD_SKPP_MONOB
+# define HBL_SMOOTH
 
+# ifdef EW_PERIODIC
+#  define I_EXT_RANGE Istr-1,Iend+1
+# else
+      if (WESTERN_EDGE) then
+        imin=Istr
+      else
+        imin=Istr-1
+      endif
+      if (EASTERN_EDGE) then
+        imax=Iend
+      else
+        imax=Iend+1
+      endif
+#  define I_EXT_RANGE imin,imax
+# endif
+# ifdef NS_PERIODIC
+#  define J_EXT_RANGE Jstr-1,Jend+1
+# else
+      if (SOUTHERN_EDGE) then
+        jmin=Jstr
+      else
+        jmin=Jstr-1
+      endif
+      if (NORTHERN_EDGE) then
+        jmax=Jend
+      else
+        jmax=Jend+1
+      endif
+#  define J_EXT_RANGE jmin,jmax
+# endif
+!
+!  Initialize relevant parameters.
+!
       lmd_Cg=lmd_Cstar*vonKar*(lmd_cs*vonKar*lmd_epsilon)**(1./3.)
       Vtc=lmd_Cv*sqrt(-lmd_betaT)/( sqrt(lmd_cs*lmd_epsilon)
      &                                        *Ric*vonKar*vonKar )
 !
-!  Get approximation of surface layer depth using "lmd_eps" and
-!  boundary layer depth from previous time step.
-!
-       do j=Jstr,Jend
-          do i=Istr,Iend
-            sl_dpth(i,j)=lmd_epsilon*hbl(i,j)
-          enddo
-       enddo
-!
 !  Compute turbulent friction velocity [m/s] "ustar" from wind stress
 !  at RHO-points.
 !
-      do j=Jstr,Jend
-        do i=Istr,Iend
+      do j=J_EXT_RANGE
+        do i=I_EXT_RANGE
           ustar(i,j)=sqrt(sqrt( (0.5*(sustr(i,j)+sustr(i+1,j)))**2
      &                         +(0.5*(svstr(i,j)+svstr(i,j+1)))**2))
         enddo
@@ -118,8 +146,8 @@
 !  contribution is included in  surface radiative buoyancy
 !  forcing "Bosol".
 !
-      do j=Jstr,Jend
-        do i=Istr,Iend
+        do j=J_EXT_RANGE
+          do i=I_EXT_RANGE
           Bo(i,j)=g*( alpha(i,j)*(stflx(i,j,itemp)-srflx(i,j))
 # ifdef SALINITY
      &                              -beta(i,j)*stflx(i,j,isalt)
@@ -144,10 +172,10 @@
 !  Intialize boundary layer depth "hbl" and index "kbl" of first grid
 !  level below "hbl" to maximum (bottomed out) values.
 !
-      do j=Jstr,Jend
-        do i=Istr,Iend
-          hbl(i,j)=z_w(i,j,N)-z_r(i,j,1)
-          kbl(i,j)=1
+        do j=J_EXT_RANGE
+          do i=I_EXT_RANGE
+          my_hbl(i,j)=z_w(i,j,N)-z_r(i,j,1)
+          my_kbl(i,j)=1
           Rib(i,j,ka)=0.
         enddo
       enddo
@@ -164,14 +192,14 @@
 !
 # define zgrid wrk1
 # define swdk wrk2
-        do j=Jstr,Jend
-          do i=Istr,Iend
+        do j=J_EXT_RANGE
+          do i=I_EXT_RANGE
             zgrid(i,j)=z_r(i,j,k)-z_w(i,j,N)
           enddo
         enddo
-        call lmd_swfrac_tile (Istr,Iend,Jstr,Jend, 1.,zgrid,swdk)
-        do j=Jstr,Jend
-          do i=Istr,Iend
+        call lmd_swfrac_ER_tile (Istr,Iend,Jstr,Jend, 1.,zgrid,swdk)
+        do j=J_EXT_RANGE
+          do i=I_EXT_RANGE
             Bflux(i,j)=Bo(i,j)+Bosol(i,j)*(1.-swdk(i,j))
           enddo
         enddo       !--> discard zgrid,swdk
@@ -184,13 +212,14 @@
 # define sigma wrk1
 # define wm wrk3
 # define ws wrk2
-        do j=Jstr,Jend
-          do i=Istr,Iend
-            sigma(i,j)=min(z_w(i,j,N)-z_r(i,j,k),sl_dpth(i,j))
+        do j=J_EXT_RANGE
+          do i=I_EXT_RANGE
+            sl_dpth=1.
+            sigma(i,j)=min(z_w(i,j,N)-z_r(i,j,k),sl_dpth)
           enddo
         enddo       !--> discard Bflux (will be recomputed later)
 
-        call lmd_wscale_tile (Istr,Iend,Jstr,Jend, Bflux,
+        call lmd_wscale_ER_tile (Istr,Iend,Jstr,Jend, Bflux,
      &                                       sigma,wm,ws)
 # undef sigma
 # undef wm
@@ -214,8 +243,8 @@
 !  Then compute Vtsq
 !
         cff=g/rho0
-        do j=Jstr,Jend
-          do i=Istr,Iend
+        do j=J_EXT_RANGE
+          do i=I_EXT_RANGE
             Ritop=-cff*(rho1(i,j,N)-rho1(i,j,k))
      &                           *(z_r(i,j,N)-z_r(i,j,k))
 
@@ -225,7 +254,7 @@
      &                   v(i,j+1,N,tind)-v(i,j+1,k,tind))**2)
 
             Vtsq=Vtc*(z_r(i,j,N)-z_r(i,j,k))*ws(i,j)
-     &          *sqrt(max(0.,0.5*(bvf(i,j,k)+bvf(i,j,k-1))))
+     &           *sqrt(max(0.,0.5*(bvf(i,j,k)+bvf(i,j,k-1))))
 
             Rib(i,j,ku)=Ritop/(dVsq+Vtsq+eps)
           enddo
@@ -234,13 +263,13 @@
 !
 !  Linearly interpolate to find "hbl" where Rib=Ric.
 !
-        do j=Jstr,Jend
-          do i=Istr,Iend
-            if (kbl(i,j).eq.1 .and. Rib(i,j,ku).gt.Ric) then
+        do j=J_EXT_RANGE
+          do i=I_EXT_RANGE
+            if (my_kbl(i,j).eq.1 .and. Rib(i,j,ku).gt.Ric) then
               zbl=z_r(i,j,k+1)-(z_r(i,j,k+1)-z_r(i,j,k))*
      &              (Ric-Rib(i,j,ka))/(Rib(i,j,ku)-Rib(i,j,ka))
-              hbl(i,j)=z_w(i,j,N)-zbl
-              kbl(i,j)=k
+              my_hbl(i,j)=z_w(i,j,N)-zbl
+              my_kbl(i,j)=k
             endif
           enddo
         enddo
@@ -253,14 +282,14 @@
 !
 # define zgrid wrk1
 # define swdk_hbl wrk2
-      do j=Jstr,Jend
-        do i=Istr,Iend
-          zgrid(i,j)=-hbl(i,j)
+      do j=J_EXT_RANGE
+        do i=I_EXT_RANGE
+          zgrid(i,j)=-my_hbl(i,j)
         enddo
       enddo
-      call lmd_swfrac_tile (Istr,Iend,Jstr,Jend, 1.,zgrid,swdk_hbl)
-      do j=Jstr,Jend
-        do i=Istr,Iend
+      call lmd_swfrac_ER_tile (Istr,Iend,Jstr,Jend, 1.,zgrid,swdk_hbl)
+      do j=J_EXT_RANGE
+        do i=I_EXT_RANGE
           Bflux(i,j)=Bo(i,j)+Bosol(i,j)*(1.-swdk_hbl(i,j))
         enddo
       enddo      !--> discard zgrid, swdk_hbl
@@ -270,26 +299,92 @@
 !  Correct "hbl" with physically limiting cases (Ekman depth
 !  and Monin-Obukhov depth).
 !
-      do j=Jstr,Jend
-        do i=Istr,Iend
+      do j=J_EXT_RANGE
+        do i=I_EXT_RANGE
           if (Bflux(i,j).gt.0.) then
             hekman=lmd_cekman*ustar(i,j)/max(abs(f(i,j)),eps)
-            hbl(i,j)=min(hbl(i,j),hekman)
+            my_hbl(i,j)=min(my_hbl(i,j),hekman)
 # ifdef LMD_SKPP_MONOB
             hmonob=lmd_cmonob*ustar(i,j)*ustar(i,j)*ustar(i,j)
      &                                    /(vonKar*Bflux(i,j)) 
-            hbl(i,j)=min(hbl(i,j),hmonob)
+            my_hbl(i,j)=min(my_hbl(i,j),hmonob)
 # endif
           endif
 # ifdef MASKING
-          hbl(i,j)=hbl(i,j)*rmask(i,j)
+          my_hbl(i,j)=my_hbl(i,j)*rmask(i,j)
 # endif
-          kbl(i,j)=1
+          !my_kbl(i,j)=1
         enddo
       enddo
+
+#  ifdef HBL_SMOOTH
+!
+!    Smooth HBL horizontally
+!
+#   ifndef EW_PERIODIC
+      if (WESTERN_EDGE) then
+        do j=J_EXT_RANGE
+          my_hbl(Istr-1,j)=my_hbl(Istr,j)
+        enddo
+      endif
+      if (EASTERN_EDGE) then
+        do j=J_EXT_RANGE
+          my_hbl(Iend+1,j)=my_hbl(Iend,j)
+        enddo
+      endif
+#   endif
+#   ifndef NS_PERIODIC
+      if (SOUTHERN_EDGE) then
+        do i=I_EXT_RANGE
+          my_hbl(i,Jstr-1)=my_hbl(i,Jstr)
+        enddo
+      endif
+      if (NORTHERN_EDGE) then
+        do i=I_EXT_RANGE
+          my_hbl(i,Jend+1)=my_hbl(i,Jend)
+        enddo
+      endif
+#    ifndef EW_PERIODIC
+      if (WESTERN_EDGE.and.SOUTHERN_EDGE) then
+        my_hbl(Istr-1,Jstr-1)=my_hbl(Istr,Jstr)
+      endif
+      if (WESTERN_EDGE.and.NORTHERN_EDGE) then
+        my_hbl(Istr-1,Jend+1)=my_hbl(Istr,Jend)
+      endif
+      if (EASTERN_EDGE.and.SOUTHERN_EDGE) then
+        my_hbl(Iend+1,Jstr-1)=my_hbl(Iend,Jstr)
+      endif
+      if (EASTERN_EDGE.and.NORTHERN_EDGE) then
+        my_hbl(Iend+1,Jend+1)=my_hbl(Iend,Jend)
+      endif
+#    endif
+#   endif
+#   undef I_EXT_RANGE
+#   undef J_EXT_RANGE
+      do j=Jstr-1,Jend
+        do i=Istr-1,Iend
+          wrk1(i,j)=0.25*(my_hbl(i,j)  +my_hbl(i+1,j)
+     &                   +my_hbl(i,j+1)+my_hbl(i+1,j+1))
+        enddo
+      enddo
+      do j=Jstr,Jend
+        do i=Istr,Iend
+          hbl(i,j)=0.25*(wrk1(i,j)  +wrk1(i-1,j)
+     &                  +wrk1(i,j-1)+wrk1(i-1,j-1))
+# ifdef MASKING
+          hbl(i,j)=hbl(i,j)*rmask(i,j)
+# endif
+        enddo
+      enddo
+#  endif /* HBL_SMOOTH */
 !
 !  Find new boundary layer index "kbl".
 !
+      do j=Jstr,Jend
+        do i=Istr,Iend
+            kbl(i,j)=1
+        enddo
+      enddo
       do k=1,N-1
         do j=Jstr,Jend
           do i=Istr,Iend
@@ -350,7 +445,7 @@
           cff=1./(z_w(i,j,k)-z_w(i,j,k-1))
           cff_up=cff*(zbl-z_w(i,j,k-1))
           cff_dn=cff*(z_w(i,j,k)-zbl)
-           
+
           if(k.eq.1) then
 !
 !  If the surface boundary layer extends to the bottom, assume that
@@ -359,19 +454,19 @@
             kbl(i,j)=0
             ustarb=SQRT(SQRT((0.5*(bustr(i,j)+bustr(i+1,j)))**2+
      &                       (0.5*(bvstr(i,j)+bvstr(i,j+1)))**2))
-                 
+
             dKv_bl=vonKar*ustarb
-            Kv_bl=dKv_bl*(zbl-z_w(i,j,0))              
-            dKt_bl=vonKar*ustarb                
-            Kt_bl=dKt_bl*(zbl-z_w(i,j,0))              
+            Kv_bl=dKv_bl*(zbl-z_w(i,j,0))
+            dKt_bl=vonKar*ustarb
+            Kt_bl=dKt_bl*(zbl-z_w(i,j,0))
 # ifdef SALINITY
-            dKs_bl=vonKar*ustarb                
-            Ks_bl=dKs_bl*(zbl-z_w(i,j,0))              
+            dKs_bl=vonKar*ustarb
+            Ks_bl=dKs_bl*(zbl-z_w(i,j,0))
 # endif /* SALINITY */
           else
             Kv_bl=cff_up*Kv(i,j,k)+cff_dn*Kv(i,j,k-1)
             dKv_bl=cff*(Kv(i,j,k)-Kv(i,j,k-1))
-           
+
             Kt_bl=cff_up*Kt(i,j,k)+cff_dn*Kt(i,j,k-1)
             dKt_bl=cff*(Kt(i,j,k)-Kt(i,j,k-1))
 # ifdef SALINITY
@@ -379,10 +474,10 @@
             dKs_bl=cff*(Ks(i,j,k)-Ks(i,j,k-1))
 # endif /* SALINITY */
           endif
-          
+
           Gm1(i,j)=Kv_bl/(hbl(i,j)*wm(i,j)+eps)
           dGm1dS(i,j)=min(0.,-dKv_bl/(wm(i,j)+eps))
-         
+
           Gt1(i,j)=Kt_bl/(hbl(i,j)*ws(i,j)+eps)
           dGt1dS(i,j)=min(0.,-dKt_bl/(ws(i,j)+eps))
 

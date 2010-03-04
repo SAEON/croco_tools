@@ -28,6 +28,7 @@
       implicit none
 # include "param.h"
       integer Istr,Iend,Jstr,Jend, i,j
+      integer imin,imax,jmin,jmax
       real    alpha(PRIVATE_2D_SCRATCH_ARRAY),
      &        beta(PRIVATE_2D_SCRATCH_ARRAY)
 # include "grid.h"
@@ -59,8 +60,39 @@
 !  beta(Ts,Tt,0) = d(rho1(Ts,Tt,0))/d(Ts) / den(Ts,Tt,0)
 !---------------------------------------------------------------
 !
-      do j=JstrR,JendR
-        do i=IstrR,IendR
+# ifdef EW_PERIODIC
+#  define I_EXT_RANGE Istr-1,Iend+1
+# else
+      if (WESTERN_EDGE) then
+        imin=Istr
+      else
+        imin=Istr-1
+      endif
+      if (EASTERN_EDGE) then
+        imax=Iend
+      else
+        imax=Iend+1
+      endif
+#  define I_EXT_RANGE imin,imax
+# endif
+# ifdef NS_PERIODIC
+#  define J_EXT_RANGE Jstr-1,Jend+1
+# else
+      if (SOUTHERN_EDGE) then
+        jmin=Jstr
+      else
+        jmin=Jstr-1
+      endif
+      if (NORTHERN_EDGE) then
+        jmax=Jend
+      else
+        jmax=Jend+1
+      endif
+#  define J_EXT_RANGE jmin,jmax
+# endif
+
+      do j=J_EXT_RANGE
+        do i=I_EXT_RANGE
 # ifdef NONLIN_EOS 
           Tt=t(i,j,N,nstp,itemp)
 #  ifdef SALINITY
