@@ -61,7 +61,7 @@ include Makedefs
 \
 	MPI_Setup.F	MessPass2D.F	MessPass3D.F	exchange.F\
 \
-	biology.F	sediment.F	bbl.F\
+	biology.F	o2sato.F                sediment.F	bbl.F\
 \
 	init_floats.F	wrt_floats.F	step_floats.F	rhs_floats.F\
 	interp_rho.F	def_floats.F	init_arrays_floats.F\

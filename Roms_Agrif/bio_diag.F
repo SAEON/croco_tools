@@ -125,18 +125,19 @@ C$OMP CRITICAL (bio_cr_rgn)
               first_time=1
 # ifdef BIO_NChlPZD
               write(stdout,1) 'STEP','time[DAYS]','       NO3',
-     &                   '     PHYTO','       ZOO','    DETRIT'
-#  ifdef OXYGEN
-     &                   ,'        O2'
-#  endif
+     &                   '     PHYTO','       ZOO','    DETRIT',
+     &                   'trd'
+!#  ifdef OXYGEN
+!     &                  ,'        O2'
+!#  endif
 # elif defined BIO_N2ChlPZD2
               write(stdout,1) 'STEP','time[DAYS]','       NO3',
      &                   '     NH4 ','     PHYTO','       ZOO',
-     &                   '    DET1+2','trd'
+     &                   '   DET1+2','trd'
 # elif defined BIO_N2P2Z2D2
               write(stdout,1) 'STEP','time[DAYS]','       NO3',
-     &                   '     NH4 ','    PHY1+2 ','    ZOO1+2 ',
-     &                   '  DET1+2','trd'
+     &                   '     NH4 ','    PHY1+2','    ZOO1+2',
+     &                   '   DET1+2','trd'
 # endif
 
    1          format(1x,A4,3x,A10,1x,A10,4x,A10,4x,A10,4x,A10,3x,A3)
@@ -153,9 +154,10 @@ C$OMP CRITICAL (bio_cr_rgn)
      &                      global_sum(2*iPhy1), 
      &                      global_sum(2*iZoo1),  
      &                      global_sum(2*iDet1) 
-#  ifdef OXYGEN
-     &                    , global_sum(2*iO2)
-#  endif
+!#  ifdef OXYGEN
+!     &                    , global_sum(2*iO2)
+!#  endif
+     &                    , trd
 # elif defined BIO_N2ChlPZD2
             write(stdout,2) iic-1,tdays, 
      &                      global_sum(2*iNO3_),  

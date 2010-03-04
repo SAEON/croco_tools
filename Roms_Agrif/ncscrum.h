@@ -186,7 +186,7 @@
      &                                        +ntrc_diats+ntrc_diauv+1)
       parameter (indxbioVSink=indxbioFlux+NumFluxTerms)
 #  ifdef OXYGEN
-      parameter (indxGasExcFlux=indxbioFlux+NumFluxTerms+NumGasExcTerms)
+      parameter (indxGasExcFlux=indxbioFlux+NumFluxTerms+NumVSinkTerms)
 #  endif
 # endif /* BIOLOGY && DIAGNOSTICS_BIO */
 
@@ -558,9 +558,11 @@
      &      , diaTHmix_avg(NT), diaTVmix_avg(NT)
      &      , diaTForc_avg(NT), diaTrate_avg(NT)
 #   if defined DIAGNOSTICS_TS_MLD
-     &      , diaTXadv_mld_avg(NT), diaTYadv_mld_avg(NT), diaTVadv_mld_avg(NT)
-     &      , diaTHmix_mld_avg(NT), diaTVmix_mld_avg(NT)
-     &      , diaTForc_mld_avg(NT), diaTrate_mld_avg(NT), diaTentr_mld_avg(NT)
+     &      , diaTXadv_mld_avg(NT), diaTYadv_mld_avg(NT), 
+     &      , diaTVadv_mld_avg(NT),
+     &      , diaTHmix_mld_avg(NT), diaTVmix_mld_avg(NT),
+     &      , diaTForc_mld_avg(NT), diaTrate_mld_avg(NT), 
+     &      , diaTentr_mld_avg(NT)
 #   endif
 #  endif
 #  ifdef DIAGNOSTICS_UV

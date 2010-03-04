@@ -422,6 +422,14 @@ CR      write(stdout,'(1x,A,I3)') 'indxDet1 =',indxDet1
       vname(3,indxDet1)='mMol N m-3                               '
       vname(4,indxDet1)='Detritus, scalar, series                 '
 
+#   ifdef OXYGEN
+CR      write(stdout,'(1x,A,I3)') 'indxO2 =',indxO2
+      vname(1,indxO2)='O2                                         '
+      vname(2,indxO2)='Dissolved Oxygen	                          '
+      vname(3,indxO2)='mMol O2 m-3                                '
+      vname(4,indxO2)='Dissolved Oxygen	, scalar, series          '
+#   endif
+
 CR      write(stdout,'(1x,A,I3)') 'ntrc_salt=',ntrc_salt
 CR      write(stdout,'(1x,A,I3)') 'ntrc_pas =',ntrc_pas
 CR      write(stdout,'(1x,A,I3)') 'ntrc_bio =',ntrc_bio
@@ -697,6 +705,25 @@ CR      write(stdout,'(1x,A,I3)') 'indxChC =',indxChC
       vname(2,indxChC)='Chlorophyll to Carbon ratio               '
       vname(3,indxChC)='mgChl/mgC                                 '
       vname(4,indxChC)='theta, scalar, series                     '
+#   ifdef OXYGEN
+CR      write(stdout,'(1x,A,I3)') 'indxU10 =',indxU10
+      vname(1,indxU10)='U10                                       '
+      vname(2,indxU10)='surface wind speed 10 m                   '
+      vname(3,indxU10)='meter second-1                            '
+      vname(4,indxU10)='surface wind speed, scalar, series        '
+
+CR      write(stdout,'(1x,A,I3)') 'indxKvO2 =',indxKvO2
+      vname(1,indxKvO2)='KvO2                                     '
+      vname(2,indxKvO2)='gas transfer coef for O2                 '
+      vname(3,indxKvO2)='meter second-1                           '
+      vname(4,indxKvO2)='gas transfer coef for O2, scalar, series '
+
+CR      write(stdout,'(1x,A,I3)') 'indxO2sat =',indxO2sat
+      vname(1,indxO2sat)='O2sat                                   '
+      vname(2,indxO2sat)='saturation oxygen                       '
+      vname(3,indxO2sat)='mMol O2 m-3                             '
+      vname(4,indxO2sat)='saturation oxygen, scalar, series       '
+#   endif
 #  elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
 CR      write(stdout,'(1x,A,I3)') 'indxChC1 =',indxChC1
       vname(1,indxChC1)='theta1                                    '

@@ -460,7 +460,7 @@ CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
         ierr=nf_fwrite (u10, ncidhis, hisU10, record, r2dvar)
         if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxU10))
-          write(stdout,1) vname(1,indxU10)(1:lvar), record, ierr,
+          write(stdout,1) vname(1,indxU10)(1:lvar), record, ierr
      &                    MYID
           goto 99                                         !--> ERROR
         endif
@@ -469,7 +469,7 @@ CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
         ierr=nf_fwrite (Kv_O2, ncidhis, hisKvO2, record, r2dvar)
         if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxKvO2))
-          write(stdout,1) vname(1,indxKvO2)(1:lvar), record, ierr,
+          write(stdout,1) vname(1,indxKvO2)(1:lvar), record, ierr
      &                    MYID
           goto 99                                         !--> ERROR
         endif
@@ -478,7 +478,7 @@ CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
         ierr=nf_fwrite (O2satu, ncidhis, hisO2sat, record, r2dvar)
         if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxO2sat))
-          write(stdout,1) vname(1,indxO2sat)(1:lvar), record, ierr,
+          write(stdout,1) vname(1,indxO2sat)(1:lvar), record, ierr
      &                    MYID
           goto 99                                         !--> ERROR
         endif
@@ -586,7 +586,7 @@ CR        write(*,*) 'wrt_his:  Lripple' MYID
             goto 99                                         !--> ERROR
           endif
 CR        write(*,*) 'wrt_his:  Zbnot' MYID
-          endif
+        endif
         if (wrthis(indxZbapp)) then
           ierr=nf_fwrite(Zbapp, ncidhis, hisBBL(5), record, r2dvar)
           if (ierr .ne. nf_noerr) then

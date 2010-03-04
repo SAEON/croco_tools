@@ -415,7 +415,7 @@
         ierr=nf_fwrite (u10_avg, ncidavg, avgU10, record, r2dvar)
         if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxU10))
-          write(stdout,1) vname(1,indxU10)(1:lvar), record, ierr,
+          write(stdout,1) vname(1,indxU10)(1:lvar), record, ierr
      &                    MYID
           goto 99                                         !--> ERROR
         endif
@@ -424,7 +424,7 @@
         ierr=nf_fwrite (Kv_O2_avg, ncidavg, avgKvO2, record, r2dvar)
         if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxKvO2))
-          write(stdout,1) vname(1,indxKvO2)(1:lvar), record, ierr,
+          write(stdout,1) vname(1,indxKvO2)(1:lvar), record, ierr
      &                    MYID
           goto 99                                         !--> ERROR
         endif
@@ -433,7 +433,7 @@
         ierr=nf_fwrite (O2satu_avg, ncidavg, avgO2sat, record, r2dvar)
         if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxO2sat))
-          write(stdout,1) vname(1,indxO2sat)(1:lvar), record, ierr,
+          write(stdout,1) vname(1,indxO2sat)(1:lvar), record, ierr
      &                    MYID
           goto 99                                         !--> ERROR
         endif

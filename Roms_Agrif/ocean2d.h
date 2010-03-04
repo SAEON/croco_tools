@@ -18,6 +18,8 @@
       real u10(GLOBAL_2D_ARRAY)
       real Kv_O2(GLOBAL_2D_ARRAY)
       real O2satu(GLOBAL_2D_ARRAY)
-      common /gasexc_o2/ u10, Kv_O2, O2satu
+      common /gasexc_O2_u10/ u10 
+      common /gasexc_O2_Kv_O2/ Kv_O2
+      common /gasexc_O2_O2satu/ O2satu
 #endif /* OXYGEN */
 

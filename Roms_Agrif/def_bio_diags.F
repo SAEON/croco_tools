@@ -253,33 +253,33 @@ c        v3dgrd(4)=timedim
            ierr=nf_put_att_text (ncid, vidVSink(iflux), 'field',
      &          lvar, vname(4,indxbioVSink+iflux-1)(1:lvar))
         end do
-#  ifdef OXYGEN
+#  if (defined BIO_NChlPZD && defined OXYGEN)
 ! gas exchange fluxes
         do iflux = 1, NumGasExcTerms
            lvar=lenstr(vname(1,indxGasExcFlux+iflux-1))
            ierr=nf_def_var (ncid,
      &          vname(1,indxGasExcFlux+iflux-1)(1:lvar),
-     &          NF_FOUT, 3, r2dgrd, vidGasExcFlux(iflux))
+     &          NF_FOUT, 3, r2dgrd, vidGasExc(iflux))
 #  ifndef AVRH
            lvar=lenstr(vname(2,indxGasExcFlux+iflux-1))
-           ierr=nf_put_att_text (ncid, vidGasExcFlux(iflux),
+           ierr=nf_put_att_text (ncid, vidGasExc(iflux),
      &          'long_name',
      &          lvar, vname(2,indxGasExcFlux+iflux-1)(1:lvar))
 #  else
            text='averaged '/ /vname(2,indxGasExcFlux+iflux-1)
            lvar=lenstr(text)
-           ierr=nf_put_att_text (ncid, vidGasExcFlux(iflux),
+           ierr=nf_put_att_text (ncid, vidGasExc(iflux),
      &          'long_name',
      &          lvar, text(1:lvar))
 #  endif
            lvar=lenstr(vname(3,indxGasExcFlux+iflux-1))
-           ierr=nf_put_att_text (ncid, vidGasExcFlux(iflux), 'units',
+           ierr=nf_put_att_text (ncid, vidGasExc(iflux), 'units',
      &          lvar, vname(3,indxGasExcFlux+iflux-1)(1:lvar))
            lvar=lenstr(vname(4,indxGasExcFlux+iflux-1))
-           ierr=nf_put_att_text (ncid, vidGasExcFlux(iflux), 'field',
+           ierr=nf_put_att_text (ncid, vidGasExc(iflux), 'field',
      &          lvar, vname(4,indxGasExcFlux+iflux-1)(1:lvar))
         end do
-#  endif /* OXYGEN */
+#  endif /* BIO_NChlPZD && OXYGEN */
 
 !
 ! Leave definition mode.
@@ -403,23 +403,22 @@ c        v3dgrd(4)=timedim
             goto 99                                       !--> ERROR
           endif                                 
         enddo
-!
-#ifdef OXYGEN
-!
+
+#  if (defined BIO_NChlPZD && defined OXYGEN)
 !  Gas exchange fluxes
 !
         do iflux = 1, NumGasExcTerms
           lvar=lenstr(vname(1,indxGasExcFlux+iflux-1))
           ierr=nf_inq_varid (ncid, 
      &                 vname(1,indxGasExcFlux+iflux-1)(1:lvar),
-     &                 vidGasExcFlux(iflux))
+     &                 vidGasExc(iflux))
           if (ierr .ne. nf_noerr) then
             write(stdout,1) vname(1,indxGasExcFlux+iflux-1)(1:lvar),
      &                                         ncname(1:lstr)
             goto 99                                       !--> ERROR
           endif
         enddo
-#endif
+#endif /*  BIO_NChlPZD && OXYGEN   */ 
 
         write(*,'(6x,2A,i4,1x,A,i4)') 'DEF_BIO_DIAG -- Opened ',
      &                     'existing file  from record =', rec

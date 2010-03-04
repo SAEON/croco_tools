@@ -110,7 +110,6 @@ C      write(*,*) 'Write Time'
             goto 99
          end if
       end do
-  
 #  endif
 ! 2-D terms (it is called Vsink but it means nothing)
 #  if defined key_trc_diaadd
@@ -126,7 +125,6 @@ c$$$     &        bioVSink_avg(30,30,iflux)
             goto 99
          end if
       end do
-  
 #  endif
 
 #else
@@ -153,20 +151,20 @@ c$$$     &        bioVSink_avg(30,30,iflux)
             goto 99
          end if
       end do
-# ifdef OXYGEN
+#  if (defined BIO_NChlPZD && defined OXYGEN)
 ! gas exchange fluxes
       do iflux = 1, NumGasExcTerms
          ierr = nf_fwrite(GasExcFlux_avg(START_2D_ARRAY,iflux),
-     &        ncid_bgc_flux_avg, avgGasExcFlux(iflux),
+     &        nciddiabio_avg, diabioGasExc_avg(iflux),
      &        record, r2dvar)
          if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxGasExcFlux+iflux-1))
             write(stdout,1) vname(1,indxGasExcFlux+iflux-1)(1:lvar),
-     &           record, ierr, MYID
+     &           record, ierr MYID
             goto 99
          end if
       end do
-# endif /* OXYGEN */
+#  endif /* BIO_NChlPZD && OXYGEN */
 
 #endif
   1   format(/1x,'WRT_BIO_DIAG_AVG ERROR while writing variable ''', A,

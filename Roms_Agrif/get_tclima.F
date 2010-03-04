@@ -295,10 +295,10 @@ c              goto 99                                     !--> ERROR
 #   ifdef OXYGEN
           elseif (itrc.eq.iO2) then
            got_tclm(itrc)=.true.
-            ierr=nf_inq_varid (ncidclm, 'oclm_time', tclm_tid(itrc))
+            ierr=nf_inq_varid (ncidclm, 'o2_time', tclm_tid(itrc))
             if (ierr .ne. nf_noerr) then
               got_tclm(itrc)=.false.
-              write(stdout,3) 'oclm_time', clmname(1:lstr)
+              write(stdout,3) 'o2_time', clmname(1:lstr)
 c              goto 99                                     !--> ERROR
             endif
 #   endif

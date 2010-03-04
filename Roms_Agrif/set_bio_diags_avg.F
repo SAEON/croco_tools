@@ -108,16 +108,15 @@
                 end do
               end do
             end do
-
-# ifdef OXYGEN
+# if (defined BIO_NChlPZD && defined OXYGEN)
             do iflux = 1, NumGasExcTerms
               do j = JstrR, JendR
                 do i = IstrR, IendR
-                  GasExcFlux_avg(i,j,iflux) = GasExcFlux(i,j,,iflux)
+                  GasExcFlux_avg(i,j,iflux) = GasExcFlux(i,j,iflux)
                 end do
               end do
             end do
-# endif /* OXYGEN */
+# endif /* BIO_NChlPZD && OXYGEN */
 #endif
 
          elseif (mod(ilc-1,nwrtdiabio_avg).gt.1) then
@@ -168,7 +167,7 @@
                 end do
               end do
             end do
-# ifdef OXYGEN
+# if (defined BIO_NChlPZD && defined OXYGEN)
             do iflux = 1, NumGasExcTerms
               do j = JstrR, JendR
                 do i = IstrR, IendR
@@ -177,7 +176,7 @@
                 end do
               end do
             end do
-# endif /* OXYGEN */
+# endif /* BIO_NChlPZD && OXYGEN */
 #endif
          elseif (mod(ilc-1,nwrtdiabio_avg).eq.0) then
 
@@ -235,7 +234,7 @@
                 end do
               end do
             end do
-# ifdef OXYGEN
+# if (defined BIO_NChlPZD && defined OXYGEN)
             do iflux = 1, NumGasExcTerms
               do j = JstrR, JendR
                 do i = IstrR, IendR
@@ -245,7 +244,7 @@
                 end do
               end do
             end do
-# endif /* OXYGEN */
+# endif /* BIO_NChlPZD && OXYGEN */
 #endif
          endif
       endif

@@ -95,11 +95,6 @@ C$    integer omp_get_thread_num
           DV_avg1(i,j,2)=0. !init
           DU_avg2(i,j)=0. !init
           DV_avg2(i,j)=0. !init
-# ifdef OXYGEN
-          u10_avg(i,j)=init
-          Kv_O2_avg(i,j)=init
-          O2satu_avg(i,j)=init
-# endif
 #endif
         enddo
       enddo
@@ -267,6 +262,15 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
+#  if (defined BIO_NChlPZD && defined OXYGEN)
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+            do iflux=1,NumGasExcTerms
+              GasExcFlux(i,j,iflux)= init
+	    enddo        
+          enddo
+        enddo
+#  endif 
 # endif /*DIAGNOSTICS_BIO*/
 
 # ifdef SEDIMENT
@@ -847,8 +851,18 @@ C$    integer omp_get_thread_num
       do j=JstrR,JendR
         do i=IstrR,IendR
           hel(i,j)=init
+#  if (defined BIO_NChlPZD && defined OXYGEN)
+          u10(i,j)=init
+          Kv_O2(i,j)=init
+          O2satu(i,j)=init
+#  endif
 # ifdef AVERAGES
           hel_avg(i,j)=init
+#  if (defined BIO_NChlPZD && defined OXYGEN)
+          u10_avg(i,j)=init
+          Kv_O2_avg(i,j)=init
+          O2satu_avg(i,j)=init
+#  endif
 # endif
         enddo
       enddo

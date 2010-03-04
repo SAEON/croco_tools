@@ -91,7 +91,9 @@ CDEBUG      write(*,*) 'Write Time'
 !
 !
 ! Flux terms
+
 #ifdef PISCES
+
 ! 3-D terms (it is called Flux but it means nothing) Christophe Menkes
 #  if defined key_trc_dia3d
       do iflux=1,NumFluxTerms
@@ -125,6 +127,7 @@ c$$$     &        bioVSink(30,30,iflux)
 
 #else
 
+! Flux terms
       do iflux = 1, NumFluxTerms
          ierr = nf_fwrite(bioFlux(START_2D_ARRAY,1,iflux),
      &          nciddiabio, diabioFlux(iflux), record, r3dvar)
@@ -146,6 +149,20 @@ c$$$     &        bioVSink(30,30,iflux)
             goto 99
          end if
       end do
+#   if (defined BIO_NChlPZD && defined OXYGEN)
+! gas exchange fluxes
+      do iflux = 1, NumGasExcTerms
+         ierr = nf_fwrite(GasExcFlux(START_2D_ARRAY,iflux),
+     &        nciddiabio, diabioGasExc(iflux), record, r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxGasExcFlux+iflux-1))
+            write(stdout,1) vname(1,indxGasExcFlux+iflux-1)(1:lvar),
+     &           record, ierr MYID
+            goto 99
+         end if
+      end do
+#   endif 
+
 #endif
 
   1   format(/1x,'WRT_BIO_DIAG ERROR while writing variable ''', A,

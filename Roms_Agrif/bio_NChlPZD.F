@@ -85,6 +85,9 @@
      &      , O2(N), tem(N), sal(N), den(N)
      &      , O2satu_loc, Kv_O2_loc
      &      , eos80, u10_loc, Sc
+     
+#define OCMIP_OXYGENSAT
+
 #  ifdef OCMIP_OXYGENSAT
      &       , o2sato   ! OCMIP function, calculates O2 saturation
 #  else /* OCMIP_OXYGENSAT */
@@ -190,7 +193,7 @@
         tem(k) =max(t(i,j,k,nnew,itemp),0.)      ! temperature; [deg. C]
         sal(k) =max(t(i,j,k,nnew,isalt),0.)      ! salinity; [PSU]
 #  ifndef OCMIP_OXYGENSAT
-        den(k) =1000.+eos80(0.,tem(k),sal(k))    ! potential density; [kg m-3]
+        den(k) =1000.+ rho1(i,j,k)   		 ! potential density; [kg m-3]
 #  endif
         O2(k)  =max(t(i,j,k,nnew,iO2),0.)        ! Oxygen;  [mmol O2 m-3]
 # endif 
@@ -270,10 +273,10 @@
 #ifdef DIAGNOSTICS_BIO
           do k = N, 1, -1
             ThisFlux(k, NFlux_NewProd) = 0.0
-          enddo
 # ifdef OXYGEN
             ThisFlux(k, OGain_NewProd) = 0.0
 # endif /* OXYGEN */
+          enddo
 #endif /* DIAGNOSTICS_BIO */
 !#ifdef AVERAGES
 !! if the sun is down, set the logical variable "sun_down"
@@ -540,7 +543,7 @@
 # ifdef OXYGEN
 ! ThisGasExcFlux is already in the correct units [mmol s^-1]
         do iflux = 1, NumGasExcTerms
-           GasExcFlux(i,j,nnew,iflux) = ( GasExcFlux(i,j,nnew,iflux) +
+           GasExcFlux(i,j,iflux) = ( GasExcFlux(i,j,iflux) +
      &          ThisGasExcFlux(iflux) / float(ITERMAX) )
 #  ifdef MASKING
      &          * rmask(i,j)
