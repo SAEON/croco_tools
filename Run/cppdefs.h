@@ -193,9 +193,9 @@
 #   endif
 #  endif
 #  ifdef BIO_NChlPZD
-#   undef OXYGEN  /* Under Development */
+#   undef OXYGEN
 #  endif
-#  if defined BIO_NChlPZD || defined BIO_N2P2Z2D2
+#  if defined BIO_NChlPZD
 #    define  DIAGNOSTICS_BIO
 #  endif
 #  ifdef BIO_N2P2Z2D2
