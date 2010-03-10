@@ -41,7 +41,7 @@
     <h3>ROMSTOOLS_V2.0 tar file (02/15/2010): <a href="../Data/ROMSTOOLS_V2.0.tar.gz">here</a> </h3>
 
     <ul id="download_tools">
-        <li>./Roms_tools/Aforc_NCEP_Update/ 
+        <li>./Roms_tools/Aforc_NCEP/ 
 	</li>
 
         <li>./Roms_tools/Aforc_QuikSCAT/
