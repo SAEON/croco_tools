@@ -311,11 +311,12 @@
 !
       enddo
 !
+!--# define DEBUG
 #  ifdef DEBUG
       i=20
       j=2
-      k=2
-      itrc=2
+      k=20
+      itrc=1
       write(*,*) 'Write diag TS avg at : i='
      &                ,i,' j=',j,' k=',k,' iTS=',itrc
       write(*,*) 'TXadv_avg(i,j,k,itrc) ',TXadv_avg(i,j,k,itrc)
@@ -333,9 +334,29 @@
      &                                  +  TVmix_avg(i,j,k,itrc)
      &                                  +  TForc_avg(i,j,k,itrc)
      &                                  -  Trate_avg(i,j,k,itrc)
+      write(*,*) '========================================='
+      write(*,*) 'Write diag TS_MLD avg  at : i='
+     &                ,i,' j=',j,' iTS=',itrc
+      write(*,*) 'TXadv_mld_avg(i,j,k,itrc) ',TXadv_mld_avg(i,j,itrc)
+      write(*,*) 'TYadv_mld_avg(i,j,k,itrc) ',TYadv_mld_avg(i,j,itrc)
+      write(*,*) 'TVadv_mld_avg(i,j,k,itrc) ',TVadv_mld_avg(i,j,itrc)
+      write(*,*) 'THmix_mld_avg(i,j,k,itrc) ',THmix_mld_avg(i,j,itrc)
+      write(*,*) 'TVmix_mld_avg(i,j,k,itrc) ',TVmix_mld_avg(i,j,itrc)
+      write(*,*) 'TForc_mld_avg(i,j,k,itrc) ',TForc_mld_avg(i,j,itrc)
+      write(*,*) 'Trate_mld_avg(i,j,k,itrc) ',Trate_mld_avg(i,j,itrc)
+      write(*,*) 'Tentr_mld_avg(i,j,k,itrc) ',Tentr_mld_avg(i,j,itrc)
+
+      write(*,*) 'SumTShis_mld_avg(i,j,k,itrc) = ',TXadv_mld_avg(i,j,itrc)
+     &                                  +  TYadv_mld_avg(i,j,itrc)
+     &                                  +  TVadv_mld_avg(i,j,itrc)
+     &                                  +  THmix_mld_avg(i,j,itrc)
+     &                                  +  TVmix_mld_avg(i,j,itrc)
+     &                                  +  TForc_mld_avg(i,j,itrc)
+     &                                  +  Tentr_mld_avg(i,j,itrc)
+     &                                  -  Trate_mld_avg(i,j,itrc)
               write(*,*) '----------------------------------'
 #  endif /* DEBUG */
-
+!--#undef DEBUG
 
 
   1   format(/1x,'WRT_DIAG_AVG ERROR while writing variable ''', A,

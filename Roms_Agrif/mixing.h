@@ -117,14 +117,17 @@
 ! ustar       Turbulent friction velocity (m/s).
 !
       integer kbl(GLOBAL_2D_ARRAY)
+      integer kbbl(GLOBAL_2D_ARRAY)
 #  ifdef BIOLOGY
       real hel(GLOBAL_2D_ARRAY)
       common /lmd_hel/hel
 #  endif
       real hbl(GLOBAL_2D_ARRAY)
       real hbbl(GLOBAL_2D_ARRAY)
-      common /lmd_kpp_kbl/kbl     /lmd_kpp_hbl/hbl
-     &       /lmd_kpp_hbbl/hbbl  
+      common /lmd_kpp_kbl/kbl     
+     &       /lmd_kpp_hbl/hbl
+     &       /lmd_kpp_hbbl/hbbl   
+     &       /lmd_kpp_kbbl/kbbl
 #  ifdef LMD_NONLOCAL
       real ghats(GLOBAL_2D_ARRAY,0:N)
       common /lmd_kpp_ghats/ghats

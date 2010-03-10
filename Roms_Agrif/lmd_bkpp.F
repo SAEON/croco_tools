@@ -95,13 +95,13 @@
       ka=1 
       ku=2
 !
-!  Intialize boundary layer depth "hbbl" and index "kbl" of first grid
+!  Intialize boundary layer depth "hbbl" and index "kbbl" of first grid
 !  level above "hbbl" to maximum values.
 !
       do j=Jstr,Jend
         do i=Istr,Iend
           hbbl(i,j)=z_r(i,j,N)-z_w(i,j,0)
-          kbl(i,j)=N
+          kbbl(i,j)=N
           Rib(i,j,ku)=0.
         enddo
       enddo
@@ -145,11 +145,11 @@
 !
         do j=Jstr,Jend
           do i=Istr,Iend
-            if (kbl(i,j).eq.N .and. Rib(i,j,ka).gt.Ric) then
+            if (kbbl(i,j).eq.N .and. Rib(i,j,ka).gt.Ric) then
               zbl=z_r(i,j,k)-(z_r(i,j,k)-z_r(i,j,k-1))*
      &           (Ric-Rib(i,j,ka))/(Rib(i,j,ku)-Rib(i,j,ka))
               hbbl(i,j)=zbl-z_w(i,j,0)
-              kbl(i,j)=k
+              kbbl(i,j)=k
             endif
           enddo
         enddo
@@ -167,17 +167,17 @@
 # ifdef MASKING
           hbbl(i,j)=hbbl(i,j)*rmask(i,j)
 # endif
-          kbl(i,j)=N
+          kbbl(i,j)=N
         enddo
       enddo
 !
-!  Find new boundary layer index "kbl".
+!  Find new boundary layer index "kbbl".
 !
       do k=N,1,-1
         do j=Jstr,Jend
           do i=Istr,Iend
             if (z_r(i,j,k)-z_w(i,j,0).gt.hbbl(i,j)) then
-              kbl(i,j)=k
+              kbbl(i,j)=k
             endif
           enddo
         enddo
@@ -192,7 +192,7 @@
       do j=Jstr,Jend
         do i=Istr,Iend
           zbl=z_w(i,j,0)+hbbl(i,j)
-          k=kbl(i,j)
+          k=kbbl(i,j)
           if (zbl.lt.z_w(i,j,k-1)) k=k-1
           cff=1./(z_w(i,j,k)-z_w(i,j,k-1))
           cff_up=cff*(zbl-z_w(i,j,k-1))
@@ -227,7 +227,7 @@
 !
         do j=Jstr,Jend
           do i=Istr,Iend
-            if (k.lt.kbl(i,j)) then
+            if (k.lt.kbbl(i,j)) then
 !
 !  Set polynomial coefficients for shape function.
 !
@@ -269,7 +269,7 @@
               endif
 # endif /* LMD_SKPP */
 
-            else  !<-- k > kbl(i,j)
+            else  !<-- k > kbbl(i,j)
 
 # ifdef  LMD_CONVEC
 !
@@ -289,7 +289,7 @@
               endif
 # endif
 
-            endif  !<-- k > kbl(i,j)
+            endif  !<-- k > kbbl(i,j)
           enddo
         enddo
 # undef ws

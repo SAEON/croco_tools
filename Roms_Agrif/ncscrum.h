@@ -558,10 +558,10 @@
      &      , diaTHmix_avg(NT), diaTVmix_avg(NT)
      &      , diaTForc_avg(NT), diaTrate_avg(NT)
 #   if defined DIAGNOSTICS_TS_MLD
-     &      , diaTXadv_mld_avg(NT), diaTYadv_mld_avg(NT), 
-     &      , diaTVadv_mld_avg(NT),
-     &      , diaTHmix_mld_avg(NT), diaTVmix_mld_avg(NT),
-     &      , diaTForc_mld_avg(NT), diaTrate_mld_avg(NT), 
+     &      , diaTXadv_mld_avg(NT), diaTYadv_mld_avg(NT)
+     &      , diaTVadv_mld_avg(NT)
+     &      , diaTHmix_mld_avg(NT), diaTVmix_mld_avg(NT)
+     &      , diaTForc_mld_avg(NT), diaTrate_mld_avg(NT)
      &      , diaTentr_mld_avg(NT)
 #   endif
 #  endif

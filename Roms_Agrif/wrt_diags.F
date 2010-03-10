@@ -310,11 +310,12 @@
 !
       enddo
 !
+!--# define DEBUG
 #  ifdef DEBUG
       i=20
       j=2
-      k=2
-      itrc=2
+      k=20
+      itrc=1
       write(*,*) 'Write diag TS his at : i='
      &                ,i,' j=',j,' k=',k,' iTS=',itrc
       write(*,*) 'TXadv(i,j,k,itrc) ',TXadv(i,j,k,itrc)
@@ -332,9 +333,29 @@
      &                                  +  TVmix(i,j,k,itrc)
      &                                  +  TForc(i,j,k,itrc)
      &                                  -  Trate(i,j,k,itrc)
+      write(*,*) '========================================='
+      write(*,*) 'Write diag TS_MLD his at : i='
+     &                ,i,' j=',j,' iTS=',itrc
+      write(*,*) 'TXadv_mld(i,j,k,itrc) ',TXadv_mld(i,j,itrc)
+      write(*,*) 'TYadv_mld(i,j,k,itrc) ',TYadv_mld(i,j,itrc)
+      write(*,*) 'TVadv_mld(i,j,k,itrc) ',TVadv_mld(i,j,itrc)
+      write(*,*) 'THmix_mld(i,j,k,itrc) ',THmix_mld(i,j,itrc)
+      write(*,*) 'TVmix_mld(i,j,k,itrc) ',TVmix_mld(i,j,itrc)
+      write(*,*) 'TForc_mld(i,j,k,itrc) ',TForc_mld(i,j,itrc)
+      write(*,*) 'Trate_mld(i,j,k,itrc) ',Trate_mld(i,j,itrc)
+      write(*,*) 'Tentr_mld(i,j,k,itrc) ',Tentr_mld(i,j,itrc)
+
+      write(*,*) 'SumTShis_mld(i,j,k,itrc) = ',TXadv_mld(i,j,itrc)
+     &                                  +  TYadv_mld(i,j,itrc)
+     &                                  +  TVadv_mld(i,j,itrc)
+     &                                  +  THmix_mld(i,j,itrc)
+     &                                  +  TVmix_mld(i,j,itrc)
+     &                                  +  TForc_mld(i,j,itrc)
+     &                                  +  Tentr_mld(i,j,itrc)
+     &                                  -  Trate_mld(i,j,itrc)
       write(*,*) '-----------------------------------------'
 #  endif /* DEBUG */
-
+!--#undef DEBUG
 
   1   format(/1x,'WRT_DIAG ERROR while writing variable ''', A,
      &          ''' into diag file.', /11x, 'Time record:',
