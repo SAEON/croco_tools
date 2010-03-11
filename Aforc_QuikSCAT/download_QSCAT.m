@@ -44,6 +44,7 @@ if nargin < 1
   latmin=-35.5;
   latmax=-26.5;
   QSCAT_dir='DATA/QSCAT_Benguela/';
+  QSCAT_blk    = 0;  
 end
 %
 url='http://www.ifremer.fr/dodsG/CERSAT/quikscat_daily';
