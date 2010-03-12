@@ -13,8 +13,13 @@
 
         Instructions to get it: <a href="./instructions_svn.html">Here</a> <br /> 
         
-        Developments archives: 
+        Developments archives for developpers: 
         <a href="http://lists.gforge.inria.fr/cgi-bin/mailman/private/romsagrif-commits/">Here</a> <br /> 
+
+        <li><a href="http://lists.gforge.inria.fr/cgi-bin/mailman/listinfo/romsagrif-users">We encourage you to register at the roms_agrif users mailing list</a>  <br /> 
+
+        <li><a href="http://lists.gforge.inria.fr/cgi-bin/mailman/listinfo/romsagrif-release">We encourage you to register at  the roms_agrif release mailing list</a>  <br /> 
+	     
 	</li>
       <br/>   
     
@@ -34,11 +39,9 @@
 	</li>
       <br/>
         <li><a href="roms1d/index.html">ROMS-1D source code and documentation</a>  
-        </li>
-	</ul>
+        </li>	
 
-
-    <h3>ROMSTOOLS_V2.0 tar file (02/15/2010): <a href="../Data/ROMSTOOLS_V2.0.tar.gz">here</a> </h3>
+    <h3>ROMSTOOLS-2.0-r588 tar file (Release 2.0, Rev 588): <a href="../Data/ROMSTOOLS-2.0-r588.tar.gz">here</a> </h3>
 
     <ul id="download_tools">
         <li>./Roms_tools/Aforc_NCEP/ 
