@@ -568,7 +568,7 @@
 #  ifdef DIF_COEF_3D
 #   ifdef TS_SPLIT_UP3
                 FC(i,j,k2)=-0.125*(diff3d_u(i,j,k)+diff3d_u(i+1,j,k)
-     &                       +diff3d_u(i,j,k+1)+diff3d_u(i+1,j,k))*(
+     &                      +diff3d_u(i,j,k+1)+diff3d_u(i+1,j,k+1))*(
 #   else
                 FC(i,j,k2)=-0.5*diff3d(i,j,k)*(
 #   endif
@@ -588,7 +588,7 @@
 #   ifdef TS_SPLIT_UP3
                 FC(i,j,k2)=FC(i,j,k2)
      &                -0.125*(diff3d_v(i,j,k)+diff3d_v(i,j+1,k)
-     &                  +diff3d_v(i,j,k+1)+diff3d_v(i,j+1,k))*(
+     &                  +diff3d_v(i,j,k+1)+diff3d_v(i,j+1,k+1))*(
 #   else
                 FC(i,j,k2)=FC(i,j,k2)-0.5*diff3d(i,j,k)*(
 #   endif
