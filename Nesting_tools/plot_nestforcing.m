@@ -41,7 +41,7 @@ for time=thetime
   u=nc{'sustr'}(time,:,:);
   v=nc{'svstr'}(time,:,:);
   if thefield(1:3)=='spd'
-    fieldc=sqrt((u2rho(u)).^2+(v2rho(v)).^2);
+    fieldc=sqrt((u2rho_2d(u)).^2+(v2rho_2d(v)).^2);
     fieldname='wind speed';
   else
     fieldc=nc{thefield}(time,:,:);
@@ -79,7 +79,7 @@ for time=thetime
   u=nc{'sustr'}(time,:,:);
   v=nc{'svstr'}(time,:,:);
   if thefield(1:3)=='spd'
-    field=sqrt((u2rho(u)).^2+(v2rho(v)).^2);
+    field=sqrt((u2rho_2d(u)).^2+(v2rho_2d(v)).^2);
     fieldname='wind speed';
   else
     field=nc{thefield}(time,:,:);
