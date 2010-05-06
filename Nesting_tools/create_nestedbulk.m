@@ -49,6 +49,10 @@ nw('xi_rho') = Lp;
 nw('eta_rho') = Mp;
 nw('xi_psi') = L;
 nw('eta_psi') = M;
+nw('xi_u') = L;
+nw('eta_u') = Mp;
+nw('xi_v') = Lp;
+nw('eta_v') = M;
 nw('bulk_time') = length(bulkt);
 %
 %  Create variables and attributes
@@ -85,12 +89,20 @@ nw{'wspd'}.units       = ncchar('m s-1');
 nw{'wspd'}.units       = 'm s-1';
 
 nw{'radlw'}            = ncdouble('bulk_time', 'eta_rho', 'xi_rho');
-nw{'radlw'}.long_name  = ncchar('outgoing longwave radiation');
-nw{'radlw'}.long_name  = 'outgoing longwave radiation';
+nw{'radlw'}.long_name  = ncchar('net outgoing longwave radiation');
+nw{'radlw'}.long_name  = 'net outgoing longwave radiation';
 nw{'radlw'}.units      = ncchar('Watts meter-2');
 nw{'radlw'}.units      = 'Watts meter-2';
 nw{'radlw'}.positive   = ncchar('upward flux, cooling water');
 nw{'radlw'}.positive   = 'upward flux, cooling water';
+
+nw{'radlw_in'}            = ncdouble('bulk_time', 'eta_rho', 'xi_rho');
+nw{'radlw_in'}.long_name  = ncchar('downward longwave radiation');
+nw{'radlw_in'}.long_name  = 'downward longwave radiation';
+nw{'radlw_in'}.units      = ncchar('Watts meter-2');
+nw{'radlw_in'}.units      = 'Watts meter-2';
+nw{'radlw_in'}.positive   = ncchar('downward flux, cooling water');
+nw{'radlw_in'}.positive   = 'downward flux, cooling water';
 
 nw{'radsw'}            = ncdouble('bulk_time', 'eta_rho', 'xi_rho');
 nw{'radsw'}.long_name  = ncchar('solar shortwave radiation');

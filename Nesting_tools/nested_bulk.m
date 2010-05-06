@@ -118,9 +118,29 @@ disp('radlw...')
 for tindex=1:length(bulkt)
   interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'radlw',mask,tindex)
 end
+disp('radlw_in...')
+for tindex=1:length(bulkt)
+  interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'radlw_in',mask,tindex)
+end
 disp('radsw...')
 for tindex=1:length(bulkt)
   interpvar3d(np,nc,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'radsw',mask,tindex)
+end
+disp('uwnd...')
+for tindex=1:length(bulkt)
+  interpvar3d(np,nc,igrd_u,jgrd_u,ichildgrd_u,jchildgrd_u,'uwnd',mask,tindex)
+end
+disp('vwnd...')
+for tindex=1:length(bulkt)
+  interpvar3d(np,nc,igrd_v,jgrd_v,ichildgrd_v,jchildgrd_v,'vwnd',mask,tindex)
+end
+disp('sustr...')
+for tindex=1:length(bulkt)
+  interpvar3d(np,nc,igrd_u,jgrd_u,ichildgrd_u,jchildgrd_u,'sustr',mask,tindex)
+end
+disp('svstr...')
+for tindex=1:length(bulkt)
+  interpvar3d(np,nc,igrd_v,jgrd_v,ichildgrd_v,jchildgrd_v,'svstr',mask,tindex)
 end
 result=close(np);
 result=close(nc);
@@ -132,4 +152,6 @@ disp(' Done ')
 disp(' ')
 disp(' Make a plot...')
 figure(1)
+plot_nestbulk(child_blk,'tair',[1 6],1)
+figure(2)
 plot_nestbulk(child_blk,'wspd',[1 6],1)
