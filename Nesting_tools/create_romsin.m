@@ -133,7 +133,7 @@ while 1==1
     tline=fgetl(fid1);
     A=sscanf(tline,'%f');
     nrst=A(1);
-    nrst=rfac*nrst;;
+    nrst=rfac*nrst;
     nrpfrst=A(2);
     fprintf(fid2,'%s\n',['                 ',num2str(nrst),...
 		    '   ',num2str(nrpfrst)]);
