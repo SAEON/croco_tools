@@ -592,21 +592,23 @@
      &      , wrtavg(NWRTHIS)
 #endif
 #if defined DIAGNOSTICS_TS 
-     &      , wrtdia(NWRTHIS)
+     &      , wrtdia3D(NT+1)
+     &      , wrtdia2D(NT+1)
 # ifdef AVERAGES
-     &      , wrtdia_avg(NWRTHIS)
+     &      , wrtdia3D_avg(NT+1)
+     &      , wrtdia2D_avg(NT+1)
 # endif
 #endif
 #if defined DIAGNOSTICS_UV
-     &      , wrtdiaM(NWRTHIS)
+     &      , wrtdiaM(3)
 # ifdef AVERAGES
-     &      , wrtdiaM_avg(NWRTHIS)
+     &      , wrtdiaM_avg(3)
 # endif
 #endif
 #ifdef DIAGNOSTICS_BIO
-     &      , wrtdiabio
+     &      , wrtdiabio(NWRTHIS)
 # ifdef AVERAGES
-     &      , wrtdiabio_avg
+     &      , wrtdiabio_avg(NWRTHIS)
 # endif
 #endif
 	
@@ -749,9 +751,11 @@
      &      , wrtavg
 #endif
 #if defined DIAGNOSTICS_TS
-     &      , wrtdia
+     &      , wrtdia3D
+     &      , wrtdia2D
 # ifdef AVERAGES
-     &      , wrtdia_avg
+     &      , wrtdia3D_avg
+     &      , wrtdia2D_avg
 # endif
 #endif
 #if defined DIAGNOSTICS_UV

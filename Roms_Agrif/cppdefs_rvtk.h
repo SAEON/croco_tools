@@ -34,8 +34,9 @@
 !
 */
                       /* Configuration Name */
-# define BENGUELA_LR
+# define BENGUELA_VHR
 # undef ETALON_CHECK
+# define DEBUG
                       /* Parallelization */
 # undef OPENMP
 # undef MPI
@@ -87,8 +88,8 @@ c--# define AGRIF_CONSERV_TRA
 # undef VIS_SMAGO
                       /* Lateral Tracer Mixing */
 # define MIX_GP_TS
-# define TS_DIF2
-# undef TS_SPLIT_UP3
+# undef TS_DIF2
+# define TS_SPLIT_UP3
                       /* Vertical Mixing */
 # undef BODYFORCE
 # undef BVF_MIXING
@@ -169,7 +170,7 @@ c--# define AGRIF_CONSERV_TRA
 # undef DIAGNOSTICS_TS
 # ifdef DIAGNOSTICS_TS
 # undef DIAGNOSTICS_TS_ADV
-# undef DIAGNOSTICS_TS_MLD
+# define DIAGNOSTICS_TS_MLD
 # endif
 # undef DIAGNOSTICS_UV
 /*
@@ -294,7 +295,8 @@ c--# define AGRIF_CONSERV_TRA
 !                       Second Canyon Example
 !                       ====== ====== =======
 */
-# define ETALON_CHECK
+# undef ETALON_CHECK
+# define DEBUG
 # undef OPENMP
 # undef MPI
 # define UV_ADV
@@ -315,7 +317,8 @@ c--# define AGRIF_CONSERV_TRA
 ! Boccaletti, G., R.C. Pacanowski, G.H. Philander and A.V. Fedorov, 2004,
 ! The Thermal Structure of the Upper Ocean, J.Phys.Oceanogr., 34, 888-902.
 */
-# define ETALON_CHECK
+# undef ETALON_CHECK
+# define DEBUG
 # undef OPENMP
 # undef MPI
 # define UV_ADV
@@ -346,7 +349,8 @@ c--# define AGRIF_CONSERV_TRA
 !                       Gravitational Adjustment Example
 !                       ============= ========== =======
 */
-# define ETALON_CHECK
+# undef ETALON_CHECK
+# define DEBUG
 # undef OPENMP
 # undef MPI
 # define UV_ADV
@@ -366,7 +370,8 @@ c--# define AGRIF_CONSERV_TRA
 !                       Inner Shelf Example
 !                       ===== ===== =======
 */
-# define ETALON_CHECK
+# undef ETALON_CHECK
+# define DEBUG
 # undef OPENMP
 # undef MPI
 # define SOLVE3D
@@ -399,6 +404,7 @@ c--# define AGRIF_CONSERV_TRA
 ! tidal conversion at steep oceanic ridges, J. Phys. Oceanogr., 36, 1072-1084.  
 */
 # undef  ETALON_CHECK
+# define DEBUG
 # undef  OPENMP
 # undef  MPI
 # define SOLVE3D
@@ -447,6 +453,7 @@ c--# define AGRIF_CONSERV_TRA
 !                       ==========================
 */
 # define ETALON_CHECK
+# undef DEBUG
 # undef OPENMP
 # undef MPI
 # define SOLVE3D
@@ -488,7 +495,8 @@ c--# define AGRIF_CONSERV_TRA
 !                       Seamount Example
 !                       ======== =======
 */
-# define ETALON_CHECK
+# undef ETALON_CHECK
+# define DEBUG
 # undef OPENMP
 # undef MPI
 # define UV_ADV
@@ -511,7 +519,8 @@ c--# define AGRIF_CONSERV_TRA
 !                       Shelf Front Example
 !                       ===== ===== =======
 */
-# define ETALON_CHECK
+# undef ETALON_CHECK
+# define DEBUG
 # undef OPENMP
 # undef MPI
 # define UV_ADV
@@ -533,7 +542,8 @@ c--# define AGRIF_CONSERV_TRA
 !                       Equatorial Rossby Wave Example
 !                       ========== ====== ==== =======
 */
-# define ETALON_CHECK
+# undef ETALON_CHECK
+# define DEBUG
 # undef OPENMP
 # undef MPI
 # define UV_COR
@@ -549,7 +559,8 @@ c--# define AGRIF_CONSERV_TRA
 !                       Gravitational/Overflow Example
 !                       ====================== =======
 */
-# define ETALON_CHECK
+# undef ETALON_CHECK
+# define DEBUG
 # undef OPENMP
 # undef MPI
 # define UV_ADV
@@ -570,7 +581,8 @@ c--# define AGRIF_CONSERV_TRA
 !                       Upwelling Example
 !                       ========= =======
 */
-# define ETALON_CHECK
+# undef ETALON_CHECK
+# define DEBUG
 # undef OPENMP
 # undef MPI
 # define SOLVE3D
@@ -601,6 +613,7 @@ c--# define AGRIF_CONSERV_TRA
 !                       ========== ====== ======= ===== ======
 */
 # undef ETALON_CHECK
+# define DEBUG
 # undef OPENMP
 # undef MPI
 # define AGRIF

@@ -122,7 +122,9 @@ C
            ! pointer on the child grids 
            TYPE(Agrif_pgrid)                   ,Pointer :: child_grids 
            ! List of the grid variables   
-           TYPE(Agrif_PVariable), DIMENSION(:) ,Pointer :: tabvars     
+           TYPE(Agrif_PVariable), DIMENSION(:) ,Pointer :: tabvars  
+           ! pointer on the save grid 
+           TYPE(Agrif_grid)                    ,Pointer :: save_grid                
 C
            ! Global x,y and z position
            REAL    ,DIMENSION(3)                   :: Agrif_x   
@@ -166,6 +168,8 @@ C          Arrays for adaptive grid refinement
            Type(Agrif_List_Variables), Pointer     :: variables=>NULL()
            INTEGER                                 :: NbVariables = 0
            Type(Agrif_Flux), Pointer               :: fluxes => NULL()
+           INTEGER                                 :: level
+           ! level of the grid in the hierarchy
       End TYPE Agrif_grid
 C
 C     **************************************************************************
@@ -398,12 +402,14 @@ C     PARAMETERs for the update of the parent grids
       INTEGER ,PARAMETER    :: Agrif_Update_Copy=1           ! copy
       INTEGER ,PARAMETER    :: Agrif_Update_Average=2        ! average
       INTEGER ,PARAMETER    :: Agrif_Update_Full_Weighting=3 ! full-weighting 
+      INTEGER ,PARAMETER    :: Agrif_Update_4rdorder=4 ! 4rd order
 C     Raffinement grid switch definition
       ! Agrif_USE_ONLY_FIXED_GRIDS =1 if fixed grid mode
       INTEGER               :: Agrif_USE_ONLY_FIXED_GRIDS    
       ! Agrif_USE_FIXED_GRIDS = 1 if AMR mode + fixed grid 
       !    else only AMR mode
-      INTEGER               :: Agrif_USE_FIXED_GRIDS         
+      INTEGER               :: Agrif_USE_FIXED_GRIDS
+      INTEGER               :: Agrif_Maxlevelloc
 C
 #ifdef AGRIF_MPI
       INTEGER :: Agrif_Nbprocs  ! Number of processors

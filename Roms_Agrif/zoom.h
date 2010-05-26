@@ -97,6 +97,10 @@
        real tsponge(GLOBAL_2D_ARRAY,N,NT)
        common/sponge_com/usponge, vsponge, tsponge
 
+       real Huonagrif(GLOBAL_2D_ARRAY,N)
+       real Hvomagrif(GLOBAL_2D_ARRAY,N)
+       common/huvagrif/Huonagrif,Hvomagrif
+
       real Zt_avg3(GLOBAL_2D_ARRAY,0:NWEIGHT)
       common/zoom2D_Zeta2/Zt_avg3
       real DU_avg3(GLOBAL_2D_ARRAY,0:NWEIGHT)
@@ -164,8 +168,24 @@
       common/varids/zetaid,ubarid,vbarid,uid,vid,tid,
      &  tspongeid, uspongeid, vspongeid
       integer updatezetaid, updateubarid, updatevbarid
+      integer updateduavg2id, updatedvavg2id
       integer updatetid, updateuid, updatevid
+      integer updatemyfxid, updatemyfyid
+      integer updatehuonid, updatehvomid
       common/varidsupdate/updatezetaid, updateubarid, updatevbarid,
-     &       updatetid, updateuid, updatevid  
-      
+     &       updateduavg2id, updatedvavg2id,
+     &       updatetid, updateuid, updatevid, updatemyfxid,
+     &       updatemyfyid,updatehuonid, updatehvomid
+
+!$AGRIF_DO_NOT_TREAT
+      logical :: firstcoarsetimestep
+      integer :: iind
+      logical :: tocont      
+      integer :: itimes(0:100000)
+      integer :: sortedint(0:100000)
+      integer :: nbtimes, nbmaxtimes
+      common/rootintegrate/tocont,nbtimes, nbmaxtimes,
+     &    firstcoarsetimestep,iind,itimes,sortedint
+!$AGRIF_END_DO_NOT_TREAT
+
 #endif

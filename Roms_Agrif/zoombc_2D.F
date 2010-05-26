@@ -67,7 +67,9 @@
       rrhot = real(irhot)
 
 
-      parentnbstep=Agrif_Parent_Nb_Step()
+      parentnbstep=
+     & Agrif_Parent(iif)
+     
       if (U2DTimeindex .NE. parentnbstep) then
 
 C$OMP BARRIER
@@ -563,7 +565,8 @@ C$OMP BARRIER
       rrhot = real(irhot)
 
 
-      parentnbstep=Agrif_Parent_Nb_Step()
+      parentnbstep=
+     &  Agrif_Parent(iif)
       
       if (V2DTimeindex .NE. parentnbstep) then
 
@@ -1108,7 +1111,8 @@ C$OMP BARRIER
 
 
 
-      parentnbstep=Agrif_Parent_Nb_Step()
+      parentnbstep=
+     &  Agrif_Parent(iif)
 
       if (ZetaTimeindex .NE. parentnbstep) then
       

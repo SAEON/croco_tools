@@ -23,6 +23,7 @@
       real TForc_mld(GLOBAL_2D_ARRAY,NT)
       real Trate_mld(GLOBAL_2D_ARRAY,NT)
       real Tentr_mld(GLOBAL_2D_ARRAY,NT)
+      integer kbl_nstp(GLOBAL_2D_ARRAY)
 # endif
 # ifdef AVERAGES
       real timedia_avg
@@ -62,6 +63,7 @@
      &       /diag_TForc_mld/TForc_mld
      &       /diag_Trate_mld/Trate_mld
      &       /diag_Tentr_mld/Tentr_mld	  
+     &       /diag_kbl_nstp/kbl_nstp
 # endif
 # ifdef AVERAGES
       common /diag_timedia_avg/timedia_avg

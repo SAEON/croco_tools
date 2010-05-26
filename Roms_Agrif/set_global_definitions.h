@@ -134,12 +134,8 @@ Select MOMENTUM VERTICAL advection scheme:
 #  undef QCORRECTION
 #  undef SFLX_CORR
 # endif
-# ifdef BULK_SMFLUX
-#  define BULK_WVEC
-#  undef  BULK_WSTR
-# else
-#  undef  BULK_WVEC
-#  undef  BULK_WSTR
+# ifdef BULK_SMFLUX     
+#  define BULK_SM_UPDATE /* ON: Compute wind stress via bulk_flux.F */
 # endif
 #endif
 
@@ -397,9 +393,17 @@ c-# define TANH dtanh
 #endif
 
 /*
+  Update schemes and sponge layer for nesting
+*/
+# define AGRIF_UPDATE_MIX_LOW
+# define AGRIF_UPDATE_DECAL
+# define AGRIF_SPONGE
+
+/*
   Default boundary conditions for nesting 
 */
 # ifdef AGRIF
+
 #  define AGRIF_OBC_EAST
 #  define AGRIF_OBC_WEST
 #  define AGRIF_OBC_NORTH

@@ -415,7 +415,8 @@ CC    **************************************************************************
 CCC   Subroutine AGRIF_CopyFromold_AllOneVar
 C     **************************************************************************
 C
-      Recursive Subroutine AGRIF_CopyFromold_AllOneVar(g,oldchildgrids,indic)
+      Recursive Subroutine AGRIF_CopyFromold_AllOneVar(g,oldchildgrids,
+     &   indic)
 C
 CCC   Description:
 CCC   Routine called in the Agrif_Init_Hierarchy procedure 
@@ -496,7 +497,8 @@ C     **************************************************************************
 CCC   Subroutine Agrif_CopyFromoldOneVar
 C     **************************************************************************
 C      
-      Subroutine Agrif_CopyFromoldOneVar(Agrif_New_Gr,Agrif_Old_Gr,indic)
+      Subroutine Agrif_CopyFromoldOneVar(Agrif_New_Gr,Agrif_Old_Gr,
+     &    indic)
 C
 CCC   Description:
 CCC   Call to the Agrif_Copy procedure.

@@ -67,9 +67,6 @@
 !
       if (ilc.gt.ntsdia_avg) then
         if (mod(ilc-1,nwrtdia_avg).eq.1) then
-
-          if (ZEROTH_TILE) timedia_avg=time
-
           do itrc=1,NT
             do k=1,N
               do j=JstrR,JendR
@@ -106,9 +103,6 @@
           enddo
 #endif /* DIAGNOSTICS_TS_MLD  */
         elseif (mod(ilc-1,nwrtdia_avg).gt.1) then
-
-          if (ZEROTH_TILE) timedia_avg=timedia_avg+time
-
           do itrc=1,NT
             do k=1,N
               do j=JstrR,JendR
@@ -171,7 +165,6 @@
 
           cff=1./float(nwrtdia_avg)
           if (ZEROTH_TILE) timedia_avg=timedia_avg+float(nwrtdia_avg)*dt
-
           do itrc=1,NT
             do k=1,N
               do j=JstrR,JendR

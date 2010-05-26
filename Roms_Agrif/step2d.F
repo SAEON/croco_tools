@@ -930,6 +930,29 @@ C$OMP END MASTER
 
 #endif
 
+#if defined AGRIF && defined AGRIF_CONSERV_VOL
+       if (iif == nfast) then
+       if (agrif_root()) then
+         do j=jstrR,jendR
+           do i=istrR,iendR
+             DU_avg1(i,j,5) = dt * DU_avg2(i,j)
+             DV_avg1(i,j,5) = dt * DV_avg2(i,j)
+           enddo
+         enddo
+       else
+         do j=jstrR,jendR
+           do i=istrR,iendR
+             DU_avg1(i,j,5) = dt * DU_avg2(i,j)
+             DV_avg1(i,j,5) = dt * DV_avg2(i,j)
+             DU_avg1(i,j,4) = DU_avg1(i,j,4) + DU_avg1(i,j,5)
+             DV_avg1(i,j,4) = DV_avg1(i,j,4) + DV_avg1(i,j,5)
+           enddo
+         enddo       
+       endif
+       endif
+#endif
+
+
 !
 !  TEST FOR CFL VIOLATION. IF SO, PRINT AND STOP
 !

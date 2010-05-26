@@ -707,6 +707,11 @@ C at this point, indices are OK for an average
             indtab(i,1,1) = indtab(i,1,1) - coeffraf/2
             indtab(i,1,2) = indtab(i,1,2) + coeffraf/2
           ENDIF
+          IF ((TypeUpdate(i) .EQ. Agrif_Update_4rdorder)
+     &                            .AND.(mod(coeffraf,2) == 1)) THEN
+            indtab(i,1,1) = indtab(i,1,1) - coeffraf/2-3
+            indtab(i,1,2) = indtab(i,1,2) + coeffraf/2+3
+          ENDIF          
         ENDIF
         IF (loctab_child(i) == -3) THEN
            indtab(i,1,1) = pttab_child(i)
@@ -887,7 +892,13 @@ C
             indtab(i,1,2) = indtab(i,1,2) + coeffraf/2
             indtab(i,2,1) = indtab(i,2,1) - coeffraf/2
             indtab(i,2,2) = indtab(i,2,2) + coeffraf/2
-          ENDIF          
+          ENDIF     
+          IF (TypeUpdate(i) .EQ. Agrif_Update_4rdorder) THEN
+            indtab(i,1,1) = indtab(i,1,1) - coeffraf/2-3
+            indtab(i,1,2) = indtab(i,1,2) + coeffraf/2+3
+            indtab(i,2,1) = indtab(i,2,1) - coeffraf/2-3
+            indtab(i,2,2) = indtab(i,2,2) + coeffraf/2+3
+          ENDIF           
         ENDIF
       ENDDO
 
@@ -1742,6 +1753,16 @@ C
         indmax(i) = pttab_Parent(i) +
      &        agrif_int((dim_newmax(i)-s_Parent(i))/ds_Parent(i))
 C
+        IF (loctab_Child(i) .NE. -3) THEN
+        IF (posvartab_child(i) == 1) THEN
+        ELSE
+        IF (TypeUpdate(i) .EQ. Agrif_Update_4rdorder) THEN
+          indmin(i) = indmin(i)+1
+          indmax(i) = indmax(i)-1
+        ENDIF        
+        ENDIF        
+        ENDIF
+        
 #ifdef AGRIF_MPI
         positionmin = s_Parent(i) + (indmin(i)-
      &                          pttab_Parent(i))*ds_Parent(i)
@@ -1753,6 +1774,10 @@ C
           positionmin = positionmin - (ds_Parent(i)-ds_Child(i))
           ENDIF
         ELSE
+        IF (TypeUpdate(i) .EQ. Agrif_Update_4rdorder) THEN
+          positionmin = positionmin - ds_Parent(i)/2.        
+          positionmin = positionmin - ds_Child(i)-3*ds_Child(i)
+        ELSE
           IF (TypeUpdate(i).NE.Agrif_Update_Full_Weighting) THEN
             positionmin = positionmin - ds_Parent(i)/2.
           ELSE
@@ -1763,6 +1788,7 @@ C
             positionmin = positionmin - (ds_Parent(i)-ds_Child(i))-ds_Child(i)/2.
           endif
           ENDIF
+        ENDIF
         ENDIF
         ENDIF
         imin = pttab_Child(i) +
@@ -1783,6 +1809,9 @@ C
           positionmax = positionmax  + (ds_Parent(i)-ds_Child(i))
           ENDIF
         ELSE
+        IF (TypeUpdate(i) .EQ. Agrif_Update_4rdorder) THEN
+          positionmax = positionmax + ds_Child(i)+3*ds_Child(i)
+        ELSE
           IF (TypeUpdate(i).NE.Agrif_Update_Full_Weighting) THEN        
             positionmax = positionmax  + ds_Parent(i)/2.
           ELSE
@@ -1793,7 +1822,8 @@ C
             positionmax = positionmax + (ds_Parent(i)-ds_Child(i)) + ds_Child(i)/2.
           endif
 
-          ENDIF        
+          ENDIF    
+        ENDIF
         ENDIF
         ENDIF
         imax = pttab_Child(i) +
@@ -2497,6 +2527,14 @@ C
      &          indmax-indmin+1,petab_child-pttab_child+1,
      &          s_parent,s_child,ds_parent,ds_child,
      &          coeffraf,locind_child_left)
+C
+        elseif (TypeUpdate == Agrif_Update_4rdorder) then
+C             
+          Call Fourthorder1d
+     &       (parenttab,childtab,
+     &          indmax-indmin+1,petab_child-pttab_child+1,
+     &          s_parent,s_child,ds_parent,ds_child,
+     &          coeffraf,locind_child_left)     
 C
       endif 
 C

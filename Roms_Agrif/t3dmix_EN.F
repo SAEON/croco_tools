@@ -84,20 +84,19 @@
 # ifdef DIAGNOSTICS_TS
 #  include "diagnostics.h"
 # endif
+#ifdef AGRIF
+#include "zoom.h"
+#endif
 !
 #include "compute_auxiliary_bounds.h"
 !
 #ifdef SPLIT_EOS
 # define rho rho1
 #endif
-
+!
 #define EPS 0.5
 c-#define MAX_SLOPE 1.E+2   /* inverse of max isoneutral slope */
 c-#define MIN_STRAT  0.1
-!
-#ifdef AGRIF
-#include "zoom.h"
-#endif
 !
 #ifdef CHILD_SPG
 #define TCLM tsponge
@@ -259,6 +258,47 @@ c-#define MIN_STRAT  0.1
      &                     +FC(i,j,k2)-FC(i,j,k1) )/Hz(i,j,k)
             enddo
           enddo
+
+#if defined AGRIF && defined AGRIF_CONSERV_TRA
+          MYFX(IstrR:IendR,JstrR:JendR,k,itrc)=
+     &          MYFX(IstrR:IendR,JstrR:JendR,k,itrc)+
+     &          dt*FX(IstrR:IendR,JstrR:JendR)
+          MYFY(IstrR:IendR,JstrR:JendR,k,itrc)=
+     &          MYFY(IstrR:IendR,JstrR:JendR,k,itrc)+
+     &          dt*FE(IstrR:IendR,JstrR:JendR)
+#endif
+
+#  ifdef DIAGNOSTICS_TS
+!
+! Tracer diagnostics
+!
+          do j=jstr,jend
+            do i=istr,iend
+              cff1=pm(i,j)*pn(i,j)
+              THmix(i,j,k,itrc)=FX(i+1,j)-FX(i,j)
+     &                         +FE(i,j+1)-FE(i,j)
+     &                         +(FC(i,j,k2)-FC(i,j,k1))/cff1
+#   ifdef MASKING
+     &                                          * rmask(i,j)
+#   endif
+
+              Trate(i,j,k,itrc)=(Hz(i,j,k)*t(i,j,k,nnew,itrc)
+     &                      -Hz_bak(i,j,k)*t(i,j,k,nstp,itrc))
+     &                                              /(dt*cff1)
+#   ifdef MASKING
+     &                                          * rmask(i,j)
+#   endif
+!
+! Divide all diagnostic terms by the cell volume
+! (Hz(i,j,k,itrc)/(pm(i,j).*pn(i,j)). There after the unit
+! of diag terms are: (unit of tracers)* s-1.
+!
+              THmix(i,j,k,itrc)=THmix(i,j,k,itrc)*cff1/Hz(i,j,k)
+              Trate(i,j,k,itrc)=Trate(i,j,k,itrc)*cff1/Hz(i,j,k)
+            enddo
+          enddo
+#  endif /* DIAGNOSTICS */
+
         endif  ! <-- k.gt.0
       enddo   ! --> k
 
@@ -609,7 +649,7 @@ c-#define MIN_STRAT  0.1
 # ifdef DIF_COEF_3D
 #  ifdef TS_SPLIT_UP3
                 FC(i,j,k2)=-0.125*(diff3d_u(i,j,k)+diff3d_u(i+1,j,k)
-     &                        +diff3d_u(i,j,k+1)+diff3d_u(i+1,j,k))*(
+     &                        +diff3d_u(i,j,k+1)+diff3d_u(i+1,j,k+1))*(
 #  else
                 FC(i,j,k2)=-0.5*diff3d(i,j,k)*(
 #  endif
@@ -631,7 +671,7 @@ c-#define MIN_STRAT  0.1
 #  ifdef TS_SPLIT_UP3
                 FC(i,j,k2)=FC(i,j,k2)
      &                -0.125*(diff3d_v(i,j,k)+diff3d_v(i,j+1,k)
-     &                       +diff3d_v(i,j,k+1)+diff3d_v(i,j+1,k))*(
+     &                       +diff3d_v(i,j,k+1)+diff3d_v(i,j+1,k+1))*(
 #  else
                 FC(i,j,k2)=FC(i,j,k2)-0.5*diff3d(i,j,k)*(
 #  endif
@@ -655,6 +695,38 @@ c-#define MIN_STRAT  0.1
      &                     +FC(i,j,k2)-FC(i,j,k1) )/Hz(i,j,k)
             enddo
           enddo
+
+#  ifdef DIAGNOSTICS_TS
+!
+! Tracer diagnostics
+!
+          do j=jstr,jend
+            do i=istr,iend
+              cff1=pm(i,j)*pn(i,j)
+              THmix(i,j,k,itrc)=FX(i+1,j)-FX(i,j)
+     &                         +FE(i,j+1)-FE(i,j)
+     &                         +(FC(i,j,k2)-FC(i,j,k1))/cff1
+#   ifdef MASKING
+     &                                          * rmask(i,j)
+#   endif
+
+              Trate(i,j,k,itrc)=(Hz(i,j,k)*t(i,j,k,nnew,itrc)
+     &                      -Hz_bak(i,j,k)*t(i,j,k,nstp,itrc))
+     &                                              /(dt*cff1)
+#   ifdef MASKING
+     &                                          * rmask(i,j)
+#   endif
+!
+! Divide all diagnostic terms by the cell volume
+! (Hz(i,j,k,itrc)/(pm(i,j).*pn(i,j)). There after the unit
+! of diag terms are: (unit of tracers)* s-1.
+!
+              THmix(i,j,k,itrc)=THmix(i,j,k,itrc)*cff1/Hz(i,j,k)
+              Trate(i,j,k,itrc)=Trate(i,j,k,itrc)*cff1/Hz(i,j,k)
+            enddo
+          enddo
+#  endif /* DIAGNOSTICS_TS */
+
         endif  ! <-- k.gt.0
       enddo   ! --> k
 
@@ -663,49 +735,22 @@ c-#define MIN_STRAT  0.1
 #ifdef SPLIT_EOS
 # undef rho
 #endif
-!------------------------------------------------------------------
+!---------------------------------------------------------------------
+!---------------------------------------------------------------------
+!
 # ifdef DIAGNOSTICS_TS
-!
+#  if defined DIAGNOSTICS_TS_MLD && !defined SPONGE_DIF2
 !==========================================================
-! Tracer diagnostics
+! Tracer diagnostics averaged over the MLD
 !==========================================================
 !
-      do k=1,N
-        do j=jstr,jend
-          do i=istr,iend
-            cff1=pm(i,j)*pn(i,j)
-            THmix(i,j,k,itrc)=FX(i+1,j)-FX(i,j)
-     &                       +FE(i,j+1)-FE(i,j)
-#  ifndef MIX_S_TS
-     &                       +(FC(i,j,k2)-FC(i,j,k1))/cff1
-# endif
-#  ifdef MASKING
-     &                                        * rmask(i,j)
-#  endif
-            Trate(i,j,k,itrc)=(Hz(i,j,k)*t(i,j,k,nnew,itrc)
-     &                    -Hz_bak(i,j,k)*t(i,j,k,nstp,itrc))
-     &                                            /(dt*cff1)
-#  ifdef MASKING
-     &                                        * rmask(i,j)
-#  endif
-!
-! Divide all diagnostic terms by the cell volume
-! (Hz(i,j,k,itrc)/(pm(i,j).*pn(i,j)). There after the unit
-! of diag terms are: (unit of tracers)* s-1.
-!
-            THmix(i,j,k,itrc)=THmix(i,j,k,itrc)*cff1/Hz(i,j,k)
-            Trate(i,j,k,itrc)=Trate(i,j,k,itrc)*cff1/Hz(i,j,k)
-          enddo
-        enddo
-      enddo 
-!
-! Compute tracer diagnostics averaged over the MLD
-!
-#  ifdef DIAGNOSTICS_TS_MLD
+#   define T_mld_nnew FX
+#   define T_mld_nstp FE
        do j=Jstr,Jend
          do i=Istr,Iend
             THmix_mld(i,j,itrc)=0.
-            Trate_mld(i,j,itrc)=0.
+            T_mld_nnew(i,j)=0.
+            T_mld_nstp(i,j)=0.
          enddo
        enddo
        do j=Jstr,Jend
@@ -719,15 +764,71 @@ c-#define MIN_STRAT  0.1
              cff=Hz(i,j,k)/(z_w(i,j,N)-z_w(i,j,kmld-1))
              THmix_mld(i,j,itrc)=THmix_mld(i,j,itrc)+
      &                           THmix(i,j,k,itrc)*cff
-             Trate_mld(i,j,itrc)=Trate_mld(i,j,itrc)+
-     &                           Trate(i,j,k,itrc)*cff
+             T_mld_nnew(i,j)=T_mld_nnew(i,j)+
+     &                       t(i,j,k,nnew,itrc)*cff
            enddo
          enddo
        enddo
-#  endif
+
+       do j=Jstr,Jend
+         do i=Istr,Iend
+#   ifdef LMD_SKPP
+           if (kbl_nstp(i,j).eq.0) kbl_nstp(i,j)=kbl(i,j)
+           kmld=kbl_nstp(i,j)
+#   else
+           kmld=N-5
+#   endif
+           do k=N,kmld,-1
+             cff=Hz_bak(i,j,k)/(z_w(i,j,N)-z_w(i,j,kmld-1))
+             T_mld_nstp(i,j)=T_mld_nstp(i,j)+
+     &                       t(i,j,k,nstp,itrc)*cff
+           enddo
+           if (itrc .eq. NT) kbl_nstp(i,j)=kbl(i,j)
+         enddo
+       enddo
+       do j=Jstr,Jend
+         do i=Istr,Iend
+            Trate_mld(i,j,itrc)=(T_mld_nnew(i,j)-T_mld_nstp(i,j))/dt
+            Tentr_mld(i,j,itrc)=Trate_mld(i,j,itrc)-
+     &                          TXadv_mld(i,j,itrc)-
+     &                          TYadv_mld(i,j,itrc)-
+     &                          TVadv_mld(i,j,itrc)-
+     &                          TVmix_mld(i,j,itrc)-
+     &                          THmix_mld(i,j,itrc)-
+     &                          TForc_mld(i,j,itrc)
+         enddo
+       enddo
+#   undef T_mld_nnew 
+#   undef T_mld_nstp
+#  endif /* DIAGNOSTICS_TS_MLD && !SPONGE_DIF2 */
+
+#  ifdef DIAGNOSTICS_DEBUG
+       if (istr.eq.1 .and. jstr.eq.1 .and. itrc.eq.itemp) then
+         i=5
+         j=5
+#   if defined DIAGNOSTICS_TS_MLD && !defined SPONGE_DIF2
+         cff=Trate_mld(i,j,itrc)-
+     &       TXadv_mld(i,j,itrc)-
+     &       TYadv_mld(i,j,itrc)-
+     &       TVadv_mld(i,j,itrc)-
+     &       TVmix_mld(i,j,itrc)-
+     &       THmix_mld(i,j,itrc)-
+     &       Tentr_mld(i,j,itrc)-
+     &       TForc_mld(i,j,itrc)
+       print *,'T3DMIX_EN : T budget closure MLD   : ',cff
+#   endif /* DIAGNOSTICS_TS_MLD && !SPONGE_DIF2 */
+          cff=Trate(i,j,N-5,itrc)-
+     &        TXadv(i,j,N-5,itrc)-
+     &        TYadv(i,j,N-5,itrc)-
+     &        TVadv(i,j,N-5,itrc)-
+     &        TVmix(i,j,N-5,itrc)-
+     &        THmix(i,j,N-5,itrc)-
+     &        TForc(i,j,N-5,itrc)
+       print *,'T3DMIX_EN : T budget closure k=N-5 : ',cff
+      endif
+#  endif /* DIAGNOSTICS_DEBUG */
 # endif /* DIAGNOSTICS_TS */
-!------------------------------------------------------------------
-!
+!---------------------------------------------------------------------
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
         call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                          t(START_2D_ARRAY,1,nnew,itrc))

@@ -105,10 +105,10 @@
 !---------------------------------------------------------------
 !
       do itrc=1,NT
+        if (wrtdia3D_avg(itrc)) then
 !
 ! indxTXadv
 !
-        if (wrtdia_avg(indxTXadv+itrc-1)) then
           ierr=nf_fwrite(TXadv_avg(START_2D_ARRAY,1,itrc), nciddia_avg,
      &                              diaTXadv_avg(itrc), record, r3dvar)
           if (ierr .ne. nf_noerr) then
@@ -117,11 +117,9 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
-        endif
 !
 ! indxTYadv
 !
-        if (wrtdia_avg(indxTYadv+itrc-1)) then
           ierr=nf_fwrite(TYadv_avg(START_2D_ARRAY,1,itrc), nciddia_avg,
      &                               diaTYadv_avg(itrc), record, r3dvar)
           if (ierr .ne. nf_noerr) then
@@ -130,11 +128,9 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
-        endif
 !
 ! indxTVadv
 !
-        if (wrtdia_avg(indxTVadv+itrc-1)) then
           ierr=nf_fwrite(TVadv_avg(START_2D_ARRAY,1,itrc), nciddia_avg,
      &                               diaTVadv_avg(itrc), record, r3dvar)
           if (ierr .ne. nf_noerr) then
@@ -143,11 +139,9 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
-        endif
 !
 ! indxTHmix
 !
-        if (wrtdia_avg(indxTHmix+itrc-1)) then
           ierr=nf_fwrite(THmix_avg(START_2D_ARRAY,1,itrc), nciddia_avg,
      &                               diaTHmix_avg(itrc), record, r3dvar)
           if (ierr .ne. nf_noerr) then
@@ -156,11 +150,9 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
-        endif
 !
 ! indxTVmix
 !
-        if (wrtdia_avg(indxTVmix+itrc-1)) then
           ierr=nf_fwrite(TVmix_avg(START_2D_ARRAY,1,itrc), nciddia_avg,
      &                               diaTVmix_avg(itrc), record, r3dvar)
           if (ierr .ne. nf_noerr) then
@@ -169,43 +161,40 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
-        endif
 !
 ! indxTForc  
 !
-        if (wrtdia_avg(indxTForc+itrc-1)) then
          ierr = nf_fwrite(TForc_avg(START_2D_ARRAY,1,itrc), 
      &        nciddia_avg, diaTForc_avg(itrc), record, r3dvar)
          if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxTForc+itrc-1))
             write(stdout,1) vname(1,indxTForc+itrc-1)(1:lvar),
      &           record, ierr MYID 
-            goto 99
+            goto 99                                       !--> ERROR
          endif
-       endif
 !
 ! indxTrate
 !
-        if (wrtdia_avg(indxTrate+itrc-1)) then
           ierr = nf_fwrite(Trate_avg(START_2D_ARRAY,1,itrc), 
      &        nciddia_avg, diaTrate_avg(itrc), record, r3dvar)
           if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxTrate+itrc-1))
             write(stdout,1) vname(1,indxTrate+itrc-1)(1:lvar),
      &           record, ierr MYID 
-            goto 99
+            goto 99                                       !--> ERROR
           endif
+
         endif
 !
 #ifdef DIAGNOSTICS_TS_MLD
 !
+        if (wrtdia2D_avg(itrc)) then
 !---------------------------------------------------------------
 ! Tracer diagnostic variables averaged over the MLD
 !---------------------------------------------------------------
 !
 ! indxTXadv_mld
 !
-        if (wrtdia_avg(indxTXadv_mld+itrc-1)) then
           ierr=nf_fwrite(TXadv_mld_avg(START_2D_ARRAY,itrc),nciddia_avg,
      &                           diaTXadv_mld_avg(itrc), record, r2dvar)
           if (ierr .ne. nf_noerr) then
@@ -214,11 +203,9 @@
      &                            record, ierr MYID
             goto 99                                       !--> ERROR
           endif
-        endif
 !
 ! indxTYadv_mld
 !
-        if (wrtdia_avg(indxTYadv_mld+itrc-1)) then
           ierr=nf_fwrite(TYadv_mld_avg(START_2D_ARRAY,itrc),nciddia_avg,
      &                           diaTYadv_mld_avg(itrc), record, r2dvar)
           if (ierr .ne. nf_noerr) then
@@ -227,11 +214,9 @@
      &                            record, ierr MYID
             goto 99                                       !--> ERROR
           endif
-        endif
 !
 ! indxTVadv_mld
 !
-        if (wrtdia_avg(indxTVadv_mld+itrc-1)) then
           ierr=nf_fwrite(TVadv_mld_avg(START_2D_ARRAY,itrc),nciddia_avg,
      &                           diaTVadv_mld_avg(itrc), record, r2dvar)
           if (ierr .ne. nf_noerr) then
@@ -240,11 +225,9 @@
      &                            record,  ierr MYID
             goto 99                                       !--> ERROR
           endif
-        endif
 !
 ! indxTHmix
 !
-        if (wrtdia_avg(indxTHmix_mld+itrc-1)) then
           ierr=nf_fwrite(THmix_mld_avg(START_2D_ARRAY,itrc),nciddia_avg,
      &                           diaTHmix_mld_avg(itrc), record, r2dvar)
           if (ierr .ne. nf_noerr) then
@@ -253,11 +236,9 @@
      &                            record, ierr MYID
             goto 99                                       !--> ERROR
           endif
-       endif
 !
 ! indxTVmix_mld
 !
-        if (wrtdia_avg(indxTVmix_mld+itrc-1)) then
           ierr=nf_fwrite(TVmix_mld_avg(START_2D_ARRAY,itrc),nciddia_avg,
      &                           diaTVmix_mld_avg(itrc), record, r2dvar)
           if (ierr .ne. nf_noerr) then
@@ -266,37 +247,32 @@
      &                            record, ierr MYID
             goto 99                                       !--> ERROR
           endif
-        endif
 !
 ! indxTForc_mld
 !
-        if (wrtdia_avg(indxTVmix_mld+itrc-1)) then
          ierr = nf_fwrite(TForc_mld_avg(START_2D_ARRAY,itrc), 
      &             nciddia_avg, diaTForc_mld_avg(itrc), record, r2dvar)
          if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxTForc_mld+itrc-1))
             write(stdout,1) vname(1,indxTForc_mld+itrc-1)(1:lvar),
      &                            record, ierr MYID 
-            goto 99
+            goto 99                                       !--> ERROR
          endif
-       endif
 !
 ! indxTrate_mld
 !
-        if (wrtdia_avg(indxTrate_mld+itrc-1)) then
           ierr = nf_fwrite(Trate_mld_avg(START_2D_ARRAY,itrc), 
      &        nciddia_avg, diaTrate_mld_avg(itrc), record, r2dvar)
           if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxTrate_mld+itrc-1))
             write(stdout,1) vname(1,indxTrate_mld+itrc-1)(1:lvar),
      &                            record, ierr MYID 
-            goto 99
+            goto 99                                       !--> ERROR
           endif
-        endif
+
 !
 ! indxTentr_mld
 !
-        if (wrtdia_avg(indxTentr_mld+itrc-1)) then
           ierr = nf_fwrite(Tentr_mld_avg(START_2D_ARRAY,itrc),
      &        nciddia_avg, diaTentr_mld_avg(itrc), record, r2dvar)
           if (ierr .ne. nf_noerr) then

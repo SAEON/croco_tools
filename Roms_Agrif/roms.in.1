@@ -1,7 +1,7 @@
 title:
         BENGUELA TEST MODEL ZOOM LEVEL #1
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
-               2160      1200     60      1
+            1        1200        60        1
 S-coord: THETA_S,   THETA_B,    Hc (m)
            6.0d0      0.0d0      10.0d0
 grid:  filename
@@ -18,7 +18,7 @@ initial: NRREC  filename
           1
   ROMS_FILES/roms_ini.nc.1
 restart:          NRST, NRPFRST / filename
-                 2160   -1
+                  2160  -1
   ROMS_FILES/roms_rst.nc.1
 history: LDEFHIS, NWRT, NRPFHIS / filename 
             T     216     0
@@ -30,12 +30,12 @@ averages: NTSAVG, NAVG, NRPFAVG / filename
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
                           T    T   T   T  T    30*T
 auxiliary_history_fields:   rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr UWstr VWstr rsw rlw lat sen HEL
-                             F   F     T   F    T    F    T   T    T     T    T    T     30*F             
+                             F   F     T   F    T    F    T   T    T     T    T    T     10*F             
 
 primary_averages: zeta UBAR VBAR  U  V   wrtT(1:NT)
                    T    T    T    T  T   30*T
-auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Wstr UWst  rsw rlw lat sen HEL
-                     F   T     T   F    T    F    T   T    T     T   T    T     30*F             
+auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr UWstr VWstr  rsw rlw lat sen HEL
+                     F   T     T   F    T    F    T   T    T     T   T    T     10*F             
 
 rho0:
       1025.d0
@@ -59,44 +59,55 @@ gamma2:
                  1.d0
 
 sponge:          X_SPONGE [m],    V_SPONGE [m^2/sec]
-                   5e+04           11
+                   5e+04           100
 
 nudg_cof:    TauT_in, TauT_out, TauM_in, TauM_out  [days for all]
                 1.       360.      3.      360.
 
 diagnostics:   ldefdia   nwrtdia    nrpfdia /filename
-                  T       261         0
-                                 ROMS_FILES/roms_dia.nc.1
-diagnostics_history_fields:   TXadv(1:NT !!EXACT!!)  TYadv   TVadv   THmix  TVmix  Tforc  Trate  Xadvml  Yadvml   Vadvml  THmixml TVmixml Tforcml Tentml Trateml
- T T       T T   T T     T T     T T     T T      T T    T T      T T       T T       T T    T T      T T      T T    T T  
+            T    216     0
+  ROMS_FILES/roms_dia.nc.1
 
 diag_avg: ldefdia_avg  ntsdia_avg  nwrtdia_avg  nprfdia_avg /filename
-               T          1           216            0
-                                 ROMS_FILES/roms_dia_avg.nc.1
-diagnostics_average_fields:  TXadv (1:NT !!EXACT!!)TYadv  TVadv  THmix   TVmix   Tforc   Trate Xadvml  Yadvml   Vadvml  THmixml TVmixml Tforcml Tentml Trateml
- T T       T T   T T     T T     T T     T T      T T    T T      T T       T T       T T    T T      T T      T T    T T 
+    T     1     216    0
+  ROMS_FILES/roms_dia_avg.nc.1
+
+diag3D_history_fields:    diag_tracers3D(1:NT) 
+                            30*T
+
+diag2D_history_fields:    diag_tracers2D(1:NT)
+                            30*T
+
+diag3D_average_fields:    diag_tracers3D_avg(1:NT)
+                            30*T
+
+diag2D_average_fields:    diag_tracers2D_avg(1:NT)
+                            30*T
 
 diagnosticsM:   ldefdiaM   nwrtdiaM    nrpfdiaM /filename
-                   T          216          0
-                                 ROMS_FILES/roms_diaM.nc.1
-diagnosticsM_history_fields: MXadv MYadv MVadv MCor MPrsgrd MHmix MVmix MRate
-                                               T T     T T    T T       T T      T T       T T        T T        T T
+    T    216    0
+  ROMS_FILES/roms_diaM.nc.1
 
 diagM_avg: ldefdiaM_avg  ntsdiaM_avg  nwrtdiaM_avg  nprfdiaM_avg /filename
-               T          1           216            0
-                                 ROMS_FILES/roms_diaM_avg.nc.1
-diagnosticsM_average_fields: MXadv MYadv MVadv MCor MPrsgrd MHmix MVmix MRate
-                                               T T     T T     T T       T T      T T       T T        T T        T T
+     T     1     216     0
+  ROMS_FILES/roms_diaM_avg.nc.1
+
+diagM_history_fields: diag_momentum(1:2)
+                            T T
+
+diagM_average_fields: diag_momentum(1:2)
+		            T T
 
 diagnostics_bio:   ldefdiabio   nwrtdiabio    nrpfdiabio /filename
-                        T          216             0
-                                 ROMS_FILES/roms_diabio.nc
+    T    216    0
+  ROMS_FILES/roms_diabio.nc.1
+
 diagbio_avg: ldefdiabio_avg  ntsdiabio_avg  nwrtdiabio_avg  nprfdiabio_avg /filename
-                  T              1              216              0
-                                 ROMS_FILES/roms_diabio_avg.nc
+     T     1     216     0
+  ROMS_FILES/roms_diabio_avg.nc.1
 
 biology:   forcing file
-           roms_frcbio.nc
+  roms_frcbio.nc.1
 
 sediments: input file
            sediment.in

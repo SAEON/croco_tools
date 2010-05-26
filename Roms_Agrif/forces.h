@@ -243,7 +243,7 @@
       real radlw(GLOBAL_2D_ARRAY)
       real radsw(GLOBAL_2D_ARRAY)
       real wspd(GLOBAL_2D_ARRAY)
-# ifdef BULK_WVEC
+# ifdef BULK_SM_UPDATE
       real uwnd(GLOBAL_2D_ARRAY)
       real vwnd(GLOBAL_2D_ARRAY)
 # endif
@@ -254,7 +254,7 @@
      &       /bulk_radlw/radlw 
      &       /bulk_radsw/radsw
      &       /bulk_wspd/wspd
-# ifdef BULK_WVEC
+# ifdef BULK_SM_UPDATE
      &       /bulk_uwnd/uwnd 
      &       /bulk_vwnd/vwnd
 # endif
@@ -265,7 +265,7 @@
       real radlwg(GLOBAL_2D_ARRAY,2)
       real radswg(GLOBAL_2D_ARRAY,2)
       real wspdg(GLOBAL_2D_ARRAY,2)
-# ifdef BULK_WVEC
+# ifdef BULK_SM_UPDATE
       real uwndg(GLOBAL_2D_ARRAY,2)
       real vwndg(GLOBAL_2D_ARRAY,2)
 # endif
@@ -276,21 +276,21 @@
      &       /bulkdat_radlwg/radlwg
      &       /bulkdat_radswg/radswg
      &       /bulkdat_wspdg/wspdg
-# ifdef BULK_WVEC
+# ifdef BULK_SM_UPDATE
      &       /bulk_uwndg/uwndg
      &       /bulk_vwndg/vwndg
 # endif
 
       real    tairp(2),rhump(2),pratep(2),radlwp(2),radswp(2)
      &       ,wspdp(2)
-# ifdef BULK_WVEC
+# ifdef BULK_SM_UPDATE
      &       ,uwndp(2),vwndp(2)
 # endif
       real    bulk_time(2), bulk_cycle
       integer tair_id,rhum_id,prate_id,radlw_id,radsw_id,
      &        ltairgrd,lrhumgrd,lprategrd,lradlwgrd,lradswgrd
      &       ,wspd_id,lwspdgrd
-# ifdef BULK_WVEC
+# ifdef BULK_SM_UPDATE
      &       ,uwnd_id,vwnd_id,luwndgrd,lvwndgrd
 # endif
       integer itbulk,bulk_ncycle,bulk_rec,bulk_tid,
@@ -302,14 +302,14 @@
      &        itbulk, bulk_ncycle, bulk_rec, bulk_tid, 
      &        bulkunused
      &       ,wspd_id,lwspdgrd
-# ifdef BULK_WVEC
+# ifdef BULK_SM_UPDATE
      &       ,uwnd_id,vwnd_id,luwndgrd,lvwndgrd
 # endif
       common /bulkdat2/
      &        tairp,rhump,pratep,radlwp,radswp,
      &        bulk_time, bulk_cycle
      &       ,wspdp
-# ifdef BULK_WVEC
+# ifdef BULK_SM_UPDATE
      &       ,uwndp,vwndp
 # endif
 #endif /* BULK_FLUX */

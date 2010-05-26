@@ -376,7 +376,7 @@ C$    integer omp_get_thread_num
           radlw (i,j)=init
           radsw (i,j)=init
           wspd(i,j)=init
-#  ifdef BULK_WVEC
+#  ifdef BULK_SM_UPDATE
           uwnd(i,j)=init
           vwnd(i,j)=init
 #  endif
@@ -393,7 +393,7 @@ C$    integer omp_get_thread_num
           radswg (i,j,2)=init
           wspdg(i,j,1)=init
           wspdg(i,j,2)=init
-#  ifdef BULK_WVEC
+#  ifdef BULK_SM_UPDATE
           uwndg(i,j,1)=init
           vwndg(i,j,1)=init
           uwndg(i,j,2)=init
@@ -824,9 +824,13 @@ C$    integer omp_get_thread_num
       do j=JstrR,JendR
         do i=IstrR,IendR
           hbl(i,j)=init
-#ifdef AVERAGES
+          kbl(i,j)=init
+#  ifdef AVERAGES
           hbl_avg(i,j)=init
-#endif
+#  endif
+#  if defined DIAGNOSTICS_TS && defined DIAGNOSTICS_TS_MLD
+          kbl_nstp(i,j)=init
+#  endif
         enddo
       enddo
 # endif /* LMD_SKPP */

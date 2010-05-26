@@ -163,7 +163,7 @@
         enddo
       enddo
 
-# ifdef BULK_WVEC
+# ifdef BULK_SM_UPDATE
 !
 !  Compute kinematic, surface wind stress (m2/s2).
         do j=JstrR,JendR
@@ -574,7 +574,7 @@
         enddo
       enddo
 
-# ifdef BULK_WVEC
+# ifdef BULK_SM_UPDATE
 !
 !  Compute kinematic, surface wind stress (m2/s2).
         do j=JstrR,JendR

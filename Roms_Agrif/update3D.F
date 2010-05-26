@@ -63,16 +63,16 @@
 !    &         locupdate=(/0,2/),procname = updatevnp1pre) 
       
       Call Agrif_Update_Variable(tabtemp,updateTprof,
-     &         locupdate=(/1,2/),procname = updateTranp1pre)
+     &         locupdate=(/1,3/),procname = updateTranp1pre)
      
       Agrif_UseSpecialValueInUpdate = .FALSE.
            
-      Call Agrif_Update_Variable(tabtemp(:,:,:,1),Huon,
-     &     locupdate1=(/0,2/),locupdate2=(/1,3/),
-     &     procname = updateunp1pre)
-      Call Agrif_Update_Variable(tabtemp(:,:,:,1),Hvom,
-     &     locupdate1=(/1,3/),locupdate2=(/0,2/),
-     &     procname = updatevnp1pre)
+!      Call Agrif_Update_Variable(tabtemp(:,:,:,1),Huon,
+!     &     locupdate1=(/0,2/),locupdate2=(/1,3/),
+!     &     procname = updateunp1pre)
+!      Call Agrif_Update_Variable(tabtemp(:,:,:,1),Hvom,
+!     &     locupdate1=(/1,3/),locupdate2=(/0,2/),
+!     &     procname = updatevnp1pre)
 
       return
       end  
@@ -104,6 +104,7 @@
       real tabtemp(GLOBAL_2D_ARRAY,N,NT)
       External UpdateTranp1, Updateunp1, Updatevnp1
       real,dimension(:,:,:,:), pointer :: myfxparent,myfyparent,uparent
+      real,dimension(:,:,:,:), allocatable :: myfxoldparent,myfyoldparent
       real,dimension(:,:,:,:), pointer :: vparent
       real,dimension(:,:),pointer :: pmparent,pnparent,rmaskparent
       real,dimension(:,:,:),pointer :: Hzparent
@@ -111,13 +112,14 @@
       integer ipu,jpu,ipv,jpv
       real HTEMP(GLOBAL_2D_ARRAY,N)
       integer j,i
-      real t1,t2,t3,t4,t5
+      real t1,t2,t3,t4,t5, t6, t7
       real dtparent
       integer nnewparent,parentnnew
       real tind(5)
       integer j1
       integer irhot
       integer idecal
+      external :: updatemyfx, updatemyfy
 !
 
 !      return
@@ -128,32 +130,241 @@
       Agrif_SpecialValueFineGrid = 0.
       
       irhot=Agrif_Irhot()
-      IF (mod(nbstep3d,5) == (irhot-1)) THEN
 
+      !IF (mod(nbstep3d,5) == (irhot-1)) THEN
+      IF (.TRUE.) THEN
+
+#ifdef AGRIF_UPDATE_DECAL
       Call Agrif_Update_Variable(tabtemp,updatetid,
      &         procname = updateTranp1,locupdate=(/1,0/))
+      Agrif_UseSpecialValueInUpdate = .FALSE.
+#else
+      Call Agrif_Update_Variable(tabtemp,updatetid,
+     &         procname = updateTranp1)
+      Agrif_UseSpecialValueInUpdate = .FALSE.
+#endif
+      ELSE
+
+#ifdef AGRIF_UPDATE_DECAL
+      Call Agrif_Update_Variable(tabtemp,updatetid,
+     &         locupdate=(/1,3/),procname = updateTranp1)
+     
+      Agrif_UseSpecialValueInUpdate = .FALSE.
+           
+!      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updateuid,
+!     &     locupdate1=(/0,2/),locupdate2=(/1,3/),
+!     &     procname = updateunp1)
+!      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updatevid,
+!     &     locupdate1=(/1,3/),locupdate2=(/0,2/),
+!     &     procname = updatevnp1) 
+#else
+      Call Agrif_Update_Variable(tabtemp,updatetid,
+     &         locupdate=(/0,1/),procname = updateTranp1)
+     
+      Agrif_UseSpecialValueInUpdate = .FALSE.
+           
+!      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updateuid,
+!     &     locupdate1=(/0,2/),locupdate2=(/0,2/),
+!     &     procname = updateunp1)
+!      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updatevid,
+!     &     locupdate1=(/0,2/),locupdate2=(/0,2/),
+!     &     procname = updatevnp1) 
+#endif    
+      ENDIF
+
+#if !defined AGRIF_CONSERV_TRA
+       RETURN
+#else
+
+#if defined AGRIF_UPDATE_DECAL && !defined AGRIF_OLD_CONSERV
+
+      Agrif_UseSpecialValueInUpdate = .FALSE.
+
+      
+      Call Agrif_Update_Variable(tabtemp,updatemyfxid,
+     &     locupdate1=(/0,0/),locupdate2=(/1,1/),
+     &     procname = updatemyfx)
+    
+      Call Agrif_Update_Variable(tabtemp,updatemyfyid,
+     &     locupdate1=(/1,1/),locupdate2=(/0,0/),
+     &     procname = updatemyfy) 
+#endif
+               
+#if defined AGRIF_UPDATE_DECAL && !defined AGRIF_OLD_DECAL
+      idecal = Agrif_irhox()
+#else
+      idecal = 0
+#endif
+
+#ifdef MPI
+       if (.not.WEST_INTER) then
+#endif
+       myfx(1+idecal,0:Mmmpi+1,:,:) = 0.
+#ifdef MPI
+       endif
+#endif
+
+#ifdef MPI
+       if (.not.EAST_INTER) then
+#endif
+       myfx(Lmmpi+1-idecal,0:Mmmpi+1,:,:) = 0.
+#ifdef MPI
+       endif
+#endif
+
+#ifdef MPI
+       if (.not.SOUTH_INTER) then
+#endif
+       myfy(0:Lmmpi+1,1+idecal,:,:) = 0.
+#ifdef MPI
+       endif
+#endif
+
+#ifdef MPI
+       if (.not.NORTH_INTER) then
+#endif
+       myfy(0:Lmmpi+1,Mmmpi+1-idecal,:,:) = 0.
+#ifdef MPI
+       endif
+#endif
+
+#if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+      Call Agrif_ChildGrid_To_ParentGrid()
+      Call ExchangeParentValuesTracers()
+      Call Agrif_ParentGrid_To_ChildGrid()
+#endif
+      
+#endif
+
+      return
+      end
+      
+      subroutine ExchangeParentValuesTracers()
+#  include "param.h"
+#  include "scalars.h"
+#  include "ocean3d.h"
+      
+#if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+      do itrc = 1,NT
+        call exchange_r3d_tile (1,Lm,1,Mm,
+     &                          t(START_2D_ARRAY,1,nnew,itrc))
+      enddo
+#endif
+
+      end subroutine ExchangeParentValuesTracers      
+      
+      
+      subroutine Agrif_update_uv_np1
+!
+! Update in case of 2-way nesting
+!
+      use Agrif_Util
+      implicit none
+#  include "param.h"
+#  include "grid.h"
+#  include "ocean3d.h"
+#  include "ocean2d.h"
+#  include "scalars.h"
+#  include "coupling.h"
+#  include "zoom.h"
+      integer NNO,NNOX,NNOY,ich,jch,k,itrc,ipr,jpr,nnewpr
+      integer irmin,irmax,jrmin,jrmax,iumin,iumax,jvmin,jvmax
+      integer ii,jj,iint,jint
+      real eps,cff,fxc,surfc 
+      parameter (eps=1.E-20)
+      real tabtemp(GLOBAL_2D_ARRAY,N,NT)
+      External UpdateTranp1, Updateunp1, Updatevnp1
+      real,dimension(:,:,:,:), pointer :: myfxparent,myfyparent,uparent
+      real,dimension(:,:,:,:), allocatable :: myfxoldparent,myfyoldparent
+      real,dimension(:,:,:,:), pointer :: vparent
+      real,dimension(:,:),pointer :: pmparent,pnparent,rmaskparent
+      real,dimension(:,:,:),pointer :: Hzparent
+      real,dimension(:,:,:,:,:),pointer ::tparent
+      integer ipu,jpu,ipv,jpv
+      real HTEMP(GLOBAL_2D_ARRAY,N)
+      integer j,i
+      real t1,t2,t3,t4,t5, t6, t7
+      real dtparent
+      integer nnewparent,parentnnew
+      real tind(5)
+      integer j1
+      integer irhot
+      integer idecal
+      external :: updatemyfx, updatemyfy
+      external :: updateunp1pre
+      external :: updatevnp1pre
+!$AGRIF_DO_NOT_TREAT
+      integer :: nbcoarsechild
+      common/updateprestepint/nbcoarsechild      
+!$AGRIF_END_DO_NOT_TREAT
+!
+
+      nbcoarsechild = nbcoarse
+
+      Call Agrif_ChildGrid_To_ParentGrid()
+      Call ResetAlready()
+      Call Agrif_ParentGrid_To_ChildGrid()
+     
+#ifdef MASKING
+      Agrif_UseSpecialValueInUpdate = .FALSE.
+#endif
+      Agrif_SpecialValueFineGrid = 0.
+     
+      Agrif_UseSpecialValueInUpdate = .FALSE.
+
+#if defined AGRIF_CONSERV_TRA
+#if defined AGRIF_UPDATE_DECAL && !defined AGRIF_OLD_CONSERV
+!      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updatehuonid,
+!     &     locupdate1=(/0,4/),locupdate2=(/1,5/),
+!     &     procname = updateunp1pre)
+!      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updatehvomid,
+!     &     locupdate1=(/1,5/),locupdate2=(/0,5/),
+!     &     procname = updatevnp1pre)
+     
+      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updatehuonid,
+     &     locupdate1=(/0,0/),locupdate2=(/1,1/),
+     &     procname = updateunp1pre)
+      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updatehvomid,
+     &     locupdate1=(/1,1/),locupdate2=(/0,0/),
+     &     procname = updatevnp1pre)
+     
+#endif
+#endif
+     
+      IF (nbcoarse .NE. Agrif_Irhot()) return
+
+#ifdef MASKING
+      Agrif_UseSpecialValueInUpdate = .TRUE.
+#endif
+      Agrif_SpecialValueFineGrid = 0.
+      
+      irhot=Agrif_Irhot()
+      
+      !IF (mod(nbstep3d,1) == (irhot-1)) THEN
+      IF (.TRUE.) THEN
+
+#ifdef AGRIF_UPDATE_DECAL
       Agrif_UseSpecialValueInUpdate = .FALSE.
            
       Call Agrif_Update_Variable(tabtemp(:,:,:,1),updateuid,
      &     locupdate1=(/0,-1/),locupdate2=(/1,-2/),
      &     procname = updateunp1)
+     
       Call Agrif_Update_Variable(tabtemp(:,:,:,1),updatevid,
      &     locupdate1=(/1,-2/),locupdate2=(/0,-1/),
      &     procname = updatevnp1)
-
-!     Call Agrif_Update_Variable(tabtemp,updateTprof,
-!    &         procname = updateTranp1)
      
-!     Agrif_UseSpecialValueInUpdate = .FALSE.
+#else
+      Agrif_UseSpecialValueInUpdate = .FALSE.
            
-!     Call Agrif_Update_Variable(tabtemp(:,:,:,1),Huon,
-!    &         procname = updateunp1)
-!     Call Agrif_Update_Variable(tabtemp(:,:,:,1),Hvom,
-!    &         procname = updatevnp1)
+      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updateuid,
+     &     procname = updateunp1)
+      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updatevid,
+     &     procname = updatevnp1)
+#endif
       ELSE
 
-      Call Agrif_Update_Variable(tabtemp,updatetid,
-     &         locupdate=(/1,2/),procname = updateTranp1)
+#ifdef AGRIF_UPDATE_DECAL
      
       Agrif_UseSpecialValueInUpdate = .FALSE.
            
@@ -163,157 +374,22 @@
       Call Agrif_Update_Variable(tabtemp(:,:,:,1),updatevid,
      &     locupdate1=(/1,3/),locupdate2=(/0,2/),
      &     procname = updatevnp1) 
-
-!     Call Agrif_Update_Variable(tabtemp,updateTprof,
-!    &         locupdate=(/0,2/),procname = updateTranp1)
+#else
      
-!     Agrif_UseSpecialValueInUpdate = .FALSE.
+      Agrif_UseSpecialValueInUpdate = .FALSE.
            
-!     Call Agrif_Update_Variable(tabtemp(:,:,:,1),Huon,
-!    &         locupdate=(/0,2/),procname = updateunp1)
-!     Call Agrif_Update_Variable(tabtemp(:,:,:,1),Hvom,
-!    &         locupdate=(/0,2/),procname = updatevnp1)     
+      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updateuid,
+     &     locupdate1=(/0,2/),locupdate2=(/0,2/),
+     &     procname = updateunp1)
+      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updatevid,
+     &     locupdate1=(/0,2/),locupdate2=(/0,2/),
+     &     procname = updatevnp1) 
+#endif    
       ENDIF
 
-       RETURN
-      
-      tparent=>
-     &Agrif_Parent(t)
-      uparent=>
-     &Agrif_Parent(u) 
-      vparent=>
-     &Agrif_Parent(v)          
-      parentnnew=
-     &Agrif_Parent(nnew)
-      Hzparent=>
-     &Agrif_Parent(Hz)
-#ifdef MASKING
-      rmaskparent=>
-     &Agrif_Parent(rmask)
-#endif          
-     
- 
-
-        
-       myfxparent=>
-     &Agrif_Parent(myfx)
-       myfyparent=>
-     &Agrif_Parent(myfy)
-      pmparent=>
-     &Agrif_Parent(pm)
-      pnparent=>
-     &Agrif_Parent(pn)
-      Hzparent=>
-     &Agrif_Parent(Hz) 
-      tparent=>
-     &Agrif_Parent(t)    
-      dtparent=
-     &Agrif_Parent(dt)
-      nnewparent=
-     &Agrif_Parent(nnew)
-               
-      idecal = 0
-!     i=1
-      i=1+idecal
-      ipu=Agrif_ix()+1-1+(i-1)/3
-      
-      do itrc=1,NT
-      do k=1,N
-!     do j=2,Mm-1,3
-      do j=2+idecal,Mm-1-idecal,3
-      jpu=Agrif_iy()+1-1+(j-2)/3
-      t1=myfxparent(ipu,jpu,k,itrc)
-      
-      t3 = sum(myfx(i,j-1:j+1,k,itrc))
-      
-#define CONSERVTRA      
-#ifdef CONSERVTRA    
-!      print *,ipu,jpu,t3,t1        
-      tparent(ipu-1,jpu,k,nnewparent,itrc)=
-     & tparent(ipu-1,jpu,k,nnewparent,itrc)-
-     & (t3-t1)*dtparent*
-     &  pmparent(ipu-1,jpu)*pnparent(ipu-1,jpu)/Hzparent(ipu-1,jpu,k)
-#endif
-      enddo
-      enddo
-      enddo
-      
-!     i=Lm+1
-      i=Lm+1-idecal
-      ipu=Agrif_ix()+1-1+(i-1)/3
-      
-      do itrc=1,NT
-      do k=1,N
-!     do j=2,Mm-1,3
-      do j=2+idecal,Mm-1-idecal,3
-      jpu=Agrif_iy()+1-1+(j-2)/3
-      t1=myfxparent(ipu,jpu,k,itrc)
-      
-      t3 = sum(myfx(i,j-1:j+1,k,itrc))
-#ifdef CONSERVTRA 
-!      print *,ipu,jpu,t3,t1           
-      tparent(ipu,jpu,k,nnewparent,itrc)=
-     & tparent(ipu,jpu,k,nnewparent,itrc)+
-     & (t3-t1)*dtparent*
-     &  pmparent(ipu,jpu)*pnparent(ipu,jpu)/Hzparent(ipu,jpu,k)
-#endif     
-      enddo
-      enddo
-      enddo      
-      
-!     j=1
-      j=1+idecal
-      jpv=Agrif_iy()+1-1+(j-1)/3
-      
-      do itrc=1,NT
-      do k=1,N
-!     do i=2,Lm-1,3
-      do i=2+idecal,Lm-1-idecal,3
-      ipv=Agrif_ix()+1-1+(i-2)/3
-      t1=myfyparent(ipv,jpv,k,itrc)
-      
-      t3 = sum(myfy(i-1:i+1,j,k,itrc))
-#ifdef CONSERVTRA        
-      t4 = tparent(ipv,jpv-1,k,nnewparent,itrc)
-      tparent(ipv,jpv-1,k,nnewparent,itrc)=
-     & tparent(ipv,jpv-1,k,nnewparent,itrc)-
-     & (t3-t1)*dtparent*
-     &  pmparent(ipv,jpv-1)*pnparent(ipv,jpv-1)/Hzparent(ipv,jpv-1,k)
-      
-#endif     
-      enddo
-      enddo
-      enddo
-
-!     j=Mm+1
-      j=Mm+1-idecal
-      jpv=Agrif_iy()+1-1+(j-1)/3
-      
-      do itrc=1,NT
-      do k=1,N
-!     do i=2,Lm-1,3
-      do i=2+idecal,Lm-1-idecal,3
-      ipv=Agrif_ix()+1-1+(i-2)/3
-      t1=myfyparent(ipv,jpv,k,itrc)
-      
-      t3 = sum(myfy(i-1:i+1,j,k,itrc))
-
-#ifdef CONSERVTRA 
-!      print *,ipv,jpv,t3,t1            
-      tparent(ipv,jpv,k,nnewparent,itrc)=
-     & tparent(ipv,jpv,k,nnewparent,itrc)+
-     & (t3-t1)*dtparent*
-     &  pmparent(ipv,jpv)*pnparent(ipv,jpv)/Hzparent(ipv,jpv,k)
-#endif  
-      enddo
-      enddo
-      enddo
-                  
-      myfx = 0.
-      myfy = 0.
-      
       return
       end
+      
       
       Subroutine UpdateTranp1pre(tabres,i1,i2,j1,j2,k1,k2,l1,l2,before)
       implicit none
@@ -391,17 +467,18 @@
       end 
     
       
-      Subroutine Updateunp1pre(tabres,i1,i2,j1,j2,k1,k2,before)
+      Subroutine Updateunp1pre(tabres,i1,i2,j1,j2,k1,k2,before,nb,ndir)
       implicit none
 #  include "param.h"
 #  include "ocean3d.h"
 #  include "grid.h"
 #  include "scalars.h"
 #  include "zoom.h"
-      integer i1,i2,j1,j2,k1,k2
+#  include "coupling.h"
+      integer i1,i2,j1,j2,k1,k2,nb,ndir
       real tabres(i1:i2,j1:j2,k1:k2)
       logical before
-      real :: hzu
+
 !$AGRIF_DO_NOT_TREAT
       integer :: nbcoarsechild
       common/updateprestepint/nbcoarsechild
@@ -409,14 +486,16 @@
       
       integer i,j,k
       real :: invrrhot
+      real t1,t2,t3
 
       IF (before) THEN
       
         invrrhot = 1./real(Agrif_Irhot())
+        
         DO k=k1,k2
         DO j=j1,j2
         DO i=i1,i2
-          tabres(i,j,k) = invrrhot * u(i,j,k,nrhs)
+          tabres(i,j,k) = invrrhot * Huon(i,j,k)
 #ifdef MASKING
      &                       *umask(i,j)
 #endif          
@@ -425,12 +504,12 @@
         ENDDO
        
        ELSE
-       
+
          IF (nbcoarsechild == 1) THEN
            DO k=k1,k2
            DO j=j1,j2
            DO i=i1,i2
-             u(i,j,k,nrhs) = tabres(i,j,k)
+             Huonagrif(i,j,k) = 3.*tabres(i,j,k)
 #ifdef MASKING             
      &                         * umask(i,j)
 #endif
@@ -439,22 +518,22 @@
            ENDDO 
         
          ELSE
-       
-
+         
            DO j=j1,j2
            DO i=i1,i2
              IF (.Not.Alreadyupdated(i,j,2)) THEN
                DO k=k1,k2             
-                 u(i,j,k,nrhs) = (u(i,j,k,nrhs)+tabres(i,j,k))
+         Huonagrif(i,j,k) = (Huonagrif(i,j,k)+3.*tabres(i,j,k))
 #ifdef MASKING             
      &                              * umask(i,j)
-#endif    
+#endif
+          Huon(i,j,k) = Huonagrif(i,j,k)
                ENDDO
                Alreadyupdated(i,j,2) = .TRUE.
              ENDIF
            ENDDO 
-           ENDDO 
-        
+           ENDDO
+
           ENDIF        
         ENDIF
               
@@ -463,17 +542,17 @@
 
       
       
-      Subroutine Updatevnp1pre(tabres,i1,i2,j1,j2,k1,k2,before)
+      Subroutine Updatevnp1pre(tabres,i1,i2,j1,j2,k1,k2,before,nb,ndir)
       implicit none
 #  include "param.h"
 #  include "ocean3d.h"
 #  include "grid.h"
 #  include "scalars.h"
 #  include "zoom.h"
-      integer i1,i2,j1,j2,k1,k2
+      integer i1,i2,j1,j2,k1,k2,nb,ndir
       real tabres(i1:i2,j1:j2,k1:k2)
       logical before
-      real :: hzu
+
 !$AGRIF_DO_NOT_TREAT
       integer :: nbcoarsechild
       common/updateprestepint/nbcoarsechild
@@ -489,7 +568,7 @@
         DO k=k1,k2
         DO j=j1,j2
         DO i=i1,i2
-          tabres(i,j,k) = invrrhot * v(i,j,k,nrhs)
+          tabres(i,j,k) = invrrhot * Hvom(i,j,k)
 #ifdef MASKING
      &                       *vmask(i,j)
 #endif          
@@ -498,12 +577,11 @@
         ENDDO
        
        ELSE
-       
          IF (nbcoarsechild == 1) THEN
            DO k=k1,k2
            DO j=j1,j2
            DO i=i1,i2
-             v(i,j,k,nrhs) = tabres(i,j,k)
+             Hvomagrif(i,j,k) = 3.*tabres(i,j,k)
 #ifdef MASKING             
      &                         * vmask(i,j)
 #endif
@@ -518,16 +596,17 @@
            DO i=i1,i2
              IF (.Not.Alreadyupdated(i,j,3)) THEN
                DO k=k1,k2             
-                 v(i,j,k,nrhs) = (v(i,j,k,nrhs)+tabres(i,j,k))
+           Hvomagrif(i,j,k)= (Hvomagrif(i,j,k)+3.*tabres(i,j,k))
 #ifdef MASKING
      &                              * vmask(i,j)
 #endif    
+              Hvom(i,j,k) = Hvomagrif(i,j,k)
                ENDDO
                Alreadyupdated(i,j,3) = .TRUE.
              ENDIF
            ENDDO 
-           ENDDO 
-        
+           ENDDO
+           
           ENDIF        
         ENDIF
       
@@ -581,6 +660,141 @@
       return
       end
  
+      Subroutine Updatemyfx(tabres,i1,i2,j1,j2,k1,k2,l1,l2,before,
+     &   nb,ndir)
+      implicit none
+#  include "param.h"
+#  include "ocean3d.h"
+#  include "scalars.h"
+#  include "grid.h"
+#  include "zoom.h"
+      integer i1,i2,j1,j2,k1,k2,l1,l2
+      real tabres(i1:i2,j1:j2,k1:k2,l1:l2)
+      logical before
+      
+      integer i,j,k,l
+      integer nb,ndir
+      real :: t1, rrhoy
+      logical :: western_side, eastern_side
+            
+      IF (before) THEN
+      
+         rrhoy = real(Agrif_Irhoy())
+         
+      DO l=l1,l2
+        DO k=k1,k2
+         DO j=j1,j2
+           DO i=i1,i2
+	    tabres(i,j,k,l) = rrhoy*myfx(i,j,k,l)
+            ENDDO
+         ENDDO
+        ENDDO
+       ENDDO
+       
+       ELSE
+       
+         western_side  = (nb == 1).AND.(ndir == 1)
+         eastern_side  = (nb == 1).AND.(ndir == 2)
+      
+      if (western_side) then
+      i=i1
+      DO l=l1,l2
+        DO k=k1,k2
+         DO j=j1,j2
+         t(i-1,j,k,nnew,l)=t(i-1,j,k,nnew,l)-
+     &  pm(i-1,j)*pn(i-1,j)*(tabres(i,j,k,l)-myfx(i,j,k,l))
+     &  /Hz(i-1,j,k)
+         ENDDO
+       ENDDO 
+       ENDDO
+       endif
+       
+      if (eastern_side) then
+      i=i2
+      DO l=l1,l2
+        DO k=k1,k2
+         DO j=j1,j2
+         t(i,j,k,nnew,l)=t(i,j,k,nnew,l)+
+     &  pm(i,j)*pn(i,j)*(tabres(i,j,k,l)-myfx(i,j,k,l))
+     &  /Hz(i,j,k)
+         ENDDO
+       ENDDO 
+       ENDDO
+       endif
+
+       ENDIF
+      return
+      end
+      
+      
+      Subroutine Updatemyfy(tabres,i1,i2,j1,j2,k1,k2,l1,l2,before,
+     &   nb,ndir)
+      implicit none
+#  include "param.h"
+#  include "ocean3d.h"
+#  include "scalars.h"
+#  include "grid.h"
+#  include "zoom.h"
+      integer i1,i2,j1,j2,k1,k2,l1,l2
+      real tabres(i1:i2,j1:j2,k1:k2,l1:l2)
+      logical before
+      
+      integer i,j,k,l
+      integer nb,ndir
+      real :: t1, rrhox
+      logical :: northern_side,southern_side
+            
+      IF (before) THEN
+      
+         rrhox = real(Agrif_Irhox())
+         
+      DO l=l1,l2
+        DO k=k1,k2
+         DO j=j1,j2
+           DO i=i1,i2
+	    tabres(i,j,k,l) = rrhox * myfy(i,j,k,l)
+            ENDDO
+         ENDDO
+        ENDDO
+       ENDDO
+       
+       ELSE
+       
+         southern_side = (nb == 2).AND.(ndir == 1)
+         northern_side = (nb == 2).AND.(ndir == 2)
+
+      if (southern_side) then
+      
+      j=j1
+      DO l=l1,l2
+        DO k=k1,k2
+         DO i=i1,i2
+         t(i,j-1,k,nnew,l)=t(i,j-1,k,nnew,l)-
+     &  pm(i,j-1)*pn(i,j-1)*(tabres(i,j,k,l)-myfy(i,j,k,l))
+     &  /Hz(i,j-1,k)
+         ENDDO
+       ENDDO 
+       ENDDO
+       
+
+       endif
+       
+      if (northern_side) then
+      j=j2
+      DO l=l1,l2
+        DO k=k1,k2
+         DO i=i1,i2
+         t(i,j,k,nnew,l)=t(i,j,k,nnew,l)+
+     &  pm(i,j)*pn(i,j)*(tabres(i,j,k,l)-myfy(i,j,k,l))
+     &  /Hz(i,j,k)
+         ENDDO
+       ENDDO 
+       ENDDO
+       endif
+
+       ENDIF
+      return
+      end      
       
       Subroutine Updateunp1(tabres,i1,i2,j1,j2,k1,k2,before)
       implicit none

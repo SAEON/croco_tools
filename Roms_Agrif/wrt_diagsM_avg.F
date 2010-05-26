@@ -105,7 +105,8 @@
 !
 !
       do itrc=1,2
-
+        if (wrtdiaM_avg(itrc)) then
+!
           if (itrc.eq.1) then
             ivar=u3dvar
           else
@@ -114,7 +115,6 @@
 !
 ! indxMXadv
 !
-        if (wrtdiaM_avg(indxMYadv+itrc-1)) then
           ierr=nf_fwrite(MXadv_avg(START_2D_ARRAY,1,itrc), nciddiaM_avg,
      &                              diaMXadv_avg(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -122,12 +122,10 @@
             write(stdout,1) vname(1,indxMXadv+itrc-1)(1:lvar), record,
      &                      ierr MYID
             goto 99                                       !--> ERROR
-          endif
-        endif       
+          endif  
 !
 ! indxMYadv
 !
-        if (wrtdiaM_avg(indxMYadv+itrc-1)) then
           ierr=nf_fwrite(MYadv_avg(START_2D_ARRAY,1,itrc), nciddiaM_avg,
      &                               diaMYadv_avg(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -136,11 +134,9 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
-         endif
 !
 ! indxMVadv
 !
-        if (wrtdiaM_avg(indxMVadv+itrc-1)) then
           ierr=nf_fwrite(MVadv_avg(START_2D_ARRAY,1,itrc), nciddiaM_avg,
      &                               diaMVadv_avg(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -149,11 +145,9 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
-         endif
 !
 ! indxMCor
 !
-        if (wrtdiaM_avg(indxMCor+itrc-1)) then
           ierr=nf_fwrite(MCor_avg(START_2D_ARRAY,1,itrc), nciddiaM_avg,
      &                               diaMCor_avg(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -162,11 +156,9 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
-         endif
 !
 ! indxMPrsgrd
 !
-        if (wrtdiaM_avg(indxMPrsgrd+itrc-1)) then
           ierr=nf_fwrite(MPrsgrd_avg(START_2D_ARRAY,1,itrc),nciddiaM_avg,
      &                               diaMPrsgrd_avg(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -175,11 +167,9 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
-         endif
 !
 ! indxMHmix
 !
-        if (wrtdiaM_avg(indxMHmix+itrc-1)) then
           ierr=nf_fwrite(MHmix_avg(START_2D_ARRAY,1,itrc), nciddiaM_avg,
      &                               diaMHmix_avg(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -188,11 +178,9 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
-         endif
 !
 ! indxMVmix
 !
-        if (wrtdiaM_avg(indxMVmix+itrc-1)) then
           ierr=nf_fwrite(MVmix_avg(START_2D_ARRAY,1,itrc), nciddiaM_avg,
      &                               diaMVmix_avg(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -201,11 +189,9 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
-         endif
 !
 ! indxMrate
 !
-        if (wrtdiaM_avg(indxMrate+itrc-1)) then
           ierr = nf_fwrite(Mrate_avg(START_2D_ARRAY,1,itrc), 
      &        nciddiaM_avg, diaMrate_avg(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -214,8 +200,9 @@
      &           record, ierr MYID 
             goto 99
           endif
-         endif
 !
+      
+        endif
       enddo
 !
 #  ifdef DEBUG

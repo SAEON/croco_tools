@@ -17,40 +17,17 @@
 #include "ocean3d.h"
 #include "ocean2d.h"
 
-      integer :: iifparent
-
-#ifdef AGRIF       
-       IF (.Not.Agrif_Root()) then
-       iifparent =
-     &Agrif_Parent(iif)
-
-         IF (iifparent == (nfast+1)) THEN
-           IF (iif == nfast) THEN
-             iif = mod(iif+1, nfast+2)
-C$OMP PARALLEL
-             call step3D_thread()
-C$OMP END PARALLEL 
-             nbstep3d = nbstep3d + 1
-           ENDIF
-           Return
-         ENDIF
-              
-         IF (iifparent == 0) THEN
-           IF (iif == (nfast+1)) THEN
-             iif = mod(iif+1, nfast+2)
-C$OMP PARALLEL
-             call prestep3D_thread()
-C$OMP END PARALLEL
-           ENDIF
-           Return
-         ENDIF
-                  
-       ENDIF
+#ifdef AGRIF
+      IF (firstcoarsetimestep) THEN
+        call computenbmaxtimes()
+      ENDIF
+      IF (agrif_fixed().NE.sortedint(nbtimes)) return
+      nbtimes = nbtimes + 1
 #endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #ifdef SOLVE3D       
-       iif = mod(iif+1, nfast+2)
+       iif = iif+1
       IF (iif .EQ. 0) then
 #endif      
 C$OMP PARALLEL
@@ -58,7 +35,7 @@ C$OMP PARALLEL
 C$OMP END PARALLEL
 #ifdef SOLVE3D 
       endif       
-      IF ((iif.NE.0).AND.(iif.NE.(nfast+1))) THEN
+      IF ((iif.GT.0).AND.(iif.LT.(nfast+1))) THEN
 #endif
 C$OMP PARALLEL
         call step2d_thread()
@@ -68,26 +45,19 @@ C$OMP END PARALLEL
       IF (iif .EQ. (nfast+1)) then
 #endif      
 C$OMP PARALLEL
-        call step3D_thread()
+        call step3D_uv_thread()
 C$OMP END PARALLEL
 #ifdef SOLVE3D
+      endif
+      IF (iif .EQ. (nfast + 2)) then
+#endif      
+C$OMP PARALLEL
+        call step3D_t_thread()
+C$OMP END PARALLEL
+#ifdef SOLVE3D
+        iif = -1
         nbstep3d = nbstep3d + 1
       endif
-#endif      
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-#ifdef AGRIF      
-      IF (.Not.Agrif_Root()) THEN             
-        IF (iif == (nfast+1)) THEN
-          iif = 1 + mod(iif, nfast+1)
-C$OMP PARALLEL
-          call prestep3D_thread()
-C$OMP END PARALLEL
-C$OMP PARALLEL
-          call step2d_thread()
-C$OMP END PARALLEL
-        ENDIF
-      ENDIF
 #endif
 
       return
@@ -361,7 +331,7 @@ C$OMP MASTER
       call check_tab3d(t(:,:,:,nnew,itrc),'t prestep3d','r')
       enddo
       call check_tab3d(u(:,:,:,nnew),'u prestep3d','u')
-      call check_tab3d(v(:,:,:,nnew),'u prestep3d','v')
+      call check_tab3d(v(:,:,:,nnew),'v prestep3d','v')
 #endif
 
       nrhs=3
@@ -553,10 +523,10 @@ C$OMP END MASTER
       end
 !
 !====================================================================
-!                  subroutine step3D_thread
+!                  subroutine step3D_uv_thread
 !====================================================================
 !      
-      subroutine step3D_thread()
+      subroutine step3D_uv_thread()
 #ifdef AGRIF
       use Agrif_Util
 #endif
@@ -640,7 +610,85 @@ C$OMP BARRIER
         call step3d_uv2 (tile)
       enddo
 C$OMP BARRIER
- 
+
+!
+#if defined AGRIF && defined AGRIF_2WAY
+!
+! Update the outer domain after the last child step
+! in case of 2-way nesting.
+!
+C$OMP BARRIER 
+C$OMP MASTER
+      if (.Not.Agrif_Root()) then
+        call Agrif_update_uv_np1
+      endif
+C$OMP END MASTER
+#endif /*AGRIF && AGRIF_2WAY*/
+
+      return
+      end
+      
+!
+!====================================================================
+!                  subroutine step3D_t_thread
+!====================================================================
+!      
+      subroutine step3D_t_thread()
+#ifdef AGRIF
+      use Agrif_Util
+#endif
+      implicit none
+#include "param.h"
+#include "scalars.h"
+#include "ncscrum.h"
+#ifdef FLOATS
+# include "floats.h"
+#endif
+#ifdef STATIONS
+# include "sta.h"
+#endif
+#include "zoom.h"
+#include "ocean3d.h"
+#include "ocean2d.h"
+#include "coupling.h"
+#include "grid.h"
+#ifdef AUTOTILING
+#include "autotiling.h"
+#endif
+       integer range
+      integer ntrds,trd,
+     &        my_first,my_last, tile, my_iif
+      integer i,j,k
+
+#ifdef FLOATS
+       integer chunk_size_flt, Lstr,Lend, flt_str
+       common /floats_step/ flt_str
+#endif
+#ifdef STATIONS
+       integer chunk_size_sta, Mcpstr,Mcpend, sta_str
+       common /sta_step/ sta_str
+#endif
+#ifdef AGRIF
+      integer Agrif_lev_sedim
+#endif
+      integer omp_get_num_threads, omp_get_thread_num 
+      integer itrc
+      
+      real t1,t2,t3
+
+      ntrds=omp_get_num_threads()
+      trd=omp_get_thread_num()
+C$OMP BARRIER
+      range=(NSUB_X*NSUB_E+ntrds-1)/ntrds
+      my_first=trd*range
+      my_last=min(my_first + range-1, NSUB_X*NSUB_E-1)
+
+#ifdef AGRIF
+      Agrif_lev_sedim=Agrif_Nb_Fine_Grids()
+#endif
+    
+C$OMP BARRIER
+
       do tile=my_first,my_last
         call omega (tile)
         call step3d_t (tile)
@@ -748,5 +796,86 @@ C$OMP END MASTER
 #endif
 
       return
-      end            
+      end      
 
+#ifdef AGRIF
+      subroutine computenbmaxtimes()
+      implicit none
+#include "param.h"
+#include "scalars.h"
+#include "zoom.h"
+      integer :: ilev, maxlevel, minlevel
+      logical :: tostop
+      integer :: nlev, ilevtop
+
+      if (.not.tocont) return
+      
+      ilev = Agrif_Level()
+      maxlevel = Agrif_MaxLevel()
+      
+      if ((ilev == 0).AND.(itimes(ilev) == 0)) then
+      do nlev = 0,maxlevel
+        iind = iind + 1
+        sortedint(iind) = nlev
+      enddo
+      endif
+      
+      iind = iind + 1
+      sortedint(iind ) = ilev
+      
+      itimes(ilev) = itimes(ilev) + 1
+      
+      tostop = .FALSE.
+      
+      
+      if (ilev == maxlevel) then
+        if (itimes(ilev) == nfast) then
+          
+         minlevel = maxlevel - 1
+         do while (minlevel>=0)
+           if (itimes(minlevel) .NE. nfast) exit
+           minlevel = minlevel - 1
+         enddo
+         minlevel = minlevel + 1
+         
+         
+         if (minlevel == 0) tostop = .TRUE.
+         
+         do ilevtop = minlevel, maxlevel
+           if (itimes(ilevtop) == nfast) then
+             iind = iind + 1
+             sortedint(iind) = ilevtop
+           endif
+         enddo
+         
+         do ilevtop = minlevel, maxlevel
+           if (itimes(ilevtop) == nfast) then
+             iind = iind + 1
+             sortedint(iind) = ilevtop
+           endif
+         enddo         
+     
+         if (tostop) then
+           tocont = .FALSE.
+           nbmaxtimes = iind
+           firstcoarsetimestep = .FALSE.
+           sortedint(iind+1:) = -1
+           return
+         endif
+
+         do ilevtop = minlevel, maxlevel
+           if (itimes(ilevtop) == nfast) then
+             iind = iind + 1
+             sortedint(iind) = ilevtop
+            itimes(ilevtop) = 0
+           endif
+         enddo
+        
+        endif
+      endif
+      
+         nbmaxtimes = iind
+         
+      return
+      end
+#endif

@@ -38,15 +38,21 @@
      &    .or. (mod(ilc-1,navg).eq.0 .and. wrtavg(indxTime))
 #endif
 #if defined DIAGNOSTICS_TS
-     &    .or. (mod(ilc-1,nwrtdia).eq.0 .and. wrtdia(indxTime))
+     &    .or. (mod(ilc-1,nwrtdia).eq.0 .and. wrtdia3D(NT+1))
 # ifdef AVERAGES
-     &    .or. (mod(ilc-1,nwrtdia_avg).eq.0 .and. wrtdia_avg(indxTime))
+     &    .or. (mod(ilc-1,nwrtdia_avg).eq.0 .and. wrtdia3D_avg(NT+1))
+# endif
+# if defined DIAGNOSTICS_TS_MLD
+     &    .or. (mod(ilc-1,nwrtdia).eq.0 .and. wrtdia2D(NT+1))
+#  ifdef AVERAGES
+     &    .or. (mod(ilc-1,nwrtdia_avg).eq.0 .and. wrtdia2D_avg(NT+1))
+#  endif
 # endif
 #endif
 #if defined DIAGNOSTICS_UV
-     &    .or. (mod(ilc-1,nwrtdiaM).eq.0 .and. wrtdiaM(indxTime))
+     &    .or. (mod(ilc-1,nwrtdiaM).eq.0 .and. wrtdiaM(3))
 # ifdef AVERAGES
-     &    .or. (mod(ilc-1,nwrtdiaM_avg).eq.0 .and. wrtdiaM_avg(indxTime))
+     &    .or. (mod(ilc-1,nwrtdiaM_avg).eq.0 .and. wrtdiaM_avg(3))
 # endif
 #endif
 #ifdef DIAGNOSTICS_BIO
@@ -118,25 +124,36 @@
 !
 ! Call output routines
 !
+!        write(*,*) "wrtdia3D ",wrtdia3D
+!        write(*,*) "wrtdia2D ",wrtdia2D
+!        write(*,*) "wrtdia_avg3D ",wrtdia3D_avg
+!        write(*,*) "wrtdia_avg2D ",wrtdia2D_avg
+!!
+!        write(*,*) "wrtdiaM ",wrtdiaM
+!        write(*,*) "wrtdiaM_avg ",wrtdiaM_avg
+!
         if (mod(ilc-1,nrst).eq.0) call wrt_rst
         if (mod(ilc-1,nwrt).eq.0 .and. wrthis(indxTime)) call wrt_his
 #ifdef AVERAGES
         if (mod(ilc-1,navg).eq.0 .and. wrtavg(indxTime)) call wrt_avg
 #endif
 #if defined DIAGNOSTICS_TS
-        if (mod(ilc-1,nwrtdia).eq.0 .and. wrtdia(indxTime)) 
-     &                                              call wrt_diags
+        if (mod(ilc-1,nwrtdia).eq.0 .and. (wrtdia3D(NT+1) .or.
+     &      wrtdia2D(NT+1)))                              
+     &                                                 call wrt_diags
 # ifdef AVERAGES
         if (ldefdia_avg .and. mod(ilc-1,nwrtdia_avg).eq.0 
-     &                 .and. wrtdia_avg(indxTime))  call wrt_diags_avg
+     &     .and. (wrtdia3D_avg(NT+1) .or. wrtdia2D_avg(NT+1))) 
+     &                                             call wrt_diags_avg
 # endif
 #endif
+
 #if defined DIAGNOSTICS_UV
-        if (mod(ilc-1,nwrtdiaM).eq.0 .and. wrtdiaM(indxTime)) 
+        if (mod(ilc-1,nwrtdiaM).eq.0 .and. wrtdiaM(3)) 
      &                                              call wrt_diagsM
 # ifdef AVERAGES
         if (ldefdiaM_avg .and. mod(ilc-1,nwrtdiaM_avg).eq.0
-     &                 .and. wrtdiaM_avg(indxTime)) call wrt_diagsM_avg
+     &                 .and. wrtdiaM_avg(3)) call wrt_diagsM_avg
 # endif
 #endif
 #if defined DIAGNOSTICS_BIO

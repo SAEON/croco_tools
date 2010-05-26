@@ -733,6 +733,11 @@ C     Borders of the root coarse grid
 C  
 C     The root coarse grid is a fixed grid
       Agrif_Mygrid % fixed = .TRUE.
+C     Level of the root grid
+      Agrif_Mygrid % level = 0
+C     Maximum level in the hierarchy
+      Agrif_MaxLevelLoc = 0
+      
 C      
 C     Number of the grid pointed by Agrif_Mygrid (root coarse grid)
       Agrif_Mygrid % rank = 1      

@@ -475,6 +475,9 @@ C
      &                        + (locind_parent_left - 1)*ds_parent 
      
         deltax = invdsparent*(ypos-globind_parent_left)
+        
+        deltax = nint(coeffraf*deltax)/real(coeffraf)
+        
         ypos = ypos + ds_child
          if (abs(deltax).LE.0.0001) then
            y(i)=x(locind_parent_left)

@@ -4,6 +4,19 @@
 !====================================================================
 !
 # if defined AGRIF && defined SOLVE3D && defined AGRIF_2WAY
+
+      subroutine ExchangeParentValues()
+#  include "param.h"
+#  include "coupling.h"
+
+#if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+      call exchange_r2d_tile (1,Lm,1,Mm,
+     &                   Zt_avg1(START_2D_ARRAY))
+#endif
+
+      end subroutine ExchangeParentValues
+
+
       subroutine update2d
 !
 ! Update in case of 2-way nesting
@@ -36,6 +49,9 @@
       real :: cff
       real :: invrrhot
       integer :: pp
+      integer :: idecal
+      real,dimension(:,:), allocatable :: duavg2parentold
+      real,dimension(:,:), allocatable :: dvavg2parentold         
 
       
 !$AGRIF_DO_NOT_TREAT
@@ -56,18 +72,6 @@
 !      return
 
       irhot = Agrif_Irhot()
-      
-!      IF (iif == nfast) THEN
-!      IF (nbcoarse == 1) THEN
-!      DU_avg1(:,:,4) = 0.
-!      DV_avg1(:,:,4) = 0.     
-!      ENDIF
-      
-!      invrrhot = 1./real(irhot)
-!      DU_avg1(:,:,4) = DU_avg1(:,:,4) + invrrhot * DU_avg2(:,:)
-!      DV_avg1(:,:,4) = DV_avg1(:,:,4) + invrrhot * DV_avg2(:,:)
-!      ENDIF
-      
 
       
       IF ((mod(iif+(nbcoarse-1)*mod(nfast,irhot),irhot).NE.0)) RETURN
@@ -77,12 +81,9 @@
          nbgrid = Agrif_Fixed()
          
 C$OMP BARRIER
-C$OMP SINGLE
+C$OMP MASTER
         irhox = Agrif_Irhox()
         irhoy = Agrif_Irhoy()
-             
-
-
      
       Call Agrif_Set_Parent(indupdate,0) 
         
@@ -94,32 +95,36 @@ C$OMP SINGLE
       indupdate = 0
       
       global_update_2d = .FALSE.
-           
-!     Call Agrif_Update_Variable(tabtemp,Zt_avg2,
-!    &         locupdate=(/0,0/),procname = updatezeta)
 
-!     Agrif_UseSpecialValueInUpdate = .FALSE.
-            
-!     Call Agrif_Update_Variable(tabtemp,DU_avg1,
-!    &         locupdate=(/0,0/),procname = updateubar)
-     
-!     Call Agrif_Update_Variable(tabtemp,DV_avg1,
-!    &         locupdate=(/0,0/),procname = updatevbar) 
-
-
+#if defined AGRIF_UPDATE_DECAL
        Call Agrif_Update_Variable(tabtemp,updatezetaid,
-     &         locupdate=(/1,2/),procname = updatezeta)
+     &         locupdate=(/1,4/),procname = updatezeta)
 
       Agrif_UseSpecialValueInUpdate = .FALSE.
             
       Call Agrif_Update_Variable(tabtemp,updateubarid,
-     &     locupdate1=(/0,1/),locupdate2=(/1,2/),
+     &     locupdate1=(/0,3/),locupdate2=(/1,4/),
      &     procname = updateubar)
      
       Call Agrif_Update_Variable(tabtemp,updatevbarid,
-     &     locupdate1=(/1,2/),locupdate2=(/0,1/),
+     &     locupdate1=(/1,4/),locupdate2=(/0,3/),
+     &     procname = updatevbar) 
+     
+#else
+       Call Agrif_Update_Variable(tabtemp,updatezetaid,
+     &         locupdate=(/0,1/),procname = updatezeta)
+
+      Agrif_UseSpecialValueInUpdate = .FALSE.
+            
+      Call Agrif_Update_Variable(tabtemp,updateubarid,
+     &     locupdate1=(/0,1/),locupdate2=(/0,1/),
+     &     procname = updateubar)
+     
+      Call Agrif_Update_Variable(tabtemp,updatevbarid,
+     &     locupdate1=(/0,1/),locupdate2=(/0,1/),
      &     procname = updatevbar)          
-      
+#endif
+
       IF (iif == nfast) THEN
         
       IF (nbcoarse == irhot) THEN
@@ -130,16 +135,8 @@ C$OMP SINGLE
       Agrif_UseSpecialValueInUpdate = .TRUE.
 #endif
       Agrif_SpecialValueFineGrid = 0.
-      
-!     Call Agrif_Update_Variable(tabtemp,Zt_avg2,
-!    &         procname = updatezeta)
-!     
-!     Call Agrif_Update_Variable(tabtemp,DU_avg1,
-!    &         procname = updateubar)
-!    
-!     Call Agrif_Update_Variable(tabtemp,DV_avg1,
-!    &         procname = updatevbar) 
 
+#if defined AGRIF_UPDATE_DECAL
       Call Agrif_Update_Variable(tabtemp,updatezetaid,
      &         locupdate=(/1,0/),procname = updatezeta)
 
@@ -151,115 +148,51 @@ C$OMP SINGLE
      
       Call Agrif_Update_Variable(tabtemp,updatevbarid,
      &     locupdate1=(/1,-2/),locupdate2=(/0,-1/),
-     &     procname = updatevbar)    
-
+     &     procname = updatevbar)
      
-      
-!      Call Agrif_Update_Variable(tabtemp(:,:,1),DU_avg2,
-!     &         procname = updateduavg2)
-     
-!      Call Agrif_Update_Variable(tabtemp(:,:,1),DV_avg2,
-!     &         procname = updatedvavg2)  
+#else
+      Call Agrif_Update_Variable(tabtemp,updatezetaid,
+     &         procname = updatezeta)
 
       Agrif_UseSpecialValueInUpdate = .FALSE.
 
-             
-      ENDIF
-      
-      ENDIF
-C$OMP END SINGLE
-
-      return
-
-      ztavg1_parent=>
-     &Agrif_Parent(Zt_avg1)
-      zetaparent=>
-     &Agrif_Parent(zeta)
-      parentknew=
-     &Agrif_Parent(knew)
-      parentkstp=
-     &Agrif_Parent(kstp)     
-      parentiif=
-     &Agrif_Parent(iif)
+      Call Agrif_Update_Variable(tabtemp,updateubarid,
+     &     procname = updateubar)
      
-      parentzeta=>
-     &Agrif_Parent(zeta)
-      parenton_u=>
-     &Agrif_Parent(on_u)
-      parentom_v=>
-     &Agrif_Parent(om_v)     
-      parentubar=>
-     &Agrif_Parent(ubar)  
-      parentvbar=>
-     &Agrif_Parent(vbar)      
-      parentdu_avg1=>
-     &Agrif_Parent(DU_avg1)
-      parentdv_avg1=>
-     &Agrif_Parent(DV_avg1)     
-      parentnnew=
-     &Agrif_Parent(nnew)
-      parenth=>
-     &Agrif_Parent(h)
-           
-      ztavg1_parent=>
-     &Agrif_Parent(Zt_avg1)
-      duavg2parent=>
-     &Agrif_Parent(DU_avg2) 
-      dvavg2parent=>
-     &Agrif_Parent(DV_avg2)       
-      pmparent=>
-     &Agrif_parent(pm)
-      pnparent=>
-     &Agrif_parent(pn)     
-      dtparent=
-     &Agrif_Parent(dt)
-      
-      i=1
-      ipu=Agrif_ix()+1-1+(i-1)/3
-      Do j=2,Mm-1,3
-      jpu=Agrif_iy()+1-1+(j-2)/3
-      
-      t3 = sum(du_avg1(i,j-1:j+1,4))
-      t1=-DUavg2parent(ipu,jpu)+t3
-      t2=dtparent*t1*pmparent(ipu-1,jpu)*pnparent(ipu-1,jpu)
-      Ztavg1_parent(ipu-1,jpu)=Ztavg1_parent(ipu-1,jpu)-t2
-      EndDo 
-      
-      i=Lm+1
-      ipu=Agrif_ix()+1-1+(i-1)/3
-      Do j=2,Mm-1,3
-      jpu=Agrif_iy()+1-1+(j-2)/3
-      t3 = sum(du_avg1(i,j-1:j+1,4))
+      Call Agrif_Update_Variable(tabtemp,updatevbarid,
+     &     procname = updatevbar)
+#endif
 
-      t1=-DUavg2parent(ipu,jpu)+t3
-      t2=dtparent*t1*pmparent(ipu,jpu)*pnparent(ipu,jpu)
-      Ztavg1_parent(ipu,jpu)=Ztavg1_parent(ipu,jpu)+t2
-      EndDo 
+      Agrif_UseSpecialValueInUpdate = .FALSE.
+
+#ifdef AGRIF_CONSERV_VOL
+
+#if defined AGRIF_UPDATE_DECAL && !defined AGRIF_OLD_CONSERV
+
+      Call Agrif_Update_Variable(tabtemp(:,:,1),updateduavg2id,
+     &     locupdate1=(/0,0/),locupdate2=(/1,1/),        
+     &         procname = updateduavg2)
+     
+      Call Agrif_Update_Variable(tabtemp(:,:,1),updatedvavg2id,
+     &     locupdate1=(/1,1/),locupdate2=(/0,0/),         
+     &         procname = updatedvavg2)
+
+#if defined MPI
+      Call Agrif_ChildGrid_To_ParentGrid()
+      Call ExchangeParentValues()
+      Call Agrif_ParentGrid_To_ChildGrid()
+#endif
+     
+#endif
+
+#endif
+      DU_avg1(:,:,4) = 0.
+      DV_avg1(:,:,4) = 0.
+      ENDIF
       
-      j=1
-      jpv=Agrif_iy()+1-1+(j-1)/3
-      Do i=2,Lm-1,3
-      ipv=Agrif_ix()+1-1+(i-2)/3
-      
-      t3 = sum(dv_avg1(i-1:i+1,j,4))
-      
-            
-      t1=-DVavg2parent(ipv,jpv)+t3
-      t2=dtparent*t1*pmparent(ipv,jpv-1)*pnparent(ipv,jpv-1)
-      Ztavg1_parent(ipv,jpv-1)=Ztavg1_parent(ipv,jpv-1)-t2
-      EndDo  
-      
-      j=Mm+1
-      jpv=Agrif_iy()+1-1+(j-1)/3
-      Do i=2,Lm-1,3
-      ipv=Agrif_ix()+1-1+(i-2)/3
-      t3 = sum(dv_avg1(i-1:i+1,j,4))
-                 
-      t1=-DVavg2parent(ipv,jpv)+t3
-      t2=dtparent*t1*pmparent(ipv,jpv)*pnparent(ipv,jpv)
-      Ztavg1_parent(ipv,jpv)=Ztavg1_parent(ipv,jpv)+t2
-      EndDo    
-      
+      ENDIF
+C$OMP END MASTER
+
       return
       end
       
@@ -708,7 +641,7 @@ C$OMP END SINGLE
       return
       end 
             
-      Subroutine Updateduavg2(tabres,i1,i2,j1,j2,before)
+      Subroutine Updateduavg2(tabres,i1,i2,j1,j2,before,nb,ndir)
       implicit none
 #  include "param.h"
 #  include "grid.h"
@@ -719,16 +652,45 @@ C$OMP END SINGLE
       real tabres(i1:i2,j1:j2)
       logical before
       real :: rrhoy
-                    
+      integer :: i,j
+      integer :: nb,ndir
+      real :: t1
+      logical :: western_side, eastern_side
+
       IF (before) THEN
       
          rrhoy = real(Agrif_Irhoy())
 
-         tabres(i1:i2,j1:j2) = rrhoy * DU_avg1(i1:i2,j1:j2,4) 
+         tabres(i1:i2,j1:j2) = rrhoy * DU_avg1(i1:i2,j1:j2,4)
          
        ELSE
-          
-          DU_avg2(i1:i2,j1:j2) = tabres(i1:i2,j1:j2)
+       
+         western_side  = (nb == 1).AND.(ndir == 1)
+         eastern_side  = (nb == 1).AND.(ndir == 2)
+
+         if (western_side) then
+         i = i1
+         do j=j1,j2
+         Zt_avg1(i-1,j) = Zt_avg1(i-1,j)-pm(i-1,j)*pn(i-1,j)*
+     &  (tabres(i,j) - DU_avg1(i,j,5))
+#ifdef MASKING
+     &                * umask(i,j)
+#endif  
+         enddo
+         endif
+         
+         if (eastern_side) then
+         i = i2
+         do j=j1,j2  
+         Zt_avg1(i,j) = Zt_avg1(i,j)+pm(i,j)*pn(i,j)*
+     &  (tabres(i,j) - DU_avg1(i,j,5))
+#ifdef MASKING
+     &                * umask(i,j)
+#endif  
+         enddo
+         endif
+      
+          DU_avg2(i1:i2,j1:j2) = (tabres(i1:i2,j1:j2)/dt)
 #ifdef MASKING
      &                * umask(i1:i2,j1:j2)
 #endif
@@ -738,7 +700,7 @@ C$OMP END SINGLE
       return
       end      
 
-      Subroutine Updatedvavg2(tabres,i1,i2,j1,j2,before)
+      Subroutine Updatedvavg2(tabres,i1,i2,j1,j2,before,nb,ndir)
       implicit none
 #  include "param.h"
 #  include "grid.h"
@@ -750,16 +712,44 @@ C$OMP END SINGLE
       real tabres(i1:i2,j1:j2)
       logical before
       real :: rrhox
+      integer :: i,j
+      integer :: nb,ndir
+      real :: t1
+      logical :: northern_side,southern_side
                     
       IF (before) THEN
       
          rrhox = real(Agrif_Irhox())
 
-         tabres(i1:i2,j1:j2) = rrhox * DV_avg1(i1:i2,j1:j2,4) 
+         tabres(i1:i2,j1:j2) = rrhox * DV_avg1(i1:i2,j1:j2,4)
          
        ELSE
-          
-          DV_avg2(i1:i2,j1:j2) = tabres(i1:i2,j1:j2)
+       
+         southern_side = (nb == 2).AND.(ndir == 1)
+         northern_side = (nb == 2).AND.(ndir == 2)
+         if (southern_side) then
+         j = j1
+         do i=i1,i2
+         Zt_avg1(i,j-1) = Zt_avg1(i,j-1)-pm(i,j-1)*pn(i,j-1)*
+     &  (tabres(i,j) - DV_avg1(i,j,5))
+#ifdef MASKING
+     &                * vmask(i,j)
+#endif  
+         enddo
+         endif
+         
+         if (northern_side) then
+         j = j1
+         do i=i1,i2  
+         Zt_avg1(i,j) = Zt_avg1(i,j)+pm(i,j)*pn(i,j)*
+     &  (tabres(i,j) - DV_avg1(i,j,5))
+#ifdef MASKING
+     &                * vmask(i,j)
+#endif  
+         enddo
+         endif
+         
+          DV_avg2(i1:i2,j1:j2) = (tabres(i1:i2,j1:j2)/dt)
 #ifdef MASKING
      &                * vmask(i1:i2,j1:j2)
 #endif

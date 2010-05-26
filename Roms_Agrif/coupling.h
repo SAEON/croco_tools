@@ -20,8 +20,8 @@
      &       /coup_rufrc_bak/rufrc_bak /coup_rvfrc_bak/rvfrc_bak
 
       real Zt_avg1(GLOBAL_2D_ARRAY)
-      real DU_avg1(GLOBAL_2D_ARRAY,4)
-      real DV_avg1(GLOBAL_2D_ARRAY,4)
+      real DU_avg1(GLOBAL_2D_ARRAY,5)
+      real DV_avg1(GLOBAL_2D_ARRAY,5)
       real DU_avg2(GLOBAL_2D_ARRAY)
       real DV_avg2(GLOBAL_2D_ARRAY)
       common /ocean_Zt_avg1/Zt_avg1

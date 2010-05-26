@@ -683,10 +683,10 @@ C     Declarations:
 C  
       
 C
+      
+      Agrif_Curgrid%Parent%save_grid => Agrif_Curgrid
 C
-      AGRIF_saveCURGRID => AGRIF_CURGRID
-C
-      Call AGRIF_INSTANCE(AGRIF_CURGRID%parent)            
+      Call Agrif_Instance(Agrif_Curgrid%parent)            
 C
 C
       End Subroutine Agrif_ChildGrid_to_ParentGrid
@@ -708,7 +708,7 @@ C
       
 C
 C
-      Call AGRIF_INSTANCE(AGRIF_saveCURGRID)            
+      Call Agrif_Instance(Agrif_Curgrid%save_grid)
 C
 C
       End Subroutine Agrif_ParentGrid_to_ChildGrid
@@ -966,5 +966,25 @@ C     **************************************************************************
       integer mymaxsearch
       MaxSearch = mymaxsearch
       end subroutine Agrif_Set_MaskMaxSearch
+      
+C *****************************************************************
+CCC  subroutine Agrif_Level
+C *****************************************************************
+      Function Agrif_Level()
+      Integer :: Agrif_Level
+     
+      Agrif_Level = Agrif_Curgrid % level
+     
+      End Function Agrif_Level
+      
+C *****************************************************************
+CCC  subroutine Agrif_MaxLevel
+C *****************************************************************
+      Function Agrif_MaxLevel()
+      Integer :: Agrif_MaxLevel
+     
+      Agrif_MaxLevel = Agrif_MaxLevelLoc
+     
+      End Function Agrif_MaxLevel      
 
       End Module Agrif_CurgridFunctions 

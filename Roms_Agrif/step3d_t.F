@@ -38,20 +38,19 @@
 # include "scalars.h"
 # include "sources.h"
 # include "forces.h"
-#ifdef DIAGNOSTICS_TS
+# ifdef DIAGNOSTICS_TS
 # include "diagnostics.h"
-#endif
+# endif
       integer Istr,Iend,Jstr,Jend, itrc, i,j,k, indx, kmld
 # ifdef PSOURCE
      &       ,is
 # endif
-#ifdef MPI
+# ifdef MPI
      &       ,imin,imax,jmin,jmax
-#endif
-#ifdef AGRIF
-#include "zoom.h"
-      real invrrhot
-#endif
+# endif
+# ifdef AGRIF
+# include "zoom.h"
+# endif
       real FX(PRIVATE_2D_SCRATCH_ARRAY),
      &     FE(PRIVATE_2D_SCRATCH_ARRAY),   cff,
      &     WORK(PRIVATE_2D_SCRATCH_ARRAY), epsil,
@@ -304,35 +303,36 @@
             enddo
           enddo                 !-->  discard FX,FE
 
-#ifdef AGRIF
+# if defined AGRIF && defined AGRIF_CONSERV_TRA
           IF (Agrif_Root()) Then
-          MYFX(Istr:Iend+1,Jstr:Jend,k,itrc)=FX(Istr:Iend+1,Jstr:Jend)
-          MYFY(Istr:Iend,Jstr:Jend+1,k,itrc)=FE(Istr:Iend,Jstr:Jend+1)
+          MYFX(IstrR:IendR,JstrR:JendR,k,itrc)=
+     &        dt*FX(IstrR:IendR,JstrR:JendR)
+          MYFY(IstrR:IendR,JstrR:JendR,k,itrc)=
+     &        dt*FE(IstrR:IendR,JstrR:JendR)
           Else
-          invrrhot=1./real(Agrif_Rhot())
-          MYFX(Istr:Iend+1,Jstr:Jend,k,itrc)=
-     &       MYFX(Istr:Iend+1,Jstr:Jend,k,itrc)
-     &       +invrrhot*FX(Istr:Iend+1,Jstr:Jend)
-          MYFY(Istr:Iend,Jstr:Jend+1,k,itrc)=
-     &       MYFY(Istr:Iend,Jstr:Jend+1,k,itrc)
-     &      +invrrhot*FE(Istr:Iend,Jstr:Jend+1)
+          MYFX(IstrR:IendR,JstrR:JendR,k,itrc)=
+     &       MYFX(IstrR:IendR,JstrR:JendR,k,itrc)
+     &       +dt*FX(IstrR:IendR,JstrR:JendR)
+          MYFY(IstrR:IendR,JstrR:JendR,k,itrc)=
+     &       MYFY(IstrR:IendR,JstrR:JendR,k,itrc)
+     &      +dt*FE(IstrR:IendR,JstrR:JendR)
           EndIF
-#endif
+# endif
 
-#ifdef DIAGNOSTICS_TS
+# ifdef DIAGNOSTICS_TS
       do j=Jstr,Jend
         do i=Istr,Iend 
           TXadv(i,j,k,itrc) = -(FX(i+1,j)-FX(i,j))
-# ifdef MASKING
+#  ifdef MASKING
      &              * rmask(i,j)
-# endif
+#  endif
           TYadv(i,j,k,itrc) = -(FE(i,j+1)-FE(i,j))
-# ifdef MASKING
+#  ifdef MASKING
      &              * rmask(i,j)
-# endif
+#  endif
           enddo
         enddo
-#endif /*DIAGNOSTICS_TS*/
+# endif /* DIAGNOSTICS_TS */
 
         enddo    ! <-- itrc
       enddo    !<-- k
@@ -499,16 +499,16 @@
             enddo
           enddo               !--> discard FC
 
-#ifdef DIAGNOSTICS_TS
+# ifdef DIAGNOSTICS_TS
        do k=1,N 
          do i=Istr,Iend
            TVadv(i,j,k,itrc) = -(FC(i,k)-FC(i,k-1))
-#ifdef MASKING
+#  ifdef MASKING
      &         * rmask(i,j)
-#endif
+#  endif
          enddo
        enddo
-#endif /*DIAGNOSTICS_TS*/  
+# endif /* DIAGNOSTICS_TS */  
 
 !
 !---------------------------------------------------------------
@@ -563,13 +563,13 @@
               do i=Istr,Iend
                 t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+FC(i,k )
      &                                               -FC(i,k-1)
-#  ifdef DIAGNOSTICS_TS
+# ifdef DIAGNOSTICS_TS
                 TForc(i,j,k,itrc)=(FC(i,k)-FC(i,k-1))
      &                                    /(dt*pm(i,j)*pn(i,j))
-#   ifdef MASKING
+#  ifdef MASKING
      &                                             * rmask(i,j)
-#   endif           
-#  endif  /* DIAGNOSTICS_TS */
+#  endif           
+# endif  /* DIAGNOSTICS_TS */
               enddo
             enddo
           endif
@@ -625,7 +625,7 @@
 ! the content of array t(:,:,:,nnew,itrc) has meaning of Hz*tracer.
 ! After the implicit step it becomes just tracer.
 !
-#ifdef DIAGNOSTICS_TS
+# ifdef DIAGNOSTICS_TS
           do k=1,N
             do i=Istr,Iend
                TVmix(i, j, k, itrc)=t(i,j,k,nnew,itrc)
@@ -810,7 +810,7 @@
      &                   *rmask(i,j)
 #  endif
 !
-# ifdef DIAGNOSTICS_TS_ADV
+#  ifdef DIAGNOSTICS_TS_ADV
               TXadv(i,j,k,itrc)=TXadv(i,j,k,itrc)+
      &           t(i,j,k,3,itrc)*(Huon(i+1,j,k)-Huon(i,j,k))
               TYadv(i,j,k,itrc)=TYadv(i,j,k,itrc)+
@@ -818,7 +818,7 @@
               TVadv(i,j,k,itrc)=TVadv(i,j,k,itrc)-
      &           t(i,j,k,3,itrc)*(Huon(i+1,j,k)-Huon(i,j,k)+
      &                            Hvom(i,j+1,k)-Hvom(i,j,k))
-# endif /* DIAGNOSTICS_TS_ADV */
+#  endif /* DIAGNOSTICS_TS_ADV */
 !
               cff=pm(i,j)*pn(i,j)/Hz(i,j,k)
               TXadv(i,j,k,itrc)=TXadv(i,j,k,itrc)*cff
@@ -827,33 +827,41 @@
               TVmix(i,j,k,itrc)=TVmix(i,j,k,itrc)*cff
               TForc(i,j,k,itrc)=TForc(i,j,k,itrc)*cff
               Trate(i,j,k,itrc)=Trate(i,j,k,itrc)*cff
+              THmix(i,j,k,itrc)=0.
            enddo
          enddo
        enddo
 !
-#  ifdef DIAGNOSTICS_TS_MLD
+!---------------------------------------------------------------------
 !
+#  ifdef DIAGNOSTICS_TS_MLD
 !---------------------------------------------------------------
 ! Compute tracer diagnostics averaged over the MLD
 !---------------------------------------------------------------
 !
+#   define T_mld_nnew FX
+#   define T_mld_nstp FE
        do j=Jstr,Jend
          do i=Istr,Iend
             TXadv_mld(i,j,itrc)=0.
             TYadv_mld(i,j,itrc)=0.
             TVadv_mld(i,j,itrc)=0.
             TVmix_mld(i,j,itrc)=0.
+            THmix_mld(i,j,itrc)=0.
             TForc_mld(i,j,itrc)=0.
             Trate_mld(i,j,itrc)=0.
+            Tentr_mld(i,j,itrc)=0.
+            T_mld_nnew(i,j)=0.
+            T_mld_nstp(i,j)=0.
          enddo
        enddo
        do j=Jstr,Jend
          do i=Istr,Iend
-#  ifdef LMD_SKPP
+#   ifdef LMD_SKPP
            kmld=kbl(i,j)
-#  else
+#   else
            kmld=N-5
-#  endif
+#   endif
            do k=N,kmld,-1
              cff=Hz(i,j,k)/(z_w(i,j,N)-z_w(i,j,kmld-1))
              TXadv_mld(i,j,itrc)=TXadv_mld(i,j,itrc)+
@@ -866,13 +874,38 @@
      &                           TVmix(i,j,k,itrc)*cff
              TForc_mld(i,j,itrc)=TForc_mld(i,j,itrc)+
      &                           TForc(i,j,k,itrc)*cff
-             Trate_mld(i,j,itrc)=Trate_mld(i,j,itrc)+
-     &                           Trate(i,j,k,itrc)*cff
+             T_mld_nnew(i,j)     =T_mld_nnew(i,j)+
+     &                           t(i,j,k,nnew,itrc)*cff
            enddo
+         enddo
+       enddo
+
+#   if (!defined TS_DIF2 && !defined TS_DIF4 && !defined SPONGE_DIF2) \
+       || defined DIAGNOSTICS_DEBUG
+!
+! Compute entrainement/detrainement term.
+! If diffusion terms are computed in t3dmix routines, entrainement 
+! terms are also computed in those routines
+!
+       do j=Jstr,Jend
+         do i=Istr,Iend
+#    ifdef LMD_SKPP
+           if (kbl_nstp(i,j).eq.0) kbl_nstp(i,j)=kbl(i,j)
+           kmld=kbl_nstp(i,j)
+#    else
+           kmld=N-5
+#    endif
+           do k=N,kmld,-1
+             cff=Hz_bak(i,j,k)/(z_w(i,j,N)-z_w(i,j,kmld-1))
+             T_mld_nstp(i,j)=T_mld_nstp(i,j)+
+     &                       t(i,j,k,nstp,itrc)*cff
+           enddo
+           if (itrc .eq. NT) kbl_nstp(i,j)=kbl(i,j)
          enddo
        enddo
        do j=Jstr,Jend
          do i=Istr,Iend
+            Trate_mld(i,j,itrc)=(T_mld_nnew(i,j)-T_mld_nstp(i,j))/dt
             Tentr_mld(i,j,itrc)=Trate_mld(i,j,itrc)-
      &                          TXadv_mld(i,j,itrc)-
      &                          TYadv_mld(i,j,itrc)-
@@ -881,9 +914,37 @@
      &                          TForc_mld(i,j,itrc)
          enddo
        enddo
+#   endif /* TS_DIF2 && TS_DIF4 && SPONGE_DIF2 */
+#   undef T_mld_nnew 
+#   undef T_mld_nstp
 #  endif /* DIAGNOSTICS_TS_MLD */
-# endif /* DIAGNOSTICS_TS */
 
+#  ifdef DIAGNOSTICS_DEBUG
+       if (istr.eq.1 .and. jstr.eq.1 .and. itrc.eq.itemp) then
+         i=5
+         j=5
+#   if defined DIAGNOSTICS_TS_MLD
+         cff=Trate_mld(i,j,itrc)-
+     &       TXadv_mld(i,j,itrc)-
+     &       TYadv_mld(i,j,itrc)-
+     &       TVadv_mld(i,j,itrc)-
+     &       TVmix_mld(i,j,itrc)-
+     &       THmix_mld(i,j,itrc)-
+     &       Tentr_mld(i,j,itrc)-
+     &       TForc_mld(i,j,itrc)
+       print *,'STEP3D_T  : T budget closure MLD   : ',cff
+#   endif /* DIAGNOSTICS_TS_MLD */
+          cff=Trate(i,j,N-5,itrc)-
+     &        TXadv(i,j,N-5,itrc)-
+     &        TYadv(i,j,N-5,itrc)-
+     &        TVadv(i,j,N-5,itrc)-
+     &        TVmix(i,j,N-5,itrc)-
+     &        THmix(i,j,N-5,itrc)-
+     &        TForc(i,j,N-5,itrc)
+       print *,'STEP3D_T  : T budget closure k=N-5 : ',cff
+      endif
+#  endif /* DIAGNOSTICS_DEBUG */
+# endif /* DIAGNOSTICS_TS */
 
 # if defined MASKING
 #  ifdef EW_PERIODIC

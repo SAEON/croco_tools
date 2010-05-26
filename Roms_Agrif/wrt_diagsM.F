@@ -105,6 +105,7 @@
 !
 !
       do itrc=1,2
+        if (wrtdiaM(itrc)) then
 !
 ! indxMXadv
 !
@@ -113,7 +114,6 @@
           else
             ivar=v3dvar
           endif
-        if (wrtdiaM(indxMXadv+itrc-1)) then
           ierr=nf_fwrite(MXadv(START_2D_ARRAY,1,itrc), nciddiaM,
      &                               diaMXadv(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -121,12 +121,10 @@
             write(stdout,1) vname(1,indxMXadv+itrc-1)(1:lvar), record,
      &                      ierr MYID
             goto 99                                       !--> ERROR
-          endif
-        endif       
+          endif   
 !
 ! indxMYadv
 !
-        if (wrtdiaM(indxMYadv+itrc-1)) then
           ierr=nf_fwrite(MYadv(START_2D_ARRAY,1,itrc), nciddiaM,
      &                               diaMYadv(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -135,11 +133,9 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
-         endif
 !
 ! indxMVadv
 !
-        if (wrtdiaM(indxMVadv+itrc-1)) then
           ierr=nf_fwrite(MVadv(START_2D_ARRAY,1,itrc), nciddiaM,
      &                               diaMVadv(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -148,11 +144,9 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
-         endif
 !
 ! indxMCor
 !
-        if (wrtdiaM(indxMCor+itrc-1)) then
           ierr=nf_fwrite(MCor(START_2D_ARRAY,1,itrc), nciddiaM,
      &                               diaMCor(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -161,11 +155,9 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
-         endif
 !
 ! indxMPrsgrd
 !
-        if (wrtdiaM(indxMPrsgrd+itrc-1)) then
           ierr=nf_fwrite(MPrsgrd(START_2D_ARRAY,1,itrc), nciddiaM,
      &                               diaMPrsgrd(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -174,11 +166,9 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
-         endif
 !
 ! indxMHmix
 !
-        if (wrtdiaM(indxMHmix+itrc-1)) then
           ierr=nf_fwrite(MHmix(START_2D_ARRAY,1,itrc), nciddiaM,
      &                               diaMHmix(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -187,11 +177,9 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
-         endif
 !
 ! indxMVmix
 !
-        if (wrtdiaM(indxMVmix+itrc-1)) then
           ierr=nf_fwrite(MVmix(START_2D_ARRAY,1,itrc), nciddiaM,
      &                               diaMVmix(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -200,11 +188,9 @@
      &                      ierr MYID
             goto 99                                       !--> ERROR
           endif
-         endif
 !
 ! indxMrate
 !
-        if (wrtdiaM(indxMrate+itrc-1)) then
           ierr = nf_fwrite(Mrate(START_2D_ARRAY,1,itrc), 
      &        nciddiaM, diaMrate(itrc), record, ivar)
           if (ierr .ne. nf_noerr) then
@@ -213,8 +199,8 @@
      &           record, ierr MYID 
             goto 99
           endif
-         endif
 !
+        endif
       enddo
 !
 #  ifdef DEBUG

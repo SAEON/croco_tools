@@ -1165,6 +1165,13 @@ C
 C       Pointer on the parent grid                        
 C
         newgrid % parent => g      
+
+C       Level of the current grid
+        newgrid % level = newgrid % parent % level + 1
+        if (newgrid % level > Agrif_MaxLevelLoc) then
+          Agrif_MaxLevelLoc = newgrid%level
+        endif
+
 C      
 C       Grid pointed by newgrid is a fixed grid      
 C

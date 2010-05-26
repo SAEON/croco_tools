@@ -224,8 +224,22 @@
       Call Agrif_Set_bcinterp(h,AGRIF_linear)
       Call Agrif_Set_interp(h,AGRIF_linear)
       Call Agrif_Set_bc(h,(/0,0/))
+     
+#if defined AGRIF_UPDATE_FULLWEIGHTING || defined AGRIF_UPDATE_MIX        
       Call Agrif_Set_UpdateType(h,update=
      &   Agrif_Update_Full_Weighting)
+#endif
+
+#if defined AGRIF_UPDATE_MIX_HIGH
+      Call Agrif_Set_UpdateType(h,update=
+     &   Agrif_Update_4rdorder)
+#endif
+
+#if defined AGRIF_UPDATE_AVERAGE || defined AGRIF_UPDATE_MIX_LOW
+      Call Agrif_Set_UpdateType(h,update=
+     &   Agrif_Update_Average)
+#endif
+
 
 #ifdef MASKING      
       Call Agrif_Set_UpdateType(rmask,update=
@@ -317,8 +331,33 @@
      &update2=
      &Agrif_Update_full_weighting)
 
+#ifdef AGRIF_UPDATE_FULLWEIGHTING
       Call Agrif_Set_UpdateType(DU_avg2,update=
      &Agrif_Update_full_weighting)
+#endif
+
+#ifdef AGRIF_UPDATE_AVERAGE
+      Call Agrif_Set_UpdateType(DU_avg2,
+     &update=Agrif_Update_Average)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX
+      Call Agrif_Set_UpdateType(DU_avg2,
+     &update1=Agrif_Update_Average,
+     &update2=Agrif_Update_Full_Weighting)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_HIGH
+      Call Agrif_Set_UpdateType(DU_avg2,
+     &update1=Agrif_Update_Full_Weighting,
+     &update2=Agrif_Update_4rdorder)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_LOW
+      Call Agrif_Set_UpdateType(DU_avg2,
+     &update1=Agrif_Update_Copy,
+     &update2=Agrif_Update_Average)
+#endif
 
       Call Agrif_Set_UpdateType(DU_avg1,update=
      &Agrif_Update_full_weighting)
@@ -327,8 +366,33 @@
      &Agrif_Update_full_weighting,update2=
      &Agrif_Update_full_weighting)
 
+#ifdef AGRIF_UPDATE_FULLWEIGHTING
       Call Agrif_Set_UpdateType(DV_avg2,update=
-     &Agrif_Update_full_weighting)   
+     &Agrif_Update_full_weighting)
+#endif
+
+#ifdef AGRIF_UPDATE_FULLWEIGHTING
+      Call Agrif_Set_UpdateType(DV_avg2,update=
+     &Agrif_Update_Average)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX     
+      Call Agrif_Set_UpdateType(DV_avg2,
+     &update1=Agrif_Update_Full_Weighting,
+     &update2=Agrif_Update_Average)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_HIGH    
+      Call Agrif_Set_UpdateType(DV_avg2,
+     &update1=Agrif_Update_4rdorder,
+     &update2=Agrif_Update_Full_Weighting)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_LOW    
+      Call Agrif_Set_UpdateType(DV_avg2,
+     &update1=Agrif_Update_Average,
+     &update2=Agrif_Update_Copy)
+#endif
 
       Call Agrif_Set_UpdateType(DV_avg1,update=
      &Agrif_Update_full_weighting) 
@@ -822,7 +886,8 @@ CR      write(*,*) '  0' MYID
 
 
   
-      iif = nfast+1
+      iif = -1
+      
 #ifdef AGRIF_ADAPTIVE
       ntstart = 1 + Agrif_irhot()*
      &   (Agrif_Parent(iic)-1)   
@@ -844,7 +909,9 @@ CR      write(*,*) '  0' MYID
       
       myfx = 0.
       myfy = 0.
-
+      DU_avg1(:,:,4:5) = 0.
+      DV_avg1(:,:,4:5) = 0.
+      
 #if defined AGRIF_2WAY   
 
 #ifdef MASKING
@@ -880,6 +947,7 @@ CR      write(*,*) '  0' MYID
 #   endif      
       Do j=0,LOCALMM+1
         h(0,j) = 2.*hbis(1,j)-h(1,j)
+        hinv(0,j) = 1./h(0,j)
       enddo
 #   ifdef MPI            
         endif
@@ -892,6 +960,7 @@ CR      write(*,*) '  0' MYID
 #   endif      
       Do j=0,LOCALMM+1
         h(LOCALLM+1,j) = 2.*hbis(LOCALLM+1,j)-h(LOCALLM,j)
+        hinv(LOCALLM+1,j) = 1./h(LOCALLM+1,j)
       enddo
 #   ifdef MPI            
         endif
@@ -911,6 +980,7 @@ CR      write(*,*) '  0' MYID
 #   endif       
       Do i=0,LOCALLM+1
         h(i,0) = 2.*hbis(i,1)-h(i,1)
+        hinv(i,0) = 1./h(i,0)
       enddo
 #   ifdef MPI            
         endif
@@ -923,6 +993,7 @@ CR      write(*,*) '  0' MYID
 #   endif       
       Do i=0,LOCALLM+1
         h(i,LOCALMM+1) = 2.*hbis(i,LOCALMM+1)-h(i,LOCALMM)
+        hinv(i,LOCALMM+1) = 1./h(i,LOCALMM+1)
       enddo
 #   ifdef MPI            
         endif
@@ -989,45 +1060,333 @@ CR      write(*,*) '  0' MYID
       Call Agrif_Declare_Variable((/2,2,0/),(/1,1,0/),
      &    (/'x','y','N'/),(/i1t,j1t,1/),
      &    (/i2t,j2t,irhot+1/),updatezetaid)
-          
+
+#if defined AGRIF_UPDATE_FULLWEIGHTING || defined AGRIF_UPDATE_MIX        
       Call Agrif_Set_UpdateType(updatezetaid,update=
-     &Agrif_Update_full_weighting) 
+     &Agrif_Update_full_weighting)
+#endif
+
+#if defined AGRIF_UPDATE_MIX_HIGH
+      Call Agrif_Set_UpdateType(updatezetaid,update=
+     &Agrif_Update_4rdorder)
+#endif
+
+#if defined AGRIF_UPDATE_AVERAGE || defined AGRIF_UPDATE_MIX_LOW
+      Call Agrif_Set_UpdateType(updatezetaid,update=
+     &Agrif_Update_Average)
+#endif
      
       Call Agrif_Declare_Variable((/1,2,0/),(/1,1,0/),
      &    (/'x','y','N'/),(/0,j1t,1/),
      &    (/i2u,j2t,irhot+1/),updateubarid)
-          
+
+      Call Agrif_Declare_Variable((/1,2/),(/1,1/),
+     &    (/'x','y'/),(/0,j1t/),
+     &    (/i2u,j2t/),updateduavg2id)
+     
+#ifdef AGRIF_UPDATE_FULLWEIGHTING         
       Call Agrif_Set_UpdateType(updateubarid,update=
      &Agrif_Update_full_weighting)
+      Call Agrif_Set_UpdateType(updateduavg2id,update=
+     &Agrif_Update_full_weighting)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX
+      Call Agrif_Set_UpdateType(updateubarid,
+     &update1=Agrif_Update_Average,
+     &update2=Agrif_Update_Full_Weighting)
+      Call Agrif_Set_UpdateType(updateduavg2id,
+     &update1=Agrif_Update_Average,
+     &update2=Agrif_Update_Full_Weighting)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_HIGH
+      Call Agrif_Set_UpdateType(updateubarid,
+     &update1=Agrif_Update_Full_Weighting,
+     &update2=Agrif_Update_4rdorder)
+      Call Agrif_Set_UpdateType(updateduavg2id,
+     &update1=Agrif_Update_Full_Weighting,
+     &update2=Agrif_Update_4rdorder)
      
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_LOW
+      Call Agrif_Set_UpdateType(updateubarid,
+     &update1=Agrif_Update_Copy,
+     &update2=Agrif_Update_Average)
+      Call Agrif_Set_UpdateType(updateduavg2id,
+     &update1=Agrif_Update_Copy,
+     &update2=Agrif_Update_Average)
+#endif
+
+#ifdef AGRIF_UPDATE_AVERAGE
+      Call Agrif_Set_UpdateType(updateubarid,
+     &update=Agrif_Update_Average)   
+      Call Agrif_Set_UpdateType(updateduavg2id,
+     &update=Agrif_Update_Average) 
+#endif
+
       Call Agrif_Declare_Variable((/2,1,0/),(/1,1,0/),
      &    (/'x','y','N'/),(/i1t,0,1/),
      &    (/i2t,j2v,irhot+1/),updatevbarid)
-          
+     
+      Call Agrif_Declare_Variable((/2,1/),(/1,1/),
+     &    (/'x','y'/),(/i1t,0/),
+     &    (/i2t,j2v/),updatedvavg2id)
+
+#ifdef AGRIF_UPDATE_FULLWEIGHTING          
       Call Agrif_Set_UpdateType(updatevbarid,update=
      &Agrif_Update_full_weighting)  
+      Call Agrif_Set_UpdateType(updatedvavg2id,update=
+     &Agrif_Update_full_weighting)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX
+      Call Agrif_Set_UpdateType(updatevbarid,
+     &update1=Agrif_Update_Full_Weighting,
+     &update2=Agrif_Update_Average)
+      Call Agrif_Set_UpdateType(updatedvavg2id,
+     &update1=Agrif_Update_Full_Weighting,
+     &update2=Agrif_Update_Average)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_HIGH
+      Call Agrif_Set_UpdateType(updatevbarid,
+     &update1=Agrif_Update_4rdorder,
+     &update2=Agrif_Update_Full_Weighting)
+      Call Agrif_Set_UpdateType(updatedvavg2id,
+     &update1=Agrif_Update_4rdorder,
+     &update2=Agrif_Update_Full_Weighting)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_LOW
+      Call Agrif_Set_UpdateType(updatevbarid,
+     &update1=Agrif_Update_Average,
+     &update2=Agrif_Update_Copy)
+      Call Agrif_Set_UpdateType(updatedvavg2id,
+     &update1=Agrif_Update_Average,
+     &update2=Agrif_Update_Copy)
+#endif
+
+#ifdef AGRIF_UPDATE_AVERAGE
+      Call Agrif_Set_UpdateType(updatevbarid,
+     &update=Agrif_Update_Average)   
+      Call Agrif_Set_UpdateType(updatedvavg2id,
+     &update=Agrif_Update_Average) 
+#endif
+
      
       Call Agrif_Declare_Variable((/2,2,0,0/),(/1,1,0,0/),
      &    (/'x','y','N','N'/),(/i1t,j1t,1,1/),
      &    (/i2t,j2t,N,NT/),updatetid)
-          
+
+#if defined AGRIF_UPDATE_FULLWEIGHTING || defined AGRIF_UPDATE_MIX
       Call Agrif_Set_UpdateType(updatetid,update=
-     &Agrif_Update_full_weighting) 
-     
+     &Agrif_Update_full_weighting)
+#endif
+
+#if defined AGRIF_UPDATE_MIX_HIGH
+      Call Agrif_Set_UpdateType(updatetid,update=
+     &Agrif_Update_4rdorder)
+#endif
+
+#if defined AGRIF_UPDATE_AVERAGE || defined AGRIF_UPDATE_MIX_LOW
+      Call Agrif_Set_UpdateType(updatetid,update=
+     &Agrif_Update_Average)
+#endif
+
       Call Agrif_Declare_Variable((/1,2,0/),(/1,1,0/),
      &    (/'x','y','N'/),(/i1u,j1t,1/),
      &    (/i2u,j2t,N/),updateuid)
-          
+
+#ifdef AGRIF_UPDATE_FULLWEIGHTING           
       Call Agrif_Set_UpdateType(updateuid,update=
      &Agrif_Update_full_weighting)
-     
+#endif
+
+#ifdef AGRIF_UPDATE_MIX
+      Call Agrif_Set_UpdateType(updateuid,
+     &update1=Agrif_Update_Average,
+     &update2=Agrif_Update_Full_Weighting)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_HIGH
+      Call Agrif_Set_UpdateType(updateuid,
+     &update1=Agrif_Update_Full_Weighting,
+     &update2=Agrif_Update_4rdorder)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_LOW
+      Call Agrif_Set_UpdateType(updateuid,
+     &update1=Agrif_Update_Copy,
+     &update2=Agrif_Update_Average)
+#endif
+
+#ifdef AGRIF_UPDATE_AVERAGE
+      Call Agrif_Set_UpdateType(updateuid,
+     &update=Agrif_Update_Average)    
+#endif
+
+      Call Agrif_Declare_Variable((/1,2,0/),(/1,1,0/),
+     &    (/'x','y','N'/),(/i1u,j1t,1/),
+     &    (/i2u,j2t,N/),updatehuonid)
+
+#ifdef AGRIF_UPDATE_FULLWEIGHTING           
+      Call Agrif_Set_UpdateType(updatehuonid,update=
+     &Agrif_Update_full_weighting)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX
+      Call Agrif_Set_UpdateType(updatehuonid,
+     &update1=Agrif_Update_Average,
+     &update2=Agrif_Update_Full_Weighting)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_HIGH
+      Call Agrif_Set_UpdateType(updatehuonid,
+     &update1=Agrif_Update_Full_Weighting,
+     &update2=Agrif_Update_4rdorder)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_LOW
+      Call Agrif_Set_UpdateType(updatehuonid,
+     &update1=Agrif_Update_Copy,
+     &update2=Agrif_Update_Average)
+#endif
+
+#ifdef AGRIF_UPDATE_AVERAGE
+      Call Agrif_Set_UpdateType(updatehuonid,
+     &update=Agrif_Update_Average)    
+#endif
+
+      Call Agrif_Declare_Variable((/1,2,0,0/),(/1,1,0,0/),
+     &    (/'x','y','N','N'/),(/i1u,j1t,1,1/),
+     &    (/i2u,j2t,N,NT/),updatemyfxid)
+
+#ifdef AGRIF_UPDATE_FULLWEIGHTING           
+      Call Agrif_Set_UpdateType(updatemyfxid,update=
+     &Agrif_Update_full_weighting)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX
+      Call Agrif_Set_UpdateType(updatemyfxid,
+     &update1=Agrif_Update_Average,
+     &update2=Agrif_Update_Full_Weighting)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_HIGH
+      Call Agrif_Set_UpdateType(updatemyfxid,
+     &update1=Agrif_Update_Full_Weighting,
+     &update2=Agrif_Update_Average)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_LOW
+      Call Agrif_Set_UpdateType(updatemyfxid,
+     &update1=Agrif_Update_Copy,
+     &update2=Agrif_Update_Average)
+#endif
+
+#ifdef AGRIF_UPDATE_AVERAGE
+      Call Agrif_Set_UpdateType(updatemyfxid,
+     &update=Agrif_Update_Average)    
+#endif
+
+
       Call Agrif_Declare_Variable((/2,1,0/),(/1,1,0/),
      &    (/'x','y','N'/),(/i1t,j1v,1/),
      &    (/i2t,j2v,N/),updatevid)
-          
+
+#ifdef AGRIF_UPDATE_FULLWEIGHTING           
       Call Agrif_Set_UpdateType(updatevid,update=
-     &Agrif_Update_full_weighting) 
-     
+     &Agrif_Update_full_weighting)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX     
+      Call Agrif_Set_UpdateType(updatevid,
+     &update1=Agrif_Update_Full_Weighting,
+     &update2=Agrif_Update_Average)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_HIGH  
+      Call Agrif_Set_UpdateType(updatevid,
+     &update1=Agrif_Update_4rdorder,
+     &update2=Agrif_Update_Full_Weighting)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_LOW
+      Call Agrif_Set_UpdateType(updatevid,
+     &update1=Agrif_Update_Average,
+     &update2=Agrif_Update_Copy)
+#endif
+
+#ifdef AGRIF_UPDATE_AVERAGE     
+      Call Agrif_Set_UpdateType(updatevid,
+     &update=Agrif_Update_Average)     
+#endif
+
+      Call Agrif_Declare_Variable((/2,1,0/),(/1,1,0/),
+     &    (/'x','y','N'/),(/i1t,j1v,1/),
+     &    (/i2t,j2v,N/),updatehvomid)
+
+#ifdef AGRIF_UPDATE_FULLWEIGHTING           
+      Call Agrif_Set_UpdateType(updatehvomid,update=
+     &Agrif_Update_full_weighting)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX     
+      Call Agrif_Set_UpdateType(updatehvomid,
+     &update1=Agrif_Update_Full_Weighting,
+     &update2=Agrif_Update_Average)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_HIGH 
+      Call Agrif_Set_UpdateType(updatehvomid,
+     &update1=Agrif_Update_4rdorder,
+     &update2=Agrif_Update_Full_Weighting)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_LOW
+      Call Agrif_Set_UpdateType(updatehvomid,
+     &update1=Agrif_Update_Average,
+     &update2=Agrif_Update_Copy)
+#endif
+
+#ifdef AGRIF_UPDATE_AVERAGE     
+      Call Agrif_Set_UpdateType(updatehvomid,
+     &update=Agrif_Update_Average)     
+#endif
+
+      Call Agrif_Declare_Variable((/2,1,0,0/),(/1,1,0,0/),
+     &    (/'x','y','N','N'/),(/i1t,j1v,1,1/),
+     &    (/i2t,j2v,N,NT/),updatemyfyid)
+
+#ifdef AGRIF_UPDATE_FULLWEIGHTING           
+      Call Agrif_Set_UpdateType(updatemyfyid,update=
+     &Agrif_Update_full_weighting)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX     
+      Call Agrif_Set_UpdateType(updatemyfyid,
+     &update1=Agrif_Update_Full_Weighting,
+     &update2=Agrif_Update_Average)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_HIGH    
+      Call Agrif_Set_UpdateType(updatemyfyid,
+     &update1=Agrif_Update_4rdorder,
+     &update2=Agrif_Update_Full_Weighting)
+#endif
+
+#ifdef AGRIF_UPDATE_MIX_LOW
+      Call Agrif_Set_UpdateType(updatemyfyid,
+     &update1=Agrif_Update_Average,
+     &update2=Agrif_Update_Copy)
+#endif
+
+#ifdef AGRIF_UPDATE_AVERAGE     
+      Call Agrif_Set_UpdateType(updatemyfyid,
+     &update=Agrif_Update_Average)     
+#endif
      
         call Agrif_Declare_Variable((/2,2/),(/1,1/),(/'x','y'/),
      &   (/i1t,j1t/),(/i2t,j2t/),zetaid)
@@ -1067,30 +1426,31 @@ CR      write(*,*) '  0' MYID
         call Agrif_Set_bc(uid,(/0,0/))
         call Agrif_Set_bc(vid,(/0,0/))
         
-        call Agrif_Set_bcinterp(zetaid,interp=Agrif_linear)        
-        call Agrif_Set_bcinterp(ubarid,interp1=Agrif_linear,
+        call Agrif_Set_bcinterp(zetaid,interp=Agrif_lagrange)        
+        call Agrif_Set_bcinterp(ubarid,interp1=Agrif_lagrange,
      &                                 interp2=Agrif_ppm)
         call Agrif_Set_bcinterp(vbarid,interp1=Agrif_ppm,
-     &                                 interp2=Agrif_linear)
-        call Agrif_Set_bcinterp(tid,interp=Agrif_linear)
-        call Agrif_Set_bcinterp(tspongeid,interp=Agrif_linear)
+     &                                 interp2=Agrif_lagrange)
+        call Agrif_Set_bcinterp(tid,interp=Agrif_lagrange)
+        call Agrif_Set_bcinterp(tspongeid,interp=Agrif_lagrange)
         
-        call Agrif_Set_bcinterp(uid,interp1=Agrif_linear,
+        call Agrif_Set_bcinterp(uid,interp1=Agrif_lagrange,
      &                                 interp2=Agrif_ppm)
      
-        call Agrif_Set_bcinterp(uspongeid,interp1=Agrif_linear,
+        call Agrif_Set_bcinterp(uspongeid,interp1=Agrif_lagrange,
      &                                 interp2=Agrif_ppm)
           
         call Agrif_Set_bcinterp(vid,interp1=Agrif_ppm,
-     &                                 interp2=Agrif_linear)
+     &                                 interp2=Agrif_lagrange)
      
         call Agrif_Set_bcinterp(vspongeid,interp1=Agrif_ppm,
-     &                                 interp2=Agrif_linear) 
+     &                                 interp2=Agrif_lagrange) 
            
       end subroutine declare_zoom_variables
             
 #ifdef MASKING
        subroutine ResetMask()
+       Use Agrif_Util
 #  include "param.h"
 #  include "grid.h"
 #  include "scalars.h"
@@ -1115,7 +1475,22 @@ CR      write(*,*) '  0' MYID
           if (gamma2.lt.0.) pmask(i,j)=2.-pmask(i,j)
        enddo
        enddo
-                 
+
+#ifdef MASKING
+      if (.Not.Agrif_Root()) Then
+        Agrif_UseSpecialValueInUpdate = .TRUE.
+        Agrif_SpecialValueFineGrid = 0.
+      
+        Call Agrif_Update_Variable(rmask,rmask)
+      
+        Agrif_UseSpecialValueInUpdate = .FALSE.   
+
+        Call Agrif_ChildGrid_To_ParentGrid()
+        Call ResetMask()
+        Call Agrif_ParentGrid_To_ChildGrid()
+      endif
+#endif 
+
        end subroutine ResetMask
 #endif      
 
@@ -1124,14 +1499,16 @@ CR      write(*,*) '  0' MYID
 #  include "param.h"
 #  include "grid.h"
 #  include "ocean2d.h"
+#  include "ocean3d.h"
 #  include "coupling.h"
 #  include "scalars.h"
 #  include "zoom.h"
       integer i1,i2,j1,j2
       real tabres(i1:i2,j1:j2)
       logical before
+      real cff_r,cff1_r,cff2_r, cff_w,cff1_w,cff2_w, z_r0,z_w0
       
-      integer i,j  
+      integer i,j,k  
        real tabtemp(i1:i2,j1:j2) 
               
       IF (before) THEN
@@ -1142,16 +1519,41 @@ CR      write(*,*) '  0' MYID
 #endif
          
        ELSE
+       do j=j1,j2
+       do i=i1,i2
+         h(i,j)=max(tabres(i,j),hc)
+         hinv(i,j)=1./h(i,j)
+       enddo
+       enddo
+       
+       do j=j1,j2
+       do i=i1,i2
+         z_w(i,j,0) = -h(i,j)
+       enddo
+       do k=1,N,+1
+          cff_w=hc*(sc_w(k)-Cs_w(k))
+          cff1_w=Cs_w(k)
+          cff2_w=sc_w(k)+1.
 
-c         h(i1+1:i2-1,j1+1:j2-1) = tabres(i1+1:i2-1,j1+1:j2-1)
-#ifdef MASKING
-c     &             *rmask(i1+1:i2-1,j1+1:j2-1)
-#endif
-       do j=j1+1,j2-1
-       do i=i1+1,i2-1
-       h(i,j)=max(tabres(i,j),hc)
-       enddo
-       enddo
+          cff_r=hc*(sc_r(k)-Cs_r(k))
+          cff1_r=Cs_r(k)
+          cff2_r=sc_r(k)+1.
+
+          do i=i1,i2
+            z_w0=cff_w+cff1_w*h(i,j)                               !<
+            z_w(i,j,k)=z_w0+Zt_avg1(i,j)*(1.+z_w0*hinv(i,j))       !<
+
+            z_r0=cff_r+cff1_r*h(i,j)                               !<
+            z_r(i,j,k)=z_r0+Zt_avg1(i,j)*(1.+z_r0*hinv(i,j))       !<
+
+c**         z_w(i,j,k)=cff_w+cff1_w*h(i,j)+cff2_w*Zt_avg1(i,j)     !>
+c**         z_r(i,j,k)=cff_r+cff1_r*h(i,j)+cff2_r*Zt_avg1(i,j)     !>
+
+            Hz_bak(i,j,k)=Hz(i,j,k)
+            Hz(i,j,k)=z_w(i,j,k)-z_w(i,j,k-1)
+          enddo
+        enddo
+      enddo
 	 	 
        ENDIF
       

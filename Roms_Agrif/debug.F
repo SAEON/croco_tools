@@ -163,7 +163,7 @@
       i1=1
       i2=Lmmpi
       j1=2
-      j2=Lmmpi
+      j2=Mmmpi
       elseif (typevar == 'v') then
       i1=0
       i2=Lmmpi+1      

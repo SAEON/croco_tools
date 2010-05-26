@@ -38,6 +38,7 @@ C      real*8 start_time2, start_time1, exe_time
       integer iunit, Agrif_lev_sedim
       parameter(iunit=50)
       external :: step
+#include "zoom.h"      
 #ifdef PISCES
 # include "parameter.h"
 #endif
@@ -394,13 +395,29 @@ CR      write(*,*) '  0' MYID
 
 #ifdef SOLVE3D      
       iif = -1
+      nbstep3d = 0
 #endif
       iic = ntstart
 
+#ifdef AGRIF
+      nbmaxtimes = 0
+      firstcoarsetimestep = .TRUE.
+      iind = -1
+      itimes = 0
+      tocont = .TRUE.
+#endif
+
       do iicroot=ntstart,ntimes+1
 
+        print *,'iicroot ntstart ntimes+1 :',iicroot,ntstart,ntimes+1
+
 #ifdef SOLVE3D
-        do iifroot = 0,nfast+1
+#if !defined AGRIF
+        do iifroot = 0,nfast+2
+#else
+        nbtimes = 0
+        do while (nbtimes.LE.nbmaxtimes)
+#endif
 #endif
 
 #ifdef AGRIF

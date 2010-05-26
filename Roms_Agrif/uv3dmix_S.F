@@ -101,12 +101,13 @@
 #  include "diagnostics.h"
 # endif
 !
-# include "compute_auxiliary_bounds.h"
-!
 #ifdef AGRIF
 #include "zoom.h"
 #endif
 !
+# include "compute_auxiliary_bounds.h"
+!
+
 #ifdef CHILD_SPG
 #define UCLM usponge
 #define VCLM vsponge

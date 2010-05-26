@@ -202,6 +202,7 @@
 !
         do itrc=1,2  ! use itrc indice = 1 for u_momentum
 !                    !                 = 2 for v_momentum 
+          if (wrt(itrc)) then
 !
 ! indxMXadv
 !
@@ -211,7 +212,6 @@
             r3dgrd=v3dgrd
           endif
 !
-        if (wrt(indxMXadv+itrc-1)) then
           lvar=lenstr(vname(1,indxMXadv+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMXadv+itrc-1)(1:lvar),
      &                     NF_FOUT, 4, r3dgrd, vidMXadv(itrc))
@@ -231,11 +231,9 @@
           lvar=lenstr(vname(4,indxMXadv+itrc-1))
           ierr=nf_put_att_text (ncid,vidMXadv(itrc), 'field',
      &                      lvar, vname(4,indxMXadv+itrc-1)(1:lvar))
-        endif 
 !
 ! indxMYadv
 !
-        if (wrt(indxMYadv+itrc-1)) then
           lvar=lenstr(vname(1,indxMYadv+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMYadv+itrc-1)(1:lvar),
      &                     NF_FOUT, 4, r3dgrd, vidMYadv(itrc))
@@ -255,11 +253,9 @@
           lvar=lenstr(vname(4,indxMYadv+itrc-1))
           ierr=nf_put_att_text (ncid,vidMYadv(itrc), 'field',
      &                      lvar, vname(4,indxMYadv+itrc-1)(1:lvar))
-        endif 
 !
 ! indxMVadv
 !
-        if (wrt(indxMVadv+itrc-1)) then
           lvar=lenstr(vname(1,indxMVadv+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMVadv+itrc-1)(1:lvar),
      &                     NF_FOUT, 4, r3dgrd, vidMVadv(itrc))
@@ -279,11 +275,9 @@
           lvar=lenstr(vname(4,indxMVadv+itrc-1))
           ierr=nf_put_att_text (ncid,vidMVadv(itrc), 'field',
      &                      lvar, vname(4,indxMVadv+itrc-1)(1:lvar))
-        endif 
 !
 ! indxMCor
 !
-        if (wrt(indxMCor+itrc-1)) then
           lvar=lenstr(vname(1,indxMCor+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMCor+itrc-1)(1:lvar),
      &                     NF_FOUT, 4, r3dgrd, vidMCor(itrc))
@@ -303,11 +297,9 @@
           lvar=lenstr(vname(4,indxMCor+itrc-1))
           ierr=nf_put_att_text (ncid,vidMCor(itrc), 'field',
      &                      lvar, vname(4,indxMCor+itrc-1)(1:lvar))
-        endif 
 !
 ! indxMPrsgrd
 !
-        if (wrt(indxMPrsgrd+itrc-1)) then
           lvar=lenstr(vname(1,indxMPrsgrd+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMPrsgrd+itrc-1)(1:lvar),
      &                     NF_FOUT, 4, r3dgrd, vidMPrsgrd(itrc))
@@ -327,11 +319,9 @@
           lvar=lenstr(vname(4,indxMPrsgrd+itrc-1))
           ierr=nf_put_att_text (ncid,vidMPrsgrd(itrc), 'field',
      &                      lvar, vname(4,indxMPrsgrd+itrc-1)(1:lvar))
-        endif 
 !
 ! indxMHmix
 !
-        if (wrt(indxMHmix+itrc-1)) then
           lvar=lenstr(vname(1,indxMHmix+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMHmix+itrc-1)(1:lvar),
      &                     NF_FOUT, 4, r3dgrd, vidMHmix(itrc))
@@ -351,11 +341,9 @@
           lvar=lenstr(vname(4,indxMHmix+itrc-1))
           ierr=nf_put_att_text (ncid,vidMHmix(itrc), 'field',
      &                      lvar, vname(4,indxMHmix+itrc-1)(1:lvar))
-        endif 
 !
 !indxMVmix
 !
-        if (wrt(indxMVmix+itrc-1)) then
           lvar=lenstr(vname(1,indxMVmix+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMVmix+itrc-1)(1:lvar),
      &                     NF_FOUT, 4, r3dgrd, vidMVmix(itrc))
@@ -375,11 +363,9 @@
           lvar=lenstr(vname(4,indxMVmix+itrc-1))
           ierr=nf_put_att_text (ncid,vidMVmix(itrc), 'field',
      &                      lvar, vname(4,indxMVmix+itrc-1)(1:lvar))
-        endif 
 !
 ! Mrate indxMrate
 !
-        if (wrt(indxMrate+itrc-1)) then
           lvar=lenstr(vname(1,indxMrate+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMrate+itrc-1)(1:lvar),
      &                     NF_FOUT, 4, r3dgrd, vidMrate(itrc))
@@ -399,10 +385,9 @@
           lvar=lenstr(vname(4,indxMrate+itrc-1))
           ierr=nf_put_att_text (ncid, vidMrate(itrc),'field',
      &                    lvar, vname(4,indxMrate+itrc-1)(1:lvar))
-        endif 
 !
-       enddo
- 
+        endif
+      enddo
 !
 ! Leave definition mode.
 ! ----- ---------- -----
@@ -499,9 +484,9 @@
 !
         do itrc=1,2  ! use itrc indice = 1 for u_momentum
 !                    !                 = 2 for v_momentum 
+          if (wrt(itrc)) then
 ! indxMXadv
 !
-        if (wrt(indxMXadv+itrc-1)) then
          lvar=lenstr(vname(1,indxMXadv+itrc-1))
          ierr=nf_inq_varid (ncid, vname(1,indxMXadv+itrc-1)(1:lvar),
      &                      vidMXadv(itrc))
@@ -510,11 +495,9 @@
      &                     ncname(1:lstr) 
            goto 99                                       !--> ERROR
          endif
-        endif 
 !
 ! indxMYadv
 !
-        if (wrt(indxMYadv+itrc-1)) then
          lvar=lenstr(vname(1,indxMYadv+itrc-1))
          ierr=nf_inq_varid (ncid, vname(1,indxMYadv+itrc-1)(1:lvar),
      &                      vidMYadv(itrc))
@@ -522,12 +505,10 @@
            write(stdout,1) vname(1,indxMYadv+itrc-1)(1:lvar),
      &                     ncname(1:lstr) 
            goto 99                                       !--> ERROR
-         endif
-        endif                                  
+         endif                               
 !
 ! indxMVadv
 !
-        if (wrt(indxMVadv+itrc-1)) then
          lvar=lenstr(vname(1,indxMVadv+itrc-1))
          ierr=nf_inq_varid (ncid, vname(1,indxMVadv+itrc-1)(1:lvar),
      &                      vidMVadv(itrc))
@@ -536,11 +517,9 @@
      &                     ncname(1:lstr) 
            goto 99                                       !--> ERROR
          endif
-        endif 
 !
 ! indxMCor
 !
-        if (wrt(indxMCor+itrc-1)) then
          lvar=lenstr(vname(1,indxMCor+itrc-1))
          ierr=nf_inq_varid (ncid, vname(1,indxMCor+itrc-1)(1:lvar),
      &                      vidMCor(itrc))
@@ -549,11 +528,9 @@
      &                     ncname(1:lstr)
            goto 99                                       !--> ERROR
          endif
-        endif 
 !
 ! indxMPrsgrd
 !
-        if (wrt(indxMPrsgrd+itrc-1)) then
          lvar=lenstr(vname(1,indxMPrsgrd+itrc-1))
          ierr=nf_inq_varid (ncid, vname(1,indxMPrsgrd+itrc-1)(1:lvar),
      &                      vidMPrsgrd(itrc))
@@ -562,11 +539,9 @@
      &                     ncname(1:lstr)
            goto 99                                       !--> ERROR
          endif
-        endif 
 !
 ! indxMHmix
 !
-        if (wrt(indxMHmix+itrc-1)) then
          lvar=lenstr(vname(1,indxMHmix+itrc-1))
          ierr=nf_inq_varid (ncid, vname(1,indxMHmix+itrc-1)(1:lvar),
      &                      vidMHmix(itrc))
@@ -575,11 +550,9 @@
      &                     ncname(1:lstr)
            goto 99                                       !--> ERROR
          endif
-        endif 
 !
 ! indxMVmix
 !
-        if (wrt(indxMVmix+itrc-1)) then
          lvar=lenstr(vname(1,indxMVmix+itrc-1))
          ierr=nf_inq_varid (ncid, vname(1,indxMVmix+itrc-1)(1:lvar),
      &                      vidMVmix(itrc))
@@ -588,11 +561,9 @@
      &                     ncname(1:lstr) 
            goto 99                                       !--> ERROR
          endif
-        endif 
 !
 ! indxMrate
 !
-        if (wrt(indxMrate+itrc-1)) then
          lvar=lenstr(vname(1,indxMrate+itrc-1))
          ierr=nf_inq_varid (ncid, vname(1,indxMrate+itrc-1)(1:lvar),
      &                      vidMrate(itrc))
@@ -601,9 +572,9 @@
      &                     ncname(1:lstr) 
            goto 99                                       !--> ERROR
          endif
-        endif 
 !
-        enddo
+       endif
+      enddo
 !
         MPI_master_only write(*,'(6x,2A,i4,1x,A,i4)') 
      &                     'DEF_DIAGM -- Opened ',

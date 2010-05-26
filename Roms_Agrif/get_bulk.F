@@ -9,10 +9,10 @@
 !  Read in wind speed and surface air temperature
 !
 !
-# define BULK_DATA
-# ifdef BULK_WSTR
-#  define SMFLUX_DATA
-# endif
+!!! gc # define BULK_DATA
+!!! gc # ifdef BULK_WSTR
+!!! gc #  define SMFLUX_DATA
+!!! gc # endif
       implicit none
 # include "param.h"
 # include "forces.h"
@@ -149,8 +149,8 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
           goto 99                                         !--> ERROR
         endif
 # endif /* BULK_EP */
-
-# ifdef BULK_WVEC
+# ifdef BULK_SMFLUX
+#  ifdef BULK_SM_UPDATE
         lvar=lenstr(vname(1,indxUWND))
         ierr=nf_inq_varid (ncidbulk,vname(1,indxUWND)(1:lvar),uwnd_id)
         if (ierr .eq. nf_noerr) then
@@ -185,7 +185,7 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
           goto 99                                         !--> ERROR
         endif
 
-# elif defined BULK_WSTR
+# else
         lvar=lenstr(vname(1,indxSUSTR))
         ierr=nf_inq_varid (ncidbulk,vname(1,indxSUSTR)(1:lvar),susid)
         if (ierr .eq. nf_noerr) then
@@ -219,8 +219,8 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
           write(stdout,3) vname(1,indxSVSTR)(1:lvar),bulkname(1:lstr)
           goto 99                                         !--> ERROR
         endif
-# endif /* BULK_WVEC || BULK_WSTR */
-
+#  endif /* BULK_SM_UPDATE */
+# endif /* BULK_SMFLUX */
 !
 ! Determine whether there is cycling to reuse the input data and
 ! find cycling period "bulk_cycle", set initial cycling index
@@ -241,7 +241,7 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
 # ifdef BULK_EP
         stf_scale(isalt)=0.01/86400.
 # endif
-# ifdef BULK_WSTR
+# if (defined BULK_SMFLUX &&  !defined BULK_SM_UPDATE)
         sms_scale=1./rho0
 # endif
       endif
@@ -348,7 +348,8 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
           goto 99                                         !--> ERROR
         endif
 # endif
-# ifdef BULK_WVEC
+# ifdef BULK_SMFLUX
+#  ifdef BULK_SM_UPDATE
 !
 ! uwnd
 !
@@ -375,7 +376,7 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
           write(stdout,6) 'vwnd', bulk_rec
           goto 99                                         !--> ERROR
         endif
-# elif defined BULK_WSTR
+# else
 !
 ! sustr
 !
@@ -402,8 +403,8 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
           write(stdout,6) 'svstr', bulk_rec
           goto 99                                         !--> ERROR
         endif
-# endif /* BULK_WVEC || BULK_WSTR */
-
+#  endif /* BULK_SM_UPDATE */
+# endif /* BULK_SMFLUX */
        itbulk=i
        write(stdout,'(6x,A,1x,A,1x,g12.4,1x,I4)') 'GET_BULK   --',
      &              'Read fields for bulk formula   for time =', cff 
@@ -439,10 +440,10 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
 !
 ! Set-up bulk data for current tile.
 !
-# define BULK_DATA
-# ifdef BULK_WSTR
-#  define SMFLUX_DATA
-# endif
+!!!! gc # define BULK_DATA
+!!!! gc # ifdef BULK_WSTR
+!!!! gc #  define SMFLUX_DATA
+!!!! gc # endif
       implicit none
 # include "param.h"
 # include "forces.h"
@@ -453,7 +454,7 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
 # ifdef BULK_EP
       real cff5,cff6
 # endif
-# if defined BULK_WVEC || defined BULK_WSTR
+# ifndef BULK_SM_UPDATE
       real cff7,cff8
 # endif
       real val1,val2,val3,val4,val5,val6,val7,val8
@@ -482,13 +483,15 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
 # ifdef BULK_EP
                 prate(i,j)=stf_scale(isalt)*prateg(i,j,itbulk)
 # endif
-# ifdef BULK_WVEC
+# ifdef BULK_SMFLUX
+#  ifdef BULK_SM_UPDATE
                 uwnd(i,j)=uwndg(i,j,itbulk)
                 vwnd(i,j)=vwndg(i,j,itbulk)
-# elif defined BULK_WSTR
+#  else
                 sustr(i,j)=sms_scale*sustrg(i,j,itbulk)
                 svstr(i,j)=sms_scale*svstrg(i,j,itbulk)
-# endif
+#  endif /* BULK_SM_UPDATE */
+# endif /* BULK_SMFLUX */
               enddo
             enddo
           else
@@ -500,13 +503,15 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
 # ifdef BULK_EP
             val6=stf_scale(isalt)*pratep(itbulk)
 # endif
-# ifdef BULK_WVEC
+# ifdef BULK_SMFLUX
+#  ifdef BULK_SM_UPDATE
             val7=uwndp(itbulk)
             val8=vwndp(itbulk)
-# elif defined BULK_WSTR
+#  else
             val7=sms_scale*sustrp(itbulk)
             val8=sms_scale*svstrp(itbulk)
-# endif
+#  endif /* BULK_SM_UPDATE */
+# endif /* BULK_SMFLUX */
             do j=JstrR,JendR
               do i=IstrR,IendR
                 wspd(i,j)=val1
@@ -518,13 +523,15 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
 # ifdef BULK_EP
                 prate(i,j)=val6
 # endif
-# ifdef BULK_WVEC
+# ifdef BULK_SMFLUX
+#  ifdef BULK_SM_UPDATE
                 uwnd(i,j)=val7
                 vwnd(i,j)=val8
-# else
+#  else
                 sustr(i,j)=val7
                 svstr(i,j)=val8
-# endif /* BULK_WVEC || BULK_WSTR */
+#  endif /* BULK_SM_UPDATE */
+# endif /* BULK_SMFLUX */
               enddo
             enddo
           endif
@@ -547,11 +554,13 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
         cff5=cff1*cff
         cff6=cff2*cff
 # endif
-# ifdef BULK_WSTR
+# ifdef BULK_SMFLUX
+#  ifndef BULK_SM_UPDATE 
         cff=sms_scale/(cff1+cff2)
         cff7=cff1*cff
         cff8=cff2*cff
-# endif
+#  endif 
+# endif 
         cff=1./(cff1+cff2)
         cff1=cff1*cff
         cff2=cff2*cff
@@ -568,12 +577,14 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
 # ifdef BULK_EP
               prate(i,j)=cff5*prateg(i,j,it1)+cff6*prateg(i,j,it2)
 # endif
-# ifdef BULK_WVEC
+# ifdef BULK_SMFLUX
+#  ifdef BULK_SM_UPDATE
               uwnd(i,j)=cff1*uwndg(i,j,it1)+cff2*uwndg(i,j,it2)
               vwnd(i,j)=cff1*vwndg(i,j,it1)+cff2*vwndg(i,j,it2)
-# elif defined BULK_WSTR
+#  else 
               sustr(i,j)=cff7*sustrg(i,j,it1)+cff8*sustrg(i,j,it2)
               svstr(i,j)=cff7*svstrg(i,j,it1)+cff8*svstrg(i,j,it2)
+#  endif /* BULK_SM_UPDATE */
 # endif
             enddo
           enddo
@@ -586,12 +597,14 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
 # ifdef BULK_EP
           val6=cff5*pratep(it1)+cff6*pratep(it2)
 # endif
-# ifdef BULK_WVEC
+# ifdef BULK_SMFLUX
+#  ifdef BULK_SM_UPDATE
           val7=cff1*uwndp(it1)+cff2*uwndp(it2)
           val8=cff1*vwndp(it1)+cff2*vwndp(it2)
-# elif defined BULK_WSTR
+#  else 
           val7=cff7*sustrp(it1)+cff8*sustrp(it2)
           val8=cff7*svstrp(it1)+cff8*svstrp(it2)
+#  endif
 # endif
           do j=JstrR,JendR
             do i=IstrR,IendR
@@ -604,13 +617,15 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
 # ifdef BULK_EP
               prate(i,j)=val6
 # endif
-# ifdef BULK_WVEC
+# ifdef BULK_SMFLUX
+#  ifdef BULK_SM_UPDATE
               uwnd(i,j)=val7
               vwnd(i,j)=val8
-# else
+#  else
               sustr(i,j)=val7
               svstr(i,j)=val8
-# endif /* BULK_WVEC || BULK_WSTR */
+#  endif /* BULK_SM_UPDATE */
+# endif /* BULK_SMFLUX */
             enddo
           enddo
         endif

@@ -42,6 +42,8 @@
                       /* Nesting */
 # undef AGRIF
 # undef AGRIF_2WAY
+c--# undef AGRIF_CONSERV_VOL
+c--# define AGRIF_CONSERV_TRA
                       /* Open Boundary Conditions */
 # undef TIDES
 # define OBC_EAST
@@ -598,11 +600,14 @@
 !                       Baroclinic Vortex Example (TEST AGRIF)
 !                       ========== ====== ======= ===== ======
 */
-# define ETALON_CHECK
+# undef ETALON_CHECK
 # undef OPENMP
 # undef MPI
 # define AGRIF
 # define AGRIF_2WAY
+# undef AGRIF_CONSERV_VOL
+# undef AGRIF_CONSERV_TRA
+
 # define MASKING
 # define SOLVE3D
 # define UV_COR
@@ -632,6 +637,7 @@
 # define OBC_M2FLATHER
 # define OBC_TORLANSKI
 # define OBC_M3ORLANSKI
+
 #endif
 
 #include "set_global_definitions.h"

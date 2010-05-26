@@ -80,6 +80,8 @@
       parameter (LLm0=41, MMm0=42,  N=32)  ! <-- BENGUELA_LR
 #  elif defined  BENGUELA_HR
       parameter (LLm0=83, MMm0=85,  N=32)  ! <-- BENGUELA_HR
+#  elif defined  BENGUELA_VHR
+      parameter (LLm0=167, MMm0=170,  N=32)  ! <-- BENGUELA_VHR
 #  else
       parameter (LLm0=39,  MMm0=32,  N=20)
 #  endif

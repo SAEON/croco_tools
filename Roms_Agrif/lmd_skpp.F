@@ -363,17 +363,23 @@
 #   undef J_EXT_RANGE
       do j=Jstr-1,Jend
         do i=Istr-1,Iend
-          wrk1(i,j)=0.25*(my_hbl(i,j)  +my_hbl(i+1,j)
-     &                   +my_hbl(i,j+1)+my_hbl(i+1,j+1))
+#   ifdef MASKING
+          cff=1./max(1.,(rmask(i,j)   +rmask(i+1,j)
+     &                  +rmask(i,j+1) +rmask(i+1,j+1)))
+#   else
+          cff=0.25
+#   endif
+          wrk1(i,j)=cff*(my_hbl(i,j)  +my_hbl(i+1,j)
+     &                  +my_hbl(i,j+1)+my_hbl(i+1,j+1))
         enddo
       enddo
       do j=Jstr,Jend
         do i=Istr,Iend
           hbl(i,j)=0.25*(wrk1(i,j)  +wrk1(i-1,j)
      &                  +wrk1(i,j-1)+wrk1(i-1,j-1))
-# ifdef MASKING
+#   ifdef MASKING
           hbl(i,j)=hbl(i,j)*rmask(i,j)
-# endif
+#   endif
         enddo
       enddo
 #  endif /* HBL_SMOOTH */
@@ -550,7 +556,7 @@
               endif
 # endif
 
-            else  !<-- k < kbl(i,j)
+            else                !<-- k < kbl(i,j)
 
 # ifdef LMD_NONLOCAL
               ghats(i,j,k)=0.
@@ -565,7 +571,7 @@
                Ks(i,j,k)=Ks(i,j,k)+lmd_nu0c
              endif
 # endif
-            endif
+           endif                !<-- k < kbl(i,j)
           enddo
         enddo
 #undef ws
@@ -584,6 +590,12 @@
             Akt(i,j,k,isalt)=Ks(i,j,k)
 # endif
           enddo
+        enddo
+      enddo                     !<-- k loop
+
+      do j=Jstr,Jend
+        do i=Istr,Iend
+          kbl(i,j)=max(1,kbl(i,j))
         enddo
       enddo
 !
