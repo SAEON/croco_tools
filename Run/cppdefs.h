@@ -5,21 +5,21 @@
    This is "cppdefs.h": MODEL CONFIGURATION FILE
    ==== == ============ ===== ============= ====
 */
-#undef BASIN           /* Basin Example */
-#undef CANYON_A        /* Canyon_A Example */
-#undef CANYON_B        /* Canyon_B Example */
-#undef EQUATOR         /* Equator Example  */
-#undef GRAV_ADJ        /* Graviational Adjustment Example */
-#undef INNERSHELF      /* Inner Shelf Example */
-#undef RIVER           /* River run-off Example */
-#undef OVERFLOW        /* Graviational/Overflow Example */
-#undef SEAMOUNT        /* Seamount Example */
-#undef SHELFRONT       /* Shelf Front Example */
-#undef SOLITON         /* Equatorial Rossby Wave Example */
-#undef UPWELLING       /* Upwelling Example */
-#undef VORTEX          /* Baroclinic Vortex Example */
-#undef INTERNAL        /* Internal Tide Example */
-#define REGIONAL       /* REGIONAL Applications */
+#undef  BASIN           /* Basin Example */
+#undef  CANYON_A        /* Canyon_A Example */
+#undef  CANYON_B        /* Canyon_B Example */
+#undef  EQUATOR         /* Equator Example  */
+#undef  GRAV_ADJ        /* Graviational Adjustment Example */
+#undef  INNERSHELF      /* Inner Shelf Example */
+#undef  RIVER           /* River run-off Example */
+#undef  OVERFLOW        /* Graviational/Overflow Example */
+#undef  SEAMOUNT        /* Seamount Example */
+#undef  SHELFRONT       /* Shelf Front Example */
+#undef  SOLITON         /* Equatorial Rossby Wave Example */
+#undef  UPWELLING       /* Upwelling Example */
+#undef  VORTEX          /* Baroclinic Vortex Example */
+#undef  INTERNAL        /* Internal Tide Example */
+#define REGIONAL        /* REGIONAL Applications */
 
 
 #if defined REGIONAL
@@ -35,28 +35,25 @@
 */
                       /* Configuration Name */
 # define BENGUELA_LR
-# undef ETALON_CHECK
                       /* Parallelization */
-# undef OPENMP
-# undef MPI
+# undef  OPENMP
+# undef  MPI
                       /* Nesting */
-# undef AGRIF
-# undef AGRIF_2WAY
-c--# undef AGRIF_CONSERV_VOL
-c--# define AGRIF_CONSERV_TRA
+# undef  AGRIF
+# undef  AGRIF_2WAY
                       /* Open Boundary Conditions */
-# undef TIDES
+# undef  TIDES
 # define OBC_EAST
 # define OBC_WEST
 # define OBC_NORTH
 # define OBC_SOUTH
                       /* Applications */
-# undef BIOLOGY
-# undef FLOATS
-# undef STATIONS
-# undef PASSIVE_TRACER
-# undef SEDIMENT
-# undef BBL
+# undef  BIOLOGY
+# undef  FLOATS
+# undef  STATIONS
+# undef  PASSIVE_TRACER
+# undef  SEDIMENT
+# undef  BBL
 /*!
 !------------------------
 ! PRE-SELECTED OPTIONS
@@ -64,9 +61,10 @@ c--# define AGRIF_CONSERV_TRA
 */
                       /* Parallelization */
 # ifdef MPI
-#  undef PARALLEL_FILES
+#  undef  PARALLEL_FILES
 # endif
-# undef AUTOTILING
+# undef  AUTOTILING
+# undef  ETALON_CHECK
                       /* Model dynamics */
 # define SOLVE3D
 # define UV_COR
@@ -80,33 +78,32 @@ c--# define AGRIF_CONSERV_TRA
 # define CURVGRID
 # define SPHERICAL
 # define MASKING
-!
                       /* Lateral Momentum Mixing */
 # define UV_VIS2
 # define MIX_GP_UV
-# undef VIS_SMAGO
+# undef  VIS_SMAGO
                       /* Lateral Tracer Mixing */
 # define MIX_GP_TS
 # define TS_DIF2
-# undef TS_SPLIT_UP3
+# undef  TS_SPLIT_UP3
                       /* Vertical Mixing */
-# undef BODYFORCE
-# undef BVF_MIXING
+# undef  BODYFORCE
+# undef  BVF_MIXING
 # define LMD_MIXING
 # ifdef LMD_MIXING
 #  define LMD_SKPP
 #  define LMD_BKPP
 #  define LMD_RIMIX
 #  define LMD_CONVEC
-#  undef LMD_DDMIX
-#  undef LMD_NONLOCAL
+#  undef  LMD_DDMIX
+#  undef  LMD_NONLOCAL
 # endif
                       /* Equation of State */
 # define SALINITY
 # define NONLIN_EOS
 # define SPLIT_EOS
                       /* Surface Forcing */
-# undef BULK_FLUX
+# undef  BULK_FLUX
 # ifdef BULK_FLUX
 #  define BULK_FAIRALL
 #  define BULK_LW
@@ -131,10 +128,10 @@ c--# define AGRIF_CONSERV_TRA
 #  define M2NUDGING
 #  define M3NUDGING
 #  define TNUDGING
-#  undef ROBUST_DIAG
+#  undef  ROBUST_DIAG
 # endif
 
-# undef FRC_BRY
+# undef  FRC_BRY
 # ifdef FRC_BRY
 #  define Z_FRC_BRY
 #  define M2_FRC_BRY
@@ -145,33 +142,33 @@ c--# define AGRIF_CONSERV_TRA
 # define ANA_BSFLUX
 # define ANA_BTFLUX
                       /* Point Sources - Rivers */
-# undef PSOURCE
-# undef ANA_PSOURCE
+# undef  PSOURCE
+# undef  ANA_PSOURCE
                       /* Open Boundary Conditions */
 # ifdef TIDES
 #  define OBC_M2FLATHER
 # else
-#  undef OBC_M2SPECIFIED
-#  undef OBC_M2FLATHER
+#  undef  OBC_M2SPECIFIED
+#  undef  OBC_M2FLATHER
 #  define OBC_M2CHARACT
-#  undef OBC_M2ORLANSKI
-#  ifdef OBC_M2ORLANSKI
+#  undef  OBC_M2ORLANSKI
+#  ifdef  OBC_M2ORLANSKI
 #   define OBC_VOLCONS
 #  endif
 # endif
 # define OBC_M3ORLANSKI
 # define OBC_TORLANSKI
-# undef OBC_M3SPECIFIED
-# undef OBC_TSPECIFIED
+# undef  OBC_M3SPECIFIED
+# undef  OBC_TSPECIFIED
                       /* Input/Output & Diagnostics */
 # define AVERAGES
 # define AVERAGES_K
-# undef DIAGNOSTICS_TS
+# undef  DIAGNOSTICS_TS
+# undef  DIAGNOSTICS_UV
 # ifdef DIAGNOSTICS_TS
-# undef DIAGNOSTICS_TS_ADV
-# undef DIAGNOSTICS_TS_MLD
+#  undef DIAGNOSTICS_TS_ADV
+#  undef DIAGNOSTICS_TS_MLD
 # endif
-# undef DIAGNOSTICS_UV
 /*
 !           Applications:
 !---------------------------------
@@ -179,68 +176,69 @@ c--# define AGRIF_CONSERV_TRA
 ! Passive tracer, Sediments, BBL
 !---------------------------------
 */
+                      /*      Choice of Biology models   */
 # ifdef BIOLOGY
-#  undef PISCES
+#  undef  PISCES
 #  define BIO_NChlPZD
 #  undef  BIO_N2P2Z2D2
 #  undef  BIO_N2ChlPZD2  
-/*      BIOLOGY OPTIONS  */
+                      /*  Options  */
 #  ifdef PISCES
 #   define key_trc_pisces
 #   define key_passivetrc
-#   undef DIAGNOSTICS_BIO
-#   if defined DIAGNOSTICS_BIO && defined PISCES
+#   undef  DIAGNOSTICS_BIO
+#   ifdef DIAGNOSTICS_BIO
 #     define key_trc_diaadd
 #     define key_trc_dia3d
 #   endif
 #  endif
 #  ifdef BIO_NChlPZD
-#   undef OXYGEN
+#   undef  OXYGEN
 #  endif
-#  if defined BIO_NChlPZD
-#    define  DIAGNOSTICS_BIO
+#  ifdef BIO_NChlPZD
+#   define DIAGNOSTICS_BIO
 #  endif
 #  ifdef BIO_N2P2Z2D2
-#   undef VAR_CHL_C
+#   undef  VAR_CHL_C
 #  endif
 # endif
-
+                      /*     Lagrangian floats model    */
 # ifdef FLOATS
-#  undef FLOATS_GLOBAL_ATTRIBUTES
-#  undef IBM
-#  undef RANDOM_WALK
+#  undef  FLOATS_GLOBAL_ATTRIBUTES
+#  undef  IBM
+#  undef  RANDOM_WALK
 #  ifdef RANDOM_WALK
 #   define DIEL_MIGRATION
 #   define RANDOM_VERTICAL
 #   define RANDOM_HORIZONTAL
 #  endif
 # endif
-
+                      /*     Stations recording    */
 # ifdef STATIONS
 #  define ALL_SIGMA
 # endif
-
+                      /*      Sediment dynamics model     */
 # ifdef SEDIMENT
 #  define ANA_SEDIMENT
-#  undef BED_ARMOR
-#  undef ANA_SPFLUX
-#  undef ANA_BPFLUX
+#  undef  BED_ARMOR
+#  undef  ANA_SPFLUX
+#  undef  ANA_BPFLUX
 #  define LINEAR_CONTINUATION
-#  undef NEUMANN
+#  undef  NEUMANN
 # endif
-
+                      /*      Bottom Boundary Layer model     */
 # ifdef BBL
 #  define ANA_WWAVE
 #  ifdef SEDIMENT
-#   undef ANA_BSEDIM
+#   undef  ANA_BSEDIM
 #  else
 #   define ANA_BSEDIM
 #  endif
-#  undef Z0_BL
+#  undef  Z0_BL
 #  ifdef Z0_BL
 #   define Z0_RIP
 #  endif
-#  undef Z0_BIO
+#  undef  Z0_BIO
 # endif
 /*
 !
