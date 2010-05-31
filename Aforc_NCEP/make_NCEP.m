@@ -448,6 +448,7 @@ if makeplot==1
   disp(' Make a few plots...')
   slides=[1 25 50 75];
   if makeblk
+    figure
     test_forcing(blkname,grdname,'tair',slides,3,coastfileplot)
     figure
     test_forcing(blkname,grdname,'rhum',slides,3,coastfileplot)
@@ -465,8 +466,10 @@ if makeplot==1
     test_forcing(blkname,grdname,'radsw',slides,3,coastfileplot)
   end
   if makefrc
+    figure
     test_forcing(frcname,grdname,'sustr',slides,3,coastfileplot)
     figure
     test_forcing(frcname,grdname,'svstr',slides,3,coastfileplot)  
   end
 end
+

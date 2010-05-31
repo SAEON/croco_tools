@@ -50,51 +50,53 @@ disp(['Get ',vname,' for year ',num2str(year),...
 %
 if Get_My_Data~=1
   var=getdap(url,fname,vname,...
-             trange,level,jrange,...
-             i1min,i1max,i2min,i2max,i3min,i3max);	
-%
-% Get the dataset attributes
-%
+		 trange,level,jrange,...
+		 i1min,i1max,i2min,i2max,i3min,i3max);	
+  %
+  % Get the dataset attributes
+  %
   x=readattribute([url,fname]);
   eval(['missing_value=x.',vname,'.missing_value;']);
 else %if Get_My_Data
   nc=netcdf([url,fname,'.',num2str(year),'.nc']);
+  numdimvar0=ncsize(nc{vname});
+  numdimvar=length(numdimvar0);
   if ~isempty(i1min)
-    if strcmp(vname,'air')==1  | strcmp(vname,'uwnd')==1 | ...
-       strcmp(vname,'vwnd')==1 | strcmp(vname,'shum')==1 	
+    if ( numdimvar > 3 )
       var1=squeeze(nc{vname}(tndx,1,jmin:jmax,i1min:i1max));
     else
-      var2=squeeze(nc{vname}(tndx,jmin:jmax,i1min:i10max));	
+      var1=squeeze(nc{vname}(tndx,jmin:jmax,i1min:i1max));
     end
   else
     var1=[];
   end
-%
+  %size(var1)
+  %
   if ~isempty(i2min)
-    if strcmp(vname,'air')==1  | strcmp(vname,'uwnd')==1 | ...
-       strcmp(vname,'vwnd')==1 | strcmp(vname,'shum')==1 	
-        var2=squeeze(nc{vname}(tndx,1,jmin:jmax,i2min:i2max));
+    if ( numdimvar > 3 )
+      var2=squeeze(nc{vname}(tndx,1,jmin:jmax,i2min:i2max));
     else
-        var2=squeeze(nc{vname}(tndx,jmin:jmax,i2min:i2max));	
+      var2=squeeze(nc{vname}(tndx,jmin:jmax,i2min:i2max));
     end
   else
     var2=[];
   end
-  
+  %size(var2)
+  %  
   if ~isempty(i3min)
-    if strcmp(vname,'air')==1  | strcmp(vname,'uwnd')==1 | ...
-       strcmp(vname,'vwnd')==1 | strcmp(vname,'shum')==1 	
-      var3=squeeze(nc{vname}(tndx,1,jmin:jmax,i3min:i3max));
+    if ( numdimvar > 3 )
+      var3=squeeze(nc{vname}(tndx,1,jmin:jmax,i3min:i3max));  
     else
-        var3=squeeze(nc{vname}(tndx,jmin:jmax,i3min:i3max));
+      var3=squeeze(nc{vname}(tndx,jmin:jmax,i3min:i3max));    
     end
   else
     var3=[];
   end
-%     
+  %size(var3)
+  %
   var=cat(3,var1,var2,var3);
   close(nc)
-%
+  %
   nc=netcdf([url,fname,'.',num2str(year),'.nc']);
   add_offset=nc{vname}.add_offset(:);
   if isempty(add_offset)
@@ -109,8 +111,9 @@ else %if Get_My_Data
     missing_value=-99999;
   end
   close(nc)
-%
+  %
 end  %if Get_My_Data
+
 %
 % Correct the variable
 %
@@ -123,11 +126,13 @@ else
   var(var==missing_value)=NaN;
   var=add_offset+var.*scale_factor;
 end  %if Get_My_Data
+
 %
 % Write it in a file
 %
 write_NCEP([NCEP_dir,vname,'_Y',num2str(year),'M',num2str(month),'.nc'],...
-            vname,lon,lat,time,var,Yorig)
+	   vname,lon,lat,time,var,Yorig)
 %
+
 return
 

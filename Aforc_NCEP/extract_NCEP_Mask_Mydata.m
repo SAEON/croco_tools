@@ -17,20 +17,20 @@ if ~isempty(i1min)
 else
   var1=[];
 end
-
+%
 if ~isempty(i2min)
   var2=squeeze(nc{'land'}(1,jmin:jmax,i2min:i2max));
 else
   var2=[];
 end
-
 if ~isempty(i3min)
   var3=squeeze(nc{'land'}(1,jmin:jmax,i3min:i3max));
 else
   var3=[];
 end
-%%  
-var=cat(3,var1,var2,var3);
+%  
+var=cat(2,var1,var2,var3);
+
 close(nc)
 
 nc=netcdf([url,fname,'.nc']);
