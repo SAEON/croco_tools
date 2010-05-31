@@ -70,7 +70,6 @@ else %if Get_My_Data
   else
     var1=[];
   end
-  %size(var1)
   %
   if ~isempty(i2min)
     if ( numdimvar > 3 )
@@ -81,7 +80,6 @@ else %if Get_My_Data
   else
     var2=[];
   end
-  %size(var2)
   %  
   if ~isempty(i3min)
     if ( numdimvar > 3 )
@@ -92,7 +90,6 @@ else %if Get_My_Data
   else
     var3=[];
   end
-  %size(var3)
   %
   var=cat(3,var1,var2,var3);
   close(nc)

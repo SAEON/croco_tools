@@ -52,13 +52,6 @@ end
 %
 var(var==missing_value)=NaN;
 var=add_offset+var.*scale_factor;
-
-%Flipdim because NCEP and ROMS 
-%don't have the same convention for lat
-%lat=flipdim(lat,1);
-%var=flipdim(var,1);
-%here var is land, no other variables
-
 %
 %
 % Write it in a file
