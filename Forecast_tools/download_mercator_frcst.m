@@ -44,9 +44,16 @@ rundate=datenum(rundate_str)-datenum(Yorig,1,1);
 lh=5; % length of hindcast for mercator
 lf=6; % length of forecast
 %%% test if mercator forecast exist %%%
-    time=readdap(url,'time',[]);
+% mercator time is in julian hours since 1950
+    time=readdap(url,'time',[])/24; 
+time(1)
     time=time+datenum(1950,1,1);
+time(1)
     time=time-datenum(Yorig,1,1);
+    time(1)
+    rundate
+    size(time)
+    stop
     while l==1
     try
         x=find(time==rundate+lf);
@@ -85,7 +92,7 @@ time=cat(2,time1,time2,time3);
 
 
 % Get time from Opendap
-time2=readdap(url,'time',[]);
+time2=readdap(url,'time',[])/24;
 time2=time2+datenum(1950,1,1);
 %time2=time2-datenum(Yorig,1,1);
 

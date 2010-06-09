@@ -129,21 +129,14 @@ nc_frc=netcdf(frcname,'write');
 % nc_blk{'wspd'}(l,:,:)=0;
 % nc_frc{'sustr'}(l,:,:)=0;
 % nc_frc{'svstr'}(l,:,:)=0;
-% 
 % end
 % 
-
-
-
-
-
 %
 % Loop on time
 %
 missval=nan;
 default=nan;
 for l=1:tlen
-%for l=1:1
   disp(['time index: ',num2str(l),' of total: ',num2str(tlen)])
   
   var=squeeze(nc{'tair'}(l,:,:));
@@ -228,8 +221,6 @@ for l=1:tlen
   nc_frc{'sustr'}(l,:,:)=rho2u_2d(tx.*cosa+ty.*sina);
   nc_frc{'svstr'}(l,:,:)=rho2v_2d(ty.*cosa-tx.*sina);
 end
-%
-%  Perform the interpolations
 % 
 close(nc_frc);
 close(nc_blk);

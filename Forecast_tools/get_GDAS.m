@@ -38,10 +38,14 @@ trange=['[',num2str(min(tndx)),':',num2str(max(tndx)),']'];
 %
 % Get GFS variables for 1 time step
 %
+disp(' ')
+disp('===========================================')
 %disp('time...')
 t=readdap(fname,'time',trange);
-t=t+365; % put it in "matlab" time.
-disp(['GFS: ',datestr(t)])
+%t=t+365; % put it in "matlab" time.
+t=t+364.75; % put it in "matlab" time. PM
+disp(['GDAS: ',datestr(t)])
+disp('===========================================')
 %disp('u...')
 u=mask.*getdap('',fname,'ugrd10m',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
