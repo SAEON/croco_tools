@@ -409,7 +409,6 @@ CR      write(*,*) '  0' MYID
 
       do iicroot=ntstart,ntimes+1
 
-        print *,'iicroot ntstart ntimes+1 :',iicroot,ntstart,ntimes+1
 
 #ifdef SOLVE3D
 #if !defined AGRIF
