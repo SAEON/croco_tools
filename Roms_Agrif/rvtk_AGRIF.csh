@@ -1,6 +1,9 @@
 #!/bin/csh
-#
-#
+#---------------------------------------------------------------------
+# Script to Run RVTK DEBUG procedure managing parallelization type 
+# AND AGRIF nesting type (No nesting, Nesting 1-way, Nesting 2-ways) : 
+# VORTEX and REGIONAL
+#--------------------------------------------------------------------
 unalias rm
 unalias mv
 unalias cp
@@ -143,7 +146,7 @@ echo " "
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time ./jobcomp_rvtk2 > jobcomp_serial_${EXAMPLE}_${AGRIFFLAG}.log
+  time ./jobcomp_rvtk > jobcomp_serial_${EXAMPLE}_${AGRIFFLAG}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
@@ -188,7 +191,7 @@ echo "--------------------------"
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time ./jobcomp_rvtk2 > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
+  time ./jobcomp_rvtk > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
@@ -224,7 +227,7 @@ echo "--------------------------"
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time ./jobcomp_rvtk2 > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
+  time ./jobcomp_rvtk > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
@@ -259,7 +262,7 @@ echo "--------------------------"
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time ./jobcomp_rvtk2 > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
+  time ./jobcomp_rvtk > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
@@ -294,7 +297,7 @@ echo "--------------------------"
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time ./jobcomp_rvtk2 > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
+  time ./jobcomp_rvtk > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
@@ -329,7 +332,7 @@ echo "--------------------------"
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time ./jobcomp_rvtk2 > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
+  time ./jobcomp_rvtk > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
@@ -363,7 +366,7 @@ echo "--------------------------"
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time ./jobcomp_rvtk2 > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
+  time ./jobcomp_rvtk > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
@@ -397,7 +400,7 @@ echo "--------------------------"
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time ./jobcomp_rvtk2 > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
+  time ./jobcomp_rvtk > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
@@ -432,7 +435,7 @@ echo "--------------------------"
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time ./jobcomp_rvtk2 > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
+  time ./jobcomp_rvtk > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
@@ -467,7 +470,7 @@ echo "--------------------------"
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time ./jobcomp_rvtk2 > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
+  time ./jobcomp_rvtk > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
@@ -524,7 +527,7 @@ echo '----------------'
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time ./jobcomp_rvtk2 > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
+  time ./jobcomp_rvtk > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
@@ -558,7 +561,7 @@ echo '----------------'
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time ./jobcomp_rvtk2 > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
+  time ./jobcomp_rvtk > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
@@ -594,7 +597,7 @@ echo '----------------'
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time ./jobcomp_rvtk2 > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
+  time ./jobcomp_rvtk > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
@@ -628,7 +631,7 @@ echo '----------------'
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time ./jobcomp_rvtk2 > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
+  time ./jobcomp_rvtk > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
@@ -663,7 +666,7 @@ echo '----------------'
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time ./jobcomp_rvtk2 > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
+  time ./jobcomp_rvtk > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
@@ -701,7 +704,7 @@ echo '----------------'
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time ./jobcomp_rvtk2 > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
+  time ./jobcomp_rvtk > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
@@ -737,7 +740,7 @@ echo '----------------'
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time ./jobcomp_rvtk2 > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
+  time ./jobcomp_rvtk > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
@@ -772,7 +775,7 @@ echo '----------------'
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time ./jobcomp_rvtk2 > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
+  time ./jobcomp_rvtk > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
@@ -808,7 +811,7 @@ echo '----------------'
   sed 's/'undef\ $EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
   date
-  time ./jobcomp_rvtk2 > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
+  time ./jobcomp_rvtk > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
   date
   sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
   /bin/mv cppdefs_bak2.h cppdefs_bak1.h
