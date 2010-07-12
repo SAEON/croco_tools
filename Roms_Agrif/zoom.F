@@ -1,5 +1,14 @@
 !
-! $Id: zoom.F,v 1.12 2005/10/07 15:32:41 pmarches Exp $
+!======================================================================
+! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
+! The two other branches from UCLA (Shchepetkin et al) 
+! and Rutgers University (Arango et al) are under MIT/X style license.
+! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
+! 
+! This routine belongs to the specific ROMS_AGRIF package.
+! 
+! ROMS_AGRIF version : 2.0
+!======================================================================
 !
 #include "cppdefs.h"
 #ifdef AGRIF
@@ -1006,6 +1015,9 @@ CR      write(*,*) '  0' MYID
      &     procname=updateh)
       Agrif_UseSpecialValueInUpdate = .FALSE.           
 
+      Call Agrif_ChildGrid_To_ParentGrid()
+      Call UpdateGridhis()
+      Call Agrif_ParentGrid_To_ChildGrid()
 #endif     <-  AGRIF_2WAY
     
 #ifdef AGRIF_ADAPTIVE
@@ -1559,7 +1571,27 @@ c**         z_r(i,j,k)=cff_r+cff1_r*h(i,j)+cff2_r*Zt_avg1(i,j)     !>
       
       return
       end
+
+
+      Subroutine UpdateGridhis()
+      implicit none
+# include "param.h"
+# include "grid.h"
+# include "scalars.h"
+# include "ncscrum.h"
+      integer lvar, lenstr, lstr
+      lstr=lenstr(hisname)
+      call wrt_grid (ncidhis, hisname, lstr)      
+
+      if (.Not.Agrif_Root()) Then
+        Call Agrif_ChildGrid_To_ParentGrid()
+        Call UpdateGridhis()
+        Call Agrif_ParentGrid_To_ChildGrid()
+      endif
       
+      end subroutine UpdateGridhis
+
+
       subroutine hinterp(tabres,i1,i2,j1,j2)
       implicit none
 # include "param.h"
@@ -1886,6 +1918,86 @@ c**         z_r(i,j,k)=cff_r+cff1_r*h(i,j)+cff2_r*Zt_avg1(i,j)     !>
              
       return
       end                   
+
+      subroutine computenbmaxtimes()
+      implicit none
+#include "param.h"
+#include "scalars.h"
+#include "zoom.h"
+      integer :: ilev, maxlevel, minlevel
+      logical :: tostop
+      integer :: nlev, ilevtop
+
+      if (.not.tocont) return
+      
+      ilev = Agrif_Level()
+      maxlevel = Agrif_MaxLevel()
+      
+      if ((ilev == 0).AND.(itimes(ilev) == 0)) then
+      do nlev = 0,maxlevel
+        iind = iind + 1
+        sortedint(iind) = nlev
+      enddo
+      endif
+      
+      iind = iind + 1
+      sortedint(iind ) = ilev
+      
+      itimes(ilev) = itimes(ilev) + 1
+      
+      tostop = .FALSE.
+      
+      
+      if (ilev == maxlevel) then
+        if (itimes(ilev) == nfast) then
+          
+         minlevel = maxlevel - 1
+         do while (minlevel>=0)
+           if (itimes(minlevel) .NE. nfast) exit
+           minlevel = minlevel - 1
+         enddo
+         minlevel = minlevel + 1
+         
+         
+         if (minlevel == 0) tostop = .TRUE.
+         
+         do ilevtop = minlevel, maxlevel
+           if (itimes(ilevtop) == nfast) then
+             iind = iind + 1
+             sortedint(iind) = ilevtop
+           endif
+         enddo
+         
+         do ilevtop = minlevel, maxlevel
+           if (itimes(ilevtop) == nfast) then
+             iind = iind + 1
+             sortedint(iind) = ilevtop
+           endif
+         enddo         
+     
+         if (tostop) then
+           tocont = .FALSE.
+           nbmaxtimes = iind
+           firstcoarsetimestep = .FALSE.
+           sortedint(iind+1:) = -1
+           return
+         endif
+
+         do ilevtop = minlevel, maxlevel
+           if (itimes(ilevtop) == nfast) then
+             iind = iind + 1
+             sortedint(iind) = ilevtop
+            itimes(ilevtop) = 0
+           endif
+         enddo
+        
+        endif
+      endif
+      
+         nbmaxtimes = iind
+         
+      return
+      end
 
 #else  /* AGRIF */
 !

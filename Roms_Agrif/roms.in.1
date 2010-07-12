@@ -29,12 +29,12 @@ averages: NTSAVG, NAVG, NRPFAVG / filename
 
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
                           T    T   T   T  T    30*T
-auxiliary_history_fields:   rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr UWstr VWstr rsw rlw lat sen HEL
+auxiliary_history_fields:   rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Ustr Vstr rsw rlw lat sen HEL
                              F   F     T   F    T    F    T   T    T     T    T    T     10*F             
 
 primary_averages: zeta UBAR VBAR  U  V   wrtT(1:NT)
                    T    T    T    T  T   30*T
-auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr UWstr VWstr  rsw rlw lat sen HEL
+auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Ustr Vstr  rsw rlw lat sen HEL
                      F   T     T   F    T    F    T   T    T     T   T    T     10*F             
 
 rho0:
@@ -95,7 +95,7 @@ diagM_avg: ldefdiaM_avg  ntsdiaM_avg  nwrtdiaM_avg  nprfdiaM_avg /filename
 diagM_history_fields: diag_momentum(1:2)
                             T T
 
-diagM_average_fields: diag_momentum(1:2)
+diagM_average_fields: diag_momentum_avg(1:2)
 		            T T
 
 diagnostics_bio:   ldefdiabio   nwrtdiabio    nrpfdiabio /filename

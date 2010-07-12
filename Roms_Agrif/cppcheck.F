@@ -61,7 +61,8 @@
         switch(i)='                                '
       enddo   !!!  12345678901234567890123456789012
 
-      open(input,file='cppdefs.h',status='old',form='formatted')
+!      open(input,file='cppdefs.h',status='old',form='formatted')
+      open(input,file='mergcpp.txt',status='old',form='formatted')
 
       count=0     ! <-- reset counter of lines within the file.
       end_of_file=.false.               !

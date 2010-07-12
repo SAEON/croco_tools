@@ -133,6 +133,7 @@ checkkwds: checkkwds.o
 checkdefs: check_switches1.F setup_kwds.F
 
 check_switches1.F: cppcheck cppdefs.h
+	cat cppdefs.h set_global_definitions.h > mergcpp.txt
 	./cppcheck
 check_srcs.F: srcscheck Makefile
 	./srcscheck
