@@ -1579,9 +1579,8 @@ c**         z_r(i,j,k)=cff_r+cff1_r*h(i,j)+cff2_r*Zt_avg1(i,j)     !>
 # include "grid.h"
 # include "scalars.h"
 # include "ncscrum.h"
-      integer lvar, lenstr, lstr
-      lstr=lenstr(hisname)
-      call wrt_grid (ncidhis, hisname, lstr)      
+
+      call wrt_his
 
       if (.Not.Agrif_Root()) Then
         Call Agrif_ChildGrid_To_ParentGrid()
