@@ -40,6 +40,13 @@ De=40;     % Ekman depth [m]
 nc=netcdf(grdname);
 L=length(nc('xi_rho'));
 M=length(nc('eta_rho'));
+latu=nc{'lat_u'}(:);
+lonu=nc{'lon_u'}(:);
+lonv=nc{'lon_v'}(:);
+latv=nc{'lat_v'}(:);
+lat=nc{'lat_rho'}(:,1);
+lon=nc{'lon_rho'}(1,:);
+
 if obcndx==1
   h=nc{'h'}(1,:);
   pm=nc{'pm'}(1,:);
@@ -213,8 +220,59 @@ for l=1:tlen
     u_r(1:k_ekman,:)=u_r(1:k_ekman,:)+squeeze(tridim(rmask.*...
                        svstr./(rho0*De*f),k_ekman));
     v_r(1:k_ekman,:)=v_r(1:k_ekman,:)+squeeze(tridim(-rmask.*...
-                       sustr./(rho0*De*f),k_ekman));
-  end
+                      sustr./(rho0*De*f),k_ekman));
+ end
+
+
+
+% Replace/interpolate Equatorial values 
+ %
+
+if  obcndx==2 |  obcndx==4
+
+   equatlat=(lat>=-2 & lat<=2);
+   if sum(sum(equatlat))~=0
+ %    disp('Extrapole values outside the Equator')
+     D=find(~equatlat);
+
+
+     if length(D)~=0
+    
+	       for k=1:kref
+        		 u_r(k,:)=interp1(lat(D),u_r(k,D),lat,'spline','extrap');
+		         v_r(k,:)=interp1(lat(D),v_r(k,D),lat,'spline','extrap');
+    
+	       end
+       
+     else
+      disp('No values outside the Equator to extrapole')
+     end
+   end 
+
+elseif obcndx==1 |  obcndx==3
+
+    equatlat=(lat>=-2 & lat<=2);
+    if sum(sum(equatlat))~=0
+  %    disp('Extrapole values outside the Equator')
+      D=find(~equatlat);
+ 
+
+     if length(D)~=0
+ 
+                for k=1:kref
+                          u_r(k,:)=interp1(lon(D),u_r(k,D),lon,'spline','extrap');
+                          v_r(k,:)=interp1(lon(D),v_r(k,D),lon,'spline','extrap');
+                         
+               end
+ 
+      else
+      disp('No values outside the Equator to extrapole')
+      end
+    end
+ 
+end
+
+
 %
 %  Masking
 %  

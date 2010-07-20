@@ -35,5 +35,6 @@ nc=netcdf(hisfile);
 temp=squeeze(nc{'temp'}(tindex,:,:,:));
 salt=squeeze(nc{'salt'}(tindex,:,:,:));
 close(nc)
-[rho,bvf]=rho_eos(temp,salt,zr);
+%[rho,bvf]=rho_eos(temp,salt,zr);
+rho=rho_pot(temp,salt);
 h=coef.*mask.*get_depth_var(rho,zr,1026);

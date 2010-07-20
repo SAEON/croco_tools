@@ -1,4 +1,4 @@
-function [lat,lon,mask,h]=get_z_sig26(hisfile,gridfile,tindex,coef)
+function [lat,lon,mask,h]=get_z_sig27(hisfile,gridfile,tindex,coef)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Get the depth of the 1027 kg.m-3 isopycne
@@ -35,5 +35,6 @@ nc=netcdf(hisfile);
 temp=squeeze(nc{'temp'}(tindex,:,:,:));
 salt=squeeze(nc{'salt'}(tindex,:,:,:));
 close(nc)
-[rho,bvf]=rho_eos(temp,salt,zr);
+%[rho,bvf]=rho_eos(temp,salt,zr);
+rho=rho_pot(temp,salt);
 h=coef.*mask.*get_depth_var(rho,zr,1027);
