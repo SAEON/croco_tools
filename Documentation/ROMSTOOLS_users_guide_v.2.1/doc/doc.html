@@ -32,14 +32,18 @@ original version by:  Nikos Drakos, CBLU, University of Leeds
 <BR>
 <BR>
 <BR>
-<FONT SIZE="+3"><B>ROMS_AGRIF 2.0 User's Guide </B></FONT>
+<FONT SIZE="+3"><B>ROMS_AGRIF / ROMSTOOLS</B></FONT>
+<BR><BR>
+<BR>
+<FONT SIZE="+3"><B>User's Guide </B></FONT>
 <BR><BR>
 <BR>
 <BR>
+<FONT SIZE="+1">- ROMS_AGRIF v2.1 -</FONT> 
+<BR><FONT SIZE="+1">- ROMSTOOLS v2.1 -</FONT> 
+<BR><BR>
 <BR>
-<BR>
-<BR>
-<FONT SIZE="+2">Pierrick Penven, Gildas Cambon, Thi-Anh Tan 
+<FONT SIZE="+2">Pierrick Penven, Gildas Cambon, Thi-Anh Tan,  
 <BR>Patrick Marchesiello and Laurent Debreu</FONT>
 <BR><BR>
 <BR>
@@ -55,16 +59,14 @@ original version by:  Nikos Drakos, CBLU, University of Leeds
 <BR>
 <BR>
 <BR>
-<BR>
-<BR>
 <IMG
- WIDTH="388" HEIGHT="296" ALIGN="BOTTOM" BORDER="0"
+ WIDTH="500" HEIGHT="378" ALIGN="BOTTOM" BORDER="0"
  SRC="img3.png"
- ALT="\includegraphics[width=0.7\textwidth]{roms_gui2.eps}">
+ ALT="\includegraphics[width=0.9\textwidth]{Figures/romsgui_vizu_pagegarde.eps}">
 <BR>
 <BR>
 <BR> 
-<BR>December, 2009
+<BR>July, 2010
 
 </DIV>
 <H1><A NAME="SECTION00100000000000000000">
@@ -105,16 +107,16 @@ in section 4,
 <BR>
 <P>
 In the second chapter, some details of the IRD version of ROMS new release, named
-roms_agrif <IMG
+Roms_Agrif v<IMG
  WIDTH="27" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
  SRC="img4.png"
- ALT="$2.0$">, using the AGRIF nesting procedure are presented. 
-<BR>First, the new AGRIF 2-ways nesting procedure implemented in the code is described,
+ ALT="$2.1$">, using the AGRIF nesting procedure are presented. 
+<BR>First, the new AGRIF 2-way nesting procedure implemented in the code is described,
 then new numerical and physical schemes and parametrization are exposed. Then a
-changelog section since the last roms_agrif <IMG
+changelog section since the last Roms_Agrif v<IMG
  WIDTH="27" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
  SRC="img5.png"
- ALT="$1.0$"> offical version is presented.
+ ALT="$1.1$"> offical version is presented.
 Finally, the cpp-keys, parameters and input files are described in details to
 correctly configure the model options.
 
@@ -171,7 +173,7 @@ Contents</A>
   HREF="doc.html#SECTION00370000000000000000">1.7 Biology</A>
 <UL>
 <LI><A NAME="tex2html133"
-  HREF="doc.html#SECTION00371000000000000000">1.7.1 Idealized biogeochemical model : NChlPZD, N2ChlPZD2, N2P2Z2D2</A>
+  HREF="doc.html#SECTION00371000000000000000">1.7.1 'Idealized' biogeochemical model : NChlPZD, N2ChlPZD2 or N2P2Z2D2</A>
 <LI><A NAME="tex2html134"
   HREF="doc.html#SECTION00372000000000000000">1.7.2 PISCES biogeochemical model</A>
 </UL>
@@ -199,12 +201,12 @@ Contents</A>
   HREF="doc.html#SECTION003100000000000000000">1.10 Operational coastal modeling system</A>
 </UL><BR>
 <LI><A NAME="tex2html144"
-  HREF="doc.html#SECTION00400000000000000000">2. ROMS_AGRIF 2.0</A>
+  HREF="doc.html#SECTION00400000000000000000">2. ROMS_AGRIF v2.1</A>
 <UL>
 <LI><A NAME="tex2html145"
   HREF="doc.html#SECTION00410000000000000000">2.1 The ROMS model</A>
 <LI><A NAME="tex2html146"
-  HREF="doc.html#SECTION00420000000000000000">2.2 Nesting capabilities, 1-WAYS and 2-WAYS using the AGRIF procedure</A>
+  HREF="doc.html#SECTION00420000000000000000">2.2 Nesting capabilities, 1-WAY and 2-WAY using the AGRIF procedure</A>
 <UL>
 <LI><A NAME="tex2html147"
   HREF="doc.html#SECTION00421000000000000000">2.2.1 Introduction</A>
@@ -214,9 +216,9 @@ Contents</A>
 <LI><A NAME="tex2html149"
   HREF="doc.html#SECTION00430000000000000000">2.3 Changelog since ROMS_AGRIF 1.1</A>
 <LI><A NAME="tex2html150"
-  HREF="doc.html#SECTION00440000000000000000">2.4 Parameters description : parameter.h</A>
+  HREF="doc.html#SECTION00440000000000000000">2.4 Parameters description : param.h</A>
 <LI><A NAME="tex2html151"
-  HREF="doc.html#SECTION00450000000000000000">2.5 CPP-keys description cppdefs.h</A>
+  HREF="doc.html#SECTION00450000000000000000">2.5 CPP-keys description : cppdefs.h</A>
 <LI><A NAME="tex2html152"
   HREF="doc.html#SECTION00460000000000000000">2.6 Namelist description : roms.in</A>
 <UL>
@@ -287,7 +289,7 @@ http://roms.mpl.ird.fr/Roms_tools/index.html
 
 </DIV>
 For the ROMS source code you should download ROMS_AGRIF version
-V1.1.
+V2.1.
 <BR>
 <BR>
 <BR>
@@ -380,6 +382,15 @@ directory tree :
 <IMG
  WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
  SRC="img6.png"
+ ALT="$\vert$">- mexcdf
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
  ALT="$\vert$">- mexnc
 
 <P>
@@ -389,7 +400,187 @@ directory tree :
  ALT="$\vert$"> <IMG
  WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
  SRC="img6.png"
+ ALT="$\vert$">- private
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- src
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
  ALT="$\vert$">- tests
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- win32
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- win64
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- netcdf_toolbox
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- README
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- ChangeLog
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- netcdf
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- @listpick
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- @ncatt
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- @ncbrowser
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- @ncdim
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- @ncvar
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- @netcdf
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- @ncitem
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- @ncrec
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- nctype
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- ncutility
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- ncsources
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- snctools (<I>unused yet</I>)
 
 <P>
 <IMG
@@ -423,111 +614,6 @@ directory tree :
  WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
  SRC="img6.png"
  ALT="$\vert$">- netcdf_ifc
-
-<P>
-<IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$">- netcdf_matlab
-
-<P>
-<IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$"> <IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$">- listpick
-
-<P>
-<IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$"> <IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$">- ncatt
-
-<P>
-<IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$"> <IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$">- ncbrowser
-
-<P>
-<IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$"> <IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$">- ncdim
-
-<P>
-<IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$"> <IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$">- ncfiles
-
-<P>
-<IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$"> <IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$">- ncitem
-
-<P>
-<IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$"> <IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$">- ncrec
-
-<P>
-<IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$"> <IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$">- nctype
-
-<P>
-<IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$"> <IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$">- ncutility
-
-<P>
-<IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$"> <IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$">- ncvar
-
-<P>
-<IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$"> <IMG
- WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img6.png"
- ALT="$\vert$">- netcdf
 
 <P>
 <IMG
@@ -645,6 +731,57 @@ directory tree :
  WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
  SRC="img6.png"
  ALT="$\vert$">- LIB.clean
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- Run_v.2.1
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- DATA
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- FORECAST
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- ROMS_FILES
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- SCRATCH
+
+<P>
+<IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$"> <IMG
+ WIDTH="9" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\vert$">- TEST_CASES
 
 <P>
 <IMG
@@ -789,9 +926,17 @@ directory tree :
 </LI>
 <LI>mask : Land mask edition toolbox developed by A.Y. Shcherbina.
 </LI>
-<LI>mex60 : Matlab NetCDF interface for 32 bits Linux architectures.
+<LI>mex60 : Matlab NetCDF interface for 32 &amp; 64 bits Linux architectures and old
+  matlab version : 6 and before.
 </LI>
-<LI>mexnc : Matlab NetCDF interface for 64 bits Linux architectures.
+<LI>mexcdf/mexnc : Matlab NetCDF interface for 32 &amp; 64 bits Linux architectures,
+  MatlabR14sp1 until R2008a (http://mexcdf.sourceforge.net/downloads/mexcdf-R2008a.r2691.zip) 
+<BR>  For next releases of Matlab, R2008b, R2009a, it is more simpler, either use the native NetCDF
+  toobox of matlab or use the last release of mexcf at the same url for version
+  after R2008a.(http://mexcdf.sourceforge.net/downloads/mexcdf.r2802.zip)
+</LI>
+<LI>mexcdf/netcdf_toolbox : The Matlab NetCDF toolbox available in the same mexcdf
+  package.
 </LI>
 <LI>m_map : The Matlab mapping toolbox 
       (http://www2.ocgy.ubc.ca/<IMG
@@ -808,9 +953,6 @@ directory tree :
 <LI>netcdf_ifc : The NetCDF Fortran library for Linux, compiled with ifort. 
       The Intel Fortran Compiler (ifort) is available at 
 <BR>      http://www.intel.com/software/products/compilers/flin/noncom.htm.
-</LI>
-<LI>netcdf_matlab : The Matlab NetCDF toolbox  
-<BR>      (<FONT SIZE="-1">      http://woodshole.er.usgs.gov/staffpages/cdenham/public_html/MexCDF/nc4ml5.html</FONT>).
 </LI>
 <LI>netcdf_x86_64 : The NetCDF Fortran library for Linux, compiled with ifort
       on a 64 bits architecture.
@@ -831,6 +973,12 @@ directory tree :
 </LI>
 <LI>Run : Working directory. This is where the ROMS input files
       are generated and where the model is running.
+</LI>
+<LI>Run_v.2.X : An example of Run directory fully compatible with
+      the ROMS_AGRIF code version v.2.X. 
+<BR>      It is useful when you update the ROMS_AGRIF version, to check the
+      compatibility of your own param.h, cppdefs.h and roms.in files, in your Run
+      directory.
 </LI>
 <LI>SeaWifs : surface chlorophyll-a climatology based on SeaWifs observations.
 </LI>
@@ -1071,15 +1219,21 @@ matlab setup and tour computer environnmemnt:
 </UL>
 
 <P>
-In the Roms_tools, some netCDF libraries for matlab are provided : 
+In the Roms_tools, some NetCDF libraries for matlab are provided : 
 
 <UL>
-<LI>mex60 : matlab12 (old) and <IMG
+<LI>mex60 : matlab12 (old) , <IMG
  WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
  SRC="img14.png"
- ALT="$32$"> bits architecture
+ ALT="$32$"> and <IMG
+ WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img15.png"
+ ALT="$64$"> bits architecture
 </LI>
-<LI>mexnc : matlab7 and <IMG
+<LI>mexcdf/mexnc : matlab7, matlab2008, matlab2009, <IMG
+ WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img14.png"
+ ALT="$32$"> and <IMG
  WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
  SRC="img15.png"
  ALT="$64$"> bits architecture
@@ -1580,14 +1734,14 @@ smoothed.
 
 <P>
 
-<DIV ALIGN="CENTER"><A NAME="fig:grid"></A><A NAME="508"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:grid"></A><A NAME="624"></A>
 <TABLE>
 <CAPTION ALIGN="BOTTOM"><STRONG>Figure 1.1:</STRONG>
 Result of make_grid.m for the Benguela example</CAPTION>
 <TR><TD><IMG
- WIDTH="348" HEIGHT="380" BORDER="0"
+ WIDTH="349" HEIGHT="380" BORDER="0"
  SRC="img23.png"
- ALT="\begin{figure}\centerline{\psfig{figure=make_grid_benguela.eps,width=12cm}}\end{figure}"></TD></TR>
+ ALT="\begin{figure}\centerline{\psfig{figure=Figures/make_grid_benguela.eps,width=12cm}}\end{figure}"></TD></TR>
 </TABLE>
 </DIV>
 
@@ -1754,7 +1908,7 @@ in the Matlab session :
 <BR>
 <P>
 
-<DIV ALIGN="CENTER"><A NAME="fig:forcing"></A><A NAME="620"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:forcing"></A><A NAME="740"></A>
 <TABLE>
 <CAPTION ALIGN="BOTTOM"><STRONG>Figure 1.2:</STRONG>
 Wind stress[N.m<IMG
@@ -1762,9 +1916,9 @@ Wind stress[N.m<IMG
  SRC="img1.png"
  ALT="$^{-2}$">] obtained using make_forcing.m for the Benguela example.</CAPTION>
 <TR><TD><IMG
- WIDTH="582" HEIGHT="520" BORDER="0"
+ WIDTH="559" HEIGHT="433" BORDER="0"
  SRC="img24.png"
- ALT="\begin{figure}\centerline{\psfig{figure=make_frcwind_benguela.eps,width=15cm}}\end{figure}"></TD></TR>
+ ALT="\begin{figure}\centerline{\psfig{figure=Figures/windspeed_make_forcing.eps,width=15cm}}\end{figure}"></TD></TR>
 </TABLE>
 </DIV>
 
@@ -1929,14 +2083,14 @@ Benguela example. The sections are in the X-direction (East-West),
 the first section is for the Southern part of the domain and the last one 
 is for the Northern part of the domain.
 
-<DIV ALIGN="CENTER"><A NAME="fig:clim"></A><A NAME="533"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:clim"></A><A NAME="649"></A>
 <TABLE>
 <CAPTION ALIGN="BOTTOM"><STRONG>Figure 1.3:</STRONG>
 Result of make_clim.m for the Benguela example</CAPTION>
 <TR><TD><IMG
- WIDTH="494" HEIGHT="401" BORDER="0"
+ WIDTH="524" HEIGHT="424" BORDER="0"
  SRC="img25.png"
- ALT="\begin{figure}\centerline{\psfig{figure=make_clim_benguela.eps,width=12cm}}\end{figure}"></TD></TR>
+ ALT="\begin{figure}\centerline{\psfig{figure=Figures/sectiontemp_make_clim_benguela.eps,width=14cm}}\end{figure}"></TD></TR>
 </TABLE>
 </DIV>
 
@@ -2038,7 +2192,9 @@ obtain a new executable (roms) in the <IMG
  WIDTH="18" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
  SRC="img8.png"
  ALT="$\sim$">/Roms_tools/Run directory.  ROMS should
-be recompiled each time param.h or cppdefs.h are changed.
+be recompiled each time param.h or cppdefs.h are changed.  If you compile using MPI
+parallelization, the jobcomp scrip detect it and set the compiler to OpenMPI, so you
+need to have it installed (http://www.open-mpi.org)
 
 <P>
 
@@ -2055,9 +2211,17 @@ definition of all the input variables is given at the start of each ROMS simulat
 To run the model, type in directory <IMG
  WIDTH="18" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
  SRC="img8.png"
- ALT="$\sim$">/Roms_tools/Run/ : ./roms roms.in.  The
-description of the namelist roms.in is descibed in details in section <A HREF="#namelistdesc">2.6</A>
+ ALT="$\sim$">/Roms_tools/Run/ : ./roms roms.in. 
+<BR>If you use paralelle computation, some more specific command are needed :
+in the case of OpenMP parallelization, set the environment variable OMP_NUM_THREADS
+to <I>number_of_cpu_used</I> (for example export OMP_NUM_THREADS=4 for 4 cpu
+parallel run) then ./roms roms.in. In the case of MPI parallelization, use the
+following command : mpirun -np <I>number_of_processus_used</I> ./roms roms.in.
 
+<P>
+The description of the namelist roms.in is descibed in details in section
+<A HREF="#namelistdesc">2.6</A>. 
+<BR>
 <P>
 On the screen, you should check the Cu_max parameter: if it is greater than 1 you
 are violating the CFL criterion. In this case, you should reduce the time step.
@@ -2165,13 +2329,21 @@ are violating the CFL criterion. In this case, you should reduce the time step.
 <BR>CURVGRID
 <BR>SPHERICAL
 <BR>MASKING
-<BR>AVERAGES
-<BR>AVERAGES_K
+<BR>UV_VIS2
+<BR>MIX_GP_UV
+<BR>MIX_GP_TS
+<BR>TS_DIF2
+<BR>LMD_MIXING
+<BR>LMD_SKPP
+<BR>LMD_BKPP
+<BR>LMD_RIMIX
+<BR>LMD_CONVEC
 <BR>SALINITY
 <BR>NONLIN_EOS
 <BR>SPLIT_EOS
-<BR>BULK_FLUX
-<BR>BULK_EP
+<BR>QCORRECTION
+<BR>SFLX_CORR
+<BR>DIURNAL_SRFLUX
 <BR>SPONGE
 <BR>CLIMATOLOGY
 <BR>ZCLIMATOLOGY
@@ -2184,22 +2356,37 @@ are violating the CFL criterion. In this case, you should reduce the time step.
 <BR>TNUDGING
 <BR>ANA_BSFLUX
 <BR>ANA_BTFLUX
-<BR>UV_VIS2
-<BR>MIX_GP_UV
-<BR>TS_DIF2
-<BR>MIX_GP_TS
-<BR>CLIMAT_TS_MIXH
-<BR>LMD_MIXING
-<BR>LMD_SKPP
-<BR>LMD_BKPP
-<BR>LMD_RIMIX
-<BR>LMD_CONVEC
-<BR>OBC_M2FLATHER
+<BR>OBC_M2CHARACT
 <BR>OBC_M3ORLANSKI
 <BR>OBC_TORLANSKI
-<BR>M2FILTER_COSINE
+<BR>AVERAGES
+<BR>AVERAGES_K
+<BR>VAR_RHO_2D
+<BR>M2FILTER_POWER
+<BR>CLIMAT_UV_MIXH
+<BR>VADV_SPLINES_UV
+<BR>HADV_UPSTREAM_TS
+<BR>CLIMAT_TS_MIXH
+<BR>VADV_AKIMA_TS
 <BR>
-<BR>Linux 2.6.9-42.0.3.ELsmp x86_64
+<HR><IMG
+ WIDTH="22" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img27.png"
+ ALT="$\rightarrow$"> <I>Non user defined cpp keys (in set_global_definitions.h)</I>
+<BR>DBLEPREC
+<BR>Linux
+<BR>QUAD
+<BR>QuadZero
+<BR>GLOBAL_2D_ARRAY
+<BR>GLOBAL_1D_ARRAYXI
+<BR>GLOBAL_1D_ARRAYETA
+<BR>...
+<BR>...
+<BR>AGRIF_UPDATE_DECAL
+<BR>AGRIF_SPONGE 
+<BR>
+<P>
+Linux 2.6.9-42.0.3.ELsmp x86_64
 <BR>NUMBER OF THREADS:  1 BLOCKING:  1 x  1.
 <BR>
 <BR>Spherical grid detected.
@@ -2443,26 +2630,26 @@ roms_gui. Launch roms_gui in the Matlab session
 You should select roms_his.nc (history file) or roms_avg.nc (average file) and
 click "open".
 
-<DIV ALIGN="CENTER"><A NAME="fig:open"></A><A NAME="554"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:open"></A><A NAME="674"></A>
 <TABLE>
 <CAPTION ALIGN="BOTTOM"><STRONG>Figure 1.4:</STRONG>
 Entrance window of roms_gui</CAPTION>
 <TR><TD><IMG
- WIDTH="225" HEIGHT="154" BORDER="0"
- SRC="img27.png"
- ALT="\begin{figure}\centerline{\psfig{figure=roms_gui_select2.eps,width=5cm}}\end{figure}"></TD></TR>
+ WIDTH="544" HEIGHT="413" BORDER="0"
+ SRC="img28.png"
+ ALT="\begin{figure}\centerline{\psfig{figure=Figures/roms_gui_entrance.eps,width=12cm}}\end{figure}"></TD></TR>
 </TABLE>
 </DIV>
 
 <BR>
-<DIV ALIGN="CENTER"><A NAME="fig:romsgui"></A><A NAME="559"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:romsgui"></A><A NAME="679"></A>
 <TABLE>
 <CAPTION ALIGN="BOTTOM"><STRONG>Figure 1.5:</STRONG>
 roms_gui</CAPTION>
 <TR><TD><IMG
- WIDTH="407" HEIGHT="310" BORDER="0"
- SRC="img28.png"
- ALT="\begin{figure}\centerline{\psfig{figure=roms_gui2.eps,width=9cm}}\end{figure}"></TD></TR>
+ WIDTH="543" HEIGHT="407" BORDER="0"
+ SRC="img29.png"
+ ALT="\begin{figure}\centerline{\psfig{figure=Figures/romsgui_vizuM2_2.eps,width=12cm}}\end{figure}"></TD></TR>
 </TABLE>
 </DIV>
 
@@ -2477,7 +2664,7 @@ ROMS model outputs :
 <UL>
 <LI>Ke : Horizontal slice of kinetic energy: <IMG
  WIDTH="96" HEIGHT="39" ALIGN="MIDDLE" BORDER="0"
- SRC="img29.png"
+ SRC="img30.png"
  ALT="$0.5(u^2+v^2)$">.
 </LI>
 <LI>Rho : Horizontal slice of density using the non-linear equation of state 
@@ -2492,7 +2679,7 @@ for seawater of <A
  -->
 <IMG
  WIDTH="94" HEIGHT="43" ALIGN="MIDDLE" BORDER="0"
- SRC="img30.png"
+ SRC="img31.png"
  ALT="$N^2=-\frac{g}{\rho}\frac{\partial \rho}{\partial z}$"> 
 </LI>
 <LI>Vort : Horizontal slice of vorticity: <!-- MATH
@@ -2501,7 +2688,7 @@ for seawater of <A
  -->
 <IMG
  WIDTH="64" HEIGHT="40" ALIGN="MIDDLE" BORDER="0"
- SRC="img31.png"
+ SRC="img32.png"
  ALT="$\frac{\partial v}{\partial x}-
 \frac{\partial u}{\partial y}$">.
 </LI>
@@ -2512,12 +2699,12 @@ for seawater of <A
  -->
 <IMG
  WIDTH="153" HEIGHT="46" ALIGN="MIDDLE" BORDER="0"
- SRC="img32.png"
+ SRC="img33.png"
  ALT="$\frac{\partial \lambda}{\partial z} \left [ f +
 \left (\frac{\partial v}{\partial x}-\frac{\partial u}{\partial y}\right ) \right ]$">.
 In our case, <IMG
  WIDTH="47" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
- SRC="img33.png"
+ SRC="img34.png"
  ALT="$\lambda=\rho$">.
 </LI>
 <LI>Psi : Horizontal slice of stream function: 
@@ -2526,7 +2713,7 @@ In our case, <IMG
  -->
 <IMG
  WIDTH="122" HEIGHT="40" ALIGN="MIDDLE" BORDER="0"
- SRC="img34.png"
+ SRC="img35.png"
  ALT="$\nabla^2 \psi=\frac{\partial v}{\partial x}-\frac{\partial u}{\partial y}$">.
 This routine might be costly since it inverses the Laplacian of the vorticity
 (using a successive over relaxation solver).
@@ -2536,7 +2723,7 @@ This routine might be costly since it inverses the Laplacian of the vorticity
  -->
 <IMG
  WIDTH="74" HEIGHT="42" ALIGN="MIDDLE" BORDER="0"
- SRC="img35.png"
+ SRC="img36.png"
  ALT="$\sqrt{u^2+v^2}$">.
 </LI>
 <LI>Transport : Horizontal slice of the transport stream function : 
@@ -2545,7 +2732,7 @@ This routine might be costly since it inverses the Laplacian of the vorticity
  -->
 <IMG
  WIDTH="135" HEIGHT="40" ALIGN="MIDDLE" BORDER="0"
- SRC="img36.png"
+ SRC="img37.png"
  ALT="$\nabla^2 S_{vd}=\frac{\partial \bar{v}}{\partial x}-\frac{\partial \bar{u}}{\partial y}$">.
 </LI>
 <LI>Okubo : Horizontal slice of the Okubo-Weiss parameter : 
@@ -2557,7 +2744,7 @@ This routine might be costly since it inverses the Laplacian of the vorticity
  -->
 <IMG
  WIDTH="349" HEIGHT="52" ALIGN="MIDDLE" BORDER="0"
- SRC="img37.png"
+ SRC="img38.png"
  ALT="$\Lambda^2=
 \left ( \frac{\partial u}{\partial x}-\frac{\partial v}{\partial y} ...
 ...
@@ -2572,7 +2759,7 @@ This routine might be costly since it inverses the Laplacian of the vorticity
 </LI>
 <LI>z_rho_1.25 : Depth of 1.25 kg.m<IMG
  WIDTH="23" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
- SRC="img38.png"
+ SRC="img39.png"
  ALT="$^{-3}$"> below surface density.
 </LI>
 <LI>z_max_bvf : Depth of the maximum of the  Brunt-V&#228;is&#228;la frequency.
@@ -2591,7 +2778,7 @@ This routine might be costly since it inverses the Laplacian of the vorticity
 </LI>
 <LI>z_sig27 : Depth of the 1027 kg.m<IMG
  WIDTH="23" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
- SRC="img38.png"
+ SRC="img39.png"
  ALT="$^{-3}$"> density layer.
 </LI>
 <LI>r_factor : <!-- MATH
@@ -2599,7 +2786,7 @@ This routine might be costly since it inverses the Laplacian of the vorticity
  -->
 <IMG
  WIDTH="167" HEIGHT="47" ALIGN="MIDDLE" BORDER="0"
- SRC="img39.png"
+ SRC="img40.png"
  ALT="$r=\frac{\nabla h}{2h}=\frac{h_{+1/2}-h_{-1/2}}{h_{+1/2}+h_{-1/2}}$">
 </LI>
 </UL>
@@ -2789,7 +2976,8 @@ Save romstools_param.m and run make_tides in the Matlab session:
 </H1>
 
 <H2><A NAME="SECTION00371000000000000000">
-1.7.1 Idealized biogeochemical model : NChlPZD, N2ChlPZD2, N2P2Z2D2</A>
+1.7.1 'Idealized' biogeochemical model : NChlPZD, N2ChlPZD2 or 
+<BR>N2P2Z2D2</A>
 </H2>
 ROMSTOOLS can help for the design of ROMS biogeochemical
 experiments. For the initial conditions and lateral boundary
@@ -2904,13 +3092,13 @@ components.
 This latter is a more complex biogeochemical model, firstly coupled to OPA and now a
 beta version of the model can be coupled with ROMS_AGRIF. It is nicely
 described in (<A
- HREF="doc.html#AumontNoticePisces05">Aumont, 2005</A>) provide in the documentation section of
+ HREF="doc.html#AumontNoticePisces05">Aumont , 2005</A>) provide in the documentation section of
 ROMS_TOOLS. 
 <BR>
 <P>
 This part of ROMS_TOOLS use  the World Ocean Atlas, called WOAPISCES. It provides the global data of Iron (Fe), Silicate (SiO3), Oxygen (O2), Phosphate (PO4), DIC (dissolved organic
 carbon), DOC (dissolved inorganic carbon) and Alkanility.  The routines used to process these fields are : make_ini_pisces, make_clim_pisces, make_bry_pisces, make_bio_forcing.m as for the climatological experiments<A NAME="tex2html6"
-  HREF="#foot928"><SUP>1.1</SUP></A>. 
+  HREF="#foot1060"><SUP>1.1</SUP></A>. 
 
 <P>
 The part which should be edited by the user in  romstools_param.m is:
@@ -2990,41 +3178,41 @@ Similarly, to add initial condition for PISCES variables to roms_ini.nc file, in
 <BR>
 <P>
 
-<DIV ALIGN="CENTER"><A NAME="fig:makeclimpiscesNO3"></A><A NAME="934"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:makeclimpiscesNO3"></A><A NAME="1066"></A>
 <TABLE>
 <CAPTION ALIGN="BOTTOM"><STRONG>Figure 1.6:</STRONG>
 Result of make_clim_pisces for the Benguela example : NO3 forcing
   fields [mMol N m-3].</CAPTION>
 <TR><TD>[Surface map]
 <IMG
- WIDTH="279" HEIGHT="260" ALIGN="BOTTOM" BORDER="0"
- SRC="img40.png"
- ALT="\includegraphics[width=0.5\textwidth]{NO3_surf_t1.eps}">
+ WIDTH="278" HEIGHT="208" ALIGN="BOTTOM" BORDER="0"
+ SRC="img41.png"
+ ALT="\includegraphics[width=0.5\textwidth]{Figures/NO3_surf_t1.eps}">
 [vertical sections along open boundaries]
 <IMG
- WIDTH="279" HEIGHT="216" ALIGN="BOTTOM" BORDER="0"
- SRC="img41.png"
- ALT="\includegraphics[width=0.5\textwidth]{NO3_profil_t1.eps}"></TD></TR>
+ WIDTH="278" HEIGHT="208" ALIGN="BOTTOM" BORDER="0"
+ SRC="img42.png"
+ ALT="\includegraphics[width=0.5\textwidth]{Figures/NO3_profil_t1.eps}"></TD></TR>
 </TABLE>
 </DIV>
 
 <P>
 
-<DIV ALIGN="CENTER"><A NAME="fig:makeclimpiscesNO4"></A><A NAME="940"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:makeclimpiscesNO4"></A><A NAME="1072"></A>
 <TABLE>
 <CAPTION ALIGN="BOTTOM"><STRONG>Figure 1.7:</STRONG>
 Result of make_clim_pisces for the Benguela example : PO4 forcing fields
   [mMol P m-3].</CAPTION>
 <TR><TD>[Surface map]
 <IMG
- WIDTH="278" HEIGHT="255" ALIGN="BOTTOM" BORDER="0"
- SRC="img42.png"
- ALT="\includegraphics[width=0.5\textwidth]{PO4_surf_t1.eps}">
+ WIDTH="278" HEIGHT="208" ALIGN="BOTTOM" BORDER="0"
+ SRC="img43.png"
+ ALT="\includegraphics[width=0.5\textwidth]{Figures/PO4_surf_t1.eps}">
 [vertical sections along open boundaries]
 <IMG
- WIDTH="279" HEIGHT="215" ALIGN="BOTTOM" BORDER="0"
- SRC="img43.png"
- ALT="\includegraphics[width=0.5\textwidth]{PO4_profil_t1.eps}"></TD></TR>
+ WIDTH="278" HEIGHT="208" ALIGN="BOTTOM" BORDER="0"
+ SRC="img44.png"
+ ALT="\includegraphics[width=0.5\textwidth]{Figures/PO4_profil_t1.eps}"></TD></TR>
 </TABLE>
 </DIV>
 
@@ -3039,16 +3227,16 @@ Finally, to compute the Iron dust deposition forcing file roms_frcbio.nc file, i
  SRC="img22.png"
  ALT="$&#187;$"> make_dust
 <BR>
-<DIV ALIGN="CENTER"><A NAME="fig:makeclimpiscesNO4"></A><A NAME="945"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:makeclimpiscesNO4"></A><A NAME="1077"></A>
 <TABLE>
 <CAPTION ALIGN="BOTTOM"><STRONG>Figure 1.8:</STRONG>
 Result of make_clim_pisces for the Benguela example : Iron dust deposition
   forcing fields [nmol Fe m-3].</CAPTION>
 <TR><TD><DIV ALIGN="CENTER">
 <IMG
- WIDTH="556" HEIGHT="439" ALIGN="BOTTOM" BORDER="0"
- SRC="img44.png"
- ALT="\includegraphics[width=1\textwidth]{dustdepo_surface.eps}">
+ WIDTH="557" HEIGHT="417" ALIGN="BOTTOM" BORDER="0"
+ SRC="img45.png"
+ ALT="\includegraphics[width=1\textwidth]{Figures/dustdepo_surface.eps}">
 </DIV></TD></TR>
 </TABLE>
 </DIV>
@@ -3213,7 +3401,7 @@ You should obtain:
  -->
 <IMG
  WIDTH="585" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img45.png"
+ SRC="img46.png"
  ALT="$===========================================$"> 
 <BR>BEGIN DOWNLOAD STEP   
 <BR><!-- MATH
@@ -3221,14 +3409,14 @@ You should obtain:
  -->
 <IMG
  WIDTH="585" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img45.png"
+ SRC="img46.png"
  ALT="$===========================================$"> 
 <BR><!-- MATH
  $===========================================$
  -->
 <IMG
  WIDTH="585" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img45.png"
+ SRC="img46.png"
  ALT="$===========================================$"> 
 <BR>Download NCEP data with OPENDAP or my FTP data 
 <BR><!-- MATH
@@ -3236,14 +3424,14 @@ You should obtain:
  -->
 <IMG
  WIDTH="585" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img45.png"
+ SRC="img46.png"
  ALT="$===========================================$"> 
 <BR><!-- MATH
  $===========================================$
  -->
 <IMG
  WIDTH="585" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img45.png"
+ SRC="img46.png"
  ALT="$===========================================$"> 
 <BR>OPENDAP Procedure 
 <BR><!-- MATH
@@ -3251,7 +3439,7 @@ You should obtain:
  -->
 <IMG
  WIDTH="585" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img45.png"
+ SRC="img46.png"
  ALT="$===========================================$"> 
 <BR>
 <P>
@@ -3270,7 +3458,7 @@ Making output data directory
  -->
 <IMG
  WIDTH="558" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img46.png"
+ SRC="img47.png"
  ALT="$=========================================$"> 
 <BR>VNAME IS landsfc 
 <BR><!-- MATH
@@ -3278,17 +3466,17 @@ Making output data directory
  -->
 <IMG
  WIDTH="558" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img46.png"
+ SRC="img47.png"
  ALT="$=========================================$"> 
 <BR><IMG
  WIDTH="101" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
- SRC="img47.png"
- ALT="$--$"> 
+ SRC="img48.png"
+ ALT="$-$"> 
 <BR>Get time units and time:  Get_My_Data is OFF  
 <BR><IMG
  WIDTH="101" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
- SRC="img47.png"
- ALT="$--$"> 
+ SRC="img48.png"
+ ALT="$-$"> 
 <BR>Reading: http://nomad1.ncep.noaa.gov:9090/dods/reanalyses/reanalysis-2/6hr/flx/flx 
 <BR>  Constraint: time 
 <BR>Server version: dods/3.2
@@ -3313,7 +3501,7 @@ Making output data directory
  -->
 <IMG
  WIDTH="599" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img48.png"
+ SRC="img49.png"
  ALT="$============================================$"> 
 <BR>Download NCEP data with OPENDAP or my FTP data 
 <BR><!-- MATH
@@ -3321,14 +3509,14 @@ Making output data directory
  -->
 <IMG
  WIDTH="599" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img48.png"
+ SRC="img49.png"
  ALT="$============================================$"> 
 <BR><!-- MATH
  $============================================$
  -->
 <IMG
  WIDTH="599" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img48.png"
+ SRC="img49.png"
  ALT="$============================================$"> 
 <BR>Direct FTP Procedure 
 <BR><!-- MATH
@@ -3336,39 +3524,39 @@ Making output data directory
  -->
 <IMG
  WIDTH="599" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img48.png"
+ SRC="img49.png"
  ALT="$============================================$"> 
 <BR>Use my own ncep data NCEP<IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img49.png"
+ SRC="img50.png"
  ALT="$2$"> 
 <BR>
 <P>
 Get NCEP data from <IMG
  WIDTH="39" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img50.png"
+ SRC="img51.png"
  ALT="$2000$"> to <IMG
  WIDTH="39" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img50.png"
+ SRC="img51.png"
  ALT="$2000$"> 
 <BR>From path/NCEP_REA2/  
 <BR>
 <P>
 Minimum Longitude: <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img51.png"
+ SRC="img52.png"
  ALT="$8$"> 
 <BR>Maximum Longitude: <IMG
  WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img52.png"
+ SRC="img53.png"
  ALT="$22$"> 
 <BR>Minimum Latitude: <IMG
  WIDTH="35" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
- SRC="img53.png"
+ SRC="img54.png"
  ALT="$-38$"> 
 <BR>Maximum Latitude: <IMG
  WIDTH="75" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
- SRC="img54.png"
+ SRC="img55.png"
  ALT="$-25.8968$"> 
 <BR>
 <P>
@@ -3377,7 +3565,7 @@ Minimum Longitude: <IMG
  -->
 <IMG
  WIDTH="599" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img48.png"
+ SRC="img49.png"
  ALT="$============================================$"> 
 <BR>Get_My_Data = 1 
 <BR>Read subgrid from file/data1/gcambon/NCEP_REA2/land.sfc.gauss.nc 
@@ -3386,7 +3574,7 @@ Minimum Longitude: <IMG
  -->
 <IMG
  WIDTH="599" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img48.png"
+ SRC="img49.png"
  ALT="$============================================$"> 
 <BR>Get the Land Mask tindex = 1 
 <BR>In case of Get_My_Data ON 
@@ -3405,7 +3593,7 @@ Create <I>path</I>/Run/DATA/NCEP_Benguela_LR/land_Y2000M1.nc
  -->
 <IMG
  WIDTH="599" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img48.png"
+ SRC="img49.png"
  ALT="$============================================$"> 
 <BR>VNAME IS air 
 <BR><!-- MATH
@@ -3413,7 +3601,7 @@ Create <I>path</I>/Run/DATA/NCEP_Benguela_LR/land_Y2000M1.nc
  -->
 <IMG
  WIDTH="599" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img48.png"
+ SRC="img49.png"
  ALT="$============================================$"> 
 <BR>
 <BR><!-- MATH
@@ -3421,7 +3609,7 @@ Create <I>path</I>/Run/DATA/NCEP_Benguela_LR/land_Y2000M1.nc
  -->
 <IMG
  WIDTH="599" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img48.png"
+ SRC="img49.png"
  ALT="$============================================$"> 
 <BR>Processing year: 2000 
 <BR><!-- MATH
@@ -3429,7 +3617,7 @@ Create <I>path</I>/Run/DATA/NCEP_Benguela_LR/land_Y2000M1.nc
  -->
 <IMG
  WIDTH="599" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img48.png"
+ SRC="img49.png"
  ALT="$============================================$"> 
 <BR>
 <P>
@@ -3521,10 +3709,10 @@ the dowload step :
 </H3>
 If you want to use the QSCAT climatology, computed over <IMG
  WIDTH="39" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img50.png"
+ SRC="img51.png"
  ALT="$2000$">-<IMG
  WIDTH="39" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img55.png"
+ SRC="img56.png"
  ALT="$2007$">, based over
 these previous QSCAT data, in a Matlab session, run make_QSCAT_clim.
 
@@ -3849,27 +4037,29 @@ The main window appears (Figure <A HREF="#fig:nestgui4">1.10</A>).
 
 <P>
 
-<DIV ALIGN="CENTER"><A NAME="fig:nestgui3"></A><A NAME="1218"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:nestgui3"></A><A NAME="1350"></A>
 <TABLE>
 <CAPTION ALIGN="BOTTOM"><STRONG>Figure 1.9:</STRONG>
 Entrance window of NestGUI</CAPTION>
-<TR><TD><IMG
- WIDTH="226" HEIGHT="179" BORDER="0"
- SRC="img56.png"
- ALT="\begin{figure}\centerline{\psfig{figure=nestguiselect6.eps,width=5cm}}\end{figure}"></TD></TR>
+<TR><TD><DIV ALIGN="CENTER"><IMG
+ WIDTH="543" HEIGHT="414" ALIGN="BOTTOM" BORDER="0"
+ SRC="img57.png"
+ ALT="\includegraphics[width=12cm]{Figures/nestgui_entrance.eps}">
+</DIV></TD></TR>
 </TABLE>
 </DIV>
 
 <P>
 
-<DIV ALIGN="CENTER"><A NAME="fig:nestgui4"></A><A NAME="1223"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:nestgui4"></A><A NAME="1355"></A>
 <TABLE>
 <CAPTION ALIGN="BOTTOM"><STRONG>Figure 1.10:</STRONG>
 The NestGUI main window</CAPTION>
-<TR><TD><IMG
- WIDTH="543" HEIGHT="542" BORDER="0"
- SRC="img57.png"
- ALT="\begin{figure}\centerline{\psfig{figure=nestgui6.eps,width=12cm}}\end{figure}"></TD></TR>
+<TR><TD><DIV ALIGN="CENTER"><IMG
+ WIDTH="556" HEIGHT="423" ALIGN="BOTTOM" BORDER="0"
+ SRC="img58.png"
+ ALT="\includegraphics[width=1\textwidth]{Figures/nestgui_vizu.eps}">
+</DIV></TD></TR>
 </TABLE>
 </DIV>
 
@@ -3879,97 +4069,87 @@ To generate the child model you should follow several steps:
 <P>
 
 <OL>
-<LI>To define the child domain, click "Define child" and create
-the child domain on the main window. The size of the grid child
-(Lchild and Mchild) is now visible. This operation can be redone 
-until you are satisfied with the size and the position of the child 
-domain. The child domain can be finely tuned using the imin, 
-imax, jmin and jmax boxes. 
-Be aware that the mask interpolation from the parent grid
-to the child grid is not optimal close to corners. Parent/Child
-boundaries should be placed where the mask is showing a straight
-coastline. A warning will be given during the interpolation
-procedure if this is not the case.
+<LI>To define the child domain, click "Define child" and create the child domain on
+  the main window. The size of the grid child (Lchild and Mchild) is now visible.
+  This operation can be redone until you are satisfied with the size and the position
+  of the child domain. The child domain can be finely tuned using the imin, imax,
+  jmin and jmax boxes.  Be aware that the mask interpolation from the parent grid to
+  the child grid is not optimal close to corners. Parent/Child boundaries should be
+  placed where the mask is showing a straight coastline. A warning will be given
+  during the interpolation procedure if this is not the case.
 
 <P>
 </LI>
-<LI>"Interp child" : It generates the child grid file. Before, 
-you should select if you are using a new topography
-("New child topo" button) for the child
-grid or if you are just interpolating the parent topography
-on the child grid. In the first case, you should defines
-what topography file will be used (e.g. 
-<IMG
+<LI>"Interp child" : It generates the child grid file. Before, you should select if
+  you are using a new topography ("New child topo" button) for the child grid or if
+  you are just interpolating the parent topography on the child grid. In the first
+  case, you should defines what topography file will be used (e.g.
+  <IMG
  WIDTH="18" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
  SRC="img8.png"
- ALT="$\sim$">/Roms_tools/Topo/etopo2.nc or another dataset).
-You should also define if you want the volume of the child grid 
-to match the volume of the parent close to the parent/child 
-boundaries ("Match volume" button, it should be "on" by default).
-You should also define define the r factor (<A
- HREF="doc.html#Bec93">Beckmann and Haidvogel, 1993</A>) 
-for topography smoothing ("r-factor", 0.25 is safe) and
-the number of points to connect the child topography to the
-parent topography ("n-band", it follows the relation 
-<!-- MATH
+ ALT="$\sim$">/Roms_tools/Topo/etopo2.nc or another dataset).  You should also define if
+  you want the volume of the child grid to match the volume of the parent close to
+  the parent/child boundaries ("Match volume" button, it should be "on" by default).
+  You should also define  the <B>'r'</B> factor (<A
+ HREF="doc.html#Bec93">Beckmann and Haidvogel, 1993</A>) for topography smoothing
+  ("r-factor", 0.25 is safe) and the number of points to connect the child topography
+  to the parent topography ("n-band", it follows the relation
+  <!-- MATH
  $h_{new}=\alpha.h_{child} + (1-\alpha).h_{parent}$
  -->
 <IMG
  WIDTH="251" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img58.png"
- ALT="$h_{new}=\alpha.h_{child} + (1-\alpha).h_{parent}$">, 
-where <IMG
- WIDTH="16" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
  SRC="img59.png"
- ALT="$\alpha$"> is going from 0 to 1 in "n-band" points 
-from the parent/child boundaries).
-You should also select the child minimum depth ("Hmin",
-it should be lower or equal to the parent minimum depth),
-the maximum depth at the coast ("Hmax coast"), the 
-number of selective hanning filter passes for the deep 
-regions ("n filter deep") and the number of final 
-hanning filter passes ("n filter final").
+ ALT="$h_{new}=\alpha.h_{child} + (1-\alpha).h_{parent}$">, where <IMG
+ WIDTH="16" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img60.png"
+ ALT="$\alpha$"> is going from 0
+  to 1 in "n-band" points from the parent/child boundaries).  You should also select
+  the child minimum depth ("Hmin", it should be lower or equal to the parent minimum
+  depth), the maximum depth at the coast ("Hmax coast"), the number of selective
+  hanning filter passes for the deep regions ("n filter deep") and the number of
+  final hanning filter passes ("n filter final").
 
 <P>
 </LI>
-<LI>"Interp forcing": It interpolates the parent 
-surface forcing  on the child grid. Select the parent forcing file
-to be interpolated (e.g. <IMG
+<LI>"Interp forcing": It interpolates the parent surface forcing on the child grid.
+  Select the parent forcing file to be interpolated (e.g.
+  <IMG
  WIDTH="18" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
  SRC="img8.png"
- ALT="$\sim$">/Roms_tools/Run/ROMSFILES/roms_frc.nc). 
-The child forcing file roms_frc.nc.1 will be created. 
-The parent surface fluxes are interpolated on the child grid. 
-You can use "Interp bulk" if you are using a bulk formula.
-In this case, the parent bulk file 
-(e.g. <IMG
+ ALT="$\sim$">/Roms_tools/Run/ROMSFILES/roms_frc.nc).  The child forcing file
+  roms_frc.nc.1 will be created.  The parent surface fluxes are interpolated on the
+  child grid.  You can use "Interp bulk" if you are using a bulk formula.  In this
+  case, the parent bulk file (e.g. <IMG
  WIDTH="18" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
  SRC="img8.png"
- ALT="$\sim$">/Roms_tools/Run/ROMSFILES/roms_blk.nc) will be
-interpolated on the child grid.
+ ALT="$\sim$">/Roms_tools/Run/ROMSFILES/roms_blk.nc)
+  will be interpolated on the child grid.
 
 <P>
 </LI>
-<LI>"Interp initial": It interpolates parent initial
-conditions on the child grid. Select the parent initial file
-(e.g. <IMG
+<LI>"Interp initial": It interpolates parent initial conditions on the child grid.
+  Select the parent initial file (e.g.
+  <IMG
  WIDTH="18" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
  SRC="img8.png"
- ALT="$\sim$">/Roms_tools/Run/ROMSFILES/roms_ini.nc).
-The child initial file 
-(e.g. <IMG
+ ALT="$\sim$">/Roms_tools/Run/ROMSFILES/roms_ini.nc).  The child initial file (e.g.
+  <IMG
  WIDTH="18" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
  SRC="img8.png"
- ALT="$\sim$">/Roms_tools/Run/ROMSFILES/roms_ini.nc.1) 
-will be created.
-If the topographies are different between the parent and 
-the child grids, the child initial conditions are 
-vertically re-interpolated. In this case you should check 
-if the options <B>"vertical corrections"</B> and <B>"extrapolations"</B>
-are selected. <B>It is preferable to always use these options.</B> 
-<BR>If there are parent biological variables in the initial files, they are processed. In
-the case of NPZD type model, there are 4 more variable. In the case of PISCES
-biogeochemical model, ther is 8 more variables. 
+ ALT="$\sim$">/Roms_tools/Run/ROMSFILES/roms_ini.nc.1) will be created.  If the
+  topographies are different between the parent and the child grids, the child
+  initial conditions are vertically re-interpolated. In this case you should check if
+  the options <B>"vertical corrections"</B> and <B>"extrapolations"</B>
+  are selected. <B>It is preferable to always use these options.</B> 
+<BR>  If there are parent biological fields in the initial files, they can be processed
+  automatically, we have to define the type of biological models: either NPZD-type
+  (NChlPZD, N2ChlPZD2 or N2P2Z2D2) then click on the <I><B>'Biol'</B></I>
+  button, either PISCES biogeochemical model, then click on the
+  <I><B>'Pisces'</B></I> button. The fields needed for the initialization of
+  these biological model will be processed. 
+<BR>  For information, in the case of NPZD type model, there are 4 more fields and in the
+  case of PISCES biogeochemical model, there is 8 more fields.
 
 <P>
 </LI>
@@ -3984,23 +4164,28 @@ biogeochemical model, ther is 8 more variables.
  WIDTH="18" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
  SRC="img8.png"
  ALT="$\sim$">/Roms_tools/Run/ROMSFILES/roms_frcbio.nc.1) will be created.
-</LI>
-<LI>"Interp restart" generates a child restart file from 
-a parent restart file 
-<BR>(e.g. <IMG
- WIDTH="18" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img8.png"
- ALT="$\sim$">/Roms_tools/Run/ROMSFILES/roms_rst.nc). 
-This can be done to "hot start" a child model after the 
-spin-up of the parent model.
 
 <P>
 </LI>
-<LI>You can click on "Create roms.in.*" to generate a
-child input file (roms.in.1) from the parent input
-file and click on "Create AGRIF_FixedGrids.in" to 
-generate a AGRIF_FixedGrids.in file (the file which
-defines the child grid position in the parent grid).
+<LI>"Interp restart" generates a child restart file from
+  a parent restart file 
+<BR>  (e.g. <IMG
+ WIDTH="18" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img8.png"
+ ALT="$\sim$">/Roms_tools/Run/ROMSFILES/roms_rst.nc).  This can be done to "hot
+  start" a child model after the spin-up of the parent model. As in the case of
+  initial files generation, there is the possibility to compute ans write in the
+  nested restart file either the biological fields from NPZD-type biological model,
+  either the PISCES biogeochemical fields.  For this purpose, click either on the
+  <I><B>'Biol'</B></I> button, either on the the <I><B>'Pisces'</B></I>
+  button.
+
+<P>
+</LI>
+<LI>You can click on "Create roms.in.*" to generate a child input file (roms.in.1)
+  from the parent input file and click on "Create AGRIF_FixedGrids.in" to generate a
+  AGRIF_FixedGrids.in file (the file which defines the child grid position in the
+  parent grid).
 
 <P>
 </LI>
@@ -4008,8 +4193,14 @@ defines the child grid position in the parent grid).
 
 <P>
 </LI>
-<LI>"Interp clim" can be useful to generate boundary conditions 
-to test the child model alone. 
+<LI>"Interp clim" can be useful to generate boundary conditions to test the child
+  model alone. As in the case of restart an initial nested files generation, during
+  the eventual phase of creation of a nested clim file, the fields related to the
+  NPZD-type biological models or the PISCES one can be computed and written in the
+  nested clim file.  As usual, click either on the <I><B>'Biol'</B></I> button or
+  on the <I><B>'Pisces'</B></I> button.
+
+<P>
 </LI>
 </OL>
 <H2><A NAME="SECTION00392000000000000000">
@@ -4029,10 +4220,10 @@ To activate the AGRIF nesting procedure, define AGRIF in
  ALT="$\sim$">/Roms_tools/Run/cppdefs.h. Moreover, to activate the AGRIF nesting with the
 <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img49.png"
+ SRC="img50.png"
  ALT="$2$">-way capability, define AGRIF and AGRIF_<IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img49.png"
+ SRC="img50.png"
  ALT="$2$">WAYS. 
 <BR>
 <P>
@@ -4101,7 +4292,7 @@ using crontab.
 <P>
 
 <H1><A NAME="SECTION00400000000000000000">
-2. ROMS_AGRIF 2.0</A>
+2. ROMS_AGRIF v2.1</A>
 </H1>
 
 <H1><A NAME="SECTION00410000000000000000">
@@ -4150,15 +4341,15 @@ More informations and model description can also be found in the SCRUM Manuel
 (<A
  HREF="doc.html#hedstroem97">Hedstr&#246;m, K. S. , 1997</A>) and a more recent User Manual on ROMS (Rutgers
 version<A NAME="tex2html12"
-  HREF="#foot1338"><SUP>2.1</SUP></A>), both written by Kate Hedstr&#246;m<A NAME="tex2html13"
-  HREF="#foot1339"><SUP>2.2</SUP></A> (<A
+  HREF="#foot1485"><SUP>2.1</SUP></A>), both written by Kate Hedstr&#246;m<A NAME="tex2html13"
+  HREF="#foot1486"><SUP>2.2</SUP></A> (<A
  HREF="doc.html#hedstroem2009">Hedstr&#246;m, K. S. , 2009</A>) <A NAME="tex2html14"
-  HREF="#foot1341"><SUP>2.3</SUP></A>. These documents are available on the
+  HREF="#foot1488"><SUP>2.3</SUP></A>. These documents are available on the
 ROMS_AGRIF web site : http://roms.mpl.ird.fr in the documentation section.
 
 
 <H1><A NAME="SECTION00420000000000000000">
-2.2 Nesting capabilities, 1-WAYS and 2-WAYS using the AGRIF procedure</A>
+2.2 Nesting capabilities, 1-WAY and 2-WAY using the AGRIF procedure</A>
 </H1>
 
 <P>
@@ -4184,15 +4375,15 @@ levels.
 
 <P>
 
-<DIV ALIGN="CENTER"><A NAME="fig:temp_coupling"></A><A NAME="1364"></A>
+<DIV ALIGN="CENTER"><A NAME="fig:temp_coupling"></A><A NAME="1511"></A>
 <TABLE>
 <CAPTION ALIGN="BOTTOM"><STRONG>Figure 2.1:</STRONG>
 Temporal coupling between a parent and a child grid for a refinement factor
   of 3.  The coupling is done at the baroclinic time step.</CAPTION>
 <TR><TD><IMG
  WIDTH="582" HEIGHT="166" BORDER="0"
- SRC="img60.png"
- ALT="\begin{figure}\centerline{\psfig{figure=nesting_fig1.eps,width=15cm}}\end{figure}"></TD></TR>
+ SRC="img61.png"
+ ALT="\begin{figure}\centerline{\psfig{figure=Figures/nesting_fig1.eps,width=15cm}}\end{figure}"></TD></TR>
 </TABLE>
 </DIV>
 
@@ -4238,27 +4429,27 @@ application to ROMS.
 <OL>
 <LI>AGRIF homepage : <I>http://www-ljk.imag.fr/MOISE/AGRIF/</I>
 </LI>
-<LI>AGRIF 1 ways evaluation : Evaluation and application of the ROMS 1-way, 
+<LI>ROMS - AGRIF 1 way nesting : Evaluation and application of the ROMS 1-way, 
 embedding procedure to the central california upwelling system, (<A
  HREF="doc.html#Pen04">Penven et al., 2006</A>)
 </LI>
-<LI>Paper 2ways-nesting part I : Idealized configuration.
-</LI>
-<LI>Paper 2ways-nesting part II : Realistic configuration.
+<LI>ROMS - AGRIF 2 way nesting: Two ways embedding algorithms for a split-explicit
+  free surface model. (<A
+ HREF="doc.html#DebreuMarchesiello2010">Debreu et al , 2010</A>)
 </LI>
 </OL>
 
 <P>
-
 
 <H1><A NAME="SECTION00430000000000000000"></A> <A NAME="changelog"></A><BR>
 2.3 Changelog since ROMS_AGRIF 1.1
 </H1>
 
 <UL>
-<LI><U>New diffusive-advection schemes</U> : RSUP3 (<A
- HREF="doc.html#Marches09">Marchesiello et al , 2009</A>) 
-<BR>
+<LI><U>New diffusive-advection schemes</U> : <B>TS_SPLIT_UP3</B>, Ref
+  (<A
+ HREF="doc.html#Marches09">Marchesiello et al , 2009</A>)
+
 <P>
 To avoid unacceptable spurious diapycnal mixing, a new advection scheme has been
   proposed and validate : the RSUP3 scheme. The diffusion is split from advection and
@@ -4272,45 +4463,48 @@ This scheme induce a time step smaller than the third-order upstream biaised
   diffusive advective scheme used in the version <IMG
  WIDTH="27" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
  SRC="img5.png"
- ALT="$1.0$">. It is activated by the use of
-  the cppkeys <B>TS_SPLIT_UP3</B> for tracers and <B>UV_SPLIT_UP3</B> for
-  momentum in the cppdefs.h file.
+ ALT="$1.1$">. It is activated by the use of
+  the cppkeys TS_SPLIT_UP3 cppdefs.h file.
 
 <P>
 To avoid numerical instabilities in the sponge where there is enhanced
   diffusion/diffsuivity, a classical laplacian diffusion can be applied by the use of
-  the cppkey <B>SPONGE_DIF2</B> and <B>SPONGE_VIS2</B> in the cppdefs.h file.
+  the cppkey SPONGE_DIF2 and SPONGE_VIS2 in the cppdefs.h file.
 
 <P>
 </LI>
-<LI><U>Two-ways AGRIF nesting</U> : Ref (<A NAME="tex2html167"
-  HREF="#Debreu09-1">, </A>,) 
-<BR>
+<LI><U>Two-way AGRIF nesting</U> : <B>AGRIF_2WAY</B>, Ref. (<A
+ HREF="doc.html#DebreuMarchesiello2010">Debreu et al , 2010</A>)
+
 <P>
 As presented before, it is the capability of the fine grid to update data in the
   coarse grid. With this procedure, we are now able to get the impact of high
   resolution on the more coarser reolution, in a context of upscaling.  To activate
-  the two ways nesting, you need to define the <B>AGRIF</B> and
-  <B>AGRIF_2WAY</B> cpp-keys.
+  the two ways nesting, you need to define the AGRIF and
+  AGRIF_2WAY cpp-keys.
 
 <P>
 </LI>
-<LI><U>Bulk formulation</U> : 
-<BR>Desciption of the bulk formulation coded by Patrick.
+<LI><U>New bulk formulation</U> : <B>BULK_FAIRALL</B>, Ref. (<A
+ HREF="#fairall_l996">, </A>)
+
+<P>
+A new bulk formulae has been set-up in the code, to compute surface wind stress and
+  surface net heat fluxes, as described in Fairall et al, 1996. (<A
+ HREF="#Fairall96">, </A>),
+  the use of this bulk formulae is activated by the cpp keys BULK_FAIRALL.
 
 <P>
 </LI>
-<LI><U>Online diagnostics and I/O</U>: 
-<BR>
+<LI><U>Online diagnostics and I/O</U>:
+
 <P>
 New diagnostics and outputs are now available in the ROMS_AGRIF <IMG
  WIDTH="27" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$2.0$">.  
-
-<P>
-Wind stresses, windspeed, and heat fluxes (latent, sensible, long-wave and solar
-  short wave) can be written in the netCDF history and average files. Moreover,
+ SRC="img62.png"
+ ALT="$2.0$">., as 
+  wind stresses, windspeed, and heat fluxes (latent, sensible, long-wave and solar
+  short wave). They can be written in the netCDF history and average files. Moreover,
   bottom boundary layer thickness and euphotic depth layer in case of biological
   experiments can be saved. For more information, you can refer at the section
   <A HREF="#namelistdesc">2.6</A>.
@@ -4322,47 +4516,47 @@ Improvmement have also been carried out on the tracer and momentum equation term
 <P>
 From now, the tracer equation terms are in <I>dia.nc</I> and <I>dia_avg.nc</I>
   netcdf file with flags that permit to choose exactly the term
-  you want to write in the netCDF files.
+  you want to write in the NetCDF files.
 <BR>  By default this diagnostics are written in a divergence flux form, (<!-- MATH
  $\partial{u
     T}_{x}$
  -->
 <IMG
  WIDTH="46" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
- SRC="img61.png"
+ SRC="img63.png"
  ALT="$\partial{u
 T}_{x}$">, <!-- MATH
  $\partial{v T}_{y}$
  -->
 <IMG
  WIDTH="44" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
- SRC="img62.png"
+ SRC="img64.png"
  ALT="$\partial{v T}_{y}$">, ...) but they can be written in an "advective form"
   : <!-- MATH
  $u\partial{T}_{x}$
  -->
 <IMG
  WIDTH="43" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
- SRC="img63.png"
+ SRC="img65.png"
  ALT="$u\partial{T}_{x}$">, <!-- MATH
  $v
   \partial{T}_{y}$
  -->
 <IMG
  WIDTH="42" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
- SRC="img64.png"
+ SRC="img66.png"
  ALT="$v
-\partial{T}_{y}$">, ... by using the <B>DIAGNOSTICS_TS_ADV</B> cpp key. 
-<BR>  Some term have been added : the term integrated over the mixed layer depth (cppkeys
+\partial{T}_{y}$">, ... by using the <B>DIAGNOSTICS_TS_ADV</B> cpp key.
+  Some term have been added : the term integrated over the mixed layer depth (cppkeys
   <B>DIAGNOSTICS_TS_MLD</B>. The mixed layer depth is computed online, from the
   closure module.
 
 <BR>
 <BR>The differents term of the tracer equation, that can be diagnose,
 for each tracer,  expressed in <IMG
- WIDTH="56" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
- SRC="img65.png"
- ALT="$^{o}C.s^{-1}$"> ,  are:
+ WIDTH="57" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
+ SRC="img67.png"
+ ALT="$C^{o}.s^{-1}$"> ,  are:
   
 <UL>
 <LI>Time evolution term (called "rate" term)
@@ -4380,7 +4574,7 @@ for each tracer,  expressed in <IMG
 </LI>
 <LI>Nudging <IMG
  WIDTH="18" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
- SRC="img66.png"
+ SRC="img68.png"
  ALT="$+$"> Surface forcing term (called Tforc term) 
 </LI>
 <LI>In the case of use <B>DIAGNOSTICS_TS_MLD</B> some additional terms are
@@ -4402,7 +4596,7 @@ for each tracer,  expressed in <IMG
 </LI>
 <LI>Nudging <IMG
  WIDTH="18" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
- SRC="img66.png"
+ SRC="img68.png"
  ALT="$+$"> Surface forcing term integrated over the MLD
 </LI>
 <LI>Entrainement term at the base of the mixed layer
@@ -4421,7 +4615,7 @@ Concerning the momentum equation term, the differents term of the equation can b
 <P>
 The differents terms of the momentum equation, expressed in <IMG
  WIDTH="51" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
- SRC="img67.png"
+ SRC="img69.png"
  ALT="$m.s^{-2}$">, that can be diagnose (for u and v)
   are :
   
@@ -4456,82 +4650,79 @@ The differents terms of the momentum equation, expressed in <IMG
 
 
 <H1><A NAME="SECTION00440000000000000000"></A><A NAME="paramdesc"></A><BR>
-2.4 Parameters description : <I>parameter.h</I>
+2.4 Parameters description : param.h
 </H1>
 
 <P>
 In this section, we present the more important parameters to configure your own
-roms_agrif <IMG
- WIDTH="27" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img4.png"
- ALT="$2.0$"> run. These parameters are : 
+run. These parameters are : 
 
 <UL>
 <LI><B>Test case or realistic run</B>: 
 <BR>...  
 <BR>#if defined BASIN <IMG
  WIDTH="106" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
- SRC="img68.png"
- ALT="$--&gt;$"> 
+ SRC="img70.png"
+ ALT="$-&gt;$"> 
 <FONT COLOR="#ff0000"><B><I>Test case</I></B></FONT> 
 <BR>      parameter (LLm0<IMG
  WIDTH="40" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img69.png"
+ SRC="img71.png"
  ALT="$=60$">,  MMm0<IMG
  WIDTH="40" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img70.png"
+ SRC="img72.png"
  ALT="$=50$">,  N<IMG
  WIDTH="40" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img71.png"
+ SRC="img73.png"
  ALT="$=10$">) 
 <BR>#elif defined REGIONAL <IMG
  WIDTH="106" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
- SRC="img68.png"
- ALT="$--&gt;$"> 
+ SRC="img70.png"
+ ALT="$-&gt;$"> 
 <FONT COLOR="#ff0000"><B><I>Realistic run</I></B></FONT> 
 <BR>#<IMG
  WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
+ SRC="img74.png"
  ALT="$&nbsp;&nbsp;$"> elif defined  BENGUELA_LR 
 <BR><IMG
  WIDTH="34" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img73.png"
+ SRC="img75.png"
  ALT="$&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$"> parameter (LLm0<IMG
  WIDTH="40" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img74.png"
+ SRC="img76.png"
  ALT="$=41$">, MMm0<IMG
  WIDTH="40" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img75.png"
+ SRC="img77.png"
  ALT="$=42$">,  N<IMG
  WIDTH="40" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img76.png"
+ SRC="img78.png"
  ALT="$=32$">)  <IMG
  WIDTH="9" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img77.png"
+ SRC="img79.png"
  ALT="$!$"> <IMG
  WIDTH="50" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
  SRC="img26.png"
  ALT="$&lt;-$"> BENGUELA_LR 
 <BR>#<IMG
  WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
+ SRC="img74.png"
  ALT="$&nbsp;&nbsp;$"> else 
 <BR><IMG
  WIDTH="34" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img73.png"
+ SRC="img75.png"
  ALT="$&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$"> parameter (LLm0=<IMG
  WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img78.png"
+ SRC="img80.png"
  ALT="$39$">,  MMm0<IMG
  WIDTH="40" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img76.png"
+ SRC="img78.png"
  ALT="$=32$">,  N<IMG
  WIDTH="40" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img79.png"
+ SRC="img81.png"
  ALT="$=20$">) 
 <BR>#<IMG
  WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
+ SRC="img74.png"
  ALT="$&nbsp;&nbsp;$"> endif 
 <BR>... 
 <BR>LLm0  
@@ -4545,17 +4736,17 @@ N
 <UL>
 <LI>LLm0: Dimension (ghost points included) in  the <IMG
  WIDTH="13" HEIGHT="34" ALIGN="MIDDLE" BORDER="0"
- SRC="img80.png"
+ SRC="img82.png"
  ALT="$\xi$"> direction.
 </LI>
 <LI>MMm0: Dimension (ghost points included) in  the <IMG
  WIDTH="14" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
- SRC="img81.png"
+ SRC="img83.png"
  ALT="$\eta$"> direction.
 </LI>
 <LI>N: Number of <IMG
  WIDTH="13" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
- SRC="img82.png"
+ SRC="img84.png"
  ALT="$\rho$">-vertical points, in the vertical grid.
   
 </LI>
@@ -4567,41 +4758,45 @@ N
 <BR>....
 <BR><IMG
  WIDTH="9" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img77.png"
+ SRC="img79.png"
  ALT="$!$"> 
 <BR><IMG
  WIDTH="9" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img77.png"
+ SRC="img79.png"
  ALT="$!$"> Domain subdivision parameters: 
 <BR><IMG
  WIDTH="9" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img77.png"
+ SRC="img79.png"
  ALT="$!$"> ====== =========== =========== 
 <BR><IMG
  WIDTH="9" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img77.png"
+ SRC="img79.png"
  ALT="$!$"> NPP            Maximum allowed number of parallel threads; 
 <BR><IMG
  WIDTH="9" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img77.png"
+ SRC="img79.png"
  ALT="$!$"> NSUB_X,NSUB_E  Number of SHARED memory subdomains in XI- and 
 <BR><IMG
  WIDTH="9" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img77.png"
+ SRC="img79.png"
  ALT="$!$"> ETA-directions; 
 <BR><IMG
  WIDTH="9" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img77.png"
+ SRC="img79.png"
  ALT="$!$"> NNODES        Total number of MPI processes (nodes); 
 <BR><IMG
  WIDTH="9" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img77.png"
+ SRC="img79.png"
  ALT="$!$"> NP_XI,NP_ETA  Number of MPI subdomains in XI- and ETA-directions; 
 <BR><IMG
  WIDTH="9" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img77.png"
- ALT="$!$"> 
-<BR>
+ SRC="img79.png"
+ ALT="$!$">
+
+<P>
+In the case of OpenMP parallelization, NPP is the number of cpu used in the
+computation, in the case of MPI parallelization, it is equal to to NNODES.
+
 <P>
 AUTOTLING (implemented by Laurent Debreu): cppkeys that enable to compute the optimum
 subdomains partition in terms of computation time.
@@ -4613,17 +4808,17 @@ subdomains partition in terms of computation time.
 <BR>#if defined SSH_TIDES || defined UV_TIDES 
 <BR><IMG
  WIDTH="57" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img83.png"
+ SRC="img85.png"
  ALT="$&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$"> integer Ntides<IMG
  WIDTH="34" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img73.png"
+ SRC="img75.png"
  ALT="$&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$"> 
 <BR><IMG
  WIDTH="57" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img83.png"
+ SRC="img85.png"
  ALT="$&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$"> parameter (Ntides=8)<IMG
  WIDTH="71" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
- SRC="img84.png"
+ SRC="img86.png"
  ALT="$-&gt;$"> 
 <FONT COLOR="#ff0000"><I><B>Number of wave in
     the total tidal signal</B></I></FONT> 
@@ -4636,7 +4831,7 @@ subdomains partition in terms of computation time.
 
 
 <H1><A NAME="SECTION00450000000000000000"></A> <A NAME="cppkeydesc"></A><BR>
-2.5 CPP-keys description <I>cppdefs.h</I>
+2.5 CPP-keys description : cppdefs.h
 </H1> 
 
 <P>
@@ -4645,7 +4840,7 @@ physical options in ROMS_AGRIF. These latters are ordered in differents sections
 described in Table <A HREF="#tab:cppkeys1">2.1</A>.
 
 <P>
-<A NAME="1614"></A>
+<A NAME="1760"></A>
 <TABLE CELLPADDING=3 BORDER="1">
 <CAPTION><STRONG>Table 2.1:</STRONG>
 Description of the CPP keys used in the cppdefs.h file</CAPTION>
@@ -4713,12 +4908,6 @@ Description of the CPP keys used in the cppdefs.h file</CAPTION>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>MPI</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>PARALLEL_FILES</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>AUTOTILING</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>Embedding</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
@@ -4788,6 +4977,18 @@ Description of the CPP keys used in the cppdefs.h file</CAPTION>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=1 COLSPAN=2><DIV ALIGN="CENTER">More advanced options</DIV></TD>
 </TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>Parallelization</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>PARALLEL_FILES</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>AUTOTILING</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>ETALON_CHECK</TD>
+</TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>Model dynamics</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
 </TR>
@@ -4812,26 +5013,92 @@ Description of the CPP keys used in the cppdefs.h file</CAPTION>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>MASKING</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>Input/Output and Diagnostics</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>Lateral Momentum Mixing</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>AVERAGES</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>MIX_GP_UV</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>AVERAGES_K</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>MIX_GP_UV</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>DIAGNOSTICS_TS</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>UV_VIS2</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>DIAGNOSTICS_TS_ADV</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>UV_VIS4</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>DIAGNOSTICS_TS_MLD</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>VIS_SMAGO</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>Lateral Tracer Mixing</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>DIAGNOSTICS_UV</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>MIX_GP_TS</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>MIX_S_TS</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>MIX_EN_TS</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>TS_DIF2</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>TS_DIF4</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>TS_SPLIT_UP3</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>Nudging</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>ZNUDGING</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>M2NUDGING</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>M3NUDGING</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>TNUDGING</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>ROBUST_DIAG</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>Vertical Mixing</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>BODYFORCE</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>BVF_MIXING</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>LMD_MIXING</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>LMD_SKPP</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>LMD_BKPP</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>LMD_RIMIX</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>LMD_CONVEC</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>LMD_DDMIX</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>LMD_NONLOCAL</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>Equation of State</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
@@ -4861,58 +5128,16 @@ Description of the CPP keys used in the cppdefs.h file</CAPTION>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>BULK_FLUX</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>LW_ONLINE</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>BULK_FAIRALL</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>BULK_LW</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>BULK_EP</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>BULK_SMFLUX</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>BULK_WVEC</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>BULK_WSTR</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>Lateral Tracer Mixing</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>MIX_GP_TS</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>MIX_S_TS</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>MIX_EN_TS</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>TS_DIF2</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>TS_DIF4</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>TS_SPLIT_UP3</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>Lateral Momentum Mixing</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>MIX_GP_UV</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>MIX_S_GP</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>UV_VIS2</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>UV_VIS4</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>UV_SPLIT_UP3</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>Sponge Layer</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
@@ -4965,24 +5190,6 @@ Description of the CPP keys used in the cppdefs.h file</CAPTION>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>T_FRC_BRY</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>Nudging</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>ZNUDGING</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>M2NUDGING</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>M3NUDGING</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>TNUDGING</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>ROBUST_DIAG</TD>
-</TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>Bottom Forcing</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
 </TR>
@@ -5001,36 +5208,6 @@ Description of the CPP keys used in the cppdefs.h file</CAPTION>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>ANA_PSOURCE</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>Vertical Mixing</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>BODYFORCE</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>BVF_MIXING</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>LMD_MIXING</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>LMD_SKPP</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>LMD_BKPP</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>LMD_RIMIX</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>LMD_CONVEC</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>LMD_DDMIX</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>LMD_NONLOCAL</TD>
-</TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>Open Boundary Conditions</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
 </TR>
@@ -5047,24 +5224,59 @@ Description of the CPP keys used in the cppdefs.h file</CAPTION>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>OBC_M2ORLANSKI</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>OBC_M2ORLANSKI</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>OBC_VOLCONS</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>OBC_M3ORLANSKI</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>OBC_TORLANSKI</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>OBC_M3SPECIFIED</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>OBC_M3SPECIFIED</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>OBC_TORLANSKI</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>OBC_TSPECIFIED</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250><A NAME="tab:cppkeys1"></A></TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>Input/Output and Diagnostics</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>AVERAGES</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>AVERAGES_K</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>DIAGNOSTICS_TS</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>DIAGNOSTICS_TS_ADV</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>DIAGNOSTICS_TS_MLD</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>DIAGNOSTICS_UV</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>BIOLOGY models</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>PISCES</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>BIO_NChlPZD</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>BIO_N2P2Z2D2</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>BIO_N2ChlPZD2</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250><P>
+
+<A NAME="tab:cppkeys1"></A></TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=250>&nbsp;</TD>
 </TR>
 </TABLE>
@@ -5076,56 +5288,56 @@ Test Case</A>
 </H2>
 
 <P>
-<A NAME="1624"></A>
+<A NAME="1770"></A>
 <TABLE CELLPADDING=3 BORDER="1">
 <CAPTION><STRONG>Table 2.2:</STRONG>
 Test Case related CPP keys</CAPTION>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>CPP KEYS NAME</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Description</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CPP KEYS NAME</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Description</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>BASIN</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Must be defined for running the Basin Example.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>BASIN</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Must be defined for running the Basin Example.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>CANYON_A</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Must be defined for running the Canyon_A Example.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CANYON_A</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Must be defined for running the Canyon_A Example.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>CANYON_B</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Must be defined for running the Canyon_B Example.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CANYON_B</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Must be defined for running the Canyon_B Example.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>GRAV_ADJ</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Must be defined for running the Gravitational Adjustment Example.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>GRAV_ADJ</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Must be defined for running the Gravitational Adjustment Example.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>INNERSHELF</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Must be defined for running the Inner Shelf Example.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>INNERSHELF</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Must be defined for running the Inner Shelf Example.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>OVERFLOW</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Must be defined for running the Gravitational/Overflow Example.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>OVERFLOW</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Must be defined for running the Gravitational/Overflow Example.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>SEAMOUNT</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Must be defined for running the Seamount Example.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>SEAMOUNT</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Must be defined for running the Seamount Example.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>SHELFRONT</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Must be defined for running the Shelf Front Example.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>SHELFRONT</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Must be defined for running the Shelf Front Example.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>SOLITON</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Must be defined for running the Equatorial Rossby Wave Example.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>SOLITON</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Must be defined for running the Equatorial Rossby Wave Example.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>UPWELLING</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Must be defined for running the Upwelling Example.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>UPWELLING</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Must be defined for running the Upwelling Example.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>INTERNAL</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Must be defined for running the Internal tides example.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>INTERNAL</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Must be defined for running the Internal tides example.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>VORTEX</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Must be defined for running the Baroclinic Vortex Example.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>VORTEX</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Must be defined for running the Baroclinic Vortex Example.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>REGIONAL</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Must be defined if running realistic regional simulations.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>REGIONAL</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Must be defined if running realistic regional simulations.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><P>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125><P>
 
 <A NAME="tab:cppkeysTestCase"></A></TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 </TABLE>
 
@@ -5136,7 +5348,7 @@ Parallelization</A>
 </H2>
 
 <P>
-<A NAME="1634"></A>
+<A NAME="1780"></A>
 <TABLE CELLPADDING=3 BORDER="1">
 <CAPTION><STRONG>Table 2.3:</STRONG>
 Parallelization related CPP keys</CAPTION>
@@ -5169,10 +5381,10 @@ Parallelization related CPP keys</CAPTION>
 # ifdef MPI 
 <BR># <IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
+ SRC="img87.png"
  ALT="$&nbsp;$"><IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
+ SRC="img87.png"
  ALT="$&nbsp;$">undef PARALLEL_FILES 
 <BR># endif 
 <BR># undef AUTOTILING 
@@ -5182,21 +5394,22 @@ Parallelization related CPP keys</CAPTION>
 <H2><A NAME="SECTION00453000000000000000">
 Embedding</A>
 </H2>
-<A NAME="1645"></A>
+<A NAME="1791"></A>
 <TABLE CELLPADDING=3 BORDER="1">
 <CAPTION><STRONG>Table 2.4:</STRONG>
 Embedding related CPP keys</CAPTION>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>CPP KEY NAME</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Description</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CPP KEY NAME</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Description</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>AGRIF</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate the (1-WAYS) nesting capabilities.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>AGRIF</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate the (1-WAYS) nesting capabilities.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>AGRIF_2WAYS</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Add the the 2-WAYS nesting (feedback from child to parent grid) capabilities.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>AGRIF_2WAY</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Add the the 2-WAYS nesting (update of the parent grid solution by the child
+grid solution) capabilities.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><A NAME="tab:cppkeyNesting"></A></TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>&nbsp;</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125><A NAME="tab:cppkeyNesting"></A></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 </TABLE>
 
@@ -5207,27 +5420,27 @@ Open Boundary Conditions I </A>
 </H2>
 
 <P>
-<A NAME="1655"></A>
+<A NAME="1801"></A>
 <TABLE CELLPADDING=3 BORDER="1">
 <CAPTION><STRONG>Table 2.5:</STRONG>
 Open Boundary Conditions (basic) related CPP keys</CAPTION>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>CPP KEY NAME</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Description</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CPP KEY NAME</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Description</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>OBC_EAST</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Open eastern boundary.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>OBC_EAST</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Open eastern boundary.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>OBC_WEST</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Open western boundary.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>OBC_WEST</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Open western boundary.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>OBC_SOUTH</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Open southern boundary.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>OBC_SOUTH</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Open southern boundary.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>OBC_NORTH</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Open northern boundary.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>OBC_NORTH</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Open northern boundary.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><A NAME="tab:cppkeysOBCbasic"></A></TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>&nbsp;</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125><A NAME="tab:cppkeysOBCbasic"></A></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 </TABLE>
 
@@ -5238,29 +5451,29 @@ Tides</A>
 </H2>
 
 <P>
-<A NAME="1665"></A>
+<A NAME="1811"></A>
 <TABLE CELLPADDING=3 BORDER="1">
 <CAPTION><STRONG>Table 2.6:</STRONG>
 Tides forcing related CPP keys</CAPTION>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>CPP KEY NAME</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Description</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CPP KEY NAME</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Description</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>TIDES</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate the forcing og tides at open-boundaries.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>TIDES</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate the forcing og tides at open-boundaries.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>SSH_TIDES</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Define for processing sea surface elevation tidal data at the model boundaries.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>SSH_TIDES</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Define for processing sea surface elevation tidal data at the model boundaries.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>UV_TIDES</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Define for processing ocean current tidal data at the model boundaries.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>UV_TIDES</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Define for processing ocean current tidal data at the model boundaries.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>TIDERAMP</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Apply a ramping of the tidal current, (in general 2 days) at
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>TIDERAMP</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Apply a ramping of the tidal current, (in general 2 days) at
 initialization.
 Warning! This should be off when restarting the model.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><A NAME="tab:cppkeysTides"></A></TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>&nbsp;</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125><A NAME="tab:cppkeysTides"></A></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 </TABLE>
 
@@ -5283,7 +5496,7 @@ Applications</A>
 </H2>
 
 <P>
-<A NAME="1676"></A>
+<A NAME="1822"></A>
 <TABLE CELLPADDING=3 BORDER="1">
 <CAPTION><STRONG>Table 2.7:</STRONG>
 related CPP keys</CAPTION>
@@ -5333,24 +5546,24 @@ Model dynamics</A>
 </H2>
 
 <P>
-<A NAME="1687"></A>
+<A NAME="1833"></A>
 <TABLE CELLPADDING=3 BORDER="1">
 <CAPTION><STRONG>Table 2.8:</STRONG>
 Model dynamics related CPP keys</CAPTION>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>CPP KEY NAME</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Description</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CPP KEY NAME</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Description</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>SOLVE3D</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Define if solving 3D primitive equations.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>SOLVE3D</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Define if solving 3D primitive equations.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>UV_COR</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate Coriolis terms.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>UV_COR</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate Coriolis terms.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>UV_ADV</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate advection terms.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>UV_ADV</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate advection terms.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><A NAME="tab:cppkeysSurForc"></A></TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>&nbsp;</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125><A NAME="tab:cppkeysSurForc"></A></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 </TABLE>
 
@@ -5366,15 +5579,15 @@ Model dynamics related CPP keys</CAPTION>
 <BR># ifdef TIDES 
 <BR># <IMG
  WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
+ SRC="img74.png"
  ALT="$&nbsp;&nbsp;$"> define SSH_TIDES 
 <BR># <IMG
  WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
+ SRC="img74.png"
  ALT="$&nbsp;&nbsp;$"> define UV_TIDES 
 <BR># <IMG
  WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
+ SRC="img74.png"
  ALT="$&nbsp;&nbsp;$"> define TIDERAMP 
 <BR># endif
 
@@ -5385,24 +5598,24 @@ Grid configuration</A>
 </H2>
 
 <P>
-<A NAME="1698"></A>
+<A NAME="1844"></A>
 <TABLE CELLPADDING=3 BORDER="1">
 <CAPTION><STRONG>Table 2.9:</STRONG>
 Model grid related CPP keys</CAPTION>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>CPP KEY NAME</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Description</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CPP KEY NAME</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Description</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>CURVGRID</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate curvilinear coordinate grid option.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CURVGRID</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate curvilinear coordinate grid option.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>SPHERICAL</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate longitude/latitude grid positioning.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>SPHERICAL</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate longitude/latitude grid positioning.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>MASKING</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate land masking in the domain.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>MASKING</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate land masking in the domain.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><A NAME="tab:cppkeysGrid"></A></TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>&nbsp;</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125><A NAME="tab:cppkeysGrid"></A></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 </TABLE>
 
@@ -5419,37 +5632,29 @@ Model grid related CPP keys</CAPTION>
 <P>
 
 <H2><A NAME="SECTION00459000000000000000">
-Input - Output and Diagnostics</A>
+Lateral Momentum Mixing</A>
 </H2>
-<A NAME="1709"></A>
+ <A NAME="1855"></A>
 <TABLE CELLPADDING=3 BORDER="1">
 <CAPTION><STRONG>Table 2.10:</STRONG>
-I/O related CPP keys</CAPTION>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=160>CPP KEY NAME</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=340>Description</TD>
+Lateral Momentum mixing related CPP keys</CAPTION>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CPP KEY NAME</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Description</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=160>AVERAGES</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=340>Define if writing out time-averaged data.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>MIX_GP_UV</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate mixing on geopotential (constant Z) surfaces.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=160>AVERAGES_K</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=340>Define if writing out time-averaged vertical mixing.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>MIX_S_UV</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate mixing on iso-sigma (constant sigma) surfaces.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=160>DIAGNOSTICS_TS</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=340>Define if writing out tendency terms for the tracer equations.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>UV_VIS2</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate Laplacian horizontal mixing of momentum.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=160>DIAGNOSTICS_TS_ADV</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=340>Activate advection formulation for tendency term for the
-tracer equations.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>UV_VIS4</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate Bilaplacian horizontal mixing of momentum.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=160>DIAGNOSTICS_TS_MLD</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=340>Activate integration over the mixed-layer (MLD) for the
-tendency term for the tracer equation.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=160>DIAGNOSTICS_UV</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=340>Define if writing out tendency terms for the momentum equations.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=160><A NAME="tab:cppkeysIODiag"></A></TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=340>&nbsp;</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125><A NAME="tab:cppkeysLateralMomentumMixing"></A></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 </TABLE>
 
@@ -5457,49 +5662,48 @@ tendency term for the tracer equation.</TD>
 
 <H4><A NAME="SECTION00459010000000000000">
 2.5.0.0.6 Preselected options:&nbsp;</A>
-</H4>&nbsp;
+</H4> &nbsp;
 <BR>
-# define AVERAGES 
-<BR># define AVERAGES_K 
-<BR># undef DIAGNOSTICS_TS 
-<BR># ifdef DIAGNOSTICS_TS 
-<BR># <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$">undef DIAGNOSTICS_TS_ADV 
-<BR># <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$">undef DIAGNOSTICS_TS_MLD 
-<BR># endif 
-<BR># undef DIAGNOSTICS_UV 
+# define UV_VIS2 
+<BR># define MIX_GP_UV  
 <BR>
 <P>
 
 <H2><A NAME="SECTION004510000000000000000">
-Equation of state</A>
+Lateral Tracer mixing</A>
 </H2>
-<A NAME="1721"></A>
+
+<P>
+<A NAME="1867"></A>
 <TABLE CELLPADDING=3 BORDER="1">
 <CAPTION><STRONG>Table 2.11:</STRONG>
-Equation of state related CPP keys</CAPTION>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>CPP KEY NAME</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Description</TD>
+Lateral Tracer mixing related CPP keys</CAPTION>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CPP KEY NAME</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Description</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>SALINITY</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Define if using salinity.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>MIX_GP_TS</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate mixing on geopotential (constant Z) surfaces.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>NONLIN_EOS</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate the nonlinear equation of state.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>MIX_S_TS</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate mixing on iso-sigma level surfaces.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>SPLIT_EOS</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate the split of the nonlinear equation of state in a
-adiabatic part and a compressible part for the reduction of pressure gradient errors
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>MIX_EN_TS</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate mixing on isopygnal level surfaces.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>TS_DIF2</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate Laplacian horizontal mixing of tracer.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>TS_DIF4</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate Bilaplacian horizontal mixing of tracer.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>TS_SPLIT_UP3</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate the rotated split upstream advection-diffusion scheme for
+tracer equation.
 (<A
- HREF="doc.html#Shc03a">Shchepetkin and McWilliams, 2003</A>).</TD>
+ HREF="doc.html#Marches09">Marchesiello et al , 2009</A>)</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><A NAME="tab:cppkeyEqState"></A></TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>&nbsp;</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125><A NAME="tab:cppkeysLateralTracerMixing"></A></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 </TABLE>
 
@@ -5507,6 +5711,240 @@ adiabatic part and a compressible part for the reduction of pressure gradient er
 
 <H4><A NAME="SECTION004510010000000000000">
 2.5.0.0.7 Preselected options:&nbsp;</A>
+</H4> &nbsp;
+<BR>
+# define MIX_GP_TS 
+<BR># define TS_DIF2 
+<BR># undef TS_SPLIT_UP3 
+<BR>
+<P>
+
+<H2><A NAME="SECTION004511000000000000000">
+Nudging</A>
+</H2>
+
+<P>
+<A NAME="1878"></A>
+<TABLE CELLPADDING=3 BORDER="1">
+<CAPTION><STRONG>Table 2.12:</STRONG>
+Nudging related CPP keys</CAPTION>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CPP KEY NAME</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Description</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>ZNUDGING</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate nudging layer for zeta.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>M2NUDGING</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate nudging layer for barotropic velocities.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>M3NUDGING</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate nudging layer for baroclinic velocities.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>TNUDGING</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate nudging layer for tracer.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>ROBUST_DIAG</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate strong tracer nudging in the interior for diagnostic simulations.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125><A NAME="tab:cppkeysNudging"></A></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
+</TR>
+</TABLE>
+
+<P>
+The nudging layer has the same location than sponge layer. In the sponge/nudging
+layer, the signal, tracers and momentum, is nudged towards climatology using a
+nudging coefficient <IMG
+ WIDTH="32" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img88.png"
+ ALT="$\tau_{out}$"> expressed in <IMG
+ WIDTH="35" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
+ SRC="img89.png"
+ ALT="$s{-1}$">, equal to the inverse of the
+coefficient <!-- MATH
+ $TauM_{out}/TauT_{in}$
+ -->
+<IMG
+ WIDTH="137" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
+ SRC="img90.png"
+ ALT="$TauM_{out}/TauT_{in}$"> in the namelist roms.in
+
+<P>
+
+<H4><A NAME="SECTION004511010000000000000">
+2.5.0.0.8 Preselected options:&nbsp;</A>
+</H4> &nbsp;
+<BR>
+# define CLIMATOLOGY 
+<BR># ifdef CLIMATOLOGY 
+<BR>..... 
+<BR>#  <IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"><IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$">define ZNUDGING 
+<BR>#  <IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"><IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$">define M2NUDGING 
+<BR>#  <IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"><IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$">define M3NUDGING 
+<BR>#  <IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"><IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$">define TNUDGING 
+<BR>#  <IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"><IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$">undef ROBUST_DIAG 
+<BR># endif 
+<BR>
+<P>
+
+<H2><A NAME="SECTION004512000000000000000">
+Vertical Mixing</A>
+</H2>
+
+<P>
+<A NAME="1893"></A>
+<TABLE CELLPADDING=3 BORDER="1">
+<CAPTION><STRONG>Table 2.13:</STRONG>
+Vertical mixing related CPP keys</CAPTION>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CPP KEY NAME</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Description</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>BODYFORCE</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Define if applying surface and bottom stresses as bodyforces</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>BVF_MIXING</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate a simple mixing scheme based on the Brunt-V&#228;is&#228;l&#228; frequency</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>LMD_MIXING</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate Large/McWilliams/Doney mixing (LMD-KPP closure)</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>LMD_SKPP</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate surface boundary layer KPP mixing (LMD-KPP closure)</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>LMD_BKPP</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate bottom boundary layer KPP mixing (LMD-KPP closure)</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>LMD_RIMIX</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate shear instability interior mixing (LMD-KPP closure)</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>LMD_CONVEC</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate convection interior mixing (LMD-KPP closure)</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>LMD_DDMIX</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate double diffusion interior mixing (LMD-KPP closure)</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>LMD_NONLOCAL</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate nonlocal transport (LMD-KPP closure)</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125><A NAME="tab:cppkeysVerticalMixing"></A></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
+</TR>
+</TABLE>
+<H4><A NAME="SECTION004512010000000000000">
+2.5.0.0.9 Preselected options:&nbsp;</A>
+</H4> &nbsp;
+<BR>
+# undef BODYFORCE 
+<BR># undef BVF_MIXING 
+<BR># define LMD_MIXING 
+<BR># ifdef LMD_MIXING 
+<BR># <IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"><IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"> define LMD_SKPP 
+<BR># <IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"><IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"> define LMD_BKPP 
+<BR># <IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"><IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"> define LMD_RIMIX 
+<BR># <IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"><IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"> define LMD_CONVEC 
+<BR># <IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"><IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"> undef LMD_DDMIX 
+<BR># <IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"><IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"> undef LMD_NONLOCAL 
+<BR># endif 
+<BR>
+<P>
+
+<H2><A NAME="SECTION004513000000000000000">
+Equation of state</A>
+</H2>
+<A NAME="1905"></A>
+<TABLE CELLPADDING=3 BORDER="1">
+<CAPTION><STRONG>Table 2.14:</STRONG>
+Equation of state related CPP keys</CAPTION>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CPP KEY NAME</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Description</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>SALINITY</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Define if using salinity.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>NONLIN_EOS</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate the nonlinear equation of state.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>SPLIT_EOS</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate the split of the nonlinear equation of state in a
+adiabatic part and a compressible part for the reduction of pressure gradient errors
+(<A
+ HREF="doc.html#Shc03a">Shchepetkin and McWilliams, 2003</A>).</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125><A NAME="tab:cppkeyEqState"></A></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
+</TR>
+</TABLE>
+
+<P>
+
+<H4><A NAME="SECTION004513010000000000000">
+2.5.0.0.10 Preselected options:&nbsp;</A>
 </H4>&nbsp;
 <BR>
 # define SALINITY 
@@ -5515,54 +5953,46 @@ adiabatic part and a compressible part for the reduction of pressure gradient er
 <BR>
 <P>
 
-<H2><A NAME="SECTION004511000000000000000">
+<H2><A NAME="SECTION004514000000000000000">
 Surface Forcing</A>
 </H2>
-<A NAME="1732"></A>
+<A NAME="1916"></A>
 <TABLE CELLPADDING=3 BORDER="1">
-<CAPTION><STRONG>Table 2.12:</STRONG>
+<CAPTION><STRONG>Table 2.15:</STRONG>
 Surface forcing related CPP keys</CAPTION>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=120>CPP KEY NAME</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=380>Description</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CPP KEY NAME</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Description</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=120>QCORRECTION</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=380>Activate net heat flux correction.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>BULK_FLUX</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate the bulk parametrization.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=120>SFLX_CORR</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=380>Activate freshwater flux correction.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>BULK_EP</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate the bulk parametrization for salinity fluxes.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=120>DIURNAL_SRFLUX</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=380>Activate diurnal modulation of the short wave radiation flux.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>BULK_LW</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate online long-wave radiation calculation using model SST.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=120>BULK_FLUX</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=380>Activate the bulk parametrization.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>BULK_SMFLUX</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate the bulk parametrization for surface momentum stress.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=120>BULK_EP</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=380>Activate the bulk parametrization for salinity fluxes.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>QCORRECTION</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate net heat flux correction.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=120>LW_ONLINE</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=380>Activate online long-wave radiation calculation using model sst.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>SFLX_CORR</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate freshwater flux correction.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=120>BULK_SMFLUX</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=380>Activate the bulk parametrization for surface momentum stress and/or wind</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>DIURNAL_SRFLUX</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate diurnal modulation of the short wave radiation flux.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=120>BULK_WVEC</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=380>Compute the wind speed amplitude from the wind speed vector (uwnd and vwnd)
-read in the bulk file.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=120>BULK_WSTR</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=380>Activate the bulk parametrization for wind stress calculation. Compute
-the windstress (sustr and svstr) from the wind speed vector, mentioned above.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=120><A NAME="tab:cppkeysSurForc"></A></TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=380>&nbsp;</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125><A NAME="tab:cppkeysSurForc"></A></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 </TABLE>
 
 <P>
 
-<H4><A NAME="SECTION004511010000000000000">
-2.5.0.0.8 Preselected options:&nbsp;</A>
+<H4><A NAME="SECTION004514010000000000000">
+2.5.0.0.11 Preselected options:&nbsp;</A>
 </H4> &nbsp;
 <BR>
 # define QCORRECTION 
@@ -5572,328 +6002,125 @@ the windstress (sustr and svstr) from the wind speed vector, mentioned above.</T
 <BR># ifdef BULK_FLUX 
 <BR># <IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
+ SRC="img87.png"
  ALT="$&nbsp;$"><IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
+ SRC="img87.png"
  ALT="$&nbsp;$">define LW_ONLINE 
 <BR># <IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
+ SRC="img87.png"
  ALT="$&nbsp;$"><IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
+ SRC="img87.png"
  ALT="$&nbsp;$">define BULK_EP  
 <BR># <IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
+ SRC="img87.png"
  ALT="$&nbsp;$"><IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
+ SRC="img87.png"
  ALT="$&nbsp;$">undef BULK_SMFLUX 
 <BR># <IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
+ SRC="img87.png"
  ALT="$&nbsp;$"><IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
+ SRC="img87.png"
  ALT="$&nbsp;$">define DIURNAL_SRFLUX 
-<BR># endif 
-<BR># ifdef BULK_EP 
-<BR>#  <IMG
+<BR># else 
+<BR># <IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
+ SRC="img87.png"
  ALT="$&nbsp;$"><IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$">undef QCORRECTION 
-<BR>#  <IMG
+ SRC="img87.png"
+ ALT="$&nbsp;$">define QCORRECTION 
+<BR># <IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
+ SRC="img87.png"
  ALT="$&nbsp;$"><IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$">undef SFLX_CORR 
-<BR># endif 
-<BR># ifdef BULK_SMFLUX 
-<BR>#  <IMG
+ SRC="img87.png"
+ ALT="$&nbsp;$">define SFLX_CORR 
+<BR># <IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
+ SRC="img87.png"
  ALT="$&nbsp;$"><IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$">undef BULK_WVEC 
-<BR>#  <IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"><IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$">define BULK_WSTR 
+ SRC="img87.png"
+ ALT="$&nbsp;$">define DIURNAL_SRFLX 
 <BR># endif 
 <BR>
-<P>
-
-<H2><A NAME="SECTION004512000000000000000">
-Lateral Tracer mixing</A>
-</H2>
-
-<P>
-<A NAME="1744"></A>
-<TABLE CELLPADDING=3 BORDER="1">
-<CAPTION><STRONG>Table 2.13:</STRONG>
-Lateral Tracer mixing related CPP keys</CAPTION>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>CPP KEY NAME</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Description</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>MIX_GP_TS</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate mixing on geopotential (constant Z) surfaces.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>MIX_S_TS</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate mixing on iso-sigma level surfaces.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>MIX_EN_TS</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate mixing on isopygnal level surfaces.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>TS_DIF2</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate Laplacian horizontal mixing of tracer.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>TS_DIF4</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate Bilaplacian horizontal mixing of tracer.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>TS_SPLIT_UP3</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate the rotated split upstream advection-diffusion scheme for
-tracer equation.
-(<A
- HREF="doc.html#Marches09">Marchesiello et al , 2009</A>)</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><A NAME="tab:cppkeysLateralTracerMixing"></A></TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>&nbsp;</TD>
-</TR>
-</TABLE>
-
-<P>
-
-<H4><A NAME="SECTION004512010000000000000">
-2.5.0.0.9 Preselected options:&nbsp;</A>
-</H4> &nbsp;
-<BR>
-# define MIX_GP_TS 
-<BR># define TS_DIF2 
-<BR># undef TS_SPLIT_UP3 
-<BR>
-<P>
-
-<H2><A NAME="SECTION004513000000000000000">
-Lateral Momentum Mixing</A>
-</H2>
- <A NAME="1755"></A>
-<TABLE CELLPADDING=3 BORDER="1">
-<CAPTION><STRONG>Table 2.14:</STRONG>
-Lateral Momentum mixing related CPP keys</CAPTION>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>CPP KEY NAME</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Description</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>MIX_GP_UV</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate mixing on geopotential (constant Z) surfaces.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>MIX_S_UV</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate mixing on iso-sigma (constant sigma) surfaces.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>UV_VIS2</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate Laplacian horizontal mixing of momentum.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>UV_VIS4</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate Bilaplacian horizontal mixing of momentum.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><A NAME="tab:cppkeysLateralMomentumMixing"></A></TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>&nbsp;</TD>
-</TR>
-</TABLE>
-
-<P>
-
-<H4><A NAME="SECTION004513010000000000000">
-2.5.0.0.10 Preselected options:&nbsp;</A>
-</H4> &nbsp;
-<BR>
-# define UV_VIS2 
-<BR># define MIX_GP_UV  
-<BR># undef UV_SPLIT_UP3 
-<BR>
-<P>
-
-<H2><A NAME="SECTION004514000000000000000">
-Sponge Layer</A>
-</H2>
-
-<P>
-<A NAME="1766"></A>
-<TABLE CELLPADDING=3 BORDER="1">
-<CAPTION><STRONG>Table 2.15:</STRONG>
-Sponge layer related CPP keys</CAPTION>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>CPP KEY NAME</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Description</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>SPONGE</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate areas of enhanced viscosity/diffusion close to the 
-lateral open boundaries.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><P>
-
-<A NAME="tab:cppkeysSpongeLayer"></A></TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>&nbsp;</TD>
-</TR>
-</TABLE>
-
 <P>
 
 <H2><A NAME="SECTION004515000000000000000">
-Lateral forcing</A>
+Sponge Layer</A>
 </H2>
-
-<P>
-<A NAME="1776"></A>
+<A NAME="1927"></A>
 <TABLE CELLPADDING=3 BORDER="1">
 <CAPTION><STRONG>Table 2.16:</STRONG>
-Lateral forcing related CPP keys</CAPTION>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>CPP KEY NAME</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Description</TD>
+Sponge layer related CPP keys</CAPTION>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CPP KEY NAME</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Description</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>CLIMATOLOGY</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate processing of climatology data.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>SPONGE</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate areas of enhanced viscosity/diffusion close to the 
+lateral open boundaries.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>ZCLIMATOLOGY</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate processing of  sea surface height climatology.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>M2CLIMATOLOGY</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate processing of  barotropic velocities climatology.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>M3CLIMATOLOGY</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate processing of  baroclinic velocities climatology.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>TCLIMATOLOGY</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate processing of tracer climatology.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>FRC_BRY</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate direct boundary forcing</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>Z_FRC_BRY</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate boundary forcing for zeta.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>M2_FRC_BRY</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate boundary forcing for barotropic velocities.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>M3_FRC_BRY</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate boundary forcing for baroclinic velocities</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>T_FRC_BRY</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate boundary forcing for tracers.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><A NAME="tab:cppkeysLateralForcing"></A></TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>&nbsp;</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125><P>
+
+<A NAME="tab:cppkeysSpongeLayer"></A></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 </TABLE>
 
-<P>
-
-<H4><A NAME="SECTION004515010000000000000">
-2.5.0.0.11 Preselected options:&nbsp;</A>
-</H4> &nbsp;
-<BR>
-# define CLIMATOLOGY 
-<BR># ifdef CLIMATOLOGY 
-<BR># <IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"> define ZCLIMATOLOGY 
-<BR># <IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"> define M2CLIMATOLOGY 
-<BR># <IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"> define M3CLIMATOLOGY 
-<BR># <IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"> define TCLIMATOLOGY 
-<BR>...... 
-<BR> 
-<BR># endif 
-<BR> 
-<BR># undef FRC_BRY 
-<BR># ifdef FRC_BRY 
-<BR>#  <IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$">define Z_FRC_BRY 
-<BR>#  <IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$">define M2_FRC_BRY 
-<BR>#  <IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$">define M3_FRC_BRY 
-<BR>#  <IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$">define T_FRC_BRY 
-<BR># endif 
-<BR>
 <P>
 
 <H2><A NAME="SECTION004516000000000000000">
-Nudging</A>
+Lateral forcing</A>
 </H2>
-
-<P>
-<A NAME="1787"></A>
+<A NAME="1937"></A>
 <TABLE CELLPADDING=3 BORDER="1">
 <CAPTION><STRONG>Table 2.17:</STRONG>
-Nudging related CPP keys</CAPTION>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>CPP KEY NAME</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Description</TD>
+Lateral forcing related CPP keys</CAPTION>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CPP KEY NAME</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Description</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>ZNUDGING</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate nudging layer for zeta.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CLIMATOLOGY</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate processing of climatology data.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>M2NUDGING</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate nudging layer for barotropic velocities.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>ZCLIMATOLOGY</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate processing of  sea surface height climatology.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>M3NUDGING</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate nudging layer for baroclinic velocities.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>M2CLIMATOLOGY</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate processing of  barotropic velocities climatology.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>TNUDGING</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate nudging layer for tracer.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>M3CLIMATOLOGY</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate processing of  baroclinic velocities climatology.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>ROBUST_DIAG</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate strong tracer nudging in the interior for diagnostic simulations.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>TCLIMATOLOGY</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate processing of tracer climatology.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><A NAME="tab:cppkeysNudging"></A></TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>&nbsp;</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>FRC_BRY</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate direct boundary forcing</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>Z_FRC_BRY</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate boundary forcing for zeta.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>M2_FRC_BRY</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate boundary forcing for barotropic velocities.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>M3_FRC_BRY</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate boundary forcing for baroclinic velocities</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>T_FRC_BRY</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate boundary forcing for tracers.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125><A NAME="tab:cppkeysLateralForcing"></A></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 </TABLE>
-
-<P>
-The nudging layer has the same location than sponge layer. In the sponge/nudging
-layer, the signal, tracers and momentum, is nudged towards climatology using a
-nudging coefficient <IMG
- WIDTH="32" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
- SRC="img86.png"
- ALT="$\tau_{out}$"> expressed in <IMG
- WIDTH="35" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
- SRC="img87.png"
- ALT="$s{-1}$">, equal to the inverse of the
-coefficient <!-- MATH
- $TauM_{out}/TauT_{in}$
- -->
-<IMG
- WIDTH="137" HEIGHT="36" ALIGN="MIDDLE" BORDER="0"
- SRC="img88.png"
- ALT="$TauM_{out}/TauT_{in}$"> in the namelist roms.in
 
 <P>
 
@@ -5903,42 +6130,46 @@ coefficient <!-- MATH
 <BR>
 # define CLIMATOLOGY 
 <BR># ifdef CLIMATOLOGY 
-<BR>..... 
+<BR># <IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"> define ZCLIMATOLOGY 
+<BR># <IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"> define M2CLIMATOLOGY 
+<BR># <IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"> define M3CLIMATOLOGY 
+<BR># <IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"> define TCLIMATOLOGY 
+<BR># <IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"> ... 
+<BR># endif 
+<BR> 
+<BR># undef FRC_BRY 
+<BR># ifdef FRC_BRY 
 <BR>#  <IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"><IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$">define ZNUDGING 
+ SRC="img87.png"
+ ALT="$&nbsp;$">define Z_FRC_BRY 
 <BR>#  <IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"><IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$">define M2NUDGING 
+ SRC="img87.png"
+ ALT="$&nbsp;$">define M2_FRC_BRY 
 <BR>#  <IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"><IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$">define M3NUDGING 
+ SRC="img87.png"
+ ALT="$&nbsp;$">define M3_FRC_BRY 
 <BR>#  <IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"><IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$">define TNUDGING 
-<BR>#  <IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"><IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$">undef ROBUST_DIAG 
+ SRC="img87.png"
+ ALT="$&nbsp;$">define T_FRC_BRY 
 <BR># endif 
 <BR>
 <P>
@@ -5946,21 +6177,21 @@ coefficient <!-- MATH
 <H2><A NAME="SECTION004517000000000000000">
 Bottom forcing</A>
 </H2>
-<A NAME="1802"></A>
+<A NAME="1948"></A>
 <TABLE CELLPADDING=3 BORDER="1">
 <CAPTION><STRONG>Table 2.18:</STRONG>
 Bottom forcing related CPP keys</CAPTION>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>CPP KEY NAME</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Description</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CPP KEY NAME</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Description</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>ANA_BSFLUX</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Define if using analytical bottom salinity flux</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>ANA_BSFLUX</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Define if using analytical bottom salinity flux</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>ANA_BTFLUX</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Define if using analytical bottom temperature flux.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>ANA_BTFLUX</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Define if using analytical bottom temperature flux.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><A NAME="tab:cppkeysBottomForcing"></A></TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>&nbsp;</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125><A NAME="tab:cppkeysBottomForcing"></A></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 </TABLE>
 
@@ -5980,24 +6211,24 @@ Point Sources - Rivers</A>
 </H2>
 
 <P>
-<A NAME="1813"></A>
+<A NAME="1959"></A>
 <TABLE CELLPADDING=3 BORDER="1">
 <CAPTION><STRONG>Table 2.19:</STRONG>
 Point Sources and Rivers related CPP keys</CAPTION>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>CPP KEY NAME</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Description</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CPP KEY NAME</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Description</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>PSOURCES</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Define if using point sources (rivers)</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>PSOURCES</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Define if using point sources (rivers)</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>ANA_PSOURCES</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Define if using analytical vertical profiles for the point sources
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>ANA_PSOURCES</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Define if using analytical vertical profiles for the point sources
 (using fluxes defined in roms.in)</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><P>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125><P>
 
 <A NAME="tab:cppkeysRivers"></A></TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 </TABLE>
 
@@ -6013,46 +6244,51 @@ Point Sources and Rivers related CPP keys</CAPTION>
 <P>
 
 <H2><A NAME="SECTION004519000000000000000">
-Vertical Mixing</A>
+Open Boundary Conditions  II </A>
 </H2>
-
-<P>
-<A NAME="1824"></A>
+<A NAME="1970"></A>
 <TABLE CELLPADDING=3 BORDER="1">
 <CAPTION><STRONG>Table 2.20:</STRONG>
-Vertical mixing related CPP keys</CAPTION>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>CPP KEY NAME</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Description</TD>
+Open Boundary Condition related CPP keys</CAPTION>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CPP KEY NAME</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Description</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>BODYFORCE</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Define if applying surface and bottom stresses as bodyforces</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>OBC_VOLCONS</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate mass conservation enforcement at open boundaries.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>BVF_MIXING</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate a simple mixing scheme based on the Brunt-V&#228;is&#228;l&#228; frequency</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>OBC_M2SPECIFIED</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate specified open boundary conditions for ubar and vbar.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>LMD_MIXING</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate Large/McWilliams/Doney mixing (LMD-KPP closure)</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>OBC_M2ORLANSKI</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate 2D radiation open boundary conditions for ubar and vbar.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>LMD_SKPP</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate surface boundary layer KPP mixing (LMD-KPP closure)</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>OBC_M2FLATHER</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate Flather open boundary conditions for ubar and vbar.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>LMD_BKPP</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate bottom boundary layer KPP mixing (LMD-KPP closure)</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>OBC_M2CHARACT</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate open boundary conditions based on characteristic methods.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>LMD_RIMIX</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate shear instability interior mixing (LMD-KPP closure)</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>OBC_M3SPECIFIED</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate specified open boundary conditions for u and v.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>LMD_CONVEC</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate convection interior mixing (LMD-KPP closure)</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>OBC_M3ORLANSKI</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate 2D radiation open boundary conditions for u and v.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>LMD_DDMIX</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate double diffusion interior mixing (LMD-KPP closure)</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>OBC_M3CHARACT</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate open boundary conditions based on characteristic methods 
+for u and v.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100>LMD_NONLOCAL</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>Activate nonlocal transport (LMD-KPP closure)</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>OBC_TSPECIFIED</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate specified open boundary conditions for tracers.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=100><A NAME="tab:cppkeysVerticalMixing"></A></TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=400>&nbsp;</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>OBC_TORLANSKI</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate 2D radiation open boundary conditions for tracers.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>OBC_TUPWIND</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate upwind open boundary conditions for tracers.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125><A NAME="tab:cppkeysOBC"></A></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 </TABLE>
 
@@ -6062,103 +6298,82 @@ Vertical mixing related CPP keys</CAPTION>
 2.5.0.0.15 Preselected options:&nbsp;</A>
 </H4> &nbsp;
 <BR>
-# undef BODYFORCE 
-<BR># undef BVF_MIXING 
-<BR># define LMD_MIXING 
-<BR># ifdef LMD_MIXING 
-<BR># <IMG
+# ifdef TIDES 
+<BR>#<IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
+ SRC="img87.png"
+ ALT="$&nbsp;$"> define OBC_M2FLATHER 
+<BR># else 
+<BR>#<IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"> undef OBC_M2SPECIFIED 
+<BR>#<IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"> undef OBC_M2FLATHER 
+<BR>#<IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"> define OBC_M2CHARACT 
+<BR>#<IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"> undef OBC_M2ORLANSKI
+<BR>#<IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
+ ALT="$&nbsp;$"> ifdef OBC_M2ORLANSKI 
+<BR>#<IMG
+ WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img87.png"
  ALT="$&nbsp;$"><IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"> define LMD_SKPP 
-<BR># <IMG
+ SRC="img87.png"
+ ALT="$&nbsp;$"> define OBC_VOLCONS 
+<BR>#<IMG
  WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"><IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"> define LMD_BKPP 
-<BR># <IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"><IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"> define LMD_RIMIX 
-<BR># <IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"><IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"> define LMD_CONVEC 
-<BR># <IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"><IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"> undef LMD_DDMIX 
-<BR># <IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"><IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"> undef LMD_NONLOCAL 
+ SRC="img87.png"
+ ALT="$&nbsp;$"> endif 
 <BR># endif 
-<BR><BR>
+<BR># define OBC_M3ORLANSKI 
+<BR># define OBC_TORLANSKI 
+<BR># undef OBC_M3SPECIFIED 
+<BR># undef OBC_TSPECIFIED 
 <BR>
-
 <P>
 
 <H2><A NAME="SECTION004520000000000000000">
-Open Boundary Conditions  II </A>
+Input - Output and Diagnostics</A>
 </H2>
-<A NAME="1836"></A>
+<A NAME="1981"></A>
 <TABLE CELLPADDING=3 BORDER="1">
 <CAPTION><STRONG>Table 2.21:</STRONG>
-Open Boundary Condition related CPP keys</CAPTION>
+I/O related CPP keys</CAPTION>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>CPP KEY NAME</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=350>Description</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>OBC_VOLCONS</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=350>Activate mass conservation enforcement at open boundaries.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>AVERAGES</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=350>Define if writing out time-averaged data.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>OBC_M2SPECIFIED</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=350>Activate specified open boundary conditions for ubar and vbar.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>AVERAGES_K</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=350>Define if writing out time-averaged vertical mixing.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>OBC_M2ORLANSKI</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=350>Activate 2D radiation open boundary conditions for ubar and vbar.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>DIAGNOSTICS_TS</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=350>Define if writing out tendency terms for the tracer equations.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>OBC_M2FLATHER</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=350>Activate Flather open boundary conditions for ubar and vbar.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>DIAGNOSTICS_TS_ADV</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=350>Activate advection formulation for tendency term for the
+tracer equations.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>OBC_M2CHARACT</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=350>Activate open boundary conditions based on characteristic methods.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>DIAGNOSTICS_TS_MLD</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=350>Activate integration over the mixed-layer (MLD) for the
+tendency term for the tracer equation.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>OBC_M3SPECIFIED</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=350>Activate specified open boundary conditions for u and v.</TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>DIAGNOSTICS_UV</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=350>Define if writing out tendency terms for the momentum equations.</TD>
 </TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>OBC_M3ORLANSKI</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=350>Activate 2D radiation open boundary conditions for u and v.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>OBC_M3CHARACT</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=350>Activate open boundary conditions based on characteristic methods 
-for u and v.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>OBC_TSPECIFIED</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=350>Activate specified open boundary conditions for tracers.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>OBC_TORLANSKI</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=350>Activate 2D radiation open boundary conditions for tracers.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150>OBC_TUPWIND</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=350>Activate upwind open boundary conditions for tracers.</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150><A NAME="tab:cppkeysOBC"></A></TD>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=150><A NAME="tab:cppkeysIODiag"></A></TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=350>&nbsp;</TD>
 </TR>
 </TABLE>
@@ -6167,54 +6382,77 @@ for u and v.</TD>
 
 <H4><A NAME="SECTION004520010000000000000">
 2.5.0.0.16 Preselected options:&nbsp;</A>
-</H4> &nbsp;
+</H4>&nbsp;
 <BR>
-# ifdef TIDES 
-<BR>#<IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"> define OBC_M2FLATHER 
-<BR># else 
-<BR>#<IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"> undef OBC_M2SPECIFIED 
-<BR>#<IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"> undef OBC_M2FLATHER 
-<BR>#<IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"> define OBC_M2CHARACT 
-<BR>#<IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"> undef OBC_M2ORLANSKI
-<BR>#<IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"> ifdef OBC_M2ORLANSKI 
-<BR>#<IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"><IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"> define OBC_VOLCONS 
-<BR>#<IMG
- WIDTH="10" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img85.png"
- ALT="$&nbsp;$"> endif 
+# define AVERAGES 
+<BR># define AVERAGES_K 
+<BR># undef DIAGNOSTICS_TS 
+<BR># undef DIAGNOSTICS_UV 
+<BR># ifdef DIAGNOSTICS_TS 
+<BR># <IMG
+ WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img74.png"
+ ALT="$&nbsp;&nbsp;$">undef DIAGNOSTICS_TS_ADV 
+<BR># <IMG
+ WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img74.png"
+ ALT="$&nbsp;&nbsp;$">undef DIAGNOSTICS_TS_MLD 
 <BR># endif 
-<BR># define OBC_M3ORLANSKI 
-<BR># define OBC_TORLANSKI 
-<BR># undef OBC_M3SPECIFIED 
-<BR># undef OBC_TSPECIFIED 
+<BR>
+<P>
+
+<H2><A NAME="SECTION004521000000000000000">
+Biology models</A>
+</H2>
+<A NAME="1992"></A>
+<TABLE CELLPADDING=3 BORDER="1">
+<CAPTION><STRONG>Table 2.22:</STRONG>
+Biology model  related CPP keys</CAPTION>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>CPP KEY NAME</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Description</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>PISCES</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate PISCES biogeochemical model</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>BIO_NChlPZD</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate idealized 4 compartiments NPZD type model</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>BIO_N2PZD2</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate idealized 6 compartiments NPZD type model</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>BIO_N2ChlP2Z2D2</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Activate idealized 8 compartiments NPZD type model</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125><A NAME="tab:cppkeysbiomodel"></A></TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
+</TR>
+</TABLE>
+<H4><A NAME="SECTION004521010000000000000">
+2.5.0.0.17 Preselected options:&nbsp;</A>
+</H4>&nbsp;
+<BR>
+# ifdef BIOLOGY 
+<BR># <IMG
+ WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img74.png"
+ ALT="$&nbsp;&nbsp;$"> undef PISCES 
+<BR># <IMG
+ WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img74.png"
+ ALT="$&nbsp;&nbsp;$"> define BIO_NChlPZD 
+<BR># <IMG
+ WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img74.png"
+ ALT="$&nbsp;&nbsp;$"> undef BIO_N2P2Z2D2 
+<BR># <IMG
+ WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img74.png"
+ ALT="$&nbsp;&nbsp;$"> undef BIO_N2ChlPZD2 
+<BR># endif 
 <BR>
 
 <H1><A NAME="SECTION00460000000000000000"></A><A NAME="namelistdesc"></A><BR>
-2.6 Namelist description : <I>roms.in</I>
+2.6 Namelist description : roms.in
 </H1>
 
 <P>
@@ -6227,27 +6465,27 @@ for u and v.</TD>
 <BR><B>time_stepping</B>: NTIMES   dt[sec]  NDTFAST  NINFO 
 <BR><IMG
  WIDTH="31" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img89.png"
+ SRC="img91.png"
  ALT="$720$"> <IMG
  WIDTH="39" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img90.png"
+ SRC="img92.png"
  ALT="$3600$"> <IMG
  WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img91.png"
+ SRC="img93.png"
  ALT="$60$"> <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img92.png"
+ SRC="img94.png"
  ALT="$1$"> 
 <BR><B>S-coord</B>: THETA_S,   THETA_B,    Hc (m) 
 <BR><IMG
  WIDTH="45" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img93.png"
+ SRC="img95.png"
  ALT="$7.0d0$"> <IMG
  WIDTH="44" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img94.png"
+ SRC="img96.png"
  ALT="$0.0d0$"> <IMG
  WIDTH="45" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img95.png"
+ SRC="img97.png"
  ALT="$5.0d0$"> 
 <BR><B>grid</B>:  filename 
 <BR>roms_grd.nc 
@@ -6256,412 +6494,290 @@ for u and v.</TD>
 <BR><B>bulk_forcing</B>: filename 
 <BR>roms_bulk.nc 
 <BR><B>climatology</B>: filename 
-<BR>roms_clm.nc
+<BR>roms_clm.nc 
 <BR><B>boundary</B>: filename 
 <BR>roms_bry.nc 
 <BR><B>initial</B>: NRREC  filename 
 <BR><IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img92.png"
+ SRC="img94.png"
  ALT="$1$"> 
 <BR>roms_ini.nc 
 <BR><B>restart</B>:          NRST, NRPFRST / filename 
 <BR><IMG
  WIDTH="31" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img89.png"
+ SRC="img91.png"
  ALT="$720$"> <IMG
  WIDTH="27" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
- SRC="img96.png"
+ SRC="img98.png"
  ALT="$-1$"> 
 <BR>roms_rst.nc 
 <BR><B>history</B>: LDEFHIS, NWRT, NRPFHIS / filename  
 <BR><IMG
  WIDTH="17" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img97.png"
+ SRC="img99.png"
  ALT="$T$"> <IMG
  WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img98.png"
+ SRC="img100.png"
  ALT="$72$"> <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img99.png"
+ SRC="img101.png"
  ALT="$0$"> 
 <BR>roms_his.nc 
 <BR><B>averages</B>: NTSAVG, NAVG, NRPFAVG / filename 
 <BR><IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img92.png"
+ SRC="img94.png"
  ALT="$1$"> <IMG
  WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img98.png"
+ SRC="img100.png"
  ALT="$72$"> <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img99.png"
+ SRC="img101.png"
  ALT="$0$"> 
 <BR>roms_avg.nc 
 <BR><B>primary_history_fields</B>: zeta UBAR VBAR  U  V   wrtT(1:NT) 
 <BR>T    T   T   T  T    <IMG
  WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img100.png"
+ SRC="img102.png"
  ALT="$30$">*T 
-<BR><B>auxiliary_history_fields</B>:   rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr UWstr VWstr rsw rlw lat sen HEL 
+<BR><B>auxiliary_history_fields</B>:   rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Ustr Vstr rsw rlw lat sen HEL 
 <BR>F   F     T   F    T    F    T   T    T     T    T    T <IMG
  WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img101.png"
+ SRC="img103.png"
  ALT="$10$">*F 
 <BR><B>primary_averages</B>: zeta UBAR VBAR  U  V   wrtT(1:NT) 
 <BR>T    T    T    T  T   <IMG
  WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img100.png"
+ SRC="img102.png"
  ALT="$30$">*T      
-<BR><B>auxiliary_averages</B>: rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Wstr UWst  rsw rlw lat sen HEL 
+<BR><B>auxiliary_averages</B>: rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Ustr Vst  rsw rlw lat sen HEL 
 <BR>F   T     T   F    T    F    T   T    T     T   T    T     <IMG
  WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img101.png"
+ SRC="img103.png"
  ALT="$10$">*F
 <BR><B>rho0</B>: 
 <BR><IMG
  WIDTH="62" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img102.png"
+ SRC="img104.png"
  ALT="$1025.d0$"> 
 <BR><B>lateral_visc</B>:   VISC2,    VISC4    [<IMG
  WIDTH="27" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
- SRC="img103.png"
+ SRC="img105.png"
  ALT="$m^{2}$">/sec for all] 
 <BR><IMG
  WIDTH="18" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img104.png"
+ SRC="img106.png"
  ALT="$0.$"> <IMG
  WIDTH="18" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img104.png"
+ SRC="img106.png"
  ALT="$0.$">
 <BR><B>tracer_diff2</B>: TNU2(1:NT)           [<IMG
  WIDTH="27" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
- SRC="img105.png"
+ SRC="img107.png"
  ALT="$m^2$">/sec for all] 
 <BR><IMG
  WIDTH="69" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img106.png"
+ SRC="img108.png"
  ALT="$30*0.d0$"> 
 <BR><B>tracer_diff4</B>: TNU4(1:NT)           [<IMG
  WIDTH="27" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
- SRC="img107.png"
+ SRC="img109.png"
  ALT="$m^4$">/sec for all] 
 <BR><IMG
  WIDTH="78" HEIGHT="15" ALIGN="BOTTOM" BORDER="0"
- SRC="img108.png"
+ SRC="img110.png"
  ALT="$30*0.d11$"> 
 <BR><B>vertical_mixing</B>: Akv_bak, Akt_bak [<IMG
  WIDTH="27" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
- SRC="img105.png"
+ SRC="img107.png"
  ALT="$m^2$">/sec] 
 <BR><IMG
  WIDTH="18" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img104.png"
+ SRC="img106.png"
  ALT="$0.$">d<IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img99.png"
+ SRC="img101.png"
  ALT="$0$"> <IMG
  WIDTH="52" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img109.png"
+ SRC="img111.png"
  ALT="$30*0.$">d<IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img99.png"
+ SRC="img101.png"
  ALT="$0$"> 
 <BR><B>bottom_drag</B>:     RDRG [m/s],  RDRG2,  Zob [m],  Cdb_min, Cdb_max 
 <BR><IMG
  WIDTH="27" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img110.png"
+ SRC="img112.png"
  ALT="$3.0$">d<IMG
  WIDTH="35" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
- SRC="img111.png"
+ SRC="img113.png"
  ALT="$-04$"> <IMG
  WIDTH="18" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img104.png"
+ SRC="img106.png"
  ALT="$0.$">d<IMG
  WIDTH="27" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
- SRC="img112.png"
+ SRC="img114.png"
  ALT="$-3$"> <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img99.png"
+ SRC="img101.png"
  ALT="$0$">.d<IMG
  WIDTH="27" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
- SRC="img112.png"
+ SRC="img114.png"
  ALT="$-3$"> <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img92.png"
+ SRC="img94.png"
  ALT="$1$">.d<IMG
  WIDTH="27" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
- SRC="img113.png"
+ SRC="img115.png"
  ALT="$-4$"> <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img92.png"
+ SRC="img94.png"
  ALT="$1$">.d<IMG
  WIDTH="27" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
- SRC="img96.png"
+ SRC="img98.png"
  ALT="$-1$">
 
 <BR><B>gamma2</B>: 
 <BR><IMG
  WIDTH="18" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img114.png"
+ SRC="img116.png"
  ALT="$1.$">d<IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img99.png"
+ SRC="img101.png"
  ALT="$0$"> 
 <BR><B>sponge</B>:          X_SPONGE [m],    V_SPONGE [<IMG
  WIDTH="27" HEIGHT="21" ALIGN="BOTTOM" BORDER="0"
- SRC="img105.png"
+ SRC="img107.png"
  ALT="$m^2$"> / sec] 
 <BR><IMG
  WIDTH="52" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img115.png"
+ SRC="img117.png"
  ALT="$150.e3$"> <IMG
  WIDTH="35" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img116.png"
+ SRC="img118.png"
  ALT="$100.$"> 
 <BR><B>nudg_cof</B>:    TauT_in, TauT_out, TauM_in, TauM_out  [days for all]
 <BR><IMG
  WIDTH="18" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img114.png"
+ SRC="img116.png"
  ALT="$1.$"> <IMG
  WIDTH="35" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img117.png"
+ SRC="img119.png"
  ALT="$360.$"> <IMG
  WIDTH="18" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img118.png"
+ SRC="img120.png"
  ALT="$3.$"> <IMG
  WIDTH="35" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img117.png"
+ SRC="img119.png"
  ALT="$360.$"> 
 <BR><B>diagnostics</B>:   ldefdia   nwrtdia    nrpfdia /filename 
 <BR>T        <IMG
  WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img98.png"
+ SRC="img100.png"
  ALT="$72$"> <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img99.png"
+ SRC="img101.png"
  ALT="$0$"> 
 <BR>roms_dia.nc 
-<BR><B>diagnostics_history_fields <A NAME="tex2html37"
-  HREF="#foot2376"><SUP>2.4</SUP></A></B>:
-TXadv(1:NT !!EXACT!!) TYadv TVadv THmix TVmix ... Tforc Trate TXadvml TYadvml TVadvml
-THmixml TVmixml Tforcml Tentml
-Trateml 
-<BR>T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T  <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T  <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$">
- T T  <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T  <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T  <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T  <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$">
- <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> 
 <BR><B>diag_avg</B>: ldefdia_avg  ntsdia_avg  nwrtdia_avg  nprfdia_avg /filename 
 <BR>               T          <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img92.png"
+ SRC="img94.png"
  ALT="$1$"> <IMG
  WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img98.png"
+ SRC="img100.png"
  ALT="$72$"> 0 
 <BR>                                 roms_dia_avg.nc 
-<BR><B>diagnostics_average_fields</B>:   TXadv(1:NT !!EXACT!!) TYadv  TVadv  THmix 
-TVmix ... Tforc  Trate  TXadvml  TYadvml   TVadvml  THmixml TVmixml Tforcml Tentml
-Trateml 
-<BR>T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T  <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T  <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$">
- T T  <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T  <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T  <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T  <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$">
- <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T <IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> 
+<BR><B>diag<IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img121.png"
+ ALT="$3$">D_history_fields</B>: diag_tracers<IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img121.png"
+ ALT="$3$">D(1:NT) 
+<BR>                                  <IMG
+ WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img102.png"
+ ALT="$30$">*T               
+<BR><B>diag<IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img50.png"
+ ALT="$2$">D_history_fields</B>: diag_tracers<IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img50.png"
+ ALT="$2$">D(1:NT) 
+<BR>                                  <IMG
+ WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img102.png"
+ ALT="$30$">*T               
+<BR><B>diag<IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img121.png"
+ ALT="$3$">D_average_fields</B>: diag_tracers<IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img121.png"
+ ALT="$3$">D_avg(1:NT) 
+<BR>                                  <IMG
+ WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img102.png"
+ ALT="$30$">*T                   
+<BR><B>diag<IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img50.png"
+ ALT="$2$">D_average_fields</B>: diag_tracers<IMG
+ WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img50.png"
+ ALT="$2$">D_avg(1:NT) 
+<BR>                                  <IMG
+ WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
+ SRC="img102.png"
+ ALT="$30$">*T                   
 <BR><B>diagnosticsM</B>:   ldefdiaM   nwrtdiaM    nrpfdiaM /filename 
 <BR>                   T          <IMG
  WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img98.png"
+ SRC="img100.png"
  ALT="$72$"> <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img99.png"
+ SRC="img101.png"
  ALT="$0$"> 
 <BR>                                 roms_diaM.nc 
-<BR><B>diagnosticsM_history_fields <A NAME="tex2html38"
-  HREF="#foot2380"><SUP>2.5</SUP></A></B>:   MXadv MYadv MVadv MCor MPrsgrd MHmix MVmix MRate 
-<BR>T T<IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T<IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T<IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T<IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T<IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T<IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T<IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T<IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> 
 <BR><B>diagM_avg</B>: ldefdiaM_avg  ntsdiaM_avg  nwrtdiaM_avg  nprfdiaM_avg /filename 
 <BR>               T          <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img92.png"
+ SRC="img94.png"
  ALT="$1$"> <IMG
  WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img98.png"
+ SRC="img100.png"
  ALT="$72$"> <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img99.png"
+ SRC="img101.png"
  ALT="$0$"> 
 <BR>                                 roms_diaM_avg.nc 
-<BR><B>diagnosticsM_average_fields</B>:   MXadv MYadv MVadv MCor MPrsgrd MHmix MVmix
-MRate 
-<BR>T T<IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T<IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T<IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T<IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T<IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T<IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T<IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> T T<IMG
- WIDTH="16" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
- SRC="img72.png"
- ALT="$&nbsp;&nbsp;$"> 
+<BR><B>diagM_history_fields</B>: diagM_momentum(1:2) 
+<BR>                                  T T               
+<BR><B>diagM_average_fields</B>: diagM_momentum_avg(1:2) 
+<BR>                                  T T               
 <BR><B>diagnostics_bio</B>:   ldefdiabio   nwrtdiabio    nrpfdiabio /filename 
 <BR>                        T          <IMG
  WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img98.png"
+ SRC="img100.png"
  ALT="$72$"> <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img99.png"
+ SRC="img101.png"
  ALT="$0$"> 
 <BR>                                 roms_diabio.nc 
 <BR><B>diagbio_avg</B>: ldefdiabio_avg  ntsdiabio_avg  nwrtdiabio_avg  nprfdiabio_avg
 /filename 
 <BR>                  T              <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img92.png"
+ SRC="img94.png"
  ALT="$1$"> <IMG
  WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img98.png"
+ SRC="img100.png"
  ALT="$72$"> <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img99.png"
+ SRC="img101.png"
  ALT="$0$"> 
 <BR>                                 roms_diabio_avg.nc 
 <BR><B>biology</B>:   forcing file 
@@ -6675,10 +6791,10 @@ MRate
 <BR><B>floats</B>: LDEFFLT, NFLT, NRPFFLT / inpname, hisname 
 <BR>           T       <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img121.png"
+ SRC="img122.png"
  ALT="$6$"> <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img99.png"
+ SRC="img101.png"
  ALT="$0$"> 
 <BR>                                   floats.in 
 <BR>                                   floats.nc 
@@ -6687,10 +6803,10 @@ MRate
 <BR><B>stations</B>: LDEFSTA, NSTA, NRPFSTA / inpname, hisname 
 <BR>             T      <IMG
  WIDTH="30" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img122.png"
+ SRC="img123.png"
  ALT="$400$"> <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img99.png"
+ SRC="img101.png"
  ALT="$0$"> 
 <BR>                                    stations.in 
 <BR>                                    stations.nc 
@@ -6699,17 +6815,17 @@ MRate
 <BR><B>psource</B>:   Nsrc  Isrc  Jsrc  Dsrc  Qbar [m3/s]    Lsrc        Tsrc 
 <BR>            <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img49.png"
+ SRC="img50.png"
  ALT="$2$"> 
 <BR>            <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img123.png"
+ SRC="img121.png"
  ALT="$3$"> <IMG
  WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
  SRC="img124.png"
  ALT="$54$"> <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img92.png"
+ SRC="img94.png"
  ALT="$1$"> <IMG
  WIDTH="35" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
  SRC="img125.png"
@@ -6719,7 +6835,7 @@ MRate
  ALT="$5. 0.$"> 
 <BR>            <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img123.png"
+ SRC="img121.png"
  ALT="$3$"> <IMG
  WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
  SRC="img127.png"
@@ -6736,9 +6852,9 @@ MRate
 <H2><A NAME="SECTION00462000000000000000">
 2.6.2 Description</A>
 </H2>
-<A NAME="2456"></A>
+<A NAME="2634"></A>
 <TABLE CELLPADDING=3 BORDER="1">
-<CAPTION><STRONG>Table 2.22:</STRONG>
+<CAPTION><STRONG>Table 2.23:</STRONG>
 Description of the roms.in file</CAPTION>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>K<SMALL>EYWORDS</SMALL></TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>D<SMALL>ESCRIPTIONS</SMALL></TD>
@@ -6774,7 +6890,7 @@ Description of the roms.in file</CAPTION>
  ALT="$s$">-coordinate surface control parameter,
 <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img99.png"
+ SRC="img101.png"
  ALT="$0$"> <IMG
  WIDTH="18" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
  SRC="img129.png"
@@ -6793,7 +6909,7 @@ Description of the roms.in file</CAPTION>
  ALT="$s$">-coordinate bottom control parameter,
 <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img99.png"
+ SRC="img101.png"
  ALT="$0$"> <IMG
  WIDTH="18" HEIGHT="31" ALIGN="MIDDLE" BORDER="0"
  SRC="img129.png"
@@ -6802,7 +6918,7 @@ Description of the roms.in file</CAPTION>
  SRC="img129.png"
  ALT="$&lt;$"> <IMG
  WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img92.png"
+ SRC="img94.png"
  ALT="$1$"></TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
@@ -6950,7 +7066,7 @@ every NAVG time steps</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Flags of written primary variables in history netCDF file</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Flags of written primary variables in history NetCDF file</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
@@ -6959,7 +7075,7 @@ every NAVG time steps</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Flags of written auxiliary variables in history netCDF file</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Flags of written auxiliary variables in history NetCDF file</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
@@ -6968,7 +7084,7 @@ every NAVG time steps</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Flags of written primary variables in history netCDF file</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Flags of written primary variables in history NetCDF file</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
@@ -6977,7 +7093,7 @@ every NAVG time steps</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Flags of written variables in average netCDF file</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Flags of written variables in average NetCDF file</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
@@ -7129,15 +7245,6 @@ every nwrtdia time steps</TD>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>/filename: Name of the file tracer equation diagnostic file.</TD>
 </TR>
-<TR><TH ALIGN="LEFT" VALIGN="TOP" WIDTH=125><FONT SIZE="+1"><B>diagnostics_history _fields</B> </FONT></TH>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Flags of written tracer equation term in history netCDF file</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
-</TR>
 <TR><TH ALIGN="LEFT" VALIGN="TOP" WIDTH=125><FONT SIZE="+1"><B>diag_avg</B> </FONT></TH>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
@@ -7161,11 +7268,44 @@ every nwrtdia_avg time steps</TD>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
-<TR><TH ALIGN="LEFT" VALIGN="TOP" WIDTH=125><FONT SIZE="+1"><B>diagnostics_average _fields</B> </FONT></TH>
+<TR><TH ALIGN="LEFT" VALIGN="TOP" WIDTH=125><FONT SIZE="+1"><B>diag3D_history _fields</B> </FONT></TH>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Flags of written tracer equation term in average netCDF file</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Boolean  flag to choose which tracer equation (temp, salt, etc ...) is computed in
+diagnostics and saved in NetCDF file. Terms are 3D</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
+</TR>
+<TR><TH ALIGN="LEFT" VALIGN="TOP" WIDTH=125><FONT SIZE="+1"><B>diag2D_history _fields</B> </FONT></TH>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Boolean flags to choose which tracer equation, after mixed layer depth integration (cf
+DIAGNOSTICS_TS_MLD) is computed in diagnostics and saved in NetCDF file. Terms are 2D</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
+</TR>
+<TR><TH ALIGN="LEFT" VALIGN="TOP" WIDTH=125><FONT SIZE="+1"><B>diag3D_average _fields</B> </FONT></TH>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Boolean  flag to choose which tracer equation (temp, salt, etc ...) is computed in
+diagnostics and saved in NetCDF file. Terms are 3D and are averaged over the diagnostic TS
+period defined as above, as nwrtdia</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
+</TR>
+<TR><TH ALIGN="LEFT" VALIGN="TOP" WIDTH=125><FONT SIZE="+1"><B>diag2D_average _fields</B> </FONT></TH>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Boolean flags to choose which tracer equation, after mixed layer depth integration (cf
+DIAGNOSTICS_TS_MLD) is computed in diagnostics and saved in NetCDF file. Terms are 2D
+and are averaged over the diagnostic period defined as above, as nwrtdia</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
@@ -7184,15 +7324,6 @@ every nwrtdia_avg time steps</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>/filename:</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
-</TR>
-<TR><TH ALIGN="LEFT" VALIGN="TOP" WIDTH=125><FONT SIZE="+1"><B>diagnosticsM _history_fields</B> </FONT></TH>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
-</TR>
-<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Flags of written momentum equations terms in history netCDF file</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
@@ -7218,11 +7349,23 @@ every nwrtdia_avg time steps</TD>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
-<TR><TH ALIGN="LEFT" VALIGN="TOP" WIDTH=125><FONT SIZE="+1"><B>diagnosticsM _average_fields</B> </FONT></TH>
+<TR><TH ALIGN="LEFT" VALIGN="TOP" WIDTH=125><FONT SIZE="+1"><B>diagM_history _fields</B> </FONT></TH>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
-<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Flags of written momentum equations terms in average netCDF file</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Boolean  flag to choose which momentum equations are diagnosed and saved in NetCDF
+file. The diagnostics terms are 3D.</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
+</TR>
+<TR><TH ALIGN="LEFT" VALIGN="TOP" WIDTH=125><FONT SIZE="+1"><B>diagM_average _fields</B> </FONT></TH>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
+</TR>
+<TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
+<TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>Boolean flag to choose which momentum equation are diagnosed and saved in NetCDF
+file. The diagnostics terms are 3D and are averaged over the diagnostic
+period defined above, as nwrtdiaM_avg.</TD>
 </TR>
 <TR><TD ALIGN="LEFT" VALIGN="TOP" WIDTH=125>&nbsp;</TD>
 <TD ALIGN="LEFT" VALIGN="TOP" WIDTH=375>&nbsp;</TD>
@@ -7411,6 +7554,14 @@ mode.</TD>
 </H2>
 
 <DL COMPACT>
+<DT><A NAME="AumontNoticePisces05">
+Aumont, O.
+2005.
+PISCES biogeochemical model description.
+Internal report, 36 pages
+<BR>
+<P></A>
+<DD> 
 <DT><A NAME="Bec93">
 Beckmann, A., Haidvogel, D.B.,
 1993.
@@ -7442,36 +7593,6 @@ Adaptive mesh refinement for finite-difference
 ocean models: First experiments.
 Journal of Physical Oceanography
 29, 1239-1250.
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Deb08">
-Debreu, L., Blayo, E.,
-2008.
-Special Issue on Multi-Scale Modelling:
-Nested Grid and Unstructured Mesh Approaches.
-Ocean Dynamics
-58, 415-428.
-doi 10.1007/s10236-008-0150-9
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="Marches09">
-Marchesiello, P., Debreu, L., Couvelard, X.
-2009.
-Spurious diapycnal mixing in terrain-following coordinate models: The problem
-and a solution.
-Ocean Modelling
-26,
-156-169
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="AumontNoticePisces05">
-Aumont, O.
-2005.
-PISCES biogeochemical model description.
-Internal report, 36 pages
 <BR>
 <P></A>
 <DD> 
@@ -7547,6 +7668,26 @@ AGRIF: Adaptive Grid Refinement In Fortran.
 <BR>
 <P></A>
 <DD> 
+<DT><A NAME="Deb08">
+Debreu, L., Blayo, E.,
+2008.
+Special Issue on Multi-Scale Modelling:
+Nested Grid and Unstructured Mesh Approaches.
+Ocean Dynamics
+58, 415-428.
+doi 10.1007/s10236-008-0150-9
+<BR>
+<P></A>
+<DD> 
+<DT><A NAME="DebreuMarchesiello2010">
+Debreu, L., Marchesiello, P., Penven, P.
+2010.
+Two ways embedding algorithms for a split-explicit free surface model.
+Ocean Modelling, 
+submitted
+<BR>
+<P></A>
+<DD> 
 <DT><A NAME="Dil03">
 Di Lorenzo, E., Miller, A.J., Neilson, D.J., 
 Cornuelle, B.D., Moisan, J.R.,
@@ -7564,6 +7705,18 @@ Efficient inverse modeling of barotropic ocean tides,
 Journal of Atmospheric and Oceanic Technology
 19,
 183-204.
+<BR>
+<P></A>
+<DD> 
+<DT><A NAME="Fairall_1996">
+ Fairall, C.W., E.F. Bradley, E.F., Rogers D.P., Edson J.B., Young
+G.S.
+1996.
+Bulk parameterization of air-sea fluxes for topical ocean-global
+ atmosphere Coupled-Ocean Atmosphere Response Experiment, 
+JGR, 
+101, 
+3747-3764   
 <BR>
 <P></A>
 <DD> 
@@ -7599,6 +7752,24 @@ Journal of Physical Oceanography
 <BR>
 <P></A>
 <DD> 
+<DT><A NAME="hedstroem97">
+Hedstrom, K. S., 1997.
+SCRUM Manuel,
+Institute of Marine and Coastal Sciences, Rutgers University, USA
+<BR>
+<P></A>
+<DD> 
+<DT><A NAME="hedstroem2009">
+Hedstroem, K. S., 2009.
+DRAFT Technical Manual for a Coupled Sea-Ice/Ocean Circulation Model
+(Version 3),
+U.S Department of the Interior, Mineral Management Service, Anchorage,
+Alaska, 
+Arctic Region Supercomputing Center, University of Alaska Fairbanks,
+Contract  M07PC13368
+<BR>
+<P></A>
+<DD> 
 <DT><A NAME="Jac95">
 Jackett, D.R., McDougall, T.J.,
 1995.
@@ -7625,6 +7796,17 @@ Reviews in Geophysics
 MacCready, P. M., R. D. Hetland, W. R. Geyer, 
 Long-Term Isohaline Salt Balance in an Estuary. 
 Continental Shelf Research, 22, 1591-1601.
+<BR>
+<P></A>
+<DD> 
+<DT><A NAME="Marches09">
+Marchesiello, P., Debreu, L., Couvelard, X.
+2009.
+Spurious diapycnal mixing in terrain-following coordinate models: The problem
+and a solution.
+Ocean Modelling
+26,
+156-169.
 <BR>
 <P></A>
 <DD> 
@@ -7747,24 +7929,6 @@ Jet Propulsion Laboratory - Massachusetts Institute of
 <BR>
 <P></A>
 <DD> 
-<DT><A NAME="hedstroem97">
-Hedstrom, K. S., 1997.
-SCRUM Manuel,
-Institute of Marine and Coastal Sciences, Rutgers University, USA
-<BR>
-<P></A>
-<DD> 
-<DT><A NAME="hedstroem2009">
-Hedstroem, K. S., 2009.
-DRAFT Technical Manual for a Coupled Sea-Ice/Ocean Circulation Model
-(Version 3),
-U.S Department of the Interior, Mineral Management Service, Anchorage,
-Alaska, 
-Arctic Region Supercomputing Center, University of Alaska Fairbanks,
-Contract  M07PC13368
-<BR>
-<P></A>
-<DD> 
 </DL>
 
 <P>
@@ -7786,62 +7950,37 @@ Mathematics Department, Macquarie University, Sydney.
 The command line arguments were: <BR>
  <STRONG>latex2html</STRONG> <TT>-split 0 -white -show_section_numbers -no_navigation doc.tex</TT>
 <P>
-The translation was initiated by Gildas Cambon on 2009-12-04<BR><HR><H4>Footnotes</H4>
+The translation was initiated by Gildas Cambon on 2010-07-20<BR><HR><H4>Footnotes</H4>
 <DL>
-<DT><A NAME="foot928">... experiments</A><A
+<DT><A NAME="foot1060">... experiments</A><A
  HREF="doc.html#tex2html6"><SUP>1.1</SUP></A></DT>
 <DD>These routines use add_dic.m, add_doc.m, add_fer.m, add_o2.m, add_talk.m, add_sio3.m,
 add_ini_dic.m, add_ini_doc.m, add_ini_fer.m, add_ini_o2.m, add_ini_talk.m, add_ini_po4.m, add_ini_sio3.m
 
 </DD>
-<DT><A NAME="foot1338">...
+<DT><A NAME="foot1485">...
 version</A><A
  HREF="doc.html#tex2html12"><SUP>2.1</SUP></A></DT>
 <DD>http://myroms.org
 
 </DD>
-<DT><A NAME="foot1339">... Hedström</A><A
+<DT><A NAME="foot1486">... Hedström</A><A
  HREF="doc.html#tex2html13"><SUP>2.2</SUP></A></DT>
 <DD>Kate
-  Hedström, University of Alaska Faibanks, Center for Arctic Region Supercomputing
+  Hedström, University of Alaska Fairbanks, Center for Arctic Region Supercomputing
   Center, University of Alaska Fairbanks, 
 
 </DD>
-<DT><A NAME="foot1341">...hedstroem2009 </A><A
+<DT><A NAME="foot1488">...hedstroem2009 </A><A
  HREF="doc.html#tex2html14"><SUP>2.3</SUP></A></DT>
 <DD>Many
   thanks to Kate Hedstroëm for this work.
 
 </DD>
-<DT><A NAME="foot2376">...diagnostics\_history\_fields </A><A
- HREF="doc.html#tex2html37"><SUP>2.4</SUP></A></DT>
-<DD>For each flag, you have to define T or
-    F fior the tracer corresponding. In case of physical experiments, we have two
-    tracers, T and S, so we have to define 2 logical value for each terms. In case of
-    PISCES biogeochemical experiment, we have T, S and <IMG
- WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img119.png"
- ALT="$24$"> more tracers. So we have
-    to define <IMG
- WIDTH="22" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img120.png"
- ALT="$26$"> logical value for each term. For example, in this case replace T T
-    by T T 24*T if you want all the PISCES biogeochemical tracer diagnostics
-
-</DD>
-<DT><A NAME="foot2380">...diagnosticsM\_history\_fields </A><A
- HREF="doc.html#tex2html38"><SUP>2.5</SUP></A></DT>
-<DD>In the case of momentum equation term,
-  we have only <IMG
- WIDTH="13" HEIGHT="14" ALIGN="BOTTOM" BORDER="0"
- SRC="img49.png"
- ALT="$2$"> logical flags to define by diagnostic term, one for u and one for v
-
-</DD>
 </DL><BR><HR>
 <ADDRESS>
 Gildas Cambon
-2009-12-04
+2010-07-20
 </ADDRESS>
 </BODY>
 </HTML>

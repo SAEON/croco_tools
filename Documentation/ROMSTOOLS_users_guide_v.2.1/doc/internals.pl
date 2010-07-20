@@ -6,6 +6,10 @@ $key = q/cite_Jac95/;
 $ref_files{$key} = "$dir".q|doc.html|; 
 $noresave{$key} = "$nosave";
 
+$key = q/cite_Fairall_1996/;
+$ref_files{$key} = "$dir".q|doc.html|; 
+$noresave{$key} = "$nosave";
+
 $key = q/tab:cppkeysBottomForcing/;
 $ref_files{$key} = "$dir".q|doc.html|; 
 $noresave{$key} = "$nosave";
@@ -86,6 +90,10 @@ $key = q/cite_Bec93/;
 $ref_files{$key} = "$dir".q|doc.html|; 
 $noresave{$key} = "$nosave";
 
+$key = q/tab:cppkeysbiomodel/;
+$ref_files{$key} = "$dir".q|doc.html|; 
+$noresave{$key} = "$nosave";
+
 $key = q/cite_Lar94/;
 $ref_files{$key} = "$dir".q|doc.html|; 
 $noresave{$key} = "$nosave";
@@ -95,6 +103,10 @@ $ref_files{$key} = "$dir".q|doc.html|;
 $noresave{$key} = "$nosave";
 
 $key = q/paramdesc/;
+$ref_files{$key} = "$dir".q|doc.html|; 
+$noresave{$key} = "$nosave";
+
+$key = q/cite_DebreuMarchesiello2010/;
 $ref_files{$key} = "$dir".q|doc.html|; 
 $noresave{$key} = "$nosave";
 
@@ -114,15 +126,15 @@ $key = q/cite_Pen01/;
 $ref_files{$key} = "$dir".q|doc.html|; 
 $noresave{$key} = "$nosave";
 
+$key = q/tab:cppkeysLateralForcing/;
+$ref_files{$key} = "$dir".q|doc.html|; 
+$noresave{$key} = "$nosave";
+
 $key = q/sec:quikscat-daily-data/;
 $ref_files{$key} = "$dir".q|doc.html|; 
 $noresave{$key} = "$nosave";
 
 $key = q/fig:grid/;
-$ref_files{$key} = "$dir".q|doc.html|; 
-$noresave{$key} = "$nosave";
-
-$key = q/tab:cppkeysLateralForcing/;
 $ref_files{$key} = "$dir".q|doc.html|; 
 $noresave{$key} = "$nosave";
 
