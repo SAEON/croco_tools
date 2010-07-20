@@ -1,0 +1,90 @@
+Using the method described by \citet{Fla76}, ROMS is able to propagate the 
+different tidal constituents from its lateral boundaries. To do so, define  
+the cpp keys TIDES,  SSH\_TIDES and UV\_TIDES and recompile the model 
+using jobcomp. To work correctly, the model should use the \citet{Fla76} 
+open boundary radiation scheme (cpp key OBC\_M2FLATHER defined).\\
+The tidal components are added to the forcing file (XXX\_frc.nc)
+by the Matlab program make\_tides.m.
+Edit the file : $\sim$/Roms\_tools/Run/romstools\_param.m.
+The part of the file that you should change is :\\
+\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\%\\
+\% 5-Parameters for tidal forcing\\
+\%\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\%\\
+\% TPXO file name (TPXO6 or TPXO7)\\
+\%\\
+tidename=[ROMSTOOLS\_dir,'TPXO6/TPXO6.nc'];\\
+\%\\
+\% Number of tides component to process\\
+\%\\
+Ntides=10;\\
+\%\\
+\% Chose order from the rank in the TPXO file :\\
+\% "M2 S2 N2 K2 K1 O1 P1 Q1 Mf Mm"\\
+\% " 1  2  3  4  5  6  7  8  9 10"\\
+\%\\
+tidalrank=[1 2 3 4 5 6 7 8 9 10];\\
+\%\\
+\% Compare with tidegauge observations\\
+\%\\
+lon0=18.37;\\
+lat0=-33.91;   \% Cape Town location\\
+Z0=1;          \% Mean depth of the tidegauge in Cape Town\\
+\\
+
+Variables definitions :
+\begin{itemize}
+\item tidename=[ROMSTOOLS\_dir,'TPXO6/TPXO6.nc'] : Location of the netcdf tidal dataset. 
+This file is derived from the Oregon State University global model of ocean tides TPXO.6 
+\citep{Egb02}.  Data sources can be found at \\
+http://www.oce.orst.edu/po/research/tide/global.html.
+It is also possible to use TPXO7.
+\item Ntides=10 : Number of tidal components to process. Warning!
+This value should be identical to the value of the parameter Ntides in param.h:
+"parameter (Ntides=10)".
+\item tidalrank=[1 2 3 4 5 6 7 8 9 10] : Order to select the different tidal components.
+\item lon0=18.37;lat0=-33.91;Z0=1 : Location of a tidal gauge to compare the interpolated values
+with observations. \\\\\\\\
+\end{itemize}
+An important aspect is the definition of time and especially the choice of a 
+time origin. This is defined in $\sim$/Roms\_tools/Run/romstools\_param.m:
+\\
+\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\%\\
+\% 6-Temporal parameters (used for make\_tides, make\_NCEP, make\_OGCM)\\
+\%\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\%\\
+Yorig         = 1900;               \% reference time for vector time\\
+                                    \% in roms initial and forcing files\\
+\%\\
+Ymin          = 2000;               \% first forcing year\\
+Ymax          = 2000;               \% last  forcing year\\
+Mmin          = 1;                  \% first forcing month\\
+Mmax          = 3;                  \% last  forcing month\\
+\%\\
+Dmin          = 1;                  \% Day of initialization\\
+Hmin          = 0;                  \% Hour of initialization\\
+Min\_min       = 0;                  \% Minute of initialization\\
+Smin          = 0;                  \% Second of initialization\\
+\%\\
+SPIN\_Long     = 0;                  \% SPIN-UP duration in Years\\
+\\\\
+The origin of time (Yorig: 1 january of year Yorig) should be kept the same
+for all the preprocessing and postprocessing steps.
+Save romstools\_param.m and run make\_tides in the Matlab session:
+\\
+$>>$\\
+$>>$ make\_tides\\\\
+You should obtain :\\
+------------------------------------------------------------------------------------------\\
+Start date for nodal correction : 1-Jan-2000\\
+Reading ROMS grid parameters ...\\
+Tidal components : M2 S2 N2 K2 K1 O1 P1 Q1 Mf Mm \\
+Processing tide : 1 of 10\\
+...\\
+------------------------------------------------------------------------------------------\\

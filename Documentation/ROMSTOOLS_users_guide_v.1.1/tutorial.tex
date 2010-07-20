@@ -1,0 +1,1212 @@
+This section presents the essential steps for preparing
+and running a regional ROMS simulation. This is 
+done following the example of a model of the
+Southern Benguela at low resolution.
+ 
+\subsection{Getting started}
+
+Once the installation has been successful, launch a Matlab session
+in the directory: $\sim$/Roms\_tools/Run. Run the start.m
+script to set the Matlab paths for this session. The start.m script
+also makes the difference between 32 bits and 64 bits Linux architectures
+and adjusts the paths in consequence: \\
+\\
+$>$ : cd Roms\_tools/Run \\
+$>$ : matlab \\
+$<$ M A T L A B $>$...\\
+$>>$ start \\
+Add the paths of the different toolboxes... \\
+Arch : x86\_64 - Matlab version : 12 \\
+Use of mex60 and loaddap in 32 bits. \\
+$>>$ \\
+\\
+You are now ready to create a new configuration.
+It is important to respect the order of the following preprocessing 
+steps: make\_grid, make\_forcing, make\_clim.
+For all the preprocessing steps, there is only one file to edit : 
+$\sim$/Roms\_tools/Run/romstools\_param.m .
+This file contains the necessary parameters for the generation
+of the ROMS input NetCDF files.
+The first section in romstools\_param.m  defines the general parameters,
+such as title, working directories or file names:
+\\ \\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\%\\
+\% 1- General parameters\\
+\%\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\%\\
+\%  ROMS title names and directories\\
+\%\\
+ROMS\_title  = 'Benguela Test Model';\\
+ROMS\_config = 'Benguela';\\
+ROMSTOOLS\_dir = '../';\\
+RUN\_dir=[ROMSTOOLS\_dir,'Run/'];\\
+ROMS\_files\_dir=[RUN\_dir,'ROMS\_FILES/'];\\
+\%\\
+\% ROMS file names (grid, forcing, bulk, climatology, initial)\\
+\%\\
+grdname=[ROMS\_files\_dir,'roms\_grd.nc'];\\
+frcname=[ROMS\_files\_dir,'roms\_frc.nc'];\\
+blkname=[ROMS\_files\_dir,'roms\_blk.nc'];\\
+clmname=[ROMS\_files\_dir,'roms\_clm.nc'];\\
+ininame=[ROMS\_files\_dir,'roms\_ini.nc'];\\
+oaname =[ROMS\_files\_dir,'roms\_oa.nc'];    \% oa file  : intermediate file not used\\
+                                          \%            in roms simulations\\
+bryname=[ROMS\_files\_dir,'roms\_bry.nc'];\\
+Zbryname=[ROMS\_files\_dir,'roms\_bry\_Z.nc'];\% Zbry file: intermediate file not used\\
+                                          \%            in roms simulations\\
+\%\\
+frc\_prefix=[ROMS\_files\_dir,'roms\_frc'];   \% generic bulk forcing file name \\
+                                          \% for inter-annual roms simulations (NCEP or GFS)\\
+blk\_prefix=[ROMS\_files\_dir,'roms\_blk'];   \% generic forcing file name\\
+                                          \% for inter-annual roms simulations (NCEP or GFS)\\
+\%\\
+\% Objective analysis decorrelation scale [m]\\
+\% (if Roa=0: simple extrapolation method; crude but much less costly)\\
+\%\\
+\%Roa=300e3;\\
+Roa=0;\\
+\%\\
+interp\_method = 'cubic';           \% Interpolation method: 'linear' or 'cubic'\\
+\%\\
+makeplot     = 1;                 \% 1: create a few graphics after each preprocessing step\\
+\%\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\\ 
+Variables description:
+\begin{itemize}
+\item title='Benguela Test Model' : General title. You can give any name 
+you want for your configuration.
+\item ROMS\_config = 'Benguela' : Name of the configuration. This is used for the storage of
+NCEP or OGCM data for a specific configuration.
+\item ROMSTOOLS\_dir = '../' : "Roms\_tools" directory.
+\item RUN\_dir=[ROMSTOOLS\_dir,'Run/'] : Roms\_tools/Run directory. This is where all 
+the work is done.
+\item ROMS\_files\_dir=[RUN\_dir,'ROMS\_FILES/'] : Roms\_tools/Run/ROMS\_FILES/ directory.
+This is where ROMS input NetCDF files are stored.
+%
+\item grdname=[ROMS\_files\_dir,'roms\_grd.nc'] : Name of the ROMS input NetCDF grid file.
+This is where the horizontal grid parameters are stored. In general, we follow 
+the style : XXX\_grd.nc.
+\item frcname=[ROMS\_files\_dir,'roms\_frc.nc'] : : Name of the ROMS input NetCDF forcing file.
+This is where the surface forcing variables (such as wind stress) are stored. In general, we 
+follow  the style : XXX\_frc.nc.
+\item blkname=[ROMS\_files\_dir,'roms\_blk.nc'] : Name of the ROMS input NetCDF bulk file.
+This is where the atmospheric variables used for the bulk parametrization (such as air temperature) 
+are stored. In general, we follow  the style : XXX\_blk.nc.
+\item clmname=[ROMS\_files\_dir,'roms\_clm.nc'] : Name of the ROMS input NetCDF climatology file.
+This is where ROMS prognostic variables (u,v, temp, salt, ubar, vbar, zeta) for lateral boundary 
+and interior nudging are stored. This file can be large because variables are stored for all the 
+ROMS grid interior points. It is called "a climatology file" because this was the file used in 
+the past for the restoring of the ROMS solution towards an in-situ climatology (such as Levitus 
+for example). In general, we follow the style : XXX\_clm.nc.
+\item ininame=[ROMS\_files\_dir,'roms\_ini.nc'] : Name of the ROMS input NetCDF initial file.
+This is where ROMS prognostic variables (u,v, temp, salt, ubar, vbar, zeta) are stored 
+for the initial conditions. In general, we follow the style : XXX\_ini.nc.
+\item oaname =[ROMS\_files\_dir,'roms\_oa.nc'] : Name of an intermediate file which is not
+used by ROMS. This is equivalent to the climatology file, but on a z vertical coordinate.
+Firstly, the variables are horizontally interpolated to create a roms\_oa.nc file (a OA file). 
+Then, they are vertically interpolated on the ROMS s-coordinate for the climatology
+file. In general, we follow the style : XXX\_oa.nc.
+\item bryname=[ROMS\_files\_dir,'roms\_bry.nc'] : Name of the ROMS input NetCDF boundary file.
+This is an alternative of the climatology file. In this case, variables are only stored for 
+the lateral boundaries. In general, we follow the style : XXX\_bry.nc.
+\item Zbryname=[ROMS\_files\_dir,'roms\_bry\_Z.nc'] : Intermediate file on a z coordinate
+for the boundary file. In general, we follow the style : XXX\_bry\_Z.nc.
+\item frc\_prefix=[ROMS\_files\_dir,'roms\_frc'] : First part of the forcing file names in
+the case of inter\_annual simulations. In this case, a separate file is created for each month.
+For example, a forcing file based on NCEP for January 2000 is : roms\_frc\_NCEP\_Y2000M1.nc
+\item blk\_prefix=[ROMS\_files\_dir,'roms\_blk'] : First part of the bulk file names in
+the case of inter\_annual simulations. In this case, a separate file is created for each month.
+For example, a bulk file based on NCEP for January 2000 is : roms\_blk\_NCEP\_Y2000M1.nc
+%
+\item Roa=0 : Decorrelation length scale in meters for the objective analysis (300 km
+is a reasonable value for the employed datasets). If Roa=0, the "nearest" Matlab extrapolation
+method is used instead of an objective analysis. This is much less costly, but the 
+results might be at a lower quality.
+\item interp\_method = 'cubic' : Horizontal interpolation method used after the objective 
+analysis. It can be linear or cubic.
+\item makeplot     = 1 : Select to generate images after each step of the preprocessing.
+\end{itemize}
+
+
+\subsection{Building the grid}
+
+The part of the file romstools\_param.m that you should edit is :
+\\ \\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\%\\
+\% 2-Grid parameters\\
+\%   used by make\_grid.m (and others..)\\
+\%\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\%\\
+\% Grid dimensions:\\
+\%\\
+lonmin =  12.3;   \% Minimum longitude [degree east]\\
+lonmax = 20.45;   \% Maximum longitude [degree east]\\
+latmin = -35.5;   \% Minimum latitude  [degree north]\\
+latmax = -26.5;   \% Maximum latitude  [degree north]\\
+\%\\
+\% Grid resolution [degree]\\
+\%\\
+dl = 1/3;\\
+\%\\
+\% Number of vertical Levels (! should be the same in param.h !)\\
+\%\\
+N = 32;\\
+\%\\
+\%  Vertical grid parameters (! should be the same in roms.in !)\\
+\%\\
+theta\_s = 6.;\\
+theta\_b = 0.;\\
+hc      =10.;\\
+\%\\
+\% Minimum depth at the shore [m] (depends on the resolution,\\
+\% rule of thumb: dl=1, hmin=300, dl=1/4, hmin=150, ...)\\
+\% This affect the filtering since it works on grad(h)/h.\\
+\%\\
+hmin = 75;\\
+\%\\
+\% Maximum depth at the shore [m] (to prevent the generation\\
+\% of too big walls along the coast)\\
+\%\\
+hmax\_coast = 500;\\
+\%\\
+\%  Topography netcdf file name (ETOPO 2 or any other netcdf file\\
+\%  in the same format)\\
+\%\\
+topofile = [ROMSTOOLS\_dir,'Topo/etopo2.nc'];\\
+\%\\
+\% Slope parameter (r=grad(h)/h) maximum value for topography smoothing\\
+\%\\
+rtarget = 0.25;\\
+\%\\
+\% Number of pass of a selective filter to reduce the isolated\\
+\% seamounts on the deep ocean.\\
+\%\\
+n\_filter\_deep\_topo=4;\\
+\%\\
+\% Number of pass of a single hanning filter at the end of the\\
+\% smoothing procedure to ensure that there is no 2DX noise in the \\
+\% topography.\\
+\%\\
+n\_filter\_final=2;\\
+\%\\
+\%  GSHSS user defined coastline (see m\_map) \\
+\%  XXX\_f.mat    Full resolution data\\
+\%  XXX\_h.mat    High resolution data\\
+\%  XXX\_i.mat    Intermediate resolution data\\
+\%  XXX\_l.mat    Low resolution data\\
+\%  XXX\_c.mat    Crude resolution data\\
+\%\\
+coastfileplot = 'coastline\_l.mat';\\
+coastfilemask = 'coastline\_l\_mask.mat';\\
+\\
+Variables description:
+\begin{itemize}
+\item lonmin =  12.3 : Western limit of the grid in longitude [-360$^\circ$, 360$^\circ$]. 
+The grid is rectangular in latitude/longitude.
+\item lonmax = 20.45 : Eastern limit [-360$^\circ$, 360$^\circ$]. 
+Should be superior to lonmin.
+\item latmin = -35.5 : Southern limit of the grid in latitude [-90$^\circ$, 90$^\circ$].
+\item latmax = -26.5 : Northern limit [-90$^\circ$, 90$^\circ$].
+Should be superior to latmin.
+\item l = 1/3 : Grid longitude resolution in degrees. The latitude spacing is deduced to
+obtain an isotropic grid using the relation: $d\phi=dl\cos(\phi)$.
+\item N = 32 : Number of vertical levels. Warning! N has to be also 
+defined in the file : $\sim$/Roms\_tools/Run/param.h before compiling
+the model.
+\item theta\_s = 6. : Vertical S-coordinate surface stretching parameter. 
+When building the climatology and initial ROMS files, we have to define
+the vertical grid. Warning! The different vertical grid parameters should 
+be identical in this file and in the ROMS input file (i.e. 
+$\sim$/Roms\_tools/Run/roms.in).
+This is a serious cause of bug.
+The effects of theta\_s, theta\_b, hc, and N can be tested 
+using the Matlab script : \\
+$\sim$/Roms\_tools/Preprocessing\_tools/test\_vgrid.m.
+\item theta\_b = 0. : Vertical S-coordinate bottom stretching parameter.
+\item hc      = 10. : Vertical S-coordinate $H_c$ parameter. It gives approximately the
+transition depth between the horizontal surface levels and the bottom terrain following
+levels. It should be inferior to hmin.
+\item hmin = 75 : Minimum depth in meters. The model depth is cut a this level 
+to prevent, for example, the occurrence of model grid cells without water.
+This does not influence the masking routines. At lower resolution, hmin should be 
+quite large (for example 150m for dl=1/2). Otherwise, since topography smoothing 
+is based on $\frac{\nabla h}{2h}$, the bottom slopes can be totally eroded.
+\item hmax\_coast = 500 : Maximum depth under the mask. It prevents selected
+isobaths (here 500 m) to go under the mask. If this is the case, 
+this could be a source of problems
+for western boundary currents (for example).
+\item topofile = [ROMSTOOLS\_dir,'Topo/etopo2.nc'] : Default topography file. 
+We are using here etopo2 \citep{Smi97}. 
+\item rtarget = 0.25 : This variable control the maximum value of the $r$-parameter
+that measures the slope of the sigma layers \citep{Bec93}:
+$$
+r=\frac{\nabla h}{2h}=\frac{h_{+1/2}-h_{-1/2}}{h_{+1/2}+h_{-1/2}}  
+$$
+To prevent horizontal pressure gradients errors, well known in
+terrain-following coordinate models \citep{Han91}, realistic topography
+requires some smoothing. Empirical results have shown that reliable
+model results are obtained if $r$ does not exceed 0.2.
+\item n\_filter\_deep\_topo=4 : Number of pass of a Hanning filter to prevent 
+the occurrence of noise and isolated seamounts on deep regions.
+\item n\_filter\_final=2 : Number of pass of a Hanning filter at the end of the
+smoothing process to be sure that no noise is present in the topography.
+\item coastfileplot = 'coastline\_l.mat' : Binary GSHSS coastal file used by m\_map
+for graphical pruposes. The letter before ".mat" selects the coastline resolution.
+f: Full resolution, h: High resolution, i: Intermediate resolution, l: Low resolution
+c: Crude resolution.
+\item coastfilemask = 'coastline\_l\_mask.mat' :  Binary file used
+for the coastline in the masking toolbox.
+\end{itemize}
+
+Save romstools\_param.m and run make\_grid in the Matlab session :
+\\ \\ 
+$>>$\\
+$>>$ make\_grid \\
+ \\
+You should obtain in the Matlab session:\\
+------------------------------------------------------------------------------------------\\
+Making the grid: ../Run/ROMS\_FILES/roms\_grd.nc \\
+\\
+Title: Benguela Test Model \\
+\\
+Resolution: 1/3 deg \\
+\\
+Create the grid file... \\
+LLm = 23 \\
+MMm = 31 \\
+\\
+Fill the grid file... \\
+\\
+Compute the metrics... \\
+\\
+Min dx=30.1583 km - Max dx=33.1863 km \\
+Min dy=30.2091 km - Max dy=33.057 km \\
+\\
+Fill the grid file... \\
+\\
+Add topography... \\
+  ROMS resolution : 31.7 km \\
+  Topography data resolution : 3.44 km \\
+  Topography resolution halved 4 times \\
+   New topography resolution : 54.8 km \\
+Processing coastline\_l.mat ... \\
+Do you want to use editmask ? y,[n]\\
+ Apply a filter on the Deep Ocean to remove the isolated seamounts :\\
+   4 pass of a selective filter.\\
+ Apply a selective filter on log(h) to reduce grad(h)/h :\\
+   13 iterations - rmax = 0.24879\\
+ Smooth the topography a last time to prevent 2DX noise:\\
+   2 pass of a hanning smoother.\\
+ Write it down...\\
+ Do a plot...\\
+ $>>$\\
+ ------------------------------------------------------------------------------------------\\
+\\
+You should keep the values of LLm and MMm during the process.
+They will be necessary for the ROMS parameter file  
+$\sim$/Roms\_tools/Run/param.h. In this test case,
+LLm0 = 23 and MMm0 = 31. 
+
+During the grid generation process, the question 
+"Do you want to use editmask ? y,[n]" is asked. The default answer is n (for no).
+If the answer is y (for yes), editmask, the  graphic interface developed 
+by A.Y.Shcherbina, will be launched to manually edit the mask 
+(Note that, for the moment, editmask is not working with matlab7 and mexnc).
+Otherwise the
+mask is generated from the unfiltered topography data. A procedure prevents 
+the existence of isolated land (or sea) points.
+
+Figure (\ref{fig:grid}) presents the
+bottom topography obtained with make\_grid.m for the
+Southern Benguela example. Note that at this low
+resolution (1/3$^\circ$), the topography has been strongly
+smoothed.
+
+\begin{figure}[h!]
+\centerline{\psfig{figure=make_grid_benguela.eps,width=6cm}}
+\caption{Result of make\_grid.m for the Benguela example}
+\label{fig:grid}
+\end{figure}
+
+
+\subsection{Getting the wind and other surface fluxes}
+
+The next step is to create the file containing the different surface
+fluxes. The part of the file romstools\_param.m that you should edit is :
+\\
+\\
+\%\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\% 3-Surface forcing parameters\\
+\%   used by make\_forcing.m and by make\_bulk.m\\
+\%\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\% COADS directory (for climatology runs)\\
+\%\\
+coads\_dir=[ROMSTOOLS\_dir,'COADS05/'];\\
+\%\\
+\% COADS time (for climatology runs)\\
+\%\\
+coads\_time=(15:30:345); \% days: middle of each month\\
+coads\_cycle=360;        \% repetition of a typical year of 360 days \\ 
+\%\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\%\\
+\% 3.1 Surface forcing parameters\\
+\%   used by pathfinder\_sst.m\\
+\%\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\%\\
+pathfinder\_sst\_name=[ROMSTOOLS\_dir,...\\
+                    'SST\_pathfinder/climato\_pathfinder.nc'];\\
+\\
+Variables description:
+\begin{itemize}
+\item coads\_dir=[ROMSTOOLS\_dir,'COADS05/'] : Directory where the global atlas of surface marine 
+data at 1/2$^\circ$ resolution \citep{Das94} is located.
+\item coads\_time=(15:30:345) : Time in days for the monthly climatology. It corresponds to the
+middle of each month. ROMS uses this time to interpolate linearly the forcing variables in time.
+\item coads\_cycle=360 : Duration on which the forcing variables are cycled. Here, for the sake
+of simplicity, we are running the model on a repeating climatological year of 360 days.
+\item pathfinder\_sst\_name=[ROMSTOOLS\_dir,SST\_pathfinder/climato\_pathfinder.nc'] : 
+Directory of the  monthly climatology of sea surface temperature from Pathfinder satellite 
+observations \citep{Cas99}. This can be used has an alternative of \citet{Das94} SST.
+\end{itemize}
+
+
+Save romstools\_param.m and run make\_forcing in the Matlab session :
+\\  \\
+$>>$\\
+$>>$ make\_forcing\\\\
+You should obtain :\\
+------------------------------------------------------------------------------------------\\
+Benguela Test Model\\
+\\
+ Read in the grid...\\
+\\
+ Create the forcing file...\\
+Getting taux for time index 1\\
+Getting tauy for time index 1\\
+...\\
+Make a few plots...\\
+$>>$\\
+------------------------------------------------------------------------------------------\\\\
+This program can take a relatively long time to process all the forcing variables.
+Figure (\ref{fig:forcing}) presents the wind stress vectors and wind stress norm 
+obtained from the global atlas of surface marine 
+data at 1/2$^\circ$ resolution \citep{Das94} at 4 different periods of the year.
+\citet {Das94} sea surface temperature (SST) is used for the restoring term (dQdSST)
+in the heat flux calculation. To improve the model solution it is possible to 
+use a SST climatology at a finer resolution (9.28 km) \citep{Cas99}. To do 
+so, you can run pathfinder\_sst.m in the Matlab session :
+\\  \\
+$>>$\\
+$>>$ pathfinder\_sst\\\\\\\\
+You should obtain :\\
+------------------------------------------------------------------------------------------\\
+ ... Month index: 1 \\
+ ... Month index: 2 \\
+...\\
+$>>$\\
+------------------------------------------------------------------------------------------\\\\
+For the surface forcing, instead of directly prescribing the fluxes, it is possible 
+to use a bulk formula to generate the surface fluxes from atmospheric variables 
+during the model run. In this case, ROMS needs to be recompiled with the BULK\_FLUX
+cpp key defined. To generate the bulk forcing file, you need to run make\_bulk
+in the Matlab session :
+\\ \\
+$>>$\\
+$>>$ make\_bulk\\\\
+You should obtain :\\
+------------------------------------------------------------------------------------------\\
+Benguela Test Model\\
+\\
+ Read in the grid...\\
+\\
+ Create the bulk forcing file...\\
+Getting sat for time index 1\\
+Getting sat for time index 2\\
+...\\
+Make a few plots...\\
+$>>$\\
+------------------------------------------------------------------------------------------\\
+
+\begin{figure}[h!]
+\centerline{\psfig{figure=make_frcwind_benguela.eps,width=9cm}}
+\caption{Wind stress[N.m$^{-2}$] obtained using make\_forcing.m for the Benguela example.}
+\label{fig:forcing}
+\end{figure}
+
+\subsection{Getting the initial and the lateral boundary conditions}
+
+The last preprocessing step consists in generating the files containing 
+the necessary informations for the ROMS initial and lateral open boundaries 
+conditions.
+This script generates two files : the climatology file (XXX\_clm.nc) which gives 
+the lateral boundary conditions, and the initial conditions file (XXX\_ini.nc).
+The part which should be edited by the user in the file romstools\_param.m is:
+\\ \\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\%\\
+\% 4-Open boundaries and initial conditions parameters\\
+\%   used by make\_clim.m, make\_biol.m, make\_bry.m\\
+\%\\
+\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\%\\
+\%  Open boundaries switches (! should be consistent with cppdefs.h !)\\
+\%\\
+obc = [1 1 1 1]; \% open boundaries (1=open , [S E N W])\\
+\%\\
+\%  Level of reference for geostrophy calculation\\
+\%\\
+zref = -1000;\\
+\%\\
+\%  Switches for selecting what to process in make\_clim (1=ON)\\
+\%  (and also in make\_OGCM.m and make\_OGCM\_frcst.m)\\
+makeini=1;      \%1: process initial data\\
+makeclim=1;     \%1: process lateral boundary data\\
+makebry=0;      \%1: process boundary data\\
+\%\\
+makeoa=1;       \%1: process oa data (intermediate file)\\
+makeZbry=0;     \%1: process data in Z coordinate\\
+\%\\
+insitu2pot=1;   \%1: convert in-situ temperature into potential temperature\\
+\%\\
+\%  Day of initialization for climatology experiments (=0 : 1st January 0h)\\
+\%\\
+tini=0;\\  
+\%\\
+\% World Ocean Atlas directory (WOA2001 or WOA2005) \\
+\%\\
+woa\_dir=[ROMSTOOLS\_dir,'WOA2005/'];\\
+\%\\
+\% Surface chlorophyll seasonal climatology (WOA2001 or SeaWifs)\\
+\%\\
+chla\_dir=[ROMSTOOLS\_dir,'SeaWifs/'];\\
+\%\\
+\%  Set times and cycles for the boundary conditions:\\ 
+\%   monthly climatology \\
+\%\\
+woa\_time=(15:30:345); \% days: middle of each month\\
+woa\_cycle=360;        \% repetition of a typical year of 360 days\\  
+\%\\
+
+Variables description:
+\begin{itemize}
+\item obc=[1 1 1 1] : Switches to open (1=open) or close (0=wall) the lateral
+boundaries [South East North West]. This is used for the application of mass
+enforcement. Be aware, this should be compatible with the open boundary
+CPP-switches in the file $\sim$/Roms\_tools/Run/cppdefs.h.
+\item zref=-1000 : Depth [meters] of the level of no motion for the geostrophic 
+velocities calculation.
+\item makeini=1 : Switch to define if the initial file (roms\_ini.nc) is generated. 
+Should be 1.
+\item makeclim=1 : Switch to define if the climatology
+ (lateral boundary conditions) file (roms\_clm.nc) is generated. Should be 1.
+\item makeoa=1 : Switch to define if the OA (objective analysis; roms\_oa.nc)
+ file is generated. This should be 1. The OA files are intermediate files
+ where hydrographic data are stored on a ROMS horizontal grid but on
+ a z vertical grid. The transformation into S-coordinate is done later.
+ This file is not used by ROMS.
+\item makebry=1 : Switch to define if the boundary file (roms\_bry.nc) is generated.
+Used only with make\_bry.
+\item makeZbry=1  :Switch to define if the boundary intermediate file on a z coordinate 
+ (roms\_bry\_Z.nc) is generated. Used only with make\_bry.
+\item insitu2pot=1 : Switch defined if it is in-situ temperature that is provided.
+In this case, in-situ temperature is converted into potential temperature.
+\item tini=0 : Day of initialization in climatology experiments (15 = January 15).
+\item woa\_dir=[ROMSTOOLS\_dir,'WOA2005/'] : Directory where the World Ocean
+Atlas 2005 climatology \citep{Con02} is located. The World Ocean
+Atlas 2001 climatology can also be used.
+\item chla\_dir=[ROMSTOOLS\_dir,'SeaWifs/'] : Directory of the surface 
+chlorophyll seasonal climatology.
+\item woa\_time=(15:30:345) : Time in days for the WOA monthly climatology. 
+It corresponds to the middle of each month. ROMS uses this variable to 
+interpolate linearly the climatology variables in time.
+\item woa\_cycle=360 : Duration on which the climatology variables are cycled. 
+Here, for the sake of simplicity, we are running the model on a repeating climatological 
+year of 360 days.
+\end{itemize}
+Save romstools\_param.m and run make\_clim in the Matlab session :
+\\ \\
+$>>$\\
+$>>$ make\_clim \\\\
+You should obtain :\\
+------------------------------------------------------------------------------------------\\
+ Making the clim: ../Run/ROMS\_FILES/roms\_clm.nc \\
+ \\
+ Title: Benguela Test Model \\
+ \\
+ Read in the grid...
+ \\
+ Create the climatology file... \\
+ Creating the file : ../Run/ROMS\_FILES/roms\_clm.nc\\
+ ...\\ 
+ Make a few plots...\\ 
+ $>>$\\
+------------------------------------------------------------------------------------------\\\\
+This program can also take quite a long time to run.
+Figure (\ref{fig:clim}) presents 4 different sections
+of temperature for the initial condition file for the 
+Benguela example. The sections are in the X-direction (East-West), 
+the first section is for the Southern part of the domain and the last one 
+is for the Northern part of the domain.
+\begin{figure}[h!]
+\centerline{\psfig{figure=make_clim_benguela.eps,width=7cm}}
+\caption{Result of make\_clim.m for the Benguela example}
+\label{fig:clim}
+\end{figure}
+
+An alternative of using a climatology file is to create a boundary 
+file. In this case, only boundary values are stored. The cpp key
+FRC\_BRY should be defined and ROMS recompiled. Run make\_bry in 
+the Matlab session :
+\\ \\
+$>>$\\
+$>>$ make\_bry \\\\
+You should obtain :\\
+------------------------------------------------------------------------------------------\\
+ Making the file: ../Run/ROMS\_FILES/roms\_bry.nc \\
+ \\
+ Title: Benguela Test Model \\
+ \\
+ Read in the grid... \\
+... \\
+------------------------------------------------------------------------------------------\\
+
+\subsection{Compiling the model}
+
+Once all the netcdf data files are ready (i.e. XXX\_grd.nc,
+XXX\_frc.nc, XXX\_ini.nc, and XXX\_clm.nc), we can 
+prepare ROMS for compilation. All is done in the 
+ $\sim$/Roms\_tools/Run/ directory. 
+
+\subsubsection{param.h}
+Edit the file 
+ $\sim$/Roms\_tools/Run/param.h.
+ The line which needs to be changed is:\\\\
+\#  elif defined BENGUELA
+
+      parameter (LLm0=23, MMm0=31, N=32)  ! $<--$ Southern Benguela Test Case\\
+\#  else\\
+\\
+These are the values of the model grid size: LLm0 points in the X 
+direction, MMm0 points in the Y direction and N vertical levels.
+LLm0 and MMm0 are given by running make\_grid.m, and N is
+defined in romstools\_param.m.
+
+\subsubsection{cppdefs.h}
+The second file to edit is  $\sim$/Roms\_tools/Run/cppdefs.h.
+This file defines the CPP keys that are used by the
+the C-preprocessor when compiling ROMS. The C-preprocessor selects the different
+parts of the Fortran code which needs to be compiled depending on the defined CPP
+options. These options are separated in two parts (the basic option keys and
+the advanced options keys) in cppdefs.h.\\
+
+Definitions of the CCP keys in cppdefs.h:
+\begin{itemize}
+\item BASIN     : Must be defined for running the Basin Example.
+\item CANYON\_A  : Must be defined for running the Canyon\_A Example.
+\item CANYON\_B  : Must be defined for running the Canyon\_B Example.
+\item GRAV\_ADJ  : Must be defined for running the Gravitational Adjustment Example.
+\item INNERSHELF   : Must be defined for running the Inner Shelf Example.
+\item OVERFLOW  : Must be defined for running the Gravitational/Overflow Example.
+\item SEAMOUNT  : Must be defined for running the Seamount Example.
+\item SHELFRONT : Must be defined for running the Shelf Front Example.
+\item SOLITON   : Must be defined for running the Equatorial Rossby Wave Example.
+\item UPWELLING : Must be defined for running the Upwelling Example.
+\item VORTEX    : Must be defined for running the Baroclinic Vortex Example  
+\item REGIONAL  : Must be defined if running realistic regional simulations.
+\\\\\\\\\\
+--------------------------\\
+       BASIC OPTIONS \\
+--------------------------
+\\ \\ /*                       Configuration Name */
+\item BENGUELA :  Configuration Name, this is used in param.h.
+\\ \\ /*                       Parallelization */
+\item OPENMP : Activate the Open-MP parallelization protocol.
+\item MPI : Activate the MPI parallelization protocol.
+\\ \\ /*                       Embedding */
+\item AGRIF : Activate the nesting capabilities
+\\ \\ /*                       Open Boundary Conditions */
+\item TIDES  : Force tidal currents at the lateral boundaries.
+\item OBC\_EAST : Open eastern boundary (should be consistent with make\_clim.m).
+\item OBC\_WEST : Open western boundary (should be consistent with make\_clim.m).
+\item OBC\_NORTH : Open northern boundary (should be consistent with make\_clim.m).
+\item OBC\_SOUTH : Open southern boundary (should be consistent with make\_clim.m).
+\\ \\ /*                       Embedding conditions */
+\item AGRIF\_OBC\_EAST  : Open eastern boundary for the child grids.
+\item AGRIF\_OBC\_WEST   : Open western boundary for the child grids.
+\item AGRIF\_OBC\_NORTH   : Open northern boundary for the child grids.
+\item AGRIF\_OBC\_SOUTH   : Open southern boundary for the child grids.
+\\ \\ /*                       Applications */
+\item BIOLOGY : Activate the biogeochemical module. 
+\item FLOATS : Activate floats.
+\item STATIONS : Store model outputs for each time step at different station locations.
+\item PASSIVE\_TRACER : Add a passive tracer.
+\item SEDIMENT : Activate the sediment module.
+\item BBL : Activate the bottom boundary layer module.
+\\\\\\\\\\\\\\\\
+--------------------------------------------\\
+   MORE ADVANCED OPTIONS \\
+--------------------------------------------
+\\ \\ /*                       Model dynamics */
+\item SOLVE3D : Define if solving 3D primitive equations.
+\item UV\_COR : Activate Coriolis terms.
+\item UV\_ADV : Activate advection terms.
+\item SSH\_TIDES : Define for processing sea surface elevation tidal data at the model boundaries.
+\item UV\_TIDES :  Define for processing ocean current tidal data at the model boundaries.
+\item TIDERAMP  :  Apply a ramping of the tidal current, (in general 2 days) at initialization.
+Warning! This should be off when restarting the model.
+\\ \\ /*                       Grid configuration */
+\item CURVGRID : Activate curvilinear coordinate grid option.
+\item SPHERICAL : Activate longitude/latitude grid positioning.
+\item MASKING : Activate land masking in the domain.
+\\ \\ /*                       Input/Output and Diagnostics */
+\item AVERAGES : Define if writing out time-averaged data.
+\item AVERAGES\_K : Define if writing out time-averaged vertical mixing.
+\item DIAGNOSTICS\_TS  : Define if writing out tendency terms for the tracer equations.
+\item DIAGNOSTICS\_UV  : Define if writing out tendency terms for the momentum equations.
+\\ \\ /*                       Equation of State */
+\item SALINITY : Define if using salinity.
+\item NONLIN\_EOS : Activate the nonlinear equation of state.
+\item SPLIT\_EOS : Activate the split of the nonlinear equation of state in a
+adiabatic part and a compressible part for the reduction of pressure gradient errors
+\citep{Shc03a}.
+\\ \\ /*                       Surface Forcing */
+\item QCORRECTION : Activate net heat flux correction.
+\item SFLX\_CORR : Activate freshwater flux correction.
+\item DIURNAL\_SRFLUX : Activate diurnal modulation of the short wave radiation flux.
+\item BULK\_FLUX : Activate the bulk parametrization.
+\item BULK\_EP: Activate the bulk parametrization for salinity fluxes.
+\\ \\ /*                       Lateral Forcing */
+\item SPONGE : Activate areas of enhanced viscosity/diffusion close to the 
+lateral open boundaries.
+\item CLIMATOLOGY : Activate processing of climatology data.
+\item ZCLIMATOLOGY : Activate processing of  sea surface height climatology.
+\item M2CLIMATOLOGY : Activate processing of  barotropic velocities climatology.
+\item M3CLIMATOLOGY: Activate processing of  baroclinic velocities climatology.
+\item TCLIMATOLOGY : Activate processing of tracer climatology.
+\item ZNUDGING : Activate open boundary passive/active term + nudging layer for zeta.
+\item M2NUDGING : Activate open boundary passive/active term + nudging layer for ubar and vbar.
+\item M3NUDGING : Activate open boundary passive/active term + nudging layer for u and v.
+\item TNUDGING : Activate open boundary passive/active term + nudging layer for tracers.
+\item ROBUST\_DIAG : Activate strong tracer nudging in the interior for diagnostic simulations.
+\item FRC\_BRY : Activate direct boundary forcing (roms\_bry.nc).
+\item Z\_FRC\_BRY : Activate boundary forcing for zeta.
+\item M2\_FRC\_BRY : Activate boundary forcing for ubar and vbar.
+\item M3\_FRC\_BRY : Activate boundary forcing for u and v.
+\item T\_FRC\_BRY : Activate boundary forcing for tracers.
+\\ \\ /*                       Bottom Forcing */
+\item ANA\_BSFLUX : Define if using analytical bottom salinity flux.
+\item ANA\_BTFLUX : Define if using analytical bottom temperature flux.
+\\ \\ /*                       Point Sources - Rivers */
+\item PSOURCE : Define if using point sources (rivers).
+\item ANA\_PSOURCE : Define if using analytical vertical profiles for the point sources
+(using fluxes defined in roms.in).
+\\ \\ /*                       Lateral Mixing */
+\item UV\_VIS2 : Activate Laplacian horizontal mixing of momentum.
+\item MIX\_GP\_UV : Activate mixing on geopotential (constant Z) surfaces.
+\item SMAGORINSKY : Activate Smagorinsky parametrization for horizontal mixing.
+\item TS\_DIF2: Activate Laplacian horizontal mixing of tracers.
+\item MIX\_GP\_TS : Activate mixing on geopotential (constant Z) surfaces.
+\item CLIMAT\_TS\_MIXH : Activate horizontal mixing of T-Tclim instead of T for the tracers.
+\\ \\ /*                       Vertical Mixing */
+\item BODYFORCE : Define if applying surface and bottom stresses as bodyforces.
+\item BVF\_MIXING : Activate a simple mixing scheme based on the Brunt-V\"ais\"al\"a frequency.
+\item LMD\_MIXING : Activate Large/McWilliams/Doney mixing (LMD-KPP closure).
+\item LMD\_SKPP : Activate surface boundary layer KPP mixing (LMD-KPP closure). 
+\item LMD\_BKPP : Activate bottom boundary layer KPP mixing (LMD-KPP closure). 
+\item LMD\_RIMIX : Activate shear instability interior mixing (LMD-KPP closure).
+\item LMD\_CONVEC : Activate convection interior mixing (LMD-KPP closure).
+\item LMD\_DDMIX : Activate double diffusion interior mixing (LMD-KPP closure). 
+\item LMD\_NONLOCAL : Activate nonlocal transport (LMD-KPP closure). 
+\\ \\ /*                       Open Boundary Conditions */
+\item OBC\_M2FLATHER :  Activate Flather open boundary conditions for ubar and vbar.
+\item OBC\_M2CHARACT  :  Activate open boundary conditions based on characteristic methods 
+for ubar and vbar.
+\item OBC\_VOLCONS : Activate mass conservation enforcement at open boundaries.
+\item OBC\_M2ORLANSKI : Activate 2D radiation open boundary conditions for ubar and vbar.
+\item OBC\_M2SPECIFIED : Activate specified open boundary conditions for ubar and vbar.
+\item OBC\_M3ORLANSKI : Activate 2D radiation open boundary conditions for u and v.
+\item OBC\_M3CHARACT : Activate open boundary conditions based on characteristic methods 
+for u and v.
+\item OBC\_M3SPECIFIED : Activate specified open boundary conditions for u and v.
+\item OBC\_TORLANSKI :  Activate 2D radiation open boundary conditions for tracers.
+\item OBC\_TUPWIND : Activate upwind open boundary conditions for tracers.
+\item OBC\_TSPECIFIED : Activate specified open boundary conditions for tracers.
+\\ \\ /*                       Embedding conditions */
+
+\item AGRIF\_STORE\_BAROT\_CHILD : Store ubar and vbar during the parent step for the
+child boundary conditions (Nesting).
+\item AGRIF\_FLUX\_BC : Apply parent/child barotropic boundary conditions as 
+fluxes (Nesting).
+\item AGRIF\_POLY\_DUAVG : Apply a third order polynomial temporal interpolation 
+for parent/child coupling of DU\_avg1 and DU\_avg2 (Nesting).
+\item AGRIF\_LOCAL\_VOLCONS : Enforce parent-child mass conservation (Nesting).
+\item AGRIF\_OBC\_M2FLATHER :  Activate Flather open boundary conditions for ubar and vbar
+for the child model (Nesting).
+\item AGRIF\_OBC\_M2ORLANSKI : Activate 2D radiation open boundary conditions for ubar and vbar
+for the child model (Nesting).
+\item AGRIF\_OBC\_M2SPECIFIED : Activate specified open boundary conditions for ubar and vbar
+for the child model (Nesting).
+\item AGRIF\_OBC\_M2CHARACT :  Activate open boundary conditions based on characteristic methods 
+for ubar and vbar
+for the child model (Nesting).
+\item AGRIF\_OBC\_M3ORLANSKI : Activate 2D radiation open boundary conditions for u and v
+for the child model (Nesting).
+\item AGRIF\_OBC\_M3SPECIFIED : Activate specified open boundary conditions for u and v
+for the child model (Nesting).
+\item AGRIF\_OBC\_M3CHARACT : Activate open boundary conditions based on characteristic methods 
+for u and v
+for the child model (Nesting).
+\item AGRIF\_OBC\_TORLANSKI :  Activate 2D radiation open boundary conditions for tracers
+for the child model (Nesting).
+\item AGRIF\_OBC\_TUPWIND : Activate upwind open boundary conditions for tracers
+for the child model (Nesting).
+\item AGRIF\_OBC\_TSPECIFIED  : Activate specified open boundary conditions for tracers
+for the child model (Nesting).
+\\ \\ /*           Applications */
+\\ \\ /*           Biology */
+\item BIO\_NChlPZD : Select a 5 components (Nitrate, Chlorophyll, Phytoplankton, Zooplankton,
+Detritus) biogeochemical model.
+\item BIO\_N2ChlPZD2 : Select a 7 components (Nitrate, Ammonium, Chlorophyll, Phytoplankton, Zooplankton,
+Small Detritus, Large Detritus) biogeochemical model. 
+\item BIO\_N2P2Z2D2 : Select a 8 components (Nitrate, Ammonium, Small  Phytoplankton, Large Phytoplankton, 
+Small Zooplankton, Large Zooplankton,
+Small Detritus, Large Detritus) biogeochemical model. 
+\item DIAGNOSTICS\_BIO : Define if writing out fluxes between the biological components.
+\\ \\ /*           Floats */
+\item FLOATS\_GLOBAL\_ATTRIBUTES : Write out global attributes for the floats.
+\item IBM  : Add a fish behavior to the floats (Individual Based Model).
+\item RANDOM\_WALK : Add a random walk for the floats dispersion.
+\item DIEL\_MIGRATION : Add a vertical daily migration to the floats.
+\item RANDOM\_VERTICAL : Add a random walk for the floats depending on the vertical mixing.
+\\ \\ /*           Stations */
+\item ALL\_SIGMA : Write out all vertical levels in the stations file.
+
+\end{itemize}
+
+ROMS can be compiled by running the UNIX tcsh script $\sim$/Roms\_tools/Run/jobcomp.
+Jobcomp should be able to recognize your system. It has been tested on 
+Linux, IBM, Sun and Compaq systems. On Linux PCs, the default compiler is the GNU g77, 
+but it is possible to uncomment specific lines in jobcomp to use g95 or ifort.
+The latter is mandatory when using AGRIF and/or OPEN\_MP.
+When changing the compiler you should provide a corresponding NetCDF library.
+Once the compilation is done, you should obtain a new
+executable (roms) in the $\sim$/Roms\_tools/Run directory.
+ROMS should be recompiled each time param.h or cppdefs.h are changed.
+
+\subsection{Running the model}
+
+Edit the input parameter file: $\sim$/Roms\_tools/Run/roms.in.
+The vertical grid parameters (THETA\_S,   THETA\_B,   HC)
+should be identical to the ones in romstools\_param.m.
+Otherwise, the other default values should not be changed.
+The definition of all the input variables is given at the start of each ROMS
+simulation.
+To run the model, type in directory $\sim$/Roms\_tools/Run/ : ./roms roms.in.
+On the screen, you should check the Cu\_max parameter: if it is greater than
+1 you are violating the CFL criterion. In this case, you should reduce the 
+time step.
+\\
+Example of model run:\\
+\\
+$>$ : ./roms roms.in
+\\\\
+You should obtain :\\
+------------------------------------------------------------------------------------------\\
+ Southern Benguela\\
+       480  ntimes   Total number of timesteps for 3D equations.\\
+   5400.00  dt       Timestep [sec] for 3D equations\\
+        60  ndtfast  Number of 2D timesteps within each 3D step.\\
+         1  ninfo    Number of timesteps between runtime diagnostics.\\
+\\
+ 6.000E+00  theta\_s  S-coordinate surface control parameter.\\
+ 0.000E+00  theta\_b  S-coordinate bottom control parameter.\\
+ 1.000E+01  Tcline   S-coordinate surface/bottom layer width used in\\
+                                vertical coordinate stretching, meters.\\
+          Grid File:  ROMS\_FILES/roms\_grd.nc\\
+  Forcing Data File:  ROMS\_FILES/roms\_frc.nc\\
+     Bulk Data File:  ROMS\_FILES/roms\_blk.nc\\
+   Climatology File:  ROMS\_FILES/roms\_clm.nc\\
+ Initial State File:  ROMS\_FILES/roms\_ini.nc    Record:  1\\
+       Restart File:  ROMS\_FILES/roms\_rst.nc    nrst =   480    rec/file:   -1\\
+       History File:  ROMS\_FILES/roms\_his.nc  Create new: T  nwrt = 480  rec/file =  0\\
+         1  ntsavg      Starting timestep for the accumulation of output\\
+                                time-averaged data.\\
+        48  navg        Number of timesteps between writing of time-averaged\\
+                                data into averages file.\\
+      Averages File:  ROMS\_FILES/roms\_avg.nc rec/file =  0\\
+\\
+ Fields to be saved in history file: (T/F)\\
+      T  write zeta  free-surface.\\
+      F  write UBAR  2D U-momentum component.\\
+      F  write VBAR  2D V-momentum component.\\
+      F  write U     3D U-momentum component.\\
+      F  write V     3D V-momentum component.\\
+      F  write T(1)  Tracer of index 1.\\
+      F  write T(2)  Tracer of index 2.\\
+\\
+      F  write RHO   Density anomaly.\\
+      F  write Omega Omega vertical velocity.\\
+      F  write W     True vertical velocity.\\
+      F  write Akv   Vertical viscosity.\\
+      F  write Akt   Vertical diffusivity for temperature.\\
+      F  write Aks   Vertical diffusivity for salinity.\\
+      F  write Hbl   Depth of KPP-model boundary layer.\\
+      F  write Bostr Bottom Stress.\\
+\\
+ Fields to be saved in averages file: (T/F)\\
+      T  write zeta  free-surface.\\
+      T  write UBAR  2D U-momentum component.\\
+      T  write VBAR  2D V-momentum component.\\
+      T  write U     3D U-momentum component.\\
+      T  write V     3D V-momentum component.\\
+      T  write T(1)  Tracer of index 1.\\
+      T  write T(2)  Tracer of index 2.\\
+\\
+      F  write RHO   Density anomaly\\
+      T  write Omega Omega vertical velocity.\\
+      T  write W     True vertical velocity.\\
+      F  write Akv   Vertical viscosity\\
+      T  write Akt   Vertical diffusivity for temperature.\\
+      F  write Aks   Vertical diffusivity for salinity.\\
+      T  write Hbl   Depth of KPP-model boundary layer\\
+      T  write Bostr Bottom Stress.\\
+ 1025.0000  rho0     Boussinesq approximation mean density, kg/m3.\\
+ 0.000E+00  visc2    Horizontal Laplacian mixing coefficient [m2/s]\\
+                                for momentum.\\
+ 0.000E+00  tnu2(1)  Horizontal Laplacian mixing coefficient (m2/s)\\
+                                for tracer 1.\\
+ 0.000E+00  tnu2(2)  Horizontal Laplacian mixing coefficient (m2/s)\\
+                                for tracer 2.\\
+ 0.000E+00  rdrg     Linear bottom drag coefficient (m/si).\\
+ 0.000E+00  rdrg2    Quadratic bottom drag coefficient.\\
+ 1.000E-02  Zob      Bottom roughness for logarithmic law (m).\\
+ 1.000E-04  Cdb\_min  Minimum bottom drag coefficient.\\
+ 1.000E-01  Cdb\_max  Maximum bottom drag coefficient.\\
+\\
+      1.00  gamma2   Slipperiness parameter: free-slip +1, or no-slip -1.\\
+  1.00E+05  x\_sponge Thickness of sponge and/or nudging layer (m)\\
+    800.00  v\_sponge Viscosity in sponge layer (m2/s)\\
+ 1.157E-05  tauT\_in  Nudging coefficients [sec\^-1]\\
+ 3.215E-08  tauT\_out Nudging coefficients [sec\^-1]\\
+ 1.157E-06  tauM\_in  Nudging coefficients [sec\^-1]\\
+ 3.215E-08  tauM\_out Nudging coefficients [sec\^-1]\\
+\\
+ Activated C-preprocessing Options:\\
+\\
+          REGIONAL\\
+          BENGUELA\\
+          OBC\_EAST\\
+          OBC\_WEST\\
+          OBC\_NORTH\\
+          OBC\_SOUTH\\
+          SOLVE3D\\
+          UV\_COR\\
+          UV\_ADV\\
+          CURVGRID\\
+          SPHERICAL\\
+          MASKING\\
+          AVERAGES\\
+          AVERAGES\_K\\
+          SALINITY\\
+          NONLIN\_EOS\\
+          SPLIT\_EOS\\
+          BULK\_FLUX\\
+          BULK\_EP\\
+          SPONGE\\
+          CLIMATOLOGY\\
+          ZCLIMATOLOGY\\
+          M2CLIMATOLOGY\\
+          M3CLIMATOLOGY\\
+          TCLIMATOLOGY\\
+          ZNUDGING\\
+          M2NUDGING\\
+          M3NUDGING\\
+          TNUDGING\\
+          ANA\_BSFLUX\\
+          ANA\_BTFLUX\\
+          UV\_VIS2\\
+          MIX\_GP\_UV\\
+          TS\_DIF2\\
+          MIX\_GP\_TS\\
+          CLIMAT\_TS\_MIXH\\
+          LMD\_MIXING\\
+          LMD\_SKPP\\
+          LMD\_BKPP\\
+          LMD\_RIMIX\\
+          LMD\_CONVEC\\
+          OBC\_M2FLATHER\\
+          OBC\_M3ORLANSKI\\
+          OBC\_TORLANSKI\\
+          M2FILTER\_COSINE\\
+\\
+Linux 2.6.9-42.0.3.ELsmp x86\_64\\
+ NUMBER OF THREADS:  1 BLOCKING:  1 x  1.\\
+\\
+ Spherical grid detected.\\
+\\
+ hmin        hmax         grdmin         grdmax         Cu\_min      Cu\_max\\
+   75.000000  4803.032721 .301836927E+05 .331215714E+05  0.12176008  0.91533005\\
+   volume=9.523986093261087500000E+14   open\_cross=6.104836888312444686890E+09\\
+\\
+ Vertical S-coordinate System:\\
+\\
+ level   S-coord     Cs-curve          at\_hmin  over\_slope     at\_hmax\\
+\\
+    32   0.0000000   0.0000000           0.000       0.000       0.000\\
+    31  -0.0312500  -0.0009350          -0.373      -2.584      -4.794\\
+    30  -0.0625000  -0.0019030          -0.749      -5.247      -9.746\\
+    29  -0.0937500  -0.0029380          -1.128      -8.074     -15.019\\
+    28  -0.1250000  -0.0040767          -1.515     -11.152     -20.790\\
+    27  -0.1562500  -0.0053591          -1.911     -14.580     -27.249\\
+    26  -0.1875000  -0.0068304          -2.319     -18.466     -34.613\\
+    25  -0.2187500  -0.0085426          -2.743     -22.938     -43.132\\
+    24  -0.2500000  -0.0105560          -3.186     -28.141     -53.095\\
+    23  -0.2812500  -0.0129416          -3.654     -34.248     -64.842\\
+    22  -0.3125000  -0.0157835          -4.151     -41.463     -78.776\\
+    21  -0.3437500  -0.0191819          -4.684     -50.031     -95.377\\
+    20  -0.3750000  -0.0232566          -5.262     -60.241    -115.220\\
+    19  -0.4062500  -0.0281514          -5.892     -72.443    -138.993\\
+    18  -0.4375000  -0.0340388          -6.588     -87.056    -167.524\\
+    17  -0.4687500  -0.0411263          -7.361    -104.584    -201.807\\
+    16  -0.5000000  -0.0496640          -8.228    -125.635    -243.041\\
+    15  -0.5312500  -0.0599527          -9.209    -150.939    -292.668\\
+    14  -0.5625000  -0.0723554         -10.328    -181.377    -352.427\\
+    13  -0.5937500  -0.0873092         -11.613    -218.013    -424.414\\
+    12  -0.6250000  -0.1053416         -13.097    -262.126    -511.156\\
+    11  -0.6562500  -0.1270882         -14.823    -315.262    -615.700\\
+    10  -0.6875000  -0.1533158         -16.841    -379.282    -741.723\\
+     9  -0.7187500  -0.1849493         -19.209    -456.432    -893.656\\
+     8  -0.7500000  -0.2231040         -22.002    -549.423   -1076.845\\
+     7  -0.7812500  -0.2691252         -25.306    -661.522   -1297.738\\
+     6  -0.8125000  -0.3246355         -29.226    -796.670   -1564.114\\
+     5  -0.8437500  -0.3915923         -33.891    -959.622   -1885.352\\
+     4  -0.8750000  -0.4723564         -39.453   -1156.112   -2272.770\\
+     3  -0.9062500  -0.5697755         -46.098   -1393.057   -2740.015\\
+     2  -0.9375000  -0.6872846         -54.048   -1678.800   -3303.552\\
+     1  -0.9687500  -0.8290268         -63.574   -2023.407   -3983.240\\
+     0  -1.0000000  -1.0000000         -75.000   -2439.016   -4803.033\\
+\\
+ Time splitting: ndtfast = 60    nfast = 89\\
+ Maximum grid stiffness ratios:   rx0 =0.2353349875  rx1 =  2.5672736953\\
+\\
+      GET\_INITIAL -- Processing data for time =   0.000     record =   1\\
+\\
+      GET\_TCLIMA -- Read climatology of tracer   1 for time =    345.0 \\   
+      GET\_TCLIMA -- Read climatology of tracer   1 for time =    15.00 \\   
+      GET\_TCLIMA -- Read climatology of tracer   2 for time =    345.0 \\   
+      GET\_TCLIMA -- Read climatology of tracer   2 for time =    15.00 \\   
+      GET\_UCLIMA -- Read momentum climatology      for time =    345.0 \\   
+      GET\_UCLIMA -- Read momentum climatology      for time =    15.00 \\   
+      GET\_SSH     - Read SSH climatology           for time =    345.0 \\   
+      GET\_SSH     - Read SSH climatology           for time =    15.00 \\   
+      GET\_SMFLUX -- Read surface momentum stresses for time =    345.0 \\   
+      GET\_SMFLUX -- Read surface momentum stresses for time =    15.00 \\   
+      GET\_BULK   -- Read fields for bulk formula   for time =    345.0 \\   
+      GET\_BULK   -- Read fields for bulk formula   for time =    15.00 \\   
+\\
+      DEF\_HIS/AVG - Created new netCDF file 'ROMS\_FILES/roms\_his.nc'.\\
+      WRT\_GRID -- wrote grid data into file 'ROMS\_FILES/roms\_his.nc'.\\
+      WRT\_HIS -- wrote history fields into time record =   1 /   1\\
+\\
+ MAIN: started time-steping.\\
+\\
+ STEP   time[DAYS] KINETIC\_ENRG    POTEN\_ENRG    TOTAL\_ENRG    NET\_VOLUME   trd\\
+     0     0.00000 0.000000000E+00 2.1475858E+01 2.1475858E+01 9.5239861E+14  0\\
+     1     0.06250 1.306369099E-04 2.1476230E+01 2.1476361E+01 9.5239208E+14  0\\
+...\\
+------------------------------------------------------------------------------------------\\
+
+\subsection{Long simulations}
+
+In many studies, there is a need for long simulations: to reach the spin-up of 
+the solution and/or to obtain statistical equilibriums.
+For regional models, 10 years appears to be a reasonable model simulation length.
+In this case, to prevent the generation of large output files, the strategy 
+is to relaunch the model every simulated month.
+This is done by the UNIX csh script: run\_roms.csh .
+Warning! the ROMS input file use for long simulations is roms\_inter.in.
+It should be edited accordingly.
+
+
+\begin{enumerate}
+\item It gets the grid, the forcing, the initial and the boundary files.
+\item It runs the model for 1 month.
+\item It stores the output files in a specific form: roms\_avg\_Y4M3.nc (for the ROMS 
+averaged output of March of year 4).
+\item It replaces the initial file by the restart file (roms\_rst.nc) which as 
+been generated at the end of the month.
+\item It relaunch the model for next month.
+\end{enumerate}
+
+Part to edit in run\_roms.csh:\\
+\\
+set MODEL=roms \\
+set SCRATCHDIR=`pwd`/SCRATCH \\
+set INPUTDIR=`pwd` \\
+set MSSDIR=`pwd`/ROMS\_FILES \\
+set MSSOUT=`pwd`/ROMS\_FILES \\
+set CODFILE=roms \\
+set AGRIF\_FILE=AGRIF\_FixedGrids.in \\
+\# \\
+\# Model time step [seconds] \\
+\# \\
+set DT=5400 \\
+\# \\
+\# Number of days per month \\
+\# \\
+set NDAYS = 30 \\
+\# \\
+\# number total of grid levels \\
+\# \\
+set NLEVEL=1 \\
+\# \\
+\#  Time Schedule  -  TIME\_SCHED=0 --$>$ yearly files \\
+\#                    TIME\_SCHED=1 --$>$ monthly files \\
+\# \\
+set TIME\_SCHED=1 \\
+\# \\
+set NY\_START=1 \\
+set NY\_END=10 \\
+set NM\_START=1 \\
+set NM\_END=12 \\
+\\
+
+Variables definitions:
+\begin{itemize}
+\item MODEL=roms : Name used for the input files. For example roms\_grd.nc.
+\item SCRATCHDIR=`pwd`/SCRATCH : Scratch directory where the model is run
+\item INPUTDIR=`pwd` : Input directory where the roms\_inter.in input file
+is.
+\item MSSDIR=`pwd`/ROMS\_FILES : Directory where the roms input NetCDF files
+(roms\_grd.nc, roms\_frc.nc, ...) are stored.
+\item MSSOUT=`pwd`/ROMS\_FILES : Directory where the roms output NetCDF files
+(roms\_his.nc, roms\_avg.nc, ...) are stored.
+\item CODFILE=roms : ROMS executable.
+\item AGRIF\_FILE=AGRIF\_FixedGrids.in : AGRIF input file which defines the 
+position of child grids when using embedding.
+\item DT=5400 : Model time step in seconds.
+\item NDAYS = 30 : Number of days in 1 month.
+\item NLEVEL=1 : Total number of model grids (no AGRIF: NLEVEL=1).
+\item NY\_START=1 : Starting year.
+\item NY\_END=10 : Ending Year.
+\item NM\_START=1 : Starting month.
+\item NM\_END=12 : Ending month.
+\end{itemize}
+
+To run a ROMS long simulation in batch mode on a Linux workstation:\\	
+
+$>$ : nohup ./run\_roms.csh $>$ exp1.out \&\\\\
+To check the execution of your model, type in the directory
+$\sim$/Roms\_Tools/Run :\\ $>$: more exp1.out
+\subsection{Getting the results}
+
+\subsubsection{roms\_gui}
+
+Once the model has run, or during the simulation, it is possible
+to visualize the model outputs using a Matlab graphic user interface : 
+roms\_gui. Launch roms\_gui in the Matlab session 
+(in the  $\sim$/Roms\_tools/Run/ directory):
+\\ \\
+$>>$ \\
+$>>$ roms\_gui
+\\\\
+A window pops up, asking for a ROMS history NetCDF file (Figure \ref{fig:open}).
+You should select roms\_his.nc (history file) or roms\_avg.nc (average file) and
+click "open".
+\begin{figure}[!ht]
+\centerline{\psfig{figure=roms_gui_select.eps,width=5cm}}
+\caption{Entrance window of roms\_gui}
+\label{fig:open}
+\end{figure}
+\\
+\begin{figure}[!ht]
+\centerline{\psfig{figure=roms_gui.eps,width=9cm}}
+\caption{roms\_gui}
+\label{fig:romsgui}
+\end{figure}
+
+The main window appears, variables can be selected to obtain an image such as
+Figure (\ref{fig:romsgui}). On the left side, the upper box  gives the available 
+ROMS variable names and the lower box presents the variables derived from the
+ROMS model outputs :
+
+\begin{itemize}
+\item Ke : Horizontal slice of kinetic energy: $0.5(u^2+v^2)$.
+\item Rho : Horizontal slice of density using the non-linear equation of state 
+for seawater of \citet{Jac95}.
+\item Pot\_Rho : Horizontal slice of the potential density.
+\item Bvf : Horizontal slice of the Brunt-V\"ais\"ala frequency: 
+$N^2=-\frac{g}{\rho}\frac{\partial \rho}{\partial z}$ 
+\item Vort : Horizontal slice of vorticity: $\frac{\partial v}{\partial x}-
+\frac{\partial u}{\partial y}$.
+\item Pot\_vort : Horizontal slice of the vertical component of Ertel's potential vorticity:
+$\frac{\partial \lambda}{\partial z} \left [ f + 
+\left (\frac{\partial v}{\partial x}-\frac{\partial u}{\partial y}\right ) \right ]$.
+In our case, $\lambda=\rho$.
+\item Psi : Horizontal slice of stream function: 
+$\nabla^2 \psi=\frac{\partial v}{\partial x}-\frac{\partial u}{\partial y}$.
+This routine might be costly since it inverses the Laplacian of the vorticity
+(using a successive over relaxation solver).
+\item Speed : Horizontal slice of the ocean currents velocity : $\sqrt{u^2+v^2}$.
+\item Transport : Horizontal slice of the transport stream function : 
+$\nabla^2 S_{vd}=\frac{\partial \bar{v}}{\partial x}-\frac{\partial \bar{u}}{\partial y}$.
+\item Okubo : Horizontal slice of the Okubo-Weiss parameter : 
+$\Lambda^2=
+\left ( \frac{\partial u}{\partial x}-\frac{\partial v}{\partial y} \right )^2+
+\left ( \frac{\partial v}{\partial x}+\frac{\partial u}{\partial y} \right )^2-
+\left ( \frac{\partial v}{\partial x}-\frac{\partial u}{\partial y} \right )^2$.
+\item Chla : Compute a chlorophyll-a from Large and Small phytoplankton concentrations.
+\item z\_SST\_1C : Depth of 1$^\circ$C below SST.
+\item z\_rho\_1.25 : Depth of 1.25 kg.m$^{-3}$ below surface density.
+\item z\_max\_bvf : Depth of the maximum of the  Brunt-V\"ais\"ala frequency.
+\item z\_max\_dtdz : Depth of the maximum  vertical temperature gradient.
+\item z\_20C : Depth of the 20$^\circ$C isotherm.
+\item z\_15C : Depth of the 15$^\circ$C isotherm.
+\item z\_sig27 : Depth of the 1027 kg.m$^{-3}$ density layer.
+\item r\_factor : $r=\frac{\nabla h}{2h}=\frac{h_{+1/2}-h_{-1/2}}{h_{+1/2}+h_{-1/2}}$
+\end{itemize}
+
+It is possible to add arrows for the horizontal currents by increasing the "Current vectors 
+spatial step". It is also possible to obtain vertical sections, time series, vertical profiles
+and Hovm\"uller diagrams by clicking on the corresponding targets in roms\_gui.
+
+\subsubsection{Diagnostics}
+
+To analyze the long simulations,
+a few scripts have been added in the directory: \\
+$\sim$/Roms\_tools/Diagnostic\_tools:
+\begin{itemize}
+\item roms\_diags.m : Get volume and surface averaged quantities from a ROMS simulation.
+\item plot\_diags.m :  Plot the averaged quantities computed by roms\_diags.m.
+\item get\_Mmean.m  : Get the monthly mean climatology.
+\item get\_Smean.m  : Get the seasonal and annual mean climatology from the outputs of
+get\_Mmean.m.
+\item get\_Meddy.m  : Get the monthly variance climatology (if the variable nonseannal = 1, 
+the non-seasonal variance is computed; i.e., the seasonal variation are 
+filtered). It needs that get\_Mmean.m and get\_Smean.m are run before.
+\item get\_Seddy.m  : Get the seasonal and annual RMS from the results of 
+get\_Meddy.m.
+\item roms\_anim.m  : Create an animation from the monthly  history or average files.
+\end{itemize}
+Run these scripts in a Matlab session.
+The obtained mean or eddy files can be visualized with roms\_gui.\\
+
+If you need to create and play ".fli" animations, you should install ppm2fli
+and xanim on your system. If you have a Linux PC, you can follow these steps:
+\begin{enumerate}
+\item log in as root
+\item go to the directory where the file is saved.
+\item type : rpm -Uvh  ppm2fli-2.1-1.i386.rpm
+\item type : rpm -Uvh  xanim-2.80.1-12.i386.rpm
+\item log out
+\end{enumerate}
+If you are not using a Linux PC, you should ask your 
+system administrator to install these programs.\\

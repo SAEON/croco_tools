@@ -1,0 +1,67 @@
+\documentclass[10pt]{article}
+\usepackage{psfig}
+\usepackage{epsf}
+\usepackage{multicol}
+\usepackage{natbib}
+\textwidth 15cm
+\textheight 23cm
+\topmargin -1.cm
+\oddsidemargin 1.cm
+\evensidemargin 0.cm
+\begin{document}
+\setcounter{page}{0}
+\pagestyle{empty}
+\begin{center}
+\vspace{3 cm}
+{\huge \bf ROMSTOOLS User's Guide }\\
+\vspace{2 cm}
+{\Large Pierrick Penven and Thi-Anh Tan}\\ 
+\vspace{1 cm}
+{\large Institut de Recherche pour le D\'eveloppement (IRD),
+213 rue Lafayette, Paris,
+France} \\
+\vspace{2cm}
+\centerline{\psfig{figure=roms_gui.eps,width=11cm}}
+\vspace{1cm}
+
+{July, 2007}
+
+
+\end{center}
+
+\pagebreak
+\setcounter{page}{0}
+\tableofcontents
+\pagebreak
+\pagestyle{plain}
+
+\section{Introduction}
+\input{intro}
+
+\section{The ROMS model}
+\input{roms}
+
+\section{Tutorial : the Southern Benguela example}
+\input{tutorial}
+
+\section{Tides}
+\input{tides}
+
+\section{Inter-Annual simulations}
+\input{inter_annual_simulation}
+
+\section{Embedding}
+\input{nesting}
+
+\section{Biology}
+\input{biology}
+
+\section{Operational coastal modeling system}
+\input{forecast}
+
+\pagebreak
+\begin{thebibliography}{}
+\input{biblio}
+\end{thebibliography}
+\end{document}
+

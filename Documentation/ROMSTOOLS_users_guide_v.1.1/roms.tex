@@ -1,0 +1,31 @@
+ROMS solves the primitive equations in an Earth-centered
+rotating environment, based on the Boussinesq approximation and
+hydrostatic vertical momentum balance. ROMS is discretized in
+coastline- and terrain-following curvilinear coordinates.
+ROMS is a split-explicit, free-surface ocean model, where short time steps
+are used to advance the surface elevation and barotropic momentum, with a
+much larger time step used for temperature, salinity, and baroclinic momentum.
+ROMS employs a special 2-way time-averaging procedure for the barotropic mode,
+which satisfies the 3D continuity equation \citep{Shc03b}.
+The specially designed predictor-corrector time step algorithm used in ROMS
+allows a substantial increase in the permissible time-step size.
+
+ROMS has been designed to be optimized on shared memory parallel computer
+architectures such as the SGI/CRAY Origin 2000. Parallelization is done
+by two dimensional sub-domains partitioning. Multiple sub-domains can be
+assigned to each processor in order to optimize the use of processor
+cache memory. This allow super-linear scaling when performance growth even
+faster than the number of CPUs.
+
+The third-order, upstream-biased advection scheme implemented in ROMS
+allows the generation of steep gradients, enhancing the effective resolution
+of the solution for a given grid size \citep{Shc98}. Explicit lateral
+viscosity is null everywhere in the model domain except in sponge layers
+near the open  boundaries where it increases smoothly close to the lateral
+open boundaries.
+
+A non-local, K-profile planetary (KPP) boundary layer scheme \citep{Lar94}
+parameterizes the unresolved physical vertical subgrid-scale processes.
+If a lateral boundary faces the open ocean, an active, implicit,
+upstream biased, radiation condition connects the model solution
+to the surroundings \citep{Mar01}.
