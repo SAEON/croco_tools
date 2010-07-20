@@ -35,7 +35,7 @@ softwares needed by ROMSTOOLS are located at:
 http://roms.mpl.ird.fr/Roms\_tools/index.html 
 \end{center}
 For the ROMS source code you should download ROMS\_AGRIF version
-V2.0.\\\\\\\\\\\\
+V2.1.\\\\\\\\\\\\
 
 
 \subsection{Extracting the files}
@@ -150,6 +150,20 @@ $|$\hspace{0.5cm}$|$\hspace{0.5cm}$|$-- AGRIF\_YOURFILES
 
 $|$\hspace{0.5cm}$|$\hspace{0.5cm}$|$-- LIB.clean
 
+$|$-- Run\_v.2.1
+
+$|$\hspace{0.5cm}$|$-- DATA
+
+
+$|$\hspace{0.5cm}$|$-- FORECAST
+
+$|$\hspace{0.5cm}$|$-- ROMS\_FILES
+
+$|$\hspace{0.5cm}$|$-- SCRATCH
+
+$|$\hspace{0.5cm}$|$-- TEST\_CASES
+
+
 $|$-- Run
 
 $|$\hspace{0.5cm}$|$-- DATA
@@ -229,6 +243,11 @@ Definition of the different directories :
 \item Roms\_Agrif : ROMS Fortran sources.
 \item Run : Working directory. This is where the ROMS input files
       are generated and where the model is running.
+    \item Run\_v.2.X : An example of Run directory fully compatible with
+      the ROMS\_AGRIF code version v.2.X. \\
+      \noindent  It is useful when you update the ROMS\_AGRIF version, to check the
+      compatibility of your own param.h, cppdefs.h and roms.in files, in your Run
+      directory.
 \item SeaWifs : surface chlorophyll-a climatology based on SeaWifs observations.
 \item SST\_pathfinder : Directory of a higher resolution SST climatology 
       \citep{Rey94} for the thermal correction term.

@@ -1,4 +1,4 @@
-\section{Namelist description : \textit{roms.in}}\label{namelistdesc}
+\section{Namelist description : roms.in}\label{namelistdesc}
 
 \subsection{Exemple of South Benguela Test Case}
 \textbf{title}: \\
@@ -14,7 +14,7 @@ roms\_frc.nc \\
 \textbf{bulk\_forcing}: filename \\
 roms\_bulk.nc \\
 \textbf{climatology}: filename \\
-roms\_clm.nc\\
+roms\_clm.nc \\
 \textbf{boundary}: filename \\
 roms\_bry.nc \\
 \textbf{initial}: NRREC  filename \\
@@ -31,11 +31,11 @@ $1$      $72$     $0$ \\
 roms\_avg.nc \\
 \textbf{primary\_history\_fields}: zeta UBAR VBAR  U  V   wrtT(1:NT) \\
 T    T   T   T  T    $30$*T \\
-\textbf{auxiliary\_history\_fields}:   rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr UWstr VWstr rsw rlw lat sen HEL \\
+\textbf{auxiliary\_history\_fields}:   rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Ustr Vstr rsw rlw lat sen HEL \\
 F   F     T   F    T    F    T   T    T     T    T    T $10$*F \\
 \textbf{primary\_averages}: zeta UBAR VBAR  U  V   wrtT(1:NT) \\
 T    T    T    T  T   $30$*T      \\
-\textbf{auxiliary\_averages}: rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Wstr UWst  rsw rlw lat sen HEL \\
+\textbf{auxiliary\_averages}: rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Ustr Vst  rsw rlw lat sen HEL \\
 F   T     T   F    T    F    T   T    T     T   T    T     $10$*F\\
 \textbf{rho0}: \\
 $1025.d0$ \\
@@ -59,39 +59,27 @@ $1.$       $360.$      $3.$      $360.$ \\
 \textbf{diagnostics}:   ldefdia   nwrtdia    nrpfdia /filename \\
 T        $72$         $0$ \\
 roms\_dia.nc \\
-\textbf{diagnostics\_history\_fields \footnote{For each flag, you have to define T or
-    F fior the tracer corresponding. In case of physical experiments, we have two
-    tracers, T and S, so we have to define 2 logical value for each terms. In case of
-    PISCES biogeochemical experiment, we have T, S and $24$ more tracers. So we have
-    to define $26$ logical value for each term. For example, in this case replace T T
-    by T T 24*T if you want all the PISCES biogeochemical tracer diagnostics}}:
-TXadv(1:NT !!EXACT!!) TYadv TVadv THmix TVmix ... Tforc Trate TXadvml TYadvml TVadvml
-THmixml TVmixml Tforcml Tentml
-Trateml \\
-\noindent  T T $~~$      T T $~~$    T T  $~~$    T T  $~~$    T T $~~$      T T $~~$       T T $~~$
- T T  $~~$    T T $~~$      T T  $~~$       T T  $~~$      T T  $~~$  T T $~~$  T T $~~$
- $~~$ T T $~~$   T T $~~$ \\
 \textbf{diag\_avg}: ldefdia\_avg  ntsdia\_avg  nwrtdia\_avg  nprfdia\_avg /filename \\
                T          $1 $          $72$            0 \\
                                  roms\_dia\_avg.nc \\
-\textbf{diagnostics\_average\_fields}:   TXadv(1:NT !!EXACT!!) TYadv  TVadv  THmix 
-TVmix ... Tforc  Trate  TXadvml  TYadvml   TVadvml  THmixml TVmixml Tforcml Tentml
-Trateml \\
-\noindent  T T $~~$      T T $~~$    T T  $~~$    T T  $~~$    T T $~~$      T T $~~$       T T $~~$
- T T  $~~$    T T $~~$      T T  $~~$       T T  $~~$      T T  $~~$  T T $~~$  T T $~~$
- $~~$ T T $~~$   T T $~~$ \\
+\textbf{diag$3$D\_history\_fields}: diag\_tracers$3$D(1:NT) \\
+                                  $30$*T               \\
+\textbf{diag$2$D\_history\_fields}: diag\_tracers$2$D(1:NT) \\
+                                  $30$*T               \\
+\textbf{diag$3$D\_average\_fields}: diag\_tracers$3$D\_avg(1:NT) \\
+                                  $30$*T                   \\
+\textbf{diag$2$D\_average\_fields}: diag\_tracers$2$D\_avg(1:NT) \\
+                                  $30$*T                   \\
 \textbf{diagnosticsM}:   ldefdiaM   nwrtdiaM    nrpfdiaM /filename \\
                    T          $72$          $0$ \\
                                  roms\_diaM.nc \\
-\textbf{diagnosticsM\_history\_fields \footnote{In the case of momentum equation term,
-  we have only $2$ logical flags to define by diagnostic term, one for u and one for v}}:   MXadv MYadv MVadv MCor MPrsgrd MHmix MVmix MRate \\
-\noindent  T T$~~$   T T$~~$    T T$~~$ T T$~~$ T T$~~$ T T$~~$ T T$~~$ T T$~~$  \\
 \textbf{diagM\_avg}: ldefdiaM\_avg  ntsdiaM\_avg  nwrtdiaM\_avg  nprfdiaM\_avg /filename \\
                T          $1$           $72$            $0$ \\
                                  roms\_diaM\_avg.nc \\
-\textbf{diagnosticsM\_average\_fields}:   MXadv MYadv MVadv MCor MPrsgrd MHmix MVmix
-MRate \\
-\noindent  T T$~~$   T T$~~$    T T$~~$ T T$~~$ T T$~~$ T T$~~$ T T$~~$ T T$~~$  \\
+\textbf{diagM\_history\_fields}: diagM\_momentum(1:2) \\
+                                  T T               \\
+\textbf{diagM\_average\_fields}: diagM\_momentum\_avg(1:2) \\
+                                  T T               \\
 \textbf{diagnostics\_bio}:   ldefdiabio   nwrtdiabio    nrpfdiabio /filename \\
                         T          $72$             $0$ \\
                                  roms\_diabio.nc \\
@@ -220,19 +208,19 @@ every NAVG time steps  \\
 
 
 \large{\textbf{primary\_history \_fields}} &     \\ 
-&   Flags of written primary variables in history netCDF file \\ 
+&   Flags of written primary variables in history NetCDF file \\ 
 &  \\ 
 
 \large{\textbf{auxiliary\_history \_fields}} &     \\ 
-&  Flags of written auxiliary variables in history netCDF file \\ 
+&  Flags of written auxiliary variables in history NetCDF file \\ 
 &  \\ 
 
 \large{\textbf{primary\_averages}} &     \\ 
-&  Flags of written primary variables in history netCDF file \\ 
+&  Flags of written primary variables in history NetCDF file \\ 
 &  \\ 
 
 \large{\textbf{auxiliary\_averages}} &     \\ 
-&  Flags of written variables in average netCDF file\\ 
+&  Flags of written variables in average NetCDF file\\ 
 &  \\ 
 
 \large{\textbf{rho0}} & Mean density used in the Boussinesq equation. \\ 
@@ -301,11 +289,6 @@ CLIMATOLOGY boundary stategy is used, not the BRY one.\\
 every nwrtdia time steps   \\
 &/filename: Name of the file tracer equation diagnostic file.\\
 
-\large{\textbf{diagnostics\_history \_fields}} &     \\
-& Flags of written tracer equation term in history netCDF file \\
-& \\
-
-
 \large{\textbf{diag\_avg}} &     \\
 &ldefdia\_avg: Boolean flag to activate the tracer equation average diagnostic file writing  \\
 &ntsdia\_avg: Starting timestep for the accumulation of output time-averaged data. For
@@ -316,9 +299,28 @@ every nwrtdia\_avg time steps \\
 &/filename: Name of the file tracer equation average diagnostic file. \\
 &  \\ 
 
-\large{\textbf{diagnostics\_average \_fields}} &     \\
-& Flags of written tracer equation term in average netCDF file\\
+\large{\textbf{diag3D\_history \_fields}} &     \\
+& Boolean  flag to choose which tracer equation (temp, salt, etc ...) is computed in
+diagnostics and saved in NetCDF file. Terms are 3D \\
 & \\
+
+\large{\textbf{diag2D\_history \_fields}} &     \\
+& Boolean flags to choose which tracer equation, after mixed layer depth integration (cf
+DIAGNOSTICS\_TS\_MLD) is computed in diagnostics and saved in NetCDF file. Terms are 2D\\
+& \\
+
+\large{\textbf{diag3D\_average \_fields}} &     \\
+& Boolean  flag to choose which tracer equation (temp, salt, etc ...) is computed in
+diagnostics and saved in NetCDF file. Terms are 3D and are averaged over the diagnostic TS
+period defined as above, as nwrtdia\\
+& \\
+
+\large{\textbf{diag2D\_average \_fields}} &     \\
+& Boolean flags to choose which tracer equation, after mixed layer depth integration (cf
+DIAGNOSTICS\_TS\_MLD) is computed in diagnostics and saved in NetCDF file. Terms are 2D
+and are averaged over the diagnostic period defined as above, as nwrtdia\\
+& \\
+
 
 \large{\textbf{diagnosticsM}} &   Same format as \large{\textbf{diagnostics}} but for the momentum equation. \\
 &ldefdiaM:     \\
@@ -326,10 +328,6 @@ every nwrtdia\_avg time steps \\
 &nrpfdiaM:     \\
 &/filename:    \\
 &  \\ 
-
-\large{\textbf{diagnosticsM \_history\_fields}} &     \\
-& Flags of written momentum equations terms in history netCDF file\\
-& \\
 
 \large{\textbf{diagM\_avg}} &  Same format as \large{\textbf{diag\_avg}} but for the momentum equation. \\
 &ldefdiaM\_avg:     \\
@@ -339,9 +337,18 @@ every nwrtdia\_avg time steps \\
 &/filename          \\
 &  \\ 
 
-\large{\textbf{diagnosticsM \_average\_fields}} &     \\
-& Flags of written momentum equations terms in average netCDF file\\
+\large{\textbf{diagM\_history \_fields}} &     \\
+& Boolean  flag to choose which momentum equations are diagnosed and saved in NetCDF
+file. The diagnostics terms are 3D. \\
 & \\
+
+
+\large{\textbf{diagM\_average \_fields}} &     \\
+& Boolean flag to choose which momentum equation are diagnosed and saved in NetCDF
+file. The diagnostics terms are 3D and are averaged over the diagnostic
+period defined above, as nwrtdiaM\_avg.\\
+& \\
+
 
 
 \large{\textbf{diagnosticsM\_bio}} & Same format as \large{\textbf{diagnostics}}     \\

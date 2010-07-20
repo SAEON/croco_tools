@@ -1,69 +1,67 @@
 \contentsline {chapter}{\numberline {1}ROMSTOOLS matlab toolbox}{7}
-\contentsline {subsection}{\numberline {1.0.1}Installation}{7}
-\contentsline {subsubsection}{System requirement}{7}
-\contentsline {subsubsection}{Getting the files}{7}
-\contentsline {subsubsection}{Extracting the files}{8}
-\contentsline {subsection}{\numberline {1.0.2}LibDAP and LoadDAP}{11}
-\contentsline {subsection}{\numberline {1.0.3}Future plans}{12}
-\contentsline {subsection}{\numberline {1.0.4}Warnings}{12}
-\contentsline {section}{\numberline {1.1}Tutorial : the Southern Benguela example}{14}
-\contentsline {subsection}{\numberline {1.1.1}Getting started : Processing input files}{14}
-\contentsline {subsection}{\numberline {1.1.2}Building the grid}{17}
-\contentsline {subsection}{\numberline {1.1.3}Getting the wind and other surface fluxes}{21}
-\contentsline {subsection}{\numberline {1.1.4}Getting the initial and the lateral boundary conditions}{23}
-\contentsline {subsection}{\numberline {1.1.5}Compiling the model}{27}
-\contentsline {subsubsection}{Parameters of the configuration : param.h}{27}
-\contentsline {subsubsection}{Numerical and physical options : cppdefs.h}{27}
-\contentsline {subsubsection}{Compilation script : jobcomp}{28}
-\contentsline {subsection}{\numberline {1.1.6}Running the model}{28}
-\contentsline {subsection}{\numberline {1.1.7}Long simulations}{32}
-\contentsline {subsection}{\numberline {1.1.8}Getting the results}{34}
-\contentsline {subsubsection}{roms\_gui}{34}
-\contentsline {subsubsection}{Diagnostics}{36}
-\contentsline {section}{\numberline {1.2}Tides}{37}
-\contentsline {section}{\numberline {1.3}Inter-Annual simulations}{39}
-\contentsline {subsection}{\numberline {1.3.1}Getting the surface forcing data from NCEP}{39}
-\contentsline {subsection}{\numberline {1.3.2}Getting the surface windstress data from QuickSCAT}{41}
-\contentsline {subsection}{\numberline {1.3.3}Getting the lateral boundary conditions}{42}
-\contentsline {subsection}{\numberline {1.3.4}Running the model for interannual runs}{43}
-\contentsline {section}{\numberline {1.4}Embedding}{45}
-\contentsline {subsection}{\numberline {1.4.1}Embedded (child) model preparation}{45}
-\contentsline {subsection}{\numberline {1.4.2}Compiling and running the model}{48}
-\contentsline {section}{\numberline {1.5}Biology}{48}
-\contentsline {subsection}{\numberline {1.5.1}Idealized biogeochemical model : NChlPZD, N$2$ChlPZD$2$, N$2$P$2$Z$2$D$2$}{48}
-\contentsline {subsection}{\numberline {1.5.2}PISCES biogeochemical model}{50}
-\contentsline {section}{\numberline {1.6}Operational coastal modeling system}{54}
-\contentsline {chapter}{\numberline {2}ROMS\_AGRIF 2.0}{55}
-\contentsline {section}{\numberline {2.1}The ROMS model}{55}
-\contentsline {section}{\numberline {2.2}Nesting capabilities, 1-WAYS and 2-WAYS using the AGRIF procedure}{56}
-\contentsline {subsection}{\numberline {2.2.1}Introduction}{56}
-\contentsline {subsection}{\numberline {2.2.2}2-WAYS nesting: feed-back from child to parent grid}{57}
-\contentsline {section}{\numberline {2.3}Changelog since ROMS\_AGRIF $1.0$}{58}
-\contentsline {subsection}{\numberline {2.3.1}Numerical issues}{58}
-\contentsline {subsubsection}{Advection-Diffusion schemes}{58}
-\contentsline {subsubsection}{2D-3D coupling}{58}
-\contentsline {subsubsection}{MPI paralleization}{58}
-\contentsline {subsection}{\numberline {2.3.2}Nesting}{58}
-\contentsline {subsection}{\numberline {2.3.3}Online diagnostics and I/O}{58}
-\contentsline {subsection}{\numberline {2.3.4}PISCES biogeochemical model}{58}
-\contentsline {section}{\numberline {2.4}Parameters description : \textit {parameter.h}}{59}
-\contentsline {section}{\numberline {2.5}CPP-keys description \textit {cppdefs.h}}{60}
-\contentsline {paragraph}{Preselected options }{63}
-\contentsline {paragraph}{Preselected options }{64}
-\contentsline {paragraph}{Preselected options: }{65}
-\contentsline {paragraph}{Preselected options: }{65}
-\contentsline {paragraph}{Preselected options:  }{66}
-\contentsline {paragraph}{Preselected options: }{66}
-\contentsline {paragraph}{Preselected options: }{67}
-\contentsline {paragraph}{Preselected options: }{67}
-\contentsline {paragraph}{Preselected options: }{68}
-\contentsline {paragraph}{Preselected options: }{68}
-\contentsline {paragraph}{Preselected options: }{69}
-\contentsline {paragraph}{Preselected options: }{70}
-\contentsline {paragraph}{Preselected options: }{70}
-\contentsline {paragraph}{Preselected options: }{71}
-\contentsline {paragraph}{Preselected options: }{71}
-\contentsline {paragraph}{Preselected options: }{72}
-\contentsline {section}{\numberline {2.6}Namelist description : \textit {roms.in}}{73}
-\contentsline {subsection}{\numberline {2.6.1}Exemple of South Benguela Test Case}{73}
-\contentsline {subsection}{\numberline {2.6.2}Description}{75}
+\contentsline {section}{\numberline {1.1}Installation}{7}
+\contentsline {subsection}{\numberline {1.1.1}System requirement}{7}
+\contentsline {subsection}{\numberline {1.1.2}Getting the files}{7}
+\contentsline {subsection}{\numberline {1.1.3}Extracting the files}{8}
+\contentsline {section}{\numberline {1.2}LibDAP and LoadDAP}{11}
+\contentsline {section}{\numberline {1.3}Future plans}{13}
+\contentsline {section}{\numberline {1.4}Warnings}{13}
+\contentsline {section}{\numberline {1.5}Tutorial : the Southern Benguela example}{14}
+\contentsline {subsection}{\numberline {1.5.1}Getting started : Processing input files}{14}
+\contentsline {subsection}{\numberline {1.5.2}Building the grid}{17}
+\contentsline {subsection}{\numberline {1.5.3}Getting the wind and other surface fluxes}{21}
+\contentsline {subsection}{\numberline {1.5.4}Getting the initial and the lateral boundary conditions}{25}
+\contentsline {subsection}{\numberline {1.5.5}Compiling the model}{28}
+\contentsline {subsubsection}{Parameters of the configuration : param.h}{28}
+\contentsline {subsubsection}{Numerical and physical options : cppdefs.h}{29}
+\contentsline {subsubsection}{Compilation script : jobcomp}{29}
+\contentsline {subsection}{\numberline {1.5.6}Running the model}{29}
+\contentsline {subsection}{\numberline {1.5.7}Long simulations}{34}
+\contentsline {subsection}{\numberline {1.5.8}Getting the results}{36}
+\contentsline {subsubsection}{roms\_gui}{36}
+\contentsline {subsubsection}{Diagnostics}{38}
+\contentsline {section}{\numberline {1.6}Tides}{39}
+\contentsline {section}{\numberline {1.7}Biology}{41}
+\contentsline {subsection}{\numberline {1.7.1}'Idealized' biogeochemical model : NChlPZD, N2ChlPZD2 or \\ N2P2Z2D2}{41}
+\contentsline {subsection}{\numberline {1.7.2}PISCES biogeochemical model}{42}
+\contentsline {section}{\numberline {1.8}Inter-Annual simulations}{46}
+\contentsline {subsection}{\numberline {1.8.1}Getting the surface forcing data from NCEP}{46}
+\contentsline {subsubsection}{Using OpenDAP : Get\_My\_Data = 0}{48}
+\contentsline {subsubsection}{Using FTP global dataset : Get\_My\_Data $=$ 1}{48}
+\contentsline {subsection}{\numberline {1.8.2}Getting the surface windstress data from QuickSCAT}{49}
+\contentsline {subsubsection}{QuikSCAT daily data from Ifremer OpenDap server}{49}
+\contentsline {subsubsection}{QuikSCAT monthly climatology data}{50}
+\contentsline {subsection}{\numberline {1.8.3}Getting the lateral boundary conditions}{51}
+\contentsline {subsection}{\numberline {1.8.4}Running the model for interannual runs}{52}
+\contentsline {section}{\numberline {1.9}Embedding}{54}
+\contentsline {subsection}{\numberline {1.9.1}Embedded (child) model preparation}{54}
+\contentsline {subsection}{\numberline {1.9.2}Compiling and running the model}{57}
+\contentsline {section}{\numberline {1.10}Operational coastal modeling system}{59}
+\contentsline {chapter}{\numberline {2}ROMS\_AGRIF v.2}{61}
+\contentsline {section}{\numberline {2.1}The ROMS model}{61}
+\contentsline {section}{\numberline {2.2}Nesting capabilities, 1-WAY and 2-WAY using the AGRIF procedure}{62}
+\contentsline {subsection}{\numberline {2.2.1}Introduction}{62}
+\contentsline {subsection}{\numberline {2.2.2}AGRIF nesting procedure}{63}
+\contentsline {section}{\numberline {2.3}Changelog since ROMS\_AGRIF 1.1}{63}
+\contentsline {section}{\numberline {2.4}Parameters description : param.h}{66}
+\contentsline {section}{\numberline {2.5}CPP-keys description : cppdefs.h}{67}
+\contentsline {paragraph}{Preselected options }{71}
+\contentsline {paragraph}{Preselected options }{71}
+\contentsline {paragraph}{Preselected options:\IeC {\nobreakspace }}{72}
+\contentsline {paragraph}{Preselected options:\IeC {\nobreakspace }}{72}
+\contentsline {paragraph}{Preselected options:\IeC {\nobreakspace } }{73}
+\contentsline {paragraph}{Preselected options:\IeC {\nobreakspace }}{73}
+\contentsline {paragraph}{Preselected options:\IeC {\nobreakspace }}{73}
+\contentsline {paragraph}{Preselected options:\IeC {\nobreakspace }}{74}
+\contentsline {paragraph}{Preselected options:\IeC {\nobreakspace }}{74}
+\contentsline {paragraph}{Preselected options:\IeC {\nobreakspace }}{75}
+\contentsline {paragraph}{Preselected options:\IeC {\nobreakspace }}{75}
+\contentsline {paragraph}{Preselected options:\IeC {\nobreakspace }}{76}
+\contentsline {paragraph}{Preselected options:\IeC {\nobreakspace }}{77}
+\contentsline {paragraph}{Preselected options:\IeC {\nobreakspace }}{77}
+\contentsline {paragraph}{Preselected options:\IeC {\nobreakspace }}{78}
+\contentsline {paragraph}{Preselected options:\IeC {\nobreakspace }}{78}
+\contentsline {paragraph}{Preselected options:\IeC {\nobreakspace }}{79}
+\contentsline {section}{\numberline {2.6}Namelist description : roms.in}{80}
+\contentsline {subsection}{\numberline {2.6.1}Exemple of South Benguela Test Case}{80}
+\contentsline {subsection}{\numberline {2.6.2}Description}{82}

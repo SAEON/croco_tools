@@ -379,7 +379,7 @@ resolution (1/3$^\circ$), the topography has been strongly
 smoothed.
 
 \begin{figure}[h!]
-\centerline{\psfig{figure=make_grid_benguela.eps,width=12cm}}
+\centerline{\psfig{figure=Figures/make_grid_benguela.eps,width=12cm}}
 \caption{Result of make\_grid.m for the Benguela example}
 \label{fig:grid}
 \end{figure}
@@ -488,7 +488,7 @@ $>>$\\
 ------------------------------------------------------------------------------------------\\
 
 \begin{figure}[h!]
-\centerline{\psfig{figure=make_frcwind_benguela.eps,width=15cm}}
+\centerline{\psfig{figure=Figures/windspeed_make_forcing.eps,width=15cm}}
 \caption{Wind stress[N.m$^{-2}$] obtained using make\_forcing.m for the Benguela example.}
 \label{fig:forcing}
 \end{figure}
@@ -615,7 +615,7 @@ Benguela example. The sections are in the X-direction (East-West),
 the first section is for the Southern part of the domain and the last one 
 is for the Northern part of the domain.
 \begin{figure}[h!]
-\centerline{\psfig{figure=make_clim_benguela.eps,width=12cm}}
+\centerline{\psfig{figure=Figures/sectiontemp_make_clim_benguela.eps,width=14cm}}
 \caption{Result of make\_clim.m for the Benguela example}
 \label{fig:clim}
 \end{figure}
@@ -672,15 +672,25 @@ possible to uncomment specific lines in jobcomp to use g95 or ifort.  The latter
 mandatory when using AGRIF and/or OPEN\_MP.  When changing the compiler you should
 provide a corresponding NetCDF library.  Once the compilation is done, you should
 obtain a new executable (roms) in the $\sim$/Roms\_tools/Run directory.  ROMS should
-be recompiled each time param.h or cppdefs.h are changed.
+be recompiled each time param.h or cppdefs.h are changed.  If you compile using MPI
+parallelization, the jobcomp scrip detect it and set the compiler to OpenMPI, so you
+need to have it installed (http://www.open-mpi.org)
 
 \subsection{Running the model}
 Edit the input parameter file: $\sim$/Roms\_tools/Run/roms.in.  The vertical grid
 parameters (THETA\_S, THETA\_B, HC) should be identical to the ones in
 romstools\_param.m.  Otherwise, the other default values should not be changed.  The
 definition of all the input variables is given at the start of each ROMS simulation.
-To run the model, type in directory $\sim$/Roms\_tools/Run/ : ./roms roms.in.  The
-description of the namelist roms.in is descibed in details in section \ref{namelistdesc}
+To run the model, type in directory $\sim$/Roms\_tools/Run/ : ./roms roms.in. \\
+\noindent If you use paralelle computation, some more specific command are needed :
+in the case of OpenMP parallelization, set the environment variable OMP\_NUM\_THREADS
+to \textit{number\_of\_cpu\_used} (for example export OMP\_NUM\_THREADS=4 for 4 cpu
+parallel run) then ./roms roms.in. In the case of MPI parallelization, use the
+following command : mpirun -np \textit{number\_of\_processus\_used} ./roms roms.in.
+
+
+\noindent The description of the namelist roms.in is descibed in details in section
+\ref{namelistdesc}. \\
 
 On the screen, you should check the Cu\_max parameter: if it is greater than 1 you
 are violating the CFL criterion. In this case, you should reduce the time step.
@@ -772,6 +782,52 @@ for tracer 2.\\
 \\
 Activated C-preprocessing Options:\\
 \\
+% REGIONAL\\
+% BENGUELA\_LR\\
+% OBC\_EAST\\
+% OBC\_WEST\\
+% OBC\_NORTH\\
+% OBC\_SOUTH\\
+% SOLVE3D\\
+% UV\_COR\\
+% UV\_ADV\\
+% CURVGRID\\
+% SPHERICAL\\
+% MASKING\\
+% AVERAGES\\
+% AVERAGES\_K\\
+% SALINITY\\
+% NONLIN\_EOS\\
+% SPLIT\_EOS\\
+% BULK\_FLUX\\
+% BULK\_EP\\
+% SPONGE\\
+% CLIMATOLOGY\\
+% ZCLIMATOLOGY\\
+% M2CLIMATOLOGY\\
+% M3CLIMATOLOGY\\
+% TCLIMATOLOGY\\
+% ZNUDGING\\
+% M2NUDGING\\
+% M3NUDGING\\
+% TNUDGING\\
+% ANA\_BSFLUX\\
+% ANA\_BTFLUX\\
+% UV\_VIS2\\
+% MIX\_GP\_UV\\
+% TS\_DIF2\\
+% MIX\_GP\_TS\\
+% CLIMAT\_TS\_MIXH\\
+% LMD\_MIXING\\
+% LMD\_SKPP\\
+% LMD\_BKPP\\
+% LMD\_RIMIX\\
+% LMD\_CONVEC\\
+% OBC\_M2FLATHER\\
+% OBC\_M3ORLANSKI\\
+% OBC\_TORLANSKI\\
+% M2FILTER\_COSINE\\
+%
 REGIONAL\\
 BENGUELA\_LR\\
 OBC\_EAST\\
@@ -784,13 +840,21 @@ UV\_ADV\\
 CURVGRID\\
 SPHERICAL\\
 MASKING\\
-AVERAGES\\
-AVERAGES\_K\\
+UV\_VIS2\\
+MIX\_GP\_UV\\
+MIX\_GP\_TS\\
+TS\_DIF2\\
+LMD\_MIXING\\
+LMD\_SKPP\\
+LMD\_BKPP\\
+LMD\_RIMIX\\
+LMD\_CONVEC\\
 SALINITY\\
 NONLIN\_EOS\\
 SPLIT\_EOS\\
-BULK\_FLUX\\
-BULK\_EP\\
+QCORRECTION\\
+SFLX\_CORR\\
+DIURNAL\_SRFLUX\\
 SPONGE\\
 CLIMATOLOGY\\
 ZCLIMATOLOGY\\
@@ -803,22 +867,66 @@ M3NUDGING\\
 TNUDGING\\
 ANA\_BSFLUX\\
 ANA\_BTFLUX\\
-UV\_VIS2\\
-MIX\_GP\_UV\\
-TS\_DIF2\\
-MIX\_GP\_TS\\
-CLIMAT\_TS\_MIXH\\
-LMD\_MIXING\\
-LMD\_SKPP\\
-LMD\_BKPP\\
-LMD\_RIMIX\\
-LMD\_CONVEC\\
-OBC\_M2FLATHER\\
+OBC\_M2CHARACT\\
 OBC\_M3ORLANSKI\\
 OBC\_TORLANSKI\\
-M2FILTER\_COSINE\\
-\\
-Linux 2.6.9-42.0.3.ELsmp x86\_64\\
+AVERAGES\\
+AVERAGES\_K\\
+VAR\_RHO\_2D\\
+M2FILTER\_POWER\\
+CLIMAT\_UV\_MIXH\\
+VADV\_SPLINES\_UV\\
+HADV\_UPSTREAM\_TS\\
+CLIMAT\_TS\_MIXH\\
+VADV\_AKIMA\_TS
+%-------------------------
+\vspace{0.2cm}
+\hrule
+\noindent $\rightarrow$ \textit{Non user defined cpp keys (in set\_global\_definitions.h)}\\
+DBLEPREC\\
+Linux\\
+QUAD\\
+QuadZero\\
+GLOBAL\_2D\_ARRAY\\
+GLOBAL\_1D\_ARRAYXI\\
+GLOBAL\_1D\_ARRAYETA\\
+% % START_2D_ARRAY\\
+% % PRIVATE_1D_SCRATCH_ARRAY\\
+% % PRIVATE_2D_SCRATCH_ARRAY\\
+% % PRIVATE_1DXI_SCRATCH_ARRAY\\
+% % PRIVATE_1DETA_SCRATCH_ARRAY\\
+% % WESTERN_EDGE\\
+% % EASTERN_EDGE\\
+% % SOUTHERN_EDGE\\
+% % NORTHERN_EDGE\\
+% % MYID\\
+% % MPI_master_only\\
+% % ZEROTH_TILE\\
+% % SINGLE_TILE_MODE\\
+% % LF_AM_STEP\\
+% % FIRST_TIME_STEP
+% % FIRST_2D_STEP
+% % NOT_LAST_2D_STEP
+% % PUT_GRID_INTO_RESTART
+% % PUT_GRID_INTO_HISTORY
+% % PUT_GRID_INTO_AVERAGES
+% % NF_FTYPE
+% % nf_get_att_FTYPE
+% % nf_put_att_FTYPE
+% % nf_get_var1_FTYPE
+% % nf_put_var1_FTYPE
+% % nf_get_vara_FTYPE
+% % nf_put_vara_FTYPE
+% % NF_FOUT
+% % fast_indx_out
+% % AGRIF_UPDATE_MIX_LOW
+...\\
+...\\
+AGRIF\_UPDATE\_DECAL\\
+AGRIF\_SPONGE \\
+
+
+\noindent Linux 2.6.9-42.0.3.ELsmp x86\_64\\
 NUMBER OF THREADS:  1 BLOCKING:  1 x  1.\\
 \\
 Spherical grid detected.\\
@@ -993,13 +1101,13 @@ A window pops up, asking for a ROMS history NetCDF file (Figure \ref{fig:open}).
 You should select roms\_his.nc (history file) or roms\_avg.nc (average file) and
 click "open".
 \begin{figure}[!ht]
-\centerline{\psfig{figure=roms_gui_select2.eps,width=5cm}}
+\centerline{\psfig{figure=Figures/roms_gui_entrance.eps,width=12cm}}
 \caption{Entrance window of roms\_gui}
 \label{fig:open}
 \end{figure}
 \\
 \begin{figure}[!ht]
-\centerline{\psfig{figure=roms_gui2.eps,width=9cm}}
+  \centerline{\psfig{figure=Figures/romsgui_vizuM2_2.eps,width=12cm}}
 \caption{roms\_gui}
 \label{fig:romsgui}
 \end{figure}

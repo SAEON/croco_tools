@@ -1,7 +1,7 @@
-\section{Parameters description : \textit{parameter.h}}\label{paramdesc}
+\section{Parameters description : param.h}\label{paramdesc}
 
 In this section, we present the more important parameters to configure your own
-roms\_agrif $2.0$ run. These parameters are : 
+run. These parameters are : 
 \begin{itemize}
 \item \textbf{Test case or realistic run}: \\
 ...  \\
@@ -36,7 +36,10 @@ $!$ NSUB\_X,NSUB\_E  Number of SHARED memory subdomains in XI- and \\
 $!$                                                ETA-directions; \\
 $!$ NNODES        Total number of MPI processes (nodes); \\
 $!$ NP\_XI,NP\_ETA  Number of MPI subdomains in XI- and ETA-directions; \\
-$!$ \\
+$!$
+
+In the case of OpenMP parallelization, NPP is the number of cpu used in the
+computation, in the case of MPI parallelization, it is equal to to NNODES.
 
 AUTOTLING (implemented by Laurent Debreu): cppkeys that enable to compute the optimum
 subdomains partition in terms of computation time.
