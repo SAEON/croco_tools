@@ -10,109 +10,117 @@
     <link type="text/css" href="style.css" media="all" rel="stylesheet" />
   </head>
   
-  <body>
+  <body class="petitefeuille">
 
-    <div id="logo"><a href="http://www.brest.ird.fr"></a></div>	
+    <div id="logo"><a href="http://roms.mpl.ird.fr"></a></div>	
     
     <h1>CHANGE LOG FOR ROMSTOOLS</h1>
     
-  <li><p>
-    Date : <b> 12 Mar. 2010 </b> <br>
+<ul> 
+<li>
+    Date : <b> 20 July 2010 </b> <br>
+    Object : <b>ROMSTOOLS release v2.1</b> <br>
+    Author : G. Cambon <br>
+    Category : <b>Release</b> <br>
+    Description : Compatible with ROMS_AGRIF v2.1 <br>
+    Some small bugs fixed and cleaning.
+ </li>
+
+
+
+
+<li>
+    <p>Date : <b> 12 Mar. 2010 </b> <br>
     Object : <b>ROMSTOOLS release 2.0-r588</b> <br>
     Author : G. Cambon <br>
     Category : <b>Release</b> <br>
-    Description : Updated version of ROMSTOOLS release V2.0: Cleaning
-    some cleaning and small bug fix <br>
-   </p></li>
+    Description : Updated version of ROMSTOOLS release V2.0: Some
+cleaning and small bugs fixed <br></p>
+ </li>
 
-  <li><p>
-    Date : 9 Mar. 2010 <br>
-    Author : G. Cambon and B. Le Vu <br>
+  <li>
+    <p>Date : <b>9 Mar. 2010</b> <br>
+    Author : <b>G. Cambon and B. Le Vu</b> <br>
     Category : Bug fix <br>
     Description : Update WOA2005 (not WOA2001): Bad fields for the NO3
 seasonal fields, it was not the seasonnal means but the four first
-monthly means.
-   </p></li>
+monthly means. <br></p>
+  </li>
 
-   <p>
-    Date :<b>15 Feb. 2010</b> <br>
+  <li>
+    <p>Date :<b>15 Feb. 2010</b> <br>
     Object : <b>ROMSTOOLS release V2.0</b> <br>
     Author : G. Cambon, P. Penven, P. Marchesiello<br>
     Category: <b>Release</b> <br>
     Description: <b>Updated version of ROMSTOOLS.</b> <br>
-    <ul>
-	    <li>Interannual preprocessing tools: Aforc_NCEP, Aforc_QuikSCAT and Oforc_OGCM </li>
-    <ul> 
-		    <li>	Capabilities to use either OpenDap procedure or direct FTP procedure.</li>
-		    <li>	Capabilities to set the overlapping parameters between 
+   <ul>	    
+     <li>Interannual preprocessing tools: Aforc_NCEP, Aforc_QuikSCAT and Oforc_OGCM </li>
+     <li>	Capabilities to use either OpenDap procedure or direct FTP procedure.</li>
+     <li>	Capabilities to set the overlapping parameters between 
 		    monthly forcing files (atmopsheric surface forcing or oceanic boundary forcing).</li>
-		     <li> Capabilities to use QuikSCAT windspeed in the NCEP bulk files generation.</li>
+     <li> Capabilities to use QuikSCAT windspeed in the NCEP bulk files generation.</li>
+     <li>Nesting_tools : take in account biogeochemical and biological model in nested forcing 
+	    files generation creation.</li>
+     <li>Forecast tools : add forecast capabilities using Mercator french operational system.</li>  
     </ul>
-	    <li>Nesting_tools : take in account biogeochemical and biological model in nested forcing 
-	    files generationcreation.</li>
-	    <li>Forecast tools : add forecast capabilities using Mercator french operational system.</li>  
-	    <li>....</li> 
-    </ul>
-    </p>
- ======================================================================================================
- ======================================================================================================
-  <li><p>
-    Date : 29 September 2008 ! Change in the romstools associated to roms2.0 !
+    =========================================================================</p>
+  </li>
+ 
+  <li>
+    <p>Date : 29 September 2008 ! Change in the romstools associated to roms2.0 ! <br>
     Author : G. Cambon<br>
-    Category: Cleaning
-    Description: Synchronisation of jobcomp between Roms_Agrif and Run. Add warning on/off in make_grid.m. Add drawnow command in test_clim and test_forcing.m
-   </p></li>
+    Category: Cleaning <br>
+    Description: Synchronisation of jobcomp between Roms_Agrif and Run. 
+    Add warning on/off in make_grid.m. Add drawnow command in test_clim and test_forcing.m <br></p>
+  </li>
 
 
-   <li><p>
-    Date : 15 July 2008 ! Change in the romstools associated to roms2.0 !
+   <li>
+    <p>Date : 15 July 2008 ! Change in the romstools associated to roms2.0 ! <br>
     Author : L. Renault & G. Cambon<br>
     Category : Update real time for NCEP bulk forcing file to compute the outgoing long wave online(roms_WW_alpha). Preprocessing_tools/create_bulk.f Aforc_NCEP_Update/interp_NCEP.m
-    Description	
-   </p></li>
+    Description	</p>
+   </li>
 
-
-  <li><p> 
-    Date : 9 July 2008 ! Change in the romstools associated to roms2.0 !
+  <li>
+    <p>Date : 9 July 2008 ! Change in the romstools associated to roms2.0 ! <br>
     Author : G. Cambon<br>
-    Category : Cleaning
+    Category : Cleaning <br>
     Description	: Modification and cleaning of PISCES preprocessing matlab routines.
-	Preprocessing_tools/make_clim_pisces.m, make_bry_pisces.., add WOAPISCES data file.
-   </p></li>
+	Preprocessing_tools/make_clim_pisces.m, make_bry_pisces.., add WOAPISCES data file.<br></p>
+  </li>
 
-
-   <li><p>
-     Date: 30 April 2008<br>
+   <li>
+     <p>Date: 30 April 2008<br>
      Author : S. Illig & G. Cambon<br>
      Category : Update and bug corrections<br>
      Description : Modify the NCEP bulk/frc file using the QuikSCAT daily data. Possibility to add the u-wind, v-wind, and wind speed fields in the QuikSCAT daily forcing files. Bugs corrections in make_NCEP.m<br>
 	 Modified files : make_QSCAT_daily.m, download_QSCAT.m, create_forcing_QSCAT.m, romstools_param.m, make_NCEP.m,
-	 make_NCEP_withQSCAT_daily.m.
-    </p></li>
+	 make_NCEP_withQSCAT_daily.m.<br></p>
+   </li>
 
-    <li><p>
-     Date: 28 April 2008<br>
+   <li>
+     <p>Date: 28 April 2008<br>
      Author : N. Grima & G. Cambon<br>
      Category : bug fix<br>
      Description : Remove the NaN value in the QuikSCAT climatology.<br>
-     Modified files : QSCAT_global_clim_jul99_aug06.nc changed in QSCAT_global_clim_2000_2007.nc
-    </p></li>
+     Modified files : QSCAT_global_clim_jul99_aug06.nc changed in QSCAT_global_clim_2000_2007.nc<br></p>
+   </li>
 
-
-    <li><p>
+   <li>
      Date: 18 March 2008<br>
      Author : P. Penven & G. Cambon<br>
      Category : update<br>
      Description : Update Oforc_OGCM to use new SODA data v2p0p2-3.<br>
-     Modified files : create_SODA.m, make_OGCM.m, extract_SODA.m
-    </p></li>
+     Modified files : create_SODA.m, make_OGCM.m, extract_SODA.m<br>
+   </li>
 
     <li><p>
      Date: 18 March 2008<br>
      Author : G. Cambon<br>
      Category : update<br>
      Description : Update Aforc_QuikSCAT : bug in download_QuikSCAT.m<br>
-     Modified files : download_QuikSCAT.m
+     Modified files : download_QuikSCAT.m<br>
     </p></li>
 
 
@@ -799,7 +807,7 @@ monthly means.
           Description : Possibility of crossing greenwitch meridian.<br>
      replacement of lognitude arrays from [0 360] to [-180 180].<br>
      modified files : all data netcdf files<br>
-    </p></li>
+    </p></li></ul>
 
   </body>
 

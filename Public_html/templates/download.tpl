@@ -4,44 +4,64 @@
     <p class="desc">The ROMSTOOLS directory tree has been split in several 
         gzipped tar files to facilitate data transfer.</p>
     
-    <h3>ROMS_AGRIF SOURCE CODE and ROMS1D:</h3>
+    <h3>ROMS_AGRIF SOURCE CODE:</h3>
 
-<ul id="download_model">     
-   <li> Development version V2.0-beta : Available on 
+<ul id="download_model">
+  <li> <b><a href="../Data/CODE/Roms_Agrif_v2.1_20_07_2010.tar.gz">Roms_Agrif v2.1</a></b> : Latest stable version <br />
+	       ./Roms_tools/Roms_Agrif/ <br />
+	       ./Roms_tools/Run_v.2.1/ <br />
+	       Date: 20/07/2010 - size: 620 k. <br />
+	       Compatible with Romstools.
+   </li> <br /> 
+  <!-- <li> <b><a href="../Data/CODE/Roms_Agrif_v.2.0.1_150710.tar.gz">Roms_Agrif v.2.0.1</a></b> <br />
+	       ./Roms_tools/Roms_Agrif/ <br />
+	       ./Roms_tools/Run/ <br />
+	       Date: 15/07/2010 - size: 620 k. <br />
+	       Compatible with Romstools.
+   </li> <br /> -->
+   <!-- <li> <b><a href="../Data/CODE/Roms_Agrif_v.2.0_130710.tar.gz">Roms_Agrif v.2.0.0 pre-release</a></b> <br />
+	       ./Roms_tools/Roms_Agrif/ <br />
+	       ./Roms_tools/Run/ <br />
+	       Date: 13/07/2010 - size: 620 k. <br />
+	       Compatible with Romstools.
+   </li> <br />  -->
+
+    
+   <li> <b><a href="../Data/CODE/Roms_Agrif_17_01_2006.tar.gz">Roms_Agrif v1.1</a></b> : Stable version<br />
+	       ./Roms_tools/Roms_Agrif/<br />
+	       Date: 17/01/2006 - size: 620 k. 
+   </li>
+   <br/>
+
+      <!-- <li> Development version V2.1-beta : Available on 
+        <a href="https://gforge.inria.fr/projects/romsagrif/">
+        ROMS_AGRIF project on Inria Gforge</a> <br /> -->
+     
+<!--   <li> Development version V2.0-beta : Available on -->
+   <li> Development version : Available on
         <a href="https://gforge.inria.fr/projects/romsagrif/">
         ROMS_AGRIF project on Inria Gforge</a> <br /> 
 
-        <li>Instructions to get it: <a href="./instructions_svn.html">Here</a> <br />  
+   <li>Instructions to get it: <a href="./instructions_svn.html">Here</a> <br />  
         
-        <li> Developments archives: 
+   <li> Developments archives: 
         <a href="http://lists.gforge.inria.fr/cgi-bin/mailman/private/romsagrif-commits/">Here</a> <br />  
 
-        <li><a href="http://lists.gforge.inria.fr/cgi-bin/mailman/listinfo/romsagrif-users">roms_agrif users mailing list</a>: mailing list used to exchange informations between the roms_agrif users. <br /> 
+   <li><a href="http://lists.gforge.inria.fr/cgi-bin/mailman/listinfo/romsagrif-users">roms_agrif users mailing list</a>: mailing list used to exchange
+	     informations between the roms_agrif users. <br />
 
-        <li><a href="http://lists.gforge.inria.fr/cgi-bin/mailman/listinfo/romsagrif-release">roms_agrif release mailing list</a>: mailing list used to make release announcement of the ROMS_AGRIF source code or the ROMSTOOLS toolbox. (Low volume mailing list)<br />  
-      </li>
-     <br/>
-     
-  <!-- <li> Stable version V2.0 :<a href="../Data/Roms_Agrif_V2.0_31_01_2010.tar.gz">
-	       ./Roms_tools/Roms_Agrif/</a> : V2.0
-	       Date: 31/01/2010 - size: 620 k.
-	       Compatible with Romstools.
-      </li> <br /> -->
+	<li><a href="http://lists.gforge.inria.fr/cgi-bin/mailman/listinfo/romsagrif-release">roms_agrif release mailing list</a>:
+	     mailing list used to make release announcement of the ROMS_AGRIF <br />
+	     source code or the ROMSTOOLS toolbox. (Low volume mailing list)<br />  
+   </li>
+   <br/>
+ 
+   <li><a href="roms1d/index.html">ROMS-1D source code and documentation</a>  
+   </li> <br />
+</ul>
 
-    
-      <li> Stable version V1.1 : <a href="../Data/Roms_Agrif_17_01_2006.tar.gz">
-	       ./Roms_tools/Roms_Agrif/</a> <br />
-	       Date: 17/01/2006 - size: 620 k. <br />
-	       Compatible with Romstools.
-      </li>
-      <br/>
-
-      <li><a href="roms1d/index.html">ROMS-1D source code and documentation</a>  
-      </li>
-</ul>	   
-
-    <h3>ROMSTOOLS-2.0-r588 tar file (12 Mar. 2010): <a href="../Data/ROMSTOOLS-2.0-r588.tar.gz">here</a> </h3>
-
+	  
+    <h3>ROMSTOOLS_v2.1 tar file (20 July 2010): <a href="../Data/TOOLS/ROMSTOOLS_v2.1_20_07_2010.tar.gz">here</a> </h3>
     <ul id="download_tools">
         <li>./Roms_tools/Aforc_NCEP/ 
 	</li>
@@ -83,7 +103,10 @@
 	</li>
 
     </ul>
-    <h3>Archives: ROMSTOOLS V1.0 tar file: <a href="../Data/ROMSTOOLS-1.0.tar.gz">here</a> </h3>
+    <br />
+    <ul id="download_tools"><b>Archives</b>: 
+    <li>ROMSTOOLS-2.0-r588 tar file: <a href="../Data/TOOLS/ROMSTOOLS-2.0-r588.tar.gz">here</a></li>
+    <li>ROMSTOOLS V1.0 tar file: <a href="../Data/TOOLS/ROMSTOOLS-1.0.tar.gz">here</a> </li></ul>
 
     
    <h3>Datasets needed by ROMSTOOLS</h3>
@@ -131,7 +154,7 @@
 	</li>
     </ul>
 
-   <h3>Other toolboxes or softwares needed by ROMSTOOLS: <a href="../Data/Utilities_ROMSTOOLS.tar.gz">here</a></h3>
+   <h3>Other toolboxes or softwares needed by ROMSTOOLS: <a href="../Data/UTILITIES/Utilities_ROMSTOOLS_v2.1_13_07_2010.tar.gz">here</a></h3>
 
     <ul id="download_tools">
 
@@ -144,10 +167,10 @@
         <li>./Roms_tools/mex60/</a>
 	</li>
 	
-        <li>./Roms_tools/mexnc/</a>
+        <li>./Roms_tools/mexcdf/</a>
 	</li>
 
-        <li>./Roms_tools/m_map/</a>
+        <li>./Roms_tools/m_map1.4/</a>
 	</li>
 	
         <li>./Roms_tools/netcdf_g77/</a>
@@ -167,3 +190,6 @@
 	</li>
 
     </ul>
+    <br />
+    <ul id="download_tools"><b>Archives</b>: 
+    <li>Utilities_ROMSTOOLS : <a href="../Data/UTILITIES/Utilities_ROMSTOOLS.tar.gz">here</a></li></ul>

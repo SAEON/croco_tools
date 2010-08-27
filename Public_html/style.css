@@ -41,7 +41,7 @@ h3 { margin-top: 50px }
 #menu li { padding-bottom: 10px }
 
 #download_model { 
-  font-weight: bold;
+#  font-weight: bold;
   margin: 0;
   padding: 0
 }
@@ -66,3 +66,14 @@ address strong {
   font-weight: normal;
   font-size: 1.3em
 }
+
+.petitefeuille {
+  width: 750px;
+/*
+*  margin: 0 auto;
+*/
+  text-align:	justify;
+  }
+.pucecentree { 
+  text-align:	left;
+  }
