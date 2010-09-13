@@ -22,6 +22,7 @@
 # include "ncscrum.h"
 # include "scalars.h"
 # include "strings.h"
+# include "diagnostics.h"
 # include "netcdf.inc"
       logical create_new_file, res
       integer ncid, total_rec, ierr, rec, lstr,lvar,lenstr, timedim
@@ -614,6 +615,18 @@
 ! ----- ---- ----------
 !
       if (total_rec.le.1) call wrt_grid (ncid, ncname, lstr)
+#endif
+#if defined AVRH
+!
+! Set initial average timediaM.
+! --- ------- ------- --------
+!
+      if (ntsdiaM_avg.eq.1) then
+        timediaM_avg=time-0.5*float(nwrtdiaM_avg)*dt
+      else
+        timediaM_avg=time-0.5*float(nwrtdiaM_avg)
+     &                       *dt+float(ntsdiaM_avg)*dt
+      endif
 #endif
 !
   11  format(/' DEF_DIAGSM - unable to create diag file: ',a)

@@ -67,8 +67,6 @@
 !
       if (ilc.gt.ntsdiaM_avg) then
         if (mod(ilc-1,nwrtdiaM_avg).eq.1) then
-
-          if (ZEROTH_TILE) timediaM_avg=time
           do iflux=1,2
             do k=1,N
               do j=JstrR,JendR
@@ -143,8 +141,6 @@
           enddo
 
         elseif (mod(ilc-1,nwrtdiaM_avg).gt.1) then
-
-          if (ZEROTH_TILE) timediaM_avg=timediaM_avg+time
           do iflux=1,2
             do k=1,N
               do j=JstrR,JendR

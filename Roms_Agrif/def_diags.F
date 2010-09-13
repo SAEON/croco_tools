@@ -886,7 +886,7 @@
 ! Set initial average timedia.
 ! --- ------- ------- --------
 !
-      if (ntsavg.eq.1) then
+      if (ntsdia_avg.eq.1) then
         timedia_avg=time-0.5*float(nwrtdia_avg)*dt
       else
         timedia_avg=time-0.5*float(nwrtdia_avg)*dt+float(ntsdia_avg)*dt
