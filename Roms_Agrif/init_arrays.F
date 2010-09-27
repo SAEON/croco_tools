@@ -602,19 +602,19 @@ C$    integer omp_get_thread_num
 # ifdef OBC_SOUTH
       if (SOUTHERN_EDGE) then
 #  ifdef Z_FRC_BRY
-        do i=JstrR,IendR
+        do i=IstrR,IendR
           zetabry_south(i)=init
         enddo
 #  endif
 #  ifdef M2_FRC_BRY
-        do i=JstrR,IendR
+        do i=IstrR,IendR
           ubarbry_south(i)=init
           vbarbry_south(i)=init
         enddo
 #  endif
 #  if defined SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
         do k=1,N
-          do i=JstrR,IendR
+          do i=IstrR,IendR
 #   ifdef M3_FRC_BRY
             ubry_south(i,k)=init
             vbry_south(i,k)=init
@@ -633,19 +633,19 @@ C$    integer omp_get_thread_num
 # ifdef OBC_NORTH
       if (NORTHERN_EDGE) then
 #  ifdef Z_FRC_BRY
-        do i=JstrR,IendR
+        do i=IstrR,IendR
           zetabry_north(i)=init
         enddo
 #  endif
 #  ifdef M2_FRC_BRY
-        do i=JstrR,IendR
+        do i=IstrR,IendR
           ubarbry_north(i)=init
           vbarbry_north(i)=init
         enddo
 #  endif
 #  if defined SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
         do k=1,N
-          do i=JstrR,IendR
+          do i=IstrR,IendR
 #   ifdef M3_FRC_BRY
             ubry_north(i,k)=init
             vbry_north(i,k)=init

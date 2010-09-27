@@ -174,28 +174,36 @@ Select MOMENTUM VERTICAL advection scheme:
 # define GLOBAL_1D_ARRAYXI -1:Lm+2+padd_X
 # define GLOBAL_1D_ARRAYETA -1:Mm+2+padd_E
 # define START_2D_ARRAY -1,-1
+# define START_1D_ARRAYXI -1
+# define START_1D_ARRAYETA -1
 #else
 # ifdef EW_PERIODIC
 #   define GLOBAL_1D_ARRAYXI -1:Lm+2+padd_X
+#   define START_1D_ARRAYXI -1
 #  ifdef NS_PERIODIC
 #   define GLOBAL_2D_ARRAY -1:Lm+2+padd_X,-1:Mm+2+padd_E
 #   define GLOBAL_1D_ARRAYETA -1:Mm+2+padd_E
 #   define START_2D_ARRAY -1,-1
+#   define START_1D_ARRAYETA -1
 #  else
 #   define GLOBAL_2D_ARRAY -1:Lm+2+padd_X,0:Mm+1+padd_E
 #   define GLOBAL_1D_ARRAYETA 0:Mm+1+padd_E
 #   define START_2D_ARRAY -1,0
+#   define START_1D_ARRAYETA 0
 #  endif
 # else
 #   define GLOBAL_1D_ARRAYXI 0:Lm+1+padd_X
+#   define START_1D_ARRAYXI 0
 #  ifdef NS_PERIODIC
 #   define GLOBAL_2D_ARRAY 0:Lm+1+padd_X,-1:Mm+2+padd_E
 #   define GLOBAL_1D_ARRAYETA -1:Mm+2+padd_E
 #   define START_2D_ARRAY 0,-1
+#   define START_1D_ARRAYETA -1
 #  else
 #   define GLOBAL_2D_ARRAY 0:Lm+1+padd_X,0:Mm+1+padd_E
 #   define GLOBAL_1D_ARRAYETA 0:Mm+1+padd_E
 #   define START_2D_ARRAY 0,0
+#   define START_1D_ARRAYETA 0
 #  endif
 # endif
 #endif

@@ -25,9 +25,9 @@
       implicit none
 #include "param.h"
 #ifdef EAST_WEST 
-      real A(0:Mm+1,N)
+      real A(GLOBAL_1D_ARRAYETA,N)
 #else
-      real A(0:Lm+1,N) 
+      real A(GLOBAL_1D_ARRAYXI,N) 
 #endif
       integer ncid, varid, record, type,  i,j,k, shft, ierr
       integer xtype, ndims, dimid(8), natts

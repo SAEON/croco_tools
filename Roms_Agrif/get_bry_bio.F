@@ -525,7 +525,7 @@ c$$$               write(*,*) 'LOGICAL:',got_tbry(itrc),itrc
                 if(got_tbry(itrc)) then
                   call set_cycle (bry_id, bry_tid(itrc), 
      &            ntbry1(itrc),bry_cycle1(itrc), bry_ncycle1(itrc), 
-     $                    bry_rec1(itrc))
+     &                    bry_rec1(itrc))
                   bry_time1(1,itrc)=-1.E+20
                   bry_time1(2,itrc)=-1.E+20
                   itbry1(itrc)=1
@@ -547,40 +547,44 @@ c$$$               write(*,*) 'LOGICAL:',got_tbry(itrc),itrc
       do itrc=3,NT              ! loop on biology
         if(got_tbry(itrc)) then
           do while (bry_time1(itbry1(itrc),itrc).lt.time+dt .and. 
-     $             ierr.eq.nf_noerr)
+     &             ierr.eq.nf_noerr)
             call advance_cycle (bry_cycle1(itrc),ntbry1(itrc),
-     $           bry_ncycle1(itrc),bry_rec1(itrc))
+     &           bry_ncycle1(itrc),bry_rec1(itrc))
             if (ierr.eq.nf_noerr) then
             ierr=nf_get_var1_FTYPE 
-     $           (bry_id, bry_tid(itrc), bry_rec1(itrc), cff)
+     &           (bry_id, bry_tid(itrc), bry_rec1(itrc), cff)
              if (ierr.eq.nf_noerr) then
                itbry1(itrc)=min(3-itbry1(itrc),ntbry1(itrc))
                bry_time1(itbry1(itrc),itrc)=cff*day2sec + 
-     $              bry_cycle1(itrc)*bry_ncycle1(itrc)
+     &              bry_cycle1(itrc)*bry_ncycle1(itrc)
                ierr_all=0
 # ifdef OBC_WEST
 
-               ierr=nf_read_bry_EW (tbry_west_dt(0,1,itbry1(itrc),itrc),
-     &              bry_id,tbry_west_id(itrc),  bry_rec1(itrc), r3dvar)
+               ierr=nf_read_bry_EW (tbry_west_dt(START_1D_ARRAYETA,1
+     &             ,itbry1(itrc),itrc),bry_id,tbry_west_id(itrc),
+     &             bry_rec1(itrc), r3dvar)
                if (ierr.ne.nf_noerr)  write(stdout,2)  'trc_west'
                ierr_all=ierr_all+ierr
 # endif
 # ifdef OBC_EAST
 
-              ierr=nf_read_bry_EW (tbry_east_dt(0,1,itbry1(itrc),itrc), 
-     &              bry_id,tbry_east_id(itrc),  bry_rec1(itrc), r3dvar)
+               ierr=nf_read_bry_EW (tbry_east_dt(START_1D_ARRAYETA,1
+     &             ,itbry1(itrc),itrc),bry_id,tbry_east_id(itrc),
+     &             bry_rec1(itrc), r3dvar)
                if (ierr.ne.nf_noerr)  write(stdout,2)  'trc_east'
                ierr_all=ierr_all+ierr
 # endif
 # ifdef OBC_SOUTH
-              ierr=nf_read_bry_NS (tbry_south_dt(0,1,itbry1(itrc),itrc),
-     &              bry_id,tbry_south_id(itrc),  bry_rec1(itrc), r3dvar)
+               ierr=nf_read_bry_NS (tbry_south_dt(START_1D_ARRAYXI,1
+     &             ,itbry1(itrc),itrc),bry_id,tbry_south_id(itrc),
+     &             bry_rec1(itrc), r3dvar)
                if (ierr.ne.nf_noerr)  write(stdout,2)  'trc_south'
                ierr_all=ierr_all+ierr
 # endif
 # ifdef OBC_NORTH
-              ierr=nf_read_bry_NS (tbry_north_dt(0,1,itbry1(itrc),itrc),
-     &              bry_id,tbry_north_id(itrc),  bry_rec1(itrc), r3dvar)
+               ierr=nf_read_bry_NS (tbry_north_dt( START_1D_ARRAYXI,1
+     &             ,itbry1(itrc),itrc),bry_id,tbry_north_id(itrc),
+     &             bry_rec1(itrc), r3dvar)
                if (ierr.ne.nf_noerr)  write(stdout,2)  'trc_north'
                ierr_all=ierr_all+ierr
 # endif
