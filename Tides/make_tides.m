@@ -87,27 +87,27 @@ ncfrc=netcdf(frcname,'write');
 for itide=1:Ntides
   it=tidalrank(itide);
   disp(['Processing tide : ',num2str(itide),' of ',num2str(Ntides)])
-  ncfrc{'tide_period'}(it)=periods(itide);
+  ncfrc{'tide_period'}(itide)=periods(it);
 %
 % Get the phase corrections
 %
-  correc_amp=pf(itide);
-  correc_phase=-phase_mkB(itide)-pu(itide)+360.*t0./periods(itide);	   
+  correc_amp=pf(it);
+  correc_phase=-phase_mkB(it)-pu(it)+360.*t0./periods(it);	   
 %
 % Process the surface elevation
 %
   disp('  ssh...')
-  ur=ext_data_tpxo(tidename,'ssh_r',itide,lonr,latr,'r',Roa);
-  ui=ext_data_tpxo(tidename,'ssh_i',itide,lonr,latr,'r',Roa);
+  ur=ext_data_tpxo(tidename,'ssh_r',it,lonr,latr,'r',Roa);
+  ui=ext_data_tpxo(tidename,'ssh_i',it,lonr,latr,'r',Roa);
   ei=complex(ur,ui);
-  ncfrc{'tide_Ephase'}(it,:,:)=mod(-deg*angle(ei)+correc_phase,360.0);     
-  ncfrc{'tide_Eamp'}(it,:,:)=abs(ei)*correc_amp;
+  ncfrc{'tide_Ephase'}(itide,:,:)=mod(-deg*angle(ei)+correc_phase,360.0);     
+  ncfrc{'tide_Eamp'}(itide,:,:)=abs(ei)*correc_amp;
 %
 % Process U
 %
   disp('  u...')
-  ur=ext_data_tpxo(tidename,'u_r',itide,lonr,latr,'u',Roa);
-  ui=ext_data_tpxo(tidename,'u_i',itide,lonr,latr,'u',Roa);
+  ur=ext_data_tpxo(tidename,'u_r',it,lonr,latr,'u',Roa);
+  ui=ext_data_tpxo(tidename,'u_i',it,lonr,latr,'u',Roa);
   ei=complex(ur,ui);
   upha=mod(-deg*angle(ei)+correc_phase,360.0); 
   uamp=abs(ei)*correc_amp;
@@ -115,8 +115,8 @@ for itide=1:Ntides
 % Process V
 %
   disp('  v...')
-  ur=ext_data_tpxo(tidename,'v_r',itide,lonr,latr,'v',Roa);
-  ui=ext_data_tpxo(tidename,'v_i',itide,lonr,latr,'v',Roa);
+  ur=ext_data_tpxo(tidename,'v_r',it,lonr,latr,'v',Roa);
+  ui=ext_data_tpxo(tidename,'v_i',it,lonr,latr,'v',Roa);
   ei=complex(ur,ui);
   vpha=mod(-deg*angle(ei)+correc_phase,360.0); 
   vamp=abs(ei)*correc_amp;
@@ -125,10 +125,10 @@ for itide=1:Ntides
 %
   disp('  Convert to tidal ellipse parameters...')
   [major,eccentricity,inclination,phase]=ap2ep(uamp,upha,vamp,vpha);
-  ncfrc{'tide_Cmin'}(it,:,:)=major.*eccentricity;
-  ncfrc{'tide_Cmax'}(it,:,:)=major;
-  ncfrc{'tide_Cangle'}(it,:,:)=inclination;
-  ncfrc{'tide_Cphase'}(it,:,:)=phase;
+  ncfrc{'tide_Cmin'}(itide,:,:)=major.*eccentricity;
+  ncfrc{'tide_Cmax'}(itide,:,:)=major;
+  ncfrc{'tide_Cangle'}(itide,:,:)=inclination;
+  ncfrc{'tide_Cphase'}(itide,:,:)=phase;
 %
 end
 %
@@ -139,9 +139,39 @@ close(ncfrc)
 % Plot
 %
 if makeplot==1
+  warning off
   figure(1)
   plot_tide(grdname,frcname,1,0.5,2,coastfileplot)
+  
   figure(2)
+  plot_tide(grdname,frcname,2,0.5,2,coastfileplot)
+  
+  figure(3)
+  plot_tide(grdname,frcname,3,0.5,2,coastfileplot)
+  
+  figure(4)
+  plot_tide(grdname,frcname,4,0.5,2,coastfileplot)
+  
+  figure(5)
+  plot_tide(grdname,frcname,5,0.5,2,coastfileplot)
+  
+  figure(6)
+  plot_tide(grdname,frcname,6,0.5,2,coastfileplot)
+  
+  figure(7)
+  plot_tide(grdname,frcname,7,0.5,2,coastfileplot)
+  
+  figure(8)
+  plot_tide(grdname,frcname,8,0.5,2,coastfileplot)
+  
+  figure(9)
+  plot_tide(grdname,frcname,9,0.5,2,coastfileplot)
+  
+  figure(10)
+  plot_tide(grdname,frcname,10,0.5,2,coastfileplot)
+ 
+  figure(11)
   clm_tides(grdname,frcname,Ntides,Ymin,Mmin,Dmin,...
             Hmin,Min_min,Smin,Yorig,lon0,lat0,Z0)
+   warning on     
 end
