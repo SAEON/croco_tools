@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
+
+  <head>
+    <title>ROMSAGRIF on Gforge Inria</title>
+    <meta http-equiv="Content-Type" content=
+    "text/html; charset=iso-8859-1" />
+    <link type="text/css" href="style.css" media="all" rel="stylesheet" />
+  </head>
+
+  <body>
+
+    <div id="logo"><a href="http://www.brest.ird.fr"></a></div>	
+    
+    <h1>How to get the development version of ROMSAGRIF on
+Gforge Inria</h1>
+
+
+<p align="left"> <h3> 1- Register on the Gforge Inria </h3>
+
+The first is to register on the Gforge INRIA: <a
+href="https://gforge.inria.fr/projects/romsagrif/">https://gforge.inria.fr/projects/romsagrif/</a>.
+We go to the section New account, provide information, and use
+<b>MOISE</b> (Laurent Debreu is member of this research Team, in LJK,
+Grenoble) as Inria Team who you are working with. 
+
+<h3> 2- Join the project ROMSAGRIF </h3>
+
+The second step is to join the romsagrif project team. 
+On your personal page, search for the project <b>romsagrif</b>,
+and ask to join it. An email will be send to the administrators of
+the project. 
+
+
+<h3> 3- How to download and then update the sources files </h3>
+<ul>
+ <li> To download the sources code of this project (ROMSAGRIF source
+code and Roms_tools matlab files), you have to use (and eventuallty to
+install it on your computer)
+      <a href="http://en.wikipedia.org/wiki/Subversion_(software)">
+Subversion</a>,it is a version control system, also called svn. <br/>
+More details can be found on the Inria Gforge <a
+href="http://siteadmin.gforge.inria.fr/gforge.html"></a>help pages, <a
+href="http://siteadmin.gforge.inria.fr/Tutorial/Overview.html">online
+tutorial</a> and <a
+href="http://siteadmin.gforge.inria.fr/FAQ.html">FAQ</a> </li>
+ <br />
+ 
+First you have to do a svn checkout to download the files: <br /><br/>
+    <ul>
+      <li>The standard users can only execute this via an https procedure:<br />
+	    <span style="font-size: larger;"><b><i>svn checkout --username your_login https://scm.gforge.inria.fr/svn/romsagrif</i></b></span></li>
+Take care of the subversion configuration file : ~/.subversion/servers, in the section
+concerning the http-proxy :http-proxy-host and  http-proxy-port</i> <br />
+  </ul>  
+    <br />
+    
+     <ul>
+	   <li>The developpers (users who can upload thier own
+modifications) can also use the svn+ssh procedure :<br />
+		 <span style="font-size: larger;"><b><i>svn checkout svn+ssh://your_login@scm.gforge.inria.fr/svn/romsagrif</i></b></span><br />
+		 To use this procesdure, you need to configure your ssh-keys 
+		(<a href="http://siteadmin.gforge.inria.fr/FAQ.html#Q6">Instructions here</a>)</li>
+    </ul>   
+<br />
+In a second time, you have to check about differents updates of the ROMSAGRIF source code and ROMSTOOLS: 
+<br /><br />
+
+    <ul>
+      <li>Simply go to your romsagrif download directory and execute <b><i>svn update romagrif</i></b> </li>
+    </ul>
+<br />
+
+ <li> On Linux, you can use kdesvn for example to manage these updates
+with subversion: <a href="http://kdesvn.alwins-world.de/">kdesvn</a>
+but other software exist like TortoiseSVN, RapidSVN, ... </li> <br />
+
+<li>These informations more detailed can be found 
+here: <a href="http://siteadmin.gforge.inria.fr/FAQ.html">
+http://siteadmin.gforge.inria.fr/FAQ.html</a> <br /></li>
+<br />
+
+<li>The ROMS_AGRIF V2.0-beta developments can be found here: <br />
+<a href="http://lists.gforge.inria.fr/cgi-bin/mailman/private/romsagrif-commits/"> 
+http://lists.gforge.inria.fr/cgi-bin/mailman/private/romsagrif-commits/</a></li>
+<br />
+
+</ul>
+
+</p>
+</body>
+</html>
+

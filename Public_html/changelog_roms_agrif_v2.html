@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
+
+  <head>
+    <title>CHANGE LOG ROMS_AGRIF</title>
+    <meta http-equiv="Content-Type" content=
+    "text/html; charset=iso-8859-1" />
+    <link type="text/css" href="style.css" media="all" rel="stylesheet" />
+  </head>
+  
+  <body class="petitefeuille">
+
+    <div id="logo"><a href="http://roms.mpl.ird.fr"></a></div>	
+    
+    <h1>CHANGE LOG FOR ROMS_AGRIF</h1>
+
+     <ul> Date: <b>20 July 2010</b><br>
+     Author : <b>L. Debreu, P. Marchesiello, G. Cambon, P. Penven</b><br>
+     Category : <b>Release v2.1</b>, for more informations, 
+     see <a href="user_manual/Doc_roms_agrif_v.2.1_190710.pdf">documentation</a> <br>
+     Description:<b> This is the latest official ROMS_AGRIF release.</b> 
+       <ul> <br>
+         <li>AGRIF 2 way nesting with a full barotropic-baroclinic 2-way nesting.</li>
+         <li>AGRIF allows MPI parallelization of nesting,
+     in addition to added flexibility and portability. 
+     In particular AGRIF executable conv (for generation of nested
+code) is auto-configured and amr.in is now
+     transparent to ROMS developments (AGRIF manages the include files 
+     and variables to be interpolated).</li>
+        <li>New RSUP3 advection/diffusion schemes for tracers to reduce diapycnal 
+     diffusion along slopes.</li>
+        <li>Online diagnostics are added for tracers and momentum equations</li>
+        <li>New fields in outputs files: zonal and meridional wind stresses, wind speed, 
+     heat fluxes.</li>
+        <li>New bulk formulae for heat fluxes and wind stresses calculation (Fairall, 1996)</li>
+	 
+        <li>New biology models : NchlPZD, N2ChlPZD2, N2P2Z2D2</li>
+        <li>New biogeochemical models : PISCES</li>
+
+        <li>New parallelization optimization procesure : autotiling</li>
+      </ul>
+   </ul>
+   
+   
+<!--      <ul> Date: <b>15 July 2010</b><br>
+     Author : <b>G. Cambon </b><br>
+     Category : <b>Update v.2.0.1</b><br>
+     Description:
+       <ul>
+     Change in subroutine UpdateGridhis, in zoom.F  : 
+     call wrt_grid (ncidhis, hisname, lstr) replace by call wrt_his. In order to process
+	 the writing of the parent updated grid, in history file ,
+     at initilization,  in case of MPI mode parallelization and 2 way nesting. 
+     Otherwise, in 2-way nesting and MPI, the update of the parent grid in history 
+     NetCDF file at initialisation didn't work.<br />
+     It was a bit dangerous, because the grid in the his.nc file was the original 
+     one, created at the preprocessing phase, the  mask and h arrays  were not  
+     updated by the child grid corresponding.In the case of reading the grid in this 
+     his file, the mask and bathy were not the correct one and were different 
+     from the average file ones. 
+       </ul>
+     </ul> -->
+    
+     <!-- <ul> Date: <b>13 July 2010</b><br>
+     Author : <b>L. Debreu, P. Marchesiello, P. Penven, G. Cambon </b><br>
+     Category : <b>Pre-Release v.2.0</b><br>
+     Description: 
+       <ul>
+         <li>AGRIF 2 way nesting with a full barotropic-baroclinic 2-way nesting.</li>
+         <li>AGRIF allows MPI parallelization of nesting,
+     in addition to added flexibility and portability. 
+     In particular AGRIF executable conv (for generation of nested
+code) is auto-configured and amr.in is now
+     transparent to ROMS developments (AGRIF manages the include files 
+     and variables to be interpolated).</li>
+        <li>New RSUP3 advection/diffusion schemes for tracers to reduce diapycnal 
+     diffusion along slopes.</li>
+        <li>Online diagnostics are added for tracers and momentum equations</li>
+        <li>New fields in outputs files: zonal and meridional wind stresses, wind speed, 
+     heat fluxes.</li>
+        <li>New bulk formulae for heat fluxes and wind stresses calculation (Fairall, 1996)</li>
+	 
+        <li>New biology models : NchlPZD, N2ChlPZD2, N2P2Z2D2</li>
+        <li>New biogeochemical models : PISCES</li>
+
+        <li>New parallelization optimization procesure : autotiling</li>
+      </ul>
+     </ul> -->
+
+</body></html>
