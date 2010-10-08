@@ -18,14 +18,21 @@
     <h2>Latest stable version, <br>
     20 July 2010</h2>
       <ul> 
-      <h3>DOWNLOAD ROMS_AGRIF V2.1 SOURCE FILES <a href="../Data/CODE/Roms_Agrif_v2.1_20_07_2010.tar.gz">HERE</a></h3>
+      <h3>DOWNLOAD ROMS_AGRIF V2.1 SOURCE FILES : <a href="../Data/CODE/Roms_Agrif_v2.1_20_07_2010.tar.gz">HERE</a></h3>
       <h3>Known Problems and Fixes for V2.1</h3>
       <ul>
+      <li>Unconsistency in the roms_inter.in, roms_forecasts.in and roms_hindcast.in file concerning 
+      the tracer equation and momentum equation diagnostics terms flags. (08 Oct 2010)</li>
+     		<ul>
+      	<b>Status</b> : Fixed <br>
+      	<b>Solution</b>: download this <a href="../Data/PATCH/patch_Roms_Agrif_v2.1/patch_namelist_08_10_2010.tar">patch</a> 
+      	here, untar it and  place its content in the Roms_tools/RunV2.1 directory. <br>
+      	</ul>    
       <li>Problems of array dimensions for bry forcing in parallel mode. (27 Sept 2010)</li>
-     		<ul><b>Description</b> : Serial/OpenMP vs MPI because of the extended bounds needed by MPI to do the message passing  <br>
+     		<ul><b>Description</b> : Serial/OpenMP vs MPI because of the extended bounds needed by MPI to do the message passing.  <br>
       	<b>Status</b> : Fixed <br>
       	<b>Solution</b>: download this <a href="../Data/PATCH/patch_Roms_Agrif_v2.1/patch_bry_20_09_2010.tar">patch</a> 
-      	here, untar it and  place its content in the Roms_Agrif_v2.1 sources directory <br>
+      	here, untar it and  place its content in the Roms_tools/Roms_Agrif sources directory. <br>
       	</ul>    
 	   </ul>
 

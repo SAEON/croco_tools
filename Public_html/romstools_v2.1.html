@@ -17,9 +17,16 @@
     <h2>Latest stable version, <br>
     20 July 2010</h2>
       <ul> 
-      <h3>DOWNLOAD Matlab TOOLBOX ROMSTOOLS V2.1  <a href="../Data/TOOLS/ROMSTOOLS_v2.1_20_07_2010.tar.gz">HERE</a></h3>
+      <h3>DOWNLOAD Matlab TOOLBOX ROMSTOOLS V2.1 : <a href="../Data/TOOLS/ROMSTOOLS_v2.1_20_07_2010.tar.gz">HERE</a></h3>
       <h3>Known Problems and Fixes for V2.1</h3>
       	<ul>
+      	<li>Unconsistency in the roms_inter.in, roms_forecast.in and roms_hindcast.in file concerning 
+      the tracer equation and momentum equation diagnostics terms flags. (08 Oct 2010)</li>
+     		<ul>
+      	<b>Status</b> : Fixed <br>
+      	<b>Solution</b>: download this <a href="../Data/PATCH/patch_Roms_Agrif_v2.1/patch_namelist_08_10_2010.tar">patch</a> 
+      	here, untar it and  place its content in the Roms_tools/Run directory. <br>
+      	</ul>
       	<li>Bug in tides processing : make_tides.m script (27 Sept 2010)</li>
      			<ul><b>Description</b> : Error between tidal wave rank in the TPXO global tides and the tidal rank in 
      			ROMS forcing file containing the barotropic forcings imposed at the open boundary of the domain.   <br>
