@@ -39,7 +39,7 @@
 # include "sources.h"
 # include "forces.h"
 # ifdef DIAGNOSTICS_TS
-#  include "diagnostics.h"
+# include "diagnostics.h"
 # endif
       integer Istr,Iend,Jstr,Jend, itrc, i,j,k, indx, kmld
 # ifdef PSOURCE
@@ -49,7 +49,7 @@
      &       ,imin,imax,jmin,jmax
 # endif
 # ifdef AGRIF
-#  include "zoom.h"
+# include "zoom.h"
 # endif
       real FX(PRIVATE_2D_SCRATCH_ARRAY),
      &     FE(PRIVATE_2D_SCRATCH_ARRAY),   cff,
@@ -332,7 +332,7 @@
 #  endif
           enddo
         enddo
-# endif /*DIAGNOSTICS_TS*/
+# endif /* DIAGNOSTICS_TS */
 
         enddo    ! <-- itrc
       enddo    !<-- k
@@ -508,7 +508,7 @@
 #  endif
          enddo
        enddo
-# endif /*DIAGNOSTICS_TS*/  
+# endif /* DIAGNOSTICS_TS */  
 
 !
 !---------------------------------------------------------------
@@ -545,11 +545,11 @@
             do k=1,N-1
               do i=Istr,Iend
                 FC(i,k)=0.
-#  if defined LMD_SKPP || defined LMD_BKPP
-#   ifdef LMD_NONLOCAL
+# if defined LMD_SKPP || defined LMD_BKPP
+#  ifdef LMD_NONLOCAL
      &                 -dt*Akt(i,j,k,isalt)*ghats(i,j,k)
-#   endif
 #  endif
+# endif
               enddo
             enddo
 # endif
@@ -900,7 +900,7 @@
              T_mld_nstp(i,j)=T_mld_nstp(i,j)+
      &                       t(i,j,k,nstp,itrc)*cff
            enddo
-           kbl_nstp(i,j)=kbl(i,j)
+           if (itrc .eq. NT) kbl_nstp(i,j)=kbl(i,j)
          enddo
        enddo
        do j=Jstr,Jend
@@ -915,7 +915,8 @@
          enddo
        enddo
 #   endif /* TS_DIF2 && TS_DIF4 && SPONGE_DIF2 */
-#    undef T_mld_nnew T_mld_nstp
+#   undef T_mld_nnew 
+#   undef T_mld_nstp
 #  endif /* DIAGNOSTICS_TS_MLD */
 
 #  ifdef DIAGNOSTICS_DEBUG
@@ -951,11 +952,11 @@
 #  else
 #   define I_RANGE IstrR,IendR
 #  endif
-#   ifdef NS_PERIODIC
-#    define J_RANGE Jstr,Jend
-#   else
-#    define J_RANGE JstrR,JendR
-#   endif
+#  ifdef NS_PERIODIC
+#   define J_RANGE Jstr,Jend
+#  else
+#   define J_RANGE JstrR,JendR
+#  endif
         do k=1,N
           do j=J_RANGE
             do i=I_RANGE

@@ -6,15 +6,15 @@
 #  define CLIMAT_TS_SPONGE
 # endif
 !
-# ifndef CHILD_SPG
+#ifndef CHILD_SPG
        subroutine t3dmix_spg (tile)
       implicit none
         integer tile, itrc, trd, omp_get_thread_num
-#  include "param.h"
-#  include "private_scratch.h"
-#  include "compute_tile_bounds.h"
+# include "param.h"
+# include "private_scratch.h"
+# include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
-#  ifdef AGRIF
+#ifdef AGRIF
        do itrc=1,NT
        if (AGRIF_Root()) then
          call t3dmix_spg_tile(Istr,Iend,Jstr,Jend, itrc, 
@@ -30,7 +30,7 @@
         enddo
         return
         end
-#  else 
+#else 
       do itrc=1,NT
        call t3dmix_spg_tile(Istr,Iend,Jstr,Jend, itrc, 
      &                     A2d(1, 1,trd), A2d(1, 2,trd),
@@ -39,7 +39,7 @@
       enddo
        return
        end
-#  endif   /* AGRIF */
+#endif   /* AGRIF */
 !
 !---------------------------------------------------------------------
 !*********************************************************************
@@ -49,13 +49,13 @@
 !
       subroutine t3dmix_spg_tile(Istr,Iend,Jstr,Jend, itrc,
      &                         FX,FE, FC,dTdz, dTdx,dTde,dZdx,dZde)
-#  undef CLIMAT_TS_SPONGE_FINE
+# undef CLIMAT_TS_SPONGE_FINE
 !
 !
 ! Compute laplacien diffusion in the parent grid sponge
 ! Diffusion applied on T-TCLM
 !
-# else
+#else
 !
 ! CHILD
 !
@@ -68,7 +68,7 @@
 
 #  define CLIMAT_TS_SPONGE_FINE
       
-# endif /* CHILD_SPG */
+#endif /* CHILD_SPG */
 !
 !---------------------------------------------------------------------
 ! ******************************Common Code***************************
@@ -90,24 +90,24 @@
 # include "ocean3d.h"
 # include "mixing.h"
 # ifdef CLIMAT_TS_SPONGE
-#  include "climat.h"
+# include "climat.h"
 # endif
 # include "scalars.h"
 # ifdef DIAGNOSTICS_TS
 #  include "diagnostics.h"
 # endif
 !
-# ifdef AGRIF
-#  include "zoom.h"
-# endif
+#ifdef AGRIF
+#include "zoom.h"
+#endif
 # include "compute_auxiliary_bounds.h"
 !
 
-# ifdef CHILD_SPG
-#  define TCLM tsponge
-# else
-#  define TCLM tclm
-# endif
+#ifdef CHILD_SPG
+#define TCLM tsponge
+#else
+#define TCLM tclm
+#endif
 
 # ifdef MIX_S_TS
 !
@@ -123,13 +123,13 @@
           FX(i,j)=0.25*(diff2(i,j,itrc)+diff2(i-1,j,itrc))
      &                   *pmon_u(i,j)*(Hz(i,j,k)+Hz(i-1,j,k))*(
      &                t(i,j,k,nrhs,itrc)-t(i-1,j,k,nrhs,itrc)
-#  if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE 
+# if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE 
      &                   -TCLM(i,j,k,itrc)+TCLM(i-1,j,k,itrc)
-#  endif
+# endif
      &                                                   )
-#   ifdef MASKING
+#    ifdef MASKING
      &                                         * umask(i,j)
-#   endif
+#    endif
           enddo
         enddo
         do j=Jstr,Jend+1
@@ -137,13 +137,13 @@
           FE(i,j)=0.25*(diff2(i,j,itrc)+diff2(i,j-1,itrc))
      &                     *pnom_v(i,j)*(Hz(i,j,k)+Hz(i,j-1,k))*(
      &                 t(i,j,k,nrhs,itrc)-t(i,j-1,k,nrhs,itrc)
-#  if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE 
+# if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE 
      &                    -TCLM(i,j,k,itrc)+TCLM(i,j-1,k,itrc)
-#  endif
+# endif
      &                                                   ) 
-#   ifdef MASKING
+#    ifdef MASKING
      &                                       * vmask(i,j)
-#   endif
+#    endif
           enddo
         enddo
 !
@@ -159,7 +159,7 @@
         enddo
       enddo
 
-# else /* MIX_S_TS */
+#else /* MIX_S_TS */
 
 !
 !-----------------------------------------------------------------------
@@ -176,13 +176,13 @@
           do j=Jstr,Jend
             do i=Istr,Iend+1
               cff=0.5*(pm(i,j)+pm(i-1,j)) 
-#  ifdef MASKING
+#    ifdef MASKING
      &                                 * umask(i,j)
-#  endif
+#    endif
               dZdx(i,j,k2)=cff*(z_r(i,j,k+1) -z_r(i-1,j,k+1))
               dTdx(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)
      &                               -t(i-1,j,k+1,nrhs,itrc)
-#  if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE
+# if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE
      &               -TCLM(i,j,k+1,itrc)+TCLM(i-1,j,k+1,itrc)
 #  endif
      &                                                  )
@@ -191,13 +191,13 @@
           do j=Jstr,Jend+1
             do i=Istr,Iend
               cff=0.5*(pn(i,j)+pn(i,j-1)) 
-#  ifdef MASKING
+#    ifdef MASKING
      &                                  * vmask(i,j)
-#  endif
+#    endif
               dZde(i,j,k2)=cff*(z_r(i,j,k+1) -z_r(i,j-1,k+1))
               dTde(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)
      &                               -t(i,j-1,k+1,nrhs,itrc)
-#  if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE
+# if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE
      &               -TCLM(i,j,k+1,itrc)+TCLM(i,j-1,k+1,itrc)
 #  endif
      &                                                  )
@@ -216,9 +216,9 @@
           do j=Jstr-1,Jend+1
             do i=Istr-1,Iend+1
               dTdz(i,j,k2)=(t(i,j,k+1,nrhs,itrc)-t(i,j,k,nrhs,itrc)
-#  if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE
+# if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE
      &                          -TCLM(i,j,k+1,itrc)+TCLM(i,j,k,itrc)
-#  endif
+# endif
      &                                   )/(z_r(i,j,k+1)-z_r(i,j,k))
             enddo
           enddo
@@ -284,20 +284,14 @@
             enddo
           enddo
           
-#  if defined AGRIF && defined AGRIF_CONSERV_TRA
+#if defined AGRIF && defined AGRIF_CONSERV_TRA
           MYFX(IstrR:IendR,JstrR:JendR,k,itrc)=
-     & MYFX(IstrR:IendR,JstrR:JendR,k,itrc)
-     & +dt*FX(IstrR:IendR,JstrR:JendR)
+     &          MYFX(IstrR:IendR,JstrR:JendR,k,itrc)
+     &          +dt*FX(IstrR:IendR,JstrR:JendR)
           MYFY(IstrR:IendR,JstrR:JendR,k,itrc)=
-     &  MYFY(IstrR:IendR,JstrR:JendR,k,itrc)
-     & +dt*FE(IstrR:IendR,JstrR:JendR)
-#  endif
-
-        endif  ! <-- k.gt.0
-      enddo   ! --> k
-
-# endif /* MIX_S_TS */
-
+     &          MYFY(IstrR:IendR,JstrR:JendR,k,itrc)
+     &          +dt*FE(IstrR:IendR,JstrR:JendR)
+#endif
 
 # ifdef DIAGNOSTICS_TS
 !
@@ -337,6 +331,8 @@
         endif  ! <-- k.gt.0
       enddo   ! --> k
 !
+# endif /* MIX_S_TS */
+!
 !---------------------------------------------------------------------
 !
 # ifdef DIAGNOSTICS_TS
@@ -347,84 +343,85 @@
 !
 #   define T_mld_nnew FX
 #   define T_mld_nstp FE
-       do j=Jstr,Jend
-         do i=Istr,Iend
-            THmix_mld(i,j,itrc)=0.
-            T_mld_nnew(i,j)=0.
-            T_mld_nstp(i,j)=0.
-         enddo
-       enddo
-       do j=Jstr,Jend
-         do i=Istr,Iend
+      do j=Jstr,Jend
+        do i=Istr,Iend
+           THmix_mld(i,j,itrc)=0.
+           T_mld_nnew(i,j)=0.
+           T_mld_nstp(i,j)=0.
+        enddo
+      enddo
+      do j=Jstr,Jend
+        do i=Istr,Iend
 #   ifdef LMD_SKPP
-           kmld=kbl(i,j)
+          kmld=kbl(i,j)
 #   else
-           kmld=N-5
+          kmld=N-5
 #   endif
-           do k=N,kmld,-1
-             cff=Hz(i,j,k)/(z_w(i,j,N)-z_w(i,j,kmld-1))
-             THmix_mld(i,j,itrc)=THmix_mld(i,j,itrc)+
-     &                           THmix(i,j,k,itrc)*cff
-             T_mld_nnew(i,j)=T_mld_nnew(i,j)+
-     &                       t(i,j,k,nnew,itrc)*cff
-           enddo
-         enddo
-       enddo
+          do k=N,kmld,-1
+            cff=Hz(i,j,k)/(z_w(i,j,N)-z_w(i,j,kmld-1))
+            THmix_mld(i,j,itrc)=THmix_mld(i,j,itrc)+
+     &                          THmix(i,j,k,itrc)*cff
+            T_mld_nnew(i,j)=T_mld_nnew(i,j)+
+     &                      t(i,j,k,nnew,itrc)*cff
+          enddo
+        enddo
+      enddo
 
-       do j=Jstr,Jend
-         do i=Istr,Iend
+      do j=Jstr,Jend
+        do i=Istr,Iend
 #   ifdef LMD_SKPP
-           if (kbl_nstp(i,j).eq.0) kbl_nstp(i,j)=kbl(i,j)
-           kmld=kbl_nstp(i,j)
+          if (kbl_nstp(i,j).eq.0) kbl_nstp(i,j)=kbl(i,j)
+          kmld=kbl_nstp(i,j)
 #   else
-           kmld=N-5
+          kmld=N-5
 #   endif
-           do k=N,kmld,-1
-             cff=Hz_bak(i,j,k)/(z_w(i,j,N)-z_w(i,j,kmld-1))
-             T_mld_nstp(i,j)=T_mld_nstp(i,j)+
-     &                       t(i,j,k,nstp,itrc)*cff
-           enddo
-           kbl_nstp(i,j)=kbl(i,j)
-         enddo
-       enddo
-       do j=Jstr,Jend
-         do i=Istr,Iend
-            Trate_mld(i,j,itrc)=(T_mld_nnew(i,j)-T_mld_nstp(i,j))/dt
-            Tentr_mld(i,j,itrc)=Trate_mld(i,j,itrc)-
-     &                          TXadv_mld(i,j,itrc)-
-     &                          TYadv_mld(i,j,itrc)-
-     &                          TVadv_mld(i,j,itrc)-
-     &                          TVmix_mld(i,j,itrc)-
-     &                          THmix_mld(i,j,itrc)-
-     &                          TForc_mld(i,j,itrc)
-         enddo
-       enddo
-#   undef T_mld_nnew T_mld_nstp
+          do k=N,kmld,-1
+            cff=Hz_bak(i,j,k)/(z_w(i,j,N)-z_w(i,j,kmld-1))
+            T_mld_nstp(i,j)=T_mld_nstp(i,j)+
+     &                      t(i,j,k,nstp,itrc)*cff
+          enddo
+          if (itrc .eq. NT) kbl_nstp(i,j)=kbl(i,j)
+        enddo
+      enddo
+      do j=Jstr,Jend
+        do i=Istr,Iend
+           Trate_mld(i,j,itrc)=(T_mld_nnew(i,j)-T_mld_nstp(i,j))/dt
+           Tentr_mld(i,j,itrc)=Trate_mld(i,j,itrc)-
+     &                         TXadv_mld(i,j,itrc)-
+     &                         TYadv_mld(i,j,itrc)-
+     &                         TVadv_mld(i,j,itrc)-
+     &                         TVmix_mld(i,j,itrc)-
+     &                         THmix_mld(i,j,itrc)-
+     &                         TForc_mld(i,j,itrc)
+        enddo
+      enddo
+#   undef T_mld_nnew 
+#   undef T_mld_nstp
 #  endif /* DIAGNOSTICS_TS_MLD */
 
 #  ifdef DIAGNOSTICS_DEBUG
-       if (istr.eq.1 .and. jstr.eq.1 .and. itrc.eq.itemp) then
-         i=5
-         j=5
+      if (istr.eq.1 .and. jstr.eq.1 .and. itrc.eq.itemp) then
+        i=5
+        j=5
 #   if defined DIAGNOSTICS_TS_MLD
-         cff=Trate_mld(i,j,itrc)-
-     &       TXadv_mld(i,j,itrc)-
-     &       TYadv_mld(i,j,itrc)-
-     &       TVadv_mld(i,j,itrc)-
-     &       TVmix_mld(i,j,itrc)-
-     &       THmix_mld(i,j,itrc)-
-     &       Tentr_mld(i,j,itrc)-
-     &       TForc_mld(i,j,itrc)
-       print *,'T3DMIX_SPG: T budget closure MLD   : ',cff
+        cff=Trate_mld(i,j,itrc)-
+     &      TXadv_mld(i,j,itrc)-
+     &      TYadv_mld(i,j,itrc)-
+     &      TVadv_mld(i,j,itrc)-
+     &      TVmix_mld(i,j,itrc)-
+     &      THmix_mld(i,j,itrc)-
+     &      Tentr_mld(i,j,itrc)-
+     &      TForc_mld(i,j,itrc)
+        print *,'T3DMIX_SPG: T budget closure MLD   : ',cff
 #   endif /* DIAGNOSTICS_TS_MLD */
-          cff=Trate(i,j,N-5,itrc)-
-     &        TXadv(i,j,N-5,itrc)-
-     &        TYadv(i,j,N-5,itrc)-
-     &        TVadv(i,j,N-5,itrc)-
-     &        TVmix(i,j,N-5,itrc)-
-     &        THmix(i,j,N-5,itrc)-
-     &        TForc(i,j,N-5,itrc)
-       print *,'T3DMIX_SPG: T budget closure k=N-5 : ',cff
+        cff=Trate(i,j,N-5,itrc)-
+     &       TXadv(i,j,N-5,itrc)-
+     &       TYadv(i,j,N-5,itrc)-
+     &       TVadv(i,j,N-5,itrc)-
+     &       TVmix(i,j,N-5,itrc)-
+     &       THmix(i,j,N-5,itrc)-
+     &       TForc(i,j,N-5,itrc)
+        print *,'T3DMIX_SPG: T budget closure k=N-5 : ',cff
       endif
 #  endif /* DIAGNOSTICS_DEBUG */
 # endif /* DIAGNOSTICS_TS */
@@ -434,24 +431,22 @@
 !==========================================================
 !
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
-        call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
-     &                          t(START_2D_ARRAY,1,nnew,itrc))
+      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
+     &                        t(START_2D_ARRAY,1,nnew,itrc))
 # endif
 
-       return
-       end
+      return
+      end
 
-
-# ifndef CHILD_SPG
-#  define CHILD_SPG
-#  ifdef AGRIF
-#   include "t3dmix_spg.F"
-#  endif
-#  undef CHILD_SPG
-# endif  /* !CHILD_SPG */
+#ifndef CHILD_SPG
+# define CHILD_SPG
+# ifdef AGRIF
+#  include "t3dmix_spg.F"
+# endif
+# undef CHILD_SPG
+#endif  /* !CHILD_SPG */
 
 #else
       subroutine t3dmix_spg_empty
       end
- 
 #endif /* SOLVE3D */
