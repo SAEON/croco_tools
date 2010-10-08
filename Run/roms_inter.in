@@ -28,15 +28,14 @@ averages: NTSAVG, NAVG, NRPFAVG / filename
                           roms_avg.nc
 
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
-                          T    F   F   F  F    10*F
-auxiliary_history_fields:   rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr UWstr VWstr rsw rlw lat sen HEL
-			     F   F     T   F    T    F    T   T    T     T   T    T     10*F             
+                          T    F   F    T  T    30*T
+auxiliary_history_fields:   rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Ustr Vstr rsw rlw lat sen HEL
+                             F   F     F   F    F    F    T   T    T     T    T    T     10*F                 
 
 primary_averages: zeta UBAR VBAR  U  V   wrtT(1:NT)
-                   T    T    T    T  T   10*T
-auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL  HBBL Bostr Wstr UWstr VWstr rsw rlw lat sen HEL
-                     F   T     T   F    T    F    T    T     T   T    T     10*F             
-
+                   T    T    T    T  T   30*T
+auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Ustr Vstr rsw rlw lat sen HEL
+                     F   T     T   F    T    F    T   T    T     T    T    T     10*F   
 
 rho0:
       1025.d0
@@ -62,32 +61,39 @@ sponge:          X_SPONGE [m],    V_SPONGE [m^2/sec]
 nudg_cof:    TauT_in, TauT_out, TauM_in, TauM_out  [days for all]
                 1.       360.      3.      360.
 
-
-
-
 diagnostics:   ldefdia   nwrtdia    nrpfdia /filename
-                  T        144         0
+                  T        72         0
                                    roms_dia.nc
-diagnostics_history_fields:   TXadv(1:NT !!EXACT!!) TYadv  TVadv  THmix TVmix  Tforc  Trate  TXadvml  TYadvml   TVadvml  THmixml TVmixml Tforcml Tentml Trateml
- T T       T T   T T     T T     T T     T T      T T    T T      T T       T T       T T    T T      T T      T T    T T  
 
 diag_avg: ldefdia_avg  ntsdia_avg  nwrtdia_avg  nprfdia_avg /filename
-               T          1           144            0
+               T          1           72            0
                            roms_dia_avg.nc
-diagnostics_average_fields:  TXadv (1:NT !EXACT!) TYadv  TVadv   THmix TVmix   Tforc   Trate TXadvml  TYadvml   TVadvml  THmixml TVmixml Tforcml Tentml Trateml
- T T       T T   T T     T T     T T     T T      T T    T T      T T       T T       T T    T T      T T      T T    T T 
+
+diag3D_history_fields:    diag_tracers3D(1:NT) 
+                            30*T
+
+diag2D_history_fields:    diag_tracers2D(1:NT)
+                            30*T
+
+diag3D_average_fields:    diag_tracers3D_avg(1:NT)
+                            30*T
+
+diag2D_average_fields:    diag_tracers2D_avg(1:NT)
+                            30*T
 
 diagnosticsM:   ldefdiaM   nwrtdiaM    nrpfdiaM /filename
                    T          72          0
-                                 ROMS_FILES/roms_diaM.nc
-diagnosticsM_history_fields: MXadv MYadv MVadv MCor MPrsgrd MHmix MVmix MRate
-                                               T F     T T    T T       T T      T T       T T        T T        T T
+                                 roms_diaM.nc
 
 diagM_avg: ldefdiaM_avg  ntsdiaM_avg  nwrtdiaM_avg  nprfdiaM_avg /filename
                T          1           72            0
-                                 ROMS_FILES/roms_diaM_avg.nc
-diagnosticsM_average_fields: MXadv MYadv MVadv MCor MPrsgrd MHmix MVmix MRate
-                                               T T     T T     T T       T T      T T       T T        T T        T T
+                                 roms_diaM_avg.nc
+
+diagM_history_fields: diag_momentum(1:2)
+                            T T
+
+diagM_average_fields: diag_momentum_avg(1:2)
+		            T T
 
 diagnostics_bio:   ldefdiabio   nwrtdiabio    nrpfdiabio /filename
                         T          20             0
