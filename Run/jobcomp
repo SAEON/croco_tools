@@ -120,7 +120,7 @@ setenv CPPFLAGS1 "$NETCDFINC -IROMSFILES/AGRIF_INC"
 if ($OS == Linux) then          # LINUX
   set OS = Linux
  if ($LINUX_FC == ifort || $LINUX_FC == ifc) then
-    setenv CPP1 "cpp -traditional -DLinux"
+    setenv CPP1 "cpp -traditional -DLinux -DIfort"
     setenv CFT1 ifort
     setenv FFLAGS1 "-O3 -w90 -w95 -cm -72 -fno-alias -i4 -r8 -fp-model precise"
     setenv LDFLAGS1 "-Vaxlib $LDFLAGS1"

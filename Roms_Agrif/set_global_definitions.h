@@ -152,6 +152,10 @@ Select MOMENTUM VERTICAL advection scheme:
 # define QUAD 16
 # define QuadZero 0.Q0
 /* # define QuadZero 0.0_16 */
+#elif defined DBLEPREC && defined Ifort
+/* Ifort supports QUAD precision */
+# define QUAD 16
+# define QuadZero 0.Q0
 #else
 # define QUAD 8
 # define QuadZero 0.D0
