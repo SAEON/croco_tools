@@ -322,8 +322,8 @@ for Y=Ymin:Ymax
     disp(['-------'])
     disp(['Perform the interpolations for the next month ...'])
     disp(['-------'])
-    taux_file=[QSCAT_dir,'tauxY',num2str(Yp),'M',num2str(Mp),'.nc']
-    tauy_file=[QSCAT_dir,'tauyY',num2str(Yp),'M',num2str(Mp),'.nc']
+    taux_file=[QSCAT_dir,'tauxY',num2str(Yp),'M',num2str(Mp),'.nc'];
+    tauy_file=[QSCAT_dir,'tauyY',num2str(Yp),'M',num2str(Mp),'.nc'];
 
     for i=tlen-itolap_qscat+1 : tlen
       %    disp(['i - (itolap_qscat+tlen0)=',num2str( i - (itolap_qscat+tlen0) )])
