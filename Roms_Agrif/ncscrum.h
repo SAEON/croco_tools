@@ -606,9 +606,9 @@
 # endif
 #endif
 #ifdef DIAGNOSTICS_BIO
-     &      , wrtdiabio(NWRTHIS)
+     &      , wrtdiabio
 # ifdef AVERAGES
-     &      , wrtdiabio_avg(NWRTHIS)
+     &      , wrtdiabio_avg
 # endif
 #endif
 	
