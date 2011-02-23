@@ -42,6 +42,7 @@
      &                  A2d(1,13,trd), A3d(1, 1,trd),    B2d(1,trd)) 
 # endif
 # ifdef LMD_BKPP
+C$OMP BARRIER
       call lmd_bkpp_tile (Istr,Iend,Jstr,Jend,
      &                  A3d(1, 2,trd), A3d(1, 3,trd), A3d(1, 4,trd),
      &                  A2d(1, 5,trd), A2d(1, 6,trd), A2d(1, 7,trd),
