@@ -1,5 +1,12 @@
 !
-! $Id: pre_step3d.F,v 1.7 2005/10/11 08:37:32 pmarches Exp $
+!======================================================================
+! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
+! The two other branches from UCLA (Shchepetkin et al) 
+! and Rutgers University (Arango et al) are under MIT/X style license.
+! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
+! 
+! ROMS_AGRIF website : http://roms.mpl.ird.fr
+!======================================================================
 !
 #include "cppdefs.h"
 #ifdef SOLVE3D
@@ -318,8 +325,13 @@ C--# include "ocean3d.h" --> u declared only once
 !-------------------------------------------------------------------
 !
           do is=1,Nsrc
+# ifdef MPI
+            i=Isrc_mpi(is,mynode)
+            j=Jsrc_mpi(is,mynode)
+# else
             i=Isrc(is)
             j=Jsrc(is)
+# endif
             if (Istr.le.i .and. i.le.Iend+1
      &                   .and. Jstr.le.j .and. j.le.Jend+1) then
               if (Dsrc(is).eq.0) then

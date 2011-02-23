@@ -1203,7 +1203,14 @@ c
 
 # elif defined REGIONAL
         do is=1,Nsrc                   ! Exponential vertical
-          Hs=h(Isrc(is),Jsrc(is))      ! distribution
+#  ifdef MPI
+         i=Isrc_mpi(is,mynode)
+         j=Jsrc_mpi(is,mynode)
+#  else
+         i=Isrc(is)
+         j=Jsrc(is)
+#  endif
+          Hs=h(i,j)      ! distribution
           cff=5.            ! Hs/z0  (z0 surface layer depth)
           cff1=cff/(1-exp(-cff))
           cff2=0.

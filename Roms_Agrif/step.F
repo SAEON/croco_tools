@@ -611,6 +611,7 @@ C$OMP BARRIER
       enddo
 C$OMP BARRIER
 
+#endif /* SOLVE3D */
 !
 #if defined AGRIF && defined AGRIF_2WAY
 !
@@ -688,6 +689,8 @@ C$OMP BARRIER
 #endif
     
 C$OMP BARRIER
+
+#ifdef SOLVE3D
 
       do tile=my_first,my_last
         call omega (tile)

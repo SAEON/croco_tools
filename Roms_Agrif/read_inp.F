@@ -1,5 +1,12 @@
 !
-! $Id: read_inp.F,v 1.21 2005/10/10 13:40:18 pmarches Exp $
+!======================================================================
+! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
+! The two other branches from UCLA (Shchepetkin et al) 
+! and Rutgers University (Arango et al) are under MIT/X style license.
+! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
+! 
+! ROMS_AGRIF website : http://roms.mpl.ird.fr
+!======================================================================
 !
 #include "cppdefs.h"
                                         ! Read/report model input
@@ -246,20 +253,24 @@
         MPI_master_only write(stdout,'(10x,A,2x,A)')
      &                   'Grid File:', grdname(1:lstr)
 #endif
-#if !defined ANA_SMFLUX && ( defined SOLVE3D && (\
-        (!defined ANA_STFLUX && !defined BULK_FLUX) \
-      ||!defined ANA_BTFLUX   \
-      ||(defined BBL  && !defined ANA_BSEDIM && !defined SEDIMENT) \
-      ||(defined QCORRECTION && !defined ANA_SST)   \
-      ||(defined BBL         && !defined ANA_WWAVE) \
-      ||(defined SALINITY    && !defined ANA_SSFLUX && \
-         !defined BULK_FLUX  && !defined BULK_EP) \
-      ||(defined SALINITY    && defined QCORRECTION && \
-         defined SFLX_CORR   && !defined ANA_SSS) \
-      ||(defined LMD_SKPP    && \
-         !defined ANA_SRFLUX && !defined BULK_FLUX) \
-      ||(defined BULK_FLUX && \
-        (!defined BULK_SMFLUX || !defined BULK_EP)) ))
+#if      (!defined SOLVE3D && !defined ANA_SMFLUX) \
+      || (defined TIDES) \
+      || (defined SOLVE3D && (\
+           (!defined ANA_STFLUX && !defined BULK_FLUX) \
+        ||  !defined ANA_BTFLUX   \
+        || (defined BBL  && !defined ANA_BSEDIM && !defined SEDIMENT) \
+        || (defined QCORRECTION && !defined ANA_SST)   \
+        || (defined BBL         && !defined ANA_WWAVE) \
+        || (defined SALINITY    && !defined ANA_SSFLUX && \
+            !defined BULK_FLUX  && !defined BULK_EP) \
+        || (defined SALINITY    && defined QCORRECTION && \
+             defined SFLX_CORR   && !defined ANA_SSS) \
+        || (defined LMD_SKPP    && \
+            !defined ANA_SRFLUX && !defined BULK_FLUX) \
+        || (defined BULK_FLUX && \
+            (!defined BULK_SMFLUX || !defined BULK_EP)) \
+                               )\
+         )
 !
 !
 ! Forcing file name. Check its availability.
@@ -1394,6 +1405,17 @@ c        close(testunit)
      &  , Dsrc(is), 'Direction of point source flow'
           MPI_master_only write(stdout,'(1pe10.3,2x,A)')
      &    Qbar(is), 'Total transport at point source'
+         
+#ifdef MPI
+          if (iminmpi.LE.Isrc(is) .AND. Isrc(is).LE.imaxmpi .AND.
+     &        jminmpi.LE.Jsrc(is) .AND. Jsrc(is).LE.jmaxmpi) then
+           Isrc_mpi(is,mynode)=Isrc(is)-iminmpi+1
+           Jsrc_mpi(is,mynode)=Jsrc(is)-jminmpi+1
+          else
+           Isrc_mpi(is,mynode)=-1
+           Jsrc_mpi(is,mynode)=-1
+          endif
+#endif
           do itrc=1,NT
             MPI_master_only write(stdout,
      &                     '(6x,L1,2x,A,I2,A,2x,A,I2,A)')
