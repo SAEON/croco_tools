@@ -62,7 +62,10 @@ for k=1:Nd
   else
     data2d(isbad)=griddata(lon(isgood),lat(isgood),data2d(isgood),...
                            lon(isbad),lat(isbad),'nearest');
-    data_z(k,:,:)=mask.*data2d;			 
+    % Gc remove the masking because in case of nesting
+    % It introduce some zero value 
+    % data_z(k,:,:)=mask.*data2d;
+    data_z(k,:,:)=data2d;
   end
 end
 %

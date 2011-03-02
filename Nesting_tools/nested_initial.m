@@ -48,13 +48,17 @@ unitpisces={''};
 
 if nvar < 17
 
-elseif ( nvar < 21 & biol) 
+elseif ( nvar >=17 & nvar < 21) 
+  if (biol)
   disp('Compute Bio NPZD variables')
   disp('==================')
-elseif (pisces & nvar >= 21)
+  end
+elseif (nvar >= 21)
+  if pisces
   disp('Compute Pisces biogeochemical variables')
   disp('=========================')
-else
+  end
+elseif (biol || pisces)
   error(sprintf(['You don''t have the neccesary variables in the clim file \n',...
 		 'or you didn''t choose the right bio. model. \n', ...
 		 'Check roms_ini.nc parent file and make_ini.m']))

@@ -1,7 +1,7 @@
-function handles=getbiolbutton(h,handles);
+function handles=get_piscesbutton(h,handles);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Button to add the biological variables in the interpolation
+% Button to add the oisces (biogeochelical)) variables in the interpolation
 %
 %  Further Information:  
 %  http://www.brest.ird.fr/Roms_tools/
@@ -27,6 +27,6 @@ function handles=getbiolbutton(h,handles);
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-a=get(handles.getbiolbutton,'Value');
-handles.biol = a;
+a=get(handles.pisces_button,'Value');
+handles.pisces = a;
 return
