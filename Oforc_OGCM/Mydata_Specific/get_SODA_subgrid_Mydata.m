@@ -56,23 +56,32 @@ i3=find(lon+360>=lonmin & lon+360<=lonmax);
 %
 lon=cat(1,lon(i1)-360,lon(i2),lon(i3)+360);
 %
+% 
+% If we are in OpenDap (Get_My_Data=0) we need
+% a shift of decal=1 because the indexes begin at 0 in OpenDap.
+% Here in case of specific data, we don't need a shift
+% then decal=0;
+
+decal=0;
+%decal=1;
+
 if ~isempty(i1)
-  i1min=min(i1)-1;
-  i1max=max(i1)-1;
+  i1min=min(i1)-decal;
+  i1max=max(i1)-decal;
 else
   i1min=[];
   i1max=[];
 end
 if ~isempty(i2)
-  i2min=min(i2)-1;
-  i2max=max(i2)-1;
+  i2min=min(i2)-decal;
+  i2max=max(i2)-decal;
 else
   i2min=[];
   i2max=[];
 end
 if ~isempty(i3)
-  i3min=min(i3)-1;
-  i3max=max(i3)-1;
+  i3min=min(i3)-decal;
+  i3max=max(i3)-decal;
 else
   i3min=[];
   i3max=[];
@@ -82,8 +91,8 @@ end
 %
 j=find(lat>=latmin & lat<=latmax);
 lat=lat(j);
-jmin=min(j)-1;
-jmax=max(j)-1;
+jmin=min(j)-decal;
+jmax=max(j)-decal;
 jrange=['[',num2str(jmin),':',num2str(jmax),']'];
 %
 % 3 Depth
