@@ -194,6 +194,9 @@ C$OMP BARRIER
         enddo
 
 #  ifdef RI_HSMOOTH
+!
+!    Smooth Ri horizontally
+!
 #   ifndef EW_PERIODIC
         if (WESTERN_EDGE) then
           do j=J_EXT_RANGE
@@ -237,19 +240,32 @@ C$OMP BARRIER
 !
 !    Smooth Rig horizontally [Array Rig(:,:,0) is used
 !                            as scratch workspace here]
-        do j=Jstr-1,Jend
-          do i=Istr-1,Iend
-            Rig(i,j,0)=0.25*(Rig(i,j  ,k)+Rig(i+1,j  ,k)
-     &                      +Rig(i,j+1,k)+Rig(i+1,j+1,k))
-          enddo
+      do j=Jstr,Jend+1
+        do i=Istr,Iend+1
+          Rig(i,j,0)=0.25*(Rig(i,j  ,k)+Rig(i-1,j  ,k)
+     &          +Rig(i,j-1,k)+Rig(i-1,j-1,k))
+#   ifdef MASKING
+     &                      *pmask(i,j)     
+#   endif
         enddo
-        do j=Jstr,Jend
-          do i=Istr,Iend
-            Rig(i,j,k)=0.25*(Rig(i,j  ,0)+Rig(i-1,j  ,0)
-     &                      +Rig(i,j-1,0)+Rig(i-1,j-1,0))
-          enddo
-        enddo    !--> discard  Rig(:,:,0)
-#  endif /* RI_HSMOOTH */
+      enddo
+      do j=Jstr,Jend
+        do i=Istr,Iend
+#   ifdef MASKING
+          cff=0.25*(pmask(i,j)   +pmask(i+1,j)
+     &             +pmask(i,j+1) +pmask(i+1,j+1))
+#   else
+          cff=1.
+#   endif
+          Rig(i,j,k)=(1-cff)*Rig(i,j,k)+
+     &                0.25*(Rig(i,j  ,0)+Rig(i+1,j  ,0)
+     &                     +Rig(i,j+1,0)+Rig(i+1,j+1,0))
+#   ifdef MASKING
+          Rig(i,j,k)=Rig(i,j,k)*rmask(i,j)
+#   endif
+        enddo
+      enddo                     !--> discard  Rig(:,:,0)
+#   endif /* RI_HSMOOTH */
       enddo  !--> k loop
 
 #  ifdef RI_VSMOOTH

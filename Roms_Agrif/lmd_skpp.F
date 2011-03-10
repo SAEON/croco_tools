@@ -146,8 +146,8 @@
 !  contribution is included in  surface radiative buoyancy
 !  forcing "Bosol".
 !
-        do j=J_EXT_RANGE
-          do i=I_EXT_RANGE
+      do j=J_EXT_RANGE
+        do i=I_EXT_RANGE
           Bo(i,j)=g*( alpha(i,j)*(stflx(i,j,itemp)-srflx(i,j))
 # ifdef SALINITY
      &                              -beta(i,j)*stflx(i,j,isalt)
@@ -361,25 +361,36 @@
 #   endif
 #   undef I_EXT_RANGE
 #   undef J_EXT_RANGE
-      do j=Jstr-1,Jend
-        do i=Istr-1,Iend
+      do j=Jstr,Jend+1
+        do i=Istr,Iend+1
+          wrk1(i,j)=0.25*(my_hbl(i,j)  +my_hbl(i-1,j)
+     &                   +my_hbl(i,j-1)+my_hbl(i-1,j-1))
 #   ifdef MASKING
-          cff=1./max(1.,(rmask(i,j)   +rmask(i+1,j)
-     &                  +rmask(i,j+1) +rmask(i+1,j+1)))
-#   else
-          cff=0.25
+     &                   *pmask(i,j)
 #   endif
-          wrk1(i,j)=cff*(my_hbl(i,j)  +my_hbl(i+1,j)
-     &                  +my_hbl(i,j+1)+my_hbl(i+1,j+1))
         enddo
       enddo
       do j=Jstr,Jend
         do i=Istr,Iend
-          hbl(i,j)=0.25*(wrk1(i,j)  +wrk1(i-1,j)
-     &                  +wrk1(i,j-1)+wrk1(i-1,j-1))
+#   ifdef MASKING
+          cff=0.25*(pmask(i,j)   +pmask(i+1,j)
+     &             +pmask(i,j+1) +pmask(i+1,j+1))
+#   else
+          cff=1.
+#   endif
+          hbl(i,j)=(1-cff)*my_hbl(i,j)+
+     &              0.25*(wrk1(i,j)  +wrk1(i+1,j)
+     &                   +wrk1(i,j+1)+wrk1(i+1,j+1))
 #   ifdef MASKING
           hbl(i,j)=hbl(i,j)*rmask(i,j)
 #   endif
+        enddo
+      enddo
+
+#  else
+      do j=Jstr,Jend
+        do i=Istr,Iend
+           hbl(i,j)=my_hbl(i,j)
         enddo
       enddo
 #  endif /* HBL_SMOOTH */
