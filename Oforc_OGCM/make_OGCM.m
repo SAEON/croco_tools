@@ -34,7 +34,8 @@
 %                   and F. Colberg (UCT)
 %
 %  Updated    6-Sep-2006 by Pierrick Penven
-%  Update     13 -Sep-2009 by Gildas Cambon
+%  Update     13 -Sep-2009 by Gildas Cambon (IRD)
+%  Update     14 -March-2011 by Gildas Cambon & Serena Illig (IRD)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %start % to be used in batch mode %
 clear all
@@ -71,8 +72,9 @@ elseif strcmp(OGCM,'ECCO')
   %
   %  url = 'http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/kf049f/kf049f_'; 
   %  url = 'http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/kf066b/kf066b_'; 
-  url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf066b/kf066b_'; 
+  %  url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf066b/kf066b_'; 
   %  url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf076/kf076_'; 
+    url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf080/kf080_'; 
   %
 else
   error(['Unknown OGCM: ',OGCM])
