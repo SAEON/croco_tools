@@ -1,12 +1,12 @@
 function interp_OGCM(OGCM_dir,OGCM_prefix,year,month,Roa,interp_method,...
                      lonU,latU,lonV,latV,lonT,latT,Z,tin,...
 		     nc_clm,nc_bry,lon,lat,angle,h,tout,obc)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
 % Read the local OGCM files and perform the interpolations
-%
-% Ok, I am lazy and I did not do something special for the bry files...
+% Adapted for reducing computationnal time for bry file
+% by S. Illig, IRD-LEGOS
 %
 %
 %  Further Information:  
@@ -54,85 +54,134 @@ nc=netcdf([OGCM_dir,OGCM_prefix,'Y',num2str(year),'M',num2str(month),'.cdf']);
 %
 % Interpole data on the OGCM Z grid and ROMS horizontal grid
 %
-%
-% Read and extrapole the 2D variables
-%
+% Get zeta because it is needed to compute vertical levels of ROMS grid
 zeta=ext_data_OGCM(nc,lonT,latT,'ssh',tin,lon,lat,1,Roa,interp_method);
-u2d=ext_data_OGCM(nc,lonU,latU,'ubar',tin,lon,lat,1,Roa,interp_method);
-v2d=ext_data_OGCM(nc,lonV,latV,'vbar',tin,lon,lat,1,Roa,interp_method);
-ubar=rho2u_2d(u2d.*cosa+v2d.*sina);
-vbar=rho2v_2d(v2d.*cosa-u2d.*sina);
 %
-% Read and extrapole the 3D variables
+if ~isempty(nc_clm)
+    % Read and extrapole the 2D variables
+    %
+    u2d=ext_data_OGCM(nc,lonU,latU,'ubar',tin,lon,lat,1,Roa,interp_method);
+    v2d=ext_data_OGCM(nc,lonV,latV,'vbar',tin,lon,lat,1,Roa,interp_method);
+    ubar=rho2u_2d(u2d.*cosa+v2d.*sina);
+    vbar=rho2v_2d(v2d.*cosa-u2d.*sina);
+    %
+    % Read and extrapole the 3D variables
+    NZ=length(Z);
+    [M,L]=size(lon);
+    dz=gradient(Z);
+    temp=zeros(NZ,M,L);
+    salt=zeros(NZ,M,L);
+    u=zeros(NZ,M,L-1);
+    v=zeros(NZ,M-1,L);
+    for k=1:NZ
+        if rem(k,10)==0
+            disp(['  Level ',num2str(k),' of ',num2str(NZ)])
+        end
+        u2d=ext_data_OGCM(nc,lonU,latU,'u',tin,lon,lat,k,Roa,interp_method);
+        v2d=ext_data_OGCM(nc,lonV,latV,'v',tin,lon,lat,k,Roa,interp_method);
+        u(k,:,:)=rho2u_2d(u2d.*cosa+v2d.*sina);
+        v(k,:,:)=rho2v_2d(v2d.*cosa-u2d.*sina);
+        temp(k,:,:)=ext_data_OGCM(nc,lonT,latT,'temp',tin,lon,lat,k,Roa,interp_method);
+        salt(k,:,:)=ext_data_OGCM(nc,lonT,latT,'salt',tin,lon,lat,k,Roa,interp_method);
+    end
+end
 %
-NZ=length(Z);
-[M,L]=size(lon);
-dz=gradient(Z);
-temp=zeros(NZ,M,L);
-salt=zeros(NZ,M,L);
-u=zeros(NZ,M,L-1);
-v=zeros(NZ,M-1,L);
-for k=1:NZ
-  if rem(k,10)==0
-    disp(['  Level ',num2str(k),' of ',num2str(NZ)])
-  end
-  u2d=ext_data_OGCM(nc,lonU,latU,'u',tin,lon,lat,...
-                    k,Roa,interp_method);
-  v2d=ext_data_OGCM(nc,lonV,latV,'v',tin,lon,lat,...
-                    k,Roa,interp_method);
-  u(k,:,:)=rho2u_2d(u2d.*cosa+v2d.*sina);
-  v(k,:,:)=rho2v_2d(v2d.*cosa-u2d.*sina);
-  temp(k,:,:)=ext_data_OGCM(nc,lonT,latT,'temp',tin,lon,lat,...
-                            k,Roa,interp_method);
-  salt(k,:,:)=ext_data_OGCM(nc,lonT,latT,'salt',tin,lon,lat,...
-                            k,Roa,interp_method);
+%Initialisation in case of bry files
+%
+if ~isempty(nc_bry)
+    NZ=length(Z);
+    [M,L]=size(lon); 
+    % Read and extrapole the 2D variables
+    if obc(1)==1
+        zeta_south=squeeze(zeta(1,:));
+        ubar1d=ext_data_OGCM(nc,lonU,latU,'ubar',tin,squeeze(lon(1:2,:)),squeeze(lat(1:2,:)),1,Roa,interp_method);
+        vbar1d=ext_data_OGCM(nc,lonV,latV,'vbar',tin,squeeze(lon(1:2,:)),squeeze(lat(1:2,:)),1,Roa,interp_method);
+        ubar_south=squeeze(rho2u_2d(ubar1d(1,:).*cosa(1,:)+vbar1d(1,:).*sina(1,:)));
+        vbar_south=squeeze(rho2v_2d(vbar1d.*cosa(1:2,:)-ubar1d.*sina(1:2,:)));
+    end
+    if obc(2)==1
+        zeta_east=squeeze(zeta(:,end));
+        ubar1d=ext_data_OGCM(nc,lonU,latU,'ubar',tin,squeeze(lon(:,end-1:end)),squeeze(lat(:,end-1:end)),1,Roa,interp_method);
+        vbar1d=ext_data_OGCM(nc,lonV,latV,'vbar',tin,squeeze(lon(:,end-1:end)),squeeze(lat(:,end-1:end)),1,Roa,interp_method);
+        ubar_east=squeeze(rho2u_2d(ubar1d.*cosa(:,end-1:end)+vbar1d.*sina(:,end-1:end)));
+        vbar_east=squeeze(rho2v_2d(vbar1d(:,end).*cosa(:,end)-ubar1d(:,end).*sina(:,end)));
+    end
+    if obc(3)==1
+        zeta_north=squeeze(zeta(end,:));
+        ubar1d=ext_data_OGCM(nc,lonU,latU,'ubar',tin,squeeze(lon(end-1:end,:)),squeeze(lat(end-1:end,:)),1,Roa,interp_method);
+        vbar1d=ext_data_OGCM(nc,lonV,latV,'vbar',tin,squeeze(lon(end-1:end,:)),squeeze(lat(end-1:end,:)),1,Roa,interp_method);
+        ubar_north=squeeze(rho2u_2d(ubar1d(end,:).*cosa(end,:)+vbar1d(end,:).*sina(end,:)));
+        vbar_north=squeeze(rho2v_2d(vbar1d.*cosa(end-1:end,:)-ubar1d.*sina(end-1:end,:)));
+    end
+    if obc(4)==1
+        zeta_west=squeeze(zeta(:,1));
+        ubar1d=ext_data_OGCM(nc,lonU,latU,'ubar',tin,squeeze(lon(:,1:2)),squeeze(lat(:,1:2)),1,Roa,interp_method);
+        vbar1d=ext_data_OGCM(nc,lonV,latV,'vbar',tin,squeeze(lon(:,1:2)),squeeze(lat(:,1:2)),1,Roa,interp_method);
+        ubar_west=squeeze(rho2u_2d(ubar1d.*cosa(:,1:2)+vbar1d.*sina(:,1:2)));
+        vbar_west=squeeze(rho2v_2d(vbar1d(:,1).*cosa(:,1)-ubar1d(:,1).*sina(:,1)));
+    end   
+    %
+    % Read and extrapole the 3D variables
+    %
+    temp_south=zeros(NZ,L);temp_north=zeros(NZ,L);temp_east=zeros(NZ,M);temp_west=zeros(NZ,M);
+    salt_south=zeros(NZ,L);salt_north=zeros(NZ,L);salt_east=zeros(NZ,M);salt_west=zeros(NZ,M);
+    u_south=zeros(NZ,L-1);u_north=zeros(NZ,L-1);u_east=zeros(NZ,M);u_west=zeros(NZ,M);
+    v_south=zeros(NZ,L);v_north=zeros(NZ,L);v_east=zeros(NZ,M-1);v_west=zeros(NZ,M-1);
+    %
+    temp=zeros(NZ,M,L);
+    %
+    for k=1:NZ
+        if rem(k,10)==0
+            disp(['  Level bry ',num2str(k),' of ',num2str(NZ)])
+        end
+        %temp(k,:,:)=ext_data_OGCM(nc,lonT,latT,'temp',tin,lon,lat,k,Roa,interp_method);
+        if obc(1)==1 % Southern boundary
+            t1d=squeeze(ext_data_OGCM(nc,lonT,latT,'temp',tin,squeeze(lon(1:2,:)),squeeze(lat(1:2,:)),k,Roa,interp_method));
+            s1d=squeeze(ext_data_OGCM(nc,lonT,latT,'salt',tin,squeeze(lon(1:2,:)),squeeze(lat(1:2,:)),k,Roa,interp_method));
+            temp_south(k,:)=squeeze(t1d(1,:));
+            salt_south(k,:)=squeeze(s1d(1,:));
+            u1d=ext_data_OGCM(nc,lonU,latU,'u',tin,squeeze(lon(1:2,:)),squeeze(lat(1:2,:)),k,Roa,interp_method);
+            v1d=ext_data_OGCM(nc,lonV,latV,'v',tin,squeeze(lon(1:2,:)),squeeze(lat(1:2,:)),k,Roa,interp_method);
+            u_south(k,:)=squeeze(rho2u_2d(u1d(1,:).*cosa(1,:)+v1d(1,:).*sina(1,:)));
+            v_south(k,:)=squeeze(rho2v_2d(v1d.*cosa(1:2,:)-u1d.*sina(1:2,:))); 
+        end
+        if obc(2)==1  % Eastern boundary 
+            t1d=squeeze(ext_data_OGCM(nc,lonT,latT,'temp',tin,squeeze(lon(:,end-1:end)),squeeze(lat(:,end-1:end)),k,Roa,interp_method));
+            s1d=squeeze(ext_data_OGCM(nc,lonT,latT,'salt',tin,squeeze(lon(:,end-1:end)),squeeze(lat(:,end-1:end)),k,Roa,interp_method));
+            temp_east(k,:)=squeeze(t1d(:,end));
+            salt_east(k,:)=squeeze(s1d(:,end));
+            u1d=ext_data_OGCM(nc,lonU,latU,'u',tin,squeeze(lon(:,end-1:end)),squeeze(lat(:,end-1:end)),k,Roa,interp_method);
+            v1d=ext_data_OGCM(nc,lonV,latV,'v',tin,squeeze(lon(:,end-1:end)),squeeze(lat(:,end-1:end)),k,Roa,interp_method);
+            u_east(k,:)=squeeze(rho2u_2d(u1d.*cosa(:,end-1:end)+v1d.*sina(:,end-1:end)));
+            v_east(k,:)=squeeze(rho2v_2d(v1d(:,end).*cosa(:,end)-u1d(:,end).*sina(:,end)));
+        end
+        if obc(3)==1  % Northern boundary
+            t1d=squeeze(ext_data_OGCM(nc,lonT,latT,'temp',tin,squeeze(lon(end-1:end,:)),squeeze(lat(end-1:end,:)),k,Roa,interp_method));
+            s1d=squeeze(ext_data_OGCM(nc,lonT,latT,'salt',tin,squeeze(lon(end-1:end,:)),squeeze(lat(end-1:end,:)),k,Roa,interp_method));
+            temp_north(k,:)=squeeze(t1d(end,:));
+            salt_north(k,:)=squeeze(s1d(end,:));
+            u1d=ext_data_OGCM(nc,lonU,latU,'u',tin,squeeze(lon(end-1:end,:)),squeeze(lat(end-1:end,:)),k,Roa,interp_method);
+            v1d=ext_data_OGCM(nc,lonV,latV,'v',tin,squeeze(lon(end-1:end,:)),squeeze(lat(end-1:end,:)),k,Roa,interp_method);
+            u_north(k,:)=squeeze(rho2u_2d(u1d(end,:).*cosa(end,:)+v1d(end,:).*sina(end,:)));
+            v_north(k,:)=squeeze(rho2v_2d(v1d.*cosa(end-1:end,:)-u1d.*sina(end-1:end,:)));
+        end
+        if obc(4)==1  % Western boundary
+            t1d=squeeze(ext_data_OGCM(nc,lonT,latT,'temp',tin,squeeze(lon(:,1:2)),squeeze(lat(:,1:2)),k,Roa,interp_method));
+            s1d=squeeze(ext_data_OGCM(nc,lonT,latT,'salt',tin,squeeze(lon(:,1:2)),squeeze(lat(:,1:2)),k,Roa,interp_method));
+            temp_west(k,:)=squeeze(t1d(:,1));
+            salt_west(k,:)=squeeze(s1d(:,1));
+            u1d=ext_data_OGCM(nc,lonU,latU,'u',tin,squeeze(lon(:,1:2)),squeeze(lat(:,1:2)),k,Roa,interp_method);
+            v1d=ext_data_OGCM(nc,lonV,latV,'v',tin,squeeze(lon(:,1:2)),squeeze(lat(:,1:2)),k,Roa,interp_method);
+            u_west(k,:)=squeeze(rho2u_2d(u1d.*cosa(:,1:2)+v1d.*sina(:,1:2)));
+            v_west(k,:)=squeeze(rho2v_2d(v1d(:,1).*cosa(:,1)-u1d(:,1).*sina(:,1)));
+        end
+    end
 end
 %
 % Close the OGCM file
 %
 close(nc)
 %
-%Initialisation in case of bry files
-%
-if ~isempty(nc_bry)
-  if obc(1)==1
-    zeta_south=squeeze(zeta(1,:));
-    ubar_south=squeeze(ubar(1,:));
-    vbar_south=squeeze(vbar(1,:));
-    u_south=squeeze(u(:,1,:));
-    v_south=squeeze(v(:,1,:));
-    temp_south=squeeze(temp(:,1,:));
-    salt_south=squeeze(salt(:,1,:));
-  end
-  if obc(2)==1
-    zeta_east=squeeze(zeta(:,end));
-    ubar_east=squeeze(ubar(:,end));
-    vbar_east=squeeze(vbar(:,end));
-    u_east=squeeze(u(:,:,end));
-    v_east=squeeze(v(:,:,end));
-    temp_east=squeeze(temp(:,:,end));
-    salt_east=squeeze(salt(:,:,end));
-  end
-  if obc(3)==1
-    zeta_north=squeeze(zeta(end,:));
-    ubar_north=squeeze(ubar(end,:));
-    vbar_north=squeeze(vbar(end,:));
-    u_north=squeeze(u(:,end,:));
-    v_north=squeeze(v(:,end,:));
-    temp_north=squeeze(temp(:,end,:));
-    salt_north=squeeze(salt(:,end,:));
-  end
-  if obc(4)==1
-    zeta_west=squeeze(zeta(:,1));
-    ubar_west=squeeze(ubar(:,1));
-    vbar_west=squeeze(vbar(:,1));
-    u_west=squeeze(u(:,:,1));
-    v_west=squeeze(v(:,:,1));
-    temp_west=squeeze(temp(:,:,1));
-    salt_west=squeeze(salt(:,:,1));
-  end
-end 
-
 %
 % Get the ROMS vertical grid
 %
@@ -212,9 +261,6 @@ end   %~isempty(nc_clm)
 %
 %
 if ~isempty(nc_bry)
-%
-%South
-%
   if obc(1)==1
     [u_south,v_south,ubar_south,vbar_south,...
      temp_south,salt_south]=vinterp_OGCM_bry(zr(:,1,:),zu(:,1,:),zv(:,1,:),...
@@ -223,7 +269,7 @@ if ~isempty(nc_bry)
                                              temp_south,salt_south,...
                                              N,Z,conserv);
   end
-  if obc(2)==1
+  if obc(2)==1 
     [u_east,v_east,ubar_east,vbar_east,...
      temp_east,salt_east]=vinterp_OGCM_bry(zr(:,:,end),zu(:,:,end),zv(:,:,end),...
                                            dzr(:,:,end),dzu(:,:,end),dzv(:,:,end),...
@@ -239,7 +285,7 @@ if ~isempty(nc_bry)
                                              temp_north,salt_north,...
                                              N,Z,conserv);
   end
-  if obc(4)==1
+  if obc(4)==1  
     [u_west,v_west,ubar_west,vbar_west,...
      temp_west,salt_west]=vinterp_OGCM_bry(zr(:,:,1),zu(:,:,1),zv(:,:,1),...
                                            dzr(:,:,1),dzu(:,:,1),dzv(:,:,1),...
