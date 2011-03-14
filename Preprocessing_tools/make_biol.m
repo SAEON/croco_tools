@@ -102,7 +102,7 @@ if (makeclim)
   disp(' Phyto...')
   add_phyto(clmname);
 %
-%  Phyto
+%  Zoo
 %
   disp(' ')
   disp(' Zoo...')
