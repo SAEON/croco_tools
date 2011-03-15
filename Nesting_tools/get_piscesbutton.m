@@ -29,4 +29,9 @@ function handles=get_piscesbutton(h,handles);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 a=get(handles.pisces_button,'Value');
 handles.pisces = a;
+%
+if a==1
+  set(handles.biol_button,'Value',1-a)
+  handles.biol=1-a;
+end
 return

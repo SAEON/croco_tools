@@ -35,35 +35,53 @@ a= netcdf(parent_ini);
 Vars = var(a);
 Varnames = [ncnames(Vars)];
 nvar=length(Varnames);
+isbiolfiles=0;
+ispiscesfiles=0;
 %
-
 namebiol={''};
 unitbiol={''};
 namepisces={''};
 unitpisces={''};
-%
-
 % pisces
 % biol
-
-if nvar < 17
-
-elseif ( nvar >=17 & nvar < 21) 
-  if (biol)
-  disp('Compute Bio NPZD variables')
-  disp('==================')
+if biol
+  %Name, units etc .. of the variables
+  namebiol={'NO3';'CHLA';'PHYTO';'ZOO'};
+  unitbiol={'mMol N m-3';'mg C l-1';'mMol N m-3'};
+  for i=1:length(namebiol)
+	aa=sum(strcmp(Varnames,namebiol(i)));
+	isbiolfiles=isbiolfiles+aa;
   end
-elseif (nvar >= 21)
-  if pisces
-  disp('Compute Pisces biogeochemical variables')
-  disp('=========================')
+  if isbiolfiles==length(namebiol)
+	disp('Compute Bio NPZD variables')
+	disp('==================')
+  else
+	disp(sprintf(['ERROR in NPZD Processing : ... \n', ...
+	  'You don not have the neccesary variables in the clim file \n',...
+	  'or you didn''t choose the right bio. model. \n', ...
+	  'Check roms_ini.nc parent file and make_ini.m']))
+	return
   end
-elseif (biol || pisces)
-  error(sprintf(['You don''t have the neccesary variables in the clim file \n',...
-		 'or you didn''t choose the right bio. model. \n', ...
-		 'Check roms_ini.nc parent file and make_ini.m']))
 end
-%
+ if pisces
+   namepisces={'NO3';'PO4';'Si';'O2';'DIC';'TALK';'DOC';'FER'};
+   unitpisces={'mMol N m-3';'mMol P m-3';'mMol Si m-3';'mMol O m-3';'mMol C m-3';'mMol C m-3';'mMol C m-3';'uMol Fe m-3'};
+   %
+   for i=1:length(namepisces)
+	 aa=sum(strcmp(Varnames,namepisces(i)));
+	 ispiscesfiles=ispiscesfiles+aa;
+   end
+   if ispiscesfiles==length(namepisces)
+	 disp('Compute Pisces biogeochemical variables')
+	 disp('==================')
+   else
+	 disp(sprintf(['ERROR in  PISCES Processing :  \n', ...
+	   'You don''t have the neccesary variables in the clim file \n',...
+	   'or you didn''t choose the right bio. model. \n', ...
+	   'Check roms_ini.nc parent file and make_ini.m']))
+	 return
+   end
+ end
 if extrapmask==1
   disp('Extrapolation under mask is on')
   disp('====================')
@@ -77,14 +95,7 @@ end
 if pisces & biol 
   error(['Both Biol NPZD and Pisces are ON, not possible yet... !'])
 end
-%
-%Name, units etc .. of the variables
-namebiol={'NO3';'CHLA';'PHYTO'};
-unitbiol={'mMol N m-3';'mg C l-1';'mMol N m-3'};
-%
-namepisces={'NO3';'PO4';'Si';'O2';'DIC';'TALK';'DOC';'FER'};
-unitpisces={'mMol N m-3';'mMol P m-3';'mMol Si m-3';'mMol O m-3';'mMol C m-3';'mMol C m-3';'mMol C m-3';'uMol Fe m-3'};
-%
+
 
 %
 % Title
