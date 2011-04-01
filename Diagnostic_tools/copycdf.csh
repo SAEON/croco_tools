@@ -39,15 +39,24 @@ echo $newtype
 #
 ncdump -v spherical,xl,el,h,f,pm,pn,lon_rho,lat_rho,angle,mask_rho $inputfile > tmp1.cdl
 #
-cat > msg << EOF
-/:type/{
+cat > msg1 << EOF1
+/:type = /{
         c\
                 :type = "`echo $newtype`" ;
 }
-EOF
-sed -f msg < tmp1.cdl > tmp2.cdl
-rm -f msg
-ncgen -o $outputfile tmp2.cdl
+EOF1
+#
+cat > msg2 << EOF2
+/:date = /{
+        c\
+                :date = "`date`" ;
+}
+EOF2
+
+sed -f msg1 < tmp1.cdl > tmp2.cdl
+sed -f msg2 < tmp2.cdl > tmp1.cdl
+rm -f msg1 msg2
+ncgen -o $outputfile tmp1.cdl
 rm -f tmp1.cdl tmp2.cdl
 
 
