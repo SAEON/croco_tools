@@ -34,6 +34,12 @@
 disp(['Add the paths of the different toolboxes'])
 mypath='../';
 %
+% Other software directories
+%
+addpath([mypath,'m_map'])
+addpath([mypath,'air_sea'])
+addpath([mypath,'mask'])
+%
 % ROMSTOOLS directories
 %
 addpath([mypath,'Aforc_NCEP'])
@@ -47,12 +53,6 @@ addpath([mypath,'Opendap_tools'])
 addpath([mypath,'Tides'])
 addpath([mypath,'Visualization_tools'])
 addpath([mypath,'Run/TEST_CASES'])
-%
-% Other software directories
-%
-addpath([mypath,'m_map'])
-addpath([mypath,'air_sea'])
-addpath([mypath,'mask'])
 %
 %-------------------------------------------------------
 %
