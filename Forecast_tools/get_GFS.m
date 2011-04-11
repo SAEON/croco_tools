@@ -1,4 +1,4 @@
-function [t,tx,ty,tair,rhum,prate,wspd,radlw,radsw]=...
+function [t,tx,ty,tair,rhum,prate,wspd,uwnd,vwnd,radlw,radlw_in,radsw]=...
          get_GFS(fname,mask,tndx,jrange,i1min,i1max,...
 	 i2min,i2max,i3min,i3max,missvalue)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -41,42 +41,75 @@ trange=['[',num2str(min(tndx)),':',num2str(max(tndx)),']'];
 disp(' ')
 disp('====================================================')
 %disp('time...')
+%disp(['TNDX=',num2str(tndx)])
+%disp(['TRANGE=',num2str(trange)])
 t=readdap(fname,'time',trange);
-t=t+364.75; % put it in "matlab" time.
+disp(['GFS raw time=',sprintf('%5.3f',t)])
+%t=t+364.75 % put it in "matlab" time. PM
+t=t+365; % put it in "matlab" time. GC
 disp(['GFS: ',datestr(t)])
 disp('====================================================')
+
 %disp('u...')
 u=mask.*getdap('',fname,'ugrd10m',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
 u(abs(u)>=missvalue)=NaN;
+
 %disp('v...')
 v=mask.*getdap('',fname,'vgrd10m',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
 v(abs(v)>=missvalue)=NaN;
+
+%disp('ty...')
+ty=mask.*getdap('',fname,'ovflxsfc',trange,'',jrange,...
+                i1min,i1max,i2min,i2max,i3min,i3max);
+ty(abs(ty)>=missvalue)=NaN;
+
+%disp('tx...')
+tx=mask.*getdap('',fname,'ouflxsfc',trange,'',jrange,...
+                i1min,i1max,i2min,i2max,i3min,i3max);
+tx(abs(tx)>=missvalue)=NaN;
+
+
 %disp('skt...')
 skt=mask.*getdap('',fname,'tmpsfc',trange,'',jrange,...
                   i1min,i1max,i2min,i2max,i3min,i3max);
 skt(abs(skt)>=missvalue)=NaN;
+
 %disp('tair...')
 tair=mask.*getdap('',fname,'tmp2m',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
 tair(abs(tair)>=missvalue)=NaN;
+
 %disp('rhum...')
 rhum=mask.*getdap('',fname,'rh2m',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
 rhum(abs(rhum)>=missvalue)=NaN;
+
 %disp('prate...')
 prate=mask.*getdap('',fname,'opratesfc',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
 prate(abs(prate)>=missvalue)=NaN;
-%disp('radlw...')
-radlw=mask.*getdap('',fname,'odlwrfsfc',trange,'',jrange,...
+
+%disp('down radlw...')
+dradlw=mask.*getdap('',fname,'odlwrfsfc',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
-radlw(abs(radlw)>=missvalue)=NaN;
-%disp('radsw...')
-radsw=mask.*getdap('',fname,'odswrfsfc',trange,'',jrange,...
+dradlw(abs(dradlw)>=missvalue)=NaN;
+
+%disp('up radlw...')
+uradlw=mask.*getdap('',fname,'oulwrfsfc',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
-radsw(abs(radsw)>=missvalue)=NaN;
+uradlw(abs(uradlw)>=missvalue)=NaN;
+
+%disp('down radsw...')
+dradsw=mask.*getdap('',fname,'odswrfsfc',trange,'',jrange,...
+                i1min,i1max,i2min,i2max,i3min,i3max);
+dradsw(abs(dradsw)>=missvalue)=NaN;
+
+%disp('up radsw...')
+uradsw=mask.*getdap('',fname,'ouswrfsfc',trange,'',jrange,...
+                i1min,i1max,i2min,i2max,i3min,i3max);
+uradsw(abs(uradsw)>=missvalue)=NaN;
 %
 % Transform the variables
 %
@@ -98,6 +131,7 @@ prate(abs(prate)<1.e-4)=0;
 %    ROMS convention: positive downward: same as GFS
 % ?? albedo ??
 %
+radsw=dradsw - uradsw;
 radsw(radsw<1.e-10)=0;
 %
 % 5: Net outgoing Longwave flux:  [W/m^2]
@@ -106,18 +140,24 @@ radsw(radsw<1.e-10)=0;
 %    input: downward longwave rad. and
 %    skin temperature.
 %
-skt=skt-273.15; 
-radlw=-lwhf(skt,radlw); 
+%skt=skt-273.15; 
+%radlw=-lwhf(skt,radlw); 
+radlw = uradlw - dradlw;
+radlw_in=dradlw;
+
 %
 % 6: Wind speed
 %
 wspd=sqrt(u.^2+v.^2);
-%
-% 7: Compute the stress following large and pond
-%
-[Cd,uu]=cdnlp(wspd,10.);
-rhoa=air_dens(tair,rhum*100);
-tx=Cd.*rhoa.*u.*wspd;
-ty=Cd.*rhoa.*v.*wspd;
+% 7:  Wind vectors
+uwnd=u; % rho point
+vwnd=v; % rho point
+% %
+% % 7: Compute the stress following large and pond
+% %
+% [Cd,uu]=cdnlp(wspd,10.);
+% rhoa=air_dens(tair,rhum*100);
+% tx=Cd.*rhoa.*u.*wspd;
+% ty=Cd.*rhoa.*v.*wspd;
 %
 return

@@ -66,8 +66,10 @@ disp(['Process the dataset: ',url])
 %
 % first ecco time: 06-Jan-2006 (315696)
 % first ecco time: 07-Jan-2006 (324456) !!! should be reset every year !!!
+ecco_time_start_year=359520;
+
 %
-ecco_time_start=324456/24+datenum(1970,1,1)-datenum(Yorig,1,1);
+ecco_time_start=ecco_time_start_year/24+datenum(1970,1,1)-datenum(Yorig,1,1);
 ecco_times=[ecco_time_start:10:ecco_time_start+10000];
 %htime_ecco=24*(ecco_times+datenum(Yorig,1,1)-datenum(1970,1,1));
 %

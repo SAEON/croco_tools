@@ -120,6 +120,9 @@ prate=tx;
 wspd=tx;
 radlw=tx;
 radsw=tx;
+radlw_in=tx;
+uwnd=tx;
+vwnd=tx;
 %
 n=0;
 gfstime=0*(1:N);
@@ -144,12 +147,12 @@ mask(isfinite(mask))=1;
 %
 % Loop on GDAS analyses 
 % (starts hdays day ago 18Z, 1 analysis every 6h
-%  ends yesterday 06Z).
+%  ends before yesterday 18Z).
 %
 gfs_run_time0=12;
 gfs_date0=today-(hdays+1); 
-for frcst=1:4*hdays-3             % number of files until yesterday 06Z
-  gfs_run_time0=gfs_run_time0+6;
+for frcst=1:4*hdays-3             % number of files until before yesterday 18Z 
+  gfs_run_time0=gfs_run_time0+6;  
   if gfs_run_time0>18
     gfs_date0=gfs_date0+1;
     gfs_run_time0=0;
@@ -160,6 +163,7 @@ for frcst=1:4*hdays-3             % number of files until yesterday 06Z
   gfs_run_time=gfs_run_time0;
   gfs_date=gfs_date0;
   t1=1;
+  t1dap=t1-1;
   fname=get_GFS_fname(gfs_date,gfs_run_time,0);
   warning off
   try
@@ -186,16 +190,18 @@ for frcst=1:4*hdays-3             % number of files until yesterday 06Z
 % 
    n=n+1;
    [gfstime(n),tx0,ty0,tair0,rhum0,...
-           prate0,wspd0,radlw0,radsw0]=...
-   get_GDAS(fname,mask,t1,jrange,i1min,i1max,i2min,i2max,... 
-           i3min,i3max,missvalue);
+	 prate0,wspd0,uwnd0,vwnd0,radlw0,radlw_in0,radsw0]=...
+   get_GDAS(fname,mask,t1dap,jrange,i1min,i1max,i2min,i2max,i3min,i3max,missvalue);
    TX=interp2(lon,lat',tx0,LON,LAT');
    TY=interp2(lon,lat',ty0,LON,LAT');
    TAIR=interp2(lon,lat',tair0,LON,LAT');
    RHUM=interp2(lon,lat',rhum0,LON,LAT');
    PRATE=interp2(lon,lat',prate0,LON,LAT');
    WSPD=interp2(lon,lat',wspd0,LON,LAT');
+   UWND=interp2(lon,lat',uwnd0,LON,LAT');
+   VWND=interp2(lon,lat',vwnd0,LON,LAT');
    RADLW=interp2(lon,lat',radlw0,LON,LAT');
+   RADLW_IN=interp2(lon,lat',radlw_in0,LON,LAT');
    RADSW=interp2(lon,lat',radsw0,LON,LAT');
    tx(n,:,:)=TX;
    ty(n,:,:)=TY;
@@ -203,14 +209,17 @@ for frcst=1:4*hdays-3             % number of files until yesterday 06Z
    rhum(n,:,:)=RHUM;
    prate(n,:,:)=PRATE;
    wspd(n,:,:)=WSPD;
+   uwnd(n,:,:)=UWND;
+   vwnd(n,:,:)=VWND;
    radlw(n,:,:)=RADLW;
+   radlw_in(n,:,:)=RADLW_IN;
    radsw(n,:,:)=RADSW;
 %
   end 
 end
 %
 %==================================================================
-% 2: Get the variables for Forecast starting yesterday 12Z
+% 2: Get the variables for Forecast starting  yesterday 00Z
 %==================================================================
 gfs_run_time0=gfs_run_time1+6;
 gfs_date0=gfs_date1;
@@ -267,10 +276,13 @@ end
 % 2.2: read 60 time steps (dt = 3h)
 %
 for tndx=t1:it:60
+  tndxdap=tndx-1;
   n=n+1;
   [gfstime(n),tx(n,:,:),ty(n,:,:),tair(n,:,:),rhum(n,:,:),...
-   prate(n,:,:),wspd(n,:,:),radlw(n,:,:),radsw(n,:,:)]=...
-   get_GFS(fname,mask,tndx,jrange,i1min,i1max,i2min,i2max,...
+   prate(n,:,:),wspd(n,:,:),uwnd(n,:,:),vwnd(n,:,:),...
+   radlw(n,:,:),radlw_in(n,:,:),...
+   radsw(n,:,:)]=...
+   get_GFS(fname,mask,tndxdap,jrange,i1min,i1max,i2min,i2max,...
            i3min,i3max,missvalue);
 end
 %
@@ -283,7 +295,10 @@ tair=tair(1:n,:,:);
 rhum=rhum(1:n,:,:);
 prate=prate(1:n,:,:);
 wspd=wspd(1:n,:,:);
+uwnd=uwnd(1:n,:,:);
+vwnd=vwnd(1:n,:,:);
 radlw=radlw(1:n,:,:);
+radlw_in=radlw_in(1:n,:,:);
 radsw=radsw(1:n,:,:);
 %
 % Put the time in Yorig time
@@ -293,7 +308,7 @@ gfstime=gfstime-datenum(Yorig,1,1);
 % Create the GFS output file and write everything down
 %
 mask(isnan(mask))=0;
-write_GFS(gfs_name,Yorig,lon,lat,mask,gfstime,tx,ty,tair,rhum,prate,wspd,radlw,radsw)
+write_GFS(gfs_name,Yorig,lon,lat,mask,gfstime,tx,ty,tair,rhum,prate,wspd,uwnd,vwnd,radlw,radlw_in,radsw)
 %
 disp('Download GFS: done')
 %

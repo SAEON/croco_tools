@@ -130,15 +130,12 @@ nc_frc=netcdf(frcname,'write');
 % nc_frc{'sustr'}(l,:,:)=0;
 % nc_frc{'svstr'}(l,:,:)=0;
 % end
-% 
-%
 % Loop on time
 %
 missval=nan;
 default=nan;
 for l=1:tlen
   disp(['time index: ',num2str(l),' of total: ',num2str(tlen)])
-  
   var=squeeze(nc{'tair'}(l,:,:));
   if mean(mean(isnan(var)~=1))
   var=get_missing_val(lon1,lat1,var,missval,Roa,default);
@@ -150,7 +147,6 @@ for l=1:tlen
   end
 
   var=squeeze(nc{'rhum'}(l,:,:));
-  
   if mean(mean(isnan(var)~=1))
   var=get_missing_val(lon1,lat1,var,missval,Roa,default);
   nc_blk{'rhum'}(l,:,:)=interp2(lon1,lat1,var,lon,lat,interp_method);
@@ -180,6 +176,36 @@ for l=1:tlen
       nc_blk{'wspd'}(l,:,:)=interp2(lon1,lat1,var,lon,lat,interp_method);
   end
   
+  %Zonal wind speed
+  var=squeeze(nc{'uwnd'}(l,:,:));
+  if mean(mean(isnan(var)~=1))
+	uwnd=get_missing_val(lon1,lat1,var,missval,Roa,default);
+	uwnd=interp2(lon1,lat1,uwnd,lon,lat,interp_method);
+  else
+	var=squeeze(nc{'uwnd'}(l-1,:,:));
+	uwnd=get_missing_val(lon1,lat1,uwnd,missval,Roa,default);
+	uwnd=interp2(lon1,lat1,uwnd,lon,lat,interp_method);
+  end
+  
+  %Meridian wind speed
+  var=squeeze(nc{'vwnd'}(l,:,:));
+  if mean(mean(isnan(var)~=1))
+	vwnd=get_missing_val(lon1,lat1,var,missval,Roa,default);
+	vwnd=interp2(lon1,lat1,vwnd,lon,lat,interp_method);
+  else
+	var=squeeze(nc{'vwnd'}(l-1,:,:));
+	vwnd=get_missing_val(lon1,lat1,var,missval,Roa,default);
+	vwnd=interp2(lon1,lat1,vwnd,lon,lat,interp_method);
+  end
+  
+  nc_frc{'uwnd'}(l,:,:)=rho2u_2d(uwnd.*cosa+vwnd.*sina);
+  nc_frc{'vwnd'}(l,:,:)=rho2v_2d(vwnd.*cosa-uwnd.*sina);
+  
+  nc_blk{'uwnd'}(l,:,:)=rho2u_2d(uwnd.*cosa+vwnd.*sina);
+  nc_blk{'vwnd'}(l,:,:)=rho2v_2d(vwnd.*cosa-uwnd.*sina);
+  
+  
+  %Net longwave flux
   var=squeeze(nc{'radlw'}(l,:,:));
   if mean(mean(isnan(var)~=1))
   var=get_missing_val(lon1,lat1,var,missval,Roa,default);
@@ -190,6 +216,18 @@ for l=1:tlen
       nc_blk{'radlw'}(l,:,:)=interp2(lon1,lat1,var,lon,lat,interp_method);
   end
   
+  %Downward longwave flux
+  var=squeeze(nc{'radlw_in'}(l,:,:));
+  if mean(mean(isnan(var)~=1))
+  var=get_missing_val(lon1,lat1,var,missval,Roa,default);
+  nc_blk{'radlw_in'}(l,:,:)=interp2(lon1,lat1,var,lon,lat,interp_method);
+  else
+      var=squeeze(nc{'radlw_in'}(l-1,:,:));
+      var=get_missing_val(lon1,lat1,var,missval,Roa,default);
+      nc_blk{'radlw_in'}(l,:,:)=interp2(lon1,lat1,var,lon,lat,interp_method);
+  end
+   
+  %Net solar short wave radiation
   var=squeeze(nc{'radsw'}(l,:,:));
   if mean(mean(isnan(var)~=1))
   var=get_missing_val(lon1,lat1,var,missval,Roa,default);
@@ -199,6 +237,7 @@ for l=1:tlen
       var=get_missing_val(lon1,lat1,var,missval,Roa,default);
       nc_blk{'radsw'}(l,:,:)=interp2(lon1,lat1,var,lon,lat,interp_method);
   end
+  
   var=squeeze(nc{'tx'}(l,:,:));
   if mean(mean(isnan(var)~=1))
   tx=get_missing_val(lon1,lat1,var,missval,Roa,default);
@@ -218,8 +257,12 @@ for l=1:tlen
       ty=get_missing_val(lon1,lat1,var,missval,Roa,default);
       ty=interp2(lon1,lat1,ty,lon,lat,interp_method);
   end
+  
   nc_frc{'sustr'}(l,:,:)=rho2u_2d(tx.*cosa+ty.*sina);
   nc_frc{'svstr'}(l,:,:)=rho2v_2d(ty.*cosa-tx.*sina);
+  
+  nc_blk{'sustr'}(l,:,:)=rho2u_2d(tx.*cosa+ty.*sina);
+  nc_blk{'svstr'}(l,:,:)=rho2v_2d(ty.*cosa-tx.*sina);
 end
 % 
 close(nc_frc);
@@ -241,6 +284,12 @@ if makeplot==1
   test_forcing(blkname,grdname,'wspd',slides,3,coastfileplot)
   figure
   test_forcing(blkname,grdname,'radlw',slides,3,coastfileplot)
+  figure
+  test_forcing(blkname,grdname,'radlw_in',slides,3,coastfileplot)
+  figure
+  test_forcing(blkname,grdname,'sustr',slides,3,coastfileplot)
+  figure
+  test_forcing(blkname,grdname,'svstr',slides,3,coastfileplot)
   figure
   test_forcing(blkname,grdname,'radsw',slides,3,coastfileplot)
 end

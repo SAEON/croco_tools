@@ -33,14 +33,18 @@ function fname=get_GFS_fname(time,gfs_run_time,gfstype)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %url='http://nomads6.ncdc.noaa.gov:9090';
-%url='http://nomad3.ncep.noaa.gov:9090';
+%url='http://nomad5.ncep.noaa.gov:9090';
 url='http://nomad1.ncep.noaa.gov:9090';
 if gfstype==0
   gfsname='gdas/rotating/gdas';
   gfsname1='gdas';
 else
+  %========nomad1===========
   gfsname='gfs_master/gfs';
   gfsname1='gfs_master';
+ %========nomad5===========
+ % gfsname='gfs/gfs';
+ % gfsname1='gfs';
 end
 %
 % Get the date

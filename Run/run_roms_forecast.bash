@@ -8,17 +8,17 @@
 if [ -f /etc/bashrc ]; then
     . /etc/bashrc
 fi
-export IA32ROOT=/opt/intel/fce/10.1.015
-source $IA32ROOT/bin/ifortvars.sh
+export IA32ROOT=/usr/local/intel/Compiler/11.1/056/bin/intel64
+source $IA32ROOT/ifortvars_intel64.sh
 export F_UFMTENDIAN=big
 ulimit -s 131072
 export KMP_STACKSIZE=50m
 export OMP_NUM_THREADS=4
 #
-export HOME=/home/pmarches
-export RUNDIR=${HOME}/Roms_tools/Run_forecast_mercator_10km
-export MATLAB=/opt/matlab7/bin/matlab
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/opendap/lib
+export HOME=/home/gcambon
+export RUNDIR=${HOME}/SVN_3/romsagrif/Roms_tools/RunPrev
+export MATLAB=/usr/local/bin/matlab
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/libdap-3.6.2/lib
 #
 unalias cp
 unalias mv
@@ -53,8 +53,11 @@ export AVGFILE=${MODEL}_avg.nc
 export HISFILE=${MODEL}_his.nc
 export BLKFILE=${MODEL}_blk_GFS_0.nc
 export FRCFILE=${MODEL}_frc_GFS_0.nc
-export BRYFILE=${MODEL}_bry_mercator_0.nc
-export CLMFILE=${MODEL}_clm_mercator_0.nc
+export BRYFILE=${MODEL}_bry_ECCO_0.nc
+export CLMFILE=${MODEL}_clm_ECCO_0.nc
+##export BRYFILE=${MODEL}_bry_mercator_0.nc
+##export CLMFILE=${MODEL}_clm_mercator_0.nc
+
 #
 ####################################################################
 #
@@ -64,9 +67,11 @@ cd $INPUTDIR
 #
 # Cleaning
 #
-rm -f $MSSDIR/${MODEL}_blk_* $MSSDIR/${MODEL}_frc_* $MSSDIR/${MODEL}_bry_*
-rm -f $MSSOUT/${MODEL}_his_* $MSSOUT/${MODEL}_avg_* $MSSOUT/${MODEL}_rst_*
-rm -f $MSSDIR/${MODEL}_clm_* $MSSDIR/${MODEL}_ini_*
+
+#rm -f $MSSDIR/${MODEL}_blk_* $MSSDIR/${MODEL}_frc_* $MSSDIR/${MODEL}_bry_*
+#rm -f $MSSDIR/${MODEL}_clm_* $MSSDIR/${MODEL}_ini_*
+#rm -f $MSSOUT/${MODEL}_his_* $MSSOUT/${MODEL}_avg_* $MSSOUT/${MODEL}_rst_*
+
 #
 # Compute lateral boundaries from Mercator and surface forcing from GFS
 #
@@ -106,13 +111,19 @@ cd $SCRATCHDIR
 #
 #  COMPUTE 1: Hindcast run
 #
-echo 4 day hindcast run
+echo 1 day hindcast run  
+# 1 days in case ECCO ogcm and 4 days in case Mercator ogcm , 
+# Dont forgert to modify the NRPFRST and NNREC 
+# in roms_hindcast.in and roms_forecast.in
+
 date
 ./$CODFILE ${MODEL}_hindcast.in > ${MODEL}_hindcast_`date -Idate`.out
 
-if [ $ITERATION=1 ] ; then
- $MATLAB  -nodisplay -nojvm < iteration.m > iteration.out
+if [ $ITERATION = 1 ] ; then
+echo 'IERTAION IERATION'
+$MATLAB  -nodisplay -nojvm < iteration.m > iteration.out
 fi
+
 #
 date
 #
@@ -136,17 +147,18 @@ echo 5 days forecast run
 date
 ./$CODFILE ${MODEL}_forecast.in > ${MODEL}_forecast_`date -Idate`.out
 date
+
 #
 # Store the output forecast files
 #
 $CP $SCRATCHDIR/$HISFILE ${MSSOUT}/${MODEL}_his_forecast_`date -Idate`.nc
 $CP $SCRATCHDIR/$AVGFILE ${MSSOUT}/${MODEL}_avg_forecast_`date -Idate`.nc
-$CP $SCRATCHDIR/$AVGFILE /mnt/ftp_out/ROMSAGRIF_FORECAST/latest_forecast.nc
+#$CP $SCRATCHDIR/$AVGFILE /mnt/ftp_out/ROMSAGRIF_FORECAST/latest_forecast.nc
 #
 #  Analysis for the forecast run...
 #
-#cd $INPUTDIR
-#$MATLAB  -batch -nodisplay -nojvm < plot_forecast_roms.m >  plot_forecast_roms.out
+cd $INPUTDIR
+$MATLAB  -batch -nodisplay -nojvm < plot_forecast_roms.m >  plot_forecast_roms.out
 
 echo Forecast finished
 date

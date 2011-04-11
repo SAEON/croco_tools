@@ -48,7 +48,7 @@ makeplot = 0;
 bry_prefix  = [ROMS_files_dir,'roms_bry_',OGCM,'_']; % generic boundary file name
 clm_prefix  = [ROMS_files_dir,'roms_clm_',OGCM,'_']; % generic climatology file name
 ini_prefix  = [ROMS_files_dir,'roms_ini_',OGCM,'_']; % generic initial file name
-FRCST_prefix  = [OGCM,'_'];                    % generic OGCM file name 
+FRCST_prefix  = [OGCM,'_'];                          % generic OGCM file name 
 %
 %
 if strcmp(OGCM,'ECCO')
@@ -57,7 +57,8 @@ if strcmp(OGCM,'ECCO')
 %
 % Kalman filter 
 %
-  url = 'http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/kf066b/kf066b_'; 
+  %%url = 'http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/kf066b/kf066b_'; 
+  url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf080/kf080_'; 
 %
 elseif strcmp(OGCM,'mercator')
 %
@@ -65,8 +66,8 @@ elseif strcmp(OGCM,'mercator')
 %
 %  login/password can be entered here or in romstools params
 %  and should be asked to the MERCATOR team 
-%
- % url=['http://',login,':',password,'@opendap.mercator-ocean.fr/thredds/dodsC/mercatorPsy3v1R1v_glo_mean_best_estimate'];
+% 
+%  url=['http://',login,':',password,'@opendap.mercator-ocean.fr/thredds/dodsC/mercatorPsy3v1R1v_glo_mean_best_estimate'];
   url=['http://',login,':',password,'@opendap.mercator-ocean.fr/thredds/dodsC/mercatorPsy3v2_glo_mean_best_estimate'];
 %
 else

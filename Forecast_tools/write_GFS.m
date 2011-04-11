@@ -1,4 +1,4 @@
-function write_GFS(fname,Yorig,lon,lat,mask,time,tx,ty,tair,rhum,prate,wspd,radlw,radsw)
+function write_GFS(fname,Yorig,lon,lat,mask,time,tx,ty,tair,rhum,prate,wspd,uwnd,vwnd,radlw,radlw_in,radsw)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  function write_GFS(fname,Yorig,lon,lat,mask,time,tx,ty,...
@@ -38,6 +38,12 @@ nc=netcdf([fname],'clobber');
 %
 nc('lon') = length(lon);
 nc('lat') = length(lat);
+%
+% nc('latu') = length(lat);
+% nc('latv') = length(lat)-1;
+% nc('lonu') = length(lon)-1;
+% nc('lonv') = length(lon);
+%
 nc('time') = length(time);
 %
 nc{'lon'} = ncfloat('lon');
@@ -68,6 +74,9 @@ nc{'prate'} = ncfloat('time','lat','lon');
 nc{'wspd'} = ncfloat('time','lat','lon');
 nc{'radlw'} = ncfloat('time','lat','lon');
 nc{'radsw'} = ncfloat('time','lat','lon');
+nc{'radlw_in'} = ncfloat('time','lat','lon');
+nc{'uwnd'} = ncfloat('time','lat','lon');
+nc{'vwnd'} = ncfloat('time','lat','lon');
 %
 endef(nc);
 %
@@ -81,7 +90,10 @@ nc{'tair'}(:)=tair;
 nc{'rhum'}(:)=rhum;
 nc{'prate'}(:)=prate;
 nc{'wspd'}(:)=wspd;
+nc{'uwnd'}(:)=uwnd;
+nc{'vwnd'}(:)=vwnd;
 nc{'radlw'}(:)=radlw;
+nc{'radlw_in'}(:)=radlw_in;
 nc{'radsw'}(:)=radsw;
 %
 close(nc)
