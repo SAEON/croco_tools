@@ -1,5 +1,13 @@
+! $Id$
 !
-! $Id: private_scratch_AMR.h,v 1.3 2004/03/26 15:26:08 pmarches Exp $
+!======================================================================
+! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
+! The two other branches from UCLA (Shchepetkin et al) 
+! and Rutgers University (Arango et al) are under MIT/X style license.
+! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
+! 
+! ROMS_AGRIF website : http://roms.mpl.ird.fr
+!======================================================================
 !
 #ifdef SGI
       real A2d(N2d,NSA,0:NPP-1), A3d(N3d,4,0:NPP-1)

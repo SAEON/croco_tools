@@ -1,5 +1,13 @@
+! $Id$
 !
-! $Id: get_smflux.F,v 1.2 2003/12/17 13:56:02 pmarches Exp $
+!======================================================================
+! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
+! The two other branches from UCLA (Shchepetkin et al) 
+! and Rutgers University (Arango et al) are under MIT/X style license.
+! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
+! 
+! ROMS_AGRIF website : http://roms.mpl.ird.fr
+!======================================================================
 !
 #include "cppdefs.h"
 #ifndef ANA_SMFLUX
@@ -134,7 +142,8 @@ c**        call opencdf (frcname,N)
           goto 99                                         !--> ERROR
         endif
        itsms=i
-       write(stdout,'(6x,A,1x,A,1x,g12.4,1x,I4)') 'GET_SMFLUX --',
+       MPI_master_only write(stdout,'(6x,A,1x,A,1x,g12.4,1x,I4)') 
+     &              'GET_SMFLUX --',
      &              'Read surface momentum stresses for time =', cff
 #ifdef MPI
      &                                                      , mynode

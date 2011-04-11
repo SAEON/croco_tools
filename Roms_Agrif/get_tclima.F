@@ -1,5 +1,13 @@
+! $Id$
 !
-! $Id: get_tclima.F,v 1.4 2005/01/19 15:01:25 pmarches Exp $
+!======================================================================
+! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
+! The two other branches from UCLA (Shchepetkin et al) 
+! and Rutgers University (Arango et al) are under MIT/X style license.
+! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
+! 
+! ROMS_AGRIF website : http://roms.mpl.ird.fr
+!======================================================================
 !
 #include "cppdefs.h"
 #if defined TCLIMATOLOGY && !defined ANA_TCLIMA
@@ -517,7 +525,7 @@ c              goto 99                                     !--> ERROR
            goto 99                                        !--> ERROR
          endif
         ittclm(itrc)=i
-        write(stdout,'(6x,A,2x,I2,1x,A,1x,g12.4,1x,I4)')
+        MPI_master_only write(stdout,'(6x,A,2x,I2,1x,A,1x,g12.4,1x,I4)')
      &             'GET_TCLIMA -- Read climatology of tracer', itrc,
      &                                             'for time =', cff
 #ifdef MPI

@@ -1,5 +1,13 @@
+! $Id$
 !
-! $Id: set_nudgcof.F,v 1.12 2005/10/26 15:18:52 pmarches Exp $
+!======================================================================
+! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
+! The two other branches from UCLA (Shchepetkin et al) 
+! and Rutgers University (Arango et al) are under MIT/X style license.
+! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
+! 
+! ROMS_AGRIF website : http://roms.mpl.ird.fr
+!======================================================================
 !
 #include "cppdefs.h"
 #if defined ZNUDGING || defined M2NUDGING || defined M3NUDGING\

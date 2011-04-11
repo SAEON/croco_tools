@@ -1,3 +1,4 @@
+! $Id$
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -7,7 +8,7 @@
 ! 
 ! This routine belongs to the specific ROMS_AGRIF package.
 ! 
-! ROMS_AGRIF version : 2.0
+! ROMS_AGRIF website : http://roms.mpl.ird.fr
 !======================================================================
 !
 #include "cppdefs.h"

@@ -1,5 +1,13 @@
+! $Id$
 !
-! $Id: nf_fread.F,v 1.4 2004/06/25 15:04:21 pmarches Exp $
+!======================================================================
+! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
+! The two other branches from UCLA (Shchepetkin et al) 
+! and Rutgers University (Arango et al) are under MIT/X style license.
+! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
+! 
+! ROMS_AGRIF website : http://roms.mpl.ird.fr
+!======================================================================
 !
 #ifdef WRITER
       integer function nf_fwrite (A, ncid, varid, record, type)

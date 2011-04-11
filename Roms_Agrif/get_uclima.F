@@ -1,5 +1,13 @@
+! $Id$
 !
-! $Id: get_uclima.F,v 1.3 2005/09/27 16:22:17 pmarches Exp $
+!======================================================================
+! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
+! The two other branches from UCLA (Shchepetkin et al) 
+! and Rutgers University (Arango et al) are under MIT/X style license.
+! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
+! 
+! ROMS_AGRIF website : http://roms.mpl.ird.fr
+!======================================================================
 !
 #include "cppdefs.h"
 #if defined M2CLIMATOLOGY && !defined ANA_M2CLIMA || \
@@ -155,7 +163,7 @@
 # endif
 
       ituclm=i
-      write(stdout,'(6x,A,1x,g12.4,1x,I4)')
+      MPI_master_only write(stdout,'(6x,A,1x,g12.4,1x,I4)')
      &'GET_UCLIMA -- Read momentum climatology      for time =', cff
 #ifdef MPI
      &                                                      , mynode

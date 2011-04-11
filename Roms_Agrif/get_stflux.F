@@ -1,5 +1,13 @@
+! $Id$
 !
-! $Id: get_stflux.F,v 1.2 2003/12/17 13:56:02 pmarches Exp $
+!======================================================================
+! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
+! The two other branches from UCLA (Shchepetkin et al) 
+! and Rutgers University (Arango et al) are under MIT/X style license.
+! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
+! 
+! ROMS_AGRIF website : http://roms.mpl.ird.fr
+!======================================================================
 !
 #include "cppdefs.h"
 #if defined SOLVE3D && (!defined ANA_STFLUX || !defined ANA_SSFLUX)
@@ -131,7 +139,7 @@ c**        call opencdf (frcname,N)
           goto 99                                         !--> ERROR
         endif
        itstf(itrc)=i
-       write(stdout,'(6x,A,1x,I2,1x,A,1x,g12.4,1x,I4)')
+       MPI_master_only write(stdout,'(6x,A,1x,I2,1x,A,1x,g12.4,1x,I4)')
      &            'GET_STFLUX -- Read surface flux of tracer', itrc,
      &                                             'for time =', cff
 #ifdef MPI

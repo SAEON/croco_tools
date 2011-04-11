@@ -1,5 +1,13 @@
+! $Id$
 !
-! $Id: get_sss.F,v 1.3 2005/10/06 12:56:20 pmarches Exp $
+!======================================================================
+! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
+! The two other branches from UCLA (Shchepetkin et al) 
+! and Rutgers University (Arango et al) are under MIT/X style license.
+! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
+! 
+! ROMS_AGRIF website : http://roms.mpl.ird.fr
+!======================================================================
 !
 #include "cppdefs.h"
 #if defined SALINITY && defined SFLX_CORR && !defined ANA_SSS
@@ -142,10 +150,11 @@
 # endif
        itsss=i
 # if defined SFLX_CORR && !defined QCORRECTION
-       write(stdout,'(6x,A,1x,A,1x,g12.4,1x,I4)') 'GET_SSS    --',
+      MPI_master_only write(stdout,'(6x,A,1x,A,1x,g12.4,1x,I4)') 
+     &              'GET_SSS    --',
      &              'Read SSS and dQdSST fields     for time =', cff
 # else
-       write(stdout,'(6x,A,16x,A,1x,g12.4,1x,I4)') 
+      MPI_master_only write(stdout,'(6x,A,16x,A,1x,g12.4,1x,I4)') 
      &                  'GET_SSS    -- Read SSS fields',
      &                                     'for time =', cff
 # endif

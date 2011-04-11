@@ -3,7 +3,7 @@
 #  Define environment variables for XEON
 ########################################################
 setenv OMP_SCHEDULE static
-setenv OMP_NUM_THREADS 1
+setenv OMP_NUM_THREADS 2
 setenv OMP_DYNAMIC false
 setenv OMP_NESTED false
 setenv KMP_LIBRARY throughput
@@ -15,15 +15,23 @@ limit coredumpsize unlimited
 set CP=/bin/cp
 set MV=/bin/mv
 ########################################################
-#           USER DEFINED RUN PARAMETERS
+#  Define files and run parameters
 ########################################################
 set MODEL=roms
-set SCRATCHDIR=`pwd`
+set SCRATCHDIR=`pwd`/SCRATCH
 set INPUTDIR=`pwd`
-set MSSDIR=`pwd`
-set MSSOUT=`pwd`
+set MSSDIR=`pwd`/ROMS_FILES
+set MSSOUT=`pwd`/ROMS_FILES
 set CODFILE=roms
 set AGRIF_FILE=AGRIF_FixedGrids.in
+#
+# Model time step [seconds]
+#
+set DT=3600
+#
+# Number of days per month
+#
+set NDAYS = 30
 #
 # number total of grid levels
 #
@@ -35,7 +43,7 @@ set NLEVEL=1
 set TIME_SCHED=1
 #
 set NY_START=1
-set NY_END=2
+set NY_END=10
 set NM_START=1
 set NM_END=12
 #
@@ -50,10 +58,6 @@ set GRDFILE=${MODEL}_grd.nc
 set FORFILE=${MODEL}_frc.nc
 set CLMFILE=${MODEL}_clm.nc
 set INIFILE=${MODEL}_ini.nc
-
-########################################################
-#           USER DEFINED RUN PARAMETERS
-########################################################
 #
 #  Restart file - RSTFLAG=0 --> No Restart
 #		  RSTFLAG=1 --> Restart
@@ -84,10 +88,11 @@ endif
 # Get the code
 #
 cd $SCRATCHDIR
-echo "Getting $CODFILE from $MSSDIR"
-$CP -f $MSSDIR/$CODFILE $SCRATCHDIR
+echo "Getting $CODFILE from $INPUTDIR"
+$CP -f $INPUTDIR/$CODFILE $SCRATCHDIR
 chmod u+x $CODFILE
-$CP -f $MSSDIR/$AGRIF_FILE $SCRATCHDIR
+echo "Getting $AGRIF_FILE from $INPUTDIR"
+$CP -f $INPUTDIR/$AGRIF_FILE $SCRATCHDIR
 #
 # Get the netcdf files
 #
@@ -106,16 +111,37 @@ while ($LEVEL != $NLEVEL)
   $CP -f $MSSDIR/${CLMFILE}${ENDF} $SCRATCHDIR
   if ($RSTFLAG == 0) then
     echo "Getting ${INIFILE}${ENDF} from $MSSDIR"
-    $CP -f $MSSDIR/${INIFILE}${ENDF} ${MODEL}_ini.nc${ENDF}
+    $CP -f $MSSDIR/${INIFILE}${ENDF} $SCRATCHDIR
   else
     echo "Getting ${RSTFILE}${ENDF} from $MSSOUT"
     $CP -f $MSSOUT/${RSTFILE}${ENDF} $SCRATCHDIR
-    $CP -f $MSSOUT/${RSTFILE}${ENDF} ${MODEL}_ini.nc${ENDF}
+    $CP -f ${RSTFILE}${ENDF} ${MODEL}_ini.nc${ENDF}
   endif
-    echo "Getting ${MODEL}.in${ENDF} from $INPUTDIR"
-    $CP -f $INPUTDIR/${MODEL}.in${ENDF} ${MODEL}.in${ENDF}
+  echo "Getting ${MODEL}_inter.in${ENDF} from $INPUTDIR"
+  $CP -f $INPUTDIR/${MODEL}_inter.in${ENDF} ${MODEL}_inter.in${ENDF}
+
   @ LEVEL++
 end
+#
+# Put the number of time steps in the .in files
+#
+set NUMTIMES=0
+@ NUMTIMES = $NDAYS * 24 * 3600
+@ NUMTIMES = $NUMTIMES / $DT
+echo "Writing in ${MODEL}_inter.in"
+set LEVEL=0
+while ($LEVEL != $NLEVEL)
+  if (${LEVEL} == 0) then
+    set ENDF=
+  else
+    set ENDF=.${LEVEL}
+    @ NUMTIMES = 3 * $NUMTIMES
+  endif
+  echo "USING NUMTIMES = $NUMTIMES"
+  sed 's/NUMTIMES/'$NUMTIMES'/' < ${MODEL}_inter.in${ENDF} > ${MODEL}.in${ENDF}
+  @ LEVEL++
+end
+#
 ###########################################################
 #  Compute
 ###########################################################
@@ -151,7 +177,7 @@ while ($NY != $NY_END)
 #  COMPUTE
 #
     date
-    $CODFILE  ${MODEL}.in > ${MODEL}_${TIME}.out
+    ./$CODFILE  ${MODEL}.in > ${MODEL}_${TIME}.out
     date
 #
 #  Archive
@@ -163,8 +189,7 @@ while ($NY != $NY_END)
       else
         set ENDF=.${LEVEL}
       endif
-
-      $CP -f ${MODEL}_rst.nc${ENDF} ${MODEL}_ini.nc${ENDF}
+      $CP -f ${MODEL}_rst.nc${ENDF} ${INIFILE}${ENDF}
       $MV -f ${MODEL}_his.nc${ENDF} ${MODEL}_his_${TIME}.nc${ENDF}
       $MV -f ${MODEL}_rst.nc${ENDF} ${MODEL}_rst_${TIME}.nc${ENDF}
       $MV -f ${MODEL}_avg.nc${ENDF} ${MODEL}_avg_${TIME}.nc${ENDF}

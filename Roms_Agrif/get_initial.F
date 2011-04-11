@@ -1,5 +1,13 @@
+! $Id$
 !
-! $Id: get_initial.F,v 1.5 2005/01/19 15:01:25 pmarches Exp $
+!======================================================================
+! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
+! The two other branches from UCLA (Shchepetkin et al) 
+! and Rutgers University (Arango et al) are under MIT/X style license.
+! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
+! 
+! ROMS_AGRIF website : http://roms.mpl.ird.fr
+!======================================================================
 !
 #include "cppdefs.h"
                               ! Read initial conditions for the
@@ -123,12 +131,14 @@
 #ifdef AVERAGES
           nrecavg=ibuff(4)
 #endif
-        write(stdout,'(6x,A,G12.4,A,I2,A,I6,A,I3,A,I3,A)')
+        MPI_master_only write(stdout,
+     &     '(6x,A,G12.4,A,I2,A,I6,A,I3,A,I3,A)')
      &     'GET_INITIAL: Restarted from day =', tdays, ' rec =',
      &      indx, '(', ntstart, ',', nrecrst, ',', nrechis, ').'
 
         else
-          write(stdout,'(/1x,2A/)') 'GET_INITIAL ERROR: Cannot ',
+         MPI_master_only write(stdout,'(/1x,2A/)') 
+     &                            'GET_INITIAL ERROR: Cannot ',
      &                            'read time and record indices.'
           goto 99                                         !--> ERROR
         endif
@@ -139,7 +149,8 @@
 #ifdef AVERAGES
         nrecavg=0
 #endif
-        write(stdout,'(6x,2A,G12.4,1x,A,I4)') 'GET_INITIAL -- ',
+        MPI_master_only write(stdout,'(6x,2A,G12.4,1x,A,I4)') 
+     &          'GET_INITIAL -- ',
      &          'Processing data for time =', tdays, 'record =', indx
       endif
       if (ntstart.lt.1) ntstart=1

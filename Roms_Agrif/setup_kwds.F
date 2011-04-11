@@ -1,3 +1,4 @@
+! $Id$
 #include "cppdefs.h"
 
       subroutine setup_kwds (ierr)
