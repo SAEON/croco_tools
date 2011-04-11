@@ -1807,9 +1807,6 @@ c
          enddo
       endif
 #  endif /* OBC_SOUTH */   
-# else
-      ERROR ###  CPP-keys 'T_FRC_BRY' and 'BIOLOGY' are defined,
-      ERROR ###  but no code is provided to set up boundary arrays.
 # endif /* PISCES */
       return
       end
