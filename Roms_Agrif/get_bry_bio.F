@@ -442,8 +442,14 @@ c                goto 99         !--> ERROR
 !     
       do itrc=3,NT              ! loop on biology
         if(got_tbry(itrc)) then
-          do while (bry_time1(itbry1(itrc),itrc).lt.time+dt .and. 
+          do while (bry_time1(itbry1(itrc),itrc).lt.time+0.5*dt .and. 
      &      ierr.eq.nf_noerr)
+!            write(*,*)'============================================='
+!            write(*,*)'itrc=',itrc
+!            write(*,*)'bry_time1(itbry1(itrc),itrc)',
+!     &                                 bry_time1(itbry1(itrc),itrc)
+!            write(*,*)'time+0.5*dt',time+0.5*dt
+!            write(*,*)'============================================='
             call advance_cycle (bry_cycle1(itrc),ntbry1(itrc),
      &        bry_ncycle1(itrc),bry_rec1(itrc))
             if (ierr.eq.nf_noerr) then
@@ -552,15 +558,19 @@ c                goto 99         !--> ERROR
         if(got_tbry(itrc)) then
           it1=3-itbry1(itrc)
           it2=itbry1(itrc)
-          cff1=bry_time1(it2,itrc)-time
-          cff2=time-bry_time1(it1,itrc)
-!      write(*,*)'========='
-!      write(*,*)'it1=',it1
-!      write(*,*)'it2=',it2
-!      write(*,*)'cff=',time+0.5*dt
-!      write(*,*)'cff1=',cff1
-!      write(*,*)'cff2=',cff2
-!      write(*,*)'========='
+          cff=time+0.5*dt
+          cff1=bry_time1(it2,itrc)-cff
+          cff2=cff-bry_time1(it1,itrc)
+!            write(*,*)'========='
+!            write(*,*)'it1=',it1
+!            write(*,*)'it2=',it2
+!            write(*,*)'cff=',time
+!            write(*,*)'cff+0.5*dt=',time+0.5*dt
+!            write(*,*)'bry_time1(it1,3)',bry_time1(it1,3)
+!            write(*,*)'bry_time1(it2,3)',bry_time1(it2,3)
+!            write(*,*)'cff1=',cff1
+!            write(*,*)'cff2=',cff2 
+!            write(*,*)'========='
           if (ZEROTH_TILE .and. cff1.lt.dt) synchro_flag=.true.
           
           if (cff1.ge.0. .and. cff2.ge.0.) then
