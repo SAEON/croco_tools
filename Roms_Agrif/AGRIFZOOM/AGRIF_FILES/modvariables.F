@@ -1,3 +1,7 @@
+!
+! $Id$
+!
+
       Module Agrif_Variables 
       Use Agrif_CurgridFunctions
       

@@ -1,5 +1,5 @@
 !
-! $Id: modutil.F 662 2007-05-25 15:58:52Z opalod $
+! $Id$
 !
 C     Agrif (Adaptive Grid Refinement In Fortran)
 C

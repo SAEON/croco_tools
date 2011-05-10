@@ -1,3 +1,4 @@
+# $Id$
 # Compilation:
 CC		= cc -O -g
 LEX		= flex
