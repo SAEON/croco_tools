@@ -1,7 +1,7 @@
 
 
 !
-! $Id: modupdatebasic.F,v 1.2 2005/08/22 15:11:29 agrif Exp $
+! $Id$
 !
 C     AGRIF (Adaptive Grid Refinement In Fortran)
 C

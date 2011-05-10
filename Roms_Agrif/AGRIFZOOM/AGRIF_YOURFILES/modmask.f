@@ -1,7 +1,7 @@
 
 
 !
-! $Id: modmask.F,v 1.1.1.1 2005/05/27 11:49:54 agrif Exp $
+! $Id$
 !
 C     AGRIF (Adaptive Grid Refinement In Fortran)
 C
