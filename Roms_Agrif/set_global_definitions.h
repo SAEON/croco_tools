@@ -454,6 +454,7 @@ c-# define TANH dtanh
 # undef QCORRECTION
 # undef SFLX_CORR
 # undef DIURNAL_SRFLUX
+# undef BULK_FLUX
 # undef TS_DIF2
 # undef TS_DIF4
 # undef CLIMAT_TS_MIXH
