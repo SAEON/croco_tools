@@ -59,7 +59,7 @@ for time=thetime
     v=nc{'svstr'}(time,:,:);
     if thefield(1:3)=='spd'
       field=sqrt((u2rho_2d(u)).^2+(v2rho_2d(v)).^2);
-      fieldname='wind speed';
+      fieldname='wind stress';
     else
       field=nc{thefield}(time,:,:);
       fieldname=nc{thefield}.long_name(:);
