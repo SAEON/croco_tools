@@ -26,9 +26,6 @@
 #include "ocean2d.h"
 
 #ifdef AGRIF
-      IF (firstcoarsetimestep) THEN
-        call computenbmaxtimes()
-      ENDIF
       IF (agrif_fixed().NE.sortedint(nbtimes)) return
       nbtimes = nbtimes + 1
 #endif

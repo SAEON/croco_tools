@@ -1083,6 +1083,7 @@ C$OMP BARRIER
       integer :: iter
       real :: onemtinterp
       integer :: parentnbstep
+      integer :: pngrid
 
       real,dimension(Istr-1:Istr,GLOBAL_1D_ARRAYETA) :: Zeta_west6
       real,dimension(Iend:Iend+1,GLOBAL_1D_ARRAYETA) :: Zeta_east6     
@@ -1142,7 +1143,9 @@ C$OMP MASTER
             Agrif_Specialvalue=0.
 
         nbgrid = Agrif_Fixed()
-        indinterp = 0
+        pngrid = Agrif_Parent_Fixed()
+        if (nbgrid == grids_at_level(pngrid,0)) indinterp = 0
+
         allocate(tabtemp2d(i1t:i2t,j1t:j2t))     
             Call Agrif_Bc_variable(tabtemp2d,zetaid,
      &                                        calledweight=tinterp,

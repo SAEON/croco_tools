@@ -116,8 +116,8 @@ C
        newvariable%pvar%parent_var=>parent_var
        do i=1,dimensio
          if (parent_var%var%interptab(i)=='N') then
-           parent_var%var%lb(i)=lb(i)
-           parent_var%var%ub(i)=ub(i)
+!           parent_var%var%lb(i)=lb(i)
+!           parent_var%var%ub(i)=ub(i)
          endif
        enddo
        endif       

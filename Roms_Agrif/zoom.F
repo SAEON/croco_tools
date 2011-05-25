@@ -1924,78 +1924,185 @@ c**         z_r(i,j,k)=cff_r+cff1_r*h(i,j)+cff2_r*Zt_avg1(i,j)     !>
 #include "param.h"
 #include "scalars.h"
 #include "zoom.h"
-      integer :: ilev, maxlevel, minlevel
-      logical :: tostop
-      integer :: nlev, ilevtop
-
-      if (.not.tocont) return
+      integer nunit
+      integer j, jp
+      integer :: nb
       
-      ilev = Agrif_Level()
-      maxlevel = Agrif_MaxLevel()
+      integer :: nbstep2d(0:20)
       
-      if ((ilev == 0).AND.(itimes(ilev) == 0)) then
-      do nlev = 0,maxlevel
-        iind = iind + 1
-        sortedint(iind) = nlev
+      nunit = Agrif_Get_Unit()
+    
+      open(nunit,file='Agrif_FixedGrids.in',form='formatted')
+      j=1
+      jp = 0
+      call agrif_read_fixed(jp,j,nunit)
+      close(nunit)
+      
+      nbstep2d = 0
+      
+      call write_number(0,nbstep2d)
+      
+      nb = 0
+      do while (sortedint(nb) /= -1)
+        nbmaxtimes = nb
+        nb = nb + 1
       enddo
-      endif
+      
+      return
+      end
+      
+      recursive subroutine write_number(j,nbstep2d)
+      implicit none
+#include "param.h"
+#include "scalars.h"
+#include "zoom.h"
+      integer :: j
+      integer nb
+      integer ngrid
+      integer :: nbstep2d(0:20)
+      
+      call write_prestep3d(j)
+      
+      do nb=1,nfast
+       call write_step2d(j,nbstep2d)
+      enddo
+      
+      end subroutine write_number
+
+      recursive subroutine write_prestep3d(j)
+      implicit none
+#include "param.h"
+#include "scalars.h"
+#include "zoom.h"
+      integer :: j
+      integer nb
+      integer ngrid
+      integer :: nbstep2d(0:20)
       
       iind = iind + 1
-      sortedint(iind ) = ilev
+      sortedint(iind) = j
+      whichstep(iind) = 0
       
-      itimes(ilev) = itimes(ilev) + 1
+      ngrid = 0
+      do while (grids_at_level(j,ngrid)/=-1)
+      call write_prestep3d(grids_at_level(j,ngrid))
+      ngrid = ngrid + 1
+      enddo
       
-      tostop = .FALSE.
+      end subroutine write_prestep3d
       
-      
-      if (ilev == maxlevel) then
-        if (itimes(ilev) == nfast) then
-          
-         minlevel = maxlevel - 1
-         do while (minlevel>=0)
-           if (itimes(minlevel) .NE. nfast) exit
-           minlevel = minlevel - 1
-         enddo
-         minlevel = minlevel + 1
-         
-         
-         if (minlevel == 0) tostop = .TRUE.
-         
-         do ilevtop = minlevel, maxlevel
-           if (itimes(ilevtop) == nfast) then
-             iind = iind + 1
-             sortedint(iind) = ilevtop
-           endif
-         enddo
-         
-         do ilevtop = minlevel, maxlevel
-           if (itimes(ilevtop) == nfast) then
-             iind = iind + 1
-             sortedint(iind) = ilevtop
-           endif
-         enddo         
-     
-         if (tostop) then
-           tocont = .FALSE.
-           nbmaxtimes = iind
-           firstcoarsetimestep = .FALSE.
-           sortedint(iind+1:) = -1
-           return
-         endif
+      recursive subroutine write_step2d(j,nbstep2d)
+      implicit none
+#include "param.h"
+#include "scalars.h"
+#include "zoom.h"
+      integer :: j
+      integer nb
+      integer ngrid
+      integer :: nbstep2d(0:20)
 
-         do ilevtop = minlevel, maxlevel
-           if (itimes(ilevtop) == nfast) then
-             iind = iind + 1
-             sortedint(iind) = ilevtop
-            itimes(ilevtop) = 0
-           endif
-         enddo
-        
+      iind = iind + 1
+      sortedint(iind) = j
+      whichstep(iind) = 1
+      nbstep2d(j) = nbstep2d(j)+1
+      
+      ngrid = 0
+      do while (grids_at_level(j,ngrid)/=-1)
+      do nb=1,coeff_ref_time(grids_at_level(j,ngrid))
+      call write_step2d(grids_at_level(j,ngrid),nbstep2d)
+      enddo
+      ngrid = ngrid + 1
+      enddo
+      
+      if (nbstep2d(j) == nfast) then
+        if (j /= 0) then
+          if (nbstep2d(parent_grid(j)) /= nfast) then
+            call write_step3d1(j)
+            call write_step3d2(j)
+            call write_prestep3d(j)
+          endif
         endif
+        if (j == 0) then
+          call write_step3d1(j)
+          call write_step3d2(j)
+        endif
+        nbstep2d(j) = 0
       endif
       
-         nbmaxtimes = iind
-         
+      end subroutine write_step2d
+  
+      recursive subroutine write_step3d1(j)
+      implicit none
+#include "param.h"
+#include "scalars.h"
+#include "zoom.h"
+      integer :: j
+      integer nb
+      integer ngrid
+      integer :: nbstep2d(0:20)
+      
+      iind = iind + 1
+      sortedint(iind) = j
+      whichstep(iind) = 2
+      
+      ngrid = 0
+      do while (grids_at_level(j,ngrid)/=-1)
+      call write_step3d1(grids_at_level(j,ngrid))
+      ngrid = ngrid + 1
+      enddo
+      
+      end subroutine write_step3d1
+      
+      recursive subroutine write_step3d2(j)
+      implicit none
+#include "param.h"
+#include "scalars.h"
+#include "zoom.h"
+      integer :: j
+      integer nb
+      integer ngrid
+      integer :: nbstep2d(0:20)
+      
+      iind = iind + 1
+      sortedint(iind) = j
+      whichstep(iind) = 3
+      
+      ngrid = 0
+      do while (grids_at_level(j,ngrid)/=-1)
+      call write_step3d2(grids_at_level(j,ngrid))
+      ngrid = ngrid + 1
+      enddo
+      
+      end subroutine write_step3d2
+      
+      recursive subroutine agrif_read_fixed(jp,j,nunit)
+      implicit none
+#include "param.h"
+#include "scalars.h"
+#include "zoom.h"
+      integer :: j,nunit,jp
+      integer :: i
+      integer :: nb_grids
+      integer :: grid_number
+      integer :: r_imin,r_imax,r_jmin,r_jmax,r_rhox,r_rhoy,r_time
+      integer :: gridnum(1000)
+      
+      read(nunit,*)nb_grids
+      
+      do i=1,nb_grids
+        grid_number = j
+        grids_at_level(jp,i-1)=j
+        gridnum(i)=j
+        parent_grid(j) = jp
+        read(nunit,*)r_imin,r_imax,r_jmin,r_jmax,r_rhox,r_rhoy,r_time
+        coeff_ref_time(j)=r_time
+        j=j+1
+      enddo
+      
+      do i=1,nb_grids
+       call agrif_read_fixed(gridnum(i),j,nunit)
+      enddo
+      
       return
       end
 

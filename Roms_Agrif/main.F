@@ -408,11 +408,10 @@ CR      write(*,*) '  0' MYID
       iic = ntstart
 
 #ifdef AGRIF
-      nbmaxtimes = 0
-      firstcoarsetimestep = .TRUE.
       iind = -1
-      itimes = 0
-      tocont = .TRUE.
+      grids_at_level = -1
+      sortedint = -1
+      call computenbmaxtimes
 #endif
 
       do iicroot=ntstart,ntimes+1

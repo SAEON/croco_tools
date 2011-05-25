@@ -64,7 +64,8 @@
       integer :: pp
       integer :: idecal
       real,dimension(:,:), allocatable :: duavg2parentold
-      real,dimension(:,:), allocatable :: dvavg2parentold         
+      real,dimension(:,:), allocatable :: dvavg2parentold 
+      integer :: pngrid
 
       
 !$AGRIF_DO_NOT_TREAT
@@ -98,7 +99,10 @@ C$OMP MASTER
         irhox = Agrif_Irhox()
         irhoy = Agrif_Irhoy()
      
-      Call Agrif_Set_Parent(indupdate,0) 
+        pngrid = Agrif_Parent_Fixed()
+        if (nbgrid == grids_at_level(pngrid,0)) then
+           Call Agrif_Set_Parent(indupdate,0) 
+        endif
         
 #ifdef MASKING
       Agrif_UseSpecialValueInUpdate = .TRUE.

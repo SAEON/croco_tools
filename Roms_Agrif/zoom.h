@@ -188,14 +188,16 @@
      &       updatemyfyid,updatehuonid, updatehvomid
 
 !$AGRIF_DO_NOT_TREAT
-      logical :: firstcoarsetimestep
       integer :: iind
-      logical :: tocont      
-      integer :: itimes(0:100000)
-      integer :: sortedint(0:100000)
+      integer :: sortedint(0:10000)
+      integer :: whichstep(0:10000)
+      integer :: grids_at_level(0:20,0:100)
+      integer :: parent_grid(0:20)
+      integer :: coeff_ref_time(0:20)
       integer :: nbtimes, nbmaxtimes
-      common/rootintegrate/tocont,nbtimes, nbmaxtimes,
-     &    firstcoarsetimestep,iind,itimes,sortedint
+      common/rootintegrate/nbtimes, nbmaxtimes,
+     &    iind,sortedint,whichstep,
+     &    grids_at_level,parent_grid,coeff_ref_time
 !$AGRIF_END_DO_NOT_TREAT
 
 #endif
