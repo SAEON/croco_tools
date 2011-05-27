@@ -1932,7 +1932,7 @@ c**         z_r(i,j,k)=cff_r+cff1_r*h(i,j)+cff2_r*Zt_avg1(i,j)     !>
       
       nunit = Agrif_Get_Unit()
     
-      open(nunit,file='Agrif_FixedGrids.in',form='formatted')
+      open(nunit,file='AGRIF_FixedGrids.in',form='formatted')
       j=1
       jp = 0
       call agrif_read_fixed(jp,j,nunit)
