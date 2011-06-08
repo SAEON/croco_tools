@@ -200,7 +200,7 @@
             rufrc(i,j)=rufrc(i,j) + cff
             u(i,j,k,indx)=u(i,j,k,indx) + dt*cff1
 # ifdef DIAGNOSTICS_UV
-            MHmix(i,j,k,1) = + 2**cff1/(Hz(i-1,j,k)+Hz(i,j,k))
+            MHmix(i,j,k,1) = 2*cff1/(Hz(i-1,j,k)+Hz(i,j,k))
 # endif
           enddo
         enddo
@@ -212,7 +212,7 @@
             rvfrc(i,j)=rvfrc(i,j) + cff
             v(i,j,k,indx)=v(i,j,k,indx) + dt*cff1
 # ifdef DIAGNOSTICS_UV
-            MHmix(i,j,k,2) = + 2*cff1/(Hz(i,j-1,k)+Hz(i,j,k))
+            MHmix(i,j,k,2) = 2*cff1/(Hz(i,j-1,k)+Hz(i,j,k))
 # endif
           enddo
         enddo
