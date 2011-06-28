@@ -127,7 +127,7 @@ if Download_data==1
   % 
   disp('Download QSCAT data with OPENDAP')
   download_QSCAT(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,...
-		 QSCAT_dir,Yorig,QSCAT_blk)
+                 QSCAT_dir,Yorig,QSCAT_blk)
 end
 %
 % Loop on the years and the months
@@ -247,24 +247,24 @@ for Y=Ymin:Ymax
 
     for i=1:itolap_qscat
       u(:,:,i)=ext_data(taux_file,taux_name,tindex(i),...
-			lon,lat,[],Roa,2);
+                        lon,lat,[],Roa,2);
       v(:,:,i)=ext_data(tauy_file,tauy_name,tindex(i),...
-			lon,lat,[],Roa,2);
+                        lon,lat,[],Roa,2);
     end
 
     if QSCAT_blk==1
       uwnd_file=[QSCAT_dir,'uwndY',num2str(Ym),'M',num2str(Mm),'.nc'];
       vwnd_file=[QSCAT_dir,'vwndY',num2str(Ym),'M',num2str(Mm),'.nc']; 
-      wnds_file=[QSCAT_dir,'wndsY',num2str(Ym),'M',num2str(Mm),'.nc'];		
+      wnds_file=[QSCAT_dir,'wndsY',num2str(Ym),'M',num2str(Mm),'.nc'];          
       
-      for 	i=1:itolap_qscat	
-	xu(:,:,i)=ext_data(uwnd_file,uwnd_name,tindex(i),...
-			   lon,lat,[],Roa,2);
-	yv(:,:,i)=ext_data(vwnd_file,vwnd_name,tindex(i),...
-			   lon,lat,[],Roa,2); 
-	ws(:,:,i)=ext_data(wnds_file,wnds_name,tindex(i),...
-			   lon,lat,[],Roa,2); 
-	
+      for       i=1:itolap_qscat        
+        xu(:,:,i)=ext_data(uwnd_file,uwnd_name,tindex(i),...
+                           lon,lat,[],Roa,2);
+        yv(:,:,i)=ext_data(vwnd_file,vwnd_name,tindex(i),...
+                           lon,lat,[],Roa,2); 
+        ws(:,:,i)=ext_data(wnds_file,wnds_name,tindex(i),...
+                           lon,lat,[],Roa,2); 
+        
       end
       
     end
@@ -278,9 +278,9 @@ for Y=Ymin:Ymax
     tauy_file=[QSCAT_dir,'tauyY',num2str(Y),'M',num2str(M),'.nc'];
     for tindex=itolap_qscat+1:tlen-itolap_qscat
       u(:,:,tindex)=ext_data(taux_file,taux_name,tindex-itolap_qscat,...
-			     lon,lat,[],Roa,2);
+                             lon,lat,[],Roa,2);
       v(:,:,tindex)=ext_data(tauy_file,tauy_name,tindex-itolap_qscat,...
-			     lon,lat,[],Roa,2);
+                             lon,lat,[],Roa,2);
     end
 
     if QSCAT_blk==1 
@@ -289,12 +289,12 @@ for Y=Ymin:Ymax
       wnds_file=[QSCAT_dir,'wndsY',num2str(Y),'M',num2str(M),'.nc'];
       
       for tindex=itolap_qscat+1:tlen-itolap_qscat
-	xu(:,:,tindex)=ext_data(uwnd_file,uwnd_name,tindex-itolap_qscat,...
-				lon,lat,[],Roa,2);
-	yv(:,:,tindex)=ext_data(vwnd_file,vwnd_name,tindex-itolap_qscat,...
-				lon,lat,[],Roa,2); 
-	ws(:,:,tindex)=ext_data(wnds_file,wnds_name,tindex-itolap_qscat,...
-				lon,lat,[],Roa,2); 
+        xu(:,:,tindex)=ext_data(uwnd_file,uwnd_name,tindex-itolap_qscat,...
+                                lon,lat,[],Roa,2);
+        yv(:,:,tindex)=ext_data(vwnd_file,vwnd_name,tindex-itolap_qscat,...
+                                lon,lat,[],Roa,2); 
+        ws(:,:,tindex)=ext_data(wnds_file,wnds_name,tindex-itolap_qscat,...
+                                lon,lat,[],Roa,2); 
       end
     end
     %
@@ -329,9 +329,9 @@ for Y=Ymin:Ymax
       %    disp(['i - (itolap_qscat+tlen0)=',num2str( i - (itolap_qscat+tlen0) )])
       %    disp(['tindex(i - (itolap_qscat+tlen0))=',num2str( tindex(i - (itolap_qscat+tlen0)) )])
       u(:,:,i)=ext_data(taux_file,taux_name,tindex(i - (itolap_qscat+tlen0)  ),...
-			lon,lat,[],Roa,2);
+                        lon,lat,[],Roa,2);
       v(:,:,i)=ext_data(tauy_file,tauy_name,tindex(i - (itolap_qscat+tlen0) ),...
-			lon,lat,[],Roa,2);
+                        lon,lat,[],Roa,2);
     end
     %    
     if QSCAT_blk==1 
@@ -339,10 +339,10 @@ for Y=Ymin:Ymax
       vwnd_file=[QSCAT_dir,'vwndY',num2str(Yp),'M',num2str(Mp),'.nc']; 
       wnds_file=[QSCAT_dir,'wndsY',num2str(Yp),'M',num2str(Mp),'.nc'];
       
-      for i=tlen-itolap_qscat+1 : tlen 	
-	xu(:,:,i)=ext_data(uwnd_file,uwnd_name,tindex(i - (itolap_qscat+tlen0) ),lon,lat,[],Roa,2);
-	yv(:,:,i)=ext_data(vwnd_file,vwnd_name,tindex(i - (itolap_qscat+tlen0) ),lon,lat,[],Roa,2); 
-	ws(:,:,i)=ext_data(wnds_file,wnds_name,tindex(i - (itolap_qscat+tlen0) ),lon,lat,[],Roa,2);
+      for i=tlen-itolap_qscat+1 : tlen  
+        xu(:,:,i)=ext_data(uwnd_file,uwnd_name,tindex(i - (itolap_qscat+tlen0) ),lon,lat,[],Roa,2);
+        yv(:,:,i)=ext_data(vwnd_file,vwnd_name,tindex(i - (itolap_qscat+tlen0) ),lon,lat,[],Roa,2); 
+        ws(:,:,i)=ext_data(wnds_file,wnds_name,tindex(i - (itolap_qscat+tlen0) ),lon,lat,[],Roa,2);
       end
     end    
     %
@@ -361,11 +361,11 @@ for Y=Ymin:Ymax
     uu=zeros(ny,nx,nt2);
     vv=zeros(ny,nx,nt2); 
 
-    if QSCAT_blk==1 
-      uuwnd=zeros(ny,nx,nt2);
-      vvwnd=zeros(ny,nx,nt2); 
-      wwnds=zeros(ny,nx,nt2); 
-    end
+	if QSCAT_blk==1
+	  uuwnd=zeros(ny,nx,nt2);
+	  vvwnd=zeros(ny,nx,nt2);
+	  wwnds=zeros(ny,nx,nt2);
+	end
     %
     %
     % Proceed the time interpolation of QSCAT-modified NCEP frc/bulk file
@@ -380,15 +380,15 @@ for Y=Ymin:Ymax
     tic
     for ii=1:nx
       for jj=1:ny
-	uu(jj,ii,:)=interp1(time,squeeze(u(jj,ii,:)),sms_time_ncep,'cubic');  
-	vv(jj,ii,:)=interp1(time,squeeze(v(jj,ii,:)),sms_time_ncep,'cubic'); 
-	
-	if QSCAT_blk==1   
-	  uuwnd(jj,ii,:)=interp1(time,squeeze(xu(jj,ii,:)),blk_time_ncep,'cubic');  
-	  vvwnd(jj,ii,:)=interp1(time,squeeze(yv(jj,ii,:)),blk_time_ncep,'cubic');  
-	  wwnds(jj,ii,:)=interp1(time,squeeze(ws(jj,ii,:)),blk_time_ncep,'cubic');
-	end
-	
+        uu(jj,ii,:)=interp1(time,squeeze(u(jj,ii,:)),sms_time_ncep,'cubic');  
+        vv(jj,ii,:)=interp1(time,squeeze(v(jj,ii,:)),sms_time_ncep,'cubic'); 
+        
+        if QSCAT_blk==1   
+          uuwnd(jj,ii,:)=interp1(time,squeeze(xu(jj,ii,:)),blk_time_ncep,'cubic');  
+          vvwnd(jj,ii,:)=interp1(time,squeeze(yv(jj,ii,:)),blk_time_ncep,'cubic');  
+          wwnds(jj,ii,:)=interp1(time,squeeze(ws(jj,ii,:)),blk_time_ncep,'cubic');
+        end
+        
       end
     end
     toc
@@ -406,16 +406,16 @@ for Y=Ymin:Ymax
       nc_frc{'svstr'}(ll,:,:)=rho2v_2d(v.*cosa - u.*sina);
       
       if QSCAT_blk==1  
-	nc_blk{'sustr'}(ll,:,:)=rho2u_2d(u.*cosa + v.*sina);
-	nc_blk{'svstr'}(ll,:,:)=rho2v_2d(v.*cosa - u.*sina);
+        nc_blk{'sustr'}(ll,:,:)=rho2u_2d(u.*cosa + v.*sina);
+        nc_blk{'svstr'}(ll,:,:)=rho2v_2d(v.*cosa - u.*sina);
 
-	u=squeeze(uuwnd(:,:,ll));
-	v=squeeze(vvwnd(:,:,ll));      
-	nc_blk{'uwnd'}(ll,:,:)=rho2u_2d(u.*cosa + v.*sina);
-	nc_blk{'vwnd'}(ll,:,:)=rho2v_2d(v.*cosa - u.*sina); 
-	
-	
-	nc_blk{'wspd'}(ll,:,:)=squeeze(wwnds(:,:,ll));     
+        u=squeeze(uuwnd(:,:,ll));
+        v=squeeze(vvwnd(:,:,ll));      
+        nc_blk{'uwnd'}(ll,:,:)=rho2u_2d(u.*cosa + v.*sina);
+        nc_blk{'vwnd'}(ll,:,:)=rho2v_2d(v.*cosa - u.*sina); 
+        
+        
+        nc_blk{'wspd'}(ll,:,:)=squeeze(wwnds(:,:,ll));     
       end
       
     end
@@ -430,7 +430,7 @@ end
 disp('--------------')
 disp(['Finish, you have now NCEP file (frc and/or bulk files) with',...
       ' wind speed and wind stress from QSCAT'])
-disp('--------------')	
+disp('--------------')  
 
 %
 % Spin-up: (reproduce the first year 'SPIN_Long' times)
