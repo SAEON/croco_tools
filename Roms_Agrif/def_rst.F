@@ -103,6 +103,7 @@
      &             'create restart NetCDF file:', rstname(1:lstr)
           goto 99                                         !--> ERROR
         endif
+        if (nrpfrst.eq.0) total_rec=0           
 !
 ! Put global attributes.
 ! --- ------ -----------
