@@ -39,7 +39,7 @@ if gfstype==0
   gfsname='gdas/rotating/gdas';
   gfsname1='gdas';
 else
-  %========nomad1===========
+ %========nomad1===========
   gfsname='gfs_master/gfs';
   gfsname1='gfs_master';
  %========nomad5===========

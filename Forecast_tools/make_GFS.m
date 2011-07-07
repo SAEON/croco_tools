@@ -32,7 +32,7 @@
 %  Updated    9-Sep-2006 by Pierrick Penven
 %  Updated    20-Aug-2008 by Matthieu Caillaud & P. Marchesiello
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Common parameters
 %

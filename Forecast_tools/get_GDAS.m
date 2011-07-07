@@ -44,9 +44,10 @@ disp('===========================================')
 %disp(['TNDX=',num2str(tndx)])
 %disp(['TRANGE=',num2str(trange)])
 t=readdap(fname,'time',trange);
+disp(['TRANGE=',num2str(trange)])
 disp(['GDAS raw time=',sprintf('%5.3f',t)])
 %t=t+364.75; % put it in "matlab" time. PM
-t=t+365 % put it in "matlab" time. GC
+t=t+365 ; % put it in "matlab" time. GC
 disp(['GDAS: ',datestr(t)])
 disp('===========================================')
 %disp('u...')

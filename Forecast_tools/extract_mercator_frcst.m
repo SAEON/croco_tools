@@ -6,7 +6,7 @@ function extract_mercator_frcst(FRCST_dir,FRCST_prefix,url,tndx,missval,...
                       time,Yorig)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Extract a subset from ECCO using DODS
+% Extract a subset from Mercator using DODS
 % Write it in a local file (keeping the classic
 % SODA netcdf format)
 % 

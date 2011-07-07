@@ -2,11 +2,11 @@
 %
 % Create and fill ROMS clim and bry files with OGCM data.
 % for a forecast run
-% 
-% 
-%  Further Information:  
+%
+%
+%  Further Information:
 %  http://www.brest.ird.fr/Roms_tools/
-%  
+%
 %  This file is part of ROMSTOOLS
 %
 %  ROMSTOOLS is free software; you can redistribute it and/or modify
@@ -24,8 +24,8 @@
 %  Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 %  MA  02111-1307  USA
 %
-%  Copyright (c) 2006 by Pierrick Penven 
-%  e-mail:Pierrick.Penven@ird.fr  
+%  Copyright (c) 2006 by Pierrick Penven
+%  e-mail:Pierrick.Penven@ird.fr
 %
 %  Updated    8-Sep-2006 by Pierrick Penven
 %  Updated    20-Aug-2008 by Matthieu Caillaud & P. Marchesiello
@@ -39,37 +39,41 @@
 %
 tic
 romstools_param
+% Get the date
+%
+rundate_str=date;
+rundate=datenum(rundate_str)-datenum(Yorig,1,1);
+OGCM_name=[FRCST_dir,FRCST_prefix,num2str(rundate),'.cdf'];
+%
 %
 % Specific to forecast
 %
 makeplot = 0;
 %
-%OGCM = 'mercator'; 
+%OGCM = 'mercator';
 bry_prefix  = [ROMS_files_dir,'roms_bry_',OGCM,'_']; % generic boundary file name
 clm_prefix  = [ROMS_files_dir,'roms_clm_',OGCM,'_']; % generic climatology file name
 ini_prefix  = [ROMS_files_dir,'roms_ini_',OGCM,'_']; % generic initial file name
-FRCST_prefix  = [OGCM,'_'];                          % generic OGCM file name 
+FRCST_prefix  = [OGCM,'_'];                          % generic OGCM file name
 %
 %
 if strcmp(OGCM,'ECCO')
-%
-%  ECCO DODS URL
-%
-% Kalman filter 
-%
-  %%url = 'http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/kf066b/kf066b_'; 
-  url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf080/kf080_'; 
-%
+  %
+  %  ECCO DODS URL
+  %
+  % Kalman filter
+  %
+  %%url = 'http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/kf066b/kf066b_';
+  url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf080/kf080_';
+  %
 elseif strcmp(OGCM,'mercator')
-%
-%  MERCATOR DODS URL
-%
-%  login/password can be entered here or in romstools params
-%  and should be asked to the MERCATOR team 
-% 
-%  url=['http://',login,':',password,'@opendap.mercator-ocean.fr/thredds/dodsC/mercatorPsy3v1R1v_glo_mean_best_estimate'];
-  url=['http://',login,':',password,'@opendap.mercator-ocean.fr/thredds/dodsC/mercatorPsy3v2_glo_mean_best_estimate'];
-%
+  %
+  %  MERCATOR DODS URL
+  %
+  %  login/password can be entered here or in romstools params
+  %  and should be asked to the MyOCEAN team
+  %
+  url=[FRCST_dir,'motu_primaryrawformat_mercator_',num2str(rundate),'.nc'];
 else
   error(['Unknown OGCM: ',OGCM])
 end
@@ -103,21 +107,39 @@ lonmin=min(min(lon));
 lonmax=max(max(lon));
 latmin=min(min(lat));
 latmax=max(max(lat));
-%
-% Download data with DODS (the download matlab routine depends on the OGCM)
-% 
-disp('Download data...')
-eval(['OGCM_name=download_',OGCM,'_frcst(lonmin,lonmax,latmin,latmax,',...
-                'FRCST_dir,FRCST_prefix,url,Yorig);'])
-%
-% Get the date
-%
-rundate_str=date;
-rundate=datenum(rundate_str)-datenum(Yorig,1,1);
-%
+
+if Download_data
+  %
+  %
+  % Download data with Motu python (the download matlab routine depends on the OGCM)
+  %
+  if strcmp(OGCM,'ECCO')
+	disp('Download data...')
+	eval(['OGCM_name=download_',OGCM,'_frcst(lonmin,lonmax,latmin,latmax,',...
+	  'FRCST_dir,FRCST_prefix,url,Yorig);'])
+  elseif strcmp(OGCM,'mercator')
+	disp('Download data...')
+	eval(['OGCM_name=download_',OGCM,'_frcst_python(lonmin,lonmax,latmin,latmax,',...
+		'FRCST_dir,FRCST_prefix,url,Yorig);'])
+% % 	if ~exist(OGCM_name);
+% % 	  disp([' '])
+% % 	  disp(['  ==> Download the raw motu Mercator file :',url])
+% % 	  disp(['  ==> Then create the ROMS format Mercator file :',OGCM_name])
+% % 	  disp(['============================'])
+% % 	  eval(['OGCM_name=download_',OGCM,'_frcst_python(lonmin,lonmax,latmin,latmax,',...
+% % 		'FRCST_dir,FRCST_prefix,url,Yorig);'])
+% % 	else
+% % 	  disp(['  ==> No processing needed: ROMS Mercator file exists : ', OGCM_name])
+% % 	  if ~exist(url)
+% % 		disp([char({'  ROMS Mercator file exists';'  but not the Motu Mercator file. TAKE CARE'})])
+% % 		disp(['==========================================='])
+% % 	  end
+% % 	end
+  end
+end
 % Get the OGCM grid 
 % 
-nc=netcdf(OGCM_name);
+nc=netcdf(OGCM_name)
 lonT=nc{'lonT'}(:);
 latT=nc{'latT'}(:);
 lonU=nc{'lonU'}(:);

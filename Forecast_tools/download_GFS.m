@@ -189,6 +189,7 @@ for frcst=1:4*hdays-3             % number of files until before yesterday 18Z
    missvalue=x.ugrd10m.missing_value;
 % 
    n=n+1;
+   disp(['N=',num2str(n)])
    [gfstime(n),tx0,ty0,tair0,rhum0,...
 	 prate0,wspd0,uwnd0,vwnd0,radlw0,radlw_in0,radsw0]=...
    get_GDAS(fname,mask,t1dap,jrange,i1min,i1max,i2min,i2max,i3min,i3max,missvalue);
@@ -260,7 +261,10 @@ while foundfile==0
   else
     foundfile=0;
     disp(['  GFS : did not found ',fname])
-    t1=t1+it; % increment time index
+    %%t1=t1+it; % increment time index  POSSIBLE BUG
+	          % if it=2 it is Ok, if it=1, (*--> 3h00)
+			  % need to to add 2*it ...
+	t1=t1+2;
     gfs_run_time=gfs_run_time-6;
     if gfs_run_time<0
       gfs_date=gfs_date-1;
@@ -278,6 +282,9 @@ end
 for tndx=t1:it:60
   tndxdap=tndx-1;
   n=n+1;
+  %disp(['tndxdap=',num2str(tndxdap)])
+  %disp(['tndx=',num2str(tndx)])
+  disp(['N_gfs=',num2str(n)])
   [gfstime(n),tx(n,:,:),ty(n,:,:),tair(n,:,:),rhum(n,:,:),...
    prate(n,:,:),wspd(n,:,:),uwnd(n,:,:),vwnd(n,:,:),...
    radlw(n,:,:),radlw_in(n,:,:),...
