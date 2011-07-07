@@ -613,19 +613,19 @@ CR      write(stdout,'(1x,A,I3)') 'indxBostrw=',indxBBL+5
 CR      write(stdout,'(1x,A,I3)') 'indxShflx_rsw =',indxShflx_rsw
       vname(1,indxShflx_rsw)='shflx_rsw                           '
       vname(2,indxShflx_rsw)='Short-wave surface radiation        '
-      vname(3,indxShflx_rsw)='degC/s                              '
+      vname(3,indxShflx_rsw)='Celsius meter second-1              '
 CR      write(stdout,'(1x,A,I3)') 'indxShflx_rlw =',indxShflx_rlw
       vname(1,indxShflx_rlw)='shflx_rlw                           '
       vname(2,indxShflx_rlw)='Long-wave surface radiation         '
-      vname(3,indxShflx_rlw)='degC/s                              '
+      vname(3,indxShflx_rlw)='Celsius meter second-1              '
 CR      write(stdout,'(1x,A,I3)') 'indxShflx_lat =',indxShflx_lat
       vname(1,indxShflx_lat)='shflx_lat                           '
       vname(2,indxShflx_lat)='Latent surface heat flux            '
-      vname(3,indxShflx_lat)='degC/s                              '
+      vname(3,indxShflx_lat)='Celsius meter second-1              '
 CR      write(stdout,'(1x,A,I3)') 'indxShflx_sen =',indxShflx_sen
       vname(1,indxShflx_sen)='shflx_sen                           '
       vname(2,indxShflx_sen)='Sensible surface heat flux          '
-      vname(3,indxShflx_sen)='degC/s                              '
+      vname(3,indxShflx_sen)='Celsius meter second-1              '
 # endif
 
 CR      write(stdout,'(1x,A,I3)') 'indxO =',indxO
