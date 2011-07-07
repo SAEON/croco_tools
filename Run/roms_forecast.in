@@ -1,9 +1,9 @@
 title:
-        South West Pacific Forecast
+       Benguela LR Forecast 
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
                 720     720     60      1
 S-coord: THETA_S,   THETA_B,    Hc (m)
-           6.0d0      0.0d0      5.0d0
+           6.0d0      0.0d0      10.0d0
 grid:  filename
                           roms_grd.nc
 forcing: filename
@@ -21,7 +21,7 @@ restart:          NRST, NRPFRST / filename
                   840    0
                           roms_rst.nc
 history: LDEFHIS, NWRT, NRPFHIS / filename 
-            T     30     0
+            T     120     0
                           roms_his.nc
 averages: NTSAVG, NAVG, NRPFAVG / filename
             1     120     0

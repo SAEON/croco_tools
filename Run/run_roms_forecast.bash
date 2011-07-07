@@ -8,7 +8,9 @@
 if [ -f /etc/bashrc ]; then
     . /etc/bashrc
 fi
-export IA32ROOT=/usr/local/intel/Compiler/11.1/056/bin/intel64
+source ~/.bashrc
+
+export IA32ROOT=/opt/intel/Compiler/11.1/056/bin/intel64
 source $IA32ROOT/ifortvars_intel64.sh
 export F_UFMTENDIAN=big
 ulimit -s 131072
@@ -16,14 +18,16 @@ export KMP_STACKSIZE=50m
 export OMP_NUM_THREADS=4
 #
 export HOME=/home/gcambon
-export RUNDIR=${HOME}/SVN_3/romsagrif/Roms_tools/RunPrev
+export TOOLSDIR=$HOME/Roms_tools/Forecast_tools
+export RUNDIR=${HOME}/Roms_tools/Run
 export MATLAB=/usr/local/bin/matlab
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/libdap-3.6.2/lib
-#
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/loaddap-3.5.2/lib
+
 unalias cp
 unalias mv
 export CP=/bin/cp
 export MV=/bin/mv
+export LN=/bin/ln
 #-----------------------------------------------
 #  Define files and run parameters
 #-----------------------------------------------
@@ -32,7 +36,7 @@ date
 #
 # Get forcing Files from DODS SERVER and process them for ROMS
 # PRE_PROCESS=1 ==> do the work (0 otherwise)
-export PRE_PROCESS=1
+export PRE_PROCESS=0
 #
 # Perform Iterations for convergence of ROMS and OGCM
 # ITERATION=1 ==> do several hindcasts using nudging
@@ -48,15 +52,13 @@ export CODFILE=roms
 #
 export GRDFILE=${MODEL}_grd.nc
 export INIFILE=${MODEL}_ini.nc
-export RSTFILE=${MODEL}_rst.0000.nc
+export RSTFILE=${MODEL}_rst.nc
 export AVGFILE=${MODEL}_avg.nc
 export HISFILE=${MODEL}_his.nc
 export BLKFILE=${MODEL}_blk_GFS_0.nc
 export FRCFILE=${MODEL}_frc_GFS_0.nc
-export BRYFILE=${MODEL}_bry_ECCO_0.nc
-export CLMFILE=${MODEL}_clm_ECCO_0.nc
-##export BRYFILE=${MODEL}_bry_mercator_0.nc
-##export CLMFILE=${MODEL}_clm_mercator_0.nc
+export BRYFILE=${MODEL}_bry_mercator_0.nc
+export CLMFILE=${MODEL}_clm_mercator_0.nc
 
 #
 ####################################################################
@@ -68,9 +70,9 @@ cd $INPUTDIR
 # Cleaning
 #
 
-#rm -f $MSSDIR/${MODEL}_blk_* $MSSDIR/${MODEL}_frc_* $MSSDIR/${MODEL}_bry_*
-#rm -f $MSSDIR/${MODEL}_clm_* $MSSDIR/${MODEL}_ini_*
-#rm -f $MSSOUT/${MODEL}_his_* $MSSOUT/${MODEL}_avg_* $MSSOUT/${MODEL}_rst_*
+rm -f $MSSDIR/${MODEL}_blk_* $MSSDIR/${MODEL}_frc_* $MSSDIR/${MODEL}_bry_*
+rm -f $MSSDIR/${MODEL}_clm_* $MSSDIR/${MODEL}_ini_*
+rm -f $MSSOUT/${MODEL}_his_* $MSSOUT/${MODEL}_avg_* $MSSOUT/${MODEL}_rst_*
 
 #
 # Compute lateral boundaries from Mercator and surface forcing from GFS
@@ -111,19 +113,22 @@ cd $SCRATCHDIR
 #
 #  COMPUTE 1: Hindcast run
 #
-echo 1 day hindcast run  
+echo 4 day hindcast run  
 # 1 days in case ECCO ogcm and 4 days in case Mercator ogcm , 
-# Dont forgert to modify the NRPFRST and NNREC 
+# Don't forget to modify the NRPFRST and NNREC 
 # in roms_hindcast.in and roms_forecast.in
 
 date
 ./$CODFILE ${MODEL}_hindcast.in > ${MODEL}_hindcast_`date -Idate`.out
 
 if [ $ITERATION = 1 ] ; then
-echo 'IERTAION IERATION'
+echo 'ITERATION ITERATION'
+$LN -sf $TOOLSDIR/iteration.m iteration.m
+$LN -sf $RUNDIR/start.m start.m
+$LN -sf $RUNDIR/romstools_param.m romstools_param.m
 $MATLAB  -nodisplay -nojvm < iteration.m > iteration.out
+rm -f iteration.m start.m romstools_param.m
 fi
-
 #
 date
 #
@@ -158,14 +163,20 @@ $CP $SCRATCHDIR/$AVGFILE ${MSSOUT}/${MODEL}_avg_forecast_`date -Idate`.nc
 #  Analysis for the forecast run...
 #
 cd $INPUTDIR
+
+$LN -sf $TOOLSDIR/plot_forecast_roms.m plot_forecast_roms.m
+$LN -sf $TOOLSDIR/plot_quick_forecast.m plot_quick_forecast.m
+# Production plot
 $MATLAB  -batch -nodisplay -nojvm < plot_forecast_roms.m >  plot_forecast_roms.out
+
+# Quick plot
+#$MATLAB  -batch -nodisplay -nojvm < plot_quick_forecast.m >  plot_quick_forecast.out
+#
+rm -f plot_forecast_roms.m plot_quick_forecast.m
+
 
 echo Forecast finished
 date
-
-
-
-
 
 
 
