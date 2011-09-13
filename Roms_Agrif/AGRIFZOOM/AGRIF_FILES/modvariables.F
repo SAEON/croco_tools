@@ -15,7 +15,7 @@
       INTEGER, DIMENSION(:) :: firstpoint
       CHARACTER(*) ,DIMENSION(:) :: raf        
       TYPE(Agrif_Pvariable), Pointer :: parent_var,root_var
-      INTEGER :: dimensio
+      INTEGER :: i,dimensio
       INTEGER :: varid
       LOGICAL, OPTIONAL :: torestore
       LOGICAL :: restaure

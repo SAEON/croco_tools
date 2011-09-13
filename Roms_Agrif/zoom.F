@@ -1019,7 +1019,7 @@ CR      write(*,*) '  0' MYID
       Call Agrif_ChildGrid_To_ParentGrid()
       Call UpdateGridhis()
       Call Agrif_ParentGrid_To_ChildGrid()
-#endif     <-  AGRIF_2WAY
+#endif     !<-  AGRIF_2WAY
     
 #ifdef AGRIF_ADAPTIVE
       call Agrif_Set_Regridding(300*(nfast+2))

@@ -2,7 +2,8 @@
 #- option to debug
 C_D = -g # -g -Wall
 # Compilation:
-CC		= cc -O
+CC		= cc -O0
+#CC             =cc -O
 #-
 OBJS = main.o WriteInFile.o toamr.o fortran.o  \
        dependfile.o SubLoopCreation.o WorkWithlistvarindoloop.o \

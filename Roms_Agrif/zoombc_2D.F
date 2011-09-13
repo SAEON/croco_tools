@@ -54,8 +54,8 @@
 !      real,dimension(:,:,:),pointer :: coarsevalues
 !      integer :: nbgrid, indinterp
 !      common/interp2d/coarsevalues, nbgrid, indinterp
-      integer :: indinterp
-      common/interp2d/indinterp
+      integer :: nbgrid,indinterp
+      common/interp2d/indinterp,nbgrid
 !$AGRIF_END_DO_NOT_TREAT     
 # ifdef MPI
        include 'mpif.h'
@@ -461,7 +461,7 @@ C$OMP BARRIER
 
        integer i1,i2,j1,j2
        real tabres(i1:i2,j1:j2)
-       integer i,j,iter, isize
+       integer i,j,iter,isize,nfast
        real :: cff1
 !$AGRIF_DO_NOT_TREAT
       integer :: indinterp
@@ -532,7 +532,7 @@ C$OMP BARRIER
 # include "zoom.h"
 # include "coupling.h"
       integer Istr,Iend,Jstr,Jend, i,j
-      real t1,t2,t3,t4,t5,t6,dv1,dv1np1,dv2,tfin,c1,c2,c3
+      real t1,t2,t3,t4,t5,t6,dv1,dv1np1,dv2,tfin,c1,c2,c3,cff1
       real t7,t8,t9,t10,t11
       external :: v2dinterp
       integer :: irhox, irhoy, irhot
@@ -551,8 +551,8 @@ C$OMP BARRIER
       real :: lastcff
       real,dimension(:,:),allocatable :: tabtemp2d
 !$AGRIF_DO_NOT_TREAT
-      integer :: indinterp
-      common/interp2d/indinterp
+      integer :: indinterp,nbgrid
+      common/interp2d/indinterp,nbgrid
 !$AGRIF_END_DO_NOT_TREAT      
 #ifdef MPI
        include 'mpif.h'
@@ -961,7 +961,7 @@ C$OMP BARRIER
 
        integer i1,i2,j1,j2
        real tabres(i1:i2,j1:j2)
-       integer i,j,iter, isize
+       integer i,j,iter,isize,nfast
        real :: cff1
 !$AGRIF_DO_NOT_TREAT
       integer :: indinterp
@@ -1015,8 +1015,9 @@ C$OMP BARRIER
       end   
       
       subroutine copy1d(tab1,tab2,cff,isize)
+      integer :: i,isize
+      real :: cff
       real,dimension(isize) :: tab1,tab2
-      integer :: i
       
       do i=1,isize
       tab1(i)=tab1(i)+cff*tab2(i)
@@ -1026,9 +1027,8 @@ C$OMP BARRIER
 
 !
       subroutine checksizeinterp(isize,nfast)
-      integer :: isize,nfast
       real,dimension(:,:),allocatable :: tempvalues
-      integer :: n1
+      integer :: n1,isize,nfast
 # include "param.h"
 # include "grid.h"
 # include "ocean2d.h"
@@ -1102,8 +1102,8 @@ C$OMP BARRIER
       real,dimension(:,:),allocatable :: tabtemp2d
       real lastcff
 !$AGRIF_DO_NOT_TREAT
-      integer :: indinterp
-      common/interp2d/indinterp
+      integer :: nbgrid, indinterp
+      common/interp2d/indinterp,nbgrid
 !$AGRIF_END_DO_NOT_TREAT 
                  
 #  ifdef MPI
@@ -1460,7 +1460,7 @@ C$OMP BARRIER
 
        integer i1,i2,j1,j2
        real tabres(i1:i2,j1:j2)
-       integer i,j,iter, isize
+       integer i,j,iter,isize,nfast
        real :: cff1
 !$AGRIF_DO_NOT_TREAT
       integer :: indinterp
