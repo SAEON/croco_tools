@@ -136,6 +136,11 @@ hmin = 75;
 %
 hmax_coast = 500;
 %
+% Maximum depth [m] (cut the topography to prevent
+% extrapolations below WOA data)
+%
+hmax = 5000;
+%
 %  Topography netcdf file name (ETOPO 2 or any other netcdf file
 %  in the same format)
 %

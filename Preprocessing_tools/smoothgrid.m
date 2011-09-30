@@ -1,4 +1,5 @@
-function h = smoothgrid(h,maskr,hmin,hmax_coast,rmax,n_filter_deep_topo,n_filter_final)
+function h = smoothgrid(h,maskr,hmin,hmax_coast,hmax,...
+                        rmax,n_filter_deep_topo,n_filter_final)
 %
 %  Smooth the topography to get a maximum r factor = rmax
 %
@@ -45,7 +46,7 @@ function h = smoothgrid(h,maskr,hmin,hmax_coast,rmax,n_filter_deep_topo,n_filter
 % Cut the topography
 %
 h(h<hmin)=hmin;
-h(h>5000)=5000;
+h(h>hmax)=hmax;
 %
 %
 % 1: Deep Ocean Filter

@@ -196,7 +196,7 @@ nc=netcdf(grdname,'write');
 h=nc{'h'}(:);
 maskr=nc{'mask_rho'}(:);
 %
-h=smoothgrid(h,maskr,hmin,hmax_coast,...
+h=smoothgrid(h,maskr,hmin,hmax_coast,hmax,...
              rtarget,n_filter_deep_topo,n_filter_final);
 %
 %  Write it down
