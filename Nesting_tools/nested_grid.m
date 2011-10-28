@@ -84,6 +84,10 @@ end
 disp(' ')
 disp(['  hmin = ',num2str(hmin)])
 %
+hmax = max(h_parent(:));
+disp(' ')
+disp(['  hmax = ',num2str(hmax)])
+%
 % Parent indices
 %
 [Mp,Lp]=size(h_parent);
@@ -230,7 +234,7 @@ maskrchild=get_embeddedmask(maskr_coarse,hnew,refinecoeff,newtopo);
 %
 if newtopo==1
 %  hnew = smoothgrid(hnew,hmin,rtarget);
-  hnew = smoothgrid(hnew,maskrchild,hmin,hmax_coast,rtarget,...
+  hnew = smoothgrid(hnew,maskrchild,hmin,hmax_coast,hmax,rtarget,...
                     n_filter_deep,n_filter_final);
   disp(' ')
   disp(' Connect the topography...')
