@@ -319,7 +319,7 @@
           TairK=TairC+273.16
           TseaC=t(i,j,N,nrhs,itemp)
           TseaK=TseaC+273.16
-          rhoSea=rho(i,j,N)+1000
+          rhoSea=rho(i,j,N)+rho0
           RH=rhum(i,j)
 # ifndef BULK_LW
           hflw=radlw(i,j)
