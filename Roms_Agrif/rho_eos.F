@@ -12,7 +12,7 @@
 #include "cppdefs.h"
 #ifdef SOLVE3D
 # ifdef NONLIN_EOS
-
+# define DUKO_2001
       subroutine rho_eos (tile)
       implicit none
       integer tile, trd, omp_get_thread_num
@@ -133,7 +133,7 @@
      &     r20,                                              dpth,
      &             B00,B01,B02,B03,    E00,E01,E02,           
      &             B10,B11,B12,        E10,E11,E12,          cff,
-     &                 BS1,                                  cff1
+     &                 BS1,                            cff1,cff2
 
       parameter(r00=999.842594,   r01=6.793952E-2,  r02=-9.095290E-3,
      &                            r03=1.001685E-4,  r04=-1.120083E-6,
@@ -157,7 +157,9 @@
 
      &          E00=+1.045941e-5, E01=-5.782165e-10,E02=+1.296821e-7,
      &          E10=-2.595994e-7, E11=-1.248266e-9, E12=-3.508914e-9)
-
+#  ifdef DUKO_2001
+      real rho1_0, K0_Duk
+#  endif
 #  include "grid.h"
 #  include "ocean3d.h"
 #  include "coupling.h"
@@ -170,6 +172,23 @@
 !
 #  include "compute_extended_bounds.h"
 !
+#  ifdef DUKO_2001
+      Tt=3.8D0
+      Ts=34.5D0
+      sqrtTs=sqrt(Ts)
+
+      dr00=r00-1000.D0
+
+      rho1_0=dr00 +Tt*( r01+Tt*( r02+Tt*( r03+Tt*( r04+Tt*r05 ))))
+     &                            +Ts*( R10+Tt*( r11+Tt*( r12+Tt*(
+     &                                              r13+Tt*r14 )))
+     &                   +sqrtTs*( rS0+Tt*( rS1+Tt*rS2 ))+Ts*r20 )
+
+      K0_Duk= Tt*( K01+Tt*( K02+Tt*( K03+Tt*K04 )))
+     &       +Ts*( K10+Tt*( K11+Tt*( K12+Tt*K13 ))
+     &            +sqrtTs*( KS0+Tt*( KS1+Tt*KS2 )))
+#  endif
+
       dr00=r00-rho0
       do j=JstrR,JendR
         do k=1,N                                       ! NONLINEAR
@@ -191,52 +210,63 @@
 #  ifdef MASKING
      &                                               *rmask(i,j)
 #  endif     
-
             K0= Tt*( K01+Tt*( K02+Tt*( K03+Tt*K04 )))
      &         +Ts*( K10+Tt*( K11+Tt*( K12+Tt*K13 ))
      &              +sqrtTs*( KS0+Tt*( KS1+Tt*KS2 )))
-
+# ifdef SPLIT_EOS
+# ifdef DUKO_2001
+            qp1(i,j,k)= 0.1D0*(rho0+rho1(i,j,k))*(K0_Duk-K0)
+     &                               /((K00+K0)*(K00+K0_Duk))
+#else
+            qp1(i,j,k)=0.1*(K00*rho1(i,j,k)-rho0*K0)/(K00*(K00+K0))
+#endif
+#   ifdef MASKING 
+            qp1(i,j,k)=qp1(i,j,k)*rmask(i,j)
+#   endif
+#  else 
             K1=B00+Tt*(B01+Tt*(B02+Tt*B03)) +Ts*( B10+Tt*( B11
      &                                    +Tt*B12 )+sqrtTs*BS1 )
 
             K2=E00+Tt*(E01+Tt*E02) +Ts*(E10+Tt*(E11+Tt*E12))
 
-#  ifdef SPLIT_EOS
-            qp1(i,j,k)=0.1*(K00*rho1(i,j,k)-rho0*K0)/(K00*(K00+K0))
-            rho(i,j,k)=rho1(i,j,k)+qp1(i,j,k)*(z_w(i,j,N)-z_r(i,j,k))
-#   ifdef MASKING 
-            qp1(i,j,k)=qp1(i,j,k)*rmask(i,j)
-            rho1(i,j,k)=rho1(i,j,k)*rmask(i,j)
-            rho(i,j,k)=rho(i,j,k)*rmask(i,j)
-#   endif
-#  else
             dpth=z_w(i,j,N)-z_r(i,j,k)
             cff=K00-0.1*dpth
             cff1=K0+dpth*(K1+K2*dpth)
             rho(i,j,k)=( rho1(i,j,k)*cff*(K00+cff1)
      &                           -0.1*dpth*rho0*cff1
      &                            )/(cff*(cff+cff1))
-
 #   ifdef MASKING
-            rho1(i,j,k)=rho1(i,j,k)*rmask(i,j)
             rho(i,j,k)=rho(i,j,k)*rmask(i,j)
 #   endif
 #  endif /* SPLIT_EOS */
+
 #  if defined ANA_VMIX || defined BVF_MIXING \
       || defined LMD_MIXING || defined LMD_SKPP || defined LMD_BKPP \
       || defined MY2_MIXING || defined MY25_MIXING
-
+#   ifndef SPLIT_EOS
             dpth=z_w(i,j,N)-z_w(i,j,k)
             K_up(i,k)=K0+dpth*(K1+K2*dpth)
             dpth=z_w(i,j,N)-z_w(i,j,k-1)
             K_dw(i,k)=K0+dpth*(K1+K2*dpth)
+#   endif
           enddo
         enddo
+
 
         cff=g/rho0
         do k=1,N-1
           do i=IstrR,IendR
-            cff1=0.1*(z_w(i,j,N)-z_w(i,j,k))
+# ifdef SPLIT_EOS
+            dpth=z_w(i,j,N)-0.5*(z_r(i,j,k+1)+z_r(i,j,k))
+            cff2=( rho1(i,j,k+1)-rho1(i,j,k)             ! Elementary
+     &                        +(qp1(i,j,k+1)-qp1(i,j,k)) ! adiabatic 
+     &                            *dpth*(1.-2.*qp2*dpth) ! difference
+     &                       )
+
+            bvf(i,j,k)=-cff*cff2 / (z_r(i,j,k+1)-z_r(i,j,k))
+# else
+           cff1=0.1*(z_w(i,j,N)-z_w(i,j,k))
+
             bvf(i,j,k)=-cff*(   (rho1(i,j,k+1)-rho1(i,j,k))
      &                        *(K00+K_dw(i,k+1))*(K00+K_up(i,k))
 
@@ -248,14 +278,20 @@
      &          ) )/(  (K00+K_dw(i,k+1)-cff1)*(K00+K_up(i,k)-cff1)
      &                                  *(z_r(i,j,k+1)-z_r(i,j,k))
      &                                                          )
-
+# endif
 #   ifdef MASKING
-     &                   *rmask(i,j)
+            bvf (i,j,k)= bvf (i,j,k)*rmask(i,j)
 #   endif
 #  endif
           enddo
         enddo
-
+#  if defined BVF_MIXING || defined LMD_MIXING  || defined LMD_KPP \
+   || defined MY2_MIXING || defined MY25_MIXING || defined PP_MIXING
+        do i=istrR,iendR
+          bvf  (i,j,N)  =  bvf  (i,j,N-1)
+          bvf  (i,j,0)  =  bvf  (i,j,  1)
+        enddo
+#  endif
 # else
 
       subroutine rho_eos (tile)                        ! LINEAR
@@ -322,8 +358,10 @@
 # ifdef VAR_RHO_2D
         do i=IstrR,IendR 
 #  ifdef SPLIT_EOS
-          cff=Hz(i,j,N)*( rho1(i,j,N) +qp1(i,j,N)*( z_w(i,j,N)
-     &                                            -z_r(i,j,N) ))
+          dpth=z_w(i,j,N)-z_r(i,j,N)
+          cff=Hz(i,j,N)*(rho1(i,j,N)+qp1(i,j,N)*dpth*(1.-qp2*dpth))
+cc          cff=Hz(i,j,N)*( rho1(i,j,N) +qp1(i,j,N)*( z_w(i,j,N)
+cc     &                                            -z_r(i,j,N) ))
 #  else
           cff=Hz(i,j,N)*rho(i,j,N)
 #  endif
@@ -333,8 +371,10 @@
         do k=N-1,1,-1
           do i=IstrR,IendR
 #  ifdef SPLIT_EOS
-            cff=Hz(i,j,k)*( rho1(i,j,k) +qp1(i,j,k)*( z_w(i,j,N)
-     &                                              -z_r(i,j,k) ))
+            dpth=z_w(i,j,N)-z_r(i,j,k)
+            cff=Hz(i,j,k)*(rho1(i,j,k)+qp1(i,j,k)*dpth*(1.-qp2*dpth))
+cc            cff=Hz(i,j,k)*( rho1(i,j,k) +qp1(i,j,k)*( z_w(i,j,N)
+cc     &                                              -z_r(i,j,k) ))
 #  else
             cff=Hz(i,j,k)*rho(i,j,k)
 #  endif

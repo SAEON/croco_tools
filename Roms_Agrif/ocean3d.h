@@ -54,6 +54,8 @@
 # if defined NONLIN_EOS && defined SPLIT_EOS
        real qp1(GLOBAL_2D_ARRAY,N)
       common /ocean_qp1/qp1
+      real qp2
+      parameter (qp2=0.0000172)
 # endif
 #endif  /* SOLVE3D */
 

@@ -41,7 +41,7 @@ c********************************************************************
 # endif
       real ru(PRIVATE_2D_SCRATCH_ARRAY,N),   OneFifth,
      &     rv(PRIVATE_2D_SCRATCH_ARRAY,N),   OneTwelfth,
-     &      P(PRIVATE_2D_SCRATCH_ARRAY,N),   epsil,
+     &      P(PRIVATE_2D_SCRATCH_ARRAY,N),   epsil,dpth,
      &     dR(PRIVATE_1D_SCRATCH_ARRAY,0:N), cff, GRho,
      &     dZ(PRIVATE_1D_SCRATCH_ARRAY,0:N), cfr, HalfGRho, 
      &     FC(PRIVATE_2D_SCRATCH_ARRAY),
@@ -109,10 +109,11 @@ c********************************************************************
           do i=IstrU-1,Iend
             dZ(i,k)=z_r(i,j,k+1)-z_r(i,j,k)
 # ifdef SPLIT_EOS 
-            dR(i,k)=rho1(i,j,k+1)-rho1(i,j,k)            ! Adiabatic
-     &                +(qp1(i,j,k+1)-qp1(i,j,k))           ! elementary 
-     &        *( z_w(i,j,N)-0.5*( z_r(i,j,k+1)           ! difference
-     &                          +z_r(i,j,k) ))
+            dpth=z_w(i,j,N)-0.5*(z_r(i,j,k+1)+z_r(i,j,k))
+
+            dR(i,k)=rho1(i,j,k+1)-rho1(i,j,k)            ! Elementary
+     &              +(qp1(i,j,k+1)-qp1(i,j,k))           ! adiabatic
+     &                     *dpth*(1.-qp2*dpth)           ! difference
 # else
             dR(i,k)=rho(i,j,k+1)-rho(i,j,k)
 # endif
@@ -131,18 +132,19 @@ c********************************************************************
 
             cfr=2.*dR(i,k)*dR(i,k-1)
             if (cfr.gt.epsil) then
-c**         if ((dR(i,k).gt.0. .and. dR(i,k-1).gt.0.) .or.
-c**  &          (dR(i,k).lt.0. .and. dR(i,k-1).lt.0.)) then
               dR(i,k)=cfr/(dR(i,k)+dR(i,k-1))
             else
               dR(i,k)=0.
             endif
 # ifdef SPLIT_EOS
-            dR(i,k)=dR(i,k)-qp1(i,j,k)*dZ(i,k)
-cPM            rho(i,j,k)=rho1(i,j,k)+qp1(i,j,k)*(z_w(i,j,N)-z_r(i,j,k))
+            dpth=z_w(i,j,N)-z_r(i,j,k)
+            dR(i,k)=dR(i,k)  -qp1(i,j,k)*dZ(i,k)*(1.-2.*qp2*dpth)
+            rho(i,j,k)=rho1(i,j,k) +qp1(i,j,k)*dpth*(1.-qp2*dpth)
 # endif
           enddo
         enddo
+
+
         do i=IstrU-1,Iend
           P(i,j,N)=g*z_w(i,j,N) + GRho*( rho(i,j,N)
      &       +0.5*(rho(i,j,N)-rho(i,j,N-1))*(z_w(i,j,N)-z_r(i,j,N))
@@ -191,11 +193,12 @@ cPM            rho(i,j,k)=rho1(i,j,k)+qp1(i,j,k)*(z_w(i,j,N)-z_r(i,j,k))
      &                              *umask(i,j)
 # endif
 # ifdef SPLIT_EOS
-            rx(i,j)=( rho1(i,j,k)-rho1(i-1,j,k)
-     &              +0.5*(qp1(i,j,k)-qp1(i-1,j,k))         ! Adiabatic
-     &                *( z_w(i,j,N)+z_w(i-1,j,N)         ! elementary
-     &                  -z_r(i,j,k)-z_r(i-1,j,k)         ! difference
-     &                                        ))
+            dpth=0.5*( z_w(i,j,N)+z_w(i-1,j,N)
+     &                -z_r(i,j,k)-z_r(i-1,j,k))
+
+            rx(i,j)=( rho1(i,j,k)-rho1(i-1,j,k)          ! Elementary
+     &                +(qp1(i,j,k)-qp1(i-1,j,k))         ! adiabatic
+     &                     *dpth*(1.-qp2*dpth) )         ! difference
 # else
             rx(i,j)=(rho(i,j,k)-rho(i-1,j,k)) 
 # endif
@@ -224,8 +227,6 @@ cPM            rho(i,j,k)=rho1(i,j,k)+qp1(i,j,k)*(z_w(i,j,N)-z_r(i,j,k))
           do i=IstrU-1,Iend
             cff=2.*FC(i,j)*FC(i+1,j)
             if (cff.gt.epsil) then
-c**         if ((FC(i,j).gt.0. .and. FC(i+1,j).gt.0.) .or.
-c**  &          (FC(i,j).lt.0. .and. FC(i+1,j).lt.0.)) then
               dZx(i,j)=cff/(FC(i,j)+FC(i+1,j))
             else
               dZx(i,j)=0.
@@ -233,14 +234,13 @@ c**  &          (FC(i,j).lt.0. .and. FC(i+1,j).lt.0.)) then
 
             cfr=2.*rx(i,j)*rx(i+1,j)
             if (cfr.gt.epsil) then
-c**         if ((rx(i,j).gt.0. .and. rx(i+1,j).gt.0.) .or. 
-c**  &          (rx(i,j).lt.0. .and. rx(i+1,j).lt.0.)) then  
               dRx(i,j)=cfr/(rx(i,j)+rx(i+1,j))
             else
               dRx(i,j)=0.
             endif
 # ifdef SPLIT_EOS
-            dRx(i,j)=dRx(i,j)-qp1(i,j,k)*dZx(i,j)
+            dRx(i,j)=dRx(i,j) -qp1(i,j,k)*dZx(i,j)
+     &         *(1.-2.*qp2*(z_w(i,j,N)-z_r(i,j,k)))
 # endif
           enddo   
         enddo                 !--> discard FC, rx
@@ -292,11 +292,12 @@ c**  &          (rx(i,j).lt.0. .and. rx(i+1,j).lt.0.)) then
      &                              *vmask(i,j)
 # endif
 # ifdef SPLIT_EOS
-            rx(i,j)=( rho1(i,j,k)-rho1(i,j-1,k)
-     &              +0.5*(qp1(i,j,k)-qp1(i,j-1,k))        ! Adiabatic
-     &                *( z_w(i,j,N)+z_w(i,j-1,N)        ! elementary
-     &                  -z_r(i,j,k)-z_r(i,j-1,k)        ! difference
-     &                                        ))
+            dpth=0.5*( z_w(i,j,N)+z_w(i,j-1,N)
+     &                -z_r(i,j,k)-z_r(i,j-1,k))
+            
+            rx(i,j)=( rho1(i,j,k)-rho1(i,j-1,k)          ! Elementary
+     &                +(qp1(i,j,k)-qp1(i,j-1,k))         ! adiabatic
+     &                     *dpth*(1.-qp2*dpth) )         ! difference
 # else
             rx(i,j)=(rho(i,j,k)-rho(i,j-1,k))
 # endif
@@ -323,24 +324,21 @@ c**  &          (rx(i,j).lt.0. .and. rx(i+1,j).lt.0.)) then
         do j=JstrV-1,Jend
           do i=Istr,Iend
             cff=2.*FC(i,j)*FC(i,j+1)
-            if (cff.gt.epsil) then
-c**         if ((FC(i,j).gt.0. .and. FC(i,j+1).gt.0.) .or. 
-c**  &          (FC(i,j).lt.0. .and. FC(i,j+1).lt.0.)) then       
+            if (cff.gt.epsil) then      
               dZx(i,j)=cff/(FC(i,j)+FC(i,j+1))
             else
               dZx(i,j)=0.
             endif
 
             cfr=2.*rx(i,j)*rx(i,j+1)
-            if (cfr.gt.epsil) then
-c**         if ((rx(i,j).gt.0. .and. rx(i,j+1).gt.0.) .or. 
-c**  &          (rx(i,j).lt.0. .and. rx(i,j+1).lt.0.)) then      
+            if (cfr.gt.epsil) then    
               dRx(i,j)=cfr/(rx(i,j)+rx(i,j+1))
             else
               dRx(i,j)=0.
             endif
 # ifdef SPLIT_EOS
-            dRx(i,j)=dRx(i,j)-qp1(i,j,k)*dZx(i,j)
+            dRx(i,j)=dRx(i,j) -qp1(i,j,k)*dZx(i,j)
+     &         *(1.-2.*qp2*(z_w(i,j,N)-z_r(i,j,k)))
 # endif
           enddo
         enddo                 !--> discard FC, rx
