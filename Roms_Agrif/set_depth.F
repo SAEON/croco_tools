@@ -32,7 +32,7 @@ C$    integer omp_get_thread_num
 !
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j,k
-      real cff_r,cff1_r,cff2_r, cff_w,cff1_w,cff2_w, z_r0,z_w0
+      real cff_r,cff1_r,cff_w,cff1_w, z_r0,z_w0
 # include "param.h"
 # include "grid.h"
 # include "ocean2d.h"
@@ -53,11 +53,15 @@ C$    integer omp_get_thread_num
 #  define J_RANGE JstrR,JendR
 # endif
 
-      if (iic.eq.0) then               ! During initialization and
-        do j=J_RANGE                   ! /or restart: copy initial
-          do i=I_RANGE                 ! free surface field into
-            hinv(i,j)=1./h(i,j)        ! array for holding fast-time
-            Zt_avg1(i,j)=zeta(i,j,1)   ! averaged free surface.
+      if (iic.eq.0) then               ! During initialization and /or restart: copy initial
+        do j=J_RANGE                   ! free surface field into array for holding fast-time
+          do i=I_RANGE                 ! averaged free surface.
+#ifdef NEW_S_COORD 
+            hinv(i,j)=1./(h(i,j)+hc)      
+#else
+            hinv(i,j)=1./h(i,j) 
+#endif
+            Zt_avg1(i,j)=zeta(i,j,1)    
           enddo
         enddo
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
@@ -74,24 +78,27 @@ C$    integer omp_get_thread_num
           z_w(i,j,0)=-h(i,j)    !!!          similar setting in
         enddo                   !!!          omega.F
         do k=1,N,+1
-          cff_w=hc*(sc_w(k)-Cs_w(k))
+#ifdef NEW_S_COORD
+          cff_w =hc*sc_w(k)
+          cff_r =hc*sc_r(k)
           cff1_w=Cs_w(k)
-          cff2_w=sc_w(k)+1.
-
-          cff_r=hc*(sc_r(k)-Cs_r(k))
           cff1_r=Cs_r(k)
-          cff2_r=sc_r(k)+1.
-
+#else
+          cff_w =hc*(sc_w(k)-Cs_w(k))
+          cff_r =hc*(sc_r(k)-Cs_r(k))
+          cff1_w=Cs_w(k)
+          cff1_r=Cs_r(k)
+#endif
           do i=I_RANGE
-            z_w0=cff_w+cff1_w*h(i,j)                               !<
-            z_w(i,j,k)=z_w0+Zt_avg1(i,j)*(1.+z_w0*hinv(i,j))       !<
-
-            z_r0=cff_r+cff1_r*h(i,j)                               !<
-            z_r(i,j,k)=z_r0+Zt_avg1(i,j)*(1.+z_r0*hinv(i,j))       !<
-
-c**         z_w(i,j,k)=cff_w+cff1_w*h(i,j)+cff2_w*Zt_avg1(i,j)     !>
-c**         z_r(i,j,k)=cff_r+cff1_r*h(i,j)+cff2_r*Zt_avg1(i,j)     !>
-
+            z_w0=cff_w+cff1_w*h(i,j) 
+            z_r0=cff_r+cff1_r*h(i,j)            
+#ifdef NEW_S_COORD                              
+            z_w(i,j,k)=z_w0*h(i,j)*hinv(i,j)+Zt_avg1(i,j)*(1.+z_w0*hinv(i,j)) 
+            z_r(i,j,k)=z_r0*h(i,j)*hinv(i,j)+Zt_avg1(i,j)*(1.+z_r0*hinv(i,j))    
+#else
+            z_w(i,j,k)=z_w0+Zt_avg1(i,j)*(1.+z_w0*hinv(i,j))      
+            z_r(i,j,k)=z_r0+Zt_avg1(i,j)*(1.+z_r0*hinv(i,j)) 
+#endif
             Hz_bak(i,j,k)=Hz(i,j,k)
             Hz(i,j,k)=z_w(i,j,k)-z_w(i,j,k-1)
           enddo
