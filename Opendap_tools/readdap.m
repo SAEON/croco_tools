@@ -1,4 +1,5 @@
 function var=readdap(url,vname,query)
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Reproduce the loaddods behavior (i.e. gives a variable, 
@@ -30,8 +31,7 @@ function var=readdap(url,vname,query)
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%argdods='-e -v';
+%
 %argdods='-e +v';
 argdods='-e -v';
 %
@@ -58,8 +58,10 @@ while isempty(var)
   end  
 end
 %
+fname=fieldnames(var);
+fname=cellstr(fname(1));
 while isstruct(var)
-  eval(['var=var.',vname,';']);
+  eval(['var=var.',char(fname),';']);
 end
 %
 return
