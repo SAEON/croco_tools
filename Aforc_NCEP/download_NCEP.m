@@ -357,7 +357,7 @@ for k=1:length(vnames)
 % Get the time indices for this month and year
 %
         tndx=intersect(find(month==M),find(year==Y));
-        trange=['[',num2str(tndx(1)),':',num2str(tndx(end)),']'];
+        trange=['[',num2str(tndx(1)-1),':',num2str(tndx(end)-1),']'];
         disp(['TRANGE=',num2str(trange)]);
 %
 % Get the subset

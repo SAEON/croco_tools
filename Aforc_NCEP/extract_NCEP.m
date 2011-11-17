@@ -41,6 +41,8 @@ function extract_NCEP(NCEP_dir,url,fname,vname,year,month,...
 %  Updated    Oct-2009 Gildas Cambon 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+check_time=1;
+%
 % Get the variable name
 %
 disp(['Get ',vname,' for year ',num2str(year),...
@@ -52,6 +54,18 @@ if Get_My_Data~=1
   var=getdap(url,fname,vname,...
 		 trange,level,jrange,...
 		 i1min,i1max,i2min,i2max,i3min,i3max);	
+%		 
+  if check_time==1
+    time_check=readdap([url,fname],'time',trange);
+    startime = [1,1,1,0,0,0]; 
+    TIME_OFFSET=(mjd(Yorig,1,1,0)-mjd(startime(1),startime(2),startime(3), ...
+	  			  startime(4)));
+    time_check = time_check - TIME_OFFSET -2;
+    disp(datestr(time_check(1)+datenum(Yorig,1,1)))
+    disp(datestr(time(1)+datenum(Yorig,1,1)))
+    disp(datestr(time_check(end)+datenum(Yorig,1,1)))
+    disp(datestr(time(end)+datenum(Yorig,1,1)))
+  end
   %
   % Get the dataset attributes
   %
