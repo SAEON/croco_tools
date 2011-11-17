@@ -35,6 +35,7 @@
 %  Updated    24-Oct-2006 by Pierrick Penven (diagnostics, chla etc...)
 %  Updated    08-Apr-2009 by Gildas Cambon
 %  Updated    23-Oct-2009 by Gildas Cambon
+%  Updated    17-Nov-2011 by Pierrick Penven (CFSR)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % 1 General parameters
@@ -319,6 +320,7 @@ level = 0;                                    % AGRIF level; 0=parent grid
 NCEP_version  = 2;                            % NCEP version:
 % 1: NCEP/NCAR Reanalysis, 1/1/1948 - present
 % 2: NCEP-DOE Reanalysis, 1/1/1979 - present
+% 3: Climate Forecast System Reanalysis , 1/1/1979 - 31/3/2011
 %					      
 % Path and option for using global datasets download from ftp
 %
@@ -328,6 +330,8 @@ if NCEP_version  == 1;
   My_NCEP_dir  = [DATADIR,'NCEP_REA1/'];
 elseif NCEP_version  == 2;
   My_NCEP_dir  = [DATADIR,'NCEP_REA2/'];
+elseif NCEP_version  == 3;
+  My_NCEP_dir  = [DATADIR,'CFSR/'];
 end
 My_QSCAT_dir = [DATADIR,'QSCAT/'];
 My_SODA_dir  = [DATADIR,'SODA/'];
@@ -337,7 +341,15 @@ My_ECCO_dir  = [DATADIR,'ECCO/'];
 %===================================================================
 %  Options for make_NCEP and make_QSCAT_daily
 %
-NCEP_dir= [FORC_DATA_DIR,'NCEP_',ROMS_config,'/']; % NCEP data directory
+% NCEP data directory for storing files obtained via opendap
+%
+if NCEP_version  == 1;
+  NCEP_dir= [FORC_DATA_DIR,'NCEP1_',ROMS_config,'/']; 
+elseif NCEP_version  == 2;
+  NCEP_dir= [FORC_DATA_DIR,'NCEP2_',ROMS_config,'/'];
+elseif NCEP_version  == 3;
+  NCEP_dir= [FORC_DATA_DIR,'CFSR_',ROMS_config,'/']; 
+end
 makefrc      = 1;                            % 1: Create forcing files
 makeblk      = 1;                            % 1: Create bulk files
 QSCAT_blk    = 0;                            % 1: -a) Correct NCEP
