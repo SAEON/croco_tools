@@ -11,7 +11,7 @@
 !
 #include "cppdefs.h"
 #ifdef SOLVE3D
-!======================================================================
+
       subroutine set_scoord     ! Input:   hmin,   Tcline,
 !                               !          theta_s, theta_b 
 ! Define S-coordinate system.   !
@@ -21,26 +21,33 @@
 # include "scalars.h"
       integer k
       real cff,cff1,cff2,cff3
-      real sc,ds,csf
 !
 ! Set S-Curves in domain [-1 < sc < 0] at vertical W- and RHO-points.
 !
-#ifdef NEW_S_COORD
-      hc= Tcline
-#else
+# ifndef NEW_S_COORD
       hc=min(hmin,Tcline)
       cff1=1./sinh(theta_s)
-      cff2=0.5/tanh(0.5*theta_s)      
-#endif
+      cff2=0.5/tanh(0.5*theta_s)
+
+      sc_w(0)=-1.0
+      Cs_w(0)=-1.0
+
+      cff=1./float(N)
+      do k=1,N,+1
+        sc_w(k)=cff*float(k-N)
+        Cs_w(k)=(1.-theta_b)*cff1*sinh(theta_s*sc_w(k))
+     &             +theta_b*(cff2*tanh(theta_s*(sc_w(k)+0.5))-0.5)
+
+        sc_r(k)=cff*(float(k-N)-0.5)
+        Cs_r(k)=(1.-theta_b)*cff1*sinh(theta_s*sc_r(k))
+     &             +theta_b*(cff2*tanh(theta_s*(sc_r(k)+0.5))-0.5)
+      enddo
+# else
+      hc= Tcline
       ds=1./float(N)      
       do k=1,N,+1
         sc     = ds*(float(k-N)-0.5)
-#ifdef NEW_S_COORD
         Cs_r(k)=CSF(sc, theta_s,theta_b)
-#else     
-        Cs_r(k)=(1.-theta_b)*cff1*sinh(theta_s*sc_r(k))
-     &             +theta_b*(cff2*tanh(theta_s*(sc_r(k)+0.5))-0.5)
-#endif     
         sc_r(k)=sc      
       enddo
       
@@ -51,14 +58,10 @@
       
       do k=1,N-1,+1
         sc     = ds*float(k-N)
-#ifdef NEW_S_COORD
         Cs_w(k)=CSF(sc, theta_s,theta_b)
-#else
-        Cs_w(k)=(1.-theta_b)*cff1*sinh(theta_s*sc)
-     &             +theta_b*(cff2*tanh(theta_s*(sc+0.5))-0.5)
-#endif
         sc_w(k)=sc      
       enddo            
+# endif
 !
 ! Report information about vertical S-levels.
 !
@@ -66,20 +69,19 @@
      &                       'Vertical S-coordinate System:',
      &                       'level   S-coord     Cs-curve',
      &                       'at_hmin  over_slope     at_hmax' 
-
       do k=N,0,-1
+# ifdef NEW_S_COORD
           sc=ds*(k-N) 
-#ifdef NEW_S_COORD
           cff1 = hmin*(hc*sc + hmin*Cs_w(k))/(hc+hmin)
           cff2 = 0.5*hmax*(hc*sc + 0.5*hmax*Cs_w(k))/(hc+0.5*hmax)
           cff3 = hmax*(hc*sc + hmax*Cs_w(k))/(hc+hmax)
-#else
-          cff1 = sc*hc+(hmin-hc)*Cs_w(k)
-          cff2 = sc*hc+(0.5*(hmin+hmax)-hc)*Cs_w(k)
-          cff3 = sc*hc+(hmax-hc)*Cs_w(k)
-#endif
+# else
+        cff1=sc_w(k)*hc+(hmin-hc)*Cs_w(k)
+        cff2=sc_w(k)*hc+(0.5*(hmin+hmax)-hc)*Cs_w(k)
+        cff3=sc_w(k)*hc+(hmax-hc)*Cs_w(k)
+# endif
         MPI_master_only write(stdout,'(I6,2F12.7,4x,3F12.3)')
-     &                     k, sc,Cs_w(k), cff1,cff2,cff3
+     &                     k, sc_w(k),Cs_w(k), cff1,cff2,cff3
       enddo
       return
       end
