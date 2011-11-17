@@ -59,9 +59,12 @@ while isempty(var)
 end
 %
 fname=fieldnames(var);
-fname=cellstr(fname(1));
+fname=char(cellstr(fname(1)));
+%
+disp(['READDAP: reading ',fname])
+%
 while isstruct(var)
-  eval(['var=var.',char(fname),';']);
+  eval(['var=var.',fname,';']);
 end
 %
 return
