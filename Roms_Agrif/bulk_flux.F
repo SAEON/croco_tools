@@ -257,7 +257,7 @@
       integer Itermax,Iter
       real a,cff
       real rho0i,cpi
-      real TseaC,TseaK,rhoSea,Qsea
+      real TseaC,TseaK,Qsea
       real TairC,TairK,rhoAir,Qair
       real Q,RH,VisAir,Hlv
       real delW,delT,delQ
@@ -319,7 +319,7 @@
           TairK=TairC+273.16
           TseaC=t(i,j,N,nrhs,itemp)
           TseaK=TseaC+273.16
-          rhoSea=rho(i,j,N)+rho0
+!          rhoSea=rho(i,j,N)+rho0
           RH=rhum(i,j)
 # ifndef BULK_LW
           hflw=radlw(i,j)
