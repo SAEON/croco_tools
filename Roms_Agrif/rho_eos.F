@@ -223,6 +223,8 @@
 #   ifdef MASKING 
             qp1(i,j,k)=qp1(i,j,k)*rmask(i,j)
 #   endif
+            dpth=z_w(i,j,N)-z_r(i,j,k)
+            rho(i,j,k)=rho1(i,j,k) +qp1(i,j,k)*dpth*(1.-qp2*dpth)
 #  else 
             K1=B00+Tt*(B01+Tt*(B02+Tt*B03)) +Ts*( B10+Tt*( B11
      &                                    +Tt*B12 )+sqrtTs*BS1 )
@@ -235,11 +237,10 @@
             rho(i,j,k)=( rho1(i,j,k)*cff*(K00+cff1)
      &                           -0.1*dpth*rho0*cff1
      &                            )/(cff*(cff+cff1))
+#  endif /* SPLIT_EOS */
 #   ifdef MASKING
             rho(i,j,k)=rho(i,j,k)*rmask(i,j)
 #   endif
-#  endif /* SPLIT_EOS */
-
 #  if defined ANA_VMIX || defined BVF_MIXING \
       || defined LMD_MIXING || defined LMD_SKPP || defined LMD_BKPP \
       || defined MY2_MIXING || defined MY25_MIXING

@@ -139,7 +139,6 @@ c********************************************************************
 # ifdef SPLIT_EOS
             dpth=z_w(i,j,N)-z_r(i,j,k)
             dR(i,k)=dR(i,k)  -qp1(i,j,k)*dZ(i,k)*(1.-2.*qp2*dpth)
-            rho(i,j,k)=rho1(i,j,k) +qp1(i,j,k)*dpth*(1.-qp2*dpth)
 # endif
           enddo
         enddo
