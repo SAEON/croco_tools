@@ -64,6 +64,17 @@ if strcmp(OGCM,'SODA')
 	'   New variables : u, v';
 	'   m/s and no more in cm/s'})
 
+elseif strcmp(OGCM,'SODA2')
+
+  % SODA_2.1.6 ERA40/QSCAT 1958-2008 / POP2.1 / WOD09
+
+  url='http://soda.tamu.edu/opendap/SODA_2.1.6/MONTHLY/SODA_2.1.6_';
+
+  % SODA_2.2.4/ C20R-2 1871-2008 / POP2.1
+
+%  url='http://soda.tamu.edu/opendap/SODA_2.2.4/SODA_2.2.4_';
+
+
 elseif strcmp(OGCM,'ECCO')
   %
   %  ECCO DODS URL

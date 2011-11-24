@@ -42,7 +42,13 @@ disp(['    Download SODA for ',num2str(year),...
 % Get the dataset attributes
 %
 disp('Get the dataset attributes')
-x=readattribute(url);		
+x=readattribute(url);
+try 
+  missval=x.ssh.missing_value	
+  missname='missing_value';
+catch
+  missname='ml__FillValue';
+end
 %
 % Get SSH
 %
@@ -50,8 +56,12 @@ disp('    ...SSH')
 ssh=getdap(url,'',...
 	       'ssh',trange,'',jrange,...
 	       i1min,i1max,i2min,i2max,i3min,i3max);
-missval=x.ssh.missing_value;
-ssh(ssh<=missval)=NaN;
+eval(['missval=double(x.ssh.',missname,');'])
+if missval<0
+  ssh(ssh<=(0.9*missval))=NaN;
+else
+  ssh(ssh>=(0.9*missval))=NaN;
+end
 %
 % Get TAUX
 %
@@ -59,8 +69,12 @@ disp('    ...TAUX')
 taux=getdap(url,'',...
 		'taux',trange,'',jrange,...
 		i1min,i1max,i2min,i2max,i3min,i3max);
-missval=x.taux.missing_value;
-taux(taux<=missval)=NaN;
+eval(['missval=double(x.taux.',missname,');'])
+if missval<0
+  taux(taux<=(0.9*missval))=NaN;
+else
+  taux(taux>=(0.9*missval))=NaN;
+end
 %
 % Get TAUY
 %
@@ -68,8 +82,12 @@ disp('    ...TAUY')
 tauy=getdap(url,'',...
 		'tauy',trange,'',jrange,...
 		i1min,i1max,i2min,i2max,i3min,i3max);
-missval=x.tauy.missing_value;
-tauy(tauy<=missval)=NaN;
+eval(['missval=double(x.tauy.',missname,');'])
+if missval<0
+  tauy(tauy<=(0.9*missval))=NaN;
+else
+  tauy(tauy>=(0.9*missval))=NaN;
+end
 %
 % Get U
 %
@@ -78,8 +96,12 @@ u=getdap(url,'',...
 	     'u',trange,krange,jrange,...
 	     i1min,i1max,i2min,i2max,i3min,i3max);
 u=shiftdim(u,2);
-missval=x.u.missing_value;
-u(u<=missval)=NaN;
+eval(['missval=double(x.u.',missname,');'])
+if missval<0
+  u(u<=(0.9*missval))=NaN;
+else
+  u(u>=(0.9*missval))=NaN;
+end
 %
 % Get V
 %
@@ -88,8 +110,12 @@ v=getdap(url,'',...
 	     'v',trange,krange,jrange,...
 	     i1min,i1max,i2min,i2max,i3min,i3max);
 v=shiftdim(v,2);
-missval=x.v.missing_value;
-v(v<=missval)=NaN;
+eval(['missval=double(x.v.',missname,');'])
+if missval<0
+  v(v<=(0.9*missval))=NaN;
+else
+  v(v>=(0.9*missval))=NaN;
+end
 %
 % Get TEMP
 %
@@ -98,8 +124,12 @@ temp=getdap(url,'',...
 		'temp',trange,krange,jrange,...
 		i1min,i1max,i2min,i2max,i3min,i3max);
 temp=shiftdim(temp,2);
-missval=x.temp.missing_value;
-temp(temp<=missval)=NaN;
+eval(['missval=double(x.temp.',missname,');'])
+if missval<0
+  temp(temp<=(0.9*missval))=NaN;
+else
+  temp(temp>=(0.9*missval))=NaN;
+end
 %
 % Get SALT
 %
@@ -108,8 +138,12 @@ salt=getdap(url,'',...
 		'salt',trange,krange,jrange,...
 		i1min,i1max,i2min,i2max,i3min,i3max);
 salt=shiftdim(salt,2);
-missval=x.salt.missing_value;
-salt(salt<=missval)=NaN;
+eval(['missval=double(x.salt.',missname,');'])
+if missval<0
+  salt(salt<=(0.9*missval))=NaN;
+else
+  salt(salt>=(0.9*missval))=NaN;
+end
 %
 % Create the SODA file
 %
