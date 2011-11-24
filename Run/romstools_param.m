@@ -380,7 +380,7 @@ end
 %===================================================================
 %  Options for make_OGCM 
 %
-OGCM        = 'SODA';                                % Select the OGCM: SODA, ECCO, ...
+OGCM        = 'SODA';                       % Select the OGCM: SODA, SODA2, ECCO
 OGCM_dir    = [FORC_DATA_DIR,OGCM,'_',ROMS_config,'/'];   % OGCM data directory
 bry_prefix  = [ROMS_files_dir,'roms_bry_',OGCM,'_']; % generic boundary file name
 clm_prefix  = [ROMS_files_dir,'roms_clm_',OGCM,'_']; % generic climatology file name
