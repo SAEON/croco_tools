@@ -334,6 +334,10 @@ if handles.T==0
   handles.T=length(nc('tclm_time'));
 end
 if handles.T==0
+  disp('Warning no time dimension found.. looking for ocean_time')
+  handles.T=length(nc('ocean_time'));
+end
+if handles.T==0
   error('Warning no time dimension found')
 end
 close(nc)
