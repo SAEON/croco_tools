@@ -107,14 +107,19 @@ nc('one') = 1;
 %
 %  Create variables
 %
+nc{'spherical'} = ncchar('one') ;
+nc{'Vtransform'} = ncint('one') ;
+nc{'Vstretching'} = ncint('one') ;
 nc{'tstart'} = ncdouble('one') ;
 nc{'tend'} = ncdouble('one') ;
 nc{'theta_s'} = ncdouble('one') ;
 nc{'theta_b'} = ncdouble('one') ;
 nc{'Tcline'} = ncdouble('one') ;
 nc{'hc'} = ncdouble('one') ;
-nc{'sc_r'} = ncdouble('s_rho') ;
+nc{'s_rho'} = ncdouble('s_rho') ;
+nc{'s_w'} = ncdouble('s_w') ;
 nc{'Cs_r'} = ncdouble('s_rho') ;
+nc{'Cs_w'} = ncdouble('s_w') ;
 nc{'tclm_time'} = ncdouble('tclm_time') ;
 nc{'temp_time'} = ncdouble('temp_time') ;
 nc{'sclm_time'} = ncdouble('sclm_time') ;
@@ -135,6 +140,19 @@ nc{'SSH'} = ncdouble('ssh_time','eta_rho','xi_rho') ;
 nc{'zeta'} = ncdouble('zeta_time','eta_rho','xi_rho') ;
 %
 %  Create attributes
+%
+nc{'Vtransform'}.long_name = ncchar('vertical terrain-following transformation equation');
+nc{'Vtransform'}.long_name = 'vertical terrain-following transformation equation';
+%
+nc{'Vstretching'}.long_name = ncchar('vertical terrain-following stretching function');
+nc{'Vstretching'}.long_name = 'vertical terrain-following stretching function';
+%
+nc{'spherical'}.long_name = ncchar('grid type logical switch');
+nc{'spherical'}.long_name = 'grid type logical switch';
+nc{'spherical'}.flag_values = ncchar('T, F');
+nc{'spherical'}.flag_values = 'T, F';
+nc{'spherical'}.flag_meanings = ncchar('spherical Cartesian');
+nc{'spherical'}.flag_meanings = 'spherical Cartesian';
 %
 nc{'tstart'}.long_name = ncchar('start processing day');
 nc{'tstart'}.long_name = 'start processing day';
@@ -166,12 +184,27 @@ nc{'hc'}.long_name = 'S-coordinate parameter, critical depth';
 nc{'hc'}.units = ncchar('meter');
 nc{'hc'}.units = 'meter';
 %
-nc{'sc_r'}.long_name = ncchar('S-coordinate at RHO-points');
-nc{'sc_r'}.long_name = 'S-coordinate at RHO-points';
-nc{'sc_r'}.units = ncchar('nondimensional');
-nc{'sc_r'}.units = 'nondimensional';
-nc{'sc_r'}.valid_min = -1;
-nc{'sc_r'}.valid_max = 0;
+nc{'s_rho'}.long_name = ncchar('S-coordinate at RHO-points');
+nc{'s_rho'}.long_name = 'S-coordinate at RHO-points';
+nc{'s_rho'}.valid_min = -1.;
+nc{'s_rho'}.valid_max = 0.;
+nc{'s_rho'}.positive = ncchar('up');
+nc{'s_rho'}.positive = 'up';
+nc{'s_rho'}.standard_name = ncchar('ocena_s_coordinate_g2');
+nc{'s_rho'}.standard_name = 'ocena_s_coordinate_g2';
+nc{'s_rho'}.formula_terms = ncchar('s: s_rho C: Cs_r eta: zeta depth: h depth_c: hc');
+nc{'s_rho'}.formula_terms = 's: s_rho C: Cs_r eta: zeta depth: h depth_c: hc';
+%
+nc{'s_w'}.long_name = ncchar('S-coordinate at W-points');
+nc{'s_w'}.long_name = 'S-coordinate at W-points';
+nc{'s_w'}.valid_min = -1. ;
+nc{'s_w'}.valid_max = 0. ;
+nc{'s_w'}.positive = ncchar('up');
+nc{'s_w'}.positive = 'up';
+nc{'s_w'}.standard_name = ncchar('ocena_s_coordinate_g2');
+nc{'s_w'}.standard_name = 'ocena_s_coordinate_g2';
+nc{'s_w'}.formula_terms = ncchar('s: s_w C: Cs_w eta: zeta depth: h depth_c: hc');
+nc{'s_w'}.formula_terms = 's: s_w C: Cs_w eta: zeta depth: h depth_c: hc';
 %
 nc{'Cs_r'}.long_name = ncchar('S-coordinate stretching curves at RHO-points');
 nc{'Cs_r'}.long_name = 'S-coordinate stretching curves at RHO-points';
@@ -180,105 +213,164 @@ nc{'Cs_r'}.units = 'nondimensional';
 nc{'Cs_r'}.valid_min = -1;
 nc{'Cs_r'}.valid_max = 0;
 %
+nc{'Cs_w'}.long_name = ncchar('S-coordinate stretching curves at W-points');
+nc{'Cs_w'}.long_name = 'S-coordinate stretching curves at W-points';
+nc{'Cs_w'}.units = ncchar('nondimensional');
+nc{'Cs_w'}.units = 'nondimensional';
+nc{'Cs_w'}.valid_min = -1;
+nc{'Cs_w'}.valid_max = 0;
+%
 nc{'tclm_time'}.long_name = ncchar('time for temperature climatology');
 nc{'tclm_time'}.long_name = 'time for temperature climatology';
 nc{'tclm_time'}.units = ncchar('day');
 nc{'tclm_time'}.units = 'day';
+nc{'tclm_time'}.calendar = ncchar('360.0 days in every year');
+nc{'tclm_time'}.calendar = '360.0 days in every year';
 nc{'tclm_time'}.cycle_length = cycle;
 %
 nc{'temp_time'}.long_name = ncchar('time for temperature climatology');
 nc{'temp_time'}.long_name = 'time for temperature climatology';
 nc{'temp_time'}.units = ncchar('day');
 nc{'temp_time'}.units = 'day';
+nc{'temp_time'}.calendar = ncchar('360.0 days in every year');
+nc{'temp_time'}.calendar = '360.0 days in every year';
 nc{'temp_time'}.cycle_length = cycle;
 %
 nc{'sclm_time'}.long_name = ncchar('time for salinity climatology');
 nc{'sclm_time'}.long_name = 'time for salinity climatology';
 nc{'sclm_time'}.units = ncchar('day');
 nc{'sclm_time'}.units = 'day';
+nc{'sclm_time'}.calendar = ncchar('360.0 days in every year');
+nc{'sclm_time'}.calendar = '360.0 days in every year';
 nc{'sclm_time'}.cycle_length = cycle;
 %
 nc{'salt_time'}.long_name = ncchar('time for salinity climatology');
 nc{'salt_time'}.long_name = 'time for salinity climatology';
 nc{'salt_time'}.units = ncchar('day');
 nc{'salt_time'}.units = 'day';
+nc{'salt_time'}.calendar = ncchar('360.0 days in every year');
+nc{'salt_time'}.calendar = '360.0 days in every year';
 nc{'salt_time'}.cycle_length = cycle;
 %
 nc{'uclm_time'}.long_name = ncchar('time climatological u');
 nc{'uclm_time'}.long_name = 'time climatological u';
 nc{'uclm_time'}.units = ncchar('day');
 nc{'uclm_time'}.units = 'day';
+nc{'uclm_time'}.calendar = ncchar('360.0 days in every year');
+nc{'uclm_time'}.calendar = '360.0 days in every year';
 nc{'uclm_time'}.cycle_length = cycle;
 %
 nc{'vclm_time'}.long_name = ncchar('time climatological v');
 nc{'vclm_time'}.long_name = 'time climatological v';
 nc{'vclm_time'}.units = ncchar('day');
 nc{'vclm_time'}.units = 'day';
+nc{'vclm_time'}.calendar = ncchar('360.0 days in every year');
+nc{'vclm_time'}.calendar = '360.0 days in every year';
 nc{'vclm_time'}.cycle_length = cycle;
 %
 nc{'v2d_time'}.long_name = ncchar('time for 2D velocity climatology');
 nc{'v2d_time'}.long_name = 'time for 2D velocity climatology';
 nc{'v2d_time'}.units = ncchar('day');
 nc{'v2d_time'}.units = 'day';
+nc{'v2d_time'}.calendar = ncchar('360.0 days in every year');
+nc{'v2d_time'}.calendar = '360.0 days in every year';
 nc{'v2d_time'}.cycle_length = cycle;
 %
 nc{'v3d_time'}.long_name = ncchar('time for 3D velocity climatology');
 nc{'v3d_time'}.long_name = 'time for 3D velocity climatology';
 nc{'v3d_time'}.units = ncchar('day');
 nc{'v3d_time'}.units = 'day';
+nc{'v3d_time'}.calendar = ncchar('360.0 days in every year');
+nc{'v3d_time'}.calendar = '360.0 days in every year';
 nc{'v3d_time'}.cycle_length = cycle;
 %
 nc{'ssh_time'}.long_name = ncchar('time for sea surface height');
 nc{'ssh_time'}.long_name = 'time for sea surface height';
 nc{'ssh_time'}.units = ncchar('day');
 nc{'ssh_time'}.units = 'day';
+nc{'ssh_time'}.calendar = ncchar('360.0 days in every year');
+nc{'ssh_time'}.calendar = '360.0 days in every year';
 nc{'ssh_time'}.cycle_length = cycle;
 %
 nc{'zeta_time'}.long_name = ncchar('time for sea surface height');
 nc{'zeta_time'}.long_name = 'time for sea surface height';
 nc{'zeta_time'}.units = ncchar('day');
 nc{'zeta_time'}.units = 'day';
+nc{'zeta_time'}.calendar = ncchar('360.0 days in every year');
+nc{'zeta_time'}.calendar = '360.0 days in every year';
 nc{'zeta_time'}.cycle_length = cycle;
 %
 nc{'temp'}.long_name = ncchar('potential temperature');
 nc{'temp'}.long_name = 'potential temperature';
 nc{'temp'}.units = ncchar('Celsius');
 nc{'temp'}.units = 'Celsius';
+nc{'temp'}.time = ncchar('temp_time');
+nc{'temp'}.time = 'temp_time';
+nc{'temp'}.coordinates = ncchar('lon_rho lat_rho s_rho temp_time');
+nc{'temp'}.coordinates = 'lon_rho lat_rho s_rho temp_time';
 %
 nc{'salt'}.long_name = ncchar('salinity');
 nc{'salt'}.long_name = 'salinity';
 nc{'salt'}.units = ncchar('PSU');
 nc{'salt'}.units = 'PSU';
+nc{'salt'}.time = ncchar('salt_time');
+nc{'salt'}.time = 'salt_time';
+nc{'salt'}.coordinates = ncchar('lon_rho lat_rho s_rho salt_time');
+nc{'salt'}.coordinates = 'lon_rho lat_rho s_rho salt_time';
 %
 nc{'u'}.long_name = ncchar('u-momentum component');
 nc{'u'}.long_name = 'u-momentum component';
 nc{'u'}.units = ncchar('meter second-1');
 nc{'u'}.units = 'meter second-1';
+nc{'u'}.time = ncchar('uclm_time');
+nc{'u'}.time = 'uclm_time';
+nc{'u'}.coordinates = ncchar('lon_u lat_u s_rho uclm_time');
+nc{'u'}.coordinates = 'lon_u lat_u s_rho u_time';
 %
 nc{'v'}.long_name = ncchar('v-momentum component');
 nc{'v'}.long_name = 'v-momentum component';
 nc{'v'}.units = ncchar('meter second-1');
 nc{'v'}.units = 'meter second-1';
+nc{'v'}.time = ncchar('vclm_time');
+nc{'v'}.time = 'vclm_time';
+nc{'v'}.coordinates = ncchar('lon_v lat_v s_rho vclm_time');
+nc{'v'}.coordinates = 'lon_v lat_v s_rho vclm_time';
 %
 nc{'ubar'}.long_name = ncchar('vertically integrated u-momentum component');
 nc{'ubar'}.long_name = 'vertically integrated u-momentum component';
 nc{'ubar'}.units = ncchar('meter second-1');
 nc{'ubar'}.units = 'meter second-1';
+nc{'ubar'}.time = ncchar('uclm_time');
+nc{'ubar'}.time = 'uclm_time';
+nc{'ubar'}.coordinates = ncchar('lon_u lat_u uclm_time');
+nc{'ubar'}.coordinates = 'lon_u lat_u uclm_time';
 %
 nc{'vbar'}.long_name = ncchar('vertically integrated v-momentum component');
 nc{'vbar'}.long_name = 'vertically integrated v-momentum component';
 nc{'vbar'}.units = ncchar('meter second-1');
 nc{'vbar'}.units = 'meter second-1';
+nc{'vbar'}.time = ncchar('vclm_time');
+nc{'vbar'}.time = 'vclm_time';
+nc{'vbar'}.coordinates = ncchar('lon_v lat_v vclm_time');
+nc{'vbar'}.coordinates = 'lon_v lat_v vclm_time';
 %
 nc{'SSH'}.long_name = ncchar('sea surface height');
 nc{'SSH'}.long_name = 'sea surface height';
 nc{'SSH'}.units = ncchar('meter');
 nc{'SSH'}.units = 'meter';
+nc{'SSH'}.time = ncchar('zeta_time');
+nc{'SSH'}.time = 'zeta_time';
+nc{'SSH'}.coordinates = ncchar('lon_rho lat_rho zeta_time');
+nc{'SSH'}.coordinates = 'lon_rho lat_rho s_rho zeta_time';
 %
 nc{'zeta'}.long_name = ncchar('sea surface height');
 nc{'zeta'}.long_name = 'sea surface height';
 nc{'zeta'}.units = ncchar('meter');
 nc{'zeta'}.units = 'meter';
+nc{'zeta'}.time = ncchar('zeta_time');
+nc{'zeta'}.time = 'zeta_time';
+nc{'zeta'}.coordinates = ncchar('lon_rho lat_rho zeta_time');
+nc{'zeta'}.coordinates = 'lon_rho lat_rho s_rho zeta_time';
 %
 % Create global attributes
 %
@@ -299,24 +391,34 @@ nc.history = history;
 %
 result = endef(nc);
 %
-% Compute S coordinates
+% Set S-Curves in domain [-1 < sc < 0] at vertical W- and RHO-points.
 %
 cff1=1./sinh(theta_s);
 cff2=0.5/tanh(0.5*theta_s);
-sc=((1:N)-N-0.5)/N;
-Cs=(1.-theta_b)*cff1*sinh(theta_s*sc)...
-    +theta_b*(cff2*tanh(theta_s*(sc+0.5))-0.5);
+sc_r=((1:N)-N-0.5)/N;
+Cs_r=(1.-theta_b)*cff1*sinh(theta_s*sc_r)...
+    +theta_b*(cff2*tanh(theta_s*(sc_r+0.5))-0.5);
+sc_w=((0:N)-N)/N;
+Cs_w=(1.-theta_b)*cff1*sinh(theta_s*sc_w)...
+    +theta_b*(cff2*tanh(theta_s*(sc_w+0.5))-0.5);
+%
+
 %
 % Write variables
 %
+nc{'spherical'}(:)='T';
+nc{'Vtransform'}(:)=1;
+nc{'Vstretching'}(:)=1;
 nc{'tstart'}(:) =  min([min(time) min(time) min(time)]); 
 nc{'tend'}(:) =  max([max(time) max(time) max(time)]); 
 nc{'theta_s'}(:) =  theta_s; 
 nc{'theta_b'}(:) =  theta_b; 
 nc{'Tcline'}(:) =  hc; 
 nc{'hc'}(:) =  hc; 
-nc{'sc_r'}(:) =  sc; 
-nc{'Cs_r'}(:) =  Cs; 
+nc{'s_rho'}(:) = sc_r;
+nc{'s_w'}(:) = sc_w;
+nc{'Cs_r'}(:) =  Cs_r; 
+nc{'Cs_w'}(:) = Cs_w;
 nc{'tclm_time'}(:) =  time; 
 nc{'temp_time'}(:) =  time; 
 nc{'sclm_time'}(:) =  time; 
