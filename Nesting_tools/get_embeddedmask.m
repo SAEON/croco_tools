@@ -74,28 +74,32 @@ if sum(mask(1,:)~=mask_parent(1,:))~=0
   disp(' ')
   disp('  Warning: the parent mask is not matching')
   disp('  the child mask at the SOUTH boundary')
-  disp('  You might want to deplace this boundary')
+  disp('  Conservation will not been possible')
   disp(' ')
+  error('Try again with a different position for the south boundary')
 end
 if sum(mask(end,:)~=mask_parent(end,:))~=0
   disp(' ')
   disp('  Warning: the parent mask is not matching')
   disp('  the child mask at the NORTH boundary')
-  disp('  You might want to deplace this boundary')
+  disp('  Conservation will not been possible')
   disp(' ')
+  error('Try again with a different position for the north boundary')
 end
 if sum(mask(:,end)~=mask_parent(:,end))~=0
   disp(' ')
   disp('  Warning: the parent mask is not matching')
   disp('  the child mask at the EAST boundary')
-  disp('  You might want to deplace this boundary')
+  disp('  Conservation will not been possible')
   disp(' ')
+  error('Try again with a different position for the east boundary')
 end
 if sum(mask(:,1)~=mask_parent(:,1))~=0
   disp(' ')
   disp('  Warning: the parent mask is not matching')
   disp('  the child mask at the WEST boundary')
-  disp('  You might want to deplace this boundary')
+  disp('  Conservation will not been possible')
   disp(' ')
+  error('Try again with a different position for the west boundary')
 end
 return
