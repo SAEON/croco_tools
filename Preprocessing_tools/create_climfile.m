@@ -361,7 +361,7 @@ nc{'SSH'}.units = 'meter';
 nc{'SSH'}.time = ncchar('zeta_time');
 nc{'SSH'}.time = 'zeta_time';
 nc{'SSH'}.coordinates = ncchar('lon_rho lat_rho zeta_time');
-nc{'SSH'}.coordinates = 'lon_rho lat_rho s_rho zeta_time';
+nc{'SSH'}.coordinates = 'lon_rho lat_rho zeta_time';
 %
 nc{'zeta'}.long_name = ncchar('sea surface height');
 nc{'zeta'}.long_name = 'sea surface height';
@@ -370,7 +370,7 @@ nc{'zeta'}.units = 'meter';
 nc{'zeta'}.time = ncchar('zeta_time');
 nc{'zeta'}.time = 'zeta_time';
 nc{'zeta'}.coordinates = ncchar('lon_rho lat_rho zeta_time');
-nc{'zeta'}.coordinates = 'lon_rho lat_rho s_rho zeta_time';
+nc{'zeta'}.coordinates = 'lon_rho lat_rho zeta_time';
 %
 % Create global attributes
 %
