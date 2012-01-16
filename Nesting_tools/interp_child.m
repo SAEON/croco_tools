@@ -72,12 +72,24 @@ handles=get_nband(h,handles);
 %
 % Perform the interpolations
 %
-nested_grid(handles.parentgrid,handles.childgrid,...
+[imin_new,imax_new,jmin_new,jmax_new]=nested_grid(handles.parentgrid,handles.childgrid,...
             handles.imin,handles.imax,handles.jmin,handles.jmax,...
             handles.rcoeff,handles.toponame,handles.newtopo,handles.rfactor,...
             handles.nband,handles.hmin,handles.matchvolume,...
 	    handles.hmax_coast,handles.n_filter_deep,...
-	    handles.n_filter_final)
+	    handles.n_filter_final);
+%
+% Update the imin,imax, jmin, jmax limits
+%
+handles.imin=imin_new;
+handles.imax=imax_new;
+handles.jmin=jmin_new;
+handles.jmax=jmax_new;
+
+handles=update_plot(h,handles);
+
+%
+%
 %
 % Plot the river
 %	    
