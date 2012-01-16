@@ -11,6 +11,7 @@ unalias cp
 set SOURCE=../Roms_Agrif
 set SCRDIR=../Compile
 set RUNDIR=`pwd`
+set AGRIF_SRC=../Roms_Agrif/AGRIF/
 #
 # determine operating system
 #
@@ -66,6 +67,7 @@ endif
 #
 set MPILIB="-L/usr/local/lib -lmpich"
 set MPIINC=-I/usr/local/include
+set MPIF90="/usr/local/bin/mpif90"
 #
 # END OF USER'S MODIFICATIONS
 ####################################################
@@ -87,7 +89,7 @@ mkdir $SCRDIR
 /bin/cp -f ${SOURCE}/testkeys.F $SCRDIR
 /bin/cp -f ${SOURCE}/jobcomp $SCRDIR
 /bin/cp -f ${SOURCE}/amr.in $SCRDIR
-/bin/cp -Rf ${SOURCE}/AGRIFZOOM $SCRDIR
+/bin/cp -RLf ${AGRIF_SRC} $SCRDIR
 /bin/cp -f ${SOURCE}/PISCES/* $SCRDIR
 /bin/cp -f ${SOURCE}/PISCES/kRGB61.txt $RUNDIR
 if (  -e "namelist.trc.sms" ) then
@@ -184,10 +186,10 @@ endif
 unset COMPILEAGRIF
 if { eval `$CPP1 testkeys.F | grep -i -q agrifisdefined` } then
   set COMPILEAGRIF = TRUE
-  setenv FFLAGS1 "$FFLAGS1 -I AGRIFZOOM"
-  setenv LDFLAGS1 "-LAGRIFZOOM -lagrif $LDFLAGS1"
+  setenv FFLAGS1 "$FFLAGS1 -I AGRIF"
+  setenv LDFLAGS1 "-LAGRIF -lagrif $LDFLAGS1"
 # we use the AGRIF Makedefs.generic definition
-  /bin/cp -f AGRIFZOOM/Makedefs.generic .
+  /bin/cp -f Makedefs.generic.AGRIF Makedefs.generic
 endif
 
 #
@@ -199,7 +201,7 @@ if { eval `$CPP1 testkeys.F | grep -i -q mpiisdefined` } then
   setenv LDFLAGS1 "$LDFLAGS1 $MPILIB"
   setenv CPPFLAGS1 "$CPPFLAGS1 $MPIINC"
   setenv FFLAGS1 "$FFLAGS1 $MPIINC"
-  setenv CFT1 mpif90
+  setenv CFT1 "$MPIF90"
 endif
 
 
@@ -234,18 +236,18 @@ if ($?COMPILEAGRIF) then
 # compile the AGRIF librairy
 #
   if ($?COMPILEMPI) then
-  $MAKE -C AGRIFZOOM COMDIRIN=./ COMDIROUT=./ F90="$CFT1" CPP="$CPP1 -DAGRIF_MPI $MPIINC" FFLAGS_EXTEND="$FFLAGS1"
+  $MAKE -C AGRIF FC="$CFT1" CPP="$CPP1" CPPFLAGS="-DAGRIF_MPI $MPIINC" FFLAGS="$FFLAGS1"
   else
-  $MAKE -C AGRIFZOOM COMDIRIN=./ COMDIROUT=./ F90="$CFT1" CPP="$CPP1" FFLAGS_EXTEND="$FFLAGS1"
+  $MAKE -C AGRIF FC="$CFT1" CPP="$CPP1" FFLAGS="$FFLAGS1"
   endif
   if ($OS == Darwin) then          # DARWIN
 # run RANLIB on Darwin system
-  ranlib AGRIFZOOM/libagrif.a
+  ranlib AGRIF/libagrif.a
   endif
 #
   cpp amr.in | grep -v -e ! -e '#' -e % -e '*' > amr.scrum
   mkdir ROMSFILES
-  mv AGRIFZOOM/conv ROMSFILES/.
+  mv AGRIF/conv ROMSFILES/.
   mv amr.scrum ROMSFILES/.
   cd ROMSFILES
   mkdir AGRIF_MODELFILES

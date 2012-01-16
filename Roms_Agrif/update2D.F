@@ -301,7 +301,7 @@ C$OMP END MASTER
        isize = (j2-j1+1)*(i2-i1+1)
        
        IF ((nbstep3d == 0).AND.(iif == 1)) THEN
-       IF (.NOT.Associated(finevalues)) THEN
+       IF (.NOT.allocated(finevalues)) THEN
        Allocate(finevalues(isize,0:nfast))
        Allocate(coarsevalues(isize,0:nfast))
        ELSE       
@@ -448,7 +448,7 @@ C$OMP END MASTER
        isize = (j2-j1+1)*(i2-i1+1)
        
        IF ((nbstep3d == 0).AND.(iif == 1)) THEN
-       IF (.NOT.Associated(finevalues)) THEN
+       IF (.NOT.allocated(finevalues)) THEN
        Allocate(finevalues(isize,0:nfast))
        Allocate(coarsevalues(isize,0:nfast))
        ELSE       
@@ -594,7 +594,7 @@ C$OMP END MASTER
        isize = (j2-j1+1)*(i2-i1+1)
        
        IF ((nbstep3d == 0).AND.(iif == 1)) THEN
-       IF (.NOT.Associated(finevalues)) THEN
+       IF (.NOT.allocated(finevalues)) THEN
        Allocate(finevalues(isize,0:nfast))
        Allocate(coarsevalues(isize,0:nfast))
        ELSE       

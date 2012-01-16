@@ -161,11 +161,11 @@
       common/zoom3D_sponge/TspongeTimeindex, UVspongeTimeindex,
      &      TspongeTimeindex2, UVspongeTimeindex2 
 
-      real,dimension(:,:),pointer :: finevalues
-      real,dimension(:,:),pointer :: coarsevalues
+      real,dimension(:,:),allocatable :: finevalues
+      real,dimension(:,:),allocatable :: coarsevalues
       common/gridinter/finevalues,coarsevalues
       
-      real,dimension(:,:),pointer :: coarsevaluesinterp
+      real,dimension(:,:),allocatable :: coarsevaluesinterp
       common/gridinter2/coarsevaluesinterp
 
       integer j1t,i1t,i2t,j2t

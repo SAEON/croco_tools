@@ -1462,7 +1462,7 @@ CR      write(*,*) '  0' MYID
       end subroutine declare_zoom_variables
             
 #ifdef MASKING
-       subroutine ResetMask()
+       recursive subroutine ResetMask()
        Use Agrif_Util
 #  include "param.h"
 #  include "grid.h"
@@ -1574,7 +1574,7 @@ c**         z_r(i,j,k)=cff_r+cff1_r*h(i,j)+cff2_r*Zt_avg1(i,j)     !>
       end
 
 
-      Subroutine UpdateGridhis()
+      recursive Subroutine UpdateGridhis()
       implicit none
 # include "param.h"
 # include "grid.h"

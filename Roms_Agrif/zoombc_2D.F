@@ -473,7 +473,7 @@ C$OMP BARRIER
        isize = (j2-j1+1)*(i2-i1+1)
        
        IF (iif == 1) THEN
-       IF (.NOT.Associated(coarsevaluesinterp)) THEN
+       IF (.NOT.allocated(coarsevaluesinterp)) THEN
        Allocate(coarsevaluesinterp(isize,0:nfast))
        ELSE       
        CALL checksizeinterp(indinterp+isize,nfast)
@@ -973,7 +973,7 @@ C$OMP BARRIER
        isize = (j2-j1+1)*(i2-i1+1)
        
        IF (iif == 1) THEN
-       IF (.NOT.Associated(coarsevaluesinterp)) THEN
+       IF (.NOT.allocated(coarsevaluesinterp)) THEN
        Allocate(coarsevaluesinterp(isize,0:nfast))
        ELSE       
        CALL checksizeinterp(indinterp+isize,nfast)
@@ -1472,7 +1472,7 @@ C$OMP BARRIER
        isize = (j2-j1+1)*(i2-i1+1)
        
        IF (iif == 1) THEN
-       IF (.NOT.Associated(coarsevaluesinterp)) THEN
+       IF (.NOT.allocated(coarsevaluesinterp)) THEN
        Allocate(coarsevaluesinterp(isize,0:nfast))
        ELSE       
        CALL checksizeinterp(indinterp+isize,nfast)
