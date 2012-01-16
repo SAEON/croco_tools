@@ -96,7 +96,7 @@ include Makedefs
         p4zsed.F\
 	autotiling.F debug.F Agrif2Model.F
 
-AMRDIR = AGRIFZOOM/AGRIF_YOURFILES
+AMRDIR = AGRIF/AGRIF_YOURFILES
 
 #--------------------------------------------------------------------
 
