@@ -79,30 +79,41 @@ nmax=daysinmonth(Y,M);
 Lm=length(lon);
 Mm=length(lat);
 N=4*nmax;
+%
 var=nan*zeros(N,Mm,Lm);
 %
 tndx=0;
 for D=1:1:nmax
   for T=0:6:18
-%
-  disp([' Downloading ',vname,' for ',datestr(datenum(Y,M,D,T,0,0))])
-%
-    tndx=tndx+1;
-%
-    fname=get_filename_CFSR(Y,M,D,T);
-%
-    var0=getdap(url,fname,vname,...
-                trange,level,jrange,...
-	        i1min,i1max,i2min,i2max,i3min,i3max);	
+  
+    if Y==2006 & M==6 & D==17 & T==6 
 
-    var0=shiftdim(var0,2);
-    var0(var0==missing_value)=NaN;
+     disp(['---! Problem with ',datestr(datenum(Y,M,D,T,0,0))])
 
-    var(tndx,:,:)=var0;
-    time(tndx)=datenum(Y,M,D,T,0,0)-datenum(Yorig,1,1);
+    else
 
+      disp([' Downloading ',vname,' for ',datestr(datenum(Y,M,D,T,0,0))])
+
+      tndx=tndx+1;
+
+      fname=get_filename_CFSR(Y,M,D,T);
+      
+      var0=getdap(url,fname,vname,...
+                  trange,level,jrange,...
+	          i1min,i1max,i2min,i2max,i3min,i3max);	
+
+      var0=shiftdim(var0,2);
+      var0(var0==missing_value)=NaN;    
+      var0=flipud(var0);	 % latitude inversion in CFSR
+      var(tndx,:,:)=var0;
+      time(tndx)=datenum(Y,M,D,T,0,0)-datenum(Yorig,1,1);
+
+    end
   end
 end
+%
+time=time(1:tndx);
+var=var(1:tndx,:,:);
 %
 % Write it in a file
 %

@@ -5,12 +5,6 @@ function interp_CFSR(NCEP_dir,Y,M,Roa,interp_method,...
 %
 % Read the local NCEP files and perform the interpolations
 %
-% Pierrick 2005
-% Menkes 2007
-% Update, Feb-2008, J. Lefevre to use Nomads3 server
-% Update, March-2009, G. Cambon & F. Marin Compute net solar short wave
-% Update, October 2009, G.Cambon
-%---------------------------------------------------------------------------------
 %
 % 1: Air temperature: Convert from Kelvin to Celsius
 %
@@ -95,7 +89,7 @@ dlwrf=get_missing_val(lon1,lat1,mask1.*dlwrf,nan,Roa,nan);
 %
 %  5.2 get the upward longwave flux [W/m^2]
 %
-vname='Upward_Short-Wave_Rad_Flux_surface';
+vname='Upward_Long-Wave_Rad_Flux_surface';
 nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
 ulwrf=squeeze(nc{vname}(tin,:,:));
 close(nc);

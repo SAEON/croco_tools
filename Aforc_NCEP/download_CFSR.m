@@ -4,11 +4,11 @@ function download_CFSR(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,...
 %clear all
 %close all
 if nargin < 1
-  Ymin=2000;
-  Ymax=2000;
+  Ymin=2006;
+  Ymax=2006;
   Yorig=1900;
-  Mmin=1;
-  Mmax=1;
+  Mmin=6;
+  Mmax=6;
   lonmin=16;
   lonmax=19;
   latmin=-34;
@@ -62,7 +62,7 @@ end
 %
 
 disp([' '])
-disp(['Get NCEP data from ',num2str(Ymin),' to ',num2str(Ymax)])
+disp(['Get CFSR data from ',num2str(Ymin),' to ',num2str(Ymax)])
 disp(['From ',ncep_url]);
 disp([' '])
 disp(['Minimum Longitude: ',num2str(lonmin)])
@@ -118,22 +118,24 @@ for k=1:length(vnames)
     disp(['GET  SUBGRID time only k=1']);
     disp(['USE VARIABLE: ',char(vnames(k))  ])
     disp(['=========================='])
-
 %
     [i1min,i1max,i2min,i2max,i3min,i3max,jrange,jmin,jmax,lon,lat]=...
         get_NCEP_grid([ncep_url,catalog],...
-                      lonmin,lonmax,latmin,latmax,Get_My_Data);
-
-  end
-  if k==1
+                      lonmin,lonmax,latmin,latmax,Get_My_Data);	     
+    lat=flipud(lat);     % latitude inversion in CFSR
+%
     disp('GET LAND MASK');
     tndx = 1;
     trange = '[0:0]';
-    extract_NCEP(NCEP_dir,ncep_url,catalog,char(vnames(k)),Ymin,Mmin,...
-                 lon,lat,tndx,0,...
-                 trange,char(level(k)),jrange,...
-                 i1min,i1max,i2min,i2max,i3min,i3max,...
-                 jmin,jmax,Yorig,Get_My_Data) 
+    var=getdap(ncep_url,catalog,char(vnames(k)),...
+		 trange,char(level(k)),jrange,...
+		 i1min,i1max,i2min,i2max,i3min,i3max);
+    var=flipud(var);	 % latitude inversion in CFSR
+%
+% Write it in a file
+%
+    write_NCEP([NCEP_dir,char(vnames(k)),'.nc'],...
+	       char(vnames(k)),lon,lat,0,var,Yorig)
   else %k==1
 %
 % Loop on the years

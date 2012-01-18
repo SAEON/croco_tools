@@ -46,7 +46,7 @@ if NCEP_version==3
   frc_prefix=[frc_prefix,'_CFSR_'];
   blk_prefix=[blk_prefix,'_CFSR_'];
 else
-  erro('MAKE_CFSR: wrong NCEP version')
+  error('MAKE_CFSR: wrong NCEP version')
 end
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -107,8 +107,8 @@ if makefrc==1 | makeblk==1
   %
   % Get the NCEP horizontal grids (it should be the same for every month)
   %
-  nc=netcdf([NCEP_dir,'Land_cover_1land_2sea_Y',num2str(Ymin),'M',num2str(Mmin),'.nc']);
-  disp(['Use this land file :',char([NCEP_dir,'Land_cover_1land_2sea_Y',num2str(Ymin),'M',num2str(Mmin),'.nc'])])
+  nc=netcdf([NCEP_dir,'Land_cover_1land_2sea.nc']);
+  disp(['Use this land file :',char([NCEP_dir,'Land_cover_1land_2sea.nc'])])
   lon1=nc{'lon'}(:);
   lat1=nc{'lat'}(:);
   [lon1,lat1]=meshgrid(lon1,lat1);
