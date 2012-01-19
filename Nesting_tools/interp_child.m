@@ -86,7 +86,7 @@ handles.imax=imax_new;
 handles.jmin=jmin_new;
 handles.jmax=jmax_new;
 
-handles=update_plot(h,handles);
+handles=update_limits(h,handles);
 
 %
 %
