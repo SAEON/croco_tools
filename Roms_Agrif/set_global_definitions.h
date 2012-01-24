@@ -417,7 +417,8 @@ c-# define TANH dtanh
 /*
   Update schemes and sponge layer for nesting
 */
-# define AGRIF_UPDATE_MIX_LOW
+!# define AGRIF_UPDATE_MIX_LOW
+#define AGRIF_UPDATE_MIX
 # define AGRIF_UPDATE_DECAL
 # define AGRIF_SPONGE
 

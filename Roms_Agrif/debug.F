@@ -23,7 +23,7 @@
 #  include "scalars.h"  
 #  include "ocean2d.h" 
 #if defined MPI
-	include "mpif.h"
+      include "mpif.h"
 #endif   
           real,dimension(GLOBAL_2D_ARRAY) :: tab
           integer Lmseq,Mmseq
