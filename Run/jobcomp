@@ -11,7 +11,6 @@ unalias cp
 set SOURCE=../Roms_Agrif
 set SCRDIR=../Compile
 set RUNDIR=`pwd`
-set AGRIF_SRC=../Roms_Agrif/AGRIF/
 #
 # determine operating system
 #
@@ -23,7 +22,6 @@ echo OPERATING SYSTEM IS: $OS
 if ($OS == Linux) then
 #  set LINUX_FC=gfortran
   set LINUX_FC=ifort
-#  set LINUX_FC=ifc
 #  set LINUX_FC=g95
 #  set LINUX_FC=g77
 #
@@ -80,6 +78,10 @@ set MAKE = make
 #
 rm -rf $SCRDIR
 mkdir $SCRDIR
+#
+# AGRIF sources directory
+#
+set AGRIF_SRC=${SOURCE}/AGRIF
 #
 # copy SOURCE code
 #
