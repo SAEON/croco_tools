@@ -112,7 +112,6 @@ endif
 # Change directory
 #
 cd $SCRDIR
-
 #
 # generates LDFLAGS1 according to users notifications
 #
@@ -134,7 +133,6 @@ if ($OS == Linux) then          # LINUX
     setenv FFLAGS1 "-O3 -fdefault-real-8"
     setenv LDFLAGS1 "$LDFLAGS1"
   endif
-
 else if ($OS == AIX) then       # IBM
   set OS = AIX
   setenv CPP1 /lib/cpp
