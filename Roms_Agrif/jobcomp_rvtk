@@ -8,9 +8,8 @@ unalias cp
 #
 # set source, compilation and run directories
 #
-set SOURCE=../Roms_Agrif/
-
-set SCRDIR=./Compile
+set SOURCE=../Roms_Agrif
+set SCRDIR=../Compile
 set RUNDIR=`pwd`
 #
 # determine operating system
@@ -48,33 +47,25 @@ set NETCDFINC=-I/usr/local/include
 if ($OS == Linux) then
   if ($LINUX_FC == g77) then
     if ($BITS == THIRTYTWO) then
-      set NETCDFLIB=-L$HOME/ROMS/netcdf_g77/
-      set NETCDFINC=-I$HOME/ROMS/netcdf_g77/
+      set NETCDFLIB=-L../netcdf_g77/
+      set NETCDFINC=-I../netcdf_g77/
     endif
-  else if ($LINUX_FC == ifort) then
+  else if ($LINUX_FC == ifort || $LINUX_FC == gfortran) then
     if ($BITS == THIRTYTWO) then
-      set NETCDFLIB=-L$HOME/ROMS/netcdf_ifc/
-      set NETCDFINC=-I$HOME/ROMS/netcdf_ifc/
+      set NETCDFLIB=-L../netcdf_ifc/
+      set NETCDFINC=-I../netcdf_ifc/
     else
-      set NETCDFLIB=-L/opt/netcdf-3.6.2/lib
-      set NETCDFINC=-I/opt/netcdf-3.6.2/include
-    endif
-  else if ($LINUX_FC == gfortran) then
-    if ($BITS == THIRTYTWO) then
-      set NETCDFLIB=-L$HOME/ROMS/netcdf_ifc/
-      set NETCDFINC=-I$HOME/ROMS/netcdf_ifc/
-    else
-      set NETCDFLIB=-L/opt/netcdf-3.6.2/lib
-      set NETCDFINC=-I/opt/netcdf-3.6.2/include
+      set NETCDFLIB=-L../netcdf_x86_64
+      set NETCDFINC=-I../netcdf_x86_64
     endif
   endif
 endif
 #
 # set MPI directories if needed
 #
-set MPILIB="-L/opt/openmpi-1.2.5-intel10/lib -lmpi"
-set MPIINC=-I/opt/openmpi-1.2.5-intel10/include
-
+set MPILIB="-L/usr/local/lib -lmpich"
+set MPIINC=-I/usr/local/include
+set MPIF90="/usr/local/bin/mpif90"
 #
 # END OF USER'S MODIFICATIONS
 ####################################################
@@ -88,6 +79,10 @@ set MAKE = make
 rm -rf $SCRDIR
 mkdir $SCRDIR
 #
+# AGRIF sources directory
+#
+set AGRIF_SRC=${SOURCE}/AGRIF
+#
 # copy SOURCE code
 #
 /bin/cp -f ${SOURCE}/*.F $SCRDIR
@@ -96,7 +91,7 @@ mkdir $SCRDIR
 /bin/cp -f ${SOURCE}/testkeys.F $SCRDIR
 /bin/cp -f ${SOURCE}/jobcomp $SCRDIR
 /bin/cp -f ${SOURCE}/amr.in $SCRDIR
-/bin/cp -Rf ${SOURCE}/AGRIFZOOM $SCRDIR
+/bin/cp -RLf ${AGRIF_SRC} $SCRDIR
 /bin/cp -f ${SOURCE}/PISCES/* $SCRDIR
 /bin/cp -f ${SOURCE}/PISCES/kRGB61.txt $RUNDIR
 if (  -e "namelist.trc.sms" ) then
@@ -108,13 +103,11 @@ endif
 #
 # overwrite with local files
 #
-
-/bin/cp -f ${RUNDIR}/*.F $SCRDIR
-/bin/cp -f ${RUNDIR}/*.h $SCRDIR
-/bin/cp -f ${RUNDIR}/Make* $SCRDIR
-/bin/cp -f ${RUNDIR}/jobcomp $SCRDIR
-#/bin/cp -f ${RUNDIR}/amr.in $SCRDIR
-
+/bin/cp -f *.F $SCRDIR
+/bin/cp -f *.h $SCRDIR
+/bin/cp -f Make* $SCRDIR
+/bin/cp -f jobcomp $SCRDIR
+#/bin/cp -f amr.in $SCRDIR
 #
 # RVTK II  files  DEBUG CPP KEYS
 #
@@ -135,12 +128,13 @@ setenv CPPFLAGS1 "$NETCDFINC -IROMSFILES/AGRIF_INC"
 #
 if ($OS == Linux) then          # LINUX
   set OS = Linux
-  if ($LINUX_FC == ifort) then
-    setenv CPP1 "cpp -traditional -Dlinux"
+ if ($LINUX_FC == ifort || $LINUX_FC == ifc) then
+    setenv CPP1 "cpp -traditional -DLinux -DIfort"
     setenv CFT1 ifort
 #    setenv FFLAGS1 "-O3 -w90 -w95 -cm -72 -fno-alias -i4 -r8 -Vaxlib  -fp-model precise -traceback -check bounds -C"
 #   setenv FFLAGS1 "-O0 -w90 -w95 -cm -72 -i4 -r8 -fp-model precise -fp-speculation strict -check uninit -check bounds -traceback -g"
    setenv FFLAGS1 "-O0 -w90 -w95 -cm -72 -i4 -r8 -fp-model precise -fp-speculation strict"
+    setenv LDFLAGS1 "-Vaxlib $LDFLAGS1"
   else if ($LINUX_FC == gfortran) then
     setenv CPP1 "cpp -traditional -DLinux"
     setenv CFT1 gfortran
@@ -201,10 +195,10 @@ endif
 unset COMPILEAGRIF
 if { eval `$CPP1 testkeys.F | grep -i -q agrifisdefined` } then
   set COMPILEAGRIF = TRUE
-  setenv FFLAGS1 "$FFLAGS1 -I AGRIFZOOM"
-  setenv LDFLAGS1 "-LAGRIFZOOM -lagrif $LDFLAGS1"
+  setenv FFLAGS1 "$FFLAGS1 -I AGRIF"
+  setenv LDFLAGS1 "-LAGRIF -lagrif $LDFLAGS1"
 # we use the AGRIF Makedefs.generic definition
-  /bin/cp -f AGRIFZOOM/Makedefs.generic .
+  /bin/cp -f Makedefs.generic.AGRIF Makedefs.generic
 endif
 
 #
@@ -216,7 +210,7 @@ if { eval `$CPP1 testkeys.F | grep -i -q mpiisdefined` } then
   setenv LDFLAGS1 "$LDFLAGS1 $MPILIB"
   setenv CPPFLAGS1 "$CPPFLAGS1 $MPIINC"
   setenv FFLAGS1 "$FFLAGS1 $MPIINC"
-  setenv CFT1 mpif90
+  setenv CFT1 "$MPIF90"
 endif
 
 
@@ -251,18 +245,18 @@ if ($?COMPILEAGRIF) then
 # compile the AGRIF librairy
 #
   if ($?COMPILEMPI) then
-  $MAKE -C AGRIFZOOM COMDIRIN=./ COMDIROUT=./ F90="$CFT1" CPP="$CPP1 -DAGRIF_MPI $MPIINC" FFLAGS_EXTEND="$FFLAGS1"
+  $MAKE -C AGRIF FC="$CFT1" CPP="$CPP1" CPPFLAGS="-DAGRIF_MPI $MPIINC" FFLAGS="$FFLAGS1"
   else
-  $MAKE -C AGRIFZOOM COMDIRIN=./ COMDIROUT=./ F90="$CFT1" CPP="$CPP1" FFLAGS_EXTEND="$FFLAGS1"
+  $MAKE -C AGRIF FC="$CFT1" CPP="$CPP1" FFLAGS="$FFLAGS1"
   endif
   if ($OS == Darwin) then          # DARWIN
 # run RANLIB on Darwin system
-  ranlib AGRIFZOOM/libagrif.a
+  ranlib AGRIF/libagrif.a
   endif
 #
   cpp amr.in | grep -v -e ! -e '#' -e % -e '*' > amr.scrum
   mkdir ROMSFILES
-  mv AGRIFZOOM/conv ROMSFILES/.
+  mv AGRIF/conv ROMSFILES/.
   mv amr.scrum ROMSFILES/.
   cd ROMSFILES
   mkdir AGRIF_MODELFILES
@@ -289,15 +283,21 @@ if { eval `$CPP1 testkeys.F | grep -i -q openmp` } then
   if ($OS == AIX) then
     setenv FFLAGS1 "$FFLAGS1 -qsmp=omp"
     setenv CFT1 xlf95_r
-  else if ($CFT1 == ifort) then
-    setenv FFLAGS1 "$FFLAGS1 -openmp"
-  else if ($CFT1 == gfortran) then
-    setenv FFLAGS1 "$FFLAGS1 -fopenmp"
+  else if ($OS == Linux) then
+    if ($LINUX_FC == gfortran) then
+      setenv FFLAGS1 "$FFLAGS1 -fopenmp"
+    else if ($LINUX_FC == ifort || $LINUX_FC == ifc) then
+      setenv FFLAGS1 "$FFLAGS1 -openmp"
+    else
+      setenv FFLAGS1 "$FFLAGS1 -openmp"
+    endif
   else if ($OS == OSF1) then
     setenv FFLAGS1 "$FFLAGS1 -omp"
   else if ($OS == IRIX64) then
     setenv FFLAGS1 "$FFLAGS1 -mp"
   else if ($OS == SunOS) then 
+    setenv FFLAGS1 "$FFLAGS1 -openmp"
+  else if ($OS == Darwin) then 
     setenv FFLAGS1 "$FFLAGS1 -openmp"
   endif
 endif
