@@ -569,7 +569,7 @@
 !  Compute boundary layer nonlocal transport [m/s^2]
 !
               if (Bflux(i,j).le.0.) then
-                ghats(i,j,k)=lmd_Cg/(ws(i,j)*hbl(i,j)+eps)
+                ghats(i,j,k)=lmd_Cg*sig*(1.-sig)**2
               else
                 ghats(i,j,k)=0.
               endif
