@@ -100,11 +100,12 @@
 # define LMD_MIXING
 # ifdef LMD_MIXING
 #  define LMD_SKPP
+#  undef  LMD_SKPP2005
 #  define LMD_BKPP
 #  define LMD_RIMIX
 #  define LMD_CONVEC
 #  undef  LMD_DDMIX
-#  undef  LMD_NONLOCAL
+#  define LMD_NONLOCAL
 # endif
                       /* Equation of State */
 # define SALINITY
