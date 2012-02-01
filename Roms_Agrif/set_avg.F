@@ -194,7 +194,11 @@ C$    integer omp_get_thread_num
           if (wrtavg(indxHbl)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
+#ifdef LMD_SKPP2005
+                hbl_avg(i,j)=hbls(i,j,nstp)
+#else
                 hbl_avg(i,j)=hbl(i,j)
+#endif
               enddo
             enddo
           endif
@@ -470,7 +474,11 @@ C$    integer omp_get_thread_num
           if (wrtavg(indxHbl)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
+#ifdef LMD_SKPP2005
+                hbl_avg(i,j)=hbl_avg(i,j)+hbls(i,j,nstp)
+#else
                 hbl_avg(i,j)=hbl_avg(i,j)+hbl(i,j)
+#endif
               enddo
             enddo
           endif
@@ -752,8 +760,13 @@ C$    integer omp_get_thread_num
           if (wrtavg(indxHbl)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
+#ifdef LMD_SKPP2005
+                hbl_avg(i,j)=cff*( hbl_avg(i,j)
+     &                          +hbls(i,j,nstp))
+#else
                 hbl_avg(i,j)=cff*( hbl_avg(i,j)
      &                               +hbl(i,j))
+#endif     
               enddo
             enddo
           endif

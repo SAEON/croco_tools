@@ -364,7 +364,12 @@ CR      write(*,*) 'wrt_his:  wrtAks' MYID
 !  Write out depth of planetary boundary layer (m).
 !
       if (wrthis(indxHbl)) then
+#ifdef LMD_SKPP2005
+        ierr=nf_fwrite(hbls(START_2D_ARRAY,nstp), 
+     &                 ncidhis, hisHbl, record, r2dvar)
+#else
         ierr=nf_fwrite(hbl, ncidhis, hisHbl, record, r2dvar)
+#endif
         if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxHbl))
           write(stdout,1) vname(1,indxHbl)(1:lvar), record, ierr

@@ -831,7 +831,12 @@ C$    integer omp_get_thread_num
 !
       do j=JstrR,JendR
         do i=IstrR,IendR
+#ifdef LMD_SKPP2005
+          hbls(i,j,1)=init          
+          hbls(i,j,2)=init 
+#else        
           hbl(i,j)=init
+#endif         
           kbl(i,j)=init
 #  ifdef AVERAGES
           hbl_avg(i,j)=init

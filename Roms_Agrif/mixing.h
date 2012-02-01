@@ -130,10 +130,20 @@
       real hel(GLOBAL_2D_ARRAY)
       common /lmd_hel/hel
 #  endif
-      real hbl(GLOBAL_2D_ARRAY)
+
+# ifdef LMD_SKPP2005      
+      real hbls(GLOBAL_2D_ARRAY,2)
+# else           
+      real hbl (GLOBAL_2D_ARRAY  )      
+# endif
+      
       real hbbl(GLOBAL_2D_ARRAY)
-      common /lmd_kpp_kbl/kbl     
-     &       /lmd_kpp_hbl/hbl
+      common /lmd_kpp_kbl/kbl
+# ifdef LMD_SKPP2005           
+     &       /lmd_kpp_hbl/hbls
+# else     
+     &       /lmd_kpp_hbl/hbl     
+# endif     
      &       /lmd_kpp_hbbl/hbbl   
      &       /lmd_kpp_kbbl/kbbl
 #  ifdef LMD_NONLOCAL

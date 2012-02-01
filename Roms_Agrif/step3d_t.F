@@ -541,10 +541,9 @@
               do i=Istr,Iend
                 FC(i,k)=0.
 # if defined LMD_SKPP || defined LMD_BKPP
-     &                 +dt*srflx(i,j)*swdk(i,j,k)
+     &    +dt*srflx(i,j)*swdk(i,j,k)
 #  ifdef LMD_NONLOCAL
-     &                 -dt*ghats(i,j,k)*(stflx(i,j,itemp)-srflx(i,j)+
-     &                                   srflx(i,j)*(1.-swdk(i,j,k)))
+     &    -dt*ghats(i,j,k)*(stflx(i,j,itemp)-srflx(i,j))
 #  endif
 # endif
               enddo
@@ -556,7 +555,7 @@
                 FC(i,k)=0.
 # if defined LMD_SKPP || defined LMD_BKPP
 #  ifdef LMD_NONLOCAL
-     &                 -dt*ghats(i,j,k)*stflx(i,j,isalt)
+     &    -dt*ghats(i,j,k)*stflx(i,j,isalt)
 #  endif
 # endif
               enddo

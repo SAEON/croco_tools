@@ -10,7 +10,7 @@
 !======================================================================
 !
 #include "cppdefs.h"
-#ifdef LMD_BKPP
+#if defined LMD_BKPP 
       subroutine lmd_bkpp_tile (Istr,Iend,Jstr,Jend, Kv,Kt,Ks,
      &                     Gm1,dGm1dS, Gt1,dGt1dS, Gs1,dGs1dS,
      &                                             wm,ws, Rib)
@@ -267,7 +267,11 @@
 !
 ! If reach into SBL, take the max of surface and bottom values 
 !
+#ifdef LMD_SKPP2005
+              zsbl=z_w(i,j,N)-hbls(i,j,3-nstp)
+#else
               zsbl=z_w(i,j,N)-hbl(i,j)
+#endif
               if (z_w(i,j,k).gt.zsbl) then
                 Kv(i,j,k)=max(Kv(i,j,k),Akv(i,j,k))
                 Kt(i,j,k)=max(Kt(i,j,k),Akt(i,j,k,itemp))
@@ -284,8 +288,14 @@
 !  Add convective adjustment
 !
               if (bvf(i,j,k).lt.0.) then
-#  ifdef LMD_SKPP
-                zsbl=z_w(i,j,N)-hbl(i,j)
+#ifdef LMD_SKPP
+
+#ifdef LMD_SKPP2005                
+             zsbl=z_w(i,j,N)-hbls(i,j,3-nstp)
+#else
+             zsbl=z_w(i,j,N)-hbl(i,j)
+#endif                
+                
                 if (z_w(i,j,k).lt.zsbl) then
 #  endif
                   Kv(i,j,k)=Kv(i,j,k)+lmd_nu0c
