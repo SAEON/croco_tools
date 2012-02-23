@@ -66,8 +66,8 @@
 !  seawater.
       cpaircpi=cpair*cpi
 !
-      do j=min(Jstr-1,JstrR),JendR
-        do i=min(Istr-1,IstrR),IendR
+      do j=max(-1,JstrR-1),min(JendR+1,MMm+1)
+        do i=max(-1,IstrR-1),min(IendR+1,LLm+1)
 !
 !  calc saturation vapor pressure (ew) at surface of water.
 !  use formula of Buck.
@@ -170,25 +170,25 @@
           cer(i,j)=ce
         enddo
       enddo
-
+      
 # ifdef BULK_SM_UPDATE
 !
 !  Compute kinematic, surface wind stress (m2/s2).
-        do j=JstrR,JendR
-          do i=Istr,IendR
-            a=0.5*(aer(i-1,j)+aer(i,j))
-            ce=0.5*(cer(i-1,j)+cer(i,j))
-            sustr(i,j)=a*ce*uwnd(i,j)
+!
+      do j=JstrR,min(JendR+1,MMm+1)
+        do i=Istr,min(IendR+1,LLm+1)
+          a=0.5*(aer(i-1,j)+aer(i,j))
+          ce=0.5*(cer(i-1,j)+cer(i,j))
+          sustr(i,j)=a*ce*uwnd(i,j)
         enddo
       enddo
-        do j=Jstr,JendR
-          do i=IstrR,IendR
-            a=0.5*(aer(i,j-1)+aer(i,j))
-            ce=0.5*(cer(i,j-1)+cer(i,j))
-            svstr(i,j)=a*ce*vwnd(i,j)
+      do j=Jstr,min(JendR+1,MMm+1)
+        do i=IstrR,min(IendR+1,LLm+1)
+          a=0.5*(aer(i,j-1)+aer(i,j))
+          ce=0.5*(cer(i,j-1)+cer(i,j))
+          svstr(i,j)=a*ce*vwnd(i,j)
         enddo
       enddo
-
 # endif
       return
       end
@@ -309,8 +309,8 @@
       cpi=1.0/cp
 !
 !
-      do j=min(Jstr-1,JstrR),JendR
-        do i=min(Istr-1,IstrR),IendR
+      do j=max(-1,JstrR-1),min(JendR+1,MMm+1)
+        do i=max(-1,IstrR-1),min(IendR+1,LLm+1)
 !
 !  Input bulk parameterization fields
 !
@@ -585,21 +585,21 @@
 # ifdef BULK_SM_UPDATE
 !
 !  Compute kinematic, surface wind stress (m2/s2).
-        do j=JstrR,JendR
-          do i=Istr,IendR
-            a=0.5*(aer(i-1,j)+aer(i,j))
-            cff=0.5*(cer(i-1,j)+cer(i,j))
-            sustr(i,j)=a*cff*uwnd(i,j)
+!
+      do j=JstrR,min(JendR+1,MMm+1)
+        do i=Istr,min(IendR+1,LLm+1)
+          a=0.5*(aer(i-1,j)+aer(i,j))
+          cff=0.5*(cer(i-1,j)+cer(i,j))
+          sustr(i,j)=a*cff*uwnd(i,j)
         enddo
       enddo
-        do j=Jstr,JendR
-          do i=IstrR,IendR
-            a=0.5*(aer(i,j-1)+aer(i,j))
-            cff=0.5*(cer(i,j-1)+cer(i,j))
-            svstr(i,j)=a*cff*vwnd(i,j)
+      do j=Jstr,min(JendR+1,MMm+1)
+        do i=IstrR,min(IendR+1,LLm+1)
+          a=0.5*(aer(i,j-1)+aer(i,j))
+          cff=0.5*(cer(i,j-1)+cer(i,j))
+          svstr(i,j)=a*cff*vwnd(i,j)
         enddo
       enddo
-
 # endif
 
       return
