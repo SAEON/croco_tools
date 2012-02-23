@@ -130,6 +130,9 @@
       implicit none
       integer tile
 # include "param.h"
+#ifdef  ALLOW_SINGLE_BLOCK_MODE
+C$    integer  trd, omp_get_thread_num
+#endif
 # include "compute_tile_bounds.h"
       call set_ssh_tile (Istr,Iend,Jstr,Jend)
       return

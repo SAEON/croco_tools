@@ -176,6 +176,9 @@
       implicit none
 # include "param.h"
       integer tile
+#ifdef  ALLOW_SINGLE_BLOCK_MODE
+C$    integer  trd, omp_get_thread_num
+#endif
 # include "compute_tile_bounds.h"
       call ana_bsedim_tile   (Istr,Iend,Jstr,Jend)
       return
@@ -401,6 +404,9 @@
       implicit none
 # include "param.h"
       integer tile
+#ifdef  ALLOW_SINGLE_BLOCK_MODE
+C$    integer  trd, omp_get_thread_num
+#endif
 # include "compute_tile_bounds.h"
       call ana_ssh_tile (Istr,Iend,Jstr,Jend)
       return
@@ -628,6 +634,9 @@ c
       implicit none
 # include"param.h"
       integer tile
+#ifdef  ALLOW_SINGLE_BLOCK_MODE
+C$    integer  trd, omp_get_thread_num
+#endif
 #include "compute_tile_bounds.h"
       call ana_tclima_tile   (Istr,Iend,Jstr,Jend)
       return
@@ -880,6 +889,9 @@ c
       implicit none
 # include "param.h"
       integer tile
+#ifdef  ALLOW_SINGLE_BLOCK_MODE
+C$    integer  trd, omp_get_thread_num
+#endif
 # include "compute_tile_bounds.h"
       call ana_uclima_tile   (Istr,Iend,Jstr,Jend)
       return
@@ -994,6 +1006,9 @@ c
       implicit none
 # include "param.h"
       integer tile
+#ifdef  ALLOW_SINGLE_BLOCK_MODE
+C$    integer  trd, omp_get_thread_num
+#endif
 # include "compute_tile_bounds.h"
       call ana_wwave_tile   (Istr,Iend,Jstr,Jend)
       return
@@ -1045,6 +1060,9 @@ c
       implicit none
 # include "param.h"
       integer tile
+#ifdef  ALLOW_SINGLE_BLOCK_MODE
+C$    integer  trd, omp_get_thread_num
+#endif
 # include "compute_tile_bounds.h"
       call ana_sediment_tile (Istr,Iend,Jstr,Jend)
       return
@@ -1309,6 +1327,9 @@ c
       implicit none
 # include "param.h"
       integer tile
+#ifdef  ALLOW_SINGLE_BLOCK_MODE
+C$    integer  trd, omp_get_thread_num
+#endif
 # include "compute_tile_bounds.h"
       call ana_bry_tile   (Istr,Iend,Jstr,Jend)
       return
@@ -1460,6 +1481,9 @@ c
       implicit none
       integer tile
 # include "param.h"
+#ifdef  ALLOW_SINGLE_BLOCK_MODE
+C$    integer  trd, omp_get_thread_num
+#endif
 # include "compute_tile_bounds.h"
       call ana_bry_bio_tile (Istr,Iend,Jstr,Jend)
       return
