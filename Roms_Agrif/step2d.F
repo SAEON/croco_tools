@@ -35,10 +35,51 @@ C$    trd=omp_get_thread_num()
      &                           rubar,rvbar, urhs,vrhs, DUon,DVom,
      &                           Drhs, UFx,UFe,VFx,VFe)
 !
-! Prform one time step for barotropic mode (free-surface and baro-
+!======================================================================
+! Perform one time step for barotropic mode (free-surface and baro-
 ! tropic 2D momentum equations) using Generalized Forward-Backward
 ! AB3-AM4 algorithm. Also calculate fast-time averages to interact
 ! with baroclinic mode.
+!
+! Forward-Backward schemes for coupled equations (here free-surface zeta
+! and 2D momentum ubar and vbar) are stable for longer time-steps 
+! (alpha_max>1) than synchronous schemes while only needing evaluation 
+! of each r.h.s. term ones. Rather than the original Euler FB schemes, 
+! a generalized FB scheme with an AB3-AM4 step is used here for its added 
+! robustness (for Coriolis and advection terms). It is a combination of 
+! AB3-like step for zeta and AM4-like step for ubar and vbar but with 
+! coefficients chosen for maximum stability (e.g. beta=5/12 in original 
+! AB3 is replaced by 0.281105):
+!
+! AB3 Forward step:
+! ----------------
+! ubarrhs = (3/2+beta)*ubar(n) + (1/2+2*beta)*ubar(n-1) + beta*ubar(n-2)
+! vbarrhs = (3/2+beta)*vbar(n) + (1/2+2*beta)*vbar(n-1) + beta*vbar(n-2)
+! zeta(n+1) = zeta(n) + RZETA(ubarhs,vbarrhs)
+!
+! AM4 Backward step:
+! -----------------
+! zetarhs = (1/2+gamma+2*epsilon) * zeta(n+1) + 
+!           (1/2-2*gamma-3*epsilon) * zeta(n) +
+!           gamma * zeta(n-1) + epsilon * zeta(n-2)
+! ubar(n+1) = ubar(n) + RUBAR(zetarhs,ubarrhs,vbarrhs)
+! vbar(n+1) = vbar(n) + RVBAR(zetarhs,ubarrhs,vbarrhs)
+!
+! beta=0.281105   gamma=0.0880    epsilon=0.013 
+!
+! Note that the first 2D step is performed with the original Euler FB 
+! scheme and the second 2D step with a AB2-AM3 FB scheme with coefficients 
+! again chosen for maximum stability.
+!
+! Reference:
+! ---------
+! Shchepetkin, A.F., and J.C. McWilliams, 2009: Computational kernel 
+! algorithms for fine-scale, multiprocess, longtime oceanic simulations. 
+! Pp. 119–182 in Handbook of Numerical Analysis: Computational Methods 
+! for the Atmosphere and Oceans. R.M. Teman and J.J. Tribbia, eds, 
+! Elsevier Science.
+!
+!======================================================================
 !
       implicit none
 #include "param.h"
@@ -90,6 +131,10 @@ C$    trd=omp_get_thread_num()
 
 #include "compute_auxiliary_bounds.h"
 !
+!======================================================================
+! AB3 Forward Step: Computes zeta(n+1) and zetarhs
+!======================================================================
+!
 ! Preliminary step: compute total depth (meters) of the water
 ! ----------------- column and vertically integrated mass fluxes
 ! which are needed to compute divergence in rhs_zeta and as input
@@ -102,7 +147,6 @@ C$    trd=omp_get_thread_num()
         irhoy = Agrif_Irhoy()
         irhot = Agrif_Irhot()
 #endif
-
       if (FIRST_2D_STEP) then         ! Meaning of temporal indices
         kbak=kstp                     ! ------- -- -------- -------
         kold=kstp                     ! m-2     m-1      m      m+1
@@ -113,11 +157,6 @@ C$    trd=omp_get_thread_num()
         kbak=kstp-1
         if (kbak.lt.1) kbak=4
         kold=kbak
-
-cxx     cff1= 1.5
-cxx     cff2=-0.5
-cxx     cff3= 0.
-
         cff1=1.                  ! Logically AB2-AM3 forward-backward 
         cff2=0.                  ! scheme with coefficients chosen for
         cff3=0.                  ! maximum stability ... (see below)
@@ -126,23 +165,17 @@ cxx     cff3= 0.
         if (kbak.lt.1) kbak=4
         kold=kstp-2
         if (kold.lt.1) kold=4
-
-czz     cff1= 1.72
-czz     cff2=-0.94
-czz     cff3= 0.22
-
         cff1= 1.781105
         cff2=-1.06221
         cff3= 0.281105
       endif
- 
+!
       do j=JstrV-2,jend+1
         do i=IstrU-2,iend+1
           Drhs(i,j)=h(i,j)+cff1*zeta(i,j,kstp)+cff2*zeta(i,j,kbak)
      &                                         +cff3*zeta(i,j,kold)
         enddo
       enddo
- 
       do j=jstr-1,jend+1
         do i=IstrU-1,iend+1
           urhs(i,j)=cff1*ubar(i,j,kstp) +cff2*ubar(i,j,kbak)
@@ -198,22 +231,11 @@ C$OMP END MASTER
         cff2=0.
         cff3=0.
       elseif (FIRST_2D_STEP+1) then
-cxx     cff0=0.779
-cxx     cff1=-0.058
-cxx     cff2=0.279
-cxx     cff3=0.
-
         cff0= 1.0833333333333    ! Logically AB2-AM3 forward-backward
         cff1=-0.1666666666666    ! scheme with coefficients chosen for
         cff2= 0.0833333333333    ! maximum stability, while maintaining
         cff3=0.                  ! third-accuracy; alpha_max=1.73
-
       else
-czz     cff0=0.6133333333333
-czz     cff1=0.2821333333333
-czz     cff2=0.0957333333333
-czz     cff3=0.0088
-
         cff0=0.614
         cff1=0.285
         cff2=0.088
@@ -227,6 +249,9 @@ czz     cff3=0.0088
  
       do j=JstrV-1,jend
         do i=IstrU-1,iend
+!
+! Computes zeta(n+1)
+!
           zeta_new(i,j)=zeta(i,j,kstp) + dtfast*pm(i,j)*pn(i,j)
      &            *(DUon(i,j)-DUon(i+1,j)+DVom(i,j)-DVom(i,j+1))
 #ifdef ZNUDGING
@@ -237,10 +262,11 @@ czz     cff3=0.0088
           zeta_new(i,j)=zeta_new(i,j)*rmask(i,j)
 #endif
           Dnew(i,j)=zeta_new(i,j)+h(i,j)
- 
+!
+! Computes zetarhs to use in mometum equations
+!
           zwrk(i,j)=cff0*zeta_new(i,j) +cff1*zeta(i,j,kstp)
      &             +cff2*zeta(i,j,kbak) +cff3*zeta(i,j,kold)
- 
 #if defined VAR_RHO_2D && defined SOLVE3D
           rzeta(i,j)=(1.+rhoS(i,j))*zwrk(i,j)
           rzeta2(i,j)=rzeta(i,j)*zwrk(i,j)
@@ -251,7 +277,6 @@ czz     cff3=0.0088
 #endif
         enddo
       enddo
-    
       do j=JstrV-1,Jend
         do i=IstrU-1,Iend
           zeta(i,j,knew)=zeta_new(i,j)        
@@ -259,28 +284,25 @@ czz     cff3=0.0088
       enddo 
  
 #ifdef AGRIF
-
       if (FIRST_2D_STEP) then
       do j=Jstr-1,Jend+1
         do i=Istr-1,Iend+1
           Zt_avg3(i,j,0)=zeta(i,j,kstp)       
         enddo
       enddo 
-      
       do j=JstrR,JendR
         do i=Istr,IendR
         du_avg3(i,j,0)   = DUon(i,j)
         enddo
       enddo 
-      
       do j=Jstr,JendR
         do i=IstrR,IendR
         dv_avg3(i,j,0)   = DVom(i,j)
         enddo
       enddo 
       endif
-        
 #endif         
+
 #ifdef DEBUG_ADVANCED
 C$OMP BARRIER
 C$OMP MASTER
@@ -293,7 +315,7 @@ C$OMP END MASTER
 ! Set boundary conditions for the free-surface:
 !
       call zetabc_tile (Istr,Iend,Jstr,Jend)
-
+!
 !
 ! Compute time averaged fields over all short timesteps.
 !-------- ---- -------- ------ ---- --- ----- ----------
@@ -305,7 +327,6 @@ C$OMP END MASTER
 #ifdef SOLVE3D
         cff1=weight(1,iif)
         cff2=weight(2,iif)
- 
         if (FIRST_2D_STEP) then
           do j=jstrR,jendR
             do i=istrR,iendR
@@ -326,6 +347,13 @@ C$OMP END MASTER
           enddo
         endif
 #endif
+!
+!
+!======================================================================
+! AM4 Backward Step: Computes ubar,vbar at time n+1
+!                    first computes rubar,rvbar
+!======================================================================
+!
 !
 ! Compute pressure-gradient terms  NOTE that "rubar" and "rvbar"
 !-------- -------- -------- -----  are computed within the same
@@ -563,21 +591,19 @@ C$OMP END MASTER
           cff2=-0.5-2.*cff3              ! weights optimized for
           cff1=1.5+cff3                  ! maximum stability (with
         endif                            ! special care for startup)
-
         do j=jstr,jend
           do i=IstrU,iend
             cff=rufrc(i,j)-rubar(i,j)
             rufrc(i,j)=cff1*cff + cff2*rufrc_bak(i,j,3-nstp)
-     &                             + cff3*rufrc_bak(i,j,nstp)
+     &                          + cff3*rufrc_bak(i,j,nstp)
             rufrc_bak(i,j,nstp)=cff
           enddo
         enddo
-	
         do j=JstrV,jend
           do i=istr,iend
             cff=rvfrc(i,j)-rvbar(i,j)
             rvfrc(i,j)=cff1*cff + cff2*rvfrc_bak(i,j,3-nstp)
-     &                             + cff3*rvfrc_bak(i,j,nstp)
+     &                          + cff3*rvfrc_bak(i,j,nstp)
             rvfrc_bak(i,j,nstp)=cff
           enddo
         enddo
@@ -620,14 +646,13 @@ C$OMP END MASTER
           do i=istr,iend
             rubar(i,j)=rubar(i,j) +cff*on_u(i,j)*( (h(i-1,j)+h(i,j))
      &          *(rzeta(i-1,j)-rzeta(i,j)) +rzeta2(i-1,j)-rzeta2(i,j)
-
 # if defined VAR_RHO_2D && defined SOLVE3D
      &              +(h(i-1,j)-h(i,j))*( rzetaSA(i-1,j)+rzetaSA(i,j)
      &                        +0.333333333333*(rhoA(i-1,j)-rhoA(i,j))
      &                                     *(zwrk(i-1,j)-zwrk(i,j)) )
 # endif
      &                                                              )
-!>
+!
             rvbar(i,j)=rvbar(i,j) +cff*om_v(i,j)*( (h(i,j-1)+h(i,j))
      &          *(rzeta(i,j-1)-rzeta(i,j)) +rzeta2(i,j-1)-rzeta2(i,j)
 
@@ -664,7 +689,6 @@ C$OMP END MASTER
           Dstp(i,j)=zeta(i,j,kstp)+h(i,j)
         enddo
       enddo
-      
 
       cff=0.5*dtfast
 #ifdef SOLVE3D
@@ -711,7 +735,6 @@ C$OMP END MASTER
 #endif
         enddo
       enddo
-      
 !
 !  Set 2D Momemtum nudging
 !
@@ -914,34 +937,26 @@ C$OMP END MASTER
 #endif
 
 #ifdef AGRIF
-
-       if (.NOT.Agrif_Root()) THEN
-      
-      do j=Jstr-1,Jend+1
-        do i=Istr-1,Iend+1
-          Zt_avg3(i,j,iif)=zeta(i,j,knew)
-        enddo
-      enddo 
-      
-      do j=JstrR,JendR
-        do i=Istr,IendR
-        du_avg3(i,j,iif)   = 0.5*(h(i,j)+zeta(i,j,knew)+
+      if (.NOT.Agrif_Root()) THEN
+        do j=Jstr-1,Jend+1
+          do i=Istr-1,Iend+1
+            Zt_avg3(i,j,iif)=zeta(i,j,knew)
+          enddo
+        enddo 
+        do j=JstrR,JendR
+          do i=Istr,IendR
+          du_avg3(i,j,iif) = 0.5*(h(i,j)+zeta(i,j,knew)+
      &          h(i-1,j)+zeta(i-1,j,knew)) *on_u(i,j)*ubar(i,j,knew)
-        enddo
-      enddo 
-      
-      do j=Jstr,JendR
-        do i=IstrR,IendR
-        dv_avg3(i,j,iif)   = 0.5*(h(i,j)+zeta(i,j,knew)+
+          enddo
+        enddo 
+        do j=Jstr,JendR
+          do i=IstrR,IendR
+          dv_avg3(i,j,iif) = 0.5*(h(i,j)+zeta(i,j,knew)+
      &          h(i,j-1)+zeta(i,j-1,knew)) *om_v(i,j)*vbar(i,j,knew)
+          enddo
         enddo
-      enddo
-    
       endif
-
-#endif
-
-#if defined AGRIF && defined AGRIF_CONSERV_VOL
+# ifdef AGRIF_CONSERV_VOL
        if (iif == nfast) then
        if (agrif_root()) then
          do j=jstrR,jendR
@@ -961,9 +976,8 @@ C$OMP END MASTER
          enddo       
        endif
        endif
+# endif
 #endif
-
-
 !
 !  TEST FOR CFL VIOLATION. IF SO, PRINT AND STOP
 !
