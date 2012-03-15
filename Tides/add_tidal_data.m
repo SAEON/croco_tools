@@ -1,38 +1,18 @@
-function [] = add_tidal_data(tidename,gname,fname, year,month,coastfileplot)
+function [] = add_tidal_data(tidename,gname,fname,Ntides,tidalrank,...
+                             year,month,day,hr,minute,second,coastfileplot)
+% 
+% Add tidal forcing in interannual forcing file 
+% of the type roms_frc_NCEP2_Y--M--.nc
 %
-% TPXO file name
+%   tidename : TPXO file name
+%   gname : roms grid file
+%   fname : roms forcing (frc) file
+%   Ntides : number of tidala waves
+%   tidal rank : order from the rank in the TPXO file
+%   year,month,day,hr,minute,second : start time of simulation
+%                                     for nodal correcton
 %
-%  tidename='/home/mod_data/Tides/TPXO6.nc';
-%
-% ROMS file names
-%
-%  gname='wib2_grd.nc';
-%  fname='wib2_frc.nc';
-%  fname='f1991_frc.nc';
-%  fname='/home/mod_io/crab/in/crab_ncep_frc.nc';
-%
-%
-% Number of tides component to process
-%
-Ntides=10;
-%
-% Set start time of simulation
-%
-%year=2000;
-%month=1;
-day=1;
-hr=0.;
-minute=0.;
-second=0.;
-%
-% Chose order from the rank in the TPXO file :
-% "M2 S2 N2 K2 K1 O1 P1 Q1 Mf Mm"
-%
-tidalrank=[1 2 3 4 5 6 7 8 9 10];
-%
-%
-%
-brest=0;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Get start time of simulation in fractional mjd for nodal correction
 %
@@ -214,8 +194,3 @@ close(ncfrc)
 % Plot
 %
 plot_tide(gname,fname,1,1,3,coastfileplot)
-if brest==1
-  lat0=48.42; lon0=-4.60;   % Brest 
-  Z0=4; % Mean depth of the maregraphe
-  time_series_tide(gname,fname,lon0,lat0,Z0,Ntides)
-end
