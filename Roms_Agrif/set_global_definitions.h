@@ -458,6 +458,8 @@ c-# define TANH dtanh
 # undef BULK_FLUX
 # undef TS_DIF2
 # undef TS_DIF4
+# undef SPONGE_DIF2
+# undef TS_SPLIT_UP3
 # undef CLIMAT_TS_MIXH
 # undef MIX_GP_TS
 # undef MIX_GP_UV
