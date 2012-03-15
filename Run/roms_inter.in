@@ -28,7 +28,7 @@ averages: NTSAVG, NAVG, NRPFAVG / filename
                           roms_avg.nc
 
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
-                          T    F   F    T  T    30*T
+                          T    T   T   T  T    30*T
 auxiliary_history_fields:   rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Ustr Vstr rsw rlw lat sen HEL
                              F   F     F   F    F    F    T   T    T     T    T    T     10*F                 
 
@@ -44,10 +44,13 @@ lateral_visc:   VISC2,    VISC4    [m^2/sec for all]
                  0.       0.
 
 tracer_diff2: TNU2(1:NT)           [m^2/sec for all]
-               10*0.d0 
+               30*0.d0 
 
 tracer_diff4: TNU4(1:NT)           [m^4/sec for all]
                30*0.d11
+
+vertical_mixing: Akv_bak, Akt_bak [m^2/sec]
+                   0.d0    30*0.d0
 
 bottom_drag:     RDRG [m/s],  RDRG2,  Zob [m],  Cdb_min, Cdb_max
                  3.0d-04      0.d-3    0.d-3     1.d-4    1.d-1 
@@ -96,11 +99,15 @@ diagM_average_fields: diag_momentum_avg(1:2)
 		            T T
 
 diagnostics_bio:   ldefdiabio   nwrtdiabio    nrpfdiabio /filename
-                        T          20             0
-                                   roms_diagsbio.nc
+                        T          72             0
+                                 roms_diabio.nc
+
 diagbio_avg: ldefdiabio_avg  ntsdiabio_avg  nwrtdiabio_avg  nprfdiabio_avg /filename
-                  T              1              20              0
-                           roms_diagsbio_avg.nc
+                  T              1              72              0
+                                 roms_diabio_avg.nc
+
+biology:   forcing file
+           roms_frcbio.nc
 
 sediments: input file
            sediment.in
@@ -111,11 +118,11 @@ bbl_history_fields: Abed Hripple Lripple Zbnot Zbapp Bostrw
                      T      F       F      T     F     T
 
 floats: LDEFFLT, NFLT, NRPFFLT / inpname, hisname
-           T       6      0
+           T      6      0
                                    floats.in
-                            floats.nc
+                                   floats.nc
 float_fields:  Grdvar Temp Salt Rho Vel
-                 F     F    F    F   F
+                T     T    T    T   T
 
 stations: LDEFSTA, NSTA, NRPFSTA / inpname, hisname
              T      400      0
