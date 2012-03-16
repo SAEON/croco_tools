@@ -36,7 +36,7 @@ mypath='../';
 %
 % Other software directories
 %
-addpath([mypath,'m_map'])
+addpath([mypath,'m_map1.4f'])
 addpath([mypath,'air_sea'])
 addpath([mypath,'mask'])
 %
