@@ -634,8 +634,10 @@
       call exchange_w3d_tile (Istr,Iend,Jstr,Jend, Akv)
       call exchange_w3d_tile (Istr,Iend,Jstr,Jend,
      &                     Akt(START_2D_ARRAY,0,itemp))
+#   ifdef SALINITY
       call exchange_w3d_tile (Istr,Iend,Jstr,Jend,
      &                     Akt(START_2D_ARRAY,0,isalt))
+#   endif
 #  endif
 # endif
 #else
