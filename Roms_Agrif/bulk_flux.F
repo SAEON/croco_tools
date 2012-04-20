@@ -66,8 +66,9 @@
 !  seawater.
       cpaircpi=cpair*cpi
 !
-      do j=max(-1,JstrR-1),min(JendR+1,MMm+1)
-        do i=max(-1,IstrR-1),min(IendR+1,LLm+1)
+!
+      do j=min(Jstr-1,JstrR),min(JendR+1,MMm+1)
+        do i=min(Istr-1,IstrR),min(IendR+1,LLm+1)
 !
 !  calc saturation vapor pressure (ew) at surface of water.
 !  use formula of Buck.
@@ -309,8 +310,8 @@
       cpi=1.0/cp
 !
 !
-      do j=max(-1,JstrR-1),min(JendR+1,MMm+1)
-        do i=max(-1,IstrR-1),min(IendR+1,LLm+1)
+      do j=min(Jstr-1,JstrR),min(JendR+1,MMm+1)
+        do i=min(Istr-1,IstrR),min(IendR+1,LLm+1)
 !
 !  Input bulk parameterization fields
 !
