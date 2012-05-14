@@ -1,4 +1,5 @@
 #!/bin/csh
+#
 ########################################################
 #  Define environment variables for XEON
 ########################################################
@@ -70,8 +71,8 @@ set TIME_SCHED=1
 ########################################################
 #
 if ($TIME_SCHED == 0) then
-  set NM_START=1992
-  set NM_END=1992
+  set NM_START=1979
+  set NM_END=1979
 endif
 #
 # netcdf file prefixes
@@ -214,22 +215,29 @@ while ($NY != $NY_END)
       if (${NM} == 2) then
         set NDAYS = 28
 # February... check if it is a leap year
-        set B2=0
+
+        set B4=0
         set B100=0
         set B400=0
-        @ B4 = 4 * $NY / 4
-        @ B100 = 100 * $NY / 100
-        @ B400 = 400 * $NY / 400
+
+        @ B4 = 4 * ( $NY / 4 )
+        @ B100 = 100 * ( $NY / 100 )
+        @ B400 = 400 * ( $NY / 400 )
+
+	
         if ($NY == $B4 & ((!($NY == $B100))||($NY == $B400))) then
-	  echo Leap Year
+	  echo Leap Year - $NY $B4 $B100 $B400
           set NDAYS = 29
 #
 #... SPINUP!!!! In case of spinup I cant have leap years.
 #
-          if ($NY == 1956) then
-	    echo Spinup case: no leap year
-            set NDAYS = 28
-          endif		  
+#          if ($NY == 1956) then
+#	    echo Spinup case: no leap year
+#            set NDAYS = 28
+#
+        else
+	  echo Not a Leap Year - $NY $B4 $B100 $B400
+          set NDAYS = 28	  		  
         endif
       endif
     endif
@@ -247,7 +255,7 @@ while ($NY != $NY_END)
 	@ NUMTIMES = 3 * $NUMTIMES
       endif
       echo "USING NUMTIMES = $NUMTIMES"
-      sed 's/NUMTIMES/'$NUMTIMES'/' < ${MODEL}_inter.in${ENDF} > ${MODEL}_${TIME}_inter.in${ENDF}
+      sed -e 's/NUMTIMES/'$NUMTIMES'/' -e 's/NYONLINE/'$NY'/' -e 's/NMONLINE/'$NM'/' < ${MODEL}_inter.in${ENDF} > ${MODEL}_${TIME}_inter.in${ENDF}
       @ LEVEL++
     end
 #
