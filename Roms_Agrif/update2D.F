@@ -305,7 +305,7 @@ C$OMP END MASTER
        Allocate(finevalues(isize,0:nfast))
        Allocate(coarsevalues(isize,0:nfast))
        ELSE       
-       CALL checksize(indupdate+isize,nfast)
+       CALL checksize(indupdate+isize)
        ENDIF
        ENDIF
        
@@ -452,7 +452,7 @@ C$OMP END MASTER
        Allocate(finevalues(isize,0:nfast))
        Allocate(coarsevalues(isize,0:nfast))
        ELSE       
-       CALL checksize(indupdate+isize,nfast)
+       CALL checksize(indupdate+isize)
        ENDIF
        ENDIF
        
@@ -598,7 +598,7 @@ C$OMP END MASTER
        Allocate(finevalues(isize,0:nfast))
        Allocate(coarsevalues(isize,0:nfast))
        ELSE       
-       CALL checksize(indupdate+isize,nfast)
+       CALL checksize(indupdate+isize)
        ENDIF
        ENDIF
        
@@ -777,8 +777,8 @@ C$OMP END MASTER
       end
             
 
-      subroutine checksize(isize,nfast)
-      integer :: isize,nfast
+      subroutine checksize(isize)
+      integer :: isize
       real,dimension(:,:),allocatable :: tempvalues
       integer :: n1,n3
 #  include "param.h"

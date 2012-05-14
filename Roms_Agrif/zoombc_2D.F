@@ -461,7 +461,7 @@ C$OMP BARRIER
 
        integer i1,i2,j1,j2
        real tabres(i1:i2,j1:j2)
-       integer i,j,iter,isize,nfast
+       integer i,j,iter,isize
        real :: cff1
 !$AGRIF_DO_NOT_TREAT
       integer :: indinterp
@@ -476,7 +476,7 @@ C$OMP BARRIER
        IF (.NOT.allocated(coarsevaluesinterp)) THEN
        Allocate(coarsevaluesinterp(isize,0:nfast))
        ELSE       
-       CALL checksizeinterp(indinterp+isize,nfast)
+       CALL checksizeinterp(indinterp+isize)
        ENDIF
        
        oldindinterp = indinterp
@@ -961,7 +961,7 @@ C$OMP BARRIER
 
        integer i1,i2,j1,j2
        real tabres(i1:i2,j1:j2)
-       integer i,j,iter,isize,nfast
+       integer i,j,iter,isize
        real :: cff1
 !$AGRIF_DO_NOT_TREAT
       integer :: indinterp
@@ -976,7 +976,7 @@ C$OMP BARRIER
        IF (.NOT.allocated(coarsevaluesinterp)) THEN
        Allocate(coarsevaluesinterp(isize,0:nfast))
        ELSE       
-       CALL checksizeinterp(indinterp+isize,nfast)
+       CALL checksizeinterp(indinterp+isize)
        ENDIF
        
        oldindinterp = indinterp
@@ -1026,9 +1026,9 @@ C$OMP BARRIER
       end subroutine copy1d
 
 !
-      subroutine checksizeinterp(isize,nfast)
+      subroutine checksizeinterp(isize)
       real,dimension(:,:),allocatable :: tempvalues
-      integer :: n1,isize,nfast
+      integer :: n1,isize
 # include "param.h"
 # include "grid.h"
 # include "ocean2d.h"
@@ -1460,7 +1460,7 @@ C$OMP BARRIER
 
        integer i1,i2,j1,j2
        real tabres(i1:i2,j1:j2)
-       integer i,j,iter,isize,nfast
+       integer i,j,iter,isize
        real :: cff1
 !$AGRIF_DO_NOT_TREAT
       integer :: indinterp
@@ -1475,7 +1475,7 @@ C$OMP BARRIER
        IF (.NOT.allocated(coarsevaluesinterp)) THEN
        Allocate(coarsevaluesinterp(isize,0:nfast))
        ELSE       
-       CALL checksizeinterp(indinterp+isize,nfast)
+       CALL checksizeinterp(indinterp+isize)
        ENDIF
        
        oldindinterp = indinterp

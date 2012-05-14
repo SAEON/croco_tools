@@ -256,7 +256,7 @@
 #  include "param.h"
 #  include "scalars.h"
 #  include "ocean3d.h"
-      
+      integer itrc      
 #if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       do itrc = 1,NT
         call exchange_r3d_tile (1,Lm,1,Mm,
