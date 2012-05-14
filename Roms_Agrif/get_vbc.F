@@ -49,7 +49,13 @@
 !---------------------------------------------------------------
 !
 # if defined BULK_FLUX && !defined ANA_BULK
+#   if defined ONLINE /* ONLINE */
+      ! Load data for ONLINE bulk forcing
+      call get_bulk_online
+#   else
+      ! Load data for OFFLINE bulk forcing
       call get_bulk
+#   endif
 # elif !defined ANA_STFLUX
       call get_stflux (itemp)
 # endif
@@ -184,7 +190,12 @@
 !---------------------------------------------------------------
 !
 # if defined  BULK_FLUX
+#   if defined ONLINE /* ONLINE */
+      call set_bulk_tile_online (Istr,Iend,Jstr,Jend)
+#   else
       call set_bulk_tile (Istr,Iend,Jstr,Jend)
+#   endif
+C$OMP BARRIER
       call bulk_flux_tile (Istr,Iend,Jstr,Jend,wrk1,wrk2)
 # else
 !

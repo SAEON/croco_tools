@@ -85,6 +85,9 @@ C$OMP END PARALLEL
 #endif
 #include "ocean2d.h"
 #include "ocean3d.h"
+#ifdef DEBUG
+# include "forces.h"
+#endif
 #ifdef STATIONS
 # include "sta.h"
 #endif
@@ -264,6 +267,25 @@ C$OMP BARRIER
 # endif
       enddo
 C$OMP BARRIER
+#ifdef DEBUG
+C$OMP MASTER
+      call check_tab2d(uwndg(:,:,1),'uwndg1 prestep3d','u')
+      call check_tab2d(uwndg(:,:,2),'uwndg2 prestep3d','u')
+      call check_tab2d(vwndg(:,:,1),'vwndg1 prestep3d','v')
+      call check_tab2d(vwndg(:,:,2),'vwndg2 prestep3d','v')
+      call check_tab2d(sustr(:,:),'sustr prestep3d','u')
+      call check_tab2d(svstr(:,:),'sustr prestep3d','v')
+      call check_tab2d(tair(:,:),'tair prestep3d','r')
+      call check_tab2d(rhum(:,:),'rhum prestep3d','r')
+      call check_tab2d(prate(:,:),'prate prestep3d','r')
+      call check_tab2d(radlw(:,:),'radlw prestep3d','r')
+      call check_tab2d(radsw(:,:),'radsw prestep3d','r')
+      call check_tab2d(wspd(:,:),'wspd prestep3d','r')
+      call check_tab2d(uwnd(:,:),'uwnd prestep3d','r')
+      call check_tab2d(vwnd(:,:),'vwnd prestep3d','r')
+C$OMP END MASTER
+C$OMP BARRIER
+#endif
 
       if (may_day_flag.ne.0) return  !-->  EXIT
 

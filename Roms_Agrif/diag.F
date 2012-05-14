@@ -286,6 +286,9 @@ C$OMP CRITICAL (diag_cr_rgn)
             if (ninfo.eq.32 .and. iic.gt.256) ninfo=64
 */
           endif
+	  
+!------- flush when debugging -- call flush
+	  
 C$OMP END CRITICAL (diag_cr_rgn)
       endif
       return
