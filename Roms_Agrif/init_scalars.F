@@ -21,6 +21,9 @@
 !
       implicit none
       integer ierr, i,j,itrc, lvar, lenstr
+#if defined ONLINE
+      integer blkvar_id
+#endif /* ONLINE */
       character*20 nametrc, unitt
       character*60 vname1, vname3      
       integer omp_get_num_threads
@@ -30,6 +33,9 @@
 #include "ncscrum.h"
 #include "diagnostics.h"
 #include "boundary.h"
+#if defined ONLINE
+#  include "online.h"
+#endif /* ONLINE */
 #if defined TCLIMATOLOGY
 #  include "climat.h"
 #endif /* TCLIMATOLOGY */
@@ -141,6 +147,12 @@ C$OMP END PARALLEL
       grdmax=-1.E+20    ! negative
       Cu_min=+1.E+20    ! unrealistic
       Cu_max=-1.E+20    ! values
+#ifdef SPHERICAL
+      lonmin=+1.E+20
+      lonmax=-1.E+20
+      latmin=+1.E+20
+      latmax=-1.E+20
+#endif
 
       bc_crss=QuadZero
 #ifdef OBC_VOLCONS
@@ -869,6 +881,15 @@ CR      write(stdout,'(1x,A,I3)') 'indxBSD =',indxBSD
       vname(4,indxTIsrf)='tsrf, scalar, series                    '
 #endif
 #ifdef BULK_FLUX
+#ifdef ONLINE /* JG ONLINE */
+      do blkvar_id=1,nblkvrs
+        itbulkO(blkvar_id)=0
+	newbulk(blkvar_id)=.true.
+        bulk_timeO(1:2,blkvar_id)=-1.E+20
+        bulk_recO(blkvar_id)=0
+      enddo
+      call get_bulkvar_names
+#else
 CR      write(stdout,'(1x,A,I3)') 'indxWSPD =',indxWSPD
       vname(1,indxWSPD)='wspd                                     '
       vname(2,indxWSPD)='surface wind speed 10 m                  '
@@ -923,6 +944,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxVWND =',indxVWND
       vname(2,indxVWND)='surface v-wind speed 10 m       '
       vname(3,indxVWND)='meter second-1                           '
       vname(4,indxVWND)='surface wind speed, scalar, series       '
+#endif /* ONLINE */
 #endif /* BULK_FLUX */
 
 # ifdef DIAGNOSTICS_TS

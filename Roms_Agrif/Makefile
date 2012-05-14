@@ -70,6 +70,9 @@ include Makedefs
         get_tides.F     clm_tides.F     get_bulk.F      bulk_flux.F\
         get_bry.F       get_bry_bio.F	nf_read_bry.F\
 \
+        online_bulk_var.F  online_get_bulk.F  online_interp.F\
+	online_interpolate_bulk.F  online_set_bulk.F\
+\
 	MPI_Setup.F	MessPass2D.F	MessPass3D.F	exchange.F\
 \
 	biology.F	o2sato.F                sediment.F	bbl.F\

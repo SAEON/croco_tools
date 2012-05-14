@@ -34,6 +34,9 @@
       integer Istr,Iend,Jstr,Jend, i,j, NSUB
       real cff, my_hmax, my_grdmax, my_Cu_max
      &        , my_hmin, my_grdmin, my_Cu_min
+     &        , my_lonmin, my_lonmax
+     &        , my_latmin, my_latmax
+
       real*QUAD my_volume, my_crss
 #include "param.h"
 #include "scalars.h"
@@ -41,15 +44,22 @@
 #ifdef MPI
       include 'mpif.h'
       integer size, step, status(MPI_STATUS_SIZE), ierr
-      real*8 buff(10)
+      real*8 buff(14)
 # if QUAD == 16
       real*QUAD buff_vol, buff_crss
-      pointer (i_buff7, buff_vol), (i_buff9, buff_crss)
+      pointer (i_buff11, buff_vol), (i_buff13, buff_crss)
 # endif
 #endif
 !
 #include "compute_auxiliary_bounds.h"
 !
+#ifdef SPHERICAL
+      my_lonmin=+1.E+20
+      my_lonmax=-1.E+20
+      my_latmin=+1.E+20
+      my_latmax=-1.E+20
+#endif
+
       my_hmin=+1.E+20              ! Here two-dimensional Courant
       my_hmax=-1.E+20              ! number is defined as
       my_grdmin=+1.E+20            !
@@ -78,6 +88,20 @@
 #ifdef MASKING
           endif
 #endif
+
+#ifdef SPHERICAL
+!
+! Get minima and maxima for longitude and latitude
+! Warning: for openmp we are using the extremma for the global grid 
+!          for mpi we are using the values of the local subgrids
+! used for online interpolations
+
+            my_lonmin=min(my_lonmin, lonr(i,j))
+            my_lonmax=max(my_lonmax, lonr(i,j))
+            my_latmin=min(my_latmin, latr(i,j))
+            my_latmax=max(my_latmax, latr(i,j))
+#endif
+
         enddo
       enddo
 !
@@ -150,6 +174,12 @@
 C$OMP CRITICAL (grd2_cr_rgn)          ! Global MIN/MAX operations
         hmin=min(hmin, my_hmin)       ! within each shared memory
         hmax=max(hmax, my_hmax)       ! group (an MPI-node). 
+#ifdef SPHERICAL
+        lonmin=min(lonmin, my_lonmin)
+        lonmax=max(lonmax, my_lonmax)
+        latmin=min(latmin, my_latmin)
+        latmax=max(latmax, my_latmax)
+#endif
         grdmin=min(grdmin, my_grdmin)
         grdmax=max(grdmax, my_grdmax)
         Cu_min=min(Cu_min, my_Cu_min)
@@ -162,8 +192,8 @@ C$OMP CRITICAL (grd2_cr_rgn)          ! Global MIN/MAX operations
           tile_count=0                ! responsible for communication 
 # ifdef MPI
 #  if QUAD == 16
-          i_buff7=loc(buff(7))        ! exchange between MPI-nodes.
-          i_buff9=loc(buff(9))        ! Here each real*QUAD number is
+          i_buff11=loc(buff(11))      ! exchange between MPI-nodes.
+          i_buff13=loc(buff(13))      ! Here each real*QUAD number is
 #  endif
           size=NNODES                 ! stored as two real*8 words.
   1        step=(size+1)/2
@@ -174,17 +204,23 @@ C$OMP CRITICAL (grd2_cr_rgn)          ! Global MIN/MAX operations
               buff(4)=grdmax          ! that MIN/MAX and two real*QUAD
               buff(5)=Cu_min          ! summations come together.
               buff(6)=Cu_max
+#  ifdef SPHERICAL
+              buff(7)=lonmin
+              buff(8)=lonmax
+              buff(9)=latmin
+              buff(10)=latmax       
+#  endif
 #  if QUAD == 16
               buff_vol=volume
               buff_crss=bc_crss
 #  else
-              buff(7)=volume
-              buff(8)=bc_crss
+              buff(11)=volume
+              buff(12)=bc_crss
 #  endif
-              call MPI_Send (buff,  10, MPI_DOUBLE_PRECISION,
+              call MPI_Send (buff,  14, MPI_DOUBLE_PRECISION,
      &             mynode-step, 17, MPI_COMM_WORLD,      ierr)
             elseif (mynode .lt. size-step) then
-              call MPI_Recv (buff,  10, MPI_DOUBLE_PRECISION,
+              call MPI_Recv (buff,  14, MPI_DOUBLE_PRECISION,
      &             mynode+step, 17, MPI_COMM_WORLD, status, ierr)
               hmin=  min(hmin,   buff(1))
               hmax=  max(hmax,   buff(2))
@@ -192,12 +228,18 @@ C$OMP CRITICAL (grd2_cr_rgn)          ! Global MIN/MAX operations
               grdmax=max(grdmax, buff(4))
               Cu_min=min(Cu_min, buff(5))
               Cu_max=max(Cu_max, buff(6))
+#  ifdef SPHERICAL
+              lonmin=min(lonmin,buff(7))
+              lonmax=max(lonmax,buff(8))
+              latmin=min(latmin,buff(9))
+              latmax=max(latmax,buff(10))     
+#  endif
 #  if QUAD == 16
               volume=volume + buff_vol
               bc_crss=bc_crss + buff_crss
 #  else
-             volume=volume + buff(7) 
-             bc_crss=bc_crss + buff(8)
+              volume=volume + buff(11) 
+               bc_crss=bc_crss + buff(12)
 #  endif
             endif
            size=step
@@ -209,14 +251,20 @@ C$OMP CRITICAL (grd2_cr_rgn)          ! Global MIN/MAX operations
           buff(4)=grdmax
           buff(5)=Cu_min
           buff(6)=Cu_max
+#  ifdef SPHERICAL
+          buff(7)=lonmin
+          buff(8)=lonmax
+          buff(9)=latmin
+          buff(10)=latmax       
+#  endif
 #  if QUAD == 16
           buff_vol=volume
           buff_crss=bc_crss
 #  else
-          buff(7)=volume
-          buff(8)=bc_crss
+          buff(11)=volume
+          buff(12)=bc_crss
 #  endif
-          call MPI_Bcast(buff, 10, MPI_DOUBLE_PRECISION,
+          call MPI_Bcast(buff, 14, MPI_DOUBLE_PRECISION,
      &                          0, MPI_COMM_WORLD, ierr)
           hmin=  buff(1)
           hmax=  buff(2)
@@ -224,12 +272,18 @@ C$OMP CRITICAL (grd2_cr_rgn)          ! Global MIN/MAX operations
           grdmax=buff(4)
           Cu_min=buff(5)
           Cu_max=buff(6)
+#  ifdef SPHERICAL
+          lonmin=buff(7)
+          lonmax=buff(8)
+          latmin=buff(9)
+          latmax=buff(10)       
+#  endif
 #  if QUAD == 16
           volume=buff_vol
           bc_crss=buff_crss
 #  else
-          volume=buff(7)
-          bc_crss=buff(8)
+          volume=buff(11)
+          bc_crss=buff(12)
 #  endif
 # endif
 
@@ -245,6 +299,14 @@ c**       write(*,*) mynode, ' crss =',bc_crss, 'vol =',volume
      &         hmin,  hmax,  grdmin,  grdmax,  Cu_min,  Cu_max
           MPI_master_only write( stdout,'(2(3x,A,1PE27.21)/)')
      &        'volume=', volume, 'open_cross=', bc_crss
+
+#ifdef SPHERICAL
+          MPI_master_only write(stdout,
+     &        '(A,F8.4,A,F8.4,A,F8.4,A,F8.4)')
+     &        'lonmin=', lonmin, ' lonmax=', lonmax,
+     &        'latmin=', latmin, ' latmax=', latmax
+#endif
+
         endif
 C$OMP END CRITICAL (grd2_cr_rgn)
 

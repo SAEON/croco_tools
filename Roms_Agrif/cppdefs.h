@@ -118,6 +118,8 @@
 #  define BULK_LW
 #  define BULK_EP
 #  define BULK_SMFLUX
+#  undef  ONLINE       /* Online interpolations of atmospheric variables */
+#  undef  CUBIC_INTERP /* Cubic or linear online interpolations */
 # else
 #  define QCORRECTION
 #  define SFLX_CORR

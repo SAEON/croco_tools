@@ -365,6 +365,12 @@
       common /communicators_r/
      &     hmin, hmax, grdmin, grdmax, Cu_min, Cu_max
 
+#ifdef SPHERICAL
+      real lonmin, lonmax, latmin, latmax
+      common /communicators_lonlat/
+     &     lonmin, lonmax, latmin, latmax
+#endif
+
       real*QUAD volume, avgke, avgpe, avgkp, bc_crss
 #ifdef OBC_VOLCONS
      &        , bc_flux, ubar_xs

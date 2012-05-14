@@ -28,9 +28,13 @@
 #ifdef PSOURCE
 # include "sources.h"
 #endif
+#ifdef ONLINE
+# include "online.h"
+#endif
 #ifdef MPI
       include 'mpif.h'
 #endif
+
       integer kwsize, testunit, input
       parameter (kwsize=32, testunit=40, input=15)
       character end_signal*3, keyword*32, fname*64
@@ -310,18 +314,20 @@ c        close(testunit)
 ! Bulk file name. Check its availability.
 !
 #if defined BULK_FLUX
+# ifndef ONLINE /* ONLINE FORCING */
         elseif (keyword(1:kwlen).eq.'bulk_forcing') then
           call cancel_kwd (keyword(1:kwlen), ierr)
           read(input,'(A)',err=95) fname
           lstr=lenstr(fname)
-# if defined MPI && defined PARALLEL_FILES
+#  if defined MPI && defined PARALLEL_FILES
           call insert_node (fname, lstr, mynode, NNODES, ierr)
-# endif
+#  endif
           open (testunit, file=fname(1:lstr), status='old', err=97)
           close(testunit)
           bulkname=fname(1:lstr)
           MPI_master_only write(stdout,'(2x,A,2x,A)')
      &               '   Bulk Data File:', bulkname(1:lstr)
+# endif  /* ONLINE FORCING */
 #endif
 #if (defined TCLIMATOLOGY  && !defined ANA_TCLIMA) || \
       (defined ZCLIMATOLOGY  && !defined ANA_SSH) || \
@@ -1431,6 +1437,33 @@ c        close(testunit)
           enddo
         enddo
 #endif /* ANA_SOURCES */
+!
+! Online forcing with CFSR
+!
+#ifdef ONLINE   /* JG Online */
+      elseif (keyword(1:kwlen).eq.'online') then
+        call cancel_kwd (keyword(1:kwlen), ierr)
+        read(input,*,err=95) yearnum, monthnum, recordsperday, yearend, monthend
+        read(input,'(A)',err=95)  fname 
+        lstr=lenstr(fname)
+# if defined MPI && defined PARALLEL_FILES
+        call insert_node (fname, lstr, mynode, NNODES, ierr)
+# endif
+        pathbulk=fname(1:lstr)
+	! Print variables
+        MPI_master_only write(stdout,
+     &         '(7x,A,1x,I4,A,1x,I2,A)')
+     &         'Online forcing: first forcing, year',yearnum,
+     &         ', month', monthnum,'.'
+        MPI_master_only write(stdout,
+     &         '(7x,A,1x,I4,A,1x,I2,A)')
+     &         'Online forcing: last forcing year',yearend,
+     &         ', month', monthend,'.'
+        MPI_master_only write(stdout,
+     &         '(7x,A,A,1x,A4,1x,I1,A)')
+     &         'Online forcing: datasets in ',fname(1:lstr),
+     &         'with',recordsperday, ' records per day.'
+#endif /* ONLINE */
 
       else
         MPI_master_only write(stdout,'(/3(1x,A)/)')
