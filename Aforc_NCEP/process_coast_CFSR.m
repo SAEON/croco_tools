@@ -41,11 +41,11 @@ romstools_param
 %
 % Directory of the input CFSR unprocessd data
 %
-CFSR_dir=[DATADIR,'CFSR/'];;
+CFSR_dir=[FORC_DATA_DIR,'CFSR_',ROMS_config,'/'];
 %
 % Directory of the output CFSR processd data
 %
-CFSR_COAST_dir=[DATADIR,'CFSR_COAST/'];
+CFSR_COAST_dir=[FORC_DATA_DIR,'CFSR_COAST_',ROMS_config,'/'];
 %
 % Width of the extrapolation band inland (200km is ok for a 1/4deg simulation).
 %
@@ -74,6 +74,7 @@ vnames={'Land_cover_1land_2sea' ...    % surface land-sea mask [1=land; 0=sea]
 % end of user input  parameters
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+eval(['!mkdir ',CFSR_COAST_dir])
 %
 % 1 - Process the land sea mask
 %
@@ -92,8 +93,13 @@ close(nc)
 % (around lon=0 there is an overlap that could create problems)
 %
 ibad=find(lon>-0.01 & lon<0.3);
-ibmin=min(ibad)-1;
-ibmax=max(ibad)+1;
+if isempty(ibad)
+  ibmin=1;
+  ibmax=2;
+else
+  ibmin=min(ibad)-1;
+  ibmax=max(ibad)+1;
+end
 %
 mask=cat(2,mask(:,1:ibmin),mask(:,ibmax:end));
 lon=cat(1,lon(1:ibmin),lon(ibmax:end));
@@ -116,7 +122,7 @@ mask(X>16 & X<33 & Y>-21 & Y<-12)=1;
 % 2.2 - Get the number of points to create a "coastal band"
 %
 [dx,dy]=get_dx(X,Y);  
-dxmin=max([min(dx(:)) min(dy(:))]);
+dxmin=min([min(dx(:)) min(dy(:))]);
 npts=ceil(distmax/dxmin);
 disp(['Number of points to perform the extrapolation: ',num2str(npts)])
 %

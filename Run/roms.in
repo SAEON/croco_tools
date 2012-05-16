@@ -136,3 +136,6 @@ psource:   Nsrc  Isrc  Jsrc  Dsrc  Qbar [m3/s]    Lsrc        Tsrc
                   3    54     1    200.            T T      5. 0.
                   3    40     0    200.            T T      5. 0.
 
+online:    byear  bmonth recordsperday byearend bmonthend / data path
+           2000   1      4             2000     3
+          DATA/CFSR_Benguela_LR/
