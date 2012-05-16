@@ -162,7 +162,7 @@ CR      write(*,*) 'wrt_his:  bostr' MYID
         do j=1,Mm
          do i=1,Lm
             work2d2(i,j)=0.5*sqrt((sustr(i,j)+sustr(i+1,j))**2
-     &                          +(svstr(i,j)+svstr(i,j+1))**2)
+     &                           +(svstr(i,j)+svstr(i,j+1))**2)
      &                                                   *rho0
           enddo
         enddo
@@ -306,8 +306,27 @@ CR      write(*,*) 'wrt_his:  wrtW  ' MYID
 ! Write out Horizontal Diffusivity coefficient.
 !
       if (wrthis(indxDiff)) then
-        ierr=nf_fwrite(diff3d(START_2D_ARRAY,1), ncidhis,
-     &                 hisDiff, record, r3dvar)
+        do k=0,N
+          do j=1,Mm
+            do i=1,Lm
+              work(i,j,k)=
+#   ifdef TS_DIF2
+     &                      diff2(i,j,itemp)
+#    ifdef TS_DIF_SMAGO
+     &                     +diff3d_r(i,j,k)
+#    endif
+#   elif defined TS_DIF4
+     &                      diff4(i,j,itrc)
+#    ifdef TS_DIF_SMAGO
+     &                     +diff3d_r(i,j,k)*om_r(i,j)*on_r(i,j)
+#    endif
+     &               +0.25*(diff3d_u(i,j,k)+diff3d_u(i+1,j,k)
+     &                     +diff3d_v(i,j,k)+diff3d_v(i,j+1,k))
+#   endif
+            enddo
+          enddo
+        enddo
+        ierr=nf_fwrite(work, ncidhis, hisDiff, record, r3dvar)
         if (ierr .ne. nf_noerr) then
           lvar=lenstr(vname(1,indxDiff))
           write(stdout,1) vname(1,indxDiff)(1:lvar), record, ierr

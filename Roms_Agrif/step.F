@@ -298,8 +298,8 @@ C$OMP BARRIER
         call bvf_mix (tile)
 # endif
         call omega (tile)
-# if defined VIS_COEF_3D || defined DIF_COEF_3D
-        call hmix_coef (tile)
+# ifdef VIS_COEF_3D
+        call hvisc_coef (tile)
 # endif
       enddo
 C$OMP BARRIER
@@ -308,7 +308,6 @@ C$OMP BARRIER
         call prsgrd (tile)
         call rhs3d (tile)
         call pre_step3d (tile)
-
 # if defined UV_VIS2 || defined UV_VIS4
 #   if defined AGRIF
       if (.Not.Agrif_Root()) then
@@ -320,22 +319,12 @@ C$OMP BARRIER
 C$OMP BARRIER
 
       do tile=my_first,my_last
-
-!# if defined UV_VIS2 || defined UV_VIS4
-!        call uv3dmix (tile)
-!#  if defined SPONGE_VIS2
-!        call uv3dmix_spg (tile)
-!#  endif
-!# endif
 # if defined UV_VIS4 || (defined UV_VIS2 && !defined SPONGE_VIS2) 
-       call uv3dmix (tile)
+        call uv3dmix (tile)
 # endif
 #  if defined SPONGE_VIS2
         call uv3dmix_spg (tile)
 #  endif
-
-
-
 # ifdef AVERAGES
         call set_avg (tile)
 #  if defined DIAGNOSTICS_TS
@@ -635,6 +624,9 @@ C$OMP BARRIER
 
       do tile=my_first,my_last
         call step3d_uv2 (tile)
+# ifdef DIF_COEF_3D 
+        call hdiff_coef (tile)
+# endif
       enddo
 C$OMP BARRIER
 
@@ -742,20 +734,12 @@ C$OMP BARRIER
 C$OMP BARRIER
 
       do tile=my_first,my_last
-!# if defined TS_DIF2 || defined TS_DIF4
-!        call t3dmix (tile)
-!#  if defined SPONGE_DIF2
-!        call t3dmix_spg (tile)
-!#  endif
-!# endif
 # if defined TS_DIF4 || (defined TS_DIF2 && !defined SPONGE_DIF2) 
         call t3dmix (tile)
 # endif
-#  if defined SPONGE_DIF2
+# if defined SPONGE_DIF2
         call t3dmix_spg (tile)
-#  endif
-
-
+# endif
       enddo
 C$OMP BARRIER
 

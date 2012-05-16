@@ -55,29 +55,26 @@
 #ifdef VIS_COEF_3D
       real visc3d_r(GLOBAL_2D_ARRAY,N)
       common /mixing_visc3d_r/visc3d_r
-# ifdef UV_SPLIT_UP3
-      real viscU_r(GLOBAL_2D_ARRAY,N)
-      real viscV_r(GLOBAL_2D_ARRAY,N)
-      real viscU_p(GLOBAL_2D_ARRAY,N)
-      real viscV_p(GLOBAL_2D_ARRAY,N)
-      common /mixing_viscU_r/viscU_r
-     &       /mixing_viscV_r/viscV_r
-      common /mixing_viscU_p/viscU_p
-     &       /mixing_viscV_p/viscV_p
-# else
       real visc3d_p(GLOBAL_2D_ARRAY,N)
       common /mixing_visc3d_p/visc3d_p
-# endif
 #endif
 #ifdef DIF_COEF_3D
-      real diff3d(GLOBAL_2D_ARRAY,N)
-      common /mixing_diff3d/diff3d
-# ifdef TS_SPLIT_UP3
       real diff3d_u(GLOBAL_2D_ARRAY,N)
       real diff3d_v(GLOBAL_2D_ARRAY,N)
       common /mixing_diff3d_u/diff3d_u
      &       /mixing_diff3d_v/diff3d_v
+# ifdef TS_DIF_SMAGO
+      real diff3d_r(GLOBAL_2D_ARRAY,N)
+      common /mixing_diff3d_r/diff3d_r
 # endif
+#endif
+#if defined TS_MIX_ISO || defined TS_MIX_GEO
+      real dRdx(GLOBAL_2D_ARRAY,N)
+      real dRde(GLOBAL_2D_ARRAY,N)
+      real idRz(GLOBAL_2D_ARRAY,0:N)
+      common /mixing_dRdx/dRdx
+      common /mixing_dRde/dRde
+      common /mixing_idRz/idRz
 #endif
 
 #ifdef SOLVE3D

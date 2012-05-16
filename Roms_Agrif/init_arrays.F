@@ -716,18 +716,6 @@ C$    integer omp_get_thread_num
         enddo
 #endif
 #ifdef VIS_COEF_3D
-# ifdef UV_SPLIT_UP3
-        do k=1,N
-          do j=JstrR,JendR
-            do i=IstrR,IendR
-              viscU_r(i,j,k)=init
-              viscU_p(i,j,k)=init
-              viscV_r(i,j,k)=init
-              viscV_p(i,j,k)=init
-            enddo
-          enddo
-        enddo
-# else
         do k=1,N
           do j=JstrR,JendR
             do i=IstrR,IendR
@@ -736,7 +724,6 @@ C$    integer omp_get_thread_num
             enddo
           enddo
         enddo
-# endif
 #endif
 #if defined TS_DIF2 || defined SPONGE_DIF2
         do itrc=1,NT
@@ -770,7 +757,11 @@ C$    integer omp_get_thread_num
         do k=1,N
           do j=JstrR,JendR
             do i=IstrR,IendR
-              diff3d(i,j,k)=init
+              diff3d_u(i,j,k)=init
+              diff3d_v(i,j,k)=init
+#   ifdef TS_DIF_SMAGO
+              diff3d_r(i,j,k)=init
+#   endif
             enddo
           enddo
         enddo

@@ -1,13 +1,5 @@
-! $Id$
 !
-!======================================================================
-! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
-! The two other branches from UCLA (Shchepetkin et al) 
-! and Rutgers University (Arango et al) are under MIT/X style license.
-! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
-! 
-! ROMS_AGRIF website : http://roms.mpl.ird.fr
-!======================================================================
+! $Id$
 !
 #include "cppdefs.h"
                                             ! Setting up curvilinear
@@ -171,7 +163,11 @@ C$    integer omp_get_thread_num
       call exchange_p2d_tile (Istr,Iend,Jstr,Jend,   om_p)
       call exchange_p2d_tile (Istr,Iend,Jstr,Jend,   on_p)
 # ifdef MASKING
+#  ifdef TS_HADV_UP5
+      call exchange_r2d_3pts_tile (Istr,Iend,Jstr,Jend, rmask)
+#  else
       call exchange_r2d_tile (Istr,Iend,Jstr,Jend,  rmask)
+#  endif
       call exchange_u2d_tile (Istr,Iend,Jstr,Jend,  umask)
       call exchange_v2d_tile (Istr,Iend,Jstr,Jend,  vmask)
       call exchange_p2d_tile (Istr,Iend,Jstr,Jend,  pmask)

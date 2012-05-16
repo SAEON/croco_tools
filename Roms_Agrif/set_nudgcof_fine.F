@@ -144,7 +144,7 @@
 ! Add Viscosity and Diffusivity in SPONGE layers
 !-------------------------------------------------------------------
 !
-#  if defined UV_VIS2 || defined UV_VIS4
+#  if defined UV_VIS2 || defined UV_VIS4 || defined SPONGE_VIS2
 !
 ! Add Viscosity at rho points 
 !
@@ -185,9 +185,9 @@
 #   endif
         enddo
        enddo
-#   endif  /* UV_VIS2 || UV_VIS4 */
+#   endif  /* UV_VIS2 || UV_VIS4 || SPONGE_VIS2 */
 
-#  if defined TS_DIF2 || defined TS_DIF4
+#  if defined TS_DIF2 || defined TS_DIF4 || defined SPONGE_DIF2
 !
 !  Add Diffusivity for all tracers
 !
@@ -209,7 +209,7 @@
         enddo
        enddo
       enddo
-#  endif /* TS_DIF2 || TS_DIF4 */
+#  endif /* TS_DIF2 || TS_DIF4 || SPONGE_DIF2 */
 
 # endif /* SPONGE */
 !

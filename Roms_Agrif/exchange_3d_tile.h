@@ -1,15 +1,8 @@
-! $Id$
-!
-!======================================================================
-! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
-! The two other branches from UCLA (Shchepetkin et al) 
-! and Rutgers University (Arango et al) are under MIT/X style license.
-! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
-! 
-! ROMS_AGRIF website : http://roms.mpl.ird.fr
-!======================================================================
-!
+#ifndef MP_3PTS
       subroutine exchange_3d_tile (Istr,Iend,Jstr,Jend, A)
+#else
+      subroutine exchange_3d_3pts_tile (Istr,Iend,Jstr,Jend, A)
+#endif
 !
 ! Set periodic boundary conditions (if any) for a three-dimensional
 ! field A of RHO-, U-, V- or PSI-type. This file is designed to
@@ -23,6 +16,12 @@
       implicit none
 #include "param.h"
 #include "scalars.h"
+      integer Npts,ipts,jpts
+# ifndef MP_3PTS
+      parameter (Npts=2)
+# else
+      parameter (Npts=3)
+# endif
       real A(GLOBAL_2D_ARRAY,KSTART:N)
       integer Istr,Iend,Jstr,Jend, i,j,k
 !
@@ -40,16 +39,18 @@
         if (WESTERN_EDGE) then
           do k=KSTART,N
             do j=J_RANGE
-              A(Lm+1,j,k)=A(1,j,k)
-              A(Lm+2,j,k)=A(2,j,k)
+              do ipts=1,Npts
+                A(Lm+ipts,j,k)=A(ipts,j,k)
+	      enddo
             enddo
           enddo
         endif
         if (EASTERN_EDGE) then
           do k=KSTART,N
             do j=J_RANGE
-              A(-1,j,k)=A(Lm-1,j,k)
-              A( 0,j,k)=A(Lm  ,j,k)
+	      do ipts=1,Npts
+                A(ipts-Npts,j,k)=A(Lm+ipts-Npts,j,k)
+              enddo
             enddo
           enddo
         endif
@@ -71,16 +72,18 @@
         if (SOUTHERN_EDGE) then
           do k=KSTART,N
             do i=I_RANGE
-              A(i,Mm+1,k)=A(i,1,k)
-              A(i,Mm+2,k)=A(i,2,k)
+	      do jpts=1,Npts
+                A(i,Mm+jpts,k)=A(i,jpts,k)
+	      enddo
             enddo
           enddo
         endif
         if (NORTHERN_EDGE) then
           do k=KSTART,N
             do i=I_RANGE
-              A(i,-1,k)=A(i,Mm-1,k)
-              A(i, 0,k)=A(i,Mm  ,k)
+	      do jpts=1,Npts
+                A(i,jpts-Npts,k)=A(i,Mm+jpts-Npts,k)
+	      enddo
             enddo
           enddo
         endif
@@ -96,34 +99,38 @@
 # endif
         if (WESTERN_EDGE .and. SOUTHERN_EDGE) then
           do k=KSTART,N
-            A(Lm+1,Mm+1,k)=A(1,1,k)
-            A(Lm+1,Mm+2,k)=A(1,2,k)
-            A(Lm+2,Mm+1,k)=A(2,1,k)
-            A(Lm+2,Mm+2,k)=A(2,2,k)
+	    do jpts=1,Npts
+	      do ipts=1,Npts
+	        A(Lm+ipts,Mm+jpts,k)=A(ipts,jpts,k)
+	      enddo
+	    enddo
           enddo
         endif
         if (EASTERN_EDGE .and. SOUTHERN_EDGE) then
           do k=KSTART,N
-            A(-1,Mm+1,k)=A(Lm-1,1,k)
-            A( 0,Mm+1,k)=A(Lm  ,1,k)
-            A(-1,Mm+2,k)=A(Lm-1,2,k)
-            A( 0,Mm+2,k)=A(Lm  ,2,k)
+	    do jpts=1,Npts
+	      do ipts=1,Npts
+	        A(ipts-Npts,Mm+jpts,k)=A(Lm+ipts-Npts,jpts,k)
+	      enddo
+	    enddo
           enddo
         endif
         if (WESTERN_EDGE .and. NORTHERN_EDGE) then
           do k=KSTART,N
-            A(Lm+1,-1,k)=A(1,Mm-1,k)
-            A(Lm+1, 0,k)=A(1,Mm  ,k)
-            A(Lm+2,-1,k)=A(2,Mm-1,k)
-            A(Lm+2, 0,k)=A(2,Mm  ,k)
+	    do jpts=1,Npts
+	      do ipts=1,Npts
+	        A(Lm+ipts,jpts-Npts,k)=A(ipts,Mm+jpts-Npts,k)
+	      enddo
+	    enddo
           enddo
         endif
         if (EASTERN_EDGE .and. NORTHERN_EDGE) then
           do k=KSTART,N
-            A(-1,-1,k)=A(Lm-1,Mm-1,k)
-            A( 0,-1,k)=A(Lm  ,Mm-1,k)
-            A(-1, 0,k)=A(Lm-1,Mm  ,k)
-            A( 0, 0,k)=A(Lm  ,Mm  ,k)
+	    do jpts=1,Npts
+	      do ipts=1,Npts
+	        A(ipts-Npts,jpts-Npts,k)=A(Lm+ipts-Npts,Mm+jpts-Npts,k)
+	      enddo
+	    enddo
           enddo
         endif
 # ifdef MPI
@@ -132,7 +139,18 @@
 #endif
 #ifdef MPI
       k=N-KSTART+1
+# ifndef MP_3PTS
       call MessPass3D_tile (Istr,Iend,Jstr,Jend,  A,k)
+# else
+      call MessPass3D_3pts_tile (Istr,Iend,Jstr,Jend,  A,k)
+# endif
 #endif
       return
       end
+
+# ifndef MP_3PTS
+#  define MP_3PTS
+#  include "exchange_3d_tile.h"
+#  undef MP_3PTS
+# endif
+

@@ -248,9 +248,22 @@ C$    integer omp_get_thread_num
 #  ifdef DIF_COEF_3D
           if (wrtavg(indxDiff)) then
             do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR
-                  diff3d_avg(i,j,k)=diff3d(i,j,k)
+              do j=Jstr,Jend
+                do i=Istr,Iend
+                  diff3d_avg(i,j,k)=
+#   ifdef TS_DIF2
+     &                      diff2(i,j,itemp)
+#    ifdef TS_DIF_SMAGO
+     &                     +diff3d_r(i,j,k)
+#    endif
+#   elif defined TS_DIF4
+     &                      diff4(i,j,itrc)
+#    ifdef TS_DIF_SMAGO
+     &                     +diff3d_r(i,j,k)*om_r(i,j)*on_r(i,j)
+#    endif
+     &                     +0.25*(diff3d_u(i,j,k)+diff3d_u(i+1,j,k)
+     &                           +diff3d_v(i,j,k)+diff3d_v(i,j+1,k))
+#   endif
                 enddo
               enddo
             enddo
@@ -528,9 +541,22 @@ C$    integer omp_get_thread_num
 #  ifdef DIF_COEF_3D
           if (wrtavg(indxDiff)) then
             do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR
-                  diff3d_avg(i,j,k)=diff3d_avg(i,j,k)+diff3d(i,j,k)
+              do j=Jstr,Jend
+                do i=Istr,Iend
+                  diff3d_avg(i,j,k)=diff3d_avg(i,j,k)+
+#   ifdef TS_DIF2
+     &                      diff2(i,j,itemp)
+#    ifdef TS_DIF_SMAGO
+     &                     +diff3d_r(i,j,k)
+#    endif
+#   elif defined TS_DIF4
+     &                      diff4(i,j,itrc)
+#    ifdef TS_DIF_SMAGO
+     &                     +diff3d_r(i,j,k)*om_r(i,j)*on_r(i,j)
+#    endif
+     &                     +0.25*(diff3d_u(i,j,k)+diff3d_u(i+1,j,k)
+     &                           +diff3d_v(i,j,k)+diff3d_v(i,j+1,k))
+#   endif
                 enddo
               enddo
             enddo
@@ -822,10 +848,23 @@ C$    integer omp_get_thread_num
 #  ifdef DIF_COEF_3D
           if (wrtavg(indxDiff)) then
             do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR
-                  diff3d_avg(i,j,k)=cff*(diff3d_avg(i,j,k)
-     &                                  +diff3d(i,j,k))
+              do j=Jstr,Jend
+                do i=Istr,Iend
+                  diff3d_avg(i,j,k)=cff*(diff3d_avg(i,j,k)+
+#   ifdef TS_DIF2
+     &                      diff2(i,j,itemp)
+#    ifdef TS_DIF_SMAGO
+     &                     +diff3d_r(i,j,k)
+#    endif
+#   elif defined TS_DIF4
+     &                      diff4(i,j,itrc)
+#    ifdef TS_DIF_SMAGO
+     &                     +diff3d_r(i,j,k)*om_r(i,j)*on_r(i,j)
+#    endif
+     &                     +0.25*(diff3d_u(i,j,k)+diff3d_u(i+1,j,k)
+     &                           +diff3d_v(i,j,k)+diff3d_v(i,j+1,k))
+#   endif
+     &                                  )
                 enddo
               enddo
             enddo

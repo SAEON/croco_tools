@@ -18,7 +18,7 @@
 # include "private_scratch.h"
 # include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
-#ifdef AGRIF
+# ifdef AGRIF
        if (AGRIF_Root()) then
         call uv3dmix_tile (Istr,Iend,Jstr,Jend, 
      &                        A2d(1,1,trd), A2d(1,2,trd),
@@ -30,13 +30,13 @@
        endif 
       return
       end
-#else 
+# else 
       call uv3dmix_tile (Istr,Iend,Jstr,Jend, 
      &                        A2d(1,1,trd), A2d(1,2,trd),
      &                        A2d(1,3,trd), A2d(1,4,trd))
       return
       end
-#endif   /* AGRIF */ 
+# endif   /* AGRIF */ 
 !
 !---------------------------------------------------------------------
 !*********************************************************************
@@ -46,7 +46,7 @@
 ! 
       subroutine uv3dmix_tile (Istr,Iend,Jstr,Jend, 
      &                                       UFx,UFe,VFx,VFe)
-#undef CLIMAT_UV_MIXH_FINE
+# undef CLIMAT_UV_MIXH_FINE
 !
 #else
 !
@@ -56,9 +56,9 @@
      &                                         UFx,UFe,VFx,VFe)
 !
 ! Diffusion always applied on U-UCLM in fine grid
-#if !defined UV_SPLIT_UP3
-#define CLIMAT_UV_MIXH_FINE
-#endif
+# if !defined UV_HADV_RSUP3
+#  define CLIMAT_UV_MIXH_FINE
+# endif
 !
 #endif /* CHILD_SPG */
 !
@@ -98,26 +98,24 @@
      &     UFx(PRIVATE_2D_SCRATCH_ARRAY), cff,
      &     VFe(PRIVATE_2D_SCRATCH_ARRAY), cff1,
      &     VFx(PRIVATE_2D_SCRATCH_ARRAY)
-# include "param.h"
-# include "scalars.h"
-# include "grid.h"
-# include "ocean3d.h"
-# include "coupling.h"
-# include "mixing.h"
-# ifdef CLIMAT_UV_MIXH
-#  include "climat.h"
-# endif
-# ifdef DIAGNOSTICS_UV
-#  include "diagnostics.h"
-# endif
-!
+#include "param.h"
+#include "scalars.h"
+#include "grid.h"
+#include "ocean3d.h"
+#include "coupling.h"
+#include "mixing.h"
+#ifdef CLIMAT_UV_MIXH
+# include "climat.h"
+#endif
+#ifdef DIAGNOSTICS_UV
+# include "diagnostics.h"
+#endif
 #ifdef AGRIF
 #include "zoom.h"
 #endif
 !
 # include "compute_auxiliary_bounds.h"
 !
-
 #ifdef CHILD_SPG
 #define UCLM usponge
 #define VCLM vsponge
@@ -134,54 +132,54 @@
       do k=1,N
         do j=JstrV-1,Jend
           do i=IstrU-1,Iend
-# ifdef VIS_SMAGO
+#ifdef UV_VIS_SMAGO
             cff=Hz(i,j,k)*(visc2_r(i,j)+visc3d_r(i,j,k))*
-# else
+#else
             cff=Hz(i,j,k)*visc2_r(i,j)*
-# endif
-#  if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
+#endif
+#if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
      &    ( on_r(i,j)*pm(i,j)*
      &        ( pn_u(i+1,j)*(u(i+1,j,k,nstp)-UCLM(i+1,j,k))
      &         -pn_u(i  ,j)*(u(i  ,j,k,nstp)-UCLM(i  ,j,k)) )
      &     -om_r(i,j)*pn(i,j)*
      &        ( pm_v(i,j+1)*(v(i,j+1,k,nstp)-VCLM(i,j+1,k))
      &         -pm_v(i,j  )*(v(i,j  ,k,nstp)-VCLM(i,j  ,k)) ) )
-#  else
+#else
      &    ( on_r(i,j)*pm(i,j)*( pn_u(i+1,j)*u(i+1,j,k,nstp)
      &                         -pn_u(i  ,j)*u(i  ,j,k,nstp) )
      &     -om_r(i,j)*pn(i,j)*( pm_v(i,j+1)*v(i,j+1,k,nstp)
      &                         -pm_v(i,j  )*v(i,j  ,k,nstp) ) )
-#  endif
+#endif
             UFx(i,j)=on_r(i,j)*on_r(i,j)*cff
             VFe(i,j)=om_r(i,j)*om_r(i,j)*cff
           enddo
         enddo
         do j=Jstr,Jend+1
           do i=Istr,Iend+1
-# ifdef VIS_SMAGO
+#ifdef UV_VIS_SMAGO
             cff=0.0625*(visc2_p(i,j)+visc3d_p(i,j,k))*
-# else
+#else
             cff=0.0625*visc2_p(i,j)*
-# endif
+#endif
      &      (Hz(i-1,j,k)+Hz(i,j,k)+Hz(i-1,j-1,k)+Hz(i,j-1,k))*
-#  if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
+#if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
      &      (  (pm(i-1,j)+pm(i,j)+pm(i-1,j-1)+pm(i,j-1))*on_p(i,j)
      &              *( pn_v(i  ,j)*(v(i  ,j,k,nstp)-VCLM(i  ,j,k))
      &                -pn_v(i-1,j)*(v(i-1,j,k,nstp)-VCLM(i-1,j,k)) )
      &        +(pn(i-1,j)+pn(i,j)+pn(i-1,j-1)+pn(i,j-1))*om_p(i,j)
      &              *( pm_u(i,j  )*(u(i,j  ,k,nstp)-UCLM(i  ,j,k))
      &                -pm_u(i,j-1)*(u(i,j-1,k,nstp)-UCLM(i,j-1,k)) ))
-#  else
+#else
      &      (  (pm(i-1,j)+pm(i,j)+pm(i-1,j-1)+pm(i,j-1))*on_p(i,j)
      &                     *( pn_v(i  ,j)*v(i  ,j,k,nstp)
      &                       -pn_v(i-1,j)*v(i-1,j,k,nstp) )
      &        +(pn(i-1,j)+pn(i,j)+pn(i-1,j-1)+pn(i,j-1))*om_p(i,j)
      &                     *( pm_u(i,j  )*u(i,j  ,k,nstp)
      &                       -pm_u(i,j-1)*u(i,j-1,k,nstp) ))
-#  endif
-#    ifdef MASKING
+#endif
+#ifdef MASKING
      &                                            * pmask(i,j)
-#    endif
+#endif
             UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
             VFx(i,j)=on_p(i,j)*on_p(i,j)*cff
           enddo
@@ -199,9 +197,9 @@
             cff1=pm_u(i,j)*pn_u(i,j)*cff
             rufrc(i,j)=rufrc(i,j) + cff
             u(i,j,k,indx)=u(i,j,k,indx) + dt*cff1
-# ifdef DIAGNOSTICS_UV
+#ifdef DIAGNOSTICS_UV
             MHmix(i,j,k,1) = 2*cff1/(Hz(i-1,j,k)+Hz(i,j,k))
-# endif
+#endif
           enddo
         enddo
         do j=JstrV,Jend
@@ -211,9 +209,9 @@
             cff1=pm_v(i,j)*pn_v(i,j)*cff 
             rvfrc(i,j)=rvfrc(i,j) + cff
             v(i,j,k,indx)=v(i,j,k,indx) + dt*cff1
-# ifdef DIAGNOSTICS_UV
+#ifdef DIAGNOSTICS_UV
             MHmix(i,j,k,2) = 2*cff1/(Hz(i,j-1,k)+Hz(i,j,k))
-# endif
+#endif
           enddo
         enddo
       enddo
@@ -222,6 +220,7 @@
       end
 !
 #ifndef CHILD_SPG
+# undef UCLM VCLM
 # define CHILD_SPG
 # ifdef AGRIF
 #  include "uv3dmix_S.F"

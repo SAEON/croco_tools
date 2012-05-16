@@ -266,7 +266,7 @@
 
         do j=Jstr,Jend
           do i=IstrU-1,Iend
-#  ifdef HADV_C4_UV
+#  ifdef UV_HADV_C4
             UFx(i,j)=0.25*( u(i,j,k,nrhs)+u(i+1,j,k,nrhs)
      &                         -0.125*(uxx(i,j)+uxx(i+1,j))
      &                  )*( Huon(i,j,k)+Huon(i+1,j,k)
@@ -340,7 +340,7 @@
 #  endif
         do j=JstrV-1,Jend
           do i=Istr,Iend
-#  ifdef HADV_C4_UV
+#  ifdef UV_HADV_C4
             VFe(i,j)=0.25*( v(i,j,k,nrhs)+v(i,j+1,k,nrhs)
      &                        -0.125*(vee(i,j)+vee(i,j+1))
      &                  )*( Hvom(i,j,k)+Hvom(i,j+1,k)
@@ -414,7 +414,7 @@
         enddo
         do j=Jstr,Jend+1
           do i=IstrU,Iend
-#  ifdef HADV_C4_UV
+#  ifdef UV_HADV_C4
             UFe(i,j)=0.25*( u(i,j,k,nrhs)+u(i,j-1,k,nrhs)
      &                        -0.125*(uee(i,j)+uee(i,j-1))
      &                  )*( Hvom(i,j,k)+Hvom(i-1,j,k)
@@ -490,7 +490,7 @@
         enddo
         do j=JstrV,Jend
           do i=Istr,Iend+1
-#  ifdef HADV_C4_UV
+#  ifdef UV_HADV_C4
             VFx(i,j)=0.25*( v(i,j,k,nrhs)+v(i-1,j,k,nrhs)
      &                        -0.125*(vxx(i,j)+vxx(i-1,j))
      &                  )*( Huon(i,j,k)+Huon(i,j-1,k)
@@ -546,7 +546,7 @@
 !
 !=================================================================
 !
-#  ifdef VADV_SPLINES_UV
+#  ifdef UV_VADV_SPLINES
 !
 !  Construct conservative parabolic splines for the vertical
 !  derivatives "CF" of u-momentum.
@@ -595,7 +595,7 @@
           FC(i,N)=0.
           FC(i,0)=0.
         enddo
-#  elif defined VADV_C2_UV
+#  elif defined UV_VADV_C2
         do k=1,N-1
           do i=IstrU,Iend
             FC(i,k)=0.25*(u(i,j,k,nrhs)+u(i,j,k+1,nrhs))
@@ -641,7 +641,7 @@
         enddo               !--> discard FC
 
         if (j.ge.JstrV) then
-#  ifdef VADV_SPLINES_UV
+#  ifdef UV_VADV_SPLINES
 !
 !  Construct conservative parabolic splines for the vertical
 !  derivatives "CF" of v-momentum.
@@ -690,7 +690,7 @@
             FC(i,N)=0.
             FC(i,0)=0.
           enddo
-#  elif defined VADV_C2_UV
+#  elif defined UV_VADV_C2
           do k=1,N-1
             do i=Istr,Iend
               FC(i,k)=0.25*(v(i,j,k,nrhs)+v(i,j,k+1,nrhs))

@@ -49,11 +49,11 @@
 !
       implicit none
       integer tile, trd, omp_get_thread_num
-#include "param.h"
-#include "private_scratch.h"
-#include "compute_tile_bounds.h"
+# include "param.h"
+# include "private_scratch.h"
+# include "compute_tile_bounds.h"
       trd=omp_get_thread_num() 
-#ifdef AGRIF
+# ifdef AGRIF
       if (AGRIF_Root()) then
        call uv3dmix_tile (Istr,Iend,Jstr,Jend,
      &                      A3d(1, 1,trd),A3d(1, 2,trd),A2d(1, 1,trd),
@@ -73,7 +73,7 @@
        endif
       return
       end
-#else 
+# else 
       call uv3dmix_tile (Istr,Iend,Jstr,Jend,
      &                      A3d(1, 1,trd),A3d(1, 2,trd),A2d(1, 1,trd),
      &                      A2d(1, 2,trd),A2d(1, 3,trd),A2d(1, 4,trd),
@@ -83,7 +83,7 @@
      &                      A2d(1,23,trd),A2d(1,25,trd),A2d(1,27,trd))
       return
       end
-#endif   /* AGRIF */ 
+# endif   /* AGRIF */ 
 !
 !---------------------------------------------------------------------
 !*********************************************************************
@@ -96,7 +96,7 @@
      &                              dUdz,dnVdx,dmVde,dVdz,dZdx_r,
      &                              dZdx_p,dZde_r,dZde_p)
 
-#undef CLIMAT_UV_MIXH_FINE
+# undef CLIMAT_UV_MIXH_FINE
 !
 #else
 !
@@ -108,9 +108,9 @@
      &                              dZdx_p,dZde_r,dZde_p)
 !
 ! Diffusion always applied on U-UCLM in fine grid
-#if !defined UV_SPLIT_UP3
-#define CLIMAT_UV_MIXH_FINE
-#endif
+# if !defined UV_HADV_RSUP3
+#  define CLIMAT_UV_MIXH_FINE
+# endif
 !
 #endif /* CHILD_SPG */
 !
@@ -119,18 +119,18 @@
 !---------------------------------------------------------------------
 !
       implicit none
-# include "param.h"
-# include "grid.h"
-# include "mixing.h"
-# include "coupling.h"
-# include "ocean3d.h"
-# include "scalars.h"
-# ifdef CLIMAT_UV_MIXH
-#  include "climat.h"
-# endif
-# ifdef DIAGNOSTICS_UV
-#  include "diagnostics.h"
-# endif
+#include "param.h"
+#include "grid.h"
+#include "mixing.h"
+#include "coupling.h"
+#include "ocean3d.h"
+#include "scalars.h"
+#ifdef CLIMAT_UV_MIXH
+# include "climat.h"
+#endif
+#ifdef DIAGNOSTICS_UV
+# include "diagnostics.h"
+#endif
 !
       integer   Iend, Istr, Jend, Jstr, i, j, k, k1, k2, 
      &          imin,imax,jmin,jmax,iminU,JminV, indx
@@ -155,11 +155,11 @@
      &        dZdx_p(PRIVATE_2D_SCRATCH_ARRAY,2),
      &        dZdx_r(PRIVATE_2D_SCRATCH_ARRAY,2)
 !
-# include "compute_auxiliary_bounds.h"
-!
 #ifdef AGRIF
 #include "zoom.h"
 #endif
+!
+#include "compute_auxiliary_bounds.h"
 !
 #ifdef CHILD_SPG
 #define UCLM usponge
@@ -169,7 +169,7 @@
 #define VCLM vclm
 #endif
 !
-# ifndef EW_PERIODIC
+#ifndef EW_PERIODIC
       if (WESTERN_EDGE) then
         imin=istr
         iminU=istr+1
@@ -182,12 +182,12 @@
       else
         imax=iend+1
       endif
-# else
+#else
       imin=istr-1
       imax=iend+1
       iminU=imin
-# endif
-# ifndef NS_PERIODIC
+#endif
+#ifndef NS_PERIODIC
       if (SOUTHERN_EDGE) then
         jmin=jstr
         jminV=jstr+1
@@ -200,11 +200,11 @@
       else
         jmax=jend+1
       endif
-# else
+#else
       jmin=jstr-1
       jmax=jend+1
       jminV=jmin
-# endif
+#endif
 
       indx=3-nstp    !--> time index for target arrays;
 !
@@ -239,17 +239,17 @@
           do j=jmin-1,jmax+1
             do i=iminU-1,imax+1
               UFx(i,j)=pm_u(i,j)*dz_u(i,j,k+1)
-#    ifdef MASKING
+#ifdef MASKING
      &                                     * umask(i,j)
-#    endif
+#endif
             enddo
           enddo
           do j=jminV-1,jmax+1
             do i=imin-1,imax+1
               VFe(i,j)=pn_v(i,j)*dz_v(i,j,k+1)
-#    ifdef MASKING
+#ifdef MASKING
      &                                     * vmask(i,j)
-#    endif
+#endif
             enddo
           enddo
 !
@@ -258,28 +258,28 @@
           do j=jminV-1,jmax
             do i=iminU-1,imax
               dnUdx(i,j,k2)=pm(i,j)*
-# if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
+#if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
      &         (pn_u(i+1,j)*(u(i+1,j,k+1,nstp)- UCLM(i+1,j,k+1)) -
      &          pn_u(i  ,j)*(u(i  ,j,k+1,nstp)- UCLM(i  ,j,k+1)) )
-# else
+#else
      &                      (pn_u(i+1,j)*u(i+1,j,k+1,nstp)-
      &                       pn_u(i  ,j)*u(i  ,j,k+1,nstp))
-# endif
-#    ifdef MASKING
+#endif
+#ifdef MASKING
      &                                     * rmask(i,j)
-#    endif
+#endif
 
               dmVde(i,j,k2)=pn(i,j)*
-# if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
+#if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
      &         (pm_v(i,j+1)*( v(i,j+1,k+1,nstp)- VCLM(i,j+1,k+1)) -
      &          pm_v(i,j  )*( v(i,j  ,k+1,nstp)- VCLM(i,j  ,k+1)) )
-# else
+#else
      &                      (pm_v(i,j+1)*v(i,j+1,k+1,nstp)-
      &                       pm_v(i,j  )*v(i,j  ,k+1,nstp))
-# endif
-#    ifdef MASKING
+#endif
+#ifdef MASKING
      &                                     * rmask(i,j)
-#    endif
+#endif
               dZdx_r(i,j,k2)=0.5*(UFx(i,j)+UFx(i+1,j))
               dZde_r(i,j,k2)=0.5*(VFe(i,j)+VFe(i,j+1))
             enddo
@@ -288,29 +288,29 @@
             do i=imin,imax+1
               dmUde(i,j,k2)=0.25*(pn(i-1,j  )+pn(i,j  )+
      &                            pn(i-1,j-1)+pn(i,j-1))*
-# if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
+#if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
      &         (pm_u(i,j  )*(u(i,j  ,k+1,nstp)-UCLM(i,j  ,k+1)) -
      &          pm_u(i,j-1)*(u(i,j-1,k+1,nstp)-UCLM(i,j-1,k+1)) )
-# else
+#else
      &                      (pm_u(i,j  )*u(i,j  ,k+1,nstp)-
      &                       pm_u(i,j-1)*u(i,j-1,k+1,nstp))
-# endif
-#    ifdef MASKING
+#endif
+#ifdef MASKING
      &                                     * pmask(i,j)
-#    endif
+#endif
 
               dnVdx(i,j,k2)=0.25*(pm(i-1,j  )+pm(i,j  )+
      &                            pm(i-1,j-1)+pm(i,j-1))*
-# if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
+#if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
      &         (pn_v(i  ,j)*(v(i  ,j,k+1,nstp)-VCLM(i  ,j,k+1)) -
      &          pn_v(i-1,j)*(v(i-1,j,k+1,nstp)-VCLM(i-1,j,k+1)) )
-# else
+#else
      &                      (pn_v(i  ,j)*v(i  ,j,k+1,nstp)-
      &                       pn_v(i-1,j)*v(i-1,j,k+1,nstp))
-# endif
-#    ifdef MASKING
+#endif
+#ifdef MASKING
      &                                     * pmask(i,j)
-#    endif
+#endif
               dZde_p(i,j,k2)=0.5*(VFe(i-1,j)+VFe(i,j))
               dZdx_p(i,j,k2)=0.5*(UFx(i,j-1)+UFx(i,j))
             enddo
@@ -360,9 +360,9 @@
      &                             (dVdz(i,j,k1)+dVdz(i,j+1,k2))+
      &                         MAX(dZde_r(i,j,k1),0.0)*
      &                             (dVdz(i,j,k2)+dVdz(i,j+1,k1)))))
-#    ifdef MASKING
+#ifdef MASKING
      &                                               * rmask(i,j)
-#    endif
+#endif
               UFx(i,j)=on_r(i,j)*on_r(i,j)*cff
               VFe(i,j)=om_r(i,j)*om_r(i,j)*cff
             enddo
@@ -383,9 +383,9 @@
      &                             (dUdz(i,j-1,k1)+dUdz(i,j,k2))+
      &                         MAX(dZde_p(i,j,k1),0.0)*
      &                             (dUdz(i,j-1,k2)+dUdz(i,j,k1)))))
-#    ifdef MASKING
+#ifdef MASKING
      &                                              * pmask(i,j)
-#    endif
+#endif
               UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
               VFx(i,j)=on_p(i,j)*on_p(i,j)*cff
             enddo
@@ -519,9 +519,9 @@
      &                      pm_u(i,j)*(UFe(i,j+1)-UFe(i,j  )))+
      &                   (UFs(i,j,k2)-UFs(i,j,k1))/
      &                    (0.5*(Hz(i-1,j,k)+Hz(i,j,k)))
-#    ifdef MASKING
+#ifdef MASKING
      &                   * umask(i,j)
-#    endif
+#endif
             enddo
           enddo
           do j=jminV,jmax
@@ -531,9 +531,9 @@
      &                      pm_v(i,j)*(VFe(i,j  )-VFe(i,j-1)))+
      &                   (VFs(i,j,k2)-VFs(i,j,k1))/
      &                     (0.5*(Hz(i,j-1,k)+Hz(i,j,k)))
-#    ifdef MASKING
+#ifdef MASKING
      &                   * vmask(i,j)
-#    endif
+#endif
             enddo
           enddo
 !
@@ -541,74 +541,74 @@
 !  harmonic operator. These are gradient or closed (free slip or
 !  no slip) boundary conditions.
 !
-# ifndef EW_PERIODIC
+#ifndef EW_PERIODIC
         if (WESTERN_EDGE) then
           do j=jmin,jmax
-#  ifndef OBC_WEST
+# ifndef OBC_WEST
             LapU(Istr,j,k)=0.0
-#  else
+# else
             LapU(Istr,j,k)=LapU(Istr+1,j,k)
-#  endif
+# endif
           enddo
           do j=jminV,jmax
-#  ifndef OBC_WEST
+# ifndef OBC_WEST
             LapV(Istr-1,j,k)=gamma2*LapV(Istr,j,k)
-#  else
+# else
             LapV(Istr-1,j,k)=0.0
-#  endif
+# endif
           enddo
         endif
         if (EASTERN_EDGE) then
           do j=jmin,jmax
-#  ifndef OBC_EAST
+# ifndef OBC_EAST
             LapU(Iend+1,j,k)=0.0
-#  else
+# else
             LapU(Iend+1,j,k)=LapU(Iend,j,k)
-#  endif
+# endif
           enddo
           do j=jminV,jmax
-#  ifndef OBC_EAST
+# ifndef OBC_EAST
             LapV(Iend+1,j,k)=gamma2*LapV(Iend,j,k)
-#  else
+# else
             LapV(Iend+1,j,k)=0.0
-#  endif
+# endif
           enddo
         endif
-# endif /* !EW_PERIODIC */
-# ifndef NS_PERIODIC
+#endif /* !EW_PERIODIC */
+#ifndef NS_PERIODIC
         if (SOUTHERN_EDGE) then
           do i=iminU,imax
-#  ifndef OBC_SOUTH
+# ifndef OBC_SOUTH
             LapU(i,Jstr-1,k)=gamma2*LapU(i,Jstr,k)
-#  else
+# else
             LapU(i,Jstr-1,k)=0.0
-#  endif
+# endif
           enddo
           do i=imin,imax
-#  ifndef OBC_SOUTH
+# ifndef OBC_SOUTH
             LapV(i,Jstr,k)=0.0
-#  else
+# else
             LapV(i,Jstr,k)=LapV(i,Jstr+1,k)
-#  endif
+# endif
           enddo
         endif
         if (NORTHERN_EDGE) then
           do i=iminU,imax
-#  ifndef OBC_NORTH
+# ifndef OBC_NORTH
             LapU(i,Jend+1,k)=gamma2*LapU(i,Jend,k)
-#  else
+# else
             LapU(i,Jend+1,k)=0.0
-#  endif
+# endif
           enddo
           do i=imin,imax
-#  ifndef OBC_NORTH
+# ifndef OBC_NORTH
             LapV(i,Jend+1,k)=0.0
-#  else
+# else
             LapV(i,Jend+1,k)=LapV(i,Jend,k)
-#  endif
+# endif
           enddo
         endif
-# endif /* !NS_PERIODIC */
+#endif /* !NS_PERIODIC */
 !
 ! Corner points
 !
@@ -657,17 +657,17 @@
           do j=Jstr-1,Jend+1
             do i=IstrU-1,Iend+1
               UFx(i,j)=pm_u(i,j)*dz_u(i,j,k+1)
-#    ifdef MASKING
+#ifdef MASKING
      &                * umask(i,j)
-#    endif
+#endif
             enddo
           enddo
           do j=JstrV-1,Jend+1
             do i=Istr-1,Iend+1
               VFe(i,j)=pn_v(i,j)*dz_v(i,j,k+1)
-#    ifdef MASKING
+#ifdef MASKING
      &                * vmask(i,j)
-#    endif
+#endif
             enddo
           enddo
 !
@@ -679,15 +679,15 @@
               dnUdx(i,j,k2)=pm(i,j)*
      &                      (pn_u(i+1,j)*LapU(i+1,j,k+1)-
      &                       pn_u(i  ,j)*LapU(i  ,j,k+1)) 
-#    ifdef MASKING
+#ifdef MASKING
      &                     * rmask(i,j)
-#    endif
+#endif
               dmVde(i,j,k2)=pn(i,j)*
      &                      (pm_v(i,j+1)*LapV(i,j+1,k+1)-
      &                       pm_v(i,j  )*LapV(i,j  ,k+1)) 
-#    ifdef MASKING
+#ifdef MASKING
      &                     * rmask(i,j)
-#    endif
+#endif
               dZdx_r(i,j,k2)=0.5*(UFx(i,j)+UFx(i+1,j))
               dZde_r(i,j,k2)=0.5*(VFe(i,j)+VFe(i,j+1))
 
@@ -699,16 +699,16 @@
      &                            pn(i-1,j-1)+pn(i,j-1))*
      &                      (pm_u(i,j  )*LapU(i,j  ,k+1)-
      &                       pm_u(i,j-1)*LapU(i,j-1,k+1))
-#    ifdef MASKING
+#ifdef MASKING
      &                     * pmask(i,j)
-#    endif
+#endif
               dnVdx(i,j,k2)=0.125*(pm(i-1,j  )+pm(i,j  )+
      &                             pm(i-1,j-1)+pm(i,j-1))*
      &                      (pn_v(i  ,j)*LapV(i  ,j,k+1)-
      &                       pn_v(i-1,j)*LapV(i-1,j,k+1))
-#    ifdef MASKING
+#ifdef MASKING
      &                     * pmask(i,j)
-#    endif
+#endif
               dZde_p(i,j,k2)=0.5*(VFe(i-1,j)+VFe(i,j))
               dZdx_p(i,j,k2)=0.5*(UFx(i,j-1)+UFx(i,j))
             enddo
@@ -761,24 +761,24 @@
      &                             (dVdz(i,j,k1)+dVdz(i,j+1,k2))+
      &                         MAX(dZde_r(i,j,k1),0.0)*
      &                             (dVdz(i,j,k2)+dVdz(i,j+1,k1)))))
-#    ifdef MASKING
+#ifdef MASKING
      &                   * rmask(i,j)
-#    endif
+#endif
 
               UFx(i,j)=on_r(i,j)*on_r(i,j)*cff
               VFe(i,j)=om_r(i,j)*om_r(i,j)*cff
-# ifdef VIS_COEF_3D
-#  ifdef UV_SPLIT_UP3
+#ifdef VIS_COEF_3D
+# ifdef UV_HADV_RSUP3
               UFx(i,j)=viscU_r(i,j,k)*UFx(i,j)
               VFe(i,j)=viscV_r(i,j,k)*VFe(i,j)
-#  else
+# else
               UFx(i,j)=visc3d_r(i,j,k)*UFx(i,j)
               VFe(i,j)=visc3d_r(i,j,k)*VFe(i,j)
-#  endif
-# else
+# endif
+#else
               UFx(i,j)=visc4_r(i,j)*UFx(i,j)
               VFe(i,j)=visc4_r(i,j)*VFe(i,j)
-# endif
+#endif
             enddo
           enddo
           do j=Jstr,Jend+1
@@ -799,23 +799,23 @@
      &                             (dUdz(i,j-1,k1)+dUdz(i,j,k2))+
      &                         MAX(dZde_p(i,j,k1),0.0)*
      &                             (dUdz(i,j-1,k2)+dUdz(i,j,k1)))))
-#    ifdef MASKING
+#ifdef MASKING
      &                  * pmask(i,j)
-#    endif
+#endif
             UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
             VFx(i,j)=on_p(i,j)*on_p(i,j)*cff
-# ifdef VIS_COEF_3D
-#  ifdef UV_SPLIT_UP3
+#ifdef VIS_COEF_3D
+# ifdef UV_HADV_RSUP3
             UFe(i,j)=viscU_p(i,j,k)*UFe(i,j)
             VFx(i,j)=viscV_p(i,j,k)*VFx(i,j)
-#  else
+# else
             UFe(i,j)=visc3d_p(i,j,k)*UFe(i,j)
             VFx(i,j)=visc3d_p(i,j,k)*VFx(i,j)
-#  endif
-# else
+# endif
+#else
             UFe(i,j)=visc4_p(i,j)*UFe(i,j)
             VFx(i,j)=visc4_p(i,j)*VFx(i,j)
-# endif
+#endif
             enddo
           enddo
 !
@@ -825,15 +825,15 @@
           if (k.lt.N) then
             do j=Jstr,Jend
               do i=IstrU,Iend
-# ifdef VIS_COEF_3D
-#  ifdef UV_SPLIT_UP3
+#ifdef VIS_COEF_3D
+# ifdef UV_HADV_RSUP3
                 viscoef=0.5*(viscU_r(i-1,j,k)+viscU_r(i,j,k))
-#  else
-                viscoef=0.5*(visc3d_r(i-1,j,k)+visc3d_r(i,j,k))
-#  endif
 # else
-                viscoef=0.5*(visc4_r(i-1,j)+visc4_r(i,j))
+                viscoef=0.5*(visc3d_r(i-1,j,k)+visc3d_r(i,j,k))
 # endif
+#else
+                viscoef=0.5*(visc4_r(i-1,j)+visc4_r(i,j))
+#endif
                 cff=0.5*(pn(i-1,j)+pn(i,j))
                 dnUdz=cff*dUdz(i,j,k2)
                 dnVdz=cff*0.25*(dVdz(i-1,j+1,k2)+dVdz(i,j+1,k2)+
@@ -891,15 +891,15 @@
 !
             do j=JstrV,Jend
               do i=Istr,Iend
-# ifdef VIS_COEF_3D
-#  ifdef UV_SPLIT_UP3
+#ifdef VIS_COEF_3D
+# ifdef UV_HADV_RSUP3
                 viscoef=0.5*(viscV_r(i,j-1,k)+viscV_r(i,j,k))
-#  else
-                viscoef=0.5*(visc3d_r(i,j-1,k)+visc3d_r(i,j,k))
-#  endif
 # else
-                viscoef=0.5*(visc4_r(i,j-1)+visc4_r(i,j))
+                viscoef=0.5*(visc3d_r(i,j-1,k)+visc3d_r(i,j,k))
 # endif
+#else
+                viscoef=0.5*(visc4_r(i,j-1)+visc4_r(i,j))
+#endif
                 cff=0.5*(pn(i,j-1)+pn(i,j))
                 dnUdz=cff*0.25*(dUdz(i,j  ,k2)+dUdz(i+1,j  ,k2)+
      &                          dUdz(i,j-1,k2)+dUdz(i+1,j-1,k2))
@@ -969,10 +969,10 @@
               rufrc(i,j)=rufrc(i,j) - cff
               u(i,j,k,indx)=u(i,j,k,indx) - dt*(cff1+UFs(i,j,k2)
      &                                              -UFs(i,j,k1))
-# ifdef DIAGNOSTICS_UV
+#ifdef DIAGNOSTICS_UV
               MHmix(i,j,k,1) = -2*(cff1+UFs(i,j,k2)-UFs(i,j,k1))
      &                                   /(Hz(i-1,j,k)+Hz(i,j,k))
-# endif
+#endif
             enddo
           enddo
           do j=JstrV,Jend
@@ -983,10 +983,10 @@
               rvfrc(i,j)=rvfrc(i,j) - cff
               v(i,j,k,indx)=v(i,j,k,indx) - dt*(cff1+VFs(i,j,k2)
      &                                              -VFs(i,j,k1))
-# ifdef DIAGNOSTICS_UV
+#ifdef DIAGNOSTICS_UV
               MHmix(i,j,k,2) = -2*(cff1+VFs(i,j,k2)-VFs(i,j,k1))
      &                                   /(Hz(i,j,k)+Hz(i,j-1,k))
-# endif
+#endif
             enddo
           enddo
 !
@@ -998,6 +998,7 @@
 !
 !
 #ifndef CHILD_SPG
+# undef UCLM VCLM
 # define CHILD_SPG
 # ifdef AGRIF
 #  include "uv3dmix4_GP.F"

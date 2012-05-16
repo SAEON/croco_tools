@@ -50,61 +50,58 @@
     Select MOMENTUM LATERAL advection-diffusion scheme:
     (The default is third-order upstream biased)
 */
-#undef UV_SPLIT_UP3
-#undef  HADV_C4_UV        /* 4th-order centered lateral advection */
-#ifdef UV_SPLIT_UP3       /*    Split 3rd-order scheme into       */
-# define HADV_C4_UV       /*       4th order centered             */
-# undef  UV_VIS2          /*        + hyperdiffusion              */
-# define UV_VIS4
-# undef  MIX_GP_UV
-# define MIX_S_UV
-# define VIS_COEF_3D
-#endif
-#ifdef VIS_SMAGO 
+#undef  UV_HADV_C4        /* 4th-order centered lateral advection */
+#ifdef UV_VIS_SMAGO 
 # define VIS_COEF_3D
 #endif
 
-/*   
+/*
    Apply diffusion in the interior
    over an anomaly only, with respect 
    to a reference frame (climatology)
 */
 
-# if defined M3CLIMATOLOGY  && !defined UV_SPLIT_UP3\
-      && !defined VIS_SMAGO
+# if defined M3CLIMATOLOGY && !defined UV_VIS_SMAGO
 #  define CLIMAT_UV_MIXH
 # endif
 
-/*    
+/*
 Select MOMENTUM VERTICAL advection scheme:
 */
-#define VADV_SPLINES_UV   /* splines vertical advection */
-#undef  VADV_C2_UV        /* 2nd-order centered vertical advection */
+#define UV_VADV_SPLINES   /* splines vertical advection */
+#undef  UV_VADV_C2        /* 2nd-order centered vertical advection */
 
 /*
     Select TRACER LATERAL advection-diffusion scheme
     (The default is 4th-order centered)
 */
-#define HADV_UPSTREAM_TS  /* 3rd-order upstream lateral advection */
-#ifdef TS_SPLIT_UP3       /*     Split 3rd-order scheme into      */
-# undef  HADV_UPSTREAM_TS /*       4th order centered             */
-# undef  TS_DIF2          /*        + hyperdiffusion              */
-# define TS_DIF4
+/* #undef  HADV_UP5_TS    5th-order upstream lateral advection */ 
+/* #define HADV_UP3_TS    3rd-order upstream lateral advection */
+#ifdef TS_HADV_RSUP3   /*  Rotated-Split 3rd-order scheme:     */
+# undef  TS_HADV_UP3   /*       4th order centered             */
+# undef  TS_DIF2       /*                                      */
+# define TS_DIF4       /*        + hyperdiffusion with         */
+# undef  TS_MIX_GEO    /*        Geopotential rotation         */
+# define TS_MIX_ISO    /*        Isopycnal    rotation         */
+# define TS_MIX_IMP    /*        semi-implicit scheme          */
 # define DIF_COEF_3D 
 #endif
-#ifdef DIF_SMAGO          /* Smagorinsky diffusivity option   */
+#ifdef TS_DIF_SMAGO    /*   Smagorinsky diffusivity option     */
 # define DIF_COEF_3D
 #endif
-#undef   HADV_AKIMA_TS    /* 4th-order Akima horiz. advection */
+#if defined TS_MIX_ISO || (defined TS_DIF4 && defined TS_MIX_GEO)
+# define TS_MIX_IMP
+#endif
+#undef   TS_HADV_AKIMA /* 4th-order Akima horiz. advection */
 
 
-/*   
+/*
    Apply interior diffusion 
    over tracer anomalies, with respect 
    to a reference frame (climatology)
 */
 
-# if defined TCLIMATOLOGY && !defined TS_SPLIT_UP3 && !defined DIF_SMAGO
+# if defined TCLIMATOLOGY && !defined TS_HADV_RSUP3 && !defined TS_DIF_SMAGO
 #  define CLIMAT_TS_MIXH
 # endif
 
@@ -112,11 +109,11 @@ Select MOMENTUM VERTICAL advection scheme:
     Select model dynamics for TRACER vertical advection
     (The default is 4th-order centered)
 */
-#undef   VADV_SPLINES_TS   /* splines vertical advection */
-#define  VADV_AKIMA_TS     /* 4th-order Akima vertical advection */
-#undef   VADV_C2_TS        /* 2nd-order centered vertical advection */
+#undef   TS_VADV_SPLINES   /* splines vertical advection */
+#define  TS_VADV_AKIMA     /* 4th-order Akima vertical advection */
+#undef   TS_VADV_C2        /* 2nd-order centered vertical advection */
 
-/* 
+/*
    Sponge behavior     
    SPONGE_DIF2 and SPONGE_VIS2 behavior
 */
@@ -182,42 +179,82 @@ Select MOMENTUM VERTICAL advection scheme:
  zones are always provided on the each side. These data for these
  two ghost zones is then exchanged by message passing. 
 */
-
-#ifdef MPI
-# define GLOBAL_2D_ARRAY -1:Lm+2+padd_X,-1:Mm+2+padd_E
-# define GLOBAL_1D_ARRAYXI -1:Lm+2+padd_X
-# define GLOBAL_1D_ARRAYETA -1:Mm+2+padd_E
-# define START_2D_ARRAY -1,-1
-# define START_1D_ARRAYXI -1
-# define START_1D_ARRAYETA -1
-#else
-# ifdef EW_PERIODIC
-#   define GLOBAL_1D_ARRAYXI -1:Lm+2+padd_X
-#   define START_1D_ARRAYXI -1
-#  ifdef NS_PERIODIC
-#   define GLOBAL_2D_ARRAY -1:Lm+2+padd_X,-1:Mm+2+padd_E
-#   define GLOBAL_1D_ARRAYETA -1:Mm+2+padd_E
-#   define START_2D_ARRAY -1,-1
-#   define START_1D_ARRAYETA -1
-#  else
-#   define GLOBAL_2D_ARRAY -1:Lm+2+padd_X,0:Mm+1+padd_E
-#   define GLOBAL_1D_ARRAYETA 0:Mm+1+padd_E
-#   define START_2D_ARRAY -1,0
-#   define START_1D_ARRAYETA 0
-#  endif
+#ifdef TS_HADV_UP5
+# ifdef MPI
+#  define GLOBAL_2D_ARRAY -2:Lm+3+padd_X,-2:Mm+3+padd_E
+#  define GLOBAL_1D_ARRAYXI -2:Lm+3+padd_X
+#  define GLOBAL_1D_ARRAYETA -2:Mm+3+padd_E
+#  define START_2D_ARRAY -2,-2
+#  define START_1D_ARRAYXI -2
+#  define START_1D_ARRAYETA -2
 # else
+#  ifdef EW_PERIODIC
+#   define GLOBAL_1D_ARRAYXI -2:Lm+3+padd_X
+#   define START_1D_ARRAYXI -2
+#   ifdef NS_PERIODIC
+#    define GLOBAL_2D_ARRAY -2:Lm+3+padd_X,-2:Mm+3+padd_E
+#    define GLOBAL_1D_ARRAYETA -3:Mm+3+padd_E
+#    define START_2D_ARRAY -2,-2
+#    define START_1D_ARRAYETA -2
+#   else
+#    define GLOBAL_2D_ARRAY -2:Lm+3+padd_X,0:Mm+1+padd_E
+#    define GLOBAL_1D_ARRAYETA 0:Mm+1+padd_E
+#    define START_2D_ARRAY -2,0
+#    define START_1D_ARRAYETA 0
+#   endif
+#  else
 #   define GLOBAL_1D_ARRAYXI 0:Lm+1+padd_X
 #   define START_1D_ARRAYXI 0
-#  ifdef NS_PERIODIC
-#   define GLOBAL_2D_ARRAY 0:Lm+1+padd_X,-1:Mm+2+padd_E
-#   define GLOBAL_1D_ARRAYETA -1:Mm+2+padd_E
-#   define START_2D_ARRAY 0,-1
-#   define START_1D_ARRAYETA -1
+#   ifdef NS_PERIODIC
+#    define GLOBAL_2D_ARRAY 0:Lm+1+padd_X,-2:Mm+3+padd_E
+#    define GLOBAL_1D_ARRAYETA -2:Mm+3+padd_E
+#    define START_2D_ARRAY 0,-2
+#    define START_1D_ARRAYETA -2
+#   else
+#    define GLOBAL_2D_ARRAY 0:Lm+1+padd_X,0:Mm+1+padd_E
+#    define GLOBAL_1D_ARRAYETA 0:Mm+1+padd_E
+#    define START_2D_ARRAY 0,0
+#    define START_1D_ARRAYETA 0
+#   endif
+#  endif
+# endif
+#else
+# ifdef MPI
+#  define GLOBAL_2D_ARRAY -1:Lm+2+padd_X,-1:Mm+2+padd_E
+#  define GLOBAL_1D_ARRAYXI -1:Lm+2+padd_X
+#  define GLOBAL_1D_ARRAYETA -1:Mm+2+padd_E
+#  define START_2D_ARRAY -1,-1
+#  define START_1D_ARRAYXI -1
+#  define START_1D_ARRAYETA -1
+# else
+#  ifdef EW_PERIODIC
+#   define GLOBAL_1D_ARRAYXI -1:Lm+2+padd_X
+#   define START_1D_ARRAYXI -1
+#   ifdef NS_PERIODIC
+#    define GLOBAL_2D_ARRAY -1:Lm+2+padd_X,-1:Mm+2+padd_E
+#    define GLOBAL_1D_ARRAYETA -1:Mm+2+padd_E
+#    define START_2D_ARRAY -1,-1
+#    define START_1D_ARRAYETA -1
+#   else
+#    define GLOBAL_2D_ARRAY -1:Lm+2+padd_X,0:Mm+1+padd_E
+#    define GLOBAL_1D_ARRAYETA 0:Mm+1+padd_E
+#    define START_2D_ARRAY -1,0
+#    define START_1D_ARRAYETA 0
+#   endif
 #  else
-#   define GLOBAL_2D_ARRAY 0:Lm+1+padd_X,0:Mm+1+padd_E
-#   define GLOBAL_1D_ARRAYETA 0:Mm+1+padd_E
-#   define START_2D_ARRAY 0,0
-#   define START_1D_ARRAYETA 0
+#   define GLOBAL_1D_ARRAYXI 0:Lm+1+padd_X
+#   define START_1D_ARRAYXI 0
+#   ifdef NS_PERIODIC
+#    define GLOBAL_2D_ARRAY 0:Lm+1+padd_X,-1:Mm+2+padd_E
+#    define GLOBAL_1D_ARRAYETA -1:Mm+2+padd_E
+#    define START_2D_ARRAY 0,-1
+#    define START_1D_ARRAYETA -1
+#   else
+#    define GLOBAL_2D_ARRAY 0:Lm+1+padd_X,0:Mm+1+padd_E
+#    define GLOBAL_1D_ARRAYETA 0:Mm+1+padd_E
+#    define START_2D_ARRAY 0,0
+#    define START_1D_ARRAYETA 0
+#   endif
 #  endif
 # endif
 #endif
@@ -241,7 +278,6 @@ Select MOMENTUM VERTICAL advection scheme:
 
    Message passing and shared memory versions.
 */
-
 #ifdef MPI
 # define WESTERN_EDGE .not.WEST_INTER
 # define EASTERN_EDGE .not.EAST_INTER
@@ -253,7 +289,6 @@ Select MOMENTUM VERTICAL advection scheme:
 # define SOUTHERN_EDGE jstr.eq.1
 # define NORTHERN_EDGE jend.eq.Mm
 #endif
-
 
 /*
   Sometimes it is needed to include MPI-node number into printed
@@ -280,7 +315,6 @@ Select MOMENTUM VERTICAL advection scheme:
 # define MPI_master_only
 #endif
 
-
 /*
   Similarly, if operation needed to be done by one thread only, e.g.
  copy a redundantly computed private scalar into shared scalar, or
@@ -301,10 +335,10 @@ Select MOMENTUM VERTICAL advection scheme:
 */
 
 #ifdef MPI
-#undef AUTOTILING
-#define SINGLE_TILE_MODE  Iend-Istr+Jend-Jstr.eq.Lmmpi+Mmmpi-2
+# undef AUTOTILING
+# define SINGLE_TILE_MODE  Iend-Istr+Jend-Jstr.eq.Lmmpi+Mmmpi-2
 #else
-#define SINGLE_TILE_MODE  Iend-Istr+Jend-Jstr.eq.Lm+Mm-2
+# define SINGLE_TILE_MODE  Iend-Istr+Jend-Jstr.eq.Lm+Mm-2
 #endif
 
 /*
@@ -313,7 +347,7 @@ Select MOMENTUM VERTICAL advection scheme:
  [-- Adams-Moulton] time-stepping engines for the model.
 */
 #define LF_AM_STEP
-#undef AB_AM_STEP
+#undef  AB_AM_STEP
 
 #define FIRST_TIME_STEP iic.eq.ntstart
 #ifdef SOLVE3D
@@ -356,11 +390,9 @@ Select MOMENTUM VERTICAL advection scheme:
 
 #endif
 
-
 #define PUT_GRID_INTO_RESTART
 #define PUT_GRID_INTO_HISTORY
 #define PUT_GRID_INTO_AVERAGES
-
 
 /*
   Choice of double/single precision for real type variables
@@ -417,32 +449,31 @@ c-# define TANH dtanh
 /*
   Update schemes and sponge layer for nesting
 */
-!# define AGRIF_UPDATE_MIX_LOW
+#undef  AGRIF_UPDATE_MIX_LOW
 #define AGRIF_UPDATE_MIX
-# define AGRIF_UPDATE_DECAL
-# define AGRIF_SPONGE
+#define AGRIF_UPDATE_DECAL
+#define AGRIF_SPONGE
 
 /*
   Default boundary conditions for nesting 
 */
-# ifdef AGRIF
+#ifdef AGRIF
+# define AGRIF_OBC_EAST
+# define AGRIF_OBC_WEST
+# define AGRIF_OBC_NORTH
+# define AGRIF_OBC_SOUTH
 
-#  define AGRIF_OBC_EAST
-#  define AGRIF_OBC_WEST
-#  define AGRIF_OBC_NORTH
-#  define AGRIF_OBC_SOUTH
+# define AGRIF_FLUX_BC 
 
-#  define AGRIF_FLUX_BC 
-
-#  define AGRIF_OBC_M2SPECIFIED
-#  ifdef AGRIF_2WAY
-#   define AGRIF_OBC_M3SPECIFIED
-#   define AGRIF_OBC_TSPECIFIED
-#  else
-#   define AGRIF_OBC_M3ORLANSKI
-#   define AGRIF_OBC_TORLANSKI
-#  endif
+# define AGRIF_OBC_M2SPECIFIED
+# ifdef AGRIF_2WAY
+#  define AGRIF_OBC_M3SPECIFIED
+#  define AGRIF_OBC_TSPECIFIED
+# else
+#  define AGRIF_OBC_M3ORLANSKI
+#  define AGRIF_OBC_TORLANSKI
 # endif
+#endif
 
 /*
   Consistency for 2D configurations
@@ -458,12 +489,13 @@ c-# define TANH dtanh
 # undef BULK_FLUX
 # undef TS_DIF2
 # undef TS_DIF4
-# undef SPONGE_DIF2
-# undef TS_SPLIT_UP3
 # undef CLIMAT_TS_MIXH
-# undef MIX_GP_TS
-# undef MIX_GP_UV
-# undef SMAGORINSKY
+# undef SPONGE_DIF2
+# undef TS_HADV_RSUP3
+# undef TS_MIX_GEO
+# undef UV_MIX_GEO
+# undef UV_VIS_SMAGO
+# undef TS_DIF_SMAGO
 # undef M3NUDGING
 # undef TNUDGING
 # undef ROBUST_DIAG

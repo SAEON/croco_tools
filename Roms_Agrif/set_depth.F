@@ -159,7 +159,7 @@ C$    integer omp_get_thread_num
           do i=IU_RANGE
             Huon(i,j,k)=0.5*(Hz(i,j,k)+Hz(i-1,j,k))
      &                     *on_u(i,j)*u(i,j,k,nrhs)
-# if defined UV_VIS4 && defined MIX_GP_UV
+# if defined UV_VIS4 && defined UV_MIX_GEO
             z_u(i,j,k)=0.5*(z_r(i,j,k)+z_r(i-1,j,k))
             dz_u(i,j,k)=z_r(i,j,k)-z_r(i-1,j,k)
 # endif
@@ -169,7 +169,7 @@ C$    integer omp_get_thread_num
           do i=IV_RANGE
             Hvom(i,j,k)=0.5*(Hz(i,j,k)+Hz(i,j-1,k))
      &                     *om_v(i,j)*v(i,j,k,nrhs)
-# if defined UV_VIS4 && defined MIX_GP_UV
+# if defined UV_VIS4 && defined UV_MIX_GEO
             z_v(i,j,k)=0.5*(z_r(i,j,k)+z_r(i,j-1,k))
             dz_v(i,j,k)=z_r(i,j,k)-z_r(i,j-1,k)
 # endif
@@ -188,7 +188,7 @@ C$    integer omp_get_thread_num
      &                                         Huon(START_2D_ARRAY,1))
       call exchange_v3d_tile (Istr,Iend,Jstr,Jend, 
      &                                         Hvom(START_2D_ARRAY,1))
-#  if defined UV_VIS4 && defined MIX_GP_UV
+#  if defined UV_VIS4 && defined UV_MIX_GEO
       call exchange_u3d_tile (Istr,Iend,Jstr,Jend,
      &                                         z_u(START_2D_ARRAY,1))
       call exchange_v3d_tile (Istr,Iend,Jstr,Jend,

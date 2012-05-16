@@ -67,155 +67,155 @@ C$OMP MASTER
 
       If ((nbcoarse == 1).AND.(TspongeTimeindex .NE. parentnbstep)) THEN
 
-!     tsponge = 0.
+!       tsponge = 0.
 
-      Call Agrif_Set_bc(tspongeid,(/-decal,0/),
+        Call Agrif_Set_bc(tspongeid,(/-decal,0/),
      &     InterpolationShouldbemade=.TRUE.)
-#ifdef MASKING
+# ifdef MASKING
         Agrif_UseSpecialvalue=.true.
-#endif
-      Agrif_Specialvalue=0.
+# endif
+        Agrif_Specialvalue=0.
 
-       tinterp = 1.
-      allocate(text(i1t:i2t,j1t:j2t,N,NT))
-      text = 0.
-      Call Agrif_Bc_Variable(text,tspongeid,calledweight=tinterp,
-     &                           procname=interpsponget)
-      tsponge(i1t:i2t,j1t:j2t,1:N,1:NT) = text
-      deallocate(text)
+        tinterp = 1.
+        allocate(text(i1t:i2t,j1t:j2t,N,NT))
+        text = 0.
+        Call Agrif_Bc_Variable(text,tspongeid,calledweight=tinterp,
+     &                              procname=interpsponget)
+        tsponge(i1t:i2t,j1t:j2t,1:N,1:NT) = text
+        deallocate(text)
       
-      Agrif_UseSpecialvalue=.false.
+        Agrif_UseSpecialvalue=.false.
 
-       TTimesponge = 3 - TTimesponge
+        TTimesponge = 3 - TTimesponge
        
         TspongeTimeindex = parentnbstep
         TspongeTimeindex2 = agrif_nb_step()
-        ENDIF
+      ENDIF
 
 C$OMP END MASTER
 C$OMP BARRIER
        
-       if (agrif_nb_step() .EQ. TspongeTimeindex2) then
+      if (agrif_nb_step() .EQ. TspongeTimeindex2) then
 
-       if (SOUTHERN_EDGE) then  
-         do itrc=1,NT
-         do k=1,N
-         do j=JstrR,JstrR+decal
-         do i=IstrR,IendR
-          T_sponge_south(i,j,k,TTimesponge,itrc)=
-     &              tsponge(i,j,k,itrc)          
-         enddo
-         enddo
-         enddo
-         enddo
-       endif
+        if (SOUTHERN_EDGE) then  
+          do itrc=1,NT
+            do k=1,N
+              do j=JstrR,JstrR+decal
+                do i=IstrR,IendR
+                  T_sponge_south(i,j,k,TTimesponge,itrc)=
+     &                                tsponge(i,j,k,itrc)          
+                enddo
+              enddo
+            enddo
+          enddo
+        endif
                      
-      if (NORTHERN_EDGE) then
-         do itrc=1,NT
-         do k=1,N
-         do j=JendR-decal,JendR
-         do i=IstrR,IendR
-          T_sponge_north(i,j,k,TTimesponge,itrc)=
-     &              tsponge(i,j,k,itrc)          
-         enddo
-         enddo
-         enddo
-         enddo
-       endif               
+        if (NORTHERN_EDGE) then
+          do itrc=1,NT
+            do k=1,N
+              do j=JendR-decal,JendR
+                do i=IstrR,IendR
+                  T_sponge_north(i,j,k,TTimesponge,itrc)=
+     &                                tsponge(i,j,k,itrc)          
+                enddo
+              enddo
+            enddo
+          enddo
+        endif               
 
 
-      if (WESTERN_EDGE) then
-         do itrc=1,NT
-         do k=1,N
-         do j=JstrR,JendR
-         do i=IstrR,IstrR+decal      
-          T_sponge_west(i,j,k,TTimesponge,itrc)=
-     &              tsponge(i,j,k,itrc)              
-         enddo
-         enddo
-         enddo
-         enddo
-       endif
+        if (WESTERN_EDGE) then
+          do itrc=1,NT
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IstrR+decal      
+                  T_sponge_west(i,j,k,TTimesponge,itrc)=
+     &                               tsponge(i,j,k,itrc)              
+                enddo
+              enddo
+            enddo
+          enddo
+        endif
                     
-      if (EASTERN_EDGE) then      
-         do itrc=1,NT
-         do k=1,N
-         do j=JstrR,JendR
-         do i=IendR-decal,IendR
-          T_sponge_east(i,j,k,TTimesponge,itrc)=
-     &              tsponge(i,j,k,itrc)          
-         enddo
-         enddo
-         enddo
-         enddo  
-       endif
+        if (EASTERN_EDGE) then      
+          do itrc=1,NT
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IendR-decal,IendR
+                  T_sponge_east(i,j,k,TTimesponge,itrc)=
+     &                               tsponge(i,j,k,itrc)          
+                enddo
+              enddo
+            enddo
+          enddo  
+        endif
     
       ENDIF
       
       
-       tinterp = 0.5+(real(nbcoarse)-0.5)/rrhot
+      tinterp = 0.5+(real(nbcoarse)-0.5)/rrhot
 
-       IF (nbstep3d .LT. irhot) tinterp = 1.
+      IF (nbstep3d .LT. irhot) tinterp = 1.
 
-       onemtinterp = 1.-tinterp
+      onemtinterp = 1.-tinterp
        
-       nold = 3 - TTimesponge
+      nold = 3 - TTimesponge
 
-       if (SOUTHERN_EDGE) then
-       do itrc=1,NT
-       do k=1,N
-       do j=JstrR,JstrR+decal
-       do i=IstrR,IendR
-          tsponge(i,j,k,itrc) =
-     &       onemtinterp*T_sponge_south(i,j,k,nold,itrc)
-     &       +tinterp*T_sponge_south(i,j,k,TTimesponge,itrc)
-       enddo
-       enddo
-       enddo
-       enddo
-       endif
+      if (SOUTHERN_EDGE) then
+        do itrc=1,NT
+          do k=1,N
+            do j=JstrR,JstrR+decal
+              do i=IstrR,IendR
+                tsponge(i,j,k,itrc) =
+     &                   onemtinterp*T_sponge_south(i,j,k,nold,itrc)
+     &               +tinterp*T_sponge_south(i,j,k,TTimesponge,itrc)
+              enddo
+            enddo
+          enddo
+        enddo
+      endif
        
-       if (NORTHERN_EDGE) then
-       do itrc=1,NT
-       do k=1,N
-       do j=JendR-decal,JendR
-       do i=IstrR,IendR
-           tsponge(i,j,k,itrc) =
-     &       onemtinterp*T_sponge_north(i,j,k,nold,itrc)
-     &       +tinterp*T_sponge_north(i,j,k,TTimesponge,itrc)
-       enddo
-       enddo
-       enddo
-       enddo             
-       endif
+      if (NORTHERN_EDGE) then
+        do itrc=1,NT
+          do k=1,N
+            do j=JendR-decal,JendR
+              do i=IstrR,IendR
+                tsponge(i,j,k,itrc) =
+     &                  onemtinterp*T_sponge_north(i,j,k,nold,itrc)
+     &              +tinterp*T_sponge_north(i,j,k,TTimesponge,itrc)
+              enddo
+            enddo
+          enddo
+        enddo             
+      endif
        
       if (WESTERN_EDGE) then
-         do itrc=1,NT
-         do k=1,N
-         do j=JstrR,JendR
-         do i=IstrR,IstrR+decal
-            tsponge(i,j,k,itrc) =
-     &                onemtinterp*T_sponge_west(i,j,k,nold,itrc)
-     &                + tinterp*T_sponge_west(i,j,k,TTimesponge,itrc)     
-         enddo
-         enddo
-         enddo
-         enddo
-       endif      
+        do itrc=1,NT
+          do k=1,N
+            do j=JstrR,JendR
+              do i=IstrR,IstrR+decal
+                tsponge(i,j,k,itrc) =
+     &                    onemtinterp*T_sponge_west(i,j,k,nold,itrc)
+     &               + tinterp*T_sponge_west(i,j,k,TTimesponge,itrc)
+              enddo
+            enddo
+          enddo
+        enddo
+      endif      
        
       if (EASTERN_EDGE) then      
-         do itrc=1,NT
-         do k=1,N
-         do j=JstrR,JendR
-         do i=IendR-decal,IendR
-           tsponge(i,j,k,itrc)=
-     &               onemtinterp*T_sponge_east(i,j,k,nold,itrc)
+        do itrc=1,NT
+          do k=1,N
+            do j=JstrR,JendR
+              do i=IendR-decal,IendR
+                tsponge(i,j,k,itrc)=
+     &                    onemtinterp*T_sponge_east(i,j,k,nold,itrc)
      &               + tinterp*T_sponge_east(i,j,k,TTimesponge,itrc)  
-         enddo
-         enddo
-         enddo
-         enddo  
-       endif
+              enddo
+            enddo
+          enddo
+        enddo  
+      endif
 
       do itrc=1,NT
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
@@ -233,10 +233,10 @@ C$OMP BARRIER
 # include "ocean3d.h"
 # include "scalars.h"
 
-       integer i1,i2,j1,j2,k1,k2,m1,m2
-       real tabres(i1:i2,j1:j2,k1:k2,m1:m2)
+      integer i1,i2,j1,j2,k1,k2,m1,m2
+      real tabres(i1:i2,j1:j2,k1:k2,m1:m2)
        
-       tabres(i1:i2,j1:j2,k1:k2,m1:m2) = 
+      tabres(i1:i2,j1:j2,k1:k2,m1:m2) = 
      &               t(i1:i2,j1:j2,k1:k2,nrhs,m1:m2)
       
       return
@@ -244,4 +244,4 @@ C$OMP BARRIER
 #else
       subroutine t3dpremix_empty
       end
-# endif /* SOLVE3D && TS_DIF2 && MIX_S_TS */
+# endif /* SOLVE3D && AGRIF */

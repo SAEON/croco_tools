@@ -22,10 +22,14 @@
       do itrc=1,NT
         if (AGRIF_Root()) then
             call t3dmix_tile (istr,iend,jstr,jend, itrc, 
-     &          A2d(1,1,trd),A2d(1,2,trd), A2d(1,3,trd))
+     &               A2d(1,1,trd),A2d(1,2,trd), A2d(1,3,trd),
+     &                            A2d(1,4,trd), A2d(1,5,trd))
+
         else
             call t3dmix_child_tile (istr,iend,jstr,jend, itrc,
-     &          A2d(1,1,trd), A2d(1,2,trd), A2d(1,3,trd))
+     &               A2d(1,1,trd), A2d(1,2,trd), A2d(1,3,trd),
+     &                             A2d(1,4,trd), A2d(1,5,trd))
+
         endif
       enddo
       return
@@ -33,7 +37,8 @@
 #else 
       do itrc=1,NT
        call t3dmix_tile(istr,iend,jstr,jend, itrc, A2d(1,1,trd),
-     &                                 A2d(1,2,trd), A2d(1,3,trd))
+     &                               A2d(1,2,trd), A2d(1,3,trd),
+     &                               A2d(1,4,trd), A2d(1,5,trd))
       enddo
        return
        end
@@ -46,7 +51,7 @@
 !PARENT
 ! 
       subroutine t3dmix_tile (istr,iend,jstr,jend, itrc,
-     &                    FX,FE, LapT)
+     &                    FX,FE, LapT, diff3u,diff3v)
 #undef CLIMAT_TS_MIXH_FINE
 !
 #else
@@ -54,8 +59,8 @@
 ! CHILD
 !
       subroutine t3dmix_child_tile(istr,iend,jstr,jend, itrc,
-     &                     FX,FE, LapT)
-#if !defined TS_SPLIT_UP3
+     &                     FX,FE, LapT, diff3u,diff3v)
+#if !defined TS_HADV_RSUP3
 #define CLIMAT_TS_MIXH_FINE
 #endif
 !
@@ -72,6 +77,9 @@
       real    FX(PRIVATE_2D_SCRATCH_ARRAY),     cff,
      &        FE(PRIVATE_2D_SCRATCH_ARRAY),     cff1,
      &        LapT(PRIVATE_2D_SCRATCH_ARRAY),   cff2
+     &        diff3u(PRIVATE_2D_SCRATCH_ARRAY),
+     &        diff3v(PRIVATE_2D_SCRATCH_ARRAY)
+
 #include "grid.h"
 #include "ocean3d.h"
 #include "mixing.h"
@@ -95,7 +103,63 @@
 #define TCLM tclm
 #endif
 !
+#ifdef MASKING
+# define SWITCH *
+#else
+# define SWITCH !
+#endif
+!
       do k=1,N
+
+!++=============================================================
+!++ Compute total diffusivity according to model configuration
+!++=============================================================
+        do j=jmin,jmax
+          do i=imin,imax+1
+            diff3u(i,j)= 
+#ifdef TS_DIF2
+     &                      0.5*(diff2(i,j,itrc)+diff2(i-1,j,itrc))
+# if defined DIF_COEF_3D && defined TS_DIF_SMAGO
+     &                     +0.5*(diff3d_r(i,j,k)+diff3d_r(i-1,j,k))
+# endif
+#elif defined TS_DIF4
+     &                     +sqrt(
+     &                      0.5*(diff4(i,j,itrc)+diff4(i-1,j,itrc))
+# ifdef DIF_COEF_3D
+#  ifdef TS_DIF_SMAGO
+     &                     +0.5*(diff3d_r(i,j,k)+diff3d_r(i-1,j,k))
+     &                                         *om_u(i,j)*on_u(i,j)
+#  elif defined TS_HADV_RSUP3
+     &                     +diff3d_u(i,j,k)
+#  endif
+     &                           )
+# endif
+#endif
+          enddo
+        enddo
+        do j=jmin,jmax+1
+          do i=imin,imax
+            diff3v(i,j)= 
+#ifdef TS_DIF2
+     &                      0.5*(diff2(i,j,itrc)+diff2(i,j-1,itrc))
+# if defined DIF_COEF_3D && defined TS_DIF_SMAGO
+     &                     +0.5*(diff3d_r(i,j,k)+diff3d_r(i,j-1,k))
+# endif
+#elif defined TS_DIF4
+     &                     +sqrt(
+     &                      0.5*(diff4(i,j,itrc)+diff4(i,j-1,itrc))
+# ifdef DIF_COEF_3D
+#  ifdef TS_DIF_SMAGO
+     &                     +0.5*(diff3d_r(i,j,k)+diff3d_r(i,j-1,k))
+     &                                         *om_v(i,j)*on_v(i,j)
+#  elif defined TS_HADV_RSUP3
+     &                     +diff3d_v(i,j,k)
+#  endif
+     &                           )
+# endif
+#endif
+          enddo
+        enddo
  
 #ifdef TS_DIF2
 !
@@ -107,38 +171,24 @@
 !
         do j=jstr,jend
           do i=istr,iend+1
-# ifdef DIF_COEF_3D
-              FX(i,j)=0.25*(diff3d(i,j,k)+diff3d(i-1,j,k))
-# else
-              FX(i,j)=0.25*(diff2(i,j,itrc)+diff2(i-1,j,itrc))
-#endif
+              FX(i,j)=0.5*diff3u(i,j)
      &                   *pmon_u(i,j)*(Hz(i,j,k)+Hz(i-1,j,k))*(
      &                     t(i,j,k,nrhs,itrc)-t(i-1,j,k,nrhs,itrc)
 # if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
-     &                          -TCLM(i,j,k,itrc)+TCLM(i,j-1,k,itrc)
+     &                        -TCLM(i,j,k,itrc)+TCLM(i-1,j,k,itrc)
 # endif
-     &                                              ) 
-#    ifdef MASKING
-     &                                            * umask(i,j)
-#    endif
+     &                                       ) SWITCH umask(i,j)
           enddo
         enddo
         do j=jstr,jend+1
           do i=istr,iend
-# ifdef DIF_COEF_3D
-              FE(i,j)=0.25*(diff3d(i,j,k)+diff3d(i,j-1,k))
-# else
-              FE(i,j)=0.25*(diff2(i,j,itrc)+diff2(i,j-1,itrc))
-# endif
-     &                     *pnom_v(i,j)*(Hz(i,j,k)+Hz(i,j-1,k))*(
-     &                      t(i,j,k,nrhs,itrc)-t(i,j-1,k,nrhs,itrc)
+              FE(i,j)=0.5*diff3v(i,j)
+     &                   *pnom_v(i,j)*(Hz(i,j,k)+Hz(i,j-1,k))*(
+     &                    t(i,j,k,nrhs,itrc)-t(i,j-1,k,nrhs,itrc)
 # if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
-     &                          -TCLM(i,j,k,itrc)+TCLM(i,j-1,k,itrc)
+     &                       -TCLM(i,j,k,itrc)+TCLM(i,j-1,k,itrc)
 # endif
-     &                                              ) 
-#    ifdef MASKING
-     &                                              * vmask(i,j)
-#    endif
+     &                                        ) SWITCH vmask(i,j)
           enddo
         enddo
 !
@@ -152,15 +202,6 @@
      &                                             /Hz(i,j,k)
           enddo
         enddo
-
-#if defined AGRIF && defined AGRIF_CONSERV_TRA
-          MYFX(IstrR:IendR,JstrR:JendR,k,itrc)=
-     &        MYFX(IstrR:IendR,JstrR:JendR,k,itrc)
-     &        +dt*FX(IstrR:IendR,JstrR:JendR)
-          MYFY(IstrR:IendR,JstrR:JendR,k,itrc)=
-     &          MYFY(IstrR:IendR,JstrR:JendR,k,itrc)
-     &          +dt*FE(IstrR:IendR,JstrR:JendR)
-#endif
 
 # ifdef DIAGNOSTICS_TS
 !
@@ -240,15 +281,13 @@
 !
           do j=jmin,jmax
             do i=imin,imax+1
-            FX(i,j)=pmon_u(i,j)*0.5*(Hz(i,j,k)+Hz(i-1,j,k))*(
-     &                      t(i,j,k,nrhs,itrc)-t(i-1,j,k,nrhs,itrc)
+            FX(i,j)=0.5*diff3u(i,j)
+     &                 *pmon_u(i,j)*(Hz(i,j,k)+Hz(i-1,j,k))*(
+     &                   t(i,j,k,nrhs,itrc)-t(i-1,j,k,nrhs,itrc)
 # if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
-     &                          -TCLM(i,j,k,itrc)+TCLM(i-1,j,k,itrc)
+     &                      -TCLM(i,j,k,itrc)+TCLM(i-1,j,k,itrc)
 # endif
-     &                                              ) 
-#    ifdef MASKING
-     &                                             * umask(i,j)
-#    endif
+     &                                        ) SWITCH umask(i,j)
           enddo
         enddo
 !
@@ -256,15 +295,13 @@
 !
         do j=jmin,jmax+1
           do i=imin,imax
-            FE(i,j)=pnom_v(i,j)*0.5*(Hz(i,j,k)+Hz(i,j-1,k))*(
+            FE(i,j)=0.5*diff3v(i,j)
+     &                 *pnom_v(i,j)*(Hz(i,j,k)+Hz(i,j-1,k))*(
      &                     t(i,j,k,nrhs,itrc)-t(i,j-1,k,nrhs,itrc)
 # if defined CLIMAT_TS_MIXH || defined CLIMAT_TS_MIXH_FINE
-     &                          -TCLM(i,j,k,itrc)+TCLM(i,j-1,k,itrc)
+     &                        -TCLM(i,j,k,itrc)+TCLM(i,j-1,k,itrc)
 # endif
-     &                                              ) 
-#    ifdef MASKING
-     &                                              * vmask(i,j)
-#    endif
+     &                                        ) SWITCH vmask(i,j)
           enddo
         enddo
 !
@@ -329,17 +366,9 @@
 !
         do j=jstr,jend
           do i=istr,iend+1
-# ifdef DIF_COEF_3D
-#  ifdef TS_SPLIT_UP3
-              FX(i,j)=-0.5*diff3d_u(i,j,k)
-#  else
-              FX(i,j)=-0.25*(diff3d(i,j,k)+diff3d(i-1,j,k))
-#  endif
-# else
-              FX(i,j)=-0.25*(diff4(i,j,itrc)+diff4(i-1,j,itrc))
-# endif
-     &                     *pmon_u(i,j)*(Hz(i,j,k)+Hz(i-1,j,k))
-     &                                 *(LapT(i,j)-LapT(i-1,j)) 
+              FX(i,j)=-0.5*diff3u(i,j)
+     &                    *pmon_u(i,j)*(Hz(i,j,k)+Hz(i-1,j,k))
+     &                                *(LapT(i,j)-LapT(i-1,j)) 
 #    ifdef MASKING
      &                                        * umask(i,j)
 #    endif
@@ -347,17 +376,9 @@
         enddo
         do j=jstr,jend+1
           do i=istr,iend
-# ifdef DIF_COEF_3D
-#  ifdef TS_SPLIT_UP3
-              FE(i,j)=-0.5*diff3d_v(i,j,k)
-#  else
-              FE(i,j)=-0.25*(diff3d(i,j,k)+diff3d(i,j-1,k))
-#  endif
-# else
-              FE(i,j)=-0.25*(diff4(i,j,itrc)+diff4(i,j-1,itrc))
-# endif
-     &                     *pnom_v(i,j)*(Hz(i,j,k)+Hz(i,j-1,k))
-     &                                 *(LapT(i,j)-LapT(i,j-1))
+              FE(i,j)=-0.5*diff3v(i,j)
+     &                    *pnom_v(i,j)*(Hz(i,j,k)+Hz(i,j-1,k))
+     &                                *(LapT(i,j)-LapT(i,j-1))
 #    ifdef MASKING
      &                                         * vmask(i,j)
 #    endif

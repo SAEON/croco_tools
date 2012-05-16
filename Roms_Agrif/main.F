@@ -161,7 +161,7 @@ CR      write(*,*) ' -8' MYID
 #if defined VIS_GRID || defined DIF_GRID 
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1      ! Rescale horizontal mixing
-        call hmix_coef (tile)        ! coefficients according to
+!        call hmix_coef (tile)        ! coefficients according to
       enddo                          ! local grid size.
 #endif
 C$OMP PARALLEL DO PRIVATE(tile)      ! Create three-dimensional

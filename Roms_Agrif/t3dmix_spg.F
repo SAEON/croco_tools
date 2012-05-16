@@ -112,17 +112,21 @@
 #endif
 # include "compute_auxiliary_bounds.h"
 !
-
 #ifdef CHILD_SPG
 #define TCLM tsponge
 #else
 #define TCLM tclm
 #endif
-
-# ifdef MIX_S_TS
 !
+#ifdef MASKING
+# define SWITCH *
+#else
+# define SWITCH !
+#endif
+!
+# ifdef TS_MIX_S
 !--------------------------------------------------------------------
-!  Add in horizontal Laplacian diffusion along constant S-surfaces.
+! Add in horizontal Laplacian diffusion along constant S-surfaces.
 !--------------------------------------------------------------------
       do k=1,N
 !
@@ -136,10 +140,7 @@
 # if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE 
      &                   -TCLM(i,j,k,itrc)+TCLM(i-1,j,k,itrc)
 # endif
-     &                                                   )
-#    ifdef MASKING
-     &                                         * umask(i,j)
-#    endif
+     &                                      ) SWITCH umask(i,j)
           enddo
         enddo
         do j=Jstr,Jend+1
@@ -150,10 +151,7 @@
 # if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE 
      &                    -TCLM(i,j,k,itrc)+TCLM(i,j-1,k,itrc)
 # endif
-     &                                                   ) 
-#    ifdef MASKING
-     &                                       * vmask(i,j)
-#    endif
+     &                                      ) SWITCH vmask(i,j)
           enddo
         enddo
 !
@@ -169,7 +167,7 @@
         enddo
       enddo
 
-#else /* MIX_S_TS */
+#else /* TS_MIX_S */
 
 !
 !-----------------------------------------------------------------------
@@ -185,10 +183,7 @@
         if (k.lt.N) then
           do j=Jstr,Jend
             do i=Istr,Iend+1
-              cff=0.5*(pm(i,j)+pm(i-1,j)) 
-#    ifdef MASKING
-     &                                 * umask(i,j)
-#    endif
+              cff=0.5*(pm(i,j)+pm(i-1,j)) SWITCH umask(i,j)
               dZdx(i,j,k2)=cff*(z_r(i,j,k+1) -z_r(i-1,j,k+1))
               dTdx(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)
      &                               -t(i-1,j,k+1,nrhs,itrc)
@@ -200,10 +195,7 @@
           enddo
           do j=Jstr,Jend+1
             do i=Istr,Iend
-              cff=0.5*(pn(i,j)+pn(i,j-1)) 
-#    ifdef MASKING
-     &                                  * vmask(i,j)
-#    endif
+              cff=0.5*(pn(i,j)+pn(i,j-1)) SWITCH vmask(i,j)
               dZde(i,j,k2)=cff*(z_r(i,j,k+1) -z_r(i,j-1,k+1))
               dTde(i,j,k2)=cff*(t(i,j,k+1,nrhs,itrc)
      &                               -t(i,j-1,k+1,nrhs,itrc)
@@ -238,9 +230,9 @@
 
           do j=Jstr,Jend
             do i=Istr,Iend+1
-          FX(i,j)=0.25*(diff2(i,j,itrc)+diff2(i-1,j,itrc))
+              FX(i,j)=0.25*(diff2(i,j,itrc)+diff2(i-1,j,itrc))
      &                     *(Hz(i,j,k)+Hz(i-1,j,k))*on_u(i,j)*(
-     &         dTdx(i  ,j,k1)-0.5*(
+     &           dTdx(i  ,j,k1)-0.5*(
      &             min(dZdx(i,j,k1),0.)*(dTdz(i-1,j,k1)+dTdz(i,j,k2))
      &            +max(dZdx(i,j,k1),0.)*(dTdz(i-1,j,k2)+dTdz(i,j,k1))
      &                                                             ))
@@ -248,9 +240,9 @@
           enddo
           do j=Jstr,Jend+1
             do i=Istr,Iend
-          FE(i,j)=0.25*(diff2(i,j,itrc)+diff2(i,j-1,itrc))
+              FE(i,j)=0.25*(diff2(i,j,itrc)+diff2(i,j-1,itrc))
      &                     *(Hz(i,j,k)+Hz(i,j-1,k))*om_v(i,j)*(
-     &         dTde(i,j,k1)-0.5*(
+     &           dTde(i,j,k1)-0.5*(
      &             min(dZde(i,j,k1),0.)*(dTdz(i,j-1,k1)+dTdz(i,j,k2))
      &            +max(dZde(i,j,k1),0.)*(dTdz(i,j-1,k2)+dTdz(i,j,k1))
      &                                                             ))
@@ -286,11 +278,11 @@
           do j=Jstr,Jend
             do i=Istr,Iend
               cff1=pm(i,j)*pn(i,j)
-           t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+dt*(
-     &                                   cff1*( FX(i+1,j)-FX(i,j)
-     &                                         +FE(i,j+1)-FE(i,j))
-     &                                         +FC(i,j,k2)-FC(i,j,k1)
-     &                                                   )/Hz(i,j,k)
+               t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)+dt*(
+     &                                 cff1*( FX(i+1,j)-FX(i,j)
+     &                                       +FE(i,j+1)-FE(i,j) )
+     &                                     +FC(i,j,k2)-FC(i,j,k1)
+     &                                                  )/Hz(i,j,k)
             enddo
           enddo
           
@@ -310,30 +302,25 @@
           do j=Jstr,Jend
             do i=Istr,Iend
               cff1=pm(i,j)*pn(i,j)
-              THmix(i,j,k,itrc)=THmix(i,j,k,itrc)*Hz(i,j,k)/cff1+
-     &                          FX(i+1,j)-FX(i,j)
-     &                         +FE(i,j+1)-FE(i,j)
-#  ifndef MIX_S_TS
-     &                         +(FC(i,j,k2)-FC(i,j,k1))/cff1
-#  endif
-#  ifdef MASKING
-     &                                     * rmask(i,j)
+              THmix(i,j,k,itrc)=THmix(i,j,k,itrc)*Hz(i,j,k)/cff1+ 
+     &                                         FX(i+1,j)-FX(i,j)
+     &                                        +FE(i,j+1)-FE(i,j)
+#  ifndef TS_MIX_S
+     &                             +(FC(i,j,k2)-FC(i,j,k1))/cff1
 #  endif
 
               Trate(i,j,k,itrc)=(Hz(i,j,k)*t(i,j,k,nnew,itrc)
      &                      -Hz_bak(i,j,k)*t(i,j,k,nstp,itrc))
      &                                              /(dt*cff1)
-#  ifdef MASKING
-     &                                     * rmask(i,j)
-#  endif
-
 !
 ! Divide all diagnostic terms by the cell volume
 ! (Hz(i,j,k,itrc)/(pm(i,j).*pn(i,j)). There after the unit
 ! of diag terms are: (unit of tracers)* s-1.
 !
-              THmix(i,j,k,itrc)=THmix(i,j,k,itrc)*cff1/Hz(i,j,k)
+              THmix(i,j,k,itrc)=THmix(i,j,k,itrc)*cff1/Hz(i,j,k) 
+     &                                         SWITCH rmask(i,j)
               Trate(i,j,k,itrc)=Trate(i,j,k,itrc)*cff1/Hz(i,j,k)
+     &                                         SWITCH rmask(i,j)
             enddo
           enddo
 # endif /* DIAGNOSTICS_TS */
@@ -341,7 +328,7 @@
         endif  ! <-- k.gt.0
       enddo   ! --> k
 !
-# endif /* MIX_S_TS */
+# endif /* TS_MIX_S */
 !
 !---------------------------------------------------------------------
 !
@@ -356,6 +343,9 @@
       do j=Jstr,Jend
         do i=Istr,Iend
            THmix_mld(i,j,itrc)=0.
+#  ifdef TS_MIX_IMP
+            TVmix_mld(i,j,itrc)=0.
+#  endif
            T_mld_nnew(i,j)=0.
            T_mld_nstp(i,j)=0.
         enddo
@@ -371,6 +361,10 @@
             cff=Hz(i,j,k)/(z_w(i,j,N)-z_w(i,j,kmld-1))
             THmix_mld(i,j,itrc)=THmix_mld(i,j,itrc)+
      &                          THmix(i,j,k,itrc)*cff
+#  ifdef TS_MIX_IMP
+             TVmix_mld(i,j,itrc)=TVmix_mld(i,j,itrc)+
+     &                           TVmix(i,j,k,itrc)*cff
+#  endif
             T_mld_nnew(i,j)=T_mld_nnew(i,j)+
      &                      t(i,j,k,nnew,itrc)*cff
           enddo
@@ -422,7 +416,9 @@
      &      THmix_mld(i,j,itrc)-
      &      Tentr_mld(i,j,itrc)-
      &      TForc_mld(i,j,itrc)
-        print *,'T3DMIX_SPG: T budget closure MLD   : ',cff
+           MPI_master_only write(stdout,'(A,2x,1pe10.3)')
+     &     ' T3DMIX_SPG: T budget closure MLD     :', cff
+
 #   endif /* DIAGNOSTICS_TS_MLD */
         cff=Trate(i,j,N-5,itrc)-
      &       TXadv(i,j,N-5,itrc)-
@@ -431,7 +427,8 @@
      &       TVmix(i,j,N-5,itrc)-
      &       THmix(i,j,N-5,itrc)-
      &       TForc(i,j,N-5,itrc)
-        print *,'T3DMIX_SPG: T budget closure k=N-5 : ',cff
+           MPI_master_only write(stdout,'(A,2x,1pe10.3)')
+     &     ' T3DMIX_SPG: T budget closure at k=N-5:', cff
       endif
 #  endif /* DIAGNOSTICS_DEBUG */
 # endif /* DIAGNOSTICS_TS */
@@ -449,6 +446,7 @@
       end
 
 #ifndef CHILD_SPG
+# undef TCLM
 # define CHILD_SPG
 # ifdef AGRIF
 #  include "t3dmix_spg.F"

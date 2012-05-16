@@ -29,7 +29,7 @@
      &  /grid_Hz_bak/Hz_bak /grid_zw/z_w  /grid_Huon/Huon
      &                                    /grid_Hvom/Hvom
 
-# if defined UV_VIS4 && defined MIX_GP_UV
+# if defined UV_VIS4 && defined UV_MIX_GEO
       real z_u(GLOBAL_2D_ARRAY,N)
       real z_v(GLOBAL_2D_ARRAY,N)
       real dz_u(GLOBAL_2D_ARRAY,N)

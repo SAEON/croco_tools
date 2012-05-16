@@ -75,8 +75,15 @@
      &     FC(PRIVATE_1D_SCRATCH_ARRAY,0:N), cff,
      &     DC(PRIVATE_1D_SCRATCH_ARRAY,0:N)
       real grad(PRIVATE_2D_SCRATCH_ARRAY)
+      real dpth
 !
 # include "compute_auxiliary_bounds.h"
+!
+#ifdef MASKING
+# define SWITCH *
+#else
+# define SWITCH !
+#endif
 !
 ! Time step momentum equation in the XI-direction.
 !------------------------------------------------------------
@@ -98,7 +105,7 @@
              MVmix(i,j,k,1)=u(i,j,k,nnew)
           enddo
         enddo
-# endif /* DIAGNOSTICS_UV */
+# endif
 !
         do k=1,N-1
           do i=IstrU,Iend
@@ -178,19 +185,13 @@
         enddo
         do k=1,N
           do i=IstrU,Iend
-            u(i,j,k,nnew)=(DC(i,k)-DC(i,0))
-# ifdef MASKING
-     &                            *umask(i,j)
-# endif
-!
+            u(i,j,k,nnew)=(DC(i,k)-DC(i,0)) SWITCH umask(i,j)
+
 # ifdef DIAGNOSTICS_UV
             MVmix(i,j,k,1)=-( MVmix(i,j,k,1) - u(i,j,k,nnew)*
      &                           0.5*(Hz(i,j,k)+Hz(i-1,j,k)) )
-     &                                 *om_u(i,j)*on_u(i,j)/dt
-#  ifdef MASKING
-     &                            *umask(i,j)
+     &                    *om_u(i,j)*on_u(i,j)/dt SWITCH umask(i,j)
 #  endif 
-# endif /* DIAGNOSTICS_UV */
 !
           enddo
         enddo        !--> discard DC,CF(:,0)
@@ -286,18 +287,12 @@
           enddo
           do k=1,N
             do i=Istr,Iend
-              v(i,j,k,nnew)=(DC(i,k)-DC(i,0))
-# ifdef MASKING
-     &                              *vmask(i,j)
-# endif
+              v(i,j,k,nnew)=(DC(i,k)-DC(i,0)) SWITCH vmask(i,j)
 !
 # ifdef DIAGNOSTICS_UV
               MVmix(i,j,k,2)=-( MVmix(i,j,k,2) - v(i,j,k,nnew)*
      &                             0.5*(Hz(i,j,k)+Hz(i,j-1,k)) )
-     &                                   *om_v(i,j)*on_v(i,j)/dt
-#  ifdef MASKING
-     &                              *vmask(i,j)
-#  endif
+     &                        *om_v(i,j)*on_v(i,j)/dt SWITCH vmask(i,j)
 # endif /* DIAGNOSTICS_UV */
 !
             enddo
@@ -425,10 +420,7 @@
         enddo
         do k=N,1,-1
           do i=IU_RANGE
-            u(i,j,k,nnew)=(u(i,j,k,nnew)-CF(i,0))
-# ifdef MASKING
-     &                                 *umask(i,j)
-# endif
+            u(i,j,k,nnew)=(u(i,j,k,nnew)-CF(i,0)) SWITCH umask(i,j)
             FC(i,k)=0.5*(u(i,j,k,nstp)+u(i,j,k,nnew))*DC(i,k)
             FC(i,0)=FC(i,0)+FC(i,k)
           enddo
@@ -441,6 +433,35 @@
             Huon(i,j,k)=FC(i,k)-DC(i,k)*FC(i,0)
           enddo
         enddo
+!
+!-------------------------------------------------
+! Compute density XI gradients for use in t3dmix
+!-------------------------------------------------
+!
+# if defined TS_DIF4 || defined TS_DIF2
+        do k=1,N,+1
+          do i=IU_RANGE
+            cff =0.5*(pm(i,j)+pm(i-1,j)) SWITCH umask(i,j)
+#  ifdef TS_MIX_ISO
+#   ifdef SPLIT_EOS
+            dpth=0.5*( z_w(i,j,N)+z_w(i-1,j,N)
+     &                -z_r(i,j,k)-z_r(i-1,j,k))
+            dRdx(i,j,k)=cff*( rho1(i,j,k)-rho1(i-1,j,k)
+     &                 +    (  qp1(i,j,k)- qp1(i-1,j,k))
+     &                             *dpth*(1.-qp2*dpth) )
+#   else
+            dRdx(i,j,k)=cff*(rho1(i,j,k)-rho1(i-1,j,k))
+#   endif
+#  elif defined TS_MIX_GEO
+                         ! dRdx contains dZdx values
+            dRdx(i,j,k)=cff*( z_r(i,j,k)-z_r(i-1,j,k))
+#  else
+            dRdx(i,j,k)=0.
+#  endif
+          enddo
+        enddo
+# endif /* TS_DIF2 || TS_DIF4 */
+
         if (j.ge.Jstr) then
           do i=IV_RANGE                   ! ETA-component
             DC(i,0)=0.
@@ -461,10 +482,7 @@
           enddo
           do k=N,1,-1
             do i=IV_RANGE
-              v(i,j,k,nnew)=(v(i,j,k,nnew)-CF(i,0))
-# ifdef MASKING
-     &                                          *vmask(i,j)
-# endif
+              v(i,j,k,nnew)=(v(i,j,k,nnew)-CF(i,0)) SWITCH vmask(i,j)
               FC(i,k)=0.5*(v(i,j,k,nstp)+v(i,j,k,nnew))*DC(i,k) 
               FC(i,0)=FC(i,0)+FC(i,k)
             enddo
@@ -477,6 +495,35 @@
               Hvom(i,j,k)=FC(i,k)-DC(i,k)*FC(i,0)
             enddo
           enddo
+!
+!-------------------------------------------------
+! Compute density ETA gradients for use in t3dmix
+!-------------------------------------------------
+!
+# if defined TS_DIF4 || defined TS_DIF2
+          do k=1,N,+1
+            do i=IV_RANGE
+              cff=0.5*(pn(i,j)+pn(i,j-1)) SWITCH vmask(i,j)
+#  ifdef  TS_MIX_ISO
+#   ifdef SPLIT_EOS
+              dpth=0.5*( z_w(i,j,N)+z_w(i,j-1,N)
+     &                -  z_r(i,j,k)-z_r(i,j-1,k))
+              dRde(i,j,k)=cff*( rho1(i,j,k)-rho1(i,j-1,k)
+     &                       +(  qp1(i,j,k)- qp1(i,j-1,k))
+     &                               *dpth*(1.-qp2*dpth) )
+#   else
+              dRde(i,j,k)=cff*(rho1(i,j,k)-rho1(i,j-1,k))
+#   endif
+#  elif defined TS_MIX_GEO
+                           ! dRde contains dZde values
+              dRde(i,j,k)=cff*(z_r(i,j,k)-z_r(i,j-1,k))
+#  else
+              dRde(i,j,k)=0.
+#  endif
+            enddo
+          enddo
+# endif /* TS_DIF2 || TS_DIF4 */
+
         endif
       enddo
 !
@@ -572,6 +619,10 @@
 
       call exchange_v2d_tile (Istr,Iend,Jstr,Jend,
      &                                   vbar(START_2D_ARRAY,knew))
+#  if defined TS_DIF4 || defined TS_DIF2
+      call exchange_u3d_tile (istr,iend,jstr,jend, dRdx  )
+      call exchange_v3d_tile (istr,iend,jstr,jend, dRde  )
+#  endif
 # endif
 !
       return

@@ -27,20 +27,17 @@
       call step3d_t_tile (Istr,Iend,Jstr,Jend,
      &             A2d(1,1,trd), A2d(1,2,trd), A2d(1,3,trd),
      &             A2d(1,4,trd), A2d(1,5,trd), A2d(1,6,trd),
-     &                           A2d(1,7,trd), A3d(1,1,trd),
-     &     t(START_2D_ARRAY,1,1,1),    Hz(START_2D_ARRAY,1),
-     &    Hz_bak(START_2D_ARRAY,1),   z_r(START_2D_ARRAY,1),
-     &       z_w(START_2D_ARRAY,0),  Huon(START_2D_ARRAY,1),
-     &      Hvom(START_2D_ARRAY,1),     W(START_2D_ARRAY,0)) 
+     &                           A2d(1,7,trd), A3d(1,1,trd))
       return
       end
 
       subroutine step3d_t_tile (Istr,Iend,Jstr,Jend,
-     &                       FX,FE, WORK, FC,CF,BC,DC, swdk,
-     &                    t, Hz,Hz_bak,z_r,z_w,Huon,Hvom ,W)
+     &                       FX,FE, WORK, FC,CF,BC,DC, swdk)
+
       implicit none
 # include "param.h"
 # include "grid.h"
+# include "ocean3d.h"
 # include "mixing.h"
 # include "climat.h"
 # include "scalars.h"
@@ -50,11 +47,9 @@
 # include "diagnostics.h"
 # endif
       integer Istr,Iend,Jstr,Jend, itrc, i,j,k, indx, kmld
+     &       ,imin,imax,jmin,jmax
 # ifdef PSOURCE
      &       ,is
-# endif
-# ifdef MPI
-     &       ,imin,imax,jmin,jmax
 # endif
 # ifdef AGRIF
 # include "zoom.h"
@@ -66,35 +61,262 @@
      &     CF(PRIVATE_1D_SCRATCH_ARRAY,0:N),
      &     BC(PRIVATE_1D_SCRATCH_ARRAY,0:N),
      &     DC(PRIVATE_1D_SCRATCH_ARRAY,0:N),
-     &     swdk(PRIVATE_2D_SCRATCH_ARRAY,0:N),
-     &     t(GLOBAL_2D_ARRAY,N,3,NT),
-     &     Hz(GLOBAL_2D_ARRAY,N),
-     &     Hz_bak(GLOBAL_2D_ARRAY,N),
-     &     z_r(GLOBAL_2D_ARRAY,N),
-     &     z_w(GLOBAL_2D_ARRAY,0:N),
-     &     Huon(GLOBAL_2D_ARRAY,N),
-     &     Hvom(GLOBAL_2D_ARRAY,N),
-     &     W(GLOBAL_2D_ARRAY,0:N)
+     &     swdk(PRIVATE_2D_SCRATCH_ARRAY,0:N)
+      real gama,cff1,dRz,hbltmp,sig,dXmax,dEmax,
+     &     dpth,smax,amax,amaxx
       parameter (epsil=1.E-16)
+!
+#ifdef MASKING
+# define SWITCH *
+#else
+# define SWITCH !
+#endif
+!
+# ifdef TS_HADV_UP5
+! definition of flux operators, 3rd, 4th, 5th or 6th order
+!
+      REAL    :: flux3, flux4, flux5, flux6
+      REAL    :: q_im3, q_im2, q_im1, q_i, q_ip1, q_ip2, ua, vel
+      REAL    :: flx2, flx3, flx4, flx5, mask0, mask1, mask2
+
+      flux4(q_im2, q_im1, q_i, q_ip1, ua) = 
+     &      ( 7.*(q_i + q_im1) - (q_ip1 + q_im2) )/12.0
+
+      flux3(q_im2, q_im1, q_i, q_ip1, ua) =
+     &      flux4(q_im2, q_im1, q_i, q_ip1, ua) +
+     &      sign(1.,ua)*((q_ip1 -
+     &      q_im2)-3.*(q_i-q_im1))/12.0
+
+      flux6(q_im3, q_im2, q_im1, q_i, q_ip1, q_ip2, ua) =
+     &      ( 37.*(q_i+q_im1) - 8.*(q_ip1+q_im2)
+     &      +(q_ip2+q_im3) )/60.0
+
+      flux5(q_im3, q_im2, q_im1, q_i, q_ip1, q_ip2, ua) =
+     &      flux6(q_im3, q_im2, q_im1, q_i, q_ip1, q_ip2, ua)
+     &      -sign(1.,ua)*( 
+     &      (q_ip2-q_im3)-5.*(q_ip1-q_im2)+10.*(q_i-q_im1) )/60.0
+# endif
 !
 # include "compute_auxiliary_bounds.h"
 !
-!---------------------------------------------------------------
+!===============================================================
+!
 ! Compute horizontal advection
-!---------------------------------------------------------------
 !
-# ifdef HADV_UPSTREAM_TS
-#  define curv WORK
-# else
-#  define grad WORK
-# endif
+!===============================================================
 !
+# ifdef TS_HADV_UP5
+!--------------------------------
+! Fifth order advection scheme
+!--------------------------------
+!
+#  define FLUX5 flux5
+#  define FLUX3 flux4
+!
+#  ifdef MPI
+      if (SOUTH_INTER) then
+        jmin=1
+      else
+        jmin=3
+      endif
+      if (NORTH_INTER) then
+        jmax=Mmmpi+1
+      else
+        jmax=Mmmpi-1
+      endif
+#  else
+#   ifdef NS_PERIODIC
+      jmin=1
+      jmax=Mm+1
+#   else
+      jmin=3
+      jmax=Mm-1
+#   endif
+#  endif
+#  ifdef MPI
+      if (WEST_INTER) then
+        imin=1
+      else
+        imin=3
+      endif
+      if (EAST_INTER) then
+        imax=Lmmpi+1
+      else
+        imax=Lmmpi-1
+      endif
+#  else
+#   ifdef EW_PERIODIC
+      imin=1
+      imax=Lm+1
+#   else
+      imin=3
+      imax=Lm-1
+#   endif
+#  endif
+
       do k=1,N
         do itrc=1,NT
-# ifdef EW_PERIODIC
-#  define I_EXT_RANGE Istr-1,Iend+2
-# else
-#  ifdef MPI
+
+          DO j = Jstr,Jend+1  !j_loop_y_flux_5
+                                                      !
+            IF( (j.ge.jmin ) .and. (j.le.jmax) ) THEN ! use full stencil
+                                                      !
+              DO i = Istr,Iend
+                vel = Hvom(i,j,k)
+                flx5 = vel*FLUX5(
+     &          t(i,j-3,k,3,itrc), t(i,j-2,k,3,itrc), t(i,j-1,k,3,itrc),
+     &          t(i,j  ,k,3,itrc), t(i,j+1,k,3,itrc), t(i,j+2,k,3,itrc),
+     &                                                             vel )
+#  ifdef MASKING
+                flx3 = vel*FLUX3(
+     &             t(i,j-2,k,3,itrc), t(i,j-1,k,3,itrc),
+     &             t(i,j  ,k,3,itrc), t(i,j+1,k,3,itrc),  vel ) 
+                flx2 = 0.5*vel*(t(i,j,k,3,itrc)+t(i,j-1,k,3,itrc))
+                mask1=rmask(i,j-2)*rmask(i,j+1)
+                mask2=rmask(i,j-3)*rmask(i,j+2)
+                mask0=mask1*mask2
+                FE(i,j)=mask0*flx5+(1-mask0)*mask1*flx3+
+     &                         (1-mask0)*(1-mask1)*flx2
+#  else
+                FE(i,j)=flx5
+#  endif
+              ENDDO
+                                           !
+            ELSE IF ( j.eq.jmin-2 ) THEN   ! 2nd order flux next to south
+                                           ! boundary
+              DO i = Istr,Iend
+                FE(i,j) = 0.5*Hvom(i,j,k)*
+     &                  (t(i,j,k,3,itrc)+t(i,j-1,k,3,itrc))
+              ENDDO
+                                           !
+            ELSE IF  ( j.eq.jmin-1 ) THEN  ! 3rd of 4th order flux 2 in
+                                           ! from south boundary
+              DO i = Istr,Iend
+                vel = Hvom(i,j,k)
+                flx3 = vel*FLUX3(
+     &             t(i,j-2,k,3,itrc), t(i,j-1,k,3,itrc),
+     &             t(i,j  ,k,3,itrc), t(i,j+1,k,3,itrc),  vel )
+#  ifdef MASKING
+                flx2 = 0.5*vel*(t(i,j,k,3,itrc)+t(i,j-1,k,3,itrc))
+                mask1=rmask(i,j-3)*rmask(i,j+2)
+                FE(i,j)=mask1*flx3+(1-mask1)*flx2
+#  else
+                FE(i,j)=flx3
+#  endif
+              ENDDO
+                                          !
+            ELSE IF ( j.eq.jmax+2 ) THEN  ! 2nd order flux next to north
+                                          ! boundary
+              DO i = Istr,Iend
+                FE(i,j) = 0.5*Hvom(i,j,k)*
+     &                  (t(i,j,k,3,itrc)+t(i,j-1,k,3,itrc))
+              ENDDO
+                                      !
+            ELSE IF ( j.eq.jmax+1 ) THEN  ! 3rd or 4th order flux 2 in from
+                                      ! north boundary
+              DO i = Istr,Iend
+                vel = Hvom(i,j,k)
+                flx3 = vel*FLUX3(
+     &             t(i,j-2,k,3,itrc), t(i,j-1,k,3,itrc),
+     &             t(i,j  ,k,3,itrc), t(i,j+1,k,3,itrc),  vel )
+#  ifdef MASKING
+                flx2 = 0.5*vel*(t(i,j,k,3,itrc)+t(i,j-1,k,3,itrc))
+                mask1=rmask(i,j-3)*rmask(i,j+2)
+                FE(i,j)=mask1*flx3+(1-mask1)*flx2
+#  else
+                FE(i,j)=flx3
+#  endif
+              ENDDO
+            ENDIF
+          ENDDO ! j_loop_y_flux_5
+
+          DO i = Istr,Iend+1  !i_loop_x_flux_5
+                                                      !
+            IF( (i.ge.imin ) .and. (i.le.imax) ) THEN ! use full stencil
+                                                      !
+              DO j = Jstr,Jend
+                vel = Huon(i,j,k)
+                flx5 = vel*FLUX5(
+     &          t(i-3,j,k,3,itrc), t(i-2,j,k,3,itrc), t(i-1,j,k,3,itrc),
+     &          t(i  ,j,k,3,itrc), t(i+1,j,k,3,itrc), t(i+2,j,k,3,itrc),
+     &                                                             vel )
+#  ifdef MASKING
+                flx3 = vel*FLUX3(
+     &             t(i-2,j,k,3,itrc), t(i-1,j,k,3,itrc),
+     &             t(i  ,j,k,3,itrc), t(i+1,j,k,3,itrc),  vel )
+                flx2 = 0.5*vel*(t(i,j,k,3,itrc)+t(i-1,j,k,3,itrc))
+                mask1=rmask(i-2,j)*rmask(i+1,j)
+                mask2=rmask(i-3,j)*rmask(i+2,j)
+                mask0=mask1*mask2
+                FX(i,j)=mask0*flx5+(1-mask0)*mask1*flx3+
+     &                         (1-mask0)*(1-mask1)*flx2
+#  else
+                FX(i,j)=flx5
+#  endif
+              ENDDO
+                                           !
+            ELSE IF ( i.eq.imin-2 ) THEN   ! 2nd order flux next to south
+                                           ! boundary
+              DO j = Jstr,Jend
+                FX(i,j) = 0.5*Huon(i,j,k)*
+     &                  (t(i,j,k,3,itrc)+t(i-1,j,k,3,itrc))
+              ENDDO
+                                           !
+            ELSE IF  ( i.eq.imin-1 ) THEN  ! 3rd of 4th order flux 2 in
+                                           ! from south boundary
+              DO j = Jstr,Jend
+                vel = Huon(i,j,k)
+                flx3 = vel*FLUX3(
+     &             t(i-2,j,k,3,itrc), t(i-1,j,k,3,itrc),
+     &             t(i  ,j,k,3,itrc), t(i+1,j,k,3,itrc),  vel )
+#  ifdef MASKING
+                flx2 = 0.5*vel*(t(i,j,k,3,itrc)+t(i-1,j,k,3,itrc))
+                mask1=rmask(i-3,j)*rmask(i+2,j)
+                FX(i,j)=mask1*flx3+(1-mask1)*flx2
+#  else
+                FX(i,j)=flx3
+#  endif
+              ENDDO
+                                          !
+            ELSE IF ( i.eq.imax+2 ) THEN  ! 2nd order flux next to north
+                                          ! boundary
+              DO j = Jstr,Jend
+                FX(i,j) = 0.5*Huon(i,j,k)*
+     &                  (t(i,j,k,3,itrc)+t(i-1,j,k,3,itrc))
+              ENDDO
+                                          !
+            ELSE IF ( i.eq.imax+1 ) THEN  ! 3rd or 4th order flux 2 in from
+                                          ! north boundary
+              DO j = Jstr,Jend
+                vel = Huon(i,j,k)
+                flx3 = vel*FLUX3(
+     &             t(i-2,j,k,3,itrc), t(i-1,j,k,3,itrc),
+     &             t(i  ,j,k,3,itrc), t(i+1,j,k,3,itrc),  vel )
+#  ifdef MASKING
+                flx2 = 0.5*vel*(t(i,j,k,3,itrc)+t(i-1,j,k,3,itrc))
+                mask1=rmask(i-3,j)*rmask(i+2,j)
+                FX(i,j)=mask1*flx3+(1-mask1)*flx2
+#  else
+                FX(i,j)=flx3
+#  endif
+              ENDDO
+            ENDIF
+          ENDDO ! i_loop_x_flux_5
+
+# else /* HADV_UP5_TS */
+!----------------------------------------
+! Fourth or Third order advection scheme
+!----------------------------------------
+!
+#  ifdef TS_HADV_UP3
+#   define curv WORK
+#  else
+#   define grad WORK
+#  endif
+#  ifdef EW_PERIODIC
+#   define I_EXT_RANGE Istr-1,Iend+2
+#  else
+#   ifdef MPI
           if (WEST_INTER) then
             imin=Istr-1
           else
@@ -105,79 +327,15 @@
           else
             imax=min(Iend+2,Lmmpi+1)
         endif
-#   define I_EXT_RANGE imin,imax
-#  else
-#   define I_EXT_RANGE max(Istr-1,1),min(Iend+2,Lm+1)
+#    define I_EXT_RANGE imin,imax
+#   else
+#    define I_EXT_RANGE max(Istr-1,1),min(Iend+2,Lm+1)
+#   endif
 #  endif
-# endif
-          do j=Jstr,Jend
-            do i=I_EXT_RANGE
-              FX(i,j)=(t(i,j,k,3,itrc)-t(i-1,j,k,3,itrc))
-# ifdef MASKING
-     &                                        *umask(i,j)
-# endif
-            enddo
-          enddo
-# undef I_EXT_RANGE
-# ifndef EW_PERIODIC
-          if (WESTERN_EDGE) then
-            do j=Jstr,Jend
-              FX(0,j)=FX(1,j)
-            enddo
-          endif
-          if (EASTERN_EDGE) then
-#  ifdef MPI
-            do j=Jstr,Jend
-              FX(Lmmpi+2,j)=FX(Lmmpi+1,j)
-            enddo
+#  ifdef NS_PERIODIC
+#   define J_EXT_RANGE Jstr-1,Jend+2
 #  else
-             do j=Jstr,Jend
-              FX(Lm+2,j)=FX(Lm+1,j)
-            enddo
-#  endif
-          endif
-# endif
-
-          do j=Jstr,Jend
-            do i=Istr-1,Iend+1
-# if defined HADV_UPSTREAM_TS
-              curv(i,j)=FX(i+1,j)-FX(i,j)
-# elif defined HADV_AKIMA_TS
-              cff=2.*FX(i+1,j)*FX(i,j)
-              if (cff.gt.epsil) then
-                grad(i,j)=cff/(FX(i+1,j)+FX(i,j))
-              else
-                grad(i,j)=0.
-              endif
-# else
-              grad(i,j)=0.5*(FX(i+1,j)+FX(i,j))
-# endif
-            enddo
-          enddo             !--> discard FX
-
-
-          do j=Jstr,Jend
-            do i=Istr,Iend+1
-# ifdef HADV_UPSTREAM_TS
-              if (Huon(i,j,k) .gt. 0.) then
-                cff=curv(i-1,j)
-              else
-                cff=curv(i,j)
-              endif
-              FX(i,j)=0.5*( t(i,j,k,3,itrc)+t(i-1,j,k,3,itrc)
-     &                           -0.333333333333*cff )*Huon(i,j,k)
-# else
-              FX(i,j)=0.5*( t(i,j,k,3,itrc)+t(i-1,j,k,3,itrc)
-     &                     -0.333333333333*(grad(i,j)-grad(i-1,j))
-     &                                               )*Huon(i,j,k)
-# endif
-            enddo          !--> discard grad
-          enddo
-
-# ifdef NS_PERIODIC
-#  define J_EXT_RANGE Jstr-1,Jend+2
-# else
-#  ifdef MPI
+#   ifdef MPI
           if (SOUTH_INTER) then
             jmin=Jstr-1
           else
@@ -188,61 +346,128 @@
           else
             jmax=min(Jend+2,Mmmpi+1)
           endif
-#   define J_EXT_RANGE jmin,jmax
-#  else
-#   define J_EXT_RANGE max(Jstr-1,1),min(Jend+2,Mm+1)
+#    define J_EXT_RANGE jmin,jmax
+#   else
+#    define J_EXT_RANGE max(Jstr-1,1),min(Jend+2,Mm+1)
+#   endif
 #  endif
-# endif
+
+      do k=1,N
+        do itrc=1,NT
+
+          do j=Jstr,Jend
+            do i=I_EXT_RANGE
+              FX(i,j)=(t(i,j,k,3,itrc)-t(i-1,j,k,3,itrc))
+#  ifdef MASKING
+     &                                        *umask(i,j)
+#  endif
+            enddo
+          enddo
+#  undef I_EXT_RANGE
+#  ifndef EW_PERIODIC
+          if (WESTERN_EDGE) then
+            do j=Jstr,Jend
+              FX(0,j)=FX(1,j)
+            enddo
+          endif
+          if (EASTERN_EDGE) then
+#   ifdef MPI
+            do j=Jstr,Jend
+              FX(Lmmpi+2,j)=FX(Lmmpi+1,j)
+            enddo
+#   else
+             do j=Jstr,Jend
+              FX(Lm+2,j)=FX(Lm+1,j)
+            enddo
+#   endif
+          endif
+#  endif
+
+          do j=Jstr,Jend
+            do i=Istr-1,Iend+1
+#  ifdef TS_HADV_UP3
+              curv(i,j)=FX(i+1,j)-FX(i,j)
+#  elif defined TS_HADV_AKIMA
+              cff=2.*FX(i+1,j)*FX(i,j)
+              if (cff.gt.epsil) then
+                grad(i,j)=cff/(FX(i+1,j)+FX(i,j))
+              else
+                grad(i,j)=0.
+              endif
+#  else
+              grad(i,j)=0.5*(FX(i+1,j)+FX(i,j))
+#  endif
+            enddo
+          enddo             !--> discard FX
+
+
+          do j=Jstr,Jend
+            do i=Istr,Iend+1
+#  ifdef TS_HADV_UP3
+              if (Huon(i,j,k) .gt. 0.) then
+                cff=curv(i-1,j)
+              else
+                cff=curv(i,j)
+              endif
+              FX(i,j)=0.5*( t(i,j,k,3,itrc)+t(i-1,j,k,3,itrc)
+     &                           -0.333333333333*cff )*Huon(i,j,k)
+#  else
+              FX(i,j)=0.5*( t(i,j,k,3,itrc)+t(i-1,j,k,3,itrc)
+     &                     -0.333333333333*(grad(i,j)-grad(i-1,j))
+     &                                               )*Huon(i,j,k)
+#  endif
+            enddo          !--> discard grad
+          enddo
 
           do j=J_EXT_RANGE
             do i=Istr,Iend
               FE(i,j)=(t(i,j,k,3,itrc)-t(i,j-1,k,3,itrc)) 
-# ifdef MASKING
+#  ifdef MASKING
      &                                         *vmask(i,j)
-# endif
+#  endif
             enddo
           enddo
-# undef J_EXT_RANGE
-# ifndef NS_PERIODIC
+#  undef J_EXT_RANGE
+#  ifndef NS_PERIODIC
           if (SOUTHERN_EDGE) then
             do i=Istr,Iend
               FE(i,0)=FE(i,1)
             enddo
           endif
           if (NORTHERN_EDGE) then
-#  ifdef MPI
+#   ifdef MPI
             do i=Istr,Iend
               FE(i,Mmmpi+2)=FE(i,Mmmpi+1)
             enddo
-#  else
+#   else
             do i=Istr,Iend
               FE(i,Mm+2)=FE(i,Mm+1)
             enddo
-#  endif
+#   endif
           endif
-# endif
+#  endif
 
           do j=Jstr-1,Jend+1
             do i=Istr,Iend
-# if defined HADV_UPSTREAM_TS
+#  ifdef TS_HADV_UP3
               curv(i,j)=FE(i,j+1)-FE(i,j)
-# elif defined HADV_AKIMA_TS
+#  elif defined TS_HADV_AKIMA
               cff=2.*FE(i,j+1)*FE(i,j)
               if (cff.gt.epsil) then
                 grad(i,j)=cff/(FE(i,j+1)+FE(i,j))
               else
                 grad(i,j)=0.
               endif
-# else
+#  else
               grad(i,j)=0.5*(FE(i,j+1)+FE(i,j))
-# endif
+#  endif
             enddo
           enddo            !--> discard FE
 
 
           do j=Jstr,Jend+1
             do i=Istr,Iend
-# ifdef HADV_UPSTREAM_TS
+#  ifdef TS_HADV_UP3
               if (Hvom(i,j,k) .gt. 0.) then
                 cff=curv(i,j-1)
               else
@@ -250,19 +475,22 @@
               endif
               FE(i,j)=0.5*( t(i,j,k,3,itrc)+t(i,j-1,k,3,itrc)
      &                          -0.333333333333*cff )*Hvom(i,j,k)
-#  undef curv
-# else
+#   undef curv
+#  else
               FE(i,j)=0.5*( t(i,j,k,3,itrc)+t(i,j-1,k,3,itrc)
      &                     -0.333333333333*(grad(i,j)-grad(i,j-1))
      &                                               )*Hvom(i,j,k)
-#  undef grad
-# endif
+#   undef grad
+#  endif
             enddo
           enddo            !--> discard grad
 
+# endif /* TS_HADV_UP5 */
+
 # ifdef PSOURCE
-!
+!----------------------------------------------------
 ! Apply point sources for river runoff simulations
+!----------------------------------------------------
 !
           do is=1,Nsrc
 #  ifdef MPI
@@ -301,7 +529,12 @@
               endif
             endif
           enddo
-# endif
+# endif /* PSOURCE */
+!
+!--------------------------------------------------------
+! Finalize horizontal advection: compute flux divergences
+!--------------------------------------------------------
+!
           do j=Jstr,Jend
             do i=Istr,Iend
               t(i,j,k,nnew,itrc)=Hz_bak(i,j,k)*t(i,j,k,nstp,itrc)
@@ -328,16 +561,13 @@
 # endif
 
 # ifdef DIAGNOSTICS_TS
-      do j=Jstr,Jend
-        do i=Istr,Iend 
-          TXadv(i,j,k,itrc) = -(FX(i+1,j)-FX(i,j))
-#  ifdef MASKING
-     &              * rmask(i,j)
-#  endif
-          TYadv(i,j,k,itrc) = -(FE(i,j+1)-FE(i,j))
-#  ifdef MASKING
-     &              * rmask(i,j)
-#  endif
+!--------------------------------------------------------
+! Store diagnostic transport term
+!--------------------------------------------------------
+          do j=Jstr,Jend
+            do i=Istr,Iend 
+              TXadv(i,j,k,itrc)=-(FX(i+1,j)-FX(i,j)) SWITCH rmask(i,j)
+              TYadv(i,j,k,itrc)=-(FE(i,j+1)-FE(i,j)) SWITCH rmask(i,j)
           enddo
         enddo
 # endif /* DIAGNOSTICS_TS */
@@ -346,7 +576,6 @@
       enddo    !<-- k
 
 # if defined LMD_SKPP || defined LMD_BKPP
-!
 !---------------------------------------------------------------
 ! Compute fraction of the solar shortwave flux "swdk"
 ! penetrating to grid level depth (at vertical w-points).
@@ -370,15 +599,18 @@
       enddo
 #  undef wrk1
 #  undef wrk2
-# endif
+# endif /* LMD_SKPP || LMD_BKPP */
 !
-!---------------------------------------------------------------
+!
+!===============================================================
+!
 ! Compute vertical advection
-!---------------------------------------------------------------
+!
+!===============================================================
 !
       do j=Jstr,Jend
         do itrc=1,NT
-# ifdef VADV_SPLINES_TS
+# ifdef TS_VADV_SPLINES
 !
 ! Compute vertical advective fluxes using parabolic splines: 
 ! FC=W*[spline-interpolated tracer]
@@ -421,7 +653,7 @@
             FC(i,0)=0.
             CF(i,0)=dt*pm(i,j)*pn(i,j)
           enddo
-# elif defined VADV_AKIMA_TS
+# elif defined TS_VADV_AKIMA
 !
 ! Compute vertical advective fluxes using 4th-order Akima scheme
 !
@@ -455,7 +687,7 @@
             FC(i,N)=0.
             CF(i,0)=dt*pm(i,j)*pn(i,j)
           enddo
-# elif VADV_C2_TS
+# elif TS_VADV_C2
 !
 ! Compute vertical advective fluxes using 2th-order centered scheme
 !
@@ -517,18 +749,19 @@
          enddo
        enddo
 # endif /* DIAGNOSTICS_TS */  
-
 !
-!---------------------------------------------------------------
+!
+!===============================================================
+!
 ! Compute surface and Bottom forcing
-!---------------------------------------------------------------
 !
+!===============================================================
 !
 ! Add top and bottom fluxes
 !
           do i=Istr,Iend
             FC(i,N)=dt*stflx(i,j,itrc)
-            FC(i,0)=-dt*btflx(i,j,itrc)            
+            FC(i,0)=-dt*btflx(i,j,itrc)
           enddo
 !
 ! Add solar radiation flux in temperature equation
@@ -576,147 +809,32 @@
      &                                    /(dt*pm(i,j)*pn(i,j))
 #  ifdef MASKING
      &                                             * rmask(i,j)
-#  endif           
+#  endif
 # endif  /* DIAGNOSTICS_TS */
               enddo
             enddo
           endif
-
 !
-!---------------------------------------------------------------
-! Compute vertical mixing
-!---------------------------------------------------------------
 !
-! The vertical mixing term is not added as an explicit divergence term
-! like the other terms due to the semi-implicit Crank-Nicholson scheme. 
-! We store first t(i,j,k,nnew,itrc) which contains both the old concentration 
-! of tracer (depth is already factored in here) and the right hand 
-! side terms of the explicit time stepping. The new concentration is
-! added after resolving tridiagonal system to obtain the vertical mixing
-! term by substracting the right hand side terms to the time rate of change
-! (see scrum manual p16)
+!===============================================================
 !
-! Crank-Nicholson scheme:
+! Compute vertical mixing (implicit step)
 !
-!   dq(k)     1     [         q(k+1)-q(k)             q(k)-q(k-1) ]
-!  ------ = ----- * [ Akt(k)* ----------- - Akt(k-1)* ----------- ]
-!    dt     Hz(k)   [            dz(k)                   dz(k-1)  ]
+! if lateral rotated diffusion is chosen, this step is performed
+! after lateral diffusion to include implicit correction to lateral
+! diffusion
 !
-! where q(k) represents tracer field t(:,:,k,:,itrc). Doing so
-! implies solution of a tri-diagonal system
+!===============================================================
 !
-!     -FC(k-1)*q_new(k-1) +[Hz(k)+FC(k-1)+FC(k)]*q_new(k)
-!                       -FC(k)*q_new(k+1) = Hz(k)*q_old(k)
-!
-!                dt*Akt(k)
-! where FC(k) = ----------- is normalized diffusivity coefficient
-!                  dz(k)
-!
-! defined at W-points; q_new(k) is the new-time-step (unknown) tracer
-! field; q_old(k) is old-time-step tracer (known).  As long as
-! vertical diffusivity Akt(k) is nonnegative, the tri-diagonal matrix
-! is diagonally dominant which guarantees stability of a Gaussian
-! elimination procedure, (e.g., Richtmeyer annd  Morton, 1967).
-! Top and bottom boundary conditions are assumed to be no-flux,
-! effectively Akt(N)=Akt(0)=0, hence FC(N)=FC(1)=0. This leads to
-! equations for top and bottom grid boxes;
-!
-!   -FC(N-1)*q_new(N-1) +[Hz(N)+FC(N-1)]*q_new(N) = Hz(N)*q_old(N)
-!
-!          [Hz(1)+FC(1)]*q_new(1) -FC(1)*q_new(2) = Hz(1)*q_old(1)
-!
-! The FC(N)=FC(0)=0 boundary conditions does not mean that physical
-! boundary conditions are no flux: the forcing fluxes have been
-! applied explicitly above.  Instead, the no-flux condition should
-! be interpreted as that the implicit step merely redistributes the
-! tracer concentration throughout the water column. At this moment
-! the content of array t(:,:,:,nnew,itrc) has meaning of Hz*tracer.
-! After the implicit step it becomes just tracer.
-!
-# ifdef DIAGNOSTICS_TS
-          do k=1,N
-            do i=Istr,Iend
-               TVmix(i, j, k, itrc)=t(i,j,k,nnew,itrc)
-            enddo
+# ifdef TS_MIX_IMP
+         do k=1,N
+           do i=istr,iend
+              t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc) / Hz(i,j,k)
+           enddo
          enddo
-# endif /* DIAGNOSTICS_TS */
-!
-! Compute off-diagonal matrix coefficients FC [dt*Akt/Hz] for the
-! implicit vertical diffusion terms at future time step, located at
-! horizontal RHO-points and vertical W-points.
-! Also set FC at the top and bottom levels.
-!
-# ifdef SALINITY
-          indx=min(itrc,isalt)
 # else
-          indx=min(itrc,itemp)
+#  include "t3dmix_tridiagonal.h"
 # endif
-          
-          do k=1,N-1
-            do i=Istr,Iend
-              FC(i,k)=-dt*Akt(i,j,k,indx)/(z_r(i,j,k+1)-z_r(i,j,k))
-            enddo
-          enddo
-          do i=Istr,Iend
-            FC(i,0)=0.
-            FC(i,N)=0.
-          enddo
-!
-! Compute diagonal matrix coefficients BC.
-! Also load right-hand-side terms for the tracer equation into DC.
-!
-          do k=1,N
-            do i=Istr,Iend
-              BC(i,k)=Hz(i,j,k)-FC(i,k)-FC(i,k-1)
-              DC(i,k)=t(i,j,k,nnew,itrc)
-            enddo  
-          enddo
-!
-! Solve the tridiagonal system. Although it is mathematically
-! redundunt to keep the solution in the private array DC, and
-! then just write it back to shared target array t [instead of
-! just using array t as the workspace/output], it is preferred
-! to do it  this way in order to avoid read-write operations
-! out/in  to the shared array in order to minimize the effect
-! of false cache_line sharing in the case if there is blocking
-! in XI-direction.
-!
-          do i=Istr,Iend
-            cff=1./BC(i,1)
-            CF(i,1)=cff*FC(i,1)
-            DC(i,1)=cff*DC(i,1)
-          enddo
-          do k=2,N-1
-            do i=Istr,Iend
-              cff=1./(BC(i,k)-FC(i,k-1)*CF(i,k-1))
-              CF(i,k)=cff*FC(i,k)
-              DC(i,k)=cff*(DC(i,k)-FC(i,k-1)*DC(i,k-1))
-            enddo
-          enddo
-          do i=Istr,Iend
-             DC(i,N)=(DC(i,N)-FC(i,N-1)*DC(i,N-1))/
-     &               (BC(i,N)-FC(i,N-1)*CF(i,N-1))
-             t(i,j,N,nnew,itrc)=DC(i,N)
-          enddo
-          do k=N-1,1,-1
-            do i=Istr,Iend
-              DC(i,k)=DC(i,k)-CF(i,k)*DC(i,k+1)
-              t(i,j,k,nnew,itrc)=DC(i,k)
-            enddo
-          enddo
-
-# ifdef DIAGNOSTICS_TS
-          do k=1,N
-            do i=Istr,Iend
-              TVmix(i,j,k,itrc) = 
-     &            -(TVmix(i,j,k,itrc)-t(i,j,k,nnew,itrc)*Hz(i,j,k))
-     &                                        /(dt*pm(i,j)*pn(i,j))
-#  ifdef MASKING
-     &                                                 * rmask(i,j)
-#  endif
-            enddo
-          enddo                 
-# endif /* DIAGNOSTICS_TS */
 
 # ifdef CONST_TRACERS
           do k=1,N
@@ -750,10 +868,10 @@
 # endif
       enddo      ! <-- j
 !
-!---------------------------------------------------------------
+!===============================================================
 ! Set lateral boundary conditions; nudge toward tracer climatology;
 ! apply land-sea mask and exchange periodic boundary conditions.
-!---------------------------------------------------------------
+!===============================================================
 !
       do itrc=1,NT
         call t3dbc_tile (Istr,Iend,Jstr,Jend, nnew,itrc, WORK)
@@ -761,9 +879,9 @@
 
 # ifdef BIOLOGY
 !
-!---------------------------------------------------------------
+!===============================================================
 ! Compute biological fluxes
-!---------------------------------------------------------------
+!===============================================================
 !
       call biology_tile (Istr,Iend,Jstr,Jend)
 # endif
@@ -772,9 +890,9 @@
 !
 # if defined TNUDGING && defined TCLIMATOLOGY
 !
-!---------------------------------------------------------------
+!===============================================================
 ! Compute Nudging terms
-!---------------------------------------------------------------
+!===============================================================
 !
         do k=1,N
           do j=Jstr,Jend
@@ -796,9 +914,80 @@
         enddo
 # endif /* TNUDGING && TCLIMATOLOGY */
 !
+!===============================================================
+! Compute vertical Rho gradients for use in t3dmix
+!===============================================================
+!
+# if !defined TS_MIX_S && (defined TS_DIF4 || defined TS_DIF2)
+      amaxx=5./100.
+      smax=5.
+      do k=1,N-1
+       do j=jstr,jend
+        do i=istr,iend
+#  ifdef TS_MIX_ISO
+#   ifdef SPLIT_EOS
+           dpth=z_w(i,j,N)-0.5*(z_r(i,j,k+1)+z_r(i,j,k))
+           dRz = ( rho1(i,j,k+1)-rho1(i,j,k)
+     &          +(  qp1(i,j,k+1)- qp1(i,j,k))
+     &                *dpth*(1.-2.*qp2*dpth))
+#   else
+           dRz = rho1(i,j,k+1)-rho1(i,j,k)
+#   endif
+           cff  = min( 1./dRz,-1.E-14 ) !++ even if rho(i,j,k+1)=rho(i,j,k)
+                                        !++ we should have cff = -1.E-14  ...
+           cff1 = 1./(z_r(i,j,k+1)-z_r(i,j,k))
+#   ifdef LMD_SKPP2005
+           hbltmp=hbls(i,j,3-nstp)
+#   elif defined LMD_SKPP1994
+           hbltmp=hbl(i,j)
+#   else
+           hbltmp=5.
+#   endif
+           sig  = - z_w(i,j,k+1) / max( hbltmp, 5.  )     
+                     !++ imposes that the depth of the boundary layer is
+                     !at least 5m
+           dXmax = max( abs(dRdx(i,j,k  )),abs(dRdx(i+1,j,k  )),
+     &                  abs(dRdx(i,j,k+1)),abs(dRdx(i+1,j,k+1)),1E-14)
+
+           dEmax = max( abs(dRde(i,j,k  )),abs(dRde(i,j+1,k  )),
+     &                  abs(dRde(i,j,k+1)),abs(dRde(i,j+1,k+1)),1E-14)
+
+           gama  = 1.
+           if(sig .le. 1.) then
+             gama  = sig*sig*(3.-2.*sig)
+           endif
+
+           amax=min(amaxx,smax*min(pm(i,j),pn(i,j))/cff1)
+
+        !   if (i.eq.15 .and. j.eq.15 .and. itrc.eq.1) then
+        !     print *,'k smax ',k,amax
+        !   endif
+
+           idRz(i,j,k) = max(  -amax*gama*cff1 / dXmax,
+     &                         -amax*gama*cff1 / dEmax,
+     &                                                     cff  )
+#  else
+           idRz(i,j,k) = 1./(z_r(i,j,k+1)-z_r(i,j,k))
+#  endif
+        enddo
+       enddo
+      enddo
+       do j=jstr,jend
+        do i=istr,iend
+          idRz(i,j,N) = 0.
+          idRz(i,j,0) = 0.
+        enddo
+       enddo
+
+#  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      call exchange_w3d_tile (  istr,iend,jstr,jend,
+     &                          idRz(START_2D_ARRAY,0)  )
+#  endif
+# endif /* TS_DIF2 || TS_DIF4 */
+!
 # ifdef DIAGNOSTICS_TS
 !
-!---------------------------------------------------------------
+!===============================================================
 ! Compute the tendency term of tracer diagnostics
 ! Divide all diagnostic terms by the cell volume
 ! (Hz(i,j,k,itrc)/(pm(i,j).*pn(i,j)). There after the unit
@@ -806,7 +995,7 @@
 !
 ! Note: the Horizontal mixing term is computed in t3dmix
 ! where Trate is updated accordingly
-!---------------------------------------------------------------
+!===============================================================
 !
        do k=1,N
          do j=Jstr,Jend
@@ -840,7 +1029,6 @@
          enddo
        enddo
 !
-!---------------------------------------------------------------------
 !
 #  ifdef DIAGNOSTICS_TS_MLD
 !---------------------------------------------------------------
@@ -932,27 +1120,31 @@
          i=5
          j=5
 #   if defined DIAGNOSTICS_TS_MLD
-         cff=Trate_mld(i,j,itrc)-
-     &       TXadv_mld(i,j,itrc)-
-     &       TYadv_mld(i,j,itrc)-
-     &       TVadv_mld(i,j,itrc)-
-     &       TVmix_mld(i,j,itrc)-
-     &       THmix_mld(i,j,itrc)-
-     &       Tentr_mld(i,j,itrc)-
-     &       TForc_mld(i,j,itrc)
-       print *,'STEP3D_T  : T budget closure MLD   : ',cff
+        cff=Trate_mld(i,j,itrc)-
+     &      TXadv_mld(i,j,itrc)-
+     &      TYadv_mld(i,j,itrc)-
+     &      TVadv_mld(i,j,itrc)-
+     &      TVmix_mld(i,j,itrc)-
+     &      THmix_mld(i,j,itrc)-
+     &      Tentr_mld(i,j,itrc)-
+     &      TForc_mld(i,j,itrc)
+           MPI_master_only write(stdout,'(A,2x,1pe10.3)')
+     &     ' STEP3D_T: T budget closure MLD     :', cff
+
 #   endif /* DIAGNOSTICS_TS_MLD */
-          cff=Trate(i,j,N-5,itrc)-
-     &        TXadv(i,j,N-5,itrc)-
-     &        TYadv(i,j,N-5,itrc)-
-     &        TVadv(i,j,N-5,itrc)-
-     &        TVmix(i,j,N-5,itrc)-
-     &        THmix(i,j,N-5,itrc)-
-     &        TForc(i,j,N-5,itrc)
-       print *,'STEP3D_T  : T budget closure k=N-5 : ',cff
+        cff=Trate(i,j,N-5,itrc)-
+     &       TXadv(i,j,N-5,itrc)-
+     &       TYadv(i,j,N-5,itrc)-
+     &       TVadv(i,j,N-5,itrc)-
+     &       TVmix(i,j,N-5,itrc)-
+     &       THmix(i,j,N-5,itrc)-
+     &       TForc(i,j,N-5,itrc)
+           MPI_master_only write(stdout,'(A,2x,1pe10.3)')
+     &     ' STEP3D_T: T budget closure at k=N-5:', cff
       endif
 #  endif /* DIAGNOSTICS_DEBUG */
 # endif /* DIAGNOSTICS_TS */
+
 
 # if defined MASKING
 #  ifdef EW_PERIODIC
@@ -977,8 +1169,13 @@
 # endif /* MASKING */
 
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+#  ifdef TS_HADV_UP5
+        call exchange_r3d_3pts_tile (Istr,Iend,Jstr,Jend,
+     &                          t(START_2D_ARRAY,1,nnew,itrc))
+#  else
         call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                          t(START_2D_ARRAY,1,nnew,itrc))
+#  endif
 # endif
 
       enddo  ! <-- itrc

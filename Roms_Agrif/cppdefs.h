@@ -87,13 +87,22 @@
 # define SPHERICAL
 # define MASKING
                       /* Lateral Momentum Mixing */
-# define UV_VIS2
-# define MIX_GP_UV
-# undef  VIS_SMAGO
+# undef  UV_VIS2
+# ifdef UV_VIS2
+#  define UV_MIX_S
+#  define UV_VIS_SMAGO
+# endif
+                      /* Lateral Tracer Advection (default C4) */
+# undef  TS_HADV_UP3
+# undef  TS_HADV_UP5
+# define TS_HADV_RSUP3
                       /* Lateral Tracer Mixing */
-# define MIX_GP_TS
-# define TS_DIF2
-# undef  TS_SPLIT_UP3
+# undef  TS_DIF2
+# undef  TS_DIF4
+# undef  TS_DIF_SMAGO
+# undef  TS_MIX_ISO
+                      /* Sponge layers for UV and TS */
+# define SPONGE
                       /* Vertical Mixing */
 # undef  BODYFORCE
 # undef  BVF_MIXING
@@ -119,15 +128,13 @@
 #  define BULK_EP
 #  define BULK_SMFLUX
 #  undef  ONLINE       /* Online interpolations of atmospheric variables */
-#  undef  CUBIC_INTERP /* Cubic or linear online interpolations */
+#  undef  CUBIC_INTERP /* Cubic or linear interpolations */
 # else
 #  define QCORRECTION
 #  define SFLX_CORR
 #  define DIURNAL_SRFLUX
 # endif
                       /* Lateral Forcing */
-# define SPONGE
-
 # define CLIMATOLOGY
 # ifdef CLIMATOLOGY
 #  define ZCLIMATOLOGY
@@ -269,10 +276,10 @@
 # define UV_ADV
 # define UV_COR
 # define UV_VIS2
-# define MIX_S_UV
+# define UV_MIX_S
 # define SOLVE3D
 # define TS_DIF2
-# define MIX_S_TS
+# define TS_MIX_S
 # define BODYFORCE
 # define ANA_GRID
 # define ANA_INITIAL
@@ -330,11 +337,11 @@
 # define UV_ADV
 # define UV_COR
 # define UV_VIS2
-# define MIX_S_UV
+# define UV_MIX_S
 # define SOLVE3D
 # define SALINITY
 # define TS_DIF2
-# define MIX_S_TS
+# define TS_MIX_S
 # define ANA_GRID
 # define ANA_INITIAL
 # define ANA_SMFLUX
@@ -360,9 +367,9 @@
 # undef MPI
 # define UV_ADV
 # define UV_VIS2
-# define MIX_S_UV
+# define UV_MIX_S
 # define TS_DIF2
-# define MIX_S_TS
+# define TS_MIX_S
 # define SOLVE3D
 # define ANA_GRID
 # define ANA_INITIAL
@@ -427,9 +434,9 @@
 # define NS_PERIODIC
 
 # undef  UV_VIS2
-# undef  MIX_GP_UV
+# undef  UV_MIX_GEO
 # undef  TS_DIF2
-# undef  MIX_GP_TS
+# undef  TS_MIX_GEO
 # undef  SPONGE
 # undef  ANA_SSH
 # undef  ANA_M2CLIMA
@@ -564,9 +571,9 @@
 # define UV_ADV
 # define UV_COR
 # define UV_VIS2
-# define MIX_GP_UV
+# define UV_MIX_GEO
 # define TS_DIF2
-# define MIX_GP_TS
+# define TS_MIX_GEO
 # define SOLVE3D
 # define ANA_GRID
 # define ANA_INITIAL
@@ -627,9 +634,9 @@
 # define ANA_BTFLUX
 # define ANA_VMIX
 # define UV_VIS2
-# define MIX_S_UV
+# define UV_MIX_S
 # define TS_DIF2
-# define MIX_S_TS
+# define TS_MIX_S
 # define SPONGE
 # define ZCLIMATOLOGY
 # define M2CLIMATOLOGY
