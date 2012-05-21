@@ -182,7 +182,7 @@ c**
             do k=1,nmax
               do jpts=1,Npts
                 do ipts=1,Npts
-                  buf_snd1(k+nmax*(ipts+Npts*(jpts-1)))=A(ipts,jpts,k)
+                  buf_snd1(k+nmax*(ipts-1+Npts*(jpts-1)))=A(ipts,jpts,k)
                 enddo
               enddo
             enddo
@@ -196,7 +196,7 @@ c**
             do k=1,nmax
               do jpts=1,Npts
                 do ipts=1,Npts
-                  buf_snd2(k+nmax*(ipts+Npts*(jpts-1)))=
+                  buf_snd2(k+nmax*(ipts-1+Npts*(jpts-1)))=
      &                            A(Lmmpi+ipts-Npts,Mmmpi+jpts-Npts,k)
                 enddo
               enddo
@@ -213,7 +213,7 @@ c**
             do k=1,nmax
               do jpts=1,Npts
                 do ipts=1,Npts
-                  buf_snd3(k+nmax*(ipts+Npts*(jpts-1)))=
+                  buf_snd3(k+nmax*(ipts-1+Npts*(jpts-1)))=
      &                                A(Lmmpi+ipts-Npts,jpts,k)
                 enddo
               enddo
@@ -228,7 +228,7 @@ c**
             do k=1,nmax
               do jpts=1,Npts
                 do ipts=1,Npts
-                  buf_snd4(k+nmax*(ipts+Npts*(jpts-1)))=
+                  buf_snd4(k+nmax*(ipts-1+Npts*(jpts-1)))=
      &                                A(ipts,Mmmpi+jpts-Npts,k)
                 enddo
               enddo
@@ -298,7 +298,7 @@ c**
           do jpts=1,Npts
             do ipts=1,Npts
               A(ipts-Npts,jpts-Npts,k)=
-     &                             buf_rev1(k+nmax*(ipts+Npts*(jpts-1)))
+     &                           buf_rev1(k+nmax*(ipts-1+Npts*(jpts-1)))
             enddo
           enddo
         enddo
@@ -310,7 +310,7 @@ c**
           do jpts=1,Npts
             do ipts=1,Npts
               A(Lmmpi+ipts,Mmmpi+jpts,k)=
-     &                             buf_rev2(k+nmax*(ipts+Npts*(jpts-1)))
+     &                           buf_rev2(k+nmax*(ipts-1+Npts*(jpts-1)))
             enddo
           enddo
         enddo
@@ -322,7 +322,7 @@ c**
           do jpts=1,Npts
             do ipts=1,Npts
               A(Lmmpi+ipts,jpts-Npts,k)=
-     &                             buf_rev3(k+nmax*(ipts+Npts*(jpts-1)))
+     &                           buf_rev3(k+nmax*(ipts-1+Npts*(jpts-1)))
             enddo
           enddo
         enddo
@@ -334,7 +334,7 @@ c**
           do jpts=1,Npts
             do ipts=1,Npts
               A(ipts-Npts,Mmmpi+jpts,k)=
-     &                             buf_rev4(k+nmax*(ipts+Npts*(jpts-1)))
+     &                           buf_rev4(k+nmax*(ipts-1+Npts*(jpts-1)))
             enddo
           enddo
         enddo
