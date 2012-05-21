@@ -1,5 +1,3 @@
-#include "cppdefs.h"
-! $Id$
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -10,6 +8,7 @@
 ! ROMS_AGRIF website : http://roms.mpl.ird.fr
 !======================================================================
 !
+#include "cppdefs.h"
 #define SWTRIADS  /* spatial scheme TRIADS or SWTRIADS */
 !
 #ifndef CHILD_SPG
