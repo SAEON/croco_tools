@@ -287,7 +287,9 @@ C$OMP CRITICAL (diag_cr_rgn)
 */
           endif
 	  
-!------- flush when debugging -- call flush
+#if defined MPI && defined DEBUG
+      call flush
+#endif
 	  
 C$OMP END CRITICAL (diag_cr_rgn)
       endif

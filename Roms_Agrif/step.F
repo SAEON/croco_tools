@@ -85,7 +85,7 @@ C$OMP END PARALLEL
 #endif
 #include "ocean2d.h"
 #include "ocean3d.h"
-#ifdef DEBUG
+#if defined DEBUG && defined  BULK_FLUX
 # include "forces.h"
 #endif
 #ifdef STATIONS
@@ -267,7 +267,7 @@ C$OMP BARRIER
 # endif
       enddo
 C$OMP BARRIER
-#ifdef DEBUG
+#if defined DEBUG && defined  BULK_FLUX
 C$OMP MASTER
       call check_tab2d(uwndg(:,:,1),'uwndg1 prestep3d','u')
       call check_tab2d(uwndg(:,:,2),'uwndg2 prestep3d','u')
