@@ -306,7 +306,7 @@ CR      write(*,*) 'wrt_his:  wrtW  ' MYID
 ! Write out Horizontal Diffusivity coefficient.
 !
       if (wrthis(indxDiff)) then
-        do k=0,N
+        do k=1,N
           do j=1,Mm
             do i=1,Lm
               work(i,j,k)=
@@ -316,7 +316,7 @@ CR      write(*,*) 'wrt_his:  wrtW  ' MYID
      &                     +diff3d_r(i,j,k)
 #    endif
 #   elif defined TS_DIF4
-     &                      diff4(i,j,itrc)
+     &                      diff4(i,j,itemp)
 #    ifdef TS_DIF_SMAGO
      &                     +diff3d_r(i,j,k)*om_r(i,j)*on_r(i,j)
 #    endif

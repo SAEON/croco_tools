@@ -257,7 +257,7 @@ C$    integer omp_get_thread_num
      &                     +diff3d_r(i,j,k)
 #    endif
 #   elif defined TS_DIF4
-     &                      diff4(i,j,itrc)
+     &                      diff4(i,j,itemp)
 #    ifdef TS_DIF_SMAGO
      &                     +diff3d_r(i,j,k)*om_r(i,j)*on_r(i,j)
 #    endif
@@ -550,7 +550,7 @@ C$    integer omp_get_thread_num
      &                     +diff3d_r(i,j,k)
 #    endif
 #   elif defined TS_DIF4
-     &                      diff4(i,j,itrc)
+     &                      diff4(i,j,itemp)
 #    ifdef TS_DIF_SMAGO
      &                     +diff3d_r(i,j,k)*om_r(i,j)*on_r(i,j)
 #    endif
@@ -857,7 +857,7 @@ C$    integer omp_get_thread_num
      &                     +diff3d_r(i,j,k)
 #    endif
 #   elif defined TS_DIF4
-     &                      diff4(i,j,itrc)
+     &                      diff4(i,j,itemp)
 #    ifdef TS_DIF_SMAGO
      &                     +diff3d_r(i,j,k)*om_r(i,j)*on_r(i,j)
 #    endif
