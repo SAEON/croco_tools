@@ -1271,11 +1271,12 @@ c        close(testunit)
      &           'bodyforce.')
 # endif
 #endif
-#if  defined SPONGE || \
-     defined TNUDGING   || defined M2NUDGING  || \
-     defined M3NUDGING  || defined ZNUDGING
+#if  (defined SPONGE && !defined SPONGE_GRID) 
 !
 ! Parameters for sponge layers
+!
+!  if SPONGE_GRID is defined, they are set generically
+!  in set_nudgcof routine
 !
       elseif (keyword(1:kwlen).eq.'sponge') then
         call cancel_kwd (keyword(1:kwlen), ierr)
@@ -1286,6 +1287,7 @@ c        close(testunit)
         MPI_master_only write(stdout,'(f10.2,2x,A)')
      &     v_sponge,'v_sponge Viscosity in sponge layer (m2/s)'
 #endif
+!
 #if  defined T_FRC_BRY  || defined M2_FRC_BRY || \
      defined M3_FRC_BRY || defined Z_FRC_BRY  || \
      defined TNUDGING   || defined M2NUDGING  || \

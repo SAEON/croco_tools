@@ -35,20 +35,9 @@
 # include "mixing.h"
 # include "scalars.h"
       integer Istr,Iend,Jstr,Jend, i, j, k, isp, itrc, ibnd
-!      real visc4_sponge, diff4_sponge
       real wrk(PRIVATE_2D_SCRATCH_ARRAY)
-# ifdef SPONGE_GRID
-      real uscale
-      parameter (uscale=0.1)
-# endif
 !
 # include "compute_extended_bounds.h"
-!
-# undef SPONGE_GRID
-!                    if SPONGE_GRID, vsponge is redefined as:
-!                    5 times an interior visc2 given by :
-!                    A = 1/12 * uscale * grd_scale
-!                    B = 1/12 * uscale * grd_scale**3
 !
 !--------------------------------------------------------------------
 !  Set up nudging towards climatology time-scale coeffcients [1/s]
@@ -93,7 +82,6 @@
 !          wrk(i,j)=float(isp-ibnd)/float(isp)            ! linear profile
         enddo
       enddo
-
 !
 !-------------------------------------------------------------------
 ! Compute nudging coefficients in nudging layers
@@ -150,11 +138,7 @@
 !
       do j=JstrR,JendR
         do i=IstrR,IendR
-#   ifdef SPONGE_GRID
-          visc2_sponge_r(i,j)=5*uscale*grdmax/12*wrk(i,j) 
-#   else
           visc2_sponge_r(i,j)=(0.005/(pm(i,j)*pn(i,j)*dt))*wrk(i,j) 
-#   endif
 #   if defined UV_VIS2 || defined SPONGE_VIS2
           visc2_r(i,j)=visc2_sponge_r(i,j) + visc2_r(i,j)
 #   elif defined UV_VIS4
@@ -168,15 +152,9 @@
 !
       do j=Jstr,JendR
         do i=Istr,IendR
-#   ifdef SPONGE_GRID
-          visc2_sponge_p(i,j)=5*uscale*grdmax/12*
-     &         0.25*( wrk(i,j  )+wrk(i-1,j  )
-     &                 +wrk(i,j-1)+wrk(i-1,j-1) )
-#   else
           visc2_sponge_p(i,j)=0.25*(0.005/(pm(i,j)*pn(i,j)*dt))*
      &                 ( wrk(i,j  )+wrk(i-1,j  )
      &                 +wrk(i,j-1)+wrk(i-1,j-1) )
-#   endif
 #   if defined UV_VIS2 || defined SPONGE_VIS2
           visc2_p(i,j)=visc2_sponge_p(i,j) + visc2_p(i,j)
 #   elif defined UV_VIS4
@@ -185,7 +163,7 @@
 #   endif
         enddo
        enddo
-#   endif  /* UV_VIS2 || UV_VIS4 || SPONGE_VIS2 */
+#  endif  /* UV_VIS2 || UV_VIS4 || SPONGE_VIS2 */
 
 #  if defined TS_DIF2 || defined TS_DIF4 || defined SPONGE_DIF2
 !
@@ -194,18 +172,13 @@
        do itrc=1,NT
         do j=JstrR,JendR
           do i=IstrR,IendR
-#   ifdef SPONGE_GRID   
-          diff2_sponge(i,j)=5*uscale*grdmax/12.*wrk(i,j)
-#   else
-!            diff2_sponge(i,j)=v_sponge*wrk(i,j)
-          diff2_sponge(i,j)=(0.01/(pm(i,j)*pn(i,j)*dt))*wrk(i,j)
+            diff2_sponge(i,j)=(0.01/(pm(i,j)*pn(i,j)*dt))*wrk(i,j)
+#   if defined TS_DIF2 || defined SPONGE_DIF2
+            diff2(i,j,itrc)=diff2_sponge(i,j) + diff2(i,j,itrc)
+#   elif defined TS_DIF4
+            diff4_sponge(i,j)=diff2_sponge(i,j)/(pm(i,j)*pn(i,j))
+            diff4(i,j,itrc)=diff4_sponge(i,j)+diff4(i,j,itrc)
 #   endif
-# if defined TS_DIF2 || defined SPONGE_DIF2
-          diff2(i,j,itrc)=diff2_sponge(i,j) + diff2(i,j,itrc)
-# elif defined TS_DIF4
-          diff4_sponge(i,j)=diff2_sponge(i,j)/(pm(i,j)*pn(i,j))
-          diff4(i,j,itrc)=diff4_sponge(i,j)+diff4(i,j,itrc)
-# endif
         enddo
        enddo
       enddo

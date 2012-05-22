@@ -42,13 +42,12 @@
 # if defined CANARY  || defined IBERIA
       real lon0,lat0, rsponge, dx,dy,dr,cff,cff1,cff2
 # endif
-# undef SPONGE_GRID
-! if SPONGE_GRID, vsponge is defined as :
-!       A = 1/2 * uscale * grd_scale
-!  and  B = A * grd_scale**2
 # ifdef SPONGE_GRID
+!  vsponge is defined over 10 boundary points with max:
+!       A = 0.5 * uscale * grd_scale
+!  and  B = A * grd_scale**2
       real uscale
-      parameter (uscale=0.1)
+      parameter (uscale=0.2)
 # endif
 !
 # include "compute_extended_bounds.h"
@@ -58,15 +57,19 @@
 !  and/or increase horizontal mixing in the sponge areas.
 !--------------------------------------------------------------------
 !
-# ifdef MPI
+# if defined SPONGE_GRID || !defined SPONGE
+      isp=10.
+# else
+#  ifdef MPI
       if (ii.eq.0.and.jj.eq.0.and.Istr.eq.1.and.Jstr.eq.1) then
         isp=int(x_sponge*pm(1,1))
       endif      
       call MPI_Bcast(isp, 1, MPI_INTEGER,
      &                    0, MPI_COMM_WORLD, ierr)      
-# else
+#  else
       isp=int(x_sponge*pm(1,1)) ! number of points in layer     
-# endif
+#  endif
+# endif /* SPONGE_GRID */
 !
       do j=max(-1,JstrR-1),JendR
         do i=max(-1,IstrR-1),IendR
@@ -103,7 +106,6 @@
 !          wrk(i,j)=float(isp-ibnd)/float(isp)            ! linear profile
         enddo
       enddo
-
 !
 !-------------------------------------------------------------------
 ! Compute nudging coefficients in nudging layers
@@ -210,18 +212,17 @@
        do itrc=1,NT
         do j=JstrR,JendR
           do i=IstrR,IendR
-
 #   ifdef SPONGE_GRID
             diff2_sponge(i,j)=.5*uscale*grdmax*wrk(i,j) 
 #   else
             diff2_sponge(i,j)=v_sponge*wrk(i,j) 
 #   endif
-# if defined TS_DIF2 || defined SPONGE_DIF2
+#   if defined TS_DIF2 || defined SPONGE_DIF2
             diff2(i,j,itrc)=diff2_sponge(i,j)+diff2(i,j,itrc)
-# elif defined TS_DIF4
+#   elif defined TS_DIF4
             diff4_sponge(i,j)=diff2_sponge(i,j)/(pm(i,j)*pn(i,j))
             diff4(i,j,itrc)=diff4_sponge(i,j) +diff4(i,j,itrc)
-#  endif
+#   endif
          enddo
         enddo
       enddo
