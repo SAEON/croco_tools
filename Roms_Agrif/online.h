@@ -21,7 +21,7 @@
       ! --------------------- !
       ! Bulk variable's names !
       ! --------------------- !
-      character*200 pathbulk, bulkfilename(nblkvrs), 
+      character*250 pathbulk, bulkfilename(nblkvrs), 
      &              blk_vname(4, nblkvrs)
       ! ---------------------- !
       ! Bulk variable's tables !

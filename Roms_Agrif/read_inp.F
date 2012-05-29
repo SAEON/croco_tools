@@ -1448,9 +1448,6 @@ c        close(testunit)
         read(input,*,err=95) yearnum, monthnum, recordsperday, yearend, monthend
         read(input,'(A)',err=95)  fname 
         lstr=lenstr(fname)
-# if defined MPI && defined PARALLEL_FILES
-        call insert_node (fname, lstr, mynode, NNODES, ierr)
-# endif
         pathbulk=fname(1:lstr)
 	! Print variables
         MPI_master_only write(stdout,
