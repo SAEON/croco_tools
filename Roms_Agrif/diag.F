@@ -287,7 +287,7 @@ C$OMP CRITICAL (diag_cr_rgn)
 */
           endif
 	  
-#if defined MPI && defined DEBUG
+#if defined MPI && defined DEBUG && !defined AGRIF
       call flush
 #endif
 	  
