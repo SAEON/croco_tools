@@ -1039,7 +1039,7 @@
 # undef TCLM
 # define CHILD_SPG
 # ifdef AGRIF
-#  include "t3dmix_EN.F"
+#  include "t3dmix_ISO.F"
 # endif
 # undef CHILD_SPG
 #endif  /* !CHILD_SPG */
