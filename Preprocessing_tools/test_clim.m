@@ -62,7 +62,7 @@ mask(mask==0)=NaN;
 %
 % plot the sections
 %
-jstep=round((M/3)-1);
+jstep=ceil((M/3)-1);
 image=0;
 z = zlevs(h,0*h,theta_s,theta_b,hc,N,'r');
 for j=1:jstep:M

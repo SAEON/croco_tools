@@ -53,7 +53,7 @@ distmax=200e3;
 %
 % Decorrelation scale for the objective analysis [m]
 %
-ro=200e3;
+ro=2000e3;
 %
 % CFSR atmospheric variables names
 %
@@ -112,12 +112,17 @@ write_NCEP([CFSR_COAST_dir,char(vnames(k)),'.nc'],...
 %
 % 2 - Prepare for the extrapolations
 %
-% 2.1 - Remove the lakes in Africa
+% 2.1 - Remove the lakes in Africa and South America (not finished)
 %
 [X,Y]=meshgrid(lon,lat);
 mask(X>10 & X<18 & Y>11 & Y<15)=1;
 mask(X>16 & X<36 & Y>-15 & Y<10)=1;
 mask(X>16 & X<33 & Y>-21 & Y<-12)=1;
+mask(X>13 & X<21 & Y>-4   & Y<  15)=1;
+mask(X>-72 & X<-69 & Y>9   & Y<  10.5)=1;
+mask(X>-55 & X<-52 & Y>-4  & Y<  -2)=1;
+mask(X>-69.5 & X<-68 & Y>-17 & Y<-15)=1;
+mask(X>-48 & X<-47.5 & Y>-1.5 & Y<-0.7)=1;
 %
 % 2.2 - Get the number of points to create a "coastal band"
 %
