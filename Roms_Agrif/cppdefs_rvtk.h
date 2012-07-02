@@ -104,17 +104,19 @@
 # undef  TS_MIX_ISO
                       /* Sponge layers for UV and TS */
 # define SPONGE
+# define SPONGE_GRID
                       /* Vertical Mixing */
 # undef  BODYFORCE
 # undef  BVF_MIXING
 # define LMD_MIXING
 # ifdef LMD_MIXING
 #  define LMD_SKPP
+#  undef  LMD_SKPP2005
 #  define LMD_BKPP
 #  define LMD_RIMIX
 #  define LMD_CONVEC
 #  undef  LMD_DDMIX
-#  undef  LMD_NONLOCAL
+#  define LMD_NONLOCAL
 # endif
                       /* Equation of State */
 # define SALINITY
@@ -135,8 +137,6 @@
 #  define DIURNAL_SRFLUX
 # endif
                       /* Lateral Forcing */
-# define SPONGE
-
 # define CLIMATOLOGY
 # ifdef CLIMATOLOGY
 #  define ZCLIMATOLOGY
