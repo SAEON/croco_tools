@@ -42,7 +42,7 @@
 !
 */
                       /* Configuration Name */
-# define BENGUELA_HR
+# define BENGUELA_VHR
 # define DEBUG
                       /* Parallelization */
 # undef  OPENMP
