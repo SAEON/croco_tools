@@ -20,7 +20,7 @@
 # include "param.h"
 # include "scalars.h"
       integer k
-      real cff,cff1,cff2,cff3
+      real cff,cff1,cff2,cff3, ds, sc, csf
 !
 ! Set S-Curves in domain [-1 < sc < 0] at vertical W- and RHO-points.
 !
