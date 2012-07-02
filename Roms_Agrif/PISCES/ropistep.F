@@ -113,7 +113,11 @@ C
       DO j=Jstr,Jend
         DO i=Istr,Iend
            qsr(i,j)=rho0*Cp*srflx(i,j)
+#ifdef LMD_SKPP2005
+           hmld(i,j)=hbls(i,j,nstp)
+#else
            hmld(i,j)=hbl(i,j)
+#endif
        END DO
       END DO
 
