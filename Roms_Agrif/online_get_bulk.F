@@ -418,10 +418,11 @@
 !
 ! Error if no more available datasets
 !
-            if (((bulkmonthnum(blkvar_id).gt.monthend).or.
-     &            (bulkmonthnum(blkvar_id).eq.1)).and.
-     &            (bulkyearnum(blkvar_id).ge.yearend)) then
-                 goto 9                             !--> ERROR
+          if(((bulkmonthnum(blkvar_id).gt.monthend).and.
+     &          (bulkyearnum(blkvar_id).ge.yearend)).or.
+     &         ((bulkmonthnum(blkvar_id).eq.1).and.
+     &          (bulkyearnum(blkvar_id).gt.yearend))) then
+                 goto 9                !--> ERROR
             endif
           endif  
 !
