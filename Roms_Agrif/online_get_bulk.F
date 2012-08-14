@@ -477,7 +477,7 @@
      &       1x,'in forcing NetCDF file: ', a, /,   11x,'TDAYS = ',
      &               g12.4,2x,'last available bulk_timeO = ',g12.4)
       goto 99
-  9   write(stdout,11) yearend, monthend+1, 
+  9   write(stdout,11) bulkyearnum(blkvar_id), bulkmonthnum(blkvar_id),
      &       blk_vname(1,blkvar_id)
   11  format(/,' ONLINE_GET_BULK - ',
      &         'ERROR: The dataset for the year ',I4,          
