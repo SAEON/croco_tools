@@ -247,7 +247,21 @@
 !                                                                      !
 !=======================================================================
 !
-
+! Input variables:
+!      - radsw
+!      - radlw (#ifdef BULK_LW: downward longwave radiation) 
+!              (#else: net outgoing longwave radiation)
+!      - prate
+!      - sst
+!      - sss
+!      - tair
+!      - rhum
+!      - wspd
+!      - uwnd
+!      - vwnd
+!
+!**********************************************
+!
       implicit none
 #include "param.h"
 #include "grid.h"
@@ -323,14 +337,15 @@
 !          rhoSea=rho(i,j,N)+rho0
           RH=rhum(i,j)
 # ifndef BULK_LW
-          hflw=radlw(i,j)
+          hflw=-radlw(i,j) ! positive downward, i.e., warming the ocean
 # else
 !
 !  Treat input longwave data as downwelling radiation only and add
 !  outgoing IR from model sea surface temperature.
 !
-          hflw=emiss_lw*(rho0i*cpi*SigmaSB*TseaK*TseaK*TseaK*TseaK
-     &         -radlw(i,j))
+          hflw=radlw(i,j)  ! positive downward
+     &        - emiss_lw*rho0i*cpi*SigmaSB*TseaK*TseaK*TseaK*TseaK
+
 # endif
 !
 !-----------------------------------------------------------------------
@@ -452,7 +467,7 @@
             IterMax=3
           endif
 !
-!  First guesses for Monon-Obukhov similarity scales.
+!  First guesses for Monin-Obukhov similarity scales.
 !
           Wstar=delW*vonKar/(LOG(blk_ZW/Zo10)-
      &                             bulk_psiu(blk_ZW/L10,pi))
@@ -541,7 +556,7 @@
 !  Compute kinematic, surface, net heat flux (degC m/s).  Notice that
 !  the signs of latent and sensible fluxes are reversed because fluxes
 !  calculated from the bulk formulations above are positive out of the
-!  ocean.
+!  ocean. in ROMS, fluxes are positive downward when they warm the ocean.
 !
 !  For EMINUSP option,  EVAP = LHeat (W/m2) / Hlv (J/kg) = kg/m2/s
 !                       PREC = rain = kg/m2/s
@@ -564,7 +579,7 @@
           hflat=-hflat*rho0i*cpi
           hfsen=-hfsen*rho0i*cpi
 ! Compute total surface heat flux
-          stflx(i,j,itemp)=radsw(i,j)-hflw+hflat+hfsen
+          stflx(i,j,itemp)=radsw(i,j)+hflw+hflat+hfsen
 # ifdef BULK_EP
           evap=-cp*hflat/Hlv
           stflx(i,j,isalt)=(evap-prate(i,j))*t(i,j,N,nrhs,isalt)
@@ -579,7 +594,7 @@
           shflx_rsw(i,j)=radsw(i,j)
           shflx_lat(i,j)=hflat
           shflx_sen(i,j)=hfsen
-          shflx_rlw(i,j)=-hflw
+          shflx_rlw(i,j)=hflw
         enddo
       enddo
 
