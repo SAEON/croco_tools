@@ -46,8 +46,7 @@ disp('====================================================')
 t=readdap(fname,'time',trange);
 disp(['TRANGE=',num2str(trange)])
 disp(['GFS raw time=',sprintf('%5.3f',t)])
-%t=t+364.75 % put it in "matlab" time. PM
-t=t+365; % put it in "matlab" time. GC
+t=t+365; % put it in "matlab" time
 disp(['GFS: ',datestr(t)])
 disp('====================================================')
 
@@ -62,12 +61,12 @@ v=mask.*getdap('',fname,'vgrd10m',trange,'',jrange,...
 v(abs(v)>=missvalue)=NaN;
 
 %disp('ty...')
-ty=mask.*getdap('',fname,'ovflxsfc',trange,'',jrange,...
+ty=mask.*getdap('',fname,'vflxsfc',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
 ty(abs(ty)>=missvalue)=NaN;
 
 %disp('tx...')
-tx=mask.*getdap('',fname,'ouflxsfc',trange,'',jrange,...
+tx=mask.*getdap('',fname,'uflxsfc',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
 tx(abs(tx)>=missvalue)=NaN;
 
@@ -88,27 +87,27 @@ rhum=mask.*getdap('',fname,'rh2m',trange,'',jrange,...
 rhum(abs(rhum)>=missvalue)=NaN;
 
 %disp('prate...')
-prate=mask.*getdap('',fname,'opratesfc',trange,'',jrange,...
+prate=mask.*getdap('',fname,'pratesfc',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
 prate(abs(prate)>=missvalue)=NaN;
 
 %disp('down radlw...')
-dradlw=mask.*getdap('',fname,'odlwrfsfc',trange,'',jrange,...
+dradlw=mask.*getdap('',fname,'dlwrfsfc',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
 dradlw(abs(dradlw)>=missvalue)=NaN;
 
 %disp('up radlw...')
-uradlw=mask.*getdap('',fname,'oulwrfsfc',trange,'',jrange,...
+uradlw=mask.*getdap('',fname,'ulwrfsfc',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
 uradlw(abs(uradlw)>=missvalue)=NaN;
 
 %disp('down radsw...')
-dradsw=mask.*getdap('',fname,'odswrfsfc',trange,'',jrange,...
+dradsw=mask.*getdap('',fname,'dswrfsfc',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
 dradsw(abs(dradsw)>=missvalue)=NaN;
 
 %disp('up radsw...')
-uradsw=mask.*getdap('',fname,'ouswrfsfc',trange,'',jrange,...
+uradsw=mask.*getdap('',fname,'uswrfsfc',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
 uradsw(abs(uradsw)>=missvalue)=NaN;
 %

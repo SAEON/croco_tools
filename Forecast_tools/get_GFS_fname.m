@@ -32,20 +32,32 @@ function fname=get_GFS_fname(time,gfs_run_time,gfstype)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%url='http://nomads6.ncdc.noaa.gov:9090';
+%----------------------------------------------
+%
+url='http://nomads.ncep.noaa.gov:9090';
 %url='http://nomad5.ncep.noaa.gov:9090';
-url='http://nomad1.ncep.noaa.gov:9090';
+%url='http://nomad1.ncep.noaa.gov:9090';
+%
 if gfstype==0
-  gfsname='gdas/rotating/gdas';
-  gfsname1='gdas';
+  %=== nomads ===
+  gfsname='fnl/fnl';
+  gfsname1='fnlflx';
+  %=== nomad1-5 ===
+  %gfsname='gdas/rotating/gdas';
+  %gfsname1='gdas';
 else
- %========nomad1===========
-  gfsname='gfs_master/gfs';
-  gfsname1='gfs_master';
- %========nomad5===========
+  %=== nomads ===
+  gfsname='gfs_hd/gfs_hd';
+  gfsname1='gfs_hd';
+ %=== nomad1 ===
+  %gfsname='gfs_master/gfs';
+  %gfsname1='gfs_master';
+ %=== nomad5 ===
  % gfsname='gfs/gfs';
  % gfsname1='gfs';
 end
+%
+%----------------------------------------------
 %
 % Get the date
 %
@@ -69,13 +81,15 @@ gdasdir=[url,'/dods/',gfsname,stry,strm,strd];
 %
 if gfs_run_time < 10
   if gfstype==0
-    fname=[gdasdir,'0',num2str(gfs_run_time)];
+    %fname=[gdasdir,'0',num2str(gfs_run_time)];
+    fname=[gfsdir,gfsname1,'_0',num2str(gfs_run_time),'z'];
   else
     fname=[gfsdir,gfsname1,'_0',num2str(gfs_run_time),'z'];
   end
 else
   if gfstype==0
-    fname=[gdasdir,num2str(gfs_run_time)];
+    %fname=[gdasdir,num2str(gfs_run_time)];
+    fname=[gfsdir,gfsname1,'_',num2str(gfs_run_time),'z'];
   else
     fname=[gfsdir,gfsname1,'_',num2str(gfs_run_time),'z'];
   end

@@ -46,8 +46,7 @@ disp('===========================================')
 t=readdap(fname,'time',trange);
 disp(['TRANGE=',num2str(trange)])
 disp(['GDAS raw time=',sprintf('%5.3f',t)])
-%t=t+364.75; % put it in "matlab" time. PM
-t=t+365 ; % put it in "matlab" time. GC
+t=t+365 ; % put it in "matlab" time.
 disp(['GDAS: ',datestr(t)])
 disp('===========================================')
 %disp('u...')
@@ -78,9 +77,13 @@ tair=mask.*getdap('',fname,'tmp2m',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
 tair(abs(tair)>=missvalue)=NaN;
 %disp('rhum...')
-rhum=mask.*getdap('',fname,'rh2m',trange,'',jrange,...
+%rhum=mask.*getdap('',fname,'rh2m',trange,'',jrange,...
+%                i1min,i1max,i2min,i2max,i3min,i3max);
+%rhum(abs(rhum)>=missvalue)=NaN;
+%disp('rhum...')
+spfh2m=mask.*getdap('',fname,'spfh2m',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
-rhum(abs(rhum)>=missvalue)=NaN;
+spfh2m(abs(spfh2m)>=missvalue)=NaN;
 %disp('prate...')
 prate=mask.*getdap('',fname,'pratesfc',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
@@ -114,9 +117,13 @@ uradsw(abs(uradsw)>=missvalue)=NaN;
 %
 tair=tair-273.15;
 %
-% 2: Relative humidity: Convert from % to fraction
+% 2: Relative humidity (as a fraction)
 %
-rhum=rhum/100;
+% rhum=rhum/100;  Convert from % to fraction
+% convert from specific to relative humidity for patm=1013mb
+es=6.1378*exp(17.502*tair./(240.97+tair)); % air sat vapor pressure (mb)
+qsat=0.62197*(es./(1013-0.378*es));       % qsat(tair) mb -> kg/kg
+rhum=spfh2m./qsat;
 %
 % 3: Precipitation rate: Convert from [kg/m^2/s] to cm/day
 %

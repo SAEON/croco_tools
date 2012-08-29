@@ -39,7 +39,6 @@ function download_GFS(today,lonmin,lonmax,latmin,latmax,FRCST_dir,Yorig,it)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 romstools_param
-
 %
 % Put the date in 'Yorig' time
 %
@@ -140,7 +139,7 @@ gfs_date=today-(hdays+1);
 fname=get_GFS_fname(gfs_date,gfs_run_time,0);
 [i1min,i1max,i2min,i2max,i3min,i3max,jrange,lon,lat]=...
          get_GFS_subgrid(fname,lonmin,lonmax,latmin,latmax);
-mask=getdap('',fname,'landsfc','[1:1]','',jrange,... 
+mask=getdap('',fname,'landsfc','[0:0]','',jrange,... 
              i1min,i1max,i2min,i2max,i3min,i3max);
 mask(mask==1)=NaN;
 mask(isfinite(mask))=1;
