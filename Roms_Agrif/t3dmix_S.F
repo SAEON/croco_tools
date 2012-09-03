@@ -76,7 +76,7 @@
      &        imin,imax,jmin,jmax
       real    FX(PRIVATE_2D_SCRATCH_ARRAY),     cff,
      &        FE(PRIVATE_2D_SCRATCH_ARRAY),     cff1,
-     &        LapT(PRIVATE_2D_SCRATCH_ARRAY),   cff2
+     &        LapT(PRIVATE_2D_SCRATCH_ARRAY),   cff2,
      &        diff3u(PRIVATE_2D_SCRATCH_ARRAY),
      &        diff3v(PRIVATE_2D_SCRATCH_ARRAY)
 

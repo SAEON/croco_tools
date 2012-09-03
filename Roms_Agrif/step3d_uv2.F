@@ -438,7 +438,7 @@
 ! Compute density XI gradients for use in t3dmix
 !-------------------------------------------------
 !
-# if defined TS_DIF4 || defined TS_DIF2
+# if !defined TS_MIX_S && (defined TS_DIF4 || defined TS_DIF2)
         do k=1,N,+1
           do i=IU_RANGE
             cff =0.5*(pm(i,j)+pm(i-1,j)) SWITCH umask(i,j)
@@ -500,7 +500,7 @@
 ! Compute density ETA gradients for use in t3dmix
 !-------------------------------------------------
 !
-# if defined TS_DIF4 || defined TS_DIF2
+# if !defined TS_MIX_S && (defined TS_DIF4 || defined TS_DIF2)
           do k=1,N,+1
             do i=IV_RANGE
               cff=0.5*(pn(i,j)+pn(i,j-1)) SWITCH vmask(i,j)
