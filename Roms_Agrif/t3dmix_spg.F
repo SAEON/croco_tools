@@ -134,7 +134,7 @@
 !
         do j=Jstr,Jend
           do i=Istr,Iend+1
-          FX(i,j)=0.25*(diff2(i,j,itrc)+diff2(i-1,j,itrc))
+          FX(i,j)=0.25*(diff2_sponge(i,j)+diff2_sponge(i-1,j))
      &                   *pmon_u(i,j)*(Hz(i,j,k)+Hz(i-1,j,k))*(
      &                t(i,j,k,nrhs,itrc)-t(i-1,j,k,nrhs,itrc)
 # if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE 
@@ -145,7 +145,7 @@
         enddo
         do j=Jstr,Jend+1
           do i=Istr,Iend
-          FE(i,j)=0.25*(diff2(i,j,itrc)+diff2(i,j-1,itrc))
+          FE(i,j)=0.25*(diff2_sponge(i,j)+diff2_sponge(i,j-1))
      &                     *pnom_v(i,j)*(Hz(i,j,k)+Hz(i,j-1,k))*(
      &                 t(i,j,k,nrhs,itrc)-t(i,j-1,k,nrhs,itrc)
 # if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE 
@@ -230,7 +230,7 @@
 
           do j=Jstr,Jend
             do i=Istr,Iend+1
-              FX(i,j)=0.25*(diff2(i,j,itrc)+diff2(i-1,j,itrc))
+              FX(i,j)=0.25*(diff2_sponge(i,j)+diff2_sponge(i-1,j))
      &                     *(Hz(i,j,k)+Hz(i-1,j,k))*on_u(i,j)*(
      &           dTdx(i  ,j,k1)-0.5*(
      &             min(dZdx(i,j,k1),0.)*(dTdz(i-1,j,k1)+dTdz(i,j,k2))
@@ -240,7 +240,7 @@
           enddo
           do j=Jstr,Jend+1
             do i=Istr,Iend
-              FE(i,j)=0.25*(diff2(i,j,itrc)+diff2(i,j-1,itrc))
+              FE(i,j)=0.25*(diff2_sponge(i,j)+diff2_sponge(i,j-1))
      &                     *(Hz(i,j,k)+Hz(i,j-1,k))*om_v(i,j)*(
      &           dTde(i,j,k1)-0.5*(
      &             min(dZde(i,j,k1),0.)*(dTdz(i,j-1,k1)+dTdz(i,j,k2))
@@ -255,7 +255,7 @@
                 cff2=min(dZdx(i+1,j,k2),0.)
                 cff3=max(dZdx(i  ,j,k2),0.)
                 cff4=max(dZdx(i+1,j,k1),0.)
-                FC(i,j,k2)=0.5*diff2(i,j,itrc)*(
+                FC(i,j,k2)=0.5*diff2_sponge(i,j)*(
      &            cff1*(cff1*dTdz(i,j,k2)-dTdx(i  ,j,k1))
      &           +cff2*(cff2*dTdz(i,j,k2)-dTdx(i+1,j,k2))
      &           +cff3*(cff3*dTdz(i,j,k2)-dTdx(i  ,j,k2))
@@ -266,7 +266,7 @@
                 cff3=max(dZde(i,j  ,k2),0.)
                 cff4=max(dZde(i,j+1,k1),0.)
  
-                FC(i,j,k2)=FC(i,j,k2)+0.5*diff2(i,j,itrc)*(
+                FC(i,j,k2)=FC(i,j,k2)+0.5*diff2_sponge(i,j)*(
      &            cff1*(cff1*dTdz(i,j,k2)-dTde(i,j  ,k1))
      &           +cff2*(cff2*dTdz(i,j,k2)-dTde(i,j+1,k2))
      &           +cff3*(cff3*dTdz(i,j,k2)-dTde(i,j  ,k2))
