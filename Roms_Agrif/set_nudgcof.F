@@ -171,7 +171,7 @@
 #   else
           visc2_sponge_r(i,j)=v_sponge*wrk(i,j)
 #   endif
-#   if defined UV_VIS2 || defined SPONGE_VIS2
+#   if defined UV_VIS2  && !defined SPONGE_VIS2
           visc2_r(i,j)=visc2_sponge_r(i,j)+ visc2_r(i,j)
 #   elif defined UV_VIS4
           visc4_sponge_r(i,j)=visc2_sponge_r(i,j)/(pm(i,j)*pn(i,j))
@@ -194,7 +194,7 @@
      &                      ( wrk(i,j  )+wrk(i-1,j  )
      &                       +wrk(i,j-1)+wrk(i-1,j-1) ) 
 #   endif
-#  if defined UV_VIS2 || defined SPONGE_VIS2
+#  if defined UV_VIS2  && !defined SPONGE_VIS2
           visc2_p(i,j)=visc2_sponge_p(i,j)+ visc2_p(i,j)
 #   elif defined UV_VIS4
           visc4_sponge_p(i,j)=visc2_sponge_p(i,j)/(pm(i,j)*pn(i,j))
@@ -217,7 +217,7 @@
 #   else
             diff2_sponge(i,j)=v_sponge*wrk(i,j) 
 #   endif
-#   if defined TS_DIF2 || defined SPONGE_DIF2
+#   if defined TS_DIF2 && !defined SPONGE_DIF2
             diff2(i,j,itrc)=diff2_sponge(i,j)+diff2(i,j,itrc)
 #   elif defined TS_DIF4
             diff4_sponge(i,j)=diff2_sponge(i,j)/(pm(i,j)*pn(i,j))
