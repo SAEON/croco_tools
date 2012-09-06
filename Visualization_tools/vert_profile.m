@@ -129,6 +129,19 @@ else
   hc=min(hmin,Tcline);
 end
 Nr=length(nc('s_rho'));
+s_coord=1;
+VertCoordType = nc.VertCoordType(:);
+if isempty(VertCoordType),
+  vtrans=nc{'Vtransform'}(:);
+  if ~isempty(vtrans),
+    s_coord=vtrans;
+  end
+elseif VertCoordType=='NEW', 
+ s_coord=2;
+end;
+if s_coord==2,
+ hc=Tcline;
+end
 %
 % Read the variable
 %
@@ -144,7 +157,7 @@ if vname(1)=='*'
   elseif strcmp(vname,'*Rho')
     temp=squeeze(nc{'temp'}(tindex,:,J,I));
     salt=squeeze(nc{'salt'}(tindex,:,J,I));
-    z=squeeze(zlevs(h,zeta,theta_s,theta_b,hc,Nr,'r'));
+    z=squeeze(zlevs(h,zeta,theta_s,theta_b,hc,Nr,'r',s_coord));
     var=coef*rho_eos(temp,salt,z);
   elseif strcmp(vname,'*Rho_pot')
     temp=squeeze(nc{'temp'}(tindex,:,J,I));
@@ -171,7 +184,7 @@ if N==Nr+1
 else
   type='r';
 end
-Z=squeeze(zlevs(h,zeta,theta_s,theta_b,hc,Nr,type));
+Z=squeeze(zlevs(h,zeta,theta_s,theta_b,hc,Nr,type,s_coord));
 close(nc)
 %
 % Get the date

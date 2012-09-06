@@ -38,7 +38,7 @@ function [X,Z,VAR]=get_section(fname,gname,lonsec,latsec,vname,tindex);
 %
 %  ROMSTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
-%  by the Free Software Foundation; either version 2 of the License,
+%  by the Free Software Foundation; either version 2  
 %  or (at your option) any later version.
 %
 %  ROMSTOOLS is distributed in the hope that it will be useful, but
@@ -229,7 +229,20 @@ else
   hc=min(hmin,Tcline);
 end 
 N=length(nc('s_rho'));
-Z=squeeze(zlevs(h,zeta,theta_s,theta_b,hc,N,type)); 
+s_coord=1;
+VertCoordType = nc.VertCoordType(:);
+if isempty(VertCoordType),
+  vtrans=nc{'Vtransform'}(:);
+  if ~isempty(vtrans),
+    s_coord=vtrans;
+  end
+elseif VertCoordType=='NEW', 
+ s_coord=2;
+end;
+if s_coord==2,
+ hc=Tcline;
+end
+Z=squeeze(zlevs(h,zeta,theta_s,theta_b,hc,N,type,s_coord)); 
 [N,Nsec]=size(Z);
 %
 % Loop on the vertical levels
