@@ -125,6 +125,7 @@ N = 32;
 theta_s = 6.;
 theta_b = 0.;
 hc      =10.;
+vtransform = 2.;
 %
 % Minimum depth at the shore [m] (depends on the resolution,
 % rule of thumb: dl=1, hmin=300, dl=1/4, hmin=150, ...)
