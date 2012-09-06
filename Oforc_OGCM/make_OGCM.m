@@ -181,6 +181,11 @@ close(nc)
 % month Mmin of year Ymin... with the first data available.
 %
 if makeini==1
+    if  ~exist('vtransform')
+        vtransform=1; %Old Vtransform
+        disp([' NO VTRANSFORM parameter found'])
+        disp([' USE vtransform default value  Vtransfor = 1'])
+    end
   ininame=[ini_prefix,'Y',num2str(Ymin),'M',num2str(Mmin),nc_suffix];
   %
   % Process the time in Yorig time (i.e days since Yorig-01-01)
@@ -189,17 +194,22 @@ if makeini==1
   disp(['Create an initial file for ',datestr(tini+datenum(Yorig,1,1));])
   create_inifile(ininame,grdname,ROMS_title,...
 		 theta_s,theta_b,hc,N,...
-		 tini,'clobber');
+		 tini,'clobber', vtransform);
   nc_ini=netcdf(ininame,'write');
   interp_OGCM(OGCM_dir,OGCM_prefix,Ymin,Mmin,Roa,interp_method,...
 	      lonU,latU,lonV,latV,lonT,latT,Z,1,...
-	      nc_ini,[],lon,lat,angle,h,1,obc)
+	      nc_ini,[],lon,lat,angle,h,1,obc,vtransform)
   close(nc_ini)
 end
 %
 % Clim and Bry files 
 %
 if makeclim==1 | makebry==1
+    if  ~exist('vtransform')
+        vtransform=1; %Old Vtransform
+        disp([' NO VTRANSFORM parameter found'])
+        disp([' USE vtransform default value  Vtransfor = 1'])
+    end
   %
   % Loop on the years and the months
   %
@@ -278,7 +288,7 @@ if makeclim==1 | makebry==1
 		 'M',num2str(M),nc_suffix];
 	create_bryfile(bryname,grdname,ROMS_title,[1 1 1 1],...
 		       theta_s,theta_b,hc,N,...
-		       roms_time,0,'clobber');
+		       roms_time,0,'clobber',vtransform);
 	nc_bry=netcdf(bryname,'write');
       else
 	nc_bry=[];
@@ -288,7 +298,7 @@ if makeclim==1 | makebry==1
 		 'M',num2str(M),nc_suffix];
 	create_climfile(clmname,grdname,ROMS_title,...
 			theta_s,theta_b,hc,N,...
-			roms_time,0,'clobber');
+			roms_time,0,'clobber',vtransform);
 	nc_clm=netcdf(clmname,'write');
       else
 	nc_clm=[];
@@ -317,7 +327,7 @@ if makeclim==1 | makebry==1
 	disp(['It. of prev month used for it= ',num2str(tndx_OGCM(aa))])
 	interp_OGCM(OGCM_dir,OGCM_prefix,Ym,Mm,Roa,interp_method,...
 		    lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM(aa),...
-		    nc_clm,nc_bry,lon,lat,angle,h,aa,obc)
+		    nc_clm,nc_bry,lon,lat,angle,h,aa,obc,vtransform)
       end
       %
       % Perform the interpolations for the current month
@@ -329,7 +339,7 @@ if makeclim==1 | makebry==1
 	disp([' Time step : ',num2str(tndx_OGCM),' of ',num2str(ntimes),' :'])
 	interp_OGCM(OGCM_dir,OGCM_prefix,Y,M,Roa,interp_method,...
 		    lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM,...
-		    nc_clm,nc_bry,lon,lat,angle,h,tndx_OGCM+itolap_a,obc)
+		    nc_clm,nc_bry,lon,lat,angle,h,tndx_OGCM+itolap_a,obc,vtransform)
       end
       %
       % Read the OGCM file for the next month
@@ -357,7 +367,7 @@ if makeclim==1 | makebry==1
 	disp(['It. of next month used for it= ',num2str(tndx_OGCM(aa))])
 	interp_OGCM(OGCM_dir,OGCM_prefix,Yp,Mp,Roa,interp_method,...
 		    lonU,latU,lonV,latV,lonT,latT,Z,tndx_OGCM(aa),...
-		    nc_clm,nc_bry,lon,lat,angle,h,ntimes+itolap_a+aa,obc)
+		    nc_clm,nc_bry,lon,lat,angle,h,ntimes+itolap_a+aa,obc,vtransform)
       end
       %
       % Close the ROMS files

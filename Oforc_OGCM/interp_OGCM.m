@@ -1,6 +1,6 @@
 function interp_OGCM(OGCM_dir,OGCM_prefix,year,month,Roa,interp_method,...
                      lonU,latU,lonV,latV,lonT,latT,Z,tin,...
-		     nc_clm,nc_bry,lon,lat,angle,h,tout,obc)
+		     nc_clm,nc_bry,lon,lat,angle,h,tout,obc,vtransform)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
@@ -280,10 +280,10 @@ Z=[100;Z;-100000];
 %
 % ROMS vertical grid
 %
-zr=zlevs(h,zeta,theta_s,theta_b,hc,N,'r');
+zr=zlevs(h,zeta,theta_s,theta_b,hc,N,'r',vtransform);
 zu=rho2u_3d(zr);
 zv=rho2v_3d(zr);
-zw=zlevs(h,zeta,theta_s,theta_b,hc,N,'w');
+zw=zlevs(h,zeta,theta_s,theta_b,hc,N,'w',vtransform);
 dzr=zw(2:end,:,:)-zw(1:end-1,:,:);
 dzu=rho2u_3d(dzr);
 dzv=rho2v_3d(dzr);
