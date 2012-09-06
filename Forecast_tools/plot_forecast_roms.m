@@ -66,7 +66,7 @@ close(nc)
 [M L]=size(lon);
 Mu=M; Lu=L-1; Mv=M-1; Lv=L;
 zeta(1:M,1:L)=0;
-zw=zlevs(h,zeta,theta_s,theta_b,hc,N,'w');
+zw=zlevs(h,zeta,theta_s,theta_b,hc,N,'w',vtransform);
 zu=rho2u_3d(zw);
 zv=rho2v_3d(zw);
 dzu=zu(2:end,:,:)-zu(1:end-1,:,:);

@@ -201,7 +201,7 @@ if makeini==1
   disp(['Create an initial file for ',num2str(rundate);])
   create_inifile(ininame,grdname,ROMS_title,...
                  theta_s,theta_b,hc,N,...
-                 rundate-hdays,'clobber');
+                 rundate-hdays,'clobber',vtransform);
   nc_ini=netcdf(ininame,'write');
  
   interp_OGCM_frcst(OGCM_name,Roa,interp_method,...
@@ -220,7 +220,7 @@ if makeclim==1 | makebry==1
     bryname=[bry_prefix,num2str(rundate),nc_suffix];
     create_bryfile(bryname,grdname,ROMS_title,[1 1 1 1],...
                    theta_s,theta_b,hc,N,...
-                   time,time_cycle,'clobber');
+                   time,time_cycle,'clobber',vtransform);
     nc_bry=netcdf(bryname,'write');
   else
     nc_bry=[];
@@ -229,7 +229,7 @@ if makeclim==1 | makebry==1
     clmname=[clm_prefix,num2str(rundate),nc_suffix];
     create_climfile(clmname,grdname,ROMS_title,...
                     theta_s,theta_b,hc,N,...
-                    time,time_cycle,'clobber');
+                    time,time_cycle,'clobber',vtransform);
     nc_clm=netcdf(clmname,'write');
   else
     nc_clm=[];
@@ -242,7 +242,7 @@ for tndx=1:length(time)
   disp([' Time step : ',num2str(tndx),' of ',num2str(length(time)),' :'])
   interp_OGCM_frcst(OGCM_name,Roa,interp_method,...
                     lonU,latU,lonV,latV,lonT,latT,Z,trange(tndx),...
-		    nc_clm,nc_bry,lon,lat,angle,h,tndx)
+		    nc_clm,nc_bry,lon,lat,angle,h,tndx,vtransform)
 end
 
 %

@@ -1,6 +1,6 @@
 function interp_OGCM_frcst(OGCM_name,Roa,interp_method,...
                            lonU,latU,lonV,latV,lonT,latT,Z,tin,...
-		           nc_clm,nc_bry,lon,lat,angle,h,tout)
+		           nc_clm,nc_bry,lon,lat,angle,h,tout,vtransform)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
@@ -97,17 +97,29 @@ if ~isempty(nc_clm)
   theta_b=nc_clm{'theta_b'}(:);
   hc=nc_clm{'hc'}(:);
   N=length(nc_clm('s_rho'));
+  vtransform=nc{'Vtransform'}(:);
+    if  ~exist('vtransform')
+        vtransform=1; %Old Vtransform
+        disp([' NO VTRANSFORM parameter found'])
+        disp([' USE TRANSFORM default value vtransform = 1'])
+    end
 end
 if ~isempty(nc_bry)
   theta_s=nc_bry{'theta_s'}(:);
   theta_b=nc_bry{'theta_b'}(:);
   hc=nc_bry{'hc'}(:);
   N=length(nc_bry('s_rho'));
+  vtransform=nc{'Vtransform'}(:);
+    if  ~exist('vtransform')
+        vtransform=1; %Old Vtransform
+        disp([' NO VTRANSFORM parameter found'])
+        disp([' USE TRANSFORM default value vtransform = 1'])
+    end
 end
-zr=zlevs(h,zeta,theta_s,theta_b,hc,N,'r');
+zr=zlevs(h,zeta,theta_s,theta_b,hc,N,'r',vtransform);
 zu=rho2u_3d(zr);
 zv=rho2v_3d(zr);
-zw=zlevs(h,zeta,theta_s,theta_b,hc,N,'w');
+zw=zlevs(h,zeta,theta_s,theta_b,hc,N,'w',vtransform);
 dzr=zw(2:end,:,:)-zw(1:end-1,:,:);
 dzu=rho2u_3d(dzr);
 dzv=rho2v_3d(dzr);
