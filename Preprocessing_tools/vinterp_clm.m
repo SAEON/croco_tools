@@ -29,7 +29,6 @@ function vinterp(clmname,grdname,oaname,vname,tname,zname,tini,...
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 %
 % open the grid file  
 % 
@@ -44,6 +43,12 @@ theta_s = nc{'theta_s'}(:);
 theta_b =  nc{'theta_b'}(:);
 hc  =  nc{'hc'}(:);
 N =  length(nc('s_rho'));
+vtransform=nc{'Vtransform'}(:);
+if  ~exist('vtransform')
+    vtransform = 1 ; 
+    disp(['No vtransform parameter found'])
+    disp(['Use the default value 1 corresponding to the old S vertical coordinate sytem'])
+end
 %
 % open the oa file  
 % 
@@ -54,7 +59,7 @@ tlen=length(t);
 %
 % Get the sigma depths
 %
-zroms=zlevs(h,0.*h,theta_s,theta_b,hc,N,'r');
+zroms=zlevs(h,0.*h,theta_s,theta_b,hc,N,'r',vtransform);
 if type=='u'
   zroms=rho2u_3d(zroms);
 end

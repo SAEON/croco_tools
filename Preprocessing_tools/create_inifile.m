@@ -1,5 +1,5 @@
 function create_inifile2(inifile,gridfile,title,...
-                         theta_s,theta_b,hc,N,time,clobber)
+                         theta_s,theta_b,hc,N,time,clobber,vtransform)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  function nc=create_inifile(inifile,gridfile,theta_s,...
@@ -53,6 +53,12 @@ function create_inifile2(inifile,gridfile,title,...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp(' ')
 disp([' Creating the file : ',inifile])
+if nargin < 10
+   disp([' NO VTRANSFORM parameter found'])
+   disp([' USE TRANSFORM default value vtransform = 1'])
+   vtransform = 1; 
+end
+disp([' VTRANSFORM = ',num2str(vtransform)])
 %
 %  Read the grid file
 %
@@ -92,6 +98,9 @@ nc('one') = 1;
 %
 %  Create variables
 %
+nc{'spherical'} = ncchar('one') ;
+nc{'Vtransform'} = ncint('one') ;
+nc{'Vstretching'} = ncint('one') ;
 nc{'tstart'} = ncdouble('one') ;
 nc{'tend'} = ncdouble('one') ;
 nc{'theta_s'} = ncdouble('one') ;
@@ -111,6 +120,12 @@ nc{'temp'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 nc{'salt'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 %
 %  Create attributes
+%
+nc{'Vtransform'}.long_name = ncchar('vertical terrain-following transformation equation');
+nc{'Vtransform'}.long_name = 'vertical terrain-following transformation equation';
+%
+nc{'Vstretching'}.long_name = ncchar('vertical terrain-following stretching function');
+nc{'Vstretching'}.long_name = 'vertical terrain-following stretching function';
 %
 nc{'tstart'}.long_name = ncchar('start processing day');
 nc{'tstart'}.long_name = 'start processing day';
@@ -222,22 +237,28 @@ result = endef(nc);
 %
 % Compute S coordinates
 %
-cff1=1./sinh(theta_s);
-cff2=0.5/tanh(0.5*theta_s);
-sc=((1:N)-N-0.5)/N;
-Cs=(1.-theta_b)*cff1*sinh(theta_s*sc)...
-    +theta_b*(cff2*tanh(theta_s*(sc+0.5))-0.5);
+[sc_r,Cs_r,sc_w,Cs_w] = scoordinate(theta_s,theta_b,N,hc,vtransform);
+%disp(['vtransform=',num2str(vtransform)])
+
+% cff1=1./sinh(theta_s);
+% cff2=0.5/tanh(0.5*theta_s);
+% sc=((1:N)-N-0.5)/N;
+% Cs=(1.-theta_b)*cff1*sinh(theta_s*sc)...
+%     +theta_b*(cff2*tanh(theta_s*(sc+0.5))-0.5);
 %
 % Write variables
 %
+nc{'spherical'}(:)='T';
+nc{'Vtransform'}(:)=vtransform;
+nc{'Vstretching'}(:)=1;
 nc{'tstart'}(:) =  time; 
 nc{'tend'}(:) =  time; 
 nc{'theta_s'}(:) =  theta_s; 
 nc{'theta_b'}(:) =  theta_b; 
 nc{'Tcline'}(:) =  hc; 
 nc{'hc'}(:) =  hc; 
-nc{'sc_r'}(:) =  sc; 
-nc{'Cs_r'}(:) =  Cs; 
+nc{'sc_r'}(:) =  sc_r; 
+nc{'Cs_r'}(:) =  Cs_r; 
 nc{'scrum_time'}(1) =  time*24*3600; 
 nc{'ocean_time'}(1) =  time*24*3600; 
 nc{'u'}(:) =  0; 

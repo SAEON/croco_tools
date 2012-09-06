@@ -44,6 +44,8 @@ latu=nc{'lat_u'}(:);
 lonu=nc{'lon_u'}(:);
 lonv=nc{'lon_v'}(:);
 latv=nc{'lat_v'}(:);
+lonr=nc{'lon_rho'}(:);
+latr=nc{'lat_rho'}(:);
 lat=nc{'lat_rho'}(:,1);
 lon=nc{'lon_rho'}(1,:);
 
@@ -102,6 +104,12 @@ theta_s = nc{'theta_s'}(:);
 theta_b =  nc{'theta_b'}(:);
 hc  =  nc{'hc'}(:);
 N =  length(nc('s_rho'));
+vtransform = nc{'Vtransform'}(:);
+if  ~exist('vtransform')
+    vtransform=1; %Old Vtransform
+    disp([' NO VTRANSFORM parameter found'])
+    disp([' USE TRANSFORM default value vtransform = 1'])
+end
 %
 % get the reference level
 %
@@ -227,52 +235,40 @@ for l=1:tlen
 
 % Replace/interpolate Equatorial values 
  %
-
-if  obcndx==2 |  obcndx==4
-
-   equatlat=(lat>=-2 & lat<=2);
-   if sum(sum(equatlat))~=0
- %    disp('Extrapole values outside the Equator')
-     D=find(~equatlat);
-
-
-     if length(D)~=0
-    
-	       for k=1:kref
-        		 u_r(k,:)=interp1(lat(D),u_r(k,D),lat,'spline','extrap');
-		         v_r(k,:)=interp1(lat(D),v_r(k,D),lat,'spline','extrap');
-    
-	       end
-       
+ if  obcndx==2 | obcndx==4
+     equatlat=(lat >=-2 & lat <=2);
+     disp(['OBCNDX=',num2str(obcndx)])
+     if sum(sum(equatlat))==0
+         disp('No values outside the Equator to extrapole')
      else
-      disp('No values outside the Equator to extrapole')
+         disp('Extrapole values outside the Equator')
+         D=find(~equatlat);
+         if length(D)~=0
+             for k=1:kref
+                 u_r(k,:)=interp1(lat(D),u_r(k,D),lat,'spline','extrap');
+                 v_r(k,:)=interp1(lat(D),v_r(k,D),lat,'spline','extrap');
+             end
+         else
+             disp('No values outside the Equator to extrapole')
+         end
      end
-   end 
 
-elseif obcndx==1 |  obcndx==3
-
-    equatlat=(lat>=-2 & lat<=2);
-    if sum(sum(equatlat))~=0
-  %    disp('Extrapole values outside the Equator')
-      D=find(~equatlat);
- 
-
-     if length(D)~=0
- 
-                for k=1:kref
-                          u_r(k,:)=interp1(lon(D),u_r(k,D),lon,'spline','extrap');
-                          v_r(k,:)=interp1(lon(D),v_r(k,D),lon,'spline','extrap');
-                         
-               end
- 
-      else
-      disp('No values outside the Equator to extrapole')
-      end
-    end
- 
-end
-
-
+ elseif obcndx==1
+     disp(['OBCNDX=',num2str(obcndx)])
+     if latr(1,1) < -2
+         disp(['OK South boundary outside of the equatorial band'])
+     else
+         error(['Replace your South boundary'])
+     end
+%
+ elseif obcndx==3
+     disp(['OBCNDX=',num2str(obcndx)])
+     if latr(end,1) > 2
+         disp(['OK North boundary outside of the equatorial band'])
+     else
+         error(['Replace your North boundary'])
+     end
+ end
 %
 %  Masking
 %  
@@ -291,7 +287,7 @@ end
 % Vertical interpolation of baroclinic fields
 %
 %  disp('Vertical interpolation ...')
-  zroms=squeeze(zlevs(h,0*h,theta_s,theta_b,hc,N,'r'));
+  zroms=squeeze(zlevs(h,0*h,theta_s,theta_b,hc,N,'r',vtransform));
   if  obcndx==1 |  obcndx==3
     zu=0.5*(zroms(:,1:end-1)+zroms(:,2:end));
     zv=zroms;
@@ -318,7 +314,7 @@ end
 %  Barotropic velocities
 %
 %  disp('Barotropic component ...')
-  zw=squeeze(zlevs(h,0*h,theta_s,theta_b,hc,N,'w'));
+  zw=squeeze(zlevs(h,0*h,theta_s,theta_b,hc,N,'w',vtransform));
   dz=zw(2:end,:)-zw(1:end-1,:);
   if  obcndx==1 |  obcndx==3
     dzu=0.5*(dz(:,1:end-1)+dz(:,2:end));

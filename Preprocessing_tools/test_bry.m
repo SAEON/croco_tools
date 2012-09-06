@@ -70,6 +70,7 @@ if isempty(theta_s)
 else
   theta_b=nc{'theta_b'}(:);
   hc=nc{'hc'}(:);
+  vtransform=nc{'Vtransform'}(:);
 end
 %
 for obcndx=1:4
@@ -105,7 +106,7 @@ for obcndx=1:4
     end
     temp=squeeze(nc{[tracer,'_',suffix]}(l,:,:));
     [Nz,Nx]=size(temp);
-    z=squeeze(zlevs(topo,0*topo,theta_s,theta_b,hc,Nz,'r'));
+    z=squeeze(zlevs(topo,0*topo,theta_s,theta_b,hc,Nz,'r',vtransform));
     x1=0*topo;
     for i=2:Nx
       x1(i)=x1(i-1)+0.5*(dx(i)+dx(i-1));

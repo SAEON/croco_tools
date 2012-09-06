@@ -92,9 +92,14 @@ result=close(nc);
 if (makeclim)
   disp(' ')
   disp(' Create the climatology file...')
+  if  ~exist('vtransform')
+      vtransform=1; %Old Vtransform
+      disp([' NO VTRANSFORM parameter found'])
+      disp([' USE VTRANSFORM default value vtransform = 1'])
+  end
   create_climfile(clmname,grdname,ROMS_title,...
                   theta_s,theta_b,hc,N,...
-                  woa_time,woa_cycle,'clobber');
+                  woa_time,woa_cycle,'clobber',vtransform);
 end
 %
 % Create the OA file
@@ -164,7 +169,7 @@ if makeini
   disp('Initial')
   create_inifile(ininame,grdname,ROMS_title,...
                  theta_s,theta_b,hc,N,...
-                 tini,'clobber');
+                 tini,'clobber',vtransform);
   disp(' ')
   disp(' Temperature...')
   vinterp_clm(ininame,grdname,oaname,'temp','tclm_time','Z',tini,'r',1);

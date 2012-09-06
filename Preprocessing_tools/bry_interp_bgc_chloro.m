@@ -78,6 +78,12 @@ theta_s = nc{'theta_s'}(:);
 theta_b =  nc{'theta_b'}(:);
 Tcline  =  nc{'Tcline'}(:);
 N =  length(nc('s_rho'));
+vtransform=nc{'Vtransform'}(:);
+if  ~exist('vtransform')
+    vtransform=1; %Old Vtransform
+    disp([' NO VTRANSFORM parameter found'])
+    disp([' USE TRANSFORM default value vtransform = 1'])
+end
 close(nc)
 %
 % loop on time
@@ -95,7 +101,7 @@ disp(['time index: ',num2str(l),' of total: ',num2str(tlen)])
 %
 % extrapole the chlorophyll on the vertical
 %
-  zroms=zlevs(h,0.*h,theta_s,theta_b,Tcline,N,'r');
+  zroms=zlevs(h,0.*h,theta_s,theta_b,Tcline,N,'r',vtransform);
   disp(['Add_chla: vertical ',...
   'extrapolation '])
   chlaroms(l,:,:,:)=extr_chlo(surfchlaroms,zroms);

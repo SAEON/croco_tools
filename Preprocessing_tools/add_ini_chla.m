@@ -111,6 +111,7 @@ if isempty(theta_s)
 else
   theta_b =  nc{'theta_b'}(:);
   hc  =  nc{'hc'}(:);
+  vtransform = nc{'Vtransform'}(:);
 end
 N =  length(nc('s_rho'));
 scrum_time = nc{'scrum_time'}(:);
@@ -190,7 +191,7 @@ for l=1:tinilen
 % extrapole the chlorophyll on the vertical
 %
   zeta = squeeze(nc{'zeta'}(l,:,:));
-  zroms=zlevs(h,zeta,theta_s,theta_b,hc,N,'r');
+  zroms=zlevs(h,zeta,theta_s,theta_b,hc,N,'r',vtransform);
   disp(['Add_ini_chla: vertical ',...
   'extrapolation of chlorophyll'])
   chlaroms=extr_chlo(surfchlaroms,zroms);

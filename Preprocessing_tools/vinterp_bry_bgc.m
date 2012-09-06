@@ -52,7 +52,12 @@ theta_s = nc{'theta_s'}(:);
 theta_b =  nc{'theta_b'}(:);
 hc  =  nc{'hc'}(:);
 N =  length(nc('s_rho'));
-%
+vtransform = nc{'Vtransform'}(:);
+if  ~exist('vtransform')
+    vtransform=1; %Old Vtransform
+    disp([' NO VTRANSFORM parameter found'])
+    disp([' USE TRANSFORM default value vtransform = 1'])
+end
 % open the oa file  
 % 
 noa=netcdf(Zbryname);
@@ -63,7 +68,7 @@ Nz0=length(z);
 %
 % Get the sigma depths
 %
-zroms=squeeze(zlevs(h,0.*h,theta_s,theta_b,hc,N,'r'));
+zroms=squeeze(zlevs(h,0.*h,theta_s,theta_b,hc,N,'r',vtransform));
 zmin=min(min(zroms));
 zmax=max(max(zroms));
 %

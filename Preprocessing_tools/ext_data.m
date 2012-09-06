@@ -149,6 +149,7 @@ end
 % Interpolation on the ROMS grid
 %
 data=interp2(x,y,data,lon,lat,'linear');
+%%data=interp2(x,y,data,lon,lat,'cubic');
 %
 % Apply offset
 %

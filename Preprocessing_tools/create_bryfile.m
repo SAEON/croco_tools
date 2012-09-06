@@ -1,6 +1,6 @@
 function create_bryfile(bryname,grdname,title,obc,...
                         theta_s,theta_b,hc,N,...
-                        time,cycle,clobber);
+                        time,cycle,clobber,vtransform);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % function create_bryfile(bryname,grdname,title,obc...
@@ -53,6 +53,12 @@ function create_bryfile(bryname,grdname,title,obc,...
 disp(' ')
 disp([' Creating the file : ',bryname])
 disp(' ')
+if nargin < 12
+    disp([' NO VTRANSFORM parameter found'])
+    disp([' USE TRANSFORM default value vtransform = 1'])
+    vtransform = 1; 
+end
+disp([' VTRANSFORM = ',num2str(vtransform)])
 %
 %  Read the grid file and check the topography
 %
@@ -63,8 +69,10 @@ Lp=length(nc('xi_rho'));
 Mp=length(nc('eta_rho'));
 status=close(nc);
 hmin=min(min(h(maskr==1)));
-if hc > hmin
-  error([' hc (',num2str(hc),' m) > hmin (',num2str(hmin),' m)'])
+if vtransform ==1;
+  if hc > hmin
+    error([' hc (',num2str(hc),' m) > hmin (',num2str(hmin),' m)'])
+  end
 end
 L=Lp-1;
 M=Mp-1;
@@ -155,29 +163,29 @@ nc{'hc'}.long_name = 'S-coordinate parameter, critical depth';
 nc{'hc'}.units = ncchar('meter');
 nc{'hc'}.units = 'meter';
 %
-nc{'s_rho'} = ncdouble('s_rho') ;
-nc{'s_rho'}.long_name = ncchar('S-coordinate at RHO-points');
-nc{'s_rho'}.long_name = 'S-coordinate at RHO-points';
-nc{'s_rho'}.valid_min = -1.;
-nc{'s_rho'}.valid_max = 0.;
-nc{'s_rho'}.positive = ncchar('up');
-nc{'s_rho'}.positive = 'up';
-nc{'s_rho'}.standard_name = ncchar('ocena_s_coordinate_g2');
-nc{'s_rho'}.standard_name = 'ocena_s_coordinate_g2';
-nc{'s_rho'}.formula_terms = ncchar('s: s_rho C: Cs_r eta: zeta depth: h depth_c: hc');
-nc{'s_rho'}.formula_terms = 's: s_rho C: Cs_r eta: zeta depth: h depth_c: hc';
+nc{'sc_r'} = ncdouble('s_rho') ;
+nc{'sc_r'}.long_name = ncchar('S-coordinate at RHO-points');
+nc{'sc_r'}.long_name = 'S-coordinate at RHO-points';
+nc{'sc_r'}.valid_min = -1.;
+nc{'sc_r'}.valid_max = 0.;
+nc{'sc_r'}.positive = ncchar('up');
+nc{'sc_r'}.positive = 'up';
+nc{'sc_r'}.standard_name = ncchar('ocena_vtransforminate_g2');
+nc{'sc_r'}.standard_name = 'ocena_vtransforminate_g2';
+nc{'sc_r'}.formula_terms = ncchar('s: s_rho C: Cs_r eta: zeta depth: h depth_c: hc');
+nc{'sc_r'}.formula_terms = 's: s_rho C: Cs_r eta: zeta depth: h depth_c: hc';
 %
-nc{'s_w'} = ncdouble('s_w') ;
-nc{'s_w'}.long_name = ncchar('S-coordinate at W-points');
-nc{'s_w'}.long_name = 'S-coordinate at W-points';
-nc{'s_w'}.valid_min = -1. ;
-nc{'s_w'}.valid_max = 0. ;
-nc{'s_w'}.positive = ncchar('up');
-nc{'s_w'}.positive = 'up';
-nc{'s_w'}.standard_name = ncchar('ocena_s_coordinate_g2');
-nc{'s_w'}.standard_name = 'ocena_s_coordinate_g2';
-nc{'s_w'}.formula_terms = ncchar('s: s_w C: Cs_w eta: zeta depth: h depth_c: hc');
-nc{'s_w'}.formula_terms = 's: s_w C: Cs_w eta: zeta depth: h depth_c: hc';
+nc{'sc_w'} = ncdouble('s_w') ;
+nc{'sc_w'}.long_name = ncchar('S-coordinate at W-points');
+nc{'sc_w'}.long_name = 'S-coordinate at W-points';
+nc{'sc_w'}.valid_min = -1. ;
+nc{'sc_w'}.valid_max = 0. ;
+nc{'sc_w'}.positive = ncchar('up');
+nc{'sc_w'}.positive = 'up';
+nc{'sc_w'}.standard_name = ncchar('ocena_vtransforminate_g2');
+nc{'sc_w'}.standard_name = 'ocena_vtransforminate_g2';
+nc{'sc_w'}.formula_terms = ncchar('s: s_w C: Cs_w eta: zeta depth: h depth_c: hc');
+nc{'sc_w'}.formula_terms = 's: s_w C: Cs_w eta: zeta depth: h depth_c: hc';
 %
 nc{'Cs_r'} = ncdouble('s_rho') ;
 nc{'Cs_r'}.long_name = ncchar('S-coordinate stretching curves at RHO-points');
@@ -564,19 +572,24 @@ result = endef(nc);
 %
 % Compute S coordinates
 %
-cff1=1./sinh(theta_s);
-cff2=0.5/tanh(0.5*theta_s);
-sc_r=((1:N)-N-0.5)/N;
-Cs_r=(1.-theta_b)*cff1*sinh(theta_s*sc_r)...
-    +theta_b*(cff2*tanh(theta_s*(sc_r+0.5))-0.5);
-sc_w=((0:N)-N)/N;
-Cs_w=(1.-theta_b)*cff1*sinh(theta_s*sc_w)...
-    +theta_b*(cff2*tanh(theta_s*(sc_w+0.5))-0.5);
+[sc_r,Cs_r,sc_w,Cs_w] = scoordinate(theta_s,theta_b,N,hc,vtransform);
+%disp(['vtransform=',num2str(vtransform)])
+
+% cff1=1./sinh(theta_s);
+% cff2=0.5/tanh(0.5*theta_s);
+% sc_r=((1:N)-N-0.5)/N;
+% Cs_r=(1.-theta_b)*cff1*sinh(theta_s*sc_r)...
+%     +theta_b*(cff2*tanh(theta_s*(sc_r+0.5))-0.5);
+% sc_w=((0:N)-N)/N;
+% Cs_w=(1.-theta_b)*cff1*sinh(theta_s*sc_w)...
+%     +theta_b*(cff2*tanh(theta_s*(sc_w+0.5))-0.5);
+
+
 %
 % Write variables
 %
 nc{'spherical'}(:)='T';
-nc{'Vtransform'}(:)=1;
+nc{'Vtransform'}(:)=vtransform;
 nc{'Vstretching'}(:)=1;
 nc{'tstart'}(:) =  min([min(time) min(time) min(time)]); 
 nc{'tend'}(:) =  max([max(time) max(time) max(time)]); 
@@ -584,9 +597,9 @@ nc{'theta_s'}(:) =  theta_s;
 nc{'theta_b'}(:) =  theta_b; 
 nc{'Tcline'}(:) =  hc; 
 nc{'hc'}(:) =  hc; 
-nc{'s_rho'}(:) = sc_r;
-nc{'s_w'}(:) = sc_w;
-nc{'Cs_r'}(:) =  Cs_r; 
+nc{'sc_r'}(:) = sc_r;
+nc{'sc_w'}(:) = sc_w;
+nc{'Cs_r'}(:) = Cs_r ; 
 nc{'Cs_w'}(:) = Cs_w;
 nc{'tclm_time'}(:) =  time; 
 nc{'temp_time'}(:) =  time; 

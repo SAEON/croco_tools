@@ -1,14 +1,14 @@
-function z = zlevs(h,zeta,theta_s,theta_b,hc,N,type);
+function z = zlevs(h,zeta,theta_s,theta_b,hc,N,type,vtransform);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  function z = zlevs(h,zeta,theta_s,theta_b,hc,N,type);
+%  function z = zlevs(h,zeta,theta_s,theta_b,hc,N,vtransform,type);
 %
 %  this function compute the depth of rho or w points for ROMS
 %
 %  On Input:
 %
 %    type    'r': rho point 'w': w point 
-%
+%    vtransform  1=> old v transform ; 2=>new v transform 
 %  On Output:
 %
 %    z       Depths (m) of RHO- or W-points (3D matrix).
@@ -38,33 +38,102 @@ function z = zlevs(h,zeta,theta_s,theta_b,hc,N,type);
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [M,L]=size(h);
+if nargin < 8
+    disp(['WARNING no vtransform defined'])
+    vtransform = 1 ; %old vtranform = 1
+    disp(['Default S-coordinate system use : Vtransform=1 (old one)'])
+end
 %
 % Set S-Curves in domain [-1 < sc < 0] at vertical W- and RHO-points.
-%
-cff1=1./sinh(theta_s);
-cff2=0.5/tanh(0.5*theta_s);
-if type=='w'
-  sc=((0:N)-N)/N;
-  N=N+1;
+
+
+sc_r=zeros(N,1);
+Cs_r=zeros(N,1);
+sc_w=zeros(N+1,1);
+Cs_w=zeros(N+1,1);
+
+if (vtransform == 2)
+    ds=1./N;
+    if type=='w'
+
+      sc_w(1) = -1.0;
+      sc_w(N+1) =  0;
+      Cs_w(1) = -1.0;
+      Cs_w(N+1) =  0;
+      
+      sc_w(2:N) = ds*([1:N-1]-N);
+      Cs_w=csf(sc_w, theta_s,theta_b);
+      N=N+1;
+
+%    disp(['===================================='])
+%    for k=N:-1:1
+%        disp(['Niveau S=',num2str(k),' Cs=',num2str( Cs_w(k), '%8.7f')])
+%    end
+%    disp(['===================================='])
+
+    else
+
+      sc= ds*([1:N]-N-0.5);    
+      Cs_r=csf(sc, theta_s,theta_b);
+      sc_r=sc;
+%    disp(['===================================='])
+%    for k=N:-1:1
+%        disp(['Niveau S=',num2str(k),' Cs=',num2str( Cs_r(k), '%8.7f')])
+%    end
+%    disp(['===================================='])
+    end
+
 else
-  sc=((1:N)-N-0.5)/N;
+    cff1=1./sinh(theta_s);
+    cff2=0.5/tanh(0.5*theta_s);
+    if type=='w'
+        sc=((0:N)-N)/N;
+        N=N+1;
+    else
+        sc=((1:N)-N-0.5)/N;
+    end
+    Cs=(1.-theta_b)*cff1*sinh(theta_s*sc)...
+        +theta_b*(cff2*tanh(theta_s*(sc+0.5))-0.5);
+%    disp(['===================================='])
+%    for k=N:-1:1
+%        disp(['Niveau S=',num2str(k),' Cs=',num2str( Cs(k), '%8.7f')])
+%    end
+%    disp(['===================================='])
 end
-Cs=(1.-theta_b)*cff1*sinh(theta_s*sc)...
-    +theta_b*(cff2*tanh(theta_s*(sc+0.5))-0.5);
 %
 % Create S-coordinate system: based on model topography h(i,j),
 % fast-time-averaged free-surface field and vertical coordinate
 % transformation metrics compute evolving depths of of the three-
 % dimensional model grid.
-%    
+%  
 hinv=1./h;
-cff=hc*(sc-Cs);
-cff1=Cs;
-cff2=sc+1;
 z=zeros(N,M,L);
-for k=1:N
-  z0=cff(k)+cff1(k)*h;
-  z(k,:,:)=z0+zeta.*(1.+z0.*hinv);
+if (vtransform == 2)
+    if type=='w'
+        cff1=Cs_w;
+        cff2=sc_w+1;
+        sc=sc_w;
+    else
+        cff1=Cs_r;
+        cff2=sc_r+1;
+        sc=sc_r;
+    end
+    h2=(h+hc);
+    cff=hc*sc;
+    h2inv=1./h2;
+    for k=1:N
+        z0=cff(k)+cff1(k)*h;
+        z(k,:,:)=z0.*h./(h2) + zeta.*(1.+z0.*h2inv);
+    end
+else
+    cff1=Cs;
+    cff2=sc+1;
+    cff=hc*(sc-Cs);
+    cff2=sc+1;
+    for k=1:N
+        z0=cff(k)+cff1(k)*h;
+        z(k,:,:)=z0+zeta.*(1.+z0.*hinv);
+    end
 end
 
 %if type=='w'
@@ -79,5 +148,9 @@ end
 %  end
 %end
 
+
 return
+
+            
+        
 

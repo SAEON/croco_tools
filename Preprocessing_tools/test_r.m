@@ -20,7 +20,7 @@ result=close(nc);
 
 
 
-z_w=zlevs(h,0.*h,theta_s,theta_b,hc,N,'w');
+z_w=zlevs(h,0.*h,theta_s,theta_b,hc,N,'w',vtransform);
 
 my_rx0=max(max(max(abs((z_w(1,:,2:end)-z_w(1,:,1:end-1))./...
                        (z_w(1,:,2:end)+z_w(1,:,1:end-1))))));

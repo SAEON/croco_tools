@@ -30,10 +30,12 @@ close(nc)
 hmin=min(min(h(mask==1)));
 hmax=max(max(h(mask==1)));
 disp(['hmin = ',num2str(hmin)])
-if hc > hmin
-  error([' hc (',num2str(hc),' m) > hmin (',num2str(hmin),' m)'])
+if (vtransform==1)
+    if hc > hmin
+        error([' hc (',num2str(hc),' m) > hmin (',num2str(hmin),' m)'])
+    end
 end
-zw=zlevs(h,0.*h,theta_s,theta_b,hc,N,'w');
+zw=zlevs(h,0.*h,theta_s,theta_b,hc,N,'w',vtransform);
 dz=zw(2:end,:,:)-zw(1:end-1,:,:);
 dzsurf(:,:)=dz(end,:,:);
 dzbot(:,:)=dz(1,:,:);
@@ -50,9 +52,12 @@ h=(hmin:(hmax-hmin)/(npts-1):hmax);
 x=(1:npts);
 z=(1:N);
 [xr,zr]=meshgrid(x,z);
-zr=squeeze(zlevs(h,0.*h,theta_s,theta_b,hc,N,'r'));
-zw=squeeze(zlevs(h,0.*h,theta_s,theta_b,hc,N,'w'));
+zr=squeeze(zlevs(h,0.*h,theta_s,theta_b,hc,N,'r',vtransform));
+zw=squeeze(zlevs(h,0.*h,theta_s,theta_b,hc,N,'w',vtransform));
 dz=zw(2:end,:)-zw(1:end-1,:);
+figure
 pcolor(xr,zr,dz)
 colorbar
+
+%save 'Vgrid_Vtransf_2.mat' xr zr zw dz
 %dz(end,end)

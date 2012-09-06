@@ -38,6 +38,12 @@ theta_s = nc{'theta_s'}(:);
 theta_b =  nc{'theta_b'}(:);
 hc  =  nc{'hc'}(:);
 N =  length(nc('s_rho'));
+vtransform = nc{'Vtransform'}(:);
+if  ~exist('vtransform')
+    vtransform=1; %Old Vtransform
+    disp([' NO VTRANSFORM parameter found'])
+    disp([' USE TRANSFORM default value vtransform = 1'])
+end
 %
 % Open and Read grid file  
 % 
@@ -152,7 +158,7 @@ disp('   ext_tracers_ini: vertical interpolation')
 %
 % Get the sigma depths
 %
-zroms=zlevs(h,0.*h,theta_s,theta_b,hc,N,'r');
+zroms=zlevs(h,0.*h,theta_s,theta_b,hc,N,'r',vtransform);
 if type=='u'
   zroms=rho2u_3d(zroms);
 end

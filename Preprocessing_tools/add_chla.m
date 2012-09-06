@@ -88,7 +88,13 @@ nc=netcdf(climfile,'write');
 theta_s = nc{'theta_s'}(:);
 theta_b =  nc{'theta_b'}(:);
 Tcline  =  nc{'Tcline'}(:);
+vtransform=nc{'Vtransform'}(:);
+if  ~exist('vtransform')
+    vtransform=1; %Old Vtransform
+    disp([' NO VTRANSFORM parameter found'])
+end
 N =  length(nc('s_rho'));
+
 redef(nc);
 nc('chla_time') = tlen;
 nc{'chla_time'} = ncdouble('chla_time') ;
@@ -133,7 +139,7 @@ disp(['time index: ',num2str(l),' of total: ',num2str(tlen)])
 %
 % extrapole the chlorophyll on the vertical
 %
-  zroms=zlevs(h,0.*h,theta_s,theta_b,Tcline,N,'r');
+  zroms=zlevs(h,0.*h,theta_s,theta_b,Tcline,N,'r',vtransform);
   disp(['Add_chla: vertical ',...
   'extrapolation of chlorophyll'])
   chlaroms=extr_chlo(surfchlaroms,zroms);

@@ -42,13 +42,19 @@ theta_b =  nc{'theta_b'}(:);
 hc  =  nc{'hc'}(:);
 N =  length(nc('s_rho'));
 tlen =  length(nc('tclm_time'));
+vtransform=nc{'Vtransform'}(:);
+if  ~exist('vtransform')
+    vtransform=1; %Old Vtransform
+    disp([' NO VTRANSFORM parameter found'])
+    disp([' USE TRANSFORM default value vtransform = 1'])
+end
 if tlen==0
   tlen=1;
 end
 %
 % Get the sigma depths
 %
-P=-1e-4*1025*9.81*zlevs(h,0.*h,theta_s,theta_b,hc,N,'r');
+P=-1e-4*1025*9.81*zlevs(h,0.*h,theta_s,theta_b,hc,N,'r',vtransform);
 %
 % loop on time
 %

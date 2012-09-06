@@ -65,6 +65,12 @@ nc=netcdf(clmname,'write');
 theta_s = nc{'theta_s'}(:);
 theta_b =  nc{'theta_b'}(:);
 hc  =  nc{'hc'}(:);
+vtransform=nc{'Vtransform'}(:);
+if  ~exist('vtransform')
+    vtransform=1; %Old Vtransform
+    disp([' NO VTRANSFORM parameter found'])
+    disp([' USE TRANSFORM default value vtransform = 1'])
+end
 N =  length(nc('s_rho'));
 %
 % get the reference level
@@ -197,7 +203,7 @@ for l=1:tlen
 % Vertical interpolation of baroclinic fields
 %
 %  disp('Vertical interpolation ...')
-  zroms=zlevs(h,ssh,theta_s,theta_b,hc,N,'r');
+  zroms=zlevs(h,ssh,theta_s,theta_b,hc,N,'r',vtransform);
   zu=0.5*(zroms(:,:,1:end-1)+zroms(:,:,2:end));
   zv=0.5*(zroms(:,1:end-1,:)+zroms(:,2:end,:));
 %
@@ -218,7 +224,7 @@ for l=1:tlen
 %  Barotropic velocities
 %
 %  disp('Barotropic component ...')
-  zw=zlevs(h,ssh,theta_s,theta_b,hc,N,'w');
+  zw=zlevs(h,ssh,theta_s,theta_b,hc,N,'w',vtransform);
   dz=zw(2:end,:,:)-zw(1:end-1,:,:);
   dzu=0.5*(dz(:,:,1:end-1)+dz(:,:,2:end));
   dzv=0.5*(dz(:,1:end-1,:)+dz(:,2:end,:));

@@ -60,9 +60,14 @@ disp([' Title: ',title])
 %
 % Initial file
 %
+if  ~exist('vtransform')
+    vtransform=1; %Old Vtransform
+    disp([' NO VTRANSFORM parameter found'])
+    disp([' USE TRANSFORM default value vtransform = 1'])
+end
 create_inifile(ininame,grdname,title,...
                theta_s,theta_b,hc,N,...
-               tini,'clobber');
+               tini,'clobber',vtransform);
 %
 % Horizontal and vertical interp/extrapolations 
 %

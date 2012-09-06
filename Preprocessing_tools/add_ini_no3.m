@@ -71,6 +71,12 @@ if isempty(theta_s)
 else
   theta_b =  nc{'theta_b'}(:);
   hc  =  nc{'hc'}(:);
+  vtransform = nc{'Vtransform'}(:);
+  if  ~exist('vtransform')
+    vtransform=1; %Old Vtransform
+    disp([' NO VTRANSFORM parameter found'])
+    disp([' USE TRANSFORM default value vtransform = 1'])
+  end
 end
 N =  length(nc('s_rho'));
 %
@@ -83,7 +89,7 @@ tlen=length(oatime);
 %
 % Get the sigma depths
 %
-zroms=zlevs(h,0.*h,theta_s,theta_b,hc,N,'r');
+zroms=zlevs(h,0.*h,theta_s,theta_b,hc,N,'r',vtransform);
 zmin=min(min(min(zroms)));
 zmax=max(max(max(zroms)));
 %
@@ -182,7 +188,7 @@ for l=1:tinilen
   end
   var=cff1*var + cff2*var2;
   zeta = squeeze(nc{'zeta'}(l,:,:));
-  zroms=zlevs(h,zeta,theta_s,theta_b,hc,N,'r');
+  zroms=zlevs(h,zeta,theta_s,theta_b,hc,N,'r',vtransform);
   nc{'NO3'}(l,:,:,:)=ztosigma(flipdim(var,1),zroms,flipud(z));
 end
 close(noa);

@@ -46,6 +46,12 @@ if isempty(theta_s)
 else
   theta_b=nc{'theta_b'}(:);
   hc=nc{'hc'}(:);
+  vtransform=nc{'Vtransform'}(:);
+    if  ~exist('vtransform')
+      vtransform=1; %Old Vtransform
+      disp([' NO VTRANSFORM parameter found'])
+      disp([' USE TRANSFORM default value vtransform = 1'])
+    end
 end
 close(nc)
 %
@@ -64,7 +70,7 @@ mask(mask==0)=NaN;
 %
 jstep=ceil((M/3)-1);
 image=0;
-z = zlevs(h,0*h,theta_s,theta_b,hc,N,'r');
+z = zlevs(h,0*h,theta_s,theta_b,hc,N,'r',vtransform);
 for j=1:jstep:M
   index=j;
   image=image+1;

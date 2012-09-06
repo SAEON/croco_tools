@@ -90,7 +90,7 @@ NO3min=1;
 %
 disp(' ')
 disp([' Making the file: ',bryname])
-disp([' Adding the PISCES variables'])
+disp([' Adding the BGC variables'])
 disp(' ')
 disp([' Title: ',ROMS_title])
 %
@@ -104,6 +104,7 @@ lat=nc{'lat_rho'}(:);
 Lp=length(nc('xi_rho'));
 Mp=length(nc('eta_rho'));
 hmax=max(max(nc{'h'}(:)));
+    end
 result=close(nc);
 % %
 %Get the time of data
@@ -126,6 +127,11 @@ cycle=360;
 if (makebry)
   disp(' ')
   disp(' Redefine the boundary file...')
+  if  ~exist('vtransform')
+      vtransform=1; %Old Vtransform
+      disp([' NO VTRANSFORM parameter found'])
+      disp([' USE TRANSFORM default value vtransform = 1'])
+  end
   add_bry_bgc(bryname,obc,time_no3,time_zoo,time_phyto,time_chla,cycle,'write');
 end
 %
@@ -137,7 +143,6 @@ if (makeZbry)
 %
 % get Z
 %
-%pause
   nc=netcdf(no3_ann_data);
   Z=nc{'Z'}(:);
   kmax=max(find(Z<hmax))-1;

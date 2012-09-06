@@ -90,11 +90,16 @@ result=close(nc);
 % Create the boundary file
 %
 if (makebry)
-  disp(' ')
-  disp(' Create the boundary file...')
+    disp(' ')
+    disp(' Create the boundary file...')
+    if  ~exist('vtransform')
+        vtransform=1; %Old Vtransform
+        disp([' NO VTRANSFORM parameter found'])
+        disp([' USE TRANSFORM default value vtransform = 1'])
+    end
   create_bryfile(bryname,grdname,ROMS_title,obc,...
                  theta_s,theta_b,hc,N,...
-                 woa_time,woa_cycle,'clobber');
+                 woa_time,woa_cycle,'clobber',vtransform);
 end
 %
 % Create the boundary file in Z-coordinates
