@@ -407,6 +407,7 @@ ncrst.rho0=ncprt.rho0(:);
 ncrst.gamma2=ncprt.gamma2(:);
 ncrst.SRCS=ncprt.SRCS(:);
 ncrst.CPPS=ncprt.CPPS(:);
+
 %
 % Leave define mode
 %

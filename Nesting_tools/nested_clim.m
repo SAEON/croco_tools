@@ -80,8 +80,8 @@ fer_cycle=[];
 %--
 % Chech type of clim file
 %
-if nvar <= 26
-elseif (nvar <=  34 & biol)
+if nvar <= 31
+elseif (nvar <=  39 & biol)
   %Name, units etc .. of the variables
   namebiol={'NO3';'CHLA';'PHYTO';'ZOO'};
   unitbiol={'mMol N m-3';'mg C l-1';'mMol N m-3'};
@@ -89,7 +89,7 @@ elseif (nvar <=  34 & biol)
   disp(['Compute Biological variables type NPZD : '])
   disp(['NchlPZD or N2ChlZD2 or N2P2Z2D2         '])
   disp('==========================')
-elseif (pisces & nvar>=35)
+elseif (pisces & nvar>=40)
   %Name, units etc .. of the variables
   namepisces={'NO3';'PO4';'Si';'O2';'DIC';'TALK';'DOC';'FER'};
   unitpisces={'mMol N m-3';'mMol P m-3';'mMol Si m-3';'mMol O m-3';'mMol C m-3';'mMol C m-3';'mMol C m-3';'uMol Fe m-3'};
@@ -153,6 +153,14 @@ theta_s = nc{'theta_s'}(:);
 theta_b = nc{'theta_b'}(:);
 Tcline = nc{'Tcline'}(:);
 N = length(nc('s_rho'));
+vtransform=nc{'Vtransform'}(:);
+hc = nc{'hc'}(:);
+disp([' Use parent VTRANSFORM = ',num2str(vtransform)])
+if ~exist('vtransform')
+    disp([' No VTRANSFORM parameter found'])
+    disp([' Use the default one VTRANSFORM = 1'])
+    vtransform=1;
+end
 ttime = nc{'tclm_time'}(:);
 tcycle = nc{'tclm_time'}.cycle_length(:);
 stime = nc{'sclm_time'}(:);
@@ -217,7 +225,7 @@ ncclim=create_nestedclim(child_clim,child_grd,parent_clim,title,...
 			 no3_time,chla_time,phyto_time,zoo_time, ...
 			 no3_cycle,chla_cycle,phyto_cycle,zoo_cycle, ...
 			 'clobber',...
-			 biol,pisces,namebiol,namepisces,unitbiol,unitpisces);
+			 biol,pisces,namebiol,namepisces,unitbiol,unitpisces,hc,vtransform);
 %
 % parent indices
 %

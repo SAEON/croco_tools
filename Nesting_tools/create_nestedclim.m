@@ -7,7 +7,7 @@ function ncclim=create_nestedclim(climfile,gridfile,parentfile,title,...
 				  no3_time,chla_time,phyto_time,zoo_time,...
 				  no3_cycle,chla_cycle,phyto_cycle,zoo_cycle,...     
 				  clobber,...    
-				  biol,pisces,namebiol,namepisces,unitbiol,unitpisces)
+				  biol,pisces,namebiol,namepisces,unitbiol,unitpisces,hc,vtransform)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  function ncclim=create_climfile(climfile,gridfile,theta_s,...
@@ -139,6 +139,8 @@ ncclim('one') = 1;
 %
 %  Create variables
 %
+ncclim{'spherical'} = ncchar('one') ;
+ncclim{'Vtransform'} = ncint('one') ;
 ncclim{'tstart'} = ncdouble('one') ;
 ncclim{'tend'} = ncdouble('one') ;
 ncclim{'theta_s'} = ncdouble('one') ;
@@ -193,6 +195,12 @@ if pisces
 end
 %
 %  Create attributes
+%
+nc{'Vtransform'}.long_name = ncchar('vertical terrain-following transformation equation');
+nc{'Vtransform'}.long_name = 'vertical terrain-following transformation equation';
+%
+nc{'Vstretching'}.long_name = ncchar('vertical terrain-following stretching function');
+nc{'Vstretching'}.long_name = 'vertical terrain-following stretching function';
 %
 ncclim{'tstart'}.long_name = ncchar('start processing day');
 ncclim{'tstart'}.long_name = 'start processing day';
@@ -443,25 +451,28 @@ result = endef(ncclim);
 %
 % Compute S coordinates
 %
-ds=1.0/N;
-hmin=min(min(h));
-hc=min(hmin,Tcline);
-lev=1:N;
-sc=-1+(lev-0.5).*ds;
-Ptheta=sinh(theta_s.*sc)./sinh(theta_s);
-Rtheta=tanh(theta_s.*(sc+0.5))./(2*tanh(0.5*theta_s))-0.5;
-Cs=(1-theta_b).*Ptheta+theta_b.*Rtheta;
+% ds=1.0/N;
+% hmin=min(min(h));
+% hc=min(hmin,Tcline);
+% lev=1:N;
+% sc=-1+(lev-0.5).*ds;
+% Ptheta=sinh(theta_s.*sc)./sinh(theta_s);
+% Rtheta=tanh(theta_s.*(sc+0.5))./(2*tanh(0.5*theta_s))-0.5;
+% Cs=(1-theta_b).*Ptheta+theta_b.*Rtheta;
+[sc_r,Cs_r,sc_w,Cs_w] = scoordinate(theta_s,theta_b,N,hc,vtransform);
 %
 % Write variables
 %
+ncclim{'spherical'}(:)='T';
+ncclim{'Vtransform'}(:)=vtransform;
 ncclim{'tstart'}(:) =  min([min(ttime) min(stime) min(utime)]); 
 ncclim{'tend'}(:) =  max([max(ttime) max(stime) max(utime)]); 
 ncclim{'theta_s'}(:) =  theta_s; 
 ncclim{'theta_b'}(:) =  theta_b; 
 ncclim{'Tcline'}(:) =  Tcline; 
 ncclim{'hc'}(:) =  hc; 
-ncclim{'sc_r'}(:) =  sc; 
-ncclim{'Cs_r'}(:) =  Cs; 
+ncclim{'sc_r'}(:) =  sc_r; 
+ncclim{'Cs_r'}(:) =  Cs_r; 
 ncclim{'tclm_time'}(:) =  ttime; 
 ncclim{'sclm_time'}(:) =  stime; 
 ncclim{'uclm_time'}(:) = utime ; 

@@ -35,6 +35,7 @@ disp(' Vertical corrections... ')
 nc=netcdf(ncfile,'write');
 N=length(nc('s_rho'));
 theta_s = nc{'theta_s'}(:);
+
 if isempty(theta_s)
   theta_s=nc.theta_s(:);
   theta_b=nc.theta_b(:);
@@ -42,6 +43,12 @@ if isempty(theta_s)
 else
   theta_b=nc{'theta_b'}(:);
   hc=nc{'hc'}(:);
+  vtransform=nc{'Vtransform'}(:);
+  if  ~exist('vtransform')
+    vtransform=1; %Old Vtransform
+    disp([' NO VTRANSFORM parameter found'])
+    disp([' USE TRANSFORM default value vtransform = 1'])
+  end
 end
 zeta=squeeze(nc{'zeta'}(tindex,:,:));
 if isempty(zeta)
@@ -68,8 +75,8 @@ result=close(ng);
 % get the depths
 %
 disp('get the depths')
-zrold=zlevs(hold,zeta,theta_s,theta_b,hc,N,'r');
-zrnew=zlevs(hnew,zeta,theta_s,theta_b,hc,N,'r');
+zrold=zlevs(hold,zeta,theta_s,theta_b,hc,N,'r',vtransform);
+zrnew=zlevs(hnew,zeta,theta_s,theta_b,hc,N,'r',vtransform);
 zuold=0.5*(zrold(:,:,1:end-1)+zrold(:,:,2:end));
 zunew=0.5*(zrnew(:,:,1:end-1)+zrnew(:,:,2:end));
 zvold=0.5*(zrold(:,1:end-1,:)+zrold(:,2:end,:));

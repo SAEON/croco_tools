@@ -150,6 +150,14 @@ theta_b = nc{'theta_b'}(:);
 Tcline = nc{'Tcline'}(:);
 N = length(nc('s_rho'));
 thetime = nc{'scrum_time'}(:);
+hc = nc{'hc'}(:);
+vtransform=nc{'Vtransform'}(:);
+disp([' Use parent VTRANSFORM = ',num2str(vtransform)])
+if ~exist('vtransform')
+    disp([' No VTRANSFORM parameter found'])
+    disp([' Use the default one VTRANSFORM = 1'])
+    vtransform=1;
+end
 result=close(nc);
 %
 % Create the initial file
@@ -158,7 +166,7 @@ disp(' ')
 disp(' Create the initial file...')
 ncini=create_nestedinitial(child_ini,child_grd,parent_ini,title,...
                            theta_s,theta_b,Tcline,N,thetime,'clobber',...
-                           biol,pisces,namebiol,namepisces,unitbiol,unitpisces);
+                           biol,pisces,namebiol,namepisces,unitbiol,unitpisces,hc,vtransform);
 %
 % parent indices
 %

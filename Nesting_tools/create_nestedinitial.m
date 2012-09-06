@@ -1,6 +1,6 @@
 function ncini=create_nestedinitial(inifile,gridfile,parentfile,title,...
 				    theta_s,theta_b,Tcline,N,time,clobber,...
-				    biol,pisces,namebiol,namepisces,unitbiol,unitpisces)
+				    biol,pisces,namebiol,namepisces,unitbiol,unitpisces,hc,vtransform)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  function ncini=create_inifile(inifile,gridfile,theta_s,... 
@@ -56,6 +56,16 @@ disp(' ')
 disp(' ')
 disp(['Creating the file : ',inifile])
 disp(' ')
+if nargin < 17
+    disp([' NO VTRANSFORM parameter found'])
+    disp([' USE TRANSFORM default value vtransform = 1'])
+    vtransform = 1; 
+    hc=[];
+elseif nargin <18
+    disp([' NO VTRANSFORM parameter found'])
+    disp([' USE TRANSFORM default value vtransform = 1'])
+    vtransform = 1; 
+end
 %
 %  Read the grid file
 %
@@ -90,6 +100,9 @@ ncini('one') = 1;
 %
 %  Create variables
 %
+nc{'spherical'} = ncchar('one') ;
+nc{'Vtransform'} = ncint('one') ;
+nc{'Vstretching'} = ncint('one') ;
 ncini{'tstart'} = ncdouble('one') ;
 ncini{'tend'} = ncdouble('one') ;
 ncini{'theta_s'} = ncdouble('one') ;
@@ -125,6 +138,12 @@ end
 
 %
 %  Create attributes
+%
+nc{'Vtransform'}.long_name = ncchar('vertical terrain-following transformation equation');
+nc{'Vtransform'}.long_name = 'vertical terrain-following transformation equation';
+%
+nc{'Vstretching'}.long_name = ncchar('vertical terrain-following stretching function');
+nc{'Vstretching'}.long_name = 'vertical terrain-following stretching function';
 %
 ncini{'tstart'}.long_name = ncchar('start processing day');
 ncini{'tstart'}.long_name = 'start processing day';
@@ -296,25 +315,29 @@ result = endef(ncini);
 %
 % Compute S coordinates
 %
-ds=1.0/N;
-hmin=min(min(h));
-hc=min(hmin,Tcline);
-lev=1:N;
-sc=-1+(lev-0.5).*ds;
-Ptheta=sinh(theta_s.*sc)./sinh(theta_s);
-Rtheta=tanh(theta_s.*(sc+0.5))./(2*tanh(0.5*theta_s))-0.5;
-Cs=(1-theta_b).*Ptheta+theta_b.*Rtheta;
+% ds=1.0/N;
+% hmin=min(min(h));
+% hc=min(hmin,Tcline);
+% lev=1:N;
+% sc=-1+(lev-0.5).*ds;
+% Ptheta=sinh(theta_s.*sc)./sinh(theta_s);
+% Rtheta=tanh(theta_s.*(sc+0.5))./(2*tanh(0.5*theta_s))-0.5;
+% Cs=(1-theta_b).*Ptheta+theta_b.*Rtheta;
+
+[sc_r,Cs_r,sc_w,Cs_w] = scoordinate(theta_s,theta_b,N,hc,vtransform);
 %
 % Write variables
 %
+nc{'spherical'}(:)='T';
+nc{'Vtransform'}(:)=vtransform;
 ncini{'tstart'}(:)=time/(24*3600); 
 ncini{'tend'}(:)=time/(24*3600); 
 ncini{'theta_s'}(:)=theta_s; 
 ncini{'theta_b'}(:)=theta_b; 
 ncini{'Tcline'}(:)=Tcline; 
 ncini{'hc'}(:)=hc; 
-ncini{'sc_r'}(:)=sc; 
-ncini{'Cs_r'}(:)=Cs; 
+ncini{'sc_r'}(:)=sc_r; 
+ncini{'Cs_r'}(:)=Cs_r; 
 ncini{'scrum_time'}(1)=time; 
 ncini{'u'}(:)=0; 
 ncini{'v'}(:)=0; 
