@@ -71,10 +71,10 @@
      &                       'at_hmin  over_slope     at_hmax' 
       do k=N,0,-1
 # ifdef NEW_S_COORD
-          sc=ds*(k-N) 
-          cff1 = hmin*(hc*sc + hmin*Cs_w(k))/(hc+hmin)
-          cff2 = 0.5*hmax*(hc*sc + 0.5*hmax*Cs_w(k))/(hc+0.5*hmax)
-          cff3 = hmax*(hc*sc + hmax*Cs_w(k))/(hc+hmax)
+        sc=ds*(k-N) 
+        cff1 = hmin*(hc*sc + hmin*Cs_w(k))/(hc+hmin)
+        cff2 = 0.5*hmax*(hc*sc + 0.5*hmax*Cs_w(k))/(hc+0.5*hmax)
+        cff3 = hmax*(hc*sc + hmax*Cs_w(k))/(hc+hmax)
 # else
         cff1=sc_w(k)*hc+(hmin-hc)*Cs_w(k)
         cff2=sc_w(k)*hc+(0.5*(hmin+hmax)-hc)*Cs_w(k)
