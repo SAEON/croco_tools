@@ -56,34 +56,34 @@
 #endif
 
 /*
-   Apply diffusion in the interior
-   over an anomaly only, with respect 
-   to a reference frame (climatology)
+    if defined apply MOMENTUM LATERAL diffusion in the interior 
+    over an anomaly only with respect to a reference frame (climatology)
 */
-
-# if defined M3CLIMATOLOGY && !defined UV_VIS_SMAGO
-#  define CLIMAT_UV_MIXH
-# endif
+#if defined M3CLIMATOLOGY
+# undef CLIMAT_UV_MIXH
+#endif
 
 /*
-Select MOMENTUM VERTICAL advection scheme:
+    Select MOMENTUM VERTICAL advection scheme:
 */
 #define UV_VADV_SPLINES   /* splines vertical advection */
 #undef  UV_VADV_C2        /* 2nd-order centered vertical advection */
 
 /*
     Select TRACER LATERAL advection-diffusion scheme
-    (The default is 4th-order centered)
+    (The default is third-order upstream biased)
 */
-/* #undef  HADV_UP5_TS    5th-order upstream lateral advection */ 
-/* #define HADV_UP3_TS    3rd-order upstream lateral advection */
-#ifdef TS_HADV_RSUP3   /*  Rotated-Split 3rd-order scheme:     */
-# undef  TS_HADV_UP3   /*       4th order centered             */
-# undef  TS_DIF2       /*                                      */
-# define TS_DIF4       /*        + hyperdiffusion with         */
+/* #undef  TS_HADV_UP5    5th-order upstream lateral advection */ 
+/* #undef  TS_HADV_UP3    3rd-order upstream lateral advection */
+/* #undef  TS_HADV_C4     4th-order centered lateral advection */
+
+#ifdef TS_HADV_RSUP3   /*  Rotated-Split 3rd-order scheme is:  */
+# define TS_HADV_C4    /*    4th-order centered advection      */
+# undef  TS_DIF2       /*               +                      */
+# define TS_DIF4       /*         Hyperdiffusion  with         */
 # undef  TS_MIX_GEO    /*        Geopotential rotation         */
-# define TS_MIX_ISO    /*        Isopycnal    rotation         */
-# define TS_MIX_IMP    /*        semi-implicit scheme          */
+# define TS_MIX_ISO    /*     or Isopycnal    rotation         */
+# define TS_MIX_IMP    /*   and  Semi-Implicit Time-Stepping   */
 # define DIF_COEF_3D 
 #endif
 #ifdef TS_DIF_SMAGO    /*   Smagorinsky diffusivity option     */
@@ -94,15 +94,13 @@ Select MOMENTUM VERTICAL advection scheme:
 #endif
 #undef   TS_HADV_AKIMA /* 4th-order Akima horiz. advection */
 
-
 /*
-   Apply interior diffusion 
-   over tracer anomalies, with respect 
-   to a reference frame (climatology)
+   if defined apply interior diffusion over tracer anomalies
+   with respect to a reference frame (climatology)
 */
-
-# if defined TCLIMATOLOGY && !defined TS_HADV_RSUP3 && !defined TS_DIF_SMAGO
-#  define CLIMAT_TS_MIXH
+# if defined TCLIMATOLOGY
+#  undef CLIMAT_TS_MIXH
+#  undef CLIMAT_TS_MIXH_FINE
 # endif
 
 /*
@@ -114,15 +112,11 @@ Select MOMENTUM VERTICAL advection scheme:
 #undef   TS_VADV_C2        /* 2nd-order centered vertical advection */
 
 /*
-   Sponge behavior     
-   SPONGE_DIF2 and SPONGE_VIS2 behavior
+   SPONGE:     
+   define SPONGE_DIF2 and SPONGE_VIS2 
 */
-
-#if defined SPONGE && !defined TS_DIF2
+#ifdef SPONGE
 # define SPONGE_DIF2
-#endif
-
-#if defined SPONGE && !defined UV_VIS2
 # define SPONGE_VIS2
 #endif
 
@@ -295,7 +289,6 @@ Select MOMENTUM VERTICAL advection scheme:
  message. To do it conditionally (MPI code only) add MYID (without
  preceeding comma) into the end of the message to be printed.
 */
-
 #ifdef MPI
 # define MYID ,' mynode =', mynode
 #else
@@ -308,7 +301,6 @@ Select MOMENTUM VERTICAL advection scheme:
  avoid redundant write of the same message by all MPI processes into
  stdout. The following switch serves this purpose:
 */
-
 #ifdef MPI
 # define MPI_master_only if (mynode.eq.0)
 #else
@@ -324,7 +316,6 @@ Select MOMENTUM VERTICAL advection scheme:
  used to restrict the operation only to thread which is working on
  south-western tile. This switch is the same for MPI/nonMPI code.
 */
-
 #define ZEROTH_TILE Istr+Jstr.eq.2
 
 /*
@@ -333,7 +324,6 @@ Select MOMENTUM VERTICAL advection scheme:
  whether it is being called for the whole domain (SINGLE_TILE_MODE)
  or a tile. This switch is the same for MPI/nonMPI code.
 */
-
 #ifdef MPI
 # undef AUTOTILING
 # define SINGLE_TILE_MODE  Iend-Istr+Jend-Jstr.eq.Lmmpi+Mmmpi-2
@@ -357,6 +347,7 @@ Select MOMENTUM VERTICAL advection scheme:
 # define FIRST_2D_STEP iic.eq.ntstart
 # define NOT_LAST_2D_STEP iic.lt.ntimes+2
 #endif
+
 /*
   The following definitions are machine dependent macros, compiler
  directives, etc. A proper set of definitions is activated by a

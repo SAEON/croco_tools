@@ -14,11 +14,11 @@
       subroutine t3dmix (tile)
       implicit none
       integer tile, itrc, trd, omp_get_thread_num
-#include "param.h"
-#include "private_scratch.h"
-#include "compute_tile_bounds.h"
+# include "param.h"
+# include "private_scratch.h"
+# include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
-#ifdef AGRIF
+# ifdef AGRIF
       do itrc=1,NT
         if (AGRIF_Root()) then
             call t3dmix_tile (istr,iend,jstr,jend, itrc, 
@@ -34,7 +34,7 @@
       enddo
       return
       end
-#else 
+# else 
       do itrc=1,NT
        call t3dmix_tile(istr,iend,jstr,jend, itrc, A2d(1,1,trd),
      &                               A2d(1,2,trd), A2d(1,3,trd),
@@ -42,7 +42,7 @@
       enddo
        return
        end
-#endif   /* AGRIF */
+# endif   /* AGRIF */
 !
 !---------------------------------------------------------------------
 !*********************************************************************
@@ -52,7 +52,6 @@
 ! 
       subroutine t3dmix_tile (istr,iend,jstr,jend, itrc,
      &                    FX,FE, LapT, diff3u,diff3v)
-#undef CLIMAT_TS_MIXH_FINE
 !
 #else
 !
@@ -60,9 +59,6 @@
 !
       subroutine t3dmix_child_tile(istr,iend,jstr,jend, itrc,
      &                     FX,FE, LapT, diff3u,diff3v)
-#if !defined TS_HADV_RSUP3
-#define CLIMAT_TS_MIXH_FINE
-#endif
 !
 #endif /* CHILD_SPG */
 !
@@ -129,7 +125,8 @@
 #  ifdef TS_DIF_SMAGO
      &                     +0.5*(diff3d_r(i,j,k)+diff3d_r(i-1,j,k))
      &                                         *om_u(i,j)*on_u(i,j)
-#  elif defined TS_HADV_RSUP3
+#  endif
+#  ifdef TS_HADV_RSUP3
      &                     +diff3d_u(i,j,k)
 #  endif
      &                           )
@@ -152,7 +149,8 @@
 #  ifdef TS_DIF_SMAGO
      &                     +0.5*(diff3d_r(i,j,k)+diff3d_r(i,j-1,k))
      &                                         *om_v(i,j)*on_v(i,j)
-#  elif defined TS_HADV_RSUP3
+#  endif
+#  ifdef TS_HADV_RSUP3
      &                     +diff3d_v(i,j,k)
 #  endif
      &                           )

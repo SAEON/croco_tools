@@ -86,9 +86,8 @@
      &                                              ,FFC,CF,BC,CD,DC
 # endif
      &                        )
-# undef CLIMAT_TS_MIXH_FINE
 !
-# else
+#else /* CHILD_SPG */
 !
 ! CHILD
 !
@@ -102,9 +101,6 @@
      &                                              ,FFC,CF,BC,CD,DC
 # endif
      &                        )
-# if !defined TS_HADV_RSUP3
-#  define CLIMAT_TS_MIXH_FINE
-# endif
 !
 #endif /* CHILD_SPG */
 !
@@ -175,15 +171,15 @@
 # include "diagnostics.h"
 #endif
 #ifdef AGRIF
-#include "zoom.h"
+# include "zoom.h"
 #endif
 !
 #include "compute_auxiliary_bounds.h"
 !
 #ifdef CHILD_SPG
-#define TCLM tsponge
+# define TCLM tsponge
 #else
-#define TCLM tclm
+# define TCLM tclm
 #endif
 !
 #ifdef MASKING

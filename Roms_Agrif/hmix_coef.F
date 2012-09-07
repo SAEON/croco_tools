@@ -197,8 +197,8 @@
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j,k,itrc
       real grd_scale(PRIVATE_2D_SCRATCH_ARRAY)
-      real cff, surf, defrate, horcon, ipeclet
-      parameter (horcon=1./12.)
+      real cff, surf, defrate, horcon_smago, horcon_up3
+      parameter (horcon_smago=0.1, horcon_up3=0.0833)
 # include "param.h"
 # include "grid.h"
 # include "mixing.h"
@@ -230,7 +230,7 @@
      &                     v(i+1,j,k,nrhs)+v(i+1,j+1,k,nrhs)
      &                    -v(i-1,j,k,nrhs)-v(i-1,j+1,k,nrhs)) )**2)
             surf=om_r(i,j)*on_r(i,j)
-            diff3d_r(i,j,k)=horcon*surf*defrate
+            diff3d_r(i,j,k)=horcon_smago*surf*defrate
           enddo
         enddo
       enddo
@@ -266,7 +266,9 @@
         enddo
       endif
 
-#  elif defined TS_HADV_RSUP3
+# endif /* TS_DIF_SMAGO */
+
+# ifdef TS_HADV_RSUP3
 
 !--------------------------------------------------------------------
 ! Tracer mixing coefficient for use in rotated split 3rd order upstream 
@@ -278,12 +280,12 @@
       do k=1,N
         do j=Jstr-1,Jend+1
           do i=IstrU-1,Iend+1
-            diff3d_u(i,j,k)=horcon*abs(u(i,j,k,nrhs))*om_u(i,j)**3
+            diff3d_u(i,j,k)=horcon_up3*abs(u(i,j,k,nrhs))*om_u(i,j)**3
           enddo
         enddo
         do j=JstrV-1,Jend+1
           do i=Istr-1,Iend+1
-            diff3d_v(i,j,k)=horcon*abs(v(i,j,k,nrhs))*on_v(i,j)**3
+            diff3d_v(i,j,k)=horcon_up3*abs(v(i,j,k,nrhs))*on_v(i,j)**3
           enddo
         enddo
       enddo
@@ -292,7 +294,8 @@
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
 #  ifdef TS_DIF_SMAGO
       call exchange_r3d_tile (Istr,Iend,Jstr,Jend,diff3d_r)
-#  elif defined TS_HADV_RSUP3
+#  endif
+#  ifdef TS_HADV_RSUP3
       call exchange_u3d_tile (Istr,Iend,Jstr,Jend,diff3d_u)
       call exchange_v3d_tile (Istr,Iend,Jstr,Jend,diff3d_v)
 #  endif

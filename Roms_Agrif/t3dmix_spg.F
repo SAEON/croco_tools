@@ -12,19 +12,19 @@
 #include "cppdefs.h"
 #if defined SOLVE3D && defined SPONGE_DIF2
 !
-# if defined TCLIMATOLOGY
+# ifdef TCLIMATOLOGY
 #  define CLIMAT_TS_SPONGE
 # endif
 !
-#ifndef CHILD_SPG
+# ifndef CHILD_SPG
        subroutine t3dmix_spg (tile)
       implicit none
         integer tile, itrc, trd, omp_get_thread_num
-# include "param.h"
-# include "private_scratch.h"
-# include "compute_tile_bounds.h"
+#  include "param.h"
+#  include "private_scratch.h"
+#  include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
-#ifdef AGRIF
+#  ifdef AGRIF
        do itrc=1,NT
        if (AGRIF_Root()) then
          call t3dmix_spg_tile(Istr,Iend,Jstr,Jend, itrc, 
@@ -40,7 +40,7 @@
         enddo
         return
         end
-#else 
+#  else 
       do itrc=1,NT
        call t3dmix_spg_tile(Istr,Iend,Jstr,Jend, itrc, 
      &                     A2d(1, 1,trd), A2d(1, 2,trd),
@@ -49,7 +49,7 @@
       enddo
        return
        end
-#endif   /* AGRIF */
+#  endif   /* AGRIF */
 !
 !---------------------------------------------------------------------
 !*********************************************************************
@@ -59,13 +59,13 @@
 !
       subroutine t3dmix_spg_tile(Istr,Iend,Jstr,Jend, itrc,
      &                         FX,FE, FC,dTdz, dTdx,dTde,dZdx,dZde)
-# undef CLIMAT_TS_SPONGE_FINE
+#  undef CLIMAT_TS_SPONGE_FINE
 !
 !
 ! Compute laplacien diffusion in the parent grid sponge
 ! Diffusion applied on T-TCLM
 !
-#else
+# else
 !
 ! CHILD
 !
@@ -78,7 +78,7 @@
 
 #  define CLIMAT_TS_SPONGE_FINE
       
-#endif /* CHILD_SPG */
+# endif /* CHILD_SPG */
 !
 !---------------------------------------------------------------------
 ! ******************************Common Code***************************
@@ -100,29 +100,29 @@
 # include "ocean3d.h"
 # include "mixing.h"
 # ifdef CLIMAT_TS_SPONGE
-# include "climat.h"
+#  include "climat.h"
 # endif
 # include "scalars.h"
 # ifdef DIAGNOSTICS_TS
 #  include "diagnostics.h"
 # endif
 !
-#ifdef AGRIF
-#include "zoom.h"
-#endif
+# ifdef AGRIF
+#  include "zoom.h"
+# endif
 # include "compute_auxiliary_bounds.h"
 !
-#ifdef CHILD_SPG
-#define TCLM tsponge
-#else
-#define TCLM tclm
-#endif
+# ifdef CHILD_SPG
+#  define TCLM tsponge
+# else
+#  define TCLM tclm
+# endif
 !
-#ifdef MASKING
-# define SWITCH *
-#else
-# define SWITCH !
-#endif
+# ifdef MASKING
+#  define SWITCH *
+# else
+#  define SWITCH !
+# endif
 !
 # ifdef TS_MIX_S
 !--------------------------------------------------------------------
