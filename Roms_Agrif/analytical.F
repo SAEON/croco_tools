@@ -113,11 +113,12 @@
 ! Set kinematic bottom heat flux [degC m/s] at horizontal RHO-points.
 !--------------------------------------------------------------------
 !
-#  if defined BASIN     || defined CANYON_A  || defined CANYON_B  \
-  || defined EQUATOR   || defined GRAV_ADJ  || defined INNERSHELF \
-  || defined OVERFLOW  || defined REGIONAL  || defined RIVER      \
-  || defined SEAMOUNT  || defined SED_TEST2 || defined SHELFRONT  \
-  || defined UPWELLING || defined VORTEX    || defined INTERNAL
+#  if defined BASIN     || defined CANYON_A  || defined CANYON_B   \
+   || defined EQUATOR   || defined GRAV_ADJ  || defined INNERSHELF \
+   || defined OVERFLOW  || defined REGIONAL  || defined RIVER      \
+   || defined SEAMOUNT  || defined SED_TEST2 || defined SHELFRONT  \
+   || defined UPWELLING || defined VORTEX    || defined INTERNAL   \
+   || defined JET
         do j=JstrR,JendR
           do i=IstrR,IendR
             btflx(i,j,itemp)=0.
@@ -139,7 +140,9 @@
 !
 #   if  defined EQUATOR || defined INNERSHELF || defined REGIONAL  \
    || defined RIVER     || defined SED_TEST2  || defined SHELFRONT \
-   || defined UPWELLING || defined SEAMOUNT   || defined VORTEX
+   || defined UPWELLING || defined SEAMOUNT   || defined VORTEX    \
+   || defined JET
+
         do j=JstrR,JendR
           do i=IstrR,IendR
             btflx(i,j,isalt)=0.
@@ -308,7 +311,7 @@ C$    integer  trd, omp_get_thread_num
 # elif defined GRAV_ADJ  || defined OVERFLOW || defined SEAMOUNT   \
     || defined SHELFRONT || defined SOLITON  || defined INNERSHELF \
     || defined RIVER     || defined VORTEX   || defined REGIONAL   \
-    || defined INTERNAL
+    || defined INTERNAL  || defined JET
       do j=JstrR,JendR
         do i=IstrR,IendR
           sustr(i,j)=0.
@@ -329,7 +332,7 @@ C$    integer  trd, omp_get_thread_num
   || defined EQUATOR   || defined GRAV_ADJ  || defined OVERFLOW  \
   || defined REGIONAL  || defined RIVER     || defined SEAMOUNT  \
   || defined SHELFRONT || defined SOLITON   || defined UPWELLING \
-  || defined VORTEX    || defined INTERNAL
+  || defined VORTEX    || defined INTERNAL  || defined JET
       do j=JstrR,JendR
         do i=IstrR,IendR
           svstr(i,j)=0.
@@ -382,7 +385,7 @@ C$    integer  trd, omp_get_thread_num
 # if defined EQUATOR   || defined INNERSHELF || defined OVERFLOW \
   || defined REGIONAL  || defined RIVER      || defined SEAMOUNT \
   || defined SHELFRONT || defined UPWELLING  || defined VORTEX \
-  || defined INTERNAL
+  || defined INTERNAL  || defined JET
       do j=JstrR,JendR
         do i=IstrR,IendR
           srflx(i,j)=0.
@@ -578,7 +581,7 @@ c
  || defined EQUATOR  || defined GRAV_ADJ  || defined INNERSHELF \
  || defined OVERFLOW || defined REGIONAL  || defined RIVER      \
  || defined SEAMOUNT || defined SHELFRONT || defined UPWELLING  \
- || defined VORTEX   || defined INTERNAL
+ || defined VORTEX   || defined INTERNAL  || defined JET
 
         do j=JstrR,JendR
           do i=IstrR,IendR

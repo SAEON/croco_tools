@@ -80,7 +80,7 @@
           enddo
         enddo
       enddo
-# elif defined VORTEX || defined INTERNAL || defined EQUATOR
+# elif defined VORTEX || defined INTERNAL || defined EQUATOR  || defined JET
       do k=1,N-1
         do j=Jstr,Jend
           do i=Istr,Iend

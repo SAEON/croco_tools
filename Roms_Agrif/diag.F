@@ -78,6 +78,8 @@
 #  include "etalon_data.h.Upwelling"
 # elif defined VORTEX
 #  include "etalon_data.h.Vortex"
+# elif defined JET
+#  include "etalon_data.h.Jet"
 !#  if defined AGRIF && defined AGRIF_2WAY
 !#      include "etalon_data.h.VortexAgrif2W"
 !#  elif defined AGRIF && !defined AGRIF_2WAY

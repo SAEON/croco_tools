@@ -203,7 +203,9 @@ C$OMP BARRIER
 # endif
 # ifdef TCLIMATOLOGY
           call ana_tclima (tile)   ! analytical values are given
-          call set_tclima (tile)   ! if data is missing from clim files
+#  ifndef ANA_TCLIMA
+          call set_tclima (tile)   ! if data are missing from clim files
+#  endif
 # endif
 # if defined M2CLIMATOLOGY || defined M3CLIMATOLOGY
 #  if defined ANA_M2CLIMA || defined ANA_M3CLIMA
@@ -319,12 +321,12 @@ C$OMP BARRIER
 C$OMP BARRIER
 
       do tile=my_first,my_last
-# if defined UV_VIS4 || (defined UV_VIS2 && !defined SPONGE_VIS2) 
+# if defined UV_VIS2 || defined UV_VIS4 
         call uv3dmix (tile)
 # endif
-#  if defined SPONGE_VIS2
+# if defined SPONGE_VIS2
         call uv3dmix_spg (tile)
-#  endif
+# endif
 # ifdef AVERAGES
         call set_avg (tile)
 #  if defined DIAGNOSTICS_TS
@@ -734,7 +736,7 @@ C$OMP BARRIER
 C$OMP BARRIER
 
       do tile=my_first,my_last
-# if defined TS_DIF4 || (defined TS_DIF2 && !defined SPONGE_DIF2) 
+# if defined TS_DIF2 || defined TS_DIF4 
         call t3dmix (tile)
 # endif
 # if defined SPONGE_DIF2

@@ -1781,7 +1781,7 @@ CR     &                          ,indxbioVSink+NFlux_VSinkD2-1
 
 #   endif /* PISCES */
 # endif /* DIAGNOSTICS_BIO */
-#if defined TCLIMATOLOGY
+#if defined TCLIMATOLOGY && !defined ANA_TCLIMA
 !
 ! flag to read in climatology for tracer type variables.
 !

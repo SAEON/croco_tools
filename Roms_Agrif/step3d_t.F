@@ -304,9 +304,13 @@
           ENDDO ! i_loop_x_flux_5
 
 # else /* HADV_UP5_TS */
-!----------------------------------------
-! Fourth or Third order advection scheme
-!----------------------------------------
+!-------------------------------------------------
+! Fourth or Third order advection scheme (default)
+!-------------------------------------------------
+!
+#  if !(defined TS_HADV_C4 || defined TS_HADV_AKIMA)
+#   define TS_HADV_UP3
+#  endif
 !
 #  ifdef TS_HADV_UP3
 #   define curv WORK
@@ -894,16 +898,36 @@
 ! Compute Nudging terms
 !===============================================================
 !
+#  ifdef ZONAL_NUDGING
+        if (iic.eq.ntstart .or. mod(iic,10).eq.0) then
+          call zonavg_3d(istr,iend,jstr,jend,
+     &                  t(START_2D_ARRAY,1,nnew,itrc),tzon(:,:,itrc))
+        endif
+        if (iic.eq.ntstart) then
+          call zonavg_3d(istr,iend,jstr,jend,
+     &                  tclm(START_2D_ARRAY,1,itrc),tclmzon(:,:,itrc))
+        endif
+#  endif /* ZONAL_NUDGING */
+
         do k=1,N
           do j=Jstr,Jend
             do i=Istr,Iend
               t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)
-     &                    +dt*Tnudgcof(i,j,k,itrc)*(tclm(i,j,k,itrc)
-     &                                           -t(i,j,k,nnew,itrc))
+     &                    +dt*Tnudgcof(i,j,k,itrc)*
+#  ifdef ZONAL_NUDGING
+     &                         (tclmzon(j,k,itrc)-tzon(j,k,itrc))
+#  else
+     &                         (tclm(i,j,k,itrc)--t(i,j,k,nnew,itrc))
+#  endif /* ZONAL_NUDGING */
 #  ifdef DIAGNOSTICS_TS
               TForc(i,j,k,itrc)=(TForc(i,j,k,itrc)
      &                    +Tnudgcof(i,j,k,itrc)
-     &                    *(tclm(i,j,k,itrc)-t(i,j,k,nnew,itrc))
+     &                    *(tclm(i,j,k,itrc)
+#   ifdef ZONAL_NUDGING
+     &                                           -tzon(j,k,itrc))
+#   else
+     &                                           -t(i,j,k,nnew,itrc))
+#   endif /* ZONAL_NUDGING */
      &                    *(Hz(i,j,k)/(pm(i,j)*pn(i,j))))
 #   ifdef MASKING
      &                    *rmask(i,j)

@@ -571,12 +571,31 @@
 !  Set 3D Momemtum nudging
 !
 # if defined M3NUDGING && defined M3CLIMATOLOGY
+
+#  ifdef ZONAL_NUDGING
+      if (iic.eq.ntstart .or. mod(iic,10).eq.0) then
+        call zonavg_3d(istr,iend,jstr,jend,
+     &                        u(START_2D_ARRAY,1,nnew),uzon)
+        call zonavg_3d(istr,iend,jstr,jend,
+     &                        v(START_2D_ARRAY,1,nnew),vzon)
+      endif
+      if (iic.eq.ntstart) then
+        call zonavg_3d(istr,iend,jstr,jend,
+     &                        uclm(START_2D_ARRAY,1),uclmzon)
+        call zonavg_3d(istr,iend,jstr,jend,
+     &                        vclm(START_2D_ARRAY,1),vclmzon)
+      endif
+#  endif /* ZONAL_NUDGING */
+
       do k=1,N
         do j=JU_RANGE
           do i=IU_RANGE
-            u(i,j,k,nnew)=u(i,j,k,nnew)
-     &            +dt*M3nudgcof(i,j)*(uclm(i,j,k)
-     &                                       -u(i,j,k,nnew))
+            u(i,j,k,nnew)=u(i,j,k,nnew)+dt*M3nudgcof(i,j)*
+#  ifdef ZONAL_NUDGING
+     &                           (uclmzon(j,k)-uzon(j,k))     
+#  else
+     &                           (uclm(i,j,k)-u(i,j,k,nnew))
+#  endif /* ZONAL_NUDGING */
 #  ifdef MASKING
             u(i,j,k,nnew)=u(i,j,k,nnew)*umask(i,j)
 #  endif
@@ -586,9 +605,12 @@
       do k=1,N
         do j=JV_RANGE
           do i=IV_RANGE
-            v(i,j,k,nnew)=v(i,j,k,nnew)
-     &            +dt*M3nudgcof(i,j)*(vclm(i,j,k)
-     &                                       -v(i,j,k,nnew))
+            v(i,j,k,nnew)=v(i,j,k,nnew)+dt*M3nudgcof(i,j)*
+#  ifdef ZONAL_NUDGING
+     &                            (vclmzon(j,k)-vzon(j,k))     
+#  else
+     &                            (vclm(i,j,k)-v(i,j,k,nnew))
+#  endif
 #  ifdef MASKING
             v(i,j,k,nnew)=v(i,j,k,nnew)*vmask(i,j)
 #  endif

@@ -31,7 +31,7 @@ include Makedefs
  SRCS = main.F		step.F		read_inp.F\
 	timers.F	init_scalars.F	init_arrays.F	set_weights.F\
 	set_scoord.F	ana_grid.F	setup_grid1.F	setup_grid2.F\
-	set_nudgcof.F	ana_initial.F	analytical.F\
+	set_nudgcof.F	ana_initial.F	analytical.F	zonavg.F\
 	setup_kwds.F    check_kwds.F	check_srcs.F\
         check_switches1.F		check_switches2.F\
 \
@@ -70,12 +70,13 @@ include Makedefs
         get_tides.F     clm_tides.F     get_bulk.F      bulk_flux.F\
         get_bry.F       get_bry_bio.F	nf_read_bry.F\
 \
-        online_bulk_var.F  online_get_bulk.F  online_interp.F\
-	online_interpolate_bulk.F  online_set_bulk.F\
+        online_bulk_var.F		online_get_bulk.F\
+	online_interp.F			online_interpolate_bulk.F\
+	online_set_bulk.F\
 \
 	MPI_Setup.F	MessPass2D.F	MessPass3D.F	exchange.F\
 \
-	biology.F	o2sato.F                sediment.F	bbl.F\
+	biology.F	o2sato.F	sediment.F	bbl.F\
 \
 	init_floats.F	wrt_floats.F	step_floats.F	rhs_floats.F\
 	interp_rho.F	def_floats.F	init_arrays_floats.F\

@@ -27,6 +27,7 @@
 #undef  UPWELLING       /* Upwelling Example */
 #undef  VORTEX          /* Baroclinic Vortex Example */
 #undef  INTERNAL        /* Internal Tide Example */
+#undef  JET             /* Baroclinic Jet Example */
 #define REGIONAL        /* REGIONAL Applications */
 
 
@@ -661,7 +662,53 @@
 # define OBC_TORLANSKI
 # define OBC_M3ORLANSKI
 
-#endif
+#elif defined JET
+/*
+!                       Baroclinic JET Example
+!                       ========== === =======
+*/
+# undef  ETALON_CHECK
+# define MPI
+# undef  AGRIF
+# undef  AGRIF_2WAY
+# define SOLVE3D
+# define UV_COR
+# define UV_ADV
+# define TS_HADV_UP3
+# define ANA_STFLUX
+# define ANA_SMFLUX
+# define ANA_BSFLUX
+# define ANA_BTFLUX
+# define ANA_VMIX
+# define EW_PERIODIC
+# define ZCLIMATOLOGY
+# define M2CLIMATOLOGY
+# define M3CLIMATOLOGY
+# define TCLIMATOLOGY
+# define ZNUDGING
+# define M2NUDGING
+# define M3NUDGING
+# define TNUDGING
+# define ROBUST_DIAG
+# define ZONAL_NUDGING
+!
+# ifdef AGRIF
+#  define UV_VIS2
+#  define MIX_S_UV
+#  define TS_DIF2
+#  define MIX_S_TS
+#  define SPONGE
+#  define ZCLIMATOLOGY
+#  define M2CLIMATOLOGY
+#  define M3CLIMATOLOGY
+#  define TCLIMATOLOGY
+#  define ZNUDGING
+#  define M2NUDGING
+#  define M3NUDGING
+#  define TNUDGING
+# endif
+
+#endif /* END OF CONFIGURATION CHOICE */
 
 #include "set_global_definitions.h"
 

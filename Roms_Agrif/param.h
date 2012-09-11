@@ -52,6 +52,9 @@
 !      parameter (LLm0=69,  MMm0=57,  N=10)     ! 30 km resolution
 !      parameter (LLm0=35,  MMm0=35,  N=10)     ! 50 km resolution
 !      parameter (LLm0=24,  MMm0=24,  N=10)     ! 70 km resolution
+#elif defined JET
+!      parameter (LLm0=119,  MMm0=119,  N=10)   ! Jet 5 km resolution
+      parameter (LLm0=59,  MMm0=99,  N=10)     ! Jet 10 km resolution
 #elif defined REGIONAL
 #  if   defined USWC0
       parameter (LLm0=62,  MMm0=126, N=40) ! <-- US_West grid15 L0

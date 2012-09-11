@@ -87,6 +87,8 @@
       fname='TEST_CASES/roms.in.Upwelling'
 #elif defined VORTEX
       fname='TEST_CASES/roms.in.Vortex'
+#elif defined VORTEX
+      fname='TEST_CASES/roms.in.Jet'
 #elif defined REGIONAL
       fname='roms.in'
 #else

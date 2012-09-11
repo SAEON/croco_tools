@@ -139,11 +139,8 @@
       do j=JstrR,JendR
         do i=IstrR,IendR
           visc2_sponge_r(i,j)=(0.005/(pm(i,j)*pn(i,j)*dt))*wrk(i,j) 
-#   if defined UV_VIS2  && !defined SPONGE_VIS2
-          visc2_r(i,j)=visc2_sponge_r(i,j) + visc2_r(i,j)
-#   elif defined UV_VIS4
+#   ifdef UV_VIS4
           visc4_sponge_r(i,j)=visc2_sponge_r(i,j)/(pm(i,j)*pn(i,j))
-          visc4_r(i,j)=visc4_sponge_r(i,j)+ visc4_r(i,j)
 #   endif
        enddo
       enddo
@@ -153,13 +150,10 @@
       do j=Jstr,JendR
         do i=Istr,IendR
           visc2_sponge_p(i,j)=0.25*(0.005/(pm(i,j)*pn(i,j)*dt))*
-     &                 ( wrk(i,j  )+wrk(i-1,j  )
-     &                 +wrk(i,j-1)+wrk(i-1,j-1) )
-#   if defined UV_VIS2  && !defined SPONGE_VIS2
-          visc2_p(i,j)=visc2_sponge_p(i,j) + visc2_p(i,j)
-#   elif defined UV_VIS4
+     &                       ( wrk(i,j  )+wrk(i-1,j  )
+     &                        +wrk(i,j-1)+wrk(i-1,j-1) ) 
+#   ifdef UV_VIS4
           visc4_sponge_p(i,j)=visc2_sponge_p(i,j)/(pm(i,j)*pn(i,j))
-          visc4_p(i,j)=visc4_sponge_p(i,j)+ visc4_p(i,j)
 #   endif
         enddo
        enddo
@@ -173,11 +167,8 @@
         do j=JstrR,JendR
           do i=IstrR,IendR
             diff2_sponge(i,j)=(0.01/(pm(i,j)*pn(i,j)*dt))*wrk(i,j)
-#   if defined TS_DIF2  && !defined SPONGE_DIF2
-            diff2(i,j,itrc)=diff2_sponge(i,j) + diff2(i,j,itrc)
-#   elif defined TS_DIF4
+#   ifdef TS_DIF4
             diff4_sponge(i,j)=diff2_sponge(i,j)/(pm(i,j)*pn(i,j))
-            diff4(i,j,itrc)=diff4_sponge(i,j)+diff4(i,j,itrc)
 #   endif
         enddo
        enddo

@@ -121,6 +121,12 @@ C$    trd=omp_get_thread_num()
       real U0, omega
 # endif
 !
+#ifdef MASKING
+# define SWITCH *
+#else
+# define SWITCH !
+#endif
+!
 # ifdef MPI
 #  define LOCALLM Lmmpi
 #  define LOCALMM Mmmpi
@@ -173,20 +179,20 @@ C$    trd=omp_get_thread_num()
       do j=JstrV-2,jend+1
         do i=IstrU-2,iend+1
           Drhs(i,j)=h(i,j)+cff1*zeta(i,j,kstp)+cff2*zeta(i,j,kbak)
-     &                                         +cff3*zeta(i,j,kold)
+     &                                        +cff3*zeta(i,j,kold)
         enddo
       enddo
       do j=jstr-1,jend+1
         do i=IstrU-1,iend+1
           urhs(i,j)=cff1*ubar(i,j,kstp) +cff2*ubar(i,j,kbak)
-     &                                         +cff3*ubar(i,j,kold)
+     &                                  +cff3*ubar(i,j,kold)
           DUon(i,j)=0.5*(Drhs(i,j)+Drhs(i-1,j))*on_u(i,j)*urhs(i,j)
         enddo
       enddo
       do j=JstrV-1,jend+1
         do i=istr-1,iend+1
           vrhs(i,j)=cff1*vbar(i,j,kstp) +cff2*vbar(i,j,kbak)
-     &                                         +cff3*vbar(i,j,kold)
+     &                                  +cff3*vbar(i,j,kold)
           DVom(i,j)=0.5*(Drhs(i,j)+Drhs(i,j-1))*om_v(i,j)*vrhs(i,j)
         enddo
       enddo
@@ -246,27 +252,53 @@ C$OMP END MASTER
 #define rzeta  UFe
 #define rzeta2  VFe
 #define rzetaSA VFx
- 
-      do j=JstrV-1,jend
-        do i=IstrU-1,iend
 !
 ! Computes zeta(n+1)
 !
+      do j=JstrV-1,jend
+        do i=IstrU-1,iend
           zeta_new(i,j)=zeta(i,j,kstp) + dtfast*pm(i,j)*pn(i,j)
      &            *(DUon(i,j)-DUon(i+1,j)+DVom(i,j)-DVom(i,j+1))
+        enddo
+      enddo
+!
+! Add nudging terms
+!
 #ifdef ZNUDGING
+# ifdef ZONAL_NUDGING
+      if (iic.eq.ntstart .or. mod(iic,10).eq.0) then
+        if (FIRST_2D_STEP) then
+          call zonavg_2d(istr,iend,jstr,jend,
+     &               zeta_new(START_2D_ARRAY),zetazon)
+        endif
+      endif
+      if (iic.eq.ntstart) then
+        if (FIRST_2D_STEP) then
+          call zonavg_2d(istr,iend,jstr,jend,
+     &                     ssh(START_2D_ARRAY),sshzon)
+        endif
+      endif
+# endif  /* ZONAL_NUDGING */
+      do j=JstrV-1,jend
+        do i=IstrU-1,iend
           zeta_new(i,j)=zeta_new(i,j) + dtfast*Znudgcof(i,j)
+# ifdef ZONAL_NUDGING
+     &                                 *(sshzon(j)-zetazon(j))
+# else
      &                                 *(ssh(i,j)-zeta_new(i,j))
-#endif
-#ifdef MASKING
-          zeta_new(i,j)=zeta_new(i,j)*rmask(i,j)
-#endif
-          Dnew(i,j)=zeta_new(i,j)+h(i,j)
+# endif /* ZONAL_NUDGING */
+        enddo
+      enddo
+#endif /* ZNUDGING */
 !
 ! Computes zetarhs to use in mometum equations
 !
+      do j=JstrV-1,jend
+        do i=IstrU-1,iend
+          zeta_new(i,j)=zeta_new(i,j) SWITCH rmask(i,j)
+          Dnew(i,j)=zeta_new(i,j)+h(i,j)
           zwrk(i,j)=cff0*zeta_new(i,j) +cff1*zeta(i,j,kstp)
-     &             +cff2*zeta(i,j,kbak) +cff3*zeta(i,j,kold)
+     &             +cff2*zeta(i,j,kbak)+cff3*zeta(i,j,kold)
 #if defined VAR_RHO_2D && defined SOLVE3D
           rzeta(i,j)=(1.+rhoS(i,j))*zwrk(i,j)
           rzeta2(i,j)=rzeta(i,j)*zwrk(i,j)
@@ -739,30 +771,58 @@ C$OMP END MASTER
 !  Set 2D Momemtum nudging
 !
 #if defined M2NUDGING && defined M2CLIMATOLOGY
+
+# ifdef ZONAL_NUDGING
+      if (iic.eq.ntstart .or. mod(iic,10).eq.0) then
+        if (FIRST_2D_STEP) then
+          call zonavg_2d(istr,iend,jstr,jend,
+     &                   ubar(START_2D_ARRAY,knew),ubzon)
+          call zonavg_2d(istr,iend,jstr,jend,
+     &                   vbar(START_2D_ARRAY,knew),vbzon)
+        endif
+      endif
+      if (iic.eq.ntstart) then
+        if (FIRST_2D_STEP) then
+          call zonavg_2d(istr,iend,jstr,jend,
+     &                   ubclm(START_2D_ARRAY),ubclmzon)
+          call zonavg_2d(istr,iend,jstr,jend,
+     &                   vbclm(START_2D_ARRAY),vbclmzon)
+        endif
+      endif
+# endif /* ZONAL_NUDGING */
+
       do j=Jstr,Jend
         do i=IstrU,Iend
+# ifdef ZONAL_NUDGING        
+          DUnew = dtfast*M2nudgcof(i,j)*(ubclmzon(j)-ubzon(j))
+# else          
           DUnew = dtfast*M2nudgcof(i,j)*(ubclm(i,j)-ubar(i,j,knew))
+# endif
 # ifdef MASKING
      &                 * umask(i,j)
 # endif          
           ubar(i,j,knew)=ubar(i,j,knew) + DUnew
-#ifdef SOLVE3D
+# ifdef SOLVE3D
           DU_avg1(i,j,nnew)=DU_avg1(i,j,nnew) +cff1*DUnew*
      &                         (Dnew(i,j)+Dnew(i-1,j))*on_u(i,j)
-#endif
+# endif
         enddo
       enddo
       do j=JstrV,Jend
         do i=Istr,Iend
-          DVnew = dtfast*M2nudgcof(i,j)*(vbclm(i,j)-vbar(i,j,knew))
+# if defined ZONAL_NUDGING  
+          DVnew = dtfast*M2nudgcof(i,j)*(vbclmzon(j)-vbzon(j)) 
+# else
+          DVnew = dtfast*M2nudgcof(i,j)*(vbclm(i,j)-vbar(i,j,knew))    
+# endif      
 # ifdef MASKING
      &                 * vmask(i,j)
 # endif          
           vbar(i,j,knew)=vbar(i,j,knew) + DVnew
-#ifdef SOLVE3D
+# ifdef SOLVE3D
           DV_avg1(i,j,nnew)=DV_avg1(i,j,nnew) +cff1*DVnew*
      &                         (Dnew(i,j)+Dnew(i,j-1))*om_v(i,j)
-#endif
+# endif
 
         enddo
       enddo

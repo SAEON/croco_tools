@@ -128,10 +128,10 @@
         enddo
       enddo
 !
-!  Apply nudging to the other tracers and the other vertical levels
+!  Apply nudging to other tracers and vertical levels
 !
 # ifdef TNUDGING
-      do itrc=1,NT               ! includes BIOLOGY variables
+      do itrc=1,NT       ! includes BIOLOGY variables
         do k=1,N
           do j=JstrR,JendR
             do i=IstrR,IendR
@@ -140,18 +140,39 @@
           enddo
         enddo
       enddo
-#  ifdef ROBUST_DIAG
-      do itrc=1,2               ! nudging everywher
-        do k=1,N
-          do j=JstrR,JendR
-            do i=IstrR,IendR
-              Tnudgcof(i,j,k,itrc)=tauT_out
-            enddo
+# endif
+!
+! Interior nudging
+!
+# ifdef ROBUST_DIAG
+#  ifdef TNUDGING 
+      do k=1,N 
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+            Tnudgcof(i,j,k,itemp)=tauT_out
+#   ifdef SALINITY
+            Tnudgcof(i,j,k,isalt)=tauT_out
+#   endif
           enddo
         enddo
       enddo
-#  endif
-# endif
+#  endif /* TNUDGING */
+#  ifdef JET
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+#   ifdef ZNUDGING
+          Znudgcof(i,j)=tauM_out
+#   endif
+#   ifdef M2NUDGING
+          M2nudgcof(i,j)=tauM_out
+#   endif
+#   ifdef M3NUDGING
+          M3nudgcof(i,j)=tauM_out
+#   endif
+        enddo
+      enddo
+#   endif /* JET */
+#  endif /* ROBUST_DIAG */
 
 # ifdef SPONGE
 !
@@ -171,15 +192,11 @@
 #   else
           visc2_sponge_r(i,j)=v_sponge*wrk(i,j)
 #   endif
-#   if defined UV_VIS2  && !defined SPONGE_VIS2
-          visc2_r(i,j)=visc2_sponge_r(i,j)+ visc2_r(i,j)
-#   elif defined UV_VIS4
+#   ifdef UV_VIS4
           visc4_sponge_r(i,j)=visc2_sponge_r(i,j)/(pm(i,j)*pn(i,j))
-          visc4_r(i,j)=visc4_sponge_r(i,j) + visc4_r(i,j)
 #   endif
         enddo
       enddo
-
 !
 !  Interpolate Viscosity at psi points
 !
@@ -187,23 +204,17 @@
         do i=Istr,IendR
 #   ifdef SPONGE_GRID
           visc2_sponge_p(i,j)=0.125*uscale*grdmax*
+#   else
+          visc2_sponge_p(i,j)=0.25*v_sponge*
+#   endif
      &                       ( wrk(i,j  )+wrk(i-1,j  )
      &                        +wrk(i,j-1)+wrk(i-1,j-1) ) 
-#   else          
-          visc2_sponge_p(i,j)=0.25*v_sponge*
-     &                      ( wrk(i,j  )+wrk(i-1,j  )
-     &                       +wrk(i,j-1)+wrk(i-1,j-1) ) 
-#   endif
-#  if defined UV_VIS2  && !defined SPONGE_VIS2
-          visc2_p(i,j)=visc2_sponge_p(i,j)+ visc2_p(i,j)
-#   elif defined UV_VIS4
+#   ifdef UV_VIS4
           visc4_sponge_p(i,j)=visc2_sponge_p(i,j)/(pm(i,j)*pn(i,j))
-          visc4_p(i,j)=visc4_sponge_p(i,j) + visc4_p(i,j)
 #   endif
         enddo
       enddo
 #  endif /* UV_VIS2 || UV_VIS4 || SPONGE_VIS2 */
-
 
 #  if defined TS_DIF2 || defined TS_DIF4 || defined SPONGE_DIF2
 !
@@ -217,11 +228,8 @@
 #   else
             diff2_sponge(i,j)=v_sponge*wrk(i,j) 
 #   endif
-#   if defined TS_DIF2 && !defined SPONGE_DIF2
-            diff2(i,j,itrc)=diff2_sponge(i,j)+diff2(i,j,itrc)
-#   elif defined TS_DIF4
+#   ifdef TS_DIF4 
             diff4_sponge(i,j)=diff2_sponge(i,j)/(pm(i,j)*pn(i,j))
-            diff4(i,j,itrc)=diff4_sponge(i,j) +diff4(i,j,itrc)
 #   endif
          enddo
         enddo
