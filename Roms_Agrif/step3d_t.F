@@ -917,7 +917,7 @@
 #  ifdef ZONAL_NUDGING
      &                         (tclmzon(j,k,itrc)-tzon(j,k,itrc))
 #  else
-     &                         (tclm(i,j,k,itrc)--t(i,j,k,nnew,itrc))
+     &                         (tclm(i,j,k,itrc)-t(i,j,k,nnew,itrc))
 #  endif /* ZONAL_NUDGING */
 #  ifdef DIAGNOSTICS_TS
               TForc(i,j,k,itrc)=(TForc(i,j,k,itrc)
