@@ -1,13 +1,5 @@
-! $Id$
 !
-!======================================================================
-! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
-! The two other branches from UCLA (Shchepetkin et al) 
-! and Rutgers University (Arango et al) are under MIT/X style license.
-! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
-! 
-! ROMS_AGRIF website : http://roms.mpl.ird.fr
-!======================================================================
+! $Id$
 !
 ! Dimensions of Physical Grid and array dimensions: 
 ! =========== == ======== ==== === ===== ============
@@ -60,6 +52,9 @@
 !      parameter (LLm0=69,  MMm0=57,  N=10)     ! 30 km resolution
 !      parameter (LLm0=35,  MMm0=35,  N=10)     ! 50 km resolution
 !      parameter (LLm0=24,  MMm0=24,  N=10)     ! 70 km resolution
+#elif defined JET
+!      parameter (LLm0=119,  MMm0=119,  N=10)   ! Jet 5 km resolution
+      parameter (LLm0=59,  MMm0=99,  N=10)     ! Jet 10 km resolution
 #elif defined REGIONAL
 #  if   defined USWC0
       parameter (LLm0=62,  MMm0=126, N=40) ! <-- US_West grid15 L0
@@ -87,11 +82,9 @@
 #  elif defined  BENGUELA_LR
       parameter (LLm0=41, MMm0=42,  N=32)  ! <-- BENGUELA_LR
 #  elif defined  BENGUELA_HR
-      parameter (LLm0=83, MMm0=85,  N=32)  ! <-- BENGUELA_HR
-#  elif defined  BENGUELA_VHR
-      parameter (LLm0=167, MMm0=170,  N=32)  ! <-- BENGUELA_VHR
+      parameter (LLm0=83, MMm0=85,  N=32)  !  <-- BENGUELA_HR
 #  else
-      parameter (LLm0=39,  MMm0=32,  N=20)
+      parameter (LLm0=94,  MMm0=81,  N=40)
 #  endif
 #else
       parameter (LLm0=??, MMm0=??, N=??)
@@ -127,7 +120,7 @@
       parameter (NPP=1)
       parameter (NSUB_X=1, NSUB_E=1)
 #elif defined OPENMP
-      parameter (NPP=2)
+      parameter (NPP=4)
 # ifdef AUTOTILING
       common/distrib/NSUB_X, NSUB_E
 # else
