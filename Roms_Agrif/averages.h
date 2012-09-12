@@ -67,10 +67,6 @@
       real O2satu_avg(GLOBAL_2D_ARRAY)
       common /avg_O2_GE/ u10_avg, Kv_O2_avg, O2satu_avg
 #    endif /* OXYGEN */
-#   elif defined BIO_N2P2Z2D2 && defined AVG_CHL_C
-      real theta1_avg(GLOBAL_2D_ARRAY,N)
-     &   , theta2_avg(GLOBAL_2D_ARRAY,N)
-      common /avg_theta1/theta1_avg /avg_theta2/theta2_avg
 #   endif
 #  endif /* BIOLOGY */
 #  ifdef VIS_COEF_3D

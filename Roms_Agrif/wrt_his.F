@@ -516,26 +516,6 @@ CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
         endif
       endif
 #     endif /* OXYGEN */
-#  elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-      if (wrthis(indxChC1)) then
-        ierr=nf_fwrite(theta1, ncidhis, hisChC1, record, r3dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxChC1))
-          write(stdout,1) vname(1,indxChC1)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
-      endif
-
-      if (wrthis(indxChC2)) then
-        ierr=nf_fwrite(theta2, ncidhis, hisChC2, record, r3dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxChC2))
-          write(stdout,1) vname(1,indxChC2)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
-      endif
 #  endif
 # endif
 # ifdef SEDIMENT

@@ -691,9 +691,6 @@ c        close(testunit)
      &                                          ,  wrthis(indxKvO2)
      &                                          ,  wrthis(indxO2sat)
 #   endif
-#  elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-     &                                          ,  wrthis(indxChC1)
-     &                                          ,  wrthis(indxChC2)
 #  endif
 # endif
 
@@ -729,9 +726,6 @@ c        close(testunit)
      &                                        .or. wrthis(indxKvO2)
      &                                        .or. wrthis(indxO2sat)
 #   endif
-#  elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-     &                                        .or. wrthis(indxChC1)
-     &                                        .or. wrthis(indxChC2)
 #  endif
 # endif
      &     ) wrthis(indxTime)=.true.
@@ -786,11 +780,6 @@ c        close(testunit)
      &  , wrthis(indxO2sat), 'write O2sat ',
      &                          'Saturation concentration of O2'
 #   endif
-#  elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-     &  , wrthis(indxChC1),  'write ChC1  ',
-     &                          'Chlorophyll to Carbon ratio for Phy1'
-     &  , wrthis(indxChC2),  'write ChC2  ',
-     &                          'Chlorophyll to Carbon ratio for Phy2'
 #  endif
 # endif
      &  , wrthis(indxBostr), 'write Bostr', 'Bottom Stress.'
@@ -871,9 +860,6 @@ c        close(testunit)
      &                                          ,  wrtavg(indxKvO2)
      &                                          ,  wrtavg(indxO2sat)
 #    endif
-#   elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-     &                                          ,  wrtavg(indxChC1)
-     &                                          ,  wrtavg(indxChC2)
 #   endif
 #  endif
 
@@ -908,9 +894,6 @@ c        close(testunit)
      &                                        .or. wrtavg(indxKvO2)
      &                                        .or. wrtavg(indxO2sat)
 #    endif
-#   elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-     &                                        .or. wrtavg(indxChC1)
-     &                                        .or. wrtavg(indxChC2)
 #   endif
 #  endif
      &     ) wrtavg(indxTime)=.true.
@@ -965,11 +948,6 @@ c        close(testunit)
      &  , wrtavg(indxO2sat),'write O2sat ',
      &         'Saturation concentration of O2'
 #    endif
-#   elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-     &  , wrtavg(indxChC1),'write ChC1  ',
-     &                          'Chlorophyll to Carbon ratio for Phy1'
-     &  , wrtavg(indxChC2),'write ChC2  ',
-     &                          'Chlorophyll to Carbon ratio for Phy2'
 #   endif
 #  endif
      &  , wrtavg(indxBostr),'write Bostr', 'Bottom Stress.'
@@ -1401,8 +1379,38 @@ c        close(testunit)
 ! located at U- or V-points so the grid locations should range from
 ! 1 =< Isrc =< L  and  1 =< Jsrc =< M.
 !
-      elseif (keyword(1:kwlen).eq.'psource') then
+#ifdef PSOURCE_VAR
+      elseif (keyword(1:kwlen).eq.'psource_var') then
         call cancel_kwd (keyword(1:kwlen), ierr)
+! river runoff file name. Check its availability.
+        read(input,'(A)',err=95) fname
+        lstr=lenstr(fname)
+# if defined MPI && defined PARALLEL_FILES
+        call insert_node (fname, lstr, mynode, NNODES, ierr)
+# endif
+        open (testunit, file=fname(1:lstr), status='old', err=97)
+        close(testunit)
+        rivname=fname(1:lstr)
+        MPI_master_only write(stdout,'(2x,A,2x,A)')
+     &             'Runoff Data File:', rivname(1:lstr)
+        read(input,*,err=95) Nsrc
+        MPI_master_only write(stdout,'(/6x,i6,2x,A,1x,A)')
+     &                               Nsrc, 'Number of point sources'
+        do is=1,Nsrc
+          read(input,*,err=95) Isrc(is),Jsrc(is),Dsrc(is),rivdir(is),
+     &                                    (Lsrc(is,itrc), itrc=1,NT),
+     &                                   (Tsrc0(is,itrc), itrc=1,NT)
+        MPI_master_only write(stdout,'(3(/6x,i6,2x,A),(/6x,F6.0,2x,A))')
+     &    Isrc(is), 'I point source indice'
+     &  , Jsrc(is), 'J point source indice'
+     &  , Dsrc(is), 'Orientation of point source flow'
+!         MPI_master_only write(stdout,'(/6x,F6.0,2x,A)')
+     &  ,  rivdir(is), 'Direction of point source flow'
+
+#else   
+        elseif (keyword(1:kwlen).eq.'psource') then
+        call cancel_kwd (keyword(1:kwlen), ierr)
+
         read(input,*,err=95) Nsrc
         MPI_master_only write(stdout,'(/6x,i6,2x,A,1x,A)')
      &                               Nsrc, 'Number of point sources'
@@ -1416,7 +1424,7 @@ c        close(testunit)
      &  , Dsrc(is), 'Direction of point source flow'
           MPI_master_only write(stdout,'(1pe10.3,2x,A)')
      &    Qbar(is), 'Total transport at point source'
-         
+#endif         
 #ifdef MPI
           if (iminmpi.LE.Isrc(is) .AND. Isrc(is).LE.imaxmpi .AND.
      &        jminmpi.LE.Jsrc(is) .AND. Jsrc(is).LE.jmaxmpi) then

@@ -341,26 +341,6 @@ C$    integer omp_get_thread_num
              enddo
           endif
 #    endif /* OXYGEN */
-#   elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-          if (wrtavg(indxChC1)) then
-            do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR
-                  theta1_avg(i,j,k)=theta1(i,j,k)
-                enddo
-              enddo
-            enddo
-          endif
-
-          if (wrtavg(indxChC2)) then
-            do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR
-                  theta2_avg(i,j,k)=theta2(i,j,k)
-                enddo
-              enddo
-            enddo
-          endif
 #    endif
 #   endif /* BIOLOGY */
 #  endif /* SOLVE3D */
@@ -636,26 +616,6 @@ C$    integer omp_get_thread_num
              enddo
           endif
 #    endif /* OXYGEN */
-#   elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-          if (wrtavg(indxChC1)) then
-            do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR
-                  theta1_avg(i,j,k)=theta1_avg(i,j,k)+theta1(i,j,k)
-                enddo
-              enddo
-            enddo
-          endif
-
-          if (wrtavg(indxChC2)) then
-            do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR
-                  theta2_avg(i,j,k)=theta2_avg(i,j,k)+theta2(i,j,k)
-                enddo
-              enddo
-            enddo
-          endif
 #   endif
 #  endif /* BIOLOGY */
 # endif /* SOLVE3D */
@@ -946,28 +906,6 @@ C$    integer omp_get_thread_num
              enddo
           endif
 #    endif /* OXYGEN */
-#   elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-          if (wrtavg(indxChC1)) then
-            do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR
-                  theta1_avg(i,j,k)=cff*( theta1_avg(i,j,k)
-     &                                   +theta1(i,j,k)     )
-                enddo
-              enddo
-            enddo
-          endif
-
-          if (wrtavg(indxChC2)) then
-            do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR
-                  theta2_avg(i,j,k)=cff*( theta2_avg(i,j,k)
-     &                                   +theta2(i,j,k)     )
-                enddo
-              enddo
-            enddo
-          endif
 #   endif
 #  endif /* BIOLOGY */
 # endif /* SOLVE3D */

@@ -16,8 +16,6 @@
 # include "bio_NChlPZD.F"
 #elif defined SOLVE3D && defined BIOLOGY && defined BIO_N2ChlPZD2
 # include "bio_N2ChlPZD2.F"
-#elif defined SOLVE3D && defined BIOLOGY && defined BIO_N2P2Z2D2
-# include "bio_N2P2Z2D2.F"
 #else
       subroutine biology_empty
       end

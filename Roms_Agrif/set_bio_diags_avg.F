@@ -247,8 +247,8 @@
               do j = JstrR, JendR
                 do i = IstrR, IendR
                   GasExcFlux_avg(i,j,iflux) =cff*
-     &                    GasExcFlux_avg(i,j,iflux) +
-     &                    GasExcFlux(i,j,iflux)
+     &                    ( GasExcFlux_avg(i,j,iflux) +
+     &                     GasExcFlux(i,j,iflux) )
                 end do
               end do
             end do

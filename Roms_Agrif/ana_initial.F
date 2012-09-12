@@ -447,27 +447,6 @@ C$    integer omp_get_thread_num
             t(i,j,k,2,iDet1)=t(i,j,k,1,iDet1)
             t(i,j,k,1,iDet2)=0.02
             t(i,j,k,2,iDet2)=t(i,j,k,1,iDet2)
-#    elif defined BIO_N2P2Z2D2
-            t(i,j,k,1,iNH4_)=0.1
-            t(i,j,k,2,iNH4_)=t(i,j,k,1,iNH4_)
-#     if defined VAR_CHL_C
-            t(i,j,k,1,iChl1)=0.06
-            t(i,j,k,2,iChl1)=t(i,j,k,1,iChl1)
-            t(i,j,k,1,iChl2)=0.09
-            t(i,j,k,2,iChl2)=t(i,j,k,1,iChl2)
-#     endif
-            t(i,j,k,1,iPhy1)=0.04
-            t(i,j,k,2,iPhy1)=t(i,j,k,1,iPhy1)
-            t(i,j,k,1,iPhy2)=0.06
-            t(i,j,k,2,iPhy2)=t(i,j,k,1,iPhy2)
-            t(i,j,k,1,iZoo1)=0.04
-            t(i,j,k,2,iZoo1)=t(i,j,k,1,iZoo1)
-            t(i,j,k,1,iZoo2)=0.04
-            t(i,j,k,2,iZoo2)=t(i,j,k,1,iZoo2)
-            t(i,j,k,1,iDet1)=0.02
-            t(i,j,k,2,iDet1)=t(i,j,k,1,iDet1)
-            t(i,j,k,1,iDet2)=0.02
-            t(i,j,k,2,iDet2)=t(i,j,k,1,iDet2)
 #    endif
 #   endif /* BIOLOGY */
           enddo

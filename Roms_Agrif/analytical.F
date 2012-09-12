@@ -735,14 +735,6 @@ C$    integer  trd, omp_get_thread_num
             tclm(i,j,k,iZoo1)=0.04
             tclm(i,j,k,iDet1)=0.02
             tclm(i,j,k,iDet2)=0.02
-#   elif defined BIO_N2P2Z2D2
-            tclm(i,j,k,iNH4_)=0.1
-            tclm(i,j,k,iPhy1)=0.04
-            tclm(i,j,k,iPhy2)=0.06
-            tclm(i,j,k,iZoo1)=0.04
-            tclm(i,j,k,iZoo2)=0.04
-            tclm(i,j,k,iDet1)=0.02
-            tclm(i,j,k,iDet2)=0.02
 #   endif
 #  else
             if (.not.got_tclm(iNO3_)) then
@@ -810,14 +802,6 @@ C$    integer  trd, omp_get_thread_num
             if (.not.got_tclm(iChla)) tclm(i,j,k,iChla)=0.08
             if (.not.got_tclm(iPhy1)) tclm(i,j,k,iPhy1)=0.06
             if (.not.got_tclm(iZoo1)) tclm(i,j,k,iZoo1)=0.04
-            if (.not.got_tclm(iDet1)) tclm(i,j,k,iDet1)=0.02
-            if (.not.got_tclm(iDet2)) tclm(i,j,k,iDet2)=0.02
-#   elif defined BIO_N2P2Z2D2
-            if (.not.got_tclm(iNH4_)) tclm(i,j,k,iNH4_)=0.1
-            if (.not.got_tclm(iPhy1)) tclm(i,j,k,iPhy1)=0.04
-            if (.not.got_tclm(iPhy2)) tclm(i,j,k,iPhy2)=0.06
-            if (.not.got_tclm(iZoo1)) tclm(i,j,k,iZoo1)=0.04
-            if (.not.got_tclm(iZoo2)) tclm(i,j,k,iZoo2)=0.04
             if (.not.got_tclm(iDet1)) tclm(i,j,k,iDet1)=0.02
             if (.not.got_tclm(iDet2)) tclm(i,j,k,iDet2)=0.02
 #   endif
