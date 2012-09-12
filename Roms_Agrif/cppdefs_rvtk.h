@@ -37,9 +37,9 @@
 !               REGIONAL (realistic) Configurations
 !==================================================================== 
 !
-!------------------------
+!----------------------
 ! BASIC OPTIONS
-!------------------------
+!----------------------
 !
 */
                       /* Configuration Name */
@@ -65,9 +65,11 @@
 # undef  SEDIMENT
 # undef  BBL
 /*!
-!------------------------
+!-------------------------------------------------
 ! PRE-SELECTED OPTIONS
-!------------------------
+!
+! ADVANCED OPTIONS ARE IN SET_GLOBAL_DEFINITIONS.H
+!-------------------------------------------------
 */
                       /* Parallelization */
 # ifdef MPI
@@ -75,6 +77,10 @@
 # endif
 # undef  AUTOTILING
 # undef  ETALON_CHECK
+                      /* Grid configuration */
+# define CURVGRID
+# define SPHERICAL
+# define MASKING
                       /* Model dynamics */
 # define SOLVE3D
 # define UV_COR
@@ -84,25 +90,25 @@
 #  define UV_TIDES
 #  define TIDERAMP
 # endif
-                      /* Grid configuration */
-# define CURVGRID
-# define SPHERICAL
-# define MASKING
-                      /* Lateral Momentum Mixing */
+                      /* Lateral Momentum Advection (default UP3) */
+# undef  UV_HADV_C4 
+                      /* Lateral Explicit Momentum Mixing */
 # undef  UV_VIS2
 # ifdef UV_VIS2
 #  define UV_MIX_S
 #  define UV_VIS_SMAGO
 # endif
-                      /* Lateral Tracer Advection (default C4) */
-# undef  TS_HADV_UP3
-# undef  TS_HADV_UP5
+                      /* Lateral Tracer Advection (default UP3) */
 # define TS_HADV_RSUP3
-                      /* Lateral Tracer Mixing */
-# undef  TS_DIF2
-# undef  TS_DIF4
-# undef  TS_DIF_SMAGO
-# undef  TS_MIX_ISO
+# undef  TS_HADV_UP5
+# undef  TS_HADV_C4
+                      /* Lateral Explicit Tracer Mixing */
+# ifdef TS_HADV_C4
+#  define  TS_DIF2
+#  undef   TS_DIF4
+#  define  TS_DIF_SMAGO
+#  define  TS_MIX_ISO
+# endif
                       /* Sponge layers for UV and TS */
 # define SPONGE
 # define SPONGE_GRID
@@ -279,10 +285,10 @@
 # define UV_ADV
 # define UV_COR
 # define UV_VIS2
-# define MIX_S_UV
+# define UV_MIX_S
 # define SOLVE3D
 # define TS_DIF2
-# define MIX_S_TS
+# define TS_MIX_S
 # define BODYFORCE
 # define ANA_GRID
 # define ANA_INITIAL
@@ -715,7 +721,7 @@
 #  define TNUDGING
 # endif
 
-#endif
+#endif /* END OF CONFIGURATION CHOICE */
 
 #include "set_global_definitions.h"
 
