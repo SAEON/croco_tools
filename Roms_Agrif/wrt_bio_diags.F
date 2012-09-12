@@ -137,6 +137,7 @@ c$$$     &        bioVSink(30,30,iflux)
 
 ! Flux terms
       do iflux = 1, NumFluxTerms
+!         write(*,*)'write fluxes terms'
          ierr = nf_fwrite(bioFlux(START_2D_ARRAY,1,iflux),
      &          nciddiabio, diabioFlux(iflux), record, r3dvar)
          if (ierr .ne. nf_noerr) then
@@ -148,6 +149,7 @@ c$$$     &        bioVSink(30,30,iflux)
       end do
 ! vertical sinking fluxes
       do iflux = 1, NumVSinkTerms
+!         write(*,*)'write vertical sinking fluxes'
          ierr = nf_fwrite(bioVSink(START_2D_ARRAY,0,iflux),
      &          nciddiabio, diabioVSink(iflux), record, w3dvar)
          if (ierr .ne. nf_noerr) then
