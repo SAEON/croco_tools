@@ -40,15 +40,15 @@
       integer ITERMAX
       integer nsink
 #ifdef DIAGNOSTICS_BIO
-!EM   
+
       real trend_no3,trend_phy,trend_zoo,trend_det,somme
-      real bilan_no3,bilan_phy,bilan_zoo,bilan_det
-!
+      real bilan_no3,bilan_phy,bilan_zoo,bilan_det, sinking_loss, 
+     &     trend_total
       integer l, iflux
       real ThisVSinkFlux(N, NumVSinkTerms),  ! [mmol m-2 s-1], upward flux is positive
      &     ThisFlux(N, NumFluxTerms)
 # ifdef OXYGEN
-      real ThisGasExcFlux(NumGasExcTerms)
+      real ThisGasExcFlux(NumGasExcTerms), trend_o2, bilan_o2
 # endif
 #endif
       parameter (
@@ -161,6 +161,8 @@
 #  define I_RANGE Istr,Iend
 #  define J_RANGE Jstr,Jend
 
+
+
       do j=J_RANGE
         do i=I_RANGE
 #ifdef DIAGNOSTICS_BIO
@@ -187,6 +189,7 @@
 ! Extract biological variables from tracer arrays; place them into
 ! scratch variables; restrict their values to be positive definite.
 !
+
       do k=1,N
         NO3(k) =max(t(i,j,k,nnew,iNO3_)  ,0.)   ! Nitrate
         Phyt(k)=max(t(i,j,k,nnew,iPhy1)  ,0.)   ! Phytoplankton
@@ -209,7 +212,6 @@
         O2(k)  =max(t(i,j,k,nnew,iO2),0.)        ! Oxygen;  [mmol O2 m-3]
 # endif 
       enddo
-
 
       DO ITER=1,ITERMAX      !--> Start internal iterations to achieve
                              !    nonlinear backward-implicit solution.
@@ -391,11 +393,12 @@
 !       abs(z_w(i,j,N-1))==> volume of upper layer
 #  ifdef DIAGNOSTICS_BIO
         ThisGasExcFlux(OFlux_GasExc) = Kv_O2_loc * (O2satu_loc - O2(N))
+     &                        * dtsec / ( z_w(i,j,N) - z_w(i,j,N-1) )
 !       ThisGasExcFlux is positive if ocean takes up O2 from the
 !       atmosphere
 #  endif
-        O2(N) = O2(N) + Kv_O2_loc * (O2satu_loc - O2(N)) * dtsec /
-     &       abs(z_w(i,j,N-1))
+        O2(N) = O2(N) + Kv_O2_loc * (O2satu_loc - O2(N))
+     &                        * dtsec / ( z_w(i,j,N) - z_w(i,j,N-1) )  
 #endif /* OXYGEN */
 !
 ! Vertical sinking: Vertical advection algorithm based on monotonic,
@@ -495,24 +498,24 @@
 ! ColumnMassOld and ColumnMassNew are needed to compute the sinking flux
 ! into the sediment
           ColumnMassOld(1)=ColumnMassOld(1)
-     &                    +Phyt(k)*Hz(i,j,k)/(pn(i,j)*pm(i,j))
+     &                    +Phyt(k)
           ThisVSinkFlux(k, NFlux_VSinkP1)=Phyt(k)-SB(k,2)
 #endif /* DIAGNOSTICS_BIO */
           Phyt(k) = SB(k,2)
 #ifdef DIAGNOSTICS_BIO
           ColumnMassNew(1)=ColumnMassNew(1)
-     &                    +Phyt(k)*Hz(i,j,k)/(pn(i,j)*pm(i,j))
+     &                    +Phyt(k)
 #endif /* DIAGNOSTICS_BIO */
           ! detritus
 #ifdef DIAGNOSTICS_BIO
           ColumnMassOld(2)=ColumnMassOld(2)
-     &                    +Det(k)*Hz(i,j,k)/(pn(i,j)*pm(i,j))
+     &                    +Det(k)
           ThisVSinkFlux(k, NFlux_VSinkD1)=Det(k)-SB(k,3)
 #endif /* DIAGNOSTICS_BIO */
           Det(k) = SB(k,3)
 #ifdef DIAGNOSTICS_BIO
           ColumnMassNew(2)=ColumnMassNew(2)
-     &                    +Det(k)*Hz(i,j,k)/(pn(i,j)*pm(i,j))
+     &                    +Det(k)
 #endif /* DIAGNOSTICS_BIO */
         enddo
 !
@@ -522,7 +525,7 @@
         do iflux = 1, NumFluxTerms
           do k = 1, N
             bioFlux(i,j,k,iflux) = ( bioFlux(i,j,k,iflux) +
-     &         ThisFlux(k, iflux)*Hz(i,j,k)/(pn(i,j)*pm(i,j)*dt) )
+     &                               ThisFlux(k, iflux) / dt )
 # ifdef MASKING
      &             * rmask(i,j)
 # endif /* MASKING */
@@ -534,18 +537,17 @@
 ! The flux is positive if upward, so usually it will be
 ! negative, i.e. into the sediment.
           LastVSinkFlux = ( ColumnMassNew(iflux) -
-     &                      ColumnMassOld(iflux) ) / dtsec
-          bioVSink(i,j,0,iflux) = (  bioVSink(i,j,0,iflux)
-     &                             + LastVSinkFlux / float(ITERMAX) )
+     &                      ColumnMassOld(iflux) )
+          bioVSink(i,j,0,iflux) = (  bioVSink(i,j,0,iflux) +
+     &                               LastVSinkFlux / dt )
 # ifdef MASKING
      &          * rmask(i,j)
 # endif /* MASKING */
           do k = 1, N
             LastVSinkFlux = LastVSinkFlux +
-     &             ( ThisVSinkFlux(k,iflux)*Hz(i,j,k) 
-     &             / (pn(i,j)*pm(i,j)*dtsec) )
-            bioVSink(i,j,k,iflux) =(  bioVSink(i,j,k,iflux)
-     &                              + LastVSinkFlux / float(ITERMAX) )
+     &                      ThisVSinkFlux(k,iflux)
+            bioVSink(i,j,k,iflux) =(  bioVSink(i,j,k,iflux) +
+     &                                LastVSinkFlux / dt )
 # ifdef MASKING
      &          * rmask(i,j)
 # endif /* MASKING */
@@ -555,7 +557,7 @@
 ! ThisGasExcFlux is already in the correct units [mmol s^-1]
         do iflux = 1, NumGasExcTerms
            GasExcFlux(i,j,iflux) = ( GasExcFlux(i,j,iflux) +
-     &          ThisGasExcFlux(iflux) / float(ITERMAX) )
+     &                               ThisGasExcFlux(iflux) / dt )
 #  ifdef MASKING
      &          * rmask(i,j)
 #  endif /* MASKING */
@@ -567,50 +569,107 @@
 !
 ! Write back
 !
-# ifdef DIAGNOSTICS_BIO
-!      do k=1,N
-!        do iflux=1,NumFluxTerms
-!          bioFlux(i,j,k,iflux) = bioFlux(i,j,k,iflux)*pn(i,j)*pm(i,j)*dt
-!     &                           / Hz(i,j,k)
-!        end do
-!!        do iflux=1,NumVSinkTerms
-!!          bioVSink(i,j,k,iflux) = bioVSink(i,j,k,iflux)*pn(i,j)*pm(i,j)
-!!     &                            *dtsec / Hz(i,j,k)
-!!        end do
-!      end do
-!      if ((i.eq.13) .and. (j.eq.15)) then
-!        bilan_no3=bioFlux(13,15,32,5)+bioFlux(13,15,32,7)
-!     &           -bioFlux(13,15,32,1)
-!        bilan_phy=bioFlux(13,15,32,1)-bioFlux(13,15,32,4)
-!     &           -bioFlux(13,15,32,2)-bioFlux(13,15,32,3)
-!        bilan_zoo=bioFlux(13,15,32,2)-bioFlux(13,15,32,5)
-!     &           -bioFlux(13,15,32,6)
-!        bilan_det=bioFlux(13,15,32,3)+bioFlux(13,15,32,6)
-!     &           +bioFlux(13,15,32,4)-bioFlux(13,15,32,7)
-!        somme=bilan_no3+bilan_phy+bilan_zoo+bilan_det
-!        trend_no3= ( (min(t(13,15,32,nnew,iNO3_),0.) +NO3(32))
-!     &               - t(13,15,32,nnew,iNO3_) )
-!        trend_phy= ( (min(t(13,15,32,nnew,iPhy1),0.) +Phyt(32))
-!     &               - t(13,15,32,nnew,iPhy1) )
-!        trend_zoo= ( (min(t(13,15,32,nnew,iZoo1),0.) +Zoo(32))
-!     &               - t(13,15,32,nnew,iZoo1) )
-!        trend_det= ( (min(t(13,15,32,nnew,iDet1),0.) +Det(32))
-!     &               - t(13,15,32,nnew,iDet1) )
-!        print*, somme
-!        print*, bilan_no3-trend_no3
-!        print*, bilan_phy-trend_phy
-!        print*, bilan_zoo-trend_zoo
-!        print*, bilan_det-trend_det
-!!        print*, bioFlux(13,15,32,1)
-!!        print*, bioFlux(13,15,32,2)
-!!        print*, bioFlux(13,15,32,3)
-!!        print*, bioFlux(13,15,32,4)
-!!        print*, bioFlux(13,15,32,5)
-!!        print*, bioFlux(13,15,32,6)
-!!        print*, bioFlux(13,15,32,7)
-!!        print*, bioVSink(13,15,32,1)
-!!        print*, bioVSink(13,15,32,2)
-!      endif
+!          print*,'N=',N
+#undef DEBUG_BIO
+# if defined DIAGNOSTICS_BIO && defined DEBUG_BIO
+!
+      k=N
+      if ((i.eq.13).and.(j.eq.15)) then
+        bilan_no3 = bioFlux(i,j,k,NFlux_Zmetab)
+     &           + bioFlux(i,j,k,NFlux_ReminD)
+     &           - bioFlux(i,j,k,NFlux_NewProd)
+!
+        bilan_phy = bioFlux(i,j,k,NFlux_NewProd)
+     &           - bioFlux(i,j,k,NFlux_Pmort)
+     &           - bioFlux(i,j,k,NFlux_Grazing)
+     &           - bioFlux(i,j,k,NFlux_SlopFeed)
+     &           - ( bioVSink(i,j,k,NFlux_VSinkP1) 
+     &               - bioVSink(i,j,k-1,NFlux_VSinkP1) )
+!
+        bilan_zoo = bioFlux(i,j,k,NFlux_Grazing) 
+     &            - bioFlux(i,j,k,NFlux_Zmetab)
+     &            - bioFlux(i,j,k,NFlux_Zmort)
+!
+        bilan_det = bioFlux(i,j,k,NFlux_SlopFeed)
+     &            + bioFlux(i,j,k,NFlux_Zmort)
+     &            + bioFlux(i,j,k,NFlux_Pmort)
+     &            - bioFlux(i,j,k,NFlux_ReminD)
+     &            - ( bioVSink(i,j,k,NFlux_VSinkD1) 
+     &                - bioVSink(i,j,k-1,NFlux_VSinkD1) )
+#   ifdef OXYGEN
+        bilan_o2 = bioFlux(i,j,k, OGain_NewProd)
+     &           - bioFlux(i,j,k, OLoss_Zmetab)
+     &           - bioFlux(i,j,k, OLoss_ReminD)
+        if (k.eq.N) then
+           bilan_o2 =  bilan_o2 + GasExcFlux(i,j, OFlux_GasExc)
+        endif                     
+        trend_o2 = ( (min(t(i,j,k,nnew,iO2),0.) +O2(k))
+     &               -   t(i,j,k,nnew,iO2) ) / dt
+#   endif
+        somme = bilan_no3+bilan_phy+bilan_zoo+bilan_det
+        trend_no3 = ( (min(t(i,j,k,nnew,iNO3_),0.) +NO3(k))
+     &               - t(i,j,k,nnew,iNO3_) ) / dt
+        trend_phy = ( (min(t(i,j,k,nnew,iPhy1),0.) +Phyt(k))
+     &               - t(i,j,k,nnew,iPhy1) )/ dt
+        trend_zoo = ( (min(t(i,j,k,nnew,iZoo1),0.) +Zoo(k))
+     &               - t(i,j,k,nnew,iZoo1) )/ dt
+        trend_det = ( (min(t(i,j,k,nnew,iDet1),0.) +Det(k))
+     &       - t(i,j,k,nnew,iDet1) )/ dt
+!
+        trend_total =  trend_no3 + trend_phy + trend_zoo + trend_det
+!
+        sinking_loss = - ( bioVSink(i,j,k,NFlux_VSinkD1) 
+     &                     - bioVSink(i,j,k-1,NFlux_VSinkD1) )
+     &                 - ( bioVSink(i,j,k,NFlux_VSinkP1) 
+     &                     - bioVSink(i,j,k-1,NFlux_VSinkP1) )
+! 
+        print*, '=================='
+        print*, 'i=',i,' j=',j,' k=',k
+        print*, 'somme SMS(of N)=         ',somme
+        print*, 'trend_total of N=        ',trend_total
+        print*, 'Sinking_loss of N=       ',sinking_loss
+        print*, 'These three values have to be the same!'
+        print*, 'Error for N = trend_total-somme=',trend_total-somme
+        print*, "-----------------"
+        print*, 'bilan_no3 - trend_no3=', bilan_no3-trend_no3
+        print*, 'bilan_phy-trend_phy=  ', bilan_phy-trend_phy
+        print*, 'bilan_zoo-trend_zoo=  ', bilan_zoo-trend_zoo
+        print*, 'bilan_det-trend_det=  ', bilan_det-trend_det
+        print*, '-----------------'
+        print*, 'bioFlux(i,j,k,NFlux_NewProd)= ', 
+     &                               bioFlux(i,j,k,NFlux_NewProd)
+        print*, 'bioFlux(i,j,k,NFlux_Grazing)= ', 
+     &                               bioFlux(i,j,k,NFlux_Grazing)
+        print*, 'bioFlux(i,j,k,NFlux_SlopFeed)=', 
+     &                               bioFlux(i,j,k,NFlux_SlopFeed)
+        print*, 'bioFlux(i,j,k,NFlux_Pmort)=   ', 
+     &                               bioFlux(i,j,k,NFlux_Pmort)
+        print*, 'bioFlux(i,j,k,NFlux_Zmetab)=  ', 
+     &                               bioFlux(i,j,k,NFlux_Zmetab)
+        print*, 'bioFlux(i,j,k,NFlux_Zmort)=   ', 
+     &                               bioFlux(i,j,k,NFlux_Zmort)
+        print*, 'bioFlux(i,j,k,NFlux_ReminD)=  ', 
+     &                               bioFlux(i,j,k,NFlux_ReminD)
+        print*, 'bioVSink(i,j,k,NFlux_VSinkP1)=', 
+     &                                bioVSink(i,j,k,NFlux_VSinkP1)
+        print*, 'bioVSink(i,j,k,NFlux_VSinkD1)=', 
+     &                                bioVSink(i,j,k,NFlux_VSinkD1)
+#    ifdef OXYGEN
+        print*, '-----------------'
+        print*, 'Error for O2 = trend_O2-SMS(O2)=',trend_o2-bilan_o2
+        print*, 'bioFlux(i,j,k,OGain_NewProd)=',
+     &                               bioFlux(i,j,k,OGain_NewProd)
+        print*, 'bioFlux(i,j,k,OLoss_Zmetab)= ',
+     &                               bioFlux(i,j,k,OLoss_Zmetab)
+        print*, 'bioFlux(i,j,k,OLoss_ReminD)= ',
+     &                               bioFlux(i,j,k,OLoss_ReminD)
+        if (k.eq.N) then
+        print*, 'GasExcFlux(i,j,OFlux_GasExc)= ',
+     &                                GasExcFlux(i,j,OFlux_GasExc)
+        endif 
+#    endif
+        print*, '=================='
+      endif
 # endif
 
           do k=1,N

@@ -28,13 +28,26 @@
 #include "ocean3d.h"
 #include "scalars.h"
 #include "forces.h"
+#include "diagnostics.h"
       real kwater, kChla, palpha,
      &     K_NO3, K_NH4, mu_P_Sd, mu_Agg, gmax, K_Phyt,
      &     beta, mu_Sd_A, mu_Z_A, mu_Z_Sd, mu_A_N, mu_Ld_A, 
      &     CN_Phyt, theta_m, chla_C, wPhyt, wSDet, wLDet
+#ifdef DIAGNOSTICS_BIO
+!     gc  
+      integer l, iflux
+      real ThisVSinkFlux(N, NumVSinkTerms) ! [mmol m-2 s-1], upward flux is positive
+     &     , ThisFlux(N, NumFluxTerms)
+     &     , somme, bilan_nh4, bilan_phy, bilan_zoo
+     &     , bilan_det1, bilan_no3, bilan_det2
+      real trend_no3,trend_nh4,trend_phy,trend_zoo,trend_det1
+     &     , trend_det2, sinking_loss, trend_total
+#endif
       integer ITERMAX
+      integer nsink
       parameter (
      &  ITERMAX = 3,      ! number of small implicit time steps
+     &  nsink   = NumVSinkTerms + 1, !-->  add'lly: Chlorophyll
 !
 ! Parameters as in Table 1; Fasham et al. [JMR, 48, 591-639, 1990]
 !
@@ -77,10 +90,18 @@
      &        PAR, attn, Vp, Epp, Q, cu, aL,aR, dtdays,
      &        cff,cff1,cff2,cff6,
      &        SB(N,4),dSB(0:N,4),wSB(4)
+# if defined DIAGNOSTICS_BIO
+     &      , m, dtsec        ! length of time step in seconds (for gas exchange)
+     &      , LastVSinkFlux,ColumnMassOld(NumVSinkTerms)
+     &      , ColumnMassNew(NumVSinkTerms)
+# endif /* DIAGNOSTICS_BIO */
 !
 # include "compute_auxiliary_bounds.h"
 !
       dtdays=dt/(24.*3600.*float(ITERMAX))  ! time step as fraction of day.
+# ifdef DIAGNOSTICS_BIO
+      dtsec = dt / float(ITERMAX)           ! time step in seconds
+# endif /* DIAGNOSTICS_BIO */
 !
 !
 ! Since the following solver is iterative to achieve implicit
@@ -121,6 +142,18 @@
 
       do j=J_RANGE
         do i=I_RANGE
+# ifdef DIAGNOSTICS_BIO
+! Reset the biogeochemical fluxes. This is necessary because the 
+! biological routine uses multiple. time steps for each physical time step.
+          do k=1,N
+            do l=1,NumFluxTerms
+              bioFlux(i,j,k,l) = 0.0
+            enddo
+            do l=1,NumVSinkTerms
+              bioVSink(i,j,k,l) = 0.0
+            enddo
+          enddo
+# endif /* DIAGNOSTICS_BIO */
 !
 ! Extract biological variables from tracer arrays; place them into
 ! scratch variables; restrict their values to be positive definite.
@@ -183,6 +216,9 @@
             cff1=dtdays*Phyt(k)*aJ(k)*K_NO3
      &               /(1.+K_NO3*NO3(k)+K_NH4*NH4(k))
             NO3(k)=NO3(k)/(1.+cff1)
+#ifdef DIAGNOSTICS_BIO
+            ThisFlux(k, NFlux_NewProd) = cff1*NO3(k)
+#endif /* DIAGNOSTICS_BIO */
             Phyt(k)=Phyt(k)+cff1*NO3(k) 
           enddo
 !
@@ -194,6 +230,10 @@
      &               /(1.+K_NO3*NO3(k)+K_NH4*NH4(k))
             cff2=dtdays*mu_A_N
             NH4(k)=NH4(k)/(1.+cff1+cff2)
+#ifdef DIAGNOSTICS_BIO
+            ThisFlux(k, NFlux_RegProd) = cff1*NH4(k)
+            ThisFlux(k, NFlux_Nitrific)= cff2*NH4(k)
+#endif /* DIAGNOSTICS_BIO */
             Phyt(k)=Phyt(k)+NH4(k)*cff1
             NO3(k)=NO3(k)+NH4(k)*cff2
           enddo
@@ -208,6 +248,11 @@
             cff1=dtdays*mu_A_N
             NH4(k)=NH4(k)/(1.+cff1)
             NO3(k)=NO3(k)+NH4(k)*cff1
+#ifdef DIAGNOSTICS_BIO
+            ThisFlux(k, NFlux_NewProd) = 0.0
+            ThisFlux(k, NFlux_RegProd) = 0.0
+            ThisFlux(k, NFlux_Nitrific)=cff1*NH4(k)
+#endif /* DIAGNOSTICS_BIO */
           enddo
 !
         endif
@@ -220,6 +265,11 @@
           cff2=dtdays*mu_P_Sd
           Phyt(k)=Phyt(k)/(1.+cff1+cff2)
           Zoo(k)=Zoo(k)+Phyt(k)*cff1*beta
+#ifdef DIAGNOSTICS_BIO
+          ThisFlux(k, NFlux_Grazing)=Phyt(k)*cff1*beta
+          ThisFlux(k, NFlux_SlopFeed) = Phyt(k) * cff1 * (1.-beta)
+          ThisFlux(k, NFlux_Pmort) = Phyt(k) * cff2
+#endif /* DIAGNOSTICS_BIO */
           SDet(k)=SDet(k)+Phyt(k)*(cff1*(1.-beta)+cff2)
         enddo
 !
@@ -230,6 +280,10 @@
           cff1=dtdays*mu_Z_A
           cff2=dtdays*mu_Z_Sd
           Zoo(k)=Zoo(k)/(1.+cff1+cff2)
+#ifdef DIAGNOSTICS_BIO
+          ThisFlux(k, NFlux_Zmetab)=cff1*Zoo(k)
+          ThisFlux(k, NFlux_Zmort)=cff2*Zoo(k)
+#endif /* DIAGNOSTICS_BIO */
           NH4(k)=NH4(k)+Zoo(k)*cff1
           SDet(k)=SDet(k)+Zoo(k)*cff2
         enddo
@@ -238,10 +292,13 @@
 !
         do k=1,N
           cff1=dtdays*mu_Agg*(SDet(k)+PHyt(k))
-          cff2=1./(1.+cff1)
-          Phyt(k)=Phyt(k)*cff2
-          SDet(k)=SDet(k)*cff2
+          Phyt(k)=Phyt(k)/(1.+cff1)
+          SDet(k)=SDet(k)/(1.+cff1)
           LDet(k)=LDet(k)+(Phyt(k)+SDet(k))*cff1
+#ifdef DIAGNOSTICS_BIO
+          ThisFlux(k, NFlux_CoagPhy)= cff1 * Phyt(k)
+          ThisFlux(k, NFlux_CoagSDet)= cff1 * SDet(k)
+#endif /* DIAGNOSTICS_BIO */
         enddo
 !
 ! (1) SDet breakdown to NH4
@@ -249,6 +306,9 @@
         do k=1,N
           cff1=dtdays*mu_Sd_A
           SDet(k)=SDet(k)/(1.+cff1)
+#ifdef DIAGNOSTICS_BIO
+          ThisFlux(k, NFlux_ReminD1)=SDet(k)*cff1
+#endif /* DIAGNOSTICS_BIO */
           NH4(k)=NH4(k)+SDet(k)*cff1
         enddo
 !
@@ -257,6 +317,9 @@
         do k=1,N
           cff1=dtdays*mu_Ld_A
           LDet(k)=LDet(k)/(1.+cff1)
+#ifdef DIAGNOSTICS_BIO
+          ThisFlux(k, NFlux_ReminD2)=LDet(k)*cff1
+#endif /* DIAGNOSTICS_BIO */
           NH4(k)=NH4(k)+LDet(k)*cff1
         enddo
 
@@ -345,17 +408,196 @@
             SB(k,iB)=SB(k,iB)+wSB(iB)*FC(k)*(dSB(k,iB)-dSB(k-1,iB))
           enddo
         enddo  ! <-- iB
-
+#ifdef DIAGNOSTICS_BIO
+        do iflux = 1, NumVSinkTerms
+          ColumnMassOld(iflux) = 0.0
+          ColumnMassNew(iflux) = 0.0
+        enddo
+#endif /* DIAGNOSTICS_BIO */
         do k=1,N
           theta(k)=SB(k,1)/(SB(k,2)*CN_Phyt*12.+1.E-20)
+#ifdef DIAGNOSTICS_BIO
+! ColumnMassOld and ColumnMassNew are needed to compute the sinking flux
+! into the sediment
+!       
+!         Phyto
+          ColumnMassOld(1)=ColumnMassOld(1) + Phyt(k)
+          ThisVSinkFlux(k, NFlux_VSinkP1)=Phyt(k)-SB(k,2)
+#endif /* DIAGNOSTICS_BIO */
           Phyt(k) =SB(k,2)
+#ifdef DIAGNOSTICS_BIO
+          ColumnMassNew(1) = ColumnMassNew(1)+Phyt(k)
+#endif /* DIAGNOSTICS_BIO */
+!
+!         Small detritus
+#ifdef DIAGNOSTICS_BIO
+          ColumnMassOld(2) = ColumnMassOld(2)+SDet(k)
+          ThisVSinkFlux(k, NFlux_VSinkD1) = SDet(k)-SB(k,3)
+#endif /* DIAGNOSTICS_BIO */
           SDet(k) =SB(k,3)
+#ifdef DIAGNOSTICS_BIO
+          ColumnMassNew(2) = ColumnMassNew(2)+SDet(k)
+#endif /* DIAGNOSTICS_BIO */
+!
+!         Large detritus
+#ifdef DIAGNOSTICS_BIO
+          ColumnMassOld(3) = ColumnMassOld(3)+LDet(k)
+          ThisVSinkFlux(k, NFlux_VSinkD2) = LDet(k)-SB(k,4)
+#endif /* DIAGNOSTICS_BIO */
           LDet(k) =SB(k,4)
+#ifdef DIAGNOSTICS_BIO
+          ColumnMassNew(3) = ColumnMassNew(3)+LDet(k)
+#endif /* DIAGNOSTICS_BIO */
         enddo
+!
+!
+#ifdef DIAGNOSTICS_BIO
+! Transfer fluxes to global arrays at the end of each biological time step
+! for computational efficiency, divide now by dtsec to get the correct units
+        do iflux = 1, NumFluxTerms
+           do k = 1, N
+! biological Flux in mmolN/s
+              bioFlux(i,j,k,iflux) =  bioFlux(i,j,k,iflux) +
+     &                                ThisFlux(k, iflux) / dt
+# ifdef MASKING
+     &             * rmask(i,j)
+# endif /* MASKING */
+           end do
+        end do
+        do iflux = 1, NumVSinkTerms
+
+! Compute the vertical sinking flux into the sediment by comparing
+! previous and current mass in this (i,j) column
+! The flux is positive if upward, so usually it will be negative, i.e.
+! into the sediment.
+           LastVSinkFlux = ( ColumnMassNew(iflux) -
+     &                       ColumnMassOld(iflux) )
+           bioVSink(i,j,0,iflux) = (  bioVSink(i,j,0,iflux) +
+     &                                LastVSinkFlux / dt )
+#  ifdef MASKING
+     &          * rmask(i,j)
+#  endif /* MASKING */
+           do k = 1, N
+              LastVSinkFlux = LastVSinkFlux +
+     &                        ThisVSinkFlux(k,iflux)
+
+              bioVSink(i,j,k,iflux) =(  bioVSink(i,j,k,iflux) +
+     &                                  LastVSinkFlux / dt )
+#  ifdef MASKING
+     &             * rmask(i,j)
+#  endif /* MASKING */
+           end do
+         enddo
+#endif /* DIAGNOSTICS_BIO */ 
+!! 
       ENDDO  ! <-- ITER
+
 !
 ! Write back
 !
+!
+#undef DEBUG_BIO
+# if defined DIAGNOSTICS_BIO && defined DEBUG_BIO
+!
+      k=N
+      if ((i.eq.13) .and. (j.eq.15)) then
+
+        bilan_no3 = bioFlux(i,j,k,NFlux_Nitrific)
+     &           -bioFlux(i,j,k,NFlux_NewProd)
+!
+        bilan_nh4 = bioFlux(i,j,k,NFlux_ReminD1)
+     &           +bioFlux(i,j,k,NFlux_ReminD2)
+     &           +bioFlux(i,j,k,NFlux_Zmetab)
+     &           -bioFlux(i,j,k,NFlux_RegProd)
+     &           -bioFlux(i,j,k,NFlux_Nitrific)
+!
+        bilan_phy = bioFlux(i,j,k,NFlux_NewProd)
+     &            +bioFlux(i,j,k,NFlux_RegProd)
+     &            -bioFlux(i,j,k,NFlux_Grazing)/beta
+     &            -bioFlux(i,j,k,NFlux_Pmort)
+     &            -bioFlux(i,j,k,NFlux_CoagPhy)
+     &            + ( bioVSink(i,j,k-1,NFlux_VSinkP1)
+     &                - bioVSink(i,j,k,NFlux_VSinkP1) )
+!
+        bilan_zoo = bioFlux(i,j,k,NFlux_Grazing)
+     &            -bioFlux(i,j,k,NFlux_Zmetab)
+     &            -bioFlux(i,j,k,NFlux_Zmort)
+!
+        bilan_det1 = bioFlux(i,j,k,NFlux_Pmort)
+     &            +bioFlux(i,j,k,NFlux_SlopFeed)
+     &            +bioFlux(i,j,k,NFlux_Zmort)
+     &            -bioFlux(i,j,k,NFlux_ReminD1)
+     &            -bioFlux(i,j,k,NFlux_CoagSDet)
+     &            + ( bioVSink(i,j,k-1,NFlux_VSinkD1)
+     &                - bioVSink(i,j,k,NFlux_VSinkD1) )
+!
+        bilan_det2 = -bioFlux(i,j,k,NFlux_ReminD2)
+     &             +bioFlux(i,j,k,NFlux_CoagPhy)
+     &             +bioFlux(i,j,k,NFlux_CoagSDet)
+     &             + ( bioVSink(i,j,k-1,NFlux_VSinkD2)
+     &                 - bioVSink(i,j,k,NFlux_VSinkD2) )
+!     
+        somme = bilan_no3+bilan_nh4+bilan_phy+bilan_zoo
+     &          +bilan_det1+bilan_det2
+!
+        trend_no3 = ( (min(t(i,j,k,nnew,iNO3_),0.) +NO3(k))
+     &              - t(i,j,k,nnew,iNO3_) ) / dt
+        trend_nh4 = ( (min(t(i,j,k,nnew,iNH4_),0.) +NH4(k))
+     &               - t(i,j,k,nnew,iNH4_) ) / dt
+        trend_phy = ( (min(t(i,j,k,nnew,iPhy1),0.) +Phyt(k))
+     &       - t(i,j,k,nnew,iPhy1) )/ dt
+        trend_zoo = ( (min(t(i,j,k,nnew,iZoo1),0.) +Zoo(k))
+     &       - t(i,j,k,nnew,iZoo1) )/ dt
+        trend_det1 = ( (min(t(i,j,k,nnew,iDet1),0.) +SDet(k))
+     &       - t(i,j,k,nnew,iDet1) )/ dt
+        trend_det2 = ( (min(t(i,j,k,nnew,iDet2),0.) +LDet(k))
+     &       - t(i,j,k,nnew,iDet2) )/ dt
+!--
+        trend_total =  trend_no3 + trend_nh4 + trend_phy +
+     &       trend_zoo + trend_det1 + trend_det2
+!--
+        sinking_loss = + ( bioVSink(i,j,k-1,NFlux_VSinkD2) - 
+     &                                bioVSink(i,j,k,NFlux_VSinkD2) )
+     &       + ( bioVSink(i,j,k-1,NFlux_VSinkD1) - 
+     &                                bioVSink(i,j,k,NFlux_VSinkD1) )
+     &       + ( bioVSink(i,j,k-1,NFlux_VSinkP1) - 
+     &                                bioVSink(i,j,k,NFlux_VSinkP1) )
+!-- 
+        print*, '=================='   
+        print*, 'i=',i,' j=',j,' k=',k
+        print*, 'somme SMS(of N)=         ',somme
+        print*, 'trend_total of N=        ',trend_total
+        print*, 'Sinking_loss of N=       ',sinking_loss
+        print*, 'These three values have to be the same!'
+        print*, 'Error for N = trend_total-somme=',trend_total-somme
+        print*, "-----------------"
+        print*, 'bilan_no3 - trend_no3=  ', bilan_no3-trend_no3
+        print*, 'bilan_nh4 - trend_nh4=  ', bilan_nh4-trend_nh4
+        print*, 'bilan_phy-trend_phy=    ', bilan_phy-trend_phy
+        print*, 'bilan_zoo-trend_zoo=    ', bilan_zoo-trend_zoo
+        print*, 'bilan_det1-trend_det1=  ', bilan_det1-trend_det1
+        print*, 'bilan_det2-trend_det2=  ', bilan_det2-trend_det2
+        print*, "-----------------"
+        print*, 'trend_no3= ', trend_no3
+        print*, 'trend_nh4= ', trend_nh4
+        print*, 'trend_phy= ', trend_phy
+        print*, 'trend_zoo= ', trend_zoo
+        print*, 'trend_det1=', trend_det1 
+        print*, 'trend_det2=', trend_det2
+        print*, "-----------------"
+        print*, 'bilan_no3= ', bilan_no3
+        print*, 'bilan_nh4= ', bilan_nh4
+        print*, 'bilan_phy= ', bilan_phy
+        print*, 'bilan_zoo= ', bilan_zoo
+        print*, 'bilan_det1=', bilan_det1 
+        print*, 'bilan_det2=', bilan_det2
+        print*, "-----------------"
+        print*, 'bioVSinkP1=', bioVSink(i,j,k,NFlux_VSinkP1)
+        print*, 'bioVSinkD1=', bioVSink(i,j,k,NFlux_VSinkD1)
+        print*, 'bioVSinkD2=', bioVSink(i,j,k,NFlux_VSinkD2)
+        print*, "=================="
+        endif
+#endif /* DIAGNOSTICS_BIO */
           do k=1,N
            t(i,j,k,nnew,iNO3_)=min(t(i,j,k,nnew,iNO3_),0.) +NO3(k)
            t(i,j,k,nnew,iNH4_)=min(t(i,j,k,nnew,iNH4_),0.) +NH4(k)
@@ -374,4 +616,3 @@
 #endif
       return
       end
-
