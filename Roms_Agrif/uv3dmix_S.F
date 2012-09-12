@@ -220,7 +220,8 @@
       end
 !
 #ifndef CHILD_SPG
-# undef UCLM VCLM
+# undef UCLM 
+# undef VCLM
 # define CHILD_SPG
 # ifdef AGRIF
 #  include "uv3dmix_S.F"
