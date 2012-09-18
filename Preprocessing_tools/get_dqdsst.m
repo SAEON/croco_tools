@@ -5,8 +5,13 @@ function dqdsst=get_dqdsst(sst,sat,rho_atm,U,qsea)
 %  the sea surface temperature: dQdSST.
 %  Q_model ~ Q + dQdSST * (T_model - SST)
 %  dQdSST = - 4 * eps * stef * T^3  - rho_atm * Cp * CH * U
-%           - rho_atm * CE * L * U * 2353 * ln (10 * q_s / T^2)
+%           - rho_atm * CE * L * U * 2353 * ln (10) * q_s / T^2
 % 
+% B. Barnier, L. Siefridt, P. Marchesiello,
+% Thermal forcing for a global ocean circulation model using 
+% a three-year climatology of ECMWF analyses,
+% J. Marine Sys., 2005, 6, 363-380
+%
 % Input parameters:
 %
 %  sst     : sea surface temperature (Celsius)
