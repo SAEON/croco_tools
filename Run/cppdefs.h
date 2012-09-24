@@ -76,10 +76,12 @@
 # endif
 # undef  AUTOTILING
 # undef  ETALON_CHECK
+# undef  RVTK_DEBUG
                       /* Grid configuration */
 # define CURVGRID
 # define SPHERICAL
 # define MASKING
+# undef  NEW_S_COORD
                       /* Model dynamics */
 # define SOLVE3D
 # define UV_COR
@@ -168,8 +170,10 @@
 # define ANA_BSFLUX
 # define ANA_BTFLUX
                       /* Point Sources - Rivers */
-# undef  PSOURCE
-# undef  ANA_PSOURCE
+# undef  PSOURCE        
+# ifdef  PSOURCE
+#   define  PSOURCE_NCFILE
+# endif
                       /* Open Boundary Conditions */
 # ifdef TIDES
 #  define OBC_M2FLATHER
@@ -206,8 +210,7 @@
 # ifdef BIOLOGY
 #  undef  PISCES
 #  define BIO_NChlPZD
-#  undef  BIO_N2P2Z2D2
-#  undef  BIO_N2ChlPZD2  
+#  undef BIO_N2ChlPZD2  
                       /*  Options  */
 #  ifdef PISCES
 #   define key_trc_pisces
@@ -224,8 +227,8 @@
 #  ifdef BIO_NChlPZD
 #   define DIAGNOSTICS_BIO
 #  endif
-#  ifdef BIO_N2P2Z2D2
-#   undef  VAR_CHL_C
+#  ifdef BIO_N2ChlPZD2
+#   undef DIAGNOSTICS_BIO
 #  endif
 # endif
                       /*     Lagrangian floats model    */

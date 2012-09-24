@@ -1,5 +1,7 @@
 title:
         Southern Benguela Interannual Run
+start_date:
+        01-JAN-2000 00:00:00
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
                NUMTIMES      3600     60      1
 S-coord: THETA_S,   THETA_B,    Hc (m)
@@ -135,6 +137,16 @@ psource:   Nsrc  Isrc  Jsrc  Dsrc  Qbar [m3/s]    Lsrc        Tsrc
             2
                   3    54     1    200.            T T      5. 0.
                   3    40     0    200.            T T      5. 0.
+
+psource_ncfile:   Nsrc  Isrc  Jsrc  Dsrc rivdir  Lsrc  Tsrc   runoff file name
+                                 ROMS_FILES/roms_riv_5fl.nc
+            7
+                  97   173     0  1    T T      26. 0.
+                  93   168     0  1    T T      26. 0.
+                  94   166     0  1    T T      26. 0.
+                  93   164     1 -1    T T      26. 0.
+                  91   164     1 -1    T T      26. 0.
+                  96   298     0  1    T T      26. 0. 
 
 online:    byear  bmonth recordsperday byearend bmonthend / data path
            NYONLINE   NMONLINE      4             2011     3
