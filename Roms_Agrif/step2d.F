@@ -200,7 +200,7 @@ C$    trd=omp_get_thread_num()
 #ifdef OBC_VOLCONS
         call set_DUV_bc_tile (Istr,Iend,Jstr,Jend, Drhs, DUon,DVom)
 #endif
-#ifdef DEBUG_ADVANCED
+#ifdef RVTK_DEBUG_ADVANCED
 C$OMP BARRIER
 C$OMP MASTER
        call check_tab2d(zeta(:,:,knew),'zeta step2d #1','r')
@@ -335,7 +335,7 @@ C$OMP END MASTER
       endif
 #endif         
 
-#ifdef DEBUG_ADVANCED
+#ifdef RVTK_DEBUG_ADVANCED
 C$OMP BARRIER
 C$OMP MASTER
        call check_tab2d(zeta(:,:,knew),'zeta step2d #2','r')

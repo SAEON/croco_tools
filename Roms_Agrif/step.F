@@ -85,7 +85,7 @@ C$OMP END PARALLEL
 #endif
 #include "ocean2d.h"
 #include "ocean3d.h"
-#if defined DEBUG && defined  BULK_FLUX
+#if defined RVTK_DEBUG && defined  BULK_FLUX
 # include "forces.h"
 #endif
 #ifdef STATIONS
@@ -269,7 +269,7 @@ C$OMP BARRIER
 # endif
       enddo
 C$OMP BARRIER
-#if defined DEBUG && defined  BULK_FLUX
+#if defined RVTK_DEBUG && defined  BULK_FLUX
 C$OMP MASTER
       call check_tab2d(uwndg(:,:,1),'uwndg1 prestep3d','u')
       call check_tab2d(uwndg(:,:,2),'uwndg2 prestep3d','u')
@@ -344,7 +344,7 @@ C$OMP BARRIER
 C$OMP BARRIER
 C$OMP MASTER
 
-#ifdef DEBUG
+#ifdef RVTK_DEBUG
       do itrc=1,NT
       call check_tab3d(t(:,:,:,nnew,itrc),'t prestep3d','r')
       enddo
@@ -528,7 +528,7 @@ C$OMP BARRIER
         endif
 #endif
 
-#ifdef DEBUG
+#ifdef RVTK_DEBUG
 C$OMP BARRIER
 C$OMP MASTER
        call check_tab2d(zeta(:,:,knew),'zeta step2d','r')
@@ -800,7 +800,7 @@ C$OMP MASTER
 C$OMP END MASTER
 C$OMP BARRIER
 
-#if defined DEBUG && defined SOLVE3D
+#if defined RVTK_DEBUG && defined SOLVE3D
 C$OMP BARRIER
 C$OMP MASTER
       do itrc=1,NT

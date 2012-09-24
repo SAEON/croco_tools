@@ -10,7 +10,7 @@
 !======================================================================
 !
 #include "cppdefs.h"
-#if defined DEBUG || defined DEBUG_ADVANCED
+#if defined RVTK_DEBUG || defined RVTK_DEBUG_ADVANCED
           subroutine debug_ini()
           
           open(107,file="check_file",form='unformatted')
@@ -236,7 +236,7 @@
           end subroutine check_tab3d    
           
 #else   
-! de if DEBUG !
+! de if RVTK_DEBUG !
         subroutine debug_ini()
         return
         end subroutine debug_ini
