@@ -447,7 +447,7 @@
 !   FillValue
 !
       real spval
-      parameter (spval=-9999.0)
-!      parameter (spval=0.0)
+!      parameter (spval=-9999.0)
+      parameter (spval=0.0)
       logical mask_val
       parameter (mask_val = .true.)
