@@ -87,7 +87,7 @@ elseif (nvar <=  39 & biol)
   unitbiol={'mMol N m-3';'mg C l-1';'mMol N m-3'};
   %timebiol={'no3_time';'chla_time';'phyto_time';'zoo_time'};
   disp(['Compute Biological variables type NPZD : '])
-  disp(['NchlPZD or N2ChlZD2 or N2P2Z2D2         '])
+  disp(['NChlPZD or N2ChlPZD2                     '])
   disp('==========================')
 elseif (pisces & nvar>=40)
   %Name, units etc .. of the variables

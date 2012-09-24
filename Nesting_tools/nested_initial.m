@@ -53,7 +53,7 @@ if biol
 	isbiolfiles=isbiolfiles+aa;
   end
   if isbiolfiles==length(namebiol)
-	disp('Compute Bio NPZD variables')
+	disp('Compute Biol. NPZD variables')
 	disp('==================')
   else
 	disp(sprintf(['ERROR in NPZD Processing : ... \n', ...

@@ -68,6 +68,13 @@ while 1==1
   
   %%
   
+  if strcmp(myline(1:11),'start_date:');
+      tline=fgetl(fid1);
+      fprintf(fid2,'%s\n',tline);
+  end
+  
+  %%
+  
   if strcmp(myline(1:14),'time_stepping:');
     tline=fgetl(fid1);
     A=sscanf(tline,'%f');
