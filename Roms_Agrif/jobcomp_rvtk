@@ -8,9 +8,13 @@ unalias cp
 #
 # set source, compilation and run directories
 #
-set SOURCE=../Roms_Agrif
-set SCRDIR=../Compile
+# ../Roms_Agrif
+set SOURCE=$SOURCE_ROMS
+echo "============================"
+echo "SOURCE_ROMS_AGRIF="$SOURCE
+set SCRDIR=./Compile
 set RUNDIR=`pwd`
+echo "============================"
 #
 # determine operating system
 #
@@ -20,8 +24,8 @@ echo OPERATING SYSTEM IS: $OS
 # Linux compiler options (only relevant to Linux OS)
 #
 if ($OS == Linux) then
-#  set LINUX_FC=gfortran
-  set LINUX_FC=ifort
+#  set LINUX_FC=ifort
+  set LINUX_FC=gfortran
 #  set LINUX_FC=g95
 #  set LINUX_FC=g77
 #
@@ -82,6 +86,7 @@ mkdir $SCRDIR
 # AGRIF sources directory
 #
 set AGRIF_SRC=${SOURCE}/AGRIF
+echo "AGRIF_SRC="$AGRIF_SRC
 #
 # copy SOURCE code
 #
@@ -105,11 +110,8 @@ endif
 #
 /bin/cp -f *.F $SCRDIR
 /bin/cp -f *.h $SCRDIR
-/bin/cp -f Make* $SCRDIR
-/bin/cp -f jobcomp $SCRDIR
-#/bin/cp -f amr.in $SCRDIR
 #
-# RVTK II  files  DEBUG CPP KEYS
+# RVTK I  files  DEBUG CPP KEYS
 #
 /bin/cp -f param_bak1.h ${SCRDIR}/param.h
 /bin/cp -f cppdefs_bak1.h ${SCRDIR}/cppdefs.h
@@ -131,15 +133,20 @@ if ($OS == Linux) then          # LINUX
  if ($LINUX_FC == ifort || $LINUX_FC == ifc) then
     setenv CPP1 "cpp -traditional -DLinux -DIfort"
     setenv CFT1 ifort
-#    setenv FFLAGS1 "-O3 -w90 -w95 -cm -72 -fno-alias -i4 -r8 -Vaxlib  -fp-model precise -traceback -check bounds -C"
-#   setenv FFLAGS1 "-O0 -w90 -w95 -cm -72 -i4 -r8 -fp-model precise -fp-speculation strict -check uninit -check bounds -traceback -g"
-   setenv FFLAGS1 "-O0 -w90 -w95 -cm -72 -i4 -r8 -fp-model precise -fp-speculation strict"
-    setenv LDFLAGS1 "-Vaxlib $LDFLAGS1"
+    setenv FFLAGS1 "-O0 -w90 -w95 -cm -72 -i4 -r8 -fp-model precise -fp-speculation strict"
+#    setenv FFLAGS1 "-O1 -w90 -w95 -cm -72 -fno-alias -i4 -r8 -Vaxlib  -fp-model precise"
   else if ($LINUX_FC == gfortran) then
     setenv CPP1 "cpp -traditional -DLinux"
     setenv CFT1 gfortran
-#    setenv FFLAGS1 "-O3 -i4 -fno-second-underscore -ffixed-line-length-132"
-    setenv FFLAGS1 "-O0 -fdefault-real-8"
+    setenv FFLAGS1 "-O0 -fdefault-real-8 -fbacktrace"
+#   ------------
+#   setenv FFLAGS1 "-O0 -g -fdefault-real-8 -fdefault-double-8 -fbacktrace -finit-real=nan -finit-integer=8888"
+#   WARNING :
+#   Il ne faut pas mettre les options -finit-real=nan -finit-integer=8888 
+#   lorsque l'on fait les tests RVTK DEBUG.
+#   Sinon ca produit des erreurs lors de la lecture du fichiers check_file 
+#   en configurations AGRIF + MPI. Ces erreurs sont aléatoires.
+#   ------------
     setenv LDFLAGS1 "$LDFLAGS1"
   endif
 else if ($OS == AIX) then       # IBM
@@ -181,9 +188,11 @@ else if ($OS == SunOS) then 	   # SUN:  tested on SunFire 880 (SPARC III)
   endif
 else if ($OS == Darwin) then          # DARWIN IFORT
   set OS = Darwin
-    setenv CPP1 "cpp -DLinux"
-    setenv CFT1 ifort
-    setenv FFLAGS1 "-O2 -r8 -i4 -g -w90 -w95 -cm -72"
+    setenv CPP1 "cpp -DLinux -traditional"
+#    setenv CFT1 ifort
+#    setenv FFLAGS1 "-O2 -r8 -i4 -g -w90 -w95 -cm -72"
+	setenv CFT1 mpif90
+    setenv FFLAGS1 "-Ofast -fdefault-real-8"
 else
   echo "Unknown Operating System"
   exit
