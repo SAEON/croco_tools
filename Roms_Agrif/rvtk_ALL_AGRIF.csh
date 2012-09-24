@@ -18,8 +18,8 @@ unalias rm
 unalias mv
 unalias cp
 
-#set MPIRUN=/usr/local/openmpi-1.4.3-gfortran/bin/mpirun
-set MPIRUN=/usr/local/openmpi-1.4.3-intel11/bin/mpirun
+set MPIRUN=/usr/local/openmpi-1.4.3-gfortran/bin/mpirun
+#set MPIRUN=/usr/local/openmpi-1.4.3-intel11/bin/mpirun
 echo "==========================="
 echo "MPIRUN COMMAND: "$MPIRUN
 echo "==========================="
@@ -50,8 +50,8 @@ echo ' '
 #
 # Type of Nesting (in case of VORTEX OR BENGUELA_LR/VHR)
 #
-#set LIST_AGRIFFLAG='OFF 1W 2W'
 set LIST_AGRIFFLAG='OFF 1W 2W'
+#set LIST_AGRIFFLAG='1W'
 echo 'Agrif type testing: '$LIST_AGRIFFLAG
 echo ' '
 #
@@ -210,7 +210,7 @@ echo OPEN-MP 1X2 NPP=2 TESTS
 echo
 /bin/rm param_bak1.h
 sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=1,\ NSUB_E=NPP'/' < param_bak0.h > param_bak1.h
-sed 's/'NPP=2'/'NPP=2'/' < param_bak1.h > param_bak2.h
+sed 's/'NPP=4'/'NPP=2'/' < param_bak1.h > param_bak2.h
 /bin/mv param_bak2.h param_bak1.h
 setenv OMP_NUM_THREADS 2
 #
@@ -282,7 +282,7 @@ echo
 /bin/rm param_bak1.h
 
 sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=2,\ NSUB_E=2'/' < param_bak0.h > param_bak1.h
-sed 's/'NPP=2'/'NPP=2'/' < param_bak1.h > param_bak2.h
+sed 's/'NPP=4'/'NPP=2'/' < param_bak1.h > param_bak2.h
 /bin/mv param_bak2.h param_bak1.h
 setenv OMP_NUM_THREADS 2
 #
@@ -317,7 +317,7 @@ echo
 /bin/rm param_bak1.h
 
 sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=1,\ NSUB_E=4'/' < param_bak0.h > param_bak1.h
-sed 's/'NPP=2'/'NPP=4'/' < param_bak1.h > param_bak2.h
+sed 's/'NPP=4'/'NPP=4'/' < param_bak1.h > param_bak2.h
 /bin/mv param_bak2.h param_bak1.h
 setenv OMP_NUM_THREADS 4
 #
@@ -352,7 +352,7 @@ echo
 /bin/rm param_bak1.h
 
 sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=4,\ NSUB_E=1'/' < param_bak0.h > param_bak1.h
-sed 's/'NPP=2'/'NPP=4'/' < param_bak1.h > param_bak2.h
+sed 's/'NPP=4'/'NPP=4'/' < param_bak1.h > param_bak2.h
 /bin/mv param_bak2.h param_bak1.h
 setenv OMP_NUM_THREADS 4
 #
@@ -386,7 +386,7 @@ echo
 /bin/rm param_bak1.h
 
 sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=2,\ NSUB_E=4'/' < param_bak0.h > param_bak1.h
-sed 's/'NPP=2'/'NPP=8'/' < param_bak1.h > param_bak2.h
+sed 's/'NPP=4'/'NPP=8'/' < param_bak1.h > param_bak2.h
 /bin/mv param_bak2.h param_bak1.h
 setenv OMP_NUM_THREADS 8
 #
@@ -420,7 +420,7 @@ echo
 /bin/rm param_bak1.h
 
 sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=4,\ NSUB_E=2'/' < param_bak0.h > param_bak1.h
-sed 's/'NPP=2'/'NPP=8'/' < param_bak1.h > param_bak2.h
+sed 's/'NPP=4'/'NPP=8'/' < param_bak1.h > param_bak2.h
 /bin/mv param_bak2.h param_bak1.h
 setenv OMP_NUM_THREADS 8
 #
@@ -455,7 +455,7 @@ echo
 /bin/rm param_bak1.h
 
 sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=1,\ NSUB_E=8'/' < param_bak0.h > param_bak1.h
-sed 's/'NPP=2'/'NPP=8'/' < param_bak1.h > param_bak2.h
+sed 's/'NPP=4'/'NPP=8'/' < param_bak1.h > param_bak2.h
 /bin/mv param_bak2.h param_bak1.h
 setenv OMP_NUM_THREADS 8
 #
@@ -489,7 +489,7 @@ echo
 /bin/rm param_bak1.h
 
 sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=8,\ NSUB_E=1'/' < param_bak0.h > param_bak1.h
-sed 's/'NPP=2'/'NPP=8'/' < param_bak1.h > param_bak2.h
+sed 's/'NPP=4'/'NPP=8'/' < param_bak1.h > param_bak2.h
 /bin/mv param_bak2.h param_bak1.h
 setenv OMP_NUM_THREADS 8
 #
