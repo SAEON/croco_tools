@@ -57,6 +57,7 @@ include Makedefs
 	def_grid.F	def_his.F	def_rst.F	set_avg.F\
 	wrt_grid.F	wrt_his.F	wrt_rst.F	wrt_avg.F\
 	output.F	put_global_atts.F\
+	nf_fread_x.F 	nf_fread_y.F\
 	def_diags.F			wrt_diags.F\
         wrt_diags_avg.F 		set_diags_avg.F\
         def_diagsM.F			wrt_diagsM.F\
@@ -69,6 +70,7 @@ include Makedefs
         get_smflux.F    get_stflux.F    get_srflux.F    get_sst.F\
         get_tides.F     clm_tides.F     get_bulk.F      bulk_flux.F\
         get_bry.F       get_bry_bio.F	nf_read_bry.F\
+        get_psource.F   nf_add_attribute.F fillvalue.F\
 \
         online_bulk_var.F		online_get_bulk.F\
 	online_interp.F			online_interpolate_bulk.F\

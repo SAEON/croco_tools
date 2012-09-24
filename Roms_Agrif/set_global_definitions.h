@@ -126,6 +126,12 @@
 #undef   CONST_TRACERS
 
 /*
+    Psource option
+*/
+#ifdef PSOURCE
+#  define ANA_PSOURCE  /* ON: To have the vertical profil of qbar */
+#endif
+/*
     Bulk flux option
 */
 #ifdef BULK_FLUX
@@ -408,6 +414,8 @@ c-# define TANH dtanh
 # define nf_put_var1_FTYPE nf_put_var1_double
 # define nf_get_vara_FTYPE nf_get_vara_double
 # define nf_put_vara_FTYPE nf_put_vara_double
+# define nf_put_var_FTYPE nf_put_var_double
+# define nf_put_att_FTYPE nf_put_att_double
 #else
 # define NF_FTYPE NF_REAL
 # define nf_get_att_FTYPE nf_get_att_real
@@ -416,8 +424,13 @@ c-# define TANH dtanh
 # define nf_put_var1_FTYPE nf_put_var1_real
 # define nf_get_vara_FTYPE nf_get_vara_real
 # define nf_put_vara_FTYPE nf_put_vara_real
+# define nf_put_var_FTYPE nf_put_var_real
+# define nf_put_att_FTYPE nf_put_att_real
 #endif
-
+/* 
+ Decide to fill the mask value by the _FillValue
+*/ 
+#define FILLVAL
 /*
  Choice of double/single precision for netCDF output.
 */

@@ -32,9 +32,9 @@
 !
       logical create_new_file
       integer ncid, total_rec, ierr, rec, lstr,lvar,lenstr, timedim
-     &      , r2dgrd(3),auxil(2),checkdims 
+     &      , r2dgrd(3), u2dgrd(3), v2dgrd(3),auxil(2),checkdims 
 #ifdef SOLVE3D
-     &      , r3dgrd(4),w3dgrd(4), iflux
+     &      , r3dgrd(4), u3dgrd(4), v3dgrd(4), w3dgrd(4), iflux
 #endif
 #ifndef AVRH
 # define ncname dianamebio
@@ -105,9 +105,9 @@
 ! ------ ---------- -- --------- -------
 !
         ierr=nf_def_dim (ncid, 'xi_rho',   xi_rho,   r2dgrd(1))
-c        ierr=nf_def_dim (ncid, 'xi_u',     xi_u,     u2dgrd(1))
+        ierr=nf_def_dim (ncid, 'xi_u',     xi_u,     u2dgrd(1))
         ierr=nf_def_dim (ncid, 'eta_rho',  eta_rho,  r2dgrd(2))
-c        ierr=nf_def_dim (ncid, 'eta_v',    eta_v,    v2dgrd(2))
+        ierr=nf_def_dim (ncid, 'eta_v',    eta_v,    v2dgrd(2))
 #ifdef SOLVE3D
         ierr=nf_def_dim (ncid, 's_rho',    N,        r3dgrd(3))
         ierr=nf_def_dim (ncid, 's_w',      N+1,      w3dgrd(3))
@@ -119,30 +119,30 @@ c        ierr=nf_def_dim (ncid, 'eta_v',    eta_v,    v2dgrd(2))
         auxil(2)=timedim
         r2dgrd(3)=timedim           ! Free surface
 
-c        u2dgrd(2)=r2dgrd(2)         ! 2D UBAR-type
-c        u2dgrd(3)=timedim
+        u2dgrd(2)=r2dgrd(2)         ! 2D UBAR-type
+        u2dgrd(3)=timedim
 
-c        v2dgrd(1)=r2dgrd(1)         ! 2D VBAR-type
-c        v2dgrd(3)=timedim
+        v2dgrd(1)=r2dgrd(1)         ! 2D VBAR-type
+        v2dgrd(3)=timedim
         
-c        b3dgrd(1)=r2dgrd(1)         !
-c        b3dgrd(2)=r2dgrd(2)         ! 3D BED-type
-c        b3dgrd(4)=timedim           !
+!        b3dgrd(1)=r2dgrd(1)         !
+!        b3dgrd(2)=r2dgrd(2)         ! 3D BED-type
+!        b3dgrd(4)=timedim           !
 
 #ifdef SOLVE3D
         r3dgrd(1)=r2dgrd(1)         !
         r3dgrd(2)=r2dgrd(2)         ! 3D RHO-type
         r3dgrd(4)=timedim           !
 
-c        u3dgrd(1)=u2dgrd(1)         !
-c        u3dgrd(2)=r2dgrd(2)         ! 3D U-type
-c        u3dgrd(3)=r3dgrd(3)         !
-c        u3dgrd(4)=timedim
+        u3dgrd(1)=u2dgrd(1)         !
+        u3dgrd(2)=r2dgrd(2)         ! 3D U-type
+        u3dgrd(3)=r3dgrd(3)         !
+        u3dgrd(4)=timedim
 
-c        v3dgrd(1)=r2dgrd(1)         !
-c        v3dgrd(2)=v2dgrd(2)         ! 3D V-type
-c        v3dgrd(3)=r3dgrd(3)         !
-c        v3dgrd(4)=timedim
+        v3dgrd(1)=r2dgrd(1)         !
+        v3dgrd(2)=v2dgrd(2)         ! 3D V-type
+        v3dgrd(3)=r3dgrd(3)         !
+        v3dgrd(4)=timedim
 
         w3dgrd(1)=r2dgrd(1)         !
         w3dgrd(2)=r2dgrd(2)         ! 3D W-type
@@ -157,7 +157,9 @@ c        v3dgrd(4)=timedim
 ! Define grid variables.
 ! ------ ---- ----------
 !
-        if (total_rec.le.1) call def_grid (ncid, r2dgrd)
+        if (total_rec.le.1) call def_grid (ncid, r2dgrd, 
+     &                                     u2dgrd, v2dgrd, 
+     &                                     r3dgrd, w3dgrd)
 #endif
 
 !

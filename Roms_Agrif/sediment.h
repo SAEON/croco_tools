@@ -59,17 +59,20 @@
        
       real Bfr(NLAY,NST)
       common /sediment_bedfrc/ Bfr      
-
+      
       real Hrip, Lrip
       common /sediment_bedrip/ Hrip, Lrip
-     
-      real bed_thick(GLOBAL_2D_ARRAY,NLAY), 
-     &     bed_poros(GLOBAL_2D_ARRAY,NLAY)
-      common /sediment_bed/ bed_thick, bed_poros
       
-      real bed_frac(GLOBAL_2D_ARRAY,NLAY,NST)
-      common /sediment_frac/ bed_frac      
- 
+      real bed_thick(GLOBAL_2D_ARRAY,NLAY), 
+     &     bed_poros(GLOBAL_2D_ARRAY,NLAY),
+     &     worksed_bed(GLOBAL_2D_ARRAY,NLAY)
+      common /sediment_bed/ bed_thick, bed_poros,
+     &                      worksed        
+       
+      real bed_frac(GLOBAL_2D_ARRAY,NLAY,NST),
+     &     worksed_frac(GLOBAL_2D_ARRAY,NLAY,NST)
+      common /sediment_frac/ bed_frac, worksed_frac     
+      
       character*80 Stitle
       common /charseds/ Stitle
 

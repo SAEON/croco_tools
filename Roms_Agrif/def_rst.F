@@ -33,6 +33,7 @@
      & , dim_Tinfo(3), dim_track(4), dim_fltgrd(2)
       character*65 vinfo(4)
 #endif
+
 #include "param.h"
 #include "scalars.h"
 #include "ncscrum.h"
@@ -190,7 +191,8 @@
 ! Define grid variables.
 ! ------ ---- ----------
 !
-        if (total_rec.eq.1) call def_grid (ncid, r2dgrd)
+        if (total_rec.eq.1) call def_grid (ncid, r2dgrd ,u2dgrd, v2dgrd,
+     &      r3dgrd, w3dgrd)
 #endif
 !
 ! Define evolving model variables:
@@ -200,7 +202,7 @@
 ! Time step number and time record numbers:
 !
         ierr=nf_def_var (ncid, 'time_step', nf_int, 2, auxil,
-     &                                                 rstTstep)
+     &       rstTstep)
         ierr=nf_put_att_text (ncid, rstTstep, 'long_name', 48,
      &       'time step and record numbers from initialization')
 !
@@ -208,7 +210,7 @@
 !
         lvar=lenstr(vname(1,indxTime))
         ierr=nf_def_var (ncid, vname(1,indxTime)(1:lvar),
-     &                              NF_FTYPE, 1, timedim, rstTime)
+     &                              NF_DOUBLE, 1, timedim, rstTime)
         lvar=lenstr(vname(2,indxTime))
         ierr=nf_put_att_text (ncid, rstTime, 'long_name', lvar,
      &                                  vname(2,indxTime)(1:lvar))
@@ -218,12 +220,32 @@
         lvar=lenstr (vname(4,indxTime))
         ierr=nf_put_att_text(ncid, rstTime, 'field',     lvar,
      &                                  vname(4,indxTime)(1:lvar))
+
+      call nf_add_attribute(ncid, rstTime, indxTime, 5, NF_DOUBLE, ierr)
 !
-! Free-surface.
+! Time2.
+!
+        lvar=lenstr(vname(1,indxTime2))
+        ierr=nf_def_var (ncid, vname(1,indxTime2)(1:lvar),
+     &                              NF_DOUBLE, 1, timedim, rstTime2)
+        lvar=lenstr(vname(2,indxTime2))
+        ierr=nf_put_att_text (ncid, rstTime2, 'long_name', lvar,
+     &                                  vname(2,indxTime2)(1:lvar))
+        lvar=lenstr(vname(3,indxTime2))
+        ierr=nf_put_att_text (ncid, rstTime2, 'units',     lvar,
+     &                                  vname(3,indxTime2)(1:lvar))
+        lvar=lenstr (vname(4,indxTime2))
+        ierr=nf_put_att_text(ncid, rstTime2, 'field',     lvar,
+     &                                  vname(4,indxTime2)(1:lvar))
+
+        call nf_add_attribute(ncid, rstTime2, indxTime2, 5,  
+     &       NF_DOUBLE, ierr)
+!     
+!     Free-surface.
 !
         lvar=lenstr(vname(1,indxZ))
         ierr=nf_def_var (ncid, vname(1,indxZ)(1:lvar),
-     &                                  NF_FTYPE, 3, r2dgrd,rstZ)
+     &                                  NF_DOUBLE, 3, r2dgrd,rstZ)
         lvar=lenstr(vname(2,indxZ))
         ierr=nf_put_att_text (ncid, rstZ, 'long_name', lvar,
      &                                     vname(2,indxZ)(1:lvar))
@@ -233,12 +255,15 @@
         lvar=lenstr(vname(4,indxZ))
         ierr=nf_put_att_text (ncid, rstZ, 'field', lvar,
      &                                     vname(4,indxZ)(1:lvar))
-!
-! 2D momenta in XI- and ETA-directions.
+
+      call nf_add_attribute(ncid, rstZ, indxZ, 5, NF_DOUBLE, ierr)
+
+!     
+!   2D momenta in XI- and ETA-directions.
 !
         lvar=lenstr(vname(1,indxUb))
         ierr=nf_def_var (ncid, vname(1,indxUb)(1:lvar),
-     &                               NF_FTYPE, 3, u2dgrd, rstUb)
+     &                               NF_DOUBLE, 3, u2dgrd, rstUb)
         lvar=lenstr(vname(2,indxUb))
         ierr=nf_put_att_text (ncid, rstUb, 'long_name', lvar,
      &                                   vname(2,indxUb)(1:lvar))
@@ -247,11 +272,12 @@
      &                                   vname(3,indxUb)(1:lvar))
         lvar=lenstr(vname(4,indxUb))
         ierr=nf_put_att_text (ncid, rstUb, 'field', lvar,
-     &                                   vname(4,indxUb)(1:lvar))
+     &                                   vname(4,indxUb)(1:lvar))  
+      call nf_add_attribute(ncid, rstUb, indxUb, 5, NF_DOUBLE, ierr)
 
         lvar=lenstr(vname(1,indxVb))
         ierr=nf_def_var (ncid, vname(1,indxVb)(1:lvar),
-     &                               NF_FTYPE, 3, v2dgrd, rstVb)
+     &                               NF_DOUBLE, 3, v2dgrd, rstVb)
         lvar=lenstr(vname(2,indxVb))
         ierr=nf_put_att_text (ncid, rstVb, 'long_name', lvar,
      &                                   vname(2,indxVb)(1:lvar))
@@ -261,13 +287,17 @@
         lvar=lenstr(vname(4,indxVb))
         ierr=nf_put_att_text (ncid, rstVb, 'field',     lvar,
      &                                  vname(4,indxVb)(1:lvar))
+        
+       call nf_add_attribute(ncid, rstVb, indxVb, 5, NF_DOUBLE, ierr)
+
+
 #ifdef SOLVE3D
 !
 ! 3D momenta in XI- and ETA-directions.
 !
         lvar=lenstr(vname(1,indxU))
         ierr=nf_def_var (ncid, vname(1,indxU)(1:lvar),
-     &                              NF_FTYPE, 4, u3dgrd, rstU)
+     &                              NF_DOUBLE, 4, u3dgrd, rstU)
         lvar=lenstr(vname(2,indxU))
         ierr=nf_put_att_text (ncid, rstU, 'long_name', lvar,
      &                                   vname(2,indxU)(1:lvar))
@@ -278,9 +308,11 @@
         ierr=nf_put_att_text (ncid, rstU, 'field',     lvar,
      &                                  vname(4,indxU)(1:lvar))
 
+        call nf_add_attribute(ncid, rstU, indxU, 5, NF_DOUBLE, ierr)
+
         lvar=lenstr(vname(1,indxV))
         ierr=nf_def_var (ncid, vname(1,indxV)(1:lvar),
-     &                              NF_FTYPE, 4, v3dgrd, rstV)
+     &                              NF_DOUBLE, 4, v3dgrd, rstV)
         lvar=lenstr(vname(2,indxV))
         ierr=nf_put_att_text (ncid, rstV, 'long_name', lvar,
      &                                   vname(2,indxV)(1:lvar))
@@ -290,22 +322,30 @@
         lvar=lenstr(vname(4,indxV))
         ierr=nf_put_att_text (ncid, rstV, 'field',     lvar,
      &                                  vname(4,indxV)(1:lvar))
+
+        call nf_add_attribute(ncid, rstV, indxVb, 5, NF_DOUBLE, ierr)
+
 !
 ! Tracer variables.
 !
         do itrc=1,NT
           lvar=lenstr(vname(1,indxT+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxT+itrc-1)(1:lvar),
-     &                          NF_FTYPE, 4, r3dgrd, rstT(itrc))
+     &         NF_DOUBLE, 4, r3dgrd, rstT(itrc))
           lvar=lenstr(vname(2,indxT+itrc-1))
           ierr=nf_put_att_text (ncid, rstT(itrc), 'long_name',
      &                     lvar,   vname(2,indxT+itrc-1)(1:lvar))
           lvar=lenstr(vname(3,indxT+itrc-1))
           ierr=nf_put_att_text (ncid, rstT(itrc), 'units', lvar,
-     &                             vname(3,indxT+itrc-1)(1:lvar))
+     &         vname(3,indxT+itrc-1)(1:lvar))
           lvar=lenstr(vname(4,indxT+itrc-1))
           ierr=nf_put_att_text (ncid, rstT(itrc), 'field', lvar,
-     &                             vname(4,indxT+itrc-1)(1:lvar))
+     &         vname(4,indxT+itrc-1)(1:lvar))
+
+          call nf_add_attribute(ncid, rstT(itrc), indxT+itrc-1, 5, 
+     &         NF_DOUBLE,ierr)
+
+          
         enddo
 #endif
 #ifdef SEDIMENT
@@ -314,7 +354,7 @@
 !
         lvar=lenstr(vname(1,indxBTHK))
         ierr=nf_def_var (ncid, vname(1,indxBTHK)(1:lvar),
-     &                              NF_FTYPE, 4, b3dgrd, rstSed(1))
+     &                              NF_DOUBLE, 4, b3dgrd, rstSed(1))
         lvar=lenstr(vname(2,indxBTHK))
         ierr=nf_put_att_text (ncid, rstSed(1), 'long_name', lvar,
      &                                   vname(2,indxBTHK)(1:lvar))
@@ -324,13 +364,16 @@
         lvar=lenstr(vname(4,indxBTHK))
         ierr=nf_put_att_text (ncid, rstSed(1), 'field',     lvar,
      &                                  vname(4,indxBTHK)(1:lvar))
-     
+
+      call nf_add_attribute(ncid, rstSed(1), indxBTHK, 5, 
+     &       NF_DOUBLE,ierr)
+
 !
 ! Sediment bed porosity
 !
         lvar=lenstr(vname(1,indxBPOR))
         ierr=nf_def_var (ncid, vname(1,indxBPOR)(1:lvar),
-     &                              NF_FTYPE, 4, b3dgrd, rstSed(2))
+     &                              NF_DOUBLE, 4, b3dgrd, rstSed(2))
         lvar=lenstr(vname(2,indxBPOR))
         ierr=nf_put_att_text (ncid, rstSed(2), 'long_name', lvar,
      &                                   vname(2,indxBPOR)(1:lvar))
@@ -340,7 +383,10 @@
         lvar=lenstr(vname(4,indxBPOR))
         ierr=nf_put_att_text (ncid, rstSed(2), 'field',     lvar,
      &                                  vname(4,indxBPOR)(1:lvar))
-     
+        
+      call nf_add_attribute(ncid, rstSed(2), indxBPOR, 5, 
+     &       NF_DOUBLE, ierr)
+   
 !
 ! Bed size class fractions.
 !
@@ -348,7 +394,7 @@
            indxWrk=indxBFRA+itrc-1
           lvar=lenstr(vname(1,indxWrk))
           ierr=nf_def_var (ncid, vname(1,indxWrk)(1:lvar),
-     &                          NF_FTYPE, 4, b3dgrd, rstSed(itrc+2))
+     &                          NF_DOUBLE, 4, b3dgrd, rstSed(itrc+2))
           lvar=lenstr(vname(2,indxWrk))
           ierr=nf_put_att_text (ncid, rstSed(itrc+2), 'long_name',
      &                     lvar,   vname(2,indxWrk)(1:lvar))
@@ -358,6 +404,10 @@
           lvar=lenstr(vname(4,indxWrk))
           ierr=nf_put_att_text (ncid, rstSed(itrc+2), 'field', lvar,
      &                             vname(4,indxWrk)(1:lvar))
+
+      call nf_add_attribute(ncid, rstSed(itrc+2), indxWrk, 5, 
+     &         NF_DOUBLE, ierr)
+
         enddo          
 # endif /* SEDIMENT */
 # ifdef BBL
@@ -366,7 +416,7 @@
 !
         lvar=lenstr(vname(1,indxHrip))
         ierr=nf_def_var (ncid, vname(1,indxHrip)(1:lvar),
-     &                              NF_FTYPE, 3, r2dgrd, rstBBL(1))
+     &                              NF_DOUBLE, 3, r2dgrd, rstBBL(1))
         lvar=lenstr(vname(2,indxHrip))
         ierr=nf_put_att_text (ncid, rstBBL(1), 'long_name', lvar,
      &                                   vname(2,indxHrip)(1:lvar))
@@ -376,13 +426,17 @@
         lvar=lenstr(vname(4,indxHrip))
         ierr=nf_put_att_text (ncid, rstBBL(1), 'field',     lvar,
      &                                  vname(4,indxHrip)(1:lvar))
-     
+
+        call nf_add_attribute(ncid, rstBBL(1), indxHrip, 5, 
+        NF_DOUBLE, ierr)
+
+ 
 !
 ! Bed ripple length
 !
         lvar=lenstr(vname(1,indxLrip))
         ierr=nf_def_var (ncid, vname(1,indxLrip)(1:lvar),
-     &                              NF_FTYPE, 3, r2dgrd, rstBBL(2))
+     &                              NF_DOUBLE, 3, r2dgrd, rstBBL(2))
         lvar=lenstr(vname(2,indxLrip))
         ierr=nf_put_att_text (ncid, rstBBL(2), 'long_name', lvar,
      &                                   vname(2,indxLrip)(1:lvar))
@@ -392,6 +446,9 @@
         lvar=lenstr(vname(4,indxLrip))
         ierr=nf_put_att_text (ncid, rstBBL(2), 'field',     lvar,
      &                                  vname(4,indxLrip)(1:lvar))
+
+        call nf_add_attribute(ncid, rstBBL, indxLrip, 5, 
+     &       NF_DOUBLE, ierr)
 # endif /* BBL */
 
 
@@ -416,7 +473,7 @@
            vinfo(2)='initial float release information array'
 
            lvar=lenstr(vinfo(1))
-           ierr=nf_def_var(ncid,vinfo(1)(1:lvar),NF_FTYPE,
+           ierr=nf_def_var(ncid,vinfo(1)(1:lvar),NF_DOUBLE,
      &                    3,dim_Tinfo,rstTinfo)
            lvar=lenstr(vinfo(2))
            ierr=nf_put_att_text(ncid,rstTinfo,'long_name',lvar,
@@ -440,7 +497,7 @@
            vinfo(2)='Position and velocity array for released floats'
            vinfo(3)='x,y,z,u,v,w in this order'
            lvar=lenstr(vinfo(1))
-           ierr=nf_def_var(ncid,vinfo(1)(1:lvar),NF_FTYPE,
+           ierr=nf_def_var(ncid,vinfo(1)(1:lvar),NF_DOUBLE,
      &                    4,dim_track,rsttrack)
            lvar=lenstr(vinfo(2))
            ierr=nf_put_att_text(ncid,rsttrack,'long_name',lvar,
@@ -543,6 +600,15 @@
           goto 99                                         !--> ERROR
         endif
 !
+! Time2.
+!
+        lvar=lenstr(vname(1,indxTime2))
+        ierr=nf_inq_varid (ncid, vname(1,indxTime2)(1:lvar), rstTime2)
+        if (ierr. ne. nf_noerr) then
+          write(stdout,1) vname(1,indxTime2)(1:lvar), rstname(1:lstr)
+          goto 99                                         !--> ERROR
+        endif
+
 ! Free-surface.
 !
         lvar=lenstr(vname(1,indxZ))

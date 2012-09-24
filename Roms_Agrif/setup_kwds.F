@@ -536,7 +536,11 @@
 #ifdef ANA_PSOURCE
       ie=is + 7
       if (ie.ge.max_opt_size) goto 99
+#ifdef PSOURCE_VAR
+      Coptions(is:ie)='psource_var'
+#else
       Coptions(is:ie)='psource'
+#endif /* PSOURCE_VAR */
       Coptions(ie+1:ie+1)=' '
       is=ie+2
 #endif /* ANA_SOURCES */

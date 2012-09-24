@@ -15,6 +15,8 @@
 #ifdef SOLVE3D
       real work(GLOBAL_2D_ARRAY,0:N)
       common /work3d/ work
+      real workr(GLOBAL_2D_ARRAY,1:N)
+      common /work3d_r/ workr
 #endif
 
       real work2d(GLOBAL_2D_ARRAY)

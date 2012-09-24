@@ -180,6 +180,7 @@ C$OMP END PARALLEL
       ncidfrc=-1
       ncidbulk=-1
       ncidclm=-1
+      ncidriv=-1
 #ifdef DIAGNOSTICS_TS
       nciddia=-1
 # ifdef AVERAGES
@@ -209,50 +210,114 @@ C$OMP END PARALLEL
 ! attributes (name, long-name, units, field).
 !---------------------------------------------------------------
 !
-!--#define CR  
+!vname(5,indx?) => standard name (for all)
+!vname(6,indx?) => coordinate (for 2D grid fields)
+!vname(7,indx?) => axis (for variable dimension, Z-axis and time)
+!vname(8,indx?) => _FillValue
+!vname(9,indx?) => positive for vertical axis
+!vname(10,indx?) => time origin
+!vname(11,indx?) => calendar for time
+!vname(12,indx?) => ?
+!vname(13,indx?) => ?
+!vname(14,indx?) => ?
+
+! Initialisation at one blanck space
+      vname(:,:)=' '
+
+!#define CR
 CR      write(stdout,'(1x,A,I3)') 'indxTime =',indxTime
-      vname(1,indxTime)='scrum_time                               '
-      vname(2,indxTime)='time since initialization                '
-      vname(3,indxTime)='second                                   '
-      vname(4,indxTime)='time, scalar, series                     '
+      vname(1,indxTime)='scrum_time'
+      vname(2,indxTime)='time since initialization'
+      vname(3,indxTime)='second'
+      vname(4,indxTime)='time, scalar, series'
+      vname(5,indxTime)='time'
+      vname(6,indxTime)='    '
+      vname(7,indxTime)='T'
+      vname(8,indxTime)='.NO.'
+      vname(9,indxTime)=' ' 
+      vname(10,indxTime)=start_date
+!      vname(11,indxTime)='Gregorian'
+
+CR      write(stdout,'(1x,A,I3)') 'indxTime2 =',indxTime2
+      vname(1,indxTime2)='time'
+      vname(2,indxTime2)='time since initialization'
+      vname(3,indxTime2)='second'
+      vname(4,indxTime2)='time, scalar, series'
+      vname(5,indxTime2)='time'
+      vname(6,indxTime2)='  '
+      vname(7,indxTime2)='T '
+      vname(8,indxTime2)='.NO.'
+      vname(9,indxTime2)=' ' 
+      vname(10,indxTime2)=start_date
+!      vname(11,indxTime2)='Gregorian'
 
 CR      write(stdout,'(1x,A,I3)') 'indxZ =',indxZ
       vname(1,indxZ)='zeta                                        '
       vname(2,indxZ)='free-surface                                '
       vname(3,indxZ)='meter                                       '
       vname(4,indxZ)='free-surface, scalar, series                '
+      vname(5,indxZ)='sea_surface_height                          '
+      vname(6,indxZ)='lat_rho lon_rho                             '
+      vname(7,indxZ)='                                            '
 
 CR      write(stdout,'(1x,A,I3)') 'indxUb =',indxUb
       vname(1,indxUb)='ubar                                       '
       vname(2,indxUb)='vertically integrated u-momentum component '
       vname(3,indxUb)='meter second-1                             '
       vname(4,indxUb)='ubar-velocity, scalar, series              '
+      vname(5,indxUb)='barotropic_sea_water_x_'
+     &               // 'velocity_at_u_location'
+      vname(6,indxUb)='lat_u lon_u                     '
+      vname(7,indxUb)='                                '
 
 CR      write(stdout,'(1x,A,I3)') 'indxVb = ',indxVb
       vname(1,indxVb)='vbar                                       '
       vname(2,indxVb)='vertically integrated v-momentum component '
       vname(3,indxVb)='meter second-1                             '
       vname(4,indxVb)='vbar-velocity, scalar, series              '
+      vname(5,indxVb)='barotropic_sea_water_y_velocity_at_'
+     &                // 'v_location'
+      vname(6,indxVb)='lat_v lon_v                           '
+      vname(7,indxVb)='                                           '
+      vname(11,indxVb)=' '
 
 CR      write(stdout,'(1x,A,I3)') 'indxBostr =',indxBostr
       vname(1,indxBostr)='bostr                                   '
       vname(2,indxBostr)='Kinematic bottom stress                 '
       vname(3,indxBostr)='N/m2                                    '
+      vname(4,indxBostr)='                                        '
+      vname(5,indxBostr)='                                        '
+      vname(6,indxBostr)='lat_rho lon_rho'
+      vname(7,indxBostr)='                                        '
+
 
 CR      write(stdout,'(1x,A,I3)') 'indxWstr =',indxWstr
-      vname(1,indxWstr)='wstr                                   '
-      vname(2,indxWstr)='Kinematic wind stress                  '
-      vname(3,indxWstr)='N/m2                                   '
-                               
+      vname(1,indxWstr)='wstr                                     '
+      vname(2,indxWstr)='Kinematic wind stress                    '
+      vname(3,indxWstr)='N/m2                                     '
+      vname(4,indxWstr)='                                         '
+      vname(5,indxWstr)='                                         '
+      vname(6,indxWstr)='lat_rho lon_rho                          '
+      vname(7,indxWstr)='                                         '
+
 CR      write(stdout,'(1x,A,I3)') 'indxUWstr =',indxUWstr
-      vname(1,indxUWstr)='sustr                                  '
-      vname(2,indxUWstr)='Kinematic u wind stress component      '
-      vname(3,indxUWstr)='N/m2                                   '
+      vname(1,indxUWstr)='sustr                                   '
+      vname(2,indxUWstr)='Kinematic u wind stress component       '
+      vname(3,indxUWstr)='N/m2                                    '
+      vname(4,indxUWstr)='                                        ' 
+      vname(5,indxUWstr)='surface_downward_eastward_stress        '
+      vname(6,indxUWstr)='lat_u lon_u                  '
+      vname(7,indxUWstr)='                                        '
+      vname(8,indxUWstr)=' '                
 
 CR      write(stdout,'(1x,A,I3)') 'indxVWstr =',indxVWstr
-      vname(1,indxVWstr)='svstr                                  '
-      vname(2,indxVWstr)='Kinematic v wind stress component      '
-      vname(3,indxVWstr)='N/m2                                   '
+      vname(1,indxVWstr)='svstr                                   '
+      vname(2,indxVWstr)='Kinematic v wind stress component       '
+      vname(3,indxVWstr)='N/m2                                    '
+      vname(4,indxVWstr)='                                        '
+      vname(5,indxVWstr)='surface_downward_northward_stress       '
+      vname(6,indxVWstr)='lat_v lon_v                  '
+      vname(7,indxVWstr)='                                        '
 
 #ifdef SOLVE3D
 CR      write(stdout,'(1x,A,I3)') 'indxU = ',indxU
@@ -260,25 +325,38 @@ CR      write(stdout,'(1x,A,I3)') 'indxU = ',indxU
       vname(2,indxU)='u-momentum component                        '
       vname(3,indxU)='meter second-1                              '
       vname(4,indxU)='u-velocity, scalar, series                  '
+      vname(5,indxU)='sea_water_x_velocity_at_u_location          '
+      vname(6,indxU)='lat_u lon_u                      '
+      vname(7,indxU)='                                            '
 
 CR      write(stdout,'(1x,A,I3)') 'indxV = ',indxV
       vname(1,indxV)='v                                           '
       vname(2,indxV)='v-momentum component                        '
       vname(3,indxV)='meter second-1                              '
       vname(4,indxV)='v-velocity, scalar, series                  '
-
+      vname(5,indxV)='sea_water_y_velocity_at_v_location          '
+      vname(6,indxV)='lat_v lon_v                      '
+      vname(7,indxV)='                                            '
+                
 CR      write(stdout,'(1x,A,I3)') 'indxT = ',indxT
       vname(1,indxT)='temp                                        '
       vname(2,indxT)='potential temperature                       '
       vname(3,indxT)='Celsius                                     '
       vname(4,indxT)='temperature, scalar, series                 '
-
+      vname(5,indxT)='                                            '
+      vname(6,indxT)='lat_rho lon_rho                  '
+      vname(7,indxT)='                                            '
+                
 # ifdef SALINITY
 CR      write(stdout,'(1x,A,I3)') 'indxS = ',indxS
       vname(1,indxS)='salt                                        '
       vname(2,indxS)='salinity                                    '
       vname(3,indxS)='PSU                                         '
       vname(4,indxS)='salinity, scalar, series                    '
+      vname(5,indxS)='sea_water_salinity                          '
+      vname(6,indxS)='lat_rho lon_rho                             '
+      vname(7,indxS)='                                            '
+                
 # endif
 
 # ifdef PASSIVE_TRACER
@@ -287,6 +365,10 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(2,indxTPAS)='passive tracer                           '
       vname(3,indxTPAS)='no unit                                  '
       vname(4,indxTPAS)='passive tracer, scalar, series           '
+      vname(5,indxTPAS)='                                         '
+      vname(6,indxTPAS)='lat_rho lon_rho                          '
+      vname(7,indxTPAS)='                                         '
+
 # endif
 
 # ifdef BIOLOGY
@@ -295,121 +377,194 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(2,indxDIC)='Dissolved inorganic carbon                '
       vname(3,indxDIC)='umol C L-1                                '
       vname(4,indxDIC)='DIC, scalar, series                       '
+      vname(5,indxDIC)='mole_concentration_of_dissolved_
+    &                   inorganic_carbon_in_sea_water'
+      vname(6,indxDIC)='lat_rho lon_rho                          '
+      vname(7,indxDIC)='                                         '
 
       vname(1,indxTAL)='TALK                                      '
       vname(2,indxTAL)='Total Alkalinity                          '
       vname(3,indxTAL)='umol C L-1                                '
       vname(4,indxTAL)='Alkalinity, scalar, series                '
+      vname(5,indxTAL)='                                          '
+      vname(6,indxTAL)='lat_rho lon_rho                           '
+      vname(7,indxTAL)='                                          '
 
       vname(1,indxOXY)='O2                                        '
       vname(2,indxOXY)='Oxygen                                    '
       vname(3,indxOXY)='umol L-1                                  '
       vname(4,indxOXY)='Oxygen, scalar, series                    '
+      vname(5,indxOXY)='                                          '
+      vname(6,indxOXY)='lat_rho lon_rho                           '
+      vname(7,indxOXY)='                                          '
 
       vname(1,indxCAL)='CACO3                                     '
       vname(2,indxCAL)='Calcite                                   '
       vname(3,indxCAL)='umol C L-1                                '
       vname(4,indxCAL)='Calcite, scalar, series                   '
+      vname(5,indxCAL)='                                          '
+      vname(6,indxCAL)='                                          '
+      vname(7,indxCAL)='                                          '
 
-      vname(1,indxPO4)='PO4                                       '
+      vname(1,indxPO4)='PO4                                       ' 
       vname(2,indxPO4)='Phosphate                                 '
       vname(3,indxPO4)='umol P L-1                                '
       vname(4,indxPO4)='Phosphate, scalar, series                 '
+      vname(5,indxPO4)='                                          '
+      vname(6,indxPO4)='lat_rho lon_rho                           '              
+      vname(7,indxPO4)='                                          '
 
       vname(1,indxPOC)='POC                                       '
       vname(2,indxPOC)='Small particulate organic carbon          '
       vname(3,indxPOC)='umol C L-1                                '
       vname(4,indxPOC)='Small particles, scalar, series           '
-
-      vname(1,indxSIL)='Si                                        '
+      vname(5,indxPOC)='                                          '
+      vname(6,indxPOC)='lat_rho lon_rho                           '              
+      vname(7,indxPOC)='                                          '
+      
+      vname(1,indxSIL)='Si                                        ' 
       vname(2,indxSIL)='Silicate                                  '
       vname(3,indxSIL)='umol Si L-1                               '
       vname(4,indxSIL)='Silicate, scalar, series                  '
-
+      vname(5,indxSIL)='                                          '      
+      vname(6,indxSIL)='lat_rho lon_rho                           '            
+      vname(7,indxSIL)='                                          '    
+                                        
       vname(1,indxPHY)='NANO                                      '
       vname(2,indxPHY)='Nanophytoplankton                         '
       vname(3,indxPHY)='umol C L-1                                '
       vname(4,indxPHY)='Nanophytoplankton, scalar, series         '
+      vname(5,indxPHY)='                                          '
+      vname(6,indxPHY)='lat_rho lon_rho                           '              
+      vname(7,indxPHY)='                                          '
 
       vname(1,indxZOO)='ZOO                                       '
       vname(2,indxZOO)='Microzooplankton                          '
       vname(3,indxZOO)='umol C L-1                                '
       vname(4,indxZOO)='Microzooplankton, scalar, series          '
+      vname(5,indxZOO)='                                          '
+      vname(6,indxZOO)='lat_rho lon_rho                           '              
+      vname(7,indxZOO)='                                          '
 
       vname(1,indxDOC)='DOC                                       '
       vname(2,indxDOC)='Dissolved organic carbon                  '
       vname(3,indxDOC)='umol C L-1                                '
       vname(4,indxDOC)='DOC, scalar, series                       '
+      vname(5,indxDOC)='                                          '
+      vname(6,indxDOC)='lat_rho lon_rho                           '              
+      vname(7,indxDOC)='                                          '
 
       vname(1,indxDIA)='DIA                                       '
       vname(2,indxDIA)='Diatoms                                   '
       vname(3,indxDIA)='umol C L-1                                '
       vname(4,indxDIA)='Diatoms, scalar, series                   '
+      vname(5,indxDIA)='                                          '
+      vname(6,indxDIA)='lat_rho lon_rho                           '              
+      vname(7,indxDIA)='                                          '
 
       vname(1,indxMES)='MESO                                      '
       vname(2,indxMES)='Mesozooplankton                           '
       vname(3,indxMES)='umol C L-1                                '
       vname(4,indxMES)='Mesozooplankton, scalar, series           '
+      vname(5,indxMES)='                                          '
+      vname(6,indxMES)='lat_rho lon_rho                           '                  
+      vname(7,indxMES)='                                          '
 
       vname(1,indxBSI)='BSI                                       '
       vname(2,indxBSI)='Diatoms silicon                           '
       vname(3,indxBSI)='umol Si L-1                               '
       vname(4,indxBSI)='BSi, scalar, series                       '
+      vname(5,indxBSI)='                                          '
+      vname(6,indxBSI)='lat_rho lon_rho                           '                  
+      vname(7,indxBSI)='                                          '
 
       vname(1,indxFER)='FER                                       '
       vname(2,indxFER)='Dissolved iron                            '
       vname(3,indxFER)='umol Fe L-1                               '
       vname(4,indxFER)='Iron, scalar, series                      '
+      vname(5,indxFER)='                                          '
+      vname(6,indxFER)='lat_rho lon_rho                           '                  
+      vname(7,indxFER)='                                          '
 
       vname(1,indxBFE)='BFE                                       '
       vname(2,indxBFE)='Iron in big particles                     '
       vname(3,indxBFE)='umol Fe L-1                               '
       vname(4,indxBFE)='BFE, scalar, series                       '
+      vname(5,indxBFE)='                                          '
+      vname(6,indxBFE)='lat_rho lon_rho                           '                  
+      vname(7,indxBFE)='                                          '
 
       vname(1,indxGOC)='GOC                                       '
       vname(2,indxGOC)='Big particulate organic carbon            '
       vname(3,indxGOC)='umol C L-1                                '
       vname(4,indxGOC)='GOC, scalar, series                       '
+      vname(5,indxGOC)='                                          '
+      vname(6,indxGOC)='lat_rho lon_rho                           '                  
+      vname(7,indxGOC)='                                          '
 
       vname(1,indxSFE)='SFE                                       '
       vname(2,indxSFE)='Iron in nanophytoplankton                 '
       vname(3,indxSFE)='umol Fe L-1                               '
       vname(4,indxSFE)='SFE, scalar, series                       '
+      vname(5,indxSFE)='                                          '
+      vname(6,indxSFE)='lat_rho lon_rho                           '                  
+      vname(7,indxSFE)='                                          '
 
       vname(1,indxDFE)='DFE                                       '
       vname(2,indxDFE)='Iron in diatoms                           '
       vname(3,indxDFE)='umol Fe L-1                               '
       vname(4,indxDFE)='DFE, scalar, series                       '
+      vname(5,indxDFE)='                                          '
+      vname(6,indxDFE)='lat_rho lon_rho                           '                  
+      vname(7,indxDFE)='                                          '
 
       vname(1,indxDSI)='DSI                                       '
       vname(2,indxDSI)='Biogenic silica                           '
       vname(3,indxDSI)='umol Si L-1                               '
       vname(4,indxDSI)='DSI, scalar, series                       '
+      vname(5,indxDSI)='                                          '
+      vname(6,indxDSI)='lat_rho lon_rho                           '
+      vname(7,indxDSI)='                                          '    
 
-      vname(1,indxNFE)='NFE                                       '
+      vname(1,indxNFE)='NFE                                       ' 
       vname(2,indxNFE)='Iron in small particles                   '
       vname(3,indxNFE)='umol Fe L-1                               '
       vname(4,indxNFE)='NFE, scalar, series                       '
+      vname(5,indxNFE)='                                          '
+      vname(6,indxNFE)='lat_rho lon_rho                           '                     
+      vname(7,indxNFE)='                                          '
 
       vname(1,indxNCH)='NCHL                                      '
       vname(2,indxNCH)='Chlorophyll in nano                       '
       vname(3,indxNCH)='mg Chl m-3                                '
       vname(4,indxNCH)='NCHL, scalar, series                      '
+      vname(5,indxNCH)='                                          '
+      vname(6,indxNCH)='lat_rho lon_rho                           '              
+      vname(7,indxNCH)='                                          '
 
       vname(1,indxDCH)='DCHL                                      '
       vname(2,indxDCH)='Chlorophyll in diatoms                    '
       vname(3,indxDCH)='mg Chl m-3                                '
       vname(4,indxDCH)='DCHL, scalar, series                      '
+      vname(5,indxDCH)='                                          '
+      vname(6,indxDCH)='lat_rho lon_rho                           '              
+      vname(7,indxDCH)='                                          '
 
       vname(1,indxNO3)='NO3                                       '
       vname(2,indxNO3)='Nitrate                                   '
       vname(3,indxNO3)='umol N L-1                                '
       vname(4,indxNO3)='Nitrate, scalar, series                   '
+      vname(5,indxNO3)='                                          '
+      vname(6,indxNO3)='lat_rho lon_rho                           '             
+      vname(7,indxNO3)='                                          '
 
       vname(1,indxNH4)='NH4                                       '
       vname(2,indxNH4)='Ammonium                                  '
       vname(3,indxNH4)='umol N L-1                                '
       vname(4,indxNH4)='Ammonium, scalar, series                  '
+      vname(5,indxNH4)='                                          '
+      vname(6,indxNH4)='lat_rho lon_rho                           '              
+      vname(7,indxNH4)='                                          '
 
 #  elif defined BIO_NChlPZD
 CR      write(stdout,'(1x,A,I3)') 'indxNO3 =',indxNO3
@@ -417,38 +572,55 @@ CR      write(stdout,'(1x,A,I3)') 'indxNO3 =',indxNO3
       vname(2,indxNO3)='NO3 Nutrient                              '
       vname(3,indxNO3)='mMol N m-3                                '
       vname(4,indxNO3)='NO3, scalar, series                       '
+      vname(5,indxNO3)='                                          '
+      vname(6,indxNO3)='lat_rho lon_rho                           '              
+      vname(7,indxNO3)='                                          '
 
 CR      write(stdout,'(1x,A,I3)') 'indxChla =',indxChla
       vname(1,indxChla)='CHLA                                     '
       vname(2,indxChla)='Chlorophyll A                            '
       vname(3,indxChla)='mg Chla m-3                              '
       vname(4,indxChla)='Chlorophyl, scalar, series               '
+      vname(5,indxChla)='                                         '
+      vname(6,indxChla)='lat_rho lon_rho                          '              
+      vname(7,indxChla)='                                         '
 
 CR      write(stdout,'(1x,A,I3)') 'indxPhy1 =',indxPhy1
       vname(1,indxPhy1)='PHYTO                                    '
       vname(2,indxPhy1)='Phytoplankton                            '
       vname(3,indxPhy1)='mMol N m-3                               '
       vname(4,indxPhy1)='Phytoplankton, scalar, series            '
+      vname(5,indxPhy1)='                                         '
+      vname(6,indxPhy1)='lat_rho lon_rho                          '              
+      vname(7,indxPhy1)='                                         '
 
 CR      write(stdout,'(1x,A,I3)') 'indxZoo1 =',indxZoo1
       vname(1,indxZoo1)='ZOO                                      '
       vname(2,indxZoo1)='Zooplankton                              '
       vname(3,indxZoo1)='mMol N m-3                               '
       vname(4,indxZoo1)='Zooplankton, scalar, series              '
+      vname(5,indxZoo1)='                                         '
+      vname(6,indxZoo1)='lat_rho lon_rho                          '              
+      vname(7,indxZoo1)='                                         '
 
 CR      write(stdout,'(1x,A,I3)') 'indxDet1 =',indxDet1
       vname(1,indxDet1)='DET                                      '
       vname(2,indxDet1)='Detritus Nutrient                        '
       vname(3,indxDet1)='mMol N m-3                               '
       vname(4,indxDet1)='Detritus, scalar, series                 '
-
+      vname(5,indxDet1)='                                         '
+      vname(6,indxDet1)='lat_rho lon_rho                          '              
+      vname(7,indxDet1)='                                         '
 #   ifdef OXYGEN
 CR      write(stdout,'(1x,A,I3)') 'indxO2 =',indxO2
       vname(1,indxO2)='O2                                         '
       vname(2,indxO2)='Dissolved Oxygen	                          '
       vname(3,indxO2)='mMol O2 m-3                                '
       vname(4,indxO2)='Dissolved Oxygen	, scalar, series          '
-#   endif
+      vname(5,indxO2)='                                           '
+      vname(6,indxO2)='lat_rho lon_rho                            '            
+      vname(7,indxO2)='                                           '
+#   endif 
 
 CR      write(stdout,'(1x,A,I3)') 'ntrc_salt=',ntrc_salt
 CR      write(stdout,'(1x,A,I3)') 'ntrc_pas =',ntrc_pas
@@ -517,70 +689,9 @@ CR      write(stdout,'(1x,A,I3)') 'indxDet2 =',indxDet2
       vname(2,indxDet2)='Large Detritus Nutrient                  '
       vname(3,indxDet2)='mMol N m-3                               '
       vname(4,indxDet2)='Large Detritus, scalar, series           '
-
-#  elif defined BIO_N2P2Z2D2
-
-CR      write(stdout,'(1x,A,I3)') 'indxNO3 =',indxNO3
-      vname(1,indxNO3)='NO3                                       '
-      vname(2,indxNO3)='NO3 Nutrient                              '
-      vname(3,indxNO3)='mMol N m-3                                '
-      vname(4,indxNO3)='NO3, scalar, series                       '
-
-CR      write(stdout,'(1x,A,I3)') 'indxNH4 =',indxNH4
-      vname(1,indxNH4)='NH4                                       '
-      vname(2,indxNH4)='NH4 Nutrient                              '
-      vname(3,indxNH4)='mMol N m-3                                '
-      vname(4,indxNH4)='NH4, scalar, series                       '
-
-#   ifdef VAR_CHL_C
-CR      write(stdout,'(1x,A,I3)') 'indxChl1 =',indxChl1
-      vname(1,indxChl1)='CHLA-1                                   '
-      vname(2,indxChl1)='Chlorophyll A                            '
-      vname(3,indxChl1)='mg Chla m-3                              '
-      vname(4,indxChl1)='Chlorophyl, scalar, series               '
-
-CR      write(stdout,'(1x,A,I3)') 'indxChl2 =',indxChl2
-      vname(1,indxChl2)='CHLA-2                                   '
-      vname(2,indxChl2)='Chlorophyll A                            '
-      vname(3,indxChl2)='mg Chla m-3                              '
-      vname(4,indxChl2)='Chlorophyl, scalar, series               '
-#   endif
-
-CR      write(stdout,'(1x,A,I3)') 'indxPhy1 =',indxPhy1
-      vname(1,indxPhy1)='SPHYTO                                   '
-      vname(2,indxPhy1)='Small Phytoplankton                      '
-      vname(3,indxPhy1)='mMol N m-3                               '
-      vname(4,indxPhy1)='Small Phytoplankton, scalar, series      '
-
-CR      write(stdout,'(1x,A,I3)') 'indxPhy2 =',indxPhy2
-      vname(1,indxPhy2)='LPHYTO                                   '
-      vname(2,indxPhy2)='Large Phytoplankton                      '
-      vname(3,indxPhy2)='mMol N m-3                               '
-      vname(4,indxPhy2)='Large Phytoplankton, scalar, series      '
-
-CR      write(stdout,'(1x,A,I3)') 'indxZoo1 =',indxZoo1
-      vname(1,indxZoo1)='SZOO                                     '
-      vname(2,indxZoo1)='Small Zooplankton                        '
-      vname(3,indxZoo1)='mMol N m-3                               '
-      vname(4,indxZoo1)='Small Zooplankton, scalar, series        '
-
-CR      write(stdout,'(1x,A,I3)') 'indxZoo2 =',indxZoo2
-      vname(1,indxZoo2)='LZOO                                     '
-      vname(2,indxZoo2)='Large Zooplankton                        '
-      vname(3,indxZoo2)='mMol N m-3                               '
-      vname(4,indxZoo2)='Large Zooplankton, scalar, series        '
-
-CR      write(stdout,'(1x,A,I3)') 'indxDet1 =',indxDet1
-      vname(1,indxDet1)='SDET                                     '
-      vname(2,indxDet1)='Small Detritus Nutrient                  '
-      vname(3,indxDet1)='mMol N m-3                               '
-      vname(4,indxDet1)='Small Detritus, scalar, series           '
-
-CR      write(stdout,'(1x,A,I3)') 'indxDet2 =',indxDet2
-      vname(1,indxDet2)='LDET                                     '
-      vname(2,indxDet2)='Large Detritus Nutrient                  '
-      vname(3,indxDet2)='mMol N m-3                               '
-      vname(4,indxDet2)='Large Detritus, scalar, series           '
+      vname(5,indxDet2)='                                         '
+      vname(6,indxDet2)='lat_rho lon_rho                          '               
+      vname(7,indxDet2)='                                         '
 #  endif
 # endif
 # ifdef SEDIMENT
@@ -589,147 +700,252 @@ CR      write(stdout,'(1x,A,I3)') 'indxsand =',indxsand
       vname(2,indxsand)='sand sediment                            '
       vname(3,indxsand)='mg/l                                     '
       vname(4,indxsand)='sand, scalar, series                     '
-
+      vname(5,indxsand)='                                         '
+      vname(6,indxsand)='lat_rho lon_rho                          '              
+      vname(7,indxsand)='                                         '
 CR      write(stdout,'(1x,A,I3)') 'indxsilt =',indxsilt
       vname(1,indxsilt)='silt                                     '
       vname(2,indxsilt)='silt sediment                            '
       vname(3,indxsilt)='mg/l                                     '
       vname(4,indxsilt)='silt, scalar, series                     '
-
+      vname(5,indxsilt)='                                         '
+      vname(6,indxsilt)='lat_rho lon_rho                          '              
+      vname(7,indxsilt)='                                         '
 CR      write(stdout,'(1x,A,I3)') 'indxBTHK =',indxBTHK
       vname(1,indxBTHK)  ='bed_thick                              '
       vname(2,indxBTHK)  ='Thickness of sediment bed layer        '
-      vname(3,indxBTHK)  ='m                                      '
+      vname(3,indxBTHK)  ='m                                      '     
+      vname(5,indxBTHK)='                                         '
+      vname(6,indxBTHK)='lat_rho lon_rho                          '             
+      vname(7,indxBTHK)='                                         '
 CR      write(stdout,'(1x,A,I3)') 'indxBPOR =',indxBPOR
-      vname(1,indxBPOR)  ='bed_poros                              '
-      vname(2,indxBPOR)  ='Porosity of sediment bed layer         '
-      vname(3,indxBPOR)  ='no units                               '
+      vname(1,indxBPOR)  ='bed_poros                  '            
+      vname(2,indxBPOR)  ='Porosity of sediment bed layer '         
+      vname(3,indxBPOR)  ='no units                        '       
+      vname(5,indxBPOR)='                                   '      
+      vname(6,indxBPOR)='lat_rho lon_rho                     '                    
+      vname(7,indxBPOR)='                                     '    
 CR      write(stdout,'(1x,A,I3)') 'indxBFRA1 =',indxBFRA
-      vname(1,indxBFRA)  ='bed_frac_sand                          '
-      vname(2,indxBFRA)  ='volume fraction of sand in bed layer   '
-      vname(3,indxBFRA)  ='no units                               '
+      vname(1,indxBFRA)  ='bed_frac_sand                       '   
+      vname(2,indxBFRA)  ='volume fraction of sand in bed layer '  
+      vname(3,indxBFRA)  ='no units                              ' 
+      vname(5,indxBFRA)='                                         '
+      vname(6,indxBFRA)='lat_rho lon_rho                           '              
+      vname(7,indxBFRA)='                                         '
 CR      write(stdout,'(1x,A,I3)') 'indxBFRA2 =',indxBFRA+1
-      vname(1,indxBFRA+1)='bed_frac_silt                          '
-      vname(2,indxBFRA+1)='Volume fraction of silt in bed layer   '
-      vname(3,indxBFRA+1)='no units                               '
+      vname(1,indxBFRA+1)='bed_frac_silt                 '         
+      vname(2,indxBFRA+1)='Volume fraction of silt in bed layer '  
+      vname(3,indxBFRA+1)='no units                             '  
+      vname(5,indxBFRA+1)='                                     '    
+      vname(6,indxBFRA+1)='                                      '   
+      vname(7,indxBFRA+1)='                                       '  
 # endif
 # ifdef BBL
 CR      write(stdout,'(1x,A,I3)') 'indxAbed=',indxBBL
       vname(1,indxBBL)  ='Abed                                    '
       vname(2,indxBBL)  ='Bed wave excursion amplitude            '
       vname(3,indxBBL)  ='m                                       '
+      vname(5,indxBBL)='                                         '
+      vname(6,indxBBL)='lat_rho lon_rho                           '              
+      vname(7,indxBBL)='                                         '
 CR      write(stdout,'(1x,A,I3)') 'indxHrip =',indxBBL+1
-      vname(1,indxHrip)='Hripple                                  '
-      vname(2,indxHrip)='Bed ripple height                        '
-      vname(3,indxHrip)='m                                        '
+      vname(1,indxHrip)='Hripple                       '           
+      vname(2,indxHrip)='Bed ripple height              '          
+      vname(3,indxHrip)='m                               '         
+      vname(5,indxHrip)='                                 '        
+      vname(6,indxHrip)='lat_rho lon_rho                   '                      
+      vname(7,indxHrip)='                                   '      
 CR      write(stdout,'(1x,A,I3)') 'indxLrip =',indxBBL+2
-      vname(1,indxLrip)='Lripple                                  '
-      vname(2,indxLrip)='Bed ripple length                        '
-      vname(3,indxLrip)='m                                        '
+      vname(1,indxLrip)='Lripple                             '     
+      vname(2,indxLrip)='Bed ripple length                    '    
+      vname(3,indxLrip)='m                                     '   
+      vname(5,indxLrip)='                                       '  
+      vname(6,indxLrip)='lat_rho lon_rho                         '               
+      vname(7,indxLrip)='                                         '
 CR      write(stdout,'(1x,A,I3)') 'indxZbnot=',indxBBL+3
       vname(1,indxZbnot)='Zbnot                                   '
       vname(2,indxZbnot)='Physical hydraulic bottom roughness     '
       vname(3,indxZbnot)='m                                       '
+      vname(5,indxZbnot)='                                         '
+      vname(6,indxZbnot)='lat_rho lon_rho                           '              
+      vname(7,indxZbnot)='                                         '
 CR      write(stdout,'(1x,A,I3)') 'indxZbapp=',indxBBL+4
       vname(1,indxZbapp)='Zbapp                                   '
       vname(2,indxZbapp)='Apparent hydraulic bottom roughness     '
       vname(3,indxZbapp)='m                                       '
+      vname(5,indxZbapp)='                                         '
+      vname(6,indxZbapp)='lat_rho lon_rho                           '              
+      vname(7,indxZbapp)='                                         '
 CR      write(stdout,'(1x,A,I3)') 'indxBostrw=',indxBBL+5
       vname(1,indxBostrw)='bostrw                                 '
       vname(2,indxBostrw)='Wave-induced kinematic bottom stress   '
       vname(3,indxBostrw)='N/m2                                   '
+      vname(5,indxBostrw)='                                        ' 
+      vname(6,indxBostrw)='lat_rho lon_rho                          '               
+      vname(7,indxBostrw)='      '                                   
 # endif
 # ifdef BULK_FLUX
-CR      write(stdout,'(1x,A,I3)') 'indxShflx_rsw =',indxShflx_rsw
+CR      write(stdout,'(1x,A,I3)') 'indxShflx_rsw =',indxShflx_rsw 
       vname(1,indxShflx_rsw)='shflx_rsw                           '
       vname(2,indxShflx_rsw)='Short-wave surface radiation        '
       vname(3,indxShflx_rsw)='Celsius meter second-1              '
+      vname(4,indxShflx_rsw)='                                    '
+      vname(5,indxShflx_rsw)='average_surface_net_downward_
+     &                        shortwave_flux                      '    
+      vname(6,indxShflx_rsw)='lat_rho lon_rho                     '                  
+      vname(7,indxShflx_rsw)='                                    '
+
 CR      write(stdout,'(1x,A,I3)') 'indxShflx_rlw =',indxShflx_rlw
       vname(1,indxShflx_rlw)='shflx_rlw                           '
       vname(2,indxShflx_rlw)='Long-wave surface radiation         '
       vname(3,indxShflx_rlw)='Celsius meter second-1              '
+      vname(5,indxShflx_rlw)='                                    '     
+      vname(6,indxShflx_rlw)='lat_rho lon_rho                     '                   
+      vname(7,indxShflx_rlw)='                                    '   
+
 CR      write(stdout,'(1x,A,I3)') 'indxShflx_lat =',indxShflx_lat
       vname(1,indxShflx_lat)='shflx_lat                           '
       vname(2,indxShflx_lat)='Latent surface heat flux            '
       vname(3,indxShflx_lat)='Celsius meter second-1              '
+      vname(4,indxShflx_lat)='average_surface_downward_latent_heat_flux'
+      vname(5,indxShflx_lat)='                                    '    
+      vname(6,indxShflx_lat)='lat_rho lon_rho                     '                  
+      vname(7,indxShflx_lat)='                                    '  
+    
+            
 CR      write(stdout,'(1x,A,I3)') 'indxShflx_sen =',indxShflx_sen
       vname(1,indxShflx_sen)='shflx_sen                           '
       vname(2,indxShflx_sen)='Sensible surface heat flux          '
       vname(3,indxShflx_sen)='Celsius meter second-1              '
+      vname(4,indxShflx_sen)='                                    '
+      vname(4,indxShflx_sen)='average_surface_sensible_
+     &                        heat_flux                           '
+      vname(6,indxShflx_sen)='lat_rho lon_rho                     '                  
+      vname(7,indxShflx_sen)='                                    '  
+      vname(7,indxShflx_sen)='  '         
+    
+            
 # endif
-
 CR      write(stdout,'(1x,A,I3)') 'indxO =',indxO
       vname(1,indxO)='omega                                       '
       vname(2,indxO)='S-coordinate vertical momentum component    '
       vname(3,indxO)='meter second-1                              '
       vname(4,indxO)='omega, scalar, series                       '
-
+      vname(5,indxO)='                                            '
+      vname(6,indxO)='lat_rho lon_rho                             '             
+      vname(7,indxO)='                                            '
+  
 CR      write(stdout,'(1x,A,I3)') 'indxW =',indxW
-      vname(1,indxW)='w                                           '
+      vname(1,indxW)='w                                           ' 
       vname(2,indxW)='vertical momentum component                 '
       vname(3,indxW)='meter second-1                              '
       vname(4,indxW)='w-velocity, scalar, series                  '
-
+      vname(5,indxW)='vertical_sea_water_velocity_at_w_location   '
+      vname(6,indxW)='lat_rho lon_rho                             '              
+      vname(7,indxW)='                                            '                                         
+   
+            
 CR      write(stdout,'(1x,A,I3)') 'indxR =',indxR
-      vname(1,indxR)='rho                                         '
-      vname(2,indxR)='density anomaly                             '
-      vname(3,indxR)='kilogram meter-3                            '
-      vname(4,indxR)='density, scalar, series                     '
+      vname(1,indxR)='rho                                         '                  
+      vname(2,indxR)='density anomaly                             '                 
+      vname(3,indxR)='kilogram meter-3                            '                
+      vname(4,indxR)='density, scalar, series                     '               
+      vname(5,indxR)='sea_water_sigma_t                           '           
+      vname(6,indxR)='lat_rho lon_rho                             '                         
+      vname(7,indxR)='                                            '                 
 
+ 
 # ifdef VIS_COEF_3D
 CR      write(stdout,'(1x,A,I3)') 'indxVisc =',indxVisc
-      vname(1,indxVisc)='visc3d                                   '
-      vname(2,indxVisc)='horizontal viscosity coefficient         '
+      vname(1,indxVisc)='visc3d                                   '      
+      vname(2,indxVisc)='horizontal viscosity coefficient         '     
 #  ifdef UV_VIS2
-      vname(3,indxVisc)='meter2 second-1                          '
+      vname(3,indxVisc)='meter2 second-1                          '   
+      vname(5,indxVisc)='ocean_momentum_xy_laplacian              '     
 #  else
-      vname(3,indxVisc)='meter4 second-1                          '
+      vname(3,indxVisc)='meter4 second-1                          '     
+      vname(5,indxVisc)='ocean_momentum_xy_biharmonic_diffusivity '     
 #  endif
-      vname(4,indxVisc)='visc3d, scalar, series                   '
+      vname(4,indxVisc)='visc3d, scalar, series                   '          
+      vname(6,indxVisc)='lat_rho lon_rho                          '                  
+      vname(7,indxVisc)='                                         '   
+
 # endif
 # ifdef DIF_COEF_3D
-CR      write(stdout,'(1x,A,I3)') 'indxDiff =',indxDiff
-      vname(1,indxDiff)='diff3d                                   '
-      vname(2,indxDiff)='horizontal diffusivity coefficient       '
+CR      write(stdout,'(1x,A,I3)') 'indxDiff =',indxDiff     
+      vname(1,indxDiff)='diff3d                                   '      
+      vname(2,indxDiff)='horizontal diffusivity coefficient       '     
 #  ifdef TS_DIF2
       vname(3,indxDiff)='meter2 second-1                          '
+      vname(5,indxDiff)='ocean_tracer_xy_laplacian_diffusivity    '  
 #  else
-      vname(3,indxDiff)='meter4 second-1                          '
+      vname(3,indxDiff)='meter4 second-1                          '   
+      vname(5,indxDiff)='ocean_tracer_xy_biharmonic_diffusivity   '  
 #  endif
-      vname(4,indxDiff)='diff3d, scalar, series                   '
+      vname(4,indxDiff)='diff3d, scalar, series                    '  
+      vname(6,indxDiff)='lat_rho lon_rho                           '              
+      vname(7,indxDiff)='                                          '
+
 # endif
 
-CR      write(stdout,'(1x,A,I3)') 'indxAkv =',indxAkv
-      vname(1,indxAkv)='AKv                                       '
-      vname(2,indxAkv)='vertical viscosity coefficient            '
-      vname(3,indxAkv)='meter2 second-1                           '
+CR      write(stdout,'(1x,A,I3)') 'indxAkv =',indxAkv          
+      vname(1,indxAkv)='AKv                                       '   
+      vname(2,indxAkv)='vertical viscosity coefficient          '  
+      vname(3,indxAkv)='meter2 second-1                          ' 
       vname(4,indxAkv)='AKv, scalar, series                       '
+      vname(5,indxAkv)='ocean_vertical_momentum_diffusivity_'
+     &                 / / 'at_w_location'
+      vname(6,indxAkv)='lat_rho lon_rho                           '              
+      vname(7,indxAkv)='                                         '
+            
 
-CR      write(stdout,'(1x,A,I3)') 'indxAkt =',indxAkt
-      vname(1,indxAkt)='AKt                                       '
+CR      write(stdout,'(1x,A,I3)') 'indxAkt =',indxAkt         
+      vname(1,indxAkt)='AKt                                  '     
       vname(2,indxAkt)='temperature vertical diffusion coefficient'
       vname(3,indxAkt)='meter2 second-1                           '
       vname(4,indxAkt)='AKt, scalar, series                       '
+      vname(5,indxAkt)='ocean_vertical_heat_diffusivity_'
+     &               / /  'at_w_location'
+      vname(6,indxAkt)='lat_rho lon_rho                           '              
+      vname(7,indxAkt)='                                         '
+           
+
 # ifdef SALINITY
-CR      write(stdout,'(1x,A,I3)') 'indxAks =',indxAks
+CR      write(stdout,'(1x,A,I3)') 'indxAks =',indxAks             
       vname(1,indxAks)='AKs                                       '
       vname(2,indxAks)='salinity vertical diffusion coefficient   '
       vname(3,indxAks)='meter2 second-1                           '
       vname(4,indxAks)='AKs, scalar, series                       '
+      vname(5,indxAks)='ocean_vertical_salt_diffusivity_'  
+     &               / /  'at_w_location'
+      vname(6,indxAks)='lat_rho lon_rho                           '              
+      vname(7,indxAks)='                                         '
+
+            
 # endif
-# ifdef LMD_SKPP
+# ifdef LMD_SKPP  
 CR      write(stdout,'(1x,A,I3)') 'indxHbl =',indxHbl
       vname(1,indxHbl)='hbl                                       '
       vname(2,indxHbl)='depth of planetary boundary layer         '
       vname(3,indxHbl)='meter                                     '
       vname(4,indxHbl)='hbl, scalar, series                       '
+      vname(5,indxHbl)='ocean_mixed_layer_thickness_defined_'
+     &                / / 'by_mixing_scheme                       '
+      vname(6,indxHbl)='lat_rho lon_rho                           '
+      vname(7,indxHbl)='                                          '
+            
 # endif
 # ifdef LMD_BKPP
-CR      write(stdout,'(1x,A,I3)') 'indxHbbl =',indxHbbl
+CR      write(stdout,'(1x,A,I3)') 'indxHbbl =',indxHbbl   
       vname(1,indxHbbl)='hbbl                                     '
       vname(2,indxHbbl)='depth of bottom boundary layer           '
       vname(3,indxHbbl)='meter                                    '
       vname(4,indxHbbl)='hbbl, scalar, series                     '
+      vname(5,indxHbbl)='                                         '
+      vname(6,indxHbbl)='lat_rho lon_rho                          '              
+      vname(7,indxHbbl)='                                         '
+
+            
 # endif
 # ifdef BIOLOGY
 CR      write(stdout,'(1x,A,I3)') 'indxHel =',indxHel
@@ -737,100 +953,143 @@ CR      write(stdout,'(1x,A,I3)') 'indxHel =',indxHel
       vname(2,indxHel)='depth of euphotic layer                   '
       vname(3,indxHel)='meter                                     '
       vname(4,indxHel)='hel, scalar, series                       '
+      vname(5,indxHel)='                                          '
+      vname(6,indxHel)='lat_rho lon_rho                           '              
+      vname(7,indxHel)='                                          '
 #  ifdef BIO_NChlPZD
 CR      write(stdout,'(1x,A,I3)') 'indxChC =',indxChC
       vname(1,indxChC)='theta                                     '
       vname(2,indxChC)='Chlorophyll to Carbon ratio               '
       vname(3,indxChC)='mgChl/mgC                                 '
       vname(4,indxChC)='theta, scalar, series                     '
+      vname(5,indxChC)='                                          '
+      vname(6,indxChC)='lat_rho lon_rho                           '            
+      vname(7,indxChC)='                                          '
 #   ifdef OXYGEN
 CR      write(stdout,'(1x,A,I3)') 'indxU10 =',indxU10
       vname(1,indxU10)='U10                                       '
       vname(2,indxU10)='surface wind speed 10 m                   '
       vname(3,indxU10)='meter second-1                            '
       vname(4,indxU10)='surface wind speed, scalar, series        '
+      vname(5,indxU10)='                                          '
+      vname(6,indxU10)='lat_rho lon_rho                           '
+      vname(7,indxU10)='                                          '
 
 CR      write(stdout,'(1x,A,I3)') 'indxKvO2 =',indxKvO2
       vname(1,indxKvO2)='KvO2                                     '
       vname(2,indxKvO2)='gas transfer coef for O2                 '
       vname(3,indxKvO2)='meter second-1                           '
       vname(4,indxKvO2)='gas transfer coef for O2, scalar, series '
+      vname(5,indxKvO2)='                                         '
+      vname(6,indxKvO2)='lat_rho lon_rho                          '              
+      vname(7,indxKvO2)='                                         '
 
 CR      write(stdout,'(1x,A,I3)') 'indxO2sat =',indxO2sat
       vname(1,indxO2sat)='O2sat                                   '
       vname(2,indxO2sat)='saturation oxygen                       '
       vname(3,indxO2sat)='mMol O2 m-3                             '
       vname(4,indxO2sat)='saturation oxygen, scalar, series       '
-#   endif
-#  elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-CR      write(stdout,'(1x,A,I3)') 'indxChC1 =',indxChC1
-      vname(1,indxChC1)='theta1                                    '
-      vname(2,indxChC1)='Chlorophyll to Carbon ratio for Phy1      '
-      vname(3,indxChC1)='mgChl/mgC                                 '
-      vname(4,indxChC1)='theta, scalar, series                     '
+      vname(5,indxO2sat)='                                        '
+      vname(6,indxO2sat)='lat_rho lon_rho                         '              
+      vname(7,indxO2sat)='                                        '
 
-CR      write(stdout,'(1x,A,I3)') 'indxChC2 =',indxChC2
-      vname(1,indxChC2)='theta2                                    '
-      vname(2,indxChC2)='Chlorophyll to Carbon ratio for Phy2      '
-      vname(3,indxChC2)='mgChl/mgC                                 '
-      vname(4,indxChC2)='theta, scalar, series                     '
+#   endif
 #  endif
 # endif
 #endif
-CR      write(stdout,'(1x,A,I3)') 'indxSSH =',indxSSH
+CR      write(stdout,'(1x,A,I3)') 'indxSSH =',indxSSH              
       vname(1,indxSSH)='SSH                                       '
       vname(2,indxSSH)='sea surface height                        '
       vname(3,indxSSH)='meter                                     '
       vname(4,indxSSH)='SSH, scalar, series                       '
-
+      vname(5,indxSSH)='sea_surface_height_above_sea_level        '
+      vname(6,indxSSH)='lat_rho lon_rho                           '              
+      vname(7,indxSSH)='                                          '
+     
 CR      write(stdout,'(1x,A,I3)') 'indxSUSTR =',indxSUSTR
       vname(1,indxSUSTR)='sustr                                   '
       vname(2,indxSUSTR)='surface u-momentum stress               '
       vname(3,indxSUSTR)='Newton meter-2                          '
-      vname(4,indxSUSTR)='surface u-mom stress, scalar, series    '
-
+      vname(4,indxSUSTR)='surface u-mom. stress, scalar, series   '
+      vname(5,indxSUSTR)='surface_downward_x_stress               '
+      vname(6,indxSUSTR)='lat_u lon_u                             '         
+      vname(7,indxSUSTR)='                                        '
+      
 CR      write(stdout,'(1x,A,I3)') 'indxSVSTR =',indxSVSTR
-      vname(1,indxSVSTR)='svstr                                   '
-      vname(2,indxSVSTR)='surface v-momentum stress               '
-      vname(3,indxSVSTR)='Newton meter-2                          '
-      vname(4,indxSVSTR)='surface v-mom stress, scalar, series    '
-
+      vname(1,indxSVSTR)='svstr                                   '          
+      vname(2,indxSVSTR)='surface v-momentum stress               '         
+      vname(3,indxSVSTR)='Newton meter-2                          '        
+      vname(4,indxSVSTR)='surface v-mom. stress, scalar, series   '    
+      vname(5,indxSVSTR)='surface_downward_y_stress               '     
+      vname(6,indxSVSTR)='lat_v lon_v                             '            
+      vname(7,indxSVSTR)='                                        '   
+      
 #ifdef SOLVE3D
 CR      write(stdout,'(1x,A,I3)') 'indxSHFl =',indxSHFl
-      vname(1,indxSHFl)='shflux                                   '
+      vname(1,indxSHFl)='shflux                                   ' 
       vname(2,indxSHFl)='surface net heat flux                    '
       vname(3,indxSHFl)='Watts meter-2                            '
       vname(4,indxSHFl)='surface heat flux, scalar, series        '
+      vname(5,indxSHFl)='                                         '
+      vname(6,indxSHFl)='                                         '
+      vname(7,indxSHFl)='                                         '
 # ifdef SALINITY
 CR      write(stdout,'(1x,A,I3)') 'indxSSFl=',indxSSFl
       vname(1,indxSSFl)='swflux                                   '
       vname(2,indxSSFl)='surface freshwater flux (E-P)            '
       vname(3,indxSSFl)='centimeter day-1                         '
       vname(4,indxSSFl)='surface freshwater flux, scalar, series  '
+      vname(5,indxSSFl)='                                         '
+      vname(6,indxSSFl)='lat_rho lon_rho                          '             
+      vname(7,indxSSFl)='                                         '
+      
 # endif
 CR      write(stdout,'(1x,A,I3)') 'indxSWRad =',indxSWRad
       vname(1,indxSWRad)='swrad                                   '
       vname(2,indxSWRad)='solar shortwave radiation               '
       vname(3,indxSWRad)='Watts meter-2                           '
       vname(4,indxSWRad)='shortwave radiation, scalar, series     '
-
+      vname(5,indxSWRad)='                                        '
+      vname(6,indxSWRad)='lat_rho lon_rho                         '             
+      vname(7,indxSWRad)='                                        '
+     
+     
 CR      write(stdout,'(1x,A,I3)') 'indxSST =',indxSST
       vname(1,indxSST)='SST                                       '
       vname(2,indxSST)='sea surface temperature                   '
       vname(3,indxSST)='Celsius                                   '
       vname(4,indxSST)='SST, scalar, series                       '
+      vname(5,indxSST)='sea_surface_temperature                   '
+      vname(6,indxSST)='lat_rho lon_rho                           '              
+      vname(7,indxSST)='                                          '
+      vname(8,indxSST)=' '            
 
 CR      write(stdout,'(1x,A,I3)') 'indxdQdSST =',indxdQdSST
       vname(1,indxdQdSST)='dQdSST                                 '
       vname(2,indxdQdSST)='surface heat flux sensitivity to SST   '
       vname(3,indxdQdSST)='Watts meter-2 Celsius-1                '
       vname(4,indxdQdSST)='dQdSST, scalar, series                 '
+      vname(5,indxdQdSST)='heat_flux_correction                   ' 
+      vname(6,indxdQdSST)='lat_rho lon_rho                        '               
+      vname(7,indxdQdSST)='                                       '
+     
+# ifdef PSOURCE_NCFILE
+CR      write(stdout,'(1x,A,I3)') 'indxRIV =',indxRIV
+      vname(1,indxRIV)='RIV                                       '
+      vname(2,indxRIV)='river runoff                              '
+      vname(3,indxRIV)='m3s-1                                     '
+      vname(4,indxRIV)='RIV, scalar, series                       '
+# endif
 # if defined SALINITY && defined SFLX_CORR
 CR      write(stdout,'(1x,A,I3)') 'indxSSS =',indxSSS
       vname(1,indxSSS)='SSS                                       '
       vname(2,indxSSS)='sea surface salinity                      '
       vname(3,indxSSS)='PSU                                       '
       vname(4,indxSSS)='SSS, scalar, series                       '
+      vname(5,indxSSS)='sea_surface_salinity                      '
+      vname(6,indxSSS)='lat_rho lon_rho                           '              
+      vname(7,indxSSS)='                                          '
+
 # endif
 # ifdef BBL
 #  ifndef ANA_WWAVE
@@ -839,18 +1098,27 @@ CR      write(stdout,'(1x,A,I3)') 'indxWWA',indxWWA
       vname(2,indxWWA)='wind induced wave amplitude               '
       vname(3,indxWWA)='meter                                     '
       vname(4,indxWWA)='Awave, scalar, series                     '
+      vname(5,indxWWA)='                                          '
+      vname(6,indxWWA)='lat_rho lon_rho                           '              
+      
 
 CR      write(stdout,'(1x,A,I3)') 'indxWWD =',indxWWD
       vname(1,indxWWD)='Dwave                                     '
       vname(2,indxWWD)='wind induced wave direction               '
       vname(3,indxWWD)='degrees                                   '
-      vname(4,indxWWD)='Dwave, scalar, series                     '
+      vname(4,indxWWD)='Dwave, scalar, series                     '     
+      vname(5,indxWWD)='                                          '
+      vname(6,indxWWD)='lat_rho lon_rho                           '              
+      vname(7,indxWWD)='                                          '
 
 CR      write(stdout,'(1x,A,I3)') 'indxWWP =',indxWWP
       vname(1,indxWWP)='Pwave                                     '
       vname(2,indxWWP)='wind induced wave Period                  '
       vname(3,indxWWP)='second                                    '
       vname(4,indxWWP)='Pwave, scalar, series                     '
+      vname(5,indxWWP)='                                          '
+      vname(6,indxWWP)='lat_rho lon_rho                           '             
+      vname(7,indxWWP)='                                          '
 #  endif
 #  if (!defined ANA_BSEDIM && !defined SEDIMENT)
 CR      write(stdout,'(1x,A,I3)') 'indxBSS =',indxBSS
@@ -858,12 +1126,19 @@ CR      write(stdout,'(1x,A,I3)') 'indxBSS =',indxBSS
       vname(2,indxBSS)='bottom sediment grain diameter size       '
       vname(3,indxBSS)='meter                                     '
       vname(4,indxBSS)='Ssize, scalar, series                     '
+      vname(5,indxBSS)='                                          '
+      vname(6,indxBSS)='lat_rho lon_rho                           '             
+      vname(7,indxBSS)='                                          '
 
 CR      write(stdout,'(1x,A,I3)') 'indxBSD =',indxBSD
       vname(1,indxBSD)='Sdens                                     '
       vname(2,indxBSD)='bottom sediment grain density             '
       vname(3,indxBSD)='kilogram meter-3                          '
       vname(4,indxBSD)='Sdens, scalar, series                     '
+      vname(5,indxBSD)='                                          '
+      vname(6,indxBSD)='lat_rho lon_rho                           '              
+      vname(7,indxBSD)='                                          '
+
 #  endif
 # endif
 #endif
@@ -872,31 +1147,49 @@ CR      write(stdout,'(1x,A,I3)') 'indxBSD =',indxBSD
       vname(2,indxAi)='fraction of cell covered by ice            '
       vname(3,indxAi)='nondimensional                             '
       vname(4,indxAi)='aice, scalar, series                       '
-
-      vname(1,indxUi)='uice                                       '
+      vname(5,indxAi)='                                           '
+      vname(6,indxAi)='lat_rho lon_rho                            '              
+      vname(7,indxAi)='                                           '
+      vname(1,indxUi)='uice                                       ' 
       vname(2,indxUi)='u-component of ice velocity                '
       vname(3,indxUi)='meter sec-1                                '
       vname(4,indxUi)='uice, scalar, series                       '
+      vname(5,indxUi)='                                           '
+      vname(6,indxUi)='lat_u lon_u                                '       
+      vname(7,indxUi)='                                           '
 
-      vname(1,indxVi)='vice                                       '
-      vname(2,indxVi)='v-component of ice velocity                '
-      vname(3,indxVi)='meter sec-1                                '
-      vname(4,indxVi)='vice, scalar, series                       '
+      vname(1,indxVi)='vice                                      ' 
+      vname(2,indxVi)='v-component of ice velocity               ' 
+      vname(3,indxVi)='meter sec-1                               ' 
+      vname(4,indxVi)='vice, scalar, series                      '
+      vname(5,indxVi)='                                          '
+      vname(6,indxVi)='lat_v lon_v                               '          
+      vname(7,indxVi)='                                          '
 
-      vname(1,indxHi)='hice                                       '
-      vname(2,indxHi)='depth of ice cover                         '
-      vname(3,indxHi)='meter                                      '
-      vname(4,indxHi)='hice, scalar, series                       '
+      vname(1,indxHi)='hice                                      '
+      vname(2,indxHi)='depth of ice cover                        '
+      vname(3,indxHi)='meter                                     '
+      vname(4,indxHi)='hice, scalar, series                      '
+      vname(5,indxHi)='                                          '
+      vname(6,indxHi)='lat_rho lon_rho                           '                   
+      vname(7,indxHi)='                                          '
 
-      vname(1,indxHS)='snow_thick                                 '
-      vname(2,indxHS)='depth of snow cover                        '
-      vname(3,indxHS)='meter                                      '
-      vname(4,indxHS)='snow_thick, scalar, series                 '
+      vname(1,indxHS)='snow_thick                             '     
+      vname(2,indxHS)='depth of snow cover                    '    
+      vname(3,indxHS)='meter                                   '   
+      vname(4,indxHS)='snow_thick, scalar, series               '  
+      vname(5,indxHS)='                                         '
+      vname(6,indxHS)='lat_rho lon_rho                           '              
+      vname(7,indxHS)='                                         '
 
-      vname(1,indxTIsrf)='tisrf                                   '
-      vname(2,indxTIsrf)='temperature of ice surface              '
-      vname(3,indxTIsrf)='Kelvin                                  '
+      vname(1,indxTIsrf)='tisrf                                '   
+      vname(2,indxTIsrf)='temperature of ice surface            '  
+      vname(3,indxTIsrf)='Kelvin                                 ' 
       vname(4,indxTIsrf)='tsrf, scalar, series                    '
+      vname(5,indxTIsrf)='                                         '
+      vname(6,indxTIsrf)='lat_rho lon_rho                           '             
+      vname(7,indxTIsrf)='                                         '
+
 #endif
 #ifdef BULK_FLUX
 #ifdef ONLINE /* JG ONLINE */
@@ -913,55 +1206,90 @@ CR      write(stdout,'(1x,A,I3)') 'indxWSPD =',indxWSPD
       vname(2,indxWSPD)='surface wind speed 10 m                  '
       vname(3,indxWSPD)='meter second-1                           '
       vname(4,indxWSPD)='surface wind speed, scalar, series       '
+      vname(5,indxWSPD)='wind_speed                               '
+      vname(6,indxWSPD)='lat_rho lon_rho                          '              
+      vname(7,indxWSPD)='                                         '
+      
 
 CR      write(stdout,'(1x,A,I3)') 'indxTAIR =',indxTAIR
       vname(1,indxTAIR)='tair                                     '
       vname(2,indxTAIR)='surface air temperature 2m               '
       vname(3,indxTAIR)='Celsius                                  '
       vname(4,indxTAIR)='surface air temperature, scalar, series  '
-
+      vname(5,indxTAIR)='air_temperature_at_2m                    '
+      vname(6,indxTAIR)='lat_rho lon_rho                          '              
+      vname(7,indxTAIR)='                                         '
+      
+         
 CR      write(stdout,'(1x,A,I3)') 'indxRHUM =',indxRHUM
       vname(1,indxRHUM)='rhum                                     '
       vname(2,indxRHUM)='surface air relative humidity 2m         '
       vname(3,indxRHUM)='fraction                                 '
       vname(4,indxRHUM)='surface relative humidity, scalar, series'
-
+      vname(5,indxRHUM)='relative_humidity_at_2m                  '
+      vname(6,indxRHUM)='lat_rho lon_rho                          '             
+      vname(7,indxRHUM)='                                         '
+     
+     
 #ifndef BULK_LW
 CR      write(stdout,'(1x,A,I3)') 'indxRADLW =',indxRADLW
       vname(1,indxRADLW)='radlw                                   '
       vname(2,indxRADLW)='net terrestrial longwave radiation      '
       vname(3,indxRADLW)='Watts meter-2                           '
       vname(4,indxRADLW)='terrestrial longwave, scalar, series    '
+      vname(5,indxRADLW)='surface_net_downward_longwave_flux      '
+      vname(6,indxRADLW)='                                        '
+      vname(7,indxRADLW)='                                        '
+      
 #else
 CR      write(stdout,'(1x,A,I3)') 'indxRADLW =',indxRADLW
       vname(1,indxRADLW)='radlw_in                                '
       vname(2,indxRADLW)='downward longwave radiation             '
       vname(3,indxRADLW)='Watts meter-2                           '
       vname(4,indxRADLW)='downward longwave, scalar, series       '
+      vname(5,indxRADLW)='surface_net_downward_longwave_flux      '
+      vname(6,indxRADLW)='                                        '
+      vname(7,indxRADLW)='                                        '
+      
+
 #endif  /* BULK_LW */ 
 CR      write(stdout,'(1x,A,I3)') 'indxRADSW =',indxRADSW
       vname(1,indxRADSW)='radsw                                   '
       vname(2,indxRADSW)='net solar shortwave radiation           '
       vname(3,indxRADSW)='Watts meter-2                           '
       vname(4,indxRADSW)='solar shortwave, scalar, series         '
+      vname(5,indxRADSW)='                                        '
+      vname(6,indxRADSW)='lat_rho lon_rho                         '              
+      vname(7,indxRADSW)='                                        '
+      
 
 CR      write(stdout,'(1x,A,I3)') 'indxPRATE =',indxPRATE
       vname(1,indxPRATE)='prate                                   '
       vname(2,indxPRATE)='surface precipitation rate              '
       vname(3,indxPRATE)='Kg meter-2 second-1                     '
       vname(4,indxPRATE)='precipitation rate, scalar, series      '
+      vname(5,indxPRATE)='                                        '
+      vname(6,indxPRATE)='lat_rho lon_rho                         '              
+      vname(7,indxPRATE)='                                        '
+      
 
 CR      write(stdout,'(1x,A,I3)') 'indxUWND =',indxUWND
       vname(1,indxUWND)='uwnd                                     '
-      vname(2,indxUWND)='surface u-wind speed 10 m            '
+      vname(2,indxUWND)='surface u-wind speed 10 m                '
       vname(3,indxUWND)='meter second-1                           '
       vname(4,indxUWND)='surface wind speed, scalar, series       '
-
+      vname(5,indxUWND)='x_wind                                   '
+      vname(6,indxUWND)='lat_u lon_u                              '        
+      vname(7,indxUWND)='                                         '
+      
 CR      write(stdout,'(1x,A,I3)') 'indxVWND =',indxVWND
       vname(1,indxVWND)='vwnd                                     '
-      vname(2,indxVWND)='surface v-wind speed 10 m       '
-      vname(3,indxVWND)='meter second-1                           '
-      vname(4,indxVWND)='surface wind speed, scalar, series       '
+      vname(2,indxVWND)='surface v-wind speed 10 m                '
+      vname(3,indxVWND)='meter second-1                           '      
+      vname(4,indxVWND)='surface wind speed, scalar, series       '     
+      vname(5,indxVWND)='y_wind                                   '   
+      vname(6,indxVWND)='lat_v lon_v                              '              
+      vname(7,indxVWND)='                                         '  
 #endif /* ONLINE */
 #endif /* BULK_FLUX */
 
@@ -972,73 +1300,99 @@ CR       write(stdout,'(1x,A,I3)') 'indxTXadv = ',indxTXadv+itrc-1
        nametrc=vname(1,indxT+itrc-1)(1:lvar)
        lvar=lenstr(nametrc)
        unitt=vname(3,indxT+itrc-1)
-       write(vname1,*) trim(nametrc),'_xadv                       '
+       write(vname1,*) trim(nametrc),'_xadv                      ' 
        vname(1,indxTXadv+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxTXadv+itrc-1)
        vname(2,indxTXadv+itrc-1)='Horizontal (xi) advection term  '
        write(vname3,*) trim(unitt),' second-1                     '
        vname(3,indxTXadv+itrc-1)=vname3
+       vname(4,indxTXadv+itrc-1)='      '                           
+       vname(6,indxTXadv+itrc-1)='       '                          
+       vname(7,indxTXadv+itrc-1)='        '                         
 
 CR       write(stdout,'(1x,A,I3)') 'indxTYadv = ',indxTYadv+itrc-1
        nametrc=vname(1,indxT+itrc-1)
        unitt=vname(3,indxT+itrc-1)
-       write(vname1,*) trim(nametrc),'_yadv                       '
+       write(vname1,*) trim(nametrc),'_yadv '                    
        vname(1,indxTYadv+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxTYadv+itrc-1)
        vname(2,indxTYadv+itrc-1)='Horizontal (eta) advection term '
-       write(vname3,*) trim(unitt),' second-1                     '
+       write(vname3,*) trim(unitt),' second-1            '      
        vname(3,indxTYadv+itrc-1)=vname3
+       vname(4,indxTYadv+itrc-1)='                        '     
+       vname(5,indxTYadv+itrc-1)='                         '    
+       vname(6,indxTYadv+itrc-1)='                         '    
+       vname(7,indxTYadv+itrc-1)='                          '   
 
 CR       write(stdout,'(1x,A,I3)') 'indxTVadv = ',indxTVadv+itrc-1
        nametrc=vname(1,indxT+itrc-1)
        unitt=vname(3,indxT+itrc-1)
-       write(vname1,*) trim(nametrc),'_vadv                       ' 
+       write(vname1,*) trim(nametrc),'_vadv                  '   
        vname(1,indxTVadv+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxTVadv+itrc-1)
-       vname(2,indxTVadv+itrc-1)='Vertical advection term         '
-       write(vname3,*) trim(unitt),' second-1                     '
+       vname(2,indxTVadv+itrc-1)='Vertical advection term     ' 
+       write(vname3,*) trim(unitt),' second-1                  '
        vname(3,indxTVadv+itrc-1)=vname3
+       vname(4,indxTVadv+itrc-1)='                             '
+       vname(5,indxTVadv+itrc-1)='                             '
+       vname(6,indxTVadv+itrc-1)='                             '
+       vname(7,indxTVadv+itrc-1)='                             '
 
 CR       write(stdout,'(1x,A,I3)') 'indxTHmix = ',indxTHmix+itrc-1
        nametrc=vname(1,indxT+itrc-1)
        unitt=vname(3,indxT+itrc-1)
-       write(vname1,*) trim(nametrc),'_hmix                       '
+       write(vname1,*) trim(nametrc),'_hmix                    '
        vname(1,indxTHmix+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxTHmix+itrc-1)
-       vname(2,indxTHmix+itrc-1)='Horizontal mixing term          '
-       write(vname3,*) trim(unitt),' second-1                     '
+       vname(2,indxTHmix+itrc-1)='Horizontal mixing term       '
+       write(vname3,*) trim(unitt),' second-1                  '
        vname(3,indxTHmix+itrc-1)=vname3
+       vname(4,indxTHmix+itrc-)='                              '
+       vname(5,indxTHmix+itrc-)='                              '
+       vname(6,indxTHmix+itrc-)='                              '
+       vname(7,indxTHmix+itrc-)='                              '
 
 CR       write(stdout,'(1x,A,I3)') 'indxTVmix = ',indxTVmix+itrc-1
        nametrc=vname(1,indxT+itrc-1)
        unitt=vname(3,indxT+itrc-1)
-       write(vname1,*) trim(nametrc),'_vmix                       ' 
+       write(vname1,*) trim(nametrc),'_vmix                     '
        vname(1,indxTVmix+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxTVmix+itrc-1)
-       vname(2,indxTVmix+itrc-1)='Vertical mixing term            '
-       write(vname3,*) trim(unitt),' second-1                     '
+       vname(2,indxTVmix+itrc-1)='Vertical mixing term         '
+       write(vname3,*) trim(unitt),' second-1                  '
        vname(3,indxTVmix+itrc-1)=vname3
+       vname(4,indxTVmix+itrc-1)='                              '
+       vname(5,indxTVmix+itrc-1)='                              '
+       vname(6,indxTVmix+itrc-1)='                              '
+       vname(7,indxTVmix+itrc-1)='                              '
 
 CR       write(stdout,'(1x,A,I3)') 'indxTForc = ',indxTForc+itrc-1
-       nametrc=vname(1,indxT+itrc-1)
+       nametrc=vname(1,indxT+itrc-1) 
        unitt=vname(3,indxT+itrc-1)
-       write(vname1,*) trim(nametrc),'_forc                       '
+       write(vname1,*) trim(nametrc),'_forc                  '  
        vname(1,indxTForc+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxTForc+itrc-1)
-       vname(2,indxTForc+itrc-1)='Forcing term (Q & Nudging)      '
-       write(vname3,*) trim(unitt),' second-1                     '
+       vname(2,indxTForc+itrc-1)='Forcing term (Q & Nudging)  ' 
+       write(vname3,*) trim(unitt),' second-1                  '
        vname(3,indxTForc+itrc-1)=vname3
+       vname(4,indxTForc+itrc-1)='                          '
+       vname(5,indxTForc+itrc-1)='                              '
+       vname(6,indxTForc+itrc-1)='                               '
+       vname(7,indxTForc+itrc-1)='                                '                     
 
 CR       write(stdout,'(1x,A,I3)') 'indxTrate = ',indxTrate+itrc-1
        nametrc=vname(1,indxT+itrc-1)
        unitt=vname(3,indxT+itrc-1)
-       write(vname1,*) trim(nametrc),'_rate                       '
+       write(vname1,*) trim(nametrc),'_rate               '     
        vname(1,indxTrate+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxTrate+itrc-1)
-       vname(2,indxTrate+itrc-1)='Time rate of change             '
-       write(vname3,*) trim(unitt),' second-1                     '
+       vname(2,indxTrate+itrc-1)='Time rate of change      '    
+       write(vname3,*) trim(unitt),' second-1               '   
        vname(3,indxTrate+itrc-1)=vname3
-
+       vname(4,indxTrate+itrc-1)='                           '  
+       vname(5,indxTrate+itrc-1)='                              '
+       vname(6,indxTrate+itrc-1)='                            ' 
+       vname(7,indxTrate+itrc-1)='                             '
 !
 ! Tracer diagnostics variables averaged over the MLD
 !
@@ -1048,82 +1402,119 @@ CR       write(stdout,'(1x,A,I3)') 'indxTXadv_mld = ',indxTXadv_mld+itrc-1
        nametrc=vname(1,indxT+itrc-1)(1:lvar)
        lvar=lenstr(nametrc)
        unitt=vname(3,indxT+itrc-1)
-       write(vname1,*) trim(nametrc),'_xadv_mld                   '
+       write(vname1,*) trim(nametrc),'_xadv_mld                '
        vname(1,indxTXadv_mld+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxTXadv_mld+itrc-1)
-       vname(2,indxTXadv_mld+itrc-1)='MLD xi advection term       '
-       write(vname3,*) trim(unitt),' second-1                     '
+       vname(2,indxTXadv_mld+itrc-1)='MLD xi advection term    '
+       write(vname3,*) trim(unitt),' second-1                  '
        vname(3,indxTXadv_mld+itrc-1)=vname3
+       vname(4,indxTXadv_mld+itrc-1)='                         '
+       vname(5,indxTXadv_mld+itrc-1)='                         '
+       vname(6,indxTXadv_mld+itrc-1)='                         '
+       vname(7,indxTXadv_mld+itrc-1)='                         '
 
 CR       write(stdout,'(1x,A,I3)') 'indxTYadv_mld = ',indxTYadv_mld+itrc-1
        nametrc=vname(1,indxT+itrc-1)
        unitt=vname(3,indxT+itrc-1)
-       write(vname1,*) trim(nametrc),'_yadv_mld                   '
+       write(vname1,*) trim(nametrc),'_yadv_mld                '
        vname(1,indxTYadv_mld+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxTYadv_mld+itrc-1)
-       vname(2,indxTYadv_mld+itrc-1)='MLD eta advection term      '
-       write(vname3,*) trim(unitt),' second-1                     '
+       vname(2,indxTYadv_mld+itrc-1)='MLD eta advection term   '
+       write(vname3,*) trim(unitt),' second-1                  '
        vname(3,indxTYadv_mld+itrc-1)=vname3
-
+       vname(4,indxTYadv_mld+itrc)='                           '
+       vname(5,indxTYadv_mld+itrc)='                           '
+       vname(6,indxTYadv_mld+itrc)='                           '
+       vname(7,indxTYadv_mld+itrc)='                           ' 
+         
 CR       write(stdout,'(1x,A,I3)') 'indxTVadv_mld = ',indxTVadv_mld+itrc-1
        nametrc=vname(1,indxT+itrc-1)
        unitt=vname(3,indxT+itrc-1)
-       write(vname1,*) trim(nametrc),'_vadv_mld                   ' 
+       write(vname1,*) trim(nametrc),'_vadv_mld       '          
        vname(1,indxTVadv_mld+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxTVadv+itrc-1)
        vname(2,indxTVadv_mld+itrc-1)='MLD vertical advection term '
-       write(vname3,*) trim(unitt),' second-1                     '
+       write(vname3,*) trim(unitt),' second-1             '     
        vname(3,indxTVadv_mld+itrc-1)=vname3
-
+       vname(4,indxTVadv_mld+itrc-)='                      ' 
+       vname(5,indxTVadv_mld+itrc-)='                       '   
+       vname(6,indxTVadv_mld+itrc-)='                       '   
+       vname(7,indxTVadv_mld+itrc-)='                        '  
+       
 CR       write(stdout,'(1x,A,I3)') 'indxTHmix_mld = ',indxTHmix_mld+itrc-1
        nametrc=vname(1,indxT+itrc-1)
        unitt=vname(3,indxT+itrc-1)
-       write(vname1,*) trim(nametrc),'_hmix_mld                   '
+       write(vname1,*) trim(nametrc),'_hmix_mld  '              
        vname(1,indxTHmix_mld+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxTHmix_mld+itrc-1)
-       vname(2,indxTHmix_mld+itrc-1)='MLD xi mixing term          '
-       write(vname3,*) trim(unitt),' second-1                     '
+       vname(2,indxTHmix_mld+itrc-1)='MLD xi mixing term  '     
+       write(vname3,*) trim(unitt),' second-1              '    
        vname(3,indxTHmix_mld+itrc-1)=vname3
+       vname(4,indxTHmix_mld+itrc-1)='                      '   
+       vname(5,indxTHmix_mld+itrc-)='                       '   
+       vname(6,indxTHmix_mld+itrc-1)='                       '  
+       vname(7,indxTHmix_mld+itrc-1)='                        ' 
+                               
 
 CR       write(stdout,'(1x,A,I3)') 'indxTVmix_mld = ',indxTVmix_mld+itrc-1
        nametrc=vname(1,indxT+itrc-1)
        unitt=vname(3,indxT+itrc-1)
-       write(vname1,*) trim(nametrc),'_vmix_mld                   ' 
+       write(vname1,*) trim(nametrc),'_vmix_mld   '              
        vname(1,indxTVmix_mld+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxTVmix_mld+itrc-1)
-       vname(2,indxTVmix_mld+itrc-1)='MLD vertical mixing term    '
-       write(vname3,*) trim(unitt),' second-1                     '
+       vname(2,indxTVmix_mld+itrc-1)='MLD vertical mixing term '
+       write(vname3,*) trim(unitt),' second-1                  '
        vname(3,indxTVmix_mld+itrc-1)=vname3
+       vname(4,indxTVmix_mld+itrc-1)='     '                    
+       vname(5,indxTVmix_mld+itrc-1)='      '                   
+       vname(6,indxTVmix_mld+itrc-1)='      '                   
+       vname(7,indxTVmix_mld+itrc-1)='       '                  
+                               
 
 CR       write(stdout,'(1x,A,I3)') 'indxTForc_mld = ',indxTForc_mld+itrc-1
        nametrc=vname(1,indxT+itrc-1)
        unitt=vname(3,indxT+itrc-1)
-       write(vname1,*) trim(nametrc),'_forc_mld                   '
+       write(vname1,*) trim(nametrc),'_forc_mld     '           
        vname(1,indxTForc_mld+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxTForc_mld+itrc-1)
        vname(2,indxTForc_mld+itrc-1)='MLD Forcing term (Q & Nudg) '
-       write(vname3,*) trim(unitt),' second-1                     '
+       write(vname3,*) trim(unitt),' second-1          '        
        vname(3,indxTForc_mld+itrc-1)=vname3
+       vname(4,indxTForc_mld+itrc-1)='                  '  
+       vname(5,indxTForc_mld+itrc-1)='                  '  
+       vname(6,indxTForc_mld+itrc-1)='                   '      
+       vname(7,indxTForc_mld+itrc-1)='                    '     
+                                
 
 CR       write(stdout,'(1x,A,I3)') 'indxTrate_mld = ',indxTrate_mld+itrc-1
        nametrc=vname(1,indxT+itrc-1)
        unitt=vname(3,indxT+itrc-1)
-       write(vname1,*) trim(nametrc),'_rate_mld                   '
+       write(vname1,*) trim(nametrc),'_rate_mld       '         
        vname(1,indxTrate_mld+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxTrate_mld+itrc-1)
-       vname(2,indxTrate_mld+itrc-1)='MLD time rate of change     '
-       write(vname3,*) trim(unitt),' second-1                     '
+       vname(2,indxTrate_mld+itrc-1)='MLD time rate of change '  
+       write(vname3,*) trim(unitt),' second-1                  '
        vname(3,indxTrate_mld+itrc-1)=vname3
+       vname(4,indxTrate_mld+itrc-1)='                         '
+       vname(5,indxTrate_mld+itrc-1)='                         '
+       vname(6,indxTrate_mld+itrc-1)='                         '
+       vname(7,indxTrate_mld+itrc-1)='                         '
+                                
 
 CR       write(stdout,'(1x,A,I3)') 'indxTentr_mld = ',indxTentr_mld+itrc-1
        nametrc=vname(1,indxT+itrc-1)
        unitt=vname(3,indxT+itrc-1)
-       write(vname1,*) trim(nametrc),'_entr_mld                   '
+       write(vname1,*) trim(nametrc),'_entr_mld     '           
        vname(1,indxTentr_mld+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxTentr_mld+itrc-1)
-       vname(2,indxTentr_mld+itrc-1)='MLD entrainment rate        '
-       write(vname3,*) trim(unitt),' second-1                     '
+       vname(2,indxTentr_mld+itrc-1)='MLD entrainment rate '     
+       write(vname3,*) trim(unitt),' second-1               '   
        vname(3,indxTentr_mld+itrc-1)=vname3
+       vname(4,indxTentr_mld+itrc-1)='                       '  
+       vname(5,indxTentr_mld+itrc-1)='                        ' 
+       vname(6,indxTentr_mld+itrc-1)='                        ' 
+       vname(7,indxTentr_mld+itrc-1)='                         '
+                                
 #  endif
 
       enddo
@@ -1136,82 +1527,116 @@ CR       write(stdout,'(1x,A,I3)') 'indxMXadv = ',indxMXadv+itrc-1
        nametrc=vname(1,indxU+itrc-1)(1:lvar)
        lvar=lenstr(nametrc)
        unitt=vname(3,indxU+itrc-1)
-       write(vname1,*) trim(nametrc),'_xadv                       '
+       write(vname1,*) trim(nametrc),'_xadv  '                  
        vname(1,indxMXadv+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxMxadv+itrc-1)
        vname(2,indxMXadv+itrc-1)='Horizontal (xi) advection term  '
-       write(vname3,*) trim(unitt),' second-1                     '
+       write(vname3,*) trim(unitt),' second-1 '                 
        vname(3,indxMXadv+itrc-1)=vname3
+       vname(4,indxMXadv+itrc-1)='             '                
+       vname(5,indxMXadv+itrc-1)='              '            
+       vname(6,indxMXadv+itrc-1)='              '               
+       vname(7,indxMXadv+itrc-1)='               '              
+                                    
 
 CR       write(stdout,'(1x,A,I3)') 'indxMYadv = ',indxMYadv+itrc-1
        nametrc=vname(1,indxU+itrc-1)
        unitt=vname(3,indxU+itrc-1)
-       write(vname1,*) trim(nametrc),'_yadv                       '
+       write(vname1,*) trim(nametrc),'_yadv       '             
        vname(1,indxMYadv+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxMYadv+itrc-1)
        vname(2,indxMYadv+itrc-1)='Horizontal (eta) advection term '
-       write(vname3,*) trim(unitt),' second-1                     '
+       write(vname3,*) trim(unitt),' second-1      '            
        vname(3,indxMYadv+itrc-1)=vname3
+       vname(4,indxMYadv+itrc-1)='                  '           
+       vname(5,indxMYadv+itrc-1)='                   '          
+       vname(6,indxMYadv+itrc-1)='                   '          
+       vname(7,indxMYadv+itrc-1)='                    '         
+                                    
 
 CR       write(stdout,'(1x,A,I3)') 'indxMVadv = ',indxMVadv+itrc-1
-       nametrc=vname(1,indxU+itrc-1)
+                    nametrc=vname(1,indxU+itrc-1)
        unitt=vname(3,indxU+itrc-1)
-       write(vname1,*) trim(nametrc),'_vadv                       ' 
+       write(vname1,*) trim(nametrc),'_vadv            '         
        vname(1,indxMVadv+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxMVadv+itrc-1)
-       vname(2,indxMVadv+itrc-1)='Vertical advection term         '
-       write(vname3,*) trim(unitt),' second-1                     '
+       vname(2,indxMVadv+itrc-1)='Vertical advection term '      
+       write(vname3,*) trim(unitt),' second-1              '    
        vname(3,indxMVadv+itrc-1)=vname3
+       vname(4,indxMVadv+itrc-1)='                          '   
+       vname(5,indxMVadv+itrc-1)='                           '  
+       vname(6,indxMVadv+itrc-1)='                          '
+       vname(7,indxMVadv+itrc-1)='                          '
 
 CR       write(stdout,'(1x,A,I3)') 'indxMCor = ',indxMCor+itrc-1
        nametrc=vname(1,indxU+itrc-1)
        unitt=vname(3,indxU+itrc-1)
-       write(vname1,*) trim(nametrc),'_cor                        '
+       write(vname1,*) trim(nametrc),'_cor                   '  
        vname(1,indxMCor+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxMcor+itrc-1)
-       vname(2,indxMCor+itrc-1)='Coriolis term                    '
-       write(vname3,*) trim(unitt),' second-1                     '
+       vname(2,indxMCor+itrc-1)='Coriolis term                ' 
+       write(vname3,*) trim(unitt),' second-1                  '
        vname(3,indxMCor+itrc-1)=vname3
+       vname(4,indxMCor+itrc-1)='                              '
+       vname(5,indxMCor+itrc-1)='                              '
+       vname(6,indxMCor+itrc-1)='                              '
+       vname(7,indxMCor+itrc-1)='                              '
 
-CR       write(stdout,'(1x,A,I3)') 'indxMPrsgrd = ',indxMPrsgrd+itrc-1
+CR     write(stdout,'(1x,A,I3)') 'indxMPrsgrd = ',indxMPrsgrd+itrc-1
        nametrc=vname(1,indxU+itrc-1)
        unitt=vname(3,indxU+itrc-1)
-       write(vname1,*) trim(nametrc),'_Prsgrd                     '
+       write(vname1,*) trim(nametrc),'_Prsgrd      '            
        vname(1,indxMPrsgrd+itrc-1)=vname1
-CR       write(stdout,'(20x,A)') vname(1,indxMPrsgrd+itrc-1)
-       vname(2,indxMPrsgrd+itrc-1)='Pressure gradient term        '
-       write(vname3,*) trim(unitt),' second-1                     '
+C     R       write(stdout,'(20x,A)') vname(1,indxMPrsgrd+itrc-1) 
+       vname(2,indxMPrsgrd+itrc-1)='Pressure gradient term     '
+       write(vname3,*) trim(unitt),' second-1                 ' 
        vname(3,indxMPrsgrd+itrc-1)=vname3
+       vname(4,indxMPrsgrd+itrc-1)='                           '
+       vname(5,indxMPrsgrd+itrc-1)='                           '
+       vname(6,indxMPrsgrd+itrc-1)='                    '
+       vname(7,indxMPrsgrd+itrc-1)='                    '
 
-CR       write(stdout,'(1x,A,I3)') 'indxMHmix = ',indxMHmix+itrc-1
+C     R       write(stdout,'(1x,A,I3)') 'indxMHmix = ',indxMHmix+itrc-1
        nametrc=vname(1,indxU+itrc-1)
        unitt=vname(3,indxU+itrc-1)
-       write(vname1,*) trim(nametrc),'_hmix                       '
+       write(vname1,*) trim(nametrc),'_hmix              '      
        vname(1,indxMHmix+itrc-1)=vname1
-CR       write(stdout,'(20x,A)') vname(1,indxMHmix+itrc-1)
-       vname(2,indxMHmix+itrc-1)='Horizontal mixing term          '
-       write(vname3,*) trim(unitt),' second-1                     '
+C     R       write(stdout,'(20x,A)') vname(1,indxMHmix+itrc-1)
+       vname(2,indxMHmix+itrc-1)='Horizontal mixing term  '     
+       write(vname3,*) trim(unitt),' second-1              '    
        vname(3,indxMHmix+itrc-1)=vname3
+       vname(4,indxMHmix+itrc-1)='                          '   
+       vname(5,indxMHmix+itrc-1)='                           '  
+       vname(6,indxMHmix+itrc-1)='                            ' 
+       vname(7,indxMHmix+itrc-1)='                            ' 
 
 CR       write(stdout,'(1x,A,I3)') 'indxMVmix = ',indxMVmix+itrc-1
        nametrc=vname(1,indxU+itrc-1)
        unitt=vname(3,indxU+itrc-1)
-       write(vname1,*) trim(nametrc),'_vmix                       ' 
+       write(vname1,*) trim(nametrc),'_vmix                    ' 
        vname(1,indxMVmix+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxMVmix+itrc-1)
-       vname(2,indxMVmix+itrc-1)='Vertical mixing term            '
-       write(vname3,*) trim(unitt),' second-1                     '
+       vname(2,indxMVmix+itrc-1)='Vertical mixing term         '
+       write(vname3,*) trim(unitt),' second-1                  '
        vname(3,indxMVmix+itrc-1)=vname3
-       
+       vname(4,indxMVmix+itrc-1)='                             '
+       vname(5,indxMVmix+itrc-1)='                             '
+       vname(6,indxMVmix+itrc-1)='                             '
+       vname(7,indxMVmix+itrc-1)='                             '
+
 CR       write(stdout,'(1x,A,I3)') 'indxMrate = ',indxMrate+itrc-1
        nametrc=vname(1,indxU+itrc-1)
        unitt=vname(3,indxU+itrc-1)
-       write(vname1,*) trim(nametrc),'_rate                       '
+       write(vname1,*) trim(nametrc),'_rate                    '
        vname(1,indxMrate+itrc-1)=vname1
-CR       write(stdout,'(20x,A)') vname(1,indxMrate+itrc-1)
-       vname(2,indxMrate+itrc-1)='Time rate of change             '
-       write(vname3,*) trim(unitt),' second-1                     '
+CR       write(stdout,'(20x,A)') vname(1,indxMrate+itrc-1) 
+       vname(2,indxMrate+itrc-1)='Time rate of change      '    
+       write(vname3,*) trim(unitt),' second-1               '   
        vname(3,indxMrate+itrc-1)=vname3
+       vname(4,indxMrate+itrc-1)='                           '  
+       vname(5,indxMrate+itrc-1)='                            ' 
+       vname(6,indxMrate+itrc-1)='                             '
+       vname(7,indxMrate+itrc-1)='                             '
       enddo
 # endif /* DIAGNOSTICS_UV */
 
@@ -1637,124 +2062,106 @@ CR          &                          ,indxGasExcFlux
       vname(4,indxbioVSink+Nkgco2-1)=
      &     'Kg              , scalar, series'  
 
-        vname(1,indxbioVSink+Nflu16-1)=
-     &     'Oflx                                      '
-        vname(2,indxbioVSink+Nflu16-1)=
-     &     'O2 Flux                                  '
-        vname(3,indxbioVSink+Nflu16-1)=
-     &     'molO/m2/s                                 '
-        vname(4,indxbioVSink+Nflu16-1)=
-     &     'Oflx            , scalar, series          '
+      vname(1,indxbioVSink+Natcco2-1)=
+     &     'DelC                            '  
+      vname(2,indxbioVSink+Natcco2-1)=
+     &     'Deltaco2                        '  
+      vname(3,indxbioVSink+Natcco2-1)=
+     &     'uatm                            '  
+      vname(4,indxbioVSink+Natcco2-1)=
+     &     'DelC            , scalar, series'  
 
-        vname(1,indxbioVSink+Nkgco2-1)=
-     &     'Kg                                        '
-        vname(2,indxbioVSink+Nkgco2-1)=
-     &     'Gaz Transfer                              '
-        vname(3,indxbioVSink+Nkgco2-1)=
-     &     'mol/m2/s/uatm                             '
-        vname(4,indxbioVSink+Nkgco2-1)=
-     &     'Kg              , scalar, series          '
+      vname(1,indxbioVSink+Nsinking-1)=
+     &     'ExpPOC1                         '  
+      vname(2,indxbioVSink+Nsinking-1)=
+     &     'small POC export                '  
+      vname(3,indxbioVSink+Nsinking-1)=
+     &     'molC/m2/s                       '  
+      vname(4,indxbioVSink+Nsinking-1)=
+     &     'ExpPOC1         , scalar, series'  
 
-        vname(1,indxbioVSink+Natcco2-1)=
-     &     'DelC                                      '
-        vname(2,indxbioVSink+Natcco2-1)=
-     &     'Deltaco2                                  '
-        vname(3,indxbioVSink+Natcco2-1)=
-     &     'uatm                                      '
-        vname(4,indxbioVSink+Natcco2-1)=
-     &     'DelC            , scalar, series          '
+      vname(1,indxbioVSink+Nsinking2-1)=
+     &     'ExpPOC2                         '  
+      vname(2,indxbioVSink+Nsinking2-1)=
+     &     'big POC export                  '  
+      vname(3,indxbioVSink+Nsinking2-1)=
+     &     'molC/m2/s                       '  
+      vname(4,indxbioVSink+Nsinking2-1)=
+     &     'ExpPOC2         , scalar, series'  
 
-        vname(1,indxbioVSink+Nsinking-1)=
-     &     'ExpPOC1                                   '
-        vname(2,indxbioVSink+Nsinking-1)=
-     &     'small POC export                          '
-        vname(3,indxbioVSink+Nsinking-1)=
-     &     'molC/m2/s                                 '
-        vname(4,indxbioVSink+Nsinking-1)=
-     &     'ExpPOC1         , scalar, series          '
+      vname(1,indxbioVSink+Nsinkfer-1)=
+     &     'ExpFe1                          '  
+      vname(2,indxbioVSink+Nsinkfer-1)=
+     &     'Fe export Nano                  '  
+      vname(3,indxbioVSink+Nsinkfer-1)=
+     &     'molFe/m2/s                      '  
+      vname(4,indxbioVSink+Nsinkfer-1)=
+     &     'ExpFe1          , scalar, series'  
 
-        vname(1,indxbioVSink+Nsinking2-1)=
-     &     'ExpPOC2                                   '
-        vname(2,indxbioVSink+Nsinking2-1)=
-     &     'big POC export                            '
-        vname(3,indxbioVSink+Nsinking2-1)=
-     &     'molC/m2/s                                 '
-        vname(4,indxbioVSink+Nsinking2-1)=
-     &     'ExpPOC2         , scalar, series          '
+      vname(1,indxbioVSink+Nsinkfer2-1)=
+     &     'ExpFe2                          '  
+      vname(2,indxbioVSink+Nsinkfer2-1)=
+     &     'Fe export Diatoms               '  
+      vname(3,indxbioVSink+Nsinkfer2-1)=
+     &     'molFe/m2/s                      '  
+      vname(4,indxbioVSink+Nsinkfer2-1)=
+     &     'ExpFe2          , scalar, series'  
 
-        vname(1,indxbioVSink+Nsinkfer-1)=
-     &     'ExpFe1                                    '
-        vname(2,indxbioVSink+Nsinkfer-1)=
-     &     'Fe export Nano                            '
-        vname(3,indxbioVSink+Nsinkfer-1)=
-     &     'molFe/m2/s                                '
-        vname(4,indxbioVSink+Nsinkfer-1)=
-     &     'ExpFe1          , scalar, series          '
+      vname(1,indxbioVSink+Nsinksil-1)=
+     &     'ExpSi                           '  
+      vname(2,indxbioVSink+Nsinksil-1)=
+     &     'BSi export                      '  
+      vname(3,indxbioVSink+Nsinksil-1)=
+     &     'molSi/m2/s                      '  
+      vname(4,indxbioVSink+Nsinksil-1)=
+     &     'ExpSi           , scalar, series'  
 
-        vname(1,indxbioVSink+Nsinkfer2-1)=
-     &     'ExpFe2                                    '
-        vname(2,indxbioVSink+Nsinkfer2-1)=
-     &     'Fe export Diatoms                         '
-        vname(3,indxbioVSink+Nsinkfer2-1)=
-     &     'molFe/m2/s                                '
-        vname(4,indxbioVSink+Nsinkfer2-1)=
-     &     'ExpFe2          , scalar, series          '
+      vname(1,indxbioVSink+Nsinkcal-1)=
+     &     'ExpCaco3                        '  
+      vname(2,indxbioVSink+Nsinkcal-1)=
+     &     'Calcite export                  '  
+      vname(3,indxbioVSink+Nsinkcal-1)=
+     &     'molC/m2/s                       '  
+      vname(4,indxbioVSink+Nsinkcal-1)=
+     &     'ExpCaCo3        , scalar, series'  
 
-        vname(1,indxbioVSink+Nsinksil-1)=
-     &     'ExpSi                                     '
-        vname(2,indxbioVSink+Nsinksil-1)=
-     &     'BSi export                                '
-        vname(3,indxbioVSink+Nsinksil-1)=
-     &     'molSi/m2/s                                '
-        vname(4,indxbioVSink+Nsinksil-1)=
-     &     'ExpSi           , scalar, series          '
+      vname(1,indxbioVSink+Nzmeu-1)=
+     &     'Zmeu                            '  
+      vname(2,indxbioVSink+Nzmeu-1)=
+     &     'Euphotic Depth (1%)             '  
+      vname(3,indxbioVSink+Nzmeu-1)=
+     &     'm                               '  
+      vname(4,indxbioVSink+Nzmeu-1)=
+     &     'Zmeu            , scalar, series'  
 
-        vname(1,indxbioVSink+Nsinkcal-1)=
-     &     'ExpCaco3                                  '
-        vname(2,indxbioVSink+Nsinkcal-1)=
-     &     'Calcite export                            '
-        vname(3,indxbioVSink+Nsinkcal-1)=
-     &     'molC/m2/s                                 '
-        vname(4,indxbioVSink+Nsinkcal-1)=
-     &     'ExpCaCo3        , scalar, series          '
+      vname(1,indxbioVSink+Nirondep-1)=
+     &     'Fedep                           '  
+      vname(2,indxbioVSink+Nirondep-1)=
+     &     'Iron surface deposition flux    '  
+      vname(3,indxbioVSink+Nirondep-1)=
+     &     'molFe/m2/s                      '  
+      vname(4,indxbioVSink+Nirondep-1)=
+     &     'Fedep           , scalar, series'  
 
-        vname(1,indxbioVSink+Nzmeu-1)=
-     &     'Zmeu                                      '
-        vname(2,indxbioVSink+Nzmeu-1)=
-     &     'Euphotic Depth (1%)                       '
-        vname(3,indxbioVSink+Nzmeu-1)=
-     &     'm                                         '
-        vname(4,indxbioVSink+Nzmeu-1)=
-     &     'Zmeu            , scalar, series          '
-
-        vname(1,indxbioVSink+Nirondep-1)=
-     &     'Fedep                                     '
-        vname(2,indxbioVSink+Nirondep-1)=
-     &     'Iron surface deposition flux              '
-        vname(3,indxbioVSink+Nirondep-1)=
-     &     'molFe/m2/s                                '
-        vname(4,indxbioVSink+Nirondep-1)=
-     &     'Fedep           , scalar, series          '
-
-        vname(1,indxbioVSink+Nnitrpot-1)=
-     &     'Nfix                                      '
-        vname(2,indxbioVSink+Nnitrpot-1)=
-     &     'Nitrogen Fixation                         '
-        vname(3,indxbioVSink+Nnitrpot-1)=
-     &     'molN/m2/s                                 '
-        vname(4,indxbioVSink+Nnitrpot-1)=
-     &     'Nfix            , scalar, series          '
+      vname(1,indxbioVSink+Nnitrpot-1)=
+     &     'Nfix                            '  
+      vname(2,indxbioVSink+Nnitrpot-1)=
+     &     'Nitrogen Fixation               '  
+      vname(3,indxbioVSink+Nnitrpot-1)=
+     &     'molN/m2/s                       '  
+      vname(4,indxbioVSink+Nnitrpot-1)=
+     &     'Nfix            , scalar, series'       
 
 #    endif
 
 #   endif /* PISCES */
 # endif /* DIAGNOSTICS_BIO */
 #if defined TCLIMATOLOGY && !defined ANA_TCLIMA
-!
-! flag to read in climatology for tracer type variables.
-!
+!     
+!     flag to read in climatology for tracer type variables.
+!     
       do itrc=1,NT
-        got_tclm(itrc)=.false.
+         got_tclm(itrc)=.false.
       enddo
 #endif /* TCLIMATOLOGY */
       return

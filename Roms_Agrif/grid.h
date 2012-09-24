@@ -18,8 +18,14 @@
 !
 ! angler  Angle [radians] between XI-axis and the direction 
 !             to the EAST at RHO-points.
-! latr    Latitude (degrees_north) at RHO-points.
-! lonr    Longitude (degrees_east) at RHO-points.
+!
+! latr    Latitude (degrees_north) at RHO-, U-, and V-points.
+! latu
+! latv
+! lonr    Longitude (degrees_east) at RHO-, U-, and V-points.
+! lonu
+! lonv
+!
 ! xp      XI-coordinates [m] at PSI-points.
 ! xr      XI-coordinates (m] at RHO-points.
 ! yp      ETA-coordinates [m] at PSI-points.
@@ -63,7 +69,14 @@
 #ifdef SPHERICAL
       real latr(GLOBAL_2D_ARRAY)
       real lonr(GLOBAL_2D_ARRAY)
+      real latu(GLOBAL_2D_ARRAY)
+      real lonu(GLOBAL_2D_ARRAY)
+      real latv(GLOBAL_2D_ARRAY)
+      real lonv(GLOBAL_2D_ARRAY)
+
       common /grid_latr/latr /grid_lonr/lonr
+      common /grid_latu/latu /grid_lonu/lonu
+      common /grid_latv/latv /grid_lonv/lonv
 #else
       real xp(GLOBAL_2D_ARRAY)
       real xr(GLOBAL_2D_ARRAY)

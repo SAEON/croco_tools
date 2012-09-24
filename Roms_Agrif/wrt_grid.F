@@ -24,13 +24,20 @@
 !
       implicit none
       character*(*) ncname
-      integer ncid, lstr, varid, ierr, nf_fwrite
+      integer i, j, k, ncid, lstr, varid, ierr, nf_fwrite,  
+     &        nf_fwrite_x, nf_fwrite_y
 #include "param.h"
 #include "scalars.h"
 #include "ncscrum.h"
 #include "grid.h"
 #include "netcdf.inc"
-
+#ifdef SOLVE3D
+#include "ocean3d.h"
+#endif
+      real s_rho_vec(N), s_w_vec(0:N)
+!
+!# include "compute_auxiliary_bounds.h"
+!
 #if defined MPI & !defined PARALLEL_FILES
       if (mynode.gt.0) goto 1 
 #endif
@@ -63,6 +70,72 @@
         write(stdout,2) 'el', ncname(1:lstr)
         goto 99                                           !--> ERROR
       endif
+
+#ifdef SOLVE3D
+!
+! Variable dimension on vertical : s_rho and s_w
+!
+      do k=1,N
+         s_rho_vec(k)=k
+      enddo
+      do k=0,N
+         s_w_vec(k)=k+0.5
+      enddo
+         
+      ierr=nf_inq_varid (ncid, 's_rho', varid)
+      ierr=nf_put_var_FTYPE(ncid, varid, s_rho_vec)
+      if (ierr.ne.nf_noerr) then
+         write(stdout,2) 's_rho', ncname(1:lstr)
+         goto 99                !--> ERROR
+      endif 
+
+      ierr=nf_inq_varid (ncid, 's_w', varid)
+      ierr=nf_put_var_FTYPE(ncid, varid, s_w_vec)
+      if (ierr.ne.nf_noerr) then
+         write(stdout,2) 's_w', ncname(1:lstr)
+         goto 99                !--> ERROR
+      endif 
+
+!
+! S-coordinate independent variables "sc_w", "sc_r" and stretching
+! curves "Cs_w", "Cs_r" at W- and RHO-points.
+!
+      ierr=nf_inq_varid (ncid, 'Cs_r', varid)
+      ierr=nf_put_var_FTYPE(ncid,varid ,Cs_r)
+      if (ierr.ne.nf_noerr) then
+         write(stdout,2) 'Cs_r', ncname(1:lstr)
+         goto 99                !--> ERROR
+      endif 
+!
+      ierr=nf_inq_varid (ncid, 'Cs_w', varid)
+      ierr=nf_put_var_FTYPE(ncid,varid ,Cs_w)
+      if (ierr.ne.nf_noerr) then
+         write(stdout,2) 'Cs_w', ncname(1:lstr)
+         goto 99                !--> ERROR
+      endif 
+!
+      ierr=nf_inq_varid (ncid, 'sc_r', varid)
+      ierr=nf_put_var_FTYPE(ncid,varid ,sc_r)
+      if (ierr.ne.nf_noerr) then
+         write(stdout,2) 's_r', ncname(1:lstr)
+         goto 99                !--> ERROR
+      endif 
+!
+      ierr=nf_inq_varid (ncid, 'sc_w', varid)
+      ierr=nf_put_var_FTYPE(ncid, varid,sc_w)
+      if (ierr.ne.nf_noerr) then
+         write(stdout,2) 's_w', ncname(1:lstr)
+         goto 99                !--> ERROR
+      endif 
+!
+      ierr=nf_inq_varid (ncid, 'hc', varid)
+      ierr=nf_put_var1_FTYPE (ncid, varid, 1, hc)
+      if (ierr.ne.nf_noerr) then
+        write(stdout,2) 'hc', ncname(1:lstr)
+        goto 99                 !--> ERROR
+      endif
+!
+#endif
 !
 ! Bathymetry.
 !
@@ -112,6 +185,30 @@
         write(stdout,2) 'lat_rho', ncname(1:lstr)
         goto 99                                           !--> ERROR
       endif
+      ierr=nf_inq_varid(ncid,'lon_u',varid)
+      ierr=nf_fwrite (lonu(START_2D_ARRAY), ncid, varid, 0, u2dvar)
+      if (ierr.ne.nf_noerr) then
+        write(stdout,2) 'lon_u', ncname(1:lstr)
+        goto 99                                           !--> ERROR
+      endif
+      ierr=nf_inq_varid(ncid,'lat_u',varid)
+      ierr=nf_fwrite (latu(START_2D_ARRAY), ncid, varid, 0, u2dvar)
+      if (ierr.ne.nf_noerr) then
+        write(stdout,2) 'lat_u', ncname(1:lstr)
+        goto 99                                           !--> ERROR
+      endif
+      ierr=nf_inq_varid(ncid,'lon_v',varid)
+      ierr=nf_fwrite (lonv(START_2D_ARRAY), ncid, varid, 0, v2dvar)
+      if (ierr.ne.nf_noerr) then
+        write(stdout,2) 'lon_v', ncname(1:lstr)
+        goto 99                                           !--> ERROR
+      endif
+      ierr=nf_inq_varid(ncid,'lat_v',varid)
+      ierr=nf_fwrite (latv(START_2D_ARRAY), ncid, varid, 0, v2dvar)
+      if (ierr.ne.nf_noerr) then
+        write(stdout,2) 'lat_v', ncname(1:lstr)
+        goto 99                                           !--> ERROR
+      endif
 #else
       ierr=nf_inq_varid(ncid,'x_rho',varid)
       ierr=nf_fwrite (xr(START_2D_ARRAY), ncid, varid, 0, r2dvar)
@@ -148,6 +245,35 @@
         goto 99                                           !--> ERROR
       endif
 #endif
+
+!
+! Variable horizontal grid indices
+! 
+      ierr=nf_inq_varid (ncid, 'xi_rho', varid)
+      ierr=nf_fwrite_x (ncid, varid, r2dvar)
+      if (ierr.ne.nf_noerr) then
+         write(stdout,2) 'xi_rho', ncname(1:lstr)
+         goto 99                !--> ERROR
+      endif 
+      ierr=nf_inq_varid (ncid, 'eta_rho', varid)
+      ierr=nf_fwrite_y (ncid, varid, r2dvar)
+      if (ierr.ne.nf_noerr) then
+         write(stdout,2) 'eta_rho', ncname(1:lstr)
+         goto 99                !--> ERROR
+      endif
+      ierr=nf_inq_varid (ncid, 'xi_u', varid)
+      ierr=nf_fwrite_x (ncid, varid, u2dvar)
+      if (ierr.ne.nf_noerr) then
+         write(stdout,2) 'xi_u', ncname(1:lstr)
+         goto 99                !--> ERROR
+      endif 
+      ierr=nf_inq_varid (ncid, 'eta_v', varid)
+      ierr=nf_fwrite_y (ncid, varid, v2dvar)
+      if (ierr.ne.nf_noerr) then
+         write(stdout,2) 'eta_v', ncname(1:lstr)
+         goto 99                !--> ERROR
+      endif   
+
       MPI_master_only write(stdout,'(6x,4A,2x,A,I4)') 
      &                 'WRT_GRID -- wrote grid ',
      &                 'data into file ''', ncname(1:lstr), '''.'

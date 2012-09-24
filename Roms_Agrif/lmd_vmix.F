@@ -507,9 +507,18 @@ C$OMP BARRIER
         do j=Jstr,Jend
           do i=Istr,Iend
              Akv(i,j,k)=Kv(i,j,k)
+# ifdef MASKING
+     &                *rmask(i,j)
+# endif
              Akt(i,j,k,itemp)=Kt(i,j,k)
+# ifdef MASKING
+     &                *rmask(i,j)
+# endif
 # ifdef SALINITY
              Akt(i,j,k,isalt)=Ks(i,j,k)
+#  ifdef MASKING
+     &                *rmask(i,j)
+#  endif
 # endif
           enddo
         enddo

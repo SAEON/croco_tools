@@ -33,7 +33,7 @@
 ! dt          Time step for 3D primitive equations [seconds];
 ! dtfast      Time step for 2D (barotropic) mode [seconds];
 !
-      real dt, dtfast, time, time_start, tdays
+      real dt, dtfast, time, time2, time_start, tdays
       integer iic, kstp, krhs, knew, next_kstp
 #ifdef SOLVE3D
      &      , iif, nstp, nrhs, nnew, nbstep3d
@@ -42,7 +42,7 @@
      &      , nfp1, nf, nfm1, nfm2, nfm3
 #endif
       logical PREDICTOR_2D_STEP
-      common /time_indices/  dt,dtfast, time,time_start, tdays, 
+      common /time_indices/  dt,dtfast, time, time2,time_start, tdays, 
      &                       iic, kstp, krhs, knew, next_kstp,
 #ifdef SOLVE3D
      &                       iif, nstp, nrhs, nnew, nbstep3d,
@@ -130,7 +130,7 @@
 !              If FALSE, the ripple var. is obtained from file (ifdef also SEDIMENT)
 !                        the ripple var. is set in ana_bsedim (ifndef SEDIMENT)
 !
-      real time_avg, rho0
+      real time_avg, time2_avg, rho0
      &               , rdrg, rdrg2, Cdb_min, Cdb_max, Zob
      &               , xl, el, visc2, visc4, gamma2
 #ifdef SOLVE3D
@@ -227,7 +227,7 @@
 #endif
 
       common /scalars_main/
-     &             time_avg,  rho0,      rdrg,    rdrg2
+     &             time_avg, time2_avg,  rho0,      rdrg,    rdrg2
      &           , Zob,       Cdb_min,   Cdb_max
      &           , xl, el,    visc2,     visc4,   gamma2
 #ifdef SOLVE3D
@@ -443,5 +443,11 @@
 
       real vonKar
       parameter (vonKar=0.41)
-
-
+!
+!   FillValue
+!
+      real spval
+      parameter (spval=-9999.0)
+!      parameter (spval=0.0)
+      logical mask_val
+      parameter (mask_val = .true.)

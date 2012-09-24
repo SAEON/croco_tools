@@ -172,6 +172,56 @@
         write(stdout,1) 'lat_rho', grdname(1:lstr)
         goto 99                                           !--> ERROR
       endif
+!--
+      ierr=nf_inq_varid (ncid, 'lon_u', varid)
+      if (ierr .eq. nf_noerr) then
+        ierr=nf_fread (lonu(START_2D_ARRAY), ncid, varid, 0, u2dvar)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,2) 'lon_u', grdname(1:lstr)
+          goto 99                                         !--> ERROR
+        endif
+      else
+        write(stdout,1) 'lon_u', grdname(1:lstr)
+        goto 99                                           !--> ERROR
+      endif
+
+      ierr=nf_inq_varid (ncid, 'lat_u', varid)
+      if (ierr .eq. nf_noerr) then
+        ierr=nf_fread (latu(START_2D_ARRAY), ncid, varid, 0, u2dvar)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,2) 'lat_u', grdname(1:lstr)
+          goto 99                                         !--> ERROR
+        endif
+      else
+        write(stdout,1) 'lat_u', grdname(1:lstr)
+        goto 99                                           !--> ERROR
+      endif
+!--
+      ierr=nf_inq_varid (ncid, 'lon_v', varid)
+      if (ierr .eq. nf_noerr) then
+        ierr=nf_fread (lonv(START_2D_ARRAY), ncid, varid, 0, v2dvar)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,2) 'lon_v', grdname(1:lstr)
+          goto 99                                         !--> ERROR
+        endif
+      else
+        write(stdout,1) 'lon_v', grdname(1:lstr)
+        goto 99                                           !--> ERROR
+      endif
+
+      ierr=nf_inq_varid (ncid, 'lat_v', varid)
+      if (ierr .eq. nf_noerr) then
+        ierr=nf_fread (latv(START_2D_ARRAY), ncid, varid, 0, v2dvar)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,2) 'lat_v', grdname(1:lstr)
+          goto 99                                         !--> ERROR
+        endif
+      else
+        write(stdout,1) 'lat_v', grdname(1:lstr)
+        goto 99                                           !--> ERROR
+      endif
+!--
+
 # else
       ierr=nf_inq_varid (ncid, 'x_rho', varid)
       if (ierr .eq. nf_noerr) then

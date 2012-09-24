@@ -28,6 +28,9 @@
 # include "scalars.h"
 # include "averages.h"
 # include "ncscrum.h"
+# include "ocean2d.h"
+# include "ocean3d.h"
+# include "work.h"
 # include "netcdf.inc"
 
 #if defined MPI & !defined PARALLEL_FILES
@@ -55,7 +58,7 @@
 ! Write out time-averaged variables:
 ! ----- --- ------------- ----------
 !
-! Time step and record indices.
+!     Time step and record indices.
 !
       ibuff(1)=iic
       ibuff(2)=nrecrst
@@ -68,444 +71,342 @@
       count(2)=1
       ierr=nf_put_vara_int (ncidavg, avgTstep, start, count, ibuff)
       if (ierr .ne. nf_noerr) then
-        write(stdout,1) 'time_step', record,ierr MYID
-        goto 99                                           !--> ERROR
+         write(stdout,1) 'time_step', record,ierr MYID
+         goto 99                !--> ERROR
       endif
-!
-! Averaged time
-!
+!     
+!     Averaged time
+!     
       ierr=nf_put_var1_FTYPE (ncidavg, avgTime, record, time_avg)
       if (ierr .ne. nf_noerr) then
-        lvar=lenstr(vname(1,indxTime))
-        write(stdout,1) vname(1,indxTime)(1:lvar), record, ierr
-     &                  MYID
-        goto 99                                           !--> ERROR
+         lvar=lenstr(vname(1,indxTime))
+         write(stdout,1) vname(1,indxTime)(1:lvar), record, ierr
+     &        MYID
+         goto 99                !--> ERROR
       endif
-!
-! Barotropic mode variables: free-surface and 2D momentum
-! components in XI-,ETA-directions.
-!
+!     
+!     Averaged time2
+!     
+      time2_avg = time_avg
+      ierr=nf_put_var1_FTYPE (ncidavg, avgTime2, record, time2_avg)
+      if (ierr .ne. nf_noerr) then
+         lvar=lenstr(vname(1,indxTime2))
+         write(stdout,1) vname(1,indxTime2)(1:lvar), record, ierr
+     &        MYID
+         goto 99                !--> ERROR
+      endif
+
+!     
+!     Barotropic mode variables: free-surface and 2D momentum
+!     components in XI-,ETA-directions.
+!     
       if (wrtavg(indxZ)) then
-        ierr=nf_fwrite (zeta_avg(START_2D_ARRAY), ncidavg, avgZ,
-     &                                            record, r2dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxZ))
-          write(stdout,1) vname(1,indxTime)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         work2d=zeta(:,:,fast_indx_out)
+         call fillvalue2d(work2d,ncidavg,avgZ,indxZ,record,r2dvar)
       endif
 
       if (wrtavg(indxUb)) then
-        ierr=nf_fwrite (ubar_avg(START_2D_ARRAY), ncidavg, avgUb,
-     &                                            record, u2dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxUb))
-          write(stdout,1) vname(1,indxUb)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         work2d(:,:)=ubar(:,:,fast_indx_out)
+         call fillvalue2d(work2d,ncidavg,avgUb,indxUb,record,u2dvar)
       endif
 
       if (wrtavg(indxVb)) then
-        ierr=nf_fwrite (vbar_avg(START_2D_ARRAY), ncidavg, avgVb,
-     &                                            record, v2dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxVb))
-          write(stdout,1) vname(1,indxVb)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         work2d(:,:)=vbar(:,:,fast_indx_out)
+         call fillvalue2d(work2d,ncidavg,avgVb,indxVb,record,v2dvar)
       endif
-!
-!  Write out kinematic bottom stress (N/m2).
-!
+!     
+!     Write out kinematic bottom stress (N/m2).
+!     
       if (wrtavg(indxBostr)) then
-        ierr=nf_fwrite(bostr_avg, ncidavg, avgBostr, record, r2dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxBostr))
-          write(stdout,1) vname(1,indxBostr)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         work2d=bostr_avg
+         call fillvalue2d(work2d,ncidavg,avgBostr,indxBostr,
+     &        record,r2dvar)
       endif
-!
-!  Write out kinematic surface stress (N/m2).
-!
+!     
+!--   Atmospheric forcing : no mask, no fill value
+!     
+!     
+!     Write out kinematic surface stress (N/m2).
+!     
       if (wrtavg(indxWstr)) then
-        ierr=nf_fwrite(wstr_avg, ncidavg, avgWstr, record, r2dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxWstr))
-          write(stdout,1) vname(1,indxWstr)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         ierr=nf_fwrite(wstr_avg, ncidavg, avgWstr, record, r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxWstr))
+            write(stdout,1) vname(1,indxWstr)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+CR      write(*,*) 'wrt_avg:  Wstr' MYID
       endif
-!
-!  Write out kinematic U surface stress component (N/m2).
-!
+!     
+!     Write out kinematic U surface stress component (N/m2).
+!     
       if (wrtavg(indxUWstr)) then
-        ierr=nf_fwrite(sustr_avg, ncidavg, avgUWstr, record, u2dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxUWstr))
-          write(stdout,1) vname(1,indxUWstr)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         ierr=nf_fwrite(sustr_avg, ncidavg, avgUWstr, record, u2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxUWstr))
+            write(stdout,1) vname(1,indxUWstr)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
       endif
-!
-!  Write out kinematic V surface stress component (N/m2).
-!
+!     
+!     Write out kinematic V surface stress component (N/m2).
+!     
       if (wrtavg(indxVWstr)) then
-        ierr=nf_fwrite(svstr_avg, ncidavg, avgVWstr, record, v2dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxVWstr))
-          write(stdout,1) vname(1,indxVWstr)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         ierr=nf_fwrite(svstr_avg, ncidavg, avgVWstr, record, v2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxVWstr))
+            write(stdout,1) vname(1,indxVWstr)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
       endif
+!     
+!--   Atmospheric forcing : no mask, no fill value
+!     
 # ifdef SOLVE3D
-!
-! 3D momentum components in XI- and ETA-directions.
-!
+!     
+!     3D momentum components in XI- and ETA-directions.
+!     
       if (wrtavg(indxU)) then
-        ierr=nf_fwrite (u_avg(START_2D_ARRAY,1), ncidavg, avgU,
-     &                                           record, u3dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxU))
-          write(stdout,1) vname(1,indxU)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif 
+         workr=u_avg
+         call fillvalue3d(workr,ncidavg,avgU,indxU,record,u3dvar)   
       endif
-
+!     
       if (wrtavg(indxV)) then
-        ierr=nf_fwrite (v_avg(START_2D_ARRAY,1), ncidavg, avgV,
-     &                                           record, v3dvar)
-        if (ierr .ne. nf_noerr) then
-        lvar=lenstr(vname(1,indxV))
-          write(stdout,1) vname(1,indxV)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         workr=v_avg
+         call fillvalue3d(workr,ncidavg,avgV,indxV,record,v3dvar)   
       endif
-!
-! Tracer variables.
-!
+!     
+!     Tracer variables.
+!     
       do itrc=1,NT
-        if (wrtavg(indxT+itrc-1)) then
-          ierr=nf_fwrite (t_avg(START_2D_ARRAY,1,itrc), ncidavg,
-     &                              avgT(itrc), record, r3dvar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxT+itrc-1))
-            write(stdout,1) vname(1,indxT+itrc-1)(1:lvar),
-     &                      record, ierr MYID
-            goto 99                                       !--> ERROR
-          endif
-        endif
+         if (wrtavg(indxT+itrc-1)) then
+            workr=t_avg(:,:,:,itrc)
+            call fillvalue3d(workr,ncidavg,avgT(itrc),indxT+itrc-1,
+     &           record,r3dvar)           
+         endif
       enddo
-!
-! Density anomaly.
-!
+!     
+!     Density anomaly.
+!     
       if (wrtavg(indxR)) then
-        ierr=nf_fwrite (rho_avg(START_2D_ARRAY,1), ncidavg, avgR,
-     &                                             record, r3dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxR))
-          write(stdout,1) vname(1,indxR)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         workr=rho_avg
+         call fillvalue3d(workr,ncidavg,avgR,indxR,record,r3dvar)         
       endif
-!
-!  Write out S-coordinate omega vertical velocity (m/s).
-!
+!     
+!     Write out S-coordinate omega vertical velocity (m/s).
+!     
       if (wrtavg(indxO)) then
-        ierr=nf_fwrite(omega_avg(START_2D_ARRAY,0),ncidavg,avgO,
-     &                                             record, w3dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxO))
-          write(stdout,1) vname(1,indxO)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         work=omega_avg
+         call fillvalue3d_w(work,ncidavg,avgO,indx0,record,w3dvar) 
       endif
-!
-! Write out true vertical velocity (m/s).
-!
+!     
+!     Write out true vertical velocity (m/s).
+!     
       if (wrtavg(indxW)) then
-        ierr=nf_fwrite(w_avg(START_2D_ARRAY,1),ncidavg,avgW,
-     &                                         record, r3dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxW))
-          write(stdout,1) vname(1,indxW)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         workr=w_avg
+         call fillvalue3d(workr,ncidavg,avgW,indxW,record,r3dvar)
       endif
+!     
+!--   Atmospheric forcing : no mask, no fill value
+!     
 #  ifdef BULK_FLUX
-!
-!  Write out surface heat flux component (degC/s)
-!
+!     
+!     Write out surface heat flux component (degC/s)
+!     
       if (wrtavg(indxShflx_rsw)) then
-       ierr=nf_fwrite(shflx_rsw_avg, ncidavg, avgShflx_rsw, record, 
-     &                                                     r2dvar)
-       if (ierr .ne. nf_noerr) then
-         lvar=lenstr(vname(1,indxShflx_rsw))
-         write(stdout,1) vname(1,indxShflx_rsw)(1:lvar), record, ierr
-     &                  MYID
-         goto 99                                         !--> ERROR
-       endif
+         ierr=nf_fwrite(shflx_rsw_avg, ncidavg, avgShflx_rsw, record, 
+     &        r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxShflx_rsw))
+            write(stdout,1) vname(1,indxShflx_rsw)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
       endif
 
       if (wrtavg(indxShflx_rlw)) then
-        ierr=nf_fwrite(shflx_rlw_avg, ncidavg, avgShflx_rlw, record,
-     &                                                     r2dvar)
-       if (ierr .ne. nf_noerr) then
-           lvar=lenstr(vname(1,indxShflx_rlw))
-           write(stdout,1) vname(1,indxShflx_rlw)(1:lvar), record, ierr
-     &                  MYID
-            goto 99                                         !--> ERROR
-       endif
+         ierr=nf_fwrite(shflx_rlw_avg, ncidavg, avgShflx_rlw, record,
+     &        r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxShflx_rlw))
+            write(stdout,1) vname(1,indxShflx_rlw)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
       endif
-
+      
       if (wrtavg(indxShflx_lat)) then
-        ierr=nf_fwrite(shflx_lat_avg, ncidavg, avgShflx_lat, record,
-     &                                                     r2dvar)
-       if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxShflx_lat))
-          write(stdout,1) vname(1,indxShflx_lat)(1:lvar), record, ierr
-     &                  MYID
-          goto 99                                         !--> ERROR
-       endif
+         ierr=nf_fwrite(shflx_lat_avg, ncidavg, avgShflx_lat, record,
+     &        r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxShflx_lat))
+            write(stdout,1) vname(1,indxShflx_lat)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
       endif
-
+      
       if (wrtavg(indxShflx_sen)) then
          ierr=nf_fwrite(shflx_sen_avg, ncidavg, avgShflx_sen, record,
-     &                                                     r2dvar)
-       if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxShflx_sen))
-          write(stdout,1) vname(1,indxShflx_sen)(1:lvar), record, ierr
-     &                  MYID
-          goto 99                                         !--> ERROR
-       endif
+     &        r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxShflx_sen))
+            write(stdout,1) vname(1,indxShflx_sen)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
       endif
 #  endif
+!     
+!--   
+!     
 #  ifdef VIS_COEF_3D
-!
-! Write out Horizontal viscosity coefficient.
-!
+!     
+!     Write out Horizontal viscosity coefficient.
+!     
       if (wrtavg(indxVisc)) then
-        ierr=nf_fwrite(visc3d_avg(START_2D_ARRAY,1), ncidavg, avgVisc, 
-     &                                              record, r3dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxVisc))
-          write(stdout,1) vname(1,indxVisc)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         workr=visc3d_avg
+         call fillvalue3d(workr,ncidavg,avgVisc,indxVisc,
+     &        record,r3dvar)
       endif
 #  endif
 #  ifdef DIF_COEF_3D
-!
-! Write out Horizontal diffusivity coefficient.
-!
+!     
+!     Write out Horizontal diffusivity coefficient.
+!     
       if (wrtavg(indxDiff)) then
-        ierr=nf_fwrite(diff3d_avg(START_2D_ARRAY,1), ncidavg, avgDiff,
-     &                                                 record, r3dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxDiff))
-          write(stdout,1) vname(1,indxDiff)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         workr=diff3d_avg
+         call fillvalue3d(workr,ncidavg,avgDiff,indxDiff,
+     &        record,r3dvar)
       endif
 #  endif
 #  ifdef AVERAGES_K
-!
-! Write out vertical viscosity coefficient.
-!
+!     
+!     Write out vertical viscosity coefficient.
+!     
       if (wrtavg(indxAkv)) then
-        ierr=nf_fwrite(Akv_avg(START_2D_ARRAY,0), ncidavg, avgAkv, 
-     &                                              record, w3dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxAkv))
-          write(stdout,1) vname(1,indxAkv)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         work=Akv_avg
+         call fillvalue3d_w(work,ncidavg,avgAkv,indxAkv,record,w3dvar)
+CR      write(*,*) 'wrt_avg:  wrtAkt' MYID
       endif
-!
-!  Write out vertical diffusion coefficient for potential temperature.
-!
+!     
+!     Write out vertical diffusion coefficient for potential temperature.
+!     
       if (wrtavg(indxAkt)) then
-        ierr=nf_fwrite(Akt_avg(START_2D_ARRAY,0,itemp), ncidavg,
-     &                                    avgAkt, record, w3dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxAkt))
-          write(stdout,1) vname(1,indxAkt)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         work=Akt_avg(:,:,:,itemp)
+         call fillvalue3d_w(work,ncidavg,avgAkt,indxAkt,record,w3dvar)
+CR      write(*,*) 'wrt_avg:  wrtAkt' MYID
       endif
-!# ifdef SALINITY
-!
-!  Write out vertical diffusion coefficient for salinity.
-!
+#    ifdef SALINITY
+!     
+!     Write out vertical diffusion coefficient for salinity.
+!     
       if (wrtavg(indxAks)) then
-        ierr=nf_fwrite(Akt_avg(START_2D_ARRAY,0,isalt), ncidavg,
-     &                                   avgAks, record, w3dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxAks))
-          write(stdout,1) vname(1,indxAks)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         work=Akt_avg(:,:,:,isalt)
+         call fillvalue3d_w(work,ncidavg,avgAks,indxAks,record,w3dvar)
+CR       write(*,*) 'wrt_avg:  wrtAks' MYID
       endif
-#  endif
+#    endif /* SALINITY */
+#  endif  /* AVERAGES_K */
+!     
 #  ifdef LMD_SKPP
-!
-!  Write out depth of planetary boundary layer (m).
-!
+!     
+!     Write out depth of planetary boundary layer (m).
+!     
       if (wrtavg(indxHbl)) then
-        ierr=nf_fwrite(hbl_avg, ncidavg, avgHbl, record, r2dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxHbl))
-          write(stdout,1) vname(1,indxHbl)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         work2d=hbl_avg
+         call fillvalue2d(work2d,ncidavg,avgHbl,indxHbl,
+     &        record,r2dvar)
       endif
 #  endif
 #  ifdef LMD_BKPP
-!
-!  Write out depth of planetary boundary layer (m).
-!
+!     
+!     Write out depth of planetary boundary layer (m).
+!     
       if (wrtavg(indxHbbl)) then
-        ierr=nf_fwrite(hbbl_avg, ncidavg, avgHbbl, record, r2dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxHbbl))
-          write(stdout,1) vname(1,indxHbbl)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         work2d=hbbl_avg
+         call fillvalue2d(work2d,ncidavg,avgHbbl,indxHbbl,
+     &        record,r2dvar)
       endif
 #  endif
 #  ifdef BIOLOGY
-!
-!  Write out depth of the euphotic layer (m).
-!
+!     
+!     Write out depth of the euphotic layer (m).
+!     
       if (wrtavg(indxHel)) then
-        ierr=nf_fwrite(hel_avg, ncidavg, avgHel, record, r2dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxHel))
-          write(stdout,1) vname(1,indxHel)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         work2d=hel_avg
+         call fillvalue2d(work2d,ncidavg,avgHbl,indxHbl,
+     &        record,r2dvar)
       endif
-!
-!  Write out Chlorophyll to Carbon ratio (m).
-!
+!     
+!     Write out Chlorophyll to Carbon ratio (m).
+!     
 #   ifdef BIO_NChlPZD
       if (wrtavg(indxChC)) then
-        ierr=nf_fwrite(theta_avg, ncidavg, avgChC, record, r3dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxChC))
-          write(stdout,1) vname(1,indxChC)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         workr=theta_avg
+         call fillvalue3d(workr,ncidavg,avgChC,indxChC,
+     &        record,r3dvar)
       endif
 #     ifdef OXYGEN
       if (wrtavg(indxU10)) then
-        ierr=nf_fwrite (u10_avg, ncidavg, avgU10, record, r2dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxU10))
-          write(stdout,1) vname(1,indxU10)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         work2d=u10_avg
+         call fillvalue2d(work2d,ncidavg,avgU10,indxU10,
+     &        record,r2dvar)
       endif
       if (wrtavg(indxKvO2)) then
-        ierr=nf_fwrite (Kv_O2_avg, ncidavg, avgKvO2, record, r2dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxKvO2))
-          write(stdout,1) vname(1,indxKvO2)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         work2d=Kv_02_avg
+         call fillvalue2d(work2d,ncidavg,avgKv02,indxKv02,
+     &        record,r2dvar)
       endif
       if (wrtavg(indxO2sat)) then
-        ierr=nf_fwrite (O2satu_avg, ncidavg, avgO2sat, record, r2dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxO2sat))
-          write(stdout,1) vname(1,indxO2sat)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
+         work2d=O2satu_avg
+         call fillvalue2d(work2d,ncidavg,avgO2sat,indx02sat,
+     &        record,r2dvar)
       endif
 #     endif /* OXYGEN */
-#   elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-      if (wrtavg(indxChC1)) then
-        ierr=nf_fwrite(theta1_avg, ncidavg, avgChC1, record, r3dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxChC1))
-          write(stdout,1) vname(1,indxChC1)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
-      endif
-
-      if (wrtavg(indxChC2)) then
-        ierr=nf_fwrite(theta2_avg, ncidavg, avgChC2, record, r3dvar)
-        if (ierr .ne. nf_noerr) then
-          lvar=lenstr(vname(1,indxChC2))
-          write(stdout,1) vname(1,indxChC2)(1:lvar), record, ierr
-     &                    MYID
-          goto 99                                         !--> ERROR
-        endif
-      endif
+!     
 #   endif
 #  endif /* BIOLOGY */
 # endif /* SOLVE3D */
-  1   format(/' WRT_AVG - ERROR while writing variable(',1x,a,1x,
-     &               ')into averages file.',/,11x,'Time record:',
-     &                      i6,3x,'netCDF error code',i4,3x,a,i4)
+ 1    format(/' WRT_AVG - ERROR while writing variable(',1x,a,1x,
+     &     ')into averages file.',/,11x,'Time record:',
+     &     i6,3x,'netCDF error code',i4,3x,a,i4)
       goto 100
-  99  may_day_flag=3
+ 99   may_day_flag=3
  100  continue
 
-!
-! Synchronize netCDF file to disk to allow other processes
-! to access data immediately after it is written.
-!
-# if defined MPI & !defined PARALLEL_FILES
+!     
+!     Synchronize netCDF file to disk to allow other processes
+!     to access data immediately after it is written.
+!     
+# if defined MPI &              !defined PARALLEL_FILES
       ierr=nf_close(ncidavg)
       if (nrpfavg.gt.0 .and. record.ge.nrpfavg) ncidavg=-1
 # else
       if (nrpfavg.gt.0 .and. record.ge.nrpfavg) then
-        ierr=nf_close(ncidavg)
-        ncidavg=-1
+         ierr=nf_close(ncidavg)
+         ncidavg=-1
       else
-        ierr=nf_sync(ncidavg)
+         ierr=nf_sync(ncidavg)
       endif
 # endif
       if (ierr .eq. nf_noerr) then
-        write(stdout,'(6x,A,2(A,I4,1x),A,I3)') 'WRT_AVG -- wrote ',
-     &            'averaged fields into time record =', record, '/',
-     &             nrecavg  MYID
+         write(stdout,'(6x,A,2(A,I4,1x),A,I3)') 'WRT_AVG -- wrote ',
+     &        'averaged fields into time record =', record, '/',
+     &        nrecavg  MYID
       else
-        write(stdout,'(/1x,2A/)') 'WRT_AVG ERROR: Cannot ',
-     &             'synchronize/close averages netCDF file.'
-        may_day_flag=3
+         write(stdout,'(/1x,2A/)') 'WRT_AVG ERROR: Cannot ',
+     &        'synchronize/close averages netCDF file.'
+         may_day_flag=3
       endif
 
-# if defined MPI & !defined PARALLEL_FILES
+# if defined MPI &              !defined PARALLEL_FILES
       if (mynode .lt. NNODES-1) then
-        call MPI_Send (blank, 1, MPI_INTEGER, mynode+1,
-     &                        1, MPI_COMM_WORLD,  ierr)
+         call MPI_Send (blank, 1, MPI_INTEGER, mynode+1,
+     &        1, MPI_COMM_WORLD,  ierr)
       endif
 # endif
       return

@@ -45,10 +45,6 @@
 #  ifdef BIO_NChlPZD
       real theta(GLOBAL_2D_ARRAY,N)
       common /ocean_theta/theta
-#  elif defined BIO_N2P2Z2D2 && defined AVG_CHL_C
-      real theta1(GLOBAL_2D_ARRAY,N)
-     &   , theta2(GLOBAL_2D_ARRAY,N)
-      common /ocean_theta1/theta1 /ocean_theta2/theta2
 #  endif
 # endif
 # if defined NONLIN_EOS && defined SPLIT_EOS
