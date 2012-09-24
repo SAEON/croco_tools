@@ -212,9 +212,9 @@ type Agrif_Variable
 !> @}
 !> \name Arrays containing the values of the grid variables (character)
 !> @{
-    character(2050)                             :: carray0
-    character(250), dimension(:)  , allocatable :: carray1
-    character(250), dimension(:,:), allocatable :: carray2
+    character(2400)                             :: carray0
+    character(2400), dimension(:)  , allocatable :: carray1
+    character(2400), dimension(:,:), allocatable :: carray2
 !> @}
 
     real, dimension(:,:), pointer :: oldvalues2D => NULL() !< Array used for the time interpolation
