@@ -178,6 +178,15 @@
         lstr=lenstr(title)
         MPI_master_only write(stdout,'(/1x,A)') title(1:lstr)
 !
+! Start date
+!
+      elseif (keyword(1:kwlen).eq.'start_date') then
+         call cancel_kwd (keyword(1:kwlen), ierr)
+         read(input,'(A)',err=95) start_date
+         lstr=lenstr(start_date)
+         MPI_master_only write(stdout,'(/2x,A,1x,A/)') 
+     &   'Start date:', start_date(1:lstr)
+!     
 ! Time-stepping parameters
 !
       elseif (keyword(1:kwlen).eq.'time_stepping') then
@@ -1379,8 +1388,8 @@ c        close(testunit)
 ! located at U- or V-points so the grid locations should range from
 ! 1 =< Isrc =< L  and  1 =< Jsrc =< M.
 !
-#ifdef PSOURCE_VAR
-      elseif (keyword(1:kwlen).eq.'psource_var') then
+#ifdef PSOURCE_NCFILE
+      elseif (keyword(1:kwlen).eq.'psource_ncfile') then
         call cancel_kwd (keyword(1:kwlen), ierr)
 ! river runoff file name. Check its availability.
         read(input,'(A)',err=95) fname

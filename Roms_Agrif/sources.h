@@ -62,6 +62,11 @@
       logical Lsrc(Msrc,NT)
       common /source_Lsrc/ Lsrc
 
+#ifdef PSOURCE_NCFILE
+      real rivdir(Msrc)
+      common /source_rivdir/ rivdir
+#endif
+
 # ifdef MPI
       integer Isrc_mpi(Msrc,0:NNODES-1)
       common /source_Isrc_mpi/ Isrc_mpi

@@ -47,6 +47,7 @@ C$    integer omp_get_thread_num
 #include "bbl.h"
 #include "diagnostics.h"
 #include "boundary.h"
+#include "sources.h"
       integer Istr,Iend,Jstr,Jend, i,j
 #ifdef SOLVE3D
      &       ,k,itrc
@@ -434,6 +435,13 @@ C$    integer omp_get_thread_num
 # endif
         enddo
       enddo
+# if defined PSOURCE_NCFILE
+          do i=1,Msrc
+	   riv(i)=init
+	   rivg(i,1)=init
+	   rivg(i,2)=init
+          enddo	
+# endif
 #endif /* SOLVE3D */
 !
 ! Initialize climatology arrays (see "climat.h").

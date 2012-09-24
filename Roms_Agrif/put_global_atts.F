@@ -105,6 +105,9 @@
       lvar=lenstr(title)
       ierr=nf_put_att_text(ncid, nf_global, 'title',   lvar,
      &                                         title(1:lvar))
+      lvar=lenstr(start_date)
+      ierr=nf_put_att_text(ncid, nf_global, 'start_date',lvar,
+     &                                     start_date(1:lvar))
       lvar=lenstr(date_str)
       ierr=nf_put_att_text(ncid, nf_global, 'date',    lvar,
      &                                      date_str(1:lvar))
@@ -221,6 +224,11 @@
       lvar=lenstr(frcname)
       ierr=nf_put_att_text(ncid, nf_global,'frc_file', lvar,
      &                                       frcname(1:lvar))
+#endif
+#ifdef PSOURCE_NCFILE
+      lvar=lenstr(rivname)
+      ierr=nf_put_att_text(ncid, nf_global, 'riv_file',lvar,
+     &                                       rivname(1:lvar))
 #endif
 #ifdef ASSIMILATION
       lvar=lenstr(assname)

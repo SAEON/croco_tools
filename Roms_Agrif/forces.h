@@ -185,7 +185,31 @@
 #    undef SST_DATA
 #  endif /* !ANA_SST */
 # endif /* QCORRECTION */
+#ifdef PSOURCE_NCFILE
+!
+!  RIVER RUNOFF
+!--------------------------------------------------------------------
+!  riv      river runoff [m3/s].
+!
+      real riv(Msrc)
+      common /forces_riv/riv
+!
+!  rivg  |  Two-time-level grided data for river runoff [m3/s].
+!  triv     Time of river runoff data.
+!
 
+      real rivg(Msrc,2)
+      common /rivdat_rivg/rivg
+
+      real    riv_time(2)
+      real    riv_cycle
+      integer itriv, riv_ncycle, riv_rec,  riv_tid,  riv_id
+      common /rivdat1/ riv_time
+      common /rivdat2/ riv_cycle
+      common /rivdat3/ itriv, riv_ncycle, riv_rec, riv_tid, riv_id
+
+#    undef RIV_DATA
+# endif /* PSOURCE_NCFILE */
 # if defined SALINITY && defined SFLX_CORR
 !
 !  SALT FLUX CORRECTION

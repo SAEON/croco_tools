@@ -29,7 +29,16 @@
 !-------------------------------------------------------------------
 !
       implicit none
-#include "param.h"
+# include "param.h"
+# include "sources.h"
+!
+!---------------------------------------------------------------
+! River discharge, temperature and salinity
+!---------------------------------------------------------------
+!
+# if defined PSOURCE_NCFILE
+        call get_psource
+# endif
 !
 !---------------------------------------------------------------
 ! Kinematic surface momentum flux (wind stress) components "sustrg"
@@ -152,7 +161,8 @@
 #include "forces.h"
 #include "scalars.h"
 #include "climat.h"
-      integer i,j, Istr,Iend,Jstr,Jend
+#include "sources.h"
+      integer i,j,is, Istr,Iend,Jstr,Jend
       real cff
       real wrk(PRIVATE_2D_SCRATCH_ARRAY)
       real wrk1(PRIVATE_2D_SCRATCH_ARRAY)
@@ -479,6 +489,12 @@ C$OMP BARRIER
 # endif
 #endif
 
+#ifdef PSOURCE_NCFILE
+      call set_psource_tile(Istr,Iend,Jstr,Jend,Nsrc)  
+      do is=1,Nsrc
+	Qbar(is)=rivdir(is)*riv(is)		
+      enddo
+#  endif
 #ifdef ANA_PSOURCE
       call ana_psource_tile (Istr,Iend,Jstr,Jend)
 #endif

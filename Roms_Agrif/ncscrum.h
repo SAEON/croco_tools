@@ -43,6 +43,7 @@
 ! indxSSS         sea surface salinity
 ! indxSSFl        surface fresh water flux
 ! indxSSFl        surface fresh water flux
+! indxRIV         river runoff
 !
 ! indxAi          fraction of cell covered by ice
 ! indxUi,indxVi   U,V-components of sea ice velocity
@@ -285,9 +286,11 @@
 #endif /* SOLVE3D */
       integer indxSUSTR, indxSVSTR
       parameter (indxSUSTR=indxSSH+1, indxSVSTR=indxSSH+2)
+      integer indxTime2
+      parameter (indxTime2=indxSSH+3)
 #ifdef SOLVE3D
       integer indxSHFl, indxSWRad
-      parameter (indxSHFl=indxSSH+3)
+      parameter (indxSHFl=indxSSH+4)
 # ifdef SALINITY
       integer indxSSFl
       parameter (indxSSFl=indxSHFl+1, indxSWRad=indxSHFl+2)
@@ -347,6 +350,10 @@
 #  endif
 # endif /* BBL */
 #endif /* SOLVE3D */
+#ifdef PSOURCE_NCFILE
+      integer indxRIV
+      parameter (indxRIV=indxSUSTR+37)
+#endif /* PSOURCE_NCFILE */
 #ifdef ICE
       integer indxAi
       parameter (indxAi=????)
@@ -419,6 +426,7 @@
 !               avg_/_avg           averages
 !                    _frc           forcing
 !                    _clm           climatology
+!                    _riv           river runoff
 !
 ! endings refer to:  ___Time  time [in seconds]
 !                    ___Tstep time step numbers and record numbers
@@ -451,18 +459,19 @@
 !   ntuclm  momentum variables in current climatology file.
 !   ntww    wind induced wave data in current forcing file.
 !   ntbulkn bulk formula variables in current forcing file.
+!   ntriv   river runoff in current forcing file.
 !
 ! vname    character array for variable names and attributes;
 !=================================================================
 !
       integer ncidfrc, ncidbulk, ncidclm,  ntsms
      &      , ntsrf,  ntssh,  ntsst, ntsss, ntuclm, ntww,
-     &        ntbulk
+     &        ntbulk, ncidriv, ntriv
 #ifdef SOLVE3D
       integer nttclm(NT),    ntstf(NT)
 #endif
       integer ncidrst, nrecrst,  nrpfrst
-     &      , rstTime, rstTstep, rstZ,    rstUb,  rstVb
+     &      , rstTime, rstTime2, rstTstep, rstZ,    rstUb,  rstVb
 #ifdef SOLVE3D
      &                         , rstU,    rstV
       integer rstT(NT)
@@ -474,7 +483,7 @@
       integer rstBBL(2)
 #endif
       integer  ncidhis, nrechis,  nrpfhis
-     &      , hisTime, hisTstep, hisZ,    hisUb,  hisVb
+     &      , hisTime, hisTime2, hisTstep, hisZ,    hisUb,  hisVb
      &      , hisBostr, hisWstr, hisUWstr, hisVWstr
 #ifdef SOLVE3D
      &      , hisU,   hisV,   hisR,    hisHbl, hisHbbl
@@ -531,7 +540,7 @@
 #endif
 #ifdef AVERAGES
       integer ncidavg, nrecavg,  nrpfavg
-     &      , avgTime, avgTstep, avgZ, avgUb,  avgVb
+     &      , avgTime, avgTime2, avgTstep, avgZ, avgUb,  avgVb
      &      , avgBostr, avgWstr, avgUwstr, avgVwstr
 # ifdef SOLVE3D
      &      , avgU,   avgV,   avgR,    avgHbl, avgHbbl
@@ -622,7 +631,7 @@
 	
       common/incscrum/
      &        ncidfrc, ncidbulk,ncidclm, ntsms, ntsrf, ntssh, ntsst
-     &      , ntuclm, ntsss, ntww, ntbulk
+     &      , ntuclm, ntsss, ntww, ntbulk, ncidriv, ntriv
 #if defined MPI && defined PARALLEL_FILES
 # ifndef EW_PERIODIC
      &      , xi_rho,  xi_u
@@ -635,7 +644,7 @@
      &                        ,  nttclm,          ntstf
 #endif
      &      , ncidrst, nrecrst,  nrpfrst
-     &      , rstTime, rstTstep, rstZ,    rstUb,  rstVb
+     &      , rstTime, rstTime2, rstTstep, rstZ,    rstUb,  rstVb
 #ifdef SOLVE3D
      &                         , rstU,    rstV,   rstT
 # ifdef SEDIMENT
@@ -646,7 +655,7 @@
      &                         , rstBBL
 #endif
      &      , ncidhis, nrechis,  nrpfhis
-     &      , hisTime, hisTstep, hisZ,    hisUb,  hisVb
+     &      , hisTime, hisTime2, hisTstep, hisZ,    hisUb,  hisVb
      &      , hisBostr, hisWstr, hisUWstr, hisVWstr
 #ifdef SOLVE3D
      &      , hisU,    hisV,     hisT,    hisR
@@ -677,7 +686,7 @@
 #endif
 #if defined DIAGNOSTICS_TS
      &      , nciddia, nrecdia, nrpfdia
-     &      , diaTime, diaTstep
+     &      , diaTime, diaTime2, diaTstep
      &      , diaTXadv, diaTYadv, diaTVadv, diaTHmix
      &      , diaTVmix, diaTForc, diaTrate
 # if defined DIAGNOSTICS_TS_MLD
@@ -686,7 +695,7 @@
 # endif
 # ifdef AVERAGES
      &      , nciddia_avg, nrecdia_avg, nrpfdia_avg
-     &      , diaTime_avg, diaTstep_avg
+     &      , diaTime_avg, diaTime2_avg, diaTstep_avg
      &      , diaTXadv_avg, diaTYadv_avg, diaTVadv_avg
      &      , diaTHmix_avg, diaTVmix_avg, diaTForc_avg
      &      , diaTrate_avg
@@ -699,12 +708,12 @@
 #endif
 #ifdef DIAGNOSTICS_UV
      &      , nciddiaM, nrecdiaM, nrpfdiaM
-     &      , diaTimeM, diaTstepM
+     &      , diaTimeM, diaTime2M, diaTstepM
      &      , diaMXadv, diaMYadv, diaMVadv, diaMCor
      &      , diaMPrsgrd, diaMHmix, diaMVmix, diaMrate
 # ifdef AVERAGES
      &      , nciddiaM_avg, nrecdiaM_avg, nrpfdiaM_avg
-     &      , diaTimeM_avg, diaTstepM_avg
+     &      , diaTimeM_avg, diaTime2M_avg, diaTstepM_avg
      &      , diaMXadv_avg, diaMYadv_avg, diaMVadv_avg
      &      , diaMCor_avg, diaMPrsgrd_avg, diaMHmix_avg
      &      , diaMVmix_avg, diaMrate_avg
@@ -724,7 +733,7 @@
 #endif 
 #ifdef AVERAGES
      &      , ncidavg,  nrecavg,  nrpfavg
-     &      , avgTime, avgTstep, avgZ,    avgUb,  avgVb
+     &      , avgTime, avgTime2, avgTstep, avgZ,    avgUb,  avgVb
      &      , avgBostr, avgWstr, avgUWstr, avgVWstr
 # ifdef SOLVE3D
      &      , avgU,    avgV,     avgT,     avgR
@@ -779,9 +788,10 @@
 # endif
 #endif
 
-      character*80 date_str, title
+      character*80 date_str, title, start_date
       character*80 ininame,  grdname,  hisname
      &         ,   rstname,  frcname,  bulkname,  usrname
+     &         ,   rivname
 #ifdef AVERAGES
      &                                ,   avgname
 #endif
@@ -823,14 +833,15 @@
 #endif
 
 #ifdef SOLVE3D
-      character*52  vname(4, 500)
+      character*75  vname(20, 500)
 #else
-      character*52  vname(4, 39)
+      character*75  vname(20, 39)
 #endif
 
-      common /cncscrum/       date_str,   title
+      common /cncscrum/       date_str,   title,  start_date
      &         ,   ininame,  grdname, hisname
      &         ,   rstname,  frcname, bulkname,  usrname
+     &         ,   rivname
 #ifdef AVERAGES
      &                                ,  avgname
 #endif
