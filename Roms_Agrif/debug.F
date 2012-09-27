@@ -97,7 +97,7 @@
                   do i=max(i1,iseq1-iminmpi+1),min(i2,iseq2-iminmpi+1)     
                     i0 = i+iminmpi-1
                     if (tabread(i0,j0)/=tab(i,j)) then
-                       write(*,'(a8,a16,4i3,3e20.12)')'BUGBIN= ',
+                       write(*,'(a8,a18,4i3,3e20.12)')'BUGBIN = ',
      &                 comment,i0,j0,i,j,
      &                 tabread(i0,j0),tab(i,j),
      &                 abs(tabread(i0,j0)-tab(i,j))
@@ -205,7 +205,7 @@
                 do i=max(i1,iseq1-iminmpi+1),min(i2,iseq2-iminmpi+1)     
                     i0 = i+iminmpi-1
                      if (tabread(i0,j0,k)/=tab(i,j,k)) then
-                       write(*,'(a8,a16,5i3,3e20.12)')'BUGBIN = ',
+                       write(*,'(a8,a18,5i3,3e20.12)')'BUGBIN = ',
      &                 comment,
      &                 i0,j0,i,j,k,
      &                 tabread(i0,j0,k),tab(i,j,k),
