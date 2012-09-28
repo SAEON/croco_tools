@@ -1,4 +1,4 @@
-function create_inifile2(inifile,gridfile,title,...
+function create_inifile(inifile,gridfile,title,...
                          theta_s,theta_b,hc,N,time,clobber,vtransform)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -67,8 +67,10 @@ h=nc{'h'}(:);
 mask=nc{'mask_rho'}(:);
 close(nc);
 hmin=min(min(h(mask==1)));
-if hc > hmin
-  error([' hc (',num2str(hc),' m) > hmin (',num2str(hmin),' m)'])
+if vtransform ==1;
+    if hc > hmin
+        error([' hc (',num2str(hc),' m) > hmin (',num2str(hmin),' m)'])
+    end
 end
 [Mp,Lp]=size(h);
 L=Lp-1;
