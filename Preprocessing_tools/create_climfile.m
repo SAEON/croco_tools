@@ -198,10 +198,10 @@ nc{'sc_r'}.valid_min = -1.;
 nc{'sc_r'}.valid_max = 0.;
 nc{'sc_r'}.positive = ncchar('up');
 nc{'sc_r'}.positive = 'up';
-if (Vtransform ==1)
+if (vtransform ==1)
     nc{'sc_r'}.standard_name = ncchar('ocena_s_coordinate_g1');
     nc{'sc_r'}.standard_name = 'ocena_s_coordinate_g1';
-elseif (Vtransform ==2)
+elseif (vtransform ==2)
     nc{'sc_r'}.standard_name = ncchar('ocena_s_coordinate_g2');
     nc{'sc_r'}.standard_name = 'ocena_s_coordinate_g2'     
 end
