@@ -308,15 +308,12 @@
             Mrate(i,j,k,1)=( 0.5*(Hz(i,j,k)+Hz(i-1,j,k))*u(i,j,k,nnew)
      &              -0.5*(Hz_bak(i,j,k)+Hz_bak(i-1,j,k))*u(i,j,k,nstp) )
      &                                           *om_u(i,j)*on_u(i,j)/dt
-#  ifdef MASKING
-     &                     *rmask(i,j)
-#  endif
+     &                                           SWITCH umask(i,j)
+!
             Mrate(i,j,k,2)=( 0.5*(Hz(i,j,k)+Hz(i,j-1,k))*v(i,j,k,nnew)
      &              -0.5*(Hz_bak(i,j,k)+Hz_bak(i,j-1,k))*v(i,j,k,nstp) )
      &                                           *om_v(i,j)*on_v(i,j)/dt
-#  ifdef MASKING
-     &                     *rmask(i,j)
-#  endif
+     &                                           SWITCH vmask(i,j)
 !
 ! Divide all diagnostic terms by the cell volume Hz/(pm*pn).
 ! There after the unit of diag terms are :

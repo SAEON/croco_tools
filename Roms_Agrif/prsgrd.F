@@ -50,7 +50,13 @@ c********************************************************************
      &    dRx(PRIVATE_2D_SCRATCH_ARRAY)
 
       parameter (OneFifth=0.2, OneTwelfth=1./12., epsil=0.) !1.E-10) 
-
+!
+#ifdef MASKING
+# define SWITCH *
+#else
+# define SWITCH !
+#endif
+!
 # include "grid.h"
 # include "ocean3d.h"
 # include "scalars.h"
@@ -259,7 +265,7 @@ c********************************************************************
 !
 # ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
-              MPrsgrd(i,j,k,1) = ru(i,j,k)
+              MPrsgrd(i,j,k,1) = ru(i,j,k) SWITCH umask(i,j)
             endif
 # endif
           enddo
@@ -357,7 +363,7 @@ c********************************************************************
 !
 #  ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
-              MPrsgrd(i,j,k,2) = rv(i,j,k)
+              MPrsgrd(i,j,k,2) = rv(i,j,k) SWITCH vmask(i,j)
             endif
 #  endif
           enddo

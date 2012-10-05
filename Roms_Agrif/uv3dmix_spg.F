@@ -18,6 +18,13 @@
 #  define CLIMAT_UV_SPONGE
 # endif
 !
+!
+#ifdef MASKING
+# define SWITCH *
+#else
+# define SWITCH !
+#endif
+!
 # ifndef CHILD_SPG
       subroutine uv3dmix_spg (tile)
       implicit none
@@ -254,7 +261,8 @@
             u(i,j,k,indx)=u(i,j,k,indx) + dt*cff1
 #  ifdef DIAGNOSTICS_UV
             MHmix(i,j,k,1) = MHmix(i,j,k,1)+
-     &                            2*cff1/(Hz(i-1,j,k)+Hz(i,j,k))
+     &                       2*cff1/(Hz(i-1,j,k)+Hz(i,j,k))
+     &                       SWITCH umask(i,j)
 #  endif
           enddo
         enddo
@@ -267,7 +275,8 @@
             v(i,j,k,indx)=v(i,j,k,indx) + dt*cff1
 #  ifdef DIAGNOSTICS_UV
             MHmix(i,j,k,2) = MHmix(i,j,k,2)+
-     &                            2*cff1/(Hz(i,j,k)+Hz(i,j-1,k))
+     &                       2*cff1/(Hz(i,j,k)+Hz(i,j-1,k))
+     &                       SWITCH vmask(i,j)
 #  endif
           enddo
         enddo
@@ -590,8 +599,9 @@
      &                                              -UFs(i,j,k1))
 #  ifdef DIAGNOSTICS_UV
               MHmix(i,j,k,1) = MHmix(i,j,k,1)+
-     &                           2*(cff1+UFs(i,j,k2)-UFs(i,j,k1))
-     &                                   /(Hz(i-1,j,k)+Hz(i,j,k))
+     &                         2*(cff1+UFs(i,j,k2)-UFs(i,j,k1))
+     &                         /(Hz(i-1,j,k)+Hz(i,j,k))
+     &                          SWITCH umask(i,j)
 #  endif
             enddo
           enddo
@@ -605,8 +615,9 @@
      &                                              -VFs(i,j,k1))
 #  ifdef DIAGNOSTICS_UV
               MHmix(i,j,k,2) = MHmix(i,j,k,2)+
-     &                           2*(cff1+VFs(i,j,k2)-VFs(i,j,k1))
-     &                                   /(Hz(i,j,k)+Hz(i,j-1,k))
+     &                         2*(cff1+VFs(i,j,k2)-VFs(i,j,k1))
+     &                         /(Hz(i,j,k)+Hz(i,j-1,k))
+     &                          SWITCH vmask(i,j)
 #  endif
             enddo
           enddo

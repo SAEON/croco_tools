@@ -52,7 +52,14 @@
 # include "param.h"
 # include "private_scratch.h"
 # include "compute_tile_bounds.h"
-      trd=omp_get_thread_num() 
+      trd=omp_get_thread_num()
+!
+#ifdef MASKING
+# define SWITCH *
+#else
+# define SWITCH !
+#endif
+! 
 # ifdef AGRIF
       if (AGRIF_Root()) then
        call uv3dmix_tile (Istr,Iend,Jstr,Jend,
@@ -972,6 +979,7 @@
 #ifdef DIAGNOSTICS_UV
               MHmix(i,j,k,1) = -2*(cff1+UFs(i,j,k2)-UFs(i,j,k1))
      &                                   /(Hz(i-1,j,k)+Hz(i,j,k))
+     &                                    SWITCH umask(i,j)
 #endif
             enddo
           enddo
@@ -986,6 +994,7 @@
 #ifdef DIAGNOSTICS_UV
               MHmix(i,j,k,2) = -2*(cff1+VFs(i,j,k2)-VFs(i,j,k1))
      &                                   /(Hz(i,j,k)+Hz(i,j-1,k))
+     &                                    SWITCH vmask(i,j)
 #endif
             enddo
           enddo

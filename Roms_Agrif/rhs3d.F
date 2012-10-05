@@ -61,6 +61,13 @@
 !
 # include "compute_auxiliary_bounds.h"
 !
+!
+#ifdef MASKING
+# define SWITCH *
+#else
+# define SWITCH !
+#endif
+!
 # ifdef BODYFORCE
 #  define Uwrk UFx
 #  define Vwrk VFe
@@ -184,7 +191,8 @@
             ru(i,j,k)=ru(i,j,k)+0.5*(UFx(i,j)+UFx(i-1,j))
 #  ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
-              MCor(i,j,k,1) = 0.5*(UFx(i,j)+UFx(i-1,j))
+              MCor(i,j,k,1) = 0.5*(UFx(i,j)+UFx(i-1,j)) 
+     &                        SWITCH umask(i,j)
             endif
 #  endif
           enddo
@@ -195,6 +203,7 @@
 #  ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
               MCor(i,j,k,2) = -0.5*(VFe(i,j)+VFe(i,j-1))
+     &                        SWITCH vmask(i,j)
             endif
 #  endif
           enddo
@@ -516,8 +525,8 @@
      &                                   -UFe(i,j+1)+UFe(i  ,j)
 #  ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
-              MXadv(i,j,k,1) = -UFx(i,j)+UFx(i-1,j)
-              MYadv(i,j,k,1) = -UFe(i,j+1)+UFe(i,j)
+              MXadv(i,j,k,1) = -UFx(i,j)+UFx(i-1,j) SWITCH umask(i,j)
+              MYadv(i,j,k,1) = -UFe(i,j+1)+UFe(i,j) SWITCH umask(i,j)
             endif
 #  endif
           enddo
@@ -528,8 +537,8 @@
      &                                   -VFe(i  ,j)+VFe(i,j-1)
 #  ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
-              MXadv(i,j,k,2) = -VFx(i+1,j)+VFx(i,j)
-              MYadv(i,j,k,2) = -VFe(i,j)+VFe(i,j-1)
+              MXadv(i,j,k,2) = -VFx(i+1,j)+VFx(i,j) SWITCH vmask(i,j)
+              MYadv(i,j,k,2) = -VFe(i,j)+VFe(i,j-1) SWITCH vmask(i,j)
             endif
 #  endif
           enddo
@@ -634,7 +643,7 @@
             ru(i,j,k)=ru(i,j,k)-FC(i,k)+FC(i,k-1)
 #  ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
-              MVadv(i,j,k,1) = -FC(i,k)+FC(i,k-1)
+              MVadv(i,j,k,1) = -FC(i,k)+FC(i,k-1) SWITCH umask(i,j)
             endif
 #  endif
           enddo
@@ -729,7 +738,7 @@
               rv(i,j,k)=rv(i,j,k)-FC(i,k)+FC(i,k-1)
 #  ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
-              MVadv(i,j,k,2) = -FC(i,k)+FC(i,k-1)
+              MVadv(i,j,k,2) = -FC(i,k)+FC(i,k-1) SWITCH vmask(i,j)
             endif
 #  endif
             enddo
