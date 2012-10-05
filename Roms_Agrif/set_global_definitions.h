@@ -440,6 +440,13 @@ c-# define TANH dtanh
  Choice of setting land mask value to _FillValue
 */ 
 #undef FILLVAL
+
+/* 
+ Choice of wriiting start_date information (from roms.in) 
+ in netCDF output
+*/ 
+#undef START_DATE
+
 /*
  Choice of double/single precision for netCDF output.
 */

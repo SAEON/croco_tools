@@ -178,6 +178,8 @@
         lstr=lenstr(title)
         MPI_master_only write(stdout,'(/1x,A)') title(1:lstr)
 !
+#ifdef START_DATE
+!
 ! Start date
 !
       elseif (keyword(1:kwlen).eq.'start_date') then
@@ -186,6 +188,7 @@
          lstr=lenstr(start_date)
          MPI_master_only write(stdout,'(/2x,A,1x,A/)') 
      &   'Start date:', start_date(1:lstr)
+#endif
 !     
 ! Time-stepping parameters
 !

@@ -105,9 +105,11 @@
       lvar=lenstr(title)
       ierr=nf_put_att_text(ncid, nf_global, 'title',   lvar,
      &                                         title(1:lvar))
+#ifdef START_DATE
       lvar=lenstr(start_date)
       ierr=nf_put_att_text(ncid, nf_global, 'start_date',lvar,
      &                                     start_date(1:lvar))
+#endif
       lvar=lenstr(date_str)
       ierr=nf_put_att_text(ncid, nf_global, 'date',    lvar,
      &                                      date_str(1:lvar))
