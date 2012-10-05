@@ -78,8 +78,13 @@
 # ifdef PSOURCE
 #  include "sources.h"
 # endif
+# ifdef MASKING
+#  define SWITCH *
+# else
+#  define SWITCH !
+# endif
 !
-# ifdef TS_HADV_UP5
+# if defined TS_HADV_UP5 || defined TS_HADV_C6
 ! definition of flux operators, 3rd, 4th, 5th or 6th order
 !
       REAL    :: flux3, flux5
@@ -153,7 +158,7 @@
 !
 !===============================================================
 !
-# ifdef TS_HADV_UP5
+# if defined TS_HADV_UP5 || defined TS_HADV_C6
 !--------------------------------
 ! Sixth order advection scheme
 !--------------------------------
@@ -202,8 +207,8 @@
 #   endif
 #  endif
 
-      do k=1,N
-        do itrc=1,NT
+      do itrc=1,NT
+        do k=1,N
 
           DO j = Jstr,Jend+1  !j_loop_y_flux_5
                                                       !
@@ -398,8 +403,8 @@
 #  endif
 # endif
 
-      do k=1,N
-        do itrc=1,NT
+      do itrc=1,NT
+        do k=1,N
 
           do j=Jstr,Jend
             do i=I_EXT_RANGE
@@ -481,7 +486,6 @@
 #  undef grad
             enddo
           enddo            !--> discard grad
-
 # endif /* TS_HADV_UP5 */
 
 # ifdef PSOURCE
@@ -540,15 +544,15 @@
             do j=Jstr,Jend
               do i=Istr,Iend
                 t(i,j,k,nnew,itrc)=cff1*Hz(i,j,k)*t(i,j,k,nstp,itrc)
-     &                         +cff2*Hz_bak(i,j,k)*t(i,j,k,indx,itrc)
-     &                      -cff*pm(i,j)*pn(i,j)*( FX(i+1,j)-FX(i,j)
-     &                                            +FE(i,j+1)-FE(i,j))
+     &                            +cff2*Hz_bak(i,j,k)*t(i,j,k,indx,itrc)
+     &                         -cff*pm(i,j)*pn(i,j)*( FX(i+1,j)-FX(i,j)
+     &                                               +FE(i,j+1)-FE(i,j))
               enddo
             enddo
           endif
 
-        enddo   ! <-- itrc
-      enddo       ! <-- k
+        enddo   ! <-- k
+      enddo       ! <-- itrc
 
 !
 ! Continue computation of the auxiliary tracer field: auxiliary

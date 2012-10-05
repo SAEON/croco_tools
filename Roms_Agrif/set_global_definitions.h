@@ -73,12 +73,22 @@
     Select TRACER LATERAL advection-diffusion scheme
     (The default is third-order upstream biased)
 */
+/* #undef  TS_HADV_C6     6th-order upstream lateral advection */ 
 /* #undef  TS_HADV_UP5    5th-order upstream lateral advection */ 
-/* #undef  TS_HADV_UP3    3rd-order upstream lateral advection */
 /* #undef  TS_HADV_C4     4th-order centered lateral advection */
+/* #undef  TS_HADV_UP3    3rd-order upstream lateral advection */
 
 #ifdef TS_HADV_RSUP3   /*  Rotated-Split 3rd-order scheme is:  */
 # define TS_HADV_C4    /*    4th-order centered advection      */
+# undef  TS_DIF2       /*               +                      */
+# define TS_DIF4       /*         Hyperdiffusion  with         */
+# undef  TS_MIX_GEO    /*        Geopotential rotation         */
+# define TS_MIX_ISO    /*     or Isopycnal    rotation         */
+# define TS_MIX_IMP    /*   and  Semi-Implicit Time-Stepping   */
+# define DIF_COEF_3D 
+#endif
+#ifdef TS_HADV_RSUP5   /*    Pseudo RS 5th-order scheme is:    */
+# define TS_HADV_C6    /*    6th-order centered advection      */
 # undef  TS_DIF2       /*               +                      */
 # define TS_DIF4       /*         Hyperdiffusion  with         */
 # undef  TS_MIX_GEO    /*        Geopotential rotation         */
@@ -92,7 +102,6 @@
 #if defined TS_MIX_ISO || (defined TS_DIF4 && defined TS_MIX_GEO)
 # define TS_MIX_IMP
 #endif
-#undef   TS_HADV_AKIMA /* 4th-order Akima horiz. advection */
 
 /*
    if defined apply interior diffusion over tracer anomalies
@@ -129,7 +138,7 @@
     Psource option
 */
 #ifdef PSOURCE
-#  define ANA_PSOURCE  /* ON: To have the vertical profil of qbar */
+#  define ANA_PSOURCE  /* ON: set vertical profil for qbar */
 #endif
 /*
     Bulk flux option
@@ -140,7 +149,7 @@
 #  undef SFLX_CORR
 # endif
 # ifdef BULK_SMFLUX     
-#  define BULK_SM_UPDATE /* ON: Compute wind stress via bulk_flux.F */
+#  define BULK_SM_UPDATE /* ON: Compute wind stress via bulk_flux */
 # endif
 #endif
 
@@ -179,7 +188,7 @@
  zones are always provided on the each side. These data for these
  two ghost zones is then exchanged by message passing. 
 */
-#ifdef TS_HADV_UP5
+#if defined TS_HADV_UP5 || defined TS_HADV_C6
 # ifdef MPI
 #  define GLOBAL_2D_ARRAY -2:Lm+3+padd_X,-2:Mm+3+padd_E
 #  define GLOBAL_1D_ARRAYXI -2:Lm+3+padd_X
@@ -428,7 +437,7 @@ c-# define TANH dtanh
 # define nf_put_att_FTYPE nf_put_att_real
 #endif
 /* 
- Decide to fill the mask value by the _FillValue
+ Choice of setting land mask value to _FillValue
 */ 
 #define FILLVAL
 /*

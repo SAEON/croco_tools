@@ -248,11 +248,11 @@
 #  ifdef TS_DIF_SMAGO
      &                     +0.5*(diff3d_r(i,j,k)+diff3d_r(i-1,j,k))
      &                                         *om_u(i,j)*on_u(i,j)
-#  elif defined TS_HADV_RSUP3
+#  elif defined TS_HADV_RSUP3 || defined TS_HADV_RSUP5
      &                     +diff3d_u(i,j,k)
 #  endif
-     &                           )
 # endif
+     &                           )
 #endif
           enddo
         enddo
@@ -271,11 +271,11 @@
 #  ifdef TS_DIF_SMAGO
      &                     +0.5*(diff3d_r(i,j,k)+diff3d_r(i,j-1,k))
      &                                         *om_v(i,j)*on_v(i,j)
-#  elif defined TS_HADV_RSUP3
+#  elif defined TS_HADV_RSUP3 || defined TS_HADV_RSUP5
      &                     +diff3d_v(i,j,k)
 #  endif
-     &                           )
 # endif
+     &                           )
 #endif
           enddo
         enddo

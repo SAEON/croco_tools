@@ -72,7 +72,7 @@
 # define SWITCH !
 #endif
 !
-# ifdef TS_HADV_UP5
+# if defined TS_HADV_UP5 || defined TS_HADV_C6
 ! definition of flux operators, 3rd, 4th, 5th or 6th order
 !
       REAL    :: flux3, flux4, flux5, flux6
@@ -105,13 +105,18 @@
 !
 !===============================================================
 !
-# ifdef TS_HADV_UP5
+# if defined TS_HADV_UP5 ||  defined TS_HADV_C6
 !--------------------------------
 ! Fifth order advection scheme
 !--------------------------------
 !
+# ifdef TS_HADV_C6
+#  define FLUX5 flux6
+#  define FLUX3 flux4
+# else
 #  define FLUX5 flux5
 #  define FLUX3 flux4
+# endif
 !
 #  ifdef MPI
       if (SOUTH_INTER) then
@@ -154,8 +159,8 @@
 #   endif
 #  endif
 
-      do k=1,N
-        do itrc=1,NT
+      do itrc=1,NT
+        do k=1,N
 
           DO j = Jstr,Jend+1  !j_loop_y_flux_5
                                                       !
@@ -321,16 +326,16 @@
 #   define I_EXT_RANGE Istr-1,Iend+2
 #  else
 #   ifdef MPI
-          if (WEST_INTER) then
-            imin=Istr-1
-          else
-            imin=max(Istr-1,1)
-          endif
-          if (EAST_INTER) then
-            imax=Iend+2
-          else
-            imax=min(Iend+2,Lmmpi+1)
-        endif
+      if (WEST_INTER) then
+        imin=Istr-1
+      else
+        imin=max(Istr-1,1)
+      endif
+      if (EAST_INTER) then
+        imax=Iend+2
+      else
+        imax=min(Iend+2,Lmmpi+1)
+      endif
 #    define I_EXT_RANGE imin,imax
 #   else
 #    define I_EXT_RANGE max(Istr-1,1),min(Iend+2,Lm+1)
@@ -340,24 +345,24 @@
 #   define J_EXT_RANGE Jstr-1,Jend+2
 #  else
 #   ifdef MPI
-          if (SOUTH_INTER) then
-            jmin=Jstr-1
-          else
-            jmin=max(Jstr-1,1)
-          endif
-          if (NORTH_INTER) then
-            jmax=Jend+2
-          else
-            jmax=min(Jend+2,Mmmpi+1)
-          endif
+      if (SOUTH_INTER) then
+        jmin=Jstr-1
+      else
+        jmin=max(Jstr-1,1)
+      endif
+      if (NORTH_INTER) then
+        jmax=Jend+2
+      else
+        jmax=min(Jend+2,Mmmpi+1)
+      endif
 #    define J_EXT_RANGE jmin,jmax
 #   else
 #    define J_EXT_RANGE max(Jstr-1,1),min(Jend+2,Mm+1)
 #   endif
 #  endif
 
-      do k=1,N
-        do itrc=1,NT
+      do itrc=1,NT
+        do k=1,N
 
           do j=Jstr,Jend
             do i=I_EXT_RANGE
@@ -488,7 +493,6 @@
 #  endif
             enddo
           enddo            !--> discard grad
-
 # endif /* TS_HADV_UP5 */
 
 # ifdef PSOURCE
@@ -576,8 +580,8 @@
         enddo
 # endif /* DIAGNOSTICS_TS */
 
-        enddo    ! <-- itrc
-      enddo    !<-- k
+        enddo    !<-- k
+      enddo    !<-- itrc
 
 # if defined LMD_SKPP || defined LMD_BKPP
 !---------------------------------------------------------------
@@ -996,12 +1000,12 @@
         enddo
        enddo
       enddo
-       do j=jstr,jend
-        do i=istr,iend
-          idRz(i,j,N) = 0.
-          idRz(i,j,0) = 0.
-        enddo
+      do j=jstr,jend
+       do i=istr,iend
+         idRz(i,j,N) = 0.
+         idRz(i,j,0) = 0.
        enddo
+      enddo
 
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
       call exchange_w3d_tile (  istr,iend,jstr,jend,
