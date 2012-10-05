@@ -126,7 +126,7 @@
       integer NSUB_X, NSUB_E, NPP
 #ifdef MPI
       integer NP_XI, NP_ETA, NNODES     
-      parameter (NP_XI=1, NP_ETA=2,  NNODES=NP_XI*NP_ETA)
+      parameter (NP_XI=1, NP_ETA=4,  NNODES=NP_XI*NP_ETA)
       parameter (NPP=1)
       parameter (NSUB_X=1, NSUB_E=1)
 #elif defined OPENMP
