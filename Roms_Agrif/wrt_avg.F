@@ -16,9 +16,9 @@
                                      ! netCDF file.
 !     implicit none
       integer ierr, record, lstr, lvar, lenstr
-     &  , start(2), count(2), ibuff(4), nf_fwrite
+     &  , start(2), count(2), ibuff(4), nf_fwrite, type
 # ifdef SOLVE3D
-     &            , itrc            
+     &            , itrc         
 # endif
 # if defined MPI & !defined PARALLEL_FILES
       include 'mpif.h'
@@ -60,6 +60,8 @@
 !
 !     Time step and record indices.
 !
+      type=filetype_avg
+
       ibuff(1)=iic
       ibuff(2)=nrecrst
       ibuff(3)=nrechis
@@ -87,8 +89,7 @@
 !     
 !     Averaged time2
 !     
-      time2_avg = time_avg
-      ierr=nf_put_var1_FTYPE (ncidavg, avgTime2, record, time2_avg)
+      ierr=nf_put_var1_FTYPE (ncidavg, avgTime2, record, time_avg)
       if (ierr .ne. nf_noerr) then
          lvar=lenstr(vname(1,indxTime2))
          write(stdout,1) vname(1,indxTime2)(1:lvar), record, ierr
@@ -102,17 +103,20 @@
 !     
       if (wrtavg(indxZ)) then
          work2d=zeta(:,:,fast_indx_out)
-         call fillvalue2d(work2d,ncidavg,avgZ,indxZ,record,r2dvar)
+         call fillvalue2d(work2d,ncidavg,avgZ,indxZ,
+     &                   record,r2dvar,type)
       endif
 
       if (wrtavg(indxUb)) then
          work2d(:,:)=ubar(:,:,fast_indx_out)
-         call fillvalue2d(work2d,ncidavg,avgUb,indxUb,record,u2dvar)
+         call fillvalue2d(work2d,ncidavg,avgUb,indxUb,
+     &                      record,u2dvar,type)
       endif
 
       if (wrtavg(indxVb)) then
          work2d(:,:)=vbar(:,:,fast_indx_out)
-         call fillvalue2d(work2d,ncidavg,avgVb,indxVb,record,v2dvar)
+         call fillvalue2d(work2d,ncidavg,avgVb,indxVb,
+     &                   record,v2dvar,type)
       endif
 !     
 !     Write out kinematic bottom stress (N/m2).
@@ -120,7 +124,7 @@
       if (wrtavg(indxBostr)) then
          work2d=bostr_avg
          call fillvalue2d(work2d,ncidavg,avgBostr,indxBostr,
-     &        record,r2dvar)
+     &        record,r2dvar,type)
       endif
 !     
 !--   Atmospheric forcing : no mask, no fill value
@@ -171,12 +175,12 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
 !     
       if (wrtavg(indxU)) then
          workr=u_avg
-         call fillvalue3d(workr,ncidavg,avgU,indxU,record,u3dvar)   
+         call fillvalue3d(workr,ncidavg,avgU,indxU,record,u3dvar,type)   
       endif
 !     
       if (wrtavg(indxV)) then
          workr=v_avg
-         call fillvalue3d(workr,ncidavg,avgV,indxV,record,v3dvar)   
+         call fillvalue3d(workr,ncidavg,avgV,indxV,record,v3dvar,type)   
       endif
 !     
 !     Tracer variables.
@@ -185,7 +189,7 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
          if (wrtavg(indxT+itrc-1)) then
             workr=t_avg(:,:,:,itrc)
             call fillvalue3d(workr,ncidavg,avgT(itrc),indxT+itrc-1,
-     &           record,r3dvar)           
+     &           record,r3dvar,type)           
          endif
       enddo
 !     
@@ -193,21 +197,21 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
 !     
       if (wrtavg(indxR)) then
          workr=rho_avg
-         call fillvalue3d(workr,ncidavg,avgR,indxR,record,r3dvar)         
+         call fillvalue3d(workr,ncidavg,avgR,indxR,record,r3dvar,type)         
       endif
 !     
 !     Write out S-coordinate omega vertical velocity (m/s).
 !     
       if (wrtavg(indxO)) then
          work=omega_avg
-         call fillvalue3d_w(work,ncidavg,avgO,indx0,record,w3dvar) 
+         call fillvalue3d_w(work,ncidavg,avgO,indx0,record,w3dvar,type) 
       endif
 !     
 !     Write out true vertical velocity (m/s).
 !     
       if (wrtavg(indxW)) then
          workr=w_avg
-         call fillvalue3d(workr,ncidavg,avgW,indxW,record,r3dvar)
+         call fillvalue3d(workr,ncidavg,avgW,indxW,record,r3dvar,type)
       endif
 !     
 !--   Atmospheric forcing : no mask, no fill value
@@ -270,7 +274,7 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
       if (wrtavg(indxVisc)) then
          workr=visc3d_avg
          call fillvalue3d(workr,ncidavg,avgVisc,indxVisc,
-     &        record,r3dvar)
+     &        record,r3dvar,type)
       endif
 #  endif
 #  ifdef DIF_COEF_3D
@@ -280,7 +284,7 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
       if (wrtavg(indxDiff)) then
          workr=diff3d_avg
          call fillvalue3d(workr,ncidavg,avgDiff,indxDiff,
-     &        record,r3dvar)
+     &        record,r3dvar,type)
       endif
 #  endif
 #  ifdef AVERAGES_K
@@ -289,7 +293,8 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
 !     
       if (wrtavg(indxAkv)) then
          work=Akv_avg
-         call fillvalue3d_w(work,ncidavg,avgAkv,indxAkv,record,w3dvar)
+         call fillvalue3d_w(work,ncidavg,avgAkv,indxAkv,
+     &        record,w3dvar,type)
 CR      write(*,*) 'wrt_avg:  wrtAkt' MYID
       endif
 !     
@@ -297,7 +302,8 @@ CR      write(*,*) 'wrt_avg:  wrtAkt' MYID
 !     
       if (wrtavg(indxAkt)) then
          work=Akt_avg(:,:,:,itemp)
-         call fillvalue3d_w(work,ncidavg,avgAkt,indxAkt,record,w3dvar)
+         call fillvalue3d_w(work,ncidavg,avgAkt,indxAkt,
+     &        record,w3dvar,type)
 CR      write(*,*) 'wrt_avg:  wrtAkt' MYID
       endif
 #    ifdef SALINITY
@@ -306,7 +312,8 @@ CR      write(*,*) 'wrt_avg:  wrtAkt' MYID
 !     
       if (wrtavg(indxAks)) then
          work=Akt_avg(:,:,:,isalt)
-         call fillvalue3d_w(work,ncidavg,avgAks,indxAks,record,w3dvar)
+         call fillvalue3d_w(work,ncidavg,avgAks,indxAks,
+     &        record,w3dvar,type)
 CR       write(*,*) 'wrt_avg:  wrtAks' MYID
       endif
 #    endif /* SALINITY */
@@ -319,7 +326,7 @@ CR       write(*,*) 'wrt_avg:  wrtAks' MYID
       if (wrtavg(indxHbl)) then
          work2d=hbl_avg
          call fillvalue2d(work2d,ncidavg,avgHbl,indxHbl,
-     &        record,r2dvar)
+     &        record,r2dvar,type)
       endif
 #  endif
 #  ifdef LMD_BKPP
@@ -329,7 +336,7 @@ CR       write(*,*) 'wrt_avg:  wrtAks' MYID
       if (wrtavg(indxHbbl)) then
          work2d=hbbl_avg
          call fillvalue2d(work2d,ncidavg,avgHbbl,indxHbbl,
-     &        record,r2dvar)
+     &        record,r2dvar,type)
       endif
 #  endif
 #  ifdef BIOLOGY
@@ -339,7 +346,7 @@ CR       write(*,*) 'wrt_avg:  wrtAks' MYID
       if (wrtavg(indxHel)) then
          work2d=hel_avg
          call fillvalue2d(work2d,ncidavg,avgHbl,indxHbl,
-     &        record,r2dvar)
+     &        record,r2dvar,type)
       endif
 !     
 !     Write out Chlorophyll to Carbon ratio (m).
@@ -348,23 +355,23 @@ CR       write(*,*) 'wrt_avg:  wrtAks' MYID
       if (wrtavg(indxChC)) then
          workr=theta_avg
          call fillvalue3d(workr,ncidavg,avgChC,indxChC,
-     &        record,r3dvar)
+     &        record,r3dvar,type)
       endif
 #     ifdef OXYGEN
       if (wrtavg(indxU10)) then
          work2d=u10_avg
          call fillvalue2d(work2d,ncidavg,avgU10,indxU10,
-     &        record,r2dvar)
+     &        record,r2dvar,type)
       endif
       if (wrtavg(indxKvO2)) then
          work2d=Kv_02_avg
          call fillvalue2d(work2d,ncidavg,avgKv02,indxKv02,
-     &        record,r2dvar)
+     &        record,r2dvar,type)
       endif
       if (wrtavg(indxO2sat)) then
          work2d=O2satu_avg
          call fillvalue2d(work2d,ncidavg,avgO2sat,indx02sat,
-     &        record,r2dvar)
+     &        record,r2dvar,type)
       endif
 #     endif /* OXYGEN */
 !     

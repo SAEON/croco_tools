@@ -22,7 +22,7 @@
 
       implicit none
       integer ierr,  record, lstr, lvar, lenstr
-     &   , start(2), count(2), ibuff(4), nf_fwrite
+     &   , start(2), count(2), ibuff(4), nf_fwrite, type
 #if defined MPI & !defined PARALLEL_FILES
       include 'mpif.h'
       integer status(MPI_STATUS_SIZE), blank
@@ -80,6 +80,8 @@
 !
 ! Time step number and record numbers.
 !
+      type=filetype_diaM_avg
+!
       ibuff(1)=iic
       ibuff(2)=nrecrst
       ibuff(3)=nrechis
@@ -123,100 +125,69 @@
 !
 ! indxMXadv
 !
-          ierr=nf_fwrite(MXadv_avg(START_2D_ARRAY,1,itrc), nciddiaM_avg,
-     &                              diaMXadv_avg(itrc), record, ivar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxMXadv+itrc-1))
-            write(stdout,1) vname(1,indxMXadv+itrc-1)(1:lvar), record,
-     &                      ierr MYID
-            goto 99                                       !--> ERROR
-          endif  
+           workr=MXadv_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM_avg,diaMXadv_avg(itrc),
+     &                      indxMXadv+itrc-1,
+     &                      record,ivar,type)  
 !
 ! indxMYadv
 !
-          ierr=nf_fwrite(MYadv_avg(START_2D_ARRAY,1,itrc), nciddiaM_avg,
-     &                               diaMYadv_avg(itrc), record, ivar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxMYadv+itrc-1))
-            write(stdout,1) vname(1,indxMYadv+itrc-1)(1:lvar), record,
-     &                      ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           workr=MYadv_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM_avg,diaMYadv_avg(itrc),
+     &                      indxMYadv+itrc-1,
+     &                      record,ivar,type)  
 !
 ! indxMVadv
 !
-          ierr=nf_fwrite(MVadv_avg(START_2D_ARRAY,1,itrc), nciddiaM_avg,
-     &                               diaMVadv_avg(itrc), record, ivar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxMVadv+itrc-1))
-            write(stdout,1) vname(1,indxMVadv+itrc-1)(1:lvar), record,
-     &                      ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           workr=MVadv_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM_avg,diaMVadv_avg(itrc),
+     &                      indxMVadv+itrc-1,
+     &                      record,ivar,type)  
 !
 ! indxMCor
 !
-          ierr=nf_fwrite(MCor_avg(START_2D_ARRAY,1,itrc), nciddiaM_avg,
-     &                               diaMCor_avg(itrc), record, ivar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxMCor+itrc-1))
-            write(stdout,1) vname(1,indxMCor+itrc-1)(1:lvar), record,
-     &                      ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           workr=MCor_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM_avg,diaMCor_avg(itrc),
+     &                      indxMCor+itrc-1,
+     &                      record,ivar,type)  
 !
 ! indxMPrsgrd
 !
-          ierr=nf_fwrite(MPrsgrd_avg(START_2D_ARRAY,1,itrc),nciddiaM_avg,
-     &                               diaMPrsgrd_avg(itrc), record, ivar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxMPrsgrd+itrc-1))
-            write(stdout,1) vname(1,indxMPrsgrd+itrc-1)(1:lvar), record,
-     &                      ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           workr=MPrsgrd_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM_avg,diaMPrsgrd_avg(itrc),
+     &                      indxMPrsgrd+itrc-1,
+     &                      record,ivar,type)  
 !
 ! indxMHmix
 !
-          ierr=nf_fwrite(MHmix_avg(START_2D_ARRAY,1,itrc), nciddiaM_avg,
-     &                               diaMHmix_avg(itrc), record, ivar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxMHmix+itrc-1))
-            write(stdout,1) vname(1,indxMHmix+itrc-1)(1:lvar), record,
-     &                      ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           workr=MHmix_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM_avg,diaMHmix_avg(itrc),
+     &                      indxMHmix+itrc-1,
+     &                      record,ivar,type)  
 !
 ! indxMVmix
 !
-          ierr=nf_fwrite(MVmix_avg(START_2D_ARRAY,1,itrc), nciddiaM_avg,
-     &                               diaMVmix_avg(itrc), record, ivar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxMVmix+itrc-1))
-            write(stdout,1) vname(1,indxMVmix+itrc-1)(1:lvar), record,
-     &                      ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           workr=MVmix_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM_avg,diaMVmix_avg(itrc),
+     &                      indxMVmix+itrc-1,
+     &                      record,ivar,type)  
 !
 ! indxMrate
 !
-          ierr = nf_fwrite(Mrate_avg(START_2D_ARRAY,1,itrc), 
-     &        nciddiaM_avg, diaMrate_avg(itrc), record, ivar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxMrate+itrc-1))
-            write(stdout,1) vname(1,indxMrate+itrc-1)(1:lvar),
-     &           record, ierr MYID 
-            goto 99
-          endif
+           workr=Mrate_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM_avg,diaMrate_avg(itrc),
+     &                      indxMrate+itrc-1,
+     &                      record,ivar,type)  
 !
       
         endif
       enddo
 !
+!--#define DEBUG
 #  ifdef DEBUG
       i=20
-      j=2
-      k=2
+      j=20
+      k=10
       itrc=1
       write(*,*) 'Write diag UV avg at : i='
      &                   ,i,' j=',j,' k=',k,' iUV=',itrc
@@ -239,7 +210,7 @@
      &                                  -  Mrate_avg(i,j,k,itrc)
               write(*,*) '----------------------------------'
 #  endif /* DEBUG */
-
+!--# undef DEBUG
 
   1   format(/1x,'WRT_DIAG_AVG ERROR while writing variable ''', A,
      &          ''' into diag_avg file.', /11x, 'Time record:',

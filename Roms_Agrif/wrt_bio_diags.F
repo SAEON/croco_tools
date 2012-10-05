@@ -15,7 +15,7 @@
       subroutine wrt_bio_diags     ! fields at requested levels 
                                    ! into diagnostics netCDF file.
       implicit none
-      integer ierr,  record, lstr, lvar, lenstr
+      integer ierr,  record, lstr, lvar, lenstr, type
      &   , start(2), count(2), ibuff(4), nf_fwrite
 #if defined MPI & !defined PARALLEL_FILES
       include 'mpif.h'
@@ -64,6 +64,8 @@
 !
 ! Time step number and record numbers.
 !
+      type=filetype_diabio
+!    
       ibuff(1)=iic
       ibuff(2)=nrecrst
       ibuff(3)=nrechis
@@ -94,6 +96,17 @@ CDEBUG      write(*,*) 'Write Time'
      &                  MYID
         goto 99                                           !--> ERROR
       endif
+!     
+!     Time2
+!     
+      ierr=nf_put_var1_FTYPE (nciddiabio, diaTime2bio, record, time)
+      if (ierr .ne. nf_noerr) then
+         lvar=lenstr(vname(1,indxTime2))
+         write(stdout,1) vname(1,indxTime2)(1:lvar), record, ierr
+     &        MYID
+         goto 99                !--> ERROR
+      endif
+
 !
 ! Tracer diag variables.
 !
@@ -105,14 +118,9 @@ CDEBUG      write(*,*) 'Write Time'
 ! 3-D terms (it is called Flux but it means nothing) Christophe Menkes
 #  if defined key_trc_dia3d
       do iflux=1,NumFluxTerms
-         ierr=nf_fwrite(bioFlux(START_2D_ARRAY,1,iflux),
-     &        nciddiabio, diabioFlux(iflux), record, r3dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxbioFlux+iflux-1))
-            write(stdout,1) vname(1,indxbioFlux+iflux-1)(1:lvar),
-     &           record, ierr MYID
-            goto 99
-         end if
+         workr=bioFlux(:,:,:,iflux)
+         call fillvalue3d(workr, nciddiabio, diabioFlux(iflux),
+     &        indxbioFlux+itrc-1,record,r3dvar,type)
       end do
   
 #  endif
@@ -121,14 +129,9 @@ CDEBUG      write(*,*) 'Write Time'
       do iflux=1,NumVSinkTerms
 c$$$         if (iflux.eq.11)  write(*,*) 'ZMEU WRT',
 c$$$     &        bioVSink(30,30,iflux)
-         ierr=nf_fwrite(bioVSink(START_2D_ARRAY,iflux),
-     &        nciddiabio, diabioVsink(iflux), record, r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxbioVSink+iflux-1))
-            write(stdout,1) vname(1,indxbioVSink+iflux-1)(1:lvar),
-     &           record, ierr MYID
-            goto 99
-         end if
+         workr=bioVSink(:,:,iflux)
+         call fillvalue2d(workr, nciddiabio, diabioVsink(iflux),
+     &        indxbioVSink+itrc-1,record,r2dvar,type)
       end do
   
 #  endif
@@ -138,38 +141,23 @@ c$$$     &        bioVSink(30,30,iflux)
 ! Flux terms
       do iflux = 1, NumFluxTerms
 !         write(*,*)'write fluxes terms'
-         ierr = nf_fwrite(bioFlux(START_2D_ARRAY,1,iflux),
-     &          nciddiabio, diabioFlux(iflux), record, r3dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxbioFlux+iflux-1))
-            write(stdout,1) vname(1,indxbioFlux+iflux-1)(1:lvar),
-     &           record, ierr MYID
-            goto 99
-         end if
+         workr=bioFlux(:,:,:,iflux)
+         call fillvalue3d(workr, nciddiabio, diabioFlux(iflux),
+     &        indxbioFlux+iflux-1,record,r3dvar,type)
       end do
 ! vertical sinking fluxes
       do iflux = 1, NumVSinkTerms
-!         write(*,*)'write vertical sinking fluxes'
-         ierr = nf_fwrite(bioVSink(START_2D_ARRAY,0,iflux),
-     &          nciddiabio, diabioVSink(iflux), record, w3dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxbioVSink+iflux-1))
-            write(stdout,1) vname(1,indxbioVSink+iflux-1)(1:lvar),
-     &           record, ierr MYID
-            goto 99
-         end if
+!         write(*,*)'write vertical sinking fluxes'         
+         work=bioVsink(:,:,:,iflux)
+         call fillvalue2d(workr, nciddiabio, diabioVsink(iflux),
+     &        indxbioVSink+iflux-1,record,w3dvar,type)
       end do
 #   if (defined BIO_NChlPZD && defined OXYGEN)
 ! gas exchange fluxes
       do iflux = 1, NumGasExcTerms
-         ierr = nf_fwrite(GasExcFlux(START_2D_ARRAY,iflux),
-     &        nciddiabio, diabioGasExc(iflux), record, r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxGasExcFlux+iflux-1))
-            write(stdout,1) vname(1,indxGasExcFlux+iflux-1)(1:lvar),
-     &           record, ierr MYID
-            goto 99
-         end if
+         workr=GasExcFlux(:,:,:,iflux)
+         call fillvalue3d(workr, nciddiabio, (iflux),
+     &        indxGasExcFlux+iflux-1,record,r3dvar,type)
       end do
 #   endif 
 

@@ -61,6 +61,16 @@
 !                 Direction and Period
 !
 !=======================================================================
+! Output file codes
+      integer filetype_his, filetype_avg 
+     &       ,filetype_dia, filetype_dia_avg 
+     &       ,filetype_diaM, filetype_diaM_avg
+     &       ,filetype_diabio, filetype_diabio_avg
+      parameter (filetype_his=1, filetype_avg=2, 
+     &            filetype_dia=3, filetype_dia_avg=4,
+     &            filetype_diaM=5, filetype_diaM_avg=6,
+     &            filetype_diabio=7,filetype_diabio_avg =8)
+!
       integer indxTime, indxZ, indxUb, indxVb
       parameter (indxTime=1, indxZ=2, indxUb=3, indxVb=4)
 #ifdef SOLVE3D
@@ -513,7 +523,7 @@
 # endif
 # if defined DIAGNOSTICS_TS 
       integer nciddia, nrecdia, nrpfdia
-     &      , diaTime, diaTstep
+     &      , diaTime, diaTime2, diaTstep
      &      , diaTXadv(NT), diaTYadv(NT), diaTVadv(NT)
      &      , diaTHmix(NT), diaTVmix(NT)
      &      , diaTForc(NT), diaTrate(NT)
@@ -525,14 +535,14 @@
 # endif
 # ifdef DIAGNOSTICS_UV
         integer nciddiaM, nrecdiaM, nrpfdiaM
-     &      , diaTimeM, diaTstepM
+     &      , diaTimeM,diaTime2M, diaTstepM
      &      , diaMXadv(2), diaMYadv(2), diaMVadv(2)
      &      , diaMCor(2), diaMPrsgrd(2), diaMHmix(2)
      &      , diaMVmix(2), diaMrate(2)
 # endif
 # ifdef DIAGNOSTICS_BIO
       integer nciddiabio, nrecdiabio, nrpfdiabio
-     &      , diaTimebio, diaTstepbio
+     &      , diaTimebio, diaTime2bio, diaTstepbio
      &      , diabioFlux(NumFluxTerms)
      &      , diabioVSink(NumVSinkTerms)
      &      , diabioGasExc(NumGasExcTerms)
@@ -570,7 +580,7 @@
 #  endif
 #  if defined DIAGNOSTICS_TS
       integer nciddia_avg, nrecdia_avg, nrpfdia_avg
-     &      , diaTime_avg, diaTstep_avg
+     &      , diaTime_avg, diaTime2_avg, diaTstep_avg
      &      , diaTXadv_avg(NT), diaTYadv_avg(NT), diaTVadv_avg(NT)
      &      , diaTHmix_avg(NT), diaTVmix_avg(NT)
      &      , diaTForc_avg(NT), diaTrate_avg(NT)
@@ -584,14 +594,14 @@
 #  endif
 #  ifdef DIAGNOSTICS_UV
        integer nciddiaM_avg, nrecdiaM_avg, nrpfdiaM_avg
-     &      , diaTimeM_avg, diaTstepM_avg
+     &      , diaTimeM_avg, diaTime2M_avg, diaTstepM_avg
      &      , diaMXadv_avg(2), diaMYadv_avg(2), diaMVadv_avg(2)
      &      , diaMCor_avg(2), diaMPrsgrd_avg(2), diaMHmix_avg(2)
      &      , diaMVmix_avg(2), diaMrate_avg(2)
 #  endif
 #  ifdef DIAGNOSTICS_BIO
       integer nciddiabio_avg, nrecdiabio_avg, nrpfdiabio_avg
-     &      , diaTimebio_avg, diaTstepbio_avg
+     &      , diaTimebio_avg, diaTime2bio_avg, diaTstepbio_avg
      &      , diabioFlux_avg(NumFluxTerms)
      &      , diabioVSink_avg(NumVSinkTerms)
      &      , diabioGasExc_avg(NumGasExcTerms)
@@ -721,12 +731,13 @@
 #endif
 #ifdef DIAGNOSTICS_BIO
      &      , nciddiabio, nrecdiabio, nrpfdiabio
-     &      , diaTimebio, diaTstepbio, diabioFlux
+     &      , diaTimebio, diaTime2bio, diaTstepbio, diabioFlux
      &      , diabioVSink
      &      , diabioGasExc
 # ifdef AVERAGES
      &      , nciddiabio_avg, nrecdiabio_avg, nrpfdiabio_avg
-     &      , diaTimebio_avg, diaTstepbio_avg, diabioFlux_avg
+     &      , diaTimebio_avg, diaTime2bio_avg, diaTstepbio_avg 
+     &      , diabioFlux_avg
      &      , diabioVSink_avg
      &      , diabioGasExc_avg
 # endif

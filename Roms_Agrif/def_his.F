@@ -515,7 +515,7 @@
         if (wrt(indxR)) then
           lvar=lenstr(vname(1,indxR))
           ierr=nf_def_var (ncid, vname(1,indxR)(1:lvar), 
-     &                             NF_FOUT, 4, r3dgrd, vidR)
+     &                             NF_REAL, 4, r3dgrd, vidR)
 # ifndef AVRH
           lvar=lenstr(vname(2,indxR))
           ierr=nf_put_att_text (ncid, vidR, 'long_name', lvar,
@@ -616,7 +616,8 @@
           ierr=nf_put_att_text (ncid, vidBostr, 'units',     lvar,
      &                                 vname(3,indxBostr)(1:lvar))
 
-          call nf_add_attribute(ncid, vidBostr, indxBostr, 5, NF_REAL, ierr)
+          call nf_add_attribute(ncid, vidBostr,indxBostr,5, 
+     &                          NF_REAL, ierr)
 
         endif
 !
@@ -638,7 +639,8 @@
           ierr=nf_put_att_text (ncid, vidWstr, 'units',     lvar,
      &                                 vname(3,indxWstr)(1:lvar))
 
-          call nf_add_attribute(ncid, vidWstr, indxWstr, 5, NF_REAL, ierr)
+          call nf_add_attribute(ncid, vidWstr, indxWstr, 5, 
+     &                          NF_REAL, ierr)
 
         endif
 !
@@ -660,7 +662,8 @@
           ierr=nf_put_att_text (ncid, vidUWstr, 'units',     lvar,
      &                                 vname(3,indxUWstr)(1:lvar))
             
-          call nf_add_attribute(ncid, vidUWstr, indxUWstr, 5, NF_REAL, ierr)
+          call nf_add_attribute(ncid, vidUWstr, indxUWstr, 5, 
+     &                          NF_REAL, ierr)
 
         endif
 !
@@ -682,7 +685,8 @@
           ierr=nf_put_att_text (ncid, vidVWstr, 'units',     lvar,
      &                                 vname(3,indxVWstr)(1:lvar))
 
-          call nf_add_attribute(ncid, vidVWstr, indxVWstr, 5, NF_REAL, ierr)
+          call nf_add_attribute(ncid, vidVWstr, indxVWstr, 5, 
+     &                          NF_REAL, ierr)
 
         endif
 #ifdef SOLVE3D
@@ -711,7 +715,8 @@
           ierr=nf_put_att_text (ncid, vidVisc, 'field',     lvar,
      &                                  vname(4,indxVisc)(1:lvar))
            
-          call nf_add_attribute(ncid, vidVisc, indxVisc, 5, NF_REAL, ierr)
+          call nf_add_attribute(ncid, vidVisc, indxVisc, 5, 
+     &                          NF_REAL, ierr)
 
         endif
 # endif
@@ -740,7 +745,8 @@
           ierr=nf_put_att_text (ncid, vidDiff, 'field',     lvar,
      &                                  vname(4,indxDiff)(1:lvar))
 
-          call nf_add_attribute(ncid, vidDiff, indxDiff, 5, NF_REAL, ierr)
+          call nf_add_attribute(ncid, vidDiff, indxDiff, 5,
+     &                          NF_REAL, ierr)
 
        endif
 # endif
@@ -884,9 +890,8 @@
      &                                  vname(4,indxHbbl)(1:lvar))
 
 
-          call nf_add_attribute(ncid, vidHbbl, indxHbbl, 5, NF_REAL, ierr)
-
-
+          call nf_add_attribute(ncid, vidHbbl, indxHbbl, 5, 
+     &                          NF_REAL, ierr) 
         endif
 # endif
 # ifdef BIOLOGY
@@ -945,7 +950,6 @@
 
           call nf_add_attribute(ncid, vidChC, indxChC, 5, NF_REAL, ierr)
 
-       
        endif
 #   ifdef OXYGEN
 !
@@ -974,7 +978,6 @@
 
           call nf_add_attribute(ncid, vidU10, indxU10, 5, NF_REAL, ierr)
 
-      
        endif
 !
 ! Gas exchange coefficient of O2
@@ -1002,6 +1005,7 @@
 
           call nf_add_attribute(ncid, vidKvO2, indxKvO2, 5, 
      &         NF_REAL, ierr)
+
        endif
 !
 ! Saturation concentration of O2

@@ -75,13 +75,13 @@
          ierr=nf_put_att_text (ncid, vid, 'calendar',
      &        lvar, text(1:lvar))
       endif
-
+#ifdef FILLVAL
       text=vname(i+3,indx)
       if (TRIM(text) /= '.NO.') then
       ierr= nf_put_att_FTYPE (ncid, vid,'_FillValue', nf_type,
      &     1, spval)
       endif
-      
+#endif      
       return
       end
       

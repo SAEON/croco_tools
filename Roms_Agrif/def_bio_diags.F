@@ -41,6 +41,7 @@
 # define rec_per_file nrpfdiabio
 # define wrt wrtdiabio
 # define vidTime diaTimebio
+# define vidTime2 diaTime2bio
 # define vidTstep diaTstepbio
 # define vidFlux diabioFlux
 # define vidGasExc diabioGasExc
@@ -51,6 +52,7 @@
 # define rec_per_file nrpfdiabio_avg
 # define wrt wrtdiabio_avg
 # define vidTime diaTimebio_avg
+# define vidTime2 diaTime2bio_avg
 # define vidTstep diaTstepbio_avg
 # define vidFlux diabioFlux_avg
 # define vidGasExc diabioGasExc_avg
@@ -204,6 +206,38 @@
         lvar=lenstr(vname(4,indxTime))
         ierr=nf_put_att_text (ncid, vidTime, 'field',  lvar,
      &                                vname(4,indxTime)(1:lvar))
+
+        call nf_add_attribute(ncid, vidTime, indxTime, 5, 
+     &       NF_REAL, ierr)
+!
+! Time2.
+!
+        lvar=lenstr(vname(1,indxTime2))
+        ierr=nf_def_var (ncid, vname(1,indxTime2)(1:lvar),
+     &                            NF_FOUT, 1, timedim, vidTime2)
+#ifndef AVRH
+        lvar=lenstr(vname(2,indxTime2))
+        ierr=nf_put_att_text (ncid, vidTime2, 'long_name', 
+     &       lvar, vname(2,indxTime2)(1:lvar))
+#else
+        text='avg'/ /vname(2,indxTime2)
+        lvar=lenstr(text)
+        ierr=nf_put_att_text (ncid, vidTime2, 'long_name', 
+     &       lvar, text(1:lvar))
+#endif
+        lvar=lenstr(vname(2,indxTime2))
+        ierr=nf_put_att_text (ncid, vidTime2, 'long_name', lvar,
+     &                                vname(2,indxTime2)(1:lvar))
+
+        lvar=lenstr(vname(3,indxTime2))
+        ierr=nf_put_att_text (ncid, vidTime2, 'units',  lvar,
+     &                                vname(3,indxTime2)(1:lvar))
+        lvar=lenstr(vname(4,indxTime2))
+        ierr=nf_put_att_text (ncid, vidTime2, 'field',  lvar,
+     &                                vname(4,indxTime2)(1:lvar))
+
+        call nf_add_attribute(ncid, vidTime2, indxTime2, 5, 
+     &       NF_REAL, ierr)
 !
 ! Tracer diagnostics variables.
 !
@@ -229,6 +263,9 @@
            lvar=lenstr(vname(4,indxbioFlux+iflux-1))
            ierr=nf_put_att_text (ncid, vidFlux(iflux), 'field',
      &          lvar, vname(4,indxbioFlux+iflux-1)(1:lvar))
+
+          call nf_add_attribute(ncid, vidFlux(iflux), 
+     &                     indxbioFlux+iflux-1, 5, NF_REAL, ierr)
         end do
 ! vertical sinking fluxes
         do iflux = 1, NumVSinkTerms
@@ -262,6 +299,9 @@
            lvar=lenstr(vname(4,indxbioVSink+iflux-1))
            ierr=nf_put_att_text (ncid, vidVSink(iflux), 'field',
      &          lvar, vname(4,indxbioVSink+iflux-1)(1:lvar))
+
+          call nf_add_attribute(ncid, vidVSink(iflux), 
+     &                     indxbioVSink+iflux-1, 5, NF_REAL, ierr)
         end do
 #  if (defined BIO_NChlPZD && defined OXYGEN)
 ! gas exchange fluxes
@@ -288,6 +328,9 @@
            lvar=lenstr(vname(4,indxGasExcFlux+iflux-1))
            ierr=nf_put_att_text (ncid, vidGasExc(iflux), 'field',
      &          lvar, vname(4,indxGasExcFlux+iflux-1)(1:lvar))
+
+         call nf_add_attribute(ncid, vidGasExc(iflux), 
+     &                     indxbioGasExc+iflux-1, 5, NF_REAL, ierr)
         end do
 #  endif /* BIO_NChlPZD && OXYGEN */
 
@@ -475,6 +518,7 @@
 #undef rec_per_file
 #undef wrt
 #undef vidTime
+#undef vidTime2
 #undef vidTstep
 #undef vidFlux
 #undef vidGasExc

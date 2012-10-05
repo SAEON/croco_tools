@@ -22,7 +22,7 @@
 
       implicit none
       integer ierr,  record, lstr, lvar, lenstr
-     &   , start(2), count(2), ibuff(4), nf_fwrite
+     &   , start(2), count(2), ibuff(4), nf_fwrite, type
 #if defined MPI & !defined PARALLEL_FILES
       include 'mpif.h'
       integer status(MPI_STATUS_SIZE), blank
@@ -82,6 +82,8 @@
 !
 ! Time step number and record numbers.
 !
+      type=filetype_diaM
+!
       ibuff(1)=iic
       ibuff(2)=nrecrst
       ibuff(3)=nrechis
@@ -106,6 +108,16 @@
      &                  MYID
         goto 99                                           !--> ERROR
       endif
+!
+! Time2
+!
+      ierr=nf_put_var1_FTYPE (nciddiaM, diaTime2M, record, time)
+      if (ierr .ne. nf_noerr) then
+        lvar=lenstr(vname(1,indxTime2))
+        write(stdout,1) vname(1,indxTime2)(1:lvar), record, ierr
+     &                  MYID
+        goto 99                                           !--> ERROR
+      endif
 
 !---------------------------------------------------------------
 ! Momentum diagnostic variables.
@@ -114,107 +126,76 @@
 !
       do itrc=1,2
         if (wrtdiaM(itrc)) then
-!
-! indxMXadv
-!
           if (itrc.eq.1) then
             ivar=u3dvar
           else
             ivar=v3dvar
           endif
-          ierr=nf_fwrite(MXadv(START_2D_ARRAY,1,itrc), nciddiaM,
-     &                               diaMXadv(itrc), record, ivar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxMXadv+itrc-1))
-            write(stdout,1) vname(1,indxMXadv+itrc-1)(1:lvar), record,
-     &                      ierr MYID
-            goto 99                                       !--> ERROR
-          endif   
+!
+! indxMXadv
+!
+           workr=MXadv(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM,diaMXadv(itrc),
+     &                      indxMXadv+itrc-1,
+     &                      record,ivar,type)  
 !
 ! indxMYadv
 !
-          ierr=nf_fwrite(MYadv(START_2D_ARRAY,1,itrc), nciddiaM,
-     &                               diaMYadv(itrc), record, ivar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxMYadv+itrc-1))
-            write(stdout,1) vname(1,indxMYadv+itrc-1)(1:lvar), record,
-     &                      ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           workr=MYadv(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM,diaMYadv(itrc),
+     &                      indxMYadv+itrc-1,
+     &                      record,ivar,type)  
 !
 ! indxMVadv
 !
-          ierr=nf_fwrite(MVadv(START_2D_ARRAY,1,itrc), nciddiaM,
-     &                               diaMVadv(itrc), record, ivar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxMVadv+itrc-1))
-            write(stdout,1) vname(1,indxMVadv+itrc-1)(1:lvar), record,
-     &                      ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           workr=MVadv(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM,diaMVadv(itrc),
+     &                      indxMVadv+itrc-1,
+     &                      record,ivar,type)  
 !
 ! indxMCor
 !
-          ierr=nf_fwrite(MCor(START_2D_ARRAY,1,itrc), nciddiaM,
-     &                               diaMCor(itrc), record, ivar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxMCor+itrc-1))
-            write(stdout,1) vname(1,indxMCor+itrc-1)(1:lvar), record,
-     &                      ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           workr=MCor(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM,diaMCor(itrc),
+     &                      indxMCor+itrc-1,
+     &                      record,ivar,type)  
 !
 ! indxMPrsgrd
 !
-          ierr=nf_fwrite(MPrsgrd(START_2D_ARRAY,1,itrc), nciddiaM,
-     &                               diaMPrsgrd(itrc), record, ivar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxMPrsgrd+itrc-1))
-            write(stdout,1) vname(1,indxMPrsgrd+itrc-1)(1:lvar), record,
-     &                      ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           workr=MPrsgrd(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM,diaMPrsgrd(itrc),
+     &                      indxMPrsgrd+itrc-1,
+     &                      record,ivar,type)  
 !
 ! indxMHmix
 !
-          ierr=nf_fwrite(MHmix(START_2D_ARRAY,1,itrc), nciddiaM,
-     &                               diaMHmix(itrc), record, ivar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxMHmix+itrc-1))
-            write(stdout,1) vname(1,indxMHmix+itrc-1)(1:lvar), record,
-     &                      ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           workr=MHmix(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM,diaMHmix(itrc),
+     &                      indxMHmix+itrc-1,
+     &                      record,ivar,type)  
 !
 ! indxMVmix
 !
-          ierr=nf_fwrite(MVmix(START_2D_ARRAY,1,itrc), nciddiaM,
-     &                               diaMVmix(itrc), record, ivar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxMVmix+itrc-1))
-            write(stdout,1) vname(1,indxMVmix+itrc-1)(1:lvar), record,
-     &                      ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           workr=MVmix(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM,diaMVmix(itrc),
+     &                      indxMVmix+itrc-1,
+     &                      record,ivar,type)  
 !
 ! indxMrate
 !
-          ierr = nf_fwrite(Mrate(START_2D_ARRAY,1,itrc), 
-     &        nciddiaM, diaMrate(itrc), record, ivar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxMrate+itrc-1))
-            write(stdout,1) vname(1,indxMrate+itrc-1)(1:lvar),
-     &           record, ierr MYID 
-            goto 99
-          endif
+           workr=Mrate(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM,diaMrate(itrc),
+     &                      indxMrate+itrc-1,
+     &                      record,ivar,type)  
 !
         endif
       enddo
 !
+!--#define DEBUG
 #  ifdef DEBUG
       i=20
-      j=2
-      k=2
+      j=20
+      k=10
       itrc=1
       write(*,*) 'Write diag UV his at : i='
      &                      ,i,' j=',j,' k=',k,' iUV=',itrc
@@ -237,6 +218,7 @@
      &                                  -  Mrate(i,j,k,itrc)
       write(*,*) '-----------------------------------------'
 #  endif /* DEBUG */
+!--#undef DEBUG
 
   1   format(/1x,'WRT_DIAGM ERROR while writing variable ''', A,
      &          ''' into diag file.', /11x, 'Time record:',

@@ -439,7 +439,7 @@ c-# define TANH dtanh
 /* 
  Choice of setting land mask value to _FillValue
 */ 
-#define FILLVAL
+#undef FILLVAL
 /*
  Choice of double/single precision for netCDF output.
 */

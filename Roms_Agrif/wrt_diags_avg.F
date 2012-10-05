@@ -21,7 +21,7 @@
       subroutine wrt_diags_avg 
 
       implicit none
-      integer ierr,  record, lstr, lvar, lenstr
+      integer ierr,  record, lstr, lvar, lenstr, type
      &   , start(2), count(2), ibuff(4), nf_fwrite
 #if defined MPI & !defined PARALLEL_FILES
       include 'mpif.h'
@@ -46,7 +46,7 @@
       integer tile, itrc,i,j,k,ivar
 # ifdef SEDIMENT
      &      , indxWrk
-# endif
+#endif
 # include "work.h"
 #endif
 #include "netcdf.inc"
@@ -81,6 +81,8 @@
 !
 ! Time step number and record numbers.
 !
+      type=filetype_dia_avg
+!
       ibuff(1)=iic
       ibuff(2)=nrecrst
       ibuff(3)=nrechis
@@ -108,6 +110,17 @@
         goto 99                                           !--> ERROR
       endif
 !
+! Averaged diag Time
+!
+      ierr=nf_put_var1_FTYPE (nciddia_avg, diaTime2_avg, record,
+     &                                              timedia_avg)
+      if (ierr .ne. nf_noerr) then
+        lvar=lenstr(vname(1,indxTime2))
+        write(stdout,1) vname(1,indxTime2)(1:lvar), record, ierr
+     &                  MYID
+        goto 99                                           !--> ERROR
+      endif
+!
 !---------------------------------------------------------------
 ! Tracer diagnostic variables.
 !---------------------------------------------------------------
@@ -117,80 +130,52 @@
 !
 ! indxTXadv
 !
-          ierr=nf_fwrite(TXadv_avg(START_2D_ARRAY,1,itrc), nciddia_avg,
-     &                              diaTXadv_avg(itrc), record, r3dvar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxTXadv+itrc-1))
-            write(stdout,1) vname(1,indxTXadv+itrc-1)(1:lvar), record,
-     &                      ierr MYID
-            goto 99                                       !--> ERROR
-          endif
-!
+           workr=TXadv_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddia_avg,diaTXadv_avg(itrc),
+     &                      indxTXadv+itrc-1,
+     &                      record,r3dvar,type)  
+!     
 ! indxTYadv
 !
-          ierr=nf_fwrite(TYadv_avg(START_2D_ARRAY,1,itrc), nciddia_avg,
-     &                               diaTYadv_avg(itrc), record, r3dvar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxTYadv+itrc-1))
-            write(stdout,1) vname(1,indxTYadv+itrc-1)(1:lvar), record,
-     &                      ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           workr=TYadv_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddia_avg,diaTYadv_avg(itrc),
+     &                      indxTYadv+itrc-1,
+     &                      record,r3dvar,type)  
 !
 ! indxTVadv
 !
-          ierr=nf_fwrite(TVadv_avg(START_2D_ARRAY,1,itrc), nciddia_avg,
-     &                               diaTVadv_avg(itrc), record, r3dvar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxTVadv+itrc-1))
-            write(stdout,1) vname(1,indxTVadv+itrc-1)(1:lvar), record,
-     &                      ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           workr=TVadv_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddia_avg,diaTVadv_avg(itrc),
+     &                      indxTVadv+itrc-1,
+     &                      record,r3dvar,type)
 !
 ! indxTHmix
 !
-          ierr=nf_fwrite(THmix_avg(START_2D_ARRAY,1,itrc), nciddia_avg,
-     &                               diaTHmix_avg(itrc), record, r3dvar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxTHmix+itrc-1))
-            write(stdout,1) vname(1,indxTHmix+itrc-1)(1:lvar), record,
-     &                      ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           workr=THmix_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddia_avg,diaTHmix_avg(itrc),
+     &                      indxTHmix+itrc-1,
+     &                      record,r3dvar,type)
 !
 ! indxTVmix
 !
-          ierr=nf_fwrite(TVmix_avg(START_2D_ARRAY,1,itrc), nciddia_avg,
-     &                               diaTVmix_avg(itrc), record, r3dvar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxTVmix+itrc-1))
-            write(stdout,1) vname(1,indxTVmix+itrc-1)(1:lvar), record,
-     &                      ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           workr=TVmix_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddia_avg,diaTVmix_avg(itrc),
+     &                      indxTVmix+itrc-1,
+     &                      record,r3dvar,type)
 !
 ! indxTForc  
 !
-         ierr = nf_fwrite(TForc_avg(START_2D_ARRAY,1,itrc), 
-     &        nciddia_avg, diaTForc_avg(itrc), record, r3dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxTForc+itrc-1))
-            write(stdout,1) vname(1,indxTForc+itrc-1)(1:lvar),
-     &           record, ierr MYID 
-            goto 99                                       !--> ERROR
-         endif
+           workr=TForc_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddia_avg,diaTForc_avg(itrc),
+     &                      indxTForc+itrc-1,
+     &                      record,r3dvar,type)
 !
 ! indxTrate
 !
-          ierr = nf_fwrite(Trate_avg(START_2D_ARRAY,1,itrc), 
-     &        nciddia_avg, diaTrate_avg(itrc), record, r3dvar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxTrate+itrc-1))
-            write(stdout,1) vname(1,indxTrate+itrc-1)(1:lvar),
-     &           record, ierr MYID 
-            goto 99                                       !--> ERROR
-          endif
+           workr=Trate_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddia_avg,diaTrate_avg(itrc),
+     &                      indxTrate+itrc-1,
+     &                      record,r3dvar,type)
 
         endif
 !
@@ -203,92 +188,60 @@
 !
 ! indxTXadv_mld
 !
-          ierr=nf_fwrite(TXadv_mld_avg(START_2D_ARRAY,itrc),nciddia_avg,
-     &                           diaTXadv_mld_avg(itrc), record, r2dvar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxTXadv_mld+itrc-1))
-            write(stdout,1) vname(1,indxTXadv_mld+itrc-1)(1:lvar), 
-     &                            record, ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           work2d=TXadv_mld_avg(:,:,itrc)
+           call fillvalue2d(work2d,nciddia_avg,diaTXadv_mld_avg(itrc),
+     &                      indxTXadv_mld+itrc-1,
+     &                      record,r2dvar,type)
 !
 ! indxTYadv_mld
 !
-          ierr=nf_fwrite(TYadv_mld_avg(START_2D_ARRAY,itrc),nciddia_avg,
-     &                           diaTYadv_mld_avg(itrc), record, r2dvar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxTYadv_mld+itrc-1))
-            write(stdout,1) vname(1,indxTYadv_mld+itrc-1)(1:lvar),
-     &                            record, ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           work2d=TYadv_mld_avg(:,:,itrc)
+           call fillvalue2d(work2d,nciddia_avg,diaTYadv_mld_avg(itrc),
+     &                      indxTYadv_mld+itrc-1,
+     &                      record,r2dvar,type)
 !
 ! indxTVadv_mld
 !
-          ierr=nf_fwrite(TVadv_mld_avg(START_2D_ARRAY,itrc),nciddia_avg,
-     &                           diaTVadv_mld_avg(itrc), record, r2dvar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxTVadv_mld+itrc-1))
-            write(stdout,1) vname(1,indxTVadv_mld+itrc-1)(1:lvar),
-     &                            record,  ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           work2d=TVadv_mld_avg(:,:,itrc)
+           call fillvalue2d(work2d,nciddia_avg,diaTVadv_mld_avg(itrc),
+     &                      indxTVadv_mld+itrc-1,
+     &                      record,r2dvar,type)
 !
-! indxTHmix
+! indxTHmix_mld
 !
-          ierr=nf_fwrite(THmix_mld_avg(START_2D_ARRAY,itrc),nciddia_avg,
-     &                           diaTHmix_mld_avg(itrc), record, r2dvar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxTHmix_mld+itrc-1))
-            write(stdout,1) vname(1,indxTHmix_mld+itrc-1)(1:lvar),
-     &                            record, ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           work2d=THmix_mld_avg(:,:,itrc)
+           call fillvalue2d(work2d,nciddia_avg,diaTHmix_mld_avg(itrc),
+     &                      indxTHmix_mld+itrc-1,
+     &                      record,r2dvar,type)
 !
 ! indxTVmix_mld
 !
-          ierr=nf_fwrite(TVmix_mld_avg(START_2D_ARRAY,itrc),nciddia_avg,
-     &                           diaTVmix_mld_avg(itrc), record, r2dvar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxTVmix_mld+itrc-1))
-            write(stdout,1) vname(1,indxTVmix_mld+itrc-1)(1:lvar), 
-     &                            record, ierr MYID
-            goto 99                                       !--> ERROR
-          endif
+           work2d=TVmix_mld_avg(:,:,itrc)
+           call fillvalue2d(work2d,nciddia_avg,diaTVmix_mld_avg(itrc),
+     &                      indxTVmix_mld+itrc-1,
+     &                      record,r2dvar,type)
 !
 ! indxTForc_mld
 !
-         ierr = nf_fwrite(TForc_mld_avg(START_2D_ARRAY,itrc), 
-     &             nciddia_avg, diaTForc_mld_avg(itrc), record, r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxTForc_mld+itrc-1))
-            write(stdout,1) vname(1,indxTForc_mld+itrc-1)(1:lvar),
-     &                            record, ierr MYID 
-            goto 99                                       !--> ERROR
-         endif
+           work2d=TForc_mld_avg(:,:,itrc)
+           call fillvalue2d(work2d,nciddia_avg,diaTForc_mld_avg(itrc),
+     &                      indxTForc_mld+itrc-1,
+     &                      record,r2dvar,type)
 !
 ! indxTrate_mld
 !
-          ierr = nf_fwrite(Trate_mld_avg(START_2D_ARRAY,itrc), 
-     &        nciddia_avg, diaTrate_mld_avg(itrc), record, r2dvar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxTrate_mld+itrc-1))
-            write(stdout,1) vname(1,indxTrate_mld+itrc-1)(1:lvar),
-     &                            record, ierr MYID 
-            goto 99                                       !--> ERROR
-          endif
-
+           work2d=Trate_mld_avg(:,:,itrc)
+           call fillvalue2d(work2d,nciddia_avg,diaTrate_mld_avg(itrc),
+     &                      indxTrate_mld+itrc-1,
+     &                      record,r2dvar,type)
 !
 ! indxTentr_mld
 !
-          ierr = nf_fwrite(Tentr_mld_avg(START_2D_ARRAY,itrc),
-     &        nciddia_avg, diaTentr_mld_avg(itrc), record, r2dvar)
-          if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxTentr_mld+itrc-1))
-            write(stdout,1) vname(1,indxTentr_mld+itrc-1)(1:lvar),
-     &                            record, ierr MYID
-            goto 99
-          endif
+           work2d=Tentr_mld_avg(:,:,itrc)
+           call fillvalue2d(work2d,nciddia_avg,diaTentr_mld_avg(itrc),
+     &                      indxTentr_mld+itrc-1,
+     &                      record,r2dvar,type)
+
         endif
 !
 #endif /*DIAGNOSTICS_TS_MLD*/
@@ -298,8 +251,8 @@
 !--# define DEBUG
 #  ifdef DEBUG
       i=20
-      j=2
-      k=20
+      j=20
+      k=10
       itrc=1
       write(*,*) 'Write diag TS avg at : i='
      &                ,i,' j=',j,' k=',k,' iTS=',itrc

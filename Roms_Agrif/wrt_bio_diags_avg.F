@@ -17,7 +17,7 @@
                                   ! into diagnostics netCDF file.
       implicit none
       integer ierr,  record, lstr, lvar, lenstr
-     &   , start(2), count(2), ibuff(4), nf_fwrite
+     &   , start(2), count(2), ibuff(4), nf_fwrite, type
 #if defined MPI & !defined PARALLEL_FILES
       include 'mpif.h'
       integer status(MPI_STATUS_SIZE), blank
@@ -68,6 +68,8 @@
 !
 ! Time step number and record numbers.
 !
+      type=filetype_diabio_avg
+!
       ibuff(1)=iic
       ibuff(2)=nrecrst
       ibuff(3)=nrechis
@@ -93,10 +95,22 @@
 !
 C      write(*,*) 'Write Time'
       ierr=nf_put_var1_FTYPE (nciddiabio_avg, diaTimebio_avg, record,
-     &                                              Timediabio_avg)
+     &                                              timediabio_avg)
       if (ierr .ne. nf_noerr) then
         lvar=lenstr(vname(1,indxTime))
         write(stdout,1) vname(1,indxTime)(1:lvar), record, ierr
+     &                  MYID
+        goto 99                                           !--> ERROR
+      endif
+!
+! Averaged diag Time2
+!
+C      write(*,*) 'Write Time'
+      ierr=nf_put_var1_FTYPE (nciddiabio_avg, diaTime2bio_avg, record,
+     &                                              timediabio_avg)
+      if (ierr .ne. nf_noerr) then
+        lvar=lenstr(vname(1,indxTime2))
+        write(stdout,1) vname(1,indxTime2)(1:lvar), record, ierr
      &                  MYID
         goto 99                                           !--> ERROR
       endif
@@ -109,14 +123,9 @@ C      write(*,*) 'Write Time'
 ! 3-D terms (it is called Flux but it means nothing)
 #  if defined key_trc_dia3d
       do iflux=1,NumFluxTerms
-         ierr=nf_fwrite(bioFlux_avg(START_2D_ARRAY,1,iflux),
-     &        nciddiabio_avg, diabioFlux_avg(iflux), record, r3dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxbioFlux+iflux-1))
-            write(stdout,1) vname(1,indxbioFlux+iflux-1)(1:lvar),
-     &           record, ierr MYID
-            goto 99
-         end if
+         workr=bioFlux_avg(:,:,:,iflux)
+         call fillvalue3d(workr, nciddiabio_avg, diabioFlux_avg(iflux),
+     &        indxbioFlux+itrc-1,record,r3dvar,type)
       end do
 #  endif
 ! 2-D terms (it is called Vsink but it means nothing)
@@ -124,14 +133,9 @@ C      write(*,*) 'Write Time'
       do iflux=1,NumVSinkTerms
 c$$$         if (iflux.eq.11)  write(*,*) 'ZMEU WRT_AVG',
 c$$$     &        bioVSink_avg(30,30,iflux)
-         ierr=nf_fwrite(bioVSink_avg(START_2D_ARRAY,iflux),
-     &        nciddiabio_avg, diabioVsink_avg(iflux), record, r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxbioVSink+iflux-1))
-            write(stdout,1) vname(1,indxbioVSink+iflux-1)(1:lvar),
-     &           record, ierr MYID
-            goto 99
-         end if
+         workr=bioVSink_avg(:,:,iflux)
+         call fillvalue2d(workr, nciddiabio_avg, diabioVsink_avg(iflux),
+     &        indxbioVSink+itrc-1,record,r2dvar,type)
       end do
 #  endif
 
@@ -139,38 +143,22 @@ c$$$     &        bioVSink_avg(30,30,iflux)
 
 ! Flux terms
       do iflux=1,NumFluxTerms
-         ierr=nf_fwrite(bioFlux_avg(START_2D_ARRAY,1,iflux),
-     &        nciddiabio_avg, diabioFlux_avg(iflux), record, r3dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxbioFlux+iflux-1))
-            write(stdout,1) vname(1,indxbioFlux+iflux-1)(1:lvar),
-     &           record, ierr MYID
-            goto 99
-         end if
+         workr=bioFlux_avg(:,:,:,iflux)
+         call fillvalue3d(workr, nciddiabio_avg, diabioFlux_avg(iflux),
+     &        indxbioFlux+iflux-1,record,r3dvar,type)
       end do
 ! vertical sinking fluxes
       do iflux=1,NumVSinkTerms
-         ierr=nf_fwrite(bioVSink_avg(START_2D_ARRAY,0,iflux),
-     &        nciddiabio_avg, diabioVSink_avg(iflux), record, w3dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxbioVSink+iflux-1))
-            write(stdout,1) vname(1,indxbioVSink+iflux-1)(1:lvar),
-     &           record, ierr MYID
-            goto 99
-         end if
+         work=bioVsink_avg(:,:,:,iflux)
+         call fillvalue2d(workr, nciddiabio_avg, diabioVsink_avg(iflux),
+     &        indxbioVSink+iflux-1,record,w3dvar,type)
       end do
 #  if (defined BIO_NChlPZD && defined OXYGEN)
 ! gas exchange fluxes
       do iflux = 1, NumGasExcTerms
-         ierr = nf_fwrite(GasExcFlux_avg(START_2D_ARRAY,iflux),
-     &        nciddiabio_avg, diabioGasExc_avg(iflux),
-     &        record, r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxGasExcFlux+iflux-1))
-            write(stdout,1) vname(1,indxGasExcFlux+iflux-1)(1:lvar),
-     &           record, ierr MYID
-            goto 99
-         end if
+         workr=GasExcFlux_avg(:,:,:,iflux)
+         call fillvalue3d(workr, nciddiabio_avg, (iflux),
+     &        indxGasExcFlux+iflux-1,record,r3dvar,type)
       end do
 #  endif /* BIO_NChlPZD && OXYGEN */
 
