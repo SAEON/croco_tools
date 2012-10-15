@@ -638,7 +638,7 @@
 
       call exchange_v2d_tile (Istr,Iend,Jstr,Jend,
      &                                   vbar(START_2D_ARRAY,knew))
-#  if defined TS_DIF4 || defined TS_DIF2
+#   if defined TS_MIX_ISO || defined TS_MIX_GEO
       call exchange_u3d_tile (istr,iend,jstr,jend, dRdx  )
       call exchange_v3d_tile (istr,iend,jstr,jend, dRde  )
 #  endif
