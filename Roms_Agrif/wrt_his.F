@@ -130,7 +130,7 @@ CR     write(*,*) 'wrt_his:  time  ' MYID
       if (wrthis(indxUb)) then  
          work2d(:,:)=ubar(:,:,fast_indx_out)
          call fillvalue2d(work2d,ncidhis,hisUb,indxUb,
-     &        record,u2dvar)
+     &        record,u2dvar,type)
 CR      write(*,*) 'wrt_his: wrtUBAR' MYID
       endif
 !     
