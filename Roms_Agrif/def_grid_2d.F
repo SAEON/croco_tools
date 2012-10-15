@@ -1,4 +1,4 @@
-! $Id$
+! $Id: def_grid_2d.F 883 2012-09-24 10:34:21Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -10,11 +10,11 @@
 !======================================================================
 !
 #include "cppdefs.h"
-
-      subroutine def_grid (ncid, r2dgrd, u2dgrd, v2dgrd, r3dgrd, w3dgrd)
+#if !defined SOLVE3D 
+      subroutine def_grid_2d (ncid, r2dgrd, u2dgrd, v2dgrd)
 !
-! Define grid variables in output NetCDF file, which may be
-! restart, history, averages, etc...  
+! Define grid variables in output NetCDF file for 2D configuration, 
+! which may be restart, history, averages, etc...  
 !
 ! Arguments: ncid    NetCDF unit-ID of NetCDF file, which must be
 !                            already opened and in definition mode; 
@@ -24,13 +24,9 @@
 !                        IDs for dimensions 'eta_v' and 'eta_rho'.
 !            u2dgrd  integer array of size 2, which contains NetCDF
 !                        IDs for dimensions 'xi_rho' and 'eta_u'.
-!            r3dgrd  integer array of size 2, which contains NetCDF
-!                        IDs for dimensions 'N' .
-!            w3dgrd  integer array of size 2, which contains NetCDF
-!                        IDs for dimensions 'N+1'.
       implicit none
-      integer ncid, r2dgrd(2), u2dgrd(2), v2dgrd(2), r3dgrd(3), 
-     &        w3dgrd(3), nf_ftype, varid, ierr
+      integer ncid, r2dgrd(2), u2dgrd(2), v2dgrd(2)
+     &      , nf_ftype, varid, ierr
 #include "param.h"
 #include "ncscrum.h"
 #include "netcdf.inc"
@@ -94,81 +90,6 @@
       ierr=nf_put_att_text (ncid, varid, 'standard_name', 26, 
      &     'x_grid_index_at_v_location')
       ierr=nf_put_att_text (ncid, varid, 'axis', 1, 'Y')
-
-#ifdef SOLVE3D
-!
-! Variable-dimensions vertical : s_rho and s_w 
-!
-      ierr=nf_def_var (ncid, 's_rho', nf_ftype, 1, r3dgrd(3), varid)
-      ierr=nf_put_att_text (ncid, varid, 'long_name',   23,
-     &     'z-dimension of the grid')
-      ierr=nf_put_att_text (ncid, varid, 'standard_name',12,
-     &     'z_grid_index')
-      ierr=nf_put_att_text (ncid, varid, 'axis', 1, 'Z')
-      ierr=nf_put_att_text (ncid, varid, 'positive', 2, 'up')
-!-
-      ierr=nf_def_var (ncid, 's_w', nf_ftype, 1, w3dgrd(3), varid)
-      ierr=nf_put_att_text (ncid, varid, 'long_name',   37,
-     &     'z-dimension of the grid at w-location')
-      ierr=nf_put_att_text (ncid, varid, 'standard_name',26,
-     &     'z_grid_index_at_w_location')
-      ierr=nf_put_att_text (ncid, varid, 'positive', 2, 'up')
-!----
-! S-coordinate
-      ierr=nf_def_var (ncid, 'sc_r', nf_ftype,  1, r3dgrd(3), varid)
-      ierr=nf_put_att_text (ncid, varid, 'long_name',   40,
-     &     'ocean sigma roms coordinate at rho point')
-      ierr=nf_put_att_text (ncid, varid, 'standard_name',40,
-     &     'ocean_sigma_roms_coordinate_at_rho_point')
-#if defined NEW_S_COORD
-      ierr=nf_put_att_text (ncid, varid, 'Vtransform',1,
-     &     '2')
-      ierr=nf_put_att_text (ncid, varid, 'formula_terms',44,
-     &     'sc_r: sc_r h: h Cs_r: Cs_r zeta: zeta hc: hc')
-#else
-      ierr=nf_put_att_text (ncid, varid, 'Vtransform',1,
-     &     '1')
-      ierr=nf_put_att_text (ncid, varid, 'formula_terms',37,
-     &     'sc_r: sc_r h: h Cs_r: Cs_r zeta: zeta')
-#endif /* NEW_S_COORD */    
-!
-      ierr=nf_def_var (ncid, 'sc_w', nf_ftype, 1, w3dgrd(3), varid)
-      ierr=nf_put_att_text (ncid, varid, 'long_name',   38,
-     &     'ocean sigma roms coordinate at w point')
-      ierr=nf_put_att_text (ncid, varid, 'standard_name',38,
-     &     'ocean_sigma_roms_coordinate_at_w_point')
-#if defined NEW_S_COORD
-      ierr=nf_put_att_text (ncid, varid, 'Vtransform',1,
-     &     '2')
-      ierr=nf_put_att_text (ncid, varid, 'formula_terms',44,
-     &     'sc_w: sc_w h: h Cs_w: Cs_w zeta: zeta hc: hc')
-#else
-      ierr=nf_put_att_text (ncid, varid, 'Vtransform',1,
-     &     '1')
-      ierr=nf_put_att_text (ncid, varid, 'formula_terms',37,
-     &     'sc_w: sc_w h: h Cs_w: Cs_w zeta: zeta')
-#endif /* NEW_S_COORD */ 
-
-!----
-! Streching curves Cs_r, Cs_w
-      ierr=nf_def_var (ncid, 'Cs_r', nf_ftype,  1, r3dgrd(3), varid)
-      ierr=nf_put_att_text (ncid, varid, 'long_name',   44,
-     &     'S-coordinate stretching curves at RHO-points')
-!      ierr=nf_put_att_text (ncid, varid, 'standard_name',40,
-!     &     '')
-!
-      ierr=nf_def_var (ncid, 'Cs_w', nf_ftype, 1, w3dgrd(3), varid)
-      ierr=nf_put_att_text (ncid, varid, 'long_name',   42,
-     &     'S-coordinate stretching curves at W-points')
-!      ierr=nf_put_att_text (ncid, varid, 'standard_name',38,
-!     &     '')
-!----
-! hc
-      ierr=nf_def_var (ncid, 'hc', nf_ftype, 0, 0, varid)
-      ierr=nf_put_att_text (ncid, varid, 'long_name',   38,
-     &                   'S-coordinate parameter, critical depth')
-      ierr=nf_put_att_text (ncid, varid, 'units', 5, 'meter')
-#endif
 !
 ! Bathymetry.
 !
@@ -341,6 +262,10 @@
       ierr=nf_put_att_text (ncid, varid, 'coordinates', 15,
      &                                   'lat_rho lon_rho')
 #endif
+!
+#else /* !SOLVE3D */
+      subroutine def_grid_2d_empty
+#endif  /* !SOLVE3D */    
       return
       end
 

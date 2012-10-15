@@ -438,8 +438,8 @@
       ierr=nf_put_att_FTYPE(ncid,nf_global,'Tcoef',nf_ftype, 1,Tcoef)
       ierr=nf_put_att_text (ncid,nf_global,'Tcoef_expl',29,
      &                               'thermal expansion coefficient')
-      ierr=nf_put_att_text (ncid,nf_global,'Tcoef_units',11,
-     &                                                 'kg.m-3.°C-1')
+      ierr=nf_put_att_text (ncid,nf_global,'Tcoef_units',10,
+     &                                                 'kg.m-3.C-1')
 !
       ierr=nf_put_att_FTYPE(ncid,nf_global,'Scoef',nf_ftype, 1,Scoef)
       ierr=nf_put_att_text (ncid,nf_global,'Scoef_expl', 30,

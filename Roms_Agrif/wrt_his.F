@@ -232,12 +232,14 @@ CR      write(*,*) 'wrt_his:  wrtV  ' MYID
       do itrc=1,NT
          if (wrthis(indxT+itrc-1)) then
             workr=t(:,:,:,nstp,itrc)
+#ifdef MASKING
             if (iic.eq.0) then
 !     We do that because the mask has been applied if iic ==0 !
                do k=1,N
                   workr(:,:,k)=workr(:,:,k)*rmask(:,:)
                enddo
             endif
+#endif
             call fillvalue3d(workr,ncidhis,hisT(itrc),
      &           indxT+itrc-1,record,r3dvar,type)
 CR      write(*,*) 'wrt_his:  wrtT  ' MYID

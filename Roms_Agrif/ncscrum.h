@@ -612,7 +612,7 @@
 #ifdef SOLVE3D
 # define NWRTHIS 500+NT
 #else
-# define NWRTHIS 14
+# define NWRTHIS 50
 #endif
       logical wrthis(NWRTHIS)
 #ifdef AVERAGES

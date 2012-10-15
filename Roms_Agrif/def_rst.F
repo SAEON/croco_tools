@@ -190,9 +190,15 @@
 !
 ! Define grid variables.
 ! ------ ---- ----------
-!
-        if (total_rec.eq.1) call def_grid (ncid, r2dgrd ,u2dgrd, v2dgrd,
-     &      r3dgrd, w3dgrd)
+!        
+        if (total_rec.eq.1) then
+# ifdef SOLVE3D
+         call def_grid_3d(ncid, r2dgrd, u2dgrd, v2dgrd 
+     &                   ,r3dgrd, w3dgrd)
+# else
+         call def_grid_2d(ncid, r2dgrd, u2dgrd, v2dgrd)
+# endif
+      endif
 #endif
 !
 ! Define evolving model variables:

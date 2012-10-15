@@ -29,6 +29,7 @@
 #include "grid.h"
 #include "netcdf.inc"
 
+#ifdef MASKING
       if (typevar2d.eq.r2dvar) then
          mask2=rmask
       elseif (typevar2d.eq.u2dvar) then
@@ -51,12 +52,13 @@
          text='WRT_DIAM_AVG'
       endif
  !
-#ifdef FILLVAL
+# ifdef FILLVAL
 ! Fill with spval where rmask==0 .
       mask = (work2d_tmp.eq.mask2)
       WHERE (mask.eqv.mask_val)
           work2d_tmp(:,:) = spval
       END WHERE
+# endif
 #endif
       ierr=nf_fwrite(work2d_tmp, ncid, vid, record, typevar2d)
       if (ierr .ne. nf_noerr) then
@@ -97,7 +99,8 @@
 #include "ncscrum.h"
 #include "grid.h"
 #include "netcdf.inc"
-!     
+!   
+#ifdef MASKING
       if (typevar3d.eq.r3dvar) then
          mask2=rmask
       elseif (typevar3d.eq.w3dvar) then
@@ -122,7 +125,7 @@
          text='WRT_DIAM_AVG'
       endif   
 !     
-#ifdef FILLVAL
+# ifdef FILLVAL
       work2d_tmp = work3d_tmp(:,:,1)
       mask = (work2d_tmp.eq.mask2)
         do k=1,N
@@ -130,8 +133,8 @@
             work3d_tmp(:,:,k) = spval
           END WHERE
       enddo
+# endif
 #endif
-
       ierr=nf_fwrite(work3d_tmp, ncid, vid, record,typevar3d)
       if (ierr .ne. nf_noerr) then
          lvar=lenstr(vname(1,indx))
@@ -171,7 +174,8 @@
 #include "ncscrum.h"
 #include "grid.h"
 #include "netcdf.inc"
-!     
+!
+#ifdef MASKING     
       if (typevar3d.eq.r3dvar) then
          mask2=rmask
       elseif (typevar3d.eq.w3dvar) then
@@ -196,7 +200,7 @@
          text='WRT_DIAM_AVG'
       endif   
 !     
-#ifdef FILLVAL
+# ifdef FILLVAL
       work2d_tmp = work3d_tmp(:,:,1)
       mask = (work2d_tmp.eq.mask2)
       do k=0,N
@@ -204,8 +208,8 @@
             work3d_tmp(:,:,k) = spval
         END WHERE
       enddo
-#endif
-      
+# endif
+#endif      
       ierr=nf_fwrite(work3d_tmp, ncid, vid, record,typevar3d)
       if (ierr .ne. nf_noerr) then
          lvar=lenstr(vname(1,indx))

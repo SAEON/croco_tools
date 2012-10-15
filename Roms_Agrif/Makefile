@@ -54,9 +54,9 @@ include Makedefs
 \
 	get_date.F	lenstr.F	closecdf.F	ana_initracer.F\
 	insert_node.F	nf_fread.F	get_grid.F	get_initial.F\
-	def_grid.F	def_his.F	def_rst.F	set_avg.F\
-	wrt_grid.F	wrt_his.F	wrt_rst.F	wrt_avg.F\
-	output.F	put_global_atts.F\
+	def_grid_2d.F   def_grid_3d.F   def_his.F       def_rst.F\
+        set_avg.F       wrt_grid.F      wrt_his.F       wrt_rst.F\
+        wrt_avg.F       output.F        put_global_atts.F\
 	nf_fread_x.F 	nf_fread_y.F\
 	def_diags.F			wrt_diags.F\
         wrt_diags_avg.F 		set_diags_avg.F\
