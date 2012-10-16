@@ -10,7 +10,7 @@
 !======================================================================
 !
 #include "cppdefs.h"
-#if defined SOLVE3D &&\
+#if defined SOLVE3D && (defined TS_DIF2 || defined TS_DIF4) &&\
  (defined TS_MIX_ISO || defined TS_MIX_GEO || defined TS_MIX_S)
 # if defined TS_MIX_ISO || defined TS_MIX_GEO
 #  include "t3dmix_ISO.F"

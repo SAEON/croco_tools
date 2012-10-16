@@ -105,6 +105,36 @@
 # define SWITCH !
 #endif
 !
+#ifndef EW_PERIODIC
+      if (WESTERN_EDGE) then
+        imin=istr
+      else
+        imin=istr-1
+      endif
+      if (EASTERN_EDGE) then
+        imax=iend
+      else
+        imax=iend+1 
+      endif
+#else
+      imin=istr-1
+      imax=iend+1
+#endif
+#ifndef NS_PERIODIC
+      if (SOUTHERN_EDGE) then
+        jmin=jstr
+      else
+        jmin=jstr-1
+      endif
+      if (NORTHERN_EDGE) then
+        jmax=jend
+      else
+        jmax=jend+1
+      endif
+#else
+      jmin=jstr-1
+      jmax=jend+1
+#endif
       do k=1,N
 
 !++=============================================================
