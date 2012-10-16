@@ -77,6 +77,13 @@
 /* #undef  TS_HADV_UP5    5th-order upstream lateral advection */ 
 /* #undef  TS_HADV_C4     4th-order centered lateral advection */
 /* #undef  TS_HADV_UP3    3rd-order upstream lateral advection */
+                     
+# ifdef TS_HADV_C4      /* 4th-order centered advection        */
+#  define  TS_DIF2      /*   + Laplacian Diffusion             */
+#  undef   TS_DIF4      /*                                     */
+#  define  TS_DIF_SMAGO /*   + Smagorinsky diffusivity         */
+#  define  TS_MIX_ISO   /*   + Isopycnal rotation              */ 
+# endif 
 
 #ifdef TS_HADV_RSUP3   /*  Rotated-Split 3rd-order scheme is:  */
 # define TS_HADV_C4    /*    4th-order centered advection      */

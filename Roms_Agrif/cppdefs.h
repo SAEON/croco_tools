@@ -92,8 +92,6 @@
 #  define TIDERAMP
 # endif
                       /* Lateral Momentum Advection (default UP3) */
-# undef  UV_HADV_C4 
-                      /* Lateral Explicit Momentum Mixing */
 # undef  UV_VIS2
 # ifdef UV_VIS2
 #  define UV_MIX_S
@@ -103,13 +101,6 @@
 # define TS_HADV_RSUP3
 # undef  TS_HADV_UP5
 # undef  TS_HADV_C4
-                      /* Lateral Explicit Tracer Mixing */
-# ifdef TS_HADV_C4
-#  define  TS_DIF2
-#  undef   TS_DIF4
-#  define  TS_DIF_SMAGO
-#  define  TS_MIX_ISO
-# endif
                       /* Sponge layers for UV and TS */
 # define SPONGE
 # define SPONGE_GRID
@@ -658,9 +649,6 @@
 # define ANA_BSFLUX
 # define ANA_BTFLUX
 # define ANA_VMIX
-# define UV_VIS2
-# define UV_MIX_S
-# define TS_DIF2
 # define TS_MIX_S
 # define SPONGE
 # define ZCLIMATOLOGY
