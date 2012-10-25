@@ -34,7 +34,6 @@
 #ifdef SOLVE3D
 #include "ocean3d.h"
 #endif
-      real s_rho_vec(N), s_w_vec(0:N)
 !
 !# include "compute_auxiliary_bounds.h"
 !
@@ -75,22 +74,15 @@
 !
 ! Variable dimension on vertical : s_rho and s_w
 !
-      do k=1,N
-         s_rho_vec(k)=k
-      enddo
-      do k=0,N
-         s_w_vec(k)=k+0.5
-      enddo
-         
       ierr=nf_inq_varid (ncid, 's_rho', varid)
-      ierr=nf_put_var_FTYPE(ncid, varid, s_rho_vec)
+      ierr=nf_put_var_FTYPE(ncid, varid, sc_r)
       if (ierr.ne.nf_noerr) then
          write(stdout,2) 's_rho', ncname(1:lstr)
          goto 99                !--> ERROR
       endif 
 
       ierr=nf_inq_varid (ncid, 's_w', varid)
-      ierr=nf_put_var_FTYPE(ncid, varid, s_w_vec)
+      ierr=nf_put_var_FTYPE(ncid, varid, sc_w)
       if (ierr.ne.nf_noerr) then
          write(stdout,2) 's_w', ncname(1:lstr)
          goto 99                !--> ERROR

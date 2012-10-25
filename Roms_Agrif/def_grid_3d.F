@@ -81,6 +81,8 @@
       ierr=nf_put_att_text (ncid, varid, 'standard_name', 26, 
      &     'x_grid_index_at_u_location')
       ierr=nf_put_att_text (ncid, varid, 'axis', 1, 'X')
+      ierr=nf_put_att_FTYPE(ncid, varid, 'c_grid_axis_shift',
+     &     nf_ftype, 1, 0.5)
 !
       ierr=nf_def_var (ncid, 'eta_rho', nf_ftype, 1, r2dgrd(2), varid)
       ierr=nf_put_att_text (ncid, varid, 'long_name',   23,
@@ -95,59 +97,60 @@
       ierr=nf_put_att_text (ncid, varid, 'standard_name', 26, 
      &     'x_grid_index_at_v_location')
       ierr=nf_put_att_text (ncid, varid, 'axis', 1, 'Y')
+      ierr=nf_put_att_FTYPE(ncid, varid, 'c_grid_axis_shift',
+     &     nf_ftype, 1, 0.5)
 
 #ifdef SOLVE3D
 !
 ! Variable-dimensions vertical : s_rho and s_w 
 !
       ierr=nf_def_var (ncid, 's_rho', nf_ftype, 1, r3dgrd(3), varid)
-      ierr=nf_put_att_text (ncid, varid, 'long_name',   23,
-     &     'z-dimension of the grid')
-      ierr=nf_put_att_text (ncid, varid, 'standard_name',12,
-     &     'z_grid_index')
+      ierr=nf_put_att_text (ncid, varid, 'long_name',   26,
+     &     'S-coordinate at RHO-points')
       ierr=nf_put_att_text (ncid, varid, 'axis', 1, 'Z')
       ierr=nf_put_att_text (ncid, varid, 'positive', 2, 'up')
+#if defined NEW_S_COORD
+      ierr=nf_put_att_text (ncid, varid, 'standard_name',21,
+     &     'ocean_s_coordinate_g2')
+#else
+      ierr=nf_put_att_text (ncid, varid, 'standard_name',21,
+     &     'ocean_s_coordinate_g1')
+#endif
+      ierr=nf_put_att_text (ncid, varid, 'formula_terms',46,
+     &     's: sc_r C: Cs_r eta: zeta depth: h depth_c: hc')
 !-
       ierr=nf_def_var (ncid, 's_w', nf_ftype, 1, w3dgrd(3), varid)
-      ierr=nf_put_att_text (ncid, varid, 'long_name',   37,
-     &     'z-dimension of the grid at w-location')
-      ierr=nf_put_att_text (ncid, varid, 'standard_name',26,
-     &     'z_grid_index_at_w_location')
+      ierr=nf_put_att_text (ncid, varid, 'long_name',   24,
+     &     'S-coordinate at W-points')
+      ierr=nf_put_att_text (ncid, varid, 'axis', 1, 'Z')
       ierr=nf_put_att_text (ncid, varid, 'positive', 2, 'up')
+#if defined NEW_S_COORD
+      ierr=nf_put_att_text (ncid, varid, 'standard_name',35,
+     &     'ocean_s_coordinate_g2_at_w_location')
+#else
+      ierr=nf_put_att_text (ncid, varid, 'standard_name',35,
+     &     'ocean_s_coordinate_g1_at_w_location')
+#endif
+      ierr=nf_put_att_text (ncid, varid, 'formula_terms',46,
+     &     's: sc_w C: Cs_w eta: zeta depth: h depth_c: hc')
 !----
 ! S-coordinate
       ierr=nf_def_var (ncid, 'sc_r', nf_ftype,  1, r3dgrd(3), varid)
-      ierr=nf_put_att_text (ncid, varid, 'long_name',   40,
-     &     'ocean sigma roms coordinate at rho point')
-      ierr=nf_put_att_text (ncid, varid, 'standard_name',40,
-     &     'ocean_sigma_roms_coordinate_at_rho_point')
+      ierr=nf_put_att_text (ncid, varid, 'long_name',   36,
+     &     'ocean s roms coordinate at rho point')
 #if defined NEW_S_COORD
-      ierr=nf_put_att_text (ncid, varid, 'Vtransform',1,
-     &     '2')
-      ierr=nf_put_att_text (ncid, varid, 'formula_terms',44,
-     &     'sc_r: sc_r h: h Cs_r: Cs_r zeta: zeta hc: hc')
+      ierr=nf_put_att_text (ncid, varid, 'Vtransform',1, '2')
 #else
-      ierr=nf_put_att_text (ncid, varid, 'Vtransform',1,
-     &     '1')
-      ierr=nf_put_att_text (ncid, varid, 'formula_terms',37,
-     &     'sc_r: sc_r h: h Cs_r: Cs_r zeta: zeta')
+      ierr=nf_put_att_text (ncid, varid, 'Vtransform',1, '1')
 #endif /* NEW_S_COORD */    
 !
       ierr=nf_def_var (ncid, 'sc_w', nf_ftype, 1, w3dgrd(3), varid)
-      ierr=nf_put_att_text (ncid, varid, 'long_name',   38,
-     &     'ocean sigma roms coordinate at w point')
-      ierr=nf_put_att_text (ncid, varid, 'standard_name',38,
-     &     'ocean_sigma_roms_coordinate_at_w_point')
+      ierr=nf_put_att_text (ncid, varid, 'long_name',   34,
+     &     'ocean s roms coordinate at w point')
 #if defined NEW_S_COORD
-      ierr=nf_put_att_text (ncid, varid, 'Vtransform',1,
-     &     '2')
-      ierr=nf_put_att_text (ncid, varid, 'formula_terms',44,
-     &     'sc_w: sc_w h: h Cs_w: Cs_w zeta: zeta hc: hc')
+      ierr=nf_put_att_text (ncid, varid, 'Vtransform',1, '2')
 #else
-      ierr=nf_put_att_text (ncid, varid, 'Vtransform',1,
-     &     '1')
-      ierr=nf_put_att_text (ncid, varid, 'formula_terms',37,
-     &     'sc_w: sc_w h: h Cs_w: Cs_w zeta: zeta')
+      ierr=nf_put_att_text (ncid, varid, 'Vtransform',1, '1')
 #endif /* NEW_S_COORD */ 
 
 !----
@@ -181,8 +184,13 @@
      &     'bath, scalar')
       ierr=nf_put_att_text (ncid, varid, 'standard_name', 33,
      &     'model_sea_floor_depth_below_geoid')
+#ifdef SPHERICAL
       ierr=nf_put_att_text (ncid, varid, 'coordinates', 15,
-     &     'lat_rho lon_rho')
+     &                      'lat_rho lon_rho')
+#else
+      ierr=nf_put_att_text (ncid, varid, 'coordinates', 11,
+     &                      'x_rho y_rho')
+#endif
 !
 ! Coriolis Parameter.
 !
@@ -194,8 +202,13 @@
      &                                        'coriolis, scalar')
       ierr=nf_put_att_text (ncid, varid, 'standard_name', 18,
      &     'coriolis_parameter')
+#ifdef SPHERICAL
       ierr=nf_put_att_text (ncid, varid, 'coordinates', 15,
-     &     'lat_rho lon_rho')
+     &                      'lat_rho lon_rho')
+#else
+      ierr=nf_put_att_text (ncid, varid, 'coordinates', 11,
+     &                      'x_rho y_rho')
+#endif
 !
 ! Curvilinear coordinates metric coefficients pm,pn.
 !
@@ -204,18 +217,30 @@
      &                      'curvilinear coordinates metric in XI')
       ierr=nf_put_att_text (ncid, varid, 'units',  7,    'meter-1')
       ierr=nf_put_att_text (ncid, varid, 'field', 10, 'pm, scalar')
-!      ierr=nf_put_att_text (ncid, varid, 'standard_name', 1,' ')
+#ifdef SPHERICAL
       ierr=nf_put_att_text (ncid, varid, 'coordinates', 15,
      &                      'lat_rho lon_rho')
+#else
+      ierr=nf_put_att_text (ncid, varid, 'coordinates', 11,
+     &                      'x_rho y_rho')
+#endif
+      ierr=nf_put_att_text (ncid, varid, 'standard_name', 22,
+     &                      'inverse_of_cell_x_size')
 !-
       ierr=nf_def_var (ncid, 'pn', nf_ftype, 2, r2dgrd, varid)
       ierr=nf_put_att_text (ncid, varid, 'long_name', 36,
      &     'curvilinear coordinates metric in ETA')
       ierr=nf_put_att_text (ncid, varid, 'units',  7,    'meter-1')
       ierr=nf_put_att_text (ncid, varid, 'field', 10, 'pn, scalar')
-!      ierr=nf_put_att_text (ncid, varid, 'standard_name', 1,' ')
+#ifdef SPHERICAL
       ierr=nf_put_att_text (ncid, varid, 'coordinates', 15,
      &                      'lat_rho lon_rho')
+#else
+      ierr=nf_put_att_text (ncid, varid, 'coordinates', 11,
+     &                      'x_rho y_rho')
+#endif
+      ierr=nf_put_att_text (ncid, varid, 'standard_name', 22,
+     &                      'inverse_of_cell_y_size')
 !
 ! Longitude/latitude or cartezian coordinatess of RHO-points.
 !
@@ -280,39 +305,48 @@
      &                                   'x-locations of RHO-points')
       ierr=nf_put_att_text (ncid, varid, 'units', 5, 'meter')
       ierr=nf_put_att_text (ncid, varid, 'field',13, 'x_rho, scalar')
+      ierr=nf_put_att_text (ncid, varid, 'standard_name', 18,
+     &                                   'plane_x_coordinate')
 
       ierr=nf_def_var (ncid, 'y_rho', nf_ftype, 2, r2dgrd, varid)
       ierr=nf_put_att_text (ncid, varid, 'long_name',25,
      &                                   'y-locations of RHO-points')
       ierr=nf_put_att_text (ncid, varid, 'units', 5, 'meter')
-      ierr=nf_put_att_text (ncid, varid, 'field',13, 'y_rho, scalar')
-!      ierr=nf_put_att_text (ncid, varid, 'standard_name', 1,' ')  
+      ierr=nf_put_att_text (ncid, varid, 'field',11, 'y_rho, scalar')
+      ierr=nf_put_att_text (ncid, varid, 'standard_name', 18,
+     &                                   'plane_y_coordinate')
 !--
       ierr=nf_def_var (ncid, 'x_u', nf_ftype, 2, u2dgrd, varid)
-      ierr=nf_put_att_text (ncid, varid, 'long_name', 25,
+      ierr=nf_put_att_text (ncid, varid, 'long_name', 23,
      &                                   'x-locations of U-points')
       ierr=nf_put_att_text (ncid, varid, 'units', 5, 'meter')
-      ierr=nf_put_att_text (ncid, varid, 'field',13, 'x_u, scalar')
+      ierr=nf_put_att_text (ncid, varid, 'field',11, 'x_u, scalar')
+      ierr=nf_put_att_text (ncid, varid, 'standard_name', 32,
+     &                                   'plane_x_coordinate_at_u_location')
+     
       ierr=nf_def_var (ncid, 'y_u', nf_ftype, 2, u2dgrd, varid)
-      ierr=nf_put_att_text (ncid, varid, 'long_name',25,
+      ierr=nf_put_att_text (ncid, varid, 'long_name',23,
      &                                   'y-locations of U-points')
       ierr=nf_put_att_text (ncid, varid, 'units', 5, 'meter')
       ierr=nf_put_att_text (ncid, varid, 'field',13, 'y_u, scalar')
-!      ierr=nf_put_att_text (ncid, varid, 'standard_name', 1,' ')  
+      ierr=nf_put_att_text (ncid, varid, 'standard_name', 32,
+     &                                   'plane_y_coordinate_at_u_location')
 !--
       ierr=nf_def_var (ncid, 'x_v', nf_ftype, 2, v2dgrd, varid)
-      ierr=nf_put_att_text (ncid, varid, 'long_name', 25,
+      ierr=nf_put_att_text (ncid, varid, 'long_name', 23,
      &                                   'x-locations of V-points')
       ierr=nf_put_att_text (ncid, varid, 'units', 5, 'meter')
-      ierr=nf_put_att_text (ncid, varid, 'field',13, 'x_v, scalar')
-!      ierr=nf_put_att_text (ncid, varid, 'standard_name', 1,' ')  
+      ierr=nf_put_att_text (ncid, varid, 'field',11, 'x_v, scalar')
+      ierr=nf_put_att_text (ncid, varid, 'standard_name', 32,
+     &                                   'plane_x_coordinate_at_v_location')
 !--
       ierr=nf_def_var (ncid, 'y_v', nf_ftype, 2, v2dgrd, varid)
-      ierr=nf_put_att_text (ncid, varid, 'long_name',25,
+      ierr=nf_put_att_text (ncid, varid, 'long_name',23,
      &                                   'y-locations of V-points')
       ierr=nf_put_att_text (ncid, varid, 'units', 5, 'meter')
-      ierr=nf_put_att_text (ncid, varid, 'field',13, 'y_v, scalar')
-!      ierr=nf_put_att_text (ncid, varid, 'standard_name', 1,' ')  
+      ierr=nf_put_att_text (ncid, varid, 'field',11, 'y_v, scalar')
+      ierr=nf_put_att_text (ncid, varid, 'standard_name', 32,
+     &                                   'plane_y_coordinate_at_v_location')
 
 #endif
 #ifdef CURVGRID
@@ -339,8 +373,13 @@
       ierr=nf_put_att_text (ncid, varid, 'option_1',    5,   'water')
       ierr=nf_put_att_text (ncid, varid, 'standard_name', 16,
      &                                   'land_binary_mask')
+#ifdef SPHERICAL
       ierr=nf_put_att_text (ncid, varid, 'coordinates', 15,
-     &                                   'lat_rho lon_rho')
+     &                      'lat_rho lon_rho')
+#else
+      ierr=nf_put_att_text (ncid, varid, 'coordinates', 11,
+     &                      'x_rho y_rho')
+#endif
 #endif
 !
 #else /* SOLVE3D */

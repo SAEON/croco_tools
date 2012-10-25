@@ -257,7 +257,11 @@ CR      write(stdout,'(1x,A,I3)') 'indxZ =',indxZ
       vname(3,indxZ)='meter                                       '
       vname(4,indxZ)='free-surface, scalar, series                '
       vname(5,indxZ)='sea_surface_height                          '
+#ifdef SPHERICAL
       vname(6,indxZ)='lat_rho lon_rho                             '
+#else
+      vname(6,indxZ)='x_rho y_rho                                 '
+#endif
       vname(7,indxZ)='                                            '
 
 CR      write(stdout,'(1x,A,I3)') 'indxUb =',indxUb
@@ -267,8 +271,12 @@ CR      write(stdout,'(1x,A,I3)') 'indxUb =',indxUb
       vname(4,indxUb)='ubar-velocity, scalar, series              '
       vname(5,indxUb)='barotropic_sea_water_x_'
      &               // 'velocity_at_u_location'
-      vname(6,indxUb)='lat_u lon_u                     '
-      vname(7,indxUb)='                                '
+#ifdef SPHERICAL
+      vname(6,indxUb)='lat_u lon_u                                '
+#else
+      vname(6,indxUb)='x_u y_u                                    '
+#endif
+      vname(7,indxUb)='                                           '
 
 CR      write(stdout,'(1x,A,I3)') 'indxVb = ',indxVb
       vname(1,indxVb)='vbar                                       '
@@ -277,7 +285,11 @@ CR      write(stdout,'(1x,A,I3)') 'indxVb = ',indxVb
       vname(4,indxVb)='vbar-velocity, scalar, series              '
       vname(5,indxVb)='barotropic_sea_water_y_velocity_at_'
      &                // 'v_location'
-      vname(6,indxVb)='lat_v lon_v                           '
+#ifdef SPHERICAL
+      vname(6,indxVb)='lat_v lon_v                                '
+#else
+      vname(6,indxVb)='x_v y_v                                    '
+#endif
       vname(7,indxVb)='                                           '
       vname(11,indxVb)=' '
 
@@ -287,7 +299,11 @@ CR      write(stdout,'(1x,A,I3)') 'indxBostr =',indxBostr
       vname(3,indxBostr)='N/m2                                    '
       vname(4,indxBostr)='                                        '
       vname(5,indxBostr)='                                        '
-      vname(6,indxBostr)='lat_rho lon_rho'
+#ifdef SPHERICAL
+      vname(6,indxBostr)='lat_rho lon_rho                         '
+#else
+      vname(6,indxBostr)='x_rho y_rho                             '
+#endif
       vname(7,indxBostr)='                                        '
 
 
@@ -297,7 +313,11 @@ CR      write(stdout,'(1x,A,I3)') 'indxWstr =',indxWstr
       vname(3,indxWstr)='N/m2                                     '
       vname(4,indxWstr)='                                         '
       vname(5,indxWstr)='                                         '
+#ifdef SPHERICAL
       vname(6,indxWstr)='lat_rho lon_rho                          '
+#else
+      vname(6,indxWstr)='x_rho y_rho                              '
+#endif
       vname(7,indxWstr)='                                         '
 
 CR      write(stdout,'(1x,A,I3)') 'indxUWstr =',indxUWstr
@@ -306,7 +326,11 @@ CR      write(stdout,'(1x,A,I3)') 'indxUWstr =',indxUWstr
       vname(3,indxUWstr)='N/m2                                    '
       vname(4,indxUWstr)='                                        ' 
       vname(5,indxUWstr)='surface_downward_eastward_stress        '
-      vname(6,indxUWstr)='lat_u lon_u                  '
+#ifdef SPHERICAL
+      vname(6,indxUWstr)='lat_u lon_u                             '
+#else
+      vname(6,indxUWstr)='x_u y_u                                 '
+#endif
       vname(7,indxUWstr)='                                        '
       vname(8,indxUWstr)=' '                
 
@@ -316,7 +340,11 @@ CR      write(stdout,'(1x,A,I3)') 'indxVWstr =',indxVWstr
       vname(3,indxVWstr)='N/m2                                    '
       vname(4,indxVWstr)='                                        '
       vname(5,indxVWstr)='surface_downward_northward_stress       '
-      vname(6,indxVWstr)='lat_v lon_v                  '
+#ifdef SPHERICAL
+      vname(6,indxVWstr)='lat_v lon_v                             '
+#else
+      vname(6,indxVWstr)='x_v y_v                                 '
+#endif
       vname(7,indxVWstr)='                                        '
 
 #ifdef SOLVE3D
@@ -326,7 +354,11 @@ CR      write(stdout,'(1x,A,I3)') 'indxU = ',indxU
       vname(3,indxU)='meter second-1                              '
       vname(4,indxU)='u-velocity, scalar, series                  '
       vname(5,indxU)='sea_water_x_velocity_at_u_location          '
-      vname(6,indxU)='lat_u lon_u                      '
+#ifdef SPHERICAL
+      vname(6,indxU)='lat_u lon_u                                 '
+#else
+      vname(6,indxU)='x_u y_u                                     '
+#endif
       vname(7,indxU)='                                            '
 
 CR      write(stdout,'(1x,A,I3)') 'indxV = ',indxV
@@ -335,7 +367,11 @@ CR      write(stdout,'(1x,A,I3)') 'indxV = ',indxV
       vname(3,indxV)='meter second-1                              '
       vname(4,indxV)='v-velocity, scalar, series                  '
       vname(5,indxV)='sea_water_y_velocity_at_v_location          '
-      vname(6,indxV)='lat_v lon_v                      '
+#ifdef SPHERICAL
+      vname(6,indxV)='lat_v lon_v                                 '
+#else
+      vname(6,indxV)='x_v y_v                                     '
+#endif
       vname(7,indxV)='                                            '
                 
 CR      write(stdout,'(1x,A,I3)') 'indxT = ',indxT
@@ -344,7 +380,11 @@ CR      write(stdout,'(1x,A,I3)') 'indxT = ',indxT
       vname(3,indxT)='Celsius                                     '
       vname(4,indxT)='temperature, scalar, series                 '
       vname(5,indxT)='                                            '
-      vname(6,indxT)='lat_rho lon_rho                  '
+#ifdef SPHERICAL
+      vname(6,indxT)='lat_rho lon_rho                             '
+#else
+      vname(6,indxT)='x_rho y_rho                                 '
+#endif
       vname(7,indxT)='                                            '
                 
 # ifdef SALINITY
@@ -354,7 +394,11 @@ CR      write(stdout,'(1x,A,I3)') 'indxS = ',indxS
       vname(3,indxS)='PSU                                         '
       vname(4,indxS)='salinity, scalar, series                    '
       vname(5,indxS)='sea_water_salinity                          '
+#ifdef SPHERICAL
       vname(6,indxS)='lat_rho lon_rho                             '
+#else
+      vname(6,indxS)='x_rho y_rho                                 '
+#endif
       vname(7,indxS)='                                            '
                 
 # endif
@@ -366,7 +410,11 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxTPAS)='no unit                                  '
       vname(4,indxTPAS)='passive tracer, scalar, series           '
       vname(5,indxTPAS)='                                         '
+#ifdef SPHERICAL
       vname(6,indxTPAS)='lat_rho lon_rho                          '
+#else
+      vname(6,indxTPAS)='x_rho y_rho                              '
+#endif
       vname(7,indxTPAS)='                                         '
 
 # endif
