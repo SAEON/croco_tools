@@ -92,8 +92,6 @@
 #  define TIDERAMP
 # endif
                       /* Lateral Momentum Advection (default UP3) */
-# undef  UV_HADV_C4 
-                      /* Lateral Explicit Momentum Mixing */
 # undef  UV_VIS2
 # ifdef UV_VIS2
 #  define UV_MIX_S
@@ -103,13 +101,6 @@
 # define TS_HADV_RSUP3
 # undef  TS_HADV_UP5
 # undef  TS_HADV_C4
-                      /* Lateral Explicit Tracer Mixing */
-# ifdef TS_HADV_C4
-#  define  TS_DIF2
-#  undef   TS_DIF4
-#  define  TS_DIF_SMAGO
-#  define  TS_MIX_ISO
-# endif
                       /* Sponge layers for UV and TS */
 # define SPONGE
 # define SPONGE_GRID
@@ -281,6 +272,7 @@
 !                       Basin Example
 !                       ===== =======
 */
+# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -303,6 +295,7 @@
 !                       First Canyon Example
 !                       ===== ====== =======
 */
+# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -321,6 +314,7 @@
 !                       Second Canyon Example
 !                       ====== ====== =======
 */
+# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -342,6 +336,7 @@
 ! Boccaletti, G., R.C. Pacanowski, G.H. Philander and A.V. Fedorov, 2004,
 ! The Thermal Structure of the Upper Ocean, J.Phys.Oceanogr., 34, 888-902.
 */
+# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -373,6 +368,7 @@
 !                       Gravitational Adjustment Example
 !                       ============= ========== =======
 */
+# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -393,6 +389,7 @@
 !                       Inner Shelf Example
 !                       ===== ===== =======
 */
+# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -425,6 +422,7 @@
 ! Di Lorenzo, E, W.R. Young and S.L. Smith, 2006, Numerical and anlytical estimates of M2
 ! tidal conversion at steep oceanic ridges, J. Phys. Oceanogr., 36, 1072-1084.  
 */
+# undef  RVTK_DEBUG
 # undef  ETALON_CHECK
 # undef  OPENMP
 # undef  MPI
@@ -473,6 +471,7 @@
 !                       River run-off test problem
 !                       ==========================
 */
+# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -515,6 +514,7 @@
 !                       Seamount Example
 !                       ======== =======
 */
+# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -538,6 +538,7 @@
 !                       Shelf Front Example
 !                       ===== ===== =======
 */
+# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -560,6 +561,7 @@
 !                       Equatorial Rossby Wave Example
 !                       ========== ====== ==== =======
 */
+# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -576,6 +578,7 @@
 !                       Gravitational/Overflow Example
 !                       ====================== =======
 */
+# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -597,6 +600,7 @@
 !                       Upwelling Example
 !                       ========= =======
 */
+# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -627,6 +631,7 @@
 !                       Baroclinic Vortex Example (TEST AGRIF)
 !                       ========== ====== ======= ===== ======
 */
+# undef  RVTK_DEBUG
 # undef ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -644,9 +649,6 @@
 # define ANA_BSFLUX
 # define ANA_BTFLUX
 # define ANA_VMIX
-# define UV_VIS2
-# define UV_MIX_S
-# define TS_DIF2
 # define TS_MIX_S
 # define SPONGE
 # define ZCLIMATOLOGY
@@ -670,6 +672,7 @@
 !                       Baroclinic JET Example
 !                       ========== === =======
 */
+# undef  RVTK_DEBUG
 # undef  ETALON_CHECK
 # define MPI
 # undef  AGRIF
