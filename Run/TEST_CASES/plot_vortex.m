@@ -35,7 +35,7 @@ close all
 %
 % User defined parameters
 %
-vname='temp';
+vname='zeta';
 tindex=11;
 %
 % Caxis depending of the variable name
@@ -117,9 +117,10 @@ end
 %
 % Child
 %
-nc=netcdf('vortex_his.nc.1');
+childhis='vortex_his.nc.1';
+nc=netcdf(childhis);
 nestvortex=0;
-if ~isempty(nc)
+if exist(childhis)
   nestvortex=1;
   X=1e-3*nc{'x_rho'}(:);
   Y=1e-3*nc{'y_rho'}(:);
@@ -153,7 +154,8 @@ end
 %
 % Plots
 %
-contour(X1,Y1,t1,[cmin:dc:cmax],'r')
+%contour(X1,Y1,t1,[cmin:dc:cmax],'r')
+contourf(X1,Y1,t1,[cmin:dc:cmax])
 xlabel('X [km]')
 ylabel('Y [km]')
 title([vname,' - Day ',num2str(time)])
