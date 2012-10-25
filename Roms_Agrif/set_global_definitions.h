@@ -449,8 +449,10 @@ c-# define TANH dtanh
 #undef FILLVAL
 
 /* 
- Choice of wriiting start_date information (from roms.in) 
- in netCDF output
+ Choice of writing start_date information in netCDF output
+ (in roms.in, add the keyword start_date:
+  For example, if the simulation starts 1 January of 2000, at 00:00:00
+  start_date: 01-JAN-2000 00:00:00) 
 */ 
 #undef START_DATE
 
