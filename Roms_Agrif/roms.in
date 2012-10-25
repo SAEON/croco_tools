@@ -1,7 +1,5 @@
 title:
         BENGUELA TEST MODEL
-start_date:
-        01-JAN-2000 00:00:00
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
                 720      3600     60      1
 S-coord: THETA_S,   THETA_B,    Hc (m)
