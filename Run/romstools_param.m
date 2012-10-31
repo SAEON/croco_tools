@@ -381,7 +381,7 @@ end
 %===================================================================
 %  Options for make_OGCM 
 %
-OGCM        = 'SODA';                       % Select the OGCM: SODA, SODA2, ECCO
+OGCM        = 'SODA';                       % Select the OGCM: SODA, ECCO
 OGCM_dir    = [FORC_DATA_DIR,OGCM,'_',ROMS_config,'/'];   % OGCM data directory
 bry_prefix  = [ROMS_files_dir,'roms_bry_',OGCM,'_']; % generic boundary file name
 clm_prefix  = [ROMS_files_dir,'roms_clm_',OGCM,'_']; % generic climatology file name
@@ -392,8 +392,8 @@ rmdepth     = 2;                                     % Number of bottom levels t
 %                        i.e if the depth in the domain is shallower than
 %                        the OGCM depth)
 %Overlap parameters : before (_a) and after (_p) the months.
-itolap_a=2;           %Overlap parameters
-itolap_p=2; 
+itolap_a=1;           %Overlap parameters
+itolap_p=1; 
 %====================================================================
 %  Options for make_QSCAT_daily and make_QSCAT_clim   
 %
