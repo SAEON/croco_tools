@@ -50,30 +50,14 @@ if strcmp(OGCM,'SODA')
   %
   %  SODA DODS URL
   %
-  % SODA 1.2:   Jan 1958 to Dec 2001 (now obsolete)
-  %  url = 'http://iridl.ldeo.columbia.edu./SOURCES/.CARTON-GIESE/.SODA/.v1p2'; 
-  % SODA 1.4.2: Jan 1958 to Dec 2001
-  %  url = 'http://iridl.ldeo.columbia.edu./SOURCES/.CARTON-GIESE/.SODA/.v1p4p2'; 
-  % SODA 1.4.3: Jan 2000 to Dec 2004 (QuickSCAT)
-  %  url =  'http://iridl.ldeo.columbia.edu./SOURCES/.CARTON-GIESE/.SODA/.v1p4p3'
-  % SODA 2.0.2-3.
-  %url= 'http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p0p2-3'
-  % SODA 2.0.2-4.
-  url= 'http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p0p2-4'
-  disp({'!! Change from 1.4.3 version';
-	'   New variables : u, v';
-	'   m/s and no more in cm/s'})
-
-elseif strcmp(OGCM,'SODA2')
-
-  % SODA_2.1.6 ERA40/QSCAT 1958-2008 / POP2.1 / WOD09
-
-  url='http://soda.tamu.edu/opendap/SODA_2.1.6/MONTHLY/SODA_2.1.6_';
-
-  % SODA_2.2.4/ C20R-2 1871-2008 / POP2.1
-
-%  url='http://soda.tamu.edu/opendap/SODA_2.2.4/SODA_2.2.4_';
-
+  % SODA 2.0.2-4
+  %url= 'http://apdrc.soest.hawaii.edu:80/dods/public_data/SODA/soda_pop2.0.4'
+  
+  % SODA_2.1.6 [ ERA40/QSCAT 1958-2008 / POP2.1 / WOD09 ]
+  url='http://apdrc.soest.hawaii.edu:80/dods/public_data/SODA/soda_pop2.1.6' ;
+  
+  % SODA_2.2.4/ [ C20R-2 1871-2008 / POP2.1 ]
+  url='http://apdrc.soest.hawaii.edu:80/dods/public_data/SODA/soda_pop2.2.4' ;
 
 elseif strcmp(OGCM,'ECCO')
   %
@@ -89,13 +73,6 @@ elseif strcmp(OGCM,'ECCO')
   %
 else
   error(['Unknown OGCM: ',OGCM])
-end
-% Treatment of  special cases ...
-if strcmp(url,'http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p0p2-4')==1;
-  disp(['Overlapping parameters value fixed : special case'])
-  disp(['...'])   
-  itolap_a=1;
-  itolap_p=1;
 end
 %
 itolap_tot=itolap_a + itolap_p;

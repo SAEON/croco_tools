@@ -41,7 +41,7 @@ latmax=latmax+dl;
 %
 lon=readdap(path,'lon',[]);
 lat=readdap(path,'lat',[]);
-depth=readdap(path,'depth',[]);
+depth=readdap(path,'lev',[]);
 %
 % Get a subgrid
 %

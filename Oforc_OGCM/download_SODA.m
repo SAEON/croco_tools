@@ -43,6 +43,15 @@ disp(['Minimum Latitude: ',num2str(latmin)])
 disp(['Maximum Latitude: ',num2str(latmax)])
 disp([' '])
 %
+% Define the original date of the SODA data
+% 
+if strcmp(url,'http://apdrc.soest.hawaii.edu:80/dods/public_data/SODA/soda_pop2.1.6')
+   year_orig_SODA=1958;
+elseif strcmp(url,'http://apdrc.soest.hawaii.edu:80/dods/public_data/SODA/soda_pop2.2.4')
+   year_orig_SODA=1871;
+end
+
+%
 % Create the directory
 %
 disp(['Making output data directory ',OGCM_dir])
@@ -55,16 +64,29 @@ disp(['Process the dataset: ',url])
 % Find a subset of the SODA grid
 %
 [i1min,i1max,i2min,i2max,i3min,i3max,jrange,krange,lon,lat,depth]=...
- get_SODA_subgrid([url,'/dods'],lonmin,lonmax,latmin,latmax);
+ get_SODA_subgrid([url],lonmin,lonmax,latmin,latmax);
 %
-% Get SODA time (months since 1960-01-01)
-% 
-SODA_time=readdap([url,'/dods'],'time',[]);
+% Get SODA time 
+%
+%  Months since 1960-01-01 
+%       --> http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p1p6/ 
 %
 % Transform it into Yorig time (i.e days since Yorig-01-01)
+%year=floor(1960+SODA_time/12);
+%month=1+rem(1960*12+SODA_time-0.5,12);
+%SODA_time=datenum(year,month,15)-datenum(Yorig,1,1);
+
+%  Days since 01-01-01 on apdrc.soest.hawaii.edu:80 dods server
 %
-year=floor(1960+SODA_time/12);
-month=1+rem(1960*12+SODA_time-0.5,12);
+SODA_time=readdap([url],'time',[]);
+%
+% Get the months and the years
+%
+days = SODA_time - datenum(year_orig_SODA -1 ,1,15);
+month = 1 + rem([1:length(days)],12);
+year = year_orig_SODA + fix([0:length(days)-1]./12) ;
+
+% Transform it into Yorig time (i.e days since Yorig-01-01)
 SODA_time=datenum(year,month,15)-datenum(Yorig,1,1);
 %
 % Loop on the years
@@ -73,7 +95,8 @@ for Y=Ymin:Ymax
   disp(['Processing year: ',num2str(Y)])
 %
 % Loop on the months
-%
+
+
   if Y==Ymin
     mo_min=Mmin;
   else
@@ -94,7 +117,7 @@ for Y=Ymin:Ymax
 %
 % Extract SODA data
 %
-    extract_SODA(OGCM_dir,OGCM_prefix,[url,'/dods'],Y,M,...
+    extract_SODA(OGCM_dir,OGCM_prefix,[url],Y,M,...
                  lon,lat,depth,SODA_time(tndx),...
                  trange,krange,jrange,...
                  i1min,i1max,i2min,i2max,i3min,i3max,...
