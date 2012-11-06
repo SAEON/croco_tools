@@ -557,6 +557,15 @@
           write(stdout,1) vname(1,indxTime)(1:lvar), ncname(1:lstr)
           goto 99                                         !--> ERROR 
         endif
+!
+! Time2.
+!
+        lvar=lenstr(vname(1,indxTime2))
+        ierr=nf_inq_varid (ncid,vname(1,indxTime2)(1:lvar),vidTime2)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,1) vname(1,indxTime2)(1:lvar), ncname(1:lstr)
+          goto 99                                         !--> ERROR 
+        endif
 
 ! momentum flux diagnostics variables :
 ! -------- ---- ----------- ----------
