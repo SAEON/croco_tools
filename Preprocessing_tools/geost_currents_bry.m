@@ -255,7 +255,7 @@ for l=1:tlen
 
  elseif obcndx==1
      disp(['OBCNDX=',num2str(obcndx)])
-     if latr(1,1) < -2
+     if (latr(1,1) < -2 | latr(1,1) > 2 )
          disp(['OK South boundary outside of the equatorial band'])
      else
          error(['Replace your South boundary'])
@@ -263,7 +263,7 @@ for l=1:tlen
 %
  elseif obcndx==3
      disp(['OBCNDX=',num2str(obcndx)])
-     if latr(end,1) > 2
+     if ( latr(end,1) < -2 | latr(end,1) > 2)
          disp(['OK North boundary outside of the equatorial band'])
      else
          error(['Replace your North boundary'])
