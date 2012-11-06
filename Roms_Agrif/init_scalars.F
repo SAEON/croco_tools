@@ -838,8 +838,8 @@ CR      write(stdout,'(1x,A,I3)') 'indxShflx_rsw =',indxShflx_rsw
       vname(2,indxShflx_rsw)='Short-wave surface radiation        '
       vname(3,indxShflx_rsw)='Celsius meter second-1              '
       vname(4,indxShflx_rsw)='                                    '
-      vname(5,indxShflx_rsw)='average_surface_net_downward_
-     &                        shortwave_flux                      '    
+      vname(5,indxShflx_rsw)='average_surface_net_downward_'
+     &                       / / 'shortwave_flux                  '    
       vname(6,indxShflx_rsw)='lat_rho lon_rho                     '                  
       vname(7,indxShflx_rsw)='                                    '
 
@@ -866,8 +866,8 @@ CR      write(stdout,'(1x,A,I3)') 'indxShflx_sen =',indxShflx_sen
       vname(2,indxShflx_sen)='Sensible surface heat flux          '
       vname(3,indxShflx_sen)='Celsius meter second-1              '
       vname(4,indxShflx_sen)='                                    '
-      vname(4,indxShflx_sen)='average_surface_sensible_
-     &                        heat_flux                           '
+      vname(4,indxShflx_sen)='average_surface_sensible_'
+     &                   / / 'heat_flux                           '
       vname(6,indxShflx_sen)='lat_rho lon_rho                     '                  
       vname(7,indxShflx_sen)='                                    '  
       vname(7,indxShflx_sen)='  '         
