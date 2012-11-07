@@ -1278,6 +1278,17 @@ c        close(testunit)
      &     'and/or nudging layer (m)'
         MPI_master_only write(stdout,'(f10.2,2x,A)')
      &     v_sponge,'v_sponge Viscosity in sponge layer (m2/s)'
+!
+#elif  (defined SPONGE && defined SPONGE_GRID) 
+!
+!  if SPONGE_GRID is defined, they are set generically
+!  in set_nudgcof routine
+!
+      elseif (keyword(1:kwlen).eq.'sponge') then
+         call cancel_kwd (keyword(1:kwlen), ierr)
+         MPI_master_only write(stdout,'(/,1x,A,/,25x,A,/)')
+     &   'SPONGE_GRID is defined: parameters for sponge layers',
+     &   'are set generically in set_nudgcof.F routine'
 #endif
 !
 #if  defined T_FRC_BRY  || defined M2_FRC_BRY || \
