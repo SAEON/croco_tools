@@ -1,4 +1,4 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % romstools_param: common parameter file for the preprocessing
 %                  of ROMS simulations using ROMSTOOLS
@@ -36,74 +36,19 @@
 %  Updated    08-Apr-2009 by Gildas Cambon
 %  Updated    23-Oct-2009 by Gildas Cambon
 %  Updated    17-Nov-2011 by Pierrick Penven (CFSR)
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Updated    07-Nov-2012 by Patrick Marchesiello (cleaning)
 %
-% 1 General parameters
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 1  - Configuration parameters
+%      used by make_grid.m (and others..)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  ROMS title names and directories
 %
 ROMS_title  = 'Benguela Model';
 ROMS_config = 'Benguela_LR';
-%
-%  ROMSTOOLS directory
-%
-ROMSTOOLS_dir = '../';
-%
-%  Run directory
-%
-RUN_dir=[pwd,'/'];
-%
-%  ROMS input netcdf files directory
-%
-ROMS_files_dir=[RUN_dir,'ROMS_FILES/'];
-%
-%  Global data directory (etopo, coads, datasets download from ftp, etc..)
-%
-DATADIR=ROMSTOOLS_dir; 
-%
-%  Forcing data directory (ncep, quikscat, datasets download with opendap, etc..)
-%
-FORC_DATA_DIR = [RUN_dir,'DATA/'];
-%
-eval(['!mkdir ',ROMS_files_dir])
-%
-% ROMS file names (grid, forcing, bulk, climatology, initial)
-%
-bioname=[ROMS_files_dir,'roms_frcbio.nc'];  %Iron Dust forcing 
-					                           %file with PISCES
-grdname=[ROMS_files_dir,'roms_grd.nc'];
-frcname=[ROMS_files_dir,'roms_frc.nc'];
-blkname=[ROMS_files_dir,'roms_blk.nc'];
-clmname=[ROMS_files_dir,'roms_clm.nc'];
-ininame=[ROMS_files_dir,'roms_ini.nc'];
-oaname =[ROMS_files_dir,'roms_oa.nc'];    % oa file  : intermediate file not used
-                                             %            in roms simulations
-bryname=[ROMS_files_dir,'roms_bry.nc'];
-Zbryname=[ROMS_files_dir,'roms_bry_Z.nc'];% Zbry file: intermediate file not used
-                                          %            in roms simulations
-frc_prefix=[ROMS_files_dir,'roms_frc'];   % generic forcing file name 
-                                          % for interannual roms simulations (NCEP or GFS)
-blk_prefix=[ROMS_files_dir,'roms_blk'];   % generic bulk file name
-                                          % for interannual roms simulations (NCEP or GFS)
-%
-% Objective analysis decorrelation scale [m]
-% (if Roa=0: simple extrapolation method; crude but much less costly)
-%
-%Roa=300e3;
-Roa=0;
-%
-interp_method = 'linear';           % Interpolation method: 'linear' or 'cubic'
-%
-makeplot     = 1;                 % 1: create a few graphics after each preprocessing step
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% 2 Grid parameters
-%   used by make_grid.m (and others..)
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Grid dimensions:
 %
@@ -122,10 +67,10 @@ N = 32;
 %
 %  Vertical grid parameters (! should be the same in roms.in !)
 %
-theta_s = 6.;
-theta_b = 0.;
-hc      =10.;
-vtransform = 2.;
+theta_s    =  6.;
+theta_b    =  0.;
+hc         = 10.;
+vtransform =  2.; % s-coordinate type (2: new coordinates)
 %
 % Minimum depth at the shore [m] (depends on the resolution,
 % rule of thumb: dl=1, hmin=300, dl=1/4, hmin=150, ...)
@@ -173,12 +118,71 @@ n_filter_final=2;
 coastfileplot = 'coastline_l.mat';
 coastfilemask = 'coastline_l_mask.mat';
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Objective analysis decorrelation scale [m]
+% (if Roa=0: nearest extrapolation method; crude but much cheaper)
 %
-% 3 Surface forcing parameters
-%   used by make_forcing.m and by make_bulk.m
+%Roa=300e3;
+Roa=0;
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+interp_method = 'linear';         % Interpolation method: 'linear' or 'cubic'
+%
+makeplot     = 1;                 % 1: create a few graphics after each preprocessing step
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 2 - Generic file and directory names 
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%
+%  ROMSTOOLS directory
+%
+ROMSTOOLS_dir = '../';
+%
+%  Run directory
+%
+RUN_dir=[pwd,'/'];
+%
+%  ROMS input netcdf files directory
+%
+ROMS_files_dir=[RUN_dir,'ROMS_FILES/'];
+%
+%  Global data directory (etopo, coads, datasets download from ftp, etc..)
+%
+DATADIR=ROMSTOOLS_dir; 
+%
+%  Forcing data directory (ncep, quikscat, datasets download with opendap, etc..)
+%
+FORC_DATA_DIR = [RUN_dir,'DATA/'];
+%
+eval(['!mkdir ',ROMS_files_dir])
+%
+% ROMS file names (grid, forcing, bulk, climatology, initial)
+%
+grdname  = [ROMS_files_dir,'roms_grd.nc'];
+frcname  = [ROMS_files_dir,'roms_frc.nc'];
+blkname  = [ROMS_files_dir,'roms_blk.nc'];
+clmname  = [ROMS_files_dir,'roms_clm.nc'];
+bryname  = [ROMS_files_dir,'roms_bry.nc'];
+ininame  = [ROMS_files_dir,'roms_ini.nc'];
+bioname  = [ROMS_files_dir,'roms_frcbio.nc']; % Iron Dust forcing for PISCES
+%
+% intermediate z-level data files (not used in simulations)
+%
+oaname   = [ROMS_files_dir,'roms_oa.nc'];    % for climatology data processing
+Zbryname = [ROMS_files_dir,'roms_bry_Z.nc']; % for boundary data processing
+%
+% Generic forcing file root names for interannual simulations (NCEP/GFS)
+%
+frc_prefix=[ROMS_files_dir,'roms_frc'];      % forcing file name 
+blk_prefix=[ROMS_files_dir,'roms_blk'];      % bulk file name
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% 3 - Surface forcing parameters
+%     used by make_forcing.m and by make_bulk.m
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % COADS directory (for climatology runs)
 %
@@ -193,22 +197,18 @@ coads_cycle=360;        % repetition of a typical year of 360 days
 %coads_cycle=365.25;                    % of QSCAT experiments with 
 %                                         climatological heat flux.
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-% 3.1 Surface forcing parameters
-%   used by pathfinder_sst.m
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Pathfinder SST data used by pathfinder_sst.m
 %
 pathfinder_sst_name=[DATADIR,...
                     'SST_pathfinder/climato_pathfinder.nc'];
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% 4 Open boundaries and initial conditions parameters
-%   used by make_clim.m, make_biol.m, make_bry.m
+% 4 - Open boundaries and initial conditions parameters
+%     used by make_clim.m, make_biol.m, make_bry.m
+%             make_OGCM.m and make_OGCM_frcst.m
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Open boundaries switches (! should be consistent with cppdefs.h !)
 %
@@ -218,17 +218,19 @@ obc = [1 1 1 1]; % open boundaries (1=open , [S E N W])
 %
 zref = -1000;
 %
-%  Switches for selecting what to process in make_clim (1=ON)
-%  (and also in make_OGCM.m and make_OGCM_frcst.m)
-makeini=1;      %1: process initial data
-makeclim=1;     %1: process lateral boundary data
-makebry=0;      %1: process boundary data
-makebio=0;      %1: process initial and boundary data for idealized NPZD type bio model
-makepisces=0;   %1: process initial and boundary data for PISCES biogeochemical model
+%  initial/boundary data options (1 = process)
+%  (used in make_clim, make_biol, make_bry,
+%   make_OGCM.m and make_OGCM_frcst.m)
 %
-makeoa=1;       %1: process oa data (intermediate file)
-insitu2pot=1;   %1: transform in-situ temperature to potential temperature
-makeZbry=1;     %1: process data in Z coordinate
+makeini    = 1;   % initial data
+makeclim   = 1;   % climatological data (for boundaries and nudging layers)
+makebry    = 0;   % lateral boundary data
+makebio    = 0;   % initial and boundary data for NPZD models
+makepisces = 0;   % initial and boundary data for PISCES model
+%
+makeoa     = 1;   % oa data (intermediate file)
+makeZbry   = 1;   % boundary data in Z coordinate (intermediate file)
+insitu2pot = 1;   % transform in-situ temperature to potential temperature
 %
 %  Day of initialisation for climatology experiments (=0 : 1st january 0h)
 %
@@ -256,11 +258,11 @@ woa_cycle=360;        % repetition of a typical year of 360 days
 %woa_cycle=365.25;                    % of QSCAT experiments with 
 %                                     climatological boundary conditions
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% 5 Parameters for tidal forcing
+% 5 - Parameters for tidal forcing
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % TPXO file name (TPXO6 or TPXO7)
 %
@@ -278,54 +280,53 @@ tidalrank=[1 2 3 4 5 6 7 8 9 10];
 %
 % Compare with tidegauge observations
 %
-%lon0=-4.60;
-%lat0=48.42;    % Brest location
-%Z0=4;          % Mean depth of the tidegauge in Brest
-lon0=18.37;
-lat0=-33.91;   % Cape Town location
-Z0=1;          % Mean depth of the tidegauge in Cape Town
+lon0 =  18.37;   % Example: 
+lat0 = -33.91;   % Cape Town location
+Z0   =  1;       % Mean depth of tide gauge
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% 6 Temporal parameters (used for make_tides, make_NCEP, make_OGCM)
+% 6 - Reference date and simulation times
+%     (used for make_tides, make_NCEP, make_OGCM)
 %
-%===================================================================
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-Yorig         = 2000;               % reference time for vector time
-                                    % in roms initial and forcing files
-%===================================================================
+Yorig         = 2000;          % reference time for vector time
+                               % in roms initial and forcing files
 %
-Ymin          = 2000;               % first forcing year
-Ymax          = 2000;               % last  forcing year
-Mmin          = 1;                  % first forcing month
-Mmax          = 3;                  % last  forcing month
+Ymin          = 2000;          % first forcing year
+Ymax          = 2000;          % last  forcing year
+Mmin          = 1;             % first forcing month
+Mmax          = 3;             % last  forcing month
 %
-Dmin          = 1;                  % Day of initialization
-Hmin          = 0;                  % Hour of initialization
-Min_min       = 0;                  % Minute of initialization
-Smin          = 0;                  % Second of initialization
+Dmin          = 1;             % Day of initialization
+Hmin          = 0;             % Hour of initialization
+Min_min       = 0;             % Minute of initialization
+Smin          = 0;             % Second of initialization
 %
-SPIN_Long     = 0;                  % SPIN-UP duration in Years
+SPIN_Long     = 0;             % SPIN-UP duration in Years
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 7 - Parameters for Interannual forcing (SODA, ECCO, NCEP, ...)
 %
-% 7 Parameters for Interannual forcing (SODA, ECCO, NCEP, ...)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-Download_data = 1;                            % Get data from the OPENDAP
-                                              % sites  
-level = 0;                                    % AGRIF level; 0=parent grid
+Download_data = 1;   % Get data from OPENDAP sites  
+level         = 0;   % AGRIF level; 0 = parent grid
 %					  
-NCEP_version  = 2;                            % NCEP version:
-% 1: NCEP/NCAR Reanalysis, 1/1/1948 - present
-% 2: NCEP-DOE Reanalysis, 1/1/1979 - present
-% 3: Climate Forecast System Reanalysis , 1/1/1979 - 31/3/2011
+NCEP_version  = 2;   % NCEP version:
+                     %  1: NCEP/NCAR Reanalysis, 1/1/1948 - present
+                     %  2: NCEP-DOE Reanalysis, 1/1/1979 - present
+                     %  3: CFSR (Climate Forecast System Reanalysis), 
+                     %                          1/1/1979 - 31/3/2011
 %					      
-% Path and option for using global datasets download from ftp
+% Option for using local datasets (previously downloaded)
+% rather than online opendap procedure
 %
-Get_My_Data = 0; 
+Get_My_Data   = 0;     % 1: use local datasets
+%
+% Provide corresponding directory paths
 %
 if NCEP_version  == 1;
   My_NCEP_dir  = [DATADIR,'NCEP_REA1/'];
@@ -338,11 +339,11 @@ My_QSCAT_dir = [DATADIR,'QSCAT/'];
 My_SODA_dir  = [DATADIR,'SODA/'];
 My_ECCO_dir  = [DATADIR,'ECCO/'];
 %
-
-%===================================================================
-%  Options for make_NCEP and make_QSCAT_daily
+%--------------------------------------------
+% Options for make_NCEP and make_QSCAT_daily
+%--------------------------------------------
 %
-% NCEP data directory for storing files obtained via opendap
+% NCEP data directory for files downloaded via opendap
 %
 if NCEP_version  == 1;
   NCEP_dir= [FORC_DATA_DIR,'NCEP1_',ROMS_config,'/']; 
@@ -351,82 +352,74 @@ elseif NCEP_version  == 2;
 elseif NCEP_version  == 3;
   NCEP_dir= [FORC_DATA_DIR,'CFSR_',ROMS_config,'/']; 
 end
-makefrc      = 1;                            % 1: Create forcing files
-makeblk      = 1;                            % 1: Create bulk files
-QSCAT_blk    = 0;                            % 1: -a) Correct NCEP
-                                             %     frc/bulk file with the
-                                             %     u,v,wspd fields from
-                                             %     QSCAT daily data 
-					     %    -b) Download u, v, wspd
-                                             %         in the QSCAT frc file
-add_tides    = 0;                            % 1: Add the tides (To be
-                                             % done...)
-%Overlap parameters :  
-itolap_qscat=11;  %11 days if 1d time reso. QSCAT (should be <28 
-itolap_ncep=40;   %10 days if 6h time res.  NCEP  (should be <4* 28 =112
-%----
-%=================================================================
-if ( itolap_qscat > 28 )
-  error(['QSCAT overlap have to be less than 28 days'])
-end
-if ( itolap_ncep >= 28*4 )
-  error(['NCEP overlap have to be less than 28 days'])
-end
-
- if ( QSCAT_blk ==1 &  itolap_qscat < itolap_ncep./4 )
-   error(['QSCAT overlap have to be >= 4* NCEP ',... 
-          'overlap in case of QSCAT_blk',...
-          'because time interpolation in make_NCEP_withQSCAT'])
-end
-%===================================================================
-%  Options for make_OGCM 
+makefrc      = 1;       % 1: create forcing files
+makeblk      = 1;       % 1: create bulk files
+QSCAT_blk    = 0;       % 1: a) correct NCEP frc/bulk files with
+                        %        u,v,wspd fields from daily QSCAT data
+                        %    b) download u,v,wspd in QSCAT frc file
+add_tides    = 0;       % 1: add tides (to be done...)
 %
-OGCM        = 'SODA';                       % Select the OGCM: SODA, ECCO
-OGCM_dir    = [FORC_DATA_DIR,OGCM,'_',ROMS_config,'/'];   % OGCM data directory
-bry_prefix  = [ROMS_files_dir,'roms_bry_',OGCM,'_']; % generic boundary file name
-clm_prefix  = [ROMS_files_dir,'roms_clm_',OGCM,'_']; % generic climatology file name
-ini_prefix  = [ROMS_files_dir,'roms_ini_',OGCM,'_']; % generic initial file name
-OGCM_prefix = [OGCM,'_'];                            % generic OGCM file name 
-rmdepth     = 2;                                     % Number of bottom levels to remove 
-%                        (This is usefull when there is no valid data at this level
-%                        i.e if the depth in the domain is shallower than
-%                        the OGCM depth)
-%Overlap parameters : before (_a) and after (_p) the months.
-itolap_a=1;           %Overlap parameters
-itolap_p=1; 
-%====================================================================
-%  Options for make_QSCAT_daily and make_QSCAT_clim   
+% Overlap parameters 
 %
-QSCAT_dir        = [FORC_DATA_DIR,'QSCAT_',ROMS_config,'/']; % QSCAT data directory.
-QSCAT_frc_prefix = [frc_prefix,'_QSCAT_']; % generic forcing file name
-                                           % for interannual roms simulations with QuickCAT.
-QSCAT_clim_file  = [DATADIR,'QuikSCAT_clim/',...   % QuikSCAT climatology
-                    'roms_QSCAT_month_clim_2000_2007.nc']; % file for make_QSCAT_clim.
+itolap_qscat = 2;      % 2 records for daily  QSCAT
+itolap_ncep  = 8;      % 8 records for 4-daily NCEP
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%--------------------------------------------------
+% Options for make_QSCAT_daily and make_QSCAT_clim   
+%--------------------------------------------------
+%
+QSCAT_dir        = [FORC_DATA_DIR,'QSCAT_',ROMS_config,'/']; % QSCAT data directory
+QSCAT_frc_prefix = [frc_prefix,'_QSCAT_'];                   %  generic file name
+                                                             %  for interannual simulations
+QSCAT_clim_file  = [DATADIR,'QuikSCAT_clim/',...             % QuikSCAT climatology file
+                    'roms_QSCAT_month_clim_2000_2007.nc'];   %  for make_QSCAT_clim.
+%
+%-----------------------
+% Options for make_OGCM 
+%-----------------------
+%
+OGCM        = 'SODA';        % Select the OGCM: SODA, ECCO
+%
+OGCM_dir    = [FORC_DATA_DIR,OGCM,'_',ROMS_config,'/']; % OGCM data directory
+bry_prefix  = [ROMS_files_dir,'roms_bry_',OGCM,'_'];    % generic boundary file name
+clm_prefix  = [ROMS_files_dir,'roms_clm_',OGCM,'_'];    % generic climatology file name
+ini_prefix  = [ROMS_files_dir,'roms_ini_',OGCM,'_'];    % generic initial file name
+OGCM_prefix = [OGCM,'_'];                               % generic OGCM file name 
+%
+% Number of OGCM bottom levels to remove 
+% (usefull if ROMS depth is shallower than OGCM depth)
+%
+rmdepth     = 2;
+%
+% Overlap parameters : nb of records around each monthly sequence
+%
+itolap_a    = 1;   % before
+itolap_p    = 1;   % after
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % 8 Parameters for the forecast system
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-FRCST_dir = [FORC_DATA_DIR,'Forecast/'];       % path to store local OGCM data
-FRCST_prefix  = [OGCM,'_'];                    % generic OGCM file name 
-if strcmp(OGCM,'ECCO')                         % nb of hindcast days
+FRCST_dir = [FORC_DATA_DIR,'Forecast/'];  % path for storing local OGCM data
+FRCST_prefix  = [OGCM,'_'];               % generic OGCM file name 
+if strcmp(OGCM,'ECCO')                    % nb of hindcast days
   hdays=1;
 elseif strcmp(OGCM,'mercator')
   hdays=5;
 end
-timezone = +1;                                 % Local time= UTC + timezone
+timezone = +1;                            % Local time= UTC + timezone
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % 9 Parameters for the diagnostic tools
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 DIAG_dir = [ROMSTOOLS_dir,'Diagnostic_tools/'];
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
