@@ -57,11 +57,10 @@ gamma2:
                  1.d0
 
 sponge:          X_SPONGE [m],    V_SPONGE [m^2/sec]
-                   100.e3           1000.
+                   XXX              XXX
 
 nudg_cof:    TauT_in, TauT_out, TauM_in, TauM_out  [days for all]
                 1.       360.      3.      360.
-
 
 diagnostics:   ldefdia   nwrtdia    nrpfdia /filename
                   T        120         0
@@ -131,3 +130,16 @@ psource:   Nsrc  Isrc  Jsrc  Dsrc  Qbar [m3/s]    Lsrc        Tsrc
                   3    54     1    200.            T T      5. 0.
                   3    40     0    200.            T T      5. 0.
 
+psource_ncfile:   Nsrc  Isrc  Jsrc  Dsrc rivdir  Lsrc  Tsrc   runoff file name
+                                 ROMS_FILES/roms_riv_5fl.nc
+            7
+                  97   173     0  1    T T      26. 0.
+                  93   168     0  1    T T      26. 0.
+                  94   166     0  1    T T      26. 0.
+                  93   164     1 -1    T T      26. 0.
+                  91   164     1 -1    T T      26. 0.
+                  96   298     0  1    T T      26. 0. 
+
+online:    byear  bmonth recordsperday byearend bmonthend / data path
+           2000   1      4             2000     3
+          DATA/CFSR_Benguela_LR/
