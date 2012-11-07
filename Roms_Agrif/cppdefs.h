@@ -103,7 +103,6 @@
 # undef  TS_HADV_C4
                       /* Sponge layers for UV and TS */
 # define SPONGE
-# define SPONGE_GRID
                       /* Vertical Mixing */
 # undef  BODYFORCE
 # undef  BVF_MIXING

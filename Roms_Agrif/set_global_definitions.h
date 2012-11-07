@@ -128,10 +128,12 @@
 #undef   TS_VADV_C2        /* 2nd-order centered vertical advection */
 
 /*
-   SPONGE:     
-   define SPONGE_DIF2 and SPONGE_VIS2 
+   SPONGE:  
+   define SPONGE_GRID, SPONGE_DIF2 
+   and SPONGE_VIS2 
 */
 #ifdef SPONGE
+# define SPONGE_GRID
 # define SPONGE_DIF2
 # define SPONGE_VIS2
 #endif
