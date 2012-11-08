@@ -53,7 +53,7 @@ romstools_param
 no3_seas_data=[woa_dir,'no3_seas.cdf'];
 no3_ann_data=[woa_dir,'no3_ann.cdf'];
 chla_seas_data=[chla_dir,'chla_seas.cdf'];
-NO3min=1;
+NO3min=0.01;
 %
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
@@ -85,7 +85,7 @@ if (makeclim)
   tlen=length(nc('no3_time'));
   for l=1:tlen
     NO3=nc{'NO3'}(l,:,:,:);
-    NO3(NO3<NO3min)=0;
+    NO3(NO3<NO3min)=NO3min;
     nc{'NO3'}(l,:,:,:)=NO3;
   end
   close(nc)
