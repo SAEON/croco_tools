@@ -91,7 +91,8 @@
 #  define UV_TIDES
 #  define TIDERAMP
 # endif
-                      /* Lateral Momentum Advection (default UP3) */
+                      /* Lateral Momentum mixing 
+                        (default advection is UP3) */
 # undef  UV_VIS2
 # ifdef UV_VIS2
 #  define UV_MIX_S
@@ -127,8 +128,10 @@
 #  define BULK_LW
 #  define BULK_EP
 #  define BULK_SMFLUX
-#  undef  ONLINE       /* Online interpolations of atmospheric variables */
-#  undef  CUBIC_INTERP /* Cubic or linear interpolations */
+#  undef  ONLINE
+#  ifdef ONLINE
+#   define  CUBIC_INTERP 
+#  endif
 # else
 #  define QCORRECTION
 #  define SFLX_CORR
