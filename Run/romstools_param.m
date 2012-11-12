@@ -54,7 +54,7 @@ ROMS_config = 'Benguela_LR';
 %
 lonmin =   8;   % Minimum longitude [degree east]
 lonmax =  22;   % Maximum longitude [degree east]
-latmin = -38;   % Minimum latitude  [degree north]
+latmin = -38;   % Minimum latitudeF  [degree north]
 latmax = -26;   % Maximum latitude  [degree north]
 %
 % Grid resolution [degree]
@@ -87,11 +87,13 @@ hmax_coast = 500;
 % extrapolations below WOA data)
 %
 hmax = 5000;
+
 %
 %  Topography netcdf file name (ETOPO 2 or any other netcdf file
 %  in the same format)
 %
-topofile = [DATADIR,'Topo/etopo2.nc'];
+TOPODIR = '../';
+topofile = [TOPODIR,'Topo/etopo2.nc'];
 %
 % Slope parameter (r=grad(h)/h) maximum value for topography smoothing
 %
