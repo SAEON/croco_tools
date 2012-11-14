@@ -37,7 +37,7 @@
 #elif defined GRAV_ADJ
       parameter (LLm0=128, MMm0=4,   N=10)
 #elif defined INNERSHELF
-      parameter (LLm0=64,  MMm0=3,   N=40)
+      parameter (LLm0=200,  MMm0=3,  N=60)
 #elif defined INTERNAL
 !      parameter (LLm0=120,  MMm0=10,  N=40)   ! 10 km resolution
 !      parameter (LLm0=800,  MMm0=4,  N=40)   ! 1.5 km resolution

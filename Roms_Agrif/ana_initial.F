@@ -224,19 +224,23 @@ C$    integer omp_get_thread_num
       do k=1,N
         do j=JR_RANGE
           do i=IR_RANGE
-#   define Z0 (-80.)
-#   define THKNSS 50.
-#   define Z1 0.
-#   define STRAT 1000.
-           t(i,j,k,1,itemp)=14.+5.*THKNSS*log(
-     &                            cosh((z_w(i,j,k )-Z0)/THKNSS)
-     &                           /cosh((z_w(i,j,k-1)-Z0)/THKNSS)
-     &                               )/(z_w(i,j,k)-z_w(i,j,k-1))
+#   ifdef INNERSHELF_EKMAN
+            t(i,j,k,1,itemp)=15.
+#   else
+#    define Z0 (-80.)
+#    define THKNSS 50.
+#    define Z1 0.
+#    define STRAT 1000.
+            t(i,j,k,1,itemp)=14.+5.*THKNSS*log(
+     &                         cosh((z_w(i,j,k  )-Z0)/THKNSS)
+     &                        /cosh((z_w(i,j,k-1)-Z0)/THKNSS)
+     &                            )/(z_w(i,j,k)-z_w(i,j,k-1))
      &               +((z_w(i,j,k)+z_w(i,j,k-1))/2.-Z1)/STRAT
-#   undef Z0
-#   undef THKNSS
-#   undef Z1
-#   undef STRAT
+#    undef Z0
+#    undef THKNSS
+#    undef Z1
+#    undef STRAT
+#   endif
             t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
 #   ifdef SALINITY
             t(i,j,k,1,isalt)=35.

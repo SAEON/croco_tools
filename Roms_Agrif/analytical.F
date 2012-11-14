@@ -349,7 +349,7 @@ C$    integer  trd, omp_get_thread_num
 # elif defined INNERSHELF
       do j=JstrR,JendR
         do i=IstrR,IendR
-          svstr(i,j)=-1.e-4
+          svstr(i,j)=0.07/rho0
         enddo
       enddo
 # else

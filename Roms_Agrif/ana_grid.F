@@ -81,15 +81,15 @@ C$    integer omp_get_thread_num
                      f0=0.
                      beta=0.
 # elif defined INNERSHELF
-                     depth=5000.
-                     f0=5.e-5
+                     depth=0.
+                     f0=4*pi/86400*sin(-21*pi/180)
                      beta=0.
 # elif defined INTERNAL
                      depth=2000.
                      f0=1.e-4
                      beta=0.
-		     ridge_width=30.e3
-		     ridge_height=1600.
+                     ridge_width=30.e3
+                     ridge_height=1600.
 # elif defined OVERFLOW
                      depth=40.
                      f0=0.
@@ -139,8 +139,8 @@ C$    integer omp_get_thread_num
                      Length_XI =64.0E+3
                      Length_ETA=2.0E+3
 # elif defined INNERSHELF
-                     Length_XI =320.0e+3
-                     Length_ETA=15.0e+3
+                     Length_XI =200.0e+3
+                     Length_ETA=3.0e+3
 # elif defined INTERNAL
 !                     Length_XI =2400.0e+3
                      Length_XI =1200.0e+3
@@ -265,25 +265,28 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
 # elif defined INNERSHELF
       do j=JstrR,JendR
         do i=IstrR,IendR
-          h(i,j)=30.+0.5*1000.*(1+sinh((150.e3-xr(i,j))/40.e3)
-     &               /cosh((150.e3-xr(i,j))/40.e3))
+!         --- constant slope ---
+          h(i,j)=1.e-3*(xr(LLm+1,2)-xr(i,j))+4.
+!         --- shelf/slope tanh ---
+!          h(i,j)=30.+500.*(1+sinh((150.e3-xr(i,j))/40.e3)
+!     &                      /cosh((150.e3-xr(i,j))/40.e3))
         enddo
       enddo
 # elif defined INTERNAL
       cff1=1./(ridge_width*ridge_width)
       do j=JstrR,JendR
         do i=IstrR,IendR
-	  if ((xr(i,j).gt.ridge_width).or.
-     &	      (xr(i,j).lt.(-ridge_width))) then
+          if ((xr(i,j).gt.ridge_width).or.
+     &       (xr(i,j).lt.(-ridge_width))) then
             cff=0.
-	  else
-	    cff=1-(xr(i,j)*xr(i,j)*cff1);
-	  endif
+          else
+            cff=1-(xr(i,j)*xr(i,j)*cff1);
+          endif
           h(i,j)=depth-ridge_height*cff*cff;
 #   ifdef INTERNALSHELF
-	  if (xr(i,j).ge.0.) then
-	    h(i,j)=depth-ridge_height
-	  endif
+          if (xr(i,j).ge.0.) then
+            h(i,j)=depth-ridge_height
+          endif
 #   endif
         enddo
       enddo

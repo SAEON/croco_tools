@@ -60,6 +60,12 @@ c********************************************************************
 # include "grid.h"
 # include "ocean3d.h"
 # include "scalars.h"
+# ifdef INNERSHELF_APG
+! Impose alongshore pressure gradient balancing
+! a constant cross-shore geostrophic flow UG (m/s)
+       real UG
+       parameter (UG=0.02)
+# endif
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -351,6 +357,9 @@ c********************************************************************
         do j=JstrV,Jend
           do i=Istr,Iend
             rv(i,j,k)=0.5*(Hz(i,j,k)+Hz(i,j-1,k))*om_v(i,j)*(
+# ifdef INNERSHELF_APG
+     &      on_v(i,j)*f(i,j)*UG +    ! specified alongshore PG
+# endif
      &      P(i,j-1,k)-P(i,j,k)-HalfGRho*( (rho(i,j,k)+rho(i,j-1,k))
      &                                     *(z_r(i,j,k)-z_r(i,j-1,k))
 
