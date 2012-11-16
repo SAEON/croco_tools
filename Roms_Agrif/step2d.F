@@ -258,7 +258,9 @@ C$OMP END MASTER
       do j=JstrV-1,jend
         do i=IstrU-1,iend
           zeta_new(i,j)=zeta(i,j,kstp) + dtfast*pm(i,j)*pn(i,j)
-     &            *(DUon(i,j)-DUon(i+1,j)+DVom(i,j)-DVom(i,j+1))
+     &                                   *(DUon(i,j)-DUon(i+1,j  )
+     &                                    +DVom(i,j)-DVom(i  ,j+1))
+          zeta(i,j,knew)=zeta_new(i,j)
         enddo
       enddo
 !
@@ -269,13 +271,13 @@ C$OMP END MASTER
       if (iic.eq.ntstart .or. mod(iic,10).eq.0) then
         if (FIRST_2D_STEP) then
           call zonavg_2d(istr,iend,jstr,jend,
-     &               zeta_new(START_2D_ARRAY),zetazon)
+     &                   zeta(START_2D_ARRAY,knew),zetazon)
         endif
       endif
       if (iic.eq.ntstart) then
         if (FIRST_2D_STEP) then
           call zonavg_2d(istr,iend,jstr,jend,
-     &                     ssh(START_2D_ARRAY),sshzon)
+     &                   ssh(START_2D_ARRAY),sshzon)
         endif
       endif
 # endif  /* ZONAL_NUDGING */
@@ -324,12 +326,12 @@ C$OMP END MASTER
       enddo 
       do j=JstrR,JendR
         do i=Istr,IendR
-        du_avg3(i,j,0)   = DUon(i,j)
+        du_avg3(i,j,0)  = DUon(i,j)
         enddo
       enddo 
       do j=Jstr,JendR
         do i=IstrR,IendR
-        dv_avg3(i,j,0)   = DVom(i,j)
+        dv_avg3(i,j,0)  = DVom(i,j)
         enddo
       enddo 
       endif
@@ -411,7 +413,7 @@ C$OMP END MASTER
      &                                      *(zwrk(i-1,j)-zwrk(i,j)))
 #endif
      &                                                              )
-!> 
+! 
           rvbar(i,j)=cff*om_v(i,j)*( (h(i,j-1)+h(i,j))*(rzeta(i,j-1)
      &                        -rzeta(i,j)) +rzeta2(i,j-1)-rzeta2(i,j)
  
@@ -449,10 +451,10 @@ C$OMP END MASTER
       do j=jstr,jend
         do i=istr-1,iend
           UFx(i,j)=0.25*(DUon(i,j)+DUon(i+1,j))
-     &                     *(urhs(i,j)+urhs(i+1,j))
+     &                 *(urhs(i,j)+urhs(i+1,j))
 
           VFx(i+1,j)=0.25*(DUon(i+1,j)+DUon(i+1,j-1))
-     &                       *(vrhs(i+1,j)+vrhs(i,j))
+     &                   *(vrhs(i+1,j)+vrhs(i,j))
 # ifdef MASKING
      &                                 *pmask(i+1,j)
 # endif
@@ -461,10 +463,10 @@ C$OMP END MASTER
       do j=jstr-1,jend
         do i=istr,iend
           VFe(i,j)=0.25*(DVom(i,j)+DVom(i,j+1))
-     &                      *(vrhs(i,j)+vrhs(i,j+1))
+     &                 *(vrhs(i,j)+vrhs(i,j+1))
 
           UFe(i,j+1)=0.25*(DVom(i,j+1)+DVom(i-1,j+1))
-     &                       *(urhs(i,j+1)+urhs(i,j))
+     &                   *(urhs(i,j+1)+urhs(i,j))
 # ifdef MASKING
      &                                 *pmask(i,j+1)
 # endif
@@ -489,13 +491,13 @@ C$OMP END MASTER
         do i=IstrU-1,iend
           cff=Drhs(i,j)*(
 #  ifdef UV_COR
-     &                             fomn(i,j)
+     &                   fomn(i,j)
 #  endif
 #  if (defined CURVGRID && defined UV_ADV)
-     &  +0.5*( dndx(i,j)*(vrhs(i,j)+vrhs(i,j+1))
-     &        -dmde(i,j)*(urhs(i,j)+urhs(i+1,j)))
+     &          +0.5*( dndx(i,j)*(vrhs(i,j)+vrhs(i,j+1))
+     &                -dmde(i,j)*(urhs(i,j)+urhs(i+1,j)))
 #  endif
-     &                                          )
+     &                   )
           UFx(i,j)=cff*(vrhs(i,j)+vrhs(i,j+1))
           VFe(i,j)=cff*(urhs(i,j)+urhs(i+1,j))
         enddo

@@ -424,6 +424,7 @@ C$    integer  trd, omp_get_thread_num
       implicit none
 # include "param.h"
 # include "grid.h"
+# include "ocean2d.h"
 # include "climat.h"
 # include "scalars.h"
       integer Istr,Iend,Jstr,Jend, i,j
@@ -454,9 +455,12 @@ C$    integer  trd, omp_get_thread_num
 # else
       do j=JstrR,JendR
         do i=IstrR,IendR
-          ssh(i,j)=???
+          ssh(i,j)=zeta(i,j,1)
         enddo
       enddo
+# endif
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+      call exchange_r2d_tile (istr,iend,jstr,jend, ssh(START_2D_ARRAY))
 # endif
       return
       end
@@ -669,9 +673,9 @@ C$    integer  trd, omp_get_thread_num
       do k=1,N
         do j=JstrR,JendR
           do i=IstrR,IendR
-            tclm(i,j,k,itemp)=???
+            tclm(i,j,k,itemp)=t(i,j,k,1,itemp)
 #  ifdef SALINITY
-            tclm(i,j,k,isalt)=???
+            tclm(i,j,k,isalt)=t(i,j,k,1,isalt)
 #  endif /* SALINITY */
           enddo
         enddo
@@ -894,6 +898,8 @@ C$    integer  trd, omp_get_thread_num
       implicit none
 # include "param.h"
 # include "grid.h"
+# include "ocean2d.h"
+# include "ocean3d.h"
 # include "climat.h"
 # include "scalars.h"
       integer Istr,Iend,Jstr,Jend, i,j,k
@@ -945,8 +951,8 @@ C$    integer  trd, omp_get_thread_num
 #  else
       do j=JstrR,JendR
         do i=IstrR,IendR
-          ubclm(i,j)=???
-          vbclm(i,j)=???
+          ubclm(i,j)=ubar(i,j,1)
+          vbclm(i,j)=vbar(i,j,1)
         enddo
       enddo
 #  endif
@@ -969,11 +975,15 @@ C$    integer  trd, omp_get_thread_num
       do k=1,N
         do j=JstrR,JendR
           do i=IstrR,IendR
-            uclm(i,j,k)=???
-            vclm(i,j,k)=???
+            uclm(i,j,k)=u(i,j,k,1)
+            vclm(i,j,k)=v(i,j,k,1)
           enddo
         enddo
       enddo
+#  endif
+#  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      call exchange_u3d_tile (Istr,Iend,Jstr,Jend,  uclm)
+      call exchange_v3d_tile (Istr,Iend,Jstr,Jend,  vclm)
 #  endif
 # endif
 # undef IU_RANGE

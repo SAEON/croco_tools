@@ -75,13 +75,11 @@
 #  undef  PARALLEL_FILES
 # endif
 # undef  AUTOTILING
-# undef  ETALON_CHECK
-# undef  RVTK_DEBUG
+# define  ETALON_CHECK
                       /* Grid configuration */
 # define CURVGRID
 # define SPHERICAL
-# define MASKING
-# undef  NEW_S_COORD
+# define MASKINGDV_avg1(:,:)=vbar(:,:,1)*dm_v(:,:)
                       /* Model dynamics */
 # define SOLVE3D
 # define UV_COR
@@ -91,8 +89,9 @@
 #  define UV_TIDES
 #  define TIDERAMP
 # endif
-                      /* Lateral Momentum mixing 
-                        (default advection is UP3) */
+                      /* Lateral Momentum Advection (default UP3) */
+# undef  UV_HADV_C4 
+                      /* Lateral Explicit Momentum Mixing */
 # undef  UV_VIS2
 # ifdef UV_VIS2
 #  define UV_MIX_S
@@ -102,8 +101,16 @@
 # define TS_HADV_RSUP3
 # undef  TS_HADV_UP5
 # undef  TS_HADV_C4
+                      /* Lateral Explicit Tracer Mixing */
+# ifdef TS_HADV_C4
+#  define  TS_DIF2
+#  undef   TS_DIF4
+#  define  TS_DIF_SMAGO
+#  define  TS_MIX_ISO
+# endif
                       /* Sponge layers for UV and TS */
 # define SPONGE
+# define SPONGE_GRID
                       /* Vertical Mixing */
 # undef  BODYFORCE
 # undef  BVF_MIXING
@@ -128,10 +135,8 @@
 #  define BULK_LW
 #  define BULK_EP
 #  define BULK_SMFLUX
-#  undef  ONLINE
-#  ifdef ONLINE
-#   define  CUBIC_INTERP 
-#  endif
+#  undef  ONLINE       /* Online interpolations of atmospheric variables */
+#  undef  CUBIC_INTERP /* Cubic or linear interpolations */
 # else
 #  define QCORRECTION
 #  define SFLX_CORR
@@ -163,10 +168,8 @@
 # define ANA_BSFLUX
 # define ANA_BTFLUX
                       /* Point Sources - Rivers */
-# undef  PSOURCE        
-# ifdef  PSOURCE
-#   define  PSOURCE_NCFILE
-# endif
+# undef  PSOURCE
+# undef  ANA_PSOURCE
                       /* Open Boundary Conditions */
 # ifdef TIDES
 #  define OBC_M2FLATHER
@@ -203,7 +206,8 @@
 # ifdef BIOLOGY
 #  undef  PISCES
 #  define BIO_NChlPZD
-#  undef BIO_N2ChlPZD2  
+#  undef  BIO_N2P2Z2D2
+#  undef  BIO_N2ChlPZD2  
                       /*  Options  */
 #  ifdef PISCES
 #   define key_trc_pisces
@@ -220,8 +224,8 @@
 #  ifdef BIO_NChlPZD
 #   define DIAGNOSTICS_BIO
 #  endif
-#  ifdef BIO_N2ChlPZD2
-#   undef DIAGNOSTICS_BIO
+#  ifdef BIO_N2P2Z2D2
+#   undef  VAR_CHL_C
 #  endif
 # endif
                       /*     Lagrangian floats model    */
@@ -274,7 +278,6 @@
 !                       Basin Example
 !                       ===== =======
 */
-# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -297,7 +300,6 @@
 !                       First Canyon Example
 !                       ===== ====== =======
 */
-# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -316,7 +318,6 @@
 !                       Second Canyon Example
 !                       ====== ====== =======
 */
-# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -338,7 +339,6 @@
 ! Boccaletti, G., R.C. Pacanowski, G.H. Philander and A.V. Fedorov, 2004,
 ! The Thermal Structure of the Upper Ocean, J.Phys.Oceanogr., 34, 888-902.
 */
-# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -370,7 +370,6 @@
 !                       Gravitational Adjustment Example
 !                       ============= ========== =======
 */
-# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -391,41 +390,30 @@
 !                       Inner Shelf Example
 !                       ===== ===== =======
 */
-# undef  RVTK_DEBUG
 # define ETALON_CHECK
-# undef  OPENMP
-# undef  MPI
-# define INNERSHELF_EKMAN
-# define INNERSHELF_APG
+# undef OPENMP
+# undef MPI
 # define SOLVE3D
 # define UV_COR
+# define UV_ADV
 # define ANA_GRID
 # define ANA_INITIAL
 # define AVERAGES
+# define SALINITY
+# define NONLIN_EOS
+# define SPLIT_EOS
 # define ANA_SSFLUX
 # define ANA_SRFLUX
 # define ANA_STFLUX
 # define ANA_BSFLUX
 # define ANA_BTFLUX
 # define ANA_SMFLUX
+# define LMD_MIXING
+# define LMD_SKPP
+# define LMD_BKPP
+# define LMD_RIMIX
+# define LMD_CONVEC
 # define NS_PERIODIC
-# define OBC_WEST
-# define OBC_M2ORLANSKI
-# define OBC_VOLCONS
-# define OBC_TORLANSKI
-# define OBC_M3ORLANSKI
-# define SPONGE
-# ifndef INNERSHELF_EKMAN
-#  define UV_ADV
-#  define SALINITY
-#  define NONLIN_EOS
-#  define SPLIT_EOS
-#  define LMD_MIXING
-#  define LMD_SKPP
-#  define LMD_BKPP
-#  define LMD_RIMIX
-#  define LMD_CONVEC
-# endif
 
 #elif defined INTERNAL
 /*
@@ -434,7 +422,6 @@
 ! Di Lorenzo, E, W.R. Young and S.L. Smith, 2006, Numerical and anlytical estimates of M2
 ! tidal conversion at steep oceanic ridges, J. Phys. Oceanogr., 36, 1072-1084.  
 */
-# undef  RVTK_DEBUG
 # undef  ETALON_CHECK
 # undef  OPENMP
 # undef  MPI
@@ -483,7 +470,6 @@
 !                       River run-off test problem
 !                       ==========================
 */
-# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -526,7 +512,6 @@
 !                       Seamount Example
 !                       ======== =======
 */
-# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -550,7 +535,6 @@
 !                       Shelf Front Example
 !                       ===== ===== =======
 */
-# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -573,7 +557,6 @@
 !                       Equatorial Rossby Wave Example
 !                       ========== ====== ==== =======
 */
-# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -590,7 +573,6 @@
 !                       Gravitational/Overflow Example
 !                       ====================== =======
 */
-# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -612,7 +594,6 @@
 !                       Upwelling Example
 !                       ========= =======
 */
-# undef  RVTK_DEBUG
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -643,7 +624,6 @@
 !                       Baroclinic Vortex Example (TEST AGRIF)
 !                       ========== ====== ======= ===== ======
 */
-# undef  RVTK_DEBUG
 # undef ETALON_CHECK
 # undef OPENMP
 # undef MPI
@@ -661,6 +641,9 @@
 # define ANA_BSFLUX
 # define ANA_BTFLUX
 # define ANA_VMIX
+# define UV_VIS2
+# define UV_MIX_S
+# define TS_DIF2
 # define TS_MIX_S
 # define SPONGE
 # define ZCLIMATOLOGY
@@ -684,38 +667,26 @@
 !                       Baroclinic JET Example
 !                       ========== === =======
 */
-# undef  RVTK_DEBUG
+# undef  ANA_JET
 # undef  ETALON_CHECK
-# define MPI
+# undef  MPI
 # undef  AGRIF
 # undef  AGRIF_2WAY
 # define SOLVE3D
 # define UV_COR
 # define UV_ADV
-# define TS_HADV_UP3
+# ifdef ANA_JET
+#  define ANA_GRID
+#  define ANA_INITIAL
+# endif
 # define ANA_STFLUX
 # define ANA_SMFLUX
 # define ANA_BSFLUX
 # define ANA_BTFLUX
 # define ANA_VMIX
 # define EW_PERIODIC
-# define ZCLIMATOLOGY
-# define M2CLIMATOLOGY
-# define M3CLIMATOLOGY
-# define TCLIMATOLOGY
-# define ZNUDGING
-# define M2NUDGING
-# define M3NUDGING
-# define TNUDGING
-# define ROBUST_DIAG
-# define ZONAL_NUDGING
-!
-# ifdef AGRIF
-#  define UV_VIS2
-#  define MIX_S_UV
-#  define TS_DIF2
-#  define MIX_S_TS
-#  define SPONGE
+# define CLIMATOLOGY
+# ifdef CLIMATOLOGY
 #  define ZCLIMATOLOGY
 #  define M2CLIMATOLOGY
 #  define M3CLIMATOLOGY
@@ -724,7 +695,23 @@
 #  define M2NUDGING
 #  define M3NUDGING
 #  define TNUDGING
+#  define ROBUST_DIAG
+#  define ZONAL_NUDGING
+#  ifdef ANA_JET
+#   define ANA_SSH
+#   define ANA_M2CLIMA
+#   define ANA_M3CLIMA
+#   define ANA_TCLIMA
+#  endif
 # endif
+# define LMD_MIXING 
+# ifdef  LMD_MIXING
+#  undef  ANA_VMIX
+#  define ANA_SRFLUX
+#  undef  LMD_KPP
+#  define LMD_RIMIX
+#  define LMD_CONVEC
+# endif 
 
 #endif /* END OF CONFIGURATION CHOICE */
 

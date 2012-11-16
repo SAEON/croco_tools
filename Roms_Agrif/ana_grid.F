@@ -23,10 +23,20 @@ C$    integer omp_get_thread_num
 
       subroutine ana_grid_tile (Istr,Iend,Jstr,Jend)
 !
-!  Set up model grid using an analytical expressions:
+!  Set up model grid using analytical expressions:
 !-------------------------------------------------------------------
-!  Output: stored in common blocks, see files "scalars.h" "grid.h"
 !
+!  INPUT: Grid configuration parameters
+!  ------------------------------------
+! Length_XI      are the physical dimensions of the computational
+! Length_ETA     domain [usually measured in  meters];
+!
+! depth          is the maximum depth [meters, positive];
+! f0,beta        are coriolis parameters which set up a beta-plane
+!                                                  [1/s, 1/(m*s)].
+!
+!  OUTPUT: stored in common blocks, see files "scalars.h" "grid.h"
+!  ---------------------------------------------------------------
 !  xl,el      Physical dimensions of the computational domain 
 !                                    [usually measured in  meters];  
 !  h          Model bathymetry [meters, positive] at RHO-points.
@@ -37,6 +47,7 @@ C$    integer omp_get_thread_num
 !                    XI- and ETA-directions, both are at RHO-points.
 !  xp,xr      XI-coordinates [m] at PSI- and RHO-points.
 !  yp,yr      ETA-coordinates [m] at PSI- and RHO-points.
+!-------------------------------------------------------------------
 !
 # ifdef AGRIF
       use Agrif_Util
@@ -46,14 +57,6 @@ C$    integer omp_get_thread_num
 # include "param.h"
 # include "grid.h"
 # include "scalars.h"
-!
-! Grid configuration parameters:
-!-------------------------------------------------------------------
-! Length_XI, Length_ETA  are the physical dimensions of the computational
-!                               domain [usually measured in  meters];
-! depth      is the maximum depth [meters, positive];
-! f0,beta    are coriolis parameters which set up a beta-plane
-!                                                     [1/s, 1/(m*s)].
 !
       real Length_XI,Length_ETA, depth, f0,beta, 
      &     cff,y, x0,y0,dx,dy, NSUB
@@ -118,6 +121,10 @@ C$    integer omp_get_thread_num
                      depth=150.
                      f0=8.26E-5
                      beta=0.
+# elif defined JET
+                     depth=4000.
+                     f0=1.E-4
+                     beta=2.E-11
 # else
                      depth=???
                      f0=???
@@ -167,6 +174,9 @@ C$    integer omp_get_thread_num
 # elif defined RIVER
                      Length_ETA=8.E+4
                      Length_XI =LLm*Length_ETA/MMm
+# elif defined JET
+                     Length_XI =500.e+3 
+                     Length_ETA=2000.e+3 
 # else
                      Length_XI =???
                      Length_ETA=??? 
@@ -176,15 +186,6 @@ C$    integer omp_get_thread_num
 !
 ! Child grid dimension
 !
-!        Length_XI=AMR_CURGRID%xp%parent_var%var%array2((AMR_ix()-1+
-!     &     AMR_CURGRID%nbx)/AMR_coeffrefx,(AMR_iy()-1)/AMR_coeffrefy)-
-!     &                          AMR_CURGRID%xp%parent_var%var%array2
-!     &        ((AMR_ix()-1)/AMR_coeffrefy,(AMR_iy()-1)/AMR_coeffrefy)
-!        Length_ETA=AMR_CURGRID%yp%parent_var%var%array2((AMR_ix()-1)/
-!     &      AMR_coeffrefy,(AMR_iy()-1+AMR_CURGRID%nby)/AMR_coeffrefy)-
-!     &                          AMR_CURGRID%yp%parent_var%var%array2
-!     &        ((AMR_ix()-1)/AMR_coeffrefy,(AMR_iy()-1)/AMR_coeffrefy)
-!
         Length_XI=
      &       Agrif_Parent_xp(Agrif_Ix()+Lm/Agrif_IRhox(),Agrif_Iy())
      &      -Agrif_Parent_xp(Agrif_Ix(),Agrif_Iy())
@@ -193,16 +194,21 @@ C$    integer omp_get_thread_num
      &      -Agrif_Parent_yp(Agrif_Ix(),Agrif_Iy())
       endif
 # endif /* AGRIF */
-                                            ! Copy physical dimensions
-      xl=Length_XI                          ! of the grid into glabally
-      el=Length_ETA                         ! vizible  variables
-
-      dx=Length_XI/float(LLm)               ! Set grid spacings
-      dy=Length_ETA/float(MMm)              ! for rectangular grids
-
+!
+! Copy physical dimensions of the grid into globally vizible  variables
+!
+      xl=Length_XI
+      el=Length_ETA
+!
+! Set grid spacings for rectangular grids
+!
+      dx=Length_XI/float(LLm)
+      dy=Length_ETA/float(MMm)
+!
+! Set reference point location
+!
       x0=0.
       y0=0.
-
 # ifdef EQUATOR
       y0=y0-0.5*Length_ETA  
 # endif
@@ -213,13 +219,15 @@ C$    integer omp_get_thread_num
 
 CR      write(*,'(4(A3,pe15.9,1x),I3)') 'dx=',dx, 'dy=',dy,
 CR     &                                'x0=',x0, 'y0=',y0, mynode
- 
-                  
+
+!
+! Setup rectangulag grid:  coordinates (XI,ETA) at PSI- and RHO-points.
+!
       do j=JstrR,JendR
         do i=IstrR,IendR
-         xp(i,j) = x0 + dx*float(i+iminmpi-1-1)              ! Setup rectangulag grid:
-         xr(i,j) = x0 + dx*(float(i+iminmpi-1-1)+0.5)        ! coordinates (XI,ETA) at
-         yp(i,j) = y0 + dy*float(j+jminmpi-1-1)              ! PSI- and RHO-points.
+         xp(i,j) = x0 + dx*float(i+iminmpi-1-1)
+         xr(i,j) = x0 + dx*(float(i+iminmpi-1-1)+0.5)
+         yp(i,j) = y0 + dy*float(j+jminmpi-1-1)
          yr(i,j) = y0 + dy*(float(j+jminmpi-1-1)+0.5)
         enddo
       enddo
@@ -249,7 +257,8 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
 !
 !  Set bathymetry [meters; positive] at RHO-points.
 !
-# if defined BASIN || defined EQUATOR || defined GRAV_ADJ || defined SOLITON
+# if defined BASIN || defined EQUATOR || defined GRAV_ADJ \
+                   || defined SOLITON || defined JET
       do j=JstrR,JendR
         do i=IstrR,IendR
           h(i,j)=depth
