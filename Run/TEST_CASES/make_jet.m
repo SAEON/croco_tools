@@ -48,26 +48,22 @@ parent_grd='jet_grd.nc';
 parent_ini ='jet_ini.nc';
 parent_clm ='jet_clm.nc';
 %
-child_grd='jet_grd.nc.1';
-child_ini ='jet_ini.nc.1';
-child_clm ='jet_clm.nc.1';
-%
 % Domain size
 %
 xmax=300e3;             % Domain half length LAT
 ymax=500e3;             % Domain half length LON
-H0=400;                 % Total Depth
+H0=1000;                % Total Depth
 %
 % Jet parameters
 %
-perturb=1;              % add jet perturbation in x direction (2*pi*R)
-bplane=1;               % bplane=0 or 1 (beta-plane or f-plane)
-lat=30;                 % Latitude 
-umax=0.75;              % jet velocity (at its center)
-lambda=15.e3;           % jet horizontal scale (half width)
+umax=0.6;              % jet velocity (at its center)
+Ljet=40.e3;             % jet width
 Y0=0;                   % jet center
-H=200;                  % jet vertical scale (level of no-motion)
-N2=(0.01)^2;            % Brunt-Vaissala frequency
+H=300;                  % jet vertical scale (level of no-motion)
+N2=(1.e-2)^2;            % Brunt-Vaissala frequency
+lat=30;                 % Latitude 
+bplane=1;               % bplane=0 or 1 (f-plane or beta-plane)
+perturb=1;              % add jet perturbation in x direction (2*pi*R)
 Pa=1013e2;              % Atmospheric pressure
 rho0=1024.4;            % Mean ocean density
 g=9.81;                 % Gravity acceleration
@@ -79,10 +75,10 @@ dx=10.e3;
 %
 % Vertical grid parameters
 %
-N=10;
-theta_s=1;
+N=30;
+theta_s=5;
 theta_b=0;
-hc=H0;
+hc=100;
 %
 % Nesting parameters
 %
@@ -95,11 +91,16 @@ imax=70;
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
 %
+disp(' ')
+disp(' ... BUILD JET CONFIGURATION FILES ...')
+disp(' ')
+%
 %
 % Horzontal Grid
 %
-x=[-xmax:dx:xmax];
-y=[-ymax:dx:ymax];
+dy=dx;
+x=[-xmax-dx/2:dx:xmax+dx/2];
+y=[-ymax-dy/2:dx:ymax+dy/2];
 [X,Y]=meshgrid(x,y);
 %
 % Topo
@@ -201,6 +202,11 @@ nc{'temp'}(2,:,:,:) =  t;
 close(nc)
 
 if nesting, %-----------------------------------------------
+ 
+child_grd=[parent_grd,'.1'];
+child_ini=[parent_ini,'.1'];
+child_clm=[parent_clm,'.1'];
+
 %
 % file_title
 %

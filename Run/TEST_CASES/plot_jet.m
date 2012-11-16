@@ -57,7 +57,9 @@ disp(['Day : ',num2str(time),'  index:',num2str(tindex)])
 zeta=squeeze(nc{'zeta'}(tindex,:,:));
 u=squeeze(nc{'u'}(tindex,:,:,:));
 v=squeeze(nc{'v'}(tindex,:,:,:));
-t=squeeze(nc{'temp'}(tindex,:,:,:));
+rho=squeeze(nc{'temp'}(tindex,:,:,:));
+R0=30; TCOEF=0.28;
+t=(-rho+R0)./TCOEF;
 sst=squeeze(t(N,:,:));
 close(nc)
 %
@@ -72,7 +74,7 @@ close(nc)
 [xu,xv,xp]=rho2uvp(xr);
 [yu,yv,yp]=rho2uvp(yr);
 [fu,fv,fp]=rho2uvp(f);
-zr=zlevs(h,zeta,1,0,h(1,1),N,'r');
+zr=zlevs(h,zeta,5,0,100,N,'r');
 u0=squeeze(u(N,:,:));
 v0=squeeze(v(N,:,:));
 [vort]=vorticity(u0,v0,pm,pn);
@@ -94,7 +96,8 @@ if nesting,
  zeta2=squeeze(nc{'zeta'}(tindex,:,:));
  u2=squeeze(nc{'u'}(tindex,:,:,:));
  v2=squeeze(nc{'v'}(tindex,:,:,:));
- t2=squeeze(nc{'temp'}(tindex,:,:,:));
+ rho2=squeeze(nc{'temp'}(tindex,:,:,:));
+ t2=(-rho2+R0)./TCOEF;
  sst2=squeeze(t2(N,:,:));
  close(nc)
  zeta2(:,1)=NaN; zeta2(:,end)=NaN;
@@ -114,7 +117,7 @@ if nesting,
  [xu2,xv2,xp2]=rho2uvp(xr2);
  [yu2,yv2,yp2]=rho2uvp(yr2);
  [fu2,fv2,fp2]=rho2uvp(f2);
- zr2=zlevs(h2,zeta2,1,0,h2(1,1),N,'r');
+ zr2=zlevs(h2,zeta2,5,0,100,N,'r');
  u02=squeeze(u2(N,:,:));
  v02=squeeze(v2(N,:,:));
  [vort2]=vorticity(u02,v02,pm2,pn2);
@@ -165,7 +168,6 @@ title('Surface vorticity (/f)')
 %
 figure
 colormap(jet)
-sst=squeeze(t(N,:,:));
 contourf(X,Y,sst,20); shading flat
 if nesting,
  hold on
