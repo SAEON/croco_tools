@@ -1,13 +1,5 @@
-! $Id$
 !
-!======================================================================
-! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
-! The two other branches from UCLA (Shchepetkin et al) 
-! and Rutgers University (Arango et al) are under MIT/X style license.
-! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
-! 
-! ROMS_AGRIF website : http://roms.mpl.ird.fr
-!======================================================================
+! $Id$
 !
 ! Dimensions of Physical Grid and array dimensions: 
 ! =========== == ======== ==== === ===== ============
@@ -37,7 +29,7 @@
 #elif defined GRAV_ADJ
       parameter (LLm0=128, MMm0=4,   N=10)
 #elif defined INNERSHELF
-      parameter (LLm0=200,  MMm0=3,  N=60)
+      parameter (LLm0=64,  MMm0=3,   N=40)
 #elif defined INTERNAL
 !      parameter (LLm0=120,  MMm0=10,  N=40)   ! 10 km resolution
 !      parameter (LLm0=800,  MMm0=4,  N=40)   ! 1.5 km resolution
@@ -61,8 +53,16 @@
 !      parameter (LLm0=35,  MMm0=35,  N=10)     ! 50 km resolution
 !      parameter (LLm0=24,  MMm0=24,  N=10)     ! 70 km resolution
 #elif defined JET
-!      parameter (LLm0=119,  MMm0=119,  N=10)   ! Jet 5 km resolution
-      parameter (LLm0=59,  MMm0=99,  N=10)     ! Jet 10 km resolution
+# ifdef JET_ANA
+!      parameter (LLm0=250,  MMm0=1000, N=30)    ! Jet 2 km resolution
+!      parameter (LLm0=100,  MMm0=400,  N=30)    ! Jet 5 km resolution
+      parameter (LLm0= 50,  MMm0=200,  N=30)    ! Jet 10 km resolution
+!      parameter (LLm0= 25,  MMm0=100,  N=30)    ! Jet 20 km resolution
+# else
+!      parameter (LLm0=300,  MMm0=500,  N=30)    ! Jet 2 km resolution
+!      parameter (LLm0=120,  MMm0=200,  N=30)    ! Jet 5 km resolution
+      parameter (LLm0=60,   MMm0=100,  N=30)    ! Jet 10 km resolution
+# endif
 #elif defined REGIONAL
 #  if   defined USWC0
       parameter (LLm0=62,  MMm0=126, N=40) ! <-- US_West grid15 L0
@@ -90,11 +90,9 @@
 #  elif defined  BENGUELA_LR
       parameter (LLm0=41, MMm0=42,  N=32)  ! <-- BENGUELA_LR
 #  elif defined  BENGUELA_HR
-      parameter (LLm0=83, MMm0=85,  N=32)  ! <-- BENGUELA_HR
-#  elif defined  BENGUELA_VHR
-      parameter (LLm0=167, MMm0=170,  N=32)  ! <-- BENGUELA_VHR
+      parameter (LLm0=83, MMm0=85,  N=32)  !  <-- BENGUELA_HR
 #  else
-      parameter (LLm0=39,  MMm0=32,  N=20)
+      parameter (LLm0=94,  MMm0=81,  N=40)
 #  endif
 #else
       parameter (LLm0=??, MMm0=??, N=??)
@@ -126,7 +124,7 @@
       integer NSUB_X, NSUB_E, NPP
 #ifdef MPI
       integer NP_XI, NP_ETA, NNODES     
-      parameter (NP_XI=1, NP_ETA=4,  NNODES=NP_XI*NP_ETA)
+      parameter (NP_XI=1, NP_ETA=2,  NNODES=NP_XI*NP_ETA)
       parameter (NPP=1)
       parameter (NSUB_X=1, NSUB_E=1)
 #elif defined OPENMP
@@ -202,19 +200,22 @@
 #  elif defined BIO_N2ChlPZD2
      &          , iNO3_, iNH4_, iChla, iPhy1, iZoo1
      &          , iDet1, iDet2
-     &          , NFlux_NewProd
-     &          , NFlux_RegProd
-     &          , NFlux_Nitrific 
-     &          , NFlux_Grazing
-     &          , NFlux_SlopFeed
-     &          , NFlux_Pmort 
-     &          , NFlux_Zmetab
-     &          , NFlux_Zmort
-     &          , NFlux_ReminD1, NFlux_ReminD2
-     &          , NumFluxTermsN, NumFluxTerms, NumGasExcTerms
-     &          , NFlux_VSinkChl, NFlux_VSinkP1
-     &          , NFlux_VSinkD1, NFlux_VSinkD2
-     &          , NumVSinkTerms
+#  elif defined BIO_N2P2Z2D2
+     &          , iNO3_, iNH4_, iPhy1, iPhy2, iZoo1, iZoo2
+     &          , iDet1, iDet2
+#   ifdef VAR_CHL_C
+     &          , iChl1, iChl2
+#   endif
+     &          , NFlux_NewProd1, NFlux_NewProd2, NFlux_RegProd1
+     &          , NFlux_RegProd2, NFlux_Nitrific, NFlux_P1Z1Grazing
+     &          , NFlux_P2Z1Grazing, NFlux_P1Z2Grazing, NFlux_P2Z2Grazing
+     &          , NFlux_Z1Z2Grazing, NFlux_SlopFeedZ1, NFlux_SlopFeedZ2
+     &          , NFlux_P1mort, NFlux_P2mort, NFlux_Z1metab
+     &          , NFlux_Z2metab, NFlux_Z1mort, NFlux_Z2mort
+     &          , NFlux_ReminD1, NFlux_ReminD2, NumFluxTermsN
+     &          , NumFluxTerms, NumGasExcTerms, NFlux_VSinkChl
+     &          , NFlux_VSinkP1, NFlux_VSinkP2, NFlux_VSinkD1
+     &          , NFlux_VSinkD2, NumVSinkTerms
 #  endif
 # endif
 
@@ -325,25 +326,50 @@
      &           iPhy1=iNO3_+3,
      &           iZoo1=iNO3_+4,
      &           iDet1=iNO3_+5, iDet2=iNO3_+6)
-      parameter (NFlux_NewProd  = 1,
-     &           NFlux_RegProd  = 2,
-     &           NFlux_Nitrific = 3,
-     &           NFlux_Grazing  = 4,
-     &           NFlux_SlopFeed = 5,
-     &           NFlux_Pmort    = 6,
-     &           NFlux_Zmetab   = 7,
-     &           NFlux_Zmort    = 8,
-     &           NFlux_ReminD1  = 9,
-     &           NFlux_ReminD2  = 10,
-     &           NumFluxTermsN  = NFlux_ReminD2,
-     &           NumFluxTerms   = NumFluxTermsN,
+#  elif defined BIO_N2P2Z2D2
+#   ifdef VAR_CHL_C
+      parameter (ntrc_bio=10,itrc_bio=itemp+ntrc_salt+ntrc_pas+1)
+      parameter (iNO3_=itrc_bio, iNH4_=iNO3_+1,
+     &           iChl1=iNO3_+2, iChl2=iNO3_+3,
+     &           iPhy1=iNO3_+4, iPhy2=iNO3_+5,
+     &           iZoo1=iNO3_+6, iZoo2=iNO3_+7,
+     &           iDet1=iNO3_+8, iDet2=iNO3_+9)
+#   else
+      parameter (ntrc_bio=8,itrc_bio=itemp+ntrc_salt+ntrc_pas+1)
+      parameter (iNO3_=itrc_bio, iNH4_=iNO3_+1,
+     &           iPhy1=iNO3_+2, iPhy2=iNO3_+3,
+     &           iZoo1=iNO3_+4, iZoo2=iNO3_+5,
+     &           iDet1=iNO3_+6, iDet2=iNO3_+7)
+#   endif
+      parameter (NFlux_NewProd1 = 1,
+     &           NFlux_NewProd2 = 2,
+     &           NFlux_RegProd1 = 3,
+     &           NFlux_RegProd2 = 4,
+     &           NFlux_Nitrific = 5,
+     &           NFlux_P1Z1Grazing = 6,
+     &           NFlux_P2Z1Grazing = 7,
+     &           NFlux_P1Z2Grazing = 8,
+     &           NFlux_P2Z2Grazing = 9,
+     &           NFlux_Z1Z2Grazing = 10,
+     &           NFlux_SlopFeedZ1 = 11,
+     &           NFlux_SlopFeedZ2 = 12,
+     &           NFlux_P1mort = 13,
+     &           NFlux_P2mort = 14,
+     &           NFlux_Z1metab = 15,
+     &           NFlux_Z2metab = 16,
+     &           NFlux_Z1mort = 17,
+     &           NFlux_Z2mort = 18,
+     &           NFlux_ReminD1 = 19,
+     &           NFlux_ReminD2 = 20,
+     &           NumFluxTermsN = NFlux_ReminD2,
+     &           NumFluxTerms = NumFluxTermsN,
      &           NumGasExcTerms = 0,
-     &           NFlux_VSinkP1  = 1,
-     &           NFlux_VSinkD1  = 2,
-     &           NFlux_VSinkD2  = 3,
-     &           NumVSinkTerms  = 3)
+     &           NFlux_VSinkP2 = 1,
+     &           NFlux_VSinkD1 = 2,
+     &           NFlux_VSinkD2 = 3,
+     &           NumVSinkTerms = 3)
 #  endif
-#  if defined BIO_NChlPZD || defined BIO_N2ChlPZD2 || defined PISCES
+#  if defined BIO_N2P2Z2D2 || defined BIO_NChlPZD || defined PISCES
 #   ifdef DIAGNOSTICS_BIO
       parameter (ntrc_diabio=NumFluxTerms+
      &              NumGasExcTerms+NumVSinkTerms)
@@ -351,6 +377,7 @@
       parameter (ntrc_diabio=0)
 #   endif
 #  else
+!  config N2PZD2: fluxes not implemented yet
       parameter (ntrc_diabio=0)
 #  endif
 # else
