@@ -79,7 +79,7 @@
                       /* Grid configuration */
 # define CURVGRID
 # define SPHERICAL
-# define MASKINGDV_avg1(:,:)=vbar(:,:,1)*dm_v(:,:)
+# define MASKING
                       /* Model dynamics */
 # define SOLVE3D
 # define UV_COR
@@ -89,8 +89,6 @@
 #  define UV_TIDES
 #  define TIDERAMP
 # endif
-                      /* Lateral Momentum Advection (default UP3) */
-# undef  UV_HADV_C4 
                       /* Lateral Explicit Momentum Mixing */
 # undef  UV_VIS2
 # ifdef UV_VIS2
