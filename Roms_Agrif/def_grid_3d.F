@@ -124,6 +124,8 @@
      &     'S-coordinate at W-points')
       ierr=nf_put_att_text (ncid, varid, 'axis', 1, 'Z')
       ierr=nf_put_att_text (ncid, varid, 'positive', 2, 'up')
+      ierr=nf_put_att_FTYPE(ncid, varid, 'c_grid_axis_shift',
+     &     nf_ftype, 1, -0.5)
 #if defined NEW_S_COORD
       ierr=nf_put_att_text (ncid, varid, 'standard_name',35,
      &     'ocean_s_coordinate_g2_at_w_location')
