@@ -312,7 +312,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxWstr =',indxWstr
       vname(2,indxWstr)='Kinematic wind stress                    '
       vname(3,indxWstr)='N/m2                                     '
       vname(4,indxWstr)='                                         '
-      vname(5,indxWstr)='                                         '
+      vname(5,indxWstr)='magnitude_of_surface_downward_stress     '
 #ifdef SPHERICAL
       vname(6,indxWstr)='lat_rho lon_rho                          '
 #else
@@ -379,7 +379,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxT = ',indxT
       vname(2,indxT)='potential temperature                       '
       vname(3,indxT)='Celsius                                     '
       vname(4,indxT)='temperature, scalar, series                 '
-      vname(5,indxT)='                                            '
+      vname(5,indxT)='sea_water_temperature                       '
 #ifdef SPHERICAL
       vname(6,indxT)='lat_rho lon_rho                             '
 #else
@@ -888,7 +888,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxW =',indxW
       vname(2,indxW)='vertical momentum component                 '
       vname(3,indxW)='meter second-1                              '
       vname(4,indxW)='w-velocity, scalar, series                  '
-      vname(5,indxW)='vertical_sea_water_velocity_at_w_location   '
+      vname(5,indxW)='upward_sea_water_velocity                   '
       vname(6,indxW)='lat_rho lon_rho                             '              
       vname(7,indxW)='                                            '                                         
    
