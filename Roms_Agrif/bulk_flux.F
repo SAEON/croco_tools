@@ -41,6 +41,7 @@
 # include "forces.h"
 # include "scalars.h"
       integer i,j, Istr,Iend,Jstr,Jend
+     &        imin,imax,jmin,jmax
       real SST,SSS,evap
       real cpair,rho0i,cpi,cpaircpi
       real patm
