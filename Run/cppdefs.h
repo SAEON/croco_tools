@@ -75,7 +75,8 @@
 #  undef  PARALLEL_FILES
 # endif
 # undef  AUTOTILING
-# define  ETALON_CHECK
+# undef  ETALON_CHECK
+# undef  RVTK_DEBUG
                       /* Grid configuration */
 # define CURVGRID
 # define SPHERICAL
@@ -133,12 +134,13 @@
 #  define BULK_LW
 #  define BULK_EP
 #  define BULK_SMFLUX
-#  undef  ONLINE       /* Online interpolations of atmospheric variables */
-#  undef  CUBIC_INTERP /* Cubic or linear interpolations */
+#  undef  SST_SKIN
+#  undef  ANA_DIURNAL_SW
+#  undef  ONLINE
 # else
 #  define QCORRECTION
 #  define SFLX_CORR
-#  define DIURNAL_SRFLUX
+#  define ANA_DIURNAL_SW
 # endif
                       /* Lateral Forcing */
 # define CLIMATOLOGY
