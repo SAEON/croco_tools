@@ -249,8 +249,8 @@
       end
 #endif /* SOLVE3D && !ANA_SRFLUX */
 !--------------------------------------------------------------------
-#if defined SOLVE3D && defined DIURNAL_SRFLUX
-      subroutine diurnal_srflux_tile (Istr,Iend,Jstr,Jend)
+#if defined SOLVE3D && defined ANA_DIURNAL_SW
+      subroutine ana_diurnal_sw_tile (Istr,Iend,Jstr,Jend)
 !
 !--------------------------------------------------------------------
 !
@@ -280,13 +280,13 @@
 !
       if (FIRST_TIME_STEP) then
         do j=JstrR,JendR
-            do i=IstrR,IendR
-              phi=latr(i,j)*deg2rad
+          do i=IstrR,IendR
+            phi=latr(i,j)*deg2rad
             cos_phi(i,j)=cos(phi)
             sin_phi(i,j)=sin(phi)
             tan_phi(i,j)=tan(phi)
           enddo
-          enddo
+        enddo
       endif
 !
 ! Compute declination angle
@@ -313,6 +313,14 @@
           stflx(i,j,itemp)=stflx(i,j,itemp)-srflx(i,j)
           srflx(i,j)=max(0.,cff*srflx(i,j))
           stflx(i,j,itemp)=stflx(i,j,itemp)+srflx(i,j)
+
+# ifdef BULK_FLUX
+!
+!  Correct fluxes for diagnostics
+!
+          shflx_rsw(i,j)=srflx(i,j)
+# endif
+
         enddo
       enddo
 
@@ -322,4 +330,4 @@
       subroutine diurnal_srflux_empty
       return
       end
-#endif /* SOLVE3D && DIURNAL_SRFLUX */
+#endif /* SOLVE3D && ANA_DIURNAL_SW */

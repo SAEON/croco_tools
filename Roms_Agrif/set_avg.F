@@ -233,7 +233,14 @@ C$    integer omp_get_thread_num
                 shflx_sen_avg(i,j)=shflx_sen(i,j)
               enddo
             enddo
-# endif
+#  endif
+#  ifdef SST_SKIN
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                sst_skin_avg(i,j)=sst_skin(i,j)
+              enddo
+            enddo
+#  endif
 #  ifdef VIS_COEF_3D
           if (wrtavg(indxVisc)) then
             do k=1,N
@@ -504,6 +511,13 @@ C$    integer omp_get_thread_num
             do j=Jstr,Jend
               do i=Istr,Iend
                 shflx_sen_avg(i,j)=shflx_sen_avg(i,j)+shflx_sen(i,j)
+              enddo
+            enddo
+#  endif
+#  ifdef SST_SKIN
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                sst_skin_avg(i,j)=sst_skin_avg(i,j)+sst_skin(i,j)
               enddo
             enddo
 #  endif
@@ -790,6 +804,14 @@ C$    integer omp_get_thread_num
               do i=Istr,Iend
                 shflx_sen_avg(i,j)=cff*( shflx_sen_avg(i,j)+
      &                                   shflx_sen(i,j) )
+              enddo
+            enddo
+#  endif
+#  ifdef SST_SKIN
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                sst_skin_avg(i,j)=cff*( sst_skin_avg(i,j)+
+     &                                  sst_skin(i,j) )
               enddo
             enddo
 #  endif

@@ -55,6 +55,10 @@
       common /avg_shflx_lat/shflx_lat_avg
       common /avg_shflx_sen/shflx_sen_avg
 #  endif
+#  ifdef SST_SKIN
+      real sst_skin_avg(GLOBAL_2D_ARRAY)
+      common /avg_sst_skin/sst_skin_avg
+#  endif
 #  ifdef BIOLOGY
       real hel_avg(GLOBAL_2D_ARRAY)
       common /avg_hel/hel_avg

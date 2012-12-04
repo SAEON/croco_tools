@@ -12,6 +12,18 @@
 #include "cppdefs.h"
 #ifdef BULK_FLUX
 
+      subroutine bulk_flux (tile)
+      implicit none
+      integer tile, trd, omp_get_thread_num
+# include "param.h"
+# include "private_scratch.h"
+# include "compute_tile_bounds.h"
+      trd=omp_get_thread_num()
+      call bulk_flux_tile (Istr,Iend,Jstr,Jend,
+     &                     A2d(1,1,trd),A2d(1,2,trd))
+      return
+      end
+
       subroutine bulk_flux_tile (Istr,Iend,Jstr,Jend, aer,cer)
 #ifndef BULK_FAIRALL
 !
@@ -29,7 +41,7 @@
 # include "forces.h"
 # include "scalars.h"
       integer i,j, Istr,Iend,Jstr,Jend
-      real evap
+      real SST,SSS,evap
       real cpair,rho0i,cpi,cpaircpi
       real patm
       real ew,rw,qw,es,rs,ra,qa
@@ -45,8 +57,38 @@
       real aer(PRIVATE_2D_SCRATCH_ARRAY),
      &     cer(PRIVATE_2D_SCRATCH_ARRAY)
 !
-# include "compute_auxiliary_bounds.h"
+! Extended range is needed for KPP
 !
+# ifdef EW_PERIODIC
+        imin=Istr-2
+        imax=Iend+2
+# else
+      if (WESTERN_EDGE) then
+        imin=Istr-1
+      else
+        imin=Istr-2
+      endif
+      if (EASTERN_EDGE) then
+        imax=Iend+1
+      else
+        imax=Iend+2
+      endif
+# endif
+# ifdef NS_PERIODIC
+        jmin=Jstr-2
+        jmax=Jend+2
+# else
+      if (SOUTHERN_EDGE) then
+        jmin=Jstr-1
+      else
+        jmin=Jstr-2
+      endif
+      if (NORTHERN_EDGE) then
+        jmax=Jend+1
+      else
+        jmax=Jend+2
+      endif
+# endif
 !
 !  use mean value for atmospheric pressure in these calculations.
       patm=1013.0
@@ -67,16 +109,25 @@
       cpaircpi=cpair*cpi
 !
 !
-      do j=min(Jstr-1,JstrR),min(JendR+1,MMm+1)
-        do i=min(Istr-1,IstrR),min(IendR+1,LLm+1)
+      do j=jmin,jmax
+        do i=imin,imax
+!
+!
+! surface temperature and salinity
+!
+# ifdef SST_SKIN 
+          SST=sst_skin(i,j)
+# else
+          SST=t(i,j,N,nrhs,itemp)
+# endif
+          SSS=t(i,j,N,nrhs,isalt)
 !
 !  calc saturation vapor pressure (ew) at surface of water.
 !  use formula of Buck.
 !  note:  change due to salinity correction is about 1.7%.
 !  simplify for constant atm pressure (1013 mb).
-          ew=6.1121*exp(17.502*t(i,j,N,nrhs,itemp)
-     &                /(240.97 + t(i,j,N,nrhs,itemp)))
-     &        *1.0042*(1.0 - 5.37E-4*t(i,j,N,nrhs,isalt))
+          ew=6.1121*exp(17.502*SST/(240.97 + SST))*1.0042
+     &             *(1.0 - 5.37E-4*SSS)
 !
 !  calc saturation mixing ratio at surface of water (rw).
           rw=0.62197*ew/(patm-ew)
@@ -113,7 +164,7 @@
 !  match the values computed by coamps fairly well.
 !
           wspd0=max(0.1,wspd(i,j))
-          szero=(t(i,j,N,nrhs,itemp)-tair(i,j))/(wspd0*wspd0)
+          szero=(SST-tair(i,j))/(wspd0*wspd0)
           ss=szero*abs(szero)/(abs(szero)+0.01)
           ss=max(-3.3,ss)
           if (ss .le. 0.0) then
@@ -127,7 +178,7 @@
 !  calc latent heat of evaporation in Joules/kg.
 !  the formula is  htevap = 597.8-0.573*T(degC) cal/g.
 !  to convert from cal/g to Joules/kg, muliply by 4186.8.
-          htevap=2.5029e6-2.40e3*t(i,j,N,nrhs,itemp)
+          htevap=2.5029e6-2.40e3*SST
 !
 !  calc evaporation rate (m/s).
 !  calc latent and sensible heat fluxes (deg_C-m/s).
@@ -136,33 +187,33 @@
 !
           evap=a*ce*(qw-qa)
           hflat=-evap*htevap*cpi
-          hfsen=-a*cs*(t(i,j,N,nrhs,itemp)-tair(i,j))*cpaircpi
+          hfsen=-a*cs*(SST-tair(i,j))*cpaircpi
 !
 !  Compute total surface heat flux.
 !
-          stflx(i,j,itemp)=radsw(i,j)+hflat+hfsen
+          stflx(i,j,itemp)=srflx(i,j)+hflat+hfsen
 # ifndef BULK_LW
      &                    -radlw(i,j)
 # else
      &                    +emiss_lw*(radlw(i,j)
-     &        -rho0i*cpi*sigmaSB*(t(i,j,N,nrhs,itemp)+CtoK)**4)
+     &                    -rho0i*cpi*sigmaSB*(SST+CtoK)**4)
 # endif
 
 
 # ifdef BULK_EP
-          stflx(i,j,isalt)=(evap-prate(i,j))*t(i,j,N,nrhs,isalt)
+          stflx(i,j,isalt)=(evap-prate(i,j))*SSS
 # endif
 !
 !  Store fluxes for diagnostics
 !
-          shflx_rsw(i,j)=radsw(i,j)
+          shflx_rsw(i,j)=srflx(i,j)
           shflx_lat(i,j)=hflat
           shflx_sen(i,j)=hfsen
 # ifndef BULK_LW
           shflx_rlw(i,j)=-radlw(i,j)
 # else
           shflx_rlw(i,j)=emiss_lw*(radlw(i,j)
-     &        -rho0i*cpi*sigmaSB*(t(i,j,N,nrhs,itemp)+CtoK)**4)
+     &                   -rho0i*cpi*sigmaSB*(SST+CtoK)**4)
 # endif
 !
 !  Save for the calc of wind stress
@@ -176,21 +227,27 @@
 !
 !  Compute kinematic, surface wind stress (m2/s2).
 !
-      do j=JstrR,min(JendR+1,MMm+1)
-        do i=Istr,min(IendR+1,LLm+1)
+!     sustr = rhoA/rhoW * Cd * wspd*uwnd  --> u point
+!
+      do j=jmin,jmax
+        do i=imin+1,imax 
           a=0.5*(aer(i-1,j)+aer(i,j))
           ce=0.5*(cer(i-1,j)+cer(i,j))
           sustr(i,j)=a*ce*uwnd(i,j)
         enddo
       enddo
-      do j=Jstr,min(JendR+1,MMm+1)
-        do i=IstrR,min(IendR+1,LLm+1)
+!
+!     svstr = rhoA/rhoW * Cd * wspd*vwnd  --> v point
+!
+      do j=jmin+1,jmax
+        do i=imin,imax
           a=0.5*(aer(i,j-1)+aer(i,j))
           ce=0.5*(cer(i,j-1)+cer(i,j))
           svstr(i,j)=a*ce*vwnd(i,j)
         enddo
       enddo
 # endif
+
       return
       end
 
@@ -247,29 +304,15 @@
 !                                                                      !
 !=======================================================================
 !
-! Input variables:
-!      - radsw
-!      - radlw (#ifdef BULK_LW: downward longwave radiation) 
-!              (#else: net outgoing longwave radiation)
-!      - prate
-!      - sst
-!      - sss
-!      - tair
-!      - rhum
-!      - wspd
-!      - uwnd
-!      - vwnd
-!
-!**********************************************
-!
       implicit none
 #include "param.h"
 #include "grid.h"
 #include "ocean3d.h"
 #include "forces.h"
 #include "scalars.h"
-      integer i,j,Istr,Iend,Jstr,Jend
-      integer Itermax,Iter
+      integer i,j, Istr,Iend,Jstr,Jend,
+     &        imin,imax,jmin,jmax
+      integer IterMax,Iter
       real a,cff
       real rho0i,cpi
       real TseaC,TseaK,Qsea
@@ -295,17 +338,14 @@
       parameter (blk_Zabl=600.0)
       parameter (blk_beta=1.2)
       parameter (blk_Cpa=1004.67)
-
 # ifdef BULK_LW
       real emiss_lw,SigmaSB
       parameter (emiss_lw=0.985)
       parameter (SigmaSB=5.6697E-8)
 # endif
-
       real rhow,patm
       parameter (rhow=1000.0)
       parameter (patm=1010.0)
-
       real eps,r3
       parameter (eps=1.d-20)
       parameter (r3=1.0/3.0)
@@ -313,8 +353,55 @@
       real aer(PRIVATE_2D_SCRATCH_ARRAY),
      &     cer(PRIVATE_2D_SCRATCH_ARRAY)
 !
-#include "compute_auxiliary_bounds.h"
+! Extended range is needed for KPP
 !
+# ifdef EW_PERIODIC
+        imin=Istr-2
+        imax=Iend+2
+# else
+      if (WESTERN_EDGE) then
+        imin=Istr-1
+      else
+        imin=Istr-2
+      endif
+      if (EASTERN_EDGE) then
+        imax=Iend+1
+      else
+        imax=Iend+2
+      endif
+# endif
+# ifdef NS_PERIODIC
+        jmin=Jstr-2
+        jmax=Jend+2
+# else
+      if (SOUTHERN_EDGE) then
+        jmin=Jstr-1
+      else
+        jmin=Jstr-2
+      endif
+      if (NORTHERN_EDGE) then
+        jmax=Jend+1
+      else
+        jmax=Jend+2
+      endif
+# endif
+!
+!----------------------------------------------------------------------
+!  Input variables:
+!
+!      - radsw/srflx
+!      - radlw         #ifdef BULK_LW: downward longwave radiation) 
+!                      #else: net outgoing longwave radiation)
+!      - prate
+!      - sst           t(N,itemp) or sstsk
+!      - sss           t(N,isalt)
+!      - tair
+!      - rhum
+!      - wspd
+!      - uwnd
+!      - vwnd
+!
+!----------------------------------------------------------------------
 !
 !  define inverse seawater density, use mean value for seawater density.
       rho0i=1.0/rho0
@@ -324,17 +411,21 @@
       cpi=1.0/cp
 !
 !
-      do j=min(Jstr-1,JstrR),min(JendR+1,MMm+1)
-        do i=min(Istr-1,IstrR),min(IendR+1,LLm+1)
+      do j=jmin,jmax
+        do i=imin,imax
+!
 !
 !  Input bulk parameterization fields
 !
           wspd0=wspd(i,j)
           TairC=tair(i,j)
           TairK=TairC+273.16
+# ifdef SST_SKIN
+          TseaC=sst_skin(i,j)
+# else
           TseaC=t(i,j,N,nrhs,itemp)
+# endif
           TseaK=TseaC+273.16
-!          rhoSea=rho(i,j,N)+rho0
           RH=rhum(i,j)
 # ifndef BULK_LW
           hflw=-radlw(i,j) ! positive downward, i.e., warming the ocean
@@ -550,7 +641,7 @@
           hflat=hflat+rhoAir*Hlv*upvel*Q
 !
 !=======================================================================
-!  Compute surface net heat flux and surface wind stress.
+!  Convert to ROMS tracer and momentum surface fluxes
 !=======================================================================
 !
 !  Compute kinematic, surface, net heat flux (degC m/s).  Notice that
@@ -575,23 +666,33 @@
 !  Note that fresh water flux is positive out of the ocean and the
 !  salt flux (stflx(isalt)) is positive into the ocean. It is converted
 !  to (psu m/s) for stflx(isalt) in "set_vbc.F".
+!----------------------------------------------------------------------
+!
+!  Latent and sensible heat fluxes
 !
           hflat=-hflat*rho0i*cpi
           hfsen=-hfsen*rho0i*cpi
-! Compute total surface heat flux
-          stflx(i,j,itemp)=radsw(i,j)+hflw+hflat+hfsen
+!
+!  Total surface heat flux
+!
+          stflx(i,j,itemp)=srflx(i,j)+hflw+hflat+hfsen
+!
 # ifdef BULK_EP
+!
+!  Total surface salt flux
+!
           evap=-cp*hflat/Hlv
           stflx(i,j,isalt)=(evap-prate(i,j))*t(i,j,N,nrhs,isalt)
 # endif
 !
-!  saved for the calculation of wind stress
+!  Save for the calculation of wind stress
 !
           aer(i,j)=rhoAir*wspd0*rho0i
           cer(i,j)=Cd
 !
 !  Store fluxes for diagnostics
-          shflx_rsw(i,j)=radsw(i,j)
+!
+          shflx_rsw(i,j)=srflx(i,j)
           shflx_lat(i,j)=hflat
           shflx_sen(i,j)=hfsen
           shflx_rlw(i,j)=hflw
@@ -602,15 +703,20 @@
 !
 !  Compute kinematic, surface wind stress (m2/s2).
 !
-      do j=JstrR,min(JendR+1,MMm+1)
-        do i=Istr,min(IendR+1,LLm+1)
+!     sustr = rhoA/rhoW * Cd * wspd*uwnd  --> u point
+!
+      do j=jmin,jmax
+        do i=imin+1,imax 
           a=0.5*(aer(i-1,j)+aer(i,j))
           cff=0.5*(cer(i-1,j)+cer(i,j))
           sustr(i,j)=a*cff*uwnd(i,j)
         enddo
       enddo
-      do j=Jstr,min(JendR+1,MMm+1)
-        do i=IstrR,min(IendR+1,LLm+1)
+!
+!     svstr = rhoA/rhoW * Cd * wspd*vwnd  --> v point
+!
+      do j=jmin+1,jmax
+        do i=imin,imax
           a=0.5*(aer(i,j-1)+aer(i,j))
           cff=0.5*(cer(i,j-1)+cer(i,j))
           svstr(i,j)=a*cff*vwnd(i,j)

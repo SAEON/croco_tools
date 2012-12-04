@@ -100,6 +100,12 @@
       real shflx_sen(GLOBAL_2D_ARRAY)
       common /frc_shflx_sen/shflx_sen
 # endif
+# ifdef SST_SKIN
+      real sst_skin(GLOBAL_2D_ARRAY)
+      common /frc_sst_skin/ sst_skin
+      real dT_skin(GLOBAL_2D_ARRAY)
+      common /frc_dT_skin/ dT_skin
+# endif
 # if !defined ANA_STFLUX || !defined ANA_SSFLUX
 !
 !  stflxg   Two-time level surface tracer flux grided data.
@@ -353,7 +359,7 @@
 !
       real srflx(GLOBAL_2D_ARRAY)
       common /forces_srflx/srflx
-# ifdef DIURNAL_SRFLUX
+# ifdef ANA_DIURNAL_SW
       real sin_phi(GLOBAL_2D_ARRAY),  
      &     cos_phi(GLOBAL_2D_ARRAY), 
      &     tan_phi(GLOBAL_2D_ARRAY)

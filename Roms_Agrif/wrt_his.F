@@ -434,7 +434,21 @@ CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
       endif
 # endif
 !     
-!--   
+# ifdef SST_SKIN
+!     
+!     Write out skin temperature (degC)
+!     
+!      if (wrthis(indxSST_skin) then
+         ierr=nf_fwrite(sst_skin, ncidhis, hisSST_skin, record, r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxSST_skin))
+            write(stdout,1) vname(1,indxSST_skin)(1:lvar), 
+     &           record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+!      endif
+# endif
 !     
 # ifdef BIOLOGY
 !     

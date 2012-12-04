@@ -58,13 +58,13 @@
 !---------------------------------------------------------------
 !
 # if defined BULK_FLUX && !defined ANA_BULK
-#   if defined ONLINE /* ONLINE */
+#  if defined ONLINE /* ONLINE */
       ! Load data for ONLINE bulk forcing
       call get_bulk_online
-#   else
+#  else
       ! Load data for OFFLINE bulk forcing
       call get_bulk
-#   endif
+#  endif
 # elif !defined ANA_STFLUX
       call get_stflux (itemp)
 # endif
@@ -196,17 +196,16 @@
 !           surface solar shortwave radiation flux [degC m/s]
 !           surface freshwater (E-P) flux [PSU m/s].
 !
-!               --- Bulk formulation ---
+! --- This sets the input variables for Bulk formulation ---
+!  --- The Bulk routine is actually called from step.F ---
 !---------------------------------------------------------------
 !
 # if defined  BULK_FLUX
-#   if defined ONLINE /* ONLINE */
+#  if defined ONLINE /* ONLINE */
       call set_bulk_tile_online (Istr,Iend,Jstr,Jend)
-#   else
+#  else
       call set_bulk_tile (Istr,Iend,Jstr,Jend)
-#   endif
-C$OMP BARRIER
-      call bulk_flux_tile (Istr,Iend,Jstr,Jend,wrk1,wrk2)
+#  endif
 # else
 !
 !---------------------------------------------------------------
@@ -293,8 +292,8 @@ C$OMP BARRIER
 !---------------------------------------------------------------
 !
 # if defined LMD_SKPP || defined LMD_BKPP
-#  ifdef DIURNAL_SRFLUX
-      call diurnal_srflux_tile (Istr,Iend,Jstr,Jend)
+#  ifdef ANA_DIURNAL_SW
+      call ana_diurnal_sw_tile (Istr,Iend,Jstr,Jend)
 #  endif
 # endif
 !
@@ -492,9 +491,9 @@ C$OMP BARRIER
 #ifdef PSOURCE_NCFILE
       call set_psource_tile(Istr,Iend,Jstr,Jend,Nsrc)  
       do is=1,Nsrc
-	Qbar(is)=rivdir(is)*riv(is)		
+        Qbar(is)=rivdir(is)*riv(is)
       enddo
-#  endif
+#endif
 #ifdef ANA_PSOURCE
       call ana_psource_tile (Istr,Iend,Jstr,Jend)
 #endif

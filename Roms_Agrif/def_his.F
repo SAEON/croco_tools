@@ -97,6 +97,9 @@
 #  define vidShflx_lat hisShflx_lat
 #  define vidShflx_sen hisShflx_sen
 # endif
+# ifdef SST_SKIN
+#  define vidSST_skin hisSST_skin
+# endif
 #else
 # define ncname avgname
 # define rec_per_file nrpfavg
@@ -143,6 +146,10 @@
 #  define vidShflx_lat avgShflx_lat
 #  define vidShflx_sen avgShflx_sen
 # endif
+# ifdef SST_SKIN
+#  define vidSST_skin avgSST_skin
+# endif
+
       character*70 text
 #endif
 !
@@ -1208,6 +1215,32 @@
         
       endif
 # endif  /* BULK_FLUX */
+# ifdef SST_SKIN
+! Skin temperature
+!      if (wrt(indxSST_skin)) then
+        lvar=lenstr(vname(1,indxSST_skin))
+        ierr=nf_def_var (ncid, vname(1,indxSST_skin)(1:lvar),
+     &                           NF_REAL, 3, r2dgrd, vidSST_skin)
+#  ifndef AVRH
+        lvar=lenstr(vname(2,indxSST_skin))
+        ierr=nf_put_att_text (ncid, vidSST_skin, 'long_name', lvar,
+     &                               vname(2,indxSST_skin)(1:lvar))
+#  else
+        text='averaged '/ /vname(2,indxSST_skin)
+        lvar=lenstr(text)
+        ierr=nf_put_att_text (ncid, vidSST_skin, 'long_name', lvar,
+     &                                               text(1:lvar))
+#  endif
+        lvar=lenstr(vname(3,indxSST_skin))
+        ierr=nf_put_att_text (ncid, vidSST_skin, 'units',     lvar,
+     &                               vname(3,indxSST_skin)(1:lvar))
+        lvar=lenstr(vname(5,indxSST_skin))
+        
+        call nf_add_attribute(ncid, vidSST_skin, indxSST_skin,5, 
+     &       NF_REAL, ierr)   
+
+!      endif
+# endif /* SST_SKIN */
 !
 #endif /* SOLVE3D */
 
@@ -1645,46 +1678,60 @@
 !
 ! Shflx     Surface Heat Flux components (degC/s)
 !
-      if (wrt(indxShflx_rsw)) then
-        lvar=lenstr(vname(1,indxShflx_rsw))
-        ierr=nf_inq_varid (ncid,vname(1,indxShflx_rsw)(1:lvar),
+        if (wrt(indxShflx_rsw)) then
+         lvar=lenstr(vname(1,indxShflx_rsw))
+         ierr=nf_inq_varid (ncid,vname(1,indxShflx_rsw)(1:lvar),
      &                                               vidShflx_rsw)
-        if (ierr .ne. nf_noerr) then
-        write(stdout,1) vname(1,indxShflx_rsw)(1:lvar), ncname(1:lstr)
+         if (ierr .ne. nf_noerr) then
+          write(stdout,1) vname(1,indxShflx_rsw)(1:lvar), ncname(1:lstr)
           goto 99                                       !--> ERROR
+         endif
         endif
-      endif
 !
-      if (wrt(indxShflx_rlw)) then
-        lvar=lenstr(vname(1,indxShflx_rlw))
-        ierr=nf_inq_varid (ncid,vname(1,indxShflx_rlw)(1:lvar),
+        if (wrt(indxShflx_rlw)) then
+         lvar=lenstr(vname(1,indxShflx_rlw))
+         ierr=nf_inq_varid (ncid,vname(1,indxShflx_rlw)(1:lvar),
      &                                               vidShflx_rlw)
-        if (ierr .ne. nf_noerr) then
-        write(stdout,1) vname(1,indxShflx_rlw)(1:lvar), ncname(1:lstr)
+         if (ierr .ne. nf_noerr) then
+          write(stdout,1) vname(1,indxShflx_rlw)(1:lvar), ncname(1:lstr)
           goto 99                                       !--> ERROR
+         endif
         endif
-       endif
 !
-      if (wrt(indxShflx_lat)) then
-        lvar=lenstr(vname(1,indxShflx_lat))
-        ierr=nf_inq_varid (ncid,vname(1,indxShflx_lat)(1:lvar),
+        if (wrt(indxShflx_lat)) then
+         lvar=lenstr(vname(1,indxShflx_lat))
+         ierr=nf_inq_varid (ncid,vname(1,indxShflx_lat)(1:lvar),
      &                                               vidShflx_lat)
-        if (ierr .ne. nf_noerr) then
-        write(stdout,1) vname(1,indxShflx_lat)(1:lvar), ncname(1:lstr)
+         if (ierr .ne. nf_noerr) then
+          write(stdout,1) vname(1,indxShflx_lat)(1:lvar), ncname(1:lstr)
           goto 99                                       !--> ERROR
+         endif
         endif
-       endif
 !
-      if (wrt(indxShflx_sen)) then
-        lvar=lenstr(vname(1,indxShflx_sen))
-        ierr=nf_inq_varid (ncid,vname(1,indxShflx_sen)(1:lvar),
+        if (wrt(indxShflx_sen)) then
+         lvar=lenstr(vname(1,indxShflx_sen))
+         ierr=nf_inq_varid (ncid,vname(1,indxShflx_sen)(1:lvar),
      &                                               vidShflx_sen)
-        if (ierr .ne. nf_noerr) then
-        write(stdout,1) vname(1,indxShflx_sen)(1:lvar), ncname(1:lstr)
+         if (ierr .ne. nf_noerr) then
+          write(stdout,1) vname(1,indxShflx_sen)(1:lvar), ncname(1:lstr)
           goto 99                                       !--> ERROR
+         endif
         endif
-       endif
 !
+# endif
+# ifdef SST_SKIN
+!
+! sst_skin     surface skin temperature (degC)
+!
+!       if (wrt(indxSST_skin)) then
+         lvar=lenstr(vname(1,indxSST_skin))
+         ierr=nf_inq_varid (ncid,vname(1,indxSST_skin)(1:lvar),
+     &                                               vidSST_skin)
+         if (ierr .ne. nf_noerr) then
+          write(stdout,1) vname(1,indxSST_skin)(1:lvar), ncname(1:lstr)
+          goto 99                                       !--> ERROR
+         endif
+!       endif
 # endif
 
 #endif /* SOLVE3D */
@@ -1778,6 +1825,7 @@
 #undef vidShflx_rlw
 #undef vidShflx_lat
 #undef vidShflx_sen
+#undef vidSST_skin
 
 #ifdef AVERAGES
 # ifndef AVRH

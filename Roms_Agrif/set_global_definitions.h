@@ -160,6 +160,9 @@
 # ifdef BULK_SMFLUX     
 #  define BULK_SM_UPDATE /* ON: Compute wind stress via bulk_flux */
 # endif
+# ifdef ONLINE
+#  define CUBIC_INTERP
+# endif
 #endif
 
 /* Switch ON/OFF double precision for real type variables (since this
@@ -516,7 +519,7 @@ c-# define TANH dtanh
 # undef SPLIT_EOS
 # undef QCORRECTION
 # undef SFLX_CORR
-# undef DIURNAL_SRFLUX
+# undef ANA_DIURNAL_SW
 # undef BULK_FLUX
 # undef TS_DIF2
 # undef TS_DIF4

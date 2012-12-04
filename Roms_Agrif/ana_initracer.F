@@ -35,6 +35,9 @@ C$    integer omp_get_thread_num
 #include "ocean3d.h"
 #include "scalars.h"
 #include "sediment.h"
+#ifdef SST_SKIN
+# include "forces.h"
+#endif
       integer Istr,Iend,Jstr,Jend, i,j,k
      &      , itrc
 #ifdef BIOLOGY
@@ -364,12 +367,28 @@ c              if (h(i,j).lt.300) then
       enddo
 # endif
 
+# ifdef SST_SKIN
+          do j=JR_RANGE
+            do i=IR_RANGE
+              sst_skin(i,j)=t(i,j,N,1,itemp)
+              dT_skin(i,j)=0.
+            enddo
+          enddo
+# endif
+
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       do itrc=1,NT
         call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
-     &                   t(START_2D_ARRAY,1,1,itrc))
+     &                          t(START_2D_ARRAY,1,1,itrc))
       enddo
+#  ifdef SST_SKIN
+        call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                          sst_skin(START_2D_ARRAY))
+        call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                          dT_skin(START_2D_ARRAY))
+#  endif
 # endif
+
 #endif /* SOLVE3D */
 #undef IR_RANGE
 #undef JR_RANGE

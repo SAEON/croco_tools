@@ -419,6 +419,12 @@ C$    integer omp_get_thread_num
           shflx_sen_avg(i,j)=init
 #  endif
 # endif /* BULK_FLUX */
+# ifdef SST_SKIN
+          sst_skin=init
+#  ifdef AVERAGES
+          sst_skin_avg=init
+#  endif
+# endif
 
           srflx(i,j)=init
 # ifndef ANA_SRFLUX

@@ -197,7 +197,7 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
 !     
       if (wrtavg(indxR)) then
          workr=rho_avg
-         call fillvalue3d(workr,ncidavg,avgR,indxR,record,r3dvar,type)         
+         call fillvalue3d(workr,ncidavg,avgR,indxR,record,r3dvar,type) 
       endif
 !     
 !     Write out S-coordinate omega vertical velocity (m/s).
@@ -266,6 +266,22 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
 #  endif
 !     
 !--   
+!     
+#  ifdef SST_SKIN
+!     
+!     Write out skin temperature (degC)
+!     
+!      if (wrtavg(indxSST_skin)) then
+         ierr=nf_fwrite(sst_skin_avg, ncidavg, avgSST_skin, record, 
+     &                                                      r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxSST_skin))
+            write(stdout,1) vname(1,indxSST_skin)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+!      endif
+!
 !     
 #  ifdef VIS_COEF_3D
 !     

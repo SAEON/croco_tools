@@ -69,7 +69,7 @@ include Makedefs
         get_tclima.F    get_uclima.F    get_ssh.F       get_sss.F\
         get_smflux.F    get_stflux.F    get_srflux.F    get_sst.F\
         get_tides.F     clm_tides.F     get_bulk.F      bulk_flux.F\
-        get_bry.F       get_bry_bio.F	nf_read_bry.F\
+        get_bry.F       get_bry_bio.F	nf_read_bry.F	sst_skin.F\
         get_psource.F   nf_add_attribute.F fillvalue.F\
 \
         online_bulk_var.F		online_get_bulk.F\

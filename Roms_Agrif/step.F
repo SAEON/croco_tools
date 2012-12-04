@@ -269,7 +269,13 @@ C$OMP BARRIER
 # endif
       enddo
 C$OMP BARRIER
-#if defined RVTK_DEBUG && defined  BULK_FLUX
+
+# ifdef BULK_FLUX
+      do tile=my_first,my_last
+        call bulk_flux (tile)   
+      enddo
+C$OMP BARRIER
+#  ifdef RVTK_DEBUG
 C$OMP MASTER
       call check_tab2d(uwndg(:,:,1),'uwndg1 prestep3d','u')
       call check_tab2d(uwndg(:,:,2),'uwndg2 prestep3d','u')
@@ -287,7 +293,8 @@ C$OMP MASTER
       call check_tab2d(vwnd(:,:),'vwnd prestep3d','r')
 C$OMP END MASTER
 C$OMP BARRIER
-#endif
+#  endif
+# endif /* BULK_FLUX */
 
       if (may_day_flag.ne.0) return  !-->  EXIT
 
@@ -326,6 +333,9 @@ C$OMP BARRIER
 # endif
 # if defined SPONGE_VIS2
         call uv3dmix_spg (tile)
+# endif
+# ifdef SST_SKIN
+        call sst_skin (tile)
 # endif
 # ifdef AVERAGES
         call set_avg (tile)

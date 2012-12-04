@@ -313,7 +313,7 @@
       integer indxSSS
       parameter (indxSSS=indxSST+2)
 # endif
-# if defined BULK_FLUX
+# ifdef BULK_FLUX
       integer indxWSPD,indxTAIR,indxRHUM,indxRADLW,indxRADSW,
      &        indxPRATE,indxUWND,indxVWND
       parameter (indxWSPD=indxSST+3,  indxTAIR=indxSST+4,
@@ -359,10 +359,14 @@
 #  ifndef ANA_BSEDIM
 #  endif
 # endif /* BBL */
+# ifdef SST_SKIN
+      integer indxSST_skin
+      parameter (indxSST_skin=indxSUSTR+37)
+# endif 
 #endif /* SOLVE3D */
 #ifdef PSOURCE_NCFILE
       integer indxRIV
-      parameter (indxRIV=indxSUSTR+37)
+      parameter (indxRIV=indxSUSTR+38)
 #endif /* PSOURCE_NCFILE */
 #ifdef ICE
       integer indxAi
@@ -503,6 +507,9 @@
      &      , hisShflx_rsw,   hisShflx_rlw
      &      , hisShflx_lat,   hisShflx_sen
 # endif
+# ifdef SST_SKIN
+     &      , hisSST_skin
+# endif
 # ifdef BIOLOGY
      &      , hisHel
 #  ifdef BIO_NChlPZD
@@ -571,6 +578,9 @@
 #  ifdef BULK_FLUX
       integer avgShflx_rsw,   avgShflx_rlw
      &      , avgShflx_lat,   avgShflx_sen
+#  endif
+#  ifdef SST_SKIN
+      integer avgSST_skin
 #  endif
 #  ifdef SEDIMENT
       integer avgSed(NST+2)
@@ -676,6 +686,9 @@
      &      , hisShflx_rsw, hisShflx_rlw
      &      , hisShflx_lat, hisShflx_sen
 #  endif
+# ifdef SST_SKIN
+     &      , hisSST_skin
+# endif
 # ifdef BIOLOGY
      &      , hisHel
 #  ifdef BIO_NChlPZD
@@ -765,6 +778,9 @@
 #  ifdef BULK_FLUX
      &      , avgShflx_rsw, avgShflx_rlw
      &      , avgShflx_lat, avgShflx_sen
+#  endif
+#  ifdef SST_SKIN
+     &      , avgSST_skin
 #  endif
 #  ifdef SEDIMENT
      &      , avgSed
