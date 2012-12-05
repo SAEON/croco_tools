@@ -26,6 +26,11 @@
 #ifdef ALLOW_SINGLE_BLOCK_MODE
 # define SINGLE NSUB_X*NSUB_E,NSUB_X*NSUB_E !!!
 #endif
+
+/*  Activate the RVTK_DEBUG procedure that will compare the results
+    serial and multi-processor result by comparing binary file
+*/
+#undef RVTK_DEBUG
  
 /*
    Activate barotropic pressure gradient response to the
