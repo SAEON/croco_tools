@@ -280,7 +280,7 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
      &           MYID
             goto 99             !--> ERROR
          endif
-!      endif
+#  endif 
 !
 !     
 #  ifdef VIS_COEF_3D
