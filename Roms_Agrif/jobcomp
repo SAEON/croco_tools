@@ -116,7 +116,7 @@ if [[ $OS == Linux ]] ; then           # ===== LINUX =====
 		CFT1=gfortran
 		FFLAGS1="-O3 -fdefault-real-8 -fdefault-double-8"
 #		 FFLAGS1="-O0 -g -fdefault-real-8 -fdefault-double-8 -fbacktrace \
-#			-fcheck=bounds -finit-real=nan -finit-integer=8888"
+#			-fbounds-check -finit-real=nan -finit-integer=8888"
 		LDFLAGS1="$LDFLAGS1"
 	fi
 elif [[ $OS == Darwin ]] ; then        # ===== DARWIN =====
@@ -125,7 +125,7 @@ elif [[ $OS == Darwin ]] ; then        # ===== DARWIN =====
         	CFT1="gfortran"
         	FFLAGS1="-O4 -fdefault-real-8 -fdefault-double-8"
 #	 	FFLAGS1="-O0 -g -fdefault-real-8 -fdefault-double-8 -fbacktrace \
-#			-fcheck=bounds -finit-real=nan -finit-integer=8888"
+#			-fbounds-check -finit-real=nan -finit-integer=8888"
 	else
 		CFT1="ifort"
 		FFLAGS1="-O2 -r8 -i4 -g -72"
