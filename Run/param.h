@@ -61,8 +61,16 @@
 !      parameter (LLm0=35,  MMm0=35,  N=10)     ! 50 km resolution
 !      parameter (LLm0=24,  MMm0=24,  N=10)     ! 70 km resolution
 #elif defined JET
-!      parameter (LLm0=119,  MMm0=119,  N=10)   ! Jet 5 km resolution
-      parameter (LLm0=59,  MMm0=99,  N=10)     ! Jet 10 km resolution
+# ifdef JET_ANA
+!      parameter (LLm0=250,  MMm0=1000, N=30)    ! Jet 2 km resolution
+!      parameter (LLm0=100,  MMm0=400,  N=30)    ! Jet 5 km resolution
+      parameter (LLm0= 50,  MMm0=200,  N=30)    ! Jet 10 km resolution
+!      parameter (LLm0= 25,  MMm0=100,  N=30)    ! Jet 20 km resolution
+# else
+!      parameter (LLm0=300,  MMm0=500,  N=30)    ! Jet 2 km resolution
+!      parameter (LLm0=120,  MMm0=200,  N=30)    ! Jet 5 km resolution
+      parameter (LLm0=60,   MMm0=100,  N=30)    ! Jet 10 km resolution
+# endif
 #elif defined REGIONAL
 #  if   defined USWC0
       parameter (LLm0=62,  MMm0=126, N=40) ! <-- US_West grid15 L0
@@ -92,9 +100,9 @@
 #  elif defined  BENGUELA_HR
       parameter (LLm0=83, MMm0=85,  N=32)  ! <-- BENGUELA_HR
 #  elif defined  BENGUELA_VHR
-      parameter (LLm0=167, MMm0=170,  N=32)  ! <-- BENGUELA_VHR
+      parameter (LLm0=167, MMm0=170,  N=32) ! <-- BENGUELA_VHR
 #  else
-      parameter (LLm0=39,  MMm0=32,  N=20)
+      parameter (LLm0=94,  MMm0=81,  N=40)
 #  endif
 #else
       parameter (LLm0=??, MMm0=??, N=??)
