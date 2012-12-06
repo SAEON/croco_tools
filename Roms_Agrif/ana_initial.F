@@ -254,7 +254,8 @@ C$    integer omp_get_thread_num
       do k=1,N
         do j=JR_RANGE
           do i=IR_RANGE
-#   ifdef INNERSHELF_EKMANdy=Length_ETA/float(MMm) 
+#   ifdef INNERSHELF_EKMAN
+            dy=Length_ETA/float(MMm) 
             t(i,j,k,1,itemp)=15.
 #   else
 #    define Z0 (-80.)
