@@ -275,7 +275,7 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
       do j=JstrR,JendR
         do i=IstrR,IendR
 !         --- constant slope ---
-           h(i,j)=1.e-3*(xr(LLm+1,2)-xr(i,j))+4.
+          h(i,j)=1.e-3*(xl+0.5*dx-xr(i,j))+4.
 !         --- shelf/slope tanh ---
 !          h(i,j)=30.+500.*(1+sinh((150.e3-xr(i,j))/40.e3)
 !     &                      /cosh((150.e3-xr(i,j))/40.e3))
