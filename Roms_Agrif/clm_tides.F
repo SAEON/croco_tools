@@ -62,7 +62,14 @@
      &        Utide(PRIVATE_2D_SCRATCH_ARRAY),
      &        Vtide(PRIVATE_2D_SCRATCH_ARRAY)
 !
-#  include "compute_auxiliary_bounds.h"
+# include "compute_auxiliary_bounds.h"
+# ifdef MPI
+#  define IRANGE Istr-1,Iend+1
+#  define JRANGE Jstr-1,Jend+1
+# else
+#  define IRANGE IstrR,IendR
+#  define JRANGE JstrR,JendR
+# endif
 !
       angle=0.
       phase=0.
@@ -76,16 +83,16 @@
 !  Add tidal elevation (m) to sea surface height climatology.
 !---------------------------------------------------------------------
 !
-      do j=JstrR,JendR
-        do i=IstrR,IendR
+      do j=JRANGE
+        do i=IRANGE
           Etide(i,j)=0.
         enddo
       enddo
       do itide=1,Ntides
         if (Tperiod(itide).gt.0.) then
           omega=2.*pi*time/Tperiod(itide)
-          do j=JstrR,JendR
-            do i=IstrR,IendR
+          do j=JRANGE
+            do i=IRANGE
               Etide(i,j)=Etide(i,j)+ramp*
      &                   SSH_Tamp(i,j,itide)*
      &                   COS(omega-SSH_Tphase(i,j,itide))
@@ -100,8 +107,8 @@
 !  Add sub-tidal forcing and adjust climatology to include tides.
 !
 #  if defined ZCLIMATOLOGY
-      do j=JstrR,JendR
-        do i=IstrR,IendR
+      do j=JRANGE
+        do i=IRANGE
           ssh(i,j)=ssh(i,j)+Etide(i,j)
         enddo
       enddo
@@ -156,6 +163,10 @@
       do j=JstrR,JendR
         do i=Istr,IendR
           Utide(i,j)=0.
+        enddo
+      enddo
+      do j=Jstr,JendR
+        do i=IstrR,IendR
           Vtide(i,j)=0.
         enddo
       enddo

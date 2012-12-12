@@ -203,9 +203,9 @@ C$    trd=omp_get_thread_num()
 #ifdef RVTK_DEBUG_ADVANCED
 C$OMP BARRIER
 C$OMP MASTER
-       call check_tab2d(zeta(:,:,knew),'zeta step2d #1','r')
-       call check_tab2d(ubar(:,:,knew),'ubar step2d #1','u')
-       call check_tab2d(vbar(:,:,knew),'vbar step2d #1','v')
+       call check_tab2d(zeta(:,:,kstp),'zeta step2d #1','r')
+       call check_tab2d(ubar(:,:,kstp),'ubar step2d #1','u')
+       call check_tab2d(vbar(:,:,kstp),'vbar step2d #1','v')
 C$OMP END MASTER       
 #endif    
 !
@@ -260,7 +260,9 @@ C$OMP END MASTER
           zeta_new(i,j)=zeta(i,j,kstp) + dtfast*pm(i,j)*pn(i,j)
      &                                   *(DUon(i,j)-DUon(i+1,j  )
      &                                    +DVom(i,j)-DVom(i  ,j+1))
+#ifdef ZONAL_NUDGING
           zeta(i,j,knew)=zeta_new(i,j)
+#endif
         enddo
       enddo
 !
@@ -335,14 +337,33 @@ C$OMP END MASTER
         enddo
       enddo 
       endif
+
+#if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+      call exchange_r2d_tile (istr,iend,jstr,jend,
+     &                   Zt_avg3(START_2D_ARRAY,0))
+      call exchange_u2d_tile (istr,iend,jstr,jend,
+     &                   du_avg3(START_2D_ARRAY,0))
+      call exchange_v2d_tile (istr,iend,jstr,jend,
+     &                   dv_avg3(START_2D_ARRAY,0))
+#endif
+
+#ifdef RVTK_DEBUG_ADVANCED
+       if (.not.agrif_Root()) then
+C$OMP BARRIER
+C$OMP MASTER
+       call check_tab2d(Zt_avg3(:,:,0),'Zt_avg3 (index 0) step2d','r')
+       call check_tab2d(DU_avg3(:,:,0),'DU_avg3 (index 0) step2d','u')
+       call check_tab2d(DV_avg3(:,:,0),'DV_avg3 (index 0) step2d','v')
+C$OMP END MASTER  
+       endif
+#endif  
+
 #endif         
 
 #ifdef RVTK_DEBUG_ADVANCED
 C$OMP BARRIER
 C$OMP MASTER
-       call check_tab2d(zeta(:,:,knew),'zeta step2d #2','r')
-       call check_tab2d(ubar(:,:,knew),'ubar step2d #2','u')
-       call check_tab2d(vbar(:,:,knew),'vbar step2d #2','v')
+       call check_tab2d(zeta(:,:,knew),'zeta step2d #2','rint')
 C$OMP END MASTER       
 #endif       
 !
@@ -998,6 +1019,14 @@ C$OMP END MASTER
      &                   vbar(START_2D_ARRAY,knew))
 #endif
 
+#ifdef RVTK_DEBUG_ADVANCED
+C$OMP BARRIER
+C$OMP MASTER
+       call check_tab2d(ubar(:,:,knew),'ubar step2d #2','u')
+       call check_tab2d(vbar(:,:,knew),'vbar step2d #2','v')
+C$OMP END MASTER       
+#endif   
+
 #ifdef AGRIF
       if (.NOT.Agrif_Root()) THEN
         do j=Jstr-1,Jend+1
@@ -1017,6 +1046,24 @@ C$OMP END MASTER
      &          h(i,j-1)+zeta(i,j-1,knew)) *om_v(i,j)*vbar(i,j,knew)
           enddo
         enddo
+        
+#if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+      call exchange_r2d_tile (istr,iend,jstr,jend,
+     &                   Zt_avg3(START_2D_ARRAY,iif))
+      call exchange_u2d_tile (istr,iend,jstr,jend,
+     &                   du_avg3(START_2D_ARRAY,iif))
+      call exchange_v2d_tile (istr,iend,jstr,jend,
+     &                   dv_avg3(START_2D_ARRAY,iif))
+#endif
+
+#ifdef RVTK_DEBUG_ADVANCED
+C$OMP BARRIER
+C$OMP MASTER
+       call check_tab2d(Zt_avg3(:,:,iif),'Zt_avg3 step2d','r')
+       call check_tab2d(DU_avg3(:,:,iif),'DU_avg3 step2d','u')
+       call check_tab2d(DV_avg3(:,:,iif),'DV_avg3 step2d','v')
+C$OMP END MASTER       
+#endif   
       endif
 # ifdef AGRIF_CONSERV_VOL
        if (iif == nfast) then

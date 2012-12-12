@@ -335,7 +335,7 @@ C$OMP BARRIER
         call uv3dmix_spg (tile)
 # endif
 # ifdef SST_SKIN
-        call sst_skin (tile)
+        call sstskin (tile)
 # endif
 # ifdef AVERAGES
         call set_avg (tile)

@@ -121,7 +121,17 @@
 !      print *,'DEBUGBIN DE ',comment,' OK'
             
             deallocate(tabread)
-#endif          
+#endif         
+
+#ifdef MPI
+            call MPI_Barrier(MPI_COMM_WORLD,ierr)
+#endif
+#if defined MPI || defined OPENMP
+          MPI_master_only print *,'CHECK ',comment,' PASSED'
+#ifdef AGRIF
+     &     ,' ON GRID ',Agrif_CFixed()
+#endif    
+#endif
           return
           end subroutine check_tab2d
           
@@ -232,6 +242,15 @@
             
             deallocate(tabread)
 #endif          
+#ifdef MPI
+            call MPI_Barrier(MPI_COMM_WORLD,ierr)
+#endif
+#if defined MPI || defined OPENMP
+          MPI_master_only print *,'CHECK ',comment,' PASSED'
+#ifdef AGRIF
+     &     ,' ON GRID ',Agrif_CFixed()
+#endif    
+#endif
           return
           end subroutine check_tab3d    
           

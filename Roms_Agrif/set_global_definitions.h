@@ -30,7 +30,7 @@
 /*  Activate the RVTK_DEBUG procedure that will compare the results
     serial and multi-processor result by comparing binary file
 */
-#undef RVTK_DEBUG
+#define RVTK_DEBUG
  
 /*
    Activate barotropic pressure gradient response to the
@@ -486,17 +486,19 @@ c-# define TANH dtanh
 #endif
 
 /*
-  Update schemes and sponge layer for nesting
-*/
-#undef  AGRIF_UPDATE_MIX_LOW
-#define AGRIF_UPDATE_MIX
-#define AGRIF_UPDATE_DECAL
-#define AGRIF_SPONGE
-
-/*
-  Default boundary conditions for nesting 
+    --- AGRIF nesting options ---
 */
 #ifdef AGRIF
+/*                    Update schemes */
+# undef  AGRIF_UPDATE_MIX_LOW
+# define AGRIF_UPDATE_MIX
+# define AGRIF_UPDATE_DECAL
+/*                    Conservation options */
+# define AGRIF_CONSERV_VOL
+# undef  AGRIF_CONSERV_TRA
+/*                    Sponge layer */
+# define AGRIF_SPONGE
+/*                    Boundary conditions */
 # define AGRIF_OBC_EAST
 # define AGRIF_OBC_WEST
 # define AGRIF_OBC_NORTH
@@ -512,7 +514,7 @@ c-# define TANH dtanh
 #  define AGRIF_OBC_M3ORLANSKI
 #  define AGRIF_OBC_TORLANSKI
 # endif
-#endif
+#endif /* AGRIF */
 
 /*
   Consistency for 2D configurations

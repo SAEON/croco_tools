@@ -1,4 +1,4 @@
-! $Id:$
+! $Id: $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -12,17 +12,17 @@
 #include "cppdefs.h"
 #ifdef SST_SKIN
 
-      subroutine sst_skin (tile)
+      subroutine sstskin (tile)
       implicit none
       integer tile, trd, omp_get_thread_num
 # include "param.h"
 # include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
-      call sst_skin_tile (Istr,Iend,Jstr,Jend)
+      call sstskin_tile (Istr,Iend,Jstr,Jend)
       return
       end
 !
-      subroutine sst_skin_tile (Istr,Iend,Jstr,Jend)
+      subroutine sstskin_tile (Istr,Iend,Jstr,Jend)
 !
 !======================================================================
 !  This routine computes a sea surface skin temperature using 
@@ -31,19 +31,19 @@
 !  The scheme is based on one-dimensional heat transfer equations
 !  in the molecular sublayer (cool skin) and diurnal layer (warm skin) 
 !  of the ocean. The cool skin is a layer a few millimeters thick that 
-!  is due to the exchange of heat and moisture to the atmosphere as 
+!  driven by the exchange of heat and moisture to the atmosphere as 
 !  well as the emission of infrared radiation. the warm layer is a 
-!  few centimeters thick that is caused by the absorption of sunlight.
+!  few centimeters thick and is driven by the absorption of sunlight.
 !
 !  The scheme consists of two equations predicting the difference 
 !  of temperature between top and bottom temperatures of these layers. 
-!  The skin temperature (SST_skin) is at the top of the sublayer 
+!  The skin temperature (SST_skin) is at the top of the cool skin 
 !  and the bulk temperature (model SST) is at the bottom of the 
-!  diurnal layer (the subskin temperature is in between).
+!  warm layer (the subskin temperature is in between).
 !
 !  An implicit time stepping is used to compute the warm layer 
-!  temperature difference. dT_sst is provided as input at time index 
-!  nrhs (present time) and the routine computes dT_sst and sst_skin at
+!  temperature difference dtw. dtw is provided as input at time index 
+!  nrhs (present time) and the routine computes dtw and sst_skin at
 !  nnew (future time). The result will be used at the next model time 
 !  step in the bulk_flux routine (prestep3D). It will thus correspond 
 !  to present time (nrhs) of that step.
