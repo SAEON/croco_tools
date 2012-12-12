@@ -624,15 +624,11 @@
 !                       Baroclinic Vortex Example (TEST AGRIF)
 !                       ========== ====== ======= ===== ======
 */
-# undef ETALON_CHECK
-# undef OPENMP
-# undef MPI
+# undef  ETALON_CHECK
+# undef  OPENMP
+# undef  MPI
 # define AGRIF
 # define AGRIF_2WAY
-# undef AGRIF_CONSERV_VOL
-# undef AGRIF_CONSERV_TRA
-
-# define MASKING
 # define SOLVE3D
 # define UV_COR
 # define UV_ADV
@@ -641,10 +637,6 @@
 # define ANA_BSFLUX
 # define ANA_BTFLUX
 # define ANA_VMIX
-# define UV_VIS2
-# define UV_MIX_S
-# define TS_DIF2
-# define TS_MIX_S
 # define SPONGE
 # define ZCLIMATOLOGY
 # define M2CLIMATOLOGY
