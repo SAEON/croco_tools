@@ -56,7 +56,7 @@ C$    integer omp_get_thread_num
 # endif
 # ifdef JET
       integer j0,j1,j2,j3,j4,j5,rhoinv
-      real dy,cff,cff1,cff2,cff3,x,y,Fyv,
+      real cff,cff1,cff2,cff3,x,y,Fyz,
      &     rhomaxs,bgdrhos,zs1,dzs,drhos,drhosfs,
      &     rhomaxn,bgdrhon,zn1,dzn,drhon,drhosfn,
      &     drhosf,z0,z0p,dzs_a,dzn_a,zk,
@@ -497,7 +497,7 @@ C$    integer omp_get_thread_num
 ! --- Jet and density profile parameters ---
 !
       Ljet        = 1600.e3;  ! Jet width in km
-      cff_perturb = 0.02      ! zonal perturbation coefficient
+      cff_perturb = 0.01      ! zonal perturbation coefficient
 !
 ! Xavier's SETUP1 parameters  (Phillips > Charney mode)
 !
@@ -513,11 +513,11 @@ C$    integer omp_get_thread_num
       zn1=-400 
       dzn=300
 ! surface Charney mode 
-      drhosf=0.00       ! strength of Charney mode (canceled for 1.05, max for 0)
       drhosfs=1.5       ! northern anomaly  (0 for Phillips mode only)
       drhosfn=0.0       ! southern anomaly  (0 for Phillips mode only)
       z0=-300.          ! vertical penetration (-600 for strong Charney mode)
-      z0p=-110.
+      drhosf=0.00       ! weakens Charney mode (canceled for 1.05)
+      z0p=-110.         ! only used for drhosf non zero
 !
 ! --- Build northern and southern density profiles ---
 !
@@ -559,51 +559,9 @@ C$    integer omp_get_thread_num
 !
 ! --- Fit southern and northern profiles ---
 !
-!     use linear and sin^2 functions and add perturbation 
-!     fthy is the shape integral in y
-!
-      ywidth = Ljet/2
-      ydist  = el-ywidth
-      dy     = el/float(MMm)
-!
-      j0 = 0
-      j1 = j0 + int(ydist/dy)
-      j2 = j1 + int(ywidth/dy)
-      j3 = j2
-      j4 = j3 + int(ywidth/dy)
-      j5 = MMm+1
-      jmidjet=j2
-      cff1=pi*0.5/float(j2-j1)
-      cff3=pi*0.5/float(j4-j3)
-       do j=j0,j1
-          tempy(j)=0.
-       enddo
-       do j=j4,j5
-          tempy(j)=0.
-       enddo
-       do j=j1+1,j2
-          tempy(j)= sin(float(j-j1)*cff1)**2
-       enddo
-       do j=j2+1,j3
-          tempy(j)=1.
-       enddo
-       do j=j3+1,j4
-          tempy(j)= cos(float(j-j3)*cff3)**2
-       enddo
-! Integrate in y to find fthy.
-! tmpy is at rho (u) points, fthy at psi (v) points.
-       fthy(0)=0.0
-       do j=1,MMm+1
-          fthy(j)=fthy(j-1)+(tempy(j)+tempy(j-1))*0.5
-       enddo
-       cff3=fthy(MMm+1)
-       do j=0,MMm+1
-          fthy(j)=fthy(j)/cff3
-       enddo
-! fill in rho and add XI perturbation
        do k=1,N
-         do j=0,Mm+1
-           do i=0,Lm+1
+         do j=JstrR,JendR
+           do i=IstrR,IendR
 #  ifdef MPI
              y=j+jj*Mm
              x=i+ii*Lm
@@ -613,40 +571,50 @@ C$    integer omp_get_thread_num
 #  endif
              y=y/real(MMm)-0.5
              x=x/real(LLm-2)
-             y= y + cff_perturb*exp(z_r(i,j,k)/1000.)
-     &                         *( 0.5*sin(2.*pi*x+pi/7.)
-     &                           +0.3*sin(4.*pi*x+pi/13.) )
-             y=y*pi*el/Ljet+pi/2 ! mean jet center at y=pi/2
+!
+! Add vertical attenuation and XI perturbation
+!
+             y = y + cff_perturb*exp(z_r(i,j,k)/1000.)
+     &                          *(exp(-(x-0.5)**2/0.05))
+     &                          *( 0.5*sin(2.*pi*x)
+     &                            +0.5*sin(4.*pi*x) )
+!
+! Set Jet structure and place its center at y=pi/2
+!
+             y = y*pi*el/Ljet + pi/2 
+
              if(y.lt.0)then
-               Fyv=0.5
+               Fyz=0.5
              elseif(y.gt.pi)then
-               Fyv=-0.5
+               Fyz=-0.5
              else
-               Fyv=0.5-(y-sin(y)*cos(y))/pi
+               Fyz=0.5-(y-sin(y)*cos(y))/pi
              endif
-             Fyv=Fyv+0.5
-             rho(i,j,k)=Fyv*rhoprof(k,1)+(1.-Fyv)*rhoprof(k,2)
+             Fyz=Fyz+0.5
+             rho(i,j,k)=Fyz*rhoprof(k,1)+(1.-Fyz)*rhoprof(k,2)
            enddo
          enddo
        enddo
+
        do k=1,N
-         do j=1,Mm
-           do i=1,Lm
+         do j=JstrR,JendR
+           do i=IstrR,IendR
              t(i,j,k,1,1)=rho(i,j,k)
            enddo
          enddo
        enddo
+
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r3d_tile (istr,iend,jstr,jend,
      &                        t(START_2D_ARRAY,1,1,1))
 #  endif
       rho(:,:,:)=t(:,:,:,1,1)
-
 !
 ! --- Get surface pressure (and zeta) using pressure gradient routine ---
 !
       call prsgrd_tile (istr,iend,jstr,jend, ru,rv, P,
      &                  A2d(1,3,0),A2d(1,4,0), FC,dZx,rx,dRx)
+
       do j=jstr,jend
         do i=istr,iend
           zeta(i,j,1)=-P(i,j,1)/g
@@ -700,6 +668,7 @@ C$    integer omp_get_thread_num
       call set_depth_tile (istr,iend,jstr,jend)
       call prsgrd_tile (istr,iend,jstr,jend, ru,rv, P,
      &                  A2d(1,3,0),A2d(1,4,0), FC,dZx,rx,dRx)
+
 #  ifndef MPI
       P(:,0,:)=P(:,1,:)
       P(:,Mm+1,:)=P(:,Mm,:)
@@ -815,14 +784,15 @@ C$    integer omp_get_thread_num
 
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_u3d_tile (Istr,Iend,Jstr,Jend,
-     &                         u(START_2D_ARRAY,1,1))
+     &                        u(START_2D_ARRAY,1,1))
       call exchange_v3d_tile (Istr,Iend,Jstr,Jend,
-     &                         v(START_2D_ARRAY,1,1))
+     &                        v(START_2D_ARRAY,1,1))
       do itrc=1,NT
         call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
-     &                   t(START_2D_ARRAY,1,1,itrc))
+     &                          t(START_2D_ARRAY,1,1,itrc))
       enddo
 #  endif
+
 # endif /* SOLVE3D */
 # undef IR_RANGE
 # undef IU_RANGE
