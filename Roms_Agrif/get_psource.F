@@ -1,4 +1,4 @@
-! $Id: get_psource.F 697 2012-06-01 12:35:17Z herrmann $
+! $Id$
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France

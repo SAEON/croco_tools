@@ -1,4 +1,4 @@
-! $Id: nf_fread.F 697 2011-04-11 12:35:17Z gcambon $
+! $Id$
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
