@@ -103,7 +103,7 @@
      &                 abs(tabread(i0,j0)-tab(i,j))
 !                       print *,'iif = ',iif,iic
 #ifdef AGRIF
-                       print *,'LEVEL ',Agrif_Fixed()
+                       print *,'GRID# ',Agrif_CFixed()
 #endif                    
                        mystop=.true.
                        exit DebugExit
@@ -222,7 +222,7 @@
      &                 abs(tabread(i0,j0,k)-tab(i,j,k))
 !                      print *,'iif = ',iif,iic
 #ifdef AGRIF
-                       print *,'LEVEL ',Agrif_Fixed()
+                       print *,'GRID# ',Agrif_CFixed()
 #endif    
                         mystop=.true.
                        exit DebugExit
