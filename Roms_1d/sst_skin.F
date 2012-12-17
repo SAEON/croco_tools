@@ -1,4 +1,4 @@
-! $Id
+! $Id$
 #include "cppdefs.h"
 #ifdef SST_SKIN
 

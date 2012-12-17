@@ -1,4 +1,4 @@
-! $Id
+! $Id$
 !
 ! mixing variables and parameters
 !

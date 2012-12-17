@@ -1,4 +1,4 @@
-! $Id
+! $Id$
       implicit none
 #include "cppdefs.h"
 #include "param.h"

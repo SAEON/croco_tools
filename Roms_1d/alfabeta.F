@@ -1,4 +1,4 @@
-! $Id
+! $Id$
 #include "cppdefs.h"
 #ifdef LMD_KPP
       subroutine alfabeta (alpha,beta)

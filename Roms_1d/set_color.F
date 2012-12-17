@@ -1,4 +1,4 @@
-! $Id
+! $Id$
       subroutine SET_COLOR
       implicit none
 #include "cppdefs.h"

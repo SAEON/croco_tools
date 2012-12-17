@@ -1,4 +1,4 @@
-! $Id
+! $Id$
 !                                                                 
 ! Surface forcing variables.                                      
 !                                                                 

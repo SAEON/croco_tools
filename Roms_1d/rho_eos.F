@@ -1,4 +1,4 @@
-! $Id
+! $Id$
 #include "cppdefs.h"
 
       subroutine rho_eos

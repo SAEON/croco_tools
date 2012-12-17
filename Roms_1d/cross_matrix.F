@@ -1,4 +1,4 @@
-! $Id
+! $Id$
 ! This is "cross_matrix": analyzer of dependencies to build
 !                         table of dependencies "Make.depend"
 !------------------------------------------------------------------
