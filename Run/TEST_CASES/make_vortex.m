@@ -89,6 +89,7 @@ imax=40;
 %
 x=[-xmax-dx/2:dx:xmax+dx/2];
 y=x;
+dy=dx;
 [X,Y]=meshgrid(x,y);
 %
 % Topo
@@ -139,8 +140,8 @@ nc.type = 'ROMS grid file';
 %
 %  fill the grid file
 %
-nc{'xl'}(:)=x(end)-x(1);
-nc{'el'}(:)=y(end)-y(1);
+nc{'xl'}(:)=dx*(L-1);
+nc{'el'}(:)=dy*(M-1);
 nc{'spherical'}(:)='F';
 nc{'h'}(:)=h0;
 nc{'f'}(:)=f;
@@ -275,8 +276,8 @@ nc.type = 'ROMS grid file';
 %
 %  fill the grid file
 %
-nc{'xl'}(:)=max(max(xrchild))-min(min(xrchild));
-nc{'el'}(:)=max(max(yrchild))-min(min(yrchild));
+nc{'xl'}(:)=dx*(L-1)/refinecoeff;
+nc{'el'}(:)=dy*(L-1)/refinecoeff;
 nc{'spherical'}(:)='F';
 nc{'h'}(:)=H0;
 nc{'f'}(:)=fchild;
