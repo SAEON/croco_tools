@@ -61,7 +61,7 @@
 !      parameter (LLm0=35,  MMm0=35,  N=10)     ! 50 km resolution
 !      parameter (LLm0=24,  MMm0=24,  N=10)     ! 70 km resolution
 #elif defined JET
-# ifdef JET_ANA
+# ifdef ANA_JET
 !      parameter (LLm0=250,  MMm0=1000, N=30)    ! Jet 2 km resolution
 !      parameter (LLm0=100,  MMm0=400,  N=30)    ! Jet 5 km resolution
       parameter (LLm0= 50,  MMm0=200,  N=30)    ! Jet 10 km resolution
