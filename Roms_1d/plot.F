@@ -1,3 +1,4 @@
+! $Id
       subroutine plot
       implicit none
 #include "cppdefs.h"

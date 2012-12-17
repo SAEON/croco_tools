@@ -1,3 +1,4 @@
+! $Id
 !
 ! mixing variables and parameters
 !
