@@ -87,7 +87,7 @@ imax=40;
 %
 % Horzontal Grid
 %
-x=[-xmax:dx:xmax];
+x=[-xmax-dx/2:dx:xmax+dx/2];
 y=x;
 [X,Y]=meshgrid(x,y);
 %
