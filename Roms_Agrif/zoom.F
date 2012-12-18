@@ -1469,8 +1469,12 @@ CR      write(*,*) '  0' MYID
 #  include "scalars.h"
        integer i,j
        
-       do j=0,Mm+1
-       do i=1,Lm+1
+#ifdef MPI
+      call exchange_r2d_tile (1,Lm,1,Mm,  rmask)
+#endif
+
+      do j=0,Mm+1
+      do i=1,Lm+1
         umask(i,j) = rmask(i,j)*rmask(i-1,j)
        enddo
        enddo
@@ -1486,10 +1490,15 @@ CR      write(*,*) '  0' MYID
           pmask(i,j)=rmask(i,j)*rmask(i-1,j)*rmask(i,j-1)
      &                                      *rmask(i-1,j-1)
           if (gamma2.lt.0.) pmask(i,j)=2.-pmask(i,j)
-       enddo
-       enddo
+      enddo
+      enddo
 
-#ifdef MASKING
+#ifdef MPI
+      call exchange_u2d_tile (1,Lm,1,Mm,  umask)
+      call exchange_v2d_tile (1,Lm,1,Mm,  vmask)
+      call exchange_p2d_tile (1,Lm,1,Mm,  pmask)
+#endif
+
       if (.Not.Agrif_Root()) Then
         Agrif_UseSpecialValueInUpdate = .TRUE.
         Agrif_SpecialValueFineGrid = 0.
@@ -1502,7 +1511,6 @@ CR      write(*,*) '  0' MYID
         Call ResetMask()
         Call Agrif_ParentGrid_To_ChildGrid()
       endif
-#endif 
 
        end subroutine ResetMask
 #endif      
