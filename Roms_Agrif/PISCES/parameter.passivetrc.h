@@ -40,7 +40,7 @@ CC    default CASE : temperature and salinity as passive tracers
       INTEGER jptra
       PARAMETER (jptra = 2)
 #    endif
-#    if defined key_trc_diaadd
+#    if defined key_trc_diaadd || defined key_trc_dia3d
 CC
 CC possibility for additional 3d and 2d output
 CC -------------------------------------------
