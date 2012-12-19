@@ -173,7 +173,7 @@
       common /diag_bioFlux/bioFlux
 #    endif
 #    ifdef key_trc_diaadd
-     &       /diag_bioVSink/bioVSink
+      common /diag_bioVSink/bioVSink
 #    endif
 # else
       common /diag_bioFlux/bioFlux
@@ -185,19 +185,19 @@
 # ifdef AVERAGES
 #  ifdef PISCES 
 #   ifdef key_trc_dia3d
-     &       /diag_bioFlux_avg/bioFlux_avg
+      common /diag_bioFlux_avg/bioFlux_avg
 #   endif
 #   ifdef key_trc_diaadd
-     &       /diag_bioVSink_avg/bioVSink_avg
+      common /diag_bioVSink_avg/bioVSink_avg
 #   endif
 #  else
-     &       /diag_bioFlux_avg/bioFlux_avg
+      common /diag_bioFlux_avg/bioFlux_avg
      &       /diag_bioVSink_avg/bioVSink_avg
 #   ifdef OXYGEN
      &       /diag_GasFlux_avg/GasExcFlux_avg
 #   endif
 #  endif
-     &       /diag_timediabio_avg/timediabio_avg
+      common /diag_timediabio_avg/timediabio_avg
 # endif
 #endif /* DIAGNOSTICS_BIO */
 
