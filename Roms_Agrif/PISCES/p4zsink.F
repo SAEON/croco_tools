@@ -174,18 +174,20 @@ C#    if defined key_trc_dia3d
       DO jj=Jstr, Jend
         DO ji=Istr, Iend
            jksed=zmeuindex(ji,jj)
+!           write(*,*) '---'
+!           write(*,*) 'JJ=',jj,' II=',ji,' JKSED=',jksed 
            bioVSink(ji,jj,5) = sinking(ji,jj,jksed+1)*1.e3
-     &                            *rfact2r*tmask(ji,jj,jksed+1)
+     &                            *rfact2r*tmask(ji,jj,1)
            bioVSink(ji,jj,6) = sinking2(ji,jj,jksed+1)*1.e3
-     &                            *rfact2r*tmask(ji,jj,jksed+1)
+     &                            *rfact2r*tmask(ji,jj,1)
            bioVSink(ji,jj,7) = sinkfer(ji,jj,jksed+1)*1.e3
-     &                            *rfact2r*tmask(ji,jj,jksed+1)
+     &                            *rfact2r*tmask(ji,jj,1)
            bioVSink(ji,jj,8) = sinkfer2(ji,jj,jksed+1)*1.e3
-     &                            *rfact2r*tmask(ji,jj,jksed+1)
+     &                            *rfact2r*tmask(ji,jj,1)
            bioVSink(ji,jj,9) = sinksil(ji,jj,jksed+1)*1.e3
-     &                            *rfact2r*tmask(ji,jj,jksed+1)
+     &                            *rfact2r*tmask(ji,jj,1)
            bioVSink(ji,jj,10) = sinkcal(ji,jj,jksed+1)*1.e3
-     &                            *rfact2r*tmask(ji,jj,jksed+1)
+     &                            *rfact2r*tmask(ji,jj,1)
         END DO
       END DO
 # endif
