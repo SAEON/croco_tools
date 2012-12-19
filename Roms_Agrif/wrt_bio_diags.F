@@ -120,7 +120,7 @@ CDEBUG      write(*,*) 'Write Time'
       do iflux=1,NumFluxTerms
          workr=bioFlux(:,:,:,iflux)
          call fillvalue3d(workr, nciddiabio, diabioFlux(iflux),
-     &        indxbioFlux+itrc-1,record,r3dvar,type)
+     &        indxbioFlux+iflux-1,record,r3dvar,type)
       end do
   
 #  endif
@@ -129,9 +129,9 @@ CDEBUG      write(*,*) 'Write Time'
       do iflux=1,NumVSinkTerms
 c$$$         if (iflux.eq.11)  write(*,*) 'ZMEU WRT',
 c$$$     &        bioVSink(30,30,iflux)
-         workr=bioVSink(:,:,iflux)
-         call fillvalue2d(workr, nciddiabio, diabioVsink(iflux),
-     &        indxbioVSink+itrc-1,record,r2dvar,type)
+         work2d=bioVSink(:,:,iflux)
+         call fillvalue2d(work2d, nciddiabio, diabioVsink(iflux),
+     &        indxbioVSink+iflux-1,record,r2dvar,type)
       end do
   
 #  endif
@@ -149,15 +149,15 @@ c$$$     &        bioVSink(30,30,iflux)
       do iflux = 1, NumVSinkTerms
 !         write(*,*)'write vertical sinking fluxes'         
          work=bioVsink(:,:,:,iflux)
-         call fillvalue2d(workr, nciddiabio, diabioVsink(iflux),
+         call fillvalue3d(workr, nciddiabio, diabioVsink(iflux),
      &        indxbioVSink+iflux-1,record,w3dvar,type)
       end do
 #   if (defined BIO_NChlPZD && defined OXYGEN)
 ! gas exchange fluxes
       do iflux = 1, NumGasExcTerms
-         workr=GasExcFlux(:,:,:,iflux)
-         call fillvalue3d(workr, nciddiabio, (iflux),
-     &        indxGasExcFlux+iflux-1,record,r3dvar,type)
+         work2d=GasExcFlux(:,:,:,iflux)
+         call fillvalue2d(work2d, nciddiabio, (iflux),
+     &        indxGasExcFlux+iflux-1,record,r2dvar,type)
       end do
 #   endif 
 
