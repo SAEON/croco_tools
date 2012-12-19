@@ -350,13 +350,14 @@ while 1==1
   
   if strcmp(myline(1:7),'sponge:')
     tline=fgetl(fid1);
-    A=sscanf(tline,'%f');
-    xsponge=A(1);
-    xsponge=round(xsponge/rfac);
-    vsponge=A(2);
-    vsponge=round(vsponge/(rfac^2));
-    fprintf(fid2,'%s\n',['                   ',num2str(xsponge,3),...
-		    '           ',num2str(vsponge,3)]);
+     fprintf(fid1,'%s\n','XXX  XXX');
+%     A=sscanf(tline,'%f');
+%     xsponge=A(1);
+%     xsponge=round(xsponge/rfac);
+%     vsponge=A(2);
+%     vsponge=round(vsponge/(rfac^2));
+%     fprintf(fid2,'%s\n',['                   ',num2str(xsponge,3),...
+% 		    '           ',num2str(vsponge,3)]);
   end
 end
 fclose(fid1);
