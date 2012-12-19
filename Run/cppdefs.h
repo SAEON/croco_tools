@@ -206,7 +206,6 @@
 # ifdef BIOLOGY
 #  undef  PISCES
 #  define BIO_NChlPZD
-#  undef  BIO_N2P2Z2D2
 #  undef  BIO_N2ChlPZD2  
                       /*  Options  */
 #  ifdef PISCES
