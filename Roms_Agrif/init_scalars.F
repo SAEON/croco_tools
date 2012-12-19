@@ -423,7 +423,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxDIC)='umol C L-1                                '
       vname(4,indxDIC)='DIC, scalar, series                       '
       vname(5,indxDIC)='mole_concentration_of_dissolved_'
-    &                   / /  'inorganic_carbon_in_sea_water       '
+     &                   / /  'inorganic_carbon_in_sea_water      '
       vname(6,indxDIC)='lat_rho lon_rho                           '
       vname(7,indxDIC)='                                          '
 
