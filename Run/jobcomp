@@ -44,6 +44,24 @@ fi
 #
 NETCDFLIB="-L/usr/local/lib"
 NETCDFINC="-I/usr/local/include"
+#
+if [[ $OS == Linux ]] ; then
+  if [[ $LINUX_FC == g77 ]] ; then
+    if [[ $BITS == THIRTYTWO ]] ; then
+      NETCDFLIB=-L../netcdf_g77/
+      NETCDFINC=-I../netcdf_g77/
+    fi
+  elif [[ $LINUX_FC == ifort || $LINUX_FC == gfortran ]] ; then
+    if [[ $BITS == THIRTYTWO ]] ; then
+      NETCDFLIB=-L../netcdf_ifc/
+      NETCDFINC=-I../netcdf_ifc/
+    else
+      NETCDFLIB=-L../netcdf_x86_64
+      NETCDFINC=-I../netcdf_x86_64
+    fi
+  fi
+fi
+
 
 #
 # set MPI directories if needed
