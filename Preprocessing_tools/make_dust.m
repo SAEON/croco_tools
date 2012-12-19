@@ -40,8 +40,9 @@ romstools_param
 % Dust deposition file 
 %
 %dust_file=[woapisces_dir,'dust.iron.cdf'];
+%dust_name='irondep';
 dust_file=[woapisces_dir,'dust_seas.cdf'];
-dust_name='irondep';
+dust_name='dust';
 %time=woa_time;
 time=[0.5:1:11.5];
 cycle=woa_cycle;
