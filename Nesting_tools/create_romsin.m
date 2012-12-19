@@ -350,7 +350,7 @@ while 1==1
   
   if strcmp(myline(1:7),'sponge:')
     tline=fgetl(fid1);
-     fprintf(fid1,'%s\n','XXX  XXX');
+     fprintf(fid2,'%s\n','                   XXX              XXX');
 %     A=sscanf(tline,'%f');
 %     xsponge=A(1);
 %     xsponge=round(xsponge/rfac);
