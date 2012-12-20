@@ -76,7 +76,6 @@
 # endif
 # undef  AUTOTILING
 # undef  ETALON_CHECK
-# undef  RVTK_DEBUG
                       /* Grid configuration */
 # define CURVGRID
 # define SPHERICAL
