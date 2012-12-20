@@ -39,8 +39,8 @@ latmax=latmax+dl;
 %
 % Get the global horizontal grid
 %
-lon=readdap(path,'lon',[]);
-lat=readdap(path,'lat',[]);
+lon=readdap(path,'longitude',[]);
+lat=readdap(path,'latitude',[]);
 %
 % Get a subgrid
 %

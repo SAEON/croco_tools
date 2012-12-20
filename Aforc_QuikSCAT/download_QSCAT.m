@@ -47,7 +47,7 @@ if nargin < 1
   QSCAT_blk    = 0;  
 end
 %
-url='http://www.ifremer.fr/dodsG/CERSAT/quikscat_daily';
+url='http://www.ifremer.fr/opendap/cerdap1/cersat/wind/l4/quikscat/daily/';
 %
 % start
 %
@@ -67,7 +67,7 @@ eval(['!mkdir ',QSCAT_dir])
 % Find a subset of the QSCAT grid
 %
 [i1min,i1max,i2min,i2max,i3min,i3max,jrange,lon,lat]=...
-get_QSCAT_grid(url,lonmin,lonmax,latmin,latmax);
+get_QSCAT_grid([url,'1999/199907200000-199907210000.nc'],lonmin,lonmax,latmin,latmax);
 
 
 disp(['...DOWNLOAD.....'])
@@ -83,7 +83,7 @@ disp(['........'])
 %
 % Get the time
 %
-time=readdap(url,'time',[]);
+%time=readdap([url,'1999/199907200000-199907210000.nc'],'time',[]);
 %
 % Convert the time into "Yorig" time (i.e in days since Yorig/1/1 00:00:0.0)
 %
@@ -91,8 +91,8 @@ time=readdap(url,'time',[]);
 %disp('TIME is=')
 %time(1:10)
 
-time=time+datenum(1,1,1)-datenum(Yorig,1,1)-2; %-2 to match with CERSAT dates%
-[year,month,days,hour,min,sec]=datevec(time+datenum(Yorig,1,1));
+%time=time+datenum(1,1,1)-datenum(Yorig,1,1)-2; %-2 to match with CERSAT dates%
+%[year,month,days,hour,min,sec]=datevec(time+datenum(Yorig,1,1));
 
 %disp(['TIME is='])
 %time(1:10)
@@ -103,6 +103,20 @@ time=time+datenum(1,1,1)-datenum(Yorig,1,1)-2; %-2 to match with CERSAT dates%
 %year(end-9:end)
 %month(end-9:end)
 %days(end-9:end)
+
+if Ymin<1999
+  error(['Quikscat first year is 1999 ; Ymin = ',num2str(Ymin)])
+end
+if Ymax>2009
+  error(['Quikscat last year is 2009 ; Ymax = ',num2str(Ymax)])
+end
+if Ymin==1999 & Mmin<8
+  error(['Quikscat first complete month in 1999 is August; Mmin = ',num2str(Mmin)])
+end
+if Ymax==2009 & Mmin>10
+  error(['Quikscat last complete month in 2009 is October; Mmax = ',num2str(Mmax)])
+end
+
 
 %
 % Loop on the years
@@ -127,67 +141,164 @@ for Y=Ymin:Ymax
 %
 % Get the time indices for this month
 %
-    tndx=find(month==M & year==Y);
-    taux=zeros(length(tndx),length(lat),length(lon));
+    ndays=daysinmonth(Y,M)
+   
+    taux=zeros(1,length(lat),length(lon));
     tauy=0*taux;
-    n=0; clear good_time;clear taux; clear tauy
-    for i=tndx(1):tndx(end)   
-      disp(['    Processing day: ',num2str(n)])
-      trange=['[',num2str(i-1),':',num2str(i-1),']'];
-      x=getdap(url,[],'zwst',trange,[],jrange,...
-                         i1min,i1max,i2min,i2max,i3min,i3max);
-      y=getdap(url,[],'mwst',trange,[],jrange,...
-                           i1min,i1max,i2min,i2max,i3min,i3max);
-      
-      
-      if QSCAT_blk
-	xu=getdap(url,[],'zws',trange,[],jrange,...
-                         i1min,i1max,i2min,i2max,i3min,i3max);
-	yv=getdap(url,[],'mws',trange,[],jrange,...
-                         i1min,i1max,i2min,i2max,i3min,i3max);
-	ws=getdap(url,[],'ws',trange,[],jrange,...
-                         i1min,i1max,i2min,i2max,i3min,i3max);
-	
-      end
-      
-      x(x==-32767)=NaN;
-      y(y==-32767)=NaN;
-      if QSCAT_blk
-      xu(xu==-32767)=NaN;
-      yv(yv==-32767)=NaN;
-      ws(ws==-32767)=NaN;
-      end
- 
-      if (isnan(max(max(x))) | isnan(max(max(y))))
-        disp('Warning : nan value')
-      elseif ((max(max(x))==0) | (max(max(y))==0))
-        disp('Warning : 0 value')
+    tndx=0;
+    good_time=0;
+    
+    for day=1:ndays   
+
+      disp(['    Processing day: ',num2str(day)])
+
+      if M<=10
+        myM=['0',num2str(M)];
       else
-        n=n+1;
-        good_time(n)=time(i);
-        taux(n,:,:)=x;
-        tauy(n,:,:)=y;
-	if QSCAT_blk
-	  uwnd(n,:,:)=xu;
-	  vwnd(n,:,:)=yv;
-	  wnds(n,:,:)=ws;
+        myM=num2str(M);
+      end
+
+      if day<=10
+        myday=['0',num2str(day)];
+      else
+        myday=num2str(day);
+      end
+
+      qscatdate=[num2str(Y),myM,myday,'0000'];
+      
+      dayp=day+1;
+      Mp=M;
+      Yp=Y;
+      if dayp>ndays
+        Mp=Mp+1;
+	dayp=1;
+        if Mp>12
+	  Yp=Yp+1;
+	  Mp=1;
+	end
+      end
+
+      if Mp<=10
+        myMp=['0',num2str(Mp)];
+      else
+        myMp=num2str(Mp);
+      end
+
+      if dayp<=10
+        mydayp=['0',num2str(dayp)];
+      else
+        mydayp=num2str(dayp);
+      end
+
+      qscatdatep=[num2str(Yp),myMp,mydayp,'0000'];
+%            
+      fname=[qscatdate,'-',qscatdatep,'.nc'];
+      myurl=[url,num2str(Y),'/',fname];
+%            
+%  Check if the file exists          
+%            
+      x = loaddap('-A',myurl);
+      
+      if ~isempty(x)
+
+        disp('file found')
+
+        time=readdap(myurl,'time',[]);
+	disp(['Processing date: ',datestr(time/24+datenum(1900,1,1))])
+	time=time/24+datenum(1900,1,1)-datenum(Yorig,1,1);
+
+
+        tx=getdap(myurl,[],'zonal_wind_stress',[],[],jrange,...
+                  i1min,i1max,i2min,i2max,i3min,i3max);
+        mval=x.zonal_wind_stress.ml__FillValue;
+	scale_factor=x.zonal_wind_stress.scale_factor;
+        add_offset=x.zonal_wind_stress.add_offset;
+        tx(tx==mval)=NaN;
+	tx=add_offset+tx.*scale_factor;
+
+        ty=getdap(myurl,[],'meridional_wind_stress',[],[],jrange,...
+                  i1min,i1max,i2min,i2max,i3min,i3max);
+        mval=x.meridional_wind_stress.ml__FillValue;
+	scale_factor=x.meridional_wind_stress.scale_factor;
+        add_offset=x.meridional_wind_stress.add_offset;
+        ty(ty==mval)=NaN;
+	ty=add_offset+ty.*scale_factor;
+
+        if QSCAT_blk
+
+          xu=getdap(myurl,[],'zonal_wind_speed',[],[],jrange,...
+                  i1min,i1max,i2min,i2max,i3min,i3max);
+          mval=x.zonal_wind_speed.ml__FillValue;
+	  scale_factor=x.zonal_wind_speed.scale_factor;
+          add_offset=x.zonal_wind_speed.add_offset;
+          xu(xu==mval)=NaN;
+	  xu=add_offset+xu.*scale_factor;
+
+          yv=getdap(myurl,[],'meridional_wind_speed',[],[],jrange,...
+                  i1min,i1max,i2min,i2max,i3min,i3max);
+          mval=x.meridional_wind_speed.ml__FillValue;
+	  scale_factor=x.meridional_wind_speed.scale_factor;
+          add_offset=x.meridional_wind_speed.add_offset;
+          yv(yv==mval)=NaN;
+	  yv=add_offset+yv.*scale_factor;
+
+          ws=getdap(myurl,[],'wind_speed',[],[],jrange,...
+                  i1min,i1max,i2min,i2max,i3min,i3max);
+          mval=x.wind_speed.ml__FillValue;
+	  scale_factor=x.wind_speed.scale_factor;
+          add_offset=x.wind_speed.add_offset;
+          ws(ws==mval)=NaN;
+	  ws=add_offset+ws.*scale_factor;
+
         end
-      end  
-    end
+
+        if isnan(max(tx(:))) |  isnan(max(ty(:)))
+
+          error('download_QSCAT - all nan values')
+
+        end
+
+	if (max(tx(:))==0 & min(tx(:))==0) | (max(ty(:))==0 & min(ty(:))==0)
+
+          error('download_QSCAT - all 0 values')
+
+        end
+
+%
+% Write in the file
+%
+  
+        tndx=tndx+1;
+        good_time(tndx)=time;
+        taux(tndx,:,:)=tx;
+        tauy(tndx,:,:)=ty;
+	if QSCAT_blk
+	  uwnd(tndx,:,:)=xu;
+	  vwnd(tndx,:,:)=yv;
+	  wnds(tndx,:,:)=ws;
+        end
+
+      else % ~isempty(x) 
+
+        warning('download_QSCAT - file not found - try next') 
+
+      end % ~isempty(x) 	
+
+
+    end %% --> day 	
+ 
 
     %  
     disp('Checking filling of the maps...')
-disp(['...INFO.....'])
-size(lon)
-size(lat)
-disp(['........'])    
+    disp(['...INFO.....']) 
+    disp(['........'])    
     
     tot=length(lat)*length(lon);
     
-    nbmask=max(sum(sum(squeeze(floor(mean(isnan(taux(1:n,:,:)),1))))),1);
-    size( sum(sum(squeeze(floor(mean(isnan(taux(1:n,:,:)),1))))) ) 
+    nbmask=max(sum(sum(squeeze(floor(mean(isnan(taux(1:tndx,:,:)),1))))),1);
+    
     to_keep=[];
-    for k=1:n
+    for k=1:tndx
        tab=squeeze(taux(k,:,:));
        per=(sum(sum(isnan(tab)))-nbmask)/tot*100.;
        if per >= 5.
@@ -228,23 +339,23 @@ disp(['........'])
     y_ind=find( abs(tauy-repmat(med,[nt,1,1])) >= 5*max(max(abs(med))) );
     tauy(y_ind)=NaN;
 %
-if QSCAT_blk
+    if QSCAT_blk
 %
-    med=median(uwnd,1);
-%    x_ind=find( abs(taux-med(ones(nt,1),:,:)) >= 5*max(max(abs(med))) );
-    x_ind=find( abs(uwnd-repmat(med,[nt,1,1])) >= 5*max(max(abs(med))) );
-    uwnd(x_ind)=NaN;
+      med=median(uwnd,1);
+%      x_ind=find( abs(taux-med(ones(nt,1),:,:)) >= 5*max(max(abs(med))) );
+      x_ind=find( abs(uwnd-repmat(med,[nt,1,1])) >= 5*max(max(abs(med))) );
+      uwnd(x_ind)=NaN;
 %   
-    med=median(vwnd,1);
-%    y_ind=find( abs(tauy-med(ones(nt,1),:,:)) >= 5*max(max(abs(med))) );
-    y_ind=find( abs(vwnd-repmat(med,[nt,1,1])) >= 5*max(max(abs(med))) );
-    vwnd(y_ind)=NaN;
+      med=median(vwnd,1);
+%      y_ind=find( abs(tauy-med(ones(nt,1),:,:)) >= 5*max(max(abs(med))) );
+      y_ind=find( abs(vwnd-repmat(med,[nt,1,1])) >= 5*max(max(abs(med))) );
+      vwnd(y_ind)=NaN;
   
-    med=median(wnds,1);
-%    y_ind=find( abs(tauy-med(ones(nt,1),:,:)) >= 5*max(max(abs(med))) );
-    y_ind=find( abs(wnds-repmat(med,[nt,1,1])) >= 5*max(max(abs(med))) );
-    wnds(y_ind)=NaN;
-end
+      med=median(wnds,1);
+%      y_ind=find( abs(tauy-med(ones(nt,1),:,:)) >= 5*max(max(abs(med))) );
+      y_ind=find( abs(wnds-repmat(med,[nt,1,1])) >= 5*max(max(abs(med))) );
+      wnds(y_ind)=NaN;
+    end
 
     
     write_NCEP([QSCAT_dir,'taux','Y',num2str(Y),'M',num2str(M),'.nc'],...
@@ -253,15 +364,18 @@ end
                 'tauy',lon,lat,good_time,tauy,Yorig)
     
     if QSCAT_blk
-    write_NCEP([QSCAT_dir,'uwnd','Y',num2str(Y),'M',num2str(M),'.nc'],...
+      write_NCEP([QSCAT_dir,'uwnd','Y',num2str(Y),'M',num2str(M),'.nc'],...
                 'uwnd',lon,lat,good_time,uwnd,Yorig)
-    write_NCEP([QSCAT_dir,'vwnd','Y',num2str(Y),'M',num2str(M),'.nc'],...
+      write_NCEP([QSCAT_dir,'vwnd','Y',num2str(Y),'M',num2str(M),'.nc'],...
                 'vwnd',lon,lat,good_time,vwnd,Yorig)
-    write_NCEP([QSCAT_dir,'wnds','Y',num2str(Y),'M',num2str(M),'.nc'],...
+      write_NCEP([QSCAT_dir,'wnds','Y',num2str(Y),'M',num2str(M),'.nc'],...
                 'wnds',lon,lat,good_time,wnds,Yorig)
     end
-  end
-end
+
+
+  end %%--> M
+end   %%--> Y
+
 return
  
 
