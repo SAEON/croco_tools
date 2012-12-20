@@ -32,6 +32,7 @@
       implicit none
       integer ncid, r2dgrd(2), u2dgrd(2), v2dgrd(2), r3dgrd(3), 
      &        w3dgrd(3), nf_ftype, varid, ierr
+      character(len=30) strtmp
 #include "param.h"
 #include "ncscrum.h"
 #include "netcdf.inc"
@@ -74,6 +75,9 @@
       ierr=nf_put_att_text (ncid, varid, 'standard_name',12,
      &     'x_grid_index')
       ierr=nf_put_att_text (ncid, varid, 'axis', 1, 'X')
+      write(strtmp,'(i0":"i0" ")') 2, xi_rho-1
+      ierr=nf_put_att_text (ncid, varid, 'c_grid_dynamic_range',
+     &  len_trim(strtmp), trim(strtmp))
 !
       ierr=nf_def_var (ncid, 'xi_u', nf_ftype, 1, u2dgrd(1), varid)
       ierr=nf_put_att_text (ncid, varid, 'long_name',   37,
@@ -83,6 +87,9 @@
       ierr=nf_put_att_text (ncid, varid, 'axis', 1, 'X')
       ierr=nf_put_att_FTYPE(ncid, varid, 'c_grid_axis_shift',
      &     nf_ftype, 1, 0.5)
+      write(strtmp,'(i0":"i0" ")') 2, xi_u-1
+      ierr=nf_put_att_text (ncid, varid, 'c_grid_dynamic_range',
+     &  len_trim(strtmp), trim(strtmp))
 !
       ierr=nf_def_var (ncid, 'eta_rho', nf_ftype, 1, r2dgrd(2), varid)
       ierr=nf_put_att_text (ncid, varid, 'long_name',   23,
@@ -90,6 +97,9 @@
       ierr=nf_put_att_text (ncid, varid, 'standard_name', 12, 
      &     'y_grid_index')
       ierr=nf_put_att_text (ncid, varid, 'axis', 1, 'Y')
+      write(strtmp,'(i0":"i0" ")') 2, eta_rho-1
+      ierr=nf_put_att_text (ncid, varid, 'c_grid_dynamic_range',
+     &  len_trim(strtmp), trim(strtmp))
 !
       ierr=nf_def_var (ncid, 'eta_v', nf_ftype, 1, v2dgrd(2), varid)
       ierr=nf_put_att_text (ncid, varid, 'long_name',    37,
@@ -99,6 +109,9 @@
       ierr=nf_put_att_text (ncid, varid, 'axis', 1, 'Y')
       ierr=nf_put_att_FTYPE(ncid, varid, 'c_grid_axis_shift',
      &     nf_ftype, 1, 0.5)
+      write(strtmp,'(i0":"i0" ")') 2, eta_v-1
+      ierr=nf_put_att_text (ncid, varid, 'c_grid_dynamic_range',
+     &  len_trim(strtmp), trim(strtmp))
 
 #ifdef SOLVE3D
 !
