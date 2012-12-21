@@ -191,14 +191,17 @@ for Y=Ymin:Ymax
             end
 
             qscatdatep=[num2str(Yp),myMp,mydayp,'0000'];
-            %
+%            
             fname=[qscatdate,'-',qscatdatep,'.nc'];
             myurl=[url,num2str(Y),'/',fname];
             %
             %  Check if the file exists
             %
-            x = loaddap('-A',myurl);
-
+            x = loaddap('-A -e +v',myurl);
+            if (dods_err==1)
+                error(dods_err_msg)
+            end
+            
             if ~isempty(x)
 
                 disp('file found')
