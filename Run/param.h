@@ -27,82 +27,80 @@
       integer LLmm2, MMmm2
 #endif
 #if defined BASIN
-      parameter (LLm0=60,  MMm0=50,  N=10)
+      parameter (LLm0=60,   MMm0=50,   N=10)
 #elif defined CANYON_A
-      parameter (LLm0=65,  MMm0=48,  N=16)
+      parameter (LLm0=65,   MMm0=48,   N=16)
 #elif defined CANYON_B
-      parameter (LLm0=66,  MMm0=48,  N=16)
+      parameter (LLm0=66,   MMm0=48,   N=16)
 #elif defined EQUATOR
-      parameter (LLm0=40,  MMm0=32,  N=32)   ! 100 km resolution
+      parameter (LLm0=40,   MMm0=32,   N=32)   ! 100 km resolution
 #elif defined GRAV_ADJ
-      parameter (LLm0=128, MMm0=4,   N=10)
+      parameter (LLm0=128,  MMm0=4,    N=10)
 #elif defined INNERSHELF
-      parameter (LLm0=64,  MMm0=3,   N=40)
+      parameter (LLm0=200,   MMm0=3,    N=60)
 #elif defined INTERNAL
-!      parameter (LLm0=120,  MMm0=10,  N=40)   ! 10 km resolution
-!      parameter (LLm0=800,  MMm0=4,  N=40)   ! 1.5 km resolution
-      parameter (LLm0=1600,  MMm0=4,  N=40)   ! 1.5 km resolution
+!     parameter (LLm0=120,  MMm0=10,   N=40)   !  10 km resolution
+!     parameter (LLm0=800,  MMm0=4,    N=40)   ! 1.5 km resolution
+      parameter (LLm0=1600, MMm0=4,    N=40)   ! .75 km resolution
 #elif defined OVERFLOW
-      parameter (LLm0=4,   MMm0=128, N=10)
+      parameter (LLm0=4,    MMm0=128,  N=10)
 #elif defined RIVER
-      parameter (LLm0=40,  MMm0=80,  N=20)
+      parameter (LLm0=40,   MMm0=80,   N=20)
 #elif defined SEAMOUNT
-      parameter (LLm0=64,  MMm0=64,  N=20)
+      parameter (LLm0=64,   MMm0=64,   N=20)
 #elif defined SHELFRONT
-      parameter (LLm0=4,   MMm0=40,  N=10)
+      parameter (LLm0=4,    MMm0=40,   N=10)
 #elif defined SOLITON
-      parameter (LLm0=96,  MMm0=32,  N=10)
+      parameter (LLm0=96,   MMm0=32,   N=10)
 #elif defined UPWELLING
-      parameter (LLm0=16,  MMm0=64,  N=16)
+      parameter (LLm0=16,   MMm0=64,   N=16)
 #elif defined VORTEX
-!      parameter (LLm0=179,  MMm0=179,  N=10)   ! 10 km resolution
-      parameter (LLm0=59,  MMm0=59,  N=10)     ! 30 km resolution
-!      parameter (LLm0=69,  MMm0=57,  N=10)     ! 30 km resolution
-!      parameter (LLm0=35,  MMm0=35,  N=10)     ! 50 km resolution
-!      parameter (LLm0=24,  MMm0=24,  N=10)     ! 70 km resolution
+!     parameter (LLm0=360,  MMm0=360,  N=10)   !  5 km resolution
+!     parameter (LLm0=180,  MMm0=180,  N=10)   ! 10 km resolution
+      parameter (LLm0=90,   MMm0=90,   N=10)   ! 20 km resolution
+!     parameter (LLm0=60,   MMm0=60,   N=10)   ! 30 km resolution
 #elif defined JET
-# ifdef JET_ANA
-!      parameter (LLm0=250,  MMm0=1000, N=30)    ! Jet 2 km resolution
-!      parameter (LLm0=100,  MMm0=400,  N=30)    ! Jet 5 km resolution
-      parameter (LLm0= 50,  MMm0=200,  N=30)    ! Jet 10 km resolution
-!      parameter (LLm0= 25,  MMm0=100,  N=30)    ! Jet 20 km resolution
+# ifdef ANA_JET
+!     parameter (LLm0=250,  MMm0=1000, N=30)   !  2 km resolution
+!     parameter (LLm0=100,  MMm0=400,  N=30)   !  5 km resolution
+      parameter (LLm0= 50,  MMm0=200,  N=30)   ! 10 km resolution
+!     parameter (LLm0= 25,  MMm0=100,  N=30)   ! 20 km resolution
 # else
-!      parameter (LLm0=300,  MMm0=500,  N=30)    ! Jet 2 km resolution
-!      parameter (LLm0=120,  MMm0=200,  N=30)    ! Jet 5 km resolution
-      parameter (LLm0=60,   MMm0=100,  N=30)    ! Jet 10 km resolution
+!     parameter (LLm0=300,  MMm0=500,  N=30)   !  2 km resolution
+!     parameter (LLm0=120,  MMm0=200,  N=30)   !  5 km resolution
+      parameter (LLm0=60,   MMm0=100,  N=30)   ! 10 km resolution
 # endif
 #elif defined REGIONAL
 #  if   defined USWC0
-      parameter (LLm0=62,  MMm0=126, N=40) ! <-- US_West grid15 L0
+      parameter (LLm0=62,   MMm0=126,  N=40)   ! US_West grid15 L0
 #  elif defined USWC1
-      parameter (LLm0=60,  MMm0=96,  N=40) ! <-- US_West grid15 L1
+      parameter (LLm0=60,   MMm0=96,   N=40)   ! US_West grid15 L1
 #  elif defined USWC2
-      parameter (LLm0=60,  MMm0=120, N=40) ! <-- US_West grid15 L2
+      parameter (LLm0=60,   MMm0=120,  N=40)   ! US_West grid15 L2
 #  elif defined USWC155
-      parameter (LLm0=83,  MMm0=168, N=20) ! <-- US_West USWC155 L1
+      parameter (LLm0=83,   MMm0=168,  N=20)   ! US_West USWC155 L1
 #  elif defined CANARY
-!      parameter (LLm0=97,  MMm0=159, N=32) ! <-- Canary 25km
-      parameter (LLm0=83,  MMm0=112, N=30) ! <-- Canary 15km
+!     parameter (LLm0=97,   MMm0=159,  N=32)   ! Canary
 #  elif defined FINISTERE
-      parameter (LLm0=78,  MMm0=100, N=16) ! <-- Finistere
+      parameter (LLm0=78,   MMm0=100,  N=16)   ! Finistere
 #  elif defined RIA
-      parameter (LLm0=77,  MMm0=96,  N=28) ! <-- RIA
+      parameter (LLm0=77,   MMm0=96,   N=28)   ! RIA
 #  elif defined PERU
-      parameter (LLm0=39,  MMm0=32,  N=20) ! <-- Peru test
+      parameter (LLm0=39,   MMm0=32,   N=20)   ! Peru test
 #  elif defined SAFE
-      parameter (LLm0=111, MMm0=96,  N=32) ! <-- SAFE
+      parameter (LLm0=111,  MMm0=96,   N=32)   ! SAFE
 #  elif defined PACIFIC
-      parameter (LLm0=170, MMm0=60,  N=30) ! <-- Pacific
+      parameter (LLm0=170,  MMm0=60,   N=30)   ! Pacific
 #  elif defined  CORAL
-      parameter (LLm0=81, MMm0=77,  N=32)  ! <-- CORAL sea
+      parameter (LLm0=81,   MMm0=77,   N=32)   ! CORAL sea
 #  elif defined  BENGUELA_LR
-      parameter (LLm0=41, MMm0=42,  N=32)  ! <-- BENGUELA_LR
+      parameter (LLm0=41,   MMm0=42,   N=32)   ! BENGUELA_LR
 #  elif defined  BENGUELA_HR
-      parameter (LLm0=83, MMm0=85,  N=32)  ! <-- BENGUELA_HR
+      parameter (LLm0=83,   MMm0=85,   N=32)   ! BENGUELA_HR
 #  elif defined  BENGUELA_VHR
-      parameter (LLm0=167, MMm0=170,  N=32) ! <-- BENGUELA_VHR
+      parameter (LLm0=167,  MMm0=170,  N=32)   ! BENGUELA_VHR
 #  else
-      parameter (LLm0=94,  MMm0=81,  N=40)
+      parameter (LLm0=94,   MMm0=81,   N=40)
 #  endif
 #else
       parameter (LLm0=??, MMm0=??, N=??)
