@@ -89,7 +89,6 @@
 #  define  TS_DIF_SMAGO /*   + Smagorinsky diffusivity         */
 #  define  TS_MIX_ISO   /*   + Isopycnal rotation              */ 
 # endif 
-
 #ifdef TS_HADV_RSUP3   /*  Rotated-Split 3rd-order scheme is:  */
 # define TS_HADV_C4    /*    4th-order centered advection      */
 # undef  TS_DIF2       /*               +                      */
@@ -108,6 +107,13 @@
 # define TS_MIX_IMP    /*   and  Semi-Implicit Time-Stepping   */
 # define DIF_COEF_3D 
 #endif
+
+#ifdef BIO_HADV_WENO5  /*   WENO5 for passive tracers     */
+# define NTRA_T3DMIX 2
+#else
+# define NTRA_T3DMIX NT
+#endif
+
 #ifdef TS_DIF_SMAGO    /*   Smagorinsky diffusivity option     */
 # define DIF_COEF_3D
 #endif
@@ -128,9 +134,9 @@
     Select model dynamics for TRACER vertical advection
     (The default is 4th-order centered)
 */
-#undef   TS_VADV_SPLINES   /* splines vertical advection */
-#define  TS_VADV_AKIMA     /* 4th-order Akima vertical advection */
-#undef   TS_VADV_C2        /* 2nd-order centered vertical advection */
+#undef  TS_VADV_SPLINES   /* splines vertical advection */
+#define TS_VADV_AKIMA     /* 4th-order Akima vertical advection */
+#undef  TS_VADV_C2        /* 2nd-order centered vertical advection */
 
 /*
    SPONGE:  
@@ -205,7 +211,14 @@
  zones are always provided on the each side. These data for these
  two ghost zones is then exchanged by message passing. 
 */
-#if defined TS_HADV_UP5 || defined TS_HADV_C6
+#if defined TS_HADV_UP5 || defined TS_HADV_C6 \
+    || defined TS_HADV_WENO5 || defined BIO_HADV_WENO5
+# define THREE_GHOST_POINTS
+# define THREE_GHOST_POINTS_TS
+# undef  THREE_GHOST_POINTS_UV
+#endif
+
+#ifdef THREE_GHOST_POINTS
 # ifdef MPI
 #  define GLOBAL_2D_ARRAY -2:Lm+3+padd_X,-2:Mm+3+padd_E
 #  define GLOBAL_1D_ARRAYXI -2:Lm+3+padd_X

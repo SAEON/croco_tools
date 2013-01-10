@@ -163,7 +163,7 @@ C$    integer omp_get_thread_num
       call exchange_p2d_tile (Istr,Iend,Jstr,Jend,   om_p)
       call exchange_p2d_tile (Istr,Iend,Jstr,Jend,   on_p)
 # ifdef MASKING
-#  if defined TS_HADV_UP5 || defined TS_HADV_C6
+#  ifdef THREE_GHOST_POINTS_TS 
       call exchange_r2d_3pts_tile (Istr,Iend,Jstr,Jend, rmask)
 #  else
       call exchange_r2d_tile (Istr,Iend,Jstr,Jend,  rmask)

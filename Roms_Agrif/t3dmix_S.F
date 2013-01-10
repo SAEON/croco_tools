@@ -18,8 +18,9 @@
 # include "private_scratch.h"
 # include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
+      do itrc=1,NTRA_T3DMIX
+
 # ifdef AGRIF
-      do itrc=1,NT
         if (AGRIF_Root()) then
             call t3dmix_tile (istr,iend,jstr,jend, itrc, 
      &               A2d(1,1,trd),A2d(1,2,trd), A2d(1,3,trd),
@@ -31,18 +32,15 @@
      &                             A2d(1,4,trd), A2d(1,5,trd))
 
         endif
-      enddo
-      return
-      end
 # else 
-      do itrc=1,NT
        call t3dmix_tile(istr,iend,jstr,jend, itrc, A2d(1,1,trd),
      &                               A2d(1,2,trd), A2d(1,3,trd),
      &                               A2d(1,4,trd), A2d(1,5,trd))
-      enddo
+# endif   /* AGRIF */
+
+       enddo
        return
        end
-# endif   /* AGRIF */
 !
 !---------------------------------------------------------------------
 !*********************************************************************

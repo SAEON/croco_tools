@@ -84,13 +84,16 @@
 #  define SWITCH !
 # endif
 !
-# if defined TS_HADV_UP5 || defined TS_HADV_C6
-! definition of flux operators, 3rd, 4th, 5th or 6th order
+# if defined TS_HADV_UP5 ||  defined TS_HADV_C6 \
+      || defined TS_HADV_WENO5 ||  defined BIO_HADV_WENO5
 !
-      REAL    :: flux3, flux5
-      REAL    :: flux4, flux6
+! definition of flux operators, 3rd, 4th, 5th or 6th order
+! for UP5 and C6 advection schemes
+!
       REAL    :: q_im3, q_im2, q_im1, q_i, q_ip1, q_ip2, ua, vel
-      REAL    :: flx2, flx3, flx4, flx5, mask0, mask1, mask2
+      REAL    :: flux3, flux4, flux5, flux6
+      REAL    :: flx2, flx3, flx4, flx5
+      REAL    :: mask0, mask1, mask2, mask3
 
       flux4(q_im2, q_im1, q_i, q_ip1, ua) = 
      &      ( 7.*(q_i + q_im1) - (q_ip1 + q_im2) )/12.0
@@ -158,207 +161,31 @@
 !
 !===============================================================
 !
-# if defined TS_HADV_UP5 || defined TS_HADV_C6
+      do itrc=1,NT
+        do k=1,N
+
+# ifdef BIO_HADV_WENO5
+          if (itrc .le. 2) then
+# endif
+
+# if defined TS_HADV_UP5 || defined TS_HADV_C6 || defined TS_HADV_WENO5 
 !--------------------------------
 ! Sixth order advection scheme
 !--------------------------------
 !
-# define FLUX5 flux6
-# define FLUX3 flux4
+#  define FLUX5 flux6
+#  define FLUX4 flux4
+#  define FLUX3 flux4
+#  undef  UP5_MASKING
 !
-#  ifdef MPI
-      if (SOUTH_INTER) then
-        jmin=1
-      else
-        jmin=3
-      endif
-      if (NORTH_INTER) then
-        jmax=Mmmpi+1
-      else
-        jmax=Mmmpi-1
-      endif
-#  else
-#   ifdef NS_PERIODIC
-      jmin=1
-      jmax=Mm+1
-#   else
-      jmin=3
-      jmax=Mm-1
-#   endif
-#  endif
-#  ifdef MPI
-      if (WEST_INTER) then
-        imin=1
-      else
-        imin=3
-      endif
-      if (EAST_INTER) then
-        imax=Lmmpi+1
-      else
-        imax=Lmmpi-1
-      endif
-#  else
-#   ifdef EW_PERIODIC
-      imin=1
-      imax=Lm+1
-#   else
-      imin=3
-      imax=Lm-1
-#   endif
-#  endif
+#  include "t3dadv_order5.h"
+!
+#  undef FLUX5
+#  undef FLUX4
+#  undef FLUX3
+#  undef UP5_MASKING
 
-      do itrc=1,NT
-        do k=1,N
-
-          DO j = Jstr,Jend+1  !j_loop_y_flux_5
-                                                      !
-            IF( (j.ge.jmin ) .and. (j.le.jmax) ) THEN ! use full stencil
-                                                      !
-              DO i = Istr,Iend
-                vel = Hvom(i,j,k)
-                flx5 = vel*FLUX5(
-     &                       t(i,j-3,k,nstp,itrc),t(i,j-2,k,nstp,itrc),
-     &                       t(i,j-1,k,nstp,itrc),t(i,j  ,k,nstp,itrc),
-     &                       t(i,j+1,k,nstp,itrc),t(i,j+2,k,nstp,itrc),
-     &                                                            vel )
-#  ifdef MASKING
-                flx3 = vel*FLUX3(
-     &             t(i,j-2,k,nstp,itrc), t(i,j-1,k,nstp,itrc),
-     &             t(i,j  ,k,nstp,itrc), t(i,j+1,k,nstp,itrc),  vel ) 
-                flx2 = 0.5*vel*(t(i,j,k,nstp,itrc)+t(i,j-1,k,nstp,itrc))
-                mask1=rmask(i,j-2)*rmask(i,j+1)
-                mask2=rmask(i,j-3)*rmask(i,j+2)
-                mask0=mask1*mask2
-                FE(i,j)=mask0*flx5+(1-mask0)*mask1*flx3+
-     &                         (1-mask0)*(1-mask1)*flx2
-#  else
-                FE(i,j)=flx5
-#  endif
-              ENDDO
-                                           !
-            ELSE IF ( j.eq.jmin-2 ) THEN   ! 2nd order flux next to south
-                                           ! boundary
-              DO i = Istr,Iend
-                FE(i,j) = 0.5*Hvom(i,j,k)*
-     &                  (t(i,j,k,nstp,itrc)+t(i,j-1,k,nstp,itrc))
-              ENDDO
-                                           !
-            ELSE IF  ( j.eq.jmin-1 ) THEN  ! 3rd of 4th order flux 2 in
-                                           ! from south boundary
-              DO i = Istr,Iend
-                vel = Hvom(i,j,k)
-                flx3 = vel*FLUX3(
-     &             t(i,j-2,k,nstp,itrc), t(i,j-1,k,nstp,itrc),
-     &             t(i,j  ,k,nstp,itrc), t(i,j+1,k,nstp,itrc),  vel )
-#  ifdef MASKING
-                flx2 = 0.5*vel*(t(i,j,k,nstp,itrc)+t(i,j-1,k,nstp,itrc))
-                mask1=rmask(i,j-3)*rmask(i,j+2)
-                FE(i,j)=mask1*flx3+(1-mask1)*flx2
-#  else
-                FE(i,j)=flx3
-#  endif
-              ENDDO
-                                          !
-            ELSE IF ( j.eq.jmax+2 ) THEN  ! 2nd order flux next to north
-                                          ! boundary
-              DO i = Istr,Iend
-                FE(i,j) = 0.5*Hvom(i,j,k)*
-     &                  (t(i,j,k,nstp,itrc)+t(i,j-1,k,nstp,itrc))
-              ENDDO
-                                      !
-            ELSE IF ( j.eq.jmax+1 ) THEN  ! 3rd or 4th order flux 2 in from
-                                      ! north boundary
-              DO i = Istr,Iend
-                vel = Hvom(i,j,k)
-                flx3 = vel*FLUX3(
-     &             t(i,j-2,k,nstp,itrc), t(i,j-1,k,nstp,itrc),
-     &             t(i,j  ,k,nstp,itrc), t(i,j+1,k,nstp,itrc),  vel )
-#  ifdef MASKING
-                flx2 = 0.5*vel*(t(i,j,k,nstp,itrc)+t(i,j-1,k,nstp,itrc))
-                mask1=rmask(i,j-3)*rmask(i,j+2)
-                FE(i,j)=mask1*flx3+(1-mask1)*flx2
-#  else
-                FE(i,j)=flx3
-#  endif
-              ENDDO
-            ENDIF
-          ENDDO ! j_loop_y_flux_5
-
-          DO i = Istr,Iend+1  !i_loop_x_flux_5
-                                                      !
-            IF( (i.ge.imin ) .and. (i.le.imax) ) THEN ! use full stencil
-                                                      !
-              DO j = Jstr,Jend
-                vel = Huon(i,j,k)
-                flx5 = vel*FLUX5(
-     &                       t(i-3,j,k,nstp,itrc),t(i-2,j,k,nstp,itrc),
-     &                       t(i-1,j,k,nstp,itrc),t(i  ,j,k,nstp,itrc),
-     &                       t(i+1,j,k,nstp,itrc),t(i+2,j,k,nstp,itrc),
-     &                                                            vel )
-#  ifdef MASKING
-                flx3 = vel*FLUX3(
-     &             t(i-2,j,k,nstp,itrc), t(i-1,j,k,nstp,itrc),
-     &             t(i  ,j,k,nstp,itrc), t(i+1,j,k,nstp,itrc),  vel )
-                flx2 = 0.5*vel*(t(i,j,k,nstp,itrc)+t(i-1,j,k,nstp,itrc))
-                mask1=rmask(i-2,j)*rmask(i+1,j)
-                mask2=rmask(i-3,j)*rmask(i+2,j)
-                mask0=mask1*mask2
-                FX(i,j)=mask0*flx5+(1-mask0)*mask1*flx3+
-     &                         (1-mask0)*(1-mask1)*flx2
-#  else
-                FX(i,j)=flx5
-#  endif
-              ENDDO
-                                           !
-            ELSE IF ( i.eq.imin-2 ) THEN   ! 2nd order flux next to south
-                                           ! boundary
-              DO j = Jstr,Jend
-                FX(i,j) = 0.5*Huon(i,j,k)*
-     &                  (t(i,j,k,nstp,itrc)+t(i-1,j,k,nstp,itrc))
-              ENDDO
-                                           !
-            ELSE IF  ( i.eq.imin-1 ) THEN  ! 3rd of 4th order flux 2 in
-                                           ! from south boundary
-              DO j = Jstr,Jend
-                vel = Huon(i,j,k)
-                flx3 = vel*FLUX3(
-     &             t(i-2,j,k,nstp,itrc), t(i-1,j,k,nstp,itrc),
-     &             t(i  ,j,k,nstp,itrc), t(i+1,j,k,nstp,itrc),  vel )
-#  ifdef MASKING
-                flx2 = 0.5*vel*(t(i,j,k,nstp,itrc)+t(i-1,j,k,nstp,itrc))
-                mask1=rmask(i-3,j)*rmask(i+2,j)
-                FX(i,j)=mask1*flx3+(1-mask1)*flx2
-#  else
-                FX(i,j)=flx3
-#  endif
-              ENDDO
-                                          !
-            ELSE IF ( i.eq.imax+2 ) THEN  ! 2nd order flux next to north
-                                          ! boundary
-              DO j = Jstr,Jend
-                FX(i,j) = 0.5*Huon(i,j,k)*
-     &                  (t(i,j,k,nstp,itrc)+t(i-1,j,k,nstp,itrc))
-              ENDDO
-                                          !
-            ELSE IF ( i.eq.imax+1 ) THEN  ! 3rd or 4th order flux 2 in from
-                                          ! north boundary
-              DO j = Jstr,Jend
-                vel = Huon(i,j,k)
-                flx3 = vel*FLUX3(
-     &             t(i-2,j,k,nstp,itrc), t(i-1,j,k,nstp,itrc),
-     &             t(i  ,j,k,3,itrc), t(i+1,j,k,3,itrc),  vel )
-#  ifdef MASKING
-                flx2 = 0.5*vel*(t(i,j,k,nstp,itrc)+t(i-1,j,k,nstp,itrc))
-                mask1=rmask(i-3,j)*rmask(i+2,j)
-                FX(i,j)=mask1*flx3+(1-mask1)*flx2
-#  else
-                FX(i,j)=flx3
-#  endif
-              ENDDO
-            ENDIF
-          ENDDO ! i_loop_x_flux_5
-
-# else  /* TS_HADV_UP5 --> default: C4 */
+# else  /*  --> default: C4 */
 !----------------------------------------
 ! Fourth order advection scheme
 !----------------------------------------
@@ -368,16 +195,16 @@
 #   define I_EXT_RANGE Istr-1,Iend+2
 #  else
 #   ifdef MPI
-      if (WEST_INTER) then
-        imin=Istr-1
-      else
-        imin=max(Istr-1,1)
-      endif
-      if (EAST_INTER) then
-        imax=Iend+2
-      else
-        imax=min(Iend+2,Lmmpi+1)
-      endif
+          if (WEST_INTER) then
+            imin=Istr-1
+          else
+            imin=max(Istr-1,1)
+          endif
+          if (EAST_INTER) then
+            imax=Iend+2
+          else
+            imax=min(Iend+2,Lmmpi+1)
+          endif
 #    define I_EXT_RANGE imin,imax
 #   else
 #    define I_EXT_RANGE max(Istr-1,1),min(Iend+2,Lm+1)
@@ -387,24 +214,21 @@
 #  define J_EXT_RANGE Jstr-1,Jend+2
 # else
 #  ifdef MPI
-      if (SOUTH_INTER) then
-        jmin=Jstr-1
-      else
-        jmin=max(Jstr-1,1)
-      endif
-      if (NORTH_INTER) then
-        jmax=Jend+2
-      else
-        jmax=min(Jend+2,Mmmpi+1)
-      endif
+          if (SOUTH_INTER) then
+            jmin=Jstr-1
+          else
+            jmin=max(Jstr-1,1)
+          endif
+          if (NORTH_INTER) then
+            jmax=Jend+2
+          else
+            jmax=min(Jend+2,Mmmpi+1)
+          endif
 #   define J_EXT_RANGE jmin,jmax
 #  else
 #   define J_EXT_RANGE max(Jstr-1,1),min(Jend+2,Mm+1)
 #  endif
 # endif
-
-      do itrc=1,NT
-        do k=1,N
 
           do j=Jstr,Jend
             do i=I_EXT_RANGE
@@ -488,6 +312,26 @@
           enddo            !--> discard grad
 # endif /* TS_HADV_UP5 */
 
+# ifdef BIO_HADV_WENO5
+          else  ! if (itrc .gt. 2)
+!----------------------------------------------------
+! C6 advection for passive tracers 
+!----------------------------------------------------
+!
+#  define FLUX5 flux6
+#  define FLUX4 flux4
+#  define FLUX3 flux4
+#  undef  UP5_MASKING
+!
+#  include "t3dadv_order5.h"
+!
+#  undef FLUX5
+#  undef FLUX4
+#  undef FLUX3
+#  undef UP5_MASKING
+          endif
+# endif
+
 # ifdef PSOURCE
 !
 !-------------------------------------------------------------------
@@ -526,8 +370,12 @@
               endif
             endif
           enddo
-# endif
-
+# endif /* PSOURCE */
+!
+!--------------------------------------------------------
+! Finalize horizontal advection: compute flux divergences
+!--------------------------------------------------------
+!
           if (FIRST_TIME_STEP) then
             cff=0.5*dt
             do j=Jstr,Jend
@@ -790,9 +638,9 @@ c**
       do itrc=1,NT
         call t3dbc_tile (Istr,Iend,Jstr,Jend, nnew,itrc, WORK)
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
-#  ifdef TS_HADV_UP5
+#  ifdef THREE_GHOST_POINTS_TS
         call exchange_r3d_3pts_tile (Istr,Iend,Jstr,Jend,
-     &                          t(START_2D_ARRAY,1,nnew,itrc))
+     &                               t(START_2D_ARRAY,1,nnew,itrc))
 #  else
         call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                          t(START_2D_ARRAY,1,nnew,itrc))
@@ -894,9 +742,9 @@ c**
 
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
       call exchange_u3d_tile (Istr,Iend,Jstr,Jend,
-     &                                   u(START_2D_ARRAY,1,nnew))
+     &                        u(START_2D_ARRAY,1,nnew))
       call exchange_v3d_tile (Istr,Iend,Jstr,Jend,
-     &                                   v(START_2D_ARRAY,1,nnew))
+     &                        v(START_2D_ARRAY,1,nnew))
 # endif
 
 !

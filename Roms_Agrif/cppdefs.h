@@ -99,6 +99,7 @@
 # define TS_HADV_RSUP3
 # undef  TS_HADV_UP5
 # undef  TS_HADV_C4
+# undef  TS_HADV_WENO5
                       /* Lateral Explicit Tracer Mixing */
 # ifdef TS_HADV_C4
 #  define  TS_DIF2
@@ -115,7 +116,7 @@
 # define LMD_MIXING
 # ifdef LMD_MIXING
 #  define LMD_SKPP
-#  undef  LMD_SKPP2005
+#  define LMD_SKPP2005
 #  define LMD_BKPP
 #  define LMD_RIMIX
 #  define LMD_CONVEC
@@ -200,13 +201,20 @@
 ! Biology, floats, Stations, 
 ! Passive tracer, Sediments, BBL
 !---------------------------------
+
+    Quasi-monotone lateral advection scheme (WENO5)
+    for passive/biology/sediment tracers 
 */
-                      /*      Choice of Biology models   */
+# if defined PASSIVE_TRACER || defined BIOLOGY || defined SEDIMENT
+#  undef BIO_HADV_WENO5
+# endif
+
+                      /*   Choice of Biology models   */
 # ifdef BIOLOGY
 #  undef  PISCES
 #  define BIO_NChlPZD
 #  undef  BIO_N2ChlPZD2  
-                      /*  Options  */
+                      /*   Biology options    */
 #  ifdef PISCES
 #   define key_trc_pisces
 #   define key_passivetrc
@@ -226,7 +234,7 @@
 #   undef  VAR_CHL_C
 #  endif
 # endif
-                      /*     Lagrangian floats model    */
+                      /*   Lagrangian floats model    */
 # ifdef FLOATS
 #  undef  FLOATS_GLOBAL_ATTRIBUTES
 #  undef  IBM
@@ -237,11 +245,11 @@
 #   define RANDOM_HORIZONTAL
 #  endif
 # endif
-                      /*     Stations recording    */
+                      /*   Stations recording    */
 # ifdef STATIONS
 #  define ALL_SIGMA
 # endif
-                      /*      Sediment dynamics model     */
+                      /*   Sediment dynamics model     */
 # ifdef SEDIMENT
 #  define ANA_SEDIMENT
 #  undef  BED_ARMOR
@@ -250,7 +258,7 @@
 #  define LINEAR_CONTINUATION
 #  undef  NEUMANN
 # endif
-                      /*      Bottom Boundary Layer model     */
+                      /*   Bottom Boundary Layer model     */
 # ifdef BBL
 #  define ANA_WWAVE
 #  ifdef SEDIMENT
