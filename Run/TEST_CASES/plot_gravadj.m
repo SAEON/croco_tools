@@ -29,7 +29,8 @@
 clear all
 close all
 
-tndx=3;
+tndx=69;
+plot_psi=0;
 %
 % Read data
 %
@@ -38,6 +39,7 @@ h=nc{'h'}(:);
 x=squeeze(nc{'x_rho'}(2,:));
 zeta=squeeze(nc{'zeta'}(tndx,:,:));
 t=squeeze(nc{'temp'}(tndx,:,2,:));
+w=1000*squeeze(nc{'w'}(tndx,:,2,:));
 [N,M]=size(t);
 theta_s=nc.theta_s(:);
 theta_b=nc.theta_b(:);
@@ -47,16 +49,32 @@ close(nc);
 zr = zlevs(h,zeta,theta_s,theta_b,hc,N,'r');
 zr=squeeze(zr(:,2,:));
 xr=reshape(x,1,M);
-xr=repmat(xr,[N 1])/1000;
+xr=repmat(xr,[N 1])/1000 - 32;
+
+psi=zeros(size(w));
+for i=2:M;
+  psi(:,i)=psi(:,i-1)-w(:,i).*(xr(:,i)-xr(:,i-1));
+end
+
 
 %
 % Plot
 %
-contourf(xr,zr,t,[-1:0.5:7])
-caxis([0 5])
+hFig = figure;
+set(hFig, 'Position', [700 700 700 200])
+contourf(xr,zr,t,[15:1:40]);
+if plot_psi
+ hold on
+ contour(xr,zr,psi,[-5:0.5:5],'k');
+ hold off
+end
+caxis([15 38])
+xlabel('X [km]')
+ylabel('Depth [m]')
 shading flat
 colorbar
-title('Gravity adjustment sigma vertical section')
+title('Gravitational adjustment')
+export_fig -transparent -pdf gravadj.pdf
 
 
 
