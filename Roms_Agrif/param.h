@@ -35,9 +35,11 @@
 #elif defined EQUATOR
       parameter (LLm0=40,   MMm0=32,   N=32)   ! 100 km resolution
 #elif defined GRAV_ADJ
-      parameter (LLm0=128,  MMm0=4,    N=10)
+!     parameter (LLm0=32,   MMm0=4,    N=10)   !   2 km resolution
+      parameter (LLm0=128,  MMm0=4,    N=40)   ! 500  m resolution
+!     parameter (LLm0=512,  MMm0=4,   N=160)   ! 125  m resolution
 #elif defined INNERSHELF
-      parameter (LLm0=200,   MMm0=3,    N=60)
+      parameter (LLm0=200,  MMm0=3,    N=60)
 #elif defined INTERNAL
 !     parameter (LLm0=120,  MMm0=10,   N=40)   !  10 km resolution
 !     parameter (LLm0=800,  MMm0=4,    N=40)   ! 1.5 km resolution

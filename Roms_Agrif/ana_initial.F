@@ -241,11 +241,11 @@ C$    integer omp_get_thread_num
 #else
            if (i .LE. LLm/2) then
 #endif            
-            t(i,j,k,1,itemp)=T0+5.
-            t(i,j,k,2,itemp)=T0+5
+            t(i,j,k,1,itemp)=5/Tcoef
+            t(i,j,k,2,itemp)=5/Tcoef
             else
-            t(i,j,k,1,itemp)=T0
-            t(i,j,k,2,itemp)=T0            
+            t(i,j,k,1,itemp)=10/Tcoef
+            t(i,j,k,2,itemp)=10/Tcoef           
             endif
           enddo
         enddo
