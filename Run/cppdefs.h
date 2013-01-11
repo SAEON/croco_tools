@@ -379,12 +379,11 @@
 # define ETALON_CHECK
 # undef OPENMP
 # undef MPI
+# define SOLVE3D
 # define UV_ADV
 # define UV_VIS2
 # define UV_MIX_S
-# define TS_DIF2
-# define TS_MIX_S
-# define SOLVE3D
+# undef  TS_HADV_WENO5
 # define ANA_GRID
 # define ANA_INITIAL
 # define ANA_SMFLUX
