@@ -153,7 +153,7 @@ thetime = nc{'scrum_time'}(:);
 hc = nc{'hc'}(:);
 vtransform=nc{'Vtransform'}(:);
 disp([' Use parent VTRANSFORM = ',num2str(vtransform)])
-if ~exist('vtransform')
+if ~exist('vtransform') | isempty(vtransform)
     disp([' No VTRANSFORM parameter found'])
     disp([' Use the default one VTRANSFORM = 1'])
     vtransform=1;

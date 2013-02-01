@@ -52,7 +52,7 @@ else
   theta_b=nc{'theta_b'}(:);
   hc=nc{'hc'}(:);
   vtransform=nc{'Vtransform'}(:);
-  if  ~exist('vtransform')
+  if  ~exist('vtransform') |  isempty(vtransform)
     vtransform=1; %Old Vtransform
     disp([' NO VTRANSFORM parameter found'])
     disp([' USE TRANSFORM default value vtransform = 1'])

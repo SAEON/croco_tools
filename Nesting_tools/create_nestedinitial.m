@@ -1,6 +1,25 @@
 function ncini=create_nestedinitial(inifile,gridfile,parentfile,title,...
 				    theta_s,theta_b,Tcline,N,time,clobber,...
-				    biol,pisces,namebiol,namepisces,unitbiol,unitpisces,hc,vtransform)
+				    biol,pisces,namebiol,namepisces,...
+				    unitbiol,unitpisces,hc,vtransform)
+inifile
+gridfile
+parentfile
+title
+theta_s
+theta_b
+Tcline
+N
+time
+clobber
+biol
+pisces
+namebiol
+namepisces
+unitbiol
+unitpisces
+hc
+vtransform
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  function ncini=create_inifile(inifile,gridfile,theta_s,... 
