@@ -1543,7 +1543,7 @@
 !
         if (wrt(indxAks)) then
           lvar=lenstr(vname(1,indxAks))
-          ierr=nf_inq_varid (ncid,vname(1,indxAks)(1:lvar), hisAks)
+          ierr=nf_inq_varid (ncid,vname(1,indxAks)(1:lvar), vidAks)
           if (ierr .ne. nf_noerr) then
             write(stdout,1) vname(1,indxAks)(1:lvar), ncname(1:lstr)
             goto 99                                       !--> ERROR
