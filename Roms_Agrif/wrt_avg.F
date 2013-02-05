@@ -19,6 +19,9 @@
      &  , start(2), count(2), ibuff(4), nf_fwrite, type
 # ifdef SOLVE3D
      &            , itrc         
+#  ifdef SEDIMENT
+     &            , indxWrk
+#  endif
 # endif
 # if defined MPI & !defined PARALLEL_FILES
       include 'mpif.h'
@@ -32,6 +35,9 @@
 # include "ocean3d.h"
 # include "work.h"
 # include "netcdf.inc"
+# ifdef SEDIMENT
+#  include "sediment.h"
+# endif
 
 #if defined MPI & !defined PARALLEL_FILES
       if (mynode.gt.0) then
@@ -393,7 +399,24 @@ CR       write(*,*) 'wrt_avg:  wrtAks' MYID
 !     
 #   endif
 #  endif /* BIOLOGY */
+!
+# ifdef SEDIMENT
+!     
+!     Write out sediment bed layer thickness, porosity, volume 
+!     fraction of size class in sediment bed (2+2*NST b3dgrd variables)
+!     
+      do itrc=1,NST
+         indxWrk=indxBFRA+itrc-1
+!         if (wrthis(indxWrk)) then
+            worksed_frac=bed_frac_avg(:,:,:,itrc)
+            call fillvalue3d(worksed_frac,ncidavg,avgSed(itrc+2),
+     &           indxWrk,record,b3dvar,type)
+!         endif
+      enddo
+# endif /* SEDIMENT */
+!
 # endif /* SOLVE3D */
+!
  1    format(/' WRT_AVG - ERROR while writing variable(',1x,a,1x,
      &     ')into averages file.',/,11x,'Time record:',
      &     i6,3x,'netCDF error code',i4,3x,a,i4)

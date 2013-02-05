@@ -1359,7 +1359,11 @@ c        close(testunit)
         call cancel_kwd (keyword(1:kwlen), ierr)
         read(input,*,err=95) 
      &                   (wrthis(itrc), itrc=indxSed,indxSed+NST+1) 
-
+#  ifdef AVERAGES
+        do itrc=indxSed,indxSed+NST+1
+          wrtavg(itrc)=wrthis(itrc)
+        enddo
+#  endif
         MPI_master_only write(stdout,'(2(/6x,L1,2x,A,1x,A))')
      &    wrthis(indxBTHK), 'write bed_thick ', 
      &                            'thickness of sediment bed layer.'

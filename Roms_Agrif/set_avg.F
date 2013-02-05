@@ -61,6 +61,9 @@ C$    integer omp_get_thread_num
       real cff
 # ifdef SOLVE3D
       integer itrc,k
+#  ifdef SEDIMENT
+      integer ilay
+#  endif
 #  include "work.h"
 # endif
 # include "scalars.h"
@@ -71,6 +74,9 @@ C$    integer omp_get_thread_num
 # include "averages.h"
 # include "mixing.h"
 # include "forces.h"
+# ifdef SEDIMENT
+#  include "sediment.h"
+# endif
 !
 #include "compute_auxiliary_bounds.h"
 !
@@ -350,6 +356,22 @@ C$    integer omp_get_thread_num
 #    endif /* OXYGEN */
 #    endif
 #   endif /* BIOLOGY */
+#   ifdef SEDIMENT
+!
+! sediment bed layer thickness, porosity, volume
+! fraction of size class in sediment bed
+!
+          do ilay=1,NLAY
+            do itrc=1,NST
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  bed_frac_avg(i,j,ilay,itrc)=
+     &                                bed_frac(i,j,ilay,itrc)
+                enddo
+              enddo
+            enddo
+          enddo
+#   endif /* SEDIMENT */
 #  endif /* SOLVE3D */
 
         elseif (mod(ilc-1,navg).gt.1) then
@@ -632,6 +654,23 @@ C$    integer omp_get_thread_num
 #    endif /* OXYGEN */
 #   endif
 #  endif /* BIOLOGY */
+#  ifdef SEDIMENT
+!
+! sediment bed layer thickness, porosity, volume
+! fraction of size class in sediment bed
+!
+          do ilay=1,NLAY
+            do itrc=1,NST
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  bed_frac_avg(i,j,ilay,itrc)=
+     &                                 bed_frac_avg(i,j,ilay,itrc)
+     &                                +bed_frac(i,j,ilay,itrc)
+                enddo
+              enddo
+            enddo
+          enddo
+#  endif /* SEDIMENT */
 # endif /* SOLVE3D */
 
         elseif (mod(ilc-1,navg).eq.0) then
@@ -930,6 +969,23 @@ C$    integer omp_get_thread_num
 #    endif /* OXYGEN */
 #   endif
 #  endif /* BIOLOGY */
+#  ifdef SEDIMENT
+!
+! sediment bed layer thickness, porosity, volume
+! fraction of size class in sediment bed
+!
+          do ilay=1,NLAY
+            do itrc=1,NST
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  bed_frac_avg(i,j,ilay,itrc)=
+     &                           cff*( bed_frac_avg(i,j,ilay,itrc)
+     &                                +bed_frac(i,j,ilay,itrc)     )
+                enddo
+              enddo
+            enddo
+          enddo
+#  endif /* SEDIMENT */
 # endif /* SOLVE3D */
         endif
       endif

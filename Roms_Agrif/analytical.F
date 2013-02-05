@@ -826,10 +826,10 @@ C$    integer  trd, omp_get_thread_num
             tclm(i,j,k,isilt)=Csed(2)
 #  else   
             if (.not.got_tclm(isand)) then
-              tclm(i,j,k,isand)=0. !Csed(1)
+              tclm(i,j,k,isand)=Csed(1)
             endif
             if (.not.got_tclm(isilt)) then
-              tclm(i,j,k,isilt)=0. !Csed(2)
+              tclm(i,j,k,isilt)=Csed(2)
             endif
 #  endif
           enddo
@@ -1158,7 +1158,7 @@ C$    integer  trd, omp_get_thread_num
 # endif
       return
       end
-#endif /* defined SEDIMENT */
+#endif /* SEDIMENT */
 
 #if defined PSOURCE && defined ANA_PSOURCE && defined SOLVE3D
 !

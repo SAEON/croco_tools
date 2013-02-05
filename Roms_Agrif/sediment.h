@@ -67,12 +67,17 @@
      &     bed_poros(GLOBAL_2D_ARRAY,NLAY),
      &     worksed_bed(GLOBAL_2D_ARRAY,NLAY)
       common /sediment_bed/ bed_thick, bed_poros,
-     &                      worksed        
+     &                      worksed_bed
        
       real bed_frac(GLOBAL_2D_ARRAY,NLAY,NST),
-     &     worksed_frac(GLOBAL_2D_ARRAY,NLAY,NST)
+     &     worksed_frac(GLOBAL_2D_ARRAY,NLAY)
       common /sediment_frac/ bed_frac, worksed_frac     
       
+# ifdef AVERAGES
+      real bed_frac_avg(GLOBAL_2D_ARRAY,NLAY,NST)
+      common /sediment_frac_avg/ bed_frac_avg
+# endif
+
       character*80 Stitle
       common /charseds/ Stitle
 
