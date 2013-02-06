@@ -182,6 +182,11 @@ C
         grapoc2(ji,jj,jk)=(grazd(ji,jj,jk)+grazz(ji,jj,jk)
      &    +grazn(ji,jj,jk)+grazpoc(ji,jj,jk)+grazffe(ji,jj,jk))*unass2
 
+#    if defined key_trc_dia3d
+        bioFlux(ji,jj,jk,13) = grapoc2(ji,jj,jk)
+     &          *tmask(ji,jj,jk)*1e3*rfact2r
+#    endif
+
           END DO
         END DO
       END DO

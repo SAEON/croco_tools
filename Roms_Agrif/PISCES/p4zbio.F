@@ -497,6 +497,18 @@ C
      &      *znegtr(ji,jj,jk)*1e3*rfact2r* tmask(ji,jj,jk)
           bioFlux(ji,jj,jk,11)=prorca5(ji,jj,jk)
      &      *znegtr(ji,jj,jk)*1e3*rfact2r* tmask(ji,jj,jk)
+          bioFlux(ji,jj,jk,14)=((-o2nit)*onitr(ji,jj,jk))
+     &      *tmask(ji,jj,jk)*1e3*rfact2r
+          bioFlux(ji,jj,jk,15)=(o2ut+o2nit)*( pronew(ji,jj,jk)
+     &      +pronew2(ji,jj,jk))*1e3*tmask(ji,jj,jk)*rfact2r
+          bioFlux(ji,jj,jk,16)=o2ut*(proreg(ji,jj,jk)
+     &      +proreg2(ji,jj,jk))*1e3*tmask(ji,jj,jk)*rfact2r
+          bioFlux(ji,jj,jk,17)=(-o2ut)*olimi(ji,jj,jk)
+     &      *1e3*tmask(ji,jj,jk)*rfact2r
+          bioFlux(ji,jj,jk,18)=(-o2ut)*grarem(ji,jj,jk)*sigma1
+     &      *1e3*tmask(ji,jj,jk)*rfact2r
+          bioFlux(ji,jj,jk,19)=(-o2ut)*grarem2(ji,jj,jk)*sigma2
+     &      *1e3*tmask(ji,jj,jk)*rfact2r
             END DO
           END DO
         END DO

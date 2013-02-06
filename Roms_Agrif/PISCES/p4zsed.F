@@ -216,6 +216,18 @@ C
           END DO
         END DO
 #    endif
+
+! tomflag
+#    if defined key_trc_dia3d
+      DO jk=1,jpk
+        DO jj=Jstr, Jend
+          DO ji=Istr, Iend
+         bioFlux(ji,jj,jk,20) = nitrpot(ji,jj,jk)*5.E-8*o2nit
+     &        *1e-3*rfact2r*tmask(ji,jj,jk)
+          END DO
+        END DO
+      END DO
+#    endif
 C
 #endif
       RETURN

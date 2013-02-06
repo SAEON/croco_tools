@@ -141,7 +141,7 @@ CC
       INTEGER ijulian
       COMMON/cotcdfi/ijulian
 
-# if defined key_trc_diaadd || defined key_trc_dia3d
+#    if defined key_trc_diaadd || defined key_trc_dia3d
 #include "diagnostics.h"
 CC----------------------------------------------------------------------
 CC
