@@ -313,7 +313,7 @@ C$    integer omp_get_thread_num
           endif
 #   endif
 #  endif
-#  ifdef BIOLOGY
+#  if defined BIOLOGY && !defined PISCES
           if (wrtavg(indxHel)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
@@ -611,7 +611,7 @@ C$    integer omp_get_thread_num
           endif
 #   endif
 #  endif /* AVERAGES_K */
-#  ifdef BIOLOGY
+#  if defined BIOLOGY && !defined PISCES
           if (wrtavg(indxHel)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
@@ -924,7 +924,7 @@ C$    integer omp_get_thread_num
           endif
 #   endif
 #  endif
-#  ifdef BIOLOGY
+#  if defined BIOLOGY && !defined PISCES
           if (wrtavg(indxHel)) then
             do j=JstrR,JendR
               do i=IstrR,IendR

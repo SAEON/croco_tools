@@ -694,7 +694,7 @@ c        close(testunit)
      &                                          , wrthis(indxShflx_lat)
      &                                          , wrthis(indxShflx_sen)
 # endif
-# ifdef BIOLOGY
+# if defined BIOLOGY && !defined PISCES
      &                                          ,  wrthis(indxHel)
 #  ifdef BIO_NChlPZD
      &                                          ,  wrthis(indxChC)
@@ -729,7 +729,7 @@ c        close(testunit)
      &                                        .or. wrthis(indxShflx_lat)
      &                                        .or. wrthis(indxShflx_sen)
 # endif
-# ifdef BIOLOGY
+# if defined BIOLOGY && !defined PISCES
      &                                        .or. wrthis(indxHel)
 #  ifdef BIO_NChlPZD
      &                                        .or. wrthis(indxChC)
@@ -778,7 +778,7 @@ c        close(testunit)
      &  , wrthis(indxShflx_sen), 'write shflx_sen',
      &                                 'Sensible heta flux'
 # endif
-# ifdef BIOLOGY
+# if defined BIOLOGY && !defined PISCES
      &  , wrthis(indxHel),   'write Hel  ',
      &                          'Depth of the euphotic layer'
 #  ifdef BIO_NChlPZD
@@ -863,7 +863,7 @@ c        close(testunit)
      &                                          ,  wrtavg(indxShflx_lat)
      &                                          ,  wrtavg(indxShflx_sen)
 #  endif
-#  ifdef BIOLOGY
+#  if defined BIOLOGY && !defined PISCES
      &                                          ,  wrtavg(indxHel)
 #   ifdef BIO_NChlPZD
      &                                          ,  wrtavg(indxChC)
@@ -897,7 +897,7 @@ c        close(testunit)
      &                                        .or. wrtavg(indxShflx_lat)
      &                                        .or. wrtavg(indxShflx_sen)
 #  endif 
-#  ifdef BIOLOGY
+#  if defined BIOLOGY && !defined PISCES
      &                                        .or. wrtavg(indxHel)
 #   ifdef BIO_NChlPZD
      &                                        .or. wrtavg(indxChC)
@@ -946,7 +946,7 @@ c        close(testunit)
      &  , wrtavg(indxShflx_sen), 'write shflx_sen',
      &                                 'Sensible heta flux'
 #  endif
-#  ifdef BIOLOGY
+# if defined BIOLOGY && !defined PISCES
      &  , wrtavg(indxHel),'write Hel  ',
      &                          'Depth of the euphotic layer'
 #   ifdef BIO_NChlPZD

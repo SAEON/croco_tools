@@ -230,7 +230,7 @@
 #endif
 
       integer indxSSH
-#ifdef BIOLOGY
+#if defined BIOLOGY && !defined PISCES
       integer indxHel
 # ifdef BIO_NChlPZD
      &      , indxChC
@@ -242,7 +242,7 @@
 # endif
 #endif /* BIOLOGY*/
 #ifdef SOLVE3D
-# ifdef BIOLOGY
+# if defined BIOLOGY && !defined PISCES
       parameter (indxHel=indxAkt+4)
 #  ifdef BIO_NChlPZD
       parameter (indxChC=indxHel+1)
@@ -269,7 +269,7 @@
       parameter (indxSSH=indxAkt+4)
 # endif
 #else
-# ifdef BIOLOGY
+# if defined BIOLOGY && !defined PISCES
       parameter (indxHel=indxVb+1)
 #  ifdef BIO_NChlPZD
       parameter (indxChC=indxHel+1)

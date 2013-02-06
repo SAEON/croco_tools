@@ -1001,7 +1001,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxHbbl =',indxHbbl
       vname(6,indxHbbl)='lat_rho lon_rho                          '              
       vname(7,indxHbbl)='                                         '
 # endif
-# ifdef BIOLOGY
+# if defined BIOLOGY && !defined PISCES
 CR      write(stdout,'(1x,A,I3)') 'indxHel =',indxHel
       vname(1,indxHel)='hel                                       '
       vname(2,indxHel)='depth of euphotic layer                   '
@@ -2070,11 +2070,96 @@ CR          &                          ,indxGasExcFlux
       vname(3,indxbioFlux+Nprorca5-1)=
      &     'molFe/m3/s                      '   
       vname(4,indxbioFlux+Nprorca5-1)=
-     &     'PFeD          , scalar, series  '   
+     &     'PFeD          , scalar, series  '  
+
+        vname(1,indxbioFlux+Ngraztot1-1)=
+     &     'grapoc                                     '
+        vname(2,indxbioFlux+Ngraztot1-1)=
+     &     'Microzooplankton Grazing                   '
+        vname(3,indxbioFlux+Ngraztot1-1)=
+     &     'molC/m3/s                                  '
+        vname(4,indxbioFlux+Ngraztot1-1)=
+     &     'grapoc        , scalar, series             '
+
+        vname(1,indxbioFlux+Ngraztot2-1)=
+     &     'grapoc2                                    '
+        vname(2,indxbioFlux+Ngraztot2-1)=
+     &     'Mesozooplankton Grazing                    '
+        vname(3,indxbioFlux+Ngraztot2-1)=
+     &     'molC/m3/s                                  '
+        vname(4,indxbioFlux+Ngraztot2-1)=
+     &     'grapoc2       , scalar, series             '
+
+        vname(1,indxbioFlux+Nnitrifo2-1)=
+     &     'Nito2                                      '
+        vname(2,indxbioFlux+Nnitrifo2-1)=
+     &     'o2 consumption by Nitrification            '
+        vname(3,indxbioFlux+Nnitrifo2-1)=
+     &     'molC/m3/s                                  '
+        vname(4,indxbioFlux+Nnitrifo2-1)=
+     &     'Nito2         , scalar, series             '
+
+        vname(1,indxbioFlux+Npronewo2-1)=
+     &     'NPo2                                       '
+        vname(2,indxbioFlux+Npronewo2-1)=
+     &     'o2 production by the NP                    '
+        vname(3,indxbioFlux+Npronewo2-1)=
+     &     'molC/m3/s                                  '
+        vname(4,indxbioFlux+Npronewo2-1)=
+     &     'NPo2         , scalar, series              '
+
+        vname(1,indxbioFlux+Nprorego2-1)=
+     &     'RPo2                                       '
+        vname(2,indxbioFlux+Nprorego2-1)=
+     &     'o2 production by the RP                    '
+        vname(3,indxbioFlux+Nprorego2-1)=
+     &     'molC/m3/s                                  '
+        vname(4,indxbioFlux+Nprorego2-1)=
+     &     'RPo2         , scalar, series              '
+
+        vname(1,indxbioFlux+Nremino2-1)=
+     &     'Remo2                                      '
+        vname(2,indxbioFlux+Nremino2-1)=
+     &     'o2 consumption by the remineralization     '
+        vname(3,indxbioFlux+Nremino2-1)=
+     &     'molC/m3/s                                  '
+        vname(4,indxbioFlux+Nremino2-1)=
+     &     'Remo2         , scalar, series             '
+
+        vname(1,indxbioFlux+Nmicroo2-1)=
+     &     'Mico2                                      '
+        vname(2,indxbioFlux+Nmicroo2-1)=
+     &     'o2 consumption by Microzoo                 '
+        vname(3,indxbioFlux+Nmicroo2-1)=
+     &     'molC/m3/s                                  '
+        vname(4,indxbioFlux+Nmicroo2-1)=
+     &     'Mico2         , scalar, series             '
+
+        vname(1,indxbioFlux+Nmesoo2-1)=
+     &     'Mso2                                       '
+        vname(2,indxbioFlux+Nmesoo2-1)=
+     &     'o2 consumption by Mesozoo                  '
+        vname(3,indxbioFlux+Nmesoo2-1)=
+     &     'molC/m3/s                                  '
+        vname(4,indxbioFlux+Nmesoo2-1)=
+     &     'Mso2         , scalar, series              '
+
+      write(stdout,'(1x,A,I3)') 'indxbioFlux(Nfixo2)='
+     &                          ,indxbioFlux+Nfixo2-1
+        vname(1,indxbioFlux+Nfixo2-1)=
+     &     'Fixo2                                      '
+        vname(2,indxbioFlux+Nfixo2-1)=
+     &     'o2 production by Nfix                      '
+        vname(3,indxbioFlux+Nfixo2-1)=
+     &     'molC/m3/s                                  '
+        vname(4,indxbioFlux+Nfixo2-1)=
+     &     'Fixo2         , scalar, series             ' 
 
 #  endif
       
 #  ifdef key_trc_diaadd
+      write(stdout,'(1x,A,I3)') 'indxbioVSink(Nfld)='
+     &                          ,indxbioVSink+Nfld-1
       vname(1,indxbioVSink+Nfld-1)=
      &     'Cflx                            '  
       vname(2,indxbioVSink+Nfld-1)=
@@ -2183,6 +2268,8 @@ CR          &                          ,indxGasExcFlux
       vname(4,indxbioVSink+Nirondep-1)=
      &     'Fedep           , scalar, series'  
 
+      write(stdout,'(1x,A,I3)') 'indxbioVSink(Nnitrpot)='
+     &                          ,indxbioVSink+Nnitrpot-1
       vname(1,indxbioVSink+Nnitrpot-1)=
      &     'Nfix                            '  
       vname(2,indxbioVSink+Nnitrpot-1)=

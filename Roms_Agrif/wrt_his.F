@@ -450,7 +450,7 @@ CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
 !      endif
 # endif
 !     
-# ifdef BIOLOGY
+# if defined BIOLOGY && !defined PISCES
 !     
 !     Write out depth of the euphotic layer (m).
 !     

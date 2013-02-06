@@ -361,7 +361,7 @@ CR       write(*,*) 'wrt_avg:  wrtAks' MYID
      &        record,r2dvar,type)
       endif
 #  endif
-#  ifdef BIOLOGY
+#  if defined BIOLOGY && !defined PISCES
 !     
 !     Write out depth of the euphotic layer (m).
 !     

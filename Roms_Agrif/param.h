@@ -184,6 +184,9 @@
      &          , Nhi,Nco3,Naksp,Netot,Nprorca
      &          , Nprorca2,Npronew,Npronew2
      &          , Nprorca3,Nprorca4,Nprorca5
+     &          , Ngraztot1,Ngraztot2,Nnitrifo2
+     &          , Npronewo2,Nprorego2,Nremino2
+     &          , Nmicroo2,Nmesoo2,Nfixo2
 #    endif
 #    ifdef key_trc_diaadd
      &          , Nfld,Nflu16,Nkgco2,Natcco2,Nsinking
@@ -268,7 +271,16 @@
      &            Nprorca3  = 9,
      &            Nprorca4  = 10,
      &            Nprorca5  = 11,
-     &            NumFluxTerms   = Nprorca5)
+     &            Ngraztot1 = 12,
+     &            Ngraztot2 = 13,
+     &            Nnitrifo2 = 14,
+     &            Npronewo2 = 15,
+     &            Nprorego2 = 16,
+     &            Nremino2  = 17,
+     &            Nmicroo2  = 18,
+     &            Nmesoo2   = 19,
+     &            Nfixo2    = 20,
+     &            NumFluxTerms   = Nfixo2)
 #   else
        parameter (NumFluxTerms = 0)
 #   endif
