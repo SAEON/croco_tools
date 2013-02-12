@@ -93,7 +93,10 @@ disp(['lon1 = ',num2str(lon1),' - lat1 = ',num2str(lat1)])
 % get the vertical levels
 %
 nc=netcdf(hisfile);
-if strcmp(vname,'zeta') | strcmp(vname,'ubar') | strcmp(vname,'vbar') 
+if strcmp(vname,'zeta') | strcmp(vname,'ubar') | strcmp(vname,'vbar') | ...
+   strcmp(vname,'sustr') | strcmp(vname,'svstr') | strcmp(vname,'shflux') | ...
+   strcmp(vname,'swflux') | strcmp(vname,'shflx_rsw') | strcmp(vname,'shflx_rlw') | ...
+   strcmp(vname,'shflx_sen')| strcmp(vname,'shflx_lat') | strcmp(vname,'sst_skin')
   var=coef*squeeze(nc{vname}(:,J,I));
 elseif vlevel>0
 %
