@@ -452,6 +452,8 @@ C$    integer  trd, omp_get_thread_num
           ssh(i,j)=ETA0*sin(omega*time-kwave*(xr(i,j)))
         enddo
       enddo
+# elif defined JET
+           ! climatology computed in ana_initial
 # else
       do j=JstrR,JendR
         do i=IstrR,IendR
@@ -670,6 +672,9 @@ C$    integer  trd, omp_get_thread_num
 !---------------------------------------------------------------------
 !
 # ifdef ANA_TCLIMA
+#  ifdef JET
+           ! climatology computed in ana_initial
+#  else
       do k=1,N
         do j=JstrR,JendR
           do i=IstrR,IendR
@@ -680,6 +685,7 @@ C$    integer  trd, omp_get_thread_num
           enddo
         enddo
       enddo
+#  endif /* JET */
 # endif
 
 # ifdef BIOLOGY
@@ -948,6 +954,8 @@ C$    integer  trd, omp_get_thread_num
           vbclm(i,j)=V0*cos(omega*time-kwave*0.5*(xr(i,j)+xr(i,j-1)))
         enddo
       enddo
+#  elif defined JET
+           ! climatology computed in ana_initial
 #  else
       do j=JstrR,JendR
         do i=IstrR,IendR
@@ -971,6 +979,8 @@ C$    integer  trd, omp_get_thread_num
           enddo
         enddo
       enddo
+#  elif defined JET
+           ! climatology computed in ana_initial
 #  else
       do k=1,N
         do j=JstrR,JendR

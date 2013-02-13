@@ -63,14 +63,15 @@
 !     parameter (LLm0=60,   MMm0=60,   N=10)   ! 30 km resolution
 #elif defined JET
 # ifdef ANA_JET
-!     parameter (LLm0=250,  MMm0=1000, N=30)   !  2 km resolution
-!     parameter (LLm0=100,  MMm0=400,  N=30)   !  5 km resolution
-      parameter (LLm0= 50,  MMm0=200,  N=30)   ! 10 km resolution
-!     parameter (LLm0= 25,  MMm0=100,  N=30)   ! 20 km resolution
+!     parameter (LLm0=250,  MMm0=1000,N=100)   !  2 km resolution
+!     parameter (LLm0=100,  MMm0=400,  N=80)   !  5 km resolution
+!     parameter (LLm0= 50,  MMm0=200,  N=60)   ! 10 km resolution
+      parameter (LLm0= 25,  MMm0=100,  N=40)   ! 20 km resolution
 # else
 !     parameter (LLm0=300,  MMm0=500,  N=30)   !  2 km resolution
 !     parameter (LLm0=120,  MMm0=200,  N=30)   !  5 km resolution
-      parameter (LLm0=60,   MMm0=100,  N=30)   ! 10 km resolution
+!     parameter (LLm0=60,   MMm0=100,  N=30)   ! 10 km resolution
+      parameter (LLm0=30,    MMm0=50,  N=30)   ! 20 km resolution
 # endif
 #elif defined REGIONAL
 #  if   defined USWC0

@@ -38,9 +38,6 @@ C$    integer omp_get_thread_num
 # include "ocean2d.h"
 # include "ocean3d.h"
 # include "scalars.h"
-# ifdef JET
-#  include "private_scratch.h"
-# endif
       integer Istr,Iend,Jstr,Jend, i,j,k, itrc
 # ifdef SOLITON
       real fac, x,y, x0,y0, cff1,cff2,cff3
@@ -53,33 +50,6 @@ C$    integer omp_get_thread_num
 # endif
 # ifdef BIOLOGY
       real temp, SiO4
-# endif
-# ifdef JET
-      integer j0,j1,j2,j3,j4,j5,rhoinv
-      real cff,cff1,cff2,cff3,x,y,Fyz,
-     &     rhomaxs,bgdrhos,zs1,dzs,drhos,drhosfs,
-     &     rhomaxn,bgdrhon,zn1,dzn,drhon,drhosfn,
-     &     drhosf,z0,z0p,dzs_a,dzn_a,zk,
-     &     Ljet,ywidth,ydist,jmidjet,cff_perturb,
-     &     mssh,ierr,tanh
-      real rhoprof(0:N,2)
-      real ru(PRIVATE_2D_SCRATCH_ARRAY,N),   
-     &     rv(PRIVATE_2D_SCRATCH_ARRAY,N),   
-     &      P(PRIVATE_2D_SCRATCH_ARRAY,N), 
-     &     FC(PRIVATE_2D_SCRATCH_ARRAY),
-     &    dZx(PRIVATE_2D_SCRATCH_ARRAY),
-     &     rx(PRIVATE_2D_SCRATCH_ARRAY),
-     &    dRx(PRIVATE_2D_SCRATCH_ARRAY)
-      real tempy(0:MMm+1),fthy(0:MMm+1)
-#  ifdef MPI
-      real allmssh(1,NNODES)
-#   include "mpif.h"
-#  endif
-      real asymth,zz,zasym,dzasym
-      asymth(zz,zasym,dzasym) = 
-     &         (zz-zasym)
-     &         *sqrt(1+0.5*((zz-zasym)+abs(zz-zasym))**2/dzasym**2)
-     &         +zasym
 # endif
 !
 # include "compute_auxiliary_bounds.h"
@@ -100,8 +70,11 @@ C$    integer omp_get_thread_num
       do j=JR_RANGE
         do i=IR_RANGE
           zeta(i,j,1)=0.
+          zeta(i,j,2)=0.
           ubar(i,j,1)=0.
           vbar(i,j,1)=0.
+          ubar(i,j,2)=0.
+          vbar(i,j,2)=0.
         enddo
       enddo
 # elif defined SOLITON
@@ -148,15 +121,6 @@ C$    integer omp_get_thread_num
       enddo
 # else
       ERROR: ANA_INITIAL: no initials for ubar,vbar,zeta
-# endif
-
-# if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
-      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
-     &                        zeta(START_2D_ARRAY,1))
-      call exchange_u2d_tile (Istr,Iend,Jstr,Jend,
-     &                        ubar(START_2D_ARRAY,1))
-      call exchange_v2d_tile (Istr,Iend,Jstr,Jend,
-     &                        vbar(START_2D_ARRAY,1))
 # endif
 
 # ifdef SOLVE3D
@@ -487,7 +451,111 @@ C$    integer omp_get_thread_num
         enddo
       enddo
 
-# elif defined JET
+#  elif defined JET
+!
+! Compute analytical t and geostrophically adjusted zeta,ub,vb,u,v fields
+! with no zonal perturbation first
+!  --> store in climatological arrays
+!
+      call ana_jet_tile (Istr,Iend,Jstr,Jend,0) 
+!
+! Compute same fields with zonal perturbation 
+! --> store in initial arrays
+!
+      call ana_jet_tile (Istr,Iend,Jstr,Jend,1)
+
+#  else
+      do k=1,N
+        do j=JR_RANGE
+          do i=IR_RANGE
+            t(i,j,k,1,itemp)=???
+            t(i,j,k,2,itemp)=???
+            t(i,j,k,1,isalt)=???
+            t(i,j,k,2,isalt)=???
+          enddo
+        enddo
+      enddo
+#  endif
+
+#  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+      call exchange_u3d_tile (Istr,Iend,Jstr,Jend,
+     &                        u(START_2D_ARRAY,1,1))
+      call exchange_v3d_tile (Istr,Iend,Jstr,Jend,
+     &                        v(START_2D_ARRAY,1,1))
+      do itrc=1,NT
+        call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
+     &                          t(START_2D_ARRAY,1,1,itrc))
+      enddo
+#  endif
+
+# endif /* SOLVE3D */
+
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                        zeta(START_2D_ARRAY,1))
+      call exchange_u2d_tile (Istr,Iend,Jstr,Jend,
+     &                        ubar(START_2D_ARRAY,1))
+      call exchange_v2d_tile (Istr,Iend,Jstr,Jend,
+     &                        vbar(START_2D_ARRAY,1))
+# endif
+
+# undef IR_RANGE
+# undef IU_RANGE
+# undef JR_RANGE
+# undef JV_RANGE
+      return
+      end
+
+# ifdef JET
+!*********************************************************************
+      subroutine ana_jet_tile (Istr,Iend,Jstr,Jend, jet_perturb)
+!*********************************************************************
+!
+!--------------------------------------------------------------------
+!  Set initial conditions for momentum and tracer variables using
+!  analytical expressions for the JET test case
+!--------------------------------------------------------------------
+!
+#  ifdef AGRIF
+      use Agrif_Util
+#  endif
+      implicit none
+#  include "param.h"
+#  include "grid.h"
+#  include "ocean2d.h"
+#  include "ocean3d.h"
+#  include "scalars.h"
+#  include "private_scratch.h"
+#  ifdef CLIMATOLOGY
+#   include "climat.h"
+#  endif
+      integer Istr,Iend,Jstr,Jend, i,j,k, itrc, 
+     &        jet_perturb, tndx
+      real cff,x,y,Fyz,
+     &     rhomaxs,bgdrhos,zs1,dzs,drhos,drhosfs,
+     &     rhomaxn,bgdrhon,zn1,dzn,drhon,drhosfn,
+     &     drhosf,z0,z0p,dzs_a,dzn_a,zk,
+     &     Ljet,cff_perturb,ierr,tanh
+      real*QUAD mssh,area,cff1
+      real rhoprof(0:N,2)
+      real ru(PRIVATE_2D_SCRATCH_ARRAY,N),   
+     &     rv(PRIVATE_2D_SCRATCH_ARRAY,N),   
+     &      P(PRIVATE_2D_SCRATCH_ARRAY,N), 
+     &     FC(PRIVATE_2D_SCRATCH_ARRAY),
+     &    dZx(PRIVATE_2D_SCRATCH_ARRAY),
+     &     rx(PRIVATE_2D_SCRATCH_ARRAY),
+     &    dRx(PRIVATE_2D_SCRATCH_ARRAY)
+#  ifdef MPI
+      real*QUAD allmssh(1,NNODES),allarea(1,NNODES)
+#   include "mpif.h"
+#  endif
+      real asymth,zz,zasym,dzasym
+      asymth(zz,zasym,dzasym) = 
+     &         (zz-zasym)
+     &         *sqrt(1+0.5*((zz-zasym)+abs(zz-zasym))**2/dzasym**2)
+     &         +zasym
+!
+#  include "compute_auxiliary_bounds.h"
 !
 ! ---------------------------------------------------------------------
 ! BAROCLINIC JET TEST CASE
@@ -496,9 +564,6 @@ C$    integer omp_get_thread_num
 ! --- Jet and density profile parameters ---
 !
       Ljet        = 1600.e3;  ! Jet width in km
-      cff_perturb = 0.01      ! zonal perturbation coefficient
-!
-! Xavier's SETUP1 parameters  (Phillips > Charney mode)
 !
 ! southern profile
       rhomaxs=27.75     ! max density
@@ -517,6 +582,16 @@ C$    integer omp_get_thread_num
       z0=-300.          ! vertical penetration (-600 for strong Charney mode)
       drhosf=0.00       ! weakens Charney mode (canceled for 1.05)
       z0p=-110.         ! only used for drhosf non zero
+!
+! zonal perturbation
+!
+      if (jet_perturb .eq. 0) then
+        cff_perturb = 0.0    ! zonal perturbation coefficient
+        tndx=2
+      else
+        cff_perturb = 0.02
+        tndx=1
+      endif
 !
 ! --- Build northern and southern density profiles ---
 !
@@ -576,20 +651,19 @@ C$    integer omp_get_thread_num
              y = y + cff_perturb*exp(z_r(i,j,k)/1000.)
      &                          *(exp(-(x-0.5)**2/0.05))
      &                          *( 0.5*sin(2.*pi*x)
-     &                            +0.5*sin(4.*pi*x) )
+     &                            +0.5*sin(6.*pi*x) )
 !
 ! Set Jet structure and place its center at y=pi/2
 !
              y = y*pi*el/Ljet + pi/2 
 
              if(y.lt.0)then
-               Fyz=0.5
+               Fyz=1.0
              elseif(y.gt.pi)then
-               Fyz=-0.5
+               Fyz=0.0
              else
-               Fyz=0.5-(y-sin(y)*cos(y))/pi
+               Fyz=1.0-(y-sin(y)*cos(y))/pi
              endif
-             Fyz=Fyz+0.5
              rho(i,j,k)=Fyz*rhoprof(k,1)+(1.-Fyz)*rhoprof(k,2)
            enddo
          enddo
@@ -598,126 +672,131 @@ C$    integer omp_get_thread_num
        do k=1,N
          do j=JstrR,JendR
            do i=IstrR,IendR
-             t(i,j,k,1,1)=rho(i,j,k)
+             t(i,j,k,tndx,1)=rho(i,j,k)
            enddo
          enddo
        enddo
 
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r3d_tile (istr,iend,jstr,jend,
-     &                        t(START_2D_ARRAY,1,1,1))
+     &                        t(START_2D_ARRAY,1,tndx,1))
 #  endif
-      rho(:,:,:)=t(:,:,:,1,1)
+      rho(:,:,:)=t(:,:,:,tndx,1)
 !
 ! --- Get surface pressure (and zeta) using pressure gradient routine ---
 !
-      call prsgrd_tile (istr,iend,jstr,jend, ru,rv, P,
+      call prsgrd_tile (Istr,Iend,Jstr,Jend, ru,rv, P,
      &                  A2d(1,3,0),A2d(1,4,0), FC,dZx,rx,dRx)
 
-      do j=jstr,jend
-        do i=istr,iend
-          zeta(i,j,1)=-P(i,j,1)/g
+      do j=Jstr,Jend
+        do i=Istr,Iend
+          zeta(i,j,tndx)=-P(i,j,1)/g ! cancels bottom pressure
         enddo
       enddo
 !
-! removes mean ssh level
+! Remove mean sea level (mssh)  !!! MPI DEBUG problems here !!!
 !
       mssh=0.
-      do j=jstr,jend
-        do i=istr,iend
-           mssh=mssh+zeta(i,j,1)
+      area=0.
+      do j=Jstr,Jend
+        do i=Istr,Iend
+           cff1=1./(pm(i,j)*pn(i,j))
+           mssh=mssh+cff1*zeta(i,j,1)
+           area=area+cff1
         enddo
       enddo
-      mssh=mssh/(jend-jstr+1)/(iend-istr+1)
+      mssh=mssh/area
 #  ifdef MPI
       call MPI_ALLGATHER(mssh,1,MPI_DOUBLE_PRECISION,
      &                   allmssh,1,MPI_DOUBLE_PRECISION,
      &                   MPI_COMM_WORLD,ierr)
+      call MPI_ALLGATHER(area,1,MPI_DOUBLE_PRECISION,
+     &                   allarea,1,MPI_DOUBLE_PRECISION,
+     &                   MPI_COMM_WORLD,ierr)
       mssh=0.
+      area=0.
       do i=1,NNODES
-        mssh=mssh+allmssh(1,i)
+        mssh=mssh+allmssh(1,i)*allarea(1,i)
+        area=area+allarea(1,i)
       enddo
-      mssh=mssh/real(NNODES)
+      mssh=mssh/area
 #  endif
-      do j=jstr,jend
-        do i=istr,iend
-          zeta(i,j,1)=zeta(i,j,1)-mssh
+      do j=Jstr,Jend
+        do i=Istr,Iend
+          zeta(i,j,tndx)=zeta(i,j,tndx)-mssh
         enddo
       enddo
 !
 ! Apply zeta boundary conditions
 !
       if (SOUTHERN_EDGE) then
-        do i=istr,iend                     ! Southern edge gradient BC
-          zeta(i,jstr-1,1)=zeta(i,jstr,1)
+        do i=Istr,Iend                     ! Southern edge gradient BC
+          zeta(i,Jstr-1,tndx)=zeta(i,Jstr,tndx)
           enddo
       endif
       if (NORTHERN_EDGE) then
         do i=istr,iend                     ! Northern edge gradient BC
-          zeta(i,jend+1,1)=zeta(i,jend,1)
+          zeta(i,Jend+1,tndx)=zeta(i,Jend,tndx)
         enddo
       endif
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r2d_tile (istr,iend,jstr,jend,
-     &                        zeta(START_2D_ARRAY,1))
+     &                        zeta(START_2D_ARRAY,tndx))
 #  endif
 !
 ! --- Get gressure gradient using updated zeta field ---
 !
-      call set_depth_tile (istr,iend,jstr,jend)
-      call prsgrd_tile (istr,iend,jstr,jend, ru,rv, P,
+      call set_depth_tile (Istr,Iend,Jstr,Jend)
+      call prsgrd_tile (Istr,Iend,Jstr,Jend, ru,rv, P,
      &                  A2d(1,3,0),A2d(1,4,0), FC,dZx,rx,dRx)
 
-#  ifndef MPI
-      P(:,0,:)=P(:,1,:)
-      P(:,Mm+1,:)=P(:,Mm,:)
-      rv(:,0,:)=rv(:,1,:)
-      rv(:,Mm+1,:)=rv(:,Mm,:)
-      ru(:,0,:)=0.
-      ru(:,Mm+1,:)=0.
-#  else
-      rho1(PRIVATE_2D_SCRATCH_ARRAY,:)=rv
-      call exchange_r3d_tile (istr,iend,jstr,jend,
-     &                        rho1(START_2D_ARRAY,1))
-      if (jj.eq.0) then
-        rho1(:,0,:)=rho1(:,1,:)
+#  define WORK rho1
+      WORK(PRIVATE_2D_SCRATCH_ARRAY,:) = rv
+#  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
+     &                        WORK(START_2D_ARRAY,1))
+#  endif
+      if (SOUTHERN_EDGE) then
+        WORK(:,0,:)=WORK(:,1,:)
       endif
-      if (jj.eq.NP_ETA-1) then
-        rho1(:,Mm+1,:)=rho1(:,Mm,:)
+      if (NORTHERN_EDGE) then
+        WORK(:,Mm+1,:)=WORK(:,Mm,:)
       endif
-      rv=rho1(PRIVATE_2D_SCRATCH_ARRAY,:)
+      rv=WORK(PRIVATE_2D_SCRATCH_ARRAY,:)
 !
-      rho1(PRIVATE_2D_SCRATCH_ARRAY,:)=ru
+      WORK(PRIVATE_2D_SCRATCH_ARRAY,:) = ru
+#  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r3d_tile (istr,iend,jstr,jend,
-     &                        rho1(START_2D_ARRAY,1))
-      if (jj.eq.0) then
-        rho1(:,0,:)=0.
+     &                        WORK(START_2D_ARRAY,1))
+#  endif
+      if (SOUTHERN_EDGE) then
+        WORK(:,0,:)=0.
       endif
-      if (jj.eq.NP_ETA-1) then
-        rho1(:,Mm+1,:)=0.
+      if (NORTHERN_EDGE) then
+        WORK(:,Mm+1,:)=0.
       endif
-      ru=rho1(PRIVATE_2D_SCRATCH_ARRAY,:)
-#  endif    
+      ru=WORK(PRIVATE_2D_SCRATCH_ARRAY,:)
+#  undef WORK
 !
 ! --- Compute geostrophic u,v velocities ---
 !
       do k=1,N
-        do j=jstr,jend
-          do i=istr,iend
+        do j=Jstr,Jend
+          do i=Istr,Iend
             cff=0.5*(pm(i,j)+pm(i,j-1))
      &             *(pn(i,j)+pn(i,j-1))
      &            /(Hz(i,j,k)+Hz(i,j-1,k))/f(i,j)
-            u(i,j,k,1) = cff*rv(i,j,k)
+            u(i,j,k,tndx) = cff*rv(i,j,k)
           enddo
         enddo
       enddo
       do k=1,N
-        do j=jstr,jend
-          do i=istr,iend
+        do j=Jstr,Jend
+          do i=Istr,Iend
             cff=0.5*(pm(i,j)+pm(i-1,j))
      &                *(pn(i,j)+pn(i-1,j))
      &                /(Hz(i,j,k)+Hz(i-1,j,k))/f(i,j)
-            v(i,j,k,1) =-cff*ru(i,j,k)
+            v(i,j,k,tndx) =-cff*ru(i,j,k)
           enddo
         enddo
       enddo
@@ -725,17 +804,17 @@ C$    integer omp_get_thread_num
 ! --- Compute barotropic u velocity ---
 !
       do k=1,N
-        do j=JR_RANGE
-          do i=IU_RANGE
-            ubar(i,j,1)=ubar(i,j,1)+u(i,j,k,1)
+        do j=Jstr,Jend
+          do i=Istr,Iend
+            ubar(i,j,tndx)=ubar(i,j,tndx)+u(i,j,k,tndx)
      &                   *0.5*(Hz(i-1,j,k)+Hz(i,j,k))
           enddo
         enddo
       enddo
-      do j=JR_RANGE
-        do i=IU_RANGE
-          ubar(i,j,1) = ubar(i,j,1) /
-     &                  ( 0.5*(zeta(i,j,1)+zeta(i-1,j,1))
+      do j=Jstr,Jend
+        do i=Istr,Iend
+          ubar(i,j,tndx) = ubar(i,j,tndx) /
+     &                  ( 0.5*(zeta(i,j,tndx)+zeta(i-1,j,tndx))
      &                  + 0.5*(h(i,j)+h(i-1,j)) )
         enddo
       enddo
@@ -743,62 +822,57 @@ C$    integer omp_get_thread_num
 ! --- Compute barotropic u velocity ---
 !
       do k=1,N
-         do j=JV_RANGE
-            do i=IR_RANGE
-               vbar(i,j,1)=vbar(i,j,1)+v(i,j,k,1)
+        do j=Jstr,Jend
+          do i=Istr,Iend
+            vbar(i,j,tndx)=vbar(i,j,tndx)+v(i,j,k,tndx)
      &                   *0.5*(Hz(i,j-1,k)+Hz(i,j,k))
-            enddo
-         enddo
-      enddo
-      do j=JV_RANGE
-         do i=IR_RANGE
-            vbar(i,j,1) = vbar(i,j,1) / 
-     &                ( 0.5*(zeta(i,j,1)+zeta(i,j-1,1))
-     &                + 0.5*(h(i,j)+h(i,j-1)) )
-         enddo
-      enddo
-# if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
-      call exchange_u2d_tile (Istr,Iend,Jstr,Jend,
-     &                        ubar(START_2D_ARRAY,1))
-      call exchange_v2d_tile (Istr,Iend,Jstr,Jend,
-     &                        vbar(START_2D_ARRAY,1))
-# endif
-
-!
-! -------- END OF JET INITIALISATION ---------
-!
-
-#  else
-      do k=1,N
-        do j=JR_RANGE
-          do i=IR_RANGE
-            t(i,j,k,1,itemp)=???
-            t(i,j,k,2,itemp)=???
-            t(i,j,k,1,isalt)=???
-            t(i,j,k,2,isalt)=???
           enddo
         enddo
       enddo
-#  endif
-
-#  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
-      call exchange_u3d_tile (Istr,Iend,Jstr,Jend,
-     &                        u(START_2D_ARRAY,1,1))
-      call exchange_v3d_tile (Istr,Iend,Jstr,Jend,
-     &                        v(START_2D_ARRAY,1,1))
-      do itrc=1,NT
-        call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
-     &                          t(START_2D_ARRAY,1,1,itrc))
+      do j=Jstr,Jend
+        do i=Istr,Iend
+          vbar(i,j,tndx) = vbar(i,j,tndx) / 
+     &                ( 0.5*(zeta(i,j,tndx)+zeta(i,j-1,tndx))
+     &                + 0.5*(h(i,j)+h(i,j-1)) )
+        enddo
       enddo
+
+#  ifdef CLIMATOLOGY
+      if (jet_perturb .eq. 0) then
+!
+! Fill climatological arrays. MPI exchanges are done in analytical
+!
+        do k=1,N
+          do j=Jstr,Jend
+            do i=Istr,Iend
+              uclm(i,j,k) = u(i,j,k,tndx)
+              vclm(i,j,k) = v(i,j,k,tndx)
+              tclm(i,j,k,1) = t(i,j,k,tndx,1)
+            enddo
+          enddo
+        enddo
+        do j=Jstr,Jend
+          do i=Istr,Iend
+            ssh(i,j) = zeta(i,j,tndx)
+          enddo
+        enddo
+        do j=Jstr,Jend
+          do i=Istr,Iend
+            ubclm(i,j) = ubar(i,j,tndx)
+          enddo
+        enddo
+        do j=Jstr,Jend
+          do i=Istr,Iend
+            vbclm(i,j) = vbar(i,j,tndx)
+          enddo
+        enddo
+      endif
 #  endif
 
-# endif /* SOLVE3D */
-# undef IR_RANGE
-# undef IU_RANGE
-# undef JR_RANGE
-# undef JV_RANGE
       return
       end
+# endif /* JET */
+
 #else
       subroutine ana_initial_empty
       return

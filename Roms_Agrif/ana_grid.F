@@ -124,7 +124,7 @@ C$    integer omp_get_thread_num
 # elif defined JET
                      depth=4000.
                      f0=1.E-4
-                     beta=2.E-11
+                     beta=1.6E-11
 # else
                      depth=???
                      f0=???
