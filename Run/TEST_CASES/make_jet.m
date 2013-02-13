@@ -56,11 +56,11 @@ H0=1000;                % Total Depth
 %
 % Jet parameters
 %
-umax=0.6;              % jet velocity (at its center)
-Ljet=40.e3;             % jet width
+umax=0.6;               % jet velocity (at its center)
+Ljet=50.e3;             % jet width
 Y0=0;                   % jet center
 H=300;                  % jet vertical scale (level of no-motion)
-N2=(1.e-2)^2;            % Brunt-Vaissala frequency
+N2=(0.75e-2)^2;         % Brunt-Vaissala frequency
 lat=30;                 % Latitude 
 bplane=1;               % bplane=0 or 1 (f-plane or beta-plane)
 perturb=1;              % add jet perturbation in x direction (2*pi*R)
@@ -71,7 +71,7 @@ R=6367442.76;           % Earth radius
 %
 % Horizontal grid resolution
 %
-dx=10.e3; 
+dx=20.e3; 
 %
 % Vertical grid parameters
 %

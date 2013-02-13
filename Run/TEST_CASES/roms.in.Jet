@@ -1,8 +1,8 @@
 title:
-        JET Example (DON'T FORGET make_jet.m)
+        JET Example (use make_jet.m for non ANA_JET config)
 
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
-                4320     1200      60      1
+                4860     3200      60      1
 
 S-coord: THETA_S,   THETA_B,    Hc (m)
          5.0d0      0.0d0       100.0d0
@@ -18,11 +18,11 @@ initial: NRREC  filename
                           jet_ini.nc
 
 restart:          NRST, NRPFRST / filename
-                  4320   -1
+                  4860   -1
                           jet_rst.nc
 
 history: LDEFHIS, NWRT, NRPFHIS / filename
-            T      216     0
+            T      270     0
                           jet_his.nc
 
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
@@ -53,7 +53,7 @@ nudg_cof:    TauT_in, TauT_out, TauM_in, TauM_out  [days for all]
               1.       50.       1.       50.
 
 lateral_visc:   VISC2,    VISC4    [m^2/sec for all]
-                0.        0.
+                 5.        0.
 
 tracer_diff2: TNU2(1:NT)           [m^2/sec for all]
                30*0.d0
