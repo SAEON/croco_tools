@@ -674,7 +674,7 @@
 !                       Baroclinic JET Example
 !                       ========== === =======
 */
-# undef  ANA_JET
+# define ANA_JET
 # undef  ETALON_CHECK
 # undef  MPI
 # undef  AGRIF
@@ -682,6 +682,8 @@
 # define SOLVE3D
 # define UV_COR
 # define UV_ADV
+# define UV_VIS2
+# define UV_MIX_S
 # ifdef ANA_JET
 #  define ANA_GRID
 #  define ANA_INITIAL
