@@ -591,6 +591,8 @@ C$    integer omp_get_thread_num
       else
         cff_perturb = 0.02
         tndx=1
+        zeta(:,:,tndx)=0.
+        call set_depth_tile (Istr,Iend,Jstr,Jend)
       endif
 !
 ! --- Build northern and southern density profiles ---
@@ -633,23 +635,23 @@ C$    integer omp_get_thread_num
 !
 ! --- Fit southern and northern profiles ---
 !
-       do k=1,N
-         do j=JstrR,JendR
-           do i=IstrR,IendR
+      do k=1,N
+        do j=JstrR,JendR
+          do i=IstrR,IendR
 #  ifdef MPI
-             y=j+jj*Mm
-             x=i+ii*Lm
+            y=j+jj*Mm
+            x=i+ii*Lm
 #  else
-             y=j
-             x=i
+            y=j
+            x=i
 #  endif
-             y=y/real(MMm)-0.5
-             x=x/real(LLm-2)
+            y=y/real(MMm)-0.5
+            x=x/real(LLm-2)
 !
 ! Add vertical attenuation and XI perturbation
 !
-             y = y + cff_perturb*exp(z_r(i,j,k)/1000.)
-     &                          *(exp(-(x-0.5)**2/0.05))
+            y = y + cff_perturb*exp(z_r(i,j,k)/1000.)
+     &                          *exp(-(x-0.5)**2/0.05)
      &                          *( 0.5*sin(2.*pi*x)
      &                            +0.5*sin(6.*pi*x) )
 !
@@ -657,9 +659,9 @@ C$    integer omp_get_thread_num
 !
              y = y*pi*el/Ljet + pi/2 
 
-             if(y.lt.0)then
+             if (y.lt.0) then
                Fyz=1.0
-             elseif(y.gt.pi)then
+             elseif (y.gt.pi) then
                Fyz=0.0
              else
                Fyz=1.0-(y-sin(y)*cos(y))/pi
@@ -683,14 +685,18 @@ C$    integer omp_get_thread_num
 #  endif
       rho(:,:,:)=t(:,:,:,tndx,1)
 !
-! --- Get surface pressure (and zeta) using pressure gradient routine ---
+! --- Compute zeta ---
+!
+! Get pressure using pressure gradient routine
 !
       call prsgrd_tile (Istr,Iend,Jstr,Jend, ru,rv, P,
      &                  A2d(1,3,0),A2d(1,4,0), FC,dZx,rx,dRx)
-
+!
+! Compute zeta so as to cancel bottom pressure perturbation
+!
       do j=Jstr,Jend
         do i=Istr,Iend
-          zeta(i,j,tndx)=-P(i,j,1)/g ! cancels bottom pressure
+          zeta(i,j,tndx)=-P(i,j,1)/g
         enddo
       enddo
 !
@@ -701,18 +707,18 @@ C$    integer omp_get_thread_num
       do j=Jstr,Jend
         do i=Istr,Iend
            cff1=1./(pm(i,j)*pn(i,j))
-           mssh=mssh+cff1*zeta(i,j,1)
+           mssh=mssh+cff1*zeta(i,j,tndx)
            area=area+cff1
         enddo
       enddo
       mssh=mssh/area
 #  ifdef MPI
       call MPI_ALLGATHER(mssh,1,MPI_DOUBLE_PRECISION,
-     &                   allmssh,1,MPI_DOUBLE_PRECISION,
-     &                   MPI_COMM_WORLD,ierr)
+     &                allmssh,1,MPI_DOUBLE_PRECISION,
+     &                          MPI_COMM_WORLD,ierr)
       call MPI_ALLGATHER(area,1,MPI_DOUBLE_PRECISION,
-     &                   allarea,1,MPI_DOUBLE_PRECISION,
-     &                   MPI_COMM_WORLD,ierr)
+     &                allarea,1,MPI_DOUBLE_PRECISION,
+     &                          MPI_COMM_WORLD,ierr)
       mssh=0.
       area=0.
       do i=1,NNODES
@@ -744,7 +750,7 @@ C$    integer omp_get_thread_num
      &                        zeta(START_2D_ARRAY,tndx))
 #  endif
 !
-! --- Get gressure gradient using updated zeta field ---
+! --- Get gressure gradient (ru,rv) using updated zeta field ---
 !
       call set_depth_tile (Istr,Iend,Jstr,Jend)
       call prsgrd_tile (Istr,Iend,Jstr,Jend, ru,rv, P,
@@ -762,7 +768,7 @@ C$    integer omp_get_thread_num
       if (NORTHERN_EDGE) then
         WORK(:,Mm+1,:)=WORK(:,Mm,:)
       endif
-      rv=WORK(PRIVATE_2D_SCRATCH_ARRAY,:)
+      rv = WORK(PRIVATE_2D_SCRATCH_ARRAY,:)
 !
       WORK(PRIVATE_2D_SCRATCH_ARRAY,:) = ru
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
@@ -775,7 +781,7 @@ C$    integer omp_get_thread_num
       if (NORTHERN_EDGE) then
         WORK(:,Mm+1,:)=0.
       endif
-      ru=WORK(PRIVATE_2D_SCRATCH_ARRAY,:)
+      ru = WORK(PRIVATE_2D_SCRATCH_ARRAY,:)
 #  undef WORK
 !
 ! --- Compute geostrophic u,v velocities ---
@@ -803,11 +809,12 @@ C$    integer omp_get_thread_num
 !
 ! --- Compute barotropic u velocity ---
 !
+      ubar(:,:,tndx)=0.
       do k=1,N
         do j=Jstr,Jend
           do i=Istr,Iend
             ubar(i,j,tndx)=ubar(i,j,tndx)+u(i,j,k,tndx)
-     &                   *0.5*(Hz(i-1,j,k)+Hz(i,j,k))
+     &                             *0.5*(Hz(i-1,j,k)+Hz(i,j,k))
           enddo
         enddo
       enddo
@@ -821,11 +828,12 @@ C$    integer omp_get_thread_num
 !
 ! --- Compute barotropic u velocity ---
 !
+      vbar(:,:,tndx)=0.
       do k=1,N
         do j=Jstr,Jend
           do i=Istr,Iend
             vbar(i,j,tndx)=vbar(i,j,tndx)+v(i,j,k,tndx)
-     &                   *0.5*(Hz(i,j-1,k)+Hz(i,j,k))
+     &                           *0.5*(Hz(i,j-1,k)+Hz(i,j,k))
           enddo
         enddo
       enddo
