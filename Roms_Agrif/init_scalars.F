@@ -306,7 +306,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxBostr =',indxBostr
 #endif
       vname(7,indxBostr)='                                        '
 
-CR      write(stdout,'(1x,A,I3)') 'indxWstr =',indxWstr
+CR      write(stdout,'(1x,A,I3)') ' =',indxWstr
       vname(1,indxWstr)='wstr                                     '
       vname(2,indxWstr)='Kinematic wind stress                    '
       vname(3,indxWstr)='N/m2                                     '
@@ -319,7 +319,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxWstr =',indxWstr
 #endif
       vname(7,indxWstr)='                                         '
 
-CR      write(stdout,'(1x,A,I3)') 'indxUWstr =',indxUWstr
+CR      write(stdout,'(1x,A,I3)') 'indxtr =',indxUWstr
       vname(1,indxUWstr)='sustr                                   '
       vname(2,indxUWstr)='Kinematic u wind stress component       '
       vname(3,indxUWstr)='N/m2                                    '
@@ -840,22 +840,45 @@ CR      write(stdout,'(1x,A,I3)') 'indxBostrw=',indxBBL+5
       vname(6,indxBostrw)='lat_rho lon_rho                        '
       vname(7,indxBostrw)='                                       '
 # endif /* BBL */
+CR      write(stdout,'(1x,A,I3)') 'indxSHFLX =',indxSHFLX
+      vname(1,indxShflx)='shflux                                  '
+      vname(2,indxShflx)='surface net heat flux                   '
+      vname(3,indxShflx)='Watts meter-2                           '
+      vname(4,indxShflx)='surface heat flux, scalar, series       '
+#ifdef SPHERICAL
+      vname(6,indxShflx)='lat_rho lon_rho                         '
+#else
+      vname(6,indxShflx)='x_rho y_rho                             '
+#endif
+      vname(7,indxShflx)='                                        '
 
-# ifdef BULK_FLUX
+CR      write(stdout,'(1x,A,I3)') 'indxSSFLX =',indxSSFLX
+      vname(1,indxSwflx)='swflux                                   '
+      vname(2,indxSwflx)='surface freshwater flux (E-P)           '
+      vname(3,indxSwflx)='centimeter day-1                        '
+      vname(4,indxSwflx)='surface freshwater flux, scalar, series '
+      vname(5,indxSwflx)='                                        '
+#ifdef SPHERICAL
+      vname(6,indxSwflx)='lat_rho lon_rho                         '
+#else
+      vname(6,indxSwflx)='x_rho y_rho                             '
+#endif
+      vname(7,indxSwflx)='                                        '
+      vname(8,indxSwflx)='                                        '
 CR      write(stdout,'(1x,A,I3)') 'indxShflx_rsw =',indxShflx_rsw 
       vname(1,indxShflx_rsw)='shflx_rsw                           '
       vname(2,indxShflx_rsw)='Short-wave surface radiation        '
-      vname(3,indxShflx_rsw)='Celsius meter second-1              '
+!      vname(3,indxShflx_rsw)='Celsius meter second-1              '
+      vname(3,indxShflx_rsw)='Watts meter-2                       '
       vname(4,indxShflx_rsw)='                                    '
-      vname(5,indxShflx_rsw)='average_surface_net_downward_'
-     &                       / / 'shortwave_flux                  '    
+      vname(5,indxShflx_rsw)='                                    '
       vname(6,indxShflx_rsw)='lat_rho lon_rho                     '                  
       vname(7,indxShflx_rsw)='                                    '
-
+# ifdef BULK_FLUX
 CR      write(stdout,'(1x,A,I3)') 'indxShflx_rlw =',indxShflx_rlw
       vname(1,indxShflx_rlw)='shflx_rlw                           '
       vname(2,indxShflx_rlw)='Long-wave surface radiation         '
-      vname(3,indxShflx_rlw)='Celsius meter second-1              '
+      vname(3,indxShflx_rlw)='Watts meter-2                       '
       vname(5,indxShflx_rlw)='                                    '     
       vname(6,indxShflx_rlw)='lat_rho lon_rho                     '                   
       vname(7,indxShflx_rlw)='                                    '   
@@ -863,9 +886,8 @@ CR      write(stdout,'(1x,A,I3)') 'indxShflx_rlw =',indxShflx_rlw
 CR      write(stdout,'(1x,A,I3)') 'indxShflx_lat =',indxShflx_lat
       vname(1,indxShflx_lat)='shflx_lat                           '
       vname(2,indxShflx_lat)='Latent surface heat flux            '
-      vname(3,indxShflx_lat)='Celsius meter second-1              '
-      vname(4,indxShflx_sen)='average_surface_downward_latent_'
-     &                   / / 'heat_flux                           '
+      vname(3,indxShflx_lat)='Watts meter-2                       '
+      vname(4,indxShflx_sen)='                                    '
       vname(5,indxShflx_lat)='                                    '    
       vname(6,indxShflx_lat)='lat_rho lon_rho                     '                  
       vname(7,indxShflx_lat)='                                    '  
@@ -873,10 +895,9 @@ CR      write(stdout,'(1x,A,I3)') 'indxShflx_lat =',indxShflx_lat
 CR      write(stdout,'(1x,A,I3)') 'indxShflx_sen =',indxShflx_sen
       vname(1,indxShflx_sen)='shflx_sen                           '
       vname(2,indxShflx_sen)='Sensible surface heat flux          '
-      vname(3,indxShflx_sen)='Celsius meter second-1              '
+      vname(3,indxShflx_sen)='Watts meter-2                       '
       vname(4,indxShflx_sen)='                                    '
-      vname(4,indxShflx_sen)='average_surface_sensible_'
-     &                   / / 'heat_flux                           '
+      vname(4,indxShflx_sen)='                                    '
       vname(6,indxShflx_sen)='lat_rho lon_rho                     '                  
       vname(7,indxShflx_sen)='                                    '  
       vname(7,indxShflx_sen)='  '         
@@ -1085,7 +1106,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxSHFl =',indxSHFl
       vname(3,indxSHFl)='Watts meter-2                            '
       vname(4,indxSHFl)='surface heat flux, scalar, series        '
       vname(5,indxSHFl)='                                         '
-      vname(6,indxSHFl)='                                         '
+      vname(6,indxSHFl)='lat_rho lon_rho                          '
       vname(7,indxSHFl)='                                         '
 # ifdef SALINITY
 CR      write(stdout,'(1x,A,I3)') 'indxSSFl=',indxSSFl

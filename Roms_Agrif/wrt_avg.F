@@ -173,7 +173,86 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
          endif
       endif
 !     
-!--   Atmospheric forcing : no mask, no fill value
+!     Write out total heat flux 
+!     
+      if (wrtavg(indxShflx)) then
+         work2d=stflx_avg(:,:,itemp)
+         ierr=nf_fwrite(work2d, ncidavg, avgShflx, record, r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxShflx))
+            write(stdout,1) vname(1,indxShflx)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+CR      write(*,*) 'wrt_avg:  stflx(:,:,itemp)' MYID
+      endif
+     
+!     Write out surface E-P flux 
+!     
+      if (wrtavg(indxSwflx)) then
+         work2d=stflx_avg(:,:,isalt)
+         ierr=nf_fwrite(work2d, ncidavg, avgSwflx, record, r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxSwflx))
+            write(stdout,1) vname(1,indxSwflx)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+CR      write(*,*) 'wrt_avg:  stflx(:,:,isalt)' MYID
+      endif
+!     Write out solar radiation flux 
+!     
+      if (wrtavg(indxShflx_rsw)) then
+# ifdef BULK_FLUX
+         ierr=nf_fwrite(shflx_rsw_avg, ncidavg, avgShflx_rsw, 
+     &                  record, r2dvar)
+# else
+         ierr=nf_fwrite(srflx_avg, ncidavg, avgShflx_rsw, record, r2dvar)
+# endif
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxShflx_rsw))
+            write(stdout,1) vname(1,indxShflx_rsw)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+CR      write(*,*) 'wrt_avg:  srflx' MYID
+      endif
+#  ifdef BULK_FLUX
+      if (wrtavg(indxShflx_rlw)) then
+         ierr=nf_fwrite(shflx_rlw_avg, ncidavg, avgShflx_rlw, record,
+     &        r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxShflx_rlw))
+            write(stdout,1) vname(1,indxShflx_rlw)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+      endif
+      
+      if (wrtavg(indxShflx_lat)) then
+         ierr=nf_fwrite(shflx_lat_avg, ncidavg, avgShflx_lat, record,
+     &        r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxShflx_lat))
+            write(stdout,1) vname(1,indxShflx_lat)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+      endif
+      
+      if (wrtavg(indxShflx_sen)) then
+         ierr=nf_fwrite(shflx_sen_avg, ncidavg, avgShflx_sen, record,
+     &        r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxShflx_sen))
+            write(stdout,1) vname(1,indxShflx_sen)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+      endif
+#  endif
+!        
+!--
 !     
 # ifdef SOLVE3D
 !     
@@ -218,74 +297,25 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
       if (wrtavg(indxW)) then
          workr=w_avg
          call fillvalue3d(workr,ncidavg,avgW,indxW,record,r3dvar,type)
-      endif
-!     
-!--   Atmospheric forcing : no mask, no fill value
-!     
-#  ifdef BULK_FLUX
-!     
-!     Write out surface heat flux component (degC/s)
-!     
-      if (wrtavg(indxShflx_rsw)) then
-         ierr=nf_fwrite(shflx_rsw_avg, ncidavg, avgShflx_rsw, record, 
-     &        r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxShflx_rsw))
-            write(stdout,1) vname(1,indxShflx_rsw)(1:lvar), record, ierr
-     &           MYID
-            goto 99             !--> ERROR
-         endif
-      endif
-
-      if (wrtavg(indxShflx_rlw)) then
-         ierr=nf_fwrite(shflx_rlw_avg, ncidavg, avgShflx_rlw, record,
-     &        r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxShflx_rlw))
-            write(stdout,1) vname(1,indxShflx_rlw)(1:lvar), record, ierr
-     &           MYID
-            goto 99             !--> ERROR
-         endif
-      endif
-      
-      if (wrtavg(indxShflx_lat)) then
-         ierr=nf_fwrite(shflx_lat_avg, ncidavg, avgShflx_lat, record,
-     &        r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxShflx_lat))
-            write(stdout,1) vname(1,indxShflx_lat)(1:lvar), record, ierr
-     &           MYID
-            goto 99             !--> ERROR
-         endif
-      endif
-      
-      if (wrtavg(indxShflx_sen)) then
-         ierr=nf_fwrite(shflx_sen_avg, ncidavg, avgShflx_sen, record,
-     &        r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxShflx_sen))
-            write(stdout,1) vname(1,indxShflx_sen)(1:lvar), record, ierr
-     &           MYID
-            goto 99             !--> ERROR
-         endif
-      endif
-#  endif
-!     
-!--   
+      endif   
 !     
 #  ifdef SST_SKIN
 !     
 !     Write out skin temperature (degC)
 !     
-!      if (wrtavg(indxSST_skin)) then
-         ierr=nf_fwrite(sst_skin_avg, ncidavg, avgSST_skin, record, 
-     &                                                      r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxSST_skin))
-            write(stdout,1) vname(1,indxSST_skin)(1:lvar), record, ierr
-     &           MYID
-            goto 99             !--> ERROR
-         endif
+      if (wrtavg(indxT)) then
+         work2d=sst_skin_avg
+         call fillvalue2d(work2d,ncidavg,avgSST_skin,indxSST_skin,
+     &                    record,r2dvar,type)
+!$$$         ierr=nf_fwrite(sst_skin_avg, ncidavg, avgSST_skin, record, 
+!$$$     &                                                      r2dvar)
+!$$$         if (ierr .ne. nf_noerr) then
+!$$$            lvar=lenstr(vname(1,indxSST_skin))
+!$$$            write(stdout,1) vname(1,indxSST_skin)(1:lvar), record, ierr
+!$$$     &           MYID
+!$$$            goto 99             !--> ERROR
+!$$$         endif
+      endif
 #  endif 
 !
 !     

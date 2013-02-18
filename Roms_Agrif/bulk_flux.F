@@ -207,14 +207,14 @@
 !
 !  Store fluxes for diagnostics
 !
-          shflx_rsw(i,j)=srflx(i,j)
-          shflx_lat(i,j)=hflat
-          shflx_sen(i,j)=hfsen
+          shflx_rsw(i,j)=srflx(i,j)*rho0*Cp
+          shflx_lat(i,j)=hflat *rho0*Cp
+          shflx_sen(i,j)=hfsen *rho0*Cp
 # ifndef BULK_LW
-          shflx_rlw(i,j)=-radlw(i,j)
+          shflx_rlw(i,j)=-radlw(i,j) *rho0*Cp
 # else
           shflx_rlw(i,j)=emiss_lw*(radlw(i,j)
-     &                   -rho0i*cpi*sigmaSB*(SST+CtoK)**4)
+     &                   -rho0i*cpi*sigmaSB*(SST+CtoK)**4) *rho0*Cp
 # endif
 !
 !  Save for the calc of wind stress
@@ -693,10 +693,10 @@
 !
 !  Store fluxes for diagnostics
 !
-          shflx_rsw(i,j)=srflx(i,j)
-          shflx_lat(i,j)=hflat
-          shflx_sen(i,j)=hfsen
-          shflx_rlw(i,j)=hflw
+          shflx_rsw(i,j)=srflx(i,j) *rho0*Cp
+          shflx_lat(i,j)=hflat *rho0*Cp
+          shflx_sen(i,j)=hfsen *rho0*Cp
+          shflx_rlw(i,j)=hflw *rho0*Cp
         enddo
       enddo
 

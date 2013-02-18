@@ -42,7 +42,6 @@
 ! indxdQdSST      Q-correction coefficient dQdSST
 ! indxSSS         sea surface salinity
 ! indxSSFl        surface fresh water flux
-! indxSSFl        surface fresh water flux
 ! indxRIV         river runoff
 !
 ! indxAi          fraction of cell covered by ice
@@ -320,8 +319,8 @@
      &           indxRHUM=indxSST+5,  indxRADLW=indxSST+6,
      &           indxRADSW=indxSST+7, indxPRATE=indxSST+8,
      &           indxUWND=indxSST+9,  indxVWND=indxSST+10)
-      integer indxShflx_rsw,indxShflx_rlw,indxShflx_lat,indxShflx_sen 
-      parameter (indxShflx_rsw=indxSST+11, indxShflx_rlw=indxSST+12,
+      integer indxShflx_rlw,indxShflx_lat,indxShflx_sen 
+      parameter (indxShflx_rlw=indxSST+12,
      &           indxShflx_lat=indxSST+13, indxShflx_sen=indxSST+14)
 # endif
 #endif /* SOLVE3D */
@@ -333,10 +332,16 @@
       parameter (indxVWstr=indxSUSTR+23)
       integer indxBostr
       parameter (indxBostr=indxSUSTR+24)
+      integer indxShflx
+      parameter (indxShflx=indxSUSTR+25)
+      integer indxSwflx
+      parameter (indxSwflx=indxSUSTR+26)
+      integer indxShflx_rsw
+      parameter (indxShflx_rsw=indxSUSTR+27)
 #ifdef SOLVE3D
 # ifdef SEDIMENT
       integer indxSed, indxBTHK, indxBPOR, indxBFRA
-      parameter (indxSed=indxSUSTR+25,
+      parameter (indxSed=indxSUSTR+28,
      &           indxBTHK=indxSed, indxBPOR=indxSed+1,
      &           indxBFRA=indxSed+2)
 # endif
@@ -499,12 +504,13 @@
       integer  ncidhis, nrechis,  nrpfhis
      &      , hisTime, hisTime2, hisTstep, hisZ,    hisUb,  hisVb
      &      , hisBostr, hisWstr, hisUWstr, hisVWstr
+     &      , hisShflx, hisSwflx, hisShflx_rsw
 #ifdef SOLVE3D
      &      , hisU,   hisV,   hisR,    hisHbl, hisHbbl
      &      , hisO,   hisW,   hisVisc, hisDiff
      &      , hisAkv, hisAkt, hisAks
 # ifdef BULK_FLUX
-     &      , hisShflx_rsw,   hisShflx_rlw
+     &      , hisShflx_rlw
      &      , hisShflx_lat,   hisShflx_sen
 # endif
 # ifdef SST_SKIN
@@ -559,6 +565,7 @@
       integer ncidavg, nrecavg,  nrpfavg
      &      , avgTime, avgTime2, avgTstep, avgZ, avgUb,  avgVb
      &      , avgBostr, avgWstr, avgUwstr, avgVwstr
+     &      , avgShflx, avgSwflx, avgShflx_rsw
 # ifdef SOLVE3D
      &      , avgU,   avgV,   avgR,    avgHbl, avgHbbl
      &      , avgO,   avgW,   avgVisc, avgDiff
@@ -576,7 +583,7 @@
 # endif
       integer avgT(NT)
 #  ifdef BULK_FLUX
-      integer avgShflx_rsw,   avgShflx_rlw
+      integer avgShflx_rlw
      &      , avgShflx_lat,   avgShflx_sen
 #  endif
 #  ifdef SST_SKIN
@@ -677,13 +684,14 @@
      &      , ncidhis, nrechis,  nrpfhis
      &      , hisTime, hisTime2, hisTstep, hisZ,    hisUb,  hisVb
      &      , hisBostr, hisWstr, hisUWstr, hisVWstr
+     &      , hisShflx, hisSwflx, hisShflx_rsw
 #ifdef SOLVE3D
      &      , hisU,    hisV,     hisT,    hisR
      &      , hisO,    hisW,     hisVisc, hisDiff
      &      , hisAkv,  hisAkt,   hisAks
      &      , hisHbl,  hisHbbl
 # ifdef BULK_FLUX
-     &      , hisShflx_rsw, hisShflx_rlw
+     &      , hisShflx_rlw
      &      , hisShflx_lat, hisShflx_sen
 #  endif
 # ifdef SST_SKIN
@@ -759,6 +767,7 @@
      &      , ncidavg,  nrecavg,  nrpfavg
      &      , avgTime, avgTime2, avgTstep, avgZ,    avgUb,  avgVb
      &      , avgBostr, avgWstr, avgUWstr, avgVWstr
+     &      , avgShflx, avgSwflx, avgShflx_rsw
 # ifdef SOLVE3D
      &      , avgU,    avgV,     avgT,     avgR
      &      , avgO,    avgW,     avgVisc,  avgDiff
@@ -776,7 +785,7 @@
 #   endif
 #  endif
 #  ifdef BULK_FLUX
-     &      , avgShflx_rsw, avgShflx_rlw
+     &      , avgShflx_rlw
      &      , avgShflx_lat, avgShflx_sen
 #  endif
 #  ifdef SST_SKIN

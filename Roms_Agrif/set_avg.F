@@ -58,7 +58,9 @@ C$    integer omp_get_thread_num
       implicit none
 # include "param.h"
       integer Istr,Iend,Jstr,Jend, i,j, ilc
-      real cff
+      real cff, eps, stf_cff
+      parameter (eps=1.D-20)
+      parameter(stf_cff=86400/0.01)
 # ifdef SOLVE3D
       integer itrc,k
 #  ifdef SEDIMENT
@@ -218,34 +220,63 @@ C$    integer omp_get_thread_num
             enddo
           endif
 #  endif
+          if (wrtavg(indxShflx)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+                 stflx_avg(i,j,itemp)=stflx(i,j,itemp)*(rho0*Cp)
+               enddo
+             enddo
+           endif
+           if (wrtavg(indxSwflx)) then
+             do j=JstrR,JendR
+               do i=IstrR,IendR
+                 stflx_avg(i,j,isalt)=stf_cff*stflx(i,j,isalt) /
+     &                ( max(eps,t(i,j,N,nstp,isalt)) ) * rmask(i,j)
+               enddo
+             enddo
+           endif
+           if (wrtavg(indxShflx_rsw)) then
+             do j=JstrR,JendR
+               do i=IstrR,IendR
+# ifdef BULK_FLUX
+                 shflx_rsw_avg(i,j)=shflx_rsw(i,j)
+# else
+                 srflx_avg(i,j)=srflx(i,j)*(rho0*Cp)
+# endif
+               enddo
+             enddo
+           endif
 #  ifdef BULK_FLUX
-            do j=Jstr,Jend
-              do i=Istr,Iend
-                shflx_rsw_avg(i,j)=shflx_rsw(i,j)
-              enddo
-            enddo
-            do j=Jstr,Jend
-              do i=Istr,Iend
+           if (wrtavg(indxShflx_rlw)) then
+             do j=JstrR,JendR
+               do i=IstrR,IendR
                 shflx_rlw_avg(i,j)=shflx_rlw(i,j)
               enddo
             enddo
-            do j=Jstr,Jend
-              do i=Istr,Iend
+          endif
+          if (wrtavg(indxShflx_lat)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
                 shflx_lat_avg(i,j)=shflx_lat(i,j)
               enddo
             enddo
-            do j=Jstr,Jend
-              do i=Istr,Iend
+          endif
+          if (wrtavg(indxShflx_sen)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
                 shflx_sen_avg(i,j)=shflx_sen(i,j)
               enddo
             enddo
+          endif
 #  endif
 #  ifdef SST_SKIN
-            do j=Jstr,Jend
-              do i=Istr,Iend
+          if (wrtavg(indxT)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
                 sst_skin_avg(i,j)=sst_skin(i,j)
               enddo
             enddo
+          endif
 #  endif
 #  ifdef VIS_COEF_3D
           if (wrtavg(indxVisc)) then
@@ -432,8 +463,6 @@ C$    integer omp_get_thread_num
               enddo
             enddo
           endif
-
-
 # ifdef SOLVE3D
           if (wrtavg(indxU)) then
             do k=1,N
@@ -514,34 +543,66 @@ C$    integer omp_get_thread_num
             enddo
           endif
 #  endif
-#  ifdef BULK_FLUX
-            do j=Jstr,Jend
-              do i=Istr,Iend
-                shflx_rsw_avg(i,j)=shflx_rsw_avg(i,j)+shflx_rsw(i,j)
+          if (wrtavg(indxShflx)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+                stflx_avg(i,j,itemp)=stflx_avg(i,j,itemp)+
+     &               stflx(i,j,itemp)*(rho0*Cp)
               enddo
             enddo
-            do j=Jstr,Jend
-              do i=Istr,Iend
+          endif
+          if (wrtavg(indxSwflx)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+                stflx_avg(i,j,isalt)=stflx_avg(i,j,isalt)+
+     &                               stf_cff*stflx(i,j,isalt) /
+     &               ( max(eps,t(i,j,N,nstp,isalt)) ) * rmask(i,j) 
+              enddo
+            enddo
+          endif
+          if (wrtavg(indxShflx_rsw)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+#  ifdef BULK_FLUX
+                shflx_rsw_avg(i,j)=shflx_rsw_avg(i,j)+shflx_rsw(i,j)
+# else
+                srflx_avg(i,j)=srflx_avg(i,j)+
+     &                          srflx(i,j)*(rho0*Cp)
+# endif
+              enddo
+            enddo
+          endif
+#  ifdef BULK_FLUX
+          if (wrtavg(indxShflx_rlw)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
                 shflx_rlw_avg(i,j)=shflx_rlw_avg(i,j)+shflx_rlw(i,j)
               enddo
             enddo
-            do j=Jstr,Jend
-              do i=Istr,Iend
+          endif
+          if (wrtavg(indxShflx_lat)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
                 shflx_lat_avg(i,j)=shflx_lat_avg(i,j)+shflx_lat(i,j)
               enddo
             enddo
-            do j=Jstr,Jend
-              do i=Istr,Iend
+          endif
+          if (wrtavg(indxShflx_sen)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
                 shflx_sen_avg(i,j)=shflx_sen_avg(i,j)+shflx_sen(i,j)
               enddo
             enddo
+          endif
 #  endif
 #  ifdef SST_SKIN
-            do j=Jstr,Jend
-              do i=Istr,Iend
+          if (wrtavg(indxT)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
                 sst_skin_avg(i,j)=sst_skin_avg(i,j)+sst_skin(i,j)
               enddo
             enddo
+          endif
 #  endif
 #  ifdef VIS_COEF_3D
           if (wrtavg(indxVisc)) then
@@ -820,39 +881,73 @@ C$    integer omp_get_thread_num
             enddo
           endif
 #  endif
-#  ifdef BULK_FLUX
-            do j=Jstr,Jend
-              do i=Istr,Iend
+          if (wrtavg(indxShflx)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+                stflx_avg(i,j,itemp)=cff*(stflx_avg(i,j,itemp)+
+     &                               stflx(i,j,itemp)*(rho0*Cp))
+              enddo
+            enddo
+          endif
+          if (wrtavg(indxSwflx)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+                stflx_avg(i,j,isalt)=cff*(stflx_avg(i,j,isalt)+
+     &               stf_cff*stflx(i,j,isalt) /
+     &               ( max(eps,t(i,j,N,nstp,isalt)) ) * rmask(i,j))
+              enddo
+            enddo
+          endif
+          if (wrtavg(indxShflx_rsw)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
+                srflx_avg(i,j)=cff*(srflx_avg(i,j)+
+     &               srflx(i,j)*(rho0*Cp))
+#   ifdef BULK_FLUX
                 shflx_rsw_avg(i,j)=cff*( shflx_rsw_avg(i,j)+
-     &                                   shflx_rsw(i,j) )
+     &               shflx_rsw(i,j) )
+#  else
+                srflx_avg(i,j)=cff*(srflx_avg(i,j)+
+     &               srflx(i,j)*(rho0*Cp))
+#  endif
               enddo
             enddo
-            do j=Jstr,Jend
-              do i=Istr,Iend
+          endif
+#  ifdef BULK_FLUX
+          if (wrtavg(indxShflx_rlw)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
                 shflx_rlw_avg(i,j)=cff*( shflx_rlw_avg(i,j)+
-     &                                   shflx_rlw(i,j) )
+     &               shflx_rlw(i,j) )
               enddo
             enddo
-            do j=Jstr,Jend
-              do i=Istr,Iend
+          endif
+          if (wrtavg(indxShflx_lat)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
                 shflx_lat_avg(i,j)=cff*( shflx_lat_avg(i,j)+
-     &                                   shflx_lat(i,j) )
+     &               shflx_lat(i,j) )
               enddo
             enddo
-            do j=Jstr,Jend
-              do i=Istr,Iend
+          endif
+          if (wrtavg(indxShflx_sen)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
                 shflx_sen_avg(i,j)=cff*( shflx_sen_avg(i,j)+
      &                                   shflx_sen(i,j) )
               enddo
             enddo
+          endif
 #  endif
 #  ifdef SST_SKIN
-            do j=Jstr,Jend
-              do i=Istr,Iend
+          if (wrtavg(indxT)) then
+            do j=JstrR,JendR
+              do i=IstrR,IendR
                 sst_skin_avg(i,j)=cff*( sst_skin_avg(i,j)+
-     &                                  sst_skin(i,j) )
+     &               sst_skin(i,j) )
               enddo
             enddo
+          endif
 #  endif
 #  ifdef VIS_COEF_3D
           if (wrtavg(indxVisc)) then

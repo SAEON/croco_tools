@@ -688,8 +688,10 @@ c        close(testunit)
      &                                          ,  wrthis(indxWstr)
      &                                          ,  wrthis(indxUWstr)
      &                                          ,  wrthis(indxVWstr)
+     &                                          ,  wrthis(indxShflx)
+     &                                          ,  wrthis(indxSwflx)
+     &                                          ,  wrthis(indxShflx_rsw)
 # ifdef BULK_FLUX
-     &                                          , wrthis(indxShflx_rsw)
      &                                          , wrthis(indxShflx_rlw)
      &                                          , wrthis(indxShflx_lat)
      &                                          , wrthis(indxShflx_sen)
@@ -723,8 +725,10 @@ c        close(testunit)
      &                                        .or. wrthis(indxWstr)
      &                                        .or. wrthis(indxUWstr)
      &                                        .or. wrthis(indxVWstr)
-# if defined BULK_FLUX
+     &                                        .or. wrthis(indxShflx)
+     &                                        .or. wrthis(indxSwflx)
      &                                        .or. wrthis(indxShflx_rsw)
+# if defined BULK_FLUX
      &                                        .or. wrthis(indxShflx_rlw)
      &                                        .or. wrthis(indxShflx_lat)
      &                                        .or. wrthis(indxShflx_sen)
@@ -769,14 +773,12 @@ c        close(testunit)
      &                       'Depth of bottom planetary boundary layer.'
 # endif
 # ifdef BULK_FLUX
-     &  , wrthis(indxShflx_rsw), 'write shflx_rsw', 
-     &                                'Solar Heat Flux'
-     &  , wrthis(indxShflx_rlw), 'write shflx_rlw', 
-     &                                 'Long Wave Heat Flux'
-     &  , wrthis(indxShflx_lat), 'write shflx_lat',
-     &                                 'Latente heat flux'
-     &  , wrthis(indxShflx_sen), 'write shflx_sen',
-     &                                 'Sensible heta flux'
+     &  , wrthis(indxShflx_rlw), 'write shflx_rlw [W/m2]', 
+     &                                 'Long Wave heat flux.'
+     &  , wrthis(indxShflx_lat), 'write shflx_lat [W/m2]',
+     &                                 'Latent heat flux.'
+     &  , wrthis(indxShflx_sen), 'write shflx_sen [W/m2]',
+     &                                 'Sensible heat flux'
 # endif
 # if defined BIOLOGY && !defined PISCES
      &  , wrthis(indxHel),   'write Hel  ',
@@ -798,7 +800,13 @@ c        close(testunit)
      &  , wrthis(indxWstr), 'write Wstress', 'Wind Stress.'
      &  , wrthis(indxUWstr), 'write U-Wstress comp.', 'U-Wind Stress.'
      &  , wrthis(indxVWstr), 'write V-Wstress comp.', 'V-Wind Stress.'
-#  ifdef VIS_COEF_3D
+     &  , wrthis(indxShflx), 'write Shflx [W/m2]', 
+     &                       'Surface net heat flux'
+     &  , wrthis(indxSwflx), 'write Swflx [cm/day]', 
+     &                       'Surface freshwater flux (E-P)'
+     &  , wrthis(indxShflx_rsw),'write Shflx_rsw [W/m2]', 
+     &                          'Short-wave surface radiation'
+# ifdef VIS_COEF_3D
      &  , wrthis(indxVisc),  'write Visc3d', 'Horizontal viscosity.'
 #  endif
 #  ifdef DIF_COEF_3D
@@ -857,8 +865,10 @@ c        close(testunit)
      &                                          ,  wrtavg(indxWstr)
      &                                          ,  wrtavg(indxUWstr)
      &                                          ,  wrtavg(indxVWstr)
-#  ifdef BULK_FLUX
+     &                                          ,  wrtavg(indxShflx)
+     &                                          ,  wrtavg(indxSwflx)
      &                                          ,  wrtavg(indxShflx_rsw)
+#  ifdef BULK_FLUX
      &                                          ,  wrtavg(indxShflx_rlw)
      &                                          ,  wrtavg(indxShflx_lat)
      &                                          ,  wrtavg(indxShflx_sen)
@@ -890,9 +900,11 @@ c        close(testunit)
      &                                        .or. wrtavg(indxWstr)
      &                                        .or. wrtavg(indxUWstr)
      &                                        .or. wrtavg(indxVWstr)
+     &                                        .or. wrtavg(indxShflx)
+     &                                        .or. wrtavg(indxSwflx)
+     &                                        .or. wrtavg(indxShflx_rsw)
      &     
 #  if defined BULK_FLUX
-     &                                        .or. wrtavg(indxShflx_rsw)
      &                                        .or. wrtavg(indxShflx_rlw)
      &                                        .or. wrtavg(indxShflx_lat)
      &                                        .or. wrtavg(indxShflx_sen)
@@ -937,14 +949,12 @@ c        close(testunit)
      &                    'Depth of the bottom planetary boundary layer'
 #  endif
 #  ifdef BULK_FLUX
-     &  , wrtavg(indxShflx_rsw), 'write shflx_rsw', 
-     &                                'Solar Heat Flux'
-     &  , wrtavg(indxShflx_rlw), 'write shflx_rlw', 
-     &                                 'Long Wave Heat Flux'
-     &  , wrtavg(indxShflx_lat), 'write shflx_lat',
-     &                                 'Latente heat flux'
-     &  , wrtavg(indxShflx_sen), 'write shflx_sen',
-     &                                 'Sensible heta flux'
+     &  , wrtavg(indxShflx_rlw), 'write shflx_rlw [W/m2]', 
+     &                                 'Long Wave heat flux.'
+     &  , wrtavg(indxShflx_lat), 'write shflx_lat[W/m2] ',
+     &                                 'Latente heat flux.'
+     &  , wrtavg(indxShflx_sen), 'write shflx_sen [W/m2]',
+     &                                 'Sensible heat flux.'
 #  endif
 # if defined BIOLOGY && !defined PISCES
      &  , wrtavg(indxHel),'write Hel  ',
@@ -966,11 +976,17 @@ c        close(testunit)
      &  , wrtavg(indxWstr),'write Wstr', 'Wind Stress.'
      &  , wrtavg(indxUWstr),'write U-Wstress comp.', 'U-Wind Stress.'
      &  , wrtavg(indxVWstr),'write V-Wstress comp.', 'V-Wind Stress.'
+     &  , wrtavg(indxShflx),'write Shflx [W/m2]', 
+     &                      'Surface net heat flux.'
+     &  , wrtavg(indxSwflx),'write Swflx [cm/day]', 
+     &                      'Surface freshwater flux (E-P)'
+     &  , wrtavg(indxShflx_rsw),'write Shflx_rsw [W/m2]', 
+     &                      'Short-wave surface radiation.'
 #  ifdef VIS_COEF_3D
-     &  , wrtavg(indxVisc),'write Visc3d', 'Horizontal viscosity'
+     &  , wrtavg(indxVisc),'write visc3d', 'Horizontal viscosity'
 #  endif
 #  ifdef DIF_COEF_3D
-     &  , wrtavg(indxDiff),'write Visc3d', 'Horizontal diffusivity'
+     &  , wrtavg(indxDiff),'write diff3d', 'Horizontal diffusivity'
 #  endif
 # endif /* SOLVE3D */
 #endif /* AVERAGES */

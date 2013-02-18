@@ -27,6 +27,10 @@
       common /avg_sustr/sustr_avg
       real svstr_avg(GLOBAL_2D_ARRAY)
       common /avg_svstr/svstr_avg
+      real stflx_avg(GLOBAL_2D_ARRAY,NT)
+      common /avg_stflx/stflx_avg
+      real srflx_avg(GLOBAL_2D_ARRAY)
+      common /avg_srflx/srflx_avg
 # ifdef SOLVE3D
       real u_avg(GLOBAL_2D_ARRAY,N)
       real v_avg(GLOBAL_2D_ARRAY,N)

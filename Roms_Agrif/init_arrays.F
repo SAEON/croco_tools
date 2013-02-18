@@ -346,6 +346,9 @@ C$    integer omp_get_thread_num
         do j=JstrR,JendR
           do i=IstrR,IendR
             stflx(i,j,itrc)=init
+# ifdef AVERAGES
+            stflx_avg(i,j,itrc)=init
+# endif
 # if !defined ANA_STFLUX || !defined ANA_SSFLUX
             stflxg(i,j,1,itrc)=init
             stflxg(i,j,2,itrc)=init
@@ -427,6 +430,9 @@ C$    integer omp_get_thread_num
 # endif
 
           srflx(i,j)=init
+#  ifdef AVERAGES
+          srflx_avg(i,j)=init
+#  endif
 # ifndef ANA_SRFLUX
           srflxg(i,j,1)=init
           srflxg(i,j,2)=init
