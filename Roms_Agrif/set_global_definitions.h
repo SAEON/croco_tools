@@ -93,8 +93,8 @@
 # define TS_HADV_C4    /*    4th-order centered advection      */
 # undef  TS_DIF2       /*               +                      */
 # define TS_DIF4       /*         Hyperdiffusion  with         */
-# undef  TS_MIX_GEO    /*        Geopotential rotation         */
-# define TS_MIX_ISO    /*     or Isopycnal    rotation         */
+# define TS_MIX_GEO    /*        Geopotential rotation         */
+# undef  TS_MIX_ISO    /*     or Isopycnal    rotation         */
 # define TS_MIX_IMP    /*   and  Semi-Implicit Time-Stepping   */
 # define DIF_COEF_3D 
 #endif
@@ -102,8 +102,8 @@
 # define TS_HADV_C6    /*    6th-order centered advection      */
 # undef  TS_DIF2       /*               +                      */
 # define TS_DIF4       /*         Hyperdiffusion  with         */
-# undef  TS_MIX_GEO    /*        Geopotential rotation         */
-# define TS_MIX_ISO    /*     or Isopycnal    rotation         */
+# define TS_MIX_GEO    /*        Geopotential rotation         */
+# undef  TS_MIX_ISO    /*     or Isopycnal    rotation         */
 # define TS_MIX_IMP    /*   and  Semi-Implicit Time-Stepping   */
 # define DIF_COEF_3D 
 #endif
