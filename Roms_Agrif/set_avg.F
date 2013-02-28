@@ -565,10 +565,10 @@ C$    integer omp_get_thread_num
               do i=IstrR,IendR
 #  ifdef BULK_FLUX
                 shflx_rsw_avg(i,j)=shflx_rsw_avg(i,j)+shflx_rsw(i,j)
-# else
+#  else
                 srflx_avg(i,j)=srflx_avg(i,j)+
-     &                          srflx(i,j)*(rho0*Cp)
-# endif
+     &                                       srflx(i,j)*(rho0*Cp)
+#  endif
               enddo
             enddo
           endif
@@ -901,9 +901,7 @@ C$    integer omp_get_thread_num
           if (wrtavg(indxShflx_rsw)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
-                srflx_avg(i,j)=cff*(srflx_avg(i,j)+
-     &               srflx(i,j)*(rho0*Cp))
-#   ifdef BULK_FLUX
+#  ifdef BULK_FLUX
                 shflx_rsw_avg(i,j)=cff*( shflx_rsw_avg(i,j)+
      &               shflx_rsw(i,j) )
 #  else
