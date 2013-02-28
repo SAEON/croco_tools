@@ -43,6 +43,10 @@ password = '';
 %
 pathMotu ='../Forecast_tools/';
 
+% Create the directory
+%
+disp(['Making output data directory ',FRCST_dir])
+eval(['!mkdir ',FRCST_dir])
 %
 % Get the date
 %
