@@ -36,7 +36,7 @@ function bry_interp_bgc_chloro(zbryname,grdfile,clmfile,lon,lat,seas_datafile,an
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [M,L]=size(lon);
 %
-disp('Add_chla: creating variable and attribute')
+disp(['Add ',dataname,': creating variable and attribute'])
 % set the default value if no data
 default=NaN;
 Roa=0;
@@ -94,7 +94,7 @@ disp(['time index: ',num2str(l),' of total: ',num2str(tlen)])
 %
 % extrapole the annual dataset on the horizontal roms grid
 %
-  disp('Add_chla: horizontal interpolation of surface data')
+  disp([dataname,' : horizontal interpolation of surface data'])
   surfchla=squeeze(ncseas{'chlorophyll'}(l,jmin:jmax,imin:imax));
   surfchla=get_missing_val(x,y,surfchla,missval,Roa,default);
   surfchlaroms=interp2(x,y,surfchla,lon,lat);
@@ -102,8 +102,7 @@ disp(['time index: ',num2str(l),' of total: ',num2str(tlen)])
 % extrapole the chlorophyll on the vertical
 %
   zroms=zlevs(h,0.*h,theta_s,theta_b,Tcline,N,'r',vtransform);
-  disp(['Add_chla: vertical ',...
-  'extrapolation '])
+  disp(['      ==> then vertical extrapolation'])
   chlaroms(l,:,:,:)=extr_chlo(surfchlaroms,zroms);
 end
 close(ncseas);
@@ -148,7 +147,7 @@ nc=netcdf(zbryname,'write');
 dims=size(lon);
 for l=1:tlen
 %for l=1:1
-  disp(['time index: ',num2str(l),' of total: ',num2str(tlen)])
+  disp(['writing time index: ',num2str(l),' of total: ',num2str(tlen)])
   datazgrid=squeeze(chlaroms(l,:,jroms,iroms));
   nc{vname}(l,:,:)=coef.*datazgrid;
 end
