@@ -1506,339 +1506,217 @@ C$    integer  trd, omp_get_thread_num
 !
 # include "compute_auxiliary_bounds.h"
 !
-# ifdef PISCES
 #  ifdef OBC_WEST
       if (WESTERN_EDGE) then
-         do k=1,N
-            do j=JstrR,JendR
-               temp=tbry_west(j,k,itemp)
-               if (temp.lt.8.) then
-                  SiO4=30.
-               elseif (temp.ge.8. .and. temp.le.11.) then
-                  SiO4=30.-((temp-8.)*(20./3.))
-               elseif (temp.gt.11. .and. temp.le.13.) then
-                  SiO4=10.-((temp-11.)*(8./2.))
-               elseif (temp.gt.13. .and. temp.le.16.) then
-                  SiO4=2.-((temp-13.)*(2./3.))
-               elseif (temp.gt.16.) then
-                  SiO4=0.
-               endif
-               xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
-     &              +0.0003099*SiO4**3
-               itrc=iCAL_
-               if(.not.got_tbry(itrc)) then
-                  tbry_west(j,k,itrc)=0.01
-               endif
-               itrc=iPOC_
-               if(.not.got_tbry(itrc)) then
-                  tbry_west(j,k,itrc)=0.01
-               endif
-               itrc=iPHY_
-               if(.not.got_tbry(itrc)) then
-                  tbry_west(j,k,itrc)=0.01
-               endif
-               itrc=iZOO_
-               if(.not.got_tbry(itrc)) then
-                  tbry_west(j,k,itrc)=0.01
-               endif
-               itrc=iDIA_
-               if(.not.got_tbry(itrc)) then
-                  tbry_west(j,k,itrc)=0.01
-               endif
-               itrc=iBSI_
-               if(.not.got_tbry(itrc)) then
-                  tbry_west(j,k,itrc)=1.5e-3
-               endif
-               itrc=iBFE_
-               if(.not.got_tbry(itrc)) then
-                  tbry_west(j,k,itrc)=1.e-2*5.e-6
-               endif
-               itrc=iGOC_
-               if(.not.got_tbry(itrc)) then
-                  tbry_west(j,k,itrc)=0.01
-               endif
-               itrc=iSFE_
-               if(.not.got_tbry(itrc)) then
-                  tbry_west(j,k,itrc)=1.e-2*5.e-6
-               endif
-               itrc=iDFE_
-               if(.not.got_tbry(itrc)) then
-                  tbry_west(j,k,itrc)=1.e-2*5.e-6
-               endif
-               itrc=iDSI_
-               if(.not.got_tbry(itrc)) then 
-                  tbry_west(j,k,itrc)=1.e-2*0.15
-               endif
-               itrc=iNFE_
-               if(.not.got_tbry(itrc)) then
-                  tbry_west(j,k,itrc)=1.e-2*5e-6
-               endif
-               itrc=iNCH_
-               if(.not.got_tbry(itrc)) then
-                  tbry_west(j,k,itrc)=1.e-2*12./55.
-               endif
-               itrc=iDCH_
-               if(.not.got_tbry(itrc)) then
-                  tbry_west(j,k,itrc)=1.e-2*12./55.
-               endif
-               itrc=iNH4_
-               if(.not.got_tbry(itrc)) then
-                  tbry_west(j,k,itrc)=1.e-2
-               endif
-            enddo
-         enddo
+        do k=1,N
+          do j=JstrR,JendR
+            temp=tbry_west(j,k,itemp)
+            if (temp.lt.8.) then
+              SiO4=30.
+            elseif (temp.ge.8. .and. temp.le.11.) then
+              SiO4=30.-((temp-8.)*(20./3.))
+            elseif (temp.gt.11. .and. temp.le.13.) then
+              SiO4=10.-((temp-11.)*(8./2.))
+            elseif (temp.gt.13. .and. temp.le.16.) then
+              SiO4=2.-((temp-13.)*(2./3.))
+            elseif (temp.gt.16.) then
+              SiO4=0.
+            endif
+            xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
+     &           +0.0003099*SiO4**3
+            if(.not.got_tbry(iNO3_)) tbry_west(j,k,iNO3_)=xno3
+#    ifdef PISCES
+            if(.not.got_tbry(iCAL_)) tbry_west(j,k,iCAL_)=0.01   
+            if(.not.got_tbry(iPOC_)) tbry_west(j,k,iPOC_)=0.01
+            if(.not.got_tbry(iPHY_)) tbry_west(j,k,iPHY_)=0.01
+            if(.not.got_tbry(iZOO_)) tbry_west(j,k,iZOO_)=0.01
+            if(.not.got_tbry(iDIA_)) tbry_west(j,k,iDIA_)=0.01
+            if(.not.got_tbry(iBSI_)) tbry_west(j,k,iBSI_)=1.5e-3
+            if(.not.got_tbry(iBFE_)) tbry_west(j,k,iBFE_)=1.e-2*5.e-6
+            if(.not.got_tbry(iGOC_)) tbry_west(j,k,iGOC_)=0.01
+            if(.not.got_tbry(iSFE_)) tbry_west(j,k,iSFE_)=1.e-2*5.e-6
+            if(.not.got_tbry(iDFE_)) tbry_west(j,k,iDFE_)=1.e-2*5.e-6
+            if(.not.got_tbry(iDSI_)) tbry_west(j,k,iDSI_)=1.e-2*0.15
+            if(.not.got_tbry(iNFE_)) tbry_west(j,k,iNFE_)=1.e-2*5e-6
+            if(.not.got_tbry(iNCH_)) tbry_west(j,k,iNCH_)=1.e-2*12./55.
+            if(.not.got_tbry(iDCH_)) tbry_west(j,k,iDCH_)=1.e-2*12./55.
+            if(.not.got_tbry(iNH4_)) tbry_west(j,k,iNH4_)=1.e-2
+#    elif defined BIO_NChlPZD
+            if(.not.got_tbry(iChla)) tbry_west(j,k,iChla)=0.08  
+            if(.not.got_tbry(iPhy1)) tbry_west(j,k,iPhy1)=0.1
+            if(.not.got_tbry(iZoo1)) tbry_west(j,k,iZoo1)=0.06
+            if(.not.got_tbry(iDet1)) tbry_west(j,k,iDet1)=0.02
+#    elif defined BIO_N2ChlPZD2
+            if(.not.got_tbry(iNH4_)) tbry_west(j,k,iNH4_)=0.1  
+            if(.not.got_tbry(iChla)) tbry_west(j,k,iChla)=0.08
+            if(.not.got_tbry(iPhy1)) tbry_west(j,k,iPhy1)=0.06
+            if(.not.got_tbry(iZoo1)) tbry_west(j,k,iZoo1)=0.04
+            if(.not.got_tbry(iDet1)) tbry_west(j,k,iDet1)=0.02
+            if(.not.got_tbry(iDet2)) tbry_west(j,k,iDet2)=0.02
+#    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 */
+          enddo
+        enddo
       endif
 #  endif /* OBC_WEST */   
 !
 #  ifdef OBC_EAST
       if (EASTERN_EDGE) then
-         do k=1,N
-            do j=JstrR,JendR
-               temp=tbry_east(j,k,itemp)
-               if (temp.lt.8.) then
-                  SiO4=30.
-               elseif (temp.ge.8. .and. temp.le.11.) then
-                  SiO4=30.-((temp-8.)*(20./3.))
-               elseif (temp.gt.11. .and. temp.le.13.) then
-                  SiO4=10.-((temp-11.)*(8./2.))
-               elseif (temp.gt.13. .and. temp.le.16.) then
-                  SiO4=2.-((temp-13.)*(2./3.))
-               elseif (temp.gt.16.) then
-                  SiO4=0.
-               endif
-               xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
-     &              +0.0003099*SiO4**3
-               itrc=iCAL_
-               if(.not.got_tbry(itrc)) then
-                  tbry_east(j,k,itrc)=0.01
-               endif
-               itrc=iPOC_
-               if(.not.got_tbry(itrc)) then
-                  tbry_east(j,k,itrc)=0.01
-               endif
-               itrc=iPHY_
-               if(.not.got_tbry(itrc)) then
-                  tbry_east(j,k,itrc)=0.01
-               endif
-               itrc=iZOO_
-               if(.not.got_tbry(itrc)) then
-                  tbry_east(j,k,itrc)=0.01
-               endif
-               itrc=iDIA_
-               if(.not.got_tbry(itrc)) then
-                  tbry_east(j,k,itrc)=0.01
-               endif
-               itrc=iBSI_
-               if(.not.got_tbry(itrc)) then
-                  tbry_east(j,k,itrc)=1.5e-3
-               endif
-               itrc=iBFE_
-               if(.not.got_tbry(itrc)) then
-                  tbry_east(j,k,itrc)=1.e-2*5.e-6
-               endif
-               itrc=iGOC_
-               if(.not.got_tbry(itrc)) then
-                  tbry_east(j,k,itrc)=0.01
-               endif
-               itrc=iSFE_
-               if(.not.got_tbry(itrc)) then
-                  tbry_east(j,k,itrc)=1.e-2*5.e-6
-               endif
-               itrc=iDFE_
-               if(.not.got_tbry(itrc)) then
-                  tbry_east(j,k,itrc)=1.e-2*5.e-6
-               endif
-               itrc=iDSI_
-               if(.not.got_tbry(itrc)) then 
-                  tbry_east(j,k,itrc)=1.e-2*0.15
-               endif
-               itrc=iNFE_
-               if(.not.got_tbry(itrc)) then
-                  tbry_east(j,k,itrc)=1.e-2*5e-6
-               endif
-               itrc=iNCH_
-               if(.not.got_tbry(itrc)) then
-                  tbry_east(j,k,itrc)=1.e-2*12./55.
-               endif
-               itrc=iDCH_
-               if(.not.got_tbry(itrc)) then
-                  tbry_east(j,k,itrc)=1.e-2*12./55.
-               endif
-               itrc=iNH4_
-               if(.not.got_tbry(itrc)) then
-                  tbry_east(j,k,itrc)=1.e-2
-               endif
-            enddo
+        do k=1,N
+          do j=JstrR,JendR
+            temp=tbry_east(j,k,itemp)
+            if (temp.lt.8.) then
+              SiO4=30.
+            elseif (temp.ge.8. .and. temp.le.11.) then
+              SiO4=30.-((temp-8.)*(20./3.))
+            elseif (temp.gt.11. .and. temp.le.13.) then
+              SiO4=10.-((temp-11.)*(8./2.))
+            elseif (temp.gt.13. .and. temp.le.16.) then
+              SiO4=2.-((temp-13.)*(2./3.))
+            elseif (temp.gt.16.) then
+              SiO4=0.
+            endif
+            xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
+     &           +0.0003099*SiO4**3
+            if(.not.got_tbry(iNO3_)) tbry_east(j,k,iNO3_)=xno3
+#    ifdef PISCES
+            if(.not.got_tbry(iCAL_)) tbry_east(j,k,iCAL_)=0.01   
+            if(.not.got_tbry(iPOC_)) tbry_east(j,k,iPOC_)=0.01
+            if(.not.got_tbry(iPHY_)) tbry_east(j,k,iPHY_)=0.01
+            if(.not.got_tbry(iZOO_)) tbry_east(j,k,iZOO_)=0.01
+            if(.not.got_tbry(iDIA_)) tbry_east(j,k,iDIA_)=0.01
+            if(.not.got_tbry(iBSI_)) tbry_east(j,k,iBSI_)=1.5e-3
+            if(.not.got_tbry(iBFE_)) tbry_east(j,k,iBFE_)=1.e-2*5.e-6
+            if(.not.got_tbry(iGOC_)) tbry_east(j,k,iGOC_)=0.01
+            if(.not.got_tbry(iSFE_)) tbry_east(j,k,iSFE_)=1.e-2*5.e-6
+            if(.not.got_tbry(iDFE_)) tbry_east(j,k,iDFE_)=1.e-2*5.e-6
+            if(.not.got_tbry(iDSI_)) tbry_east(j,k,iDSI_)=1.e-2*0.15
+            if(.not.got_tbry(iNFE_)) tbry_east(j,k,iNFE_)=1.e-2*5e-6
+            if(.not.got_tbry(iNCH_)) tbry_east(j,k,iNCH_)=1.e-2*12./55.
+            if(.not.got_tbry(iDCH_)) tbry_east(j,k,iDCH_)=1.e-2*12./55.
+            if(.not.got_tbry(iNH4_)) tbry_east(j,k,iNH4_)=1.e-2
+#    elif defined BIO_NChlPZD
+            if(.not.got_tbry(iChla)) tbry_east(j,k,iChla)=0.08   
+            if(.not.got_tbry(iPhy1)) tbry_east(j,k,iPhy1)=0.1
+            if(.not.got_tbry(iZoo1)) tbry_east(j,k,iZoo1)=0.06
+            if(.not.got_tbry(iDet1)) tbry_east(j,k,iDet1)=0.02
+#    elif defined BIO_N2ChlPZD2
+            if(.not.got_tbry(iNH4_)) tbry_east(j,k,iNH4_)=0.1   
+            if(.not.got_tbry(iChla)) tbry_east(j,k,iChla)=0.08
+            if(.not.got_tbry(iPhy1)) tbry_east(j,k,iPhy1)=0.06
+            if(.not.got_tbry(iZoo1)) tbry_east(j,k,iZoo1)=0.04
+            if(.not.got_tbry(iDet1)) tbry_east(j,k,iDet1)=0.02
+            if(.not.got_tbry(iDet2)) tbry_east(j,k,iDet2)=0.02
+#    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 */
+           enddo
          enddo
       endif
 #  endif /* OBC_EAST */   
 !
 #  ifdef OBC_NORTH
-      if (NORTHERN_EDGE) then
+       if (NORTHERN_EDGE) then
          do k=1,N
-            do j=IstrR,IendR
-               temp=tbry_north(j,k,itemp)
-               if (temp.lt.8.) then
-                  SiO4=30.
-               elseif (temp.ge.8. .and. temp.le.11.) then
-                  SiO4=30.-((temp-8.)*(20./3.))
-               elseif (temp.gt.11. .and. temp.le.13.) then
-                  SiO4=10.-((temp-11.)*(8./2.))
-               elseif (temp.gt.13. .and. temp.le.16.) then
-                  SiO4=2.-((temp-13.)*(2./3.))
-               elseif (temp.gt.16.) then
-                  SiO4=0.
-               endif
-               xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
-     &              +0.0003099*SiO4**3
-               itrc=iCAL_
-               if(.not.got_tbry(itrc)) then
-                  tbry_north(j,k,itrc)=0.01
-               endif
-               itrc=iPOC_
-               if(.not.got_tbry(itrc)) then
-                  tbry_north(j,k,itrc)=0.01
-               endif
-               itrc=iPHY_
-               if(.not.got_tbry(itrc)) then
-                  tbry_north(j,k,itrc)=0.01
-               endif
-               itrc=iZOO_
-               if(.not.got_tbry(itrc)) then
-                  tbry_north(j,k,itrc)=0.01
-               endif
-               itrc=iDIA_
-               if(.not.got_tbry(itrc)) then
-                  tbry_north(j,k,itrc)=0.01
-               endif
-               itrc=iBSI_
-               if(.not.got_tbry(itrc)) then
-                  tbry_north(j,k,itrc)=1.5e-3
-               endif
-               itrc=iBFE_
-               if(.not.got_tbry(itrc)) then
-                  tbry_north(j,k,itrc)=1.e-2*5.e-6
-               endif
-               itrc=iGOC_
-               if(.not.got_tbry(itrc)) then
-                  tbry_north(j,k,itrc)=0.01
-               endif
-               itrc=iSFE_
-               if(.not.got_tbry(itrc)) then
-                  tbry_north(j,k,itrc)=1.e-2*5.e-6
-               endif
-               itrc=iDFE_
-               if(.not.got_tbry(itrc)) then
-                  tbry_north(j,k,itrc)=1.e-2*5.e-6
-               endif
-               itrc=iDSI_
-               if(.not.got_tbry(itrc)) then
-                  tbry_north(j,k,itrc)=1.e-2*0.15
-               endif
-               itrc=iNFE_
-               if(.not.got_tbry(itrc)) then
-                  tbry_north(j,k,itrc)=1.e-2*5e-6
-               endif
-               itrc=iNCH_
-               if(.not.got_tbry(itrc)) then
-                  tbry_north(j,k,itrc)=1.e-2*12./55.
-               endif
-               itrc=iDCH_
-               if(.not.got_tbry(itrc)) then
-                  tbry_north(j,k,itrc)=1.e-2*12./55.
-               endif
-               itrc=iNH4_
-               if(.not.got_tbry(itrc)) then
-                  tbry_north(j,k,itrc)=1.e-2
-               endif
-            enddo
+           do j=IstrR,IendR
+             temp=tbry_north(j,k,itemp)
+             if (temp.lt.8.) then
+               SiO4=30.
+             elseif (temp.ge.8. .and. temp.le.11.) then
+               SiO4=30.-((temp-8.)*(20./3.))
+             elseif (temp.gt.11. .and. temp.le.13.) then
+               SiO4=10.-((temp-11.)*(8./2.))
+             elseif (temp.gt.13. .and. temp.le.16.) then
+               SiO4=2.-((temp-13.)*(2./3.))
+             elseif (temp.gt.16.) then
+               SiO4=0.
+             endif
+             xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
+     &            +0.0003099*SiO4**3
+             if(.not.got_tbry(iNO3_)) tbry_north(j,k,iNO3_)=xno3
+#    ifdef PISCES
+             if(.not.got_tbry(iCAL_)) tbry_north(j,k,iCAL_)=0.01   
+             if(.not.got_tbry(iPOC_)) tbry_north(j,k,iPOC_)=0.01
+             if(.not.got_tbry(iPHY_)) tbry_north(j,k,iPHY_)=0.01
+             if(.not.got_tbry(iZOO_)) tbry_north(j,k,iZOO_)=0.01
+             if(.not.got_tbry(iDIA_)) tbry_north(j,k,iDIA_)=0.01
+             if(.not.got_tbry(iBSI_)) tbry_north(j,k,iBSI_)=1.5e-3
+             if(.not.got_tbry(iBFE_)) tbry_north(j,k,iBFE_)=1.e-2*5.e-6
+             if(.not.got_tbry(iGOC_)) tbry_north(j,k,iGOC_)=0.01
+             if(.not.got_tbry(iSFE_)) tbry_north(j,k,iSFE_)=1.e-2*5.e-6
+             if(.not.got_tbry(iDFE_)) tbry_north(j,k,iDFE_)=1.e-2*5.e-6
+             if(.not.got_tbry(iDSI_)) tbry_north(j,k,iDSI_)=1.e-2*0.15
+             if(.not.got_tbry(iNFE_)) tbry_north(j,k,iNFE_)=1.e-2*5e-6
+            if(.not.got_tbry(iNCH_)) tbry_north(j,k,iNCH_)=1.e-2*12./55.
+            if(.not.got_tbry(iDCH_)) tbry_north(j,k,iDCH_)=1.e-2*12./55.
+             if(.not.got_tbry(iNH4_)) tbry_north(j,k,iNH4_)=1.e-2
+#    elif defined BIO_NChlPZD
+             if(.not.got_tbry(iChla)) tbry_north(j,k,iChla)=0.08   
+             if(.not.got_tbry(iPhy1)) tbry_north(j,k,iPhy1)=0.1
+             if(.not.got_tbry(iZoo1)) tbry_north(j,k,iZoo1)=0.06
+             if(.not.got_tbry(iDet1)) tbry_north(j,k,iDet1)=0.02
+#    elif defined BIO_N2ChlPZD2
+             if(.not.got_tbry(iNH4_)) tbry_north(j,k,iNH4_)=0.1   
+             if(.not.got_tbry(iChla)) tbry_north(j,k,iChla)=0.08
+             if(.not.got_tbry(iPhy1)) tbry_north(j,k,iPhy1)=0.06
+             if(.not.got_tbry(iZoo1)) tbry_north(j,k,iZoo1)=0.04
+             if(.not.got_tbry(iDet1)) tbry_north(j,k,iDet1)=0.02
+             if(.not.got_tbry(iDet2)) tbry_north(j,k,iDet2)=0.02
+#    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 */
+           enddo
          enddo
       endif
 #  endif /* OBC_NORTH */   
 
 #  ifdef OBC_SOUTH
-      if (SOUTHERN_EDGE) then
+       if (SOUTHERN_EDGE) then
          do k=1,N
-            do j=IstrR,IendR
-               temp=tbry_south(j,k,itemp)
-               if (temp.lt.8.) then
-                  SiO4=30.
-               elseif (temp.ge.8. .and. temp.le.11.) then
-                  SiO4=30.-((temp-8.)*(20./3.))
-               elseif (temp.gt.11. .and. temp.le.13.) then
-                  SiO4=10.-((temp-11.)*(8./2.))
-               elseif (temp.gt.13. .and. temp.le.16.) then
-                  SiO4=2.-((temp-13.)*(2./3.))
-               elseif (temp.gt.16.) then
-                  SiO4=0.
-               endif
-               xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
-     &              +0.0003099*SiO4**3 
-               itrc=iCAL_
-               if(.not.got_tbry(itrc)) then
-                  tbry_south(j,k,itrc)=0.01
-               endif
-               itrc=iPOC_
-               if(.not.got_tbry(itrc)) then
-                  tbry_south(j,k,itrc)=0.01
-               endif
-               itrc=iPHY_
-               if(.not.got_tbry(itrc)) then
-                  tbry_south(j,k,itrc)=0.01
-               endif
-               itrc=iZOO_
-               if(.not.got_tbry(itrc)) then
-                  tbry_south(j,k,itrc)=0.01
-               endif
-               itrc=iDIA_
-               if(.not.got_tbry(itrc)) then
-                  tbry_south(j,k,itrc)=0.01
-               endif
-               itrc=iBSI_
-               if(.not.got_tbry(itrc)) then
-                  tbry_south(j,k,itrc)=1.5e-3
-               endif
-               itrc=iBFE_
-               if(.not.got_tbry(itrc)) then
-                  tbry_south(j,k,itrc)=1.e-2*5.e-6
-               endif
-               itrc=iGOC_
-               if(.not.got_tbry(itrc)) then
-                  tbry_south(j,k,itrc)=0.01
-               endif
-               itrc=iSFE_
-               if(.not.got_tbry(itrc)) then
-                  tbry_south(j,k,itrc)=1.e-2*5.e-6
-               endif
-               itrc=iDFE_
-               if(.not.got_tbry(itrc)) then
-                  tbry_south(j,k,itrc)=1.e-2*5.e-6
-               endif
-               itrc=iDSI_
-               if(.not.got_tbry(itrc)) then
-                  tbry_south(j,k,itrc)=1.e-2*0.15
-               endif
-               itrc=iNFE_
-               if(.not.got_tbry(itrc)) then
-                  tbry_south(j,k,itrc)=1.e-2*5e-6
-               endif
-               itrc=iNCH_
-               if(.not.got_tbry(itrc)) then
-                  tbry_south(j,k,itrc)=1.e-2*12./55.
-               endif
-               itrc=iDCH_
-               if(.not.got_tbry(itrc)) then
-                  tbry_south(j,k,itrc)=1.e-2*12./55.
-               endif
-               itrc=iNH4_
-               if(.not.got_tbry(itrc)) then
-                  tbry_south(j,k,itrc)=1.e-2
-               endif
-            enddo
+           do j=IstrR,IendR
+             temp=tbry_south(j,k,itemp)
+             if (temp.lt.8.) then
+               SiO4=30.
+             elseif (temp.ge.8. .and. temp.le.11.) then
+               SiO4=30.-((temp-8.)*(20./3.))
+             elseif (temp.gt.11. .and. temp.le.13.) then
+               SiO4=10.-((temp-11.)*(8./2.))
+             elseif (temp.gt.13. .and. temp.le.16.) then
+               SiO4=2.-((temp-13.)*(2./3.))
+             elseif (temp.gt.16.) then
+               SiO4=0.
+             endif
+             xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
+     &            +0.0003099*SiO4**3 
+             if(.not.got_tbry(iNO3_)) tbry_south(j,k,iNO3_)=xno3
+#    ifdef PISCES
+             if(.not.got_tbry(iCAL_)) tbry_south(j,k,iCAL_)=0.01   
+             if(.not.got_tbry(iPOC_)) tbry_south(j,k,iPOC_)=0.01
+             if(.not.got_tbry(iPHY_)) tbry_south(j,k,iPHY_)=0.01
+             if(.not.got_tbry(iZOO_)) tbry_south(j,k,iZOO_)=0.01
+             if(.not.got_tbry(iDIA_)) tbry_south(j,k,iDIA_)=0.01
+             if(.not.got_tbry(iBSI_)) tbry_south(j,k,iBSI_)=1.5e-3
+             if(.not.got_tbry(iBFE_)) tbry_south(j,k,iBFE_)=1.e-2*5.e-6
+             if(.not.got_tbry(iGOC_)) tbry_south(j,k,iGOC_)=0.01
+             if(.not.got_tbry(iSFE_)) tbry_south(j,k,iSFE_)=1.e-2*5.e-6
+             if(.not.got_tbry(iDFE_)) tbry_south(j,k,iDFE_)=1.e-2*5.e-6
+             if(.not.got_tbry(iDSI_)) tbry_south(j,k,iDSI_)=1.e-2*0.15
+             if(.not.got_tbry(iNFE_)) tbry_south(j,k,iNFE_)=1.e-2*5e-6
+            if(.not.got_tbry(iNCH_)) tbry_south(j,k,iNCH_)=1.e-2*12./55.
+            if(.not.got_tbry(iDCH_)) tbry_south(j,k,iDCH_)=1.e-2*12./55.
+             if(.not.got_tbry(iNH4_)) tbry_south(j,k,iNH4_)=1.e-2
+#    elif defined BIO_NChlPZD
+             if(.not.got_tbry(iChla)) tbry_south(j,k,iChla)=0.08   
+             if(.not.got_tbry(iPhy1)) tbry_south(j,k,iPhy1)=0.1
+             if(.not.got_tbry(iZoo1)) tbry_south(j,k,iZoo1)=0.06
+             if(.not.got_tbry(iDet1)) tbry_south(j,k,iDet1)=0.02
+#    elif defined BIO_N2ChlPZD2
+             if(.not.got_tbry(iNH4_)) tbry_south(j,k,iNH4_)=0.1 
+             if(.not.got_tbry(iChla)) tbry_south(j,k,iChla)=0.08
+             if(.not.got_tbry(iPhy1)) tbry_south(j,k,iPhy1)=0.06
+             if(.not.got_tbry(iZoo1)) tbry_south(j,k,iZoo1)=0.04
+             if(.not.got_tbry(iDet1)) tbry_south(j,k,iDet1)=0.02
+             if(.not.got_tbry(iDet2)) tbry_south(j,k,iDet2)=0.02
+#    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 */
+           enddo
          enddo
       endif
 #  endif /* OBC_SOUTH */   
-# endif /* PISCES */
       return
       end
 #else 

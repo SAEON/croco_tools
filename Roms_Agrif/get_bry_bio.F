@@ -284,13 +284,13 @@ c     goto 99                                     !--> ERROR
 c     goto 99                                     !--> ERROR
               endif
 
-# elif defined BIO_NChlPZD
+# elif (defined BIO_NChlPZD || defined BIO_N2ChlPZD2)
             elseif (itrc.eq.iNO3_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'no3_time', bry_tid(itrc))
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
-                write(stdout,3) 'no3_time', bry_file(1:lstr)
+                write(stdout,3) 'NO3', bry_file(1:lstr)
 c              goto 99                                     !--> ERROR
               endif
             elseif (itrc.eq.iPhy1) then
@@ -299,7 +299,7 @@ c              goto 99                                     !--> ERROR
      &          ))
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
-                write(stdout,3) 'phyto_time', bry_file(1:lstr)
+                write(stdout,3) 'PHYTO', bry_file(1:lstr)
 c              goto 99                                     !--> ERROR
               endif
             elseif (itrc.eq.iZoo1) then
@@ -307,7 +307,7 @@ c              goto 99                                     !--> ERROR
               ierr=nf_inq_varid (bry_id, 'zoo_time', bry_tid(itrc))
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
-                write(stdout,3) 'zoo_time', bry_file(1:lstr)
+                write(stdout,3) 'ZOO', bry_file(1:lstr)
 c              goto 99                                     !--> ERROR
               endif
             elseif (itrc.eq.iChla) then
@@ -316,28 +316,56 @@ c              goto 99                                     !--> ERROR
      &          )
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
-                write(stdout,3) 'chla_time', bry_file(1:lstr)
+                write(stdout,3) 'CHLA', bry_file(1:lstr)
 c              goto 99                                     !--> ERROR
               endif
+#   if !defined BIO_N2ChlPZD2         
             elseif (itrc.eq.iDet1) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'det_time', bry_tid(itrc))
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
-                write(stdout,3) 'det_time', bry_file(1:lstr)
+                write(stdout,3) 'DET', bry_file(1:lstr)
 c              goto 99                                     !--> ERROR
               endif
+#   endif          
+#   ifdef BIO_N2ChlPZD2
+            elseif (itrc.eq.iNH4_) then
+              got_tbry(itrc)=.true.
+              ierr=nf_inq_varid (bry_id, 'nh4_time', bry_tid(itrc))
+              if (ierr .ne. nf_noerr) then
+                got_tbry(itrc)=.false.
+                write(stdout,3) 'NH4', bry_file(1:lstr)
+c              goto 99                                     !--> ERROR
+              endif
+              elseif (itrc.eq.iDet1) then
+              got_tbry(itrc)=.true.
+              ierr=nf_inq_varid (bry_id, 'det1_time', bry_tid(itrc))
+              if (ierr .ne. nf_noerr) then
+                got_tbry(itrc)=.false.
+                write(stdout,3) 'SDET', bry_file(1:lstr)
+c              goto 99                                     !--> ERROR
+              endif             
+            elseif (itrc.eq.iDet2) then
+              got_tbry(itrc)=.true.
+              ierr=nf_inq_varid (bry_id, 'det2_time', bry_tid(itrc))
+              if (ierr .ne. nf_noerr) then
+                got_tbry(itrc)=.false.
+                write(stdout,3) 'LDET', bry_file(1:lstr)
+c              goto 99                                     !--> ERROR
+              endif
+#   endif
 #   ifdef OXYGEN
             elseif (itrc.eq.iO2) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'o2_time', bry_tid(itrc))
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
-                write(stdout,3) 'o2_time', bry_file(1:lstr)
+                write(stdout,3) 'O2', bry_file(1:lstr)
 c              goto 99                                     !--> ERROR
               endif
 #   endif   
-#endif     /* PISCES or BIO_NChlPZD */           
+#endif     /* PISCES or (BIO_NChlPZD || BIO_N2ChlPZ2) */           
             endif               !condition on itrc value
 c$$$            write(*,*) 'LOGICAL:',got_tbry(itrc),itrc
           enddo                 ! loop on itrc
@@ -523,8 +551,8 @@ c                goto 99         !--> ERROR
       
 
  2    format(' ERROR in get_bry_bio: cannot read variable ''',A,'''')
- 3    format(/,' GET_BRY_BIO - unable to find climatology variable: ',
-     &  a,/,15x,'in climatology NetCDF file: ',a)
+ 3    format(/,' GET_BRY_BIO - unable to find variable: ',
+     &  a,/,15x,'in input NetCDF file: ',a, 1x,'-> analytical value'/)
       if (ierr.ne.nf_noerr) may_day_flag=2
       return
       end 
