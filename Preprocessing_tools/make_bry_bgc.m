@@ -104,7 +104,6 @@ lat=nc{'lat_rho'}(:);
 Lp=length(nc('xi_rho'));
 Mp=length(nc('eta_rho'));
 hmax=max(max(nc{'h'}(:)));
-    end
 result=close(nc);
 % %
 %Get the time of data
@@ -176,24 +175,28 @@ if (makeZbry)
       %
 	  disp('============================================')
 	  disp('  Nitrate...')
+      disp(' ')
 	  cff=1;
       bry_interp_bgc(Zbryname,lon,lat,no3_seas_data,no3_ann_data,...
                'nitrate',['NO3',suffix],obcndx,Roa);        
       %
 	  disp('============================================')
-	  disp('  Chlorophylle...')
+	  disp('  Chlorophylle...(computed from Chla data)')
+      disp(' ')
 	  cff=1;
 	  bry_interp_bgc_chloro(bryname,grdname,clmname,lon,lat,chla_seas_data,chla_ann_data,...
 		'Chlorophylle',['CHLA',suffix],obcndx,cff,Roa);
       %
 	  disp('============================================')
-	  disp('  Phytoplankton...')
+	  disp('  Phytoplankton...(computed from Chla data)')
+      disp(' ')
 	  cff=0.5;       
 	  bry_interp_bgc_chloro(bryname,grdname,clmname,lon,lat,chla_seas_data,chla_ann_data,...
                'Phytoplancton,',['PHYTO',suffix],obcndx,cff,Roa);        
       %
 	  disp('============================================')
-      disp('  Zooplankton...')
+      disp('  Zooplankton...(computed from Chla data)')
+      disp(' ')
 	  cff=0.2;     
 	  bry_interp_bgc_chloro(bryname,grdname,clmname,lon,lat,chla_seas_data,chla_ann_data,...
                'Zooplankton',['ZOO',suffix],obcndx,cff,Roa);       
