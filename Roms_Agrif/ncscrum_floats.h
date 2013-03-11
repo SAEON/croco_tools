@@ -29,13 +29,12 @@
 !
 ! indxSSH         observed sea surface height (from climatology)
 ! indxSUSTR,indxSVSTR  surface U-, V-momentum stress (wind forcing)
-! indxSHFl        net surface heat flux.
-! indxSWRad       shortwave radiation flux
+! indxShflw       net surface heat flux.
+! indxShflx_rsw   shortwave radiation flux
 ! indxSST         sea surface temperature
 ! indxdQdSST      Q-correction coefficient dQdSST
 ! indxSSS         sea surface salinity
-! indxSSFl        surface fresh water flux
-! indxSSFl        surface fresh water flux
+! indxSwflx       surface fresh water flux
 !
 ! indxAi          fraction of cell covered by ice
 ! indxUi,indxVi   U,V-components of sea ice velocity

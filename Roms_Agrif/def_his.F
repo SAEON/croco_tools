@@ -92,8 +92,10 @@
 # define vidUWstr hisUWstr
 # define vidVWstr hisVWstr
 # define vidShflx hisShflx
-# define vidSwflx hisSwflx
-#  define vidShflx_rsw hisShflx_rsw
+#ifdef SALINITY
+#  define vidSwflx hisSwflx
+#endif
+#define vidShflx_rsw hisShflx_rsw
 # ifdef BULK_FLUX
 #  define vidShflx_rlw hisShflx_rlw
 #  define vidShflx_lat hisShflx_lat
@@ -143,7 +145,9 @@
 # define vidUWstr avgUWstr
 # define vidVWstr avgVWstr
 # define vidShflx avgShflx
-# define vidSwflx avgSwflx
+#ifdef SALINITY
+#  define vidSwflx avgSwflx
+#endif
 # define vidShflx_rsw avgShflx_rsw
 # if defined BULK_FLUX
 #  define vidShflx_rlw avgShflx_rlw
@@ -729,6 +733,7 @@
      &                          NF_REAL, ierr)
 
         endif
+#ifdef SALINITY
 ! Swflx [cm/day]
         if (wrt(indxSwflx)) then
           lvar=lenstr(vname(1,indxSwflx))
@@ -752,6 +757,7 @@
      &                          NF_REAL, ierr)
 
         endif
+#endif
 ! Short wave Shflx_rsw [W/m2]
       if (wrt(indxShflx_rsw)) then
         lvar=lenstr(vname(1,indxShflx_rsw))
@@ -1480,6 +1486,7 @@
             goto 99                                       !--> ERROR
           endif
         endif
+#ifdef SALINITY
 !
 ! Swflx    E-P flux [cm/day]
 !
@@ -1488,10 +1495,11 @@
           ierr=nf_inq_varid (ncid,vname(1,indxSwflx)(1:lvar),
      &                                                   vidSwflx)
           if (ierr .ne. nf_noerr) then
-          write(stdout,1) vname(1,indxSSFl)(1:lvar), ncname(1:lstr)
+          write(stdout,1) vname(1,indxSwflx)(1:lvar), ncname(1:lstr)
             goto 99                                       !--> ERROR
           endif
         endif
+#endif
 !
 ! Shflx     Surface shortwave radiation [W/m2]
 !
@@ -1895,7 +1903,9 @@
 #undef vidUWstr
 #undef vidVWstr
 #undef vidShflx
-#undef vidSwflx
+#ifdef SALINITY
+# undef vidSwflx
+#endif
 #undef vidShflx_rsw
 #if defined BULK_FLUX
 # undef vidShflx_rlw

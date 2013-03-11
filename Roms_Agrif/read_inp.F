@@ -689,7 +689,9 @@ c        close(testunit)
      &                                          ,  wrthis(indxUWstr)
      &                                          ,  wrthis(indxVWstr)
      &                                          ,  wrthis(indxShflx)
+# ifdef SALINITY
      &                                          ,  wrthis(indxSwflx)
+# endif
      &                                          ,  wrthis(indxShflx_rsw)
 # ifdef BULK_FLUX
      &                                          , wrthis(indxShflx_rlw)
@@ -726,7 +728,9 @@ c        close(testunit)
      &                                        .or. wrthis(indxUWstr)
      &                                        .or. wrthis(indxVWstr)
      &                                        .or. wrthis(indxShflx)
+# ifdef SALINITY
      &                                        .or. wrthis(indxSwflx)
+# endif
      &                                        .or. wrthis(indxShflx_rsw)
 # if defined BULK_FLUX
      &                                        .or. wrthis(indxShflx_rlw)
@@ -802,8 +806,10 @@ c        close(testunit)
      &  , wrthis(indxVWstr), 'write V-Wstress comp.', 'V-Wind Stress.'
      &  , wrthis(indxShflx), 'write Shflx [W/m2]', 
      &                       'Surface net heat flux'
+# ifdef SALINITY
      &  , wrthis(indxSwflx), 'write Swflx [cm/day]', 
      &                       'Surface freshwater flux (E-P)'
+# endif
      &  , wrthis(indxShflx_rsw),'write Shflx_rsw [W/m2]', 
      &                          'Short-wave surface radiation'
 # ifdef VIS_COEF_3D
@@ -866,7 +872,9 @@ c        close(testunit)
      &                                          ,  wrtavg(indxUWstr)
      &                                          ,  wrtavg(indxVWstr)
      &                                          ,  wrtavg(indxShflx)
+# ifdef SALINITY
      &                                          ,  wrtavg(indxSwflx)
+# endif
      &                                          ,  wrtavg(indxShflx_rsw)
 #  ifdef BULK_FLUX
      &                                          ,  wrtavg(indxShflx_rlw)
@@ -901,7 +909,9 @@ c        close(testunit)
      &                                        .or. wrtavg(indxUWstr)
      &                                        .or. wrtavg(indxVWstr)
      &                                        .or. wrtavg(indxShflx)
+# ifdef SALINITY
      &                                        .or. wrtavg(indxSwflx)
+# endif
      &                                        .or. wrtavg(indxShflx_rsw)
      &     
 #  if defined BULK_FLUX
@@ -978,8 +988,10 @@ c        close(testunit)
      &  , wrtavg(indxVWstr),'write V-Wstress comp.', 'V-Wind Stress.'
      &  , wrtavg(indxShflx),'write Shflx [W/m2]', 
      &                      'Surface net heat flux.'
+#  ifdef SALINITY
      &  , wrtavg(indxSwflx),'write Swflx [cm/day]', 
      &                      'Surface freshwater flux (E-P)'
+#  endif
      &  , wrtavg(indxShflx_rsw),'write Shflx_rsw [W/m2]', 
      &                      'Short-wave surface radiation.'
 #  ifdef VIS_COEF_3D

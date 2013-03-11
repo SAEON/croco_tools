@@ -202,11 +202,11 @@ C$    integer omp_get_thread_num
           if (wrtavg(indxHbl)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
-#ifdef LMD_SKPP2005
+#    ifdef LMD_SKPP2005
                 hbl_avg(i,j)=hbls(i,j,nstp)
-#else
+#    else
                 hbl_avg(i,j)=hbl(i,j)
-#endif
+#    endif
               enddo
             enddo
           endif
@@ -227,21 +227,23 @@ C$    integer omp_get_thread_num
                enddo
              enddo
            endif
+#ifdef SALINITY
            if (wrtavg(indxSwflx)) then
              do j=JstrR,JendR
                do i=IstrR,IendR
                  stflx_avg(i,j,isalt)=stf_cff*stflx(i,j,isalt) /
-     &                ( max(eps,t(i,j,N,nstp,isalt)) ) * rmask(i,j)
+     &                              ( max(eps,t(i,j,N,nstp,isalt)) ) 
                enddo
              enddo
            endif
+#endif
            if (wrtavg(indxShflx_rsw)) then
              do j=JstrR,JendR
                do i=IstrR,IendR
 # ifdef BULK_FLUX
-                 shflx_rsw_avg(i,j)=shflx_rsw(i,j)
+                 shflx_rsw_avg(i,j)=shflx_rsw(i,j)*rho0*Cp
 # else
-                 srflx_avg(i,j)=srflx(i,j)*(rho0*Cp)
+                 srflx_avg(i,j)=srflx(i,j)*rho0*Cp
 # endif
                enddo
              enddo
@@ -250,21 +252,21 @@ C$    integer omp_get_thread_num
            if (wrtavg(indxShflx_rlw)) then
              do j=JstrR,JendR
                do i=IstrR,IendR
-                shflx_rlw_avg(i,j)=shflx_rlw(i,j)
+                shflx_rlw_avg(i,j)=shflx_rlw(i,j)*rho0*Cp
               enddo
             enddo
           endif
           if (wrtavg(indxShflx_lat)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
-                shflx_lat_avg(i,j)=shflx_lat(i,j)
+                shflx_lat_avg(i,j)=shflx_lat(i,j)*rho0*Cp
               enddo
             enddo
           endif
           if (wrtavg(indxShflx_sen)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
-                shflx_sen_avg(i,j)=shflx_sen(i,j)
+                shflx_sen_avg(i,j)=shflx_sen(i,j)*rho0*Cp
               enddo
             enddo
           endif
@@ -547,28 +549,31 @@ C$    integer omp_get_thread_num
             do j=JstrR,JendR
               do i=IstrR,IendR
                 stflx_avg(i,j,itemp)=stflx_avg(i,j,itemp)+
-     &               stflx(i,j,itemp)*(rho0*Cp)
+     &               stflx(i,j,itemp)*rho0*Cp
               enddo
             enddo
           endif
+#ifdef SALINITY
           if (wrtavg(indxSwflx)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
                 stflx_avg(i,j,isalt)=stflx_avg(i,j,isalt)+
      &                               stf_cff*stflx(i,j,isalt) /
-     &               ( max(eps,t(i,j,N,nstp,isalt)) ) * rmask(i,j) 
+     &               ( max(eps,t(i,j,N,nstp,isalt)) ) 
               enddo
             enddo
           endif
+#endif
           if (wrtavg(indxShflx_rsw)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
 #  ifdef BULK_FLUX
                 shflx_rsw_avg(i,j)=shflx_rsw_avg(i,j)+shflx_rsw(i,j)
-#  else
+     &                                                *rho0*Cp
+# else
                 srflx_avg(i,j)=srflx_avg(i,j)+
-     &                                       srflx(i,j)*(rho0*Cp)
-#  endif
+     &                          srflx(i,j)*rho0*Cp
+# endif
               enddo
             enddo
           endif
@@ -577,6 +582,7 @@ C$    integer omp_get_thread_num
             do j=JstrR,JendR
               do i=IstrR,IendR
                 shflx_rlw_avg(i,j)=shflx_rlw_avg(i,j)+shflx_rlw(i,j)
+     &                                                *rho0*Cp
               enddo
             enddo
           endif
@@ -584,6 +590,7 @@ C$    integer omp_get_thread_num
             do j=JstrR,JendR
               do i=IstrR,IendR
                 shflx_lat_avg(i,j)=shflx_lat_avg(i,j)+shflx_lat(i,j)
+     &                                                *rho0*Cp
               enddo
             enddo
           endif
@@ -591,6 +598,7 @@ C$    integer omp_get_thread_num
             do j=JstrR,JendR
               do i=IstrR,IendR
                 shflx_sen_avg(i,j)=shflx_sen_avg(i,j)+shflx_sen(i,j)
+     &                                                *rho0*Cp
               enddo
             enddo
           endif
@@ -889,24 +897,26 @@ C$    integer omp_get_thread_num
               enddo
             enddo
           endif
+#ifdef SALINITY
           if (wrtavg(indxSwflx)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
                 stflx_avg(i,j,isalt)=cff*(stflx_avg(i,j,isalt)+
-     &               stf_cff*stflx(i,j,isalt) /
-     &               ( max(eps,t(i,j,N,nstp,isalt)) ) * rmask(i,j))
+     &                               stf_cff*stflx(i,j,isalt) /
+     &               ( max(eps,t(i,j,N,nstp,isalt)) ) )
               enddo
             enddo
           endif
+#endif
           if (wrtavg(indxShflx_rsw)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
-#  ifdef BULK_FLUX
+#   ifdef BULK_FLUX
                 shflx_rsw_avg(i,j)=cff*( shflx_rsw_avg(i,j)+
-     &               shflx_rsw(i,j) )
+     &               shflx_rsw(i,j)*rho0*Cp)
 #  else
                 srflx_avg(i,j)=cff*(srflx_avg(i,j)+
-     &               srflx(i,j)*(rho0*Cp))
+     &               srflx(i,j)*rho0*Cp)
 #  endif
               enddo
             enddo
@@ -916,7 +926,7 @@ C$    integer omp_get_thread_num
             do j=JstrR,JendR
               do i=IstrR,IendR
                 shflx_rlw_avg(i,j)=cff*( shflx_rlw_avg(i,j)+
-     &               shflx_rlw(i,j) )
+     &                                   shflx_rlw(i,j)*rho0*Cp)
               enddo
             enddo
           endif
@@ -924,7 +934,7 @@ C$    integer omp_get_thread_num
             do j=JstrR,JendR
               do i=IstrR,IendR
                 shflx_lat_avg(i,j)=cff*( shflx_lat_avg(i,j)+
-     &               shflx_lat(i,j) )
+     &                                   shflx_lat(i,j)*rho0*Cp)
               enddo
             enddo
           endif
@@ -932,7 +942,7 @@ C$    integer omp_get_thread_num
             do j=JstrR,JendR
               do i=IstrR,IendR
                 shflx_sen_avg(i,j)=cff*( shflx_sen_avg(i,j)+
-     &                                   shflx_sen(i,j) )
+     &                             shflx_sen(i,j)*rho0*Cp)
               enddo
             enddo
           endif

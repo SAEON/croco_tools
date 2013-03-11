@@ -122,8 +122,9 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
           goto 99                                         !--> ERROR
         endif
 
-        lvar=lenstr(vname(1,indxRADSW))
-        ierr=nf_inq_varid (ncidbulk,vname(1,indxRADSW)(1:lvar),radsw_id)
+        lvar=lenstr(vname(1,indxShflx_rsw))
+        ierr=nf_inq_varid (ncidbulk,vname(1,indxShflx_rsw)
+     &                                                (1:lvar),radsw_id)
         if (ierr .eq. nf_noerr) then
           ierr=nf_inq_varndims (ncidbulk, radsw_id, i)
           if (ierr. eq. nf_noerr) then
@@ -135,8 +136,9 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
           endif
         endif
         if (ierr .ne. nf_noerr) then
-          write(stdout,3) vname(1,indxRADSW)(1:lvar),bulkname(1:lstr)
-          goto 99                                         !--> ERROR
+          write(stdout,3) vname(1,indxShflx_rsw)(1:lvar),
+     &                                                bulkname(1:lstr)
+          goto 99                                        !--> ERROR
         endif
 
 # ifdef BULK_EP

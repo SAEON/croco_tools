@@ -39,6 +39,11 @@
 #ifdef BBL
 # include "bbl.h"
 #endif
+#ifdef MASKING
+# define SWITCH *
+#else
+# define SWITCH !
+#endif
 #ifdef SOLVE3D
       integer tile, itrc,i,j,k
 #  ifdef SEDIMENT
@@ -216,7 +221,8 @@ CR      write(*,*) 'wrt_his:  VWstr' MYID
 !     Write out total heat flux 
 !     
       if (wrthis(indxShflx)) then
-         work2d=stflx(:,:,itemp)*(Cp*rho0)*rmask(:,:)
+         work2d=stflx(:,:,itemp)*rho0*Cp
+     &          SWITCH rmask
          ierr=nf_fwrite(work2d, ncidhis, hisShflx, record, r2dvar)
          if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxShflx))
@@ -226,7 +232,8 @@ CR      write(*,*) 'wrt_his:  VWstr' MYID
          endif
 CR      write(*,*) 'wrt_his:  stflx(:,:,itemp)' MYID
       endif
-     
+      
+#ifdef SALINITY    
 !     Write out surface salt flux  
 !       --> convert [psu.m.s-1] => [cm/days] : 
 !       stf_cff= 86400/0.01 = 1/stf_scale 
@@ -237,15 +244,10 @@ CR      write(*,*) 'wrt_his:  stflx(:,:,itemp)' MYID
          do j=0,Mm+1
             do i=0,Lm+1
                work2d(i,j)=stf_cff*stflx(i,j,isalt)/
-     &              ( max(eps,t(i,j,N,nstp,isalt))) * rmask(i,j)
+     &              ( max(eps,t(i,j,N,nstp,isalt))) 
+     &              SWITCH rmask(i,j)
             enddo
         enddo
-!!!!         work2d=t(:,:,N,nstp,isalt)
-!!!!         write(*,*)'Lm=',Lm,' Mm=',Mm
-!!!!         write(*,*)'work2d(5,:)',work2d(5,:)
-!!!!         write(*,*)' '
-!!!!         write(*,*)'work2d(:,5)',work2d(:,5)
-
          ierr=nf_fwrite(work2d, ncidhis, hisSwflx, record, r2dvar)
          if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxSwflx))
@@ -254,16 +256,18 @@ CR      write(*,*) 'wrt_his:  stflx(:,:,itemp)' MYID
             goto 99             !--> ERROR
          endif
 CR      write(*,*) 'wrt_his:  stflx(:,:,isalt)' MYID
-!     
-!     Write out surface heat flux component (degC/s)
-!   
       endif
+#endif      
+!     
+!     Write out surface heat flux component (W/m2)
+!         
       if (wrthis(indxShflx_rsw)) then
 # ifdef BULK_FLUX
-         ierr=nf_fwrite(shflx_rsw, ncidhis, hisShflx_rsw, record,
+         work2d=shflx_rsw*rho0*Cp
+         ierr=nf_fwrite(work2d, ncidhis, hisShflx_rsw, record,
      &        r2dvar)
 # else 
-         work2d=srflx*(Cp*rho0)*rmask
+         work2d=srflx*rho0*Cp
          ierr=nf_fwrite(work2d, ncidhis, hisShflx_rsw, record, r2dvar)
 # endif
          if (ierr .ne. nf_noerr) then
@@ -276,7 +280,8 @@ CR      write(*,*) 'wrt_his:  stflx(:,:,isalt)' MYID
       endif
 # ifdef BULK_FLUX
       if (wrthis(indxShflx_rlw)) then
-         ierr=nf_fwrite(shflx_rlw, ncidhis, hisShflx_rlw, record,
+         work2d=shflx_rlw*rho0*Cp
+         ierr=nf_fwrite(work2d, ncidhis, hisShflx_rlw, record,
      &        r2dvar)
          if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxShflx_rlw))
@@ -288,7 +293,8 @@ CR      write(*,*) 'wrt_his:  stflx(:,:,isalt)' MYID
       endif
 
       if (wrthis(indxShflx_lat)) then
-         ierr=nf_fwrite(shflx_lat, ncidhis, hisShflx_lat, record,
+         work2d=shflx_lat*rho0*Cp
+         ierr=nf_fwrite(work2d, ncidhis, hisShflx_lat, record,
      &        r2dvar)
          if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxShflx_lat))
@@ -300,7 +306,8 @@ CR      write(*,*) 'wrt_his:  stflx(:,:,isalt)' MYID
       endif
 
       if (wrthis(indxShflx_sen)) then
-         ierr=nf_fwrite(shflx_sen, ncidhis, hisShflx_sen, record,
+        work2d=shflx_sen*rho0*Cp
+        ierr=nf_fwrite(work2d, ncidhis, hisShflx_sen, record,
      &        r2dvar)
          if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxShflx_sen))
@@ -341,7 +348,8 @@ CR      write(*,*) 'wrt_his:  wrtV  ' MYID
             if (iic.eq.0) then
 !     We do that because the mask has been applied if iic ==0 !
                do k=1,N
-                  workr(:,:,k)=workr(:,:,k)*rmask(:,:)
+                  workr(:,:,k)=workr(:,:,k)
+     &                         SWITCH rmask(:,:)
                enddo
             endif
 #endif
@@ -491,14 +499,6 @@ CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
          work2d=sst_skin
          call fillvalue2d(work2d,ncidhis,hisSST_skin,indxSST_skin,
      &        record,r2dvar,type)
-!$$$         ierr=nf_fwrite(sst_skin, ncidhis, hisSST_skin, record, r2dvar)
-!$$$         if (ierr .ne. nf_noerr) then
-!$$$            lvar=lenstr(vname(1,indxSST_skin))
-!$$$            write(stdout,1) vname(1,indxSST_skin)(1:lvar), 
-!$$$     &           record, ierr
-!$$$     &           MYID
-!$$$            goto 99             !--> ERROR
-!$$$         endif
       endif
 # endif
 !     
@@ -514,7 +514,7 @@ CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
 !     
 !     Write out depth of the euphotic layer (m).
 !     
-#  ifdef BIO_NChlPZD
+#  if (defined BIO_NChlPZD ||  defined BIO_N2ChlPZD2)
       if (wrthis(indxChC)) then
          workr=theta
          call fillvalue3d(workr,ncidhis,hisChC,indxChC,
@@ -539,7 +539,7 @@ CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
      &        record,r2dvar,type)
       endif
 #      endif /* OXYGEN */
-#    endif /* BIO_NChlPZD */
+#    endif /* BIO_NChlPZD || defined BIO_N2ChlPZD2 */
 #  endif /* BIOLOGY */
 !     
 # ifdef SEDIMENT

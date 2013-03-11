@@ -205,16 +205,18 @@
           stflx(i,j,isalt)=(evap-prate(i,j))*SSS
 # endif
 !
-!  Store fluxes for diagnostics
+!  Store fluxes for diagnostics (in degC m .s-1)
+!  When storing in netCDF file, multiplied
+!  by rho0.Cp to get W/m2
 !
-          shflx_rsw(i,j)=srflx(i,j)*rho0*Cp
-          shflx_lat(i,j)=hflat *rho0*Cp
-          shflx_sen(i,j)=hfsen *rho0*Cp
+          shflx_rsw(i,j)=srflx(i,j)
+          shflx_lat(i,j)=hflat
+          shflx_sen(i,j)=hfsen
 # ifndef BULK_LW
-          shflx_rlw(i,j)=-radlw(i,j) *rho0*Cp
+          shflx_rlw(i,j)=-radlw(i,j)
 # else
           shflx_rlw(i,j)=emiss_lw*(radlw(i,j)
-     &                   -rho0i*cpi*sigmaSB*(SST+CtoK)**4) *rho0*Cp
+     &                   -rho0i*cpi*sigmaSB*(SST+CtoK)**4)
 # endif
 !
 !  Save for the calc of wind stress
@@ -692,11 +694,13 @@
           cer(i,j)=Cd
 !
 !  Store fluxes for diagnostics
+!  When storing in netCDF file, multiplied
+!  by rho0.Cp to get W/m2
 !
-          shflx_rsw(i,j)=srflx(i,j) *rho0*Cp
-          shflx_lat(i,j)=hflat *rho0*Cp
-          shflx_sen(i,j)=hfsen *rho0*Cp
-          shflx_rlw(i,j)=hflw *rho0*Cp
+          shflx_rsw(i,j)=srflx(i,j)
+          shflx_lat(i,j)=hflat
+          shflx_sen(i,j)=hfsen 
+          shflx_rlw(i,j)=hflw
         enddo
       enddo
 

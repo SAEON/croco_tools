@@ -31,6 +31,7 @@
 # include "scalars.h"
 # include "averages.h"
 # include "ncscrum.h"
+# include "grid.h"
 # include "ocean2d.h"
 # include "ocean3d.h"
 # include "work.h"
@@ -38,7 +39,11 @@
 # ifdef SEDIMENT
 #  include "sediment.h"
 # endif
-
+#ifdef MASKING
+# define SWITCH *
+#else
+# define SWITCH !
+#endif
 #if defined MPI & !defined PARALLEL_FILES
       if (mynode.gt.0) then
         call MPI_Recv (blank, 1, MPI_INTEGER, mynode-1,
@@ -173,10 +178,15 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
          endif
       endif
 !     
-!     Write out total heat flux 
+!     Write out total heat flux [W/m2]
 !     
       if (wrtavg(indxShflx)) then
          work2d=stflx_avg(:,:,itemp)
+     &          SWITCH rmask
+!
+!        Mult by mask to avoid erroneous data 
+!        over land if Qcorrection cppkeys applied
+!
          ierr=nf_fwrite(work2d, ncidavg, avgShflx, record, r2dvar)
          if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxShflx))
@@ -186,11 +196,17 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
          endif
 CR      write(*,*) 'wrt_avg:  stflx(:,:,itemp)' MYID
       endif
-     
-!     Write out surface E-P flux 
+#ifdef SALINITY      
+!     Write out surface E-P flux [cm/d]
 !     
       if (wrtavg(indxSwflx)) then
          work2d=stflx_avg(:,:,isalt)
+     &         SWITCH rmask  
+!
+!        Mult by mask to avoid erroneous data over land 
+!        if SFlux cppkeys correction applied and also 
+!        to remove enormous wrong value diciding by eps.    
+!
          ierr=nf_fwrite(work2d, ncidavg, avgSwflx, record, r2dvar)
          if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxSwflx))
@@ -200,7 +216,8 @@ CR      write(*,*) 'wrt_avg:  stflx(:,:,itemp)' MYID
          endif
 CR      write(*,*) 'wrt_avg:  stflx(:,:,isalt)' MYID
       endif
-!     Write out solar radiation flux 
+#endif
+!     Write out solar radiation flux [W/m2]
 !     
       if (wrtavg(indxShflx_rsw)) then
 # ifdef BULK_FLUX
@@ -307,14 +324,6 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
          work2d=sst_skin_avg
          call fillvalue2d(work2d,ncidavg,avgSST_skin,indxSST_skin,
      &                    record,r2dvar,type)
-!$$$         ierr=nf_fwrite(sst_skin_avg, ncidavg, avgSST_skin, record, 
-!$$$     &                                                      r2dvar)
-!$$$         if (ierr .ne. nf_noerr) then
-!$$$            lvar=lenstr(vname(1,indxSST_skin))
-!$$$            write(stdout,1) vname(1,indxSST_skin)(1:lvar), record, ierr
-!$$$     &           MYID
-!$$$            goto 99             !--> ERROR
-!$$$         endif
       endif
 #  endif 
 !

@@ -58,8 +58,8 @@ c**        call opencdf (frcname,N)
           endif
 # endif
         endif
-        lvar=lenstr(vname(1,indxSHFl+itrc-1))
-        ierr=nf_inq_varid (ncidfrc, vname(1,indxSHFl+itrc-1),
+        lvar=lenstr(vname(1,indxShflx+itrc-1))
+        ierr=nf_inq_varid (ncidfrc, vname(1,indxShflx+itrc-1),
      &                                          stf_id(itrc))
         if (ierr .eq. nf_noerr) then
           ierr=nf_inq_varndims (ncidfrc, stf_id(itrc), i)
@@ -72,7 +72,7 @@ c**        call opencdf (frcname,N)
           endif
         endif
         if (ierr .ne. nf_noerr) then
-          write(stdout,3) vname(1,indxSHFl+itrc-1), frcname(1:lstr)
+          write(stdout,3) vname(1,indxShflx+itrc-1), frcname(1:lstr)
           goto 99                                         !--> ERROR
         endif
 !

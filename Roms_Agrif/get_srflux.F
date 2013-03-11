@@ -48,8 +48,9 @@
           goto 99                                         !--> ERROR
         endif
 
-        lvar=lenstr(vname(1,indxSWRad))
-        ierr=nf_inq_varid (ncidfrc,vname(1,indxSWRad)(1:lvar),srf_id)
+        lvar=lenstr(vname(1,indxShflx_rsw))
+        ierr=nf_inq_varid (ncidfrc,vname(1,indxShflx_rsw)
+     &                                               (1:lvar),srf_id)
         if (ierr .eq. nf_noerr) then
           ierr=nf_inq_varndims (ncidfrc, srf_id, i)
           if (ierr. eq. nf_noerr) then
@@ -61,7 +62,7 @@
           endif
         endif
         if (ierr .ne. nf_noerr) then
-          write(stdout,3) vname(1,indxSWRad)(1:lvar),frcname(1:lstr)
+          write(stdout,3) vname(1,indxShflx_rsw)(1:lvar),frcname(1:lstr)
           goto 99                                         !--> ERROR
         endif
 !

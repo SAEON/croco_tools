@@ -36,12 +36,12 @@
 !
 ! indxSSH         observed sea surface height (from climatology)
 ! indxSUSTR,indxSVSTR  surface U-, V-momentum stress (wind forcing)
-! indxSHFl        net surface heat flux.
-! indxSWRad       shortwave radiation flux
+! indxShflx       net surface heat flux.
+! indxShflx_rsw   shortwave radiation flux
+! indxSwflx       surface fresh water flux
 ! indxSST         sea surface temperature
 ! indxdQdSST      Q-correction coefficient dQdSST
 ! indxSSS         sea surface salinity
-! indxSSFl        surface fresh water flux
 ! indxRIV         river runoff
 !
 ! indxAi          fraction of cell covered by ice
@@ -298,16 +298,16 @@
       integer indxTime2
       parameter (indxTime2=indxSSH+3)
 #ifdef SOLVE3D
-      integer indxSHFl, indxSWRad
-      parameter (indxSHFl=indxSSH+4)
+      integer indxShflx, indxShflx_rsw
+      parameter (indxShflx=indxSSH+4)
 # ifdef SALINITY
-      integer indxSSFl
-      parameter (indxSSFl=indxSHFl+1, indxSWRad=indxSHFl+2)
+      integer indxSwflx
+      parameter (indxSwflx=indxShflx+1, indxShflx_rsw=indxShflx+2)
 # else
-      parameter (indxSWRad=indxSHFl+1)
+      parameter (indxShflx_rsw=indxShflx+1)
 # endif
       integer indxSST, indxdQdSST
-      parameter (indxSST=indxSWRad+1, indxdQdSST=indxSWRad+2)
+      parameter (indxSST=indxShflx_rsw+1, indxdQdSST=indxShflx_rsw+2)
 # if defined SALINITY && defined SFLX_CORR
       integer indxSSS
       parameter (indxSSS=indxSST+2)
@@ -332,12 +332,6 @@
       parameter (indxVWstr=indxSUSTR+23)
       integer indxBostr
       parameter (indxBostr=indxSUSTR+24)
-      integer indxShflx
-      parameter (indxShflx=indxSUSTR+25)
-      integer indxSwflx
-      parameter (indxSwflx=indxSUSTR+26)
-      integer indxShflx_rsw
-      parameter (indxShflx_rsw=indxSUSTR+27)
 #ifdef SOLVE3D
 # ifdef SEDIMENT
       integer indxSed, indxBTHK, indxBPOR, indxBFRA
