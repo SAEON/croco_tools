@@ -1107,9 +1107,8 @@ CR      write(stdout,'(1x,A,I3)') 'indxSVSTR =',indxSVSTR
       vname(6,indxSVSTR)='lat_v lon_v                             '            
       vname(7,indxSVSTR)='                                        '   
       
-#ifdef SOLVE3D
-# endif     
-#if !defined BULK_FLUX
+#ifdef SOLVE3D     
+# if !defined BULK_FLUX
 CR      write(stdout,'(1x,A,I3)') 'indxSST =',indxSST
       vname(1,indxSST)='SST                                       '
       vname(2,indxSST)='sea surface temperature                   '
@@ -1128,7 +1127,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxdQdSST =',indxdQdSST
       vname(5,indxdQdSST)='heat_flux_correction                   ' 
       vname(6,indxdQdSST)='lat_rho lon_rho                        '               
       vname(7,indxdQdSST)='                                       '
-#endif     
+# endif     
 # ifdef PSOURCE_NCFILE
 CR      write(stdout,'(1x,A,I3)') 'indxRIV =',indxRIV
       vname(1,indxRIV)='RIV                                       '
