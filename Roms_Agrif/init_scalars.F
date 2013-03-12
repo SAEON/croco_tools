@@ -1304,14 +1304,6 @@ CR      write(stdout,'(1x,A,I3)') 'indxRADLW =',indxRADLW
       vname(7,indxRADLW)='                                        '
 # endif  /* BULK_LW */ 
 
-!$$$CR      write(stdout,'(1x,A,I3)') 'indxRADSW =',indxRADSW
-!$$$      vname(1,indxRADSW)='radsw                                   '
-!$$$      vname(2,indxRADSW)='net solar shortwave radiation           '
-!$$$      vname(3,indxRADSW)='Watts meter-2                           '
-!$$$      vname(4,indxRADSW)='solar shortwave, scalar, series         '
-!$$$      vname(5,indxRADSW)='                                        '
-!$$$      vname(6,indxRADSW)='lat_rho lon_rho                         '              
-!$$$      vname(7,indxRADSW)='                                        '
       
 CR      write(stdout,'(1x,A,I3)') 'indxPRATE =',indxPRATE
       vname(1,indxPRATE)='prate                                   '

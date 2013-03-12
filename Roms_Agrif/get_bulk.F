@@ -17,10 +17,7 @@
 !  Read in wind speed and surface air temperature
 !
 !
-!!! gc # define BULK_DATA
-!!! gc # ifdef BULK_WSTR
-!!! gc #  define SMFLUX_DATA
-!!! gc # endif
+
       implicit none
 # include "param.h"
 # include "forces.h"
