@@ -11,7 +11,7 @@
 !
 #include "cppdefs.h"
 
-       subroutine init_scalars (ierr)
+      subroutine init_scalars (ierr)
 !
 ! Set initial values for  globally accessable (stored in common
 ! blocks) scalar variables. Typically this is associated with
@@ -224,7 +224,7 @@ C$OMP END PARALLEL
 ! Initialisation at one blanck space
       vname(:,:)='  '
 
-#define CR
+!#define CR
 CR      write(stdout,'(1x,A,I3)') 'indxTime =',indxTime
       vname(1,indxTime)='scrum_time'
       vname(2,indxTime)='time since initialization'
