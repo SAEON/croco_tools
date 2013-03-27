@@ -47,7 +47,7 @@
 !       A = 0.5 * uscale * grd_scale
 !  and  B = A * grd_scale**2
       real uscale
-      parameter (uscale=0.2)
+      parameter (uscale=0.1)
 # endif
 !
 # include "compute_extended_bounds.h"
