@@ -1,7 +1,7 @@
 function z = zlevs(h,zeta,theta_s,theta_b,hc,N,type,vtransform);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  function z = zlevs(h,zeta,theta_s,theta_b,hc,N,vtransform,type);
+%  function z = zlevs(h,zeta,theta_s,theta_b,hc,N,type,vtransform);
 %
 %  this function compute the depth of rho or w points for ROMS
 %
