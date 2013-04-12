@@ -96,7 +96,7 @@ C$    integer omp_get_thread_num
           x=xr(i,j)-x0
           y=yr(i,j)-y0
           cff3=exp(-cff1*x)
-          fac=cff2*(2.*cff3/(1.+cff3*cff3))**2 zeta(i,j,1)
+          fac=cff2*(2.*cff3/(1.+cff3*cff3))**2 
           zeta(i,j,1)=0.25*fac*(6.*y*y+3.)*exp(-0.5*y*y)
         enddo
       enddo
