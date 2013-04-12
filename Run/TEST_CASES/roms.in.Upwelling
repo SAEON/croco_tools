@@ -26,14 +26,14 @@ averages: NTSAVG, NAVG, NRPFAVG / filename
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
                         T    T    T     T  T   10*T
 
-auxiliary_history_fields: rho Omega  W  Akv  Akt  Aks  HBL Hbbl Bostr Wstr UWstr VWstr
-                          F   F      F  F    F    F    F   F    F     F    F     F
+auxiliary_history_fields: rho Omega  W  Akv  Akt  Aks  HBL Hbbl Bostr Wstr UWstr VWstr Shflux Swflux Swrad
+                          F   F      F  F    F    F    F   F    F     F    F     F     F      F      F 
 
 primary_averages: zeta UBAR VBAR  U  V   wrtT(1:NT)
                    T    T    T    T  T   10*T
 
-auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL Hbbl Bostr Wstr UWstr VWstr
-                    F   F      F  F    F    F    F   F    F     F    F     F
+auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL Hbbl Bostr Wstr UWstr VWstr Shflux Swflux Swrad
+                    F   F      F  F    F    F    F   F    F     F    F     F     F       F     F 
 
 rho0:
       1000.
