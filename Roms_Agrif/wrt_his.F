@@ -104,7 +104,7 @@ CR      write(*,*) 'wrt_his: Entry  ' MYID
      &        MYID
          goto 99                !--> ERROR
       endif
-CR     write(*,*) 'wrt_his:  time  ' MYID
+CR      write(*,*) 'wrt_his:  time  ' MYID
 !     
 !     Time
 !     
@@ -126,7 +126,7 @@ CR     write(*,*) 'wrt_his:  time  ' MYID
      &        MYID
          goto 99                !--> ERROR
       endif
-CR     write(*,*) 'wrt_his:  time  ' MYID
+CR      write(*,*) 'wrt_his:  time  ' MYID
 !     
 !     Barotropic mode variables: free-surface and 2D momentum
 !     components in XI-,ETA-directions.
