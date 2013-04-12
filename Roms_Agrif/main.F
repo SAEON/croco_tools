@@ -332,14 +332,14 @@ CR      write(*,*) ' -1' MYID
 #ifdef FLOATS
 ! Initialization for Lagrangian floats
 !-------------------------------------------------------
-      nrecflt=0    ! initialization done here and not in 
-      ncidflt=-1   ! init_scalars since it must be done only 
-                   ! once (whether child levels exist or not)
-      spval=1.E15  ! spval is the nodata flag for float variables
+      nrecflt=0        ! initialization done here and not in 
+      ncidflt=-1       ! init_scalars since it must be done only 
+                       ! once (whether child levels exist or not)
+      flopspval=1.E15  ! spval is the nodata flag for float variables
 
-      deltac2p=2.3 ! distance from the boundary at which a float
-                   ! is transferred from child to parent
-      deltap2c=2.5 ! same for transfer from parent to child
+      deltac2p=2.3     ! distance from the boundary at which a float
+                       ! is transferred from child to parent
+      deltap2c=2.5     ! same for transfer from parent to child
 
       call init_arrays_floats
       call init_floats

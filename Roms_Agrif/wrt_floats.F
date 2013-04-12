@@ -133,10 +133,10 @@
       endif
       endif
 !
-!  Fills in tmp variable with spval values for the nonreleased floats
+!  Fills in tmp variable with flospval values for the nonreleased floats
       do id=1,nfltunrelmax
         iflt=indxunrel(id)
-        Tout(iflt)=spval      
+        Tout(iflt)=flospval
       enddo
 
 # ifdef SOLVE3D
@@ -258,7 +258,7 @@
       endif
 
 !----------------------------------------------------------------
-! The following variables are to be stored with a non spval value 
+! The following variables are to be stored with a non flospval value 
 ! at the first time step. Therefore, a modification to nfltrelmax 
 ! and indxrel is done at this place. 
 

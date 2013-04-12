@@ -28,7 +28,7 @@
         nrecvel(iflt)=0
 
         do j=igrd,izgrd  
-           Tinfo(j,iflt)=spval
+           Tinfo(j,iflt)=flospval
         enddo
         
         do j=1,NDIAGS
@@ -37,7 +37,7 @@
 
         do j=0,NFT
           do i=1,NFV
-            track(i,j,iflt)=spval
+            track(i,j,iflt)=flospval
           enddo
         enddo
 

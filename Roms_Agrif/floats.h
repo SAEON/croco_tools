@@ -77,8 +77,8 @@
       real Tinfo(igrd:izgrd,Mfloats)
       common /floats_info/ Tinfo
 
-      real spval, deltap2c, deltac2p
-      common /floats_scalars/ spval, deltap2c, deltac2p
+      real flospval, deltap2c, deltac2p
+      common /floats_scalars/ flospval, deltap2c, deltac2p
 # ifdef IBM
       integer ibmvars, ibmage, ibmzoe
       parameter (ibmvars=2, ibmage=1, ibmzoe=2)
