@@ -27,8 +27,6 @@
       common /avg_sustr/sustr_avg
       real svstr_avg(GLOBAL_2D_ARRAY)
       common /avg_svstr/svstr_avg
-      real stflx_avg(GLOBAL_2D_ARRAY,NT)
-      common /avg_stflx/stflx_avg
       real srflx_avg(GLOBAL_2D_ARRAY)
       common /avg_srflx/srflx_avg
 # ifdef SOLVE3D
@@ -41,6 +39,8 @@
       common /avg_u/u_avg /avg_v/v_avg /avg_t/t_avg
      &       /avg_rho/rho_avg /avg_omega/omega_avg
      &       /avg_w/w_avg
+      real stflx_avg(GLOBAL_2D_ARRAY,NT)
+      common /avg_stflx/stflx_avg
 #  ifdef LMD_SKPP
       real hbl_avg(GLOBAL_2D_ARRAY)
       common /avg_hbl/hbl_avg

@@ -217,107 +217,6 @@ CR      write(*,*) 'wrt_his:  UWstr' MYID
          endif
 CR      write(*,*) 'wrt_his:  VWstr' MYID
       endif
-!     
-!     Write out total heat flux 
-!     
-      if (wrthis(indxShflx)) then
-         work2d=stflx(:,:,itemp)*rho0*Cp
-     &          SWITCH rmask
-         ierr=nf_fwrite(work2d, ncidhis, hisShflx, record, r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxShflx))
-            write(stdout,1) vname(1,indxShflx)(1:lvar), record, ierr
-     &           MYID
-            goto 99             !--> ERROR
-         endif
-CR      write(*,*) 'wrt_his:  stflx(:,:,itemp)' MYID
-      endif
-      
-#ifdef SALINITY    
-!     Write out surface salt flux  
-!       --> convert [psu.m.s-1] => [cm/days] : 
-!       stf_cff= 86400/0.01 = 1/stf_scale 
-!       After forcing reading (get_stflx.F), multiply by 0.01/86400.
-!       Then in get_vbc.F, mult. by salinity t(i,j,N,nstp,isalt)
-!
-      if (wrthis(indxSwflx)) then
-         do j=0,Mm+1
-            do i=0,Lm+1
-               work2d(i,j)=stf_cff*stflx(i,j,isalt)/
-     &              ( max(eps,t(i,j,N,nstp,isalt))) 
-     &              SWITCH rmask(i,j)
-            enddo
-        enddo
-         ierr=nf_fwrite(work2d, ncidhis, hisSwflx, record, r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxSwflx))
-            write(stdout,1) vname(1,indxSwflx)(1:lvar), record, ierr
-     &           MYID
-            goto 99             !--> ERROR
-         endif
-CR      write(*,*) 'wrt_his:  stflx(:,:,isalt)' MYID
-      endif
-#endif      
-!     
-!     Write out surface heat flux component (W/m2)
-!         
-      if (wrthis(indxShflx_rsw)) then
-# ifdef BULK_FLUX
-         work2d=shflx_rsw*rho0*Cp
-         ierr=nf_fwrite(work2d, ncidhis, hisShflx_rsw, record,
-     &        r2dvar)
-# else 
-         work2d=srflx*rho0*Cp
-         ierr=nf_fwrite(work2d, ncidhis, hisShflx_rsw, record, r2dvar)
-# endif
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxShflx_rsw))
-            write(stdout,1) vname(1,indxShflx_rsw)(1:lvar), 
-     &           record, ierr
-     &           MYID
-            goto 99             !--> ERROR
-         endif
-      endif
-# ifdef BULK_FLUX
-      if (wrthis(indxShflx_rlw)) then
-         work2d=shflx_rlw*rho0*Cp
-         ierr=nf_fwrite(work2d, ncidhis, hisShflx_rlw, record,
-     &        r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxShflx_rlw))
-            write(stdout,1) vname(1,indxShflx_rlw)(1:lvar), 
-     &           record, ierr
-     &           MYID
-            goto 99             !--> ERROR
-         endif
-      endif
-
-      if (wrthis(indxShflx_lat)) then
-         work2d=shflx_lat*rho0*Cp
-         ierr=nf_fwrite(work2d, ncidhis, hisShflx_lat, record,
-     &        r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxShflx_lat))
-            write(stdout,1) vname(1,indxShflx_lat)(1:lvar), 
-     &           record, ierr
-     &           MYID
-            goto 99             !--> ERROR
-         endif
-      endif
-
-      if (wrthis(indxShflx_sen)) then
-        work2d=shflx_sen*rho0*Cp
-        ierr=nf_fwrite(work2d, ncidhis, hisShflx_sen, record,
-     &        r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxShflx_sen))
-            write(stdout,1) vname(1,indxShflx_sen)(1:lvar), 
-     &           record, ierr
-     &           MYID
-            goto 99             !--> ERROR
-         endif
-      endif
-# endif
 !      
 !--   
 !     
@@ -489,6 +388,107 @@ CR      write(*,*) 'wrt_his:  wrtHBL' MYID
          call fillvalue2d(work2d,ncidhis,hisHbbl,indxHbbl,
      &        record,r2dvar,type)
 CR      write(*,*) 'wrt_his:  wrtHBBL' MYID
+      endif
+# endif
+!     
+!     Write out total heat flux 
+!     
+      if (wrthis(indxShflx)) then
+         work2d=stflx(:,:,itemp)*rho0*Cp
+     &          SWITCH rmask
+         ierr=nf_fwrite(work2d, ncidhis, hisShflx, record, r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxShflx))
+            write(stdout,1) vname(1,indxShflx)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+CR      write(*,*) 'wrt_his:  stflx(:,:,itemp)' MYID
+      endif
+      
+#ifdef SALINITY    
+!     Write out surface salt flux  
+!       --> convert [psu.m.s-1] => [cm/days] : 
+!       stf_cff= 86400/0.01 = 1/stf_scale 
+!       After forcing reading (get_stflx.F), multiply by 0.01/86400.
+!       Then in get_vbc.F, mult. by salinity t(i,j,N,nstp,isalt)
+!
+      if (wrthis(indxSwflx)) then
+         do j=0,Mm+1
+            do i=0,Lm+1
+               work2d(i,j)=stf_cff*stflx(i,j,isalt)/
+     &              ( max(eps,t(i,j,N,nstp,isalt))) 
+     &              SWITCH rmask(i,j)
+            enddo
+        enddo
+         ierr=nf_fwrite(work2d, ncidhis, hisSwflx, record, r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxSwflx))
+            write(stdout,1) vname(1,indxSwflx)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+CR      write(*,*) 'wrt_his:  stflx(:,:,isalt)' MYID
+      endif
+#endif      
+!     
+!     Write out surface heat flux component (W/m2)
+!         
+      if (wrthis(indxShflx_rsw)) then
+# ifdef BULK_FLUX
+         work2d=shflx_rsw*rho0*Cp
+         ierr=nf_fwrite(work2d, ncidhis, hisShflx_rsw, record,
+     &        r2dvar)
+# else 
+         work2d=srflx*rho0*Cp
+         ierr=nf_fwrite(work2d, ncidhis, hisShflx_rsw, record, r2dvar)
+# endif
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxShflx_rsw))
+            write(stdout,1) vname(1,indxShflx_rsw)(1:lvar), 
+     &           record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+      endif
+# ifdef BULK_FLUX
+      if (wrthis(indxShflx_rlw)) then
+         work2d=shflx_rlw*rho0*Cp
+         ierr=nf_fwrite(work2d, ncidhis, hisShflx_rlw, record,
+     &        r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxShflx_rlw))
+            write(stdout,1) vname(1,indxShflx_rlw)(1:lvar), 
+     &           record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+      endif
+
+      if (wrthis(indxShflx_lat)) then
+         work2d=shflx_lat*rho0*Cp
+         ierr=nf_fwrite(work2d, ncidhis, hisShflx_lat, record,
+     &        r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxShflx_lat))
+            write(stdout,1) vname(1,indxShflx_lat)(1:lvar), 
+     &           record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+      endif
+
+      if (wrthis(indxShflx_sen)) then
+        work2d=shflx_sen*rho0*Cp
+        ierr=nf_fwrite(work2d, ncidhis, hisShflx_sen, record,
+     &        r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxShflx_sen))
+            write(stdout,1) vname(1,indxShflx_sen)(1:lvar), 
+     &           record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
       endif
 # endif
 # ifdef SST_SKIN

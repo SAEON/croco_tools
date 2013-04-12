@@ -710,149 +710,7 @@
      &                          NF_REAL, ierr)
 
         endif
-! Shflx [W/m2]
-        if (wrt(indxShflx)) then
-          lvar=lenstr(vname(1,indxShflx))
-          ierr=nf_def_var (ncid, vname(1,indxShflx)(1:lvar),
-     &                             NF_REAL, 3, r2dgrd, vidShflx)
-#  ifndef AVRH
-          lvar=lenstr(vname(2,indxShflx))
-          ierr=nf_put_att_text (ncid, vidShflx, 'long_name', lvar,
-     &                                 vname(2,indxShflx)(1:lvar))
-#  else
-          text='averaged '/ /vname(2,indxShflx)
-          lvar=lenstr(text)
-          ierr=nf_put_att_text (ncid, vidShflx, 'long_name', lvar,
-     &                                               text(1:lvar))
-#  endif
-          lvar=lenstr(vname(3,indxShflx))
-          ierr=nf_put_att_text (ncid, vidShflx, 'units',     lvar,
-     &                                 vname(3,indxShflx)(1:lvar))
 
-          call nf_add_attribute(ncid, vidShflx, indxShflx, 5, 
-     &                          NF_REAL, ierr)
-
-        endif
-#ifdef SALINITY
-! Swflx [cm/day]
-        if (wrt(indxSwflx)) then
-          lvar=lenstr(vname(1,indxSwflx))
-          ierr=nf_def_var (ncid, vname(1,indxSwflx)(1:lvar),
-     &                             NF_REAL, 3, r2dgrd, vidSwflx)
-#  ifndef AVRH
-          lvar=lenstr(vname(2,indxSwflx))
-          ierr=nf_put_att_text (ncid, vidSwflx, 'long_name', lvar,
-     &                                 vname(2,indxSwflx)(1:lvar))
-#  else
-          text='averaged '/ /vname(2,indxSwflx)
-          lvar=lenstr(text)
-          ierr=nf_put_att_text (ncid, vidSwflx, 'long_name', lvar,
-     &                                               text(1:lvar))
-#  endif
-          lvar=lenstr(vname(3,indxSwflx))
-          ierr=nf_put_att_text (ncid, vidSwflx, 'units',     lvar,
-     &                                 vname(3,indxSwflx)(1:lvar))
-            
-          call nf_add_attribute(ncid, vidSwflx, indxSwflx, 5, 
-     &                          NF_REAL, ierr)
-
-        endif
-#endif
-! Short wave Shflx_rsw [W/m2]
-      if (wrt(indxShflx_rsw)) then
-        lvar=lenstr(vname(1,indxShflx_rsw))
-        ierr=nf_def_var (ncid, vname(1,indxShflx_rsw)(1:lvar),
-     &                           NF_REAL, 3, r2dgrd, vidShflx_rsw)
-#  ifndef AVRH
-        lvar=lenstr(vname(2,indxShflx_rsw))
-        ierr=nf_put_att_text (ncid, vidShflx_rsw, 'long_name', lvar,
-     &                               vname(2,indxShflx_rsw)(1:lvar))
-#  else
-        text='averaged '/ /vname(2,indxShflx_rsw)
-        lvar=lenstr(text)
-        ierr=nf_put_att_text (ncid, vidShflx_rsw, 'long_name', lvar,
-     &                                               text(1:lvar))
-#  endif
-        lvar=lenstr(vname(3,indxShflx_rsw))
-        ierr=nf_put_att_text (ncid, vidShflx_rsw, 'units',     lvar,
-     &                               vname(3,indxShflx_rsw)(1:lvar))
-        lvar=lenstr(vname(5,indxShflx_rsw))
-        
-        call nf_add_attribute(ncid, vidShflx_rsw, indxShflx_rsw,5, 
-     &       NF_REAL, ierr)   
-
-      endif
-# ifdef BULK_FLUX
-! Long wave Shflx [W/m2]
-      if (wrt(indxShflx_rlw)) then
-        lvar=lenstr(vname(1,indxShflx_rlw))
-        ierr=nf_def_var (ncid, vname(1,indxShflx_rlw)(1:lvar),
-     &                           NF_REAL, 3, r2dgrd, vidShflx_rlw)
-#  ifndef AVRH
-        lvar=lenstr(vname(2,indxShflx_rlw))
-        ierr=nf_put_att_text (ncid, vidShflx_rlw, 'long_name', lvar,
-     &                               vname(2,indxShflx_rlw)(1:lvar))
-#  else
-        text='averaged '/ /vname(2,indxShflx_rlw)
-        lvar=lenstr(text) 
-        ierr=nf_put_att_text (ncid, vidShflx_rlw, 'long_name', lvar,
-     &                                             text(1:lvar))
-#  endif
-        lvar=lenstr(vname(3,indxShflx_rlw))
-        ierr=nf_put_att_text (ncid, vidShflx_rlw, 'units',     lvar,
-     &                               vname(3,indxShflx_rlw)(1:lvar))
-
-        call nf_add_attribute(ncid, vidShflx_rlw, indxShflx_rlw,5, 
-     &       NF_REAL, ierr) 
-      
-      endif 
-! Latent Shflx [W/m2]
-      if (wrt(indxShflx_lat)) then
-        lvar=lenstr(vname(1,indxShflx_lat))
-        ierr=nf_def_var (ncid, vname(1,indxShflx_lat)(1:lvar),
-     &                           NF_REAL, 3, r2dgrd, vidShflx_lat)
-#  ifndef AVRH
-        lvar=lenstr(vname(2,indxShflx_lat))
-        ierr=nf_put_att_text (ncid, vidShflx_lat, 'long_name', lvar,
-     &                               vname(2,indxShflx_lat)(1:lvar))
-#  else
-        text='averaged '/ /vname(2,indxShflx_lat)
-        lvar=lenstr(text)
-        ierr=nf_put_att_text (ncid, vidShflx_lat, 'long_name', lvar,
-     &                                             text(1:lvar))
-#  endif
-        lvar=lenstr(vname(3,indxShflx_lat))
-        ierr=nf_put_att_text (ncid, vidShflx_lat, 'units',     lvar,
-     &                               vname(3,indxShflx_lat)(1:lvar))
-        
-        call nf_add_attribute(ncid, vidShflx_lat, indxShflx_lat, 5, 
-     &       NF_REAL, ierr) 
-      
-      endif
-! Sensible Shflx [W/m2]
-      if (wrt(indxShflx_sen)) then
-        lvar=lenstr(vname(1,indxShflx_sen))
-        ierr=nf_def_var (ncid, vname(1,indxShflx_sen)(1:lvar),
-     &                           NF_REAL, 3, r2dgrd, vidShflx_sen)
-#  ifndef AVRH
-        lvar=lenstr(vname(2,indxShflx_sen))
-        ierr=nf_put_att_text (ncid, vidShflx_sen, 'long_name', lvar,
-     &                               vname(2,indxShflx_sen)(1:lvar))
-#  else
-        text='averaged '/ /vname(2,indxShflx_sen)
-        lvar=lenstr(text)
-        ierr=nf_put_att_text (ncid, vidShflx_sen, 'long_name', lvar,
-     &                                             text(1:lvar))
-#  endif
-        lvar=lenstr(vname(3,indxShflx_sen))
-        ierr=nf_put_att_text (ncid, vidShflx_sen, 'units',     lvar,
-     &                               vname(3,indxShflx_sen)(1:lvar))
-
-        call nf_add_attribute(ncid, vidShflx_sen, indxShflx_sen, 5, 
-     &       NF_REAL, ierr)
-        
-      endif
-# endif  /* BULK_FLUX */
 #ifdef SOLVE3D
 # ifdef VIS_COEF_3D
 !
@@ -1058,6 +916,149 @@
      &                          NF_REAL, ierr) 
         endif
 # endif
+! Shflx [W/m2]
+        if (wrt(indxShflx)) then
+          lvar=lenstr(vname(1,indxShflx))
+          ierr=nf_def_var (ncid, vname(1,indxShflx)(1:lvar),
+     &                             NF_REAL, 3, r2dgrd, vidShflx)
+#  ifndef AVRH
+          lvar=lenstr(vname(2,indxShflx))
+          ierr=nf_put_att_text (ncid, vidShflx, 'long_name', lvar,
+     &                                 vname(2,indxShflx)(1:lvar))
+#  else
+          text='averaged '/ /vname(2,indxShflx)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidShflx, 'long_name', lvar,
+     &                                               text(1:lvar))
+#  endif
+          lvar=lenstr(vname(3,indxShflx))
+          ierr=nf_put_att_text (ncid, vidShflx, 'units',     lvar,
+     &                                 vname(3,indxShflx)(1:lvar))
+
+          call nf_add_attribute(ncid, vidShflx, indxShflx, 5, 
+     &                          NF_REAL, ierr)
+
+        endif
+#ifdef SALINITY
+! Swflx [cm/day]
+        if (wrt(indxSwflx)) then
+          lvar=lenstr(vname(1,indxSwflx))
+          ierr=nf_def_var (ncid, vname(1,indxSwflx)(1:lvar),
+     &                             NF_REAL, 3, r2dgrd, vidSwflx)
+#  ifndef AVRH
+          lvar=lenstr(vname(2,indxSwflx))
+          ierr=nf_put_att_text (ncid, vidSwflx, 'long_name', lvar,
+     &                                 vname(2,indxSwflx)(1:lvar))
+#  else
+          text='averaged '/ /vname(2,indxSwflx)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidSwflx, 'long_name', lvar,
+     &                                               text(1:lvar))
+#  endif
+          lvar=lenstr(vname(3,indxSwflx))
+          ierr=nf_put_att_text (ncid, vidSwflx, 'units',     lvar,
+     &                                 vname(3,indxSwflx)(1:lvar))
+            
+          call nf_add_attribute(ncid, vidSwflx, indxSwflx, 5, 
+     &                          NF_REAL, ierr)
+
+        endif
+#endif
+! Short wave Shflx_rsw [W/m2]
+      if (wrt(indxShflx_rsw)) then
+        lvar=lenstr(vname(1,indxShflx_rsw))
+        ierr=nf_def_var (ncid, vname(1,indxShflx_rsw)(1:lvar),
+     &                           NF_REAL, 3, r2dgrd, vidShflx_rsw)
+#  ifndef AVRH
+        lvar=lenstr(vname(2,indxShflx_rsw))
+        ierr=nf_put_att_text (ncid, vidShflx_rsw, 'long_name', lvar,
+     &                               vname(2,indxShflx_rsw)(1:lvar))
+#  else
+        text='averaged '/ /vname(2,indxShflx_rsw)
+        lvar=lenstr(text)
+        ierr=nf_put_att_text (ncid, vidShflx_rsw, 'long_name', lvar,
+     &                                               text(1:lvar))
+#  endif
+        lvar=lenstr(vname(3,indxShflx_rsw))
+        ierr=nf_put_att_text (ncid, vidShflx_rsw, 'units',     lvar,
+     &                               vname(3,indxShflx_rsw)(1:lvar))
+        lvar=lenstr(vname(5,g))
+        
+        call nf_add_attribute(ncid, vidShflx_rsw, indxShflx_rsw,5, 
+     &       NF_REAL, ierr)   
+
+      endif
+# ifdef BULK_FLUX
+! Long wave Shflx [W/m2]
+      if (wrt(indxShflx_rlw)) then
+        lvar=lenstr(vname(1,indxShflx_rlw))
+        ierr=nf_def_var (ncid, vname(1,indxShflx_rlw)(1:lvar),
+     &                           NF_REAL, 3, r2dgrd, vidShflx_rlw)
+#  ifndef AVRH
+        lvar=lenstr(vname(2,indxShflx_rlw))
+        ierr=nf_put_att_text (ncid, vidShflx_rlw, 'long_name', lvar,
+     &                               vname(2,indxShflx_rlw)(1:lvar))
+#  else
+        text='averaged '/ /vname(2,indxShflx_rlw)
+        lvar=lenstr(text) 
+        ierr=nf_put_att_text (ncid, vidShflx_rlw, 'long_name', lvar,
+     &                                             text(1:lvar))
+#  endif
+        lvar=lenstr(vname(3,indxShflx_rlw))
+        ierr=nf_put_att_text (ncid, vidShflx_rlw, 'units',     lvar,
+     &                               vname(3,indxShflx_rlw)(1:lvar))
+
+        call nf_add_attribute(ncid, vidShflx_rlw, indxShflx_rlw,5, 
+     &       NF_REAL, ierr) 
+      
+      endif 
+! Latent Shflx [W/m2]
+      if (wrt(indxShflx_lat)) then
+        lvar=lenstr(vname(1,indxShflx_lat))
+        ierr=nf_def_var (ncid, vname(1,indxShflx_lat)(1:lvar),
+     &                           NF_REAL, 3, r2dgrd, vidShflx_lat)
+#  ifndef AVRH
+        lvar=lenstr(vname(2,indxShflx_lat))
+        ierr=nf_put_att_text (ncid, vidShflx_lat, 'long_name', lvar,
+     &                               vname(2,indxShflx_lat)(1:lvar))
+#  else
+        text='averaged '/ /vname(2,indxShflx_lat)
+        lvar=lenstr(text)
+        ierr=nf_put_att_text (ncid, vidShflx_lat, 'long_name', lvar,
+     &                                             text(1:lvar))
+#  endif
+        lvar=lenstr(vname(3,indxShflx_lat))
+        ierr=nf_put_att_text (ncid, vidShflx_lat, 'units',     lvar,
+     &                               vname(3,indxShflx_lat)(1:lvar))
+        
+        call nf_add_attribute(ncid, vidShflx_lat, indxShflx_lat, 5, 
+     &       NF_REAL, ierr) 
+      
+      endif
+! Sensible Shflx [W/m2]
+      if (wrt(indxShflx_sen)) then
+        lvar=lenstr(vname(1,indxShflx_sen))
+        ierr=nf_def_var (ncid, vname(1,indxShflx_sen)(1:lvar),
+     &                           NF_REAL, 3, r2dgrd, vidShflx_sen)
+#  ifndef AVRH
+        lvar=lenstr(vname(2,indxShflx_sen))
+        ierr=nf_put_att_text (ncid, vidShflx_sen, 'long_name', lvar,
+     &                               vname(2,indxShflx_sen)(1:lvar))
+#  else
+        text='averaged '/ /vname(2,indxShflx_sen)
+        lvar=lenstr(text)
+        ierr=nf_put_att_text (ncid, vidShflx_sen, 'long_name', lvar,
+     &                                             text(1:lvar))
+#  endif
+        lvar=lenstr(vname(3,indxShflx_sen))
+        ierr=nf_put_att_text (ncid, vidShflx_sen, 'units',     lvar,
+     &                               vname(3,indxShflx_sen)(1:lvar))
+
+        call nf_add_attribute(ncid, vidShflx_sen, indxShflx_sen, 5, 
+     &       NF_REAL, ierr)
+        
+      endif
+# endif  /* BULK_FLUX */
 # ifdef BIOLOGY
 !
 ! Depth of the euphotic layer.
@@ -1474,77 +1475,6 @@
             goto 99                                       !--> ERROR
           endif
         endif
-!
-! Shflx     Surface net heat flux [W/m2]
-!
-        if (wrt(indxShflx)) then
-          lvar=lenstr(vname(1,indxShflx))
-          ierr=nf_inq_varid (ncid,vname(1,indxShflx)(1:lvar),
-     &                                                   vidShflx)
-          if (ierr .ne. nf_noerr) then
-          write(stdout,1) vname(1,indxShflx)(1:lvar), ncname(1:lstr)
-            goto 99                                       !--> ERROR
-          endif
-        endif
-#ifdef SALINITY
-!
-! Swflx    E-P flux [cm/day]
-!
-        if (wrt(indxSwflx)) then
-          lvar=lenstr(vname(1,indxSwflx))
-          ierr=nf_inq_varid (ncid,vname(1,indxSwflx)(1:lvar),
-     &                                                   vidSwflx)
-          if (ierr .ne. nf_noerr) then
-          write(stdout,1) vname(1,indxSwflx)(1:lvar), ncname(1:lstr)
-            goto 99                                       !--> ERROR
-          endif
-        endif
-#endif
-!
-! Shflx     Surface shortwave radiation [W/m2]
-!
-        if (wrt(indxShflx_rsw)) then
-         lvar=lenstr(vname(1,indxShflx_rsw))
-         ierr=nf_inq_varid (ncid,vname(1,indxShflx_rsw)(1:lvar),
-     &                                               vidShflx_rsw)
-         if (ierr .ne. nf_noerr) then
-          write(stdout,1) vname(1,indxShflx_rsw)(1:lvar), ncname(1:lstr)
-          goto 99                                       !--> ERROR
-         endif
-        endif
-# ifdef BULK_FLUX
-!
-        if (wrt(indxShflx_rlw)) then
-         lvar=lenstr(vname(1,indxShflx_rlw))
-         ierr=nf_inq_varid (ncid,vname(1,indxShflx_rlw)(1:lvar),
-     &                                               vidShflx_rlw)
-         if (ierr .ne. nf_noerr) then
-          write(stdout,1) vname(1,indxShflx_rlw)(1:lvar), ncname(1:lstr)
-          goto 99                                       !--> ERROR
-         endif
-        endif
-!
-        if (wrt(indxShflx_lat)) then
-         lvar=lenstr(vname(1,indxShflx_lat))
-         ierr=nf_inq_varid (ncid,vname(1,indxShflx_lat)(1:lvar),
-     &                                               vidShflx_lat)
-         if (ierr .ne. nf_noerr) then
-          write(stdout,1) vname(1,indxShflx_lat)(1:lvar), ncname(1:lstr)
-          goto 99                                       !--> ERROR
-         endif
-        endif
-!
-        if (wrt(indxShflx_sen)) then
-         lvar=lenstr(vname(1,indxShflx_sen))
-         ierr=nf_inq_varid (ncid,vname(1,indxShflx_sen)(1:lvar),
-     &                                               vidShflx_sen)
-         if (ierr .ne. nf_noerr) then
-          write(stdout,1) vname(1,indxShflx_sen)(1:lvar), ncname(1:lstr)
-          goto 99                                       !--> ERROR
-         endif
-        endif
-!
-# endif
 #ifdef SOLVE3D
 !
 ! 3D momenta in XI- and ETA-directions.
@@ -1689,6 +1619,78 @@
           endif
         endif
 # endif
+!
+! Shflx     Surface net heat flux [W/m2]
+!
+        if (wrt(indxShflx)) then
+          lvar=lenstr(vname(1,indxShflx))
+          ierr=nf_inq_varid (ncid,vname(1,indxShflx)(1:lvar),
+     &                                                   vidShflx)
+          if (ierr .ne. nf_noerr) then
+          write(stdout,1) vname(1,indxShflx)(1:lvar), ncname(1:lstr)
+            goto 99                                       !--> ERROR
+          endif
+        endif
+#ifdef SALINITY
+!
+! Swflx    E-P flux [cm/day]
+!
+        if (wrt(indxSwflx)) then
+          lvar=lenstr(vname(1,indxSwflx))
+          ierr=nf_inq_varid (ncid,vname(1,indxSwflx)(1:lvar),
+     &                                                   vidSwflx)
+          if (ierr .ne. nf_noerr) then
+          write(stdout,1) vname(1,indxSwflx)(1:lvar), ncname(1:lstr)
+            goto 99                                       !--> ERROR
+          endif
+        endif
+#endif
+!
+! Shflx     Surface shortwave radiation [W/m2]
+!
+        if (wrt(indxShflx_rsw)) then
+         lvar=lenstr(vname(1,indxShflx_rsw))
+         ierr=nf_inq_varid (ncid,vname(1,indxShflx_rsw)(1:lvar),
+     &                                               vidShflx_rsw)
+         if (ierr .ne. nf_noerr) then
+          write(stdout,1) vname(1,indxShflx_rsw)(1:lvar), ncname(1:lstr)
+          goto 99                                       !--> ERROR
+         endif
+        endif
+# ifdef BULK_FLUX
+!
+        if (wrt(indxShflx_rlw)) then
+         lvar=lenstr(vname(1,indxShflx_rlw))
+         ierr=nf_inq_varid (ncid,vname(1,indxShflx_rlw)(1:lvar),
+     &                                               vidShflx_rlw)
+         if (ierr .ne. nf_noerr) then
+          write(stdout,1) vname(1,indxShflx_rlw)(1:lvar), ncname(1:lstr)
+          goto 99                                       !--> ERROR
+         endif
+        endif
+!
+        if (wrt(indxShflx_lat)) then
+         lvar=lenstr(vname(1,indxShflx_lat))
+         ierr=nf_inq_varid (ncid,vname(1,indxShflx_lat)(1:lvar),
+     &                                               vidShflx_lat)
+         if (ierr .ne. nf_noerr) then
+          write(stdout,1) vname(1,indxShflx_lat)(1:lvar), ncname(1:lstr)
+          goto 99                                       !--> ERROR
+         endif
+        endif
+!
+        if (wrt(indxShflx_sen)) then
+         lvar=lenstr(vname(1,indxShflx_sen))
+         ierr=nf_inq_varid (ncid,vname(1,indxShflx_sen)(1:lvar),
+     &                                               vidShflx_sen)
+         if (ierr .ne. nf_noerr) then
+          write(stdout,1) vname(1,indxShflx_sen)(1:lvar), ncname(1:lstr)
+          goto 99                                       !--> ERROR
+         endif
+        endif
+!
+# endif
+
 # ifdef BIOLOGY
 !
 ! Depth of the euphotic layer.

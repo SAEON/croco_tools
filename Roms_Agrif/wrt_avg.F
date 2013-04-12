@@ -177,97 +177,6 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
             goto 99             !--> ERROR
          endif
       endif
-!     
-!     Write out total heat flux [W/m2]
-!     
-      if (wrtavg(indxShflx)) then
-         work2d=stflx_avg(:,:,itemp)
-     &          SWITCH rmask
-!
-!        Mult by mask to avoid erroneous data 
-!        over land if Qcorrection cppkeys applied
-!
-         ierr=nf_fwrite(work2d, ncidavg, avgShflx, record, r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxShflx))
-            write(stdout,1) vname(1,indxShflx)(1:lvar), record, ierr
-     &           MYID
-            goto 99             !--> ERROR
-         endif
-CR      write(*,*) 'wrt_avg:  stflx(:,:,itemp)' MYID
-      endif
-#ifdef SALINITY      
-!     Write out surface E-P flux [cm/d]
-!     
-      if (wrtavg(indxSwflx)) then
-         work2d=stflx_avg(:,:,isalt)
-     &         SWITCH rmask  
-!
-!        Mult by mask to avoid erroneous data over land 
-!        if SFlux cppkeys correction applied and also 
-!        to remove enormous wrong value diciding by eps.    
-!
-         ierr=nf_fwrite(work2d, ncidavg, avgSwflx, record, r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxSwflx))
-            write(stdout,1) vname(1,indxSwflx)(1:lvar), record, ierr
-     &           MYID
-            goto 99             !--> ERROR
-         endif
-CR      write(*,*) 'wrt_avg:  stflx(:,:,isalt)' MYID
-      endif
-#endif
-!     Write out solar radiation flux [W/m2]
-!     
-      if (wrtavg(indxShflx_rsw)) then
-# ifdef BULK_FLUX
-         ierr=nf_fwrite(shflx_rsw_avg, ncidavg, avgShflx_rsw, 
-     &                  record, r2dvar)
-# else
-         ierr=nf_fwrite(srflx_avg, ncidavg, avgShflx_rsw, record, r2dvar)
-# endif
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxShflx_rsw))
-            write(stdout,1) vname(1,indxShflx_rsw)(1:lvar), record, ierr
-     &           MYID
-            goto 99             !--> ERROR
-         endif
-CR      write(*,*) 'wrt_avg:  srflx' MYID
-      endif
-#  ifdef BULK_FLUX
-      if (wrtavg(indxShflx_rlw)) then
-         ierr=nf_fwrite(shflx_rlw_avg, ncidavg, avgShflx_rlw, record,
-     &        r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxShflx_rlw))
-            write(stdout,1) vname(1,indxShflx_rlw)(1:lvar), record, ierr
-     &           MYID
-            goto 99             !--> ERROR
-         endif
-      endif
-      
-      if (wrtavg(indxShflx_lat)) then
-         ierr=nf_fwrite(shflx_lat_avg, ncidavg, avgShflx_lat, record,
-     &        r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxShflx_lat))
-            write(stdout,1) vname(1,indxShflx_lat)(1:lvar), record, ierr
-     &           MYID
-            goto 99             !--> ERROR
-         endif
-      endif
-      
-      if (wrtavg(indxShflx_sen)) then
-         ierr=nf_fwrite(shflx_sen_avg, ncidavg, avgShflx_sen, record,
-     &        r2dvar)
-         if (ierr .ne. nf_noerr) then
-            lvar=lenstr(vname(1,indxShflx_sen))
-            write(stdout,1) vname(1,indxShflx_sen)(1:lvar), record, ierr
-     &           MYID
-            goto 99             !--> ERROR
-         endif
-      endif
-#  endif
 !        
 !--
 !     
@@ -400,6 +309,99 @@ CR       write(*,*) 'wrt_avg:  wrtAks' MYID
      &        record,r2dvar,type)
       endif
 #  endif
+
+!     
+!     Write out total heat flux [W/m2]
+!     
+      if (wrtavg(indxShflx)) then
+         work2d=stflx_avg(:,:,itemp)
+     &          SWITCH rmask
+!
+!        Mult by mask to avoid erroneous data 
+!        over land if Qcorrection cppkeys applied
+!
+         ierr=nf_fwrite(work2d, ncidavg, avgShflx, record, r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxShflx))
+            write(stdout,1) vname(1,indxShflx)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+CR      write(*,*) 'wrt_avg:  stflx(:,:,itemp)' MYID
+      endif
+#ifdef SALINITY      
+!     Write out surface E-P flux [cm/d]
+!     
+      if (wrtavg(indxSwflx)) then
+         work2d=stflx_avg(:,:,isalt)
+     &         SWITCH rmask  
+!
+!        Mult by mask to avoid erroneous data over land 
+!        if SFlux cppkeys correction applied and also 
+!        to remove enormous wrong value diciding by eps.    
+!
+         ierr=nf_fwrite(work2d, ncidavg, avgSwflx, record, r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxSwflx))
+            write(stdout,1) vname(1,indxSwflx)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+CR      write(*,*) 'wrt_avg:  stflx(:,:,isalt)' MYID
+      endif
+#endif
+!     Write out solar radiation flux [W/m2]
+!     
+      if (wrtavg(indxShflx_rsw)) then
+# ifdef BULK_FLUX
+         ierr=nf_fwrite(shflx_rsw_avg, ncidavg, avgShflx_rsw, 
+     &                  record, r2dvar)
+# else
+         ierr=nf_fwrite(srflx_avg, ncidavg, avgShflx_rsw, record, r2dvar)
+# endif
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxShflx_rsw))
+            write(stdout,1) vname(1,indxShflx_rsw)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+CR      write(*,*) 'wrt_avg:  srflx' MYID
+      endif
+#  ifdef BULK_FLUX
+      if (wrtavg(indxShflx_rlw)) then
+         ierr=nf_fwrite(shflx_rlw_avg, ncidavg, avgShflx_rlw, record,
+     &        r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxShflx_rlw))
+            write(stdout,1) vname(1,indxShflx_rlw)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+      endif
+      
+      if (wrtavg(indxShflx_lat)) then
+         ierr=nf_fwrite(shflx_lat_avg, ncidavg, avgShflx_lat, record,
+     &        r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxShflx_lat))
+            write(stdout,1) vname(1,indxShflx_lat)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+      endif
+      
+      if (wrtavg(indxShflx_sen)) then
+         ierr=nf_fwrite(shflx_sen_avg, ncidavg, avgShflx_sen, record,
+     &        r2dvar)
+         if (ierr .ne. nf_noerr) then
+            lvar=lenstr(vname(1,indxShflx_sen))
+            write(stdout,1) vname(1,indxShflx_sen)(1:lvar), record, ierr
+     &           MYID
+            goto 99             !--> ERROR
+         endif
+      endif
+#  endif
+
 #  if defined BIOLOGY && !defined PISCES
 !     
 !     Write out depth of the euphotic layer (m).
