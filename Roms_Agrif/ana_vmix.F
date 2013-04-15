@@ -33,6 +33,10 @@
 # include "ocean3d.h"
 # include "mixing.h"
 # include "scalars.h"
+# ifdef MRL_WCI
+#  include "ocean2d.h"
+#  include "forces.h"
+# endif
 
 # include "compute_auxiliary_bounds.h"
 
@@ -80,12 +84,26 @@
           enddo
         enddo
       enddo
-# elif defined VORTEX || defined INTERNAL || defined EQUATOR  || defined JET
+# elif defined VORTEX || defined INTERNAL || defined EQUATOR  || defined JET || defined SHOREFACE
       do k=1,N-1
         do j=Jstr,Jend
           do i=Istr,Iend
             Akv(i,j,k)=Akv_bak
             Akt(i,j,k,itemp)=Akt_bak(itemp)
+          enddo
+        enddo
+      enddo
+# elif defined SHOREFACE
+      do k=1,N-1
+        do j=Jstr,Jend
+          do i=Istr,Iend
+            Akv(i,j,k)=0.011*(h(i,j)+z_w(i,j,k))*
+     &                 (1.0-(h(i,j)+z_w(i,j,k))/
+     &                  (h(i,j)+zeta(i,j,knew)))
+            Akt(i,j,k,itemp)=Akv(i,j,k)
+#  ifdef SALINITY
+            Akt(i,j,k,isalt)=Akv(i,j,k)
+#  endif
           enddo
         enddo
       enddo

@@ -118,7 +118,8 @@
    || defined OVERFLOW  || defined REGIONAL  || defined RIVER      \
    || defined SEAMOUNT  || defined SED_TEST2 || defined SHELFRONT  \
    || defined UPWELLING || defined VORTEX    || defined INTERNAL   \
-   || defined JET
+   || defined JET || defined SHOREFACE
+
         do j=JstrR,JendR
           do i=IstrR,IendR
             btflx(i,j,itemp)=0.
@@ -141,7 +142,7 @@
 #   if  defined EQUATOR || defined INNERSHELF || defined REGIONAL  \
    || defined RIVER     || defined SED_TEST2  || defined SHELFRONT \
    || defined UPWELLING || defined SEAMOUNT   || defined VORTEX    \
-   || defined JET
+   || defined JET || defined SALINITY
 
         do j=JstrR,JendR
           do i=IstrR,IendR
@@ -233,7 +234,15 @@ C$    integer  trd, omp_get_thread_num
         enddo
       enddo
 # else
-      ANA_BSEDIM: no values provided for SSIZE and SDENS.
+      !ANA_BSEDIM: no values provided for SSIZE and SDENS.
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          Ssize(i,j)=1.5e-4  ! d50 [m]
+          Sdens(i,j)=2650.0  ! rho sediment [kg/m^3]
+        enddo
+      enddo
+
+
 # endif
       return
       end
@@ -308,10 +317,27 @@ C$    integer  trd, omp_get_thread_num
           sustr(i,j)=windamp
         enddo
       enddo
+# elif defined SHOREFACE
+#  if  ! defined MRL_WCI
+      windamp=tanh(24.0*dt*sec2day*float(iic-ntstart))
+      wcos = cos(10.0/180.0*pi)
+      do j=jstr-1,jend+1
+        do i=istr-1,iend+1
+          cff  = 0.05/sqrt(9.8*h(i,j))  ! 0.6 is \epsilon_b/\rho
+          sustr(i,j)=cff*wcos*windamp
+        enddo
+      enddo
+#  else
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          sustr(i,j)=0.
+        enddo
+      enddo
+#  endif
 # elif defined GRAV_ADJ  || defined OVERFLOW || defined SEAMOUNT   \
     || defined SHELFRONT || defined SOLITON  || defined INNERSHELF \
     || defined RIVER     || defined VORTEX   || defined REGIONAL   \
-    || defined INTERNAL  || defined JET
+    || defined INTERNAL  || defined JET  
       do j=JstrR,JendR
         do i=IstrR,IendR
           sustr(i,j)=0.
@@ -332,7 +358,7 @@ C$    integer  trd, omp_get_thread_num
   || defined EQUATOR   || defined GRAV_ADJ  || defined OVERFLOW  \
   || defined REGIONAL  || defined RIVER     || defined SEAMOUNT  \
   || defined SHELFRONT || defined SOLITON   || defined UPWELLING \
-  || defined VORTEX    || defined INTERNAL  || defined JET
+  || defined VORTEX    || defined INTERNAL  || defined JET 
       do j=JstrR,JendR
         do i=IstrR,IendR
           svstr(i,j)=0.
@@ -352,6 +378,23 @@ C$    integer  trd, omp_get_thread_num
           svstr(i,j)=0.07/rho0
         enddo
       enddo
+# elif defined SHOREFACE 
+#  if ! defined MRL_WCI
+      windamp=tanh(24.0*dt*sec2day*float(iic-ntstart))
+      wsin = sin(10.0/180.0*pi)
+      do j=jstr-1,jend+1
+        do i=istr-1,iend+1
+          cff  = 0.05/sqrt(9.8*h(i,j))  ! 0.6 is \epsilon_b/\rho
+          svstr(i,j)=cff*wsin*windamp
+        enddo
+      enddo
+#  else
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          svstr(i,j)=0.
+        enddo
+      enddo
+#  endif
 # else
       do j=JstrR,JendR
         do i=IstrR,IendR
@@ -385,7 +428,7 @@ C$    integer  trd, omp_get_thread_num
 # if defined EQUATOR   || defined INNERSHELF || defined OVERFLOW \
   || defined REGIONAL  || defined RIVER      || defined SEAMOUNT \
   || defined SHELFRONT || defined UPWELLING  || defined VORTEX \
-  || defined INTERNAL  || defined JET
+  || defined INTERNAL  || defined JET || defined SHOREFACE
       do j=JstrR,JendR
         do i=IstrR,IendR
           srflx(i,j)=0.
@@ -587,7 +630,7 @@ c
  || defined EQUATOR  || defined GRAV_ADJ  || defined INNERSHELF \
  || defined OVERFLOW || defined REGIONAL  || defined RIVER      \
  || defined SEAMOUNT || defined SHELFRONT || defined UPWELLING  \
- || defined VORTEX   || defined INTERNAL  || defined JET
+ || defined VORTEX   || defined INTERNAL  || defined JET || defined SHOREFACE
 
         do j=JstrR,JendR
           do i=IstrR,IendR
@@ -609,7 +652,7 @@ c
 !
 # if defined EQUATOR || defined INNERSHELF || defined REGIONAL  \
   || defined RIVER   || defined SEAMOUNT   || defined SHELFRONT \
-  || defined UPWELLING
+  || defined UPWELLING || defined SHOREFACE
 
         do j=JstrR,JendR
           do i=IstrR,IendR
@@ -1008,7 +1051,7 @@ C$    integer  trd, omp_get_thread_num
 !                   subroutine ana_wwave
 !====================================================================
 !
-#if defined ANA_WWAVE && defined BBL
+#if defined ANA_WWAVE &&  defined MRL_WCI  && !defined WKB_WWAVE
       subroutine ana_wwave (tile)
       implicit none
 # include "param.h"
@@ -1029,6 +1072,9 @@ C$    integer  trd, omp_get_thread_num
 !---------------------------------------------------------------------
 !
       implicit none
+      real wamp,wprd,afrq,wdir,ho,khd,kh,kw,kx,ky,ac,wday,ramp,cff,
+     &     cff1,cff2,dep,Hsig,Hrms,cfrq,cdir,Tst,sbc
+
 # include "param.h"
 # include "grid.h"
 # include "forces.h"
@@ -1049,14 +1095,47 @@ C$    integer  trd, omp_get_thread_num
         enddo
       enddo
 # else
-      ANA_WWAVE: no values provided for AWAVE, DWAVE, and PWAVE.
-       do j=JstrR,JendR
+      cff=1.0/sqrt(2.0)
+      do j=JstrR,JendR
         do i=IstrR,IendR
-          Awave(i,j)=???
-          Dwave(i,j)=???
-          Pwave(i,j)=???
+        Awave(i,j)=2.              ! wamp (m)
+        Pwave(i,j)=10.             ! period (s)
+        Dwave(i,j)=10.             ! offshore wave angle (deg)
+        Hrms=cff*Awave(i,j)        ! offshore RMS wave height (m)
+        cfrq=2.0*pi/Pwave(i,j)     ! preak wave frequency (rad/s)
+        cdir=Dwave(i,j)*deg2rad    ! wave direction rad
         enddo
       enddo
+
+      ! following are globlal arrays 
+      do j=jstr-1,jend+1
+        do i=istr-1,iend+1
+          whrm(i,j)=Hrms      ! 1.6  ! ==> Hrms (2A) -> may not be coherent with mrl_wci
+          wfrq(i,j)=cfrq      ! sqrt(g*kw*tanh(kw*h(i,j)))
+          wdrx(i,j)=cos(cdir) ! 0.0
+          wdre(i,j)=sin(cdir) ! 0.0
+        enddo
+      enddo
+
+      ! use only bor bry
+      ho=h(LLm,1)    ! offshore depth
+      ramp=1.0D0 
+
+      afrq=2.0*pi/wprd
+      wdir=wdir/180.*pi
+      khd = ho*afrq*afrq/g
+      kh  = sqrt(    khd*khd + khd/(1.0 + khd*(0.6666666666
+     &               +khd*(0.3555555555 + khd*(0.1608465608
+     &               +khd*(0.0632098765 + khd*(0.0217540484
+     &                             +khd*0.0065407983)))))) )
+      kw=kh/ho
+
+
+      kx=kw*cos(wdir)         ! wavenumber in x direction
+      ky=kw*sin(wdir)         ! wavenumber in x direction
+      ac=0.5*g*(wamp**2)/afrq ! wave actoion
+      ac=ac*ramp              ! apply ramping
+      ! end use only bor bry
 # endif
       return
       end
@@ -1153,7 +1232,7 @@ C$    integer  trd, omp_get_thread_num
         enddo
       enddo
 # else
-      ana_sediment: no values provided
+      !ana_sediment: no values provided
        do j=JstrR,JendR
         do i=IstrR,IendR
           do ilay=1,NLAY

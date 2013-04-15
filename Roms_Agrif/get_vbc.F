@@ -32,6 +32,11 @@
 # include "param.h"
 # include "sources.h"
 !
+#ifdef AGRIF
+      integer Agrif_lev_sedim
+      Agrif_lev_sedim=Agrif_Nb_Fine_Grids()
+#endif
+
 !---------------------------------------------------------------
 ! River discharge, temperature and salinity
 !---------------------------------------------------------------
@@ -39,7 +44,17 @@
 # if defined PSOURCE_NCFILE
         call get_psource
 # endif
-!
+!---------------------------------------------------------------
+! Initial wave periode, mplitude, direction and dissipation
+!---------------------------------------------------------------
+# if ( defined BBL || defined MRL_WCI ) && ! defined ANA_WWAVE
+# if defined  AGRIF && defined BBL
+      if (Agrif_lev_sedim.EQ.0)
+     &  call get_wwave
+#  else
+      call get_wwave
+#  endif
+# endif
 !---------------------------------------------------------------
 ! Kinematic surface momentum flux (wind stress) components "sustrg"
 !                                          and "svstrg" [m^2/s^2].
@@ -496,6 +511,9 @@
 #endif
 #ifdef ANA_PSOURCE
       call ana_psource_tile (Istr,Iend,Jstr,Jend)
+#endif
+#if ! defined  ANA_WWAVE && ( defined BBL || defined MRL_WCI )
+      call set_wwave_tile(Istr,Iend,Jstr,Jend)  
 #endif
 
       return

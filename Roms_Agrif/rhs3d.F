@@ -43,7 +43,7 @@
 # endif
       real ru(PRIVATE_2D_SCRATCH_ARRAY,N),
      &     rv(PRIVATE_2D_SCRATCH_ARRAY,N),
-     &     CF(PRIVATE_1D_SCRATCH_ARRAY,0:N),  cff,
+     &     CF(PRIVATE_1D_SCRATCH_ARRAY,0:N),  cff,cff1,cff2,
      &     FC(PRIVATE_1D_SCRATCH_ARRAY,0:N),  cffX,
      &     DC(PRIVATE_1D_SCRATCH_ARRAY,0:N),  cffE,      
      &     wrk1(PRIVATE_2D_SCRATCH_ARRAY),    curvX,
@@ -58,6 +58,9 @@
 # include "coupling.h"
 # include "forces.h"
 # include "scalars.h"
+# ifdef MRL_WCI
+      real vstu,dudx,dvdx,ustv,dude,dvde
+# endif
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -169,7 +172,7 @@
 !
 # if defined UV_COR || (defined CURVGRID && defined UV_ADV)
 !
-!  Add in Coriolis and curvilinear transformation terms, if any.
+!  Add in Coriolis, Stokes-Coriolis and curvilinear transformation terms, if any.
 !
         do j=JstrV-1,Jend
           do i=IstrU-1,Iend
@@ -181,18 +184,40 @@
      &             +0.5*( (v(i,j,k,nrhs)+v(i,j+1,k,nrhs))*dndx(i,j)
      &                   -(u(i,j,k,nrhs)+u(i+1,j,k,nrhs))*dmde(i,j))
 #  endif 
-     &                                                             ) 
+     &                                                             )
+#  ifdef MRL_WCI
+#    if defined CURVGRID && defined UV_ADV
+             cff1=0.5*Hz(i,j,k)*(
+     &           0.5*( dndx(i,j)*(vst(i,j,k)+vst(i,j+1,k))
+     &                -dmde(i,j)*(ust(i,j,k)+ust(i+1,j,k)) ))
+#    else
+          cff1 = 0.0
+#    endif
+            UFx(i,j)=(cff+cff1)*(v(i,j,k,nrhs)+v(i,j+1,k,nrhs))  
+            UFe(i,j)=cff*(vst(i,j,k)+vst(i,j+1,k))
+            VFe(i,j)=(cff+cff1)*(u(i,j,k,nrhs)+u(i+1,j,k,nrhs))
+            VFx(i,j)=cff*(ust(i,j,k)+ust(i+1,j,k))
+# else
             UFx(i,j)=cff*(v(i,j,k,nrhs)+v(i,j+1,k,nrhs))
             VFe(i,j)=cff*(u(i,j,k,nrhs)+u(i+1,j,k,nrhs))
+# endif
           enddo
         enddo
         do j=Jstr,Jend
           do i=IstrU,Iend
             ru(i,j,k)=ru(i,j,k)+0.5*(UFx(i,j)+UFx(i-1,j))
+#  ifdef MRL_WCI
+     &                         +0.5*(UFe(i,j)+UFe(i-1,j))
+#  endif
+
 #  ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
               MCor(i,j,k,1) = 0.5*(UFx(i,j)+UFx(i-1,j)) 
      &                        SWITCH umask(i,j)
+#   ifdef MRL_WCI
+              MStCo(i,j,k,1) = 0.5*(UFe(i,j)+UFe(i-1,j))
+     &                        SWITCH umask(i,j)
+#   endif
             endif
 #  endif
           enddo
@@ -200,10 +225,18 @@
         do j=JstrV,Jend
           do i=Istr,Iend
             rv(i,j,k)=rv(i,j,k)-0.5*(VFe(i,j)+VFe(i,j-1))
+#  ifdef MRL_WCI
+     &                         -0.5*(VFx(i,j)+VFx(i,j-1))
+#  endif
+
 #  ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
               MCor(i,j,k,2) = -0.5*(VFe(i,j)+VFe(i,j-1))
      &                        SWITCH vmask(i,j)
+#   ifdef MRL_WCI
+              MStCo(i,j,k,2) = -0.5*(VFx(i,j)+VFx(i,j-1))
+     &                        SWITCH vmask(i,j)
+#   endif
             endif
 #  endif
           enddo
@@ -745,6 +778,78 @@
           enddo
         endif
 # endif /* UV_ADV */
+
+! Add combined vortex-force and advection terms & breaking terms
+# ifdef MRL_WCI
+        do k=1,N
+          do i=istrU,iend
+            cff  =0.5*on_u(i,j)*(Hz(i-1,j,k)+Hz(i,j,k))
+            vstu =0.25*( vst(i,j,k) +vst(i,j+1,k)
+     &                  +vst(i-1,j,k) +vst(i-1,j+1,k) )
+            dudx =0.5*( u(i+1,j,k,nrhs) -u(i-1,j,k,nrhs) )
+            dvdx =0.5*( v(i  ,j,k,nrhs) -v(i-1,j,k,nrhs)
+     &                  +v(i,j+1,k,nrhs) -v(i-1,j+1,k,nrhs) )
+            ru(i,j,k) =ru(i,j,k) + cff
+     &                           *(ust(i,j,k)*dudx+vstu*dvdx)
+#  ifndef SURFACE_BREAK
+     &                           +cff*om_u(i,j)*brk3dx(i,j,k)
+#  endif
+#  if defined WAVE_FRICTION && defined BODY_FRICTION
+     &                           +cff*om_u(i,j)*frc3dx(i,j,k)
+#  endif
+#  ifdef DIAGNOSTICS_UV
+            if (nnew.ne.3) then
+              Mvf(i,j,k,1)  = cff*(ust(i,j,k)*dudx +vstu*dvdx)
+#   ifndef SURFACE_BREAK
+              Mbrk(i,j,k,1) = cff*om_u(i,j)*brk3dx(i,j,k)
+#   endif
+#   if defined WAVE_FRICTION && defined BODY_FRICTION
+              Mfrc(i,j,k,1) = cff*om_u(i,j)*frc3dx(i,j,k)
+#   endif
+            endif
+#  endif
+          enddo
+
+          do i=istr,iend
+            cff  =0.5*om_v(i,j)*(Hz(i,j-1,k)+Hz(i,j,k))
+            ustv =0.25*( ust(i,j,k) +ust(i+1,j,k)
+     &                   +ust(i,j-1,k) +ust(i+1,j-1,k) )
+            dude =0.5*( u(i,j,k,nrhs) -u(i,j-1,k,nrhs)
+     &                   +u(i+1,j,k,nrhs) -u(i+1,j-1,k,nrhs) )
+ccc            dvde =0.5*( v(i,j-1,k,nrhs) -v(i,j+1,k,nrhs) )
+            dvde =0.5*( v(i,j+1,k,nrhs) -v(i,j-1,k,nrhs) )
+            rv(i,j,k) =rv(i,j,k) + cff
+     &                            *(ustv*dude+vst(i,j,k)*dvde)
+#  ifndef SURFACE_BREAK
+     &                            +cff*on_v(i,j)*brk3de(i,j,k)
+#  endif
+#  if defined WAVE_FRICTION && defined BODY_FRICTION
+     &                            +cff*on_v(i,j)*frc3de(i,j,k)
+#  endif
+#  ifdef DIAGNOSTICS_UV
+            if (nnew.ne.3) then
+              Mvf(i,j,k,2)  = cff*(ustv*dude + vst(i,j,k)*dvde)
+#   ifndef SURFACE_BREAK
+              Mbrk(i,j,k,2) = cff*on_v(i,j)*brk3de(i,j,k)
+#   endif
+#   if defined WAVE_FRICTION && defined BODY_FRICTION
+              Mfrc(i,j,k,2) = cff*on_v(i,j)*frc3de(i,j,k)
+#   endif
+            endif
+#  endif
+         enddo
+      enddo
+
+#  if defined WAVE_FRICTION && !defined BODY_FRICTION
+        do i=istrU,iend
+          ru(i,j,1) =ru(i,j,1) + om_u(i,j)*on_u(i,j)*frc2dx(i,j)
+        enddo
+        do i=istr,iend
+          rv(i,j,1) =rv(i,j,1) + om_v(i,j)*on_v(i,j)*frc2de(i,j)
+        enddo
+#  endif
+
+# endif   /* MRL_WCI */
 !
 !  Start computation of the forcing terms for the 2D (barotropic
 !  mode) momentum equations: vertically integrate the just computed
@@ -761,6 +866,9 @@
 # ifndef BODYFORCE
      &        +(sustr(i,j)-bustr(i,j))*om_u(i,j)*on_u(i,j)
 # endif
+#  if defined MRL_WCI && defined SURFACE_BREAK
+     &             +        brk2dx(i,j)*om_u(i,j)*on_u(i,j)
+#  endif
         enddo
         do k=2,N
           do i=IstrU,Iend
@@ -773,6 +881,9 @@
 # ifndef BODYFORCE
      &       +(svstr(i,j)-bvstr(i,j))*om_v(i,j)*on_v(i,j)
 # endif
+#  if defined MRL_WCI && defined SURFACE_BREAK
+     &              +       brk2de(i,j)*om_v(i,j)*on_v(i,j)
+#  endif
           enddo
           do k=2,N
             do i=Istr,Iend

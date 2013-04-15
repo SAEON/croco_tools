@@ -24,6 +24,7 @@
 #include "coupling.h"
 #include "ocean3d.h"
 #include "ocean2d.h"
+#include "ncscrum.h"
 
 #ifdef AGRIF
       IF (agrif_fixed().NE.sortedint(nbtimes)) return
@@ -64,7 +65,6 @@ C$OMP END PARALLEL
         nbstep3d = nbstep3d + 1
       endif
 #endif
-
       return
       end
 !
@@ -179,15 +179,6 @@ C$OMP MASTER
         ENDIF
 #endif
         call get_vbc
-#if defined BBL && !defined ANA_WWAVE
-# ifdef AGRIF
-        IF (Agrif_Fixed().EQ.Agrif_lev_sedim) THEN
-# endif
-          call get_wwave
-# ifdef AGRIF
-        ENDIF
-# endif
-#endif /* BBL && !ANA_WWAVE*/
         synchro_flag=.false.
       endif  !<-- synchro_flag
 C$OMP END MASTER
@@ -235,6 +226,9 @@ C$OMP BARRIER
 # ifdef AGRIF
         ENDIF
 # endif
+#  ifdef ANA_WWAVE
+          call ana_wwave (tile)
+#  endif
         call rho_eos (tile)
         call set_HUV (tile)
 # if defined BIOLOGY && !defined PISCES
@@ -246,16 +240,11 @@ C$OMP BARRIER
 C$OMP BARRIER
       do tile=my_first,my_last
         call set_vbc (tile)
-# ifdef BBL
-#  ifdef AGRIF
+# if defined  BBL  
+#   ifdef AGRIF
         IF (Agrif_Fixed().EQ.Agrif_lev_sedim) THEN
-#  endif
-#  ifdef ANA_WWAVE
-          call ana_wwave (tile)
-#  else
-          call set_wwave (tile)
-#  endif
-          call bblm (tile)
+#   endif
+        call bblm (tile)
 #  ifdef AGRIF
         ENDIF
 #  endif
@@ -297,6 +286,13 @@ C$OMP BARRIER
 # endif /* BULK_FLUX */
 
       if (may_day_flag.ne.0) return  !-->  EXIT
+
+# ifdef MRL_WCI 
+      do tile=my_tile_range
+        call  mrl_wci (tile)
+      enddo
+C$OMP BARRIER
+# endif
 
       do tile=my_first,my_last
 # if defined ANA_VMIX

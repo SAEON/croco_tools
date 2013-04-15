@@ -104,10 +104,13 @@ C$    trd=omp_get_thread_num()
      &          VFe(PRIVATE_2D_SCRATCH_ARRAY)
 #include "grid.h"
 #include "ocean2d.h"
-#ifdef SOLVE3D
+!#ifdef SOLVE3D
 # include "coupling.h"
-#else
+!#else
 # include "forces.h"
+!#endif
+#ifdef MRL_WCI
+      real vstu,ustv,dudx,dvdx,dude,dvde
 #endif
 #include "mixing.h"
 #include "climat.h"
@@ -186,14 +189,29 @@ C$    trd=omp_get_thread_num()
         do i=IstrU-1,iend+1
           urhs(i,j)=cff1*ubar(i,j,kstp) +cff2*ubar(i,j,kbak)
      &                                  +cff3*ubar(i,j,kold)
-          DUon(i,j)=0.5*(Drhs(i,j)+Drhs(i-1,j))*on_u(i,j)*urhs(i,j)
+#  if defined MRL_WCI && defined MASKING
+          urhs(i,j)=urhs(i,j)*umask(i,j)+ust2d(i,j)*(umask(i,j)-1.0)
+#  endif
+          DUon(i,j)=0.5*(Drhs(i,j)+Drhs(i-1,j))*on_u(i,j)*( urhs(i,j)
+# ifdef MRL_WCI
+     &                                                   + ust2d(i,j)
+# endif
+     &      )
         enddo
       enddo
       do j=JstrV-1,jend+1
         do i=istr-1,iend+1
           vrhs(i,j)=cff1*vbar(i,j,kstp) +cff2*vbar(i,j,kbak)
      &                                  +cff3*vbar(i,j,kold)
-          DVom(i,j)=0.5*(Drhs(i,j)+Drhs(i,j-1))*om_v(i,j)*vrhs(i,j)
+#  if defined MRL_WCI && defined MASKING
+          vrhs(i,j)=vrhs(i,j)*vmask(i,j)+vst2d(i,j)*(vmask(i,j)-1.0)
+#  endif
+          DVom(i,j)=0.5*(Drhs(i,j)+Drhs(i,j-1))*om_v(i,j)*( vrhs(i,j)
+# ifdef MRL_WCI
+     &                                                   + vst2d(i,j)
+# endif
+     &                                                              )
+!Rbend
         enddo
       enddo
 
@@ -433,6 +451,10 @@ C$OMP END MASTER
      &                        +0.333333333333*(rhoA(i-1,j)-rhoA(i,j))
      &                                      *(zwrk(i-1,j)-zwrk(i,j)))
 #endif
+#ifdef MRL_WCI
+     &                     + ( h(i-1,j)+h(i,j)+rzeta(i-1,j)+rzeta(i,j) )
+     &                                          *( sup(i,j)-sup(i-1,j) )
+#endif
      &                                                              )
 ! 
           rvbar(i,j)=cff*om_v(i,j)*( (h(i,j-1)+h(i,j))*(rzeta(i,j-1)
@@ -442,6 +464,10 @@ C$OMP END MASTER
      &              +(h(i,j-1)-h(i,j))*( rzetaSA(i,j-1)+rzetaSA(i,j)
      &                        +0.333333333333*(rhoA(i,j-1)-rhoA(i,j))
      &                                      *(zwrk(i,j-1)-zwrk(i,j)))
+#endif
+#ifdef MRL_WCI
+     &                     + ( h(i,j-1)+h(i,j)+rzeta(i,j-1)+rzeta(i,j) )
+     &                                          *( sup(i,j)-sup(i,j-1) )
 #endif
      &                                                              )
         enddo
@@ -519,10 +545,24 @@ C$OMP END MASTER
      &                -dmde(i,j)*(urhs(i,j)+urhs(i+1,j)))
 #  endif
      &                   )
+#  ifdef MRL_WCI
+#    if defined CURVGRID && defined UV_ADV
+          cff1 = Drhs(i,j)*(
+     &    0.5*( dndx(i,j)*(vst2d(i,j)+vst2d(i,j+1))
+     &          -dmde(i,j)*(ust2d(i,j)+ust2d(i+1,j)) ))
+#    else
+          cff1 = 0.0
+#    endif
+          UFx(i,j)=(cff+cff1)*(vrhs(i,j)+vrhs(i,j+1))
+     &                 +cff*(vst2d(i,j)+vst2d(i,j+1))
+          VFe(i,j)=(cff+cff1)*(urhs(i,j)+urhs(i+1,j))
+     &                 +cff*(ust2d(i,j)+ust2d(i+1,j))
+#  else
           UFx(i,j)=cff*(vrhs(i,j)+vrhs(i,j+1))
           VFe(i,j)=cff*(urhs(i,j)+urhs(i+1,j))
         enddo
       enddo
+#  endif
       do j=jstr,jend
         do i=IstrU,iend
           rubar(i,j)=rubar(i,j)+0.25*(UFx(i,j)+UFx(i-1,j))
@@ -612,6 +652,36 @@ C$OMP END MASTER
           enddo
         enddo
       endif
+! Add 2DH vortex-force terms combined with advection terms
+!
+#ifdef MRL_WCI
+      do j=jstr,jend
+        do i=istrU,iend
+          vstu = 0.25*( vst2d(i,j) + vst2d(i,j+1)
+     &                 +vst2d(i-1,j)+vst2d(i-1,j+1) )
+          dudx = 0.5*( urhs(i+1,j)-urhs(i-1,j) )
+          dvdx = 0.5*( vrhs(i,j) - vrhs(i-1,j)
+     &                 +vrhs(i,j+1) - vrhs(i-1,j+1) )
+          rubar(i,j) = rubar(i,j) + 0.5*om_u(i,j)*
+     &                      ( Drhs(i-1,j)+Drhs(i,j) )
+     &               *( ust2d(i,j)*dudx + vstu*dvdx )
+        enddo
+      enddo
+
+      do j=JstrV,jend
+        do i=istr,iend
+          ustv = 0.25*( ust2d(i,j) + ust2d(i+1,j)
+     &                 +ust2d(i,j-1)+ust2d(i+1,j-1) )
+          dude = 0.5*( urhs(i,j) - urhs(i,j-1)
+     &                 +urhs(i+1,j) - urhs(i+1,j-1) )
+ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
+          dvde = 0.5*( vrhs(i,j+1)-vrhs(i,j-1) )
+          rvbar(i,j) = rvbar(i,j) + 0.5*on_v(i,j)*
+     &                      ( Drhs(i,j-1)+Drhs(i,j) )
+     &               *( ustv*dude + vst2d(i,j)*dvde )
+        enddo
+      enddo
+#endif
       
 !
 ! Coupling between 2D and 3D parts.
@@ -759,6 +829,12 @@ C$OMP END MASTER
      &                             *(rubar(i,j)+rufrc(i,j))
 #else
      &                          *rubar(i,j)+cff2*sustr(i,j)
+# ifdef MRL_WCI
+     &                                    +cff2*brk2dx(i,j)
+#  ifdef WAVE_FRICTION
+     &                                    +cff2*frc2dx(i,j)
+#  endif
+# endif
 #endif
      &                                                    )
 #ifdef MASKING
@@ -766,7 +842,11 @@ C$OMP END MASTER
 #endif
           ubar(i,j,knew)=DUnew/(Dnew(i,j)+Dnew(i-1,j))
 #ifdef SOLVE3D
-          DU_avg1(i,j,nnew)=DU_avg1(i,j,nnew) +cff1*DUnew*on_u(i,j)
+          DU_avg1(i,j,nnew)=DU_avg1(i,j,nnew) +cff1*on_u(i,j)*( DUnew
+# ifdef MRL_WCI
+     &                 +(Dnew(i,j)+Dnew(i-1,j))*ust2d(i,j)
+# endif
+     &                                                   )
 #endif
         enddo
       enddo
@@ -779,6 +859,12 @@ C$OMP END MASTER
      &                             *(rvbar(i,j)+rvfrc(i,j))
 #else
      &                          *rvbar(i,j)+cff2*svstr(i,j)
+# ifdef MRL_WCI
+     &                                    +cff2*brk2de(i,j)
+#  ifdef WAVE_FRICTION
+     &                                    +cff2*frc2de(i,j)
+#  endif
+# endif
 #endif
      &                                                    )
 #ifdef MASKING
@@ -786,7 +872,11 @@ C$OMP END MASTER
 #endif
           vbar(i,j,knew)=DVnew/(Dnew(i,j)+Dnew(i,j-1))
 #ifdef SOLVE3D
-          DV_avg1(i,j,nnew)=DV_avg1(i,j,nnew) +cff1*DVnew*om_v(i,j)
+          DV_avg1(i,j,nnew)=DV_avg1(i,j,nnew) +cff1*om_v(i,j)*(DVnew
+# ifdef MRL_WCI
+     &                 +(Dnew(i,j)+Dnew(i,j-1))*vst2d(i,j)
+# endif
+     &                                                   )
 #endif
         enddo
       enddo
@@ -925,12 +1015,20 @@ C$OMP END MASTER
         do j=jstrR,jendR
           DU_avg1(IstrU-1,j,nnew)=DU_avg1(IstrU-1,j,nnew)
      &         +cff1*(Dnew(IstrU-1,j)
-     &         +Dnew(IstrU-2,j))*ubar(IstrU-1,j,knew)*on_u(IstrU-1,j)
+     &         +Dnew(IstrU-2,j))*(ubar(IstrU-1,j,knew)
+# ifdef MRL_WCI
+     &                                             +ust2d(IstrU-1,j)
+# endif
+     &                                             )*on_u(IstrU-1,j)
         enddo
         do j=JstrV,jend
           DV_avg1(istr-1,j,nnew)=DV_avg1(istr-1,j,nnew)
      &       +cff1*(Dnew(istr-1,j)
-     &       +Dnew(istr-1,j-1) )*vbar(istr-1,j,knew)*om_v(istr-1,j)
+     &       +Dnew(istr-1,j-1) )*(vbar(istr-1,j,knew)
+# ifdef MRL_WCI
+     &                                              +vst2d(istr-1,j)
+# endif
+     &                                              )*om_v(istr-1,j)
         enddo
       endif
         
@@ -938,12 +1036,20 @@ C$OMP END MASTER
         do j=jstrR,jendR
           DU_avg1(iend+1,j,nnew)=DU_avg1(iend+1,j,nnew)
      &            +cff1*( Dnew(iend+1,j)
-     &            +Dnew(iend,j) )*ubar(iend+1,j,knew)*on_u(iend+1,j)
+     &            +Dnew(iend,j) )*(ubar(iend+1,j,knew)
+# ifdef MRL_WCI
+     &                                              +ust2d(iend+1,j)
+# endif
+     &                                              )*on_u(iend+1,j)
         enddo
         do j=JstrV,jend
           DV_avg1(iend+1,j,nnew)=DV_avg1(iend+1,j,nnew)
      &        +cff1*( Dnew(iend+1,j)
-     &        +Dnew(iend+1,j-1) )*vbar(iend+1,j,knew)*om_v(iend+1,j)
+     &        +Dnew(iend+1,j-1) )*(vbar(iend+1,j,knew)
+# ifdef MRL_WCI
+     &                                              +vst2d(iend+1,j)
+# endif
+     &                                              )*om_v(iend+1,j)
         enddo
       endif
 # endif
@@ -952,24 +1058,40 @@ C$OMP END MASTER
         do i=IstrU,iend
           DU_avg1(i,jstr-1,nnew)=DU_avg1(i,jstr-1,nnew)
      &        +cff1*( Dnew(i,jstr-1)
-     &        +Dnew(i-1,jstr-1) )*ubar(i,jstr-1,knew)*on_u(i,jstr-1)
+     &        +Dnew(i-1,jstr-1) )*(ubar(i,jstr-1,knew)
+# ifdef MRL_WCI
+     &                                              +ust2d(i,jstr-1)
+# endif
+     &                                              )*on_u(i,jstr-1)
         enddo
         do i=istrR,iendR
           DV_avg1(i,JstrV-1,nnew)=DV_avg1(i,JstrV-1,nnew)
      &         +cff1*(Dnew(i,JstrV-1)
-     &         +Dnew(i,JstrV-2))*vbar(i,JstrV-1,knew)*om_v(i,JstrV-1)
+     &         +Dnew(i,JstrV-2))*(vbar(i,JstrV-1,knew)
+# ifdef MRL_WCI
+     &                                              +vst2d(i,JstrV-1)
+# endif
+     &                                              )*om_v(i,JstrV-1)
         enddo
       endif
       if (NORTHERN_EDGE) then
         do i=IstrU,iend
           DU_avg1(i,jend+1,nnew)=DU_avg1(i,jend+1,nnew)
      &        +cff1*( Dnew(i,jend+1)
-     &        +Dnew(i-1,jend+1) )*ubar(i,jend+1,knew)*on_u(i,jend+1)
+     &        +Dnew(i-1,jend+1) )*(ubar(i,jend+1,knew)
+# ifdef MRL_WCI
+     &                                               +ust2d(i,jend+1)
+# endif
+     &                                               )*on_u(i,jend+1)
         enddo
         do i=istrR,iendR
           DV_avg1(i,jend+1,nnew)=DV_avg1(i,jend+1,nnew)
      &            +cff1*( Dnew(i,jend+1)
-     &            +Dnew(i,jend) )*vbar(i,jend+1,knew)*om_v(i,jend+1)
+     &            +Dnew(i,jend) )*(vbar(i,jend+1,knew)
+# ifdef MRL_WCI
+     &                                               +vst2d(i,jend+1)
+# endif
+     &                                               )*om_v(i,jend+1)
         enddo
       endif
 # endif 
@@ -1129,4 +1251,3 @@ C$OMP END MASTER
         
       return
       end
- 

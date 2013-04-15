@@ -56,9 +56,22 @@
 ! indxBTHK,       sediment bed thickness, porosity, size class fractions 
 ! indxBPOR,indxBFRA
 !
-! indxWWA,indxWWD,indxWWP   wind induced wave Amplitude,
-!                 Direction and Period
-!
+! indxWWA          wind induced wave Amplitude
+! indxWWD          wind induced wave Direction
+! indxWWP          wind induced wave Period
+! indxWEB          wave dissipation by breakig,
+!                 
+! indxSUP          wave set-up 
+! indxUST2D        vertically integrated stokes velocity in xi  direction
+! indxVST2D        vertically integrated stokes velocity in eta direction 
+! indxUST          stokes velocity in xi  direction
+! indxVST          stokes velocity in eta direction 
+! indxWST          vertical stokes velocity 
+! indxAkb          eddy viscosity  due to wave breaking
+! indxAkw          eddy difusivity due to wave breaking  
+! indxKVF          vortex force
+! indxCALP         surface pressure correction
+! indxKAPS         Bernoulli head 
 !=======================================================================
 ! Output file codes
       integer filetype_his, filetype_avg 
@@ -153,6 +166,12 @@
       integer indxsand, indxsilt
       parameter (indxsand=indxT+ntrc_salt+ntrc_pas+ntrc_bio+1, 
      &           indxsilt=indxsand+1)
+# endif
+
+# if(!defined ANA_BSEDIM  && !defined SEDIMENT)
+      integer indxBSD, indxBSS
+      parameter (indxBSD=indxT+ntrc_salt+ntrc_pas+ntrc_bio+1,
+     &           indxBSS=101)
 # endif
 
 # ifdef DIAGNOSTICS_TS
@@ -333,6 +352,7 @@
       integer indxBostr
       parameter (indxBostr=indxSUSTR+24)
 #ifdef SOLVE3D
+
 # ifdef SEDIMENT
       integer indxSed, indxBTHK, indxBPOR, indxBFRA
       parameter (indxSed=indxSUSTR+28,
@@ -342,27 +362,65 @@
 # ifdef BBL
       integer indxBBL, indxAbed, indxHrip, indxLrip, indxZbnot, 
      &        indxZbapp, indxBostrw
-#  ifdef SEDIMENT
-      parameter (indxBBL=indxSUSTR+26+NST,
+#  ifdef SEDIMENT 
+      parameter (indxBBL=indxSUSTR+30+NST,
 #  else
-      parameter (indxBBL=indxSUSTR+26, 
+      parameter (indxBBL=indxSUSTR+30, 
 #  endif
-     &           indxAbed  =indxBBL,   indxHrip  =indxBBL+1,
-     &           indxLrip  =indxBBL+2, indxZbnot =indxBBL+3, 
-     &           indxZbapp =indxBBL+4, indxBostrw=indxBBL+5)
+     &           indxAbed  =indxBBL+1,   indxHrip  =indxAbed+1,
+     &           indxLrip  =indxAbed+2, indxZbnot =indxAbed+3, 
+     &           indxZbapp =indxAbed+4, indxBostrw=indxAbed+5)
 #  ifndef ANA_WWAVE
-      integer indxWWA,indxWWD,indxWWP
-      parameter (indxWWA=indxBBL+6, indxWWD=indxWWA+1, 
-     &           indxWWP=indxWWA+2)
+      integer indxWWA,indxWWD,indxWWP,indxWEB
+      parameter (indxWWA=indxAbed+1, indxWWD=indxWWA+1, 
+     &           indxWWP=indxWWA+2
+#   ifdef MRL_WCI
+     &          ,indxWEB=indxWWA+3
+#   endif
+     &                             )                                            
 #  endif
 #  ifndef ANA_BSEDIM
 #  endif
 # endif /* BBL */
+# ifndef BBL
+      integer indxWWA,indxWWD,indxWWP,indxWEB
+      parameter (indxWWA=indxSUSTR+50, indxWWD=indxWWA+1, 
+     &           indxWWP=indxWWA+2
+#   ifdef MRL_WCI
+     &          ,indxWEB=indxWWA+3
+#   endif
+     &                             )                                            
+# endif
 # ifdef SST_SKIN
       integer indxSST_skin
       parameter (indxSST_skin=indxSUSTR+37)
 # endif 
 #endif /* SOLVE3D */
+
+
+# ifdef MRL_WCI
+      integer indxSUP, indxUST2D,indxVST2D
+      parameter (indxSUP  =81,
+     &           indxUST2D =indxSUP+1, indxVST2D=indxSUP+2)
+#  ifdef SOLVE3D
+      integer indxUST,indxVST,indxWST,indxAkb,indxAkw,indxKVF,
+     &        indxCALP,indxKAPS
+      parameter (indxUST=indxSUP+3, indxVST=indxSUP+4,
+     &           indxWST=indxSUP+5, indxAkb=indxSUP+6,
+     &           indxAkw=indxSUP+7, indxKVF=indxSUP+8,
+     &           indxCALP=indxSUP+9, indxKAPS=indxSUP+10)
+#  endif
+# endif
+
+#ifdef WKB_WWAVE
+      integer indxEPB,indxEPD,indxEPR,indxFRQ,indxHRM
+     & ,indxWAC,indxWAR,indxWKE,indxWKX
+      parameter (indxEPB=99,indxEPD=100,indxEPR=101
+     & ,indxFRQ=102,indxHRM=103
+     & ,indxWAC=104,indxWAR=105
+     & ,indxWKE=106,indxWKX=107) 
+#endif
+
 #ifdef PSOURCE_NCFILE
       integer indxRIV
       parameter (indxRIV=indxSUSTR+38)
@@ -478,8 +536,8 @@
 !=================================================================
 !
       integer ncidfrc, ncidbulk, ncidclm,  ntsms
-     &      , ntsrf,  ntssh,  ntsst, ntsss, ntuclm, ntww,
-     &        ntbulk, ncidriv, ntriv
+     &      , ntsrf,  ntssh,  ntsst, ntsss, ntuclm,
+     &        ntbulk, ncidriv, ntriv, ntww
 #ifdef SOLVE3D
       integer nttclm(NT),    ntstf(NT)
 #endif
@@ -495,6 +553,21 @@
 #ifdef BBL
       integer rstBBL(2)
 #endif
+#ifdef WKB_WWAVE
+      integer rstWKB(3),hisWKB(9)
+      common /ncvars/ rstWKB,hisWKB
+#endif
+#ifdef MRL_WCI
+      integer hisSUP, hisUST2D, hisVST2D
+      common /ncvars/ hisSUP, hisUST2D, hisVST2D
+# ifdef SOLVE3D
+      integer hisUST, hisVST, hisAkb, hisAkw, hisKVF,
+     &        hisCALP, hisKAPS, hisWST
+      common /ncvars/ hisUST, hisVST, hisAkb, hisAkw, hisKVF,
+     &        hisCALP, hisKAPS, hisWST
+# endif
+#endif
+
       integer  ncidhis, nrechis,  nrpfhis
      &      , hisTime, hisTime2, hisTstep, hisZ,    hisUb,  hisVb
      &      , hisBostr, hisWstr, hisUWstr, hisVWstr
@@ -652,7 +725,7 @@
 	
       common/incscrum/
      &        ncidfrc, ncidbulk,ncidclm, ntsms, ntsrf, ntssh, ntsst
-     &      , ntuclm, ntsss, ntww, ntbulk, ncidriv, ntriv
+     &      , ntuclm, ntsss, ntbulk, ncidriv, ntriv, ntww
 #if defined MPI && defined PARALLEL_FILES
 # ifndef EW_PERIODIC
      &      , xi_rho,  xi_u

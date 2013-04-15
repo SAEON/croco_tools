@@ -219,6 +219,121 @@ CR      write(*,*) 'wrt_his:  VWstr' MYID
       endif
 !      
 !--   
+! add output variables linked to MRL_WCI
+#ifdef MRL_WCI
+      if (wrthis(indxSUP)) then
+        ierr=nf_fwrite (sup, ncidhis, hisSUP, record, r2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxSUP))
+          write(stdout,1) vname(1,indxSUP)(1:lvar), record, ierr,
+     &                    nf_strerror(ierr) MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+!Ustokes 2D
+      if (wrthis(indxUST2D)) then
+        ierr=nf_fwrite (ust2d, ncidhis, hisUST2D, record, u2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxUST2D))
+          write(stdout,1) vname(1,indxUST2D)(1:lvar), record, ierr,
+     &                    nf_strerror(ierr) MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+!Ustokes 2D
+      if (wrthis(indxVST2D)) then
+        ierr=nf_fwrite (vst2d, ncidhis, hisVST2D, record, v2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxVST2D))
+          write(stdout,1) vname(1,indxVST2D)(1:lvar), record, ierr,
+     &                    nf_strerror(ierr) MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+# ifdef SOLVE3D
+!Ustokes
+      if (wrthis(indxUST)) then
+        ierr=nf_fwrite (ust, ncidhis, hisUST,  record,  u3dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxUST))
+          write(stdout,1) vname(1,indxUST)(1:lvar), record, ierr,
+     &                    nf_strerror(ierr) MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+!Vstokes
+      if (wrthis(indxVST)) then
+        ierr=nf_fwrite (vst, ncidhis, hisVST,  record,  v3dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxVST))
+          write(stdout,1) vname(1,indxVST)(1:lvar), record, ierr,
+     &                    nf_strerror(ierr) MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+!Wstokes
+      if (wrthis(indxWST)) then
+        do tile=0,NSUB_X*NSUB_E-1
+          call wstokes (tile)
+        enddo
+        ierr=nf_fwrite (wst, ncidhis, hisWST, record, r3dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxWST))
+          write(stdout,1) vname(1,indxWST)(1:lvar), record, ierr,
+     &                    nf_strerror(ierr) MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+!Mixing coeff 
+      if (wrthis(indxAkb)) then
+        ierr=nf_fwrite (Akb, ncidhis, hisAkb, record, w3dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxAkb))
+          write(stdout,1) vname(1,indxAkb)(1:lvar), record, ierr,
+     &                    nf_strerror(ierr) MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+      if (wrthis(indxAkw)) then
+        ierr=nf_fwrite (Akw, ncidhis, hisAkw, record, w3dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxAkw))
+          write(stdout,1) vname(1,indxAkw)(1:lvar), record, ierr,
+     &                    nf_strerror(ierr) MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+! Vortex force 
+      if (wrthis(indxKVF)) then
+        ierr=nf_fwrite (kvf, ncidhis, hisKVF, record, r3dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxKVF))
+          write(stdout,1) vname(1,indxKVF)(1:lvar), record, ierr,
+     &                    nf_strerror(ierr) MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+! Bernouilli head 
+      if (wrthis(indxCALP)) then
+        ierr=nf_fwrite (calP, ncidhis, hisCALP, record, r2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxCALP))
+          write(stdout,1) vname(1,indxCALP)(1:lvar), record, ierr,
+     &                    nf_strerror(ierr) MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+      if (wrthis(indxKAPS)) then
+        ierr=nf_fwrite (Kapsrf, ncidhis, hisKAPS, record, r2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxKAPS))
+          write(stdout,1) vname(1,indxKAPS)(1:lvar), record, ierr,
+     &                    nf_strerror(ierr) MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+# endif  /* SOLVE3D */
+#endif   /* MRL_WCI */
 !     
 #ifdef SOLVE3D
 !     
@@ -562,7 +677,7 @@ CR      write(*,*) 'wrt_his:  stflx(:,:,isalt)' MYID
       do itrc=1,NST
          indxWrk=indxBFRA+itrc-1
          if (wrthis(indxWrk)) then
-            worksed_frac=bed_frac(:,:,:,itrc)
+            worksed_frac=bed_frac
             call fillvalue3d(worksed_frac,ncidhis,hisSed(itrc+2),
      &           indxWrk,record,b3dvar,type)
          endif
@@ -575,7 +690,7 @@ CR      write(*,*) 'wrt_his:  stflx(:,:,isalt)' MYID
          work2d=Abed
          call fillvalue2d(work2d,ncidhis,hisBBL(1),indxAbed,
      &        record,r2dvar,type)
-CR        write(*,*) 'wrt_his:  Abed', MYID
+CR        write(*,*) 'wrt_his:  Abed' MYID
       endif
 !     
       if (wrthis(indxHrip)) then
@@ -603,7 +718,7 @@ CR        write(*,*) 'wrt_his:  Zbnot' MYID
          work2d=Zbapp
          call fillvalue2d(work2d,ncidhis,hisBBL(5),indxZbapp,
      &        record,r2dvar,type)
-CR        write(*,*) 'wrt_his:  Zbapp', MYID
+CR        write(*,*) 'wrt_his:  Zbapp' MYID
       endif
 !     
       if (wrthis(indxBostrw)) then

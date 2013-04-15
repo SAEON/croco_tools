@@ -33,6 +33,9 @@
 # include "grid.h"
 # include "ocean3d.h"
 # include "scalars.h"
+# ifdef MRL_WCI
+#   include "forces.h"
+# endif
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -44,6 +47,10 @@
         do k=1,N
           do i=IstrU,Iend
             u(i,j,k,nnew)=u(i,j,k,nnew)+DC(i,0)*ru(i,j,k)
+#  if defined MRL_WCI && defined MASKING
+            u(i,j,k,nnew)=u(i,j,k,nnew)*umask(i,j)
+     &                +ust(i,j,k)*(umask(i,j)-1.0)
+#  endif
           enddo
         enddo
         if (j.ge.JstrV) then
@@ -53,6 +60,10 @@
           do k=1,N
             do i=Istr,Iend
               v(i,j,k,nnew)=v(i,j,k,nnew)+DC(i,0)*rv(i,j,k)
+#  if defined MRL_WCI && defined MASKING
+              v(i,j,k,nnew)=v(i,j,k,nnew)*vmask(i,j)
+     &                +vst(i,j,k)*(vmask(i,j)-1.0)
+#  endif
             enddo
           enddo
         endif

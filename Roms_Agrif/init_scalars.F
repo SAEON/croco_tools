@@ -774,7 +774,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxBPOR =',indxBPOR
       vname(6,indxBPOR)='lat_rho lon_rho                          '                    
       vname(7,indxBPOR)='                                         '    
 
-CR      write(stdout,'(1x,A,I3)') 'indxBFRA1 =',indxBFRA
+CR      write(stdout,'(1x,A,I3)') 'indxBFRA1 =',indxBFRA+1
       vname(1,indxBFRA)  ='bed_frac_sand                          '
       vname(2,indxBFRA)  ='volume fraction of sand in bed layer   '
       vname(3,indxBFRA)  ='no units                               '
@@ -782,7 +782,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxBFRA1 =',indxBFRA
       vname(6,indxBFRA)='lat_rho lon_rho                          '
       vname(7,indxBFRA)='                                         '
 
-CR      write(stdout,'(1x,A,I3)') 'indxBFRA2 =',indxBFRA+1
+CR      write(stdout,'(1x,A,I3)') 'indxBFRA2 =',indxBFRA+2
       vname(1,indxBFRA+1)='bed_frac_silt                          '
       vname(2,indxBFRA+1)='Volume fraction of silt in bed layer   '
       vname(3,indxBFRA+1)='no units                               '
@@ -1147,13 +1147,13 @@ CR      write(stdout,'(1x,A,I3)') 'indxSSS =',indxSSS
       vname(7,indxSSS)='                                          '
 # endif
 
-# ifdef BBL
-#  ifndef ANA_WWAVE
+# if defined MRL_WCI || defined BBL
+#  if ! defined  ANA_WWAVE
 CR      write(stdout,'(1x,A,I3)') 'indxWWA',indxWWA
       vname(1,indxWWA)='Awave                                     '
       vname(2,indxWWA)='wind induced wave amplitude               '
       vname(3,indxWWA)='meter                                     '
-      vname(4,indxWWA)='Awave, scalar, series                     '
+      vname(4,indxWWA)='Awave,scalar, series                      '
       vname(5,indxWWA)='                                          '
       vname(6,indxWWA)='lat_rho lon_rho                           '              
 
@@ -1174,7 +1174,18 @@ CR      write(stdout,'(1x,A,I3)') 'indxWWP =',indxWWP
       vname(5,indxWWP)='                                          '
       vname(6,indxWWP)='lat_rho lon_rho                           '             
       vname(7,indxWWP)='                                          '
-#  endif
+
+#   if defined  MRL_WCI
+CR      write(stdout,'(1x,A,I3)') 'indxWEB =',indxWEB
+      vname(1,indxWEB)='Eb                                        '
+      vname(2,indxWEB)='breaking dissipation                      '
+      vname(3,indxWEB)='m3s-3                                     '
+      vname(4,indxWEB)='Eb, scalar, series                        '
+      vname(5,indxWEB)='                                          '
+      vname(6,indxWEB)='lat_rho lon_rho                           '
+      vname(7,indxWEB)='                                          '
+#   endif /* MRL_WCI*/
+#  endif /* ! ANA_WAVE */
 #  if (!defined ANA_BSEDIM && !defined SEDIMENT)
 CR      write(stdout,'(1x,A,I3)') 'indxBSS =',indxBSS
       vname(1,indxBSS)='Ssize                                     '
@@ -1193,9 +1204,96 @@ CR      write(stdout,'(1x,A,I3)') 'indxBSD =',indxBSD
       vname(5,indxBSD)='                                          '
       vname(6,indxBSD)='lat_rho lon_rho                           '              
       vname(7,indxBSD)='                                          '
-#  endif
-# endif /* BBL */
+#  endif /* !SEDIMENT */
+# endif /* BBL or MRL_WCI */
 #endif /* SOLVE3D */
+
+#ifdef WKB_WWAVE
+      vname(1,indxHRM)='hrm                                      '
+      vname(2,indxHRM)='RMS wave height                          '
+      vname(3,indxHRM)='meter                                    '
+
+      vname(1,indxFRQ)='frq                                      '
+      vname(2,indxFRQ)='wave frequency                           '
+      vname(3,indxFRQ)='rad/second                               '
+
+      vname(1,indxWAC)='wac                                      '
+      vname(2,indxWAC)='wave action                              '
+      vname(3,indxWAC)='meter^3 second^-1                        '
+
+      vname(1,indxWKX)='wkx                                      '
+      vname(2,indxWKX)='xi-dir wavenumber vector                 '
+      vname(3,indxWKX)='radian/meter                             '
+
+      vname(1,indxWKE)='wke                                      '
+      vname(2,indxWKE)='eta-dir wavenumber vector                '
+      vname(3,indxWKE)='radian/meter                             '
+
+      vname(1,indxEPB)='epb                                      '
+      vname(2,indxEPB)='breaking dissipation, epsilon_b          '
+      vname(3,indxEPB)='meter^3/second^3                         '
+
+      vname(1,indxEPD)='epd                                      '
+      vname(2,indxEPD)='frictional dissipation, epsilon_d        '
+      vname(3,indxEPD)='meter^3/second^3                         '
+
+      vname(1,indxWAR)='war                                      '
+      vname(2,indxWAR)='wave action of roller component          '
+      vname(3,indxWAR)='meter^3 second^-1                        '
+
+      vname(1,indxEPR)='epr                                      '
+      vname(2,indxEPR)='roller dissipation, epsilon_r            '
+      vname(3,indxEPR)='meter^3/second^3                         '
+
+#endif
+
+#ifdef MRL_WCI
+      vname(1,indxSUP)='sup                                      '
+      vname(2,indxSUP)='quasi-static sea-level response (set-up) '
+      vname(3,indxSUP)='meter                                    '
+
+      vname(1,indxUST2D)='ust2d                                  '
+      vname(2,indxUST2D)='u depth-averaged Stokes drift velocity '
+      vname(3,indxUST2D)='meter second-1                         '
+
+      vname(1,indxVST2D)='vst2d                                  '
+      vname(2,indxVST2D)='v depth-averaged Stokes drift velocity '
+      vname(3,indxVST2D)='meter second-1                         '
+# ifdef SOLVE3D
+      vname(1,indxUST)  ='ust                                    '
+      vname(2,indxUST)  ='u 3D Stokes drift velocity             '
+      vname(3,indxUST)  ='meter second-1                         '
+
+      vname(1,indxVST)  ='vst                                    '
+      vname(2,indxVST)  ='v 3D Stokes drift velocity             '
+      vname(3,indxVST)  ='meter second-1                         '
+
+      vname(1,indxWST)  ='wst                                    '
+      vname(2,indxWST)  ='w veitical 3D Stokes drift velocity    '
+      vname(3,indxWST)  ='meter second-1                         '
+
+      vname(1,indxAKB)  ='Akb                                    '
+      vname(2,indxAKB)  ='eddy viscosity due to wave breaking    '
+      vname(3,indxAKB)  ='meter2 second-1                        '
+
+      vname(1,indxAKW)  ='Akw                                    '
+      vname(2,indxAKW)  ='eddy diffusivity due to primary waves  '
+      vname(3,indxAKW)  ='meter2 second-1                        '
+
+      vname(1,indxKVF)  ='kvf                                    '
+      vname(2,indxKVF)  ='vertical vortex force (u^st du/dz)     '
+      vname(3,indxKVF)  ='meter second-2                         '
+
+      vname(1,indxCALP) ='calP                                   '
+      vname(2,indxCALP) ='surface pressure correction in prsgrd  '
+      vname(3,indxCALP) ='meter2 second-2                        '
+
+      vname(1,indxKAPS) ='Kapsrf                                 '
+      vname(2,indxKAPS) ='surface Bernoulli head in prsgrd term  '
+      vname(3,indxKAPS) ='meter2 second-2                        '
+# endif
+#endif
+
 
 #ifdef ICE
       vname(1,indxAi)='aice                                       '

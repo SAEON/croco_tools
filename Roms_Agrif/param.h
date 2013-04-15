@@ -73,6 +73,9 @@
 !     parameter (LLm0=60,   MMm0=100,  N=30)   ! 10 km resolution
       parameter (LLm0=30,    MMm0=50,  N=30)   ! 20 km resolution
 # endif
+#elif defined SHOREFACE
+!      parameter (LLm0=59,  MMm0=7,    N=20 )     !Planner Beach    orig
+      parameter (LLm0=50,   MMm0=7,    N=20 )     ! Planner beach 20m
 #elif defined REGIONAL
 #  if   defined USWC0
       parameter (LLm0=62,   MMm0=126,  N=40)   ! US_West grid15 L0

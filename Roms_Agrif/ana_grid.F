@@ -125,6 +125,10 @@ C$    integer omp_get_thread_num
                      depth=4000.
                      f0=1.E-4
                      beta=1.6E-11
+# elif defined SHOREFACE
+                     depth=15.
+                     f0=0.   
+                     beta=0.
 # else
                      depth=???
                      f0=???
@@ -177,6 +181,9 @@ C$    integer omp_get_thread_num
 # elif defined JET
                      Length_XI =500.e+3 
                      Length_ETA=2000.e+3 
+# elif defined SHOREFACE
+                    Length_XI =1000.0
+                    Length_ETA=140.0
 # else
                      Length_XI =???
                      Length_ETA=??? 
@@ -356,11 +363,11 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
       enddo
 # elif defined RIVER
       do i=IstrR,IendR
-# ifdef MPI
+#  ifdef MPI
         cff=(float(i +ii*Lm)-0.5)/float(LLm)
-# else
+#  else
         cff=(float(i       )-0.5)/float(LLm)
-# endif
+#  endif
         if (cff.lt.0.05) then
           h(i,JstrR)=15.
         elseif (cff.lt.0.15) then
@@ -376,6 +383,26 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
       do j=JstrR+1,JendR
         do i=IstrR,IendR
           h(i,j)=h(i,JstrR)
+        enddo
+      enddo
+#  elif defined SHOREFACE
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+#   ifdef OBC_EAST
+          cff=xr(i,j)
+#   else
+          cff=Length_XI-xr(i,j)
+#   endif
+!          h(i,j)=12.0-0.0125*Length_XI/float(LLm+1)*float(i) ! original fonction
+          h(i,j)=12.0-0.0125*Length_XI/float(LLm+1)*float(i) +0.8
+#  ifdef MASKING
+          rmask(i,j)=1.0
+          if (h(i,j).lt.0.01) then
+            h(i,j)=0.01
+            rmask(i,j)=0.0
+            rmask(48,j)=1.0
+          endif
+#  endif
         enddo
       enddo
 # else

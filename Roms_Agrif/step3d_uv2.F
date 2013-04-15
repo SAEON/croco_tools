@@ -413,12 +413,34 @@
         do i=IU_RANGE
           DC(i,0)=1./DC(i,0)
           CF(i,0)=DC(i,0)*(CF(i,0)-DU_avg1(i,j,nnew))
+# ifdef MRL_WCI
+     &                               +ust2d(i,j)
+# endif
           ubar(i,j,knew)=DC(i,0)*DU_avg1(i,j,nnew)
+# ifdef MRL_WCI
+     &                            -ust2d(i,j)
+#  ifdef MASKING
+          ubar(i,j,knew)=ubar(i,j,knew)*umask(i,j)
+     &                +ust2d(i,j)*(umask(i,j)-1.0)
+#  endif
+# endif
         enddo
         do k=N,1,-1
           do i=IU_RANGE
-            u(i,j,k,nnew)=(u(i,j,k,nnew)-CF(i,0)) SWITCH umask(i,j)
+            u(i,j,k,nnew)=(u(i,j,k,nnew)-CF(i,0)) 
+# ifdef MASKING
+     &                                *umask(i,j)
+#  ifdef MRL_WCI
+            u(i,j,k,nnew)=u(i,j,k,nnew)*umask(i,j)
+     &                +ust(i,j,k)*(umask(i,j)-1.0)
+#  endif
+# endif
+
+# ifdef MRL_WCI
+            FC(i,k)=DC(i,k)*(0.5*(u(i,j,k,nstp)+u(i,j,k,nnew)) +ust(i,j,k))
+# else
             FC(i,k)=0.5*(u(i,j,k,nstp)+u(i,j,k,nnew))*DC(i,k)
+# endif
             FC(i,0)=FC(i,0)+FC(i,k)
           enddo
         enddo
@@ -475,12 +497,36 @@
           do i=IV_RANGE
             DC(i,0)=1./DC(i,0)
             CF(i,0)=DC(i,0)*(CF(i,0)-DV_avg1(i,j,nnew))
+# ifdef MRL_WCI
+     &                                 +vst2d(i,j)
+# endif
             vbar(i,j,knew)=DC(i,0)*DV_avg1(i,j,nnew)
+# ifdef MRL_WCI
+     &                              -vst2d(i,j)
+#  ifdef MASKING
+            vbar(i,j,knew)=vbar(i,j,knew)*vmask(i,j)
+     &                  +vst2d(i,j)*(vmask(i,j)-1.0)
+#  endif
+# endif
+
           enddo
           do k=N,1,-1
             do i=IV_RANGE
-              v(i,j,k,nnew)=(v(i,j,k,nnew)-CF(i,0)) SWITCH vmask(i,j)
+              v(i,j,k,nnew)=(v(i,j,k,nnew)-CF(i,0)) 
+# ifdef MASKING
+     &                                  *vmask(i,j)
+#  ifdef MRL_WCI
+              v(i,j,k,nnew)=v(i,j,k,nnew)*vmask(i,j)
+     &                  +vst(i,j,k)*(vmask(i,j)-1.0)
+#  endif
+# endif
+
+# ifdef MRL_WCI
+              FC(i,k)=DC(i,k)*( 0.5*(v(i,j,k,nstp)+v(i,j,k,nnew))
+     &                                              +vst(i,j,k) )
+# else
               FC(i,k)=0.5*(v(i,j,k,nstp)+v(i,j,k,nnew))*DC(i,k) 
+# endif
               FC(i,0)=FC(i,0)+FC(i,k)
             enddo
           enddo

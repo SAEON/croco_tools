@@ -51,7 +51,17 @@ C$    integer omp_get_thread_num
 # ifdef BIOLOGY
       real temp, SiO4
 # endif
-!
+# ifdef SHOREFACE && defined MRL_WCI
+      real wamp,wprd,wdir, frq,cfrq,khd,kh,ab,co,gamw,cw,aw,
+     &     nw,ks,kr,wh,wh2,stk,cosw,sinw,eps,Btg,tanb,ca,ch,cr,sbc,
+     &     dd,dsup,cgo,cff1,cff2,kw
+#  ifdef WKB_WWAVE
+#   include "wkb_wwave.h"
+#  endif
+#  include "boundary.h"
+#  include "forces.h"
+# endif
+
 # include "compute_auxiliary_bounds.h"
 !
 # define IR_RANGE IstrR,IendR
@@ -62,11 +72,11 @@ C$    integer omp_get_thread_num
 !  Initial conditions for free surface and 2D momentum components.
 !------------------------------------------------------------------
 !
-# if defined BASIN      || defined CANYON_A  || defined CANYON_B  \
-   || defined EQUATOR   || defined GRAV_ADJ  || defined OVERFLOW  \
-   || defined SEAMOUNT  || defined SHELFRONT || defined UPWELLING \
-   || defined RIVER     || defined INTERNAL  || defined REGIONAL  \
-   || defined JET       || defined INNERSHELF 
+# if defined BASIN      || defined CANYON_A   || defined CANYON_B  \
+   || defined EQUATOR   || defined GRAV_ADJ   || defined OVERFLOW  \
+   || defined SEAMOUNT  || defined SHELFRONT  || defined UPWELLING \
+   || defined RIVER     || defined INTERNAL   || defined REGIONAL  \
+   || defined JET       || defined INNERSHELF || defined SHOREFACE
       do j=JR_RANGE
         do i=IR_RANGE
           zeta(i,j,1)=0.
@@ -132,7 +142,7 @@ C$    integer omp_get_thread_num
    || defined EQUATOR   || defined GRAV_ADJ  || defined OVERFLOW  \
    || defined SEAMOUNT  || defined SHELFRONT || defined UPWELLING \
    || defined RIVER     || defined INTERNAL  || defined REGIONAL  \
-   || defined JET       || defined INNERSHELF
+   || defined JET       || defined INNERSHELF || defined SHOREFACE
       do k=1,N
         do j=JR_RANGE
           do i=IR_RANGE
@@ -183,6 +193,41 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
+# elif defined SHOREFACE
+#  ifdef SOLVE3D
+      do k=1,N
+        do j=jstrR,jendR
+          do i=istrR,iendR
+            t(i,j,k,1,itemp)=18.0
+            t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
+#   ifdef SALINITY
+            t(i,j,k,1,isalt)=32.0
+            t(i,j,k,2,isalt)=t(i,j,k,1,isalt)
+#   endif
+          enddo
+        enddo
+      enddo
+#   ifdef ANA_BRY
+#    if defined OBC_WEST && (defined M3_FRC_BRY || defined T_FRC_BRY)
+      if (WESTERN_EDGE) then
+        do k=1,N
+          do j=jstrR,jendR
+#     ifdef M3_FRC_BRY
+            u_west(j,k)=u(istr  ,j,k,1)
+            v_west(j,k)=v(istr-1,j,k,1)
+#     endif
+#     ifdef T_FRC_BRY
+            t_west(j,k,itemp)=t(istr-1,j,k,1,itemp)
+#      ifdef SALINITY
+            t_west(j,k,isalt)=t(istr-1,j,k,1,isalt)
+#      endif
+#     endif
+          enddo
+        enddo
+      endif
+#    endif
+#   endif   /* ANA_BRY */
+#  endif    /* SOLVE3D */
 #  elif defined EQUATOR
       do k=1,N
         do j=JstrR,JendR

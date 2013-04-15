@@ -89,6 +89,8 @@
       fname='TEST_CASES/roms.in.Vortex'
 #elif defined JET
       fname='TEST_CASES/roms.in.Jet'
+#elif defined SHOREFACE
+      fname='TEST_CASES/roms.in.ShoreFace'
 #elif defined REGIONAL
       fname='roms.in'
 #else
@@ -274,6 +276,7 @@
 #endif
 #if      (!defined SOLVE3D && !defined ANA_SMFLUX) \
       || (defined TIDES) \
+      || (defined MRL_WCI ) \
       || (defined SOLVE3D && (\
            (!defined ANA_STFLUX && !defined BULK_FLUX) \
         ||  !defined ANA_BTFLUX   \
@@ -1425,6 +1428,66 @@ c        close(testunit)
      &                              'Wave-induced bottom stress.'
 
 #endif /* BBL */
+#ifdef MRL_WCI
+!
+! MRL wave-current interaction variables history fields
+!
+        elseif (keyword(1:kwlen).eq.'wci_history_fields') then
+          call cancel_kwd (keyword(1:kwlen), ierr)
+          read(input,*,err=95) wrthis(indxSUP),  wrthis(indxUST2D)
+     &                                        ,  wrthis(indxVST2D)
+# ifdef SOLVE3D
+     &         , wrthis(indxUST), wrthis(indxVST), wrthis(indxwST)
+     &         , wrthis(indxAKB), wrthis(indxAKW), wrthis(indxKVF)
+     &                        , wrthis(indxCALP), wrthis(indxKAPS)
+# endif
+        MPI_master_only write(stdout,'(/1x,A,3(/6x,l1,2x,A))')
+     &    'Fields to be saved in MRL-WCI 2D history  (T/F)',
+     &    wrthis(indxSUP),
+     &    'write SUP    quasi-static sea-level [m]',
+     &    wrthis(indxUST2D),
+     &    'write UST2D  depth-averaged  XI-Stokes velocity [m/s]',
+     &    wrthis(indxVST2D),
+     &    'write VST2D  depth-averaged ETA-Stokes velocity [m/s]'
+# ifdef SOLVE3D
+        MPI_master_only write(stdout,'(/1x,A,8(/6x,l1,2x,A))')
+     &    'Fields to be saved in MRL-WCI 3D history  (T/F)',
+     &    wrthis(indxUST),
+     &    'write UST  3D  XI-Stokes velocity [m/s]',
+     &    wrthis(indxVST),
+     &    'write VST  3D ETA-Stokes velocity [m/s]',
+     &    wrthis(indxWST),
+     &    'write WST  3D vertical Stokes velocity [m/s]',
+     &    wrthis(indxAkb),
+     &    'write Akb  eddy viscosity due to wave breaking [m2/s]',
+     &    wrthis(indxAkw),
+     &    'write Akw  eddy diffusivity due to primary waves [m2/s]',
+     &    wrthis(indxKVF),
+     &    'write KVF  vertical vortex force [m/s2]',
+     &    wrthis(indxCALP),
+     &    'write CALP surface pressure correction [m]',
+     &    wrthis(indxKAPS),
+     &    'write KAPS surface Bernoulli head [m]'
+# endif
+# ifdef AVERAGES
+!
+! MRL_WCI average field follows its history field.
+!
+          wrtavg(indxSUP)=wrthis(indxSUP)
+          wrtavg(indxUST2D)=wrthis(indxUST2D)
+          wrtavg(indxVST2D)=wrthis(indxVST2D)
+# ifdef SOLVE3D
+          wrtavg(indxUST)=wrthis(indxUST)
+          wrtavg(indxVST)=wrthis(indxVST)
+          wrtavg(indxWST)=wrthis(indxWST)
+          wrtavg(indxAkb)=wrthis(indxAkb)
+          wrtavg(indxAkw)=wrthis(indxAkw)
+          wrtavg(indxKVF)=wrthis(indxKVF)
+          wrtavg(indxCALP)=wrthis(indxCALP)
+          wrtavg(indxKAPS)=wrthis(indxKAPS)
+# endif
+# endif /* AVERAGES */
+#endif /* MRL_WCI */
 #ifdef ANA_PSOURCE
 !
 ! Set-up point Sources/Sink number (Nsrc), direction (Dsrc), I- and

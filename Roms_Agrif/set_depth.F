@@ -39,6 +39,9 @@ C$    integer omp_get_thread_num
 # include "ocean3d.h"
 # include "coupling.h"
 # include "scalars.h"
+# ifdef MRL_WCI
+#   include "forces.h"
+# endif
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -136,6 +139,9 @@ C$    integer omp_get_thread_num
 # include "ocean3d.h"
 # include "scalars.h"
 !
+# ifdef MRL_WCI
+#   include "forces.h"
+# endif
 # include "compute_auxiliary_bounds.h"
 !
 # ifdef EW_PERIODIC 
@@ -158,7 +164,15 @@ C$    integer omp_get_thread_num
         do j=JU_RANGE
           do i=IU_RANGE
             Huon(i,j,k)=0.5*(Hz(i,j,k)+Hz(i-1,j,k))
-     &                     *on_u(i,j)*u(i,j,k,nrhs)
+     &                     *on_u(i,j)*(u(i,j,k,nrhs)
+# ifdef MRL_WCI
+     &                                           + ust(i,j,k)
+# endif
+     &                                                      )
+# if defined MRL_WCI && defined MASKING
+            Huon(i,j,k)=Huon(i,j,k)*umask(i,j)
+# endif
+
 # if defined UV_VIS4 && defined UV_MIX_GEO
             z_u(i,j,k)=0.5*(z_r(i,j,k)+z_r(i-1,j,k))
             dz_u(i,j,k)=z_r(i,j,k)-z_r(i-1,j,k)
@@ -168,7 +182,14 @@ C$    integer omp_get_thread_num
         do j=JV_RANGE
           do i=IV_RANGE
             Hvom(i,j,k)=0.5*(Hz(i,j,k)+Hz(i,j-1,k))
-     &                     *om_v(i,j)*v(i,j,k,nrhs)
+     &                     *om_v(i,j)*(v(i,j,k,nrhs)
+# ifdef MRL_WCI
+     &                                           + vst(i,j,k)
+# endif
+     &                                                      )
+# if defined MRL_WCI && defined MASKING
+            Hvom(i,j,k)=Hvom(i,j,k)*vmask(i,j)
+# endif
 # if defined UV_VIS4 && defined UV_MIX_GEO
             z_v(i,j,k)=0.5*(z_r(i,j,k)+z_r(i,j-1,k))
             dz_v(i,j,k)=z_r(i,j,k)-z_r(i,j-1,k)
@@ -222,6 +243,9 @@ C$    integer omp_get_thread_num
 # include "grid.h"
 # include "ocean3d.h"
 # include "scalars.h"
+# ifdef MRL_WCI
+#   include "forces.h"
+# endif
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -246,14 +270,29 @@ C$    integer omp_get_thread_num
           do i=IU_RANGE
             Huon(i,j,k)=0.25*(3.*(Hz(i,j,k)+Hz(i-1,j,k))
      &                      -Hz_bak(i,j,k)-Hz_bak(i-1,j,k))
-     &                             *on_u(i,j)*u(i,j,k,nrhs)
+     &                             *on_u(i,j)*(u(i,j,k,nrhs)
+# ifdef MRL_WCI
+     &                               +ust(i,j,k)
+#  ifdef MASKING
+     &             *umask(i,j)
+#  endif     
+# endif
+     &   )
           enddo
         enddo
         do j=JV_RANGE
           do i=IV_RANGE
             Hvom(i,j,k)=0.25*( 3.*(Hz(i,j,k)+Hz(i,j-1,k))
      &                     -Hz_bak(i,j,k)-Hz_bak(i,j-1,k))
-     &                            *om_v(i,j)*v(i,j,k,nrhs)
+     &                            *om_v(i,j)*(v(i,j,k,nrhs)
+# ifdef MRL_WCI
+     &                               +vst(i,j,k)
+#  ifdef MASKING
+     &             *vmask(i,j)
+#  endif     
+# endif
+     &   )
+
           enddo
         enddo
       enddo
@@ -297,6 +336,9 @@ C$    integer omp_get_thread_num
 # include "grid.h"
 # include "ocean3d.h"
 # include "scalars.h"
+# ifdef MRL_WCI
+#   include "forces.h"
+# endif
 # include "coupling.h"
 !
 # include "compute_auxiliary_bounds.h"
@@ -331,14 +373,24 @@ C$    integer omp_get_thread_num
         enddo
         do i=IU_RANGE
           FC(i,0)=(FC(i,0)-DU_avg2(i,j))/DC(i,0)
+# ifdef MRL_WCI
+     &                               +ust2d(i,j)
+# endif
         enddo
         do k=1,N
           do i=IU_RANGE
             u(i,j,k,nrhs)=(u(i,j,k,nrhs)-FC(i,0))
 # ifdef MASKING
      &                                 *umask(i,j)
+#   ifdef MRL_WCI
+     &               +ust(i,j,k)*(umask(i,j)-1.0)
+#   endif
 # endif
-            Huon(i,j,k)=DC(i,k)*u(i,j,k,nrhs)
+            Huon(i,j,k)=DC(i,k)*(u(i,j,k,nrhs)
+# ifdef MRL_WCI
+     &                                +ust(i,j,k)
+# endif
+     &                                          )
           enddo
         enddo
       enddo
@@ -357,14 +409,24 @@ C$    integer omp_get_thread_num
         enddo
         do i=IV_RANGE
           FC(i,0)=(FC(i,0)-DV_avg2(i,j))/DC(i,0)
+# ifdef MRL_WCI
+     &                               +vst2d(i,j)
+# endif
         enddo
         do k=1,N
           do i=IV_RANGE
             v(i,j,k,nrhs)=(v(i,j,k,nrhs)-FC(i,0))
 # ifdef MASKING
      &                                 *vmask(i,j)
+#   ifdef MRL_WCI
+     &               +vst(i,j,k)*(vmask(i,j)-1.0)
+#   endif
 # endif
-            Hvom(i,j,k)=DC(i,k)*v(i,j,k,nrhs)
+            Hvom(i,j,k)=DC(i,k)*(v(i,j,k,nrhs)
+# ifdef MRL_WCI
+     &                                +vst(i,j,k)
+# endif
+     &                                          )
           enddo
         enddo
       enddo

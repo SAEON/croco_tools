@@ -795,11 +795,6 @@ CR      write(*,*) ' -2' MYID
       endif
 # endif
       call get_vbc
-# if defined BBL && !defined ANA_WWAVE
-      if (Agrif_Fixed().EQ.Agrif_lev_sedim) then
-        call get_wwave
-      endif
-# endif /* BBL && !ANA_WWAVE*/
 CR      write(*,*) ' -1' MYID 
       if (may_day_flag.ne.0) goto 99     !-->  EXIT
 

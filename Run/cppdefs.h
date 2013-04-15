@@ -28,6 +28,7 @@
 #undef  VORTEX          /* Baroclinic Vortex Example */
 #undef  INTERNAL        /* Internal Tide Example */
 #undef  JET             /* Baroclinic Jet Example */
+#undef  SHOREFACE       /* Shoreface Test Case on a Planer Beach */
 #define REGIONAL        /* REGIONAL Applications */
 
 
@@ -721,6 +722,61 @@
 #  define LMD_RIMIX
 #  define LMD_CONVEC
 # endif 
+
+#elif defined SHOREFACE
+/*
+!                       PLANER BEACH Example
+!                       ====== ===== =======
+*/
+# define ETALON_CHECK
+# undef OPENMP
+# undef MPI
+# undef CURVGRID
+# undef SPHERICAL
+# undef MASKING
+# define ANA_GRID
+# define ANA_INITIAL
+# define ANA_SMFLUX
+# define ANA_STFLUX
+# define ANA_SSFLUX
+# define ANA_SRFLUX
+# define ANA_SST
+# define ANA_BTFLUX
+# define NS_PERIODIC
+# define MRL_WCI
+# ifdef MRL_WCI
+#   define WAVE_OFFLINE
+#   define WAVE_RAMP
+#   undef LOG_BDRAG
+#   undef WAVE_FRICTION
+#   undef BODY_FRICTION
+#   undef SURFACE_ROLLER
+#   undef SURFACE_BREAK
+#   ifdef WAVE_OFFLINE
+#     undef ANA_WWAVE
+#     undef BREAK_TG86
+#     undef BREAK_TG86A
+#     undef BREAK_CT93
+#   endif 
+#   undef WKB_WWAVE
+# endif
+# define SOLVE3D
+# define UV_ADV
+# define LMD_MIXING
+# undef BBL
+# undef SEDIMENT
+#  ifdef BBL
+#   ifdef SEDIMENT
+#    undef  ANA_BSEDIM
+#   else
+#    define ANA_BSEDIM
+#  endif
+#  undef  Z0_BL
+#  ifdef Z0_BL
+#   define Z0_RIP
+#  endif
+#  undef  Z0_BIO
+# endif
 
 #endif /* END OF CONFIGURATION CHOICE */
 

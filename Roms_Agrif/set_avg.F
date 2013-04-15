@@ -21,7 +21,9 @@
       integer tile, trd
 C$    integer omp_get_thread_num
 # include "compute_tile_bounds.h"
-
+#  ifdef MRL_WCI
+      call wstokes (tile)
+#  endif
 # ifdef SOLVE3D
       if (wrtavg(indxW)) then
         call Wvlcty (tile, work)

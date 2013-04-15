@@ -434,7 +434,7 @@
      &                                  vname(4,indxHrip)(1:lvar))
 
         call nf_add_attribute(ncid, rstBBL(1), indxHrip, 5, 
-        NF_DOUBLE, ierr)
+     &    NF_DOUBLE, ierr) 
 
  
 !

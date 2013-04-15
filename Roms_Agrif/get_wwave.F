@@ -10,12 +10,11 @@
 !======================================================================
 !
 #include "cppdefs.h"
-#if defined BBL && !defined  ANA_WWAVE
+#if ! defined  ANA_WWAVE && ( defined BBL || defined MRL_WCI )
 
                               ! Read point or gridded wind wave
       subroutine get_wwave    ! height, direction, period at approp.
                               ! time from forcing NetCDF file.
-# define WWAVE_DATA
       implicit none
 #include "param.h" 
 #include "scalars.h"
@@ -38,7 +37,6 @@
 ! Find and save IDs for relevant variables, determine whether
 ! wind wave data are field or scalar values. 
 !
-       
         if (ncidfrc.eq.-1) then
           ierr=nf_open(frcname(1:lstr), nf_nowrite, ncidfrc)
           if (ierr .ne. nf_noerr) goto 4                !--> ERROR 
@@ -106,10 +104,30 @@
           endif
         endif
         if (ierr .ne. nf_noerr) then
-          write(stdout,3) vname(1,indxWWA)(1:lvar),frcname(1:lstr)
+          write(stdout,3) vname(1,indxWWP)(1:lvar),frcname(1:lstr)
           goto 99                                         !--> ERROR
         endif
-      
+
+
+! Check if breaking present, and if so, if field or scalar series
+# if defined WAVE_OFFLINE && defined MRL_WCI     
+      lvar=lenstr(vname(1,indxWEB))
+        ierr=nf_inq_varid (ncidfrc,vname(1,indxWEB)(1:lvar),wwe_id)
+        if (ierr .eq. nf_noerr) then
+          ierr=nf_inq_varndims (ncidfrc, wwe_id, i)
+          if (ierr. eq. nf_noerr) then
+            if (i.gt.1) then
+              wwegrd=1.
+            else
+              wwegrd=0.
+            endif
+          endif
+        endif
+        if (ierr .ne. nf_noerr) then
+          write(stdout,3) vname(1,indxWEB)(1:lvar),frcname(1:lstr)
+          goto 99                                         !--> ERROR
+        endif
+# endif      
 !
 ! Determine whether cycling is defined to reuse the input data
 ! and find cycling period "ww_cycle", set initial cycling
@@ -126,11 +144,12 @@
         if (may_day_flag.ne.0) return    !-->  EXIT
       
       itww=2
-        wwv_time(1)=-1.E+20
-        wwv_time(2)=-1.E+20
-        wwa_scale=1.
+      wwv_time(1)=-1.E+20
+      wwv_time(2)=-1.E+20
+      wwa_scale=1.
       wwd_scale=deg2rad
       wwp_scale=1.
+      wwe_scale=1.
 
      
        endif                   !<-- itww.eq.0 .or. iic.eq.0
@@ -199,7 +218,22 @@
           write(stdout,6) 'wind-wave period', ww_rec
           goto 99                                         !--> ERROR
         endif       
-           
+
+#  if defined WAVE_OFFLINE && defined MRL_WCI     
+! Read breaking dissipation
+
+        if (wwegrd.eq.1.) then
+          ierr=nf_fread (wweb(START_2D_ARRAY,i), ncidfrc, wwe_id,
+     &                                             ww_rec, r2dvar)
+        else
+          ierr=nf_get_var1_FTYPE (ncidfrc,wwe_id,ww_rec,wwep(i))
+        endif
+
+        if (ierr .ne. nf_noerr) then
+          write(stdout,6) 'wind-wave breaking', ww_rec
+          goto 99                                         !--> ERROR
+        endif       
+#endif           
        itww=i
        write(stdout,'(6x,A,1x,A,1x,g12.4,1x,I4)') 'GET_WWAVE --',
      &              'Read wind wave input data for time =', cff
@@ -230,6 +264,7 @@
      &       g12.4,2x,'last available wwv_time = ',g12.4)
 
   99  may_day_flag=2
+    
       return
       end
 
@@ -251,15 +286,27 @@
 !  Set-up wind wave amplitude, direction, period for current tile.
 !--------------------------------------------------------------------
 !
-# define WWAVE_DATA
       implicit none
-#include "param.h"
-#include "forces.h"
-#include "scalars.h"
-#include "grid.h"
-      integer Istr,Iend,Jstr,Jend, i,j, it1,it2
-      real fac, fac1, fac2, fac3, fac4, fac5, fac6, 
-     &     wwA, wwD, wwP
+
+      integer Istr,Iend,Jstr,Jend, i,j,k, it1,it2
+      real fac, fac1, fac2, fac3, fac4, fac5, fac6,fac7,fac8, 
+     &     wwA, wwD, wwP, wwe, Dstp,cfrq,wdir
+      real cff,cff1,cff2, kh,khd, eps,xdir,ydir,
+     &                                           wramp,m2p,isr2 
+# ifdef BBL_OFFLINE
+     &                                            , ab, orb_vel
+# endif
+# if !defined WAVE_OFFLINE && defined MRL_WCI
+     &                                          , Btg, Gtg, sbc
+# endif
+      parameter (eps = 1.0d-10, m2p=1.2804973111, isr2=0.70710678)
+
+!
+# include "param.h"
+# include "grid.h"
+# include "forces.h"
+# include "scalars.h"
+# include "ocean2d.h"
 !
 # include "compute_extended_bounds.h"
 !
@@ -287,6 +334,9 @@
             wwA=wwa_scale*wwap(itww)
             wwD=wwd_scale*wwdp(itww)
             wwP=wwp_scale*wwpp(itww)
+# if defined WAVE_OFFLINE && defined MRL_WCI     
+            wwe=wwe_scale*wwep(itww)
+# endif
           
             do j=JstrR,JendR
               do i=IstrR,IendR
@@ -295,12 +345,15 @@
      
                 Dwave(i,j)=(wwdgrd)*wwd_scale*wwdg(i,j,itww) +
      &                     (1.-wwdgrd)*wwD 
-     
+
                 Pwave(i,j)=(wwpgrd)*wwp_scale*wwpg(i,j,itww) +
      &                     (1.-wwpgrd)*wwP
+# if defined WAVE_OFFLINE && defined MRL_WCI     
+                Eb(i,j)   =(wwegrd)*wwe_scale*wweb(i,j,itww) +
+     &                     (1.-wwegrd)*wwe
+# endif
               enddo
             enddo
-
         endif
 !
 ! Time-interpolate wind wave data from gridded or point data.
@@ -318,14 +371,19 @@
         fac=wwp_scale/(fac1+fac2)
         fac5=fac*fac1
         fac6=fac*fac2
+        fac=wwe_scale/(fac1+fac2)
+        fac7=fac*fac1
+        fac8=fac*fac2
         fac=wwa_scale/(fac1+fac2)
         fac1=fac*fac1
         fac2=fac*fac2
       
         wwA=fac1*wwap(it1)+fac2*wwap(it2)
-        wwD=fac3*wwap(it1)+fac4*wwap(it2)
-        wwP=fac5*wwap(it1)+fac6*wwap(it2)
-        
+        wwD=fac3*wwdp(it1)+fac4*wwdp(it2)
+        wwP=fac5*wwpp(it1)+fac6*wwpp(it2)
+# if defined WAVE_OFFLINE && defined MRL_WCI     
+        wwe=fac7*wwep(it1)+fac8*wwep(it2)
+# endif        
       do j=JstrR,JendR
           do i=IstrR,IendR
             Awave(i,j)=wwagrd*(fac1*wwag(i,j,it1)+fac2*wwag(i,j,it2))
@@ -336,13 +394,94 @@
 
             Pwave(i,j)=wwpgrd*(fac5*wwpg(i,j,it1)+fac6*wwpg(i,j,it2))
      &                +(1.-wwpgrd)*wwP
+
+# if defined WAVE_OFFLINE && defined MRL_WCI     
+            Eb(i,j)   =wwegrd*(fac7*wweb(i,j,it1)+fac8*wweb(i,j,it2))
+     &                +(1.-wwegrd)*wwe
+# endif        
           enddo
         enddo
+
+!
+! Compute anyway variables for wave current interactions
+!
+        do j=jstrR,jendR
+          do i=istrR,iendR
+            Dstp=max(h(i,j),eps)
+            cfrq=2.0*pi/max(Pwave(i,j)*m2p,0.1D0) ! mean to peak period
+            wdir=Dwave(i,j)           ! 
+!           wdir=0.5*pi+Dwave(i,j,)   ! if wdir is dir waves travel TO
+!           wdir=Dwave(i,j)-1.5*pi    ! wdir is dir waves travel FROM N
+# ifdef CURVGRID
+     &                    -angler(i,j)
+# endif            xdir=cos(wdir)
+            ydir=sin(wdir)
+# if defined MRL_WCI
+            wwfrq(i,j)=cfrq
+#  ifdef MASKING
+     &                             *rmask(i,j)
+#  endif
+# endif
+
+# ifdef MRL_WCI
+            wwhrm(i,j) =2.0*Awave(i,j)*isr2 ! Hsig to Hrms conversion
+            wwdrx(i,j) =xdir
+            wwdre(i,j) =ydir
+#  ifndef WAVE_OFFLINE
+            Eb(i,j) =sbc*cfrq*((0.7071*wwhrm(i,j))**7)/
+     &                    max(Dstp**5,eps)   ! 0.7071 = 1/sqrt(2): Hsig -> Hrms
+#  endif
+#  ifdef MASKING
+              wwhrm(i,j) = wwhrm(i,j)*rmask(i,j)
+              wwdrx(i,j) = wwdrx(i,j)*rmask(i,j)
+              wwdre(i,j) = wwdre(i,j)*rmask(i,j)
+              Eb   (i,j) = Eb   (i,j)*rmask(i,j)
+#   if defined WAVE_OFFLINE && defined WAVE_FRICTION
+              wwqb(i,j,1)  = wwed(i,j)*rmask(i,j)
+#   endif
+#   if defined WAVE_OFFLINE && defined SURFACE_ROLLER
+              wwqb(i,j,1)  = wwqb(i,j,k)*rmask(i,j)
+#   endif
+#  endif
+# endif         
+          enddo
+        enddo
+
+# if !defined MRL_WCI && defined BBL && defined WAVE_RAMP
+      wramp =tanh(3.0*dt*sec2day*float(iic-ntstart))
+# else
+      wramp =1.0
+# endif
+        do j=jstrR,jendR
+          do i=istrR,iendR
+# if defined MRL_WCI
+            wfrq(i,j)=wwfrq(i,j)
+            whrm(i,j)=wramp*wwhrm(i,j)
+            wdrx(i,j)=wwdrx(i,j)
+            wdre(i,j)=wwdre(i,j)
+            Eb  (i,j)=wramp*Eb(i,j)
+#  if defined WAVE_OFFLINE
+#   if defined  WAVE_FRICTION
+            wved(i,j)=wwed(i,j,1)
+#   else
+            wved(i,j)=0.0
+#   endif
+#  endif
+#  if defined WAVE_OFFLINE && defined SURFACE_ROLLER
+            wvqb(i,j)=wwqb(i,j,1)
+#  endif
+# endif
+          enddo
+        enddo
+      endif
+      
+      
 !
 ! Unable to set-up wind wave fields:
 ! Complain about the error and signal to quit (ONE THREAD ONLY).
 !
-      else
+      
+      if ((ww_cycle.gt.0.) .and. (fac1.lt.0..or.fac2.lt.0.)) then
         if (ZEROTH_TILE) then
           write(stdout,1) 'wwv_time', tdays, wwv_time(it2)*sec2day  
   1       format(/,' SET_WWAVE_TILE - current model time exceeds',
@@ -351,7 +490,7 @@
           may_day_flag=2
         endif
       endif
-
+ !      wwfrq(:,:,itww) = Pwave(:,:) 
       return
       end
 #else

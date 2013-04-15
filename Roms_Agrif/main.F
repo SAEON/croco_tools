@@ -217,6 +217,13 @@ C$OMP PARALLEL DO PRIVATE(tile)
         call rho_eos (tile)
       enddo
 CR      write(*,*)  ' -3' MYID
+# ifdef MRL_WCI
+C$OMP PARALLEL DO PRIVATE(tile)
+      do tile=0,NSUB_X*NSUB_E-1
+        call mrl_wci (tile)
+      enddo
+CR      write(*,*)  ' -2' MYID
+# endif
 #endif
 !
 ! Create climatological environment:
@@ -307,14 +314,6 @@ C#endif
 # endif
 
       call get_vbc
-#if defined BBL && !defined ANA_WWAVE
-# ifdef AGRIF
-      if (Agrif_lev_sedim.EQ.0)
-     &  call get_wwave
-#  else
-      call get_wwave
-#  endif
-#endif
 #if defined SSH_TIDES || defined UV_TIDES
       call get_tides
 #endif
