@@ -414,7 +414,8 @@
 !           wdir=Dwave(i,j)-1.5*pi    ! wdir is dir waves travel FROM N
 # ifdef CURVGRID
      &                    -angler(i,j)
-# endif            xdir=cos(wdir)
+# endif           
+            xdir=cos(wdir)
             ydir=sin(wdir)
 # if defined MRL_WCI
             wwfrq(i,j)=cfrq
