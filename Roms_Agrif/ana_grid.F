@@ -129,6 +129,10 @@ C$    integer omp_get_thread_num
                      depth=15.
                      f0=0.   
                      beta=0.
+# elif defined THACKER
+                     depth=10.
+                     f0=1.E-4
+                     beta=0
 # else
                      depth=???
                      f0=???
@@ -182,8 +186,11 @@ C$    integer omp_get_thread_num
                      Length_XI =500.e+3 
                      Length_ETA=2000.e+3 
 # elif defined SHOREFACE
-                    Length_XI =1000.0
+                    Length_XI =1180.0 
                     Length_ETA=140.0
+# elif defined THACKER
+                     Length_XI =199.e+3 
+                     Length_ETA=199.e+3 
 # else
                      Length_XI =???
                      Length_ETA=??? 
@@ -219,7 +226,7 @@ C$    integer omp_get_thread_num
 # ifdef EQUATOR
       y0=y0-0.5*Length_ETA  
 # endif
-# ifdef INTERNAL
+# if defined INTERNAL || defined THACKER
       x0=x0-0.5*Length_XI
       y0=y0-0.5*Length_ETA  
 # endif
@@ -385,16 +392,19 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
           h(i,j)=h(i,JstrR)
         enddo
       enddo
-#  elif defined SHOREFACE
+# elif defined SHOREFACE
       do j=JstrR,JendR
         do i=IstrR,IendR
-#   ifdef OBC_EAST
+#  ifdef OBC_EAST
           cff=xr(i,j)
-#   else
+#  else
           cff=Length_XI-xr(i,j)
-#   endif
-!          h(i,j)=12.0-0.0125*Length_XI/float(LLm+1)*float(i) ! original fonction
-          h(i,j)=12.0-0.0125*Length_XI/float(LLm+1)*float(i) +0.8
+#  endif
+#  ifdef WET_DRY
+          h(i,j)=12.0-0.0125*Length_XI/float(LLm+1)*float(i) ! original fonction
+#  else
+          h(i,j)=12.0-0.0125*Length_XI/float(LLm+1)*float(i) + 0.8
+#  endif
 #  ifdef MASKING
           rmask(i,j)=1.0
           if (h(i,j).lt.0.01) then
@@ -405,6 +415,14 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
 #  endif
         enddo
       enddo
+# elif defined THACKER
+      cff=80.e3
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          h(i,j)=depth*(1-(xr(i,j)/cff)**2 -
+     &                    (yr(i,j)/cff)**2 )
+        enddo
+      enddo
 # else
       do j=JstrR,JendR
         do i=IstrR,IendR
@@ -412,6 +430,10 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
         enddo
       enddo
 # endif
+
+!
+!  Set masking at RHO-points.
+!
 # ifdef MASKING
 #  if defined RIVER
       do j=JstrR,JendR             ! Set mask to all-water status,
@@ -439,7 +461,8 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
         endif
       enddo
 #  endif
-#endif
+# endif
+!
 #else
       subroutine ana_grid_empty
 #endif /* ANA_GRID */

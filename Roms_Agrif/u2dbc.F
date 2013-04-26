@@ -68,6 +68,7 @@ C$    integer omp_get_thread_num
 #include "grid.h"
 #include "ocean2d.h"
 #include "scalars.h"
+#include "forces.h"
 #include "zoom.h"
 !
 #include "compute_auxiliary_bounds.h"
@@ -274,10 +275,29 @@ c          endif
         enddo
 #  endif
 !
+#  ifdef MRL_WCI000
+                                                ! Western edge WEC
+        do j=jstr,jend                          ! ======= ==== ===
+          ubar(istr,j,knew)=ubar(istr,j,knew)
+     &                      -ust2d(istr,j)      ! no Lagrangian flux
+#   ifdef MASKING
+     &                      *umask(istr,j)
+#   endif
+        enddo
+#  endif
+!
 # else
-        do j=Jstr,Jend                          ! Western edge closed
-          ubar(Istr,j,knew)=0.                  ! ======= ==== ======
-        enddo                                   !  (no-flux, default)
+                                                ! Western edge closed
+        do j=jstr,jend                          ! ======= ==== ======
+#  ifdef MRL_WCI
+          ubar(istr,j,knew)=-ust2d(istr,j)      ! no Lagrangian flux
+#   ifdef MASKING
+     &                      *umask(istr,j)
+#   endif
+#  else
+          ubar(istr,j,knew)=0.                  ! (no-flux, default)
+#  endif
+        enddo
 # endif           /* OBC_COM_WEST */
       endif     !<-- WESTERN_EDGE
 !
@@ -429,9 +449,30 @@ c          endif
 #   endif
         enddo
 #  endif
+!
+#  ifdef MRL_WCI000
+!                                            Eastern edge WEC
+!                                            ======= ==== ===
+        do j=Jstr,Jend
+          ubar(Iend+1,j,knew)=ubar(Iend,j,knew)
+     &                        -ust2d(Iend,j)     ! no Lagrangian flux
+#   ifdef MASKING
+     &                        *umask(Iend+1,j)
+#   endif
+        enddo
+#  endif
+!
 # else
-        do j=Jstr,Jend                       ! Eastern edge closed BC
-          ubar(Iend+1,j,knew)=0.             ! ======= ==== ====== ==
+                                             ! Eastern edge closed BC
+        do j=Jstr,Jend                       ! ======= ==== ====== ==
+#  ifdef MRL_WCI
+          ubar(Iend+1,j,knew)=-ust2d(Iend,j)     ! no Lagrangian flux
+#   ifdef MASKING
+     &                        *umask(Iend+1,j)
+#   endif
+#  else
+          ubar(Iend+1,j,knew)=0.
+#  endif
         enddo
 # endif /* OBC_COM_EAST */
       endif         !<-- EASTERN_EDGE
@@ -739,6 +780,57 @@ c          endif
 #  endif
       endif
 #endif
+
+#if defined WET_DRY
+!
+!-----------------------------------------------------------------------
+!  Impose wetting and drying conditions.
+!-----------------------------------------------------------------------
+!
+# ifndef EW_COM_PERIODIC
+      if (WESTERN_EDGE) then
+        DO j=Jstr,Jend
+          ubar(Istr,j,knew)=ubar(Istr,j,knew)*umask_wet(Istr,j)
+        END DO
+      END IF
+      if (EASTERN_EDGE) then
+        DO j=Jstr,Jend
+          ubar(Iend+1,j,knew)=ubar(Iend+1,j,knew)*umask_wet(Iend+1,j)
+        END DO
+      END IF
+# endif
+# ifndef NS_COM_PERIODIC
+      if (SOUTHERN_EDGE) then
+        DO i=IstrU,Iend
+          ubar(i,Jstr-1,knew)=ubar(i,Jstr-1,knew)*umask_wet(i,Jstr-1)
+        END DO
+      END IF
+      if (NORTHERN_EDGE) then
+        DO i=Istr,Iend
+          ubar(i,Jend+1,knew)=ubar(i,Jend+1,knew)*umask_wet(i,Jend+1)
+        END DO
+      END IF
+# endif
+# if !defined EW_COM_PERIODIC && !defined NS_COM_PERIODIC
+      if (SOUTHERN_EDGE .and. WESTERN_EDGE) then
+        ubar(Istr,Jstr-1,knew)=ubar(Istr,Jstr-1,knew)
+     &                                        *umask_wet(Istr,Jstr-1)
+      END IF
+      if (SOUTHERN_EDGE .and. EASTERN_EDGE) then
+        ubar(Iend+1,Jstr-1,knew)=ubar(Iend+1,Jstr-1,knew)
+     &                                        *umask_wet(Iend+1,Jstr-1)
+      END IF
+      if (NORTHERN_EDGE .and. WESTERN_EDGE) then
+        ubar(Istr,Jend+1,knew)=ubar(Istr,Jend+1,knew)
+     &                                        *umask_wet(Istr,Jend+1)
+      END IF
+      if (NORTHERN_EDGE .and. EASTERN_EDGE) then
+        ubar(Iend+1,Jend+1,knew)=ubar(Iend+1,Jend+1,knew)
+     &                                        *umask_wet(Iend+1,Jend+1)
+      END IF
+# endif
+#endif /* WET_DRY */
+
       return
       end
 #ifndef CHILD

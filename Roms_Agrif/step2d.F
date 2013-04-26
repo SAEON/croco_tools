@@ -120,9 +120,12 @@ C$    trd=omp_get_thread_num()
 #include "zoom.h"
         integer irhox, irhoy, irhot
 #endif
-# if defined INTERNAL || defined BODYTIDE
+#if defined INTERNAL || defined BODYTIDE
       real U0, omega
-# endif
+#endif
+#ifdef WET_DRY
+      real cff1_WD,cff2_WD
+#endif
 !
 #ifdef MASKING
 # define SWITCH *
@@ -227,6 +230,7 @@ C$OMP MASTER
 C$OMP END MASTER       
 #endif    
 !
+!-----------------------------------------------------------------------
 ! Advance free-surface:   Compute zeta_new, which is at new time
 !-------- ---- --------   step, and interpolate half-step backward
 ! for the subsequent computation of barotropic pressure-gradient
@@ -243,6 +247,7 @@ C$OMP END MASTER
 ! are finalized, add a correction term based on the difference
 ! zeta_new(:,:)-zeta(:,:,kstp) to "rubar,rvbar" to make them
 ! consistent with Backward step for pressure gradient terms.
+!-----------------------------------------------------------------------
 !
       if (FIRST_2D_STEP) then
 #ifdef SOLVE3D
@@ -331,9 +336,18 @@ C$OMP END MASTER
 #endif
         enddo
       enddo
+!
+!  Load new free-surface values into shared array
+!  Modify new free-surface to ensure that depth is > Dcrit for masked
+!  cells.
+!
       do j=JstrV-1,Jend
         do i=IstrU-1,Iend
-          zeta(i,j,knew)=zeta_new(i,j)        
+          zeta(i,j,knew)=zeta_new(i,j) 
+# if defined WET_DRY && defined MASKING
+          zeta(i,j,knew)=zeta(i,j,knew)+ 
+     &                   (Dcrit-h(i,j))*(1.-rmask(i,j))
+# endif
         enddo
       enddo 
  
@@ -377,7 +391,11 @@ C$OMP END MASTER
 #endif  
 
 #endif         
-
+!
+!-----------------------------------------------------------------------
+!  Debug zeta
+!-----------------------------------------------------------------------
+!
 #ifdef RVTK_DEBUG_ADVANCED
 C$OMP BARRIER
 C$OMP MASTER
@@ -385,17 +403,30 @@ C$OMP MASTER
 C$OMP END MASTER       
 #endif       
 !
-! Set boundary conditions for the free-surface:
+!-----------------------------------------------------------------------
+!  Compute wet/dry masks
+!-----------------------------------------------------------------------
+!
+#ifdef WET_DRY
+# define WETDRY zeta_new
+      CALL wetdry_tile (Istr,Iend,Jstr,Jend, WETDRY)
+# undef WETDRY
+#endif
+!
+!-----------------------------------------------------------------------
+! Set boundary conditions for the free-surface
+!-----------------------------------------------------------------------
 !
       call zetabc_tile (Istr,Iend,Jstr,Jend)
 !
-!
+!----------------------------------------------------------------------
 ! Compute time averaged fields over all short timesteps.
-!-------- ---- -------- ------ ---- --- ----- ----------
+!
 ! Reset/initialise arrays for averaged fields during the first
 ! barotropic time step; Accumulate averages after that. Include
 ! physical boundary points, but not periodic ghost points or
 ! computation  MPI computational margins.
+!----------------------------------------------------------------------
 !
 #ifdef SOLVE3D
         cff1=weight(1,iif)
@@ -530,8 +561,10 @@ C$OMP END MASTER
       enddo !--> discard UFx,VFe,UFe,VFx, DUon,DVom
 #endif
 !
+!-----------------------------------------------------------------------
 ! Compute Coriolis (2D and 3D) term and advective curvilinear metric
 ! terms (2D only).
+!-----------------------------------------------------------------------
 !
 # if defined UV_COR || (defined CURVGRID && defined UV_ADV)
       do j=JstrV-1,jend
@@ -575,11 +608,13 @@ C$OMP END MASTER
       enddo
 # endif
 !
+!-----------------------------------------------------------------------
 ! Compute horizontal viscous stress terms (2D only).
+!-----------------------------------------------------------------------
 !
-#ifdef SOLVE3D
-#undef UV_VIS2
-#endif
+# ifdef SOLVE3D
+#  undef UV_VIS2
+# endif
 # ifdef UV_VIS2
       do j=jstr-1,jend
         do i=istr-1,iend
@@ -614,9 +649,10 @@ C$OMP END MASTER
       enddo
 # endif /* UV_VIS2 */
 !
+!-----------------------------------------------------------------------
 ! Linear and/or quadratic bottom stress.
+!-----------------------------------------------------------------------
 !
-
       if (rdrg2.gt.0.) then
         do j=jstr,jend
           do i=IstrU,iend
@@ -652,7 +688,10 @@ C$OMP END MASTER
           enddo
         enddo
       endif
-! Add 2DH vortex-force terms combined with advection terms
+!
+!-----------------------------------------------------------------------
+! Add 2D vortex-force terms combined with advection terms
+!-----------------------------------------------------------------------
 !
 #ifdef MRL_WCI
       do j=jstr,jend
@@ -684,6 +723,7 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 #endif
       
 !
+!-----------------------------------------------------------------------
 ! Coupling between 2D and 3D parts.
 !--------- ------- -- --- -- ------
 ! Before the predictor step of the first barotropic time step
@@ -699,6 +739,7 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 ! these newly computed forcing terms will remain constant during
 ! the fast time stepping and will added to "rubar" and "rvbar"
 ! during all subsequent barotropic time steps.
+!-----------------------------------------------------------------------
 !
 #ifdef SOLVE3D
       if (FIRST_2D_STEP) then
@@ -741,11 +782,13 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
         enddo                                ! to be performed.
 # endif
 !
+!-----------------------------------------------------------------------
 ! Since coupling requires that pressure gradient term is computed
 ! using zeta(:,:,kstp) instead of zeta_new(:,:) needed to achieve
 ! numerical stability, apply compensation to shift pressure gradient
 ! terms from "kstp" to "knew": in essense, convert the fist 2D step
 ! from Forward Euler to Forward-Backward].
+!-----------------------------------------------------------------------
 !
 # define zwrk UFx
 # define rzeta  UFe
@@ -797,14 +840,17 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
       endif   !<-- FIRST_2D_STEP
 #endif
 !
-! Perform time step for the 2D momentum equations. Also compute
-! fast-time averaged barotropic mass fluxes. Doing so on the fly
-! yields a more computationally dense code and eliminates repeated   
-! multiplication by Dnew (since mass fluxes are actually available
-! as volatile variables DUnew,DVnew at this moment. However, as the
-! result of this arrangement, a special code is needed to compute
-! fast-time averages along the physical boundaries, which is done
-! immediately below. 
+!-----------------------------------------------------------------------
+! Perform time step for the 2D momentum equations. 
+
+! Also compute fast-time averaged barotropic mass fluxes. 
+! Doing so on the fly yields a more computationally dense code and 
+! eliminates repeated multiplication by Dnew (since mass fluxes are 
+! actually available as volatile variables DUnew,DVnew at this moment. 
+! However, as a result of this arrangement, a special code is needed 
+! to compute fast-time averages along the physical boundaries, which is 
+! done below.
+!-----------------------------------------------------------------------
 !
 
 #define Dstp DUon
@@ -840,6 +886,16 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 #ifdef MASKING
      &                                         *umask(i,j)
 #endif
+#ifdef WET_DRY
+          cff1_WD=ABS(ABS(umask_wet(i,j))-1.)
+          cff2_WD=0.5+SIGN(0.5,DUnew)*umask_wet(i,j)
+          umask_wet(i,j)=0.5*umask_wet(i,j)*cff1_WD+cff2_WD*(1.-cff1_WD)
+          DUnew=DUnew*umask_wet(i,j)
+# ifdef MRL_WCI
+          ust2d(i,j)=ust2d(i,j)*umask_wet(i,j)
+# endif
+#endif
+
           ubar(i,j,knew)=DUnew/(Dnew(i,j)+Dnew(i-1,j))
 #ifdef SOLVE3D
           DU_avg1(i,j,nnew)=DU_avg1(i,j,nnew) +cff1*on_u(i,j)*( DUnew
@@ -870,6 +926,16 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 #ifdef MASKING
      &                                         *vmask(i,j)
 #endif
+#ifdef WET_DRY
+          cff1_WD=ABS(ABS(vmask_wet(i,j))-1.)
+          cff2_WD=0.5+SIGN(0.5,DVnew)*vmask_wet(i,j)
+          vmask_wet(i,j)=0.5*vmask_wet(i,j)*cff1_WD+cff2_WD*(1.-cff1_WD)
+          DVnew=DVnew*vmask_wet(i,j)
+# ifdef MRL_WCI
+          vst2d(i,j)=vst2d(i,j)*vmask_wet(i,j)
+# endif
+#endif
+
           vbar(i,j,knew)=DVnew/(Dnew(i,j)+Dnew(i,j-1))
 #ifdef SOLVE3D
           DV_avg1(i,j,nnew)=DV_avg1(i,j,nnew) +cff1*om_v(i,j)*(DVnew
@@ -881,7 +947,9 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
         enddo
       enddo
 !
+!-----------------------------------------------------------------------
 !  Set 2D Momemtum nudging
+!-----------------------------------------------------------------------
 !
 #if defined M2NUDGING && defined M2CLIMATOLOGY
 
@@ -913,7 +981,10 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 # endif
 # ifdef MASKING
      &                 * umask(i,j)
-# endif          
+# endif 
+# ifdef WET_DRY
+     &                 * umask_wet(i,j)
+# endif
           ubar(i,j,knew)=ubar(i,j,knew) + DUnew
 # ifdef SOLVE3D
           DU_avg1(i,j,nnew)=DU_avg1(i,j,nnew) +cff1*DUnew*
@@ -930,7 +1001,10 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 # endif      
 # ifdef MASKING
      &                 * vmask(i,j)
-# endif          
+# endif 
+# ifdef WET_DRY
+     &                 * vmask_wet(i,j)
+# endif
           vbar(i,j,knew)=vbar(i,j,knew) + DVnew
 # ifdef SOLVE3D
           DV_avg1(i,j,nnew)=DV_avg1(i,j,nnew) +cff1*DVnew*
@@ -941,7 +1015,9 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
       enddo
 #endif
 !
+!-----------------------------------------------------------------------
 !  Body force for the Internal Tide test case
+!-----------------------------------------------------------------------
 !
 #if defined INTERNAL || defined BODYTIDE
       omega=2.*pi/(12.4*3600.)
@@ -949,6 +1025,12 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
       do j=Jstr,Jend
         do i=IstrU,Iend
           DUnew = dtfast*omega*U0*cos(omega*time)
+# ifdef MASKING
+     &                 * umask(i,j)
+# endif
+# ifdef WET_DRY
+     &                 * umask_wet(i,j)
+# endif
           ubar(i,j,knew)=ubar(i,j,knew) + DUnew
 #ifdef SOLVE3D
           DU_avg1(i,j,nnew)=DU_avg1(i,j,nnew) +cff1*DUnew*
@@ -960,6 +1042,12 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
         do i=Istr,Iend
           DVnew = dtfast*0.5*(f(i,j)+f(i,j-1))*
      &                   U0*sin(omega*time)
+# ifdef MASKING
+     &                 * vmask(i,j)
+# endif
+# ifdef WET_DRY
+     &                 * vmask_wet(i,j)
+# endif
           vbar(i,j,knew)=vbar(i,j,knew) + DVnew
 #ifdef SOLVE3D
           DV_avg1(i,j,nnew)=DV_avg1(i,j,nnew) +cff1*DVnew*
@@ -970,19 +1058,22 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
       enddo
 #endif     
 !
+!-----------------------------------------------------------------------
 ! Set boundary conditions and compute integral mass flux accross
 ! all open boundaries, if any.
+!-----------------------------------------------------------------------
 !
-
-      call    u2dbc_tile (istr,iend,jstr,jend, UFx) 
-      call    v2dbc_tile (istr,iend,jstr,jend, UFx)
+      call u2dbc_tile (istr,iend,jstr,jend, UFx) 
+      call v2dbc_tile (istr,iend,jstr,jend, UFx)
 
 #ifdef OBC_VOLCONS
       call obc_flux_tile (istr,iend,jstr,jend)
 #endif
 !
+!-----------------------------------------------------------------------
 ! Compute fast-time averaged barotropic mass fluxes along physical
 ! boundaries.
+!-----------------------------------------------------------------------
 !
 #ifdef SOLVE3D
 # ifndef EW_PERIODIC
@@ -1096,11 +1187,12 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
       endif
 # endif 
 #endif
-
+!
+!-----------------------------------------------------------------------
+! Apply point sources for river runoff simulations
+!-----------------------------------------------------------------------
+!
 #ifdef PSOURCE
-!
-! Apply point sources for river runoff simulations.
-!
       do is=1,Nsrc 
 # ifdef MPI
         i=Isrc_mpi(is,mynode)
@@ -1127,11 +1219,19 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
         endif
       enddo
 #endif
-#ifdef SOLVE3D
-!      if (iif.eq.nfast) call set_depth_tile (istr,iend,jstr,jend)
-#else
+!
+!-----------------------------------------------------------------------
+!  Diagnostics
+!-----------------------------------------------------------------------
+!
+#ifndef SOLVE3D
       call diag_tile (istr,iend,jstr,jend, UFx,UFe)
 #endif
+!
+!-----------------------------------------------------------------------
+!  Exchange boundary information.
+!-----------------------------------------------------------------------
+!
 #if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r2d_tile (istr,iend,jstr,jend,
      &                   zeta(START_2D_ARRAY,knew))
@@ -1140,7 +1240,11 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
       call exchange_v2d_tile (istr,iend,jstr,jend,
      &                   vbar(START_2D_ARRAY,knew))
 #endif
-
+!
+!-----------------------------------------------------------------------
+!  Debugging ubar,vbar
+!-----------------------------------------------------------------------
+!
 #ifdef RVTK_DEBUG_ADVANCED
 C$OMP BARRIER
 C$OMP MASTER
@@ -1148,7 +1252,11 @@ C$OMP MASTER
        call check_tab2d(vbar(:,:,knew),'vbar step2d #2','v')
 C$OMP END MASTER       
 #endif   
-
+!
+!-----------------------------------------------------------------------
+!  Apply conservation requirements for nesting
+!-----------------------------------------------------------------------
+!
 #ifdef AGRIF
       if (.NOT.Agrif_Root()) THEN
         do j=Jstr-1,Jend+1
@@ -1158,34 +1266,34 @@ C$OMP END MASTER
         enddo 
         do j=JstrR,JendR
           do i=Istr,IendR
-          du_avg3(i,j,iif) = 0.5*(h(i,j)+zeta(i,j,knew)+
+            DU_avg3(i,j,iif) = 0.5*(h(i,j)+zeta(i,j,knew)+
      &          h(i-1,j)+zeta(i-1,j,knew)) *on_u(i,j)*ubar(i,j,knew)
           enddo
         enddo 
         do j=Jstr,JendR
           do i=IstrR,IendR
-          dv_avg3(i,j,iif) = 0.5*(h(i,j)+zeta(i,j,knew)+
+            DV_avg3(i,j,iif) = 0.5*(h(i,j)+zeta(i,j,knew)+
      &          h(i,j-1)+zeta(i,j-1,knew)) *om_v(i,j)*vbar(i,j,knew)
           enddo
         enddo
         
-#if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r2d_tile (istr,iend,jstr,jend,
-     &                   Zt_avg3(START_2D_ARRAY,iif))
+     &                        Zt_avg3(START_2D_ARRAY,iif))
       call exchange_u2d_tile (istr,iend,jstr,jend,
-     &                   du_avg3(START_2D_ARRAY,iif))
+     &                        DU_avg3(START_2D_ARRAY,iif))
       call exchange_v2d_tile (istr,iend,jstr,jend,
-     &                   dv_avg3(START_2D_ARRAY,iif))
-#endif
+     &                        DV_avg3(START_2D_ARRAY,iif))
+# endif
 
-#ifdef RVTK_DEBUG_ADVANCED
+# ifdef RVTK_DEBUG_ADVANCED
 C$OMP BARRIER
 C$OMP MASTER
        call check_tab2d(Zt_avg3(:,:,iif),'Zt_avg3 step2d','r')
        call check_tab2d(DU_avg3(:,:,iif),'DU_avg3 step2d','u')
        call check_tab2d(DV_avg3(:,:,iif),'DV_avg3 step2d','v')
 C$OMP END MASTER       
-#endif   
+# endif   
       endif
 # ifdef AGRIF_CONSERV_VOL
        if (iif == nfast) then
@@ -1208,9 +1316,11 @@ C$OMP END MASTER
        endif
        endif
 # endif
-#endif
+#endif /* AGRIF */
 !
+!-----------------------------------------------------------------------
 !  TEST FOR CFL VIOLATION. IF SO, PRINT AND STOP
+!-----------------------------------------------------------------------
 !
       VMAXL=100.
       VMAX=0.

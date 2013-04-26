@@ -176,6 +176,14 @@
 # endif
 #endif
 
+/*
+    Bottom stress option:
+    Set limiting factor for bottom stress and avoid 
+    numerical instability associated with reversing bottom flow
+*/
+#define LIMIT_BSTRESS
+
+
 /* Switch ON/OFF double precision for real type variables (since this
  is mostly controlled by mpc and/or compuler options, this CPP-switch
  affects only on the correct choice of netCDF functions, see below)

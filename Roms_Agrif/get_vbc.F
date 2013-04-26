@@ -44,20 +44,22 @@
 # if defined PSOURCE_NCFILE
         call get_psource
 # endif
+!
 !---------------------------------------------------------------
-! Initial wave periode, mplitude, direction and dissipation
+! Initial wave periode, amplitude, direction and dissipation
 !---------------------------------------------------------------
-# if ( defined BBL || defined MRL_WCI ) && ! defined ANA_WWAVE
-# if defined  AGRIF && defined BBL
-      if (Agrif_lev_sedim.EQ.0)
-     &  call get_wwave
+!
+# if (defined BBL || defined MRL_WCI) && !defined ANA_WWAVE
+#  if defined  AGRIF && defined BBL
+      if (Agrif_lev_sedim.EQ.0) call get_wwave
 #  else
       call get_wwave
 #  endif
 # endif
+!
 !---------------------------------------------------------------
-! Kinematic surface momentum flux (wind stress) components "sustrg"
-!                                          and "svstrg" [m^2/s^2].
+! Kinematic surface momentum flux (wind stress) components
+!  "sustrg" and "svstrg" [m^2/s^2].
 !---------------------------------------------------------------
 !
 #ifndef ANA_SMFLUX
@@ -178,7 +180,7 @@
 #include "climat.h"
 #include "sources.h"
       integer i,j,is, Istr,Iend,Jstr,Jend
-      real cff
+      real cff,cff1
       real wrk(PRIVATE_2D_SCRATCH_ARRAY)
       real wrk1(PRIVATE_2D_SCRATCH_ARRAY)
       real wrk2(PRIVATE_2D_SCRATCH_ARRAY)
@@ -313,6 +315,23 @@
 # endif
 !
 !---------------------------------------------------------------
+! Ensure that drying water does not receive heat/salt fluxes
+!  to avoid unrealistic T,S values
+!---------------------------------------------------------------
+!
+# ifdef WET_DRY
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          stflx(i,j,itemp)=stflx(i,j,itemp)*rmask_wet(i,j)
+          srflx(i,j)=srflx(i,j)*rmask_wet(i,j)
+#  ifdef SALINITY
+          stflx(i,j,isalt)=stflx(i,j,isalt)*rmask_wet(i,j)
+#  endif
+        enddo
+      enddo
+# endif
+!
+!---------------------------------------------------------------
 !  Kinematic bottom temperature (heat) flux [degC m/s].
 !  (Analytical bottom heat flux is usually set to zero.)
 !---------------------------------------------------------------
@@ -421,6 +440,33 @@
           enddo
         enddo
       endif
+
+#  ifdef LIMIT_BSTRESS
+!
+!  From J. Warner's code:
+!  Set limiting factor for bottom stress. The bottom stress is adjusted
+!  to not change the direction of momentum.  It only should slow down
+!  to zero.  The value of 0.75 is arbitrary limitation assigment.
+!
+      cff=0.75/dt
+      do j=Jstr,Jend
+        do i=IstrU,Iend
+          cff1=cff*0.5*(Hz(i-1,j,1)+Hz(i,j,1))
+          bustr(i,j)=SIGN(1.0, bustr(i,j))* 
+     &               MIN(ABS(bustr(i,j)),
+     &                   ABS(u(i,j,1,nrhs))*cff1)
+        enddo
+      enddo
+      do j=JstrV,Jend
+        do i=Istr,Iend
+          cff1=cff*0.5*(Hz(i,j-1,1)+Hz(i,j,1))
+          bvstr(i,j)=SIGN(1.0, bvstr(i,j))*
+     &               MIN(ABS(bvstr(i,j)),
+     &                   ABS(v(i,j,1,nrhs))*cff1)
+        enddo
+      enddo
+#  endif
+
 !
 ! Set boundary conditions
 !

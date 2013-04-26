@@ -221,10 +221,6 @@
 !== END ugly piece of code
 !---------------------------------------------------------------     
 
-        
-        
-        
-        
 !======================================================================
         do j=J_EXT_RANGE
 !======================================================================                                       
@@ -452,10 +448,15 @@
 # ifdef LMD_NONLOCAL
             ghats(i,j,k)=0.
 # endif 
+
 # if  defined LMD_CONVEC && !defined LMD_BKPP
-            if (bvf(i,j,k).lt.0.) then     ! Add convective
-              Kv(i,j,k)=Kv(i,j,k) + nu0c   ! adjustment
-              Kt(i,j,k)=Kt(i,j,k) + nu0c   ! if LMD_BKPP is defined, this will be done later !
+!
+!  Add convective adjustment (done in LMD_BKPP if defined)
+!
+
+            if (bvf(i,j,k).lt.0.) then
+              Kv(i,j,k)=Kv(i,j,k) + nu0c
+              Kt(i,j,k)=Kt(i,j,k) + nu0c
 #  ifdef SALINITY
               Ks(i,j,k)=Ks(i,j,k) + nu0c
 #  endif
@@ -464,37 +465,17 @@
           enddo
         
         enddo
-!
-!-----------------------------------------------------------------
-!  Finalize: Set vertical mixing coefficients "Akv" and "Akt" 
-!-----------------------------------------------------------------
-!
-        do k=1,N-1
-          do i=Istr,Iend
-            Akv(i,j,k)      = Kv(i,j,k)
-# ifdef MASKING
-     &                *rmask(i,j)
-# endif
-            Akt(i,j,k,itemp)= Kt(i,j,k)
-# ifdef MASKING
-     &                *rmask(i,j)
-# endif
-# ifdef SALINITY
-            Akt(i,j,k,isalt)= Ks(i,j,k)
-#  ifdef MASKING
-     &                *rmask(i,j)
-#  endif
-# endif
-          enddo
-        enddo
-!======================================================================
       enddo    !<-- j-loop
-!======================================================================             
 
-
-      do j=jstr,jend                    ! Copy "hbl" into its shared
-        do i=istr,iend                  ! array and pad out ghost points
-          hbls(i,j,3-nstp)=my_hbl(i,j)  ! at lateral-sideboundaries.        
+!
+!--------------------------------------------------------------------
+!  Copy "hbl" into its shared array and pad out ghost points
+!  at lateral-sideboundaries.
+!--------------------------------------------------------------------
+!
+      do j=jstr,jend
+        do i=istr,iend
+          hbls(i,j,3-nstp)=my_hbl(i,j)
         enddo
       enddo
 
@@ -548,15 +529,6 @@
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
       call exchange_r2d_tile (istr,iend,jstr,jend,
      &                     hbls(START_2D_ARRAY,3-nstp))
-# if !defined  LMD_BKPP
-      call exchange_w3d_tile (Istr,Iend,Jstr,Jend, Akv)
-      call exchange_w3d_tile (Istr,Iend,Jstr,Jend,
-     &                     Akt(START_2D_ARRAY,0,itemp))
-#   ifdef SALINITY
-      call exchange_w3d_tile (Istr,Iend,Jstr,Jend,
-     &                     Akt(START_2D_ARRAY,0,isalt))
-#   endif
-#  endif
 # endif
       return
       end

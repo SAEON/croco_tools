@@ -79,19 +79,21 @@
 !
 # include "compute_auxiliary_bounds.h"
 !
-#ifdef MASKING
-# define SWITCH *
-#else
-# define SWITCH !
-#endif
+# ifdef MASKING
+#  define SWITCH *
+# else
+#  define SWITCH !
+# endif
 !
+!--------------------------------------------------------------------
 ! Time step momentum equation in the XI-direction.
-!------------------------------------------------------------
+!
 ! Compute coefficients FC [dt*Akv/Hz] for the implicit
 ! vertical viscosity term at future time level at horizontal
 ! U-points and vertical W-points.
 ! Load the right-hand-side terms into matrix DC;
 ! Also compute the main diagonal matrix coeddicient BC.
+!--------------------------------------------------------------------
 !
       do j=Jstr,Jend
 !
@@ -196,14 +198,16 @@
           enddo
         enddo        !--> discard DC,CF(:,0)
 !
+!--------------------------------------------------------------------
 ! Time step momentum equation in the ETA-direction.
-!-----------------------------------------------------------
+
 ! Compute off-diagonal matrix coefficients FC [dt*Akv/Hz]
 ! for the implicit vertical viscosity term at the new time step,
 ! at horizontal V-points and vertical W-points.
 ! Set vertical boundary conditions.
 ! After that load the right-hand-side terms into matrix DC;
 ! Also compute the main diagonal matrix coefficient BC.
+!--------------------------------------------------------------------
 !
         if (j.ge.JstrV) then
 !
@@ -246,7 +250,6 @@
             DC(i,1)=DC(i,1)-dt*bvstr(i,j)
           enddo
 # endif          
-
 !
 ! Resolve the tri-diagonal system. Also perform coupling between the
 ! barotropic and baroclinic modes (similarly to the XI-component, see
@@ -345,13 +348,25 @@
       enddo
 # endif /* DIAGNOSTICS_UV */
 !
+!--------------------------------------------------------------------
+!  Compute wet/dry masks for total velocity
+!--------------------------------------------------------------------
+!
+# ifdef WET_DRY
+      CALL wetdry_tile (Istr,Iend,Jstr,Jend, grad)
+# endif
+!
+!--------------------------------------------------------------------
 ! Set PHYSICAL lateral boundary conditions.
+!--------------------------------------------------------------------
 !
       call v3dbc_tile (Istr,Iend,Jstr,Jend, grad)   
       call u3dbc_tile (Istr,Iend,Jstr,Jend, grad)
 !
+!
+!--------------------------------------------------------------------
 ! Coupling 2D and 3D momentum equations:
-!------------------------------------------------------
+!
 ! Compute inaccurate vertical mean of the three-dimensional
 ! velocity field, then subtract it and replace it with the vertically
 ! integrated (barotropic) velocity field computed from the two-
@@ -379,7 +394,8 @@
 ! indices (excluding ghost zones), after that the ghost points for
 ! the newly computed arrays are exchanged; in the case of nonperiodic
 ! boundaries the coupling is done over the extendeed range of indices
-! (that is including boundary points). 
+! (that is including boundary points).
+!--------------------------------------------------------------------
 !
 # ifdef EW_PERIODIC
 #  define IU_RANGE Istr,Iend
@@ -397,7 +413,11 @@
 #  define JV_RANGE Jstr,JendR
 # endif
 !
-      do j=JU_RANGE                      ! XI-component
+!--------------------------------------------------
+!  Couple XI-component of velocity
+!--------------------------------------------------
+!
+      do j=JU_RANGE 
         do i=IU_RANGE
           DC(i,0)=0.
           CF(i,0)=0.
@@ -411,14 +431,17 @@
           enddo
         enddo
         do i=IU_RANGE
+# ifdef WET_DRY
+          ust2d(i,j)=ust2d(i,j)*umask_wet(i,j)
+# endif
           DC(i,0)=1./DC(i,0)
           CF(i,0)=DC(i,0)*(CF(i,0)-DU_avg1(i,j,nnew))
-# ifdef MRL_WCI
+#  ifdef MRL_WCI
      &                               +ust2d(i,j)
-# endif
+#  endif
           ubar(i,j,knew)=DC(i,0)*DU_avg1(i,j,nnew)
 # ifdef MRL_WCI
-     &                            -ust2d(i,j)
+     &                               -ust2d(i,j)
 #  ifdef MASKING
           ubar(i,j,knew)=ubar(i,j,knew)*umask(i,j)
      &                +ust2d(i,j)*(umask(i,j)-1.0)
@@ -431,13 +454,18 @@
 # ifdef MASKING
      &                                *umask(i,j)
 #  ifdef MRL_WCI
-            u(i,j,k,nnew)=u(i,j,k,nnew)*umask(i,j)
-     &                +ust(i,j,k)*(umask(i,j)-1.0)
+     &               +ust(i,j,k)*(umask(i,j)-1.0)
 #  endif
 # endif
-
+# ifdef WET_DRY
+            u(i,j,k,nnew)=u(i,j,k,nnew)*umask_wet(i,j)
+#  ifdef MRL_WCI
+            ust(i,j,k)=ust(i,j,k)*umask_wet(i,j)
+#  endif
+# endif
 # ifdef MRL_WCI
-            FC(i,k)=DC(i,k)*(0.5*(u(i,j,k,nstp)+u(i,j,k,nnew)) +ust(i,j,k))
+            FC(i,k)=DC(i,k)*(0.5*(u(i,j,k,nstp)+u(i,j,k,nnew)) 
+     &                                            +ust(i,j,k))
 # else
             FC(i,k)=0.5*(u(i,j,k,nstp)+u(i,j,k,nnew))*DC(i,k)
 # endif
@@ -480,9 +508,13 @@
           enddo
         enddo
 # endif /* TS_DIF2 || TS_DIF4 */
-
+!
+!--------------------------------------------------
+!  Couple ETA-component of velocity
+!--------------------------------------------------
+!
         if (j.ge.Jstr) then
-          do i=IV_RANGE                   ! ETA-component
+          do i=IV_RANGE
             DC(i,0)=0.
             CF(i,0)=0.
             FC(i,0)=0.
@@ -495,6 +527,9 @@
             enddo
           enddo
           do i=IV_RANGE
+# ifdef WET_DRY
+            vst2d(i,j)=vst2d(i,j)*vmask_wet(i,j)
+# endif
             DC(i,0)=1./DC(i,0)
             CF(i,0)=DC(i,0)*(CF(i,0)-DV_avg1(i,j,nnew))
 # ifdef MRL_WCI
@@ -502,13 +537,12 @@
 # endif
             vbar(i,j,knew)=DC(i,0)*DV_avg1(i,j,nnew)
 # ifdef MRL_WCI
-     &                              -vst2d(i,j)
+     &                                 -vst2d(i,j)
 #  ifdef MASKING
             vbar(i,j,knew)=vbar(i,j,knew)*vmask(i,j)
      &                  +vst2d(i,j)*(vmask(i,j)-1.0)
 #  endif
 # endif
-
           enddo
           do k=N,1,-1
             do i=IV_RANGE
@@ -516,11 +550,15 @@
 # ifdef MASKING
      &                                  *vmask(i,j)
 #  ifdef MRL_WCI
-              v(i,j,k,nnew)=v(i,j,k,nnew)*vmask(i,j)
-     &                  +vst(i,j,k)*(vmask(i,j)-1.0)
+     &                 +vst(i,j,k)*(vmask(i,j)-1.0)
 #  endif
 # endif
-
+# ifdef WET_DRY
+              v(i,j,k,nnew)=v(i,j,k,nnew)*vmask_wet(i,j)
+#  ifdef MRL_WCI
+              vst(i,j,k)=vst(i,j,k)*vmask_wet(i,j)
+#  endif
+# endif
 # ifdef MRL_WCI
               FC(i,k)=DC(i,k)*( 0.5*(v(i,j,k,nstp)+v(i,j,k,nnew))
      &                                              +vst(i,j,k) )
@@ -570,7 +608,9 @@
         endif
       enddo
 !
+!--------------------------------------------------------------------
 ! Apply mass point sources
+!--------------------------------------------------------------------
 ! 
 ! This is done after the coupling is performed (for now) to avoid
 ! having (u,v) and (Huon,Hvom) affected by masked values or
@@ -611,7 +651,9 @@
       enddo
 # endif
 !
+!--------------------------------------------------------------------
 !  Set 3D Momemtum nudging
+!--------------------------------------------------------------------
 !
 # if defined M3NUDGING && defined M3CLIMATOLOGY
 
@@ -642,6 +684,9 @@
 #  ifdef MASKING
             u(i,j,k,nnew)=u(i,j,k,nnew)*umask(i,j)
 #  endif
+# ifdef WET_DRY
+            u(i,j,k,nnew)=u(i,j,k,nnew)*umask_wet(i,j)
+# endif
           enddo
         enddo
       enddo
@@ -657,6 +702,9 @@
 #  ifdef MASKING
             v(i,j,k,nnew)=v(i,j,k,nnew)*vmask(i,j)
 #  endif
+# ifdef WET_DRY
+            v(i,j,k,nnew)=v(i,j,k,nnew)*vmask_wet(i,j)
+# endif
           enddo
         enddo
       enddo
@@ -666,7 +714,9 @@
 # undef IV_RANGE
 # undef JV_RANGE
 !
+!--------------------------------------------------------------------
 ! Exchange periodic boundaries and computational margins.
+!--------------------------------------------------------------------
 !
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
       call exchange_u3d_tile (Istr,Iend,Jstr,Jend,

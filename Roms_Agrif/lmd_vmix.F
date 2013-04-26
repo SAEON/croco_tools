@@ -41,41 +41,45 @@
       call  lmd_vmix_tile (Istr,Iend,Jstr,Jend, A3d(1, 1,trd),
      &                  A3d(1, 2,trd), A3d(1, 3,trd), A3d(1, 4,trd))
 
-#if defined LMD_SKPP
-# if defined LMD_SKPP2005
+# if defined LMD_SKPP
+#  if defined LMD_SKPP2005
       call lmd_skpp_tile  (istr,iend,jstr,jend, 
-     &                   A3d(1,2,trd),A3d(1, 3,trd),A3d(1,4,trd),     
-     &                   A3d(1,1,trd),                                 
+     &                   A3d(1,1,trd),A3d(1, 2,trd),A3d(1,3,trd),     
+     &                   A3d(1,4,trd),                                 
      &                   A2d(1,1,trd),A2d(1, 2,trd),A2d(1,3,trd),      
      &                   A2d(1,4,trd),A2d(1, 5,trd),A2d(1,6,trd),     
      &                   A2d(1,7,trd),A2d(1, 8,trd),A2d(1,9,trd),    
      &                   A2d(1,10,trd),A2d(1,11,trd),A2d(1,12,trd),  
      &                   A2d(1,13,trd),A2d(1,14,trd),A2d(1,15,trd), 
      &                                   B2d(1,trd)              )
-# else
+#  else
       call lmd_skpp_tile (Istr,Iend,Jstr,Jend,
-     &                  A3d(1, 2,trd), A3d(1, 3,trd), A3d(1, 4,trd),  
+     &                  A3d(1, 1,trd), A3d(1, 2,trd), A3d(1, 3,trd),  
      &                  A2d(1, 1,trd), A2d(1, 2,trd), A2d(1, 3,trd), 
      &                  A2d(1, 4,trd), A2d(1, 5,trd), A2d(1, 6,trd), 
      &                  A2d(1, 7,trd), A2d(1, 8,trd), A2d(1, 9,trd),
      &                  A2d(1,10,trd), A2d(1,11,trd), A2d(1,12,trd),
      &                  A2d(1,13,trd), A3d(1, 1,trd),    B2d(1,trd)) 
+#  endif
 # endif
-#endif
 
 # if defined LMD_BKPP 
 C$OMP BARRIER
       call lmd_bkpp_tile (Istr,Iend,Jstr,Jend,
-     &                  A3d(1, 2,trd), A3d(1, 3,trd), A3d(1, 4,trd),
+     &                  A3d(1, 1,trd), A3d(1, 2,trd), A3d(1, 3,trd),
      &                  A2d(1, 5,trd), A2d(1, 6,trd), A2d(1, 7,trd),
      &                  A2d(1, 8,trd), A2d(1, 9,trd), A2d(1,10,trd),
      &                  A2d(1,12,trd), A2d(1,13,trd), A3d(1, 1,trd))
 # endif
+
+      call lmd_finalize_tile (Istr,Iend,Jstr,Jend, 
+     &                  A3d(1, 1,trd), A3d(1, 2,trd), A3d(1, 3,trd))
+
       return
       end
 !
 !--------------------------------------------------------------------
-      subroutine lmd_vmix_tile (Istr,Iend,Jstr,Jend, Rig, Kv,Kt,Ks)
+      subroutine lmd_vmix_tile (Istr,Iend,Jstr,Jend, Kv,Kt,Ks,Rig)
 !--------------------------------------------------------------------
 !
       implicit none
@@ -158,7 +162,6 @@ C$OMP BARRIER
       integer jmin,jmax
 # endif
 # define tind nstp
-
 
 # ifdef LMD_RIMIX
 !
@@ -265,9 +268,9 @@ C$OMP BARRIER
       do j=Jstr,Jend+1
         do i=Istr,Iend+1
           Rig(i,j,0)=0.25*(Rig(i,j  ,k)+Rig(i-1,j  ,k)
-     &          +Rig(i,j-1,k)+Rig(i-1,j-1,k))
+     &                    +Rig(i,j-1,k)+Rig(i-1,j-1,k))
 #   ifdef MASKING
-     &                      *pmask(i,j)     
+     &                                      *pmask(i,j)     
 #   endif
         enddo
       enddo
@@ -482,7 +485,6 @@ C$OMP BARRIER
       enddo
 # endif /* LMD_BOTEK */
 
-
 # if defined LMD_SKPP || defined LMD_BKPP
 !
 ! Pad out surface and bottom values for lmd_blmix calculations.
@@ -499,43 +501,179 @@ C$OMP BARRIER
           Kt(i,j,0)=Kt(i,j,  1)
         enddo
       enddo
+# endif /* LMD_SKPP || LMD_BKPP */
+
+      return
+      end
+!
+!====================================================================
+!
+!   Subroutine lmd_finalize
+!
+!====================================================================
+!
+      subroutine lmd_finalize_tile (istr,iend,jstr,jend, Kv,Kt,Ks)
+!
+      implicit none
+# include "param.h"
+# include "grid.h"
+# include "ocean3d.h"
+# include "mixing.h"
+# include "forces.h"
+# include "scalars.h"
+      integer istr,iend,jstr,jend, i,j,k
+      real  Kv(PRIVATE_2D_SCRATCH_ARRAY,0:N),
+     &      Kt(PRIVATE_2D_SCRATCH_ARRAY,0:N),
+     &      Ks(PRIVATE_2D_SCRATCH_ARRAY,0:N)
+# ifdef MASKING
+#  define SWITCH *
 # else
-!
-!  Finalize: Set vertical mixing coefficients "Akv" and "Akt"
-!
-      do k=1,N-1
-        do j=Jstr,Jend
-          do i=Istr,Iend
-             Akv(i,j,k)=Kv(i,j,k)
-# ifdef MASKING
-     &                *rmask(i,j)
+#  define SWITCH !
 # endif
-             Akt(i,j,k,itemp)=Kt(i,j,k)
-# ifdef MASKING
-     &                *rmask(i,j)
-# endif
+!
+!------------------------------------------------
+!  Finalize: copy into shared arrays 
+!------------------------------------------------
+!
+      do j=jstr,jend
+        do i=istr,iend
+          do k=1,N-1
+            Akv(i,j,k)       =Kv(i,j,k) SWITCH rmask(i,j)
+            Akt(i,j,k,itemp) =Kt(i,j,k) SWITCH rmask(i,j)
 # ifdef SALINITY
-             Akt(i,j,k,isalt)=Ks(i,j,k)
-#  ifdef MASKING
-     &                *rmask(i,j)
-#  endif
+            Akt(i,j,k,isalt) =Ks(i,j,k) SWITCH rmask(i,j)
 # endif
           enddo
+
+          Akv(i,j,N)       =2.*Kv(i,j,N-1)-Kv(i,j,N-2)
+          Akt(i,j,N,itemp) =2.*Kt(i,j,N-1)-Kt(i,j,N-2)
+# ifdef SALINITY
+          Akt(i,j,N,isalt) =2.*Ks(i,j,N-1)-Ks(i,j,N-2)
+# endif
+!
+!------------------------------------------------
+!  Apply wave effects
+!------------------------------------------------
+!
+# ifdef MRL_WCI
+          do k=1,N
+            Akv(i,j,k)       =Akv(i,j,k)+Akb(i,j,k)
+            Akt(i,j,k,itemp) =Akt(i,j,k,itemp)+Akb(i,j,k)+Akw(i,j,k)
+#  ifdef SALINITY
+            Akt(i,j,k,isalt) =Akt(i,j,k,isalt)+Akb(i,j,k)+Akw(i,j,k)
+#  endif
+          enddo
+# endif
+          Akv(i,j,0)       =2.*Akv(i,j,1)-Akv(i,j,2)
+          Akt(i,j,0,itemp) =2.*Akt(i,j,1,itemp)-Akt(i,j,2,itemp)
+# ifdef SALINITY
+          Akt(i,j,0,isalt) =2.*Akt(i,j,1,isalt)-Akt(i,j,2,isalt)
+# endif
         enddo
       enddo
-# endif /* LMD_SKPP */
-
-# if !defined LMD_SKPP && !defined LMD_BKPP
-#  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
-      call exchange_w3d_tile (Istr,Iend,Jstr,Jend, Akv)
-      call exchange_w3d_tile (Istr,Iend,Jstr,Jend,
-     &                     Akt(START_2D_ARRAY,0,itemp))
-#   ifdef SALINITY
-      call exchange_w3d_tile (Istr,Iend,Jstr,Jend,
-     &                     Akt(START_2D_ARRAY,0,isalt))
-#   endif
+!
+!------------------------------------------------
+!  Apply boundary conditions
+!------------------------------------------------
+!
+# define k0 0 
+# ifndef EW_PERIODIC
+      if (WESTERN_EDGE) then
+        do j=jstr,jend
+          do k=k0,N
+            Akv(istr-1,j,k)=Akv(istr,j,k)
+            Akt(istr-1,j,k,itemp)=Akt(istr,j,k,itemp)
+#  ifdef SALINITY
+            Akt(istr-1,j,k,isalt)=Akt(istr,j,k,isalt)
 #  endif
-# endif      
+          enddo
+        enddo
+      endif
+      if (EASTERN_EDGE) then
+        do j=jstr,jend
+          do k=k0,N
+            Akv(iend+1,j,k)=Akv(iend,j,k)
+            Akt(iend+1,j,k,itemp)=Akt(iend,j,k,itemp)
+#  ifdef SALINITY
+            Akt(iend+1,j,k,isalt)=Akt(iend,j,k,isalt)
+#  endif
+          enddo
+        enddo
+      endif
+# endif
+# ifndef NS_PERIODIC
+      if (SOUTHERN_EDGE) then
+        do i=istr,iend
+          do k=k0,N
+            Akv(i,jstr-1,k)=Akv(i,jstr,k)
+            Akt(i,jstr-1,k,itemp)=Akt(i,jstr,k,itemp)
+#  ifdef SALINITY
+            Akt(i,jstr-1,k,isalt)=Akt(i,jstr,k,isalt)
+#  endif
+          enddo
+        enddo
+      endif
+      if (NORTHERN_EDGE) then
+        do i=istr,iend
+          do k=k0,N
+            Akv(i,jend+1,k)=Akv(i,jend,k)
+            Akt(i,jend+1,k,itemp)=Akt(i,jend,k,itemp)
+#  ifdef SALINITY
+            Akt(i,jend+1,k,isalt)=Akt(i,jend,k,isalt)
+#  endif
+          enddo
+        enddo
+      endif
+#  ifndef EW_PERIODIC
+      if (WESTERN_EDGE .and. SOUTHERN_EDGE) then
+        do k=k0,N
+          Akv(istr-1,jstr-1,k)=Akv(istr,jstr,k)
+          Akt(istr-1,jstr-1,k,itemp)=Akt(istr,jstr,k,itemp)
+#  ifdef SALINITY
+          Akt(istr-1,jstr-1,k,isalt)=Akt(istr,jstr,k,isalt)
+#  endif
+        enddo
+      endif
+      if (WESTERN_EDGE .and. NORTHERN_EDGE) then
+        do k=k0,N
+          Akv(istr-1,jend+1,k)=Akv(istr,jend,k)
+          Akt(istr-1,jend+1,k,itemp)=Akt(istr,jend,k,itemp)
+#  ifdef SALINITY
+          Akt(istr-1,jend+1,k,isalt)=Akt(istr,jend,k,isalt)
+#  endif
+        enddo
+      endif
+      if (EASTERN_EDGE .and. SOUTHERN_EDGE) then
+        do k=k0,N
+          Akv(iend+1,jstr-1,k)=Akv(iend,jstr,k)
+          Akt(iend+1,jstr-1,k,itemp)=Akt(iend,jstr,k,itemp)
+#  ifdef SALINITY
+          Akt(iend+1,jstr-1,k,isalt)=Akt(iend,jstr,k,isalt)
+#  endif
+        enddo
+      endif
+      if (EASTERN_EDGE .and. NORTHERN_EDGE) then
+        do k=k0,N
+          Akv(iend+1,jend+1,k)=Akv(iend,jend,k)
+          Akt(iend+1,jend+1,k,itemp)=Akt(iend,jend,k,itemp)
+#  ifdef SALINITY
+          Akt(iend+1,jend+1,k,isalt)=Akt(iend,jend,k,isalt)
+#  endif
+        enddo
+      endif
+#  endif
+# endif
+
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      call exchange_w3d_tile (istr,iend,jstr,jend, Akv)
+      call exchange_w3d_tile (istr,iend,jstr,jend,
+     &                        Akt(START_2D_ARRAY,0,itemp))
+#  ifdef SALINITY
+      call exchange_w3d_tile (istr,iend,jstr,jend,
+     &                        Akt(START_2D_ARRAY,0,isalt))
+#  endif
+# endif
+
 #else
       subroutine lmd_vmix_empty
 #endif /* LMD_MIXING */

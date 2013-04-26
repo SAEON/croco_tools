@@ -199,10 +199,16 @@
      &                    +emiss_lw*(radlw(i,j)
      &                    -rho0i*cpi*sigmaSB*(SST+CtoK)**4)
 # endif
-
-
 # ifdef BULK_EP
           stflx(i,j,isalt)=(evap-prate(i,j))*SSS
+# endif
+# ifdef MASKING
+          stflx(i,j,itemp)=stflx(i,j,itemp)*rmask(i,j)
+          stflx(i,j,isalt)=stflx(i,j,isalt)*rmask(i,j)
+# endif
+# ifdef WET_DRY
+          stflx(i,j,itemp)=stflx(i,j,itemp)*rmask_wet(i,j)
+          stflx(i,j,isalt)=stflx(i,j,isalt)*rmask_wet(i,j)
 # endif
 !
 !  Store fluxes for diagnostics (in degC m .s-1)
@@ -237,6 +243,12 @@
           a=0.5*(aer(i-1,j)+aer(i,j))
           ce=0.5*(cer(i-1,j)+cer(i,j))
           sustr(i,j)=a*ce*uwnd(i,j)
+# ifdef MASKING
+          sustr(i,j)=sustr(i,j)*umask(i,j)
+# endif
+# ifdef WET_DRY
+          sustr(i,j)=sustr(i,j)*umask_wet(i,j)
+# endif
         enddo
       enddo
 !
@@ -247,6 +259,12 @@
           a=0.5*(aer(i,j-1)+aer(i,j))
           ce=0.5*(cer(i,j-1)+cer(i,j))
           svstr(i,j)=a*ce*vwnd(i,j)
+# ifdef MASKING
+          svstr(i,j)=svstr(i,j)*vmask(i,j)
+# endif
+# ifdef WET_DRY
+          svstr(i,j)=svstr(i,j)*vmask_wet(i,j)
+# endif
         enddo
       enddo
 # endif
@@ -687,6 +705,15 @@
           evap=-cp*hflat/Hlv
           stflx(i,j,isalt)=(evap-prate(i,j))*t(i,j,N,nrhs,isalt)
 # endif
+
+# ifdef MASKING
+          stflx(i,j,itemp)=stflx(i,j,itemp)*rmask(i,j)
+          stflx(i,j,isalt)=stflx(i,j,isalt)*rmask(i,j)
+# endif
+# ifdef WET_DRY
+          stflx(i,j,itemp)=stflx(i,j,itemp)*rmask_wet(i,j)
+          stflx(i,j,isalt)=stflx(i,j,isalt)*rmask_wet(i,j)
+# endif
 !
 !  Save for the calculation of wind stress
 !
@@ -715,6 +742,12 @@
           a=0.5*(aer(i-1,j)+aer(i,j))
           cff=0.5*(cer(i-1,j)+cer(i,j))
           sustr(i,j)=a*cff*uwnd(i,j)
+# ifdef MASKING
+          sustr(i,j)=sustr(i,j)*umask(i,j)
+# endif
+# ifdef WET_DRY
+          sustr(i,j)=sustr(i,j)*umask_wet(i,j)
+# endif
         enddo
       enddo
 !
@@ -725,6 +758,12 @@
           a=0.5*(aer(i,j-1)+aer(i,j))
           cff=0.5*(cer(i,j-1)+cer(i,j))
           svstr(i,j)=a*cff*vwnd(i,j)
+# ifdef MASKING
+          svstr(i,j)=svstr(i,j)*vmask(i,j)
+# endif
+# ifdef WET_DRY
+          svstr(i,j)=svstr(i,j)*vmask_wet(i,j)
+# endif
         enddo
       enddo
 # endif

@@ -24,11 +24,13 @@ C$    integer omp_get_thread_num
 
       subroutine set_depth_tile (Istr,Iend,Jstr,Jend)
 !
+!----------------------------------------------------------------------
 ! Create S-coordinate system: based on model topography h(i,j),
 ! fast-time-averaged free-surface field and vertical coordinate
 ! transformation metrics compute evolving depths of of the three-
 ! dimensional model grid (z_r,z_w) and vertical heights of model
 ! grid boxes.
+!----------------------------------------------------------------------
 !
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j,k
@@ -42,6 +44,8 @@ C$    integer omp_get_thread_num
 # ifdef MRL_WCI
 #   include "forces.h"
 # endif
+      real eps
+      parameter (eps=1.e-14)
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -59,16 +63,35 @@ C$    integer omp_get_thread_num
       if (iic.eq.0) then               ! During initialization and /or restart: copy initial
         do j=J_RANGE                   ! free surface field into array for holding fast-time
           do i=I_RANGE                 ! averaged free surface.
-#ifdef NEW_S_COORD 
+# ifdef WET_DRY
+            IF (h(i,j).eq.0.) THEN
+              h(i,j)=eps
+            END IF
+            IF (zeta(i,j,1) .lt. Dcrit-h(i,j)) THEN
+              zeta(i,j,1)=Dcrit-h(i,j)
+              zeta(i,j,2)=zeta(i,j,1)
+              zeta(i,j,3)=zeta(i,j,1)
+              zeta(i,j,4)=zeta(i,j,1)
+            ENDIF
+# endif
+# ifdef NEW_S_COORD 
             hinv(i,j)=1./(h(i,j)+hc)      
-#else
+# else
             hinv(i,j)=1./h(i,j) 
-#endif
+# endif
             Zt_avg1(i,j)=zeta(i,j,1)    
           enddo
         enddo
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r2d_tile (Istr,Iend,Jstr,Jend, hinv)
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend, 
+     &                        zeta(START_2D_ARRAY,1))
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend, 
+     &                        zeta(START_2D_ARRAY,2))
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend, 
+     &                        zeta(START_2D_ARRAY,3))
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend, 
+     &                        zeta(START_2D_ARRAY,4))
 # endif
       endif
 
@@ -81,27 +104,29 @@ C$    integer omp_get_thread_num
           z_w(i,j,0)=-h(i,j)    !!!          similar setting in
         enddo                   !!!          omega.F
         do k=1,N,+1
-#ifdef NEW_S_COORD
+# ifdef NEW_S_COORD
           cff_w =hc*sc_w(k)
           cff_r =hc*sc_r(k)
           cff1_w=Cs_w(k)
           cff1_r=Cs_r(k)
-#else
+# else
           cff_w =hc*(sc_w(k)-Cs_w(k))
           cff_r =hc*(sc_r(k)-Cs_r(k))
           cff1_w=Cs_w(k)
           cff1_r=Cs_r(k)
-#endif
+# endif
           do i=I_RANGE
             z_w0=cff_w+cff1_w*h(i,j) 
             z_r0=cff_r+cff1_r*h(i,j)            
-#ifdef NEW_S_COORD                              
-            z_w(i,j,k)=z_w0*h(i,j)*hinv(i,j)+Zt_avg1(i,j)*(1.+z_w0*hinv(i,j)) 
-            z_r(i,j,k)=z_r0*h(i,j)*hinv(i,j)+Zt_avg1(i,j)*(1.+z_r0*hinv(i,j))    
-#else
+# ifdef NEW_S_COORD                              
+            z_w(i,j,k)=z_w0*h(i,j)*hinv(i,j)+Zt_avg1(i,j)
+     &                                       *(1.+z_w0*hinv(i,j)) 
+            z_r(i,j,k)=z_r0*h(i,j)*hinv(i,j)+Zt_avg1(i,j)
+     &                                       *(1.+z_r0*hinv(i,j))    
+# else
             z_w(i,j,k)=z_w0+Zt_avg1(i,j)*(1.+z_w0*hinv(i,j))      
             z_r(i,j,k)=z_r0+Zt_avg1(i,j)*(1.+z_r0*hinv(i,j)) 
-#endif
+# endif
             Hz_bak(i,j,k)=Hz(i,j,k)
             Hz(i,j,k)=z_w(i,j,k)-z_w(i,j,k-1)
           enddo
@@ -110,17 +135,25 @@ C$    integer omp_get_thread_num
 # undef I_RANGE
 # undef J_RANGE
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
-      call exchange_w3d_tile (Istr,Iend,Jstr,Jend, z_w(START_2D_ARRAY,0))
-      call exchange_r3d_tile (Istr,Iend,Jstr,Jend, z_r(START_2D_ARRAY,1))
-      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,  Hz(START_2D_ARRAY,1))
-      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,  Hz_bak(START_2D_ARRAY,1))
+      call exchange_w3d_tile (Istr,Iend,Jstr,Jend, 
+     &                        z_w(START_2D_ARRAY,0))
+      call exchange_r3d_tile (Istr,Iend,Jstr,Jend, 
+     &                        z_r(START_2D_ARRAY,1))
+      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
+     &                        Hz(START_2D_ARRAY,1))
+      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
+     &                        Hz_bak(START_2D_ARRAY,1))
 # endif
 
       return
       end
-
-
-
+!
+!======================================================================
+!
+!                       subroutine set_HUV
+!
+!======================================================================
+!
       subroutine set_HUV (tile)
       implicit none
 #include "param.h"
@@ -163,8 +196,8 @@ C$    integer omp_get_thread_num
       do k=1,N
         do j=JU_RANGE
           do i=IU_RANGE
-            Huon(i,j,k)=0.5*(Hz(i,j,k)+Hz(i-1,j,k))
-     &                     *on_u(i,j)*(u(i,j,k,nrhs)
+            Huon(i,j,k)=0.5*(Hz(i,j,k)+Hz(i-1,j,k))*on_u(i,j)
+     &                                       *( u(i,j,k,nrhs)
 # ifdef MRL_WCI
      &                                           + ust(i,j,k)
 # endif
@@ -181,8 +214,8 @@ C$    integer omp_get_thread_num
         enddo
         do j=JV_RANGE
           do i=IV_RANGE
-            Hvom(i,j,k)=0.5*(Hz(i,j,k)+Hz(i,j-1,k))
-     &                     *om_v(i,j)*(v(i,j,k,nrhs)
+            Hvom(i,j,k)=0.5*(Hz(i,j,k)+Hz(i,j-1,k))*om_v(i,j)
+     &                                       *( v(i,j,k,nrhs)
 # ifdef MRL_WCI
      &                                           + vst(i,j,k)
 # endif
@@ -222,10 +255,13 @@ C$    integer omp_get_thread_num
 # endif
       return
       end
-
-
-
-
+!
+!======================================================================
+!
+!                       subroutine set_HUV1
+!
+!======================================================================
+!
       subroutine set_HUV1 (tile)
       implicit none
 #include "param.h"
@@ -269,30 +305,30 @@ C$    integer omp_get_thread_num
         do j=JU_RANGE
           do i=IU_RANGE
             Huon(i,j,k)=0.25*(3.*(Hz(i,j,k)+Hz(i-1,j,k))
-     &                      -Hz_bak(i,j,k)-Hz_bak(i-1,j,k))
-     &                             *on_u(i,j)*(u(i,j,k,nrhs)
+     &                   -Hz_bak(i,j,k)-Hz_bak(i-1,j,k))
+     &                        *on_u(i,j)*( u(i,j,k,nrhs)
 # ifdef MRL_WCI
-     &                               +ust(i,j,k)
-#  ifdef MASKING
-     &             *umask(i,j)
-#  endif     
+     &                                      + ust(i,j,k) 
 # endif
-     &   )
+     &                                                 )
+# if defined MRL_WCI && defined MASKING
+            Huon(i,j,k)=Huon(i,j,k)*umask(i,j)
+# endif
+
           enddo
         enddo
         do j=JV_RANGE
           do i=IV_RANGE
             Hvom(i,j,k)=0.25*( 3.*(Hz(i,j,k)+Hz(i,j-1,k))
-     &                     -Hz_bak(i,j,k)-Hz_bak(i,j-1,k))
-     &                            *om_v(i,j)*(v(i,j,k,nrhs)
+     &                    -Hz_bak(i,j,k)-Hz_bak(i,j-1,k))
+     &                         *om_v(i,j)*( v(i,j,k,nrhs)
 # ifdef MRL_WCI
-     &                               +vst(i,j,k)
-#  ifdef MASKING
-     &             *vmask(i,j)
-#  endif     
+     &                                       + vst(i,j,k)
 # endif
-     &   )
-
+     &                                                  )
+# if defined MRL_WCI && defined MASKING
+            Hvom(i,j,k)=Hvom(i,j,k)*vmask(i,j)
+# endif
           enddo
         enddo
       enddo
@@ -311,10 +347,13 @@ C$    integer omp_get_thread_num
 # endif
       return
       end
-
-
-
-
+!
+!======================================================================
+!
+!                       subroutine set_HUV2
+!
+!======================================================================
+!
       subroutine set_HUV2 (tile)
       implicit none
       integer tile, trd, omp_get_thread_num
@@ -381,16 +420,16 @@ C$    integer omp_get_thread_num
           do i=IU_RANGE
             u(i,j,k,nrhs)=(u(i,j,k,nrhs)-FC(i,0))
 # ifdef MASKING
-     &                                 *umask(i,j)
+     &                                *umask(i,j)
 #   ifdef MRL_WCI
      &               +ust(i,j,k)*(umask(i,j)-1.0)
 #   endif
 # endif
-            Huon(i,j,k)=DC(i,k)*(u(i,j,k,nrhs)
+            Huon(i,j,k)=DC(i,k)*( u(i,j,k,nrhs)
 # ifdef MRL_WCI
-     &                                +ust(i,j,k)
+     &                             + ust(i,j,k)
 # endif
-     &                                          )
+     &                                        )
           enddo
         enddo
       enddo
@@ -417,16 +456,16 @@ C$    integer omp_get_thread_num
           do i=IV_RANGE
             v(i,j,k,nrhs)=(v(i,j,k,nrhs)-FC(i,0))
 # ifdef MASKING
-     &                                 *vmask(i,j)
+     &                                *vmask(i,j)
 #   ifdef MRL_WCI
      &               +vst(i,j,k)*(vmask(i,j)-1.0)
 #   endif
 # endif
-            Hvom(i,j,k)=DC(i,k)*(v(i,j,k,nrhs)
+            Hvom(i,j,k)=DC(i,k)*( v(i,j,k,nrhs)
 # ifdef MRL_WCI
-     &                                +vst(i,j,k)
+     &                             + vst(i,j,k)
 # endif
-     &                                          )
+     &                                        )
           enddo
         enddo
       enddo

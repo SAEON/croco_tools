@@ -60,6 +60,9 @@
 # include "climat.h"
 # include "scalars.h"
 # include "boundary.h"  
+# ifdef MRL_WCI
+#  include "forces.h"
+# endif
       integer Istr,Iend,Jstr,Jend, i,j,k
       real    grad(PRIVATE_2D_SCRATCH_ARRAY)
       real    cff,eps,
@@ -144,6 +147,9 @@
 #    ifdef MASKING
             u(Istr,j,k,nnew)=u(Istr,j,k,nnew)*umask(Istr,j)
 #    endif
+#    ifdef WET_DRY
+            u(Istr,j,k,nnew)=u(Istr,j,k,nnew)*umask_wet(Istr,j)
+#    endif
           enddo
         enddo
 !
@@ -160,6 +166,9 @@
 #    ifdef MASKING
      &                       *umask(Istr,j)
 #    endif
+#    ifdef WET_DRY
+     &                       *umask_wet(Istr,j)
+#    endif
           enddo
         enddo
 #   else
@@ -171,13 +180,36 @@
 #    ifdef MASKING
      &                       *umask(Istr,j)
 #    endif
+#    ifdef WET_DRY
+     &                       *umask_wet(Istr,j)
+#    endif
           enddo
         enddo
 #   endif
+!
+#   ifdef MRL_WCI000
+        do k=1,N                               ! Western edge WEC
+          do j=jstr,jend                       ! ======= ==== ===
+            u(istr,j,k,nnew)=u(istr,j,k,nnew)
+     &                       -ust(istr,j,k)    ! no Lagrangian flux
+#    ifdef MASKING
+     &                       *umask(istr,j)
+#    endif
+          enddo
+        enddo
+#   endif
+!
 #  else           /* alternative to open */
         do k=1,N                               ! Western edge closed
-          do j=Jstr,Jend                       ! ======= ==== ======
-            u(Istr,j,k,nnew)=0.                !  (no-flux: default)
+          do j=jstr,jend                       ! ======= ==== ======
+#   ifdef MRL_WCI
+            u(istr,j,k,nnew)=-ust(istr,j,k)    ! no Lagrangian flux
+#    ifdef MASKING
+     &                       *umask(istr,j)
+#    endif
+#   else
+            u(istr,j,k,nnew)=0.                !  (no-flux: default)
+#   endif
           enddo
         enddo
 #  endif              /* OBC_COM_WEST */
@@ -246,6 +278,9 @@
 #    ifdef MASKING
             u(Iend+1,j,k,nnew)=u(Iend+1,j,k,nnew)*umask(Iend+1,j)
 #    endif
+#    ifdef WET_DRY
+            u(Iend+1,j,k,nnew)=u(Iend+1,j,k,nnew)*umask_wet(Iend+1,j)
+#    endif
           enddo
         enddo
 !
@@ -262,6 +297,9 @@
 #    ifdef MASKING
      &                         *umask(Iend+1,j)
 #    endif
+#    ifdef WET_DRY
+     &                         *umask_wet(Iend+1,j)
+#    endif
           enddo
         enddo
 #   else
@@ -273,16 +311,39 @@
 #    ifdef MASKING
      &                         *umask(Iend+1,j)
 #    endif
+#    ifdef WET_DRY
+     &                         *umask_wet(Iend+1,j)
+#    endif
           enddo
         enddo
 #   endif
-#  else
-        do k=1,N                                ! Eastern edge closed
-          do j=Jstr,Jend                        ! ======= ==== ======
-            u(Iend+1,j,k,nnew)=0.               !  (no-flux: default)
+!
+#   ifdef MRL_WCI000
+        do k=1,N                                ! Eastern edge WEC
+          do j=jstr,jend                        ! ======= ==== ===
+            u(iend+1,j,k,nnew)=u(iend+1,j,k,nnew)
+     &                         -ust(iend+1,j,k) ! no Lagrangian flux
+#    ifdef MASKING
+     &                         *umask(iend+1,j)
+#    endif
           enddo
         enddo
-#  endif
+#   endif
+!
+#  else
+        do k=1,N                                ! Eastern edge closed
+          do j=jstr,jend                        ! ======= ==== ======
+#   ifdef MRL_WCI
+            u(iend+1,j,k,nnew)=-ust(iend+1,j,k) ! no Lagrangian flux
+#    ifdef MASKING
+     &                         *umask(iend+1,j)
+#    endif
+#   else
+            u(iend+1,j,k,nnew)=0.               !  (no-flux: default)
+#   endif
+          enddo
+        enddo
+#  endif            /* OBC_COM_EAST */
       endif         !<-- EASTERN_EDGE
 # endif             /* !EW_COM_PERIODIC */
  
@@ -344,6 +405,9 @@
 #    ifdef MASKING
             u(i,Jstr-1,k,nnew)=u(i,Jstr-1,k,nnew)*umask(i,Jstr-1)
 #    endif
+#    ifdef WET_DRY
+            u(i,Jstr-1,k,nnew)=u(i,Jstr-1,k,nnew)*umask_wet(i,Jstr-1)
+#    endif
           enddo
         enddo
 !
@@ -360,6 +424,9 @@
 #    ifdef MASKING
      &                         *umask(i,Jstr-1)
 #    endif
+#    ifdef WET_DRY
+     &                         *umask_wet(i,Jstr-1)
+#    endif
           enddo
         enddo
 #   else
@@ -370,6 +437,9 @@
             u(i,Jstr-1,k,nnew)=u(i,Jstr,k,nnew)  ! gradient (default)
 #    ifdef MASKING
      &                         *umask(i,Jstr-1)
+#    endif
+#    ifdef WET_DRY
+     &                         *umask_wet(i,Jstr-1)
 #    endif
           enddo
         enddo
@@ -449,6 +519,9 @@
 #    ifdef MASKING
             u(i,Jend+1,k,nnew)=u(i,Jend+1,k,nnew)*umask(i,Jend+1)
 #    endif
+#    ifdef WET_DRY
+            u(i,Jend+1,k,nnew)=u(i,Jend+1,k,nnew)*umask_wet(i,Jend+1)
+#    endif
           enddo
         enddo
 !
@@ -465,6 +538,9 @@
 #    ifdef MASKING
      &                         *umask(i,Jend+1)
 #    endif
+#    ifdef WET_DRY
+     &                         *umask_wet(i,Jend+1)
+#    endif
           enddo
         enddo
 #   else
@@ -475,6 +551,9 @@
             u(i,Jend+1,k,nnew)=u(i,Jend,k,nnew)  ! gradient (default)
 #    ifdef MASKING
      &                         *umask(i,Jend+1)
+#    endif
+#    ifdef WET_DRY
+     &                         *umask_wet(i,Jend+1)
 #    endif
           enddo
         enddo

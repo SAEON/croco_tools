@@ -91,6 +91,8 @@
       fname='TEST_CASES/roms.in.Jet'
 #elif defined SHOREFACE
       fname='TEST_CASES/roms.in.ShoreFace'
+#elif defined THACKER
+      fname='TEST_CASES/roms.in.Thacker'
 #elif defined REGIONAL
       fname='roms.in'
 #else
@@ -276,13 +278,13 @@
 #endif
 #if      (!defined SOLVE3D && !defined ANA_SMFLUX) \
       || (defined TIDES) \
-      || (defined MRL_WCI ) \
       || (defined SOLVE3D && (\
            (!defined ANA_STFLUX && !defined BULK_FLUX) \
         ||  !defined ANA_BTFLUX   \
         || (defined BBL  && !defined ANA_BSEDIM && !defined SEDIMENT) \
         || (defined QCORRECTION && !defined ANA_SST)   \
         || (defined BBL         && !defined ANA_WWAVE) \
+        || (defined MRL_WCI     && !defined ANA_WWAVE) \
         || (defined SALINITY    && !defined ANA_SSFLUX && \
             !defined BULK_FLUX  && !defined BULK_EP) \
         || (defined SALINITY    && defined QCORRECTION && \

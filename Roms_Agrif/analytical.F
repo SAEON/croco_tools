@@ -57,6 +57,11 @@
       end
 # endif
 
+!
+!====================================================================
+!                   subroutine ana_bmflux
+!====================================================================
+!
 #ifdef ANA_BMFLUX
       subroutine ana_bmflux_tile (Istr,Iend,Jstr,Jend)
 !
@@ -87,6 +92,12 @@
       return
       end
 #endif /* ANA_BMFLUX */ 
+
+!
+!====================================================================
+!                   subroutine ana_btflux
+!====================================================================
+!
 #ifdef SOLVE3D
 # if defined ANA_BTFLUX || defined ANA_BSFLUX || defined ANA_BPFLUX 
       subroutine ana_btflux_tile (Istr,Iend,Jstr,Jend, itrc)
@@ -118,7 +129,7 @@
    || defined OVERFLOW  || defined REGIONAL  || defined RIVER      \
    || defined SEAMOUNT  || defined SED_TEST2 || defined SHELFRONT  \
    || defined UPWELLING || defined VORTEX    || defined INTERNAL   \
-   || defined JET || defined SHOREFACE
+   || defined JET       || defined SHOREFACE || defined THACKER
 
         do j=JstrR,JendR
           do i=IstrR,IendR
@@ -142,7 +153,7 @@
 #   if  defined EQUATOR || defined INNERSHELF || defined REGIONAL  \
    || defined RIVER     || defined SED_TEST2  || defined SHELFRONT \
    || defined UPWELLING || defined SEAMOUNT   || defined VORTEX    \
-   || defined JET || defined SALINITY
+   || defined JET
 
         do j=JstrR,JendR
           do i=IstrR,IendR
@@ -174,6 +185,11 @@
       end
 # endif /* ANA_BTFLUX */
 #endif /* SOLVE3D */
+
+!
+!====================================================================
+!                   subroutine ana_bsedim
+!====================================================================
 !
 #if defined ANA_BSEDIM && defined BBL
       subroutine ana_bsedim (tile)
@@ -248,6 +264,12 @@ C$    integer  trd, omp_get_thread_num
       end
 #endif /* ANA_BSEDIM && BBL */
 
+
+!
+!====================================================================
+!                   subroutine ana_smflux
+!====================================================================
+!
 #ifdef ANA_SMFLUX
       subroutine ana_smflux_tile (Istr,Iend,Jstr,Jend)
 !
@@ -259,11 +281,12 @@ C$    integer  trd, omp_get_thread_num
 # endif
       implicit none
 # include "param.h"
+# include "ocean2d.h"
 # include "grid.h"
 # include "forces.h"
 # include "scalars.h"
       integer Istr,Iend,Jstr,Jend, i,j
-      real Ewind, Nwind, dircoef, windamp
+      real Ewind, Nwind, dircoef, windamp, wcos,wsin
       real cff1, cff2
 !     data windamp /0./ 
       data Ewind, Nwind, dircoef /0., 0., 0./
@@ -318,13 +341,14 @@ C$    integer  trd, omp_get_thread_num
         enddo
       enddo
 # elif defined SHOREFACE
-#  if  ! defined MRL_WCI
+#  if !defined MRL_WCI
       windamp=tanh(24.0*dt*sec2day*float(iic-ntstart))
       wcos = cos(10.0/180.0*pi)
       do j=jstr-1,jend+1
         do i=istr-1,iend+1
-          cff  = 0.05/sqrt(9.8*h(i,j))  ! 0.6 is \epsilon_b/\rho
-          sustr(i,j)=cff*wcos*windamp
+          cff2  = h(i,j)+zeta(i,j,kstp)
+          cff1  = 0.05/sqrt(9.8*cff2)  ! 0.6 is epsilon_b/rho
+          sustr(i,j)=cff1*wcos*windamp
         enddo
       enddo
 #  else
@@ -337,7 +361,8 @@ C$    integer  trd, omp_get_thread_num
 # elif defined GRAV_ADJ  || defined OVERFLOW || defined SEAMOUNT   \
     || defined SHELFRONT || defined SOLITON  || defined INNERSHELF \
     || defined RIVER     || defined VORTEX   || defined REGIONAL   \
-    || defined INTERNAL  || defined JET  
+    || defined INTERNAL  || defined JET      || defined THACKER
+ 
       do j=JstrR,JendR
         do i=IstrR,IendR
           sustr(i,j)=0.
@@ -358,7 +383,8 @@ C$    integer  trd, omp_get_thread_num
   || defined EQUATOR   || defined GRAV_ADJ  || defined OVERFLOW  \
   || defined REGIONAL  || defined RIVER     || defined SEAMOUNT  \
   || defined SHELFRONT || defined SOLITON   || defined UPWELLING \
-  || defined VORTEX    || defined INTERNAL  || defined JET 
+  || defined VORTEX    || defined INTERNAL  || defined JET       \
+  || defined THACKER
       do j=JstrR,JendR
         do i=IstrR,IendR
           svstr(i,j)=0.
@@ -379,13 +405,14 @@ C$    integer  trd, omp_get_thread_num
         enddo
       enddo
 # elif defined SHOREFACE 
-#  if ! defined MRL_WCI
+#  if !defined MRL_WCI
       windamp=tanh(24.0*dt*sec2day*float(iic-ntstart))
       wsin = sin(10.0/180.0*pi)
       do j=jstr-1,jend+1
         do i=istr-1,iend+1
-          cff  = 0.05/sqrt(9.8*h(i,j))  ! 0.6 is \epsilon_b/\rho
-          svstr(i,j)=cff*wsin*windamp
+          cff2  = h(i,j)+zeta(i,j,kstp)
+          cff1  = 0.05/sqrt(9.8*cff2)  ! 0.6 is \epsilon_b/\rho
+          svstr(i,j)=cff1*wsin*windamp
         enddo
       enddo
 #  else
@@ -405,6 +432,12 @@ C$    integer  trd, omp_get_thread_num
       return
       end
 #endif /* ANA_SMFLUX */
+
+!
+!====================================================================
+!                   subroutine ana_srflux
+!====================================================================
+!
 #ifdef ANA_SRFLUX
       subroutine ana_srflux_tile (Istr,Iend,Jstr,Jend)
 !
@@ -428,7 +461,8 @@ C$    integer  trd, omp_get_thread_num
 # if defined EQUATOR   || defined INNERSHELF || defined OVERFLOW \
   || defined REGIONAL  || defined RIVER      || defined SEAMOUNT \
   || defined SHELFRONT || defined UPWELLING  || defined VORTEX \
-  || defined INTERNAL  || defined JET || defined SHOREFACE
+  || defined INTERNAL  || defined JET        || defined SHOREFACE\
+  || defined THACKER
       do j=JstrR,JendR
         do i=IstrR,IendR
           srflx(i,j)=0.
@@ -445,6 +479,11 @@ C$    integer  trd, omp_get_thread_num
       end
 #endif /* ANA_SRFLUX */
 
+!
+!====================================================================
+!                   subroutine ana_ssh
+!====================================================================
+!
 #if defined ANA_SSH && defined ZCLIMATOLOGY
       subroutine ana_ssh (tile)
       implicit none
@@ -511,6 +550,11 @@ C$    integer  trd, omp_get_thread_num
       end
 #endif /* ANA_SSH && ZCLIMATOLOGY */
 
+!
+!====================================================================
+!                   subroutine ana_sst
+!====================================================================
+!
 #if defined ANA_SST && defined QCORRECTION
       subroutine ana_sst_tile (Istr,Iend,Jstr,Jend)
 !
@@ -570,6 +614,12 @@ C$    integer  trd, omp_get_thread_num
       return
       end
 #endif /* ANA_SST && QCORRECTION */
+
+!
+!====================================================================
+!                   subroutine ana_sss
+!====================================================================
+!
 #if defined SALINITY && defined SFLX_CORR && defined ANA_SSS
       subroutine ana_sss_tile (Istr,Iend,Jstr,Jend)
 !
@@ -601,6 +651,12 @@ C$    integer  trd, omp_get_thread_num
       return
       end
 #endif /* SALINITY && SFLX_CORR && ANA_SSS */
+
+!
+!====================================================================
+!                   subroutine ana_stflux
+!====================================================================
+!
 #if defined ANA_STFLUX || defined ANA_SSFLUX
       subroutine ana_stflux_tile (Istr,Iend,Jstr,Jend, itrc)
 !
@@ -626,11 +682,12 @@ c
 !  Set kinematic surface heat flux [degC m/s] at horizontal
 !  RHO-points.
 !
-#if defined BASIN    || defined CANYON_A  || defined CANYON_B   \
- || defined EQUATOR  || defined GRAV_ADJ  || defined INNERSHELF \
- || defined OVERFLOW || defined REGIONAL  || defined RIVER      \
- || defined SEAMOUNT || defined SHELFRONT || defined UPWELLING  \
- || defined VORTEX   || defined INTERNAL  || defined JET || defined SHOREFACE
+#if defined BASIN     || defined CANYON_A  || defined CANYON_B   \
+ || defined EQUATOR   || defined GRAV_ADJ  || defined INNERSHELF \
+ || defined OVERFLOW  || defined REGIONAL  || defined RIVER      \
+ || defined SEAMOUNT  || defined SHELFRONT || defined UPWELLING  \
+ || defined VORTEX    || defined INTERNAL  || defined JET        \
+ || defined SHOREFACE || defined THACKER
 
         do j=JstrR,JendR
           do i=IstrR,IendR
@@ -650,8 +707,8 @@ c
 !  Set kinematic surface freshwater flux (m/s) at horizontal
 !  RHO-points, scaling by surface salinity is done in STEP3D.
 !
-# if defined EQUATOR || defined INNERSHELF || defined REGIONAL  \
-  || defined RIVER   || defined SEAMOUNT   || defined SHELFRONT \
+# if defined EQUATOR   || defined INNERSHELF || defined REGIONAL  \
+  || defined RIVER     || defined SEAMOUNT   || defined SHELFRONT \
   || defined UPWELLING || defined SHOREFACE
 
         do j=JstrR,JendR
@@ -680,7 +737,12 @@ c
       return
       end
 #endif /* ANA_STFLUX || ANA_SSFLUX */
-!---------------------------------------------------------------------
+
+!
+!====================================================================
+!                   subroutine ana_tclima
+!====================================================================
+!
 #if defined TCLIMATOLOGY
       subroutine ana_tclima (tile)
       implicit none
@@ -710,9 +772,6 @@ C$    integer  trd, omp_get_thread_num
       real    cff,cff1
 !
 # include "compute_auxiliary_bounds.h"
-!
-!  Set climatology fields for tracer type variables.
-!---------------------------------------------------------------------
 !
 # ifdef ANA_TCLIMA
 #  ifdef JET
@@ -936,7 +995,6 @@ C$    integer  trd, omp_get_thread_num
       call ana_uclima_tile   (Istr,Iend,Jstr,Jend)
       return
       end
-!---------------------------------------------------------------------
 !
       subroutine ana_uclima_tile (Istr,Iend,Jstr,Jend)
 !
@@ -1046,6 +1104,7 @@ C$    integer  trd, omp_get_thread_num
       return
       end
 #endif /* ANA_M2CLIMA && M2CLIMATOLOGY || (ANA_M3CLIMA && M3CLIMATOLOGY) */
+
 !
 !====================================================================
 !                   subroutine ana_wwave
@@ -1154,6 +1213,11 @@ C$    integer  trd, omp_get_thread_num
       return
       end
 !
+!
+!====================================================================
+!                   subroutine ana_sediment
+!====================================================================
+!
       subroutine ana_sediment_tile (Istr,Iend,Jstr,Jend)
 !
 !---------------------------------------------------------------------
@@ -1249,6 +1313,11 @@ C$    integer  trd, omp_get_thread_num
       end
 #endif /* SEDIMENT */
 
+!
+!====================================================================
+!                   subroutine ana_psource
+!====================================================================
+!
 #if defined PSOURCE && defined ANA_PSOURCE && defined SOLVE3D
 !
 !-----------------------------------------------------------
@@ -1403,12 +1472,12 @@ C$    integer  trd, omp_get_thread_num
       end
 #endif /* PSOURCE && ANA_PSOURCE SOLVE3D*/
 
+!
+!====================================================================
+!                   subroutine ana_bry
+!====================================================================
+!
 #ifdef ANA_BRY
-!
-!---------------------------------------------------------------------
-!  Set analytical boundary forcing
-!---------------------------------------------------------------------
-!
       subroutine ana_bry (tile)
       implicit none
 # include "param.h"
@@ -1422,6 +1491,11 @@ C$    integer  trd, omp_get_thread_num
       end
 !
       subroutine ana_bry_tile (Istr,Iend,Jstr,Jend) 
+!
+!---------------------------------------------------------------------
+!  Set analytical boundary forcing
+!---------------------------------------------------------------------
+!
       implicit none          
       integer Istr,Iend,Jstr,Jend, i,j,k, itrc
 # include "param.h"
@@ -1557,6 +1631,11 @@ C$    integer  trd, omp_get_thread_num
       end
 #endif /* defined ANA_BRY */
 
+!
+!====================================================================
+!                   subroutine ana_bry_bio
+!====================================================================
+!
 #if defined BIOLOGY && defined T_FRC_BRY
 !
 !---------------------------------------------------------------------

@@ -605,29 +605,6 @@
 #undef ws
 #undef wm
 #undef sigma
-!
-!-----------------------------------------------------------------
-!  Finalize: Set vertical mixing coefficients "Akv" and "Akt" 
-!-----------------------------------------------------------------
-!
-        do j=Jstr,Jend
-          do i=Istr,Iend
-            Akv(i,j,k)=Kv(i,j,k)
-# ifdef MASKING
-     &                *rmask(i,j)
-# endif
-            Akt(i,j,k,itemp)=Kt(i,j,k)
-# ifdef MASKING
-     &                *rmask(i,j)
-# endif
-# ifdef SALINITY
-            Akt(i,j,k,isalt)=Ks(i,j,k)
-#  ifdef MASKING
-     &                *rmask(i,j)
-#  endif
-# endif
-          enddo
-        enddo
       enddo                     !<-- k loop
 
       do j=Jstr,Jend
@@ -635,20 +612,7 @@
           kbl(i,j)=max(1,kbl(i,j))
         enddo
       enddo
-!
-! If LMD_BKPP is defined, exchange is done in lmd_bkpp routine
-!
-# if !defined  LMD_BKPP
-#  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
-      call exchange_w3d_tile (Istr,Iend,Jstr,Jend, Akv)
-      call exchange_w3d_tile (Istr,Iend,Jstr,Jend,
-     &                     Akt(START_2D_ARRAY,0,itemp))
-#   ifdef SALINITY
-      call exchange_w3d_tile (Istr,Iend,Jstr,Jend,
-     &                     Akt(START_2D_ARRAY,0,isalt))
-#   endif
-#  endif
-# endif
+
 #else
       subroutine lmd_skpp_empty
 #endif /* LMD_SKPP */

@@ -1005,7 +1005,6 @@
         lvar=lenstr(vname(3,indxShflx_rsw))
         ierr=nf_put_att_text (ncid, vidShflx_rsw, 'units',     lvar,
      &                               vname(3,indxShflx_rsw)(1:lvar))
-        lvar=lenstr(vname(5,g))
         
         call nf_add_attribute(ncid, vidShflx_rsw, indxShflx_rsw,5, 
      &       NF_REAL, ierr)   
@@ -1525,7 +1524,7 @@
 #  ifndef AVRH
           lvar=lenstr(vname(2,indxCALP))
           ierr=nf_put_att_text (ncid, vidCALP, 'long_name', lvar,
-     &                                  vname(2,indxKVF)(1:lvar))
+     &                                  vname(2,indxCALP)(1:lvar))
 #  else
           text='averaged '/ /vname(2,indxCALP)
           lvar=lenstr(text)

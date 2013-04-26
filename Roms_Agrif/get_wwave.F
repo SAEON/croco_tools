@@ -414,7 +414,7 @@
 !           wdir=Dwave(i,j)-1.5*pi    ! wdir is dir waves travel FROM N
 # ifdef CURVGRID
      &                    -angler(i,j)
-# endif           
+# endif            
             xdir=cos(wdir)
             ydir=sin(wdir)
 # if defined MRL_WCI
@@ -491,7 +491,7 @@
           may_day_flag=2
         endif
       endif
- !      wwfrq(:,:,itww) = Pwave(:,:) 
+!      wwfrq(:,:,itww) = Pwave(:,:) 
       return
       end
 #else

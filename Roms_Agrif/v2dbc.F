@@ -734,6 +734,56 @@ C$    trd=omp_get_thread_num()
 #  endif
       endif
 #endif
+#if defined WET_DRY
+!
+!-----------------------------------------------------------------------
+!  Impose wetting and drying conditions.
+!-----------------------------------------------------------------------
+!
+# ifndef EW_COM_PERIODIC
+      if (WESTERN_EDGE) then
+        DO j=JstrV,Jend
+          vbar(Istr,j,knew)=vbar(Istr,j,knew)*vmask_wet(Istr,j)
+        END DO
+      END IF
+      if (EASTERN_EDGE) then
+        DO j=JstrV,Jend
+          vbar(Iend+1,j,knew)=vbar(Iend+1,j,knew)*vmask_wet(Iend+1,j)
+        END DO
+      END IF
+# endif
+# ifndef NS_COM_PERIODIC
+      if (SOUTHERN_EDGE) then
+        DO i=IstrU,Iend
+          vbar(i,Jstr,knew)=vbar(i,Jstr,knew)*vmask_wet(i,Jstr)
+        END DO
+      END IF
+      if (NORTHERN_EDGE) then
+        DO i=Istr,Iend
+          vbar(i,Jend+1,knew)=vbar(i,Jend+1,knew)*vmask_wet(i,Jend+1)
+        END DO
+      END IF
+# endif
+# if !defined EW_COM_PERIODIC && !defined NS_COM_PERIODIC
+      if (SOUTHERN_EDGE .and. WESTERN_EDGE) then
+        vbar(Istr-1,Jstr,knew)=vbar(Istr-1,Jstr,knew)
+     &                                        *vmask_wet(Istr-1,Jstr)
+      END IF
+      if (SOUTHERN_EDGE .and. EASTERN_EDGE) then
+        vbar(Iend+1,Jstr,knew)=vbar(Iend+1,Jstr,knew)
+     &                                        *vmask_wet(Iend+1,Jstr)
+      END IF
+      if (NORTHERN_EDGE .and. WESTERN_EDGE) then
+        vbar(Istr-1,Jend+1,knew)=vbar(Istr-1,Jend+1,knew)
+     &                                        *vmask_wet(Istr-1,Jend+1)
+      END IF
+      if (NORTHERN_EDGE .and. EASTERN_EDGE) then
+        vbar(Iend+1,Jend+1,knew)=vbar(Iend+1,Jend+1,knew)
+     &                                        *vmask_wet(Iend+1,Jend+1)
+      END IF
+# endif
+#endif  /* WET_DRY */
+
       return
       end
 #ifndef CHILD

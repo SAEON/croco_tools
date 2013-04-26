@@ -157,8 +157,8 @@ CR           write(*,*) 'wrt_his: wrtVBAR' MYID
          do j=0,Mm
             do i=0,Lm
                work2d(i,j)=0.5*sqrt((bustr(i,j)+bustr(i+1,j))**2
-     &              +(bvstr(i,j)+bvstr(i,j+1))**2)
-     &              *rho0
+     &                             +(bvstr(i,j)+bvstr(i,j+1))**2)
+     &                                                      *rho0
             enddo
          enddo
          call fillvalue2d(work2d,ncidhis,hisBostr,indxBostr,
@@ -175,11 +175,11 @@ CR      write(*,*) 'wrt_his:  bostr' MYID
          do j=1,Mm
             do i=1,Lm
                work2d2(i,j)=0.5*sqrt((sustr(i,j)+sustr(i+1,j))**2
-     &              +(svstr(i,j)+svstr(i,j+1))**2)
-     &              *rho0
+     &                              +(svstr(i,j)+svstr(i,j+1))**2)
+     &                                                       *rho0
             enddo
          enddo
- !        write(*,*)'WSTR : work2d2(:,5)=',work2d2(:,5)
+!        write(*,*)'WSTR : work2d2(:,5)=',work2d2(:,5)
          ierr=nf_fwrite(work2d2, ncidhis, hisWstr, record, r2dvar)
          if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxWstr))

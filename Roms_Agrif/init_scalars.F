@@ -331,7 +331,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxUWstr =',indxUWstr
       vname(6,indxUWstr)='x_u y_u                                 '
 #endif
       vname(7,indxUWstr)='                                        '
-      vname(8,indxUWstr)='                                        '                
+      vname(8,indxUWstr)='                                        '
 
 CR      write(stdout,'(1x,A,I3)') 'indxVWstr =',indxVWstr
       vname(1,indxVWstr)='svstr                                   '
@@ -456,7 +456,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxPO4)='umol P L-1                                '
       vname(4,indxPO4)='Phosphate, scalar, series                 '
       vname(5,indxPO4)='                                          '
-      vname(6,indxPO4)='lat_rho lon_rho                           '              
+      vname(6,indxPO4)='lat_rho lon_rho                           '
       vname(7,indxPO4)='                                          '
 
       vname(1,indxPOC)='POC                                       '
@@ -464,15 +464,15 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxPOC)='umol C L-1                                '
       vname(4,indxPOC)='Small particles, scalar, series           '
       vname(5,indxPOC)='                                          '
-      vname(6,indxPOC)='lat_rho lon_rho                           '              
+      vname(6,indxPOC)='lat_rho lon_rho                           '
       vname(7,indxPOC)='                                          '
       
       vname(1,indxSIL)='Si                                        ' 
       vname(2,indxSIL)='Silicate                                  '
       vname(3,indxSIL)='umol Si L-1                               '
       vname(4,indxSIL)='Silicate, scalar, series                  '
-      vname(5,indxSIL)='                                          '      
-      vname(6,indxSIL)='lat_rho lon_rho                           '            
+      vname(5,indxSIL)='                                          '
+      vname(6,indxSIL)='lat_rho lon_rho                           '
       vname(7,indxSIL)='                                          '    
                                         
       vname(1,indxPHY)='NANO                                      '
@@ -480,7 +480,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxPHY)='umol C L-1                                '
       vname(4,indxPHY)='Nanophytoplankton, scalar, series         '
       vname(5,indxPHY)='                                          '
-      vname(6,indxPHY)='lat_rho lon_rho                           '              
+      vname(6,indxPHY)='lat_rho lon_rho                           '
       vname(7,indxPHY)='                                          '
 
       vname(1,indxZOO)='ZOO                                       '
@@ -488,7 +488,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxZOO)='umol C L-1                                '
       vname(4,indxZOO)='Microzooplankton, scalar, series          '
       vname(5,indxZOO)='                                          '
-      vname(6,indxZOO)='lat_rho lon_rho                           '              
+      vname(6,indxZOO)='lat_rho lon_rho                           '
       vname(7,indxZOO)='                                          '
 
       vname(1,indxDOC)='DOC                                       '
@@ -496,7 +496,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxDOC)='umol C L-1                                '
       vname(4,indxDOC)='DOC, scalar, series                       '
       vname(5,indxDOC)='                                          '
-      vname(6,indxDOC)='lat_rho lon_rho                           '              
+      vname(6,indxDOC)='lat_rho lon_rho                           '
       vname(7,indxDOC)='                                          '
 
       vname(1,indxDIA)='DIA                                       '
@@ -504,7 +504,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxDIA)='umol C L-1                                '
       vname(4,indxDIA)='Diatoms, scalar, series                   '
       vname(5,indxDIA)='                                          '
-      vname(6,indxDIA)='lat_rho lon_rho                           '              
+      vname(6,indxDIA)='lat_rho lon_rho                           '
       vname(7,indxDIA)='                                          '
 
       vname(1,indxMES)='MESO                                      '
@@ -512,7 +512,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxMES)='umol C L-1                                '
       vname(4,indxMES)='Mesozooplankton, scalar, series           '
       vname(5,indxMES)='                                          '
-      vname(6,indxMES)='lat_rho lon_rho                           '                  
+      vname(6,indxMES)='lat_rho lon_rho                           '
       vname(7,indxMES)='                                          '
 
       vname(1,indxBSI)='BSI                                       '
@@ -520,7 +520,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxBSI)='umol Si L-1                               '
       vname(4,indxBSI)='BSi, scalar, series                       '
       vname(5,indxBSI)='                                          '
-      vname(6,indxBSI)='lat_rho lon_rho                           '                  
+      vname(6,indxBSI)='lat_rho lon_rho                           '
       vname(7,indxBSI)='                                          '
 
       vname(1,indxFER)='FER                                       '
@@ -528,7 +528,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxFER)='umol Fe L-1                               '
       vname(4,indxFER)='Iron, scalar, series                      '
       vname(5,indxFER)='                                          '
-      vname(6,indxFER)='lat_rho lon_rho                           '                  
+      vname(6,indxFER)='lat_rho lon_rho                           '
       vname(7,indxFER)='                                          '
 
       vname(1,indxBFE)='BFE                                       '
@@ -536,7 +536,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxBFE)='umol Fe L-1                               '
       vname(4,indxBFE)='BFE, scalar, series                       '
       vname(5,indxBFE)='                                          '
-      vname(6,indxBFE)='lat_rho lon_rho                           '                  
+      vname(6,indxBFE)='lat_rho lon_rho                           '
       vname(7,indxBFE)='                                          '
 
       vname(1,indxGOC)='GOC                                       '
@@ -544,7 +544,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxGOC)='umol C L-1                                '
       vname(4,indxGOC)='GOC, scalar, series                       '
       vname(5,indxGOC)='                                          '
-      vname(6,indxGOC)='lat_rho lon_rho                           '                  
+      vname(6,indxGOC)='lat_rho lon_rho                           '
       vname(7,indxGOC)='                                          '
 
       vname(1,indxSFE)='SFE                                       '
@@ -552,7 +552,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxSFE)='umol Fe L-1                               '
       vname(4,indxSFE)='SFE, scalar, series                       '
       vname(5,indxSFE)='                                          '
-      vname(6,indxSFE)='lat_rho lon_rho                           '                  
+      vname(6,indxSFE)='lat_rho lon_rho                           '
       vname(7,indxSFE)='                                          '
 
       vname(1,indxDFE)='DFE                                       '
@@ -560,7 +560,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxDFE)='umol Fe L-1                               '
       vname(4,indxDFE)='DFE, scalar, series                       '
       vname(5,indxDFE)='                                          '
-      vname(6,indxDFE)='lat_rho lon_rho                           '                  
+      vname(6,indxDFE)='lat_rho lon_rho                           '
       vname(7,indxDFE)='                                          '
 
       vname(1,indxDSI)='DSI                                       '
@@ -576,7 +576,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxNFE)='umol Fe L-1                               '
       vname(4,indxNFE)='NFE, scalar, series                       '
       vname(5,indxNFE)='                                          '
-      vname(6,indxNFE)='lat_rho lon_rho                           '                     
+      vname(6,indxNFE)='lat_rho lon_rho                           '
       vname(7,indxNFE)='                                          '
 
       vname(1,indxNCH)='NCHL                                      '
@@ -584,7 +584,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxNCH)='mg Chl m-3                                '
       vname(4,indxNCH)='NCHL, scalar, series                      '
       vname(5,indxNCH)='                                          '
-      vname(6,indxNCH)='lat_rho lon_rho                           '              
+      vname(6,indxNCH)='lat_rho lon_rho                           '
       vname(7,indxNCH)='                                          '
 
       vname(1,indxDCH)='DCHL                                      '
@@ -592,7 +592,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxDCH)='mg Chl m-3                                '
       vname(4,indxDCH)='DCHL, scalar, series                      '
       vname(5,indxDCH)='                                          '
-      vname(6,indxDCH)='lat_rho lon_rho                           '              
+      vname(6,indxDCH)='lat_rho lon_rho                           '
       vname(7,indxDCH)='                                          '
 
       vname(1,indxNO3)='NO3                                       '
@@ -600,7 +600,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxNO3)='umol N L-1                                '
       vname(4,indxNO3)='Nitrate, scalar, series                   '
       vname(5,indxNO3)='                                          '
-      vname(6,indxNO3)='lat_rho lon_rho                           '             
+      vname(6,indxNO3)='lat_rho lon_rho                           '
       vname(7,indxNO3)='                                          '
 
       vname(1,indxNH4)='NH4                                       '
@@ -608,7 +608,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTPAS = ',indxTPAS
       vname(3,indxNH4)='umol N L-1                                '
       vname(4,indxNH4)='Ammonium, scalar, series                  '
       vname(5,indxNH4)='                                          '
-      vname(6,indxNH4)='lat_rho lon_rho                           '              
+      vname(6,indxNH4)='lat_rho lon_rho                           '
       vname(7,indxNH4)='                                          '
 
 #  elif defined BIO_NChlPZD
@@ -618,7 +618,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxNO3 =',indxNO3
       vname(3,indxNO3)='mMol N m-3                                '
       vname(4,indxNO3)='NO3, scalar, series                       '
       vname(5,indxNO3)='                                          '
-      vname(6,indxNO3)='lat_rho lon_rho                           '              
+      vname(6,indxNO3)='lat_rho lon_rho                           '
       vname(7,indxNO3)='                                          '
 
 CR      write(stdout,'(1x,A,I3)') 'indxChla =',indxChla
@@ -627,7 +627,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxChla =',indxChla
       vname(3,indxChla)='mg Chla m-3                              '
       vname(4,indxChla)='Chlorophyl, scalar, series               '
       vname(5,indxChla)='                                         '
-      vname(6,indxChla)='lat_rho lon_rho                          '              
+      vname(6,indxChla)='lat_rho lon_rho                          '
       vname(7,indxChla)='                                         '
 
 CR      write(stdout,'(1x,A,I3)') 'indxPhy1 =',indxPhy1
@@ -636,7 +636,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxPhy1 =',indxPhy1
       vname(3,indxPhy1)='mMol N m-3                               '
       vname(4,indxPhy1)='Phytoplankton, scalar, series            '
       vname(5,indxPhy1)='                                         '
-      vname(6,indxPhy1)='lat_rho lon_rho                          '              
+      vname(6,indxPhy1)='lat_rho lon_rho                          ' 
       vname(7,indxPhy1)='                                         '
 
 CR      write(stdout,'(1x,A,I3)') 'indxZoo1 =',indxZoo1
@@ -645,7 +645,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxZoo1 =',indxZoo1
       vname(3,indxZoo1)='mMol N m-3                               '
       vname(4,indxZoo1)='Zooplankton, scalar, series              '
       vname(5,indxZoo1)='                                         '
-      vname(6,indxZoo1)='lat_rho lon_rho                          '              
+      vname(6,indxZoo1)='lat_rho lon_rho                          ' 
       vname(7,indxZoo1)='                                         '
 
 CR      write(stdout,'(1x,A,I3)') 'indxDet1 =',indxDet1
@@ -654,7 +654,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxDet1 =',indxDet1
       vname(3,indxDet1)='mMol N m-3                               '
       vname(4,indxDet1)='Detritus, scalar, series                 '
       vname(5,indxDet1)='                                         '
-      vname(6,indxDet1)='lat_rho lon_rho                          '              
+      vname(6,indxDet1)='lat_rho lon_rho                          '
       vname(7,indxDet1)='                                         '
 #   ifdef OXYGEN
 CR      write(stdout,'(1x,A,I3)') 'indxO2 =',indxO2
@@ -663,7 +663,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxO2 =',indxO2
       vname(3,indxO2)='mMol O2 m-3                                '
       vname(4,indxO2)='Dissolved Oxygen	, scalar, series          '
       vname(5,indxO2)='                                           '
-      vname(6,indxO2)='lat_rho lon_rho                            '            
+      vname(6,indxO2)='lat_rho lon_rho                            '
       vname(7,indxO2)='                                           '
 #   endif 
 
@@ -675,7 +675,7 @@ CR      write(stdout,'(1x,A,I3)') 'ntrc_diabio=',ntrc_diabio
 
 #  elif defined BIO_N2ChlPZD2
 CR      write(stdout,'(1x,A,I3)') 'indxNO3 =',indxNO3
-      vname(1,indxNO3)='NO3                                       '                                       
+      vname(1,indxNO3)='NO3                                       ' 
       vname(2,indxNO3)='NO3 Nutrient                              '
       vname(3,indxNO3)='mMol N m-3                                '
       vname(4,indxNO3)='NO3, scalar, series                       '
@@ -689,7 +689,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxNH4 =',indxNH4
       vname(3,indxNH4)='mMol N m-3                                '
       vname(4,indxNH4)='NH4, scalar, series                       '
       vname(5,indxNH4)='                                          '
-      vname(6,indxNH4)='lat_rho lon_rho                           '              
+      vname(6,indxNH4)='lat_rho lon_rho                           ' 
       vname(7,indxNH4)='  '                                       
 
 CR      write(stdout,'(1x,A,I3)') 'indxChla =',indxChla
@@ -698,7 +698,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxChla =',indxChla
       vname(3,indxChla)='mg Chla m-3                              '
       vname(4,indxChla)='Chlorophyl, scalar, series               '
       vname(5,indxChla)='                                         '
-      vname(6,indxChla)='lat_rho lon_rho                          '              
+      vname(6,indxChla)='lat_rho lon_rho                          ' 
       vname(7,indxChla)='                                         '
 
 CR      write(stdout,'(1x,A,I3)') 'indxPhy1 =',indxPhy1
@@ -707,7 +707,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxPhy1 =',indxPhy1
       vname(3,indxPhy1)='mMol N m-3                               '
       vname(4,indxPhy1)='Phytoplankton, scalar, series            '
       vname(5,indxPhy1)='                                         '
-      vname(6,indxPhy1)='lat_rho lon_rho                          '              
+      vname(6,indxPhy1)='lat_rho lon_rho                          ' 
       vname(7,indxPhy1)='                                         '
 
 CR      write(stdout,'(1x,A,I3)') 'indxZoo1 =',indxZoo1
@@ -716,7 +716,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxZoo1 =',indxZoo1
       vname(3,indxZoo1)='mMol N m-3                               '
       vname(4,indxZoo1)='Zooplankton, scalar, series              '     
       vname(5,indxZoo1)='                                         '
-      vname(6,indxZoo1)='lat_rho lon_rho                          '              
+      vname(6,indxZoo1)='lat_rho lon_rho                          ' 
       vname(7,indxZoo1)='                                         '
 
 CR      write(stdout,'(1x,A,I3)') 'indxDet1 =',indxDet1
@@ -725,7 +725,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxDet1 =',indxDet1
       vname(3,indxDet1)='mMol N m-3                               '
       vname(4,indxDet1)='Small Detritus, scalar, series           '
       vname(5,indxDet1)='                                         '
-      vname(6,indxDet1)='lat_rho lon_rh                           '             
+      vname(6,indxDet1)='lat_rho lon_rh                           ' 
       vname(7,indxDet1)='                                         '
 
 CR      write(stdout,'(1x,A,I3)') 'indxDet2 =',indxDet2
@@ -734,7 +734,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxDet2 =',indxDet2
       vname(3,indxDet2)='mMol N m-3                               '
       vname(4,indxDet2)='Large Detritus, scalar, series           '
       vname(5,indxDet2)='                                         '
-      vname(6,indxDet2)='lat_rho lon_rho                          '               
+      vname(6,indxDet2)='lat_rho lon_rho                          ' 
       vname(7,indxDet2)='                                         '
 #  endif /* PISCES || BIO_NChlPZD || BIO_N2ChlPZD2 */
 # endif /* BIOLOGY */
@@ -746,7 +746,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxsand =',indxsand
       vname(3,indxsand)='mg/l                                     '
       vname(4,indxsand)='sand, scalar, series                     '
       vname(5,indxsand)='                                         '
-      vname(6,indxsand)='lat_rho lon_rho                          '              
+      vname(6,indxsand)='lat_rho lon_rho                          ' 
       vname(7,indxsand)='                                         '
 
 CR      write(stdout,'(1x,A,I3)') 'indxsilt =',indxsilt
@@ -755,7 +755,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxsilt =',indxsilt
       vname(3,indxsilt)='mg/l                                     '
       vname(4,indxsilt)='silt, scalar, series                     '
       vname(5,indxsilt)='                                         '
-      vname(6,indxsilt)='lat_rho lon_rho                          '              
+      vname(6,indxsilt)='lat_rho lon_rho                          ' 
       vname(7,indxsilt)='                                         '
 
 CR      write(stdout,'(1x,A,I3)') 'indxBTHK =',indxBTHK
@@ -763,15 +763,15 @@ CR      write(stdout,'(1x,A,I3)') 'indxBTHK =',indxBTHK
       vname(2,indxBTHK)  ='Thickness of sediment bed layer        '
       vname(3,indxBTHK)  ='m                                      '     
       vname(5,indxBTHK)='                                         '
-      vname(6,indxBTHK)='lat_rho lon_rho                          '             
+      vname(6,indxBTHK)='lat_rho lon_rho                          ' 
       vname(7,indxBTHK)='                                         '
 
 CR      write(stdout,'(1x,A,I3)') 'indxBPOR =',indxBPOR
-      vname(1,indxBPOR)  ='bed_poros                              '            
-      vname(2,indxBPOR)  ='Porosity of sediment bed layer         '         
-      vname(3,indxBPOR)  ='no units                               '       
-      vname(5,indxBPOR)='                                         '      
-      vname(6,indxBPOR)='lat_rho lon_rho                          '                    
+      vname(1,indxBPOR)  ='bed_poros                              ' 
+      vname(2,indxBPOR)  ='Porosity of sediment bed layer         ' 
+      vname(3,indxBPOR)  ='no units                               ' 
+      vname(5,indxBPOR)='                                         ' 
+      vname(6,indxBPOR)='lat_rho lon_rho                          ' 
       vname(7,indxBPOR)='                                         '    
 
 CR      write(stdout,'(1x,A,I3)') 'indxBFRA1 =',indxBFRA+1
@@ -797,23 +797,23 @@ CR      write(stdout,'(1x,A,I3)') 'indxAbed=',indxBBL
       vname(2,indxBBL)  ='Bed wave excursion amplitude            '
       vname(3,indxBBL)  ='m                                       '
       vname(5,indxBBL)='                                          '
-      vname(6,indxBBL)='lat_rho lon_rho                           '              
+      vname(6,indxBBL)='lat_rho lon_rho                           ' 
       vname(7,indxBBL)='                                          '
 
 CR      write(stdout,'(1x,A,I3)') 'indxHrip =',indxBBL+1
-      vname(1,indxHrip)='Hripple                                  '           
-      vname(2,indxHrip)='Bed ripple height                        '          
-      vname(3,indxHrip)='m                                        '         
-      vname(5,indxHrip)='                                         '        
-      vname(6,indxHrip)='lat_rho lon_rho                          '                      
-      vname(7,indxHrip)='                                         '      
+      vname(1,indxHrip)='Hripple                                  ' 
+      vname(2,indxHrip)='Bed ripple height                        ' 
+      vname(3,indxHrip)='m                                        ' 
+      vname(5,indxHrip)='                                         ' 
+      vname(6,indxHrip)='lat_rho lon_rho                          ' 
+      vname(7,indxHrip)='                                         ' 
 
 CR      write(stdout,'(1x,A,I3)') 'indxLrip =',indxBBL+2
       vname(1,indxLrip)='Lripple                                  '
       vname(2,indxLrip)='Bed ripple length                        '
       vname(3,indxLrip)='m                                        '   
       vname(5,indxLrip)='                                         '  
-      vname(6,indxLrip)='lat_rho lon_rho                          '               
+      vname(6,indxLrip)='lat_rho lon_rho                          ' 
       vname(7,indxLrip)='                                         '
 
 CR      write(stdout,'(1x,A,I3)') 'indxZbnot=',indxBBL+3
@@ -821,7 +821,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxZbnot=',indxBBL+3
       vname(2,indxZbnot)='Physical hydraulic bottom roughness     '
       vname(3,indxZbnot)='m                                       '
       vname(5,indxZbnot)='                                        '
-      vname(6,indxZbnot)='lat_rho lon_rho                         '              
+      vname(6,indxZbnot)='lat_rho lon_rho                         ' 
       vname(7,indxZbnot)='                                        '
 
 CR      write(stdout,'(1x,A,I3)') 'indxZbapp=',indxBBL+4
@@ -1095,16 +1095,16 @@ CR      write(stdout,'(1x,A,I3)') 'indxSUSTR =',indxSUSTR
       vname(3,indxSUSTR)='Newton meter-2                          '
       vname(4,indxSUSTR)='surface u-mom. stress, scalar, series   '
       vname(5,indxSUSTR)='surface_downward_x_stress               '
-      vname(6,indxSUSTR)='lat_u lon_u                             '         
+      vname(6,indxSUSTR)='lat_u lon_u                             '
       vname(7,indxSUSTR)='                                        '
       
 CR      write(stdout,'(1x,A,I3)') 'indxSVSTR =',indxSVSTR
-      vname(1,indxSVSTR)='svstr                                   '          
-      vname(2,indxSVSTR)='surface v-momentum stress               '         
-      vname(3,indxSVSTR)='Newton meter-2                          '        
+      vname(1,indxSVSTR)='svstr                                   '
+      vname(2,indxSVSTR)='surface v-momentum stress               '
+      vname(3,indxSVSTR)='Newton meter-2                          '
       vname(4,indxSVSTR)='surface v-mom. stress, scalar, series   '    
       vname(5,indxSVSTR)='surface_downward_y_stress               '     
-      vname(6,indxSVSTR)='lat_v lon_v                             '            
+      vname(6,indxSVSTR)='lat_v lon_v                             '
       vname(7,indxSVSTR)='                                        '   
       
 #ifdef SOLVE3D     
@@ -1115,7 +1115,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxSST =',indxSST
       vname(3,indxSST)='Celsius                                   '
       vname(4,indxSST)='SST, scalar, series                       '
       vname(5,indxSST)='sea_surface_temperature                   '
-      vname(6,indxSST)='lat_rho lon_rho                           '              
+      vname(6,indxSST)='lat_rho lon_rho                           '
       vname(7,indxSST)='                                          '
       vname(8,indxSST)=' '            
 
@@ -1125,7 +1125,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxdQdSST =',indxdQdSST
       vname(3,indxdQdSST)='Watts meter-2 Celsius-1                '
       vname(4,indxdQdSST)='dQdSST, scalar, series                 '
       vname(5,indxdQdSST)='heat_flux_correction                   ' 
-      vname(6,indxdQdSST)='lat_rho lon_rho                        '               
+      vname(6,indxdQdSST)='lat_rho lon_rho                        '
       vname(7,indxdQdSST)='                                       '
 # endif     
 # ifdef PSOURCE_NCFILE
@@ -1143,7 +1143,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxSSS =',indxSSS
       vname(3,indxSSS)='PSU                                       '
       vname(4,indxSSS)='SSS, scalar, series                       '
       vname(5,indxSSS)='sea_surface_salinity                      '
-      vname(6,indxSSS)='lat_rho lon_rho                           '              
+      vname(6,indxSSS)='lat_rho lon_rho                           '
       vname(7,indxSSS)='                                          '
 # endif
 
@@ -1155,7 +1155,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxWWA',indxWWA
       vname(3,indxWWA)='meter                                     '
       vname(4,indxWWA)='Awave,scalar, series                      '
       vname(5,indxWWA)='                                          '
-      vname(6,indxWWA)='lat_rho lon_rho                           '              
+      vname(6,indxWWA)='lat_rho lon_rho                           '
 
 CR      write(stdout,'(1x,A,I3)') 'indxWWD =',indxWWD
       vname(1,indxWWD)='Dwave                                     '
@@ -1163,7 +1163,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxWWD =',indxWWD
       vname(3,indxWWD)='degrees                                   '
       vname(4,indxWWD)='Dwave, scalar, series                     '     
       vname(5,indxWWD)='                                          '
-      vname(6,indxWWD)='lat_rho lon_rho                           '              
+      vname(6,indxWWD)='lat_rho lon_rho                           '
       vname(7,indxWWD)='                                          '
 
 CR      write(stdout,'(1x,A,I3)') 'indxWWP =',indxWWP
@@ -1172,7 +1172,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxWWP =',indxWWP
       vname(3,indxWWP)='second                                    '
       vname(4,indxWWP)='Pwave, scalar, series                     '
       vname(5,indxWWP)='                                          '
-      vname(6,indxWWP)='lat_rho lon_rho                           '             
+      vname(6,indxWWP)='lat_rho lon_rho                           '
       vname(7,indxWWP)='                                          '
 
 #   if defined  MRL_WCI
@@ -1193,7 +1193,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxBSS =',indxBSS
       vname(3,indxBSS)='meter                                     '
       vname(4,indxBSS)='Ssize, scalar, series                     '
       vname(5,indxBSS)='                                          '
-      vname(6,indxBSS)='lat_rho lon_rho                           '             
+      vname(6,indxBSS)='lat_rho lon_rho                           '
       vname(7,indxBSS)='                                          '
 
 CR      write(stdout,'(1x,A,I3)') 'indxBSD =',indxBSD
@@ -1244,13 +1244,12 @@ CR      write(stdout,'(1x,A,I3)') 'indxBSD =',indxBSD
       vname(1,indxEPR)='epr                                      '
       vname(2,indxEPR)='roller dissipation, epsilon_r            '
       vname(3,indxEPR)='meter^3/second^3                         '
-
 #endif
 
 #ifdef MRL_WCI
-      vname(1,indxSUP)='sup                                      '
-      vname(2,indxSUP)='quasi-static sea-level response (set-up) '
-      vname(3,indxSUP)='meter                                    '
+      vname(1,indxSUP)  ='sup                                      '
+      vname(2,indxSUP)  ='quasi-static sea-level response (set-up) '
+      vname(3,indxSUP)  ='meter                                    '
 
       vname(1,indxUST2D)='ust2d                                  '
       vname(2,indxUST2D)='u depth-averaged Stokes drift velocity '

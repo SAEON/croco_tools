@@ -507,8 +507,113 @@
 # endif
         enddo
       enddo
+
+# ifdef LIMIT_BSTRESS
 !
+!  From J. Warner's code:
+!  Set limiting factor for bottom stress. The bottom stress is adjusted
+!  to not change the direction of momentum.  It only should slow down
+!  to zero.  The value of 0.75 is arbitrary limitation assigment.
 !
+      cff=0.75/dt
+      do j=Jstr,Jend
+        do i=IstrU,Iend
+          cff1=cff*0.5*(Hz(i-1,j,1)+Hz(i,j,1))
+          bustr(i,j)=SIGN(1.0, bustr(i,j))* 
+     &               MIN(ABS(bustr(i,j)),
+     &                   ABS(u(i,j,1,nrhs))*cff1)
+        enddo
+      enddo
+      do j=JstrV,Jend
+        do i=Istr,Iend
+          cff1=cff*0.5*(Hz(i,j-1,1)+Hz(i,j,1))
+          bvstr(i,j)=SIGN(1.0, bvstr(i,j))*
+     &               MIN(ABS(bvstr(i,j)),
+     &                   ABS(v(i,j,1,nrhs))*cff1)
+        enddo
+      enddo
+# endif
+
+!
+! Set boundary conditions
+!
+# ifndef EW_PERIODIC
+      IF (EASTERN_EDGE) THEN
+        DO j=Jstr,Jend
+          bustr(Iend+1,j )=bustr(Iend,j)
+          bustrw(Iend+1,j)=bustrw(Iend,j)
+        END DO
+        DO j=JstrV,Jend
+          bvstr(Iend+1,j )=bvstr(Iend,j)
+          bvstrw(Iend+1,j)=bvstrw(Iend,j)
+        END DO
+      END IF
+      IF (WESTERN_EDGE) THEN
+        DO j=Jstr,Jend
+          bustr(Istr-1,j) =bustr(Istr,j)
+          bustrw(Istr-1,j)=bustrw(Istr,j)
+        END DO
+        DO j=JstrV,Jend
+          bvstr(Istr-1,j) =bvstr(Istr,j)
+          bvstrw(Istr-1,j)=bvstrw(Istr,j)
+        END DO
+      END IF
+# endif
+# ifndef NS_PERIODIC
+      IF (NORTHERN_EDGE) THEN
+        DO i=IstrU,Iend
+          bustr(i,Jend+1) =bustr(i,Jend)
+          bustrw(i,Jend+1)=bustrw(i,Jend)
+        END DO
+        DO i=Istr,Iend
+          bvstr(i,Jend+1) =bvstr(i,Jend)
+          bvstrw(i,Jend+1)=bvstrw(i,Jend)
+        END DO
+      END IF
+      IF (SOUTHERN_EDGE) THEN
+        DO i=IstrU,Iend
+          bustr(i,Jstr-1) =bustr(i,Jstr)
+          bustrw(i,Jstr-1)=bustrw(i,Jstr)
+        END DO
+        DO i=Istr,Iend
+          bvstr(i,Jstr-1) =bvstr(i,Jstr)
+          bvstrw(i,Jstr-1)=bvstrw(i,Jstr)
+        END DO
+      END IF
+# endif
+# if !defined EW_PERIODIC && !defined NS_PERIODIC
+      IF (SOUTHERN_EDGE.and.WESTERN_EDGE) THEN
+        bustr(Istr,Jstr-1)=0.5*(bustr(Istr+1,Jstr-1)+bustr(Istr,Jstr))
+        bvstr(Istr-1,Jstr)=0.5*(bvstr(Istr,Jstr)+bvstr(Istr-1,Jstr+1))
+        bustrw(Istr,Jstr-1)=0.5*(bustrw(Istr+1,Jstr-1)+bustrw(Istr,Jstr))
+        bvstrw(Istr-1,Jstr)=0.5*(bvstrw(Istr,Jstr)+bvstrw(Istr-1,Jstr+1))
+      END IF
+      IF (SOUTHERN_EDGE.and.EASTERN_EDGE) THEN
+        bustr(Iend+1,Jstr-1)=0.5*(bustr(Iend+1,Jstr)+bustr(Iend,Jstr-1))
+        bvstr(Iend+1,Jstr)=0.5*(bvstr(Iend+1,Jstr+1)+bvstr(Iend,Jstr))
+        bustrw(Iend+1,Jstr-1)=0.5*(bustrw(Iend+1,Jstr)+bustrw(Iend,Jstr-1))
+        bvstrw(Iend+1,Jstr)=0.5*(bvstrw(Iend+1,Jstr+1)+bvstrw(Iend,Jstr))
+      END IF
+      IF (NORTHERN_EDGE.and.WESTERN_EDGE) THEN
+        bustr(Istr,Jend+1)=0.5*(bustr(Istr,Jend)+bustr(Istr+1,Jend+1))
+        bvstr(Istr-1,Jend+1)=0.5*(bvstr(Istr-1,Jend)+bvstr(Istr,Jend+1))
+        bustrw(Istr,Jend+1)=0.5*(bustrw(Istr,Jend)+bustrw(Istr+1,Jend+1))
+        bvstrw(Istr-1,Jend+1)=0.5*(bvstrw(Istr-1,Jend)+bvstrw(Istr,Jend+1))
+      END IF
+      IF (NORTHERN_EDGE.and.EASTERN_EDGE) THEN
+        bustr(Iend+1,Jend+1)=0.5*(bustr(Iend+1,Jend)+bustr(Iend,Jend+1))
+        bvstr(Iend+1,Jend+1)=0.5*(bvstr(Iend+1,Jend)+bvstr(Iend,Jend+1))
+        bustrw(Iend+1,Jend+1)=0.5*(bustrw(Iend+1,Jend)+bustrw(Iend,Jend+1))
+        bvstrw(Iend+1,Jend+1)=0.5*(bvstrw(Iend+1,Jend)+bvstrw(Iend,Jend+1))
+      END IF
+# endif
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      call exchange_u2d_tile (Istr,Iend,Jstr,Jend,bustr(START_2D_ARRAY))
+      call exchange_v2d_tile (Istr,Iend,Jstr,Jend,bvstr(START_2D_ARRAY))
+      call exchange_u2d_tile (Istr,Iend,Jstr,Jend,bustrw(START_2D_ARRAY))
+      call exchange_v2d_tile (Istr,Iend,Jstr,Jend,bvstrw(START_2D_ARRAY))
+# endif
+
       return
       end
 !====================================================================!

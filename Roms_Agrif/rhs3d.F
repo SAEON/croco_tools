@@ -64,7 +64,6 @@
 !
 # include "compute_auxiliary_bounds.h"
 !
-!
 #ifdef MASKING
 # define SWITCH *
 #else
@@ -75,6 +74,12 @@
 #  define Uwrk UFx
 #  define Vwrk VFe
 #  define wrk UFe
+!
+!====================================================================
+!
+!  Apply surface and bottom stresses as body forces if selected
+!
+!====================================================================
 !
 !  Apply surface stress as a bodyforce: determine the thickness [m]
 !  of the surface layer; then add in surface stress as a bodyfoce.
@@ -172,7 +177,12 @@
 !
 # if defined UV_COR || (defined CURVGRID && defined UV_ADV)
 !
-!  Add in Coriolis, Stokes-Coriolis and curvilinear transformation terms, if any.
+!====================================================================
+!
+!  Add in Coriolis, Stokes-Coriolis and curvilinear transformation 
+!  terms, if any.
+!
+!====================================================================
 !
         do j=JstrV-1,Jend
           do i=IstrU-1,Iend
@@ -222,6 +232,7 @@
 #  endif
           enddo
         enddo
+
         do j=JstrV,Jend
           do i=Istr,Iend
             rv(i,j,k)=rv(i,j,k)-0.5*(VFe(i,j)+VFe(i,j-1))
@@ -242,14 +253,16 @@
           enddo
         enddo
 # endif /* UV_COR || (CURVGRID && UV_ADV) */
-      
+
 # ifdef UV_ADV
 !
 !====================================================================
+!
 !  Add in horizontal advection of momentum.
 !  Compute diagonal [UFx,VFe] and off-diagonal [UFe,VFx] components
 !  of tensor of momentum flux due to horizontal advection; after that
 !  add in horizontal advection terms.
+!
 !====================================================================
 !
 #  define uxx wrk1
@@ -564,6 +577,8 @@
 #  endif
           enddo
         enddo
+
+
         do j=JstrV,Jend
           do i=Istr,Iend
             rv(i,j,k)=rv(i,j,k)-VFx(i+1,j)+VFx(i,j  )
@@ -578,6 +593,7 @@
         enddo
 # endif /* UV_ADV */
       enddo    ! <-- k
+
 
       do j=Jstr,Jend
 # ifdef UV_ADV
@@ -682,6 +698,8 @@
           enddo
         enddo               !--> discard FC
 
+
+
         if (j.ge.JstrV) then
 #  ifdef UV_VADV_SPLINES
 !
@@ -779,16 +797,22 @@
         endif
 # endif /* UV_ADV */
 
+!
+!====================================================================
+!
 ! Add combined vortex-force and advection terms & breaking terms
+!
+!====================================================================
+!
 # ifdef MRL_WCI
         do k=1,N
           do i=istrU,iend
             cff  =0.5*on_u(i,j)*(Hz(i-1,j,k)+Hz(i,j,k))
-            vstu =0.25*( vst(i,j,k) +vst(i,j+1,k)
+            vstu =0.25*( vst(i  ,j,k) +vst(i  ,j+1,k)
      &                  +vst(i-1,j,k) +vst(i-1,j+1,k) )
             dudx =0.5*( u(i+1,j,k,nrhs) -u(i-1,j,k,nrhs) )
             dvdx =0.5*( v(i  ,j,k,nrhs) -v(i-1,j,k,nrhs)
-     &                  +v(i,j+1,k,nrhs) -v(i-1,j+1,k,nrhs) )
+     &                 +v(i,j+1,k,nrhs) -v(i-1,j+1,k,nrhs) )
             ru(i,j,k) =ru(i,j,k) + cff
      &                           *(ust(i,j,k)*dudx+vstu*dvdx)
 #  ifndef SURFACE_BREAK
@@ -810,12 +834,13 @@
 #  endif
           enddo
 
+
           do i=istr,iend
             cff  =0.5*om_v(i,j)*(Hz(i,j-1,k)+Hz(i,j,k))
-            ustv =0.25*( ust(i,j,k) +ust(i+1,j,k)
-     &                   +ust(i,j-1,k) +ust(i+1,j-1,k) )
-            dude =0.5*( u(i,j,k,nrhs) -u(i,j-1,k,nrhs)
-     &                   +u(i+1,j,k,nrhs) -u(i+1,j-1,k,nrhs) )
+            ustv =0.25*( ust(i,j  ,k) +ust(i+1,j  ,k)
+     &                  +ust(i,j-1,k) +ust(i+1,j-1,k) )
+            dude =0.5*( u(i  ,j,k,nrhs) -u(i  ,j-1,k,nrhs)
+     &                 +u(i+1,j,k,nrhs) -u(i+1,j-1,k,nrhs) )
 ccc            dvde =0.5*( v(i,j-1,k,nrhs) -v(i,j+1,k,nrhs) )
             dvde =0.5*( v(i,j+1,k,nrhs) -v(i,j-1,k,nrhs) )
             rv(i,j,k) =rv(i,j,k) + cff
@@ -850,6 +875,9 @@ ccc            dvde =0.5*( v(i,j-1,k,nrhs) -v(i,j+1,k,nrhs) )
 #  endif
 
 # endif   /* MRL_WCI */
+
+!
+!====================================================================
 !
 !  Start computation of the forcing terms for the 2D (barotropic
 !  mode) momentum equations: vertically integrate the just computed
@@ -860,6 +888,8 @@ ccc            dvde =0.5*( v(i,j-1,k,nrhs) -v(i,j+1,k,nrhs) )
 !  "rhs2d" during the first barotropic time step, when the
 !  barotropically computed r.h.ss "rubar", "rvbar" will be subtracted
 !  from the vertically integrated (here) "rufrc", "rvfrc".
+!
+!====================================================================
 !
         do i=IstrU,Iend
           rufrc(i,j)=ru(i,j,1)
@@ -892,6 +922,7 @@ ccc            dvde =0.5*( v(i,j-1,k,nrhs) -v(i,j+1,k,nrhs) )
           enddo
         endif
       enddo      !<-- j
+
       return
       end
 #else

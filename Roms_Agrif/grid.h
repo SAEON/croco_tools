@@ -134,3 +134,15 @@
      &       /mask_u/umask /mask_v/vmask
 #endif
 
+#ifdef WET_DRY
+      real rmask_wet(GLOBAL_2D_ARRAY)
+      real pmask_wet(GLOBAL_2D_ARRAY)
+      real umask_wet(GLOBAL_2D_ARRAY)
+      real vmask_wet(GLOBAL_2D_ARRAY)
+      real rmask_wet_avg(GLOBAL_2D_ARRAY)
+      common /mask_r_wet/rmask_wet /mask_p_wet/pmask_wet
+     &       /mask_u_wet/umask_wet /mask_v_wet/vmask_wet
+      common /mask_r_wet_avg/rmask_wet_avg
+#endif
+
+

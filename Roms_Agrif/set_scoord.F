@@ -65,13 +65,16 @@
 !
 ! Report information about vertical S-levels.
 !
+# ifdef WET_DRY
+        if (hmin.lt.0.) hmin=Dcrit
+# endif
       MPI_master_only write(stdout,'(/1x,A/,/1x,A,10x,A/)')
      &                       'Vertical S-coordinate System:',
      &                       'level   S-coord     Cs-curve',
      &                       'at_hmin  over_slope     at_hmax' 
       do k=N,0,-1
 # ifdef NEW_S_COORD
-        sc=ds*(k-N) 
+        sc=ds*(k-N)
         cff1 = hmin*(hc*sc + hmin*Cs_w(k))/(hc+hmin)
         cff2 = 0.5*hmax*(hc*sc + 0.5*hmax*Cs_w(k))/(hc+0.5*hmax)
         cff3 = hmax*(hc*sc + hmax*Cs_w(k))/(hc+hmax)

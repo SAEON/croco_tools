@@ -144,6 +144,9 @@ c        call v3dbc_interp_tile(Istr,Iend,Jstr,Jend)
 #    ifdef MASKING
             v(i,Jstr,k,nnew)=v(i,Jstr,k,nnew)*vmask(i,Jstr)
 #    endif
+#    ifdef WET_DRY
+            v(i,Jstr,k,nnew)=v(i,Jstr,k,nnew)*vmask_wet(i,Jstr)
+#    endif
           enddo
         enddo
 #   elif defined OBC_COM_M3SPECIFIED
@@ -159,6 +162,9 @@ c        call v3dbc_interp_tile(Istr,Iend,Jstr,Jend)
 #    ifdef MASKING
      &                       *vmask(i,Jstr)
 #    endif
+#    ifdef WET_DRY
+     &                       *vmask_wet(i,Jstr)
+#    endif
           enddo
         enddo
 #   else
@@ -169,6 +175,9 @@ c        call v3dbc_interp_tile(Istr,Iend,Jstr,Jend)
             v(i,Jstr,k,nnew)=v(i,Jstr+1,k,nnew)  ! gradient (default)
 #    ifdef MASKING
      &                       *vmask(i,Jstr)
+#    endif
+#    ifdef WET_DRY
+     &                       *vmask_wet(i,Jstr)
 #    endif
           enddo
         enddo
@@ -245,6 +254,9 @@ c        call v3dbc_interp_tile(Istr,Iend,Jstr,Jend)
 #    ifdef MASKING
             v(i,Jend+1,k,nnew)=v(i,Jend+1,k,nnew)*vmask(i,Jend+1)
 #    endif
+#    ifdef WET_DRY
+            v(i,Jend+1,k,nnew)=v(i,Jend+1,k,nnew)*vmask_wet(i,Jend+1)
+#    endif
           enddo
         enddo
 !
@@ -261,6 +273,9 @@ c        call v3dbc_interp_tile(Istr,Iend,Jstr,Jend)
 #    ifdef MASKING
      &                         *vmask(i,Jend+1)
 #    endif
+#    ifdef WET_DRY
+     &                         *vmask_wet(i,Jend+1)
+#    endif
           enddo
         enddo
 #   else
@@ -271,6 +286,9 @@ c        call v3dbc_interp_tile(Istr,Iend,Jstr,Jend)
             v(i,Jend+1,k,nnew)=v(i,Jend,k,nnew)  ! gradient (default)
 #    ifdef MASKING
      &                         *vmask(i,Jend+1)
+#    endif
+#    ifdef WET_DRY
+     &                         *vmask_wet(i,Jend+1)
 #    endif
           enddo
         enddo
@@ -344,6 +362,9 @@ c        call v3dbc_interp_tile(Istr,Iend,Jstr,Jend)
 #    ifdef MASKING
             v(Istr-1,j,k,nnew)=v(Istr-1,j,k,nnew)*vmask(Istr-1,j)
 #    endif
+#    ifdef WET_DRY
+            v(Istr-1,j,k,nnew)=v(Istr-1,j,k,nnew)*vmask_wet(Istr-1,j)
+#    endif
           enddo
         enddo
 !
@@ -360,6 +381,9 @@ c        call v3dbc_interp_tile(Istr,Iend,Jstr,Jend)
 #    ifdef MASKING
      &                         *vmask(Istr-1,j)
 #    endif
+#    ifdef WET_DRY
+     &                         *vmask_wet(Istr-1,j)
+#    endif
           enddo
         enddo
 #   else
@@ -370,6 +394,9 @@ c        call v3dbc_interp_tile(Istr,Iend,Jstr,Jend)
             v(Istr-1,j,k,nnew)=v(Istr,j,k,nnew)  ! gradient (default)
 #    ifdef MASKING
      &                         *vmask(Istr-1,j)
+#    endif
+#    ifdef WET_DRY
+     &                         *vmask_wet(Istr-1,j)
 #    endif
           enddo
         enddo
@@ -449,6 +476,9 @@ c        call v3dbc_interp_tile(Istr,Iend,Jstr,Jend)
 #    ifdef MASKING
             v(Iend+1,j,k,nnew)=v(Iend+1,j,k,nnew)*vmask(Iend+1,j)
 #    endif
+#    ifdef WET_DRY
+            v(Iend+1,j,k,nnew)=v(Iend+1,j,k,nnew)*vmask_wet(Iend+1,j)
+#    endif
           enddo
         enddo
 !
@@ -465,6 +495,9 @@ c        call v3dbc_interp_tile(Istr,Iend,Jstr,Jend)
 #    ifdef MASKING
      &                         *vmask(Iend+1,j)
 #    endif
+#    ifdef WET_DRY
+     &                         *vmask_wet(Iend+1,j)
+#    endif
           enddo
         enddo
 #   else
@@ -475,6 +508,9 @@ c        call v3dbc_interp_tile(Istr,Iend,Jstr,Jend)
             v(Iend+1,j,k,nnew)=v(Iend,j,k,nnew)  ! gradient (default)
 #    ifdef MASKING
      &                         *vmask(Iend+1,j)
+#    endif
+#    ifdef WET_DRY
+     &                         *vmask_wet(Iend+1,j)
 #    endif
           enddo
         enddo

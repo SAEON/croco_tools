@@ -34,8 +34,10 @@
 # endif
      &           wh,fr,kw,brk,stk,Dstp,act,kD,inv_d,inv_f,frc,ebrk,erol)
 !
-!   Evaluating wave-averaged terms and Stokes drift based on MRL04      
-!   (see: McWilliams, Restrepo & Lane, 2004, JFM, 511, pp.135-178)      
+!--------------------------------------------------------------------
+!   Evaluating wave-averaged terms and Stokes drift based on MRL04
+!     (McWilliams, Restrepo & Lane, 2004, JFM, 511, pp.135-178)
+!    
 !   inputs: R.M.S. wave height (m);
 !           peak wave freqiuency (rad/s);
 !           mean wave direction: wdrx & wdre (non dimensional);
@@ -45,6 +47,15 @@
 !
 !   Note that if wkb_wwave.F is used, all the dissipation terms are
 !   divided by wave frequency, sigma (2pi/T).
+!
+!   REFERENCE
+!   ---------
+!   Uchiyama, Y., McWilliams, J.C. and Shchepetkin, A.F. (2010): 
+!      Wave-current interaction in an oceanic circulation model with a 
+!      vortex force formalism: Application to the surf zone.
+!      Ocean Modelling Vol. 34:1-2, pp.16-35.
+!
+!--------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -113,27 +124,27 @@
 
 ! explicit wavenumber estimator
 
-# undef KH_SOULSBY
+# undef  KH_SOULSBY
 # define KH_HUNT
 
 ! vertical distribution function F_Kv(z) for eddy viscosity
 
-c# define FKV_FUNC1
+# undef  FKV_FUNC1
 # define FKV_FUNC2
-c# define FKV_FUNC3
+# undef  FKV_FUNC3
 
 ! vertical distribution function F_B(z) for breaking accerelation
 
-# undef FB_FUNC0
-c# define FB_FUNC1
-c# define FB_FUNC2
+# undef  FB_FUNC0
+# undef  FB_FUNC1
+# undef  FB_FUNC2
 # define FB_FUNC3
-c# define FB_WSCALE
+# undef  FB_WSCALE
 
 ! vertical distribution function F_B(z) for bottom streaming
 
-c# define FF_FUNC1
-c# define FF_FUNC2
+# undef  FF_FUNC1
+# undef  FF_FUNC2
 # define FF_FUNC3
 
 ! initial ramping coefficients
@@ -161,7 +172,7 @@ c# define FF_FUNC2
       inv_g = 1.0/g
       do j=jstr-1,jend+1
         do i=istr-1,iend+1
-          Dstp(i,j)=max(h(i,j)+zeta(i,j,knew),eps)
+          Dstp(i,j)=max(h(i,j)+z_w(i,j,N),eps)
           inv_d(i,j)=1.0/Dstp(i,j)
 # ifdef WKB_WWAVE
           fr(i,j) =frq(i,j,wnew)
@@ -260,7 +271,7 @@ c# define FF_FUNC2
 # endif   /* apply land mask */
         enddo
       enddo              ! <-- discard inv_d (ifndef BBL_F00)
-      
+
 !
 ! sup : quasi-static sea-level response, set-up. no interaction.
 ! ==============================================================
@@ -641,12 +652,12 @@ c# define FF_FUNC2
           kvb   =bconst*vs*wh(i,j) ! depth-averaged Akb
           do k=1,N,+1              ! <-- irreversible
 #  ifdef FKV_FUNC1
-            dd  =zeta(i,j,knew)-z_w(i,j,k)
+            dd  =z_w(i,j,N)-z_w(i,j,k)
             fn1 =3.*(exp(-2.*kbrk*dd)+exp(-4.*kbrk*dd))
             fn2 =exp(-6.*kbrk*dd)
             fb2 =c4o3*inv_k*(fn1+2.*fn2)/(1.+fn1+fn2)
 #  elif defined FKV_FUNC2
-            fn1 =exp(-2.*kbrk*(zeta(i,j,knew)-z_w(i,j,k)))
+            fn1 =exp(-2.*kbrk*(z_w(i,j,N)-z_w(i,j,k)))
             fb2 =2.*inv_k*fn1/(1.+fn1)
 #  elif defined FKV_FUNC3
             fb2 =exp( kbrk*(z_w(i,j,k)+h(i,j)-Dstp(i,j)))
@@ -705,14 +716,15 @@ c# define FF_FUNC2
           fb1   =0.0               ! fb1 = \int gb dz at z = -h
           fb0   =1.D0/(1.-exp(-2.*kbrk*Dstp(i,j)))
 #   endif
+
           do k=1,N,+1              ! <-- irreversible
 #   ifdef FB_FUNC1
-            dd  =zeta(i,j,knew)-z_w(i,j,k)
+            dd  =z_w(i,j,N)-z_w(i,j,k)
             fn1 =3.*(exp(-2.*kbrk*dd)+exp(-4.*kbrk*dd))
             fn2 =exp(-6.*kbrk*dd)
             fb2 =c4o3*inv_k*(fn1+2.*fn2)/(1.+fn1+fn2)
 #   elif defined FB_FUNC2
-            fn1 =exp(-2.*kbrk*(zeta(i,j,knew)-z_w(i,j,k)))
+            fn1 =exp(-2.*kbrk*(z_w(i,j,N)-z_w(i,j,k)))
             fb2 =2.*inv_k*fn1/(1.+fn1)
 #   elif defined FB_FUNC3
             fb2 =exp( kbrk*(z_w(i,j,k)+h(i,j)-Dstp(i,j)))
@@ -736,6 +748,7 @@ c# define FF_FUNC2
 #  endif
           enddo
         enddo
+
         do j=jstr,jendR
           do i=istrR,iendR
             brk3de(i,j,k)=0.5*( brk_r(i,j-1,k)*wdre(i,j-1)
@@ -746,6 +759,7 @@ c# define FF_FUNC2
           enddo
         enddo
       enddo       ! <-- discard brk_r, but keep ust_r
+
 #  undef brk_r
 # endif        /* ifndef SURFACE_BREAK */
 # undef inv_d
@@ -811,8 +825,8 @@ c# define FF_FUNC2
             fn1 =exp(-2.*kfrc*(h(i,j)+z_w(i,j,k)))
             fb2 =2.*inv_k*fn1/(1.+fn1)
 #   elif defined FF_FUNC3
-            fb2 =exp( kfrc*(zeta(i,j,knew)-z_w(i,j,k)-Dstp(i,j)))
-     &          -exp(-kfrc*(zeta(i,j,knew)-z_w(i,j,k)+Dstp(i,j)))
+            fb2 =exp( kfrc*(z_w(i,j,N)-z_w(i,j,k)-Dstp(i,j)))
+     &          -exp(-kfrc*(z_w(i,j,N)-z_w(i,j,k)+Dstp(i,j)))
 #   endif
             fb =fb0*inv_dz(i,j,k)*(fb2-fb1)
             frc_r(i,j,k) = fb*frc(i,j)
@@ -936,7 +950,6 @@ c           ubry_east(j,k)=-ust(iendR,j,k)
       endif
 #    endif  /* OBC_EAST */
 #   endif  /* ANA_BRY */
-
 
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r2d_tile(istr,iend,jstr,jend,sup)

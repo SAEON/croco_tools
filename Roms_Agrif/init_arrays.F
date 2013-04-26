@@ -93,6 +93,16 @@ C$    integer omp_get_thread_num
           ubar_avg(i,j)=init
           vbar_avg(i,j)=init
 #endif
+#ifdef MRL_WCI
+          ust2d(i,j)=init
+          vst2d(i,j)=init
+#endif
+#ifdef WET_DRY
+          rmask_wet(i,j)=1
+          umask_wet(i,j)=1
+          vmask_wet(i,j)=1
+          pmask_wet(i,j)=1
+#endif
 #ifdef SOLVE3D
           rufrc(i,j)=init
           rufrc(i,j)=init
@@ -127,6 +137,10 @@ C$    integer omp_get_thread_num
             u_avg(i,j,k)=init
             v_avg(i,j,k)=init
             w_avg(i,j,k)=init
+# endif
+# ifdef MRL_WCI
+            ust(i,j,k)=init
+            vst(i,j,k)=init
 # endif
 !
 # ifdef DIAGNOSTICS_UV

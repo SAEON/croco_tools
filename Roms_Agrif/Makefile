@@ -41,7 +41,7 @@ include Makedefs
 	pre_step3d.F	step3d_t.F	step3d_uv1.F	step3d_uv2.F\
 	prsgrd.F	rhs3d.F		set_depth.F	omega.F\
 	uv3dmix.F	uv3dmix_spg.F	t3dmix.F	t3dmix_spg.F\
-	hmix_coef.F\
+	hmix_coef.F	wetdry.F\
 	u3dbc.F		v3dbc.F		t3dbc.F\
 \
 	rho_eos.F	ab_ratio.F	alfabeta.F\

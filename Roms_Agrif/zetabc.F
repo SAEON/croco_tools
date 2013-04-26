@@ -351,6 +351,78 @@ C$    trd=omp_get_thread_num()
       endif
 #endif
 !
+#if defined WET_DRY
+!
+!====================================================================
+! Ensure that water level on boundary cells is above bed elevation.
+!====================================================================
+!
+      cff=Dcrit-eps
+# ifndef EW_COM_PERIODIC
+      if (WESTERN_EDGE) then
+        DO j=Jstr,Jend
+          IF (zeta(Istr-1,j,knew).le.
+     &        (Dcrit-h(Istr-1,j))) THEN
+            zeta(Istr-1,j,knew)=cff-h(Istr-1,j)
+          END IF
+        END DO
+      END IF
+      if (EASTERN_EDGE) then
+        DO j=Jstr,Jend
+          IF (zeta(Iend+1,j,knew).le.
+     &        (Dcrit-h(Iend+1,j))) THEN
+            zeta(Iend+1,j,knew)=cff-h(Iend+1,j)
+          END IF
+        END DO
+      END IF
+# endif
+# ifndef NS_COM_PERIODIC
+      if (SOUTHERN_EDGE) then
+        DO i=Istr,Iend
+          IF (zeta(i,Jstr-1,knew).le.
+     &       (Dcrit-h(i,Jstr-1))) THEN
+               zeta(i,Jstr-1,knew)=cff-h(i,Jstr-1)
+          END IF
+        END DO
+      END IF
+      if (NORTHERN_EDGE) then
+        DO i=Istr,Iend
+          IF (zeta(i,Jend+1,knew).le.
+     &       (Dcrit-h(i,Jend+1))) THEN
+               zeta(i,Jend+1,knew)=cff-h(i,Jend+1)
+          END IF
+        END DO
+      END IF
+# endif
+# if !defined EW_COM_PERIODIC && !defined NS_COM_PERIODIC
+      if (SOUTHERN_EDGE .and. WESTERN_EDGE) then
+        IF (zeta(Istr-1,Jstr-1,knew).le.
+     &      (Dcrit-h(Istr-1,Jstr-1))) THEN
+            zeta(Istr-1,Jstr-1,knew)=cff-h(Istr-1,Jstr-1)
+        END IF
+      END IF
+      if (SOUTHERN_EDGE .and. EASTERN_EDGE) then
+        IF (zeta(Iend+1,Jstr-1,knew).le.
+     &      (Dcrit-h(Iend+1,Jstr-1))) THEN
+            zeta(Iend+1,Jstr-1,knew)=cff-h(Iend+1,Jstr-1)
+        END IF
+      END IF
+      if (NORTHERN_EDGE .and. WESTERN_EDGE) then
+        IF (zeta(Istr-1,Jend+1,knew).le.
+     &      (Dcrit-h(Istr-1,Jend+1))) THEN
+            zeta(Istr-1,Jend+1,knew)=cff-h(Istr-1,Jend+1)
+        END IF
+      END IF
+      if (NORTHERN_EDGE .and. EASTERN_EDGE) then
+        IF (zeta(Iend+1,Jend+1,knew).le.
+     &      (Dcrit-h(Iend+1,Jend+1))) THEN
+            zeta(Iend+1,Jend+1,knew)=cff-h(Iend+1,Jend+1)
+        END IF
+      END IF
+# endif
+#endif /* WET_DRY */
+
+
       return
       end
 #ifndef CHILD

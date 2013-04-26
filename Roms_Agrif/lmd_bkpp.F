@@ -43,7 +43,8 @@
      &     zbl,    zsbl,    eps
       parameter (eps=1.E-20)
       real lmd_cs, lmd_Cv, Ric, lmd_betaT, lmd_epsilon,
-     &     lmd_cekman, lmd_nu0c
+     &     lmd_cekman, lmd_nu0c,
+     &     Kv0, Kt0, Ks0
       parameter (
      &   lmd_cs=98.96,     ! see parameter associated with turbulent
                            ! velocity scales in lmd_wscale.F
@@ -258,28 +259,37 @@
 !  Compute boundary layer mixing coefficients, combine them
 !  with interior mixing coefficients.
 !
-              Kv(i,j,k)=hbbl(i,j)*wm(i,j)*sig*(1.+sig*Gm)
-              Kt(i,j,k)=hbbl(i,j)*ws(i,j)*sig*(1.+sig*Gt)
+              Kv0=hbbl(i,j)*wm(i,j)*sig*(1.+sig*Gm)
+              Kt0=hbbl(i,j)*ws(i,j)*sig*(1.+sig*Gt)
 # ifdef SALINITY
-              Ks(i,j,k)=hbbl(i,j)*ws(i,j)*sig*(1.+sig*Gs)
+              Ks0=hbbl(i,j)*ws(i,j)*sig*(1.+sig*Gs)
 # endif
 # ifdef LMD_SKPP
 !
-! If reach into SBL, take the max of surface and bottom values 
+! If BBL reaches into SBL, take the sum (or max) of surface and bottom values 
 !
-#ifdef LMD_SKPP2005
+#  ifdef LMD_SKPP2005
               zsbl=z_w(i,j,N)-hbls(i,j,3-nstp)
-#else
+#  else
               zsbl=z_w(i,j,N)-hbl(i,j)
-#endif
+#  endif
               if (z_w(i,j,k).gt.zsbl) then
-                Kv(i,j,k)=max(Kv(i,j,k),Akv(i,j,k))
-                Kt(i,j,k)=max(Kt(i,j,k),Akt(i,j,k,itemp))
+                Kv0=Kv(i,j,k)+Kv0
+                Kt0=Kt(i,j,k)+Kt0
+                !Kv0=max(Kv0,Kv(i,j,k))
+                !Kt0=max(Kt0,Kt(i,j,k,itemp))
 #  ifdef SALINITY
-                Ks(i,j,k)=max(Ks(i,j,k),Akt(i,j,k,isalt))
+                Ks0=Ks(i,j,k)+Ks0
+                !Ks0=max(Ks0,Kt(i,j,k,isalt))
 #  endif
               endif
 # endif /* LMD_SKPP */
+
+              Kv(i,j,k)=Kv0
+              Kt(i,j,k)=Kt0
+#  ifdef SALINITY
+              Ks(i,j,k)=Ks0
+#  endif
 
             else  !<-- k > kbbl(i,j)
 
@@ -288,13 +298,13 @@
 !  Add convective adjustment
 !
               if (bvf(i,j,k).lt.0.) then
-#ifdef LMD_SKPP
+#  ifdef LMD_SKPP
 
-#ifdef LMD_SKPP2005                
+#   ifdef LMD_SKPP2005                
              zsbl=z_w(i,j,N)-hbls(i,j,3-nstp)
-#else
+#   else
              zsbl=z_w(i,j,N)-hbl(i,j)
-#endif                
+#   endif                
                 
                 if (z_w(i,j,k).lt.zsbl) then
 #  endif
@@ -308,45 +318,13 @@
 # endif
 
             endif  !<-- k > kbbl(i,j)
+
           enddo
         enddo
 # undef ws
 # undef wm
-!
-!-----------------------------------------------------------------
-!  Finalize: Set vertical mixing coefficients "Akv" and "Akt" 
-!-----------------------------------------------------------------
-!
-        do j=Jstr,Jend
-          do i=Istr,Iend
-            Akv(i,j,k)       = Kv(i,j,k) 
-# ifdef MASKING
-     &                *rmask(i,j)
-# endif
-            Akt(i,j,k,itemp) = Kt(i,j,k)
-# ifdef MASKING
-     &                *rmask(i,j)
-# endif
-# ifdef SALINITY
-            Akt(i,j,k,isalt) = Ks(i,j,k) 
-#  ifdef MASKING
-     &                *rmask(i,j)
-#  endif
-# endif
-          enddo
-        enddo
-
       enddo ! <-- k
 
-# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
-      call exchange_w3d_tile (Istr,Iend,Jstr,Jend, Akv)
-      call exchange_w3d_tile (Istr,Iend,Jstr,Jend,
-     &                     Akt(START_2D_ARRAY,0,itemp))
-#  ifdef SALINITY
-      call exchange_w3d_tile (Istr,Iend,Jstr,Jend,
-     &                     Akt(START_2D_ARRAY,0,isalt))
-#  endif
-# endif
 #else
       subroutine lmd_bkpp_empty
 #endif /* LMD_BKPP */
