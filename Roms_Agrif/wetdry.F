@@ -28,7 +28,11 @@
 !
       real   wetdry(PRIVATE_2D_SCRATCH_ARRAY)
       real   cff, Dcrit2
+#ifdef THACKER
+      parameter (Dcrit2=1.e-10)
+#else
       parameter (Dcrit2=0.1)
+#endif
 
 #include "compute_auxiliary_bounds.h"
 !
