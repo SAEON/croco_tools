@@ -2,10 +2,10 @@ title:
         SHOREFACE Example 
 
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
-               240      15     15      1
+              14400       2.5        60      10
 
 S-coord: THETA_S,   THETA_B,    Hc (m)
-         3.0d0      0.0d0       12.0d0
+         0.0d0       0.0d0      1.e16
 
 initial: NRREC  filename
           0
@@ -15,6 +15,7 @@ forcing:   filename
 
 sediments: input file
            sediment.in
+
 sediment_history_fields: bed_thick bed_poros bed_fra(sand,silt)
                          F         F         F  F
 
@@ -25,11 +26,11 @@ wci_history_fields:  SUP UST2D VST2D UST VST WST AKB AKW KVF CALP KAPS
                       T   T     T     T   T   T   T   T  T    T    T
 
 restart:          NRST, NRPFRST / filename
-                  600   -1
+                  14400   -1
                           shoreface_rst.nc
 
 history: LDEFHIS, NWRT, NRPFHIS / filename
-            T     60       0
+            T     1440       0
                           shoreface_his.nc
 
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
@@ -41,20 +42,20 @@ auxiliary_history_fields: rho Omega  W  Akv  Akt  Aks    Bostr Wstr UWstr VWstr 
 rho0:
       1024.4
 
-bottom_drag:     RDRG(m/s),      RDRG2, Zob [m],  Cdb_min, Cdb_max
-                 0              0.     0.        0.       0.
+bottom_drag:     RDRG(m/s),      RDRG2,   Zob [m],  Cdb_min, Cdb_max
+                   0.0          0.0015     0.        0.       0.
 
 gamma2:
                  1.
 
 lin_EOS_cff:  R0 [86kg/m3], T0 [Celsius], S0 [PSU], TCOEF [1/Celsius], SCOEF [1/PSU]
-              30.         0.            0.        0.28                0.
+               30.           0.            0.        0.28                0.
 
 vertical_mixing: Akv_bak, Akt_bak [m^2/sec]
-                  1.e-5   1.e-5   1.e-5   1.e-5  1.e-5   1.e-5
+                  0.e-2   0.e-2
 
 sponge:          X_SPONGE [m],    V_SPONGE [m^2/sec]
-                 150.e3           500.
+                   200.                10.
 
 nudg_cof:    TauT_in, TauT_out, TauM_in, TauM_out  [days for all]
              1.       360.      1.       360.
