@@ -28,7 +28,9 @@
 #undef  VORTEX          /* Baroclinic Vortex Example */
 #undef  INTERNAL        /* Internal Tide Example */
 #undef  JET             /* Baroclinic Jet Example */
-#undef  SHOREFACE       /* Shoreface Test Case on a Planer Beach */
+#undef  SHOREFACE       /* Shoreface Test Case on a Planar Beach */
+#undef  THACKER         /* Thacker wetting-drying Example */
+
 #define REGIONAL        /* REGIONAL Applications */
 
 
@@ -115,6 +117,7 @@
 # undef  BODYFORCE
 # undef  BVF_MIXING
 # define LMD_MIXING
+# undef  GLS_MIXING
 # ifdef LMD_MIXING
 #  define LMD_SKPP
 #  define LMD_SKPP2005
@@ -123,6 +126,16 @@
 #  define LMD_CONVEC
 #  undef  LMD_DDMIX
 #  define LMD_NONLOCAL
+# endif
+# ifdef GLS_MIXING
+#  define GLS_KKL
+#  undef  GLS_KOMEGA
+#  undef  GLS_KEPSILON
+#  undef  GLS_GEN
+#  undef  KANTHA_CLAYSON
+#  undef  CRAIG_BANNER
+#  undef  CANUTO_A
+#  undef  ZOS_HSIG
 # endif
                       /* Equation of State */
 # define SALINITY
@@ -435,6 +448,7 @@
 /*
 !                       Internal Tide Example
 !                       ======== ==== =======
+!
 ! Di Lorenzo, E, W.R. Young and S.L. Smith, 2006, Numerical and anlytical estimates of M2
 ! tidal conversion at steep oceanic ridges, J. Phys. Oceanogr., 36, 1072-1084.  
 */
@@ -725,15 +739,21 @@
 
 #elif defined SHOREFACE
 /*
-!                       PLANER BEACH Example
+!                       PLANAR BEACH Example
 !                       ====== ===== =======
+!
+!   Uchiyama, Y., McWilliams, J.C. and Shchepetkin, A.F. (2010): 
+!      Wave-current interaction in an oceanic circulation model with a 
+!      vortex force formalism: Application to the surf zone.
+!      Ocean Modelling Vol. 34:1-2, pp.16-35.
 */
-# define ETALON_CHECK
+# undef ETALON_CHECK
 # undef OPENMP
 # undef MPI
-# undef CURVGRID
-# undef SPHERICAL
-# undef MASKING
+# define SOLVE3D
+# define UV_ADV
+# undef  MASKING
+# define NEW_S_COORD
 # define ANA_GRID
 # define ANA_INITIAL
 # define ANA_SMFLUX
@@ -743,11 +763,18 @@
 # define ANA_SST
 # define ANA_BTFLUX
 # define NS_PERIODIC
+# define OBC_WEST
+# ifdef OBC_WEST
+#  define OBC_M2CHARACT
+#  define OBC_M3ORLANSKI
+#  define OBC_TORLANSKI
+#  define SPONGE
+# endif
+# define WET_DRY
 # define MRL_WCI
 # ifdef MRL_WCI
 #   define WAVE_OFFLINE
 #   define WAVE_RAMP
-#   undef LOG_BDRAG
 #   undef WAVE_FRICTION
 #   undef BODY_FRICTION
 #   undef SURFACE_ROLLER
@@ -760,16 +787,16 @@
 #   endif 
 #   undef WKB_WWAVE
 # endif
-# define SOLVE3D
-# define UV_ADV
 # define LMD_MIXING
-# undef BBL
-# undef SEDIMENT
-#  ifdef BBL
-#   ifdef SEDIMENT
-#    undef  ANA_BSEDIM
-#   else
-#    define ANA_BSEDIM
+# define LMD_SKPP
+# define LMD_BKPP
+# undef  BBL
+# undef  SEDIMENT
+# ifdef  BBL
+#  ifdef SEDIMENT
+#   undef  ANA_BSEDIM
+#  else
+#   define ANA_BSEDIM
 #  endif
 #  undef  Z0_BL
 #  ifdef Z0_BL
@@ -777,6 +804,30 @@
 #  endif
 #  undef  Z0_BIO
 # endif
+
+#elif defined THACKER
+/*
+!                       Thacker Example
+!                       ======= =======
+!
+! Thacker, W., (1981), Some exact solutions to the nonlinear shallow-water wave equations. 
+! J. Fluid Mech., 107, 499–508.
+*/
+# undef  ETALON_CHECK
+# undef  OPENMP
+# undef  MPI
+# define SOLVE3D
+# define UV_COR
+# define UV_ADV
+# define WET_DRY
+# define NEW_S_COORD
+# define ANA_GRID
+# define ANA_INITIAL
+# define ANA_BTFLUX
+# define ANA_SMFLUX
+# define ANA_SRFLUX
+# define ANA_STFLUX
+
 
 #endif /* END OF CONFIGURATION CHOICE */
 
