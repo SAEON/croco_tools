@@ -52,8 +52,8 @@
 
       do j=Jstr,Jend+1
         do i=Istr,Iend+1
-          wrk3(i,j)=0.25*(hwrk(i,j)  +hwrk(i-1,j)
-     &                   +hwrk(i,j-1)+hwrk(i-1,j-1))
+          wrk(i,j)=0.25*(hwrk(i,j)  +hwrk(i-1,j)
+     &                  +hwrk(i,j-1)+hwrk(i-1,j-1))
 #   ifdef MASKING
      &                   *pmask(i,j)
 #   endif
@@ -68,8 +68,8 @@
           cff=1.
 #   endif
           hwrk(i,j)=(1.-cff)*hwrk(i,j)+
-     &              0.25*(wrk3(i,j)  +wrk3(i+1,j)
-     &                   +wrk3(i,j+1)+wrk3(i+1,j+1))
+     &              0.25*(wrk(i,j)  +wrk(i+1,j)
+     &                   +wrk(i,j+1)+wrk(i+1,j+1))
 #   ifdef MASKING
           hwrk(i,j)=hwrk(i,j)*rmask(i,j)
 #   endif
