@@ -30,19 +30,16 @@
       real    Kv(PRIVATE_2D_SCRATCH_ARRAY,0:N),
      &        Kt(PRIVATE_2D_SCRATCH_ARRAY,0:N),
      &        Ks(PRIVATE_2D_SCRATCH_ARRAY,0:N),
-
      &        my_hbl(PRIVATE_2D_SCRATCH_ARRAY),
      &            Bo(PRIVATE_2D_SCRATCH_ARRAY),
      &         Bosol(PRIVATE_2D_SCRATCH_ARRAY),
      &         Bflux(PRIVATE_2D_SCRATCH_ARRAY),
-
      &           Gm1(PRIVATE_2D_SCRATCH_ARRAY),
      &        dGm1dS(PRIVATE_2D_SCRATCH_ARRAY),
      &           Gt1(PRIVATE_2D_SCRATCH_ARRAY),
      &        dGt1dS(PRIVATE_2D_SCRATCH_ARRAY),
      &           Gs1(PRIVATE_2D_SCRATCH_ARRAY),
      &        dGs1dS(PRIVATE_2D_SCRATCH_ARRAY),
-
      &          wrk1(PRIVATE_2D_SCRATCH_ARRAY),
      &          wrk2(PRIVATE_2D_SCRATCH_ARRAY),
      &          wrk3(PRIVATE_2D_SCRATCH_ARRAY),

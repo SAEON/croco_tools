@@ -11,11 +11,11 @@
 !
 #include "cppdefs.h"
 
-      subroutine lmd_skpp_tile (Istr,Iend,Jstr,Jend, Kv,Kt,Ks
-     &                             ,swr_frac,my_hbl, Bo,Bosol,
+      subroutine lmd_skpp_tile (Istr,Iend,Jstr,Jend, Kv,Kt,Ks,
+     &                                       my_hbl, Bo,Bosol,
      &                     Gm1,dGm1dS, Gt1,dGt1dS, Gs1,dGs1dS,
-     &                   Bfsfc_bl,Cr,FC,wrk1,wrk2,wrk3,my_kbl
-     &                         )
+     &                          Bfsfc_bl,Cr,FC,wrk1,wrk2,wrk3,
+     &                                       swr_frac, my_kbl)
 !
 !=================================================================================
 !  This subroutine computes vertical mixing coefficients for momentum
@@ -61,6 +61,7 @@
       real    Kv    (PRIVATE_2D_SCRATCH_ARRAY,0:N ),
      &        Kt    (PRIVATE_2D_SCRATCH_ARRAY,0:N ),
      &        Ks    (PRIVATE_2D_SCRATCH_ARRAY,0:N ),
+     &      swr_frac(PRIVATE_2D_SCRATCH_ARRAY,0:N ),
      &        my_hbl(PRIVATE_2D_SCRATCH_ARRAY     ),
      &        Bo    (PRIVATE_2D_SCRATCH_ARRAY     ),
      &        Bosol (PRIVATE_2D_SCRATCH_ARRAY     ),
@@ -75,8 +76,7 @@
      &        FC    (PRIVATE_1D_SCRATCH_ARRAY,0:N ),
      &          wrk1(PRIVATE_1D_SCRATCH_ARRAY,0:N ),
      &          wrk2(PRIVATE_1D_SCRATCH_ARRAY,0:N ),
-     &          wrk3(PRIVATE_2D_SCRATCH_ARRAY     ),
-     &      swr_frac(PRIVATE_2D_SCRATCH_ARRAY,0:N )
+     &          wrk3(PRIVATE_2D_SCRATCH_ARRAY     )
 
       real eps
       parameter (eps=1.E-20)
@@ -314,8 +314,10 @@
 
 #  ifdef HBL_SMOOTH
 #   define hwrk my_hbl
+#   define wrk wrk3
 #   include "kpp_smooth.h"
 #   undef hwrk
+#   undef wrk
 #  endif
 #  undef I_EXT_RANGE
 #  undef J_EXT_RANGE

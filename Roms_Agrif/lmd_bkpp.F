@@ -11,9 +11,10 @@
 !
 #include "cppdefs.h"
 #if defined LMD_BKPP 
+# define HBBL_SMOOTH
       subroutine lmd_bkpp_tile (Istr,Iend,Jstr,Jend, Kv,Kt,Ks,
      &                     Gm1,dGm1dS, Gt1,dGt1dS, Gs1,dGs1dS,
-     &                                             wm,ws, Rib)
+     &                        wm,ws, my_hbbl,my_kbbl,wrk, Rib)
       implicit none
 # include "param.h"
 # include "grid.h"
@@ -21,7 +22,8 @@
 # include "forces.h"
 # include "mixing.h"
 # include "scalars.h"
-      integer Istr,Iend,Jstr,Jend, i,j,k, ka,ku,ksave
+      integer Istr,Iend,Jstr,Jend, i,j,k, ka,ku,ksave,
+     &        imin,imax,jmin,jmax
       real    Kv(PRIVATE_2D_SCRATCH_ARRAY,0:N),
      &        Kt(PRIVATE_2D_SCRATCH_ARRAY,0:N),
      &        Ks(PRIVATE_2D_SCRATCH_ARRAY,0:N),
@@ -33,6 +35,9 @@
      &        dGs1dS(PRIVATE_2D_SCRATCH_ARRAY),
      &            wm(PRIVATE_2D_SCRATCH_ARRAY),
      &            ws(PRIVATE_2D_SCRATCH_ARRAY),
+     &       my_hbbl(PRIVATE_2D_SCRATCH_ARRAY),
+     &       my_kbbl(PRIVATE_2D_SCRATCH_ARRAY),
+     &           wrk(PRIVATE_2D_SCRATCH_ARRAY),
      &         Rib(PRIVATE_2D_SCRATCH_ARRAY,2)
 # define tind nstp
       real Vtc,    hekman,  dVsq,   Vtsq,
@@ -69,6 +74,44 @@
                            ! to shear instability, [m^2/s];
      &                                                           )
 
+# ifdef HBBL_SMOOTH
+#  ifdef EW_PERIODIC
+      imin=istr-1
+      imax=iend+1
+#  else
+      if (WESTERN_EDGE) then
+        imin=istr
+      else
+        imin=istr-1
+      endif
+      if (EASTERN_EDGE) then
+        imax=iend
+      else
+        imax=iend+1
+      endif
+#  endif
+#  ifdef NS_PERIODIC
+      jmin=jstr-1
+      jmax=jend+1
+#  else
+      if (SOUTHERN_EDGE) then
+        jmin=jstr
+      else
+        jmin=jstr-1
+      endif
+      if (NORTHERN_EDGE) then
+        jmax=jend
+      else
+        jmax=jend+1
+      endif
+#  endif
+#  define I_EXT_RANGE imin,imax
+#  define J_EXT_RANGE jmin,jmax
+# else
+#  define I_EXT_RANGE istr,iend
+#  define J_EXT_RANGE jstr,jend
+# endif
+
 !
 ! Initialize relevant parameters
 !
@@ -78,8 +121,8 @@
 !  Compute turbulent friction velocity [m/s] "ustar" from bottom stress
 !  at RHO-points. (Bottom stress includes wave effects if activated in BBL)
 !
-      do j=Jstr,Jend
-        do i=Istr,Iend
+      do j=J_EXT_RANGE
+        do i=I_EXT_RANGE
           ustar(i,j)=sqrt(sqrt( (0.5*(bustr(i,j)+bustr(i+1,j)))**2
      &                         +(0.5*(bvstr(i,j)+bvstr(i,j+1)))**2))
         enddo
@@ -87,8 +130,8 @@
 !
 !  Compute turbulent velocity scales (wm,ws) for zero bottom flux
 !
-      do j=Jstr,Jend
-        do i=Istr,Iend
+      do j=J_EXT_RANGE
+        do i=I_EXT_RANGE
           wm(i,j)=vonKar*ustar(i,j)
           ws(i,j)=wm(i,j)          
         enddo
@@ -107,10 +150,10 @@
 !  Intialize boundary layer depth "hbbl" and index "kbbl" of first grid
 !  level above "hbbl" to maximum values.
 !
-      do j=Jstr,Jend
-        do i=Istr,Iend
-          hbbl(i,j)=z_r(i,j,N)-z_w(i,j,0)
-          kbbl(i,j)=N
+      do j=J_EXT_RANGE
+        do i=I_EXT_RANGE
+          my_hbbl(i,j)=z_r(i,j,N)-z_w(i,j,0)
+          my_kbbl(i,j)=N
           Rib(i,j,ku)=0.
         enddo
       enddo
@@ -133,8 +176,8 @@
 !
       do k=2,N
         cff=g/rho0
-        do j=Jstr,Jend
-          do i=Istr,Iend
+        do j=J_EXT_RANGE
+          do i=I_EXT_RANGE
             Ritop=-cff*(rho1(i,j,k)-rho1(i,j,1))
      &                           *(z_r(i,j,k)-z_r(i,j,1))
 
@@ -152,13 +195,14 @@
 !
 !  Linearly interpolate to find "hbbl" where Rib=Ric.
 !
-        do j=Jstr,Jend
-          do i=Istr,Iend
-            if (kbbl(i,j).eq.N .and. Rib(i,j,ka).gt.Ric) then
+        do j=J_EXT_RANGE
+          do i=I_EXT_RANGE
+
+            if (my_kbbl(i,j).eq.N .and. Rib(i,j,ka).gt.Ric) then
               zbl=z_r(i,j,k)-(z_r(i,j,k)-z_r(i,j,k-1))*
      &           (Ric-Rib(i,j,ka))/(Rib(i,j,ku)-Rib(i,j,ka))
-              hbbl(i,j)=zbl-z_w(i,j,0)
-              kbbl(i,j)=k
+              my_hbbl(i,j)=zbl-z_w(i,j,0)
+              my_kbbl(i,j)=k
             endif
           enddo
         enddo
@@ -169,16 +213,33 @@
 !
 !  Correct "hbbl" with physically limiting case (Ekman depth)
 !
+      do j=J_EXT_RANGE
+        do i=I_EXT_RANGE
+          hekman=lmd_cekman*ustar(i,j)/max(abs(f(i,j)),1.e-6)
+          my_hbbl(i,j)=min(my_hbbl(i,j),hekman)
+# ifdef MASKING
+          my_hbbl(i,j)=my_hbbl(i,j)*rmask(i,j)
+# endif
+        enddo
+      enddo
+
+!
+!    Smooth HBL horizontally
+!
+# ifdef HBBL_SMOOTH
+#  define hwrk my_hbbl
+#  include "kpp_smooth.h"
+#  undef hwrk
+# endif
+# undef I_EXT_RANGE
+# undef J_EXT_RANGE
       do j=Jstr,Jend
         do i=Istr,Iend
-          hekman=lmd_cekman*ustar(i,j)/max(abs(f(i,j)),eps)
-          hbbl(i,j)=min(hbbl(i,j),hekman)
-# ifdef MASKING
-          hbbl(i,j)=hbbl(i,j)*rmask(i,j)
-# endif
+          hbbl(i,j)=my_hbbl(i,j)
           kbbl(i,j)=N
         enddo
       enddo
+
 !
 !  Find new boundary layer index "kbbl".
 !
@@ -324,6 +385,54 @@
 # undef ws
 # undef wm
       enddo ! <-- k
+
+!
+!----------------------------------------------------------------------
+!  Extend Boundary values
+!----------------------------------------------------------------------
+!
+# ifndef EW_PERIODIC
+      if (WESTERN_EDGE) then
+        do j=jstr,jend
+          hbbl(istr-1,j)=hbbl(istr,j)
+        enddo
+      endif
+      if (EASTERN_EDGE) then
+        do j=jstr,jend
+          hbbl(iend+1,j)=hbbl(iend,j)
+        enddo
+      endif
+# endif
+# ifndef NS_PERIODIC
+      if (SOUTHERN_EDGE) then
+        do i=istr,iend
+          hbbl(i,jstr-1)=hbbl(i,jstr)
+        enddo
+      endif
+      if (NORTHERN_EDGE) then
+        do i=istr,iend
+          hbbl(i,jend+1)=hbbl(i,jend)
+        enddo
+      endif
+#  ifndef EW_PERIODIC
+      if (WESTERN_EDGE .and. SOUTHERN_EDGE) then
+        hbbl(istr-1,jstr-1)=hbbl(istr,jstr)
+      endif
+      if (WESTERN_EDGE .and. NORTHERN_EDGE) then
+        hbbl(istr-1,jend+1)=hbbl(istr,jend)
+      endif
+      if (EASTERN_EDGE .and. SOUTHERN_EDGE) then
+        hbbl(iend+1,jstr-1)=hbbl(iend,jstr)
+      endif
+      if (EASTERN_EDGE .and. NORTHERN_EDGE) then
+        hbbl(iend+1,jend+1)=hbbl(iend,jend)
+      endif
+#  endif
+# endif
+
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,hbbl(START_2D_ARRAY))
+# endif
 
 #else
       subroutine lmd_bkpp_empty

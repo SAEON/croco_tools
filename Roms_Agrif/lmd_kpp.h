@@ -9,7 +9,7 @@
 ! ROMS_AGRIF website : http://roms.mpl.ird.fr
 !======================================================================
 !
-#if defined LMD_SKPP || defined LMD_BKPP
+#if defined LMD_SKPP || defined LMD_BKPP || defined GLS_MIXING
       integer Jwtype(GLOBAL_2D_ARRAY)
       common /nils_jerlov/ Jwtype
 #endif

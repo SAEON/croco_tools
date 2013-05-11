@@ -38,42 +38,40 @@
 # include "private_scratch.h"
 # include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
-      call  lmd_vmix_tile (Istr,Iend,Jstr,Jend, A3d(1, 1,trd),
-     &                  A3d(1, 2,trd), A3d(1, 3,trd), A3d(1, 4,trd))
-
+      call  lmd_vmix_tile (Istr,Iend,Jstr,Jend,
+     &                     A3d(1, 1,trd), A3d(1, 2,trd), A3d(1, 3,trd),
+     &                                                   A3d(1, 4,trd))
 # if defined LMD_SKPP
 #  if defined LMD_SKPP2005
-      call lmd_skpp_tile  (istr,iend,jstr,jend, 
-     &                   A3d(1,1,trd),A3d(1, 2,trd),A3d(1,3,trd),     
-     &                   A3d(1,4,trd),                                 
-     &                   A2d(1,1,trd),A2d(1, 2,trd),A2d(1,3,trd),      
-     &                   A2d(1,4,trd),A2d(1, 5,trd),A2d(1,6,trd),     
-     &                   A2d(1,7,trd),A2d(1, 8,trd),A2d(1,9,trd),    
-     &                   A2d(1,10,trd),A2d(1,11,trd),A2d(1,12,trd),  
-     &                   A2d(1,13,trd),A2d(1,14,trd),A2d(1,15,trd), 
-     &                                   B2d(1,trd)              )
+      call lmd_skpp_tile  (Istr,Iend,Jstr,Jend, 
+     &                     A3d(1, 1,trd), A3d(1, 2,trd), A3d(1, 3,trd),
+     &                     A2d(1, 1,trd), A2d(1, 2,trd), A2d(1, 3,trd),
+     &                     A2d(1, 4,trd), A2d(1, 5,trd), A2d(1, 6,trd),
+     &                     A2d(1, 7,trd), A2d(1, 8,trd), A2d(1, 9,trd),
+     &                     A2d(1,10,trd), A2d(1,11,trd), A2d(1,12,trd),
+     &                     A2d(1,13,trd), A2d(1,14,trd), A2d(1,15,trd),
+     &                                    A3d(1, 4,trd),    B2d(1,trd))
 #  else
       call lmd_skpp_tile (Istr,Iend,Jstr,Jend,
-     &                  A3d(1, 1,trd), A3d(1, 2,trd), A3d(1, 3,trd),  
-     &                  A2d(1, 1,trd), A2d(1, 2,trd), A2d(1, 3,trd), 
-     &                  A2d(1, 4,trd), A2d(1, 5,trd), A2d(1, 6,trd), 
-     &                  A2d(1, 7,trd), A2d(1, 8,trd), A2d(1, 9,trd),
-     &                  A2d(1,10,trd), A2d(1,11,trd), A2d(1,12,trd),
-     &                  A2d(1,13,trd), A3d(1, 1,trd),    B2d(1,trd)) 
+     &                    A3d(1, 1,trd), A3d(1, 2,trd), A3d(1, 3,trd),  
+     &                    A2d(1, 1,trd), A2d(1, 2,trd), A2d(1, 3,trd), 
+     &                    A2d(1, 4,trd), A2d(1, 5,trd), A2d(1, 6,trd), 
+     &                    A2d(1, 7,trd), A2d(1, 8,trd), A2d(1, 9,trd),
+     &                    A2d(1,10,trd), A2d(1,11,trd), A2d(1,12,trd),
+     &                    A2d(1,13,trd), A3d(1, 4,trd),    B2d(1,trd)) 
 #  endif
 # endif
-
 # if defined LMD_BKPP 
 C$OMP BARRIER
       call lmd_bkpp_tile (Istr,Iend,Jstr,Jend,
-     &                  A3d(1, 1,trd), A3d(1, 2,trd), A3d(1, 3,trd),
-     &                  A2d(1, 5,trd), A2d(1, 6,trd), A2d(1, 7,trd),
-     &                  A2d(1, 8,trd), A2d(1, 9,trd), A2d(1,10,trd),
-     &                  A2d(1,12,trd), A2d(1,13,trd), A3d(1, 1,trd))
+     &                    A3d(1, 1,trd), A3d(1, 2,trd), A3d(1, 3,trd),
+     &                    A2d(1, 5,trd), A2d(1, 6,trd), A2d(1, 7,trd),
+     &                    A2d(1, 8,trd), A2d(1, 9,trd), A2d(1,10,trd),
+     &                    A2d(1,12,trd), A2d(1,13,trd), A2d(1,14,trd), 
+     &                    A2d(1,15,trd), A2d(1,16,trd), A3d(1, 4,trd))
 # endif
-
       call lmd_finalize_tile (Istr,Iend,Jstr,Jend, 
-     &                  A3d(1, 1,trd), A3d(1, 2,trd), A3d(1, 3,trd))
+     &                    A3d(1, 1,trd), A3d(1, 2,trd), A3d(1, 3,trd))
 
       return
       end
