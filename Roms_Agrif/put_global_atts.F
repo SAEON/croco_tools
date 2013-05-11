@@ -345,24 +345,15 @@
       ierr=nf_put_att_text (ncid,nf_global,'units',15,
      &                                             'meter4 second-1')
 # endif
-# ifdef MY25_MIXING
-#  ifdef Q2_DIF2
-      ierr=nf_put_att_FTYPE(ncid,nf_global,'q2nu2',nf_ftype, 1,q2nu2)
-      ierr=nf_put_att_text (ncid,nf_global,'q2nu2_expl',49,
+# if defined GLS_MIXING && defined GLS_DIF2
+      ierr=nf_put_att_FTYPE(ncid,nf_global,'gls_diff2',nf_ftype, 1,
+     &                                                     gls_diff2)
+      ierr=nf_put_att_text (ncid,nf_global,'gls_diff2_expl',49,
      &           'Laplacian mixing coefficient for turbulent energy')
-      ierr=nf_put_att_text (ncid,nf_global,'q2nu2_units',15,
+      ierr=nf_put_att_text (ncid,nf_global,'gls_diff2_units',15,
      &                                             'meter2 second-1')
-#  endif
-#  ifdef Q2_DIF4
-      ierr=nf_put_att_FTYPE(ncid,nf_global,'q2nu4',nf_ftype, 1,q2nu4)
-      ierr=nf_put_att_text (ncid,nf_global,'q2nu4_expl',50,
-     &          'Biharmonic mixing coefficient for turbulent energy')
-      ierr=nf_put_att_text (ncid,nf_global,'q2nu4_units',15,
-     &                                             'meter4 second-1')
-#  endif
 # endif
-# if !defined LMD_MIXING && !defined BVF_MIXING\
-      && !defined MY2_MIXING && !defined MY25_MIXING
+# if !defined LMD_MIXING && !defined BVF_MIXING
 !
 ! Background vertical viscosity and tracer mixing coefficients.
 !
@@ -380,12 +371,22 @@
       ierr=nf_put_att_text (ncid,nf_global,'Akt_bak_units', 15,
      &                                             'meter2 second-1')
 # endif
-# ifdef MY25_MIXING
-      ierr=nf_put_att_FTYPE(ncid,nf_global,'Akq_bak',nf_ftype,
-     &                    1,Akq_bak)
-      ierr=nf_put_att_text (ncid,nf_global,'Akq_bak_expl',59,
+# ifdef GLS_MIXING
+!
+!  Background eddy viscosity for TKE and GLS
+!
+      ierr=nf_put_att_FTYPE(ncid,nf_global,'Akk_bak',nf_ftype,
+     &                                                     1,Akk_bak)
+      ierr=nf_put_att_text (ncid,nf_global,'Akk_bak_expl',59,
      & 'background vertical mixing coefficient for turbulent energy')
-      ierr=nf_put_att_text (ncid,nf_global,'Akq_bak_units',15,
+      ierr=nf_put_att_text (ncid,nf_global,'Akk_bak_units',15,
+     &                                             'meter2 second-1')
+!
+      ierr=nf_put_att_FTYPE(ncid,nf_global,'Akp_bak',nf_ftype,
+     &                                                     1,Akp_bak)
+      ierr=nf_put_att_text (ncid,nf_global,'Akp_bak_expl',55,
+     &     'background vertical mixing coefficient for length scale')
+      ierr=nf_put_att_text (ncid,nf_global,'Akp_bak_units',15,
      &                                             'meter2 second-1')
 # endif
 #endif

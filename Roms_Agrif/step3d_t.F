@@ -437,7 +437,7 @@
         enddo    !<-- k
       enddo    !<-- itrc
 
-# if defined LMD_SKPP || defined LMD_BKPP
+# if defined LMD_SKPP || defined LMD_BKPP || defined GLS_MIXING
 !---------------------------------------------------------------
 ! Compute fraction of the solar shortwave flux "swdk"
 ! penetrating to grid level depth (at vertical w-points).
@@ -635,7 +635,7 @@
             do k=1,N-1
               do i=Istr,Iend
                 FC(i,k)=0.
-# if defined LMD_SKPP || defined LMD_BKPP
+# if defined LMD_SKPP || defined LMD_BKPP || defined GLS_MIXING
      &    +dt*srflx(i,j)*swdk(i,j,k)
 #  ifdef LMD_NONLOCAL
      &    -dt*ghats(i,j,k)*(stflx(i,j,itemp)-srflx(i,j))

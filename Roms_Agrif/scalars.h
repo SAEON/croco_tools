@@ -138,9 +138,6 @@
       real  sc_w(0:N), Cs_w(0:N), sc_r(N), Cs_r(N)
       real  rx0, rx1
       real  tnu2(NT),tnu4(NT)
-# ifdef MY25_MIXING
-      real Akq_bak, q2nu2, q2nu4
-# endif
 # ifndef NONLIN_EOS
       real R0,T0,S0, Tcoef, Scoef
 # endif
@@ -234,9 +231,6 @@
      &           , theta_s,   theta_b,   Tcline,  hc
      &           , sc_w,      Cs_w,      sc_r,    Cs_r
      &           , rx0,       rx1,       tnu2,    tnu4
-# ifdef MY25_MIXING
-     &                      , Akq_bak,   q2nu2,   q2nu4
-# endif
 # ifndef NONLIN_EOS
      &                      , R0,T0,S0,  Tcoef,   Scoef
 # endif
@@ -308,22 +302,87 @@
      &                      , ldefsta
 #endif
 
-# if defined SOLVE3D     && !defined LMD_MIXING \
-  && !defined MY2_MIXING && !defined MY25_MIXING
+# if defined SOLVE3D  && !defined LMD_MIXING
       real Akv_bak
       real Akt_bak(NT)
       common /scalars_akt/ Akv_bak, Akt_bak 
 # endif
+
+# if defined SOLVE3D && defined GLS_MIXING
 !
+!-----------------------------------------------------------------------
+!  Generic Length Scale parameters.
+!-----------------------------------------------------------------------
+!
+!   Charnock_alpha   Charnok surface roughness,
+!                    Zos:   (charnok_alpha * u_star**2) / g
+!   zos_hsig_alpha   Roughness from wave amplitude,
+!                    Zos:   zos_hsig_alpha * Hsig
+!   sz_alpha         Surface flux from wave dissipation,
+!                    flux:  dt * sz_alpha * Wave_dissip
+!   crgban_cw        Surface flux due to Craig and Banner wave breaking,
+!                    flux:  dt * crgban_cw * u_star**3
+!   where Wave_dissip = epsilon^b * rho0
+!
+!    gls_Gh0
+!    gls_Ghcri
+!    gls_Ghmin
+!    gls_Kmin      Minimum value of specific turbulent kinetic energy.
+!    gls_Pmin      Minimum Value of dissipation.
+!    gls_cmu0      Stability coefficient (non-dimensional).
+!    gls_c1        Shear production coefficient (non-dimensional).
+!    gls_c2        Dissipation coefficient (non-dimensional).
+!    gls_c3m       Buoyancy production coefficient (minus).
+!    gls_c3p       Buoyancy production coefficient (plus).
+!    gls_E2
+!    gls_m         Turbulent kinetic energy exponent (non-dimensional).
+!    gls_n         Turbulent length scale exponent (non-dimensional).
+!    gls_p         Stability exponent (non-dimensional).
+!    gls_sigk      Constant Schmidt number (non-dimensional) for
+!                    turbulent kinetic energy diffusivity.
+!    gls_sigp      Constant Schmidt number (non-dimensional) for
+!                    turbulent generic statistical field, "psi".
+!
+      real charnok_alpha, zos_hsig_alpha, sz_alpha, crgban_cw,
+     &     Zos, Akk_bak, Akp_bak, gls_diff2
+      real gls_p, gls_m, gls_n, gls_Kmin, gls_Pmin, gls_c1, gls_c2,
+     &     gls_c3m, gls_c3p, gls_sigk, gls_sigp, gls_cmu0,
+     &     gls_Gh0, gls_Ghcri, gls_Ghmin, gls_E2
+      real my_A1, my_A2, my_B1, my_B2, my_C1, my_C2, my_C3,
+     &     my_E1, my_E2, my_Gh0, my_Sq, my_dtfac, my_lmax, my_qmin,
+     &     my_B1p2o3, my_B1pm1o3, my_E1o2, my_Sh1, my_Sh2, my_Sm1,
+     &     my_Sm2, my_Sm3, my_Sm4
+      common /gls_par1/ charnok_alpha, zos_hsig_alpha, sz_alpha,
+     &     crgban_cw, Zos, Akk_bak, Akp_bak, gls_diff2
+      common /gls_par2/ gls_p, gls_m, gls_n, gls_Kmin, gls_Pmin, gls_c1,
+     &     gls_c2,  gls_c3m, gls_c3p, gls_sigk, gls_sigp, gls_cmu0,
+     &     gls_Gh0, gls_Ghcri, gls_Ghmin, gls_E2
+      common /gls_par3/ my_A1, my_A2, my_B1, my_B2, my_C1, my_C2, my_C3,
+     &     my_E1, my_E2, my_Gh0, my_Sq, my_dtfac, my_lmax, my_qmin,
+     &     my_B1p2o3, my_B1pm1o3, my_E1o2, my_Sh1, my_Sh2, my_Sm1,
+     &     my_Sm2, my_Sm3, my_Sm4
+#  if defined CANUTO_A || defined CANUTO_B
+      real gls_s0, gls_s1, gls_s2, gls_s3, gls_s4, gls_s5, gls_s6,
+     &     gls_b0, gls_b1, gls_b2, gls_b3, gls_b4, gls_b5, gls_L1,
+     &     gls_L2, gls_L3, gls_L4, gls_L5, gls_L6, gls_L7, gls_L8
+      common /gls_par4/ gls_s0, gls_s1, gls_s2, gls_s3, gls_s4, gls_s5,
+     &     gls_s6,
+     &     gls_b0, gls_b1, gls_b2, gls_b3, gls_b4, gls_b5, gls_L1,
+     &     gls_L2, gls_L3, gls_L4, gls_L5, gls_L6, gls_L7, gls_L8
+#  endif
+# endif
+
+!
+!-----------------------------------------------------------------------
 ! This following common block contains a set of globally accessable
 ! variables in order to allow information exchange between parallel
 ! threads working on different subdomains.
 !
 ! Global summation variables are declared with 16 byte precision
-! to avoid accumulation of roundoff errors, since roundoff  error
+! to avoid accumulation of roundoff errors, since roundoff error
 ! depends on the order of summation, which is undeterministic in
 ! the case of summation between the parallel threads; not doing so
-! would make itimpossible to pass an ETALON CHECK test if there is
+! would make it impossible to pass an ETALON CHECK test if there is
 ! a feedback of these sums into the dynamics of the model, such as
 ! in the case when global mass conservation is enforced. 
 !
@@ -346,6 +405,7 @@
 ! boundaries. Removing or introduction of variables with violation
 ! of parity, as well as changing the sequence of variables in the
 ! common block may cause violation of alignment.
+!-----------------------------------------------------------------------
 !
       logical synchro_flag
       common /sync_flag/ synchro_flag

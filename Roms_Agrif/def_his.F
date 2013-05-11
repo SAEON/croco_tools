@@ -72,8 +72,13 @@
 # define vidAkv hisAkv
 # define vidAkt hisAkt
 # define vidAks hisAks
+# define vidAkk hisAkk
+# define vidAkp hisAkp
 # define vidHbl hisHbl
 # define vidHbbl hisHbbl
+# define vidTke hisTke
+# define vidGls hisGls
+# define vidLsc hisLsc
 # if defined MRL_WCI
 #  define vidSUP hisSUP
 #  define vidUST2D hisUST2D
@@ -117,7 +122,9 @@
 # ifdef SST_SKIN
 #  define vidSST_skin hisSST_skin
 # endif
+
 #else
+
 # define ncname avgname
 # define rec_per_file nrpfavg
 # define wrt wrtavg
@@ -138,8 +145,13 @@
 # define vidAkv avgAkv
 # define vidAkt avgAkt
 # define vidAks avgAks
+# define vidAkk avgAkk
+# define vidAkp avgAkp
 # define vidHbl avgHbl
 # define vidHbbl avgHbbl
+# define vidTke avgTke
+# define vidGls avgGls
+# define vidLsc avgLsc
 # ifdef BIOLOGY
 #  define vidHel avgHel
 #  ifdef BIO_NChlPZD
@@ -846,9 +858,7 @@
           ierr=nf_put_att_text (ncid, vidAkt, 'field',     lvar,
      &                                  vname(4,indxAkt)(1:lvar))
 
-
           call nf_add_attribute(ncid, vidAkt, indxAkt, 5, NF_REAL, ierr)
-
 
         endif
 # ifdef SALINITY
@@ -880,6 +890,63 @@
 
         endif
 # endif
+# ifdef GLS_MIXING
+!
+! Vertical diffusion coefficient for TKE.
+!
+        if (wrt(indxAkk)) then
+          lvar=lenstr(vname(1,indxAkk))
+          ierr=nf_def_var (ncid, vname(1,indxAkk)(1:lvar),
+     &                              NF_REAL, 4, w3dgrd, vidAkk)
+#  ifndef AVRH
+          lvar=lenstr(vname(2,indxAkk))
+          ierr=nf_put_att_text (ncid, vidAkk, 'long_name', lvar,
+     &                                  vname(2,indxAkk)(1:lvar))
+#  else
+          text='averaged '/ /vname(2,indxAkk)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidAkk, 'long_name', lvar,
+     &                                              text(1:lvar))
+#  endif
+          lvar=lenstr(vname(3,indxAkk))
+          ierr=nf_put_att_text (ncid, vidAkk, 'units',     lvar,
+     &                                  vname(3,indxAkk)(1:lvar))
+          lvar=lenstr(vname(4,indxAkk))
+          ierr=nf_put_att_text (ncid, vidAkk, 'field',     lvar,
+     &                                  vname(4,indxAkk)(1:lvar))
+
+          call nf_add_attribute(ncid, vidAkk, indxAkk, 5, NF_REAL, ierr)
+
+        endif
+!
+! Vertical diffusion coefficient for GLS.
+!
+        if (wrt(indxAkp)) then
+          lvar=lenstr(vname(1,indxAkp))
+          ierr=nf_def_var (ncid, vname(1,indxAkp)(1:lvar),
+     &                              NF_REAL, 4, w3dgrd, vidAkp)
+#  ifndef AVRH
+          lvar=lenstr(vname(2,indxAkp))
+          ierr=nf_put_att_text (ncid, vidAkp, 'long_name', lvar,
+     &                                  vname(2,indxAkp)(1:lvar))
+#  else
+          text='averaged '/ /vname(2,indxAkp)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidAkp, 'long_name', lvar,
+     &                                              text(1:lvar))
+#  endif
+          lvar=lenstr(vname(3,indxAkp))
+          ierr=nf_put_att_text (ncid, vidAkp, 'units',     lvar,
+     &                                  vname(3,indxAkp)(1:lvar))
+          lvar=lenstr(vname(4,indxAkp))
+          ierr=nf_put_att_text (ncid, vidAkp, 'field',     lvar,
+     &                                  vname(4,indxAkp)(1:lvar))
+
+          call nf_add_attribute(ncid, vidAkp, indxAkp, 5, NF_REAL, ierr)
+
+        endif
+# endif /* GLS_MIXING */
+
 # ifdef LMD_SKPP
 !
 ! Depth of planetary boundary layer.
@@ -939,7 +1006,94 @@
      &                          NF_REAL, ierr) 
         endif
 # endif
+
+# ifdef GLS_MIXING
+!
+! Turbulent Kinetic Energy.
+!
+        if (wrt(indxTke)) then
+          lvar=lenstr(vname(1,indxTke))
+          ierr=nf_def_var (ncid, vname(1,indxTke)(1:lvar),
+     &                              NF_REAL, 4, w3dgrd, vidTke)
+#  ifndef AVRH
+          lvar=lenstr(vname(2,indxTke))
+          ierr=nf_put_att_text (ncid, vidTke, 'long_name', lvar,
+     &                                  vname(2,indxTke)(1:lvar))
+#  else
+          text='averaged '/ /vname(2,indxTke)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidTke, 'long_name', lvar,
+     &                                              text(1:lvar))
+#  endif
+          lvar=lenstr(vname(3,indxTke))
+          ierr=nf_put_att_text (ncid, vidTke, 'units',     lvar,
+     &                                  vname(3,indxTke)(1:lvar))
+          lvar=lenstr(vname(4,indxTke))
+          ierr=nf_put_att_text (ncid, vidTke, 'field',     lvar,
+     &                                  vname(4,indxTke)(1:lvar))
+
+          call nf_add_attribute(ncid, vidTke, indxTke, 5, NF_REAL, ierr)
+
+        endif
+!
+! Generic Length Scale.
+!
+        if (wrt(indxGls)) then
+          lvar=lenstr(vname(1,indxGls))
+          ierr=nf_def_var (ncid, vname(1,indxGls)(1:lvar),
+     &                              NF_REAL, 4, w3dgrd, vidGls)
+#  ifndef AVRH
+          lvar=lenstr(vname(2,indxGls))
+          ierr=nf_put_att_text (ncid, vidGls, 'long_name', lvar,
+     &                                  vname(2,indxGls)(1:lvar))
+#  else
+          text='averaged '/ /vname(2,indxGls)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidGls, 'long_name', lvar,
+     &                                              text(1:lvar))
+#  endif
+          lvar=lenstr(vname(3,indxGls))
+          ierr=nf_put_att_text (ncid, vidGls, 'units',     lvar,
+     &                                  vname(3,indxGls)(1:lvar))
+          lvar=lenstr(vname(4,indxGls))
+          ierr=nf_put_att_text (ncid, vidGls, 'field',     lvar,
+     &                                  vname(4,indxGls)(1:lvar))
+
+          call nf_add_attribute(ncid, vidGls, indxGls, 5, NF_REAL, ierr)
+
+        endif
+!
+! Vertical mixing turbulent length scale.
+!
+        if (wrt(indxLsc)) then
+          lvar=lenstr(vname(1,indxLsc))
+          ierr=nf_def_var (ncid, vname(1,indxLsc)(1:lvar),
+     &                              NF_REAL, 4, w3dgrd, vidLsc)
+#  ifndef AVRH
+          lvar=lenstr(vname(2,indxLsc))
+          ierr=nf_put_att_text (ncid, vidLsc, 'long_name', lvar,
+     &                                  vname(2,indxLsc)(1:lvar))
+#  else
+          text='averaged '/ /vname(2,indxLsc)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidLsc, 'long_name', lvar,
+     &                                              text(1:lvar))
+#  endif
+          lvar=lenstr(vname(3,indxLsc))
+          ierr=nf_put_att_text (ncid, vidLsc, 'units',     lvar,
+     &                                  vname(3,indxLsc)(1:lvar))
+          lvar=lenstr(vname(4,indxLsc))
+          ierr=nf_put_att_text (ncid, vidLsc, 'field',     lvar,
+     &                                  vname(4,indxLsc)(1:lvar))
+
+          call nf_add_attribute(ncid, vidLsc, indxLsc, 5, NF_REAL, ierr)
+
+        endif
+# endif /* GLS_MIXING */
+
+!
 ! Shflx [W/m2]
+!
         if (wrt(indxShflx)) then
           lvar=lenstr(vname(1,indxShflx))
           ierr=nf_def_var (ncid, vname(1,indxShflx)(1:lvar),
@@ -962,8 +1116,10 @@
      &                          NF_REAL, ierr)
 
         endif
-# ifdef SALINITY
+!
 ! Swflx [cm/day]
+!
+# ifdef SALINITY
         if (wrt(indxSwflx)) then
           lvar=lenstr(vname(1,indxSwflx))
           ierr=nf_def_var (ncid, vname(1,indxSwflx)(1:lvar),
@@ -987,7 +1143,9 @@
 
         endif
 # endif
+!
 ! Short wave Shflx_rsw [W/m2]
+!
       if (wrt(indxShflx_rsw)) then
         lvar=lenstr(vname(1,indxShflx_rsw))
         ierr=nf_def_var (ncid, vname(1,indxShflx_rsw)(1:lvar),
@@ -1010,8 +1168,11 @@
      &       NF_REAL, ierr)   
 
       endif
+
 # ifdef BULK_FLUX
+!
 ! Long wave Shflx [W/m2]
+!
       if (wrt(indxShflx_rlw)) then
         lvar=lenstr(vname(1,indxShflx_rlw))
         ierr=nf_def_var (ncid, vname(1,indxShflx_rlw)(1:lvar),
@@ -1033,8 +1194,10 @@
         call nf_add_attribute(ncid, vidShflx_rlw, indxShflx_rlw,5, 
      &       NF_REAL, ierr) 
       
-      endif 
+      endif
+!
 ! Latent Shflx [W/m2]
+!
       if (wrt(indxShflx_lat)) then
         lvar=lenstr(vname(1,indxShflx_lat))
         ierr=nf_def_var (ncid, vname(1,indxShflx_lat)(1:lvar),
@@ -1057,7 +1220,9 @@
      &       NF_REAL, ierr) 
       
       endif
+!
 ! Sensible Shflx [W/m2]
+!
       if (wrt(indxShflx_sen)) then
         lvar=lenstr(vname(1,indxShflx_sen))
         ierr=nf_def_var (ncid, vname(1,indxShflx_sen)(1:lvar),
@@ -1081,6 +1246,7 @@
         
       endif
 # endif  /* BULK_FLUX */
+
 # ifdef BIOLOGY
 !
 ! Depth of the euphotic layer.
@@ -1864,6 +2030,31 @@
           endif
         endif
 # endif
+# ifdef GLS_MIXING
+!
+! Vertical diffusion coefficient for TKE.
+!
+        if (wrt(indxAkk)) then
+          lvar=lenstr(vname(1,indxAkk))
+          ierr=nf_inq_varid (ncid,vname(1,indxAkk)(1:lvar), vidAkk)
+          if (ierr .ne. nf_noerr) then
+            write(stdout,1) vname(1,indxAkk)(1:lvar), ncname(1:lstr)
+            goto 99                                       !--> ERROR
+          endif
+        endif
+!
+! Vertical diffusion coefficient for GLS.
+!
+        if (wrt(indxAkp)) then
+          lvar=lenstr(vname(1,indxAkp))
+          ierr=nf_inq_varid (ncid,vname(1,indxAkp)(1:lvar), vidAkp)
+          if (ierr .ne. nf_noerr) then
+            write(stdout,1) vname(1,indxAkp)(1:lvar), ncname(1:lstr)
+            goto 99                                       !--> ERROR
+          endif
+        endif
+# endif
+
 # ifdef LMD_SKPP
 !
 ! Depth of surface planetary boundary layer.
@@ -1877,6 +2068,56 @@
           endif
         endif
 # endif
+# ifdef LMD_BKPP
+!
+! Depth of bottom planetary boundary layer.
+!
+        if (wrt(indxHbbl)) then
+          lvar=lenstr(vname(1,indxHbbl))
+          ierr=nf_inq_varid (ncid,vname(1,indxHbbl)(1:lvar), vidHbbl)
+          if (ierr .ne. nf_noerr) then
+          write(stdout,1) vname(1,indxHbbl)(1:lvar), ncname(1:lstr)
+            goto 99                                       !--> ERROR
+          endif
+        endif
+# endif
+
+# ifdef GLS_MIXING
+!
+! Turbulent Kinetic Energy.
+!
+        if (wrt(indxTke)) then
+          lvar=lenstr(vname(1,indxTke))
+          ierr=nf_inq_varid (ncid,vname(1,indxTke)(1:lvar), vidTke)
+          if (ierr .ne. nf_noerr) then
+            write(stdout,1) vname(1,indxTke)(1:lvar), ncname(1:lstr)
+            goto 99                                       !--> ERROR
+          endif
+        endif
+!
+! Generic Length Scale. 
+!
+        if (wrt(indxGls)) then
+          lvar=lenstr(vname(1,indxGls))
+          ierr=nf_inq_varid (ncid,vname(1,indxGls)(1:lvar), vidGls)
+          if (ierr .ne. nf_noerr) then
+            write(stdout,1) vname(1,indxGls)(1:lvar), ncname(1:lstr)
+            goto 99                                       !--> ERROR
+          endif
+        endif
+!
+! Turbulent Length Scale. 
+!
+        if (wrt(indxLsc)) then
+          lvar=lenstr(vname(1,indxLsc))
+          ierr=nf_inq_varid (ncid,vname(1,indxLsc)(1:lvar), vidLsc)
+          if (ierr .ne. nf_noerr) then
+            write(stdout,1) vname(1,indxLsc)(1:lvar), ncname(1:lstr)
+            goto 99                                       !--> ERROR
+          endif
+        endif
+# endif
+
 !
 ! Shflx     Surface net heat flux [W/m2]
 !
@@ -2007,19 +2248,7 @@
 #   endif /* OXYGEN */
 #  endif
 # endif
-# ifdef LMD_BKPP
-!
-! Depth of bottom planetary boundary layer.
-!
-        if (wrt(indxHbbl)) then
-          lvar=lenstr(vname(1,indxHbbl))
-          ierr=nf_inq_varid (ncid,vname(1,indxHbbl)(1:lvar), vidHbbl)
-          if (ierr .ne. nf_noerr) then
-          write(stdout,1) vname(1,indxHbbl)(1:lvar), ncname(1:lstr)
-            goto 99                                       !--> ERROR
-          endif
-        endif
-# endif
+
 # ifdef SEDIMENT
 !
 ! Sediment bed layer thickness, porosity, and volume fraction of 
@@ -2265,8 +2494,13 @@
 #undef vidAkv
 #undef vidAkt
 #undef vidAks
+#undef vidAkk
+#undef vidAkp
 #undef vidHbl
 #undef vidHbbl
+#undef vidTke
+#undef vidGls
+#undef vidLsc
 #ifdef BIOLOGY
 # undef vidHel
 # ifdef BIO_NChlPZD

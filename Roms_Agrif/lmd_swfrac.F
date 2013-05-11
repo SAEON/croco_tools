@@ -10,7 +10,7 @@
 !======================================================================
 !
 #include "cppdefs.h"
-#if defined LMD_SKPP || defined LMD_BKPP
+#if defined LMD_SKPP || defined LMD_BKPP || defined GLS_MIXING
 
       subroutine lmd_swfrac_tile (Istr,Iend,Jstr,Jend, Zscale,Z,swdk)
 !
@@ -225,6 +225,6 @@
       subroutine lmd_swfrac
       return
       end
-#endif /* LMD_SKPP || LMD_BKPP */
+#endif /* LMD_SKPP || LMD_BKPP || GLS_MIXING */ 
 
 

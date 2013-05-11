@@ -29,10 +29,14 @@
 ! indxVisc        Horizontal viscosity coefficients
 ! indxDiff        Horizontal diffusivity coefficients
 ! indxAkv,indxAkt,indxAks  vertical viscosity/diffusivity coefficients
+! indxAkk,indxAkp vertical diffusion coefficients for TKE and GLS
 ! indxHbl         depth of planetary boundary layer in KPP model
 ! indxHbbl        depth of bottom planetary boundary layer in KPP model
 ! indxHel         depth of euphotic layer
 ! indxChC         Chlorophyll/Carbon ratio
+! indxTke         Turbulent kinetic energy
+! indxGls         Generic length scale
+! indxLsc         vertical mixing length scale
 !
 ! indxSSH         observed sea surface height (from climatology)
 ! indxSUSTR,indxSVSTR  surface U-, V-momentum stress (wind forcing)
@@ -79,9 +83,9 @@
      &       ,filetype_diaM, filetype_diaM_avg
      &       ,filetype_diabio, filetype_diabio_avg
       parameter (filetype_his=1, filetype_avg=2, 
-     &            filetype_dia=3, filetype_dia_avg=4,
-     &            filetype_diaM=5, filetype_diaM_avg=6,
-     &            filetype_diabio=7,filetype_diabio_avg =8)
+     &           filetype_dia=3, filetype_dia_avg=4,
+     &           filetype_diaM=5, filetype_diaM_avg=6,
+     &           filetype_diabio=7,filetype_diabio_avg=8)
 !
       integer indxTime, indxZ, indxUb, indxVb
       parameter (indxTime=1, indxZ=2, indxUb=3, indxVb=4)
@@ -245,6 +249,18 @@
       integer indxHbbl
       parameter (indxHbbl=indxAkt+3)
 # endif
+# ifdef GLS_MIXING
+      integer indxAkk
+      parameter (indxAkk=indxAkt+4)
+      integer indxAkp
+      parameter (indxAkp=indxAkt+5)
+      integer indxTke
+      parameter (indxTke=indxAkt+6)
+      integer indxGls
+      parameter (indxGls=indxAkt+7)
+      integer indxLsc
+      parameter (indxLsc=indxAkt+8)
+# endif
 #endif
 
       integer indxSSH
@@ -261,7 +277,7 @@
 #endif /* BIOLOGY*/
 #ifdef SOLVE3D
 # if defined BIOLOGY && !defined PISCES
-      parameter (indxHel=indxAkt+4)
+      parameter (indxHel=indxAkt+9)
 #  ifdef BIO_NChlPZD
       parameter (indxChC=indxHel+1)
 #   ifdef OXYGEN
@@ -284,7 +300,7 @@
       parameter (indxSSH=indxHel+1)
 #  endif
 # else
-      parameter (indxSSH=indxAkt+4)
+      parameter (indxSSH=indxAkt+9)
 # endif
 #else
 # if defined BIOLOGY && !defined PISCES
@@ -576,6 +592,9 @@
      &      , hisU,   hisV,   hisR,    hisHbl, hisHbbl
      &      , hisO,   hisW,   hisVisc, hisDiff
      &      , hisAkv, hisAkt, hisAks
+# ifdef GLS_MIXING
+     &      , hisAkk, hisAkp, hisTke, hisGls, hisLsc
+# endif
 # ifdef BULK_FLUX
      &      , hisShflx_rlw
      &      , hisShflx_lat,   hisShflx_sen
@@ -637,6 +656,9 @@
      &      , avgU,   avgV,   avgR,    avgHbl, avgHbbl
      &      , avgO,   avgW,   avgVisc, avgDiff
      &      , avgAkv, avgAkt, avgAks
+# ifdef GLS_MIXING
+     &      , avgAkk, avgAkp, avgTke, avgGls, avgLsc
+# endif
 # ifdef BIOLOGY
      &      , avgHel
 #  ifdef BIO_NChlPZD
@@ -757,6 +779,9 @@
      &      , hisO,    hisW,     hisVisc, hisDiff
      &      , hisAkv,  hisAkt,   hisAks
      &      , hisHbl,  hisHbbl
+# ifdef GLS_MIXING
+     &      , hisAkk, hisAkp, hisTke, hisGls, hisLsc
+# endif
 # ifdef BULK_FLUX
      &      , hisShflx_rlw
      &      , hisShflx_lat, hisShflx_sen
@@ -840,6 +865,9 @@
      &      , avgO,    avgW,     avgVisc,  avgDiff
      &      , avgAkv,  avgAkt,   avgAks
      &      , avgHbl,  avgHbbl
+#  ifdef GLS_MIXING
+     &      , avgAkk, avgAkp, avgTke, avgGls, avgLsc
+#  endif
 #  ifdef BIOLOGY
      &      , avgHel
 #   ifdef BIO_NChlPZD

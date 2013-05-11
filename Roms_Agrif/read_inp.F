@@ -715,8 +715,6 @@ c        close(testunit)
 #  endif
 # endif
 
-
-
         if ( wrthis(indxR) .or. wrthis(indxO) .or. wrthis(indxW)
      &                   .or. wrthis(indxAkv) .or. wrthis(indxAkt)
 # ifdef SALINITY
@@ -755,22 +753,22 @@ c        close(testunit)
 # endif
      &     ) wrthis(indxTime)=.true.
 
-#  ifdef VIS_COEF_3D
+# ifdef VIS_COEF_3D
         wrthis(indxVisc)=.true.
-#  endif
-#  ifdef DIF_COEF_3D
+# endif
+# ifdef DIF_COEF_3D
         wrthis(indxDiff)=.true.
-#  endif
+# endif
 
         MPI_master_only write(stdout,'(8(/6x,l1,2x,A,1x,A))')
-     &    wrthis(indxR),     'write RHO  ', 'Density anomaly.'
+     &    wrthis(indxR),    'write RHO  ', 'Density anomaly.'
      &  , wrthis(indxO),    'write Omega', 'Omega vertical velocity.'
      &  , wrthis(indxW),    'write W    ', 'True vertical velocity.'
-     &  , wrthis(indxAkv), 'write Akv  ', 'Vertical viscosity.'
+     &  , wrthis(indxAkv),  'write Akv  ', 'Vertical viscosity.'
      &  , wrthis(indxAkt),  'write Akt  ',
      &                      'Vertical diffusivity for temperature.'
 # ifdef SALINITY
-     &  , wrthis(indxAks), 'write Aks  ',
+     &  , wrthis(indxAks),  'write Aks  ',
      &                         'Vertical diffusivity for salinity.'
 # endif
 # ifdef LMD_SKPP
@@ -778,7 +776,7 @@ c        close(testunit)
      &                         'Depth of KPP-model boundary layer.'
 # endif
 # ifdef LMD_BKPP
-     &  , wrthis(indxHbbl),  'write Hbbl  ',
+     &  , wrthis(indxHbbl), 'write Hbbl  ',
      &                       'Depth of bottom planetary boundary layer.'
 # endif
 # ifdef BULK_FLUX
@@ -806,7 +804,7 @@ c        close(testunit)
 #  endif
 # endif
      &  , wrthis(indxBostr), 'write Bostr', 'Bottom Stress.'
-     &  , wrthis(indxWstr), 'write Wstress', 'Wind Stress.'
+     &  , wrthis(indxWstr),  'write Wstress', 'Wind Stress.'
      &  , wrthis(indxUWstr), 'write U-Wstress comp.', 'U-Wind Stress.'
      &  , wrthis(indxVWstr), 'write V-Wstress comp.', 'V-Wind Stress.'
      &  , wrthis(indxShflx), 'write Shflx [W/m2]', 
@@ -819,12 +817,35 @@ c        close(testunit)
      &                          'Short-wave surface radiation'
 # ifdef VIS_COEF_3D
      &  , wrthis(indxVisc),  'write Visc3d', 'Horizontal viscosity.'
-#  endif
-#  ifdef DIF_COEF_3D
+# endif
+# ifdef DIF_COEF_3D
      &  , wrthis(indxDiff),  'write Visc3d', 'Horizontal diffusivity.'
-#  endif
+# endif
 
+!
+! Switches for GLS fields to be saved into history file.
+!
+# ifdef GLS_MIXING
+      elseif (keyword(1:kwlen).eq.'gls_history_fields') then
+        call cancel_kwd (keyword(1:kwlen), ierr)
+        read(input,*,err=95) wrthis(indxAkk),  wrthis(indxAkp)
+     &                    ,  wrthis(indxTke),  wrthis(indxGls)
+     &                    ,  wrthis(indxLsc)
+        if ( wrthis(indxAkk) .or. wrthis(indxAkp) .or. wrthis(indxTke)
+     &                       .or. wrthis(indxGls) .or. wrthis(indxLsc)
+     &     ) wrthis(indxTime)=.true.
+
+        MPI_master_only write(stdout,'(/1x,A,5(/6x,l1,2x,A,1x,A))')
+     &    'Fields to be saved in history file: (T/F)'
+     &   , wrthis(indxAkk), 'write Akk ', 'vertical diffusion for TKE.'
+     &   , wrthis(indxAkp), 'write Akp ', 'vertical diffusion for GLS.'
+     &   , wrthis(indxTke), 'write TKE ', 'turbulent kinetic energy.  '
+     &   , wrthis(indxGls), 'write GLS ', 'generic length scale.'
+     &   , wrthis(indxLsc), 'write Lscale ', 
+     &                                  'vertical mixing length scale.'
+# endif
 #endif /* SOLVE3D */
+
 #ifdef AVERAGES
 !
 ! Switches for fields to be saved into averages file.
@@ -877,9 +898,9 @@ c        close(testunit)
      &                                          ,  wrtavg(indxUWstr)
      &                                          ,  wrtavg(indxVWstr)
      &                                          ,  wrtavg(indxShflx)
-# ifdef SALINITY
+#  ifdef SALINITY
      &                                          ,  wrtavg(indxSwflx)
-# endif
+#  endif
      &                                          ,  wrtavg(indxShflx_rsw)
 #  ifdef BULK_FLUX
      &                                          ,  wrtavg(indxShflx_rlw)
@@ -914,12 +935,12 @@ c        close(testunit)
      &                                        .or. wrtavg(indxUWstr)
      &                                        .or. wrtavg(indxVWstr)
      &                                        .or. wrtavg(indxShflx)
-# ifdef SALINITY
+#  ifdef SALINITY
      &                                        .or. wrtavg(indxSwflx)
-# endif
+#  endif
      &                                        .or. wrtavg(indxShflx_rsw)
      &     
-#  if defined BULK_FLUX
+#  ifdef BULK_FLUX
      &                                        .or. wrtavg(indxShflx_rlw)
      &                                        .or. wrtavg(indxShflx_lat)
      &                                        .or. wrtavg(indxShflx_sen)
@@ -971,7 +992,7 @@ c        close(testunit)
      &  , wrtavg(indxShflx_sen), 'write shflx_sen [W/m2]',
      &                                 'Sensible heat flux.'
 #  endif
-# if defined BIOLOGY && !defined PISCES
+#  if defined BIOLOGY && !defined PISCES
      &  , wrtavg(indxHel),'write Hel  ',
      &                          'Depth of the euphotic layer'
 #   ifdef BIO_NChlPZD
@@ -988,7 +1009,7 @@ c        close(testunit)
 #   endif
 #  endif
      &  , wrtavg(indxBostr),'write Bostr', 'Bottom Stress.'
-     &  , wrtavg(indxWstr),'write Wstr', 'Wind Stress.'
+     &  , wrtavg(indxWstr), 'write Wstr', 'Wind Stress.'
      &  , wrtavg(indxUWstr),'write U-Wstress comp.', 'U-Wind Stress.'
      &  , wrtavg(indxVWstr),'write V-Wstress comp.', 'V-Wind Stress.'
      &  , wrtavg(indxShflx),'write Shflx [W/m2]', 
@@ -1005,6 +1026,30 @@ c        close(testunit)
 #  ifdef DIF_COEF_3D
      &  , wrtavg(indxDiff),'write diff3d', 'Horizontal diffusivity'
 #  endif
+
+!
+! Switches for GLS fields to be saved into history file.
+!
+#  ifdef GLS_MIXING
+      elseif (keyword(1:kwlen).eq.'gls_averages') then
+        call cancel_kwd (keyword(1:kwlen), ierr)
+        read(input,*,err=95) wrtavg(indxAkk),  wrtavg(indxAkp)
+     &                    ,  wrtavg(indxTke),  wrtavg(indxGls)
+     &                    ,  wrtavg(indxLsc)
+        if ( wrtavg(indxAkk) .or. wrtavg(indxAkp) .or. wrtavg(indxTke)
+     &                       .or. wrtavg(indxGls) .or. wrtavg(indxLsc)
+     &     ) wrtavg(indxTime)=.true.
+
+        MPI_master_only write(stdout,'(/1x,A,5(/6x,l1,2x,A,1x,A))')
+     &    'Fields to be saved in average file: (T/F)'
+     &   , wrtavg(indxAkk), 'write Akk ', 'vertical diffusion for TKE.'
+     &   , wrtavg(indxAkp), 'write Akp ', 'vertical diffusion for GLS.'
+     &   , wrtavg(indxTke), 'write TKE ', 'turbulent kinetic energy.  '
+     &   , wrtavg(indxGls), 'write GLS ', 'generic length scale.'
+     &   , wrtavg(indxLsc), 'write Lscale ', 
+     &                                  'vertical mixing length scale.'
+#  endif
+
 # endif /* SOLVE3D */
 #endif /* AVERAGES */
 
@@ -1234,8 +1279,7 @@ c        close(testunit)
         enddo
 
 # endif
-# if !defined LMD_MIXING && !defined BVF_MIXING\
-      && !defined MY2_MIXING && !defined MY25_MIXING
+# if !defined LMD_MIXING && !defined BVF_MIXING && !defined GLS_MIXING
 !
 ! Background vertical viscosity and mixing coefficients for tracers.
 !
@@ -1252,27 +1296,6 @@ c        close(testunit)
      &           'Background vertical mixing coefficient, m2/s,',
      &                                  'for tracer ', itrc, '.' 
         enddo
-# endif
-# ifdef MY25_MIXING
-!
-! Mellor-Yamada Level 2.5 turbulent closure parameters.
-!
-      elseif (keyword(1:kwlen).eq.'MY_bak_mixing') then
-        call cancel_kwd (keyword(1:kwlen), ierr)
-        read(input,*,err=95) Akq_bak, q2nu2, q2nu4
-        MPI_master_only write(stdout,13) Akq_bak
-  13    format(1pe10.3,2x,'Akq_bak     Background vertical mixing',
-     &        ' coefficient [m2/s]',/,32x,'for turbulent energy.')
-#  ifdef Q_DIF2
-        MPI_master_only write(stdout,14) q2nu2
-  14    format(1pe10.3,2x,'q2nu2       Horizontal Laplacian ',
-     &  'mixing coefficient [m2/s]',/,32x,'for turbulent energy.')
-#  endif
-#  ifdef Q_DIF4
-        MPI_master_only write(stdout,15) q2nu4
-  15    format(1pe10.3,2x,'q2nu4       Horizontal, biharmonic ',
-     &  'mixing coefficient, m2/s,',/,32x,'for turbulent energy.')
-#  endif
 # endif
 # ifdef BODYFORCE
       elseif (keyword(1:kwlen).eq.'bodyforce') then

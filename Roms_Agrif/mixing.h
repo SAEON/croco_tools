@@ -88,29 +88,10 @@
 
 # if defined ANA_VMIX || defined BVF_MIXING \
   || defined LMD_MIXING || defined LMD_SKPP || defined LMD_BKPP \
-  || defined MY2_MIXING || defined MY25_MIXING
+  || defined GLS_MIXING
       real bvf(GLOBAL_2D_ARRAY,0:N)
       common /mixing_bvf/ bvf
 # endif
-
-# ifdef MY25_MIXING
-!
-!  Mellor-Yamada (1982) Level 2.5 vertical mixing variables.
-! Akq     Vertical mixing coefficient (m^2/s) for turbulent energy.
-! Lscale  Turbulent length scale (m).
-! q2      Turbulent energy squared (m^2/s^2) at horizontal 
-!             RHO-points and vertical W-points.
-! q2l     Turbulent energy squared times turbulent length scale
-!             [m^3/s^2] at horizontal RHO-points and vertical
-!             W-points.
-!
-      real Akq(GLOBAL_2D_ARRAY,0:N)
-      real Lscale(GLOBAL_2D_ARRAY,N)
-      real q2(GLOBAL_2D_ARRAY,0:N,2)
-      real q2l(GLOBAL_2D_ARRAY,0:N,2)
-      common /my25_mix_Akq/Akq /my25_mix_Lscale/Lscale
-     &       /my25_mix_q2/q2   /my25_mix_q2l/q2l
-#endif /* MY25_MIXING */
 
 # if defined LMD_SKPP || defined LMD_BKPP
 !
@@ -127,20 +108,18 @@
       real hel(GLOBAL_2D_ARRAY)
       common /lmd_hel/hel
 #  endif
-
-# ifdef LMD_SKPP2005      
+#  ifdef LMD_SKPP2005      
       real hbls(GLOBAL_2D_ARRAY,2)
-# else           
+#  else           
       real hbl (GLOBAL_2D_ARRAY  )      
-# endif
-      
+#  endif
       real hbbl(GLOBAL_2D_ARRAY)
       common /lmd_kpp_kbl/kbl
-# ifdef LMD_SKPP2005           
+#  ifdef LMD_SKPP2005           
      &       /lmd_kpp_hbl/hbls
-# else     
+#  else     
      &       /lmd_kpp_hbl/hbl     
-# endif     
+#  endif     
      &       /lmd_kpp_hbbl/hbbl   
      &       /lmd_kpp_kbbl/kbbl
 #  ifdef LMD_NONLOCAL
@@ -148,11 +127,23 @@
       common /lmd_kpp_ghats/ghats
 #  endif
 # endif /* LMD_SKPP || LMD_BKPP */
-
 # ifdef LMD_MIXING
-      real ustar(GLOBAL_2D_ARRAY)
+      real ustar(GLOBAL_2D_ARRAY) 
       common /lmd_kpp_ustar/ustar
 # endif /* LMD_MIXING */
+
+# ifdef GLS_MIXING
+      real tke(GLOBAL_2D_ARRAY,0:N,3)
+      real gls(GLOBAL_2D_ARRAY,0:N,3)
+      real Akk(GLOBAL_2D_ARRAY,0:N)
+      real Akp(GLOBAL_2D_ARRAY,0:N)
+      real Lscale(GLOBAL_2D_ARRAY,0:N)
+      common /gls_tke/tke
+      common /gls_gls/gls
+      common /gls_Akk/Akk
+      common /gls_Akp/Akp
+      common /gls_Lscale/Lscale
+# endif /* GLS_MIXING */
 
 #endif /* SOLVE3D */
 

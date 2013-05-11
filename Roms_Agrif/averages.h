@@ -49,6 +49,14 @@
       real hbbl_avg(GLOBAL_2D_ARRAY)
       common /avg_hbbl/hbbl_avg
 #  endif
+#  ifdef GLS_MIXING
+      real tke_avg(GLOBAL_2D_ARRAY,0:N)
+      real gls_avg(GLOBAL_2D_ARRAY,0:N)
+      real Lscale_avg(GLOBAL_2D_ARRAY,0:N)
+      common /avg_tke/tke_avg
+      common /avg_gls/gls_avg
+      common /avg_Lscale/Lscale_avg
+#  endif
 #  ifdef BULK_FLUX
       real shflx_rsw_avg(GLOBAL_2D_ARRAY)
       real shflx_rlw_avg(GLOBAL_2D_ARRAY)
@@ -89,6 +97,11 @@
       real Akv_avg(GLOBAL_2D_ARRAY,0:N)
       real Akt_avg(GLOBAL_2D_ARRAY,0:N,2)
       common /avg_Akv/Akv_avg /avg_Akt/Akt_avg
+#   ifdef GLS_MIXING
+      real Akk_avg(GLOBAL_2D_ARRAY,0:N)
+      real Akp_avg(GLOBAL_2D_ARRAY,0:N)
+      common /avg_Akk/Akk_avg /avg_Akp/Akp_avg
+#   endif
 #  endif
 # endif
 #endif /* AVERAGES */

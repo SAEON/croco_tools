@@ -117,6 +117,7 @@
 # undef  BODYFORCE
 # undef  BVF_MIXING
 # define LMD_MIXING
+# undef  GLS_MIXING
 # ifdef LMD_MIXING
 #  define LMD_SKPP
 #  define LMD_SKPP2005
@@ -125,6 +126,16 @@
 #  define LMD_CONVEC
 #  undef  LMD_DDMIX
 #  define LMD_NONLOCAL
+# endif
+# ifdef GLS_MIXING
+#  define GLS_KKL
+#  undef  GLS_KOMEGA
+#  undef  GLS_KEPSILON
+#  undef  GLS_GEN
+#  undef  KANTHA_CLAYSON
+#  undef  CRAIG_BANNER
+#  undef  CANUTO_A
+#  undef  ZOS_HSIG
 # endif
                       /* Equation of State */
 # define SALINITY

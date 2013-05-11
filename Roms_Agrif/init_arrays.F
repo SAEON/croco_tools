@@ -290,7 +290,7 @@ C$    integer omp_get_thread_num
           do i=IstrR,IendR
             do iflux=1,NumGasExcTerms
               GasExcFlux(i,j,iflux)= init
-	    enddo        
+            enddo        
           enddo
         enddo
 #  endif 
@@ -465,10 +465,10 @@ C$    integer omp_get_thread_num
       enddo
 # if defined PSOURCE_NCFILE
           do i=1,Msrc
-	   riv(i)=init
-	   rivg(i,1)=init
-	   rivg(i,2)=init
-          enddo	
+           riv(i)=init
+           rivg(i,1)=init
+           rivg(i,2)=init
+          enddo
 # endif
 #endif /* SOLVE3D */
 !
@@ -812,23 +812,21 @@ C$    integer omp_get_thread_num
       do k=0,N
         do j=JstrR,JendR
           do i=IstrR,IendR
-# if !defined LMD_MIXING && !defined BVF_MIXING\
-      && !defined MY2_MIXING && !defined MY25_MIXING
+# if !defined LMD_MIXING && !defined BVF_MIXING && !defined GLS_MIXING
             Akv(i,j,k)=Akv_bak
 # else
             Akv(i,j,k)=init
 # endif
 # if defined BVF_MIXING \
       || defined LMD_MIXING || defined LMD_SKPP || defined LMD_BKPP \
-      || defined MY2_MIXING || defined MY25_MIXING 
+      || defined GLS_MIXING 
             bvf(i,j,k)=init
 # endif
           enddo
         enddo
         do j=JstrR,JendR
           do i=IstrR,IendR
-# if !defined LMD_MIXING && !defined BVF_MIXING\
-      && !defined MY2_MIXING && !defined MY25_MIXING
+# if !defined LMD_MIXING && !defined BVF_MIXING && !defined GLS_MIXING
               Akt(i,j,k,itemp)=Akt_bak(itemp)
 #  ifdef SALINITY
               Akt(i,j,k,isalt)=Akt_bak(isalt)
@@ -838,6 +836,10 @@ C$    integer omp_get_thread_num
 #  ifdef SALINITY
               Akt(i,j,k,isalt)=init
 #  endif
+# endif
+# ifdef GLS_MIXING
+              Akk(i,j,k)=Akk_bak
+              Akp(i,j,k)=Akp_bak
 # endif
           enddo
         enddo
@@ -912,6 +914,21 @@ C$    integer omp_get_thread_num
       enddo
 #  endif /* BIOLOGY */
 # endif /* LMD_SKPP */
+
+# ifdef GLS_MIXING
+      do k=0,N
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+            tke(i,j,k,1)=init
+            tke(i,j,k,2)=init
+            gls(i,j,k,1)=init
+            gls(i,j,k,2)=init
+            Lscale(i,j,k)=init
+          enddo
+        enddo
+      enddo
+# endif
+
 #endif /* SOLVE3D */
 
       return

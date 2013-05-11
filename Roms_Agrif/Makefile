@@ -46,8 +46,9 @@ include Makedefs
 \
 	rho_eos.F	ab_ratio.F	alfabeta.F\
 \
-	ana_vmix.F	bvf_mix.F	lmd_vmix.F\
+	ana_vmix.F	bvf_mix.F	lmd_vmix.F 	gls_mixing.F\
 	lmd_skpp.F	lmd_bkpp.F	lmd_swfrac.F	lmd_wscale.F\
+	gls_prestep.F\
 \
 	diag.F		wvlcty.F	checkdims.F	grid_stiffness.F\
 	bio_diag.F\
@@ -71,7 +72,7 @@ include Makedefs
         get_tides.F     clm_tides.F     get_bulk.F      bulk_flux.F\
         get_bry.F       get_bry_bio.F	nf_read_bry.F	sstskin.F\
         get_psource.F   nf_add_attribute.F fillvalue.F\
-        mrl_wci.F  \
+	mrl_wci.F  \
 \
         online_bulk_var.F		online_get_bulk.F\
 	online_interp.F			online_interpolate_bulk.F\

@@ -98,6 +98,10 @@ C     start_time1=PMPI_Wtime()
       call init_scalars (ierr)       ! Also initialize global
       if (ierr.ne.0) goto 100        ! scalar variables.
 
+#ifdef GLS_MIXING
+      call init_gls (ierr)           ! GLS model parameters,
+#endif
+
 #ifdef PISCES
       call trclsm
       call get_dust
@@ -458,9 +462,9 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Stop timers and
  100  continue
 #ifdef MPI
       call MPI_Barrier(MPI_COMM_WORLD, ierr)
-C     start_time2=PMPI_Wtime()
-C     exe_time = start_time2 - start_time1
-C     if(mynode.eq.0) print*,'exe_time =',exe_time
+!     start_time2=PMPI_Wtime()
+!     exe_time = start_time2 - start_time1
+!     if(mynode.eq.0) print*,'exe_time =',exe_time
       call MPI_Finalize (ierr)
 #endif
       stop

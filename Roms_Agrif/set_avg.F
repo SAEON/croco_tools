@@ -86,6 +86,13 @@ C$    integer omp_get_thread_num
 !
       ilc=1+iic-ntstart   ! number of time step since restart
 !
+!
+!======================================================================
+!
+!                   Initialize averaging procedure
+!
+!======================================================================
+!
       if (ilc.gt.ntsavg) then 
         if (mod(ilc-1,navg).eq.1) then
           if (wrtavg(indxZ)) then
@@ -222,6 +229,35 @@ C$    integer omp_get_thread_num
             enddo
           endif
 #  endif
+#  ifdef GLS_MIXING
+          if (wrtavg(indxTke)) then
+            do k=0,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  tke_avg(i,j,k)=tke(i,j,k,nstp)
+                enddo
+              enddo
+            enddo
+          endif
+          if (wrtavg(indxGls)) then
+            do k=0,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  gls_avg(i,j,k)=gls(i,j,k,nstp)
+                enddo
+              enddo
+            enddo
+          endif
+          if (wrtavg(indxLsc)) then
+            do k=0,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  Lscale_avg(i,j,k)=Lscale(i,j,k)
+                enddo
+              enddo
+            enddo
+          endif
+#  endif
           if (wrtavg(indxShflx)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
@@ -229,7 +265,7 @@ C$    integer omp_get_thread_num
                enddo
              enddo
            endif
-#ifdef SALINITY
+#  ifdef SALINITY
            if (wrtavg(indxSwflx)) then
              do j=JstrR,JendR
                do i=IstrR,IendR
@@ -238,15 +274,15 @@ C$    integer omp_get_thread_num
                enddo
              enddo
            endif
-#endif
+#  endif
            if (wrtavg(indxShflx_rsw)) then
              do j=JstrR,JendR
                do i=IstrR,IendR
-# ifdef BULK_FLUX
+#  ifdef BULK_FLUX
                  shflx_rsw_avg(i,j)=shflx_rsw(i,j)*rho0*Cp
-# else
+#  else
                  srflx_avg(i,j)=srflx(i,j)*rho0*Cp
-# endif
+#  endif
                enddo
              enddo
            endif
@@ -347,6 +383,26 @@ C$    integer omp_get_thread_num
             enddo
           endif
 #   endif
+#   ifdef GLS_MIXING
+          if (wrtavg(indxAkk)) then
+            do k=0,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  Akk_avg(i,j,k)=Akk(i,j,k)
+                enddo
+              enddo
+            enddo
+          endif
+          if (wrtavg(indxAkp)) then
+            do k=0,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  Akp_avg(i,j,k)=Akp(i,j,k)
+                enddo
+              enddo
+            enddo
+          endif
+#   endif
 #  endif
 #  if defined BIOLOGY && !defined PISCES
           if (wrtavg(indxHel)) then
@@ -408,7 +464,13 @@ C$    integer omp_get_thread_num
           enddo
 #   endif /* SEDIMENT */
 #  endif /* SOLVE3D */
-
+!
+!======================================================================
+!
+!                   Increment averaged fields
+!
+!======================================================================
+!
         elseif (mod(ilc-1,navg).gt.1) then
           if (wrtavg(indxZ)) then
             do j=JstrR,JendR
@@ -529,11 +591,11 @@ C$    integer omp_get_thread_num
           if (wrtavg(indxHbl)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
-#ifdef LMD_SKPP2005
+#   ifdef LMD_SKPP2005
                 hbl_avg(i,j)=hbl_avg(i,j)+hbls(i,j,nstp)
-#else
+#   else
                 hbl_avg(i,j)=hbl_avg(i,j)+hbl(i,j)
-#endif
+#   endif
               enddo
             enddo
           endif
@@ -547,6 +609,35 @@ C$    integer omp_get_thread_num
             enddo
           endif
 #  endif
+#  ifdef GLS_MIXING
+          if (wrtavg(indxTke)) then
+            do k=0,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  tke_avg(i,j,k)=tke_avg(i,j,k)+tke(i,j,k,nstp)
+                enddo
+              enddo
+            enddo
+          endif
+          if (wrtavg(indxGls)) then
+            do k=0,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  gls_avg(i,j,k)=gls_avg(i,j,k)+gls(i,j,k,nstp)
+                enddo
+              enddo
+            enddo
+          endif
+          if (wrtavg(indxLsc)) then
+            do k=0,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  Lscale_avg(i,j,k)=Lscale_avg(i,j,k)+Lscale(i,j,k)
+                enddo
+              enddo
+            enddo
+          endif
+#  endif
           if (wrtavg(indxShflx)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
@@ -555,7 +646,7 @@ C$    integer omp_get_thread_num
               enddo
             enddo
           endif
-#ifdef SALINITY
+#  ifdef SALINITY
           if (wrtavg(indxSwflx)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
@@ -565,17 +656,17 @@ C$    integer omp_get_thread_num
               enddo
             enddo
           endif
-#endif
+#  endif
           if (wrtavg(indxShflx_rsw)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
 #  ifdef BULK_FLUX
                 shflx_rsw_avg(i,j)=shflx_rsw_avg(i,j)+shflx_rsw(i,j)
      &                                                *rho0*Cp
-# else
+#  else
                 srflx_avg(i,j)=srflx_avg(i,j)+
      &                          srflx(i,j)*rho0*Cp
-# endif
+#  endif
               enddo
             enddo
           endif
@@ -681,6 +772,26 @@ C$    integer omp_get_thread_num
             enddo
           endif
 #   endif
+#   ifdef GLS_MIXING
+          if (wrtavg(indxAkk)) then
+            do k=0,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  Akk_avg(i,j,k)=Akk_avg(i,j,k)+Akk(i,j,k)
+                enddo
+              enddo
+            enddo
+          endif
+          if (wrtavg(indxAkp)) then
+            do k=0,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  Akp_avg(i,j,k)=Akp_avg(i,j,k)+Akp(i,j,k)
+                enddo
+              enddo
+            enddo
+          endif
+#   endif
 #  endif /* AVERAGES_K */
 #  if defined BIOLOGY && !defined PISCES
           if (wrtavg(indxHel)) then
@@ -743,7 +854,13 @@ C$    integer omp_get_thread_num
           enddo
 #  endif /* SEDIMENT */
 # endif /* SOLVE3D */
-
+!
+!======================================================================
+!
+!                   Finalize averaging procedure
+!
+!======================================================================
+!
         elseif (mod(ilc-1,navg).eq.0) then
           cff=1./float(navg)
           if (ZEROTH_TILE) time_avg=time_avg+float(navg)*dt
@@ -891,6 +1008,36 @@ C$    integer omp_get_thread_num
             enddo
           endif
 #  endif
+#  ifdef GLS_MIXING
+          if (wrtavg(indxTke)) then
+            do k=0,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  tke_avg(i,j,k)=cff*(tke_avg(i,j,k)+tke(i,j,k,nstp))
+                enddo
+              enddo
+            enddo
+          endif
+          if (wrtavg(indxGls)) then
+            do k=0,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  gls_avg(i,j,k)=cff*(gls_avg(i,j,k)+gls(i,j,k,nstp))
+                enddo
+              enddo
+            enddo
+          endif
+          if (wrtavg(indxLsc)) then
+            do k=0,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  Lscale_avg(i,j,k)=cff*(Lscale_avg(i,j,k)
+     &                                     +Lscale(i,j,k))
+                enddo
+              enddo
+            enddo
+          endif
+#  endif
           if (wrtavg(indxShflx)) then
             do j=JstrR,JendR
               do i=IstrR,IendR
@@ -1023,6 +1170,28 @@ C$    integer omp_get_thread_num
                 do i=IstrR,IendR
                   Akt_avg(i,j,k,isalt)=cff*(Akt_avg(i,j,k,isalt)
      &                                         +Akt(i,j,k,isalt))
+                enddo
+              enddo
+            enddo
+          endif
+#   endif
+#   ifdef GLS_MIXING
+          if (wrtavg(indxAkk)) then
+            do k=0,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  Akk_avg(i,j,k)=cff*(Akk_avg(i,j,k)
+     &                                  +Akk(i,j,k))
+                enddo
+              enddo
+            enddo
+          endif
+          if (wrtavg(indxAkp)) then
+            do k=0,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  Akp_avg(i,j,k)=cff*(Akp_avg(i,j,k)
+     &                                  +Akp(i,j,k))
                 enddo
               enddo
             enddo
