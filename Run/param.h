@@ -71,8 +71,12 @@
 !     parameter (LLm0=300,  MMm0=500,  N=30)   !  2 km resolution
 !     parameter (LLm0=120,  MMm0=200,  N=30)   !  5 km resolution
 !     parameter (LLm0=60,   MMm0=100,  N=30)   ! 10 km resolution
-      parameter (LLm0=30,    MMm0=50,  N=30)   ! 20 km resolution
+      parameter (LLm0=30,   MMm0=50,   N=30)   ! 20 km resolution
 # endif
+#elif defined SHOREFACE
+      parameter (LLm0=59,   MMm0=7,    N=20)   ! Planar Beach 20m
+#elif defined THACKER
+      parameter (LLm0=199,  MMm0=199,  N=5 )   !  1 km resolution
 #elif defined REGIONAL
 #  if   defined USWC0
       parameter (LLm0=62,   MMm0=126,  N=40)   ! US_West grid15 L0
@@ -109,14 +113,6 @@
       parameter (LLm0=??, MMm0=??, N=??)
 #endif
       
-!
-! MPI related variables
-! === ====== =========
-     
-      integer Lmmpi,Mmmpi,iminmpi,imaxmpi,jminmpi,jmaxmpi
-      common /comm_setup_mpi/ Lmmpi,Mmmpi,
-     &                    iminmpi,imaxmpi,jminmpi,jmaxmpi
-
 #ifdef AGRIF
       common /scrum_physical_grid/ LLm,Lm,LLmm2,MMm,Mm,MMmm2
 #else
@@ -124,8 +120,17 @@
 #endif
 
 !
-! Domain subdivision parameters:
-! ====== =========== ===========
+! MPI related variables
+! === ======= =========
+!
+      integer Lmmpi,Mmmpi,iminmpi,imaxmpi,jminmpi,jmaxmpi
+      common /comm_setup_mpi/ Lmmpi,Mmmpi,
+     &                    iminmpi,imaxmpi,jminmpi,jmaxmpi
+
+!
+! Domain subdivision parameters
+! ====== =========== ==========
+!
 ! NPP            Maximum allowed number of parallel threads;
 ! NSUB_X,NSUB_E  Number of SHARED memory subdomains in XI- and
 !                                                ETA-directions;
@@ -153,9 +158,83 @@
       parameter (NSUB_X=1, NSUB_E=NPP)
 # endif
 #endif
+
 !
-! Number of tracers and tracer identification indices:
-! ====== == ======= === ====== ============== ========
+! Derived dimension parameters
+! ======= ========= ==========
+!
+      integer stdout, Np, padd_X,padd_E
+#ifdef AGRIF
+      common/scrum_deriv_param/padd_X,padd_E
+#endif
+      parameter (stdout=6, Np=N+1)
+#ifndef AGRIF
+# ifdef MPI
+      parameter (Lm=(LLm+NP_XI-1)/NP_XI, Mm=(MMm+NP_ETA-1)/NP_ETA)
+# else
+      parameter (Lm=LLm, Mm=MMm)
+# endif
+      parameter (padd_X=(Lm+2)/2-(Lm+1)/2)
+      parameter (padd_E=(Mm+2)/2-(Mm+1)/2)
+#endif
+
+#if defined AGRIF || defined AUTOTILING
+      integer NSA, N2d,N3d,N1dXI,N1dETA
+      parameter (NSA=28)
+      common /scrum_private_param/ N2d,N3d,N1dXI,N1dETA
+#else
+      integer NSA, N2d,N3d, size_XI,size_ETA
+      integer se,sse, sz,ssz
+      parameter (NSA=28)
+# ifdef ALLOW_SINGLE_BLOCK_MODE
+      parameter (size_XI=6+Lm, size_ETA=6+Mm)
+# else
+      parameter (size_XI=7+(Lm+NSUB_X-1)/NSUB_X)
+      parameter (size_ETA=7+(Mm+NSUB_E-1)/NSUB_E)
+# endif
+      parameter (sse=size_ETA/Np, ssz=Np/size_ETA)
+      parameter (se=sse/(sse+ssz), sz=1-se)
+      parameter (N2d=size_XI*(se*size_ETA+sz*Np))
+      parameter (N3d=size_XI*size_ETA*Np)
+#endif
+
+!
+! Number maximum of weights for the barotropic mode
+! ====== ======= == ======= === === ========== ====
+!
+      integer NWEIGHT
+      parameter (NWEIGHT=137)
+
+!
+! Tides, Wetting-Drying, Point sources, Floast, Stations
+! =====  ==============  ===== =======  ======  ========
+!
+#if defined SSH_TIDES || defined UV_TIDES
+      integer Ntides             ! Number of tides
+      parameter (Ntides=8)       ! ====== == =====
+#endif
+#ifdef WET_DRY
+      real Dcrit                 ! Critical Depth for Drying cells
+      parameter (Dcrit=0.1)     ! ======== ===== === ====== =====
+#endif
+#ifdef PSOURCE
+      integer Msrc               ! Number of point sources
+      parameter (Msrc=10)        ! ====== == ===== =======
+#endif
+#ifdef FLOATS
+       integer Mfloats           ! Maximum number of floats
+       parameter (Mfloats=32000) ! ======= ====== == ======
+#endif
+#ifdef STATIONS
+       integer NS                ! Number of output stations
+       parameter (NS=5)          ! ====== == ====== ========
+       integer Msta              ! Maximum number of stations
+       parameter (Msta=1000)     ! ======= ====== == ========
+#endif
+
+!
+! Number of tracers and tracer identification indices
+! ====== == ======= === ====== ============== =======
 !
 #ifdef SOLVE3D
       integer   NT, itemp
@@ -229,7 +308,6 @@
      &          , NumVSinkTerms
 #  endif
 # endif
-
 # ifdef SEDIMENT
      &          , isand, isilt
      &          , NST, NLAY
@@ -248,6 +326,10 @@
 # else
       parameter (ntrc_pas=0)
 # endif
+
+!
+! ================  BIOLOGY  =====================
+!
 # ifdef BIOLOGY
 #  ifdef PISCES
       parameter (ntrc_bio=24,itrc_bio=itemp+ntrc_salt+ntrc_pas+1)
@@ -378,9 +460,14 @@
       parameter (ntrc_bio=0,ntrc_diabio=0)
 # endif /* BIOLOGY */
 
+!
+! ================  SEDIMENTS  =====================
+!
 # ifdef SEDIMENT
+!
 ! NST            Number of sediment (tracer) size classes
 ! NLAY           Number of layers in sediment bed
+!
       parameter (NST=2, NLAY=2)
       parameter (ntrc_sed=NST,
      &             itrc_sed=itemp+ntrc_salt+ntrc_pas+ntrc_bio+1)
@@ -388,7 +475,15 @@
 # else
       parameter (ntrc_sed=0)
 # endif
+
+!
+! ===  total number of tracers  ===
+!
       parameter (NT=itemp+ntrc_salt+ntrc_pas+ntrc_bio+ntrc_sed)
+
+!
+! ===  Diagnostics  ===
+!
 # ifdef DIAGNOSTICS_TS
 #  ifdef DIAGNOSTICS_TS_MLD
       parameter (ntrc_diats=15*NT)
@@ -403,73 +498,7 @@
 # else
       parameter (ntrc_diauv=0)
 # endif
+
 #endif /*SOLVE3D */
-#ifdef STATIONS
-      integer NS           ! Number of output stations (if any).
-      parameter (NS=5)     ! ====== == ====== ======== === =====
-#endif
-#ifdef PSOURCE
-      integer Msrc         ! Number of point sources, if any
-      parameter (Msrc=10)  ! ====== == ====== ======== === =
-#endif
-#ifdef FLOATS
-       integer Mfloats          ! Maximum number of floats
-       parameter (Mfloats=32000)! ====== == ====== ========
-#endif
-#ifdef STATIONS
-       integer Msta          ! Maximum of stations
-       parameter (Msta=1000) ! ======= == ========
-#endif
-#if defined SSH_TIDES || defined UV_TIDES
-      integer Ntides
-      parameter (Ntides=8)
-#endif
-!
-! Derived dimension parameters.
-!
-      integer stdout, Np, padd_X,padd_E
-#ifdef AGRIF
-      common/scrum_deriv_param/padd_X,padd_E
-#endif
-      parameter (stdout=6, Np=N+1)
-#ifndef AGRIF
-!
-! Domain subdivision parameters:
-! ====== =========== ===========
 
-# ifdef MPI
-      parameter (Lm=(LLm+NP_XI-1)/NP_XI, Mm=(MMm+NP_ETA-1)/NP_ETA)
-# else
-      parameter (Lm=LLm, Mm=MMm)
-# endif
-!
-! Derived dimension parameters.
-!
-      parameter (padd_X=(Lm+2)/2-(Lm+1)/2)
-      parameter (padd_E=(Mm+2)/2-(Mm+1)/2)
-#endif
 
-#if defined AGRIF || defined AUTOTILING
-      integer NSA, N2d,N3d,N1dXI,N1dETA
-      parameter (NSA=28)
-      common /scrum_private_param/ N2d,N3d,N1dXI,N1dETA
-#else
-      integer NSA, N2d,N3d, size_XI,size_ETA
-      integer se,sse, sz,ssz
-      parameter (NSA=28)
-# ifdef ALLOW_SINGLE_BLOCK_MODE
-      parameter (size_XI=6+Lm, size_ETA=6+Mm)
-# else
-      parameter (size_XI=7+(Lm+NSUB_X-1)/NSUB_X)
-      parameter (size_ETA=7+(Mm+NSUB_E-1)/NSUB_E)
-# endif
-      parameter (sse=size_ETA/Np, ssz=Np/size_ETA)
-      parameter (se=sse/(sse+ssz), sz=1-se)
-      parameter (N2d=size_XI*(se*size_ETA+sz*Np))
-      parameter (N3d=size_XI*size_ETA*Np)
-#endif
-!
-! Number maximum of weights for the barotropic mode
-!
-      integer NWEIGHT
-      parameter (NWEIGHT=137)
