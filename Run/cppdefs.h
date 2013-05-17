@@ -47,9 +47,15 @@
 */
                       /* Configuration Name */
 # define BENGUELA_LR
+                      /* Coupling via OASIS */
+# undef OA_COUPLING
                       /* Parallelization */
 # undef  OPENMP
 # undef  MPI
+# ifdef OA_COUPLING
+#  define MPI
+#  define OA_MCT
+#endif
                       /* Nesting */
 # undef  AGRIF
 # undef  AGRIF_2WAY

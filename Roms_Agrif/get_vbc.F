@@ -44,6 +44,9 @@
 # if defined PSOURCE_NCFILE
         call get_psource
 # endif
+
+#if !defined OA_COUPLING
+
 !
 !---------------------------------------------------------------
 ! Initial wave periode, amplitude, direction and dissipation
@@ -126,6 +129,7 @@
 #  endif
 # endif /* !BULK_FLUX */
 #endif /* SOLVE3D */
+#endif /* !OA_COUPLING */
 
       return
       end
@@ -179,6 +183,7 @@
 #include "scalars.h"
 #include "climat.h"
 #include "sources.h"
+#include "mpi_roms.h"
       integer i,j,is, Istr,Iend,Jstr,Jend
       real cff,cff1
       real wrk(PRIVATE_2D_SCRATCH_ARRAY)
@@ -193,6 +198,7 @@
 #ifdef AGRIF
       Agrif_lev_sedim=Agrif_Nb_Fine_Grids()
 #endif
+#if !defined OA_COUPLING
 !
 !---------------------------------------------------------------
 ! Kinematic surface momentum flux (wind stress) components
@@ -330,6 +336,7 @@
         enddo
       enddo
 # endif
+#endif /* !OA_COUPLING */
 !
 !---------------------------------------------------------------
 !  Kinematic bottom temperature (heat) flux [degC m/s].

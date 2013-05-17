@@ -21,6 +21,7 @@
 # include "param.h"
 # include "scalars.h"
 # include "ncscrum.h"
+# include "mpi_roms.h"
       include 'mpif.h'
 
       call MPI_Comm_size (MPI_COMM_WORLD, nsize,  ierr)

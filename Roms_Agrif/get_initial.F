@@ -25,6 +25,10 @@
 #ifdef BBL
 # include "bbl.h"
 #endif
+#ifdef OA_COUPLING
+#include "mpi_roms.h"
+#endif
+
       real time_scale
       integer itrc
 #if defined SEDIMENT || defined BBL
@@ -365,6 +369,13 @@
 !
       ierr=nf_close(ncid)
 #endif
+
+#ifdef OA_COUPLING
+      call cpl_prism_define
+      oasis_time = 0
+      MPI_master_only write(*,*)'CPL-ROMS: OASIS_TIME',oasis_time
+#endif
+
   1   format(/1x,'GET_INITIAL - unable to find variable:',    1x,A,
      &                            /15x,'in input NetCDF file:',1x,A/)
   2   format(/1x,'GET_INITIAL - error while reading variable:',1x, A,

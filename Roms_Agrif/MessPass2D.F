@@ -22,6 +22,7 @@
 !     implicit none
 # include "param.h"
 # include "scalars.h"
+# include "mpi_roms.h"
       include 'mpif.h'
 !
 ! Nb of boundary points involved in communication

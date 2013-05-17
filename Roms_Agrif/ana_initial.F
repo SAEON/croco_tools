@@ -608,6 +608,7 @@ C$    integer omp_get_thread_num
 #  include "ocean2d.h"
 #  include "ocean3d.h"
 #  include "scalars.h"
+#  include "mpi_roms.h"
 #  include "private_scratch.h"
 #  ifdef CLIMATOLOGY
 #   include "climat.h"

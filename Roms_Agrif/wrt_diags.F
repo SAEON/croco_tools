@@ -49,6 +49,7 @@
 # include "work.h"
 #endif
 #include "netcdf.inc"
+#include "mpi_roms.h"
 #if defined MPI & !defined PARALLEL_FILES
       if (mynode.gt.0) then
         call MPI_Recv (blank, 1, MPI_INTEGER, mynode-1, 

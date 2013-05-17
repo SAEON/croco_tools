@@ -31,7 +31,15 @@
     serial and multi-processor result by comparing binary file
 */
 #undef RVTK_DEBUG
- 
+
+/* Change the generic name for the MPI communicator MPI_COMM_WORLD
+   by the OASIS-MCT local communicator
+*/ 
+#ifdef OA_COUPLING
+# define MPI_COMM_WORLD ocean_grid_comm
+# undef BULK_FLUX
+#endif
+  
 /*
    Activate barotropic pressure gradient response to the
    perturbation of free-surface in the presence of stratification

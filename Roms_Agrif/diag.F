@@ -32,6 +32,7 @@
 # include "ocean2d.h"
 #endif
 #include "scalars.h"
+#include "mpi_roms.h"
       integer Istr,Iend,Jstr,Jend,    i,j,k, NSUB,
      &                                trd, omp_get_thread_num
       real ke2d(PRIVATE_2D_SCRATCH_ARRAY),
@@ -229,7 +230,7 @@ C$OMP CRITICAL (diag_cr_rgn)
               endif
               trd=omp_get_thread_num()
               write(stdout,3)iic-1,tdays,avgke,avgpe,avgkp,volume,trd
-   3          format(I6, F12.5, 1PE16.9, 3(1PE14.7), I3)
+   3          format(I8, F12.5, 1PE16.9, 3(1PE14.7), I3)
 !
 ! Raise may_day_flag to stop computations in the case of blowing up.
 ! [Criterion for blowing up here is the numerical overflow, so that

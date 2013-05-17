@@ -29,6 +29,7 @@
 #include "ocean2d.h"
 #include "ocean3d.h"
 #include "diagnostics.h"
+#include "mpi_roms.h"
 
 #ifdef SOLVE3D
       integer tile, iflux,i,j,k

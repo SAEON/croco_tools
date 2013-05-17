@@ -70,6 +70,10 @@ MPIF90="/usr/local/bin/mpif90"
 MPILIB="-L/usr/local/lib -lmpi"
 MPIINC="-I/usr/local/include"
 #
+# set OASIS-MCT (or OASIS3) directories if needed
+#
+PRISM_ROOT_DIR=../../oasis3-mct/compile_oa3-mct
+#
 # END OF USER'S MODIFICATIONS
 ####################################################
 #
@@ -132,7 +136,7 @@ if [[ $OS == Linux ]] ; then           # ===== LINUX =====
 	elif [[ $LINUX_FC == gfortran ]] ; then
 		CPP1="cpp -traditional -DLinux"
 		CFT1=gfortran
-		FFLAGS1="-O3 -fdefault-real-8 -fdefault-double-8"
+		FFLAGS1="-O3 -fdefault-real-8 -fdefault-double-8 -mcmodel=medium"
 #		 FFLAGS1="-O0 -g -fdefault-real-8 -fdefault-double-8 -fbacktrace \
 #			-fbounds-check -finit-real=nan -finit-integer=8888"
 		LDFLAGS1="$LDFLAGS1"
@@ -214,6 +218,28 @@ if $($CPP1 testkeys.F | grep -i -q mpiisdefined) ; then
 	CFT1="$MPIF90"
 fi
 #
+# determine if OASIS compilation is required
+#
+unset COMPILEOASIS
+echo "Checking COMPILEOASIS..."
+if $($CPP1 testkeys.F | grep -i -q oacplisdefined) ; then
+    echo " => OASIS activated"
+    CHAN=MPI1
+    if $($CPP1 testkeys.F | grep -i -q oacpl_mctisdefined) ; then
+	echo " => OASIS-MCT activated"
+	LIBPSMILE="${PRISM_ROOT_DIR}/lib/libpsmile.${CHAN}.a ${PRISM_ROOT_DIR}/lib/libmct.a  ${PRISM_ROOT_DIR}/lib/libmpeu.a ${PRISM_ROOT_DIR}/lib/libscrip.a"
+	PSMILE_INCDIR="-I${PRISM_ROOT_DIR}/build/lib/psmile.${CHAN} -I${PRISM_ROOT_DIR}/build/lib/mct"
+    elif $($CPP1 testkeys.F | grep -i -q oacpl_oa3isdefined) ; then
+	echo " => OASIS3 activated"
+	LIBPSMILE="${PRISM_ROOT_DIR}/lib/libanaisg.a ${PRISM_ROOT_DIR}/lib/libanaism.a ${PRISM_ROOT_DIR}/lib/libclim.${CHAN}.a ${PRISM_ROOT_DIR}/lib/libpsmile.${CHAN}.a ${PRISM_ROOT_DIR}/lib/libfscint.a  ${PRISM_ROOT_DIR}/lib/libmpp_io.a ${PRISM_ROOT_DIR}/lib/libscrip.a"
+	PSMILE_INCDIR="-I${PRISM_ROOT_DIR}/build/lib/psmile.${CHAN} -I${PRISM_ROOT_DIR}/build/lib/clim.${CHAN} -I${PRISM_ROOT_DIR}/build/lib/mpp_io"
+    fi
+    COMPILEOASIS=TRUE
+    LDFLAGS1="$LDFLAGS1 $LIBPSMILE"
+    CPPFLAGS1="$CPPFLAGS1 ${PSMILE_INCDIR}"
+    FFLAGS1="$FFLAGS1 ${PSMILE_INCDIR}"
+fi
+#
 # rewrite Makedefs according to previous flags
 # with MPI flags if needed
 #
@@ -265,7 +291,7 @@ if [[ $COMPILEAGRIF ]] ; then
 		work.h private_scratch_AMR.h scalars.h ncscrum.h coupling.h grid.h tides.h \
 		sediment.h bbl.h zoom.h floats.h sources.h buffer.h diagnostics.h common.h \
 		common.passivetrc.pisces.h parameter.passivetrc.h trcctl.pisces.h trclsm.pisces.h \
-		common.passivetrc.h parameter.h parameter.passivetrc.pisces.h trcini.pisces.h"
+		common.passivetrc.h parameter.h parameter.passivetrc.pisces.h trcini.pisces.h mpi_roms.h"
 
 	for i in $INCLUDELIST ; do
 		echo $i

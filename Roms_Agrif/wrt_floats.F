@@ -26,6 +26,7 @@
 # include "ocean2d.h"
 # include "ocean3d.h"
 # include "mixing.h"
+# include "mpi_roms.h"
 # include "floats.h"
 # include "netcdf.inc"
 

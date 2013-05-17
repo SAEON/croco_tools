@@ -11,12 +11,16 @@
 !
 #include "cppdefs.h"
       program main
+#ifdef OA_MCT
+          USE mod_prism     ! OASIS3 prism module
+#endif
 !     implicit none
       integer tile, subs, trd, ierr
 #include "param.h"
 #include "private_scratch.h"
 #include "scalars.h"
 #include "ncscrum.h"
+#include "mpi_roms.h"
 #ifdef FLOATS
 # include "grid.h"
 # include "floats.h"
@@ -61,9 +65,19 @@ C      real*8 start_time2, start_time1, exe_time
 
 # include "dynderivparam.h"
 
-#if defined MPI && !defined AGRIF
+#if (defined MPI && !defined AGRIF && !defined OA_COUPLING)
       call MPI_Init (ierr)
 #endif   
+
+#if (defined OA_COUPLING && !defined AGRIF)
+!-- Initialization phase of OASIS3
+!-- In case of AGRIF, the cpl_prism_init is done in zoom.F
+      call cpl_prism_init
+#endif
+
+#if (defined MPI && defined AGRIF)
+       call agrif_mpi_set_grid_comm(MPI_COMM_WORLD) 
+#endif
 
 #ifdef AGRIF
       call Agrif_Init_Grids()
@@ -465,7 +479,13 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Stop timers and
 !     start_time2=PMPI_Wtime()
 !     exe_time = start_time2 - start_time1
 !     if(mynode.eq.0) print*,'exe_time =',exe_time
+
+#ifdef OA_COUPLING
+      ! Finalize phase of OASIS3
+      call prism_terminate_proto(ierr)
+#else
       call MPI_Finalize (ierr)
+#endif     
 #endif
       stop
       end

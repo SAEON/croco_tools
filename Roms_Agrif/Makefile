@@ -29,11 +29,14 @@ include Makedefs
 #--------------------------------------------------------------------
 
  SRCS = main.F		step.F		read_inp.F\
-	timers.F	init_scalars.F	init_arrays.F	set_weights.F\
+	timers_roms.F	init_scalars.F	init_arrays.F	set_weights.F\
 	set_scoord.F	ana_grid.F	setup_grid1.F	setup_grid2.F\
 	set_nudgcof.F	ana_initial.F	analytical.F	zonavg.F\
 	setup_kwds.F    check_kwds.F	check_srcs.F\
         check_switches1.F		check_switches2.F\
+\
+        cpl_prism_define.F cpl_prism_put.F cpl_prism_init.F\
+        cpl_prism_get.F cpl_prism_rcv.F cpl_prism_getlistvals.F\
 \
 	step2d.F	u2dbc.F		v2dbc.F		zetabc.F\
 	obc_volcons.F\

@@ -34,6 +34,7 @@
 # include "grid.h"
 # include "ocean2d.h"
 # include "ocean3d.h"
+# include "mpi_roms.h"
 # include "work.h"
 # include "netcdf.inc"
 # ifdef SEDIMENT

@@ -22,6 +22,7 @@
 #  include "param.h"
 #  include "scalars.h"  
 #  include "ocean2d.h" 
+#  include "mpi_roms.h"
 #if defined MPI
           include 'mpif.h'
 #endif   

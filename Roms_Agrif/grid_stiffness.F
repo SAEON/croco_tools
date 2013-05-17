@@ -45,6 +45,7 @@ C$    integer omp_get_thread_num
 # include "param.h"
 # include "scalars.h"
 # include "ocean3d.h"
+# include "mpi_roms.h"
 # ifdef MASKING
 #  include "grid.h"
 # endif

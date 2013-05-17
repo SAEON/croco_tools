@@ -26,6 +26,7 @@
 # include "grid.h"
 # include "ocean3d.h"
 # include "scalars.h"
+# include "mpi_roms.h"
       integer Istr,Iend,Jstr,Jend, i,j,k,itrc, iocheck,
      &                             trd,omp_get_thread_num
 !

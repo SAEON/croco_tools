@@ -62,6 +62,8 @@
 #ifdef AUTOTILING
 # include "autotiling.h"
 #endif
+# include "mpi_roms.h"
+
       integer size_XI,size_ETA,se,sse, sz,ssz
 !$AGRIF_DO_NOT_TREAT
       logical, SAVE :: MPIisinitialize = .FALSE.
@@ -71,7 +73,11 @@
 # include "dynparam.h"
 #ifdef MPI
         IF (.Not.MPIisinitialize) THEN
+# ifdef OA_COUPLING
+           Call cpl_prism_init
+# else
            Call MPI_Init(ierr)
+# endif
            MPIisinitialize = .TRUE.
         ENDIF
 #endif

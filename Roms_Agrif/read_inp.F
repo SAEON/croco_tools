@@ -34,7 +34,7 @@
 #ifdef MPI
       include 'mpif.h'
 #endif
-
+#include "mpi_roms.h"
       integer kwsize, testunit, input
       parameter (kwsize=32, testunit=40, input=15)
       character end_signal*3, keyword*32, fname*64
@@ -294,7 +294,8 @@
         || (defined BULK_FLUX && \
             (!defined BULK_SMFLUX || !defined BULK_EP)) \
                                )\
-         )
+           )\
+        && !defined OA_COUPLING
 !
 !
 ! Forcing file name. Check its availability.

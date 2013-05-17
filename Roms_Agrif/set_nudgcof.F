@@ -36,6 +36,7 @@
 # include "mixing.h"
 # include "scalars.h"
 # include "ocean3d.h"
+# include "mpi_roms.h"
       integer Istr,Iend,Jstr,Jend, i, j, k, isp, itrc, ibnd
 !      real visc2_sponge, visc4_sponge, diff2_sponge, diff4_sponge
       real wrk(PRIVATE_2D_SCRATCH_ARRAY)

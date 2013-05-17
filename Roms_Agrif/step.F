@@ -24,15 +24,25 @@
 #include "coupling.h"
 #include "ocean3d.h"
 #include "ocean2d.h"
-#include "ncscrum.h"
-
+#include "mpi_roms.h"
+       
 #ifdef AGRIF
       IF (agrif_fixed().NE.sortedint(nbtimes)) return
       nbtimes = nbtimes + 1
 #endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#ifdef SOLVE3D       
+#ifdef SOLVE3D   
+ 
+#ifdef OA_COUPLING
+!--Get phase of OASIS3  
+       if ((iif==-1).and.(oasis_time < oasis_runtime)) then 
+         call cpl_prism_put (oasis_time)        
+         call cpl_prism_get (oasis_time)
+         oasis_time = oasis_time + dt    
+       endif 
+#endif /* OA_COUPLING */
+
        iif = iif+1
       IF (iif .EQ. 0) then
 #endif      

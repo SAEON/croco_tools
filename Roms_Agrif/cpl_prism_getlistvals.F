@@ -1,0 +1,177 @@
+      SUBROUTINE getlistvals(nmax,prcv_clname,psnd_clname,krcvn,ksndn,
+     & oasis_runtime)    
+      
+!     !---------------------------------------------------------------------
+!     !              ***  ROUTINE getlist  ***
+!     !
+!     ! ** Purpose : - Read the namcouple file 
+!     !           and detect the fields that will be send and received by WRF
+!     !
+!     !----------------------------------------------------------------------
+      
+#include "cppdefs.h"
+
+#ifdef OA_COUPLING
+#ifdef AGRIF
+      use Agrif_Util
+#endif
+     
+      CHARACTER*8,DIMENSION(nmax),INTENT(INOUT) :: prcv_clname ! Rcvd Coupling fields
+      CHARACTER*8,DIMENSION(nmax),INTENT(INOUT) :: psnd_clname ! Sent Coupling fields
+      INTEGER, INTENT(INOUT) :: krcvn,ksndn
+      INTEGER, INTENT(INOUT) :: oasis_runtime ! Oasis total simulated time (secs)
+
+!     Local variables
+      INTEGER :: nulin,nfields,jf,nbtrans,fcode,fcoupling,it
+      INTEGER :: level
+      CHARACTER*80 clline
+      CHARACTER*9 clword,clstring,clnfields,clruntime
+      CHARACTER*8 SNDCODE,RCVCODE,cvarcode
+      CHARACTER*1 clevel
+
+#ifdef AGRIF
+      level=Agrif_Fixed()
+#else
+      level=0
+#endif
+      write(clevel,'(i1.1)') level
+!
+!     Initialisation
+      krcvn = 0
+      ksndn = 0
+!     
+!     1. Read OASIS-MCT namcouple file
+      clstring = ' $STRINGS'
+      clnfields= ' $NFIELDS'
+      clruntime= ' $RUNTIME'
+      nulin=78
+      OPEN (file='namcouple', unit=nulin, 
+     $     form='formatted', status='old', err=199)
+!     
+!     2. Get the total number of fields to exchange
+ 220  CONTINUE
+      read(UNIT = nulin,FMT = 1001,END = 110)clword
+      IF (clword .NE. clnfields) GOTO 220
+ 221  CONTINUE
+      read(UNIT = nulin,FMT = 1002)clline
+      IF (clline(1:1) .EQ. '#') GOTO 221
+      read(clline,*)nfields
+!     
+!     3. Get the total simulated time for the actual run (seconds)
+ 230  CONTINUE
+      read(UNIT = nulin,FMT = 1001,END = 110)clword
+      IF (clword .NE. clruntime) GOTO 230
+ 231  CONTINUE
+      read(UNIT = nulin,FMT = 1002)clline
+      IF (clline(1:1) .EQ. '#') GOTO 231
+      read(clline,*)oasis_runtime
+!     
+!     4. Get field informations
+ 240  CONTINUE
+      read(UNIT = nulin,FMT = 1001,END = 110)clword
+      IF (clword .NE. clstring) GOTO 240
+!     
+      do jf=1,nfields
+ 241    CONTINUE
+        read(UNIT = nulin,FMT = 1002,END = 110)clline  
+        IF (clline(1:1) .EQ. '#') GOTO 241  
+        read(clline,*)SNDCODE,RCVCODE,fcode,fcoupling,nbtrans
+!        
+        RCVCODE=TRIM(ADJUSTL(RCVCODE)) 
+        SNDCODE=TRIM(ADJUSTL(SNDCODE))              
+!        
+        if (nbtrans.gt.0) then
+          do it=1,nbtrans+3
+            read(UNIT = nulin,FMT = 1002,END = 110)clline
+          enddo
+        endif
+!     
+!     5. Test field codes
+        cvarcode=TRIM(ADJUSTL('SRMSSTV'//clevel))
+        if (SNDCODE.eq.cvarcode) then
+!     Variables sent by ROMS
+!-----------------
+!     SST
+!------------------
+          ksndn=ksndn+1
+          psnd_clname(ksndn)=cvarcode
+          goto 111
+        endif
+!     
+        cvarcode=TRIM(ADJUSTL('RRMEVPR'//clevel))
+        if (RCVCODE.eq.cvarcode) then
+!------------------
+!     Variable received by ROMS
+!     Evaporation-Precipitation
+!------------------
+          krcvn=krcvn+1
+          prcv_clname(krcvn)=cvarcode
+          goto 111
+        endif
+!     
+        cvarcode=TRIM(ADJUSTL('RRMSRFL'//clevel))
+        if (RCVCODE.eq.cvarcode) then
+!------------------
+!     Variable received by ROMS
+!     Evaporation-Precipitation
+!------------------
+          krcvn=krcvn+1
+          prcv_clname(krcvn)=cvarcode
+          goto 111
+        endif
+!     
+        cvarcode=TRIM(ADJUSTL('RRMSTFL'//clevel))
+        if (RCVCODE.eq.cvarcode) then
+!------------------
+!     Variable received by ROMS
+!     Evaporation-Precipitation
+!------------------
+          krcvn=krcvn+1
+          prcv_clname(krcvn)=cvarcode
+          goto 111
+        endif
+!     
+        cvarcode=TRIM(ADJUSTL('RRMTAUX'//clevel))
+        if (RCVCODE.eq.cvarcode) then
+!------------------
+!     Variable received by ROMS
+!     Evaporation-Precipitation
+!------------------
+          krcvn=krcvn+1
+          prcv_clname(krcvn)=cvarcode
+          goto 111
+        endif
+!     
+        cvarcode=TRIM(ADJUSTL('RRMTAUY'//clevel))
+        if (RCVCODE.eq.cvarcode) then
+!------------------
+!     Variable received by ROMS
+!     Evaporation-Precipitation
+!------------------
+          krcvn=krcvn+1
+          prcv_clname(krcvn)=cvarcode
+          goto 111
+        endif
+!     
+ 111    CONTINUE
+        
+      enddo	
+      
+      
+ 110  CONTINUE
+      
+      CLOSE(nulin)              !Close namcouple file
+      
+ 199  CONTINUE
+      
+ 1001 FORMAT(A9)
+ 1002 FORMAT(A80)
+
+
+#else 
+!---------------------------------------------------------------------------------------
+!     Dummy subroutine                                                           NO Coupling
+!---------------------------------------------------------------------------------------
+#endif 
+      END SUBROUTINE getlistvals
+      
