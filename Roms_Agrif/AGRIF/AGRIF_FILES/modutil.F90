@@ -50,9 +50,9 @@ subroutine Agrif_Step ( procname )
     integer      :: code
     include 'mpif.h'
     if ( Agrif_Mygrid % ngridstep == 0 ) then
-        call MPI_COMM_SIZE(MPI_COMM_WORLD,Agrif_Nbprocs,code)
-        call MPI_COMM_RANK(MPI_COMM_WORLD,Agrif_ProcRank,code)
-        call MPI_COMM_GROUP(MPI_COMM_WORLD,Agrif_Group,code)
+        call MPI_COMM_SIZE(agrif_mpi_comm,Agrif_Nbprocs,code)
+        call MPI_COMM_RANK(agrif_mpi_comm,Agrif_ProcRank,code)
+        call MPI_COMM_GROUP(agrif_mpi_comm,Agrif_Group,code)
     endif
 #endif
 !

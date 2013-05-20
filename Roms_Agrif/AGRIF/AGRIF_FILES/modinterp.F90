@@ -641,7 +641,7 @@ subroutine Agrif_InterpnD ( TypeInterp, parent, child, pttab, petab, pttab_Child
         tab3(:,3) = indmin(:)
         tab3(:,4) = indmax(:)
 !
-        call MPI_ALLGATHER(tab3,4*nbdim,MPI_INTEGER,tab4,4*nbdim,MPI_INTEGER,MPI_COMM_WORLD,code)
+        call MPI_ALLGATHER(tab3,4*nbdim,MPI_INTEGER,tab4,4*nbdim,MPI_INTEGER,agrif_mpi_comm,code)
 
         if (.not.associated(tempPextend%var))   Allocate(tempPextend%var)
 
@@ -654,7 +654,7 @@ subroutine Agrif_InterpnD ( TypeInterp, parent, child, pttab, petab, pttab_Child
         enddo
 
         memberin1(1) = memberin
-        CALL MPI_ALLGATHER(memberin1,1,MPI_LOGICAL,memberinall,1,MPI_LOGICAL,MPI_COMM_WORLD,code)
+        CALL MPI_ALLGATHER(memberin1,1,MPI_LOGICAL,memberinall,1,MPI_LOGICAL,agrif_mpi_comm,code)
 
         call Get_External_Data_first(tab4t(:,:,1),tab4t(:,:,2),         &
                                      tab4t(:,:,3),tab4t(:,:,4),         &

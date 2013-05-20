@@ -25,7 +25,9 @@
 module Agrif_Types
 !
 implicit none
-
+!gc
+integer            :: agrif_mpi_comm
+!gcend
 integer, parameter :: Agrif_MaxRaff = 7       !< Maximum refinement ratio
 integer, parameter :: Agrif_NbMaxGrids = 10   !< Maximum number of grids of the hierarchy
 !
@@ -386,7 +388,7 @@ end type Agrif_Flux
 #if defined AGRIF_MPI
     integer :: Agrif_Nbprocs  !< Number of processors
     integer :: Agrif_ProcRank !< Rank of the current processor
-    integer :: Agrif_Group    !< Group associated to MPI_COMM_WORLD
+    integer :: Agrif_Group    !< Group associated to agrif_mpi_comm
     integer :: Agrif_MPIPREC
 #endif
 !

@@ -29,6 +29,17 @@ module Agrif_Mpp
 contains
 !
 #if defined AGRIF_MPI
+! gc Function for mpi communicator
+!
+!===================================================================================================
+!  subroutine agrif_mpi_set_grid_comm
+!---------------------------------------------------------------------------------------------------
+!
+    subroutine agrif_mpi_set_grid_comm(comm)
+      integer :: comm
+      agrif_mpi_comm = comm
+    end subroutine agrif_mpi_set_grid_comm
+!gcend
 !
 !===================================================================================================
 !  subroutine Get_External_Data_first
@@ -169,7 +180,7 @@ subroutine Get_External_Data ( tempC, tempCextend, pttruetab, cetruetab,    &
         memberoutall = memberoutall1
     ELSE
          memberout1(1) = memberout
-        call MPI_ALLGATHER(memberout1,1,MPI_LOGICAL,memberoutall,1,MPI_LOGICAL,MPI_COMM_WORLD,code)
+        call MPI_ALLGATHER(memberout1,1,MPI_LOGICAL,memberoutall,1,MPI_LOGICAL,agrif_mpi_comm,code)
     ENDIF
     
     pttruetab2(:,Agrif_Procrank) = pttruetab(:,Agrif_Procrank)
@@ -301,14 +312,14 @@ subroutine ExchangeSameLevel ( sendtoproc, nbdim, imin, imax, tempC, tempCextend
 
     do k = 0,Agrif_ProcRank-1
 !
-        call MPI_SEND(sendtoproc(k),1,MPI_LOGICAL,k,etiquette,MPI_COMM_WORLD,code)
+        call MPI_SEND(sendtoproc(k),1,MPI_LOGICAL,k,etiquette,agrif_mpi_comm,code)
 !
         if (sendtoproc(k)) then
 !
             iminmax_temp(:,1,k) = imin(:,k)
             iminmax_temp(:,2,k) = imax(:,k)
 
-            call MPI_SEND(iminmax_temp(:,:,k),2*nbdim,MPI_INTEGER,k,etiquette,MPI_COMM_WORLD,code)
+            call MPI_SEND(iminmax_temp(:,:,k),2*nbdim,MPI_INTEGER,k,etiquette,agrif_mpi_comm,code)
 !
             datasize = 1
 !
@@ -321,12 +332,12 @@ subroutine ExchangeSameLevel ( sendtoproc, nbdim, imin, imax, tempC, tempCextend
             CASE(1)
                 call MPI_SEND(tempC%var%array1(imin(1,k):imax(1,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             CASE(2)
                 call MPI_SEND(tempC%var%array2(imin(1,k):imax(1,k),     &
                                                imin(2,k):imax(2,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             CASE(3)
                 call Agrif_Send_3Darray(tempC%var%array3,lbound(tempC%var%array3),imin(:,k),imax(:,k),k)
             CASE(4)
@@ -335,7 +346,7 @@ subroutine ExchangeSameLevel ( sendtoproc, nbdim, imin, imax, tempC, tempCextend
                                                imin(3,k):imax(3,k),     &
                                                imin(4,k):imax(4,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             CASE(5)
                 call MPI_SEND(tempC%var%array5(imin(1,k):imax(1,k),     &
                                                imin(2,k):imax(2,k),     &
@@ -343,7 +354,7 @@ subroutine ExchangeSameLevel ( sendtoproc, nbdim, imin, imax, tempC, tempCextend
                                                imin(4,k):imax(4,k),     &
                                                imin(5,k):imax(5,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             CASE(6)
                 call MPI_SEND(tempC%var%array6(imin(1,k):imax(1,k),     &
                                                imin(2,k):imax(2,k),     &
@@ -352,7 +363,7 @@ subroutine ExchangeSameLevel ( sendtoproc, nbdim, imin, imax, tempC, tempCextend
                                                imin(5,k):imax(5,k),     &
                                                imin(6,k):imax(6,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             END SELECT
         endif
     enddo
@@ -360,13 +371,13 @@ subroutine ExchangeSameLevel ( sendtoproc, nbdim, imin, imax, tempC, tempCextend
 !   Reception from others processors of the necessary part of the parent grid
     do k = Agrif_ProcRank+1,Agrif_Nbprocs-1
 !
-        call MPI_RECV(res,1,MPI_LOGICAL,k,etiquette,MPI_COMM_WORLD,statut,code)
+        call MPI_RECV(res,1,MPI_LOGICAL,k,etiquette,agrif_mpi_comm,statut,code)
 !
         recvfromproc(k) = res
 !
         if (recvfromproc(k)) then
 !
-            call MPI_RECV(iminmax_temp(:,:,k),2*nbdim,MPI_INTEGER,k,etiquette,MPI_COMM_WORLD,statut,code)
+            call MPI_RECV(iminmax_temp(:,:,k),2*nbdim,MPI_INTEGER,k,etiquette,agrif_mpi_comm,statut,code)
 
             imin_recv(:,k) = iminmax_temp(:,1,k)
             imax_recv(:,k) = iminmax_temp(:,2,k)
@@ -383,22 +394,22 @@ subroutine ExchangeSameLevel ( sendtoproc, nbdim, imin, imax, tempC, tempCextend
             SELECT CASE(nbdim)
             CASE(1)
                 call MPI_RECV(temprecv%var%array1,datasize,MPI_DOUBLE_PRECISION,k,etiquette, &
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             CASE(2)
                 call MPI_RECV(temprecv%var%array2,datasize,MPI_DOUBLE_PRECISION,k,etiquette, &
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             CASE(3)
                 call MPI_RECV(temprecv%var%array3,datasize,MPI_DOUBLE_PRECISION,k,etiquette, &
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             CASE(4)
                 call MPI_RECV(temprecv%var%array4,datasize,MPI_DOUBLE_PRECISION,k,etiquette, &
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             CASE(5)
                 call MPI_RECV(temprecv%var%array5,datasize,MPI_DOUBLE_PRECISION,k,etiquette, &
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             CASE(6)
                 call MPI_RECV(temprecv%var%array6,datasize,MPI_DOUBLE_PRECISION,k,etiquette, &
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             END SELECT
 
             call where_valtabtotab_mpi(tempCextend%var,temprecv%var,imin_recv(:,k),imax_recv(:,k),0.,nbdim)
@@ -410,28 +421,28 @@ subroutine ExchangeSameLevel ( sendtoproc, nbdim, imin, imax, tempC, tempCextend
 !   Reception from others processors of the necessary part of the parent grid
     do k = Agrif_ProcRank+1,Agrif_Nbprocs-1
 !
-        call MPI_SEND(sendtoproc(k),1,MPI_LOGICAL,k,etiquette,MPI_COMM_WORLD,code)
+        call MPI_SEND(sendtoproc(k),1,MPI_LOGICAL,k,etiquette,agrif_mpi_comm,code)
 !
         if (sendtoproc(k)) then
 !
             iminmax_temp(:,1,k) = imin(:,k)
             iminmax_temp(:,2,k) = imax(:,k)
 
-            call MPI_SEND(iminmax_temp(:,:,k),2*nbdim,MPI_INTEGER,k,etiquette,MPI_COMM_WORLD,code)
+            call MPI_SEND(iminmax_temp(:,:,k),2*nbdim,MPI_INTEGER,k,etiquette,agrif_mpi_comm,code)
 !
             SELECT CASE(nbdim)
             CASE(1)
                 datasize=SIZE(tempC%var%array1(imin(1,k):imax(1,k)))
                 call MPI_SEND(tempC%var%array1(imin(1,k):imax(1,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             CASE(2)
                 datasize=SIZE(tempC%var%array2(imin(1,k):imax(1,k),     &
                                                imin(2,k):imax(2,k)))
                 call MPI_SEND(tempC%var%array2(imin(1,k):imax(1,k),     &
                                                imin(2,k):imax(2,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             CASE(3)
                 datasize=SIZE(tempC%var%array3(imin(1,k):imax(1,k),     &
                                                imin(2,k):imax(2,k),     &
@@ -440,7 +451,7 @@ subroutine ExchangeSameLevel ( sendtoproc, nbdim, imin, imax, tempC, tempCextend
                                                imin(2,k):imax(2,k),     &
                                                imin(3,k):imax(3,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             CASE(4)
                 datasize=SIZE(tempC%var%array4(imin(1,k):imax(1,k),     &
                                                imin(2,k):imax(2,k),     &
@@ -451,7 +462,7 @@ subroutine ExchangeSameLevel ( sendtoproc, nbdim, imin, imax, tempC, tempCextend
                                                imin(3,k):imax(3,k),     &
                                                imin(4,k):imax(4,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             CASE(5)
                 datasize=SIZE(tempC%var%array5(imin(1,k):imax(1,k),     &
                                                imin(2,k):imax(2,k),     &
@@ -464,7 +475,7 @@ subroutine ExchangeSameLevel ( sendtoproc, nbdim, imin, imax, tempC, tempCextend
                                                imin(4,k):imax(4,k),     &
                                                imin(5,k):imax(5,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             CASE(6)
                 datasize=SIZE(tempC%var%array6(imin(1,k):imax(1,k),     &
                                                imin(2,k):imax(2,k),     &
@@ -479,7 +490,7 @@ subroutine ExchangeSameLevel ( sendtoproc, nbdim, imin, imax, tempC, tempCextend
                                                imin(5,k):imax(5,k),     &
                                                imin(6,k):imax(6,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             END SELECT
 !
         endif
@@ -491,13 +502,13 @@ subroutine ExchangeSameLevel ( sendtoproc, nbdim, imin, imax, tempC, tempCextend
 !   Reception from others processors of the necessary part of the parent grid
     do k = Agrif_ProcRank-1,0,-1
 !
-        call MPI_RECV(res,1,MPI_LOGICAL,k,etiquette,MPI_COMM_WORLD,statut,code)
+        call MPI_RECV(res,1,MPI_LOGICAL,k,etiquette,agrif_mpi_comm,statut,code)
 !
         recvfromproc(k) = res
 
         if (recvfromproc(k)) then
 !
-            call MPI_RECV(iminmax_temp(:,:,k),2*nbdim,MPI_INTEGER,k,etiquette,MPI_COMM_WORLD,statut,code)
+            call MPI_RECV(iminmax_temp(:,:,k),2*nbdim,MPI_INTEGER,k,etiquette,agrif_mpi_comm,statut,code)
 
 !           imin_recv(:,k) = iminmax_temp(:,1,k)
 !           imax_recv(:,k) = iminmax_temp(:,2,k)
@@ -514,28 +525,28 @@ subroutine ExchangeSameLevel ( sendtoproc, nbdim, imin, imax, tempC, tempCextend
             CASE(1)
                 datasize=SIZE(temprecv%var%array1)
                 call MPI_RECV(temprecv%var%array1,datasize,MPI_DOUBLE_PRECISION,k,etiquette,&
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             CASE(2)
                 datasize=SIZE(temprecv%var%array2)
                 call MPI_RECV(temprecv%var%array2,datasize,MPI_DOUBLE_PRECISION,k,etiquette,&
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             CASE(3)
                 datasize=SIZE(temprecv%var%array3)
                 call MPI_RECV(temprecv%var%array3,datasize,MPI_DOUBLE_PRECISION,k,etiquette,&
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
 
             CASE(4)
                 datasize=SIZE(temprecv%var%array4)
                 call MPI_RECV(temprecv%var%array4,datasize,MPI_DOUBLE_PRECISION,k,etiquette,&
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             CASE(5)
                 datasize=SIZE(temprecv%var%array5)
                 call MPI_RECV(temprecv%var%array5,datasize,MPI_DOUBLE_PRECISION,k,etiquette,&
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             CASE(6)
                 datasize=SIZE(temprecv%var%array6)
                 call MPI_RECV(temprecv%var%array6,datasize,MPI_DOUBLE_PRECISION,k,etiquette,&
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
           END SELECT
 
             call where_valtabtotab_mpi(tempCextend%var,temprecv%var, &
@@ -575,12 +586,12 @@ subroutine ExchangeSameLevel_first ( sendtoproc, nbdim, imin, imax, recvfromproc
 
     do k = 0,Agrif_ProcRank-1
 !
-        call MPI_SEND(sendtoproc(k),1,MPI_LOGICAL,k,etiquette,MPI_COMM_WORLD,code)
+        call MPI_SEND(sendtoproc(k),1,MPI_LOGICAL,k,etiquette,agrif_mpi_comm,code)
 !
         if (sendtoproc(k)) then
             iminmax_temp(:,1,k) = imin(:,k)
             iminmax_temp(:,2,k) = imax(:,k)
-            call MPI_SEND(iminmax_temp(:,:,k),2*nbdim,MPI_INTEGER,k,etiquette,MPI_COMM_WORLD,code)
+            call MPI_SEND(iminmax_temp(:,:,k),2*nbdim,MPI_INTEGER,k,etiquette,agrif_mpi_comm,code)
         endif
 !
     enddo
@@ -588,12 +599,12 @@ subroutine ExchangeSameLevel_first ( sendtoproc, nbdim, imin, imax, recvfromproc
 !   Reception from others processors of the necessary part of the parent grid
     do k = Agrif_ProcRank+1,Agrif_Nbprocs-1
 !
-        call MPI_RECV(res,1,MPI_LOGICAL,k,etiquette,MPI_COMM_WORLD,statut,code)
+        call MPI_RECV(res,1,MPI_LOGICAL,k,etiquette,agrif_mpi_comm,statut,code)
         recvfromproc(k) = res
 !
         if (recvfromproc(k)) then
             call MPI_RECV(iminmax_temp(:,:,k),2*nbdim,MPI_INTEGER,k,etiquette, &
-                    MPI_COMM_WORLD,statut,code)
+                    agrif_mpi_comm,statut,code)
             imin_recv(:,k) = iminmax_temp(:,1,k)
             imax_recv(:,k) = iminmax_temp(:,2,k)
         endif
@@ -603,7 +614,7 @@ subroutine ExchangeSameLevel_first ( sendtoproc, nbdim, imin, imax, recvfromproc
 !   Reception from others processors of the necessary part of the parent grid
     do k = Agrif_ProcRank+1,Agrif_Nbprocs-1
 !
-        call MPI_SEND(sendtoproc(k),1,MPI_LOGICAL,k,etiquette,MPI_COMM_WORLD,code)
+        call MPI_SEND(sendtoproc(k),1,MPI_LOGICAL,k,etiquette,agrif_mpi_comm,code)
 !
         if (sendtoproc(k)) then
 !
@@ -611,7 +622,7 @@ subroutine ExchangeSameLevel_first ( sendtoproc, nbdim, imin, imax, recvfromproc
             iminmax_temp(:,2,k) = imax(:,k)
 
             call MPI_SEND(iminmax_temp(:,:,k),2*nbdim,MPI_INTEGER,k,etiquette, &
-                    MPI_COMM_WORLD,code)
+                    agrif_mpi_comm,code)
         endif
 !
     enddo
@@ -620,13 +631,13 @@ subroutine ExchangeSameLevel_first ( sendtoproc, nbdim, imin, imax, recvfromproc
 !   Reception from others processors of the necessary part of the parent grid
     do k = Agrif_ProcRank-1,0,-1
 !
-        call MPI_RECV(res,1,MPI_LOGICAL,k,etiquette,MPI_COMM_WORLD,statut,code)
+        call MPI_RECV(res,1,MPI_LOGICAL,k,etiquette,agrif_mpi_comm,statut,code)
         recvfromproc(k) = res
 !
         if (recvfromproc(k)) then
 !
             call MPI_RECV(iminmax_temp(:,:,k),2*nbdim,MPI_INTEGER,k,etiquette, &
-                    MPI_COMM_WORLD,statut,code)
+                    agrif_mpi_comm,statut,code)
 
             imin_recv(:,k) = iminmax_temp(:,1,k)
             imax_recv(:,k) = iminmax_temp(:,2,k)
@@ -689,12 +700,12 @@ subroutine ExchangeSameLevel2 ( sendtoproc, recvfromproc, nbdim,    &
             CASE(1)
                 call MPI_SEND(tempC%var%array1(imin(1,k):imax(1,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             CASE(2)
                 call MPI_SEND(tempC%var%array2(imin(1,k):imax(1,k),     &
                                                imin(2,k):imax(2,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             CASE(3)
                 call Agrif_Send_3Darray(tempC%var%array3,lbound(tempC%var%array3),imin(:,k),imax(:,k),k)
             CASE(4)
@@ -703,7 +714,7 @@ subroutine ExchangeSameLevel2 ( sendtoproc, recvfromproc, nbdim,    &
                                                imin(3,k):imax(3,k),     &
                                                imin(4,k):imax(4,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             CASE(5)
                 call MPI_SEND(tempC%var%array5(imin(1,k):imax(1,k),     &
                                                imin(2,k):imax(2,k),     &
@@ -711,7 +722,7 @@ subroutine ExchangeSameLevel2 ( sendtoproc, recvfromproc, nbdim,    &
                                                imin(4,k):imax(4,k),     &
                                                imin(5,k):imax(5,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             CASE(6)
                 call MPI_SEND(tempC%var%array6(imin(1,k):imax(1,k),     &
                                                imin(2,k):imax(2,k),     &
@@ -720,7 +731,7 @@ subroutine ExchangeSameLevel2 ( sendtoproc, recvfromproc, nbdim,    &
                                                imin(5,k):imax(5,k),     &
                                                imin(6,k):imax(6,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             END SELECT
 !
         endif
@@ -744,22 +755,22 @@ subroutine ExchangeSameLevel2 ( sendtoproc, recvfromproc, nbdim,    &
             SELECT CASE(nbdim)
             CASE(1)
                 call MPI_RECV(temprecv%var%array1,datasize,MPI_DOUBLE_PRECISION,k,etiquette, &
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             CASE(2)
                 call MPI_RECV(temprecv%var%array2,datasize,MPI_DOUBLE_PRECISION,k,etiquette, &
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             CASE(3)
                 call MPI_RECV(temprecv%var%array3,datasize,MPI_DOUBLE_PRECISION,k,etiquette, &
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             CASE(4)
                 call MPI_RECV(temprecv%var%array4,datasize,MPI_DOUBLE_PRECISION,k,etiquette, &
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             CASE(5)
                 call MPI_RECV(temprecv%var%array5,datasize,MPI_DOUBLE_PRECISION,k,etiquette, &
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             CASE(6)
                 call MPI_RECV(temprecv%var%array6,datasize,MPI_DOUBLE_PRECISION,k,etiquette, &
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             END SELECT
 
             call where_valtabtotab_mpi(tempCextend%var,temprecv%var, &
@@ -780,14 +791,14 @@ subroutine ExchangeSameLevel2 ( sendtoproc, recvfromproc, nbdim,    &
                 datasize=SIZE(tempC%var%array1(imin(1,k):imax(1,k)))
                 call MPI_SEND(tempC%var%array1(imin(1,k):imax(1,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             CASE(2)
                 datasize=SIZE(tempC%var%array2(imin(1,k):imax(1,k),     &
                                                imin(2,k):imax(2,k)))
                 call MPI_SEND(tempC%var%array2(imin(1,k):imax(1,k),     &
                                                imin(2,k):imax(2,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             CASE(3)
                 datasize=SIZE(tempC%var%array3(imin(1,k):imax(1,k),     &
                                                imin(2,k):imax(2,k),     &
@@ -796,7 +807,7 @@ subroutine ExchangeSameLevel2 ( sendtoproc, recvfromproc, nbdim,    &
                                                imin(2,k):imax(2,k),     &
                                                imin(3,k):imax(3,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             CASE(4)
                 datasize=SIZE(tempC%var%array4(imin(1,k):imax(1,k),     &
                                                imin(2,k):imax(2,k),     &
@@ -807,7 +818,7 @@ subroutine ExchangeSameLevel2 ( sendtoproc, recvfromproc, nbdim,    &
                                                imin(3,k):imax(3,k),     &
                                                imin(4,k):imax(4,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             CASE(5)
                 datasize=SIZE(tempC%var%array5(imin(1,k):imax(1,k),     &
                                                imin(2,k):imax(2,k),     &
@@ -820,7 +831,7 @@ subroutine ExchangeSameLevel2 ( sendtoproc, recvfromproc, nbdim,    &
                                                imin(4,k):imax(4,k),     &
                                                imin(5,k):imax(5,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             CASE(6)
                 datasize=SIZE(tempC%var%array6(imin(1,k):imax(1,k),     &
                                                imin(2,k):imax(2,k),     &
@@ -835,7 +846,7 @@ subroutine ExchangeSameLevel2 ( sendtoproc, recvfromproc, nbdim,    &
                                                imin(5,k):imax(5,k),     &
                                                imin(6,k):imax(6,k)),    &
                         datasize,MPI_DOUBLE_PRECISION,k,etiquette,      &
-                        MPI_COMM_WORLD,code)
+                        agrif_mpi_comm,code)
             END SELECT
 !
         endif
@@ -854,27 +865,27 @@ subroutine ExchangeSameLevel2 ( sendtoproc, recvfromproc, nbdim,    &
             CASE(1)
                 datasize=SIZE(temprecv%var%array1)
                 call MPI_RECV(temprecv%var%array1,datasize,MPI_DOUBLE_PRECISION,k,etiquette,&
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             CASE(2)
                 datasize=SIZE(temprecv%var%array2)
                 call MPI_RECV(temprecv%var%array2,datasize,MPI_DOUBLE_PRECISION,k,etiquette,&
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             CASE(3)
                 datasize=SIZE(temprecv%var%array3)
                 call MPI_RECV(temprecv%var%array3,datasize,MPI_DOUBLE_PRECISION,k,etiquette,&
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             CASE(4)
                 datasize=SIZE(temprecv%var%array4)
                 call MPI_RECV(temprecv%var%array4,datasize,MPI_DOUBLE_PRECISION,k,etiquette,&
-                          MPI_COMM_WORLD,statut,code)
+                          agrif_mpi_comm,statut,code)
             CASE(5)
                 datasize=SIZE(temprecv%var%array5)
                 call MPI_RECV(temprecv%var%array5,datasize,MPI_DOUBLE_PRECISION,k,etiquette,&
-                         MPI_COMM_WORLD,statut,code)
+                         agrif_mpi_comm,statut,code)
             CASE(6)
                 datasize=SIZE(temprecv%var%array6)
                 call MPI_RECV(temprecv%var%array6,datasize,MPI_DOUBLE_PRECISION,k,etiquette,&
-                        MPI_COMM_WORLD,statut,code)
+                        agrif_mpi_comm,statut,code)
             END SELECT
 
             call where_valtabtotab_mpi(tempCextend%var,temprecv%var, &
@@ -910,7 +921,7 @@ subroutine Agrif_Send_3Darray ( tab3D, bounds, imin, imax, k )
     call MPI_SEND( tab3D( imin(1):imax(1),  &
                           imin(2):imax(2),  &
                           imin(3):imax(3)), &
-                          datasize,MPI_DOUBLE_PRECISION,k,etiquette,MPI_COMM_WORLD,code)
+                          datasize,MPI_DOUBLE_PRECISION,k,etiquette,agrif_mpi_comm,code)
 !---------------------------------------------------------------------------------------------------
 end subroutine Agrif_Send_3Darray
 !===================================================================================================
@@ -920,6 +931,5 @@ end subroutine Agrif_Send_3Darray
     subroutine Agrif_mpp_empty()
     end subroutine Agrif_mpp_empty
 !===================================================================================================
-#endif
-
+#endif    
 end Module Agrif_Mpp

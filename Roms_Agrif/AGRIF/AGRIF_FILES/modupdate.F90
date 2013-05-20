@@ -287,7 +287,7 @@ subroutine Agrif_UpdateWhole ( TypeUpdate, parent, child, deb, fin, &
     ENDDO
 !
     iminmaxg(1:nbdim,2) = - iminmaxg(1:nbdim,2)
-    CALL MPI_ALLREDUCE(iminmaxg,lubglob,2*nbdim,MPI_INTEGER,MPI_MIN,MPI_COMM_WORLD,code)
+    CALL MPI_ALLREDUCE(iminmaxg,lubglob,2*nbdim,MPI_INTEGER,MPI_MIN,agrif_mpi_comm,code)
     lubglob(1:nbdim,2)  = - lubglob(1:nbdim,2)
 !
 #endif
@@ -408,7 +408,7 @@ subroutine Agrif_UpdateBcnd ( TypeUpdate, parent, child, deb, fin,  &
     ENDDO
 !
     iminmaxg(1:nbdim,2) = - iminmaxg(1:nbdim,2)
-    CALL MPI_ALLREDUCE(iminmaxg,lubglob,2*nbdim,MPI_INTEGER,MPI_MIN,MPI_COMM_WORLD,code)
+    CALL MPI_ALLREDUCE(iminmaxg,lubglob,2*nbdim,MPI_INTEGER,MPI_MIN,agrif_mpi_comm,code)
     lubglob(1:nbdim,2) = - lubglob(1:nbdim,2)
 !
 #endif
@@ -658,7 +658,7 @@ subroutine Agrif_UpdatenD ( TypeUpdate, parent, child, pttab, petab,    &
         tab3(:,3) = pttruetabwhole(:)
         tab3(:,4) = cetruetabwhole(:)
 !
-        call MPI_ALLGATHER(tab3,4*nbdim,MPI_INTEGER,tab4,4*nbdim,MPI_INTEGER,MPI_COMM_WORLD,code)
+        call MPI_ALLGATHER(tab3,4*nbdim,MPI_INTEGER,tab4,4*nbdim,MPI_INTEGER,agrif_mpi_comm,code)
 
         if (.not.associated(tempCextend%var)) allocate(tempCextend%var)
         do k=0,Agrif_Nbprocs-1
@@ -670,7 +670,7 @@ subroutine Agrif_UpdatenD ( TypeUpdate, parent, child, pttab, petab,    &
         enddo
 
         memberin1(1) = memberin
-        call MPI_ALLGATHER(memberin1,1,MPI_LOGICAL,memberinall,1,MPI_LOGICAL,MPI_COMM_WORLD,code)
+        call MPI_ALLGATHER(memberin1,1,MPI_LOGICAL,memberinall,1,MPI_LOGICAL,agrif_mpi_comm,code)
 
         call Get_External_Data_first(tab4t(:,:,1),tab4t(:,:,2),tab4t(:,:,3),tab4t(:,:,4),   &
                                      nbdim,memberinall,                   &
@@ -755,7 +755,7 @@ subroutine Agrif_UpdatenD ( TypeUpdate, parent, child, pttab, petab,    &
         tab3(:,3) = indminglob2(:)
         tab3(:,4) = indmaxglob2(:)
 !
-        call MPI_ALLGATHER(tab3,4*nbdim,MPI_INTEGER,tab4,4*nbdim,MPI_INTEGER,MPI_COMM_WORLD,code)
+        call MPI_ALLGATHER(tab3,4*nbdim,MPI_INTEGER,tab4,4*nbdim,MPI_INTEGER,agrif_mpi_comm,code)
 
         IF (.not.associated(tempPextend%var)) allocate(tempPextend%var)
         DO k=0,Agrif_Nbprocs-1
@@ -767,7 +767,7 @@ subroutine Agrif_UpdatenD ( TypeUpdate, parent, child, pttab, petab,    &
         enddo
 
         memberin1(1) = member
-        call MPI_ALLGATHER(memberin1,1,MPI_LOGICAL,memberinall2,1,MPI_LOGICAL,MPI_COMM_WORLD,code)
+        call MPI_ALLGATHER(memberin1,1,MPI_LOGICAL,memberinall2,1,MPI_LOGICAL,agrif_mpi_comm,code)
         call Get_External_Data_first(tab5t(:,:,1),tab5t(:,:,2),tab5t(:,:,3),tab5t(:,:,4),   &
                                      nbdim,memberinall2,sendtoproc2,recvfromproc2,          &
                                      tab5t(:,:,5),tab5t(:,:,6),tab5t(:,:,7),tab5t(:,:,8))

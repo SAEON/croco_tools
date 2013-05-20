@@ -617,7 +617,7 @@ subroutine Agrif_Correctnd ( TypeInterp, parent, child, deb, fin, pweight, weigh
 !
     iminmaxg(1:nbdim,2) = - iminmaxg(1:nbdim,2)
 
-    CALL MPI_ALLREDUCE(iminmaxg,lubglob,2*nbdim,MPI_INTEGER,MPI_MIN,MPI_COMM_WORLD,code)
+    CALL MPI_ALLREDUCE(iminmaxg,lubglob,2*nbdim,MPI_INTEGER,MPI_MIN,agrif_mpi_comm,code)
 
     lubglob(1:nbdim,2) = - lubglob(1:nbdim,2)
 #endif
