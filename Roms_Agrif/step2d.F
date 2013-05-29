@@ -6,7 +6,7 @@
 ! and Rutgers University (Arango et al) are under MIT/X style license.
 ! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
 ! 
-! ROMS_AGRIF website : http://roms.mpl.ird.fr
+! ROMS_AGRIF website : http://www.romsagrif.org
 !======================================================================
 !
 #include "cppdefs.h"
@@ -83,11 +83,11 @@ C$    trd=omp_get_thread_num()
 !
       implicit none
 #include "param.h"
-      integer istr,iend,jstr,jend, i,j, kbak, kold,
+      integer Istr,Iend,Jstr,Jend, i,j, kbak, kold,
 #ifdef PSOURCE
-     &                                    is,
+     &                                          is,
 #endif
-     &        IMAX,JMAX
+     &                                   IMAX,JMAX
       real    VMAX,VMAXL
       real zeta_new(PRIVATE_2D_SCRATCH_ARRAY),  cff,
      &         Dnew(PRIVATE_2D_SCRATCH_ARRAY),  cff0,
@@ -182,14 +182,14 @@ C$    trd=omp_get_thread_num()
         cff3= 0.281105
       endif
 !
-      do j=JstrV-2,jend+1
-        do i=IstrU-2,iend+1
+      do j=JstrV-2,Jend+1
+        do i=IstrU-2,Iend+1
           Drhs(i,j)=h(i,j)+cff1*zeta(i,j,kstp)+cff2*zeta(i,j,kbak)
      &                                        +cff3*zeta(i,j,kold)
         enddo
       enddo
-      do j=jstr-1,jend+1
-        do i=IstrU-1,iend+1
+      do j=Jstr-1,Jend+1
+        do i=IstrU-1,Iend+1
           urhs(i,j)=cff1*ubar(i,j,kstp) +cff2*ubar(i,j,kbak)
      &                                  +cff3*ubar(i,j,kold)
 #  if defined MRL_WCI && defined MASKING
@@ -199,11 +199,11 @@ C$    trd=omp_get_thread_num()
 # ifdef MRL_WCI
      &                                                   + ust2d(i,j)
 # endif
-     &      )
+     &                                                              )
         enddo
       enddo
-      do j=JstrV-1,jend+1
-        do i=istr-1,iend+1
+      do j=JstrV-1,Jend+1
+        do i=Istr-1,Iend+1
           vrhs(i,j)=cff1*vbar(i,j,kstp) +cff2*vbar(i,j,kbak)
      &                                  +cff3*vbar(i,j,kold)
 #  if defined MRL_WCI && defined MASKING
@@ -346,7 +346,7 @@ C$OMP END MASTER
           zeta(i,j,knew)=zeta_new(i,j) 
 # if defined WET_DRY && defined MASKING
           zeta(i,j,knew)=zeta(i,j,knew)+ 
-     &                   (Dcrit-h(i,j))*(1.-rmask(i,j))
+     &                   (Dcrit(i,j)-h(i,j))*(1.-rmask(i,j))
 # endif
         enddo
       enddo 

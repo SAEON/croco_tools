@@ -6,7 +6,7 @@
 ! and Rutgers University (Arango et al) are under MIT/X style license.
 ! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
 ! 
-! ROMS_AGRIF website : http://roms.mpl.ird.fr
+! ROMS_AGRIF website : http://www.romsagrif.org
 !======================================================================
 !
 #ifndef CHILD
@@ -357,21 +357,20 @@ C$    trd=omp_get_thread_num()
 ! Ensure that water level on boundary cells is above bed elevation.
 !====================================================================
 !
-      cff=Dcrit-eps
 # ifndef EW_COM_PERIODIC
       if (WESTERN_EDGE) then
         DO j=Jstr,Jend
           IF (zeta(Istr-1,j,knew).le.
-     &        (Dcrit-h(Istr-1,j))) THEN
-            zeta(Istr-1,j,knew)=cff-h(Istr-1,j)
+     &        (Dcrit(Istr-1,j)-h(Istr-1,j))) THEN
+            zeta(Istr-1,j,knew)=Dcrit(Istr-1,j)-h(Istr-1,j)-eps
           END IF
         END DO
       END IF
       if (EASTERN_EDGE) then
         DO j=Jstr,Jend
           IF (zeta(Iend+1,j,knew).le.
-     &        (Dcrit-h(Iend+1,j))) THEN
-            zeta(Iend+1,j,knew)=cff-h(Iend+1,j)
+     &        (Dcrit(Iend+1,j)-h(Iend+1,j))) THEN
+            zeta(Iend+1,j,knew)=Dcrit(Iend+1,j)-h(Iend+1,j)-eps
           END IF
         END DO
       END IF
@@ -380,16 +379,16 @@ C$    trd=omp_get_thread_num()
       if (SOUTHERN_EDGE) then
         DO i=Istr,Iend
           IF (zeta(i,Jstr-1,knew).le.
-     &       (Dcrit-h(i,Jstr-1))) THEN
-               zeta(i,Jstr-1,knew)=cff-h(i,Jstr-1)
+     &       (Dcrit(i,Jstr-1)-h(i,Jstr-1))) THEN
+               zeta(i,Jstr-1,knew)=Dcrit(i,Jstr-1)-h(i,Jstr-1)-eps
           END IF
         END DO
       END IF
       if (NORTHERN_EDGE) then
         DO i=Istr,Iend
           IF (zeta(i,Jend+1,knew).le.
-     &       (Dcrit-h(i,Jend+1))) THEN
-               zeta(i,Jend+1,knew)=cff-h(i,Jend+1)
+     &       (Dcrit(i,Jend+1)-h(i,Jend+1))) THEN
+               zeta(i,Jend+1,knew)=Dcrit(i,Jend+1)-h(i,Jend+1)-eps
           END IF
         END DO
       END IF
@@ -397,26 +396,30 @@ C$    trd=omp_get_thread_num()
 # if !defined EW_COM_PERIODIC && !defined NS_COM_PERIODIC
       if (SOUTHERN_EDGE .and. WESTERN_EDGE) then
         IF (zeta(Istr-1,Jstr-1,knew).le.
-     &      (Dcrit-h(Istr-1,Jstr-1))) THEN
-            zeta(Istr-1,Jstr-1,knew)=cff-h(Istr-1,Jstr-1)
+     &      (Dcrit(Istr-1,Jstr-1)-h(Istr-1,Jstr-1))) THEN
+            zeta(Istr-1,Jstr-1,knew)=
+     &            Dcrit(Istr-1,Jstr-1)-h(Istr-1,Jstr-1)-eps
         END IF
       END IF
       if (SOUTHERN_EDGE .and. EASTERN_EDGE) then
         IF (zeta(Iend+1,Jstr-1,knew).le.
-     &      (Dcrit-h(Iend+1,Jstr-1))) THEN
-            zeta(Iend+1,Jstr-1,knew)=cff-h(Iend+1,Jstr-1)
+     &      (Dcrit(Iend+1,Jstr-1)-h(Iend+1,Jstr-1))) THEN
+            zeta(Iend+1,Jstr-1,knew)=
+     &            Dcrit(Iend+1,Jstr-1)-h(Iend+1,Jstr-1)-eps
         END IF
       END IF
       if (NORTHERN_EDGE .and. WESTERN_EDGE) then
         IF (zeta(Istr-1,Jend+1,knew).le.
-     &      (Dcrit-h(Istr-1,Jend+1))) THEN
-            zeta(Istr-1,Jend+1,knew)=cff-h(Istr-1,Jend+1)
+     &      (Dcrit(Istr-1,Jend+1)-h(Istr-1,Jend+1))) THEN
+            zeta(Istr-1,Jend+1,knew)=
+     &            Dcrit(Istr-1,Jend+1)-h(Istr-1,Jend+1)-eps
         END IF
       END IF
       if (NORTHERN_EDGE .and. EASTERN_EDGE) then
         IF (zeta(Iend+1,Jend+1,knew).le.
-     &      (Dcrit-h(Iend+1,Jend+1))) THEN
-            zeta(Iend+1,Jend+1,knew)=cff-h(Iend+1,Jend+1)
+     &      (Dcrit(Iend+1,Jend+1)-h(Iend+1,Jend+1))) THEN
+            zeta(Iend+1,Jend+1,knew)=
+     &            Dcrit(Iend+1,Jend+1)-h(Iend+1,Jend+1)-eps
         END IF
       END IF
 # endif

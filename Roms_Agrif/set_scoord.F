@@ -6,7 +6,7 @@
 ! and Rutgers University (Arango et al) are under MIT/X style license.
 ! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
 ! 
-! ROMS_AGRIF website : http://roms.mpl.ird.fr
+! ROMS_AGRIF website : http://www.romsagrif.org
 !======================================================================
 !
 #include "cppdefs.h"
@@ -66,7 +66,7 @@
 ! Report information about vertical S-levels.
 !
 # ifdef WET_DRY
-        if (hmin.lt.0.) hmin=Dcrit
+        if (hmin.lt.0.) hmin=Dcmin
 # endif
       MPI_master_only write(stdout,'(/1x,A/,/1x,A,10x,A/)')
      &                       'Vertical S-coordinate System:',

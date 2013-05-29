@@ -6,7 +6,7 @@
 ! and Rutgers University (Arango et al) are under MIT/X style license.
 ! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
 ! 
-! ROMS_AGRIF website : http://roms.mpl.ird.fr
+! ROMS_AGRIF website : http://www.romsagrif.org
 !======================================================================
 !
 #include "cppdefs.h"
@@ -431,14 +431,14 @@
           enddo
         enddo
         do i=IU_RANGE
-# ifdef WET_DRY
+# if defined MRL_WCI && defined WET_DRY 
           ust2d(i,j)=ust2d(i,j)*umask_wet(i,j)
 # endif
           DC(i,0)=1./DC(i,0)
           CF(i,0)=DC(i,0)*(CF(i,0)-DU_avg1(i,j,nnew))
-#  ifdef MRL_WCI
+# ifdef MRL_WCI
      &                               +ust2d(i,j)
-#  endif
+# endif
           ubar(i,j,knew)=DC(i,0)*DU_avg1(i,j,nnew)
 # ifdef MRL_WCI
      &                               -ust2d(i,j)
@@ -527,7 +527,7 @@
             enddo
           enddo
           do i=IV_RANGE
-# ifdef WET_DRY
+# if defined MRL_WCI && defined WET_DRY
             vst2d(i,j)=vst2d(i,j)*vmask_wet(i,j)
 # endif
             DC(i,0)=1./DC(i,0)

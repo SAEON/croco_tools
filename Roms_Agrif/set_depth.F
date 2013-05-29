@@ -6,7 +6,7 @@
 ! and Rutgers University (Arango et al) are under MIT/X style license.
 ! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
 ! 
-! ROMS_AGRIF website : http://roms.mpl.ird.fr
+! ROMS_AGRIF website : http://www.romsagrif.org
 !======================================================================
 !
 #include "cppdefs.h"
@@ -67,8 +67,8 @@ C$    integer omp_get_thread_num
             IF (h(i,j).eq.0.) THEN
               h(i,j)=eps
             END IF
-            IF (zeta(i,j,1) .lt. Dcrit-h(i,j)) THEN
-              zeta(i,j,1)=Dcrit-h(i,j)
+            IF (zeta(i,j,1) .lt. Dcrit(i,j)-h(i,j)) THEN
+              zeta(i,j,1)=Dcrit(i,j)-h(i,j)
               zeta(i,j,2)=zeta(i,j,1)
               zeta(i,j,3)=zeta(i,j,1)
               zeta(i,j,4)=zeta(i,j,1)
@@ -84,6 +84,8 @@ C$    integer omp_get_thread_num
         enddo
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r2d_tile (Istr,Iend,Jstr,Jend, hinv)
+#  ifdef WET_DRY
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend, h)
       call exchange_r2d_tile (Istr,Iend,Jstr,Jend, 
      &                        zeta(START_2D_ARRAY,1))
       call exchange_r2d_tile (Istr,Iend,Jstr,Jend, 
@@ -92,6 +94,7 @@ C$    integer omp_get_thread_num
      &                        zeta(START_2D_ARRAY,3))
       call exchange_r2d_tile (Istr,Iend,Jstr,Jend, 
      &                        zeta(START_2D_ARRAY,4))
+#  endif
 # endif
       endif
 

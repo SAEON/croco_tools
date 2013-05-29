@@ -6,7 +6,7 @@
 ! and Rutgers University (Arango et al) are under MIT/X style license.
 ! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
 ! 
-! ROMS_AGRIF website : http://roms.mpl.ird.fr
+! ROMS_AGRIF website : http://www.romsagrif.org
 !
 ! This routine was adapted from John Warner's code
 ! by P. Marchesiello, IRD 2013
@@ -27,13 +27,14 @@
 # include "coupling.h"
 !
       real   wetdry(PRIVATE_2D_SCRATCH_ARRAY)
-      real   cff, Dcrit2
-#ifdef THACKER
-      parameter (Dcrit2=1.e-10)
+      real   cff, eps
+      parameter (eps=1.e-10)
+#ifdef MASKING
+# define SWITCH *
 #else
-      parameter (Dcrit2=0.1)
+# define SWITCH !
 #endif
-
+!
 #include "compute_auxiliary_bounds.h"
 !
 !-----------------------------------------------------------------------
@@ -50,7 +51,7 @@
 # ifdef MASKING
             wetdry(i,j)=wetdry(i,j)*rmask(i,j)
 # endif
-            IF ((zeta(i,j,kstp)+h(i,j)).le.(Dcrit+Dcrit2)) THEN
+            IF ((zeta(i,j,kstp)+h(i,j)).le.Dcrit(i,j)+eps) THEN
               wetdry(i,j)=0.
             END IF
           END DO
@@ -191,22 +192,22 @@
 #  endif
         DO j=JstrR,JendR
           DO i=IstrR,IendR
-            rmask_io(i,j)=rmask_wet(i,j)*rmask(i,j)
+            rmask_io(i,j)=rmask_wet(i,j) SWITCH rmask(i,j)
           END DO
         END DO
         DO j=Jstr,JendR
           DO i=Istr,IendR
-            pmask_io(i,j)=pmask_wet(i,j)*pmask(i,j)
+            pmask_io(i,j)=pmask_wet(i,j) SWITCH pmask(i,j)
           END DO
         END DO
         DO j=JstrR,JendR
           DO i=Istr,IendR
-            umask_io(i,j)=umask_wet(i,j)*umask(i,j)
+            umask_io(i,j)=umask_wet(i,j) SWITCH umask(i,j)
           END DO
         END DO
         DO j=Jstr,JendR
           DO i=IstrR,IendR
-            vmask_io(i,j)=vmask_wet(i,j)*vmask(i,j)
+            vmask_io(i,j)=vmask_wet(i,j) SWITCH vmask(i,j)
           END DO
         END DO
 
@@ -227,16 +228,6 @@
             END IF
           END IF
         END DO
-#  endif
-!
-!  Exchange boundary data.
-!
-#  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
-      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,  rmask_wet)
-      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,  rmask_wet_avg)
-      call exchange_u2d_tile (Istr,Iend,Jstr,Jend,  umask_wet)
-      call exchange_v2d_tile (Istr,Iend,Jstr,Jend,  vmask_wet)
-      call exchange_p2d_tile (Istr,Iend,Jstr,Jend,  pmask_wet)
 #  endif
 
       END IF

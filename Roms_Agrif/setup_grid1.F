@@ -1,6 +1,15 @@
 !
 ! $Id$
 !
+!======================================================================
+! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
+! The two other branches from UCLA (Shchepetkin et al) 
+! and Rutgers University (Arango et al) are under MIT/X style license.
+! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
+! 
+! ROMS_AGRIF website : http://www.romsagrif.org
+!======================================================================
+!
 #include "cppdefs.h"
                                             ! Setting up curvilinear
       subroutine setup_grid1 (tile)         ! grid: Compute various
@@ -16,6 +25,9 @@ C$    integer omp_get_thread_num
       subroutine setup_grid1_tile (Istr,Iend,Jstr,Jend)
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j
+#ifdef WET_DRY
+      real cff
+#endif
 #include "param.h"
 #include "scalars.h"
 #include "grid.h"
@@ -70,7 +82,7 @@ C$    integer omp_get_thread_num
 
 #if (defined CURVGRID && defined UV_ADV)
 !
-!  Compute d(1/n)/d(xi) and d(1/m)/d(eta) tems, both at RHO-points.
+!  Compute d(1/n)/d(xi) and d(1/m)/d(eta) terms, both at RHO-points.
 !
       do j=Jstr,Jend
         do i=Istr,Iend
@@ -78,7 +90,6 @@ C$    integer omp_get_thread_num
           dmde(i,j)=0.5/pm(i,j+1)-0.5/pm(i,j-1)
         enddo
       enddo
-
 #endif
 !
 !  Compute m/n at horizontal U-points.
@@ -132,6 +143,44 @@ C$    integer omp_get_thread_num
         enddo
       enddo
 
+#ifdef WET_DRY
+!
+!  Compute critical depth term at RHO-points 
+!  as a function of topographic slope
+!
+      do j=Jstr,Jend
+        do i=Istr,Iend
+          cff=10.*sqrt( ((h(i+1,j  )-h(i-1,j  ))*pm(i,j))**2
+     &                + ((h(i  ,j+1)-h(i  ,j-1))*pn(i,j))**2 )
+          Dcrit(i,j)=min(Dcmax,max(Dcmin,cff))
+        enddo
+      enddo
+# ifndef EW_PERIODIC
+        if (WESTERN_EDGE) then
+          do j=Jstr,Jend
+            Dcrit(Istr-1,j)=Dcrit(Istr,j)
+          enddo
+        endif
+        if (EASTERN_EDGE) then
+          do j=Jstr,Jend
+            Dcrit(Iend+1,j)=Dcrit(Iend,j)
+          enddo
+        endif
+# endif /* !EW_PERIODIC */
+# ifndef NS_PERIODIC
+        if (SOUTHERN_EDGE) then
+          do i=Istr-1,Iend+1
+            Dcrit(i,Jstr-1)=Dcrit(i,Jstr)
+          enddo
+        endif
+        if (NORTHERN_EDGE) then
+          do i=Istr-1,Iend+1
+            Dcrit(i,Jend+1)=Dcrit(i,Jend)
+          enddo
+        endif
+# endif /* !NS_PERIODIC */
+#endif
+
 #undef IR_RANGE
 #undef IU_RANGE
 #undef JR_RANGE
@@ -162,6 +211,10 @@ C$    integer omp_get_thread_num
       call exchange_p2d_tile (Istr,Iend,Jstr,Jend, pmon_p)
       call exchange_p2d_tile (Istr,Iend,Jstr,Jend,   om_p)
       call exchange_p2d_tile (Istr,Iend,Jstr,Jend,   on_p)
+# ifdef WET_DRY
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,  Dcrit)
+# endif
+
 # ifdef MASKING
 #  ifdef THREE_GHOST_POINTS_TS 
       call exchange_r2d_3pts_tile (Istr,Iend,Jstr,Jend, rmask)

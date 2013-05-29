@@ -6,7 +6,7 @@
 ! and Rutgers University (Arango et al) are under MIT/X style license.
 ! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
 ! 
-! ROMS_AGRIF website : http://roms.mpl.ird.fr
+! ROMS_AGRIF website : http://www.romsagrif.org
 !======================================================================
 !
 /* This is "global_definitions.h": It contains a set of predetermined
@@ -15,7 +15,7 @@
  to modify anything below this line.
 ------------------------------------------------------------------ */
 
-/* Switch to mixed [tiled + single-block] execution. Activation of
+/*  Switch to mixed [tiled + single-block] execution. Activation of
  this switch enables special logical branch in "compute_tile_bounds"
  which recognizes tile=NSUB_X*NSUB_E as covering the whole model
  grid, and it increases sizes of arrays declared in "private_scratch"
@@ -27,15 +27,22 @@
 # define SINGLE NSUB_X*NSUB_E,NSUB_X*NSUB_E !!!
 #endif
 
-/*  Activate the RVTK_DEBUG procedure that will compare the results
-    serial and multi-processor result by comparing binary file
+/*  
+   Activate the RVTK_DEBUG procedure that will compare the results
+   serial and multi-processor result by comparing binary file
 */
 #undef RVTK_DEBUG
 
-/* Change the generic name for the MPI communicator MPI_COMM_WORLD
-   by the OASIS-MCT local communicator
+/* 
+   Set OA COUPLING options:
+   Define MPI, select OA_MCT    
+   Change the generic name of MPI communicator MPI_COMM_WORLD
+   to OASIS-MCT local communicator
 */ 
 #ifdef OA_COUPLING
+# undef  OPENMP
+# define MPI
+# define OA_MCT
 # define MPI_COMM_WORLD ocean_grid_comm
 # undef BULK_FLUX
 #endif

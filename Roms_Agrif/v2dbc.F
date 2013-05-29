@@ -6,7 +6,7 @@
 ! and Rutgers University (Arango et al) are under MIT/X style license.
 ! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
 ! 
-! ROMS_AGRIF website : http://roms.mpl.ird.fr
+! ROMS_AGRIF website : http://www.romsagrif.org
 !======================================================================
 !
 #ifndef CHILD
@@ -62,6 +62,9 @@ C$    integer omp_get_thread_num
       real    eps,cff, cx,cy,
      &        dft,dfx,dfy, tau,tau_in,tau_out,hx,zx
       parameter (eps=1.D-20)
+#ifdef WET_DRY
+      real cff1,cff2
+#endif
 #include "boundary.h"
 #include "climat.h"
 #include "grid.h"
@@ -736,18 +739,26 @@ C$    trd=omp_get_thread_num()
 #endif
 #if defined WET_DRY
 !
-!-----------------------------------------------------------------------
+!=======================================================================
 !  Impose wetting and drying conditions.
-!-----------------------------------------------------------------------
+!=======================================================================
 !
 # ifndef EW_COM_PERIODIC
       if (WESTERN_EDGE) then
         DO j=JstrV,Jend
-          vbar(Istr,j,knew)=vbar(Istr,j,knew)*vmask_wet(Istr,j)
+          cff1=ABS(ABS(vmask_wet(Istr-1,j))-1.)
+          cff2=0.5+SIGN(0.5,vbar(Istr-1,j,kstp))*vmask_wet(Istr-1,j)
+          vmask_wet(Istr-1,j)=0.5*vmask_wet(Istr-1,j)*cff1
+     &                                               +cff2*(1.-cff1)
+          vbar(Istr-1,j,knew)=vbar(Istr-1,j,knew)*vmask_wet(Istr-1,j)
         END DO
       END IF
       if (EASTERN_EDGE) then
         DO j=JstrV,Jend
+          cff1=ABS(ABS(vmask_wet(Iend+1,j))-1.)
+          cff2=0.5+SIGN(0.5,vbar(Iend+1,j,kstp))*vmask_wet(Iend+1,j)
+          vmask_wet(Iend+1,j)=0.5*vmask_wet(Iend+1,j)*cff1
+     &                                               +cff2*(1.-cff1)
           vbar(Iend+1,j,knew)=vbar(Iend+1,j,knew)*vmask_wet(Iend+1,j)
         END DO
       END IF
@@ -755,29 +766,55 @@ C$    trd=omp_get_thread_num()
 # ifndef NS_COM_PERIODIC
       if (SOUTHERN_EDGE) then
         DO i=IstrU,Iend
+          cff1=ABS(ABS(vmask_wet(i,Jstr))-1.)
+          cff2=0.5+SIGN(0.5,vbar(i,Jstr,kstp))*vmask_wet(i,Jstr)
+          vmask_wet(i,Jstr)=0.5*vmask_wet(i,Jstr)*cff1
+     &                                           +cff2*(1.-cff1)
           vbar(i,Jstr,knew)=vbar(i,Jstr,knew)*vmask_wet(i,Jstr)
         END DO
       END IF
       if (NORTHERN_EDGE) then
         DO i=Istr,Iend
+          cff1=ABS(ABS(vmask_wet(i,Jend+1))-1.)
+          cff2=0.5+SIGN(0.5,vbar(i,Jend+1,kstp))*vmask_wet(i,Jend+1)
+          vmask_wet(i,Jend+1)=0.5*vmask_wet(i,Jend+1)*cff1
+     &                                               +cff2*(1.-cff1)
           vbar(i,Jend+1,knew)=vbar(i,Jend+1,knew)*vmask_wet(i,Jend+1)
         END DO
       END IF
 # endif
 # if !defined EW_COM_PERIODIC && !defined NS_COM_PERIODIC
       if (SOUTHERN_EDGE .and. WESTERN_EDGE) then
+        cff1=ABS(ABS(vmask_wet(Istr-1,Jstr))-1.)
+        cff2=0.5+SIGN(0.5,vbar(Istr-1,Jstr,kstp))*vmask_wet(Istr-1,Jstr)
+        vmask_wet(Istr-1,Jstr)=0.5*vmask_wet(Istr-1,Jstr)*cff1
+     &                                                   +cff2*(1.-cff1)
         vbar(Istr-1,Jstr,knew)=vbar(Istr-1,Jstr,knew)
      &                                        *vmask_wet(Istr-1,Jstr)
       END IF
       if (SOUTHERN_EDGE .and. EASTERN_EDGE) then
+        cff1=ABS(ABS(vmask_wet(Iend+1,Jstr))-1.)
+        cff2=0.5+SIGN(0.5,vbar(Iend+1,Jstr,kstp))*vmask_wet(Iend+1,Jstr)
+        vmask_wet(Iend+1,Jstr)=0.5*vmask_wet(Iend+1,Jstr)*cff1
+     &                                                   +cff2*(1.-cff1)
         vbar(Iend+1,Jstr,knew)=vbar(Iend+1,Jstr,knew)
      &                                        *vmask_wet(Iend+1,Jstr)
       END IF
       if (NORTHERN_EDGE .and. WESTERN_EDGE) then
+        cff1=ABS(ABS(vmask_wet(Istr-1,Jend+1))-1.)
+        cff2=0.5+SIGN(0.5,vbar(Istr-1,Jend+1,kstp))
+     &                                       *vmask_wet(Istr-1,Jend+1)
+        vmask_wet(Istr-1,Jend+1)=0.5*vmask_wet(Istr-1,Jend+1)*cff1
+     &                                              +cff2*(1.-cff1)
         vbar(Istr-1,Jend+1,knew)=vbar(Istr-1,Jend+1,knew)
      &                                        *vmask_wet(Istr-1,Jend+1)
       END IF
       if (NORTHERN_EDGE .and. EASTERN_EDGE) then
+        cff1=ABS(ABS(vmask_wet(Iend+1,Jend+1))-1.)
+        cff2=0.5+SIGN(0.5,vbar(Iend+1,Jend+1,kstp))
+     &                                       *vmask_wet(Iend+1,Jend+1)
+        vmask_wet(Iend+1,Jend+1)=0.5*vmask_wet(Iend+1,Jend+1)*cff1
+     &                                              +cff2*(1.-cff1)
         vbar(Iend+1,Jend+1,knew)=vbar(Iend+1,Jend+1,knew)
      &                                        *vmask_wet(Iend+1,Jend+1)
       END IF
