@@ -85,6 +85,7 @@
 # define CURVGRID
 # define SPHERICAL
 # define MASKING
+# undef  NEW_S_COORD
                       /* Model dynamics */
 # define SOLVE3D
 # define UV_COR
