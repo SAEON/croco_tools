@@ -6,7 +6,7 @@
 ! and Rutgers University (Arango et al) are under MIT/X style license.
 ! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
 ! 
-! ROMS_AGRIF website : http://roms.mpl.ird.fr
+! ROMS_AGRIF website : http://www.romsagrif.org
 !======================================================================
 !
 /*
@@ -47,18 +47,14 @@
 */
                       /* Configuration Name */
 # define BENGUELA_LR
-                      /* Coupling via OASIS */
-# undef OA_COUPLING
                       /* Parallelization */
 # undef  OPENMP
 # undef  MPI
-# ifdef OA_COUPLING
-#  define MPI
-#  define OA_MCT
-#endif
                       /* Nesting */
 # undef  AGRIF
 # undef  AGRIF_2WAY
+                      /* Coupling via OASIS (--> MPI) */
+# undef  OA_COUPLING
                       /* Open Boundary Conditions */
 # undef  TIDES
 # define OBC_EAST
@@ -72,7 +68,7 @@
 # undef  PASSIVE_TRACER
 # undef  SEDIMENT
 # undef  BBL
-/*!
+/*
 !-------------------------------------------------
 ! PRE-SELECTED OPTIONS
 !
@@ -89,6 +85,7 @@
 # define CURVGRID
 # define SPHERICAL
 # define MASKING
+# undef  NEW_S_COORD
                       /* Model dynamics */
 # define SOLVE3D
 # define UV_COR
