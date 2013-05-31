@@ -196,11 +196,11 @@ end
 %
 %  Create attributes
 %
-nc{'Vtransform'}.long_name = ncchar('vertical terrain-following transformation equation');
-nc{'Vtransform'}.long_name = 'vertical terrain-following transformation equation';
+ncclim{'Vtransform'}.long_name = ncchar('vertical terrain-following transformation equation');
+ncclim{'Vtransform'}.long_name = 'vertical terrain-following transformation equation';
 %
-nc{'Vstretching'}.long_name = ncchar('vertical terrain-following stretching function');
-nc{'Vstretching'}.long_name = 'vertical terrain-following stretching function';
+ncclim{'Vstretching'}.long_name = ncchar('vertical terrain-following stretching function');
+ncclim{'Vstretching'}.long_name = 'vertical terrain-following stretching function';
 %
 ncclim{'tstart'}.long_name = ncchar('start processing day');
 ncclim{'tstart'}.long_name = 'start processing day';
