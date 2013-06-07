@@ -150,6 +150,8 @@ if Nz > Nzseas
   end
   close(ncann);
 end
+
+%Else read seasonal datafile 
 %
 % interpole the seasonal dataset on the horizontal roms grid
 %
@@ -161,8 +163,10 @@ missval=ncseas{dataname}.missing_value(:);
 for l=1:tlen
 %for l=1:1
   disp(['time index: ',num2str(l),' of total: ',num2str(tlen)])
+  dims=size(lon);
   if Nz <= Nzseas
-    datazgrid=zeros(Nz,M,L);
+%    datazgrid=zeros(Nz,M,L);
+    datazgrid=zeros(Nz,length(lon));
   end
   for k=1:min([Nz Nzseas])
     if ~isempty(i2)
