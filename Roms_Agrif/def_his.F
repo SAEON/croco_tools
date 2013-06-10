@@ -152,7 +152,7 @@
 # define vidTke avgTke
 # define vidGls avgGls
 # define vidLsc avgLsc
-# ifdef BIOLOGY
+# if defined BIOLOGY & !defined PISCES
 #  define vidHel avgHel
 #  ifdef BIO_NChlPZD
 #   define vidChC avgChC
@@ -1247,7 +1247,7 @@
       endif
 # endif  /* BULK_FLUX */
 
-# ifdef BIOLOGY
+# if defined BIOLOGY & !defined PISCES
 !
 ! Depth of the euphotic layer.
 !
@@ -2190,7 +2190,7 @@
 !
 # endif
 
-# ifdef BIOLOGY
+# if defined BIOLOGY & !defined PISCES
 !
 ! Depth of the euphotic layer.
 !
@@ -2501,7 +2501,7 @@
 #undef vidTke
 #undef vidGls
 #undef vidLsc
-#ifdef BIOLOGY
+#if defined BIOLOGY & !defined PISCES 
 # undef vidHel
 # ifdef BIO_NChlPZD
 #  undef vidChC
