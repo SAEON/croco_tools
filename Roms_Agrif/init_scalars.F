@@ -1037,7 +1037,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTke =',indxTke
       vname(3,indxTke)='meter2 second-2                           '
       vname(4,indxTke)='tke, scalar, series                       '
       vname(5,indxTke)='ocean_turbulent_kinetic_energy'
-     &                               / /  'at_w_location          '
+     &                               / /  '_at_w_location         '
       vname(6,indxTke)='lat_rho lon_rho                           '
       vname(7,indxTke)='                                          '
 CR      write(stdout,'(1x,A,I3)') 'indxGls =',indxGls   
@@ -1046,7 +1046,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxGls =',indxGls
       vname(3,indxGls)='meter3 second-2                           '
       vname(4,indxGls)='gls, scalar, series                       '
       vname(5,indxGls)='ocean_generic_length_scale'
-     &                               / /  'at_w_location          '
+     &                               / /  '_at_w_location         '
       vname(6,indxGls)='lat_rho lon_rho                           '
       vname(7,indxGls)='                                          '
 CR      write(stdout,'(1x,A,I3)') 'indxLscale =',indxLscale   
@@ -1055,7 +1055,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxLscale =',indxLscale
       vname(3,indxLsc)='meter                                     '
       vname(4,indxLsc)='Lscale, scalar, series                    '
       vname(5,indxLsc)='ocean_turbulent_length_scale'
-     &                               / /  'at_w_location          '
+     &                               / /  '_at_w_location         '
       vname(6,indxLsc)='lat_rho lon_rho                           '
       vname(7,indxLsc)='                                          ' 
 CR      write(stdout,'(1x,A,I3)') 'indxAkk =',indxAkk          
@@ -1064,7 +1064,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxAkk =',indxAkk
       vname(3,indxAkk)='meter2 second-1                           '
       vname(4,indxAkk)='AKk, scalar, series                       '
       vname(5,indxAkk)='ocean_vertical_TKE_diffusivity_'
-     &                 / / 'at_w_location                         '
+     &                 / / '_at_w_location                        '
       vname(6,indxAkk)='lat_rho lon_rho                           '
       vname(7,indxAkk)='                                          '
 CR      write(stdout,'(1x,A,I3)') 'indxAkp =',indxAkp          
@@ -1073,7 +1073,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxAkp =',indxAkp
       vname(3,indxAkp)='meter2 second-1                           '
       vname(4,indxAkp)='AKp, scalar, series                       '
       vname(5,indxAkp)='ocean_vertical_GLS_diffusivity_'
-     &                 / / 'at_w_location                         '
+     &                 / / '_at_w_location                        '
       vname(6,indxAkp)='lat_rho lon_rho                           '
       vname(7,indxAkp)='                                          '
 # endif /* GLS_MIXING */
