@@ -289,8 +289,28 @@ CR       write(*,*) 'wrt_avg:  wrtAks' MYID
       endif
 #    endif /* SALINITY */
 #  endif  /* AVERAGES_K */
+#  ifdef GLS_MIXING
 !     
-#  ifdef LMD_SKPP
+!     Write out vertical diffusion coefficient for TKE.
+!     
+      if (wrthis(indxAkk)) then
+         work=Akk_avg
+         call fillvalue3d_w(work,ncidavg,avgAkk,indxAkk,
+     &        record,w3dvar,type)
+CR      write(*,*) 'wrt_avg:  wrtAkk' MYID
+      endif
+!     
+!     Write out vertical diffusion coefficient for GLS.
+!     
+      if (wrthis(indxAkp)) then
+         work=Akp_avg
+         call fillvalue3d_w(work,ncidavg,avgAkp,indxAkp,
+     &        record,w3dvar,type)
+CR      write(*,*) 'wrt_avg:  wrtAkp' MYID
+      endif
+# endif
+
+# ifdef LMD_SKPP
 !     
 !     Write out depth of planetary boundary layer (m).
 !     
@@ -309,7 +329,36 @@ CR       write(*,*) 'wrt_avg:  wrtAks' MYID
          call fillvalue2d(work2d,ncidavg,avgHbbl,indxHbbl,
      &        record,r2dvar,type)
       endif
-#  endif
+# endif
+# ifdef GLS_MIXING
+!     
+!     Write out turbulent kinetic energy.
+!     
+      if (wrtavg(indxTke)) then
+         work=tke_avg
+         call fillvalue3d_w(work,ncidavg,avgTke,indxTke,
+     &        record,w3dvar,type)
+CR      write(*,*) 'wrt_avg:  wrtTke' MYID
+      endif
+!     
+!     Write out generic length scale
+!     
+      if (wrtavg(indxGls)) then
+         work=gls_avg
+         call fillvalue3d_w(work,ncidavg,avgGls,indxGls,
+     &        record,w3dvar,type)
+CR      write(*,*) 'wrt_avg:  wrtGls' MYID
+      endif
+!     
+!     Write out vertical mixing length scale
+!     
+      if (wrthis(indxLsc)) then
+         work=Lscale_avg
+         call fillvalue3d_w(work,ncidavg,avgLsc,indxLsc,
+     &        record,w3dvar,type)
+CR      write(*,*) 'wrt_avg:  wrtLsc' MYID
+      endif
+# endif
 
 !     
 !     Write out total heat flux [W/m2]
