@@ -54,11 +54,13 @@ if strcmp(OGCM,'SODA')
   %url= 'http://apdrc.soest.hawaii.edu:80/dods/public_data/SODA/soda_pop2.0.4'
   
   % SODA_2.1.6 [ ERA40/QSCAT 1958-2008 / POP2.1 / WOD09 ]
-  url='http://apdrc.soest.hawaii.edu:80/dods/public_data/SODA/soda_pop2.1.6' ;
+  %%url='http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p1p6' ;
+  %url='http://apdrc.soest.hawaii.edu:80/dods/public_data/SODA/soda_pop2.1.6' ;
   
   % SODA_2.2.4/ [ C20R-2 1871-2008 / POP2.1 ]
+  %%url='http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p2p4' ;
   url='http://apdrc.soest.hawaii.edu:80/dods/public_data/SODA/soda_pop2.2.4' ;
-
+  
 elseif strcmp(OGCM,'ECCO')
   %
   %  ECCO DODS URL

@@ -46,10 +46,15 @@ disp([' '])
 % Define the original date of the SODA data
 % 
 if strcmp(url,'http://apdrc.soest.hawaii.edu:80/dods/public_data/SODA/soda_pop2.1.6')
-   year_orig_SODA=1958;
+%if strcmp(url,'http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p1p6')
+    year_orig_SODA=1958;
 elseif strcmp(url,'http://apdrc.soest.hawaii.edu:80/dods/public_data/SODA/soda_pop2.2.4')
-   year_orig_SODA=1871;
+%elseif strcmp(url,'http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p2p4')
+    year_orig_SODA=1871;
+%elseif strcmp(url,'http://apdrc.soest.hawaii.edu:80/dods/public_data/SODA/soda_pop2.2.6')
+%      year_orig_SODA=1866;  
 end
+
 
 %
 % Create the directory
@@ -69,7 +74,7 @@ disp(['Process the dataset: ',url])
 % Get SODA time 
 %
 %  Months since 1960-01-01 
-%       --> http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p1p6/ 
+%       --> http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p1p6/
 %
 % Transform it into Yorig time (i.e days since Yorig-01-01)
 %year=floor(1960+SODA_time/12);
