@@ -46,9 +46,9 @@ biol_N2P2Z2D2=0;
 pisces=0;
 
 
-if nvar <= 20
+if nvar <= 37
   disp(['No biology'])
-elseif nvar == 25 
+elseif nvar == 42 
   biol_NPZD=1;
   %Name, units etc .. of the variables
   namebiol={'NO3';'CHLA';'PHYTO';'ZOO';'DET'};
@@ -56,7 +56,7 @@ elseif nvar == 25
 	    'mMol N m-3' ; 'mMol N m-3'};
   disp('Biol NPZD is on')
   disp('==========')
-elseif nvar ==27
+elseif nvar == 44
   biol_N2PZD2=1;
   %Name, units etc .. of the variables
   namebiol={'NO3' ; 'NH4' ; 'CHLA' ; 'PHYTO' ; 'ZOO' ; 'SDET' ; 'LDET'};
@@ -65,7 +65,7 @@ elseif nvar ==27
 	    'mMol N m-3'};
   disp('Biol N2PZD2 is on')
   disp('==========')
-elseif nvar==28
+elseif nvar==46
   biol_N2P2Z2D2=1;
   %Name, units etc .. of the variables
   namebiol={'NO3' ; 'NH4' ; 'SPHYTO' ; 'LPHYTO' ; 'SZOO' ; 'LZOO' ; 'SDET' ; 'LDET'};
@@ -141,8 +141,19 @@ result=close(nc);
 disp(' ')
 disp(' Read in the parent restart file...')
 nc = netcdf(parent_rst);
+theta_s = nc{'theta_s'}(:);
+theta_b = nc{'theta_b'}(:);
+Tcline = nc{'Tcline'}(:);
 N=length(nc('s_rho'));
 thetime = nc{'scrum_time'}(:);
+vtransform=nc{'Vtransform'}(:);
+hc = nc{'hc'}(:);
+disp([' Use parent VTRANSFORM = ',num2str(vtransform)])
+if ~exist('vtransform') | isempty(vtransform)
+    disp([' No VTRANSFORM parameter found'])
+    disp([' Use the default one VTRANSFORM = 1'])
+    vtransform=1;
+end
 result=close(nc);
 %
 % Create the restart file
@@ -151,7 +162,8 @@ disp(' ')
 disp(' Create the restart file...')
 ncrst=create_nestedrestart(child_rst,child_grd,parent_rst,title,...
 			   'clobber',biol,biol_NPZD,biol_N2PZD2,biol_N2P2Z2D2,...
-			   pisces,namebiol,namepisces,unitbiol,unitpisces);
+			   pisces,namebiol,namepisces,unitbiol,unitpisces,hc,vtransform);
+           
 %
 % Get the parent indices
 %

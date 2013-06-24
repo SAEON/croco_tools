@@ -33,6 +33,7 @@ var=squeeze(nc{tracer}(l,:,:,:));
 u=squeeze(nc{'u'}(l,N,:,:));
 v=squeeze(nc{'v'}(l,N,:,:));
 theta_s=nc{'theta_s'}(:);
+vtransform=nc{'Vtransform'}(:);
 if isempty(theta_s)
   theta_s=nc.theta_s(:);
   theta_b=nc.theta_b(:);
@@ -40,12 +41,11 @@ if isempty(theta_s)
 else
   theta_b=nc{'theta_b'}(:);
   hc=nc{'hc'}(:);
-  vtransform=nc{'Vtransform'}(:);
-  if  ~exist('vtransform') | isempty(vtransform)
+end
+if  ~exist('vtransform') | isempty(vtransform)
     vtransform=1; %Old Vtransform
     disp([' NO VTRANSFORM parameter found'])
     disp([' USE TRANSFORM default value vtransform = 1'])
-  end
 end
 close(nc)
 nc=netcdf(grid_file);

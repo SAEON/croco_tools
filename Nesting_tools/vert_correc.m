@@ -43,13 +43,14 @@ if isempty(theta_s)
 else
   theta_b=nc{'theta_b'}(:);
   hc=nc{'hc'}(:);
-  vtransform=nc{'Vtransform'}(:);
-  if  ~exist('vtransform') | isempty(vtransform)
+end
+vtransform=nc{'Vtransform'}(:);
+if  ~exist('vtransform')
     vtransform=1; %Old Vtransform
     disp([' NO VTRANSFORM parameter found'])
     disp([' USE TRANSFORM default value vtransform = 1'])
-  end
 end
+%
 zeta=squeeze(nc{'zeta'}(tindex,:,:));
 if isempty(zeta)
   zeta=squeeze(nc{'SSH'}(tindex,:,:));
