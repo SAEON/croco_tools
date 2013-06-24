@@ -359,7 +359,7 @@ makeblk      = 1;       % 1: create bulk files
 QSCAT_blk    = 0;       % 1: a) correct NCEP frc/bulk files with
                         %        u,v,wspd fields from daily QSCAT data
                         %    b) download u,v,wspd in QSCAT frc file
-add_tides    = 0;       % 1: add tides (to be done...)
+add_tides    = 0;       % 1: add tides
 %
 % Overlap parameters 
 %
