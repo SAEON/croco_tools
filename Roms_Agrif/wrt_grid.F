@@ -127,6 +127,13 @@
         goto 99                 !--> ERROR
       endif
 !
+      ierr=nf_inq_varid (ncid, 'Vtransform', varid)
+      ierr=nf_put_var1_FTYPE (ncid, varid, 1, Vtransform)
+      if (ierr.ne.nf_noerr) then
+        write(stdout,2) 'Vtransform', ncname(1:lstr)
+        goto 99                 !--> ERROR
+      endif
+!
 #endif
 !
 ! Bathymetry.

@@ -115,6 +115,12 @@
 
 #ifdef SOLVE3D
 !
+! Vtransform 
+!
+      ierr=nf_def_var (ncid, 'Vtransform', nf_ftype, 0, 0, varid)
+      ierr=nf_put_att_text (ncid, varid, 'long_name',   49,
+     &    'vertical terrain-following transformation equation')    
+!
 ! Variable-dimensions vertical : s_rho and s_w 
 !
       ierr=nf_def_var (ncid, 's_rho', nf_ftype, 1, r3dgrd(3), varid)
