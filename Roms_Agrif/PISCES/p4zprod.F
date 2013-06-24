@@ -90,8 +90,8 @@ C      Computation of the P-I slope for nanos and diatoms
 C      --------------------------------------------------
 C
         ztn=max(0.,tn(ji,jj,jk)-15.)
-        zadap=1.+2.*ztn/(2.+ztn)
-        zadap2=1.
+        zadap=0.+1.*ztn/(2.+ztn)
+        zadap2=0.
 
         zfact=exp(-0.21*emoy(ji,jj,jk))
 

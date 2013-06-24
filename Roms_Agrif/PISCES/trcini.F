@@ -113,7 +113,7 @@ C
 # include "scalars.h"
       integer i, j, ncid, varid, dimid, ierr,
      &        lstr, lenstr, nf_fread, nrec_dust, irec
-      REAL dustmp(GLOBAL_2D_ARRAY,12)
+      REAL dustmp(GLOBAL_2D_ARRAY,366)
 
 #ifdef MPI
 #define LOCALLM Lmmpi

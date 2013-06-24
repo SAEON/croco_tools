@@ -55,7 +55,7 @@ CC ==================
       REAL xtoto,expide,denitide
       REAL ndepo(jpi,jpj),river(jpi,jpj)
       REAL riverdoc(jpi,jpj)
-      REAL dustmp(GLOBAL_2D_ARRAY,12)
+      REAL dustmp(GLOBAL_2D_ARRAY,366)
       REAL zsecond, zlon(jpi,jpj),zlat(jpi,jpj),zlev(jpk),zdate0
       REAL zmaskt
 
@@ -173,17 +173,17 @@ C
             cmask(i,j,jpk)=1.
           end do
         end do
-c        do k=1,jpk-1
-c          do j=Jstr,Jend
-c            do i=Istr,Iend
-c                zmaskt=tmask(i+1,j,k)*tmask(i-1,j,k)
-c     &                *tmask(i,j+1,k)*tmask(i,j-1,k)
-c                if (zmaskt.eq.0) then
-c                  cmask(i,j,k)=0.1
-c                endif
-c            enddo
-c          enddo
-c        enddo
+        do k=1,jpk-1
+          do j=Jstr,Jend
+            do i=Istr,Iend
+                zmaskt=tmask(i+1,j,k)*tmask(i-1,j,k)
+     &                *tmask(i,j+1,k)*tmask(i,j-1,k)
+                if (zmaskt.eq.0) then
+                  cmask(i,j,k)=0.1
+                endif
+            enddo
+          enddo
+        enddo
         do k=1,jpk
           do j=Jstr,Jend
             do i=Istr,Iend

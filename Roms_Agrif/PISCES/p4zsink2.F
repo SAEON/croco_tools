@@ -13,7 +13,7 @@
 #include "cppdefs.h"
       Implicit NONE
       INTEGER Istr,Jstr,Iend,Jend,jn
-      REAL rfacts
+      INTEGER rfacts
 
 #if defined key_passivetrc && defined key_trc_pisces
 !!!
@@ -43,8 +43,9 @@
 !!
 !!   MODIFICATIONS:
 !!   --------------
-!!       original :  06-00 (A.Estublier)
-!!       modifications : 2004 (O. Aumont)
+!!       original      : 2000 A. Estublier
+!!       modifications : 2004 O. Aumont
+!!                       2013 T. Gorgues
 !!       
 !!----------------------------------------------------------------------
 CC ----------------------------------------------------------------
@@ -62,7 +63,7 @@ C
       REAL ztraz(Istr:Iend,Jstr:Jend,jpk+1)
       REAL zakz(Istr:Iend,Jstr:Jend,jpk+1)
       REAL zkz(PRIV_3D_BIOARRAY)
-      REAL zigma,zew,zstep,zign
+      REAL zigma,zew,zstep,zign,isinktmp
       REAL wstmp(jpi,jpj,jpk)
       REAL sinktemp(jpi,jpj,jpk+1)
 
@@ -74,11 +75,12 @@ C
 ! 1. Initialization
 ! --------------
 
-        zstep=rfacts
+        zstep=rfact2/float(rfacts)/2.
 
-        ztraz  = 0
-        zkz    = 0
+        ztraz  = 0.
+        zkz    = 0.
         zakz   = 0.
+
 
       DO jk=1,jpkm1
         DO jj=Jstr, Jend
@@ -121,8 +123,9 @@ C
         DO jk=2,jpk
           DO jj=Jstr, Jend
             DO ji=Istr, Iend
-            zign = 0.5*(sign(1.,ztraz(ji,jj,jk)*ztraz(ji,jj,jk+1))+1)
-            zakz(ji,jj,jk) = 0.5*(ztraz(ji,jj,jk)
+
+            zign = 0.25+SIGN(0.25,ztraz(ji,jj,jk)*ztraz(ji,jj,jk+1))
+            zakz(ji,jj,jk) = (ztraz(ji,jj,jk)
      $                          +ztraz(ji,jj,jk+1))*zign
             ENDDO
           ENDDO
@@ -133,10 +136,10 @@ C
         DO jk=2,jpk
           DO jj=Jstr, Jend
             DO ji=Istr, Iend
-              zakz(ji,jj,jk) = sign(1.,zakz(ji,jj,jk)) * 
-     $                        min(abs(zakz(ji,jj,jk)),
-     $                        2.*abs(ztraz(ji,jj,jk+1)),
-     $                        2.*abs(ztraz(ji,jj,jk)))
+              zakz(ji,jj,jk) = sign(1.,zakz(ji,jj,jk)) 
+     $                       * min(abs(zakz(ji,jj,jk))
+     $                       ,2.*abs(ztraz(ji,jj,jk+1))
+     $                       ,2.*abs(ztraz(ji,jj,jk)))
             ENDDO
           ENDDO
         ENDDO        
@@ -162,6 +165,7 @@ C
         END DO
       END DO
 !
+
        DO jk=1,jpk
          DO jj=Jstr, Jend
            DO ji=Istr, Iend
@@ -173,8 +177,10 @@ C
             ENDDO
           ENDDO
         ENDDO
+
         ENDDO
 !
+
         DO jk=1,jpk
           DO jj=Jstr, Jend
             DO ji=Istr, Iend
@@ -182,6 +188,8 @@ C
             trb(ji,jj,jk,jn) = trb(ji,jj,jk,jn)
      &        + 2.*(sinktemp(ji,jj,jk)-sinktemp(ji,jj,jk+1))
      &        /fse3t(ji,jj,jk)
+ 
+!            trb(ji,jj,jk,jn) = max(0.,trb(ji,jj,jk,jn))
 !
             ENDDO
           ENDDO

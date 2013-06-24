@@ -258,7 +258,7 @@ CC
       REAL sinking(jpi,jpj,jpk+1),sinkfer(jpi,jpj,jpk+1)
       REAL sinkfer2(jpi,jpj,jpk+1),zdiss(jpi,jpj,jpk)
       REAL xagg(jpi,jpj,jpk),xaggfe(jpi,jpj,jpk)
-      REAL xaggdoc(jpi,jpj,jpk)
+      REAL xaggdoc(jpi,jpj,jpk),xaggdoc3(jpi,jpj,jpk)
       REAL xaggdfe(jpi,jpj,jpk),xbactfer(jpi,jpj,jpk)
       REAL xscave(jpi,jpj,jpk),olimi(jpi,jpj,jpk)
       REAL orem(jpi,jpj,jpk),orem2(jpi,jpj,jpk)
@@ -268,12 +268,13 @@ CC
       REAL sinksil(jpi,jpj,jpk+1),sinkcal(jpi,jpj,jpk+1)
       REAL nitrfac(jpi,jpj,jpk),xlimbac(jpi,jpj,jpk)
       REAL wscal(jpi,jpj,jpk)
+      INTEGER niter1max, niter2max
 C
       COMMON/cotpdom/sinking2,phymoy,sinking,sinkfer,sinkfer2
-     &   ,xagg,xaggfe,xaggdoc,xaggdfe,xbactfer,xscave
+     &   ,xagg,xaggfe,xaggdoc,xaggdoc3,xaggdfe,xbactfer,xscave
      &   ,olimi,orem,orem2,ofer,ofer2,osil,xaggdoc2,wsbio4
      &   ,wsbio3,wsbio2,sinksil,sinkcal,nitrfac,xlimbac,zdiss
-     &   ,wscal
+     &   ,wscal, niter1max,niter2max
 CC
 CC---------------------------------------------------------
 CC

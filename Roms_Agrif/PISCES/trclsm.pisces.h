@@ -70,7 +70,7 @@ C
      &   ,xkgraz2,xlam1,ferat3,conc1,conc2,conc3,concnnh4
      &   ,concdnh4,nitrif,epsher,epsher2,pislope2,wsbio2,sigma1
      &   ,sigma2,zprefc,zprefp,zprefd,fecnm,fecdm,chlcnm,chlcdm
-     &   ,sedfeinput
+     &   ,sedfeinput,niter1max,niter2max
        namelist/natsms/bdustfer, briver, bndepo, bsedinput
 C
 C OPEN specifier
@@ -257,6 +257,10 @@ C
      $        ' Minimum Fe/C in diatoms                    =', fecdm
           WRITE(numout,*)
      $        ' Coastal release of Iron                 =', sedfeinput
+          WRITE(numout,*)
+     $        ' Maximum number of iterations for POC    =', niter1max
+          WRITE(numout,*)
+     $        ' Maximum number of iterations for GOC    =', niter2max
 
       READ(numnat,natsms)
           WRITE(numout,*) ' '

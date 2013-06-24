@@ -238,6 +238,7 @@ C
      &      +excret*prorca(ji,jj,jk)-olimi(ji,jj,jk)-denitr(ji,jj,jk)
      &      +grarem(ji,jj,jk)*(1.-sigma1)+grarem2(ji,jj,jk)
      &      *(1.-sigma2)-xaggdoc(ji,jj,jk)-xaggdoc2(ji,jj,jk)
+     &      -xaggdoc3(ji,jj,jk)
           END DO
         END DO
       END DO
@@ -255,6 +256,7 @@ C
      &     +(1.-0.5*zfracal(ji,jj,jk))*(tortp(ji,jj,jk)
      &     +respp(ji,jj,jk))+0.5*tortp2(ji,jj,jk)
      &     +orem2(ji,jj,jk)+tortz(ji,jj,jk)-orem(ji,jj,jk)
+     &     +xaggdoc3(ji,jj,jk)
 C    
 C     Evolution of rapid Detritus
 C     ---------------------
@@ -477,6 +479,26 @@ C
           END DO
         END DO
       END DO
+
+
+C      DO jn = 1,jptra
+C        DO jk = 1,jpk
+C        DO jj=Jstr, Jend
+C          DO ji=Istr, Iend
+C              if (trn(ji,jj,jk,jn).lt.0.) then
+C               write(*,*) 'PISCES negative value p4zbio'
+C               write(*,*) 'ji=',ji,'jj=',jj,'jk=',jk,'jn=',jn
+C               write(*,*) 'trn(ji,jj,jk,jn)=',trn(ji,jj,jk,jn)
+C               write(*,*) 'trb(ji,jj,jk,jn)=',trb(ji,jj,jk,jn)
+C              endif
+C            END DO
+C          END DO
+C        END DO
+C      END DO
+
+
+
+
 C
 #    if defined key_trc_dia3d
         DO jk = 1,jpk

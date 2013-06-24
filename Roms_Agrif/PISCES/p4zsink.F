@@ -41,8 +41,9 @@ CC
 CC   MODIFICATIONS:
 CC   --------------
 CC      original  : 2004 - O. Aumont 
-CC      revisions: 2007 - C. Menkes
-CC                        P. Marchesiello
+CC      revisions : 2007 - C. Menkes
+CC                         P. Marchesiello
+CC                  2013 - T. Gorgues
 CC----------------------------------------------------------------------
 CC parameters and commons
 CC ======================
@@ -52,9 +53,13 @@ CC ======================
 CC----------------------------------------------------------------------
 CC local declarations
 CC ==================
-      INTEGER jksed, ji, jj, jk, jnt, iter1, iter2
-      REAL xagg1,xagg2,xagg3,xagg4
-      REAL zfact,zstep,wsmax,rfacts1,rfacts2,cfl1,cfl2
+      INTEGER jksed, ji, jj, jk, jnt, iiter1, iiter2
+      REAL xagg1,xagg2,xagg3,xagg4,zmax
+      REAL zfact,zstep,wsmax,rfacts1,rfacts2
+# if defined MPI
+      include 'mpif.h'
+      integer ierr,iiter1tmp,iiter2tmp
+# endif
 C
 C
 C    Time step duration for biology
@@ -69,14 +74,81 @@ C
       DO jk=1,jpk
         DO jj=Jstr, Jend
           DO ji=Istr, Iend
-            zfact=max(0.,fsdepw(ji,jj,jk+1)-hmld(ji,jj))/2000.
-c            zfact=min(1.,zfact)
+c           Here we use now the max of the euphotic zone
+c           and the mld instead of just the mld
+            zmax = MAX( zmeu(ji,jj), hmld(ji,jj) )
+c           Slight modification of the parameterization
+c           of the increased velocity of the GOC
+            zfact= MAX(0.,fsdepw(ji,jj,jk+1) - zmax )/5000.
+c           zfact= MAX(0.,fsdepw(ji,jj,jk+1) - zmax )/2000.
             wsbio4(ji,jj,jk)=wsbio2+(200.-wsbio2)*zfact
+      ! limit the values of the sinking speeds to avoid numerical instabilities
             wsbio3(ji,jj,jk)=wsbio
             wscal(ji,jj,jk)=wsbio4(ji,jj,jk)
           END DO
         END DO
       END DO
+
+      ! OA This is (I hope) a temporary solution for the problem that may 
+      ! OA arise in specific situation where the CFL criterion is broken 
+      ! OA for vertical sedimentation of particles. To avoid this, a time
+      ! OA splitting algorithm has been coded. A specific maximum
+      ! OA iteration number is provided and may be specified in the namelist 
+      ! OA This is to avoid very large iteration number when explicit free
+      ! OA surface is used (for instance). When niter?max is set to 1, 
+      ! OA this computation is skipped. The crude old threshold method is 
+      ! OA then applied. This also happens when niter exceeds nitermax.
+
+
+      IF( MAX( niter1max, niter2max ) == 1 ) THEN
+        iiter1 = 1
+        iiter2 = 1
+      ELSE
+        iiter1 = 1
+        iiter2 = 1
+        DO jk = 1, jpkm1
+          DO jj = Jstr, Jend
+             DO ji = Istr, Iend
+                IF( tmask(ji,jj,jk) == 1) THEN
+                   wsmax =  0.4 * fse3t(ji,jj,jk) / zstep
+                   iiter1 =  MAX( iiter1, INT( wsbio3(ji,jj,jk) 
+     &                    / wsmax ) )
+                   iiter2 =  MAX( iiter2, INT( wsbio4(ji,jj,jk) 
+     &                    / wsmax ) )
+                ENDIF
+             END DO
+          END DO
+        END DO
+# if defined MPI
+      call MPI_ALLREDUCE(iiter1,iiter1tmp,1,MPI_INTEGER,
+     &                   MPI_MAX,
+     &                   MPI_COMM_WORLD,ierr)
+      call MPI_ALLREDUCE(iiter2,iiter2tmp,1,MPI_INTEGER,
+     &                   MPI_MAX,
+     &                   MPI_COMM_WORLD,ierr)
+        iiter1=iiter1tmp
+        iiter2=iiter2tmp
+# endif 
+
+        iiter1 = MIN( iiter1, niter1max )
+        iiter2 = MIN( iiter2, niter2max )
+      ENDIF
+
+      DO jk = 1,jpkm1
+         DO jj = Jstr, Jend
+            DO ji = Istr, Iend
+               IF( tmask(ji,jj,jk) == 1 ) THEN
+                 wsmax = 0.4 * fse3t(ji,jj,jk) / zstep
+                 wsbio3(ji,jj,jk) = MIN( wsbio3(ji,jj,jk), wsmax 
+     &                            * FLOAT( iiter1 ) )
+                 wsbio4(ji,jj,jk) = MIN( wsbio4(ji,jj,jk), wsmax 
+     &                            * FLOAT( iiter2 ) )
+               ENDIF
+            END DO
+         END DO
+      END DO
+
+
 C
 C   INITIALIZE TO ZERO ALL THE SINKING ARRAYS
 C   -----------------------------------------
@@ -84,49 +156,25 @@ C
       DO jk=1,jpk
         DO jj=Jstr, Jend
           DO ji=Istr, Iend
-            sinking(ji,jj,jk)=0.
-            sinking2(ji,jj,jk)=0.
-            sinkcal(ji,jj,jk)=0.
-            sinkfer(ji,jj,jk)=0.
-            sinksil(ji,jj,jk)=0.
-            sinkfer2(ji,jj,jk)=0.
-          END DO
-        END DO
-      END DO
-C
-C   Compute the sedimentation term using p4zsink2 for all
-C   sinking particles. Apply time-splitting for CFL conditions
-C   -----------------------------------------------------
-C
-      wsmax=0.1/zstep
-      iter1=max(1,int(wsbio/wsmax))
-      iter2=max(1,int(wsbio2/wsmax))
-      ! Check CFL condition
-      DO jk=1,jpk
-        DO jj=Jstr, Jend
-          DO ji=Istr, Iend
-            wsmax=fse3t(ji,jj,jk)/zstep
-            cfl1=wsbio3(ji,jj,jk)/wsmax/iter1
-            cfl2=wsbio4(ji,jj,jk)/wsmax/iter2
-            if (cfl1.gt.1 .or. cfl2.gt.1) then
-              print *,'WARNING PISCES/P4ZSINK: CFL CONDITION VIOLATED'
-     &               ,cfl1,cfl2
-            endif 
+            sinking(ji,jj,jk)  = 0.
+            sinking2(ji,jj,jk) = 0.
+            sinkcal(ji,jj,jk)  = 0.
+            sinkfer(ji,jj,jk)  = 0.
+            sinksil(ji,jj,jk)  = 0.
+            sinkfer2(ji,jj,jk) = 0.
           END DO
         END DO
       END DO
 
-      DO jnt=1,iter1
-        rfacts1=rfact/float(iter1)
-        CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio3,sinking,jppoc,rfacts1)
-        CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio3,sinkfer,jpsfe,rfacts1)
+      DO jnt=1,iiter1
+        CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio3,sinking,jppoc,iiter1)
+        CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio3,sinkfer,jpsfe,iiter1)
       END DO
-      DO jnt=1,iter2
-        rfacts2=rfact2/float(iter2)
-        CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio4,sinking2,jpgoc,rfacts2)
-        CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio4,sinkfer2,jpbfe,rfacts2)
-        CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio4,sinksil,jpdsi,rfacts2)
-        CALL p4zsink2(Istr,Iend,Jstr,Jend,wscal,sinkcal,jpcal,rfacts2)
+      DO jnt=1,iiter2
+        CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio4,sinking2,jpgoc,iiter2)
+        CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio4,sinkfer2,jpbfe,iiter2)
+        CALL p4zsink2(Istr,Iend,Jstr,Jend,wsbio4,sinksil ,jpdsi,iiter2)
+        CALL p4zsink2(Istr,Iend,Jstr,Jend,wscal ,sinkcal ,jpcal,iiter2)
       END DO
 C
 C  Exchange between organic matter compartments due to
@@ -142,29 +190,44 @@ C
 C    Part I : Coagulation dependent on turbulence
 C    ----------------------------------------------
 C
-            xagg1=940.*zfact*trn(ji,jj,jk,jppoc)*trn(ji,jj,jk,jppoc)
+            xagg1=25.9*zfact*trn(ji,jj,jk,jppoc)*trn(ji,jj,jk,jppoc)
 C
-            xagg2=1.054E4*zfact*trn(ji,jj,jk,jppoc)*trn(ji,jj,jk,jpgoc)
+            xagg2=4452*zfact*trn(ji,jj,jk,jppoc)*trn(ji,jj,jk,jpgoc)
 C
 C    Aggregation of small into large particles
 C    Part II : Differential settling
 C    ----------------------------------------------
 C
-            xagg3=0.66*zstep*trn(ji,jj,jk,jppoc)*trn(ji,jj,jk,jpgoc)
+            xagg3=47.1*zstep*trn(ji,jj,jk,jppoc)*trn(ji,jj,jk,jpgoc)
+            xagg4=3.3*zstep*trn(ji,jj,jk,jppoc)*trn(ji,jj,jk,jppoc)
 C
-            xagg(ji,jj,jk)=xagg1+xagg2+xagg3
+            xagg(ji,jj,jk)=xagg1+xagg2+xagg3+xagg4
             xaggfe(ji,jj,jk)=xagg(ji,jj,jk)*trn(ji,jj,jk,jpsfe)/
      &                                (trn(ji,jj,jk,jppoc)+rtrn)
 C
 C     Aggregation of DOC to small particles
 C     --------------------------------------
 C
-            xaggdoc(ji,jj,jk)=(80*trn(ji,jj,jk,jpdoc)+698.
-     &           *trn(ji,jj,jk,jppoc))*zfact*trn(ji,jj,jk,jpdoc)
+c     Old parameterization
+c            xaggdoc(ji,jj,jk)=(80*trn(ji,jj,jk,jpdoc)+698.
+c     &           *trn(ji,jj,jk,jppoc))*zfact*trn(ji,jj,jk,jpdoc)
+
+            xaggdoc(ji,jj,jk) = ( ( 0.369 * 0.3 * trn(ji,jj,jk,jpdoc) 
+     &           + 102.4 * trn(ji,jj,jk,jppoc) ) * zfact + 2.4 * zstep 
+     &           * trn(ji,jj,jk,jppoc) ) * 0.3 * trn(ji,jj,jk,jpdoc)
 C
-            xaggdoc2(ji,jj,jk)=1.05E4*trn(ji,jj,jk,jpgoc)
-     &                                *zfact*trn(ji,jj,jk,jpdoc)
+c     Old parameterization
+c            xaggdoc2(ji,jj,jk)=1.05E4*trn(ji,jj,jk,jpgoc)
+c     &                                *zfact*trn(ji,jj,jk,jpdoc)
+
+            xaggdoc2(ji,jj,jk) = ( 3.53E3 * zfact + 0.1 * zstep ) 
+     &           * trn(ji,jj,jk,jpgoc) * 0.3 * trn(ji,jj,jk,jpdoc)
 C
+c    addition of agregation of doc into poc
+            xaggdoc3(ji,jj,jk) = ( 5095. * trn(ji,jj,jk,jppoc) + 114. 
+     &           * 0.3 * trn(ji,jj,jk,jpdoc) ) *zstep * 0.3 
+     &           * trn(ji,jj,jk,jpdoc)
+
           END DO
         END DO
       END DO
@@ -173,8 +236,9 @@ C#    if defined key_trc_dia3d
 # if defined key_trc_diaadd
       DO jj=Jstr, Jend
         DO ji=Istr, Iend
-CEM           jksed=zmeuindex(ji,jj)
-           jksed=jpk-1
+C           jksed=zmeuindex(ji,jj)
+C
+           jksed=jpk
            bioVSink(ji,jj,5) = sinking(ji,jj,jksed+1)*1.e3
      &                            *rfact2r*tmask(ji,jj,jksed+1)
            bioVSink(ji,jj,6) = sinking2(ji,jj,jksed+1)*1.e3
