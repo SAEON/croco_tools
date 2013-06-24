@@ -287,13 +287,7 @@ if [[ $COMPILEAGRIF ]] ; then
 	mkdir AGRIF_MODELFILES
 	mkdir AGRIF_INC
 	cd ..
-	INCLUDELIST="param.h averages.h climat.h forces.h lmd_kpp.h mixing.h ocean2d.h ocean3d.h \
-		work.h private_scratch_AMR.h scalars.h ncscrum.h coupling.h grid.h tides.h \
-		sediment.h bbl.h zoom.h floats.h sources.h buffer.h diagnostics.h common.h \
-		common.passivetrc.pisces.h parameter.passivetrc.h trcctl.pisces.h trclsm.pisces.h \
-		common.passivetrc.h parameter.h parameter.passivetrc.pisces.h trcini.pisces.h mpi_roms.h"
-
-	for i in $INCLUDELIST ; do
+	for i in *.h ; do
 		echo $i
 		cat cppdefs.h $i | cpp -P | grep -v -e ! -e '#' -e % -e '*' > ROMSFILES/$i
 	done
