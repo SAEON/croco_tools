@@ -198,7 +198,11 @@ if makefrc==1 | makeblk==1
       % Add the tides (needs to be tested for this version of make_NCEP)
       %
       if add_tides==1
-	add_tidal_data(tidename,grdname,frcname,Y,M)
+    disp(['Add tidal data'])
+    disp(['=============='])
+	add_tidal_data(tidename,grdname,frcname,Ntides,tidalrank,...
+                       Y,M,Dmin,Hmin,Min_min,Smin,coastfileplot)
+                   
       end
       %
       % Open the ROMS forcing files
