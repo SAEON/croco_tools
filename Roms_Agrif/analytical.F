@@ -1110,14 +1110,14 @@ C$    integer  trd, omp_get_thread_num
 !                   subroutine ana_wwave
 !====================================================================
 !
-#if defined ANA_WWAVE &&  defined MRL_WCI  && !defined WKB_WWAVE
+#if defined ANA_WWAVE
       subroutine ana_wwave (tile)
       implicit none
 # include "param.h"
       integer tile
-#ifdef  ALLOW_SINGLE_BLOCK_MODE
+# ifdef  ALLOW_SINGLE_BLOCK_MODE
 C$    integer  trd, omp_get_thread_num
-#endif
+# endif
 # include "compute_tile_bounds.h"
       call ana_wwave_tile   (Istr,Iend,Jstr,Jend)
       return
@@ -1131,21 +1131,27 @@ C$    integer  trd, omp_get_thread_num
 !---------------------------------------------------------------------
 !
       implicit none
-      real wamp,wprd,afrq,wdir,ho,khd,kh,kw,kx,ky,ac,wday,ramp,cff,
-     &     cff1,cff2,dep,Hsig,Hrms,cfrq,cdir,Tst,sbc
-
+      real wamp,wdir,wprd,
+     &     ho,khd,kh,kw,kr,ks,wday,ramp,cff,co,gamw,
+     &     cff1,cff2,Hrms,cfrq,cdir,cw,ch,cr,sbc,dd,cgo,
+     &     dsup,Btg,cosw,sinw,eps,nw,wh
+      parameter (eps=1.0e-10)
 # include "param.h"
 # include "grid.h"
 # include "forces.h"
+# include "ocean3d.h"
 # include "scalars.h"
-      integer Istr,Iend,Jstr,Jend, i,j
+# ifdef WKB_WWAVE
+#  include "wkb_wwave.h"
+# endif
+      integer Istr,Iend,Jstr,Jend, i,j,k
 !
 # include "compute_auxiliary_bounds.h" 
 !
 !  Set wind induced wave amplitude (m), direction (radians) and
 !  period (s) at RHO-points.
 !
-# if defined SED_TEST2 || defined REGIONAL
+# if defined SED_TEST2
       do j=JstrR,JendR
         do i=IstrR,IendR
           Awave(i,j)=1.0
@@ -1153,53 +1159,99 @@ C$    integer  trd, omp_get_thread_num
           Pwave(i,j)=10.
         enddo
       enddo
-# else
-      cff=1.0/sqrt(2.0)
-      do j=JstrR,JendR
-        do i=IstrR,IendR
-        Awave(i,j)=2.              ! wamp (m)
-        Pwave(i,j)=10.             ! period (s)
-        Dwave(i,j)=10.             ! offshore wave angle (deg)
-        Hrms=cff*Awave(i,j)        ! offshore RMS wave height (m)
-        cfrq=2.0*pi/Pwave(i,j)     ! preak wave frequency (rad/s)
-        cdir=Dwave(i,j)*deg2rad    ! wave direction rad
-        enddo
-      enddo
+# elif defined SHOREFACE
+      wamp = 0.5            ! wave amplitude (m)
+      wdir = -10.           ! wave direction (deg)
+      wprd = 8.3            ! wave period (s)
 
-      ! following are globlal arrays 
-      do j=jstr-1,jend+1
-        do i=istr-1,iend+1
-          whrm(i,j)=Hrms      ! 1.6  ! ==> Hrms (2A) -> may not be coherent with mrl_wci
-          wfrq(i,j)=cfrq      ! sqrt(g*kw*tanh(kw*h(i,j)))
-          wdrx(i,j)=cos(cdir) ! 0.0
-          wdre(i,j)=sin(cdir) ! 0.0
-        enddo
-      enddo
-
-      ! use only bor bry
-      ho=h(LLm,1)    ! offshore depth
-      ramp=1.0D0 
-
-      afrq=2.0*pi/wprd
-      wdir=wdir/180.*pi
-      khd = ho*afrq*afrq/g
+      cfrq = 2.0*pi/wprd    ! peak wave frequency (rad/s)
+      cdir = wdir*deg2rad   ! wave direction (rad)
+      ho=h(1,1)             ! offshore depth
+#   ifdef OBC_EAST
+      ho=h(LLm,1)
+#   endif
+      khd = ho*cfrq*cfrq/g
       kh  = sqrt(    khd*khd + khd/(1.0 + khd*(0.6666666666
      &               +khd*(0.3555555555 + khd*(0.1608465608
      &               +khd*(0.0632098765 + khd*(0.0217540484
-     &                             +khd*0.0065407983)))))) )
-      kw=kh/ho
-
-
-      kx=kw*cos(wdir)         ! wavenumber in x direction
-      ky=kw*sin(wdir)         ! wavenumber in x direction
-      ac=0.5*g*(wamp**2)/afrq ! wave actoion
-      ac=ac*ramp              ! apply ramping
-      ! end use only bor bry
+     &                               +khd*0.0065407983)))))) )
+      co=sqrt(g/kh*ho*tanh(kh))
+      cgo=co*0.5*(1.+2.*kh/sinh(2.*kh))
+      do j=jstrR,jendR
+        do i=istrR,iendR
+          dsup=0.0
+          do k=1,4
+            dd = h(i,j) + z_w(i,j,N) + dsup
+            khd = dd*cfrq*cfrq/g
+            kh = sqrt(    khd*khd + khd/(1.0 + khd*(0.6666666666
+     &                    +khd*(0.3555555555 + khd*(0.1608465608
+     &                    +khd*(0.0632098765 + khd*(0.0217540484
+     &                                    +khd*0.0065407983)))))) )
+            kw=kh/max(dd,eps)
+            cw=sqrt(g/kw*tanh(kh))
+            nw=0.5*(1.+2.*kh/sinh(2.*kh))  ! n=Cg/C
+            ks=sqrt(cgo/(2.*nw*cw))        ! shoaling coefficient
+            kr=sqrt(cos(cdir)/cos(cdir))   ! refraction coefficient
+            cosw=cos(cdir)
+            sinw=sin(cdir)
+            gamw=0.31
+            cff1=gamw*dd
+            cff2=2.0*wamp*ks*kr
+            wh = min(cff1,cff2)
+            dsup=-0.125*(wh**2)*kw/sinh(2.*kw*dd) ! wave set-up
+          enddo
+!
+!  Fill global arrays
+!
+          whrm(i,j)=2.*wh  ! Hrms = 2A
+          wfrq(i,j)=sqrt(g*kw*tanh(kw*dd))
+          wdrx(i,j)=cosw
+          wdre(i,j)=sinw
+#  ifdef WET_DRY
+          IF (h(i,j) + z_w(i,j,N).le.Dcrit(i,j)+eps) THEN
+            whrm(i,j)=0.
+            wfrq(i,j)=0.
+            wdrx(i,j)=0.
+            wdre(i,j)=0.
+          ENDIF
+#  endif
+        enddo
+      enddo
+# else
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          Awave(i,j)=0.7         ! wamp (m)
+          Pwave(i,j)=8.3         ! period (s)
+          Dwave(i,j)=-10.        ! offshore wave angle (deg)
+        enddo
+      enddo
+#  ifdef MRL_WCI
+      Hrms=2*Awave(1,1)          ! offshore RMS wave height (m)
+      cfrq=2.0*pi/Pwave(1,1)     ! peak wave frequency (rad/s)
+      cdir=Dwave(1,1)*deg2rad    ! wave direction rad
+!
+!  Fill global arrays
+!
+      do j=jstr-1,jend+1
+        do i=istr-1,iend+1
+          whrm(i,j)=Hrms
+          wfrq(i,j)=cfrq
+          wdrx(i,j)=cos(cdir)
+          wdre(i,j)=sin(cdir)
+        enddo
+      enddo
+#   endif
 # endif
+
       return
       end
-#endif /* ANA_WWAVE && BBL */
+#endif /* ANA_WWAVE */
 
+!
+!====================================================================
+!                   subroutine ana_sediment
+!====================================================================
+!
 #if defined SEDIMENT
       subroutine ana_sediment (tile)
       implicit none
@@ -1212,11 +1264,6 @@ C$    integer  trd, omp_get_thread_num
       call ana_sediment_tile (Istr,Iend,Jstr,Jend)
       return
       end
-!
-!
-!====================================================================
-!                   subroutine ana_sediment
-!====================================================================
 !
       subroutine ana_sediment_tile (Istr,Iend,Jstr,Jend)
 !

@@ -41,6 +41,9 @@
 #ifdef FLOATS
      &      , nfp1, nf, nfm1, nfm2, nfm3
 #endif
+#ifdef WKB_WWAVE
+     &      , wstp, wnew
+#endif
       logical PREDICTOR_2D_STEP
       common /time_indices/  dt,dtfast, time, time2,time_start, tdays, 
      &                       iic, kstp, krhs, knew, next_kstp,
@@ -49,6 +52,9 @@
 #endif
 #ifdef FLOATS
      &                       nfp1, nf, nfm1, nfm2, nfm3,
+#endif
+#ifdef WKB_WWAVE
+     &                       wstp, wnew,
 #endif
      &                       PREDICTOR_2D_STEP 
 

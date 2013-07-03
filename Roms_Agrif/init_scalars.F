@@ -39,6 +39,9 @@
 #if defined TCLIMATOLOGY
 #  include "climat.h"
 #endif /* TCLIMATOLOGY */
+#if defined WKB_WWAVE
+# include "wkb_wwave.h"
+#endif
 
 !      call system('uname -prs')
       
@@ -93,6 +96,10 @@ C$OMP END PARALLEL
       nfm1=2     ! scheme
       nfm2=1
       nfm3=0
+#endif
+#ifdef WKB_WWAVE
+      wstp=1
+      wnew=1
 #endif
 !
 ! Reset intra-thread communication flags and counters.
@@ -1196,7 +1203,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxSSS =',indxSSS
 # endif
 
 # if defined MRL_WCI || defined BBL
-#  if ! defined  ANA_WWAVE
+#  if !defined  ANA_WWAVE && !defined WKB_WWAVE
 CR      write(stdout,'(1x,A,I3)') 'indxWWA',indxWWA
       vname(1,indxWWA)='Awave                                     '
       vname(2,indxWWA)='wind induced wave amplitude               '
@@ -1295,9 +1302,9 @@ CR      write(stdout,'(1x,A,I3)') 'indxBSD =',indxBSD
 #endif
 
 #ifdef MRL_WCI
-      vname(1,indxSUP)  ='sup                                      '
-      vname(2,indxSUP)  ='quasi-static sea-level response (set-up) '
-      vname(3,indxSUP)  ='meter                                    '
+      vname(1,indxSUP)  ='sup                                    '
+      vname(2,indxSUP)  ='quasi-static sea-level response (setup)'
+      vname(3,indxSUP)  ='meter                                  '
 
       vname(1,indxUST2D)='ust2d                                  '
       vname(2,indxUST2D)='u depth-averaged Stokes drift velocity '
@@ -1339,8 +1346,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxBSD =',indxBSD
       vname(2,indxKAPS) ='surface Bernoulli head in prsgrd term  '
       vname(3,indxKAPS) ='meter2 second-2                        '
 # endif
-#endif
-
+#endif /* MRL_WCI */
 
 #ifdef ICE
       vname(1,indxAi)='aice                                       '

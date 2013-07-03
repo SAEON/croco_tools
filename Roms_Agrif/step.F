@@ -101,10 +101,13 @@ C$OMP END PARALLEL
 #ifdef STATIONS
 # include "sta.h"
 #endif
-       integer range
+#if defined WKB_WWAVE
+# include "wkb_wwave.h"
+#endif
+      integer range
       integer ntrds,trd,
      &        my_first,my_last, tile, my_iif
-      integer itrc
+      integer itrc, iif_wave
 
 #ifdef FLOATS
        integer chunk_size_flt, Lstr,Lend, flt_str
@@ -237,7 +240,7 @@ C$OMP BARRIER
         ENDIF
 # endif
 #  ifdef ANA_WWAVE
-          call ana_wwave (tile)
+        call ana_wwave (tile)
 #  endif
         call rho_eos (tile)
         call set_HUV (tile)
@@ -297,6 +300,17 @@ C$OMP BARRIER
 
       if (may_day_flag.ne.0) return  !-->  EXIT
 
+# if defined WKB_WWAVE && defined MRL_CEW
+      do iif_wave=1,nfast       ! WKB ray equation for 3D cases
+        wstp=wnew
+        wnew=wstp+1
+        if (wnew.ge.3) wnew=1
+        do tile=my_tile_range
+          call wkb_wwave (tile)
+        enddo
+C$OMP BARRIER
+      enddo
+# endif
 # ifdef MRL_WCI 
       do tile=my_tile_range
         call  mrl_wci (tile)
@@ -473,6 +487,21 @@ C$OMP BARRIER
 ! Model input block for 2D configurations only !!!
 !
 #ifndef SOLVE3D
+# if defined WKB_WWAVE && defined MRL_CEW
+        wstp=wnew
+        wnew=wstp+1
+        if (wnew.ge.3) wnew=1
+        do tile=my_tile_range
+          call wkb_wwave (tile)
+        enddo
+C$OMP BARRIER
+# endif
+# ifdef MRL_WCI
+        do tile=my_tile_range
+          call mrl_wci (tile)
+        enddo
+C$OMP BARRIER
+# endif
 # ifdef AGRIF
         IF (Agrif_Root()) THEN
 # endif

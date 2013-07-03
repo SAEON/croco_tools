@@ -65,6 +65,10 @@
 ! indxWWP          wind induced wave Period
 ! indxWEB          wave dissipation by breakig,
 !                 
+! ** WKB model **
+! indxHRM,indxFRQ  RMS wave height and frequency
+! indxWAC,indxWKX,indxWKE   wave action density, XI/ETA-dir wavenumber
+!
 ! indxSUP          wave set-up 
 ! indxUST2D        vertically integrated stokes velocity in xi  direction
 ! indxVST2D        vertically integrated stokes velocity in eta direction 
@@ -75,7 +79,29 @@
 ! indxAkw          eddy difusivity due to wave breaking  
 ! indxKVF          vortex force
 ! indxCALP         surface pressure correction
-! indxKAPS         Bernoulli head 
+! indxKAPS         Bernoulli head
+!
+! ** DIAGNOSTICS_UV **
+!  indxMXadv,indxMYadv,indxMXadv : xi-, eta-, and s- advection terms
+!  indxMCor                      : Coriolis term,
+!  indxMPrsgrd                   : Pressure gradient force term
+!  indxMHmix, indxMVmix          : horizontal and vertical mixinig terms 
+!  indxMrate                     : tendency term
+!  indxMBtcr                     : forth-order truncation error
+!  indxMswd, indxMbdr            : surface wind & bed shear stresses (m2/s2)
+!  indxMvf, indxMbrk             : vortex force & breaking body force terms
+!  indxMStCo                     : Stokes-Coriolis terms
+!  indxMVvfo                     : vertical vortex force terms (in prsgrd.F)
+!  indxMPrscrt                   : pressure correction terms (in prsgrd.F)
+!  indxMsbk, indxMbwf            : surface breaking & bed wave friction (m2/s2)
+!  indxMfrc                      : near-bed frictional wave streaming as body force (m2/s2)
+!
+! ** DIAGNOSTICS_TS **
+!  indxTXadv,indxTYadv,indxTVadv : xi-, eta-, and s- advection terms
+!  indxTHmix,indxTVmix           : horizontal and vertical mixinig terms
+!  indxTbody                     : body force term
+!  indxTrate                     : tendency term
+
 !=======================================================================
 ! Output file codes
       integer filetype_his, filetype_avg 
@@ -429,12 +455,13 @@
 # endif
 
 #ifdef WKB_WWAVE
-      integer indxEPB,indxEPD,indxEPR,indxFRQ,indxHRM
-     & ,indxWAC,indxWAR,indxWKE,indxWKX
-      parameter (indxEPB=99,indxEPD=100,indxEPR=101
-     & ,indxFRQ=102,indxHRM=103
-     & ,indxWAC=104,indxWAR=105
-     & ,indxWKE=106,indxWKX=107) 
+      integer indxHRM,indxFRQ,indxWAC, indxWKX,indxWKE, indxEPB
+     &       ,indxEPD,indxWAR,indxEPR
+      parameter (indxHRM=99,
+     &           indxFRQ=indxHRM+1, indxWAC=indxHRM+2,
+     &           indxWKX=indxHRM+3, indxWKE=indxHRM+4,
+     &           indxEPB=indxHRM+5, indxEPD=indxHRM+6,
+     &           indxWAR=indxHRM+7, indxEPR=indxHRM+8 )
 #endif
 
 #ifdef PSOURCE_NCFILE
@@ -684,6 +711,9 @@
 #  ifdef BBL
       integer avgBBL(6)
 #  endif
+# ifdef WKB_WWAVE
+      integer avgWKB(9)
+# endif
 #  if defined DIAGNOSTICS_TS
       integer nciddia_avg, nrecdia_avg, nrpfdia_avg
      &      , diaTime_avg, diaTime2_avg, diaTstep_avg
@@ -892,6 +922,9 @@
 # endif
 # ifdef BBL
      &      , avgBBL
+# endif
+# ifdef WKB_WWAVE
+     &      , avgWKB
 # endif
 #endif
      &      , wrthis

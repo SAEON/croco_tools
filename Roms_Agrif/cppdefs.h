@@ -6,7 +6,7 @@
 ! and Rutgers University (Arango et al) are under MIT/X style license.
 ! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
 ! 
-! ROMS_AGRIF website : http://www.romsagrif.org
+! ROMS_AGRIF website : http://roms.mpl.ird.fr
 !======================================================================
 !
 /*
@@ -53,7 +53,7 @@
                       /* Nesting */
 # undef  AGRIF
 # undef  AGRIF_2WAY
-                      /* Coupling via OASIS (--> MPI) */
+                      /* OA Coupling via OASIS (MPI) */
 # undef  OA_COUPLING
                       /* Open Boundary Conditions */
 # undef  TIDES
@@ -68,7 +68,7 @@
 # undef  PASSIVE_TRACER
 # undef  SEDIMENT
 # undef  BBL
-/*
+/*!
 !-------------------------------------------------
 ! PRE-SELECTED OPTIONS
 !
@@ -218,38 +218,26 @@
 ! Biology, floats, Stations, 
 ! Passive tracer, Sediments, BBL
 !---------------------------------
-
-    Quasi-monotone lateral advection scheme (WENO5)
-    for passive/biology/sediment tracers 
+!
+   Quasi-monotone lateral advection scheme (WENO5)
+   for passive/biology/sediment tracers 
 */
 # if defined PASSIVE_TRACER || defined BIOLOGY || defined SEDIMENT
 #  undef BIO_HADV_WENO5
 # endif
-
                       /*   Choice of Biology models   */
 # ifdef BIOLOGY
 #  undef  PISCES
 #  define BIO_NChlPZD
-#  undef  BIO_N2ChlPZD2  
-                      /*   Biology options    */
-#  ifdef PISCES
-#   define key_trc_pisces
-#   define key_passivetrc
-#   undef  DIAGNOSTICS_BIO
-#   ifdef DIAGNOSTICS_BIO
-#     define key_trc_diaadd
-#     define key_trc_dia3d
-#   endif
-#  endif
-#  ifdef BIO_NChlPZD
+#  undef  BIO_N2ChlPZD2
+# endif
+                      /*   Bio options   */
+# undef  DIAGNOSTICS_BIO
+# ifdef BIO_NChlPZD
 #   undef  OXYGEN
-#  endif
-#  ifdef BIO_NChlPZD
-#   define DIAGNOSTICS_BIO
-#  endif
-#  ifdef BIO_N2P2Z2D2
-#   undef  VAR_CHL_C
-#  endif
+# endif
+# ifdef BIO_N2P2Z2D2
+#  undef  VAR_CHL_C
 # endif
                       /*   Lagrangian floats model    */
 # ifdef FLOATS
@@ -272,22 +260,10 @@
 #  undef  BED_ARMOR
 #  undef  ANA_SPFLUX
 #  undef  ANA_BPFLUX
-#  define LINEAR_CONTINUATION
-#  undef  NEUMANN
 # endif
                       /*   Bottom Boundary Layer model     */
 # ifdef BBL
 #  define ANA_WWAVE
-#  ifdef SEDIMENT
-#   undef  ANA_BSEDIM
-#  else
-#   define ANA_BSEDIM
-#  endif
-#  undef  Z0_BL
-#  ifdef Z0_BL
-#   define Z0_RIP
-#  endif
-#  undef  Z0_BIO
 # endif
 /*
 !
@@ -750,9 +726,9 @@
 !      vortex force formalism: Application to the surf zone.
 !      Ocean Modelling Vol. 34:1-2, pp.16-35.
 */
-# undef ETALON_CHECK
-# undef OPENMP
-# undef MPI
+# undef  ETALON_CHECK
+# undef  OPENMP
+# undef  MPI
 # define SOLVE3D
 # define UV_ADV
 # undef  MASKING
@@ -776,37 +752,17 @@
 # define WET_DRY
 # define MRL_WCI
 # ifdef MRL_WCI
-#   define WAVE_OFFLINE
-#   define WAVE_RAMP
-#   undef WAVE_FRICTION
-#   undef BODY_FRICTION
-#   undef SURFACE_ROLLER
-#   undef SURFACE_BREAK
-#   ifdef WAVE_OFFLINE
-#     undef ANA_WWAVE
-#     undef BREAK_TG86
-#     undef BREAK_TG86A
-#     undef BREAK_CT93
-#   endif 
-#   undef WKB_WWAVE
+#  undef  WKB_WWAVE
+#  undef  WAVE_ROLLER
+#  undef  WAVE_STREAMING
+#  undef  MRL_CEW
+#  define WAVE_RAMP
 # endif
 # define LMD_MIXING
 # define LMD_SKPP
 # define LMD_BKPP
 # undef  BBL
 # undef  SEDIMENT
-# ifdef  BBL
-#  ifdef SEDIMENT
-#   undef  ANA_BSEDIM
-#  else
-#   define ANA_BSEDIM
-#  endif
-#  undef  Z0_BL
-#  ifdef Z0_BL
-#   define Z0_RIP
-#  endif
-#  undef  Z0_BIO
-# endif
 
 #elif defined THACKER
 /*

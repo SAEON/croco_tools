@@ -404,37 +404,27 @@
 
 #if defined BBL || defined MRL_WCI 
       real wfrq(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE wfrq(BLOCK_PATTERN) BLOCK_CLAUSE
       common /forces_wfrq/wfrq
 #endif
 
 #ifdef BBL
       real uorb(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE uorb(BLOCK_PATTERN) BLOCK_CLAUSE
       real vorb(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE vorb(BLOCK_PATTERN) BLOCK_CLAUSE
       common /forces_uorb/uorb /forces_vorb/vorb
 #endif   /* BBL */
 
 #if defined MRL_WCI 
       real whrm(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE whrm(BLOCK_PATTERN) BLOCK_CLAUSE
       real wdsp(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE wdsp(BLOCK_PATTERN) BLOCK_CLAUSE
       real wdrg(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE wdrg(BLOCK_PATTERN) BLOCK_CLAUSE
       real wbst(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE wbst(BLOCK_PATTERN) BLOCK_CLAUSE
       real wdrx(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE wdrx(BLOCK_PATTERN) BLOCK_CLAUSE
       real wdre(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE wdre(BLOCK_PATTERN) BLOCK_CLAUSE
       common /forces_whrm/whrm /forces_wdsp/wdsp
      &       /forces_wdrx/wdrx /forces_wdre/wdre
      &       /forces_wdrg/wdrg /forces_wbst/wbst
-# ifdef SURFACE_ROLLER
+# ifdef WAVE_ROLLER
       real rdsp(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE rdsp(BLOCK_PATTERN) BLOCK_CLAUSE
       common /forces_rdsp/rdsp
 # endif
 !
@@ -466,70 +456,55 @@ CSDISTRIBUTE_RESHAPE rdsp(BLOCK_PATTERN) BLOCK_CLAUSE
 !--------------------------------------------------------------------
 !
       real brk2dx(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE brk2dx(BLOCK_PATTERN) BLOCK_CLAUSE
       real brk2de(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE brk2de(BLOCK_PATTERN) BLOCK_CLAUSE
       real ust2d(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE ust2d(BLOCK_PATTERN) BLOCK_CLAUSE
       real vst2d(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE vst2d(BLOCK_PATTERN) BLOCK_CLAUSE
       real frc2dx(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE frc2dx(BLOCK_PATTERN) BLOCK_CLAUSE
       real frc2de(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE frc2de(BLOCK_PATTERN) BLOCK_CLAUSE
       real sup(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE sup(BLOCK_PATTERN) BLOCK_CLAUSE
       common /forces_brk2dx/brk2dx /forces_brk2de/brk2de
       common /forces_ust2d/ust2d /forces_vst2d/vst2d
       common /forces_frc2dx/frc2dx /forces_frc2de/frc2de
       common /forces_sup/sup
 # ifdef SOLVE3D
       real calP(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE calP(BLOCK_PATTERN) BLOCK_CLAUSE
       real Kapsrf(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE Kapsrf(BLOCK_PATTERN) BLOCK_CLAUSE
       common /forces_calP/calP /forces_Kapsrf/Kapsrf
-#  ifndef SURFACE_BREAK
+#  ifndef WAVE_SFC_BREAK
       real brk3dx(GLOBAL_2D_ARRAY,N)
-CSDISTRIBUTE_RESHAPE brk3dx(BLOCK_PATTERN,*) BLOCK_CLAUSE
       real brk3de(GLOBAL_2D_ARRAY,N)
-CSDISTRIBUTE_RESHAPE brk3de(BLOCK_PATTERN,*) BLOCK_CLAUSE
       common /forces_brk3dx/brk3dx /forces_brk3de/brk3de
 #  endif
-#  ifdef BODY_FRICTION
+#  ifdef WAVE_BODY_STREAMING
       real frc3dx(GLOBAL_2D_ARRAY,N)
-CSDISTRIBUTE_RESHAPE frc3dx(BLOCK_PATTERN,*) BLOCK_CLAUSE
       real frc3de(GLOBAL_2D_ARRAY,N)
-CSDISTRIBUTE_RESHAPE frc3de(BLOCK_PATTERN,*) BLOCK_CLAUSE
       common /forces_frc3dx/frc3dx /forces_frc3de/frc3de
 #  endif
       real ust(GLOBAL_2D_ARRAY,N)
-CSDISTRIBUTE_RESHAPE ust(BLOCK_PATTERN,*) BLOCK_CLAUSE
       real vst(GLOBAL_2D_ARRAY,N)
-CSDISTRIBUTE_RESHAPE vst(BLOCK_PATTERN,*) BLOCK_CLAUSE
       real wst(GLOBAL_2D_ARRAY,N)
-CSDISTRIBUTE_RESHAPE wst(BLOCK_PATTERN,*) BLOCK_CLAUSE
       real kvf(GLOBAL_2D_ARRAY,0:N)
-CSDISTRIBUTE_RESHAPE kvf(BLOCK_PATTERN,*) BLOCK_CLAUSE
       real Akb(GLOBAL_2D_ARRAY,0:N)
-CSDISTRIBUTE_RESHAPE Akb(BLOCK_PATTERN,*) BLOCK_CLAUSE
       real Akw(GLOBAL_2D_ARRAY,0:N)
-CSDISTRIBUTE_RESHAPE Akw(BLOCK_PATTERN,*) BLOCK_CLAUSE
       real E_pre(GLOBAL_2D_ARRAY,0:N)
-CSDISTRIBUTE_RESHAPE E_pre(BLOCK_PATTERN,*) BLOCK_CLAUSE
       common /forces_stokes/ust, vst, wst
       common /forces_kvf/kvf /forces_Akb/Akb /forces_Akw/Akw 
       common /forces_E_pre/E_pre
 # endif  /* SOLVE3D */
 #endif   /* MRL_WCI */
 
-      
 #if defined BBL || defined MRL_WCI 
-# if ! defined ANA_WWAVE && !defined WKB_WWAVE
 !--------------------------------------------------------------------
 ! Awave  | for present time   | wave amplitude [m]
 ! Pwave  | for present time   | wave direction [radians]
 ! Dwave  | for present time   | wave period [s]
+!--------------------------------------------------------------------
+      real Awave(GLOBAL_2D_ARRAY)
+      real Dwave(GLOBAL_2D_ARRAY)
+      real Pwave(GLOBAL_2D_ARRAY)
+      common /bbl_Awave/Awave /bbl_Dwave/Dwave /bbl_Pwave/Pwave
+
+# if !defined ANA_WWAVE && !defined WKB_WWAVE
 !--------------------------------------------------------------------
 !  Eb    |                    | breaking dissipation [m3/s3]
 !  wved  |  for present time  | frictional dissipation [m3/s3]
@@ -551,62 +526,41 @@ CSDISTRIBUTE_RESHAPE E_pre(BLOCK_PATTERN,*) BLOCK_CLAUSE
 !  wwed  |                    ! frictional dissipation [m3/s3]
 !  wwqb  |                    ! fraction of breaking waves [ND]
 !--------------------------------------------------------------------
-      real Awave(GLOBAL_2D_ARRAY)
-      real Dwave(GLOBAL_2D_ARRAY)
-      real Pwave(GLOBAL_2D_ARRAY)
-      common /bbl_Awave/Awave /bbl_Dwave/Dwave /bbl_Pwave/Pwave
-
+!
       real wwag(GLOBAL_2D_ARRAY,2)
-CSDISTRIBUTE_RESHAPE wwag(BLOCK_PATTERN,*) BLOCK_CLAUSE
       real wwdg(GLOBAL_2D_ARRAY,2)
-CSDISTRIBUTE_RESHAPE wwdg(BLOCK_PATTERN,*) BLOCK_CLAUSE
       real wwpg(GLOBAL_2D_ARRAY,2)
-CSDISTRIBUTE_RESHAPE wwpg(BLOCK_PATTERN,*) BLOCK_CLAUSE
       common /wwf_wwag/wwag /wwf_wwdg/wwdg /wwf_wwpg/wwpg
       real wwfrq(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE wwfrq(BLOCK_PATTERN,*) BLOCK_CLAUSE
       common /wwf_wwfrq/wwfrq
-#  ifdef BBL_OFFLI 
+#  ifdef BBL_OFFLINE 
 #   ifdef WAVE_OFFLINE
       real wwub(GLOBAL_2D_ARRAY,2)
-CSDISTRIBUTE_RESHAPE wwub(BLOCK_PATTERN,*) BLOCK_CLAUSE
       common /wwf_wwub/wwub
 #   endif /* WAVE_OFFLINE */
       real wwuob(GLOBAL_2D_ARRAY,2)
-CSDISTRIBUTE_RESHAPE wwuob(BLOCK_PATTERN,*) BLOCK_CLAUSE
       real wwvob(GLOBAL_2D_ARRAY,2)
-CSDISTRIBUTE_RESHAPE wwvob(BLOCK_PATTERN,*) BLOCK_CLAUSE
       common /wwf_wwuob/wwuob /wwf_wwvob/wwvob
 #  endif /* BBL */
 #  ifdef MRL_WCI 
       real wwhrm(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE wwhrm(BLOCK_PATTERN,*) BLOCK_CLAUSE
       real wwdrx(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE wwdrx(BLOCK_PATTERN,*) BLOCK_CLAUSE
       real wwdre(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE wwdre(BLOCK_PATTERN,*) BLOCK_CLAUSE
       real wweb(GLOBAL_2D_ARRAY,2)
-CSDISTRIBUTE_RESHAPE wweb(BLOCK_PATTERN,*) BLOCK_CLAUSE
       real Eb  (GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE Eb(BLOCK_PATTERN) BLOCK_CLAUSE
       common /wwf_wwhrm/wwhrm /wwf_wwdrx/wwdrx /wwf_wwdre/wwdre
      &       /wwf_wweb/wweb /forces_Eb/Eb
 #   ifdef WAVE_OFFLINE
       real wved(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE wved(BLOCK_PATTERN) BLOCK_CLAUSE
       real wwed(GLOBAL_2D_ARRAY,2)
-CSDISTRIBUTE_RESHAPE wwed(BLOCK_PATTERN,*) BLOCK_CLAUSE
       common /forces_wved/wved /wwf_wwed/wwed
 #   endif /* WAVE_OFFLINE */
-#   if defined WAVE_OFFLINE && defined SURFACE_ROLLER
+#   if defined WAVE_OFFLINE && defined WAVE_ROLLER
       real wvqb(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE wvqb(BLOCK_PATTERN) BLOCK_CLAUSE
       real wwqb(GLOBAL_2D_ARRAY,2)
-CSDISTRIBUTE_RESHAPE wwqb(BLOCK_PATTERN,*) BLOCK_CLAUSE
       common /forces_wvqb/wvqb /wwf_wwqb/wwqb
 #   endif
 #  endif 
-
       real ww_cycle,wwv_time(2),wwap(2), wwdp(2),wwpp(2),wwep(2),
      &                 wwa_scale, wwd_scale, wwp_scale,wwe_scale,  
      &                 wwagrd,   wwdgrd,    wwpgrd, wwegrd
@@ -630,19 +584,10 @@ CSDISTRIBUTE_RESHAPE wwqb(BLOCK_PATTERN,*) BLOCK_CLAUSE
 #   if defined MRL_WCI && defined WAVE_OFFLINE
      &       ,wwe_id, wwq_id, wwf_id
 #   endif
-
-# elif defined ANA_WWAVE
-      real Awave(GLOBAL_2D_ARRAY)
-      real Dwave(GLOBAL_2D_ARRAY)
-      real Pwave(GLOBAL_2D_ARRAY)
-      common /bbl_Awave/Awave /bbl_Dwave/Dwave /bbl_Pwave/Pwave
-#  if defined MRL_WCI
+# elif defined MRL_WCI
       real Eb(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE Eb  (BLOCK_PATTERN) BLOCK_CLAUSE
       real wved(GLOBAL_2D_ARRAY)
-CSDISTRIBUTE_RESHAPE wved(BLOCK_PATTERN) BLOCK_CLAUSE
       common /forces_Eb/Eb /forces_wved/wved
-#  endif 
 # endif /* ANA_WWAVE && !WKB_WWAVE */
 #endif /* BBL || MRL_WCI */
 

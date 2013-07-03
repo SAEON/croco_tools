@@ -491,7 +491,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
 #   endif
 #  endif /* BIOLOGY */
 !
-# ifdef SEDIMENT
+#  ifdef SEDIMENT
 !     
 !     Write out sediment bed layer thickness, porosity, volume 
 !     fraction of size class in sediment bed (2+2*NST b3dgrd variables)
@@ -504,9 +504,219 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &           indxWrk,record,b3dvar,type)
 !         endif
       enddo
-# endif /* SEDIMENT */
+#  endif /* SEDIMENT */
 !
 # endif /* SOLVE3D */
+
+# ifdef WKB_WWAVE
+      if (wrtavg(indxHRM)) then
+        ierr=nf_fwrite (hrm_avg(START_2D_ARRAY), ncidavg, avgWKB(1),
+     &                                            record, r2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxHRM))
+          write(stdout,1) vname(1,indxHRM)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+      if (wrtavg(indxFRQ)) then
+        ierr=nf_fwrite (frq_avg(START_2D_ARRAY), ncidavg, avgWKB(2),
+     &                                            record, r2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxFRQ))
+          write(stdout,1) vname(1,indxFRQ)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+      if (wrtavg(indxWAC)) then
+        ierr=nf_fwrite (wac_avg(START_2D_ARRAY), ncidavg, avgWKB(3),
+     &                                            record, r2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxWAC))
+          write(stdout,1) vname(1,indxWAC)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+      if (wrtavg(indxWKX)) then
+        ierr=nf_fwrite (wkx_avg(START_2D_ARRAY), ncidavg, avgWKB(4),
+     &                                            record, r2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxWKX))
+          write(stdout,1) vname(1,indxWKX)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+      if (wrtavg(indxWKE)) then
+        ierr=nf_fwrite (wke_avg(START_2D_ARRAY), ncidavg, avgWKB(5),
+     &                                            record, r2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxWKE))
+          write(stdout,1) vname(1,indxWKE)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+      if (wrtavg(indxEPB)) then
+        ierr=nf_fwrite (wdsp_avg(START_2D_ARRAY), ncidavg, avgWKB(6),
+     &                                            record, r2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxEPB))
+          write(stdout,1) vname(1,indxEPB)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+      if (wrtavg(indxEPD)) then
+        ierr=nf_fwrite (wdrg_avg(START_2D_ARRAY), ncidavg, avgWKB(7),
+     &                                            record, r2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxEPD))
+          write(stdout,1) vname(1,indxEPD)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+#  ifdef WAVE_ROLLER
+      if (wrtavg(indxWAR)) then
+        ierr=nf_fwrite (war_avg(START_2D_ARRAY), ncidavg, avgWKB(8),
+     &                                            record, r2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxWAR))
+          write(stdout,1) vname(1,indxWAR)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+      if (wrtavg(indxEPR)) then
+        ierr=nf_fwrite (rdsp_avg(START_2D_ARRAY), ncidavg, avgWKB(9),
+     &                                            record, r2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxEPR))
+          write(stdout,1) vname(1,indxEPR)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+#  endif
+# endif
+
+# ifdef MRL_WCI
+      if (wrtavg(indxSUP)) then
+        ierr=nf_fwrite (sup_avg(START_2D_ARRAY), ncidavg, avgSUP,
+     &                                            record, r2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxSUP))
+          write(stdout,1) vname(1,indxSUP)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+      if (wrtavg(indxUST2D)) then
+        ierr=nf_fwrite (ust2d_avg(START_2D_ARRAY), ncidavg, avgUST2D,
+     &                                                record, u2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxUST2D))
+          write(stdout,1) vname(1,indxUST2D)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+      if (wrtavg(indxVST2D)) then
+        ierr=nf_fwrite (vst2d_avg(START_2D_ARRAY), ncidavg, avgVST2D,
+     &                                                record, v2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxVST2D))
+          write(stdout,1) vname(1,indxVST2D)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+#  ifdef SOLVE3D
+      if (wrtavg(indxUST)) then
+        ierr=nf_fwrite (ust_avg(START_2D_ARRAY,1), ncidavg, avgUST,
+     &                                              record, u3dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxUST))
+          write(stdout,1) vname(1,indxUST)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+      if (wrtavg(indxVST)) then
+        ierr=nf_fwrite (vst_avg(START_2D_ARRAY,1), ncidavg, avgVST,
+     &                                              record, v3dvar)
+        if (ierr .ne. nf_noerr) then
+        lvar=lenstr(vname(1,indxVST))
+          write(stdout,1) vname(1,indxVST)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+      if (wrtavg(indxWST)) then
+        ierr=nf_fwrite (wst_avg(START_2D_ARRAY,1), ncidavg, avgWST,
+     &                                              record, r3dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxWST))
+          write(stdout,1) vname(1,indxWST)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+      if (wrtavg(indxAkb)) then
+        ierr=nf_fwrite (akb_avg(START_2D_ARRAY,0), ncidavg,
+     &                                avgAkb, record, w3dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxAkb))
+          write(stdout,1) vname(1,indxAkb)(1:lvar), record, ierr,
+     &                    nf_strerror(ierr) MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+      if (wrtavg(indxAkw)) then
+        ierr=nf_fwrite (akw_avg(START_2D_ARRAY,0), ncidavg,
+     &                                avgAkw, record, w3dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxAkw))
+          write(stdout,1) vname(1,indxAkw)(1:lvar), record, ierr,
+     &                    nf_strerror(ierr) MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+      if (wrtavg(indxKVF)) then
+        ierr=nf_fwrite (kvf_avg(START_2D_ARRAY,1), ncidavg, avgKVF,
+     &                                              record, r3dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxKVF))
+          write(stdout,1) vname(1,indxKVF)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+      if (wrtavg(indxCALP)) then
+        ierr=nf_fwrite (calp_avg(START_2D_ARRAY), ncidavg, avgCALP,
+     &                                              record, r2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxCALP))
+          write(stdout,1) vname(1,indxCALP)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+      if (wrtavg(indxKAPS)) then
+        ierr=nf_fwrite (kaps_avg(START_2D_ARRAY), ncidavg, avgKAPS,
+     &                                              record, r2dvar)
+        if (ierr .ne. nf_noerr) then
+          lvar=lenstr(vname(1,indxKAPS))
+          write(stdout,1) vname(1,indxKAPS)(1:lvar), record, ierr
+     &                    MYID
+          goto 99                                         !--> ERROR
+        endif
+      endif
+#  endif  /* SOLVE3D */
+# endif   /* MRL_WCI */
 !
  1    format(/' WRT_AVG - ERROR while writing variable(',1x,a,1x,
      &     ')into averages file.',/,11x,'Time record:',

@@ -877,7 +877,7 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
      &                          *rubar(i,j)+cff2*sustr(i,j)
 # ifdef MRL_WCI
      &                                    +cff2*brk2dx(i,j)
-#  ifdef WAVE_FRICTION
+#  ifdef WAVE_STREAMING
      &                                    +cff2*frc2dx(i,j)
 #  endif
 # endif
@@ -917,7 +917,7 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
      &                          *rvbar(i,j)+cff2*svstr(i,j)
 # ifdef MRL_WCI
      &                                    +cff2*brk2de(i,j)
-#  ifdef WAVE_FRICTION
+#  ifdef WAVE_STREAMING
      &                                    +cff2*frc2de(i,j)
 #  endif
 # endif

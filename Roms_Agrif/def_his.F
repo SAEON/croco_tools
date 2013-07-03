@@ -46,10 +46,14 @@
 #ifdef SOLVE3D
      &      , r3dgrd(4),  u3dgrd(4), v3dgrd(4), w3dgrd(4), itrc
 #endif
+#ifdef WKB_WWAVE
+     &      , iwkb
+#endif
 #include "param.h"
 #include "scalars.h"
 #include "ncscrum.h"
 #include "netcdf.inc"
+      character*70 text
 
 #ifndef AVRH
 # define ncname hisname
@@ -79,6 +83,9 @@
 # define vidTke hisTke
 # define vidGls hisGls
 # define vidLsc hisLsc
+# ifdef WKB_WWAVE
+#  define vidWKB hisWKB
+# endif
 # if defined MRL_WCI
 #  define vidSUP hisSUP
 #  define vidUST2D hisUST2D
@@ -169,6 +176,9 @@
 # define vidWstr avgWstr
 # define vidUWstr avgUWstr
 # define vidVWstr avgVWstr
+# ifdef WKB_WWAVE
+#  define vidWKB avgWKB
+# endif
 # if defined MRL_WCI
 #  define vidSUP avgSUP
 #  define vidUST2D avgUST2D
@@ -195,8 +205,6 @@
 # ifdef SST_SKIN
 #  define vidSST_skin avgSST_skin
 # endif
-
-      character*70 text
 #endif
 !
 ! Put time record index into file name. In  the case when model 
@@ -1488,6 +1496,36 @@
 # endif /* SST_SKIN */
 !
 #endif /* SOLVE3D */
+
+#ifdef WKB_WWAVE
+!
+! WKB wave model prognostic/diagnostic variables in XI/ETA direction.
+! ==================================================================
+!
+# ifndef WAVE_ROLLER
+        do iwkb=1,7
+# else
+        do iwkb=1,9
+# endif
+          if (wrt(indxHRM+iwkb-1)) then
+            lvar=lenstr(vname(1,indxHRM+iwkb-1))
+            ierr=nf_def_var (ncid, vname(1,indxHRM+iwkb-1)(1:lvar), 
+     &                            NF_FOUT, 3, r2dgrd, vidWKB(iwkb))
+# ifdef AVRH
+            text='averaged '/ /vname(2,indxHRM+iwkb-1)
+# else
+            text=vname(2,indxHRM+iwkb-1)
+# endif
+            lvar=lenstr(text)
+            ierr=nf_put_att_text (ncid, vidWKB(iwkb), 'long_name', 
+     &                                         lvar, text(1:lvar))
+            lvar=lenstr(vname(3,indxHRM+iwkb-1))
+            ierr=nf_put_att_text (ncid, vidWKB(iwkb), 'units', lvar,
+     &                               vname(3,indxHRM+iwkb-1)(1:lvar))
+          endif
+        enddo
+#endif
+
 #ifdef MRL_WCI
 !
 ! Wave-current interaction diagnostic variables.
@@ -2306,6 +2344,28 @@
 
 #endif /* SOLVE3D */
 
+#ifdef WKB_WWAVE
+!
+! Wave action density, wavenumber in XI/ETA directions
+!
+# ifndef WAVE_ROLLER
+        do iwkb=1,7
+# else
+        do iwkb=1,9
+# endif
+          if (wrt(indxHRM+iwkb-1)) then
+            lvar=lenstr(vname(1,indxHRM+iwkb-1))
+            ierr=nf_inq_varid (ncid, vname(1,indxHRM+iwkb-1)(1:lvar), 
+     &                                                  vidWKB(iwkb))
+            if (ierr .ne. nf_noerr) then
+              write(stdout,1) vname(1,indxHRM+iwkb-1)(1:lvar), 
+     &                                                 ncname(1:lstr)
+              goto 99                                     !--> ERROR
+            endif
+          endif
+        enddo
+#endif 
+
 #ifdef MRL_WCI
 !
 ! sup: quasi-static sea-level response (wave set-up/down)
@@ -2529,19 +2589,22 @@
 # undef vidShflx_sen
 #endif
 #undef vidSST_skin
-# if defined MRL_WCI
-#  undef vidSUP
-#  undef vidUST2D
-#  undef vidVST2D
-#  undef vidUST
-#  undef vidVST
-#  undef vidWST
-#  undef vidAkb
-#  undef vidAkw
-#  undef vidKVF
-#  undef vidCALP
-#  undef vidKAPS
-# endif
+#if defined WKB_WWAVE
+# undef vidWKB
+#endif
+#if defined MRL_WCI
+# undef vidSUP
+# undef vidUST2D
+# undef vidVST2D
+# undef vidUST
+# undef vidVST
+# undef vidWST
+# undef vidAkb
+# undef vidAkw
+# undef vidKVF
+# undef vidCALP
+# undef vidKAPS
+#endif
 
 #ifdef AVERAGES
 # ifndef AVRH

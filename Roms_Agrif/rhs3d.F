@@ -815,19 +815,19 @@
      &                 +v(i,j+1,k,nrhs) -v(i-1,j+1,k,nrhs) )
             ru(i,j,k) =ru(i,j,k) + cff
      &                           *(ust(i,j,k)*dudx+vstu*dvdx)
-#  ifndef SURFACE_BREAK
+#  ifndef WAVE_SFC_BREAK
      &                           +cff*om_u(i,j)*brk3dx(i,j,k)
 #  endif
-#  if defined WAVE_FRICTION && defined BODY_FRICTION
+#  if defined WAVE_STREAMING && defined WAVE_BODY_STREAMING
      &                           +cff*om_u(i,j)*frc3dx(i,j,k)
 #  endif
 #  ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
               Mvf(i,j,k,1)  = cff*(ust(i,j,k)*dudx +vstu*dvdx)
-#   ifndef SURFACE_BREAK
+#   ifndef WAVE_SFC_BREAK
               Mbrk(i,j,k,1) = cff*om_u(i,j)*brk3dx(i,j,k)
 #   endif
-#   if defined WAVE_FRICTION && defined BODY_FRICTION
+#   if defined WAVE_STREAMING && defined WAVE_BODY_STREAMING
               Mfrc(i,j,k,1) = cff*om_u(i,j)*frc3dx(i,j,k)
 #   endif
             endif
@@ -845,19 +845,19 @@ ccc            dvde =0.5*( v(i,j-1,k,nrhs) -v(i,j+1,k,nrhs) )
             dvde =0.5*( v(i,j+1,k,nrhs) -v(i,j-1,k,nrhs) )
             rv(i,j,k) =rv(i,j,k) + cff
      &                            *(ustv*dude+vst(i,j,k)*dvde)
-#  ifndef SURFACE_BREAK
+#  ifndef WAVE_SFC_BREAK
      &                            +cff*on_v(i,j)*brk3de(i,j,k)
 #  endif
-#  if defined WAVE_FRICTION && defined BODY_FRICTION
+#  if defined WAVE_STREAMING && defined WAVE_BODY_STREAMING
      &                            +cff*on_v(i,j)*frc3de(i,j,k)
 #  endif
 #  ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
               Mvf(i,j,k,2)  = cff*(ustv*dude + vst(i,j,k)*dvde)
-#   ifndef SURFACE_BREAK
+#   ifndef WAVE_SFC_BREAK
               Mbrk(i,j,k,2) = cff*on_v(i,j)*brk3de(i,j,k)
 #   endif
-#   if defined WAVE_FRICTION && defined BODY_FRICTION
+#   if defined WAVE_STREAMING && defined WAVE_BODY_STREAMING
               Mfrc(i,j,k,2) = cff*on_v(i,j)*frc3de(i,j,k)
 #   endif
             endif
@@ -865,7 +865,7 @@ ccc            dvde =0.5*( v(i,j-1,k,nrhs) -v(i,j+1,k,nrhs) )
          enddo
       enddo
 
-#  if defined WAVE_FRICTION && !defined BODY_FRICTION
+#  if defined WAVE_STREAMING && !defined WAVE_BODY_STREAMING
         do i=istrU,iend
           ru(i,j,1) =ru(i,j,1) + om_u(i,j)*on_u(i,j)*frc2dx(i,j)
         enddo
@@ -896,7 +896,7 @@ ccc            dvde =0.5*( v(i,j-1,k,nrhs) -v(i,j+1,k,nrhs) )
 # ifndef BODYFORCE
      &        +(sustr(i,j)-bustr(i,j))*om_u(i,j)*on_u(i,j)
 # endif
-#  if defined MRL_WCI && defined SURFACE_BREAK
+#  if defined MRL_WCI && defined WAVE_SFC_BREAK
      &             +        brk2dx(i,j)*om_u(i,j)*on_u(i,j)
 #  endif
         enddo
@@ -911,7 +911,7 @@ ccc            dvde =0.5*( v(i,j-1,k,nrhs) -v(i,j+1,k,nrhs) )
 # ifndef BODYFORCE
      &       +(svstr(i,j)-bvstr(i,j))*om_v(i,j)*on_v(i,j)
 # endif
-#  if defined MRL_WCI && defined SURFACE_BREAK
+#  if defined MRL_WCI && defined WAVE_SFC_BREAK
      &              +       brk2de(i,j)*om_v(i,j)*on_v(i,j)
 #  endif
           enddo

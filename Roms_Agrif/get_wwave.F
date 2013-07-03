@@ -10,7 +10,7 @@
 !======================================================================
 !
 #include "cppdefs.h"
-#if ! defined  ANA_WWAVE && ( defined BBL || defined MRL_WCI )
+#if defined  WAVE_OFFLINE && ( defined BBL || defined MRL_WCI )
 
                               ! Read point or gridded wind wave
       subroutine get_wwave    ! height, direction, period at approp.
@@ -267,9 +267,13 @@
     
       return
       end
-
-!--------------------------------------------------------------------
-!--------------------------------------------------------------------
+!
+!=====================================================================
+!
+!                             SET_WWAVE
+!
+!=====================================================================
+!
       subroutine set_wwave (tile)
       implicit none
 #include "param.h"
@@ -440,7 +444,7 @@
 #   if defined WAVE_OFFLINE && defined WAVE_FRICTION
               wwqb(i,j,1)  = wwed(i,j)*rmask(i,j)
 #   endif
-#   if defined WAVE_OFFLINE && defined SURFACE_ROLLER
+#   if defined WAVE_OFFLINE && defined WAVE_ROLLER
               wwqb(i,j,1)  = wwqb(i,j,k)*rmask(i,j)
 #   endif
 #  endif
@@ -468,7 +472,7 @@
             wved(i,j)=0.0
 #   endif
 #  endif
-#  if defined WAVE_OFFLINE && defined SURFACE_ROLLER
+#  if defined WAVE_OFFLINE && defined WAVE_ROLLER
             wvqb(i,j)=wwqb(i,j,1)
 #  endif
 # endif

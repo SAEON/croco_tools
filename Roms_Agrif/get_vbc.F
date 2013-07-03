@@ -6,7 +6,7 @@
 ! and Rutgers University (Arango et al) are under MIT/X style license.
 ! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
 ! 
-! ROMS_AGRIF website : http://www.romsagrif.org
+! ROMS_AGRIF website : http://roms.mpl.ird.fr
 !======================================================================
 !
 #include "cppdefs.h"
@@ -52,7 +52,8 @@
 ! Initial wave periode, amplitude, direction and dissipation
 !---------------------------------------------------------------
 !
-# if (defined BBL || defined MRL_WCI) && !defined ANA_WWAVE
+# if (defined BBL || defined MRL_WCI) &&\
+     (!defined ANA_WWAVE && !defined WKB_WWAVE)
 #  if defined  AGRIF && defined BBL
       if (Agrif_lev_sedim.EQ.0) call get_wwave
 #  else
@@ -565,7 +566,8 @@
 #ifdef ANA_PSOURCE
       call ana_psource_tile (Istr,Iend,Jstr,Jend)
 #endif
-#if ! defined  ANA_WWAVE && ( defined BBL || defined MRL_WCI )
+#if (defined BBL || defined MRL_WCI) &&\
+     (!defined ANA_WWAVE && !defined WKB_WWAVE)
       call set_wwave_tile(Istr,Iend,Jstr,Jend)  
 #endif
 

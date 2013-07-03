@@ -50,11 +50,14 @@ C      real*8 start_time2, start_time1, exe_time
       integer iunit, Agrif_lev_sedim
       parameter(iunit=50)
       external :: step
-#include "zoom.h"      
+# include "zoom.h"      
+# include "dynparam.h"
+#endif
+#ifdef WKB_WWAVE
+# include "wkb_wwave.h"
+#endif
 #ifdef PISCES
 # include "parameter.h"
-#endif
-# include "dynparam.h"
 #endif
      
 #ifdef AUTOTILING
@@ -200,6 +203,12 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Set initial conditions
           call ana_initial (tile)    ! (analytically or read
         enddo                        ! from initial conditions
       else                           ! NetCDF file).
+# ifdef JET
+C$OMP PARALLEL DO PRIVATE(tile)      ! for JET test case
+        do tile=0,NSUB_X*NSUB_E-1    ! set climatology fields
+          call ana_initial (tile)    ! in ana_initial
+        enddo                        !
+# endif
 #endif
         call get_initial
 C$OMP PARALLEL DO PRIVATE(tile)      ! Set analytical initial 
@@ -400,6 +409,43 @@ CR      write(*,*) ' -1' MYID
 # endif
       if (ldefsta) call wrt_sta
 #endif /* STATIONS */
+
+#ifdef WKB_WWAVE
+C$OMP BARRIER
+C$OMP MASTER
+        MPI_master_only write(stdout,'(/1x,A/)')
+     &     'WKB: started steady wave computation.'
+C$OMP END MASTER
+      iic=0
+      winfo=1
+      iwave=1
+      thwave=1.D+10
+      do while (iwave.le.50000.and.thwave.ge.1.D-10)
+        wstp=wnew
+        wnew=wstp+1
+        if (wnew.ge.3) wnew=1
+        do tile=my_tile_range
+          call wkb_wwave (tile)
+        enddo
+C$OMP BARRIER
+        do tile=my_tile_range
+          call wkb_diag (tile)
+        enddo
+C$OMP BARRIER
+        iwave=iwave+1
+        thwave=max(av_wac,av_wkn)
+      enddo
+      first_time=0
+      do tile=my_tile_range
+        call mrl_wci (tile)
+      enddo
+C$OMP BARRIER
+C$OMP MASTER
+        MPI_master_only write(stdout,'(/1x,A/)')
+     &     'WKB: completed steady wave computation.'
+C$OMP END MASTER
+#endif
+
 
 CR      write(*,*) '  0' MYID
       if (may_day_flag.ne.0) goto 99     !-->  EXIT

@@ -44,7 +44,7 @@
 # define MPI
 # define OA_MCT
 # define MPI_COMM_WORLD ocean_grid_comm
-# undef BULK_FLUX
+# undef  BULK_FLUX
 #endif
   
 /*
@@ -198,6 +198,67 @@
 */
 #define LIMIT_BSTRESS
 
+/*
+    Wave Current Interaction:    
+*/
+# ifdef MRL_WCI
+#  ifdef WAVE_STREAMING
+#   define  WAVE_BODY_STREAMING
+#  endif
+#  undef  WAVE_SFC_BREAK
+#  define WAVE_BREAK_CT93
+#  undef  WAVE_BREAK_TG86
+#  undef  WAVE_BREAK_TG86A
+#  undef  WAVE_FRICTION
+#  if !defined WKB_WWAVE && !defined ANA_WWAVE
+#   define WAVE_OFFLINE
+#   undef  WAVE_FRICTION
+#   undef  WAVE_ROLLER
+#  endif
+# endif
+
+/*
+!           Applications:
+!---------------------------------
+! Biology, floats, Stations, 
+! Passive tracer, Sediments, BBL
+!---------------------------------
+*/
+/*   Biology options    */
+# ifdef PISCES
+#  define key_trc_pisces
+#  define key_passivetrc
+#  ifdef DIAGNOSTICS_BIO
+#    define key_trc_diaadd
+#    define key_trc_dia3d
+#  endif
+# endif
+/*   Sediment dynamics model     */
+# ifdef SEDIMENT
+#  define LINEAR_CONTINUATION
+#  undef  NEUMANN
+# endif
+/*   Bottom Boundary Layer model     */
+# ifdef BBL
+#  ifdef SEDIMENT
+#   undef  ANA_BSEDIM
+#  else
+#   define ANA_BSEDIM
+#  endif
+#  undef  Z0_BL
+#  ifdef Z0_BL
+#   define Z0_RIP
+#  endif
+#  undef  Z0_BIO
+# endif
+
+/*
+======================================================================
+
+                         GENERAL CPP KEYS
+
+======================================================================
+*/
 
 /* Switch ON/OFF double precision for real type variables (since this
  is mostly controlled by mpc and/or compuler options, this CPP-switch
@@ -522,7 +583,11 @@ c-# define TANH dtanh
 #endif
 
 /*
-    --- AGRIF nesting options ---
+======================================================================
+
+                       AGRIF nesting options 
+
+======================================================================
 */
 #ifdef AGRIF
 /*                    Update schemes */
@@ -553,7 +618,11 @@ c-# define TANH dtanh
 #endif /* AGRIF */
 
 /*
-  Consistency for 2D configurations
+======================================================================
+
+                  Consistency for 2D configurations
+
+======================================================================
 */
 #ifndef SOLVE3D
 # undef AVERAGES_K

@@ -51,16 +51,6 @@ C$    integer omp_get_thread_num
 # ifdef BIOLOGY
       real temp, SiO4
 # endif
-# ifdef SHOREFACE && defined MRL_WCI
-      real wamp,wprd,wdir, frq,cfrq,khd,kh,ab,co,gamw,cw,aw,
-     &     nw,ks,kr,wh,wh2,stk,cosw,sinw,eps,Btg,tanb,ca,ch,cr,sbc,
-     &     dd,dsup,cgo,cff1,cff2,kw
-#  ifdef WKB_WWAVE
-#   include "wkb_wwave.h"
-#  endif
-#  include "boundary.h"
-#  include "forces.h"
-# endif
 # ifdef THACKER
       real ETA0, omega, depth, Lt
 # endif
