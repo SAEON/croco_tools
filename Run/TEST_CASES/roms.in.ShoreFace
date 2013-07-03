@@ -2,7 +2,7 @@ title:
         SHOREFACE Example 
 
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
-              14400       2.5        60      10
+                14400       2.5        60   10
 
 S-coord: THETA_S,   THETA_B,    Hc (m)
          0.0d0       0.0d0      1.e16
@@ -55,13 +55,23 @@ vertical_mixing: Akv_bak, Akt_bak [m^2/sec]
                   0.e-2   0.e-2
 
 sponge:          X_SPONGE [m],    V_SPONGE [m^2/sec]
-                   200.                10.
+                   200.                50.
 
 nudg_cof:    TauT_in, TauT_out, TauM_in, TauM_out  [days for all]
              1.       360.      1.       360.
 
 lateral_visc:   VISC2,    VISC4    [m^2/sec for all]
-                0.        0.
+                 0.        0.
 
 tracer_diff2: TNU2(1:NT)           [m^2/sec for all]
               0.d0 0.d0 0.d0 0.d0 0.d0 0.d0 0.d0 0.d0 0.d0
+
+wkb_history_fields: swh  frq  action  k_xi  k_eta  eps_b  eps_d Erol eps_r
+                      T   T     F      T     T       T      T     T    T
+
+wkb_wwave:  amp [m], ang [deg], prd [s], tide [m], B_tg, gamma_tg
+            0.7      -10.0      8.3      0.0        0.7    0.3
+
+wkb_roller:  roller_sinb  roller_fraction
+                  0.1          1.0
+
