@@ -424,11 +424,11 @@ C$OMP END MASTER
         wstp=wnew
         wnew=wstp+1
         if (wnew.ge.3) wnew=1
-        do tile=my_tile_range
+        do tile=0,NSUB_X*NSUB_E-1
           call wkb_wwave (tile)
         enddo
 C$OMP BARRIER
-        do tile=my_tile_range
+        do tile=0,NSUB_X*NSUB_E-1
           call wkb_diag (tile)
         enddo
 C$OMP BARRIER
@@ -436,7 +436,7 @@ C$OMP BARRIER
         thwave=max(av_wac,av_wkn)
       enddo
       first_time=0
-      do tile=my_tile_range
+      do tile=0,NSUB_X*NSUB_E-1
         call mrl_wci (tile)
       enddo
 C$OMP BARRIER
