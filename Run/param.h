@@ -499,7 +499,15 @@
 # else
       parameter (ntrc_diauv=0)
 # endif
-
+! I/O : flag for type sigma vertical transformation
+! =================================================
+#ifdef NEW_S_COORD
+      real Vtransform          
+      parameter (Vtransform=2) 
+#else
+      real Vtransform
+      parameter (Vtransform=1)
+#endif
 #endif /*SOLVE3D */
 
 
