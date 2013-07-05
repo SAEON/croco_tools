@@ -24,7 +24,7 @@ figure
 plot(A')
 legend(riv_name)
 
-nw=netcdf('roms_runoff_monthly.nc','clobber');
+nw=netcdf('roms_runoff_monthly_benguela_lr.nc','clobber');
 % Dimension 
 nw('riv_time') = 12;
 nw('n_riv') = 3;
