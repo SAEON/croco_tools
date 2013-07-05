@@ -25,7 +25,7 @@
 #ifdef STATIONS
 # include "nc_sta.h"
 #endif
-#if defiend PSOURCE || defined PSOURCE_NCFILE
+#if defined PSOURCE || defined PSOURCE_NCFILE
 # include "sources.h"
 #endif
 #ifdef WKB_WWAVE
