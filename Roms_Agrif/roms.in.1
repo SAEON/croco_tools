@@ -30,12 +30,17 @@ averages: NTSAVG, NAVG, NRPFAVG / filename
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
                           T    T   T   T  T    30*T
 auxiliary_history_fields:   rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Ustr Vstr Shfl Swfl rsw rlw lat sen HEL
-                             F   F     T   F    T    T    T   T    T     T    T    T    T    T    T  10*F             
+                             F   F     T   F    T    F    T   T    T     T    T    T    T    T    T  10*T             
+gls_history_fields:   Akk Akp  TKE  GLS  Lscale
+                       T   T    T     T    T
 
 primary_averages: zeta UBAR VBAR  U  V   wrtT(1:NT)
                    T    T    T    T  T   30*T
 auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Ustr Vstr Shfl Swfl rsw rlw lat sen HEL
-                     F   T     T   F    T    T    T   T    T     T   T    T     T    T    T  10*F
+                     F   T     T   F    T    F    T   T    T     T   T    T     T    T    T  10*T
+gls_averages:   Akk Akp  TKE  GLS  Lscale
+                  T   T    T     T    T
+
 
 rho0:
       1025.d0
@@ -122,7 +127,7 @@ floats: LDEFFLT, NFLT, NRPFFLT / inpname, hisname
                                    floats.in
                                    ROMS_FILES/floats.nc
 float_fields:  Grdvar Temp Salt Rho Vel
-                 F     F    F    F   F
+                T     T    T    T   T
 
 stations: LDEFSTA, NSTA, NRPFSTA / inpname, hisname
              T      400      0
@@ -137,7 +142,7 @@ psource:   Nsrc  Isrc  Jsrc  Dsrc  Qbar [m3/s]    Lsrc        Tsrc
                   3    40     0    200.            T T      5. 0.
 
 psource_ncfile:   Nsrc  Isrc  Jsrc  Dsrc rivdir  Lsrc  Tsrc   runoff file name
-                       ROMS_FILES/roms_runoff_monthly.nc
+              ROMS_FILES/roms_runoff_monthly_benguela_lr.nc
             3
                   31   19     0  -1    T T      5. 0.
                   36   13     1  -1    T T      5. 0.
