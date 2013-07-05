@@ -185,8 +185,12 @@
 # define ANA_BSFLUX
 # define ANA_BTFLUX
                       /* Point Sources - Rivers */
-# undef  PSOURCE
-# undef  ANA_PSOURCE
+# undef PSOURCE
+# undef ANA_PSOURCE
+# undef PSOURCE_NCFILE
+# ifdef PSOURCE_NCFILE                    
+#   define PSOURCE_NCFILE_TS
+# endif
                       /* Open Boundary Conditions */
 # ifdef TIDES
 #  define OBC_M2FLATHER
