@@ -218,7 +218,7 @@
       parameter (Dcmin=0.02)     ! ======== ===== === ====== =====
       parameter (Dcmax=0.20)
 #endif
-#ifdef PSOURCE
+#if defined PSOURCE || defined PSOURCE_NCFILE
       integer Msrc               ! Number of point sources
       parameter (Msrc=10)        ! ====== == ===== =======
 #endif
