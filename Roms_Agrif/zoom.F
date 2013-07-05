@@ -1528,55 +1528,69 @@ CR      write(*,*) '  0' MYID
       integer i1,i2,j1,j2
       real tabres(i1:i2,j1:j2)
       logical before
-      real cff_r,cff1_r,cff2_r, cff_w,cff1_w,cff2_w, z_r0,z_w0
+      real cff_r,cff1_r,cff_w,cff1_w, z_r0,z_w0
       
       integer i,j,k  
        real tabtemp(i1:i2,j1:j2) 
               
       IF (before) THEN
  
-           tabres(i1:i2,j1:j2) = h(i1:i2,j1:j2)
+        tabres(i1:i2,j1:j2) = h(i1:i2,j1:j2)
 #ifdef MASKING
-     &       *rmask(i1:i2,j1:j2)
+     &                        *rmask(i1:i2,j1:j2)
 #endif
          
        ELSE
-       do j=j1,j2
-       do i=i1,i2
-         h(i,j)=max(tabres(i,j),hc)
-         hinv(i,j)=1./h(i,j)
-       enddo
-       enddo
+
+         do j=j1,j2
+           do i=i1,i2
+# ifndef WET_DRY
+             h(i,j)=max(tabres(i,j),hc)
+# else
+             h(i,j)=tabres(i,j)
+# endif
+# ifdef NEW_S_COORD 
+             hinv(i,j)=1./(h(i,j)+hc)      
+# else
+             hinv(i,j)=1./h(i,j) 
+# endif
+           enddo
+         enddo
        
-       do j=j1,j2
-       do i=i1,i2
-         z_w(i,j,0) = -h(i,j)
-       enddo
-       do k=1,N,+1
-          cff_w=hc*(sc_w(k)-Cs_w(k))
-          cff1_w=Cs_w(k)
-          cff2_w=sc_w(k)+1.
+         do j=j1,j2
+           do i=i1,i2
+             z_w(i,j,0) = -h(i,j)
+           enddo
+           do k=1,N,+1
+# ifdef NEW_S_COORD
+             cff_w =hc*sc_w(k)
+             cff_r =hc*sc_r(k)
+             cff1_w=Cs_w(k)
+             cff1_r=Cs_r(k)
+# else
+             cff_w =hc*(sc_w(k)-Cs_w(k))
+             cff_r =hc*(sc_r(k)-Cs_r(k))
+             cff1_w=Cs_w(k)
+             cff1_r=Cs_r(k)
+# endif
+             do i=i1,i2
+               z_w0=cff_w+cff1_w*h(i,j) 
+               z_r0=cff_r+cff1_r*h(i,j)
+# ifdef NEW_S_COORD                              
+               z_w(i,j,k)=z_w0*h(i,j)*hinv(i,j)+Zt_avg1(i,j)
+     &                                          *(1.+z_w0*hinv(i,j)) 
+               z_r(i,j,k)=z_r0*h(i,j)*hinv(i,j)+Zt_avg1(i,j)
+     &                                          *(1.+z_r0*hinv(i,j))    
+# else
+               z_w(i,j,k)=z_w0+Zt_avg1(i,j)*(1.+z_w0*hinv(i,j))      
+               z_r(i,j,k)=z_r0+Zt_avg1(i,j)*(1.+z_r0*hinv(i,j)) 
+# endif
+               Hz_bak(i,j,k)=Hz(i,j,k)
+               Hz(i,j,k)=z_w(i,j,k)-z_w(i,j,k-1)
+             enddo
+           enddo
+         enddo
 
-          cff_r=hc*(sc_r(k)-Cs_r(k))
-          cff1_r=Cs_r(k)
-          cff2_r=sc_r(k)+1.
-
-          do i=i1,i2
-            z_w0=cff_w+cff1_w*h(i,j)                               !<
-            z_w(i,j,k)=z_w0+Zt_avg1(i,j)*(1.+z_w0*hinv(i,j))       !<
-
-            z_r0=cff_r+cff1_r*h(i,j)                               !<
-            z_r(i,j,k)=z_r0+Zt_avg1(i,j)*(1.+z_r0*hinv(i,j))       !<
-
-c**         z_w(i,j,k)=cff_w+cff1_w*h(i,j)+cff2_w*Zt_avg1(i,j)     !>
-c**         z_r(i,j,k)=cff_r+cff1_r*h(i,j)+cff2_r*Zt_avg1(i,j)     !>
-
-            Hz_bak(i,j,k)=Hz(i,j,k)
-            Hz(i,j,k)=z_w(i,j,k)-z_w(i,j,k-1)
-          enddo
-        enddo
-      enddo
-	 	 
        ENDIF
       
       return
