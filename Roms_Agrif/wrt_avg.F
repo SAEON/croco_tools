@@ -66,6 +66,9 @@
       else
         record=1+mod(nrecavg-1, nrpfavg)
       endif
+      
+!#define CR  
+CR      write(*,*) 'wrt_avg: Entry  ' MYID       
 !
 ! Write out time-averaged variables:
 ! ----- --- ------------- ----------
@@ -88,6 +91,7 @@
          write(stdout,1) 'time_step', record,ierr MYID
          goto 99                !--> ERROR
       endif
+CR      write(*,*) 'wrt_avg:  time  ' MYID
 !     
 !     Averaged time
 !     
@@ -108,6 +112,7 @@
      &        MYID
          goto 99                !--> ERROR
       endif
+CR      write(*,*) 'wrt_avg:  time  ' MYID
 
 !     
 !     Barotropic mode variables: free-surface and 2D momentum
@@ -165,6 +170,7 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
      &           MYID
             goto 99             !--> ERROR
          endif
+CR      write(*,*) 'wrt_avg: UWstr' MYID
       endif
 !     
 !     Write out kinematic V surface stress component (N/m2).
@@ -177,6 +183,7 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
      &           MYID
             goto 99             !--> ERROR
          endif
+CR      write(*,*) 'wrt_avg: VWstr' MYID
       endif
 !        
 !--
@@ -188,11 +195,13 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
       if (wrtavg(indxU)) then
          workr=u_avg
          call fillvalue3d(workr,ncidavg,avgU,indxU,record,u3dvar,type)   
+CR      write(*,*) 'wrt_avg:  wrtU' MYID
       endif
 !     
       if (wrtavg(indxV)) then
          workr=v_avg
          call fillvalue3d(workr,ncidavg,avgV,indxV,record,v3dvar,type)   
+CR      write(*,*) 'wrt_avg:  wrtV' MYID
       endif
 !     
 !     Tracer variables.
@@ -202,6 +211,7 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
             workr=t_avg(:,:,:,itrc)
             call fillvalue3d(workr,ncidavg,avgT(itrc),indxT+itrc-1,
      &           record,r3dvar,type)           
+CR      write(*,*) 'wrt_avg:  wrtT  ' MYID
          endif
       enddo
 !     
@@ -210,6 +220,7 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
       if (wrtavg(indxR)) then
          workr=rho_avg
          call fillvalue3d(workr,ncidavg,avgR,indxR,record,r3dvar,type) 
+CR      write(*,*) 'wrt_avg:  wrtRHO' MYID
       endif
 !     
 !     Write out S-coordinate omega vertical velocity (m/s).
@@ -217,6 +228,7 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
       if (wrtavg(indxO)) then
          work=omega_avg
          call fillvalue3d_w(work,ncidavg,avgO,indx0,record,w3dvar,type) 
+CR      write(*,*) 'wrt_avg:  wrtO  ' MYID
       endif
 !     
 !     Write out true vertical velocity (m/s).
@@ -224,6 +236,7 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
       if (wrtavg(indxW)) then
          workr=w_avg
          call fillvalue3d(workr,ncidavg,avgW,indxW,record,r3dvar,type)
+CR      write(*,*) 'wrt_avg:  wrtW' MYID
       endif   
 !     
 #  ifdef SST_SKIN
@@ -246,6 +259,7 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
          workr=visc3d_avg
          call fillvalue3d(workr,ncidavg,avgVisc,indxVisc,
      &        record,r3dvar,type)
+CR      write(*,*) 'wrt_avg:  wrtVisc' MYID
       endif
 #  endif
 #  ifdef DIF_COEF_3D
@@ -256,6 +270,7 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
          workr=diff3d_avg
          call fillvalue3d(workr,ncidavg,avgDiff,indxDiff,
      &        record,r3dvar,type)
+CR      write(*,*) 'wrt_avg:  wrtDiff' MYID
       endif
 #  endif
 #  ifdef AVERAGES_K
@@ -266,7 +281,7 @@ CR      write(*,*) 'wrt_avg:  Wstr' MYID
          work=Akv_avg
          call fillvalue3d_w(work,ncidavg,avgAkv,indxAkv,
      &        record,w3dvar,type)
-CR      write(*,*) 'wrt_avg:  wrtAkt' MYID
+CR      write(*,*) 'wrt_avg:  wrtAkv' MYID
       endif
 !     
 !     Write out vertical diffusion coefficient for potential temperature.
@@ -318,6 +333,7 @@ CR      write(*,*) 'wrt_avg:  wrtAkp' MYID
          work2d=hbl_avg
          call fillvalue2d(work2d,ncidavg,avgHbl,indxHbl,
      &        record,r2dvar,type)
+CR      write(*,*) 'wrt_avg:  wrtHBL' MYID
       endif
 #  endif
 #  ifdef LMD_BKPP
@@ -329,6 +345,7 @@ CR      write(*,*) 'wrt_avg:  wrtAkp' MYID
          call fillvalue2d(work2d,ncidavg,avgHbbl,indxHbbl,
      &        record,r2dvar,type)
       endif
+CR      write(*,*) 'wrt_avg:  wrtHbbl' MYID
 # endif
 # ifdef GLS_MIXING
 !     
@@ -518,6 +535,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtHrm' MYID
       endif
       if (wrtavg(indxFRQ)) then
         ierr=nf_fwrite (frq_avg(START_2D_ARRAY), ncidavg, avgWKB(2),
@@ -528,6 +546,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtFrq' MYID
       endif
       if (wrtavg(indxWAC)) then
         ierr=nf_fwrite (wac_avg(START_2D_ARRAY), ncidavg, avgWKB(3),
@@ -538,6 +557,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtWac' MYID
       endif
       if (wrtavg(indxWKX)) then
         ierr=nf_fwrite (wkx_avg(START_2D_ARRAY), ncidavg, avgWKB(4),
@@ -548,6 +568,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtWkx' MYID
       endif
       if (wrtavg(indxWKE)) then
         ierr=nf_fwrite (wke_avg(START_2D_ARRAY), ncidavg, avgWKB(5),
@@ -558,6 +579,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtWke' MYID
       endif
       if (wrtavg(indxEPB)) then
         ierr=nf_fwrite (wdsp_avg(START_2D_ARRAY), ncidavg, avgWKB(6),
@@ -568,6 +590,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtEpb' MYID
       endif
       if (wrtavg(indxEPD)) then
         ierr=nf_fwrite (wdrg_avg(START_2D_ARRAY), ncidavg, avgWKB(7),
@@ -578,6 +601,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtEpd' MYID
       endif
 #  ifdef WAVE_ROLLER
       if (wrtavg(indxWAR)) then
@@ -589,6 +613,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtWar' MYID
       endif
       if (wrtavg(indxEPR)) then
         ierr=nf_fwrite (rdsp_avg(START_2D_ARRAY), ncidavg, avgWKB(9),
@@ -599,6 +624,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtEpr' MYID
       endif
 #  endif
 # endif
@@ -613,6 +639,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtSup' MYID
       endif
       if (wrtavg(indxUST2D)) then
         ierr=nf_fwrite (ust2d_avg(START_2D_ARRAY), ncidavg, avgUST2D,
@@ -623,6 +650,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtUst2D' MYID
       endif
       if (wrtavg(indxVST2D)) then
         ierr=nf_fwrite (vst2d_avg(START_2D_ARRAY), ncidavg, avgVST2D,
@@ -633,6 +661,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtVst2D' MYID
       endif
 #  ifdef SOLVE3D
       if (wrtavg(indxUST)) then
@@ -644,6 +673,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtUst' MYID
       endif
       if (wrtavg(indxVST)) then
         ierr=nf_fwrite (vst_avg(START_2D_ARRAY,1), ncidavg, avgVST,
@@ -654,6 +684,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtVst' MYID
       endif
       if (wrtavg(indxWST)) then
         ierr=nf_fwrite (wst_avg(START_2D_ARRAY,1), ncidavg, avgWST,
@@ -664,6 +695,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtWst' MYID
       endif
       if (wrtavg(indxAkb)) then
         ierr=nf_fwrite (akb_avg(START_2D_ARRAY,0), ncidavg,
@@ -674,6 +706,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    nf_strerror(ierr) MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtAkb' MYID
       endif
       if (wrtavg(indxAkw)) then
         ierr=nf_fwrite (akw_avg(START_2D_ARRAY,0), ncidavg,
@@ -684,6 +717,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    nf_strerror(ierr) MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtAkw' MYID
       endif
       if (wrtavg(indxKVF)) then
         ierr=nf_fwrite (kvf_avg(START_2D_ARRAY,1), ncidavg, avgKVF,
@@ -694,6 +728,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtKvf' MYID
       endif
       if (wrtavg(indxCALP)) then
         ierr=nf_fwrite (calp_avg(START_2D_ARRAY), ncidavg, avgCALP,
@@ -704,6 +739,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtCalp' MYID
       endif
       if (wrtavg(indxKAPS)) then
         ierr=nf_fwrite (kaps_avg(START_2D_ARRAY), ncidavg, avgKAPS,
@@ -714,6 +750,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &                    MYID
           goto 99                                         !--> ERROR
         endif
+CR      write(*,*) 'wrt_avg:  wrtKaps' MYID
       endif
 #  endif  /* SOLVE3D */
 # endif   /* MRL_WCI */

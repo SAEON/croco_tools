@@ -94,8 +94,14 @@ C$    integer omp_get_thread_num
           vbar_avg(i,j)=init
 #endif
 #ifdef MRL_WCI
+          sup(i,j)=init 
           ust2d(i,j)=init
           vst2d(i,j)=init
+# ifdef AVERAGES
+          sup_avg(i,j)=init 
+          ust2d_avg(i,j)=init
+          vst2d_avg(i,j)=init
+# endif
 #endif
 #ifdef WET_DRY
           rmask_wet(i,j)=1
@@ -141,6 +147,10 @@ C$    integer omp_get_thread_num
 # ifdef MRL_WCI
             ust(i,j,k)=init
             vst(i,j,k)=init
+#  ifdef AVERAGES
+            ust_avg(i,j,k)=init
+            vst_avg(i,j,k)=init
+#  endif
 # endif
 !
 # ifdef DIAGNOSTICS_UV

@@ -719,6 +719,13 @@
 # ifdef WKB_WWAVE
       integer avgWKB(9)
 # endif
+#ifdef MRL_WCI
+      integer avgSUP, avgUST2D, avgVST2D
+# ifdef SOLVE3D
+      integer avgUST, avgVST, avgAkb, avgAkw, avgKVF,
+     &        avgCALP, avgKAPS, avgWST
+# endif
+#endif
 #  if defined DIAGNOSTICS_TS
       integer nciddia_avg, nrecdia_avg, nrpfdia_avg
      &      , diaTime_avg, diaTime2_avg, diaTstep_avg
@@ -931,6 +938,13 @@
 # endif
 # ifdef WKB_WWAVE
      &      , avgWKB
+# endif
+# ifdef MRL_WCI
+     &      , avgSUP, avgUST2D, avgVST2D
+#  ifdef SOLVE3D
+     &      , avgUST, avgVST, avgAkb, avgAkw
+     &      , avgKVF, avgCALP, avgKAPS, avgWST
+#  endif
 # endif
 #endif
      &      , wrthis

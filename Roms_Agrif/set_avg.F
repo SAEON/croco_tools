@@ -81,10 +81,9 @@ C$    integer omp_get_thread_num
 # ifdef SEDIMENT
 #  include "sediment.h"
 # endif
-#ifdef WKB_WWAVE
+# ifdef WKB_WWAVE
 # include "wkb_wwave.h"
-# include "forces.h"
-#endif
+# endif
 !
 #include "compute_auxiliary_bounds.h"
 !

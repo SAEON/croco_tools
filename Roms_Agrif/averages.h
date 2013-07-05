@@ -104,4 +104,41 @@
 #   endif
 #  endif
 # endif
+# ifdef WKB_WWAVE
+      real hrm_avg(GLOBAL_2D_ARRAY)
+      real frq_avg(GLOBAL_2D_ARRAY)
+      real wac_avg(GLOBAL_2D_ARRAY)
+      real wkx_avg(GLOBAL_2D_ARRAY)
+      real wke_avg(GLOBAL_2D_ARRAY)
+      real wdsp_avg(GLOBAL_2D_ARRAY)
+      real wdrg_avg(GLOBAL_2D_ARRAY)
+      common /avg_hrm/hrm_avg /avg_frq/frq_avg
+     &       /avg_wac/wac_avg /avg_wkx/wkx_avg
+     &       /avg_wke/wke_avg /avg_wdsp/wdsp_avg
+     &       /avg_wdrg/wdrg_avg
+#  ifdef WAVE_ROLLER 
+      real war_avg(GLOBAL_2D_ARRAY)
+      real rdsp_avg(GLOBAL_2D_ARRAY)
+#  endif    
+# endif
+# ifdef MRL_WCI
+      real sup_avg(GLOBAL_2D_ARRAY)
+      real ust2d_avg(GLOBAL_2D_ARRAY)
+      real vst2d_avg(GLOBAL_2D_ARRAY)
+      common /avg_sup/sup_avg 
+     &       /avg_ust2d/ust2d_avg /avg_vst2d/vst2d_avg 
+#  ifdef SOLVE3D
+      real ust_avg(GLOBAL_2D_ARRAY,N)
+      real vst_avg(GLOBAL_2D_ARRAY,N)
+      real wst_avg(GLOBAL_2D_ARRAY,0:N)
+      real akb_avg(GLOBAL_2D_ARRAY,0:N)
+      real akw_avg(GLOBAL_2D_ARRAY,0:N)
+      real kvf_avg(GLOBAL_2D_ARRAY,N)
+      real calp_avg(GLOBAL_2D_ARRAY)
+      real kaps_avg(GLOBAL_2D_ARRAY)
+      common /avg_ust/ust_avg /avg_vst/vst_avg /avg_wst/wst_avg
+     &       /avg_akb/akb_avg /avg_akw/akw_avg
+     &       /avg_kvf/kvf_avg /avg_calp/calp_avg /avg_kaps/kaps_avg
+#  endif
+# endif
 #endif /* AVERAGES */
