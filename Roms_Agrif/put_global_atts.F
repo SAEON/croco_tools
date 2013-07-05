@@ -228,9 +228,9 @@
      &                                       frcname(1:lvar))
 #endif
 #ifdef PSOURCE_NCFILE
-      lvar=lenstr(rivname)
-      ierr=nf_put_att_text(ncid, nf_global, 'riv_file',lvar,
-     &                                       rivname(1:lvar))
+      lvar=lenstr(qbarname)
+      ierr=nf_put_att_text(ncid, nf_global, 'qbar_file',lvar,
+     &                                       qbarname(1:lvar))
 #endif
 #ifdef ASSIMILATION
       lvar=lenstr(assname)

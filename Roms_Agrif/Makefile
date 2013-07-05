@@ -74,7 +74,7 @@ include Makedefs
         get_smflux.F    get_stflux.F    get_srflux.F    get_sst.F\
         get_tides.F     clm_tides.F     get_bulk.F      bulk_flux.F\
         get_bry.F       get_bry_bio.F	nf_read_bry.F	sstskin.F\
-        get_psource.F   nf_add_attribute.F fillvalue.F\
+        get_psource.F   get_psource_ts.F nf_add_attribute.F fillvalue.F\
 	mrl_wci.F  	wkb_wwave.F\
 \
         online_bulk_var.F		online_get_bulk.F\

@@ -1,5 +1,5 @@
 ! $Id$
-#ifdef PSOURCE
+#if defined PSOURCE || defined PSOURCE_NCFILE
 !
 ! Nsrc       Number of point Sources/Sinks.
 ! Dsrc       Direction of point Sources/Sinks:  0 = along XI-;
@@ -39,14 +39,6 @@
       real losrc(Msrc)
       common /source_losrc/ losrc
 
-# ifndef ANA_PSOURCE
-      real QbarG(Msrc,2)
-      common /source_QbarG/ QbarG
-
-      real TsrcG(Msrc,N,2,NT)
-      common /source_TsrcG/ TsrcG
-# endif
-
       integer Nsrc
       common /source_Nsrc/ Nsrc
 
@@ -63,9 +55,38 @@
       common /source_Lsrc/ Lsrc
 
 #ifdef PSOURCE_NCFILE
-      real rivdir(Msrc)
-      common /source_rivdir/ rivdir
-#endif
+!
+!  qbarg  |  Two-time-level grided data for river runoff [m3/s].
+!  tqbar     Time of river runoff data.
+!
+      real qbarg(Msrc,2)
+      common /qbardat_qbarg/qbarg
+      real    qbar_time(2)
+      real    qbar_cycle
+      integer itqbar, qbar_ncycle, qbar_rec,  qbar_tid,  qbar_id
+      common /qbardat1/ qbar_time
+      common /qbardat2/ qbar_cycle
+      common /qbardat3/ itqbar, qbar_ncycle, qbar_rec, qbar_tid, qbar_id
+
+      real qbardir(Msrc)
+      common /source_qbardir/ qbardir
+
+# ifdef PSOURCE_NCFILE_TS
+      real tsrcg(Msrc,2,NT)
+      common /tsrcdat_tsrcg/tsrcg
+      real    tsrc_time(2,NT)
+      real    tsrc_cycle(NT)
+      integer ittsrc(NT), tsrc_ncycle(NT), tsrc_rec(NT),  tsrc_tid(NT),  
+     &        tsrc_id(NT)
+      common /tsrcdat1/ tsrc_time
+      common /tsrcdat2/ tsrc_cycle
+      common /tsrcdat3/ ittsrc, tsrc_ncycle, tsrc_rec, tsrc_tid, tsrc_id
+
+      logical got_tsrc(NT)
+      common /tsrc_logical/ got_tsrc
+
+# endif
+#endif /* PSOURCE_NCFILE */
 
 # ifdef MPI
       integer Isrc_mpi(Msrc,0:NNODES-1)

@@ -1443,8 +1443,8 @@ C$    integer  trd, omp_get_thread_num
           cff1=cff/(1-exp(-cff))
           cff2=0.
           do k=1,N
-            Qshape(is,k)=cff1*exp(z_r(Isrc(is),Jsrc(is),k)*cff/Hs)*
-     &        (z_w(Isrc(is),Jsrc(is),k)-z_w(Isrc(is),Jsrc(is),k-1))/Hs
+            Qshape(is,k)=cff1*exp(z_r(i,j,k)*cff/Hs)*
+     &        (z_w(i,j,k)-z_w(i,j,k-1))/Hs
             cff2=cff2+Qshape(is,k)
           enddo
           do k=1,N
@@ -1499,6 +1499,39 @@ C$    integer  trd, omp_get_thread_num
         enddo
       enddo
 # elif defined REGIONAL
+#  if defined BIOLOGY
+!     Fill with analytical value  if not find in netcdf file
+#    ifdef PISCES
+          if(.not.got_tsrc(iCAL_)) Tsrc0(j,k,iCAL_)=0.01   
+          if(.not.got_tsrc(iPOC_)) Tsrc0(j,k,iPOC_)=0.01
+          if(.not.got_tsrc(iPHY_)) Tsrc0(j,k,iPHY_)=0.01
+          if(.not.got_tsrc(iZOO_)) Tsrc0(j,k,iZOO_)=0.01
+          if(.not.got_tsrc(iDIA_)) Tsrc0(j,k,iDIA_)=0.01
+          if(.not.got_tsrc(iBSI_)) Tsrc0(j,k,iBSI_)=1.5e-3
+          if(.not.got_tsrc(iBFE_)) Tsrc0(j,k,iBFE_)=1.e-2*5.e-6
+          if(.not.got_tsrc(iGOC_)) Tsrc0(j,k,iGOC_)=0.01
+          if(.not.got_tsrc(iSFE_)) Tsrc0(j,k,iSFE_)=1.e-2*5.e-6
+          if(.not.got_tsrc(iDFE_)) Tsrc0(j,k,iDFE_)=1.e-2*5.e-6
+          if(.not.got_tsrc(iDSI_)) Tsrc0(j,k,iDSI_)=1.e-2*0.15
+          if(.not.got_tsrc(iNFE_)) Tsrc0(j,k,iNFE_)=1.e-2*5e-6
+          if(.not.got_tsrc(iNCH_)) Tsrc0(j,k,iNCH_)=1.e-2*12./55.
+          if(.not.got_tsrc(iDCH_)) Tsrc0(j,k,iDCH_)=1.e-2*12./55.
+          if(.not.got_tsrc(iNH4_)) Tsrc0(j,k,iNH4_)=1.e-2
+#    elif defined BIO_NChlPZD
+          if(.not.got_tsrc(iChla)) Tsrc0(j,k,iChla)=0.08  
+          if(.not.got_tsrc(iPhy1)) Tsrc0(j,k,iPhy1)=0.1
+          if(.not.got_tsrc(iZoo1)) Tsrc0(j,k,iZoo1)=0.06
+          if(.not.got_tsrc(iDet1)) Tsrc0(j,k,iDet1)=0.02
+#    elif defined BIO_N2ChlPZD2
+          if(.not.got_tsrc(iNH4_)) Tsrc0(j,k,iNH4_)=0.1  
+          if(.not.got_tsrc(iChla)) Tsrc0(j,k,iChla)=0.08
+          if(.not.got_tsrc(iPhy1)) Tsrc0(j,k,iPhy1)=0.06
+          if(.not.got_tsrc(iZoo1)) Tsrc0(j,k,iZoo1)=0.04
+          if(.not.got_tsrc(iDet1)) Tsrc0(j,k,iDet1)=0.02
+          if(.not.got_tsrc(iDet2)) Tsrc0(j,k,iDet2)=0.02
+#    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 */
+#  endif
+!
       do k=1,N
         do is=1,Nsrc
           Tsrc(is,k,itemp)=Tsrc0(is,itemp)
@@ -1507,7 +1540,23 @@ C$    integer  trd, omp_get_thread_num
           Tsrc(is,k,itpas)=Tsrc0(is,itpas)
 #  endif
 #  if defined BIOLOGY
+#    ifdef PISCES
+
+#    elif defined BIO_NChlPZD
           Tsrc(is,k,iNO3_)=Tsrc0(is,iNO3_)
+          Tsrc(is,k,iChla)=Tsrc0(is,iChla)
+          Tsrc(is,k,iPhy1)=Tsrc0(is,iPhy1)
+          Tsrc(is,k,iZoo1)=Tsrc0(is,iZoo1)
+          Tsrc(is,k,iDet1)=Tsrc0(is,iDet1)
+#    elif defined BIO_N2ChlPZD2
+          Tsrc(is,k,iNO3_)=Tsrc0(is,iNO3_)
+          Tsrc(is,k,iNH4_)=Tsrc0(is,iNH4_)
+          Tsrc(is,k,iChla)=Tsrc0(is,iChla)
+          Tsrc(is,k,iPhy1)=Tsrc0(is,iPhy1)
+          Tsrc(is,k,iZoo1)=Tsrc0(is,iZoo1)
+          Tsrc(is,k,iDet1)=Tsrc0(is,iDet1)
+          Tsrc(is,k,iDet2)=Tsrc0(is,iDet2)
+#    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 */
 #  endif
         enddo
       enddo

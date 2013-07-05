@@ -42,7 +42,10 @@
 !---------------------------------------------------------------
 !
 # if defined PSOURCE_NCFILE
-        call get_psource
+        call get_psource      
+#  if defined PSOURCE_NCFILE_TS
+        call get_psource_ts
+#  endif
 # endif
 
 #if !defined OA_COUPLING
@@ -556,15 +559,20 @@
 #  endif
 # endif
 #endif
-
 #ifdef PSOURCE_NCFILE
-      call set_psource_tile(Istr,Iend,Jstr,Jend,Nsrc)  
+      call set_psource_tile(Istr,Iend,Jstr,Jend)  
       do is=1,Nsrc
-        Qbar(is)=rivdir(is)*riv(is)
+        Qbar(is)=qbardir(is)*Qbar(is)
       enddo
+# ifdef PSOURCE_NCFILE_TS
+      call set_psource_ts_tile(Istr,Iend,Jstr,Jend)  
+# endif
 #endif
-#ifdef ANA_PSOURCE
+#if defined PSOURCE & defined ANA_PSOURCE
+C$OMP BARRIER
+C$OMP MASTER
       call ana_psource_tile (Istr,Iend,Jstr,Jend)
+C$OMP END MASTER
 #endif
 #if (defined BBL || defined MRL_WCI) &&\
      (!defined ANA_WWAVE && !defined WKB_WWAVE)

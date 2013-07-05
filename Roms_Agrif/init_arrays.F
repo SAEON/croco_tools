@@ -465,9 +465,9 @@ C$    integer omp_get_thread_num
       enddo
 # if defined PSOURCE_NCFILE
           do i=1,Msrc
-           riv(i)=init
-           rivg(i,1)=init
-           rivg(i,2)=init
+           qbar(i)=init
+           qbarg(i,1)=init
+           qbarg(i,2)=init
           enddo
 # endif
 #endif /* SOLVE3D */

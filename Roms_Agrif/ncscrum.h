@@ -46,7 +46,7 @@
 ! indxSST         sea surface temperature
 ! indxdQdSST      Q-correction coefficient dQdSST
 ! indxSSS         sea surface salinity
-! indxRIV         river runoff
+! indxQBAR         river runoff
 !
 ! indxAi          fraction of cell covered by ice
 ! indxUi,indxVi   U,V-components of sea ice velocity
@@ -465,8 +465,12 @@
 #endif
 
 #ifdef PSOURCE_NCFILE
-      integer indxRIV
-      parameter (indxRIV=indxSUSTR+38)
+      integer indxQBAR
+      parameter (indxQBAR=indxSUSTR+38)
+# ifdef PSOURCE_NCFILE_TS
+      integer indxTsrc
+      parameter (indxTsrc=indxSUSTR+39)
+# endif
 #endif /* PSOURCE_NCFILE */
 #ifdef ICE
       integer indxAi
@@ -540,7 +544,7 @@
 !               avg_/_avg           averages
 !                    _frc           forcing
 !                    _clm           climatology
-!                    _riv           river runoff
+!                    _qbar          river runoff
 !
 ! endings refer to:  ___Time  time [in seconds]
 !                    ___Tstep time step numbers and record numbers
@@ -573,14 +577,15 @@
 !   ntuclm  momentum variables in current climatology file.
 !   ntww    wind induced wave data in current forcing file.
 !   ntbulkn bulk formula variables in current forcing file.
-!   ntriv   river runoff in current forcing file.
+!   ntqbar   river runoff in current forcing file.
 !
 ! vname    character array for variable names and attributes;
 !=================================================================
 !
-      integer ncidfrc, ncidbulk, ncidclm,  ntsms
-     &      , ntsrf,  ntssh,  ntsst, ntsss, ntuclm,
-     &        ntbulk, ncidriv, ntriv, ntww
+      integer ncidfrc, ncidbulk, ncidclm,  ntsms ,
+     &        ntsrf,  ntssh,  ntsst, ntsss, ntuclm,
+     &        ntbulk, ncidqbar, ntqbar, ntww,
+     &        nttsrc(NT)
 #ifdef SOLVE3D
       integer nttclm(NT),    ntstf(NT)
 #endif
@@ -777,7 +782,8 @@
 	
       common/incscrum/
      &        ncidfrc, ncidbulk,ncidclm, ntsms, ntsrf, ntssh, ntsst
-     &      , ntuclm, ntsss, ntbulk, ncidriv, ntriv, ntww
+     &      , ntuclm, ntsss, ntbulk, ncidqbar, ntqbar, ntww 
+     &      , nttsrc
 #if defined MPI && defined PARALLEL_FILES
 # ifndef EW_PERIODIC
      &      , xi_rho,  xi_u
@@ -955,7 +961,7 @@
       character*80 date_str, title, start_date
       character*80 ininame,  grdname,  hisname
      &         ,   rstname,  frcname,  bulkname,  usrname
-     &         ,   rivname
+     &         ,   qbarname, tsrcname
 #ifdef AVERAGES
      &                                ,   avgname
 #endif
@@ -1005,7 +1011,7 @@
       common /cncscrum/       date_str,   title,  start_date
      &         ,   ininame,  grdname, hisname
      &         ,   rstname,  frcname, bulkname,  usrname
-     &         ,   rivname
+     &         ,   qbarname, tsrcname
 #ifdef AVERAGES
      &                                ,  avgname
 #endif

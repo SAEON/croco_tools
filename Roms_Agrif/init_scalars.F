@@ -187,7 +187,7 @@ C$OMP END PARALLEL
       ncidfrc=-1
       ncidbulk=-1
       ncidclm=-1
-      ncidriv=-1
+      ncidqbar=-1
 #ifdef DIAGNOSTICS_TS
       nciddia=-1
 # ifdef AVERAGES
@@ -1184,11 +1184,40 @@ CR      write(stdout,'(1x,A,I3)') 'indxdQdSST =',indxdQdSST
       vname(7,indxdQdSST)='                                       '
 # endif     
 # ifdef PSOURCE_NCFILE
-CR      write(stdout,'(1x,A,I3)') 'indxRIV =',indxRIV
-      vname(1,indxRIV)='RIV                                       '
-      vname(2,indxRIV)='river runoff                              '
-      vname(3,indxRIV)='m3s-1                                     '
-      vname(4,indxRIV)='RIV, scalar, series                       '
+CR      write(stdout,'(1x,A,I3)') 'indxQBAR =',indxQBAR
+      vname(1,indxQBAR)='Qbar                                      '
+      vname(2,indxQBAR)='Runoff Discharge                          '
+      vname(3,indxQBAR)='m3.s-1                                    '
+      vname(4,indxQBAR)='Qbar, scalar, series                      '
+#  ifdef PSOURCE_NCFILE_TS
+CR      write(stdout,'(1x,A,I3)') 'indxTsrc(1) =',indxTsrc
+        vname(1,indxTsrc)='temp_src                             '
+        vname(2,indxTsrc)='Temp. source runoff                  '
+        vname(3,indxTsrc)='deg. Celsius                         '
+        vname(4,indxTsrc)='Tsrc(1), scalar, series              '
+
+CR      write(stdout,'(1x,A,I3)') 'indxTsrc(2) =',indxTsrc+1
+        vname(1,indxTsrc+1)='salt_src                             '
+        vname(2,indxTsrc+1)='Salt. runoff                         '
+        vname(3,indxTsrc+1)='psu                                  '
+        vname(4,indxTsrc+1)='Tsrc(2), scalar, series              '
+#   ifdef BIOLOGY
+        do itrc=3,NT
+          nametrc=vname(1,indxT+itrc+2)
+          unitt=vname(3,indxT+itrc+2)
+          write(vname1,*) trim(nametrc),'_src                        '
+          vname(1,indxTsrc+itrc-1)=vname1
+CR       write(stdout,'(20x,A)') vname(1,indxTVmix+itrc-1)
+          vname(2,indxTsrc+itrc+2)='Tracer source concentration     '
+          write(vname3,*) trim(unitt),'                             '
+          vname(3,indxTsrc+itrc+2)=vname3
+          vname(4,indxTsrc+itrc+2)='                                '
+          vname(5,indxTsrc+itrc+2)='                                '
+          vname(6,indxTsrc+itrc+2)='                                '
+          vname(7,indxTsrc+itrc+2)='                                '
+        enddo
+#   endif
+#  endif
 # endif
 
 # if defined SALINITY && defined SFLX_CORR

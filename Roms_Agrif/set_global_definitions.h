@@ -170,10 +170,13 @@
 #undef   CONST_TRACERS
 
 /*
-    Psource option
+    PSOURCE / PSOURCE_NCFILE option
 */
-#ifdef PSOURCE
+#if defined PSOURCE || defined PSOURCE_NCFILE
 #  define ANA_PSOURCE  /* ON: set vertical profil for qbar */
+#endif
+#if defined PSOURCE_NCFILE
+# undef PSOURCE
 #endif
 /*
     Bulk flux option

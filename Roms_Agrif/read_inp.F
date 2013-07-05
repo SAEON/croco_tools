@@ -25,7 +25,7 @@
 #ifdef STATIONS
 # include "nc_sta.h"
 #endif
-#ifdef PSOURCE
+#if defiend PSOURCE || defined PSOURCE_NCFILE
 # include "sources.h"
 #endif
 #ifdef WKB_WWAVE
@@ -1609,27 +1609,57 @@ c        close(testunit)
 # endif
         open (testunit, file=fname(1:lstr), status='old', err=97)
         close(testunit)
-        rivname=fname(1:lstr)
+        qbarname=fname(1:lstr)
         MPI_master_only write(stdout,'(2x,A,2x,A)')
-     &             'Runoff Data File:', rivname(1:lstr)
+     &             'Runoff Data File:', qbarname(1:lstr)
         read(input,*,err=95) Nsrc
         MPI_master_only write(stdout,'(/6x,i6,2x,A,1x,A)')
      &                               Nsrc, 'Number of point sources'
         do is=1,Nsrc
-          read(input,*,err=95) Isrc(is),Jsrc(is),Dsrc(is),rivdir(is),
-     &                                    (Lsrc(is,itrc), itrc=1,NT),
-     &                                   (Tsrc0(is,itrc), itrc=1,NT)
+# ifdef PSOURCE_NCFILE_TS
+          read(input,*,err=95) Isrc(is),Jsrc(is),Dsrc(is),qbardir(is),
+     &                                    (Lsrc(is,itrc), itrc=1,NT)
+# else
+          read(input,*,err=95) Isrc(is),Jsrc(is),Dsrc(is),qbardir(is),
+     &                                     (Lsrc(is,itrc), itrc=1,NT),
+     &                                     (Tsrc0(is,itrc), itrc=1,NT)
+# endif /* PSOURCE_NCFILE_TS  */ 
+
         MPI_master_only write(stdout,'(3(/6x,i6,2x,A),(/6x,F6.0,2x,A))')
      &    Isrc(is), 'I point source indice'
      &  , Jsrc(is), 'J point source indice'
      &  , Dsrc(is), 'Orientation of point source flow'
 !         MPI_master_only write(stdout,'(/6x,F6.0,2x,A)')
-     &  ,  rivdir(is), 'Direction of point source flow'
-
-#else   
-        elseif (keyword(1:kwlen).eq.'psource') then
+     &  , qbardir(is), 'Direction of point source flow'
+# ifdef MPI
+        if (iminmpi.LE.Isrc(is) .AND. Isrc(is).LE.imaxmpi .AND.
+     &       jminmpi.LE.Jsrc(is) .AND. Jsrc(is).LE.jmaxmpi) then
+          Isrc_mpi(is,mynode)=Isrc(is)-iminmpi+1
+          Jsrc_mpi(is,mynode)=Jsrc(is)-jminmpi+1
+        else
+          Isrc_mpi(is,mynode)=-1
+          Jsrc_mpi(is,mynode)=-1
+        endif
+# endif
+        do itrc=1,NT
+          MPI_master_only write(stdout,
+     &         '(6x,L1,2x,A,I2,A,2x,A,I2,A)')
+     &         Lsrc(is,itrc), 'write Lsrc(',
+     &         itrc,')', 'Tracer of index', itrc,'.'
+        enddo
+#  ifndef PSOURCE_NCFILE_TS
+        do itrc=1,NT
+          MPI_master_only write(stdout,
+     &         '(6x,1pe10.3,2x,A,I2,A,2x,A,I2,A)')
+     &         Tsrc0(is,itrc), 'write Tsrc(',
+     &         itrc,')', 'Tracer of index', itrc,'.'
+        enddo
+#  endif
+      enddo
+# else
+      elseif (keyword(1:kwlen).eq.'psource') then
         call cancel_kwd (keyword(1:kwlen), ierr)
-
+        
         read(input,*,err=95) Nsrc
         MPI_master_only write(stdout,'(/6x,i6,2x,A,1x,A)')
      &                               Nsrc, 'Number of point sources'
@@ -1643,8 +1673,9 @@ c        close(testunit)
      &  , Dsrc(is), 'Direction of point source flow'
           MPI_master_only write(stdout,'(1pe10.3,2x,A)')
      &    Qbar(is), 'Total transport at point source'
-#endif         
-#ifdef MPI
+#  ifdef MPI
+          write(*,*)'Isrc(is)=',Isrc(is)
+          write(*,*)'Jsrc(is)=',Jsrc(is)
           if (iminmpi.LE.Isrc(is) .AND. Isrc(is).LE.imaxmpi .AND.
      &        jminmpi.LE.Jsrc(is) .AND. Jsrc(is).LE.jmaxmpi) then
            Isrc_mpi(is,mynode)=Isrc(is)-iminmpi+1
@@ -1667,7 +1698,8 @@ c        close(testunit)
      &                      itrc,')', 'Tracer of index', itrc,'.'
           enddo
         enddo
-#endif /* ANA_SOURCES */
+# endif   /*  define PSOURCE_NCFILE  */
+#endif /* ANA_PSOURCE */
 !
 ! Online forcing with CFSR
 !
