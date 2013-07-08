@@ -308,7 +308,7 @@ CR       write(*,*) 'wrt_avg:  wrtAks' MYID
 !     
 !     Write out vertical diffusion coefficient for TKE.
 !     
-      if (wrthis(indxAkk)) then
+      if (wrtavg(indxAkk)) then
          work=Akk_avg
          call fillvalue3d_w(work,ncidavg,avgAkk,indxAkk,
      &        record,w3dvar,type)
@@ -317,7 +317,7 @@ CR      write(*,*) 'wrt_avg:  wrtAkk' MYID
 !     
 !     Write out vertical diffusion coefficient for GLS.
 !     
-      if (wrthis(indxAkp)) then
+      if (wrtavg(indxAkp)) then
          work=Akp_avg
          call fillvalue3d_w(work,ncidavg,avgAkp,indxAkp,
      &        record,w3dvar,type)
@@ -369,7 +369,7 @@ CR      write(*,*) 'wrt_avg:  wrtGls' MYID
 !     
 !     Write out vertical mixing length scale
 !     
-      if (wrthis(indxLsc)) then
+      if (wrtavg(indxLsc)) then
          work=Lscale_avg
          call fillvalue3d_w(work,ncidavg,avgLsc,indxLsc,
      &        record,w3dvar,type)
@@ -516,7 +516,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
 !     
       do itrc=1,NST
          indxWrk=indxBFRA+itrc-1
-!         if (wrthis(indxWrk)) then
+!         if (wrtavg(indxWrk)) then
             worksed_frac=bed_frac_avg(:,:,:,itrc)
             call fillvalue3d(worksed_frac,ncidavg,avgSed(itrc+2),
      &           indxWrk,record,b3dvar,type)
