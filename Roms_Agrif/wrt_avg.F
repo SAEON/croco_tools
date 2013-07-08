@@ -424,7 +424,8 @@ CR      write(*,*) 'wrt_avg:  stflx(:,:,isalt)' MYID
          ierr=nf_fwrite(shflx_rsw_avg, ncidavg, avgShflx_rsw, 
      &                  record, r2dvar)
 # else
-         ierr=nf_fwrite(srflx_avg, ncidavg, avgShflx_rsw, record, r2dvar)
+         ierr=nf_fwrite(srflx_avg, ncidavg, avgShflx_rsw, 
+     &                  record, r2dvar)
 # endif
          if (ierr .ne. nf_noerr) then
             lvar=lenstr(vname(1,indxShflx_rsw))
