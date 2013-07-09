@@ -122,7 +122,7 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
       itqbar=i
       MPI_master_only write(stdout,'(6x,A,1x,A,1x,g12.4,1x,I4)') 
      &     'GET_PSOURCE --',
-     &     'Read Run-off flow fields          for time =', cff 
+     &     'Read Run-off flow fields      for time =', cff 
 
 !      OPEN(UNIT=114,file='roms_runoff.out',FORM='FORMATTED',
 !     &      access='append',status='OLD')
