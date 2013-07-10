@@ -59,6 +59,10 @@
      &     ho, dd, co, cgo, dsup
       real, parameter :: eps=1.e-10, 
      &                   khmax=20.D0     ! deep-water limit for k*h
+#if defined MPI 
+      include 'mpif.h'
+      integer ierr
+#endif
 # include "grid.h"
 # include "ocean2d.h"
 # include "ocean3d.h"
@@ -179,9 +183,19 @@
         Btg  = wkb_btg             ! B parameter
         gamw = wkb_gam             ! gamma paramemer (Hrms/h ratio)
 
+#  ifdef OBC_WEST
         ho=h(1,1)+wkb_tide         ! offshore depth
+#   ifdef MPI
+        call MPI_Bcast(ho, 1, MPI_DOUBLE_PRECISION,
+     &                     0, MPI_COMM_WORLD, ierr)
+#   endif
+#  endif
 #  ifdef OBC_EAST
         ho=h(LLm,1)+wkb_tide
+#   ifdef MPI
+        call MPI_Bcast(ho, 1, MPI_DOUBLE_PRECISION,
+     &                     NP_XI-1, MPI_COMM_WORLD, ierr)
+#   endif
 #  endif
         khd = ho*cfrq*cfrq/g
         kh  = sqrt(    khd*khd + khd/(1.0 + khd*(0.6666666666
@@ -291,7 +305,35 @@
         enddo
 # endif /* ANA_INI_WKB */
 !
-       endif  ! <-- iwave=1
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+        do k=1,2
+          call exchange_r2d_tile (istr,iend,jstr,jend,
+     &                            wkx(START_2D_ARRAY,k))
+          call exchange_r2d_tile (istr,iend,jstr,jend,
+     &                            wke(START_2D_ARRAY,k))
+          call exchange_r2d_tile (istr,iend,jstr,jend,
+     &                            wac(START_2D_ARRAY,k))
+          call exchange_r2d_tile (istr,iend,jstr,jend,
+     &                            hrm(START_2D_ARRAY,k))
+          call exchange_r2d_tile (istr,iend,jstr,jend,
+     &                            frq(START_2D_ARRAY,k))
+          call exchange_r2d_tile (istr,iend,jstr,jend,
+     &                            wcg(START_2D_ARRAY,k))
+          call exchange_r2d_tile (istr,iend,jstr,jend,
+     &                        wsb(START_2D_ARRAY,k))
+          call exchange_r2d_tile (istr,iend,jstr,jend,
+     &                            wvn(START_2D_ARRAY,k))
+#  ifdef WAVE_ROLLER
+          call exchange_r2d_tile (istr,iend,jstr,jend,
+     &                            war(START_2D_ARRAY,k))
+          call exchange_r2d_tile (istr,iend,jstr,jend,
+     &                            wcr(START_2D_ARRAY,k))
+          call exchange_r2d_tile (istr,iend,jstr,jend,
+     &                            wsr(START_2D_ARRAY,k))
+#  endif
+        end do
+# endif
+      endif  ! <-- iwave=1
 !
 ! ---------------------   End initialisation ------------------------------
 !
@@ -1286,18 +1328,15 @@ c        cff1=3.D0/16.D0
 
       subroutine wkb_diag_tile (istr,iend,jstr,jend)
       implicit none
-      integer istr,iend,jstr,jend, i,j,k, nsubs, ierr, ie
+      integer istr,iend,jstr,jend, i,j,k, nsubs,ie
 #include "param.h"
-      real dA
-      real*QUAD my_wac, my_wkn
+      real, dimension(2) :: my_ww, buff
       integer max_check_line
       parameter (max_check_line=128)
       character check_line*(max_check_line), tstring*18
 #ifdef MPI
-# include "mpif.h"
-      integer size, step, status(MPI_STATUS_SIZE)
-      real*QUAD buff(16)
-      common /xyz/ buff
+      include 'mpif.h'
+      integer status(MPI_STATUS_SIZE), ierr
 #endif
 #include "grid.h"
 #include "wkb_wwave.h"
@@ -1309,19 +1348,8 @@ c        cff1=3.D0/16.D0
 ! First, compute thread-integrated deviations, my_wac and my_wkn.
 !
       if (mod(iwave-1,winfo) .eq. 0) then
-        my_wac=0.D0
-        my_wkn=0.D0
-        do j=jstrR,jendR
-          do i=istrR,iendR
-# ifdef MASKING
-            dA=rmask(i,j)/(pm(i,j)*pn(i,j))
-# else
-            dA=1./(pm(i,j)*pn(i,j))
-# endif
-            my_wac = my_wac + dA*abs(wac(i,j,wnew)-wac(i,j,wstp))
-            my_wkn = my_wkn + dA*abs(wvn(i,j,wnew)-wvn(i,j,wstp))
-          enddo
-        enddo
+        my_ww(1) = maxval(abs(wac(:,:,wnew)-wac(:,:,wstp)))
+        my_ww(2) = maxval(abs(wvn(:,:,wnew)-wvn(:,:,wstp)))
         if (SINGLE_TILE_MODE) then
           nsubs=1
         else
@@ -1332,11 +1360,11 @@ c        cff1=3.D0/16.D0
 !
 C$OMP CRITICAL (diag_cr_rgn)
         if (tile_count.eq.0) then       ! Initialize global sums
-          av_wac=my_wac                 ! for multithreaded shared
-          av_wkn=my_wkn                 ! memory summation.
+          av_wac=my_ww(1)               ! for multithreaded shared
+          av_wkn=my_ww(2)               ! memory summation.
         else                            ! Perform global summation
-          av_wac=av_wac+my_wac          ! among the threads within
-          av_wkn=av_wkn+my_wkn          ! each MPI process.
+          av_wac=av_wac+my_ww(1)        ! among the threads within
+          av_wkn=av_wkn+my_ww(2)        ! each MPI process.
         endif
 
         tile_count=tile_count+1         ! This counter identifies
@@ -1344,28 +1372,14 @@ C$OMP CRITICAL (diag_cr_rgn)
         if (tile_count.eq.nsubs) then   ! it is, not always master.
           tile_count=0
 #ifdef MPI
-          if (NNODES.gt.1) then         ! Perform global summation
-            size=NNODES                 ! among MPI processes
-   1         step=(size+1)/2
-              if (mynode.ge.step .and. mynode.lt.size) then
-                buff(1)=av_wac          ! MPI_Reduce operation.
-                buff(2)=av_wkn          ! buff() may be real*16
-                call MPI_Send (buff,  18, MPI_DOUBLE_PRECISION,
-     &               mynode-step, 17, MPI_COMM_WORLD,      ierr)
-              elseif (mynode .lt. size-step) then
-                call MPI_Recv (buff,  18, MPI_DOUBLE_PRECISION,
-     &               mynode+step, 17, MPI_COMM_WORLD, status, ierr)
-                av_wac=av_wac+buff(1)
-                av_wkn=av_wkn+buff(2)
-              endif
-             size=step
-            if (size.gt.1) goto 1
+          if (NNODES.gt.1) then         ! Perform global max
+            call MPI_allreduce(my_ww,buff,2,
+     &              MPI_DOUBLE_PRECISION, MPI_MAX,MPI_COMM_WORLD,ierr)
           endif
-          if (mynode.eq.0) then
+          av_wac = buff(1)
+          av_wkn = buff(2)
+          if (mynode.eq.0) then               ! Compute diagnostics 
 #endif
-            av_wac=av_wac/(xl*el)             ! Compute diagnostics.
-            av_wkn=av_wkn/(xl*el)             !  (last thread of master
-                                              !   MPI process only)
             if (first_time.eq.0) then
               first_time=1
               write(*,'(5x,A,1x,A,3x,A,3x,A,2x,A)')

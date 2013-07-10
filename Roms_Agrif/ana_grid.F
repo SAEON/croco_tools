@@ -393,6 +393,7 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
         enddo
       enddo
 # elif defined SHOREFACE
+      write(*,*) 'RACHID', IendR, JendR
       do j=JstrR,JendR
         do i=IstrR,IendR
 #  ifdef OBC_EAST
@@ -400,10 +401,15 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
 #  else
           cff=Length_XI-xr(i,j)
 #  endif
-#  ifdef WET_DRY
-          h(i,j)=12.0-0.0125*Length_XI/float(LLm+1)*float(i) ! original fonction
+#  ifdef MPI
+          cff=(float(i +ii*Lm) )
 #  else
-          h(i,j)=12.0-0.0125*Length_XI/float(LLm+1)*float(i) + 0.8
+          cff=(float(i       ) )
+#  endif
+#  ifdef WET_DRY
+          h(i,j)=12.0-0.0125*Length_XI/float(LLm+1)*cff ! original fonction
+#  else
+          h(i,j)=12.0-0.0125*Length_XI/float(LLm+1)*cff + 3.
 #  endif
 #  ifdef MASKING
           rmask(i,j)=1.0

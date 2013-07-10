@@ -147,9 +147,11 @@ C$    integer omp_get_thread_num
 # ifdef MRL_WCI
             ust(i,j,k)=init
             vst(i,j,k)=init
+            wst(i,j,k)=init
 #  ifdef AVERAGES
             ust_avg(i,j,k)=init
             vst_avg(i,j,k)=init
+            wst_avg(i,j,k)=init
 #  endif
 # endif
 !
@@ -335,6 +337,32 @@ C$    integer omp_get_thread_num
         enddo
       enddo
 # endif /* BBL */
+# ifdef MRL_WCI
+      do k=0,N
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+            kvf(i,j,k)=init 
+            Akb(i,j,k)=init 
+            Akw(i,j,k)=init 
+# ifdef AVERAGES
+            kvf_avg(i,j,k)=init 
+            Akb_avg(i,j,k)=init 
+            Akw_avg(i,j,k)=init 
+# endif
+          enddo
+        enddo
+      enddo
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          calP(i,j)=init 
+          Kapsrf(i,j)=init 
+# ifdef AVERAGES
+          calP_avg(i,j)=init 
+          Kapsrf_avg(i,j)=init 
+# endif
+          enddo
+        enddo
+# endif
 #endif /* SOLVE3D */
 !
 !  Initialize forcing arrays (see "forces.h").

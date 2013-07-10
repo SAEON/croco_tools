@@ -1008,43 +1008,62 @@ c           ubry_east(j,k)=-ust(iendR,j,k)
 !
 ! Vertical Stokes drift velocity at rho-point
 ! ===========================================
+! Note "wst" is not used in prognostic computation, but only 
+! for output. 
 !
       subroutine wstokes (tile)
       implicit none
 # include "param.h"
-      integer tile
+      integer tile, trd, omp_get_thread_num
 # include "private_scratch.h"
 # include "compute_tile_bounds.h"
-      call wstokes_tile (istr,iend,jstr,jend)
+      trd=omp_get_thread_num()
+      call wstokes_tile (istr,iend,jstr,jend, A2d(1,1,trd))
       return
       end
 
-      subroutine wstokes_tile (istr,iend,jstr,jend)
+      subroutine wstokes_tile (istr,iend,jstr,jend,Wrk)
       implicit none
 # include "param.h"
       integer istr,iend,jstr,jend, i,j,k
-      real Wrk(0:N)
-# include "scalars.h"
+      real, dimension(PRIVATE_1D_SCRATCH_ARRAY,0:N) :: Wrk
+
 # include "grid.h"
 # include "ocean3d.h"
 # include "forces.h"
+# include "scalars.h"
+
+# include "compute_auxiliary_bounds.h"
+
       do j=jstr,jend
         do i=istr,iend
-          Wrk(0)=0.D0
-          do k=1,N,+1        !--> recursive
-            Wrk(k) = Wrk(k-1) -Hz(i,j,k)
-     &       *( pm(i,j)*(ust(i+1,j,k)-ust(i,j,k))
-     &         +pn(i,j)*(vst(i,j+1,k)-vst(i,j,k)) )
+          Wrk(i,0)=0.
+        enddo
+        do k=1,N,+1        !--> recursive
+          do i=istr,iend
+            Wrk(i,k)=Wrk(i,k-1)-0.5*pm(i,j)*pn(i,j)*(
+     &        (Hz(i+1,j,k)+Hz(i,j,k))*on_u(i+1,j)*ust(i+1,j,k)
+     &           -(Hz(i,j,k)+Hz(i-1,j,k))*on_u(i,j)*ust(i,j,k)
+     &       +(Hz(i,j+1,k)+Hz(i,j,k))*om_v(i,j+1)*vst(i,j+1,k)
+     &           -(Hz(i,j,k)+Hz(i,j-1,k))*om_v(i,j)*vst(i,j,k) )
           enddo
-
-          wst(i,j,N)=+0.375*Wrk(N) +0.75*Wrk(N-1) -0.125*Wrk(N-2)
-          do k=N-1,2,-1
-            wst(i,j,k)=+0.5625*(Wrk(k  )+Wrk(k-1))
-     &                 -0.0625*(Wrk(k+1)+Wrk(k-2))
+        enddo
+        do i=istr,iend
+          wst(i,j,N)=+0.375*Wrk(i,N) +0.75*Wrk(i,N-1)
+     &                                -0.125*Wrk(i,N-2)
+        enddo
+        do k=N-1,2,-1
+          do i=istr,iend
+            wst(i,j,k)=+0.5625*(Wrk(i,k  )+Wrk(i,k-1))
+     &                  -0.0625*(Wrk(i,k+1)+Wrk(i,k-2))
           enddo
-          wst(i,j,1)= -0.125*Wrk(2) +0.75*Wrk(1) +0.375*Wrk(0)
+        enddo
+        do i=istr,iend
+          wst(i,j,  1)= -0.125*Wrk(i,2) +0.75*Wrk(i,1)
+     &                                  +0.375*Wrk(i,0)
         enddo
       enddo
+
 # ifndef EW_PERIODIC
       if (WESTERN_EDGE) then                       ! Set lateral
         do k=1,N                                   ! boundary
@@ -1098,9 +1117,6 @@ c           ubry_east(j,k)=-ust(iendR,j,k)
         enddo
       endif
 #  endif
-# endif
-# if defined EW_PERIODIC || defined NS_PERIODIC  || defined MPI
-      call exchange_r3d_tile(istr,iend,jstr,jend,wst)
 # endif
       return
       end
