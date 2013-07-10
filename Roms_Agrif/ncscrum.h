@@ -292,7 +292,7 @@
       integer indxSSH
 #if defined BIOLOGY && !defined PISCES
       integer indxHel
-# ifdef BIO_NChlPZD
+# if (defined BIO_NChlPZD || defined BIO_N2ChlPZD2)
      &      , indxChC
 #  ifdef OXYGEN
      &      , indxU10, indxKvO2, indxO2sat
@@ -304,7 +304,7 @@
 #ifdef SOLVE3D
 # if defined BIOLOGY && !defined PISCES
       parameter (indxHel=indxAkt+9)
-#  ifdef BIO_NChlPZD
+# if (defined BIO_NChlPZD || defined BIO_N2ChlPZD2)
       parameter (indxChC=indxHel+1)
 #   ifdef OXYGEN
       parameter (indxU10=indxChC+1)

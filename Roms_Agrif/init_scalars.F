@@ -1094,7 +1094,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxHel =',indxHel
       vname(5,indxHel)='                                          '
       vname(6,indxHel)='lat_rho lon_rho                           '
       vname(7,indxHel)='                                          '
-#  ifdef BIO_NChlPZD
+#  if (defined BIO_NChlPZD || defined BIO_N2ChlPZD2)
 CR      write(stdout,'(1x,A,I3)') 'indxChC =',indxChC
       vname(1,indxChC)='theta                                     '
       vname(2,indxChC)='Chlorophyll to Carbon ratio               '
@@ -1203,18 +1203,18 @@ CR      write(stdout,'(1x,A,I3)') 'indxTsrc(2) =',indxTsrc+1
         vname(4,indxTsrc+1)='Tsrc(2), scalar, series              '
 #   ifdef BIOLOGY
         do itrc=3,NT
-          nametrc=vname(1,indxT+itrc+2)
-          unitt=vname(3,indxT+itrc+2)
+          nametrc=vname(1,indxT+itrc-1)
+          unitt=vname(3,indxT+itrc-1)
           write(vname1,*) trim(nametrc),'_src                        '
           vname(1,indxTsrc+itrc-1)=vname1
 CR       write(stdout,'(20x,A)') vname(1,indxTVmix+itrc-1)
-          vname(2,indxTsrc+itrc+2)='Tracer source concentration     '
+          vname(2,indxTsrc+itrc-1)='Tracer source concentration     '
           write(vname3,*) trim(unitt),'                             '
-          vname(3,indxTsrc+itrc+2)=vname3
-          vname(4,indxTsrc+itrc+2)='                                '
-          vname(5,indxTsrc+itrc+2)='                                '
-          vname(6,indxTsrc+itrc+2)='                                '
-          vname(7,indxTsrc+itrc+2)='                                '
+          vname(3,indxTsrc+itrc-1)=vname3
+          vname(4,indxTsrc+itrc-1)='                                '
+          vname(5,indxTsrc+itrc-1)='                                '
+          vname(6,indxTsrc+itrc-1)='                                '
+          vname(7,indxTsrc+itrc-1)='                                '
         enddo
 #   endif
 #  endif
