@@ -393,7 +393,6 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
         enddo
       enddo
 # elif defined SHOREFACE
-      write(*,*) 'RACHID', IendR, JendR
       do j=JstrR,JendR
         do i=IstrR,IendR
 #  ifdef OBC_EAST
