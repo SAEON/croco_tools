@@ -51,7 +51,7 @@
       integer Jsrc(Msrc)
       common /source_Jsrc/ Jsrc
 
-      logical Lsrc(Msrc,NT)
+      logical Lsrc(Msrc,30)
       common /source_Lsrc/ Lsrc
 
 #ifdef PSOURCE_NCFILE

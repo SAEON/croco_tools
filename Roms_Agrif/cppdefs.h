@@ -187,9 +187,11 @@
                       /* Point Sources - Rivers */
 # undef PSOURCE
 # undef ANA_PSOURCE
-# undef PSOURCE_NCFILE
-# ifdef PSOURCE_NCFILE                    
-#   define PSOURCE_NCFILE_TS
+# ifdef PSOURCE
+#   define PSOURCE_NCFILE
+#   ifdef  PSOURCE_NCFILE
+#     define PSOURCE_NCFILE_TS
+#   endif
 # endif
                       /* Open Boundary Conditions */
 # ifdef TIDES

@@ -112,8 +112,8 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
       c=(/ 1,Nsrc /)
 
       ierr=nf_get_vara_FTYPE(ncidqbar,qbar_id,s,c,qbarg(1:Nsrc,i))
-!$$$      write(*,*)'====='
-!$$$      write(*,*)'cff',cff,' qbar_rec',qbar_rec,' qbarg(:)',qbarg(1,:)
+CR      write(*,*)'====='
+CR      write(*,*)'cff',cff,' qbar_rec',qbar_rec,' qbarg(:)',qbarg(1,:)
       if (ierr .ne. nf_noerr) then
         write(stdout,6) 'QBAR', qbar_rec
         goto 99                 !--> ERROR
@@ -171,6 +171,7 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
 # include "sources.h"
 # include "compute_extended_bounds.h"
 !
+CR      write(*,*)'Enter set_psource_tile...'
 
       it1=3-itqbar
       it2=itqbar
@@ -199,8 +200,8 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
         cff1=cff1*cff
         cff2=cff2*cff
         do i=1,Nsrc
-!          Qbar(i)=cff1*qbarg(i,it1)+cff2*qbarg(i,it2)
-           Qbar(i)=10.
+          Qbar(i)=cff1*qbarg(i,it1)+cff2*qbarg(i,it2)
+CR          write(*,*)'i=',i,' -- Qbar(i)=',Qbar(i)
         enddo
 !     
 !  Unable to set-up QBAR:

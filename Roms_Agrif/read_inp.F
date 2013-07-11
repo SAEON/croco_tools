@@ -1598,15 +1598,15 @@ c        close(testunit)
 ! located at U- or V-points so the grid locations should range from
 ! 1 =< Isrc =< L  and  1 =< Jsrc =< M.
 !
-#ifdef PSOURCE_NCFILE
+# ifdef PSOURCE_NCFILE
       elseif (keyword(1:kwlen).eq.'psource_ncfile') then
         call cancel_kwd (keyword(1:kwlen), ierr)
 ! river runoff file name. Check its availability.
         read(input,'(A)',err=95) fname
         lstr=lenstr(fname)
-# if defined MPI && defined PARALLEL_FILES
+#   if defined MPI && defined PARALLEL_FILES
         call insert_node (fname, lstr, mynode, NNODES, ierr)
-# endif
+#   endif
         open (testunit, file=fname(1:lstr), status='old', err=97)
         close(testunit)
         qbarname=fname(1:lstr)
@@ -1616,14 +1616,14 @@ c        close(testunit)
         MPI_master_only write(stdout,'(/6x,i6,2x,A,1x,A)')
      &                               Nsrc, 'Number of point sources'
         do is=1,Nsrc
-# ifdef PSOURCE_NCFILE_TS
+#  ifdef PSOURCE_NCFILE_TS
           read(input,*,err=95) Isrc(is),Jsrc(is),Dsrc(is),qbardir(is),
-     &                                    (Lsrc(is,itrc), itrc=1,NT)
-# else
+     &                                    (Lsrc(is,itrc), itrc=1,30)
+#  else
           read(input,*,err=95) Isrc(is),Jsrc(is),Dsrc(is),qbardir(is),
-     &                                     (Lsrc(is,itrc), itrc=1,NT),
+     &                                     (Lsrc(is,itrc), itrc=1,30),
      &                                     (Tsrc0(is,itrc), itrc=1,NT)
-# endif /* PSOURCE_NCFILE_TS  */ 
+#  endif /* PSOURCE_NCFILE_TS  */ 
 
         MPI_master_only write(stdout,'(3(/6x,i6,2x,A),(/6x,F6.0,2x,A))')
      &    Isrc(is), 'I point source indice'
@@ -1631,7 +1631,7 @@ c        close(testunit)
      &  , Dsrc(is), 'Orientation of point source flow'
 !         MPI_master_only write(stdout,'(/6x,F6.0,2x,A)')
      &  , qbardir(is), 'Direction of point source flow'
-# ifdef MPI
+#  ifdef MPI
         if (iminmpi.LE.Isrc(is) .AND. Isrc(is).LE.imaxmpi .AND.
      &       jminmpi.LE.Jsrc(is) .AND. Jsrc(is).LE.jmaxmpi) then
           Isrc_mpi(is,mynode)=Isrc(is)-iminmpi+1
@@ -1640,7 +1640,7 @@ c        close(testunit)
           Isrc_mpi(is,mynode)=-1
           Jsrc_mpi(is,mynode)=-1
         endif
-# endif
+#  endif
         do itrc=1,NT
           MPI_master_only write(stdout,
      &         '(6x,L1,2x,A,I2,A,2x,A,I2,A)')
@@ -1656,7 +1656,8 @@ c        close(testunit)
         enddo
 #  endif
       enddo
-# else
+# else   
+!<- PSOURCE_NCFILE 
       elseif (keyword(1:kwlen).eq.'psource') then
         call cancel_kwd (keyword(1:kwlen), ierr)
         
@@ -1684,7 +1685,7 @@ c        close(testunit)
            Isrc_mpi(is,mynode)=-1
            Jsrc_mpi(is,mynode)=-1
           endif
-#endif
+#  endif
           do itrc=1,NT
             MPI_master_only write(stdout,
      &                     '(6x,L1,2x,A,I2,A,2x,A,I2,A)')

@@ -172,11 +172,12 @@
 /*
     PSOURCE / PSOURCE_NCFILE option
 */
-#if defined PSOURCE || defined PSOURCE_NCFILE
+#if defined PSOURCE
 #  define ANA_PSOURCE  /* ON: set vertical profil for qbar */
 #endif
 #if defined PSOURCE_NCFILE
-# undef PSOURCE
+# define PSOURCE
+# define ANA_PSOURCE
 #endif
 /*
     Bulk flux option

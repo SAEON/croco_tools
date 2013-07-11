@@ -151,11 +151,18 @@ c     goto 99                                     !--> ERROR
               got_tsrc(itrc)=.false.
               write(stdout,3) 'det2_src_time', qbarname(1:lstr)
 c     goto 99                                     !--> ERROR
-              endif
+            endif
 # endif
-!
 # ifdef PISCES
-            elseif (itrc.eq.iDIC_) then
+          elseif (itrc.eq.iNO3_) then
+            got_tsrc(itrc)=.true.
+            ierr=nf_inq_varid (ncidqbar,'no3_src_time', tsrc_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tsrc(itrc)=.false.
+              write(stdout,3) 'no3_src_time', qbarname(1:lstr)
+c     goto 99           !--> ERROR
+            endif
+          elseif (itrc.eq.iDIC_) then
               got_tsrc(itrc)=.true.
               ierr=nf_inq_varid (tsrc_id, 'dic_src_time', 
      &                           tsrc_tid(itrc))
@@ -502,8 +509,8 @@ CR          write(*,*)'vname(...)=',vname(1,indxTsrc+itrc-1)
 # include "scalars.h"
 # include "sources.h"
 # include "compute_extended_bounds.h"
-!     
-!     write(*,*)'SET_PSOURCE_TS.F'
+!    
+CR      write(*,*)'Enter set_psource_ts_tile...'
       do itrc=1,NT
         if (got_tsrc(itrc)) then
           it1=3-ittsrc(itrc)
@@ -533,7 +540,10 @@ CR          write(*,*)'vname(...)=',vname(1,indxTsrc+itrc-1)
             cff1=cff1*cff
             cff2=cff2*cff
             do i=1,Nsrc
-              Tsrc0(i,itrc)=cff1*tsrcg(i,it1,itrc)+cff2*tsrcg(i,it2,itrc)
+              Tsrc0(i,itrc)=cff1*tsrcg(i,it1,itrc)
+     &                    + cff2*tsrcg(i,it2,itrc)
+CR              write(*,*)'i=',i,' itrc=',itrc,
+CR    &                  'Tsrc0(i,itrc)=',Tsrc0(i,itrc)
             enddo
 !     
 !     Unable to set-up Runoff Conc.:
