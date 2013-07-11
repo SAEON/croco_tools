@@ -358,7 +358,7 @@ C$    integer omp_get_thread_num
           Kapsrf(i,j)=init 
 # ifdef AVERAGES
           calP_avg(i,j)=init 
-          Kapsrf_avg(i,j)=init 
+          Kaps_avg(i,j)=init 
 # endif
           enddo
         enddo
