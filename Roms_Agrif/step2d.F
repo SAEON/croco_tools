@@ -1239,6 +1239,12 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
      &                   ubar(START_2D_ARRAY,knew))
       call exchange_v2d_tile (istr,iend,jstr,jend,
      &                   vbar(START_2D_ARRAY,knew))
+# if defined MRL_WCI && defined WET_DRY
+      call exchange_u2d_tile (istr,iend,jstr,jend,
+     &                   ust2d(START_2D_ARRAY))
+      call exchange_v2d_tile (istr,iend,jstr,jend,
+     &                   vst2d(START_2D_ARRAY))
+# endif
 #endif
 !
 !-----------------------------------------------------------------------
