@@ -14,7 +14,7 @@
 !      do j=jstr,jend
 !        do itrc=1,NT
 !
-! Perform implicit time step for vertical diffusion,
+! Perform implicit (backward Euler) time step for vertical diffusion,
 !
 !   dq(k)     1     [         q(k+1)-q(k)             q(k)-q(k-1) ]
 !  ------ = ----- * [ Akt(k)* ----------- - Akt(k-1)* ----------- ]

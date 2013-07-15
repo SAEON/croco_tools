@@ -98,7 +98,7 @@
       do j=Jstr,Jend
 !
 ! The vertical viscosity term is not added as an explicit divergence term
-! like the other terms due to the semi-implicit Crank-Nicholson scheme. 
+! like the other terms due to the semi-implicit backward Euler scheme. 
 ! We store first u(i,j,k,nnew) ...
 !
 # ifdef DIAGNOSTICS_UV
@@ -212,7 +212,7 @@
         if (j.ge.JstrV) then
 !
 ! The vertical viscosity term is not added as an explicit divergence term
-! like the other terms due to the semi-implicit Crank-Nicholson scheme. 
+! like the other terms due to the semi-implicit backward Euler scheme. 
 ! We store first v(i,j,k,nnew) ...
 !
 # ifdef DIAGNOSTICS_UV

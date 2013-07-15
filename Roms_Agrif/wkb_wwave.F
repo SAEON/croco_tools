@@ -32,7 +32,7 @@
 !======================================================================
 !  WKB ray equation + action-density conservation equations for
 !  primary waves and rollers are solved with 2nd-order Adams-Bashforth
-!  time stepping algorithm.  Also AB3 and AB2-Crank-Nocholson predictor-
+!  time stepping algorithm.  Also AB3 and AB2-Crank-Nicolson predictor-
 !  corrector steppings may be chosen.  For AB2-CN2 you need to modify 
 !  main.F to execute this subroutine twice during one barotropic time
 !  step.  The breaking dissipation term is modeled according to Thornton
@@ -121,7 +121,7 @@
 # elif defined WKB_AB2CN2
       if (iwave.eq.1) then              ! Option 3: Predictor-corrector
         wbak=wstp                       ! stepping with AB2 and Crank-
-        w1=1.                           ! Nocholson2 schemes. The first two
+        w1=1.                           ! Nicolson2 schemes. The first two
         w2=0.                           ! wave steps are with forward
       else                              ! Euler and AB2 schemes.
         if (mod(iwave,2).eq.0) then
