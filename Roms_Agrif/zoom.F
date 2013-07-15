@@ -896,7 +896,6 @@ CR      write(*,*) '  0' MYID
       UVspongeTimeindex = -1
 
 
-  
       iif = -1
       
 #ifdef AGRIF_ADAPTIVE
@@ -941,80 +940,96 @@ CR      write(*,*) '  0' MYID
       Agrif_UseSpecialValueInUpdate = .TRUE.
       Agrif_SpecialValueFineGrid = 0.   
       Call Agrif_Update_Variable(h,h,locupdate=(/1,0/),
-     &     procname=updateh)
+     &                           procname=updateh)
       Agrif_UseSpecialValueInUpdate = .FALSE.
 
       isens = 1
       
-        allocate(tabtemp2d(0:i2u,j1t:j2t))
+      allocate(tabtemp2d(0:i2u,j1t:j2t))
       Call Agrif_Bc_Variable(tabtemp2d,ubarid,calledweight=1.,
-     &procname=hinterp)
-        hbis(0:i2u,j1t:j2t)=tabtemp2d
-        deallocate(tabtemp2d)  
+     &                       procname=hinterp)
+      hbis(0:i2u,j1t:j2t)=tabtemp2d
+      deallocate(tabtemp2d)  
            
 #  ifdef AGRIF_OBC_WEST
 #   ifdef MPI           
-        if (.not.WEST_INTER) then
+      if (.not.WEST_INTER) then
 #   endif      
       Do j=0,LOCALMM+1
         h(0,j) = 2.*hbis(1,j)-h(1,j)
+# ifdef NEW_S_COORD
+        hinv(0,j) = 1./(h(0,j)+hc)
+# else
         hinv(0,j) = 1./h(0,j)
+# endif
       enddo
 #   ifdef MPI            
-        endif
+      endif
 #   endif 
 #  endif 
 
 #  ifdef AGRIF_OBC_EAST
 #   ifdef MPI           
-        if (.not.EAST_INTER) then
+      if (.not.EAST_INTER) then
 #   endif      
       Do j=0,LOCALMM+1
         h(LOCALLM+1,j) = 2.*hbis(LOCALLM+1,j)-h(LOCALLM,j)
+# ifdef NEW_S_COORD
+        hinv(LOCALLM+1,j) = 1./(h(LOCALLM+1,j)+hc)
+# else
         hinv(LOCALLM+1,j) = 1./h(LOCALLM+1,j)
+# endif
       enddo
 #   ifdef MPI            
-        endif
+      endif
 #   endif 
 #  endif       
           
       isens = 2
-        allocate(tabtemp2d(i1t:i2t,0:j2v))
+      allocate(tabtemp2d(i1t:i2t,0:j2v))
       Call Agrif_Bc_Variable(tabtemp2d,vbarid,calledweight=1.,
-     &procname=hinterp)
-        hbis(i1t:i2t,0:j2v)=tabtemp2d
-        deallocate(tabtemp2d)
+     &                       procname=hinterp)
+      hbis(i1t:i2t,0:j2v)=tabtemp2d
+      deallocate(tabtemp2d)
               
 #  ifdef AGRIF_OBC_SOUTH
 #   ifdef MPI           
-        if (.not.SOUTH_INTER) then
+      if (.not.SOUTH_INTER) then
 #   endif       
       Do i=0,LOCALLM+1
         h(i,0) = 2.*hbis(i,1)-h(i,1)
+# ifdef NEW_S_COORD
+        hinv(i,0) = 1./(h(i,0)+hc)
+# else
         hinv(i,0) = 1./h(i,0)
+# endif
       enddo
 #   ifdef MPI            
-        endif
+      endif
 #   endif 
 #  endif 
 
 #  ifdef AGRIF_OBC_NORTH
 #   ifdef MPI           
-        if (.not.NORTH_INTER) then
+      if (.not.NORTH_INTER) then
 #   endif       
       Do i=0,LOCALLM+1
         h(i,LOCALMM+1) = 2.*hbis(i,LOCALMM+1)-h(i,LOCALMM)
+# ifdef NEW_S_COORD
+        hinv(i,LOCALMM+1) = 1./(h(i,LOCALMM+1)+hc)
+# else
         hinv(i,LOCALMM+1) = 1./h(i,LOCALMM+1)
+# endif
       enddo
 #   ifdef MPI            
-        endif
+      endif
 #   endif 
 #  endif 
 
       Agrif_UseSpecialValueInUpdate = .TRUE.
       Agrif_SpecialValueFineGrid = 0.   
       Call Agrif_Update_Variable(h,h,locupdate=(/1,0/),
-     &     procname=updateh)
+     &                           procname=updateh)
       Agrif_UseSpecialValueInUpdate = .FALSE.           
 
       Call Agrif_ChildGrid_To_ParentGrid()
@@ -1544,10 +1559,10 @@ CR      write(*,*) '  0' MYID
 
          do j=j1,j2
            do i=i1,i2
-# ifndef WET_DRY
-             h(i,j)=max(tabres(i,j),hc)
+# ifdef NEW_S_COORD
+             h(i,j)=max(tabres(i,j),hmin)
 # else
-             h(i,j)=tabres(i,j)
+             h(i,j)=max(tabres(i,j),hc)
 # endif
 # ifdef NEW_S_COORD 
              hinv(i,j)=1./(h(i,j)+hc)      
