@@ -59,28 +59,28 @@
      
 #ifdef MPI
 # ifdef PARALLEL_FILES
-#  ifdef EW_PERIODIC
-      imin=1 
-      imax=Lm
-#  else
+!#  ifdef EW_PERIODIC
+!      imin=1 
+!      imax=Lm
+!#  else
       if (ii.gt.0) imin=1
       if (ii.eq.NP_XI-1) then
         imax=Lmmpi+1
       else
         imax=Lmmpi
       endif
-#  endif
-#  ifdef NS_PERIODIC
-      jmin=1  
-      jmax=Mm
-#  else
+!#  endif
+!#  ifdef NS_PERIODIC
+!      jmin=1  
+!      jmax=Mm
+!#  else
       if (jj.gt.0) jmin=1
       if (jj.eq.NP_ETA-1) then
         jmax=Mmmpi+1
       else
         jmax=Mmmpi
       endif
-#  endif
+!#  endif
 # else
       if (ii.gt.0) then
         start(1)=1-imin+iminmpi

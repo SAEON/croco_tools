@@ -122,7 +122,7 @@
       jmaxmpi=jendmpi
 
 #ifdef PARALLEL_FILES
-# ifndef EW_PERIODIC
+!# ifndef EW_PERIODIC
       xi_rho=Lmmpi
       xi_u=xi_rho
       if (ii.eq.0) xi_rho=xi_rho+1
@@ -130,8 +130,8 @@
         xi_rho=xi_rho+1
         xi_u=xi_u+1
       endif
-# endif
-# ifndef NS_PERIODIC
+!# endif
+!# ifndef NS_PERIODIC
       eta_rho=Mmmpi
       eta_v=eta_rho
       if (jj.eq.0) eta_rho=eta_rho+1
@@ -139,7 +139,7 @@
         eta_rho=eta_rho+1
         eta_v=eta_v+1
       endif
-# endif
+!# endif
 #endif
 
       return

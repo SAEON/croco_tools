@@ -505,28 +505,35 @@
 ! eta_v      and therefore become live variables, which are placed
 !            into common block below rather than defined here as
 !            parameters. 
-
+!
+! Note (P. Marchesiello): 
+!   the remark above is now extended to periodic conditions, i.e., 
+!   if PARALLEL_FILES is defined, netCDF files array dimensions are 
+!   always set in MPI-Setup and depend on MPI-nodes. After rejoining 
+!   the parallel files (ncjoin), the resulting global netCDF file has
+!   the same dimension as it would have if PARALLEL_FILES was undefined.
+!
       integer xi_rho,xi_u, eta_rho,eta_v    
 #ifndef AGRIF
 # if defined MPI && defined PARALLEL_FILES
-#  ifdef EW_PERIODIC
-      parameter (xi_rho=Lm,     xi_u=Lm)
-#  endif
-#  ifdef NS_PERIODIC
-      parameter (eta_rho=Mm,    eta_v=Mm)
-#  endif
+!#  ifdef EW_PERIODIC
+!      parameter (xi_rho=Lm,     xi_u=Lm)
+!#  endif
+!#  ifdef NS_PERIODIC
+!      parameter (eta_rho=Mm,    eta_v=Mm)
+!#  endif
 # else
       parameter (xi_rho=LLm+2,  xi_u=xi_rho-1,
      &           eta_rho=MMm+2, eta_v=eta_rho-1)
 # endif
 #else
 # if defined MPI && defined PARALLEL_FILES
-#  ifdef EW_PERIODIC
-      common/netCDFhorizdim1/xi_rho,xi_u
-#  endif
-#  ifdef NS_PERIODIC
-      common/netCDFhorizdim2/eta_rho,eta_v
-#  endif
+!#  ifdef EW_PERIODIC
+!      common/netCDFhorizdim1/xi_rho,xi_u
+!#  endif
+!#  ifdef NS_PERIODIC
+!      common/netCDFhorizdim2/eta_rho,eta_v
+!#  endif
 # else
       common/netCDFhorizdim/xi_rho,xi_u, eta_rho,eta_v
 # endif
@@ -792,12 +799,12 @@
      &      , ntuclm, ntsss, ntbulk, ncidqbar, ntqbar, ntww 
      &      , nttsrc
 #if defined MPI && defined PARALLEL_FILES
-# ifndef EW_PERIODIC
+!# ifndef EW_PERIODIC
      &      , xi_rho,  xi_u
-# endif
-# ifndef NS_PERIODIC
+!# endif
+!# ifndef NS_PERIODIC
      &      , eta_rho, eta_v
-# endif
+!# endif
 #endif
 #ifdef SOLVE3D
      &                        ,  nttclm,          ntstf

@@ -14,11 +14,12 @@
 ! ====== =========== ===========
 
 #ifdef AGRIF
-#ifdef MPI
+
+# ifdef MPI
       Lm=(LLm+NP_XI-1)/NP_XI; Mm=(MMm+NP_ETA-1)/NP_ETA
-#else
+# else
       Lm=LLm; Mm=MMm
-#endif
+# endif
 !
 ! Derived dimension parameters.
 !
@@ -31,40 +32,47 @@
 ! eta_v      and therefore become live variables, which are placed
 !            into common block below rather than defined here as
 !            parameters. 
-
-#if defined MPI && defined PARALLEL_FILES
-# ifdef EW_PERIODIC
-      xi_rho=Lm;     xi_u=Lm
-# endif
-# ifdef NS_PERIODIC
-      eta_rho=Mm;    eta_v=Mm
-# endif
-#else
+!
+! Note (P. Marchesiello): 
+!   the remark above is now extended to periodic conditions, i.e., 
+!   if PARALLEL_FILES is defined, netCDF files array dimensions are 
+!   always set in MPI-Setup and depend on MPI-nodes. After rejoining 
+!   the parallel files (ncjoin), the resulting global netCDF file has
+!   the same dimension as it would have if PARALLEL_FILES was undefined.
+!
+# if defined MPI && defined PARALLEL_FILES
+!# ifdef EW_PERIODIC
+!      xi_rho=Lm;     xi_u=Lm
+!# endif
+!# ifdef NS_PERIODIC
+!      eta_rho=Mm;    eta_v=Mm
+!# endif
+# else
       xi_rho=LLm+2;  xi_u=xi_rho-1
       eta_rho=MMm+2; eta_v=eta_rho-1
-#endif
+# endif
 
-#ifdef PISCES
+# ifdef PISCES
       jpiglo = LLm
       jpjglo = MMm
       jpi = Lm
       jpj = Mm
       jpim1 = jpi - 1
       jpjm1 = jpj - 1
-#endif
+# endif
 
 #endif  
 ! <- key AGRIF
 
 !********************************************************************
 #if defined AGRIF || defined AUTOTILING
-#undef ALLOW_SINGLE_BLOCK_MODE
-#ifdef  ALLOW_SINGLE_BLOCK_MODE
+# undef ALLOW_SINGLE_BLOCK_MODE
+# ifdef  ALLOW_SINGLE_BLOCK_MODE
       size_XI=6+Lm; size_ETA=6+Mm
-#else
+# else
       size_XI=7+(Lm+NSUB_X-1)/NSUB_X
       size_ETA=7+(Mm+NSUB_E-1)/NSUB_E
-#endif
+# endif
       sse=size_ETA/Np; ssz=Np/size_ETA
       se=sse/(sse+ssz);   sz=1-se
       N1dXI = size_XI
