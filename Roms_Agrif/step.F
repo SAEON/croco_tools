@@ -107,7 +107,7 @@ C$OMP END PARALLEL
       integer range
       integer ntrds,trd,
      &        my_first,my_last, tile, my_iif
-      integer itrc, iif_wave
+      integer itrc
 
 #ifdef FLOATS
        integer chunk_size_flt, Lstr,Lend, flt_str
@@ -300,17 +300,45 @@ C$OMP BARRIER
 
       if (may_day_flag.ne.0) return  !-->  EXIT
 
-# if defined WKB_WWAVE && defined MRL_CEW
-      do iif_wave=1,nfast       ! WKB ray equation for 3D cases
+# if defined WKB_WWAVE && (defined WKB_UNSTEADY || defined MRL_CEW)
+#  ifdef MRL_CEW
+      do tile=my_tile_range
+        call wkb_cew_prep (tile)
+      enddo
+C$OMP BARRIER
+      wint=0
+      do winterp=1,interp_max
+        wint=wint+1
+        if (wint.gt.2) wint=1
+        do tile=my_tile_range
+          call wkb_uvfield (tile, winterp)
+        enddo
+C$OMP BARRIER
+      enddo
+#  endif
+      do iif_wave=1,ndtfast         ! WKB ray equation w/ barotropic time stepping
         wstp=wnew
         wnew=wstp+1
         if (wnew.ge.3) wnew=1
+#  ifdef MRL_CEW
+        do tile=my_tile_range
+          call wkb_cew_finalize (tile)
+        enddo
+C$OMP BARRIER
+#  endif
         do tile=my_tile_range
           call wkb_wwave (tile)
         enddo
 C$OMP BARRIER
       enddo
+#  if defined RVTK_DEBUG || defined RVTK_DEBUG_ADVANCED
+C$OMP BARRIER
+C$OMP MASTER
+      call check_tab2d(wac(:,:,wnew),'wac in step ','r')
+C$OMP END MASTER
+#  endif
 # endif
+
 # ifdef MRL_WCI 
       do tile=my_tile_range
         call  mrl_wci (tile)

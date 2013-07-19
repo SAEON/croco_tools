@@ -255,6 +255,7 @@
 #  endif
           enddo
         enddo
+
 !
 !  Boundary fields
 !
@@ -375,8 +376,8 @@
 # ifdef MRL_CEW
       do j=jstr,jend+1        ! 1/n*du/dx & 1/m*dv/de at psi-point
         do i=istr,iend+1
-          kvx(i,j)=dn_p(i,j)*(vwave(i,j,wmod)-vwave(i-1,j,wmod))
-          kue(i,j)=dm_p(i,j)*(uwave(i,j,wmod)-uwave(i,j-1,wmod))
+          kvx(i,j)=on_p(i,j)*(vwave(i,j,wmod)-vwave(i-1,j,wmod))
+          kue(i,j)=om_p(i,j)*(uwave(i,j,wmod)-uwave(i,j-1,wmod))
         enddo
       enddo
 # endif
@@ -817,12 +818,13 @@
 # ifdef MRL_CEW
       subroutine wkb_cew_prep (tile)
       implicit none
-      integer tile
+      integer tile, trd, omp_get_thread_num
 # include "param.h"
 # include "private_scratch.h"
 # include "compute_tile_bounds.h"
+      trd=omp_get_thread_num()
       call wkb_cew_prep_tile (istr,iend,jstr,jend,
-     &                                     A2d(1,1),A2d(1,2),A2d(1,3))
+     &                        A2d(1,1,trd),A2d(1,2,trd),A2d(1,3,trd))
       return
       end
 
@@ -923,14 +925,16 @@
 !
       subroutine wkb_uvfield (tile,linterp)
       implicit none
-      integer tile, linterp
+      integer tile, linterp, trd, omp_get_thread_num
 #include "param.h"
 #include "private_scratch.h"
 #include "compute_tile_bounds.h"
+      trd=omp_get_thread_num()
       call wkb_uvfield_tile (istr,iend,jstr,jend, linterp, 
-     &            A2d(1, 1), A2d(1, 2), A2d(1, 3), A2d(1, 4), A2d(1, 5),
-     &            A2d(1, 6), A2d(1, 7), A2d(1, 8), A2d(1, 9), A2d(1,10),
-     &                                             A2d(1,11), A2d(1,12))
+     &            A2d(1, 1, trd), A2d(1, 2, trd), A2d(1, 3, trd), 
+     &            A2d(1, 4, trd), A2d(1, 5, trd), A2d(1, 6, trd), 
+     &            A2d(1, 7, trd), A2d(1, 8, trd), A2d(1, 9, trd), 
+     &            A2d(1,10, trd),  A2d(1,11, trd), A2d(1,12,trd))
       return
       end
 
@@ -1071,13 +1075,22 @@ c        cff1=3.D0/16.D0
 #  ifdef MASKING
      &                        *rmask(i-1,j)
 #  endif
+#  ifdef WET_DRY
+     &                        *rmask_wet(i-1,j)
+#  endif
             GX(i,j)=(wrk2(i,j)-wrk2(i-1,j))
 #  ifdef MASKING
      &                        *pmask(i-1,j)
 #  endif
+#  ifdef WET_DRY
+     &                        *pmask_wet(i-1,j)
+#  endif
             ZX(i,j)=(wrk3(i,j)-wrk3(i-1,j))
 #  ifdef MASKING
      &                          *umask(i,j)
+#  endif
+#  ifdef WET_DRY
+     &                          *umask_wet(i,j)
 #  endif
           enddo
         enddo
@@ -1087,13 +1100,22 @@ c        cff1=3.D0/16.D0
 #  ifdef MASKING
      &                          *pmask(i,j)
 #  endif
+#  ifdef WET_DRY
+     &                          *pmask_wet(i,j)
+#  endif
             GE(i,j)=(wrk2(i,j)-wrk2(i,j-1))
 #  ifdef MASKING
      &                        *rmask(i,j-1)
 #  endif
+#  ifdef WET_DRY
+     &                        *rmask_wet(i,j-1)
+#  endif
             ZE(i,j)=(wrk3(i,j)-wrk3(i,j-1))
 #  ifdef MASKING
      &                          *vmask(i,j)
+#  endif
+#  ifdef WET_DRY
+     &                          *vmask_wet(i,j)
 #  endif
           enddo
         enddo
@@ -1124,15 +1146,24 @@ c        cff1=3.D0/16.D0
 #  ifdef MASKING
             wrk1(i,j)=wrk1(i,j)*umask(i,j)
 #  endif
+#  ifdef WET_DRY
+            wrk1(i,j)=wrk1(i,j)*umask_wet(i,j)
+#  endif
             wrk2(i,j)=wrk2(i,j)+cff1*( GX(i+1,j)-GX(i,j)
      &                            +GE1(i,j+1)-GE1(i,j))
 #  ifdef MASKING
             wrk2(i,j)=wrk2(i,j)*vmask(i,j)
 #  endif
+#  ifdef WET_DRY
+            wrk2(i,j)=wrk2(i,j)*vmask_wet(i,j)
+#  endif
             wrk3(i,j)=wrk3(i,j)+cff1*( ZX(i+1,j)-ZX(i,j)
      &                            +ZE1(i,j+1)-ZE1(i,j))
 #  ifdef MASKING
             wrk3(i,j)=wrk3(i,j)*rmask(i,j)
+#  endif
+#  ifdef WET_DRY
+            wrk3(i,j)=wrk3(i,j)*rmask_wet(i,j)
 #  endif
           enddo
         enddo
@@ -1210,6 +1241,11 @@ c        cff1=3.D0/16.D0
             vwave(i,j,wint)=vwave(i,j,wint)*vmask(i,j)
             zwave(i,j,wint)=zwave(i,j,wint)*rmask(i,j)
 #  endif
+#  ifdef WET_DRY
+            uwave(i,j,wint)=uwave(i,j,wint)*umask_wet(i,j)
+            vwave(i,j,wint)=vwave(i,j,wint)*vmask_wet(i,j)
+            zwave(i,j,wint)=zwave(i,j,wint)*rmask_wet(i,j)
+#  endif
           enddo
         enddo
 
@@ -1252,11 +1288,13 @@ c        cff1=3.D0/16.D0
 # include "param.h"
       integer istr,iend,jstr,jend, i,j
 # ifdef WKB_TIME_FILTER
+      integer wstp1, wstp2
       real cff,cff1,cff2
 #  include "wkb_wwave.h"
 #  include "scalars.h"
 #  include "compute_auxiliary_bounds.h"
-
+      wstp1=4
+      wstp2=5
       if (iic.eq.0.or.iic.eq.ntstart) then
         do j=jstrR,jendR
           do i=istrR,iendR
@@ -1282,7 +1320,7 @@ c        cff1=3.D0/16.D0
       endif
       cff =1.D0/dble(cewavg)
 #  ifdef SOLVE3D
-      cff2=cff*(dble(mod(iic-ntstart,cewavg))+dble(iif-1)/ndtfast)
+      cff2=cff*(dble(mod(iic-ntstart,cewavg))+dble(iif_wave-1)/ndtfast)
 #  else
       cff2=cff*dble(mod(iic-ntstart,cewavg))
 #  endif

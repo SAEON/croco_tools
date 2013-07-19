@@ -420,6 +420,25 @@ C$OMP END MASTER
       winfo=1
       iwave=1
       thwave=1.D+10
+# ifdef MRL_CEW
+      do tile=0,NSUB_X*NSUB_E-1
+        call wkb_cew_prep (tile)
+      enddo
+C$OMP BARRIER
+      wint=0
+      do winterp=1,interp_max
+        wint=wint+1
+        if (wint.gt.2) wint=1
+        do tile=0,NSUB_X*NSUB_E-1
+          call wkb_uvfield (tile, winterp)
+        enddo
+C$OMP BARRIER
+      enddo
+      do tile=0,NSUB_X*NSUB_E-1
+        call wkb_cew_finalize (tile)
+      enddo
+C$OMP BARRIER
+# endif
       do while (iwave.le.50000.and.thwave.ge.1.D-10)
         wstp=wnew
         wnew=wstp+1
@@ -435,6 +454,12 @@ C$OMP BARRIER
         iwave=iwave+1
         thwave=max(av_wac,av_wkn)
       enddo
+# if defined RVTK_DEBUG || defined RVTK_DEBUG_ADVANCED
+C$OMP BARRIER
+C$OMP MASTER
+      call check_tab2d(wac(:,:,wnew),'wac initialisation #1','r')
+C$OMP END MASTER
+# endif
       first_time=0
       do tile=0,NSUB_X*NSUB_E-1
         call mrl_wci (tile)

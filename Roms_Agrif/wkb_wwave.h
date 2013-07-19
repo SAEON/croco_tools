@@ -37,6 +37,26 @@
       real*QUAD  av_wac, av_wkn, thwave
       common /wkb_diag_comm/ winfo, iwave, av_wac, av_wkn, thwave
 
+! for CEW
+# ifdef MRL_CEW
+      integer wint, winterp, iif_wave, interp_max, wavg, cewavg, wcew
+      parameter (interp_max = 5)
+      parameter (wavg = 1)
+      parameter (cewavg = 10)
+      parameter (wcew = 3)
+#  ifdef WKB_TIME_FILTER
+      real uwave(GLOBAL_2D_ARRAY,5)
+      real vwave(GLOBAL_2D_ARRAY,5)
+      real zwave(GLOBAL_2D_ARRAY,5)
+#  else
+      real uwave(GLOBAL_2D_ARRAY,2)
+      real vwave(GLOBAL_2D_ARRAY,2)
+      real zwave(GLOBAL_2D_ARRAY,2)
+#  endif
+      common /wkb_cew/ wint, winterp,iif_wave
+      common /wkb_cewt/  uwave,  vwave,  zwave
+# endif
+
 ! for boundaries
 # ifdef OBC_WEST
       real wac_west(0:Mm+1), 
