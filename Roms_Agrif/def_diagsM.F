@@ -56,6 +56,16 @@
 #  define vidMHmix diaMHmix
 #  define vidMVmix diaMVmix
 #  define vidMrate diaMrate
+#  if defined MRL_WCI
+#   define vidMvf diaMvf
+#   define vidMbrk diaMbrk
+#   define vidMStCo diaMStCo
+#   define vidMVvf diaMVvf
+#   define vidMPrscrt diaMPrscrt
+#   define vidMsbk diaMsbk
+#   define vidMbwf diaMbwf
+#   define vidMfrc diaMfrc
+#  endif 
 !
 # else /* AVRH */
 !
@@ -74,6 +84,16 @@
 #  define vidMHmix diaMHmix_avg
 #  define vidMVmix diaMVmix_avg
 #  define vidMrate diaMrate_avg
+#  if defined MRL_WCI
+#   define vidMvf diaMvf_avg
+#   define vidMbrk diaMbrk_avg
+#   define vidMStCo diaMStCo_avg
+#   define vidMVvf diaMVvf_avg
+#   define vidMPrscrt diaMPrscrt_avg
+#   define vidMsbk diaMsbk_avg
+#   define vidMbwf diaMbwf_avg
+#   define vidMfrc diaMfrc_avg
+#  endif 
 !
         character*60 text
 !
@@ -440,6 +460,208 @@
 
         call nf_add_attribute(ncid, vidMVmix(itrc), indxMVmix+itrc-1, 5, 
      &                        NF_REAL, ierr)
+#ifdef MRL_WCI
+!
+! indxMvf
+!
+          lvar=lenstr(vname(1,indxMvf+itrc-1))
+          ierr=nf_def_var (ncid, vname(1,indxMvf+itrc-1)(1:lvar),
+     &                     NF_REAL, 4, r3dgrd, vidMvf(itrc))
+# ifndef AVRH
+          lvar=lenstr(vname(2,indxMvf+itrc-1))
+          ierr=nf_put_att_text (ncid, vidMvf(itrc), 'long_name',
+     &                    lvar, vname(2,indxMvf+itrc-1)(1:lvar))
+# else
+          text='averaged '/ /vname(2,indxMvf+itrc-1)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidMvf(itrc), 'long_name', 
+     &                          lvar, text(1:lvar))
+# endif
+          lvar=lenstr(vname(3,indxMvf+itrc-1))
+          ierr=nf_put_att_text (ncid, diaMvf(itrc), 'units', lvar,
+     &                          vname(3,indxMvf+itrc-1)(1:lvar))
+          lvar=lenstr(vname(4,indxMvf+itrc-1))
+          ierr=nf_put_att_text (ncid,vidMvf(itrc), 'field',
+     &                      lvar, vname(4,indxMvf+itrc-1)(1:lvar))
+
+        call nf_add_attribute(ncid, vidMvf(itrc), indxMvf+itrc-1, 5, 
+     &                        NF_REAL, ierr)
+!
+! indxMbrk
+!
+          lvar=lenstr(vname(1,indxMbrk+itrc-1))
+          ierr=nf_def_var (ncid, vname(1,indxMbrk+itrc-1)(1:lvar),
+     &                     NF_REAL, 4, r3dgrd, vidMbrk(itrc))
+# ifndef AVRH
+          lvar=lenstr(vname(2,indxMbrk+itrc-1))
+          ierr=nf_put_att_text (ncid, vidMbrk(itrc), 'long_name',
+     &                    lvar, vname(2,indxMbrk+itrc-1)(1:lvar))
+# else
+          text='averaged '/ /vname(2,indxMbrk+itrc-1)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidMbrk(itrc), 'long_name', 
+     &                          lvar, text(1:lvar))
+# endif
+          lvar=lenstr(vname(3,indxMbrk+itrc-1))
+          ierr=nf_put_att_text (ncid, diaMbrk(itrc), 'units', lvar,
+     &                          vname(3,indxMbrk+itrc-1)(1:lvar))
+          lvar=lenstr(vname(4,indxMbrk+itrc-1))
+          ierr=nf_put_att_text (ncid,vidMbrk(itrc), 'field',
+     &                      lvar, vname(4,indxMbrk+itrc-1)(1:lvar))
+
+        call nf_add_attribute(ncid, vidMbrk(itrc), indxMbrk+itrc-1, 5, 
+     &                        NF_REAL, ierr)
+!
+! indxMStCo
+!
+          lvar=lenstr(vname(1,indxMStCo+itrc-1))
+          ierr=nf_def_var (ncid, vname(1,indxMStCo+itrc-1)(1:lvar),
+     &                     NF_REAL, 4, r3dgrd, vidMStCo(itrc))
+# ifndef AVRH
+          lvar=lenstr(vname(2,indxMStCo+itrc-1))
+          ierr=nf_put_att_text (ncid, vidMStCo(itrc), 'long_name',
+     &                    lvar, vname(2,indxMStCo+itrc-1)(1:lvar))
+# else
+          text='averaged '/ /vname(2,indxMStCo+itrc-1)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidMStCo(itrc), 'long_name', 
+     &                          lvar, text(1:lvar))
+# endif
+          lvar=lenstr(vname(3,indxMStCo+itrc-1))
+          ierr=nf_put_att_text (ncid, diaMStCo(itrc), 'units', lvar,
+     &                          vname(3,indxMStCo+itrc-1)(1:lvar))
+          lvar=lenstr(vname(4,indxMStCo+itrc-1))
+          ierr=nf_put_att_text (ncid,vidMStCo(itrc), 'field',
+     &                      lvar, vname(4,indxMStCo+itrc-1)(1:lvar))
+
+        call nf_add_attribute(ncid, vidMStCo(itrc), indxMStCo+itrc-1, 5, 
+     &                        NF_REAL, ierr)
+!
+! indxMVvf
+!
+          lvar=lenstr(vname(1,indxMVvf+itrc-1))
+          ierr=nf_def_var (ncid, vname(1,indxMVvf+itrc-1)(1:lvar),
+     &                     NF_REAL, 4, r3dgrd, vidMVvf(itrc))
+# ifndef AVRH
+          lvar=lenstr(vname(2,indxMVvf+itrc-1))
+          ierr=nf_put_att_text (ncid, vidMVvf(itrc), 'long_name',
+     &                    lvar, vname(2,indxMVvf+itrc-1)(1:lvar))
+# else
+          text='averaged '/ /vname(2,indxMVvf+itrc-1)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidMVvf(itrc), 'long_name', 
+     &                          lvar, text(1:lvar))
+# endif
+          lvar=lenstr(vname(3,indxMVvf+itrc-1))
+          ierr=nf_put_att_text (ncid, diaMVvf(itrc), 'units', lvar,
+     &                          vname(3,indxMVvf+itrc-1)(1:lvar))
+          lvar=lenstr(vname(4,indxMVvf+itrc-1))
+          ierr=nf_put_att_text (ncid,vidMVvf(itrc), 'field',
+     &                      lvar, vname(4,indxMVvf+itrc-1)(1:lvar))
+
+        call nf_add_attribute(ncid, vidMVvf(itrc), indxMVvf+itrc-1, 5, 
+     &                        NF_REAL, ierr)
+!
+! indxMPrscrt
+!
+          lvar=lenstr(vname(1,indxMPrscrt+itrc-1))
+          ierr=nf_def_var (ncid, vname(1,indxMPrscrt+itrc-1)(1:lvar),
+     &                     NF_REAL, 4, r3dgrd, vidMPrscrt(itrc))
+# ifndef AVRH
+          lvar=lenstr(vname(2,indxMPrscrt+itrc-1))
+          ierr=nf_put_att_text (ncid, vidMPrscrt(itrc), 'long_name',
+     &                    lvar, vname(2,indxMPrscrt+itrc-1)(1:lvar))
+# else
+          text='averaged '/ /vname(2,indxMPrscrt+itrc-1)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidMPrscrt(itrc), 'long_name', 
+     &                          lvar, text(1:lvar))
+# endif
+          lvar=lenstr(vname(3,indxMPrscrt+itrc-1))
+          ierr=nf_put_att_text (ncid, diaMPrscrt(itrc), 'units', lvar,
+     &                          vname(3,indxMPrscrt+itrc-1)(1:lvar))
+          lvar=lenstr(vname(4,indxMPrscrt+itrc-1))
+          ierr=nf_put_att_text (ncid,vidMPrscrt(itrc), 'field',
+     &                      lvar, vname(4,indxMPrscrt+itrc-1)(1:lvar))
+
+        call nf_add_attribute(ncid, vidMPrscrt(itrc), indxMPrscrt+itrc-1, 5, 
+     &                        NF_REAL, ierr)
+!
+! indxMsbk
+!
+          lvar=lenstr(vname(1,indxMsbk+itrc-1))
+          ierr=nf_def_var (ncid, vname(1,indxMsbk+itrc-1)(1:lvar),
+     &                     NF_REAL, 4, r3dgrd, vidMsbk(itrc))
+# ifndef AVRH
+          lvar=lenstr(vname(2,indxMsbk+itrc-1))
+          ierr=nf_put_att_text (ncid, vidMsbk(itrc), 'long_name',
+     &                    lvar, vname(2,indxMsbk+itrc-1)(1:lvar))
+# else
+          text='averaged '/ /vname(2,indxMsbk+itrc-1)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidMsbk(itrc), 'long_name', 
+     &                          lvar, text(1:lvar))
+# endif
+          lvar=lenstr(vname(3,indxMsbk+itrc-1))
+          ierr=nf_put_att_text (ncid, diaMsbk(itrc), 'units', lvar,
+     &                          vname(3,indxMsbk+itrc-1)(1:lvar))
+          lvar=lenstr(vname(4,indxMsbk+itrc-1))
+          ierr=nf_put_att_text (ncid,vidMsbk(itrc), 'field',
+     &                      lvar, vname(4,indxMsbk+itrc-1)(1:lvar))
+
+        call nf_add_attribute(ncid, vidMsbk(itrc), indxMsbk+itrc-1, 5, 
+     &                        NF_REAL, ierr)
+!
+! indxMbwf
+!
+          lvar=lenstr(vname(1,indxMbwf+itrc-1))
+          ierr=nf_def_var (ncid, vname(1,indxMbwf+itrc-1)(1:lvar),
+     &                     NF_REAL, 4, r3dgrd, vidMbwf(itrc))
+# ifndef AVRH
+          lvar=lenstr(vname(2,indxMbwf+itrc-1))
+          ierr=nf_put_att_text (ncid, vidMbwf(itrc), 'long_name',
+     &                    lvar, vname(2,indxMbwf+itrc-1)(1:lvar))
+# else
+          text='averaged '/ /vname(2,indxMbwf+itrc-1)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidMbwf(itrc), 'long_name', 
+     &                          lvar, text(1:lvar))
+# endif
+          lvar=lenstr(vname(3,indxMbwf+itrc-1))
+          ierr=nf_put_att_text (ncid, diaMbwf(itrc), 'units', lvar,
+     &                          vname(3,indxMbwf+itrc-1)(1:lvar))
+          lvar=lenstr(vname(4,indxMbwf+itrc-1))
+          ierr=nf_put_att_text (ncid,vidMbwf(itrc), 'field',
+     &                      lvar, vname(4,indxMbwf+itrc-1)(1:lvar))
+
+        call nf_add_attribute(ncid, vidMbwf(itrc), indxMbwf+itrc-1, 5, 
+     &                        NF_REAL, ierr)
+!
+! indxMfrc
+!
+          lvar=lenstr(vname(1,indxMfrc+itrc-1))
+          ierr=nf_def_var (ncid, vname(1,indxMfrc+itrc-1)(1:lvar),
+     &                     NF_REAL, 4, r3dgrd, vidMfrc(itrc))
+# ifndef AVRH
+          lvar=lenstr(vname(2,indxMfrc+itrc-1))
+          ierr=nf_put_att_text (ncid, vidMfrc(itrc), 'long_name',
+     &                    lvar, vname(2,indxMfrc+itrc-1)(1:lvar))
+# else
+          text='averaged '/ /vname(2,indxMfrc+itrc-1)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidMfrc(itrc), 'long_name', 
+     &                          lvar, text(1:lvar))
+# endif
+          lvar=lenstr(vname(3,indxMfrc+itrc-1))
+          ierr=nf_put_att_text (ncid, diaMfrc(itrc), 'units', lvar,
+     &                          vname(3,indxMfrc+itrc-1)(1:lvar))
+          lvar=lenstr(vname(4,indxMfrc+itrc-1))
+          ierr=nf_put_att_text (ncid,vidMfrc(itrc), 'field',
+     &                      lvar, vname(4,indxMfrc+itrc-1)(1:lvar))
+
+        call nf_add_attribute(ncid, vidMfrc(itrc), indxMfrc+itrc-1, 5, 
+     &                        NF_REAL, ierr)
+#endif
 !
 ! Mrate indxMrate
 !
@@ -650,6 +872,88 @@
      &                     ncname(1:lstr) 
            goto 99                                       !--> ERROR
          endif
+#if defined MRL_WCI
+!
+! indxMvf
+!
+         lvar=lenstr(vname(1,indxMvf+itrc-1))
+         ierr=nf_inq_varid (ncid, vname(1,indxMvf+itrc-1)(1:lvar),
+     &                      vidMvf(itrc))
+         if (ierr .ne. nf_noerr) then
+           write(stdout,1) vname(1,indxMvf+itrc-1)(1:lvar),
+     &                     ncname(1:lstr) 
+           goto 99                                       !--> ERROR
+         endif
+!
+! indxMbrk
+!
+         lvar=lenstr(vname(1,indxMbrk+itrc-1))
+         ierr=nf_inq_varid (ncid, vname(1,indxMbrk+itrc-1)(1:lvar),
+     &                      vidMbrk(itrc))
+         if (ierr .ne. nf_noerr) then
+           write(stdout,1) vname(1,indxMbrk+itrc-1)(1:lvar),
+     &                     ncname(1:lstr) 
+           goto 99                                       !--> ERROR
+         endif
+!
+! indxMStCo
+!
+         lvar=lenstr(vname(1,indxMStCo+itrc-1))
+         ierr=nf_inq_varid (ncid, vname(1,indxMStCo+itrc-1)(1:lvar),
+     &                      vidMStCo(itrc))
+         if (ierr .ne. nf_noerr) then
+           write(stdout,1) vname(1,indxMStCo+itrc-1)(1:lvar),
+     &                     ncname(1:lstr) 
+           goto 99                                       !--> ERROR
+         endif
+!
+! indxMVvf
+!
+         lvar=lenstr(vname(1,indxMVvf+itrc-1))
+         ierr=nf_inq_varid (ncid, vname(1,indxMVvf+itrc-1)(1:lvar),
+     &                      vidMVvf(itrc))
+         if (ierr .ne. nf_noerr) then
+           write(stdout,1) vname(1,indxMVvf+itrc-1)(1:lvar),
+     &                     ncname(1:lstr) 
+           goto 99                                       !--> ERROR
+         endif
+!
+! indxMPrscrt
+!
+         lvar=lenstr(vname(1,indxMPrscrt+itrc-1))
+         ierr=nf_inq_varid (ncid, vname(1,indxMPrscrt+itrc-1)(1:lvar),
+     &                      vidMPrscrt(itrc))
+         if (ierr .ne. nf_noerr) then
+           write(stdout,1) vname(1,indxMPrscrt+itrc-1)(1:lvar),
+     &                     ncname(1:lstr) 
+           goto 99                                       !--> ERROR
+         endif
+!
+! indxMsbk
+!
+         lvar=lenstr(vname(1,indxMsbk+itrc-1))
+         ierr=nf_inq_varid (ncid, vname(1,indxMsbk+itrc-1)(1:lvar),
+     &                      vidMsbk(itrc))
+         if (ierr .ne. nf_noerr) then
+           write(stdout,1) vname(1,indxMsbk+itrc-1)(1:lvar),
+     &                     ncname(1:lstr) 
+           goto 99                                       !--> ERROR
+         endif
+!
+! indxMbwf
+!
+         lvar=lenstr(vname(1,indxMbwf+itrc-1))
+         ierr=nf_inq_varid (ncid, vname(1,indxMbwf+itrc-1)(1:lvar),
+     &                      vidMbwf(itrc))
+         if (ierr .ne. nf_noerr) then
+           write(stdout,1) vname(1,indxMbwf+itrc-1)(1:lvar),
+     &                     ncname(1:lstr) 
+           goto 99                                       !--> ERROR
+         endif
+!
+! indxMfrc
+!
+#endif
 !
 ! indxMrate
 !

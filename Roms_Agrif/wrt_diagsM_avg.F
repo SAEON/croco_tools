@@ -172,6 +172,64 @@
            call fillvalue3d(workr,nciddiaM_avg,diaMVmix_avg(itrc),
      &                      indxMVmix+itrc-1,
      &                      record,ivar,type)  
+#ifdef MRL_WCI
+!
+! indxMvf
+!
+           workr=Mvf_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM_avg,diaMvf_avg(itrc),
+     &                      indxMvf+itrc-1,
+     &                      record,ivar,type)  
+!
+! indxMbrk
+!
+           workr=Mbrk_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM_avg,diaMbrk_avg(itrc),
+     &                      indxMbrk+itrc-1,
+     &                      record,ivar,type)  
+!
+! indxMStCo
+!
+           workr=MStCo_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM_avg,diaMStCo_avg(itrc),
+     &                      indxMStCo+itrc-1,
+     &                      record,ivar,type)  
+!
+! indxMVvf
+!
+           workr=MVvf_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM_avg,diaMVvf_avg(itrc),
+     &                      indxMVvf+itrc-1,
+     &                      record,ivar,type)  
+!
+! indxMPrscrt
+!
+           workr=MPrscrt_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM_avg,diaMPrscrt_avg(itrc),
+     &                      indxMPrscrt+itrc-1,
+     &                      record,ivar,type)  
+!
+! indxMsbk
+!
+           workr=Msbk_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM_avg,diaMsbk_avg(itrc),
+     &                      indxMsbk+itrc-1,
+     &                      record,ivar,type)  
+!
+! indxMbwf
+!
+           workr=Mbwf_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM_avg,diaMbwf_avg(itrc),
+     &                      indxMbwf+itrc-1,
+     &                      record,ivar,type)  
+!
+! indxMfrc
+!
+           workr=Mfrc_avg(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM_avg,diaMfrc_avg(itrc),
+     &                      indxMfrc+itrc-1,
+     &                      record,ivar,type)  
+#endif
 !
 ! indxMrate
 !
@@ -199,6 +257,16 @@
       write(*,*) 'MPrsgrd_avg(i,j,k,itrc) ',MPrsgrd_avg(i,j,k,itrc)
       write(*,*) 'MHmix_avg(i,j,k,itrc)   ',MHmix_avg(i,j,k,itrc)
       write(*,*) 'MVmix_avg(i,j,k,itrc)   ',MVmix_avg(i,j,k,itrc)
+# ifdef MRL_WCI
+      write(*,*) 'Mvf_avg(i,j,k,itrc)     ',Mvf_avg(i,j,k,itrc)
+      write(*,*) 'Mbrk_avg(i,j,k,itrc)    ',Mbrk_avg(i,j,k,itrc)
+      write(*,*) 'MStCo_avg(i,j,k,itrc)   ',MStCo_avg(i,j,k,itrc)
+      write(*,*) 'MVvf_avg(i,j,k,itrc)    ',MVvf_avg(i,j,k,itrc)
+      write(*,*) 'MPrscrt_avg(i,j,k,itrc) ',MPrscrt_avg(i,j,k,itrc)
+      write(*,*) 'Msbk_avg(i,j,k,itrc)    ',Msbk_avg(i,j,k,itrc)
+      write(*,*) 'Mbwf_avg(i,j,k,itrc)    ',Mbwf_avg(i,j,k,itrc)
+      write(*,*) 'Mfrc_avg(i,j,k,itrc)    ',Mfrc_avg(i,j,k,itrc)
+# endif
       write(*,*) 'Mrate_avg(i,j,k,itrc)   ',Mrate_avg(i,j,k,itrc)
 
       write(*,*) 'SumUVavg(i,j,k,itrc) = ',MXadv_avg(i,j,k,itrc)
@@ -208,6 +276,16 @@
      &                                  +  MPrsgrd_avg(i,j,k,itrc)
      &                                  +  MHmix_avg(i,j,k,itrc)
      &                                  +  MVmix_avg(i,j,k,itrc)
+# ifdef MRL_WCI
+     &                                  +  Mvf_avg(i,j,k,itrc)
+     &                                  +  Mbrk_avg(i,j,k,itrc)
+     &                                  +  MStCo_avg(i,j,k,itrc)
+     &                                  +  MVvf_avg(i,j,k,itrc)
+     &                                  +  MPrscrt_avg(i,j,k,itrc)
+     &                                  +  Msbk_avg(i,j,k,itrc)
+     &                                  +  Mbwf_avg(i,j,k,itrc)
+     &                                  +  Mfrc_avg(i,j,k,itrc)
+# endif
      &                                  -  Mrate_avg(i,j,k,itrc)
               write(*,*) '----------------------------------'
 #  endif /* DEBUG */

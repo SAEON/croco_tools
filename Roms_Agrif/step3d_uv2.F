@@ -332,6 +332,16 @@
             MPrsgrd(i,j,k,1)=MPrsgrd(i,j,k,1)*cff
             MVmix(i,j,k,1)=MVmix(i,j,k,1)*cff
             Mrate(i,j,k,1)=Mrate(i,j,k,1)*cff
+#  ifdef MRL_WCI
+            Mvf(i,j,k,1)=Mvf(i,j,k,1)*cff
+            Mbrk(i,j,k,1)=Mbrk(i,j,k,1)*cff
+            MStCo(i,j,k,1)=MStCo(i,j,k,1)*cff
+            MVvf(i,j,k,1)=MVvf(i,j,k,1)*cff
+            MPrscrt(i,j,k,1)=MPrscrt(i,j,k,1)*cff
+            Msbk(i,j,k,1)=Msbk(i,j,k,1)*cff
+            Mbwf(i,j,k,1)=Mbwf(i,j,k,1)*cff
+            Mfrc(i,j,k,1)=Mfrc(i,j,k,1)*cff
+#  endif
 !
             cff=0.5*(pm(i,j)+pm(i,j-1))
      &             *(pn(i,j)+pn(i,j-1))
@@ -343,6 +353,16 @@
             MPrsgrd(i,j,k,2)=MPrsgrd(i,j,k,2)*cff
             MVmix(i,j,k,2)=MVmix(i,j,k,2)*cff
             Mrate(i,j,k,2)=Mrate(i,j,k,2)*cff
+#  ifdef MRL_WCI
+            Mvf(i,j,k,2)=Mvf(i,j,k,2)*cff
+            Mbrk(i,j,k,2)=Mbrk(i,j,k,2)*cff
+            MStCo(i,j,k,2)=MStCo(i,j,k,2)*cff
+            MVvf(i,j,k,2)=MVvf(i,j,k,2)*cff
+            MPrscrt(i,j,k,2)=MPrscrt(i,j,k,2)*cff
+            Msbk(i,j,k,2)=Msbk(i,j,k,2)*cff
+            Mbwf(i,j,k,2)=Mbwf(i,j,k,2)*cff
+            Mfrc(i,j,k,2)=Mfrc(i,j,k,2)*cff
+#  endif
           enddo
         enddo
       enddo

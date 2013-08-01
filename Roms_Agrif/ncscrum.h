@@ -91,7 +91,7 @@
 !  indxMswd, indxMbdr            : surface wind & bed shear stresses (m2/s2)
 !  indxMvf, indxMbrk             : vortex force & breaking body force terms
 !  indxMStCo                     : Stokes-Coriolis terms
-!  indxMVvfo                     : vertical vortex force terms (in prsgrd.F)
+!  indxMVvf                      : vertical vortex force terms (in prsgrd.F)
 !  indxMPrscrt                   : pressure correction terms (in prsgrd.F)
 !  indxMsbk, indxMbwf            : surface breaking & bed wave friction (m2/s2)
 !  indxMfrc                      : near-bed frictional wave streaming as body force (m2/s2)
@@ -426,7 +426,7 @@
 # endif /* BBL */
 # ifndef BBL
       integer indxWWA,indxWWD,indxWWP,indxWEB
-      parameter (indxWWA=indxSUSTR+50, indxWWD=indxWWA+1, 
+      parameter (indxWWA=indxSUSTR+30, indxWWD=indxWWA+1, 
      &           indxWWP=indxWWA+2
 #   ifdef MRL_WCI
      &          ,indxWEB=indxWWA+3
@@ -442,7 +442,7 @@
 
 # ifdef MRL_WCI
       integer indxSUP, indxUST2D,indxVST2D
-      parameter (indxSUP  =81,
+      parameter (indxSUP  =indxSUSTR+38,
      &           indxUST2D =indxSUP+1, indxVST2D=indxSUP+2)
 #  ifdef SOLVE3D
       integer indxUST,indxVST,indxWST,indxAkb,indxAkw,indxKVF,
@@ -451,6 +451,14 @@
      &           indxWST=indxSUP+5, indxAkb=indxSUP+6,
      &           indxAkw=indxSUP+7, indxKVF=indxSUP+8,
      &           indxCALP=indxSUP+9, indxKAPS=indxSUP+10)
+#  endif
+#  ifdef DIAGNOSTICS_UV
+      integer indxMvf,indxMbrk,indxMStCo,indxMVvf,
+     &        indxMPrscrt,indxMsbk,indxMbwf,indxMfrc 
+      parameter (indxMvf=indxKAPS+1,indxMbrk=indxMvf+2,
+     &           indxMStCo=indxMvf+4,indxMVvf=indxMvf+6,
+     &           indxMPrscrt=indxMvf+8,indxMsbk=indxMvf+10,
+     &           indxMbwf=indxMvf+12,indxMfrc=indxMvf+14) 
 #  endif
 # endif
 
@@ -677,6 +685,11 @@
      &      , diaMXadv(2), diaMYadv(2), diaMVadv(2)
      &      , diaMCor(2), diaMPrsgrd(2), diaMHmix(2)
      &      , diaMVmix(2), diaMrate(2)
+#  ifdef MRL_WCI
+     &      , diaMvf(2), diaMbrk(2), diaMStCo(2)
+     &      , diaMVvf(2), diaMPrscrt(2), diaMsbk(2)
+     &      , diaMbwf(2), diaMfrc(2)
+#  endif
 # endif
 # ifdef DIAGNOSTICS_BIO
       integer nciddiabio, nrecdiabio, nrpfdiabio
@@ -753,6 +766,11 @@
      &      , diaMXadv_avg(2), diaMYadv_avg(2), diaMVadv_avg(2)
      &      , diaMCor_avg(2), diaMPrsgrd_avg(2), diaMHmix_avg(2)
      &      , diaMVmix_avg(2), diaMrate_avg(2)
+#   ifdef MRL_WCI
+     &      , diaMvf_avg(2), diaMbrk_avg(2), diaMStCo_avg(2)
+     &      , diaMVvf_avg(2), diaMPrscrt_avg(2), diaMsbk_avg(2)
+     &      , diaMbwf_avg(2), diaMfrc_avg(2)
+#   endif
 #  endif
 #  ifdef DIAGNOSTICS_BIO
       integer nciddiabio_avg, nrecdiabio_avg, nrpfdiabio_avg
@@ -884,12 +902,22 @@
      &      , diaTimeM, diaTime2M, diaTstepM
      &      , diaMXadv, diaMYadv, diaMVadv, diaMCor
      &      , diaMPrsgrd, diaMHmix, diaMVmix, diaMrate
+# ifdef MRL_WCI
+     &      , diaMvf, diaMbrk, diaMStCo
+     &      , diaMVvf, diaMPrscrt, diaMsbk
+     &      , diaMbwf, diaMfrc
+# endif
 # ifdef AVERAGES
      &      , nciddiaM_avg, nrecdiaM_avg, nrpfdiaM_avg
      &      , diaTimeM_avg, diaTime2M_avg, diaTstepM_avg
      &      , diaMXadv_avg, diaMYadv_avg, diaMVadv_avg
      &      , diaMCor_avg, diaMPrsgrd_avg, diaMHmix_avg
      &      , diaMVmix_avg, diaMrate_avg
+#  ifdef MRL_WCI
+     &      , diaMvf_avg, diaMbrk_avg, diaMStCo_avg
+     &      , diaMVvf_avg, diaMPrscrt_avg, diaMsbk_avg
+     &      , diaMbwf_avg,diaMfrc_avg
+#  endif
 # endif
 #endif
 #ifdef DIAGNOSTICS_BIO

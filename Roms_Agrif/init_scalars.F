@@ -1837,6 +1837,120 @@ CR       write(stdout,'(20x,A)') vname(1,indxMVmix+itrc-1)
        vname(5,indxMVmix+itrc-1)='                                '
        vname(6,indxMVmix+itrc-1)='                                '
        vname(7,indxMVmix+itrc-1)='                                '
+                                      
+# ifdef MRL_WCI
+CR       write(stdout,'(1x,A,I3)') 'indxMvf = ',indxMvf+itrc-1
+       nametrc=vname(1,indxU+itrc-1)
+       unitt=vname(3,indxU+itrc-1)
+       write(vname1,*) trim(nametrc),'_vf                         ' 
+       vname(1,indxMvf+itrc-1)=vname1
+CR       write(stdout,'(20x,A)') vname(1,indxMvf+itrc-1)
+       vname(2,indxMvf+itrc-1)='Vortex body force term            '
+       write(vname3,*) trim(unitt),' second-1                     '
+       vname(3,indxMvf+itrc-1)=vname3
+       vname(4,indxMvf+itrc-1)='                                  '
+       vname(5,indxMvf+itrc-1)='                                  '
+       vname(6,indxMvf+itrc-1)='                                  '
+       vname(7,indxMvf+itrc-1)='                                  '       
+
+CR       write(stdout,'(1x,A,I3)') 'indxMbrk = ',indxMbrk+itrc-1
+       nametrc=vname(1,indxU+itrc-1)
+       unitt=vname(3,indxU+itrc-1)
+       write(vname1,*) trim(nametrc),'_brk                        ' 
+       vname(1,indxMbrk+itrc-1)=vname1
+CR       write(stdout,'(20x,A)') vname(1,indxMbrk+itrc-1)
+       vname(2,indxMbrk+itrc-1)='Breaking body force term         '
+       write(vname3,*) trim(unitt),' second-1                     '
+       vname(3,indxMbrk+itrc-1)=vname3
+       vname(4,indxMbrk+itrc-1)='                                 '
+       vname(5,indxMbrk+itrc-1)='                                 '
+       vname(6,indxMbrk+itrc-1)='                                 '
+       vname(7,indxMbrk+itrc-1)='                                 '       
+
+CR       write(stdout,'(1x,A,I3)') 'indxMStCo = ',indxMStCo+itrc-1
+       nametrc=vname(1,indxU+itrc-1)
+       unitt=vname(3,indxU+itrc-1)
+       write(vname1,*) trim(nametrc),'_StCo                       ' 
+       vname(1,indxMStCo+itrc-1)=vname1
+CR       write(stdout,'(20x,A)') vname(1,indxMStCo+itrc-1)
+       vname(2,indxMStCo+itrc-1)='Stokes-Coriolis term            '
+       write(vname3,*) trim(unitt),' second-1                     '
+       vname(3,indxMStCo+itrc-1)=vname3
+       vname(4,indxMStCo+itrc-1)='                                '
+       vname(5,indxMStCo+itrc-1)='                                '
+       vname(6,indxMStCo+itrc-1)='                                '
+       vname(7,indxMStCo+itrc-1)='                                '       
+
+CR       write(stdout,'(1x,A,I3)') 'indxMVvf = ',indxMVvf+itrc-1
+       nametrc=vname(1,indxU+itrc-1)
+       unitt=vname(3,indxU+itrc-1)
+       write(vname1,*) trim(nametrc),'_Vvf                        ' 
+       vname(1,indxMVvf+itrc-1)=vname1
+CR       write(stdout,'(20x,A)') vname(1,indxMVvf+itrc-1)
+       vname(2,indxMVvf+itrc-1)='Vertical vortex force term       '
+       write(vname3,*) trim(unitt),' second-1                     '
+       vname(3,indxMVvf+itrc-1)=vname3
+       vname(4,indxMVvf+itrc-1)='                                 '
+       vname(5,indxMVvf+itrc-1)='                                 '
+       vname(6,indxMVvf+itrc-1)='                                 '
+       vname(7,indxMVvf+itrc-1)='                                 '       
+
+CR       write(stdout,'(1x,A,I3)') 'indxMPrscrt = ',indxMPrscrt+itrc-1
+       nametrc=vname(1,indxU+itrc-1)
+       unitt=vname(3,indxU+itrc-1)
+       write(vname1,*) trim(nametrc),'_Prscrt                     ' 
+       vname(1,indxMPrscrt+itrc-1)=vname1
+CR       write(stdout,'(20x,A)') vname(1,indxMPrscrt+itrc-1)
+       vname(2,indxMPrscrt+itrc-1)='Pressure correction term      '
+       write(vname3,*) trim(unitt),' second-1                     '
+       vname(3,indxMPrscrt+itrc-1)=vname3
+       vname(4,indxMPrscrt+itrc-1)='                              '
+       vname(5,indxMPrscrt+itrc-1)='                              '
+       vname(6,indxMPrscrt+itrc-1)='                              '
+       vname(7,indxMPrscrt+itrc-1)='                              '       
+
+CR       write(stdout,'(1x,A,I3)') 'indxMsbk = ',indxMsbk+itrc-1
+       nametrc=vname(1,indxU+itrc-1)
+       unitt=vname(3,indxU+itrc-1)
+       write(vname1,*) trim(nametrc),'_sbk                        ' 
+       vname(1,indxMsbk+itrc-1)=vname1
+CR       write(stdout,'(20x,A)') vname(1,indxMsbk+itrc-1)
+       vname(2,indxMsbk+itrc-1)='Surface breaking term            '
+       write(vname3,*) trim(unitt),' second-1                     '
+       vname(3,indxMsbk+itrc-1)=vname3
+       vname(4,indxMsbk+itrc-1)='                                 '
+       vname(5,indxMsbk+itrc-1)='                                 '
+       vname(6,indxMsbk+itrc-1)='                                 '
+       vname(7,indxMsbk+itrc-1)='                                 '       
+
+CR       write(stdout,'(1x,A,I3)') 'indxMbwf = ',indxMbwf+itrc-1
+       nametrc=vname(1,indxU+itrc-1)
+       unitt=vname(3,indxU+itrc-1)
+       write(vname1,*) trim(nametrc),'_bwf                        ' 
+       vname(1,indxMbwf+itrc-1)=vname1
+CR       write(stdout,'(20x,A)') vname(1,indxMbwf+itrc-1)
+       vname(2,indxMbwf+itrc-1)='Bed wave friction term           '
+       write(vname3,*) trim(unitt),' second-1                     '
+       vname(3,indxMbwf+itrc-1)=vname3
+       vname(4,indxMbwf+itrc-1)='                                 '
+       vname(5,indxMbwf+itrc-1)='                                 '
+       vname(6,indxMbwf+itrc-1)='                                 '
+       vname(7,indxMbwf+itrc-1)='                                 '       
+
+CR       write(stdout,'(1x,A,I3)') 'indxMfrc = ',indxMfrc+itrc-1
+       nametrc=vname(1,indxU+itrc-1)
+       unitt=vname(3,indxU+itrc-1)
+       write(vname1,*) trim(nametrc),'_frc                        ' 
+       vname(1,indxMfrc+itrc-1)=vname1
+CR       write(stdout,'(20x,A)') vname(1,indxMfrc+itrc-1)
+       vname(2,indxMfrc+itrc-1)='Wave streaming                   '   
+       write(vname3,*) trim(unitt),' second-1                     '
+       vname(3,indxMfrc+itrc-1)=vname3
+       vname(4,indxMfrc+itrc-1)='                                 '
+       vname(5,indxMfrc+itrc-1)='                                 '
+       vname(6,indxMfrc+itrc-1)='                                 '
+       vname(7,indxMfrc+itrc-1)='                                 '       
+# endif
 
 CR       write(stdout,'(1x,A,I3)') 'indxMrate = ',indxMrate+itrc-1
        nametrc=vname(1,indxU+itrc-1)

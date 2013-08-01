@@ -181,6 +181,64 @@
            call fillvalue3d(workr,nciddiaM,diaMVmix(itrc),
      &                      indxMVmix+itrc-1,
      &                      record,ivar,type)  
+#if defined MRL_WCI
+!
+! indxMvf
+!
+           workr=Mvf(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM,diaMvf(itrc),
+     &                      indxMvf+itrc-1,
+     &                      record,ivar,type)  
+!
+! indxMbrk
+!
+           workr=Mbrk(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM,diaMbrk(itrc),
+     &                      indxMbrk+itrc-1,
+     &                      record,ivar,type)  
+!
+! indxMStCo
+!
+           workr=MStCo(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM,diaMStCo(itrc),
+     &                      indxMStCo+itrc-1,
+     &                      record,ivar,type)  
+!
+! indxMVvf
+!
+           workr=MVvf(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM,diaMVvf(itrc),
+     &                      indxMVvf+itrc-1,
+     &                      record,ivar,type)  
+!
+! indxMPrscrt
+!
+           workr=MPrscrt(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM,diaMPrscrt(itrc),
+     &                      indxMPrscrt+itrc-1,
+     &                      record,ivar,type)  
+!
+! indxMsbk
+!
+           workr=Msbk(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM,diaMsbk(itrc),
+     &                      indxMsbk+itrc-1,
+     &                      record,ivar,type)  
+!
+! indxMbwf
+!
+           workr=Mbwf(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM,diaMbwf(itrc),
+     &                      indxMbwf+itrc-1,
+     &                      record,ivar,type)  
+!
+! indxMfrc
+!
+           workr=Mfrc(:,:,:,itrc)
+           call fillvalue3d(workr,nciddiaM,diaMfrc(itrc),
+     &                      indxMfrc+itrc-1,
+     &                      record,ivar,type)  
+#endif
 !
 ! indxMrate
 !
@@ -193,7 +251,7 @@
       enddo
 !
 !--#define DEBUG
-#  ifdef DEBUG
+#ifdef DEBUG
       i=20
       j=20
       k=10
@@ -207,6 +265,16 @@
       write(*,*) 'MPrsgrd(i,j,k,itrc) ',MPrsgrd(i,j,k,itrc)
       write(*,*) 'MHmix(i,j,k,itrc)   ',MHmix(i,j,k,itrc)
       write(*,*) 'MVmix(i,j,k,itrc)   ',MVmix(i,j,k,itrc)
+# ifdef MRL_WCI
+      write(*,*) 'Mvf(i,j,k,itrc)     ',Mvf(i,j,k,itrc)
+      write(*,*) 'Mbrk(i,j,k,itrc)    ',Mbrk(i,j,k,itrc)
+      write(*,*) 'MStCo(i,j,k,itrc)   ',MStCo(i,j,k,itrc)
+      write(*,*) 'MVvf(i,j,k,itrc)    ',MVvf(i,j,k,itrc)
+      write(*,*) 'MPrscrt(i,j,k,itrc) ',MPrscrt(i,j,k,itrc)
+      write(*,*) 'Msbk(i,j,k,itrc)    ',Msbk(i,j,k,itrc)
+      write(*,*) 'Mbwf(i,j,k,itrc)    ',Mbwf(i,j,k,itrc)
+      write(*,*) 'Mfrc(i,j,k,itrc)    ',Mfrc(i,j,k,itrc)
+# endif
       write(*,*) 'Mrate(i,j,k,itrc)   ',Mrate(i,j,k,itrc)
 
       write(*,*) 'SumUVhis(i,j,k,itrc) = ',MXadv(i,j,k,itrc)
@@ -216,9 +284,19 @@
      &                                  +  MPrsgrd(i,j,k,itrc)
      &                                  +  MHmix(i,j,k,itrc)
      &                                  +  MVmix(i,j,k,itrc)
+# ifdef MRL_WCI
+     &                                  +  Mvf(i,j,k,itrc)
+     &                                  +  Mbrk(i,j,k,itrc)
+     &                                  +  MStCo(i,j,k,itrc)
+     &                                  +  MVvf(i,j,k,itrc)
+     &                                  +  MPrscrt(i,j,k,itrc)
+     &                                  +  Msbk(i,j,k,itrc)
+     &                                  +  Mbwf(i,j,k,itrc)
+     &                                  +  Mfrc(i,j,k,itrc)
+# endif
      &                                  -  Mrate(i,j,k,itrc)
       write(*,*) '-----------------------------------------'
-#  endif /* DEBUG */
+#endif /* DEBUG */
 !--#undef DEBUG
 
   1   format(/1x,'WRT_DIAGM ERROR while writing variable ''', A,

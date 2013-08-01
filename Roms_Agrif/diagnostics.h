@@ -105,6 +105,16 @@
       real MHmix(GLOBAL_2D_ARRAY,N,2)
       real MVmix(GLOBAL_2D_ARRAY,N,2)
       real Mrate(GLOBAL_2D_ARRAY,N,2)
+# ifdef MRL_WCI
+      real Mvf(GLOBAL_2D_ARRAY,N,2)
+      real Mbrk(GLOBAL_2D_ARRAY,N,2)
+      real MStCo(GLOBAL_2D_ARRAY,N,2)
+      real MVvf(GLOBAL_2D_ARRAY,N,2)
+      real MPrscrt(GLOBAL_2D_ARRAY,N,2)
+      real Msbk(GLOBAL_2D_ARRAY,N,2) 
+      real Mbwf(GLOBAL_2D_ARRAY,N,2)
+      real Mfrc(GLOBAL_2D_ARRAY,N,2)
+# endif      
 # ifdef AVERAGES
       real timediaM_avg
       real MXadv_avg(GLOBAL_2D_ARRAY,N,2)
@@ -115,6 +125,16 @@
       real MHmix_avg(GLOBAL_2D_ARRAY,N,2)
       real MVmix_avg(GLOBAL_2D_ARRAY,N,2)
       real Mrate_avg(GLOBAL_2D_ARRAY,N,2)
+#  ifdef MRL_WCI
+      real Mvf_avg(GLOBAL_2D_ARRAY,N,2)
+      real Mbrk_avg(GLOBAL_2D_ARRAY,N,2)
+      real MStCo_avg(GLOBAL_2D_ARRAY,N,2)
+      real MVvf_avg(GLOBAL_2D_ARRAY,N,2)
+      real MPrscrt_avg(GLOBAL_2D_ARRAY,N,2)
+      real Msbk_avg(GLOBAL_2D_ARRAY,N,2) 
+      real Mbwf_avg(GLOBAL_2D_ARRAY,N,2)
+      real Mfrc_avg(GLOBAL_2D_ARRAY,N,2)
+#  endif      
 # endif	
       common /diag_MXadv/MXadv   
      &       /diag_MYadv/MYadv
@@ -124,6 +144,16 @@
      &       /diag_MHmix/MHmix
      &       /diag_MVmix/MVmix
      &       /diag_Mrate/Mrate
+# ifdef MRL_WCI       
+     &       /diag_Mvf/Mvf
+     &       /diag_Mbrk/Mbrk
+     &       /diag_MStCo/MStCo
+     &       /diag_MVvf/MVvf
+     &       /diag_MPrscrt/MPrscrt
+     &       /diag_Msbk/Msbk
+     &       /diag_Mbwf/Mbwf
+     &       /diag_Mfrc/Mfrc
+# endif      
 # ifdef AVERAGES
       common /diag_timediaM_avg/timediaM_avg
       common /diag_MXadv_avg/MXadv_avg
@@ -134,6 +164,16 @@
      &       /diag_MHmix_avg/MHmix_avg
      &       /diag_MVmix_avg/MVmix_avg
      &       /diag_Mrate_avg/Mrate_avg
+#  ifdef MRL_WCI       
+     &       /diag_Mvf_avg/Mvf_avg
+     &       /diag_Mbrk_avg/Mbrk_avg
+     &       /diag_MStCo_avg/MStCo_avg
+     &       /diag_MVvf_avg/MVvf_avg
+     &       /diag_MPrscrt_avg/MPrscrt_avg
+     &       /diag_Msbk_avg/Msbk_avg
+     &       /diag_Mbwf_avg/Mbwf_avg
+     &       /diag_Mfrc_avg/Mfrc_avg
+#  endif      
 # endif       	
 #endif /* DIAGNOSTICS_UV */
 #ifdef DIAGNOSTICS_BIO

@@ -172,6 +172,24 @@ C$    integer omp_get_thread_num
             MVmix(i,j,k,2)=init
             Mrate(i,j,k,1)=init
             Mrate(i,j,k,2)=init
+#  ifdef MRL_WCI
+            Mvf(i,j,k,1)=init
+            Mvf(i,j,k,2)=init
+            Mbrk(i,j,k,1)=init
+            Mbrk(i,j,k,2)=init
+            MStCo(i,j,k,1)=init
+            MStCo(i,j,k,2)=init
+            MVvf(i,j,k,1)=init
+            MVvf(i,j,k,2)=init
+            MPrscrt(i,j,k,1)=init
+            MPrscrt(i,j,k,2)=init
+            Msbk(i,j,k,1)=init
+            Msbk(i,j,k,2)=init
+            Mbwf(i,j,k,1)=init
+            Mbwf(i,j,k,2)=init
+            Mfrc(i,j,k,1)=init
+            Mfrc(i,j,k,2)=init
+#  endif             
 #  ifdef AVERAGES
             MXadv_avg(i,j,k,1)=init
             MXadv_avg(i,j,k,2)=init
@@ -189,6 +207,24 @@ C$    integer omp_get_thread_num
             MVmix_avg(i,j,k,2)=init
             Mrate_avg(i,j,k,1)=init
             Mrate_avg(i,j,k,2)=init
+#   ifdef MRL_WCI
+            Mvf_avg(i,j,k,1)=init
+            Mvf_avg(i,j,k,2)=init
+            Mbrk_avg(i,j,k,1)=init
+            Mbrk_avg(i,j,k,2)=init
+            MStCo_avg(i,j,k,1)=init
+            MStCo_avg(i,j,k,2)=init
+            MVvf_avg(i,j,k,1)=init
+            MVvf_avg(i,j,k,2)=init
+            MPrscrt_avg(i,j,k,1)=init
+            MPrscrt_avg(i,j,k,2)=init
+            Msbk_avg(i,j,k,1)=init
+            Msbk_avg(i,j,k,2)=init
+            Mbwf_avg(i,j,k,1)=init
+            Mbwf_avg(i,j,k,2)=init
+            Mfrc_avg(i,j,k,1)=init
+            Mfrc_avg(i,j,k,2)=init
+#   endif             
 #  endif /* AVERAGES */
 # endif /* DIAGNOSTICS_UV */
           enddo

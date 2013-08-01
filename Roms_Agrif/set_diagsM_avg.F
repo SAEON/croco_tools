@@ -138,6 +138,80 @@
               end do
             end do
           end do
+# if defined MRL_WCI
+          do iflux=1,2
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR 
+                  Mvf_avg(i,j,k,iflux)=Mvf(i,j,k,iflux)
+                end do
+              end do
+            end do
+          end do
+          do iflux=1,2
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR 
+                  Mbrk_avg(i,j,k,iflux)=Mbrk(i,j,k,iflux)
+                end do
+              end do
+            end do
+          end do
+          do iflux=1,2
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR 
+                  MStCo_avg(i,j,k,iflux)=MStCo(i,j,k,iflux)
+                end do
+              end do
+            end do
+          end do
+          do iflux=1,2
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR 
+                  MVvf_avg(i,j,k,iflux)=MVvf(i,j,k,iflux)
+                end do
+              end do
+            end do
+          end do
+          do iflux=1,2
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR 
+                  MPrscrt_avg(i,j,k,iflux)=MPrscrt(i,j,k,iflux)
+                end do
+              end do
+            end do
+          end do
+          do iflux=1,2
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR 
+                  Msbk_avg(i,j,k,iflux)=Msbk(i,j,k,iflux)
+                end do
+              end do
+            end do
+          end do
+          do iflux=1,2
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR 
+                  Mbwf_avg(i,j,k,iflux)=Mbwf(i,j,k,iflux)
+                end do
+              end do
+            end do
+          end do
+          do iflux=1,2
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR 
+                  Mfrc_avg(i,j,k,iflux)=Mfrc(i,j,k,iflux)
+                end do
+              end do
+            end do
+          end do
+# endif
           do iflux=1,2
             do k=1,N
               do j=JstrR,JendR
@@ -322,6 +396,96 @@
               enddo
             enddo
           enddo
+# if defined MRL_WCI
+          do iflux=1,2
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR 
+                  Mvf_avg(i,j,k,iflux)= cff *
+     &                    ( Mvf_avg(i,j,k,iflux) + 
+     &                      Mvf(i,j,k,iflux) )
+                end do
+              end do
+            end do
+          end do
+          do iflux=1,2
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR 
+                  Mbrk_avg(i,j,k,iflux)= cff *
+     &                    ( Mbrk_avg(i,j,k,iflux) + 
+     &                      Mbrk(i,j,k,iflux) )
+                end do
+              end do
+            end do
+          end do
+          do iflux=1,2
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR 
+                  MStCo_avg(i,j,k,iflux)= cff *
+     &                    ( MStCo_avg(i,j,k,iflux) + 
+     &                      MStCo(i,j,k,iflux) )
+                end do
+              end do
+            end do
+          end do
+          do iflux=1,2
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR 
+                  MVvf_avg(i,j,k,iflux)= cff *
+     &                    ( MVvf_avg(i,j,k,iflux) + 
+     &                      MVvf(i,j,k,iflux) )
+                end do
+              end do
+            end do
+          end do
+          do iflux=1,2
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR 
+                  MPrscrt_avg(i,j,k,iflux)= cff *
+     &                    ( MPrscrt_avg(i,j,k,iflux) + 
+     &                      MPrscrt(i,j,k,iflux) )
+                end do
+              end do
+            end do
+          end do
+          do iflux=1,2
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR 
+                  Msbk_avg(i,j,k,iflux)= cff *
+     &                    ( Msbk_avg(i,j,k,iflux) + 
+     &                      Msbk(i,j,k,iflux) )
+                end do
+              end do
+            end do
+          end do
+          do iflux=1,2
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR 
+                  Mbwf_avg(i,j,k,iflux)= cff *
+     &                    ( Mbwf_avg(i,j,k,iflux) + 
+     &                      Mbwf(i,j,k,iflux) )
+                end do
+              end do
+            end do
+          end do
+          do iflux=1,2
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR 
+                  Mfrc_avg(i,j,k,iflux)= cff *
+     &                    ( Mfrc_avg(i,j,k,iflux) + 
+     &                      Mfrc(i,j,k,iflux) )
+                end do
+              end do
+            end do
+          end do
+# endif
           do iflux=1,2
             do k=1,N
               do j=JstrR,JendR

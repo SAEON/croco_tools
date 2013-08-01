@@ -806,7 +806,7 @@
 !
 # ifdef MRL_WCI
         do k=1,N
-          do i=IstrU,iend
+          do i=istrU,iend
             cff  =0.5*on_u(i,j)*(Hz(i-1,j,k)+Hz(i,j,k))
             vstu =0.25*( vst(i  ,j,k) +vst(i  ,j+1,k)
      &                  +vst(i-1,j,k) +vst(i-1,j+1,k) )
