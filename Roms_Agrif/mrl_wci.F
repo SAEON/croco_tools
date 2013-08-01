@@ -486,9 +486,9 @@
 #  define kvfx stk
 #  define kvfy inv_f
       if (WESTERN_EDGE) then
-        imin=istrU-1
+        imin=IstrU-1
       else
-        imin=istrU
+        imin=IstrU
       endif
       if (SOUTHERN_EDGE) then
         jmin=JstrV-1
@@ -497,7 +497,7 @@
       endif
       do k=1,N-1
         do j=JstrV-1,jend+1             ! du/dz & dv/dz at horz u- &
-          do i=istrU-1,iend+1           ! v- & vert w-point
+          do i=IstrU-1,iend+1           ! v- & vert w-point
             kvfx(i,j) = 2.0*(u(i,j,k+1,nstp)-u(i,j,k,nstp))
      &         /(z_r(i-1,j,k+1)+z_r(i,j,k+1)-z_r(i-1,j,k)-z_r(i,j,k))
             kvfy(i,j) = 2.0*(v(i,j,k+1,nstp)-v(i,j,k,nstp))
@@ -980,7 +980,7 @@ c           ubry_east(j,k)=-ust(iendR,j,k)
       call exchange_u3d_tile(istr,iend,jstr,jend,ust)
       call exchange_v3d_tile(istr,iend,jstr,jend,vst)
       call exchange_r3d_tile(istr,iend,jstr,jend,wst)
-      call exchange_r3d_tile(istr,iend,jstr,jend,kvf)
+      call exchange_w3d_tile(istr,iend,jstr,jend,kvf) !UGLY trick
       call exchange_w3d_tile(istr,iend,jstr,jend,Akb)
       call exchange_w3d_tile(istr,iend,jstr,jend,Akw)
       call exchange_w3d_tile(istr,iend,jstr,jend,E_pre)

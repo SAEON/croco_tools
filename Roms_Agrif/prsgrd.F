@@ -27,7 +27,7 @@ c********************************************************************
       call prsgrd_tile (Istr,Iend,Jstr,Jend, 
      &                        A3d(1,1,trd), A3d(1,2,trd), A3d(1,3,trd),
      &                                      A2d(1,1,trd), A2d(1,2,trd),
-     &          A2d(1,1,trd), A2d(1,2,trd), A2d(1,3,trd), A2d(1,4,trd))
+     &          A2d(1,3,trd), A2d(1,4,trd), A2d(1,5,trd), A2d(1,6,trd))
       return
       end
 
@@ -39,9 +39,12 @@ c********************************************************************
 # ifdef DIAGNOSTICS_UV
 #  include "diagnostics.h"
 # endif
+# ifdef MRL_WCI
+#   include "forces.h"
+# endif
       real ru(PRIVATE_2D_SCRATCH_ARRAY,N),   OneFifth,
      &     rv(PRIVATE_2D_SCRATCH_ARRAY,N),   OneTwelfth,
-     &      P(PRIVATE_2D_SCRATCH_ARRAY,N),   epsil,dpth,
+     &      P(PRIVATE_2D_SCRATCH_ARRAY,N),   epsil,dpth,cff1,cff2,
      &     dR(PRIVATE_1D_SCRATCH_ARRAY,0:N), cff, GRho,
      &     dZ(PRIVATE_1D_SCRATCH_ARRAY,0:N), cfr, HalfGRho, 
      &     FC(PRIVATE_2D_SCRATCH_ARRAY),
@@ -378,6 +381,66 @@ c********************************************************************
           enddo
         enddo
       enddo
+
+!  add in wave effect using POM-Jacobian
+!  =====================================
+!
+# ifdef  MRL_WCI
+#  define DC rx
+      do k=N,1,-1           !--> irreversible
+        if (k.eq.N) then
+          do j=JstrV-1,Jend
+            do i=IstrU-1,Iend
+              FC(i,j)=-(z_w(i,j,N)-z_r(i,j,N))
+     &                          *(1.5*kvf(i,j,N)-0.5*kvf(i,j,N-1))
+     &          *(z_w(i,j,N)-z_r(i,j,N))/(z_r(i,j,N)-z_r(i,j,N-1))
+              DC(i,j)=-g*sup(i,j)-calP(i,j)+Kapsrf(i,j)
+            enddo
+          enddo
+        else
+          do j=JstrV-1,Jend
+            do i=IstrU-1,Iend
+              FC(i,j)=FC(i,j)-0.5*(kvf(i,j,k+1)+kvf(i,j,k))
+     &                           *(z_r(i,j,k+1)-z_r(i,j,k))
+            enddo
+          enddo
+        endif
+      
+        do j=Jstr,Jend
+          do i=IstrU,Iend
+            cff  = 0.5*(Hz(i,j,k)+Hz(i-1,j,k))*on_u(i,j)
+            cff1 = cff*( FC(i-1,j)-FC(i,j) +0.5*( kvf(i,j,k)
+     &           +kvf(i-1,j,k) )*(z_r(i,j,k)-z_r(i-1,j,k)) )
+            cff2 = cff*(DC(i-1,j)-DC(i,j))
+            ru(i,j,k)=ru(i,j,k) + cff1 + cff2
+#  ifdef DIAGNOSTICS_UV
+            if (nnew.ne.3) then
+              MVvf(i,j,k,1) = cff1
+              MPrscrt(i,j,k,1) = cff2
+            endif
+#  endif
+          enddo
+        enddo
+
+        do j=JstrV,Jend
+          do i=Istr,Iend
+            cff  = 0.5*(Hz(i,j,k)+Hz(i,j-1,k))*om_v(i,j)
+            cff1 = cff*( FC(i,j-1)-FC(i,j) +0.5*( kvf(i,j,k)
+     &           +kvf(i,j-1,k) )*(z_r(i,j,k)-z_r(i,j-1,k)) )
+            cff2 = cff*(DC(i,j-1)-DC(i,j))
+            rv(i,j,k)=rv(i,j,k) + cff1 + cff2
+#  ifdef DIAGNOSTICS_UV
+            if (nnew.ne.3) then
+              MVvf(i,j,k,2) = cff1
+              MPrscrt(i,j,k,2) = cff2
+            endif
+#  endif
+          enddo
+        enddo
+      enddo
+#  undef DC
+# endif  /* MRL_WCI */
+
       return
       end
 #else

@@ -695,7 +695,7 @@ C$OMP END MASTER
 !
 #ifdef MRL_WCI
       do j=jstr,jend
-        do i=istrU,iend
+        do i=IstrU,iend
           vstu = 0.25*( vst2d(i,j) + vst2d(i,j+1)
      &                 +vst2d(i-1,j)+vst2d(i-1,j+1) )
           dudx = 0.5*( urhs(i+1,j)-urhs(i-1,j) )
