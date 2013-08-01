@@ -980,7 +980,7 @@ c           ubry_east(j,k)=-ust(iendR,j,k)
       call exchange_u3d_tile(istr,iend,jstr,jend,ust)
       call exchange_v3d_tile(istr,iend,jstr,jend,vst)
       call exchange_r3d_tile(istr,iend,jstr,jend,wst)
-      call exchange_w3d_tile(istr,iend,jstr,jend,kvf) !UGLY trick
+      call exchange_r3d_tile(istr,iend,jstr,jend,kvf) 
       call exchange_w3d_tile(istr,iend,jstr,jend,Akb)
       call exchange_w3d_tile(istr,iend,jstr,jend,Akw)
       call exchange_w3d_tile(istr,iend,jstr,jend,E_pre)

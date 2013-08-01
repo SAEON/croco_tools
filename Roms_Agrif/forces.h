@@ -458,7 +458,7 @@
       real ust(GLOBAL_2D_ARRAY,N)
       real vst(GLOBAL_2D_ARRAY,N)
       real wst(GLOBAL_2D_ARRAY,N)
-      real kvf(GLOBAL_2D_ARRAY,0:N)
+      real kvf(GLOBAL_2D_ARRAY,N)
       real Akb(GLOBAL_2D_ARRAY,0:N)
       real Akw(GLOBAL_2D_ARRAY,0:N)
       real E_pre(GLOBAL_2D_ARRAY,0:N)

@@ -341,13 +341,21 @@ C$    integer omp_get_thread_num
       do k=0,N
         do j=JstrR,JendR
           do i=IstrR,IendR
-            kvf(i,j,k)=init 
             Akb(i,j,k)=init 
             Akw(i,j,k)=init 
 # ifdef AVERAGES
-            kvf_avg(i,j,k)=init 
             Akb_avg(i,j,k)=init 
             Akw_avg(i,j,k)=init 
+# endif
+          enddo
+        enddo
+      enddo
+      do k=1,N
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+            kvf(i,j,k)=init
+# ifdef AVERAGES
+            kvf_avg(i,j,k)=init
 # endif
           enddo
         enddo
