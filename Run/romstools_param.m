@@ -168,6 +168,7 @@ clmname  = [ROMS_files_dir,'roms_clm.nc'];
 bryname  = [ROMS_files_dir,'roms_bry.nc'];
 ininame  = [ROMS_files_dir,'roms_ini.nc'];
 bioname  = [ROMS_files_dir,'roms_frcbio.nc']; % Iron Dust forcing for PISCES
+rivname =  [ROMS_files_dir,'roms_runoff.nc'];
 %
 % intermediate z-level data files (not used in simulations)
 %
@@ -234,6 +235,8 @@ makeoa     = 1;   % oa data (intermediate file)
 makeZbry   = 1;   % boundary data in Z coordinate (intermediate file)
 insitu2pot = 1;   % transform in-situ temperature to potential temperature
 %
+psource_ts = 0;   % tracer runoff concentration
+%
 %  Day of initialisation for climatology experiments (=0 : 1st january 0h)
 %
 tini=0;  
@@ -250,6 +253,10 @@ woapisces_dir=[DATADIR,'WOAPISCES/'];
 %
 chla_dir=[DATADIR,'SeaWifs/'];
 %
+% Runoff monthly seasonal climatology (Dai and Trenberth)
+global_clim_riverdir=[DATADIR,'Runoff/'];
+global_clim_rivername=[global_clim_riverdir,'Dai_Trenberth_runoff_global_clim.nc'];
+%
 %  Set times and cycles for the boundary conditions: 
 %   monthly climatology 
 %
@@ -259,6 +266,32 @@ woa_cycle=360;        % repetition of a typical year of 360 days
 %woa_time=(15.2188:30.4375:350.0313); % year of 365.25 days in the case
 %woa_cycle=365.25;                    % of QSCAT experiments with 
 %                                     climatological boundary conditions
+%
+%   Set times and cycles for runoff conditions:
+%   monthly climatology
+qbar_time=[15:30:365]; 
+qbar_cycle=360;
+psource_ts=0;
+if psource_ts
+    % Define mannually the tracer (t, s, and eventually biogeochemical tracer
+    % concentration
+    temp_src0=[11 9 9 12 20 20 24 25 21 18 13 12];
+    temp_src(:,:)=[temp_src0;temp_src0+2;temp_src0+2.8];
+    %
+    salt_src0=[2 3 5 1 5 3 2 1 4 2 1 2];
+    salt_src(:,:)=[salt_src0;salt_src0;salt_src0];
+    %
+    no3_src0=[0 0 0 0 0 0 0 0 0 0 0 0];
+    no3_src(:,:)=[no3_src0;no3_src0+2;no3_src0+2.8];
+    %
+    temp_src_time=[15:30:365];
+    temp_src_cycle=360;
+    salt_src_time=[15:30:365];
+    salt_src_cycle=360;
+else
+    temp_src_time=[]; temp_src_cycle=[];
+    salt_src_time=[]; salt_src_cycle=[]; 
+end
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %

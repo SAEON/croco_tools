@@ -52,6 +52,7 @@ addpath([mypath,'Oforc_OGCM'])
 addpath([mypath,'Opendap_tools'])
 addpath([mypath,'Tides'])
 addpath([mypath,'Visualization_tools'])
+addpath([mypath,'Rivers'])
 addpath([mypath,'Run/TEST_CASES'])
 %
 %-------------------------------------------------------
