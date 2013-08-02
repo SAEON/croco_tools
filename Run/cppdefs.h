@@ -186,7 +186,6 @@
 # define ANA_BTFLUX
                       /* Point Sources - Rivers */
 # undef PSOURCE
-# undef ANA_PSOURCE
 # undef PSOURCE_NCFILE
 # ifdef PSOURCE_NCFILE                    
 #   define PSOURCE_NCFILE_TS
