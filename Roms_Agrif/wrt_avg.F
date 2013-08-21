@@ -119,19 +119,19 @@ CR      write(*,*) 'wrt_avg:  time  ' MYID
 !     components in XI-,ETA-directions.
 !     
       if (wrtavg(indxZ)) then
-         work2d=zeta(:,:,fast_indx_out)
+         work2d=zeta_avg
          call fillvalue2d(work2d,ncidavg,avgZ,indxZ,
      &                   record,r2dvar,type)
       endif
 
       if (wrtavg(indxUb)) then
-         work2d(:,:)=ubar(:,:,fast_indx_out)
+         work2d=ubar_avg
          call fillvalue2d(work2d,ncidavg,avgUb,indxUb,
      &                      record,u2dvar,type)
       endif
 
       if (wrtavg(indxVb)) then
-         work2d(:,:)=vbar(:,:,fast_indx_out)
+         work2d=vbar_avg
          call fillvalue2d(work2d,ncidavg,avgVb,indxVb,
      &                   record,v2dvar,type)
       endif
