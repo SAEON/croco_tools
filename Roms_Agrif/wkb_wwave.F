@@ -266,6 +266,7 @@
             wkx_east(j)=wkx(iendR,j,1)
             wke_east(j)=wke(iendR,j,1)
           enddo
+        endif
 #  endif  /* OBC_EAST */
 #  ifdef OBC_WEST
         if (WESTERN_EDGE) then
