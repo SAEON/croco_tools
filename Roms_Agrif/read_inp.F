@@ -1604,9 +1604,6 @@ c        close(testunit)
 ! river runoff file name. Check its availability.
         read(input,'(A)',err=95) fname
         lstr=lenstr(fname)
-#   if defined MPI && defined PARALLEL_FILES
-        call insert_node (fname, lstr, mynode, NNODES, ierr)
-#   endif
         open (testunit, file=fname(1:lstr), status='old', err=97)
         close(testunit)
         qbarname=fname(1:lstr)
