@@ -47,7 +47,7 @@
      &     (comp_ierror == 13) ) then
 
          MPI_master_only write(*,*) 'CPL-ROMS : ',
-     & prcv_name,' recieved at time ',rcvtime
+     & prcv_name,' received at time ',rcvtime
 !
          iok = comp_ierror    
 
