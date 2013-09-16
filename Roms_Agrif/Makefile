@@ -36,7 +36,7 @@ include Makedefs
         check_switches1.F		check_switches2.F\
 \
         cpl_prism_define.F cpl_prism_put.F cpl_prism_init.F\
-        cpl_prism_get.F cpl_prism_rcv.F cpl_prism_getlistvals.F\
+        cpl_prism_get.F cpl_prism_getvar.F cpl_prism_getlistvals.F\
 \
 	step2d.F	u2dbc.F		v2dbc.F		zetabc.F\
 	obc_volcons.F\

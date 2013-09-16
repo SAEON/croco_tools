@@ -9,11 +9,11 @@
 ! ROMS_AGRIF website : http://www.romsagrif.org
 !======================================================================
 !
-      SUBROUTINE getlistvals(nmax,prcv_clname,psnd_clname,krcvn,ksndn,
-     & oasis_runtime)    
+      SUBROUTINE cpl_prism_getlistvals(nmax,prcv_clname,psnd_clname,
+     &                                 krcvn,ksndn,oasis_runtime)    
       
 !     !---------------------------------------------------------------------
-!     !              ***  ROUTINE getlist  ***
+!     !              ***  ROUTINE cpl_prism_getlistvals  ***
 !     !
 !     ! ** Purpose : - Read the namcouple file 
 !     !           and detect the fields that will be send and received by WRF
@@ -184,5 +184,5 @@
 !     Dummy subroutine                                                           NO Coupling
 !---------------------------------------------------------------------------------------
 #endif 
-      END SUBROUTINE getlistvals
+      END SUBROUTINE cpl_prism_getlistvals
       

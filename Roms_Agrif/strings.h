@@ -14,6 +14,6 @@
 ! them together and writing into history file.
 !                                    !
       integer max_opt_size           ! NOTE: Parameter max_opt_size
-      parameter (max_opt_size=2300)  ! must be equal to the length
-      character*2300 Coptions,srcs   ! of character string. 
+      parameter (max_opt_size=2400)  ! must be equal to the length
+      character*2400 Coptions,srcs   ! of character string. 
       common /strings/ Coptions,srcs !

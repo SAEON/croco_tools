@@ -10,6 +10,13 @@
 !======================================================================
 !
       SUBROUTINE cpl_prism_get (rcvtime)
+!     !---------------------------------------------------------------------
+!     !              ***  ROUTINE cpl_prism_get  ***
+!     !
+!     ! ** Purpose : - 
+!     !           
+!     !
+!     !----------------------------------------------------------------------
 #include "cppdefs.h"
 #ifdef OA_COUPLING
 #ifdef OA_MCT
@@ -84,7 +91,7 @@
       DO i = 1, krcv
 !-------------------------------------------------
          if (srcv_clname(i)=='RRMSRFL'//clevel) then
-            call cpl_prism_rcv(srcv_nid(i), srcv_clname(i),
+            call cpl_prism_getvar(srcv_nid(i), srcv_clname(i),
      &  tab_t_tmp, rcvtime, iok_srflx) 
             if (iok_srflx /= 0) then
 !              Transmit to ROMS field
@@ -93,7 +100,7 @@
          end if  
 !-------------------------------------------------
          if (srcv_clname(i)=='RRMEVPR'//clevel) then
-            call cpl_prism_rcv(srcv_nid(i), srcv_clname(i),
+            call cpl_prism_getvar(srcv_nid(i), srcv_clname(i),
      &  tab_t_tmp, rcvtime, iok_isalt) 
             if (iok_isalt /= 0) then
 !              Transmit to ROMS field : stflx(:,:,isalt)
@@ -103,7 +110,7 @@
          end if
 !-------------------------------------------------
          if (srcv_clname(i)=='RRMSTFL'//clevel) then
-            call cpl_prism_rcv(srcv_nid(i), srcv_clname(i),
+            call cpl_prism_getvar(srcv_nid(i), srcv_clname(i),
      &  tab_t_tmp, rcvtime, iok_itemp) 
             if (iok_itemp /= 0)  then
 !              Transmit to ROMS field : stflx(:,:,itemp)
@@ -112,7 +119,7 @@
          end if
 !-------------------------------------------------
          if (srcv_clname(i)=='RRMTAUX'//clevel) then
-            call cpl_prism_rcv(srcv_nid(i), srcv_clname(i),
+            call cpl_prism_getvar(srcv_nid(i), srcv_clname(i),
      &  tab_t_tmp, rcvtime, iok_taux) 
             if (iok_taux /= 0) then     
 !              Interpolate TAUX on grid T --> U
@@ -127,7 +134,7 @@
          end if
 !-------------------------------------------------
          if (srcv_clname(i)=='RRMTAUY'//clevel) then
-            call cpl_prism_rcv(srcv_nid(i), srcv_clname(i),
+            call cpl_prism_getvar(srcv_nid(i), srcv_clname(i),
      &  tab_t_tmp, rcvtime, iok_tauy) 
             if (iok_tauy /= 0) then     
 !              Interpolate TAUY on grid T --> U

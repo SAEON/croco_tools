@@ -10,7 +10,6 @@
 !======================================================================
 !
       SUBROUTINE cpl_prism_define
-
 #include "cppdefs.h"
 !     IMPLICIT NONE
 #ifdef OA_COUPLING
@@ -78,8 +77,8 @@
       oasis_var_shape(3) = 1
       oasis_var_shape(4) = Mmmpi !Mm+2+padd_E + 1  !Mm
 !
-      call getlistvals(nmaxfld,srcv_clname,ssnd_clname,krcv,ksnd,
-     &   oasis_runtime)
+      call cpl_prism_getlistvals(nmaxfld,srcv_clname,ssnd_clname,
+     &   krcv,ksnd,oasis_runtime)
 !      
 !     ... Announce send variables.
       DO ji = 1, ksnd
@@ -97,7 +96,7 @@
         ENDIF
       END DO
 
-!     ... Announce send variables.
+!     ... Announce receive variables.
       DO ji = 1, krcv
           MPI_master_only write(*,*) 
      &    'CPL-ROMS: ',srcv_clname(ji),' will be received'
