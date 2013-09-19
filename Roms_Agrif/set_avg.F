@@ -26,7 +26,7 @@ C$    integer omp_get_thread_num
 #  endif
 # ifdef SOLVE3D
       if (wrtavg(indxW)) then
-        call Wvlcty (tile, work)
+        call Wvlcty (tile, workr)
       endif
 # endif
       call set_avg_tile (Istr,Iend,Jstr,Jend)
@@ -207,8 +207,8 @@ C$    integer omp_get_thread_num
           do k=0,N
             do j=JstrR,JendR
               do i=IstrR,IendR
-                  omega_avg(i,j,k)=cff*pm(i,j)*pn(i,j)*
-     &                             (cff1*omega_avg(i,j,k)+w(i,j,k))
+                omega_avg(i,j,k)=cff*( cff1*omega_avg(i,j,k)
+     &                                 +W(i,j,k)*pm(i,j)*pn(i,j))
               enddo
             enddo
           enddo
@@ -217,7 +217,7 @@ C$    integer omp_get_thread_num
           do k=1,N
             do j=JstrR,JendR
               do i=IstrR,IendR
-                w_avg(i,j,k)=cff*(cff1*w_avg(i,j,k)+work(i,j,k))
+                w_avg(i,j,k)=cff*(cff1*w_avg(i,j,k)+workr(i,j,k))
               enddo
             enddo
           enddo
