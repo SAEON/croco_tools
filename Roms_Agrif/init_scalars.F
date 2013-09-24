@@ -280,8 +280,8 @@ CR      write(stdout,'(1x,A,I3)') 'indxUb =',indxUb
      &               // 'velocity_at_u_location'
 #ifdef SPHERICAL
       vname(6,indxUb)='lat_u lon_u                                '
-#else
-      vname(6,indxUb)='x_u y_u                                    '
+!#else
+!      vname(6,indxUb)='x_u y_u                                    '
 #endif
       vname(7,indxUb)='                                           '
 
@@ -294,8 +294,8 @@ CR      write(stdout,'(1x,A,I3)') 'indxVb = ',indxVb
      &                // 'v_location'
 #ifdef SPHERICAL
       vname(6,indxVb)='lat_v lon_v                                '
-#else
-      vname(6,indxVb)='x_v y_v                                    '
+!#else
+!      vname(6,indxVb)='x_v y_v                                    '
 #endif
       vname(7,indxVb)='                                           '
       vname(11,indxVb)=' '
@@ -334,8 +334,8 @@ CR      write(stdout,'(1x,A,I3)') 'indxUWstr =',indxUWstr
       vname(5,indxUWstr)='surface_downward_eastward_stress        '
 #ifdef SPHERICAL
       vname(6,indxUWstr)='lat_u lon_u                             '
-#else
-      vname(6,indxUWstr)='x_u y_u                                 '
+!#else
+!      vname(6,indxUWstr)='x_u y_u                                 '
 #endif
       vname(7,indxUWstr)='                                        '
       vname(8,indxUWstr)='                                        '
@@ -348,8 +348,8 @@ CR      write(stdout,'(1x,A,I3)') 'indxVWstr =',indxVWstr
       vname(5,indxVWstr)='surface_downward_northward_stress       '
 #ifdef SPHERICAL
       vname(6,indxVWstr)='lat_v lon_v                             '
-#else
-      vname(6,indxVWstr)='x_v y_v                                 '
+!#else
+!      vname(6,indxVWstr)='x_v y_v                                 '
 #endif
       vname(7,indxVWstr)='                                        '
 
@@ -362,8 +362,8 @@ CR      write(stdout,'(1x,A,I3)') 'indxU = ',indxU
       vname(5,indxU)='sea_water_x_velocity_at_u_location          '
 #ifdef SPHERICAL
       vname(6,indxU)='lat_u lon_u                                 '
-#else
-      vname(6,indxU)='x_u y_u                                     '
+!#else
+!      vname(6,indxU)='x_u y_u                                     '
 #endif
       vname(7,indxU)='                                            '
 
@@ -375,8 +375,8 @@ CR      write(stdout,'(1x,A,I3)') 'indxV = ',indxV
       vname(5,indxV)='sea_water_y_velocity_at_v_location          '
 #ifdef SPHERICAL
       vname(6,indxV)='lat_v lon_v                                 '
-#else
-      vname(6,indxV)='x_v y_v                                     '
+!#else
+!      vname(6,indxV)='x_v y_v                                     '
 #endif
       vname(7,indxV)='                                            '
                 

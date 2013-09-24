@@ -249,39 +249,38 @@
       ierr=nf_put_att_text (ncid, varid, 'field',13, 'y_rho, scalar')
       ierr=nf_put_att_text (ncid, varid, 'standard_name', 18,
      &                                   'plane_y_coordinate')
-!--
-      ierr=nf_def_var (ncid, 'x_u', nf_ftype, 2, u2dgrd, varid)
-      ierr=nf_put_att_text (ncid, varid, 'long_name', 23,
-     &                                   'x-locations of U-points')
-      ierr=nf_put_att_text (ncid, varid, 'units', 5, 'meter')
-      ierr=nf_put_att_text (ncid, varid, 'field',11, 'x_u, scalar')
-      ierr=nf_put_att_text (ncid, varid, 'standard_name', 32,
-     &                                   'plane_x_coordinate_at_u_location')
-     
-      ierr=nf_def_var (ncid, 'y_u', nf_ftype, 2, u2dgrd, varid)
-      ierr=nf_put_att_text (ncid, varid, 'long_name',23,
-     &                                   'y-locations of U-points')
-      ierr=nf_put_att_text (ncid, varid, 'units', 5, 'meter')
-      ierr=nf_put_att_text (ncid, varid, 'field',11, 'y_u, scalar')
-      ierr=nf_put_att_text (ncid, varid, 'standard_name', 32,
-     &                                   'plane_y_coordinate_at_u_location') 
-!--
-      ierr=nf_def_var (ncid, 'x_v', nf_ftype, 2, v2dgrd, varid)
-      ierr=nf_put_att_text (ncid, varid, 'long_name', 23,
-     &                                   'x-locations of V-points')
-      ierr=nf_put_att_text (ncid, varid, 'units', 5, 'meter')
-      ierr=nf_put_att_text (ncid, varid, 'field',11, 'x_v, scalar')
-      ierr=nf_put_att_text (ncid, varid, 'standard_name', 32,
-     &                                   'plane_x_coordinate_at_v_location')
-!--
-      ierr=nf_def_var (ncid, 'y_v', nf_ftype, 2, v2dgrd, varid)
-      ierr=nf_put_att_text (ncid, varid, 'long_name',23,
-     &                                   'y-locations of V-points')
-      ierr=nf_put_att_text (ncid, varid, 'units', 5, 'meter')
-      ierr=nf_put_att_text (ncid, varid, 'field',11, 'y_v, scalar')
-      ierr=nf_put_att_text (ncid, varid, 'standard_name', 32,
-     &                                   'plane_y_coordinate_at_v_location')
-
+!!--
+!      ierr=nf_def_var (ncid, 'x_u', nf_ftype, 2, u2dgrd, varid)
+!      ierr=nf_put_att_text (ncid, varid, 'long_name', 23,
+!     &                                   'x-locations of U-points')
+!      ierr=nf_put_att_text (ncid, varid, 'units', 5, 'meter')
+!      ierr=nf_put_att_text (ncid, varid, 'field',11, 'x_u, scalar')
+!      ierr=nf_put_att_text (ncid, varid, 'standard_name', 32,
+!     &                                   'plane_x_coordinate_at_u_location')
+!     
+!      ierr=nf_def_var (ncid, 'y_u', nf_ftype, 2, u2dgrd, varid)
+!      ierr=nf_put_att_text (ncid, varid, 'long_name',23,
+!     &                                   'y-locations of U-points')
+!      ierr=nf_put_att_text (ncid, varid, 'units', 5, 'meter')
+!      ierr=nf_put_att_text (ncid, varid, 'field',11, 'y_u, scalar')
+!      ierr=nf_put_att_text (ncid, varid, 'standard_name', 32,
+!     &                                   'plane_y_coordinate_at_u_location') 
+!!--
+!      ierr=nf_def_var (ncid, 'x_v', nf_ftype, 2, v2dgrd, varid)
+!      ierr=nf_put_att_text (ncid, varid, 'long_name', 23,
+!     &                                   'x-locations of V-points')
+!      ierr=nf_put_att_text (ncid, varid, 'units', 5, 'meter')
+!      ierr=nf_put_att_text (ncid, varid, 'field',11, 'x_v, scalar')
+!      ierr=nf_put_att_text (ncid, varid, 'standard_name', 32,
+!     &                                   'plane_x_coordinate_at_v_location')
+!!--
+!      ierr=nf_def_var (ncid, 'y_v', nf_ftype, 2, v2dgrd, varid)
+!      ierr=nf_put_att_text (ncid, varid, 'long_name',23,
+!     &                                   'y-locations of V-points')
+!      ierr=nf_put_att_text (ncid, varid, 'units', 5, 'meter')
+!      ierr=nf_put_att_text (ncid, varid, 'field',11, 'y_v, scalar')
+!      ierr=nf_put_att_text (ncid, varid, 'standard_name', 32,
+!     &                                   'plane_y_coordinate_at_v_location')
 #endif
 #ifdef CURVGRID
 !
