@@ -59,7 +59,7 @@
         imin=Istr
       endif
 #  ifdef MPI
-      if (Iend.eq.Lm .and. ii.eq.NP_XI-1) then
+      if (Iend.eq.Lmmpi.and. ii.eq.NP_XI-1) then
 #  else
       if (Iend.eq.Lm) then
 #  endif
@@ -85,7 +85,7 @@
       endif
 
 #  ifdef MPI
-      if (Jend.eq.Mm .and. jj.eq.NP_ETA-1) then
+      if (Jend.eq.Mmmpi .and. jj.eq.NP_ETA-1) then
 #  else
       if (Jend.eq.Mm) then
 #  endif
