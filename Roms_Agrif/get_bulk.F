@@ -413,7 +413,8 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
 #  endif /* BULK_SM_UPDATE */
 # endif /* BULK_SMFLUX */
        itbulk=i
-       write(stdout,'(6x,A,1x,A,1x,g12.4,1x,I4)') 'GET_BULK   --',
+       MPI_master_only write(stdout,'(6x,A,1x,A,1x,g12.4,1x,I4)') 
+     &              'GET_BULK   --',
      &              'Read fields for bulk formula   for time =', cff 
 # ifdef MPI
      &                                                      , mynode
