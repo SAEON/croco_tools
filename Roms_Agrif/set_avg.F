@@ -85,7 +85,45 @@ C$    integer omp_get_thread_num
 # include "wkb_wwave.h"
 # endif
 !
-#include "compute_auxiliary_bounds.h"
+!#include "compute_auxiliary_bounds.h"
+      integer IstrR,IendR,JstrR,JendR
+# ifdef MPI
+      if (Istr.eq.1 .and. ii.eq.0) then
+# else
+      if (Istr.eq.1) then
+# endif
+        IstrR=Istr-1
+      else
+        IstrR=Istr
+      endif
+# ifdef MPI
+      if (Iend.eq.Lmmpi.and. ii.eq.NP_XI-1) then
+# else
+      if (Iend.eq.Lm) then
+# endif
+        IendR=Iend+1
+      else
+        IendR=Iend
+      endif
+
+# ifdef MPI
+      if (Jstr.eq.1 .and. jj.eq.0) then
+# else
+      if (Jstr.eq.1) then
+# endif
+        JstrR=Jstr-1
+      else
+        JstrR=Jstr
+      endif
+# ifdef MPI
+      if (Jend.eq.Mmmpi .and. jj.eq.NP_ETA-1) then
+# else
+      if (Jend.eq.Mm) then
+# endif
+        JendR=Jend+1
+      else
+        JendR=Jend
+      endif
 !
       ilc=1+iic-ntstart   ! number of time step since restart
 !
@@ -182,6 +220,7 @@ C$    integer omp_get_thread_num
             enddo
           enddo
         endif
+        print *,'IstrR ... ',IstrR,IendR,JstrR,JendR
         do itrc=1,NT
           if (wrtavg(indxT+itrc-1)) then
             do k=1,N
