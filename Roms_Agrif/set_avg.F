@@ -85,7 +85,6 @@ C$    integer omp_get_thread_num
 # include "wkb_wwave.h"
 # endif
 !
-!#include "compute_auxiliary_bounds.h"
       integer IstrR,IendR,JstrR,JendR
 # ifdef MPI
       if (Istr.eq.1 .and. ii.eq.0) then
@@ -220,7 +219,6 @@ C$    integer omp_get_thread_num
             enddo
           enddo
         endif
-        print *,'IstrR ... ',IstrR,IendR,JstrR,JendR
         do itrc=1,NT
           if (wrtavg(indxT+itrc-1)) then
             do k=1,N
