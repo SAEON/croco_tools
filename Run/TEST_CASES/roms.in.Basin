@@ -22,7 +22,7 @@ history: LDEFHIS, NWRT, NRPFHIS / filename
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
                         T    T    T     T  T   T 
 
-auxiliary_history_fields: rho Omega  W  Akv  Akt  Aks  HBL Hbbl Bostr Wstr UWstr VWstr Shflux Swflux Swrad
+auxiliary_history_fields: rho Omega  W  Akv  Akt  Aks  HBL Hbbl Bostr Wstr Ustr Vstr Shflux Swflux Swrad
                           F   F      F  F    F    F    F   F    F     F    F     F     F      F      F
 
 rho0:
