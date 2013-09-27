@@ -59,8 +59,6 @@ CC ==================
       REAL zsecond, zlon(jpi,jpj),zlat(jpi,jpj),zlev(jpk),zdate0
       REAL zmaskt
 
-c      INCLUDE 'netcdf.inc'
-# include "netcdf.inc"
 # include "ncscrum.h"
 # include "scalars.h"
       integer ncid, varid, dimid, ierr,
