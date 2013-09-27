@@ -464,8 +464,8 @@ C$OMP BARRIER
        integer i,j,iter,isize
        real :: cff1
 !$AGRIF_DO_NOT_TREAT
-      integer :: indinterp
-      common/interp2d/indinterp
+      integer :: indinterp,nbgrid
+      common/interp2d/indinterp,nbgrid
 !$AGRIF_END_DO_NOT_TREAT  
 
        integer :: oldindinterp
@@ -964,8 +964,8 @@ C$OMP BARRIER
        integer i,j,iter,isize
        real :: cff1
 !$AGRIF_DO_NOT_TREAT
-      integer :: indinterp
-      common/interp2d/indinterp 
+      integer :: indinterp,nbgrid
+      common/interp2d/indinterp,nbgrid
 !$AGRIF_END_DO_NOT_TREAT  
 
        integer :: oldindinterp
@@ -1035,8 +1035,8 @@ C$OMP BARRIER
 # include "scalars.h"
 # include "zoom.h"      
 !$AGRIF_DO_NOT_TREAT
-      integer :: indinterp
-      common/interp2d/indinterp
+      integer :: indinterp,nbgrid
+      common/interp2d/indinterp,nbgrid
 !$AGRIF_END_DO_NOT_TREAT 
 
        IF (size(coarsevaluesinterp,1).LT.(isize)) THEN
@@ -1463,8 +1463,8 @@ C$OMP BARRIER
        integer i,j,iter,isize
        real :: cff1
 !$AGRIF_DO_NOT_TREAT
-      integer :: indinterp
-      common/interp2d/indinterp
+      integer :: indinterp,nbgrid
+      common/interp2d/indinterp,nbgrid
 !$AGRIF_END_DO_NOT_TREAT  
 
        integer :: oldindinterp
