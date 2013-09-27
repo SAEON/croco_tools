@@ -280,8 +280,8 @@ CR      write(stdout,'(1x,A,I3)') 'indxUb =',indxUb
      &               // 'velocity_at_u_location'
 #ifdef SPHERICAL
       vname(6,indxUb)='lat_u lon_u                                '
-!#else
-!      vname(6,indxUb)='x_u y_u                                    '
+#else
+      vname(6,indxUb)='x_u y_u                                    '
 #endif
       vname(7,indxUb)='                                           '
 
@@ -294,8 +294,8 @@ CR      write(stdout,'(1x,A,I3)') 'indxVb = ',indxVb
      &                // 'v_location'
 #ifdef SPHERICAL
       vname(6,indxVb)='lat_v lon_v                                '
-!#else
-!      vname(6,indxVb)='x_v y_v                                    '
+#else
+      vname(6,indxVb)='x_v y_v                                    '
 #endif
       vname(7,indxVb)='                                           '
       vname(11,indxVb)=' '
@@ -334,8 +334,8 @@ CR      write(stdout,'(1x,A,I3)') 'indxUWstr =',indxUWstr
       vname(5,indxUWstr)='surface_downward_eastward_stress        '
 #ifdef SPHERICAL
       vname(6,indxUWstr)='lat_u lon_u                             '
-!#else
-!      vname(6,indxUWstr)='x_u y_u                                 '
+#else
+      vname(6,indxUWstr)='x_u y_u                                 '
 #endif
       vname(7,indxUWstr)='                                        '
       vname(8,indxUWstr)='                                        '
@@ -348,8 +348,8 @@ CR      write(stdout,'(1x,A,I3)') 'indxVWstr =',indxVWstr
       vname(5,indxVWstr)='surface_downward_northward_stress       '
 #ifdef SPHERICAL
       vname(6,indxVWstr)='lat_v lon_v                             '
-!#else
-!      vname(6,indxVWstr)='x_v y_v                                 '
+#else
+      vname(6,indxVWstr)='x_v y_v                                 '
 #endif
       vname(7,indxVWstr)='                                        '
 
@@ -362,8 +362,8 @@ CR      write(stdout,'(1x,A,I3)') 'indxU = ',indxU
       vname(5,indxU)='sea_water_x_velocity_at_u_location          '
 #ifdef SPHERICAL
       vname(6,indxU)='lat_u lon_u                                 '
-!#else
-!      vname(6,indxU)='x_u y_u                                     '
+#else
+      vname(6,indxU)='x_u y_u                                     '
 #endif
       vname(7,indxU)='                                            '
 
@@ -375,8 +375,8 @@ CR      write(stdout,'(1x,A,I3)') 'indxV = ',indxV
       vname(5,indxV)='sea_water_y_velocity_at_v_location          '
 #ifdef SPHERICAL
       vname(6,indxV)='lat_v lon_v                                 '
-!#else
-!      vname(6,indxV)='x_v y_v                                     '
+#else
+      vname(6,indxV)='x_v y_v                                     '
 #endif
       vname(7,indxV)='                                            '
                 
@@ -1750,7 +1750,9 @@ CR       write(stdout,'(20x,A)') vname(1,indxMxadv+itrc-1)
        write(vname3,*) trim(unitt),' second-1                     '
        vname(3,indxMXadv+itrc-1)=vname3
        vname(4,indxMXadv+itrc-1)='                                '
-       vname(5,indxMXadv+itrc-1)='                                '
+       write(vname3,*) 'horizontal_Xi_advection_term_',trim(nametrc)
+     &               //'_component'                 
+       vname(5,indxMXadv+itrc-1)=vname3
        vname(6,indxMXadv+itrc-1)='                                '
        vname(7,indxMXadv+itrc-1)='                                '
 
@@ -1763,8 +1765,10 @@ CR       write(stdout,'(20x,A)') vname(1,indxMYadv+itrc-1)
        vname(2,indxMYadv+itrc-1)='Horizontal (eta) advection term '
        write(vname3,*) trim(unitt),' second-1                     '
        vname(3,indxMYadv+itrc-1)=vname3
-       vname(4,indxMYadv+itrc-1)='                                '
-       vname(5,indxMYadv+itrc-1)='                                '
+       vname(4,indxMYadv+itrc-1)='                               '
+       write(vname3,*) 'horizontal_eta_advection_term_',trim(nametrc)                 
+     &               //'_component'                 
+       vname(5,indxMYadv+itrc-1)=vname3
        vname(6,indxMYadv+itrc-1)='                                '
        vname(7,indxMYadv+itrc-1)='                                '
 
@@ -1778,7 +1782,9 @@ CR       write(stdout,'(20x,A)') vname(1,indxMVadv+itrc-1)
        write(vname3,*) trim(unitt),' second-1                     '    
        vname(3,indxMVadv+itrc-1)=vname3
        vname(4,indxMVadv+itrc-1)='                                '   
-       vname(5,indxMVadv+itrc-1)='                                '  
+       write(vname3,*) 'vertical_advection_term_',trim(nametrc)                 
+     &               //'_component'                 
+       vname(5,indxMVadv+itrc-1)=vname3
        vname(6,indxMVadv+itrc-1)='                                '
        vname(7,indxMVadv+itrc-1)='                                '
 
@@ -1792,7 +1798,9 @@ CR       write(stdout,'(20x,A)') vname(1,indxMcor+itrc-1)
        write(vname3,*) trim(unitt),' second-1                     '
        vname(3,indxMCor+itrc-1)=vname3
        vname(4,indxMCor+itrc-1)='                                 '
-       vname(5,indxMCor+itrc-1)='                                 '
+       write(vname3,*) 'coriolis_term_in_momentum_',trim(nametrc)                 
+     &               //'_component'                 
+       vname(5,indxMCor+itrc-1)=vname3
        vname(6,indxMCor+itrc-1)='                                 '
        vname(7,indxMCor+itrc-1)='                                 '
 
@@ -1806,7 +1814,9 @@ CR       write(stdout,'(20x,A)') vname(1,indxMPrsgrd+itrc-1)
        write(vname3,*) trim(unitt),' second-1                     ' 
        vname(3,indxMPrsgrd+itrc-1)=vname3
        vname(4,indxMPrsgrd+itrc-1)='                              '
-       vname(5,indxMPrsgrd+itrc-1)='                              '
+       write(vname3,*) 'pressure_gradient_term_',trim(nametrc)                 
+     &               //'_component'                 
+       vname(5,indxMPrsgrd+itrc-1)=vname3
        vname(6,indxMPrsgrd+itrc-1)='                              '
        vname(7,indxMPrsgrd+itrc-1)='                              '
 
@@ -1820,7 +1830,9 @@ C     R       write(stdout,'(20x,A)') vname(1,indxMHmix+itrc-1)
        write(vname3,*) trim(unitt),' second-1                     '    
        vname(3,indxMHmix+itrc-1)=vname3
        vname(4,indxMHmix+itrc-1)='                                '   
-       vname(5,indxMHmix+itrc-1)='                                '  
+       write(vname3,*) 'horizontal_mixing_term_',trim(nametrc)                 
+     &               //'_component'                 
+       vname(5,indxMHmix+itrc-1)=vname3
        vname(6,indxMHmix+itrc-1)='                                ' 
        vname(7,indxMHmix+itrc-1)='                                ' 
 
@@ -1834,7 +1846,9 @@ CR       write(stdout,'(20x,A)') vname(1,indxMVmix+itrc-1)
        write(vname3,*) trim(unitt),' second-1                     '
        vname(3,indxMVmix+itrc-1)=vname3
        vname(4,indxMVmix+itrc-1)='                                '
-       vname(5,indxMVmix+itrc-1)='                                '
+       write(vname3,*) 'vertical_mixing_term_',trim(nametrc)                 
+     &               //'_component'                 
+       vname(5,indxMVmix+itrc-1)=vname3
        vname(6,indxMVmix+itrc-1)='                                '
        vname(7,indxMVmix+itrc-1)='                                '
                                       
@@ -1849,7 +1863,7 @@ CR       write(stdout,'(20x,A)') vname(1,indxMvf+itrc-1)
        write(vname3,*) trim(unitt),' second-1                     '
        vname(3,indxMvf+itrc-1)=vname3
        vname(4,indxMvf+itrc-1)='                                  '
-       vname(5,indxMvf+itrc-1)='                                  '
+       vname(5,indxMvf+itrc-1)=vname1
        vname(6,indxMvf+itrc-1)='                                  '
        vname(7,indxMvf+itrc-1)='                                  '       
 
@@ -1863,7 +1877,7 @@ CR       write(stdout,'(20x,A)') vname(1,indxMbrk+itrc-1)
        write(vname3,*) trim(unitt),' second-1                     '
        vname(3,indxMbrk+itrc-1)=vname3
        vname(4,indxMbrk+itrc-1)='                                 '
-       vname(5,indxMbrk+itrc-1)='                                 '
+       vname(5,indxMbrk+itrc-1)=vname1
        vname(6,indxMbrk+itrc-1)='                                 '
        vname(7,indxMbrk+itrc-1)='                                 '       
 
@@ -1877,7 +1891,7 @@ CR       write(stdout,'(20x,A)') vname(1,indxMStCo+itrc-1)
        write(vname3,*) trim(unitt),' second-1                     '
        vname(3,indxMStCo+itrc-1)=vname3
        vname(4,indxMStCo+itrc-1)='                                '
-       vname(5,indxMStCo+itrc-1)='                                '
+       vname(5,indxMStCo+itrc-1)=vname1
        vname(6,indxMStCo+itrc-1)='                                '
        vname(7,indxMStCo+itrc-1)='                                '       
 
@@ -1891,7 +1905,7 @@ CR       write(stdout,'(20x,A)') vname(1,indxMVvf+itrc-1)
        write(vname3,*) trim(unitt),' second-1                     '
        vname(3,indxMVvf+itrc-1)=vname3
        vname(4,indxMVvf+itrc-1)='                                 '
-       vname(5,indxMVvf+itrc-1)='                                 '
+       vname(5,indxMVvf+itrc-1)=vname1
        vname(6,indxMVvf+itrc-1)='                                 '
        vname(7,indxMVvf+itrc-1)='                                 '       
 
@@ -1905,7 +1919,7 @@ CR       write(stdout,'(20x,A)') vname(1,indxMPrscrt+itrc-1)
        write(vname3,*) trim(unitt),' second-1                     '
        vname(3,indxMPrscrt+itrc-1)=vname3
        vname(4,indxMPrscrt+itrc-1)='                              '
-       vname(5,indxMPrscrt+itrc-1)='                              '
+       vname(5,indxMPrscrt+itrc-1)=vname1
        vname(6,indxMPrscrt+itrc-1)='                              '
        vname(7,indxMPrscrt+itrc-1)='                              '       
 
@@ -1919,7 +1933,7 @@ CR       write(stdout,'(20x,A)') vname(1,indxMsbk+itrc-1)
        write(vname3,*) trim(unitt),' second-1                     '
        vname(3,indxMsbk+itrc-1)=vname3
        vname(4,indxMsbk+itrc-1)='                                 '
-       vname(5,indxMsbk+itrc-1)='                                 '
+       vname(5,indxMsbk+itrc-1)=vname1
        vname(6,indxMsbk+itrc-1)='                                 '
        vname(7,indxMsbk+itrc-1)='                                 '       
 
@@ -1933,7 +1947,7 @@ CR       write(stdout,'(20x,A)') vname(1,indxMbwf+itrc-1)
        write(vname3,*) trim(unitt),' second-1                     '
        vname(3,indxMbwf+itrc-1)=vname3
        vname(4,indxMbwf+itrc-1)='                                 '
-       vname(5,indxMbwf+itrc-1)='                                 '
+       vname(5,indxMbwf+itrc-1)=vname1
        vname(6,indxMbwf+itrc-1)='                                 '
        vname(7,indxMbwf+itrc-1)='                                 '       
 
@@ -1947,7 +1961,7 @@ CR       write(stdout,'(20x,A)') vname(1,indxMfrc+itrc-1)
        write(vname3,*) trim(unitt),' second-1                     '
        vname(3,indxMfrc+itrc-1)=vname3
        vname(4,indxMfrc+itrc-1)='                                 '
-       vname(5,indxMfrc+itrc-1)='                                 '
+       vname(5,indxMfrc+itrc-1)=vname1
        vname(6,indxMfrc+itrc-1)='                                 '
        vname(7,indxMfrc+itrc-1)='                                 '       
 # endif
@@ -1962,7 +1976,9 @@ CR       write(stdout,'(20x,A)') vname(1,indxMrate+itrc-1)
        write(vname3,*) trim(unitt),' second-1                     '   
        vname(3,indxMrate+itrc-1)=vname3
        vname(4,indxMrate+itrc-1)='                                '  
-       vname(5,indxMrate+itrc-1)='                                ' 
+       write(vname3,*) 'time_rate_of_change_term_',trim(nametrc)                 
+     &               //'_component'                 
+       vname(5,indxMrate+itrc-1)=vname3
        vname(6,indxMrate+itrc-1)='                                '
        vname(7,indxMrate+itrc-1)='                                '
       enddo
