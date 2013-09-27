@@ -20,18 +20,18 @@
       integer nblkvrs
       parameter(nblkvrs=9)
       ! --------------------- !
-      ! Bulk variable's names !
+      ! Bulk variable''s names !
       ! --------------------- !
       character*250 pathbulk, bulkfilename(nblkvrs), 
      &              blk_vname(4, nblkvrs)
       ! ---------------------- !
-      ! Bulk variable's tables !
+      ! Bulk variable''s tables !
       ! ---------------------- !
       real    dum_array(GLOBAL_2D_ARRAY,2,nblkvrs)
       integer itbulkO(nblkvrs), bulk_varid(nblkvrs),  
      &        ncidbulkO(nblkvrs)
       ! ------------------------------- !
-      ! Bulk variable's time parameters !
+      ! Bulk variable''s time parameters !
       ! ------------------------------- !
       integer bulkyearnum(nblkvrs), bulkmonthnum(nblkvrs),
      &        yearnum, monthnum, yearend, monthend, 
@@ -41,7 +41,7 @@
       real    bulk_timeO(2,nblkvrs), bulk_cycleO(nblkvrs)
       logical newbulk(nblkvrs)
       ! -------------------------- !
-      ! Bulk variable's dimensions !
+      ! Bulk variable''s dimensions !
       ! -------------------------- !
       integer NX0(nblkvrs), NY0(nblkvrs)
 

@@ -63,11 +63,11 @@
 !      FC(0)=0  FC(N)=0
 ! The solution is:
 !    1- first pass: setting modified coefficients
-!       C'(1)=C(1)/B(1)   C'(k)=C(k)/[B(k)-C'(k-1)*A(k)] for k=2,N-1
-!       D'(1)=D(1)/B(1)   D'(k)=[D(k)-D'(k-1)*A(k)/[B(k)-C'(k-1)*A(k)]
+!       C''(1)=C(1)/B(1)   C''(k)=C(k)/[B(k)-C''(k-1)*A(k)] for k=2,N-1
+!       D''(1)=D(1)/B(1)   D''(k)=[D(k)-D''(k-1)*A(k)/[B(k)-C''(k-1)*A(k)]
 !    2- second pass: back-substitution
-!       T(N)=D'(N)
-!       T(k)=D'(k)-C'(k)*T(k+1) for k=N-1,1,-1
+!       T(N)=D''(N)
+!       T(k)=D''(k)-C''(k)*T(k+1) for k=N-1,1,-1
 !
 
 # ifdef SALINITY
