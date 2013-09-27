@@ -44,7 +44,8 @@
 # define MPI
 # define OA_MCT
 # define MPI_COMM_WORLD ocean_grid_comm
-# undef  BULK_FLUX
+# undef OA_GRID_UV
+# undef BULK_FLUX
 #endif
   
 /*

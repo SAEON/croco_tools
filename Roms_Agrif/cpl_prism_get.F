@@ -45,8 +45,10 @@
       CHARACTER*1 clevel
 
       real,dimension(GLOBAL_2D_ARRAY) :: tab_t_tmp
+#if (!defined OA_GRID_UV)
       real,dimension(GLOBAL_2D_ARRAY) :: tab_u_tmp
       real,dimension(GLOBAL_2D_ARRAY) :: tab_v_tmp
+#endif
 
 #ifdef AGRIF
       level=Agrif_Fixed()
@@ -121,30 +123,40 @@
          if (srcv_clname(i)=='RRMTAUX'//clevel) then
             call cpl_prism_getvar(srcv_nid(i), srcv_clname(i),
      &  tab_t_tmp, rcvtime, iok_taux) 
-            if (iok_taux /= 0) then     
+            if (iok_taux /= 0) then  
+#if (!defined OA_GRID_UV)   
 !              Interpolate TAUX on grid T --> U
                do jo=jmin_halo-1,jmax_halo+1
                do io=imin_halo,imax_halo+1
                   tab_u_tmp(io,jo)=0.5*(tab_t_tmp(io-1,jo)+tab_t_tmp(io,jo))
                enddo
-               enddo   
+               enddo
 !              Transmit to ROMS field : sustr
                sustr  = tab_u_tmp / rho0
+#else
+!              Transmit to ROMS field : sustr
+               sustr  = tab_t_tmp / rho0
+#endif   
             endif
          end if
 !-------------------------------------------------
          if (srcv_clname(i)=='RRMTAUY'//clevel) then
             call cpl_prism_getvar(srcv_nid(i), srcv_clname(i),
      &  tab_t_tmp, rcvtime, iok_tauy) 
-            if (iok_tauy /= 0) then     
+            if (iok_tauy /= 0) then 
+#if (!defined OA_GRID_UV) 
 !              Interpolate TAUY on grid T --> U
                do jo=jmin_halo,jmax_halo+1
                do io=imin_halo-1,imax_halo+1
                   tab_v_tmp(io,jo)=0.5*(tab_t_tmp(io,jo-1)+tab_t_tmp(io,jo))
                enddo
-               enddo  
+               enddo
 !              Transmit to ROMS field : svstr
                svstr = tab_v_tmp(:,:) / rho0
+#else
+!              Transmit to ROMS field : svstr
+               svstr = tab_t_tmp(:,:) / rho0                
+#endif 
             endif
          end if
       END DO 
