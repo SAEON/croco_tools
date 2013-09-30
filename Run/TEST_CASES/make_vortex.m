@@ -72,6 +72,7 @@ N=10;
 theta_s=1;
 theta_b=0;
 hc=H0;
+vtransform =  2.; % s-coordinate type (2: new coordinates)
 %
 % Nesting parameters
 %
@@ -155,7 +156,7 @@ close(nc);
 %  Create and fill the initial file
 %
 create_inifile(parent_ini,parent_grd,title,...
-               theta_s,theta_b,hc,N,0,'clobber')
+               theta_s,theta_b,hc,N,0,'clobber',vtransform)
 nc=netcdf(parent_ini,'write');
 nc{'u'}(:) =  u; 
 nc{'v'}(:) =  v; 
@@ -168,7 +169,7 @@ close(nc)
 %  Create and fill the climatology file
 %
 create_climfile(parent_clm,parent_grd,title,...
-                theta_s,theta_b,hc,N,[25 75],100,'clobber')
+                theta_s,theta_b,hc,N,[25 75],100,'clobber',vtransform)
 nc=netcdf(parent_clm,'write');
 nc{'u'}(1,:,:,:) =  u;
 nc{'v'}(1,:,:,:) =  v;
@@ -309,7 +310,7 @@ barocvortex
 %  Create the initial file
 %
 create_inifile(child_ini,child_grd,title,...
-               theta_s,theta_b,hc,N,0,'clobber')
+               theta_s,theta_b,hc,N,0,'clobber',vtransform)
 nc=netcdf(child_ini,'write');
 nc{'u'}(:) =  u; 
 nc{'v'}(:) =  v; 
@@ -322,7 +323,7 @@ close(nc);
 %  Create and fill the climatology file
 %
 create_climfile(child_clm,child_grd,title,...
-                theta_s,theta_b,hc,N,[25 75],100,'clobber')
+                theta_s,theta_b,hc,N,[25 75],100,'clobber',vtransform)
 nc=netcdf(child_clm,'write');
 nc{'u'}(1,:,:,:) =  u;
 nc{'v'}(1,:,:,:) =  v;
