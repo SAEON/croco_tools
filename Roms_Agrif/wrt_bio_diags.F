@@ -156,8 +156,8 @@ c$$$     &        bioVSink(30,30,iflux)
 #   if (defined BIO_NChlPZD && defined OXYGEN)
 ! gas exchange fluxes
       do iflux = 1, NumGasExcTerms
-         work2d=GasExcFlux(:,:,:,iflux)
-         call fillvalue2d(work2d, nciddiabio, (iflux),
+         work2d=GasExcFlux(:,:,iflux)
+         call fillvalue2d(work2d, nciddiabio, diabioGasExc(iflux),
      &        indxGasExcFlux+iflux-1,record,r2dvar,type)
       end do
 #   endif 

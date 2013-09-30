@@ -495,13 +495,13 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
      &        record,r2dvar,type)
       endif
       if (wrtavg(indxKvO2)) then
-         work2d=Kv_02_avg
-         call fillvalue2d(work2d,ncidavg,avgKv02,indxKv02,
+         work2d=Kv_O2_avg
+         call fillvalue2d(work2d,ncidavg,avgKvO2,indxKvO2,
      &        record,r2dvar,type)
       endif
       if (wrtavg(indxO2sat)) then
          work2d=O2satu_avg
-         call fillvalue2d(work2d,ncidavg,avgO2sat,indx02sat,
+         call fillvalue2d(work2d,ncidavg,avgO2sat,indxO2sat,
      &        record,r2dvar,type)
       endif
 #     endif /* OXYGEN */

@@ -335,7 +335,7 @@
      &          lvar, vname(4,indxGasExcFlux+iflux-1)(1:lvar))
 
          call nf_add_attribute(ncid, vidGasExc(iflux), 
-     &                     indxbioGasExc+iflux-1, 5, NF_REAL, ierr)
+     &                     indxGasExcFlux+iflux-1, 5, NF_REAL, ierr)
         end do
 #  endif /* BIO_NChlPZD && OXYGEN */
 

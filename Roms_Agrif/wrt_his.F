@@ -814,14 +814,14 @@ CR      write(*,*) 'wrt_his:  stflx(:,:,isalt)' MYID
       endif
 !     
       if (wrthis(indxKvO2)) then
-         work2d=Kv_02
-         call fillvalue2d(work2d,ncidhis,hisKv02,indxKv02,
+         work2d=Kv_O2
+         call fillvalue2d(work2d,ncidhis,hisKvO2,indxKvO2,
      &        record,r2dvar,type)
       endif
 !     
       if (wrthis(indxO2sat)) then
          work2d=O2satu
-         call fillvalue2d(work2d,ncidhis,hisO2sat,indx02sat,
+         call fillvalue2d(work2d,ncidhis,hisO2sat,indxO2sat,
      &        record,r2dvar,type)
       endif
 #      endif /* OXYGEN */

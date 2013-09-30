@@ -158,7 +158,7 @@ c$$$     &        bioVSink_avg(30,30,iflux)
 ! gas exchange fluxes
       do iflux = 1, NumGasExcTerms
          work2d=GasExcFlux_avg(:,:,iflux)
-         call fillvalue2d(work2d, nciddiabio_avg, (iflux),
+         call fillvalue2d(work2d,nciddiabio_avg,diabioGasExc_avg(iflux),
      &        indxGasExcFlux+iflux-1,record,r2dvar,type)
       end do
 #  endif /* BIO_NChlPZD && OXYGEN */
