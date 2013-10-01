@@ -463,7 +463,7 @@
       do j=Jstr,Jend
         do i=IstrU,Iend
           cff1=cff*0.5*(Hz(i-1,j,1)+Hz(i,j,1))
-          bustr(i,j)=SIGN(float(1), bustr(i,j))* 
+          bustr(i,j)=SIGN(1.D0, bustr(i,j))* 
      &               MIN(ABS(bustr(i,j)),
      &                   ABS(u(i,j,1,nrhs))*cff1)
         enddo
@@ -471,7 +471,7 @@
       do j=JstrV,Jend
         do i=Istr,Iend
           cff1=cff*0.5*(Hz(i,j-1,1)+Hz(i,j,1))
-          bvstr(i,j)=SIGN(float(1), bvstr(i,j))*
+          bvstr(i,j)=SIGN(1.D0, bvstr(i,j))*
      &               MIN(ABS(bvstr(i,j)),
      &                   ABS(v(i,j,1,nrhs))*cff1)
         enddo
