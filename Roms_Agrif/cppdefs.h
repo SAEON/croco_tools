@@ -6,7 +6,7 @@
 ! and Rutgers University (Arango et al) are under MIT/X style license.
 ! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
 ! 
-! ROMS_AGRIF website : http://roms.mpl.ird.fr
+! ROMS_AGRIF website : http://www.romsagrif.org
 !======================================================================
 !
 /*
@@ -186,12 +186,9 @@
 # define ANA_BTFLUX
                       /* Point Sources - Rivers */
 # undef PSOURCE
-# undef ANA_PSOURCE
-# ifdef PSOURCE
-#   define PSOURCE_NCFILE
-#   ifdef  PSOURCE_NCFILE
-#     define PSOURCE_NCFILE_TS
-#   endif
+# undef PSOURCE_NCFILE
+# ifdef PSOURCE_NCFILE                    
+#   define PSOURCE_NCFILE_TS
 # endif
                       /* Open Boundary Conditions */
 # ifdef TIDES
@@ -235,15 +232,26 @@
 # ifdef BIOLOGY
 #  undef  PISCES
 #  define BIO_NChlPZD
-#  undef  BIO_N2ChlPZD2
-# endif
-                      /*   Bio options   */
-# undef  DIAGNOSTICS_BIO
-# ifdef BIO_NChlPZD
-#   undef  OXYGEN
-# endif
-# ifdef BIO_N2P2Z2D2
-#  undef  VAR_CHL_C
+#  undef  BIO_N2ChlPZD2  
+                      /*   Biology options    */
+#  ifdef PISCES
+#   define key_trc_pisces
+#   define key_passivetrc
+#   undef  DIAGNOSTICS_BIO
+#   ifdef DIAGNOSTICS_BIO
+#     define key_trc_diaadd
+#     define key_trc_dia3d
+#   endif
+#  endif
+#  ifdef BIO_NChlPZD
+#   define  OXYGEN
+#  endif
+#  ifdef BIO_NChlPZD
+#   define DIAGNOSTICS_BIO
+#  endif
+#  ifdef BIO_N2P2Z2D2
+#   undef  VAR_CHL_C
+#  endif
 # endif
                       /*   Lagrangian floats model    */
 # ifdef FLOATS
