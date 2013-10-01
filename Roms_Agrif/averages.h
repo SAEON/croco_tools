@@ -81,7 +81,9 @@
       real u10_avg(GLOBAL_2D_ARRAY)
       real Kv_O2_avg(GLOBAL_2D_ARRAY)
       real O2satu_avg(GLOBAL_2D_ARRAY)
-      common /avg_O2_GE/ u10_avg, Kv_O2_avg, O2satu_avg
+      common /gasexc_O2_u10_avg/ u10_avg
+      common /gasexc_O2_Kv_O2_avg/ Kv_O2_avg
+      common /gasexc_O2_O2satu_avg/ O2satu_avg
 #    endif /* OXYGEN */
 #   endif
 #  endif /* BIOLOGY */

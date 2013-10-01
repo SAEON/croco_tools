@@ -366,14 +366,14 @@
 !  formulation proposed by Keeling et al. (1998, Global Biogeochem.
 !  Cycles, 12, 141-163).  Input is temperature in deg C.
 !
-        Sc = 1638.0 - 81.83*Tem(N) + 1.483*(Tem(N)**2) -
-     &       0.008004*(Tem(N)**3)
+        Sc = 1638.0 - 81.83*tem(N) + 1.483*(tem(N)**2) -
+     &       0.008004*(tem(N)**3)
 !*********************************************************************
 #  else /* OCMIP_OXYGEN_SC */
 !       calculate the Schmidt number for O2 in sea water [Wanninkhof,
 !       1992]
-        Sc=1953.4 - 128.0*Tem(N) + 3.9918*(Tem(N)**2) -
-     &     0.050091*(Tem(N)**3)
+        Sc=1953.4 - 128.0*tem(N) + 3.9918*(tem(N)**2) -
+     &     0.050091*(tem(N)**3)
 #  endif /* OCMIP_OXYGEN_SC */
 !
 !       calculate the wind speed from the surface stress values
@@ -385,9 +385,9 @@
 !  denominator: convert Kv from [cm/h] to [m/s]
 !       calculate the saturation oxygen level
 #  ifdef OCMIP_OXYGENSAT
-        O2satu_loc = o2sato(Tem(N), Sal(N))
+        O2satu_loc = o2sato(tem(N), sal(N))
 #  else /* OCMIP_OXYGENSAT */
-        call O2sato(O2(N),Tem(N),Sal(N),den(N),O2satu_loc,satpc,AOU)
+        call O2sato(O2(N),tem(N),sal(N),den(N),O2satu_loc,satpc,AOU)
 #  endif /* OCMIP_OXYGENSAT */
 !       air-sea flux of O2
 !       abs(z_w(i,j,N-1))==> volume of upper layer
@@ -687,6 +687,11 @@
           O2satu(i,j) = O2satu_loc
           Kv_O2(i,j) = Kv_O2_loc
           u10(i,j) = u10_loc
+!         if (i==10.and.j==10) then 
+!            write (*,*) 'O2satu(10,10)=',O2satu(10,10)
+!            write (*,*) 'Kv_O2(10,10)=',KV_O2(10,10)
+!            write (*,*) 'u10(10,10)=',u10(10,10)
+!          endif
 # endif /* OXYGEN */
         enddo
       enddo

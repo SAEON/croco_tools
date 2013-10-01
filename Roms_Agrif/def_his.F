@@ -2267,7 +2267,7 @@
 ! Gas exchange coefficient of O2
         if (wrt(indxKvO2)) then
           lvar=lenstr(vname(1,indxKvO2))
-          ierr=nf_inq_varid (ncid,vname(1,indxKvO2)(1:lvar), vidChC)
+          ierr=nf_inq_varid (ncid,vname(1,indxKvO2)(1:lvar), vidKvO2)
           if (ierr .ne. nf_noerr) then
           write(stdout,1) vname(1,indxKvO2)(1:lvar), ncname(1:lstr)
             goto 99                                       !--> ERROR
@@ -2277,7 +2277,7 @@
 ! Saturation concentration of O2
         if (wrt(indxO2sat)) then
           lvar=lenstr(vname(1,indxO2sat))
-          ierr=nf_inq_varid (ncid,vname(1,indxO2sat)(1:lvar), vidChC)
+          ierr=nf_inq_varid (ncid,vname(1,indxO2sat)(1:lvar), vidO2sat)
           if (ierr .ne. nf_noerr) then
           write(stdout,1) vname(1,indxO2sat)(1:lvar), ncname(1:lstr)
             goto 99                                       !--> ERROR
