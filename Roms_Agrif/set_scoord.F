@@ -93,7 +93,7 @@
                                             ! NOTE: Mathematical 
       function CSF (sc, theta_s,theta_b)    ! limits of CSF,csrf for
       implicit none                         ! theta_s, theta_b --> 0
-      real*8 CSF, sc, theta_s,theta_b,csrf  ! match that under "else"
+      real CSF, sc, theta_s,theta_b,csrf    ! match that under "else"
                                             ! logical branches.
       if (theta_s.gt.0.D0) then
         csrf=(1.D0-cosh(theta_s*sc))/(cosh(theta_s)-1.D0)
