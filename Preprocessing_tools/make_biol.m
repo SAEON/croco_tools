@@ -50,10 +50,16 @@ romstools_param
 %    no3_ann_data  : annual NO3 climatology
 %    chla_seas_data : seasonal Chlorophylle climatology
 %
-no3_seas_data=[woa_dir,'no3_seas.cdf'];
-no3_ann_data=[woa_dir,'no3_ann.cdf'];
+
+%no3_seas_data=[woa_dir,'no3_seas.cdf'];
+%no3_ann_data=[woa_dir,'no3_ann.cdf'];
+no3_seas_data=[cars2009_dir,'CARS_nitrate_2009_global_seasonal.cdf'];
+no3_ann_data=[cars2009_dir,'CARS_nitrate_2009_global_annual.cdf'];
+o2_seas_data=[cars2009_dir,'CARS_oxygen_2009_global_seasonal.cdf'];
+o2_ann_data=[cars2009_dir,'CARS_oxygen_2009_global_annual.cdf'];
 chla_seas_data=[chla_dir,'chla_seas.cdf'];
 NO3min=0.01;
+O2min=0.0;
 %
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
@@ -62,12 +68,17 @@ NO3min=0.01;
 %
 add_no3(oaname,clmname,ininame,grdname,no3_seas_data,...
         no3_ann_data,woa_cycle,makeoa,makeclim)
+add_o2(oaname,clmname,ininame,grdname,o2_seas_data,...
+        o2_ann_data,woa_cycle,makeoa,makeclim)   
 %
 % Horizontal extrapolation of NO3
 %
 if (makeoa)
   ext_tracers(oaname,no3_seas_data,no3_ann_data,...
               'nitrate','NO3','no3_time','Zno3',Roa);
+          
+  ext_tracers(oaname,o2_seas_data,o2_ann_data,...
+              'oxygen','O2','o2_time','Zo2',Roa);       
 end
 %
 % Vertical interpolations 
@@ -78,6 +89,9 @@ if (makeclim)
   disp(' ')
   disp(' NO3...')
   vinterp_clm(clmname,grdname,oaname,'NO3','no3_time','Zno3',0,'r');
+  
+  disp(' O2...')
+  vinterp_clm(clmname,grdname,oaname,'O2','o2_time','Zo2',0,'r');
 %
 % Remove low values for oligotrophic areas
 %
@@ -87,7 +101,13 @@ if (makeclim)
     NO3=nc{'NO3'}(l,:,:,:);
     NO3(NO3<NO3min)=NO3min;
     nc{'NO3'}(l,:,:,:)=NO3;
+    %
+    O2=nc{'O2'}(l,:,:,:);
+    O2(O2 < O2min)=O2min;
+    nc{'O2'}(l,:,:,:)=O2;
+    %
   end
+ 
   close(nc)
 %
 %  CHla
@@ -117,7 +137,12 @@ if (makeini)
   disp(' ')
   disp(' NO3...')
   add_ini_no3(ininame,grdname,oaname,woa_cycle,NO3min);
-%
+  
+  % 02
+  disp(' ')
+  disp(' O2...')
+  add_ini_o2(ininame,grdname,oaname,woa_cycle,O2min);  
+
 %  CHla
 %		 
   disp(' ')
@@ -135,6 +160,13 @@ if (makeini)
   disp(' ')
   disp(' Zoo...')
   add_ini_zoo(ininame);
+%
+%  Oxygen
+%
+  disp(' ')
+  disp(' Oxygen...')
+  add_ini_o2(ininame,grdname,oaname,woa_cycle,O2min); 
+  
 end
 %
 % Make a few plots
@@ -146,6 +178,8 @@ figure
 test_clim(clmname,grdname,'CHLA',1,coastfileplot)
 figure
 test_clim(clmname,grdname,'PHYTO',1,coastfileplot)
+figure
+test_clim(clmname,grdname,'O2',1,coastfileplot)
 %
 % End
 %

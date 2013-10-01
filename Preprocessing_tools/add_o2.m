@@ -1,22 +1,22 @@
-function add_o2(oafile,climfile,inifile,gridfile,seas_datafile,...
+function add_o2(oafile,climfile,inifile,gridfile,month_datafile,...
                  ann_datafile,cycle,makeoa,makeclim);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  function [longrd,latgrd,o2]=add_o2(climfile,gridfile,...
-%                                       seas_datafile,ann_datafile,...
+%                                       month_datafile,ann_datafile,...
 %                                       cycle);
 %
 %  pierrick 2001
 %
 %  Add oxygen (mMol 0 m-3) in a ROMS climatology file
-%  take seasonal data for the upper levels and annual data for the
+%  take monthly data for the upper levels and annual data for the
 %  lower levels
 %
 %  input:
 %    
 %    climfile      : roms climatology file to process (netcdf)
 %    gridfile      : roms grid file (netcdf)
-%    seas_datafile : regular longitude - latitude - z seasonal data 
+%    month_datafile : regular longitude - latitude - z monthly data 
 %                    file used for the upper levels  (netcdf)
 %    ann_datafile  : regular longitude - latitude - z annual data 
 %                    file used for the lower levels  (netcdf)
@@ -37,7 +37,7 @@ close(nc);
 %
 % read in the datafiles 
 %
-nc=netcdf(seas_datafile);
+nc=netcdf(month_datafile);
 t=nc{'T'}(:);
 close(nc)
 nc=netcdf(ann_datafile);
@@ -80,10 +80,10 @@ if (makeoa)
 %
   endef(nc);
 %
-% record deth and time and close
+% record depth and time and close
 %
-  nc{'o2_time'}(:)=t*30; % if time in month in the dataset !!!
-  nc{'Zo2'}(:)=zo2;
+  nc{'o2_time'}(:)=t*30;  % ojo aqui quite *30 % if time in month in the dataset !!!
+  nc{'Zo2'}(:)=squeeze(zo2);
   close(nc)
 end
 %
@@ -96,7 +96,7 @@ if (makeclim)
 % 
   nc=netcdf(climfile,'write');
   redef(nc);
-  nc('o2_time') = length(t);;
+  nc('o2_time') = length(t);
   nc{'o2_time'} = ncdouble('o2_time') ;
   nc{'O2'} = ncdouble('o2_time','s_rho','eta_rho','xi_rho') ;
 %
@@ -119,26 +119,8 @@ if (makeclim)
 %
 % record the time and close
 %
-  nc{'o2_time'}(:)=t*30; % if time in month in the dataset !!!
+  nc{'o2_time'}(:,:)=t*30; % if time in month in the dataset !!!
   close(nc)
 end
-%
-% Same thing for the Initial file
-%
-%disp('Add_no3: creating variables and attributes for the Initial file')
-%
-% open the clim file  
-% 
-%nc=netcdf(inifile,'write');
-%redef(nc);
-%nc{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
-%
-%nc{'NO3'}.long_name = ncchar('Nitrate');
-%nc{'NO3'}.long_name = 'Nitrate';
-%nc{'NO3'}.units = ncchar('mMol N m-3');
-%nc{'NO3'}.units = 'mMol N m-3';
-%
-%endef(nc);
-%close(nc)
 
 return
