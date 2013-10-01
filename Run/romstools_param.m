@@ -241,9 +241,14 @@ psource_ts = 0;   % tracer runoff concentration
 %
 tini=0;  
 %
-% World Ocean Atlas directory (WOA2001 or WOA2005) 
+% World Ocean Atlas directory (WOA2009)
+% ( temp, salt and biological variables)
+woa_dir=[DATADIR,'WOA2009/'];
 %
-woa_dir=[DATADIR,'WOA2005/'];
+% CARS2009 climatology directory (CARS2009) 
+% (temp, salt and biological variables)
+%  [ => Used by defaut in make_biol.m ]
+cars2009_dir=[DATADIR,'CARS2009/'];
 %
 % Pisces biogeochemical seasonal climatology (WOA2001 or WOA2005) 
 %
