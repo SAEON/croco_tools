@@ -1,4 +1,4 @@
-function add_bry_bgc(bryname,obc,time_no3,time_zoo,time_phyto,time_chla,cycle,clobber);
+function add_bry_bgc(bryname,obc,time_no3,time_o2,time_zoo,time_phyto,time_chla,cycle,clobber);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                 
 % function add_bry_bgc(bryname,grdname,title,obc...            
@@ -43,8 +43,8 @@ function add_bry_bgc(bryname,obc,time_no3,time_zoo,time_phyto,time_chla,cycle,cl
 %  Olivier Aumont the master, IRD, 2006.                          %
 %  Patricio Marchesiello, chief, IRD, 2007.                       %
 %  Christophe Eugene Raoul Menkes, the slave, IRD, 2007.          %
-%  Gildas Cambon, IRD, 2011
-%                                                                 %
+%  Gildas Cambon, IRD, 2011                                       %
+%  Gildas Cambon, IRD, 2013 : Add oxygen processing               %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp(' ')
 disp([' Adding BGC data into file : ',bryname])
@@ -58,6 +58,7 @@ result = redef(nc);
 %  Create dimenPHYTOons
 %
 nc('no3_time')  = length(time_no3);
+nc('o2_time')  = length(time_o2);
 nc('chla_time')  = length(time_chla);
 nc('phyto_time') = length(time_phyto);
 nc('zoo_time')   = length(time_zoo);
@@ -71,6 +72,13 @@ nc{'no3_time'}.long_name = 'time for NO3 climatology';
 nc{'no3_time'}.units = ncchar('day');
 nc{'no3_time'}.units = 'day';
 nc{'no3_time'}.cycle_length = cycle;%
+%
+nc{'o2_time'} = ncdouble('o2_time') ;
+nc{'o2_time'}.long_name = ncchar('time for O2 climatology')
+nc{'o2_time'}.long_name = 'time for O2 climatology';
+nc{'o2_time'}.units = ncchar('day');
+nc{'o2_time'}.units = 'day';
+nc{'o2_time'}.cycle_length = cycle;
 %
 nc{'chla_time'} = ncdouble('chla_time') ;
 nc{'chla_time'}.long_name = ncchar('time for CHLA climatology');
@@ -106,6 +114,12 @@ if obc(1)==1
   nc{'NO3_south'}.units = ncchar('mMol N m-3');
   nc{'NO3_south'}.units = 'mMol N m-3';
 %
+  nc{'O2_south'} = ncdouble('o2_time','s_rho','xi_rho') ;
+  nc{'O2_south'}.long_name = ncchar('southern boundary O2');
+  nc{'O2_south'}.long_name = 'southern boundary O2';
+  nc{'O2_south'}.units = ncchar('mMol O m-3');
+  nc{'O2_south'}.units = 'mMol N m-3';
+  %
   nc{'CHLA_south'} = ncdouble('chla_time','s_rho','xi_rho') ;
   nc{'CHLA_south'}.long_name = ncchar('southern boundary CHLA');
   nc{'CHLA_south'}.long_name = 'southern boundary CHLA';
@@ -138,6 +152,12 @@ if obc(2)==1
   nc{'NO3_east'}.units = ncchar('mMol N m-3');
   nc{'NO3_east'}.units = 'mMol N m-3';
 %
+  nc{'O2_east'} = ncdouble('o2_time','s_rho','eta_rho') ;
+  nc{'O2_east'}.long_name = ncchar('eastern boundary O2');
+  nc{'O2_east'}.long_name = 'eastern boundary O2';
+  nc{'O2_east'}.units = ncchar('mMol O m-3');
+  nc{'O2_east'}.units = 'mMol N m-3';
+  %
   nc{'CHLA_east'} = ncdouble('chla_time','s_rho','eta_rho') ;
   nc{'CHLA_east'}.long_name = ncchar('eastern boundary CHLA');
   nc{'CHLA_east'}.long_name = 'eastern boundary CHLA';
@@ -169,6 +189,12 @@ if obc(3)==1
   nc{'NO3_north'}.long_name = 'northern boundary NO3';
   nc{'NO3_north'}.units = ncchar('mMol N m-3');
   nc{'NO3_north'}.units = 'mMol N m-3';
+%
+  nc{'O2_north'} = ncdouble('o2_time','s_rho','xi_rho') ;
+  nc{'O2_north'}.long_name = ncchar('northern boundary O2');
+  nc{'O2_north'}.long_name = 'northern boundary O2';
+  nc{'O2_north'}.units = ncchar('mMol O m-3');
+  nc{'O2_north'}.units = 'mMol N m-3';
 %
   nc{'CHLA_north'} = ncdouble('chla_time','s_rho','xi_rho') ;
   nc{'CHLA_north'}.long_name = ncchar('northern boundary CHLA');
@@ -202,6 +228,12 @@ if obc(4)==1
   nc{'NO3_west'}.units = ncchar('mMol N m-3');
   nc{'NO3_west'}.units = 'mMol N m-3';
 %
+  nc{'O2_west'} = ncdouble('o2_time','s_rho','eta_rho') ;
+  nc{'O2_west'}.long_name = ncchar('western boundary O2');
+  nc{'O2_west'}.long_name = 'western boundary O2';
+  nc{'O2_west'}.units = ncchar('mMol O m-3');
+  nc{'O2_west'}.units = 'mMol N m-3';
+%
   nc{'CHLA_west'} = ncdouble('chla_time','s_rho','eta_rho') ;
   nc{'CHLA_west'}.long_name = ncchar('western boundary CHLA');
   nc{'CHLA_west'}.long_name = 'western boundary CHLA';
@@ -231,27 +263,32 @@ result = endef(nc);
 nc{'zoo_time'}(:) = time_zoo;
 nc{'phyto_time'}(:) = time_phyto;
 nc{'no3_time'}(:) = time_no3;
+nc{'o2_time'}(:) = time_o2;
 nc{'chla_time'}(:) = time_chla;
 if obc(1)==1
   nc{'NO3_south'}(:)  =  0;
+  nc{'O2_south'}(:)  =  0;
   nc{'CHLA_south'}(:)  =  0;
   nc{'PHYTO_south'}(:) =  0;
   nc{'ZOO_south'}(:)   =  0;
 end 
 if obc(2)==1
   nc{'NO3_east'}(:)  =  0;
+  nc{'O2_east'}(:)  =  0;
   nc{'CHLA_east'}(:)  =  0;
   nc{'PHYTO_east'}(:) =  0;
   nc{'ZOO_east'}(:)   =  0;
 end 
 if obc(3)==1
   nc{'NO3_north'}(:)  =  0;
+  nc{'O2_north'}(:)  =  0;
   nc{'CHLA_north'}(:)  =  0;
   nc{'PHYTO_north'}(:) =  0;
   nc{'ZOO_north'}(:)   =  0;
 end 
 if obc(4)==1
   nc{'NO3_west'}(:)  =  0;
+  nc{'O2_west'}(:)  =  0;
   nc{'CHLA_west'}(:)  =  0;
   nc{'PHYTO_west'}(:) =  0;
   nc{'ZOO_west'}(:)   =  0;

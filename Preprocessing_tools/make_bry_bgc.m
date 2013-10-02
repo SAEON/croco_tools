@@ -77,8 +77,10 @@ Roa;
 % sio3_seas_data = [woapisces_dir,'sio3_seas.cdf'];
 % sio3_ann_data  = [woapisces_dir,'sio3_ann.cdf'];
 %
-no3_seas_data    = [woa_dir,'no3_seas.cdf'];
-no3_ann_data     = [woa_dir,'no3_ann.cdf'];
+no3_seas_data    = [climato_dir,'no3_seas.cdf'];
+no3_ann_data     = [climato_dir,'no3_ann.cdf'];
+o2_seas_data    = [climato_dir,'o2_seas.cdf'];
+o2_ann_data     = [climato_dir,'o2_ann.cdf'];
 chla_seas_data   = [chla_dir,'chla_seas.cdf'];
 chla_ann_data    = [chla_dir,'chla_ann.cdf'];
 NO3min=1;
@@ -113,6 +115,11 @@ time_no3=nc{'T'}(:);
 close(nc)
 time_no3=(time_no3-1)*30;
 %
+nc=netcdf(o2_seas_data);
+time_o2=nc{'T'}(:);
+close(nc)
+time_o2=(time_o2-1)*30;
+%
 nc=netcdf(chla_seas_data);
 time_chla=nc{'T'}(:);
 close(nc)
@@ -131,7 +138,8 @@ if (makebry)
       disp([' NO VTRANSFORM parameter found'])
       disp([' USE TRANSFORM default value vtransform = 1'])
   end
-  add_bry_bgc(bryname,obc,time_no3,time_zoo,time_phyto,time_chla,cycle,'write');
+  add_bry_bgc(bryname,obc,time_no3,time_o2,time_zoo,time_phyto,time_chla,cycle,'write');
+  
 end
 %
 % Redefine the boundary file in Z-coordinates
@@ -147,7 +155,7 @@ if (makeZbry)
   kmax=max(find(Z<hmax))-1;
   Z=Z(1:kmax);
   close(nc)
-  add_bry_bgc_Z(Zbryname,obc,Z,time_no3,time_zoo,time_phyto,time_chla,cycle,'write');
+  add_bry_bgc_Z(Zbryname,obc,Z,time_no3,time_o2,time_zoo,time_phyto,time_chla,cycle,'write');
   disp(' ')
   disp(' Horizontal extrapolations')
 %
@@ -178,7 +186,14 @@ if (makeZbry)
       disp(' ')
 	  cff=1;
       bry_interp_bgc(Zbryname,lon,lat,no3_seas_data,no3_ann_data,...
-               'nitrate',['NO3',suffix],obcndx,Roa);        
+               'nitrate',['NO3',suffix],obcndx,Roa);            
+      %
+      disp('============================================')
+	  disp('  Oxygen...')
+      disp(' ')
+	  cff=1;
+      bry_interp_bgc(Zbryname,lon,lat,o2_seas_data,o2_ann_data,...
+               'oxygen',['O2',suffix],obcndx,Roa);        
       %
 	  disp('============================================')
 	  disp('  Chlorophylle...(computed from Chla data)')
@@ -230,15 +245,9 @@ if (makebry)
       disp(' ')
       disp('  Nitrate...')
       vinterp_bry_bgc(bryname,grdname,Zbryname,'no3_time',['NO3',suffix],obcndx);
-%       disp(' ')
-%       disp('  Chlorophylle...')
-%       vinterp_bry(bryname,grdname,Zbryname,['CHLA',suffix],obcndx);
-%       disp(' ')
-%       disp('  Phytoplankton...')
-%       vinterp_bry(bryname,grdname,Zbryname,['PHYTO',suffix],obcndx);
-%       disp(' ')
-%       disp('  Zooplankton ...')
-%       vinterp_bry(bryname,grdname,Zbryname,['ZOO',suffix],obcndx);
+      disp('=====')
+      disp('  Oxygen...')
+       vinterp_bry_bgc(bryname,grdname,Zbryname,'o2_time',['O2',suffix],obcndx);
     end
   end
 end
@@ -249,6 +258,8 @@ if makeplot==1
 disp(' ')
 disp(' Make a few plots...')
 test_bry(bryname,grdname,'NO3',1,obc)
+figure
+test_bry(bryname,grdname,'O2',1,obc)
 figure
 test_bry(bryname,grdname,'CHLA',1,obc)
 figure

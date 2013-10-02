@@ -62,10 +62,10 @@ romstools_param
 %    salt_month_data : monthly salinity climatology
 %    salt_ann_data   : annual salinity climatology
 %
-temp_month_data=[woa_dir,'temp_month.cdf'];
-temp_ann_data=[woa_dir,'temp_ann.cdf'];
-salt_month_data=[woa_dir,'salt_month.cdf'];
-salt_ann_data=[woa_dir,'salt_ann.cdf'];
+temp_month_data=[climato_dir,'temp_month.cdf'];
+temp_ann_data=[climato_dir,'temp_ann.cdf'];
+salt_month_data=[climato_dir,'salt_month.cdf'];
+salt_ann_data=[climato_dir,'salt_ann.cdf'];
 %
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%

@@ -51,12 +51,10 @@ romstools_param
 %    chla_seas_data : seasonal Chlorophylle climatology
 %
 
-%no3_seas_data=[woa_dir,'no3_seas.cdf'];
-%no3_ann_data=[woa_dir,'no3_ann.cdf'];
-no3_seas_data=[cars2009_dir,'CARS_nitrate_2009_global_seasonal.cdf'];
-no3_ann_data=[cars2009_dir,'CARS_nitrate_2009_global_annual.cdf'];
-o2_seas_data=[cars2009_dir,'CARS_oxygen_2009_global_seasonal.cdf'];
-o2_ann_data=[cars2009_dir,'CARS_oxygen_2009_global_annual.cdf'];
+no3_seas_data=[climato_dir,'no3_seas.cdf'];
+no3_ann_data=[climato_dir,'no3_ann.cdf'];
+o2_seas_data=[climato_dir,'o2_seas.cdf'];
+o2_ann_data=[climato_dir,'o2_ann.cdf'];
 chla_seas_data=[chla_dir,'chla_seas.cdf'];
 NO3min=0.01;
 O2min=0.0;
