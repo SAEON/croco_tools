@@ -1,6 +1,5 @@
 function ncrst=create_nestedrestart(rstfile,gridfile,parentfile,title,clobber,...
-				    biol,biol_NPZD,biol_N2PZD2,biol_N2P2Z2D2,...
-				    pisces,namebiol,namepisces,unitbiol,unitpisces,hc,vtransform)
+				    biol,pisces,namebiol,namepisces,unitbiol,unitpisces,hc,vtransform)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  function ncrst=create_nestedrestart(rstfile,gridfile,parentfile,...
@@ -48,9 +47,6 @@ function ncrst=create_nestedrestart(rstfile,gridfile,parentfile,title,clobber,..
 disp(' ')
 disp(' ')
 %biol
-%biol_NPZD
-%biol_N2PZD2
-%biol_N2P2Z2D2
 %pisces
 %namebiol
 %namepisces
@@ -94,6 +90,11 @@ ncrst('one') = 1;
 ncrst{'spherical'} = ncchar('one');
 ncrst{'el'} = ncdouble('one');
 ncrst{'xl'} = ncdouble('one');
+% ncrst{'xi_rho'} = ncdouble('xi_rho');
+% ncrst{'xi_u'} = ncdouble('xi_u');
+% ncrst{'eta_rho'} = ncdouble('eta_rho');
+% ncrst{'eta_v'} = ncdouble('eta_v');
+ncrst{'Vtransform'} =ncdouble('one');
 ncrst{'h'} = ncdouble('eta_rho','xi_rho');
 ncrst{'f'} = ncdouble('eta_rho','xi_rho');
 ncrst{'pm'} = ncdouble('eta_rho','xi_rho');
@@ -114,30 +115,9 @@ ncrst{'salt'} = ncdouble('time','s_rho','eta_rho','xi_rho');
 %
 %
 if biol == 1
-  if biol_NPZD == 1
-    ncrst{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-    ncrst{'CHLA'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-    ncrst{'PHYTO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-    ncrst{'ZOO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-    ncrst{'DET'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  elseif biol_N2PZD2 == 1
-    ncrst{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-    ncrst{'NH4'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-    ncrst{'CHLA'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-    ncrst{'PHYTO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-    ncrst{'ZOO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-    ncrst{'SDET'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-    ncrst{'LDET'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  elseif biol_N2P2Z2D2 == 1
-    ncrst{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-    ncrst{'NH4'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-    ncrst{'SPHYTO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-    ncrst{'LPHYTO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-    ncrst{'SZOO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-    ncrst{'LZOO'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-    ncrst{'SDET'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-    ncrst{'LDET'} = ncdouble('time','s_rho','eta_rho','xi_rho');
-  end
+    for k=1:length(namebiol)
+        ncrst{char(namebiol(k))}= ncdouble('time','s_rho','eta_rho','xi_rho');
+    end
 end
 if pisces ==1
   for k=1:length(namepisces)
@@ -150,6 +130,7 @@ end
 ncrst{'spherical'}.long_name = ncchar('grid type logical switch');
 ncrst{'spherical'}.long_name = 'grid type logical switch';
 %
+
 ncrst{'xl'}.long_name = ncchar('domain length in the XI-direction');
 ncrst{'xl'}.long_name = 'domain length in the XI-direction';
 ncrst{'xl'}.units = ncchar('meter');
@@ -159,6 +140,25 @@ ncrst{'el'}.long_name = ncchar('domain length in the ETA-direction');
 ncrst{'el'}.long_name = 'domain length in the ETA-direction';
 ncrst{'el'}.units = ncchar('meter');
 ncrst{'el'}.units = 'meter';
+%
+% ncrst{'xi_rho'}.long_name = ncchar('x-dimension of the grid');
+% ncrst{'xi_rho'}.long_name = 'x-dimension of the grid';
+% ncrst{'xi_rho'}.standard_name = 'x_grid_index_at_u_location' ;
+% %
+% ncrst{'xi_u'}.long_name = ncchar('x-dimension of the grid at u location');
+% ncrst{'xi_u'}.long_name = 'x-dimension of the grid at u location';
+% ncrst{'xi_u'}.standard_name = 'x_grid_index_at_u_location' ;
+% %
+% ncrst{'eta_rho'}.long_name = ncchar('y-dimension of the grid');
+% ncrst{'eta_rho'}.long_name = 'y-dimension of the grid';
+% ncrst{'eta_rho'}.standard_name = 'x_grid_index_at_v_location'
+% %
+% ncrst{'eta_v'}.long_name = ncchar('y-dimension of the grid at v location');
+% ncrst{'eta_v'}.long_name = 'y-dimension of the grid at v location';
+% ncrst{'eta_v'}.standard_name = 'x_grid_index_at_v_location';
+%
+ncrst{'Vtransform'}.long_name = ncchar('vertical terrain-following transformation equation');
+ncrst{'Vtransform'}.long_name = 'vertical terrain-following transformation equation';
 %
 ncrst{'h'}.long_name = ncchar('bathymetry at RHO-points');
 ncrst{'h'}.long_name = 'bathymetry at RHO-points';
@@ -243,121 +243,20 @@ ncrst{'salt'}.units = 'PSU';
 
 %
 if  biol == 1
-  if biol_NPZD == 1
-    ncrst{'NO3'}.long_name = ncchar('NO3 Nutrient');
-    ncrst{'NO3'}.long_name = 'NO3 Nutrient';
-    ncrst{'NO3'}.units = ncchar('mMol N m-3');
-    ncrst{'NO3'}.units = 'mMol N m-3';
-    %
-    ncrst{'CHLA'}.long_name = ncchar('Chlorophyl A');
-    ncrst{'CHLA'}.long_name = 'Chlorophyl A';
-    ncrst{'CHLA'}.units = ncchar('mMol N m-3');
-    ncrst{'CHLA'}.units = 'mMol N m-3';
-    %
-    ncrst{'PHYTO'}.long_name = ncchar('Phytoplankton');
-    ncrst{'PHYTO'}.long_name = 'Phytoplankton';
-    ncrst{'PHYTO'}.units = ncchar('mMol N m-3');
-    ncrst{'PHYTO'}.units = 'mMol N m-3';
-    %
-    ncrst{'ZOO'}.long_name = ncchar('Zooplankton');
-    ncrst{'ZOO'}.long_name = 'Zooplankton';
-    ncrst{'ZOO'}.units = ncchar('mMol N m-3');
-    ncrst{'ZOO'}.units = 'mMol N m-3';
-    %
-    ncrst{'DET'}.long_name = ncchar('Detritus Nutrient');
-    ncrst{'DET'}.long_name = 'Detritus Nutrient';
-    ncrst{'DET'}.units = ncchar('mMol N m-3');
-    ncrst{'DET'}.units = 'mMol N m-3';
-
-  elseif biol_N2PZD2 == 1
-    ncrst{'NO3'}.long_name = ncchar('NO3 Nutrient');
-    ncrst{'NO3'}.long_name = 'NO3 Nutrient';
-    ncrst{'NO3'}.units = ncchar('mMol N m-3');
-    ncrst{'NO3'}.units = 'mMol N m-3';
-    %
-    ncrst{'NH4'}.long_name = ncchar('NH4 Nutrient');
-    ncrst{'NH4'}.long_name = 'NH4 Nutrient';
-    ncrst{'NH4'}.units = ncchar('mMol N m-3');
-    ncrst{'NH4'}.units = 'mMol N m-3';
-    %
-    ncrst{'CHLA'}.long_name = ncchar('Chlorophyl A');
-    ncrst{'CHLA'}.long_name = 'Chlorophyl A';
-    ncrst{'CHLA'}.units = ncchar('mMol N m-3');
-    ncrst{'CHLA'}.units = 'mMol N m-3';
-    %
-    ncrst{'PHYTO'}.long_name = ncchar('Phytoplankton');
-    ncrst{'PHYTO'}.long_name = 'Phytoplankton';
-    ncrst{'PHYTO'}.units = ncchar('mMol N m-3');
-    ncrst{'PHYTO'}.units = 'mMol N m-3';
-    %
-    ncrst{'ZOO'}.long_name = ncchar('Zooplankton');
-    ncrst{'ZOO'}.long_name = 'Zooplankton';
-    ncrst{'ZOO'}.units = ncchar('mMol N m-3');
-    ncrst{'ZOO'}.units = 'mMol N m-3';
-    %
-    ncrst{'SDET'}.long_name = ncchar('Small Detritus Nutrient');
-    ncrst{'SDET'}.long_name = 'Small Detritus Nutrient';
-    ncrst{'SDET'}.units = ncchar('mMol N m-3');
-    ncrst{'SDET'}.units = 'mMol N m-3';
-    %
-    ncrst{'LDET'}.long_name = ncchar('Large Detritus Nutrient');
-    ncrst{'LDET'}.long_name = 'Large Detritus Nutrient';
-    ncrst{'LDET'}.units = ncchar('mMol N m-3');
-    ncrst{'LDET'}.units = 'mMol N m-3';
-    %
-  elseif biol_N2P2Z2D2 == 1
-    ncrst{'NO3'}.long_name = ncchar('NO3 Nutrient');
-    ncrst{'NO3'}.long_name = 'NO3 Nutrient';
-    ncrst{'NO3'}.units = ncchar('mMol N m-3');
-    ncrst{'NO3'}.units = 'mMol N m-3';
-    %
-    ncrst{'NH4'}.long_name = ncchar('NH4 Nutrient');
-    ncrst{'NH4'}.long_name = 'NH4 Nutrient';
-    ncrst{'NH4'}.units = ncchar('mMol N m-3');
-    ncrst{'NH4'}.units = 'mMol N m-3';
-    %
-    ncrst{'CHLA'}.long_name = ncchar('Chlorophyl A');
-    ncrst{'CHLA'}.long_name = 'Chlorophyl A';
-    ncrst{'CHLA'}.units = ncchar('mMol N m-3');
-    ncrst{'CHLA'}.units = 'mMol N m-3';
-    %
-    ncrst{'SPHYTO'}.long_name = ncchar('Small Phytoplankton');
-    ncrst{'SPHYTO'}.long_name = 'Small Phytoplankton';
-    ncrst{'SPHYTO'}.units = ncchar('mMol N m-3');
-    ncrst{'SPHYTO'}.units = 'mMol N m-3';
-    %
-    ncrst{'LPHYTO'}.long_name = ncchar('Large Phytoplankton');
-    ncrst{'LPHYTO'}.long_name = 'Large Phytoplankton';
-    ncrst{'LPHYTO'}.units = ncchar('mMol N m-3');
-    ncrst{'LPHYTO'}.units = 'mMol N m-3';
-    %
-    ncrst{'SZOO'}.long_name = ncchar('Small Zooplankton');
-    ncrst{'SZOO'}.long_name = 'Small Zooplankton';
-    ncrst{'SZOO'}.units = ncchar('mMol N m-3');
-    ncrst{'SZOO'}.units = 'mMol N m-3';
-    %
-    ncrst{'LZOO'}.long_name = ncchar('Large Zooplankton');
-    ncrst{'LZOO'}.long_name = 'Large Zooplankton';
-    ncrst{'LZOO'}.units = ncchar('mMol N m-3');
-    ncrst{'LZOO'}.units = 'mMol N m-3';
-    %
-    ncrst{'SDET'}.long_name = ncchar('Small Detritus Nutrient');
-    ncrst{'SDET'}.long_name = 'Small Detritus Nutrient';
-    ncrst{'SDET'}.units = ncchar('mMol N m-3');
-    ncrst{'SDET'}.units = 'mMol N m-3';
-    %
-    ncrst{'LDET'}.long_name = ncchar('Large Detritus Nutrient');
-    ncrst{'LDET'}.long_name = 'Large Detritus Nutrient';
-    ncrst{'LDET'}.units = ncchar('mMol N m-3');
-    ncrst{'LDET'}.units = 'mMol N m-3';
-  else 
-    error([' Not a valid BIOL model !...'])
+  for k=1:length(namebiol)
+    %disp(['K=',num2str(k)])
+    ncrst{char(namebiol(k))}.long_name = ncchar(char(namebiol(k)));
+    ncrst{char(namebiol(k))}.long_name = char(namebiol(k));
+    ncrst{char(namebiol(k))}.units = ncchar(char(unitbiol(k)));
+    ncrst{char(namebiol(k))}.units = char(unitbiol(k));
+    ncrst{char(namebiol(k))}.field = ncchar([char(namebiol(k)),', scalar, series']);
+    ncrst{char(namebiol(k))}.field = [char(namebiol(k)),', scalar, series'];
   end
 end
 %
 if pisces ==1
   for k=1:length(namepisces)
-    disp(['K=',num2str(k)])
+    %disp(['K=',num2str(k)])
     ncrst{char(namepisces(k))}.long_name = ncchar(char(namepisces(k)));
     ncrst{char(namepisces(k))}.long_name = char(namepisces(k));
     ncrst{char(namepisces(k))}.units = ncchar(char(unitpisces(k)));
@@ -384,6 +283,8 @@ ncrst.parent_file = ncchar(parentfile);
 ncrst.parent_file = parentfile;
 ncrst.history = ncchar(history);
 ncrst.history = history;
+ncrst.creation_method = ncchar('Nestgui @ ROMSTOOLS');
+ncrst.creation_method = 'Nestgui @ ROMSTOOLS';
 %
 % Get the vertical grid
 %
@@ -426,7 +327,7 @@ ncrst{'lon_rho'}(:)=ncgrd{'lon_rho'}(:);
 ncrst{'lat_rho'}(:)=ncgrd{'lat_rho'}(:);
 ncrst{'angle'}(:)=ncgrd{'angle'}(:);
 ncrst{'mask_rho'}(:)=ncgrd{'mask_rho'}(:);
-
+ncrst{'Vtransform'}(:)=vtransform;
 %
 % Synchronize on disk
 %

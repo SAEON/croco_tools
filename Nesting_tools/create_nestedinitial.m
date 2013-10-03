@@ -121,22 +121,15 @@ ncini{'zeta'} = ncdouble('time','eta_rho','xi_rho') ;
 ncini{'temp'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 ncini{'salt'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 if biol==1
-  ncini{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
-  ncini{'CHLA'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
-  ncini{'PHYTO'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
-  ncini{'ZOO'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+    for k=1:length(namebiol)
+        ncini{char(namebiol(k))}= ncdouble('time','s_rho','eta_rho','xi_rho');
+    end
 end
 if pisces==1
-  ncini{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
-  ncini{'PO4'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
-  ncini{'Si'}  = ncdouble('time','s_rho','eta_rho','xi_rho') ;
-  ncini{'O2'}  = ncdouble('time','s_rho','eta_rho','xi_rho') ;
-  ncini{'DIC'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
-  ncini{'TALK'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
-  ncini{'DOC'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
-  ncini{'FER'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+    for k=1:length(namepisces)
+        ncini{char(namepisces(k))}= ncdouble('time','s_rho','eta_rho','xi_rho');
+    end
 end
-
 %
 %  Create attributes
 %
@@ -251,38 +244,20 @@ ncini{'salt'}.field = ncchar('salinity, scalar, series');
 ncini{'salt'}.field = 'salinity, scalar, series';
 %
 if biol
-  ncini{'NO3'}.long_name = ncchar('Nitrate');
-  ncini{'NO3'}.long_name = 'Nitrate';
-  ncini{'NO3'}.units = ncchar('mMol N m-3');
-  ncini{'NO3'}.units = 'mMol N m-3';
-  ncini{'NO3'}.field = ncchar('NO3, scalar, series');
-  ncini{'NO3'}.field = 'NO3, scalar, series';
-  %
-  ncini{'CHLA'}.long_name = ncchar('Chlorophyll');
-  ncini{'CHLA'}.long_name = 'Chlorophyll';
-  ncini{'CHLA'}.units = ncchar('mg C l-1');
-  ncini{'CHLA'}.units = 'mg C l-1';
-  ncini{'CHLA'}.field = ncchar('CHLA, scalar, series');
-  ncini{'CHLA'}.field = 'CHLA, scalar, series';
-  %
-  ncini{'PHYTO'}.long_name = ncchar('Phytoplankton');
-  ncini{'PHYTO'}.long_name = 'Phytoplankton';
-  ncini{'PHYTO'}.units = ncchar('mMol N m-3');
-  ncini{'PHYTO'}.units = 'mMol N m-3';
-  ncini{'PHYTO'}.field = ncchar('PHYTO, scalar, series');
-  ncini{'PHYTO'}.field = 'PHYTO, scalar, series';
-  %
-  ncini{'ZOO'}.long_name = ncchar('Zooplankton');
-  ncini{'ZOO'}.long_name = 'Zooplankton';
-  ncini{'ZOO'}.units = ncchar('mMol N m-3');
-  ncini{'ZOO'}.units = 'mMol N m-3';
-  ncini{'ZOO'}.field = ncchar('ZOO, scalar, series');
-  ncini{'ZOO'}.field = 'ZOO, scalar, series';
+  for k=1:length(namebiol)
+%    disp(['K=',num2str(k)])
+    ncini{char(namebiol(k))}.long_name = ncchar(char(namebiol(k)));
+    ncini{char(namebiol(k))}.long_name = char(namebiol(k));
+    ncini{char(namebiol(k))}.units = ncchar(char(unitbiol(k)));
+    ncini{char(namebiol(k))}.units = char(unitbiol(k));
+    ncini{char(namebiol(k))}.field = ncchar([char(namebiol(k)),', scalar, series']);
+    ncini{char(namebiol(k))}.field = [char(namebiol(k)),', scalar, series'];
+  end
 end;
 %
 if pisces
-  for k=1:8
-    disp(['K=',num2str(k)])
+  for k=1:length(namepisces)
+ %   disp(['K=',num2str(k)])
     ncini{char(namepisces(k))}.long_name = ncchar(char(namepisces(k)));
     ncini{char(namepisces(k))}.long_name = char(namepisces(k));
     ncini{char(namepisces(k))}.units = ncchar(char(unitpisces(k)));
@@ -309,22 +284,12 @@ ncini.type = ncchar(type);
 ncini.type = type;
 ncini.history = ncchar(history);
 ncini.history = history;
+ncini.creation_method = ncchar('Nestgui @ ROMSTOOLS');
+ncini.creation_method = 'Nestgui @ ROMSTOOLS';
 %
 % Leave define mode
 %
 result = endef(ncini);
-%
-% Compute S coordinates
-%
-% ds=1.0/N;
-% hmin=min(min(h));
-% hc=min(hmin,Tcline);
-% lev=1:N;
-% sc=-1+(lev-0.5).*ds;
-% Ptheta=sinh(theta_s.*sc)./sinh(theta_s);
-% Rtheta=tanh(theta_s.*(sc+0.5))./(2*tanh(0.5*theta_s))-0.5;
-% Cs=(1-theta_b).*Ptheta+theta_b.*Rtheta;
-
 [sc_r,Cs_r,sc_w,Cs_w] = scoordinate(theta_s,theta_b,N,hc,vtransform);
 %
 % Write variables
@@ -349,23 +314,17 @@ ncini{'temp'}(:)=0;
 ncini{'salt'}(:)=0; 
 %
 if biol==1
-  disp('Write variable biology')
-  ncini{'NO3'}(:)=0;
-  ncini{'CHLA'}(:)=0;
-  ncini{'PHYTO'}(:)=0;
-  ncini{'ZOO'}(:)=0;
+   % disp('Write variable biology')
+    for k=1:length(namebiol)
+        ncini{char(namebiol(k))}(:) = 0;
+    end
 end
 %
 if pisces==1
-  disp('Write variable pisces')
-  ncini{'NO3'}(:)=0;
-  ncini{'PO4'}(:)=0;
-  ncini{'Si'}(:)=0;
-  ncini{'O2'}(:)=0;
-  ncini{'DIC'}(:)=0;
-  ncini{'TALK'}(:)=0;
-  ncini{'DOC'}(:)=0;
-  ncini{'FER'}(:)=0;
+   % disp('Write variable pisces')
+    for k=1:length(namepisces)
+        ncini{char(namepisces(k))}(:) = 0;
+    end
 end
 %
 %
