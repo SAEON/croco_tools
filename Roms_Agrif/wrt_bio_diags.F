@@ -150,7 +150,7 @@ c$$$     &        bioVSink(30,30,iflux)
       do iflux = 1, NumVSinkTerms
 !         write(*,*)'write vertical sinking fluxes'         
          work=bioVsink(:,:,:,iflux)
-         call fillvalue3d(workr, nciddiabio, diabioVsink(iflux),
+         call fillvalue3d(work, nciddiabio, diabioVsink(iflux),
      &        indxbioVSink+iflux-1,record,w3dvar,type)
       end do
 #   if (defined BIO_NChlPZD && defined OXYGEN)
