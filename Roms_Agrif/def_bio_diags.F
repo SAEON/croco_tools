@@ -486,9 +486,9 @@
         enddo
 #endif /*  BIO_NChlPZD && OXYGEN   */ 
 
-        write(*,'(6x,2A,i4,1x,A,i4)') 'DEF_BIO_DIAG -- Opened ',
-     &                     'existing file  from record =', rec
-     &                      MYID
+!        write(*,'(6x,2A,i4,1x,A,i4)') 'DEF_BIO_DIAG -- Opened ',
+!     &                     'existing file  from record =', rec
+!     &                      MYID
 
 #if defined MPI & !defined PARALLEL_FILES
       else
