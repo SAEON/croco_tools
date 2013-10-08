@@ -37,7 +37,7 @@
       INTEGER :: level
       CHARACTER*80 clline
       CHARACTER*9 clword,clstring,clnfields,clruntime
-      CHARACTER*8 SNDCODE,RCVCODE,cvarcode
+      CHARACTER*64 SNDCODE,RCVCODE,cvarcode
       CHARACTER*1 clevel
 
 #ifdef AGRIF
