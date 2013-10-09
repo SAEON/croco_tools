@@ -476,7 +476,7 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
 !     
       if (wrtavg(indxHel)) then
          work2d=hel_avg
-         call fillvalue2d(work2d,ncidavg,avgHbl,indxHbl,
+         call fillvalue2d(work2d,ncidavg,avgHel,indxHel,
      &        record,r2dvar,type)
       endif
 !     
