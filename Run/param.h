@@ -110,7 +110,7 @@
       parameter (LLm0=94,   MMm0=81,   N=40)
 #  endif
 #else
-      parameter (LLm0=??, MMm0=??, N=??)
+      parameter (LLm0=xx, MMm0=xx, N=xx)
 #endif
       
 #ifdef AGRIF
@@ -284,13 +284,17 @@
 #   endif
      &          , NFlux_NewProd, NFlux_Grazing, NFlux_SlopFeed
      &          , NFlux_Pmort, NFlux_Zmetab, NFlux_Zmort, NFlux_ReminD
-     &          , NumFluxTermsN, NumFluxTerms, NumGasExcTerms
-     &          , NFlux_VSinkChl, NFlux_VSinkP1, NFlux_VSinkD1
-     &          , NumVSinkTerms
+     &          , NumFluxTermsN
 #   ifdef OXYGEN
      &          , OGain_NewProd, OLoss_Zmetab
      &          , OLoss_ReminD, NumFluxTermsO, OFlux_GasExc
+     &          , NumGasExcTerms, NumFluxTerms  
+#   else 
+     &          , NumGasExcTerms
+     &          , NumFluxTerms
 #   endif
+     &          , NFlux_VSinkP1, NFlux_VSinkD1
+     &          , NumVSinkTerms
 #  elif defined BIO_N2ChlPZD2
      &          , iNO3_, iNH4_, iChla, iPhy1, iZoo1
      &          , iDet1, iDet2
@@ -304,11 +308,49 @@
      &          , NFlux_Zmort
      &          , NFlux_ReminD1, NFlux_ReminD2
      &          , NumFluxTermsN, NumFluxTerms, NumGasExcTerms
-     &          , NFlux_VSinkChl, NFlux_VSinkP1
+     &          , NFlux_VSinkP1
      &          , NFlux_VSinkD1, NFlux_VSinkD2
      &          , NumVSinkTerms
-#  endif
-# endif
+
+#  elif defined BIO_BioEBUS
+     &          , iNO3_, iNO2_, iNH4_, iPhy1, iPhy2, iZoo1, iZoo2
+     &          , iDet1, iDet2, iDON, iOxy_
+#    ifdef NITROUS_OXIDE
+     &          , iN2O
+#    endif 
+     &          , NFlux_lightlimitP1, NFlux_lightlimitP2
+     &          , NFlux_templimitP1, NFlux_templimitP2     
+     &          , NFlux_NO3limitP1, NFlux_NO2limitP1			
+     &          , NFlux_NH4limitP1, NFlux_NO3limitP2			
+     &          , NFlux_NO2limitP2, NFlux_NH4limitP2		
+     &          , NFlux_ProdNO3P1, NFlux_ProdNO3P2			
+     &          , NFlux_ProdNO2P1, NFlux_ProdNO2P2			
+     &          , NFlux_Nitrif1, NFlux_Nitrif2, NFlux_ProdNH4P1				
+     &          , NFlux_ProdNH4P2, NFlux_P1Z1Grazing			
+     &          , NFlux_P2Z1Grazing, NFlux_P1mort, NFlux_P2mort				
+     &          , NFlux_P1Z2Grazing, NFlux_P2Z2Grazing			
+     &          , NFlux_Z1Z2Grazing, NFlux_Z1metab, NFlux_Z1mort				
+     &          , NFlux_Z2metab, NFlux_Z2mort, NFlux_HydrolD1 			
+     &          , NFlux_ReminOxyD1, NFlux_Denitr1D1   			
+     &          , NFlux_Denitr2D1			
+     &          , NFlux_HydrolD2, NFlux_ReminOxyD2 			
+     &          , NFlux_Denitr1D2, NFlux_Denitr2D2 			
+     &          , NFlux_ReminOxyDON 			
+     &          , NFlux_Denitr1DON, NFlux_Denitr2DON 			
+     &          , NFlux_NO2anammox
+     &          , NFlux_NH4anammox, O2Flux_GasExc, NumFluxTermsN
+#    ifdef NITROUS_OXIDE
+     &          , NFlux_paramN2O, N2OFlux_GasExc
+#    endif 
+     &          , NumFluxTerms, NumGasExcTerms
+     &          , NFlux_VSinkP2, NFlux_VSinkD1
+     &          , NFlux_VSinkD2, NumVSinkTerms
+
+
+#  endif 
+/*--------------------------------------------------------------------------------*/ 
+# endif   /* BIOLOGY */
+
 # ifdef SEDIMENT
      &          , isand, isilt
      &          , NST, NLAY
@@ -407,18 +449,18 @@
      &           NFlux_Zmetab   = 5,
      &           NFlux_Zmort    = 6,
      &           NFlux_ReminD   = 7,
-     &           NumFluxTermsN  = NFlux_ReminD,
+     &           NumFluxTermsN  = 7,
 #   ifdef OXYGEN
-     &           OGain_NewProd  = NFlux_ReminD+1, 
-     &           OLoss_Zmetab   = OGain_NewProd+1,
-     &           OLoss_ReminD   = OLoss_Zmetab+1,
-     &           NumFluxTermsO  = OLoss_ReminD - NumFluxTermsN,
-     &           NumFluxTerms   = NumFluxTermsN + NumFluxTermsO,
+     &           OGain_NewProd  = 8, 
+     &           OLoss_Zmetab   = 9,
+     &           OLoss_ReminD   = 10,
+     &           NumFluxTermsO  = 3,
      &           OFlux_GasExc   = 1,
      &           NumGasExcTerms = 1,
+     &           NumFluxTerms   = 10,
 #   else
-     &           NumFluxTerms   = NumFluxTermsN,
      &           NumGasExcTerms = 0,
+     &           NumFluxTerms   = 7,
 #   endif
      &           NFlux_VSinkP1  = 1,
      &           NFlux_VSinkD1  = 2,
@@ -439,15 +481,97 @@
      &           NFlux_Zmort    = 8,
      &           NFlux_ReminD1  = 9,
      &           NFlux_ReminD2  = 10,
-     &           NumFluxTermsN  = NFlux_ReminD2,
-     &           NumFluxTerms   = NumFluxTermsN,
+     &           NumFluxTermsN  = 10,
+     &           NumFluxTerms   = 10,
      &           NumGasExcTerms = 0,
      &           NFlux_VSinkP1  = 1,
      &           NFlux_VSinkD1  = 2,
      &           NFlux_VSinkD2  = 3,
      &           NumVSinkTerms  = 3)
-#  endif
-#  if defined BIO_NChlPZD || defined BIO_N2ChlPZD2 || defined PISCES
+#  elif defined BIO_BioEBUS 
+
+#   ifdef NITROUS_OXIDE
+      parameter (ntrc_bio=12,itrc_bio=itemp+ntrc_salt+ntrc_pas+1)
+#   else
+      parameter (ntrc_bio=11,itrc_bio=itemp+ntrc_salt+ntrc_pas+1)
+#   endif  
+    
+      parameter (iNO3_=itrc_bio, iNO2_=iNO3_+1, iNH4_=iNO3_+2,
+     &           iPhy1=iNO3_+3,  iPhy2=iNO3_+4,
+     &           iZoo1=iNO3_+5,  iZoo2=iNO3_+6,
+     &           iDet1=iNO3_+7,  iDet2=iNO3_+8,
+     &		 iDON=iNO3_+9,   iOxy_=iNO3_+10)
+
+#   ifdef NITROUS_OXIDE
+      parameter (iN2O=iNO3_+11)
+#   endif
+  
+      parameter(  NFlux_lightlimitP1=1
+     &          , NFlux_lightlimitP2=2
+     &          , NFlux_templimitP1=3   
+     &          , NFlux_templimitP2=4       
+     &          , NFlux_NO3limitP1=5		
+     &          , NFlux_NO2limitP1=6			
+     &          , NFlux_NH4limitP1=7			
+     &          , NFlux_NO3limitP2=8			
+     &          , NFlux_NO2limitP2=9			
+     &          , NFlux_NH4limitP2=10
+     &          , NFlux_ProdNO3P1=11			
+     &          , NFlux_ProdNO3P2=12			
+     &          , NFlux_ProdNO2P1=13		
+     &          , NFlux_ProdNO2P2=14			
+     &          , NFlux_Nitrif1=15			
+     &          , NFlux_Nitrif2=16				
+     &          , NFlux_ProdNH4P1=17				
+     &          , NFlux_ProdNH4P2=18				
+     &          , NFlux_P1Z1Grazing=19			
+     &          , NFlux_P2Z1Grazing=20			
+     &          , NFlux_P1mort=21				
+     &          , NFlux_P2mort=22				
+     &          , NFlux_P1Z2Grazing=23		
+     &          , NFlux_P2Z2Grazing=24			
+     &          , NFlux_Z1Z2Grazing=25			
+     &          , NFlux_Z1metab=26				
+     &          , NFlux_Z1mort=27				
+     &          , NFlux_Z2metab=28				
+     &          , NFlux_Z2mort=29			
+     &          , NFlux_HydrolD1=30 			
+     &          , NFlux_ReminOxyD1=31 			
+     &          , NFlux_Denitr1D1=32 			
+     &          , NFlux_Denitr2D1=33 			
+     &          , NFlux_HydrolD2=34 				
+     &          , NFlux_ReminOxyD2=35 			
+     &          , NFlux_Denitr1D2=36  				
+     &          , NFlux_Denitr2D2=37			
+     &          , NFlux_ReminOxyDON=38			
+     &          , NFlux_Denitr1DON=39   			
+     &          , NFlux_Denitr2DON=40			
+     &          , NFlux_NO2anammox=41
+     &          , NFlux_NH4anammox=42     
+#   ifdef NITROUS_OXIDE     
+     &          , NFlux_paramN2O=43     
+     &          , NumFluxTermsN=NFlux_paramN2O
+#   else 
+     &          , NumFluxTermsN=NFlux_NH4anammox
+#   endif      
+     &          , NumFluxTerms=NumFluxTermsN
+     &          , O2Flux_GasExc=1
+#   ifdef NITROUS_OXIDE			
+     &          , N2OFlux_GasExc=2     			
+     &          , NumGasExcTerms=2
+#   else
+     &          , NumGasExcTerms=1
+#   endif
+     &          , NFlux_VSinkP2=1
+     &          , NFlux_VSinkD1=2
+     &          , NFlux_VSinkD2=3
+     &          , NumVSinkTerms=3)
+#  endif  /* ELODIE G */
+/*--------------------------------------------------------------------------------*/ 
+
+
+#  if defined BIO_NChlPZD || defined BIO_N2ChlPZD2 || defined PISCES \
+                          || defined BIO_BioEBUS
 #   ifdef DIAGNOSTICS_BIO
       parameter (ntrc_diabio=NumFluxTerms+
      &              NumGasExcTerms+NumVSinkTerms)

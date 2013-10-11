@@ -227,9 +227,11 @@ zref = -1000;
 %
 makeini    = 1;   % initial data
 makeclim   = 1;   % climatological data (for boundaries and nudging layers)
-makebry    = 0;   % lateral boundary data
-makebio    = 0;   % initial and boundary data for NPZD models
+makebry    = 1;   % lateral boundary data
+makenpzd    = 0;  % initial and boundary data for NChlPZD and N2ChlPZD2 models
 makepisces = 0;   % initial and boundary data for PISCES model
+makebioebus=1;     % initial and boundary data for BioEBUS model
+%
 %
 makeoa     = 1;   % oa data (intermediate file)
 makeZbry   = 1;   % boundary data in Z coordinate (intermediate file)
@@ -242,17 +244,20 @@ psource_ts = 0;   % tracer runoff concentration
 tini=0;  
 %
 % World Ocean Atlas directory (WOA2009)
-% ( temp, salt and biological variables)
+% (temp, salt and biological variables)
 woa_dir=[DATADIR,'WOA2009/'];
 %
 % CARS2009 climatology directory (CARS2009) 
 % (temp, salt and biological variables)
-%  [ => Used by defaut in make_biol.m ]
 cars2009_dir=[DATADIR,'CARS2009/'];
 %
-% Pisces biogeochemical seasonal climatology (WOA2001 or WOA2005) 
+% Pisces biogeochemical seasonal climatology
 %
 woapisces_dir=[DATADIR,'WOAPISCES/'];
+%
+% Climatological data dir (t, s and biological variables)
+%
+climato_dir=cars2009_dir;
 %
 % Surface chlorophyll seasonal climatology (WOA2001 or SeaWifs)
 %

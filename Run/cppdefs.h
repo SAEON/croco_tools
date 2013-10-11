@@ -6,7 +6,7 @@
 ! and Rutgers University (Arango et al) are under MIT/X style license.
 ! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
 ! 
-! ROMS_AGRIF website : http://roms.mpl.ird.fr
+! ROMS_AGRIF website : http://www.romsagrif.org
 !======================================================================
 !
 /*
@@ -231,16 +231,27 @@
                       /*   Choice of Biology models   */
 # ifdef BIOLOGY
 #  undef  PISCES
-#  define BIO_NChlPZD
+#  undef BIO_NChlPZD
 #  undef  BIO_N2ChlPZD2
+#  define BIO_BioEBUS
+                      /*   Biology options    */
+#  ifdef PISCES
+#   define key_trc_pisces
+#   define key_passivetrc
+#   undef  DIAGNOSTICS_BIO
+#   ifdef DIAGNOSTICS_BIO
+#     define key_trc_diaadd
+#     define key_trc_dia3d
+#   endif
+#  endif
 # endif
                       /*   Bio options   */
-# undef  DIAGNOSTICS_BIO
+# undef DIAGNOSTICS_BIO
 # ifdef BIO_NChlPZD
-#   undef  OXYGEN
+#   define  OXYGEN
 # endif
-# ifdef BIO_N2P2Z2D2
-#  undef  VAR_CHL_C
+# ifdef BIO_BioEBUS
+#   define NITROUS_OXIDE
 # endif
                       /*   Lagrangian floats model    */
 # ifdef FLOATS
