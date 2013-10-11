@@ -187,7 +187,7 @@
 # else
       real bioFlux(GLOBAL_2D_ARRAY,N,NumFluxTerms)
       real bioVSink(GLOBAL_2D_ARRAY,0:N,NumVSinkTerms)
-#  ifdef OXYGEN
+#  if (defined BIO_NChlPZD && defined OXYGEN) || defined BIO_BioEBUS 
       real GasExcFlux(GLOBAL_2D_ARRAY,NumGasExcTerms)
 #  endif
 # endif
@@ -202,9 +202,9 @@
 #  else
       real bioFlux_avg(GLOBAL_2D_ARRAY,N,NumFluxTerms)
       real bioVSink_avg(GLOBAL_2D_ARRAY,0:N,NumVSinkTerms)
-#   ifdef OXYGEN
+#  if (defined BIO_NChlPZD && defined OXYGEN) || defined BIO_BioEBUS 
       real GasExcFlux_avg(GLOBAL_2D_ARRAY,NumGasExcTerms)
-#   endif
+#    endif
 #  endif
       real timediabio_avg
 # endif
@@ -218,9 +218,9 @@
 # else
       common /diag_bioFlux/bioFlux
      &       /diag_bioVSink/bioVSink
-#  ifdef OXYGEN
+#  if (defined BIO_NChlPZD && defined OXYGEN) || defined BIO_BioEBUS 
      &       /diag_GasFlux/GasExcFlux
-#  endif
+#   endif
 # endif
 # ifdef AVERAGES
 #  ifdef PISCES 
@@ -233,9 +233,9 @@
 #  else
       common /diag_bioFlux_avg/bioFlux_avg
      &       /diag_bioVSink_avg/bioVSink_avg
-#   ifdef OXYGEN
+#  if (defined BIO_NChlPZD && defined OXYGEN) || defined BIO_BioEBUS
      &       /diag_GasFlux_avg/GasExcFlux_avg
-#   endif
+#   endif 
 #  endif
       common /diag_timediabio_avg/timediabio_avg
 # endif

@@ -367,6 +367,107 @@ c              goto 99                                     !--> ERROR
               write(stdout,3) 'ldet_time', clmname(1:lstr)
 c              goto 99                                     !--> ERROR
             endif
+#  elif defined BIO_BioEBUS 
+
+          elseif (itrc.eq.iNO3_) then
+            got_tclm(itrc)=.true.
+            ierr=nf_inq_varid (ncidclm, 'no3_time', tclm_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tclm(itrc)=.false.
+              write(stdout,3) 'no3_time', clmname(1:lstr)
+c              goto 99                                     !--> ERROR
+            endif
+          elseif (itrc.eq.iNO2_) then
+            got_tclm(itrc)=.true.
+            ierr=nf_inq_varid (ncidclm, 'no2_time', tclm_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tclm(itrc)=.false.
+              write(stdout,3) 'no2_time', clmname(1:lstr)
+c              goto 99                                     !--> ERROR
+            endif	    
+          elseif (itrc.eq.iNH4_) then
+            got_tclm(itrc)=.true.
+            ierr=nf_inq_varid (ncidclm, 'nh4_time', tclm_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tclm(itrc)=.false.
+              write(stdout,3) 'nh4_time', clmname(1:lstr)
+c              goto 99                                     !--> ERROR
+            endif
+          elseif (itrc.eq.iPhy1) then
+            got_tclm(itrc)=.true.
+            ierr=nf_inq_varid (ncidclm, 'sphyto_time', tclm_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tclm(itrc)=.false.
+              write(stdout,3) 'sphyto_time', clmname(1:lstr)
+c              goto 99                                     !--> ERROR
+            endif
+          elseif (itrc.eq.iPhy2) then
+            got_tclm(itrc)=.true.
+            ierr=nf_inq_varid (ncidclm, 'lphyto_time', tclm_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tclm(itrc)=.false.
+              write(stdout,3) 'lphyto_time', clmname(1:lstr)
+c              goto 99                                     !--> ERROR
+            endif
+          elseif (itrc.eq.iZoo1) then
+            got_tclm(itrc)=.true.
+            ierr=nf_inq_varid (ncidclm, 'szoo_time', tclm_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tclm(itrc)=.false.
+              write(stdout,3) 'szoo_time', clmname(1:lstr)
+c              goto 99                                     !--> ERROR
+            endif
+          elseif (itrc.eq.iZoo2) then
+            got_tclm(itrc)=.true.
+            ierr=nf_inq_varid (ncidclm, 'lzoo_time', tclm_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tclm(itrc)=.false.
+              write(stdout,3) 'lzoo_time', clmname(1:lstr)
+c              goto 99                                     !--> ERROR
+            endif
+          elseif (itrc.eq.iDet1) then
+            got_tclm(itrc)=.true.
+            ierr=nf_inq_varid (ncidclm, 'sdet_time', tclm_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tclm(itrc)=.false.
+              write(stdout,3) 'sdet_time', clmname(1:lstr)
+c              goto 99                                     !--> ERROR
+            endif
+          elseif (itrc.eq.iDet2) then
+            got_tclm(itrc)=.true.
+            ierr=nf_inq_varid (ncidclm, 'ldet_time', tclm_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tclm(itrc)=.false.
+              write(stdout,3) 'ldet_time', clmname(1:lstr)
+c              goto 99                                     !--> ERROR
+            endif
+          elseif (itrc.eq.iDON) then
+            got_tclm(itrc)=.true.
+            ierr=nf_inq_varid (ncidclm, 'don_time', tclm_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tclm(itrc)=.false.
+              write(stdout,3) 'don_time', clmname(1:lstr)
+c              goto 99                                     !--> ERROR
+            endif
+          elseif (itrc.eq.iOxy_) then
+            got_tclm(itrc)=.true.
+            ierr=nf_inq_varid (ncidclm, 'o2_time', tclm_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tclm(itrc)=.false.
+              write(stdout,3) 'o2_time', clmname(1:lstr)
+c              goto 99                                     !--> ERROR
+            endif	    
+#    ifdef NITROUS_OXIDE
+         elseif (itrc.eq.iN2O) then
+            got_tclm(itrc)=.true.
+            ierr=nf_inq_varid (ncidclm, 'n2o_time', tclm_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tclm(itrc)=.false.
+              write(stdout,3) 'n2o_time', clmname(1:lstr)
+c              goto 99                                     !--> ERROR
+            endif
+#     endif
+
 #  endif
 # endif /* BIOLOGY */
           endif

@@ -137,6 +137,13 @@ C$OMP END PARALLEL
       nrecdiaM_avg=0
 # endif
 #endif
+#if defined DIAGNOSTICS_BIO
+      nrecdiabio=0
+# ifdef AVERAGES
+      nrecdiabio_avg=0
+# endif
+#endif
+
 !
 ! Reset global sums and counters needed by volume/energy
 ! diagnostics and volume conservation constraint.
@@ -743,7 +750,142 @@ CR      write(stdout,'(1x,A,I3)') 'indxDet2 =',indxDet2
       vname(5,indxDet2)='                                         '
       vname(6,indxDet2)='lat_rho lon_rho                          ' 
       vname(7,indxDet2)='                                         '
-#  endif /* PISCES || BIO_NChlPZD || BIO_N2ChlPZD2 */
+
+#  elif defined BIO_BioEBUS 
+
+CR      write(stdout,'(1x,A,I3)') 'indxNO3 =',indxNO3
+      vname(1,indxNO3)='NO3                                       '
+      vname(2,indxNO3)='Nitrate                                   '
+      vname(3,indxNO3)='mmol N m-3                                '
+      vname(4,indxNO3)='NO3, scalar, series                       '
+      vname(5,indxNO3)='                                          '
+      vname(6,indxNO3)='                                          '
+      vname(7,indxNO3)='                                          '
+     
+CR      write(stdout,'(1x,A,I3)') 'indxNO2 =',indxNO2
+      vname(1,indxNO2)='NO2                                       '
+      vname(2,indxNO2)='Nitrite                                   '
+      vname(3,indxNO2)='mmol N m-3                                '
+      vname(4,indxNO2)='NO2, scalar, series                       '
+      vname(5,indxNO2)='                                          '
+      vname(6,indxNO2)='                                          '
+      vname(7,indxNO2)='                                          '
+
+CR      write(stdout,'(1x,A,I3)') 'indxNH4 =',indxNH4
+      vname(1,indxNH4)='NH4                                       '
+      vname(2,indxNH4)='Ammonium                                  '
+      vname(3,indxNH4)='mmol N m-3                                '
+      vname(4,indxNH4)='NH4, scalar, series                       '
+      vname(5,indxNH4)='                                          '
+      vname(6,indxNH4)='                                          '
+      vname(7,indxNH4)='                                          '
+
+CR      write(stdout,'(1x,A,I3)') 'indxPhy1 =',indxPhy1
+      vname(1,indxPhy1)='SPHYTO                                   '
+      vname(2,indxPhy1)='Small Phytoplankton                      '
+      vname(3,indxPhy1)='mmol N m-3                               '
+      vname(4,indxPhy1)='Small Phytoplankton, scalar, series      '
+      vname(5,indxPhy1)='                                          '
+      vname(6,indxPhy1)='                                          '
+      vname(7,indxPhy1)='                                          '
+
+CR      write(stdout,'(1x,A,I3)') 'indxPhy2 =',indxPhy2
+      vname(1,indxPhy2)='LPHYTO                                   '
+      vname(2,indxPhy2)='Large Phytoplankton                      '
+      vname(3,indxPhy2)='mmol N m-3                               '
+      vname(4,indxPhy2)='Large Phytoplankton, scalar, series      '
+      vname(5,indxPhy2)='                                          '
+      vname(6,indxPhy2)='                                          '
+      vname(7,indxPhy2)='                                          '
+
+CR      write(stdout,'(1x,A,I3)') 'indxZoo1 =',indxZoo1
+      vname(1,indxZoo1)='SZOO                                     '
+      vname(2,indxZoo1)='Small Zooplankton                        '
+      vname(3,indxZoo1)='mmol N m-3                               '
+      vname(4,indxZoo1)='Small Zooplankton, scalar, series        '
+      vname(5,indxZoo1)='                                          '
+      vname(6,indxZoo1)='                                          '
+      vname(7,indxZoo1)='                                          '
+
+CR      write(stdout,'(1x,A,I3)') 'indxZoo2 =',indxZoo2
+      vname(1,indxZoo2)='LZOO                                     '
+      vname(2,indxZoo2)='Large Zooplankton                        '
+      vname(3,indxZoo2)='mmol N m-3                               '
+      vname(4,indxZoo2)='Large Zooplankton, scalar, series        '
+      vname(5,indxZoo2)='                                          '
+      vname(6,indxZoo2)='                                          '
+      vname(7,indxZoo2)='                                          '
+
+CR      write(stdout,'(1x,A,I3)') 'indxDet1 =',indxDet1
+      vname(1,indxDet1)='SDET                                     '
+      vname(2,indxDet1)='Small Detritus                           '
+      vname(3,indxDet1)='mmol N m-3                               '
+      vname(4,indxDet1)='Small Detritus, scalar, series           '
+      vname(5,indxDet1)='                                          '
+      vname(6,indxDet1)='                                          '
+      vname(7,indxDet1)='                                          '
+
+CR      write(stdout,'(1x,A,I3)') 'indxDet2 =',indxDet2
+      vname(1,indxDet2)='LDET                                     '
+      vname(2,indxDet2)='Large Detritus                           '
+      vname(3,indxDet2)='mmol N m-3                               '
+      vname(4,indxDet2)='Large Detritus, scalar, series           '
+      vname(5,indxDet2)='                                          '
+      vname(6,indxDet2)='                                          '
+      vname(7,indxDet2)='                                          '
+
+CR      write(stdout,'(1x,A,I3)') 'indxDON =',indxDON
+      vname(1,indxDON)='DON                                       '
+      vname(2,indxDON)='Dissolved Organic Nitrogen                '
+      vname(3,indxDON)='mmol N m-3                                '
+      vname(4,indxDON)='Dissolved Organic Nitrogen, scalar, series'
+      vname(5,indxDON)='                                          '
+      vname(6,indxDON)='                                          '
+      vname(7,indxDON)='                                          '
+
+CR      write(stdout,'(1x,A,I3)') 'indxO2 =',indxO2
+      vname(1,indxO2)='O2                                         '
+      vname(2,indxO2)='Dissolved Oxygen	                          '
+      vname(3,indxO2)='mmol O2 m-3                                '
+      vname(4,indxO2)='Dissolved Oxygen, scalar, series 	  '
+      vname(5,indxO2)='                                          '
+      vname(6,indxO2)='                                          '
+      vname(7,indxO2)='                                          '
+
+CR      write(stdout,'(1x,A,I3)') 'indxAOU =',indxAOU
+      vname(1,indxAOU)='AOU                                        '
+      vname(2,indxAOU)='Apparent Oxygen Utilization                '
+      vname(3,indxAOU)='mmol O2 m-3                                '
+      vname(4,indxAOU)='Apparent Oxygen Utilization, scalar, series'
+      vname(5,indxAOU)='                                          '
+      vname(6,indxAOU)='                                          '
+      vname(7,indxAOU)='                                          '
+
+CR      write(stdout,'(1x,A,I3)') 'indxWIND10 =',indxWIND10
+      vname(1,indxWIND10)='wind10                                 '
+      vname(2,indxWIND10)='surface wind speed (10 m)              '
+      vname(3,indxWIND10)='meter second-1                         '
+      vname(4,indxWIND10)='surface wind speed, scalar, series     '
+      vname(5,indxWIND10)='                                          '
+      vname(6,indxWIND10)='                                          '
+      vname(7,indxWIND10)='                                          '
+
+#    ifdef NITROUS_OXIDE
+
+CR      write(stdout,'(1x,A,I3)') 'indxN2O =',indxN2O
+      vname(1,indxN2O)='N2O                                       '
+      vname(2,indxN2O)='Nitrous Oxide                             '
+      vname(3,indxN2O)='mmol N2O m-3                              '
+      vname(4,indxN2O)='N2O, scalar, series                       '
+      vname(5,indxN2O)='                                          '
+      vname(6,indxN2O)='                                          '
+      vname(7,indxN2O)='                                          '
+
+#    endif
+
+#  endif /* PISCES || BIO_NChlPZD || BIO_N2ChlPZD2 || BIO_BioEBUS */
+!----------------------------------------------------------------------------
+
 # endif /* BIOLOGY */
 
 # ifdef SEDIMENT
@@ -2272,6 +2414,451 @@ CR          &                          ,indxGasExcFlux
      &     'mmol N m-3 s-1                  '         
       vname(4,indxbioVSink+NFlux_VSinkD2-1)=
      &     'NFlux_VSinkD2, scalar, series   '        
+
+!--------------------------------------------------------------------------------
+#   elif defined BIO_BioEBUS  
+
+CR      write(stdout,'(1x,A,I3)') 'indxbioFlux(NFlux_lightlimitP1)='
+CR     &                          ,indxbioFlux+NFlux_lightlimitP1-1
+		
+      vname(1,indxbioFlux+NFlux_lightlimitP1-1)=
+     &     'NFlux_lightlimitP1                            '
+      vname(2,indxbioFlux+NFlux_lightlimitP1-1)=
+     &     'Limitation of SPhy assimilation by light      '
+      vname(3,indxbioFlux+NFlux_lightlimitP1-1)=
+     &     'without unit                                  '
+      vname(4,indxbioFlux+NFlux_lightlimitP1-1)=
+     &     'NFlux_lightlimitP1, scalar, series            '
+
+      vname(1,indxbioFlux+NFlux_lightlimitP2-1)=
+     &     'NFlux_lightlimitP2                            '
+      vname(2,indxbioFlux+NFlux_lightlimitP2-1)=
+     &     'Limitation of LPhy assimilation by light      '
+      vname(3,indxbioFlux+NFlux_lightlimitP2-1)=
+     &     'without unit                                  '
+      vname(4,indxbioFlux+NFlux_lightlimitP2-1)=
+     &     'NFlux_lightlimitP2, scalar, series            '
+
+      vname(1,indxbioFlux+NFlux_templimitP1-1)=
+     &     'NFlux_templimitP1                             '
+      vname(2,indxbioFlux+NFlux_templimitP1-1)=
+     &     'Limitation of SPhy assimilation by temperature'
+      vname(3,indxbioFlux+NFlux_templimitP1-1)=
+     &     'd-1                                           '
+      vname(4,indxbioFlux+NFlux_templimitP1-1)=
+     &     'NFlux_templimitP1, scalar, series            '
+
+      vname(1,indxbioFlux+NFlux_templimitP2-1)=
+     &     'NFlux_templimitP2                             '
+      vname(2,indxbioFlux+NFlux_templimitP2-1)=
+     &     'Limitation of LPhy assimilation by temperature'
+      vname(3,indxbioFlux+NFlux_templimitP2-1)=
+     &     'd-1                                           '
+      vname(4,indxbioFlux+NFlux_templimitP2-1)=
+     &     'NFlux_templimitP2, scalar, series             '
+
+      vname(1,indxbioFlux+NFlux_NO3limitP1-1)=
+     &     'NFlux_NO3limitP1                              '
+      vname(2,indxbioFlux+NFlux_NO3limitP1-1)=
+     &     'Limitation of SPhy assimilation by NO3        '
+      vname(3,indxbioFlux+NFlux_NO3limitP1-1)=
+     &     'without unit                                  '
+      vname(4,indxbioFlux+NFlux_NO3limitP1-1)=
+     &     'NFlux_NO3limitP1, scalar, series              '
+
+      vname(1,indxbioFlux+NFlux_NO2limitP1-1)=
+     &     'NFlux_NO2limitP1                              '
+      vname(2,indxbioFlux+NFlux_NO2limitP1-1)=
+     &     'Limitation of SPhy assimilation by NO2        '
+      vname(3,indxbioFlux+NFlux_NO2limitP1-1)=
+     &     'without unit                                  '
+      vname(4,indxbioFlux+NFlux_NO2limitP1-1)=
+     &     'NFlux_NO2limitP1, scalar, series              '
+
+      vname(1,indxbioFlux+NFlux_NH4limitP1-1)=
+     &     'NFlux_NH4limitP1                              '
+      vname(2,indxbioFlux+NFlux_NH4limitP1-1)=
+     &     'Limitation of SPhy assimilation by NH4        '
+      vname(3,indxbioFlux+NFlux_NH4limitP1-1)=
+     &     'without unit                                  '
+      vname(4,indxbioFlux+NFlux_NH4limitP1-1)=
+     &     'NFlux_NH4limitP1, scalar, series              '
+
+      vname(1,indxbioFlux+NFlux_NO3limitP2-1)=
+     &     'NFlux_NO3limitP2                              '
+      vname(2,indxbioFlux+NFlux_NO3limitP2-1)=
+     &     'Limitation of LPhy assimilation by NO3        '
+      vname(3,indxbioFlux+NFlux_NO3limitP2-1)=
+     &     'without unit                                  '
+      vname(4,indxbioFlux+NFlux_NO3limitP2-1)=
+     &     'NFlux_NO3limitP2, scalar, series              '
+
+      vname(1,indxbioFlux+NFlux_NO2limitP2-1)=
+     &     'NFlux_NO2limitP2                              '
+      vname(2,indxbioFlux+NFlux_NO2limitP2-1)=
+     &     'Limitation of LPhy assimilation by NO2        '
+      vname(3,indxbioFlux+NFlux_NO2limitP2-1)=
+     &     'without unit                                  '
+      vname(4,indxbioFlux+NFlux_NO2limitP2-1)=
+     &     'NFlux_NO2limitP2, scalar, series              '
+
+      vname(1,indxbioFlux+NFlux_NH4limitP2-1)=
+     &     'NFlux_NH4limitP2                              '
+      vname(2,indxbioFlux+NFlux_NH4limitP2-1)=
+     &     'Limitation of LPhy assimilation by NH4        '
+      vname(3,indxbioFlux+NFlux_NH4limitP2-1)=
+     &     'without unit                                  '
+      vname(4,indxbioFlux+NFlux_NH4limitP2-1)=
+     &     'NFlux_NH4limitP2, scalar, series              '
+
+      vname(1,indxbioFlux+NFlux_ProdNO3P1-1)=
+     &     'NFlux_ProdNO3P1                            '
+      vname(2,indxbioFlux+NFlux_ProdNO3P1-1)=
+     &     'Flux of N due to NO3 assimilation by SPhy     '
+      vname(3,indxbioFlux+NFlux_ProdNO3P1-1)=
+     &     'mmol N m-3 s-1                                '
+      vname(4,indxbioFlux+NFlux_ProdNO3P1-1)=
+     &     'NFlux_ProdNO3P1, scalar, series            '
+
+      vname(1,indxbioFlux+NFlux_ProdNO3P2-1)=
+     &     'NFlux_ProdNO3P2                            '
+      vname(2,indxbioFlux+NFlux_ProdNO3P2-1)=
+     &     'Flux of N due to NO3 assimilation by LPhy     '
+      vname(3,indxbioFlux+NFlux_ProdNO3P2-1)=
+     &     'mmol N m-3 s-1                                '
+      vname(4,indxbioFlux+NFlux_ProdNO3P2-1)=
+     &     'NFlux_ProdNO3P2, scalar, series            '
+
+      vname(1,indxbioFlux+NFlux_ProdNO2P1-1)=
+     &     'NFlux_ProdNO2P1                            '
+      vname(2,indxbioFlux+NFlux_ProdNO2P1-1)=
+     &     'Flux of N due to NO2 assimilation by SPhy     '
+      vname(3,indxbioFlux+NFlux_ProdNO2P1-1)=
+     &     'mmol N m-3 s-1                                '
+      vname(4,indxbioFlux+NFlux_ProdNO2P1-1)=
+     &     'NFlux_ProdNO2P1, scalar, series            '
+
+      vname(1,indxbioFlux+NFlux_ProdNO2P2-1)=
+     &     'NFlux_ProdNO2P2                            '
+      vname(2,indxbioFlux+NFlux_ProdNO2P2-1)=
+     &     'Flux of N due to NO2 assimilation by LPhy     '
+      vname(3,indxbioFlux+NFlux_ProdNO2P2-1)=
+     &     'mmol N m-3 s-1                                '
+      vname(4,indxbioFlux+NFlux_ProdNO2P2-1)=
+     &     'NFlux_ProdNO2P2, scalar, series            '
+ 
+      vname(1,indxbioFlux+NFlux_Nitrif1-1)=
+     &     'NFlux_Nitrif1                                 '
+      vname(2,indxbioFlux+NFlux_Nitrif1-1)=
+     &     'Flux of N due to Nitrification (1st stage)    '
+      vname(3,indxbioFlux+NFlux_Nitrif1-1)=
+     &     'mmol N m-3 s-1                                '
+      vname(4,indxbioFlux+NFlux_Nitrif1-1)=
+     &     'NFlux_Nitrif1, scalar, series                 '
+
+      vname(1,indxbioFlux+NFlux_Nitrif2-1)=
+     &     'NFlux_Nitrif2                                 '
+      vname(2,indxbioFlux+NFlux_Nitrif2-1)=
+     &     'Flux of N due to Nitrification (2nd stage)    '
+      vname(3,indxbioFlux+NFlux_Nitrif2-1)=
+     &     'mmol N m-3 s-1                                '
+      vname(4,indxbioFlux+NFlux_Nitrif2-1)=
+     &     'NFlux_Nitrif2, scalar, series                 '
+
+      vname(1,indxbioFlux+NFlux_ProdNH4P1-1)=
+     &     'NFlux_ProdNH4P1                               '
+      vname(2,indxbioFlux+NFlux_ProdNH4P1-1)=
+     &     'Flux of N due to NH4 assimilation by SPhy     '
+      vname(3,indxbioFlux+NFlux_ProdNH4P1-1)=
+     &     'mmol N m-3 s-1                                '
+      vname(4,indxbioFlux+NFlux_ProdNH4P1-1)=
+     &     'NFlux_ProdNH4P1, scalar, series               '
+
+      vname(1,indxbioFlux+NFlux_ProdNH4P2-1)=
+     &     'NFlux_ProdNH4P2                               '
+      vname(2,indxbioFlux+NFlux_ProdNH4P2-1)=
+     &     'Flux of N due to NH4 assimilation by LPhy     '
+      vname(3,indxbioFlux+NFlux_ProdNH4P2-1)=
+     &     'mmol N m-3 s-1                                '
+      vname(4,indxbioFlux+NFlux_ProdNH4P2-1)=
+     &     'NFlux_ProdNH4P2, scalar, series               '
+
+      vname(1,indxbioFlux+NFlux_P1Z1Grazing-1)=
+     &     'NFlux_P1Z1Grazing                         '
+      vname(2,indxbioFlux+NFlux_P1Z1Grazing-1)=
+     &     'Flux of N due to grazing of Z1 on P1      '
+      vname(3,indxbioFlux+NFlux_P1Z1Grazing-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_P1Z1Grazing-1)=
+     &     'NFlux_P1Z1Grazing, scalar, series         '
+
+      vname(1,indxbioFlux+NFlux_P2Z1Grazing-1)=
+     &     'NFlux_P2Z1Grazing                         '
+      vname(2,indxbioFlux+NFlux_P2Z1Grazing-1)=
+     &     'Flux of N due to grazing of Z1 on P2      '
+      vname(3,indxbioFlux+NFlux_P2Z1Grazing-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_P2Z1Grazing-1)=
+     &     'NFlux_P2Z1Grazing, scalar, series         '
+
+      vname(1,indxbioFlux+NFlux_P1mort-1)=
+     &     'NFlux_P1mort                              '
+      vname(2,indxbioFlux+NFlux_P1mort-1)=
+     &     'Flux of N due to P1 mortality             '
+      vname(3,indxbioFlux+NFlux_P1mort-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_P1mort-1)=
+     &     'NFlux_P1mort, scalar, series              '
+
+      vname(1,indxbioFlux+NFlux_P2mort-1)=
+     &     'NFlux_P2mort                              '
+      vname(2,indxbioFlux+NFlux_P2mort-1)=
+     &     'Flux of N due to P2 mortality             '
+      vname(3,indxbioFlux+NFlux_P2mort-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_P2mort-1)=
+     &     'NFlux_P2mort, scalar, series              '
+
+      vname(1,indxbioFlux+NFlux_P1Z2Grazing-1)=
+     &     'NFlux_P1Z2Grazing                         '
+      vname(2,indxbioFlux+NFlux_P1Z2Grazing-1)=
+     &     'Flux of N due to grazing of Z2 on P1      '
+      vname(3,indxbioFlux+NFlux_P1Z2Grazing-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_P1Z2Grazing-1)=
+     &     'NFlux_P1Z2Grazing, scalar, series         '
+
+      vname(1,indxbioFlux+NFlux_P2Z2Grazing-1)=
+     &     'NFlux_P2Z2Grazing                         '
+      vname(2,indxbioFlux+NFlux_P2Z2Grazing-1)=
+     &     'Flux of N due to grazing of Z2 on P2      '
+      vname(3,indxbioFlux+NFlux_P2Z2Grazing-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_P2Z2Grazing-1)=
+     &     'NFlux_P2Z2Grazing, scalar, series         '
+
+      vname(1,indxbioFlux+NFlux_Z1Z2Grazing-1)=
+     &     'NFlux_Z1Z2Grazing                         '
+      vname(2,indxbioFlux+NFlux_Z1Z2Grazing-1)=
+     &     'Flux of N due to grazing of Z2 on Z1      '
+      vname(3,indxbioFlux+NFlux_Z1Z2Grazing-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_Z1Z2Grazing-1)=
+     &     'NFlux_Z1Z2Grazing, scalar, series         '
+
+      vname(1,indxbioFlux+NFlux_Z1metab-1)=
+     &     'NFlux_Z1metab                             '
+      vname(2,indxbioFlux+NFlux_Z1metab-1)=
+     &     'Flux of N due to Z1 metabolism            '
+      vname(3,indxbioFlux+NFlux_Z1metab-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_Z1metab-1)=
+     &     'NFlux_Z1metab, scalar, series             '
+
+      vname(1,indxbioFlux+NFlux_Z1mort-1)=
+     &     'NFlux_Z1mort                              '
+      vname(2,indxbioFlux+NFlux_Z1mort-1)=
+     &     'Flux of N due to Z1 mortality             '
+      vname(3,indxbioFlux+NFlux_Z1mort-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_Z1mort-1)=
+     &     'NFlux_Z1mort, scalar, series              '
+
+      vname(1,indxbioFlux+NFlux_Z2metab-1)=
+     &     'NFlux_Z2metab                             '
+      vname(2,indxbioFlux+NFlux_Z2metab-1)=
+     &     'Flux of N due to Z2 metabolism            '
+      vname(3,indxbioFlux+NFlux_Z2metab-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_Z2metab-1)=
+     &     'NFlux_Z2metab, scalar, series             '
+
+      vname(1,indxbioFlux+NFlux_Z2mort-1)=
+     &     'NFlux_Z2mort                              '
+      vname(2,indxbioFlux+NFlux_Z2mort-1)=
+     &     'Flux of N due to Z2 mortality             '
+      vname(3,indxbioFlux+NFlux_Z2mort-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_Z2mort-1)=
+     &     'NFlux_Z2mort, scalar, series              '
+
+      vname(1,indxbioFlux+NFlux_HydrolD1-1)=
+     &     'NFlux_HydrolD1                            '
+      vname(2,indxbioFlux+NFlux_HydrolD1-1)=
+     &     'Flux of N due to hydrolysis of D1         '
+      vname(3,indxbioFlux+NFlux_HydrolD1-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_HydrolD1-1)=
+     &     'NFlux_HydrolD1, scalar, series            '
+
+      vname(1,indxbioFlux+NFlux_ReminOxyD1-1)=
+     &     'NFlux_ReminOxyD1                       '
+      vname(2,indxbioFlux+NFlux_ReminOxyD1-1)=
+     &     'Flux of N due to oxic remin. of D1        '
+      vname(3,indxbioFlux+NFlux_ReminOxyD1-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_ReminOxyD1-1)=
+     &     'NFlux_ReminOxyD1, scalar, series          '
+
+      vname(1,indxbioFlux+NFlux_Denitr1D1-1)=
+     &     'NFlux_Denitr1D1                           '
+      vname(2,indxbioFlux+NFlux_Denitr1D1-1)=
+     &     'Flux of N due to Denitrification 1 of D1  '
+      vname(3,indxbioFlux+NFlux_Denitr1D1-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_Denitr1D1-1)=
+     &     'NFlux_Denitr1D1, scalar, series           '
+
+      vname(1,indxbioFlux+NFlux_Denitr2D1-1)=
+     &     'NFlux_Denitr2D1                           '
+      vname(2,indxbioFlux+NFlux_Denitr2D1-1)=
+     &     'Flux of N due to Denitrification 2 of D1  '
+      vname(3,indxbioFlux+NFlux_Denitr2D1-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_Denitr2D1-1)=
+     &     'NFlux_Denitr2D1, scalar, series           '
+
+      vname(1,indxbioFlux+NFlux_HydrolD2-1)=
+     &     'NFlux_HydrolD2                            '
+      vname(2,indxbioFlux+NFlux_HydrolD2-1)=
+     &     'Flux of N due to hydrolysis of D2         '
+      vname(3,indxbioFlux+NFlux_HydrolD2-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_HydrolD2-1)=
+     &     'NFlux_HydrolD2, scalar, series            '
+
+      vname(1,indxbioFlux+NFlux_ReminOxyD2-1)=
+     &     'NFlux_ReminOxyD2                       '
+      vname(2,indxbioFlux+NFlux_ReminOxyD2-1)=
+     &     'Flux of N due to oxic remin. of D2        '
+      vname(3,indxbioFlux+NFlux_ReminOxyD2-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_ReminOxyD2-1)=
+     &     'NFlux_ReminOxyD2, scalar, series          '
+
+      vname(1,indxbioFlux+NFlux_Denitr1D2-1)=
+     &     'NFlux_Denitr1D2                           '
+      vname(2,indxbioFlux+NFlux_Denitr1D2-1)=
+     &     'Flux of N due to Denitrification 1 of D2  '
+      vname(3,indxbioFlux+NFlux_Denitr1D2-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_Denitr1D2-1)=
+     &     'NFlux_Denitr1D2, scalar, series           '
+
+      vname(1,indxbioFlux+NFlux_Denitr2D2-1)=
+     &     'NFlux_Denitr2D2                           '
+      vname(2,indxbioFlux+NFlux_Denitr2D2-1)=
+     &     'Flux of N due to Denitrification 2 of D2  '
+      vname(3,indxbioFlux+NFlux_Denitr2D2-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_Denitr2D2-1)=
+     &     'NFlux_Denitr2D2, scalar, series           '
+
+      vname(1,indxbioFlux+NFlux_ReminOxyDON-1)=
+     &     'NFlux_ReminOxyDON                      '
+      vname(2,indxbioFlux+NFlux_ReminOxyDON-1)=
+     &     'Flux of N due to oxic remin. of DON       '
+      vname(3,indxbioFlux+NFlux_ReminOxyDON-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_ReminOxyDON-1)=
+     &     'NFlux_ReminOxyDON, scalar, series         '
+
+      vname(1,indxbioFlux+NFlux_Denitr1DON-1)=
+     &     'NFlux_Denitr1DON                          '
+      vname(2,indxbioFlux+NFlux_Denitr1DON-1)=
+     &     'Flux of N due to Denitrification 1 of DON '
+      vname(3,indxbioFlux+NFlux_Denitr1DON-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_Denitr1DON-1)=
+     &     'NFlux_Denitr1DON, scalar, series          '
+
+      vname(1,indxbioFlux+NFlux_Denitr2DON-1)=
+     &     'NFlux_Denitr2DON                          '
+      vname(2,indxbioFlux+NFlux_Denitr2DON-1)=
+     &     'Flux of N due to Denitrification 2 of DON '
+      vname(3,indxbioFlux+NFlux_Denitr2DON-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_Denitr2DON-1)=
+     &     'NFlux_Denitr2DON, scalar, series          '
+
+      vname(1,indxbioFlux+NFlux_NO2anammox-1)=
+     &     'NFlux_NO2anammox                          '
+      vname(2,indxbioFlux+NFlux_NO2anammox-1)=
+     &     'Flux of N due to anammox of NO2           '
+      vname(3,indxbioFlux+NFlux_NO2anammox-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_NO2anammox-1)=
+     &     'NFlux_NO2anammox, scalar, series          '
+
+      vname(1,indxbioFlux+NFlux_NH4anammox-1)=
+     &     'NFlux_NH4anammox                          '
+      vname(2,indxbioFlux+NFlux_NH4anammox-1)=
+     &     'Flux of N due to anammox of NH4           '
+      vname(3,indxbioFlux+NFlux_NH4anammox-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioFlux+NFlux_NH4anammox-1)=
+     &     'NFlux_NH4anammox, scalar, series          '
+
+#    ifdef NITROUS_OXIDE
+      vname(1,indxbioFlux+NFlux_paramN2O-1)=
+     &     'NFlux_paramN2O                            '
+      vname(2,indxbioFlux+NFlux_paramN2O-1)=
+     &     'Production of N2O                         '
+      vname(3,indxbioFlux+NFlux_paramN2O-1)=
+     &     'mmol N2O m-3 s-1                          '
+      vname(4,indxbioFlux+NFlux_paramN2O-1)=
+     &     'NFlux_paramN2O, scalar, series            '
+#    endif
+    
+! vertical sinking terms
+      vname(1,indxbioVSink+NFlux_VSinkP2-1)=
+     &     'NFlux_VSinkP2                             '
+      vname(2,indxbioVSink+NFlux_VSinkP2-1)=
+     &     'Flux of N due to Vert. Sink. of P2        '
+      vname(3,indxbioVSink+NFlux_VSinkP2-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioVSink+NFlux_VSinkP2-1)=
+     &     'NFlux_VSinkP2, scalar, series             '
+
+      vname(1,indxbioVSink+NFlux_VSinkD1-1)=
+     &     'NFlux_VSinkD1                             '
+      vname(2,indxbioVSink+NFlux_VSinkD1-1)=
+     &     'Flux of N due to Vert. Sink. of D1        '
+      vname(3,indxbioVSink+NFlux_VSinkD1-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioVSink+NFlux_VSinkD1-1)=
+     &     'NFlux_VSinkD1, scalar, series             '
+
+      vname(1,indxbioVSink+NFlux_VSinkD2-1)=
+     &     'NFlux_VSinkD2                             '
+      vname(2,indxbioVSink+NFlux_VSinkD2-1)=
+     &     'Flux of N due to Vert. Sink. of D2        '
+      vname(3,indxbioVSink+NFlux_VSinkD2-1)=
+     &     'mmol N m-3 s-1                            '
+      vname(4,indxbioVSink+NFlux_VSinkD2-1)=
+     &     'NFlux_VSinkD2, scalar, series             '
+
+! gas exchange terms
+       vname(1,indxGasExcFlux+O2Flux_GasExc-1)=
+     &     'O2Flux_GasExc                             '
+      vname(2,indxGasExcFlux+O2Flux_GasExc-1)=
+     &     'Flux of O2 at ocean-atmos interface       '
+      vname(3,indxGasExcFlux+O2Flux_GasExc-1)=
+     &     ' mmol O2 m-3 s-1                          '
+      vname(4,indxGasExcFlux+O2Flux_GasExc-1)=
+     &     'O2Flux_GasExc, scalar, series             '
+
+#     ifdef NITROUS_OXIDE
+      vname(1,indxGasExcFlux+N2OFlux_GasExc-1)=
+     &     'N2OFlux_GasExc                            '
+      vname(2,indxGasExcFlux+N2OFlux_GasExc-1)=
+     &     'Flux of N2O at ocean-atmos interface      '
+      vname(3,indxGasExcFlux+N2OFlux_GasExc-1)=
+     &     ' mmol N2O m-3 s-1                         '
+      vname(4,indxGasExcFlux+N2OFlux_GasExc-1)=
+     &     'N2OFlux_GasExc, scalar, series            '
+#     endif  
+!--------------------------------------------------------------------------------
 !====================================================================
 # elif defined PISCES
 #  ifdef key_trc_dia3d

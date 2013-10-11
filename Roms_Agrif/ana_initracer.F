@@ -301,45 +301,52 @@ c              if (h(i,j).lt.300) then
                t(i,j,k,1,iDet2)=0.02
                t(i,j,k,2,iDet2)=t(i,j,k,1,iDet2)
             endif
-#   elif defined BIO_N2P2Z2D2
+#   elif defined BIO_BioEBUS
+            if (.not.got_tini(iNO2_))  then
+               t(i,j,k,1,iNO2_)=0.05*exp(z_r(i,j,k)/100.) 
+               t(i,j,k,2,iNO2_)=t(i,j,k,1,iNO2_)
+            endif
             if (.not.got_tini(iNH4_))  then
-               t(i,j,k,1,iNH4_)=0.1
+               t(i,j,k,1,iNH4_)=0.1*exp(z_r(i,j,k)/100.) 
                t(i,j,k,2,iNH4_)=t(i,j,k,1,iNH4_)
             endif
-#    ifdef VAR_CHL_C
-            if (.not.got_tini(iChl1)) then
-               t(i,j,k,1,iChl1)=0.06
-               t(i,j,k,2,iChl1)=t(i,j,k,1,iChl1)
-            endif
-            if (.not.got_tini(iChl2)) then
-               t(i,j,k,1,iChl2)=0.09
-               t(i,j,k,2,iChl2)=t(i,j,k,1,iChl2)
-            endif
-#    endif
             if (.not.got_tini(iPhy1)) then
-               t(i,j,k,1,iPhy1)=0.04
+               t(i,j,k,1,iPhy1)=0.04*exp(z_r(i,j,k)/50.) 
                t(i,j,k,2,iPhy1)=t(i,j,k,1,iPhy1)
             endif
             if (.not.got_tini(iPhy2)) then
-               t(i,j,k,1,iPhy2)=0.06
+               t(i,j,k,1,iPhy2)=0.06*exp(z_r(i,j,k)/50.) 
                t(i,j,k,2,iPhy2)=t(i,j,k,1,iPhy2)
             endif
             if (.not.got_tini(iZoo1)) then
-               t(i,j,k,1,iZoo1)=0.04
+               t(i,j,k,1,iZoo1)=0.04*exp(z_r(i,j,k)/100.) 
                t(i,j,k,2,iZoo1)=t(i,j,k,1,iZoo1)
             endif
             if (.not.got_tini(iZoo2)) then
-               t(i,j,k,1,iZoo2)=0.04
+               t(i,j,k,1,iZoo2)=0.04*exp(z_r(i,j,k)/100.) 
                t(i,j,k,2,iZoo2)=t(i,j,k,1,iZoo2)
             endif
             if (.not.got_tini(iDet1)) then
-               t(i,j,k,1,iDet1)=0.02
+	       t(i,j,k,1,iDet1)=0.02
                t(i,j,k,2,iDet1)=t(i,j,k,1,iDet1)
             endif
             if (.not.got_tini(iDet2)) then
                t(i,j,k,1,iDet2)=0.02
                t(i,j,k,2,iDet2)=t(i,j,k,1,iDet2)
             endif
+            if (.not.got_tini(iDON)) then
+               t(i,j,k,1,iDON)=0.5*exp(z_r(i,j,k)/100.) 
+               t(i,j,k,2,iDON)=t(i,j,k,1,iDON)
+            endif	
+#    ifdef NITROUS_OXIDE
+            if (.not.got_tini(iN2O)) then
+               t(i,j,k,1,iN2O)=-(0.008*exp(z_r(i,j,k)/100.)-0.01);
+               if (t(i,j,k,1,iN2O).lt.0.) then
+	          t(i,j,k,1,iN2O)=0.
+	       endif
+               t(i,j,k,2,iN2O)=t(i,j,k,1,iN2O)
+            endif
+#    endif
 #   endif
 #  endif
 #  ifdef SEDIMENT

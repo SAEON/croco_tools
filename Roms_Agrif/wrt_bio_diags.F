@@ -50,12 +50,12 @@
       call def_bio_diags (nciddiabio, nrecdiabio, ierr)
       if (ierr .ne. nf_noerr) goto 99
       lstr=lenstr(dianamebio)
-!                                        !!! WARNING: Once time  
-! Set record within the file.            !!! stepping has been 
-                                         !!! started, it is assumed
-      nrecdiabio=max(1,nrecdiabio)       !!! that global history
-      if (nrpfdiabio.eq.0) then          !!! record index is
-        record=nrecdiabio                !!! advanced by main.  
+!                                            !!! WARNING: Once time  
+! Set record within the file.                !!! stepping has been 
+                                             !!! started, it is assumed
+      if (iic.eq.0) nrecdiabio=nrecdiabio+1  !!! that global history
+      if (nrpfdiabio.eq.0) then              !!! record index is
+        record=nrecdiabio                    !!! advanced by main.
       else
         record=1+mod(nrecdiabio-1, nrpfdiabio)
       endif
@@ -153,7 +153,7 @@ c$$$     &        bioVSink(30,30,iflux)
          call fillvalue3d(work, nciddiabio, diabioVsink(iflux),
      &        indxbioVSink+iflux-1,record,w3dvar,type)
       end do
-#   if (defined BIO_NChlPZD && defined OXYGEN)
+#   if (defined BIO_NChlPZD && defined OXYGEN) || defined BIO_BioEBUS 
 ! gas exchange fluxes
       do iflux = 1, NumGasExcTerms
          work2d=GasExcFlux(:,:,iflux)

@@ -65,8 +65,8 @@
 
       ierr=0
       lstr=lenstr(ncname)
-      if (nrpfdiabio.gt.0) then
-        lvar=total_rec-(1+mod(total_rec-1, nrpfdiabio))
+      if (rec_per_file.gt.0) then
+        lvar=total_rec-(1+mod(total_rec-1, rec_per_file))
         call insert_time_index (ncname, lstr, lvar, ierr)
         if (ierr .ne. 0) goto 99
       endif
@@ -308,7 +308,8 @@
           call nf_add_attribute(ncid, vidVSink(iflux), 
      &                     indxbioVSink+iflux-1, 5, NF_REAL, ierr)
         end do
-#  if (defined BIO_NChlPZD && defined OXYGEN)
+!-------------------------------------------------------------------------------- 
+#  if (defined BIO_NChlPZD && defined OXYGEN) || defined BIO_BioEBUS
 ! gas exchange fluxes
         do iflux = 1, NumGasExcTerms
            lvar=lenstr(vname(1,indxGasExcFlux+iflux-1))
@@ -337,7 +338,8 @@
          call nf_add_attribute(ncid, vidGasExc(iflux), 
      &                     indxGasExcFlux+iflux-1, 5, NF_REAL, ierr)
         end do
-#  endif /* BIO_NChlPZD && OXYGEN */
+#  endif
+!--------------------------------------------------------------------------------
 
 !
 ! Leave definition mode.
@@ -470,7 +472,8 @@
           endif                                 
         enddo
 
-#  if (defined BIO_NChlPZD && defined OXYGEN)
+!-------------------------------------------------------------------------------- 
+#  if (defined BIO_NChlPZD && defined OXYGEN) || defined BIO_BioEBUS
 !  Gas exchange fluxes
 !
         do iflux = 1, NumGasExcTerms
@@ -484,7 +487,8 @@
             goto 99                                       !--> ERROR
           endif
         enddo
-#endif /*  BIO_NChlPZD && OXYGEN   */ 
+#endif  
+!--------------------------------------------------------------------------------
 
 !        write(*,'(6x,2A,i4,1x,A,i4)') 'DEF_BIO_DIAG -- Opened ',
 !     &                     'existing file  from record =', rec

@@ -145,7 +145,15 @@ C$OMP CRITICAL (bio_cr_rgn)
      &                   '     NH4 ','     PHYTO','       ZOO',
      &                   '   DET1+2','trd'
    1          format(1x,A4,3x,A10,1x,A10,4x,A10,4x,A10,4x,A10,4x,A10,3x,A3)
+!---------------------------------------------------------------------------------------
+# elif defined BIO_BioEBUS
+              write(stdout,1) 'STEP','time[DAYS]','       NO3',
+     &                   '     NH4 ','    PHY1+2 ','    ZOO1+2 ',
+     &                   '  DET1+2','trd'
+   1          format(1x,A4,3x,A10,1x,A10,4x,A10,4x,A10,4x,A10,4x,A10,3x,A3)
 # endif
+!---------------------------------------------------------------------------------------
+
 
             endif
 
@@ -173,7 +181,17 @@ C$OMP CRITICAL (bio_cr_rgn)
      &                      global_sum(2*iDet1)+global_sum(2*iDet2), 
      &                      trd
    2        format(I6, F12.5, 5(1PE14.7), I3)
+!---------------------------------------------------------------------------------------
+# elif defined BIO_BioEBUS
+            write(stdout,2) iic-1,tdays, 
+     &                      global_sum(2*iNO3_),  
+     &                      global_sum(2*iNH4_), 
+     &                      global_sum(2*iPhy1)+global_sum(2*iPhy2), 
+     &                      global_sum(2*iZoo1)+global_sum(2*iZoo2),  
+     &                      trd  
+   2        format(I6, F12.5, 5(1PE14.7), I3)        
 # endif
+!---------------------------------------------------------------------------------------
 
 # ifdef  ETALON_CHECK
             do icheck=1,ncheck

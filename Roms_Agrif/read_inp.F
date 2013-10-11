@@ -564,7 +564,7 @@ c        close(testunit)
      &    ldefdiabio_avg,'nwrt =',nwrtdiabio_avg,'rec/file =',
      &    nrpfdiabio_avg,'Starting timestep = ',ntsdiabio_avg
 # endif
-#endif /* DIAGOSTICS_BIO */
+#endif /* DIAGNOSTICS_BIO */
 
 #ifdef FLOATS
 !
@@ -716,6 +716,9 @@ c        close(testunit)
      &                                          ,  wrthis(indxKvO2)
      &                                          ,  wrthis(indxO2sat)
 #   endif
+#  elif defined BIO_BioEBUS
+     &                                       ,  wrthis(indxAOU)
+     &                                       ,  wrthis(indxWIND10)
 #  endif
 # endif
 
@@ -753,6 +756,9 @@ c        close(testunit)
      &                                        .or. wrthis(indxKvO2)
      &                                        .or. wrthis(indxO2sat)
 #   endif
+#  elif defined BIO_BioEBUS
+     &                                      .or. wrthis(indxAOU)
+     &                                      .or. wrthis(indxWIND10)
 #  endif
 # endif
      &     ) wrthis(indxTime)=.true.
@@ -805,8 +811,12 @@ c        close(testunit)
      &  , wrthis(indxO2sat), 'write O2sat ',
      &                          'Saturation concentration of O2'
 #   endif
+#  elif defined BIO_BioEBUS 
+     &  , wrthis(indxAOU), 'write AOU ' 
+     &  ,                       'Apparent Oxygen Utilization.'
+     &  , wrthis(indxWIND10), 'write wind10 ', 'wind speed at 10 m.'  
 #  endif
-# endif
+# endif /* BIOLOGY */
      &  , wrthis(indxBostr), 'write Bostr', 'Bottom Stress.'
      &  , wrthis(indxWstr),  'write Wstress', 'Wind Stress.'
      &  , wrthis(indxUWstr), 'write U-Wstress comp.', 'U-Wind Stress.'
@@ -920,8 +930,12 @@ c        close(testunit)
      &                                          ,  wrtavg(indxKvO2)
      &                                          ,  wrtavg(indxO2sat)
 #    endif
+
+#   elif defined BIO_BioEBUS
+     &                                       ,  wrtavg(indxAOU) 
+     &                                       ,  wrtavg(indxWIND10)
 #   endif
-#  endif
+#  endif /* BIOLOGY */
 
         if ( wrtavg(indxR) .or. wrtavg(indxO) .or. wrtavg(indxW)
      &                   .or. wrtavg(indxAkv) .or. wrtavg(indxAkt)
@@ -957,9 +971,12 @@ c        close(testunit)
      &                                        .or. wrtavg(indxU10)
      &                                        .or. wrtavg(indxKvO2)
      &                                        .or. wrtavg(indxO2sat)
-#    endif
+#    endif 
+#   elif defined BIO_BioEBUS
+     &                                     .or. wrtavg(indxAOU)
+     &                                     .or. wrtavg(indxWIND10)
 #   endif
-#  endif
+#  endif  /* BIOLOGY */
      &     ) wrtavg(indxTime)=.true.
 
 #  ifdef VIS_COEF_3D
@@ -1010,8 +1027,13 @@ c        close(testunit)
      &  , wrtavg(indxO2sat),'write O2sat ',
      &         'Saturation concentration of O2'
 #    endif
+
+#   elif defined BIO_BioEBUS
+     &  , wrtavg(indxAOU), 'write AOU '
+     &  ,                      'Apparent Oxygen Utilization.'
+     &  , wrtavg(indxWIND10), 'write wind10 ', 'wind speed at 10 m.'
 #   endif
-#  endif
+#  endif   /* BIOLOGY */
      &  , wrtavg(indxBostr),'write Bostr', 'Bottom Stress.'
      &  , wrtavg(indxWstr), 'write Wstr', 'Wind Stress.'
      &  , wrtavg(indxUWstr),'write U-Wstress comp.', 'U-Wind Stress.'

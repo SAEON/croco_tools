@@ -333,7 +333,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
-#  if (defined BIO_NChlPZD && defined OXYGEN)
+#  if (defined BIO_NChlPZD && defined OXYGEN) || defined BIO_BioEBUS 
         do j=JstrR,JendR
           do i=IstrR,IendR
             do iflux=1,NumGasExcTerms
@@ -341,8 +341,34 @@ C$    integer omp_get_thread_num
             enddo        
           enddo
         enddo
-#  endif 
+#  endif
 # endif /*DIAGNOSTICS_BIO*/
+
+!---------------------------------------------------------------------------      
+# if defined BIO_BioEBUS
+
+          do j=JstrR,JendR
+            do i=IstrR,IendR
+               wind10(i,j) =init	       
+#   ifdef AVERAGES
+               wind10_avg(i,j) =init	       
+#   endif     	    
+            enddo
+          enddo
+
+        do k=1,N	  
+          do j=JstrR,JendR
+            do i=IstrR,IendR
+               AOU(i,j,k) =init
+#   ifdef AVERAGES
+               AOU_avg(i,j,k) =init
+#   endif 
+            enddo
+          enddo
+        enddo	  
+ 		  
+# endif 
+!----------------------------------------------------------------------------
 
 # ifdef SEDIMENT
 !

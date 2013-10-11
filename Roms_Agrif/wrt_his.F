@@ -825,7 +825,18 @@ CR      write(*,*) 'wrt_his:  stflx(:,:,isalt)' MYID
      &        record,r2dvar,type)
       endif
 #      endif /* OXYGEN */
-#    endif /* BIO_NChlPZD || defined BIO_N2ChlPZD2 */
+#  elif defined BIO_BioEBUS 
+      if (wrthis(indxAOU)) then
+         workr=AOU
+         call fillvalue3d(workr,ncidhis,hisAOU,indxAOU,
+     &        record,r3dvar,type)
+      endif
+      if (wrthis(indxWIND10)) then
+         work2d=wind10
+         call fillvalue2d(work2d,ncidhis,hiswind10,indxWIND10,
+     &        record,r2dvar,type)
+      endif
+#  endif
 #  endif /* BIOLOGY */
 !     
 # ifdef SEDIMENT

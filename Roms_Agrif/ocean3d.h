@@ -45,8 +45,11 @@
 #  ifdef BIO_NChlPZD
       real theta(GLOBAL_2D_ARRAY,N)
       common /ocean_theta/theta
+#  elif defined BIO_BioEBUS  
+      real AOU(GLOBAL_2D_ARRAY,N)
+      common /ocean_AOU/AOU
 #  endif
-# endif
+# endif  /* BIOLOGY */
 # if defined NONLIN_EOS && defined SPLIT_EOS
        real qp1(GLOBAL_2D_ARRAY,N)
       common /ocean_qp1/qp1

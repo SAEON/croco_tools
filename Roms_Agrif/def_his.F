@@ -108,8 +108,11 @@
 #     define vidKvO2 hisKvO2
 #     define vidO2sat hisO2sat
 #   endif
+#  elif defined BIO_BioEBUS 
+#   define vidAOU hisAOU 		
+#   define vidwind10 hiswind10 	
 #  endif
-# endif
+# endif  /* BIOLOGY */
 # define vidSed hisSed
 # define vidBBL hisBBL
 # define vidBostr hisBostr
@@ -168,8 +171,11 @@
 #    define vidKvO2 avgKvO2
 #    define vidO2sat avgO2sat
 #   endif
+#  elif defined BIO_BioEBUS
+#   define vidAOU avgAOU		
+#   define vidwind10 avgwind10	
 #  endif
-# endif
+# endif  /* BIOLOGY */
 # define vidSed avgSed
 # define vidBBL avgBBL
 # define vidBostr avgBostr
@@ -603,6 +609,60 @@
           call nf_add_attribute(ncid, vidR, indxR, 5, NF_REAL, ierr)
 
         endif
+!----------------------------------------------------------------------------
+! AOU and pCO2
+!
+# if defined BIOLOGY && defined BIO_BioEBUS
+        if (wrt(indxAOU)) then
+          lvar=lenstr(vname(1,indxAOU))
+          ierr=nf_def_var (ncid, vname(1,indxAOU)(1:lvar), 
+     &                           NF_FOUT, 4, r3dgrd, vidAOU)
+#   ifndef AVRH
+          lvar=lenstr(vname(2,indxAOU))
+          ierr=nf_put_att_text (ncid, vidAOU, 'long_name',lvar,
+     &                                vname(2,indxAOU)(1:lvar))
+#   else
+          text='averaged '/ /vname(2,indxAOU)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidAOU, 'long_name',lvar,
+     &                                          text(1:lvar))
+#   endif
+          lvar=lenstr(vname(3,indxAOU))
+          ierr=nf_put_att_text (ncid, vidAOU, 'units',lvar,
+     &                                vname(3,indxAOU)(1:lvar))
+          lvar=lenstr(vname(4,indxAOU))
+          ierr=nf_put_att_text (ncid, vidAOU, 'field',lvar,
+     &                                vname(4,indxAOU)(1:lvar))
+          call nf_add_attribute(ncid, vidAOU, indxAOU, 5, 
+     &    NF_REAL, ierr)
+        endif
+
+        if (wrt(indxWIND10)) then
+          lvar=lenstr(vname(1,indxWIND10))
+          ierr=nf_def_var (ncid, vname(1,indxWIND10)(1:lvar), 
+     &                         NF_FOUT, 3, r2dgrd, vidwind10)
+#  ifndef AVRH
+          lvar=lenstr(vname(2,indxWIND10))
+          ierr=nf_put_att_text (ncid,vidwind10,'long_name',lvar,
+     &                              vname(2,indxWIND10)(1:lvar))
+#  else
+          text='averaged '/ /vname(2,indxWIND10)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid,vidwind10,'long_name',lvar,
+     &                                        text(1:lvar))
+#  endif
+          lvar=lenstr(vname(3,indxWIND10))
+          ierr=nf_put_att_text (ncid,vidwind10,'units',lvar,
+     &                              vname(3,indxWIND10)(1:lvar))
+          lvar=lenstr(vname(4,indxWIND10))
+          ierr=nf_put_att_text (ncid,vidwind10,'field',lvar,
+     &                              vname(4,indxWIND10)(1:lvar))
+          call nf_add_attribute(ncid, vidwind10, indxWIND10, 5, 
+     &    NF_REAL, ierr)
+        endif
+
+# endif
+!--------------------------------------------------------------------------- 
 !
 ! S-coordinate "omega" vertical velocity.
 !
@@ -1984,6 +2044,29 @@
             goto 99                                       !--> ERROR
           endif
         endif
+!-----------------------------------------------------------------------------
+! AOU and pCO2
+!
+#  if defined BIOLOGY && defined BIO_BioEBUS
+        if (wrt(indxAOU)) then
+          lvar=lenstr(vname(1,indxAOU))
+          ierr=nf_inq_varid (ncid, vname(1,indxAOU)(1:lvar), 
+     &                                               vidAOU)
+          if (ierr .ne. nf_noerr) then
+            write(stdout,1) vname(1,indxAOU)(1:lvar), ncname(1:lstr)
+            goto 99                                       !--> ERROR
+          endif
+        endif
+        if (wrt(indxWIND10)) then
+          lvar=lenstr(vname(1,indxWIND10))
+          ierr=nf_inq_varid (ncid, vname(1,indxWIND10)(1:lvar), 
+     &                                             vidwind10)
+          if (ierr .ne. nf_noerr) then
+            write(stdout,1) vname(1,indxWIND10)(1:lvar),ncname(1:lstr)
+            goto 99                                       !--> ERROR
+          endif
+        endif
+#  endif 
 !
 ! S-coordinate "omega" vertical velocity.
 !
@@ -2570,8 +2653,11 @@
 #   undef vidKvO2
 #   undef vidO2sat
 #  endif
+# elif defined BIO_BioEBUS
+#  undef vidAOU 
+#  undef vidwind10	
 # endif
-#endif
+#endif  /* BIOLOGY */
 #undef vidSed
 #undef vidBBL
 #undef vidBostr

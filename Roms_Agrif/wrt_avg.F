@@ -506,7 +506,18 @@ CR      write(*,*) 'wrt_avg:  srflx' MYID
       endif
 #     endif /* OXYGEN */
 !     
-#   endif
+#   elif defined BIO_BioEBUS  
+      if (wrtavg(indxAOU)) then
+         workr=AOU_avg
+         call fillvalue3d(workr,ncidavg,avgAOU,indxAOU,
+     &        record,r3dvar,type)
+      endif
+       if (wrtavg(indxWIND10)) then
+         work2d=wind10_avg
+         call fillvalue2d(work2d,ncidavg,avgwind10,indxWIND10,
+     &        record,r2dvar,type)
+      endif
+#   endif 
 #  endif /* BIOLOGY */
 !
 #  ifdef SEDIMENT

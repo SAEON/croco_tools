@@ -31,3 +31,7 @@
       common /gasexc_O2_O2satu/ O2satu
 #endif /* OXYGEN */
 
+# if defined BIOLOGY && defined BIO_BioEBUS
+      real wind10(GLOBAL_2D_ARRAY)
+      common /ocean_wind10/wind10      
+# endif 

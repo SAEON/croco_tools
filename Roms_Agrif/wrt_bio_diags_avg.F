@@ -154,14 +154,14 @@ c$$$     &        bioVSink_avg(30,30,iflux)
          call fillvalue3d(work, nciddiabio_avg, diabioVsink_avg(iflux),
      &        indxbioVSink+iflux-1,record,w3dvar,type)
       end do
-#  if (defined BIO_NChlPZD && defined OXYGEN)
+#   if (defined BIO_NChlPZD && defined OXYGEN) || defined BIO_BioEBUS
 ! gas exchange fluxes
       do iflux = 1, NumGasExcTerms
          work2d=GasExcFlux_avg(:,:,iflux)
          call fillvalue2d(work2d,nciddiabio_avg,diabioGasExc_avg(iflux),
      &        indxGasExcFlux+iflux-1,record,r2dvar,type)
       end do
-#  endif /* BIO_NChlPZD && OXYGEN */
+#   endif
 
 #endif
   1   format(/1x,'WRT_BIO_DIAG_AVG ERROR while writing variable ''', A,

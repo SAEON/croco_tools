@@ -238,6 +238,11 @@
 #    define key_trc_dia3d
 #  endif
 # endif
+#  ifdef BIO_BioEBUS
+#   undef VAR_CHL_C             /* Under Development */
+#   undef CARBON                /* Under Development */
+#   undef HYDROGEN_SULFIDE      /* Under Development */
+#  endif
 /*   Sediment dynamics model     */
 # ifdef SEDIMENT
 #  define LINEAR_CONTINUATION

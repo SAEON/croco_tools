@@ -109,7 +109,7 @@ c              goto 99           !--> ERROR
            got_tsrc(itrc)=.true.
             ierr=nf_inq_varid (ncidqbar, 'o2_src_time', tsrc_tid(itrc))
             if (ierr .ne. nf_noerr) then
-              got_src(itrc)=.false.
+              got_tsrc(itrc)=.false.
               write(stdout,3) 'o2_src_time', qbarname(1:lstr)
 c              goto 99                                     !--> ERROR
             endif
@@ -153,6 +153,108 @@ c     goto 99                                     !--> ERROR
 c     goto 99                                     !--> ERROR
             endif
 # endif
+# ifdef BIO_BioEBUS
+          elseif (itrc.eq.iNO3_) then
+            got_tsrc(itrc)=.true.
+            ierr=nf_inq_varid (ncidqbar,'no3_src_time', tsrc_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tsrc(itrc)=.false.
+              write(stdout,3) 'no3_src_time', qbarname(1:lstr)
+c              goto 99           !--> ERROR
+            endif
+          elseif (itrc.eq.iNO2_) then
+            got_tsrc(itrc)=.true.
+            ierr=nf_inq_varid (ncidqbar,'no2_src_time', tsrc_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tsrc(itrc)=.false.
+              write(stdout,3) 'no2_src_time', qbarname(1:lstr)
+c              goto 99           !--> ERROR
+            endif
+          elseif (itrc.eq.iNH4_) then
+            got_tsrc(itrc)=.true.
+            ierr=nf_inq_varid (tsrc_id, 'nh4_src_time', tsrc_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tsrc(itrc)=.false.
+              write(stdout,3) 'nh4_src_time', qbarname(1:lstr)
+c              goto 99                                     !--> ERROR
+            endif
+          elseif (itrc.eq.iPhy1) then
+            got_tsrc(itrc)=.true.
+            ierr=nf_inq_varid (ncidqbar,'sphyto_src_time', 
+     &                                                tsrc_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tsrc(itrc)=.false.
+              write(stdout,3) 'sphyto_src_time', qbarname(1:lstr)
+c              goto 99           !--> ERROR
+            endif
+          elseif (itrc.eq.iPhy2) then
+            got_tsrc(itrc)=.true.
+            ierr=nf_inq_varid (ncidqbar,'lphyto_src_time', 
+     &                                                 tsrc_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tsrc(itrc)=.false.
+              write(stdout,3) 'lphyto_src_time', qbarname(1:lstr)
+c              goto 99           !--> ERROR
+            endif
+          elseif (itrc.eq.iZoo1) then
+            got_tsrc(itrc)=.true.
+            ierr=nf_inq_varid (ncidqbar,'szoo_src_time', tsrc_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tsrc(itrc)=.false.
+              write(stdout,3) 'szoo_src_time', qbarname(1:lstr)
+c              goto 99           !--> ERROR
+            endif
+          elseif (itrc.eq.iZoo2) then
+            got_tsrc(itrc)=.true.
+            ierr=nf_inq_varid (ncidqbar,'lzoo_src_time', tsrc_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tsrc(itrc)=.false.
+              write(stdout,3) 'lzoo_src_time', qbarname(1:lstr)
+c              goto 99           !--> ERROR
+            endif
+          elseif (itrc.eq.iDet1) then
+            got_tsrc(itrc)=.true.
+            ierr=nf_inq_varid (tsrc_id, 'det1_src_time', tsrc_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tsrc(itrc)=.false.
+              write(stdout,3) 'det1_src_time', qbarname(1:lstr)
+c              goto 99                                     !--> ERROR
+            endif             
+          elseif (itrc.eq.iDet2) then
+            got_tsrc(itrc)=.true.
+            ierr=nf_inq_varid (tsrc_id, 'det2_src_time', tsrc_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tsrc(itrc)=.false.
+              write(stdout,3) 'det2_src_time', qbarname(1:lstr)
+c              goto 99                                     !--> ERROR
+            endif
+          elseif (itrc.eq.iDON) then
+            got_tsrc(itrc)=.true.
+            ierr=nf_inq_varid (tsrc_id, 'don_src_time', tsrc_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tsrc(itrc)=.false.
+              write(stdout,3) 'don_src_time', qbarname(1:lstr)
+c              goto 99                                     !--> ERROR
+            endif
+          elseif (itrc.eq.iO2) then
+           got_tsrc(itrc)=.true.
+            ierr=nf_inq_varid (ncidclm, 'o2_src_time', tsrc_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tsrc(itrc)=.false.
+              write(stdout,3) 'o2_src_time', qbarname(1:lstr)
+c              goto 99                                     !--> ERROR
+            endif
+#   ifdef NITROUS_OXIDE
+          elseif (itrc.eq.iN2O) then
+           got_tsrc(itrc)=.true.
+            ierr=nf_inq_varid (ncidclm, 'n2o_src_time', tsrc_tid(itrc))
+            if (ierr .ne. nf_noerr) then
+              got_tsrc(itrc)=.false.
+              write(stdout,3) 'n2o_src_time', qbarname(1:lstr)
+c              goto 99                                     !--> ERROR
+            endif
+#   endif
+# endif /* BIO_BioEBUS */
 # ifdef PISCES
           elseif (itrc.eq.iNO3_) then
             got_tsrc(itrc)=.true.
@@ -377,7 +479,7 @@ c     goto 99                                     !--> ERROR
 c     goto 99                                     !--> ERROR
               endif
               
-#endif !  /* PISCES */              
+#endif   /* PISCES */              
 #endif /* BIOLOGY  */
             endif
 

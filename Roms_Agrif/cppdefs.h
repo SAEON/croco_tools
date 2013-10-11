@@ -231,8 +231,9 @@
                       /*   Choice of Biology models   */
 # ifdef BIOLOGY
 #  undef  PISCES
-#  define BIO_NChlPZD
-#  undef  BIO_N2ChlPZD2  
+#  undef BIO_NChlPZD
+#  undef  BIO_N2ChlPZD2
+#  define BIO_BioEBUS
                       /*   Biology options    */
 #  ifdef PISCES
 #   define key_trc_pisces
@@ -243,15 +244,14 @@
 #     define key_trc_dia3d
 #   endif
 #  endif
-#  ifdef BIO_NChlPZD
+# endif
+                      /*   Bio options   */
+# define  DIAGNOSTICS_BIO
+# ifdef BIO_NChlPZD
 #   define  OXYGEN
-#  endif
-#  ifdef BIO_NChlPZD
-#   define DIAGNOSTICS_BIO
-#  endif
-#  ifdef BIO_N2P2Z2D2
-#   undef  VAR_CHL_C
-#  endif
+# endif
+# ifdef BIO_BioEBUS
+#   define NITROUS_OXIDE
 # endif
                       /*   Lagrangian floats model    */
 # ifdef FLOATS

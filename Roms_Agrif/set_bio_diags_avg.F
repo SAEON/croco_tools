@@ -116,7 +116,8 @@
                 end do
               end do
             end do
-# if (defined BIO_NChlPZD && defined OXYGEN)
+
+#  if (defined BIO_NChlPZD && defined OXYGEN) || defined BIO_BioEBUS
             do iflux = 1, NumGasExcTerms
               do j = JstrR, JendR
                 do i = IstrR, IendR
@@ -124,7 +125,7 @@
                 end do
               end do
             end do
-# endif /* BIO_NChlPZD && OXYGEN */
+#  endif
 #endif
 
          elseif (mod(ilc-1,nwrtdiabio_avg).gt.1) then
@@ -175,7 +176,7 @@
                 end do
               end do
             end do
-# if (defined BIO_NChlPZD && defined OXYGEN)
+#  if (defined BIO_NChlPZD && defined OXYGEN) || defined BIO_BioEBUS 
             do iflux = 1, NumGasExcTerms
               do j = JstrR, JendR
                 do i = IstrR, IendR
@@ -184,7 +185,7 @@
                 end do
               end do
             end do
-# endif /* BIO_NChlPZD && OXYGEN */
+#  endif
 #endif
          elseif (mod(ilc-1,nwrtdiabio_avg).eq.0) then
 
@@ -242,7 +243,7 @@
                 end do
               end do
             end do
-# if (defined BIO_NChlPZD && defined OXYGEN)
+#  if (defined BIO_NChlPZD && defined OXYGEN) || defined BIO_BioEBUS
             do iflux = 1, NumGasExcTerms
               do j = JstrR, JendR
                 do i = IstrR, IendR
@@ -252,7 +253,7 @@
                 end do
               end do
             end do
-# endif /* BIO_NChlPZD && OXYGEN */
+#  endif 
 #endif
          endif
       endif

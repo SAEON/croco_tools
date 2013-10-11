@@ -85,7 +85,14 @@
       common /gasexc_O2_Kv_O2_avg/ Kv_O2_avg
       common /gasexc_O2_O2satu_avg/ O2satu_avg
 #    endif /* OXYGEN */
+/*-----------------------------------------------------------------*/
+#   elif defined BIO_BioEBUS
+      real AOU_avg(GLOBAL_2D_ARRAY,N)  
+      real wind10_avg(GLOBAL_2D_ARRAY)
+      common /ocean_AOU_avg/AOU_avg
+      common /ocean_wind10_avg/wind10_avg    
 #   endif
+/*-----------------------------------------------------------------*/
 #  endif /* BIOLOGY */
 #  ifdef VIS_COEF_3D
       real visc3d_avg(GLOBAL_2D_ARRAY,N)

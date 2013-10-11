@@ -25,7 +25,9 @@
 ! indxsand,silt   sand & silt sediment tracers
 ! indxO,indeW     omega vertical mass flux and true vertical velocity
 ! indxR           density anomaly
-!
+! indxAOU  	  Apparent Oxygen Utilization
+! indxWIND10      surface wind speed 10 m
+! indxpCO2        partial pressure of CO2 in the ocean
 ! indxVisc        Horizontal viscosity coefficients
 ! indxDiff        Horizontal diffusivity coefficients
 ! indxAkv,indxAkt,indxAks  vertical viscosity/diffusivity coefficients
@@ -171,25 +173,21 @@
      &           indxPhy1=indxNO3+3,
      &           indxZoo1=indxNO3+4,
      &           indxDet1=indxNO3+5, indxDet2=indxNO3+6)
-#  elif defined BIO_N2P2Z2D2
-      integer indxNO3, indxNH4,
-     &        indxPhy1, indxPhy2, indxZoo1,
-     &        indxZoo2, indxDet1, indxDet2
-#   ifdef VAR_CHL_C
-     &      , indxChl1, indxChl2
-#   endif
-      parameter (indxNO3 =indxT+ntrc_salt+ntrc_pas+1,
-     &           indxNH4 =indxNO3+1,
-#   ifdef VAR_CHL_C
-     &           indxChl1=indxNO3+2, indxChl2=indxNO3+3,
-     &           indxPhy1=indxNO3+4, indxPhy2=indxNO3+5,
-     &           indxZoo1=indxNO3+6, indxZoo2=indxNO3+7,
-     &           indxDet1=indxNO3+8, indxDet2=indxNO3+9)
-#   else
-     &           indxPhy1=indxNO3+2, indxPhy2=indxNO3+3,
-     &           indxZoo1=indxNO3+4, indxZoo2=indxNO3+5,
-     &           indxDet1=indxNO3+6, indxDet2=indxNO3+7)
-#   endif
+#  elif defined BIO_BioEBUS
+      integer indxNO3, indxNO2, indxNH4,
+     &        indxPhy1, indxPhy2, indxZoo1, indxZoo2,
+     &        indxDet1, indxDet2, indxDON, indxO2
+      parameter (indxNO3 =indxT+ntrc_salt+ntrc_pas+1, 
+     &           indxNO2 =indxNO3+1,      
+     &           indxNH4 =indxNO3+2, 
+     &           indxPhy1=indxNO3+3, indxPhy2=indxNO3+4,
+     &           indxZoo1=indxNO3+5, indxZoo2=indxNO3+6,
+     &           indxDet1=indxNO3+7, indxDet2=indxNO3+8,
+     &           indxDON =indxNO3+9, indxO2  =indxNO3+10)
+#     ifdef NITROUS_OXIDE 
+      integer indxN2O
+      parameter (indxN2O=indxNO3+11)      
+#     endif
 #  endif
 # endif /* BIOLOGY */
 # ifdef SEDIMENT
@@ -245,14 +243,15 @@
      &           indxMrate=indxMVmix+2)
 # endif
 # if defined BIOLOGY && defined DIAGNOSTICS_BIO
-      integer indxbioFlux, indxbioVSink
-#  ifdef OXYGEN
+      integer indxbioFlux, indxbioVSink  
+#  if (defined BIO_NChlPZD && defined OXYGEN) || defined BIO_BioEBUS
      &        , indxGasExcFlux
 #  endif
       parameter (indxbioFlux=indxT+ntrc_salt+ntrc_pas+ntrc_bio+ntrc_sed
      &                                        +ntrc_diats+ntrc_diauv+1)
       parameter (indxbioVSink=indxbioFlux+NumFluxTerms)
-#  ifdef OXYGEN
+
+#  if (defined BIO_NChlPZD && defined OXYGEN) || defined BIO_BioEBUS
       parameter (indxGasExcFlux=indxbioFlux+NumFluxTerms+NumVSinkTerms)
 #  endif
 # endif /* BIOLOGY && DIAGNOSTICS_BIO */
@@ -262,30 +261,41 @@
      &                      +ntrc_diats+ntrc_diauv+ntrc_diabio+1,
      &           indxW=indxO+1, indxR=indxO+2, indxVisc=indxO+3,
      &           indxDiff=indxO+4,indxAkv=indxO+5, indxAkt=indxO+6)
-
+# ifdef BIOLOGY
+#  ifdef BIO_BioEBUS
+      integer indxAOU, indxWIND10
+      parameter (indxAOU=indxAkt+1,
+     &           indxWIND10=indxAkt+2)      
+#     ifdef CARBON
+      integer indxpCO2
+      parameter (indxpCO2=indxAkt+3)       
+#     endif
+#  endif
+# endif
+/*------------------------------------------------------------------------*/
 # ifdef SALINITY
       integer indxAks
-      parameter (indxAks=indxAkt+1)
+      parameter (indxAks=indxAkt+4)
 # endif
 # ifdef LMD_SKPP
       integer indxHbl
-      parameter (indxHbl=indxAkt+2)
+      parameter (indxHbl=indxAkt+5)
 # endif
 # ifdef LMD_BKPP
       integer indxHbbl
-      parameter (indxHbbl=indxAkt+3)
+      parameter (indxHbbl=indxAkt+6)
 # endif
 # ifdef GLS_MIXING
       integer indxAkk
-      parameter (indxAkk=indxAkt+4)
+      parameter (indxAkk=indxAkt+7)
       integer indxAkp
-      parameter (indxAkp=indxAkt+5)
+      parameter (indxAkp=indxAkt+8)
       integer indxTke
-      parameter (indxTke=indxAkt+6)
+      parameter (indxTke=indxAkt+9)
       integer indxGls
-      parameter (indxGls=indxAkt+7)
+      parameter (indxGls=indxAkt+10)
       integer indxLsc
-      parameter (indxLsc=indxAkt+8)
+      parameter (indxLsc=indxAkt+11)
 # endif
 #endif
 
@@ -297,14 +307,12 @@
 #  ifdef OXYGEN
      &      , indxU10, indxKvO2, indxO2sat
 #  endif
-# elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-     &      , indxChC1, indxChC2
 # endif
 #endif /* BIOLOGY*/
 #ifdef SOLVE3D
 # if defined BIOLOGY && !defined PISCES
-      parameter (indxHel=indxAkt+9)
-# if (defined BIO_NChlPZD || defined BIO_N2ChlPZD2)
+      parameter (indxHel=indxAkt+12)
+#  if (defined BIO_NChlPZD || defined BIO_N2ChlPZD2)
       parameter (indxChC=indxHel+1)
 #   ifdef OXYGEN
       parameter (indxU10=indxChC+1)
@@ -314,19 +322,11 @@
 #   else
       parameter (indxSSH=indxChC+1)
 #   endif
-#  elif defined BIO_N2P2Z2D2
-#   if defined VAR_CHL_C
-      parameter (indxChC1=indxHel+1)
-      parameter (indxChC2=indxChC1+1)
-      parameter (indxSSH=indxChC2+1)
-#   else
-      parameter (indxSSH=indxHel+1)
-#   endif
 #  else
       parameter (indxSSH=indxHel+1)
 #  endif
 # else
-      parameter (indxSSH=indxAkt+9)
+      parameter (indxSSH=indxAkt+12)
 # endif
 #else
 # if defined BIOLOGY && !defined PISCES
@@ -340,14 +340,6 @@
       parameter (indxSSH=indxO2sat+1)
 #   else
       parameter (indxSSH=indxChC+1)
-#   endif
-#  elif defined BIO_N2P2Z2D2
-#   ifdef VAR_CHL_C
-      parameter (indxChC1=indxHel+1)
-      parameter (indxChC2=indxChC1+1)
-      parameter (indxSSH=indxChC2+1)
-#   else
-      parameter (indxSSH=indxHel+1)
 #   endif
 #  endif
 # else
@@ -656,10 +648,10 @@
 #   ifdef OXYGEN
      &      , hisU10, hisKvO2, hisO2sat
 #   endif
-#  elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-     &      , hisChC1, hisChC2
+#  elif defined BIO_BioEBUS 
+      integer hisAOU, hisWIND10
 #  endif
-# endif
+# endif  /* BIOLOGY */
       integer hisT(NT)
 # ifdef SEDIMENT
       integer hisSed(NST+2)
@@ -718,10 +710,10 @@
 #   ifdef OXYGEN
      &      , avgU10, avgKvO2, avgO2sat
 #   endif
-#  elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-     &      , avgChC1, avgChC2
+#  elif defined BIO_BioEBUS
+      integer avgAOU, avgWIND10
 #  endif
-# endif
+# endif  /* BIOLOGY */
       integer avgT(NT)
 #  ifdef BULK_FLUX
       integer avgShflx_rlw
@@ -864,10 +856,10 @@
 #   ifdef OXYGEN
      &      , hisU10, hisKvO2, hisO2sat
 #   endif
-#  elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-     &      , hisChC1, hisChC2
+#  elif defined BIO_BioEBUS
+     &      , hisAOU, hisWIND10
 #  endif
-# endif
+# endif  /* BIOLOGY */
 # ifdef SEDIMENT
      &      , hisSed
 # endif
@@ -953,10 +945,10 @@
 #    ifdef OXYGEN
      &      , avgU10, avgKvO2, avgO2sat
 #    endif
-#   elif defined BIO_N2P2Z2D2 && defined VAR_CHL_C
-     &      , avgChC1, avgChC2
+#   elif defined BIO_BioEBUS 
+     &      , avgAOU, avgWIND10
 #   endif
-#  endif
+#  endif  /* BIOLOGY */
 #  ifdef BULK_FLUX
      &      , avgShflx_rlw
      &      , avgShflx_lat, avgShflx_sen

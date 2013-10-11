@@ -518,6 +518,23 @@ C$    integer omp_get_thread_num
            enddo
         endif
 #    endif /* OXYGEN */
+#   elif defined BIO_BioEBUS
+          if (wrtavg(indxAOU)) then
+            do k=1,N
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  AOU_avg(i,j,k)=cff*( cff1*AOU_avg(i,j,k)+AOU(i,j,k) )
+                enddo
+              enddo
+            enddo
+          endif	
+          if (wrtavg(indxWIND10)) then
+              do j=JstrR,JendR
+                do i=IstrR,IendR
+                  wind10_avg(i,j)=cff*( cff1*wind10_avg(i,j)+wind10(i,j) )
+                enddo
+              enddo
+          endif	  	
 #   endif
 #  endif /* BIOLOGY */
 #  ifdef SEDIMENT
