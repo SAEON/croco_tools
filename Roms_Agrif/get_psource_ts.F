@@ -1,4 +1,4 @@
-! $Id: get_psource_ts.F 972 2012-12-14 17:57:17Z marchesiello $
+! $Id$
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -106,10 +106,10 @@ c              goto 99           !--> ERROR
 !
 #  ifdef OXYGEN
           elseif (itrc.eq.iO2) then
-           got_tclm(itrc)=.true.
-            ierr=nf_inq_varid (ncidclm, 'o2_src_time', tclm_tid(itrc))
+           got_tsrc(itrc)=.true.
+            ierr=nf_inq_varid (ncidqbar, 'o2_src_time', tsrc_tid(itrc))
             if (ierr .ne. nf_noerr) then
-              got_tclm(itrc)=.false.
+              got_src(itrc)=.false.
               write(stdout,3) 'o2_src_time', qbarname(1:lstr)
 c              goto 99                                     !--> ERROR
             endif
