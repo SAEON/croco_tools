@@ -45,9 +45,8 @@ unitpisces={''};
 % pisces
 % biol
 if biol
-  %Name, units etc .. of the variables
-  namebiol={'NO3';'CHLA';'PHYTO';'ZOO'};
-  unitbiol={'mMol N m-3';'mg C l-1';'mMol N m-3'};
+  namebiol={'NO3';'O2';'CHLA';'PHYTO';'ZOO'};
+  unitbiol={'mMol N m-3';'mMOL O m-3';'mg C l-1';'mMol N m-3';'mMol N m-3'};
   for i=1:length(namebiol)
 	aa=sum(strcmp(Varnames,namebiol(i)));
 	isbiolfiles=isbiolfiles+aa;
@@ -192,51 +191,35 @@ disp(' ')
 disp(' Do the interpolations...')                     
 np=netcdf(parent_ini);
 for tindex=1:length(thetime)
-  disp('zeta...')
-  interpvar3d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'zeta',mask,tindex)
-  disp('ubar...')
-  interpvar3d(np,ncini,igrd_u,jgrd_u,ichildgrd_u,jchildgrd_u,'ubar',mask,tindex)
-  disp('vbar...')
-  interpvar3d(np,ncini,igrd_v,jgrd_v,ichildgrd_v,jchildgrd_v,'vbar',mask,tindex)
-  disp('u...')
-  interpvar4d(np,ncini,igrd_u,jgrd_u,ichildgrd_u,jchildgrd_u,'u',mask,tindex,N)
-  disp('v...')
-  interpvar4d(np,ncini,igrd_v,jgrd_v,ichildgrd_v,jchildgrd_v,'v',mask,tindex,N)
-  disp('temp...')
-  interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'temp',mask,tindex,N)
-  disp('salt...')
-  interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'salt',mask,tindex,N)
-  %
-  if (biol==1)
-    disp('NO3...')
-    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'NO3',mask,tindex,N)
-    disp('CHLA...')
-    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'CHLA',mask,tindex,N)
-    disp('PHYTO...')
-    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'PHYTO',mask,tindex,N)
-    disp('ZOO...')
-    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'ZOO',mask,tindex,N)
-  end
-  %
-  if (pisces==1)
-    disp('NO3...')
-    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'NO3',mask,tindex,N)
-    disp('PO4...')
-    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'PO4',mask,tindex,N)
-    disp('Si...')
-    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'Si',mask,tindex,N)
-    disp('O2...')
-    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'O2',mask,tindex,N)
-    disp('DIC...')
-    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'DIC',mask,tindex,N)
-    disp('TALK...')
-    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'TALK',mask,tindex,N)
-    disp('DOC...')
-    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'DOC',mask,tindex,N)
-    disp('FER...')
-    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'FER',mask,tindex,N)
-  end
-  %
+    disp('zeta...')
+    interpvar3d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'zeta',mask,tindex)
+    disp('ubar...')
+    interpvar3d(np,ncini,igrd_u,jgrd_u,ichildgrd_u,jchildgrd_u,'ubar',mask,tindex)
+    disp('vbar...')
+    interpvar3d(np,ncini,igrd_v,jgrd_v,ichildgrd_v,jchildgrd_v,'vbar',mask,tindex)
+    disp('u...')
+    interpvar4d(np,ncini,igrd_u,jgrd_u,ichildgrd_u,jchildgrd_u,'u',mask,tindex,N)
+    disp('v...')
+    interpvar4d(np,ncini,igrd_v,jgrd_v,ichildgrd_v,jchildgrd_v,'v',mask,tindex,N)
+    disp('temp...')
+    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'temp',mask,tindex,N)
+    disp('salt...')
+    interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'salt',mask,tindex,N)
+    if (biol==1)
+        for k=1:length(namebiol)
+          %  disp(['K=',num2str(k)])
+            disp(char(namebiol(k)))
+            interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,char(namebiol(k)),mask,tindex,N);
+        end
+    end
+    if (pisces==1)
+        %
+        for k=1:length(namepisces)
+           % disp(['K=',num2str(k)])
+            disp(char(namepisces(k)))
+            interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,char(namepisces(k)),mask,tindex,N);
+        end
+    end
 end
 result=close(np);
 result=close(ncini);

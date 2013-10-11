@@ -105,7 +105,7 @@ nc{'salt'}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
 if (biol==1)
   disp('vert_correc for biology variables')
   for k=1:length(namebiol)
-    disp([namebiol(k),' ...'])
+    disp([char(namebiol(k)),'...'])
     nc{char(namebiol(k))}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
 						     squeeze(nc{char(namebiol(k))}(tindex,:,:,:)),...
 						     zrold,zrnew);
@@ -115,10 +115,10 @@ end
 if (pisces==1)
   disp('vert_correc for pisces variables')
   for k=1:length(namepisces)
-    disp([char(namepisces(k)),' ...'])
-    nc{char(namepisces(k))}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
-						  squeeze(nc{char(namepisces(k))}(tindex,:,:,:)),...
-						  zrold,zrnew);
+      disp([char(namepisces(k)),'...'])
+      nc{char(namepisces(k))}(tindex,:,:,:)=change_sigma(lonr,latr,maskr,...
+          squeeze(nc{char(namepisces(k))}(tindex,:,:,:)),...
+          zrold,zrnew);
   end
 end
 %

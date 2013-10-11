@@ -35,65 +35,33 @@ Vars = var(a);
 Varnames = [ncnames(Vars)];
 nvar =length(Varnames);
 %
-% Initialisation
-%
-% biol
-% pisces
-
 namebiol={''};
 unitbiol={''};
-% timebiol={''};
-% Utilisation de char et str2num !!
-% A faire pour simplifier le code et le rendre plus modulable.
-no3_time=[];
-no3_cycle=[];
-chla_time=[];
-chla_cycle=[];
-phyto_time=[];
-phyto_cycle=[];
-zoo_time=[];
-zoo_cycle=[];
-% biol_time=(15:30:345); % days: middle of each month
-% biol_cycle=360; % repetition of a typical year of 360 days
-%--
 namepisces={''};
 unitpisces={''};
-%timepisces={''};
-% Utilisation de char et str2num !!
-% A faire pour simplifier le code et le rendre plus modulable.
-no3p_time=[];
-no3p_cycle=[];
-po4_time=[];
-po4_cycle=[];
-si_time=[];
-si_cycle=[];
-o2_time=[];
-o2_cycle=[];
-dic_time=[];
-dic_cycle=[];
-talk_time=[];
-talk_cycle=[];
-doc_time=[];
-doc_cycle=[];
-fer_time=[];
-fer_cycle=[];
-%--
-% Chech type of clim file
+timebiol=[]; cyclebiol=[];
+timepisces=[];cyclepisces=[];
+tbiol=[];cbiol=[];
+tpisces=[];cpisces=[];
+
+
+% Check type of clim file
 %
 if nvar <= 31
-elseif (nvar <=  39 & biol)
-  %Name, units etc .. of the variables
-  namebiol={'NO3';'CHLA';'PHYTO';'ZOO'};
-  unitbiol={'mMol N m-3';'mg C l-1';'mMol N m-3'};
+elseif (nvar <=  41 & biol)
+  timebiol={'no3_time';'o2_time';'chla_time';'phyto_time';'zoo_time'};
+  cyclebiol={'no3_cyle';'o2_cycle';'chla_cycle';'phyto_cycle';'zoo_cycle'};
+  namebiol={'NO3';'O2';'CHLA';'PHYTO';'ZOO'};
+  unitbiol={'mMol N m-3';'mMol O m-3';'mg C l-1';'mMol N m-3';'mMol N m-3'};
   %timebiol={'no3_time';'chla_time';'phyto_time';'zoo_time'};
   disp(['Compute Biological variables type NPZD : '])
   disp(['NChlPZD or N2ChlPZD2                     '])
   disp('==========================')
-elseif (pisces & nvar>=40)
-  %Name, units etc .. of the variables
+elseif (pisces & nvar>=42)
+  timepisces={'no3_time';'po4_time';'si_time';'o2_time';'dic_time';'talk_time';'doc_time';'fer_time'};
+  cyclepisces={'no3_cycle';'po4_cycle';'si_cycle';'o2_cycle';'dic_cycle';'talk_cycle';'doc_cycle';'fer_cycle'};
   namepisces={'NO3';'PO4';'Si';'O2';'DIC';'TALK';'DOC';'FER'};
   unitpisces={'mMol N m-3';'mMol P m-3';'mMol Si m-3';'mMol O m-3';'mMol C m-3';'mMol C m-3';'mMol C m-3';'uMol Fe m-3'};
-  %timepisces={'no3_time';'po4_time';'si_time';'o2_time';'dic_time';'talk_time';'doc_time';'fer_time'};
   disp('Compute Pisces biogeochemical variables')
   disp('=========================')
 else
@@ -173,36 +141,23 @@ sshtime = nc{'ssh_time'}(:);
 sshcycle = nc{'ssh_time'}.cycle_length(:);
 %
 if biol==1
-  % for k=1:length(namebiol)
-  % timebio(k)= nc{char(timebiol(k))}(:);
-  % cyclebio(k)= nc{char(timebiol(k))}.cycle_length(:);
-  no3_time = nc{'no3_time'}(:);
-  no3_cycle = nc{'no3_time'}.cycle_length(:)
-  chla_time = nc{'chla_time'}(:);
-  chla_cycle = nc{'chla_time'}.cycle_length(:);
-  phyto_time = nc{'phyto_time'}(:);
-  phyto_cycle = nc{'phyto_time'}.cycle_length(:);
-  zoo_time = nc{'zoo_time'}(:);
-  zoo_cycle = nc{'zoo_time'}.cycle_length(:);
+    for k=1:length(namebiol)
+        eval([char(timebiol(k)),'=nc{''',char(timebiol(k)),'''}(:);']);
+        eval([char(cyclebiol(k)),'=nc{''',char(timebiol(k)),'''}.cycle_length(:);']);
+        %
+        eval(['tbiol(k,:)=',char(timebiol(k)),';']);
+        eval(['cbiol(k,:)=',char(cyclebiol(k)),';']);
+end
 end
 %
 if pisces==1
-  no3p_time = nc{'no3_time'}(:);
-  no3p_cycle = nc{'no3_time'}.cycle_length(:);
-  po4_time = nc{'po4_time'}(:);
-  po4_cycle = nc{'po4_time'}.cycle_length(:);
-  si_time = nc{'si_time'}(:);
-  si_cycle = nc{'si_time'}.cycle_length(:);
-  o2_time = nc{'o2_time'}(:);
-  o2_cycle = nc{'o2_time'}.cycle_length(:);
-  dic_time = nc{'dic_time'}(:);
-  dic_cycle = nc{'dic_time'}.cycle_length(:);
-  talk_time = nc{'talk_time'}(:);
-  talk_cycle = nc{'talk_time'}.cycle_length(:);
-  doc_time = nc{'doc_time'}(:);
-  doc_cycle = nc{'doc_time'}.cycle_length(:);
-  fer_time = nc{'fer_time'}(:);
-  fer_cycle = nc{'fer_time'}.cycle_length(:);
+    for k=1:length(namepisces)
+        eval([char(timepisces(k)),'=nc{''',char(timepisces(k)),'''}(:);']);
+        eval([char(cyclepisces(k)),'=nc{''',char(timepisces(k)),'''}.cycle_length(:);']);
+        %
+        eval(['tpisces(k,:)=',char(timepisces(k)),';']);
+        eval(['cpisces(k,:)=',char(cyclepisces(k)),';']);
+    end
 end
 %
 result=close(nc);
@@ -220,12 +175,11 @@ ncclim=create_nestedclim(child_clim,child_grd,parent_clim,title,...
 			 theta_s,theta_b,Tcline,N,...
 			 ttime,stime,utime,vtime,sshtime,...
 			 tcycle,scycle,ucycle,vcycle,sshcycle,...
-			 no3p_time,po4_time,si_time,o2_time,dic_time,talk_time, doc_time,fer_time,...
-			 no3p_cycle,po4_cycle,si_cycle,o2_cycle,dic_cycle,talk_cycle, doc_cycle,fer_cycle,...
-			 no3_time,chla_time,phyto_time,zoo_time, ...
-			 no3_cycle,chla_cycle,phyto_cycle,zoo_cycle, ...
-			 'clobber',...
-			 biol,pisces,namebiol,namepisces,unitbiol,unitpisces,hc,vtransform);
+             tbiol,cbiol,tpisces, cpisces, ...
+             'clobber',...
+			 biol,pisces,...
+             timebiol, cyclebiol,timepisces,cyclepisces,...
+             namebiol,namepisces,unitbiol,unitpisces,hc,vtransform);
 %
 % parent indices
 %
@@ -289,143 +243,57 @@ end
 %%
 %
 if biol
-  disp('NO3...')   
-  for tindex=1:length(no3_time)
-    disp([' Time index : ',num2str(tindex),' of ',num2str(length(no3_time))]) 
-    interpvar4d(np,ncclim,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'NO3',mask,tindex,N)
-  end
-  disp('CHLA...')  
-  for tindex=1:length(chla_time)
-    disp([' Time index : ',num2str(tindex),' of ',num2str(length(chla_time))]) 
-    interpvar4d(np,ncclim,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'CHLA',mask,tindex,N)
-  end
-  disp('PYTHO...')  
-  for tindex=1:length(phyto_time)
-    disp([' Time index : ',num2str(tindex),' of ',num2str(length(phyto_time))]) 
-    interpvar4d(np,ncclim,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'PHYTO',mask,tindex,N)
-  end
-  disp('ZOO...')  
-  for tindex=1:length(zoo_time)
-    disp([' Time index : ',num2str(tindex),' of ',num2str(length(zoo_time))]) 
-    interpvar4d(np,ncclim,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'ZOO',mask,tindex,N)
-  end
+    for k=1:length(namebiol)
+        disp(char(namebiol(k)))
+        for tindex=1:length(tbiol(k,:))
+            disp([' Time index : ',num2str(tindex),' of ',num2str(length(tbiol(k,:)))])
+            interpvar4d(np,ncclim,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,char(namebiol(k)),mask,tindex,N)
+        end
+    end
 end
-%
-%%
 %
 if pisces
-  disp('NO3...')   
-  for tindex=1:length(no3p_time)
-    disp([' Time index : ',num2str(tindex),' of ',num2str(length(no3p_time))]) 
-    interpvar4d(np,ncclim,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'NO3',mask,tindex,N)
-  end
-  disp('PO4...')  
-  for tindex=1:length(po4_time)
-    disp([' Time index : ',num2str(tindex),' of ',num2str(length(po4_time))]) 
-    interpvar4d(np,ncclim,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'PO4',mask,tindex,N)
-  end
-  disp('Si...')  
-  for tindex=1:length(si_time)
-    disp([' Time index : ',num2str(tindex),' of ',num2str(length(si_time))]) 
-    interpvar4d(np,ncclim,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'Si',mask,tindex,N)
-  end
-  disp('O2...')  
-  for tindex=1:length(o2_time)
-    disp([' Time index : ',num2str(tindex),' of ',num2str(length(o2_time))]) 
-    interpvar4d(np,ncclim,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'O2',mask,tindex,N)
-  end
-  disp('DIC...')  
-  for tindex=1:length(dic_time)
-    disp([' Time index : ',num2str(tindex),' of ',num2str(length(dic_time))]) 
-    interpvar4d(np,ncclim,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'DIC',mask,tindex,N)
-  end
-  disp('TALK...')  
-  for tindex=1:length(talk_time)
-    disp([' Time index : ',num2str(tindex),' of ',num2str(length(talk_time))]) 
-    interpvar4d(np,ncclim,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'TALK',mask,tindex,N)
-  end
-  disp('DOC...')  
-  for tindex=1:length(doc_time)
-    disp([' Time index : ',num2str(tindex),' of ',num2str(length(doc_time))]) 
-    interpvar4d(np,ncclim,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'DOC',mask,tindex,N)
-  end
-  disp('FER...')  
-  for tindex=1:length(fer_time)
-    disp([' Time index : ',num2str(tindex),' of ',num2str(length(fer_time))]) 
-    interpvar4d(np,ncclim,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'FER',mask,tindex,N)
-  end
+    for k=1:length(namepisces)
+        disp(char(namepisces(k)))
+        for tindex=1:length(tpisces(k,:))
+            disp([' Time index : ',num2str(tindex),' of ',num2str(length(tpisces(k,:)))])
+            interpvar4d(np,ncclim,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,char(namepisces(k)),mask,tindex,N)
+        end
+    end
 end
-%
-%%
-%
 close(np);
 close(ncclim);
 %
 %  Vertical corrections
 %
 if (vertical_correc==1)
-  disp('Process variable physical variables')
-  for tindex=1:length(climtime)
-    disp([' Time index : ',num2str(tindex),' of ',num2str(length(climtime))])                     
-    vert_correc(child_clim,tindex,0,0,namebiol,namepisces)
-  end
-  %%
-  if biol
-    disp('Process variable NPZD')
-    for tindex=1:length(no3_time)
-      disp([' Time index : ',num2str(tindex),' of ',num2str(length(no3_time))]) 
-      vert_correc_onefield(child_clim,tindex,'NO3')
+    disp('Process variable physical variables')
+    for tindex=1:length(climtime)
+        disp([' Time index : ',num2str(tindex),' of ',num2str(length(climtime))])
+        vert_correc(child_clim,tindex,0,0,namebiol,namepisces)
     end
-    for tindex=1:length(chla_time)
-      disp([' Time index : ',num2str(tindex),' of ',num2str(length(chla_time))]) 
-      vert_correc_onefield(child_clim,tindex,'CHLA')
-    end      
-    for tindex=1:length(phyto_time)
-      disp([' Time index : ',num2str(tindex),' of ',num2str(length(phyto_time))]) 
-      vert_correc_onefield(child_clim,tindex,'PHYTO')
-    end    
-    for tindex=1:length(zoo_time)
-      disp([' Time index : ',num2str(tindex),' of ',num2str(length(zoo_time))]) 
-      vert_correc_onefield(child_clim,tindex,'ZOO')
-    end         
-  end
-  %%
-  if pisces
-    disp('Process variable PISCES')
-    %to be finished  ....
-    for tindex=1:length(no3_time)
-      disp([' Time index : ',num2str(tindex),' of ',num2str(length(no3_time))]) 
-      vert_correc_onefield(child_clim,tindex,'NO3')
+    %%
+    if biol
+        disp('Process variable NPZD')
+        for k=1:length(namebiol)
+            disp(char(namebiol(k)))
+            for tindex=1:length(tbiol(k,:))
+                disp([' Time index : ',num2str(tindex),' of ',num2str(length(tbiol(k,:)))])
+                vert_correc_onefield(child_clim,tindex,char(namebiol(k)))
+            end
+        end
     end
-    for tindex=1:length(po4_time)
-      disp([' Time index : ',num2str(tindex),' of ',num2str(length(po4_time))]) 
-      vert_correc_onefield(child_clim,tindex,'PO4')
+    %%
+    if pisces
+        disp('Process variable PISCES')
+        for k=1:length(namepisces)
+            disp(char(namepisces(k)))
+            for tindex=1:length(tpisces(k,:))
+                disp([' Time index : ',num2str(tindex),' of ',num2str(length(tpisces(k,:)))])
+                vert_correc_onefield(child_clim,tindex,char(namepisces(k)))
+            end
+        end
     end
-    for tindex=1:length(si_time)
-      disp([' Time index : ',num2str(tindex),' of ',num2str(length(si_time))]) 
-      vert_correc_onefield(child_clim,tindex,'Si')
-    end
-    for tindex=1:length(o2_time)
-      disp([' Time index : ',num2str(tindex),' of ',num2str(length(o2_time))]) 
-      vert_correc_onefield(child_clim,tindex,'O2')
-    end
-    for tindex=1:length(dic_time)
-      disp([' Time index : ',num2str(tindex),' of ',num2str(length(dic_time))]) 
-      vert_correc_onefield(child_clim,tindex,'DIC')
-    end
-    for tindex=1:length(talk_time)
-      disp([' Time index : ',num2str(tindex),' of ',num2str(length(talk_time))]) 
-      vert_correc_onefield(child_clim,tindex,'TALK')
-    end
-    for tindex=1:length(doc_time)
-      disp([' Time index : ',num2str(tindex),' of ',num2str(length(doc_time))]) 
-      vert_correc_onefield(child_clim,tindex,'DOC')
-    end
-    for tindex=1:length(fer_time)
-      disp([' Time index : ',num2str(tindex),' of ',num2str(length(fer_time))]) 
-      vert_correc_onefield(child_clim,tindex,'FER')
-    end       
-  end
 end
 %
 % Make a plot

@@ -41,54 +41,55 @@ namepisces={''};
 unitpisces={''};
 biol=0;
 biol_NPZD=0;
+biol_NPZD_wO2=0;
 biol_N2PZD2=0;
-biol_N2P2Z2D2=0;
 pisces=0;
 
+% ncclim{'NO3'}.long_name = ncchar('Nitrate');
+% ncclim{'NO3'}.long_name = 'Nitrate';
+% ncclim{'NO3'}.units = ncchar('mMol N m-3');
+% ncclim{'NO3'}.units = 'mMol N m-3';
+% ncclim{'NO3'}.field = ncchar('NO3, scalar, series');
+% ncclim{'NO3'}.field = 'NO3, scalar, series';
 
 if nvar <= 37
-  disp(['No biology'])
-elseif nvar == 42 
-  biol_NPZD=1;
-  %Name, units etc .. of the variables
-  namebiol={'NO3';'CHLA';'PHYTO';'ZOO';'DET'};
-  unitbiol={'mMol N m-3' ; 'mg C l-1' ; 'mMol N m-3';...
-	    'mMol N m-3' ; 'mMol N m-3'};
-  disp('Biol NPZD is on')
-  disp('==========')
+    disp(['No biology'])
+elseif nvar == 42
+    biol_NPZD=1;
+    namebiol={'NO3';'CHLA';'PHYTO';'ZOO';'DET'};
+    unitbiol={'mMol N m-3' ; 'mg C l-1' ; 'mMol N m-3';...
+        'mMol N m-3' ; 'mMol N m-3'};
+    disp('Biol NPZD is on')
+elseif nvar == 43
+    biol_NPZD_wO2=1;
+    namebiol={'NO3';'O2';'CHLA';'PHYTO';'ZOO';'DET'};
+    unitbiol={'mMol N m-3' ;'mMol O m-3' ; 'mg C l-1' ; 'mMol N m-3';...
+        'mMol N m-3' ; 'mMol N m-3'};
+    disp('Biol NPZD_wO2 is on')
+    disp('==========')
 elseif nvar == 44
-  biol_N2PZD2=1;
-  %Name, units etc .. of the variables
-  namebiol={'NO3' ; 'NH4' ; 'CHLA' ; 'PHYTO' ; 'ZOO' ; 'SDET' ; 'LDET'};
-  unitbiol={'mMol N m-3' ; 'mMol N m-3' ; 'mg C l-1' ; ...
-	    'mMol N m-3' ; 'mMol N m-3' ; 'mMol N m-3' ; ...
-	    'mMol N m-3'};
-  disp('Biol N2PZD2 is on')
-  disp('==========')
-elseif nvar==46
-  biol_N2P2Z2D2=1;
-  %Name, units etc .. of the variables
-  namebiol={'NO3' ; 'NH4' ; 'SPHYTO' ; 'LPHYTO' ; 'SZOO' ; 'LZOO' ; 'SDET' ; 'LDET'};
-  unitbiol={'mMol N m-3' ; 'mMol N m-3' ; 'mMol N m-3' ; ...
-	    'mMol N m-3' ; 'mMol N m-3' ; 'mMol N m-3' ; ...
-	    'mMol N m-3' ; 'mMol N m-3'};
-  disp('Biol N2P2Z2D2 is on')
-  disp('==========')
+    biol_N2PZD2=1;
+    namebiol={'NO3' ; 'NH4' ; 'CHLA' ; 'PHYTO' ; 'ZOO' ; 'SDET' ; 'LDET'};
+    unitbiol={'mMol N m-3' ; 'mMol N m-3' ; 'mg C l-1' ; ...
+        'mMol N m-3' ; 'mMol N m-3' ; 'mMol N m-3' ; ...
+        'mMol N m-3'};
+    disp('Biol N2PZD2 is on')
+    disp('==========')
 else
-  pisces=1;
-  namepisces={'DIC' ; 'TALK' ; 'O2' ; 'CACO3'  ;  'PO4' ;  'POC' ; 
-	      'Si'  ; 'NANO' ; 'ZOO'  ;  'DOC' ;  'DIA' ; 'MESO' ; 'BSI' ; 
-	      'FER' ; 'BFE' ; 'GOC'; 'SFE' ; 'DFE' ; 'DSI' ; 'NFE' ; ...
-	      'NCHL' ;  'DCHL';  'NO3' ; 'NH4'};
-  unitpisces={'umol C L-1' ; 'umol C L-1' ; 'umol O L-1' ;  'umol C L-1' ;  'umol P L-1' ;  'umol C L-1' ; ...
-	      'umol Si L-1' ;  'umol C L-1' ; 'umol C L-1'  ; 'umol C L-1' ; 'umol C L-1' ; 'umol C L-1' ; 'umol Si L-1' ; ...
-	      'umol Fe L-1' ; 'umol Fe L-1' ;  'umol C L-1' ;  'umol Fe L-1' ; 'umol Fe L-1' ; 'umol Si L-1';'umol Fe L-1' ;...
-	      'mg Chl m-3' ; 'mg Chl m-3' ; 'umol N L-1' ; 'umol N L-1'};
-  disp('Pisces is on')
-  disp('==========')
+    pisces=1;
+    namepisces={'DIC' ; 'TALK' ; 'O2' ; 'CACO3'  ;  'PO4' ;  'POC' ;
+        'Si'  ; 'NANO' ; 'ZOO'  ;  'DOC' ;  'DIA' ; 'MESO' ; 'BSI' ;
+        'FER' ; 'BFE' ; 'GOC'; 'SFE' ; 'DFE' ; 'DSI' ; 'NFE' ; ...
+        'NCHL' ;  'DCHL';  'NO3' ; 'NH4'};
+    unitpisces={'umol C L-1' ; 'umol C L-1' ; 'umol O L-1' ;  'umol C L-1' ;  'umol P L-1' ;  'umol C L-1' ; ...
+        'umol Si L-1' ;  'umol C L-1' ; 'umol C L-1'  ; 'umol C L-1' ; 'umol C L-1' ; 'umol C L-1' ; 'umol Si L-1' ; ...
+        'umol Fe L-1' ; 'umol Fe L-1' ;  'umol C L-1' ;  'umol Fe L-1' ; 'umol Fe L-1' ; 'umol Si L-1';'umol Fe L-1' ;...
+        'mg Chl m-3' ; 'mg Chl m-3' ; 'umol N L-1' ; 'umol N L-1'};
+    disp('Pisces is on')
+    disp('==========')
 end
 
-if  (biol_NPZD | biol_N2PZD2 | biol_N2P2Z2D2)
+if  (biol_NPZD | biol_NPZD_wO2 | biol_N2PZD2)
   biol=1;
 end
 
@@ -102,7 +103,7 @@ if vertical_correc==1
   disp('====================')
 end
 
-if pisces & (biol_NPZD | biol_N2PZD2  | biol_N2P2Z2D2)
+if pisces & (biol_NPZD | biol_NPZD_wO2 | biol_N2PZD2)
   error(['Both Biol NPZD type  and Pisces are ON, no possible yet !'])
 end
 
@@ -141,19 +142,23 @@ result=close(nc);
 disp(' ')
 disp(' Read in the parent restart file...')
 nc = netcdf(parent_rst);
-theta_s = nc{'theta_s'}(:);
-theta_b = nc{'theta_b'}(:);
-Tcline = nc{'Tcline'}(:);
+theta_s=nc{'theta_s'}(:);
+vtransform=nc{'Vtransform'}(:);
+if isempty(theta_s)
+  theta_s=nc.theta_s(:);
+  theta_b=nc.theta_b(:);
+  hc=nc.hc(:);
+else
+  theta_b=nc{'theta_b'}(:);
+  hc=nc{'hc'}(:);
+end
+if  ~exist('vtransform') | isempty(vtransform)
+    vtransform=1; %Old Vtransform
+    disp([' NO VTRANSFORM parameter found'])
+    disp([' USE TRANSFORM default value vtransform = 1'])
+end
 N=length(nc('s_rho'));
 thetime = nc{'scrum_time'}(:);
-vtransform=nc{'Vtransform'}(:);
-hc = nc{'hc'}(:);
-disp([' Use parent VTRANSFORM = ',num2str(vtransform)])
-if ~exist('vtransform') | isempty(vtransform)
-    disp([' No VTRANSFORM parameter found'])
-    disp([' Use the default one VTRANSFORM = 1'])
-    vtransform=1;
-end
 result=close(nc);
 %
 % Create the restart file
@@ -161,8 +166,7 @@ result=close(nc);
 disp(' ')
 disp(' Create the restart file...')
 ncrst=create_nestedrestart(child_rst,child_grd,parent_rst,title,...
-			   'clobber',biol,biol_NPZD,biol_N2PZD2,biol_N2P2Z2D2,...
-			   pisces,namebiol,namepisces,unitbiol,unitpisces,hc,vtransform);
+			   'clobber',biol,pisces,namebiol,namepisces,unitbiol,unitpisces,hc,vtransform);
            
 %
 % Get the parent indices
