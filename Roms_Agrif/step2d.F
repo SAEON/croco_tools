@@ -175,7 +175,7 @@ C$    trd=omp_get_thread_num()
       else
         kbak=kstp-1
         if (kbak.lt.1) kbak=4
-        kold=kstp-2
+        kold=kbak-1
         if (kold.lt.1) kold=4
         cff1= 1.781105
         cff2=-1.06221
