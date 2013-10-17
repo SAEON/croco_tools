@@ -658,7 +658,7 @@
      &          =0.5*( wac(istr,jstr-1,wnew)+wac(istr-1,jstr,wnew) )
 #   ifdef WAVE_ROLLER
         war(istr-1,jstr-1,wnew)
-     &               =0.5*( war(istr,jstr-1,wnew)+war(istr-1,jstr) )
+     &          =0.5*( war(istr,jstr-1,wnew)+war(istr-1,jstr,wnew) )
 #   endif
       endif
       if (SOUTHERN_EDGE .and. EASTERN_EDGE) then
