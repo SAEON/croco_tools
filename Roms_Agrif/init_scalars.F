@@ -244,7 +244,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxTime =',indxTime
       vname(2,indxTime)='time since initialization'
       vname(3,indxTime)='second'
       vname(4,indxTime)='time, scalar, series'
-      vname(5,indxTime)='time'
+      vname(5,indxTime)=' '
       vname(6,indxTime)='    '
       vname(7,indxTime)='T'
       vname(8,indxTime)='.NO.'
@@ -392,7 +392,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxT = ',indxT
       vname(2,indxT)='potential temperature                       '
       vname(3,indxT)='Celsius                                     '
       vname(4,indxT)='temperature, scalar, series                 '
-      vname(5,indxT)='sea_water_temperature                       '
+      vname(5,indxT)='sea_water_potential_temperature             '
 #ifdef SPHERICAL
       vname(6,indxT)='lat_rho lon_rho                             '
 #else

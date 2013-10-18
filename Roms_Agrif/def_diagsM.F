@@ -269,7 +269,7 @@
         ierr=nf_put_att_text (ncid, vidTime2, 'field',  lvar,
      &                                vname(4,indxTime2)(1:lvar))
 
-        call nf_add_attribute(ncid, vidTime, indxTime, 5, 
+        call nf_add_attribute(ncid, vidTime2, indxTime2, 5, 
      &       NF_REAL, ierr)
 
 ! Momentum diagnostics variables.
