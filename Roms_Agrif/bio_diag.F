@@ -188,6 +188,7 @@ C$OMP CRITICAL (bio_cr_rgn)
      &                      global_sum(2*iNH4_), 
      &                      global_sum(2*iPhy1)+global_sum(2*iPhy2), 
      &                      global_sum(2*iZoo1)+global_sum(2*iZoo2),  
+     &                      global_sum(2*iDet1)+global_sum(2*iDet2), 
      &                      trd  
    2        format(I6, F12.5, 5(1PE14.7), I3)        
 # endif

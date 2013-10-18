@@ -449,7 +449,7 @@ c              goto 99                                     !--> ERROR
               write(stdout,3) 'don_time', clmname(1:lstr)
 c              goto 99                                     !--> ERROR
             endif
-          elseif (itrc.eq.iOxy_) then
+          elseif (itrc.eq.iO2) then
             got_tclm(itrc)=.true.
             ierr=nf_inq_varid (ncidclm, 'o2_time', tclm_tid(itrc))
             if (ierr .ne. nf_noerr) then

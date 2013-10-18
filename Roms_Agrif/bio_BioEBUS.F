@@ -258,7 +258,7 @@
         SDet(k)  = max(t(i,j,k,nnew,iDet1),0.)  ! Small Detritus
         LDet(k)  = max(t(i,j,k,nnew,iDet2),0.)  ! Large Detritus
         DON(k)   = max(t(i,j,k,nnew,iDON),0.)   ! Dissolved Organic Nitrogen
-        O2(k)    = max(t(i,j,k,nnew,iOxy_),0.)  ! Dissolved Oxygen
+        O2(k)    = max(t(i,j,k,nnew,iO2),0.)  ! Dissolved Oxygen
 # ifdef NITROUS_OXIDE
         N2O(k)   = max(t(i,j,k,nnew,iN2O),0.)   ! Nitrous oxide
 # endif
@@ -1129,8 +1129,8 @@
      &                trend_SPhy+trend_LPhy+trend_SZoo+trend_LZoo+
      &                trend_SDet+trend_LDet+trend_DON
      
-         trend_O2   = (( min(t(i,j,k,nnew,iOxy_),0.) + O2(k) ) 
-     &                     - t(i,j,k,nnew,iOxy_)) / dt 
+         trend_O2   = (( min(t(i,j,k,nnew,iO2),0.) + O2(k) ) 
+     &                     - t(i,j,k,nnew,iO2)) / dt 
 
 ! N loss (mmol/m3/s)
 !-----------------------------------------------------------------
@@ -1215,7 +1215,7 @@
            t(i,j,k,nnew,iDet1)=min(t(i,j,k,nnew,iDet1),0.) + SDet(k)
            t(i,j,k,nnew,iDet2)=min(t(i,j,k,nnew,iDet2),0.) + LDet(k)
            t(i,j,k,nnew,iDON) =min(t(i,j,k,nnew,iDON),0.)  + DON(k)
-           t(i,j,k,nnew,iOxy_)=min(t(i,j,k,nnew,iOxy_),0.) + O2(k)
+           t(i,j,k,nnew,iO2)=min(t(i,j,k,nnew,iO2),0.) + O2(k)
 # ifdef NITROUS_OXIDE
            t(i,j,k,nnew,iN2O)=min(t(i,j,k,nnew,iN2O),0.) + N2O(k)
 # endif

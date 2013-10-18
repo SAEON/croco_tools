@@ -951,7 +951,7 @@ C$    integer  trd, omp_get_thread_num
             if (.not.got_tclm(iDON))  tclm(i,j,k,iDON)=0.5*	    
 !            if (.not.got_tclm(iDON))  tclm(i,j,k,iDON)=2.*
      &                                  exp(z_r(i,j,k)/100.) 	
-            if (.not.got_tclm(iOxy_)) tclm(i,j,k,iOxy_)=250.*
+            if (.not.got_tclm(iO2)) tclm(i,j,k,iO2)=250.*
      &	    				exp(z_r(i,j,k)/100.)
 #      ifdef CARBON	
             if (.not.got_tclm(iTCO2)) tclm(i,j,k,iTCO2)=2100.
@@ -1434,7 +1434,7 @@ C$    integer  trd, omp_get_thread_num
 !
       integer is, k, Istr,Iend,Jstr,Jend, i,j
       real cff, cff1, cff2, ramp, Hs
-      real    xno3,temp,SiO4
+      real    xno3,temp,SiO4,zsrc
 # include "compute_auxiliary_bounds.h" 
 
       if (iic.eq.ntstart) then
@@ -1685,29 +1685,30 @@ C$    integer  trd, omp_get_thread_num
           endif
 !-----------------------------------------------------------------------------	
 #     elif defined BIO_BioEBUS
+          zsrc=z_r(Isrc(is),Jsrc(is),k)
           if(.not.got_tsrc(iNO2_)) then
             Tsrc0(is,iNO2_)=  0.05
-            Tsrc(is,k,iNO2_)= Tsrc0(is,iNO2_)*exp(z_r(Isrc(is),Jsrc(is),k)/100.)
+            Tsrc(is,k,iNO2_)= Tsrc0(is,iNO2_)*exp(zsrc/100.)
           endif
           if(.not.got_tsrc(iNH4_)) then
             Tsrc0(is,iNH4_)= 0.1
-            Tsrc(is,k,iNH4_)= Tsrc0(is,iNH4_)*exp(z_r(Isrc(is),Jsrc(is),k)/100.)
+            Tsrc(is,k,iNH4_)= Tsrc0(is,iNH4_)*exp(zsrc/100.)
           endif
-          if(.not.got_tsrc(Phy1)) then
+          if(.not.got_tsrc(iPhy1)) then
             Tsrc0(is,iPhy1)= 0.04
-            Tsrc(is,k,iPhy1)=Tsrc0(is,iPhy1)*exp(z_r(Isrc(is),Jsrc(is),k)/50.)
+            Tsrc(is,k,iPhy1)=Tsrc0(is,iPhy1)*exp(zsrc/50.)
           endif
           if(.not.got_tsrc(iPhy2)) then
             Tsrc0(is,iPhy2)= 0.06
-            Tsrc(is,k,iPhy2)=Tsrc0(is,iPhy2)*exp(z_r(Isrc(is),Jsrc(is),k)/50.)
+            Tsrc(is,k,iPhy2)=Tsrc0(is,iPhy2)*exp(zsrc/50.)
           endif
           if(.not.got_tsrc(iZoo1)) then
             Tsrc0(is,iZoo1)= 0.04
-            Tsrc(is,k,iZoo1)=Tsrc0(is,iZoo1)*exp(z_r(Isrc(is),Jsrc(is),k)/100.)
+            Tsrc(is,k,iZoo1)=Tsrc0(is,iZoo1)*exp(zsrc/100.)
           endif
           if(.not.got_tsrc(iZoo2)) then
             Tsrc0(is,iZoo2)= 0.04
-            Tsrc(is,k,iZoo2)=Tsrc0(is,iZoo2)*exp(z_r(Isrc(is),Jsrc(is),k)/100.)
+            Tsrc(is,k,iZoo2)=Tsrc0(is,iZoo2)*exp(zsrc/100.)
           endif
           if(.not.got_tsrc(iDet1)) then
             Tsrc0(is,iDet1)=0.02
@@ -1719,15 +1720,13 @@ C$    integer  trd, omp_get_thread_num
           endif
           if(.not.got_tsrc(iDON)) then
             Tsrc0(is,iDON)= 0.5
-            Tsrc(is,k,iDON)=Tsrc0(is,iDON)*exp(z_r(Isrc(is),Jsrc(is),k)/100.)
+            Tsrc(is,k,iDON)=Tsrc0(is,iDON)*exp(zsrc/100.)
           endif
 #     ifdef NITROUS_OXIDE
           if(.not.got_tsrc(iN2O)) then
             Tsrc0(is,iN2O)= 0.002
-            Tsrc(is,k,iN2O)=-(0.008*exp(z_r(Isrc(is),Jsrc(is),k)/100.)-0.01)
-           if (Tsrc(is,k,iN2O).lt.0.) then
-               Tsrc(is,k,iN2O)=0.  
-           endif
+            Tsrc(is,k,iN2O)=-(0.008*exp(zsrc/100.)-0.01)
+           if (Tsrc(is,k,iN2O).lt.0.) Tsrc(is,k,iN2O)=0.
           endif
 #     endif
 #    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS*/
@@ -1928,7 +1927,7 @@ C$    integer  trd, omp_get_thread_num
       subroutine ana_bry_bio_tile (Istr,Iend,Jstr,Jend)
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j,k, itrc
-      real    xno3,temp,SiO4
+      real    xno3,temp,SiO4,zbry
 # include "param.h"
 # include "boundary.h"
 # include "scalars.h"
@@ -1983,28 +1982,27 @@ C$    integer  trd, omp_get_thread_num
             if(.not.got_tbry(iDet1)) tbry_west(j,k,iDet1)=0.02
             if(.not.got_tbry(iDet2)) tbry_west(j,k,iDet2)=0.02
 #    elif defined BIO_BioEBUS
+            zbry=z_r(Istr,j,k)
             if(.not.got_tbry(iNO2_)) tbry_west(j,k,iNO2_)=0.05*
-     &           exp(z_r(IstrR,j,k)/100.)
+     &                               exp(zbry/100.)
             if(.not.got_tbry(iNH4_)) tbry_west(j,k,iNH4_)=0.1*
-exp(z_r(IstrR,j,k)/100.)
+     &                               exp(zbry/100.)
             if(.not.got_tbry(iPhy1)) tbry_west(j,k,iPhy1)=0.04*
-exp(z_r(IstrR,j,k)/50.)
+     &                               exp(zbry/50.)
             if(.not.got_tbry(iPhy2)) tbry_west(j,k,iPhy2)=0.06*
-exp(z_r(IstrR,j,k)/50.)
+     &                               exp(zbry/50.)
             if(.not.got_tbry(iZoo1)) tbry_west(j,k,iZoo1)=0.04*
-exp(z_r(IstrR,j,k)/100.)
+     &                               exp(zbry/100.)
             if(.not.got_tbry(iZoo2)) tbry_west(j,k,iZoo2)=0.04*
-exp(z_r(IstrR,j,k)/100.)
+     &                               exp(zbry/100.)
             if(.not.got_tbry(iDet1)) tbry_west(j,k,iDet1)=0.02
             if(.not.got_tbry(iDet2)) tbry_west(j,k,iDet2)=0.02
             if(.not.got_tbry(iDON))  tbry_west(j,k,iDON) =0.5*
-exp(z_r(IstrR,j,k)/100.)
+     &                               exp(zbry/100.)
 #     ifdef NITROUS_OXIDE
             if(.not.got_tbry(iN2O)) tbry_west(j,k,iN2O)=-(0.008*
-exp(z_r(IstrR,j,k)/100.)-0.01)
-             if (tbry_west(j,k,iN2O).lt.0.) then
-               tbry_west(j,k,iN2O)=0.  
-             endif
+     &                              exp(zbry/100.)-0.01)
+            if (tbry_west(j,k,iN2O).lt.0.) tbry_west(j,k,iN2O)=0.  
 #     endif
 #    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS */
           enddo
@@ -2060,28 +2058,27 @@ exp(z_r(IstrR,j,k)/100.)-0.01)
             if(.not.got_tbry(iDet1)) tbry_east(j,k,iDet1)=0.02
             if(.not.got_tbry(iDet2)) tbry_east(j,k,iDet2)=0.02
 #    elif defined BIO_BioEBUS
+            zbry=z_r(IendR,j,k)
             if(.not.got_tbry(iNO2_)) tbry_east(j,k,iNO2_)=0.05*
-     &                               exp(z_r(IendR,j,k)/100.)
+     &                               exp(zbry/100.)
             if(.not.got_tbry(iNH4_)) tbry_east(j,k,iNH4_)=0.1*
-     &                               exp(z_r(IendR,j,k)/100.)
+     &                               exp(zbry/100.)
             if(.not.got_tbry(iPhy1)) tbry_east(j,k,iPhy1)=0.04*
-     &                               exp(z_r(IendR,j,k)/50.)
+     &                               exp(zbry/50.)
             if(.not.got_tbry(iPhy2)) tbry_east(j,k,iPhy2)=0.06*
-     &                               exp(z_r(IendR,j,k)/50.)
+     &                               exp(zbry/50.)
             if(.not.got_tbry(iZoo1)) tbry_east(j,k,iZoo1)=0.04*
-     &                               exp(z_r(IendR,j,k)/100.)
+     &                               exp(zbry/100.)
             if(.not.got_tbry(iZoo2)) tbry_east(j,k,iZoo2)=0.04*
-     &                               exp(z_r(IendR,j,k)/100.)
+     &                               exp(zbry/100.)
             if(.not.got_tbry(iDet1)) tbry_east(j,k,iDet1)=0.02
             if(.not.got_tbry(iDet2)) tbry_east(j,k,iDet2)=0.02
             if(.not.got_tbry(iDON))  tbry_east(j,k,iDON) =0.5*
-exp(z_r(IendR,j,k)/100.)
+     &                               exp(zbry/100.)
 #     ifdef NITROUS_OXIDE
             if(.not.got_tbry(iN2O)) tbry_east(j,k,iN2O)=-(0.008*
-exp(z_r(IendR,j,k)/100.)-0.01)
-             if (tbry_east(j,k,iN2O).lt.0.) then
-               tbry_east(j,k,iN2O)=0.  
-             endif
+     &                               exp(zbry/100.)-0.01)
+             if (tbry_east(j,k,iN2O).lt.0.) tbry_east(j,k,iN2O)=0.
 #     endif
 #    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS */
            enddo
@@ -2121,8 +2118,8 @@ exp(z_r(IendR,j,k)/100.)-0.01)
              if(.not.got_tbry(iDFE_)) tbry_north(j,k,iDFE_)=1.e-2*5.e-6
              if(.not.got_tbry(iDSI_)) tbry_north(j,k,iDSI_)=1.e-2*0.15
              if(.not.got_tbry(iNFE_)) tbry_north(j,k,iNFE_)=1.e-2*5e-6
-            if(.not.got_tbry(iNCH_)) tbry_north(j,k,iNCH_)=1.e-2*12./55.
-            if(.not.got_tbry(iDCH_)) tbry_north(j,k,iDCH_)=1.e-2*12./55.
+             if(.not.got_tbry(iNCH_)) tbry_north(j,k,iNCH_)=1.e-2*12./55.
+             if(.not.got_tbry(iDCH_)) tbry_north(j,k,iDCH_)=1.e-2*12./55.
              if(.not.got_tbry(iNH4_)) tbry_north(j,k,iNH4_)=1.e-2
 #    elif defined BIO_NChlPZD
              if(.not.got_tbry(iChla)) tbry_north(j,k,iChla)=0.08   
@@ -2137,28 +2134,27 @@ exp(z_r(IendR,j,k)/100.)-0.01)
              if(.not.got_tbry(iDet1)) tbry_north(j,k,iDet1)=0.02
              if(.not.got_tbry(iDet2)) tbry_north(j,k,iDet2)=0.02
 #    elif defined BIO_BioEBUS
+             zbry=z_r(i,JendR,k)
             if(.not.got_tbry(iNO2_)) tbry_north(j,k,iNO2_)=0.05*
-     &                               exp(z_r(i,JendR,k)/100.)
+     $            exp(z_r(i,JendR,k)/100.)
             if(.not.got_tbry(iNH4_)) tbry_north(j,k,iNH4_)=0.1*
-     &                               exp(z_r(i,JendR,k)/100.)
+     &                               exp(zbry/100.)
             if(.not.got_tbry(iPhy1)) tbry_north(j,k,iPhy1)=0.04*
-     &                               exp(z_r(i,JendR,k)/50.)
+     &                               exp(zbry/50.)
             if(.not.got_tbry(iPhy2)) tbry_north(j,k,iPhy2)=0.06*
-     &                               exp(z_r(i,JendR,k)/50.)
+     &                               exp(zbry/50.)
             if(.not.got_tbry(iZoo1)) tbry_north(j,k,iZoo1)=0.04*
-     &                               exp(z_r(i,JendR,k)/100.)
+     &                               exp(zbry/100.)
             if(.not.got_tbry(iZoo2)) tbry_north(j,k,iZoo2)=0.04*
-     &                               exp(z_r(i,JendR,k)/100.)
+     &                               exp(zbry/100.)
             if(.not.got_tbry(iDet1)) tbry_north(j,k,iDet1)=0.02
             if(.not.got_tbry(iDet2)) tbry_north(j,k,iDet2)=0.02
             if(.not.got_tbry(iDON))  tbry_north(j,k,iDON) =0.5*
-     &                               exp(z_r(i,JendR,k)/100.)
+     &                               exp(zbry/100.)
 #     ifdef NITROUS_OXIDE
             if(.not.got_tbry(iN2O)) tbry_north(j,k,iN2O)=-(0.008*
-exp(z_r(i,JendR,k)/100.)-0.01)
-             if (tbry_north(j,k,iN2O).lt.0.) then
-               tbry_north(j,k,iN2O)=0.  
-             endif
+     &                               exp(zbry/100.)-0.01)
+            if (tbry_north(j,k,iN2O).lt.0.) tbry_north(j,k,iN2O)=0.
 #     endif
 #    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS */
            enddo
@@ -2198,8 +2194,8 @@ exp(z_r(i,JendR,k)/100.)-0.01)
              if(.not.got_tbry(iDFE_)) tbry_south(j,k,iDFE_)=1.e-2*5.e-6
              if(.not.got_tbry(iDSI_)) tbry_south(j,k,iDSI_)=1.e-2*0.15
              if(.not.got_tbry(iNFE_)) tbry_south(j,k,iNFE_)=1.e-2*5e-6
-            if(.not.got_tbry(iNCH_)) tbry_south(j,k,iNCH_)=1.e-2*12./55.
-            if(.not.got_tbry(iDCH_)) tbry_south(j,k,iDCH_)=1.e-2*12./55.
+             if(.not.got_tbry(iNCH_)) tbry_south(j,k,iNCH_)=1.e-2*12./55.
+             if(.not.got_tbry(iDCH_)) tbry_south(j,k,iDCH_)=1.e-2*12./55.
              if(.not.got_tbry(iNH4_)) tbry_south(j,k,iNH4_)=1.e-2
 #    elif defined BIO_NChlPZD
              if(.not.got_tbry(iChla)) tbry_south(j,k,iChla)=0.08   
@@ -2214,25 +2210,26 @@ exp(z_r(i,JendR,k)/100.)-0.01)
              if(.not.got_tbry(iDet1)) tbry_south(j,k,iDet1)=0.02
              if(.not.got_tbry(iDet2)) tbry_south(j,k,iDet2)=0.02
 #    elif defined BIO_BioEBUS
+             zbry=z_r(i,JstrR,k)
             if(.not.got_tbry(iNO2_)) tbry_south(j,k,iNO2_)=0.05*
-     &                                     exp(z_r(i,JstrR,k)/100.)
+     &                                     exp(zbry/100.)
             if(.not.got_tbry(iNH4_)) tbry_south(j,k,iNH4_)=0.1*
-     &                                     exp(z_r(i,JstrR,k)/100.)
+     &                                     exp(zbry/100.)
             if(.not.got_tbry(iPhy1)) tbry_south(j,k,iPhy1)=0.04*
-     &                                     exp(z_r(i,JstrR,k)/50.)
+     &                                     exp(zbry/50.)
             if(.not.got_tbry(iPhy2)) tbry_south(j,k,iPhy2)=0.06*
-     &                                     exp(z_r(i,JstrR,k)/50.)
+     &                                     exp(zbry/50.)
             if(.not.got_tbry(iZoo1)) tbry_south(j,k,iZoo1)=0.04*
-     &                                     exp(z_r(i,JstrR,k)/100.)
+     &                                     exp(zbry/100.)
             if(.not.got_tbry(iZoo2)) tbry_south(j,k,iZoo2)=0.04*
-     &                                     exp(z_r(i,JstrR,k)/100.) 
+     &                                     exp(zbry/100.) 
             if(.not.got_tbry(iDet1)) tbry_south(j,k,iDet1)=0.02
             if(.not.got_tbry(iDet2)) tbry_south(j,k,iDet2)=0.02
             if(.not.got_tbry(iDON))  tbry_south(j,k,iDON) =0.5*
-     &                                     exp(z_r(i,JstrR,k)/100.)
+     &                                     exp(zbry/100.)
 #     ifdef NITROUS_OXIDE
             if(.not.got_tbry(iN2O)) tbry_south(j,k,iN2O)=-(0.008*
-     &                              exp(z_r(i,JstrR,k)/100.)-0.01)
+     &                              exp(zbry/100.)-0.01)
              if (tbry_south(j,k,iN2O).lt.0.) then
                tbry_south(j,k,iN2O)=0.  
              endif

@@ -537,6 +537,8 @@ C$    integer omp_get_thread_num
             t(i,j,k,2,iDet2)=t(i,j,k,1,iDet2)
             t(i,j,k,1,iDON) =0.5*exp(z_r(i,j,k)/100.)	     
             t(i,j,k,2,iDON) =t(i,j,k,1,iDON)
+            t(i,j,k,2,iO2) = 250.*exp(z_r(i,j,k)/100.)
+            t(i,j,k,2,iO2) =t(i,j,k,1,iO2)
 #     ifdef NITROUS_OXIDE
 	    t(i,j,k,1,iN2O)=-(0.008*exp(z_r(i,j,k)/100.)-0.01)
             if (t(i,j,k,1,iN2O).lt.0.) then

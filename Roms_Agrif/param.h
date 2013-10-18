@@ -314,7 +314,7 @@
 
 #  elif defined BIO_BioEBUS
      &          , iNO3_, iNO2_, iNH4_, iPhy1, iPhy2, iZoo1, iZoo2
-     &          , iDet1, iDet2, iDON, iOxy_
+     &          , iDet1, iDet2, iDON, iO2
 #    ifdef NITROUS_OXIDE
      &          , iN2O
 #    endif 
@@ -500,7 +500,7 @@
      &           iPhy1=iNO3_+3,  iPhy2=iNO3_+4,
      &           iZoo1=iNO3_+5,  iZoo2=iNO3_+6,
      &           iDet1=iNO3_+7,  iDet2=iNO3_+8,
-     &		 iDON=iNO3_+9,   iOxy_=iNO3_+10)
+     &		 iDON=iNO3_+9,   iO2=iNO3_+10)
 
 #   ifdef NITROUS_OXIDE
       parameter (iN2O=iNO3_+11)

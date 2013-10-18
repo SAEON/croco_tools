@@ -337,6 +337,10 @@ c              if (h(i,j).lt.300) then
             if (.not.got_tini(iDON)) then
                t(i,j,k,1,iDON)=0.5*exp(z_r(i,j,k)/100.) 
                t(i,j,k,2,iDON)=t(i,j,k,1,iDON)
+            endif
+            if (.not.got_tini(iO2)) then
+               t(i,j,k,1,iO2)=250.*exp(z_r(i,j,k)/100.) 
+               t(i,j,k,2,iO2)=t(i,j,k,1,iO2)
             endif	
 #    ifdef NITROUS_OXIDE
             if (.not.got_tini(iN2O)) then
