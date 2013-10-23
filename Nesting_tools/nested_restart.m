@@ -40,41 +40,46 @@ unitbiol={''};
 namepisces={''};
 unitpisces={''};
 biol=0;
-biol_NPZD=0;
-biol_NPZD_wO2=0;
-biol_N2PZD2=0;
 pisces=0;
-
-% ncclim{'NO3'}.long_name = ncchar('Nitrate');
-% ncclim{'NO3'}.long_name = 'Nitrate';
-% ncclim{'NO3'}.units = ncchar('mMol N m-3');
-% ncclim{'NO3'}.units = 'mMol N m-3';
-% ncclim{'NO3'}.field = ncchar('NO3, scalar, series');
-% ncclim{'NO3'}.field = 'NO3, scalar, series';
+%biol_NPZD=0;
+%biol_NPZD_wO2=0;
+%biol_N2PZD2=0;
 
 if nvar <= 37
     disp(['No biology'])
 elseif nvar == 42
-    biol_NPZD=1;
+    %biol_NPZD=1;
     namebiol={'NO3';'CHLA';'PHYTO';'ZOO';'DET'};
     unitbiol={'mMol N m-3' ; 'mg C l-1' ; 'mMol N m-3';...
         'mMol N m-3' ; 'mMol N m-3'};
+    biol=1;
     disp('Biol NPZD is on')
+    disp('==========')
 elseif nvar == 43
-    biol_NPZD_wO2=1;
+    %biol_NPZD_wO2=1;
     namebiol={'NO3';'O2';'CHLA';'PHYTO';'ZOO';'DET'};
     unitbiol={'mMol N m-3' ;'mMol O m-3' ; 'mg C l-1' ; 'mMol N m-3';...
         'mMol N m-3' ; 'mMol N m-3'};
+    biol=1;
     disp('Biol NPZD_wO2 is on')
     disp('==========')
 elseif nvar == 44
-    biol_N2PZD2=1;
+    %biol_N2PZD2=1;
     namebiol={'NO3' ; 'NH4' ; 'CHLA' ; 'PHYTO' ; 'ZOO' ; 'SDET' ; 'LDET'};
     unitbiol={'mMol N m-3' ; 'mMol N m-3' ; 'mg C l-1' ; ...
         'mMol N m-3' ; 'mMol N m-3' ; 'mMol N m-3' ; ...
         'mMol N m-3'};
+    biol=1;
     disp('Biol N2PZD2 is on')
     disp('==========')
+elseif nvar == 49
+    %biol_bioebus=1;
+    namebiol={'NO3';'NO2';'NH4';'SPHYTO';'LPHYTO';'SZOO';'LZOO';'SDET';'LDET';'DON';'O2';'N2O'};
+    unitbiol={'mMol N m-3' ; 'mMol N m-3'  ; 'mMol N m-3' ; 'mMol N m-3' ; 'mMol N m-3' ; 'mMol N m-3'; ...
+              'mMol N m-3' ; 'mMol N m-3'  ; 'mMol N m-3' ; 'mMol N m-3' ; 'mMol N m-3' ; 'mMol N m-3'};
+    biol=1;
+    disp('BioEBUS is on')
+    disp('==========')   
 else
     pisces=1;
     namepisces={'DIC' ; 'TALK' ; 'O2' ; 'CACO3'  ;  'PO4' ;  'POC' ;
@@ -89,9 +94,9 @@ else
     disp('==========')
 end
 
-if  (biol_NPZD | biol_NPZD_wO2 | biol_N2PZD2)
-  biol=1;
-end
+% if  (biol_NPZD | biol_NPZD_wO2 | biol_N2PZD2 )
+%   biol=1;
+% end
 
 if extrapmask==1
   disp('Extrapolation under mask is on')

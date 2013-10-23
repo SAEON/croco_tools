@@ -1,5 +1,5 @@
 function nested_clim(child_grd,parent_clim,child_clim,...
-                     vertical_correc,extrapmask,biol,pisces)
+                     vertical_correc,extrapmask,biol,bioebus,pisces)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  compute the climatology of the embedded grid
@@ -49,25 +49,32 @@ tpisces=[];cpisces=[];
 %
 if nvar <= 31
 elseif (nvar <=  41 & biol)
-  timebiol={'no3_time';'o2_time';'chla_time';'phyto_time';'zoo_time'};
-  cyclebiol={'no3_cyle';'o2_cycle';'chla_cycle';'phyto_cycle';'zoo_cycle'};
-  namebiol={'NO3';'O2';'CHLA';'PHYTO';'ZOO'};
-  unitbiol={'mMol N m-3';'mMol O m-3';'mg C l-1';'mMol N m-3';'mMol N m-3'};
-  %timebiol={'no3_time';'chla_time';'phyto_time';'zoo_time'};
-  disp(['Compute Biological variables type NPZD : '])
-  disp(['NChlPZD or N2ChlPZD2                     '])
-  disp('==========================')
-elseif (pisces & nvar>=42)
-  timepisces={'no3_time';'po4_time';'si_time';'o2_time';'dic_time';'talk_time';'doc_time';'fer_time'};
-  cyclepisces={'no3_cycle';'po4_cycle';'si_cycle';'o2_cycle';'dic_cycle';'talk_cycle';'doc_cycle';'fer_cycle'};
-  namepisces={'NO3';'PO4';'Si';'O2';'DIC';'TALK';'DOC';'FER'};
-  unitpisces={'mMol N m-3';'mMol P m-3';'mMol Si m-3';'mMol O m-3';'mMol C m-3';'mMol C m-3';'mMol C m-3';'uMol Fe m-3'};
-  disp('Compute Pisces biogeochemical variables')
-  disp('=========================')
+    timebiol={'no3_time';'o2_time';'chla_time';'phyto_time';'zoo_time'};
+    cyclebiol={'no3_cyle';'o2_cycle';'chla_cycle';'phyto_cycle';'zoo_cycle'};
+    namebiol={'NO3';'O2';'CHLA';'PHYTO';'ZOO'};
+    unitbiol={'mMol N m-3';'mMol O m-3';'mg C l-1';'mMol N m-3';'mMol N m-3'};
+    %timebiol={'no3_time';'chla_time';'phyto_time';'zoo_time'};
+    disp(['Compute Biogeochemical variables type NPZD : '])
+    disp(['NChlPZD or N2ChlPZD2                     '])
+    disp('==========================')
+elseif (46 <= nvar <=47 & biobus)
+    timebiol={'no3_time';'o2_time';'chla_time';'sphyto_time';'lphyto_time';'szoo_time';'lzoo_time';'n2o_time'};
+    cyclebiol={'no3_cyle';'o2_cycle';'chla_cycle';'sphyto_cycle';'lphyto_cycle';'szoo_cycle';'lzoo_cycle';'n2o_cycle'};
+    namebiol={'NO3';'O2';'CHLA';'SPHYTO';'LPHYTO';'SZOO';'LZOO';'N2O'};
+    unitbiol={'mMol N m-3';'mMol O m-3';'mg C l-1';'mMol N m-3';'mMol N m-3';'mMol N m-3';'mMol N m-3';'mMol N m-3'};
+    disp(['Compute Biological variables for BIOEBUS : '])
+    disp('==========================')
+elseif (pisces & nvar>=47)
+    timepisces={'no3_time';'po4_time';'si_time';'o2_time';'dic_time';'talk_time';'doc_time';'fer_time'};
+    cyclepisces={'no3_cycle';'po4_cycle';'si_cycle';'o2_cycle';'dic_cycle';'talk_cycle';'doc_cycle';'fer_cycle'};
+    namepisces={'NO3';'PO4';'Si';'O2';'DIC';'TALK';'DOC';'FER'};
+    unitpisces={'mMol N m-3';'mMol P m-3';'mMol Si m-3';'mMol O m-3';'mMol C m-3';'mMol C m-3';'mMol C m-3';'uMol Fe m-3'};
+    disp('Compute Biogeochemical variables for PISCES')
+    disp('=========================')
 else
-  error(sprintf(['You don''t have the neccesary variables in the clim file. \n',...
-		 'or you didn''t choose the right bio. model. \n',...
-		 'Check roms_ini.nc parent file and make_clim.m']))
+    error(sprintf(['You don''t have the neccesary variables in the clim file. \n',...
+        'or you didn''t choose the right bio. model. \n',...
+        'Check roms_ini.nc parent file and make_clim.m']))
 end
 %
 % Title

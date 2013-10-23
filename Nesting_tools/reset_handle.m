@@ -65,6 +65,7 @@ handles.vertical_correc=1;
 handles.extrapmask=1;
 handles.biol=0;
 handles.pisces=0;
+handles.bioebus=0;
 handles.Isrcparent=[];
 handles.Jsrcparent=[];
 handles.Isrcchild=[];

@@ -33,5 +33,9 @@ handles.biol = a;
 if a==1
   set(handles.pisces_button,'Value',1-a)
   handles.pisces=1-a;
+end  
+if a==0
+  set(handles.bioebus_button,'Value',a)
+  handles.pisces=a;
 end
 return

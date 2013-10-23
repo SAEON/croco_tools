@@ -51,5 +51,6 @@ switch Answer
   handles.childini=childname;
 end
 nested_initial(handles.childgrid,handles.parentini,handles.childini,...
-               handles.vertical_correc,handles.extrapmask,handles.biol,handles.pisces)
+               handles.vertical_correc,handles.extrapmask,handles.biol,...
+               handles.bioebus,handles.pisces)
 return

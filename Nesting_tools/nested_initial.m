@@ -1,5 +1,5 @@
 function nested_initial(child_grd,parent_ini,child_ini,...
-                        vertical_correc,extrapmask,biol,pisces)
+                        vertical_correc,extrapmask,biol,bioebus,pisces)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Compute the initial file of the embedded grid
@@ -45,54 +45,64 @@ unitpisces={''};
 % pisces
 % biol
 if biol
-  namebiol={'NO3';'O2';'CHLA';'PHYTO';'ZOO'};
-  unitbiol={'mMol N m-3';'mMOL O m-3';'mg C l-1';'mMol N m-3';'mMol N m-3'};
-  for i=1:length(namebiol)
-	aa=sum(strcmp(Varnames,namebiol(i)));
-	isbiolfiles=isbiolfiles+aa;
-  end
-  if isbiolfiles==length(namebiol)
-	disp('Compute Biol. NPZD variables')
-	disp('==================')
-  else
-	disp(sprintf(['ERROR in NPZD Processing : ... \n', ...
-	  'You don not have the neccesary variables in the clim file \n',...
-	  'or you didn''t choose the right bio. model. \n', ...
-	  'Check roms_ini.nc parent file and make_ini.m']))
-	return
-  end
+    if (bioebus~=1)
+        namebiol={'NO3';'O2';'CHLA';'PHYTO';'ZOO'};
+        unitbiol={'mMol N m-3';'mMOL O m-3';'mg C l-1';'mMol N m-3';'mMol N m-3'};
+        disp('Compute NPZD variables')
+        disp('=========================')
+    else
+        namebiol={'NO3';'O2';'CHLA';'SPHYTO';'LPHYTO';'SZOO';'LZOO'};
+        unitbiol={'mMol N m-3';'mMOL O m-3';'mg C l-1';'mMol N m-3';'mMol N m-3';...
+            'mMol N m-3';'mMol N m-3'};
+        disp('Compute BIOEBUS variables')
+        disp('=========================')
+    end
+    for i=1:length(namebiol)
+        aa=sum(strcmp(Varnames,namebiol(i)));
+        isbiolfiles=isbiolfiles+aa;
+    end
+    if isbiolfiles==length(namebiol)
+        disp('Compute Biol. NPZD variables')
+        disp('==================')
+    else
+        disp(sprintf(['ERROR in NPZD or BIOEBUS Processing : ... \n', ...
+            'You don not have the neccesary variables in the clim file \n',...
+            'or you didn''t choose the right bio. model. \n', ...
+            'Check roms_ini.nc parent file and make_ini.m']))
+        return
+    end
 end
- if pisces
-   namepisces={'NO3';'PO4';'Si';'O2';'DIC';'TALK';'DOC';'FER'};
-   unitpisces={'mMol N m-3';'mMol P m-3';'mMol Si m-3';'mMol O m-3';'mMol C m-3';'mMol C m-3';'mMol C m-3';'uMol Fe m-3'};
-   %
-   for i=1:length(namepisces)
-	 aa=sum(strcmp(Varnames,namepisces(i)));
-	 ispiscesfiles=ispiscesfiles+aa;
-   end
-   if ispiscesfiles==length(namepisces)
-	 disp('Compute Pisces biogeochemical variables')
-	 disp('==================')
-   else
-	 disp(sprintf(['ERROR in  PISCES Processing :  \n', ...
-	   'You don''t have the neccesary variables in the clim file \n',...
-	   'or you didn''t choose the right bio. model. \n', ...
-	   'Check roms_ini.nc parent file and make_ini.m']))
-	 return
-   end
- end
+if pisces
+    namepisces={'NO3';'PO4';'Si';'O2';'DIC';'TALK';'DOC';'FER'};
+    unitpisces={'mMol N m-3';'mMol P m-3';'mMol Si m-3';'mMol O m-3';'mMol C m-3';'mMol C m-3';'mMol C m-3';'uMol Fe m-3'};
+    %
+    for i=1:length(namepisces)
+        aa=sum(strcmp(Varnames,namepisces(i)));
+        ispiscesfiles=ispiscesfiles+aa;
+    end
+    if ispiscesfiles==length(namepisces)
+        disp('Compute Pisces biogeochemical variables')
+        disp('==================')
+    else
+        disp(sprintf(['ERROR in  PISCES Processing :  \n', ...
+            'You don''t have the neccesary variables in the clim file \n',...
+            'or you didn''t choose the right bio. model. \n', ...
+            'Check roms_ini.nc parent file and make_ini.m']))
+        return
+    end
+end
 if extrapmask==1
-  disp('Extrapolation under mask is on')
-  disp('====================')
+    disp('Extrapolation under mask is on')
+    disp('====================')
 end
 %
 if vertical_correc==1
-  disp('Vertical correction is on')
-  disp('===============')
+    disp('Vertical correction is on')
+    disp('===============')
 end
 %
-if pisces & biol 
-  error(['Both Biol NPZD and Pisces are ON, not possible yet... !'])
+if pisces & biol
+    error(['Both Biol NPZD and Pisces are ON, not possible yet... !'])
 end
 
 
@@ -100,21 +110,24 @@ end
 % Title
 %
 title=['Initial file for the embedded grid :',child_ini,...
-       ' using parent initial file: ',parent_ini];
+    ' using parent initial file: ',parent_ini];
 disp(' ')
 disp(title)
 %
 if vertical_correc==1
-  disp('Vertical corrections: on')
+    disp('Vertical corrections: on')
 end
 if extrapmask==1
-  disp('Under mask extrapolations: on')
+    disp('Under mask extrapolations: on')
 end
 if biol==1
-  disp('Biology: on')
+    disp('Biology: on')
+end
+if bioebus==1
+    disp('Bioebus: on')
 end
 if pisces==1
-  disp('Pisces: on')
+    disp('Pisces: on')
 end
 %
 % Read in the embedded grid
@@ -133,9 +146,9 @@ nc=netcdf(parent_grd);
 Lp=length(nc('xi_rho'));
 Mp=length(nc('eta_rho'));
 if extrapmask==1
-  mask=nc{'mask_rho'}(:);
+    mask=nc{'mask_rho'}(:);
 else
-  mask=[];
+    mask=[];
 end
 result=close(nc);
 %
@@ -164,8 +177,8 @@ result=close(nc);
 disp(' ')
 disp(' Create the initial file...')
 ncini=create_nestedinitial(child_ini,child_grd,parent_ini,title,...
-                           theta_s,theta_b,Tcline,N,thetime,'clobber',...
-                           biol,pisces,namebiol,namepisces,unitbiol,unitpisces,hc,vtransform);
+    theta_s,theta_b,Tcline,N,thetime,'clobber',...
+    biol,pisces,namebiol,namepisces,unitbiol,unitpisces,hc,vtransform);
 %
 % parent indices
 %
@@ -186,9 +199,9 @@ jrchild=(jmin+0.5-0.5/refinecoeff:1/refinecoeff:jmax+0.5+0.5/refinecoeff);
 [ichildgrd_v,jchildgrd_v]=meshgrid(irchild,jpchild);
 %
 % interpolations
-% 
+%
 disp(' ')
-disp(' Do the interpolations...')                     
+disp(' Do the interpolations...')
 np=netcdf(parent_ini);
 for tindex=1:length(thetime)
     disp('zeta...')
@@ -207,7 +220,7 @@ for tindex=1:length(thetime)
     interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,'salt',mask,tindex,N)
     if (biol==1)
         for k=1:length(namebiol)
-          %  disp(['K=',num2str(k)])
+            %  disp(['K=',num2str(k)])
             disp(char(namebiol(k)))
             interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,char(namebiol(k)),mask,tindex,N);
         end
@@ -215,7 +228,7 @@ for tindex=1:length(thetime)
     if (pisces==1)
         %
         for k=1:length(namepisces)
-           % disp(['K=',num2str(k)])
+            % disp(['K=',num2str(k)])
             disp(char(namepisces(k)))
             interpvar4d(np,ncini,igrd_r,jgrd_r,ichildgrd_r,jchildgrd_r,char(namepisces(k)),mask,tindex,N);
         end
@@ -227,10 +240,10 @@ result=close(ncini);
 %  Vertical corrections
 %
 if (vertical_correc==1)
-  for tindex=1:length(thetime)
-    disp([' Time index : ',num2str(tindex),' of ',num2str(length(thetime))])                     
-    vert_correc(child_ini,tindex,biol,pisces,namebiol,namepisces)
-  end
+    for tindex=1:length(thetime)
+        disp([' Time index : ',num2str(tindex),' of ',num2str(length(thetime))])
+        vert_correc(child_ini,tindex,biol,pisces,namebiol,namepisces)
+    end
 end
 %
 % Make a plot

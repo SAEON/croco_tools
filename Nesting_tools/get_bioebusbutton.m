@@ -1,7 +1,7 @@
-function handles=get_piscesbutton(h,handles);
+function handles=get_bioebusbutton(h,handles);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Button to add the oisces (biogeochelical)) variables in the interpolation
+% Button to add the biobus bgc model variables in the interpolation
 %
 %  Further Information:  
 %  http://www.brest.ird.fr/Roms_tools/
@@ -27,13 +27,13 @@ function handles=get_piscesbutton(h,handles);
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-a=get(handles.pisces_button,'Value');
-handles.pisces = a;
+a=get(handles.bioebus_button,'Value');
+handles.bioebus = a;
 %
 if a==1
-  set(handles.biol_button,'Value',1-a)
-  handles.biol=1-a;
-  set(handles.bioebus_button,'Value',1-a)
-  handles.bioebus=1-a;
+  set(handles.pisces_button,'Value',1-a)
+  handles.pisces=1-a;
+  set(handles.biol_button,'Value',a)
+  handles.biol=a;
 end
 return

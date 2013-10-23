@@ -51,5 +51,5 @@ switch Answer
   handles.childclm=childname;
 end
 nested_clim(handles.childgrid,handles.parentclm,handles.childclm,...
-            handles.vertical_correc,handles.extrapmask,handles.biol,handles.pisces)
+            handles.vertical_correc,handles.extrapmask,handles.biol,handles.bioebus,handles.pisces)
 return
