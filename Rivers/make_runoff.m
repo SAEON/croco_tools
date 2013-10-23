@@ -1,5 +1,3 @@
-clear all
-close all
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  Create a ROMS run-off forcing file
@@ -34,6 +32,11 @@ close all
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
 %
 romstools_param
+if (makenpzd | makepisces | makebioebus)
+    makebio = 1
+else
+    makebio = 0
+end
 disp(['Create runoff forcing from Dai and Trenberth''s global monthly climatological run-off dataset'])
 title_name='runoff forcing file (Dai and Trenberth, 2002 dataset)';
 %
