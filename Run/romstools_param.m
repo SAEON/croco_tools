@@ -228,9 +228,9 @@ zref = -1000;
 makeini    = 1;   % initial data
 makeclim   = 1;   % climatological data (for boundaries and nudging layers)
 makebry    = 1;   % lateral boundary data
-makenpzd    = 0;  % initial and boundary data for NChlPZD and N2ChlPZD2 models
+makenpzd   = 0;   % initial and boundary data for NChlPZD and N2ChlPZD2 models
+makebioebus= 0;   % initial and boundary data for BioEBUS model
 makepisces = 0;   % initial and boundary data for PISCES model
-makebioebus=1;     % initial and boundary data for BioEBUS model
 %
 %
 makeoa     = 1;   % oa data (intermediate file)
@@ -264,7 +264,7 @@ climato_dir=cars2009_dir;
 chla_dir=[DATADIR,'SeaWifs/'];
 %
 % Runoff monthly seasonal climatology (Dai and Trenberth)
-global_clim_riverdir=[DATADIR,'Runoff/'];
+global_clim_riverdir=[DATADIR,'RUNOFF_DAI/'];
 global_clim_rivername=[global_clim_riverdir,'Dai_Trenberth_runoff_global_clim.nc'];
 %
 %  Set times and cycles for the boundary conditions: 
