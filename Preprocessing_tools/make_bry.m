@@ -67,6 +67,7 @@ salt_ann_data=[climato_dir,'salt_ann.cdf']
 %
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
+
 %
 % Title
 %
@@ -74,6 +75,7 @@ disp(' ')
 disp([' Making the file: ',bryname])
 disp(' ')
 disp([' Title: ',ROMS_title])
+
 %
 % Read in the grid
 %
@@ -86,9 +88,12 @@ Lp=length(nc('xi_rho'));
 Mp=length(nc('eta_rho'));
 hmax=max(max(nc{'h'}(:)));
 result=close(nc);
-%
+
+
+
+%----------------------------------------------------------------------------
 % Create the boundary file
-%
+%----------------------------------------------------------------------------
 if (makebry)
     disp(' ')
     disp(' Create the boundary file...')
@@ -101,6 +106,7 @@ if (makebry)
                  theta_s,theta_b,hc,N,...
                  woa_time,woa_cycle,'clobber',vtransform);
 end
+
 %
 % Create the boundary file in Z-coordinates
 %
@@ -146,12 +152,14 @@ if (makeZbry)
     end
   end
 end
+
 %
 % Vertical interpolations 
 %
 if (makebry)
   disp(' ')
   disp(' Vertical interpolations')
+
 %
 % Loop on the lateral boundaries 
 %
@@ -181,6 +189,7 @@ if (makebry)
         disp('  Compute potential temperature from in-situ...')
         getpot_bry(bryname,grdname,obcndx)
       end
+
 %
 % Geostrophy
 %
@@ -189,23 +198,19 @@ if (makebry)
       geost_currents_bry(bryname,grdname,Zbryname,frcname,zref,obcndx)
     end
   end
+
 %
 % Remove avg SSH
 %
   rmavgssh(bryname,grdname,obc)
 
-%
-%% Compute bry for pisces variables
-%
- if makepisces
-   disp('====================================== ')
-   disp('Compute boundary for Pisces tracer')
-   make_bry_pisces
- end
 end
-%
+
+
+
+%----------------------------------------------------------------------------
 % Make a few plots
-%
+%----------------------------------------------------------------------------
 if makeplot==1
   disp(' ')
   disp(' Make a few plots...')

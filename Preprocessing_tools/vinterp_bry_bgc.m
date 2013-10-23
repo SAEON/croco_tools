@@ -106,26 +106,4 @@ end
 close(nc);
 close(noa);
 
-
-%DEBUG
-%
-%size(var)
-%var
-%
-%size(flipdim(var,1))
-%flipdim(var,1)
-%
-%size(z)
-%z
-%
-%size(flipud(z))
-%flipud(z)
-%
-%size(zroms)
-%zroms
-%
-%size(ztosigma_1d(flipdim(var,1),zroms,flipud(z)))
-%
-%
-%%
 return

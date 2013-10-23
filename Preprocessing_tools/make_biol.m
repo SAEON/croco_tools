@@ -2,12 +2,8 @@ clear all
 close all
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Add biological parameters to a ROMS climatology file
+%  Add biological parameters to ROMS input files
 %
-%  Data source : IRI/LDEO Climate Data Library (World Ocean Atlas 1998)
-%    http://ingrid.ldgo.columbia.edu/
-%    http://iridl.ldeo.columbia.edu/SOURCES/.NOAA/.NODC/.WOA2001/
-% 
 %  Further Information:  
 %  http://www.brest.ird.fr/Roms_tools/
 %  
@@ -34,162 +30,106 @@ close all
 %  Contributions of P. Marchesiello (IRD)
 %
 %  Updated    1-Sep-2006 by Pierrick Penven
+%  Updated    11-Oct-2013 by Elodie Gutknecht
+%  Updated    23-Oct-2013 by Gildas Cambon
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all
 close all
-%%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Common parameters
 %
 romstools_param
 %
-%  Data climatologies file names:
 %
-%    no3_seas_data : seasonal NO3 climatology
-%    no3_ann_data  : annual NO3 climatology
-%    chla_seas_data : seasonal Chlorophylle climatology
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-no3_seas_data=[climato_dir,'no3_seas.cdf'];
-no3_ann_data=[climato_dir,'no3_ann.cdf'];
-o2_seas_data=[climato_dir,'o2_seas.cdf'];
-o2_ann_data=[climato_dir,'o2_ann.cdf'];
-chla_seas_data=[chla_dir,'chla_seas.cdf'];
-NO3min=0.01;
-O2min=0.0;
-%
-%
-%%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
-%
-% Add variables in the files
-%
-add_no3(oaname,clmname,ininame,grdname,no3_seas_data,...
-        no3_ann_data,woa_cycle,makeoa,makeclim)
-add_o2(oaname,clmname,ininame,grdname,o2_seas_data,...
-        o2_ann_data,woa_cycle,makeoa,makeclim)   
-%
-% Horizontal extrapolation of NO3
-%
-if (makeoa)
-  ext_tracers(oaname,no3_seas_data,no3_ann_data,...
-              'nitrate','NO3','no3_time','Zno3',Roa);
-          
-  ext_tracers(oaname,o2_seas_data,o2_ann_data,...
-              'oxygen','O2','o2_time','Zo2',Roa);       
-end
-%
-% Vertical interpolations 
-%
+%----------------------------------------------------------------------
+% Climatological file
+%----------------------------------------------------------------------
 if (makeclim)
-  disp(' ')
-  disp(' Vertical interpolations')
-  disp(' ')
-  disp(' NO3...')
-  vinterp_clm(clmname,grdname,oaname,'NO3','no3_time','Zno3',0,'r');
-  
-  disp(' O2...')
-  vinterp_clm(clmname,grdname,oaname,'O2','o2_time','Zo2',0,'r');
-%
-% Remove low values for oligotrophic areas
-%
-  nc=netcdf(clmname,'write');
-  tlen=length(nc('no3_time'));
-  for l=1:tlen
-    NO3=nc{'NO3'}(l,:,:,:);
-    NO3(NO3<NO3min)=NO3min;
-    nc{'NO3'}(l,:,:,:)=NO3;
-    %
-    O2=nc{'O2'}(l,:,:,:);
-    O2(O2 < O2min)=O2min;
-    nc{'O2'}(l,:,:,:)=O2;
-    %
+  disp('===========================================================')
+  disp('Climatology for the biogeochemical model')
+  if (makenpzd)
+     disp('========================')
+     disp('Climatology for NPZD variables')
+     %     disp('already done in make_ini_npzd')
+     make_clim_npzd
   end
- 
-  close(nc)
-%
-%  CHla
-%		 
-  disp(' ')
-  disp(' CHla...')
-  add_chla(clmname,grdname,chla_seas_data,woa_cycle,Roa);
-%
-%  Phyto
-%		 
-  disp(' ')
-  disp(' Phyto...')
-  add_phyto(clmname);
-%
-%  Zoo
-%
-  disp(' ')
-  disp(' Zoo...')
-  add_zoo(clmname);
+  if (makepisces)
+     disp('========================')
+     disp('Climatology for PISCES variables')
+     make_clim_pisces
+  end
+  if (makebioebus)
+     disp('========================')
+     disp('Climatology for BioEBUS variables')
+     %disp('already done in make_ini_bioebus')
+     make_clim_bioebus
+  end
 end
-%
+
+%----------------------------------------------------------------------
+% Bry file
+%----------------------------------------------------------------------
+if (makebry)
+  disp('===========================================================')
+  disp('Bry for the biogeochemical model')
+  if (makenpzd)
+     disp('========================')
+     disp('Bry for NPZD variables')
+     make_bry_npzd
+  end
+  if (makepisces)
+     disp('========================')
+     disp('Bry for PISCES variables')
+     make_bry_pisces
+  end
+  if (makebioebus)
+     disp('========================')
+     disp('Bry for BioEBUS variables')
+     make_bry_bioebus
+  end
+end
+
+%----------------------------------------------------------------------
 % Initial file
-%
+%----------------------------------------------------------------------
+
 if (makeini)
-  disp(' ')
-  disp(' Initial')
-  disp(' ')
-  disp(' NO3...')
-  add_ini_no3(ininame,grdname,oaname,woa_cycle,NO3min);
-  
-  % 02
-  disp(' ')
-  disp(' O2...')
-  add_ini_o2(ininame,grdname,oaname,woa_cycle,O2min);  
-
-%  CHla
-%		 
-  disp(' ')
-  disp(' CHla...')
-  add_ini_chla(ininame,grdname,chla_seas_data,woa_cycle,Roa);
-%
-%  Phyto
-%		 
-  disp(' ')
-  disp(' Phyto...')
-  add_ini_phyto(ininame);
-%
-%  Zoo
-%
-  disp(' ')
-  disp(' Zoo...')
-  add_ini_zoo(ininame);
-%
-%  Oxygen
-%
-  disp(' ')
-  disp(' Oxygen...')
-  add_ini_o2(ininame,grdname,oaname,woa_cycle,O2min); 
-  
+  disp('===========================================================')
+  disp('Initial variables for the biogeochemical model')
+  if (makenpzd)
+     disp('========================')
+     disp('Initial NPZD variables')
+     make_ini_npzd
+  end
+  if (makepisces)
+     disp('========================')
+     disp('Initial PISCES variables')
+     make_ini_pisces
+     disp('------------------------')
+     disp('Iron deposition file')
+     make_dust
+  end
+  if (makebioebus)
+     disp('========================')
+     disp('Initial BioEBUS variables')
+     make_ini_bioebus
+  end
 end
-%
-% Make a few plots
-%
-disp(' ')
-disp(' Make a few plots...')
-test_clim(clmname,grdname,'NO3',1,coastfileplot)
-figure
-test_clim(clmname,grdname,'CHLA',1,coastfileplot)
-figure
-test_clim(clmname,grdname,'PHYTO',1,coastfileplot)
-figure
-test_clim(clmname,grdname,'O2',1,coastfileplot)
-%
-% End
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%----------------------------------------------------------------------
+% N2O in BioEBUS
+%----------------------------------------------------------------------
 
-
-
-
-
-
-
+  if (makebioebus)
+     disp('========================')
+     disp('Input values for N2O in BioEBUS')
+     make_n2o_bioebus
+  end
 
 
 

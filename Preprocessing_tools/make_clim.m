@@ -69,6 +69,7 @@ salt_ann_data=[climato_dir,'salt_ann.cdf'];
 %
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
+
 %
 % Title
 %
@@ -76,6 +77,7 @@ disp(' ')
 disp([' Making the clim: ',clmname])
 disp(' ')
 disp([' Title: ',ROMS_title])
+
 %
 % Read in the grid
 %
@@ -86,9 +88,13 @@ Lp=length(nc('xi_rho'));
 Mp=length(nc('eta_rho'));
 hmax=max(max(nc{'h'}(:)));
 result=close(nc);
-%
+
+
+
+%----------------------------------------------------------------------------
 % Create the climatology file
-%
+%----------------------------------------------------------------------------
+
 if (makeclim)
   disp(' ')
   disp(' Create the climatology file...')
@@ -101,10 +107,13 @@ if (makeclim)
                   theta_s,theta_b,hc,N,...
                   woa_time,woa_cycle,'clobber',vtransform);
 end
-%
-% Create the OA file
-%
+
+
 if (makeoa)
+
+  %
+  % Create the OA file
+  %
   disp(' ')
   disp(' Create the OA file...')
   nc=netcdf(temp_ann_data);
@@ -114,9 +123,10 @@ if (makeoa)
   close(nc)
   create_oafile(oaname,grdname,ROMS_title,Z,...
                 woa_time,woa_cycle,'clobber');
-%
-% Horizontal extrapolations 
-%
+
+  %
+  % Horizontal extrapolations 
+  %
   disp(' ')
   disp(' Horizontal extrapolations')
   disp(' ')
@@ -128,10 +138,13 @@ if (makeoa)
   ext_tracers(oaname,salt_month_data,salt_ann_data,...
               'salinity','salt','sclm_time','Z',Roa);
 end
-%
-% Vertical interpolations 
-%
+
+
 if (makeclim)
+
+  %
+  % Vertical interpolations 
+  %
   disp(' ')
   disp(' Vertical interpolations')
   disp(' ')
@@ -145,26 +158,23 @@ if (makeclim)
     disp(' Compute potential temperature from in-situ...')
     getpot(clmname,grdname)
   end
-%
-% Geostrophy
-%
+
+  %
+  % Geostrophy
+  %
   disp(' ')
   disp(' Compute geostrophic currents')
   geost_currents(clmname,grdname,oaname,frcname,zref,obc,0)
-end
 
-if makepisces
-  disp('====================================== ')
-  disp('Compute Climatology for Pisces tracer')
-make_clim_pisces
 end
 
 
 
-%
+%----------------------------------------------------------------------------
 % Initial file
-%
-if makeini
+%----------------------------------------------------------------------------
+if (makeini)
+
   disp('======================== ')
   disp('Initial')
   create_inifile(ininame,grdname,ROMS_title,...
@@ -182,20 +192,13 @@ if makeini
     getpot(ininame,grdname)
   end
 
-if makepisces
-  disp('========================')
-  disp('Initial pisces variables')
-make_ini_pisces
-  disp('------------------------')
-  disp('Iron deposition file')
-make_dust
 end
 
-end
 
-%
+
+%----------------------------------------------------------------------------
 % Make a few plots
-%
+%----------------------------------------------------------------------------
 if makeplot==1
   disp(' ')
   disp(' Make a few plots...')

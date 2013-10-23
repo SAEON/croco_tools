@@ -88,6 +88,11 @@ fer_seas_data  = [woapisces_dir,'fer_seas.cdf'];
 fer_ann_data   = [woapisces_dir,'fer_ann.cdf'];
 dust_seas_data = [woapisces_dir,'dust_seas.cdf'];
 dust_ann_data  = [woapisces_dir,'dust_ann.cdf'];
+if strcmp(climato_dir,cars2009_dir);
+    err_msg=sprintf(['Error : you need to use woadir when creating the roms_oa.nc (Z) \n'...
+                     'file to be compatible with PISCES'])
+    error(err_msg)
+end
 %
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%

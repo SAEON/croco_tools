@@ -241,12 +241,6 @@ result = endef(nc);
 %
 [sc_r,Cs_r,sc_w,Cs_w] = scoordinate(theta_s,theta_b,N,hc,vtransform);
 %disp(['vtransform=',num2str(vtransform)])
-
-% cff1=1./sinh(theta_s);
-% cff2=0.5/tanh(0.5*theta_s);
-% sc=((1:N)-N-0.5)/N;
-% Cs=(1.-theta_b)*cff1*sinh(theta_s*sc)...
-%     +theta_b*(cff2*tanh(theta_s*(sc+0.5))-0.5);
 %
 % Write variables
 %

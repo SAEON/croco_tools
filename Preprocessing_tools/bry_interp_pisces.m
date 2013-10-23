@@ -106,7 +106,7 @@ Nz=length(Z);
 % Check the time
 %
 tbry=nc{'bry_time'}(:); 
-%Take care if tile in the WOAPISCES data files !!!
+%Take care if time in the WOAPISCES data files !!!
 T=(T-1)*30; % if time in month in the dataset !!!
 %tbry
 %T

@@ -60,14 +60,14 @@ close(nc);
 %
 nc=netcdf(seas_datafile);
 t=nc{'T'}(:);
-t
+t;
 close(nc)
 nc=netcdf(ann_datafile);
 zno3=nc{'Z'}(:);
 kmax=max(find(zno3<hmax))-1;
 zno3=zno3(1:kmax);
-disp('Size zno3=')
-size(zno3)
+%disp('Size zno3=')
+size(zno3);
 close(nc)
 %
 % open the OA file  
@@ -77,7 +77,6 @@ if (makeoa)
   nc=netcdf(oafile,'write');
   redef(nc);
   
-  disp('write no3time')
   %Create Dimensions
   nc('no3_time') = length(t);
   %Create Variable

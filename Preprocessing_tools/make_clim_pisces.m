@@ -45,14 +45,23 @@ dust_seas_data = [woapisces_dir,'dust_seas.cdf'];
 dust_ann_data  = [woapisces_dir,'dust_ann.cdf'];
 %
 cycle=woa_cycle;
-%gc
 NO3min=1;
-%gc
+if strcmp(climato_dir,cars2009_dir);
+    err_msg=sprintf(['Error : you need to use woadir when creating the roms_oa.nc (Z) \n'...
+                     'files to be compatible with PISCES'])
+    error(err_msg)
+end
+    
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
 %
 % Add variables in the files
 %
+disp('')
+disp('====================================================== ')
+disp('=> You need the roms_oa.nc file created by make_clim.m ')
+disp('=> with makeoa=1 from romstools_param.m                ')
+disp('====================================================== ')
 add_no3(oaname,clmname,ininame,grdname,no3_seas_data,...
         no3_ann_data,cycle,makeoa,makeclim)
 
@@ -198,6 +207,7 @@ end
 % End
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 
 
