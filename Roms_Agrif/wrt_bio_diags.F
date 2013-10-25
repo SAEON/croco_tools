@@ -41,12 +41,12 @@
 #if defined MPI & !defined PARALLEL_FILES
       if (mynode.gt.0) then
         call MPI_Recv (blank, 1, MPI_INTEGER, mynode-1, 
-     &                 1, MPI_COMM_WORLD, status, ierr) 
+     &       1, MPI_COMM_WORLD, status, ierr) 
       endif
 #endif
-!
-! Create/open diagnostic file; write grid arrays, if so needed.
-!
+!     
+!     Create/open diagnostic file; write grid arrays, if so needed.
+!     
       call def_bio_diags (nciddiabio, nrecdiabio, ierr)
       if (ierr .ne. nf_noerr) goto 99
       lstr=lenstr(dianamebio)
@@ -118,63 +118,71 @@ CDEBUG      write(*,*) 'Write Time'
 
 ! 3-D terms (it is called Flux but it means nothing) Christophe Menkes
 #  if defined key_trc_dia3d
-      do iflux=1,NumFluxTerms
-         workr=bioFlux(:,:,:,iflux)
-         call fillvalue3d(workr, nciddiabio, diabioFlux(iflux),
-     &        indxbioFlux+iflux-1,record,r3dvar,type)
-      end do
-  
+       do iflux=1,NumFluxTerms
+         if (wrtdiabioFlux(iflux)) then
+           workr=bioFlux(:,:,:,iflux)
+           call fillvalue3d(workr, nciddiabio, diabioFlux(iflux),
+     &          indxbioFlux+iflux-1,record,r3dvar,type)
+         endif
+       end do
 #  endif
-! 2-D terms (it is called Vsink but it means nothing) Christophe Menkes
+!     2-D terms (it is called Vsink but it means nothing) Christophe Menkes
 #  if defined key_trc_diaadd
-      do iflux=1,NumVSinkTerms
-c$$$         if (iflux.eq.11)  write(*,*) 'ZMEU WRT',
-c$$$     &        bioVSink(30,30,iflux)
-         work2d=bioVSink(:,:,iflux)
-         call fillvalue2d(work2d, nciddiabio, diabioVsink(iflux),
-     &        indxbioVSink+iflux-1,record,r2dvar,type)
+       do iflux=1,NumVSinkTerms
+         if (wrtdiabioVSink(iflux)) then
+!     if (iflux.eq.11)  write(*,*) 'ZMEU WRT',bioVSink(30,30,iflux)
+          work2d=bioVSink(:,:,iflux)
+          call fillvalue2d(work2d, nciddiabio, diabioVsink(iflux),
+     &         indxbioVSink+iflux-1,record,r2dvar,type)
+        endif
       end do
   
 #  endif
-
+      
 #else
-
-! Flux terms
+      
+!     Flux terms
       do iflux = 1, NumFluxTerms
-!         write(*,*)'write fluxes terms'
-         workr=bioFlux(:,:,:,iflux)
-         call fillvalue3d(workr, nciddiabio, diabioFlux(iflux),
-     &        indxbioFlux+iflux-1,record,r3dvar,type)
+        if (wrtdiabioFlux(iflux)) then
+!     write(*,*)'write fluxes terms'
+          workr=bioFlux(:,:,:,iflux)
+          call fillvalue3d(workr, nciddiabio, diabioFlux(iflux),
+     &         indxbioFlux+iflux-1,record,r3dvar,type)
+        endif
       end do
-! vertical sinking fluxes
+!     vertical sinking fluxes
       do iflux = 1, NumVSinkTerms
-!         write(*,*)'write vertical sinking fluxes'         
-         work=bioVsink(:,:,:,iflux)
-         call fillvalue3d(work, nciddiabio, diabioVsink(iflux),
-     &        indxbioVSink+iflux-1,record,w3dvar,type)
+        if (wrtdiabioVSink(iflux)) then
+!     write(*,*)'write vertical sinking fluxes'         
+          work=bioVsink(:,:,:,iflux)
+          call fillvalue3d(work, nciddiabio, diabioVsink(iflux),
+     &         indxbioVSink+iflux-1,record,w3dvar,type)
+        endif
       end do
 #   if (defined BIO_NChlPZD && defined OXYGEN) || defined BIO_BioEBUS 
-! gas exchange fluxes
+!     gas exchange fluxes
       do iflux = 1, NumGasExcTerms
-         work2d=GasExcFlux(:,:,iflux)
-         call fillvalue2d(work2d, nciddiabio, diabioGasExc(iflux),
-     &        indxGasExcFlux+iflux-1,record,r2dvar,type)
+        if (wrtdiabioGasExc(iflux)) then
+          work2d=GasExcFlux(:,:,iflux)
+          call fillvalue2d(work2d, nciddiabio, diabioGasExc(iflux),
+     &         indxGasExcFlux+iflux-1,record,r2dvar,type)
+        endif 
       end do
 #   endif 
-
+      
 #endif
-
-  1   format(/1x,'WRT_BIO_DIAG ERROR while writing variable ''', A,
-     &          ''' into diag file.', /11x, 'Time record:',
-     &                   I6,3x,'netCDF error code',i4,3x,a,i4)
+      
+ 1    format(/1x,'WRT_BIO_DIAG ERROR while writing variable ''', A,
+     &     ''' into diag file.', /11x, 'Time record:',
+     &     I6,3x,'netCDF error code',i4,3x,a,i4)
       goto 100 
-  99  may_day_flag=3
+ 99   may_day_flag=3
  100  continue
-
-!
-! Synchronize netCDF file to disk to allow other processes
-! to access data immediately after it is written.
-!
+      
+!     
+!     Synchronize netCDF file to disk to allow other processes
+!     to access data immediately after it is written.
+!     
 
 #if defined MPI & !defined PARALLEL_FILES
       ierr=nf_close (nciddiabio)
@@ -188,27 +196,27 @@ c$$$     &        bioVSink(30,30,iflux)
       endif
 #endif
 
-
       if (ierr .eq. nf_noerr) then
         write(stdout,'(6x,A,2(A,I4,1x),A,I3)') 'WRT_BIO_DIAG -- wrote ',
-     &            'diag fields into time record =', record, '/',
-     &             nrecdiabio  MYID
+     &       'diag fields into time record =', record, '/',
+     &       nrecdiabio  MYID
       else
         write(stdout,'(/1x,2A/)') 'WRT_BIO_DIAG ERROR: Cannot ',
-     &             'synchronize/close diag netCDF file.'
+     &       'synchronize/close diag netCDF file.'
         may_day_flag=3
       endif
-
-#if defined MPI & !defined PARALLEL_FILES
+      
+#if defined MPI &               !defined PARALLEL_FILES
       if (mynode .lt. NNODES-1) then
         call MPI_Send (blank, 1, MPI_INTEGER, mynode+1,
-     &                        1, MPI_COMM_WORLD,  ierr)
+     &       1, MPI_COMM_WORLD,  ierr)
       endif
 #endif
       return
       end
-
+      
 #else
       subroutine wrt_bio_diag_empty
       end
 #endif /* DIAGNOSTICS_BIO*/
+      

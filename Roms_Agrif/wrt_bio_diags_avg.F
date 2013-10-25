@@ -115,71 +115,80 @@ C      write(*,*) 'Write Time'
      &                  MYID
         goto 99                                           !--> ERROR
       endif
-
+      
 !
 ! Tracer diag variables.
 !
 !
 #ifdef PISCES
-! 3-D terms (it is called Flux but it means nothing)
+!     3-D terms (it is called Flux but it means nothing)
 #  if defined key_trc_dia3d
       do iflux=1,NumFluxTerms
-         workr=bioFlux_avg(:,:,:,iflux)
-         call fillvalue3d(workr, nciddiabio_avg, diabioFlux_avg(iflux),
-     &        indxbioFlux+iflux-1,record,r3dvar,type)
+        if (wrtdiabioFlux_avg(iflux)) then
+          workr=bioFlux_avg(:,:,:,iflux)
+          call fillvalue3d(workr, nciddiabio_avg, diabioFlux_avg(iflux),
+     &         indxbioFlux+iflux-1,record,r3dvar,type)
+        endif
       end do
 #  endif
-! 2-D terms (it is called Vsink but it means nothing)
+!     2-D terms (it is called Vsink but it means nothing)
 #  if defined key_trc_diaadd
       do iflux=1,NumVSinkTerms
-c$$$         if (iflux.eq.11)  write(*,*) 'ZMEU WRT_AVG',
-c$$$     &        bioVSink_avg(30,30,iflux)
-         work2d=bioVSink_avg(:,:,iflux)
-         call fillvalue2d(work2d, nciddiabio_avg, diabioVsink_avg(iflux),
-     &        indxbioVSink+iflux-1,record,r2dvar,type)
+        if (wrtdiabioVSink_avg(iflux)) then
+!     if (iflux.eq.11)  write(*,*) 'ZMEU WRT_AVG',bioVSink_avg(30,30,iflux)
+          work2d=bioVSink_avg(:,:,iflux)
+          call fillvalue2d(work2d, nciddiabio_avg, diabioVsink_avg(iflux),
+     &         indxbioVSink+iflux-1,record,r2dvar,type)
+        endif
       end do
 #  endif
-
+      
 #else
-
-! Flux terms
+      
+!     Flux terms
       do iflux=1,NumFluxTerms
-         workr=bioFlux_avg(:,:,:,iflux)
-         call fillvalue3d(workr, nciddiabio_avg, diabioFlux_avg(iflux),
-     &        indxbioFlux+iflux-1,record,r3dvar,type)
+        if (wrtdiabioFlux_avg(iflux)) then
+          workr=bioFlux_avg(:,:,:,iflux)
+          call fillvalue3d(workr, nciddiabio_avg, diabioFlux_avg(iflux),
+     &         indxbioFlux+iflux-1,record,r3dvar,type)
+        endif
       end do
-! vertical sinking fluxes
+!     vertical sinking fluxes
       do iflux=1,NumVSinkTerms
-         work=bioVsink_avg(:,:,:,iflux)
-         call fillvalue3d(work, nciddiabio_avg, diabioVsink_avg(iflux),
-     &        indxbioVSink+iflux-1,record,w3dvar,type)
+        if (wrtdiabioVSink_avg(iflux)) then
+          work=bioVsink_avg(:,:,:,iflux)
+          call fillvalue3d(work, nciddiabio_avg, diabioVsink_avg(iflux),
+     &         indxbioVSink+iflux-1,record,w3dvar,type)
+        endif
       end do
 #   if (defined BIO_NChlPZD && defined OXYGEN) || defined BIO_BioEBUS
-! gas exchange fluxes
+!     gas exchange fluxes
       do iflux = 1, NumGasExcTerms
-         work2d=GasExcFlux_avg(:,:,iflux)
-         call fillvalue2d(work2d,nciddiabio_avg,diabioGasExc_avg(iflux),
-     &        indxGasExcFlux+iflux-1,record,r2dvar,type)
+        if (wrtdiabioGasExc_avg(iflux)) then
+          work2d=GasExcFlux_avg(:,:,iflux)
+          call fillvalue2d(work2d,nciddiabio_avg,diabioGasExc_avg(iflux),
+     &         indxGasExcFlux+iflux-1,record,r2dvar,type)
+        endif
       end do
 #   endif
-
+      
 #endif
-  1   format(/1x,'WRT_BIO_DIAG_AVG ERROR while writing variable ''', A,
-     &          ''' into diag_avg file.', /11x, 'Time record:',
-     &                   I6,3x,'netCDF error code',i4,3x,a,i4)
+ 1    format(/1x,'WRT_BIO_DIAG_AVG ERROR while writing variable ''', A,
+     &     ''' into diag_avg file.', /11x, 'Time record:',
+     &     I6,3x,'netCDF error code',i4,3x,a,i4)
       goto 100 
-  99  may_day_flag=3
+ 99   may_day_flag=3
  100  continue
-
-!
-! Synchronize netCDF file to disk to allow other processes
-! to access data immediately after it is written.
-!
-
-#if defined MPI & !defined PARALLEL_FILES
+      
+!     
+!     Synchronize netCDF file to disk to allow other processes
+!     to access data immediately after it is written.
+!     
+      
+#if defined MPI &  !defined PARALLEL_FILES
       ierr=nf_close (nciddiabio_avg)
       if (nrpfdiabio_avg.gt.0 .and. record.ge.nrpfdiabio_avg) 
-     &  nciddiabio_avg=-1
+     &     nciddiabio_avg=-1
 #else
       if (nrpfdiabio_avg.gt.0 .and. record.ge.nrpfdiabio_avg) then
         ierr=nf_close (nciddiabio_avg)
@@ -188,29 +197,28 @@ c$$$     &        bioVSink_avg(30,30,iflux)
         ierr=nf_sync(nciddiabio_avg)
       endif
 #endif
-
-
       if (ierr .eq. nf_noerr) then
         write(stdout,'(6x,A,2(A,I4,1x),A,I3)') 
-     &            'WRT_BIO_DIAG_AVG -- wrote ',
-     &            'diag_avg fields into time record =', record, '/',
-     &             nrecdiabio_avg  MYID
+     &       'WRT_BIO_DIAG_AVG -- wrote ',
+     &       'diag_avg fields into time record =', record, '/',
+     &       nrecdiabio_avg  MYID
       else
         write(stdout,'(/1x,2A/)') 'WRT_BIO_DIAG_AVG ERROR: Cannot ',
-     &             'synchronize/close diag_avg netCDF file.'
+     &       'synchronize/close diag_avg netCDF file.'
         may_day_flag=3
       endif
-
-#if defined MPI & !defined PARALLEL_FILES
+      
+#if defined MPI &               !defined PARALLEL_FILES
       if (mynode .lt. NNODES-1) then
         call MPI_Send (blank, 1, MPI_INTEGER, mynode+1,
-     &                        1, MPI_COMM_WORLD,  ierr)
+     &       1, MPI_COMM_WORLD,  ierr)
       endif
 #endif
       return
       end
-
+      
 #else
       subroutine wrt_bio_diag_avg_empty
       end
 #endif /* DIAGNOSTICS_BIO && AVERAGES*/
+      

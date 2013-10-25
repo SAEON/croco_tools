@@ -798,9 +798,13 @@
 # endif
 #endif
 #ifdef DIAGNOSTICS_BIO
-     &      , wrtdiabio
+     &      , wrtdiabioFlux(NumFluxTerms+1)
+     &      , wrtdiabioVSink(NumVSinkTerms+1)
+     &      , wrtdiabioGasExc(NumGasExcTerms+1)
 # ifdef AVERAGES
-     &      , wrtdiabio_avg
+     &      , wrtdiabioFlux_avg(NumFluxTerms+1)
+     &      , wrtdiabioVSink_avg(NumVSinkTerms+1)
+     &      , wrtdiabioGasExc_avg(NumGasExcTerms+1)
 # endif
 #endif
 	
@@ -993,9 +997,13 @@
 # endif
 #endif
 #ifdef DIAGNOSTICS_BIO
-     &      , wrtdiabio
+     &      , wrtdiabioFlux
+     &      , wrtdiabioVSink
+     &      , wrtdiabioGasExc
 # ifdef AVERAGES
-     &      , wrtdiabio_avg
+     &      , wrtdiabioFlux_avg
+     &      , wrtdiabioVSink_avg
+     &      , wrtdiabioGasExc_avg
 # endif
 #endif
 

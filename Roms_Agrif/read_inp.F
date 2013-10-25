@@ -145,6 +145,16 @@
       wrtdiaM_avg(3)=.false.
 #endif
 #endif
+#ifdef DIAGNOSTICS_BIO
+      wrtdiabioFlux(NumFluxTerms+1)=.false.
+      wrtdiabioVSink(NumVSinkTerms+1)=.false.
+      wrtdiabioGasExc(NumGasExcTerms+1)=.false.
+#ifdef AVERAGES
+      wrtdiabioFlux_avg(NumFluxTerms+1)=.false.
+      wrtdiabioVSink_avg(NumVSinkTerms+1)=.false.
+      wrtdiabioGasExc_avg(NumGasExcTerms+1)=.false.   
+#endif
+#endif
 !
 ! Read in keyword: keep trying, until keyword is found.
 ! ==== == ======== ==== ======= ===== ======= == ======
@@ -1199,9 +1209,93 @@ c        close(testunit)
 !
 ! Switches for fields to be saved into biology diagnostics file.
 !
-          wrtdiabio=.true.
+!          wrtdiabio=.true.
+      elseif (keyword(1:kwlen).eq.'diagbioFlux_history_fields') then
+!
+CR       write(*,*)'NumFluxTerms=',NumFluxTerms
+CR        write(*,*)'NumVSinkTerms=',NumVSinkTerms
+CR        write(*,*)'NumGasExcTerms=',NumGasExcTerms
+!
+        call cancel_kwd (keyword(1:kwlen), ierr)
+!     ==
+        read(input,*,err=95) (wrtdiabioFlux(iflux),iflux=1,NumFluxTerms)
+        do iflux=1,NumFluxTerms
+          if (wrtdiabioFlux(iflux)) 
+     &         wrtdiabioFlux(NumFluxTerms+1)=.true.
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &         wrtdiabioFlux(iflux), 
+     &         'write equation terms ',
+     &         'Flux term of index (his)', iflux
+        enddo
+!     ==
+      elseif (keyword(1:kwlen).eq.'diagbioVSink_history_fields') then
+        call cancel_kwd (keyword(1:kwlen), ierr)
+        read(input,*,err=95) (wrtdiabioVSink(iflux),
+     &       iflux=1,NumVSinkTerms)
+        do iflux=1,NumVSinkTerms
+          if (wrtdiabioVSink(iflux)) 
+     &         wrtdiabioVSink(NumVSinkTerms+1)=.true.
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &         wrtdiabioVSink(iflux), 
+     &         'write equation terms ',
+     &         'VSink term of index (his)', iflux
+        enddo
+!     == 
+      elseif (keyword(1:kwlen).eq.'diagbioGasExc_history_fields') then
+        call cancel_kwd (keyword(1:kwlen), ierr)
+        read(input,*,err=95) (wrtdiabioGasExc(iflux),
+     &                                       iflux=1,NumGasExcTerms)
+        do iflux=1,NumGasExcTerms
+          if (wrtdiabioGasExc(iflux)) 
+     &         wrtdiabioGasExc(NumGasExcTerms+1)=.true.
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &         wrtdiabioGasExc(iflux), 
+     &         'write equation terms ',
+     &         'GasExc term of index (his)', iflux
+        enddo      
+! === === ===
 # ifdef AVERAGES
-         wrtdiabio_avg=.true.
+!         wrtdiabio_avg=.true.
+        write(*,*)'=============='
+      elseif (keyword(1:kwlen).eq.'diagbioFlux_average_fields') then
+        call cancel_kwd (keyword(1:kwlen), ierr)
+!     ==
+        read(input,*,err=95) (wrtdiabioFlux_avg(iflux),
+     &       iflux=1,NumFluxTerms)
+        do iflux=1,NumFluxTerms
+          if (wrtdiabioFlux_avg(iflux)) 
+     &         wrtdiabioFlux_avg(NumFluxTerms+1)=.true.
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &         wrtdiabioFlux_avg(iflux), 
+     &         'write equation terms ',
+     &         'Flux term of index (avg)', iflux
+        enddo
+!     ==
+      elseif (keyword(1:kwlen).eq.'diagbioVSink_average_fields') then
+        call cancel_kwd (keyword(1:kwlen), ierr)
+        read(input,*,err=95) (wrtdiabioVSink_avg(iflux),
+     &                              iflux=1,NumVSinkTerms)
+        do iflux=1,NumVSinkTerms
+          if (wrtdiabioVSink_avg(iflux)) 
+     &         wrtdiabioVSink_avg(NumVSinkTerms+1)=.true.
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &         wrtdiabioVSink_avg(iflux), 
+     &         'write equation terms ',
+     &         'VSink term of index (avg)', iflux
+        enddo
+!     == 
+      elseif (keyword(1:kwlen).eq.'diagbioGasExc_average_fields') then
+        call cancel_kwd (keyword(1:kwlen), ierr)   
+        read(input,*,err=95) (wrtdiabioGasExc_avg(iflux),
+     &                                  iflux=1,NumGasExcTerms)
+        do iflux=1,NumGasExcTerms
+          if (wrtdiabioGasExc_avg(iflux)) 
+     &         wrtdiabioGasExc_avg(NumGasExcTerms+1)=.true.
+          MPI_master_only write(stdout, '(6x,L1,2x,A,2x,A,I2)')
+     &         wrtdiabioGasExc_avg(iflux), 
+     &         'write equation terms ',
+     &         'GasExc term of index (avg)', iflux
+        enddo      
 # endif  /* AVERAGES */
 #endif /* DIAGNOSTICS_BIO */
 

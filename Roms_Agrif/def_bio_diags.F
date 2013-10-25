@@ -39,7 +39,9 @@
 #ifndef AVRH
 # define ncname dianamebio
 # define rec_per_file nrpfdiabio
-# define wrt wrtdiabio
+# define wrtFlux wrtdiabioFlux
+# define wrtGasExc wrtdiabioGasExc
+# define wrtVSink wrtdiabioVSink
 # define vidTime diaTimebio
 # define vidTime2 diaTime2bio
 # define vidTstep diaTstepbio
@@ -50,7 +52,9 @@
 #else /* AVRH */
 # define ncname dianamebio_avg
 # define rec_per_file nrpfdiabio_avg
-# define wrt wrtdiabio_avg
+# define wrtFlux wrtdiabioFlux_avg
+# define wrtGasExc wrtdiabioGasExc_avg
+# define wrtVSink wrtdiabioVSink_avg
 # define vidTime diaTimebio_avg
 # define vidTime2 diaTime2bio_avg
 # define vidTstep diaTstepbio_avg
@@ -249,15 +253,16 @@
 !
 ! biogeochemical fluxes
         do iflux = 1, NumFluxTerms
-           lvar=lenstr(vname(1,indxbioFlux+iflux-1))
-           ierr=nf_def_var (ncid, vname(1,indxbioFlux+iflux-1)(1:lvar),
-     &          NF_FOUT, 4, r3dgrd, vidFlux(iflux))
+          if (wrtFlux(iflux)) then
+            lvar=lenstr(vname(1,indxbioFlux+iflux-1))
+            ierr=nf_def_var (ncid, vname(1,indxbioFlux+iflux-1)(1:lvar),
+     &           NF_FOUT, 4, r3dgrd, vidFlux(iflux))
 #  ifndef AVRH
-           lvar=lenstr(vname(2,indxbioFlux+iflux-1))
-           ierr=nf_put_att_text (ncid, vidFlux(iflux), 'long_name',
-     &          lvar, vname(2,indxbioFlux+iflux-1)(1:lvar))
+            lvar=lenstr(vname(2,indxbioFlux+iflux-1))
+            ierr=nf_put_att_text (ncid, vidFlux(iflux), 'long_name',
+     &           lvar, vname(2,indxbioFlux+iflux-1)(1:lvar))
 #  else
-           text='averaged '/ /vname(2,indxbioFlux+iflux-1)
+            text='averaged '/ /vname(2,indxbioFlux+iflux-1)
            lvar=lenstr(text)
            ierr=nf_put_att_text (ncid, vidFlux(iflux), 'long_name',
      &          lvar, text(1:lvar))
@@ -268,35 +273,37 @@
            lvar=lenstr(vname(4,indxbioFlux+iflux-1))
            ierr=nf_put_att_text (ncid, vidFlux(iflux), 'field',
      &          lvar, vname(4,indxbioFlux+iflux-1)(1:lvar))
-
-          call nf_add_attribute(ncid, vidFlux(iflux), 
-     &                     indxbioFlux+iflux-1, 5, NF_REAL, ierr)
-        end do
+           
+           call nf_add_attribute(ncid, vidFlux(iflux), 
+     &          indxbioFlux+iflux-1, 5, NF_REAL, ierr)
+         endif
+       end do
 ! vertical sinking fluxes
         do iflux = 1, NumVSinkTerms
-           lvar=lenstr(vname(1,indxbioVSink+iflux-1))
+          if (wrtVSink(iflux)) then
+            lvar=lenstr(vname(1,indxbioVSink+iflux-1))
 #ifdef PISCES
 # ifdef key_trc_diaadd
-           ierr=nf_def_var (ncid,
-     &          vname(1,indxbioVSink+iflux-1)(1:lvar),
+            ierr=nf_def_var (ncid,
+     &           vname(1,indxbioVSink+iflux-1)(1:lvar),
      &          NF_FOUT, 3, r2dgrd, vidVSink(iflux))
 # endif
 #else
-           ierr=nf_def_var (ncid,
-     &          vname(1,indxbioVSink+iflux-1)(1:lvar),
-     &          NF_FOUT, 4, w3dgrd, vidVSink(iflux))
+            ierr=nf_def_var (ncid,
+     &           vname(1,indxbioVSink+iflux-1)(1:lvar),
+     &           NF_FOUT, 4, w3dgrd, vidVSink(iflux))
 #endif
 #  ifndef AVRH
-           lvar=lenstr(vname(2,indxbioVSink+iflux-1))
-           ierr=nf_put_att_text (ncid, vidVSink(iflux),
-     &          'long_name',
-     &          lvar, vname(2,indxbioVSink+iflux-1)(1:lvar))
+            lvar=lenstr(vname(2,indxbioVSink+iflux-1))
+            ierr=nf_put_att_text (ncid, vidVSink(iflux),
+     &           'long_name',
+     &           lvar, vname(2,indxbioVSink+iflux-1)(1:lvar))
 #  else
-           text='averaged '/ /vname(2,indxbioVSink+iflux-1)
-           lvar=lenstr(text)
+            text='averaged '/ /vname(2,indxbioVSink+iflux-1)
+            lvar=lenstr(text)
            ierr=nf_put_att_text (ncid, vidVSink(iflux),
-     &          'long_name',
-     &          lvar, text(1:lvar))
+     &           'long_name',
+     &           lvar, text(1:lvar))
 #  endif
            lvar=lenstr(vname(3,indxbioVSink+iflux-1))
            ierr=nf_put_att_text (ncid, vidVSink(iflux), 'units',
@@ -304,23 +311,25 @@
            lvar=lenstr(vname(4,indxbioVSink+iflux-1))
            ierr=nf_put_att_text (ncid, vidVSink(iflux), 'field',
      &          lvar, vname(4,indxbioVSink+iflux-1)(1:lvar))
-
+           
           call nf_add_attribute(ncid, vidVSink(iflux), 
-     &                     indxbioVSink+iflux-1, 5, NF_REAL, ierr)
-        end do
+     &          indxbioVSink+iflux-1, 5, NF_REAL, ierr)
+        endif
+      end do
 !-------------------------------------------------------------------------------- 
 #  if (defined BIO_NChlPZD && defined OXYGEN) || defined BIO_BioEBUS
 ! gas exchange fluxes
         do iflux = 1, NumGasExcTerms
-           lvar=lenstr(vname(1,indxGasExcFlux+iflux-1))
-           ierr=nf_def_var (ncid,
-     &          vname(1,indxGasExcFlux+iflux-1)(1:lvar),
-     &          NF_FOUT, 3, r2dgrd, vidGasExc(iflux))
+          if (wrtGasExc(iflux)) then
+            lvar=lenstr(vname(1,indxGasExcFlux+iflux-1))
+            ierr=nf_def_var (ncid,
+     &           vname(1,indxGasExcFlux+iflux-1)(1:lvar),
+     &           NF_FOUT, 3, r2dgrd, vidGasExc(iflux))
 #  ifndef AVRH
-           lvar=lenstr(vname(2,indxGasExcFlux+iflux-1))
+            lvar=lenstr(vname(2,indxGasExcFlux+iflux-1))
            ierr=nf_put_att_text (ncid, vidGasExc(iflux),
-     &          'long_name',
-     &          lvar, vname(2,indxGasExcFlux+iflux-1)(1:lvar))
+     &           'long_name',
+     &           lvar, vname(2,indxGasExcFlux+iflux-1)(1:lvar))
 #  else
            text='averaged '/ /vname(2,indxGasExcFlux+iflux-1)
            lvar=lenstr(text)
@@ -334,13 +343,14 @@
            lvar=lenstr(vname(4,indxGasExcFlux+iflux-1))
            ierr=nf_put_att_text (ncid, vidGasExc(iflux), 'field',
      &          lvar, vname(4,indxGasExcFlux+iflux-1)(1:lvar))
-
-         call nf_add_attribute(ncid, vidGasExc(iflux), 
-     &                     indxGasExcFlux+iflux-1, 5, NF_REAL, ierr)
-        end do
+           
+           call nf_add_attribute(ncid, vidGasExc(iflux), 
+     &          indxGasExcFlux+iflux-1, 5, NF_REAL, ierr)
+         endif
+       end do
 #  endif
 !--------------------------------------------------------------------------------
-
+         
 !
 ! Leave definition mode.
 ! ----- ---------- -----
@@ -449,48 +459,53 @@
 !
 !
         do iflux = 1, NumFluxTerms
-          lvar=lenstr(vname(1,indxbioFlux+iflux-1))
-          ierr=nf_inq_varid (ncid, vname(1,indxbioFlux+iflux-1)(1:lvar),
-     &                       vidFlux(iflux))
-          if (ierr .ne. nf_noerr) then
-            write(stdout,1) vname(1,indxbioFlux+iflux-1)(1:lvar),
-     &                                         ncname(1:lstr)
-            goto 99                                       !--> ERROR
+          if (wrtFlux(iflux)) then
+            lvar=lenstr(vname(1,indxbioFlux+iflux-1))
+            ierr=nf_inq_varid (ncid, vname(1,indxbioFlux+iflux-1)(1:lvar),
+     &           vidFlux(iflux))
+            if (ierr .ne. nf_noerr) then
+              write(stdout,1) vname(1,indxbioFlux+iflux-1)(1:lvar),
+     &             ncname(1:lstr)
+              goto 99           !--> ERROR
+            endif
           endif
         enddo
-!
-! Vertical sinking flux
-!
+!     
+!     Vertical sinking flux
+!     
         do iflux = 1, NumVSinkTerms
-          lvar=lenstr(vname(1,indxbioVSink+iflux-1))
-          ierr=nf_inq_varid(ncid,vname(1,indxbioVSink+iflux-1)(1:lvar),
-     &                      vidVSink(iflux))
-          if (ierr .ne. nf_noerr) then
-            write(stdout,1) vname(1,indxbioVSink+iflux-1)(1:lvar),
-     &                                         ncname(1:lstr) 
-            goto 99                                       !--> ERROR
+          if (wrtVSink(iflux)) then
+            lvar=lenstr(vname(1,indxbioVSink+iflux-1))
+            ierr=nf_inq_varid(ncid,vname(1,indxbioVSink+iflux-1)(1:lvar),
+     &           vidVSink(iflux))
+            if (ierr .ne. nf_noerr) then
+              write(stdout,1) vname(1,indxbioVSink+iflux-1)(1:lvar),
+     &             ncname(1:lstr) 
+              goto 99           !--> ERROR
+            endif
           endif                                 
         enddo
-
-!-------------------------------------------------------------------------------- 
+!--------------------------------------------------------------------------------
 #  if (defined BIO_NChlPZD && defined OXYGEN) || defined BIO_BioEBUS
 !  Gas exchange fluxes
 !
         do iflux = 1, NumGasExcTerms
-          lvar=lenstr(vname(1,indxGasExcFlux+iflux-1))
-          ierr=nf_inq_varid (ncid, 
-     &                 vname(1,indxGasExcFlux+iflux-1)(1:lvar),
-     &                 vidGasExc(iflux))
-          if (ierr .ne. nf_noerr) then
-            write(stdout,1) vname(1,indxGasExcFlux+iflux-1)(1:lvar),
-     &                                         ncname(1:lstr)
-            goto 99                                       !--> ERROR
+          if (wrtGasExc(iflux)) then
+            lvar=lenstr(vname(1,indxGasExcFlux+iflux-1))
+            ierr=nf_inq_varid (ncid, 
+     &           vname(1,indxGasExcFlux+iflux-1)(1:lvar),
+     &           vidGasExc(iflux))
+            if (ierr .ne. nf_noerr) then
+              write(stdout,1) vname(1,indxGasExcFlux+iflux-1)(1:lvar),
+     &             ncname(1:lstr)
+              goto 99           !--> ERROR
+            endif
           endif
         enddo
 #endif  
 !--------------------------------------------------------------------------------
-
-!        write(*,'(6x,2A,i4,1x,A,i4)') 'DEF_BIO_DIAG -- Opened ',
+        
+!     write(*,'(6x,2A,i4,1x,A,i4)') 'DEF_BIO_DIAG -- Opened ',
 !     &                     'existing file  from record =', rec
 !     &                      MYID
 
@@ -533,7 +548,9 @@
 
 #undef ncname
 #undef rec_per_file
-#undef wrt
+#undef wrtFlux
+#undef wrtVSink
+#undef wrtGasExc
 #undef vidTime
 #undef vidTime2
 #undef vidTstep
