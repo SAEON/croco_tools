@@ -111,6 +111,24 @@ diagbio_avg: ldefdiabio_avg  ntsdiabio_avg  nwrtdiabio_avg  nprfdiabio_avg /file
                   T              1              72              0
                                  ROMS_FILES/roms_diabio_avg.nc
 
+diagbioFlux_history_fields:    wrtdiabioFlux 
+                                 50*T 
+
+diagbioVSink_history_fields:   wrtdiabioVSink 
+                                 50*T  
+
+diagbioGasExc_history_fields:  wrtdiabioGasExc 
+			                      50*T 
+
+diagbioFlux_average_fields:    wrtdiabioFlux_avg
+                                  50*F   
+
+diagbioVSink_average_fields:   wrtdiabioVSink_avg
+                                  50*F
+
+diagbioGasExc_average_fields:  wrtdiabioGasExc_avg
+			                      50*F
+	
 biology:   forcing file
            roms_frcbio.nc
 

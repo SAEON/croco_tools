@@ -64,9 +64,16 @@
 # endif
 #endif
 #ifdef DIAGNOSTICS_BIO
-     &    .or. (mod(ilc-1,nwrtdiabio).eq.0 .and. wrtdiabio)
+     &    .or. (mod(ilc-1,nwrtdiabio).eq.0 .and. 
+     &    (      wrtdiabioFlux(NumFluxTerms+1)
+     &      .or. wrtdiabioVSink(NumVSinkTerms+1)
+     &      .or. wrtdiabioGasExc(NumGasExcTerms+1) ) )
+
 # ifdef AVERAGES
-     &    .or. (mod(ilc-1,nwrtdiabio_avg).eq.0 .and. wrtdiabio_avg)
+     &    .or. (mod(ilc-1,nwrtdiabio_avg).eq.0 .and. 
+     &    (      wrtdiabioFlux_avg(NumFluxTerms+1)
+     &      .or. wrtdiabioVSink_avg(NumVSinkTerms+1)
+     &      .or. wrtdiabioGasExc_avg(NumGasExcTerms+1) ))
 # endif
 #endif /*DIAGNOSTICS_BIO*/
 #ifdef FLOATS
@@ -161,17 +168,22 @@
      &                                              call wrt_diagsM
 # ifdef AVERAGES
         if (ldefdiaM_avg .and. mod(ilc-1,nwrtdiaM_avg).eq.0
-     &                 .and. wrtdiaM_avg(3)) call wrt_diagsM_avg
+     &                 .and. wrtdiaM_avg(3))        call wrt_diagsM_avg
 # endif
 #endif
 #if defined DIAGNOSTICS_BIO
-        if (mod(ilc-1,nwrtdiabio).eq.0 .and. wrtdiabio) then
+        if (mod(ilc-1,nwrtdiabio).eq.0 .and. 
+     &       (      wrtdiabioFlux(NumFluxTerms+1)
+     &       .or. wrtdiabioVSink(NumVSinkTerms+1)
+     &       .or. wrtdiabioGasExc(NumGasExcTerms+1) ) ) then
           call wrt_bio_diags
         endif
 # ifdef AVERAGES
-        if (ldefdiabio_avg .and. mod(ilc-1,nwrtdiabio_avg).eq.0
-     & .and. wrtdiabio_avg) then
-           call wrt_bio_diags_avg
+        if (ldefdiabio_avg .and. mod(ilc-1,nwrtdiabio_avg).eq.0.and.   
+     &       (      wrtdiabioFlux_avg(NumFluxTerms+1)
+     &       .or. wrtdiabioVSink_avg(NumVSinkTerms+1)
+     &       .or. wrtdiabioGasExc_avg(NumGasExcTerms+1) ) ) then
+          call wrt_bio_diags_avg
         endif
 # endif
 #endif
