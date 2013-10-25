@@ -29,13 +29,18 @@ averages: NTSAVG, NAVG, NRPFAVG / filename
 
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
                           T    T   T   T  T    30*T
-auxiliary_history_fields:   rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Ustr Vstr rsw rlw lat sen HEL
-                             F   F     F   F    F    F    T   T    T     T    T    T     10*F                 
+auxiliary_history_fields:   rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Ustr Vstr Shfl Swfl rsw rlw lat sen HEL
+                             F   F     T   F    T    F    T   T    T     T    T    T    T    T    T  10*T             
+gls_history_fields:   Akk Akp  TKE  GLS  Lscale
+                       T   T    T     T    T
 
 primary_averages: zeta UBAR VBAR  U  V   wrtT(1:NT)
                    T    T    T    T  T   30*T
-auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Ustr Vstr rsw rlw lat sen HEL
-                     F   T     T   F    T    F    T   T    T     T    T    T     10*F   
+auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Ustr Vstr Shfl Swfl rsw rlw lat sen HEL
+                     F   T     T   F    T    F    T   T    T     T   T    T     T    T    T  10*T
+gls_averages:   Akk Akp  TKE  GLS  Lscale
+                  T   T    T     T    T
+
 
 rho0:
       1025.d0
@@ -70,7 +75,7 @@ diagnostics:   ldefdia   nwrtdia    nrpfdia /filename
 
 diag_avg: ldefdia_avg  ntsdia_avg  nwrtdia_avg  nprfdia_avg /filename
                T          1           72            0
-                           roms_dia_avg.nc
+                                 roms_dia_avg.nc
 
 diag3D_history_fields:    diag_tracers3D(1:NT) 
                             30*T
@@ -106,6 +111,24 @@ diagbio_avg: ldefdiabio_avg  ntsdiabio_avg  nwrtdiabio_avg  nprfdiabio_avg /file
                   T              1              72              0
                                  roms_diabio_avg.nc
 
+diagbioFlux_history_fields:    wrtdiabioFlux 
+                                 50*T 
+
+diagbioVSink_history_fields:   wrtdiabioVSink 
+                                 50*T  
+
+diagbioGasExc_history_fields:  wrtdiabioGasExc 
+			                      50*T 
+
+diagbioFlux_average_fields:    wrtdiabioFlux_avg
+                                  50*F   
+
+diagbioVSink_average_fields:   wrtdiabioVSink_avg
+                                  50*F
+
+diagbioGasExc_average_fields:  wrtdiabioGasExc_avg
+			                      50*F
+	
 biology:   forcing file
            roms_frcbio.nc
 
@@ -137,11 +160,10 @@ psource:   Nsrc  Isrc  Jsrc  Dsrc  Qbar [m3/s]    Lsrc        Tsrc
                   3    40     0    200.            T T      5. 0.
 
 psource_ncfile:   Nsrc  Isrc  Jsrc  Dsrc qbardir  Lsrc  Tsrc   runoff file name
-              ROMS_FILES/roms_runoff_monthly_benguela_lr.nc
-            3
-                  31   19     0  -1   30*T      5. 0.
-                  36   13     1  -1   30*T      5. 0.
-                  27   32     0  -1   30*T      5. 0. 
+                                  ROMS_FILES/roms_runoff.nc
+                 2
+                        24  35  0  -1   30*T   5.0  0.0
+                        35  13  1  -1   30*T   5.0  0.0
 
 online:    byear  bmonth recordsperday byearend bmonthend / data path
            NYONLINE   NMONLINE      4             2011     3
