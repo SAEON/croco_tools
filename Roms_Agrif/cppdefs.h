@@ -244,15 +244,16 @@
 #     define key_trc_dia3d
 #   endif
 #  endif
-# endif
-                      /*   Bio options   */
-# define  DIAGNOSTICS_BIO
-# ifdef BIO_NChlPZD
+#  ifdef BIO_NChlPZD
 #   define  OXYGEN
-# endif
-# ifdef BIO_BioEBUS
+#  endif
+#  ifdef BIO_BioEBUS
 #   define NITROUS_OXIDE
+#  endif
+                      /*   Biology diagnostics    */
+#  undef DIAGNOSTICS_BIO
 # endif
+
                       /*   Lagrangian floats model    */
 # ifdef FLOATS
 #  undef  FLOATS_GLOBAL_ATTRIBUTES
