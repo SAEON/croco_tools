@@ -1931,6 +1931,7 @@ C$    integer  trd, omp_get_thread_num
 # include "param.h"
 # include "boundary.h"
 # include "scalars.h"
+# include "ocean3d.h"
 !
 # include "compute_auxiliary_bounds.h"
 !
