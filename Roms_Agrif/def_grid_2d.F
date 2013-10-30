@@ -82,7 +82,11 @@
       ierr=nf_put_att_text (ncid, varid, 'axis', 1, 'X')
       ierr=nf_put_att_FTYPE(ncid, varid, 'c_grid_axis_shift',
      &     nf_ftype, 1, 0.5)
+#if defined EW_PERIODIC
+      write(strtmp,'(i0":"i0" ")') 1, xi_u-1
+#else
       write(strtmp,'(i0":"i0" ")') 2, xi_u-1
+#endif
       ierr=nf_put_att_text (ncid, varid, 'c_grid_dynamic_range',
      &  len_trim(strtmp), trim(strtmp))
 !
@@ -104,7 +108,11 @@
       ierr=nf_put_att_text (ncid, varid, 'axis', 1, 'Y')
       ierr=nf_put_att_FTYPE(ncid, varid, 'c_grid_axis_shift',
      &     nf_ftype, 1, 0.5)
+#if defined NS_PERIODIC
+      write(strtmp,'(i0":"i0" ")') 1, eta_v-1
+#else
       write(strtmp,'(i0":"i0" ")') 2, eta_v-1
+#endif
       ierr=nf_put_att_text (ncid, varid, 'c_grid_dynamic_range',
      &  len_trim(strtmp), trim(strtmp))
 !
