@@ -56,19 +56,18 @@
               ierr=nf_inq_varid (bry_id, 'bry_time',  bry_time_id)
               if (ierr.ne.nf_noerr) then
                 got_tbry(itemp)=.false.
-                ierr_all=ierr_all+ierr
+               ! ierr_all=ierr_all+ierr
 # ifdef SALINITY
                 got_tbry(isalt)=.false.
 # endif
                 write(stdout,3) 'bry_time', bry_file(1:lstr)
 C     goto 99      !--> ERROR
               endif
-              
 # ifdef PISCES
             elseif (itrc.eq.iDIC_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'dic_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'dic_time', bry_file(1:lstr)
@@ -76,9 +75,8 @@ c     goto 99                                     !--> ERROR
               endif
             elseif (itrc.eq.iTAL_) then
               got_tbry(itrc)=.true.
-              ierr=nf_inq_varid (bry_id, 'talk_time', bry_tid(itrc)
-     &          )
-              ierr_all=ierr_all+ierr
+              ierr=nf_inq_varid (bry_id, 'talk_time', bry_tid(itrc))
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'talk_time', bry_file(1:lstr)
@@ -87,7 +85,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iOXY_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'o2_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'o2_time', bry_file(1:lstr)
@@ -96,7 +94,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iCAL_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'cal_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'cal_time', bry_file(1:lstr)
@@ -105,7 +103,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iPO4_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'po4_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'po4_time', bry_file(1:lstr)
@@ -114,7 +112,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iPOC_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'poc_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'poc_time', bry_file(1:lstr)
@@ -123,7 +121,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iSIL_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'si_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'si_time', bry_file(1:lstr)
@@ -141,7 +139,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iZOO_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'zoo_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+            !  ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'zoo_time', bry_file(1:lstr)
@@ -150,7 +148,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iDOC_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'doc_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'doc_time', bry_file(1:lstr)
@@ -159,7 +157,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iDIA_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'dia_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'dia_time', bry_file(1:lstr)
@@ -168,7 +166,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iMES_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'mes_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'mes_time', bry_file(1:lstr)
@@ -177,7 +175,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iBSI_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'bsi_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'bsi_time', bry_file(1:lstr)
@@ -186,7 +184,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iFER_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'fer_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'fer_time', bry_file(1:lstr)
@@ -213,7 +211,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iSFE_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'sfe_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'sfe_time', bry_file(1:lstr)
@@ -222,7 +220,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iDFE_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'dfe_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'dfe_time', bry_file(1:lstr)
@@ -232,7 +230,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iDSI_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'dsi_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'dsi_time', bry_file(1:lstr)
@@ -250,7 +248,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iNCH_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'nch_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'nch_time', bry_file(1:lstr)
@@ -268,7 +266,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iNO3_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'no3_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'no3_time', bry_file(1:lstr)
@@ -277,7 +275,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iNH4_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'nh4_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'nh4_time', bry_file(1:lstr)
@@ -288,6 +286,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iNO3_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'no3_time', bry_tid(itrc))
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'NO3', bry_file(1:lstr)
@@ -295,8 +294,8 @@ c              goto 99                                     !--> ERROR
               endif
             elseif (itrc.eq.iPhy1) then
               got_tbry(itrc)=.true.
-              ierr=nf_inq_varid (bry_id, 'phyto_time', bry_tid(itrc
-     &          ))
+              ierr=nf_inq_varid (bry_id, 'phyto_time', bry_tid(itrc))
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'PHYTO', bry_file(1:lstr)
@@ -305,6 +304,7 @@ c              goto 99                                     !--> ERROR
             elseif (itrc.eq.iZoo1) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'zoo_time', bry_tid(itrc))
+            !  ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'ZOO', bry_file(1:lstr)
@@ -312,8 +312,8 @@ c              goto 99                                     !--> ERROR
               endif
             elseif (itrc.eq.iChla) then
               got_tbry(itrc)=.true.
-              ierr=nf_inq_varid (bry_id, 'chla_time', bry_tid(itrc)
-     &          )
+              ierr=nf_inq_varid (bry_id, 'chla_time', bry_tid(itrc))
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'CHLA', bry_file(1:lstr)
@@ -323,6 +323,7 @@ c              goto 99                                     !--> ERROR
             elseif (itrc.eq.iDet1) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'det_time', bry_tid(itrc))
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'DET', bry_file(1:lstr)
@@ -333,6 +334,7 @@ c              goto 99                                     !--> ERROR
             elseif (itrc.eq.iNH4_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'nh4_time', bry_tid(itrc))
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'NH4', bry_file(1:lstr)
@@ -341,6 +343,7 @@ c              goto 99                                     !--> ERROR
               elseif (itrc.eq.iDet1) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'det1_time', bry_tid(itrc))
+            !  ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'SDET', bry_file(1:lstr)
@@ -349,6 +352,7 @@ c              goto 99                                     !--> ERROR
             elseif (itrc.eq.iDet2) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'det2_time', bry_tid(itrc))
+            !  ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'LDET', bry_file(1:lstr)
@@ -359,20 +363,137 @@ c              goto 99                                     !--> ERROR
             elseif (itrc.eq.iO2) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'o2_time', bry_tid(itrc))
+            !  ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'O2', bry_file(1:lstr)
 c              goto 99                                     !--> ERROR
               endif
 #   endif   
-#endif     /* PISCES or (BIO_NChlPZD || BIO_N2ChlPZ2) */           
-            endif               !condition on itrc value
-c$$$            write(*,*) 'LOGICAL:',got_tbry(itrc),itrc
-          enddo                 ! loop on itrc
-!              if (ierr_all.ne.nf_noerr) write(stdout,'(/1x,4A/)') 'ERROR ',
-!     &                   'in get_all_bry TIME ''',bry_file(1:lstr),   '''.'
-          
-          ierr_all=0      
+#  elif defined BIO_BioEBUS
+           elseif (itrc.eq.iNO3_) then
+             write(*,*)'iNO3_'
+              got_tbry(itrc)=.true.
+              ierr=nf_inq_varid (bry_id, 'no3_time', bry_tid(itrc))
+            !  ierr_all=ierr_all+ierr
+              if (ierr .ne. nf_noerr) then
+                got_tbry(itrc)=.false.
+                write(stdout,3) 'no3_time', bry_file(1:lstr)
+c     goto 99                                     !--> ERROR
+              endif
+            elseif (itrc.eq.iNH4_) then
+              write(*,*)'iNH4_'
+              got_tbry(itrc)=.true.
+              ierr=nf_inq_varid (bry_id, 'nh4_time', bry_tid(itrc))
+              ierr_all=ierr_all+ierr
+              if (ierr .ne. nf_noerr) then
+                got_tbry(itrc)=.false.
+                write(stdout,3) 'nh4_time', bry_file(1:lstr)
+c     goto 99                                     !--> ERROR
+              endif
+            elseif (itrc.eq.iPhy1) then
+              write(*,*)'iPhy1'
+              got_tbry(itrc)=.true.
+              ierr=nf_inq_varid (bry_id, 'sphyto_time', bry_tid(itrc))
+             ! ierr_all=ierr_all+ierr
+              if (ierr .ne. nf_noerr) then
+                got_tbry(itrc)=.false.
+                write(stdout,3) 'sphyto_time', bry_file(1:lstr)
+c     goto 99                                     !--> ERROR
+              endif
+            elseif (itrc.eq.iPhy2) then
+              write(*,*)'iPhy2'
+              got_tbry(itrc)=.true.
+              ierr=nf_inq_varid (bry_id, 'lphyto_time', bry_tid(itrc))
+            !  ierr_all=ierr_all+ierr
+              if (ierr .ne. nf_noerr) then
+                got_tbry(itrc)=.false.
+                write(stdout,3) 'lphyto_time', bry_file(1:lstr)
+c     goto 99                                     !--> ERROR
+              endif
+            elseif (itrc.eq.iZoo1) then
+              write(*,*)'iZoo1'
+              got_tbry(itrc)=.true.
+              ierr=nf_inq_varid (bry_id, 'szoo_time', bry_tid(itrc))
+            !  ierr_all=ierr_all+ierr
+              if (ierr .ne. nf_noerr) then
+                got_tbry(itrc)=.false.
+                write(stdout,3) 'szoo_time', bry_file(1:lstr)
+c     goto 99                                     !--> ERROR
+              endif
+            elseif (itrc.eq.iZoo2) then
+              write(*,*)'iZoo2'
+              got_tbry(itrc)=.true.
+              ierr=nf_inq_varid (bry_id, 'lzoo_time', bry_tid(itrc))
+            !  ierr_all=ierr_all+ierr
+              if (ierr .ne. nf_noerr) then
+                got_tbry(itrc)=.false.
+                write(stdout,3) 'lzoo_time', bry_file(1:lstr)
+c              goto 99                                     !--> ERROR
+              endif
+            elseif (itrc.eq.iDet1) then
+              write(*,*)'iDet1'
+              got_tbry(itrc)=.true.
+              ierr=nf_inq_varid (bry_id, 'sdet_time', bry_tid(itrc))
+            !  ierr_all=ierr_all+ierr
+              if (ierr .ne. nf_noerr) then
+                got_tbry(itrc)=.false.
+                write(stdout,3) 'sdet_time', bry_file(1:lstr)
+c              goto 99                                     !--> ERROR
+              endif
+            elseif (itrc.eq.iDet2) then
+              write(*,*)'iDet2'
+              got_tbry(itrc)=.true.
+              ierr=nf_inq_varid (bry_id, 'ldet_time', bry_tid(itrc))
+            !  ierr_all=ierr_all+ierr
+              if (ierr .ne. nf_noerr) then
+                got_tbry(itrc)=.false.
+                write(stdout,3) 'ldet_time', bry_file(1:lstr)
+c              goto 99                                     !--> ERROR
+              endif
+            elseif (itrc.eq.iDON) then
+              write(*,*)'iDON'
+              got_tbry(itrc)=.true.
+              ierr=nf_inq_varid (bry_id, 'don_time', bry_tid(itrc))
+           !     ierr_all=ierr_all+ierr
+              if (ierr .ne. nf_noerr) then
+                got_tbry(itrc)=.false.
+                write(stdout,3) 'don_time', bry_file(1:lstr)
+c              goto 99                                     !--> ERROR
+              endif
+            elseif (itrc.eq.iO2) then
+              write(*,*)'iO2'
+              got_tbry(itrc)=.true.
+              ierr=nf_inq_varid (bry_id, 'o2_time', bry_tid(itrc))
+             ! ierr_all=ierr_all+ierr
+              if (ierr .ne. nf_noerr) then
+                got_tbry(itrc)=.false.
+                write(stdout,3) 'o2_time', bry_file(1:lstr)
+c              goto 99  
+              endif
+#    ifdef NITROUS_OXIDE
+            elseif (itrc.eq.iN2O) then
+              write(*,*)'iN2O'
+              got_tbry(itrc)=.true.
+              ierr=nf_inq_varid (bry_id, 'n2o_time', bry_tid(itrc))
+            !  ierr_all=ierr_all+ierr
+              if (ierr .ne. nf_noerr) then
+                got_tbry(itrc)=.false.
+                write(stdout,3) 'n2o_time', bry_file(1:lstr)
+c     goto 99                                     !--> ERROR
+              endif
+#    endif
+#  endif
+#endif     /* PISCES or (BIO_NChlPZD || BIO_N2ChlPZ2) or BIO_BioEBUS */           
+            endif   !condition on itrc value
+          enddo   ! loop on itrc
+!     --
+!     nf_noerr is  0
+!      ierr_all=0     
+!     if (ierr_all.ne.nf_noerr) write(stdout,'(/1x,4A/)') 'ERROR ',
+!     &                   'in get_all_bry TIME ''',bry_file(1:lstr),   '''.'         
+!     ierr_all=0      
+!     --
 !
 #  ifdef OBC_WEST
           do itrc=3,NT
@@ -380,13 +501,10 @@ c$$$            write(*,*) 'LOGICAL:',got_tbry(itrc),itrc
               lvar=lenstr(vname(1,indxT+itrc-1))
               text=vname(1,indxT+itrc-1)(1:lvar) / /'_west'
               lvar2=lenstr(text)
-!              write(*,*)'lvar=',lvar
-!              write(*,*)'lvar2=',lvar2
-!              write(*,*)'text=',text
               ierr=nf_inq_varid(bry_id,text(1:lvar2),tbry_west_id(itrc))
               if (ierr .ne. nf_noerr) then
                 write(stdout,3) text(1:lvar2),
-     &            bry_file(1:lstr)
+     &               bry_file(1:lstr)
 c                goto 99         !--> ERROR
               endif
             endif
@@ -442,8 +560,10 @@ c                goto 99         !--> ERROR
             endif
           enddo
 #  endif /* OBC_NORTH */
-!            
+! 
+          ierr_all=0      
           ierr=ierr_all
+!
           if (ierr.eq.nf_noerr) then
             do itrc=3,NT
               if(got_tbry(itrc)) then	
@@ -487,7 +607,9 @@ c                goto 99         !--> ERROR
                 itbry1(itrc)=min(3-itbry1(itrc),ntbry1(itrc))
                 bry_time1(itbry1(itrc),itrc)=cff*day2sec + 
      &            bry_cycle1(itrc)*bry_ncycle1(itrc)
+!
                 ierr_all=0
+!
 # ifdef OBC_WEST
 
                 ierr=nf_read_bry_EW (tbry_west_dt(START_1D_ARRAYETA,1
@@ -518,8 +640,8 @@ c                goto 99         !--> ERROR
                 if (ierr.ne.nf_noerr)  write(stdout,2)  'trc_north'
                 ierr_all=ierr_all+ierr
 # endif
+
                 ierr=ierr_all
-                
                 if (ierr.eq.0) then
                   write(stdout,'(6x,A,9x,A,1x,G12.4,1x,I4)')
      &              'GET_BRY_BIO    -- Read all boundary data',
