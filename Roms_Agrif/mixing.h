@@ -93,6 +93,11 @@
       common /mixing_bvf/ bvf
 # endif
 
+#  ifdef BIOLOGY
+      real hel(GLOBAL_2D_ARRAY)
+      common /lmd_hel/hel
+#  endif
+
 # if defined LMD_SKPP || defined LMD_BKPP
 !
 ! Large/McWilliams/Doney oceanic planetary boundary layer variables.
@@ -104,10 +109,6 @@
 !
       integer kbl(GLOBAL_2D_ARRAY)
       integer kbbl(GLOBAL_2D_ARRAY)
-#  ifdef BIOLOGY
-      real hel(GLOBAL_2D_ARRAY)
-      common /lmd_hel/hel
-#  endif
 #  ifdef LMD_SKPP2005      
       real hbls(GLOBAL_2D_ARRAY,2)
 #  else           
