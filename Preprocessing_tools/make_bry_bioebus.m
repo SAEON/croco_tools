@@ -188,35 +188,35 @@ if (makeZbry)
 	  disp('  Chlorophylle...(computed from Chla data)')
       disp(' ')
 	  cff=1;
-	  bry_interp_bgc_chloro(bryname,grdname,clmname,lon,lat,chla_seas_data,chla_ann_data,...
+	  bry_interp_bgc_chloro(bryname,grdname,bryname,lon,lat,chla_seas_data,chla_ann_data,...
 		'Chlorophylle',['CHLA',suffix],obcndx,cff,Roa);
       %
 	  disp('============================================')
 	  disp('  Small Phytoplankton...(computed from Chla data)')
       disp(' ')
 	  cff=0.1;       
-	  bry_interp_bgc_chloro(bryname,grdname,clmname,lon,lat,chla_seas_data,chla_ann_data,...
+	  bry_interp_bgc_chloro(bryname,grdname,bryname,lon,lat,chla_seas_data,chla_ann_data,...
                'Phytoplancton,',['SPHYTO',suffix],obcndx,cff,Roa);        
       %
 	  disp('============================================')
 	  disp('  Large Phytoplankton...(computed from Chla data)')
       disp(' ')
 	  cff=0.4;       
-	  bry_interp_bgc_chloro(bryname,grdname,clmname,lon,lat,chla_seas_data,chla_ann_data,...
+	  bry_interp_bgc_chloro(bryname,grdname,bryname,lon,lat,chla_seas_data,chla_ann_data,...
                'Phytoplancton,',['LPHYTO',suffix],obcndx,cff,Roa);        
       %
 	  disp('============================================')
       disp('  Small Zooplankton...(computed from Chla data)')
       disp(' ')
 	  cff=0.2;     
-	  bry_interp_bgc_chloro(bryname,grdname,clmname,lon,lat,chla_seas_data,chla_ann_data,...
+	  bry_interp_bgc_chloro(bryname,grdname,bryname,lon,lat,chla_seas_data,chla_ann_data,...
                'Zooplankton',['SZOO',suffix],obcndx,cff,Roa);   
       %
 	  disp('============================================')
       disp('  Large Zooplankton...(computed from Chla data)')
       disp(' ')
 	  cff=0.3;     
-	  bry_interp_bgc_chloro(bryname,grdname,clmname,lon,lat,chla_seas_data,chla_ann_data,...
+	  bry_interp_bgc_chloro(bryname,grdname,bryname,lon,lat,chla_seas_data,chla_ann_data,...
                'Zooplankton',['LZOO',suffix],obcndx,cff,Roa);     
     end
   end
