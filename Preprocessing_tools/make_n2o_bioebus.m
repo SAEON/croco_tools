@@ -162,8 +162,6 @@ end
 %==========
 if makebry
 % O2 boundary conditions
-% Here you still need to know zw_clm
-% computed in case ao make_cim above ...
 nc=netcdf(grdname);
 h = nc{'h'}(:);
 close(nc)       
