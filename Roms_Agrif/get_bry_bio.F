@@ -130,7 +130,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iPHY_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'phy_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+              ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'phy_time', bry_file(1:lstr)
@@ -193,7 +193,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iBFE_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'bfe_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'bfe_time', bry_file(1:lstr)
@@ -202,7 +202,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iGOC_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'goc_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'goc_time', bry_file(1:lstr)
@@ -226,7 +226,6 @@ c     goto 99                                     !--> ERROR
                 write(stdout,3) 'dfe_time', bry_file(1:lstr)
 c     goto 99                                     !--> ERROR
               endif
-              ierr_all=ierr_all+ierr
             elseif (itrc.eq.iDSI_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'dsi_time', bry_tid(itrc))
@@ -239,7 +238,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iNFE_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'nfe_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'nfe_time', bry_file(1:lstr)
@@ -257,7 +256,7 @@ c     goto 99                                     !--> ERROR
             elseif (itrc.eq.iDCH_) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'dch_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'dch_time', bry_file(1:lstr)
@@ -343,7 +342,7 @@ c              goto 99                                     !--> ERROR
               elseif (itrc.eq.iDet1) then
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'det1_time', bry_tid(itrc))
-            !  ierr_all=ierr_all+ierr
+             !  ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'SDET', bry_file(1:lstr)
@@ -372,7 +371,6 @@ c              goto 99                                     !--> ERROR
 #   endif   
 #  elif defined BIO_BioEBUS
            elseif (itrc.eq.iNO3_) then
-             write(*,*)'iNO3_'
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'no3_time', bry_tid(itrc))
             !  ierr_all=ierr_all+ierr
@@ -382,17 +380,15 @@ c              goto 99                                     !--> ERROR
 c     goto 99                                     !--> ERROR
               endif
             elseif (itrc.eq.iNH4_) then
-              write(*,*)'iNH4_'
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'nh4_time', bry_tid(itrc))
-              ierr_all=ierr_all+ierr
+             ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'nh4_time', bry_file(1:lstr)
 c     goto 99                                     !--> ERROR
               endif
             elseif (itrc.eq.iPhy1) then
-              write(*,*)'iPhy1'
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'sphyto_time', bry_tid(itrc))
              ! ierr_all=ierr_all+ierr
@@ -402,7 +398,6 @@ c     goto 99                                     !--> ERROR
 c     goto 99                                     !--> ERROR
               endif
             elseif (itrc.eq.iPhy2) then
-              write(*,*)'iPhy2'
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'lphyto_time', bry_tid(itrc))
             !  ierr_all=ierr_all+ierr
@@ -412,7 +407,6 @@ c     goto 99                                     !--> ERROR
 c     goto 99                                     !--> ERROR
               endif
             elseif (itrc.eq.iZoo1) then
-              write(*,*)'iZoo1'
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'szoo_time', bry_tid(itrc))
             !  ierr_all=ierr_all+ierr
@@ -422,7 +416,6 @@ c     goto 99                                     !--> ERROR
 c     goto 99                                     !--> ERROR
               endif
             elseif (itrc.eq.iZoo2) then
-              write(*,*)'iZoo2'
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'lzoo_time', bry_tid(itrc))
             !  ierr_all=ierr_all+ierr
@@ -432,7 +425,6 @@ c     goto 99                                     !--> ERROR
 c              goto 99                                     !--> ERROR
               endif
             elseif (itrc.eq.iDet1) then
-              write(*,*)'iDet1'
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'sdet_time', bry_tid(itrc))
             !  ierr_all=ierr_all+ierr
@@ -442,7 +434,6 @@ c              goto 99                                     !--> ERROR
 c              goto 99                                     !--> ERROR
               endif
             elseif (itrc.eq.iDet2) then
-              write(*,*)'iDet2'
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'ldet_time', bry_tid(itrc))
             !  ierr_all=ierr_all+ierr
@@ -452,17 +443,15 @@ c              goto 99                                     !--> ERROR
 c              goto 99                                     !--> ERROR
               endif
             elseif (itrc.eq.iDON) then
-              write(*,*)'iDON'
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'don_time', bry_tid(itrc))
-           !     ierr_all=ierr_all+ierr
+              ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'don_time', bry_file(1:lstr)
 c              goto 99                                     !--> ERROR
               endif
             elseif (itrc.eq.iO2) then
-              write(*,*)'iO2'
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'o2_time', bry_tid(itrc))
              ! ierr_all=ierr_all+ierr
@@ -473,10 +462,9 @@ c              goto 99
               endif
 #    ifdef NITROUS_OXIDE
             elseif (itrc.eq.iN2O) then
-              write(*,*)'iN2O'
               got_tbry(itrc)=.true.
               ierr=nf_inq_varid (bry_id, 'n2o_time', bry_tid(itrc))
-            !  ierr_all=ierr_all+ierr
+              ! ierr_all=ierr_all+ierr
               if (ierr .ne. nf_noerr) then
                 got_tbry(itrc)=.false.
                 write(stdout,3) 'n2o_time', bry_file(1:lstr)
@@ -487,14 +475,16 @@ c     goto 99                                     !--> ERROR
 #endif     /* PISCES or (BIO_NChlPZD || BIO_N2ChlPZ2) or BIO_BioEBUS */           
             endif   !condition on itrc value
           enddo   ! loop on itrc
+!
+! Initialisation ierr_all
+          ierr_all=0  
+
 !     --
 !     nf_noerr is  0
-!      ierr_all=0     
 !     if (ierr_all.ne.nf_noerr) write(stdout,'(/1x,4A/)') 'ERROR ',
-!     &                   'in get_all_bry TIME ''',bry_file(1:lstr),   '''.'         
-!     ierr_all=0      
+!     &                   'in get_all_bry TIME ''',bry_file(1:lstr),   '''.'             
 !     --
-!
+
 #  ifdef OBC_WEST
           do itrc=3,NT
             if (got_tbry(itrc)) then
@@ -560,10 +550,8 @@ c                goto 99         !--> ERROR
             endif
           enddo
 #  endif /* OBC_NORTH */
-! 
-          ierr_all=0      
+!  
           ierr=ierr_all
-!
           if (ierr.eq.nf_noerr) then
             do itrc=3,NT
               if(got_tbry(itrc)) then	
