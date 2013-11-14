@@ -94,7 +94,7 @@
     Select TRACER LATERAL advection-diffusion scheme
     (The default is third-order upstream biased)
 */
-/* #undef  TS_HADV_C6     6th-order upstream lateral advection */ 
+/* #undef  TS_HADV_C6     6th-order centered lateral advection */ 
 /* #undef  TS_HADV_UP5    5th-order upstream lateral advection */ 
 /* #undef  TS_HADV_C4     4th-order centered lateral advection */
 /* #undef  TS_HADV_UP3    3rd-order upstream lateral advection */
