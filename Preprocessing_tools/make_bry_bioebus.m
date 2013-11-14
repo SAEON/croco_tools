@@ -67,9 +67,9 @@ Roa;
 %  Data climatologies file names:
 %
 %
-no3_seas_data=[climato_dir,'no3_seas.cdf'];
+no3_seas_data=[climato_dir,'no3_month.cdf'];
 no3_ann_data=[climato_dir,'no3_ann.cdf'];
-o2_seas_data=[climato_dir,'o2_seas.cdf'];
+o2_seas_data=[climato_dir,'o2_month.cdf'];
 o2_ann_data=[climato_dir,'o2_ann.cdf'];
 chla_seas_data=[chla_dir,'chla_seas.cdf'];
 chla_ann_data=[chla_dir,'chla_seas.cdf'];

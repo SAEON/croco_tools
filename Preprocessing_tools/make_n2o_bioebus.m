@@ -22,13 +22,14 @@ close all
 %
 romstools_param
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
-nc=netcdf(grdname);
-h = nc{'h'}(:);
-close(nc)
+
 %
 %=========
 
-if makeiniend
+if makeini
+nc=netcdf(grdname);
+h = nc{'h'}(:);
+close(nc)
 % O2 initial conditions
 nc=netcdf(ininame);
 theta_s = nc{'theta_s'}(:);
@@ -81,7 +82,9 @@ end
 
 %==========
 if makeclim
-    
+nc=netcdf(grdname);
+h = nc{'h'}(:);
+close(nc)
 % O2 climatological conditions
 nc=netcdf(clmname);
 theta_s = nc{'theta_s'}(:);
@@ -161,6 +164,10 @@ if makebry
 % O2 boundary conditions
 % Here you still need to know zw_clm
 % computed in case ao make_cim above ...
+nc=netcdf(grdname);
+h = nc{'h'}(:);
+close(nc)       
+
 nc=netcdf(bryname);
 theta_s = nc{'theta_s'}(:);
 theta_b = nc{'theta_b'}(:);
@@ -172,19 +179,46 @@ if  ~exist('vtransform')
     disp([' NO VTRANSFORM parameter found'])
     disp([' USE TRANSFORM default value vtransform = 1'])
 end
-O2_bry_west= nc{'O2_west'}(:);
-O2_bry_east= nc{'O2_east'}(:);
-O2_bry_south= nc{'O2_south'}(:);
-O2_bry_north= nc{'O2_north'}(:);
+O2_bry_west = nc{'O2_west'}(:);
+O2_bry_east = nc{'O2_east'}(:);
+O2_bry_south = nc{'O2_south'}(:);
+O2_bry_north = nc{'O2_north'}(:);
 O2_time = nc{'o2_time'}(:);
 O2_cycle = nc{'o2_time'}.cycle_length(:);
+zeta_west  = nc{'zeta_west'}(:);
+zeta_east  = nc{'zeta_east'}(:);
+zeta_south = nc{'zeta_south'}(:);
+zeta_north = nc{'zeta_north'}(:);
 close(nc)
+
 % BRY
 [TT,KK,MM]=size(O2_bry_south); [TT,KK,LL]=size(O2_bry_west);
-N2O_bry_east  = zeros(TT,KK,LL); N2O_bry_east(:)=NaN ; zw_bry_west = squeeze(zw_clm(:,:,:,1));
-N2O_bry_west  = zeros(TT,KK,LL); N2O_bry_west(:)=NaN ; zw_bry_east = squeeze(zw_clm(:,:,:,end));
-N2O_bry_south = zeros(TT,KK,MM); N2O_bry_south(:)=NaN; zw_bry_south= squeeze(zw_clm(:,:,1,:));
-N2O_bry_north = zeros(TT,KK,MM); N2O_bry_north(:)=NaN; zw_bry_north= squeeze(zw_clm(:,:,end,:));
+type='w'; 
+zw_bry_west  = zeros(TT,KK+1);
+zw_bry_east  = zeros(TT,KK+1);
+zw_bry_south = zeros(TT,KK+1);
+zw_bry_north = zeros(TT,KK+1);
+
+N2O_bry_east  = zeros(TT,KK,LL); N2O_bry_east(:)=NaN  ;
+N2O_bry_west  = zeros(TT,KK,LL); N2O_bry_west(:)=NaN  ;
+N2O_bry_south = zeros(TT,KK,MM); N2O_bry_south(:)=NaN ;
+N2O_bry_north = zeros(TT,KK,MM); N2O_bry_north(:)=NaN ;
+for t=1:TT
+    for j=1:LL
+        h_west  = squeeze(h(j,1));
+        h_east  = squeeze(h(j,end));
+        zw_bry_west(t,:,j) = zlevs_1d(h_west , squeeze(zeta_west(t,j)) , theta_s, theta_b, hc, N, type, vtransform);
+        zw_bry_east(t,:,j)= zlevs_1d(h_east , squeeze(zeta_east(t,j)) , theta_s, theta_b, hc, N, type, vtransform);
+    end
+end
+for t=1:TT
+    for i=1:MM
+        h_south  = squeeze(h(1,i));
+        h_north  = squeeze(h(end,i));
+        zw_bry_south(t,:,i)= zlevs_1d(h_south , squeeze(zeta_south(t,i)) , theta_s, theta_b, hc, N, type, vtransform);
+        zw_bry_north(t,:,i)= zlevs_1d(h_north , squeeze(zeta_north(t,i)) , theta_s, theta_b, hc, N, type, vtransform);
+    end
+end
 for t=1:TT
     for k=1:KK
         for j=1:LL
@@ -192,20 +226,18 @@ for t=1:TT
             zw_west=zw_bry_west(t,k,j);
             O2_east=O2_bry_east(t,k,j);
             O2_west=O2_bry_west(t,k,j);      
-            N2O_bry_east(t,k,j)= nevis_2003(zw_east,O2_west);
+            N2O_bry_east(t,k,j)= nevis_2003(zw_east,O2_east);
             N2O_bry_west(t,k,j)= nevis_2003(zw_west,O2_west);
         end
     end
 end
-
 for t=1:TT
     for k=1:KK
         for i=1:MM
             zw_north=zw_bry_north(t,k,i);
             zw_south=zw_bry_south(t,k,i);
             O2_north=O2_bry_north(t,k,i);
-            O2_south=O2_bry_south(t,k,i);
-            O2_bry_south(t,k,i);           
+            O2_south=O2_bry_south(t,k,i);     
             N2O_bry_north(t,k,i)=nevis_2003(zw_north,O2_north);
             N2O_bry_south(t,k,i)=nevis_2003(zw_south,O2_south);
         end

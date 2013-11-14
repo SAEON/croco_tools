@@ -8,7 +8,8 @@ function z = zlevs(h,zeta,theta_s,theta_b,hc,N,type,vtransform);
 %  On Input:
 %
 %    type    'r': rho point 'w': w point 
-%    vtransform  1=> old v transform ; 2=>new v transform 
+%    vtransform  1=> old v transform (Song, 1994); 
+%                2=> new v transform (Shcheptekin, 2006)
 %  On Output:
 %
 %    z       Depths (m) of RHO- or W-points (3D matrix).

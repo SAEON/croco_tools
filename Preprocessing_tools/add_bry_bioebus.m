@@ -172,7 +172,7 @@ if obc(2)==1
 %
 %   Eastern boundary
 %
-  disp('Process Esater boundary')
+  disp('Process Eastern boundary')
   
   nc{'NO3_east'} = ncdouble('no3_time','s_rho','eta_rho') ;
   nc{'NO3_east'}.long_name = ncchar('eastern boundary NO3');
