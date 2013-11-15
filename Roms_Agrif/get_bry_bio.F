@@ -471,7 +471,6 @@ c              goto 99
 c     goto 99                                     !--> ERROR
               endif
 #    endif
-#  endif
 #endif     /* PISCES or (BIO_NChlPZD || BIO_N2ChlPZ2) or BIO_BioEBUS */           
             endif   !condition on itrc value
           enddo   ! loop on itrc
