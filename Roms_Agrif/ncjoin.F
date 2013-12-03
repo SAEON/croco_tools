@@ -314,6 +314,7 @@ c**               write(*,'(2I3,1x,A)') code_size, k, ncname0(1:lstr)
 ! Check dimensions (IDs, names and sizes) for consistency accross
 ! the subdomains:
 !
+        tsize=1 !--> will remain 1, if no unlimited dimension exists.
         do i=1,ndims
           do node=0,NNODES-1
             ierr=nf_inq_dimname (ncid(node), i, string)
