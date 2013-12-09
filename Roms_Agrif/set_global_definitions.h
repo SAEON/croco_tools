@@ -326,7 +326,7 @@
 #   define START_1D_ARRAYXI -2
 #   ifdef NS_PERIODIC
 #    define GLOBAL_2D_ARRAY -2:Lm+3+padd_X,-2:Mm+3+padd_E
-#    define GLOBAL_1D_ARRAYETA -3:Mm+3+padd_E
+#    define GLOBAL_1D_ARRAYETA -2:Mm+3+padd_E
 #    define START_2D_ARRAY -2,-2
 #    define START_1D_ARRAYETA -2
 #   else
