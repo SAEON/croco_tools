@@ -209,11 +209,12 @@ nw{'river_position'}(:,:)=[I2 J2];
 nw{'river_direction'}(:,:)=dir;
 disp(['... river positions'])
 % Write qbar, temp,salt and bgc varibales conc.
-cff=150;
-disp(['================== WARNING ============================'])
-disp(['Use a cff coef to increase the discharge= ',num2str(cff)])
-disp(['======================================================='])
-my_flow=cc.*my_flow;
+cff=1;
+%cff=150;
+%disp(['================== WARNING ============================'])
+%disp(['Use a cff coef to increase the discharge= ',num2str(cff)])
+%disp(['======================================================='])
+my_flow=cff.*my_flow;
 nw{'Qbar'}(:) = my_flow;
 disp(['... discharges'])
 if psource_ts
