@@ -132,8 +132,8 @@ end
 %
 % Choose the river you really want to process...
 %
+indomain_last=indomain;
 for k = 1 : number_rivertoprocess
-   indomain_last=indomain;
    indomain_last(k)=input(['Do you want to use river (Yes[1], No[0]) ?  ', rivername(k,:)]);
 end
 rivertoprocess=find(indomain_last==1);
@@ -155,12 +155,12 @@ if define_dir==0
         disp(['River ',rivername(k,:)])
         disp(['Choose the orientation of the flow'])
         dir11 = input('0=zonal or 1=meridional. ');
-        if (dir11~=0 && dir11~=1)
+        if (dir11~=0 & dir11~=1)
             error([num2str(dir11),' : Wrong choice ...'])
         end
         disp(['Choose the sense of the flow. '])
         dir12= input('0 is positive [S-N or W-E], -1 negative [E-W or N-S]. ');
-        if (dir12~=0 && dir12~=-1)
+        if (dir12~=0 & dir12~=-1)
             error([num2str(dir12),' : Wrong choice ...'])
         end
         dir(k,:)=[dir11 dir12];
@@ -258,3 +258,4 @@ title(['\bf Monthly clim of the domain run off'])
 xlabel(['\bf Month']);ylabel(['\bf Discharge in m3/s'])
 set(gca,'Xtick',[0.5:11.5],'XtickLabel',['J';'F';'M';'A';'M';'J';'J';'A';'S';'O';'N';'D']);
 end
+
