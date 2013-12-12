@@ -519,7 +519,7 @@ C$    integer omp_get_thread_num
             t(i,j,k,1,iDet2)=0.02
             t(i,j,k,2,iDet2)=t(i,j,k,1,iDet2)
 #    elif defined BIO_BioEBUS
-            t(i,j,k,1,iNO2_)=0.05*exp(z_r(i,j,k)/100.)	    
+            t(i,j,k,1,iNO2_)=0.05*exp(z_r(i,j,k)/100.)
             t(i,j,k,2,iNO2_)=t(i,j,k,1,iNO2_)
             t(i,j,k,1,iNH4_)=0.1*exp(z_r(i,j,k)/100.)
             t(i,j,k,2,iNH4_)=t(i,j,k,1,iNH4_)
@@ -535,16 +535,16 @@ C$    integer omp_get_thread_num
             t(i,j,k,2,iDet1)=t(i,j,k,1,iDet1)
             t(i,j,k,1,iDet2)=0.02
             t(i,j,k,2,iDet2)=t(i,j,k,1,iDet2)
-            t(i,j,k,1,iDON) =0.5*exp(z_r(i,j,k)/100.)	     
+            t(i,j,k,1,iDON) =0.5*exp(z_r(i,j,k)/100.)    
             t(i,j,k,2,iDON) =t(i,j,k,1,iDON)
             t(i,j,k,2,iO2) = 250.*exp(z_r(i,j,k)/100.)
             t(i,j,k,2,iO2) =t(i,j,k,1,iO2)
 #     ifdef NITROUS_OXIDE
-	    t(i,j,k,1,iN2O)=-(0.008*exp(z_r(i,j,k)/100.)-0.01)
+            t(i,j,k,1,iN2O)=-(0.008*exp(z_r(i,j,k)/100.)-0.01)
             if (t(i,j,k,1,iN2O).lt.0.) then
-	       t(i,j,k,1,iN2O)=0.
-	    endif
-            t(i,j,k,2,iN2O)=t(i,j,k,1,iN2O)	    
+              t(i,j,k,1,iN2O)=0.
+            endif
+            t(i,j,k,2,iN2O)=t(i,j,k,1,iN2O)  
 #     endif
 #    endif
 #   endif /* BIOLOGY */
@@ -741,14 +741,14 @@ C$    integer omp_get_thread_num
         do j=JstrR,JendR
           do i=IstrR,IendR
 #  ifdef MPI
-            y=j+jj*Mm
-            x=i+ii*Lm
+            y=j-0.5+jj*Mm
+            x=i-0.5+ii*Lm
 #  else
-            y=j
-            x=i
+            y=j-0.5
+            x=i-0.5
 #  endif
             y=y/real(MMm)-0.5
-            x=x/real(LLm-2)
+            x=x/real(LLm)
 !
 ! Add vertical attenuation and XI perturbation
 !
@@ -759,27 +759,27 @@ C$    integer omp_get_thread_num
 !
 ! Set Jet structure and place its center at y=pi/2
 !
-             y = y*pi*el/Ljet + pi/2 
+            y = y*pi*el/Ljet + pi/2 
 
-             if (y.lt.0) then
-               Fyz=1.0
-             elseif (y.gt.pi) then
-               Fyz=0.0
-             else
-               Fyz=1.0-(y-sin(y)*cos(y))/pi
-             endif
-             rho(i,j,k)=Fyz*rhoprof(k,1)+(1.-Fyz)*rhoprof(k,2)
-           enddo
-         enddo
-       enddo
+            if (y.lt.0) then
+              Fyz=1.0
+            elseif (y.gt.pi) then
+              Fyz=0.0
+            else
+              Fyz=1.0-(y-sin(y)*cos(y))/pi
+            endif
+            rho(i,j,k)=Fyz*rhoprof(k,1)+(1.-Fyz)*rhoprof(k,2)
+          enddo
+        enddo
+      enddo
 
-       do k=1,N
-         do j=JstrR,JendR
-           do i=IstrR,IendR
-             t(i,j,k,tndx,1)=rho(i,j,k)
-           enddo
-         enddo
-       enddo
+      do k=1,N
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+            t(i,j,k,tndx,1)=rho(i,j,k)
+          enddo
+        enddo
+      enddo
 
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r3d_tile (istr,iend,jstr,jend,
@@ -804,8 +804,8 @@ C$    integer omp_get_thread_num
 !
 ! Remove mean sea level (mssh)  !!! MPI DEBUG problems here !!!
 !
-      mssh=0.
-      area=0.
+      mssh=QuadZero
+      area=QuadZero
       do j=Jstr,Jend
         do i=Istr,Iend
            cff1=1./(pm(i,j)*pn(i,j))
@@ -821,8 +821,8 @@ C$    integer omp_get_thread_num
       call MPI_ALLGATHER(area,1,MPI_DOUBLE_PRECISION,
      &                allarea,1,MPI_DOUBLE_PRECISION,
      &                          MPI_COMM_WORLD,ierr)
-      mssh=0.
-      area=0.
+      mssh=QuadZero
+      area=QuadZero
       do i=1,NNODES
         mssh=mssh+allmssh(1,i)*allarea(1,i)
         area=area+allarea(1,i)
