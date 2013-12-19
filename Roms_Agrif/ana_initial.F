@@ -649,7 +649,7 @@ C$    integer omp_get_thread_num
      &    dRx(PRIVATE_2D_SCRATCH_ARRAY)
 #  ifdef MPI
       real*QUAD allmssh(1,NNODES),allarea(1,NNODES)
-#   include "mpif.h"
+    include 'mpif.h'
 #  endif
       real asymth,zz,zasym,dzasym
       asymth(zz,zasym,dzasym) = 
