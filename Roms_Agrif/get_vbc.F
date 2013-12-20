@@ -6,7 +6,7 @@
 ! and Rutgers University (Arango et al) are under MIT/X style license.
 ! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
 ! 
-! ROMS_AGRIF website : http://roms.mpl.ird.fr
+! ROMS_AGRIF website : http://www.romsagrif.org
 !======================================================================
 !
 #include "cppdefs.h"
@@ -29,8 +29,8 @@
 !-------------------------------------------------------------------
 !
       implicit none
-# include "param.h"
-# include "sources.h"
+#include "param.h"
+#include "sources.h"
 !
 #ifdef AGRIF
       integer Agrif_lev_sedim
@@ -41,15 +41,14 @@
 ! River discharge, temperature and salinity
 !---------------------------------------------------------------
 !
-# if defined PSOURCE_NCFILE
+#ifdef PSOURCE_NCFILE
         call get_psource      
-#  if defined PSOURCE_NCFILE_TS
+# ifdef PSOURCE_NCFILE_TS
         call get_psource_ts
-#  endif
 # endif
+#endif
 
-#if !defined OA_COUPLING
-
+#ifndef OA_COUPLING
 !
 !---------------------------------------------------------------
 ! Initial wave periode, amplitude, direction and dissipation
@@ -69,35 +68,35 @@
 !  "sustrg" and "svstrg" [m^2/s^2].
 !---------------------------------------------------------------
 !
-#ifndef ANA_SMFLUX
-# if !defined BULK_FLUX || (defined BULK_FLUX && !defined BULK_SMFLUX)
+# ifndef ANA_SMFLUX
+#  if !defined BULK_FLUX || (defined BULK_FLUX && !defined BULK_SMFLUX)
       call get_smflux
+#  endif
 # endif
-#endif
 !
-#ifdef SOLVE3D
+# ifdef SOLVE3D
 !
 !---------------------------------------------------------------
 ! Kinematic surface temperature (heat) flux [degC m/s].
 !---------------------------------------------------------------
 !
-# if defined BULK_FLUX && !defined ANA_BULK
-#  if defined ONLINE /* ONLINE */
+#  if defined BULK_FLUX && !defined ANA_BULK
+#   ifdef ONLINE
       ! Load data for ONLINE bulk forcing
       call get_bulk_online
-#  else
+#   else
       ! Load data for OFFLINE bulk forcing
       call get_bulk
-#  endif
-# elif !defined ANA_STFLUX
+#   endif
+#  elif !defined ANA_STFLUX
       call get_stflux (itemp)
-# endif
+#  endif
 !
 !---------------------------------------------------------------
 ! Flux correction to surface net heat flux.
 !---------------------------------------------------------------
 !
-# if defined QCORRECTION && !defined ANA_SST
+#  if defined QCORRECTION && !defined ANA_SST
       call get_sst
 #  endif
 !
@@ -105,19 +104,19 @@
 ! Kinematic surface freshwater flux (E-P) flux [PSU m/s].
 !---------------------------------------------------------------
 !
-# ifndef BULK_EP
-#  if defined SALINITY && !defined ANA_SSFLUX
+#  ifndef BULK_EP
+#   if defined SALINITY && !defined ANA_SSFLUX
       call get_stflux (isalt)
-#  endif
-# endif /* NON BULK_EP */
+#   endif
+#  endif /* NON BULK_EP */
 !
 !---------------------------------------------------------------
 ! Flux correction to surface salt flux.
 !---------------------------------------------------------------
 !
-# if defined SALINITY && defined SFLX_CORR && !defined ANA_SSS
+#  if defined SALINITY && defined SFLX_CORR && !defined ANA_SSS
       call get_sss
-# endif
+#  endif
 !
 !---------------------------------------------------------------
 ! Kinematic surface solar shortwave radiation flux [degC m/s].
@@ -125,19 +124,23 @@
 !
 ! If BULK_FLUX is defined, radsw copies to srflx in get_bulk
 !
-# ifndef BULK_FLUX
-#  if defined LMD_SKPP || defined LMD_BKPP
-#   ifndef ANA_SRFLUX
+#  ifndef BULK_FLUX
+#   if defined LMD_SKPP || defined LMD_BKPP
+#    ifndef ANA_SRFLUX
       call get_srflux
+#    endif
 #   endif
-#  endif
-# endif /* !BULK_FLUX */
-#endif /* SOLVE3D */
+#  endif /* !BULK_FLUX */
+# endif /* SOLVE3D */
 #endif /* !OA_COUPLING */
 
       return
       end
-
+!
+!====================================================================
+!                   subroutine set_vbc
+!====================================================================
+!
       subroutine set_vbc (tile)
       implicit none
 #include "param.h"
@@ -202,21 +205,23 @@
 #ifdef AGRIF
       Agrif_lev_sedim=Agrif_Nb_Fine_Grids()
 #endif
-#if !defined OA_COUPLING
+!
+#ifndef OA_COUPLING
 !
 !---------------------------------------------------------------
 ! Kinematic surface momentum flux (wind stress) components
 ! "sustr" and "svstr" [m^2/s^2].
 !---------------------------------------------------------------
 !
-#ifdef ANA_SMFLUX
+# ifdef ANA_SMFLUX
       call ana_smflux_tile (Istr,Iend,Jstr,Jend)
-#else
-# if !defined BULK_FLUX || (defined BULK_FLUX && !defined BULK_SMFLUX)
+# else
+#  if !defined BULK_FLUX || (defined BULK_FLUX && !defined BULK_SMFLUX)
       call set_smflux_tile (Istr,Iend,Jstr,Jend)
+#  endif
 # endif
-#endif
-#ifdef SOLVE3D
+
+# ifdef SOLVE3D
 !
 !---------------------------------------------------------------
 ! Kinematic surface temperature (heat) flux [degC m/s] and
@@ -227,65 +232,65 @@
 !  --- The Bulk routine is actually called from step.F ---
 !---------------------------------------------------------------
 !
-# if defined  BULK_FLUX
-#  if defined ONLINE /* ONLINE */
+#  ifdef BULK_FLUX
+#   ifdef ONLINE
       call set_bulk_tile_online (Istr,Iend,Jstr,Jend)
-#  else
+#   else
       call set_bulk_tile (Istr,Iend,Jstr,Jend)
-#  endif
-# else
+#   endif
+#  else
 !
 !---------------------------------------------------------------
 ! Kinematic surface temperature (heat) flux [degC m/s].
 !---------------------------------------------------------------
 !
-#  ifdef ANA_STFLUX
+#   ifdef ANA_STFLUX
       call ana_stflux_tile (Istr,Iend,Jstr,Jend, itemp)
-#  else
+#   else
       call set_stflux_tile (Istr,Iend,Jstr,Jend, itemp)
-#  endif
+#   endif
 !
 !---------------------------------------------------------------
 ! Kinematic surface solar shortwave radiation flux [degC m/s].
 !---------------------------------------------------------------
 !
-#  if defined LMD_SKPP || defined LMD_BKPP
-#   ifdef ANA_SRFLUX
+#   if defined LMD_SKPP || defined LMD_BKPP
+#    ifdef ANA_SRFLUX
       call ana_srflux_tile (Istr,Iend,Jstr,Jend)
-#   else
+#    else
       call set_srflux_tile (Istr,Iend,Jstr,Jend)
+#    endif
 #   endif
-#  endif
-# endif /* BULK_FLUX */
+#  endif /* BULK_FLUX */
 !
 !---------------------------------------------------------------
 ! Flux correction to surface net heat flux.
 !---------------------------------------------------------------
 !
-# ifdef QCORRECTION
-#  ifdef ANA_SST
+#  ifdef QCORRECTION
+#   ifdef ANA_SST
       call ana_sst_tile (Istr,Iend,Jstr,Jend)
-#  else
+#   else
       call set_sst_tile (Istr,Iend,Jstr,Jend)
-#  endif
+#   endif
       do j=JstrR,JendR
         do i=IstrR,IendR
           stflx(i,j,itemp)=stflx(i,j,itemp)+
      &                  dqdt(i,j)*(t(i,j,N,nrhs,itemp)-sst(i,j))
         enddo
       enddo
-# endif /* QCORRECTION */
+#  endif /* QCORRECTION */
 !
 !---------------------------------------------------------------
 ! Kinematic surface freshwater flux (E-P) flux [PSU m/s].
 !---------------------------------------------------------------
 !
-# if defined SALINITY && !defined BULK_EP
-#  ifdef ANA_SSFLUX
+#  if defined SALINITY && !defined BULK_EP
+#   ifdef ANA_SSFLUX
       call ana_stflux_tile (Istr,Iend,Jstr,Jend, isalt)
-#  else
+#   else
       call set_stflux_tile (Istr,Iend,Jstr,Jend, isalt) 
-#  endif
+#   endif
 !
 ! Multiply flux by surface salinity.
 !
@@ -294,53 +299,56 @@
           stflx(i,j,isalt)=stflx(i,j,isalt)*t(i,j,N,nrhs,isalt)
         enddo
       enddo
-# endif /* !BULK_EP */
+#  endif /* !BULK_EP */
 !
 !--------------------------------------------------------------
 ! Flux correction to surface salt flux.
 !--------------------------------------------------------------
 !
-# if defined SFLX_CORR
-#  ifdef ANA_SSS
+#  ifdef SFLX_CORR
+#   ifdef ANA_SSS
       call ana_sss_tile (Istr,Iend,Jstr,Jend)
-#  else
+#   else
       call set_sss_tile (Istr,Iend,Jstr,Jend) 
-#  endif
+#   endif
       do j=JstrR,JendR
         do i=IstrR,IendR
           stflx(i,j,isalt)=stflx(i,j,isalt)+
      &                  dqdt(i,j)*(t(i,j,N,nrhs,isalt)-sss(i,j))
         enddo
       enddo
-# endif /* SFLX_CORR */
+#  endif /* SFLX_CORR */
 !
 !---------------------------------------------------------------
 ! Diurnal modulation of surface solar shortwave radiation flux
 !---------------------------------------------------------------
 !
-# if defined LMD_SKPP || defined LMD_BKPP
-#  ifdef ANA_DIURNAL_SW
+#  if defined LMD_SKPP || defined LMD_BKPP
+#   ifdef ANA_DIURNAL_SW
       call ana_diurnal_sw_tile (Istr,Iend,Jstr,Jend)
+#   endif
 #  endif
-# endif
 !
 !---------------------------------------------------------------
 ! Ensure that drying water does not receive heat/salt fluxes
 !  to avoid unrealistic T,S values
 !---------------------------------------------------------------
 !
-# ifdef WET_DRY
+#  ifdef WET_DRY
       do j=JstrR,JendR
         do i=IstrR,IendR
           stflx(i,j,itemp)=stflx(i,j,itemp)*rmask_wet(i,j)
           srflx(i,j)=srflx(i,j)*rmask_wet(i,j)
-#  ifdef SALINITY
+#   ifdef SALINITY
           stflx(i,j,isalt)=stflx(i,j,isalt)*rmask_wet(i,j)
-#  endif
+#   endif
         enddo
       enddo
-# endif
+#  endif
+# endif /* SOLVE3D */
 #endif /* !OA_COUPLING */
+
+#ifdef SOLVE3D
 !
 !---------------------------------------------------------------
 !  Kinematic bottom temperature (heat) flux [degC m/s].

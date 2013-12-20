@@ -115,21 +115,23 @@ C     start_time1=PMPI_Wtime()
       call init_scalars (ierr)       ! Also initialize global
       if (ierr.ne.0) goto 100        ! scalar variables.
 
-#ifdef GLS_MIXING
+#ifdef SOLVE3D
+# ifdef GLS_MIXING
       call init_gls (ierr)           ! GLS model parameters,
-#endif
+# endif
 
-#ifdef PISCES
-      call trclsm
+# ifdef PISCES
+      call trclsm                    ! PISCES model parameters
       call get_dust
-#endif
+# endif
 
-#ifdef SEDIMENT
-# ifdef AGRIF
+# ifdef SEDIMENT
+#  ifdef AGRIF
       if (Agrif_lev_sedim.EQ.0) call init_sediment
-# else
+#  else
       call init_sediment             ! Read sediment initial values and
                                      ! parameters from sediment.in file
+#  endif
 # endif
 #endif
  

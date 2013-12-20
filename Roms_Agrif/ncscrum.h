@@ -591,10 +591,9 @@
 !
       integer ncidfrc, ncidbulk, ncidclm,  ntsms ,
      &        ntsrf,  ntssh,  ntsst, ntsss, ntuclm,
-     &        ntbulk, ncidqbar, ntqbar, ntww,
-     &        nttsrc(NT)
+     &        ntbulk, ncidqbar, ntqbar, ntww
 #ifdef SOLVE3D
-      integer nttclm(NT),    ntstf(NT)
+      integer nttclm(NT), ntstf(NT), nttsrc(NT)
 #endif
       integer ncidrst, nrecrst,  nrpfrst
      &      , rstTime, rstTime2, rstTstep, rstZ,    rstUb,  rstVb
@@ -811,7 +810,6 @@
       common/incscrum/
      &        ncidfrc, ncidbulk,ncidclm, ntsms, ntsrf, ntssh, ntsst
      &      , ntuclm, ntsss, ntbulk, ncidqbar, ntqbar, ntww 
-     &      , nttsrc
 #if defined MPI && defined PARALLEL_FILES
 !# ifndef EW_PERIODIC
      &      , xi_rho,  xi_u
@@ -821,7 +819,7 @@
 !# endif
 #endif
 #ifdef SOLVE3D
-     &                        ,  nttclm,          ntstf
+     &                        ,  nttclm, ntstf, nttsrc
 #endif
      &      , ncidrst, nrecrst,  nrpfrst
      &      , rstTime, rstTime2, rstTstep, rstZ,    rstUb,  rstVb

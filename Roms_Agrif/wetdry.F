@@ -41,7 +41,9 @@
 ! If wet/drying, compute new masks for cells with depth < Dcrit.
 !-----------------------------------------------------------------------
 !
+# ifdef SOLVE3D
       IF (iif.le.nfast) THEN
+# endif
 !
 !  Wet/dry mask at RHO-points.
 !
@@ -92,7 +94,9 @@
             END IF
           END DO
         END DO
+# ifdef SOLVE3D
       END IF
+# endif
 
 # ifdef SOLVE3D
 !
