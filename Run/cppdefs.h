@@ -85,16 +85,16 @@
 # define CURVGRID
 # define SPHERICAL
 # define MASKING
+# undef  WET_DRY
 # undef  NEW_S_COORD
                       /* Model dynamics */
 # define SOLVE3D
 # define UV_COR
 # define UV_ADV
-# ifdef TIDES
-#  define SSH_TIDES
-#  define UV_TIDES
-#  define TIDERAMP
-# endif
+                      /* Equation of State */
+# define SALINITY
+# define NONLIN_EOS
+# define SPLIT_EOS
                       /* Lateral Explicit Momentum Mixing */
 # undef  UV_VIS2
 # ifdef UV_VIS2
@@ -115,7 +115,6 @@
 # endif
                       /* Sponge layers for UV and TS */
 # define SPONGE
-# define SPONGE_GRID
                       /* Vertical Mixing */
 # undef  BODYFORCE
 # undef  BVF_MIXING
@@ -140,10 +139,6 @@
 #  undef  CANUTO_A
 #  undef  ZOS_HSIG
 # endif
-                      /* Equation of State */
-# define SALINITY
-# define NONLIN_EOS
-# define SPLIT_EOS
                       /* Surface Forcing */
 # undef  BULK_FLUX
 # ifdef BULK_FLUX
@@ -192,6 +187,9 @@
 # endif
                       /* Open Boundary Conditions */
 # ifdef TIDES
+#  define SSH_TIDES
+#  define UV_TIDES
+#  define TIDERAMP
 #  define OBC_M2FLATHER
 # else
 #  undef  OBC_M2SPECIFIED

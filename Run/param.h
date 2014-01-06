@@ -215,7 +215,7 @@
 #endif
 #ifdef WET_DRY
       real Dcmin, Dcmax          ! Critical Depth for Drying cells
-      parameter (Dcmin=0.02)     ! ======== ===== === ====== =====
+      parameter (Dcmin=0.20)     ! ======== ===== === ====== =====
       parameter (Dcmax=0.20)
 #endif
 #if defined PSOURCE || defined PSOURCE_NCFILE
