@@ -58,7 +58,7 @@ close(ng);
 %
 %
 %
-dl=1;
+dl=2;
 lonmin=min(min(lon))-dl;
 lonmax=max(max(lon))+dl;
 latmin=min(min(lat))-dl;

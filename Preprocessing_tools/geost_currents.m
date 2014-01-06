@@ -54,7 +54,7 @@ close(nc)
 %  Levitus vertical levels
 %
 noa=netcdf(oaname);
-Z=-noa{'Z'}(:);
+Z=-noa{'Z'}(:); 
 NL=length(Z);
 time=noa{'tclm_time'}(:);
 tlen=length(time);
@@ -81,6 +81,7 @@ if isempty(kref);
   disp(['Warning zref not found. Taking :',num2str(Z(kref))])
 end
 Z=Z(1:kref);
+zref=Z(kref);
 z=reshape(Z,kref,1,1);
 z=repmat(z,[1 M L]);
 %
@@ -192,6 +193,17 @@ for l=1:tlen
     end
   end
 %
+% Correct ssh over dry cells
+% and extend masking area over shallow waters
+%  (to avoid problems with poisson solver in get_psi)
+%
+  Dcrit=0.2;
+  h(h==0)=eps;
+  ssh(ssh<(Dcrit-h))=Dcrit-h(ssh<(Dcrit-h));
+  rmask(h<20)=0;
+  umask=rmask(1:end,2:end).*rmask(1:end,1:end-1);
+  vmask=rmask(2:end,1:end).*rmask(1:end-1,1:end);
+%
 %  Masking
 %  
   umask3d=tridim(umask,kref); 
@@ -239,6 +251,7 @@ for l=1:tlen
 %
 % Mass conservation
 %
+  %conserv=0
   if conserv==1
 %    disp('Volume conservation enforcement ...')
     [hu,hv]=get_obcvolcons(hu,hv,pm,pn,rmask,obc);

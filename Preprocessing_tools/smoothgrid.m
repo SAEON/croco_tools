@@ -39,14 +39,16 @@ function h = smoothgrid(h,maskr,hmin,hmax_coast,hmax,...
 %                   and X. Capet (UCLA)
 %
 %  Updated    Aug-2006 by Pierrick Penven
+%  Updated    Dec-2013 by Patrick Marchesiello for wetting-drying
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %
-% Cut the topography
+% Cut topography and flood dry cells momentarily
 %
 h(h<hmin)=hmin;
 h(h>hmax)=hmax;
+h=h-hmin+1;
 %
 %
 % 1: Deep Ocean Filter
@@ -86,6 +88,7 @@ if n_filter_final>1
   end
 end
 %
+h=h+hmin;
 h(h<hmin)=hmin;
 %
 return

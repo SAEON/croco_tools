@@ -46,7 +46,7 @@ function vnew = ztosigma(var,z,depth)
 % Find the grid position of the nearest vertical levels
 %
 for ks=1:Ns
-  sigmalev=squeeze(z(ks,:,:,:));
+  sigmalev=squeeze(z(ks,:,:));
   thezlevs=0.*sigmalev;
   for kz=1:Nz
     thezlevs(sigmalev>depth(kz))=thezlevs(sigmalev>depth(kz))+1;
