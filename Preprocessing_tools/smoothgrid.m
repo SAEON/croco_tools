@@ -88,7 +88,7 @@ if n_filter_final>1
   end
 end
 %
-h=h+hmin;
+h=h+hmin-1;
 h(h<hmin)=hmin;
 %
 return
