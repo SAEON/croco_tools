@@ -195,8 +195,9 @@ C$    trd=omp_get_thread_num()
 !                                           Southern edge Flather BC
 !                                           ======== ==== ======= ==
         do i=Istr,Iend
-          vbar(i,Jstr,knew)=-sqrt(2.*g/(h(i,Jstr)+h(i,Jstr-1)))
-     &              *( 0.5*(zeta(i,Jstr-1,knew)+zeta(i,Jstr,knew))
+          vbar(i,Jstr,knew)=-sqrt(2.*g/(h(i,Jstr)+h(i,Jstr-1)+
+     &                        zeta(i,Jstr,kstp)+zeta(i,Jstr-1,kstp)))
+     &                  *(0.5*(zeta(i,Jstr-1,knew)+zeta(i,Jstr,knew))
 #   ifdef Z_FRC_BRY
      &                                           -zetabry_south(i)
 #   elif defined ZNUDGING
@@ -216,7 +217,8 @@ C$    trd=omp_get_thread_num()
 !                                            Southern edge Characteristic BC
 !                                            ======= ==== ======= ==
         do i=Istr,Iend
-          cff=0.5*(h(i,Jstr-1)+h(i,Jstr))
+          cff=0.5*(h(i,Jstr-1)+h(i,Jstr)
+     &            +zeta(i,Jstr,kstp)+zeta(i,Jstr-1,kstp))
           hx=sqrt(g/cff)
           cx=dtfast*cff*hx*0.5*(pn(i,Jstr-1)+pn(i,Jstr))
   
@@ -350,8 +352,9 @@ C$    trd=omp_get_thread_num()
 !                                           Northern edge Flather BC
 !                                           ======== ==== ======= ==
         do i=Istr,Iend
-          vbar(i,Jend+1,knew)=sqrt(2.*g/(h(i,Jend+1)+h(i,Jend)))
-     &              *( 0.5*( zeta(i,Jend,knew)+zeta(i,Jend+1,knew))
+          vbar(i,Jend+1,knew)=sqrt(2.*g/(h(i,Jend)+h(i,Jend+1))
+     &                      +zeta(i,Jend,kstp)+zeta(i,Jend+1,kstp))
+     &               *(0.5*( zeta(i,Jend,knew)+zeta(i,Jend+1,knew))
 #   ifdef Z_FRC_BRY
      &                                            -zetabry_north(i)
 #   elif defined ZNUDGING
@@ -371,7 +374,8 @@ C$    trd=omp_get_thread_num()
 !                                            Northern edge Characteristic BC
 !                                            ======= ==== ======= ==
         do i=Istr,Iend
-          cff=0.5*(h(i,Jend)+h(i,Jend+1))
+          cff=0.5*(h(i,Jend)+h(i,Jend+1)+
+     &             zeta(i,Jend,kstp)+zeta(i,Jend+1,kstp))
           hx=sqrt(g/cff)
           cx=dtfast*cff*hx*0.5*(pn(i,Jend)+pn(i,Jend+1))
   
@@ -504,10 +508,12 @@ C$    trd=omp_get_thread_num()
 !                                             Western edge Chapman BC
 !                                             ======= ==== ======= ==
         do j=JstrV,Jend
-          cx=dtfast*sqrt(0.5*g*(h(Istr-1,j-1)+h(Istr-1,j)))
-     &                    *0.5*(pm(Istr-1,j-1)+pm(Istr-1,j))
+          cx=dtfast*0.5*(pm(Istr-1,j-1)+pm(Istr-1,j))
+     &                     *sqrt(0.5*g*(h(Istr-1,j-1)+h(Istr-1,j)+
+     &                   zeta(Istr-1,j-1,kstp)+zeta(Istr-1,j,kstp)))
+
           vbar(Istr-1,j,knew)=( vbar(Istr-1,j,kstp)
-     &               +cx*vbar(Istr,j,knew) )/(1.+cx)
+     &                         +cx*vbar(Istr,j,knew) )/(1.+cx)
 #   ifdef MASKING
      &                        *vmask(Istr-1,j)
 #   endif
@@ -632,10 +638,12 @@ C$    trd=omp_get_thread_num()
 !                                           Eastern edge Chapman BC
 !                                           ======= ==== ======= ==
         do j=JstrV,Jend
-          cx=dtfast*sqrt(0.5*g*(h(Iend+1,j-1)+h(Iend+1,j)))
-     &                    *0.5*(pm(Iend+1,j-1)+pm(Iend+1,j))
+          cx=dtfast*0.5*(pm(Iend+1,j-1)+pm(Iend+1,j))
+     &                    *sqrt(0.5*g*(h(Iend+1,j-1)+h(Iend+1,j)
+     &                  +zeta(Iend+1,j-1,kstp)+zeta(Iend+1,j,kstp)))
+
           vbar(Iend+1,j,knew)=( vbar(Iend+1,j,kstp)
-     &                +cx*vbar(Iend,j,knew))/(1.+cx)
+     &                         +cx*vbar(Iend,j,knew) )/(1.+cx)
 #   ifdef MASKING
      &                        *vmask(Iend+1,j)
 #   endif

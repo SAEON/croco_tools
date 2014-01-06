@@ -198,8 +198,9 @@ C$    trd=omp_get_thread_num()
 !                                            Western edge Flather BC
 !                                            ======= ==== ======= ==
         do j=Jstr,Jend
-          ubar(Istr,j,knew)= -sqrt(2.*g/(h(Istr-1,j)+h(Istr,j)))
-     &             *( 0.5*(zeta(Istr-1,j,knew)+zeta(Istr,j,knew))
+          ubar(Istr,j,knew)= -sqrt(2.*g/(h(Istr-1,j)+h(Istr,j)
+     &                    +zeta(Istr-1,j,kstp)+zeta(Istr,j,kstp)))
+     &               *(0.5*(zeta(Istr-1,j,knew)+zeta(Istr,j,knew))
 #   ifdef Z_FRC_BRY
      &                                           -zetabry_west(j) 
 #   elif defined ZNUDGING
@@ -219,7 +220,8 @@ C$    trd=omp_get_thread_num()
 !                                            Western edge Characteristic BC
 !                                            ======= ==== ======= ==
         do j=Jstr,Jend
-          cff=0.5*(h(Istr-1,j)+h(Istr,j))
+          cff=0.5*(h(Istr-1,j)+h(Istr,j)+
+     &             zeta(Istr-1,j,kstp)+zeta(Istr,j,kstp))
           hx=sqrt(g/cff)
           cx=dtfast*cff*hx*0.5*(pm(Istr-1,j)+pm(Istr,j))
   
@@ -373,8 +375,9 @@ c          endif
 !                                            Eastern edge Flather BC
 !                                            ======= ==== ======= ==
         do j=Jstr,Jend
-          ubar(Iend+1,j,knew)=sqrt(2.*g/(h(Iend+1,j)+h(Iend,j)))
-     &              *( 0.5*( zeta(Iend,j,knew)+zeta(Iend+1,j,knew))
+          ubar(Iend+1,j,knew)=sqrt(2.*g/(h(Iend,j)+h(Iend+1,j)+
+     &                      zeta(Iend,j,kstp)+zeta(Iend+1,j,kstp)))
+     &               *(0.5*( zeta(Iend,j,knew)+zeta(Iend+1,j,knew))
 #   ifdef Z_FRC_BRY
      &                                             -zetabry_east(j)
 #   elif defined ZNUDGING
@@ -394,7 +397,8 @@ c          endif
 !                                            Eastern edge Characteristic BC
 !                                            ======= ==== ======= ==
         do j=Jstr,Jend
-          cff=0.5*(h(Iend,j)+h(Iend+1,j))
+          cff=0.5*(h(Iend,j)+h(Iend+1,j)+
+     &             zeta(Iend,j,kstp)+zeta(Iend+1,j,kstp))
           hx=sqrt(g/cff)
           cx=dtfast*cff*hx*0.5*(pm(Iend,j)+pm(Iend+1,j))
   
@@ -549,10 +553,11 @@ c          endif
 !                                           ======== ==== ======= ==
         do i=IstrU,Iend
           cx=dtfast*0.5*(pn(i-1,Jstr-1)+pn(i,Jstr-1))
-     &        *sqrt(0.5*g*(h(i-1,Jstr-1)+h(i,Jstr-1)))
+     &                  *sqrt( 0.5*g*(h(i-1,Jstr-1)+h(i,Jstr-1)+
+     &                 zeta(i-1,Jstr-1,kstp)+zeta(i,Jstr-1,kstp)) )
 
-          ubar(i,Jstr-1,knew)=( ubar(i,Jstr-1,kstp)
-     &                  +cx*ubar(i,Jstr,knew) )/(1.+cx)     
+          ubar(i,Jstr-1,knew)=(ubar(i,Jstr-1,kstp)
+     &                         +cx*ubar(i,Jstr,knew) )/(1.+cx)     
 #   ifdef MASKING
      &                         *umask(i,Jstr-1)
 #   endif
@@ -677,10 +682,12 @@ c          endif
 !                                           Northern edge Chapman BC
 !                                           ======== ==== ======= ==
         do i=IstrU,Iend
-          cx=dtfast*sqrt(0.5*g*(h(i-1,Jend+1)+h(i,Jend+1)))
-     &                    *0.5*(pn(i-1,Jend+1)+pn(i,Jend+1))
-          ubar(i,Jend+1,knew)=( ubar(i,Jend+1,kstp)
-     &                +cx*ubar(i,Jend,knew))/(1.+cx)
+          cx=dtfast*0.5*(pn(i-1,Jend+1)+pn(i,Jend+1))
+     &                 *sqrt(0.5*g*(h(i-1,Jend+1)+h(i,Jend+1)+
+     &                       zeta(i-1,Jend+1,kstp)+zeta(i,Jend+1,kstp)))
+     &                    
+          ubar(i,Jend+1,knew)=(ubar(i,Jend+1,kstp)
+     &                         +cx*ubar(i,Jend,knew))/(1.+cx)
 #   ifdef MASKING
      &                        *umask(i,Jend+1)
 #   endif

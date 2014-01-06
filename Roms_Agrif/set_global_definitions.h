@@ -31,7 +31,7 @@
    Activate the RVTK_DEBUG procedure that will compare the results
    serial and multi-processor result by comparing binary file
 */
-#undef RVTK_DEBUG
+#define RVTK_DEBUG
 
 /* 
    Set OA COUPLING options:
@@ -59,9 +59,9 @@
 /*
    Set default time-averaging filter for barotropic fields.
 */
-# undef M2FILTER_COSINE
-# undef M2FILTER_FLAT
-# define M2FILTER_POWER
+#undef  M2FILTER_COSINE
+#undef  M2FILTER_FLAT
+#define M2FILTER_POWER
 #if defined SSH_TIDES || defined UV_TIDES
 # undef M2FILTER_POWER
 # define M2FILTER_FLAT
@@ -80,7 +80,7 @@
     if defined apply MOMENTUM LATERAL diffusion in the interior 
     over an anomaly only with respect to a reference frame (climatology)
 */
-#if defined M3CLIMATOLOGY
+#ifdef M3CLIMATOLOGY
 # undef CLIMAT_UV_MIXH
 #endif
 
@@ -99,12 +99,12 @@
 /* #undef  TS_HADV_C4     4th-order centered lateral advection */
 /* #undef  TS_HADV_UP3    3rd-order upstream lateral advection */
                      
-# ifdef TS_HADV_C4      /* 4th-order centered advection        */
-#  define  TS_DIF2      /*   + Laplacian Diffusion             */
-#  undef   TS_DIF4      /*                                     */
-#  define  TS_DIF_SMAGO /*   + Smagorinsky diffusivity         */
-#  define  TS_MIX_ISO   /*   + Isopycnal rotation              */ 
-# endif 
+#ifdef TS_HADV_C4      /* 4th-order centered advection        */
+# define TS_DIF2      /*   + Laplacian Diffusion             */
+# undef  TS_DIF4      /*                                     */
+# define TS_DIF_SMAGO /*   + Smagorinsky diffusivity         */
+# define TS_MIX_ISO   /*   + Isopycnal rotation              */ 
+#endif 
 #ifdef TS_HADV_RSUP3   /*  Rotated-Split 3rd-order scheme is:  */
 # define TS_HADV_C4    /*    4th-order centered advection      */
 # undef  TS_DIF2       /*               +                      */
@@ -135,6 +135,9 @@
 #endif
 #if defined TS_MIX_ISO || (defined TS_DIF4 && defined TS_MIX_GEO)
 # define TS_MIX_IMP
+#endif
+#if !defined TS_MIX_S && !defined TS_MIX_ISO
+# define TS_MIX_GEO
 #endif
 
 /*
@@ -204,7 +207,7 @@
 #define LIMIT_BSTRESS
 
 /*
-    Wave Current Interaction:    
+    Wave Current Interaction
 */
 # ifdef MRL_WCI
 #  ifdef WAVE_STREAMING

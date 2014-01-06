@@ -419,6 +419,15 @@
             enddo
           enddo
 
+# if defined AGRIF && defined AGRIF_CONSERV_TRA
+          MYFX(IstrR:IendR,JstrR:JendR,k,itrc)=
+     &          MYFX(IstrR:IendR,JstrR:JendR,k,itrc)+
+     &          dt*FX(IstrR:IendR,JstrR:JendR)
+          MYFY(IstrR:IendR,JstrR:JendR,k,itrc)=
+     &          MYFY(IstrR:IendR,JstrR:JendR,k,itrc)+
+     &          dt*FE(IstrR:IendR,JstrR:JendR)
+# endif
+
 
           if (k.lt.N) then
 !========================================================
@@ -525,15 +534,6 @@
 !       if (i.eq.15 .and. j.eq.15 .and. itrc.eq.1) then
 !        print *,'k Akz ',k,Akz(i,j,k)
 !       endif
-
-# if defined AGRIF && defined AGRIF_CONSERV_TRA
-          MYFX(IstrR:IendR,JstrR:JendR,k,itrc)=
-     &          MYFX(IstrR:IendR,JstrR:JendR,k,itrc)+
-     &          dt*FX(IstrR:IendR,JstrR:JendR)
-          MYFY(IstrR:IendR,JstrR:JendR,k,itrc)=
-     &          MYFY(IstrR:IendR,JstrR:JendR,k,itrc)+
-     &          dt*FE(IstrR:IendR,JstrR:JendR)
-# endif
 #endif /* TS_DIF2 && TS_MIX_IMP */
 
 !== at this point FC(i,j,k2)=(drho/dz)^(-1)
