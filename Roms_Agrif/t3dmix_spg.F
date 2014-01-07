@@ -741,7 +741,7 @@
 # undef TCLM
 # define CHILD_SPG
 # ifdef AGRIF
-#  include "t3dmix_ISO.F"
+#  include "t3dmix_spg.F"
 # endif
 # undef CHILD_SPG
 #endif  /* !CHILD_SPG */
