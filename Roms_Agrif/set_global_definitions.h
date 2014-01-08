@@ -31,7 +31,7 @@
    Activate the RVTK_DEBUG procedure that will compare the results
    serial and multi-processor result by comparing binary file
 */
-#define RVTK_DEBUG
+#undef RVTK_DEBUG
 
 /* 
    Set OA COUPLING options:
