@@ -53,7 +53,7 @@ child_clm ='vortex_clm.nc.1';
 %
 % Parameters for the Parent Grid
 %
-dx=30e3;                % Horizontal resolution
+dx=20e3;                % Horizontal resolution
 xmax=900e3;             % Domain length
 H0=5000;                % Depth
 H=2500;                 % Level of no-motion
@@ -72,15 +72,16 @@ N=10;
 theta_s=1;
 theta_b=0;
 hc=H0;
-vtransform =  2.; % s-coordinate type (2: new coordinates)
+vtransform =  1.; % s-coordinate type (1: old- ; 2: new- coordinates)
 %
 % Nesting parameters
 %
 refinecoeff=3;
-jmin=21;
-jmax=40;
-imin=21;
-imax=40;
+jmin=26;
+jmax=65;
+imin=26;
+imax=65; 
+
 %
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
