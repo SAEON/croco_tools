@@ -29,8 +29,8 @@ zeta=(P1-Pa)./(g.*rho1);
 %
 % Vertical grid 
 %
-zw=zlevs(h0,zeta,theta_s,theta_b,hc,N,'w');
-zr=zlevs(h0,zeta,theta_s,theta_b,hc,N,'r');
+zw=zlevs(h0,zeta,theta_s,theta_b,hc,N,'w',vtransform);
+zr=zlevs(h0,zeta,theta_s,theta_b,hc,N,'r',vtransform);
 %
 % Density
 %
