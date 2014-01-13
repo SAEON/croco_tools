@@ -505,7 +505,8 @@
 ! Compute density XI gradients for use in t3dmix
 !-------------------------------------------------
 !
-# if !defined TS_MIX_S && (defined TS_DIF4 || defined TS_DIF2)
+# if !defined TS_MIX_S && \
+      (defined TS_DIF4 || defined TS_DIF2 || SPONGE_DIF2)
         do k=1,N,+1
           do i=IU_RANGE
             cff =0.5*(pm(i,j)+pm(i-1,j)) SWITCH umask(i,j)
@@ -527,7 +528,7 @@
 #  endif
           enddo
         enddo
-# endif /* TS_DIF2 || TS_DIF4 */
+# endif /* TS_DIF2 || TS_DIF4 || SPONGE_DIF2 */
 !
 !--------------------------------------------------
 !  Couple ETA-component of velocity

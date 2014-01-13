@@ -10,57 +10,58 @@
 !======================================================================
 !
 #include "cppdefs.h"
+#if defined SOLVE3D && defined SPONGE_DIF2
 !
-#ifdef TCLIMATOLOGY
-# define CLIMAT_TS_SPONGE
-#endif
+# ifdef TCLIMATOLOGY
+#  define CLIMAT_TS_SPONGE
+# endif
 !
-#ifndef CHILD_SPG
+# ifndef CHILD_SPG
       subroutine t3dmix_spg (tile)
       implicit none
       integer tile, itrc, trd, omp_get_thread_num
-# include "param.h"
-# include "private_scratch.h"
-# include "compute_tile_bounds.h"
+#  include "param.h"
+#  include "private_scratch.h"
+#  include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
       do itrc=1,NT
 
-# ifdef AGRIF
+#  ifdef AGRIF
         if (AGRIF_Root()) then
           call t3dmix_spg_tile (istr,iend,jstr,jend, itrc, 
      &                                   A2d(1, 1,trd), A2d(1, 2,trd)
-#  ifndef TS_MIX_S
+#   ifndef TS_MIX_S
      &                   ,A2d(1, 3,trd), A2d(1, 5,trd), A2d(1, 7,trd), 
      &                    A2d(1, 9,trd), A2d(1,10,trd), A2d(1,11,trd),
      &                    A2d(1,12,trd), A2d(1,13,trd), A2d(1,14,trd),
      &                                   A2d(1,15,trd), A2d(1,16,trd),
      &                                                  A3d(1, 1,trd)
-#  endif
+#   endif
      &                                                              )
         else
           call t3dmix_spg_child_tile (istr,iend,jstr,jend, itrc, 
      &                                   A2d(1, 1,trd), A2d(1, 2,trd)
-#  ifndef TS_MIX_S
+#   ifndef TS_MIX_S
      &                   ,A2d(1, 3,trd), A2d(1, 5,trd), A2d(1, 7,trd), 
      &                    A2d(1, 9,trd), A2d(1,10,trd), A2d(1,11,trd),
      &                    A2d(1,12,trd), A2d(1,13,trd), A2d(1,14,trd),
      &                                   A2d(1,15,trd), A2d(1,16,trd),
      &                                                  A3d(1, 1,trd)
-#  endif
+#   endif
      &                                                              )
         endif
-# else 
+#  else 
           call t3dmix_spg_tile (istr,iend,jstr,jend, itrc,   
      &                                   A2d(1, 1,trd), A2d(1, 2,trd)
-#  ifndef TS_MIX_S
+#   ifndef TS_MIX_S
      &                   ,A2d(1, 3,trd), A2d(1, 5,trd), A2d(1, 7,trd), 
      &                    A2d(1, 9,trd), A2d(1,10,trd), A2d(1,11,trd),
      &                    A2d(1,12,trd), A2d(1,13,trd), A2d(1,14,trd),
      &                                   A2d(1,15,trd), A2d(1,16,trd),
      &                                                  A3d(1, 1,trd)
-#  endif
+#   endif
      &                                                              )
-# endif   /* AGRIF */
+#  endif   /* AGRIF */
 
       enddo
       return
@@ -74,17 +75,17 @@
 ! Diffusion applied on T-TCLM
 !
       subroutine t3dmix_spg_tile (istr,iend,jstr,jend, itrc, FX,FE
-# ifndef TS_MIX_S
+#  ifndef TS_MIX_S
      &                                           ,FC,dTdr,dTdx,dTde,
      &                                              FFC,CF,BC,CD,DC,
      &                                                diff3u,diff3v,
      &                                                          Akz
-# endif
+#  endif
      &                                                            )
 !
 #  undef CLIMAT_TS_SPONGE_FINE
 
-#else /* CHILD_SPG */
+# else /* CHILD_SPG */
 !
 ! CHILD
 !
@@ -93,17 +94,17 @@
 ! (cpp keys :CLIMAT_TS_SPONGE_FINE)
 !
       subroutine t3dmix_spg_child_tile (istr,iend,jstr,jend, itrc, FX,FE
-# ifndef TS_MIX_S
+#  ifndef TS_MIX_S
      &                                          ,FC,dTdr, dTdx,dTde,
      &                                              FFC,CF,BC,CD,DC,
      &                                                diff3u,diff3v,
      &                                                          Akz
-# endif
+#  endif
      &                                                             )
 !
 #  define CLIMAT_TS_SPONGE_FINE
 !
-#endif /* CHILD_SPG */
+# endif /* CHILD_SPG */
 !
 !---------------------------------------------------------------------
 ! ****************************** Common Code *************************
@@ -128,13 +129,14 @@
 !========================================================================
 !
       implicit none
-#include "param.h"
+# include "param.h"
       integer istr,iend,jstr,jend, itrc, i,j,k,k1,k2, kmld,
      &        imin,imax,jmin,jmax, indx, idx,ide
-       real  FX (PRIVATE_2D_SCRATCH_ARRAY),
-     &       FE (PRIVATE_2D_SCRATCH_ARRAY),
-#ifndef TS_MIX_S
-     &      Akz (PRIVATE_2D_SCRATCH_ARRAY,0:N),
+      real   FX (PRIVATE_2D_SCRATCH_ARRAY),
+     &       FE (PRIVATE_2D_SCRATCH_ARRAY)
+      real   cff,cff1
+# ifndef TS_MIX_S
+      real  Akz (PRIVATE_2D_SCRATCH_ARRAY,0:N),
      &       CF (PRIVATE_1D_SCRATCH_ARRAY,0:N),
      &       DC (PRIVATE_1D_SCRATCH_ARRAY,0:N),
      &       CD (PRIVATE_1D_SCRATCH_ARRAY,0:N),
@@ -146,50 +148,51 @@
      &     dTde (PRIVATE_2D_SCRATCH_ARRAY,2),
      &   diff3u (PRIVATE_2D_SCRATCH_ARRAY),
      &   diff3v (PRIVATE_2D_SCRATCH_ARRAY)
-#endif
-       real cff,cff1,
-     &      TRIADS1,TRIADS2,TRIADS3,TRIADS4,sumX,sumE,sig,
+      real  TRIADS1,TRIADS2,TRIADS3,TRIADS4,sumX,sumE,sig,
      &      SLOPEXQ1,SLOPEXQ2,SLOPEXQ3,SLOPEXQ4,
      &      SLOPEYQ1,SLOPEYQ2,SLOPEYQ3,SLOPEYQ4
-       real wgt(0:4)
-#include "grid.h"
-#include "ocean3d.h"
-#include "mixing.h"
-#ifdef CLIMAT_TS_SPONGE
-# include "climat.h"
-#endif
-#include "scalars.h"
-#ifdef DIAGNOSTICS_TS
-# include "diagnostics.h"
-#endif
-#ifdef AGRIF
-# include "zoom.h"
-#endif
+      real  wgt(0:4)
+# endif
+# include "grid.h"
+# include "ocean3d.h"
+# include "mixing.h"
+# ifdef CLIMAT_TS_SPONGE
+#  include "climat.h"
+# endif
+# include "scalars.h"
+# ifdef DIAGNOSTICS_TS
+#  include "diagnostics.h"
+# endif
+# ifdef AGRIF
+#  include "zoom.h"
+# endif
 !
-#include "compute_auxiliary_bounds.h"
+# include "compute_auxiliary_bounds.h"
 !
-#ifdef CHILD_SPG
-# define TCLM tsponge
-#else
-# define TCLM tclm
-#endif
+# ifdef CHILD_SPG
+#  define TCLM tsponge
+# else
+#  define TCLM tclm
+# endif
 !
-#ifdef MASKING
-# define SWITCH *
-#else
-# define SWITCH !
-#endif
+# ifdef MASKING
+#  define SWITCH *
+# else
+#  define SWITCH !
+# endif
 !
-#ifdef TS_MIX_GEO
-# define MAX min
-# define MIN max
-# define LT gt
-# define GT lt
-#endif
+# ifdef TS_MIX_GEO
+#  define MAX min
+#  define MIN max
+#  define LT gt
+#  define GT lt
+# endif
 !
+# ifndef TS_MIX_S
       wgt=(/0.,1.,0.5,0.33333333333,0.25/)
+# endif
 
-#ifndef EW_PERIODIC
+# ifndef EW_PERIODIC
       if (WESTERN_EDGE) then
         imin=istr
       else
@@ -200,11 +203,11 @@
       else
         imax=iend+1 
       endif
-#else
+# else
       imin=istr-1
       imax=iend+1
-#endif
-#ifndef NS_PERIODIC
+# endif
+# ifndef NS_PERIODIC
       if (SOUTHERN_EDGE) then
         jmin=jstr
       else
@@ -215,12 +218,12 @@
       else
         jmax=jend+1
       endif
-#else
+# else
       jmin=jstr-1
       jmax=jend+1
-#endif
+# endif
 
-#ifdef TS_MIX_S
+# ifdef TS_MIX_S
 !==================================================================
 !
 ! Add in horizontal Laplacian diffusion along constant S-surfaces.
@@ -235,9 +238,9 @@
           FX(i,j)=0.25*(diff2_sponge(i,j)+diff2_sponge(i-1,j))
      &                   *pmon_u(i,j)*(Hz(i,j,k)+Hz(i-1,j,k))*(
      &                t(i,j,k,nrhs,itrc)-t(i-1,j,k,nrhs,itrc)
-# if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE 
+#  if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE 
      &                   -TCLM(i,j,k,itrc)+TCLM(i-1,j,k,itrc)
-# endif
+#  endif
      &                                      ) SWITCH umask(i,j)
           enddo
         enddo
@@ -246,9 +249,9 @@
           FE(i,j)=0.25*(diff2_sponge(i,j)+diff2_sponge(i,j-1))
      &                     *pnom_v(i,j)*(Hz(i,j,k)+Hz(i,j-1,k))*(
      &                 t(i,j,k,nrhs,itrc)-t(i,j-1,k,nrhs,itrc)
-# if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE 
+#  if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE 
      &                    -TCLM(i,j,k,itrc)+TCLM(i,j-1,k,itrc)
-# endif
+#  endif
      &                                      ) SWITCH vmask(i,j)
           enddo
         enddo
@@ -265,7 +268,7 @@
         enddo
       enddo
 
-# ifdef DIAGNOSTICS_TS
+#  ifdef DIAGNOSTICS_TS
 !
 ! Tracer diagnostics
 !
@@ -277,11 +280,11 @@
      &                                SWITCH rmask(i,j)
             enddo
           enddo
-# endif
+#  endif
 
 
 
-#else /* TS_MIX_S */
+# else /* TS_MIX_S */
 !==================================================================
 !
 !  Add in horizontal harmonic diffusion along rotated surfaces.
@@ -303,7 +306,7 @@
 !
 !==================================================================  
 !
-# define TS_SPONGE_IMP
+#  define TS_SPONGE_IMP
 !
 !=============================================================
 ! First compute diffusivity coefficient at u and v points 
@@ -331,10 +334,10 @@
               cff=0.5*(pm(i,j)+pm(i-1,j)) SWITCH umask(i,j)
               dTdx(i,j,k2)=cff*( t(i  ,j,k+1,nstp,itrc)
      &                          -t(i-1,j,k+1,nstp,itrc)
-# if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE
+#  if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE
      &                       -TCLM(i  ,j,k+1,itrc)
      &                       +TCLM(i-1,j,k+1,itrc)
-# endif
+#  endif
      &                         )
             enddo
           enddo
@@ -343,10 +346,10 @@
               cff=0.5*(pn(i,j)+pn(i,j-1)) SWITCH vmask(i,j)
               dTde(i,j,k2)=cff*( t(i,j  ,k+1,nstp,itrc)
      &                          -t(i,j-1,k+1,nstp,itrc)
-# if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE
+#  if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE
      &                       -TCLM(i,j  ,k+1,itrc)
      &                       +TCLM(i,j-1,k+1,itrc)
-# endif
+#  endif
      &                         )
             enddo
           enddo
@@ -359,9 +362,9 @@
           do j=jmin-1,jmax+1
             do i=imin-1,imax+1
                FC  (i,j,k2) = 0.0
-# ifdef TS_SPONGE_IMP
+#  ifdef TS_SPONGE_IMP
                Akz (i,j,k )= 0.0   
-# endif
+#  endif
              enddo
           enddo
           if (k.eq.0) then
@@ -369,10 +372,10 @@
               do i=imin-1,imax+1
                 dTdr(i,j,k2)= idRz(i,j,1)*( t(i,j,2,nstp,itrc)
      &                                    - t(i,j,1,nstp,itrc)
-# if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE
+#  if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE
      &                                 - TCLM(i,j,2,itrc)
      &                                 + TCLM(i,j,1,itrc)
-# endif
+#  endif
      &                                     )
               enddo
             enddo
@@ -386,10 +389,10 @@
               FC(i,j,k2)  = idRz(i,j,k)*( z_r (i,j,k+1)-z_r (i,j,k) )
               dTdr(i,j,k2)= idRz(i,j,k)*( t(i,j,k+1,nstp,itrc)  
      &                                  - t(i,j,k  ,nstp,itrc) 
-# if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE
+#  if defined CLIMAT_TS_SPONGE || defined CLIMAT_TS_SPONGE_FINE
      &                                -TCLM(i,j,k+1,itrc)
      &                                +TCLM(i,j,k  ,itrc)
-# endif
+#  endif
      &                                  )
             enddo
           enddo
@@ -447,7 +450,7 @@
      &               + diff3v(i,j+1)*dRde(i,j+1,k  )*TRIADS4   
                 ide = 4
 
-# ifdef TS_SPONGE_IMP
+#  ifdef TS_SPONGE_IMP
 !========================================================
 ! Compute stabilizing vertical diffusivity Akz
 !========================================================
@@ -472,7 +475,7 @@
      &                       diff3v(i,j  )*SLOPEYQ2,
      &                       diff3v(i,j+1)*SLOPEYQ3,
      &                       diff3v(i,j+1)*SLOPEYQ4)
-# endif /* TS_SPONGE_IMP */
+#  endif /* TS_SPONGE_IMP */
 
 !== at this point FC(i,j,k2)=(drho/dz)^(-1)
                 FC(i,j,k2)=(sumX*wgt(idx)+sumE*wgt(ide))*FC(i,j,k2)
@@ -487,22 +490,22 @@
 
           do j=jstr,jend
             do i=istr,iend
-# ifdef TS_SPONGE_IMP
+#  ifdef TS_SPONGE_IMP
               t(i,j,k,nnew,itrc)=Hz(i,j,k)*t(i,j,k,nnew,itrc) 
      &         + dt*(
      &                   pm(i,j)*pn(i,j)*( FX(i+1,j)-FX(i,j)
      &                                    +FE(i,j+1)-FE(i,j))
      &                  +FC(i,j,k2)-FC(i,j,k1)    )
-# else
+#  else
               t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc) + dt*(
      &                   pm(i,j)*pn(i,j)*( FX(i+1,j)-FX(i,j)
      &                                    +FE(i,j+1)-FE(i,j))
      &                  +FC(i,j,k2)-FC(i,j,k1)    )/Hz(i,j,k)
-# endif
+#  endif
             enddo
           enddo
 
-# ifdef DIAGNOSTICS_TS
+#  ifdef DIAGNOSTICS_TS
 !
 ! Tracer diagnostics
 !
@@ -515,23 +518,23 @@
      &                                   SWITCH rmask(i,j)
             enddo
           enddo
-# endif
+#  endif
 
         endif  ! <-- k.gt.0
       enddo   ! --> k
 
-# ifdef TS_SPONGE_IMP
+#  ifdef TS_SPONGE_IMP
 !========================================================
 ! Compute stabilizing correction
 !========================================================
 !
-#  define FC FFC
+#   define FC FFC
       do j=jstr,jend 
-#   ifdef SALINITY
+#    ifdef SALINITY
         indx=min(itrc,isalt)
-#   else
+#    else
         indx=min(itrc,itemp)
-#   endif
+#    endif
 !++
 !++ Explicit vertical Laplacian
 !++
@@ -583,14 +586,14 @@
           enddo
         enddo           !--> discard FC,CF,DC
       enddo
-#  undef FC 
-# endif /* TS_SPONGE_IMP */
+#   undef FC 
+#  endif /* TS_SPONGE_IMP */
 
-# undef MIN
-# undef MAX
-# undef LT
-# undef GT
-#endif /* TS_MIX_S */
+#  undef MIN
+#  undef MAX
+#  undef LT
+#  undef GT
+# endif /* TS_MIX_S */
 !
 !=================================================================
 !
@@ -598,7 +601,7 @@
 !
 !=================================================================
 !
-#  if defined AGRIF && defined AGRIF_CONSERV_TRA
+# if defined AGRIF && defined AGRIF_CONSERV_TRA
         do k=1,N
           MYFX(IstrR:IendR,JstrR:JendR,k,itrc)=
      &                 MYFX(IstrR:IendR,JstrR:JendR,k,itrc)+
@@ -607,9 +610,9 @@
      &                 MYFY(IstrR:IendR,JstrR:JendR,k,itrc)+
      &                        dt*FE(IstrR:IendR,JstrR:JendR)
         enddo
-#  endif
+# endif
 
-#ifdef DIAGNOSTICS_TS
+# ifdef DIAGNOSTICS_TS
 !
 ! Tracer diagnostics
 !
@@ -636,9 +639,9 @@
 ! Tracer diagnostics averaged over the MLD
 !==========================================================
 !
-# if defined DIAGNOSTICS_TS_MLD && !defined SPONGE_DIF2
-#  define T_mld_nnew FX
-#  define T_mld_nstp FE
+#  if defined DIAGNOSTICS_TS_MLD
+#   define T_mld_nnew FX
+#   define T_mld_nstp FE
        do j=Jstr,Jend
          do i=Istr,Iend
             THmix_mld(i,j,itrc)=0.
@@ -648,11 +651,11 @@
        enddo
        do j=Jstr,Jend
          do i=Istr,Iend
-#  ifdef LMD_SKPP
+#   ifdef LMD_SKPP
            kmld=kbl(i,j)
-#  else
+#   else
            kmld=N-5
-#  endif
+#   endif
            do k=N,kmld,-1
              cff=Hz(i,j,k)/(z_w(i,j,N)-z_w(i,j,kmld-1))
              THmix_mld(i,j,itrc)=THmix_mld(i,j,itrc)+
@@ -665,12 +668,12 @@
 
        do j=Jstr,Jend
          do i=Istr,Iend
-#  ifdef LMD_SKPP
+#   ifdef LMD_SKPP
            if (kbl_nstp(i,j).eq.0) kbl_nstp(i,j)=kbl(i,j)
            kmld=kbl_nstp(i,j)
-#  else
+#   else
            kmld=N-5
-#  endif
+#   endif
            do k=N,kmld,-1
              cff=Hz_bak(i,j,k)/(z_w(i,j,N)-z_w(i,j,kmld-1))
              T_mld_nstp(i,j)=T_mld_nstp(i,j)+
@@ -691,11 +694,11 @@
      &                          TForc_mld(i,j,itrc)
          enddo
        enddo
-#  undef T_mld_nnew 
-#  undef T_mld_nstp
-# endif /* DIAGNOSTICS_TS_MLD && !SPONGE_DIF2 */
+#   undef T_mld_nnew 
+#   undef T_mld_nstp
+#  endif /* DIAGNOSTICS_TS_MLD */
 
-# ifdef DIAGNOSTICS_DEBUG
+#  ifdef DIAGNOSTICS_DEBUG
        if (istr.eq.1 .and. jstr.eq.1 .and. itrc.eq.itemp) then
          i=5
          j=5
@@ -722,27 +725,33 @@
            MPI_master_only write(stdout,'(A,2x,1pe10.3)')
      &     ' T3DMIX: T budget closure at k=N-5:', cff
       endif
-# endif /* DIAGNOSTICS_DEBUG */
-#endif /* DIAGNOSTICS_TS */
+#  endif /* DIAGNOSTICS_DEBUG */
+# endif /* DIAGNOSTICS_TS */
 !
 !
 !==========================================================
 ! Data exchange at the boundaries or interfaces
 !==========================================================
 !
-#if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
         call exchange_r3d_tile (istr,iend,jstr,jend,
      &                          t(START_2D_ARRAY,1,nnew,itrc))
-#endif
+# endif
       return
       end
  
-#ifndef CHILD_SPG
-# undef TCLM
-# define CHILD_SPG
-# ifdef AGRIF
-#  include "t3dmix_spg.F"
-# endif
-# undef CHILD_SPG
-#endif  /* !CHILD_SPG */
+# ifndef CHILD_SPG
+#  undef TCLM
+#  define CHILD_SPG
+#  ifdef AGRIF
+#   include "t3dmix_spg.F"
+#  endif
+#  undef CHILD_SPG
+# endif  /* !CHILD_SPG */
+
+#else
+      subroutine t3dmix_spg_empty
+      end
+#endif /* SOLVE3D && SPONGE_DIF2 */
+
 

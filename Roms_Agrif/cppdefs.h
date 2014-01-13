@@ -107,6 +107,7 @@
 # undef  TS_HADV_C4
 # undef  TS_HADV_WENO5
                       /* Lateral Explicit Tracer Mixing */
+# undef TS_MIX_S
 # ifdef TS_HADV_C4
 #  define  TS_DIF2
 #  undef   TS_DIF4
@@ -660,6 +661,7 @@
 # define ANA_BTFLUX
 # define ANA_VMIX
 # define SPONGE
+# define TS_MIX_S
 # define ZCLIMATOLOGY
 # define M2CLIMATOLOGY
 # define M3CLIMATOLOGY
@@ -761,6 +763,7 @@
 #  define OBC_M3ORLANSKI
 #  define OBC_TORLANSKI
 #  define SPONGE
+#  define TS_MIX_S
 # endif
 # define WET_DRY
 # define MRL_WCI

@@ -758,7 +758,8 @@
       call biology_tile (Istr,Iend,Jstr,Jend)
 # endif
 
-# if !defined TS_MIX_S && (defined TS_DIF4 || defined TS_DIF2)
+# if !defined TS_MIX_S && \
+      (defined TS_DIF4 || defined TS_DIF2 || defined SPONGE_DIF2)
 !
 !===============================================================
 ! Compute vertical Rho gradients for use in t3dmix
@@ -821,7 +822,7 @@
       call exchange_w3d_tile (  istr,iend,jstr,jend,
      &                          idRz(START_2D_ARRAY,0)  )
 #  endif
-# endif /* TS_DIF2 || TS_DIF4 */
+# endif /* TS_DIF2 || TS_DIF4 || SPONGE_DIF2 */
 !
       do itrc=1,NT
 !

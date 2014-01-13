@@ -59,8 +59,8 @@
 #elif defined VORTEX
 !     parameter (LLm0=360,  MMm0=360,  N=10)   !  5 km resolution
 !     parameter (LLm0=180,  MMm0=180,  N=10)   ! 10 km resolution
-      parameter (LLm0=90,   MMm0=90,   N=10)   ! 20 km resolution
-!     parameter (LLm0=60,   MMm0=60,   N=10)   ! 30 km resolution
+!     parameter (LLm0=90,   MMm0=90,   N=10)   ! 20 km resolution
+      parameter (LLm0=60,   MMm0=60,   N=10)   ! 30 km resolution
 #elif defined JET
 # ifdef ANA_JET
 !     parameter (LLm0=250,  MMm0=1000,N=100)   !  2 km resolution

@@ -45,7 +45,7 @@
 # endif
 # ifdef SPONGE_GRID
 !  vsponge is defined over 10 boundary points with max:
-!       A = 0.5 * uscale * grd_scale
+!       A = uscale * grd_scale
 !  and  B = A * grd_scale**2
       real uscale
       parameter (uscale=0.1)
@@ -189,7 +189,7 @@
         do i=IstrR,IendR
 
 #   ifdef SPONGE_GRID
-          visc2_sponge_r(i,j)=.5*uscale*grdmax*wrk(i,j)
+          visc2_sponge_r(i,j)=uscale*grdmax*wrk(i,j)
 #   else
           visc2_sponge_r(i,j)=v_sponge*wrk(i,j)
 #   endif
@@ -204,7 +204,7 @@
       do j=Jstr,JendR
         do i=Istr,IendR
 #   ifdef SPONGE_GRID
-          visc2_sponge_p(i,j)=0.125*uscale*grdmax*
+          visc2_sponge_p(i,j)=0.25*uscale*grdmax*
 #   else
           visc2_sponge_p(i,j)=0.25*v_sponge*
 #   endif
@@ -225,7 +225,7 @@
         do j=JstrR,JendR
           do i=IstrR,IendR
 #   ifdef SPONGE_GRID
-            diff2_sponge(i,j)=.5*uscale*grdmax*wrk(i,j) 
+            diff2_sponge(i,j)=uscale*grdmax*wrk(i,j) 
 #   else
             diff2_sponge(i,j)=v_sponge*wrk(i,j) 
 #   endif

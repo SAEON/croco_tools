@@ -352,8 +352,8 @@ C$    trd=omp_get_thread_num()
 !                                           Northern edge Flather BC
 !                                           ======== ==== ======= ==
         do i=Istr,Iend
-          vbar(i,Jend+1,knew)=sqrt(2.*g/(h(i,Jend)+h(i,Jend+1))
-     &                      +zeta(i,Jend,kstp)+zeta(i,Jend+1,kstp))
+          vbar(i,Jend+1,knew)=sqrt(2.*g/(h(i,Jend)+h(i,Jend+1)
+     &                     +zeta(i,Jend,kstp)+zeta(i,Jend+1,kstp)))
      &               *(0.5*( zeta(i,Jend,knew)+zeta(i,Jend+1,knew))
 #   ifdef Z_FRC_BRY
      &                                            -zetabry_north(i)
