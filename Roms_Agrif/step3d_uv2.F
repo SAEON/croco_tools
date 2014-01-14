@@ -506,7 +506,7 @@
 !-------------------------------------------------
 !
 # if !defined TS_MIX_S && \
-      (defined TS_DIF4 || defined TS_DIF2 || SPONGE_DIF2)
+      (defined TS_DIF4 || defined TS_DIF2 || defined SPONGE_DIF2)
         do k=1,N,+1
           do i=IU_RANGE
             cff =0.5*(pm(i,j)+pm(i-1,j)) SWITCH umask(i,j)
