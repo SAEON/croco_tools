@@ -9,6 +9,8 @@
 ! ROMS_AGRIF website : http://www.romsagrif.org
 !======================================================================
 !
+! Marine HERRMANN (IRD/LEGOS) : 2013
+!
 #include "cppdefs.h"
 #if defined PSOURCE_NCFILE
 
