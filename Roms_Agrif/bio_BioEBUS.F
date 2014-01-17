@@ -15,9 +15,19 @@
 ! **********************************************************
 ! ***********************  BioEBUS  ************************
 ! Biogeochemical model for Eastern Boundary Upweling Systems
-! **********************************************************
-! Elodie GUTKNECHT : 2009 - 2012
 !
+! BioEBUS routine is under CeCILL-C licence N°: 06572-01
+!
+! **********************************************************
+! Elodie GUTKNECHT : 2007 - 2011
+! Isabelle DADOU (LEGOS, Toulouse, France)
+!
+!
+! if you have any question on BioEBUS model, please contact:
+! Elodie Gutknecht (elodie.gutknecht@legos.obs-mip.fr)
+! Isabelle Dadou (isabelle.dadou@legos.obs-mip.fr)
+!
+! References to cite for any publication and communication using BioEBUS model:
 !
 ! Gutknecht, E., Dadou, I., Le Vu, B., Cambon, G., Sudre, J., Garçon, V., 
 ! Machu, E., Rixen, T., Kock, A., Flohr, A., Paulmier, A., and Lavik, G.: 
