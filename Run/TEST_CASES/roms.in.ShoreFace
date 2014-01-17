@@ -11,7 +11,7 @@ initial: NRREC  filename
           0
 
 forcing:   filename
-           ROMS_FILES/shoreface_JW_frc.nc
+           TEST_CASES/shoreface_JW_frc.nc
 
 sediments: input file
            sediment.in
