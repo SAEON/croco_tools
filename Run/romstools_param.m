@@ -360,11 +360,12 @@ SPIN_Long     = 0;             % SPIN-UP duration in Years
 Download_data = 1;   % Get data from OPENDAP sites  
 level         = 0;   % AGRIF level; 0 = parent grid
 %					  
-NCEP_version  = 2;   % NCEP version:
+NCEP_version  = 3;   % NCEP version: 
+                     % [ CFSR up-to-date product are recommandated ]
                      %  1: NCEP/NCAR Reanalysis, 1/1/1948 - present
                      %  2: NCEP-DOE Reanalysis, 1/1/1979 - present
                      %  3: CFSR (Climate Forecast System Reanalysis), 
-                     %                          1/1/1979 - 31/3/2011
+                     %           1/1/1979 - 31/3/2011
 %					      
 % Option for using local datasets (previously downloaded)
 % rather than online opendap procedure
