@@ -3,7 +3,7 @@
 %
 %
 % Pierrick Penven, IRD, 2005
-%
+% 2014: addition gr
 
 %
 %
@@ -52,22 +52,47 @@ t=(-rho+1000+R0)/TCOEF;
 %
 % U and V
 %
+%a=2*P0/(f0*rho0*lambda^2);
+%zu=0.5*(zr(:,:,1:end-1)+zr(:,:,2:end));
+%xu=0.5*(xr(:,:,1:end-1)+xr(:,:,2:end));
+%yu=0.5*(yr(:,:,1:end-1)+yr(:,:,2:end));
+%F=(H-1+zu+exp(-zu-H))./(H-1+exp(-H));
+%F(zu<-H)=0;
+%u=a.*F.*yu.*exp(-(xu.^2+yu.^2)/lambda^2);
+%zv=0.5*(zr(:,1:end-1,:)+zr(:,2:end,:));
+%xv=0.5*(xr(:,1:end-1,:)+xr(:,2:end,:));
+%yv=0.5*(yr(:,1:end-1,:)+yr(:,2:end,:));
+%F=(H-1+zv+exp(-zv-H))./(H-1+exp(-H));
+%F(zv<-H)=0;
+%v=-a.*F.*xv.*exp(-(xv.^2+yv.^2)/lambda^2);
 %
-a=2*P0/(f0*rho0*lambda^2);
-zu=0.5*(zr(:,:,1:end-1)+zr(:,:,2:end));
-xu=0.5*(xr(:,:,1:end-1)+xr(:,:,2:end));
-yu=0.5*(yr(:,:,1:end-1)+yr(:,:,2:end));
-F=(H-1+zu+exp(-zu-H))./(H-1+exp(-H));
-F(zu<-H)=0;
-u=a.*F.*yu.*exp(-(xu.^2+yu.^2)/lambda^2);
-zv=0.5*(zr(:,1:end-1,:)+zr(:,2:end,:));
-xv=0.5*(xr(:,1:end-1,:)+xr(:,2:end,:));
-yv=0.5*(yr(:,1:end-1,:)+yr(:,2:end,:));
-F=(H-1+zv+exp(-zv-H))./(H-1+exp(-H));
-F(zv<-H)=0;
-v=-a.*F.*xv.*exp(-(xv.^2+yv.^2)/lambda^2);
+% Compute geostrophic velocities Vg
 %
-% Vitesses barotropes
+F=(H-1+zr+exp(-zr-H))./(H-1+exp(-H));
+F(zr<-H)=0;
+r=sqrt(xr.^2+yr.^2);
+Vg=-(2.*r.*P0.*F./(rho0.*f0.*lambda.*lambda)).*exp(-r.^2/lambda^2);
+%
+% Compute gradient wind velocities Vgr : Vgr/R^2 + f Vgr = f Vg 
+%
+a=1+4.*Vg./(f0.*r);
+[indx]=find(a<0);
+if length(indx)>0
+  disp([num2str(length(indx)),...
+  ' points with no gradient wind solution (use geostrophy) '])
+end
+a(a<0)=1;
+Vgr=2.*Vg./(1+sqrt(a));
+%Vgr=Vg;
+%
+% Project on the grid
+%
+ur=-Vgr.*yr./r;
+vr=Vgr.*xr./r;
+u=0.5*(ur(:,:,1:end-1)+ur(:,:,2:end));
+v=0.5*(vr(:,1:end-1,:)+vr(:,2:end,:));
+%
+% Barotropic speeds
 %
 dz=zw(2:end,:,:)-zw(1:end-1,:,:);
 dzu=0.5*(dz(:,:,1:end-1)+dz(:,:,2:end));
