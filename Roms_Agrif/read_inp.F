@@ -94,6 +94,8 @@
       fname='TEST_CASES/roms.in.Jet'
 #elif defined SHOREFACE
       fname='TEST_CASES/roms.in.ShoreFace'
+#elif defined RIP
+      fname='TEST_CASES/roms.in.RIP'
 #elif defined THACKER
       fname='TEST_CASES/roms.in.Thacker'
 #elif defined REGIONAL

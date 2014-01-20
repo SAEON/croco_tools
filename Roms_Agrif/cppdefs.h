@@ -28,6 +28,7 @@
 #undef  VORTEX          /* Baroclinic Vortex Example */
 #undef  INTERNAL        /* Internal Tide Example */
 #undef  JET             /* Baroclinic Jet Example */
+#undef  RIP             /* Rip Current Test Case */
 #undef  SHOREFACE       /* Shoreface Test Case on a Planar Beach */
 #undef  THACKER         /* Thacker wetting-drying Example */
 
@@ -779,6 +780,63 @@
 # define LMD_BKPP
 # undef  BBL
 # undef  SEDIMENT
+
+#elif defined RIP
+/*
+!                       Rip Current Example
+!                       === ======= =======
+!
+!   Weir, B., Uchiyama, Y.. (2010): 
+!      A vortes force analysis of the interaction of rip 
+!      currents and surface gravity wave
+!      JGR Vol. 116
+*/
+# undef  ETALON_CHECK
+# undef  DIAGNOSTICS_UV
+# undef  OPENMP
+# undef  MPI
+# define SOLVE3D
+# define UV_ADV
+# undef  MASKING
+# define NEW_S_COORD
+# undef ANA_GRID
+# define ANA_INITIAL
+# define ANA_SMFLUX
+# define ANA_STFLUX
+# define ANA_SSFLUX
+# define ANA_SRFLUX
+# define ANA_SST
+# define ANA_BTFLUX
+# define NS_PERIODIC
+# define WKB_OBC_WEST
+# define OBC_WEST
+# ifdef OBC_WEST
+#  define OBC_M2CHARACT
+#  define OBC_M3ORLANSKI
+#  define OBC_TORLANSKI
+#  define SPONGE
+# endif
+# define WET_DRY
+# define MRL_WCI
+# ifdef MRL_WCI
+#  define WKB_WWAVE
+#  define WAVE_ROLLER
+#  undef  WAVE_STREAMING
+#  define  WAVE_FRICTION
+#  undef  MRL_CEW
+#  undef  WKB_KZ_FILTER
+#  undef  WKB_TIME_FILTER
+#  undef WAVE_RAMP
+# endif
+# define LMD_MIXING
+# define LMD_SKPP
+# define LMD_BKPP
+# define  UV_VIS2
+# ifdef UV_VIS2
+#  define UV_MIX_S
+#  define UV_VIS_SMAGO
+# endif
+# undef  BBL
 
 #elif defined THACKER
 /*

@@ -81,7 +81,7 @@
       real    cff,cff1,cff2,cff3,cff4,inv_g,khd,kh,umag,
      &   eps,wave_ramp,wramp2,kbrk,fb,fb0,fb1,fb2,inv_fbs,
      &   bconst,tauc,tauw,ka_f00,hz0,z_tide,
-     %   dtinv,inv_zb,a_brk,a_kv,c1o3,c4o3,inv_k,dd,ust_ker,intfb,
+     &   dtinv,inv_zb,a_brk,a_kv,c1o3,c4o3,inv_k,dd,ust_ker,intfb,
      &   fbsrf,fn1,fn2,khmax,bz1,bz2,beta,abot,delta,
      &   a_frc,kfrc,Hrms,
      &             wh(PRIVATE_2D_SCRATCH_ARRAY),

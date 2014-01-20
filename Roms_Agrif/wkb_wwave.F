@@ -183,14 +183,14 @@
         Btg  = wkb_btg             ! B parameter
         gamw = wkb_gam             ! gamma paramemer (Hrms/h ratio)
 
-#  ifdef OBC_WEST
+#  ifdef WKB_OBC_WEST
         ho=h(1,1)+wkb_tide         ! offshore depth
 #   ifdef MPI
         call MPI_Bcast(ho, 1, MPI_DOUBLE_PRECISION,
      &                     0, MPI_COMM_WORLD, ierr)
 #   endif
 #  endif
-#  ifdef OBC_EAST
+#  ifdef WKB_OBC_EAST
         ho=h(LLm,1)+wkb_tide
 #   ifdef MPI
         call MPI_Bcast(ho, 1, MPI_DOUBLE_PRECISION,
@@ -259,7 +259,7 @@
 !
 !  Boundary fields
 !
-#  ifdef OBC_EAST
+#  ifdef WKB_OBC_EAST
         if (EASTERN_EDGE) then
           do j=jstr-1,jend+1
             wac_east(j)=wac(iendR,j,1)
@@ -267,8 +267,8 @@
             wke_east(j)=wke(iendR,j,1)
           enddo
         endif
-#  endif  /* OBC_EAST */
-#  ifdef OBC_WEST
+#  endif  /* WKB_OBC_EAST */
+#  ifdef WKB_OBC_WEST
         if (WESTERN_EDGE) then
           do j=jstr-1,jend+1
             wac_west(j)=wac(istr-1,j,1)
@@ -276,7 +276,7 @@
             wke_west(j)=wke(istr-1,j,1)
           enddo
         endif
-#  endif  /* OBC_WEST */
+#  endif  /* WKB_OBC_WEST */
 # else /* !ANA_INI_WKB */
         do j=jstrR,jendR
           do i=istrR,iendR
@@ -473,7 +473,14 @@
      &                              +(cev+abs(cev))*rwac(i,j) )
         enddo
       enddo           ! <--- discard cgx,cge,rwac
-
+!
+!cgx(i,j)=wcg(i,j,wstp)*rkx(i,j)
+! rkx extrap de wkx
+! wcg(i,j,wnew) =frq(i,j,wnew)*(inv_k**2)*nw  ! cg/k
+! nw=0.5*(1.+2.*kh/sinh(2.*kh))  ! n=Cg/C
+! wsb : breaking
+! wdsp :epb écrit
+! wdsp = wsb *ramp
       do j=jstr,jend
         do i=istr,iend
           wac(i,j,wnew) =wac(i,j,wprv)-dtwave*( pm(i,j)*pn(i,j)
@@ -557,7 +564,7 @@
 !
 # ifndef EW_PERIODIC
       if (WESTERN_EDGE) then
-#  ifdef OBC_WEST
+#  ifdef WKB_OBC_WEST
         do j=jstr,jend                           ! Western edge
           wkx(istr-1,j,wnew)=wkx_west(j)         ! clamped BC
           wke(istr-1,j,wnew)=wke_west(j)
@@ -575,10 +582,10 @@
           war(istr-1,j,wnew)=war(istr,j,wnew)
 #   endif
         enddo
-#  endif  /* OBC_WEST */
+#  endif  /* WKB_OBC_WEST */
       endif
       if (EASTERN_EDGE) then
-#  ifdef OBC_EAST
+#  ifdef WKB_OBC_EAST
         do j=jstr,jend                           ! Eastern edge
           wkx(iend+1,j,wnew)=wkx_east(j)         ! clamped BC
           wke(iend+1,j,wnew)=wke_east(j)
@@ -596,13 +603,13 @@
           war(iend+1,j,wnew)=war(iend,j,wnew)
 #   endif
         enddo
-#  endif  /* OBC_EAST */
+#  endif  /* WKB_OBC_EAST */
       endif
 # endif        /* !EW_PERIODIC */
 !
 # ifndef NS_PERIODIC
       if (SOUTHERN_EDGE) then
-#  ifdef OBC_SOUTH
+#  ifdef WKB_OBC_SOUTH
         do i=istr,iend                           ! Southern edge
           wkx(i,jstr-1,wnew)=wkx_south(i)        ! clamped BC
           wke(i,jstr-1,wnew)=wke_south(i)
@@ -620,10 +627,10 @@
           war(i,jstr-1,wnew)=war(i,jstr,wnew)
 #   endif
         enddo
-#  endif  /* OBC_SOUTH */
+#  endif  /* WKB_OBC_SOUTH */
       endif
       if (NORTHERN_EDGE) then
-#  ifdef OBC_NORTH
+#  ifdef WKB_OBC_NORTH
         do i=istr,iend                           ! Northern edge
           wkx(i,jend+1,wnew)=wkx_north(i)        ! clamped BC
           wke(i,jend+1,wnew)=wke_north(i)
@@ -641,7 +648,7 @@
           war(i,jend+1,wnew)=war(i,jend,wnew)
 #   endif
         enddo
-#  endif   /* OBC_NORTH */
+#  endif   /* WKB_OBC_NORTH */
       endif
 # endif       /* !NS_PERIODIC */
 !

@@ -69,7 +69,8 @@ C$    integer omp_get_thread_num
    || defined EQUATOR   || defined GRAV_ADJ   || defined OVERFLOW  \
    || defined SEAMOUNT  || defined SHELFRONT  || defined UPWELLING \
    || defined RIVER     || defined INTERNAL   || defined REGIONAL  \
-   || defined JET       || defined INNERSHELF || defined SHOREFACE
+   || defined JET       || defined INNERSHELF || defined SHOREFACE \
+   || defined RIP
       do j=JR_RANGE
         do i=IR_RANGE
           zeta(i,j,1)=0.
@@ -146,11 +147,12 @@ C$    integer omp_get_thread_num
 !  Initial conditions for momentum components [m/s].
 !--------------------------------------------------------------------
 !
-#  if defined BASIN     || defined CANYON_A  || defined CANYON_B  \
-   || defined EQUATOR   || defined GRAV_ADJ  || defined OVERFLOW  \
-   || defined SEAMOUNT  || defined SHELFRONT || defined UPWELLING \
-   || defined RIVER     || defined INTERNAL  || defined REGIONAL  \
-   || defined JET       || defined INNERSHELF || defined SHOREFACE
+#  if defined BASIN     || defined CANYON_A   || defined CANYON_B  \
+   || defined EQUATOR   || defined GRAV_ADJ   || defined OVERFLOW  \
+   || defined SEAMOUNT  || defined SHELFRONT  || defined UPWELLING \
+   || defined RIVER     || defined INTERNAL   || defined REGIONAL  \
+   || defined JET       || defined INNERSHELF || defined SHOREFACE \
+   || defined RIP
       do k=1,N
         do j=JR_RANGE
           do i=IR_RANGE
@@ -212,7 +214,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
-#  elif defined SHOREFACE
+#  elif defined SHOREFACE || defined RIP
       do k=1,N
         do j=jstrR,jendR
           do i=istrR,iendR

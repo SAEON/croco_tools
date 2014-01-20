@@ -75,6 +75,10 @@
 # endif
 #elif defined SHOREFACE
       parameter (LLm0=59,   MMm0=7,    N=20)   ! Planar Beach 20m
+#elif defined RIP
+!     parameter (LLm0=255,  MMm0=255,  N=20)   !  3 m resolution 
+!     parameter (LLm0= 78,  MMm0= 78,  N=20)   ! 10 m resolution
+      parameter (LLm0= 39,  MMm0= 39,  N=20)   ! 20 m resolution
 #elif defined THACKER
       parameter (LLm0=199,  MMm0=199,  N=5 )   !  1 km resolution
 #elif defined REGIONAL

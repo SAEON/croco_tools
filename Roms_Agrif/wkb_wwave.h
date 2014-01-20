@@ -58,7 +58,7 @@
 # endif
 
 ! for boundaries
-# ifdef OBC_WEST
+# ifdef WKB_OBC_WEST
       real wac_west(0:Mm+1), 
      &     wkx_west(0:Mm+1),
      &     wke_west(0:Mm+1)
@@ -66,7 +66,7 @@
      &                   wkx_west,
      &                   wke_west
 # endif
-# ifdef OBC_EAST
+# ifdef WKB_OBC_EAST
       real wac_east(0:Mm+1), 
      &     wkx_east(0:Mm+1),
      &     wke_east(0:Mm+1)
@@ -74,7 +74,7 @@
      &                   wkx_east,
      &                   wke_east
 # endif
-# ifdef OBC_SOUTH
+# ifdef WKB_OBC_SOUTH
       real wac_south(0:Lm+1), 
      &     wkx_south(0:Lm+1),
      &     wke_south(0:Lm+1)
@@ -82,7 +82,7 @@
      &                    wkx_south,
      &                    wke_south
 # endif
-# ifdef OBC_NORTH
+# ifdef WKB_OBC_NORTH
       real wac_north(0:Lm+1), 
      &     wkx_north(0:Lm+1),
      &     wke_north(0:Lm+1)

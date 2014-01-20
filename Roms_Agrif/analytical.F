@@ -129,7 +129,8 @@
    || defined OVERFLOW  || defined REGIONAL  || defined RIVER      \
    || defined SEAMOUNT  || defined SED_TEST2 || defined SHELFRONT  \
    || defined UPWELLING || defined VORTEX    || defined INTERNAL   \
-   || defined JET       || defined SHOREFACE || defined THACKER
+   || defined JET       || defined SHOREFACE || defined RIP        \
+   || defined THACKER
 
         do j=JstrR,JendR
           do i=IstrR,IendR
@@ -361,7 +362,8 @@ C$    integer  trd, omp_get_thread_num
 # elif defined GRAV_ADJ  || defined OVERFLOW || defined SEAMOUNT   \
     || defined SHELFRONT || defined SOLITON  || defined INNERSHELF \
     || defined RIVER     || defined VORTEX   || defined REGIONAL   \
-    || defined INTERNAL  || defined JET      || defined THACKER
+    || defined INTERNAL  || defined JET      || defined RIP        \
+    || defined THACKER
  
       do j=JstrR,JendR
         do i=IstrR,IendR
@@ -384,7 +386,7 @@ C$    integer  trd, omp_get_thread_num
   || defined REGIONAL  || defined RIVER     || defined SEAMOUNT  \
   || defined SHELFRONT || defined SOLITON   || defined UPWELLING \
   || defined VORTEX    || defined INTERNAL  || defined JET       \
-  || defined THACKER
+  || defined RIP       || defined THACKER
       do j=JstrR,JendR
         do i=IstrR,IendR
           svstr(i,j)=0.
@@ -462,7 +464,7 @@ C$    integer  trd, omp_get_thread_num
   || defined REGIONAL  || defined RIVER      || defined SEAMOUNT \
   || defined SHELFRONT || defined UPWELLING  || defined VORTEX \
   || defined INTERNAL  || defined JET        || defined SHOREFACE\
-  || defined THACKER
+  || defined RIP       || defined THACKER
       do j=JstrR,JendR
         do i=IstrR,IendR
           srflx(i,j)=0.
@@ -687,7 +689,7 @@ c
  || defined OVERFLOW  || defined REGIONAL  || defined RIVER      \
  || defined SEAMOUNT  || defined SHELFRONT || defined UPWELLING  \
  || defined VORTEX    || defined INTERNAL  || defined JET        \
- || defined SHOREFACE || defined THACKER
+ || defined SHOREFACE || defined RIP       || defined THACKER
 
         do j=JstrR,JendR
           do i=IstrR,IendR
@@ -709,7 +711,7 @@ c
 !
 # if defined EQUATOR   || defined INNERSHELF || defined REGIONAL  \
   || defined RIVER     || defined SEAMOUNT   || defined SHELFRONT \
-  || defined UPWELLING || defined SHOREFACE
+  || defined UPWELLING || defined SHOREFACE  || defined RIP 
 
         do j=JstrR,JendR
           do i=IstrR,IendR
