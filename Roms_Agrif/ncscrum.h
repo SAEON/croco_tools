@@ -457,7 +457,7 @@
 #ifdef WKB_WWAVE
       integer indxHRM,indxFRQ,indxWAC, indxWKX,indxWKE, indxEPB
      &       ,indxEPD,indxWAR,indxEPR
-      parameter (indxHRM=99,
+      parameter (indxHRM=indxSUP+28,
      &           indxFRQ=indxHRM+1, indxWAC=indxHRM+2,
      &           indxWKX=indxHRM+3, indxWKE=indxHRM+4,
      &           indxEPB=indxHRM+5, indxEPD=indxHRM+6,
