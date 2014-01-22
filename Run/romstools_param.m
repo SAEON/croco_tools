@@ -332,7 +332,7 @@ Z0   =  1;       % Mean depth of tide gauge
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % 6 - Reference date and simulation times
-%     (used for make_tides, make_NCEP, make_OGCM)
+%     (used for make_tides, make_CFSR (or make_NCEP), make_OGCM)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -353,7 +353,7 @@ SPIN_Long     = 0;             % SPIN-UP duration in Years
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% 7 - Parameters for Interannual forcing (SODA, ECCO, NCEP, ...)
+% 7 - Parameters for Interannual forcing (SODA, ECCO, CFSR, NCEP, ...)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
