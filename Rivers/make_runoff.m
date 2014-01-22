@@ -26,40 +26,35 @@
 %
 %  July 2013: G.Cambon (IRD/LEGOS) & M. Herrmann (IRD/LEGOS)
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%
 clear all
 close all
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
 %
 romstools_param
+%
 if (makenpzd | makepisces | makebioebus)
-    makebio = 1
+    makebio = 1;
 else
-    makebio = 0
+    makebio = 0;
 end
+%
+disp(' ')
 disp(['Create runoff forcing from Dai and Trenberth''s global monthly climatological run-off dataset'])
+disp(' ')
 title_name='runoff forcing file (Dai and Trenberth, 2002 dataset)';
 %
 plotting=1;
-define_dir=0 ;  %->flag to define directly the dir/sen of the runoff
-if define_dir
-    % Define direction/sense of the flow. First column is the u- (0) or v- (1)
-    % direction. Second column is the sense of the flow in the choosen direction
+%
+define_dir=0 ;  %->flag to define directly the orientation / direction of the runoff
+%
+%
+%
+if define_dir==1
+    % Define orientation/direction of the flow. First column is the u- (0) or v- (1)
+    % orientation. Second column is the direction of the flow in the choosen orientation
     dir(1,:)=[0, -1];
     dir(2,:)=[0, -1];
     dir(3,:)=[1, -1];
-end
-if psource_ts
-    % Define manually (and uncomment) the tracer (t, s, and eventually biogeochemical tracer
-    % concentration
-    %     temp_src0=[11 9 9 12 20 20 24 25 21 18 13 12];
-    %     temp_src(:,:)=[temp_src0;temp_src0+2;temp_src0+2.8];
-    %     %
-    %     salt_src0=[2 3 5 1 5 3 2 1 4 2 1 2];
-    %     salt_src(:,:)=[salt_src0;salt_src0;salt_src0];
-    %     %
-    %     no3_src0=[0 0 0 0 0 0 0 0 0 0 0 0];
-    %     no3_src(:,:)=[no3_src0;no3_src0+2;no3_src0+2.8];
 end
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
@@ -67,12 +62,6 @@ end
 [latriv,lonriv,my_flow,myrivername,rivernumber]=runoff_glob_extract(grdname,global_clim_rivername);
 latriv=latriv';
 lonriv=lonriv';
-
-if psource_ts
-    my_temp_src = temp_src;
-    my_salt_src = salt_src;
-    my_no3_src  = no3_src;
-end
 %
 rivername=strvcat(myrivername);
 rivernumber=size(rivername,1);
@@ -81,28 +70,35 @@ rivname_StrLen=size(rivername,2);
 % Determine the positions of the river, from its lon/lat position
 % extract j and i to put in roms.in / roms.in.1 for that use of roms_grd.nc
 %
+% Read the grid
+%
 [lat,lon,mask]=read_latlonmask(grdname,'r');
 [latu,lonu,masku]=read_latlonmask(grdname,'u');
 [latv,lonv,maskv]=read_latlonmask(grdname,'v');
+lonmin=min(lon(:));
+lonmax=max(lon(:));
+latmin=min(lat(:));
+latmax=max(lat(:));
 %
+% Perform a first pass on each river
+%
+disp(' ')
 disp(['First guess:'])
 disp(['============'])
-
+%
 for k= 1:rivernumber
-    disp([' '])
-    disp(['- Process river #',num2str(k),': ',char(myrivername(k,:))])
-    indomain(k)=check_domain_runoff(lon,lat,lonriv(k),latriv(k));
-%    if indomain(k)
-    [j,i]=runoff_grid_pos(lon,lat,lonriv(k),latriv(k));
-    J(k)=j;     I(k)=i;
-    disp(['  Position is approximetly  J=',num2str(J(k)),' and I=',num2str(I(k))])
-%     else
-%     disp(['The river is not in the domain...'])
-%     disp(['it will not be considered...'])
-%     J(k)=1;     I(k)=1;
-%     end
-        disp(['lon src in grid (rho point) ~',num2str(lon(J(k),I(k)))])
-        disp(['lat src in grid (rho point) ~',num2str(lat(J(k),I(k)))])
+  disp([' '])
+  disp(['- Process river #',num2str(k),': ',char(myrivername(k,:))])
+  indomain(k)=check_domain_runoff(lon,lat,lonriv(k),latriv(k));
+  [j,i]=runoff_grid_pos(lon,lat,lonriv(k),latriv(k));
+  J(k)=j-1;
+  I(k)=i-1;
+  I(I<1)=1;
+  J(J<1)=1;
+  
+  disp(['  Position is approximetly  J=',num2str(J(k)),' and I=',num2str(I(k))])
+  disp(['lon src in grid (rho point) ~',num2str(lon(J(k),I(k)))])
+  disp(['lat src in grid (rho point) ~',num2str(lat(J(k),I(k)))])
 end
 %
 % Check the river you really have to process.
@@ -115,26 +111,35 @@ rivername=strvcat(myrivername(rivertoprocess,:));
 rivernumber=number_rivertoprocess;
 rivname_StrLen=size(rivername,2);
 %
-plotting=1;
-if plotting
-    figure
-    pcolor(lonv,latv,maskv);
-    hold on;
-    
-    for k0=1:number_rivertoprocess
-        k=rivertoprocess(k0);
-        aa=plot(lon(J(k),I(k)),lat(J(k),I(k)),'or');
-        legend(aa,'first guess position');
-        cc=text(lon(J(k),I(k))-0.5,lat(J(k),I(k))-0.5,myrivername(k,:));
-        set(cc,'fontweight','demi','fontsize',13);
-    end
+% Make a figure
+%
+if plotting==1
+  figure
+  m_proj('mercator',...
+       'lon',[lonmin lonmax],...
+       'lat',[latmin latmax]);
+  m_pcolor(lon,lat,mask)
+  m_grid('box','fancy','xtick',5,'ytick',5,'tickdir','out');
+  set(findobj('tag','m_grid_color'),'facecolor','white');
+  hold on
+  for k0=1:number_rivertoprocess
+    k=rivertoprocess(k0);
+    lon_src=lon(J(k)+1,I(k)+1);
+    lat_src=lat(J(k)+1,I(k)+1);
+    [px,py]=m_ll2xy(lon_src,lat_src);
+    h1=plot(px,py,'ro');
+    set(h1,'Clipping','off')
+    legend(h1,'first guess position');
+    h2=m_text(lon(J(k),I(k)),lat(J(k),I(k))+0.1,myrivername(k,:));
+    set(h2,'fontweight','demi','fontsize',13);
+  end
 end
 %
-% Choose the river you really want to process...
+% Choose which river you really want to process...
 %
 indomain_last=indomain;
 for k = 1 : number_rivertoprocess
-   indomain_last(k)=input(['Do you want to use river (Yes[1], No[0]) ?  ', rivername(k,:)]);
+  indomain_last(k)=input(['Do you want to use river (Yes[1], No[0]) ?  ', rivername(k,:)]);
 end
 rivertoprocess=find(indomain_last==1);
 number_rivertoprocess=length(rivertoprocess);
@@ -144,27 +149,27 @@ rivernumber=number_rivertoprocess;
 rivname_StrLen=size(rivername,2);
 my_flow=my_flow(:,find(indomain_last==1));
 myrivername=myrivername(find(indomain_last==1),:);
-if define_dir==0
 %
-% Define the direction/sense of the flow. First column is the u- (0) or v- (1) 
-% direction. Second column is the sense of the flow in the choosen direction
+% Define the orientation/direction of the flow. First column is the u- (0) or v- (1) 
+% orientation. Second column is the direction of the flow in the choosen orientation
 %    
-    for k0=1:number_rivertoprocess
-        k=rivertoprocess(k0);
-        disp(['====='])
-        disp(['River ',rivername(k,:)])
-        disp(['Choose the orientation of the flow'])
-        dir11 = input('0=zonal or 1=meridional. ');
-        if (dir11~=0 & dir11~=1)
-            error([num2str(dir11),' : Wrong choice ...'])
-        end
-        disp(['Choose the sense of the flow. '])
-        dir12= input('0 is positive [S-N or W-E], -1 negative [E-W or N-S]. ');
-        if (dir12~=0 & dir12~=-1)
-            error([num2str(dir12),' : Wrong choice ...'])
-        end
-        dir(k,:)=[dir11 dir12];
+if define_dir==0
+  for k0=1:number_rivertoprocess
+    k=rivertoprocess(k0);
+    disp(['====='])
+    disp(['River ',rivername(k,:)])
+    disp(['Choose the orientation of the flow'])
+    dir11=NaN;
+    while ~(dir11==0 | dir11==1)
+      dir11 = input('0=zonal or 1=meridional. ');
     end
+    disp(['Choose the direction of the flow. '])
+    dir12=NaN;
+    while ~(dir12==1 | dir12==-1)
+      dir12= input('1 is positive [S-N or W-E], -1 negative [N-S or E-W]. ');
+    end
+    dir(k,:)=[dir11 dir12];
+  end
 end
 %
 % Create the runoff forcing file
@@ -177,27 +182,74 @@ create_runoff(rivname,grdname,title_name,...
     salt_src_time,salt_src_cycle,...
     rivername,rivernumber,rivname_StrLen,dir,psource_ts,makebio)
 %
-% Determine where is the rivers
+% Adjust the rivers positions relative to the mask
 %
 disp(['Find the real positions of the rivers in the grid: '])
-disp(['========================================'])
-for k0=1:rivernumber
-    k=k0+0;
-    disp(['Process final position for river ',rivername(k,:)])
-        disp(['Choose the orientation'])  
-    jj=J(k); ii=I(k);dir2=dir(k,:);
-    [jj2,ii2]=locate_runoff(dir2,jj,ii,mask,masku,maskv);
-    J2(k)=jj2; I2(k)=ii2;
-    disp([char(myrivername(k,:)),' is J=',num2str(J2(k)),' and I=',num2str(I2(k))])
-    disp([' '])
+disp(['=================================================='])
+for k=1:rivernumber
+  disp(['Process final position for river ',rivername(k,:)])
+  disp(['Choose the orientation'])  
+  jj=J(k); 
+  ii=I(k);
+  dir2=dir(k,:);
+  [jj2,ii2]=locate_runoff(dir2,jj,ii,mask,masku,maskv);
+  J2(k)=jj2; 
+  I2(k)=ii2;
+  disp([char(myrivername(k,:)),' is J=',num2str(J2(k)),' and I=',num2str(I2(k))])
+  disp([' '])
 end
-if plotting
-    hold on;
-    for k=1:rivernumber
-        bb=plot(lonv(J2(k),I2(k)),latv(J2(k),I2(k)),'ok');
+%
+% Adjust the rivers temperature and salinity
+%
+if psource_ts==1
+  disp([' '])
+  disp([' Adjust the rivers temperature and salinity '])
+  disp([' Use the closest surface point in the climatology file '])
+  my_temp_src=zeros(rivernumber,length(woa_time));
+  my_salt_src=zeros(rivernumber,length(woa_time));
+  if makebio==1
+    my_no3_src=zeros(rivernumber,length(woa_time));
+  end
+%
+  ncclim=netcdf(clmname);
+  N=length(ncclim('s_rho'));
+%
+  for k=1:rivernumber
+%
+% For temperature, use the closest surface point in the clim file
+% to reduce any heat flux induced by the rivers
+%
+    T=squeeze(ncclim{'temp'}(:,N,J(k)+1,I(k)+1));
+    my_temp_src(k,:)=T';
+%
+% For salinity ... ? 
+%
+%    S=squeeze(ncclim{'salt'}(:,N,J(k)+1,I(k)+1))-10; % hum... 
+%    S(S<2)=2; % to prevent negative salinities in the equation of state
+    S=2;
+    my_salt_src(k,:)=S';
+    if makebio==1
+      NO3=squeeze(ncclim{'NO3'}(:,N,J(k)+1,I(k)+1));
+      my_no3_src(k,:)=NO3';
     end
-    legend([aa,bb],{'Approximative first guess river location','final adjusted river location'});
-    title({'\bf Location of river in the roms grid';'(from Dai and Trenberth dataset)'});
+  end
+  close(ncclim)
+end
+
+%
+% Continue the figure
+%
+if plotting
+  hold on
+  for k=1:rivernumber
+    lon_src=lon(J2(k)+1,I2(k)+1);
+    lat_src=lat(J2(k)+1,I2(k)+1);
+    [px,py]=m_ll2xy(lon_src,lat_src);
+    h3=plot(px,py,'ko');
+    set(h3,'Clipping','off')
+  end
+  legend([h1,h3],{'Approximative first guess river location','final adjusted river location'});
+  title({'\bf Location of river in the roms grid';'(from Dai and Trenberth dataset)'});
 end
 %
 % Fill the river discharge and eventually
@@ -208,23 +260,25 @@ disp(['Write in runoff file'])
 nw{'river_position'}(:,:)=[I2 J2];
 nw{'river_direction'}(:,:)=dir;
 disp(['... river positions'])
-% Write qbar, temp,salt and bgc varibales conc.
+% Write qbar, temp,salt and bgc variables conc.
 cff=1;
+%
 %cff=150;
 %disp(['================== WARNING ============================'])
 %disp(['Use a cff coef to increase the discharge= ',num2str(cff)])
 %disp(['======================================================='])
+%
 my_flow=cff.*my_flow;
 nw{'Qbar'}(:) = my_flow;
 disp(['... discharges'])
-if psource_ts
-    nw{'temp_src'}(:) = my_temp_src(rivertoprocess,:);
+if psource_ts==1
+    nw{'temp_src'}(:) = my_temp_src;
     disp(['... temperature concentration'])
-    nw{'salt_src'}(:) = my_salt_src(rivertoprocess,:);
+    nw{'salt_src'}(:) = my_salt_src;
     disp(['... salt concentration'])
     if makebio
-        nw{'NO3_src'}(:) = my_no3_src(rivertoprocess,:);
-        disp(['... NO3 concentration'])
+      nw{'NO3_src'}(:) = my_no3_src;
+      disp(['... NO3 concentration'])
     end
 end
 close(nw)
@@ -238,11 +292,22 @@ disp(['psource_ncfile:   Nsrc  Isrc  Jsrc  Dsrc qbardir  Lsrc  Tsrc   runoff fil
 disp(['                           ROMS_FILES/roms_runoff.nc'])
 disp(['                 ',num2str(rivernumber)'])
 for k=1:rivernumber
-    if dir(k,1) == 1     %flow meridien
-        disp(['                        ',num2str(I2(k)-1),'  ',num2str(J2(k)),'  ',num2str(dir(k,1)),'  ',num2str(dir(k,2)),'   30*T   5.0  0.0'])
-    elseif dir(k,1) == 0 %flow zonal
-        disp(['                        ',num2str(I2(k)),'  ',num2str(J2(k)-1),'  ',num2str(dir(k,1)),'  ',num2str(dir(k,2)),'   30*T   5.0  0.0'])
-    end
+  if psource_ts==1
+    T=mean(my_temp_src(k,:));
+    S=mean(my_salt_src(k,:));
+  else
+    T=5;
+    S=1;
+  end
+  if dir(k,1) == 1     %flow meridien
+    disp(['                        ',num2str(I2(k)-1),'  ',num2str(J2(k)),...
+	  '  ',num2str(dir(k,1)),'  ',num2str(dir(k,2)),'   30*T   ',...
+	  num2str(T),' ',num2str(S)])
+  elseif dir(k,1) == 0 %flow zonal
+    disp(['                        ',num2str(I2(k)),'  ',num2str(J2(k)-1),...
+	  '  ',num2str(dir(k,1)),'  ',num2str(dir(k,2)),'   30*T   ',...
+	  num2str(T),' ',num2str(S)])
+  end
 end
 disp(['-----------------------------------------------------------------'])
    
@@ -250,7 +315,9 @@ disp(['-----------------------------------------------------------------'])
 % Plot the seasonal cycle
 %
 figure
-for k=1: rivernumber
+if psource_ts==1
+  subplot(3,1,1)
+end
 hold on
 plot([1:12],my_flow)
 legend(myrivername)
@@ -258,5 +325,17 @@ box on, grid on
 title(['\bf Monthly clim of the domain run off']) 
 xlabel(['\bf Month']);ylabel(['\bf Discharge in m3/s'])
 set(gca,'Xtick',[0.5:11.5],'XtickLabel',['J';'F';'M';'A';'M';'J';'J';'A';'S';'O';'N';'D']);
+if psource_ts==1
+  subplot(3,1,2)
+  plot([1:12],my_temp_src)
+  box on, grid on
+  xlabel(['\bf Month']);ylabel(['\bf Temp [C]'])
+  set(gca,'Xtick',[0.5:11.5],'XtickLabel',['J';'F';'M';'A';'M';'J';'J';'A';'S';'O';'N';'D']);
+%
+  subplot(3,1,3)
+  plot([1:12],my_salt_src)
+  box on, grid on
+  xlabel(['\bf Month']);ylabel(['\bf Salt [C]'])
+  set(gca,'Xtick',[0.5:11.5],'XtickLabel',['J';'F';'M';'A';'M';'J';'J';'A';'S';'O';'N';'D']);
 end
 
