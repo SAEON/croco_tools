@@ -1039,6 +1039,9 @@
 #ifdef FRC_BRY 
      &                                ,   bry_file
 #endif
+#if defined WKB_WWAVE && !defined ANA_BRY_WKB
+     &                                ,   brywkb_file
+#endif
 #ifdef ASSIMILATION
      &                      ,  aparnam,   assname
 #endif
@@ -1088,6 +1091,9 @@
 #endif
 #ifdef FRC_BRY
      &                                ,   bry_file
+#endif
+#if defined WKB_WWAVE && !defined ANA_BRY_WKB
+     &                                ,   brywkb_file
 #endif
 #ifdef ASSIMILATION
      &                      ,  aparnam,   assname

@@ -222,6 +222,7 @@
 #   undef  WAVE_ROLLER
 #  endif
 # endif
+# define ANA_BRY_WKB
 
 /*
 !           Applications:

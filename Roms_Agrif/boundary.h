@@ -241,3 +241,90 @@
 #  endif
 # endif
 
+#if defined WKB_WWAVE
+
+# ifndef ANA_BRY_WKB
+      real brywkb_time(2)
+      common /brywkb_indices_array/ brywkb_time
+      real brywkb_cycle
+      common /brywkb_indices_real/ brywkb_cycle
+      integer brywkb_id, brywkb_time_id, 
+     &  brywkb_ncycle, brywkb_rec, itbrywkb, ntbrywkb
+      common /brywkb_indices_integer/ brywkb_id, brywkb_time_id,
+     &  brywkb_ncycle, brywkb_rec, itbrywkb, ntbrywkb
+
+#  if defined WKB_OBC_WEST || defined AGRIF_OBC_WEST
+      integer wacbry_west_id, wkxbry_west_id, wkebry_west_id
+      common /wkbbry_west_id/ wacbry_west_id, wkxbry_west_id, 
+     &        wkebry_west_id
+#  endif
+
+#  if defined WKB_OBC_EAST || defined AGRIF_OBC_EAST
+      integer wacbry_east_id, wkxbry_east_id, wkebry_east_id
+      common /wkbbry_east_id/ wacbry_east_id, wkxbry_east_id, 
+     &        wkebry_east_id
+#  endif
+
+#  if defined WKB_OBC_SOUTH || defined AGRIF_OBC_SOUTH
+      integer wacbry_south_id, wkxbry_south_id, wkebry_south_id
+      common /wkbbry_south_id/ wacbry_south_id, wkxbry_south_id, 
+     &        wkebry_south_id
+#  endif
+
+#  if defined WKB_OBC_NORTH || defined AGRIF_OBC_NORTH
+      integer wacbry_north_id, wkxbry_north_id, wkebry_north_id
+      common /wkbbry_north_id/ wacbry_north_id, wkxbry_north_id, 
+     &        wkebry_north_id
+#  endif
+
+# endif  /* ANA_BRY_WKB */
+
+# if defined WKB_OBC_WEST || defined AGRIF_OBC_WEST
+      real wacbry_west(GLOBAL_1D_ARRAYETA),
+     &     wacbry_west_dt(GLOBAL_1D_ARRAYETA,2),
+     &     wkxbry_west(GLOBAL_1D_ARRAYETA),
+     &     wkxbry_west_dt(GLOBAL_1D_ARRAYETA,2),
+     &     wkebry_west(GLOBAL_1D_ARRAYETA),
+     &     wkebry_west_dt(GLOBAL_1D_ARRAYETA,2)     
+       common /bry_wkb_west/ wacbry_west, wacbry_west_dt,
+     &                       wkxbry_west, wkxbry_west_dt,
+     &                       wkebry_west, wkebry_west_dt
+# endif
+
+# if defined WKB_OBC_EAST || defined AGRIF_OBC_EAST
+      real wacbry_east(GLOBAL_1D_ARRAYETA),
+     &     wacbry_east_dt(GLOBAL_1D_ARRAYETA,2),
+     &     wkxbry_east(GLOBAL_1D_ARRAYETA),
+     &     wkxbry_east_dt(GLOBAL_1D_ARRAYETA,2),
+     &     wkebry_east(GLOBAL_1D_ARRAYETA),
+     &     wkebry_east_dt(GLOBAL_1D_ARRAYETA,2)     
+       common /bry_wkb_east/ wacbry_east, wacbry_east_dt,
+     &                       wkxbry_east, wkxbry_east_dt,
+     &                       wkebry_east, wkebry_east_dt
+# endif
+
+# if defined WKB_OBC_SOUTH || defined AGRIF_OBC_SOUTH
+      real wacbry_south(GLOBAL_1D_ARRAYETA),
+     &     wacbry_south_dt(GLOBAL_1D_ARRAYETA,2),
+     &     wkxbry_south(GLOBAL_1D_ARRAYETA),
+     &     wkxbry_south_dt(GLOBAL_1D_ARRAYETA,2),
+     &     wkebry_south(GLOBAL_1D_ARRAYETA),
+     &     wkebry_south_dt(GLOBAL_1D_ARRAYETA,2)     
+       common /bry_wkb_south/ wacbry_south, wacbry_south_dt,
+     &                        wkxbry_south, wkxbry_south_dt,
+     &                        wkebry_south, wkebry_south_dt
+# endif
+
+# if defined WKB_OBC_NORTH || defined AGRIF_OBC_NORTH
+      real wacbry_north(GLOBAL_1D_ARRAYETA),
+     &     wacbry_north_dt(GLOBAL_1D_ARRAYETA,2),
+     &     wkxbry_north(GLOBAL_1D_ARRAYETA),
+     &     wkxbry_north_dt(GLOBAL_1D_ARRAYETA,2),
+     &     wkebry_north(GLOBAL_1D_ARRAYETA),
+     &     wkebry_north_dt(GLOBAL_1D_ARRAYETA,2)     
+       common /bry_wkb_north/ wacbry_north, wacbry_north_dt,
+     &                        wkxbry_north, wkxbry_north_dt,
+     &                        wkebry_north, wkebry_north_dt
+# endif
+
+#endif  /* WKB_WWAVE */ 

@@ -413,6 +413,29 @@ c        close(testunit)
        endif
 #  endif
 #endif
+#if defined WKB_WWAVE && !defined ANA_BRY_WKB 
+!
+! WKB boundary file name. Check availability.
+!
+        elseif (keyword(1:kwlen).eq.'wkb_boundary') then
+          call cancel_kwd (keyword(1:kwlen), ierr)
+#  ifdef AGRIF
+       if (Agrif_Root()) then
+#  endif
+          read(input,'(A)',err=95) fname
+          lstr=lenstr(fname)
+#  if defined MPI && defined PARALLEL_FILES
+          call insert_node (fname, lstr, mynode, NNODES, ierr)
+#  endif
+          open (testunit, file=fname(1:lstr), status='old', err=97)
+          close(testunit)
+          brywkb_file=fname(1:lstr)
+          MPI_master_only write(stdout,'(6x,A,2x,A)')
+     &          'WKB Boundary File:', brywkb_file(1:lstr)
+#  ifdef AGRIF
+       endif
+#  endif
+#endif
 !
 ! Restart file name.
 !

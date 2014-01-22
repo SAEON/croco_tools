@@ -341,6 +341,9 @@ C#endif
       call get_bry_bio
 #  endif
 # endif
+#if !defined ANA_BRY_WKB && defined WKB_WWAVE
+      call get_bry_wkb
+# endif
 
       call get_vbc
 #if defined SSH_TIDES || defined UV_TIDES
