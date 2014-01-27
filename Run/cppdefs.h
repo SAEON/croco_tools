@@ -31,7 +31,6 @@
 #undef  RIP             /* Rip Current Test Case */
 #undef  SHOREFACE       /* Shoreface Test Case on a Planar Beach */
 #undef  THACKER         /* Thacker wetting-drying Example */
-
 #define REGIONAL        /* REGIONAL Applications */
 
 
@@ -787,19 +786,20 @@
 !                       === ======= =======
 !
 !   Weir, B., Uchiyama, Y.. (2010): 
-!      A vortes force analysis of the interaction of rip 
+!      A vortex force analysis of the interaction of rip 
 !      currents and surface gravity wave
 !      JGR Vol. 116
 */
-# undef  ETALON_CHECK
+# undef  BISCA
 # undef  DIAGNOSTICS_UV
 # undef  OPENMP
 # undef  MPI
 # define SOLVE3D
 # define UV_ADV
-# undef  MASKING
 # define NEW_S_COORD
-# undef ANA_GRID
+# ifndef BISCA
+#  define ANA_GRID
+# endif
 # define ANA_INITIAL
 # define ANA_SMFLUX
 # define ANA_STFLUX
@@ -807,9 +807,14 @@
 # define ANA_SRFLUX
 # define ANA_SST
 # define ANA_BTFLUX
-# define NS_PERIODIC
-# define WKB_OBC_WEST
+# ifndef BISCA
+#  define NS_PERIODIC
+# endif
 # define OBC_WEST
+# ifdef BISCA
+#  define OBC_NORTH
+#  define OBC_SOUTH
+# endif
 # ifdef OBC_WEST
 #  define OBC_M2CHARACT
 #  define OBC_M3ORLANSKI
@@ -820,23 +825,24 @@
 # define MRL_WCI
 # ifdef MRL_WCI
 #  define WKB_WWAVE
+#  define WKB_OBC_WEST
 #  define WAVE_ROLLER
-#  undef  WAVE_STREAMING
-#  define  WAVE_FRICTION
-#  undef  MRL_CEW
+#  define WAVE_STREAMING
+#  define WAVE_FRICTION
+#  define MRL_CEW
 #  undef  WKB_KZ_FILTER
 #  undef  WKB_TIME_FILTER
-#  undef WAVE_RAMP
+#  undef  WAVE_RAMP
 # endif
 # define LMD_MIXING
 # define LMD_SKPP
 # define LMD_BKPP
-# define  UV_VIS2
+# define UV_VIS2
 # ifdef UV_VIS2
 #  define UV_MIX_S
 #  define UV_VIS_SMAGO
 # endif
-# undef  BBL
+# define BBL
 
 #elif defined THACKER
 /*
