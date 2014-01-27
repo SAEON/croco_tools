@@ -61,8 +61,11 @@ C$    integer omp_get_thread_num
       real Length_XI,Length_ETA, depth, f0,beta, 
      &     cff,y, x0,y0,dx,dy, NSUB
 
-# if defined INTERNAL
+# ifdef INTERNAL
       real cff1, ridge_width, ridge_height
+# endif
+# ifdef RIP
+      real h0,per,xx,yy,xs,db,alpha,lambda,eps
 # endif
 !
 # include "compute_extended_bounds.h"
@@ -129,6 +132,10 @@ C$    integer omp_get_thread_num
                      depth=15.
                      f0=0.   
                      beta=0.
+# elif defined RIP
+                     depth=15.
+                     f0=0.   
+                     beta=0.
 # elif defined THACKER
                      depth=10.
                      f0=1.E-4
@@ -188,6 +195,9 @@ C$    integer omp_get_thread_num
 # elif defined SHOREFACE
                     Length_XI =1180.0 
                     Length_ETA=140.0
+# elif defined RIP
+                    Length_XI =768.0 
+                    Length_ETA=768.0
 # elif defined THACKER
                      Length_XI =199.e+3 
                      Length_ETA=199.e+3 
@@ -418,6 +428,31 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
             rmask(48,j)=1.0
           endif
 #  endif
+        enddo
+      enddo
+# elif defined RIP
+!
+! Weir et al. 2011 after Lippmann et al. 1999 (idealization of Duck beach)
+!
+      xs=150;      ! inner surf zone 
+      db=80;       ! distance from xs to sand bar
+      alpha=0.02;
+      lambda=256;  ! sand bar perturbation wavelength
+      eps=0.1;     ! sand bar perturbation magnitude
+!
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+#  ifdef OBC_EAST
+          xx=xr(i,j)
+#  else
+          xx=Length_XI-xr(i,j)
+#  endif
+          yy=yr(i,j);
+          h0=-1.5*exp(-5*(((xx-xs-db)/db)**2))
+     &       +1.35*(1+tanh(0.0253*(xx-xs)))
+     &       +0.0032*(xx+log(cosh(alpha*(xx-xs))/cosh(alpha*xs))/alpha)
+          per=eps*cos(2*pi*yy/lambda)*exp(-5*(((xx-xs-db)/db)**2))
+          h(i,j)=(1+per)*h0;
         enddo
       enddo
 # elif defined THACKER

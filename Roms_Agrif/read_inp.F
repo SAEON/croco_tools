@@ -291,22 +291,22 @@
         MPI_master_only write(stdout,'(10x,A,2x,A)')
      &                   'Grid File:', grdname(1:lstr)
 #endif
-#if      (!defined SOLVE3D && !defined ANA_SMFLUX) \
-      || (defined TIDES) \
-      || (defined SOLVE3D && (\
-           (!defined ANA_STFLUX && !defined BULK_FLUX) \
-        ||  !defined ANA_BTFLUX   \
-        || (defined BBL  && !defined ANA_BSEDIM && !defined SEDIMENT) \
+#if       (!defined SOLVE3D     && !defined ANA_SMFLUX) \
+        || (defined TIDES) \
+        || (defined SOLVE3D     && (\
+          (!defined ANA_STFLUX  && !defined BULK_FLUX) \
+        || !defined ANA_BTFLUX   \
+        || (defined BBL         && !defined ANA_BSEDIM && !defined SEDIMENT) \
         || (defined QCORRECTION && !defined ANA_SST)   \
-        || (defined BBL         && !defined ANA_WWAVE) \
-        || (defined MRL_WCI     && !defined ANA_WWAVE) \
+        || (defined BBL         && !defined ANA_WWAVE && !defined WKB_WWAVE) \
+        || (defined MRL_WCI     && !defined ANA_WWAVE && !defined WKB_WWAVE) \
         || (defined SALINITY    && !defined ANA_SSFLUX && \
-            !defined BULK_FLUX  && !defined BULK_EP) \
+           !defined BULK_FLUX   && !defined BULK_EP) \
         || (defined SALINITY    && defined QCORRECTION && \
-             defined SFLX_CORR   && !defined ANA_SSS) \
+            defined SFLX_CORR   && !defined ANA_SSS) \
         || (defined LMD_SKPP    && \
-            !defined ANA_SRFLUX && !defined BULK_FLUX) \
-        || (defined BULK_FLUX && \
+           !defined ANA_SRFLUX  && !defined BULK_FLUX) \
+        || (defined BULK_FLUX   && \
             (!defined BULK_SMFLUX || !defined BULK_EP)) \
                                )\
            )\

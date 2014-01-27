@@ -401,12 +401,12 @@
 #  else
       parameter (indxBBL=indxSUSTR+30, 
 #  endif
-     &           indxAbed  =indxBBL+1,   indxHrip  =indxAbed+1,
+     &           indxAbed  =indxBBL,    indxHrip  =indxAbed+1,
      &           indxLrip  =indxAbed+2, indxZbnot =indxAbed+3, 
      &           indxZbapp =indxAbed+4, indxBostrw=indxAbed+5)
 #  ifndef ANA_WWAVE
       integer indxWWA,indxWWD,indxWWP,indxWEB
-      parameter (indxWWA=indxAbed+1, indxWWD=indxWWA+1, 
+      parameter (indxWWA=indxAbed+6, indxWWD=indxWWA+1, 
      &           indxWWP=indxWWA+2
 #   ifdef MRL_WCI
      &          ,indxWEB=indxWWA+3
@@ -427,14 +427,14 @@
 # endif
 # ifdef SST_SKIN
       integer indxSST_skin
-      parameter (indxSST_skin=indxSUSTR+37)
+      parameter (indxSST_skin=indxSUSTR+41)
 # endif 
 #endif /* SOLVE3D */
 
 
 # ifdef MRL_WCI
       integer indxSUP, indxUST2D,indxVST2D
-      parameter (indxSUP  =indxSUSTR+38,
+      parameter (indxSUP  =indxSUSTR+42,
      &           indxUST2D =indxSUP+1, indxVST2D=indxSUP+2)
 #  ifdef SOLVE3D
       integer indxUST,indxVST,indxWST,indxAkb,indxAkw,indxKVF,
@@ -466,10 +466,10 @@
 
 #ifdef PSOURCE_NCFILE
       integer indxQBAR
-      parameter (indxQBAR=indxSUSTR+38)
+      parameter (indxQBAR=indxSUSTR+80)
 # ifdef PSOURCE_NCFILE_TS
       integer indxTsrc
-      parameter (indxTsrc=indxSUSTR+39)
+      parameter (indxTsrc=indxSUSTR+81)
 # endif
 #endif /* PSOURCE_NCFILE */
 #ifdef ICE
