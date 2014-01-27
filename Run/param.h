@@ -76,11 +76,12 @@
 #elif defined SHOREFACE
       parameter (LLm0=59,   MMm0=7,    N=20)   ! Planar Beach 20m
 #elif defined RIP
+# ifdef BISCA
+      parameter (LLm0= 86,  MMm0= 92,  N=20)   ! 10 m Bisca Rip
+# else
 !     parameter (LLm0=256,  MMm0=256,  N=20)   !  3 m resolution 
 !     parameter (LLm0= 96,  MMm0= 96,  N=20)   !  8 m resolution
       parameter (LLm0= 48,  MMm0= 48,  N=20)   ! 16 m resolution
-# ifdef BISCA
-      parameter (LLm0= 86,  MMm0= 92,  N=20)   ! 10 m Bisca Rip
 # endif
 #elif defined THACKER
       parameter (LLm0=199,  MMm0=199,  N=5 )   !  1 km resolution
