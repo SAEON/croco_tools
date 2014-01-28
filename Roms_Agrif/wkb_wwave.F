@@ -793,14 +793,18 @@
      &                        wsb(START_2D_ARRAY,wnew))
       call exchange_r2d_tile (istr,iend,jstr,jend,
      &                        wvn(START_2D_ARRAY,wnew))
-#   ifdef WAVE_ROLLER
+#  ifdef WAVE_ROLLER
       call exchange_r2d_tile (istr,iend,jstr,jend,
      &                        war(START_2D_ARRAY,wnew))
       call exchange_r2d_tile (istr,iend,jstr,jend,
      &                        wcr(START_2D_ARRAY,wnew))
       call exchange_r2d_tile (istr,iend,jstr,jend,
      &                        wsr(START_2D_ARRAY,wnew))
-#   endif
+#  endif
+#  ifdef WAVE_FRICTION
+      call exchange_r2d_tile (istr,iend,jstr,jend,
+     &                        wfc(START_2D_ARRAY,wnew))
+#  endif
 #  ifdef BBL
       call exchange_r2d_tile (istr,iend,jstr,jend,wfrq(START_2D_ARRAY))
       call exchange_r2d_tile (istr,iend,jstr,jend,uorb(START_2D_ARRAY))
