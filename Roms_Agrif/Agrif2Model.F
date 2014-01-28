@@ -11,6 +11,7 @@
 !
 #include "cppdefs.h"
 #ifdef AGRIF
+!$AGRIF_DO_NOT_TREAT
 !     ************************************************************************** 
 !!!   Subroutine   Agrif_Set_numberofcells
 !     ************************************************************************** 
@@ -66,6 +67,7 @@
 !!#include "clustering_agrif.h"      
       Return
       End Subroutine Agrif_clustering_def
+!$AGRIF_END_DO_NOT_TREAT
 #else
       subroutine Agrif2Model
          write(*,*) 'Impossible to bet here'
