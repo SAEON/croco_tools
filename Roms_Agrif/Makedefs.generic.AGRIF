@@ -39,5 +39,4 @@
       LDR = $(CFT)
    FFLAGS = $(FFLAGS1)
   LDFLAGS =
-#     LCDF = $(LDFLAGS1) -lnetcdf -lnetcdff
-     LCDF = $(LDFLAGS1) -lnetcdf
+      LCDF = $(LDFLAGS1)	 
