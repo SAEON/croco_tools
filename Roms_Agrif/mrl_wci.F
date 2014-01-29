@@ -198,7 +198,8 @@
 #  ifdef MRL_CEW
           kD(i,j) =kw(i,j)*Dstp(i,j)
 #  else
-          kD(i,j) =kw(i,j)*(h(i,j)+wkb_tide)
+!          kD(i,j) =kw(i,j)*(h(i,j)+wkb_tide)
+          kD(i,j) =kw(i,j)*h(i,j)
 #  endif
 #  ifndef WAVE_ROLLER
           act(i,j) =wramp2*wac(i,j,wnew)         ! wave action density
@@ -907,7 +908,7 @@
 !
 # ifdef ANA_BRY
 #  ifndef SHOREFACE
-      z_tide=wkb_tide
+      z_tide=0.0 !wkb_tide
 #  else
       z_tide=0.0
 #  endif

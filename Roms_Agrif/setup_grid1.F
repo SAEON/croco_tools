@@ -31,6 +31,9 @@ C$    integer omp_get_thread_num
 #include "param.h"
 #include "scalars.h"
 #include "grid.h"
+# ifdef WKB_WWAVE
+#  include "wkb_wwave.h"
+# endif
 !
 #include "compute_extended_bounds.h"
 !
@@ -181,6 +184,15 @@ C$    integer omp_get_thread_num
 # endif /* !NS_PERIODIC */
 #endif
 
+# ifdef WKB_WWAVE
+      do j=JR_RANGE
+        do i=IR_RANGE
+            h(i,j)=h(i,j)+wkb_tide
+        enddo
+      enddo
+# endif
+
+
 #undef IR_RANGE
 #undef IU_RANGE
 #undef JR_RANGE
@@ -214,6 +226,10 @@ C$    integer omp_get_thread_num
 # ifdef WET_DRY
       call exchange_r2d_tile (Istr,Iend,Jstr,Jend,  Dcrit)
 # endif
+# ifdef WKB_WWAVE
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,      h)
+# endif
+
 
 # ifdef MASKING
 #  ifdef THREE_GHOST_POINTS_TS 

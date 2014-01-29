@@ -184,14 +184,14 @@
         gamw = wkb_gam             ! gamma paramemer (Hrms/h ratio)
 
 #  ifdef WKB_OBC_WEST
-        ho=h(1,1)+wkb_tide         ! offshore depth
+        ho=h(1,1) !+wkb_tide       ! offshore depth
 #   ifdef MPI
         call MPI_Bcast(ho, 1, MPI_DOUBLE_PRECISION,
      &                     0, MPI_COMM_WORLD, ierr)
 #   endif
 #  endif
 #  ifdef WKB_OBC_EAST
-        ho=h(LLm,1)+wkb_tide
+        ho=h(LLm,1) !+wkb_tide
 #   ifdef MPI
         call MPI_Bcast(ho, 1, MPI_DOUBLE_PRECISION,
      &                     NP_XI-1, MPI_COMM_WORLD, ierr)
@@ -208,7 +208,7 @@
           do i=istrR,iendR
             dsup=0.0
             do k=1,4
-              dd = h(i,j) + z_w(i,j,N) + dsup + wkb_tide
+              dd = h(i,j) + z_w(i,j,N) + dsup !+ wkb_tide
               khd = dd*cfrq*cfrq/g
               kh = sqrt(    khd*khd + khd/(1.0 + khd*(0.6666666666
      &                      +khd*(0.3555555555 + khd*(0.1608465608
@@ -365,7 +365,8 @@
           Dstp(i,j)=max(h(i,j)+zeta(i,j,knew),eps)
 #  endif
 # else
-          Dstp(i,j)=max(h(i,j)+wkb_tide,eps)
+          !Dstp(i,j)=max(h(i,j)+wkb_tide,eps)
+          Dstp(i,j)=max(h(i,j),eps)
 # endif
           cgx(i,j)=wcg(i,j,wstp)*rkx(i,j)
           cge(i,j)=wcg(i,j,wstp)*rke(i,j)

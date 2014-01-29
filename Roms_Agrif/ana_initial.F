@@ -475,7 +475,7 @@ C$    integer omp_get_thread_num
             t(i,j,k,1,iMES_)=0.01
             t(i,j,k,2,iMES_)=t(i,j,k,1,iMES_)
             t(i,j,k,1,iBSI_)=1.5e-3
-            t(i,j,k,2,iBSI_)=t(i,j,k,1, zeta(i,j,1)iBSI_)
+            t(i,j,k,2,iBSI_)=t(i,j,k,1,iBSI_)
             t(i,j,k,1,iFER_)=6.e-4
             t(i,j,k,2,iFER_)=t(i,j,k,1,iFER_)
             t(i,j,k,1,iBFE_)=1.E-2*5E-6
