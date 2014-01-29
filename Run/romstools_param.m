@@ -282,27 +282,6 @@ qbar_cycle=360;
 %
 psource_ts=0;  % tracer runoff concentration flag
 %
-if psource_ts
-    % Define mannually the tracer (t, s, and eventually biogeochemical tracer
-    % concentration
-    temp_src0=[11 9 9 12 20 20 24 25 21 18 13 12];
-    temp_src(:,:)=[temp_src0;temp_src0+2;temp_src0+2.8];
-    %
-    salt_src0=[2 3 5 1 5 3 2 1 4 2 1 2];
-    salt_src(:,:)=[salt_src0;salt_src0;salt_src0];
-    %
-    no3_src0=[0 0 0 0 0 0 0 0 0 0 0 0];
-    no3_src(:,:)=[no3_src0;no3_src0+2;no3_src0+2.8];
-    %
-    temp_src_time=[15:30:365];
-    temp_src_cycle=360;
-    salt_src_time=[15:30:365];
-    salt_src_cycle=360;
-else
-    temp_src_time=[]; temp_src_cycle=[];
-    salt_src_time=[]; salt_src_cycle=[]; 
-end
-%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % 5 - Parameters for tidal forcing
