@@ -47,8 +47,6 @@ plotting=1;
 %
 define_dir=0 ;  %->flag to define directly the orientation / direction of the runoff
 %
-%
-%
 if define_dir==1
     % Define orientation/direction of the flow. First column is the u- (0) or v- (1)
     % orientation. Second column is the direction of the flow in the choosen orientation
@@ -142,34 +140,34 @@ for k = 1 : number_rivertoprocess
   indomain_last(k)=input(['Do you want to use river (Yes[1], No[0]) ?  ', rivername(k,:)]);
 end
 rivertoprocess=find(indomain_last==1);
+if isempty(rivertoprocess)
+    error(['No river selected !'])
+end
 number_rivertoprocess=length(rivertoprocess);
-%
 rivername=strvcat(myrivername(rivertoprocess,:));
-rivernumber=number_rivertoprocess;
 rivname_StrLen=size(rivername,2);
-my_flow=my_flow(:,find(indomain_last==1));
-myrivername=myrivername(find(indomain_last==1),:);
-%
+my_flow=my_flow(:,find(indomain_last==1));%
 % Define the orientation/direction of the flow. First column is the u- (0) or v- (1) 
 % orientation. Second column is the direction of the flow in the choosen orientation
 %    
 if define_dir==0
-  for k0=1:number_rivertoprocess
-    k=rivertoprocess(k0);
-    disp(['====='])
-    disp(['River ',rivername(k,:)])
-    disp(['Choose the orientation of the flow'])
-    dir11=NaN;
-    while ~(dir11==0 | dir11==1)
-      dir11 = input('0=zonal or 1=meridional. ');
+    for k0=1:length(rivertoprocess)
+        k=rivertoprocess(k0);
+        disp(['====='])
+        disp(['River ',rivername(k0,:)])
+        disp(['Choose the orientation of the flow'])
+        dir11=NaN;
+        while ~(dir11==0 | dir11==1)
+            dir11 = input('0=zonal or 1=meridional. ');
+        end
+        disp(['Choose the direction of the flow. '])
+        
+        dir12=NaN;
+        while ~(dir12==1 | dir12==-1)
+            dir12= input('1 is positive [S-N or W-E], -1 negative [N-S or E-W]. ');
+        end
+        dir(k,:)=[dir11 dir12];
     end
-    disp(['Choose the direction of the flow. '])
-    dir12=NaN;
-    while ~(dir12==1 | dir12==-1)
-      dir12= input('1 is positive [S-N or W-E], -1 negative [N-S or E-W]. ');
-    end
-    dir(k,:)=[dir11 dir12];
-  end
 end
 %
 % Create the runoff forcing file
@@ -178,15 +176,13 @@ disp(' ')
 disp(' Create the runoff file...')
 create_runoff(rivname,grdname,title_name,...
     qbar_time,qbar_cycle, ...
-    temp_src_time,temp_src_cycle,...
-    salt_src_time,salt_src_cycle,...
-    rivername,rivernumber,rivname_StrLen,dir,psource_ts,makebio)
+    rivername,number_rivertoprocess,rivname_StrLen,dir,psource_ts,makebio)
 %
 % Adjust the rivers positions relative to the mask
 %
 disp(['Find the real positions of the rivers in the grid: '])
-disp(['=================================================='])
-for k=1:rivernumber
+disp(['==================================================='])
+for k=1:number_rivertoprocess
   disp(['Process final position for river ',rivername(k,:)])
   disp(['Choose the orientation'])  
   jj=J(k); 
@@ -195,7 +191,7 @@ for k=1:rivernumber
   [jj2,ii2]=locate_runoff(dir2,jj,ii,mask,masku,maskv);
   J2(k)=jj2; 
   I2(k)=ii2;
-  disp([char(myrivername(k,:)),' is J=',num2str(J2(k)),' and I=',num2str(I2(k))])
+  disp([char(rivername(k,:)),' is J=',num2str(J2(k)),' and I=',num2str(I2(k))])
   disp([' '])
 end
 %
@@ -205,16 +201,16 @@ if psource_ts==1
   disp([' '])
   disp([' Adjust the rivers temperature and salinity '])
   disp([' Use the closest surface point in the climatology file '])
-  my_temp_src=zeros(rivernumber,length(woa_time));
-  my_salt_src=zeros(rivernumber,length(woa_time));
+  my_temp_src=zeros(number_rivertoprocess,length(woa_time));
+  my_salt_src=zeros(number_rivertoprocess,length(woa_time));
   if makebio==1
-    my_no3_src=zeros(rivernumber,length(woa_time));
+    my_no3_src=zeros(number_rivertoprocess,length(woa_time));
   end
 %
   ncclim=netcdf(clmname);
   N=length(ncclim('s_rho'));
 %
-  for k=1:rivernumber
+  for k=1:number_rivertoprocess
 %
 % For temperature, use the closest surface point in the clim file
 % to reduce any heat flux induced by the rivers
@@ -234,6 +230,18 @@ if psource_ts==1
     end
   end
   close(ncclim)
+  
+%   %Alternativaly : Define all mannually the tracer 
+%   %t, s, and eventually biogeochemical tracer concentration
+%   temp_src0=[11 9 9 12 20 20 24 25 21 18 13 12];
+%   my_temp_src(:,:)=[temp_src0;temp_src0+2;temp_src0+2.8]; % Example for 3 sources
+%   %
+%   salt_src0=[2 3 5 1 5 3 2 1 4 2 1 2];
+%   my_salt_src(:,:)=[salt_src0;salt_src0;salt_src0];       % Example for 3 sources
+%   %
+%   no3_src0=[0 0 0 0 0 0 0 0 0 0 0 0];
+%   my_no3_src(:,:)=[no3_src0;no3_src0+2;no3_src0+2.8];     % Example for 3 sources
+%   %
 end
 
 %
@@ -241,7 +249,7 @@ end
 %
 if plotting
   hold on
-  for k=1:rivernumber
+  for k=1:number_rivertoprocess
     lon_src=lon(J2(k)+1,I2(k)+1);
     lat_src=lat(J2(k)+1,I2(k)+1);
     [px,py]=m_ll2xy(lon_src,lat_src);
@@ -280,6 +288,13 @@ if psource_ts==1
       nw{'NO3_src'}(:) = my_no3_src;
       disp(['... NO3 concentration'])
     end
+    
+    disp([' ...'])
+    disp([' ...Note : '])
+    disp([' ... The Tsrc value reported in roms.in are the annual-mean tracer value'])
+    disp([' ... It''s just for information !'])
+    disp([' ... The Tsrc used are read in the runoff netCDF file created'])
+
 end
 close(nw)
 %
@@ -290,11 +305,12 @@ disp(['Line to enter in the roms.in file in the psource_ncfile section :'])
 disp(['-----------------------------------------------------------------'])
 disp(['psource_ncfile:   Nsrc  Isrc  Jsrc  Dsrc qbardir  Lsrc  Tsrc   runoff file name'])
 disp(['                           ROMS_FILES/roms_runoff.nc'])
-disp(['                 ',num2str(rivernumber)'])
-for k=1:rivernumber
+disp(['                 ',num2str(number_rivertoprocess)'])
+for k=1:number_rivertoprocess
   if psource_ts==1
     T=mean(my_temp_src(k,:));
     S=mean(my_salt_src(k,:));
+    
   else
     T=5;
     S=1;
@@ -320,7 +336,7 @@ if psource_ts==1
 end
 hold on
 plot([1:12],my_flow)
-legend(myrivername)
+legend(rivername)
 box on, grid on
 title(['\bf Monthly clim of the domain run off']) 
 xlabel(['\bf Month']);ylabel(['\bf Discharge in m3/s'])

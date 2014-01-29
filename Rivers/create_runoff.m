@@ -1,6 +1,6 @@
 function  create_runoff(runoffname,grdname,title,...
-    qbart,qbarc,tempt,tempc,saltt,saltc,...
-    rivername,rivernumber,runoffname_StrLen,dir,psource_ts,biol)
+    qbart,qbarc,rivername,rivernumber,...
+    runoffname_StrLen,dir,psource_ts,biol)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % 	Create an empty netcdf runoff file
@@ -52,12 +52,12 @@ if psource_ts
     nw{'temp_src_time'} = ncdouble('qbar_time');
     nw{'temp_src_time'}.long_name = ncchar('runoff time');
     nw{'temp_src_time'}.units = ncchar('days');
-    nw{'temp_src_time'}.cycle_length = tempc;
+    nw{'temp_src_time'}.cycle_length = qbarc;
     
     nw{'salt_src_time'} = ncdouble('qbar_time');
     nw{'salt_src_time'}.long_name = ncchar('runoff time');
     nw{'salt_src_time'}.units = ncchar('days');
-    nw{'salt_src_time'}.cycle_length = saltc;
+    nw{'salt_src_time'}.cycle_length = qbarc;
 end
 nw{'runoff_name'} = ncchar('n_qbar','runoffname_StrLen');
 nw{'runoff_name'}.long_name = ncchar('runoff time');
@@ -110,8 +110,8 @@ nw.type = 'ROMS runoff file';
 % Write time variables
 nw{'qbar_time'} (:) = qbart;
 if psource_ts
-    nw{'temp_src_time'} (:) = tempt;
-    nw{'salt_src_time'} (:) = saltt;
+    nw{'temp_src_time'} (:) = qbart;
+    nw{'salt_src_time'} (:) = qbart;
     if biol
         % nw{'no3_src_time'} (:) = no3t;
     end
