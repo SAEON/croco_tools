@@ -237,8 +237,6 @@ makeoa     = 1;   % oa data (intermediate file)
 makeZbry   = 1;   % boundary data in Z coordinate (intermediate file)
 insitu2pot = 1;   % transform in-situ temperature to potential temperature
 %
-psource_ts = 0;   % tracer runoff concentration
-%
 %  Day of initialisation for climatology experiments (=0 : 1st january 0h)
 %
 tini=0;  
@@ -281,7 +279,9 @@ woa_cycle=360;        % repetition of a typical year of 360 days
 %   monthly climatology
 qbar_time=[15:30:365]; 
 qbar_cycle=360;
-psource_ts=0;
+%
+psource_ts=0;  % tracer runoff concentration flag
+%
 if psource_ts
     % Define mannually the tracer (t, s, and eventually biogeochemical tracer
     % concentration
