@@ -559,7 +559,7 @@ C$    integer omp_get_thread_num
           srflxg(i,j,1)=init
           srflxg(i,j,2)=init
 # endif
-# if defined BBL && !defined ANA_WWAVE !defined WKB_WWAVE
+# if defined BBL && !defined ANA_WWAVE && !defined WKB_WWAVE
           wwag(i,j,1)=init
           wwdg(i,j,1)=init
           wwpg(i,j,1)=init
