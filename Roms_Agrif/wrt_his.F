@@ -859,7 +859,7 @@ CR      write(*,*) 'wrt_his:  stflx(:,:,isalt)' MYID
       do itrc=1,NST
          indxWrk=indxBFRA+itrc-1
          if (wrthis(indxWrk)) then
-            worksed_frac=bed_frac
+            worksed_frac=bed_frac(:,:,:,itrc)
             call fillvalue3d(worksed_frac,ncidhis,hisSed(itrc+2),
      &           indxWrk,record,b3dvar,type)
          endif

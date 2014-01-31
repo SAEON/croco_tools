@@ -950,23 +950,23 @@ C$    integer  trd, omp_get_thread_num
      &                                  exp(z_r(i,j,k)/100.)
             if (.not.got_tclm(iDet1)) tclm(i,j,k,iDet1)=0.02
             if (.not.got_tclm(iDet2)) tclm(i,j,k,iDet2)=0.02
-            if (.not.got_tclm(iDON))  tclm(i,j,k,iDON)=0.5*	    
+            if (.not.got_tclm(iDON))  tclm(i,j,k,iDON)=0.5*    
 !            if (.not.got_tclm(iDON))  tclm(i,j,k,iDON)=2.*
-     &                                  exp(z_r(i,j,k)/100.) 	
+     &                                  exp(z_r(i,j,k)/100.)
             if (.not.got_tclm(iO2)) tclm(i,j,k,iO2)=250.*
-     &	    				exp(z_r(i,j,k)/100.)
+     &                                  exp(z_r(i,j,k)/100.)
 #      ifdef CARBON	
             if (.not.got_tclm(iTCO2)) tclm(i,j,k,iTCO2)=2100.
-	    if (.not.got_tclm(iTALK)) tclm(i,j,k,iTALK)=2300.   
+            if (.not.got_tclm(iTALK)) tclm(i,j,k,iTALK)=2300.   
 #      endif	    	    	       	    	    	    
 #      ifdef NITROUS_OXIDE
             if (.not.got_tclm(iN2O)) then 
-	       tclm(i,j,k,iN2O)=-(0.008*exp(z_r(i,j,k)/100.)-0.01)	    
+               tclm(i,j,k,iN2O)=-(0.008*exp(z_r(i,j,k)/100.)-0.01)
 !	       tclm(i,j,k,iN2O)=-(0.01*exp(z_r(i,j,k)/100.)-0.01)
                if (tclm(i,j,k,iN2O).lt.0.) then
-	          tclm(i,j,k,iN2O)=0.
-	       endif
-	    endif    
+                 tclm(i,j,k,iN2O)=0.
+               endif
+            endif    
 #      endif
 #      ifdef HYDROGEN_SULFIDE
             if (.not.got_tclm(iH2S)) tclm(i,j,k,iH2S)=0.
@@ -1312,9 +1312,9 @@ C$    integer  trd, omp_get_thread_num
       implicit none
 # include "param.h"
       integer tile
-#ifdef  ALLOW_SINGLE_BLOCK_MODE
+# ifdef  ALLOW_SINGLE_BLOCK_MODE
 C$    integer  trd, omp_get_thread_num
-#endif
+# endif
 # include "compute_tile_bounds.h"
       call ana_sediment_tile (Istr,Iend,Jstr,Jend)
       return
@@ -1324,6 +1324,14 @@ C$    integer  trd, omp_get_thread_num
 !
 !---------------------------------------------------------------------
 !  This routine sets sediment ripple and bed parameters
+!  from values found in sediment.in:
+!
+!    Hrip    initial ripple height [m]
+!    Lrip    initial ripple length [m]
+!    Bthk    initial thicknesses of bed layers [m]
+!    Bpor    initial porosity of bed layers [m]
+!    Bfrac   volume fraction of each size class in each bed layer 
+!
 !---------------------------------------------------------------------
 !
       implicit none
@@ -1334,52 +1342,52 @@ C$    integer  trd, omp_get_thread_num
 # include "bbl.h"
       integer Istr,Iend,Jstr,Jend, i,j, ilay, itrc
 !
-#undef DEBUG 
-#ifdef DEBUG
+# undef DEBUG 
+# ifdef DEBUG
       integer ick,jck
       parameter (ick=60, jck=35)
-#endif
+# endif
 # include "compute_auxiliary_bounds.h" 
-# if defined SED_TEST2 || defined REGIONAL
       do j=JstrR,JendR
         do i=IstrR,IendR
-#ifdef BBL 
-# ifndef ANA_SEDIMENT 
+# ifdef BBL 
+#  ifndef ANA_SEDIMENT 
             if(.not.got_inibed(1)) then 
-# endif                    
-             Hripple(i,j)=Hrip   ! initial ripple height [m] from .in file
-# ifndef ANA_SEDIMENT 
+#  endif                    
+             Hripple(i,j)=Hrip
+#  ifndef ANA_SEDIMENT 
             endif            
             if(.not.got_inibed(2)) then 
-# endif                    
-             Lripple(i,j)=Lrip   ! initial ripple length [m] from .in file
-# ifndef ANA_SEDIMENT 
+#  endif                    
+             Lripple(i,j)=Lrip
+#  ifndef ANA_SEDIMENT 
             endif            
+#  endif                    
 # endif                    
-#endif                    
           do ilay=1,NLAY
-#ifndef ANA_SEDIMENT
+# ifndef ANA_SEDIMENT
             if(.not.got_inised(1)) then 
-#endif                    
-              bed_thick(i,j,ilay)=Bthk(ilay) 
-#ifndef ANA_SEDIMENT
+# endif                    
+              bed_thick(i,j,ilay)=Bthk(ilay)
+
+# ifndef ANA_SEDIMENT
             endif            
             if(.not.got_inised(2)) then 
-#endif                    
+# endif                    
               bed_poros(i,j,ilay)=Bpor(ilay)
-#ifndef ANA_SEDIMENT
+# ifndef ANA_SEDIMENT
             endif            
             if(.not.got_inised(3)) then 
-#endif                    
+# endif                    
              do itrc=1,NST
               bed_frac(i,j,ilay,itrc)=Bfr(ilay,itrc)
              enddo
-#ifndef ANA_SEDIMENT
+# ifndef ANA_SEDIMENT
             endif            
-#endif                    
+# endif                    
           enddo
 
-#ifdef DEBUG
+# ifdef DEBUG
          if(j.eq.jck.and.i.eq.ick) then
            write(6,*) '********** ANA_SEDIMENT ***********'
            do itrc=1,NST
@@ -1394,23 +1402,10 @@ C$    integer  trd, omp_get_thread_num
              write(6,*) 'bed_por',bed_poros(i,j,ilay)
            enddo
          endif
-#endif
-        enddo
-      enddo
-# else
-      !ana_sediment: no values provided
-       do j=JstrR,JendR
-        do i=IstrR,IendR
-          do ilay=1,NLAY
-            bed_thick(i,j,ilay)=???
-            bed_poros(i,j,ilay)=???
-            do itrc=1,NST
-              bed_frac(i,j,ilay,itrc)=???
-            enddo
-          enddo
-        enddo
-      enddo
 # endif
+        enddo
+      enddo
+
       return
       end
 #endif /* SEDIMENT */

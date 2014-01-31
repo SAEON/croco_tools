@@ -224,6 +224,16 @@ C$    integer omp_get_thread_num
             t(i,j,k,1,isalt)=32.0
             t(i,j,k,2,isalt)=t(i,j,k,1,isalt)
 #   endif
+#   ifdef PASSIVE_TRACER
+            if (.not.got_tini(itpas)) then
+              if (h(i,j).lt.2) then
+                t(i,j,k,1,itpas)=1.
+              else
+                t(i,j,k,1,itpas)=0
+              endif
+              t(i,j,k,2,itpas)=t(i,j,k,1,itpas)
+            endif
+#   endif
           enddo
         enddo
       enddo
