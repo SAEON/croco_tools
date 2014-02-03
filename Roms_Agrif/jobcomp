@@ -59,7 +59,7 @@ if [[ $OS == Linux ]] ; then
   elif [[ $LINUX_FC == ifort || $LINUX_FC == gfortran ]] ; then
     if [[ $BITS == THIRTYTWO ]] ; then
       NETCDFLIB="-L../../netcdf_ifc -lnetcdf"
-      NETCDFINC=-I../../netcdf_ifc
+      NETCDFINC="-I../../netcdf_ifc"
     else
       NETCDFLIB="-L../../netcdf_x86_64 -lnetcdf"
       NETCDFINC="-I../../netcdf_x86_64"
