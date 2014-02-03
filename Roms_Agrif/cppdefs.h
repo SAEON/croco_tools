@@ -843,6 +843,13 @@
 #  define UV_VIS_SMAGO
 # endif
 # define BBL
+# undef  SEDIMENT
+# ifdef SEDIMENT
+#  define ANA_SEDIMENT
+#  undef  BED_ARMOR
+#  undef  ANA_SPFLUX
+#  undef  ANA_BPFLUX
+# endif
 
 #elif defined THACKER
 /*

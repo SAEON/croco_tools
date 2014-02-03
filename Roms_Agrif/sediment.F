@@ -13,9 +13,7 @@
 #ifdef SEDIMENT
       subroutine sediment (tile)
 !
-!===================================== Blaas / Shchepetkin / Warner ==
-!  Copyright (c) 2004 Rutgers/UCLA                                   !
-!================================================ Hernan G. Arango ===
+!=====================================================================
 !                                                                    !
 !  This  routine computes the sediment sources and sinks and adds    !
 !  then the global sediment tracer fields. Currently, it computes    !
@@ -27,11 +25,22 @@
 !  * Erosive and depositional flux interactions of sediment          !
 !    between water column and the bed.                               !
 !                                                                    !
+! Original code from Meinte Blaas, 2004 (UCLA/USGS/Rutgers project)  !
+! with help from A. Shchepetkin (UCLA) and J. Warner (USGS)          !
+!                                                                    !
+! Reference:                                                         !
+!  Blaas, M., C. Dong, P. Marchesiello, J.C. McWilliams,             !
+!  K.D. Stolzenbach, 2007: Sediment-transport modeling on Southern   !
+!  Californian shelves: A ROMS case study. Continental Shelf         !
+!  Research, 27, 832-853.                                            !
+!                                                                    !
+! Updated P. Marchesiello 2014                                       !
+!                                                                    !
 !=====================================================================
 !
       implicit none
-#include "param.h"
-#include "private_scratch.h"
+# include "param.h"
+# include "private_scratch.h"
       integer tile, trd, omp_get_thread_num
 # include "compute_tile_bounds.h"
 !
@@ -54,13 +63,13 @@
      & thneg, deltot, hidexp, znotc, ksource)
 !***********************************************************************
       implicit none
-#include "param.h"
-#include "bbl.h"
-#include "forces.h"
-#include "grid.h"
-#include "ocean3d.h"
-#include "scalars.h"
-#include "sediment.h"
+# include "param.h"
+# include "bbl.h"
+# include "forces.h"
+# include "grid.h"
+# include "ocean3d.h"
+# include "scalars.h"
+# include "sediment.h"
       integer Istr,Iend,Jstr,Jend, ised,indx, i,j,k,ks
 
       real FC(PRIVATE_1D_SCRATCH_ARRAY,0:N),   cff,
@@ -79,9 +88,9 @@
      &   hidexp(PRIVATE_1D_SCRATCH_ARRAY),     phimn,
      &   znotc(PRIVATE_1D_SCRATCH_ARRAY),   
      &      phi(NST), Zr 
-#ifdef ROUSE
+# ifdef ROUSE
      &     ,Rouse
-#endif         
+# endif         
       integer ksource(PRIVATE_1D_SCRATCH_ARRAY,N)
 
       parameter (labcf=0.29, eps=1.D-20)
@@ -108,7 +117,7 @@
           enddo
           znotc(i)=(2.**(-phimn))/12.0
 
-#ifdef BED_ARMOR          
+# ifdef BED_ARMOR          
           do ised=1,NST
              cff=cff+((phi(ised)-phimn)**2)*bed_frac(i,j,1,ised)
           enddo
@@ -120,7 +129,7 @@
 !          with d_50 = 2^(-phimn)
 !               labE = 1-labcf*cff
 !                cff = sigma_phi
-#endif
+# endif
         enddo ! --> i (retain deltot, thpos|neg, hidexp)
         
         do k=1,N-1
@@ -307,9 +316,9 @@
                                             ! active layer
              cff     = dt*Erate(ised)*Cb
      &                   *bed_frac(i,j,1,ised)
-#ifdef BED_ARMOR
+# ifdef BED_ARMOR
      &                   *hidexp(i)*Sd(ised)
-#endif
+# endif
 
              masstot=Cb*Srho(ised)*(bed_frac(i,j,1,ised)*bed_thick(i,j,1)
      &              + bed_frac(i,j,2,ised)*bed_thick(i,j,2))
@@ -322,9 +331,9 @@
      &                         +(bvstr(i,j)+bvstr(i,j+1))**2)
 
 ! Determine actual skin friction on sediments
-     	    Zr=z_r(i,j,1)-z_w(i,j,0)
-     	    if (Zob.ne.0.) then
-     	      cff1 = vonKar/LOG(Zr/Zob) 
+            Zr=z_r(i,j,1)-z_w(i,j,0)
+            if (Zob.ne.0.) then
+              cff1 = vonKar/LOG(Zr/Zob) 
               cff2 = MIN(Cdb_max,MAX(Cdb_min,cff1*cff1))
               tau_water=tau_water/cff2   ! Umag^2 corresponding to bstr(u,v)
             elseif (rdrg2.gt.0) then
@@ -332,7 +341,7 @@
             else
               tau_water=tau_water*tau_water/(rdrg*rdrg) 
             endif
-       	    cff1 = vonKar/LOG(Zr/znotc(i))
+            cff1 = vonKar/LOG(Zr/znotc(i))
             tau_water=tau_water*cff1*cff1
 # endif
             dep_flux=0.001*FC(i,0)
@@ -368,9 +377,9 @@
          do ised=1,NST
             bed_frac(i,j,1,ised)=(max(inthk(i,ised),0.)
      &                           /max(thpos(i),max(cff,eps)))
-#           ifdef MASKING
+# ifdef MASKING
      &                           *rmask(i,j)
-#           endif
+# endif
 
             bed_frac(i,j,2,ised)=((bed_frac(i,j,1,ised)
      &                         *(deltot(i)-(cff-bed_thick(i,j,1)))
@@ -396,16 +405,16 @@ C        endif
             bed_frac(i,j,2,ised)=((bed_frac(i,j,2,ised)*
      &             bed_thick(i,j,2)+min(inthk(i,ised),0.))
      &                   /max(bed_thick(i,j,2)+thneg(i),eps))
-#           ifdef MASKING
+# ifdef MASKING
      &                          *rmask(i,j)
-#           endif 
+# endif 
 
             bed_frac(i,j,1,ised)=((max(inthk(i,ised),0.)
      &          +bed_frac(i,j,2,ised)*(cff-thpos(i)))
      &                           /max(cff,eps))
-#           ifdef MASKING
+# ifdef MASKING
      &                           *rmask(i,j)
-#           endif
+# endif
           enddo
       endif
       
@@ -416,6 +425,16 @@ C        endif
 #     endif
         enddo  ! <-- i
       enddo    ! <-- j
+
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      do ised=1,NST
+        call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                          bed_frac(START_2D_ARRAY,1,ised))
+        call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                          bed_frac(START_2D_ARRAY,2,ised))
+      enddo
+# endif
+
       return
       end
 #else

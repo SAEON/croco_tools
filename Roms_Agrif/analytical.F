@@ -218,7 +218,7 @@ C$    integer  trd, omp_get_thread_num
 # include "scalars.h"
       integer Istr,Iend,Jstr,Jend, i,j
 !
-# include "compute_auxiliary_bounds.h"
+# include "compute_extended_bounds.h"
 !
 # if defined SED_TEST2 || defined REGIONAL
 !
@@ -256,16 +256,16 @@ C$    integer  trd, omp_get_thread_num
         do i=IstrR,IendR
           Ssize(i,j)=1.5e-4  ! d50 [m]
           Sdens(i,j)=2650.0  ! rho sediment [kg/m^3]
+          taucb(i,j)=0.16    ! critical bedload stress [N/m^2]
+          w_set(i,j)=0.013   ! analytical settling velocity [m/s]
+          Hripple(i,j)=0.01   ! analytical initial ripple height [m]
+          Lripple(i,j)=0.10   ! analytical initial ripple length [m]
         enddo
       enddo
-
-
 # endif
       return
       end
 #endif /* ANA_BSEDIM && BBL */
-
-
 !
 !====================================================================
 !                   subroutine ana_smflux
@@ -1347,21 +1347,23 @@ C$    integer  trd, omp_get_thread_num
       integer ick,jck
       parameter (ick=60, jck=35)
 # endif
-# include "compute_auxiliary_bounds.h" 
+
+# include "compute_extended_bounds.h"
+
       do j=JstrR,JendR
         do i=IstrR,IendR
 # ifdef BBL 
 #  ifndef ANA_SEDIMENT 
-            if(.not.got_inibed(1)) then 
+          if(.not.got_inibed(1)) then 
 #  endif                    
-             Hripple(i,j)=Hrip
+            Hripple(i,j)=Hrip
 #  ifndef ANA_SEDIMENT 
-            endif            
-            if(.not.got_inibed(2)) then 
+          endif            
+          if(.not.got_inibed(2)) then 
 #  endif                    
-             Lripple(i,j)=Lrip
+            Lripple(i,j)=Lrip
 #  ifndef ANA_SEDIMENT 
-            endif            
+          endif            
 #  endif                    
 # endif                    
           do ilay=1,NLAY
@@ -1388,20 +1390,20 @@ C$    integer  trd, omp_get_thread_num
           enddo
 
 # ifdef DEBUG
-         if(j.eq.jck.and.i.eq.ick) then
-           write(6,*) '********** ANA_SEDIMENT ***********'
-           do itrc=1,NST
-             write(6,*) 'Sd(itrc)',Sd(itrc)
-             do ilay=1,NLAY
-               write(6,*) 'i,j,ilay,itrc',i,j,ilay,itrc
-               write(6,*) 'bed_frac',bed_frac(i,j,ilay,itrc)
-             enddo
-           enddo
-           do ilay=1,NLAY
-             write(6,*) 'bed_thick',bed_thick(i,j,ilay)
-             write(6,*) 'bed_por',bed_poros(i,j,ilay)
-           enddo
-         endif
+          if(j.eq.jck.and.i.eq.ick) then
+            write(6,*) '********** ANA_SEDIMENT ***********'
+            do itrc=1,NST
+              write(6,*) 'Sd(itrc)',Sd(itrc)
+              do ilay=1,NLAY
+                write(6,*) 'i,j,ilay,itrc',i,j,ilay,itrc
+                write(6,*) 'bed_frac',bed_frac(i,j,ilay,itrc)
+              enddo
+            enddo
+            do ilay=1,NLAY
+              write(6,*) 'bed_thick',bed_thick(i,j,ilay)
+              write(6,*) 'bed_por',bed_poros(i,j,ilay)
+            enddo
+          endif
 # endif
         enddo
       enddo

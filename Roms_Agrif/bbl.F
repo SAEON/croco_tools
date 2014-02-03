@@ -117,8 +117,8 @@
      &           scf3 = 2.0 - scf2, scf4 = 1.2,
      &           scf5 = 3.2)
 
-      
 # include "compute_auxiliary_bounds.h"
+
 !
 !---------------------------------------------------------------------
 !  Initalize to default values + set b(u,v)str to old time level value.
@@ -130,8 +130,8 @@
       rlmin = 1.0d-2    ! user-defined minimum ripple length [m]  
       rhfac = 1.0d0/EXP(4.11d0)
 
-      do j=JstrV-1,Jend
-        do i=IstrU-1,Iend
+      do j=JstrV-1,Jend+1
+        do i=IstrU-1,Iend+1
           tauc(i,j)=0.0       ! [m^2/s^2]
           tauw(i,j)=0.0
         enddo
@@ -139,18 +139,18 @@
 !---------------------------------------------------------------------
 !  Set currents above bed.
 !---------------------------------------------------------------------
-      do j=JstrV-1,Jend+1
-        do i=IstrU-1,Iend+1
+      DO j=JstrV-1,Jend+1
+        DO i=IstrU-1,Iend+1
           Zr(i,j)=z_r(i,j,1)-z_w(i,j,0)
           Ur(i,j)=u(i,j,1,nrhs)
           Vr(i,j)=v(i,j,1,nrhs)
         enddo
       enddo
     
-! start main jV, iU loop
+! start main j,i loop
 
-      do j=JstrV-1,Jend
-        do i=IstrU-1,Iend
+      DO j=JstrV-1,Jend
+        DO i=IstrU-1,Iend
           rhbio = 0.0d0
           rlbio = 0.0d0
           rlen = Lripple(i,j)
@@ -188,17 +188,22 @@
 !
 !  Compute angle between currents and waves (radians)
 !
+!         if Dwave is dir waves travel TO N:
+!         phicw=pi/2.0 +Dwave(i,j)-angler(i,j)-phic
+!
           if (Ucur.ne.0.0) then
             phic=ATAN2(Vcur,Ucur)
           else
             phic=(pi/2.0)*SIGN(1.0,Vcur)
           endif
+# ifdef WKB_WWAVE
+          phicw=Dwave(i,j)-phic
+# else
           phicw=(3.0*pi)/2.0 -Dwave(i,j)-phic
+# endif
 # ifdef CURVGRID
      &                                  -angler(i,j)
-#endif
-! if Dwave is dir waves travel TO:
-!         phicw=pi/2.0 +Dwave(i,j)-angler(i,j)-phic
+# endif
 !---------------------------------------------------------------------
 !  Determine skin roughness from sediment size and
 !  set default logarithmic profile consistent with current-only case
@@ -249,8 +254,8 @@
           tau_bf = 0.79*(visk**(-0.6))*(((rhosed-1)*g)**0.3)
      &                                  *(d50**0.9)*tau_cb        ! [m^2/s^2]
 
-            znotc= d50/12.0
-            znot = MAX(Zob,znotc) 
+          znotc= d50/12.0
+          znot = MAX(Zob,znotc) 
              
 !---------------------------------------------------------------------
 !  set tauc acc. to current-only case (max znot & skin friction) [m/s]
@@ -393,7 +398,7 @@
             znot_rip = 0.92*rhgt*rhgt/(max(rlen,rlmin))
             znotc = znotc+znot_rip
 !---------------------------------------------------------------------
-! Compute bottom stress components based on total roughnes [m/s]^2
+! Compute bottom stress components based on total roughness [m/s]^2
 !---------------------------------------------------------------------
             cff1  = vonKar/LOG(Zr(i,j)/znotc)
             tau_c = cff1*cff1*Umag(i,j)*Umag(i,j)  
@@ -480,13 +485,9 @@
 # ifdef MASKING
      &                                   *umask(i,j)
 # endif
-          Ubed(i,j)=Ub(i,j)*anglew
-# ifdef MASKING
-     &                                   *umask(i,j)
-# endif
-
         enddo
       enddo
+
       do j=JstrV,Jend
         do i=Istr,Iend
           cff1=0.5*(tauc(i,j-1)+tauc(i,j))
@@ -498,10 +499,6 @@
      &                                   *vmask(i,j)
 # endif
           bvstrw(i,j)=cff2*anglew
-# ifdef MASKING
-     &                                   *vmask(i,j)
-# endif
-          Vbed(i,j)=Ub(i,j)*anglew
 # ifdef MASKING
      &                                   *vmask(i,j)
 # endif
@@ -550,8 +547,8 @@
       END IF
       IF (WESTERN_EDGE) THEN
         DO j=Jstr,Jend
-          bustr(Istr-1,j) =bustr(Istr,j)
-          bustrw(Istr-1,j)=bustrw(Istr,j)
+          bustr(IstrU-1,j) =bustr(IstrU,j)
+          bustrw(IstrU-1,j)=bustrw(IstrU,j)
         END DO
         DO j=JstrV,Jend
           bvstr(Istr-1,j) =bvstr(Istr,j)
@@ -576,8 +573,8 @@
           bustrw(i,Jstr-1)=bustrw(i,Jstr)
         END DO
         DO i=Istr,Iend
-          bvstr(i,Jstr-1) =bvstr(i,Jstr)
-          bvstrw(i,Jstr-1)=bvstrw(i,Jstr)
+          bvstr(i,JstrV-1) =bvstr(i,JstrV)
+          bvstrw(i,JstrV-1)=bvstrw(i,JstrV)
         END DO
       END IF
 # endif
@@ -608,6 +605,11 @@
       END IF
 # endif
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,Abed(START_2D_ARRAY))
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,Hripple(START_2D_ARRAY))
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,Lripple(START_2D_ARRAY))
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,Zbnot(START_2D_ARRAY))
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,Zbapp(START_2D_ARRAY))
       call exchange_u2d_tile (Istr,Iend,Jstr,Jend,bustr(START_2D_ARRAY))
       call exchange_v2d_tile (Istr,Iend,Jstr,Jend,bvstr(START_2D_ARRAY))
       call exchange_u2d_tile (Istr,Iend,Jstr,Jend,bustrw(START_2D_ARRAY))

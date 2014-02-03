@@ -58,12 +58,6 @@
       real taucb(GLOBAL_2D_ARRAY)
       common /bbl_taucb/ taucb
       
-      real Ubed(GLOBAL_2D_ARRAY)
-      common /bbl_Ubed/ Ubed
-
-      real Vbed(GLOBAL_2D_ARRAY)
-      common /bbl_Vbed/ Vbed
-
       real Zbnot(GLOBAL_2D_ARRAY)
       common /bbl_Zbnot/ Zbnot
 

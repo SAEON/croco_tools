@@ -907,12 +907,12 @@ CR        write(*,*) 'wrt_his:  Zbapp' MYID
          do j=0,Mm
             do i=0,Lm
                work2d(i,j)=0.5*sqrt((bustrw(i,j)+bustrw(i+1,j))**2
-     &              +(bvstrw(i,j)+bvstrw(i,j+1))**2)
-     &              *rho0
+     &                             +(bvstrw(i,j)+bvstrw(i,j+1))**2)
+     &                                                       *rho0
             enddo
          enddo
          call fillvalue2d(work2d,ncidhis,hisBBL(6),indxBostrw,
-     &        record,r2dvar)
+     &        record,r2dvar,type)
 CR        write(*,*) 'wrt_his:  bostrw' MYID
       endif
 !     

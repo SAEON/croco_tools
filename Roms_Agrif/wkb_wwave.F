@@ -754,11 +754,20 @@
           cosw = inv_k*wkx(i,j,wnew)            ! cosine wave direction (xi)
           sinw = inv_k*wke(i,j,wnew)            ! sine wave direction (eta)
 #  ifdef BBL
-          wfrq(i,j) = frq(i,j,wnew)             ! used in M.Blaas BBL
-          orbital   = 0.5*wfrq(i,j)
-     &        *hrm(i,j,wnew)/max(sinh(khn),eps) ! orbital velocity magnitude
-          uorb(i,j) = orbital*cosw              ! orbital velocity (xi)
-          vorb(i,j) = orbital*sinw              ! orbital velocity (eta)
+!          wfrq(i,j) = frq(i,j,wnew)             ! used in M.Blaas BBL
+!          orbital   = 0.5*wfrq(i,j)
+!     &        *hrm(i,j,wnew)/max(sinh(khn),eps) ! orbital velocity magnitude
+!          uorb(i,j) = orbital*cosw              ! orbital velocity (xi)
+!          vorb(i,j) = orbital*sinw              ! orbital velocity (eta)
+          inv_f= 1.0/max(frq(i,j,wnew),eps)
+          Pwave(i,j)=2.*pi*inv_f
+          Awave(i,j)=hrm(i,j,wnew)/2.
+          Dwave(i,j)=ATAN2(sinw,cosw)
+          if (cosw.ne.0.0) then
+            Dwave(i,j)=ATAN2(sinw,cosw)
+          else
+            Dwave(i,j)=(pi/2.0)*SIGN(1.0,sinw)
+          endif
 #  endif
 #  ifdef MRL_WCI
           wdrx(i,j) = cosw                      ! cosine wave direction (xi)
@@ -807,9 +816,12 @@
      &                        wfc(START_2D_ARRAY,wnew))
 #  endif
 #  ifdef BBL
-      call exchange_r2d_tile (istr,iend,jstr,jend,wfrq(START_2D_ARRAY))
-      call exchange_r2d_tile (istr,iend,jstr,jend,uorb(START_2D_ARRAY))
-      call exchange_r2d_tile (istr,iend,jstr,jend,vorb(START_2D_ARRAY))
+!      call exchange_r2d_tile (istr,iend,jstr,jend,wfrq(START_2D_ARRAY))
+!      call exchange_r2d_tile (istr,iend,jstr,jend,uorb(START_2D_ARRAY))
+!      call exchange_r2d_tile (istr,iend,jstr,jend,vorb(START_2D_ARRAY))
+      call exchange_r2d_tile (istr,iend,jstr,jend,Awave(START_2D_ARRAY))
+      call exchange_r2d_tile (istr,iend,jstr,jend,Pwave(START_2D_ARRAY))
+      call exchange_r2d_tile (istr,iend,jstr,jend,Dwave(START_2D_ARRAY))
 #  endif
 #  ifdef MRL_WCI
       call exchange_r2d_tile (istr,iend,jstr,jend,wdrx(START_2D_ARRAY))

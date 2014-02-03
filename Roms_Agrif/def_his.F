@@ -1487,7 +1487,7 @@
           ierr=nf_put_att_text (ncid, vidSed(itrc), 'units',     lvar,
      &                                  vname(3,indxWrk)(1:lvar))
 
-          call nf_add_attribute(ncid, vidSed, indxSed, 5, NF_REAL, ierr)
+          call nf_add_attribute(ncid, vidSed(itrc), indxWrk, 5, NF_REAL, ierr)
 
          endif
         enddo
