@@ -6,7 +6,7 @@
 ! and Rutgers University (Arango et al) are under MIT/X style license.
 ! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
 ! 
-! ROMS_AGRIF website : http://roms.mpl.ird.fr
+! ROMS_AGRIF website : http://www.romsagrif.org
 !======================================================================
 !
 /* This is include file "averages.h": time-averaged fields

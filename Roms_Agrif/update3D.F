@@ -8,7 +8,7 @@
 ! 
 ! This routine belongs to the specific ROMS_AGRIF package.
 ! 
-! ROMS_AGRIF website : http://roms.mpl.ird.fr
+! ROMS_AGRIF website : http://www.romsagrif.org
 !======================================================================
 !
 #include "cppdefs.h"
