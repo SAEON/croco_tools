@@ -1,4 +1,4 @@
-function add_bry_bgc(bryname,obc,time_no3,time_o2,time_zoo,time_phyto,time_chla,cycle,clobber);
+function add_bry_bioebus(bryname,obc,time_no3,time_o2,time_zoo,time_phyto,time_chla,cycle,clobber);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                 
 % function add_bry_bgc(bryname,grdname,title,obc...            
