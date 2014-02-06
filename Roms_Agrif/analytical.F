@@ -1021,8 +1021,13 @@ C$    integer  trd, omp_get_thread_num
 #  ifndef ANA_TCLIMA
         if (.not.got_tclm(itrc)) then
 #  endif
+#  ifdef THREE_GHOST_POINTS_TS
+          call exchange_r3d_3pts_tile (Istr,Iend,Jstr,Jend,
+     &                                 tclm(START_2D_ARRAY,1,itrc))
+#  else
           call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                            tclm(START_2D_ARRAY,1,itrc))
+#  endif
 #  ifndef ANA_TCLIMA
         endif
 #  endif

@@ -390,8 +390,13 @@ c              if (h(i,j).lt.300) then
 
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       do itrc=1,NT
+#  ifdef THREE_GHOST_POINTS_TS
+        call exchange_r3d_3pts_tile (Istr,Iend,Jstr,Jend,
+     &                               t(START_2D_ARRAY,1,1,itrc))
+#  else
         call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                          t(START_2D_ARRAY,1,1,itrc))
+#  endif
       enddo
 #  ifdef SST_SKIN
         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,

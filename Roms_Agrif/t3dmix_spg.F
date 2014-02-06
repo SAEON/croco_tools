@@ -734,8 +734,13 @@
 !==========================================================
 !
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
-        call exchange_r3d_tile (istr,iend,jstr,jend,
+#  ifdef THREE_GHOST_POINTS_TS
+        call exchange_r3d_3pts_tile (Istr,Iend,Jstr,Jend,
+     &                               t(START_2D_ARRAY,1,nnew,itrc))
+#  else
+        call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                          t(START_2D_ARRAY,1,nnew,itrc))
+#  endif
 # endif
       return
       end
