@@ -52,8 +52,8 @@ zw_ini=zlevs(h,0.,theta_s,theta_b,Tcline,N,'w',vtransform);
 N2O_ini=zeros(KK,LL,MM);N2O_ini=NaN;
 for k=1:KK
     for j=1:LL
-        for i=1:MM   ;
-            N2O_ini(k,j,i)=nevis_2003(zw_ini,O2_ini);
+        for i=1:MM
+            N2O_ini(k,j,i)=nevis_2003(squeeze(zw_ini(k,j,i)),squeeze(O2_ini(k,j,i)));
         end
     end
 end
