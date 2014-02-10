@@ -593,9 +593,9 @@ C$OMP END MASTER
 #  else
           UFx(i,j)=cff*(vrhs(i,j)+vrhs(i,j+1))
           VFe(i,j)=cff*(urhs(i,j)+urhs(i+1,j))
+#  endif
         enddo
       enddo
-#  endif
       do j=jstr,jend
         do i=IstrU,iend
           rubar(i,j)=rubar(i,j)+0.25*(UFx(i,j)+UFx(i-1,j))
