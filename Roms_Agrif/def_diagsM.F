@@ -953,6 +953,14 @@
 !
 ! indxMfrc
 !
+         lvar=lenstr(vname(1,indxMfrc+itrc-1))
+         ierr=nf_inq_varid (ncid, vname(1,indxMfrc+itrc-1)(1:lvar),
+     &                      vidMfrc(itrc))
+         if (ierr .ne. nf_noerr) then
+           write(stdout,1) vname(1,indxMfrc+itrc-1)(1:lvar),
+     &                     ncname(1:lstr) 
+           goto 99                                       !--> ERROR
+         endif
 #endif
 !
 ! indxMrate
