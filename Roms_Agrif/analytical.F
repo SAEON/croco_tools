@@ -1559,9 +1559,22 @@ C$    integer  trd, omp_get_thread_num
 # elif defined REGIONAL
       do k=1,N
         do is=1,Nsrc
+#  if defined PSOURCE_NCFILE_TS
+          if (.not.got_tsrc(itemp)) then
+             Tsrc0(is,itemp)=5.
+          endif
+          if (.not.got_tsrc(isalt)) then
+             Tsrc0(is,itemp)=2.
+          endif
+#  endif
           Tsrc(is,k,itemp)=Tsrc0(is,itemp)
           Tsrc(is,k,isalt)=Tsrc0(is,isalt)
 #  if defined PASSIVE_TRACER
+#      if defined PSOURCE_NCFILE_TS
+          if (.not.got_tsrc(itpas)) then
+             Tsrc0(is,itpas)=1.
+          endif
+#      endif  /* PSOURCE_NCFILE_TS    */  
           Tsrc(is,k,itpas)=Tsrc0(is,itpas)
 #  endif
 #  if defined BIOLOGY
@@ -1580,165 +1593,181 @@ C$    integer  trd, omp_get_thread_num
           endif
           xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
      &         +0.0003099*SiO4**3
+#    if defined PSOURCE_NCFILE_TS
           if(.not.got_tsrc(iNO3_)) then 
             Tsrc0(is,iNO3_)=xno3
-            Tsrc(is,k,iNO3_)=Tsrc0(is,iNO3_)
           endif
+#    endif  /* PSOURCE_NCFILE_TS    */  
+          Tsrc(is,k,iNO3_)=Tsrc0(is,iNO3_)
+
 #    ifdef PISCES
-          if(.not.got_tsrc(iCAL_)) then 
+#      if defined PSOURCE_NCFILE_TS
+          if (.not.got_tsrc(iCAL_)) then 
             Tsrc0(is,iCAL_)=0.01   
-            Tsrc(is,k,iCAL_)=Tsrc0(is,iCAL_)
           endif
-          if(.not.got_tsrc(iPOC_)) then 
+          if (.not.got_tsrc(iPOC_)) then 
             Tsrc0(is,iPOC_)=0.01
-            Tsrc(is,k,iPOC_)=Tsrc0(is,iPOC_)
           endif
-          if(.not.got_tsrc(iPHY_)) then 
+          if (.not.got_tsrc(iPHY_)) then 
             Tsrc0(is,iPHY_)=0.01
-            Tsrc(is,k,iPHY_)=Tsrc0(is,iPHY_)
           endif
-          if(.not.got_tsrc(iZOO_)) then
+          if (.not.got_tsrc(iZOO_)) then
             Tsrc0(is,iZOO_)=0.01
-            Tsrc(is,k,iZOO_)=Tsrc0(is,iZOO_)
           endif
-          if(.not.got_tsrc(iDIA_)) then
+          if (.not.got_tsrc(iDIA_)) then
             Tsrc0(is,iDIA_)=0.01
-            Tsrc(is,k,iDIA_)=Tsrc0(is,iDIA_)
           endif
-          if(.not.got_tsrc(iBSI_)) then
+          if (.not.got_tsrc(iBSI_)) then
             Tsrc0(is,iBSI_)=1.5e-3
-            Tsrc(is,k,iBSI_)=Tsrc0(is,iBSI_)
           endif
-          if(.not.got_tsrc(iBFE_)) then 
+          if (.not.got_tsrc(iBFE_)) then 
             Tsrc0(is,iBFE_)=1.e-2*5.e-6
-            Tsrc0(is,iBFE_)= Tsrc(is,k,iBFE_)
           endif
-          if(.not.got_tsrc(iGOC_)) then
+          if (.not.got_tsrc(iGOC_)) then
             Tsrc0(is,iGOC_)=0.01
-            Tsrc(is,k,iGOC_)=Tsrc0(is,iGOC_)
           endif
-          if(.not.got_tsrc(iSFE_)) then
+          if (.not.got_tsrc(iSFE_)) then
             Tsrc0(is,iSFE_)=1.e-2*5.e-6
-            Tsrc(is,k,iSFE_)=Tsrc0(is,iSFE_)
           endif
-          if(.not.got_tsrc(iDFE_)) then
+          if (.not.got_tsrc(iDFE_)) then
             Tsrc0(is,iDFE_)=1.e-2*5.e-6
-            Tsrc(is,k,iDFE_)=Tsrc0(is,iDFE_)
           endif
-          if(.not.got_tsrc(iDSI_)) then
+          if (.not.got_tsrc(iDSI_)) then
             Tsrc0(is,iDSI_)=1.e-2*0.15
-            Tsrc(is,k,iDSI_)=Tsrc0(is,iDSI_)
           endif
-          if(.not.got_tsrc(iNFE_)) then
+          if (.not.got_tsrc(iNFE_)) then
             Tsrc0(is,iNFE_)=1.e-2*5e-6
-            Tsrc(is,k,iNFE_)=Tsrc0(is,iNFE_)
           endif
-          if(.not.got_tsrc(iNCH_)) then
+          if (.not.got_tsrc(iNCH_)) then
             Tsrc0(is,iNCH_)=1.e-2*12./55.
-            Tsrc(is,k,iNCH_)=Tsrc0(is,iNCH_)
           endif
-          if(.not.got_tsrc(iDCH_)) then
+          if (.not.got_tsrc(iDCH_)) then
             Tsrc0(is,iDCH_)=1.e-2*12./55.
-            Tsrc(is,k,iDCH_)=Tsrc0(is,iDCH_)
           endif
-          if(.not.got_tsrc(iNH4_)) then
+          if (.not.got_tsrc(iNH4_)) then
             Tsrc0(is,iNH4_)=1.e-2
-            Tsrc(is,k,iNH4_)=Tsrc0(is,iNH4_)
           endif
+#      endif   /* PSOURCE_NCFILE_TS    */  
+          Tsrc(is,k,iCAL_)=Tsrc0(is,iCAL_)
+          Tsrc(is,k,iPOC_)=Tsrc0(is,iPOC_)
+          Tsrc(is,k,iPHY_)=Tsrc0(is,iPHY_)
+          Tsrc(is,k,iZOO_)=Tsrc0(is,iZOO_)
+          Tsrc(is,k,iDIA_)=Tsrc0(is,iDIA_)
+          Tsrc(is,k,iBSI_)=Tsrc0(is,iBSI_)
+          Tsrc0(is,iBFE_)= Tsrc(is,k,iBFE_)
+          Tsrc(is,k,iGOC_)=Tsrc0(is,iGOC_)
+          Tsrc(is,k,iSFE_)=Tsrc0(is,iSFE_)
+          Tsrc(is,k,iDFE_)=Tsrc0(is,iDFE_)
+          Tsrc(is,k,iDSI_)=Tsrc0(is,iDSI_)
+          Tsrc(is,k,iNFE_)=Tsrc0(is,iNFE_)
+          Tsrc(is,k,iNCH_)=Tsrc0(is,iNCH_)
+          Tsrc(is,k,iDCH_)=Tsrc0(is,iDCH_)
+          Tsrc(is,k,iNH4_)=Tsrc0(is,iNH4_)
 #    elif defined BIO_NChlPZD
-          if(.not.got_tsrc(iChla)) then
+#      if defined PSOURCE_NCFILE_TS
+          if (.not.got_tsrc(iChla)) then
             Tsrc0(is,iChla)=0.08  
-            Tsrc(is,k,iChla)=Tsrc0(is,iChla)
           endif
-          if(.not.got_tsrc(iPhy1)) then
+          if (.not.got_tsrc(iPhy1)) then
             Tsrc0(is,iPhy1)=0.1
-            Tsrc(is,k,iPhy1)=Tsrc0(is,iPhy1)
           endif
-          if(.not.got_tsrc(iZoo1)) then
+          if (.not.got_tsrc(iZoo1)) then
             Tsrc0(is,iZoo1)=0.06
-            Tsrc(is,k,iZoo1)=Tsrc0(is,iZoo1)
           endif
-          if(.not.got_tsrc(iDet1)) then
+          if (.not.got_tsrc(iDet1)) then
             Tsrc0(is,iDet1)=0.02
-            Tsrc(is,k,iDet1)=Tsrc0(is,iDet1)
           endif
+#      endif   /* PSOURCE_NCFILE_TS    */        
+          Tsrc(is,k,iChla)=Tsrc0(is,iChla)
+          Tsrc(is,k,iPhy1)=Tsrc0(is,iPhy1)
+          Tsrc(is,k,iZoo1)=Tsrc0(is,iZoo1)
+          Tsrc(is,k,iDet1)=Tsrc0(is,iDet1)
+          
 #    elif defined BIO_N2ChlPZD2
-          if(.not.got_tsrc(iNH4_)) then
+#      if defined PSOURCE_NCFILE_TS
+          if (.not.got_tsrc(iNH4_)) then
             Tsrc0(is,iNH4_)=0.1  
-            Tsrc(is,k,iNH4_)= Tsrc0(is,iNH4_)
           endif
-          if(.not.got_tsrc(iChla)) then
+          if (.not.got_tsrc(iChla)) then
             Tsrc0(is,iChla)=0.08
-            Tsrc(is,k,iChla)=Tsrc0(is,iChla)
           endif
-          if(.not.got_tsrc(iPhy1)) then
+          if (.not.got_tsrc(iPhy1)) then
             Tsrc0(is,iPhy1)=0.06
-            Tsrc(is,k,iPhy1)=Tsrc0(is,iPhy1)
+            
           endif
-          if(.not.got_tsrc(iZoo1)) then
+          if (.not.got_tsrc(iZoo1)) then
             Tsrc0(is,iZoo1)=0.04
-            Tsrc(is,k,iZoo1)=Tsrc0(is,iZoo1)
+            
           endif
-          if(.not.got_tsrc(iDet1)) then
+          if (.not.got_tsrc(iDet1)) then
             Tsrc0(is,iDet1)=0.02
-            Tsrc(is,k,iDet1)=Tsrc0(is,iDet1)
+            
           endif
-          if(.not.got_tsrc(iDet2)) then
+          if (.not.got_tsrc(iDet2)) then
             Tsrc0(is,iDet2)=0.02
-            Tsrc(is,k,iDet2)=Tsrc0(is,iDet2)
           endif
+#      endif
+          Tsrc(is,k,iNH4_)= Tsrc0(is,iNH4_)
+          Tsrc(is,k,iChla)=Tsrc0(is,iChla)
+          Tsrc(is,k,iPhy1)=Tsrc0(is,iPhy1)
+          Tsrc(is,k,iZoo1)=Tsrc0(is,iZoo1)
+          Tsrc(is,k,iDet1)=Tsrc0(is,iDet1)
+          Tsrc(is,k,iDet2)=Tsrc0(is,iDet2)
 !-----------------------------------------------------------------------------	
-#     elif defined BIO_BioEBUS
+#    elif defined BIO_BioEBUS
           zsrc=z_r(Isrc(is),Jsrc(is),k)
-          if(.not.got_tsrc(iNO2_)) then
+#      if defined PSOURCE_NCFILE_TS
+          if (.not.got_tsrc(iNO2_)) then
             Tsrc0(is,iNO2_)=  0.05
-            Tsrc(is,k,iNO2_)= Tsrc0(is,iNO2_)*exp(zsrc/100.)
           endif
-          if(.not.got_tsrc(iNH4_)) then
+          if (.not.got_tsrc(iNH4_)) then
             Tsrc0(is,iNH4_)= 0.1
-            Tsrc(is,k,iNH4_)= Tsrc0(is,iNH4_)*exp(zsrc/100.)
           endif
-          if(.not.got_tsrc(iPhy1)) then
+          if (.not.got_tsrc(iPhy1)) then
             Tsrc0(is,iPhy1)= 0.04
-            Tsrc(is,k,iPhy1)=Tsrc0(is,iPhy1)*exp(zsrc/50.)
           endif
-          if(.not.got_tsrc(iPhy2)) then
+          if (.not.got_tsrc(iPhy2)) then
             Tsrc0(is,iPhy2)= 0.06
-            Tsrc(is,k,iPhy2)=Tsrc0(is,iPhy2)*exp(zsrc/50.)
           endif
-          if(.not.got_tsrc(iZoo1)) then
+          if (.not.got_tsrc(iZoo1)) then
             Tsrc0(is,iZoo1)= 0.04
-            Tsrc(is,k,iZoo1)=Tsrc0(is,iZoo1)*exp(zsrc/100.)
           endif
-          if(.not.got_tsrc(iZoo2)) then
-            Tsrc0(is,iZoo2)= 0.04
-            Tsrc(is,k,iZoo2)=Tsrc0(is,iZoo2)*exp(zsrc/100.)
+          if (.not.got_tsrc(iZoo2)) then
+            Tsrc0(is,iZoo2)= 0.
           endif
-          if(.not.got_tsrc(iDet1)) then
+          if (.not.got_tsrc(iDet1)) then
             Tsrc0(is,iDet1)=0.02
-            Tsrc(is,k,iDet1)=Tsrc0(is,iDet1)
           endif
-          if(.not.got_tsrc(iDet2)) then
+          if (.not.got_tsrc(iDet2)) then
             Tsrc0(is,iDet2)=0.02
-            Tsrc(is,k,iDet2)=Tsrc0(is,iDet2)
           endif
-          if(.not.got_tsrc(iDON)) then
+          if (.not.got_tsrc(iDON)) then
             Tsrc0(is,iDON)= 0.5
-            Tsrc(is,k,iDON)=Tsrc0(is,iDON)*exp(zsrc/100.)
           endif
-#     ifdef NITROUS_OXIDE
-          if(.not.got_tsrc(iN2O)) then
-            Tsrc0(is,iN2O)= 0.002
-            Tsrc(is,k,iN2O)=-(0.008*exp(zsrc/100.)-0.01)
-           if (Tsrc(is,k,iN2O).lt.0.) Tsrc(is,k,iN2O)=0.
-          endif
-#     endif
+#        ifdef NITROUS_OXIDE
+           if (.not.got_tsrc(iN2O)) then
+             Tsrc0(is,iN2O)= 0.002 ! not used ...
+           endif
+#        endif 
+#      endif  /* PSOURCE_NCFILE_TS  */
+          Tsrc(is,k,iNO2_)= Tsrc0(is,iNO2_)*exp(zsrc/100.)
+          Tsrc(is,k,iNH4_)= Tsrc0(is,iNH4_)*exp(zsrc/100.)
+          Tsrc(is,k,iPhy1)=Tsrc0(is,iPhy1)*exp(zsrc/50.)
+          Tsrc(is,k,iPhy2)=Tsrc0(is,iPhy2)*exp(zsrc/50.)
+          Tsrc(is,k,iZoo1)=Tsrc0(is,iZoo1)*exp(zsrc/100.)
+          Tsrc(is,k,iZoo2)=Tsrc0(is,iZoo2)*exp(zsrc/100.)
+          Tsrc(is,k,iDet1)=Tsrc0(is,iDet1)
+          Tsrc(is,k,iDet2)=Tsrc0(is,iDet2)
+          Tsrc(is,k,iDON)=Tsrc0(is,iDON)*exp(zsrc/100.)
+          Tsrc(is,k,iN2O)=-(0.008*exp(zsrc/100.)-0.01)
+          if (Tsrc(is,k,iN2O).lt.0.) Tsrc(is,k,iN2O)=0.
 #    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS*/
 !-----------------------------------------------------------------------------	
-#  endif
+#  endif /* BIOLOGY */
         enddo
       enddo
-# else
+# else    /*   REGIONAL   */
+
           ERROR ###  CPP-key 'ANA_PSOURCE' is defined, but no code
           ERROR ###  is provided to set up Tsrc(is) analytically.
 # endif
@@ -1957,55 +1986,55 @@ C$    integer  trd, omp_get_thread_num
             endif
             xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
      &           +0.0003099*SiO4**3
-            if(.not.got_tbry(iNO3_)) tbry_west(j,k,iNO3_)=xno3
+            if (.not.got_tbry(iNO3_)) tbry_west(j,k,iNO3_)=xno3
 #    ifdef PISCES
-            if(.not.got_tbry(iCAL_)) tbry_west(j,k,iCAL_)=0.01   
-            if(.not.got_tbry(iPOC_)) tbry_west(j,k,iPOC_)=0.01
-            if(.not.got_tbry(iPHY_)) tbry_west(j,k,iPHY_)=0.01
-            if(.not.got_tbry(iZOO_)) tbry_west(j,k,iZOO_)=0.01
-            if(.not.got_tbry(iDIA_)) tbry_west(j,k,iDIA_)=0.01
-            if(.not.got_tbry(iBSI_)) tbry_west(j,k,iBSI_)=1.5e-3
-            if(.not.got_tbry(iBFE_)) tbry_west(j,k,iBFE_)=1.e-2*5.e-6
-            if(.not.got_tbry(iGOC_)) tbry_west(j,k,iGOC_)=0.01
-            if(.not.got_tbry(iSFE_)) tbry_west(j,k,iSFE_)=1.e-2*5.e-6
-            if(.not.got_tbry(iDFE_)) tbry_west(j,k,iDFE_)=1.e-2*5.e-6
-            if(.not.got_tbry(iDSI_)) tbry_west(j,k,iDSI_)=1.e-2*0.15
-            if(.not.got_tbry(iNFE_)) tbry_west(j,k,iNFE_)=1.e-2*5e-6
-            if(.not.got_tbry(iNCH_)) tbry_west(j,k,iNCH_)=1.e-2*12./55.
-            if(.not.got_tbry(iDCH_)) tbry_west(j,k,iDCH_)=1.e-2*12./55.
-            if(.not.got_tbry(iNH4_)) tbry_west(j,k,iNH4_)=1.e-2
+            if (.not.got_tbry(iCAL_)) tbry_west(j,k,iCAL_)=0.01   
+            if (.not.got_tbry(iPOC_)) tbry_west(j,k,iPOC_)=0.01
+            if (.not.got_tbry(iPHY_)) tbry_west(j,k,iPHY_)=0.01
+            if (.not.got_tbry(iZOO_)) tbry_west(j,k,iZOO_)=0.01
+            if (.not.got_tbry(iDIA_)) tbry_west(j,k,iDIA_)=0.01
+            if (.not.got_tbry(iBSI_)) tbry_west(j,k,iBSI_)=1.5e-3
+            if (.not.got_tbry(iBFE_)) tbry_west(j,k,iBFE_)=1.e-2*5.e-6
+            if (.not.got_tbry(iGOC_)) tbry_west(j,k,iGOC_)=0.01
+            if (.not.got_tbry(iSFE_)) tbry_west(j,k,iSFE_)=1.e-2*5.e-6
+            if (.not.got_tbry(iDFE_)) tbry_west(j,k,iDFE_)=1.e-2*5.e-6
+            if (.not.got_tbry(iDSI_)) tbry_west(j,k,iDSI_)=1.e-2*0.15
+            if (.not.got_tbry(iNFE_)) tbry_west(j,k,iNFE_)=1.e-2*5e-6
+            if (.not.got_tbry(iNCH_)) tbry_west(j,k,iNCH_)=1.e-2*12./55.
+            if (.not.got_tbry(iDCH_)) tbry_west(j,k,iDCH_)=1.e-2*12./55.
+            if (.not.got_tbry(iNH4_)) tbry_west(j,k,iNH4_)=1.e-2
 #    elif defined BIO_NChlPZD
-            if(.not.got_tbry(iChla)) tbry_west(j,k,iChla)=0.08  
-            if(.not.got_tbry(iPhy1)) tbry_west(j,k,iPhy1)=0.1
-            if(.not.got_tbry(iZoo1)) tbry_west(j,k,iZoo1)=0.06
-            if(.not.got_tbry(iDet1)) tbry_west(j,k,iDet1)=0.02
+            if (.not.got_tbry(iChla)) tbry_west(j,k,iChla)=0.08  
+            if (.not.got_tbry(iPhy1)) tbry_west(j,k,iPhy1)=0.1
+            if (.not.got_tbry(iZoo1)) tbry_west(j,k,iZoo1)=0.06
+            if (.not.got_tbry(iDet1)) tbry_west(j,k,iDet1)=0.02
 #    elif defined BIO_N2ChlPZD2
-            if(.not.got_tbry(iNH4_)) tbry_west(j,k,iNH4_)=0.1  
-            if(.not.got_tbry(iChla)) tbry_west(j,k,iChla)=0.08
-            if(.not.got_tbry(iPhy1)) tbry_west(j,k,iPhy1)=0.06
-            if(.not.got_tbry(iZoo1)) tbry_west(j,k,iZoo1)=0.04
-            if(.not.got_tbry(iDet1)) tbry_west(j,k,iDet1)=0.02
-            if(.not.got_tbry(iDet2)) tbry_west(j,k,iDet2)=0.02
+            if (.not.got_tbry(iNH4_)) tbry_west(j,k,iNH4_)=0.1  
+            if (.not.got_tbry(iChla)) tbry_west(j,k,iChla)=0.08
+            if (.not.got_tbry(iPhy1)) tbry_west(j,k,iPhy1)=0.06
+            if (.not.got_tbry(iZoo1)) tbry_west(j,k,iZoo1)=0.04
+            if (.not.got_tbry(iDet1)) tbry_west(j,k,iDet1)=0.02
+            if (.not.got_tbry(iDet2)) tbry_west(j,k,iDet2)=0.02
 #    elif defined BIO_BioEBUS
             zbry=z_r(Istr,j,k)
-            if(.not.got_tbry(iNO2_)) tbry_west(j,k,iNO2_)=0.05*
+            if (.not.got_tbry(iNO2_)) tbry_west(j,k,iNO2_)=0.05*
      &                               exp(zbry/100.)
-            if(.not.got_tbry(iNH4_)) tbry_west(j,k,iNH4_)=0.1*
+            if (.not.got_tbry(iNH4_)) tbry_west(j,k,iNH4_)=0.1*
      &                               exp(zbry/100.)
-            if(.not.got_tbry(iPhy1)) tbry_west(j,k,iPhy1)=0.04*
+            if (.not.got_tbry(iPhy1)) tbry_west(j,k,iPhy1)=0.04*
      &                               exp(zbry/50.)
-            if(.not.got_tbry(iPhy2)) tbry_west(j,k,iPhy2)=0.06*
+            if (.not.got_tbry(iPhy2)) tbry_west(j,k,iPhy2)=0.06*
      &                               exp(zbry/50.)
-            if(.not.got_tbry(iZoo1)) tbry_west(j,k,iZoo1)=0.04*
+            if (.not.got_tbry(iZoo1)) tbry_west(j,k,iZoo1)=0.04*
      &                               exp(zbry/100.)
-            if(.not.got_tbry(iZoo2)) tbry_west(j,k,iZoo2)=0.04*
+            if (.not.got_tbry(iZoo2)) tbry_west(j,k,iZoo2)=0.04*
      &                               exp(zbry/100.)
-            if(.not.got_tbry(iDet1)) tbry_west(j,k,iDet1)=0.02
-            if(.not.got_tbry(iDet2)) tbry_west(j,k,iDet2)=0.02
-            if(.not.got_tbry(iDON))  tbry_west(j,k,iDON) =0.5*
+            if (.not.got_tbry(iDet1)) tbry_west(j,k,iDet1)=0.02
+            if (.not.got_tbry(iDet2)) tbry_west(j,k,iDet2)=0.02
+            if (.not.got_tbry(iDON))  tbry_west(j,k,iDON) =0.5*
      &                               exp(zbry/100.)
 #     ifdef NITROUS_OXIDE
-            if(.not.got_tbry(iN2O)) tbry_west(j,k,iN2O)=-(0.008*
+            if (.not.got_tbry(iN2O)) tbry_west(j,k,iN2O)=-(0.008*
      &                              exp(zbry/100.)-0.01)
             if (tbry_west(j,k,iN2O).lt.0.) tbry_west(j,k,iN2O)=0.  
 #     endif
@@ -2033,55 +2062,55 @@ C$    integer  trd, omp_get_thread_num
             endif
             xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
      &           +0.0003099*SiO4**3
-            if(.not.got_tbry(iNO3_)) tbry_east(j,k,iNO3_)=xno3
+            if (.not.got_tbry(iNO3_)) tbry_east(j,k,iNO3_)=xno3
 #    ifdef PISCES
-            if(.not.got_tbry(iCAL_)) tbry_east(j,k,iCAL_)=0.01   
-            if(.not.got_tbry(iPOC_)) tbry_east(j,k,iPOC_)=0.01
-            if(.not.got_tbry(iPHY_)) tbry_east(j,k,iPHY_)=0.01
-            if(.not.got_tbry(iZOO_)) tbry_east(j,k,iZOO_)=0.01
-            if(.not.got_tbry(iDIA_)) tbry_east(j,k,iDIA_)=0.01
-            if(.not.got_tbry(iBSI_)) tbry_east(j,k,iBSI_)=1.5e-3
-            if(.not.got_tbry(iBFE_)) tbry_east(j,k,iBFE_)=1.e-2*5.e-6
-            if(.not.got_tbry(iGOC_)) tbry_east(j,k,iGOC_)=0.01
-            if(.not.got_tbry(iSFE_)) tbry_east(j,k,iSFE_)=1.e-2*5.e-6
-            if(.not.got_tbry(iDFE_)) tbry_east(j,k,iDFE_)=1.e-2*5.e-6
-            if(.not.got_tbry(iDSI_)) tbry_east(j,k,iDSI_)=1.e-2*0.15
-            if(.not.got_tbry(iNFE_)) tbry_east(j,k,iNFE_)=1.e-2*5e-6
-            if(.not.got_tbry(iNCH_)) tbry_east(j,k,iNCH_)=1.e-2*12./55.
-            if(.not.got_tbry(iDCH_)) tbry_east(j,k,iDCH_)=1.e-2*12./55.
-            if(.not.got_tbry(iNH4_)) tbry_east(j,k,iNH4_)=1.e-2
+            if (.not.got_tbry(iCAL_)) tbry_east(j,k,iCAL_)=0.01   
+            if (.not.got_tbry(iPOC_)) tbry_east(j,k,iPOC_)=0.01
+            if (.not.got_tbry(iPHY_)) tbry_east(j,k,iPHY_)=0.01
+            if (.not.got_tbry(iZOO_)) tbry_east(j,k,iZOO_)=0.01
+            if (.not.got_tbry(iDIA_)) tbry_east(j,k,iDIA_)=0.01
+            if (.not.got_tbry(iBSI_)) tbry_east(j,k,iBSI_)=1.5e-3
+            if (.not.got_tbry(iBFE_)) tbry_east(j,k,iBFE_)=1.e-2*5.e-6
+            if (.not.got_tbry(iGOC_)) tbry_east(j,k,iGOC_)=0.01
+            if (.not.got_tbry(iSFE_)) tbry_east(j,k,iSFE_)=1.e-2*5.e-6
+            if (.not.got_tbry(iDFE_)) tbry_east(j,k,iDFE_)=1.e-2*5.e-6
+            if (.not.got_tbry(iDSI_)) tbry_east(j,k,iDSI_)=1.e-2*0.15
+            if (.not.got_tbry(iNFE_)) tbry_east(j,k,iNFE_)=1.e-2*5e-6
+            if (.not.got_tbry(iNCH_)) tbry_east(j,k,iNCH_)=1.e-2*12./55.
+            if (.not.got_tbry(iDCH_)) tbry_east(j,k,iDCH_)=1.e-2*12./55.
+            if (.not.got_tbry(iNH4_)) tbry_east(j,k,iNH4_)=1.e-2
 #    elif defined BIO_NChlPZD
-            if(.not.got_tbry(iChla)) tbry_east(j,k,iChla)=0.08   
-            if(.not.got_tbry(iPhy1)) tbry_east(j,k,iPhy1)=0.1
-            if(.not.got_tbry(iZoo1)) tbry_east(j,k,iZoo1)=0.06
-            if(.not.got_tbry(iDet1)) tbry_east(j,k,iDet1)=0.02
+            if (.not.got_tbry(iChla)) tbry_east(j,k,iChla)=0.08   
+            if (.not.got_tbry(iPhy1)) tbry_east(j,k,iPhy1)=0.1
+            if (.not.got_tbry(iZoo1)) tbry_east(j,k,iZoo1)=0.06
+            if (.not.got_tbry(iDet1)) tbry_east(j,k,iDet1)=0.02
 #    elif defined BIO_N2ChlPZD2
-            if(.not.got_tbry(iNH4_)) tbry_east(j,k,iNH4_)=0.1   
-            if(.not.got_tbry(iChla)) tbry_east(j,k,iChla)=0.08
-            if(.not.got_tbry(iPhy1)) tbry_east(j,k,iPhy1)=0.06
-            if(.not.got_tbry(iZoo1)) tbry_east(j,k,iZoo1)=0.04
-            if(.not.got_tbry(iDet1)) tbry_east(j,k,iDet1)=0.02
-            if(.not.got_tbry(iDet2)) tbry_east(j,k,iDet2)=0.02
+            if (.not.got_tbry(iNH4_)) tbry_east(j,k,iNH4_)=0.1   
+            if (.not.got_tbry(iChla)) tbry_east(j,k,iChla)=0.08
+            if (.not.got_tbry(iPhy1)) tbry_east(j,k,iPhy1)=0.06
+            if (.not.got_tbry(iZoo1)) tbry_east(j,k,iZoo1)=0.04
+            if (.not.got_tbry(iDet1)) tbry_east(j,k,iDet1)=0.02
+            if (.not.got_tbry(iDet2)) tbry_east(j,k,iDet2)=0.02
 #    elif defined BIO_BioEBUS
             zbry=z_r(IendR,j,k)
-            if(.not.got_tbry(iNO2_)) tbry_east(j,k,iNO2_)=0.05*
+            if (.not.got_tbry(iNO2_)) tbry_east(j,k,iNO2_)=0.05*
      &                               exp(zbry/100.)
-            if(.not.got_tbry(iNH4_)) tbry_east(j,k,iNH4_)=0.1*
+            if (.not.got_tbry(iNH4_)) tbry_east(j,k,iNH4_)=0.1*
      &                               exp(zbry/100.)
-            if(.not.got_tbry(iPhy1)) tbry_east(j,k,iPhy1)=0.04*
+            if (.not.got_tbry(iPhy1)) tbry_east(j,k,iPhy1)=0.04*
      &                               exp(zbry/50.)
-            if(.not.got_tbry(iPhy2)) tbry_east(j,k,iPhy2)=0.06*
+            if (.not.got_tbry(iPhy2)) tbry_east(j,k,iPhy2)=0.06*
      &                               exp(zbry/50.)
-            if(.not.got_tbry(iZoo1)) tbry_east(j,k,iZoo1)=0.04*
+            if (.not.got_tbry(iZoo1)) tbry_east(j,k,iZoo1)=0.04*
      &                               exp(zbry/100.)
-            if(.not.got_tbry(iZoo2)) tbry_east(j,k,iZoo2)=0.04*
+            if (.not.got_tbry(iZoo2)) tbry_east(j,k,iZoo2)=0.04*
      &                               exp(zbry/100.)
-            if(.not.got_tbry(iDet1)) tbry_east(j,k,iDet1)=0.02
-            if(.not.got_tbry(iDet2)) tbry_east(j,k,iDet2)=0.02
-            if(.not.got_tbry(iDON))  tbry_east(j,k,iDON) =0.5*
+            if (.not.got_tbry(iDet1)) tbry_east(j,k,iDet1)=0.02
+            if (.not.got_tbry(iDet2)) tbry_east(j,k,iDet2)=0.02
+            if (.not.got_tbry(iDON))  tbry_east(j,k,iDON) =0.5*
      &                               exp(zbry/100.)
 #     ifdef NITROUS_OXIDE
-            if(.not.got_tbry(iN2O)) tbry_east(j,k,iN2O)=-(0.008*
+            if (.not.got_tbry(iN2O)) tbry_east(j,k,iN2O)=-(0.008*
      &                               exp(zbry/100.)-0.01)
              if (tbry_east(j,k,iN2O).lt.0.) tbry_east(j,k,iN2O)=0.
 #     endif
@@ -2109,55 +2138,55 @@ C$    integer  trd, omp_get_thread_num
              endif
              xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
      &            +0.0003099*SiO4**3
-             if(.not.got_tbry(iNO3_)) tbry_north(j,k,iNO3_)=xno3
+             if (.not.got_tbry(iNO3_)) tbry_north(j,k,iNO3_)=xno3
 #    ifdef PISCES
-             if(.not.got_tbry(iCAL_)) tbry_north(j,k,iCAL_)=0.01   
-             if(.not.got_tbry(iPOC_)) tbry_north(j,k,iPOC_)=0.01
-             if(.not.got_tbry(iPHY_)) tbry_north(j,k,iPHY_)=0.01
-             if(.not.got_tbry(iZOO_)) tbry_north(j,k,iZOO_)=0.01
-             if(.not.got_tbry(iDIA_)) tbry_north(j,k,iDIA_)=0.01
-             if(.not.got_tbry(iBSI_)) tbry_north(j,k,iBSI_)=1.5e-3
-             if(.not.got_tbry(iBFE_)) tbry_north(j,k,iBFE_)=1.e-2*5.e-6
-             if(.not.got_tbry(iGOC_)) tbry_north(j,k,iGOC_)=0.01
-             if(.not.got_tbry(iSFE_)) tbry_north(j,k,iSFE_)=1.e-2*5.e-6
-             if(.not.got_tbry(iDFE_)) tbry_north(j,k,iDFE_)=1.e-2*5.e-6
-             if(.not.got_tbry(iDSI_)) tbry_north(j,k,iDSI_)=1.e-2*0.15
-             if(.not.got_tbry(iNFE_)) tbry_north(j,k,iNFE_)=1.e-2*5e-6
-             if(.not.got_tbry(iNCH_)) tbry_north(j,k,iNCH_)=1.e-2*12./55.
-             if(.not.got_tbry(iDCH_)) tbry_north(j,k,iDCH_)=1.e-2*12./55.
-             if(.not.got_tbry(iNH4_)) tbry_north(j,k,iNH4_)=1.e-2
+             if (.not.got_tbry(iCAL_)) tbry_north(j,k,iCAL_)=0.01   
+             if (.not.got_tbry(iPOC_)) tbry_north(j,k,iPOC_)=0.01
+             if (.not.got_tbry(iPHY_)) tbry_north(j,k,iPHY_)=0.01
+             if (.not.got_tbry(iZOO_)) tbry_north(j,k,iZOO_)=0.01
+             if (.not.got_tbry(iDIA_)) tbry_north(j,k,iDIA_)=0.01
+             if (.not.got_tbry(iBSI_)) tbry_north(j,k,iBSI_)=1.5e-3
+             if (.not.got_tbry(iBFE_)) tbry_north(j,k,iBFE_)=1.e-2*5.e-6
+             if (.not.got_tbry(iGOC_)) tbry_north(j,k,iGOC_)=0.01
+             if (.not.got_tbry(iSFE_)) tbry_north(j,k,iSFE_)=1.e-2*5.e-6
+             if (.not.got_tbry(iDFE_)) tbry_north(j,k,iDFE_)=1.e-2*5.e-6
+             if (.not.got_tbry(iDSI_)) tbry_north(j,k,iDSI_)=1.e-2*0.15
+             if (.not.got_tbry(iNFE_)) tbry_north(j,k,iNFE_)=1.e-2*5e-6
+             if (.not.got_tbry(iNCH_)) tbry_north(j,k,iNCH_)=1.e-2*12./55.
+             if (.not.got_tbry(iDCH_)) tbry_north(j,k,iDCH_)=1.e-2*12./55.
+             if (.not.got_tbry(iNH4_)) tbry_north(j,k,iNH4_)=1.e-2
 #    elif defined BIO_NChlPZD
-             if(.not.got_tbry(iChla)) tbry_north(j,k,iChla)=0.08   
-             if(.not.got_tbry(iPhy1)) tbry_north(j,k,iPhy1)=0.1
-             if(.not.got_tbry(iZoo1)) tbry_north(j,k,iZoo1)=0.06
-             if(.not.got_tbry(iDet1)) tbry_north(j,k,iDet1)=0.02
+             if (.not.got_tbry(iChla)) tbry_north(j,k,iChla)=0.08   
+             if (.not.got_tbry(iPhy1)) tbry_north(j,k,iPhy1)=0.1
+             if (.not.got_tbry(iZoo1)) tbry_north(j,k,iZoo1)=0.06
+             if (.not.got_tbry(iDet1)) tbry_north(j,k,iDet1)=0.02
 #    elif defined BIO_N2ChlPZD2
-             if(.not.got_tbry(iNH4_)) tbry_north(j,k,iNH4_)=0.1   
-             if(.not.got_tbry(iChla)) tbry_north(j,k,iChla)=0.08
-             if(.not.got_tbry(iPhy1)) tbry_north(j,k,iPhy1)=0.06
-             if(.not.got_tbry(iZoo1)) tbry_north(j,k,iZoo1)=0.04
-             if(.not.got_tbry(iDet1)) tbry_north(j,k,iDet1)=0.02
-             if(.not.got_tbry(iDet2)) tbry_north(j,k,iDet2)=0.02
+             if (.not.got_tbry(iNH4_)) tbry_north(j,k,iNH4_)=0.1   
+             if (.not.got_tbry(iChla)) tbry_north(j,k,iChla)=0.08
+             if (.not.got_tbry(iPhy1)) tbry_north(j,k,iPhy1)=0.06
+             if (.not.got_tbry(iZoo1)) tbry_north(j,k,iZoo1)=0.04
+             if (.not.got_tbry(iDet1)) tbry_north(j,k,iDet1)=0.02
+             if (.not.got_tbry(iDet2)) tbry_north(j,k,iDet2)=0.02
 #    elif defined BIO_BioEBUS
              zbry=z_r(j,JendR,k)
-             if(.not.got_tbry(iNO2_)) tbry_north(j,k,iNO2_)=0.05*
+             if (.not.got_tbry(iNO2_)) tbry_north(j,k,iNO2_)=0.05*
      &                                             exp(zbry/100.)
-             if(.not.got_tbry(iNH4_)) tbry_north(j,k,iNH4_)=0.1*
+             if (.not.got_tbry(iNH4_)) tbry_north(j,k,iNH4_)=0.1*
      &                                             exp(zbry/100.)
-             if(.not.got_tbry(iPhy1)) tbry_north(j,k,iPhy1)=0.04*
+             if (.not.got_tbry(iPhy1)) tbry_north(j,k,iPhy1)=0.04*
      &                                              exp(zbry/50.)
-             if(.not.got_tbry(iPhy2)) tbry_north(j,k,iPhy2)=0.06*
+             if (.not.got_tbry(iPhy2)) tbry_north(j,k,iPhy2)=0.06*
      &                                              exp(zbry/50.)
-             if(.not.got_tbry(iZoo1)) tbry_north(j,k,iZoo1)=0.04*
+             if (.not.got_tbry(iZoo1)) tbry_north(j,k,iZoo1)=0.04*
      &                                             exp(zbry/100.)
-             if(.not.got_tbry(iZoo2)) tbry_north(j,k,iZoo2)=0.04*
+             if (.not.got_tbry(iZoo2)) tbry_north(j,k,iZoo2)=0.04*
      &                                             exp(zbry/100.)
-             if(.not.got_tbry(iDet1)) tbry_north(j,k,iDet1)=0.02
-             if(.not.got_tbry(iDet2)) tbry_north(j,k,iDet2)=0.02
-             if(.not.got_tbry(iDON))  tbry_north(j,k,iDON) =0.5*
+             if (.not.got_tbry(iDet1)) tbry_north(j,k,iDet1)=0.02
+             if (.not.got_tbry(iDet2)) tbry_north(j,k,iDet2)=0.02
+             if (.not.got_tbry(iDON))  tbry_north(j,k,iDON) =0.5*
      &                               exp(zbry/100.)
 #     ifdef NITROUS_OXIDE
-            if(.not.got_tbry(iN2O)) tbry_north(j,k,iN2O)=-(0.008*
+            if (.not.got_tbry(iN2O)) tbry_north(j,k,iN2O)=-(0.008*
      &                                 exp(zbry/100.)-0.01)
             if (tbry_north(j,k,iN2O).lt.0.) tbry_north(j,k,iN2O)=0.
 #     endif
@@ -2185,55 +2214,57 @@ C$    integer  trd, omp_get_thread_num
              endif
              xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
      &            +0.0003099*SiO4**3 
-             if(.not.got_tbry(iNO3_)) tbry_south(j,k,iNO3_)=xno3
+             if (.not.got_tbry(iNO3_)) tbry_south(j,k,iNO3_)=xno3
 #    ifdef PISCES
-             if(.not.got_tbry(iCAL_)) tbry_south(j,k,iCAL_)=0.01   
-             if(.not.got_tbry(iPOC_)) tbry_south(j,k,iPOC_)=0.01
-             if(.not.got_tbry(iPHY_)) tbry_south(j,k,iPHY_)=0.01
-             if(.not.got_tbry(iZOO_)) tbry_south(j,k,iZOO_)=0.01
-             if(.not.got_tbry(iDIA_)) tbry_south(j,k,iDIA_)=0.01
-             if(.not.got_tbry(iBSI_)) tbry_south(j,k,iBSI_)=1.5e-3
-             if(.not.got_tbry(iBFE_)) tbry_south(j,k,iBFE_)=1.e-2*5.e-6
-             if(.not.got_tbry(iGOC_)) tbry_south(j,k,iGOC_)=0.01
-             if(.not.got_tbry(iSFE_)) tbry_south(j,k,iSFE_)=1.e-2*5.e-6
-             if(.not.got_tbry(iDFE_)) tbry_south(j,k,iDFE_)=1.e-2*5.e-6
-             if(.not.got_tbry(iDSI_)) tbry_south(j,k,iDSI_)=1.e-2*0.15
-             if(.not.got_tbry(iNFE_)) tbry_south(j,k,iNFE_)=1.e-2*5e-6
-             if(.not.got_tbry(iNCH_)) tbry_south(j,k,iNCH_)=1.e-2*12./55.
-             if(.not.got_tbry(iDCH_)) tbry_south(j,k,iDCH_)=1.e-2*12./55.
-             if(.not.got_tbry(iNH4_)) tbry_south(j,k,iNH4_)=1.e-2
+             if (.not.got_tbry(iCAL_)) tbry_south(j,k,iCAL_)=0.01   
+             if (.not.got_tbry(iPOC_)) tbry_south(j,k,iPOC_)=0.01
+             if (.not.got_tbry(iPHY_)) tbry_south(j,k,iPHY_)=0.01
+             if (.not.got_tbry(iZOO_)) tbry_south(j,k,iZOO_)=0.01
+             if (.not.got_tbry(iDIA_)) tbry_south(j,k,iDIA_)=0.01
+             if (.not.got_tbry(iBSI_)) tbry_south(j,k,iBSI_)=1.5e-3
+             if (.not.got_tbry(iBFE_)) tbry_south(j,k,iBFE_)=1.e-2*5.e-6
+             if (.not.got_tbry(iGOC_)) tbry_south(j,k,iGOC_)=0.01
+             if (.not.got_tbry(iSFE_)) tbry_south(j,k,iSFE_)=1.e-2*5.e-6
+             if (.not.got_tbry(iDFE_)) tbry_south(j,k,iDFE_)=1.e-2*5.e-6
+             if (.not.got_tbry(iDSI_)) tbry_south(j,k,iDSI_)=1.e-2*0.15
+             if (.not.got_tbry(iNFE_)) tbry_south(j,k,iNFE_)=1.e-2*5e-6
+             if (.not.got_tbry(iNCH_)) tbry_south(j,k,iNCH_)=
+     &                                                    1.e-2*12./55.
+             if (.not.got_tbry(iDCH_)) tbry_south(j,k,iDCH_)=
+     &                                                    1.e-2*12./55.
+             if (.not.got_tbry(iNH4_)) tbry_south(j,k,iNH4_)=1.e-2
 #    elif defined BIO_NChlPZD
-             if(.not.got_tbry(iChla)) tbry_south(j,k,iChla)=0.08   
-             if(.not.got_tbry(iPhy1)) tbry_south(j,k,iPhy1)=0.1
-             if(.not.got_tbry(iZoo1)) tbry_south(j,k,iZoo1)=0.06
-             if(.not.got_tbry(iDet1)) tbry_south(j,k,iDet1)=0.02
+             if (.not.got_tbry(iChla)) tbry_south(j,k,iChla)=0.08   
+             if (.not.got_tbry(iPhy1)) tbry_south(j,k,iPhy1)=0.1
+             if (.not.got_tbry(iZoo1)) tbry_south(j,k,iZoo1)=0.06
+             if (.not.got_tbry(iDet1)) tbry_south(j,k,iDet1)=0.02
 #    elif defined BIO_N2ChlPZD2
-             if(.not.got_tbry(iNH4_)) tbry_south(j,k,iNH4_)=0.1 
-             if(.not.got_tbry(iChla)) tbry_south(j,k,iChla)=0.08
-             if(.not.got_tbry(iPhy1)) tbry_south(j,k,iPhy1)=0.06
-             if(.not.got_tbry(iZoo1)) tbry_south(j,k,iZoo1)=0.04
-             if(.not.got_tbry(iDet1)) tbry_south(j,k,iDet1)=0.02
-             if(.not.got_tbry(iDet2)) tbry_south(j,k,iDet2)=0.02
+             if (.not.got_tbry(iNH4_)) tbry_south(j,k,iNH4_)=0.1 
+             if (.not.got_tbry(iChla)) tbry_south(j,k,iChla)=0.08
+             if (.not.got_tbry(iPhy1)) tbry_south(j,k,iPhy1)=0.06
+             if (.not.got_tbry(iZoo1)) tbry_south(j,k,iZoo1)=0.04
+             if (.not.got_tbry(iDet1)) tbry_south(j,k,iDet1)=0.02
+             if (.not.got_tbry(iDet2)) tbry_south(j,k,iDet2)=0.02
 #    elif defined BIO_BioEBUS
              zbry=z_r(j,JstrR,k)
-            if(.not.got_tbry(iNO2_)) tbry_south(j,k,iNO2_)=0.05*
+            if (.not.got_tbry(iNO2_)) tbry_south(j,k,iNO2_)=0.05*
      &                                     exp(zbry/100.)
-            if(.not.got_tbry(iNH4_)) tbry_south(j,k,iNH4_)=0.1*
+            if (.not.got_tbry(iNH4_)) tbry_south(j,k,iNH4_)=0.1*
      &                                     exp(zbry/100.)
-            if(.not.got_tbry(iPhy1)) tbry_south(j,k,iPhy1)=0.04*
+            if (.not.got_tbry(iPhy1)) tbry_south(j,k,iPhy1)=0.04*
      &                                     exp(zbry/50.)
-            if(.not.got_tbry(iPhy2)) tbry_south(j,k,iPhy2)=0.06*
+            if (.not.got_tbry(iPhy2)) tbry_south(j,k,iPhy2)=0.06*
      &                                     exp(zbry/50.)
-            if(.not.got_tbry(iZoo1)) tbry_south(j,k,iZoo1)=0.04*
+            if (.not.got_tbry(iZoo1)) tbry_south(j,k,iZoo1)=0.04*
      &                                     exp(zbry/100.)
-            if(.not.got_tbry(iZoo2)) tbry_south(j,k,iZoo2)=0.04*
+            if (.not.got_tbry(iZoo2)) tbry_south(j,k,iZoo2)=0.04*
      &                                     exp(zbry/100.) 
-            if(.not.got_tbry(iDet1)) tbry_south(j,k,iDet1)=0.02
-            if(.not.got_tbry(iDet2)) tbry_south(j,k,iDet2)=0.02
-            if(.not.got_tbry(iDON))  tbry_south(j,k,iDON) =0.5*
+            if (.not.got_tbry(iDet1)) tbry_south(j,k,iDet1)=0.02
+            if (.not.got_tbry(iDet2)) tbry_south(j,k,iDet2)=0.02
+            if (.not.got_tbry(iDON))  tbry_south(j,k,iDON) =0.5*
      &                                     exp(zbry/100.)
 #     ifdef NITROUS_OXIDE
-            if(.not.got_tbry(iN2O)) tbry_south(j,k,iN2O)=-(0.008*
+            if (.not.got_tbry(iN2O)) tbry_south(j,k,iN2O)=-(0.008*
      &                              exp(zbry/100.)-0.01)
              if (tbry_south(j,k,iN2O).lt.0.) then
                tbry_south(j,k,iN2O)=0.  
