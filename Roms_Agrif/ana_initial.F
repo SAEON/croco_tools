@@ -871,7 +871,7 @@ C$    integer omp_get_thread_num
      &                  A2d(1,3,0),A2d(1,4,0), FC,dZx,rx,dRx)
 
 #  define WORK rho1
-      WORK(:,:,:) = rv(GLOBAL_2D_ARRAY,:)
+      WORK(PRIVATE_2D_SCRATCH_ARRAY,:)=rv(PRIVATE_2D_SCRATCH_ARRAY,:)
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                        WORK(START_2D_ARRAY,1))
@@ -882,9 +882,9 @@ C$    integer omp_get_thread_num
       if (NORTHERN_EDGE) then
         WORK(:,Mm+1,:)=WORK(:,Mm,:)
       endif
-      rv(GLOBAL_2D_ARRAY,:) = WORK(:,:,:)
+      rv(PRIVATE_2D_SCRATCH_ARRAY,:)=WORK(PRIVATE_2D_SCRATCH_ARRAY,:) 
 !
-      WORK(:,:,:) = ru(GLOBAL_2D_ARRAY,:)
+      WORK(PRIVATE_2D_SCRATCH_ARRAY,:)=ru(PRIVATE_2D_SCRATCH_ARRAY,:) 
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r3d_tile (istr,iend,jstr,jend,
      &                        WORK(START_2D_ARRAY,1))
@@ -895,7 +895,7 @@ C$    integer omp_get_thread_num
       if (NORTHERN_EDGE) then
         WORK(:,Mm+1,:)=0.
       endif
-      ru(GLOBAL_2D_ARRAY,:) = WORK(:,:,:)
+      ru(PRIVATE_2D_SCRATCH_ARRAY,:)=WORK(PRIVATE_2D_SCRATCH_ARRAY,:) 
 #  undef WORK
 !
 ! --- Compute geostrophic u,v velocities ---
