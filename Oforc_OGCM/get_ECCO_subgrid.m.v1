@@ -42,9 +42,11 @@ latmax=latmax+dl;
 %
 % Get the global grid
 %
-lon=readdap(path,'LONGITUDE_T',[]);
-lat=readdap(path,'LATITUDE_T',[]);
-depth=readdap(path,'DEPTH_T',[]);
+lon=readdap(path,'lon',[]);
+lat=readdap(path,'lat',[]);
+depth=readdap(path,'depth',[]);
+%lon_u=readdap(path,'lon_u',[]);
+%lat_v=readdap(path,'lat_v',[]);
 %
 % Quick fix because lon_u and lat_v are 
 %

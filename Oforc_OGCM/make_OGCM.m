@@ -71,7 +71,8 @@ elseif strcmp(OGCM,'ECCO')
   %  url = 'http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/kf066b/kf066b_'; 
   %  url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf066b/kf066b_'; 
   %  url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf076/kf076_'; 
-    url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf080/kf080_'; 
+  %  url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf080/kf080_'; 
+     url = 'http://ecco2.jpl.nasa.gov:80/opendap/data1/cube/cube92/lat_lon/quart_90S_90N/'
   %
 else
   error(['Unknown OGCM: ',OGCM])
