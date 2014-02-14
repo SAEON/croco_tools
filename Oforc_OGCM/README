@@ -3,4 +3,9 @@ for ROMS simulations from different global oceanic models.
 for the moment it works with SODA and ECCO. 
 it uses DODS to extract the subgrids.
 
-pierrick 2006/1/19.
+Pierrick 2006/1/19.
+
+Update:
+Now it use the ECCO2 data, every 3 days
+
+Gildas 2014/2/14

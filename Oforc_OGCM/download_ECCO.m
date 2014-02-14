@@ -86,7 +86,6 @@ for Y=Ymin:Ymax
     for M=mo_min:mo_max
         disp(['  Processing month: ',num2str(M)])
         ECCO_file=[OGCM_dir,OGCM_prefix,'Y',num2str(Y),'M',num2str(M),'.cdf'];
-        %        if ~exist(ECCO_file)
         %
         % Extract ECCO data
         %
