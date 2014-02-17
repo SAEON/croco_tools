@@ -99,6 +99,12 @@
 #  ifdef MASKING
               Etide(i,j)=Etide(i,j)*rmask(i,j)
 #  endif
+#  ifdef WET_DRY
+!  Ensure total ssh forcing is above bed elevation
+              if (Etide(i,j) .lt. Dcrit(i,j)-h(i,j)-ssh(i,j)) then
+                Etide(i,j)=Dcrit(i,j)-h(i,j)-ssh(i,j)
+              endif
+#  endif 
             enddo
           enddo
         endif
