@@ -61,11 +61,9 @@
                 flx3 = vel*FLUX3(
      &             t(i,j-2,k,nrhs,itrc), t(i,j-1,k,nrhs,itrc),
      &             t(i,j  ,k,nrhs,itrc), t(i,j+1,k,nrhs,itrc),  vel ) 
-                flx2 = 0.5*vel*(t(i,j,k,nrhs,itrc)+t(i,j-1,k,nrhs,itrc))
+                flx2 = vel*FLUX2(
+     &             t(i,j-1,k,nrhs,itrc), t(i,j,k,nrhs,itrc), vel, cdif)
 #   ifdef UP5_MASKING
-                flx4 = vel*FLUX4(
-     &             t(i,j-2,k,nrhs,itrc), t(i,j-1,k,nrhs,itrc),
-     &             t(i,j  ,k,nrhs,itrc), t(i,j+1,k,nrhs,itrc),  vel ) 
                 mask0=rmask(i,j-1)*rmask(i,j)
                 mask2=rmask(i,j-2)*mask0*rmask(i,j+1)
                 IF (vel.gt.0) THEN
@@ -75,9 +73,8 @@
                   mask1=rmask(i,j+1)*mask0
                   mask3=rmask(i,j+2)*mask2
                 ENDIF
-                FE(i,j)=mask3*flx5+(1-mask3)*mask2*flx4+
-     &                   (1-mask3)*(1-mask2)*mask1*flx3+
-     &         (1-mask3)*(1-mask2)*(1-mask1)*mask0*flx2
+                FE(i,j)=mask3*flx5+(1-mask3)*mask1*flx3+
+     &                             (1-mask3)*(1-mask1)*mask0*flx2
 #   else
                 mask1=rmask(i,j-2)*rmask(i,j+1)
                 mask2=rmask(i,j-3)*rmask(i,j+2)
@@ -93,8 +90,9 @@
             ELSE IF ( j.eq.jmin-2 ) THEN   ! 2nd order flux next to south
                                            ! boundary
               DO i = Istr,Iend
-                FE(i,j) = 0.5*Hvom(i,j,k)*
-     &                    (t(i,j,k,nrhs,itrc)+t(i,j-1,k,nrhs,itrc))
+                vel = Hvom(i,j,k)
+                FE(i,j) = vel*FLUX2(
+     &             t(i,j-1,k,nrhs,itrc), t(i,j,k,nrhs,itrc), vel, cdif)
               ENDDO
                                            !
             ELSE IF  ( j.eq.jmin-1 ) THEN  ! 3rd of 4th order flux 2 in
@@ -105,7 +103,8 @@
      &             t(i,j-2,k,nrhs,itrc), t(i,j-1,k,nrhs,itrc),
      &             t(i,j  ,k,nrhs,itrc), t(i,j+1,k,nrhs,itrc),  vel )
 #  ifdef MASKING
-                flx2 = 0.5*vel*(t(i,j,k,nrhs,itrc)+t(i,j-1,k,nrhs,itrc))
+                flx2 = vel*FLUX2(
+     &             t(i,j-1,k,nrhs,itrc), t(i,j,k,nrhs,itrc), vel, cdif)
                 mask1=rmask(i,j-2)*rmask(i,j+1)
                 FE(i,j)=mask1*flx3+(1-mask1)*flx2
 #  else
@@ -116,8 +115,9 @@
             ELSE IF ( j.eq.jmax+2 ) THEN  ! 2nd order flux next to north
                                           ! boundary
               DO i = Istr,Iend
-                FE(i,j) = 0.5*Hvom(i,j,k)*
-     &                    (t(i,j,k,nrhs,itrc)+t(i,j-1,k,nrhs,itrc))
+                vel = Hvom(i,j,k)
+                FE(i,j) = vel*FLUX2(
+     &             t(i,j-1,k,nrhs,itrc), t(i,j,k,nrhs,itrc), vel, cdif)
               ENDDO
                                           !
             ELSE IF ( j.eq.jmax+1 ) THEN  ! 3rd or 4th order flux 2 in from
@@ -128,7 +128,8 @@
      &             t(i,j-2,k,nrhs,itrc), t(i,j-1,k,nrhs,itrc),
      &             t(i,j  ,k,nrhs,itrc), t(i,j+1,k,nrhs,itrc),  vel )
 #  ifdef MASKING
-                flx2 = 0.5*vel*(t(i,j,k,nrhs,itrc)+t(i,j-1,k,nrhs,itrc))
+                flx2 = vel*FLUX2(
+     &             t(i,j-1,k,nrhs,itrc), t(i,j,k,nrhs,itrc), vel, cdif)
                 mask1=rmask(i,j-2)*rmask(i,j+1)
                 FE(i,j)=mask1*flx3+(1-mask1)*flx2
 #  else
@@ -152,11 +153,9 @@
                 flx3 = vel*FLUX3(
      &             t(i-2,j,k,nrhs,itrc), t(i-1,j,k,nrhs,itrc),
      &             t(i  ,j,k,nrhs,itrc), t(i+1,j,k,nrhs,itrc),  vel )
-                flx2 = 0.5*vel*(t(i,j,k,nrhs,itrc)+t(i-1,j,k,nrhs,itrc))
+                flx2 = vel*FLUX2(
+     &             t(i-1,j,k,nrhs,itrc), t(i,j,k,nrhs,itrc), vel, cdif)
 #   ifdef UP5_MASKING
-                flx4 = vel*FLUX4(
-     &             t(i-2,j,k,nrhs,itrc), t(i-1,j,k,nrhs,itrc),
-     &             t(i  ,j,k,nrhs,itrc), t(i+1,j,k,nrhs,itrc),  vel ) 
                 mask0=rmask(i-1,j)*rmask(i,j)
                 mask2=rmask(i-2,j)*mask0*rmask(i+1,j)
                 IF (vel.gt.0) THEN
@@ -166,9 +165,8 @@
                   mask1=rmask(i+1,j)*mask0
                   mask3=rmask(i+2,j)*mask2
                 ENDIF
-                FX(i,j)=mask3*flx5+(1-mask3)*mask2*flx4+
-     &                   (1-mask3)*(1-mask2)*mask1*flx3+
-     &         (1-mask3)*(1-mask2)*(1-mask1)*mask0*flx2
+                FX(i,j)=mask3*flx5+(1-mask3)*mask1*flx3+
+     &                             (1-mask3)*(1-mask1)*mask0*flx2
 #   else
                 mask1=rmask(i-2,j)*rmask(i+1,j)
                 mask2=rmask(i-3,j)*rmask(i+2,j)
@@ -184,8 +182,9 @@
             ELSE IF ( i.eq.imin-2 ) THEN   ! 2nd order flux next to south
                                            ! boundary
               DO j = Jstr,Jend
-                FX(i,j) = 0.5*Huon(i,j,k)*
-     &                    (t(i,j,k,nrhs,itrc)+t(i-1,j,k,nrhs,itrc))
+                vel = Huon(i,j,k)
+                FX(i,j) = vel*FLUX2(
+     &             t(i-1,j,k,nrhs,itrc), t(i,j,k,nrhs,itrc), vel, cdif)
               ENDDO
                                            !
             ELSE IF  ( i.eq.imin-1 ) THEN  ! 3rd of 4th order flux 2 in
@@ -196,7 +195,8 @@
      &             t(i-2,j,k,nrhs,itrc), t(i-1,j,k,nrhs,itrc),
      &             t(i  ,j,k,nrhs,itrc), t(i+1,j,k,nrhs,itrc),  vel )
 #  ifdef MASKING
-                flx2 = 0.5*vel*(t(i,j,k,nrhs,itrc)+t(i-1,j,k,nrhs,itrc))
+                flx2 = vel*FLUX2(
+     &             t(i-1,j,k,nrhs,itrc), t(i,j,k,nrhs,itrc), vel, cdif)
                 mask1=rmask(i-2,j)*rmask(i+1,j)
                 FX(i,j)=mask1*flx3+(1-mask1)*flx2
 #  else
@@ -207,8 +207,9 @@
             ELSE IF ( i.eq.imax+2 ) THEN  ! 2nd order flux next to north
                                           ! boundary
               DO j = Jstr,Jend
-                FX(i,j) = 0.5*Huon(i,j,k)*
-     &                    (t(i,j,k,nrhs,itrc)+t(i-1,j,k,nrhs,itrc))
+                vel = Huon(i,j,k)
+                FX(i,j) = vel*FLUX2(
+     &             t(i-1,j,k,nrhs,itrc), t(i,j,k,nrhs,itrc), vel, cdif)
               ENDDO
                                           !
             ELSE IF ( i.eq.imax+1 ) THEN  ! 3rd or 4th order flux 2 in from
@@ -219,7 +220,8 @@
      &             t(i-2,j,k,nrhs,itrc), t(i-1,j,k,nrhs,itrc),
      &             t(i  ,j,k,nrhs,itrc), t(i+1,j,k,nrhs,itrc),  vel )
 #  ifdef MASKING
-                flx2 = 0.5*vel*(t(i,j,k,nrhs,itrc)+t(i-1,j,k,nrhs,itrc))
+                flx2 = vel*FLUX2(
+     &             t(i-1,j,k,nrhs,itrc), t(i,j,k,nrhs,itrc), vel, cdif)
                 mask1=rmask(i-2,j)*rmask(i+1,j)
                 FX(i,j)=mask1*flx3+(1-mask1)*flx2
 #  else

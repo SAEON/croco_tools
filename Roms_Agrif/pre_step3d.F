@@ -87,13 +87,22 @@
 # if defined TS_HADV_UP5 ||  defined TS_HADV_C6 \
       || defined TS_HADV_WENO5 ||  defined BIO_HADV_WENO5
 !
-! definition of flux operators, 3rd, 4th, 5th or 6th order
-! for UP5 and C6 advection schemes
+! Definition of flux operators: 1st, 2nd, 3rd, 4th, 5th or 6th order,
+! used in UP5 and C6 advection schemes (and order degradation near land masks)
+! cdiff is part of laplacian diffusion in flux1 (used near mask): 
+!    0 --> flux1=flux2 (second order C2 advection scheme)
+!    1 --> flux1 gives 1st order monotonic UP1 advection scheme
 !
-      REAL    :: q_im3, q_im2, q_im1, q_i, q_ip1, q_ip2, ua, vel
-      REAL    :: flux3, flux4, flux5, flux6
+      REAL    :: q_im3, q_im2, q_im1, q_i, q_ip1, q_ip2
+      REAL    :: ua, vel, cdiff, cdif
+      REAL    :: flux1, flux2, flux3, flux4, flux5, flux6
       REAL    :: flx2, flx3, flx4, flx5
       REAL    :: mask0, mask1, mask2, mask3
+
+      flux2(q_im1, q_i, ua, cdiff) = 0.5*( q_i + q_im1 )
+
+      flux1(q_im1, q_i, ua, cdiff) = flux2(q_im1, q_i, ua, cdiff) -
+     &      0.5*cdiff*sign(1.,ua)*(q_i-q_im1)
 
       flux4(q_im2, q_im1, q_i, q_ip1, ua) = 
      &      ( 7.*(q_i + q_im1) - (q_ip1 + q_im2) )/12.0
@@ -174,15 +183,16 @@
 !--------------------------------
 !
 #  define FLUX5 flux6
-#  define FLUX4 flux4
 #  define FLUX3 flux4
+#  define FLUX2 flux2
 #  undef  UP5_MASKING
 !
+            cdif=0.
 #  include "t3dadv_order5.h"
 !
 #  undef FLUX5
-#  undef FLUX4
 #  undef FLUX3
+#  undef FLUX2
 #  undef UP5_MASKING
 
 # else  /*  --> default: C4 */
@@ -319,15 +329,16 @@
 !----------------------------------------------------
 !
 #  define FLUX5 flux6
-#  define FLUX4 flux4
 #  define FLUX3 flux4
+#  define FLUX2 flux2
 #  undef  UP5_MASKING
 !
+            cdif=0.
 #  include "t3dadv_order5.h"
 !
 #  undef FLUX5
-#  undef FLUX4
 #  undef FLUX3
+#  undef FLUX2
 #  undef UP5_MASKING
           endif
 # endif

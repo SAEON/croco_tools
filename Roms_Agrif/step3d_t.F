@@ -75,13 +75,22 @@
 # if defined TS_HADV_UP5 || defined TS_HADV_C6 \
       || defined TS_HADV_WENO5 || defined BIO_HADV_WENO5
 !
-! definition of flux operators, 3rd, 4th, 5th or 6th order
-! for UP5 and C6 advection schemes
+! Definition of flux operators: 1st, 2nd, 3rd, 4th, 5th or 6th order,
+! used in UP5 and C6 advection schemes (and order degradation near land masks)
+! cdiff is part of laplacian diffusion in flux1 (used near mask): 
+!    0 --> flux1=flux2 (second order C2 advection scheme)
+!    1 --> flux1 gives 1st order monotonic UP1 advection scheme
 !
-      REAL    :: q_im3, q_im2, q_im1, q_i, q_ip1, q_ip2, ua, vel
-      REAL    :: flux3, flux4, flux5, flux6
+      REAL    :: q_im3, q_im2, q_im1, q_i, q_ip1, q_ip2
+      REAL    :: ua, vel, cdiff, cdif
+      REAL    :: flux1, flux2, flux3, flux4, flux5, flux6
       REAL    :: flx2, flx3, flx4, flx5
       REAL    :: mask0, mask1, mask2, mask3
+
+      flux2(q_im1, q_i, ua, cdiff) = 0.5*( q_i + q_im1 )
+
+      flux1(q_im1, q_i, ua, cdiff) = flux2(q_im1, q_i, ua, cdiff) -
+     &      0.5*cdiff*sign(1.,ua)*(q_i-q_im1)
 
       flux4(q_im2, q_im1, q_i, q_ip1, ua) = 
      &      ( 7.*(q_i + q_im1) - (q_ip1 + q_im2) )/12.0
@@ -126,24 +135,27 @@
 !
 #  ifdef TS_HADV_C6
 #   define FLUX5 flux6
-#   define FLUX4 flux4
 #   define FLUX3 flux3
+#   define FLUX2 flux2
+#   undef  UP5_MASKING
 #  elif defined TS_HADV_WENO5
 #   define FLUX5 flux5_weno
-#   define FLUX4 flux4
 #   define FLUX3 flux3
+#   define FLUX2 flux1
+#   define UP5_MASKING
 #  else
 #   define FLUX5 flux5
-#   define FLUX4 flux4
 #   define FLUX3 flux3
+#   define FLUX2 flux1
+#   define UP5_MASKING
 #  endif
-#  define UP5_MASKING
 !
+            cdif=0.2 
 #  include "t3dadv_order5.h"
 !
 #  undef FLUX5
-#  undef FLUX4
 #  undef FLUX3
+#  undef FLUX2
 #  undef UP5_MASKING
 
 # else
@@ -336,15 +348,16 @@
 !----------------------------------------------------
 !
 #  define FLUX5 flux5_weno
-#  define FLUX4 flux4
 #  define FLUX3 flux3_weno
+#  define FLUX2 flux1
 #  define UP5_MASKING
 !
+            cdif=1.
 #  include "t3dadv_order5.h"
 !
 #  undef FLUX5
-#  undef FLUX4
 #  undef FLUX3
+#  undef FLUX2
 #  undef UP5_MASKING
           endif
 # endif
@@ -1077,8 +1090,8 @@
 !    
       function flux5_weno(q_im3, q_im2, q_im1, q_i, q_ip1, q_ip2, ua)
 !
-! WENO5: Weighted Essentially Non-Oscillatory scheme 
-!        with 5th-order accuracy
+!     WENO5: Weighted Essentially Non-Oscillatory scheme 
+!            with 5th-order accuracy
 !
 ! This function computes tracer reconstruction at the grid cell's left 
 ! edge (u-point i-1/2 or v-point j-1/2). WENO5 uses a convex combination 
@@ -1089,11 +1102,13 @@
 ! identified by the sign of ua (u or v), is selected. 
 !
 ! References:
-!  Guang-Shan JIANG AND Chi-Wang SHU, 1996: Efficient Implementation of 
+!  Guang-Shan JIANG and Chi-Wang SHU, 1996: Efficient Implementation of 
 !  Weighted ENO Schemes. JOURNAL OF COMPUTATIONAL PHYSICS 126, 202–228.
 !
 !  Rong WANG and Raymond J. SPITERI, 2007: Linear instability of the 
 !  fifth-order WENO method, SIAM J. Numer. Anal., 45, 1871-1901.
+!
+!  Implementation: P. Marchesiello and J. Demange 2013
 !
       implicit none
       REAL    :: flux5_weno
@@ -1104,9 +1119,9 @@
       REAL    :: w0, w1, w2
       REAL    :: p0, p1, p2
       REAL    :: Eps, cff1, cff2
-      REAL    :: fr, fl
 
-! Epsilon value for computing weigths (between 1.e-5 and 1.e-7)
+! Epsilon value for computing weigths 
+!  --> from 1.e-7 (smoother) to 1.e-5 (sharper)
       Eps = 1.e-6
 ! Weigths coefficients
       d0=1./10.
@@ -1116,72 +1131,73 @@
       cff1=13./12.
       cff2=1./6.
 !
+      if (ua .ge. 0.) then        ! Take upstream stencils for stability
+!
 ! === Reconstruction at u_i-1/2 using LEFT stencils ===
 !
 ! Nonlinear Smoothness Indicators
-      IS0 = cff1*(q_im3 - 2.*q_im2 + q_im1)**2
-     &                      + 0.25*(q_im3 - 4.*q_im2 + 3*q_im1)**2
-      IS1 = cff1*(q_im2 - 2.*q_im1 + q_i)**2
-     &                      + 0.25*(q_im2 - q_i)**2
-      IS2 = cff1*(q_im1 - 2.*q_i + q_ip1)**2
-     &                      + 0.25*(3.*q_im1 - 4.*q_i + q_ip1)**2
+        IS0 = cff1*(q_im3 - 2.*q_im2 + q_im1)**2
+     &                        + 0.25*(q_im3 - 4.*q_im2 + 3*q_im1)**2
+        IS1 = cff1*(q_im2 - 2.*q_im1 + q_i)**2
+     &                        + 0.25*(q_im2 - q_i)**2
+        IS2 = cff1*(q_im1 - 2.*q_i + q_ip1)**2
+     &                        + 0.25*(3.*q_im1 - 4.*q_i + q_ip1)**2
 ! Non-normalized stencil weights
-      a0  = d0/(Eps+IS0)**2
-      a1  = d1/(Eps+IS1)**2
-      a2  = d2/(Eps+IS2)**2
+        a0  = d0/(Eps+IS0)**2
+        a1  = d1/(Eps+IS1)**2
+        a2  = d2/(Eps+IS2)**2
 ! Normalized Weigths
-      w0  = a0/(a0+a1+a2)
-      w1  = a1/(a0+a1+a2)
-      w2  = a2/(a0+a1+a2)
+        w0  = a0/(a0+a1+a2)
+        w1  = a1/(a0+a1+a2)
+        w2  = a2/(a0+a1+a2)
 ! Polynomials
-      p0  = cff2*(2.*q_im3 - 7.*q_im2 + 11.*q_im1)
-      p1  = cff2*(-q_im2   + 5.*q_im1 + 2.*q_i)
-      p2  = cff2*(2.*q_im1 + 5.*q_i   - q_ip1)
+        p0  = cff2*(2.*q_im3 - 7.*q_im2 + 11.*q_im1)
+        p1  = cff2*(-q_im2   + 5.*q_im1 + 2.*q_i)
+        p2  = cff2*(2.*q_im1 + 5.*q_i   - q_ip1)
 ! Combination
-      fl= w0*p0 + w1*p1 +w2*p2
+        flux5_weno = w0*p0 + w1*p1 +w2*p2
 
+      else
 !
 ! === Reconstruction at u_i-1/2 using RIGHT stencils ===
 !
 ! Nonlinear Smoothness Indicators
-      IS0 = cff1*(q_ip2 - 2.*q_ip1 + q_i)**2
-     &                       + 0.25*(q_ip2 -4.*q_ip1 + 3*q_i)**2
-      IS1 = cff1*(q_ip1 - 2.*q_i + q_im1)**2
-     &                       + 0.25*(q_ip1-q_im1)**2
-      IS2 = cff1*(q_i   - 2.*q_im1 + q_im2)**2
-     &                       + 0.25*(3.*q_i -4.*q_im1 + q_im2)**2
+        IS0 = cff1*(q_ip2 - 2.*q_ip1 + q_i)**2
+     &                         + 0.25*(q_ip2 -4.*q_ip1 + 3*q_i)**2
+        IS1 = cff1*(q_ip1 - 2.*q_i + q_im1)**2
+     &                         + 0.25*(q_ip1-q_im1)**2
+        IS2 = cff1*(q_i   - 2.*q_im1 + q_im2)**2
+     &                         + 0.25*(3.*q_i -4.*q_im1 + q_im2)**2
 ! Non-normalized stencil weights
-      a0  = d0/(Eps+IS0)**2
-      a1  = d1/(Eps+IS1)**2
-      a2  = d2/(Eps+IS2)**2
+        a0  = d0/(Eps+IS0)**2
+        a1  = d1/(Eps+IS1)**2
+        a2  = d2/(Eps+IS2)**2
 ! Normalized Weigths
-      w0  = a0/(a0+a1+a2)
-      w1  = a1/(a0+a1+a2)
-      w2  = a2/(a0+a1+a2)
+        w0  = a0/(a0+a1+a2)
+        w1  = a1/(a0+a1+a2)
+        w2  = a2/(a0+a1+a2)
 ! Polynomials
-      p0  = cff2*(2.*q_ip2 - 7.*q_ip1 + 11.*q_i)
-      p1  = cff2*(-q_ip1   + 5.*q_i   + 2.*q_im1)
-      p2  = cff2*(2.*q_i   + 5.*q_im1 - q_im2)
+        p0  = cff2*(2.*q_ip2 - 7.*q_ip1 + 11.*q_i)
+        p1  = cff2*(-q_ip1   + 5.*q_i   + 2.*q_im1)
+        p2  = cff2*(2.*q_i   + 5.*q_im1 - q_im2)
 ! Combination
-      fr = w0*p0 + w1*p1 +w2*p2
+        flux5_weno = w0*p0 + w1*p1 +w2*p2
 
-!
-! === Take upstream stencils for stability ===
-!
-      if (ua .ge. 0.) then
-        flux5_weno = fl
-      else
-        flux5_weno = fr
       endif
 
       return
       end
 !
-!----------------------------------------------------------------------
+!======================================================================
 !
       function flux3_weno( q_im2, q_im1, q_i, q_ip1, ua)
 !
-! WENO3: Weighted Essentially Non-Oscillatory of 3rd-order Accuracy
+!     WENO3: Weighted Essentially Non-Oscillatory of 3rd-order Accuracy
+!
+! This function computes tracer reconstruction at the grid cell's left 
+! edge (u-point i-1/2 or v-point j-1/2).
+!
+! Implementation: P. Marchesiello and J. Demange 2013
 !
       implicit none
       REAL    :: flux3_weno
@@ -1191,36 +1207,37 @@
       REAL    :: w0, w1
       REAL    :: p0, p1 
       REAL    :: Eps
-      REAL    :: fl, fr
-
+!
+! Epsilon value for computing weigths 
+!  --> from 1.e-7 (smoother) to 1.e-5 (sharper)
       Eps = 1.e-6
+!
+      if (ua .ge. 0.) then        ! Take upstream stencils for stability
 
-      IS0 = (q_im1-q_im2)**2
-      IS1 = (q_im1-q_i)**2
-      a0  = 1./(3.*(Eps+IS0)**2)
-      a1  = 2./(3.*(Eps+IS1)**2)
-      w0  = a0/(a0+a1)
-      w1  = a1/(a0+a1)
-      p0  = 1./2.*(3.*q_im1-q_im2)
-      p1  = 1./2.*(q_im1+q_i)
+        IS0 = (q_im1-q_im2)**2
+        IS1 = (q_im1-q_i)**2
+        a0  = 1./(3.*(Eps+IS0)**2)
+        a1  = 2./(3.*(Eps+IS1)**2)
+        w0  = a0/(a0+a1)
+        w1  = a1/(a0+a1)
+        p0  = 1./2.*(3.*q_im1-q_im2)
+        p1  = 1./2.*(q_im1+q_i)
 
-      fl= w0*p0 + w1*p1
+        flux3_weno = w0*p0 + w1*p1
 
-      IS0 = (q_i-q_ip1)**2
-      IS1 = (q_im1-q_i)**2
-      a0  = 1./(3.*(Eps+IS0)**2)
-      a1  = 2./(3.*(Eps+IS1)**2)
-      w0  = a0/(a0+a1)
-      w1  = a1/(a0+a1)
-      p0  = 1./2.*(3.*q_i-q_ip1)
-      p1  = 1./2.*(q_im1+q_i)
-
-      fr = w0*p0 + w1*p1
-
-      if (ua .ge. 0.) then
-        flux3_weno = fl
       else
-        flux3_weno = fr
+
+        IS0 = (q_i-q_ip1)**2
+        IS1 = (q_im1-q_i)**2
+        a0  = 1./(3.*(Eps+IS0)**2)
+        a1  = 2./(3.*(Eps+IS1)**2)
+        w0  = a0/(a0+a1)
+        w1  = a1/(a0+a1)
+        p0  = 1./2.*(3.*q_i-q_ip1)
+        p1  = 1./2.*(q_im1+q_i)
+
+        flux3_weno = w0*p0 + w1*p1
+
       endif
 
       return
