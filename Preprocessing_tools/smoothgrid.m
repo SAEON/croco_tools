@@ -48,7 +48,6 @@ function h = smoothgrid(h,maskr,hmin,hmax_coast,hmax,...
 %
 h(h<hmin)=hmin;
 h(h>hmax)=hmax;
-h=h-hmin+1;
 %
 %
 % 1: Deep Ocean Filter
@@ -75,7 +74,9 @@ end
 %  Apply a selective filter on log(h) to reduce grad(h)/h.
 %
 disp(' Apply a selective filter on log(h) to reduce grad(h)/h :')
+if hmin<0, h=h-hmin+1; end
 h=rotfilter(h,maskr,hmax_coast,rmax);
+if hmin<0, h=h+hmin-1; end
 %
 %  Smooth the topography again to prevent 2D noise
 %
@@ -88,7 +89,6 @@ if n_filter_final>1
   end
 end
 %
-h=h+hmin-1;
 h(h<hmin)=hmin;
 %
 return
