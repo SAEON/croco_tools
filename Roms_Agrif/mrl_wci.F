@@ -174,7 +174,7 @@
       inv_g = 1.0/g
       do j=jstr-1,jend+1
         do i=istr-1,iend+1
-          Dstp(i,j)=max(h(i,j)+z_w(i,j,N),eps)
+          Dstp(i,j)=h(i,j)+z_w(i,j,N)
           inv_d(i,j)=1.0/Dstp(i,j)
 
 # ifdef WKB_WWAVE
@@ -281,6 +281,14 @@
           brk(i,j) =wramp2*0.03*kw(i,j)*inv_f(i,j)*rmask(i,j)
           frc(i,j) =frc(i,j)*rmask(i,j)
 # endif   /* MASKING */
+# ifdef WET_DRY
+           kw(i,j) = kw(i,j)*rmask_wet(i,j)
+           kD(i,j) = kD(i,j)*rmask_wet(i,j)
+          act(i,j) =act(i,j)*rmask_wet(i,j)
+          stk(i,j) =stk(i,j)*rmask_wet(i,j)
+          brk(i,j) =brk(i,j)*rmask_wet(i,j)
+          frc(i,j) =frc(i,j)*rmask_wet(i,j)
+# endif   /* WET_DRY */
         enddo
       enddo              ! <-- discard inv_d (ifndef BBL_F00)
 
@@ -294,6 +302,9 @@
      &              /max(sinh(2.*min(kD(i,j),khmax)),eps)
 #  ifdef MASKING
      &                                        *rmask(i,j)
+#  endif
+#  ifdef WET_DRY
+     &                                        *rmask_wet(i,j)
 #  endif
         enddo
       enddo
@@ -322,6 +333,14 @@
           rdsp(i,j)=rdsp(i,j)*rmask(i,j)
 #  endif
 # endif
+# ifdef WET_DRY
+          wdsp(i,j)=wdsp(i,j)*rmask_wet(i,j)
+          wbst(i,j)=wbst(i,j)*rmask_wet(i,j)
+          wdrg(i,j)=wdrg(i,j)*rmask_wet(i,j)
+#  ifdef WAVE_ROLLER
+          rdsp(i,j)=rdsp(i,j)*rmask_wet(i,j)
+#  endif
+# endif
         enddo
       enddo
 # ifndef WKB_WWAVE
@@ -341,6 +360,11 @@
           brk2dx(i,j) =brk2dx(i,j)*umask(i,j)
           frc2dx(i,j) =frc2dx(i,j)*umask(i,j)
 # endif
+# ifdef WET_DRY
+! no mask wet for ustokes here 
+          brk2dx(i,j) =brk2dx(i,j)*umask_wet(i,j)
+          frc2dx(i,j) =frc2dx(i,j)*umask_wet(i,j)
+# endif
         enddo
       enddo
       do j=jstr,jendR
@@ -352,6 +376,11 @@
           vst2d(i,j)  = vst2d(i,j)*vmask(i,j)
           brk2de(i,j) =brk2de(i,j)*vmask(i,j)
           frc2de(i,j) =frc2de(i,j)*vmask(i,j)
+# endif
+# ifdef WET_DRY
+! no mask wet for vstokes here 
+          brk2de(i,j) =brk2de(i,j)*vmask_wet(i,j)
+          frc2de(i,j) =frc2de(i,j)*vmask_wet(i,j)
 # endif
         enddo
       enddo       ! <-- discard stk
@@ -457,6 +486,9 @@
 #  ifdef MASKING
      &                                 *rmask(i,j)
 #  endif
+#  ifdef WET_DRY
+     &                                 *rmask_wet(i,j)
+#  endif
           cff=0.0
           do k=1,N
             cff = cff +  d2kv(k)*
@@ -472,6 +504,9 @@
 #  endif
 #  ifdef MASKING
      &                           *rmask(i,j)
+#  endif
+#  ifdef WET_DRY
+     &                           *rmask_wet(i,j)
 #  endif
         enddo
       enddo      ! <-- discard kv, dkvdz, d2kv, & inv_ex
@@ -526,6 +561,9 @@
 #  ifdef MASKING
      &                                     *rmask(i,j)
 #  endif
+#  ifdef WET_DRY
+     &                                     *rmask_wet(i,j)
+#  endif
           enddo
         enddo
       enddo           ! <-- discard ust_r, kvfx, kvfy, kvr
@@ -548,6 +586,9 @@
             Akw(i,j,k) = cff*(cff3-E_pre(i,j,k))
 #  ifdef MASKING
      &                               *rmask(i,j)
+#  endif
+#  ifdef WET_DRY
+     &                               *rmask_wet(i,j)
 #  endif
             E_pre(i,j,k) = cff3   ! store this for the next time step.
           enddo
@@ -684,6 +725,11 @@
             Akb(i,j,k)=Akb(i,j,k)*rmask(i,j)
           enddo
 #   endif
+#   ifdef WET_DRY
+          do k=0,N
+            Akb(i,j,k)=Akb(i,j,k)*rmask_wet(i,j)
+          enddo
+#   endif
         enddo
       enddo        ! <-- discard kb0
 #   undef kb0
@@ -753,6 +799,9 @@
 #   ifdef MASKING
      &                                         *umask(i,j)
 #   endif
+#   ifdef WET_DRY
+     &                                         *umask_wet(i,j)
+#   endif
           enddo
         enddo
 
@@ -762,6 +811,9 @@
      &                           +brk_r(i,j,k)*wdre(i,j) )
 #   ifdef MASKING
      &                                         *vmask(i,j)
+#   endif
+#   ifdef WET_DRY
+     &                                         *vmask_wet(i,j)
 #   endif
           enddo
         enddo
@@ -865,12 +917,18 @@
 #    ifdef MASKING
      &                                   *umask(i,j)
 #    endif
+#    ifdef WET_DRY
+     &                                   *umask_wet(i,j)
+#    endif
 #   else
           do k=1,N
             frc3dx(i,j,k)=0.5*( frc_r(i-1,j,k)*wdrx(i-1,j)
      &                           +frc_r(i,j,k)*wdrx(i,j) )
 #    ifdef MASKING
      &                                         *umask(i,j)
+#    endif
+#    ifdef WET_DRY
+     &                                         *umask_wet(i,j)
 #    endif
           enddo
 #   endif
@@ -884,12 +942,18 @@
 #    ifdef MASKING
      &                                   *vmask(i,j)
 #    endif
+#    ifdef WET_DRY
+     &                                   *vmask_wet(i,j)
+#    endif
 #   else
           do k=1,N
             frc3de(i,j,k)=0.5*( frc_r(i,j-1,k)*wdre(i,j-1)
      &                           +frc_r(i,j,k)*wdre(i,j) )
 #    ifdef MASKING
      &                                         *vmask(i,j)
+#    endif
+#    ifdef WET_DRY
+     &                                         *vmask_wet(i,j)
 #    endif
           enddo
 #   endif

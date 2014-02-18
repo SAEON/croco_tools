@@ -158,16 +158,6 @@
 # endif
       peg=8.0/g
 
-# ifdef WET_DRY
-        do j=jstrR,jendR
-          do i=istrR,iendR
-            rmask_wet(i,j)=1.
-            IF (h(i,j) + z_w(i,j,N).le.Dcrit(i,j)+0.1+eps) THEN
-              rmask_wet(i,j)=0.
-            endif
-          enddo
-        enddo
-# endif
 !
 !----------------------------------------------------------------------
 !  Initialisation of WKB model variables
@@ -177,21 +167,21 @@
 !
 # define ANA_INI_WKB
 # ifdef ANA_INI_WKB
-        wamp = wkb_amp             ! wave amplitude (m)
-        cfrq = 2.0*pi/wkb_prd      ! peak wave frequency (rad/s)
-        cdir = wkb_ang*deg2rad     ! wave direction rad
-        Btg  = wkb_btg             ! B parameter
-        gamw = wkb_gam             ! gamma paramemer (Hrms/h ratio)
+        wamp = wkb_amp               ! wave amplitude (m)
+        cfrq = 2.0*pi/wkb_prd        ! peak wave frequency (rad/s)
+        cdir = wkb_ang*deg2rad       ! wave direction rad
+        Btg  = wkb_btg               ! B parameter
+        gamw = wkb_gam               ! gamma paramemer (Hrms/h ratio)
 
 #  ifdef WKB_OBC_WEST
-        ho=h(1,1) !+wkb_tide       ! offshore depth
+        ho=h(1,1)+zeta(1,1,knew)     !+wkb_tide       ! offshore depth
 #   ifdef MPI
         call MPI_Bcast(ho, 1, MPI_DOUBLE_PRECISION,
      &                     0, MPI_COMM_WORLD, ierr)
 #   endif
 #  endif
 #  ifdef WKB_OBC_EAST
-        ho=h(LLm,1) !+wkb_tide
+        ho=h(LLm,1)+zeta(LLm,1,knew) !+wkb_tide       ! offshore depth
 #   ifdef MPI
         call MPI_Bcast(ho, 1, MPI_DOUBLE_PRECISION,
      &                     NP_XI-1, MPI_COMM_WORLD, ierr)
@@ -206,9 +196,10 @@
         cgo=co*0.5*(1.+2.*kh/sinh(2.*kh))
         do j=jstrR,jendR
           do i=istrR,iendR
+            Dstp(i,j)=h(i,j)+zeta(i,j,knew)
             dsup=0.0
             do k=1,4
-              dd = h(i,j) + z_w(i,j,N) + dsup !+ wkb_tide
+              dd = Dstp(i,j) + dsup         !+ wkb_tide
               khd = dd*cfrq*cfrq/g
               kh = sqrt(    khd*khd + khd/(1.0 + khd*(0.6666666666
      &                      +khd*(0.3555555555 + khd*(0.1608465608
@@ -233,7 +224,7 @@
               wac(i,j,k)=0.125*g*(hrm(i,j,k)**2)/frq(i,j,k)
               wkx(i,j,k)=kw*cosw
               wke(i,j,k)=kw*sinw
-              wsb(i,j,k)=sbc/(h(i,j)**5)*(hrm(i,j,k)**7)
+              wsb(i,j,k)=sbc/(Dstp(i,j)**5)*(hrm(i,j,k)**7)
               wvn(i,j,k)=kw
 #  ifdef WAVE_ROLLER
               war(i,j,k)=0.0
@@ -246,13 +237,6 @@
             sup(i,j)=dsup       ! wave setup
             wdsp(i,j)=0.0       ! sbc/(h(i,j)**5)*(hrm(i,j,k)**7)/cfrq 
                                 ! S (\ep_b/rho, wave dissipation)
-#  ifdef WET_DRY
-            do k=1,2
-              wac(i,j,k)=wac(i,j,k)*rmask_wet(i,j)
-              wkx(i,j,k)=wkx(i,j,k)*rmask_wet(i,j)
-              wke(i,j,k)=wke(i,j,k)*rmask_wet(i,j)
-            enddo
-#  endif
           enddo
         enddo
 
@@ -362,11 +346,10 @@
 #  if defined WKB_KZ_FILTER || defined WKB_TIME_FILTER
           Dstp(i,j)=max(h(i,j)+zwave(i,j,wmod),eps)
 #  else
-          Dstp(i,j)=max(h(i,j)+zeta(i,j,knew),eps)
+          Dstp(i,j)=h(i,j)+zeta(i,j,knew)
 #  endif
 # else
-          !Dstp(i,j)=max(h(i,j)+wkb_tide,eps)
-          Dstp(i,j)=max(h(i,j),eps)
+          Dstp(i,j)=h(i,j)+zeta(i,j,knew)
 # endif
           cgx(i,j)=wcg(i,j,wstp)*rkx(i,j)
           cge(i,j)=wcg(i,j,wstp)*rke(i,j)
@@ -446,10 +429,6 @@
           wkx(i,j,wnew) =wkx(i,j,wnew)*rmask(i,j)
           wke(i,j,wnew) =wke(i,j,wnew)*rmask(i,j)
 # endif
-# ifdef WET_DRY
-          wkx(i,j,wnew) =wkx(i,j,wnew)*rmask_wet(i,j)
-          wke(i,j,wnew) =wke(i,j,wnew)*rmask_wet(i,j)
-# endif
         enddo
       enddo                ! <-- discard kvx,kue
 # undef kvx
@@ -497,9 +476,6 @@
      &                          ) +wsb(i,j,wstp)+wfc(i,j,wstp) )
 # ifdef MASKING
           wac(i,j,wnew) =wac(i,j,wnew)*rmask(i,j)
-# endif
-# ifdef WET_DRY
-          wac(i,j,wnew) =wac(i,j,wnew)*rmask_wet(i,j)
 # endif
         enddo
       enddo           ! <--- discard acx,ace
@@ -549,9 +525,6 @@
      &                -wkb_roller*wsb(i,j,wstp)+wsr(i,j,wstp) )
 #  ifdef MASKING
           war(i,j,wnew) =war(i,j,wnew)*rmask(i,j)
-#  endif
-#  ifdef WET_DRY
-          war(i,j,wnew) =war(i,j,wnew)*rmask_wet(i,j)
 #  endif
         enddo
       enddo           ! <--- discard acx,ace
@@ -721,11 +694,6 @@
           frq(i,j,wnew) =sqrt(g*wvn(i,j,wnew)*tanh(khn))
           wcg(i,j,wnew) =frq(i,j,wnew)*(inv_k**2)*nw  ! cg/k
           hrm(i,j,wnew) =sqrt(peg*max(wac(i,j,wnew),0.0)*frq(i,j,wnew))
-# ifdef WET_DRY
-          frq(i,j,wnew) = frq(i,j,wnew)*rmask_wet(i,j)
-          wcg(i,j,wnew) = wcg(i,j,wnew)*rmask_wet(i,j)
-          hrm(i,j,wnew) = hrm(i,j,wnew)*rmask_wet(i,j)
-# endif
 # ifdef WAVE_BREAK_TG86
           wsb(i,j,wnew) =sbc*((1.0/Dstp(i,j))**5)*(hrm(i,j,wnew)**7) ! ep_b/rho/sigma
 # elif defined WAVE_BREAK_TG86A
@@ -745,10 +713,6 @@
           wcr(i,j,wnew) = frq(i,j,wnew)*(inv_k**2)   ! c/k
           wsr(i,j,wnew) = c_roller*war(i,j,wnew)     ! ep_r/rho/sigma
      &                    *wvn(i,j,wnew)/max(frq(i,j,wnew)**2,eps)
-#  ifdef WET_DRY
-          wcr(i,j,wnew) = wcr(i,j,wnew)*rmask_wet(i,j)
-          wsr(i,j,wnew) = wsr(i,j,wnew)*rmask_wet(i,j)
-#  endif
 # endif
 # if defined BBL || defined MRL_WCI
           cosw = inv_k*wkx(i,j,wnew)            ! cosine wave direction (xi)
@@ -1100,22 +1064,13 @@ c        cff1=3.D0/16.D0
 #  ifdef MASKING
      &                        *rmask(i-1,j)
 #  endif
-#  ifdef WET_DRY
-     &                        *rmask_wet(i-1,j)
-#  endif
             GX(i,j)=(wrk2(i,j)-wrk2(i-1,j))
 #  ifdef MASKING
      &                        *pmask(i-1,j)
 #  endif
-#  ifdef WET_DRY
-     &                        *pmask_wet(i-1,j)
-#  endif
             ZX(i,j)=(wrk3(i,j)-wrk3(i-1,j))
 #  ifdef MASKING
      &                          *umask(i,j)
-#  endif
-#  ifdef WET_DRY
-     &                          *umask_wet(i,j)
 #  endif
           enddo
         enddo
@@ -1125,22 +1080,13 @@ c        cff1=3.D0/16.D0
 #  ifdef MASKING
      &                          *pmask(i,j)
 #  endif
-#  ifdef WET_DRY
-     &                          *pmask_wet(i,j)
-#  endif
             GE(i,j)=(wrk2(i,j)-wrk2(i,j-1))
 #  ifdef MASKING
      &                        *rmask(i,j-1)
 #  endif
-#  ifdef WET_DRY
-     &                        *rmask_wet(i,j-1)
-#  endif
             ZE(i,j)=(wrk3(i,j)-wrk3(i,j-1))
 #  ifdef MASKING
      &                          *vmask(i,j)
-#  endif
-#  ifdef WET_DRY
-     &                          *vmask_wet(i,j)
 #  endif
           enddo
         enddo
@@ -1171,24 +1117,15 @@ c        cff1=3.D0/16.D0
 #  ifdef MASKING
             wrk1(i,j)=wrk1(i,j)*umask(i,j)
 #  endif
-#  ifdef WET_DRY
-            wrk1(i,j)=wrk1(i,j)*umask_wet(i,j)
-#  endif
             wrk2(i,j)=wrk2(i,j)+cff1*( GX(i+1,j)-GX(i,j)
      &                            +GE1(i,j+1)-GE1(i,j))
 #  ifdef MASKING
             wrk2(i,j)=wrk2(i,j)*vmask(i,j)
 #  endif
-#  ifdef WET_DRY
-            wrk2(i,j)=wrk2(i,j)*vmask_wet(i,j)
-#  endif
             wrk3(i,j)=wrk3(i,j)+cff1*( ZX(i+1,j)-ZX(i,j)
      &                            +ZE1(i,j+1)-ZE1(i,j))
 #  ifdef MASKING
             wrk3(i,j)=wrk3(i,j)*rmask(i,j)
-#  endif
-#  ifdef WET_DRY
-            wrk3(i,j)=wrk3(i,j)*rmask_wet(i,j)
 #  endif
           enddo
         enddo
@@ -1265,11 +1202,6 @@ c        cff1=3.D0/16.D0
             uwave(i,j,wint)=uwave(i,j,wint)*umask(i,j)
             vwave(i,j,wint)=vwave(i,j,wint)*vmask(i,j)
             zwave(i,j,wint)=zwave(i,j,wint)*rmask(i,j)
-#  endif
-#  ifdef WET_DRY
-            uwave(i,j,wint)=uwave(i,j,wint)*umask_wet(i,j)
-            vwave(i,j,wint)=vwave(i,j,wint)*vmask_wet(i,j)
-            zwave(i,j,wint)=zwave(i,j,wint)*rmask_wet(i,j)
 #  endif
           enddo
         enddo

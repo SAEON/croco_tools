@@ -451,9 +451,6 @@
           enddo
         enddo
         do i=IU_RANGE
-# if defined MRL_WCI && defined WET_DRY 
-          ust2d(i,j)=ust2d(i,j)*umask_wet(i,j)
-# endif
           DC(i,0)=1./DC(i,0)
           CF(i,0)=DC(i,0)*(CF(i,0)-DU_avg1(i,j,nnew))
 # ifdef MRL_WCI
@@ -548,9 +545,6 @@
             enddo
           enddo
           do i=IV_RANGE
-# if defined MRL_WCI && defined WET_DRY
-            vst2d(i,j)=vst2d(i,j)*vmask_wet(i,j)
-# endif
             DC(i,0)=1./DC(i,0)
             CF(i,0)=DC(i,0)*(CF(i,0)-DV_avg1(i,j,nnew))
 # ifdef MRL_WCI
