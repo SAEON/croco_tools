@@ -227,7 +227,7 @@ CR      write(*,*) 'wrt_avg:  wrtRHO' MYID
 !     
       if (wrtavg(indxO)) then
          work=omega_avg
-         call fillvalue3d_w(work,ncidavg,avgO,indx0,record,w3dvar,type) 
+         call fillvalue3d_w(work,ncidavg,avgO,indxO,record,w3dvar,type) 
 CR      write(*,*) 'wrt_avg:  wrtO  ' MYID
       endif
 !     
