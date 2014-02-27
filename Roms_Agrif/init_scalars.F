@@ -249,8 +249,10 @@ CR      write(stdout,'(1x,A,I3)') 'indxTime =',indxTime
       vname(7,indxTime)='T'
       vname(8,indxTime)='.NO.'
       vname(9,indxTime)=' ' 
+#ifdef START_DATE
       vname(10,indxTime)=start_date
-!      vname(11,indxTime)='Gregorian'
+!     vname(11,indxTime)='Gregorian'
+#endif
 
 CR      write(stdout,'(1x,A,I3)') 'indxTime2 =',indxTime2
       vname(1,indxTime2)='time'
@@ -262,8 +264,10 @@ CR      write(stdout,'(1x,A,I3)') 'indxTime2 =',indxTime2
       vname(7,indxTime2)='T '
       vname(8,indxTime2)='.NO.'
       vname(9,indxTime2)=' ' 
+#ifdef START_DATE
       vname(10,indxTime2)=start_date
-!      vname(11,indxTime2)='Gregorian'
+!     vname(11,indxTime2)='Gregorian'
+#endif
 
 CR      write(stdout,'(1x,A,I3)') 'indxZ =',indxZ
       vname(1,indxZ)='zeta                                        '
