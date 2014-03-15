@@ -188,7 +188,7 @@ C$OMP MASTER
 #  endif
 # endif
 #endif
-#if defined WKB_WAVE && !defined ANA_BRY_WKB
+#if defined WKB_WWAVE && !defined ANA_BRY_WKB
             call get_bry_wkb
 #endif
 #ifdef AGRIF

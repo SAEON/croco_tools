@@ -199,7 +199,8 @@
           kD(i,j) =kw(i,j)*Dstp(i,j)
 #  else
 !          kD(i,j) =kw(i,j)*(h(i,j)+wkb_tide)
-          kD(i,j) =kw(i,j)*h(i,j)
+      !rb    kD(i,j) =kw(i,j)*h(i,j)
+          kD(i,j) =kw(i,j)*Dstp(i,j)
 #  endif
 #  ifndef WAVE_ROLLER
           act(i,j) =wramp2*wac(i,j,wnew)         ! wave action density

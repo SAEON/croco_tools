@@ -216,6 +216,9 @@ C$OMP END PARALLEL
 #ifndef ANA_BRY
        bry_id=-1
 #endif
+#if defined WKB_WWAVE && !defined ANA_BRY_WKB
+       brywkb_id=-1
+#endif
       call get_date (date_str)
 !
 !---------------------------------------------------------------

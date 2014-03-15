@@ -425,6 +425,12 @@ C$OMP END MASTER
       winfo=1
       iwave=1
       thwave=1.D+10
+# ifndef ANA_BRY_WKB
+      do tile=0,NSUB_X*NSUB_E-1
+        call set_bry_wkb (tile)
+      enddo
+C$OMP BARRIER
+# endif
 # ifdef MRL_CEW
       do tile=0,NSUB_X*NSUB_E-1
         call wkb_cew_prep (tile)

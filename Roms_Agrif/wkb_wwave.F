@@ -48,9 +48,10 @@
       implicit none
 # include "param.h"
       integer istr,iend,jstr,jend, i, j, k, wprv, wbak, wold, 
-     &        imin,imax,jmin,jmax 
+     &        imin,imax,jmin,jmax, prc 
       real, dimension(PRIVATE_2D_SCRATCH_ARRAY) :: cgx,cge,acx,ace,
      &                                             Dstp,rkx,rke,rwac
+      real, dimension(3) :: wkb_bry
       real sbc, kh, kk, nw, cg, a0, ax, ax1, ax2, ay, ay1, ay2,
      &     cosw, sinw, cw, dtinv, cxu, cev, orbital, peg,
      &     inv_k, khn, cff, cff0, cff1, cff2, w1, w2, w3,
@@ -167,12 +168,6 @@
 !
 # define ANA_INI_WKB
 # ifdef ANA_INI_WKB
-        wamp = wkb_amp               ! wave amplitude (m)
-        cfrq = 2.0*pi/wkb_prd        ! peak wave frequency (rad/s)
-        cdir = wkb_ang*deg2rad       ! wave direction rad
-        Btg  = wkb_btg               ! B parameter
-        gamw = wkb_gam               ! gamma paramemer (Hrms/h ratio)
-
 #  ifdef WKB_OBC_WEST
         ho=h(1,1)+zeta(1,1,knew)     !+wkb_tide       ! offshore depth
 #   ifdef MPI
@@ -187,6 +182,39 @@
      &                     NP_XI-1, MPI_COMM_WORLD, ierr)
 #   endif
 #  endif
+#  ifdef ANA_BRY_WKB 
+        wamp = wkb_amp               ! wave amplitude (m)
+        cfrq = 2.0*pi/wkb_prd        ! peak wave frequency (rad/s)
+        cdir = wkb_ang*deg2rad       ! wave direction rad
+#   else
+#    ifdef WKB_OBC_WEST
+         wkb_bry(1)=wacbry_west(1) 
+         wkb_bry(2)=wkxbry_west(1)
+         wkb_bry(3)=wkebry_west(1)
+         prc = 0
+#    endif
+#    ifdef WKB_OBC_EAST
+         wkb_bry(1)=wacbry_east(1) 
+         wkb_bry(2)=wkxbry_east(1)
+         wkb_bry(3)=wkebry_east(1)
+         prc = NP_XI-1
+#    endif
+#    ifdef MPI
+        call MPI_Bcast(wkb_bry, 3, MPI_DOUBLE_PRECISION,
+     &                     prc, MPI_COMM_WORLD, ierr)
+#    endif
+        cff1=sqrt(wkb_bry(2)**2+wkb_bry(3)**2)
+        inv_k =1.0/cff1
+        khn =cff1*(ho+zeta(1,1,knew))
+        cfrq =sqrt(g*cff1*tanh(khn))
+        cosw = inv_k*wkb_bry(2)          
+        sinw = inv_k*wkb_bry(3)           
+        cdir=ATAN2(sinw,cosw)
+        wamp=sqrt(2*wkb_bry(1)/g*cfrq)
+#   endif        
+        Btg  = wkb_btg               ! B parameter
+        gamw = wkb_gam               ! gamma paramemer (Hrms/h ratio)
+
         khd = ho*cfrq*cfrq/g
         kh  = sqrt(    khd*khd + khd/(1.0 + khd*(0.6666666666
      &                 +khd*(0.3555555555 + khd*(0.1608465608
@@ -243,24 +271,26 @@
 !
 !  Boundary fields
 !
-#  ifdef WKB_OBC_EAST
+#  ifndef ANA_BRY_WKB 
+#   ifdef WKB_OBC_EAST
         if (EASTERN_EDGE) then
           do j=jstr-1,jend+1
-            wac_east(j)=wac(iendR,j,1)
-            wkx_east(j)=wkx(iendR,j,1)
-            wke_east(j)=wke(iendR,j,1)
+            wacbry_east(j)=wac(iendR,j,1)
+            wkxbry_east(j)=wkx(iendR,j,1)
+            wkebry_east(j)=wke(iendR,j,1)
           enddo
         endif
-#  endif  /* WKB_OBC_EAST */
-#  ifdef WKB_OBC_WEST
+#   endif  /* WKB_OBC_EAST */
+#   ifdef WKB_OBC_WEST
         if (WESTERN_EDGE) then
           do j=jstr-1,jend+1
-            wac_west(j)=wac(istr-1,j,1)
-            wkx_west(j)=wkx(istr-1,j,1)
-            wke_west(j)=wke(istr-1,j,1)
+            wacbry_west(j)=wac(istr-1,j,1)
+            wkxbry_west(j)=wkx(istr-1,j,1)
+            wkebry_west(j)=wke(istr-1,j,1)
           enddo
         endif
-#  endif  /* WKB_OBC_WEST */
+#   endif  /* WKB_OBC_WEST */
+#  endif /* ANA_BRY_WKB */
 # else /* !ANA_INI_WKB */
         do j=jstrR,jendR
           do i=istrR,iendR
@@ -269,7 +299,7 @@
             nw=0.5*(1.0+2.0*kh/max(sinh(2.0*kh),eps))
             wvn(i,j,wstp)=kk
             frq(i,j,wstp)=sqrt(g*kk*tanh(kh))
-            wcg(i,j,wstp)=frq(i,j,wnew)/max(kk**2,eps)*nw  ! cg/k
+            wcg(i,j,wstp)=frq(i,j,wstp)/max(kk**2,eps)*nw  ! cg/k
             hrm(i,j,wstp)=sqrt(peg*max(wac(i,j,wstp),0.0)*frq(i,j,wstp))
 #  ifdef WAVE_BREAK_TG86
             wsb(i,j,wstp)=sbc/(h(i,j)**5)*(hrm(i,j,wstp)**7) ! ep_b/rho/sigma
@@ -454,13 +484,6 @@
         enddo
       enddo           ! <--- discard cgx,cge,rwac
 !
-!cgx(i,j)=wcg(i,j,wstp)*rkx(i,j)
-! rkx extrap de wkx
-! wcg(i,j,wnew) =frq(i,j,wnew)*(inv_k**2)*nw  ! cg/k
-! nw=0.5*(1.+2.*kh/sinh(2.*kh))  ! n=Cg/C
-! wsb : breaking
-! wdsp :epb écrit
-! wdsp = wsb *ramp
       do j=jstr,jend
         do i=istr,iend
           wac(i,j,wnew) =wac(i,j,wprv)-dtwave*( pm(i,j)*pn(i,j)
@@ -536,150 +559,7 @@
 ! For now, only gradient and clamped BCs are available.
 !---------------------------------------------------------------------
 !
-# ifndef EW_PERIODIC
-      if (WESTERN_EDGE) then
-#  ifdef WKB_OBC_WEST
-        do j=jstr,jend                           ! Western edge
-          wkx(istr-1,j,wnew)=wkx_west(j)         ! clamped BC
-          wke(istr-1,j,wnew)=wke_west(j)
-          wac(istr-1,j,wnew)=wac_west(j)
-#   ifdef WAVE_ROLLER
-          war(istr-1,j,wnew)=0.0
-#   endif
-        enddo
-#  else
-        do j=jstr,jend                           ! Western edge
-          wkx(istr-1,j,wnew)=wkx(istr,j,wnew)    ! gradient BC
-          wke(istr-1,j,wnew)=wke(istr,j,wnew)
-          wac(istr-1,j,wnew)=wac(istr,j,wnew)
-#   ifdef WAVE_ROLLER
-          war(istr-1,j,wnew)=war(istr,j,wnew)
-#   endif
-        enddo
-#  endif  /* WKB_OBC_WEST */
-      endif
-      if (EASTERN_EDGE) then
-#  ifdef WKB_OBC_EAST
-        do j=jstr,jend                           ! Eastern edge
-          wkx(iend+1,j,wnew)=wkx_east(j)         ! clamped BC
-          wke(iend+1,j,wnew)=wke_east(j)
-          wac(iend+1,j,wnew)=wac_east(j)
-#   ifdef WAVE_ROLLER
-          war(iend+1,j,wnew)=0.0
-#   endif
-        enddo
-#  else
-        do j=jstr,jend                           ! Eastern edge
-          wkx(iend+1,j,wnew)=wkx(iend,j,wnew)    ! gradient BC
-          wke(iend+1,j,wnew)=wke(iend,j,wnew)
-          wac(iend+1,j,wnew)=wac(iend,j,wnew)
-#   ifdef WAVE_ROLLER
-          war(iend+1,j,wnew)=war(iend,j,wnew)
-#   endif
-        enddo
-#  endif  /* WKB_OBC_EAST */
-      endif
-# endif        /* !EW_PERIODIC */
-!
-# ifndef NS_PERIODIC
-      if (SOUTHERN_EDGE) then
-#  ifdef WKB_OBC_SOUTH
-        do i=istr,iend                           ! Southern edge
-          wkx(i,jstr-1,wnew)=wkx_south(i)        ! clamped BC
-          wke(i,jstr-1,wnew)=wke_south(i)
-          wac(i,jstr-1,wnew)=wac_south(i)
-#   ifdef WAVE_ROLLER
-          war(i,jstr-1,wnew)=0.0
-#   endif
-        enddo
-#  else
-        do i=istr,iend                           ! Southern edge
-          wkx(i,jstr-1,wnew)=wkx(i,jstr,wnew)    ! gradient BC
-          wke(i,jstr-1,wnew)=wke(i,jstr,wnew)
-          wac(i,jstr-1,wnew)=wac(i,jstr,wnew)
-#   ifdef WAVE_ROLLER
-          war(i,jstr-1,wnew)=war(i,jstr,wnew)
-#   endif
-        enddo
-#  endif  /* WKB_OBC_SOUTH */
-      endif
-      if (NORTHERN_EDGE) then
-#  ifdef WKB_OBC_NORTH
-        do i=istr,iend                           ! Northern edge
-          wkx(i,jend+1,wnew)=wkx_north(i)        ! clamped BC
-          wke(i,jend+1,wnew)=wke_north(i)
-          wac(i,jend+1,wnew)=wac_north(i)
-#   ifdef WAVE_ROLLER
-          war(i,jend+1,wnew)=0.0
-#   endif
-        enddo
-#  else
-        do i=istr,iend                           ! Northern edge
-          wkx(i,jend+1,wnew)=wkx(i,jend,wnew)    ! gradient BC
-          wke(i,jend+1,wnew)=wke(i,jend,wnew)
-          wac(i,jend+1,wnew)=wac(i,jend,wnew)
-#   ifdef WAVE_ROLLER
-          war(i,jend+1,wnew)=war(i,jend,wnew)
-#   endif
-        enddo
-#  endif   /* WKB_OBC_NORTH */
-      endif
-# endif       /* !NS_PERIODIC */
-!
-! Corners between adjacent open boundaries
-!
-# ifndef EW_PERIODIC
-#  ifndef NS_PERIODIC
-      if (SOUTHERN_EDGE .and. WESTERN_EDGE) then
-        wkx(istr-1,jstr-1,wnew)
-     &          =0.5*( wkx(istr,jstr-1,wnew)+wkx(istr-1,jstr,wnew) )
-        wke(istr-1,jstr-1,wnew)
-     &          =0.5*( wke(istr,jstr-1,wnew)+wke(istr-1,jstr,wnew) )
-        wac(istr-1,jstr-1,wnew)
-     &          =0.5*( wac(istr,jstr-1,wnew)+wac(istr-1,jstr,wnew) )
-#   ifdef WAVE_ROLLER
-        war(istr-1,jstr-1,wnew)
-     &          =0.5*( war(istr,jstr-1,wnew)+war(istr-1,jstr,wnew) )
-#   endif
-      endif
-      if (SOUTHERN_EDGE .and. EASTERN_EDGE) then
-        wkx(iend+1,jstr-1,wnew)
-     &          =0.5*( wkx(iend,jstr-1,wnew)+wkx(iend+1,jstr,wnew) )
-        wke(iend+1,jstr-1,wnew)
-     &          =0.5*( wke(iend,jstr-1,wnew)+wke(iend+1,jstr,wnew) )
-        wac(iend+1,jstr-1,wnew)
-     &          =0.5*( wac(iend,jstr-1,wnew)+wac(iend+1,jstr,wnew) )
-#   ifdef WAVE_ROLLER
-        war(iend+1,jstr-1,wnew)
-     &          =0.5*( war(iend,jstr-1,wnew)+war(iend+1,jstr,wnew) )
-#   endif
-      endif
-      if (NORTHERN_EDGE .and. WESTERN_EDGE) then
-        wkx(istr-1,jend+1,wnew)
-     &          =0.5*( wkx(istr,jend+1,wnew)+wkx(istr-1,jend,wnew) )
-        wke(istr-1,jend+1,wnew)
-     &          =0.5*( wke(istr,jend+1,wnew)+wke(istr-1,jend,wnew) )
-        wac(istr-1,jend+1,wnew)
-     &          =0.5*( wac(istr,jend+1,wnew)+wac(istr-1,jend,wnew) )
-#   ifdef WAVE_ROLLER
-        war(istr-1,jend+1,wnew)
-     &          =0.5*( war(istr,jend+1,wnew)+war(istr-1,jend,wnew) )
-#   endif
-      endif
-      if (NORTHERN_EDGE .and. EASTERN_EDGE) then
-        wkx(iend+1,jend+1,wnew)
-     &          =0.5*( wkx(iend,jend+1,wnew)+wkx(iend+1,jend,wnew) )
-        wke(iend+1,jend+1,wnew)
-     &          =0.5*( wke(iend,jend+1,wnew)+wke(iend+1,jend,wnew) )
-        wac(iend+1,jend+1,wnew)
-     &          =0.5*( wac(iend,jend+1,wnew)+wac(iend+1,jend,wnew) )
-#   ifdef WAVE_ROLLER
-        war(iend+1,jend+1,wnew)
-     &          =0.5*( war(iend,jend+1,wnew)+war(iend+1,jend,wnew) )
-#   endif
-      endif
-#  endif
-# endif
+      call wkbbc_tile(Istr,Iend,Jstr,Jend)
 !
 !---------------------------------------------------------------------
 ! Estimate wave-associated variables for MRL_WCI/BBL routines

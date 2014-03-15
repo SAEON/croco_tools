@@ -38,7 +38,7 @@
       common /wkb_diag_comm/ winfo, iwave, av_wac, av_wkn, thwave
 
 ! for CEW
-# ifdef MRL_CEW
+# if defined MRL_CEW || defined WKB_UNSTEADY
       integer wint, winterp, iif_wave, interp_max, wavg, cewavg, wcew
       parameter (interp_max = 5)
       parameter (wavg = 1)
@@ -56,39 +56,4 @@
       common /wkb_cew/ wint, winterp,iif_wave
       common /wkb_cewt/  uwave,  vwave,  zwave
 # endif
-
-! for boundaries
-# ifdef WKB_OBC_WEST
-      real wac_west(0:Mm+1), 
-     &     wkx_west(0:Mm+1),
-     &     wke_west(0:Mm+1)
-      common /wbry_west/ wac_west, 
-     &                   wkx_west,
-     &                   wke_west
-# endif
-# ifdef WKB_OBC_EAST
-      real wac_east(0:Mm+1), 
-     &     wkx_east(0:Mm+1),
-     &     wke_east(0:Mm+1)
-      common /wbry_east/ wac_east, 
-     &                   wkx_east,
-     &                   wke_east
-# endif
-# ifdef WKB_OBC_SOUTH
-      real wac_south(0:Lm+1), 
-     &     wkx_south(0:Lm+1),
-     &     wke_south(0:Lm+1)
-      common /wbry_south/ wac_south, 
-     &                    wkx_south,
-     &                    wke_south
-# endif
-# ifdef WKB_OBC_NORTH
-      real wac_north(0:Lm+1), 
-     &     wkx_north(0:Lm+1),
-     &     wke_north(0:Lm+1)
-      common /wbry_north/ wac_north, 
-     &                    wkx_north,
-     &                    wke_north
-# endif
-
 #endif /* WKB_WWAVE */

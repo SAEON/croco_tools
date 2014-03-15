@@ -14,6 +14,8 @@
 
       subroutine get_bry_wkb        ! Read side boundary forcing 
       implicit none                 ! fields from boundary file
+
+# define wac_west 'cdir_west'
 # include "param.h"
 # include "scalars.h"
 # include "ncscrum.h"
@@ -39,7 +41,7 @@
         if (brywkb_id.eq.-1) then
           ierr=nf_open (brywkb_file(1:lstr), nf_nowrite, brywkb_id)
           if (ierr.ne.nf_noerr) write(stdout,'(/1x,4A/)') 'ERROR ',
-     &               'in get_all_bry: can not open netCDF file ''',
+     &               'in get_bry_wkb: can not open netCDF file ''',
      &                                   brywkb_file(1:lstr),   '''.'
         endif
         if (ierr.eq.nf_noerr) then
@@ -108,7 +110,7 @@
           endif
         endif
       endif
-  1   format(' ERROR in get_all_bry: cannot find variable ''',A,'''')
+  1   format(' ERROR in get_bry_wkb: cannot find variable ''',A,'''')
 !
 ! Read data from the file:  Check if model time is bounded by past
 !===== ==== ==== === =====  and future data times: if not, increment
@@ -185,7 +187,7 @@
             ierr=ierr_all
             if (ierr.eq.0) then
               write(stdout,'(6x,A,9x,A,1x,G12.4,1x,I4)')
-     &       'GET_BRY_WKB    -- Read all boundary data',
+     &       'GET_BRY_WKB    -- Read wave boundary data',
      &                                 'for time =', cff 
 #ifdef MPI
      &                                             , mynode
@@ -302,9 +304,9 @@
 # endif
       elseif (ZEROTH_TILE) then
         write(stdout,'(/2(1x,A)/3(1x,A,F16.10)/)')
-     &   'SET_BRY_ALL_TILE - current model time is out of bounds of',
+     &   'SET_BRY_WKB_TILE - current model time is out of bounds of',
      &   '''brywkb_time''.',     'BRY_WKB_TSTART=', brywkb_time(it1)*sec2day,
-     &   'TDAYS=',  tdays,    'BRY_WKB_ TEND=', brywkb_time(it2)*sec2day
+     &   'TDAYS=',  tdays,    'BRY_WKB_TEND=', brywkb_time(it2)*sec2day
         may_day_flag=2
       endif
       return
