@@ -776,7 +776,7 @@
 #ifdef SOLVE3D
 # define NWRTHIS 500+NT
 #else
-# define NWRTHIS 50
+# define NWRTHIS 90
 #endif
       logical wrthis(NWRTHIS)
 #ifdef AVERAGES
@@ -1055,7 +1055,7 @@
 #ifdef SOLVE3D
       character*75  vname(20, 500)
 #else
-      character*75  vname(20, 59)
+      character*75  vname(20, 90)
 #endif
 
       common /cncscrum/       date_str,   title,  start_date
