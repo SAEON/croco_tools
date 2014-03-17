@@ -293,13 +293,13 @@
 #endif
 #if       (!defined SOLVE3D     && !defined ANA_SMFLUX) \
         || (defined TIDES) \
+        || (defined MRL_WCI     && !defined ANA_WWAVE && !defined WKB_WWAVE) \
         || (defined SOLVE3D     && (\
           (!defined ANA_STFLUX  && !defined BULK_FLUX) \
         || !defined ANA_BTFLUX   \
         || (defined BBL         && !defined ANA_BSEDIM && !defined SEDIMENT) \
         || (defined QCORRECTION && !defined ANA_SST)   \
         || (defined BBL         && !defined ANA_WWAVE && !defined WKB_WWAVE) \
-        || (defined MRL_WCI     && !defined ANA_WWAVE && !defined WKB_WWAVE) \
         || (defined SALINITY    && !defined ANA_SSFLUX && \
            !defined BULK_FLUX   && !defined BULK_EP) \
         || (defined SALINITY    && defined QCORRECTION && \

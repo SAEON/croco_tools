@@ -229,12 +229,14 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Set analytical initial
 CR      write(*,*) ' -6' MYID 
       if (may_day_flag.ne.0) goto 99 !-->  EXIT
 
-#ifdef SOLVE3D
+#if defined  SOLVE3D || defined WET_DRY
 C$OMP PARALLEL DO PRIVATE(tile)      ! Create three-dimensional
       do tile=0,NSUB_X*NSUB_E-1      ! S-coordinate system: at this
         call set_depth (tile)        ! time free surface is set to
       enddo                          ! a non-zero field, either 
 CR      write(*,*)  ' -5' MYID       ! analytically or from restart.
+#endif      
+#ifdef SOLVE3D
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
         call set_HUV (tile)

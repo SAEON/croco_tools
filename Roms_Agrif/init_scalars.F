@@ -1380,8 +1380,31 @@ CR      write(stdout,'(1x,A,I3)') 'indxSSS =',indxSSS
       vname(7,indxSSS)='                                          '
 # endif
 
-# if defined MRL_WCI || defined BBL
-#  if !defined  ANA_WWAVE && !defined WKB_WWAVE
+# if defined BBL
+#  if (!defined ANA_BSEDIM && !defined SEDIMENT)
+CR      write(stdout,'(1x,A,I3)') 'indxBSS =',indxBSS
+      vname(1,indxBSS)='Ssize                                     '
+      vname(2,indxBSS)='bottom sediment grain diameter size       '
+      vname(3,indxBSS)='meter                                     '
+      vname(4,indxBSS)='Ssize, scalar, series                     '
+      vname(5,indxBSS)='                                          '
+      vname(6,indxBSS)='lat_rho lon_rho                           '
+      vname(7,indxBSS)='                                          '
+
+CR      write(stdout,'(1x,A,I3)') 'indxBSD =',indxBSD
+      vname(1,indxBSD)='Sdens                                     '
+      vname(2,indxBSD)='bottom sediment grain density             '
+      vname(3,indxBSD)='kilogram meter-3                          '
+      vname(4,indxBSD)='Sdens, scalar, series                     '
+      vname(5,indxBSD)='                                          '
+      vname(6,indxBSD)='lat_rho lon_rho                           '
+      vname(7,indxBSD)='                                          '
+#  endif /* !SEDIMENT */
+# endif /* BBL */
+#endif /* SOLVE3D */
+
+#if defined MRL_WCI || defined BBL
+# if !defined  ANA_WWAVE && !defined WKB_WWAVE
 CR      write(stdout,'(1x,A,I3)') 'indxWWA',indxWWA
       vname(1,indxWWA)='Awave                                     '
       vname(2,indxWWA)='wind induced wave amplitude               '
@@ -1408,7 +1431,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxWWP =',indxWWP
       vname(6,indxWWP)='lat_rho lon_rho                           '
       vname(7,indxWWP)='                                          '
 
-#   if defined  MRL_WCI
+#  if defined  MRL_WCI
 CR      write(stdout,'(1x,A,I3)') 'indxWEB =',indxWEB
       vname(1,indxWEB)='Eb                                        '
       vname(2,indxWEB)='breaking dissipation                      '
@@ -1417,29 +1440,9 @@ CR      write(stdout,'(1x,A,I3)') 'indxWEB =',indxWEB
       vname(5,indxWEB)='                                          '
       vname(6,indxWEB)='lat_rho lon_rho                           '
       vname(7,indxWEB)='                                          '
-#   endif /* MRL_WCI*/
-#  endif /* ! ANA_WAVE */
-#  if (!defined ANA_BSEDIM && !defined SEDIMENT)
-CR      write(stdout,'(1x,A,I3)') 'indxBSS =',indxBSS
-      vname(1,indxBSS)='Ssize                                     '
-      vname(2,indxBSS)='bottom sediment grain diameter size       '
-      vname(3,indxBSS)='meter                                     '
-      vname(4,indxBSS)='Ssize, scalar, series                     '
-      vname(5,indxBSS)='                                          '
-      vname(6,indxBSS)='lat_rho lon_rho                           '
-      vname(7,indxBSS)='                                          '
-
-CR      write(stdout,'(1x,A,I3)') 'indxBSD =',indxBSD
-      vname(1,indxBSD)='Sdens                                     '
-      vname(2,indxBSD)='bottom sediment grain density             '
-      vname(3,indxBSD)='kilogram meter-3                          '
-      vname(4,indxBSD)='Sdens, scalar, series                     '
-      vname(5,indxBSD)='                                          '
-      vname(6,indxBSD)='lat_rho lon_rho                           '
-      vname(7,indxBSD)='                                          '
-#  endif /* !SEDIMENT */
-# endif /* BBL or MRL_WCI */
-#endif /* SOLVE3D */
+#  endif /* MRL_WCI*/
+# endif /* ! ANA_WAVE */
+#endif
 
 #ifdef WKB_WWAVE
 CR      write(stdout,'(1x,A,I3)') 'indxHRM =',indxHRM

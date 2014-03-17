@@ -416,6 +416,13 @@
 #  ifndef ANA_BSEDIM
 #  endif
 # endif /* BBL */
+# ifdef SST_SKIN
+      integer indxSST_skin
+      parameter (indxSST_skin=indxSUSTR+41)
+# endif 
+#endif /* SOLVE3D */
+
+
 # ifndef BBL
       integer indxWWA,indxWWD,indxWWP,indxWEB
       parameter (indxWWA=indxSUSTR+30, indxWWD=indxWWA+1, 
@@ -425,13 +432,6 @@
 #   endif
      &                             )                                            
 # endif
-# ifdef SST_SKIN
-      integer indxSST_skin
-      parameter (indxSST_skin=indxSUSTR+41)
-# endif 
-#endif /* SOLVE3D */
-
-
 # ifdef MRL_WCI
       integer indxSUP, indxUST2D,indxVST2D
       parameter (indxSUP  =indxSUSTR+42,
@@ -1055,7 +1055,7 @@
 #ifdef SOLVE3D
       character*75  vname(20, 500)
 #else
-      character*75  vname(20, 39)
+      character*75  vname(20, 59)
 #endif
 
       common /cncscrum/       date_str,   title,  start_date

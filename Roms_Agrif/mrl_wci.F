@@ -174,7 +174,11 @@
       inv_g = 1.0/g
       do j=jstr-1,jend+1
         do i=istr-1,iend+1
+# ifdef SOLVE3D
           Dstp(i,j)=h(i,j)+z_w(i,j,N)
+# else
+          Dstp(i,j)=h(i,j)+zeta(i,j,knew)
+# endif          
           inv_d(i,j)=1.0/Dstp(i,j)
 
 # ifdef WKB_WWAVE
