@@ -240,9 +240,9 @@ if $($CPP1 testkeys.F | grep -i -q oacplisdefined) ; then
 	PSMILE_INCDIR="-I${PRISM_ROOT_DIR}/build/lib/psmile.${CHAN} -I${PRISM_ROOT_DIR}/build/lib/clim.${CHAN} -I${PRISM_ROOT_DIR}/build/lib/mpp_io"
     fi
     COMPILEOASIS=TRUE
-    LDFLAGS1="$LDFLAGS1 $LIBPSMILE"
-    CPPFLAGS1="$CPPFLAGS1 ${PSMILE_INCDIR}"
-    FFLAGS1="$FFLAGS1 ${PSMILE_INCDIR}"
+    LDFLAGS1="$LIBPSMILE $LDFLAGS1"
+    CPPFLAGS1="${PSMILE_INCDIR} $CPPFLAGS1"
+    FFLAGS1="${PSMILE_INCDIR} $FFLAGS1"
 fi
 #
 # rewrite Makedefs according to previous flags
