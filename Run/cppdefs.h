@@ -237,11 +237,6 @@
 #  ifdef PISCES
 #   define key_trc_pisces
 #   define key_passivetrc
-#   undef  DIAGNOSTICS_BIO
-#   ifdef DIAGNOSTICS_BIO
-#     define key_trc_diaadd
-#     define key_trc_dia3d
-#   endif
 #  endif
 #  ifdef BIO_NChlPZD
 #   define  OXYGEN
@@ -251,8 +246,11 @@
 #  endif
                       /*   Biology diagnostics    */
 #  undef DIAGNOSTICS_BIO
+#  if defined DIAGNOSTICS_BIO && defined PISCES
+#   define key_trc_diaadd
+#   define key_trc_dia3d
+#  endif
 # endif
-
                       /*   Lagrangian floats model    */
 # ifdef FLOATS
 #  undef  FLOATS_GLOBAL_ATTRIBUTES
