@@ -1682,6 +1682,18 @@ CR      write(stdout,'(1x,A,I3)') 'indxVWND =',indxVWND
       vname(5,indxVWND)='y_wind                                   '   
       vname(6,indxVWND)='lat_v lon_v                              '
       vname(7,indxVWND)='                                         '  
+
+# ifdef DIURNAL_INPUT_SRFLX
+CR      write(stdout,'(1x,A,I3)') 'indxRADSWBIO =',indxRADSWBIO
+      vname(1,indxRADSWBIO)='radswbio                                '
+      vname(2,indxRADSWBIO)='net solar shortwave radiation           '
+      vname(3,indxRADSWBIO)='Watts meter-2                           '
+      vname(4,indxRADSWBIO)='solar shortwave, scalar, series         '
+      vname(5,indxRADSWBIO)='                                        '
+      vname(6,indxRADSWBIO)='lat_rho lon_rho                         '              
+      vname(7,indxRADSWBIO)='                                        '
+# endif /* DIURNAL_INPUT_SRFLX */
+
 # endif /* ONLINE */
 #endif /* BULK_FLUX */
 

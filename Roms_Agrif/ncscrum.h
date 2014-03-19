@@ -472,6 +472,10 @@
       parameter (indxTsrc=indxSUSTR+81)
 # endif
 #endif /* PSOURCE_NCFILE */
+#ifdef DIURNAL_INPUT_SRFLX
+      integer indxRADSWBIO
+      parameter (indxRADSWBIO=indxSUSTR+82)
+#endif
 #ifdef ICE
       integer indxAi
       parameter (indxAi=????)

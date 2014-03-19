@@ -260,6 +260,9 @@
       real uwnd(GLOBAL_2D_ARRAY)
       real vwnd(GLOBAL_2D_ARRAY)
 # endif
+# ifdef DIURNAL_INPUT_SRFLX
+      real radswbio(GLOBAL_2D_ARRAY)
+# endif
 
       common /bulk_tair/tair
      &       /bulk_rhum/rhum 
@@ -270,6 +273,9 @@
 # ifdef BULK_SM_UPDATE
      &       /bulk_uwnd/uwnd 
      &       /bulk_vwnd/vwnd
+# endif
+# ifdef DIURNAL_INPUT_SRFLX
+     &       /bulk_radswbio/radswbio
 # endif
 
       real tairg(GLOBAL_2D_ARRAY,2)
@@ -282,6 +288,9 @@
       real uwndg(GLOBAL_2D_ARRAY,2)
       real vwndg(GLOBAL_2D_ARRAY,2)
 # endif
+# ifdef DIURNAL_INPUT_SRFLX
+      real radswbiog(GLOBAL_2D_ARRAY,2)
+# endif
 
       common /bulkdat_tairg/tairg
      &       /bulkdat_rhumg/rhumg
@@ -293,11 +302,17 @@
      &       /bulk_uwndg/uwndg
      &       /bulk_vwndg/vwndg
 # endif
+# ifdef DIURNAL_INPUT_SRFLX
+     &       /bulkdat_radswbiog/radswbiog
+# endif
 
       real    tairp(2),rhump(2),pratep(2),radlwp(2),radswp(2)
      &       ,wspdp(2)
 # ifdef BULK_SM_UPDATE
      &       ,uwndp(2),vwndp(2)
+# endif
+# ifdef DIURNAL_INPUT_SRFLX
+     &       ,radswbiop(2)
 # endif
       real    bulk_time(2), bulk_cycle
       integer tair_id,rhum_id,prate_id,radlw_id,radsw_id,
@@ -305,6 +320,9 @@
      &       ,wspd_id,lwspdgrd
 # ifdef BULK_SM_UPDATE
      &       ,uwnd_id,vwnd_id,luwndgrd,lvwndgrd
+# endif
+# ifdef DIURNAL_INPUT_SRFLX
+     &        ,radswbio_id,lradswbiogrd
 # endif
       integer itbulk,bulk_ncycle,bulk_rec,bulk_tid,
      &        bulkunused
@@ -317,6 +335,9 @@
      &       ,wspd_id,lwspdgrd
 # ifdef BULK_SM_UPDATE
      &       ,uwnd_id,vwnd_id,luwndgrd,lvwndgrd
+# endif
+# ifdef DIURNAL_INPUT_SRFLX
+     &       ,radswbio_id,lradswbiogrd
 # endif
       common /bulkdat2/
      &        tairp,rhump,pratep,radlwp,radswp,
@@ -339,6 +360,10 @@
      &     cos_phi(GLOBAL_2D_ARRAY), 
      &     tan_phi(GLOBAL_2D_ARRAY)
       common /diu_srflx/ sin_phi, cos_phi, tan_phi
+# endif
+# ifdef DIURNAL_INPUT_SRFLX
+      real srflxbio(GLOBAL_2D_ARRAY)
+      common /forces_srflxbio/srflxbio
 # endif
 # ifndef ANA_SRFLUX
 !

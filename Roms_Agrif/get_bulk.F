@@ -138,6 +138,26 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
           goto 99                                        !--> ERROR
         endif
 
+# ifdef DIURNAL_INPUT_SRFLX
+        lvar=lenstr(vname(1,indxRADSWBIO))
+        ierr=nf_inq_varid (ncidbulk,vname(1,indxRADSWBIO)(1:lvar)
+     &                                              ,radswbio_id)
+        if (ierr .eq. nf_noerr) then
+          ierr=nf_inq_varndims (ncidbulk, radswbio_id, i)
+          if (ierr. eq. nf_noerr) then
+            if (i.gt.1) then
+              lradswbiogrd=1
+            else
+              lradswbiogrd=0
+            endif
+          endif
+        endif
+        if (ierr .ne. nf_noerr) then
+          write(stdout,3) vname(1,indxRADSWBIO)(1:lvar),bulkname(1:lstr)
+          goto 99                                         !--> ERROR
+        endif
+# endif /* DIURNAL_INPUT_SRFLX */
+
 # ifdef BULK_EP
         lvar=lenstr(vname(1,indxPRATE))
         ierr=nf_inq_varid (ncidbulk,vname(1,indxPRATE)(1:lvar),prate_id)
@@ -341,6 +361,22 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
           goto 99                                         !--> ERROR
         endif
 !
+! radswbio
+!
+# ifdef DIURNAL_INPUT_SRFLX
+        if (lradswbiogrd.eq.1) then
+          ierr=nf_fread (radswbiog(START_2D_ARRAY,i), ncidbulk,
+     &                        radswbio_id, bulk_rec,  r2dvar)
+        else
+          ierr=nf_get_var1_FTYPE (ncidbulk,radswbio_id,
+     &                        bulk_rec, radswbiop(i))
+        endif
+        if (ierr .ne. nf_noerr) then
+          write(stdout,6) 'RADSWBIO', bulk_rec
+          goto 99                                         !--> ERROR
+        endif
+# endif /* DIURNAL_INPUT_SRFLX */
+!
 ! prate
 !
 # ifdef BULK_EP
@@ -466,6 +502,9 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
       real cff7,cff8
 # endif
       real val1,val2,val3,val4,val5,val6,val7,val8
+# ifdef DIURNAL_INPUT_SRFLX
+      real val55
+# endif /* DIURNAL_INPUT_SRFLX */
 !
 # include "compute_extended_bounds.h"
 !
@@ -488,6 +527,10 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
                 radlw(i,j)=srf_scale*radlwg(i,j,itbulk)
                 radsw(i,j)=srf_scale*radswg(i,j,itbulk)
                 srflx(i,j)=radsw(i,j)
+# ifdef DIURNAL_INPUT_SRFLX
+                radswbio(i,j)=srf_scale*radswbiog(i,j,itbulk)
+                srflxbio(i,j)=radswbio(i,j)
+# endif /* DIURNAL_INPUT_SRFLX */
 # ifdef BULK_EP
                 prate(i,j)=stf_scale(isalt)*prateg(i,j,itbulk)
 # endif
@@ -508,6 +551,9 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
             val3=rhump(itbulk)
             val4=srf_scale*radlwp(itbulk)
             val5=srf_scale*radswp(itbulk)
+# ifdef DIURNAL_INPUT_SRFLX
+            val55=srf_scale*radswbiop(itbulk)
+# endif /* DIURNAL_INPUT_SRFLX */
 # ifdef BULK_EP
             val6=stf_scale(isalt)*pratep(itbulk)
 # endif
@@ -528,6 +574,10 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
                 radlw(i,j)=val4
                 radsw(i,j)=val5
                 srflx(i,j)=val5
+# ifdef DIURNAL_INPUT_SRFLX
+                radswbio(i,j)=val55
+                srflxbio(i,j)=val55
+# endif /* DIURNAL_INPUT_SRFLX */
 # ifdef BULK_EP
                 prate(i,j)=val6
 # endif
@@ -582,6 +632,11 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
               radlw(i,j)=cff3*radlwg(i,j,it1)+cff4*radlwg(i,j,it2)
               radsw(i,j)=cff3*radswg(i,j,it1)+cff4*radswg(i,j,it2)
               srflx(i,j)=radsw(i,j)
+# ifdef DIURNAL_INPUT_SRFLX
+              radswbio(i,j)=cff3*radswbiog(i,j,it1)
+     &                     +cff4*radswbiog(i,j,it2)
+              srflxbio(i,j)=radswbio(i,j)
+# endif /* DIURNAL_INPUT_SRFLX */
 # ifdef BULK_EP
               prate(i,j)=cff5*prateg(i,j,it1)+cff6*prateg(i,j,it2)
 # endif
@@ -602,6 +657,9 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
           val3=cff1*rhump(it1)+cff2*rhump(it2)
           val4=cff3*radlwp(it1)+cff4*radlwp(it2)
           val5=cff3*radswp(it1)+cff4*radswp(it2)
+# ifdef DIURNAL_INPUT_SRFLX
+          val55=cff3*radswbiop(it1)+cff4*radswbiop(it2)
+# endif /* DIURNAL_INPUT_SRFLX */
 # ifdef BULK_EP
           val6=cff5*pratep(it1)+cff6*pratep(it2)
 # endif
@@ -622,6 +680,10 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
               radlw(i,j)=val4
               radsw(i,j)=val5
               srflx(i,j)=val5
+# ifdef DIURNAL_INPUT_SRFLX
+              radswbio(i,j)=val55
+              srflxbio(i,j)=val55
+# endif /* DIURNAL_INPUT_SRFLX */
 # ifdef BULK_EP
               prate(i,j)=val6
 # endif
