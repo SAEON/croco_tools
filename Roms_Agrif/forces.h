@@ -346,6 +346,9 @@
 # ifdef BULK_SM_UPDATE
      &       ,uwndp,vwndp
 # endif
+# ifdef DIURNAL_INPUT_SRFLX
+     &       ,radswbiop
+# endif
 #endif /* BULK_FLUX */
 !
 !  SOLAR SHORT WAVE RADIATION FLUX.
