@@ -233,6 +233,7 @@
 */
 /*   Biology options    */
 # ifdef PISCES
+#  undef DIURNAL_INPUT_SFLX    /* Under Development */
 #  define key_trc_pisces
 #  define key_passivetrc
 #  ifdef DIAGNOSTICS_BIO
