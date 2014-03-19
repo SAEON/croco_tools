@@ -238,7 +238,7 @@ C#    if defined key_trc_dia3d
         DO ji=Istr, Iend
 C           jksed=zmeuindex(ji,jj)
 C
-           jksed=jpk
+           jksed=jpk-1
            bioVSink(ji,jj,5) = sinking(ji,jj,jksed+1)*1.e3
      &                            *rfact2r*tmask(ji,jj,jksed+1)
            bioVSink(ji,jj,6) = sinking2(ji,jj,jksed+1)*1.e3
