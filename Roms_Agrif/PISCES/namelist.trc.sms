@@ -66,6 +66,8 @@
    fecnm =       10E-6,
    fecdm =       15E-6,
    sedfeinput =   1E-9,
+   niter1max  =   10,
+   niter2max  =   15,
 &end
 :
  &NATSMS
