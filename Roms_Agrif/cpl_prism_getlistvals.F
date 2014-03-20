@@ -27,8 +27,8 @@
       use Agrif_Util
 #endif
      
-      CHARACTER*8,DIMENSION(nmax),INTENT(INOUT) :: prcv_clname ! Rcvd Coupling fields
-      CHARACTER*8,DIMENSION(nmax),INTENT(INOUT) :: psnd_clname ! Sent Coupling fields
+      CHARACTER*64,DIMENSION(nmax),INTENT(INOUT) :: prcv_clname ! Rcvd Coupling fields
+      CHARACTER*64,DIMENSION(nmax),INTENT(INOUT) :: psnd_clname ! Sent Coupling fields
       INTEGER, INTENT(INOUT) :: krcvn,ksndn
       INTEGER, INTENT(INOUT) :: oasis_runtime ! Oasis total simulated time (secs)
 

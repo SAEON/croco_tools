@@ -30,7 +30,7 @@
 #include "param.h"
 #include "scalars.h"
 
-      CHARACTER*8 :: prcv_name
+      CHARACTER*64 :: prcv_name
       INTEGER :: prcv_id, rcvtime, comp_ierror, iok
       DOUBLE PRECISION, DIMENSION(Lmmpi,Mmmpi)  :: rcv_field 
       real,dimension(GLOBAL_2D_ARRAY) :: tab_t_tmp

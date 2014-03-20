@@ -29,7 +29,7 @@
       parameter (nmaxfld = 50)
 
       INTEGER :: krcv, ksnd   ! number of coupling fields per agrif grids
-      CHARACTER(len = 8), DIMENSION(nmaxfld) :: srcv_clname, ssnd_clname   ! Coupling fields
+      CHARACTER(len = 64), DIMENSION(nmaxfld) :: srcv_clname, ssnd_clname   ! Coupling fields
       INTEGER, DIMENSION(nmaxfld) :: srcv_nid, ssnd_nid
       common /exchange_fields_oasis3/ krcv, ksnd,
      &srcv_clname,ssnd_clname,srcv_nid,ssnd_nid
