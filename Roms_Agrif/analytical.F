@@ -1552,7 +1552,7 @@ C$    integer  trd, omp_get_thread_num
 !          Tsrc(is,k,itemp)=4.+10.*exp(z_r(Isrc(is),Jsrc(is),k)/50.)
           Tsrc(is,k,isalt)=Tsrc0(is,isalt)
 #  if defined PASSIVE_TRACER
-          Tsrc(is,k,ipas)=Tsrc0(is,itpas)
+          Tsrc(is,k,itpas)=Tsrc0(is,itpas)
 #  endif
         enddo
       enddo
