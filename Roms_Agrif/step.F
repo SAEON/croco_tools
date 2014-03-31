@@ -95,6 +95,9 @@ C$OMP END PARALLEL
 #endif
 #include "ocean2d.h"
 #include "ocean3d.h"
+#ifdef GLS_MIXING
+# include "mixing.h"
+#endif
 #if defined RVTK_DEBUG && defined  BULK_FLUX
 # include "forces.h"
 #endif
@@ -382,6 +385,15 @@ C$OMP BARRIER
 #   endif
 # endif
       enddo
+
+#if defined RVTK_DEBUG && defined GLS_MIXING
+C$OMP BARRIER
+C$OMP MASTER
+         call check_tab3d(gls(:,:,:,nnew),'gls in gls_prestep','w')
+         call check_tab3d(tke(:,:,:,nnew),'tke in gls_step ','w')
+C$OMP END MASTER
+#endif
+
 C$OMP BARRIER
 
       do tile=my_first,my_last
