@@ -383,14 +383,6 @@ C$OMP BARRIER
 # endif
       enddo
 
-#if defined RVTK_DEBUG && defined GLS_MIXING
-C$OMP BARRIER
-C$OMP MASTER
-         call check_tab3d(gls(:,:,:,nnew),'gls in gls_prestep','w')
-         call check_tab3d(tke(:,:,:,nnew),'tke in gls_step ','w')
-C$OMP END MASTER
-#endif
-
 C$OMP BARRIER
 
       do tile=my_first,my_last
