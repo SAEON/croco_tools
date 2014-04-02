@@ -95,9 +95,6 @@ C$OMP END PARALLEL
 #endif
 #include "ocean2d.h"
 #include "ocean3d.h"
-#ifdef GLS_MIXING
-# include "mixing.h"
-#endif
 #if defined RVTK_DEBUG && defined  BULK_FLUX
 # include "forces.h"
 #endif

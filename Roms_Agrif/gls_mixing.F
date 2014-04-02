@@ -851,9 +851,9 @@
 !
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
       call exchange_w3d_tile (Istr,Iend,Jstr,Jend,
-     &                        tke(START_2D_ARRAY,1,nnew))
+     &                        tke(START_2D_ARRAY,0,nnew))
       call exchange_w3d_tile (Istr,Iend,Jstr,Jend,
-     &                        gls(START_2D_ARRAY,1,nnew))
+     &                        gls(START_2D_ARRAY,0,nnew))
       call exchange_w3d_tile (Istr,Iend,Jstr,Jend, Akv)
       call exchange_w3d_tile (Istr,Iend,Jstr,Jend, Akk)
       call exchange_w3d_tile (Istr,Iend,Jstr,Jend, Akp)

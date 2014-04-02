@@ -381,7 +381,7 @@
               ierr=nf_read_bry_NS (tbry_north_dt(START_1D_ARRAYXI,1
      &            ,itbry,itrc),bry_id,tbry_north_id(itrc),  bry_rec,
      &            r3dvar)
-              if (ierr.ne.nf_noerr)  write(stdout,2)  'temp_north'
+              if (ierr.ne.nf_noerr)  write(stdout,2)  'trc_north'
               ierr_all=ierr_all+ierr
             enddo
 #   endif
@@ -389,7 +389,7 @@
 # endif
             ierr=ierr_all
             if (ierr.eq.0) then
-              write(stdout,'(6x,A,9x,A,1x,G12.4,1x,I4)')
+            MPI_master_only write(stdout,'(6x,A,9x,A,1x,G12.4,1x,I4)')
      &       'GET_BRY    -- Read all boundary data',
      &                                 'for time =', cff 
 #ifdef MPI

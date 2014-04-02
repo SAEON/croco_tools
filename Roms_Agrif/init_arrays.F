@@ -1027,10 +1027,10 @@ C$    integer omp_get_thread_num
       do k=0,N
         do j=JstrR,JendR
           do i=IstrR,IendR
-            tke(i,j,k,1)=init
-            tke(i,j,k,2)=init
-            gls(i,j,k,1)=init
-            gls(i,j,k,2)=init
+            tke(i,j,k,1)=gls_Kmin
+            tke(i,j,k,2)=gls_Kmin
+            gls(i,j,k,1)=gls_Pmin
+            gls(i,j,k,2)=gls_Pmin
             Lscale(i,j,k)=init
           enddo
         enddo
