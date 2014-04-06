@@ -23,17 +23,25 @@ C$    integer omp_get_thread_num
       trd=0
 C$    trd=omp_get_thread_num()
       
-      call step2D_FB_tile (istr,iend,jstr,jend, A2d(1,1,trd),
-     &                    A2d(1,2,trd), A2d(1, 3,trd), A2d(1, 4,trd),
-     &                    A2d(1, 5,trd), A2d(1, 6,trd),A2d(1, 7,trd),
-     &                    A2d(1, 8,trd), A2d(1, 9,trd), A2d(1,10,trd),
-     &                    A2d(1,11,trd), A2d(1,12,trd), A2d(1,13,trd))
+      call step2D_FB_tile ( istr,iend,jstr,jend, A2d(1,1,trd)
+     &                    , A2d(1,2,trd), A2d(1, 3,trd), A2d(1, 4,trd)
+     &                    , A2d(1, 5,trd), A2d(1, 6,trd),A2d(1, 7,trd)
+     &                    , A2d(1, 8,trd), A2d(1, 9,trd), A2d(1,10,trd)
+     &                    , A2d(1,11,trd), A2d(1,12,trd), A2d(1,13,trd)
+#ifndef SOLVE3D
+     &                    , A2d(1,14,trd), A2d(1,15,trd)     
+#endif
+     &                    )
       return
       end
  
       subroutine step2D_FB_tile (istr,iend,jstr,jend, zeta_new,Dnew,
      &                           rubar,rvbar, urhs,vrhs, DUon,DVom,
-     &                           Drhs, UFx,UFe,VFx,VFe)
+     &                           Drhs, UFx,UFe,VFx,VFe
+#ifndef SOLVE3D
+                                ,wrk1,wrk2
+#endif
+     &                          )
 !
 !======================================================================
 ! Perform one time step for barotropic mode (free-surface and baro-
@@ -84,6 +92,11 @@ C$    trd=omp_get_thread_num()
       implicit none
 #include "param.h"
       integer Istr,Iend,Jstr,Jend, i,j, kbak, kold,
+#ifndef SOLVE3D
+# ifdef MPI
+     &        imin,jmin,
+# endif
+#endif
 #ifdef PSOURCE
      &                                          is,
 #endif
@@ -101,7 +114,12 @@ C$    trd=omp_get_thread_num()
      &          UFx(PRIVATE_2D_SCRATCH_ARRAY),
      &          UFe(PRIVATE_2D_SCRATCH_ARRAY),  DUnew,
      &          VFx(PRIVATE_2D_SCRATCH_ARRAY),  DVnew,
-     &          VFe(PRIVATE_2D_SCRATCH_ARRAY)
+     &          VFe(PRIVATE_2D_SCRATCH_ARRAY),  gamma
+#ifndef SOLVE3D
+      real    wrk1(PRIVATE_2D_SCRATCH_ARRAY), curvX, cffE,
+     &        wrk2(PRIVATE_2D_SCRATCH_ARRAY), cffX, curvE
+       parameter (gamma = -0.25)
+#endif
 #include "grid.h"
 #include "ocean2d.h"
 !#ifdef SOLVE3D
@@ -182,13 +200,13 @@ C$    trd=omp_get_thread_num()
         cff3= 0.281105
       endif
 !
-      do j=JstrV-2,Jend+1
+      do j=JstrV-2,Jend+2
         do i=IstrU-2,Iend+1
           Drhs(i,j)=h(i,j)+cff1*zeta(i,j,kstp)+cff2*zeta(i,j,kbak)
      &                                        +cff3*zeta(i,j,kold)
         enddo
       enddo
-      do j=Jstr-1,Jend+1
+      do j=Jstr-2,Jend+2
         do i=IstrU-1,Iend+1
           urhs(i,j)=cff1*ubar(i,j,kstp) +cff2*ubar(i,j,kbak)
      &                                  +cff3*ubar(i,j,kold)
@@ -202,7 +220,7 @@ C$    trd=omp_get_thread_num()
      &                                                              )
         enddo
       enddo
-      do j=JstrV-1,Jend+1
+      do j=JstrV-2,Jend+2
         do i=Istr-1,Iend+1
           vrhs(i,j)=cff1*vbar(i,j,kstp) +cff2*vbar(i,j,kbak)
      &                                  +cff3*vbar(i,j,kold)
@@ -526,6 +544,7 @@ C$OMP END MASTER
 !
 
 #ifdef UV_ADV
+# ifdef SOLVE3D
       do j=jstr,jend
         do i=istr-1,iend
           UFx(i,j)=0.25*(DUon(i,j)+DUon(i+1,j))
@@ -533,9 +552,9 @@ C$OMP END MASTER
 
           VFx(i+1,j)=0.25*(DUon(i+1,j)+DUon(i+1,j-1))
      &                   *(vrhs(i+1,j)+vrhs(i,j))
-# ifdef MASKING
+#  ifdef MASKING
      &                                 *pmask(i+1,j)
-# endif
+#  endif
         enddo
       enddo
       do j=jstr-1,jend
@@ -545,9 +564,9 @@ C$OMP END MASTER
 
           UFe(i,j+1)=0.25*(DVom(i,j+1)+DVom(i-1,j+1))
      &                   *(urhs(i,j+1)+urhs(i,j))
-# ifdef MASKING
+#  ifdef MASKING
      &                                 *pmask(i,j+1)
-# endif
+#  endif
         enddo
       enddo
       do j=jstr,jend
@@ -559,7 +578,296 @@ C$OMP END MASTER
      &                         -VFe(i,j)+VFe(i,j-1)
         enddo
       enddo !--> discard UFx,VFe,UFe,VFx, DUon,DVom
-#endif
+
+# else
+
+#  define uxx wrk1
+#  define Huxx wrk2
+!
+#  ifdef EW_PERIODIC
+#   define IU_EXT_RANGE IstrU-1,Iend+1
+#  else
+#   ifdef MPI
+        if (WEST_INTER) then
+          imin=IstrU-1
+        else
+          imin=max(IstrU-1,2)
+        endif
+        if (EAST_INTER) then
+          imax=Iend+1
+        else
+          imax=min(Iend+1,Lmmpi)
+        endif
+#    define IU_EXT_RANGE imin,imax
+#   else
+#    define IU_EXT_RANGE max(IstrU-1,2),min(Iend+1,Lm)
+#   endif
+#  endif
+
+        do j=Jstr,Jend
+          do i=IU_EXT_RANGE
+            uxx(i,j)=urhs(i-1,j)-2.*urhs(i,j)
+     &                                +urhs(i+1,j)
+            Huxx(i,j)=Duon(i-1,j)-2.*Duon(i,j)
+     &                                  +Duon(i+1,j)
+          enddo
+        enddo
+#   undef IU_EXT_RANGE
+#  ifndef EW_PERIODIC
+        if (WESTERN_EDGE) then
+          do j=Jstr,Jend
+            uxx(1,j)=uxx(2,j)
+            Huxx(1,j)=Huxx(2,j)
+          enddo
+        endif
+        if (EASTERN_EDGE) then
+#   ifdef MPI        
+          do j=Jstr,Jend
+            uxx(Lmmpi+1,j)=uxx(Lmmpi,j)
+            Huxx(Lmmpi+1,j)=Huxx(Lmmpi,j)
+          enddo
+#   else
+          do j=Jstr,Jend
+            uxx(Lm+1,j)=uxx(Lm,j)
+            Huxx(Lm+1,j)=Huxx(Lm,j)
+          enddo
+#   endif          
+        endif
+#  endif
+
+        do j=Jstr,Jend
+          do i=IstrU-1,Iend
+            cffX=urhs(i,j)+urhs(i+1,j)
+            if (cffX.gt.0.) then
+              curvX=uxx(i,j)
+            else
+              curvX=uxx(i+1,j)
+            endif
+            UFx(i,j)=0.25*(cffX+gamma*curvX)*( Duon(i,j)+
+     &            Duon(i+1,j)-0.125*(Huxx(i,j)+Huxx(i+1,j)))
+          enddo
+        enddo
+#  undef Huxx
+#  undef uxx
+#  define vee wrk1
+#  define Hvee wrk2
+      
+#  ifdef NS_PERIODIC
+#   define JV_EXT_RANGE JstrV-1,Jend+1
+#  else
+#   ifdef MPI
+        if (SOUTH_INTER) then
+          jmin=JstrV-1
+        else
+          jmin=max(JstrV-1,2)
+        endif
+        if (NORTH_INTER) then
+          jmax=Jend+1
+        else
+          jmax=min(Jend+1,Mmmpi)
+        endif
+#    define JV_EXT_RANGE jmin,jmax
+#   else
+#    define JV_EXT_RANGE max(JstrV-1,2),min(Jend+1,Mm)
+#   endif
+#  endif
+
+        do j=JV_EXT_RANGE
+          do i=Istr,Iend
+            vee(i,j)=vrhs(i,j-1)-2.*vrhs(i,j)
+     &                                 +vrhs(i,j+1)
+            Hvee(i,j)=Dvom(i,j-1)-2.*Dvom(i,j)
+     &                                   +Dvom(i,j+1)
+          enddo
+        enddo
+#   undef JV_EXT_RANGE
+#  ifndef NS_PERIODIC
+        if (SOUTHERN_EDGE) then
+          do i=Istr,Iend
+            vee(i,1)=vee(i,2)
+            Hvee(i,1)=Hvee(i,2)
+          enddo
+        endif
+        if (NORTHERN_EDGE) then
+#   ifdef MPI
+          do i=Istr,Iend
+            vee(i,Mmmpi+1)=vee(i,Mmmpi)
+            Hvee(i,Mmmpi+1)=Hvee(i,Mmmpi)
+          enddo
+#   else        
+          do i=Istr,Iend
+            vee(i,Mm+1)=vee(i,Mm)
+            Hvee(i,Mm+1)=Hvee(i,Mm)
+          enddo
+#   endif          
+        endif
+#  endif
+        do j=JstrV-1,Jend
+          do i=Istr,Iend
+            cffE=vrhs(i,j)+vrhs(i,j+1)
+            if (cffE.gt.0.) then
+              curvE=vee(i,j)
+            else
+              curvE=vee(i,j+1)
+            endif
+            VFe(i,j)=0.25*(cffE+gamma*curvE)*( Dvom(i,j)+
+     &             Dvom(i,j+1)-0.125*(Hvee(i,j)+Hvee(i,j+1)))
+          enddo
+        enddo
+#  undef Hvee
+#  undef vee
+#  define uee wrk1
+#  define Hvxx wrk2
+
+#  ifdef NS_PERIODIC
+#   define JU_EXT_RANGE Jstr-1,Jend+1
+#  else
+#   ifdef MPI
+        if (SOUTH_INTER) then
+          jmin=Jstr-1
+        else
+          jmin=max(Jstr-1,1)
+        endif
+        if (NORTH_INTER) then
+          jmax=Jend+1
+        else
+          jmax=min(Jend+1,Mmmpi)
+        endif
+#    define JU_EXT_RANGE jmin,jmax
+#   else
+#    define JU_EXT_RANGE max(Jstr-1,1),min(Jend+1,Mm)
+#   endif
+#  endif
+
+        do j=JU_EXT_RANGE
+          do i=IstrU,Iend
+            uee(i,j)=urhs(i,j-1)-2.*urhs(i,j)
+     &                                 +urhs(i,j+1)
+          enddo
+        enddo
+#   undef JU_EXT_RANGE
+#  ifndef NS_PERIODIC
+        if (SOUTHERN_EDGE) then
+          do i=IstrU,Iend
+            uee(i,0)=uee(i,1)
+          enddo
+        endif
+        if (NORTHERN_EDGE) then
+#   ifdef MPI
+          do i=IstrU,Iend
+            uee(i,Mmmpi+1)=uee(i,Mmmpi)
+          enddo
+#   else        
+          do i=IstrU,Iend
+            uee(i,Mm+1)=uee(i,Mm)
+          enddo
+#   endif          
+        endif
+#  endif
+        do j=Jstr,Jend+1
+          do i=IstrU-1,Iend
+           Hvxx(i,j)=Dvom(i-1,j)-2.*Dvom(i,j)+Dvom(i+1,j)
+          enddo
+        enddo
+        do j=Jstr,Jend+1
+          do i=IstrU,Iend
+            cffX=urhs(i,j)+urhs(i,j-1)
+            cffE=Dvom(i,j)+Dvom(i-1,j)
+            if (cffE.gt.0.) then
+              curvX=uee(i,j-1)
+            else
+              curvX=uee(i,j)
+            endif
+            UFe(i,j)=0.25*(cffX+gamma*curvX)*(cffE-0.125*(
+     &                             Hvxx(i,j)+Hvxx(i-1,j) ))
+          enddo
+        enddo
+#  undef Hvxx
+#  undef uee
+#  define vxx wrk1
+#  define Huee wrk2
+
+#  ifdef EW_PERIODIC 
+#   define IV_EXT_RANGE Istr-1,Iend+1
+#  else
+#   ifdef MPI
+        if (WEST_INTER) then
+          imin=Istr-1
+        else
+          imin=max(Istr-1,1)
+        endif
+        if (EAST_INTER) then
+          imax=Iend+1
+        else
+          imax=min(Iend+1,Lmmpi)
+        endif
+#    define IV_EXT_RANGE imin,imax
+#   else
+#    define IV_EXT_RANGE max(Istr-1,1),min(Iend+1,Lm)
+#   endif
+#  endif
+
+        do j=JstrV,Jend
+          do i=IV_EXT_RANGE
+            vxx(i,j)=vrhs(i-1,j)-2.*vrhs(i,j)
+     &                                 +vrhs(i+1,j)
+          enddo
+        enddo
+#   undef IV_EXT_RANGE
+#  ifndef EW_PERIODIC
+        if (WESTERN_EDGE) then
+          do j=JstrV,Jend
+            vxx(0,j)=vxx(1,j)
+          enddo
+        endif
+        if (EASTERN_EDGE) then
+#   ifdef MPI
+          do j=JstrV,Jend
+            vxx(Lmmpi+1,j)=vxx(Lmmpi,j)
+          enddo
+#   else        
+          do j=JstrV,Jend
+            vxx(Lm+1,j)=vxx(Lm,j)
+          enddo
+#   endif          
+        endif
+        
+#  endif
+        do j=JstrV-1,Jend
+          do i=Istr,Iend+1
+           Huee(i,j)=Duon(i,j-1)-2.*Duon(i,j)+Duon(i,j+1)
+          enddo
+        enddo
+        do j=JstrV,Jend
+          do i=Istr,Iend+1
+            cffE=vrhs(i,j)+vrhs(i-1,j)
+            cffX=Duon(i,j)+Duon(i,j-1)
+            if (cffX.gt.0.) then
+              curvE=vxx(i-1,j)
+            else
+              curvE=vxx(i,j)
+            endif
+            VFx(i,j)=0.25*(cffE+gamma*curvE)*(cffX-0.125*(
+     &                             Huee(i,j)+Huee(i,j-1) ))
+          enddo
+        enddo
+#undef Huee
+#undef vxx
+        do j=Jstr,Jend
+          do i=IstrU,Iend
+            rubar(i,j)=rubar(i,j)-UFx(i,j  )+UFx(i-1,j)
+     &                                   -UFe(i,j+1)+UFe(i  ,j)
+          enddo
+        enddo
+        do j=JstrV,Jend
+          do i=Istr,Iend
+            rvbar(i,j)=rvbar(i,j)-VFx(i+1,j)+VFx(i,j  )
+     &                                   -VFe(i  ,j)+VFe(i,j-1)
+          enddo
+        enddo
+# endif /* SOLVE3D */
+#endif /* UV_ADV */
+
 !
 !-----------------------------------------------------------------------
 ! Compute Coriolis (2D and 3D) term and advective curvilinear metric
