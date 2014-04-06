@@ -39,7 +39,7 @@ C$    trd=omp_get_thread_num()
      &                           rubar,rvbar, urhs,vrhs, DUon,DVom,
      &                           Drhs, UFx,UFe,VFx,VFe
 #ifndef SOLVE3D
-                                ,wrk1,wrk2
+     &                          ,wrk1,wrk2
 #endif
      &                          )
 !
