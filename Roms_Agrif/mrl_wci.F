@@ -848,6 +848,7 @@
 !  which is required to reproduce Xu & Bowen (1994) and Lentz et al.
 !  (2008).
 !
+# define LH53_STREAMING
 #  ifdef WAVE_STREAMING
 #   ifdef WAVE_BODY_STREAMING
 #    undef LH53_STREAMING
@@ -1058,7 +1059,7 @@ c           ubry_east(j,k)=-ust(iendR,j,k)
       call exchange_u3d_tile (istr,iend,jstr,jend,brk3dx)
       call exchange_v3d_tile (istr,iend,jstr,jend,brk3de)
 #   endif
-#   ifdef WAVE_STREAMING
+#   if defined WAVE_STREAMING  && defined WAVE_BODY_STREAMING
       call exchange_u3d_tile (istr,iend,jstr,jend,frc3dx)
       call exchange_v3d_tile (istr,iend,jstr,jend,frc3de)
 #   endif

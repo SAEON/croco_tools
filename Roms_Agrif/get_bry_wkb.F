@@ -10,7 +10,7 @@
 !======================================================================
 !
 #include "cppdefs.h"
-#if !defined ANA_BRY_WKB
+#if !defined ANA_BRY_WKB && defined WKB_WWAVE
 
       subroutine get_bry_wkb        ! Read side boundary forcing 
       implicit none                 ! fields from boundary file

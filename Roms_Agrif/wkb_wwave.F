@@ -271,7 +271,7 @@
 !
 !  Boundary fields
 !
-#  ifndef ANA_BRY_WKB 
+#  ifdef ANA_BRY_WKB 
 #   ifdef WKB_OBC_EAST
         if (EASTERN_EDGE) then
           do j=jstr-1,jend+1
