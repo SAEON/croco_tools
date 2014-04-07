@@ -206,7 +206,7 @@ C$    trd=omp_get_thread_num()
      &                                        +cff3*zeta(i,j,kold)
         enddo
       enddo
-      do j=Jstr-2,Jend+2
+      do j=Jstr-1,Jend+2
         do i=IstrU-1,Iend+1
           urhs(i,j)=cff1*ubar(i,j,kstp) +cff2*ubar(i,j,kbak)
      &                                  +cff3*ubar(i,j,kold)
