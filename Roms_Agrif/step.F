@@ -513,9 +513,6 @@ C$OMP BARRIER
 !
 
 C$OMP MASTER
-        kstp=knew                   ! This might look a bit silly,
-        knew=kstp+1                 ! since both branches of this
-        if (knew.gt.4) knew=1       ! if statement are identical.
 C$OMP END MASTER
 C$OMP BARRIER
 !
@@ -537,6 +534,9 @@ C$OMP BARRIER
         enddo
 C$OMP BARRIER
 # endif
+        kstp=knew                   ! This might look a bit silly,
+        knew=kstp+1                 ! since both branches of this
+        if (knew.gt.4) knew=1       ! if statement are identical.
 # ifdef AGRIF
         IF (Agrif_Root()) THEN
 # endif
