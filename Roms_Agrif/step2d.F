@@ -206,7 +206,7 @@ C$    trd=omp_get_thread_num()
      &                                        +cff3*zeta(i,j,kold)
         enddo
       enddo
-      do j=Jstr-1,Jend+2
+      do j=JstrV-2,Jend+2
         do i=IstrU-1,Iend+1
           urhs(i,j)=cff1*ubar(i,j,kstp) +cff2*ubar(i,j,kbak)
      &                                  +cff3*ubar(i,j,kold)
@@ -220,8 +220,8 @@ C$    trd=omp_get_thread_num()
      &                                                              )
         enddo
       enddo
-      do j=JstrV-2,Jend+2
-        do i=Istr-1,Iend+1
+      do j=JstrV-1,Jend+2
+        do i=IstrU-2,Iend+1
           vrhs(i,j)=cff1*vbar(i,j,kstp) +cff2*vbar(i,j,kbak)
      &                                  +cff3*vbar(i,j,kold)
 #  if defined MRL_WCI && defined MASKING
@@ -232,7 +232,6 @@ C$    trd=omp_get_thread_num()
      &                                                   + vst2d(i,j)
 # endif
      &                                                              )
-!Rbend
         enddo
       enddo
 

@@ -512,12 +512,6 @@ C$OMP BARRIER
 ! time step.
 !
 
-C$OMP MASTER
-C$OMP END MASTER
-C$OMP BARRIER
-!
-! Model input block for 2D configurations only !!!
-!
 #ifndef SOLVE3D
 # if defined WKB_WWAVE && defined MRL_CEW
         wstp=wnew
@@ -534,9 +528,18 @@ C$OMP BARRIER
         enddo
 C$OMP BARRIER
 # endif
+#endif
+
+C$OMP MASTER
         kstp=knew                   ! This might look a bit silly,
         knew=kstp+1                 ! since both branches of this
         if (knew.gt.4) knew=1       ! if statement are identical.
+C$OMP END MASTER
+C$OMP BARRIER
+!
+! Model input block for 2D configurations only !!!
+!
+#ifndef SOLVE3D
 # ifdef AGRIF
         IF (Agrif_Root()) THEN
 # endif
