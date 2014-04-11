@@ -51,12 +51,14 @@ my_lonriv=lonriv_mou(my_riv);
 %
 % make a figure
 %
-figure
-plot([1:12],my_flow)
-legend(my_rivername)
-box on, grid on
-title(['\bf Monthly clim of the domain run off']) 
-xlabel(['\bf Month']);ylabel(['\bf Discharge in m3/s'])
-set(gca,'Xtick',[0.5:11.5],'XtickLabel',['J';'F';'M';'A';'M';'J';'J';'A';'S';'O';'N';'D']);
+if ~isempty(my_flow)
+    figure
+    plot([1:12],my_flow)
+    legend(my_rivername)
+    box on, grid on
+    title(['\bf Monthly clim of the domain run off'])
+    xlabel(['\bf Month']);ylabel(['\bf Discharge in m3/s'])
+    set(gca,'Xtick',[0.5:11.5],'XtickLabel',['J';'F';'M';'A';'M';'J';'J';'A';'S';'O';'N';'D']);
+end
 %
 return

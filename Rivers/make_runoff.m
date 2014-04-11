@@ -58,6 +58,15 @@ end
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
 %
 [latriv,lonriv,my_flow,myrivername,rivernumber]=runoff_glob_extract(grdname,global_clim_rivername);
+
+if rivernumber == 0  %at least a river
+% Create a "fictive" runoff forcing file, with no river
+disp(['Create a "fictive" runoff forcing file, with no river'])
+create_runoff(rivname,grdname,title_name,...
+              qbar_time,qbar_cycle, ...
+              ' ',0,0,dir,psource_ts,makebio)
+%    
+else
 latriv=latriv';
 lonriv=lonriv';
 %
@@ -354,4 +363,5 @@ if psource_ts==1
   xlabel(['\bf Month']);ylabel(['\bf Salt [C]'])
   set(gca,'Xtick',[0.5:11.5],'XtickLabel',['J';'F';'M';'A';'M';'J';'J';'A';'S';'O';'N';'D']);
 end
+end  %end at least one river !
 
