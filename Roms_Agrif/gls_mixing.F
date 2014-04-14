@@ -79,7 +79,7 @@
 # include "param.h"
       integer Istr, Iend, Jstr, Jend
       integer i, j, k, imin, imax, jmin, jmax
-      real cff1, cff2, cff3, cff, eps, ustar2
+      real cff1, cff2, cff3, cff, eps, epsil, ustar2
       real shear2(PRIVATE_2D_SCRATCH_ARRAY,0:N),
      &     buoy2(PRIVATE_2D_SCRATCH_ARRAY,0:N),
      &     WORK(PRIVATE_2D_SCRATCH_ARRAY),
@@ -102,7 +102,7 @@
      &     tke_exp1, tke_exp2, tke_exp3, tke_exp4, wall_fac, ogls_sigp,
      &     sig_eff, gls_sigp_cb 
       real cx, cy, dft, dfx, dfy, tau, tau_in, tau_out
-      parameter (eps=1.E-10)
+      parameter (eps=1.E-10, epsil=1.E-16)
 # include "grid.h"
 # include "ocean2d.h"
 # include "ocean3d.h"
@@ -209,11 +209,11 @@
             cff=1./(2.*Hz(i,j,k+1)+Hz(i,j,k)*(2.-CF(i,k-1)))
             CF(i,k)=cff*Hz(i,j,k+1)
             dU(i,k)=cff*( 3.*( u(i  ,j,k+1,nstp)-u(i,  j,k,nstp)
-     &                          +u(i+1,j,k+1,nstp)-u(i+1,j,k,nstp) )
-     &                                        -Hz(i,j,k)*dU(i,k-1) )
+     &                        +u(i+1,j,k+1,nstp)-u(i+1,j,k,nstp) )
+     &                                      -Hz(i,j,k)*dU(i,k-1) )
             dV(i,k)=cff*( 3.*( v(i,j  ,k+1,nstp)-v(i,j  ,k,nstp)
-     &                          +v(i,j+1,k+1,nstp)-v(i,j+1,k,nstp) )
-     &                                        -Hz(i,j,k)*dV(i,k-1) )
+     &                        +v(i,j+1,k+1,nstp)-v(i,j+1,k,nstp) )
+     &                                      -Hz(i,j,k)*dV(i,k-1) )
           enddo
         enddo
         do i=I_EXT_RANGE
@@ -469,7 +469,7 @@
 !  at W-points (ignore small negative values of buoyancy).
 !
             strat2=buoy2(i,j,k)
-            if (strat2.gt.0.0) then
+            if (strat2.gt.0.) then
               gls_c3=gls_c3m
             else
               gls_c3=gls_c3p
@@ -513,10 +513,10 @@
 !
 #   ifdef KKL_WALL_PARA1
             wall_fac=1. +gls_E2/(vonKar*vonKar)
-     &                 *(gls(i,j,k,nstp)**( gls_exp1)*cmu_fac1
-     &                  *tke(i,j,k,nstp)**(-tke_exp1)
-     &                 *(1./(z_w(i,j,N)-z_w(i,j,k))
-     &                  +1./(z_w(i,j,k)-z_w(i,j,0))))**2
+     &               *(gls(i,j,k,nstp)**( gls_exp1)*cmu_fac1
+     &                *tke(i,j,k,nstp)**(-tke_exp1)
+     &               *(1./(z_w(i,j,N)-z_w(i,j,k))
+     &                +1./(z_w(i,j,k)-z_w(i,j,0))))**2
 !
 !  Parabolic wall function + free surface correction (default)
 !
@@ -537,7 +537,7 @@
      &                *(gls(i,j,k,nstp)**( gls_exp1)*cmu_fac1
      &                 *tke(i,j,k,nstp)**(-tke_exp1)
      &                 *(1./min((z_w(i,j,N)-z_w(i,j,k)),
-     &                            (z_w(i,j,k)-z_w(i,j,0)))))**2
+     &                          (z_w(i,j,k)-z_w(i,j,0)))))**2
 !
 !  Linear wall function for , L = ds (=dist to surface).
 !
@@ -706,7 +706,7 @@
 !
             tke(i,j,k,nnew)=max(tke(i,j,k,nnew),gls_Kmin)
             gls(i,j,k,nnew)=max(gls(i,j,k,nnew),gls_Pmin)
-            if (gls_n.ge.0.0) then
+            if (gls_n.ge.0.) then
               gls(i,j,k,nnew)=min( gls(i,j,k,nnew),gls_fac5
      &                               *tke(i,j,k,nnew)**(tke_exp4)
      &            *(sqrt(max(0.,buoy2(i,j,k)))+eps)**(-gls_n) )
@@ -717,7 +717,7 @@
             endif
             Ls_unlmt=max( gls(i,j,k,nnew)**( gls_exp1)*cmu_fac1
      &                   *tke(i,j,k,nnew)**(-tke_exp1), eps )
-            if (buoy2(i,j,k).gt.0.0) then
+            if (buoy2(i,j,k).gt.0.) then
               Ls_lmt=min( Ls_unlmt, sqrt(0.56*tke(i,j,k,nnew)
      &                           /(max(0.,buoy2(i,j,k))+eps)) )
             else
@@ -765,7 +765,7 @@
             Sh=my_Sh1/cff
             Sm=(my_B1pm1o3+my_Sm4*Sh*Gh)/(1.-my_Sm2*Gh)
 # else  /* Galperin */
-            cff=1.-my_Sh2*Gh
+            cff=1.D0-my_Sh2*Gh
             Sh=my_Sh1/cff
             Sm=(my_Sm3+Sh*Gh*my_Sm4)/(1.-my_Sm2*Gh)
 # endif
@@ -915,24 +915,24 @@
 !
 
 # ifdef GLS_KEPSILON
-      gls_p = 3.0        ! Stability exponent
+      gls_p = 3.         ! Stability exponent
       gls_m = 1.5        ! TKE exponent
       gls_n = -1.0       ! Turbulent length scale exponent
-      gls_Kmin = 7.E-6   ! Min. specific turbulent kinetic energy
-      gls_Pmin = 1.E-12  ! Min. dissipation
+      gls_Kmin = 7.6E-6  ! Min. specific turbulent kinetic energy
+      gls_Pmin = 1.0E-12 ! Min. dissipation
       gls_cmu0 = 0.5477  ! Stability coefficient
       gls_c1 = 1.44      ! Shear production coefficient
       gls_c2 = 1.92      ! Dissipation coefficient
       gls_c3m = -0.4     ! Buoyancy production coefficient (minus)
-      gls_c3p = 1.0      ! Buoyancy production coefficient (plus)
+      gls_c3p = 1.0D     ! Buoyancy production coefficient (plus)
       gls_sigk = 1.0     ! Const. Schmidt number for TKE Kv
       gls_sigp = 1.3     ! Const. Schmidt num. statistical field
 # elif defined GLS_KKL
       gls_p = 0.0        ! a.k.a. Mellor-Yamada Level 2.5
       gls_m = 1.0
       gls_n = 1.0
-      gls_Kmin = 5.E-6
-      gls_Pmin = 6.E-6
+      gls_Kmin = 5.0E-6
+      gls_Pmin = 6.0E-6
       gls_cmu0 = 0.5544
       gls_c1 = 0.9
       gls_c2 = 0.52
@@ -944,8 +944,8 @@
       gls_p =-1.0
       gls_m = 0.5
       gls_n =-1.0
-      gls_Kmin = 7.E-6
-      gls_Pmin = 1.E-12
+      gls_Kmin = 7.6E-6
+      gls_Pmin = 1.0E-12
       gls_cmu0 = 0.5477
       gls_c1 = 0.555
       gls_c2 = 0.833
@@ -957,8 +957,8 @@
       gls_p = 2.0
       gls_m = 1.0
       gls_n =-0.67
-      gls_Kmin = 1.E-8
-      gls_Pmin = 1.E-8
+      gls_Kmin = 1.0E-8
+      gls_Pmin = 1.0E-8
       gls_cmu0 = 0.5544
       gls_c1 = 1.0
       gls_c2 = 1.22
