@@ -78,7 +78,7 @@
       implicit none
 # include "param.h"
       integer Istr, Iend, Jstr, Jend
-      integer i, j, k, epsil, imin, imax, jmin, jmax
+      integer i, j, k, imin, imax, jmin, jmax
       real cff1, cff2, cff3, cff, eps, ustar2
       real shear2(PRIVATE_2D_SCRATCH_ARRAY,0:N),
      &     buoy2(PRIVATE_2D_SCRATCH_ARRAY,0:N),
@@ -102,7 +102,7 @@
      &     tke_exp1, tke_exp2, tke_exp3, tke_exp4, wall_fac, ogls_sigp,
      &     sig_eff, gls_sigp_cb 
       real cx, cy, dft, dfx, dfy, tau, tau_in, tau_out
-      parameter (eps=1.D-10, epsil=1.E-16)
+      parameter (eps=1.E-10)
 # include "grid.h"
 # include "ocean2d.h"
 # include "ocean3d.h"
@@ -128,37 +128,37 @@
 !
 # if defined CRAIG_BANNER || defined TKE_WAVEDISS
 #  ifdef GLS_KKL
-      cb_wallE=1.25D0
+      cb_wallE=1.25
 #  else
-      cb_wallE=1.D0
+      cb_wallE=1.
 #  endif
       L_sft=vonKar
       cff1=sqrt(1.5*gls_sigk)*gls_cmu0/L_sft
       gls_sigp_cb=L_sft**2/(gls_cmu0**2*gls_c2*cb_wallE)
-     &            *(gls_n**2-cff1*gls_n/3.D0*(4.D0*gls_m+1.D0)
-     &                      +cff1**2*gls_m/9.D0*(2.D0+4.D0*gls_m))
+     &            *(gls_n**2-cff1*gls_n/3.*(4.*gls_m+1.)
+     &                      +cff1**2*gls_m/9.*(2.+4.*gls_m))
 # else
       L_sft=vonKar
       gls_sigp_cb=gls_sigp
 # endif
-      ogls_sigp=1.D0/gls_sigp_cb
-      sqrt2=sqrt(2.D0)
+      ogls_sigp=1./gls_sigp_cb
+      sqrt2=sqrt(2.)
       cmu_fac1=gls_cmu0**(-gls_p/gls_n)
-      cmu_fac2=gls_cmu0**(3.D0+gls_p/gls_n)
-      cmu_fac3=1.D0/gls_cmu0**2
-      cmu_fac4=(1.5*gls_sigk)**(1.D0/3.D0)/(gls_cmu0**(4.D0/3.D0))
-      gls_fac1=gls_n*gls_cmu0**(gls_p+1.D0)
+      cmu_fac2=gls_cmu0**(3.+gls_p/gls_n)
+      cmu_fac3=1./gls_cmu0**2
+      cmu_fac4=(1.5*gls_sigk)**(1./3.)/(gls_cmu0**(4./3.))
+      gls_fac1=gls_n*gls_cmu0**(gls_p+1.)
       gls_fac2=gls_cmu0**gls_p*gls_n*vonKar**gls_n
       gls_fac3=gls_cmu0**(gls_p)*gls_n
       gls_fac4=gls_cmu0**gls_p*(vonKar*Zob_min)**gls_n
       gls_fac5=0.56**(0.5*gls_n)*gls_cmu0**gls_p
-      gls_fac6=8.D0/gls_cmu0**6.D0
+      gls_fac6=8./gls_cmu0**6.
 !
-      gls_exp1=1.D0/gls_n
+      gls_exp1=1./gls_n
       tke_exp1=gls_m/gls_n
-      tke_exp2=0.5D0+gls_m/gls_n
-      tke_exp3=0.5D0+gls_m
-      tke_exp4=gls_m+0.5D0*gls_n
+      tke_exp2=0.5+gls_m/gls_n
+      tke_exp3=0.5+gls_m
+      tke_exp4=gls_m+0.5*gls_n
 !
 !-----------------------------------------------------------------------
 !  Compute vertical velocity shear at W-points.
@@ -200,25 +200,25 @@
 # ifdef SPLINE_SHEAR
       do j=J_EXT_RANGE
         do i=I_EXT_RANGE
-          CF(i,0)=0.D0
-          dU(i,0)=0.D0
-          dV(i,0)=0.D0
+          CF(i,0)=0.
+          dU(i,0)=0.
+          dV(i,0)=0.
         enddo
         do k=1,N-1
           do i=I_EXT_RANGE
-            cff=1.D0/(2.D0*Hz(i,j,k+1)+Hz(i,j,k)*(2.D0-CF(i,k-1)))
+            cff=1./(2.*Hz(i,j,k+1)+Hz(i,j,k)*(2.-CF(i,k-1)))
             CF(i,k)=cff*Hz(i,j,k+1)
-            dU(i,k)=cff*( 3.D0*( u(i  ,j,k+1,nstp)-u(i,  j,k,nstp)
+            dU(i,k)=cff*( 3.*( u(i  ,j,k+1,nstp)-u(i,  j,k,nstp)
      &                          +u(i+1,j,k+1,nstp)-u(i+1,j,k,nstp) )
      &                                        -Hz(i,j,k)*dU(i,k-1) )
-            dV(i,k)=cff*( 3.D0*( v(i,j  ,k+1,nstp)-v(i,j  ,k,nstp)
+            dV(i,k)=cff*( 3.*( v(i,j  ,k+1,nstp)-v(i,j  ,k,nstp)
      &                          +v(i,j+1,k+1,nstp)-v(i,j+1,k,nstp) )
      &                                        -Hz(i,j,k)*dV(i,k-1) )
           enddo
         enddo
         do i=I_EXT_RANGE
-          dU(i,N)=0.D0
-          dV(i,N)=0.D0
+          dU(i,N)=0.
+          dV(i,N)=0.
         enddo
         do k=N-1,1,-1
           do i=I_EXT_RANGE
@@ -452,12 +452,12 @@
           do k=2,N-1
             FCK(i,k)=cff*(Akk(i,j,k)+Akk(i,j,k-1))/Hz(i,j,k)
             FCP(i,k)=cff*(Akp(i,j,k)+Akp(i,j,k-1))/Hz(i,j,k)
-            CF(i,k)=0.D0
+            CF(i,k)=0.
           enddo
-          FCP(i,1)=0.D0
-          FCP(i,N)=0.D0
-          FCK(i,1)=0.D0
-          FCK(i,N)=0.D0
+          FCP(i,1)=0.
+          FCP(i,N)=0.
+          FCK(i,1)=0.
+          FCK(i,N)=0.
         enddo
 !
 !  Compute production and dissipation terms.
@@ -482,15 +482,15 @@
 !  If negative production terms, then add buoyancy to dissipation terms
 !  (BCK and BCP) below, using "cff1" and "cff2" as the on/off switch.
 !
-            cff1=1.D0
-            if (Kprod.lt.0.0) then
+            cff1=1.
+            if (Kprod.lt.0.) then
              Kprod=Kprod+strat2*(Akt(i,j,k,itemp)-Akt_bak(itemp))
-             cff1=0.D0
+             cff1=0.
             endif
-            cff2=1.D0
-            if (Pprod.lt.0.0) then
+            cff2=1.
+            if (Pprod.lt.0.) then
              Pprod=Pprod+gls_c3*strat2*(Akt(i,j,k,itemp)-Akt_bak(itemp))
-             cff2=0.D0
+             cff2=0.
             endif
 !
 !  Time-step shear and buoyancy production terms.
@@ -512,56 +512,56 @@
 !  Parabolic wall function,  L = ds db / (ds + db).
 !
 #   ifdef KKL_WALL_PARA1
-            wall_fac=1.D0 +gls_E2/(vonKar*vonKar)
+            wall_fac=1. +gls_E2/(vonKar*vonKar)
      &                 *(gls(i,j,k,nstp)**( gls_exp1)*cmu_fac1
      &                  *tke(i,j,k,nstp)**(-tke_exp1)
-     &                 *(1.D0/(z_w(i,j,N)-z_w(i,j,k))
-     &                  +1.D0/(z_w(i,j,k)-z_w(i,j,0))))**2
+     &                 *(1./(z_w(i,j,N)-z_w(i,j,k))
+     &                  +1./(z_w(i,j,k)-z_w(i,j,0))))**2
 !
 !  Parabolic wall function + free surface correction (default)
 !
 #   elif defined KKL_WALL_PARA2
-            wall_fac=1.D0 +gls_E2/(vonKar*vonKar)
+            wall_fac=1. +gls_E2/(vonKar*vonKar)
      &               *(gls(i,j,k,nstp)**( gls_exp1)*cmu_fac1
      &                *tke(i,j,k,nstp)**(-tke_exp1)
-     &                *(1.D0/ (z_w(i,j,k)-z_w(i,j,0))))**2
+     &                *(1./ (z_w(i,j,k)-z_w(i,j,0))))**2
      &               +0.25/(vonKar*vonKar)
      &               *(gls(i,j,k,nstp)**( gls_exp1)*cmu_fac1
      &                *tke(i,j,k,nstp)**(-tke_exp1)
-     &                *(1.D0/ (z_w(i,j,N)-z_w(i,j,k))))**2
+     &                *(1./ (z_w(i,j,N)-z_w(i,j,k))))**2
 !
 !  Triangular wall function, L = min (ds, db).
 !
 #   elif defined KKL_WALL_TRI
-            wall_fac=1.D0 +gls_E2/(vonKar*vonKar)
+            wall_fac=1. +gls_E2/(vonKar*vonKar)
      &                *(gls(i,j,k,nstp)**( gls_exp1)*cmu_fac1
      &                 *tke(i,j,k,nstp)**(-tke_exp1)
-     &                 *(1.D0/min((z_w(i,j,N)-z_w(i,j,k)),
+     &                 *(1./min((z_w(i,j,N)-z_w(i,j,k)),
      &                            (z_w(i,j,k)-z_w(i,j,0)))))**2
 !
 !  Linear wall function for , L = ds (=dist to surface).
 !
 #   elif defined KKL_WALL_LINEAR
-            wall_fac=1.D0 +gls_E2/(vonKar*vonKar)
+            wall_fac=1. +gls_E2/(vonKar*vonKar)
      &                *(gls(i,j,k,nstp)**( gls_exp1)*cmu_fac1
      &                 *tke(i,j,k,nstp)**(-tke_exp1)
-     &                *(1.D0/ (z_w(i,j,N)-z_w(i,j,k))))**2
+     &                *(1./ (z_w(i,j,N)-z_w(i,j,k))))**2
 #   else
             write(*,*)'Wall function error for GLS_KKL: gls_mixing.F'
 #   endif
 # else
-            wall_fac=1.D0
+            wall_fac=1.
 # endif
-            BCK(i,k)=cff*(1.D0 +dt
+            BCK(i,k)=cff*(1. +dt
      &                   *gls(i,j,k,nstp)**(-gls_exp1)*cmu_fac2
      &                   *tke(i,j,k,nstp)**( tke_exp2)
-     &                   +dt*(1.D0-cff1)*strat2
+     &                   +dt*(1.-cff1)*strat2
      &                   *(Akt(i,j,k,itemp)-Akt_bak(itemp))
      &                   /tke(i,j,k,nstp))-FCK(i,k)-FCK(i,k+1)
-            BCP(i,k)=cff*(1.D0 +dt*gls_c2*wall_fac
+            BCP(i,k)=cff*(1. +dt*gls_c2*wall_fac
      &                   *gls(i,j,k,nstp)**(-gls_exp1)*cmu_fac2
      &                   *tke(i,j,k,nstp)**( tke_exp2)
-     &                   +dt*(1.D0-cff2)*gls_c3*strat2
+     &                   +dt*(1.-cff2)*gls_c3*strat2
      &                   *(Akt(i,j,k,itemp)-Akt_bak(itemp))
      &                   /tke(i,j,k,nstp))-FCP(i,k)-FCP(i,k+1)
           enddo
@@ -581,10 +581,10 @@
           tke(i,j,N,nnew)=max( gls_Kmin, cmu_fac4*0.5*
      &                              sqrt((sustr(i,j)+sustr(i+1,j))**2
      &                                  +(svstr(i,j)+svstr(i,j+1))**2)
-     &                                       *crgban_cw**(2.D0/3.D0) )
+     &                                       *crgban_cw**(2./3.) )
 # elif defined TKE_WAVEDISS
           tke(i,j,N,nnew)=max( gls_Kmin, cmu_fac4
-     &                       *(sz_alpha*wdsp(i,j)*rho0)**(2.D0/3.D0) )
+     &                       *(sz_alpha*wdsp(i,j)*rho0)**(2./3.) )
 # else
           tke(i,j,N,nnew)=max( gls_Kmin, cmu_fac3*0.5
      &                           *sqrt((sustr(i,j)+sustr(i+1,j))**2 
@@ -617,21 +617,21 @@
         do i=I_EXT_RANGE
 # if defined CRAIG_BANNER
           tke_fluxt(i)=dt*crgban_cw
-     &              *( 0.5D0*sqrt((sustr(i,j)+sustr(i+1,j))**2
+     &              *( 0.5*sqrt((sustr(i,j)+sustr(i+1,j))**2
      &                           +(svstr(i,j)+svstr(i,j+1))**2) )**1.5
 # elif defined TKE_WAVEDISS
           tke_fluxt(i)=dt*sz_alpha*wdsp(i,j)*rho0
 # else
-          tke_fluxt(i)=0.D0
+          tke_fluxt(i)=0.
 # endif
-          tke_fluxb(i)=0.D0
-          cff=1.D0/BCK(i,N-1)
+          tke_fluxb(i)=0.
+          cff=1./BCK(i,N-1)
           CF(i,N-1)=cff*FCK(i,N-1)
           tke(i,j,N-1,nnew)=cff*(tke(i,j,N-1,nnew)+tke_fluxt(i))
         enddo
         do i=Istr,Iend
           do k=N-2,1,-1
-            cff=1.D0/(BCK(i,k)-CF(i,k+1)*FCK(i,k+1))
+            cff=1./(BCK(i,k)-CF(i,k+1)*FCK(i,k+1))
             CF(i,k)=cff*FCK(i,k)
             tke(i,j,k,nnew)=cff*( tke(i,j,k,nnew)
      &                          -FCK(i,k+1)*tke(i,j,k+1,nnew) )
@@ -653,30 +653,30 @@
         do i=I_EXT_RANGE
           cff=0.5*(tke(i,j,N,nnew)+tke(i,j,N-1,nnew))
           gls_fluxt(i)=dt*gls_fac3*cff**gls_m*L_sft**(gls_n)
-     &                        *(Zos_eff(i)+0.5*Hz(i,j,N))**(gls_n-1.D0)
+     &                        *(Zos_eff(i)+0.5*Hz(i,j,N))**(gls_n-1.)
      &                                   *0.5*(Akp(i,j,N)+Akp(i,j,N-1))
 # ifdef CRAIG_BANNER
           gls_fluxt(i)=gls_fluxt(i)-dt*gls_m*(gls_cmu0**gls_p)
-     &                   *cff**(gls_m-1.D0)*((Zos_eff(i)+0.5*Hz(i,j,N))
+     &                   *cff**(gls_m-1.)*((Zos_eff(i)+0.5*Hz(i,j,N))
      &                      *L_sft)**gls_n*gls_sigk*ogls_sigp*crgban_cw
      &                          *(0.5*sqrt((sustr(i,j)+sustr(i+1,j))**2
      &                             +(svstr(i,j)+svstr(i,j+1))**2))**1.5
 # elif defined TKE_WAVEDISS
           gls_fluxt(i)=gls_fluxt(i)-dt*gls_m*(gls_cmu0**gls_p)
-     &                   *cff**(gls_m-1.D0)*((Zos_eff(i)+0.5*Hz(i,j,N))
+     &                   *cff**(gls_m-1.)*((Zos_eff(i)+0.5*Hz(i,j,N))
      &                                *L_sft)**gls_n*gls_sigk*ogls_sigp
      &                                         *sz_alpha*wdsp(i,j)*rho0
 # endif
           cff=0.5*(tke(i,j,0,nnew)+tke(i,j,1,nnew))
           gls_fluxb(i)=dt*gls_fac2*(cff**gls_m)*(0.5*Hz(i,j,1)+Zob_min)
-     &                       **(gls_n-1.D0)*0.5*(Akp(i,j,0)+Akp(i,j,1))
-          cff=1.D0/BCP(i,N-1)
+     &                       **(gls_n-1.)*0.5*(Akp(i,j,0)+Akp(i,j,1))
+          cff=1./BCP(i,N-1)
           CF(i,N-1)=cff*FCP(i,N-1)
           gls(i,j,N-1,nnew)=cff*(gls(i,j,N-1,nnew)-gls_fluxt(i))
         enddo
         do i=Istr,Iend
           do k=N-2,1,-1
-            cff=1.D0/(BCP(i,k)-CF(i,k+1)*FCP(i,k+1))
+            cff=1./(BCP(i,k)-CF(i,k+1)*FCP(i,k+1))
             CF(i,k)=cff*FCP(i,k)
             gls(i,j,k,nnew)=cff*(gls(i,j,k,nnew)
      &                          -FCP(i,k+1)*gls(i,j,k+1,nnew))
@@ -709,17 +709,17 @@
             if (gls_n.ge.0.0) then
               gls(i,j,k,nnew)=min( gls(i,j,k,nnew),gls_fac5
      &                               *tke(i,j,k,nnew)**(tke_exp4)
-     &            *(sqrt(max(0.D0,buoy2(i,j,k)))+eps)**(-gls_n) )
+     &            *(sqrt(max(0.,buoy2(i,j,k)))+eps)**(-gls_n) )
             else
               gls(i,j,k,nnew)=max( gls(i,j,k,nnew),gls_fac5
      &                               *tke(i,j,k,nnew)**(tke_exp4)
-     &            *(sqrt(max(0.D0,buoy2(i,j,k)))+eps)**(-gls_n) )
+     &            *(sqrt(max(0.,buoy2(i,j,k)))+eps)**(-gls_n) )
             endif
             Ls_unlmt=max( gls(i,j,k,nnew)**( gls_exp1)*cmu_fac1
      &                   *tke(i,j,k,nnew)**(-tke_exp1), eps )
             if (buoy2(i,j,k).gt.0.0) then
               Ls_lmt=min( Ls_unlmt, sqrt(0.56*tke(i,j,k,nnew)
-     &                           /(max(0.D0,buoy2(i,j,k))+eps)) )
+     &                           /(max(0.,buoy2(i,j,k))+eps)) )
             else
               Ls_lmt=Ls_unlmt
             endif
@@ -733,9 +733,9 @@
 !  momentum (Sm).
 !
             Gh=min(gls_Gh0,-buoy2(i,j,k)*Ls_lmt*Ls_lmt
-     &                         /(2.D0*tke(i,j,k,nnew)))
+     &                         /(2.*tke(i,j,k,nnew)))
             Gh=min(Gh,Gh-(Gh-gls_Ghcri)**2
-     &                    /(Gh+gls_Gh0-2.D0*gls_Ghcri))
+     &                    /(Gh+gls_Gh0-2.*gls_Ghcri))
             Gh=max(Gh,gls_Ghmin)
 # if defined CANUTO_A || defined CANUTO_B
 !
@@ -744,7 +744,7 @@
             Gm=(gls_b0/gls_fac6-gls_b1*Gh+gls_b3*gls_fac6*(Gh**2))
      &                                /(gls_b2-gls_b4*gls_fac6*Gh)
             Gm=min( Gm, shear2(i,j,k)*Ls_lmt*Ls_lmt
-     &                                   /(2.D0*tke(i,j,k,nnew)) )
+     &                                   /(2.*tke(i,j,k,nnew)) )
 !
 !  Compute stability functions
 !
@@ -753,21 +753,21 @@
      &                                  +gls_b5*gls_fac6**2*Gm*Gm
             Sm=(gls_s0-gls_s1*gls_fac6*Gh+gls_s2*gls_fac6*Gm)/cff
             Sh=(gls_s4-gls_s5*gls_fac6*Gh+gls_s6*gls_fac6*Gm)/cff
-            Sm=max(Sm,0.D0)
-            Sh=max(Sh,0.D0)
+            Sm=max(Sm,0.)
+            Sh=max(Sh,0.)
 !
 !  Relate Canuto stability to ROMS notation
 !
             Sm=Sm*sqrt2/gls_cmu0**3
             Sh=Sh*sqrt2/gls_cmu0**3
 # elif defined KANTHA_CLAYSON
-            cff=1.D0-my_Sh2*Gh
+            cff=1.-my_Sh2*Gh
             Sh=my_Sh1/cff
-            Sm=(my_B1pm1o3+my_Sm4*Sh*Gh)/(1.D0-my_Sm2*Gh)
+            Sm=(my_B1pm1o3+my_Sm4*Sh*Gh)/(1.-my_Sm2*Gh)
 # else  /* Galperin */
-            cff=1.D0-my_Sh2*Gh
+            cff=1.-my_Sh2*Gh
             Sh=my_Sh1/cff
-            Sm=(my_Sm3+Sh*Gh*my_Sm4)/(1.D0-my_Sm2*Gh)
+            Sm=(my_Sm3+Sh*Gh*my_Sm4)/(1.-my_Sm2*Gh)
 # endif
 !
 !  Compute vertical mixing (m2/s) coefficients of momentum and
@@ -793,9 +793,9 @@
 !
             Pprod=gls_c1*shear2(i,j,k)*Akv(i,j,k)
             cff=cmu_fac2*tke(i,j,k,nnew)**(1.5+tke_exp1)
-     &                   *gls(i,j,k,nnew)**(-1.D0/gls_n)
-            cff2=min(Pprod/cff, 1.D0)
-            sig_eff=cff2*gls_sigp+(1.D0-cff2)*gls_sigp_cb
+     &                   *gls(i,j,k,nnew)**(-1./gls_n)
+            cff2=min(Pprod/cff, 1.)
+            sig_eff=cff2*gls_sigp+(1.-cff2)*gls_sigp_cb
             Akp(i,j,k)=Akp_bak+Sm*ql/sig_eff
 # else
             Akp(i,j,k)=Akp_bak+Sm*ql*ogls_sigp
@@ -882,12 +882,12 @@
 !  Background eddy viscosity for TKE and GLS (must move to read_inp.F).
 !-----------------------------------------------------------------------
 !
-      Akt_bak(itemp)=1.D-6
+      Akt_bak(itemp)=1.E-6
 # ifdef SALINITY
-      Akt_bak(isalt)=5.D-6
+      Akt_bak(isalt)=5.E-6
 # endif
-      Akk_bak=1.D-6
-      Akp_bak=1.D-6
+      Akk_bak=1.E-6
+      Akp_bak=1.E-6
       gls_diff2=1.0    ! horizontal diffusion coefficient [m2/s]
 !
 !-----------------------------------------------------------------------
@@ -915,57 +915,57 @@
 !
 
 # ifdef GLS_KEPSILON
-      gls_p = 3.0D0        ! Stability exponent
-      gls_m = 1.5D0        ! TKE exponent
-      gls_n = -1.0D0       ! Turbulent length scale exponent
-      gls_Kmin = 7.6D-6    ! Min. specific turbulent kinetic energy
-      gls_Pmin = 1.0D-12   ! Min. dissipation
-      gls_cmu0 = 0.5477D0  ! Stability coefficient
-      gls_c1 = 1.44D0      ! Shear production coefficient
-      gls_c2 = 1.92D0      ! Dissipation coefficient
-      gls_c3m = -0.4D0     ! Buoyancy production coefficient (minus)
-      gls_c3p = 1.0D0      ! Buoyancy production coefficient (plus)
-      gls_sigk = 1.0D0     ! Const. Schmidt number for TKE Kv
-      gls_sigp = 1.3D0     ! Const. Schmidt num. statistical field
+      gls_p = 3.0        ! Stability exponent
+      gls_m = 1.5        ! TKE exponent
+      gls_n = -1.0       ! Turbulent length scale exponent
+      gls_Kmin = 7.E-6   ! Min. specific turbulent kinetic energy
+      gls_Pmin = 1.E-12  ! Min. dissipation
+      gls_cmu0 = 0.5477  ! Stability coefficient
+      gls_c1 = 1.44      ! Shear production coefficient
+      gls_c2 = 1.92      ! Dissipation coefficient
+      gls_c3m = -0.4     ! Buoyancy production coefficient (minus)
+      gls_c3p = 1.0      ! Buoyancy production coefficient (plus)
+      gls_sigk = 1.0     ! Const. Schmidt number for TKE Kv
+      gls_sigp = 1.3     ! Const. Schmidt num. statistical field
 # elif defined GLS_KKL
-      gls_p = 0.0D0        ! a.k.a. Mellor-Yamada Level 2.5
-      gls_m = 1.0D0
-      gls_n = 1.0D0
-      gls_Kmin = 5.0D-6
-      gls_Pmin = 6.0D-6
-      gls_cmu0 = 0.5544D0
-      gls_c1 = 0.9D0
-      gls_c2 = 0.52D0
-      gls_c3m = 2.5D0
-      gls_c3p = 1.0D0
-      gls_sigk = 1.96D0
-      gls_sigp = 1.96D0
+      gls_p = 0.0        ! a.k.a. Mellor-Yamada Level 2.5
+      gls_m = 1.0
+      gls_n = 1.0
+      gls_Kmin = 5.E-6
+      gls_Pmin = 6.E-6
+      gls_cmu0 = 0.5544
+      gls_c1 = 0.9
+      gls_c2 = 0.52
+      gls_c3m = 2.5
+      gls_c3p = 1.0
+      gls_sigk = 1.96
+      gls_sigp = 1.96
 # elif defined GLS_KOMEGA
-      gls_p =-1.0D0
-      gls_m = 0.5D0
-      gls_n =-1.0D0
-      gls_Kmin = 7.6D-6
-      gls_Pmin = 1.0D-12
-      gls_cmu0 = 0.5477D0
-      gls_c1 = 0.555D0
-      gls_c2 = 0.833D0
-      gls_c3m = -0.6D0
-      gls_c3p = 1.0D0
-      gls_sigk = 2.0D0
-      gls_sigp = 2.0D0
+      gls_p =-1.0
+      gls_m = 0.5
+      gls_n =-1.0
+      gls_Kmin = 7.E-6
+      gls_Pmin = 1.E-12
+      gls_cmu0 = 0.5477
+      gls_c1 = 0.555
+      gls_c2 = 0.833
+      gls_c3m = -0.6
+      gls_c3p = 1.0
+      gls_sigk = 2.0
+      gls_sigp = 2.0
 # elif defined GLS_GEN
-      gls_p = 2.0D0
-      gls_m = 1.0D0
-      gls_n =-0.67D0
-      gls_Kmin = 1.0D-8
-      gls_Pmin = 1.0D-8
-      gls_cmu0 = 0.5544D0
-      gls_c1 = 1.0D0
-      gls_c2 = 1.22D0
-      gls_c3m = 0.1D0
-      gls_c3p = 1.0D0
-      gls_sigk = 0.8D0
-      gls_sigp = 1.07D0
+      gls_p = 2.0
+      gls_m = 1.0
+      gls_n =-0.67
+      gls_Kmin = 1.E-8
+      gls_Pmin = 1.E-8
+      gls_cmu0 = 0.5544
+      gls_c1 = 1.0
+      gls_c2 = 1.22
+      gls_c3m = 0.1
+      gls_c3p = 1.0
+      gls_sigk = 0.8
+      gls_sigp = 1.07
 # else
       write(*,*) 'CPP configuration error: gls_mixing.F'
 # endif
@@ -1018,10 +1018,10 @@
 !------------------------------------------------------------------------------
 !
       Zos=0.01
-      charnok_alpha = 1400.0D0
-      zos_hsig_alpha = 0.5D0
-      sz_alpha = 0.25D0
-      crgban_cw = 100.0D0
+      charnok_alpha = 1400.
+      zos_hsig_alpha = 0.5
+      sz_alpha = 0.25
+      crgban_cw = 100.
 !
 !-----------------------------------------------------------------------
 !  Mellor-Yamada (1982) Level 2.5 vertical mixing variables.

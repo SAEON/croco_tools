@@ -156,6 +156,7 @@
 #undef  TS_VADV_SPLINES   /* splines vertical advection */
 #define TS_VADV_AKIMA     /* 4th-order Akima vertical advection */
 #undef  TS_VADV_C2        /* 2nd-order centered vertical advection */
+#undef  TS_VADV_FCT       /* Flux correction of vertical advection */
 
 /*
    SPONGE:  

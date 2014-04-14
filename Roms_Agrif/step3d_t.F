@@ -25,14 +25,15 @@
 
       trd=omp_get_thread_num()
       call step3d_t_tile (Istr,Iend,Jstr,Jend,
-     &             A2d(1,1,trd), A2d(1,2,trd), A2d(1,3,trd),
-     &             A2d(1,4,trd), A2d(1,5,trd), A2d(1,6,trd),
-     &                           A2d(1,7,trd), A3d(1,1,trd))
+     &                    A2d(1,1,trd), A2d(1,2,trd), A2d(1,3,trd),
+     &                    A2d(1,4,trd), A2d(1,5,trd), A2d(1,6,trd),
+     &                    A2d(1,7,trd), A2d(1,8,trd), A2d(1,9,trd),
+     &                                                A3d(1,1,trd))
       return
       end
 
       subroutine step3d_t_tile (Istr,Iend,Jstr,Jend,
-     &                       FX,FE, WORK, FC,CF,BC,DC, swdk)
+     &                          FX,FE, WORK, FC,CF,BC,DC,EC,GC, swdk)
 
       implicit none
 # include "param.h"
@@ -61,9 +62,14 @@
      &     CF(PRIVATE_1D_SCRATCH_ARRAY,0:N),
      &     BC(PRIVATE_1D_SCRATCH_ARRAY,0:N),
      &     DC(PRIVATE_1D_SCRATCH_ARRAY,0:N),
+     &     EC(PRIVATE_1D_SCRATCH_ARRAY,0:N),
+     &     GC(PRIVATE_1D_SCRATCH_ARRAY,0:N),
      &     swdk(PRIVATE_2D_SCRATCH_ARRAY,0:N)
-      real gama,cff1,dRz,hbltmp,sig,dXmax,dEmax,
+      real cff1,cff2,gama,dRz,hbltmp,sig,dXmax,dEmax,
      &     dpth,smax,amax,amaxx
+# ifdef TS_VADV_FCT
+      real tmax,tmin,Ppos,Qpos,Pneg,Qneg,lmdmax
+# endif
       parameter (epsil=1.E-16)
 !
 #ifdef MASKING
@@ -562,13 +568,14 @@
             FC(i,N)=0.
             CF(i,0)=dt*pm(i,j)*pn(i,j)
           enddo
-# elif TS_VADV_C2
+
+# elif defined TS_VADV_C2
 !
 ! Compute vertical advective fluxes using 2th-order centered scheme
 !
           do k=1,N-1
             do i=Istr,Iend
-              FC(i,k)=0.5*W(i,j,k)*(t( i,j,k,3,itrc)
+              FC(i,k)=0.5*W(i,j,k)*(t(i,j,k  ,3,itrc)
      &                             +t(i,j,k+1,3,itrc))
             enddo
           enddo
@@ -577,6 +584,7 @@
             FC(i,N )=0.
             CF(i,0)=dt*pm(i,j)*pn(i,j)
           enddo
+
 # else
 !
 ! Compute vertical advective fluxes using 4th-order centered scheme
@@ -604,13 +612,21 @@
             CF(i,0)=dt*pm(i,j)*pn(i,j)
           enddo
 # endif
+
 !
-! Apply vertical advective fluxes.
+! Apply flux correction for monotonicity
+!
+#  ifdef TS_VADV_FCT
+#   include "FCT.h"          
+#  endif
+
+!
+! Apply vertical advective flux divergence
 !
           do k=1,N
             do i=Istr,Iend
               t(i,j,k,nnew,itrc)=t(i,j,k,nnew,itrc)-CF(i,0)*(FC(i,k)
-     &                                                    -FC(i,k-1))
+     &                                                      -FC(i,k-1))
             enddo
           enddo               !--> discard FC
 
@@ -1078,9 +1094,6 @@
 
       enddo   ! <-- itrc
 
-#else
-      subroutine step3d_t_empty
-#endif  /* SOLVE3D */
       return
       end
 !
@@ -1101,12 +1114,23 @@
 ! are computed. For stability, the upstream stencil combination, 
 ! identified by the sign of ua (u or v), is selected. 
 !
+! The scheme includes improvements from Borges et al., 2008 (WENO_Z), i.e.,
+! smoothness indicators of higher order (with new non-oscillatory weights) 
+! that provide a scheme with less dissipation, higher resolution and better 
+! monotonicity preservation than the classical WENO5. In the meantime, WENO_Z 
+! removes the need to tune parameter Eps for added dissipation (needed in the 
+! original scheme due to suboptimal performance on critical points). 
+! 
 ! References:
 !  Guang-Shan JIANG and Chi-Wang SHU, 1996: Efficient Implementation of 
 !  Weighted ENO Schemes. JOURNAL OF COMPUTATIONAL PHYSICS 126, 202–228.
 !
 !  Rong WANG and Raymond J. SPITERI, 2007: Linear instability of the 
 !  fifth-order WENO method, SIAM J. Numer. Anal., 45, 1871-1901.
+!
+!  Borges R., M. Carmona, B. Costa, W.S. Don, 2008: An improved weighted 
+!  essentially non-oscillatory scheme for hyperbolic conservation laws.
+!  Journal of Computational Physics 227 (2008) 3191–3211
 !
 !  Implementation: P. Marchesiello and J. Demange 2013
 !
@@ -1118,11 +1142,15 @@
       REAl    :: a0, a1, a2
       REAL    :: w0, w1, w2
       REAL    :: p0, p1, p2
-      REAL    :: Eps, cff1, cff2
+      REAL    :: Eps, cff1, cff2, T5
 
 ! Epsilon value for computing weigths 
+#  ifdef WENO_Z
+      Eps = 1.e-40
+#  else
 !  --> from 1.e-7 (smoother) to 1.e-5 (sharper)
       Eps = 1.e-6
+#  endif
 ! Weigths coefficients
       d0=1./10.
       d1=6./10.
@@ -1130,6 +1158,9 @@
 ! other coefficients
       cff1=13./12.
       cff2=1./6.
+
+#  define WENO_Z
+
 !
       if (ua .ge. 0.) then        ! Take upstream stencils for stability
 !
@@ -1142,10 +1173,18 @@
      &                        + 0.25*(q_im2 - q_i)**2
         IS2 = cff1*(q_im1 - 2.*q_i + q_ip1)**2
      &                        + 0.25*(3.*q_im1 - 4.*q_i + q_ip1)**2
+#  ifdef WENO_Z
 ! Non-normalized stencil weights
+! with parameter T5 of new smoothness indicator
+        T5 = abs(IS2-IS0);
+        a0  = d0*(1+T5/(Eps+IS0))
+        a1  = d1*(1+T5/(Eps+IS1))
+        a2  = d2*(1+T5/(Eps+IS2))
+#  else
         a0  = d0/(Eps+IS0)**2
         a1  = d1/(Eps+IS1)**2
         a2  = d2/(Eps+IS2)**2
+#  endif
 ! Normalized Weigths
         w0  = a0/(a0+a1+a2)
         w1  = a1/(a0+a1+a2)
@@ -1168,10 +1207,18 @@
      &                         + 0.25*(q_ip1-q_im1)**2
         IS2 = cff1*(q_i   - 2.*q_im1 + q_im2)**2
      &                         + 0.25*(3.*q_i -4.*q_im1 + q_im2)**2
+#  ifdef WENO_Z
 ! Non-normalized stencil weights
+! with parameter T5 of new smoothness indicator
+        T5 = abs(IS2-IS0);
+        a0  = d0*(1+T5/(Eps+IS0))
+        a1  = d1*(1+T5/(Eps+IS1))
+        a2  = d2*(1+T5/(Eps+IS2))
+#  else
         a0  = d0/(Eps+IS0)**2
         a1  = d1/(Eps+IS1)**2
         a2  = d2/(Eps+IS2)**2
+#  endif
 ! Normalized Weigths
         w0  = a0/(a0+a1+a2)
         w1  = a1/(a0+a1+a2)
@@ -1206,18 +1253,30 @@
       REAl    :: a0, a1
       REAL    :: w0, w1
       REAL    :: p0, p1 
-      REAL    :: Eps
+      REAL    :: Eps, d0,d1, T3
 !
 ! Epsilon value for computing weigths 
+#  ifdef WENO_Z
+      Eps = 1.e-40
+#  else
 !  --> from 1.e-7 (smoother) to 1.e-5 (sharper)
       Eps = 1.e-6
+#  endif
+      d0=1./3.
+      d1=2./3.
 !
       if (ua .ge. 0.) then        ! Take upstream stencils for stability
 
         IS0 = (q_im1-q_im2)**2
         IS1 = (q_im1-q_i)**2
+#  ifdef WENO_Z
+        T3 = abs(IS1-IS0);
+        a0  = d0*(1+T3/(Eps+IS0))
+        a1  = d1*(1+T3/(Eps+IS1))
+#  else
         a0  = 1./(3.*(Eps+IS0)**2)
         a1  = 2./(3.*(Eps+IS1)**2)
+#  endif
         w0  = a0/(a0+a1)
         w1  = a1/(a0+a1)
         p0  = 1./2.*(3.*q_im1-q_im2)
@@ -1229,8 +1288,14 @@
 
         IS0 = (q_i-q_ip1)**2
         IS1 = (q_im1-q_i)**2
+#  ifdef WENO_Z
+        T3 = abs(IS1-IS0);
+        a0  = d0*(1+T3/(Eps+IS0))
+        a1  = d1*(1+T3/(Eps+IS1))
+#  else
         a0  = 1./(3.*(Eps+IS0)**2)
         a1  = 2./(3.*(Eps+IS1)**2)
+#  endif
         w0  = a0/(a0+a1)
         w1  = a1/(a0+a1)
         p0  = 1./2.*(3.*q_i-q_ip1)
@@ -1242,4 +1307,13 @@
 
       return
       end
-# endif
+# endif /* WENO */
+!
+!======================================================================
+!
+#else
+      subroutine step3d_t_empty
+      return
+      end
+#endif  /* SOLVE3D */
+
