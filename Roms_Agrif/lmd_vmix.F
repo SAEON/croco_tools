@@ -41,8 +41,8 @@
       call  lmd_vmix_tile (Istr,Iend,Jstr,Jend,
      &                     A3d(1, 1,trd), A3d(1, 2,trd), A3d(1, 3,trd),
      &                                                   A3d(1, 4,trd))
-# if defined LMD_SKPP
-#  if defined LMD_SKPP2005
+# ifdef LMD_SKPP
+#  ifdef LMD_SKPP2005
       call lmd_skpp_tile  (Istr,Iend,Jstr,Jend, 
      &                     A3d(1, 1,trd), A3d(1, 2,trd), A3d(1, 3,trd),
      &                     A2d(1, 1,trd), A2d(1, 2,trd), A2d(1, 3,trd),
@@ -63,12 +63,20 @@
 # endif
 # if defined LMD_BKPP 
 C$OMP BARRIER
+#  ifdef LMD_BKPP2005
+      call lmd_bkpp_tile (Istr,Iend,Jstr,Jend,
+     &                    A3d(1, 1,trd), A3d(1, 2,trd), A3d(1, 3,trd),
+     &                    A2d(1, 5,trd), A2d(1, 6,trd), A2d(1, 7,trd),
+     &                    A2d(1, 8,trd), A2d(1, 9,trd), A2d(1,10,trd),
+     &                    A2d(1, 11,trd))
+#  else
       call lmd_bkpp_tile (Istr,Iend,Jstr,Jend,
      &                    A3d(1, 1,trd), A3d(1, 2,trd), A3d(1, 3,trd),
      &                    A2d(1, 5,trd), A2d(1, 6,trd), A2d(1, 7,trd),
      &                    A2d(1, 8,trd), A2d(1, 9,trd), A2d(1,10,trd),
      &                    A2d(1,12,trd), A2d(1,13,trd), A2d(1,14,trd), 
      &                    A2d(1,15,trd), A2d(1,16,trd), A3d(1, 4,trd))
+#  endif
 # endif
       call lmd_finalize_tile (Istr,Iend,Jstr,Jend, 
      &                    A3d(1, 1,trd), A3d(1, 2,trd), A3d(1, 3,trd))
