@@ -235,7 +235,7 @@
 # undef J_EXT_RANGE
       do j=Jstr,Jend
         do i=Istr,Iend
-          hbbl(i,j)=my_hbbl(i,j)
+          hbbl(i,j)=min(my_hbbl(i,j),z_w(i,j,N)-z_w(i,j,0))
           kbbl(i,j)=N
         enddo
       enddo
@@ -325,6 +325,7 @@
 # ifdef SALINITY
               Ks0=hbbl(i,j)*ws(i,j)*sig*(1.+sig*Gs)
 # endif
+
 # ifdef LMD_SKPP
 !
 ! If BBL reaches into SBL, take the sum (or max) of surface and bottom values 
@@ -335,13 +336,10 @@
               zsbl=z_w(i,j,N)-hbl(i,j)
 #  endif
               if (z_w(i,j,k).gt.zsbl) then
-                Kv0=Kv(i,j,k)+Kv0
-                Kt0=Kt(i,j,k)+Kt0
-                !Kv0=max(Kv0,Kv(i,j,k))
-                !Kt0=max(Kt0,Kt(i,j,k,itemp))
+                Kv0=max(Kv0,Kv(i,j,k))
+                Kt0=max(Kt0,Kt(i,j,k))
 #  ifdef SALINITY
-                Ks0=Ks(i,j,k)+Ks0
-                !Ks0=max(Ks0,Kt(i,j,k,isalt))
+                Ks0=max(Ks0,Ks(i,j,k))
 #  endif
               endif
 # endif /* LMD_SKPP */

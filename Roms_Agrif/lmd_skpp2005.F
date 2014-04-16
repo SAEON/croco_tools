@@ -212,98 +212,98 @@
       enddo
 #  undef wrk1
 #  undef wrk2
-        do j=J_EXT_RANGE
-          do i=I_EXT_RANGE
-            swr_frac(i,j,N)=1.
-          enddo
+      do j=J_EXT_RANGE
+        do i=I_EXT_RANGE
+          swr_frac(i,j,N)=1.
         enddo
+      enddo
 
 !== END ugly piece of code
 !---------------------------------------------------------------     
 
 !======================================================================
-        do j=J_EXT_RANGE
+      do j=J_EXT_RANGE
 !======================================================================                                       
-          do i=I_EXT_RANGE
-            my_hbl(i,j)  = hbls(i,j,tind)
-            my_kbl(i)    = 0
-            FC(i,N)      = 0.
-            Cr(i,N)      = 0. 
-            Cr(i,0)      = 0.
-          enddo
+        do i=I_EXT_RANGE
+          my_hbl(i,j)  = hbls(i,j,tind)
+          my_kbl(i)    = 0
+          FC(i,N)      = 0.
+          Cr(i,N)      = 0. 
+          Cr(i,0)      = 0.
+        enddo
 #  define du wrk1
 #  define dv wrk2 
-          do k=1,N-1
-           do i=I_EXT_RANGE
-            cff=1./(Hz(i,j,k)+Hz(i,j,k+1))
-            du(i,k)=cff*( u(i,j,k+1,tind)+u(i+1,j,k+1,tind)
-     &                   -u(i,j,k  ,tind)-u(i+1,j,k  ,tind))
-            dv(i,k)=cff*( v(i,j,k+1,tind)+v(i,j+1,k+1,tind)
-     &                   -v(i,j,k  ,tind)-v(i,j+1,k  ,tind))
-           enddo
-          enddo
-          do i=I_EXT_RANGE
-             du(i,N)=du(i,N-1)
-             dv(i,N)=dv(i,N-1)
-             du(i,0)=du(i,  1)
-             dv(i,0)=dv(i,  1)
-          enddo
+        do k=1,N-1
+         do i=I_EXT_RANGE
+          cff=1./(Hz(i,j,k)+Hz(i,j,k+1))
+          du(i,k)=cff*( u(i,j,k+1,tind)+u(i+1,j,k+1,tind)
+     &                 -u(i,j,k  ,tind)-u(i+1,j,k  ,tind))
+          dv(i,k)=cff*( v(i,j,k+1,tind)+v(i,j+1,k+1,tind)
+     &                 -v(i,j,k  ,tind)-v(i,j+1,k  ,tind))
+         enddo
+        enddo
+        do i=I_EXT_RANGE
+          du(i,N)=du(i,N-1)
+          dv(i,N)=dv(i,N-1)
+          du(i,0)=du(i,  1)
+          dv(i,0)=dv(i,  1)
+        enddo
 
-          do k=N,1,-1
-            do i=I_EXT_RANGE
-              zscale = z_w(i,j,N)-z_w(i,j,k-1)
-              Kern   = zscale/(zscale+epssfc*my_hbl(i,j))
-              Bfsfc  = Bo(i,j) +Bosol(i,j)*(1.-swr_frac(i,j,k-1)) 
+        do k=N,1,-1
+          do i=I_EXT_RANGE
+            zscale = z_w(i,j,N)-z_w(i,j,k-1)
+            Kern   = zscale/(zscale+epssfc*my_hbl(i,j))
+            Bfsfc  = Bo(i,j) +Bosol(i,j)*(1.-swr_frac(i,j,k-1)) 
 #include "lmd_wscale_ws_only.h" 
 !===================================================
 !++  harmonic averaging to compute bvf at rho points
 !===================================================
-              cff=bvf(i,j,k)*bvf(i,j,k-1)
-              if (cff.gt.0.D0) then
-                cff=cff/(bvf(i,j,k)+bvf(i,j,k-1))
-              else
-                cff=0.D0
-              endif
+            cff=bvf(i,j,k)*bvf(i,j,k-1)
+            if (cff.gt.0.D0) then
+              cff=cff/(bvf(i,j,k)+bvf(i,j,k-1))
+            else
+              cff=0.D0
+            endif
 !=======================
 !++ Compute the Integral
 !=======================
-              FC(i,k-1)=FC(i,k) + Kern*Hz(i,j,k)*
-     &         ( 0.375*( du(i,k)**2 + du(i,k-1)**2
-     &                 + dv(i,k)**2 + dv(i,k-1)**2 )
-     &         + 0.25 *( du(i,k-1)*du(i,k)
-     &                 + dv(i,k-1)*dv(i,k) )
-     &         - Ri_inv*( cff + 
-     &                0.25*(bvf(i,j,k)+bvf(i,j,k-1)) )
-     &         - C_Ek*f(i,j)*f(i,j) )
+            FC(i,k-1)=FC(i,k) + Kern*Hz(i,j,k)*
+     &       ( 0.375*( du(i,k)**2 + du(i,k-1)**2
+     &               + dv(i,k)**2 + dv(i,k-1)**2 )
+     &       + 0.25 *( du(i,k-1)*du(i,k)
+     &               + dv(i,k-1)*dv(i,k) )
+     &       - Ri_inv*( cff + 
+     &              0.25*(bvf(i,j,k)+bvf(i,j,k-1)) )
+     &       - C_Ek*f(i,j)*f(i,j) )
 
-              Vtsq=Vtc*ws*sqrt(max(0., bvf(i,j,k-1)))
+            Vtsq=Vtc*ws*sqrt(max(0., bvf(i,j,k-1)))
 
-              Cr(i,k-1)=FC(i,k-1) +Vtsq
-              if (my_kbl(i).eq.0 .and. Cr(i,k-1).lt.0.) 
+            Cr(i,k-1)=FC(i,k-1) +Vtsq
+            if (my_kbl(i).eq.0 .and. Cr(i,k-1).lt.0.) 
      &                          my_kbl(i)=k
-           enddo
-         enddo
+          enddo
+        enddo
 #  undef dv
 #  undef du
 !===================================
 !++ Linear interpolation to find hbl
 !===================================
-      do i=I_EXT_RANGE
+        do i=I_EXT_RANGE
 
-        if (my_kbl(i).gt.0) then
-          k=my_kbl(i)
-          my_hbl(i,j)=z_w(i,j,N)-( z_w(i,j,k-1)*Cr(i,k)
-     &                            -z_w(i,j,k)*Cr(i,k-1)
-     &                            )/(Cr(i,k)-Cr(i,k-1))
-        else
-          my_hbl(i,j)=z_w(i,j,N)-z_w(i,j,0)+eps
-        endif
+          if (my_kbl(i).gt.0) then
+            k=my_kbl(i)
+            my_hbl(i,j)=z_w(i,j,N)-( z_w(i,j,k-1)*Cr(i,k)
+     &                              -z_w(i,j,k)*Cr(i,k-1)
+     &                              )/(Cr(i,k)-Cr(i,k-1))
+          else
+            my_hbl(i,j)=z_w(i,j,N)-z_w(i,j,0)
+          endif
 #  ifdef MASKING
           my_hbl(i,j)=my_hbl(i,j)*rmask(i,j)
 #  endif
-       enddo
+        enddo
 !======================================================================
-       enddo  !<-- terminate j-loop
+      enddo  !<-- terminate j-loop
 !======================================================================  
 
 
@@ -331,6 +331,7 @@
         enddo
         do k=N-1,1,-1       ! find new boundary layer index "kbl".
           do i=istr,iend
+            my_hbl(i,j)=min(my_hbl(i,j),z_w(i,j,N)-z_w(i,j,0))
             if (z_w(i,j,k) .gt. z_w(i,j,N)-my_hbl(i,j)) kbl(i,j)=k
           enddo
         enddo

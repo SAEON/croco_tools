@@ -393,6 +393,7 @@
           hbl(i,j)=(1-cff)*my_hbl(i,j)+
      &              0.25*(wrk1(i,j)  +wrk1(i+1,j)
      &                   +wrk1(i,j+1)+wrk1(i+1,j+1))
+          hbl=min(hbl(i,j),z_w(i,j,N)-z_w(i,j,0))
 #   ifdef MASKING
           hbl(i,j)=hbl(i,j)*rmask(i,j)
 #   endif
