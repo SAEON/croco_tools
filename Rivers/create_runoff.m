@@ -70,7 +70,7 @@ nw{'runoff_direction'}.long_name = ncchar('direction/sense of the runoff (by lin
 
 nw{'Qbar'} = ncdouble('n_qbar','qbar_time');
 nw{'Qbar'}.long_name = ncchar('runoff discharge');
-nw{'Qbar'}.units = ncchar('m3.-1');
+nw{'Qbar'}.units = ncchar('m3.s-1');
 
 if psource_ts
     nw{'temp_src'} = ncdouble('n_qbar','qbar_time');

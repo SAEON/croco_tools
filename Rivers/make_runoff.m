@@ -60,11 +60,30 @@ end
 [latriv,lonriv,my_flow,myrivername,rivernumber]=runoff_glob_extract(grdname,global_clim_rivername);
 
 if rivernumber == 0  %at least a river
-% Create a "fictive" runoff forcing file, with no river
-disp(['Create a "fictive" runoff forcing file, with no river'])
+disp(['Create a "fictive" runoff forcing file :  river with no discharge'])
 create_runoff(rivname,grdname,title_name,...
               qbar_time,qbar_cycle, ...
-              ' ',0,0,dir,psource_ts,makebio)
+              'fictiveriver_@nest',1,18,1,psource_ts,makebio)      
+my_flow=0;
+nw=netcdf(rivname,'w');
+disp(['Write in runoff file'])
+nw{'Qbar'}(:) = my_flow;
+if psource_ts==1
+    nw{'temp_src'}(:) = my_temp_src;
+    nw{'salt_src'}(:) = my_salt_src;
+    if makebio
+      nw{'NO3_src'}(:) = my_no3_src;
+    end
+end  
+close(nw)
+
+disp([' '])
+disp(['Line to enter in the roms.in file in the psource_ncfile section :'])
+disp(['-----------------------------------------------------------------'])
+disp(['psource_ncfile:   Nsrc  Isrc  Jsrc  Dsrc qbardir  Lsrc  Tsrc   runoff file name'])
+disp(['                           ROMS_FILES/roms_runoff.nc(.#nestlevel)'])
+disp(['                 ',num2str(0)'])          
+
 %    
 else
 latriv=latriv';
@@ -313,7 +332,7 @@ disp([' '])
 disp(['Line to enter in the roms.in file in the psource_ncfile section :'])
 disp(['-----------------------------------------------------------------'])
 disp(['psource_ncfile:   Nsrc  Isrc  Jsrc  Dsrc qbardir  Lsrc  Tsrc   runoff file name'])
-disp(['                           ROMS_FILES/roms_runoff.nc'])
+disp(['                           ROMS_FILES/roms_runoff.nc(.#nestlevel)'])
 disp(['                 ',num2str(number_rivertoprocess)'])
 for k=1:number_rivertoprocess
   if psource_ts==1
