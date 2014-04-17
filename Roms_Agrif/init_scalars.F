@@ -1312,7 +1312,8 @@ CR      write(stdout,'(1x,A,I3)') 'indxSVSTR =',indxSVSTR
       vname(7,indxSVSTR)='                                        '   
       
 #ifdef SOLVE3D     
-# if !defined BULK_FLUX
+!# if !defined BULK_FLUX
+# ifdef QCORRECTION
 CR      write(stdout,'(1x,A,I3)') 'indxSST =',indxSST
       vname(1,indxSST)='SST                                       '
       vname(2,indxSST)='sea surface temperature                   '

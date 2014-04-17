@@ -125,7 +125,7 @@
 ! If BULK_FLUX is defined, radsw copies to srflx in get_bulk
 !
 #  ifndef BULK_FLUX
-#   if defined LMD_SKPP || defined LMD_BKPP
+#   if defined LMD_SKPP || defined LMD_BKPP || defined GLS_MIXING
 #    ifndef ANA_SRFLUX
       call get_srflux
 #    endif
@@ -254,7 +254,7 @@
 ! Kinematic surface solar shortwave radiation flux [degC m/s].
 !---------------------------------------------------------------
 !
-#   if defined LMD_SKPP || defined LMD_BKPP
+#   if defined LMD_SKPP || defined LMD_BKPP || defined GLS_MIXING
 #    ifdef ANA_SRFLUX
       call ana_srflux_tile (Istr,Iend,Jstr,Jend)
 #    else
@@ -273,12 +273,17 @@
 #   else
       call set_sst_tile (Istr,Iend,Jstr,Jend)
 #   endif
+#   ifndef BULK_FLUX
+!
+! If BULK_FLUX is defined, correction is done in bulk_flux
+!
       do j=JstrR,JendR
         do i=IstrR,IendR
           stflx(i,j,itemp)=stflx(i,j,itemp)+
      &                  dqdt(i,j)*(t(i,j,N,nrhs,itemp)-sst(i,j))
         enddo
       enddo
+#   endif
 #  endif /* QCORRECTION */
 !
 !---------------------------------------------------------------
@@ -311,19 +316,24 @@
 #   else
       call set_sss_tile (Istr,Iend,Jstr,Jend) 
 #   endif
+#   ifndef BULK_FLUX
+!
+! If BULK_FLUX is defined, correction is done in bulk_flux
+!
       do j=JstrR,JendR
         do i=IstrR,IendR
           stflx(i,j,isalt)=stflx(i,j,isalt)+
      &                  dqdt(i,j)*(t(i,j,N,nrhs,isalt)-sss(i,j))
         enddo
       enddo
+#   endif
 #  endif /* SFLX_CORR */
 !
 !---------------------------------------------------------------
 ! Diurnal modulation of surface solar shortwave radiation flux
 !---------------------------------------------------------------
 !
-#  if defined LMD_SKPP || defined LMD_BKPP
+#  if defined LMD_SKPP || defined LMD_BKPP || defined GLS_MIXING
 #   ifdef ANA_DIURNAL_SW
       call ana_diurnal_sw_tile (Istr,Iend,Jstr,Jend)
 #   endif

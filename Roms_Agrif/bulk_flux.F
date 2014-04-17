@@ -42,7 +42,7 @@
 # include "scalars.h"
       integer i,j, Istr,Iend,Jstr,Jend,
      &        imin,imax,jmin,jmax
-      real SST,SSS,evap
+      real Tsea,Ssea,evap
       real cpair,rho0i,cpi,cpaircpi
       real patm
       real ew,rw,qw,es,rs,ra,qa
@@ -114,21 +114,21 @@
         do i=imin,imax
 !
 !
-! surface temperature and salinity
+!  surface temperature and salinity
 !
 # ifdef SST_SKIN 
-          SST=sst_skin(i,j)
+          Tsea=sst_skin(i,j)
 # else
-          SST=t(i,j,N,nrhs,itemp)
+          Tsea=t(i,j,N,nrhs,itemp)
 # endif
-          SSS=t(i,j,N,nrhs,isalt)
+          Ssea=t(i,j,N,nrhs,isalt)
 !
 !  calc saturation vapor pressure (ew) at surface of water.
 !  use formula of Buck.
 !  note:  change due to salinity correction is about 1.7%.
 !  simplify for constant atm pressure (1013 mb).
-          ew=6.1121*exp(17.502*SST/(240.97 + SST))*1.0042
-     &             *(1.0 - 5.37E-4*SSS)
+          ew=6.1121*exp(17.502*Tsea/(240.97 + Tsea))*1.0042
+     &             *(1.0 - 5.37E-4*Ssea)
 !
 !  calc saturation mixing ratio at surface of water (rw).
           rw=0.62197*ew/(patm-ew)
@@ -165,7 +165,7 @@
 !  match the values computed by coamps fairly well.
 !
           wspd0=max(0.1,wspd(i,j))
-          szero=(SST-tair(i,j))/(wspd0*wspd0)
+          szero=(Tsea-tair(i,j))/(wspd0*wspd0)
           ss=szero*abs(szero)/(abs(szero)+0.01)
           ss=max(-3.3,ss)
           if (ss .le. 0.0) then
@@ -179,7 +179,7 @@
 !  calc latent heat of evaporation in Joules/kg.
 !  the formula is  htevap = 597.8-0.573*T(degC) cal/g.
 !  to convert from cal/g to Joules/kg, muliply by 4186.8.
-          htevap=2.5029e6-2.40e3*SST
+          htevap=2.5029e6-2.40e3*Tsea
 !
 !  calc evaporation rate (m/s).
 !  calc latent and sensible heat fluxes (deg_C-m/s).
@@ -188,7 +188,7 @@
 !
           evap=a*ce*(qw-qa)
           hflat=-evap*htevap*cpi
-          hfsen=-a*cs*(SST-tair(i,j))*cpaircpi
+          hfsen=-a*cs*(Tsea-tair(i,j))*cpaircpi
 !
 !  Compute total surface heat flux.
 !
@@ -197,10 +197,10 @@
      &                    -radlw(i,j)
 # else
      &                    +emiss_lw*(radlw(i,j)
-     &                    -rho0i*cpi*sigmaSB*(SST+CtoK)**4)
+     &                    -rho0i*cpi*sigmaSB*(Tsea+CtoK)**4)
 # endif
 # ifdef BULK_EP
-          stflx(i,j,isalt)=(evap-prate(i,j))*SSS
+          stflx(i,j,isalt)=(evap-prate(i,j))*Ssea
 # endif
 # ifdef MASKING
           stflx(i,j,itemp)=stflx(i,j,itemp)*rmask(i,j)
@@ -222,7 +222,7 @@
           shflx_rlw(i,j)=-radlw(i,j)
 # else
           shflx_rlw(i,j)=emiss_lw*(radlw(i,j)
-     &                   -rho0i*cpi*sigmaSB*(SST+CtoK)**4)
+     &                   -rho0i*cpi*sigmaSB*(Tsea+CtoK)**4)
 # endif
 !
 !  Save for the calc of wind stress
@@ -231,10 +231,44 @@
           cer(i,j)=ce
         enddo
       enddo
-      
-# ifdef BULK_SM_UPDATE
 !
+!---------------------------------------------------------------
+! Flux correction to surface net heat flux.
+!---------------------------------------------------------------
+!
+# ifdef QCORRECTION
+      do j=jmin,jmax
+        do i=imin,imax
+          stflx(i,j,itemp)=stflx(i,j,itemp)+
+     &                  dqdt(i,j)*(t(i,j,N,nrhs,itemp)-sst(i,j))
+#  ifdef WET_DRY
+     &                                           *rmask_wet(i,j)
+#  endif
+        enddo
+      enddo
+# endif /* QCORRECTION */
+!
+!--------------------------------------------------------------
+! Flux correction to surface salt flux.
+!--------------------------------------------------------------
+!
+# ifdef SFLX_CORR
+      do j=jmin,jmax
+        do i=imin,imax
+          stflx(i,j,isalt)=stflx(i,j,isalt)+
+     &                  dqdt(i,j)*(t(i,j,N,nrhs,isalt)-sss(i,j))
+#  ifdef WET_DRY
+     &                                           *rmask_wet(i,j)
+#  endif
+        enddo
+      enddo
+# endif /* SFLX_CORR */
+!
+!---------------------------------------------------------------
 !  Compute kinematic, surface wind stress (m2/s2).
+!---------------------------------------------------------------
+!
+# ifdef BULK_SM_UPDATE
 !
 !     sustr = rhoA/rhoW * Cd * wspd*uwnd  --> u point
 !
@@ -243,12 +277,12 @@
           a=0.5*(aer(i-1,j)+aer(i,j))
           ce=0.5*(cer(i-1,j)+cer(i,j))
           sustr(i,j)=a*ce*uwnd(i,j)
-# ifdef MASKING
+#  ifdef MASKING
           sustr(i,j)=sustr(i,j)*umask(i,j)
-# endif
-# ifdef WET_DRY
+#  endif
+#  ifdef WET_DRY
           sustr(i,j)=sustr(i,j)*umask_wet(i,j)
-# endif
+#  endif
         enddo
       enddo
 !
@@ -259,12 +293,12 @@
           a=0.5*(aer(i,j-1)+aer(i,j))
           ce=0.5*(cer(i,j-1)+cer(i,j))
           svstr(i,j)=a*ce*vwnd(i,j)
-# ifdef MASKING
+#  ifdef MASKING
           svstr(i,j)=svstr(i,j)*vmask(i,j)
-# endif
-# ifdef WET_DRY
+#  endif
+#  ifdef WET_DRY
           svstr(i,j)=svstr(i,j)*vmask_wet(i,j)
-# endif
+#  endif
         enddo
       enddo
 # endif
@@ -273,10 +307,6 @@
       end
 
 #else
-!================================================== Hernan G. Arango ===
-!  Copyright (c) 2002-2007 The ROMS/TOMS Group                         !
-!    Licensed under a MIT/X style license                              !
-!    See License_ROMS.txt                                              !
 !=======================================================================
 !                                                                      !
 !  This routine computes the bulk parameterization of surface wind     !
@@ -307,7 +337,7 @@
 !  Modified by Kate Hedstrom for COARE version 3.0 (03/2005).          !
 !  Modified by Jim Edson to correct specific hunidities.               !
 !                                                                      !
-!  Reference:                                                          !
+!  References:                                                          !
 !                                                                      !
 !     Fairall et al., 2003: J. Climate, 16, 571-591.                   !
 !                                                                      !
@@ -730,10 +760,44 @@
           shflx_rlw(i,j)=hflw
         enddo
       enddo
-
-# ifdef BULK_SM_UPDATE
 !
+!---------------------------------------------------------------
+! Flux correction to surface net heat flux.
+!---------------------------------------------------------------
+!
+# ifdef QCORRECTION
+      do j=jmin,jmax
+        do i=imin,imax
+          stflx(i,j,itemp)=stflx(i,j,itemp)+
+     &                  dqdt(i,j)*(t(i,j,N,nrhs,itemp)-sst(i,j))
+#  ifdef WET_DRY
+     &                                           *rmask_wet(i,j)
+#  endif
+        enddo
+      enddo
+# endif /* QCORRECTION */
+!
+!--------------------------------------------------------------
+! Flux correction to surface salt flux.
+!--------------------------------------------------------------
+!
+# ifdef SFLX_CORR
+      do j=jmin,jmax
+        do i=imin,imax
+          stflx(i,j,isalt)=stflx(i,j,isalt)+
+     &                  dqdt(i,j)*(t(i,j,N,nrhs,isalt)-sss(i,j))
+#  ifdef WET_DRY
+     &                                           *rmask_wet(i,j)
+#  endif
+        enddo
+      enddo
+# endif /* SFLX_CORR */
+!
+!--------------------------------------------------------------
 !  Compute kinematic, surface wind stress (m2/s2).
+!--------------------------------------------------------------
+!
+# ifdef BULK_SM_UPDATE
 !
 !     sustr = rhoA/rhoW * Cd * wspd*uwnd  --> u point
 !
@@ -742,12 +806,12 @@
           a=0.5*(aer(i-1,j)+aer(i,j))
           cff=0.5*(cer(i-1,j)+cer(i,j))
           sustr(i,j)=a*cff*uwnd(i,j)
-# ifdef MASKING
+#  ifdef MASKING
           sustr(i,j)=sustr(i,j)*umask(i,j)
-# endif
-# ifdef WET_DRY
+#  endif
+#  ifdef WET_DRY
           sustr(i,j)=sustr(i,j)*umask_wet(i,j)
-# endif
+#  endif
         enddo
       enddo
 !
@@ -758,12 +822,12 @@
           a=0.5*(aer(i,j-1)+aer(i,j))
           cff=0.5*(cer(i,j-1)+cer(i,j))
           svstr(i,j)=a*cff*vwnd(i,j)
-# ifdef MASKING
+#  ifdef MASKING
           svstr(i,j)=svstr(i,j)*vmask(i,j)
-# endif
-# ifdef WET_DRY
+#  endif
+#  ifdef WET_DRY
           svstr(i,j)=svstr(i,j)*vmask_wet(i,j)
-# endif
+#  endif
         enddo
       enddo
 # endif

@@ -188,10 +188,6 @@
     Bulk flux option
 */
 #ifdef BULK_FLUX
-# ifdef BULK_EP
-#  undef QCORRECTION
-#  undef SFLX_CORR
-# endif
 # ifdef BULK_SMFLUX     
 #  define BULK_SM_UPDATE /* ON: Compute wind stress via bulk_flux */
 # endif
