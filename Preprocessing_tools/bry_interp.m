@@ -34,6 +34,10 @@ function bry_interp(zbryname,lon,lat,seas_datafile,ann_datafile,...
 %  Updated    5-Oct-2006 by Pierrick Penven (test for negative salinity)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Infos
+% dl=1.6;  %-> good for WOA2009
+% dl=2.0;   %-> good for CARS2009  
+%
 [M,L]=size(lon);
 %
 % set the default value if no data
@@ -83,7 +87,9 @@ lat=lat(jroms,iroms);
 %
 % get a data subgrid (dependant of the OBC used)
 %
-dl=1.6;
+dl=1.6;  %-> good for WOA2009
+%dl=2.0;   %-> good for CARS2009  
+
 lonmin=min(min(lon))-dl;
 lonmax=max(max(lon))+dl;
 latmin=min(min(lat))-dl;
