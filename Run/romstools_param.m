@@ -257,7 +257,7 @@ woapisces_dir=[DATADIR,'WOAPISCES/'];
 %
 climato_dir=cars2009_dir;
 %
-% Surface chlorophyll seasonal climatology (WOA2001 or SeaWifs)
+% Surface chlorophyll seasonal climatology (SeaWifs)
 %
 chla_dir=[DATADIR,'SeaWifs/'];
 %
@@ -280,8 +280,14 @@ woa_cycle=360;        % repetition of a typical year of 360 days
 qbar_time=[15:30:365]; 
 qbar_cycle=360;
 %
-psource_ts=0;  % tracer runoff concentration flag
-%
+%   Tracer runoff concentration processing flag
+%     pource_ts = 1  => Runoff tracers concentration processing is activated. 
+%                       It needs the climatology file created with make_clim.m
+%     psource_ts = 0 => No Runoff tracers concentration processing 
+%                       It reads analytical values in roms.in 
+%                       or use default value defined in analytical.F
+psource_ts=0; 
+%  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % 5 - Parameters for tidal forcing
