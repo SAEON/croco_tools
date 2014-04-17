@@ -10,7 +10,7 @@ function [] = add_tidal_data(tidename,gname,fname,Ntides,tidalrank,...
 %   Ntides : number of tidala waves
 %   tidal rank : order from the rank in the TPXO file
 %   year,month,day,hr,minute,second : start time of simulation
-%                                     for nodal correcton
+%                                     for nodal correction
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
