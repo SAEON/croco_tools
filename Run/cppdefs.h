@@ -123,7 +123,6 @@
 # undef  GLS_MIXING
 # ifdef LMD_MIXING
 #  define LMD_SKPP
-#  define LMD_SKPP2005
 #  define LMD_BKPP
 #  define LMD_RIMIX
 #  define LMD_CONVEC
@@ -429,10 +428,15 @@
 #  define NONLIN_EOS
 #  define SPLIT_EOS
 #  define LMD_MIXING
-#  define LMD_SKPP
-#  define LMD_BKPP
-#  define LMD_RIMIX
-#  define LMD_CONVEC
+#  ifdef LMD_MIXING
+#   define LMD_SKPP
+#   define LMD_BKPP
+#   define LMD_RIMIX
+#   define LMD_CONVEC
+#  else
+#   define GLS_MIXING
+#   define GLS_KKL
+#  endif
 # endif
 
 #elif defined INTERNAL
