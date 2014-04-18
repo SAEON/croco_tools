@@ -80,7 +80,7 @@
      &   lmd_nu0c=0.1,    ! convective adjustment for viscosity
                           !              and diffusivity [m^2/s].
                           !
-     &   Ricr=0.3,        ! Critical bulk Richardson number (0.3).
+     &   Ricr=0.45,       ! Critical bulk Richardson number (0.3).
                           !
      &   Ri_inv=1./Ricr,  !
                           !
@@ -244,7 +244,6 @@
           k=kbbl(i,j)
           z_bl=z_w(i,j,0)+hbbl(i,j)
           if (z_bl.lt.z_w(i,j,k-1)) k=k-1
-          zscale=hbbl(i,j)
           cff=1./(z_w(i,j,k)-z_w(i,j,k-1))
           cff_up=cff*(z_bl -z_w(i,j,k-1))
           cff_dn=cff*(z_w(i,j,k)   -z_bl)
@@ -330,14 +329,14 @@
               Ks(i,j,k)=Ks0
 #  endif
 
-            else  !<-- k > kbbl(i,j)
-
 # ifdef LMD_CONVEC
 !
 !-----------------------------------------------------------------
 !  Add convective adjustment
 !-----------------------------------------------------------------
 !
+            else  !<-- k > kbbl(i,j)
+
                if (bvf(i,j,k).lt.0.) then
 #  ifdef LMD_SKPP
 

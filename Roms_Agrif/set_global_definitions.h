@@ -184,6 +184,7 @@
 # define PSOURCE
 # define ANA_PSOURCE
 #endif
+
 /*
     Bulk flux option
 */
@@ -206,20 +207,30 @@
 /*
     Wave Current Interaction
 */
-# ifdef MRL_WCI
-#  ifdef WAVE_STREAMING
-#   define  WAVE_BODY_STREAMING
-#  endif
-#  undef  WAVE_SFC_BREAK
-#  define WAVE_BREAK_CT93
-#  undef  WAVE_BREAK_TG86
-#  undef  WAVE_BREAK_TG86A
-#  if !defined WKB_WWAVE && !defined ANA_WWAVE
-#   define WAVE_OFFLINE
-#   undef  WAVE_ROLLER
-#  endif
+#ifdef MRL_WCI
+# ifdef WAVE_STREAMING
+#  define  WAVE_BODY_STREAMING
 # endif
-# define ANA_BRY_WKB
+# undef  WAVE_SFC_BREAK
+# define WAVE_BREAK_CT93
+# undef  WAVE_BREAK_TG86
+# undef  WAVE_BREAK_TG86A
+# if !defined WKB_WWAVE && !defined ANA_WWAVE
+#  define WAVE_OFFLINE
+#  undef  WAVE_ROLLER
+# endif
+#endif
+#define ANA_BRY_WKB
+
+/*
+    KPP options: IF-less KPP --> KPP2005
+*/
+#ifdef LMD_SKPP
+# define LMD_SKPP2005
+#endif
+#ifdef LMD_BKPP
+# undef LMD_BKPP2005
+#endif
 
 /*
 !           Applications:
@@ -229,38 +240,38 @@
 !---------------------------------
 */
 /*   Biology options    */
-# ifdef PISCES
-#  undef DIURNAL_INPUT_SFLX    /* Under Development */
-#  define key_trc_pisces
-#  define key_passivetrc
-#  ifdef DIAGNOSTICS_BIO
-#    define key_trc_diaadd
-#    define key_trc_dia3d
-#  endif
+#ifdef PISCES
+# undef DIURNAL_INPUT_SFLX    /* Under Development */
+# define key_trc_pisces
+# define key_passivetrc
+# ifdef DIAGNOSTICS_BIO
+#   define key_trc_diaadd
+#   define key_trc_dia3d
 # endif
-#  ifdef BIO_BioEBUS
-#   undef VAR_CHL_C             /* Under Development */
-#   undef CARBON                /* Under Development */
-#   undef HYDROGEN_SULFIDE      /* Under Development */
-#  endif
+#endif
+# ifdef BIO_BioEBUS
+#  undef VAR_CHL_C             /* Under Development */
+#  undef CARBON                /* Under Development */
+#  undef HYDROGEN_SULFIDE      /* Under Development */
+# endif
 /*   Sediment dynamics model     */
-# ifdef SEDIMENT
-#  define LINEAR_CONTINUATION
-#  undef  NEUMANN
-# endif
+#ifdef SEDIMENT
+# define LINEAR_CONTINUATION
+# undef  NEUMANN
+#endif
 /*   Bottom Boundary Layer model     */
-# ifdef BBL
-#  ifdef SEDIMENT
-#   undef  ANA_BSEDIM
-#  else
-#   define ANA_BSEDIM
-#  endif
-#  undef  Z0_BL
-#  ifdef Z0_BL
-#   define Z0_RIP
-#  endif
-#  undef  Z0_BIO
+#ifdef BBL
+# ifdef SEDIMENT
+#  undef  ANA_BSEDIM
+# else
+#  define ANA_BSEDIM
 # endif
+# undef  Z0_BL
+# ifdef Z0_BL
+#  define Z0_RIP
+# endif
+# undef  Z0_BIO
+#endif
 
 /*
 ======================================================================

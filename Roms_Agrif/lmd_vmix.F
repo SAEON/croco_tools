@@ -140,7 +140,7 @@ C$OMP BARRIER
 # undef LMD_NUW_GARGETT
 # ifdef LMD_RIMIX
 #  define RI_HSMOOTH
-#  undef  RI_VSMOOTH
+#  define RI_VSMOOTH
       real Ri, ratio, dudz,dvdz,shear2
 # endif
 # ifdef LMD_BOTEK
