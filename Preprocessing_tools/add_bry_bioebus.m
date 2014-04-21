@@ -1,7 +1,7 @@
 function add_bry_bioebus(bryname,obc,time_no3,time_o2,time_zoo,time_phyto,time_chla,cycle,clobber);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                 
-% function add_bry_bgc(bryname,grdname,title,obc...            
+% function add_bry_bioebus(bryname,grdname,title,obc...            
 %                         theta_s,theta_b,hc,N,...                
 %                         time,cycle,clobber);                    
 %                                                                 
@@ -47,7 +47,7 @@ function add_bry_bioebus(bryname,obc,time_no3,time_o2,time_zoo,time_phyto,time_c
 %  Gildas Cambon, IRD, 2013 : Add oxygen processing               %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp(' ')
-disp([' Adding BGC data into file : ',bryname])
+disp([' Adding BIOEBUS BGC data into file : ',bryname])
 disp(' ')
 %
 %  Redefine the boundary file

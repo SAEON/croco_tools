@@ -47,7 +47,7 @@ function add_bry_npzd(bryname,obc,time_no3,time_o2,time_zoo,time_phyto,time_chla
 %  Gildas Cambon, IRD, 2013 : Add oxygen processing               %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp(' ')
-disp([' Adding BGC data into file : ',bryname])
+disp([' Adding NPZD BGC data into file : ',bryname])
 disp(' ')
 %
 %  Redefine the boundary file
@@ -55,7 +55,7 @@ disp(' ')
 nc = netcdf(bryname,clobber);
 result = redef(nc);
 %
-%  Create dimenPHYTOons
+%  Create dimensions
 %
 nc('no3_time')  = length(time_no3);
 nc('o2_time')  = length(time_o2);

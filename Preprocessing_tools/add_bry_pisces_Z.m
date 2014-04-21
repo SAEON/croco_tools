@@ -44,13 +44,6 @@ nc('fer_time') = length(time);
 nc('o2_time') = length(time);
 nc('one') = 1;
 %
-% PISCES
-nc{'ZNO3'} = ncdouble('ZNO3') ;
-nc{'ZNO3'}.long_name = ncchar('Depth');
-nc{'ZNO3'}.long_name = 'Depth';
-nc{'ZNO3'}.units = ncchar('m');
-nc{'ZNO3'}.units = 'm';
-%
 if obc(1)==1
 %
 %   Southern boundary

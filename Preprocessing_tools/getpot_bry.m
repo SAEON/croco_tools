@@ -77,7 +77,7 @@ for l=1:tlen
 %  disp([' Time index: ',num2str(l),' of total: ',num2str(tlen)])
   T=squeeze(nc{['temp',suffix]}(l,:,:));
   S=squeeze(nc{['salt',suffix]}(l,:,:));
-  nc{'temp'}(l,:,:)=theta(S,T,P);
+  nc{['temp',suffix]}(l,:,:)=theta(S,T,P);
 end
 close(nc);
 return

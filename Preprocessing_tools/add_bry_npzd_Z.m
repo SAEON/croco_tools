@@ -1,7 +1,7 @@
 function add_bry_npzd_Z(zbryname,obc,Z,time_no3,time_o2,time_zoo,time_phyto,time_chla,cycle,clobber);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                 %
-%   function add_bry_pisces_Z(zbryname,obc,...                    %
+%   function add_bry_npzd_Z(zbryname,obc,...                    %
 %                             Z,time,cycle,clobber);              %
 %                                                                 %
 %   This function create the header of a Netcdf climatology       %
@@ -21,7 +21,7 @@ function add_bry_npzd_Z(zbryname,obc,Z,time_no3,time_o2,time_zoo,time_phyto,time
 %  Olivier Aumont the master, IRD, 2006.                          %
 %  Patricio Marchesiello, chief, IRD, 2007.                       %
 %  Christophe Eugene Raoul Menkes, the slave, IRD, 2007.          %
-%  Gildas cambon, IRD/LEGOS, 2013 : Add O2 processing             %
+%  Gildas Cambon, IRD/LEGOS, 2013 : Add O2 processing             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp(' ')
 disp([' Adding NPZD data into file : ',zbryname])
@@ -40,19 +40,6 @@ nc('chla_time') = length(time_chla);
 nc('zoo_time') = length(time_zoo);
 nc('phyto_time') = length(time_phyto);
 nc('one') = 1;
-%
-% BGC
-nc{'ZNO3'} = ncdouble('ZNO3') ;
-nc{'ZNO3'}.long_name = ncchar('Depth');
-nc{'ZNO3'}.long_name = 'Depth';
-nc{'ZNO3'}.units = ncchar('m');
-nc{'ZNO3'}.units = 'm';
-%
-nc{'ZO2'} = ncdouble('ZO2') ;
-nc{'ZO2'}.long_name = ncchar('Depth');
-nc{'ZO2'}.long_name = 'Depth';
-nc{'ZO2'}.units = ncchar('m');
-nc{'ZO2'}.units = 'm';
 %
 %  Create variables and attributes
 %

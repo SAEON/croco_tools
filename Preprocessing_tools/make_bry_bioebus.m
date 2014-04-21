@@ -49,7 +49,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%  WARNING !!!!!! THIS ASSUMES THAT THE TIME FOR PISCES INITIAL.
+%  WARNING !!!!!! THIS ASSUMES THAT THE TIME FOR BIOEBUS INITIAL.
 %  IS THE SAME AS THE CLIM T AND S. ELSE, CHANGE THE PROGRAM
 %
 clear all
@@ -102,17 +102,17 @@ result=close(nc);
 nc=netcdf(no3_seas_data);
 time_no3=nc{'T'}(:);
 close(nc)
-time_no3=(time_no3-1)*30;
+time_no3=(time_no3)*30;
 %
 nc=netcdf(o2_seas_data);
 time_o2=nc{'T'}(:);
 close(nc)
-time_o2=(time_o2-1)*30;
+time_o2=(time_o2)*30;
 %
 nc=netcdf(chla_seas_data);
 time_chla=nc{'T'}(:);
 close(nc)
-time_chla=(time_chla-1)*30;
+time_chla=(time_chla)*30;
 time_zoo=time_chla;
 time_phyto=time_chla;
 cycle=360;

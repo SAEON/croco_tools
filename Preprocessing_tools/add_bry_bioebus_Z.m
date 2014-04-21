@@ -21,7 +21,7 @@ function add_bry_bioebus_Z(zbryname,obc,Z,time_no3,time_o2,time_zoo,time_phyto,t
 %  Olivier Aumont the master, IRD, 2006.                          %
 %  Patricio Marchesiello, chief, IRD, 2007.                       %
 %  Christophe Eugene Raoul Menkes, the slave, IRD, 2007.          %
-%  Gildas cambon, IRD/LEGOS, 2013 : Add O2 processing             %
+%  Gildas Cambon, IRD/LEGOS, 2013 : Add O2 processing             %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp(' ')
 disp([' Adding BioEBUS data into file : ',zbryname])
@@ -42,19 +42,6 @@ nc('lzoo_time') = length(time_zoo);
 nc('sphyto_time') = length(time_phyto);
 nc('lphyto_time') = length(time_phyto);
 nc('one') = 1;
-%
-% BGC
-nc{'ZNO3'} = ncdouble('ZNO3') ;
-nc{'ZNO3'}.long_name = ncchar('Depth');
-nc{'ZNO3'}.long_name = 'Depth';
-nc{'ZNO3'}.units = ncchar('m');
-nc{'ZNO3'}.units = 'm';
-%
-nc{'ZO2'} = ncdouble('ZO2') ;
-nc{'ZO2'}.long_name = ncchar('Depth');
-nc{'ZO2'}.long_name = 'Depth';
-nc{'ZO2'}.units = ncchar('m');
-nc{'ZO2'}.units = 'm';
 %
 %  Create variables and attributes
 %
@@ -93,7 +80,6 @@ nc{'lphyto_time'}.units = ncchar('day');
 nc{'lphyto_time'}.units = 'day';
 nc{'lphyto_time'}.cycle_length = cycle;%
 %
-
 nc{'szoo_time'} = ncdouble('szoo_time') ;
 nc{'szoo_time'}.long_name = ncchar('time for SZOO climatology');
 nc{'szoo_time'}.long_name = 'time for SZOO climatology';
