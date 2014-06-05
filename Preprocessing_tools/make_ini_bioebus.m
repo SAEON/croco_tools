@@ -45,68 +45,56 @@ O2min=0.01;
 %
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
-disp('')
-disp('====================================================== ')
-disp('=> You need the roms_oa.nc file created by make_clim.m ')
-disp('=> with makeoa=1 from romstools_param.m                ')
-disp('====================================================== ')
-
 %
-% Add variables in the files
+% Initial file
 %
-add_no3(oaname,clmname,ininame,grdname,no3_seas_data,...
-        no3_ann_data,woa_cycle,makeoa,makeclim)
-
-add_o2(oaname,clmname,ininame,grdname,o2_seas_data,...
-        o2_ann_data,woa_cycle,makeoa,makeclim)
-	
+add_ini_bioebus(ininame,'write');
 %
-% Horizontal extrapolation
+% Horizontal and vertical interp/extrapolations
 %
-if (makeoa)
-
-  ext_tracers(oaname,no3_seas_data,no3_ann_data,...
-              'nitrate','NO3','no3_time','Zno3',Roa);
-
-  ext_tracers(oaname,o2_seas_data,o2_ann_data,...
-              'oxygen','O2','o2_time','Zo2',Roa);
-
-end
+disp(' ')
+disp(' Interpolations / extrapolations')
+% NO3
+disp(' ')
+disp('Nitrate ...')
+ext_tracers_ini(ininame,grdname,no3_seas_data,no3_ann_data,...
+    'nitrate','NO3','r',tini); 
+% O2
+disp(' ')
+disp(' Oxygen ...')
+ext_tracers_ini(ininame,grdname,o2_seas_data,o2_ann_data,...
+    'oxygen','O2','r',tini);
 %
-% Vertical interpolations 
+%  CHla
+disp(' ')
+disp(' CHla...')
+add_ini_chla(ininame,grdname,chla_seas_data,woa_cycle,Roa);
 %
-
-if (makeini)
-  disp(' Add initial conditions ')
-%
-%  O2		 
-  disp(' ')
-  disp(' O2...')
-  add_ini_o2(ininame,grdname,oaname,woa_cycle,O2min);
-%
-%  NO3		 
-  disp(' ')
-  disp(' NO3...')
-  add_ini_no3(ininame,grdname,oaname,woa_cycle,NO3min);
-%
-%  CHla		 
-  disp(' ')
-  disp(' CHla...')
-  add_ini_chla(ininame,grdname,chla_seas_data,woa_cycle,Roa);
-%
-%  Phyto		 
-  disp(' ')
-  disp(' SPhyto and LPhyto...')
-  add_ini_Sphyto_Lphyto(ininame);
+%  Phyto
+disp(' ')
+disp(' SPhyto and LPhyto...')
+add_ini_Sphyto_Lphyto(ininame);
 %
 %  Zoo
-  disp(' ')
-  disp(' SZoo and LZoo...')
-  add_ini_Szoo_Lzoo(ininame);
+disp(' ')
+disp(' SZoo and LZoo...')
+add_ini_Szoo_Lzoo(ininame);
 
-end
+%
+% Remove low values for oligotrophic areas
+%
+nc=netcdf(ininame,'write');
+NO3=nc{'NO3'}(:,:,:);
+NO3(NO3<NO3min)=NO3min;
+nc{'NO3'}(:,:,:)=NO3;
+close(nc)
 
-
+nc=netcdf(ininame,'write');
+O2=nc{'O2'}(:,:,:);
+O2(O2<O2min)=O2min;
+nc{'O2'}(:,:,:)=O2;
+close(nc)
+%
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
