@@ -72,7 +72,7 @@
      &                     v(i+1,j,k,nrhs)+v(i+1,j+1,k,nrhs)
      &                    -v(i-1,j,k,nrhs)-v(i-1,j+1,k,nrhs)) )**2)
             surf=om_r(i,j)*on_r(i,j)
-            visc3d_r(i,j,k)=horcon*surf*defrate+visc2_r(i,j)
+            visc3d_r(i,j,k)=horcon*surf*defrate
           enddo
         enddo
       enddo
