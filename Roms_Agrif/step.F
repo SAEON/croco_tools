@@ -377,7 +377,7 @@ C$OMP BARRIER
 # if defined UV_VIS2 || defined UV_VIS4
 #   if defined AGRIF
       if (.Not.Agrif_Root()) then
-         call uv3dpremix (tile)
+!         call uv3dpremix (tile)  !-- Quick fix for blocking on the child western boundary -- 2014/6/13
       endif
 #   endif
 # endif
