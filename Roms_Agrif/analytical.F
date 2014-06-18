@@ -468,6 +468,9 @@ C$    integer  trd, omp_get_thread_num
       do j=JstrR,JendR
         do i=IstrR,IendR
           srflx(i,j)=0.
+# ifdef DIURNAL_INPUT_SRFLX
+          srflxbio(i,j)=0.
+# endif /* DIURNAL_INPUT_SRFLX */
         enddo
       enddo
 # else

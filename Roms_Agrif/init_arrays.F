@@ -514,6 +514,9 @@ C$    integer omp_get_thread_num
           uwnd(i,j)=init
           vwnd(i,j)=init
 #  endif
+# ifdef DIURNAL_INPUT_SRFLX
+          radswbio (i,j)=init
+# endif
 
           tairg(i,j,1)=init
           rhumg (i,j,1)=init
@@ -533,6 +536,10 @@ C$    integer omp_get_thread_num
           uwndg(i,j,2)=init
           vwndg(i,j,2)=init
 #  endif
+# ifdef DIURNAL_INPUT_SRFLX
+          radswbiog (i,j,1)=init
+          radswbiog (i,j,2)=init
+# endif
           shflx_rsw(i,j)=init
           shflx_rlw(i,j)=init
           shflx_lat(i,j)=init
