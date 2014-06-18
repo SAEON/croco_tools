@@ -217,7 +217,6 @@ C
         END DO
 #    endif
 
-!
 #    if defined key_trc_dia3d
       DO jk=1,jpk
         DO jj=Jstr, Jend
