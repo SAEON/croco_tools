@@ -184,7 +184,7 @@ C
 
 #    if defined key_trc_dia3d
         bioFlux(ji,jj,jk,13) = grapoc2(ji,jj,jk)
-     &          *tmask(ji,jj,jk)*1e3*rfact2r/unass2
+     &          *tmask(ji,jj,jk)*1e3*rfact2r
 #    endif
 
           END DO
