@@ -843,7 +843,10 @@ C$    integer omp_get_thread_num
 #  endif
       do j=Jstr,Jend
         do i=Istr,Iend
-          zeta(i,j,tndx)=zeta(i,j,tndx)-mssh
+          zeta(i,j,tndx)=zeta(i,j,tndx)
+#  ifndef RVTK_DEBUG
+     &                          - mssh
+#  endif
         enddo
       enddo
 !
@@ -871,31 +874,57 @@ C$    integer omp_get_thread_num
      &                  A2d(1,3,0),A2d(1,4,0), FC,dZx,rx,dRx)
 
 #  define WORK rho1
-      WORK(PRIVATE_2D_SCRATCH_ARRAY,:)=rv(PRIVATE_2D_SCRATCH_ARRAY,:)
+      do k=1,N
+        do j=Jstr,Jend
+          do i=Istr,Iend
+            WORK(i,j,k)=rv(i,j,k)
+          enddo
+        enddo
+      enddo
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                        WORK(START_2D_ARRAY,1))
 #  endif
-      if (SOUTHERN_EDGE) then
-        WORK(:,0,:)=WORK(:,1,:)
-      endif
       if (NORTHERN_EDGE) then
-        WORK(:,Mm+1,:)=WORK(:,Mm,:)
+        do k=1,N
+          do i=Istr-1,Iend+1
+            WORK(i,Jend+1,k)=0.
+          enddo
+        enddo
       endif
-      rv(PRIVATE_2D_SCRATCH_ARRAY,:)=WORK(PRIVATE_2D_SCRATCH_ARRAY,:) 
+      do k=1,N
+        do j=Jstr-1,Jend+1
+          do i=Istr-1,Iend+1
+            rv(i,j,k)=WORK(i,j,k)
+          enddo
+        enddo
+      enddo
 !
-      WORK(PRIVATE_2D_SCRATCH_ARRAY,:)=ru(PRIVATE_2D_SCRATCH_ARRAY,:) 
+      do k=1,N
+        do j=Jstr,Jend
+          do i=Istr,Iend
+            WORK(i,j,k)=ru(i,j,k)
+          enddo
+        enddo
+      enddo
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r3d_tile (istr,iend,jstr,jend,
      &                        WORK(START_2D_ARRAY,1))
 #  endif
       if (SOUTHERN_EDGE) then
-        WORK(:,0,:)=0.
+        do k=1,N
+          do i=Istr-1,Iend+1
+            WORK(i,0,k)=0.
+          enddo
+        enddo
       endif
-      if (NORTHERN_EDGE) then
-        WORK(:,Mm+1,:)=0.
-      endif
-      ru(PRIVATE_2D_SCRATCH_ARRAY,:)=WORK(PRIVATE_2D_SCRATCH_ARRAY,:) 
+      do k=1,N
+        do j=Jstr-1,Jend+1
+          do i=Istr-1,Iend+1
+            ru(i,j,k)=WORK(i,j,k)
+          enddo
+        enddo
+      enddo
 #  undef WORK
 !
 ! --- Compute geostrophic u,v velocities ---
@@ -903,20 +932,22 @@ C$    integer omp_get_thread_num
       do k=1,N
         do j=Jstr,Jend
           do i=Istr,Iend
-            cff=0.5*(pm(i,j)+pm(i,j-1))
-     &             *(pn(i,j)+pn(i,j-1))
-     &            /(Hz(i,j,k)+Hz(i,j-1,k))/f(i,j)
-            u(i,j,k,tndx) = cff*rv(i,j,k)
+            cff=0.5*(pm(i-1,j)+pm(i,j))
+     &             *(pn(i-1,j)+pn(i,j))
+     &             /(Hz(i-1,j,k)+Hz(i,j,k))/f(i,j)
+            u(i,j,k,tndx) = 0.25*cff*
+     &            (rv(i,j,k)+rv(i,j+1,k)+rv(i-1,j,k)+rv(i-1,j+1,k))
           enddo
         enddo
       enddo
       do k=1,N
         do j=Jstr,Jend
           do i=Istr,Iend
-            cff=0.5*(pm(i,j)+pm(i-1,j))
-     &                *(pn(i,j)+pn(i-1,j))
-     &                /(Hz(i,j,k)+Hz(i-1,j,k))/f(i,j)
-            v(i,j,k,tndx) =-cff*ru(i,j,k)
+            cff=0.5*(pm(i,j)+pm(i,j-1))
+     &             *(pn(i,j)+pn(i,j-1))
+     &             /(Hz(i,j,k)+Hz(i,j-1,k))/f(i,j)
+            v(i,j,k,tndx) =-0.25*cff*
+     &            (ru(i,j,k)+ru(i+1,j,k)+ru(i,j-1,k)+ru(i+1,j-1,k))
           enddo
         enddo
       enddo
@@ -940,7 +971,7 @@ C$    integer omp_get_thread_num
         enddo
       enddo
 !
-! --- Compute barotropic u velocity ---
+! --- Compute barotropic v velocity ---
 !
       vbar(:,:,tndx)=0.
       do k=1,N
