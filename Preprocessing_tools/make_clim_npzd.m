@@ -45,8 +45,11 @@ O2min=0.01;
 %
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
-
-
+disp('')
+disp('====================================================== ')
+disp('=> You need the roms_oa.nc file created by make_clim.m ')
+disp('=> with makeoa=1 from romstools_param.m                ')
+disp('====================================================== ')
 %
 % Add variables in the files
 %
@@ -55,8 +58,6 @@ add_no3(oaname,clmname,ininame,grdname,no3_seas_data,...
 
 add_o2(oaname,clmname,ininame,grdname,o2_seas_data,...
         o2_ann_data,woa_cycle,makeoa,makeclim)
-
-	
 %
 % Horizontal extrapolation
 %

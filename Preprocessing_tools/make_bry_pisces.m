@@ -122,6 +122,10 @@ result=close(nc);
 if (makebry)
   disp(' ')
   disp(' Redefine the boundary file...')
+  disp('')
+  disp('======================================================== ')
+  disp('=> You need the roms_bry_Z.nc file created by make_bry.m ')
+  disp('======================================================== ')
   add_bry_pisces(bryname,obc,time,cycle,'write');
 end
 %

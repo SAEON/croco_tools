@@ -122,11 +122,10 @@ cycle=360;
 if (makebry)
   disp(' ')
   disp(' Redefine the boundary file...')
-  if  ~exist('vtransform')
-      vtransform=1; %Old Vtransform
-      disp([' NO VTRANSFORM parameter found'])
-      disp([' USE TRANSFORM default value vtransform = 1'])
-  end
+  disp('')
+  disp('======================================================== ')
+  disp('=> You need the roms_bry_Z.nc file created by make_bry.m ')
+  disp('======================================================== ')
   add_bry_bioebus(bryname,obc,time_no3,time_o2,time_zoo,time_phyto,time_chla,cycle,'write');
   
 end
