@@ -234,7 +234,7 @@
 #  define BIO_BioEBUS
                       /*   Biology options    */
 #  ifdef PISCES
-#  define DIURNAL_INPUT_SRFLX
+#   define DIURNAL_INPUT_SRFLX
 #   define key_trc_pisces
 #   define key_passivetrc
 #  endif
