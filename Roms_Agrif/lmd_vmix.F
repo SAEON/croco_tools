@@ -551,10 +551,10 @@ C$OMP BARRIER
 # endif
           enddo
 
-          Akv(i,j,N)       =2.*Kv(i,j,N-1)-Kv(i,j,N-2)
-          Akt(i,j,N,itemp) =2.*Kt(i,j,N-1)-Kt(i,j,N-2)
+          Akv(i,j,N)       =max(1.5*Kv(i,j,N-1)-0.5*Kv(i,j,N-2),0.)
+          Akt(i,j,N,itemp) =max(1.5*Kt(i,j,N-1)-0.5*Kt(i,j,N-2),0.)
 # ifdef SALINITY
-          Akt(i,j,N,isalt) =2.*Ks(i,j,N-1)-Ks(i,j,N-2)
+          Akt(i,j,N,isalt) =max(1.5*Ks(i,j,N-1)-0.5*Ks(i,j,N-2),0.)
 # endif
 !
 !------------------------------------------------
@@ -570,10 +570,10 @@ C$OMP BARRIER
 #  endif
           enddo
 # endif
-          Akv(i,j,0)       =2.*Akv(i,j,1)-Akv(i,j,2)
-          Akt(i,j,0,itemp) =2.*Akt(i,j,1,itemp)-Akt(i,j,2,itemp)
+          Akv(i,j,0)       =0.
+          Akt(i,j,0,itemp) =0.
 # ifdef SALINITY
-          Akt(i,j,0,isalt) =2.*Akt(i,j,1,isalt)-Akt(i,j,2,isalt)
+          Akt(i,j,0,isalt) =0.
 # endif
         enddo
       enddo
