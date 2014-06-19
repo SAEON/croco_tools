@@ -233,8 +233,8 @@
 #  undef  BIO_N2ChlPZD2
 #  define BIO_BioEBUS
                       /*   Biology options    */
-#  define DIURNAL_INPUT_SRFLX
 #  ifdef PISCES
+#  define DIURNAL_INPUT_SRFLX
 #   define key_trc_pisces
 #   define key_passivetrc
 #  endif
