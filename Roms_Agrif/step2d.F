@@ -28,7 +28,7 @@ C$    trd=omp_get_thread_num()
      &                    , A2d(1, 5,trd), A2d(1, 6,trd),A2d(1, 7,trd)
      &                    , A2d(1, 8,trd), A2d(1, 9,trd), A2d(1,10,trd)
      &                    , A2d(1,11,trd), A2d(1,12,trd), A2d(1,13,trd)
-#ifndef SOLVE3D
+#ifdef ADV2D_HIGH
      &                    , A2d(1,14,trd), A2d(1,15,trd)     
 #endif
      &                    )
@@ -38,7 +38,7 @@ C$    trd=omp_get_thread_num()
       subroutine step2D_FB_tile (istr,iend,jstr,jend, zeta_new,Dnew,
      &                           rubar,rvbar, urhs,vrhs, DUon,DVom,
      &                           Drhs, UFx,UFe,VFx,VFe
-#ifndef SOLVE3D
+#ifdef ADV2D_HIGH
      &                          ,wrk1,wrk2
 #endif
      &                          )
@@ -92,7 +92,7 @@ C$    trd=omp_get_thread_num()
       implicit none
 #include "param.h"
       integer Istr,Iend,Jstr,Jend, i,j, kbak, kold,
-#ifndef SOLVE3D
+#ifdef ADV2D_HIGH
 # ifdef MPI
      &        imin,jmin,
 # endif
@@ -115,7 +115,7 @@ C$    trd=omp_get_thread_num()
      &          UFe(PRIVATE_2D_SCRATCH_ARRAY),  DUnew,
      &          VFx(PRIVATE_2D_SCRATCH_ARRAY),  DVnew,
      &          VFe(PRIVATE_2D_SCRATCH_ARRAY),  gamma
-#ifndef SOLVE3D
+#ifdef ADV2D_HIGH
       real    wrk1(PRIVATE_2D_SCRATCH_ARRAY), curvX, cffE,
      &        wrk2(PRIVATE_2D_SCRATCH_ARRAY), cffX, curvE
        parameter (gamma = -0.25)
@@ -200,13 +200,13 @@ C$    trd=omp_get_thread_num()
         cff3= 0.281105
       endif
 !
-      do j=JstrV-2,Jend+2
+      do j=JstrV-2,Jend+1
         do i=IstrU-2,Iend+1
           Drhs(i,j)=h(i,j)+cff1*zeta(i,j,kstp)+cff2*zeta(i,j,kbak)
      &                                        +cff3*zeta(i,j,kold)
         enddo
       enddo
-      do j=JstrV-2,Jend+2
+      do j=Jstr-1,Jend+1
         do i=IstrU-1,Iend+1
           urhs(i,j)=cff1*ubar(i,j,kstp) +cff2*ubar(i,j,kbak)
      &                                  +cff3*ubar(i,j,kold)
@@ -220,8 +220,8 @@ C$    trd=omp_get_thread_num()
      &                                                              )
         enddo
       enddo
-      do j=JstrV-1,Jend+2
-        do i=IstrU-2,Iend+1
+      do j=JstrV-1,Jend+1
+        do i=Istr-1,Iend+1
           vrhs(i,j)=cff1*vbar(i,j,kstp) +cff2*vbar(i,j,kbak)
      &                                  +cff3*vbar(i,j,kold)
 #  if defined MRL_WCI && defined MASKING
@@ -541,9 +541,9 @@ C$OMP END MASTER
 ! computations near western and southern boundaries in non-periodic
 ! directions. 
 !
-
+!========================================================================
 #ifdef UV_ADV
-# ifdef SOLVE3D
+# ifndef ADV2D_HIGH
       do j=jstr,jend
         do i=istr-1,iend
           UFx(i,j)=0.25*(DUon(i,j)+DUon(i+1,j))
@@ -578,8 +578,13 @@ C$OMP END MASTER
         enddo
       enddo !--> discard UFx,VFe,UFe,VFx, DUon,DVom
 
-# else
-
+# else   
+! --------------------------------------------------------------
+!-->      cppkey : ADV2D_HIGH
+!-->      Experimental: June 2014
+!-->      We use QUIKEST spatial advection scheme as in 3D part,  
+!-->      no need explicit viscosity */ 
+! --------------------------------------------------------------
 #  define uxx wrk1
 #  define Huxx wrk2
 !
@@ -864,9 +869,9 @@ C$OMP END MASTER
      &                                   -VFe(i  ,j)+VFe(i,j-1)
           enddo
         enddo
-# endif /* SOLVE3D */
+# endif /* !ADV2D_HIGH */
 #endif /* UV_ADV */
-
+!========================================================================
 !
 !-----------------------------------------------------------------------
 ! Compute Coriolis (2D and 3D) term and advective curvilinear metric
