@@ -1259,10 +1259,10 @@ C$OMP CRITICAL (diag_cr_rgn)
               first_time=1
               write(*,'(5x,A,1x,A,3x,A,3x,A,2x,A)')
      &         'STEP','time[DAYS]','DIFF_ACTION','DIFF_WAVENUMBER'
-C$   &                                                      ,'trd'
+!C$   &                                                      ,'trd'
             endif
             write(check_line,'(2(1PE16.10,X),I3)') av_wac, av_wkn
-C$   &                                                   , proc(2)
+!C$   &                                                   , proc(2)
             ie=max_check_line
             do while (check_line(ie:ie).eq.' ' .and. ie.gt.0)
               ie=ie-1
