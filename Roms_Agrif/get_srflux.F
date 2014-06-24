@@ -47,7 +47,9 @@
           write(stdout,3) 'srf_time', frcname(1:lstr)
           goto 99                                         !--> ERROR
         endif
-
+!
+! srflx
+!
         lvar=lenstr(vname(1,indxShflx_rsw))
         ierr=nf_inq_varid (ncidfrc,vname(1,indxShflx_rsw)
      &                                               (1:lvar),srf_id)
@@ -65,6 +67,29 @@
           write(stdout,3) vname(1,indxShflx_rsw)(1:lvar),frcname(1:lstr)
           goto 99                                         !--> ERROR
         endif
+# ifdef DIURNAL_INPUT_SRFLX
+!
+! srflxbio : for PISCES daily averaged short-wave (solar) radiation )
+!
+        lvar=lenstr(vname(1,indxShflx_rswbio))
+        ierr=nf_inq_varid (ncidfrc,vname(1,indxShflx_rswbio)(1:lvar)
+     &                                              ,srfbio_id)
+        if (ierr .eq. nf_noerr) then
+          ierr=nf_inq_varndims (ncidfrc, srfbio_id, i)
+          if (ierr. eq. nf_noerr) then
+            if (i.gt.1) then
+              lsrfbiogrd=1
+            else
+              lsrfbiogrd=0
+            endif
+          endif
+        endif
+        if (ierr .ne. nf_noerr) then
+          write(stdout,3) vname(1,indxShflx_rswbio)(1:lvar),
+     &                                               frcname(1:lstr)
+          goto 99                                         !--> ERROR
+        endif
+# endif /* DIURNAL_INPUT_SRFLX */
 !
 ! Determine whether there is cycling to reuse the input data
 ! and find cycling period "srf_cycle", set initial cycling
@@ -105,7 +130,9 @@
         endif
         srf_time(i)=cff*day2sec+srf_cycle*srf_ncycle
         if (srf_time(itsrf).eq.-1.E+20) srf_time(itsrf)=srf_time(i)
-
+!
+! srflx
+!
         if (lsrfgrd.eq.1) then
           ierr=nf_fread (srflxg(START_2D_ARRAY,i), ncidfrc, srf_id,
      &                                             srf_rec, r2dvar)
@@ -116,7 +143,25 @@
         if (ierr .ne. nf_noerr) then
           write(stdout,6) 'srflux', srf_rec
           goto 99                                         !--> ERROR
-        endif      
+        endif 
+
+# ifdef DIURNAL_INPUT_SRFLX
+!
+! srflxbio (=radswbio with bulk) for PISCES daily averaged short-wave (solar) radiation)
+!     
+        if (lsrfbiogrd.eq.1) then
+          ierr=nf_fread (srflxbiog(START_2D_ARRAY,i), ncidfrc,
+     &                        srfbio_id, srfbio_rec,  r2dvar)
+        else
+          ierr=nf_get_var1_FTYPE (ncidfrc,srfbio_id,
+     &                            srfbio_rec, srflxbiop(i))
+        endif
+        if (ierr .ne. nf_noerr) then
+          write(stdout,6) 'srflux_bio', srfbio_rec
+          goto 99                                         !--> ERROR
+        endif
+# endif /* DIURNAL_INPUT_SRFLX */
+
        itsrf=i
        MPI_master_only write(stdout,'(6x,A,1x,A,1x,g12.4,1x,I4)') 
      &           'GET_SRFLUX --',
@@ -164,6 +209,9 @@
 # include "grid.h"
       integer Istr,Iend,Jstr,Jend, i,j, it1,it2
       real cff, cff1, cff2, srf
+#ifdef DIURNAL_INPUT_SRFLX
+      real srfbio
+#endif
 !
 # include "compute_extended_bounds.h"
 !
@@ -192,13 +240,22 @@
             do j=JstrR,JendR
               do i=IstrR,IendR
                 srflx(i,j)=srf_scale*srflxg(i,j,itsrf)
+# ifdef DIURNAL_INPUT_SRFLX
+                srflxbio(i,j)=srf_scale*srflxbiog(i,j,itsrf)
+# endif
               enddo
             enddo
           else
             srf=srf_scale*srflxp(itsrf)
+# ifdef DIURNAL_INPUT_SRFLX
+            srflxbio=srf_scale*srflxbiop(itsrf)
+# endif
             do j=JstrR,JendR
               do i=IstrR,IendR
                 srflx(i,j)=srf
+# ifdef DIURNAL_INPUT_SRFLX
+                srflxbio(i,j)=srfbio
+# endif
               enddo
             enddo
           endif
@@ -218,13 +275,24 @@
           do j=JstrR,JendR
             do i=IstrR,IendR
               srflx(i,j)=cff1*srflxg(i,j,it1)+cff2*srflxg(i,j,it2)
+# ifdef DIURNAL_INPUT_SRFLX
+              srflxbio(i,j)=cff1*srflxbiog(i,j,it1)
+     &                                    +cff2*srflxbiog(i,j,it2)
+# endif
             enddo
           enddo
         else
           srf=cff1*srflxp(it1)+cff2*srflxp(it2)
+# ifdef DIURNAL_INPUT_SRFLX
+          srfbio=cff1*srflxbiop(it1)
+     &                        +cff2*srflxbiop(it2)
+# endif
             do j=JstrR,JendR
               do i=IstrR,IendR
               srflx(i,j)=srf
+# ifdef DIURNAL_INPUT_SRFLX
+              srflxbio(i,j)=srfbio
+# endif
             enddo
           enddo
         endif

@@ -1037,7 +1037,19 @@ CR      write(stdout,'(1x,A,I3)') 'indxShflx_rsw =',indxShflx_rsw
       vname(5,indxShflx_rsw)='                                    '
       vname(6,indxShflx_rsw)='lat_rho lon_rho                     '
       vname(7,indxShflx_rsw)='                                    '
-
+# ifdef DIURNAL_INPUT_SRFLX
+#  ifdef BULK_FLUX
+      vname(1,indxShflx_rswbio)='radswbio                         '
+#  else
+      vname(1,indxShflx_rswbio)='swradbio                         '
+#  endif 
+      vname(2,indxShflx_rswbio)='Short-wave surface radiation     '
+      vname(3,indxShflx_rswbio)='Watts meter-2                    '
+      vname(4,indxShflx_rswbio)='                                 '
+      vname(5,indxShflx_rswbio)='                                 '
+      vname(6,indxShflx_rswbio)='lat_rho lon_rho                  '
+      vname(7,indxShflx_rswbio)='                                 '
+# endif /* DIURNAL_INPUT_SRFLX  */
 # ifdef BULK_FLUX
 CR      write(stdout,'(1x,A,I3)') 'indxShflx_rlw =',indxShflx_rlw
       vname(1,indxShflx_rlw)='shflx_rlw                           '
@@ -1684,16 +1696,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxVWND =',indxVWND
       vname(6,indxVWND)='lat_v lon_v                              '
       vname(7,indxVWND)='                                         '  
 
-# ifdef DIURNAL_INPUT_SRFLX
-CR      write(stdout,'(1x,A,I3)') 'indxRADSWBIO =',indxRADSWBIO
-      vname(1,indxRADSWBIO)='radswbio                                '
-      vname(2,indxRADSWBIO)='net solar shortwave radiation           '
-      vname(3,indxRADSWBIO)='Watts meter-2                           '
-      vname(4,indxRADSWBIO)='solar shortwave, scalar, series         '
-      vname(5,indxRADSWBIO)='                                        '
-      vname(6,indxRADSWBIO)='lat_rho lon_rho                         '              
-      vname(7,indxRADSWBIO)='                                        '
-# endif /* DIURNAL_INPUT_SRFLX */
+
 
 # endif /* ONLINE */
 #endif /* BULK_FLUX */

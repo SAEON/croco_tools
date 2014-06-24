@@ -473,8 +473,8 @@
 # endif
 #endif /* PSOURCE_NCFILE */
 #ifdef DIURNAL_INPUT_SRFLX
-      integer indxRADSWBIO
-      parameter (indxRADSWBIO=indxSUSTR+82)
+      integer indxShflx_rswbio
+      parameter (indxShflx_rswbio=indxSUSTR+82)
 #endif
 #ifdef ICE
       integer indxAi

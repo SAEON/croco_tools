@@ -139,8 +139,8 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
         endif
 
 # ifdef DIURNAL_INPUT_SRFLX
-        lvar=lenstr(vname(1,indxRADSWBIO))
-        ierr=nf_inq_varid (ncidbulk,vname(1,indxRADSWBIO)(1:lvar)
+        lvar=lenstr(vname(1,indxShflx_rswbio))
+        ierr=nf_inq_varid (ncidbulk,vname(1,indxShflx_rswbio)(1:lvar)
      &                                              ,radswbio_id)
         if (ierr .eq. nf_noerr) then
           ierr=nf_inq_varndims (ncidbulk, radswbio_id, i)
@@ -153,7 +153,8 @@ c*        if (may_day_flag.ne.0) return    !-->  EXIT
           endif
         endif
         if (ierr .ne. nf_noerr) then
-          write(stdout,3) vname(1,indxRADSWBIO)(1:lvar),bulkname(1:lstr)
+          write(stdout,3) vname(1,indxShflx_rswbio)(1:lvar),
+     &                                              bulkname(1:lstr)
           goto 99                                         !--> ERROR
         endif
 # endif /* DIURNAL_INPUT_SRFLX */

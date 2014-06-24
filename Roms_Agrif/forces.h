@@ -382,8 +382,20 @@
       integer itsrf, srf_ncycle, srf_rec, 
      &        lsrfgrd, srf_tid, srf_id 
       common /srfdat/
-     &        srflxp,srf_time,   srf_cycle, srf_scale,
-     &        itsrf, srf_ncycle, srf_rec,   lsrfgrd, srf_tid, srf_id
+     &        srflxp, srf_time, srf_cycle, srf_scale,
+     &        itsrf, srf_ncycle, srf_rec, lsrfgrd, srf_tid, srf_id
+
+# ifdef DIURNAL_INPUT_SRFLX
+      real srflxbiog(GLOBAL_2D_ARRAY,2)
+      common /srfdat_srflxbiog/srflxbiog
+
+      real srflxbiop(2)
+      integer srfbio_rec, lsrfbiogrd, 
+     &        srfbio_tid, srfbio_id
+      common /srfbiodat/
+     &        srflxbiop,
+     &        lsrfbiogrd, srfbio_tid, srfbio_id
+# endif /*  DIURNAL_INPUT_SRFLX   */
 
 #   undef SRFLUX_DATA
 # endif /* !ANA_SRFLUX */

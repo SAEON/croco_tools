@@ -765,9 +765,9 @@ C$    integer omp_get_thread_num
 ! Add vertical attenuation and XI perturbation
 !
             y = y + cff_perturb*exp(z_r(i,j,k)/1000.)
-     &                          *exp(-(x-0.5)**2/0.05)
-     &                          *( 0.5*sin(2.*pi*x)
-     &                            +0.5*sin(6.*pi*x) )
+     &                         *exp(-(x-0.5)**2/0.05)
+     &                         *( 0.5*sin(2.*pi*x)
+     &                           +0.5*sin(6.*pi*x) )
 !
 ! Set Jet structure and place its center at y=pi/2
 !
@@ -784,7 +784,9 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
-
+!
+! Fill tracer array and make exchanges
+!
       do k=1,N
         do j=JstrR,JendR
           do i=IstrR,IendR
@@ -792,12 +794,12 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
-
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
-      call exchange_r3d_tile (istr,iend,jstr,jend,
+      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                        t(START_2D_ARRAY,1,tndx,1))
+      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
+     &                        rho(START_2D_ARRAY,1))
 #  endif
-      rho(:,:,:)=t(:,:,:,tndx,1)
 !
 ! --- Compute zeta ---
 !
@@ -875,16 +877,12 @@ C$    integer omp_get_thread_num
 
 #  define WORK rho1
       do k=1,N
-        do j=Jstr,Jend
+        do j=JstrV,Jend
           do i=Istr,Iend
             WORK(i,j,k)=rv(i,j,k)
           enddo
         enddo
       enddo
-#  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
-      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
-     &                        WORK(START_2D_ARRAY,1))
-#  endif
       if (NORTHERN_EDGE) then
         do k=1,N
           do i=Istr-1,Iend+1
@@ -892,8 +890,19 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       endif
+      if (SOUTHERN_EDGE) then
+        do k=1,N
+          do i=Istr-1,Iend+1
+            WORK(i,JstrV-1,k)=0.
+          enddo
+        enddo
+      endif
+#  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
+     &                        WORK(START_2D_ARRAY,1))
+#  endif
       do k=1,N
-        do j=Jstr-1,Jend+1
+        do j=JstrV-1,Jend+1
           do i=Istr-1,Iend+1
             rv(i,j,k)=WORK(i,j,k)
           enddo
@@ -902,15 +911,18 @@ C$    integer omp_get_thread_num
 !
       do k=1,N
         do j=Jstr,Jend
-          do i=Istr,Iend
+          do i=IstrU,Iend
             WORK(i,j,k)=ru(i,j,k)
           enddo
         enddo
       enddo
-#  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
-      call exchange_r3d_tile (istr,iend,jstr,jend,
-     &                        WORK(START_2D_ARRAY,1))
-#  endif
+      if (NORTHERN_EDGE) then
+        do k=1,N
+          do i=Istr-1,Iend+1
+            WORK(i,Jend+1,k)=0.
+          enddo
+        enddo
+      endif
       if (SOUTHERN_EDGE) then
         do k=1,N
           do i=Istr-1,Iend+1
@@ -918,9 +930,13 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       endif
+#  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+      call exchange_r3d_tile (istr,iend,jstr,jend,
+     &                        WORK(START_2D_ARRAY,1))
+#  endif
       do k=1,N
         do j=Jstr-1,Jend+1
-          do i=Istr-1,Iend+1
+          do i=IstrU-1,Iend+1
             ru(i,j,k)=WORK(i,j,k)
           enddo
         enddo
