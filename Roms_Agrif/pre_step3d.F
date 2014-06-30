@@ -350,8 +350,13 @@
 !-------------------------------------------------------------------
 !
           do is=1,Nsrc
-            i=Isrc(is)
-            j=Jsrc(is)
+#  ifdef MPI
+           i=Isrc_mpi(is,mynode)
+           j=Jsrc_mpi(is,mynode)
+#  else
+           i=Isrc(is)
+           j=Jsrc(is)
+#  endif
             if (Istr.le.i .and. i.le.Iend+1
      &                   .and. Jstr.le.j .and. j.le.Jend+1) then
               if (Dsrc(is).eq.0) then
