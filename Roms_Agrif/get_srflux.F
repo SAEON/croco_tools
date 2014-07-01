@@ -151,13 +151,13 @@
 !     
         if (lsrfbiogrd.eq.1) then
           ierr=nf_fread (srflxbiog(START_2D_ARRAY,i), ncidfrc,
-     &                        srfbio_id, srfbio_rec,  r2dvar)
+     &                        srfbio_id, srf_rec,  r2dvar)
         else
           ierr=nf_get_var1_FTYPE (ncidfrc,srfbio_id,
-     &                            srfbio_rec, srflxbiop(i))
+     &                            srf_rec ,srflxbiop(i))
         endif
         if (ierr .ne. nf_noerr) then
-          write(stdout,6) 'srflux_bio', srfbio_rec
+          write(stdout,6) 'srflux_bio', srf_rec
           goto 99                                         !--> ERROR
         endif
 # endif /* DIURNAL_INPUT_SRFLX */
