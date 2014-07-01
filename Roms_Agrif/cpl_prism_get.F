@@ -97,6 +97,7 @@
      &  tab_t_tmp, rcvtime, iok_srflx) 
             if (iok_srflx /= 0) then
 !              Transmit to ROMS field
+               call exchange_r2d_tile(1,Lmmpi,1,Mmmpi,tab_t_tmp(START_2D_ARRAY))
                srflx = tab_t_tmp / (rho0*Cp) 
             endif
          end if  
@@ -107,6 +108,7 @@
             if (iok_isalt /= 0) then
 !              Transmit to ROMS field : stflx(:,:,isalt)
 !              Changing Unit from [kg/m^2/s] (<--> [mm/s]) to [PSU m/s]  --> coeff= 1/1000.
+               call exchange_r2d_tile(1,Lmmpi,1,Mmmpi,tab_t_tmp(START_2D_ARRAY))
                stflx(:,:,isalt) = tab_t_tmp * t(:,:,N,nstp,isalt) / 1000.
             endif
          end if
@@ -116,6 +118,7 @@
      &  tab_t_tmp, rcvtime, iok_itemp) 
             if (iok_itemp /= 0)  then
 !              Transmit to ROMS field : stflx(:,:,itemp)
+               call exchange_r2d_tile(1,Lmmpi,1,Mmmpi,tab_t_tmp(START_2D_ARRAY))
                stflx(:,:,itemp) = tab_t_tmp / (rho0*Cp)
             endif     
          end if
@@ -124,7 +127,8 @@
             call cpl_prism_getvar(srcv_nid(i), srcv_clname(i),
      &  tab_t_tmp, rcvtime, iok_taux) 
             if (iok_taux /= 0) then  
-#if (!defined OA_GRID_UV)   
+#if (!defined OA_GRID_UV)  
+               call exchange_r2d_tile(1,Lmmpi,1,Mmmpi,tab_t_tmp(START_2D_ARRAY))
 !              Interpolate TAUX on grid T --> U
                do jo=jmin_halo-1,jmax_halo+1
                do io=imin_halo,imax_halo+1
@@ -135,6 +139,7 @@
                sustr  = tab_u_tmp / rho0
 #else
 !              Transmit to ROMS field : sustr
+               call exchange_u2d_tile (1,Lmmpi,1,Mmmpi,tab_t_tmp(START_2D_ARRAY))
                sustr  = tab_t_tmp / rho0
 #endif   
             endif
@@ -145,6 +150,7 @@
      &  tab_t_tmp, rcvtime, iok_tauy) 
             if (iok_tauy /= 0) then 
 #if (!defined OA_GRID_UV) 
+               call exchange_r2d_tile(1,Lmmpi,1,Mmmpi,tab_t_tmp(START_2D_ARRAY))
 !              Interpolate TAUY on grid T --> U
                do jo=jmin_halo,jmax_halo+1
                do io=imin_halo-1,imax_halo+1
@@ -155,6 +161,7 @@
                svstr = tab_v_tmp(:,:) / rho0
 #else
 !              Transmit to ROMS field : svstr
+               call exchange_v2d_tile (1,Lmmpi,1,Mmmpi,tab_t_tmp(START_2D_ARRAY))
                svstr = tab_t_tmp(:,:) / rho0                
 #endif 
             endif

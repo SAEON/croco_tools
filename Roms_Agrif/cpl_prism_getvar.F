@@ -67,9 +67,6 @@
          if (NORTHERN_EDGE) then
               tab_t_tmp(:,Mmmpi+1)=2.*tab_t_tmp(:,Mmmpi)-tab_t_tmp(:,Mmmpi-1)
          endif
-!     
-!        1.c. Blend the HALO of the fields
-         call exchange_r2d_tile(1,Lmmpi,1,Mmmpi,tab_t_tmp(START_2D_ARRAY))
 
 
          WRITE(333,*) '****************'
