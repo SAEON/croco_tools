@@ -790,11 +790,13 @@ CR      write(*,*) 'wrt_avg:  wrtKaps' MYID
       endif
 # endif
       if (ierr .eq. nf_noerr) then
-         write(stdout,'(6x,A,2(A,I4,1x),A,I3)') 'WRT_AVG -- wrote ',
+      MPI_master_only write(stdout,'(6x,A,2(A,I4,1x),A,I3)') 
+     &        'WRT_AVG -- wrote ',
      &        'averaged fields into time record =', record, '/',
      &        nrecavg  MYID
       else
-         write(stdout,'(/1x,2A/)') 'WRT_AVG ERROR: Cannot ',
+       MPI_master_only write(stdout,'(/1x,2A/)') 
+     &        'WRT_AVG ERROR: Cannot ',
      &        'synchronize/close averages netCDF file.'
          may_day_flag=3
       endif

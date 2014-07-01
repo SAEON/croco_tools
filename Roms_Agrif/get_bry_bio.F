@@ -563,7 +563,8 @@ c                goto 99         !--> ERROR
               endif	      
             enddo
           else
-            write(stdout,'(8x,4A)') 'ERROR(s) occur while examining',
+          MPI_master_only  write(stdout,'(8x,4A)') 
+     &        'ERROR(s) occur while examining',
      &        ' content of netCDF file ''', bry_file(1:lstr), '''.'
           endif
         endif                   ! test on ierr.no_err 
@@ -630,14 +631,16 @@ c                goto 99         !--> ERROR
 
                 ierr=ierr_all
                 if (ierr.eq.0) then
-                  write(stdout,'(6x,A,9x,A,1x,G12.4,1x,I4)')
+                  MPI_master_only  
+     &              write(stdout,'(6x,A,9x,A,1x,G12.4,1x,I4)')
      &              'GET_BRY_BIO    -- Read all boundary data',
      &              'for time =', cff 
 #ifdef MPI
      &              , mynode
 #endif
                 else
-                  write(stdout,'(1x,2A,I4/8x,3A)')
+                  MPI_master_only
+     &              write(stdout,'(1x,2A,I4/8x,3A)')
      &              'ERROR(s) occur while trying to read record ',
      &              bry_rec,  'in file ''',bry_file(1:lstr),'''.'
                 endif 
@@ -645,7 +648,8 @@ c                goto 99         !--> ERROR
                 write(stdout,2) 'bry_time'
               endif
             else
-              write(stdout,'(/1x,A,I4,1x,A,I4/7x,4A/7x,2(A,G12.4)/)')
+              MPI_master_only
+     &         write(stdout,'(/1x,A,I4,1x,A,I4/7x,4A/7x,2(A,G12.4)/)')
      &          'ERROR in get_bry_bio: requested time record ',  bry_rec
      $          ,'exeeds the last record', ntbry,
      $          'available in netCDF '
@@ -762,7 +766,8 @@ c                goto 99         !--> ERROR
 # endif
 
           elseif (ZEROTH_TILE) then
-            write(stdout,'(/2(1x,A)/3(1x,A,F16.10)/)')
+           MPI_master_only
+     &      write(stdout,'(/2(1x,A)/3(1x,A,F16.10)/)')
      &      'SET_BRY_ALL_TILE - current model time is out of bounds of',
      &      '''bry_time''.',     'BRY_TSTART=',   bry_time(it1)*sec2day,
      &      'TDAYS=',  tdays,    'BRY_TEND=',     bry_time(it2)*sec2day

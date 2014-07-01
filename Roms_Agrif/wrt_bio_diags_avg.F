@@ -198,7 +198,7 @@ C      write(*,*) 'Write Time'
       endif
 #endif
       if (ierr .eq. nf_noerr) then
-        write(stdout,'(6x,A,2(A,I4,1x),A,I3)') 
+      MPI_master_only   write(stdout,'(6x,A,2(A,I4,1x),A,I3)') 
      &       'WRT_BIO_DIAG_AVG -- wrote ',
      &       'diag_avg fields into time record =', record, '/',
      &       nrecdiabio_avg  MYID

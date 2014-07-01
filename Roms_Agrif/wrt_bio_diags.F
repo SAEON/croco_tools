@@ -197,7 +197,8 @@ CDEBUG      write(*,*) 'Write Time'
 #endif
 
       if (ierr .eq. nf_noerr) then
-        write(stdout,'(6x,A,2(A,I4,1x),A,I3)') 'WRT_BIO_DIAG -- wrote ',
+       MPI_master_only write(stdout,'(6x,A,2(A,I4,1x),A,I3)') 
+     &       'WRT_BIO_DIAG -- wrote ',
      &       'diag fields into time record =', record, '/',
      &       nrecdiabio  MYID
       else

@@ -942,11 +942,13 @@ CR        write(*,*) 'wrt_his:  bostrw' MYID
       endif
 #endif
       if (ierr .eq. nf_noerr) then
-         write(stdout,'(6x,A,2(A,I4,1x),A,I3)') 'WRT_HIS -- wrote ',
-     &        'history fields into time record =', record, '/',
+       MPI_master_only write(stdout,'(6x,A,2(A,I4,1x),A,I3)') 
+     &       'WRT_HIS -- wrote ',
+     &       'history fields into time record =', record, '/',
      &        nrechis  MYID
       else
-         write(stdout,'(/1x,2A/)') 'WRT_HIS ERROR: Cannot ',
+        MPI_master_only write(stdout,'(/1x,2A/)') 
+     &        'WRT_HIS ERROR: Cannot ',
      &        'synchronize/close history netCDF file.'
          may_day_flag=3
       endif

@@ -365,11 +365,13 @@ CR    write(*,*) 'wrt_rst:  Lripple' MYID
       endif
 #endif
       if (ierr .eq. nf_noerr) then
-        write(stdout,'(6x,A,2(A,I4,1x),A,I3)') 'WRT_RST -- wrote ',
+      MPI_master_only write(stdout,'(6x,A,2(A,I4,1x),A,I3)') 
+     &            'WRT_RST -- wrote ',
      &            'restart fields into time record =', record, '/',
      &             nrecrst  MYID
       else
-        write(stdout,'(/1x,2A/)') 'WRT_RST ERROR: Cannot ',
+      MPI_master_only  write(stdout,'(/1x,2A/)') 
+     &             'WRT_RST ERROR: Cannot ',
      &             'synchronize/close restart netCDF file.'
         may_day_flag=3
       endif

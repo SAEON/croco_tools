@@ -725,7 +725,8 @@
             create_new_file=.true.
             goto 10
           else
-        write(stdout,'(/1x,4A,2x,A,I4/)') 'DEF_DIAGS_HIS/AVG ERROR: ',
+      MPI_master_only  write(stdout,'(/1x,4A,2x,A,I4/)') 
+     &         'DEF_DIAGS_HIS/AVG ERROR: ',
      &         'Cannot open file ''', ncname(1:lstr), '''.'
      &                   MYID
             goto 99                                       !--> ERROR
@@ -965,7 +966,8 @@
       else
         ierr=nf_open (ncname(1:lstr), nf_write, ncid)
         if (ierr .ne. nf_noerr) then
-          write(stdout,'(/1x,4A,2x,A,I4/)') 'DEF_DIAG ERROR: ',
+        MPI_master_only  write(stdout,'(/1x,4A,2x,A,I4/)') 
+     &                'DEF_DIAG ERROR: ',
      &                'Cannot open file ''', ncname(1:lstr), '''.'
      &                 MYID
           goto 99                                         !--> ERROR

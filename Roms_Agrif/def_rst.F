@@ -726,7 +726,8 @@
         endif
 # endif /* BBL */
 !
-        write(*,'(6x,2A,i4,1x,A,i4)') 'DEF_RST -- Opened ',
+      MPI_master_only write(*,'(6x,2A,i4,1x,A,i4)') 
+     &             'DEF_RST -- Opened ',
      &             'existing restart file,  record =', rec 
      &              MYID
 
@@ -734,7 +735,8 @@
       else
         ierr=nf_open (rstname(1:lstr), nf_write, ncid)
         if (ierr .ne. nf_noerr) then
-          write(stdout,'(/1x,4A, 1x,A,I4/)') 'DEF_RST ERROR: Cannot',
+         MPI_master_only write(stdout,'(/1x,4A, 1x,A,I4/)') 
+     &          'DEF_RST ERROR: Cannot',
      &          'open restart netCDF file ''', rstname(1:lstr), '''.'
      &           MYID
           goto 99                                         !--> ERROR

@@ -2570,7 +2570,8 @@
 # endif  /* SOLVE3D */
 #endif   /* MRL_WCI */
 
-        write(*,'(6x,2A,i4,1x,A,i4)') 'DEF_HIS/AVG -- Opened ',
+      MPI_master_only write(*,'(6x,2A,i4,1x,A,i4)') 
+     &                     'DEF_HIS/AVG -- Opened ',
      &                     'existing file  from record =', rec
      &                      MYID
 
@@ -2578,7 +2579,8 @@
       else
         ierr=nf_open (ncname(1:lstr), nf_write, ncid)
         if (ierr .ne. nf_noerr) then
-          write(stdout,'(/1x,4A,2x,A,I4/)') 'DEF_HIS/AVG ERROR: ',
+          MPI_master_only write(stdout,'(/1x,4A,2x,A,I4/)') 
+     &                'DEF_HIS/AVG ERROR: ',
      &                'Cannot open file ''', ncname(1:lstr), '''.'
      &                 MYID
           goto 99                                         !--> ERROR

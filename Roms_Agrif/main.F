@@ -498,7 +498,8 @@ CR      write(*,*) '  0' MYID
 !          *****      **    **   **   **   **    **
 !
 #undef CR
-      write(stdout,'(/1x,A27/)') 'MAIN: started time-steping.'
+      MPI_master_only write(stdout,'(/1x,A27/)') 
+     &                'MAIN: started time-steping.'
       next_kstp=kstp
       time_start=time
 
