@@ -1176,7 +1176,7 @@
 #  ifdef WENO_Z
 ! Non-normalized stencil weights
 ! with parameter T5 of new smoothness indicator
-        T5 = abs(IS2-IS0);
+        T5 = abs(IS2-IS0)
         a0  = d0*(1+T5/(Eps+IS0))
         a1  = d1*(1+T5/(Eps+IS1))
         a2  = d2*(1+T5/(Eps+IS2))
@@ -1210,7 +1210,7 @@
 #  ifdef WENO_Z
 ! Non-normalized stencil weights
 ! with parameter T5 of new smoothness indicator
-        T5 = abs(IS2-IS0);
+        T5 = abs(IS2-IS0)
         a0  = d0*(1+T5/(Eps+IS0))
         a1  = d1*(1+T5/(Eps+IS1))
         a2  = d2*(1+T5/(Eps+IS2))
