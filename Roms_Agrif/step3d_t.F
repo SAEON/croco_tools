@@ -1144,6 +1144,8 @@
       REAL    :: p0, p1, p2
       REAL    :: Eps, cff1, cff2, T5
 
+#  define WENO_Z
+
 ! Epsilon value for computing weigths 
 #  ifdef WENO_Z
       Eps = 1.e-40
@@ -1158,8 +1160,6 @@
 ! other coefficients
       cff1=13./12.
       cff2=1./6.
-
-#  define WENO_Z
 
 !
       if (ua .ge. 0.) then        ! Take upstream stencils for stability
