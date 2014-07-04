@@ -178,7 +178,7 @@ c**        call opencdf (frcname,N)
       integer Istr,Iend,Jstr,Jend, i,j, it1,it2
       real cff, cff1, cff2, ustress, vstress
 # include "param.h"
-# ifdef CURVGRID
+# ifdef SMFLUX_CURVGRID
 #  include "grid.h"
 # endif
 # include "forces.h"
@@ -212,7 +212,7 @@ c**        call opencdf (frcname,N)
             vstress=sms_scale*svstrp(itsms)
             do j=JstrR,JendR
               do i=Istr,IendR
-# ifdef CURVGRID
+# ifdef SMFLUX_CURVGRID
                 cff=0.5*(angler(i,j)+angler(i-1,j))
                 sustr(i,j)=ustress*cos(cff)+vstress*sin(cff)
 # else
@@ -222,7 +222,7 @@ c**        call opencdf (frcname,N)
             enddo
             do j=Jstr,JendR
               do i=IstrR,IendR
-# ifdef CURVGRID
+# ifdef SMFLUX_CURVGRID
                 cff=0.5*(angler(i,j)+angler(i,j-1))
                 svstr(i,j)=-ustress*sin(cff)+vstress*cos(cff)
 # else
@@ -262,7 +262,7 @@ c**        call opencdf (frcname,N)
         else
           ustress=cff1*sustrp(it1)+cff2*sustrp(it2)
           vstress=cff1*svstrp(it1)+cff2*svstrp(it2)
-# ifdef CURVGRID
+# ifdef SMFLUX_CURVGRID
           do j=JstrR,JendR
             do i=Istr,IendR
               cff=0.5*(angler(i,j)+angler(i-1,j))
@@ -286,7 +286,7 @@ c**        call opencdf (frcname,N)
               svstr(i,j)=vstress
             enddo
           enddo
-# endif /* CURVGRID */
+# endif /* SMFLUX_CURVGRID */
         endif 
 !
 ! Unable to set-up surface momentum stresses: Complain about the
