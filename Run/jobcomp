@@ -42,14 +42,7 @@ fi
 #
 # set NETCDF directories
 #
-NETCDFLIB="-L/usr/local/lib -lnetcdf"
-NETCDFINC="-I/usr/local/include"
-#-----------------------------------------------------------
-#-lnetcdf           : version netcdf-3.6.3                --
-#-lnetcdff -lnetcdf : version netcdf-4.1.2                --
-#-lnetcdff          : version netcdf-fortran-4.2-gfortran --
-#-----------------------------------------------------------
-#
+
 if [[ $OS == Linux ]] ; then
   if [[ $LINUX_FC == g77 ]] ; then
     if [[ $BITS == THIRTYTWO ]] ; then
@@ -67,6 +60,18 @@ if [[ $OS == Linux ]] ; then
   fi
 fi
 
+#
+# If needed set your own NETCDF directories
+#
+#NETCDFLIB="-L/usr/local/lib -lnetcdf"
+#NETCDFINC="-I/usr/local/include"
+
+#-----------------------------------------------------------
+# Use : 
+#-lnetcdf           : version netcdf-3.6.3                --
+#-lnetcdff -lnetcdf : version netcdf-4.1.2                --
+#-lnetcdff          : version netcdf-fortran-4.2-gfortran --
+#-----------------------------------------------------------
 
 #
 # set MPI directories if needed
