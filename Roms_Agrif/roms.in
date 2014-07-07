@@ -130,7 +130,7 @@ diagbioGasExc_average_fields:  wrtdiabioGasExc_avg
 			                      50*T
 	
 biology:   forcing file
-           roms_frcbio.nc
+           ROMS_FILES/roms_frcbio.nc
 
 sediments: input file
            sediment.in
