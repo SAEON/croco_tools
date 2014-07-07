@@ -254,8 +254,10 @@ cars2009_dir=[DATADIR,'CARS2009/'];
 woapisces_dir=[DATADIR,'WOAPISCES/'];
 %
 % Climatological data dir (t, s and biological variables)
-%
 climato_dir=cars2009_dir;
+%climato_dir=woa_dir;  % Select this to use the WOAPISCES 
+                       % biogeochemical seasonal climatology with PISCES 
+                       % biogeochemical model
 %
 % Surface chlorophyll seasonal climatology (SeaWifs)
 %
