@@ -404,8 +404,8 @@
             MPI_master_only write(stdout,2) 'bry_time'
           endif
         else
-         MPI_master_only 
-     &    write(stdout,'(/1x,A,I4,1x,A,I4/7x,4A/7x,2(A,G12.4)/)')
+         MPI_master_only write(stdout,
+     &    '(/1x,A,I4,1x,A,I4/7x,4A/7x,2(A,G12.4)/)')
      &    'ERROR in get_bry_all: requested time record ',  bry_rec,
      &    'exeeds the last record', ntbry,  'available in netCDF ',
      &    'file ''',   bry_file(1:lstr),  '''',  'tdays = ', tdays,
