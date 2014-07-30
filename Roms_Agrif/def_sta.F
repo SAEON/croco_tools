@@ -11,11 +11,16 @@
 !
 #include "cppdefs.h"
 #ifdef STATIONS
-                                 ! Create STATIONS data NetCDF file:
-                                 ! Define its variables, dimensions,
-                                 ! and attributes
+!
       subroutine def_sta(ncid, total_rec, ierr,res) 
-      
+!
+!====================================================================
+!                                                                    !
+!  This routine creates STATIONS data NetCDF file:                   !
+!  Define its variables, dimensions,and attributes                   !
+!                                                                    !
+!=====================================================================
+!
           implicit none
 # include "param.h"
 # include "mixing.h"
@@ -27,9 +32,9 @@
 # include "netcdf.inc"
 !
       logical create_new_file, res
-      integer ncid, total_rec, ierr
+      integer ncid, total_rec, rec, ierr
       integer lstr, lvar, stadim, ftimedim, twodim
-      integer pgrd(2), temp(2)
+      integer pgrd(2), temp(2), checkdims
       integer lenstr
 # ifdef SOLVE3D
       integer trcdim
@@ -40,9 +45,11 @@
       character*65 vinfo(4)
       if (may_day_flag.ne.0) return      !-->  EXIT
 
+# define rec_per_file nrpfsta
+
       ierr=0
       lstr=lenstr(staname)
-      if (nrpfsta.gt.0) then
+      if (rec_per_file.gt.0) then
         lvar=total_rec-(1+mod(total_rec-1, nrpfsta))
         call insert_time_index (staname, lstr, lvar, ierr)
         if (ierr .ne. 0) goto 99
@@ -53,10 +60,15 @@
 !
       create_new_file=ldefsta
       if (ncid.ne.-1) create_new_file=.false.
-
-#if defined MPI & !defined PARALLEL_FILES
+# if defined MPI & !defined PARALLEL_FILES
       if (mynode.gt.0) create_new_file=.false.
-#endif
+# endif
+
+!
+!=================================================================
+!  Create new station file
+!=================================================================
+!
  10   if (create_new_file) then
 
         lstr=lenstr(staname)
@@ -68,8 +80,8 @@
         endif
 
 !
-! Put global attributes.
-! --- ------ -----------
+!  Put global attributes.
+!  ----------------------
 !
         call put_global_atts (ncid, ierr)
         if (ierr.ne.nf_noerr) then
@@ -80,9 +92,9 @@
 
 !
 !  Define the dimensions of staggered fields.
-!--------------------------------------------
+!  ------------------------------------------
 !
-        ierr=nf_def_dim(ncid,'stanum',nstas,stadim)
+        ierr=nf_def_dim(ncid,'stanum',nstas0,stadim)
 # ifdef SOLVE3D
         ierr=nf_def_dim(ncid,'tracer',NT,trcdim)
 #  ifdef ALL_SIGMA
@@ -93,6 +105,7 @@
         ierr=nf_def_dim(ncid,'two',2,twodim)
 !
 !  Define dimension vectors for point variables.
+!  ---------------------------------------------
 !
         pgrd(1)=stadim
         pgrd(2)=ftimedim
@@ -105,10 +118,9 @@
         allSigma(2)=stadim
         allSigma(3)=ftimedim
 # endif
-!
-!
+
 !  Define variables and their attributes.
-!-----------------------------------------------------------
+!  --------------------------------------
 !
 !  Define time step and model time.
 
@@ -144,12 +156,10 @@
         lvar=lenstr(vname(4,indxTime))
         ierr=nf_put_att_text(ncid,staTime,'field',lvar,
      &                         vname(4,indxTime)(1:lvar))
-
-
-       if (wrtsta(indxstaGrd)) then
 !
 !  Define stations (lon,lat) or (x,y) and z locations.
 !
+       if (wrtsta(indxstaGrd)) then
 # ifdef AGRIF
         vinfo(1)='grid_level'
         vinfo(2)='grid level in nested grid hierarchy'
@@ -163,7 +173,7 @@
         lvar=lenstr(vinfo(3))
         ierr=nf_put_att_text(ncid,staGlevel,'units',lvar,
      &                         vinfo(3)(1:lvar))
-# endif /*AGRIF*/
+# endif /* AGRIF */
 # ifdef SPHERICAL
         vinfo(1)='lon'
         vinfo(2)='longitude of model control points'
@@ -236,11 +246,11 @@
         lvar=lenstr(vinfo(4))
         ierr=nf_put_att_text(ncid,staYgrd,'field',lvar,
      &                         vinfo(4)(1:lvar))
-#  ifdef SOLVE3D
+# ifdef SOLVE3D
 !
 !  Define depth.
 !
-#   ifdef ALL_SIGMA
+#  ifdef ALL_SIGMA
         vinfo(1)='depth'
         vinfo(2)='depth of stations levels'
         vinfo(3)='meter'
@@ -253,7 +263,7 @@
         lvar=lenstr(vinfo(3))
         ierr=nf_put_att_text(ncid,staDepth,'units',lvar,
      &                         vinfo(3)(1:lvar))
-#   else
+#  else
         vinfo(1)='depth'
         vinfo(2)='depth of point stations'
         vinfo(3)='meter'
@@ -266,14 +276,13 @@
         lvar=lenstr(vinfo(3))
         ierr=nf_put_att_text(ncid,staDepth,'units',lvar,
      &                         vinfo(3)(1:lvar))
-#   endif
+#  endif
 !
 ! Define  vertical positions S or depth(m)
 !
-#   ifdef ALL_SIGMA 
-! Do nothing in this case
-! Zgird is allways 1:N
-#   else
+#  ifdef ALL_SIGMA 
+!     Do nothing in this case Zgird is allways 1:N
+#  else
         vinfo(1)='Zgrid'
         vinfo(2)='time varing sigma level of point stations'
         vinfo(3)='nondimensional'
@@ -290,17 +299,17 @@
         lvar=lenstr(vinfo(4))
         ierr=nf_put_att_text(ncid,staZgrd,'field',lvar,
      &                         vinfo(4)(1:lvar))
-#   endif
-#  endif /* SOLVE3D */
-       endif ! define output of grid parameters
+#  endif
+# endif /* SOLVE3D */
+       endif ! grid parameters
 !
-! Define veriables for station data
+!  --- Define variables for station data ---
 !
 # ifdef SOLVE3D
-       if (wrtsta(indxstaTemp)) then 
 !
 !  Define temperature
 !
+       if (wrtsta(indxstaTemp)) then
 #  ifdef ALL_SIGMA
         vinfo(1)='temp'
         vinfo(2)='temperature'
@@ -328,12 +337,12 @@
         ierr=nf_put_att_text(ncid,staTemp,'units',lvar,
      &                         vinfo(3)(1:lvar))
 #  endif
-       endif ! def temperature
-#  ifdef SALINITY
-       if (wrtsta(indxstaSalt)) then
+       endif ! temperature
 !
 !  Define salinity
 !
+#  ifdef SALINITY
+       if (wrtsta(indxstaSalt)) then
 #   ifdef ALL_SIGMA
         vinfo(1)='salt'
         vinfo(2)='salinity'
@@ -361,12 +370,12 @@
         ierr=nf_put_att_text(ncid,staSal,'units',lvar,
      &                         vinfo(3)(1:lvar))
 #   endif
-       endif ! def salinity
+       endif ! salinity
 #  endif  /* SALINITY */
-       if (wrtsta(indxstaRho)) then 
 !
 !  Define density anomaly.
 !
+       if (wrtsta(indxstaRho)) then 
 #  ifdef ALL_SIGMA
         vinfo(1)='rho'
         vinfo(2)='density anomaly'
@@ -394,11 +403,11 @@
         ierr=nf_put_att_text(ncid,staDen,'units',lvar,
      &                         vinfo(3)(1:lvar))
 #  endif
-       endif
-       if (wrtsta(indxstaVel)) then
+       endif  ! density
 !
 !  Velocity components
 !
+       if (wrtsta(indxstaVel)) then
 #  ifdef ALL_SIGMA
         vinfo(1)='v'
         vinfo(2)='V component velocity'
@@ -450,35 +459,255 @@
         ierr=nf_put_att_text(ncid,staU,'units',lvar,
      &                         vinfo(3)(1:lvar))
 #  endif
-       endif ! def velocity
-
+       endif ! velocity
 # endif  /* SOLVE3D */
  
  
- 
 !  Leave definition mode.
-!---------------------------
+!  ----------------------
 !
         ierr=nf_enddef(ncid)
         res=.true. ! marker that a file has been created
-        write(stdout,'(6x,4A,1x,A,i4)') 'DEF_STATIONS - Created ',
+        write(stdout,'(6x,4A,1x,A,i3)') 'DEF_STA -- Created ',
      &                'new netCDF file ''', staname(1:lstr), '''.'
      &                 MYID
 
 
-
       elseif (ncid.eq.-1) then
+!
+!===================================================================
+! Open an existing file and prepare for appending data.
+!===================================================================
+!
+        ierr=nf_open (staname(1:lstr), nf_write, ncid)
 
-! at this stage DO NOTHING
+        if (ierr. eq. nf_noerr) then
+          ierr=checkdims (ncid, staname, lstr, rec) 
+          if (ierr .eq. nf_noerr) then
+            if (rec_per_file.eq.0) then
+              ierr=rec+1 - total_rec
+            else
+              ierr=rec+1 - (1+mod(total_rec-1, rec_per_file))
+            endif
+            if (ierr.gt.0) then
+              MPI_master_only write( stdout,
+     &                 '(/1x,A,I5,1x,A/8x,3A,I5,/8x,A,I5,1x,A/)'
+     &            ) 'DEF_STA WARNING: Actual number of records',
+     &               rec,  'in netCDF file',  '''',  staname(1:lstr),
+     &             ''' exceeds the record number from restart data',
+     &             rec+1-ierr,'/', total_rec,', restart is assumed.'
+              rec=rec-ierr
+            elseif (rec_per_file.eq.0) then
+              total_rec=rec+1           ! <-- set to the next record
+# if defined MPI & !defined PARALLEL_FILES
+              if (mynode.gt.0) total_rec=total_rec-1
+# endif
+            endif
+            ierr=nf_noerr
+          endif
+        endif
 
+        if (ierr. ne. nf_noerr) then
+# if defined MPI & !defined PARALLEL_FILES
+          if (mynode.eq.0) then
+            create_new_file=.true.
+            goto 10
+          else
+            write(stdout,'(/1x,4A,2x,A,I4/)') 'DEF_HIS/AVG ERROR: ',
+     &                  'Cannot open file ''', staname(1:lstr), '''.'
+     &                   MYID
+            goto 99                                       !--> ERROR
+          endif
+# else
+          create_new_file=.true.
+          goto 10
+# endif
+        endif
+!
+! Find netCDF IDs of evolving model variables:
+! ---- ------ --- -- -------- ----- ----------
+!
+! Time step indices:
+!
+        ierr=nf_inq_varid (ncid, 'time_step', staTstep)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,1) 'time_step', staname(1:lstr)
+          goto 99                                         !--> ERROR
+        endif
+!
+! Time.
+!
+        lvar=lenstr(vname(1,indxTime))
+        ierr=nf_inq_varid (ncid,vname(1,indxTime)(1:lvar),staTime)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,1) vname(1,indxTime)(1:lvar), staname(1:lstr)
+          goto 99                                         !--> ERROR 
+        endif
+!
+!  Define stations (lon,lat) or (x,y) and z locations.
+!
+       if (wrtsta(indxstaGrd)) then
+# ifdef AGRIF
+        vinfo(1)='grid_level'
+        lvar=lenstr(vinfo(1))
+        ierr=nf_nq_varid(ncid,vinfo(1)(1:lvar),staGlevel)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,1) vinfo(1)(1:lvar), staname(1:lstr)
+          goto 99                                         !--> ERROR 
+        endif
+# endif /* AGRIF */
+# ifdef SPHERICAL
+        vinfo(1)='lon'
+        lvar=lenstr(vinfo(1))
+        ierr=nf_inq_varid(ncid,vinfo(1)(1:lvar),staLon)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,1) vinfo(1)(1:lvar), staname(1:lstr)
+          goto 99                                         !--> ERROR 
+        endif
+        vinfo(1)='lat'
+        lvar=lenstr(vinfo(1))
+        ierr=nf_inq_varid(ncid,vinfo(1)(1:lvar),staLat)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,1) vinfo(1)(1:lvar), staname(1:lstr)
+          goto 99                                         !--> ERROR 
+        endif
+# endif  /* SPHERICAL */
+!
+! Define Station X-position in the grid
+!
+        vinfo(1)='Xgrid'
+        lvar=lenstr(vinfo(1))
+        ierr=nf_inq_varid(ncid,vinfo(1)(1:lvar),staXgrd)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,1) vinfo(1)(1:lvar), staname(1:lstr)
+          goto 99                                         !--> ERROR 
+        endif
+!
+! Define float Y-position in the grid
+!
+        vinfo(1)='Ygrid'
+        lvar=lenstr(vinfo(1))
+        ierr=nf_inq_varid(ncid,vinfo(1)(1:lvar),staYgrd)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,1) vinfo(1)(1:lvar), staname(1:lstr)
+          goto 99                                         !--> ERROR 
+        endif
+# ifdef SOLVE3D
+!
+!  Define depth.
+!
+        vinfo(1)='depth'
+        lvar=lenstr(vinfo(1))
+        ierr=nf_inq_varid(ncid,vinfo(1)(1:lvar),staDepth)
+!
+! Define  vertical positions S or depth(m)
+!
+#  ifndef ALL_SIGMA 
+        vinfo(1)='Zgrid'
+        lvar=lenstr(vinfo(1))
+        ierr=nf_inq_varid(ncid,vinfo(1)(1:lvar),staZgrd)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,1) vinfo(1)(1:lvar), staname(1:lstr)
+          goto 99                                         !--> ERROR 
+        endif
+#   endif
+#  endif /* SOLVE3D */
+       endif ! grid parameters
+!
+! --- Define veriables for station data ---
+!
+# ifdef SOLVE3D
+!
+!  Define temperature
+!
+       if (wrtsta(indxstaTemp)) then
+        vinfo(1)='temp'
+        lvar=lenstr(vinfo(1))
+        ierr=nf_inq_varid(ncid,vinfo(1)(1:lvar),staTemp)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,1) vinfo(1)(1:lvar), staname(1:lstr)
+          goto 99                                         !--> ERROR 
+        endif
+       endif
+!
+!  Define salinity
+!
+#  ifdef SALINITY
+       if (wrtsta(indxstaSalt)) then
+        vinfo(1)='salt'
+        lvar=lenstr(vinfo(1))
+        ierr=nf_inq_varid(ncid,vinfo(1)(1:lvar),staSal)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,1) vinfo(1)(1:lvar), staname(1:lstr)
+          goto 99                                         !--> ERROR 
+        endif
+       endif
+#  endif  /* SALINITY */
+!
+!  Define density anomaly.
+!
+       if (wrtsta(indxstaRho)) then
+        vinfo(1)='rho'
+        lvar=lenstr(vinfo(1))
+        ierr=nf_inq_varid(ncid,vinfo(1)(1:lvar),staDen)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,1) vinfo(1)(1:lvar), staname(1:lstr)
+          goto 99                                         !--> ERROR 
+        endif
+       endif
+!
+!  Velocity components
+!
+       if (wrtsta(indxstaVel)) then
+        vinfo(1)='v'
+        lvar=lenstr(vinfo(1))
+        ierr=nf_inq_varid(ncid,vinfo(1)(1:lvar),staV)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,1) vinfo(1)(1:lvar), staname(1:lstr)
+          goto 99                                         !--> ERROR 
+        endif
+!
+        vinfo(1)='u'
+        lvar=lenstr(vinfo(1))
+        ierr=nf_inq_varid(ncid,vinfo(1)(1:lvar),staU)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,1) vinfo(1)(1:lvar), staname(1:lstr)
+          goto 99                                         !--> ERROR 
+        endif
+       endif
+# endif  /* SOLVE3D */
+
+
+      MPI_master_only write(*,'(6x,2A,i4,1x,A,i4)') 
+     &                     'DEF_STA -- Opened ',
+     &                     'existing file  from record =', rec
+     &                      MYID
+
+# if defined MPI & !defined PARALLEL_FILES
+      else
+        ierr=nf_open (staname(1:lstr), nf_write, ncid)
+        if (ierr .ne. nf_noerr) then
+          MPI_master_only write(stdout,'(/1x,4A,2x,A,I4/)')
+     &                'DEF_STA ERROR: ',
+     &                'Cannot open file ''', staname(1:lstr), '''.'
+     &                 MYID
+          goto 99                                         !--> ERROR
+        endif
+# endif
       endif  ! create or open
 
-   1  format(/1x,'DEF_HIS/AVG ERROR: Cannot find variable ''',
+      ierr=nf_set_fill (ncid, nf_nofill, lvar)
+      if (ierr .ne. nf_noerr) then
+        write(*,'(6x,2A,i4,1x,A,i4)') 'DEF_STA ERROR: Cannot ', 
+     &    'switch to ''nf_nofill'' more; netCDF error code =', ierr 
+      endif
+
+   1  format(/1x,'DEF_STA ERROR: Cannot find variable ''',
      &                   A, ''' in netCDF file ''', A, '''.'/)
 
-  11  format(/' DEF_STATIONS - unable to create floats file: ',a)
-  20  format(/' DEF_STATIONS - error while writing variable: ',a,
-     &        /,15x,'into floats file: ',a)
+  11  format(/' DEF_STA - unable to create station file: ',a)
+  20  format(/' DEF_STA - error while writing variable: ',a,
+     &        /,15x,'into station file: ',a)
 
  99   return
       end

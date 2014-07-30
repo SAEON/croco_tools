@@ -90,7 +90,7 @@
 # else
      &    .or. (mod(ilc-1,nsta).eq.0
 # endif
-     &                             .and. nstas.gt.0)
+     &                             .and. nstas0.gt.0)
 #endif
      &                                               )) then
 !
@@ -203,7 +203,7 @@
         if (Agrif_Root()) then
 # endif
           if (mod(ilc-1,nsta).eq.0
-     &                  .and.nstas.gt.0) call wrt_sta
+     &                  .and.nstas0.gt.0) call wrt_sta
           diagsta=.false.
 # ifdef AGRIF
         endif

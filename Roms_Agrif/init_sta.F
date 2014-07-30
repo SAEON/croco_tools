@@ -13,12 +13,10 @@
        subroutine init_sta
 #ifdef STATIONS
 !
-!================================================== John M. Klinck ===
-!  Copyright (c) 2000 Rutgers/UCLA                                   !
-!================================================ Hernan G. Arango ===
+!====================================================================
 !                                                                    !
-!  This routine reads in and process initial float locations from    !
-!  input floats script.                                              !
+!  This routine reads in and process station locations from          !
+!  input station script.                                             !
 !                                                                    !
 !=====================================================================
 !
@@ -42,29 +40,29 @@
       k=0
 !
 !---------------------------------------------------------------------
-!  Read in initial float locations.
+!  Read in stations locations.
 !---------------------------------------------------------------------
 !
       lstr=lenstr(staposname)
       open(iunit,file=staposname(1:lstr),form='formatted',
      &  status='old', err=195)
-c     write(stdout,10)
-c 10  format(/,' FLOATS processing parameters:',/)
+!!     write(stdout,10)
+!! 10  format(/,' STATION processing parameters:',/)
 !
 !  Read input parameters according to their input card number.
 !
       icard=0
       do while (icard.lt.99)
 !
-!  Read in floats identification title.
+!  Read in stations identification title.
 !
         if (icard.eq.1) then
           read(iunit,'(a)',err=70) statitle
           lstr=lenstr(statitle)
-          write(stdout,20) statitle(1:lstr)
-  20      format(1x,'(',a,')',/)
+!!          MPI_master_only write(stdout,20) statitle(1:lstr)
+!!  20      format(/,2x,a)
 !
-!  Read in initial floats location.
+!  Read in station location.
 !
         elseif (icard.eq.2) then
           i=0
@@ -73,8 +71,7 @@ c 10  format(/,' FLOATS processing parameters:',/)
             i=i+1
             read(iunit,*,err=40) stat0(i), stax0(i), stay0(i), staz0(i),
      &                    STgrd(i),stacoor(i)
-            nstas=nstas+i
-
+            nstas=i
           enddo
   40      if (stat0(i).ne.99.0) then
             write(stdout,50) icard, i, staposname
@@ -108,17 +105,16 @@ c 10  format(/,' FLOATS processing parameters:',/)
      &       i2,15x,'in input script: ',a)
 
   90  close(iunit)
-      write(stdout,100) nstas
- 100  format(/,2x,i6,4x,'nstas',t26,
-     &       'Number of control points',/)
+!!      MPI_master_only write(stdout,100) nstas
+!! 100  format(2x,'Number of stations (nstas) : ',i6,/)
 !
 !---------------------------------------------------------------------
-!  Set initial float location.
+!  Set station location.
 !---------------------------------------------------------------------
 !
-!  Set time of float release (seconds after model initialization) and
-!  initial float horizontal positions (grid units).  Fill the initial
-!  vertical level or depth position.
+!  Set time of station recording (seconds after model initialization) and
+!  horizontal positions (grid units). Fill the initial vertical level or 
+!  depth position.
 !
       mc=0
       nc=0
@@ -126,23 +122,39 @@ c 10  format(/,' FLOATS processing parameters:',/)
           nc=nc+1
           stainfo(istatstr,nc)=(tdays+stat0(i))*day2sec
           stainfo(istazgrd,nc)=staz0(i)
-          stainfo(istagrd,i)=FLOAT(STgrd(i)) ! each float belongs to this grid initially
-          if (stacoor(i).eq.0) then
-             stainfo(istaxgrd,nc)=MIN(MAX(0.5,stax0(i)),FLOAT(LLm)+0.5)
-             stainfo(istaygrd,nc)=MIN(MAX(0.5,stay0(i)),FLOAT(MMm)+0.5)
+          stainfo(istagrd,i)=FLOAT(STgrd(i)) ! each station belongs 
+          if (stacoor(i).eq.0) then          ! to this grid initially
+# ifdef MPI
+            stax0(i)=stax0(i)-ii*Lm
+            stay0(i)=stay0(i)-jj*Mm
+# endif
+            if (stax0(i).ge.0 .and. stax0(i).lt.Lm+1 .and.
+     &          stay0(i).ge.0 .and. stay0(i).lt.Mm+1) then
+              stainfo(istaxgrd,nc)=MIN(MAX(0.5,stax0(i)),FLOAT(Lm)+0.5)
+              stainfo(istaygrd,nc)=MIN(MAX(0.5,stay0(i)),FLOAT(Mm)+0.5)
+            else
+              nc=nc-1
+            endif
           else
             mc=mc+1
-            lon(mc)=stax0(i)
-            lat(mc)=stay0(i)
-            index(mc)=nc
+            if (stax0(i).ge.lonu(1,1) .and. stax0(i).lt.lonu(Lm+1,1) .and.
+     &          stay0(i).ge.latv(1,1) .and. stay0(i).lt.latv(1,Mm+1)) then
+              lon(mc)=stax0(i)
+              lat(mc)=stay0(i)
+              index(mc)=nc
+            else
+              mc=mc-1
+              nc=nc-1
+            endif
           endif
       enddo
 !
-!  Set number of floats trajectories to compute.
+!  Set number of stations to compute.
 !
+      nstas0=nstas
       nstas=nc
 !
-!  If applicable, convert floats initial (lon,lat) positions to grid
+!  If applicable, convert station positions (lon,lat) to grid
 !  units.
 !
       if (mc.gt.0) then
@@ -153,8 +165,8 @@ c 10  format(/,' FLOATS processing parameters:',/)
 # endif
         do i=1,mc
           nc=index(i)
-          stainfo(istaxgrd,nc)=MIN(MAX(0.5,Ip0(i)),FLOAT(LLm)+0.5)
-          stainfo(istaygrd,nc)=MIN(MAX(0.5,Jp0(i)),FLOAT(MMm)+0.5)
+          stainfo(istaxgrd,nc)=MIN(MAX(0.5,Ip0(i)),FLOAT(Lm)+0.5)
+          stainfo(istaygrd,nc)=MIN(MAX(0.5,Jp0(i)),FLOAT(Mm)+0.5)
         enddo
       endif
 !

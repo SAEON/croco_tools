@@ -62,26 +62,26 @@
 #ifdef AVERAGES
      &  ,'number of records written into averages file(s):', nrecavg
 #endif
+#ifdef STATIONS
+     &  ,'number of records written into station  file(s):', nrecsta
+#endif /* STATIONS */
 #ifdef FLOATS
-     &  ,'number of records written into floats file(s):', nrecflt
+     &  ,'number of records written into floats   file(s):', nrecflt
 #endif /* FLOATS */
 #if defined DIAGNOSTICS_TS
-     &  ,'number of records written into diags file(s):', nrecdia
+     &  ,'number of records written into diags_t  file(s):', nrecdia
 # ifdef AVERAGES
-     &  ,'number of records written into avg diags file(s):',
-     &                                                 nrecdia_avg  
+     &  ,'number of records written into avg diag_t  file(s):',
+     &                                                      nrecdia_avg
 # endif
 #endif /*DIAGNOSTICS_UV*/
 #if defined DIAGNOSTICS_UV
-     &  ,'number of records written into diags file(s):', nrecdiaM
+     &  ,'number of records written into diags_u  file(s):', nrecdiaM
 # ifdef AVERAGES
-     &  ,'number of records written into avg diags file(s):',
-     &                                                 nrecdiaM_avg  
+     &  ,'number of records written into avg diags_u file(s):',
+     &                                                      nrecdiaM_avg
 # endif
 #endif /* DIAGNOSTICS_UV */
-#ifdef STATIONS
-     &  ,'number of records written into sta file(s):', nrecsta
-#endif /* STATIONS */
 
       if (may_day_flag.eq.0) then
         MPI_master_only write(stdout,'(/1x,A/)')

@@ -48,8 +48,8 @@
      &        istav=10,          istau=11                    ) 
 
       logical diagsta
-      integer nstas, stagrd(Msta)
-      common /stan/ nstas, diagsta
+      integer nstas0,nstas, stagrd(Msta)
+      common /stan/ nstas0,nstas, diagsta
 
       real stainfo(istagrd:istazgrd,Msta)
       common /sta_info/ stainfo

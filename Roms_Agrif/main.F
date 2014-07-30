@@ -20,19 +20,13 @@
 #include "private_scratch.h"
 #include "scalars.h"
 #include "ncscrum.h"
+#include "grid.h"
 #include "mpi_roms.h"
 #ifdef FLOATS
-# include "grid.h"
 # include "floats.h"
 # include "ncscrum_floats.h"
 #endif
-#if defined RVTK_DEBUG || defined RVTK_DEBUG_ADVANCED
-# include "grid.h"
-#endif
 #ifdef STATIONS
-# if !defined FLOATS
-#  include "grid.h"
-# endif
 # include "sta.h"
 # include "nc_sta.h"
 #endif
