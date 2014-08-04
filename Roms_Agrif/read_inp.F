@@ -715,15 +715,18 @@ c        close(testunit)
         enddo
 #endif
 
+#if !defined SOLVE3D && defined RIP
       elseif (keyword(1:kwlen).eq.'auxiliary_history_fields') then
         call cancel_kwd (keyword(1:kwlen), ierr)
         read(input,*,err=95)
-#ifndef SOLVE3D
      &                                             wrthis(indxBostr)
      &                                          ,  wrthis(indxWstr)
      &                                          ,  wrthis(indxUWstr)
      &                                          ,  wrthis(indxVWstr)
-#else
+#elif defined SOLVE3D
+      elseif (keyword(1:kwlen).eq.'auxiliary_history_fields') then
+        call cancel_kwd (keyword(1:kwlen), ierr)
+        read(input,*,err=95)
      &                                             wrthis(indxR)
      &                                          ,  wrthis(indxO)
      &                                          ,  wrthis(indxW)
