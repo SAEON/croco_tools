@@ -24,24 +24,32 @@ C$    integer omp_get_thread_num
 C$    trd=omp_get_thread_num()
       
       call step2D_FB_tile ( istr,iend,jstr,jend, A2d(1,1,trd)
-     &                    , A2d(1,2,trd), A2d(1, 3,trd), A2d(1, 4,trd)
-     &                    , A2d(1, 5,trd), A2d(1, 6,trd),A2d(1, 7,trd)
-     &                    , A2d(1, 8,trd), A2d(1, 9,trd), A2d(1,10,trd)
-     &                    , A2d(1,11,trd), A2d(1,12,trd), A2d(1,13,trd)
-#ifdef ADV2D_HIGH
-     &                    , A2d(1,14,trd), A2d(1,15,trd)     
+     &                    , A2d(1, 2,trd), A2d(1, 3,trd), A2d(1, 4,trd)
+     &                    , A2d(1, 5,trd), A2d(1, 6,trd), A2d(1, 7,trd)
+     &                    , A2d(1, 8,trd), A2d(1, 9,trd) 
+#if !defined SOLVE3D && defined M2_HADV_UP3
+     &                    , A2d(1,10,trd), A2d(1,11,trd) 
+#else
+     &                    , A2d(1,10,trd), A2d(1,11,trd) 
+     &                    , A2d(1,12,trd), A2d(1,13,trd)     
 #endif
      &                    )
+
       return
       end
  
-      subroutine step2D_FB_tile (istr,iend,jstr,jend, zeta_new,Dnew,
-     &                           rubar,rvbar, urhs,vrhs, DUon,DVom,
-     &                           Drhs, UFx,UFe,VFx,VFe
-#ifdef ADV2D_HIGH
+      subroutine step2D_FB_tile (istr,iend,jstr,jend, zeta_new,
+     &                           Dnew,rubar,rvbar, 
+     &                           Drhs, UFx,UFe,
+     &                           VFx,VFe
+#if !defined SOLVE3D && defined M2_HADV_UP3
      &                          ,wrk1,wrk2
+#else                           
+     &                          ,urhs,vrhs 
+     &                          ,DUon,DVom
 #endif
      &                          )
+
 !
 !======================================================================
 ! Perform one time step for barotropic mode (free-surface and baro-
@@ -92,33 +100,33 @@ C$    trd=omp_get_thread_num()
       implicit none
 #include "param.h"
       integer Istr,Iend,Jstr,Jend, i,j, kbak, kold,
-#ifdef ADV2D_HIGH
-# ifdef MPI
-     &        imin,jmin,
-# endif
-#endif
 #ifdef PSOURCE
-     &                                          is,
+     &        is,
 #endif
-     &                                   IMAX,JMAX
+#if !defined SOLVE3D && defined M2_HADV_UP3 && defined MPI
+     &        imin,jmin,
+#endif
+     &        IMAX,JMAX
       real    VMAX,VMAXL
       real zeta_new(PRIVATE_2D_SCRATCH_ARRAY),  cff,
      &         Dnew(PRIVATE_2D_SCRATCH_ARRAY),  cff0,
      &        rubar(PRIVATE_2D_SCRATCH_ARRAY),  cff1,
      &        rvbar(PRIVATE_2D_SCRATCH_ARRAY),  cff2,
-     &         urhs(PRIVATE_2D_SCRATCH_ARRAY),  cff3,
-     &         vrhs(PRIVATE_2D_SCRATCH_ARRAY),
-     &         DUon(PRIVATE_2D_SCRATCH_ARRAY),
-     &         DVom(PRIVATE_2D_SCRATCH_ARRAY),
-     &         Drhs(PRIVATE_2D_SCRATCH_ARRAY),
+     &         Drhs(PRIVATE_2D_SCRATCH_ARRAY),  cff3,
      &          UFx(PRIVATE_2D_SCRATCH_ARRAY),
      &          UFe(PRIVATE_2D_SCRATCH_ARRAY),  DUnew,
      &          VFx(PRIVATE_2D_SCRATCH_ARRAY),  DVnew,
-     &          VFe(PRIVATE_2D_SCRATCH_ARRAY),  gamma
-#ifdef ADV2D_HIGH
-      real    wrk1(PRIVATE_2D_SCRATCH_ARRAY), curvX, cffE,
-     &        wrk2(PRIVATE_2D_SCRATCH_ARRAY), cffX, curvE
-       parameter (gamma = -0.25)
+     &          VFe(PRIVATE_2D_SCRATCH_ARRAY)
+#if !defined SOLVE3D && defined M2_HADV_UP3
+      real     wrk1(PRIVATE_2D_SCRATCH_ARRAY),
+     &         wrk2(PRIVATE_2D_SCRATCH_ARRAY)
+      real     curvX,curvE,cffE,cffX, gamma
+      parameter (gamma = -0.25)
+#else
+      real     urhs(PRIVATE_2D_SCRATCH_ARRAY),  
+     &         vrhs(PRIVATE_2D_SCRATCH_ARRAY),
+     &         DUon(PRIVATE_2D_SCRATCH_ARRAY),
+     &         DVom(PRIVATE_2D_SCRATCH_ARRAY)
 #endif
 #include "grid.h"
 #include "ocean2d.h"
@@ -151,13 +159,13 @@ C$    trd=omp_get_thread_num()
 # define SWITCH !
 #endif
 !
-# ifdef MPI
-#  define LOCALLM Lmmpi
-#  define LOCALMM Mmmpi
-# else
-#  define LOCALLM Lm
-#  define LOCALMM Mm
-# endif   
+#ifdef MPI
+# define LOCALLM Lmmpi
+# define LOCALMM Mmmpi
+#else
+# define LOCALLM Lm
+# define LOCALMM Mm
+#endif   
 
 #include "compute_auxiliary_bounds.h"
 !
@@ -210,13 +218,13 @@ C$    trd=omp_get_thread_num()
         do i=IstrU-1,Iend+1
           urhs(i,j)=cff1*ubar(i,j,kstp) +cff2*ubar(i,j,kbak)
      &                                  +cff3*ubar(i,j,kold)
-#  if defined MRL_WCI && defined MASKING
+#if defined MRL_WCI && defined MASKING
           urhs(i,j)=urhs(i,j)*umask(i,j)+ust2d(i,j)*(umask(i,j)-1.0)
-#  endif
+#endif
           DUon(i,j)=0.5*(Drhs(i,j)+Drhs(i-1,j))*on_u(i,j)*( urhs(i,j)
-# ifdef MRL_WCI
+#ifdef MRL_WCI
      &                                                   + ust2d(i,j)
-# endif
+#endif
      &                                                              )
         enddo
       enddo
@@ -224,20 +232,34 @@ C$    trd=omp_get_thread_num()
         do i=Istr-1,Iend+1
           vrhs(i,j)=cff1*vbar(i,j,kstp) +cff2*vbar(i,j,kbak)
      &                                  +cff3*vbar(i,j,kold)
-#  if defined MRL_WCI && defined MASKING
+#if defined MRL_WCI && defined MASKING
           vrhs(i,j)=vrhs(i,j)*vmask(i,j)+vst2d(i,j)*(vmask(i,j)-1.0)
-#  endif
+#endif
           DVom(i,j)=0.5*(Drhs(i,j)+Drhs(i,j-1))*om_v(i,j)*( vrhs(i,j)
-# ifdef MRL_WCI
+#ifdef MRL_WCI
      &                                                   + vst2d(i,j)
-# endif
+#endif
      &                                                              )
         enddo
       enddo
 
-#ifdef OBC_VOLCONS
-        call set_DUV_bc_tile (Istr,Iend,Jstr,Jend, Drhs, DUon,DVom)
+#if !defined SOLVE3D && defined M2_HADV_UP3
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+      call exchange_u2d_tile (istr,iend,jstr,jend,
+     &                   urhs(START_2D_ARRAY))
+      call exchange_v2d_tile (istr,iend,jstr,jend,
+     &                   vrhs(START_2D_ARRAY))
+      call exchange_u2d_tile (istr,iend,jstr,jend,
+     &                   Duon (START_2D_ARRAY))
+      call exchange_v2d_tile (istr,iend,jstr,jend,
+     &                   Dvom(START_2D_ARRAY))
+# endif
 #endif
+
+#ifdef OBC_VOLCONS
+      call set_DUV_bc_tile (Istr,Iend,Jstr,Jend, Drhs, DUon,DVom)
+#endif
+
 #ifdef RVTK_DEBUG_ADVANCED
 C$OMP BARRIER
 C$OMP MASTER
@@ -293,7 +315,9 @@ C$OMP END MASTER
 #define rzeta2  VFe
 #define rzetaSA VFx
 !
+!-----------------------------------------------------------------------
 ! Computes zeta(n+1)
+!-----------------------------------------------------------------------
 !
       do j=JstrV-1,jend
         do i=IstrU-1,iend
@@ -306,7 +330,9 @@ C$OMP END MASTER
         enddo
       enddo
 !
+!-----------------------------------------------------------------------
 ! Add nudging terms
+!-----------------------------------------------------------------------
 !
 #ifdef ZNUDGING
 # ifdef ZONAL_NUDGING
@@ -335,7 +361,9 @@ C$OMP END MASTER
       enddo
 #endif /* ZNUDGING */
 !
+!-----------------------------------------------------------------------
 ! Computes zetarhs to use in mometum equations
+!-----------------------------------------------------------------------
 !
       do j=JstrV-1,jend
         do i=IstrU-1,iend
@@ -354,20 +382,26 @@ C$OMP END MASTER
         enddo
       enddo
 !
-!  Load new free-surface values into shared array
-!  Modify new free-surface to ensure that depth is > Dcrit for masked
-!  cells.
+!-----------------------------------------------------------------------
+! Load new free-surface values into shared array
+! Modify new free-surface to ensure that depth is > Dcrit for masked
+! cells.
+!-----------------------------------------------------------------------
 !
       do j=JstrV-1,Jend
         do i=IstrU-1,Iend
           zeta(i,j,knew)=zeta_new(i,j) 
-# if defined WET_DRY && defined MASKING
+#if defined WET_DRY && defined MASKING
           zeta(i,j,knew)=zeta(i,j,knew)+ 
      &                   (Dcrit(i,j)-h(i,j))*(1.-rmask(i,j))
-# endif
+#endif
         enddo
       enddo 
- 
+!
+!-----------------------------------------------------------------------
+! Load rhs values into additional AGRIF shared array for nesting
+!-----------------------------------------------------------------------
+! 
 #ifdef AGRIF
       if (FIRST_2D_STEP) then
       do j=Jstr-1,Jend+1
@@ -387,16 +421,16 @@ C$OMP END MASTER
       enddo 
       endif
 
-#if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r2d_tile (istr,iend,jstr,jend,
      &                   Zt_avg3(START_2D_ARRAY,0))
       call exchange_u2d_tile (istr,iend,jstr,jend,
      &                   du_avg3(START_2D_ARRAY,0))
       call exchange_v2d_tile (istr,iend,jstr,jend,
      &                   dv_avg3(START_2D_ARRAY,0))
-#endif
+# endif
 
-#ifdef RVTK_DEBUG_ADVANCED
+# ifdef RVTK_DEBUG_ADVANCED
        if (.not.agrif_Root()) then
 C$OMP BARRIER
 C$OMP MASTER
@@ -405,12 +439,11 @@ C$OMP MASTER
        call check_tab2d(DV_avg3(:,:,0),'DV_avg3 (index 0) step2d','v')
 C$OMP END MASTER  
        endif
-#endif  
-
-#endif         
+# endif  
+#endif /* AGRIF */         
 !
 !-----------------------------------------------------------------------
-!  Debug zeta
+! Debug zeta
 !-----------------------------------------------------------------------
 !
 #ifdef RVTK_DEBUG_ADVANCED
@@ -421,12 +454,12 @@ C$OMP END MASTER
 #endif       
 !
 !-----------------------------------------------------------------------
-!  Compute wet/dry masks
+! Compute wet/dry masks
 !-----------------------------------------------------------------------
 !
 #ifdef WET_DRY
 # define WETDRY zeta_new
-      CALL wetdry_tile (Istr,Iend,Jstr,Jend, WETDRY)
+      call wetdry_tile (Istr,Iend,Jstr,Jend, WETDRY)
 # undef WETDRY
 #endif
 !
@@ -525,8 +558,8 @@ C$OMP END MASTER
 #undef rzeta2
 #undef rzeta
 #undef zwrk
-
 !
+!========================================================================
 ! Compute horizontal advection terms for momentum equations (2D only)
 !-------- ---------- --------- ----- --- -------- --------- --- -----
 ! NOTE: mathematically necessary (minimal) index ranges for momentum-
@@ -540,10 +573,18 @@ C$OMP END MASTER
 ! consecutive loops. This leads to slight increase of the redundant
 ! computations near western and southern boundaries in non-periodic
 ! directions. 
-!
 !========================================================================
+!
 #ifdef UV_ADV
-# ifndef ADV2D_HIGH
+!
+# if defined SOLVE3D || !defined M2_HADV_UP3
+!-----------------------------------------------------------------------
+! Centered Second order advection scheme
+!
+! Numerical diffusion of momentum is implicitely added through 3D
+! forcing of advection in rufrc and rvfrc (i.e., diffusion is
+! at slow time scale)
+!-----------------------------------------------------------------------
       do j=jstr,jend
         do i=istr-1,iend
           UFx(i,j)=0.25*(DUon(i,j)+DUon(i+1,j))
@@ -579,12 +620,11 @@ C$OMP END MASTER
       enddo !--> discard UFx,VFe,UFe,VFx, DUon,DVom
 
 # else   
-! --------------------------------------------------------------
-!-->      cppkey : ADV2D_HIGH
-!-->      Experimental: June 2014
-!-->      We use QUIKEST spatial advection scheme as in 3D part,  
-!-->      no need explicit viscosity */ 
-! --------------------------------------------------------------
+!-----------------------------------------------------------------------
+!  UP3 (QUICK) spatial advection scheme as in 3D part
+!
+!  in this case, there is no numerical requirement for explicit viscosity
+!-----------------------------------------------------------------------
 #  define uxx wrk1
 #  define Huxx wrk2
 !
@@ -869,43 +909,42 @@ C$OMP END MASTER
      &                                   -VFe(i  ,j)+VFe(i,j-1)
           enddo
         enddo
-# endif /* !ADV2D_HIGH */
+# endif /* !SOLVE3D && M2_HADV_UP3 */
 #endif /* UV_ADV */
-!========================================================================
 !
 !-----------------------------------------------------------------------
 ! Compute Coriolis (2D and 3D) term and advective curvilinear metric
 ! terms (2D only).
 !-----------------------------------------------------------------------
 !
-# if defined UV_COR || (defined CURVGRID && defined UV_ADV)
+#if defined UV_COR || (defined CURVGRID && defined UV_ADV)
       do j=JstrV-1,jend
         do i=IstrU-1,iend
           cff=Drhs(i,j)*(
-#  ifdef UV_COR
+# ifdef UV_COR
      &                   fomn(i,j)
-#  endif
-#  if (defined CURVGRID && defined UV_ADV)
+# endif
+# if (defined CURVGRID && defined UV_ADV)
      &          +0.5*( dndx(i,j)*(vrhs(i,j)+vrhs(i,j+1))
      &                -dmde(i,j)*(urhs(i,j)+urhs(i+1,j)))
-#  endif
+# endif
      &                   )
-#  ifdef MRL_WCI
-#    if defined CURVGRID && defined UV_ADV
+# ifdef MRL_WCI
+#  if defined CURVGRID && defined UV_ADV
           cff1 = Drhs(i,j)*(
      &    0.5*( dndx(i,j)*(vst2d(i,j)+vst2d(i,j+1))
      &          -dmde(i,j)*(ust2d(i,j)+ust2d(i+1,j)) ))
-#    else
+#  else
           cff1 = 0.0
-#    endif
+#  endif
           UFx(i,j)=(cff+cff1)*(vrhs(i,j)+vrhs(i,j+1))
      &                 +cff*(vst2d(i,j)+vst2d(i,j+1))
           VFe(i,j)=(cff+cff1)*(urhs(i,j)+urhs(i+1,j))
      &                 +cff*(ust2d(i,j)+ust2d(i+1,j))
-#  else
+# else
           UFx(i,j)=cff*(vrhs(i,j)+vrhs(i,j+1))
           VFe(i,j)=cff*(urhs(i,j)+urhs(i+1,j))
-#  endif
+# endif
         enddo
       enddo
       do j=jstr,jend
@@ -918,16 +957,16 @@ C$OMP END MASTER
           rvbar(i,j)=rvbar(i,j)-0.25*(VFe(i,j)+VFe(i,j-1))
         enddo
       enddo
-# endif
+#endif
 !
 !-----------------------------------------------------------------------
 ! Compute horizontal viscous stress terms (2D only).
 !-----------------------------------------------------------------------
 !
-# ifdef SOLVE3D
-#  undef UV_VIS2
-# endif
-# ifdef UV_VIS2
+#ifdef SOLVE3D
+# undef UV_VIS2
+#endif
+#ifdef UV_VIS2
       do j=jstr-1,jend
         do i=istr-1,iend
           cff=2.*Drhs(i,j)*visc2_r(i,j)
@@ -943,9 +982,9 @@ C$OMP END MASTER
      &         +(pm(i+1,j+1)+pm(i,j+1)+pm(i+1,j)+pm(i,j))
      &             *(vbar(i+1,j+1,kstp)-vbar(i,j+1,kstp))
      &                                                  )
-#  ifdef MASKING
+# ifdef MASKING
      &                     *pmask(i+1,j+1)
-#  endif
+# endif
           UFe(i+1,j+1)=cff1*om_p(i+1,j+1)
           VFx(i+1,j+1)=cff1*on_p(i+1,j+1)
         enddo
@@ -959,7 +998,7 @@ C$OMP END MASTER
      &                         +VFe(i,j)-VFe(i,j-1)
         enddo
       enddo
-# endif /* UV_VIS2 */
+#endif /* UV_VIS2 */
 !
 !-----------------------------------------------------------------------
 ! Linear and/or quadratic bottom stress.
@@ -1150,7 +1189,7 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 # undef rzeta
 # undef zwrk
       endif   !<-- FIRST_2D_STEP
-#endif
+#endif /* SOLVE3D */
 !
 !-----------------------------------------------------------------------
 ! Perform time step for the 2D momentum equations. 
@@ -1594,7 +1633,7 @@ C$OMP END MASTER
      &          h(i,j-1)+zeta(i,j-1,knew)) *om_v(i,j)*vbar(i,j,knew)
           enddo
         enddo
-        
+ 
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r2d_tile (istr,iend,jstr,jend,
      &                        Zt_avg3(START_2D_ARRAY,iif))

@@ -22,6 +22,13 @@
      &       /ocean_ubar/ubar
      &       /ocean_vbar/vbar
 
+#if !defined SOLVE3D && defined M2_HADV_UP3
+      real urhs(GLOBAL_2D_ARRAY)
+      real vrhs(GLOBAL_2D_ARRAY)
+      real Duon(GLOBAL_2D_ARRAY)
+      real DVom(GLOBAL_2D_ARRAY)
+#endif
+
 #ifdef OXYGEN
       real u10(GLOBAL_2D_ARRAY)
       real Kv_O2(GLOBAL_2D_ARRAY)

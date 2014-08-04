@@ -75,6 +75,9 @@
 #ifdef UV_VIS_SMAGO 
 # define VIS_COEF_3D
 #endif
+#ifndef SOLVE3D
+# define M2_HADV_UP3
+#endif
 
 /*
     if defined apply MOMENTUM LATERAL diffusion in the interior 
