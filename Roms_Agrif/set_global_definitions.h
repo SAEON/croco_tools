@@ -76,7 +76,7 @@
 # define VIS_COEF_3D
 #endif
 #ifndef SOLVE3D
-# define M2_HADV_UP3
+# undef M2_HADV_UP3
 #endif
 
 /*
