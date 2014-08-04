@@ -377,6 +377,7 @@
      &           indxShflx_lat=indxSST+13, indxShflx_sen=indxSST+14)
 # endif
 #endif /* SOLVE3D */
+
       integer indxWstr
       parameter (indxWstr=indxSUSTR+21)
       integer indxUWstr
@@ -386,83 +387,80 @@
       integer indxBostr
       parameter (indxBostr=indxSUSTR+24)
 #ifdef SOLVE3D
-
 # ifdef SEDIMENT
       integer indxSed, indxBTHK, indxBPOR, indxBFRA
       parameter (indxSed=indxSUSTR+28,
      &           indxBTHK=indxSed, indxBPOR=indxSed+1,
      &           indxBFRA=indxSed+2)
 # endif
-# ifdef BBL
-      integer indxBBL, indxAbed, indxHrip, indxLrip, indxZbnot, 
-     &        indxZbapp, indxBostrw
-#  ifdef SEDIMENT 
-      parameter (indxBBL=indxSUSTR+30+NST,
-#  else
-      parameter (indxBBL=indxSUSTR+30, 
-#  endif
-     &           indxAbed  =indxBBL,    indxHrip  =indxAbed+1,
-     &           indxLrip  =indxAbed+2, indxZbnot =indxAbed+3, 
-     &           indxZbapp =indxAbed+4, indxBostrw=indxAbed+5)
-#  ifndef ANA_WWAVE
-      integer indxWWA,indxWWD,indxWWP,indxWEB
-      parameter (indxWWA=indxAbed+6, indxWWD=indxWWA+1, 
-     &           indxWWP=indxWWA+2
-#   ifdef MRL_WCI
-     &          ,indxWEB=indxWWA+3
-#   endif
-     &                             )                                            
-#  endif
-#  ifndef ANA_BSEDIM
-#  endif
-# endif /* BBL */
 # ifdef SST_SKIN
       integer indxSST_skin
-      parameter (indxSST_skin=indxSUSTR+41)
+      parameter (indxSST_skin=indxSUSTR+31)
 # endif 
 #endif /* SOLVE3D */
 
-
-# ifndef BBL
+#ifdef BBL
+      integer indxBBL, indxAbed, indxHrip, indxLrip, indxZbnot, 
+     &        indxZbapp, indxBostrw
+# ifdef SEDIMENT 
+      parameter (indxBBL=indxSUSTR+32+NST,
+# else
+      parameter (indxBBL=indxSUSTR+32, 
+# endif
+     &           indxAbed  =indxBBL,    indxHrip  =indxAbed+1,
+     &           indxLrip  =indxAbed+2, indxZbnot =indxAbed+3, 
+     &           indxZbapp =indxAbed+4, indxBostrw=indxAbed+5)
+# ifndef ANA_WWAVE
       integer indxWWA,indxWWD,indxWWP,indxWEB
-      parameter (indxWWA=indxSUSTR+30, indxWWD=indxWWA+1, 
+      parameter (indxWWA=indxAbed+6, indxWWD=indxWWA+1, 
      &           indxWWP=indxWWA+2
-#   ifdef MRL_WCI
+#  ifdef MRL_WCI
      &          ,indxWEB=indxWWA+3
-#   endif
+#  endif
      &                             )                                            
 # endif
-# ifdef MRL_WCI
+# ifndef ANA_BSEDIM
+# endif
+#else /* BBL */
+      integer indxWWA,indxWWD,indxWWP,indxWEB
+      parameter (indxWWA=indxSUSTR+32, indxWWD=indxWWA+1, 
+     &           indxWWP=indxWWA+2
+#  ifdef MRL_WCI
+     &          ,indxWEB=indxWWA+3
+#  endif
+     &                             )                                            
+#endif  /* BBL */
+
+#ifdef MRL_WCI
       integer indxSUP, indxUST2D,indxVST2D
       parameter (indxSUP  =indxSUSTR+42,
      &           indxUST2D =indxSUP+1, indxVST2D=indxSUP+2)
-#  ifdef SOLVE3D
+# ifdef SOLVE3D
       integer indxUST,indxVST,indxWST,indxAkb,indxAkw,indxKVF,
      &        indxCALP,indxKAPS
       parameter (indxUST=indxSUP+3, indxVST=indxSUP+4,
      &           indxWST=indxSUP+5, indxAkb=indxSUP+6,
      &           indxAkw=indxSUP+7, indxKVF=indxSUP+8,
      &           indxCALP=indxSUP+9, indxKAPS=indxSUP+10)
-#  endif
-#  ifdef DIAGNOSTICS_UV
+# endif
+# ifdef DIAGNOSTICS_UV
       integer indxMvf,indxMbrk,indxMStCo,indxMVvf,
      &        indxMPrscrt,indxMsbk,indxMbwf,indxMfrc 
       parameter (indxMvf=indxKAPS+1,indxMbrk=indxMvf+2,
      &           indxMStCo=indxMvf+4,indxMVvf=indxMvf+6,
      &           indxMPrscrt=indxMvf+8,indxMsbk=indxMvf+10,
      &           indxMbwf=indxMvf+12,indxMfrc=indxMvf+14) 
-#  endif
 # endif
-
-#ifdef WKB_WWAVE
+# ifdef WKB_WWAVE
       integer indxHRM,indxFRQ,indxWAC, indxWKX,indxWKE, indxEPB
      &       ,indxEPD,indxWAR,indxEPR
-      parameter (indxHRM=indxSUP+28,
+      parameter (indxHRM=indxSUP+25,
      &           indxFRQ=indxHRM+1, indxWAC=indxHRM+2,
      &           indxWKX=indxHRM+3, indxWKE=indxHRM+4,
      &           indxEPB=indxHRM+5, indxEPD=indxHRM+6,
      &           indxWAR=indxHRM+7, indxEPR=indxHRM+8 )
-#endif
+# endif
+#endif  /* MRL_WCI */
 
 #ifdef PSOURCE_NCFILE
       integer indxQBAR
@@ -630,6 +628,9 @@
      &      , hisTime, hisTime2, hisTstep, hisZ,    hisUb,  hisVb
      &      , hisBostr, hisWstr, hisUWstr, hisVWstr
      &      , hisShflx, hisSwflx, hisShflx_rsw
+# ifdef BBL
+     &      , hisBBL(6)
+# endif
 #ifdef SOLVE3D
      &      , hisU,   hisV,   hisR,    hisHbl, hisHbbl
      &      , hisO,   hisW,   hisVisc, hisDiff
@@ -658,9 +659,6 @@
       integer hisT(NT)
 # ifdef SEDIMENT
       integer hisSed(NST+2)
-# endif
-# ifdef BBL
-      integer hisBBL(6)
 # endif
 # if defined DIAGNOSTICS_TS 
       integer nciddia, nrecdia, nrpfdia
@@ -693,6 +691,11 @@
      &      , diabioVSink(NumVSinkTerms)
      &      , diabioGasExc(NumGasExcTerms)
 # endif
+#endif
+#ifdef MRL_WCI
+     &      , diaMvf(2), diaMbrk(2), diaMStCo(2)
+     &      , diaMVvf(2), diaMPrscrt(2), diaMsbk(2)
+     &      , diaMbwf(2), diaMfrc(2)
 #endif
 #ifdef AVERAGES
       integer ncidavg, nrecavg,  nrpfavg
@@ -728,19 +731,21 @@
 #  ifdef SEDIMENT
       integer avgSed(NST+2)
 #  endif
-#  ifdef BBL
+# endif
+# ifdef BBL
       integer avgBBL(6)
-#  endif
+# endif
 # ifdef WKB_WWAVE
       integer avgWKB(9)
 # endif
-#ifdef MRL_WCI
+# ifdef MRL_WCI
       integer avgSUP, avgUST2D, avgVST2D
-# ifdef SOLVE3D
+#  ifdef SOLVE3D
       integer avgUST, avgVST, avgAkb, avgAkw, avgKVF,
      &        avgCALP, avgKAPS, avgWST
+#  endif
 # endif
-#endif
+# ifdef SOLVE3D
 #  if defined DIAGNOSTICS_TS
       integer nciddia_avg, nrecdia_avg, nrpfdia_avg
      &      , diaTime_avg, diaTime2_avg, diaTstep_avg
@@ -761,11 +766,6 @@
      &      , diaMXadv_avg(2), diaMYadv_avg(2), diaMVadv_avg(2)
      &      , diaMCor_avg(2), diaMPrsgrd_avg(2), diaMHmix_avg(2)
      &      , diaMVmix_avg(2), diaMrate_avg(2)
-#   ifdef MRL_WCI
-     &      , diaMvf_avg(2), diaMbrk_avg(2), diaMStCo_avg(2)
-     &      , diaMVvf_avg(2), diaMPrscrt_avg(2), diaMsbk_avg(2)
-     &      , diaMbwf_avg(2), diaMfrc_avg(2)
-#   endif
 #  endif
 #  ifdef DIAGNOSTICS_BIO
       integer nciddiabio_avg, nrecdiabio_avg, nrpfdiabio_avg
@@ -775,6 +775,11 @@
      &      , diabioGasExc_avg(NumGasExcTerms)
 #  endif
 # endif /* SOLVE3D */
+# ifdef MRL_WCI
+     &      , diaMvf_avg(2), diaMbrk_avg(2), diaMStCo_avg(2)
+     &      , diaMVvf_avg(2), diaMPrscrt_avg(2), diaMsbk_avg(2)
+     &      , diaMbwf_avg(2), diaMfrc_avg(2)
+# endif
 #endif /* AVERAGES */
  
 #ifdef SOLVE3D

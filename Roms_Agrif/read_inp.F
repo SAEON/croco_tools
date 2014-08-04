@@ -291,24 +291,24 @@
         MPI_master_only write(stdout,'(10x,A,2x,A)')
      &                   'Grid File:', grdname(1:lstr)
 #endif
-#if       (!defined SOLVE3D     && !defined ANA_SMFLUX) \
+
+#if       (!defined ANA_SMFLUX) \
         || (defined TIDES) \
-        || (defined MRL_WCI     && !defined ANA_WWAVE && !defined WKB_WWAVE) \
+        || (defined MRL_WCI     && !defined ANA_WWAVE   && !defined WKB_WWAVE) \
         || (defined SOLVE3D     && (\
-          (!defined ANA_STFLUX  && !defined BULK_FLUX) \
-        || !defined ANA_BTFLUX   \
-        || (defined BBL         && !defined ANA_BSEDIM && !defined SEDIMENT) \
+                                  (!defined ANA_STFLUX  && !defined BULK_FLUX) \
+        ||                         !defined ANA_BTFLUX   \
+        || (defined BBL         && !defined ANA_BSEDIM  && !defined SEDIMENT) \
+        || (defined BBL         && !defined ANA_WWAVE   && !defined WKB_WWAVE) \
         || (defined QCORRECTION && !defined ANA_SST)   \
-        || (defined BBL         && !defined ANA_WWAVE && !defined WKB_WWAVE) \
-        || (defined SALINITY    && !defined ANA_SSFLUX && \
-           !defined BULK_FLUX   && !defined BULK_EP) \
-        || (defined SALINITY    && defined QCORRECTION && \
-            defined SFLX_CORR   && !defined ANA_SSS) \
-        || (defined LMD_SKPP    && \
-           !defined ANA_SRFLUX  && !defined BULK_FLUX) \
+        || (defined SALINITY    && !defined ANA_SSFLUX  && \
+                                   !defined BULK_FLUX   && !defined BULK_EP) \
+        || (defined SALINITY    &&  defined QCORRECTION && \
+                                    defined SFLX_CORR   && !defined ANA_SSS) \
+        || (defined LMD_SKPP    && !defined ANA_SRFLUX  && !defined BULK_FLUX) \
         || (defined BULK_FLUX   && \
-            (!defined BULK_SMFLUX || !defined BULK_EP)) \
-                               )\
+                                  (!defined BULK_SMFLUX || !defined BULK_EP)) \
+                                   )\
            )\
         && !defined OA_COUPLING
 !
@@ -713,12 +713,22 @@ c        close(testunit)
      &                     wrthis(indxT+itrc-1), 'write T(', itrc,
      &                              ')  Tracer of index', itrc,'.'
         enddo
+#endif
 
       elseif (keyword(1:kwlen).eq.'auxiliary_history_fields') then
         call cancel_kwd (keyword(1:kwlen), ierr)
-        read(input,*,err=95) 
-     &           wrthis(indxR),  wrthis(indxO)
-     &        ,  wrthis(indxW),  wrthis(indxAkv),  wrthis(indxAkt)
+        read(input,*,err=95)
+#ifndef SOLVE3D
+     &                                             wrthis(indxBostr)
+     &                                          ,  wrthis(indxWstr)
+     &                                          ,  wrthis(indxUWstr)
+     &                                          ,  wrthis(indxVWstr)
+#else
+     &                                             wrthis(indxR)
+     &                                          ,  wrthis(indxO)
+     &                                          ,  wrthis(indxW)
+     &                                          ,  wrthis(indxAkv)
+     &                                          ,  wrthis(indxAkt)
 # ifdef SALINITY
      &                                          ,  wrthis(indxAks)
 # endif
@@ -752,13 +762,16 @@ c        close(testunit)
      &                                          ,  wrthis(indxO2sat)
 #   endif
 #  elif defined BIO_BioEBUS
-     &                                       ,  wrthis(indxAOU)
-     &                                       ,  wrthis(indxWIND10)
+     &                                          ,  wrthis(indxAOU)
+     &                                          ,  wrthis(indxWIND10)
 #  endif
 # endif
 
-        if ( wrthis(indxR) .or. wrthis(indxO) .or. wrthis(indxW)
-     &                   .or. wrthis(indxAkv) .or. wrthis(indxAkt)
+        if ( wrthis(indxR) 
+     &                                        .or. wrthis(indxO) 
+     &                                        .or. wrthis(indxW)
+     &                                        .or. wrthis(indxAkv)
+     &                                        .or. wrthis(indxAkt)
 # ifdef SALINITY
      &                                        .or. wrthis(indxAks)
 # endif
@@ -792,8 +805,8 @@ c        close(testunit)
      &                                        .or. wrthis(indxO2sat)
 #   endif
 #  elif defined BIO_BioEBUS
-     &                                      .or. wrthis(indxAOU)
-     &                                      .or. wrthis(indxWIND10)
+     &                                        .or. wrthis(indxAOU)
+     &                                        .or. wrthis(indxWIND10)
 #  endif
 # endif
      &     ) wrthis(indxTime)=.true.
@@ -814,15 +827,15 @@ c        close(testunit)
      &                      'Vertical diffusivity for temperature.'
 # ifdef SALINITY
      &  , wrthis(indxAks),  'write Aks  ',
-     &                         'Vertical diffusivity for salinity.'
+     &                      'Vertical diffusivity for salinity.'
 # endif
 # ifdef LMD_SKPP
      &  , wrthis(indxHbl),  'write Hbl  ',
-     &                         'Depth of KPP-model boundary layer.'
+     &                      'Depth of KPP-model boundary layer.'
 # endif
 # ifdef LMD_BKPP
      &  , wrthis(indxHbbl), 'write Hbbl  ',
-     &                       'Depth of bottom planetary boundary layer.'
+     &                      'Depth of bottom planetary boundary layer.'
 # endif
 # ifdef BULK_FLUX
      &  , wrthis(indxShflx_rlw), 'write shflx_rlw [W/m2]', 
@@ -834,21 +847,21 @@ c        close(testunit)
 # endif
 # if defined BIOLOGY && !defined PISCES
      &  , wrthis(indxHel),   'write Hel  ',
-     &                          'Depth of the euphotic layer'
+     &                       'Depth of the euphotic layer'
 #  ifdef BIO_NChlPZD
      &  , wrthis(indxChC),   'write ChC  ',
-     &                          'Chlorophyll to Carbon ratio'
+     &                       'Chlorophyll to Carbon ratio'
 #   ifdef OXYGEN
      &  , wrthis(indxU10),   'write u10 ',
-     &                          'Wind speed at 10 m height'
+     &                       'Wind speed at 10 m height'
      &  , wrthis(indxKvO2),  'write Kv_O2 ',
-     &                          'Gas transfer coefficient for O2'
+     &                       'Gas transfer coefficient for O2'
      &  , wrthis(indxO2sat), 'write O2sat ',
-     &                          'Saturation concentration of O2'
+     &                       'Saturation concentration of O2'
 #   endif
 #  elif defined BIO_BioEBUS 
      &  , wrthis(indxAOU), 'write AOU ' 
-     &  ,                       'Apparent Oxygen Utilization.'
+     &  ,                  'Apparent Oxygen Utilization.'
      &  , wrthis(indxWIND10), 'write wind10 ', 'wind speed at 10 m.'  
 #  endif
 # endif /* BIOLOGY */

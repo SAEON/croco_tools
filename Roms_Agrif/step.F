@@ -560,9 +560,9 @@ C$OMP BARRIER
 # endif
 # if  defined Z_FRC_BRY  || defined M2_FRC_BRY
 #  ifdef ANA_BRY
-            call ana_bry(tile)
+            call ana_bry (tile)
 #  else
-            call set_bry(tile)
+            call set_bry (tile)
 #  endif
 # endif
           enddo
@@ -572,6 +572,9 @@ C$OMP BARRIER
 C$OMP BARRIER
         do tile=my_first,my_last
           call set_vbc (tile)
+# ifdef BBL
+          call bblm (tile)
+# endif
 # if defined SSH_TIDES || defined UV_TIDES
 #   ifdef AGRIF
           IF (Agrif_Root()) call clm_tides (tile)

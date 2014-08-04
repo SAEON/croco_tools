@@ -13,9 +13,6 @@
 #ifdef BBL
       subroutine bblm (tile)
 !====================================================================!
-!  Copyright (c) 2002 Rutgers/UCLA                                   !
-!=============================================== Meinte Blaas 2002 ==!
-!                                                                    !
 !  Compute bottom stresses for combined waves & currents             !
 !  using the parametric approximation by Soulsby 1997:               !
 !  t_cw = t_c[1+1.2(t_w/(t_c+t_w))^3.2]                              !
@@ -31,13 +28,18 @@
 !--------------------------------------------------------------------!
 ! References:
 !
-! Dyer 1986, Coastal & Estuarine Sediment Dynamics, Wiley, 342 pp.
-! Harris & Wiberg 2001, Comp. & Geosci. 27, 675-690
-! Li & Amos 2001, Comp. & Geosci. 27, 619-645
-! Soulsby 1997, Dynamics of Marine Sands, Telford  Publ., 249 pp.
-! Soulsby 1995, Bed shear-stresses due to combined waves and currents,
-!  in: Stive et al: Advances in Coastal Morphodynamics, Wiley, 4.20-4.23
-! Wiberg & Harris 1994, J. Geophys. Res. 99(C4), 775-789
+!  - Dyer 1986, Coastal & Estuarine Sediment Dynamics, Wiley, 342 pp.
+!  - Harris & Wiberg 2001, Comp. & Geosci. 27, 675-690
+!  - Li & Amos 2001, Comp. & Geosci. 27, 619-645
+!  - Soulsby 1997, Dynamics of Marine Sands, Telford  Publ., 249 pp.
+!  - Soulsby 1995, Bed shear-stresses due to combined waves and currents,
+!    in: Stive et al: Advances in Coastal Morphodynamics, Wiley, 4.20-4.23
+!  - Wiberg & Harris 1994, J. Geophys. Res. 99(C4), 775-789
+!
+! First Implementation: Meinte Blaas 2002
+! Changes: P. Marchesiello & R. Benshila 2013-2014:
+!  --> WKB wave model; bottom stress stability limit; 2D application
+!
 !====================================================================!
       implicit none
       integer  tile, trd, omp_get_thread_num
@@ -75,7 +77,11 @@
 # include "bbl.h"
 # include "forces.h"
 # include "grid.h"
-# include "ocean3d.h"
+# ifdef SOLVE3D
+#  include "ocean3d.h"
+# else
+#  include "ocean2d.h"
+# endif
 # include "scalars.h"
 # include "sediment.h"
 
@@ -141,9 +147,15 @@
 !---------------------------------------------------------------------
       DO j=JstrV-1,Jend+1
         DO i=IstrU-1,Iend+1
-          Zr(i,j)=z_r(i,j,1)-z_w(i,j,0)
+# ifdef SOLVE3D
+          Zr(i,j)=max(z_r(i,j,1)-z_w(i,j,0),Zob+1.E-4)
           Ur(i,j)=u(i,j,1,nrhs)
           Vr(i,j)=v(i,j,1,nrhs)
+# else
+          Zr(i,j)=0.5*(h(i,j)+zeta(i,j,kstp))
+          Ur(i,j)=ubar(i,j,kstp)
+          Vr(i,j)=vbar(i,j,kstp)
+# endif
         enddo
       enddo
     
@@ -155,8 +167,12 @@
           rlbio = 0.0d0
           rlen = Lripple(i,j)
           rhgt = Hripple(i,j)
+# ifdef SOLVE3D
           rhow = rho(i,j,1)+1000.0
-          visk = 1.3e-3/rhow         ! kinem. viscosity          
+          visk = 1.3e-3/rhow         ! kinem. viscosity
+# else
+          visk = 1.3e-3/rho0
+# endif
 !---------------------------------------------------------------------
 !  Compute bed wave orbital velocity (m/s) and excursion amplitude
 !  (m) from wind-induced waves.  Use Dean & Dalrymple 1991 6th degree
@@ -506,34 +522,34 @@
       enddo
 
 # ifdef LIMIT_BSTRESS
-!
+!---------------------------------------------------------------------
 !  From J. Warner's code:
 !  Set limiting factor for bottom stress. The bottom stress is adjusted
 !  to not change the direction of momentum.  It only should slow down
 !  to zero.  The value of 0.75 is arbitrary limitation assigment.
-!
+!---------------------------------------------------------------------
       cff=0.75/dt
       do j=Jstr,Jend
         do i=IstrU,Iend
-          cff1=cff*0.5*(Hz(i-1,j,1)+Hz(i,j,1))
+          cff1=cff*0.5*(Zr(i-1,j)+Zr(i,j))
           bustr(i,j)=SIGN(1.0, bustr(i,j))* 
      &               MIN(ABS(bustr(i,j)),
-     &                   ABS(u(i,j,1,nrhs))*cff1)
+     &                   ABS(Ur(i,j))*cff1)
         enddo
       enddo
       do j=JstrV,Jend
         do i=Istr,Iend
-          cff1=cff*0.5*(Hz(i,j-1,1)+Hz(i,j,1))
+          cff1=cff*0.5*(Zr(i,j-1)+Zr(i,j))
           bvstr(i,j)=SIGN(1.0, bvstr(i,j))*
      &               MIN(ABS(bvstr(i,j)),
-     &                   ABS(v(i,j,1,nrhs))*cff1)
+     &                   ABS(Vr(i,j))*cff1)
         enddo
       enddo
 # endif
 
-!
+!---------------------------------------------------------------------
 ! Set boundary conditions
-!
+!---------------------------------------------------------------------
 # ifndef EW_PERIODIC
       IF (EASTERN_EDGE) THEN
         DO j=Jstr,Jend

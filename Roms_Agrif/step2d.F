@@ -1004,6 +1004,20 @@ C$OMP END MASTER
 ! Linear and/or quadratic bottom stress.
 !-----------------------------------------------------------------------
 !
+# ifdef BBL
+        do j=jstr,jend
+          do i=IstrU,iend
+            rubar(i,j)=rubar(i,j) - bustr(i,j)
+     &                             *om_u(i,j)*on_u(i,j)
+          enddo
+        enddo
+        do j=JstrV,jend
+          do i=istr,iend
+            rvbar(i,j)=rvbar(i,j) - bvstr(i,j)
+     &                             *om_v(i,j)*on_v(i,j)
+          enddo
+        enddo
+# else
       if (rdrg2.gt.0.) then
         do j=jstr,jend
           do i=IstrU,iend
@@ -1039,6 +1053,7 @@ C$OMP END MASTER
           enddo
         enddo
       endif
+# endif
 !
 !-----------------------------------------------------------------------
 ! Add 2D vortex-force terms combined with advection terms
