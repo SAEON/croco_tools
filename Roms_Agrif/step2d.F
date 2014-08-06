@@ -23,11 +23,11 @@ C$    integer omp_get_thread_num
       trd=0
 C$    trd=omp_get_thread_num()
       
-      call step2D_FB_tile ( istr,iend,jstr,jend, A2d(1,1,trd)
+      call step2D_FB_tile ( Istr,Iend,Jstr,Jend, A2d(1,1,trd)
      &                    , A2d(1, 2,trd), A2d(1, 3,trd), A2d(1, 4,trd)
      &                    , A2d(1, 5,trd), A2d(1, 6,trd), A2d(1, 7,trd)
      &                    , A2d(1, 8,trd), A2d(1, 9,trd) 
-#if !defined SOLVE3D && defined M2_HADV_UP3
+#ifdef M2_HADV_UP3
      &                    , A2d(1,10,trd), A2d(1,11,trd) 
 #else
      &                    , A2d(1,10,trd), A2d(1,11,trd) 
@@ -38,11 +38,11 @@ C$    trd=omp_get_thread_num()
       return
       end
  
-      subroutine step2D_FB_tile (istr,iend,jstr,jend, zeta_new,
+      subroutine step2D_FB_tile (Istr,Iend,Jstr,Jend, zeta_new,
      &                           Dnew,rubar,rvbar, 
      &                           Drhs, UFx,UFe,
      &                           VFx,VFe
-#if !defined SOLVE3D && defined M2_HADV_UP3
+#ifdef M2_HADV_UP3
      &                          ,wrk1,wrk2
 #else                           
      &                          ,urhs,vrhs 
@@ -103,10 +103,7 @@ C$    trd=omp_get_thread_num()
 #ifdef PSOURCE
      &        is,
 #endif
-#if !defined SOLVE3D && defined M2_HADV_UP3 && defined MPI
-     &        imin,jmin,
-#endif
-     &        IMAX,JMAX
+     &        imin,imax,jmin,jmax
       real    VMAX,VMAXL
       real zeta_new(PRIVATE_2D_SCRATCH_ARRAY),  cff,
      &         Dnew(PRIVATE_2D_SCRATCH_ARRAY),  cff0,
@@ -117,7 +114,7 @@ C$    trd=omp_get_thread_num()
      &          UFe(PRIVATE_2D_SCRATCH_ARRAY),  DUnew,
      &          VFx(PRIVATE_2D_SCRATCH_ARRAY),  DVnew,
      &          VFe(PRIVATE_2D_SCRATCH_ARRAY)
-#if !defined SOLVE3D && defined M2_HADV_UP3
+#ifdef M2_HADV_UP3
       real     wrk1(PRIVATE_2D_SCRATCH_ARRAY),
      &         wrk2(PRIVATE_2D_SCRATCH_ARRAY)
       real     curvX,curvE,cffE,cffX, gamma
@@ -208,14 +205,34 @@ C$    trd=omp_get_thread_num()
         cff3= 0.281105
       endif
 !
-      do j=JstrV-2,Jend+1
-        do i=IstrU-2,Iend+1
+#if defined EW_PERIODIC || defined MPI || !defined M2_HADV_UP3
+      imin=IstrU-2
+      imax=Iend+1
+# define IV_EXT_RANGE Istr-1,Iend+1
+#else
+      imin=max(IstrU-3,0)
+      imax=min(Iend+2,Lm+1)
+# define IV_EXT_RANGE max(Istr-2,0),min(Iend+2,Lm+1)
+#endif
+#if defined NS_PERIODIC || defined MPI || !defined M2_HADV_UP3
+      jmin=JstrV-2
+      jmax=Jend+1
+# define JU_EXT_RANGE Jstr-1,Jend+1
+#else
+      jmin=max(JstrV-3,0)
+      jmax=min(Jend+2,Mm+1)
+# define JU_EXT_RANGE max(Jstr-2,0),min(Jend+2,Mm+1)
+#endif
+!
+      do j=jmin,jmax
+        do i=imin,imax
           Drhs(i,j)=h(i,j)+cff1*zeta(i,j,kstp)+cff2*zeta(i,j,kbak)
      &                                        +cff3*zeta(i,j,kold)
         enddo
       enddo
-      do j=Jstr-1,Jend+1
-        do i=IstrU-1,Iend+1
+
+      do j=JU_EXT_RANGE
+        do i=imin+1,imax
           urhs(i,j)=cff1*ubar(i,j,kstp) +cff2*ubar(i,j,kbak)
      &                                  +cff3*ubar(i,j,kold)
 #if defined MRL_WCI && defined MASKING
@@ -228,8 +245,10 @@ C$    trd=omp_get_thread_num()
      &                                                              )
         enddo
       enddo
-      do j=JstrV-1,Jend+1
-        do i=Istr-1,Iend+1
+#undef JU_EXT_RANGE
+
+      do j=jmin+1,jmax
+        do i=IV_EXT_RANGE
           vrhs(i,j)=cff1*vbar(i,j,kstp) +cff2*vbar(i,j,kbak)
      &                                  +cff3*vbar(i,j,kold)
 #if defined MRL_WCI && defined MASKING
@@ -242,16 +261,17 @@ C$    trd=omp_get_thread_num()
      &                                                              )
         enddo
       enddo
+#undef IV_EXT_RANGE
 
-#if !defined SOLVE3D && defined M2_HADV_UP3
+#ifdef M2_HADV_UP3
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
-      call exchange_u2d_tile (istr,iend,jstr,jend,
+      call exchange_u2d_tile (Istr,Iend,Jstr,Jend,
      &                   urhs(START_2D_ARRAY))
-      call exchange_v2d_tile (istr,iend,jstr,jend,
+      call exchange_v2d_tile (Istr,Iend,Jstr,Jend,
      &                   vrhs(START_2D_ARRAY))
-      call exchange_u2d_tile (istr,iend,jstr,jend,
+      call exchange_u2d_tile (Istr,Iend,Jstr,Jend,
      &                   Duon (START_2D_ARRAY))
-      call exchange_v2d_tile (istr,iend,jstr,jend,
+      call exchange_v2d_tile (Istr,Iend,Jstr,Jend,
      &                   Dvom(START_2D_ARRAY))
 # endif
 #endif
@@ -319,8 +339,8 @@ C$OMP END MASTER
 ! Computes zeta(n+1)
 !-----------------------------------------------------------------------
 !
-      do j=JstrV-1,jend
-        do i=IstrU-1,iend
+      do j=JstrV-1,Jend
+        do i=IstrU-1,Iend
           zeta_new(i,j)=zeta(i,j,kstp) + dtfast*pm(i,j)*pn(i,j)
      &                                   *(DUon(i,j)-DUon(i+1,j  )
      &                                    +DVom(i,j)-DVom(i  ,j+1))
@@ -338,19 +358,19 @@ C$OMP END MASTER
 # ifdef ZONAL_NUDGING
       if (iic.eq.ntstart .or. mod(iic,10).eq.0) then
         if (FIRST_2D_STEP) then
-          call zonavg_2d(istr,iend,jstr,jend,
+          call zonavg_2d(Istr,Iend,Jstr,Jend,
      &                   zeta(START_2D_ARRAY,knew),zetazon)
         endif
       endif
       if (iic.eq.ntstart) then
         if (FIRST_2D_STEP) then
-          call zonavg_2d(istr,iend,jstr,jend,
+          call zonavg_2d(Istr,Iend,Jstr,Jend,
      &                   ssh(START_2D_ARRAY),sshzon)
         endif
       endif
 # endif  /* ZONAL_NUDGING */
-      do j=JstrV-1,jend
-        do i=IstrU-1,iend
+      do j=JstrV-1,Jend
+        do i=IstrU-1,Iend
           zeta_new(i,j)=zeta_new(i,j) + dtfast*Znudgcof(i,j)
 # ifdef ZONAL_NUDGING
      &                                 *(sshzon(j)-zetazon(j))
@@ -365,8 +385,8 @@ C$OMP END MASTER
 ! Computes zetarhs to use in mometum equations
 !-----------------------------------------------------------------------
 !
-      do j=JstrV-1,jend
-        do i=IstrU-1,iend
+      do j=JstrV-1,Jend
+        do i=IstrU-1,Iend
           zeta_new(i,j)=zeta_new(i,j) SWITCH rmask(i,j)
           Dnew(i,j)=zeta_new(i,j)+h(i,j)
           zwrk(i,j)=cff0*zeta_new(i,j) +cff1*zeta(i,j,kstp)
@@ -404,29 +424,29 @@ C$OMP END MASTER
 ! 
 #ifdef AGRIF
       if (FIRST_2D_STEP) then
-      do j=Jstr-1,Jend+1
-        do i=Istr-1,Iend+1
-          Zt_avg3(i,j,0)=zeta(i,j,kstp)       
-        enddo
-      enddo 
-      do j=JstrR,JendR
-        do i=Istr,IendR
-        du_avg3(i,j,0)  = DUon(i,j)
-        enddo
-      enddo 
-      do j=Jstr,JendR
-        do i=IstrR,IendR
-        dv_avg3(i,j,0)  = DVom(i,j)
-        enddo
-      enddo 
+        do j=Jstr-1,Jend+1
+          do i=Istr-1,Iend+1
+            Zt_avg3(i,j,0)=zeta(i,j,kstp)       
+          enddo
+        enddo 
+        do j=JstrR,JendR
+          do i=Istr,IendR
+          du_avg3(i,j,0)  = DUon(i,j)
+          enddo
+        enddo 
+        do j=Jstr,JendR
+          do i=IstrR,IendR
+          dv_avg3(i,j,0)  = DVom(i,j)
+          enddo
+        enddo 
       endif
 
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
-      call exchange_r2d_tile (istr,iend,jstr,jend,
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
      &                   Zt_avg3(START_2D_ARRAY,0))
-      call exchange_u2d_tile (istr,iend,jstr,jend,
+      call exchange_u2d_tile (Istr,Iend,Jstr,Jend,
      &                   du_avg3(START_2D_ARRAY,0))
-      call exchange_v2d_tile (istr,iend,jstr,jend,
+      call exchange_v2d_tile (Istr,Iend,Jstr,Jend,
      &                   dv_avg3(START_2D_ARRAY,0))
 # endif
 
@@ -482,8 +502,8 @@ C$OMP END MASTER
         cff1=weight(1,iif)
         cff2=weight(2,iif)
         if (FIRST_2D_STEP) then
-          do j=jstrR,jendR
-            do i=istrR,iendR
+          do j=JstrR,JendR
+            do i=IstrR,IendR
               Zt_avg1(i,j)=cff1*zeta(i,j,knew)
               DU_avg1(i,j,nnew)=0.
               DV_avg1(i,j,nnew)=0.
@@ -492,8 +512,8 @@ C$OMP END MASTER
             enddo
           enddo 
         else
-          do j=jstrR,jendR
-            do i=istrR,iendR
+          do j=JstrR,JendR
+            do i=IstrR,IendR
               Zt_avg1(i,j)=Zt_avg1(i,j)+cff1*zeta(i,j,knew)
               DU_avg2(i,j)=DU_avg2(i,j)+cff2*DUon(i,j)
               DV_avg2(i,j)=DV_avg2(i,j)+cff2*DVom(i,j)
@@ -522,8 +542,8 @@ C$OMP END MASTER
 ! version for the case when both CPP switches below are defined.
 !
       cff=0.5*g
-      do j=jstr,jend
-        do i=istr,iend
+      do j=Jstr,Jend
+        do i=Istr,Iend
           rubar(i,j)=cff*on_u(i,j)*( (h(i-1,j)+h(i,j))*(rzeta(i-1,j)
      &                        -rzeta(i,j)) +rzeta2(i-1,j)-rzeta2(i,j)
  
@@ -565,8 +585,8 @@ C$OMP END MASTER
 ! NOTE: mathematically necessary (minimal) index ranges for momentum-
 ! flux components are 
 !
-!      UFx(IstrU-1:iend,jstr:jend)   VFx(istr:iend+1,JstrV:jend)
-!      UFe(IstrU:iend,jstr:jend+1)   VFe(istr,iend,JstrV-1,jend)
+!      UFx(IstrU-1:Iend,Jstr:Jend)   VFx(Istr:Iend+1,JstrV:Jend)
+!      UFe(IstrU:Iend,Jstr:Jend+1)   VFe(Istr,Iend,JstrV-1,Jend)
 !
 ! however, for the purpose computational efficiency, these ranges are
 ! unified by suppressing U,V-suffices in order to allow fusion of the
@@ -585,8 +605,8 @@ C$OMP END MASTER
 ! forcing of advection in rufrc and rvfrc (i.e., diffusion is
 ! at slow time scale)
 !-----------------------------------------------------------------------
-      do j=jstr,jend
-        do i=istr-1,iend
+      do j=Jstr,Jend
+        do i=Istr-1,Iend
           UFx(i,j)=0.25*(DUon(i,j)+DUon(i+1,j))
      &                 *(urhs(i,j)+urhs(i+1,j))
 
@@ -597,8 +617,8 @@ C$OMP END MASTER
 #  endif
         enddo
       enddo
-      do j=jstr-1,jend
-        do i=istr,iend
+      do j=Jstr-1,Jend
+        do i=Istr,Iend
           VFe(i,j)=0.25*(DVom(i,j)+DVom(i,j+1))
      &                 *(vrhs(i,j)+vrhs(i,j+1))
 
@@ -609,8 +629,8 @@ C$OMP END MASTER
 #  endif
         enddo
       enddo
-      do j=jstr,jend
-        do i=istr,iend
+      do j=Jstr,Jend
+        do i=Istr,Iend
           rubar(i,j)=rubar(i,j)-UFx(i,j)+UFx(i-1,j)
      &                         -UFe(i,j+1)+UFe(i,j)
 
@@ -650,10 +670,8 @@ C$OMP END MASTER
 
         do j=Jstr,Jend
           do i=IU_EXT_RANGE
-            uxx(i,j)=urhs(i-1,j)-2.*urhs(i,j)
-     &                                +urhs(i+1,j)
-            Huxx(i,j)=Duon(i-1,j)-2.*Duon(i,j)
-     &                                  +Duon(i+1,j)
+            uxx(i,j)=urhs(i-1,j)-2.*urhs(i,j)+urhs(i+1,j)
+            Huxx(i,j)=Duon(i-1,j)-2.*Duon(i,j)+Duon(i+1,j)
           enddo
         enddo
 #   undef IU_EXT_RANGE
@@ -688,7 +706,7 @@ C$OMP END MASTER
               curvX=uxx(i+1,j)
             endif
             UFx(i,j)=0.25*(cffX+gamma*curvX)*( Duon(i,j)+
-     &            Duon(i+1,j)-0.125*(Huxx(i,j)+Huxx(i+1,j)))
+     &               Duon(i+1,j)-0.125*(Huxx(i,j)+Huxx(i+1,j)))
           enddo
         enddo
 #  undef Huxx
@@ -718,10 +736,8 @@ C$OMP END MASTER
 
         do j=JV_EXT_RANGE
           do i=Istr,Iend
-            vee(i,j)=vrhs(i,j-1)-2.*vrhs(i,j)
-     &                                 +vrhs(i,j+1)
-            Hvee(i,j)=Dvom(i,j-1)-2.*Dvom(i,j)
-     &                                   +Dvom(i,j+1)
+            vee(i,j) =vrhs(i,j-1)-2.*vrhs(i,j)+vrhs(i,j+1)
+            Hvee(i,j)=Dvom(i,j-1)-2.*Dvom(i,j)+Dvom(i,j+1)
           enddo
         enddo
 #   undef JV_EXT_RANGE
@@ -755,7 +771,7 @@ C$OMP END MASTER
               curvE=vee(i,j+1)
             endif
             VFe(i,j)=0.25*(cffE+gamma*curvE)*( Dvom(i,j)+
-     &             Dvom(i,j+1)-0.125*(Hvee(i,j)+Hvee(i,j+1)))
+     &               Dvom(i,j+1)-0.125*(Hvee(i,j)+Hvee(i,j+1)))
           enddo
         enddo
 #  undef Hvee
@@ -785,8 +801,7 @@ C$OMP END MASTER
 
         do j=JU_EXT_RANGE
           do i=IstrU,Iend
-            uee(i,j)=urhs(i,j-1)-2.*urhs(i,j)
-     &                                 +urhs(i,j+1)
+            uee(i,j)=urhs(i,j-1)-2.*urhs(i,j)+urhs(i,j+1)
           enddo
         enddo
 #   undef JU_EXT_RANGE
@@ -853,8 +868,7 @@ C$OMP END MASTER
 
         do j=JstrV,Jend
           do i=IV_EXT_RANGE
-            vxx(i,j)=vrhs(i-1,j)-2.*vrhs(i,j)
-     &                                 +vrhs(i+1,j)
+            vxx(i,j)=vrhs(i-1,j)-2.*vrhs(i,j)+vrhs(i+1,j)
           enddo
         enddo
 #   undef IV_EXT_RANGE
@@ -900,13 +914,13 @@ C$OMP END MASTER
         do j=Jstr,Jend
           do i=IstrU,Iend
             rubar(i,j)=rubar(i,j)-UFx(i,j  )+UFx(i-1,j)
-     &                                   -UFe(i,j+1)+UFe(i  ,j)
+     &                           -UFe(i,j+1)+UFe(i  ,j)
           enddo
         enddo
         do j=JstrV,Jend
           do i=Istr,Iend
             rvbar(i,j)=rvbar(i,j)-VFx(i+1,j)+VFx(i,j  )
-     &                                   -VFe(i  ,j)+VFe(i,j-1)
+     &                           -VFe(i  ,j)+VFe(i,j-1)
           enddo
         enddo
 # endif /* !SOLVE3D && M2_HADV_UP3 */
@@ -918,8 +932,8 @@ C$OMP END MASTER
 !-----------------------------------------------------------------------
 !
 #if defined UV_COR || (defined CURVGRID && defined UV_ADV)
-      do j=JstrV-1,jend
-        do i=IstrU-1,iend
+      do j=JstrV-1,Jend
+        do i=IstrU-1,Iend
           cff=Drhs(i,j)*(
 # ifdef UV_COR
      &                   fomn(i,j)
@@ -947,13 +961,13 @@ C$OMP END MASTER
 # endif
         enddo
       enddo
-      do j=jstr,jend
-        do i=IstrU,iend
+      do j=Jstr,Jend
+        do i=IstrU,Iend
           rubar(i,j)=rubar(i,j)+0.25*(UFx(i,j)+UFx(i-1,j))
         enddo
       enddo
-      do j=JstrV,jend
-        do i=istr,iend
+      do j=JstrV,Jend
+        do i=Istr,Iend
           rvbar(i,j)=rvbar(i,j)-0.25*(VFe(i,j)+VFe(i,j-1))
         enddo
       enddo
@@ -967,8 +981,8 @@ C$OMP END MASTER
 # undef UV_VIS2
 #endif
 #ifdef UV_VIS2
-      do j=jstr-1,jend
-        do i=istr-1,iend
+      do j=Jstr-1,Jend
+        do i=Istr-1,Iend
           cff=2.*Drhs(i,j)*visc2_r(i,j)
           UFx(i,j)=cff*(ubar(i+1,j,kstp)-ubar(i,j,kstp))
      &                                 *pm(i,j)*on_r(i,j)
@@ -989,8 +1003,8 @@ C$OMP END MASTER
           VFx(i+1,j+1)=cff1*on_p(i+1,j+1)
         enddo
       enddo
-      do j=jstr,jend
-        do i=istr,iend
+      do j=Jstr,Jend
+        do i=Istr,Iend
           rubar(i,j)=rubar(i,j)+UFx(i,j)-UFx(i-1,j)
      &                         +UFe(i,j+1)-UFe(i,j)
 
@@ -1005,22 +1019,22 @@ C$OMP END MASTER
 !-----------------------------------------------------------------------
 !
 # ifdef BBL
-        do j=jstr,jend
-          do i=IstrU,iend
+        do j=Jstr,Jend
+          do i=IstrU,Iend
             rubar(i,j)=rubar(i,j) - bustr(i,j)
      &                             *om_u(i,j)*on_u(i,j)
           enddo
         enddo
-        do j=JstrV,jend
-          do i=istr,iend
+        do j=JstrV,Jend
+          do i=Istr,Iend
             rvbar(i,j)=rvbar(i,j) - bvstr(i,j)
      &                             *om_v(i,j)*on_v(i,j)
           enddo
         enddo
 # else
       if (rdrg2.gt.0.) then
-        do j=jstr,jend
-          do i=IstrU,iend
+        do j=Jstr,Jend
+          do i=IstrU,Iend
             cff=0.25*( vbar(i  ,j,kstp)+vbar(i  ,j+1,kstp)
      &                +vbar(i-1,j,kstp)+vbar(i-1,j+1,kstp))
  
@@ -1029,8 +1043,8 @@ C$OMP END MASTER
      &                                     )*om_u(i,j)*on_u(i,j)
           enddo
         enddo
-        do j=JstrV,jend
-          do i=istr,iend
+        do j=JstrV,Jend
+          do i=Istr,Iend
             cff=0.25*( ubar(i,j  ,kstp)+ubar(i+1,j  ,kstp)
      &                +ubar(i,j-1,kstp)+ubar(i+1,j-1,kstp))
  
@@ -1040,14 +1054,14 @@ C$OMP END MASTER
           enddo
         enddo
       else if (rdrg.gt.0.0) then
-        do j=jstr,jend
-          do i=IstrU,iend
+        do j=Jstr,Jend
+          do i=IstrU,Iend
             rubar(i,j)=rubar(i,j) - rdrg*ubar(i,j,kstp)
      &                             *om_u(i,j)*on_u(i,j)
           enddo
         enddo
-        do j=JstrV,jend
-          do i=istr,iend
+        do j=JstrV,Jend
+          do i=Istr,Iend
             rvbar(i,j)=rvbar(i,j) - rdrg*vbar(i,j,kstp)
      &                             *om_v(i,j)*on_v(i,j)
           enddo
@@ -1060,8 +1074,8 @@ C$OMP END MASTER
 !-----------------------------------------------------------------------
 !
 #ifdef MRL_WCI
-      do j=jstr,jend
-        do i=IstrU,iend
+      do j=Jstr,Jend
+        do i=IstrU,Iend
           vstu = 0.25*( vst2d(i,j) + vst2d(i,j+1)
      &                 +vst2d(i-1,j)+vst2d(i-1,j+1) )
           dudx = 0.5*( urhs(i+1,j)-urhs(i-1,j) )
@@ -1073,8 +1087,8 @@ C$OMP END MASTER
         enddo
       enddo
 
-      do j=JstrV,jend
-        do i=istr,iend
+      do j=JstrV,Jend
+        do i=Istr,Iend
           ustv = 0.25*( ust2d(i,j) + ust2d(i+1,j)
      &                 +ust2d(i,j-1)+ust2d(i+1,j-1) )
           dude = 0.5*( urhs(i,j) - urhs(i,j-1)
@@ -1123,16 +1137,16 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
           cff2=-0.5-2.*cff3              ! weights optimized for
           cff1=1.5+cff3                  ! maximum stability (with
         endif                            ! special care for startup)
-        do j=jstr,jend
-          do i=IstrU,iend
+        do j=Jstr,Jend
+          do i=IstrU,Iend
             cff=rufrc(i,j)-rubar(i,j)
             rufrc(i,j)=cff1*cff + cff2*rufrc_bak(i,j,3-nstp)
      &                          + cff3*rufrc_bak(i,j,nstp)
             rufrc_bak(i,j,nstp)=cff
           enddo
         enddo
-        do j=JstrV,jend
-          do i=istr,iend
+        do j=JstrV,Jend
+          do i=Istr,Iend
             cff=rvfrc(i,j)-rvbar(i,j)
             rvfrc(i,j)=cff1*cff + cff2*rvfrc_bak(i,j,3-nstp)
      &                          + cff3*rvfrc_bak(i,j,nstp)
@@ -1140,8 +1154,8 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
           enddo
         enddo
 # else
-        do j=jstr,jend                       ! This version is
-          do i=istr,iend                     ! designed for coupling
+        do j=Jstr,Jend                       ! This version is
+          do i=Istr,Iend                     ! designed for coupling
             rufrc(i,j)=rufrc(i,j)-rubar(i,j) ! during 3D corrector
             rvfrc(i,j)=rvfrc(i,j)-rvbar(i,j) ! sub-step: no forward
           enddo                              ! extrapolation needs
@@ -1161,8 +1175,8 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 # define rzeta2  VFe
 # define rzetaSA VFx
 
-        do j=JstrV-1,jend
-          do i=IstrU-1,iend
+        do j=JstrV-1,Jend
+          do i=IstrU-1,Iend
             zwrk(i,j)=zeta_new(i,j)-zeta(i,j,kstp)
 # if defined VAR_RHO_2D && defined SOLVE3D
             rzeta(i,j)=(1.+rhoS(i,j))*zwrk(i,j)
@@ -1176,8 +1190,8 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
         enddo
 
         cff=0.5*g
-        do j=jstr,jend
-          do i=istr,iend
+        do j=Jstr,Jend
+          do i=Istr,Iend
             rubar(i,j)=rubar(i,j) +cff*on_u(i,j)*( (h(i-1,j)+h(i,j))
      &          *(rzeta(i-1,j)-rzeta(i,j)) +rzeta2(i-1,j)-rzeta2(i,j)
 # if defined VAR_RHO_2D && defined SOLVE3D
@@ -1221,8 +1235,8 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 
 #define Dstp DUon
  
-      do j=JstrV-1,jend
-        do i=IstrU-1,iend
+      do j=JstrV-1,Jend
+        do i=IstrU-1,Iend
           Dstp(i,j)=zeta(i,j,kstp)+h(i,j)
         enddo
       enddo
@@ -1233,8 +1247,8 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 #else
       cff2=2.*dtfast
 #endif
-      do j=jstr,jend
-        do i=IstrU,iend
+      do j=Jstr,Jend
+        do i=IstrU,Iend
           DUnew=( (Dstp(i,j)+Dstp(i-1,j))*ubar(i,j,kstp)
      &        +cff*(pm(i,j)+pm(i-1,j))*(pn(i,j)+pn(i-1,j))
 #ifdef SOLVE3D
@@ -1273,8 +1287,8 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
         enddo
       enddo
          
-      do j=JstrV,jend
-        do i=istr,iend
+      do j=JstrV,Jend
+        do i=Istr,Iend
           DVnew=( (Dstp(i,j)+Dstp(i,j-1))*vbar(i,j,kstp)
      &        +cff*(pm(i,j)+pm(i,j-1))*(pn(i,j)+pn(i,j-1))
 #ifdef SOLVE3D
@@ -1322,17 +1336,17 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 # ifdef ZONAL_NUDGING
       if (iic.eq.ntstart .or. mod(iic,10).eq.0) then
         if (FIRST_2D_STEP) then
-          call zonavg_2d(istr,iend,jstr,jend,
+          call zonavg_2d(Istr,Iend,Jstr,Jend,
      &                   ubar(START_2D_ARRAY,knew),ubzon)
-          call zonavg_2d(istr,iend,jstr,jend,
+          call zonavg_2d(Istr,Iend,Jstr,Jend,
      &                   vbar(START_2D_ARRAY,knew),vbzon)
         endif
       endif
       if (iic.eq.ntstart) then
         if (FIRST_2D_STEP) then
-          call zonavg_2d(istr,iend,jstr,jend,
+          call zonavg_2d(Istr,Iend,Jstr,Jend,
      &                   ubclm(START_2D_ARRAY),ubclmzon)
-          call zonavg_2d(istr,iend,jstr,jend,
+          call zonavg_2d(Istr,Iend,Jstr,Jend,
      &                   vbclm(START_2D_ARRAY),vbclmzon)
         endif
       endif
@@ -1429,11 +1443,11 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 ! all open boundaries, if any.
 !-----------------------------------------------------------------------
 !
-      call u2dbc_tile (istr,iend,jstr,jend, UFx) 
-      call v2dbc_tile (istr,iend,jstr,jend, UFx)
+      call u2dbc_tile (Istr,Iend,Jstr,Jend, UFx) 
+      call v2dbc_tile (Istr,Iend,Jstr,Jend, UFx)
 
 #ifdef OBC_VOLCONS
-      call obc_flux_tile (istr,iend,jstr,jend)
+      call obc_flux_tile (Istr,Iend,Jstr,Jend)
 #endif
 !
 !-----------------------------------------------------------------------
@@ -1444,32 +1458,32 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 #ifdef SOLVE3D
 # ifndef EW_PERIODIC
       if (WESTERN_EDGE) then
-        do j=jstr-1,jendR
-          Dnew(istr-1,j)=h(istr-1,j)+zeta(istr-1,j,knew)
+        do j=Jstr-1,JendR
+          Dnew(Istr-1,j)=h(Istr-1,j)+zeta(Istr-1,j,knew)
         enddo
       endif
       if (EASTERN_EDGE) then
-        do j=jstr-1,jendR
-          Dnew(iend+1,j)=h(iend+1,j)+zeta(iend+1,j,knew)
+        do j=Jstr-1,JendR
+          Dnew(Iend+1,j)=h(Iend+1,j)+zeta(Iend+1,j,knew)
         enddo
       endif
 # endif
 # ifndef NS_PERIODIC
       if (SOUTHERN_EDGE) then
-        do i=istr-1,iendR
-          Dnew(i,jstr-1)=h(i,jstr-1)+zeta(i,jstr-1,knew)
+        do i=Istr-1,IendR
+          Dnew(i,Jstr-1)=h(i,Jstr-1)+zeta(i,Jstr-1,knew)
         enddo
       endif
       if (NORTHERN_EDGE) then
-        do i=istr-1,iendR
-          Dnew(i,jend+1)=h(i,jend+1)+zeta(i,jend+1,knew)
+        do i=Istr-1,IendR
+          Dnew(i,Jend+1)=h(i,Jend+1)+zeta(i,Jend+1,knew)
         enddo
       endif
 # endif
       cff1=0.5*weight(1,iif)
 # ifndef EW_PERIODIC
       if (WESTERN_EDGE) then
-        do j=jstrR,jendR
+        do j=JstrR,JendR
           DU_avg1(IstrU-1,j,nnew)=DU_avg1(IstrU-1,j,nnew)
      &         +cff1*(Dnew(IstrU-1,j)
      &         +Dnew(IstrU-2,j))*(ubar(IstrU-1,j,knew)
@@ -1478,50 +1492,50 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 # endif
      &                                             )*on_u(IstrU-1,j)
         enddo
-        do j=JstrV,jend
-          DV_avg1(istr-1,j,nnew)=DV_avg1(istr-1,j,nnew)
-     &       +cff1*(Dnew(istr-1,j)
-     &       +Dnew(istr-1,j-1) )*(vbar(istr-1,j,knew)
+        do j=JstrV,Jend
+          DV_avg1(Istr-1,j,nnew)=DV_avg1(Istr-1,j,nnew)
+     &       +cff1*(Dnew(Istr-1,j)
+     &       +Dnew(Istr-1,j-1) )*(vbar(Istr-1,j,knew)
 # ifdef MRL_WCI
-     &                                              +vst2d(istr-1,j)
+     &                                              +vst2d(Istr-1,j)
 # endif
-     &                                              )*om_v(istr-1,j)
+     &                                              )*om_v(Istr-1,j)
         enddo
       endif
         
       if (EASTERN_EDGE) then
-        do j=jstrR,jendR
-          DU_avg1(iend+1,j,nnew)=DU_avg1(iend+1,j,nnew)
-     &            +cff1*( Dnew(iend+1,j)
-     &            +Dnew(iend,j) )*(ubar(iend+1,j,knew)
+        do j=JstrR,JendR
+          DU_avg1(Iend+1,j,nnew)=DU_avg1(Iend+1,j,nnew)
+     &            +cff1*( Dnew(Iend+1,j)
+     &            +Dnew(Iend,j) )*(ubar(Iend+1,j,knew)
 # ifdef MRL_WCI
-     &                                              +ust2d(iend+1,j)
+     &                                              +ust2d(Iend+1,j)
 # endif
-     &                                              )*on_u(iend+1,j)
+     &                                              )*on_u(Iend+1,j)
         enddo
-        do j=JstrV,jend
-          DV_avg1(iend+1,j,nnew)=DV_avg1(iend+1,j,nnew)
-     &        +cff1*( Dnew(iend+1,j)
-     &        +Dnew(iend+1,j-1) )*(vbar(iend+1,j,knew)
+        do j=JstrV,Jend
+          DV_avg1(Iend+1,j,nnew)=DV_avg1(Iend+1,j,nnew)
+     &        +cff1*( Dnew(Iend+1,j)
+     &        +Dnew(Iend+1,j-1) )*(vbar(Iend+1,j,knew)
 # ifdef MRL_WCI
-     &                                              +vst2d(iend+1,j)
+     &                                              +vst2d(Iend+1,j)
 # endif
-     &                                              )*om_v(iend+1,j)
+     &                                              )*om_v(Iend+1,j)
         enddo
       endif
 # endif
 # ifndef NS_PERIODIC
       if (SOUTHERN_EDGE) then
-        do i=IstrU,iend
-          DU_avg1(i,jstr-1,nnew)=DU_avg1(i,jstr-1,nnew)
-     &        +cff1*( Dnew(i,jstr-1)
-     &        +Dnew(i-1,jstr-1) )*(ubar(i,jstr-1,knew)
+        do i=IstrU,Iend
+          DU_avg1(i,Jstr-1,nnew)=DU_avg1(i,Jstr-1,nnew)
+     &        +cff1*( Dnew(i,Jstr-1)
+     &        +Dnew(i-1,Jstr-1) )*(ubar(i,Jstr-1,knew)
 # ifdef MRL_WCI
-     &                                              +ust2d(i,jstr-1)
+     &                                              +ust2d(i,Jstr-1)
 # endif
-     &                                              )*on_u(i,jstr-1)
+     &                                              )*on_u(i,Jstr-1)
         enddo
-        do i=istrR,iendR
+        do i=IstrR,IendR
           DV_avg1(i,JstrV-1,nnew)=DV_avg1(i,JstrV-1,nnew)
      &         +cff1*(Dnew(i,JstrV-1)
      &         +Dnew(i,JstrV-2))*(vbar(i,JstrV-1,knew)
@@ -1532,23 +1546,23 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
         enddo
       endif
       if (NORTHERN_EDGE) then
-        do i=IstrU,iend
-          DU_avg1(i,jend+1,nnew)=DU_avg1(i,jend+1,nnew)
-     &        +cff1*( Dnew(i,jend+1)
-     &        +Dnew(i-1,jend+1) )*(ubar(i,jend+1,knew)
+        do i=IstrU,Iend
+          DU_avg1(i,Jend+1,nnew)=DU_avg1(i,Jend+1,nnew)
+     &        +cff1*( Dnew(i,Jend+1)
+     &        +Dnew(i-1,Jend+1) )*(ubar(i,Jend+1,knew)
 # ifdef MRL_WCI
-     &                                               +ust2d(i,jend+1)
+     &                                               +ust2d(i,Jend+1)
 # endif
-     &                                               )*on_u(i,jend+1)
+     &                                               )*on_u(i,Jend+1)
         enddo
-        do i=istrR,iendR
-          DV_avg1(i,jend+1,nnew)=DV_avg1(i,jend+1,nnew)
-     &            +cff1*( Dnew(i,jend+1)
-     &            +Dnew(i,jend) )*(vbar(i,jend+1,knew)
+        do i=IstrR,IendR
+          DV_avg1(i,Jend+1,nnew)=DV_avg1(i,Jend+1,nnew)
+     &            +cff1*( Dnew(i,Jend+1)
+     &            +Dnew(i,Jend) )*(vbar(i,Jend+1,knew)
 # ifdef MRL_WCI
-     &                                               +vst2d(i,jend+1)
+     &                                               +vst2d(i,Jend+1)
 # endif
-     &                                               )*om_v(i,jend+1)
+     &                                               )*om_v(i,Jend+1)
         enddo
       endif
 # endif 
@@ -1567,8 +1581,8 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
         i=Isrc(is)
         j=Jsrc(is)
 # endif
-        if (istrR.le.i .and. i.le.iendR .and.
-     &      jstrR.le.j .and. j.le.jendR) then
+        if (IstrR.le.i .and. i.le.IendR .and.
+     &      JstrR.le.j .and. j.le.JendR) then
           if (Dsrc(is).eq.0) then
             ubar(i,j,knew)=2.*Qbar(is)/( on_u(i,j)
      &                   *(Dnew(i-1,j)+Dnew(i,j)) )
@@ -1591,7 +1605,7 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 !-----------------------------------------------------------------------
 !
 #ifndef SOLVE3D
-      call diag_tile (istr,iend,jstr,jend, UFx,UFe)
+      call diag_tile (Istr,Iend,Jstr,Jend, UFx,UFe)
 #endif
 !
 !-----------------------------------------------------------------------
@@ -1599,16 +1613,16 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 !-----------------------------------------------------------------------
 !
 #if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
-      call exchange_r2d_tile (istr,iend,jstr,jend,
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
      &                   zeta(START_2D_ARRAY,knew))
-      call exchange_u2d_tile (istr,iend,jstr,jend,
+      call exchange_u2d_tile (Istr,Iend,Jstr,Jend,
      &                   ubar(START_2D_ARRAY,knew))
-      call exchange_v2d_tile (istr,iend,jstr,jend,
+      call exchange_v2d_tile (Istr,Iend,Jstr,Jend,
      &                   vbar(START_2D_ARRAY,knew))
 # if defined MRL_WCI && defined WET_DRY
-      call exchange_u2d_tile (istr,iend,jstr,jend,
+      call exchange_u2d_tile (Istr,Iend,Jstr,Jend,
      &                   ust2d(START_2D_ARRAY))
-      call exchange_v2d_tile (istr,iend,jstr,jend,
+      call exchange_v2d_tile (Istr,Iend,Jstr,Jend,
      &                   vst2d(START_2D_ARRAY))
 # endif
 #endif
@@ -1650,11 +1664,11 @@ C$OMP END MASTER
         enddo
  
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
-      call exchange_r2d_tile (istr,iend,jstr,jend,
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
      &                        Zt_avg3(START_2D_ARRAY,iif))
-      call exchange_u2d_tile (istr,iend,jstr,jend,
+      call exchange_u2d_tile (Istr,Iend,Jstr,Jend,
      &                        DU_avg3(START_2D_ARRAY,iif))
-      call exchange_v2d_tile (istr,iend,jstr,jend,
+      call exchange_v2d_tile (Istr,Iend,Jstr,Jend,
      &                        DV_avg3(START_2D_ARRAY,iif))
 # endif
 
@@ -1670,15 +1684,15 @@ C$OMP END MASTER
 # ifdef AGRIF_CONSERV_VOL
        if (iif == nfast) then
        if (agrif_root()) then
-         do j=jstrR,jendR
-           do i=istrR,iendR
+         do j=JstrR,JendR
+           do i=IstrR,IendR
              DU_avg1(i,j,5) = dt * DU_avg2(i,j)
              DV_avg1(i,j,5) = dt * DV_avg2(i,j)
            enddo
          enddo
        else
-         do j=jstrR,jendR
-           do i=istrR,iendR
+         do j=JstrR,JendR
+           do i=IstrR,IendR
              DU_avg1(i,j,5) = dt * DU_avg2(i,j)
              DV_avg1(i,j,5) = dt * DV_avg2(i,j)
              DU_avg1(i,j,4) = DU_avg1(i,j,4) + DU_avg1(i,j,5)
@@ -1701,11 +1715,11 @@ C$OMP END MASTER
           IF(ABS(vbar(i,j,knew)).GE.VMAX) THEN
             VMAX=ABS(vbar(i,j,knew))
 #ifdef MPI
-            IMAX=i+iminmpi-1
-            JMAX=j+jminmpi-1
+            imax=i+iminmpi-1
+            jmax=j+jminmpi-1
 #else
-            IMAX=i
-            JMAX=j
+            imax=i
+            jmax=j
 #endif
           ENDIF
         enddo
@@ -1721,7 +1735,7 @@ C$OMP END MASTER
          write(stdout,'(A)') ' ======================================= '
          write(stdout,'(A)') '                                         '
          write(stdout,'(A,F8.2)') '  VMAX (M/S) =',VMAX
-         write(stdout,'(A,2I6)')  '  IMAX JMAX  =',IMAX,JMAX
+         write(stdout,'(A,2I6)')  '  IMAX JMAX  =',imax,jmax
 #ifdef SOLVE3D
         WRITE(stdout,'(A,2I6)')   '  IINT IEXT  =',iic,iif
 #else

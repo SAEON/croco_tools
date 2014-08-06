@@ -57,10 +57,20 @@ C$    integer omp_get_thread_num
 
 # include "compute_auxiliary_bounds.h"
 !
-# define IR_RANGE IstrR,IendR
-# define IU_RANGE  Istr,IendR
-# define JR_RANGE JstrR,JendR
-# define JV_RANGE  Jstr,JendR
+# if defined EW_PERIODIC && !defined MPI
+#  define IR_RANGE Istr,Iend
+#  define IU_RANGE Istr,Iend
+# else
+#  define IR_RANGE IstrR,IendR
+#  define IU_RANGE Istr,IendR
+# endif
+# if defined NS_PERIODIC && !defined MPI
+#  define JR_RANGE Jstr,Jend
+#  define JV_RANGE Jstr,Jend
+# else
+#  define JR_RANGE JstrR,JendR
+#  define JV_RANGE Jstr,JendR
+# endif
 !
 !  Initial conditions for free surface and 2D momentum components.
 !------------------------------------------------------------------

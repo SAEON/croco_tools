@@ -75,8 +75,8 @@
 #ifdef UV_VIS_SMAGO 
 # define VIS_COEF_3D
 #endif
-#ifndef SOLVE3D
-# undef M2_HADV_UP3
+#if !defined SOLVE3D && !defined SOLITON
+# define M2_HADV_UP3
 #endif
 
 /*
