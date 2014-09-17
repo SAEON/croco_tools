@@ -283,7 +283,6 @@
           act(i,j) =act(i,j)*rmask(i,j)
           stk(i,j) =stk(i,j)*rmask(i,j)
           brk(i,j) =brk(i,j)*rmask(i,j)
-          brk(i,j) =wramp2*0.03*kw(i,j)*inv_f(i,j)*rmask(i,j)
           frc(i,j) =frc(i,j)*rmask(i,j)
 # endif   /* MASKING */
 # ifdef WET_DRY
