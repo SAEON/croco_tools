@@ -1,3 +1,49 @@
+% 
+% Compute the kinetic energy transfer:
+% 
+% KmKe= -[ <up up> dubar/dx + <up vp>  dubar/dy  + <up wp>  dubar/dz + ....
+%          <vp up> dvbar/dx + <vp vp>  dvbar/dy  + <vp wp>  dvbar/dz ]
+%
+%KmKe= -[ <up up> dubar/dx + <up vp>  dubar/dy + <up wp>  dubar/dz + ....
+%                <vp up> dvbar/dx + <vp vp>  dvbar/dy   + <vp wp>  dvbar/dz ]
+%    =  -[ <up up  dubar/dx > + <up vp  dubar/dy >+ <up wp dubar/dz >+ ....
+%          <vp up dvbar/dx >+ <vp vp  dvbar/dy >  + <vp wp  dvbar/dz >]
+%    =  - <up up  dubar/dx  + up vp  dubar/dy + up wp dubar/dz + ....
+%          vp up dvbar/dx +   vp vp  dvbar/dy + vp wp  dvbar/dz >
+%    =  - < up(up  dubar/dx  + vp  dubar/dy + wp dubar/dz) + 
+%           vp(up dvbar/dx + vp dvbar/dy  + wp  dvbar/dz) >
+%
+%    =  -<up(up.grad(ubar))+vp(up.grad(vbar))>
+%
+%
+% Advection operators are used. Much easier in sigma coordinates.
+%
+% This is the method used in
+% Djakouré, S., P. Penven, B. Bourlès, J. Veitch and V. Koné, 
+% Coastally trapped eddies in the north of the Gulf of Guinea, 2014, J. Geophys. Res,
+% DOI: 10.1002/2014JC010243
+%
+%  
+%  This file is part of ROMSTOOLS
+%
+%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  it under the terms of the GNU General Public License as published
+%  by the Free Software Foundation; either version 2 of the License,
+%  or (at your option) any later version.
+%
+%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  WITHOUT ANY WARRANTY; without even the implied warranty of
+%  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%  GNU General Public License for more details.
+%
+%  You should have received a copy of the GNU General Public License
+%  along with this program; if not, write to the Free Software
+%  Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+%  MA  02111-1307  USA
+%
+%  Pierrick Penven, 2014
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all
 close all
 warning off
@@ -5,11 +51,11 @@ warning off
 %
 % Directory and file names
 %
-directory='/home/sandrine/RUN_GG_QSCAT_V2014_01_07/SCRATCH/';
+directory='../../Run/ROMS_FILES/';
 model='roms';
 filetype='avg';  % 'his' or 'avg'
-Ymin=5;
-Ymax=10;
+Ymin=1;
+Ymax=1;
 Yorig=nan;
 endf='.nc.1';
 vtransform=1;
@@ -19,6 +65,8 @@ H0=-100; % depth of integration
 % or for the annual mean (season=5).
 % 
 season=3;
+%
+%%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
 %
 Mmin=1+((season-1)*3);
 Mmax=Mmin+2;
