@@ -1,20 +1,19 @@
 % 
 % Compute the kinetic energy transfer:
 % 
-% KmKe= -[ <up up> dubar/dx + <up vp>  dubar/dy  + <up wp>  dubar/dz + ....
-%          <vp up> dvbar/dx + <vp vp>  dvbar/dy  + <vp wp>  dvbar/dz ]
+% KmKe= -[ <up up> dubar/dx + <up vp>  dubar/dy  + <up Wp>  dubar/dz + ....
+%          <vp up> dvbar/dx + <vp vp>  dvbar/dy  + <vp Wp>  dvbar/dz ]
 %
-%KmKe= -[ <up up> dubar/dx + <up vp>  dubar/dy + <up wp>  dubar/dz + ....
-%                <vp up> dvbar/dx + <vp vp>  dvbar/dy   + <vp wp>  dvbar/dz ]
-%    =  -[ <up up  dubar/dx > + <up vp  dubar/dy >+ <up wp dubar/dz >+ ....
-%          <vp up dvbar/dx >+ <vp vp  dvbar/dy >  + <vp wp  dvbar/dz >]
-%    =  - <up up  dubar/dx  + up vp  dubar/dy + up wp dubar/dz + ....
-%          vp up dvbar/dx +   vp vp  dvbar/dy + vp wp  dvbar/dz >
-%    =  - < up(up  dubar/dx  + vp  dubar/dy + wp dubar/dz) + 
-%           vp(up dvbar/dx + vp dvbar/dy  + wp  dvbar/dz) >
+% KmKe= -[ <up up> dubar/dx + <up vp>  dubar/dy + <up Wp>  dubar/dz + ....
+%          <vp up> dvbar/dx + <vp vp>  dvbar/dy   + <vp Wp>  dvbar/dz ]
+%     =  -[ <up up  dubar/dx > + <up vp  dubar/dy >+ <up Wp dubar/dz >+ ....
+%           <vp up dvbar/dx >+ <vp vp  dvbar/dy >  + <vp Wp  dvbar/dz >]
+%     =  - <up up  dubar/dx  + up vp  dubar/dy + up Wp dubar/dz + ....
+%           vp up dvbar/dx +   vp vp  dvbar/dy + vp Wp  dvbar/dz >
+%     =  - < up(up  dubar/dx  + vp  dubar/dy + Wp dubar/dz) + 
+%            vp(up dvbar/dx + vp dvbar/dy  + Wp  dvbar/dz) >
 %
-%    =  -<up(up.grad(ubar))+vp(up.grad(vbar))>
-%
+%     =  -<up(up.grad(ubar))+vp(up.grad(vbar))>
 %
 % Advection operators are used. Much easier in sigma coordinates.
 %
@@ -22,6 +21,11 @@
 % Djakouré, S., P. Penven, B. Bourlès, J. Veitch and V. Koné, 
 % Coastally trapped eddies in the north of the Gulf of Guinea, 2014, J. Geophys. Res,
 % DOI: 10.1002/2014JC010243
+%
+% For comparison, a simple KmKe2 is computed:
+% 
+%  KmKe2= -[ <up up> dubar/dx|s=cst + <up vp>  dubar/dy|s=cst + ....
+%            <vp up> dvbar/dx|s=cst + <vp vp>  dvbar/dy|s=cst ]
 %
 %  
 %  This file is part of ROMSTOOLS
@@ -54,17 +58,19 @@ warning off
 directory='../../Run/ROMS_FILES/';
 model='roms';
 filetype='avg';  % 'his' or 'avg'
-Ymin=1;
-Ymax=1;
+outfile='kmke.mat';
+Ymin=5;
+Ymax=10;
 Yorig=nan;
-endf='.nc.1';
+endf='.nc';
 vtransform=1;
+offomega=0; % 1: compute W from u and v
 H0=-100; % depth of integration
 %
 % possiblity to compute KmKe for a given season (1 to 4)
 % or for the annual mean (season=5).
 % 
-season=3;
+season=5;
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -92,20 +98,28 @@ close(nc)
 %
 [M,L]=size(pm);
 [masku,maskv,maskp]=uvp_mask(maskr);
+
 %
-% get the seasonal mean
+% get the seasonal (or annual) mean
 %
+
 Sname=[directory,model,'_Smean',endf]
 nc=netcdf(Sname);
-N=length(nc('s_rho'))
+N=length(nc('s_rho'));
 zetab=squeeze(nc{'zeta'}(season,:,:));
 ub=squeeze(nc{'u'}(season,:,:,:));
 vb=squeeze(nc{'v'}(season,:,:,:));
-wb=squeeze(nc{'omega'}(season,:,:,:));
+if offomega==0 
+  Wb=squeeze(nc{'omega'}(season,:,:,:));
+else
+  [Wvlc,Wb]=get_wvelocity(zetab,ub,vb,h,pm,pn,theta_s,theta_b,hc,N,vtransform);
+end
 close(nc)
+
 %
-% gradient of ubar and vbar
+% gradients of ubar and vbar
 %
+
 dudx=zeros(N,M,L);
 dudx(:,:,2:end-1)=tridim(pm(:,2:end-1),N).*(ub(:,:,2:end)-ub(:,:,1:end-1));
 dudy=zeros(N,M,L);
@@ -124,9 +138,11 @@ dvdy(:,2:end-1,:)=tridim(pn(2:end-1,:),N).*(vb(:,2:end,:)-vb(:,1:end-1,:));
 dn_u=tridim(2./(pn(:,1:end-1)+pn(:,2:end)),N);
 dm_v=tridim(2./(pm(1:end-1,:)+pm(2:end,:)),N);
 omn_w=tridim(1./(pm.*pn),N+1);
+
 %
 % Time loop
 %
+
 KmKe=zeros(N,M,L);
 uu=zeros(N,M,L);
 uv=zeros(N,M,L);
@@ -143,12 +159,18 @@ for Y=Ymin:Ymax
     ntime=length(nc('time'));
 %
     for tindex=1:ntime
-%    for tindex=1:2
-tindex
+      disp([' index : ',num2str(tindex),' of ',num2str(ntime)])
       zeta=squeeze(nc{'zeta'}(tindex,:,:));
-      up=squeeze(nc{'u'}(tindex,:,:,:))-ub;
-      vp=squeeze(nc{'v'}(tindex,:,:,:))-vb;
-      wp=squeeze(nc{'omega'}(tindex,:,:,:))-wb;
+      u=squeeze(nc{'u'}(tindex,:,:,:));
+      v=squeeze(nc{'v'}(tindex,:,:,:));
+      if offomega==0 
+        Wp=squeeze(nc{'omega'}(season,:,:,:))-Wb;
+      else
+        [Wvlc,Wrk]=get_wvelocity(zeta,u,v,h,pm,pn,theta_s,theta_b,hc,N,vtransform);
+        Wp=Wrk-Wb;
+      end
+      up=u-ub;
+      vp=v-vb;
 %
 % Compute Hz
 % 
@@ -157,10 +179,11 @@ tindex
       mnoHz=tridim(pm.*pn,N)./Hz;
 
 %
-% Compute the terms
+% Compute the advection terms
 %
-      upXgradub=mnoHz.*roms_advection(masku,maskv,maskr,Hz,dn_u.*up,dm_v.*vp,omn_w.*wp,u2rho_3d(ub));
-      upXgradvb=mnoHz.*roms_advection(masku,maskv,maskr,Hz,dn_u.*up,dm_v.*vp,omn_w.*wp,v2rho_3d(vb));
+
+      upXgradub=mnoHz.*roms_advection(masku,maskv,maskr,Hz,dn_u.*up,dm_v.*vp,omn_w.*Wp,u2rho_3d(ub));
+      upXgradvb=mnoHz.*roms_advection(masku,maskv,maskr,Hz,dn_u.*up,dm_v.*vp,omn_w.*Wp,v2rho_3d(vb));
 %
       up=u2rho_3d(up);
       vp=v2rho_3d(vp);
@@ -178,15 +201,27 @@ tindex
     close(nc)
   end
 end
+
 %
+% Compute KmKe
+%
+
 KmKe=KmKe/nindex;
+
 %
+% Compute KmKe2
+%
+
 uu=uu/nindex;
 uv=uv/nindex;
 vu=vu/nindex;
 vv=vv/nindex;
 KmKe2=-(uu.*dudx+uv.*dudy+vu.*dvdx+vv.*dvdy);
+
 %
+% Verticaly integrate
+%
+
 zr=zlevs(h,zeta,theta_s,theta_b,hc,N,'r',vtransform);
 zw=zlevs(h,zeta,theta_s,theta_b,hc,N,'w',vtransform);
 mask=maskr;
@@ -194,8 +229,16 @@ mask(mask==0)=NaN;
 [KmKe2D,h0]=vintegr2(KmKe,zw,zr,H0,0);
 [KmKe2D2,h0]=vintegr2(KmKe2,zw,zr,H0,0);
 
-save kmke.mat lon lat mask KmKe KmKe2 zr zw  H0 KmKe2D KmKe2D2
+%
+% Save
+%
 
+save(outfile,'lon','lat','mask','KmKe','KmKe2',...
+     'zr','zw','H0','KmKe2D','KmKe2D2')
+
+%
+% Figures
+%
 
 figure(1)
 pcolor(lon,lat,mask.*1e6.*KmKe2D)
