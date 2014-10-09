@@ -52,7 +52,7 @@ t0=t0-24*mjd(Yorig,1,1);
 %  Read in ROMS grid.
 %
 disp('Reading ROMS grid parameters ...');
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 lonr=nc{'lon_rho'}(:);
 latr=nc{'lat_rho'}(:);
 lonu=nc{'lon_u'}(:);
