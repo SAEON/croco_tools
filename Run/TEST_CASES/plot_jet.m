@@ -48,7 +48,7 @@ tindex=input('tindex : ');
 %
 % Parent
 %
-nc=netcdf(fname);
+nc=netcdf(fname,'r');
 N=length(nc('s_rho'));
 tlen=length(nc{'scrum_time'}(:));
 tindex=min(tlen,tindex);
@@ -63,7 +63,7 @@ t=(-rho+R0)./TCOEF;
 sst=squeeze(t(N,:,:));
 close(nc)
 %
-nc=netcdf(gname);
+nc=netcdf(gname,'r');
 xr=1e-3*nc{'x_rho'}(:);
 yr=1e-3*nc{'y_rho'}(:);
 h=nc{'h'}(:,:);
@@ -92,7 +92,7 @@ vr=v2rho_2d(squeeze(v(N,:,:)));
 % Child
 %
 if nesting,
- nc=netcdf(fname_child);
+ nc=netcdf(fname_child,'r');
  zeta2=squeeze(nc{'zeta'}(tindex,:,:));
  u2=squeeze(nc{'u'}(tindex,:,:,:));
  v2=squeeze(nc{'v'}(tindex,:,:,:));
@@ -106,7 +106,7 @@ if nesting,
  t2(:,:,1)=NaN; t2(:,:,end)=NaN;
  sst2(:,1)=NaN; sst2(:,end)=NaN;
 %
- nc=netcdf(gname_child);
+ nc=netcdf(gname_child,'r');
  xr2=1e-3*nc{'x_rho'}(:);
  yr2=1e-3*nc{'y_rho'}(:);
  h2=nc{'h'}(:,:);
@@ -229,7 +229,7 @@ colorbar
 title('Zonal velocity')
 %
 if tindex>20
- nc=netcdf(fname);
+ nc=netcdf(fname,'r');
  lx=30; ly=15;
  figure('units','centimeters','position', ...
           [0 0 lx ly],'paperpositionmode','auto')

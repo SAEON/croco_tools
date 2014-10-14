@@ -90,7 +90,7 @@ end
 %
 % Parent
 %
-nc=netcdf('vortex_his.nc');
+nc=netcdf('vortex_his.nc','r');
 N=length(nc('s_rho'));
 time=round(nc{'scrum_time'}(tindex)/(24*3600));
 disp(['Day : ',num2str(time)])
@@ -118,7 +118,7 @@ end
 % Child
 %
 childhis='vortex_his.nc.1';
-nc=netcdf(childhis);
+nc=netcdf(childhis,'r');
 nestvortex=0;
 if exist(childhis)
   nestvortex=1;

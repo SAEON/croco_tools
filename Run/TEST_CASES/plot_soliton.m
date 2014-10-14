@@ -29,7 +29,7 @@
 clear all
 close all
 tndx=16;
-nc=netcdf('roms_his.nc');
+nc=netcdf('roms_his.nc','r');
 time=(nc{'scrum_time'}(tndx))/(24*3600);
 x=nc{'x_rho'}(:);
 y=nc{'y_rho'}(:);

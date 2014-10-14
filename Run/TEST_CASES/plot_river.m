@@ -35,7 +35,7 @@ vname='salt';
 %
 % Read data
 %
-nc=netcdf('river_his.nc');
+nc=netcdf('river_his.nc','r');
 tis=nc{'scrum_time'}(:);
 h=nc{'h'}(:);
 x=(nc{'x_rho'}(:))/1000;
@@ -51,7 +51,7 @@ map=colormap(jet);
 NCOL=length(map(:,1));
 
 if floats==1
-  nf=netcdf('floats.nc');
+  nf=netcdf('floats.nc','r');
   nflt=length(nf('drifter'));
   hflt=0*(1:nflt);
 end

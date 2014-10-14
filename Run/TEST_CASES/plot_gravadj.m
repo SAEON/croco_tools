@@ -34,7 +34,7 @@ plot_psi=0;
 %
 % Read data
 %
-nc=netcdf('gravadj_his.nc');
+nc=netcdf('gravadj_his.nc','r');
 h=nc{'h'}(:);
 x=squeeze(nc{'x_rho'}(2,:));
 zeta=squeeze(nc{'zeta'}(tndx,:,:));

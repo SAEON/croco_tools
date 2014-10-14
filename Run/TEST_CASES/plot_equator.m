@@ -35,7 +35,7 @@ i=21;
 %
 % Read data
 %
-nc=netcdf('equator_his.nc');
+nc=netcdf('equator_his.nc','r');
 h=nc{'h'}(:);
 x1=nc{'x_rho'}(:);
 y1=nc{'y_rho'}(:);

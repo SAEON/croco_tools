@@ -1,7 +1,7 @@
 close all
 clear all
 
-nc=netcdf('stations.nc');
+nc=netcdf('stations.nc','r');
 nsta=2;
 for ista=1:nsta;
   T=squeeze(nc{'temp'}(:,ista,:));

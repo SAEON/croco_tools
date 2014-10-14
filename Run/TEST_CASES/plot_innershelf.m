@@ -63,7 +63,7 @@ subfigratio=2/3;
 % --- get grid, Av & f from numerical model ---
 % ---------------------------------------------------------------------
 
-nc=netcdf(fname);
+nc=netcdf(fname,'r');
 tindex=length(nc{'scrum_time'}(:)); % reads last record
 yindex=3;                           % y index (with periodic conditions
                                     %          all fields are constant in y)

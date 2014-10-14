@@ -34,7 +34,7 @@ j=25;
 %
 % Read data
 %
-nc=netcdf('basin_his.nc');
+nc=netcdf('basin_his.nc','r');
 h=nc{'h'}(:);
 x1=nc{'x_rho'}(:);
 y1=nc{'y_rho'}(:);

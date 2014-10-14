@@ -30,7 +30,7 @@ clear all
 close all
 
 tndx=5;
-nc=netcdf('roms_avg.nc');
+nc=netcdf('roms_avg.nc','r');
 time=(nc{'scrum_time'}(tndx))/(24*3600);
 h=nc{'h'}(:);
 y=squeeze(nc{'y_rho'}(:,2));

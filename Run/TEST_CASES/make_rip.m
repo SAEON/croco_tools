@@ -113,7 +113,7 @@ Lp=length(x);
 M=Mp-1;
 L=Lp-1;
 nc=netcdf(parent_grd, 'clobber');
-redef(nc);
+%%redef(nc);		% for Octave compatiblity
 nc('xi_rho') = Lp;
 nc('eta_rho') = Mp;
 nc('xi_psi') = L;
@@ -129,7 +129,7 @@ nc{'pn'} = ncdouble('eta_rho', 'xi_rho');
 nc{'x_rho'} = ncdouble('eta_rho', 'xi_rho');
 nc{'y_rho'} = ncdouble('eta_rho', 'xi_rho');
 nc{'mask_rho'} = ncdouble('eta_rho', 'xi_rho');
-endef(nc);
+%% endef(nc);		% for Octave compatiblity
 nc.title = ncchar(title);
 nc.title = title;
 nc.date = ncchar(date);
@@ -166,7 +166,7 @@ disp(file_title)
 %
 disp(' ')
 disp(' Read in the parent grid...')
-nc=netcdf(parent_grd);
+nc=netcdf(parent_grd,'r');
 xr_parent=nc{'x_rho'}(:);
 yr_parent=nc{'y_rho'}(:);
 maskr_parent=nc{'mask_rho'}(:);
@@ -220,7 +220,7 @@ disp(' Create the grid file...')
 M=Mp-1;
 L=Lp-1;
 nc=netcdf(child_grd, 'clobber');
-redef(nc);
+%%redef(nc);
 nc('xi_rho') = Lp;
 nc('eta_rho') = Mp;
 nc('xi_psi') = L;
@@ -239,7 +239,7 @@ nc{'y_rho'} = ncdouble('eta_rho', 'xi_rho');
 nc{'mask_rho'} = ncdouble('eta_rho', 'xi_rho');
 nc{'grd_pos'} = ncint('four');
 nc{'refine_coef'} = ncint('one');
-endef(nc);
+%%endef(nc);
 nc.title = ncchar(file_title);
 nc.title = file_title;
 nc.date = ncchar(date);

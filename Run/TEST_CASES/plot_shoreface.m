@@ -45,7 +45,7 @@ makepdf   = 0;                     % make pdf file
 % --- get grid from numerical model ---
 % ---------------------------------------------------------------------
 
-nc=netcdf(fname);
+nc=netcdf(fname,'r');
 tindex=length(nc{'scrum_time'}(:)); % reads last record
 
 %

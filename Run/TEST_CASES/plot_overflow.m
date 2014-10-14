@@ -33,7 +33,7 @@ tndx=3;
 %
 % Read data
 %
-nc=netcdf('roms_his.nc');
+nc=netcdf('roms_his.nc','r');
 h=nc{'h'}(:);
 y=squeeze(nc{'y_rho'}(:,2));
 zeta=squeeze(nc{'zeta'}(tndx,:,:));
