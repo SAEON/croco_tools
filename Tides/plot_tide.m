@@ -34,7 +34,7 @@ deg=180.0/pi;
 
 niceplot=1;
 
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 rlon=nc{'lon_rho'}(:);
 rlat=nc{'lat_rho'}(:);
 rmask=nc{'mask_rho'}(:);
@@ -42,7 +42,7 @@ rangle=nc{'angle'}(:);
 close(nc)
 [M,L]=size(rlat);
 
-nc=netcdf(frcname);
+nc=netcdf(frcname,'r');
 tide_Eamp(:,:)=nc{'tide_Eamp'}(k,:,:);
 tide_Cmax(:,:)=nc{'tide_Cmax'}(k,1:skp:M,1:skp:L);
 tide_Cmin(:,:)=nc{'tide_Cmin'}(k,1:skp:M,1:skp:L);

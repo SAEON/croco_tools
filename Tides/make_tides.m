@@ -66,7 +66,7 @@ close(nc)
 %
 % Read in TPX file
 %
-nctides=netcdf(tidename);
+nctides=netcdf(tidename,'r');
 periods=nctides{'periods'}(:);
 cmpt=nctides.components(:);
 close(nctides)

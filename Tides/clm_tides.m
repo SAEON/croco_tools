@@ -40,7 +40,7 @@ deg2rad=pi/180.;
 %
 % Read the grid
 %
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 lon=nc{'lon_rho'}(:);
 lat=nc{'lat_rho'}(:);
 close(nc)
@@ -60,7 +60,7 @@ lon1=lon(J,I);
 lat1=lat(J,I);
 disp(['lon1 = ',num2str(lon1),' lat1 = ',num2str(lat1)])
 %
-nc=netcdf(frcname);
+nc=netcdf(frcname,'r');
 Tperiod=nc{'tide_period'}(:);
 SSH_Tamp=nc{'tide_Eamp'}(:,J,I);
 SSH_Tphase=nc{'tide_Ephase'}(:,J,I);

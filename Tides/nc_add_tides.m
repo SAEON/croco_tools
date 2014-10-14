@@ -24,7 +24,7 @@ function nc_add_tides(fname,Ntides,start_tide_mjd,components)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 nc=netcdf(fname,'write');
-redef(nc);
+%%redef(nc);		% for Octave compatibility
 %
 %  Add dimension
 %

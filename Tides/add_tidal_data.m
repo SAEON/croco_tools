@@ -23,7 +23,7 @@ deg=180.0/pi;
 %  Read in ROMS grid.
 %
 disp('Reading ROMS grid parameters ...');
-nc=netcdf(gname);
+nc=netcdf(gname,'r');
 rlon=nc{'lon_rho'}(:);
 rlat=nc{'lat_rho'}(:);
 rangle=nc{'angle'}(:);
@@ -37,7 +37,7 @@ maxlon=(max(max(rlon)));
 %
 % Read TPX grid
 %
-nctides=netcdf(tidename);
+nctides=netcdf(tidename,'r');
 periods=nctides{'periods'}(:);
 xr=nctides{'lon_r'}(:);
 yr=nctides{'lat_r'}(:);
