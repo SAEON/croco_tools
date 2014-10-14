@@ -31,16 +31,16 @@ function add_o2(oafile,climfile,inifile,gridfile,month_datafile,...
 %
 % Read in the grid
 %
-nc=netcdf(gridfile);
+nc=netcdf(gridfile,'r');
 hmax=max(max(nc{'h'}(:)));
 close(nc);
 %
 % read in the datafiles 
 %
-nc=netcdf(month_datafile);
+nc=netcdf(month_datafile,'r');
 t=nc{'T'}(:);
 close(nc)
-nc=netcdf(ann_datafile);
+nc=netcdf(ann_datafile,'r');
 zo2=nc{'Z'}(:);
 kmax=max(find(zo2<hmax))-1;
 zo2=zo2(1:kmax);
@@ -51,7 +51,7 @@ close(nc)
 if (makeoa)
   disp('Add_o2: creating variables and attributes for the OA file')
   nc=netcdf(oafile,'write');
-  redef(nc);
+%%  redef(nc);
   nc('o2_time') = length(t);
   nc{'o2_time'} = ncdouble('o2_time') ;
   nc('Zo2') = length(zo2);
@@ -78,7 +78,7 @@ if (makeoa)
   nc{'O2'}.fields = ncchar('O2, scalar, series');
   nc{'O2'}.fields = 'O2, scalar, series';
 %
-  endef(nc);
+%%  endef(nc);
 %
 % record depth and time and close
 %
@@ -95,7 +95,7 @@ if (makeclim)
 % open the clim file  
 % 
   nc=netcdf(climfile,'write');
-  redef(nc);
+ %% redef(nc);
   nc('o2_time') = length(t);
   nc{'o2_time'} = ncdouble('o2_time') ;
   nc{'O2'} = ncdouble('o2_time','s_rho','eta_rho','xi_rho') ;
@@ -115,7 +115,7 @@ if (makeclim)
   nc{'O2'}.fields = ncchar('O2, scalar, series');
   nc{'O2'}.fields = 'O2, scalar, series';
 %
-  endef(nc);
+%%  endef(nc);
 %
 % record the time and close
 %

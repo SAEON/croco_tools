@@ -31,7 +31,7 @@ function getpot_bry(bryname,grdname,obcndx);
 %
 % open the grid file  
 % 
-ng=netcdf(grdname);
+ng=netcdf(grdname,'r');
 L=length(ng('xi_rho'));
 M=length(ng('eta_rho'));
 if obcndx==1

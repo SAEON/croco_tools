@@ -31,16 +31,16 @@ function add_fer(oafile,climfile,inifile,gridfile,seas_datafile,...
 %
 % Read in the grid
 %
-nc=netcdf(gridfile);
+nc=netcdf(gridfile,'r');
 hmax=max(max(nc{'h'}(:)));
 close(nc);
 %
 % read in the datafiles 
 %
-nc=netcdf(seas_datafile);
+nc=netcdf(seas_datafile,'r');
 t=nc{'T'}(:);
 close(nc)
-nc=netcdf(ann_datafile);
+nc=netcdf(ann_datafile,'r');
 zfer=nc{'Z'}(:);
 kmax=max(find(zfer<hmax))-1;
 zfer=zfer(1:kmax);
@@ -51,7 +51,7 @@ close(nc)
 if (makeoa)
   disp('Add_fer: creating variables and attributes for the OA file')
   nc=netcdf(oafile,'write');
-  redef(nc);
+%%  redef(nc);
   nc('fer_time') = length(t);
   nc{'fer_time'} = ncdouble('fer_time') ;
   nc('Zfer') = length(zfer);
@@ -78,7 +78,7 @@ if (makeoa)
   nc{'FER'}.fields = ncchar('FER, scalar, series');
   nc{'FER'}.fields = 'FER, scalar, series';
 %
-  endef(nc);
+%%  endef(nc);
 %
 % record deth and time and close
 %
@@ -95,7 +95,7 @@ if (makeclim)
 % open the clim file  
 % 
   nc=netcdf(climfile,'write');
-  redef(nc);
+%%  redef(nc);
   nc('fer_time') = length(t);;
   nc{'fer_time'} = ncdouble('fer_time') ;
   nc{'FER'} = ncdouble('fer_time','s_rho','eta_rho','xi_rho') ;
@@ -115,7 +115,7 @@ if (makeclim)
   nc{'FER'}.fields = ncchar('FER, scalar, series');
   nc{'FER'}.fields = 'FER, scalar, series';
 %
-  endef(nc);
+%%  endef(nc);
 %
 % record the time and close
 %

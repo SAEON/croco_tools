@@ -31,7 +31,7 @@ disp([' Ext tracers: ro = ',num2str(ro/1000),...
 %
 % Read in the datafile 
 %
-ncmonth=netcdf(month_datafile);
+ncmonth=netcdf(month_datafile,'r');
 x=ncmonth{'X'}(:);
 y=ncmonth{'Y'}(:);
 zmonth=-ncmonth{'Z'}(:);
@@ -41,7 +41,7 @@ Nzmonth=length(zmonth);
 %
 % Open the grid file  
 % 
-ng=netcdf(oaname);
+ng=netcdf(oaname,'r');
 lon=ng{'lon_rho'}(:);
 lon(lon<0)=lon(lon<0)+360;
 lat=ng{'lat_rho'}(:);

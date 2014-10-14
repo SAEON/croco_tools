@@ -184,7 +184,7 @@ if (makeclim)
 end
 
 
-if (makeclim)
+if (makeplot)
 disp(' ')
 disp(' Make a few plots...')
 test_clim(clmname,grdname,'NO3',1,coastfileplot)

@@ -47,7 +47,7 @@ end
 %
 % Open and Read grid file  
 % 
-ng=netcdf(grdname);
+ng=netcdf(grdname,'r');
 lon=ng{'lon_rho'}(:);
 lat=ng{'lat_rho'}(:);
 h=ng{'h'}(:);
@@ -56,7 +56,7 @@ close(ng);
 %
 % Read seasonal datafile 
 %
-ncseas=netcdf(seas_datafile);
+ncseas=netcdf(seas_datafile,'r');
 X=ncseas{'X'}(:);
 Y=ncseas{'Y'}(:);
 Zseas=-ncseas{'Z'}(:);
@@ -66,7 +66,7 @@ Nzseas=length(Zseas);
 %
 % Read annual datafile
 %
-ncann=netcdf(ann_datafile);
+ncann=netcdf(ann_datafile,'r');
 Zann=-ncann{'Z'}(:);
 Nz=length(Zann);
 %

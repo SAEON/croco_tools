@@ -104,7 +104,7 @@ nc{'lat_rho'}(:)=Latr;
 nc{'lon_rho'}(:)=Lonr;
 nc{'lat_psi'}(:)=Latp;
 nc{'lon_psi'}(:)=Lonp;
-result=close(nc);
+close(nc);
 %
 %  Compute the metrics
 %
@@ -188,7 +188,7 @@ nc{'y_psi'}(:)=yp;
 nc{'angle'}(:)=angle;
 nc{'f'}(:)=f;
 nc{'spherical'}(:)='T';
-result=close(nc);
+close(nc);
 disp(' ')
 disp(['  Size of the grid:  L = ',...
       num2str(L),' - M = ',num2str(M)])

@@ -58,7 +58,7 @@ lonu=nc{'lon_u'}(:);
 latu=nc{'lat_u'}(:);
 lonv=nc{'lon_v'}(:);
 latv=nc{'lat_v'}(:);
-status=close(nc);
+close(nc);
 [Mp,Lp]=size(lonr);
 L=Lp-1;
 M=Mp-1;
@@ -68,7 +68,7 @@ M=Mp-1;
 type = 'OA file' ; 
 history = 'ROMS' ;
 nc = netcdf(oaname,clobber);
-result = redef(nc);
+%result = redef(nc);
 %
 %  Create dimensions
 %
@@ -254,7 +254,7 @@ nc.history = history;
 %
 % Leave define mode
 %
-result = endef(nc);
+%%result = endef(nc);
 %
 % Write variables
 %

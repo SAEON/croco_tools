@@ -32,7 +32,7 @@ function vinterp(clmname,grdname,oaname,vname,tname,zname,tini,...
 %
 % open the grid file  
 % 
-ng=netcdf(grdname);
+ng=netcdf(grdname,'r');
 h=ng{'h'}(:);
 close(ng);
 %
@@ -52,7 +52,7 @@ end
 %
 % open the oa file  
 % 
-noa=netcdf(oaname);
+    noa=netcdf(oaname,'r');
 z=-noa{zname}(:);
 t=noa{tname}(:);
 tlen=length(t);

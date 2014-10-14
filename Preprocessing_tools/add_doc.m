@@ -31,16 +31,16 @@ function add_doc(oafile,climfile,inifile,gridfile,seas_datafile,...
 %
 % Read in the grid
 %
-nc=netcdf(gridfile);
+nc=netcdf(gridfile,'r');
 hmax=max(max(nc{'h'}(:)));
 close(nc);
 %
 % read in the datafiles 
 %
-nc=netcdf(seas_datafile);
+nc=netcdf(seas_datafile,'r');
 t=nc{'T'}(:);
 close(nc)
-nc=netcdf(ann_datafile);
+nc=netcdf(ann_datafile,'r');
 zdoc=nc{'Z'}(:);
 kmax=max(find(zdoc<hmax))-1;
 zdoc=zdoc(1:kmax);
@@ -51,7 +51,7 @@ close(nc)
 if (makeoa)
   disp('Add_doc: creating variables and attributes for the OA file')
   nc=netcdf(oafile,'write');
-  redef(nc);
+%%  redef(nc);
   nc('doc_time') = length(t);
   nc{'doc_time'} = ncdouble('doc_time') ;
   nc('Zdoc') = length(zdoc);
@@ -78,7 +78,7 @@ if (makeoa)
   nc{'DOC'}.fields = ncchar('DOC, scalar, series');
   nc{'DOC'}.fields = 'DOC, scalar, series';
 %
-  endef(nc);
+%%  endef(nc);
 %
 % record deth and time and close
 %
@@ -95,7 +95,7 @@ if (makeclim)
 % open the clim file  
 % 
   nc=netcdf(climfile,'write');
-  redef(nc);
+%%  redef(nc);
   nc('doc_time') = length(t);;
   nc{'doc_time'} = ncdouble('doc_time') ;
   nc{'DOC'} = ncdouble('doc_time','s_rho','eta_rho','xi_rho') ;
@@ -115,7 +115,7 @@ if (makeclim)
   nc{'DOC'}.fields = ncchar('DOC, scalar, series');
   nc{'DOC'}.fields = 'DOC, scalar, series';
 %
-  endef(nc);
+%%  endef(nc);
 %
 % record the time and close
 %

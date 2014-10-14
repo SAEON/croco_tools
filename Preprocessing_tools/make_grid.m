@@ -39,6 +39,7 @@ romstools_param
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
 warning off
+isoctave=exist('octave_config_info');
 %
 % Title
 %
@@ -167,6 +168,8 @@ nc{'mask_v'}(:)=maskv;
 nc{'mask_psi'}(:)=maskp;
 nc{'mask_rho'}(:)=maskr;
 close(nc);
+
+if (isoctave == 0)
 %
 % Create the coastline
 %
@@ -189,6 +192,7 @@ if strcmp(r,'y')
 end
 %
 close all
+end % isoctave
 %
 %  Smooth the topography
 %
@@ -208,6 +212,7 @@ close(nc);
 %
 % make a plot
 %
+if (isoctave == 0)
 if makeplot==1
   disp(' ')
   disp(' Do a plot...')
@@ -242,6 +247,7 @@ if makeplot==1
   hold off
 end
 warning on
+end
 %
 % End
 %

@@ -30,7 +30,7 @@ disp(' ')
 %  Create the boundary file
 %
 nc = netcdf(zbryname,clobber);
-result = redef(nc);
+%%result = redef(nc);
 %
 %  Create dimensions
 %
@@ -261,7 +261,7 @@ end
 %
 % Leave define mode
 %
-result = endef(nc);
+%%result = endef(nc);
 %
 % Write variables
 %

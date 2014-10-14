@@ -10,7 +10,7 @@ conserv=1;
 %  grid parameters
 %
 disp(' Read grid parameters ...');
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 pm=nc{'pm'}(:);
 pn=nc{'pn'}(:);
 h=nc{'h'}(:);

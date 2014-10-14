@@ -11,11 +11,11 @@ N=40;
 %
 disp(' ')
 disp(' Read in the grid...')
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 Lp=length(nc('xi_rho'));
 Mp=length(nc('eta_rho'));
 h=nc{'h'}(:);
-result=close(nc);
+close(nc);
 
 
 

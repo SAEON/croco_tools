@@ -45,7 +45,7 @@ disp(['Add swradbio: daily averaged solar short wave radiation'])
 disp(['No change needed in this climato case                  '])
 disp(['Creating variables and attributes for frc files        '])
 end
-nc_add_swradbio_frc(frcname);
+nc_add_swradbio_frc(frcname,'r');
 %
 nw=netcdf(frcname,'write');
 swrad1=nw{'swrad'}(:);

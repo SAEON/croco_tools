@@ -43,7 +43,7 @@ Roa=0;
 %
 % read in the datafile 
 %
-ncseas=netcdf(seas_datafile);
+ncseas=netcdf(seas_datafile,'r');
 x=ncseas{'X'}(:);
 y=ncseas{'Y'}(:);
 t=ncseas{'T'}(:);
@@ -52,7 +52,7 @@ missval=ncseas{'chlorophyll'}.missing_value(:);
 %
 % open the grid file  
 % 
-ng=netcdf(grdfile);
+ng=netcdf(grdfile,'r');
 lon=ng{'lon_rho'}(:);
 %lon(lon<0)=lon(lon<0)+360;
 lat=ng{'lat_rho'}(:);

@@ -60,7 +60,7 @@ else
   prename=coast_file(1:lc-6);
 end
 %
-nc=netcdf(grid_file);
+nc=netcdf(grid_file,'r');
 lon=nc{'lon_rho'}(:);
 lat=nc{'lat_rho'}(:);
 close(nc)

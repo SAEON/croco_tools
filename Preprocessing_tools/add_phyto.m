@@ -49,7 +49,7 @@ nc=netcdf(climfile,'write');
 time= nc{'chla_time'}(:);
 cycle= nc{'chla_time'}.cycle_length(:);
 tlen=length(time);
-redef(nc);
+%%redef(nc);
 nc('phyto_time') = tlen;
 nc{'phyto_time'} = ncdouble('phyto_time') ;
 nc{'PHYTO'} = ncdouble('phyto_time','s_rho','eta_rho','xi_rho') ;
@@ -69,7 +69,7 @@ nc{'PHYTO'}.units = 'mMol N m-3';
 nc{'PHYTO'}.fields = ncchar('PHYTO, scalar, series');
 nc{'PHYTO'}.fields = 'PHYTO, scalar, series';
 %
-endef(nc);
+%%endef(nc);
 %
 % record the time
 %

@@ -1,4 +1,4 @@
-function  create_grid2(L,M,grdname,title)
+function  create_grid(L,M,grdname,title)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % 	Create an empty netcdf gridfile
@@ -35,7 +35,7 @@ Lp=L+1;
 Mp=M+1;
 
 nw = netcdf(grdname, 'clobber');
-result = redef(nw);
+%result = redef(nw);
 
 %
 %  Create dimensions
@@ -268,7 +268,7 @@ nw{'mask_psi'}.option_0 = 'land';
 nw{'mask_psi'}.option_1 = ncchar('water');
 nw{'mask_psi'}.option_1 = 'water';
 
-result = endef(nw);
+%result = endef(nw);
 
 %
 % Create global attributes
@@ -281,4 +281,4 @@ nw.date = date;
 nw.type = ncchar('ROMS grid file');
 nw.type = 'ROMS grid file';
 
-result = close(nw);
+close(nw);

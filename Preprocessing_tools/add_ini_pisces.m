@@ -31,7 +31,7 @@ disp([' Adding PISCES data in file : ',inifile])
 %  Create the initial file
 %
 nc = netcdf(inifile,clobber);
-result = redef(nc);
+%%result = redef(nc);
 %
 %  Create variables
 %
@@ -96,7 +96,7 @@ nc{'FER'}.units = 'mMol Fe m-3';
 %
 % Leave define mode
 %
-result = endef(nc);
+%%result = endef(nc);
 %
 % Write variables
 %

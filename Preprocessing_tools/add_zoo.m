@@ -51,7 +51,7 @@ nc=netcdf(climfile,'write');
 time= nc{'chla_time'}(:);
 cycle= nc{'chla_time'}.cycle_length(:);
 tlen=length(time);
-redef(nc);
+%%redef(nc);
 nc('zoo_time') = tlen;
 nc{'zoo_time'} = ncdouble('zoo_time') ;
 nc{'ZOO'} = ncdouble('zoo_time','s_rho','eta_rho','xi_rho') ;
@@ -71,7 +71,7 @@ nc{'ZOO'}.units = 'mMol N m-3';
 nc{'ZOO'}.fields = ncchar('ZOO, scalar, series');
 nc{'ZOO'}.fields = 'ZOO, scalar, series';
 %
-endef(nc);
+%%endef(nc);
 %
 % record the time
 %

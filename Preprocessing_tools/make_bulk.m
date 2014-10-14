@@ -106,7 +106,7 @@ disp(ROMS_title)
 %
 disp(' ')
 disp(' Read in the grid...')
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 Lp=length(nc('xi_rho'));
 Mp=length(nc('eta_rho'));
 lon=nc{'lon_rho'}(:);
@@ -116,7 +116,7 @@ latu=nc{'lat_u'}(:);
 lonv=nc{'lon_v'}(:);
 latv=nc{'lat_v'}(:);
 angle=nc{'angle'}(:);
-result=close(nc);
+close(nc);
 cosa=cos(angle);
 sina=sin(angle);
 %

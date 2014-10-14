@@ -33,15 +33,15 @@ function  create_bulk(frcname,grdname,title,bulkt,bulkc)
 %  Updated    25-Oct-2006 by Pierrick Penven (uwnd and vwnd)
 %  Updated    8-Apr-2009 by Gildas Cambon (add longwave in)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 L=length(nc('xi_psi'));
 M=length(nc('eta_psi'));
-result=close(nc);
+close(nc);
 Lp=L+1;
 Mp=M+1;
 
 nw = netcdf(frcname, 'clobber');
-result = redef(nw);
+%result = redef(nw);
 
 %
 %  Create dimensions
@@ -137,7 +137,7 @@ nw{'vwnd'}.long_name = 'v-wind';
 nw{'vwnd'}.units = ncchar('meter second-1');
 nw{'vwnd'}.units = 'm/s';
 
-result = endef(nw);
+%result = endef(nw);
 
 %
 % Create global attributes

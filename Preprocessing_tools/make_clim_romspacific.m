@@ -82,11 +82,11 @@ disp([' Title: ',title])
 %
 disp(' ')
 disp(' Read in the grid...')
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 Lp=length(nc('xi_rho'));
 Mp=length(nc('eta_rho'));
 hmax=max(max(nc{'h'}(:)));
-result=close(nc);
+close(nc);
 %
 % Create the climatology file
 %
@@ -103,7 +103,7 @@ end
 if (makeoa)
   disp(' ')
   disp(' Create the OA file...')
-  nc=netcdf(monthtemp);
+    nc=netcdf(monthtemp,'r');
   Z=nc{'DEPTH'}(1:30);
   close(nc)
   create_oafile(oaname,grdname,title,Z,...

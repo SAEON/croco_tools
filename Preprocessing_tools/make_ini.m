@@ -95,14 +95,16 @@ if (insitu2pot)
   disp(' Compute potential temperature from in-situ...')
   getpot(ininame,grdname)
 end
+if (makeplot == 1)
 %
 % Make a few plots
 %
-disp(' ')
-disp(' Make a few plots...')
-test_clim(ininame,grdname,'temp',1,coastfileplot)
-figure
-test_clim(ininame,grdname,'salt',1,coastfileplot)
+    disp(' ')
+    disp(' Make a few plots...')
+    test_clim(ininame,grdname,'temp',1,coastfileplot)
+    figure
+    test_clim(ininame,grdname,'salt',1,coastfileplot)
+end
 %
 % End
 %

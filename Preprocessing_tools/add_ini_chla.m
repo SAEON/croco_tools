@@ -68,7 +68,7 @@ default=NaN;
 %
 % read in the datafile 
 %
-ncseas=netcdf(seas_datafile);
+ncseas=netcdf(seas_datafile,'r');
 x=ncseas{'X'}(:);
 y=ncseas{'Y'}(:);
 datatime=ncseas{'T'}(:);
@@ -80,7 +80,7 @@ tlen=length(datatime);
 %
 % open the grid file  
 % 
-ng=netcdf(gridfile);
+ng=netcdf(gridfile,'r');
 lon=ng{'lon_rho'}(:);
 %lon(lon<0)=lon(lon<0)+360;
 lat=ng{'lat_rho'}(:);
@@ -117,7 +117,7 @@ N =  length(nc('s_rho'));
 scrum_time = nc{'scrum_time'}(:);
 scrum_time = scrum_time / (24*3600);
 tinilen = length(scrum_time);
-redef(nc);
+%redef(nc);
 nc{'CHLA'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 nc{'CHLA'}.long_name = ncchar('Chlorophyll');
 nc{'CHLA'}.long_name = 'Chlorophyll';
@@ -126,7 +126,7 @@ nc{'CHLA'}.units = 'mg C';
 nc{'CHLA'}.fields = ncchar('CHLA, scalar, series');
 nc{'CHLA'}.fields = 'CHLA, scalar, series';
 %
-endef(nc);
+%endef(nc);
 %
 % Get the missing values
 %

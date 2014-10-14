@@ -90,7 +90,7 @@ nw{'NO3_src'}.units = ncchar('mmol.s-1');
 
 nw{'runoff_name'} = ncchar('n_qbar','runoffname_StrLen');
 nw{'runoff_name'}.long_name = ncchar('runoff time');
-result = endef(nw);
+%%result = endef(nw);
 
 % Fill th value
 %

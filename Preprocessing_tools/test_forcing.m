@@ -31,6 +31,7 @@ function test_forcing(frcname,grdname,thefield,thetime,skip,coastfileplot)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+isoctave=exist('octave_config_info');
 niceplot=1;
 i=0;
 for time=thetime
@@ -38,7 +39,7 @@ for time=thetime
   
   subplot(2,length(thetime)/2,i)
 
-  nc=netcdf(frcname);
+  nc=netcdf(frcname,'r');
   stime=nc{'sms_time'}(time);
   if isempty(stime)
     stime=nc{'bulk_time'}(time);
@@ -69,7 +70,7 @@ for time=thetime
 %
 % Read the grid
 %
-  nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
   if strcmp(thefield,'sustr') | strcmp(thefield,'uwnd')
     lon=nc{'lon_u'}(:);
     lat=nc{'lat_u'}(:);
@@ -84,7 +85,7 @@ for time=thetime
     mask=nc{'mask_rho'}(:);
   end
   angle=nc{'angle'}(:);
-  result=close(nc);
+  close(nc);
   mask(mask==0)=NaN;
 %
 % compute the vectors
@@ -94,6 +95,7 @@ for time=thetime
 %
 % Make the plot
 %  
+if (isoctave == 0);
   if niceplot==1
     domaxis=[min(min(lon)) max(max(lon)) min(min(lat)) max(max(lat))];
     m_proj('mercator',...
@@ -119,5 +121,5 @@ for time=thetime
     title([fieldname,' - day: ',num2str(stime)])
   end
 end
-
+end
 

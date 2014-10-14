@@ -43,12 +43,12 @@ function h=add_topo(grdname,toponame)
 %
 %  read roms grid
 %
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 lon=nc{'lon_rho'}(:);
 lat=nc{'lat_rho'}(:);
 pm=nc{'pm'}(:);
 pn=nc{'pn'}(:);
-result=close(nc);
+close(nc);
 %
 % Get ROMS averaged resolution
 %
@@ -65,7 +65,7 @@ latmax=max(max(lat))+dl;
 %
 %  open the topo file
 %
-nc=netcdf(toponame);
+nc=netcdf(toponame,'r');
 tlon=nc{'lon'}(:);
 tlat=nc{'lat'}(:);
 %
@@ -91,7 +91,7 @@ end
 if ~isempty(i3)
   topo=cat(2,topo,-nc{'topo'}(j,i3));
 end
-result=close(nc);
+close(nc);
 %
 % Get TOPO averaged resolution
 %

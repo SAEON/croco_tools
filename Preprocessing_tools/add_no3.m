@@ -52,17 +52,17 @@ function add_no3(oafile,climfile,inifile,gridfile,seas_datafile,...
 %
 % Read in the grid
 %
-nc=netcdf(gridfile);
+nc=netcdf(gridfile,'r');
 hmax=max(max(nc{'h'}(:)));
 close(nc);
 %
 % read in the datafiles 
 %
-nc=netcdf(seas_datafile);
+nc=netcdf(seas_datafile,'r');
 t=nc{'T'}(:);
 t;
 close(nc)
-nc=netcdf(ann_datafile);
+nc=netcdf(ann_datafile,'r');
 zno3=nc{'Z'}(:);
 kmax=max(find(zno3<hmax))-1;
 zno3=zno3(1:kmax);
@@ -75,7 +75,7 @@ close(nc)
 if (makeoa)
   disp('Add_no3: creating variables and attributes for the OA file')
   nc=netcdf(oafile,'write');
-  redef(nc);
+ % redef(nc);
   
   %Create Dimensions
   nc('no3_time') = length(t);
@@ -118,7 +118,7 @@ if (makeoa)
   nc{'NO3'}.fields = ncchar('NO3, scalar, series');
   nc{'NO3'}.fields = 'NO3, scalar, series';
 %%%
-  endef(nc);
+%%  endef(nc);
 %
 %% Write variables
 %% record depth and time and close
@@ -136,7 +136,7 @@ if (makeclim)
 % open the clim file  
 % 
   nc=netcdf(climfile,'write');
-  redef(nc);
+ % redef(nc);
   nc('no3_time') = length(t);;
   nc{'no3_time'} = ncdouble('no3_time') ;
   nc{'NO3'} = ncdouble('no3_time','s_rho','eta_rho','xi_rho') ;
@@ -156,7 +156,7 @@ if (makeclim)
   nc{'NO3'}.fields = ncchar('NO3, scalar, series');
   nc{'NO3'}.fields = 'NO3, scalar, series';
 %
-  endef(nc);
+%%  endef(nc);
 %
 % record the time and close
 %

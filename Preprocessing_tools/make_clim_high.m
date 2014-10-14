@@ -88,11 +88,11 @@ disp([' Title: ',title])
 %
 disp(' ')
 disp(' Read in the grid...')
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 Lp=length(nc('xi_rho'));
 Mp=length(nc('eta_rho'));
 hmax=max(max(nc{'h'}(:)));
-result=close(nc);
+close(nc);
 %
 % Create the climatology file
 %
@@ -109,7 +109,7 @@ end
 if (makeoa)
   disp(' ')
   disp(' Create the OA file...')
-  nc=netcdf(temp_ann_data);
+  nc=netcdf(temp_ann_data,'r');
   Z=nc{'Z'}(:);
   kmax=max(find(Z<hmax))-1;
   Z=Z(1:kmax);

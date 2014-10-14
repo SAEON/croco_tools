@@ -37,6 +37,7 @@ clear all
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
 %
 romstools_param
+isoctave=exist('octave_config_info');
 %
 Roa=1e8;    % extrapolation decay length scale
 default=0;
@@ -47,7 +48,7 @@ spval=NaN;  % Missing value
 %
 % Read ROMS Grid
 %
-ncgrd=netcdf(grdname);
+ncgrd=netcdf(grdname,'r');
 latgrd=ncgrd{'lat_rho'}(:);  % model grid
 longrd=ncgrd{'lon_rho'}(:);
 maskgrd=ncgrd{'mask_rho'}(:);
@@ -63,7 +64,7 @@ latmax=max(max(latgrd))+1;
 % Extend 1 degree to ensure that the coarse grid
 % for land extrapolation is large enough
 %
-nc=netcdf(pathfinder_sst_name);
+nc=netcdf(pathfinder_sst_name,'r');
 LON=nc{'X'}(:);
 LAT=nc{'Y'}(:);
 imin=max(find(LON<lonmin));
@@ -121,7 +122,11 @@ end
 %
 close(nc)
 close(ncfor)
-!rm tmp.mat
+if (isoctave == 0)
+  eval(['!rm tmp.mat'])
+else
+  system('rm tmp.mat')
+end
 %
 % Plot
 %
@@ -130,7 +135,7 @@ if makeplot == 1
 %
 % Raw PATHFINDER data
 %
-  nc=netcdf(pathfinder_sst_name);
+nc=netcdf(pathfinder_sst_name,'r');
   sst=squeeze(nc{'SST'}(tindex,jmin:jmax,imin:imax));
   close(nc)
   sst(sst<0)=NaN;
@@ -152,7 +157,7 @@ if makeplot == 1
 % Data interpolated on ROMS grid
 %
   figure
-  nc=netcdf(frcname);
+nc=netcdf(frcname,'r');
   sstgrd=nc{'SST'}(tindex,:,:);
   close(nc);
   domaxis=[lonmin lonmax latmin latmax];

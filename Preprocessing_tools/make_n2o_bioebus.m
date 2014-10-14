@@ -27,11 +27,11 @@ romstools_param
 %=========
 
 if makeini
-nc=netcdf(grdname);
+   nc=netcdf(grdname,'r');
 h = nc{'h'}(:);
 close(nc)
 % O2 initial conditions
-nc=netcdf(ininame);
+nc=netcdf(ininame,'r');
 theta_s = nc{'theta_s'}(:);
 theta_b = nc{'theta_b'}(:);
 Tcline = nc{'Tcline'}(:);
@@ -63,7 +63,7 @@ find(isnan(N2O_ini)==1);%
 % open the ini file  
 nc = netcdf(ininame,'write');
 % new variable
-redef(nc);
+%%redef(nc);
 nc('n2o_time') = 1;
 nc{'n2o_time'} = ncdouble('time') ;
 nc{'N2O'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
@@ -73,7 +73,7 @@ nc{'N2O'}.units = ncchar('mMol N2O m-3');
 nc{'N2O'}.units = 'mMol N2O m-3';
 nc{'N2O'}.fields = ncchar('NO2, scalar, series');
 nc{'N2O'}.fields = 'NO2, scalar, series';
-endef(nc);
+%%endef(nc);
 % write new variable
 nc{'N2O'}(:,:,:) =  N2O_ini; 
 % Synchronize on disk
@@ -82,11 +82,11 @@ end
 
 %==========
 if makeclim
-nc=netcdf(grdname);
+  nc=netcdf(grdname,'r');
 h = nc{'h'}(:);
 close(nc)
 % O2 climatological conditions
-nc=netcdf(clmname);
+nc=netcdf(clmname,'r');
 theta_s = nc{'theta_s'}(:);
 theta_b = nc{'theta_b'}(:);
 Tcline = nc{'Tcline'}(:);
@@ -131,7 +131,7 @@ nc = netcdf(clmname,'write');
 %
 % new variable
 %
-redef(nc);
+%%redef(nc);
 nc('n2o_time') = TT;
 nc{'n2o_time'} = ncdouble('n2o_time') ;
 nc{'n2o_time'}.long_name = ncchar('time climatological N2O');
@@ -147,7 +147,7 @@ nc{'N2O'}.units = ncchar('mMol N2O m-3');
 nc{'N2O'}.units = 'mMol N2O m-3';
 nc{'N2O'}.fields = ncchar('NO2, scalar, series');
 nc{'N2O'}.fields = 'NO2, scalar, series';
-endef(nc);
+%%endef(nc);
 %
 % write new variable
 %
@@ -162,11 +162,11 @@ end
 %==========
 if makebry
 % O2 boundary conditions
-nc=netcdf(grdname);
+  nc=netcdf(grdname,'r');
 h = nc{'h'}(:);
 close(nc)       
 
-nc=netcdf(bryname);
+nc=netcdf(bryname,'r');
 theta_s = nc{'theta_s'}(:);
 theta_b = nc{'theta_b'}(:);
 Tcline = nc{'Tcline'}(:);
@@ -255,7 +255,7 @@ history = 'ROMS' ;
 nc = netcdf(bryname,'write');
 % new variable
 %
-redef(nc);
+%%redef(nc);
 nc('n2o_time') = length(T);
 nc{'n2o_time'} = ncdouble('n2o_time') ;
 nc{'n2o_time'}.long_name = ncchar('time climatological N2O');

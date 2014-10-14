@@ -62,7 +62,7 @@ disp([' VTRANSFORM = ',num2str(vtransform)])
 %
 %  Read the grid file
 %
-nc=netcdf(gridfile);
+nc=netcdf(gridfile,'r');
 h=nc{'h'}(:);  
 mask=nc{'mask_rho'}(:);
 close(nc);
@@ -82,7 +82,7 @@ Np=N+1;
 type = 'INITIAL file' ; 
 history = 'ROMS' ;
 nc = netcdf(inifile,clobber);
-result = redef(nc);
+%result = redef(nc);
 %
 %  Create dimensions
 %
@@ -235,7 +235,7 @@ nc.history = history;
 %
 % Leave define mode
 %
-result = endef(nc);
+%%result = endef(nc);
 %
 % Compute S coordinates
 %

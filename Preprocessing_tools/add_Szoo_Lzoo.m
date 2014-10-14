@@ -53,7 +53,7 @@ time= nc{'chla_time'}(:);
 cycle= nc{'chla_time'}.cycle_length(:);
 tlen=length(time);
 %
-redef(nc);
+%%redef(nc);
 %
 nc('szoo_time') = tlen;
 nc{'szoo_time'} = ncdouble('szoo_time') ;
@@ -93,7 +93,7 @@ nc{'LZOO'}.units = 'mMol N m-3';
 nc{'LZOO'}.fields = ncchar('LZOO, scalar, series');
 nc{'LZOO'}.fields = 'LZOO, scalar, series';
 %
-endef(nc);
+%%endef(nc);
 %
 % record the time
 %

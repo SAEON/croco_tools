@@ -55,7 +55,7 @@ default=NaN;
 %
 % read in the datafile 
 %
-ncseas=netcdf(seas_datafile);
+ncseas=netcdf(seas_datafile,'r');
 x=ncseas{'X'}(:);
 y=ncseas{'Y'}(:);
 t=ncseas{'T'}(:);
@@ -63,7 +63,7 @@ tlen=length(t);
 %
 % open the grid file  
 % 
-ng=netcdf(gridfile);
+ng=netcdf(gridfile,'r');
 lon=ng{'lon_rho'}(:);
 %lon(lon<0)=lon(lon<0)+360;
 lat=ng{'lat_rho'}(:);
@@ -95,7 +95,7 @@ if  ~exist('vtransform')
 end
 N =  length(nc('s_rho'));
 
-redef(nc);
+%redef(nc);
 nc('chla_time') = tlen;
 nc{'chla_time'} = ncdouble('chla_time') ;
 nc{'CHLA'} = ncdouble('chla_time','s_rho','eta_rho','xi_rho') ;
@@ -115,7 +115,7 @@ nc{'CHLA'}.units = 'mg C';
 nc{'CHLA'}.fields = ncchar('CHLA, scalar, series');
 nc{'CHLA'}.fields = 'CHLA, scalar, series';
 %
-endef(nc);
+%endef(nc);
 %
 % Record the time
 %

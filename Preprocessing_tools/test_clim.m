@@ -33,7 +33,7 @@ function test_clim(clim_file,grid_file,tracer,l,coastfileplot)
 
 niceplot=1;
 %
-nc=netcdf(clim_file);
+nc=netcdf(clim_file,'r');
 var=squeeze(nc{tracer}(l,:,:,:));
 [N M L]=size(var);
 u=squeeze(nc{'u'}(l,N,:,:));
@@ -57,7 +57,7 @@ close(nc)
 %
 % Get the grid
 %
-nc=netcdf(grid_file);
+      nc=netcdf(grid_file,'r');
 lat=nc{'lat_rho'}(:);
 lon=nc{'lon_rho'}(:);
 pm=nc{'pm'}(:);

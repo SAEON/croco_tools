@@ -36,7 +36,7 @@ Nzclim=length(zclim);
 %
 % Open the grid file and get the ROMS positions  
 % 
-ng=netcdf(oaname);
+ng=netcdf(oaname,'r');
 if type=='r'
   lon=ng{'lon_rho'}(:);
   lat=ng{'lat_rho'}(:);

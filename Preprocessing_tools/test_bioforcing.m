@@ -38,7 +38,7 @@ for time=thetime
   
   subplot(2,length(thetime)/2,i)
 
-  nc=netcdf(bioname);
+  nc=netcdf(bioname,'r');
   stime=nc{'dust_time'}(time);
   if isempty(stime)
     error('TEST_BIOFORCING: dust_time missing ?')
@@ -49,12 +49,12 @@ for time=thetime
 %
 % Read the grid
 %
-  nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
   lon=nc{'lon_rho'}(:);
   lat=nc{'lat_rho'}(:);
   mask=nc{'mask_rho'}(:);
   angle=nc{'angle'}(:);
-  result=close(nc);
+  close(nc);
   mask(mask==0)=NaN;
 %
 % Make the plot

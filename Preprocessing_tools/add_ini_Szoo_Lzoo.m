@@ -52,7 +52,7 @@ nc=netcdf(inifile,'write');
 time= nc{'scrum_time'}(:);
 tlen=length(time);
 %
-redef(nc);
+%redef(nc);
 %
 nc{'SZOO'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 nc{'SZOO'}.long_name = ncchar('Small Zooplankton');
@@ -70,7 +70,7 @@ nc{'LZOO'}.units = 'mMol N m-3';
 nc{'LZOO'}.fields = ncchar('LZOO, scalar, series');
 nc{'LZOO'}.fields = 'LZOO, scalar, series';
 %
-endef(nc);
+%endef(nc);
 %
 % loop on time
 %

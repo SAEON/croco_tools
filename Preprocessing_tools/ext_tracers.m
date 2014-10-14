@@ -50,7 +50,7 @@ disp([' Ext tracers: Roa = ',num2str(Roa/1000),...
 %
 % Open and Read the grid file  
 % 
-ng=netcdf(oaname);
+ng=netcdf(oaname,'r');
 lon=ng{'lon_rho'}(:);
 lat=ng{'lat_rho'}(:);
 close(ng);
@@ -66,7 +66,7 @@ latmax=max(max(lat))+dl;
 %
 % Read in the datafile 
 %
-ncseas=netcdf(seas_datafile);
+ncseas=netcdf(seas_datafile,'r');
 X=ncseas{'X'}(:);
 Y=ncseas{'Y'}(:);
 Zseas=-ncseas{'Z'}(:);
@@ -101,7 +101,7 @@ end
 % Read the annual dataset
 %
 if Nz > Nzseas
-  ncann=netcdf(ann_datafile);
+  ncann=netcdf(ann_datafile,'r');
   zann=-ncann{'Z'}(1:Nz);
   if (Z~=zann)
     error('Vertical levels mismatch')

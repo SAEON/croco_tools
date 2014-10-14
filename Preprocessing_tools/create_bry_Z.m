@@ -49,7 +49,7 @@ disp(' ')
 nc = netcdf(grdname, 'nowrite');
 Lp=length(nc('xi_rho'));
 Mp=length(nc('eta_rho'));
-status=close(nc);
+close(nc);
 L=Lp-1;
 M=Mp-1;
 %
@@ -58,7 +58,7 @@ M=Mp-1;
 type = 'BOUNDARY Z (or OA) file' ; 
 history = 'ROMS' ;
 nc = netcdf(zbryname,clobber);
-result = redef(nc);
+%%result = redef(nc);
 %
 %  Create dimensions
 %
@@ -175,7 +175,7 @@ nc.history = history;
 %
 % Leave define mode
 %
-result = endef(nc);
+%%result = endef(nc);
 %
 % Write variables
 %

@@ -55,7 +55,7 @@ disp('Add_ini_o2: creating variable and attribute')
 %
 % open the grid file  
 % 
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 h=nc{'h'}(:);
 close(nc);
 %
@@ -82,7 +82,7 @@ N =  length(nc('s_rho'));
 %
 % open the oa file  
 % 
-noa=netcdf(oaname);
+noa=netcdf(oaname,'r');
 z=-noa{'Zo2'}(:);
 oatime=noa{'o2_time'}(:);
 tlen=length(oatime);
@@ -113,7 +113,7 @@ z=z(1:Nz);
 scrum_time = nc{'scrum_time'}(:);
 scrum_time = scrum_time / (24*3600);
 tinilen = length(scrum_time);
-redef(nc);
+%redef(nc);
 nc{'O2'} = ncdouble('time','s_rho','eta_rho','xi_rho');
 nc{'O2'}.long_name = ncchar('Oxygen');
 nc{'O2'}.long_name = 'Oxygen';
@@ -121,7 +121,7 @@ nc{'O2'}.units = ncchar('mMol O m-3');
 nc{'O2'}.units = 'mMol O m-3';
 nc{'O2'}.fields = ncchar('O2, scalar, series');
 nc{'O2'}.fields = 'O2, scalar, series';
-endef(nc);
+%endef(nc);
 %
 %  loop on initial time
 %

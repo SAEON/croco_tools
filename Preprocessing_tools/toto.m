@@ -11,7 +11,7 @@ l=1;
 % pierrick 1/2000
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-nc=netcdf(clim_file);
+nc=netcdf(clim_file,'r');
 var=squeeze(nc{tracer}(l,:,:,:));
 [N M L]=size(var);
 theta_s=nc{'theta_s'}(:);
@@ -24,7 +24,7 @@ else
   hc=nc{'hc'}(:);
 end
 close(nc)
-nc=netcdf(grid_file);
+nc=netcdf(grid_file,'r');
 lat=nc{'lat_rho'}(:);
 lon=nc{'lon_rho'}(:);
 pm=nc{'pm'}(:);
@@ -33,7 +33,7 @@ angle=nc{'angle'}(:);
 mask=nc{'mask_rho'}(:);
 close(nc)
 mask(mask==0)=NaN;
-nc=netcdf(ini_file);
+nc=netcdf(ini_file,'r');
 var=var-squeeze(nc{tracer}(l,:,:,:));
 close(nc)
 

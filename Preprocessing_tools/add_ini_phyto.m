@@ -48,7 +48,7 @@ disp('Add_ini_phyto: creating variable and attribute')
 nc=netcdf(inifile,'write');
 time= nc{'scrum_time'}(:);
 tlen=length(time);
-redef(nc);
+%%redef(nc);
 nc{'PHYTO'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 nc{'PHYTO'}.long_name = ncchar('Phytoplankton');
 nc{'PHYTO'}.long_name = 'Phytoplankton';
@@ -56,7 +56,7 @@ nc{'PHYTO'}.units = ncchar('mMol N m-3');
 nc{'PHYTO'}.units = 'mMol N m-3';
 nc{'PHYTO'}.fields = ncchar('PHYTO, scalar, series');
 nc{'PHYTO'}.fields = 'PHYTO, scalar, series';
-endef(nc);
+%%endef(nc);
 %
 % loop on time
 %

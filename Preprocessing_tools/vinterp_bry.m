@@ -31,7 +31,7 @@ function vinterp_bry(bryname,grdname,Zbryname,vname,obcndx)
 %
 % open the grid file  
 % 
-ng=netcdf(grdname);
+ng=netcdf(grdname,'r');
 L=length(ng('xi_rho'));
 M=length(ng('eta_rho'));
 if obcndx==1
@@ -61,7 +61,7 @@ end
 %
 % open the oa file  
 % 
-noa=netcdf(Zbryname);
+    noa=netcdf(Zbryname,'r');
 z=-noa{'Z'}(:);
 t=noa{'bry_time'}(:);
 tlen=length(t);

@@ -37,7 +37,7 @@ De=40;     % Ekman depth [m]
 %  grid parameters
 %
 % disp(' Read grid parameters ...');
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 L=length(nc('xi_rho'));
 M=length(nc('eta_rho'));
 latu=nc{'lat_u'}(:);
@@ -91,7 +91,7 @@ close(nc)
 %
 %  Levitus vertical levels
 %
-noa=netcdf(Zbryname);
+noa=netcdf(Zbryname,'r');
 Z=-noa{'Z'}(:);
 NL=length(Z);
 time=noa{'bry_time'}(:);
@@ -125,7 +125,7 @@ z=repmat(z,[1 Nx]);
 % Open the forcing file
 %
 if ~isempty(frcname)
-  nfrc=netcdf(frcname);
+nfrc=netcdf(frcname,'r');
 end
 %%%%%%%%%%%%%%%%%%%
 % START MAIN LOOP

@@ -43,7 +43,7 @@ default=NaN;
 % Read in the datafile
 %
 seas_datafile
-ncseas=netcdf(seas_datafile);
+ncseas=netcdf(seas_datafile,'r');
 X=ncseas{'X'}(:);
 Y=ncseas{'Y'}(:);
 Zseas=-ncseas{'Z'}(:);
@@ -119,7 +119,7 @@ end
 % Read the annual dataset if Nz > Nzseas
 %
 if Nz > Nzseas
-  ncann=netcdf(ann_datafile);
+  ncann=netcdf(ann_datafile,'r');
   zann=-ncann{'Z'}(1:Nz);
   if (Z~=zann)
     error('Vertical levels mismatch')

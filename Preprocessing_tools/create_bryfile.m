@@ -67,7 +67,7 @@ h=nc{'h'}(:);
 maskr=nc{'mask_rho'}(:);
 Lp=length(nc('xi_rho'));
 Mp=length(nc('eta_rho'));
-status=close(nc);
+close(nc);
 hmin=min(min(h(maskr==1)));
 if vtransform ==1;
   if hc > hmin
@@ -83,7 +83,7 @@ Np=N+1;
 type = 'BOUNDARY file' ; 
 history = 'ROMS' ;
 nc = netcdf(bryname,clobber);
-result = redef(nc);
+%%result = redef(nc);
 %
 %  Create dimensions
 %
@@ -578,7 +578,7 @@ nc.history = history;
 %
 % Leave define mode
 %
-result = endef(nc);
+%%result = endef(nc);
 %
 % Compute S coordinates
 %

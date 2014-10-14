@@ -53,19 +53,19 @@ cycle=woa_cycle;
 %
 disp(' ')
 disp(' Read in the grid...')
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 Lp=length(nc('xi_rho'));
 Mp=length(nc('eta_rho'));
 lon=nc{'lon_rho'}(:);
 lat=nc{'lat_rho'}(:);
 angle=nc{'angle'}(:);
-result=close(nc);
+close(nc);
 %
 % create dust forcing file
 %
 disp(' Creating file')
 nc = netcdf(bioname, 'clobber');
-result = redef(nc);
+%%result = redef(nc);
 %
 nc('xi_rho') = Lp;
 nc('eta_rho') = Mp;
@@ -89,7 +89,7 @@ nc{'dust'}.units = 'nmol Fe m-3';
 nc{'dust'}.fields = ncchar('dust, scalar, series');
 nc{'dust'}.fields = 'dust, scalar, series';
 %
-endef(nc);
+%%endef(nc);
 
 % Create global attributes
 nc.title = ncchar(ROMS_title);
@@ -116,11 +116,13 @@ for tindex=1:length(time)
              lon,lat,time,Roa,1);
 end
 close(nc)
+if (makeplot)
 %
 % Make a few plots
 %
 disp(' Make a few plots...')
 test_bioforcing(bioname,grdname,'dust',[1 4 7 10],3,coastfileplot)
+end % if makeplot
 %
 % End
 %

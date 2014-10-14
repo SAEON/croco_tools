@@ -33,7 +33,7 @@ function test_bry(bry_file,grid_file,tracer,l,obc)
 %
 % Get the grid
 %
-nc=netcdf(grid_file);
+nc=netcdf(grid_file,'r');
 pm=nc{'pm'}(:);
 pn=nc{'pn'}(:);
 h=nc{'h'}(:);
@@ -61,7 +61,7 @@ mask=nc{'mask_rho'}(:);
 mask(mask==0)=NaN;
 close(nc)
 %
-nc=netcdf(bry_file);
+nc=netcdf(bry_file,'r');
 theta_s=nc{'theta_s'}(:);
 if isempty(theta_s)
     theta_s=nc.theta_s(:);

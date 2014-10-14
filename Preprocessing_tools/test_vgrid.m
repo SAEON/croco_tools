@@ -18,7 +18,7 @@ romstools_param
 %
 % Read the grid
 %
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 h=nc{'h'}(:);
 mask=nc{'mask_rho'}(:);
 lon=nc{'lon_rho'}(:);

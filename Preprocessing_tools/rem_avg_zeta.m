@@ -7,7 +7,7 @@ function rem_avg_zeta(clmname,grdname,oaname)
 %
 %  grid parameters
 %
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 pm=nc{'pm'}(:);
 pn=nc{'pn'}(:);
 rmask=nc{'mask_rho'}(:);
@@ -16,7 +16,7 @@ close(nc)
 %
 %  Model grid vertical levels
 %
-noa=netcdf(oaname);
+noa=netcdf(oaname,'r');
 nc=netcdf(clmname,'write');
 tlen = length(nc('zeta_time'));
 %

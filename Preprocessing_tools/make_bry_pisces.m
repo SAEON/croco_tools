@@ -109,13 +109,13 @@ disp([' Title: ',ROMS_title])
 %
 disp(' ')
 disp(' Read in the grid...')
-nc=netcdf(grdname);
+      nc=netcdf(grdname,'r');
 lon=nc{'lon_rho'}(:);
 lat=nc{'lat_rho'}(:);
 Lp=length(nc('xi_rho'));
 Mp=length(nc('eta_rho'));
 hmax=max(max(nc{'h'}(:)));
-result=close(nc);
+close(nc);
 %
 % Redefine the boundary file
 %
@@ -137,7 +137,7 @@ if (makeZbry)
 %
 % get Z
 %
-  nc=netcdf(no3_ann_data);
+    nc=netcdf(no3_ann_data,'r');
   Z=nc{'Z'}(:);
   kmax=max(find(Z<hmax))-1;
   Z=Z(1:kmax);

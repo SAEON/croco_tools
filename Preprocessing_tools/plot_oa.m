@@ -5,7 +5,7 @@ tindex=1;
 oafile='roms_oa.nc';
 coastfile='noumea_i.mat';
 
-nc=netcdf(oafile);
+nc=netcdf(oafile,'r');
 lon=nc{'lon_rho'}(:);
 lat=nc{'lat_rho'}(:);
 var=squeeze(nc{'NO3'}(tindex,2,:,:));

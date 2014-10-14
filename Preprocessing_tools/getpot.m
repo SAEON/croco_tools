@@ -26,11 +26,12 @@ function getpot(clmname,grdname);
 %  Copyright (c) 2004-2006 by Pierrick Penven 
 %  e-mail:Pierrick.Penven@ird.fr  
 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%		
+isoctave=exist('octave_config_info');
 %
 % open the grid file  
 % 
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 h=nc{'h'}(:);
 close(nc);
 %
@@ -41,7 +42,12 @@ theta_s = nc{'theta_s'}(:);
 theta_b =  nc{'theta_b'}(:);
 hc  =  nc{'hc'}(:);
 N =  length(nc('s_rho'));
-tlen =  length(nc('tclm_time'));
+if (isoctave == 0)
+  tlen =  length(nc('tclm_time'));
+ else
+   tlen = 0;
+end
+
 vtransform=nc{'Vtransform'}(:);
 if  ~exist('vtransform')
     vtransform=1; %Old Vtransform

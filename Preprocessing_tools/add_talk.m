@@ -31,16 +31,16 @@ function add_talk(oafile,climfile,inifile,gridfile,seas_datafile,...
 %
 % Read in the grid
 %
-nc=netcdf(gridfile);
+nc=netcdf(gridfile,'r');
 hmax=max(max(nc{'h'}(:)));
 close(nc);
 %
 % read in the datafiles 
 %
-nc=netcdf(seas_datafile);
+nc=netcdf(seas_datafile,'r');
 t=nc{'T'}(:);
 close(nc)
-nc=netcdf(ann_datafile);
+nc=netcdf(ann_datafile,'r');
 ztalk=nc{'Z'}(:);
 kmax=max(find(ztalk<hmax))-1;
 ztalk=ztalk(1:kmax);
@@ -51,7 +51,7 @@ close(nc)
 if (makeoa)
   disp('Add_talk: creating variables and attributes for the OA file')
   nc=netcdf(oafile,'write');
-  redef(nc);
+%%  redef(nc);
   nc('talk_time') = length(t);
   nc{'talk_time'} = ncdouble('talk_time') ;
   nc('Ztalk') = length(ztalk);
@@ -78,7 +78,7 @@ if (makeoa)
   nc{'TALK'}.fields = ncchar('TALK, scalar, series');
   nc{'TALK'}.fields = 'TALK, scalar, series';
 %
-  endef(nc);
+%%  endef(nc);
 %
 % record deth and time and close
 %
@@ -95,7 +95,7 @@ if (makeclim)
 % open the clim file  
 % 
   nc=netcdf(climfile,'write');
-  redef(nc);
+%%  redef(nc);
   nc('talk_time') = length(t);;
   nc{'talk_time'} = ncdouble('talk_time') ;
   nc{'TALK'} = ncdouble('talk_time','s_rho','eta_rho','xi_rho') ;
@@ -115,7 +115,7 @@ if (makeclim)
   nc{'TALK'}.fields = ncchar('TALK, scalar, series');
   nc{'TALK'}.fields = 'TALK, scalar, series';
 %
-  endef(nc);
+%%  endef(nc);
 %
 % record the time and close
 %

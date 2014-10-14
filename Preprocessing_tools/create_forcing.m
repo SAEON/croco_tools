@@ -32,15 +32,15 @@ function  create_forcing(frcname,grdname,title,smst,...
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 L=length(nc('xi_psi'));
 M=length(nc('eta_psi'));
-result=close(nc);
+close(nc);
 Lp=L+1;
 Mp=M+1;
 
 nw = netcdf(frcname, 'clobber');
-result = redef(nw);
+%result = redef(nw);
 
 %
 %  Create dimensions
@@ -162,7 +162,7 @@ nw{'swrad'}.positive = 'downward flux, heating';
 nw{'swrad'}.negative = ncchar('upward flux, cooling');
 nw{'swrad'}.negative = 'upward flux, cooling';
 
-result = endef(nw);
+%result = endef(nw);
 
 %
 % Create global attributes

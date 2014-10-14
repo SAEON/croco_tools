@@ -20,7 +20,7 @@ latmax=max(max(lat))+dl;
 %
 % Open the data file
 %
-ncdat=netcdf(datafile);
+ncdat=netcdf(datafile,'r');
 
 %
 % Get attributes

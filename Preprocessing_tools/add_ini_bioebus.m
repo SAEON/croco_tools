@@ -28,7 +28,7 @@ disp([' Adding BIOEBUS data in file : ',inifile])
 %  Create the initial file
 %
 nc = netcdf(inifile,clobber);
-result = redef(nc);
+%%result = redef(nc);
 %
 %  Create variables
 %
@@ -49,4 +49,4 @@ nc{'O2'}.units = 'mMol O m-3';
 %
 % Leave define mode
 %
-result = endef(nc);
+%%result = endef(nc);

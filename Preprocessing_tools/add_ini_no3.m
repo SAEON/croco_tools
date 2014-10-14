@@ -55,7 +55,7 @@ disp('Add_ini_no3: creating variable and attribute')
 %
 % open the grid file  
 % 
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 h=nc{'h'}(:);
 close(nc);
 %
@@ -82,7 +82,7 @@ N =  length(nc('s_rho'));
 %
 % open the oa file  
 % 
-noa=netcdf(oaname);
+noa=netcdf(oaname,'r');
 z=-noa{'Zno3'}(:);
 oatime=noa{'no3_time'}(:);
 tlen=length(oatime);
@@ -113,7 +113,7 @@ z=z(1:Nz);
 scrum_time = nc{'scrum_time'}(:);
 scrum_time = scrum_time / (24*3600);
 tinilen = length(scrum_time);
-redef(nc);
+%redef(nc);
 nc{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho');
 nc{'NO3'}.long_name = ncchar('Nitrate');
 nc{'NO3'}.long_name = 'Nitrate';
@@ -121,7 +121,7 @@ nc{'NO3'}.units = ncchar('mMol N m-3');
 nc{'NO3'}.units = 'mMol N m-3';
 nc{'NO3'}.fields = ncchar('NO3, scalar, series');
 nc{'NO3'}.fields = 'NO3, scalar, series';
-endef(nc);
+%endef(nc);
 %
 %  loop on initial time
 %

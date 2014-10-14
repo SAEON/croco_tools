@@ -50,7 +50,7 @@ nc=netcdf(inifile,'write');
 time= nc{'scrum_time'}(:);
 tlen=length(time);
 %
-redef(nc);
+%redef(nc);
 %
 nc{'SPHYTO'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 nc{'SPHYTO'}.long_name = ncchar('Small Phytoplankton');
@@ -68,7 +68,7 @@ nc{'LPHYTO'}.units = 'mMol N m-3';
 nc{'LPHYTO'}.fields = ncchar('LPHYTO, scalar, series');
 nc{'LPHYTO'}.fields = 'LPHYTO, scalar, series';
 %
-endef(nc);
+%endef(nc);
 %
 % loop on time
 %

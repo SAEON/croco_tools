@@ -38,7 +38,7 @@ conserv=1;
 %  grid parameters
 %
 %disp(' Read grid parameters ...');
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 pm=nc{'pm'}(:);
 pn=nc{'pn'}(:);
 h=nc{'h'}(:);
@@ -53,7 +53,7 @@ close(nc)
 %
 %  Levitus vertical levels
 %
-noa=netcdf(oaname);
+noa=netcdf(oaname,'r');
 Z=-noa{'Z'}(:); 
 NL=length(Z);
 time=noa{'tclm_time'}(:);
@@ -88,7 +88,7 @@ z=repmat(z,[1 M L]);
 % Open the forcing file
 %
 if ~isempty(frcname)
-  nfrc=netcdf(frcname);
+nfrc=netcdf(frcname,'r');
 end
 %%%%%%%%%%%%%%%%%%%
 % START MAIN LOOP

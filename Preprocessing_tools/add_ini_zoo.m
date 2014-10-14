@@ -50,7 +50,7 @@ disp('Add_ini_zoo: creating variable and attribute')
 nc=netcdf(inifile,'write');
 time= nc{'scrum_time'}(:);
 tlen=length(time);
-redef(nc);
+%%redef(nc);
 nc{'ZOO'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 nc{'ZOO'}.long_name = ncchar('Zooplankton');
 nc{'ZOO'}.long_name = 'Zooplankton';
@@ -58,7 +58,7 @@ nc{'ZOO'}.units = ncchar('mMol N m-3');
 nc{'ZOO'}.units = 'mMol N m-3';
 nc{'ZOO'}.fields = ncchar('ZOO, scalar, series');
 nc{'ZOO'}.fields = 'ZOO, scalar, series';
-endef(nc);
+%%endef(nc);
 %
 % loop on time
 %

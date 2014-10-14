@@ -31,7 +31,7 @@ function rmavgssh(bryname,grdname,obc)
 disp(' ');
 disp('Remove averaged SSH ...');
 
-ng=netcdf(grdname);
+ng=netcdf(grdname,'r');
 L=length(ng('xi_rho'));
 M=length(ng('eta_rho'));
 

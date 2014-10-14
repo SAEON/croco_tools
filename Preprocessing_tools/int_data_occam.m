@@ -21,7 +21,7 @@ disp(['Horizontal  interpolations of ',vname])
 %
 % Read in the datafile 
 %
-ncdata=netcdf(datafile);
+ncdata=netcdf(datafile,'r');
 x=ncdata{londata}(:);
 y=ncdata{latdata}(:);
 Z=-ncdata{'Z'}(:);
@@ -31,7 +31,7 @@ Ndata=length(Z);
 %
 % Open the grid file  
 % 
-ng=netcdf(oaname);
+ng=netcdf(oaname,'r');
 lon=ng{vlon}(:);
 lon(lon<0)=lon(lon<0)+360;
 lat=ng{vlat}(:);

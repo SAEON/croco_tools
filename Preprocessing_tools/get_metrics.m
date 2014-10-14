@@ -31,12 +31,12 @@ function  [pm,pn,dndx,dmde]=get_metrics(grdname)
 %
 % Read in the grid
 %
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 latu=nc{'lat_u'}(:);
 lonu=nc{'lon_u'}(:);
 latv=nc{'lat_v'}(:);
 lonv=nc{'lon_v'}(:);
-result=close(nc);
+close(nc);
 [Mp,L]=size(latu);
 [M,Lp]=size(latv);
 Lm=L-1;

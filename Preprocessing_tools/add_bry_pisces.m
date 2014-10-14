@@ -52,7 +52,7 @@ disp(' ')
 %  Redefine the boundary file
 %
 nc = netcdf(bryname,clobber);
-result = redef(nc);
+%%result = redef(nc);
 %
 %  Create dimensions
 %
@@ -342,7 +342,7 @@ end
 %
 % Leave define mode
 %
-result = endef(nc);
+%%result = endef(nc);
 %
 % Write variables
 %
