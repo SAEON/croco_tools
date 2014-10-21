@@ -103,6 +103,7 @@ C$OMP END PARALLEL
 #endif
 #if defined WKB_WWAVE
 # include "wkb_wwave.h"
+      integer iif_wave,winterp
 #endif
       integer range
       integer ntrds,trd,
@@ -312,10 +313,14 @@ C$OMP BARRIER
         call wkb_cew_prep (tile)
       enddo
 C$OMP BARRIER
+C$OMP SINGLE
       wint=0
+C$OMP END SINGLE
       do winterp=1,interp_max
+C$OMP SINGLE
         wint=wint+1
         if (wint.gt.2) wint=1
+C$OMP END SINGLE
         do tile=my_tile_range
           call wkb_uvfield (tile, winterp)
         enddo
@@ -323,9 +328,12 @@ C$OMP BARRIER
       enddo
 #  endif
       do iif_wave=1,ndtfast         ! WKB ray equation w/ barotropic time stepping
+C$OMP SINGLE
         wstp=wnew
         wnew=wstp+1
         if (wnew.ge.3) wnew=1
+C$OMP END SINGLE
+
 #  ifdef MRL_CEW
         do tile=my_tile_range
           call wkb_cew_finalize (tile)

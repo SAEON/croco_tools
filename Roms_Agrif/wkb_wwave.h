@@ -39,7 +39,7 @@
 
 ! for CEW
 # if defined MRL_CEW || defined WKB_UNSTEADY
-      integer wint, winterp, iif_wave, interp_max, wavg, cewavg, wcew
+      integer wint, interp_max, wavg, cewavg, wcew
       parameter (interp_max = 5)
       parameter (wavg = 1)
       parameter (cewavg = 10)
@@ -53,7 +53,7 @@
       real vwave(GLOBAL_2D_ARRAY,2)
       real zwave(GLOBAL_2D_ARRAY,2)
 #  endif
-      common /wkb_cew/ wint, winterp,iif_wave
+      common /wkb_cew/ wint
       common /wkb_cewt/  uwave,  vwave,  zwave
 # endif
 #endif /* WKB_WWAVE */

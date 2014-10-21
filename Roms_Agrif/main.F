@@ -49,6 +49,7 @@ C      real*8 start_time2, start_time1, exe_time
 #endif
 #ifdef WKB_WWAVE
 # include "wkb_wwave.h"
+      integer :: winterp
 #endif
 #ifdef PISCES
 # include "parameter.h"
@@ -432,6 +433,7 @@ C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
         call wkb_cew_prep (tile)
       enddo
+C$OMP BARRIER
       wint=0
       do winterp=1,interp_max
         wint=wint+1
@@ -441,10 +443,12 @@ C$OMP PARALLEL DO PRIVATE(tile)
           call wkb_uvfield (tile, winterp)
         enddo
       enddo
+C$OMP BARRIER
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
         call wkb_cew_finalize (tile)
       enddo
+C$OMP BARRIER
 # endif
       do while (iwave.le.50000.and.thwave.ge.1.D-10)
         wstp=wnew
