@@ -422,42 +422,39 @@ C$OMP END MASTER
       iwave=1
       thwave=1.D+10
 # ifndef ANA_BRY_WKB
+C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
         call set_bry_wkb (tile)
       enddo
-C$OMP BARRIER
 # endif
 # ifdef MRL_CEW
+C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
         call wkb_cew_prep (tile)
       enddo
-C$OMP BARRIER
       wint=0
       do winterp=1,interp_max
         wint=wint+1
         if (wint.gt.2) wint=1
+C$OMP PARALLEL DO PRIVATE(tile)
         do tile=0,NSUB_X*NSUB_E-1
           call wkb_uvfield (tile, winterp)
         enddo
-C$OMP BARRIER
       enddo
+C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
         call wkb_cew_finalize (tile)
       enddo
-C$OMP BARRIER
 # endif
       do while (iwave.le.50000.and.thwave.ge.1.D-10)
         wstp=wnew
         wnew=wstp+1
         if (wnew.ge.3) wnew=1
+C$OMP PARALLEL DO PRIVATE(tile)
         do tile=0,NSUB_X*NSUB_E-1
           call wkb_wwave (tile)
         enddo
-C$OMP BARRIER
-        do tile=0,NSUB_X*NSUB_E-1
-          call wkb_diag (tile)
-        enddo
-C$OMP BARRIER
+        call wkb_diag (0)
         iwave=iwave+1
         thwave=max(av_wac,av_wkn)
       enddo
@@ -468,6 +465,7 @@ C$OMP MASTER
 C$OMP END MASTER
 # endif
       first_time=0
+C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
         call mrl_wci (tile)
       enddo

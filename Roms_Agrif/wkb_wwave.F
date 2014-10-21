@@ -349,6 +349,7 @@
 #  endif
         end do
 # endif
+C$OMP BARRIER
       endif  ! <-- iwave=1
 !
 ! ---------------------   End initialisation ------------------------------
@@ -369,6 +370,7 @@
 # endif
         enddo
       enddo
+C$OMP BARRIER
 
       do j=jstr-1,jend+1
         do i=istr-1,iend+1
@@ -1234,13 +1236,13 @@ c        cff1=3.D0/16.D0
 ! Compute global summation for OMP and MPI situations
 !
 C$OMP CRITICAL (diag_cr_rgn)
-        if (tile_count.eq.0) then       ! Initialize global sums
+!        if (tile_count.eq.0) then       ! Initialize global sums
           av_wac=my_ww(1)               ! for multithreaded shared
           av_wkn=my_ww(2)               ! memory summation.
-        else                            ! Perform global summation
-          av_wac=av_wac+my_ww(1)        ! among the threads within
-          av_wkn=av_wkn+my_ww(2)        ! each MPI process.
-        endif
+!        else                            ! Perform global summation
+!          av_wac=av_wac+my_ww(1)        ! among the threads within
+!          av_wkn=av_wkn+my_ww(2)        ! each MPI process.
+!        endif
 
         tile_count=tile_count+1         ! This counter identifies
                                         ! the last thread, whoever
