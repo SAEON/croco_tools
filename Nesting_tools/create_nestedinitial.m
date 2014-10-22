@@ -72,7 +72,7 @@ end
 %
 nc=netcdf(gridfile, 'nowrite');
 h=nc{'h'}(:); 
-status=close(nc);
+close(nc);
 [Mp,Lp]=size(h);
 L=Lp-1;
 M=Mp-1;
@@ -83,7 +83,7 @@ Np=N+1;
 type = 'INITIAL file' ; 
 history = 'ROMS' ;
 ncini = netcdf(inifile,clobber);
-result = redef(ncini);
+%%result = redef(ncini);
 %
 %  Create dimensions
 %
@@ -101,9 +101,9 @@ ncini('one') = 1;
 %
 %  Create variables
 %
-nc{'spherical'} = ncchar('one') ;
-nc{'Vtransform'} = ncint('one') ;
-nc{'Vstretching'} = ncint('one') ;
+ncini{'spherical'} = ncchar('one') ;
+ncini{'Vtransform'} = ncint('one') ;
+ncini{'Vstretching'} = ncint('one') ;
 ncini{'tstart'} = ncdouble('one') ;
 ncini{'tend'} = ncdouble('one') ;
 ncini{'theta_s'} = ncdouble('one') ;
@@ -133,11 +133,11 @@ end
 %
 %  Create attributes
 %
-nc{'Vtransform'}.long_name = ncchar('vertical terrain-following transformation equation');
-nc{'Vtransform'}.long_name = 'vertical terrain-following transformation equation';
+ncini{'Vtransform'}.long_name = ncchar('vertical terrain-following transformation equation');
+ncini{'Vtransform'}.long_name = 'vertical terrain-following transformation equation';
 %
-nc{'Vstretching'}.long_name = ncchar('vertical terrain-following stretching function');
-nc{'Vstretching'}.long_name = 'vertical terrain-following stretching function';
+ncini{'Vstretching'}.long_name = ncchar('vertical terrain-following stretching function');
+ncini{'Vstretching'}.long_name = 'vertical terrain-following stretching function';
 %
 ncini{'tstart'}.long_name = ncchar('start processing day');
 ncini{'tstart'}.long_name = 'start processing day';
@@ -289,13 +289,13 @@ ncini.creation_method = 'Nestgui @ ROMSTOOLS';
 %
 % Leave define mode
 %
-result = endef(ncini);
+%%result = endef(ncini);
 [sc_r,Cs_r,sc_w,Cs_w] = scoordinate(theta_s,theta_b,N,hc,vtransform);
 %
 % Write variables
 %
-nc{'spherical'}(:)='T';
-nc{'Vtransform'}(:)=vtransform;
+ncini{'spherical'}(:)='T';
+ncini{'Vtransform'}(:)=vtransform;
 ncini{'tstart'}(:)=time/(24*3600); 
 ncini{'tend'}(:)=time/(24*3600); 
 ncini{'theta_s'}(:)=theta_s; 
