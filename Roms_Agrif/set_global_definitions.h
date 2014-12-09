@@ -656,6 +656,9 @@ c-# define TANH dtanh
 # undef QCORRECTION
 # undef SFLX_CORR
 # undef ANA_DIURNAL_SW
+# undef ANA_STFLUX
+# undef ANA_SSFLUX
+# undef ANA_SRFLUX
 # undef BULK_FLUX
 # undef TS_DIF2
 # undef TS_DIF4
