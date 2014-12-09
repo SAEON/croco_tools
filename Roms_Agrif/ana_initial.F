@@ -54,6 +54,10 @@ C$    integer omp_get_thread_num
 # ifdef THACKER
       real ETA0, omega, depth, Lt
 # endif
+# ifdef RIP
+      integer iper
+      real xper,yper,xx,yy,xs,db,eps
+# endif
 
 # include "compute_auxiliary_bounds.h"
 !
@@ -81,16 +85,54 @@ C$    integer omp_get_thread_num
    || defined RIVER     || defined INTERNAL   || defined REGIONAL  \
    || defined JET       || defined INNERSHELF || defined SHOREFACE \
    || defined RIP
-      do j=JR_RANGE
-        do i=IR_RANGE
-          zeta(i,j,1)=0.
-          zeta(i,j,2)=0.
-          ubar(i,j,1)=0.
-          vbar(i,j,1)=0.
-          ubar(i,j,2)=0.
-          vbar(i,j,2)=0.
+#  if defined RIP_TOPO_2D
+      if (nrrec.eq.0) then
+#  endif
+        do j=JR_RANGE
+          do i=IR_RANGE
+            zeta(i,j,1)=0.
+            zeta(i,j,2)=0.
+            ubar(i,j,1)=0.
+            vbar(i,j,1)=0.
+            ubar(i,j,2)=0.
+            vbar(i,j,2)=0.
+          enddo
         enddo
-      enddo
+#  ifdef RIP_TOPO_2D
+      else
+!
+!  Add perturbation to restart field
+!
+#   ifdef GRANDPOPO
+        xs=85        ! inner surf zone at GPP
+        db=50        ! distance from xs to sand bar
+#   else
+        xs=150       ! inner surf zone at Duck
+        db=80        ! distance from xs to sand bar
+#   endif
+        eps=0.01     ! perturbation magnitude
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+#   ifdef OBC_EAST
+            xx=xr(i,j)
+#   else
+            xx=xl-xr(i,j)
+#   endif
+            yy=yr(i,j);
+            xper=1.
+            yper=0.
+            do iper=1,12
+              yper= yper+eps*cos(2*pi*float(iper)*yy/(xs+db)
+     &                                  +2*pi*tanh(float(iper)/10))
+            enddo
+            ubar(i,j,1)=(1+xper)*ubar(i,j,1);
+            ubar(i,j,2)=ubar(i,j,1);
+            vbar(i,j,1)=(1+yper)*vbar(i,j,1);
+            vbar(i,j,2)=vbar(i,j,1);
+          enddo
+        enddo
+      endif
+#  endif
 # elif defined SOLITON
 #  ifdef AGRIF
       if (Agrif_Root()) then
@@ -163,16 +205,45 @@ C$    integer omp_get_thread_num
    || defined RIVER     || defined INTERNAL   || defined REGIONAL  \
    || defined JET       || defined INNERSHELF || defined SHOREFACE \
    || defined RIP
-      do k=1,N
-        do j=JR_RANGE
-          do i=IR_RANGE
-            u(i,j,k,1)=0.
-            u(i,j,k,2)=0.
-            v(i,j,k,1)=0.
-            v(i,j,k,2)=0.
+#  ifdef RIP_TOPO_2D
+      if (nrrec.eq.0) then
+#   endif
+        do k=1,N
+          do j=JR_RANGE
+            do i=IR_RANGE
+              u(i,j,k,1)=0.
+              u(i,j,k,2)=0.
+              v(i,j,k,1)=0.
+              v(i,j,k,2)=0.
+            enddo
           enddo
         enddo
-      enddo
+#  ifdef RIP_TOPO_2D
+      else
+        do k=1,N
+          do j=JstrR,JendR
+            do i=IstrR,IendR
+#    ifdef OBC_EAST
+              xx=xr(i,j)
+#    else
+              xx=xl-xr(i,j)
+#    endif
+              yy=yr(i,j);
+              xper=1.
+              yper=0.
+              do iper=1,12
+                yper= yper+eps*cos(2*pi*float(iper)*yy/(xs+db)
+     &                                  +2*pi*tanh(float(iper)/10))
+              enddo
+              u(i,j,k,1)=(1+xper)*u(i,j,k,1)
+              u(i,j,k,2)=u(i,j,k,1)
+              v(i,j,k,1)=(1+yper)*v(i,j,k,1)
+              v(i,j,k,2)=v(i,j,k,1)
+            enddo
+          enddo
+        enddo
+      endif
+#   endif
 #  elif defined THACKER
       do k=1,N
         do j=JR_RANGE

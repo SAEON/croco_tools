@@ -208,6 +208,12 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! for JET test case
 # endif
 #endif
         call get_initial
+# ifdef RIP_TOPO_2D
+C$OMP PARALLEL DO PRIVATE(tile)      ! for RIP test case
+        do tile=0,NSUB_X*NSUB_E-1    ! set perturbation
+          call ana_initial (tile)    ! in initial fields
+        enddo                        !
+# endif
 C$OMP PARALLEL DO PRIVATE(tile)      ! Set analytical initial 
         do tile=0,NSUB_X*NSUB_E-1    ! conditions for tracers
           call ana_initracer (tile)  ! if not found in initial

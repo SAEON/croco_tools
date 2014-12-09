@@ -156,6 +156,8 @@
       wave_ramp = tanh(3.0*dt*sec2day*float(iic-ntstart))
 #  elif defined DUCK94
       wave_ramp = tanh(48.0*dt*sec2day*float(iic-ntstart))
+#  elif defined RIP_TOPO_2D
+      wave_ramp = tanh(192.0*dt*sec2day*float(iic-ntstart))
 #  else
       wave_ramp = tanh(12.0*dt*sec2day*float(iic-ntstart))
 #  endif

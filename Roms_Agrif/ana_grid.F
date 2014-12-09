@@ -431,15 +431,39 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
         enddo
       enddo
 # elif defined RIP
+#  ifdef GRANDPOPO
+!
+!  Idealized Grand Popo Beach in Benin
+!
+      xs=85;        ! inner surf zone 
+      db=50;        ! distance from xs to sand bar
+      alpha=0.01;
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+#  ifdef OBC_EAST
+          xx=xr(i,j)
+#  else
+          xx=Length_XI-xr(i,j)
+#  endif
+          h(i,j)=-4.5 
+     &       -1.7*exp(-6*(((xx-xs-db)/db)**2))
+     &       +3.1*(1+tanh(0.025*(xx-xs)))
+     &       +0.014*(xx+log(cosh(alpha*(xx-xs))/cosh(alpha*xs))/alpha)
+        enddo
+      enddo
+#  else
 !
 ! Weir et al. 2011 after Lippmann et al. 1999 (idealization of Duck beach)
 !
-      xs=150;      ! inner surf zone 
-      db=80;       ! distance from xs to sand bar
-      alpha=0.02;
-      lambda=256;  ! sand bar perturbation wavelength
-      eps=0.1;     ! sand bar perturbation magnitude
-!
+      xs=150      ! inner surf zone 
+      db=80       ! distance from xs to sand bar
+      alpha=0.02
+      lambda=256  ! sand bar perturbation wavelength
+#  ifdef RIP_TOPO_2D
+      eps=0.0     ! no sand bar perturbation
+#  else
+      eps=0.1     ! sand bar perturbation magnitude
+#  endif
       do j=JstrR,JendR
         do i=IstrR,IendR
 #  ifdef OBC_EAST
@@ -455,6 +479,7 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
           h(i,j)=(1+per)*h0;
         enddo
       enddo
+#  endif
 # elif defined THACKER
       cff=80.e3
       do j=JstrR,JendR

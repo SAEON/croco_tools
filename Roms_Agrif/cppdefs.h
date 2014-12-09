@@ -792,12 +792,24 @@
 !      A vortex force analysis of the interaction of rip 
 !      currents and surface gravity wave
 !      JGR Vol. 116
+!
+!  Default is idealized Duck Beach with 3D topography
+!  RIP_TOPO_2D: Logshore uniform topography
+!  BISCA: realistic case with Input files
+!  GRANDPOPO: idealized Grand Popo Beach in Benin, 
+!              longshore uniform
 */
 # undef  BISCA
+# undef  RIP_TOPO_2D
+# undef  GRANDPOPO
+# ifdef GRANDPOPO
+#  define RIP_TOPO_2D
+# endif
+!
 # undef  DIAGNOSTICS_UV
 # undef  OPENMP
-# undef  MPI
-# define SOLVE3D
+# define MPI
+# undef  SOLVE3D
 # define UV_ADV
 # define NEW_S_COORD
 # ifndef BISCA
@@ -810,14 +822,13 @@
 # define ANA_SRFLUX
 # define ANA_SST
 # define ANA_BTFLUX
-# ifndef BISCA
+# if !defined BISCA
 #  define NS_PERIODIC
-# endif
-# define OBC_WEST
-# ifdef BISCA
+# else
 #  define OBC_NORTH
 #  define OBC_SOUTH
 # endif
+# define OBC_WEST
 # ifdef OBC_WEST
 #  define OBC_M2CHARACT
 #  define OBC_M3ORLANSKI
@@ -835,7 +846,7 @@
 #  define MRL_CEW
 #  undef  WKB_KZ_FILTER
 #  undef  WKB_TIME_FILTER
-#  undef  WAVE_RAMP
+#  define WAVE_RAMP
 # endif
 # define LMD_MIXING
 # define LMD_SKPP
@@ -845,8 +856,10 @@
 #  define UV_MIX_S
 #  define UV_VIS_SMAGO
 # endif
-# define BBL
-# undef  SEDIMENT
+# ifdef BISCA
+#  define BBL
+# endif
+# undef SEDIMENT
 # ifdef SEDIMENT
 #  define ANA_SEDIMENT
 #  undef  BED_ARMOR
