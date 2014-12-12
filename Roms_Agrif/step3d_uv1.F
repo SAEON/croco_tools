@@ -49,7 +49,8 @@
             u(i,j,k,nnew)=u(i,j,k,nnew)+DC(i,0)*ru(i,j,k)
 #  if defined MRL_WCI && defined MASKING
             u(i,j,k,nnew)=u(i,j,k,nnew)*umask(i,j)
-     &                +ust(i,j,k)*(umask(i,j)-1.0)
+     &                    +0.5*ust(i,j,k)*(Hz(i-1,j,k)+Hz(i,j,k))
+     &                                          *(umask(i,j)-1.0)
 #  endif
           enddo
         enddo
@@ -62,7 +63,8 @@
               v(i,j,k,nnew)=v(i,j,k,nnew)+DC(i,0)*rv(i,j,k)
 #  if defined MRL_WCI && defined MASKING
               v(i,j,k,nnew)=v(i,j,k,nnew)*vmask(i,j)
-     &                +vst(i,j,k)*(vmask(i,j)-1.0)
+     &                      +0.5*vst(i,j,k)*(Hz(i,j-1,k)+Hz(i,j,k))
+     &                                            *(vmask(i,j)-1.0)
 #  endif
             enddo
           enddo
