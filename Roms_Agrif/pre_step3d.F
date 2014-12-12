@@ -511,7 +511,7 @@
             FC(i,0)=0.
             FC(i,N)=0.
           enddo
-# elif TS_VADV_C2
+# elif defined TS_VADV_C2
 !
 ! Compute vertical advective fluxes using 2th-order centered scheme
 !
