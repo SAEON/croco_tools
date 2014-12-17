@@ -32,10 +32,6 @@
 #include "param.h"
 #include "sources.h"
 !
-#ifdef AGRIF
-      integer Agrif_lev_sedim
-      Agrif_lev_sedim=Agrif_Nb_Fine_Grids()
-#endif
 
 !---------------------------------------------------------------
 ! River discharge, temperature and salinity
@@ -196,15 +192,8 @@
       real wrk(PRIVATE_2D_SCRATCH_ARRAY)
       real wrk1(PRIVATE_2D_SCRATCH_ARRAY)
       real wrk2(PRIVATE_2D_SCRATCH_ARRAY)
-#ifdef AGRIF
-      integer Agrif_lev_sedim
-#endif
 !
 #include "compute_auxiliary_bounds.h"
-!
-#ifdef AGRIF
-      Agrif_lev_sedim=Agrif_Nb_Fine_Grids()
-#endif
 !
 #ifndef OA_COUPLING
 !
@@ -403,7 +392,7 @@
 !---------------------------------------------------------------
 !
 #if defined BBL && defined AGRIF
-      IF (Agrif_Fixed().NE.Agrif_lev_sedim) THEN
+      IF (Agrif_Fixed().LT.Agrif_lev_sedim) THEN
 #endif
 
 #if (!defined BBL || defined AGRIF)

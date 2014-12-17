@@ -1269,7 +1269,8 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 #ifdef WET_DRY
           cff1_WD=ABS(ABS(umask_wet(i,j))-1.)
           cff2_WD=0.5+SIGN(0.5,DUnew)*umask_wet(i,j)
-          umask_wet(i,j)=0.5*umask_wet(i,j)*cff1_WD+cff2_WD*(1.-cff1_WD)
+          umask_wet(i,j)=0.5*umask_wet(i,j)*cff1_WD
+     &                         +cff2_WD*(1.-cff1_WD)
           DUnew=DUnew*umask_wet(i,j)
 # ifdef MRL_WCI
           ust2d(i,j)=ust2d(i,j)*umask_wet(i,j)
@@ -1309,7 +1310,8 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 #ifdef WET_DRY
           cff1_WD=ABS(ABS(vmask_wet(i,j))-1.)
           cff2_WD=0.5+SIGN(0.5,DVnew)*vmask_wet(i,j)
-          vmask_wet(i,j)=0.5*vmask_wet(i,j)*cff1_WD+cff2_WD*(1.-cff1_WD)
+          vmask_wet(i,j)=0.5*vmask_wet(i,j)*cff1_WD
+     &                        +cff2_WD*(1.-cff1_WD)
           DVnew=DVnew*vmask_wet(i,j)
 # ifdef MRL_WCI
           vst2d(i,j)=vst2d(i,j)*vmask_wet(i,j)

@@ -68,7 +68,10 @@
 ! Interpolations of the parent values to get wkb_bry
 !
 # ifdef CHILD
+      IF(.NOT. wkb_agrif_done)THEN
       call wkbbc_interp_tile(Istr,Iend,Jstr,Jend)
+      wkb_agrif_done=.FALSE.
+      ENDIF
 # endif
 !
 # ifndef EW_PERIODIC
@@ -80,6 +83,12 @@
           wac(Istr-1,j,wnew)=wacbry_west(j)
 #   ifdef WAVE_ROLLER
           war(Istr-1,j,wnew)=0.0
+#    ifdef AGRIF
+          if( .NOT. Agrif_Root())then
+!            war(Istr-1,j,wnew)=warbry_west(j)
+            war(Istr-1,j,wnew)=war(Istr,j,wnew)
+          endif
+#    endif
 #   endif
         enddo
 #  else
@@ -101,6 +110,12 @@
           wac(Iend+1,j,wnew)=wacbry_east(j)
 #   ifdef WAVE_ROLLER
           war(Iend+1,j,wnew)=0.0
+#    ifdef AGRIF
+          if( .NOT. Agrif_Root())then
+!            war(Iend+1,j,wnew)=warbry_east(j)
+            war(Iend+1,j,wnew)=war(Iend,j,wnew)
+          endif
+#    endif
 #   endif
         enddo
 #  else
@@ -125,6 +140,12 @@
           wac(i,Jstr-1,wnew)=wacbry_south(i)
 #   ifdef WAVE_ROLLER
           war(i,Jstr-1,wnew)=0.0
+#    ifdef AGRIF
+          if( .NOT. Agrif_Root())then
+!            war(i,Jstr-1,wnew)=warbry_south(i)
+            war(i,Jstr-1,wnew)=war(i,Jstr,wnew)
+          endif
+#    endif
 #   endif
         enddo
 #  else
@@ -146,6 +167,12 @@
           wac(i,Jend+1,wnew)=wacbry_north(i)
 #   ifdef WAVE_ROLLER
           war(i,Jend+1,wnew)=0.0
+#    ifdef AGRIF
+          if( .NOT. Agrif_Root())then
+!            war(i,Jend+1,wnew)=warbry_north(i)
+            war(i,Jend+1,wnew)=war(i,Jend,wnew)
+          endif
+#    endif
 #   endif
         enddo
 #  else

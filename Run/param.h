@@ -609,6 +609,13 @@
       parameter (ntrc_sed=0)
 # endif
 
+# ifdef BBL
+#  ifdef AGRIF
+      integer Agrif_lev_sedim
+      parameter (Agrif_lev_sedim=0)
+#  endif
+# endif
+
 !
 ! ===  total number of tracers  ===
 !

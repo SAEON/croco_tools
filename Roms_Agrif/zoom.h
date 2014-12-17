@@ -97,10 +97,18 @@
       real dZtinterp(GLOBAL_2D_ARRAY)
       real dUinterp(GLOBAL_2D_ARRAY)
       real dVinterp(GLOBAL_2D_ARRAY)            
+# ifdef WKB_WWAVE
+      real dWactinterp(GLOBAL_2D_ARRAY)
+      real dWartinterp(GLOBAL_2D_ARRAY)
+      real dWkxtinterp(GLOBAL_2D_ARRAY)
+      real dWketinterp(GLOBAL_2D_ARRAY)            
+# endif
       common/zoombc2D/dZtinterp,dUinterp,dVinterp
-
-      logical Alreadyupdated(GLOBAL_2D_ARRAY,3)
-      common/updateprestep/Alreadyupdated
+# ifdef WKB_WWAVE
+     &  ,dWactinterp,dWkxtinterp,dWketinterp,dWacinterp
+# endif
+       logical Alreadyupdated(GLOBAL_2D_ARRAY,3)
+       common/updateprestep/Alreadyupdated
 
        real usponge(GLOBAL_2D_ARRAY,N)
        real vsponge(GLOBAL_2D_ARRAY,N)
@@ -148,8 +156,7 @@
       common/zoom3D_sponge_VN/V_sponge_north
       
       integer TTimesponge, UVTimesponge
-      common/zoom3D_sponge_times/TTimesponge, UVTimesponge
-            
+      common/zoom3D_sponge_times/TTimesponge, UVTimesponge            
 #  endif
             
       real A1dXI(GLOBAL_1D_ARRAYXI,10*NWEIGHT)
@@ -175,8 +182,14 @@
             
       integer zetaid,ubarid,vbarid,uid,vid,tid
       integer tspongeid, uspongeid, vspongeid
+# ifdef WKB_WWAVE
+      integer wacid,warid,wkxid,wkeid
+# endif
       common/varids/zetaid,ubarid,vbarid,uid,vid,tid,
      &  tspongeid, uspongeid, vspongeid
+# ifdef WKB_WWAVE
+     &  ,wacid,warid,wkxid,wkeid
+# endif
       integer updatezetaid, updateubarid, updatevbarid
       integer updateduavg2id, updatedvavg2id
       integer updatetid, updateuid, updatevid

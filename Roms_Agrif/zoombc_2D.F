@@ -341,7 +341,7 @@ C$OMP BARRIER
 # endif  
           
 
-# if defined M2_FRC_BRY || defined M2NUDGING
+!# if defined M2_FRC_BRY || defined M2NUDGING
 !
 ! Apply the value to ubclm or ubarbry
 !
@@ -446,7 +446,7 @@ C$OMP BARRIER
 
       endif
 #  endif
-# endif /* M2_FRC_BRY || M2NUDGING */
+!# endif * M2_FRC_BRY || M2NUDGING */
 
       return
       end
@@ -844,7 +844,7 @@ C$OMP BARRIER
       endif
 # endif      
           
-# if defined M2_FRC_BRY || defined M2NUDGING
+!# if defined M2_FRC_BRY || defined M2NUDGING
 !
 ! Apply the value to vbclm or vbarbry
 !
@@ -947,7 +947,7 @@ C$OMP BARRIER
         enddo
       endif
 #  endif
-# endif /* M2_FRC_BRY || M2NUDGING */
+!# endif /* M2_FRC_BRY || M2NUDGING */
       return
       end
 
@@ -1509,7 +1509,160 @@ C$OMP BARRIER
        indinterp = oldindinterp
       
       return
-      end      
+      end
+      
+# ifdef WKB_WWAVE
+      subroutine wkbbc_interp_tile(Istr,Iend,Jstr,Jend)
+      use AGRIF_Util
+# include "param.h"
+# include "scalars.h"
+# include "boundary.h"
+# include "zoom.h"
+# include "wkb_wwave.h"
+      real,dimension(:,:),allocatable :: tabtemp2d
+      external :: wacinterp, wkxinterp,wkeinterp
+#ifdef WAVE_ROLLER
+     &,warinterp
+#endif
+!          
+# include "compute_auxiliary_bounds.h"
+
+      dWactinterp = 0.
+      dWarinterp  = 0.
+      dWkxtinterp = 0.
+      dWketinterp = 0.
+      Agrif_UseSpecialValue = .TRUE.
+      Agrif_SpecialValue = 0.
+
+      allocate(tabtemp2d(i1t:i2t,j1t:j2t))     
+      Call Agrif_Bc_variable(tabtemp2d,wacid,
+     &   procname=wacinterp)
+       dWactinterp(i1t:i2t,j1t:j2t)=tabtemp2d
+#ifdef WAVE_ROLLER
+      Call Agrif_Bc_variable(tabtemp2d,warid,
+     &   procname=warinterp)
+       dWartinterp(i1t:i2t,j1t:j2t)=tabtemp2d
+#endif
+      Call Agrif_Bc_variable(tabtemp2d,wkxid,
+     &   procname=wkxinterp)
+       dWkxtinterp(i1t:i2t,j1t:j2t)=tabtemp2d
+      Call Agrif_Bc_variable(tabtemp2d,wkeid,
+     &   procname=wkeinterp)
+       dWketinterp(i1t:i2t,j1t:j2t)=tabtemp2d
+       deallocate(tabtemp2d)
+       Agrif_UseSpecialValue = .false.
+
+#  ifdef AGRIF_OBC_SOUTH
+       if (SOUTHERN_EDGE) then
+         do i=IstrR,IendR
+           wacbry_south(i)=dWactinterp(i,Jstr-1)
+#ifdef WAVE_ROLLER
+           warbry_south(i)=dWartinterp(i,Jstr-1)
+#endif
+           wkxbry_south(i)=dWkxtinterp(i,Jstr-1)
+           wkebry_south(i)=dWketinterp(i,Jstr-1)
+         enddo
+      endif
+#  endif
+#  ifdef AGRIF_OBC_NORTH
+      if (NORTHERN_EDGE) then      
+        do i=IstrR,IendR
+          wacbry_north(i)=dWactinterp(i,Jend+1)
+#ifdef WAVE_ROLLER
+          warbry_north(i)=dWartinterp(i,Jend+1)
+#endif
+          wkxbry_north(i)=dWkxtinterp(i,Jend+1)
+          wkebry_north(i)=dWketinterp(i,Jend+1)
+        enddo
+      endif      
+#  endif
+#  ifdef AGRIF_OBC_WEST
+      if (WESTERN_EDGE) then      
+        do j=JstrR,JendR
+          wacbry_west(j)=dWactinterp(Istr-1,j)
+#ifdef WAVE_ROLLER
+          warbry_west(j)=dWartinterp(Istr-1,j)
+#endif
+          wkxbry_west(j)=dWkxtinterp(Istr-1,j)
+          wkebry_west(j)=dWketinterp(Istr-1,j)
+        enddo
+      endif      
+#  endif
+#  ifdef AGRIF_OBC_EAST
+      if (EASTERN_EDGE) then      
+        do j=JstrR,JendR
+          wacbry_east(j)=dWactinterp(Iend+1,j)
+#ifdef WAVE_ROLLER
+          warbry_east(j)=dWartinterp(Iend+1,j)
+#endif
+          wkxbry_east(j)=dWkxtinterp(Iend+1,j)
+          wkebry_east(j)=dWketinterp(Iend+1,j)
+        enddo
+      endif
+#  endif     
+      return
+      end
+      
+      subroutine wacinterp(tabres,i1,i2,j1,j2)
+      implicit none
+# include "param.h"
+# include "wkb_wwave.h"
+# include "scalars.h"
+
+       integer i1,i2,j1,j2
+       real tabres(i1:i2,j1:j2)
+
+       tabres(i1:i2,j1:j2) = 
+     &               wac(i1:i2,j1:j2,2)
+      
+      return
+      end       
+#ifdef WAVE_ROLLER
+      subroutine warinterp(tabres,i1,i2,j1,j2)
+      implicit none
+# include "param.h"
+# include "wkb_wwave.h"
+# include "scalars.h"
+
+       integer i1,i2,j1,j2
+       real tabres(i1:i2,j1:j2)
+
+       tabres(i1:i2,j1:j2) = 
+     &               war(i1:i2,j1:j2,2)
+      
+      return
+      end       
+#endif
+      subroutine wkxinterp(tabres,i1,i2,j1,j2)
+      implicit none
+# include "param.h"
+# include "wkb_wwave.h"
+# include "scalars.h"
+
+       integer i1,i2,j1,j2
+       real tabres(i1:i2,j1:j2)
+
+       tabres(i1:i2,j1:j2) = 
+     &               wkx(i1:i2,j1:j2,2)
+      
+      return
+      end       
+      subroutine wkeinterp(tabres,i1,i2,j1,j2)
+      implicit none
+# include "param.h"
+# include "wkb_wwave.h"
+# include "scalars.h"
+
+       integer i1,i2,j1,j2
+       real tabres(i1:i2,j1:j2)
+
+       tabres(i1:i2,j1:j2) = 
+     &               wke(i1:i2,j1:j2,2)
+      
+      return
+      end       
+
+# endif /* WKB_WWAVE */           
 #else
       subroutine zommbc_2D_empty()
       return

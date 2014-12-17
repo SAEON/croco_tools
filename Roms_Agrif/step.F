@@ -118,14 +118,7 @@ C$OMP END PARALLEL
        integer chunk_size_sta, Mcpstr,Mcpend, sta_str
        common /sta_step/ sta_str
 #endif
-#ifdef AGRIF
-      integer Agrif_lev_sedim
-#endif
       integer omp_get_num_threads, omp_get_thread_num 
-
-#ifdef AGRIF
-      Agrif_lev_sedim=Agrif_Nb_Fine_Grids()
-#endif
 
       ntrds=omp_get_num_threads()
       trd=omp_get_thread_num()
@@ -158,9 +151,6 @@ C$OMP MASTER
 #endif
 #ifdef STATIONS
       sta_str=0
-#endif
-#if defined AGRIF
-      Agrif_lev_sedim=Agrif_Nb_Fine_Grids()
 #endif
 
 !
@@ -262,7 +252,7 @@ C$OMP BARRIER
         call set_vbc (tile)
 # if defined  BBL  
 #   ifdef AGRIF
-        IF (Agrif_Fixed().EQ.Agrif_lev_sedim) THEN
+        IF (Agrif_Fixed().GE.Agrif_lev_sedim) THEN
 #   endif
         call bblm (tile)
 #  ifdef AGRIF
@@ -308,6 +298,7 @@ C$OMP BARRIER
       if (may_day_flag.ne.0) return  !-->  EXIT
 
 # if defined WKB_WWAVE && (defined WKB_UNSTEADY || defined MRL_CEW)
+      wkb_agrif_done=.FALSE.
 #  ifdef MRL_CEW
       do tile=my_tile_range
         call wkb_cew_prep (tile)
@@ -491,9 +482,6 @@ C$OMP END SINGLE
        integer chunk_size_sta, Mcpstr,Mcpend, sta_str
        common /sta_step/ sta_str
 #endif
-#ifdef AGRIF
-      integer Agrif_lev_sedim
-#endif
       integer omp_get_num_threads, omp_get_thread_num 
 
       ntrds=omp_get_num_threads()
@@ -502,10 +490,6 @@ C$OMP BARRIER
       range=(NSUB_X*NSUB_E+ntrds-1)/ntrds
       my_first=trd*range
       my_last=min(my_first + range-1, NSUB_X*NSUB_E-1)
-
-#ifdef AGRIF
-      Agrif_lev_sedim=Agrif_Nb_Fine_Grids()
-#endif
 
 !
 ! Solve the 2D primitive equations for the barotropic mode.
@@ -675,9 +659,6 @@ C$OMP END MASTER
        integer chunk_size_sta, Mcpstr,Mcpend, sta_str
        common /sta_step/ sta_str
 #endif
-#ifdef AGRIF
-      integer Agrif_lev_sedim
-#endif
       integer omp_get_num_threads, omp_get_thread_num 
       integer itrc
       
@@ -690,10 +671,6 @@ C$OMP BARRIER
       my_first=trd*range
       my_last=min(my_first + range-1, NSUB_X*NSUB_E-1)
 
-#ifdef AGRIF
-      Agrif_lev_sedim=Agrif_Nb_Fine_Grids()
-#endif
-    
 C$OMP BARRIER
 
 #ifdef SOLVE3D
@@ -787,9 +764,6 @@ C$OMP END MASTER
        integer chunk_size_sta, Mcpstr,Mcpend, sta_str
        common /sta_step/ sta_str
 #endif
-#ifdef AGRIF
-      integer Agrif_lev_sedim
-#endif
       integer omp_get_num_threads, omp_get_thread_num 
       integer itrc
       
@@ -802,10 +776,6 @@ C$OMP BARRIER
       my_first=trd*range
       my_last=min(my_first + range-1, NSUB_X*NSUB_E-1)
 
-#ifdef AGRIF
-      Agrif_lev_sedim=Agrif_Nb_Fine_Grids()
-#endif
-    
 C$OMP BARRIER
 
 #ifdef SOLVE3D
@@ -818,7 +788,7 @@ C$OMP BARRIER
         call step3d_t (tile)
 # ifdef SEDIMENT
 #  ifdef AGRIF
-        IF (Agrif_Fixed().EQ.Agrif_lev_sedim)
+        IF (Agrif_Fixed().GE.Agrif_lev_sedim)
      &    call sediment (tile)
 #  else
         call sediment (tile)

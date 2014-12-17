@@ -46,9 +46,6 @@
 #ifdef SOLVE3D
      &                                       , itrc
 #endif
-#ifdef AGRIF
-      integer Agrif_lev_sedim
-#endif
 !
 ! Use pre-set default startup filename for known applications,
 ! or get it as an argument from command line via iargc-getarg

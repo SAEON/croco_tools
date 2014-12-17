@@ -168,6 +168,11 @@
 !
 # define ANA_INI_WKB
 # ifdef ANA_INI_WKB
+
+#if defined AGRIF
+        if( AGRIF_Root() ) then
+#endif
+
 #  ifdef WKB_OBC_WEST
         ho=h(1,1)+zeta(1,1,knew)     !+wkb_tide       ! offshore depth
 #   ifdef MPI
@@ -291,6 +296,10 @@
         endif
 #   endif  /* WKB_OBC_WEST */
 #  endif /* ANA_BRY_WKB */
+#ifdef AGRIF
+        endif
+#endif
+
 # else /* !ANA_INI_WKB */
         do j=jstrR,jendR
           do i=istrR,iendR

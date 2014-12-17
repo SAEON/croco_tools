@@ -285,10 +285,13 @@
      &     wkxbry_west(GLOBAL_1D_ARRAYETA),
      &     wkxbry_west_dt(GLOBAL_1D_ARRAYETA,2),
      &     wkebry_west(GLOBAL_1D_ARRAYETA),
-     &     wkebry_west_dt(GLOBAL_1D_ARRAYETA,2)     
+     &     wkebry_west_dt(GLOBAL_1D_ARRAYETA,2),     
+     &     warbry_west(GLOBAL_1D_ARRAYETA),
+     &     warbry_west_dt(GLOBAL_1D_ARRAYETA,2)     
        common /bry_wkb_west/ wacbry_west, wacbry_west_dt,
      &                       wkxbry_west, wkxbry_west_dt,
-     &                       wkebry_west, wkebry_west_dt
+     &                       wkebry_west, wkebry_west_dt,
+     &                       warbry_west, warbry_west_dt
 # endif
 
 # if defined WKB_OBC_EAST || defined AGRIF_OBC_EAST
@@ -298,33 +301,42 @@
      &     wkxbry_east_dt(GLOBAL_1D_ARRAYETA,2),
      &     wkebry_east(GLOBAL_1D_ARRAYETA),
      &     wkebry_east_dt(GLOBAL_1D_ARRAYETA,2)     
+      real warbry_east(GLOBAL_1D_ARRAYETA),
+     &     warbry_east_dt(GLOBAL_1D_ARRAYETA,2)
        common /bry_wkb_east/ wacbry_east, wacbry_east_dt,
      &                       wkxbry_east, wkxbry_east_dt,
-     &                       wkebry_east, wkebry_east_dt
+     &                       wkebry_east, wkebry_east_dt,
+     &                       warbry_east, warbry_east_dt
 # endif
 
 # if defined WKB_OBC_SOUTH || defined AGRIF_OBC_SOUTH
-      real wacbry_south(GLOBAL_1D_ARRAYETA),
-     &     wacbry_south_dt(GLOBAL_1D_ARRAYETA,2),
-     &     wkxbry_south(GLOBAL_1D_ARRAYETA),
-     &     wkxbry_south_dt(GLOBAL_1D_ARRAYETA,2),
-     &     wkebry_south(GLOBAL_1D_ARRAYETA),
-     &     wkebry_south_dt(GLOBAL_1D_ARRAYETA,2)     
+      real wacbry_south(GLOBAL_1D_ARRAYXI),
+     &     wacbry_south_dt(GLOBAL_1D_ARRAYXI,2),
+     &     wkxbry_south(GLOBAL_1D_ARRAYXI),
+     &     wkxbry_south_dt(GLOBAL_1D_ARRAYXI,2),
+     &     wkebry_south(GLOBAL_1D_ARRAYXI),
+     &     wkebry_south_dt(GLOBAL_1D_ARRAYXI,2),     
+     &     warbry_south(GLOBAL_1D_ARRAYXI),
+     &     warbry_south_dt(GLOBAL_1D_ARRAYXI,2)     
        common /bry_wkb_south/ wacbry_south, wacbry_south_dt,
      &                        wkxbry_south, wkxbry_south_dt,
-     &                        wkebry_south, wkebry_south_dt
+     &                        wkebry_south, wkebry_south_dt,
+     &                        warbry_south, warbry_south_dt
 # endif
 
 # if defined WKB_OBC_NORTH || defined AGRIF_OBC_NORTH
-      real wacbry_north(GLOBAL_1D_ARRAYETA),
-     &     wacbry_north_dt(GLOBAL_1D_ARRAYETA,2),
-     &     wkxbry_north(GLOBAL_1D_ARRAYETA),
-     &     wkxbry_north_dt(GLOBAL_1D_ARRAYETA,2),
-     &     wkebry_north(GLOBAL_1D_ARRAYETA),
-     &     wkebry_north_dt(GLOBAL_1D_ARRAYETA,2)     
+      real wacbry_north(GLOBAL_1D_ARRAYXI),
+     &     wacbry_north_dt(GLOBAL_1D_ARRAYXI,2),
+     &     wkxbry_north(GLOBAL_1D_ARRAYXI),
+     &     wkxbry_north_dt(GLOBAL_1D_ARRAYXI,2),
+     &     wkebry_north(GLOBAL_1D_ARRAYXI),
+     &     wkebry_north_dt(GLOBAL_1D_ARRAYXI,2),
+     &     warbry_north(GLOBAL_1D_ARRAYXI),
+     &     warbry_north_dt(GLOBAL_1D_ARRAYXI,2)
        common /bry_wkb_north/ wacbry_north, wacbry_north_dt,
      &                        wkxbry_north, wkxbry_north_dt,
-     &                        wkebry_north, wkebry_north_dt
+     &                        wkebry_north, wkebry_north_dt,
+     &                        warbry_north, warbry_north_dt
 # endif
 
 #endif  /* WKB_WWAVE */ 

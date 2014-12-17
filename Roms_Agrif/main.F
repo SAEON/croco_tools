@@ -39,17 +39,17 @@ C      real*8 start_time2, start_time1, exe_time
 #endif 
 
       integer :: iifroot, iicroot
+#ifdef WKB_WWAVE
+      integer winterp
+#endif
 #ifdef AGRIF
       integer size_XI,size_ETA,se,sse, sz,ssz
-      integer iunit, Agrif_lev_sedim
-      parameter(iunit=50)
       external :: step
 # include "zoom.h"      
 # include "dynparam.h"
 #endif
 #ifdef WKB_WWAVE
 # include "wkb_wwave.h"
-      integer :: winterp
 #endif
 #ifdef PISCES
 # include "parameter.h"
@@ -80,15 +80,6 @@ C      real*8 start_time2, start_time1, exe_time
 #ifdef AGRIF
       call Agrif_Init_Grids()
       call declare_zoom_variables()
-      open(iunit,file='AGRIF_FixedGrids.in',form='formatted',
-     &                                   status="old",err=70)
-      read(iunit,*,err=80) Agrif_lev_sedim
-      goto 90
-  70  write(stdout,75) 'AGRIF_FixedGrids.in' 
-  75  format(/,' MAIN - error opening file: ',a)
-  80  write(stdout,85) 'AGRIF_FixedGrids.in'
-  85  format(/,' MAIN - error reading variables in: ',a)
-  90  close(iunit)
 #endif
    
 #ifdef AUTOTILING
