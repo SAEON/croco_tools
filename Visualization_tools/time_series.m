@@ -137,7 +137,7 @@ else
     h=mean(squeeze(ng{'h'}(J,I:I+1)),2);
   elseif vname(1)=='v'
     zeta=mean(squeeze(nc{'zeta'}(:,J:J+1,I)),2);
-    h=mean(squeeze(ng{'h'}(J:J+1,I)),2);
+    h=mean(squeeze(ng{'h'}(J:J+1,I)),1);
   else
     zeta=squeeze(nc{'zeta'}(:,J,I));
     h=squeeze(ng{'h'}(J,I));
