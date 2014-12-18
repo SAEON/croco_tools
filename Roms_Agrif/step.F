@@ -577,6 +577,10 @@ C$OMP BARRIER
 # ifdef AVERAGES
           call set_avg (tile)
 # endif
+# if defined UV_VIS2 && defined UV_VIS_SMAGO
+
+        call hvisc_coef (tile)
+# endif
         enddo
 C$OMP BARRIER
 C$OMP MASTER

@@ -10,7 +10,7 @@
 !======================================================================
 !
 #include "cppdefs.h"
-#ifdef VIS_COEF_3D
+#if defined  VIS_COEF_3D || (!defined SOLVE3D && defined UV_VIS_SMAGO)
 
       subroutine hvisc_coef (tile)
       implicit none
@@ -42,6 +42,7 @@
 # include "grid.h"
 # include "mixing.h"
 # include "ocean3d.h"
+# include "ocean2d.h"
 # include "scalars.h"
 !
 # include "compute_auxiliary_bounds.h"
@@ -158,7 +159,6 @@
 #  endif
 
 # endif /* UV_VIS_SMAGO  */
-
 #else
       subroutine hvisc_coef_empty
 #endif

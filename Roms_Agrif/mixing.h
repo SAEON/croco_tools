@@ -146,5 +146,14 @@
       common /gls_Lscale/Lscale
 # endif /* GLS_MIXING */
 
+#else
+
+# define u(i,j,k,nrhs) ubar(i,j,kstp)
+# define v(i,j,k,nrhs) vbar(i,j,kstp)
+# define visc3d_r(i,j,k)  visc2_r(i,j)
+# define visc3d_p(i,j,k)  visc2_p(i,j)
+# define exchange_p3d_tile(a,b,c,d,visc3d_p) exchange_p2d_tile(a,b,c,d,visc2_p)
+
 #endif /* SOLVE3D */
+
 

@@ -667,7 +667,6 @@ c-# define TANH dtanh
 # undef TS_HADV_RSUP3
 # undef TS_MIX_GEO
 # undef UV_MIX_GEO
-# undef UV_VIS_SMAGO
 # undef TS_DIF_SMAGO
 # undef M3NUDGING
 # undef TNUDGING
