@@ -130,8 +130,7 @@
    || defined SEAMOUNT  || defined SED_TEST2 || defined SHELFRONT  \
    || defined UPWELLING || defined VORTEX    || defined INTERNAL   \
    || defined JET       || defined SHOREFACE || defined RIP        \
-   || defined THACKER
-
+   || defined THACKER   || defined TANK
         do j=JstrR,JendR
           do i=IstrR,IendR
             btflx(i,j,itemp)=0.
@@ -363,8 +362,7 @@ C$    integer  trd, omp_get_thread_num
     || defined SHELFRONT || defined SOLITON  || defined INNERSHELF \
     || defined RIVER     || defined VORTEX   || defined REGIONAL   \
     || defined INTERNAL  || defined JET      || defined RIP        \
-    || defined THACKER
- 
+    || defined THACKER   || defined TANK
       do j=JstrR,JendR
         do i=IstrR,IendR
           sustr(i,j)=0.
@@ -386,7 +384,7 @@ C$    integer  trd, omp_get_thread_num
   || defined REGIONAL  || defined RIVER     || defined SEAMOUNT  \
   || defined SHELFRONT || defined SOLITON   || defined UPWELLING \
   || defined VORTEX    || defined INTERNAL  || defined JET       \
-  || defined RIP       || defined THACKER
+  || defined RIP       || defined THACKER   || defined TANK
       do j=JstrR,JendR
         do i=IstrR,IendR
           svstr(i,j)=0.
@@ -464,7 +462,7 @@ C$    integer  trd, omp_get_thread_num
   || defined REGIONAL  || defined RIVER      || defined SEAMOUNT \
   || defined SHELFRONT || defined UPWELLING  || defined VORTEX \
   || defined INTERNAL  || defined JET        || defined SHOREFACE\
-  || defined RIP       || defined THACKER
+  || defined RIP       || defined THACKER    || defined TANK
       do j=JstrR,JendR
         do i=IstrR,IendR
           srflx(i,j)=0.
@@ -692,8 +690,8 @@ c
  || defined OVERFLOW  || defined REGIONAL  || defined RIVER      \
  || defined SEAMOUNT  || defined SHELFRONT || defined UPWELLING  \
  || defined VORTEX    || defined INTERNAL  || defined JET        \
- || defined SHOREFACE || defined RIP       || defined THACKER
-
+ || defined SHOREFACE || defined RIP       || defined THACKER    \
+ || defined TANK
         do j=JstrR,JendR
           do i=IstrR,IendR
             stflx(i,j,itemp)=0.

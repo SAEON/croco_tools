@@ -140,6 +140,10 @@ C$    integer omp_get_thread_num
                      depth=10.
                      f0=1.E-4
                      beta=0
+# elif defined TANK
+                     depth=10.
+                     f0=0.
+                     beta=0.
 # else
                      depth=???
                      f0=???
@@ -201,6 +205,9 @@ C$    integer omp_get_thread_num
 # elif defined THACKER
                      Length_XI =199.e+3 
                      Length_ETA=199.e+3 
+# elif defined TANK
+                     Length_XI =10.0
+                     Length_ETA=10.0
 # else
                      Length_XI =???
                      Length_ETA=??? 
@@ -236,7 +243,7 @@ C$    integer omp_get_thread_num
 # ifdef EQUATOR
       y0=y0-0.5*Length_ETA  
 # endif
-# if defined INTERNAL || defined THACKER
+# if defined INTERNAL || defined THACKER || defined TANK
       x0=x0-0.5*Length_XI
       y0=y0-0.5*Length_ETA  
 # endif
@@ -486,6 +493,12 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
         do i=IstrR,IendR
           h(i,j)=depth*(1-(xr(i,j)/cff)**2 -
      &                    (yr(i,j)/cff)**2 )
+        enddo
+      enddo
+# elif defined TANK
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          h(i,j)=depth
         enddo
       enddo
 # else

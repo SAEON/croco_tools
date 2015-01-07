@@ -85,6 +85,8 @@
 # endif
 #elif defined THACKER
       parameter (LLm0=199,  MMm0=199,  N=5 )   !  1 km resolution
+#elif defined TANK
+      parameter (LLm0=50,   MMm0=3,    N=50)   ! 20 cm resolution
 #elif defined REGIONAL
 #  if   defined USWC0
       parameter (LLm0=62,   MMm0=126,  N=40)   ! US_West grid15 L0

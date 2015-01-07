@@ -54,6 +54,9 @@ C$    integer omp_get_thread_num
 # ifdef THACKER
       real ETA0, omega, depth, Lt
 # endif
+# ifdef TANK
+      real ETA0, depth, Lt
+# endif
 # ifdef RIP
       integer iper
       real xper,yper,xx,yy,xs,db,eps
@@ -190,6 +193,20 @@ C$    integer omp_get_thread_num
           vbar(i,j,2)=vbar(i,j,1)
         enddo
       enddo
+# elif defined TANK
+      ETA0=0.1
+      Lt=10.
+      do j=JR_RANGE
+        do i=IR_RANGE
+!          zeta(i,j,1)=2*ETA0*cos(pi*xr(i,j)/Lt)-ETA0
+          zeta(i,j,1)=2*ETA0*xr(i,j)/Lt
+          ubar(i,j,1)=0.
+          vbar(i,j,1)=0.
+          zeta(i,j,2)=zeta(i,j,1)
+          ubar(i,j,2)=ubar(i,j,1)
+          vbar(i,j,2)=vbar(i,j,1)
+        enddo
+      enddo
 # else
       ERROR: ANA_INITIAL: no initials for ubar,vbar,zeta
 # endif
@@ -252,6 +269,17 @@ C$    integer omp_get_thread_num
             v(i,j,k,1)=-ETA0*omega*Lt
             u(i,j,k,2)=0.
             v(i,j,k,2)=v(i,j,k,1)
+          enddo
+        enddo
+      enddo
+#  elif defined TANK
+      do k=1,N
+        do j=JR_RANGE
+          do i=IR_RANGE
+            u(i,j,k,1)=0.
+            v(i,j,k,1)=0.
+            u(i,j,k,2)=0.
+            v(i,j,k,2)=0.
           enddo
         enddo
       enddo
@@ -348,7 +376,15 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
-
+#  elif defined TANK
+      do k=1,N
+        do j=JR_RANGE
+          do i=IR_RANGE
+            t(i,j,k,1,itemp)=20.
+            t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
+          enddo
+        enddo
+      enddo
 #  elif defined EQUATOR
       do k=1,N
         do j=JstrR,JendR

@@ -65,7 +65,8 @@ C$    integer omp_get_thread_num
   || defined GRAV_ADJ   || defined OVERFLOW  || defined SEAMOUNT \
   || defined SOLITON    || defined SHELFRONT || defined RIVER    \
   || defined VORTEX     || defined INTERNAL  || defined JET      \
-  || defined SHOREFACE  || defined RIP       || defined THACKER
+  || defined SHOREFACE  || defined RIP       || defined THACKER  \
+  || defined TANK
       do k=1,N
         do j=JR_RANGE
           do i=IR_RANGE
