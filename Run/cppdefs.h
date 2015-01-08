@@ -31,6 +31,7 @@
 #undef  RIP             /* Rip Current Test Case */
 #undef  SHOREFACE       /* Shoreface Test Case on a Planar Beach */
 #undef  THACKER         /* Thacker wetting-drying Example */
+#undef  TANK            /* Tank Example */
 #define REGIONAL        /* REGIONAL Applications */
 
 
@@ -687,7 +688,6 @@
 !                       ========== === =======
 */
 # define ANA_JET
-# undef  ETALON_CHECK
 # undef  MPI
 # undef  AGRIF
 # undef  AGRIF_2WAY
@@ -744,7 +744,6 @@
 !      vortex force formalism: Application to the surf zone.
 !      Ocean Modelling Vol. 34:1-2, pp.16-35.
 */
-# undef  ETALON_CHECK
 # undef  OPENMP
 # undef  MPI
 # define SOLVE3D
@@ -808,8 +807,8 @@
 !
 # undef  DIAGNOSTICS_UV
 # undef  OPENMP
-# undef MPI
-# define  SOLVE3D
+# define MPI
+# undef  SOLVE3D
 # define UV_ADV
 # define NEW_S_COORD
 # ifndef BISCA
@@ -875,7 +874,6 @@
 ! Thacker, W., (1981), Some exact solutions to the nonlinear shallow-water wave equations. 
 ! J. Fluid Mech., 107, 499–508.
 */
-# undef  ETALON_CHECK
 # undef  OPENMP
 # undef  MPI
 # define SOLVE3D
@@ -883,6 +881,27 @@
 # define UV_ADV
 # define WET_DRY
 # define NEW_S_COORD
+# define ANA_GRID
+# define ANA_INITIAL
+# define ANA_BTFLUX
+# define ANA_SMFLUX
+# define ANA_SRFLUX
+# define ANA_STFLUX
+
+#elif defined TANK
+/*
+!                       Tank Example
+!                       ======= =======
+!
+! Chen, X.J., 2003. A fully hydrodynamic model for three-dimensional, free-surface flows. 
+! Int. J. Numer. Methods Fluids 42, 929–952.
+*/
+# undef  OPENMP
+# undef  MPI
+# define SOLVE3D
+# define UV_ADV
+# define NEW_S_COORD
+# define NS_PERIODIC
 # define ANA_GRID
 # define ANA_INITIAL
 # define ANA_BTFLUX
