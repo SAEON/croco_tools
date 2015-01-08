@@ -198,8 +198,8 @@ C$    integer omp_get_thread_num
       Lt=10.
       do j=JR_RANGE
         do i=IR_RANGE
-!          zeta(i,j,1)=2*ETA0*cos(pi*xr(i,j)/Lt)-ETA0
-          zeta(i,j,1)=2*ETA0*xr(i,j)/Lt
+          zeta(i,j,1)=ETA0*cos(pi*xr(i,j)/Lt)
+!          zeta(i,j,1)=ETA0*xr(i,j)/Lt
           ubar(i,j,1)=0.
           vbar(i,j,1)=0.
           zeta(i,j,2)=zeta(i,j,1)

@@ -243,7 +243,7 @@ C$    integer omp_get_thread_num
 # ifdef EQUATOR
       y0=y0-0.5*Length_ETA  
 # endif
-# if defined INTERNAL || defined THACKER || defined TANK
+# if defined INTERNAL || defined THACKER
       x0=x0-0.5*Length_XI
       y0=y0-0.5*Length_ETA  
 # endif

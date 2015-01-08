@@ -31,8 +31,8 @@
 #undef  RIP             /* Rip Current Test Case */
 #undef  SHOREFACE       /* Shoreface Test Case on a Planar Beach */
 #undef  THACKER         /* Thacker wetting-drying Example */
-#define TANK            /* Tank Example */
-#undef  REGIONAL        /* REGIONAL Applications */
+#undef  TANK            /* Tank Example */
+#define REGIONAL        /* REGIONAL Applications */
 
 
 #if defined REGIONAL
@@ -893,8 +893,8 @@
 !                       Tank Example
 !                       ======= =======
 !
-! Auclair F., C. Estournel, J. Floor, M. Herrmann, C. N'Guyen and P. Marsaleix, 2011:
-! A non-hydrostatic algorithm for free-surface ocean modelling. Ocean Modelling. 36, 49-70
+! Chen, X.J., 2003. A fully hydrodynamic model for three-dimensional, free-surface flows. 
+! Int. J. Numer. Methods Fluids 42, 929–952.
 */
 # undef  OPENMP
 # undef  MPI
