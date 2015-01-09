@@ -115,6 +115,16 @@
         goto 99                                           !--> ERROR
       endif
 !
+! Time2.
+!
+      ierr=nf_put_var1_FTYPE (ncidrst, rstTime2, record, time)
+      if (ierr .ne. nf_noerr) then
+        lvar=lenstr(vname(1,indxTime2))
+        write(stdout,1) vname(1,indxTime2)(1:lvar), record, ierr
+     &                  MYID
+        goto 99                                           !--> ERROR
+      endif
+!
 ! Free-surface.
 !
       ierr=nf_fwrite(zeta(START_2D_ARRAY,fast_indx_out), ncidrst,

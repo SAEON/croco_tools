@@ -732,6 +732,12 @@ c        close(testunit)
 # ifdef SALINITY
      &                                          ,  wrthis(indxAks)
 # endif
+# ifdef VIS_COEF_3D
+     &                                          ,  wrthis(indxVisc)
+# endif
+# ifdef DIF_COEF_3D
+     &                                          ,  wrthis(indxDiff)
+# endif
 # ifdef LMD_SKPP
      &                                          ,  wrthis(indxHbl)
 # endif
@@ -811,13 +817,6 @@ c        close(testunit)
 # endif
      &     ) wrthis(indxTime)=.true.
 
-# ifdef VIS_COEF_3D
-        wrthis(indxVisc)=.true.
-# endif
-# ifdef DIF_COEF_3D
-        wrthis(indxDiff)=.true.
-# endif
-
         MPI_master_only write(stdout,'(8(/6x,l1,2x,A,1x,A))')
      &    wrthis(indxR),    'write RHO  ', 'Density anomaly.'
      &  , wrthis(indxO),    'write Omega', 'Omega vertical velocity.'
@@ -828,6 +827,12 @@ c        close(testunit)
 # ifdef SALINITY
      &  , wrthis(indxAks),  'write Aks  ',
      &                      'Vertical diffusivity for salinity.'
+# endif
+# ifdef VIS_COEF_3D
+     &  , wrthis(indxVisc),  'write Visc3d', 'Horizontal viscosity.'
+# endif
+# ifdef DIF_COEF_3D
+     &  , wrthis(indxDiff),  'write Visc3d', 'Horizontal diffusivity.'
 # endif
 # ifdef LMD_SKPP
      &  , wrthis(indxHbl),  'write Hbl  ',
@@ -877,12 +882,6 @@ c        close(testunit)
 # endif
      &  , wrthis(indxShflx_rsw),'write Shflx_rsw [W/m2]', 
      &                          'Short-wave surface radiation'
-# ifdef VIS_COEF_3D
-     &  , wrthis(indxVisc),  'write Visc3d', 'Horizontal viscosity.'
-# endif
-# ifdef DIF_COEF_3D
-     &  , wrthis(indxDiff),  'write Visc3d', 'Horizontal diffusivity.'
-# endif
 
 !
 ! Switches for GLS fields to be saved into history file.
@@ -949,6 +948,12 @@ c        close(testunit)
 #  ifdef SALINITY
      &                                          ,  wrtavg(indxAks)
 #  endif
+#  ifdef VIS_COEF_3D
+     &                                          ,  wrtavg(indxVisc)
+#  endif
+#  ifdef DIF_COEF_3D
+     &                                          ,  wrtavg(indxDiff)
+#  endif
 #  ifdef LMD_SKPP
      &                                          ,  wrtavg(indxHbl)
 #  endif
@@ -990,6 +995,12 @@ c        close(testunit)
 #  ifdef SALINITY
      &                                        .or. wrtavg(indxAks)
 #  endif
+#  ifdef VIS_COEF_3D
+     &                                        .or. wrtavg(indxVisc)
+#  endif
+#  ifdef DIF_COEF_3D
+     &                                        .or. wrtavg(indxDiff)
+#  endif
 #  ifdef LMD_SKPP
      &                                        .or. wrtavg(indxHbl)
 #  endif
@@ -1027,13 +1038,6 @@ c        close(testunit)
 #  endif  /* BIOLOGY */
      &     ) wrtavg(indxTime)=.true.
 
-#  ifdef VIS_COEF_3D
-        wrtavg(indxVisc)=.true.
-#  endif
-#  ifdef DIF_COEF_3D
-        wrtavg(indxDiff)=.true.
-#  endif
-
         MPI_master_only write(stdout,'(8(/6x,l1,2x,A,1x,A))')
      &    wrtavg(indxR),    'write RHO  ', 'Density anomaly'
      &  , wrtavg(indxO),    'write Omega', 'Omega vertical velocity.'
@@ -1044,6 +1048,12 @@ c        close(testunit)
 #  ifdef SALINITY
      &  , wrtavg(indxAks),  'write Aks  ',
      &                         'Vertical diffusivity for salinity.'
+#  endif
+#  ifdef VIS_COEF_3D
+     &  , wrtavg(indxVisc),'write visc3d', 'Horizontal viscosity'
+#  endif
+#  ifdef DIF_COEF_3D
+     &  , wrtavg(indxDiff),'write diff3d', 'Horizontal diffusivity'
 #  endif
 #  ifdef LMD_SKPP
      &  , wrtavg(indxHbl),  'write Hbl  ',
@@ -1094,12 +1104,6 @@ c        close(testunit)
 #  endif
      &  , wrtavg(indxShflx_rsw),'write Shflx_rsw [W/m2]', 
      &                      'Short-wave surface radiation.'
-#  ifdef VIS_COEF_3D
-     &  , wrtavg(indxVisc),'write visc3d', 'Horizontal viscosity'
-#  endif
-#  ifdef DIF_COEF_3D
-     &  , wrtavg(indxDiff),'write diff3d', 'Horizontal diffusivity'
-#  endif
 
 !
 ! Switches for GLS fields to be saved into history file.
