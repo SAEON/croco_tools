@@ -38,12 +38,12 @@ close all
 fname     = 'tank_his.nc';  % roms file name
 g         = 9.81;           % gravity acceleration (m^2/s)
 yindex    = 2;              % y index
-makemovie = 1;              % make movie using QTWriter
+makemovie = 0;              % make movie using QTWriter
 makepdf   = 1;              % make pdf file
 
 eta       = 0.1;            % nondimensional periodic amplitude 
 D0        = 10;             % tank depth
-Lt        = 10;             % tank length
+Lt        = 9.9;            % tank length
 %
 %======================================================================
 
@@ -65,11 +65,9 @@ end
 
 % horizontal grid
 hr=squeeze(nc{'h'}(yindex,:));
-xindex=1;
-hr=hr(xindex:end);
 L=length(hr);
-xr=squeeze(nc{'x_rho'}(yindex,xindex:end));
-yr=squeeze(nc{'y_rho'}(yindex,xindex:end));
+xr=squeeze(nc{'x_rho'}(yindex,:));
+yr=squeeze(nc{'y_rho'}(yindex,:));
 dx=xr(2)-xr(1);
 % vertical grid parameters
 N=length(nc('s_rho'));
@@ -78,38 +76,75 @@ theta_b=nc.theta_b(:);
 hc=nc.hc(:); 
 
 %============================================================
-% --- plot time series at upper right point ---
+%              --- plot time series ---
+% zeta: upper right
+% u: upper middle
+% w: center right
 %=============================================================
-
-figure
-
+kk=26;
 nc=netcdf(fname);
-t0=nc{'scrum_time'}(1:tindex);
-zeta01=100*squeeze(nc{'zeta'}(1:tindex,yindex,L));
+t0    = nc{'scrum_time'}(1:tindex);
+zeta01= 100*squeeze(nc{'zeta'}(1:tindex,yindex,L-1));
+u01   = 100*squeeze(nc{'u'}(1:tindex,end,yindex,L/2));
+w01   = 100*squeeze(nc{'w'}(1:tindex,kk,yindex,L-1)); % z=-4.95m
+% vertical grid
+zr0=zeros(tend,N,L);
+for i=1:tend
+ zeta0     = squeeze(nc{'zeta'}(i,yindex,:));
+ zr0(i,:,:)= squeeze(zlevs(hr,zeta0,theta_s,theta_b,hc,N,'r',2));
+end
 close(nc)
+zru0=0.5*(zr0(:,:,1:end-1)+zr0(:,:,2:end));
 
-% --- compute analytical solutions ---
+% --- Analytical solutions ---
+x      = xr(L-1);
+xu     = 0.5*(xr(L/2)+xr(L/2+1));
+z0     = squeeze(zru0(:,end,L-1)); 
+zz     = squeeze(zr0(:,kk,L-1)); %-4.95;
+
+% Non-hydrostatic case
 k      = pi/Lt;
 sig    = sqrt(g*k*tanh(k*D0));
-x      = 10;
-zeta02 = 100*(eta*cos(k*x)*cos(sig*t0));
+zeta02 =  100*eta*cos(k*x-sig*t0);
+u02    =  100*eta*sig*(sin(sig*t0)./sinh(k*D0))*sin(k*xu).*cosh(k*(D0+z0));
+w02    = -100*eta*sig*(sin(sig*t0)./sinh(k*D0))*cos(k*x).*sinh(k*(D0+zz));
 
-% --- hydrostatic solution ---
-sig    = k*sqrt(g*D0); 
+% Hydrostatic case
+sig    = k*sqrt(g*D0);
 T_lw   = 2*pi/sig;
-zeta03 = 100*(eta*cos(k*x)*cos(sig*t0));
+zeta03 =  100*eta*cos(k*x)*cos(sig*t0);
+u03    =  100*g*eta*k/sig*sin(k*xu)*sin(sig*t0);
+w03    = -100*g*eta*k^2/sig*cos(k*x)*sin(sig*t0).*(D0+zz);
 
 t_per=t0/T_lw;
-plot(t_per,zeta03,t_per,zeta02,t_per,zeta01,'r')
+
+figure('pos',[100 500 600 600])
+subplot(3,1,1)
+plot(t_per,zeta03,'k',t_per,zeta02,'k--',t_per,zeta01,'r')
 legend('Analytical hydro','Analytical N-hydro','Numerical hydro')
 axis([0 5 -11 11])
 xlabel('time (periods)')
-ylabel('Surface elevation (cm)')
-title(['TANK: Surface Height'])
+ylabel('zeta (cm)')
+grid on
+title(['TANK test case'])
+
+subplot(3,1,2)
+plot(t_per,u03,'k',t_per,u02,'k--',t_per,u01,'r')
+axis([0 5 -20 20])
+xlabel('time (periods)')
+ylabel('u (cm/s)')
+grid on
+
+subplot(3,1,3)
+plot(t_per,w03,'k',t_per,w02,'k--',t_per,w01,'r')
+axis([0 5 -20 20])
+xlabel('time (periods)')
+ylabel('w (cm/s)')
+grid on
 
 if makepdf
  print -dpdf tank.pdf
- eval('!pdfcrop tank.pdf tank_series.pdf')
+ eval('!pdfcrop tank.pdf tank_timeseries.pdf')
 end
 
 %============================================================
@@ -128,15 +163,11 @@ for tindex=tstr:tend % ---------------------------------------------
  disp(['Time index: ',num2str(tindex)])
 
  % vertical grid
- zeta=squeeze(nc{'zeta'}(tindex,yindex,xindex:end));
+ zeta=squeeze(nc{'zeta'}(tindex,yindex,:));
  zr=squeeze(zlevs(hr,zeta,theta_s,theta_b,hc,N,'r',2));
- dzr=zr(2:end,:)-zr(1:end-1,:);               % ---> zw(2:N,:)
  zru=0.5*(zr(:,1:end-1)+zr(:,2:end));
- dzru=zru(2:end,:)-zru(1:end-1,:);            % ---> zwu(2:N,:)
  zw=squeeze(zlevs(hr,zeta,theta_s,theta_b,hc,N,'w',2));
- dzw=zw(2:end,:)-zw(1:end-1,:);               % ---> zr
  zwu=0.5*(zw(:,1:end-1)+zw(:,2:end));
- dzwu=zwu(2:end,:)-zwu(1:end-1,:);            % ---> zru
 
  xr2d=repmat(xr,[N 1]);
  D=hr+zeta;
@@ -150,10 +181,10 @@ for tindex=tstr:tend % ---------------------------------------------
  zeta1=zeta;
 
  % ... num zonal velocity ...                         ---> xu,zru
- u1=squeeze(nc{'u'}(tindex,:,yindex,xindex:end));
+ u1=squeeze(nc{'u'}(tindex,:,yindex,:));
 
  % ... num vertical velocity ...                      ---> xr,zw
- w1=squeeze(nc{'w'}(tindex,:,yindex,xindex:end));
+ w1=squeeze(nc{'w'}(tindex,:,yindex,:));
 
  % ---------------------------------------------------------------------
  % --- compute analytical solutions (index 2) ---
@@ -166,15 +197,27 @@ for tindex=tstr:tend % ---------------------------------------------
  sig   = sqrt(g*k*tanh(k*D0));
 
  zeta2 =  eta*cos(k*xr2d)*cos(sig*time);
- u2    =  eta*sig*(sin(sig*time)/sinh(k*D0))*sin(k*xr2d).*cosh(k*zr);
- w2    = -eta*sig*(sin(sig*time)/sinh(k*D0))*cos(k*xr2d).*sinh(k*zr);
- 
+ u2    =  eta*sig*(sin(sig*time)/sinh(k*D0))*sin(k*xr2d).*cosh(k*(D0+zr));
+ w2    = -eta*sig*(sin(sig*time)/sinh(k*D0))*cos(k*xr2d).*sinh(k*(D0+zr));
+
+ % --- Hydrostatic solution ---
+ k     = pi/Lt;
+ sig   = k*sqrt(g*D0);
+
+ zeta3 =  eta*cos(k*xr2d-sig*time);
+ u3    =  g*eta*k/sig*sin(k*xr2d)*sin(sig*time);
+ w3    =  -g*eta*k^2/sig*cos(k*xr2d)*sin(sig*time).*(D0+zr);
+
  %============================================================
  % --- plot ---
  %=============================================================
 
  u1=100*u1;
  u2=100*u2;
+ u3=100*u3;
+ w1=100*w1;
+ w2=100*w2;
+ w3=100*w3;
  u1(:,L)=u1(:,L-1);
 
  cmin=-20; cmax=20; nbcol=20;
@@ -184,9 +227,9 @@ for tindex=tstr:tend % ---------------------------------------------
  map(nbcol/2+1,:)=[1 1 1];
  colormap(map);
 
- contourf(xr2d,zr,u1-u2,[cmin:cint:cmax]); hold on
+ contourf(xr2d,zr,u1-u3,[cmin:cint:cmax]); hold on
  shading flat; colorbar;
- ha=plot(xr,zeta2,'color','g','LineWidth',2);
+ ha=plot(xr,zeta3,'color','g','LineWidth',2);
  hn=plot(xr,zeta1,'color','r','LineWidth',2);
  %legend([ha,hn],'Analytical','Numerical')
  grid on
