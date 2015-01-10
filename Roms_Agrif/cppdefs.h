@@ -845,7 +845,9 @@
 #  define MRL_CEW
 #  undef  WKB_KZ_FILTER
 #  undef  WKB_TIME_FILTER
-#  define WAVE_RAMP
+#  ifdef RIP_TOPO_2D
+#   define WAVE_RAMP
+#  undef
 # endif
 # define LMD_MIXING
 # define LMD_SKPP
