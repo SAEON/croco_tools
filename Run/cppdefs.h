@@ -807,8 +807,8 @@
 !
 # undef  DIAGNOSTICS_UV
 # undef  OPENMP
-# define MPI
-# undef  SOLVE3D
+# undef  MPI
+# define SOLVE3D
 # define UV_ADV
 # define NEW_S_COORD
 # ifndef BISCA
