@@ -847,7 +847,7 @@
 #  undef  WKB_TIME_FILTER
 #  ifdef RIP_TOPO_2D
 #   define WAVE_RAMP
-#  undef
+#  endif
 # endif
 # define LMD_MIXING
 # define LMD_SKPP
