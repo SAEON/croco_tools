@@ -1,4 +1,4 @@
-! $Id$
+! $Id: uv3dmix_S.F 1547 2014-06-13 09:31:52Z penven $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France

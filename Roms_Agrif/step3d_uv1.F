@@ -1,4 +1,4 @@
-! $Id$
+! $Id: step3d_uv1.F 1613 2014-12-12 15:25:54Z marchesiello $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -19,7 +19,7 @@
 # include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
       call step3d_uv1_tile (Istr,Iend,Jstr,Jend,  A3d(1,1,trd),
-     &                               A3d(1,2,trd), A2d(1,1,trd))
+     &                              A3d(1,2,trd), A2d(1,1,trd))
       return
       end
 
@@ -36,9 +36,13 @@
 # ifdef MRL_WCI
 #   include "forces.h"
 # endif
+#ifdef NBQ
+# include "nbq.h"
+#endif
 !
 # include "compute_auxiliary_bounds.h"
 !
+
       cff=0.25*dt
       do j=Jstr,Jend
         do i=IstrU,Iend
@@ -46,7 +50,13 @@
         enddo
         do k=1,N
           do i=IstrU,Iend
+# ifdef NBQ
+            u(i,j,k,nnew)=u(i,j,k,nnew)+DC(i,0)*(ru(i,j,k)+
+     &                                           ru_nbq_avg2(i,j,k))
+
+#else
             u(i,j,k,nnew)=u(i,j,k,nnew)+DC(i,0)*ru(i,j,k)
+#endif
 #  if defined MRL_WCI && defined MASKING
             u(i,j,k,nnew)=u(i,j,k,nnew)*umask(i,j)
      &                    +0.5*ust(i,j,k)*(Hz(i-1,j,k)+Hz(i,j,k))
@@ -60,7 +70,12 @@
           enddo
           do k=1,N
             do i=Istr,Iend
+#ifdef NBQ
+              v(i,j,k,nnew)=v(i,j,k,nnew)+DC(i,0)*(rv(i,j,k)+
+     &                                             rv_nbq_avg2(i,j,k))
+#else
               v(i,j,k,nnew)=v(i,j,k,nnew)+DC(i,0)*rv(i,j,k)
+#endif
 #  if defined MRL_WCI && defined MASKING
               v(i,j,k,nnew)=v(i,j,k,nnew)*vmask(i,j)
      &                      +0.5*vst(i,j,k)*(Hz(i,j-1,k)+Hz(i,j,k))

@@ -1,4 +1,4 @@
-! $Id$
+! $Id: strings.h 1458 2014-02-03 15:01:25Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -14,6 +14,6 @@
 ! them together and writing into history file.
 !                                    !
       integer max_opt_size           ! NOTE: Parameter max_opt_size
-      parameter (max_opt_size=2400)  ! must be equal to the length
-      character*2400 Coptions,srcs   ! of character string. 
+      parameter (max_opt_size=3400)  ! must be equal to the length
+      character*3400 Coptions,srcs   ! of character string. 
       common /strings/ Coptions,srcs !

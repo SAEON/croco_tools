@@ -1,4 +1,4 @@
-! $Id$
+! $Id: ocean3d.h 1458 2014-02-03 15:01:25Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -18,6 +18,11 @@
       real t(GLOBAL_2D_ARRAY,N,3,NT)
       common /ocean_u/u /ocean_v/v /ocean_t/t
 
+# ifdef NBQ
+      real wz(GLOBAL_2D_ARRAY,0:N,3)
+      common /ocean_wz/wz
+# endif
+
       real Hz(GLOBAL_2D_ARRAY,N)
       real Hz_bak(GLOBAL_2D_ARRAY,N)
       real z_r(GLOBAL_2D_ARRAY,N)
@@ -28,6 +33,13 @@
       common /grid_Hz/Hz    /grid_zr/z_r  /grid_W/W
      &  /grid_Hz_bak/Hz_bak /grid_zw/z_w  /grid_Huon/Huon
      &                                    /grid_Hvom/Hvom
+
+# ifdef NBQ
+      real Hzr(GLOBAL_2D_ARRAY,N)
+      common /grid_Hzr/Hzr
+      real Hz_half(GLOBAL_2D_ARRAY,N)
+      common /grid_Hz_half/Hz_half
+# endif
 
 # if defined UV_VIS4 && defined UV_MIX_GEO
       real z_u(GLOBAL_2D_ARRAY,N)

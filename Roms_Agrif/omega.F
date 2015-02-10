@@ -1,4 +1,4 @@
-! $Id$
+! $Id: omega.F 1458 2014-02-03 15:01:25Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -45,10 +45,11 @@
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j,k
 # include "param.h"
-      real wrk(PRIVATE_1D_SCRATCH_ARRAY)
+      real wrk(PRIVATE_1D_SCRATCH_ARRAY),rho_w
 # include "grid.h"
 # include "ocean3d.h"
 # include "scalars.h"
+# include "nbq.h"
 !
 
 #ifdef MPI
@@ -61,10 +62,12 @@
 
 # include "compute_auxiliary_bounds.h"
 !
-
-      do j=Jstr,Jend         !!! WARNING: Setting old-new must be
-        do i=Istr,Iend       !!!          consistent with similar  
-          W(i,j,0)=0.        !!!          setting in set_depth.F  
+      do j=Jstr,Jend
+!
+!  Integrate divergence of horizontal mass fluxes
+!
+        do i=Istr,Iend 
+          W(i,j,0)=0.
         enddo
         do k=1,N,+1
           do i=Istr,Iend
@@ -72,20 +75,22 @@
      &                          -Hvom(i,j+1,k)+Hvom(i,j,k)
           enddo
         enddo
-
-        do i=Istr,Iend                                        !< new
-          wrk(i)=W(i,j,N)/(z_w(i,j,N)-z_w(i,j,0))             !< new
-        enddo                                                 !< new
-
+!
+!  Subtract vertical velocities of moving S-coordinate isosurfaces
+!
+        do i=Istr,Iend
+          wrk(i)=W(i,j,N)/(z_w(i,j,N)-z_w(i,j,0))
+        enddo
         do k=N-1,1,-1
           do i=Istr,Iend
-            W(i,j,k)=W(i,j,k)-wrk(i)*(z_w(i,j,k)-z_w(i,j,0))  !< new
+            W(i,j,k)=W(i,j,k)-wrk(i)*(z_w(i,j,k)-z_w(i,j,0))
           enddo
         enddo
         do i=Istr,Iend
           W(i,j,N)=0.
         enddo
-      enddo
+!
+      enddo  ! j loop
 !
 !  Set lateral boundary conditions.
 !

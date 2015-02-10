@@ -1,4 +1,4 @@
-! $Id$
+! $Id: ana_grid.F 1620 2015-01-08 10:47:13Z marchesiello $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -67,6 +67,13 @@ C$    integer omp_get_thread_num
 # ifdef RIP
       real h0,per,xx,yy,xs,db,alpha,lambda,eps
 # endif
+#ifdef MPI
+# define LOCALLM Lmmpi
+# define LOCALMM Mmmpi
+#else
+# define LOCALLM Lm
+# define LOCALMM Mm
+#endif
 !
 # include "compute_extended_bounds.h"
 !
@@ -83,7 +90,11 @@ C$    integer omp_get_thread_num
                      f0=0.
                      beta=2.2829e-11
 # elif defined GRAV_ADJ
+#  ifdef NBQ
+                     depth=0.3
+#  else
                      depth=20.
+#  endif
                      f0=0.
                      beta=0.
 # elif defined INNERSHELF
@@ -162,8 +173,13 @@ C$    integer omp_get_thread_num
                      Length_ETA=3200.0E+3
                      Length_XI =4000.0E+3
 # elif defined GRAV_ADJ
+#  ifdef NBQ
+                     Length_XI =3.0
+                     Length_ETA=1.0
+#  else
                      Length_XI =64.0E+3
                      Length_ETA=2.0E+3
+#  endif
 # elif defined INNERSHELF
                      Length_XI =200.0e+3
                      Length_ETA=3.0e+3
@@ -207,7 +223,7 @@ C$    integer omp_get_thread_num
                      Length_ETA=199.e+3 
 # elif defined TANK
                      Length_XI =10.0
-                     Length_ETA=10.0
+                     Length_ETA=1.0 !0.20
 # else
                      Length_XI =???
                      Length_ETA=??? 
@@ -538,6 +554,32 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
             rmask(3,j)=1.                      ! <-- channel
         endif
       enddo
+#  elif defined TANK || defined GRAV_ADJ
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          rmask(i,j)=1.
+        enddo
+      enddo
+      if (SOUTHERN_EDGE) then
+        do i=IstrR,IendR
+          rmask(i,0)=0.
+        enddo
+      endif
+      if (NORTHERN_EDGE) then
+        do i=IstrR,IendR
+          rmask(i,LOCALMM+1)=0.
+        enddo
+      endif
+      if (WESTERN_EDGE) then
+        do j=JstrR,JendR
+          rmask(0,j)=0.
+        enddo
+      endif
+      if (EASTERN_EDGE) then
+        do j=JstrR,JendR
+          rmask(LOCALLM+1,j)=0.
+        enddo
+      endif
 #  endif
 # endif
 !

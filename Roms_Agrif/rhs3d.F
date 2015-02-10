@@ -1,4 +1,4 @@
-! $Id$
+! $Id: rhs3d.F 1458 2014-02-03 15:01:25Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -114,13 +114,13 @@
         do j=Jstr,Jend
           do i=IstrU,Iend
             ru(i,j,k)=ru(i,j,k)+Uwrk(i,j)*(Hz(i,j,k)+
-     &                                               Hz(i-1,j,k))
+     &                                     Hz(i-1,j,k)) RHO0
           enddo
         enddo
         do j=JstrV,Jend
           do i=Istr,Iend
             rv(i,j,k)=rv(i,j,k)+Vwrk(i,j)*(Hz(i,j,k)+
-     &                                               Hz(i,j-1,k))
+     &                                     Hz(i,j-1,k)) RHO0
           enddo
         enddo
       enddo          !--> discard Uwrk,Vwrk
@@ -211,8 +211,17 @@
             UFx(i,j)=cff*(v(i,j,k,nrhs)+v(i,j+1,k,nrhs))
             VFe(i,j)=cff*(u(i,j,k,nrhs)+u(i+1,j,k,nrhs))
 # endif
+# ifdef NBQ
+            UFx(i,j)=UFx(i,j)
+     &      +0.5*Hz(i,j,k)*eomn(i,j)*cosa(i,j)
+     &                            *(wz(i,j,k-1,nrhs)+wz(i,j,k,nrhs)) 
+            VFe(i,j)=VFe(i,j)   
+     &      -0.5*Hz(i,j,k)*eomn(i,j)*sina(i,j)
+     &                            *(wz(i,j,k-1,nrhs)+wz(i,j,k,nrhs))
+# endif
           enddo
         enddo
+
         do j=Jstr,Jend
           do i=IstrU,Iend
             ru(i,j,k)=ru(i,j,k)+0.5*(UFx(i,j)+UFx(i-1,j))
@@ -253,6 +262,7 @@
           enddo
         enddo
 # endif /* UV_COR || (CURVGRID && UV_ADV) */
+
 
 # ifdef UV_ADV
 !
@@ -594,7 +604,6 @@
 # endif /* UV_ADV */
       enddo    ! <-- k
 
-
       do j=Jstr,Jend
 # ifdef UV_ADV
 !
@@ -611,8 +620,8 @@
 !
         do k=1,N
           do i=IstrU,Iend
-            DC(i,k)=0.5625*(Hz(i  ,j,k)+Hz(i-1,j,k))
-     &             -0.0625*(Hz(i+1,j,k)+Hz(i-2,j,k))
+            DC(i,k)=0.5625*(HZR(i  ,j,k)+HZR(i-1,j,k))
+     &             -0.0625*(HZR(i+1,j,k)+HZR(i-2,j,k))
           enddo
         enddo
         do i=IstrU,Iend     ! Construct parabolic splines: here
@@ -698,8 +707,6 @@
           enddo
         enddo               !--> discard FC
 
-
-
         if (j.ge.JstrV) then
 #  ifdef UV_VADV_SPLINES
 !
@@ -708,8 +715,8 @@
 !
           do k=1,N
             do i=Istr,Iend
-              DC(i,k)=0.5625*(Hz(i  ,j,k)+Hz(i,j-1,k))
-     &               -0.0625*(Hz(i,j+1,k)+Hz(i,j-2,k))
+              DC(i,k)=0.5625*(HZR(i  ,j,k)+HZR(i,j-1,k))
+     &               -0.0625*(HZR(i,j+1,k)+HZR(i,j-2,k))
             enddo             
           enddo             
           do i=Istr,Iend    ! Construct parabolic splines: here
@@ -806,7 +813,7 @@
 !
 # ifdef MRL_WCI
         do k=1,N
-          do i=istrU,iend
+          do i=IstrU,iend
             cff  =0.5*on_u(i,j)*(Hz(i-1,j,k)+Hz(i,j,k))
             vstu =0.25*( vst(i  ,j,k) +vst(i  ,j+1,k)
      &                  +vst(i-1,j,k) +vst(i-1,j+1,k) )
@@ -866,7 +873,7 @@ ccc            dvde =0.5*( v(i,j-1,k,nrhs) -v(i,j+1,k,nrhs) )
       enddo
 
 #  if defined WAVE_STREAMING && !defined WAVE_BODY_STREAMING
-        do i=istrU,iend
+        do i=IstrU,iend
           ru(i,j,1) =ru(i,j,1) + om_u(i,j)*on_u(i,j)*frc2dx(i,j)
         enddo
         do i=istr,iend
@@ -894,10 +901,10 @@ ccc            dvde =0.5*( v(i,j-1,k,nrhs) -v(i,j+1,k,nrhs) )
         do i=IstrU,Iend
           rufrc(i,j)=ru(i,j,1)
 # ifndef BODYFORCE
-     &        +(sustr(i,j)-bustr(i,j))*om_u(i,j)*on_u(i,j)
+     &        +(sustr(i,j)-bustr(i,j))*om_u(i,j)*on_u(i,j) RHO0
 # endif
 #  if defined MRL_WCI && defined WAVE_SFC_BREAK
-     &             +        brk2dx(i,j)*om_u(i,j)*on_u(i,j)
+     &                    +brk2dx(i,j)*om_u(i,j)*on_u(i,j) RHO0
 #  endif
         enddo
         do k=2,N
@@ -909,11 +916,11 @@ ccc            dvde =0.5*( v(i,j-1,k,nrhs) -v(i,j+1,k,nrhs) )
           do i=Istr,Iend
             rvfrc(i,j)=rv(i,j,1)
 # ifndef BODYFORCE
-     &       +(svstr(i,j)-bvstr(i,j))*om_v(i,j)*on_v(i,j)
+     &       +(svstr(i,j)-bvstr(i,j))*om_v(i,j)*on_v(i,j) RHO0
 # endif
-#  if defined MRL_WCI && defined WAVE_SFC_BREAK
-     &              +       brk2de(i,j)*om_v(i,j)*on_v(i,j)
-#  endif
+# if defined MRL_WCI && defined WAVE_SFC_BREAK
+     &                   +brk2de(i,j)*om_v(i,j)*on_v(i,j) RHO0
+# endif
           enddo
           do k=2,N
             do i=Istr,Iend

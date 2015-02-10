@@ -1,5 +1,5 @@
 !
-! $Id$
+! $Id: setup_grid1.F 1449 2014-01-29 13:40:03Z marchesiello $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -34,6 +34,16 @@ C$    integer omp_get_thread_num
 # ifdef WKB_WWAVE
 #  include "wkb_wwave.h"
 # endif
+#ifdef NBQ
+      real e(GLOBAL_2D_ARRAY)
+      common /nbq_e/ e
+      real eomn(GLOBAL_2D_ARRAY)
+      common /nbq_eomn/ eomn
+      real cosa(GLOBAL_2D_ARRAY)
+      common /nbq_cosa/ cosa
+      real sina(GLOBAL_2D_ARRAY)
+      common /nbq_sina/ sina
+#endif
 !
 #include "compute_extended_bounds.h"
 !
@@ -43,6 +53,9 @@ C$    integer omp_get_thread_num
       do j=JstrR,JendR                             ! This array
         do i=IstrR,IendR                           ! is NOT to be 
           fomn(i,j)=f(i,j)/(pm(i,j)*pn(i,j))       ! communicated 
+#ifdef NBQ
+          eomn(i,j)=e(i,j)/(pm(i,j)*pn(i,j))          
+#endif
         enddo                                      ! in MPI code; 
       enddo                                        ! others are...
 
@@ -80,9 +93,18 @@ C$    integer omp_get_thread_num
           on_r(i,j)=1./pn(i,j)
           pnom_r(i,j)=pn(i,j)/pm(i,j)
           pmon_r(i,j)=pm(i,j)/pn(i,j)
+#ifdef NBQ
+# ifdef CURVGRID
+          cosa(i,j) = cos(angler(i,j))
+          sina(i,j) = sin(angler(i,j))
+# else
+          cosa(i,j) = 1.
+          sina(i,j) = 0.          
+# endif
+#endif     
         enddo
       enddo
-
+!
 #if (defined CURVGRID && defined UV_ADV)
 !
 !  Compute d(1/n)/d(xi) and d(1/m)/d(eta) terms, both at RHO-points.

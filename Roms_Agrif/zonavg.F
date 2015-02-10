@@ -1,4 +1,4 @@
-! $Id$
+! $Id: zonavg.F 972 2012-12-14 17:57:17Z marchesiello $
 !
 #include "cppdefs.h"
  

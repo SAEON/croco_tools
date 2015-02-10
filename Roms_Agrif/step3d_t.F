@@ -1,4 +1,4 @@
-! $Id$
+! $Id: step3d_t.F 1576 2014-07-03 16:15:16Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -115,7 +115,7 @@
      &      -sign(1.,ua)*( 
      &      (q_ip2-q_im3)-5.*(q_ip1-q_im2)+10.*(q_i-q_im1) )/60.0
 # endif
-# if  defined TS_HADV_WENO5 || defined BIO_HADV_WENO5
+# if  defined TS_HADV_WENO5 || defined BIO_HADV_WENO5 || defined TS_VADV_WENO5
       REAL    :: flux3_weno, flux5_weno
 # endif
 !
@@ -507,10 +507,10 @@
           enddo
           do k=1,N-1,+1
             do i=Istr,Iend
-              cff=1./(2.*Hz(i,j,k+1)+Hz(i,j,k)*(2.-FC(i,k-1)))
-              FC(i,k)=cff*Hz(i,j,k+1)
+              cff=1./(2.*HZR(i,j,k+1)+HZR(i,j,k)*(2.-FC(i,k-1)))
+              FC(i,k)=cff*HZR(i,j,k+1)
               CF(i,k)=cff*(6.*(t(i,j,k+1,3,itrc)-t(i,j,k,3,itrc))
-     &                                      -Hz(i,j,k)*CF(i,k-1))
+     &                                      -HZR(i,j,k)*CF(i,k-1))
             enddo
           enddo
           do i=Istr,Iend
@@ -525,7 +525,7 @@
           cff=1./3.
           do k=1,N-1
             do i=Istr,Iend
-              FC(i,k)=W(i,j,k)*( t(i,j,k,3,itrc)+cff*Hz(i,j,k)
+              FC(i,k)=W(i,j,k)*( t(i,j,k,3,itrc)+cff*HZR(i,j,k)
      &                               *(CF(i,k)+0.5*CF(i,k-1)) )
             enddo
           enddo               !--> discard CF
@@ -568,7 +568,33 @@
             FC(i,N)=0.
             CF(i,0)=dt*pm(i,j)*pn(i,j)
           enddo
-
+# elif defined TS_VADV_WENO5
+!
+! Compute vertical advective fluxes using 5th-order WENO scheme
+!
+          do k=3,N-3
+            do i=Istr,Iend
+              FC(i,k)=W(i,j,k)*flux5_weno(
+     &             t(i,j,k-2,3,itrc), t(i,j,k-1,3,itrc), 
+     &             t(i,j,k  ,3,itrc), t(i,j,k+1,3,itrc),
+     &             t(i,j,k+2,3,itrc), t(i,j,k+3,3,itrc), W(i,j,k))
+            enddo
+          enddo
+          do i=Istr,Iend
+            FC(i,2)=W(i,j,2)*flux3_weno(
+     &           t(i,j,1,3,itrc), t(i,j,2,3,itrc), 
+     &           t(i,j,3,3,itrc), t(i,j,4,3,itrc), W(i,j,2))
+            FC(i,N-2)=W(i,j,N-2)*flux3_weno(
+     &           t(i,j,N-3,3,itrc), t(i,j,N-2,3,itrc), 
+     &           t(i,j,N-1,3,itrc), t(i,j,N  ,3,itrc), W(i,j,N-2))
+            FC(i,1)=0.5*W(i,j,1)*(t(i,j,1,3,itrc)
+     &                           +t(i,j,2,3,itrc))
+            FC(i,N-1)=0.5*W(i,j,N-1)*(t(i,j,N-1,3,itrc)
+     &                               +t(i,j,N,3,itrc))
+            FC(i, 0)=0.
+            FC(i,N )=0.
+            CF(i,0)=dt*pm(i,j)*pn(i,j)
+          enddo
 # elif defined TS_VADV_C2
 !
 ! Compute vertical advective fluxes using 2th-order centered scheme
@@ -640,6 +666,7 @@
          enddo
        enddo
 # endif /* DIAGNOSTICS_TS */  
+
 !
 !
 !===============================================================
@@ -1099,7 +1126,7 @@
 !
 !======================================================================
 !
-# if defined TS_HADV_WENO5 || defined BIO_HADV_WENO5
+# if defined TS_HADV_WENO5 || defined BIO_HADV_WENO5 || defined TS_VADV_WENO5
 !    
       function flux5_weno(q_im3, q_im2, q_im1, q_i, q_ip1, q_ip2, ua)
 !

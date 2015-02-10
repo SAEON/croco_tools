@@ -1,4 +1,4 @@
-!     $Id$
+!     $Id: get_psource_ts.F 1470 2014-02-10 17:32:26Z gcambon $
 !     
 !======================================================================
 !     ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France

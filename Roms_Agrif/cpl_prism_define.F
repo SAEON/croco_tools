@@ -1,4 +1,4 @@
-! $Id$
+! $Id: cpl_prism_define.F 1274 2013-09-16 09:24:57Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France

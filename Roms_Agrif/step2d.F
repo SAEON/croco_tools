@@ -1,4 +1,4 @@
-! $Id$
+! $Id: step2d.F 1615 2014-12-17 13:27:07Z rblod $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -125,6 +125,9 @@ C$    trd=omp_get_thread_num()
      &         DUon(PRIVATE_2D_SCRATCH_ARRAY),
      &         DVom(PRIVATE_2D_SCRATCH_ARRAY)
 #endif
+#ifdef M2FILTER_NONE
+      real :: myepsilon,mybeta,myalpha
+#endif
 #include "grid.h"
 #include "ocean2d.h"
 !#ifdef SOLVE3D
@@ -148,6 +151,12 @@ C$    trd=omp_get_thread_num()
 #endif
 #ifdef WET_DRY
       real cff1_WD,cff2_WD
+#endif
+#ifdef NBQ
+# include "nbq.h"
+      integer k
+      real Hz_half(GLOBAL_2D_ARRAY,N)
+      common /grid_Hz_half/Hz_half
 #endif
 !
 #ifdef MASKING
@@ -177,6 +186,12 @@ C$    trd=omp_get_thread_num()
 ! momentum equations.
 !
 
+#ifdef M2FILTER_NONE
+         mybeta=0.281105
+         myalpha=0.045
+         myepsilon=0.001
+#endif
+
 #ifdef AGRIF
         irhox = Agrif_Irhox()
         irhoy = Agrif_Irhoy()
@@ -200,9 +215,15 @@ C$    trd=omp_get_thread_num()
         if (kbak.lt.1) kbak=4
         kold=kbak-1
         if (kold.lt.1) kold=4
+#ifdef M2FILTER_NONE
+        cff1= 1.5+mybeta
+        cff2=-2.*mybeta-0.5
+        cff3= mybeta
+#else
         cff1= 1.781105
         cff2=-1.06221
         cff3= 0.281105
+#endif
       endif
 !
 #if defined EW_PERIODIC || defined MPI || !defined M2_HADV_UP3
@@ -226,8 +247,14 @@ C$    trd=omp_get_thread_num()
 !
       do j=jmin,jmax
         do i=imin,imax
-          Drhs(i,j)=h(i,j)+cff1*zeta(i,j,kstp)+cff2*zeta(i,j,kbak)
+#ifdef NBQ
+          Drhs(i,j)=cff1*zeta(i,j,kstp)+cff2*zeta(i,j,kbak)
      &                                        +cff3*zeta(i,j,kold)
+#else
+          Drhs(i,j)=rhobar_nbq(i,j)*(h(i,j)+
+     &              cff1*zeta(i,j,kstp)+cff2*zeta(i,j,kbak)
+     &                                        +cff3*zeta(i,j,kold))
+#endif
         enddo
       enddo
 
@@ -324,10 +351,17 @@ C$OMP END MASTER
         cff2= 0.0833333333333    ! maximum stability, while maintaining
         cff3=0.                  ! third-accuracy; alpha_max=1.73
       else
+#ifdef M2FILTER_NONE
+        cff0= 5./6.+2.*myalpha-2.*myalpha**2-mybeta-myepsilon
+        cff1=-1./6.-2.*myalpha+4.*myalpha**2+2.*mybeta+3.*myepsilon
+        cff2= 1./3.-2.*myalpha**2-mybeta-3.*myepsilon
+        cff3= myepsilon
+#else
         cff0=0.614
         cff1=0.285
         cff2=0.088
         cff3=0.013
+#endif
       endif
  
 #define zwrk UFx
@@ -344,6 +378,8 @@ C$OMP END MASTER
           zeta_new(i,j)=zeta(i,j,kstp) + dtfast*pm(i,j)*pn(i,j)
      &                                   *(DUon(i,j)-DUon(i+1,j  )
      &                                    +DVom(i,j)-DVom(i  ,j+1))
+#ifdef NBQ
+          zeta_new(i,j)=zeta_new(i,j)/rhobar_nbq(i,j)
 #ifdef ZONAL_NUDGING
           zeta(i,j,knew)=zeta_new(i,j)
 #endif
@@ -385,22 +421,42 @@ C$OMP END MASTER
 ! Computes zetarhs to use in mometum equations
 !-----------------------------------------------------------------------
 !
+#ifdef NBQ
+      do j=JstrV-1,Jend
+        do i=IstrU-1,Iend
+          zeta_new(i,j)=zeta_new(i,j) SWITCH rmask(i,j)
+          Dnew(i,j)=zeta_new(i,j)
+          zwrk(i,j)=cff0*zeta_new(i,j) +cff1*zeta(i,j,kstp)
+     &             +cff2*zeta(i,j,kbak)+cff3*zeta(i,j,kold)
+          zwrk(i,j)=zwrk(i,j)/rhobar_nbq(i,j)-h(i,j)
+# if defined VAR_RHO_2D && defined SOLVE3D
+          rzeta(i,j)=(1.+rhoS(i,j))*zwrk(i,j)
+          rzeta2(i,j)=rzeta(i,j)*zwrk(i,j)
+          rzetaSA(i,j)=zwrk(i,j)*(rhoS(i,j)-rhoA(i,j))
+# else
+          rzeta(i,j)=zwrk(i,j)
+          rzeta2(i,j)=zwrk(i,j)*zwrk(i,j)
+# endif
+        enddo
+      enddo
+#else
       do j=JstrV-1,Jend
         do i=IstrU-1,Iend
           zeta_new(i,j)=zeta_new(i,j) SWITCH rmask(i,j)
           Dnew(i,j)=zeta_new(i,j)+h(i,j)
           zwrk(i,j)=cff0*zeta_new(i,j) +cff1*zeta(i,j,kstp)
      &             +cff2*zeta(i,j,kbak)+cff3*zeta(i,j,kold)
-#if defined VAR_RHO_2D && defined SOLVE3D
+# if defined VAR_RHO_2D && defined SOLVE3D
           rzeta(i,j)=(1.+rhoS(i,j))*zwrk(i,j)
           rzeta2(i,j)=rzeta(i,j)*zwrk(i,j)
           rzetaSA(i,j)=zwrk(i,j)*(rhoS(i,j)-rhoA(i,j))
-#else
+# else
           rzeta(i,j)=zwrk(i,j)
           rzeta2(i,j)=zwrk(i,j)*zwrk(i,j)
-#endif
+# endif
         enddo
       enddo
+#endif /* NBQ */
 !
 !-----------------------------------------------------------------------
 ! Load new free-surface values into shared array
@@ -412,8 +468,13 @@ C$OMP END MASTER
         do i=IstrU-1,Iend
           zeta(i,j,knew)=zeta_new(i,j) 
 #if defined WET_DRY && defined MASKING
+# ifdef NBQ
+          zeta(i,j,knew)=zeta(i,j,knew)+ 
+     &                   rhobar_nbq(i,j)*Dcrit(i,j)*(1.-rmask(i,j))
+# else
           zeta(i,j,knew)=zeta(i,j,knew)+ 
      &                   (Dcrit(i,j)-h(i,j))*(1.-rmask(i,j))
+# endif
 #endif
         enddo
       enddo 
@@ -499,27 +560,27 @@ C$OMP END MASTER
 !----------------------------------------------------------------------
 !
 #ifdef SOLVE3D
-        cff1=weight(1,iif)
-        cff2=weight(2,iif)
-        if (FIRST_2D_STEP) then
-          do j=JstrR,JendR
-            do i=IstrR,IendR
-              Zt_avg1(i,j)=cff1*zeta(i,j,knew)
-              DU_avg1(i,j,nnew)=0.
-              DV_avg1(i,j,nnew)=0.
-              DU_avg2(i,j)=cff2*DUon(i,j)
-              DV_avg2(i,j)=cff2*DVom(i,j)
-            enddo
-          enddo 
-        else
-          do j=JstrR,JendR
-            do i=IstrR,IendR
-              Zt_avg1(i,j)=Zt_avg1(i,j)+cff1*zeta(i,j,knew)
-              DU_avg2(i,j)=DU_avg2(i,j)+cff2*DUon(i,j)
-              DV_avg2(i,j)=DV_avg2(i,j)+cff2*DVom(i,j)
-            enddo
+      cff1=weight(1,iif)
+      cff2=weight(2,iif)
+      if (FIRST_2D_STEP) then
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+            !Zt_avg1(i,j)=cff1*zeta(i,j,knew)
+            DU_avg1(i,j,nnew)=0.
+            DV_avg1(i,j,nnew)=0.
+            DU_avg2(i,j)=cff2*DUon(i,j)
+            DV_avg2(i,j)=cff2*DVom(i,j)
           enddo
-        endif
+        enddo 
+      else
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+            !Zt_avg1(i,j)=Zt_avg1(i,j)+cff1*zeta(i,j,knew)
+            DU_avg2(i,j)=DU_avg2(i,j)+cff2*DUon(i,j)
+            DV_avg2(i,j)=DV_avg2(i,j)+cff2*DVom(i,j)
+          enddo
+        enddo
+      endif
 #endif
 !
 !
@@ -541,34 +602,36 @@ C$OMP END MASTER
 ! (61% of peak speed) on R10000 vs. 16+16 cycles of separate loop
 ! version for the case when both CPP switches below are defined.
 !
+#ifdef NBQ
+      cff=0.5*g*rho0
+#else
       cff=0.5*g
+#endif
       do j=Jstr,Jend
         do i=Istr,Iend
           rubar(i,j)=cff*on_u(i,j)*( (h(i-1,j)+h(i,j))*(rzeta(i-1,j)
      &                        -rzeta(i,j)) +rzeta2(i-1,j)-rzeta2(i,j)
- 
 #if defined VAR_RHO_2D && defined SOLVE3D
      &              +(h(i-1,j)-h(i,j))*( rzetaSA(i-1,j)+rzetaSA(i,j)
      &                        +0.333333333333*(rhoA(i-1,j)-rhoA(i,j))
      &                                      *(zwrk(i-1,j)-zwrk(i,j)))
 #endif
 #ifdef MRL_WCI
-     &                     + ( h(i-1,j)+h(i,j)+rzeta(i-1,j)+rzeta(i,j) )
-     &                                          *( sup(i,j)-sup(i-1,j) )
+     &                  + ( h(i-1,j)+h(i,j)+rzeta(i-1,j)+rzeta(i,j) )
+     &                                       *( sup(i,j)-sup(i-1,j) )
 #endif
      &                                                              )
 ! 
           rvbar(i,j)=cff*om_v(i,j)*( (h(i,j-1)+h(i,j))*(rzeta(i,j-1)
      &                        -rzeta(i,j)) +rzeta2(i,j-1)-rzeta2(i,j)
- 
 #if defined VAR_RHO_2D && defined SOLVE3D
      &              +(h(i,j-1)-h(i,j))*( rzetaSA(i,j-1)+rzetaSA(i,j)
      &                        +0.333333333333*(rhoA(i,j-1)-rhoA(i,j))
      &                                      *(zwrk(i,j-1)-zwrk(i,j)))
 #endif
 #ifdef MRL_WCI
-     &                     + ( h(i,j-1)+h(i,j)+rzeta(i,j-1)+rzeta(i,j) )
-     &                                          *( sup(i,j)-sup(i,j-1) )
+     &                  + ( h(i,j-1)+h(i,j)+rzeta(i,j-1)+rzeta(i,j) )
+     &                                       *( sup(i,j)-sup(i,j-1) )
 #endif
      &                                                              )
         enddo
@@ -1022,13 +1085,13 @@ C$OMP END MASTER
         do j=Jstr,Jend
           do i=IstrU,Iend
             rubar(i,j)=rubar(i,j) - bustr(i,j)
-     &                             *om_u(i,j)*on_u(i,j)
+     &                             *om_u(i,j)*on_u(i,j) RHO0
           enddo
         enddo
         do j=JstrV,Jend
           do i=Istr,Iend
             rvbar(i,j)=rvbar(i,j) - bvstr(i,j)
-     &                             *om_v(i,j)*on_v(i,j)
+     &                             *om_v(i,j)*on_v(i,j) RHO0
           enddo
         enddo
 # else
@@ -1038,9 +1101,9 @@ C$OMP END MASTER
             cff=0.25*( vbar(i  ,j,kstp)+vbar(i  ,j+1,kstp)
      &                +vbar(i-1,j,kstp)+vbar(i-1,j+1,kstp))
  
-            rubar(i,j)=rubar(i,j)-ubar(i,j,kstp)*( rdrg+rdrg2
+            rubar(i,j)=rubar(i,j) - ubar(i,j,kstp)*( rdrg+rdrg2
      &              *sqrt(ubar(i,j,kstp)*ubar(i,j,kstp)+cff*cff)
-     &                                     )*om_u(i,j)*on_u(i,j)
+     &                               )*om_u(i,j)*on_u(i,j) RHO0
           enddo
         enddo
         do j=JstrV,Jend
@@ -1048,22 +1111,22 @@ C$OMP END MASTER
             cff=0.25*( ubar(i,j  ,kstp)+ubar(i+1,j  ,kstp)
      &                +ubar(i,j-1,kstp)+ubar(i+1,j-1,kstp))
  
-            rvbar(i,j)=rvbar(i,j)-vbar(i,j,kstp)*( rdrg+rdrg2
+            rvbar(i,j)=rvbar(i,j) - vbar(i,j,kstp)*( rdrg+rdrg2
      &              *sqrt(cff*cff+vbar(i,j,kstp)*vbar(i,j,kstp))
-     &                                     )*om_v(i,j)*on_v(i,j)
+     &                               )*om_v(i,j)*on_v(i,j) RHO0
           enddo
         enddo
       else if (rdrg.gt.0.0) then
         do j=Jstr,Jend
           do i=IstrU,Iend
             rubar(i,j)=rubar(i,j) - rdrg*ubar(i,j,kstp)
-     &                             *om_u(i,j)*on_u(i,j)
+     &                             *om_u(i,j)*on_u(i,j) RHO0
           enddo
         enddo
         do j=JstrV,Jend
           do i=Istr,Iend
             rvbar(i,j)=rvbar(i,j) - rdrg*vbar(i,j,kstp)
-     &                             *om_v(i,j)*on_v(i,j)
+     &                             *om_v(i,j)*on_v(i,j) RHO0
           enddo
         enddo
       endif
@@ -1101,7 +1164,6 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
         enddo
       enddo
 #endif
-      
 !
 !-----------------------------------------------------------------------
 ! Coupling between 2D and 3D parts.
@@ -1123,6 +1185,7 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 !
 #ifdef SOLVE3D
       if (FIRST_2D_STEP) then
+
 # ifdef PRED_COUPLED_MODE
         if (FIRST_TIME_STEP) then
           cff3=0.                        ! This version is designed
@@ -1153,6 +1216,43 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
             rvfrc_bak(i,j,nstp)=cff
           enddo
         enddo
+#  ifdef NBQ
+!
+! Extrapolate at n+1/2 internal forcing term for NBQ equations
+! (units of rho*Hz*dudt)
+!
+        do k=1,N
+          do j=Jstr,Jend
+            do i=IstrU,Iend
+              cff=ruint_nbq(i,j,k)
+              ruint_nbq(i,j,k)=cff1*cff 
+     &                       + cff2*ruint_bak_nbq(i,j,k,3-nstp)
+     &                       + cff3*ruint_bak_nbq(i,j,k,nstp)
+              ruint_bak_nbq(i,j,k,nstp)=cff
+            enddo
+          enddo
+          do j=JstrV,Jend
+            do i=Istr,Iend
+              cff=rvint_nbq(i,j,k)
+              rvint_nbq(i,j,k)=cff1*cff
+     &                       + cff2*rvint_bak_nbq(i,j,k,3-nstp)
+     &                       + cff3*rvint_bak_nbq(i,j,k,nstp)
+              rvint_bak_nbq(i,j,k,nstp)=cff
+            enddo
+          enddo
+        enddo
+        do k=0,N
+          do j=Jstr,Jend
+            do i=Istr,Iend
+              cff=rwint_nbq(i,j,k)
+              rwint_nbq(i,j,k)=cff1*cff
+     &                       + cff2*rwint_bak_nbq(i,j,k,3-nstp)
+     &                       + cff3*rwint_bak_nbq(i,j,k,nstp)
+              rwint_bak_nbq(i,j,k,nstp)=cff
+            enddo
+          enddo
+        enddo
+#  endif /* NBQ */
 # else
         do j=Jstr,Jend                       ! This version is
           do i=Istr,Iend                     ! designed for coupling
@@ -1175,21 +1275,44 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 # define rzeta2  VFe
 # define rzetaSA VFx
 
+# ifdef NBQ
         do j=JstrV-1,Jend
           do i=IstrU-1,Iend
             zwrk(i,j)=zeta_new(i,j)-zeta(i,j,kstp)
-# if defined VAR_RHO_2D && defined SOLVE3D
+            zwrk(i,j)=zwrk(i,j)/rhobar_nbq(i,j)-h(i,j)
+#  if defined VAR_RHO_2D && defined SOLVE3D
+            rzeta(i,j)=(1.+rhoS(i,j))*zwrk(i,j)
+            rzeta2(i,j)=rzeta(i,j)*
+     &          ((zeta_new(i,j)+zeta(i,j,kstp))/rhobar_nbq(i,j)-h(i,j))
+            rzetaSA(i,j)=zwrk(i,j)*(rhoS(i,j)-rhoA(i,j))
+#  else
+            rzeta(i,j)=zwrk(i,j)
+            rzeta2(i,j)=zwrk(i,j)*
+     &           ((zeta_new(i,j)+zeta(i,j,kstp))/rhobar_nbq(i,j)-h(i,j))
+#  endif
+          enddo
+        enddo
+# else
+        do j=JstrV-1,Jend
+          do i=IstrU-1,Iend
+            zwrk(i,j)=zeta_new(i,j)-zeta(i,j,kstp)
+#  if defined VAR_RHO_2D && defined SOLVE3D
             rzeta(i,j)=(1.+rhoS(i,j))*zwrk(i,j)
             rzeta2(i,j)=rzeta(i,j)*(zeta_new(i,j)+zeta(i,j,kstp))
             rzetaSA(i,j)=zwrk(i,j)*(rhoS(i,j)-rhoA(i,j))
-# else
+#  else
             rzeta(i,j)=zwrk(i,j)
             rzeta2(i,j)=zwrk(i,j)*(zeta_new(i,j)+zeta(i,j,kstp))
-# endif
+#  endif
           enddo
         enddo
+# endif /* NBQ */
 
+# ifdef NBQ
+        cff=0.5*g*rho0
+# else
         cff=0.5*g
+# endif
         do j=Jstr,Jend
           do i=Istr,Iend
             rubar(i,j)=rubar(i,j) +cff*on_u(i,j)*( (h(i-1,j)+h(i,j))
@@ -1204,11 +1327,11 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
             rvbar(i,j)=rvbar(i,j) +cff*om_v(i,j)*( (h(i,j-1)+h(i,j))
      &          *(rzeta(i,j-1)-rzeta(i,j)) +rzeta2(i,j-1)-rzeta2(i,j)
 
-# if defined VAR_RHO_2D && defined SOLVE3D
+#  if defined VAR_RHO_2D && defined SOLVE3D
      &              +(h(i,j-1)-h(i,j))*( rzetaSA(i,j-1)+rzetaSA(i,j)
      &                        +0.333333333333*(rhoA(i,j-1)-rhoA(i,j))
      &                                     *(zwrk(i,j-1)-zwrk(i,j)) )
-# endif
+#  endif
      &                                                              )
           enddo
         enddo            !--> discard  zwrk, rzeta, rzeta2, rzetaSA
@@ -1217,8 +1340,160 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 # undef rzeta2
 # undef rzeta
 # undef zwrk
+
+        cff1=weight(1,iif)
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+            Zt_avg1(i,j)=cff1*zeta(i,j,knew)
+          enddo
+        enddo 
+
+      else    !<-- not FIRST_2D_STEP
+
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+            Zt_avg1(i,j)=Zt_avg1(i,j)+cff1*zeta(i,j,knew)
+          enddo
+        enddo
+
       endif   !<-- FIRST_2D_STEP
+
+#ifdef NBQ
+      do k=1,N
+        do j=Jstr,Jend
+          do i=IstrU,Iend
+            ruext_nbq(i,j,k)=(rufrc(i,j)+rubar(i,j))*pm_u(i,j)*pn_u(i,j)
+     &                                *(Hz_half(i,j,k)+Hz_half(i-1,j,k))
+     &                                          /(Drhs(i,j)+Drhs(i-1,j))
+          enddo
+        enddo
+        do j=JstrV,Jend
+          do i=Istr,Iend
+            rvext_nbq(i,j,k)=(rvfrc(i,j)+rvbar(i,j))*pm_v(i,j)*pn_v(i,j)
+     &                                *(Hz_half(i,j,k)+Hz_half(i,j-1,k))
+     &                                          /(Drhs(i,j)+Drhs(i,j-1))
+          enddo
+        enddo
+      enddo
+#endif
+
 #endif /* SOLVE3D */
+
+!
+!-----------------------------------------------------------------------
+! Resolve 3D NBQ equation for ndtnbq time steps
+! This provides NBQ-filtered rhs terms for the barotropic equation.
+! Then perform 2D filter of these terms to get forcing terms for 
+! the total equation.
+!-----------------------------------------------------------------------
+!
+#ifdef NBQ
+
+!
+! Resolve 3D NBQ equation for ndtnbq time steps
+!
+      if (FIRST_2D_STEP) then
+        call z_thickness_nh(1)
+        call mat_mom_nh
+        call mat_cont_nh
+      endif
+
+      call step3d_nbq
+
+!
+! Get filtered rhs terms
+! and multiply by dx*dy to get units of rho*Hz*dx*dy*ru
+!
+        cff1=weight(1,iif)
+        cff2=weight(2,iif)
+        if (FIRST_2D_STEP) then
+          do j=Jstr,Jend
+            do i=Istr,Iend
+              rhobar_nbq_avg1(i,j)=cff1*rhobar_nbq(i,j)
+            enddo
+          enddo 
+          do k=1,N
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                rho_nbq_avg1(i,j,k)=cff1*rho_nbq_ext(i,j,k)
+                rho_nbq_avg2(i,j,k)=cff2*rho_nbq_ext(i,j,k)
+              enddo
+            enddo 
+          enddo
+          do k=1,N
+            do j=Jstr,Jend
+              do i=IstrU,Iend
+                ru_nbq_avg1(i,j,k)=cff1*ru_nbq_ext(i,j,k)
+                ru_nbq_avg2(i,j,k)=cff2*ru_nbq_ext(i,j,k)
+              enddo
+            enddo 
+          enddo
+          do k=1,N
+            do j=JstrV,Jend
+              do i=Istr,Iend
+                rv_nbq_avg1(i,j,k)=cff1*rv_nbq_ext(i,j,k)
+                rv_nbq_avg2(i,j,k)=cff2*rv_nbq_ext(i,j,k)
+              enddo
+            enddo 
+          enddo
+          do k=0,N
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                rw_nbq_avg1(i,j,k)=cff1*rw_nbq_ext(i,j,k)
+                rw_nbq_avg2(i,j,k)=cff2*rw_nbq_ext(i,j,k)
+              enddo
+            enddo 
+          enddo
+        else ! not. FIRST_2D_STEP
+          do j=Jstr,Jend
+            do i=Istr,Iend
+              rhobar_nbq_avg1(i,j)=rhobar_nbq_avg1(i,j)
+     &                              +cff1*rhobar_nbq(i,j)
+            enddo
+          enddo 
+          do k=1,N
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                rho_nbq_avg1(i,j,k)=rho_nbq_avg1(i,j,k)
+     &                              +cff1*rho_nbq_ext(i,j,k)
+                rho_nbq_avg2(i,j,k)=rho_nbq_avg2(i,j,k)
+     &                              +cff2*rho_nbq_ext(i,j,k)
+              enddo
+            enddo 
+          enddo
+          do k=1,N
+            do j=Jstr,Jend
+              do i=IstrU,Iend
+                 ru_nbq_avg1(i,j,k)=ru_nbq_avg1(i,j,k)
+     &                              +cff1*ru_nbq_ext(i,j,k)
+                 ru_nbq_avg2(i,j,k)=ru_nbq_avg2(i,j,k)
+     &                              +cff2*ru_nbq_ext(i,j,k)
+              enddo
+            enddo 
+          enddo
+          do k=1,N
+            do j=JstrV,Jend
+              do i=Istr,Iend
+                 rv_nbq_avg1(i,j,k)=rv_nbq_avg1(i,j,k)
+     &                              +cff1*rv_nbq_ext(i,j,k)
+                 rv_nbq_avg2(i,j,k)=rv_nbq_avg2(i,j,k)
+     &                              +cff2*rv_nbq_ext(i,j,k)
+              enddo
+            enddo 
+          enddo
+          do k=0,N
+            do j=Jstr,Jend
+              do i=Istr,Iend
+                 rw_nbq_avg1(i,j,k)=rw_nbq_avg1(i,j,k)
+     &                              +cff1*rw_nbq_ext(i,j,k)
+                 rw_nbq_avg2(i,j,k)=rw_nbq_avg2(i,j,k)
+     &                              +cff2*rw_nbq_ext(i,j,k)
+              enddo
+            enddo 
+          enddo
+        endif ! FIRST_2D_STEP
+#endif
+
 !
 !-----------------------------------------------------------------------
 ! Perform time step for the 2D momentum equations. 
@@ -1237,7 +1512,11 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
  
       do j=JstrV-1,Jend
         do i=IstrU-1,Iend
+#ifdef NBQ
+          Dstp(i,j)=zeta(i,j,kstp)
+#else
           Dstp(i,j)=zeta(i,j,kstp)+h(i,j)
+#endif
         enddo
       enddo
 
@@ -1245,14 +1524,18 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 #ifdef SOLVE3D
       cff1=0.5*weight(1,iif)
 #else
-      cff2=2.*dtfast
+      cff2=2.*dtfast RHO0
 #endif
       do j=Jstr,Jend
         do i=IstrU,Iend
           DUnew=( (Dstp(i,j)+Dstp(i-1,j))*ubar(i,j,kstp)
      &        +cff*(pm(i,j)+pm(i-1,j))*(pn(i,j)+pn(i-1,j))
 #ifdef SOLVE3D
+# ifdef NBQ
+     &              *(rubar(i,j)+rufrc(i,j)+rubar_nbq(i,j))
+# else
      &                             *(rubar(i,j)+rufrc(i,j))
+# endif
 #else
      &                          *rubar(i,j)+cff2*sustr(i,j)
 # ifdef MRL_WCI
@@ -1293,7 +1576,11 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
           DVnew=( (Dstp(i,j)+Dstp(i,j-1))*vbar(i,j,kstp)
      &        +cff*(pm(i,j)+pm(i,j-1))*(pn(i,j)+pn(i,j-1))
 #ifdef SOLVE3D
+# ifdef NBQ
+     &              *(rvbar(i,j)+rvfrc(i,j)+rvbar_nbq(i,j))
+# else
      &                             *(rvbar(i,j)+rvfrc(i,j))
+# endif
 #else
      &                          *rvbar(i,j)+cff2*svstr(i,j)
 # ifdef MRL_WCI

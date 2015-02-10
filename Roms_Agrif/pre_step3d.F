@@ -1,4 +1,4 @@
-! $Id$
+! $Id: pre_step3d.F 1568 2014-06-30 15:57:49Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -24,15 +24,22 @@
 # include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
       call pre_step3d_tile (Istr,Iend,Jstr,Jend,
-     &                              A3d(1,1,trd), A3d(1,2,trd),
+     &                A3d(1,1,trd), A3d(1,2,trd), A3d(1,5,trd),
      &                A2d(1,1,trd), A2d(1,2,trd), A2d(1,3,trd),
-     &                A2d(1,1,trd), A2d(1,2,trd), A2d(1,3,trd),
-     &                                            A3d(1,3,trd))
+     &                A2d(1,1,trd), A2d(1,2,trd), A2d(1,3,trd)
+# ifndef NBQ
+     &                                          , A3d(1,3,trd)
+# endif
+     &                      )
       return
       end
 
-      subroutine pre_step3d_tile (Istr,Iend,Jstr,Jend, ru,rv,
-     &                         FC,CF,DC, FX,FE,WORK, Hz_half)
+      subroutine pre_step3d_tile (Istr,Iend,Jstr,Jend, ru,rv,rw,
+     &                                     FC,CF,DC, FX,FE,WORK
+# ifndef NBQ
+     &                                                 ,Hz_half
+# endif
+     &                           )  
 !
 !--------------------------------------------------------------------
 ! Preliminary step: initialize computations of the new time step
@@ -60,13 +67,16 @@
 # endif
       real   ru(PRIVATE_2D_SCRATCH_ARRAY,N),    cff,
      &       rv(PRIVATE_2D_SCRATCH_ARRAY,N),    cff1,
+     &       rw(PRIVATE_2D_SCRATCH_ARRAY,0:N),     
      &       FC(PRIVATE_1D_SCRATCH_ARRAY,0:N),  cff2,
      &       CF(PRIVATE_1D_SCRATCH_ARRAY,0:N),
      &       DC(PRIVATE_1D_SCRATCH_ARRAY,0:N),  gamma, 
      &       FX(PRIVATE_2D_SCRATCH_ARRAY),      epsil,
      &       FE(PRIVATE_2D_SCRATCH_ARRAY),
-     &     WORK(PRIVATE_2D_SCRATCH_ARRAY),
-     &  Hz_half(PRIVATE_2D_SCRATCH_ARRAY,N)
+     &     WORK(PRIVATE_2D_SCRATCH_ARRAY)
+# ifndef NBQ
+      real Hz_half(PRIVATE_2D_SCRATCH_ARRAY,N)
+# endif
       parameter (gamma=1./6., epsil=1.E-16)
 # include "grid.h"
 # include "ocean3d.h"
@@ -78,21 +88,28 @@
 # ifdef PSOURCE
 #  include "sources.h"
 # endif
+# ifdef NBQ
+#  include "nbq.h"
+# endif
 # ifdef MASKING
 #  define SWITCH *
 # else
 #  define SWITCH !
 # endif
 !
-# if defined TS_HADV_UP5 ||  defined TS_HADV_C6 \
-      || defined TS_HADV_WENO5 ||  defined BIO_HADV_WENO5
-!
+!--------------------------------------------------------------------
 ! Definition of flux operators: 1st, 2nd, 3rd, 4th, 5th or 6th order,
-! used in UP5 and C6 advection schemes (and order degradation near land masks)
-! cdiff is part of laplacian diffusion in flux1 (used near mask): 
+! used in UP5 and C6 advection schemes (and order degradation near 
+! land masks). cdiff is part of laplacian diffusion in flux1 (used 
+! near mask): 
 !    0 --> flux1=flux2 (second order C2 advection scheme)
 !    1 --> flux1 gives 1st order monotonic UP1 advection scheme
+!--------------------------------------------------------------------
 !
+# if defined TS_HADV_UP5 ||  defined TS_HADV_C6 \
+      || defined TS_HADV_WENO5 ||  defined BIO_HADV_WENO5 \
+      || defined TS_VADV_WENO5
+
       REAL    :: q_im3, q_im2, q_im1, q_i, q_ip1, q_ip2
       REAL    :: ua, vel, cdiff, cdif
       REAL    :: flux1, flux2, flux3, flux4, flux5, flux6
@@ -120,7 +137,9 @@
      &      flux6(q_im3, q_im2, q_im1, q_i, q_ip1, q_ip2, ua)
      &      -sign(1.,ua)*( 
      &      (q_ip2-q_im3)-5.*(q_ip1-q_im2)+10.*(q_i-q_im1) )/60.0
+
 # endif
+!--------------------------------------------------------------------
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -146,6 +165,117 @@
           enddo
         enddo
       enddo
+
+# ifdef NBQ
+      do k=1,N
+        do j=JstrV-1,Jend
+          do i=IstrU-1,Iend
+            Hzr_half_nbq(i,j,k)=Hz_half(i,j,k)/
+     &                          (1.5*rho_nbq_avg1(i,j,k)
+     &                          -0.5*rho_nbq_avg2(i,j,k))
+          enddo
+        enddo
+      enddo
+!
+!  Set lateral boundary conditions for Hz_half
+!
+#  ifndef EW_PERIODIC
+      if (WESTERN_EDGE) then
+        do k=0,N
+          do j=Jstr,Jend
+            Hzr_half_nbq(0,j,k)=Hzr_half_nbq(1,j,k)
+          enddo
+        enddo
+      endif
+      if (EASTERN_EDGE) then
+        do k=0,N
+          do j=Jstr,Jend
+            Hzr_half_nbq(LOCALLM+1,j,k)=Hzr_half_nbq(LOCALLM,j,k)
+          enddo
+        enddo
+      endif
+#  endif
+#  ifndef NS_PERIODIC
+      if (SOUTHERN_EDGE) then
+        do k=0,N
+          do i=Istr,Iend
+            Hzr_half_nbq(i,0,k)=Hzr_half_nbq(i,1,k)
+          enddo
+        enddo
+      endif
+      if (NORTHERN_EDGE) then
+        do k=0,N
+          do i=Istr,Iend
+            Hzr_half_nbq(i,LOCALMM+1,k)=Hzr_half_nbq(i,LOCALMM,k)
+          enddo
+        enddo
+      endif
+#  endif
+#  ifndef EW_PERIODIC
+      if (WESTERN_EDGE .and. SOUTHERN_EDGE) then
+        do k=0,N
+          Hzr_half_nbq(0,0,k)=Hzr_half_nbq(1,1,k)
+        enddo
+      endif
+      if (WESTERN_EDGE .and. NORTHERN_EDGE) then
+        do k=0,N
+          Hzr_half_nbq(0,LOCALMM+1,k)=Hzr_half_nbq(1,LOCALMM,k)
+        enddo
+      endif
+      if (EASTERN_EDGE .and. SOUTHERN_EDGE) then
+        do k=0,N
+          Hzr_half_nbq(LOCALLM+1,0,k)=Hzr_half_nbq(LOCALLM,1,k)
+        enddo
+      endif
+      if (EASTERN_EDGE .and. NORTHERN_EDGE) then
+        do k=0,N
+          Hzr_half_nbq(LOCALLM+1,LOCALMM+1,k)=
+     &                     Hzr_half_nbq(LOCALLM,LOCALMM,k)
+        enddo
+      endif
+#  endif
+#  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
+     &                        Hz_half_nbq(START_2D_ARRAY,1))
+#  endif
+      do j=Jstr-1,Jend+1
+        do i=Istr-1,Iend+1
+           zw_half_nbq(i,j,0)=-h(i,j)
+           zr_half_nbq(i,j,1)=zw_half_nbq(i,j,0)+0.5*Hzr_half_nbq(i,j,1)
+        enddo
+      enddo
+      do k=1,N
+        do j=Jstr-1,Jend+1
+          do i=Istr-1,Iend+1
+            zw_half_nbq(i,j,k)=zw_half_nbq(i,j,k-1)+Hzr_half_nbq(i,j,k)
+          enddo
+        enddo
+      enddo
+      do k=2,N
+        do j=Jstr-1,Jend+1
+          do i=Istr-1,Iend+1
+            zr_half_nbq(i,j,k)=zr_half_nbq(i,j,k-1)
+     &                  +0.5*(Hzr_half_nbq(i,j,k)+Hzr_half_nbq(i,j,k-1))
+          enddo
+        enddo
+      enddo
+      do k=1,N-1
+        do j=JstrV-1,Jend
+          do i=IstrU-1,Iend
+            Hzw_half_nbq(i,j,k)=z_r(i,j,k+1)-z_r(i,j,k)
+        enddo
+      enddo
+      enddo
+      do j=Jstr-1,Jend+1
+        do i=Istr-1,Iend+1
+          Hzr_half_nbq(i,j,0  )=0.
+          Hzr_half_nbq(i,j,N+1)=0.
+          Hzw_half_nbq(i,j,0  )=z_r(i,j,1)-z_w(i,j,0)
+          Hzw_half_nbq(i,j,N  )=z_w(i,j,N)-z_r(i,j,N)
+        enddo
+      enddo
+# endif /* NBQ */
+
 !
 !  Start computation of the auxiliary tracer field.
 !----------------------------------------------------
@@ -452,10 +582,10 @@
           enddo
           do k=1,N-1,+1
             do i=Istr,Iend
-              cff=1./(2.*Hz(i,j,k+1)+Hz(i,j,k)*(2.-FC(i,k-1)))
-              FC(i,k)=cff*Hz(i,j,k+1)
+              cff=1./(2.*HZR(i,j,k+1)+HZR(i,j,k)*(2.-FC(i,k-1)))
+              FC(i,k)=cff*HZR(i,j,k+1)
               CF(i,k)=cff*( 6.*( t(i,j,k+1,nstp,itrc)
-     &               -t(i,j,k,nstp,itrc))-Hz(i,j,k)*CF(i,k-1))
+     &               -t(i,j,k,nstp,itrc))-HZR(i,j,k)*CF(i,k-1))
             enddo
           enddo
           do i=Istr,Iend
@@ -470,7 +600,7 @@
           cff=1./3.           ! Compute vertical advective fluxes 
           do k=1,N-1          ! FC=W*[spline-interpolated tracer]
             do i=Istr,Iend
-              FC(i,k)=W(i,j,k)*( t(i,j,k,nstp,itrc)+cff*Hz(i,j,k)
+              FC(i,k)=W(i,j,k)*( t(i,j,k,nstp,itrc)+cff*HZR(i,j,k)
      &                                  *(CF(i,k)+0.5*CF(i,k-1)) )
             enddo
           enddo               !--> discard CF
@@ -510,6 +640,32 @@
           do i=istr,iend
             FC(i,0)=0.
             FC(i,N)=0.
+          enddo
+# elif defined TS_VADV_WENO5
+!
+! Compute vertical advective fluxes using 5th-order WENO scheme
+!
+          do k=3,N-3
+            do i=Istr,Iend
+              FC(i,k)=W(i,j,k)*flux6(
+     &             t(i,j,k-2,nstp,itrc), t(i,j,k-1,nstp,itrc), 
+     &             t(i,j,k  ,nstp,itrc), t(i,j,k+1,nstp,itrc),
+     &             t(i,j,k+2,nstp,itrc), t(i,j,k+3,nstp,itrc), W(i,j,k))
+            enddo
+          enddo
+          do i=Istr,Iend
+            FC(i,2)=W(i,j,2)*flux4(
+     &           t(i,j,1,nstp,itrc), t(i,j,2,nstp,itrc), 
+     &           t(i,j,3,nstp,itrc), t(i,j,4,nstp,itrc), W(i,j,2))
+            FC(i,N-2)=W(i,j,N-2)*flux4(
+     &           t(i,j,N-3,nstp,itrc), t(i,j,N-2,nstp,itrc), 
+     &           t(i,j,N-1,nstp,itrc), t(i,j,N  ,nstp,itrc), W(i,j,N-2))
+            FC(i,1)=0.5*W(i,j,1)*(t(i,j,1,nstp,itrc)
+     &                           +t(i,j,2,nstp,itrc))
+            FC(i,N-1)=0.5*W(i,j,N-1)*(t(i,j,N-1,nstp,itrc)
+     &                               +t(i,j,N,  nstp,itrc))
+            FC(i, 0)=0.
+            FC(i,N )=0.
           enddo
 # elif defined TS_VADV_C2
 !
@@ -562,9 +718,6 @@
             do i=Istr,Iend
               t(i,j,k,nnew,itrc)=DC(i,k)*( t(i,j,k,nnew,itrc)
      &               -cff*pm(i,j)*pn(i,j)*(FC(i,k)-FC(i,k-1)))
-c**
-c**   if (itrc.eq.2) t(i,j,k,nnew,2)=1.! CONSTANCY PRESERVATION CHECK
-c**
 #ifdef CONST_TRACERS 
               t(i,j,k,nnew,itrc)=t(i,j,k,nstp,itrc)
 #endif
@@ -578,17 +731,22 @@ c**
 !---------------------------------------------------------------
 !
         do i=IstrU,Iend
-          DC(i,0)=0.25*(pm(i,j)+pm(i-1,j))*(pn(i,j)+pn(i-1,j))
+          DC(i,0)=pm_u(i,j)*pn_u(i,j)
         enddo
         if (FIRST_TIME_STEP) then
           do k=1,N
             do i=IstrU,Iend
               u(i,j,k,nnew)=( u(i,j,k,nstp)*(Hz(i,j,k)+Hz(i-1,j,k))
-     &                                         +dt*DC(i,0)*ru(i,j,k)
-     &                           )/(Hz_half(i,j,k)+Hz_half(i-1,j,k))
+     &                                        +dt*DC(i,0)*ru(i,j,k)
+     &                          )/(Hz_half(i,j,k)+Hz_half(i-1,j,k))
 
               u(i,j,k,indx)=u(i,j,k,nstp)*0.5*(Hz(i,j,k)+
      &                                         Hz(i-1,j,k))
+#ifdef NBQ
+              ruint_nbq(i,j,k)=DC(i,0)*( ru(i,j,k) - rufrc(i,j)
+     &                                      *(Hz(i,j,k)+Hz(i-1,j,k))
+     &                                /(Zt_avg1(i,j)+Zt_avg1(i-1,j)) )
+#endif
             enddo
           enddo
         else
@@ -597,32 +755,52 @@ c**
           cff2=0.5-gamma
           do k=1,N
             do i=IstrU,Iend
+#ifdef NBQ
+              u(i,j,k,nnew)=( cff1*u(i,j,k,nstp)*(Hz(i,j,k)+
+     &                                            Hz(i-1,j,k))
+     &                       +cff2*u(i,j,k,indx)*(Hz_bak(i,j,k)+
+     &                                            Hz_bak(i-1,j,k))
+     &                       +cff*DC(i,0)*(ru(i,j,k)+ru_nbq_avg1(i,j,k))
+     &                         )/(Hz_half(i,j,k)+Hz_half(i-1,j,k))
+#else
               u(i,j,k,nnew)=( cff1*u(i,j,k,nstp)*(Hz(i,j,k)+
      &                                            Hz(i-1,j,k))
      &                       +cff2*u(i,j,k,indx)*(Hz_bak(i,j,k)+
      &                                            Hz_bak(i-1,j,k))
      &                       +cff*DC(i,0)*ru(i,j,k)
      &                         )/(Hz_half(i,j,k)+Hz_half(i-1,j,k))
+#endif
 
               u(i,j,k,indx)=u(i,j,k,nstp)*0.5*(Hz(i,j,k)+
      &                                         Hz(i-1,j,k))
+
+#ifdef NBQ
+              ruint_nbq(i,j,k)=DC(i,0)*( ru(i,j,k) - rufrc(i,j)
+     &                                      *(Hz(i,j,k)+Hz(i-1,j,k))
+     &                                /(Zt_avg1(i,j)+Zt_avg1(i-1,j)) )
+#endif
             enddo
           enddo
-        endif
+         endif
 
         if (j.ge.JstrV) then
           do i=Istr,Iend
-            DC(i,0)=0.25*(pm(i,j)+pm(i,j-1))*(pn(i,j)+pn(i,j-1))
+            DC(i,0)=pm_v(i,j)*pn_v(i,j)
           enddo
           if (FIRST_TIME_STEP) then
             do k=1,N
               do i=Istr,Iend
                 v(i,j,k,nnew)=(v(i,j,k,nstp)*(Hz(i,j,k)+Hz(i,j-1,k))
-     &                                          +dt*DC(i,0)*rv(i,j,k)
-     &                            )/(Hz_half(i,j,k)+Hz_half(i,j-1,k))
+     &                                         +dt*DC(i,0)*rv(i,j,k)
+     &                           )/(Hz_half(i,j,k)+Hz_half(i,j-1,k))
 
-                v(i,j,k,indx)=v(i,j,k,nstp)*0.5*(Hz(i,j,k)+
+                v(i,j,k,indx)=v(i,j,k,nstp)*0.5*(Hz(i,j  ,k)+
      &                                           Hz(i,j-1,k))
+#ifdef NBQ
+                rvint_nbq(i,j,k)=DC(i,0)*( rv(i,j,k) - rvfrc(i,j)
+     &                                   *(Hz(i,j,k)+Hz(i,j-1,k))
+     &                             /(Zt_avg1(i,j)+Zt_avg1(i,j-1)) )
+#endif
               enddo
             enddo
           else
@@ -631,21 +809,115 @@ c**
             cff2=0.5-gamma
             do k=1,N
               do i=Istr,Iend
+#ifdef NBQ
+                v(i,j,k,nnew)=( cff1*v(i,j,k,nstp)*(Hz(i,j,k)+
+     &                                              Hz(i,j-1,k))
+     &                         +cff2*v(i,j,k,indx)*(Hz_bak(i,j,k)+
+     &                                              Hz_bak(i,j-1,k))
+     &                       +cff*DC(i,0)*(rv(i,j,k)+rv_nbq_avg1(i,j,k))
+     &                           )/(Hz_half(i,j,k)+Hz_half(i,j-1,k))
+#else
                 v(i,j,k,nnew)=( cff1*v(i,j,k,nstp)*(Hz(i,j,k)+
      &                                              Hz(i,j-1,k))
      &                         +cff2*v(i,j,k,indx)*(Hz_bak(i,j,k)+
      &                                              Hz_bak(i,j-1,k))
      &                         +cff*DC(i,0)*rv(i,j,k)
      &                           )/(Hz_half(i,j,k)+Hz_half(i,j-1,k))
+#endif
 
                 v(i,j,k,indx)=v(i,j,k,nstp)*0.5*(Hz(i,j,k)+
      &                                           Hz(i,j-1,k))
+#ifdef NBQ
+                rvint_nbq(i,j,k)=DC(i,0)*( rv(i,j,k) - rvfrc(i,j)
+     &                                   *(Hz(i,j,k)+Hz(i,j-1,k))
+     &                             /(Zt_avg1(i,j)+Zt_avg1(i,j-1)) )
+#endif
+
               enddo
-            enddo               !--> discard DC(:,0) 
+            enddo               !--> discard DC(:,0)
           endif
         endif
       enddo     !<-- j
 
+#ifdef NBQ
+!=============================================================
+!<-- at this point 
+!<-- rw            contains internal 3D advection + Coriolis
+!<-- rw_nbq_avg1   contains NBQ pressure gradient + gravity + second viscosity 
+!=============================================================
+      do j=Jstr,Jend
+!==
+      if (FIRST_TIME_STEP) then
+!==        
+        do k=1,N-1
+          do i=Istr,Iend
+            wz(i,j,k,nnew)=( wz(i,j,k,nstp)*(Hz(i,j,k)+Hz(i,j,k+1))
+     &                                          +dt*pn(i,j)*pm(i,j)
+     &                              *(rw(i,j,k)+rw_nbq_avg1(i,j,k))
+     &                     )   /  (Hz_half(i,j,k)+Hz_half(i,j,k+1)) !<-- wz has units m.s-1
+
+            wz(i,j,k,indx)=wz(i,j,k,nstp)*0.5*(Hz(i,j,k  )+
+     &                                         Hz(i,j,k+1)) !<-- wz(indx) has units kg.m-1.s-1
+
+            rwint_nbq(i,j,k)=pm(i,j)*pn(i,j)*rw(i,j,k) !<-- rwint_nbq has units kg.m-1.s-2
+
+          enddo
+        enddo
+!== Special treatment for k=N because the control volume at the top is Hz/2       
+        do i=Istr,Iend
+            wz(i,j,N,nnew)=( wz(i,j,N,nstp)*Hz(i,j,N)
+     &                            +dt*pn(i,j)*pm(i,j)
+     &                *(rw(i,j,N)+rw_nbq_avg1(i,j,N))
+     &                     )        /  Hz_half(i,j,N) !<-- wz has units m.s-1
+
+            wz(i,j,N,indx)=wz(i,j,N,nstp)*0.5*Hz(i,j,N) !<-- wz(indx) has units kg.m-1.s-1
+
+            rwint_nbq(i,j,N)=pm(i,j)*pn(i,j)*rw(i,j,N) !<-- rwint_nbq has units kg.m-1.s-2
+ 
+        enddo        
+!==        
+      else
+!==      
+        cff=2.*(1.-gamma)*dt
+        cff1=0.5+gamma
+        cff2=0.5-gamma
+!==        
+        do k=1,N-1
+          do i=Istr,Iend
+             wz(i,j,k,nnew)=( cff1*wz(i,j,k,nstp)*(Hz(i,j,k  )+
+     &                                             Hz(i,j,k+1))
+     &                       +cff2*wz(i,j,k,indx)*(Hz_bak(i,j,k  )+
+     &                                             Hz_bak(i,j,k+1))
+     &                       +cff*pn(i,j)*pm(i,j)
+     &                              *(rw(i,j,k)+rw_nbq_avg1(i,j,k))
+     &                      ) / (Hz_half(i,j,k)+Hz_half(i,j,k+1))  !<-- wz has units m.s-1
+
+             wz(i,j,k,indx)=wz(i,j,k,nstp)*0.5*(Hz(i,j,k  )+
+     &                                          Hz(i,j,k+1)) !<-- wz(indx) has units kg.m-1.s-1
+
+             rwint_nbq(i,j,k)=pm(i,j)*pn(i,j)*rw(i,j,k) !<-- rwint_nbq has units kg.m-1.s-2
+
+          enddo
+       enddo              
+
+!== Special treatment for k=N because the control volume at the top is Hz/2             
+       do i=Istr,Iend
+             wz(i,j,N,nnew)=( cff1*wz(i,j,N,nstp)*Hz    (i,j,N)
+     &                       +cff2*wz(i,j,N,indx)*Hz_bak(i,j,N)
+     &                       +cff*pn(i,j)*pm(i,j)
+     &                          *(rw(i,j,N)+rw_nbq_avg1(i,j,N))
+     &                      )/ Hz_half(i,j,N)                !<-- wz has units m.s-1
+
+             wz(i,j,N,indx)=wz(i,j,N,nstp)*0.5*Hz(i,j,N)   !<-- wz(indx) has units kg.m-1.s-1
+
+             rwint_nbq(i,j,N)=pm(i,j)*pn(i,j)*rw(i,j,N) !<-- rwint_nbq has units kg.m-1.s-2
+       enddo            
+!==                  
+      endif
+      enddo
+!==
+!=============================================================
+#endif      
 !
 !---------------------------------------------------------------
 ! Set PHYSICAL lateral boundary conditions.
@@ -666,7 +938,9 @@ c**
 
       call u3dbc_tile (Istr,Iend,Jstr,Jend, WORK)
       call v3dbc_tile (Istr,Iend,Jstr,Jend, WORK)
-
+# ifdef NBQ
+      call w3dbc_tile (Istr,Iend,Jstr,Jend, WORK)      
+# endif
 !
 !---------------------------------------------------------------
 ! Coupling, include ghost points associated with PHYSICAL
@@ -761,6 +1035,10 @@ c**
      &                        u(START_2D_ARRAY,1,nnew))
       call exchange_v3d_tile (Istr,Iend,Jstr,Jend,
      &                        v(START_2D_ARRAY,1,nnew))
+#  ifdef NBQ    
+      call exchange_w3d_tile (Istr,Iend,Jstr,Jend,
+     &                       wz(START_2D_ARRAY,1,nnew))     
+#  endif
 # endif
 
 !

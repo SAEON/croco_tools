@@ -1,4 +1,4 @@
-! $Id$
+! $Id: scalars.h 1458 2014-02-03 15:01:25Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -34,7 +34,7 @@
 ! dtfast      Time step for 2D (barotropic) mode [seconds];
 !
       real dt, dtfast, time, time2, time_start, tdays
-      integer iic, kstp, krhs, knew, next_kstp
+      integer ndtfast, iic, kstp, krhs, knew, next_kstp
 #ifdef SOLVE3D
      &      , iif, nstp, nrhs, nnew, nbstep3d
 #endif
@@ -46,7 +46,7 @@
 #endif
       logical PREDICTOR_2D_STEP
       common /time_indices/  dt,dtfast, time, time2,time_start, tdays, 
-     &                       iic, kstp, krhs, knew, next_kstp,
+     &                       ndtfast, iic, kstp, krhs, knew, next_kstp,
 #ifdef SOLVE3D
      &                       iif, nstp, nrhs, nnew, nbstep3d,
 #endif
@@ -162,7 +162,7 @@
        real  tauT_in, tauT_out, tauM_in, tauM_out
 #endif
       integer numthreads,     ntstart,   ntimes,  ninfo
-     &      , ndtfast,nfast,  nrrec,     nrst,    nwrt
+     &      , nfast,  nrrec,     nrst,    nwrt
 #ifdef AVERAGES
      &                                 , ntsavg,  navg
 #endif
@@ -254,7 +254,7 @@
      &                      , tauT_in, tauT_out, tauM_in, tauM_out
 #endif
      &      , numthreads,     ntstart,   ntimes,  ninfo
-     &      , ndtfast,nfast,  nrrec,     nrst,    nwrt
+     &      , nfast,  nrrec,     nrst,    nwrt
 #ifdef AVERAGES
      &                                 , ntsavg,  navg
 #endif

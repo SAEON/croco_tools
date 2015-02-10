@@ -1,4 +1,4 @@
-! $Id$
+! $Id: analytical.F 1619 2015-01-07 13:53:03Z marchesiello $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France

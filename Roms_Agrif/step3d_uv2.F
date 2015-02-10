@@ -1,4 +1,4 @@
-! $Id$
+! $Id: step3d_uv2.F 1480 2014-02-18 14:56:20Z rblod $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -131,8 +131,8 @@
 !
 # ifndef BODYFORCE
         do i=IstrU,Iend
-          DC(i,N)=DC(i,N)+dt*sustr(i,j)
-          DC(i,1)=DC(i,1)-dt*bustr(i,j)
+          DC(i,N)=DC(i,N)+dt*sustr(i,j) RHO0
+          DC(i,1)=DC(i,1)-dt*bustr(i,j) RHO0
         enddo
 # endif
 
@@ -724,10 +724,42 @@
         enddo
       enddo
 # endif
+
+#undef DEBUG
+#ifdef DEBUG
+      print *,'STEP3D_UV2: ',u(22,1,49,nnew),v(22,1,49,nnew),wz(22,1,49,nnew)
+      do k=1,N
+        do j=JU_RANGE
+          do i=IU_RANGE
+            if (abs(u(i,j,k,nnew)).gt.1) 
+     &        print *,' U TEST ',i,j,k,u(i,j,k,nnew)
+          enddo
+        enddo
+      enddo
+      do k=1,N
+        do j=JV_RANGE
+          do i=IV_RANGE
+            if (abs(v(i,j,k,nnew)).gt.1) 
+     &        print *,' V TEST ',i,j,k,v(i,j,k,nnew)
+          enddo
+        enddo
+      enddo
+      do k=0,N
+        do j=Jstr,Jend
+          do i=Istr,Iend
+            if (abs(wz(i,j,k,nnew)).gt.1) 
+     &         print *,' W TEST ',i,j,k,wz(i,j,k,nnew)
+          enddo
+        enddo
+      enddo
+#endif
+
 # undef IU_RANGE
 # undef JU_RANGE
 # undef IV_RANGE
 # undef JV_RANGE
+
+
 !
 !--------------------------------------------------------------------
 ! Exchange periodic boundaries and computational margins.

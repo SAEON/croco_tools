@@ -1,4 +1,4 @@
-! $Id$
+! $Id: cppdefs.h 1628 2015-01-10 13:53:00Z marchesiello $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -31,8 +31,8 @@
 #undef  RIP             /* Rip Current Test Case */
 #undef  SHOREFACE       /* Shoreface Test Case on a Planar Beach */
 #undef  THACKER         /* Thacker wetting-drying Example */
-#undef  TANK            /* Tank Example */
-#define REGIONAL        /* REGIONAL Applications */
+#define TANK            /* Tank Example */
+#undef REGIONAL        /* REGIONAL Applications */
 
 
 #if defined REGIONAL
@@ -382,14 +382,20 @@
 !                       Gravitational Adjustment Example
 !                       ============= ========== =======
 */
-# define ETALON_CHECK
-# undef OPENMP
-# undef MPI
+# undef  OPENMP
+# undef  MPI
+# define GRAV_ADJ_SOLITON
+# define NBQ
 # define SOLVE3D
+# define NEW_S_COORD
 # define UV_ADV
-# define UV_VIS2
-# define UV_MIX_S
-# undef  TS_HADV_WENO5
+# ifdef NBQ
+#  define MASKING
+# else
+#  define UV_VIS2
+#  define UV_MIX_S
+# endif
+# define TS_HADV_WENO5
 # define ANA_GRID
 # define ANA_INITIAL
 # define ANA_SMFLUX
@@ -900,11 +906,13 @@
 */
 # undef  OPENMP
 # undef  MPI
+
+# define NBQ
 # define SOLVE3D
-# define UV_ADV
+# undef  UV_ADV
 # define NEW_S_COORD
-# define NS_PERIODIC
 # define ANA_GRID
+# define MASKING
 # define ANA_INITIAL
 # define ANA_BTFLUX
 # define ANA_SMFLUX

@@ -1,4 +1,4 @@
-! $Id$
+! $Id: ana_initial.F 1620 2015-01-08 10:47:13Z marchesiello $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -61,7 +61,9 @@ C$    integer omp_get_thread_num
       integer iper
       real xper,yper,xx,yy,xs,db,eps
 # endif
-
+# ifdef GRAV_ADJ_SOLITON
+      real zint,depth,dz,gam,del
+# endif
 # include "compute_auxiliary_bounds.h"
 !
 # if defined EW_PERIODIC && !defined MPI
@@ -194,12 +196,11 @@ C$    integer omp_get_thread_num
         enddo
       enddo
 # elif defined TANK
-      ETA0=0.1
+      ETA0=0.001
       Lt=10.
       do j=JR_RANGE
         do i=IR_RANGE
           zeta(i,j,1)=ETA0*cos(pi*xr(i,j)/Lt)
-!          zeta(i,j,1)=ETA0*xr(i,j)/Lt
           ubar(i,j,1)=0.
           vbar(i,j,1)=0.
           zeta(i,j,2)=zeta(i,j,1)
@@ -210,6 +211,15 @@ C$    integer omp_get_thread_num
 # else
       ERROR: ANA_INITIAL: no initials for ubar,vbar,zeta
 # endif
+
+#ifdef NBQ
+      do j=JR_RANGE
+        do i=IR_RANGE
+          zeta(i,j,1)=rho0*(h(i,j)+zeta(i,j,1))
+          zeta(i,j,2)=zeta(i,j,1)
+        enddo
+      enddo
+#endif
 
 # ifdef SOLVE3D
 !
@@ -399,23 +409,40 @@ C$    integer omp_get_thread_num
         enddo
       enddo
 #  elif defined GRAV_ADJ
+#   ifdef GRAV_ADJ_SOLITON
+      depth=h(1,1)
+      gam=0.9
+      del=0.3
+      dz=2*(z_r(1,1,2)-z_r(1,1,1));
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          zint=depth*(del-1)+gam*del*depth*(2*xr(i,j)/xl - 1)
+          do k=1,N
+            t(i,j,k,1,itemp)=0.5*(5/Tcoef+10/Tcoef)
+     &                      -0.5*(5/Tcoef-10/Tcoef)*tanh((z_r(i,j,k)-zint)/dz);
+            t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
+          enddo
+        enddo
+      enddo
+#   else
       do k=1,N
         do j=JstrR,JendR
           do i=IstrR,IendR
-#   ifdef MPI
-           if (i+iminmpi-1 .LE. LLm/2) then
-#   else
-           if (i .LE. LLm/2) then
-#   endif            
-            t(i,j,k,1,itemp)=5/Tcoef
-            t(i,j,k,2,itemp)=5/Tcoef
+#    ifdef MPI
+            if (i+iminmpi-1 .LE. LLm/2) then
+#    else
+            if (i .LE. LLm/2) then
+#    endif            
+              t(i,j,k,1,itemp)=5/Tcoef
+              t(i,j,k,2,itemp)=5/Tcoef
             else
-            t(i,j,k,1,itemp)=10/Tcoef
-            t(i,j,k,2,itemp)=10/Tcoef           
+              t(i,j,k,1,itemp)=10/Tcoef
+              t(i,j,k,2,itemp)=10/Tcoef           
             endif
           enddo
         enddo
       enddo
+#   endif /* GRAV_ADJ_SOLITON */
 #  elif defined INNERSHELF
       do k=1,N
         do j=JR_RANGE

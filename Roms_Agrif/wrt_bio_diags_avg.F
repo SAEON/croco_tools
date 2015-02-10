@@ -1,4 +1,4 @@
-! $Id$
+! $Id: wrt_bio_diags_avg.F 1571 2014-07-01 12:38:05Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France

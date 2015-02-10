@@ -1,4 +1,4 @@
-! $Id$
+! $Id: set_global_definitions.h 1618 2014-12-18 14:39:51Z rblod $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -52,16 +52,31 @@
    Activate barotropic pressure gradient response to the
    perturbation of free-surface in the presence of stratification
 */
-#ifdef SOLVE3D
+#if defined SOLVE3D
 # define VAR_RHO_2D
 #endif
 
 /*
+   Activate NBQ choices
+*/
+#ifdef NBQ
+# undef  VAR_RHO_2D
+# define NBQ_REINIT
+# undef  TRACETXT
+# undef  CHECK_CROCO
+# define HZR Hzr
+# define RHO0 *rho0
+#else
+# define HZR Hz
+# define RHO0
+#endif
+/*
    Set default time-averaging filter for barotropic fields.
 */
+#define M2FILTER_NONE
+#undef  M2FILTER_POWER
 #undef  M2FILTER_COSINE
 #undef  M2FILTER_FLAT
-#define M2FILTER_POWER
 #if defined SSH_TIDES || defined UV_TIDES
 # undef M2FILTER_POWER
 # define M2FILTER_FLAT
@@ -157,7 +172,8 @@
     (The default is 4th-order centered)
 */
 #undef  TS_VADV_SPLINES   /* splines vertical advection */
-#define TS_VADV_AKIMA     /* 4th-order Akima vertical advection */
+#undef  TS_VADV_AKIMA     /* 4th-order Akima vertical advection */
+#define TS_VADV_WENO5     /* 5th-order WENOZ vertical advection */
 #undef  TS_VADV_C2        /* 2nd-order centered vertical advection */
 #undef  TS_VADV_FCT       /* Flux correction of vertical advection */
 
@@ -345,6 +361,9 @@
 #    define START_1D_ARRAYETA -2
 #   else
 #    define GLOBAL_2D_ARRAY -2:Lm+3+padd_X,0:Mm+1+padd_E
+#    ifdef NBQ
+#     define GLOBAL_2D_ARRAY_EXT_NBQ -2:Lm+3+padd_X,-1:Mm+2+padd_E
+#    endif
 #    define GLOBAL_1D_ARRAYETA 0:Mm+1+padd_E
 #    define START_2D_ARRAY -2,0
 #    define START_1D_ARRAYETA 0
@@ -354,11 +373,17 @@
 #   define START_1D_ARRAYXI 0
 #   ifdef NS_PERIODIC
 #    define GLOBAL_2D_ARRAY 0:Lm+1+padd_X,-2:Mm+3+padd_E
+#    ifdef NBQ
+#     define GLOBAL_2D_ARRAY_EXT_NBQ -1:Lm+2+padd_X,-2:Mm+3+padd_E
+#    endif
 #    define GLOBAL_1D_ARRAYETA -2:Mm+3+padd_E
 #    define START_2D_ARRAY 0,-2
 #    define START_1D_ARRAYETA -2
 #   else
 #    define GLOBAL_2D_ARRAY 0:Lm+1+padd_X,0:Mm+1+padd_E
+#    ifdef NBQ
+#     define GLOBAL_2D_ARRAY_EXT_NBQ -1:Lm+2+padd_X,-1:Mm+2+padd_E
+#    endif
 #    define GLOBAL_1D_ARRAYETA 0:Mm+1+padd_E
 #    define START_2D_ARRAY 0,0
 #    define START_1D_ARRAYETA 0
@@ -384,6 +409,9 @@
 #    define START_1D_ARRAYETA -1
 #   else
 #    define GLOBAL_2D_ARRAY -1:Lm+2+padd_X,0:Mm+1+padd_E
+#    ifdef NBQ
+#     define GLOBAL_2D_ARRAY_EXT_NBQ -1:Lm+2+padd_X,-1:Mm+2+padd_E
+#    endif
 #    define GLOBAL_1D_ARRAYETA 0:Mm+1+padd_E
 #    define START_2D_ARRAY -1,0
 #    define START_1D_ARRAYETA 0
@@ -393,11 +421,17 @@
 #   define START_1D_ARRAYXI 0
 #   ifdef NS_PERIODIC
 #    define GLOBAL_2D_ARRAY 0:Lm+1+padd_X,-1:Mm+2+padd_E
+#    ifdef NBQ
+#     define GLOBAL_2D_ARRAY_EXT_NBQ -1:Lm+2+padd_X,-1:Mm+2+padd_E
+#    endif
 #    define GLOBAL_1D_ARRAYETA -1:Mm+2+padd_E
 #    define START_2D_ARRAY 0,-1
 #    define START_1D_ARRAYETA -1
 #   else
 #    define GLOBAL_2D_ARRAY 0:Lm+1+padd_X,0:Mm+1+padd_E
+#    ifdef NBQ
+#     define GLOBAL_2D_ARRAY_EXT_NBQ -1:Lm+2+padd_X,-1:Mm+2+padd_E
+#    endif
 #    define GLOBAL_1D_ARRAYETA 0:Mm+1+padd_E
 #    define START_2D_ARRAY 0,0
 #    define START_1D_ARRAYETA 0
@@ -544,15 +578,15 @@
 */
 #ifdef DBLEPREC
 
-c-# define float dfloat
-c-# define FLoaT dfloat
-c-# define FLOAT dfloat
-c-# define sqrt dsqrt
-c-# define SQRT dsqrt
-c-# define exp dexp
-c-# define EXP dexp
-c-# define dtanh dtanh
-c-# define TANH dtanh
+!-# define float dfloat
+!-# define FLoaT dfloat
+!-# define FLOAT dfloat
+!-# define sqrt dsqrt
+!-# define SQRT dsqrt
+!-# define exp dexp
+!-# define EXP dexp
+!-# define dtanh dtanh
+!-# define TANH dtanh
 
 # define NF_FTYPE NF_DOUBLE
 # define nf_get_att_FTYPE nf_get_att_double

@@ -1,4 +1,4 @@
-! $Id$
+! $Id: set_weights.F 1458 2014-02-03 15:01:25Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -10,6 +10,8 @@
 !======================================================================
 !
 #include "cppdefs.h"
+#undef M2FILTER_POWER
+#define NO_FILTER
 #ifdef SOLVE3D
 c--# define TEST_WEIGHTS
 
@@ -100,6 +102,10 @@ c**     write(*,*) shft/sum, ndtfast
           nfast=i
         endif
       enddo
+# elif defined M2FILTER_NONE
+      weight(1,:)=0.
+      nfast=ndtfast
+      weight(1,nfast)=1.
 # else
       cff=pi/float(ndtfast)
       do i=1,2*ndtfast
@@ -178,7 +184,8 @@ c**     write(*,*) shft/sum, ndtfast
       cff=1./cff
       do i=1,nfast
         weight(1,i)=sum*weight(1,i)
-        weight(2,i)=cff*weight(2,i)
+        weight(2,i)=cff*weight(2,i) 
+        MPI_master_only print *,'i = ',i,nfast,weight(1,i),weight(2,i)
       enddo
             
 # ifdef AGRIF

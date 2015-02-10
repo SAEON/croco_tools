@@ -1,4 +1,4 @@
-# $Id$
+# $Id: Makefile 1483 2014-03-15 17:05:10Z rblod $
 #
 #======================================================================
 # ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -28,12 +28,22 @@ include Makedefs
 #  13) AGRIF routines;          14) PISCES routines
 #--------------------------------------------------------------------
 
+ SRCS90 = \
+	module_nh.F90	module_nbq.F90\
+	module_tracetxt_out.F90	nump_nh.F90	mat_cont_init_nh.F90\
+	mat_cont_nh.F90 mat_mom_init_nh.F90	mat_mom_nh.F90\
+	initial_nh.F90	z_thickness_nh.F90 	module_tracetxt_out.F90\
+	ru_nbq.F90	viscous_nbq.F90		step3d_nbq.F90\
+	density_nbq.F90	spkitlocal_nh.F90	module_param.F90
+
  SRCS = main.F		step.F		read_inp.F\
 	timers_roms.F	init_scalars.F	init_arrays.F	set_weights.F\
 	set_scoord.F	ana_grid.F	setup_grid1.F	setup_grid2.F\
 	set_nudgcof.F	ana_initial.F	analytical.F	zonavg.F\
 	setup_kwds.F    check_kwds.F	check_srcs.F\
         check_switches1.F		check_switches2.F\
+\
+	step3d_w.F	rhs3d_w_nh.F	w3dbc.F\
 \
         cpl_prism_define.F cpl_prism_put.F cpl_prism_init.F\
         cpl_prism_get.F cpl_prism_getvar.F cpl_prism_getlistvals.F\
@@ -106,14 +116,18 @@ include Makedefs
         p4zbio.F        p4zmeso.F       p4zsink2.F\
         p4zsed.F\
 	autotiling.F debug.F Agrif2Model.F
+#\
+#module_nh.F	nump_nh.F
 
 AMRDIR = AGRIF/AGRIF_YOURFILES
 
 #--------------------------------------------------------------------
 
  RCS = $(SRCS:.F=.f)
+ RCS90 = $(SRCS90:.F90=.f90)
 
  OBJS = $(RCS:.f=.o)
+ OBJS90 = $(RCS90:.f90=.o)
 
  SBIN = roms
 
@@ -125,8 +139,8 @@ AMRDIR = AGRIF/AGRIF_YOURFILES
 # Eecutable file.
 # ========= =====
 #
-$(SBIN): $(OBJS)
-	 $(LDR) $(FFLAGS) $(LDFLAGS) -o a.out $(OBJS) $(LCDF) $(LMPI) 
+$(SBIN):  $(OBJS90) $(OBJS)
+	 $(LDR) $(FFLAGS) $(LDFLAGS) -o a.out $(OBJS90) $(OBJS) $(LCDF) $(LMPI) 
 	mv a.out $(SBIN)
 #
 # Everything
@@ -177,7 +191,7 @@ mymodules: $(MOBJS) $(AMROBJS)
 # ====== == ====== === =====
 #
 tarfile:
-	tar cvf roms.tar Make* *.h *.F *.README README.*  *.in *.in.*
+	tar cvf roms.tar Make* *.h *.F *.F90 *.in *.in.*
 #
 # Cleaning:
 # =========
@@ -185,7 +199,7 @@ tarfile:
 rmtools:
 	/bin/rm -f $(TOOLS)
 clean:
-	/bin/rm -rf core *.o $(AMRDIR)/*.o *.i *.s *.f *.trace *.mod ${COMP_FILES}
+	/bin/rm -rf core *.o $(AMRDIR)/*.o *.i *.s *.f *.f90 *.trace *.mod ${COMP_FILES}
 
 clobber: clean
 	/bin/rm -rf $(SBIN) $(TOOLS) ./rii_files

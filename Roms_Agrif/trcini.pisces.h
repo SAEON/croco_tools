@@ -1,4 +1,4 @@
-! $Id$
+! $Id: trcini.pisces.h 1553 2014-06-18 16:32:18Z ericm $
 !
 !=========================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France.
@@ -59,6 +59,7 @@ CC ==================
       REAL zsecond, zlon(jpi,jpj),zlat(jpi,jpj),zlev(jpk),zdate0
       REAL zmaskt
 
+# include "netcdf.inc"
 # include "ncscrum.h"
 # include "scalars.h"
       integer ncid, varid, dimid, ierr,

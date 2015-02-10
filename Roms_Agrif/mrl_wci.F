@@ -1,4 +1,4 @@
-! $Id$
+! $Id: mrl_wci.F 1611 2014-12-09 17:48:11Z marchesiello $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France

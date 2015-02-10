@@ -1,4 +1,4 @@
-! $Id$
+! $Id: main.F 1615 2014-12-17 13:27:07Z rblod $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -13,6 +13,10 @@
       program main
 #ifdef OA_MCT
           USE mod_prism     ! OASIS3 prism module
+#endif
+#ifdef NBQ
+          USE module_nh
+          USE module_nbq
 #endif
 !     implicit none
       integer tile, subs, trd, ierr
@@ -36,6 +40,8 @@
 #ifdef MPI
       include 'mpif.h'
 C      real*8 start_time2, start_time1, exe_time
+#elif defined NBQ
+       integer MPI_STATUS_SIZE
 #endif 
 
       integer :: iifroot, iicroot
@@ -66,6 +72,14 @@ C      real*8 start_time2, start_time1, exe_time
 #if (defined MPI && !defined AGRIF && !defined OA_COUPLING)
       call MPI_Init (ierr)
 #endif   
+
+#ifdef NBQ
+      call alloc_module_nh() 
+# ifndef MPI
+      MPI_STATUS_SIZE=1
+# endif
+      call alloc_module_nbq(MPI_STATUS_SIZE)
+#endif
 
 #if (defined OA_COUPLING && !defined AGRIF)
 !-- Initialization phase of OASIS3
@@ -227,7 +241,14 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Create three-dimensional
         call set_depth (tile)        ! time free surface is set to
       enddo                          ! a non-zero field, either 
 CR      write(*,*)  ' -5' MYID       ! analytically or from restart.
-#endif      
+#endif
+#ifdef NBQ
+      call initial_nh(1)
+      call z_thickness_nh(0)
+!CXA      call nump_nh
+!CXA      call mat_mom_init_nh
+!CXA      call mat_cont_init_nh
+# endif
 #ifdef SOLVE3D
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1

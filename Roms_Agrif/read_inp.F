@@ -1,4 +1,4 @@
-! $Id$
+! $Id: read_inp.F 1615 2014-12-17 13:27:07Z rblod $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -36,6 +36,9 @@
 #endif
 #ifdef MPI
       include 'mpif.h'
+#endif
+#ifdef NBQ
+# include "nbq.h"
 #endif
 #include "mpi_roms.h"
       integer kwsize, testunit, input
@@ -212,8 +215,8 @@
         call cancel_kwd (keyword(1:kwlen), ierr)
         read(input,*,err=95) ntimes,dt,ndtfast, ninfo
         MPI_master_only write(stdout,
-     & '(I10,2x,A,1x,A /F10.2,2x,A,2(/I10,2x,A,1x,A)/F10.4,2x,A)'
-     &  ) ntimes,  'ntimes   Total number of timesteps for',
+     & '(I10,2x,A,1x,A /F10.2,2x,A,2(/I10,2x,A,1x,A)/F10.4,2x,A)')
+     &    ntimes,  'ntimes   Total number of timesteps for',
      &                                            '3D equations.',
      &    dt,      'dt       Timestep [sec] for 3D equations',
      &    ndtfast, 'ndtfast  Number of 2D timesteps within each',
@@ -230,6 +233,24 @@
      &    '           exceeds barotopic weight dimension: ',NWEIGHT
           goto 95
         endif
+
+#ifdef NBQ
+!     
+! NBQ Time-stepping parameters
+!
+      elseif (keyword(1:kwlen).eq.'time_stepping_nbq') then
+        call cancel_kwd (keyword(1:kwlen), ierr)
+        read(input,*,err=95) ndtnbq, csound_nbq, visc2_nbq
+        MPI_master_only write(stdout,
+     &    '(I10,2x,A,1x,A,/F10.2,2x,A,/1pe10.3,2x,A,1x,A/)')
+     &   ndtnbq,    'ndtnbq      Number of NBQ timesteps within each',
+     &                                                 '2D step.',
+     &   csound_nbq,'csound_nbq  Sound wave celerity.',
+     &   visc2_nbq, 'visc2_nbq   Second viscosity coefficient for',
+     &                                      'compressible fluids.'
+
+        dtnbq=dtfast/float(ndtnbq)     ! set nbq time step.
+#endif
 
 #ifdef SOLVE3D
 !
@@ -732,12 +753,6 @@ c        close(testunit)
 # ifdef SALINITY
      &                                          ,  wrthis(indxAks)
 # endif
-# ifdef VIS_COEF_3D
-     &                                          ,  wrthis(indxVisc)
-# endif
-# ifdef DIF_COEF_3D
-     &                                          ,  wrthis(indxDiff)
-# endif
 # ifdef LMD_SKPP
      &                                          ,  wrthis(indxHbl)
 # endif
@@ -817,6 +832,13 @@ c        close(testunit)
 # endif
      &     ) wrthis(indxTime)=.true.
 
+# ifdef VIS_COEF_3D
+        wrthis(indxVisc)=.true.
+# endif
+# ifdef DIF_COEF_3D
+        wrthis(indxDiff)=.true.
+# endif
+
         MPI_master_only write(stdout,'(8(/6x,l1,2x,A,1x,A))')
      &    wrthis(indxR),    'write RHO  ', 'Density anomaly.'
      &  , wrthis(indxO),    'write Omega', 'Omega vertical velocity.'
@@ -827,12 +849,6 @@ c        close(testunit)
 # ifdef SALINITY
      &  , wrthis(indxAks),  'write Aks  ',
      &                      'Vertical diffusivity for salinity.'
-# endif
-# ifdef VIS_COEF_3D
-     &  , wrthis(indxVisc),  'write Visc3d', 'Horizontal viscosity.'
-# endif
-# ifdef DIF_COEF_3D
-     &  , wrthis(indxDiff),  'write Visc3d', 'Horizontal diffusivity.'
 # endif
 # ifdef LMD_SKPP
      &  , wrthis(indxHbl),  'write Hbl  ',
@@ -882,6 +898,12 @@ c        close(testunit)
 # endif
      &  , wrthis(indxShflx_rsw),'write Shflx_rsw [W/m2]', 
      &                          'Short-wave surface radiation'
+# ifdef VIS_COEF_3D
+     &  , wrthis(indxVisc),  'write Visc3d', 'Horizontal viscosity.'
+# endif
+# ifdef DIF_COEF_3D
+     &  , wrthis(indxDiff),  'write Visc3d', 'Horizontal diffusivity.'
+# endif
 
 !
 ! Switches for GLS fields to be saved into history file.
@@ -948,12 +970,6 @@ c        close(testunit)
 #  ifdef SALINITY
      &                                          ,  wrtavg(indxAks)
 #  endif
-#  ifdef VIS_COEF_3D
-     &                                          ,  wrtavg(indxVisc)
-#  endif
-#  ifdef DIF_COEF_3D
-     &                                          ,  wrtavg(indxDiff)
-#  endif
 #  ifdef LMD_SKPP
      &                                          ,  wrtavg(indxHbl)
 #  endif
@@ -995,12 +1011,6 @@ c        close(testunit)
 #  ifdef SALINITY
      &                                        .or. wrtavg(indxAks)
 #  endif
-#  ifdef VIS_COEF_3D
-     &                                        .or. wrtavg(indxVisc)
-#  endif
-#  ifdef DIF_COEF_3D
-     &                                        .or. wrtavg(indxDiff)
-#  endif
 #  ifdef LMD_SKPP
      &                                        .or. wrtavg(indxHbl)
 #  endif
@@ -1038,6 +1048,13 @@ c        close(testunit)
 #  endif  /* BIOLOGY */
      &     ) wrtavg(indxTime)=.true.
 
+#  ifdef VIS_COEF_3D
+        wrtavg(indxVisc)=.true.
+#  endif
+#  ifdef DIF_COEF_3D
+        wrtavg(indxDiff)=.true.
+#  endif
+
         MPI_master_only write(stdout,'(8(/6x,l1,2x,A,1x,A))')
      &    wrtavg(indxR),    'write RHO  ', 'Density anomaly'
      &  , wrtavg(indxO),    'write Omega', 'Omega vertical velocity.'
@@ -1048,12 +1065,6 @@ c        close(testunit)
 #  ifdef SALINITY
      &  , wrtavg(indxAks),  'write Aks  ',
      &                         'Vertical diffusivity for salinity.'
-#  endif
-#  ifdef VIS_COEF_3D
-     &  , wrtavg(indxVisc),'write visc3d', 'Horizontal viscosity'
-#  endif
-#  ifdef DIF_COEF_3D
-     &  , wrtavg(indxDiff),'write diff3d', 'Horizontal diffusivity'
 #  endif
 #  ifdef LMD_SKPP
      &  , wrtavg(indxHbl),  'write Hbl  ',
@@ -1104,6 +1115,12 @@ c        close(testunit)
 #  endif
      &  , wrtavg(indxShflx_rsw),'write Shflx_rsw [W/m2]', 
      &                      'Short-wave surface radiation.'
+#  ifdef VIS_COEF_3D
+     &  , wrtavg(indxVisc),'write visc3d', 'Horizontal viscosity'
+#  endif
+#  ifdef DIF_COEF_3D
+     &  , wrtavg(indxDiff),'write diff3d', 'Horizontal diffusivity'
+#  endif
 
 !
 ! Switches for GLS fields to be saved into history file.

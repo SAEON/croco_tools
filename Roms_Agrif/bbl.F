@@ -1,4 +1,4 @@
-! $Id$
+! $Id: bbl.F 1588 2014-08-04 16:26:01Z marchesiello $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France

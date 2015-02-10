@@ -1,4 +1,4 @@
-! $Id$
+! $Id: get_grid.F 1458 2014-02-03 15:01:25Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -118,6 +118,22 @@
         write(stdout,1) 'f', grdname(1:lstr)
         goto 99                                           !--> ERROR
       endif
+#ifdef NBQ
+!
+! Coriolis parameter.
+!
+      ierr=nf_inq_varid (ncid, 'e', varid)
+      if (ierr .eq. nf_noerr) then
+        ierr=nf_fread (e(START_2D_ARRAY), ncid, varid, 0, r2dvar)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,2) 'e', grdname(1:lstr)
+          goto 99                                         !--> ERROR
+        endif
+      else
+        write(stdout,1) 'e', grdname(1:lstr)
+        goto 99                                           !--> ERROR
+      endif
+#endif      
 !
 ! Coordinate transfomation metrics (m,n) associated with the
 ! differential distances in XI and ETA.

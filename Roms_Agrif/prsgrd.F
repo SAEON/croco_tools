@@ -1,4 +1,4 @@
-! $Id$
+! $Id: prsgrd.F 1458 2014-02-03 15:01:25Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -261,7 +261,11 @@ c********************************************************************
 
         do j=Jstr,Jend
           do i=IstrU,Iend
+# ifdef NBQ
+            ru(i,j,k)=0.5*rho0*(Hzr(i,j,k)+Hzr(i-1,j,k))*on_u(i,j)*(
+# else
             ru(i,j,k)=0.5*(Hz(i,j,k)+Hz(i-1,j,k))*on_u(i,j)*(
+# endif
      &      P(i-1,j,k)-P(i,j,k)-HalfGRho*( (rho(i,j,k)+rho(i-1,j,k))
      &                                     *(z_r(i,j,k)-z_r(i-1,j,k))
 

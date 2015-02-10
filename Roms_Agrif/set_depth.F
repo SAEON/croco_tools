@@ -1,4 +1,4 @@
-! $Id$
+! $Id: set_depth.F 1484 2014-03-17 14:01:55Z rblod $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -34,7 +34,7 @@ C$    integer omp_get_thread_num
 !
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j,k
-      real cff_r,cff1_r,cff_w,cff1_w, z_r0,z_w0
+      real cff_r,cff1_r,cff_w,cff1_w, z_r0,z_w0, zetatmp
 # include "param.h"
 # include "grid.h"
 # include "ocean2d.h"
@@ -43,6 +43,9 @@ C$    integer omp_get_thread_num
 # include "scalars.h"
 # ifdef MRL_WCI
 #   include "forces.h"
+# endif
+# ifdef NBQ
+#  include "nbq.h"
 # endif
       real eps
       parameter (eps=1.e-14)
@@ -80,9 +83,17 @@ C$    integer omp_get_thread_num
             hinv(i,j)=1./h(i,j) 
 #  endif
             Zt_avg1(i,j)=zeta(i,j,1)    
+#  ifdef NBQ
+            !  Set Zt_avg1 before call to ana_initial (zeta=0)
+            if (zeta(i,j,1).eq.0.) then
+              Zt_avg1(i,j)=h(i,j)*rho0
+            endif
+            rhobar_nbq_avg1(i,j)=rho0
+#  endif
 # endif /* SOLVE3D */
           enddo
         enddo
+
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r2d_tile (Istr,Iend,Jstr,Jend, hinv)
 #  ifdef WET_DRY
@@ -121,22 +132,34 @@ C$    integer omp_get_thread_num
           cff1_r=Cs_r(k)
 #  endif
           do i=I_RANGE
+            zetatmp=Zt_avg1(i,j)
+# ifdef NBQ
+     &              /rhobar_nbq_avg1(i,j)-h(i,j)
+#  ifdef MASKING
+            zetatmp=zetatmp*rmask(i,j)
+#  endif
+# endif
             z_w0=cff_w+cff1_w*h(i,j) 
             z_r0=cff_r+cff1_r*h(i,j)            
-#  ifdef NEW_S_COORD                              
-            z_w(i,j,k)=z_w0*h(i,j)*hinv(i,j)+Zt_avg1(i,j)
+#  ifdef NEW_S_COORD
+            z_w(i,j,k)=z_w0*h(i,j)*hinv(i,j)+zetatmp
      &                                       *(1.+z_w0*hinv(i,j)) 
-            z_r(i,j,k)=z_r0*h(i,j)*hinv(i,j)+Zt_avg1(i,j)
-     &                                       *(1.+z_r0*hinv(i,j))    
+            z_r(i,j,k)=z_r0*h(i,j)*hinv(i,j)+zetatmp
+     &                                       *(1.+z_r0*hinv(i,j))
 #  else
-            z_w(i,j,k)=z_w0+Zt_avg1(i,j)*(1.+z_w0*hinv(i,j))      
-            z_r(i,j,k)=z_r0+Zt_avg1(i,j)*(1.+z_r0*hinv(i,j)) 
+            z_w(i,j,k)=z_w0+zetatmp*(1.+z_w0*hinv(i,j))      
+            z_r(i,j,k)=z_r0+zetatmp*(1.+z_r0*hinv(i,j))
 #  endif
             Hz_bak(i,j,k)=Hz(i,j,k)
             Hz(i,j,k)=z_w(i,j,k)-z_w(i,j,k-1)
+#  ifdef NBQ
+            Hzr(i,j,k)=Hz(i,j,k)
+            Hz(i,j,k) =Hz(i,j,k)*rho_nbq_avg1(i,j,k)
+#  endif
           enddo
         enddo
       enddo
+
 #  undef I_RANGE
 #  undef J_RANGE
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
@@ -148,6 +171,10 @@ C$    integer omp_get_thread_num
      &                        Hz(START_2D_ARRAY,1))
       call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                        Hz_bak(START_2D_ARRAY,1))
+#   ifdef NBQ
+      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
+     &                        Hzr(START_2D_ARRAY,1))
+#   endif
 #  endif 
       return
       end
@@ -437,7 +464,8 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
-          
+
+         
       do j=JV_RANGE
         do i=IV_RANGE
           DC(i,0)=0.
