@@ -102,6 +102,7 @@ AGRIF_SRC=${SOURCE}/AGRIF
 #
 # copy SOURCE code
 #
+/bin/cp -f ${SOURCE}/*.F90 $SCRDIR
 /bin/cp -f ${SOURCE}/*.F $SCRDIR
 /bin/cp -f ${SOURCE}/*.h $SCRDIR
 /bin/cp -f ${SOURCE}/Make* $SCRDIR
@@ -120,6 +121,7 @@ fi
 #
 # overwrite with local files
 #
+/bin/cp -f *.F90 $SCRDIR
 /bin/cp -f *.F $SCRDIR
 /bin/cp -f *.h $SCRDIR
 /bin/cp -f Make* $SCRDIR

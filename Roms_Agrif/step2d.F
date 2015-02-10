@@ -251,9 +251,8 @@ C$    trd=omp_get_thread_num()
           Drhs(i,j)=cff1*zeta(i,j,kstp)+cff2*zeta(i,j,kbak)
      &                                        +cff3*zeta(i,j,kold)
 #else
-          Drhs(i,j)=rhobar_nbq(i,j)*(h(i,j)+
-     &              cff1*zeta(i,j,kstp)+cff2*zeta(i,j,kbak)
-     &                                        +cff3*zeta(i,j,kold))
+          Drhs(i,j)=h(i,j)+cff1*zeta(i,j,kstp)+cff2*zeta(i,j,kbak)
+     &                                        +cff3*zeta(i,j,kold)
 #endif
         enddo
       enddo
@@ -378,8 +377,6 @@ C$OMP END MASTER
           zeta_new(i,j)=zeta(i,j,kstp) + dtfast*pm(i,j)*pn(i,j)
      &                                   *(DUon(i,j)-DUon(i+1,j  )
      &                                    +DVom(i,j)-DVom(i  ,j+1))
-#ifdef NBQ
-          zeta_new(i,j)=zeta_new(i,j)/rhobar_nbq(i,j)
 #ifdef ZONAL_NUDGING
           zeta(i,j,knew)=zeta_new(i,j)
 #endif
