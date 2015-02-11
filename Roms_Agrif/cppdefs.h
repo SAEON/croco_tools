@@ -777,10 +777,11 @@
 # define MRL_WCI
 # ifdef MRL_WCI
 #  undef  WKB_WWAVE
-#  undef  WAVE_ROLLER
+#  define WKB_OBC_WEST
+#  define WAVE_ROLLER
 #  undef  WAVE_STREAMING
 #  undef  MRL_CEW
-#  define WAVE_RAMP
+#  undef  WAVE_RAMP
 # endif
 # define LMD_MIXING
 # define LMD_SKPP
