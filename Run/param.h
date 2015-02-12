@@ -1,4 +1,4 @@
-! $Id$
+! $Id: param.h 1619 2015-01-07 13:53:03Z marchesiello $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -35,9 +35,18 @@
 #elif defined EQUATOR
       parameter (LLm0=40,   MMm0=32,   N=32)   ! 100 km resolution
 #elif defined GRAV_ADJ
+# ifdef NBQ
+#  ifdef GRAV_ADJ_SOLITON
+      parameter (LLm0=100,  MMm0=1,    N=60)   !   3 cm resolution
+#  else
+!     parameter (LLm0=600,  MMm0=1,    N=60)   !   5 mm resolution
+      parameter (LLm0=300,  MMm0=1,    N=30)   !  10 mm resolution
+#  endif
+# else
 !     parameter (LLm0=32,   MMm0=4,    N=10)   !   2 km resolution
       parameter (LLm0=128,  MMm0=4,    N=40)   ! 500  m resolution
 !     parameter (LLm0=512,  MMm0=4,   N=160)   ! 125  m resolution
+# endif
 #elif defined INNERSHELF
       parameter (LLm0=200,  MMm0=3,    N=60)
 #elif defined INTERNAL
@@ -86,7 +95,8 @@
 #elif defined THACKER
       parameter (LLm0=199,  MMm0=199,  N=5 )   !  1 km resolution
 #elif defined TANK
-      parameter (LLm0=50,   MMm0=3,    N=50)   ! 20 cm resolution
+       parameter (LLm0=50,   MMm0=1,    N=50)   ! 20 cm resolution
+!      parameter (LLm0=10,   MMm0=1,    N=10)   !  1  m resolution
 #elif defined REGIONAL
 #  if   defined USWC0
       parameter (LLm0=62,   MMm0=126,  N=40)   ! US_West grid15 L0
@@ -134,9 +144,8 @@
 ! === ======= =========
 !
       integer Lmmpi,Mmmpi,iminmpi,imaxmpi,jminmpi,jmaxmpi
-      common /comm_setup_mpi/ Lmmpi,Mmmpi,
-     &                    iminmpi,imaxmpi,jminmpi,jmaxmpi
-
+      common /comm_setup_mpi1/ Lmmpi,Mmmpi
+      common /comm_setup_mpi2/ iminmpi,imaxmpi,jminmpi,jmaxmpi
 !
 ! Domain subdivision parameters
 ! ====== =========== ==========
@@ -212,13 +221,19 @@
 ! Number maximum of weights for the barotropic mode
 ! ====== ======= == ======= === === ========== ====
 !
+
       integer NWEIGHT
+#ifdef NBQ
+      parameter (NWEIGHT=100000)
+#else
       parameter (NWEIGHT=137)
+#endif
 
 !
 ! Tides, Wetting-Drying, Point sources, Floast, Stations
 ! =====  ==============  ===== =======  ======  ========
 !
+
 #if defined SSH_TIDES || defined UV_TIDES
       integer Ntides             ! Number of tides
       parameter (Ntides=8)       ! ====== == =====
@@ -244,13 +259,88 @@
 #endif
 
 !
-! Number of tracers and tracer identification indices
-! ====== == ======= === ====== ============== =======
+! I/O : flag for type sigma vertical transformation
 !
+
+#ifdef NEW_S_COORD
+      real Vtransform          
+      parameter (Vtransform=2) 
+#else
+      real Vtransform
+      parameter (Vtransform=1)
+#endif
+
+!
+! Number of tracers 
+! ====== == =======
+!
+
 #ifdef SOLVE3D
       integer   NT, itemp
-     &          , ntrc_salt, ntrc_pas, ntrc_bio, ntrc_sed
-     &          , ntrc_diats, ntrc_diauv, ntrc_diabio
+      integer   ntrc_salt, ntrc_pas, ntrc_bio, ntrc_sed 
+!
+      parameter (itemp=1)
+# ifdef SALINITY 
+      parameter (ntrc_salt=1)
+# else
+      parameter (ntrc_salt=0)
+# endif
+# ifdef PASSIVE_TRACER
+      parameter (ntrc_pas=1)
+# else
+      parameter (ntrc_pas=0)
+# endif
+# ifdef BIOLOGY
+#  ifdef PISCES
+      parameter (ntrc_bio=24)
+#  elif defined BIO_NChlPZD
+#   ifdef OXYGEN
+      parameter (ntrc_bio=6)
+#   else
+      parameter (ntrc_bio=5)
+#   endif
+#  elif defined BIO_N2ChlPZD2
+      parameter (ntrc_bio=7)
+#  elif defined BIO_BioEBUS 
+#   ifdef NITROUS_OXIDE
+      parameter (ntrc_bio=12)
+#   else
+      parameter (ntrc_bio=11)
+#   endif  
+#  endif 
+# else
+      parameter (ntrc_bio=0)
+# endif /* BIOLOGY */
+!
+# ifdef SEDIMENT
+! NST            Number of sediment (tracer) size classes
+! NLAY           Number of layers in sediment bed
+!
+      integer    NST, NLAY
+      parameter (NST=2, NLAY=2)
+      parameter (ntrc_sed=NST)
+# else
+      parameter (ntrc_sed=0)
+# endif /* SEDIMENT */
+
+! Total number of tracers
+!
+      parameter (NT=itemp+ntrc_salt+ntrc_pas+ntrc_bio+ntrc_sed) 
+
+# if defined BBL && defined AGRIF
+      integer Agrif_lev_sedim
+      parameter (Agrif_lev_sedim=0)
+# endif
+
+#endif /* SOLVE3D */
+
+!
+! Tracer identification indices
+! ====== ============== =======
+!
+
+#if defined SOLVE3D && !defined F90CODE
+      integer   ntrc_diats, ntrc_diauv, ntrc_diabio
 # ifdef BIOLOGY
      &          , itrc_bio
 # endif
@@ -263,6 +353,7 @@
 # ifdef PASSIVE_TRACER
      &          , itpas
 # endif
+!
 # ifdef BIOLOGY
 #  ifdef PISCES
      &          , iDIC_, iTAL_, iOXY_, iCAL_, iPO4_
@@ -355,37 +446,30 @@
      &          , NumFluxTerms, NumGasExcTerms
      &          , NFlux_VSinkP2, NFlux_VSinkD1
      &          , NFlux_VSinkD2, NumVSinkTerms
-
-
-#  endif 
-/*--------------------------------------------------------------------------------*/ 
+#  endif  
 # endif   /* BIOLOGY */
 
 # ifdef SEDIMENT
      &          , isand, isilt
-     &          , NST, NLAY
-# endif
-
-      parameter (itemp=1)
-# ifdef SALINITY 
-      parameter (ntrc_salt=1)
-      parameter (isalt=itemp+1)
-# else
-      parameter (ntrc_salt=0)
-#endif
-# ifdef PASSIVE_TRACER
-      parameter (ntrc_pas=1)
-      parameter (itpas=itemp+ntrc_salt+1)
-# else
-      parameter (ntrc_pas=0)
 # endif
 
 !
-! ================  BIOLOGY  =====================
+! ================  Parameters  =====================
+!
+
+# ifdef SALINITY 
+      parameter (isalt=itemp+1)
+# endif
+# ifdef PASSIVE_TRACER
+      parameter (itpas=itemp+ntrc_salt+1)
+# endif
+
+!
+! ===  BIOLOGY  ===
 !
 # ifdef BIOLOGY
 #  ifdef PISCES
-      parameter (ntrc_bio=24,itrc_bio=itemp+ntrc_salt+ntrc_pas+1)
+      parameter (itrc_bio=itemp+ntrc_salt+ntrc_pas+1)
       parameter (iDIC_=itrc_bio, iTAL_=iDIC_+1,
      &            iOXY_=iDIC_+2,  iCAL_=iDIC_+3,  iPO4_=iDIC_+4,
      &            iPOC_=iDIC_+5,  iSIL_=iDIC_+6,  iPHY_=iDIC_+7,
@@ -439,11 +523,12 @@
 #   else
        parameter (NumGasExcTerms = 0, NumVSinkTerms = 0)
 #   endif
+
 #  elif defined BIO_NChlPZD
 #   ifdef OXYGEN
-      parameter (ntrc_bio=6,itrc_bio=itemp+ntrc_salt+ntrc_pas+1)
+      parameter (itrc_bio=itemp+ntrc_salt+ntrc_pas+1)
 #   else
-      parameter (ntrc_bio=5,itrc_bio=itemp+ntrc_salt+ntrc_pas+1)
+      parameter (itrc_bio=itemp+ntrc_salt+ntrc_pas+1)
 #   endif
       parameter (iNO3_=itrc_bio, iChla=iNO3_+1,  
      &           iPhy1=iNO3_+2,
@@ -475,6 +560,7 @@
      &           NFlux_VSinkP1  = 1,
      &           NFlux_VSinkD1  = 2,
      &           NumVSinkTerms  = 2)
+
 #  elif defined BIO_N2ChlPZD2
       parameter (ntrc_bio=7,itrc_bio=itemp+ntrc_salt+ntrc_pas+1) 
       parameter (iNO3_=itrc_bio, iNH4_=iNO3_+1, iChla=iNO3_+2,   
@@ -498,12 +584,12 @@
      &           NFlux_VSinkD1  = 2,
      &           NFlux_VSinkD2  = 3,
      &           NumVSinkTerms  = 3)
-#  elif defined BIO_BioEBUS 
 
+#  elif defined BIO_BioEBUS 
 #   ifdef NITROUS_OXIDE
-      parameter (ntrc_bio=12,itrc_bio=itemp+ntrc_salt+ntrc_pas+1)
+      parameter (itrc_bio=itemp+ntrc_salt+ntrc_pas+1)
 #   else
-      parameter (ntrc_bio=11,itrc_bio=itemp+ntrc_salt+ntrc_pas+1)
+      parameter (itrc_bio=itemp+ntrc_salt+ntrc_pas+1)
 #   endif  
     
       parameter (iNO3_=itrc_bio, iNO2_=iNO3_+1, iNH4_=iNO3_+2,
@@ -576,15 +662,17 @@
      &          , NFlux_VSinkD1=2
      &          , NFlux_VSinkD2=3
      &          , NumVSinkTerms=3)
-#  endif  /* ELODIE G */
-/*--------------------------------------------------------------------------------*/ 
+#  endif  /* PISCES ... */
 
+!
+! ===  BIOLOGY DIAGS ===
+!
 
 #  if defined BIO_NChlPZD || defined BIO_N2ChlPZD2 || defined PISCES \
                           || defined BIO_BioEBUS
 #   ifdef DIAGNOSTICS_BIO
       parameter (ntrc_diabio=NumFluxTerms+
-     &              NumGasExcTerms+NumVSinkTerms)
+     &                       NumGasExcTerms+NumVSinkTerms)
 #   else
       parameter (ntrc_diabio=0)
 #   endif
@@ -592,39 +680,20 @@
       parameter (ntrc_diabio=0)
 #  endif
 # else
-      parameter (ntrc_bio=0,ntrc_diabio=0)
+      parameter (ntrc_diabio=0)
 # endif /* BIOLOGY */
 
 !
-! ================  SEDIMENTS  =====================
+! === SEDIMENTS ===
 !
+
 # ifdef SEDIMENT
-!
-! NST            Number of sediment (tracer) size classes
-! NLAY           Number of layers in sediment bed
-!
-      parameter (NST=2, NLAY=2)
-      parameter (ntrc_sed=NST,
-     &             itrc_sed=itemp+ntrc_salt+ntrc_pas+ntrc_bio+1)
+      parameter (itrc_sed=itemp+ntrc_salt+ntrc_pas+ntrc_bio+1)
       parameter (isand=itrc_sed, isilt=isand+1)
-# else
-      parameter (ntrc_sed=0)
-# endif
-
-# ifdef BBL
-#  ifdef AGRIF
-      integer Agrif_lev_sedim
-      parameter (Agrif_lev_sedim=0)
-#  endif
 # endif
 
 !
-! ===  total number of tracers  ===
-!
-      parameter (NT=itemp+ntrc_salt+ntrc_pas+ntrc_bio+ntrc_sed)
-
-!
-! ===  Diagnostics  ===
+! ===  u,v and tracer equations Diagnostics  ===
 !
 # ifdef DIAGNOSTICS_TS
 #  ifdef DIAGNOSTICS_TS_MLD
@@ -640,15 +709,7 @@
 # else
       parameter (ntrc_diauv=0)
 # endif
-! I/O : flag for type sigma vertical transformation
-! =================================================
-#ifdef NEW_S_COORD
-      real Vtransform          
-      parameter (Vtransform=2) 
-#else
-      real Vtransform
-      parameter (Vtransform=1)
-#endif
+
 #endif /*SOLVE3D */
 
 

@@ -777,8 +777,10 @@
 # define MRL_WCI
 # ifdef MRL_WCI
 #  undef  WKB_WWAVE
+#  undef  WKB_UNSTEADY
 #  define WKB_OBC_WEST
 #  define WAVE_ROLLER
+#  undef  WAVE_FRICTION
 #  undef  WAVE_STREAMING
 #  undef  MRL_CEW
 #  undef  WAVE_RAMP
