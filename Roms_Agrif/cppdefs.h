@@ -31,8 +31,8 @@
 #undef  RIP             /* Rip Current Test Case */
 #undef  SHOREFACE       /* Shoreface Test Case on a Planar Beach */
 #undef  THACKER         /* Thacker wetting-drying Example */
-#define TANK            /* Tank Example */
-#undef REGIONAL        /* REGIONAL Applications */
+#undef  TANK            /* Tank Example */
+#define REGIONAL        /* REGIONAL Applications */
 
 
 #if defined REGIONAL

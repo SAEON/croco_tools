@@ -1297,7 +1297,7 @@
         IS0 = (q_im1-q_im2)**2
         IS1 = (q_im1-q_i)**2
 #  ifdef WENO_Z
-        T3 = abs(IS1-IS0);
+        T3 = abs(IS1-IS0)
         a0  = d0*(1+T3/(Eps+IS0))
         a1  = d1*(1+T3/(Eps+IS1))
 #  else
@@ -1316,7 +1316,7 @@
         IS0 = (q_i-q_ip1)**2
         IS1 = (q_im1-q_i)**2
 #  ifdef WENO_Z
-        T3 = abs(IS1-IS0);
+        T3 = abs(IS1-IS0)
         a0  = d0*(1+T3/(Eps+IS0))
         a1  = d1*(1+T3/(Eps+IS1))
 #  else

@@ -16,7 +16,7 @@
 .f90.o:
 	$(CFT) -c $(FFLAGS90) $*.f90 -o $*.o
 .F90.f90:
-	$(CPP) -P $(CPPFLAGS) $*.F90 > $*.f90
+	$(CPP) -P $(CPPFLAGS) $*.F90 > $*_.f90
 .F90.o:
 	$(CPP) -P $(CPPFLAGS) $*.F90 > $*_.f90
 	$(CFT) -c $(FFLAGS90) $*_.f90 -o $*.o
@@ -40,6 +40,6 @@
       CFT = $(CFT1)
       LDR = $(CFT)
    FFLAGS = $(FFLAGS1)
-   FFLAGS90 = $(FFLAGS1)
+ FFLAGS90 = $(FFLAGS1)
   LDFLAGS =
      LCDF = $(LDFLAGS1)
