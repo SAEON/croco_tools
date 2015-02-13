@@ -45,7 +45,7 @@
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j,k
 # include "param.h"
-      real wrk(PRIVATE_1D_SCRATCH_ARRAY),rho_w
+      real wrk(PRIVATE_1D_SCRATCH_ARRAY)
 # include "grid.h"
 # include "ocean3d.h"
 # include "scalars.h"

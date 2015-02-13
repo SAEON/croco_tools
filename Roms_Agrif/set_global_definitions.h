@@ -57,9 +57,23 @@
 #endif
 
 /*
-   Activate NBQ choices
+   Set default time-averaging filter for barotropic fields.
+*/
+#define M2FILTER_NONE
+#undef  M2FILTER_POWER
+#undef  M2FILTER_COSINE
+#undef  M2FILTER_FLAT
+#if defined SSH_TIDES || defined UV_TIDES
+# undef  M2FILTER_POWER
+# define M2FILTER_FLAT
+#endif
+
+/*
+   Activate NBQ choices for non-hydrostatic simulations
 */
 #ifdef NBQ
+# define M2FILTER_NONE
+# undef  M2FILTER_POWER
 # undef  VAR_RHO_2D
 # define NBQ_REINIT
 # undef  TRACETXT
@@ -69,17 +83,6 @@
 #else
 # define HZR Hz
 # define RHO0
-#endif
-/*
-   Set default time-averaging filter for barotropic fields.
-*/
-#define M2FILTER_NONE
-#undef  M2FILTER_POWER
-#undef  M2FILTER_COSINE
-#undef  M2FILTER_FLAT
-#if defined SSH_TIDES || defined UV_TIDES
-# undef M2FILTER_POWER
-# define M2FILTER_FLAT
 #endif
 
 /*

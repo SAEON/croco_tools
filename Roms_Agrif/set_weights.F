@@ -205,9 +205,13 @@ c**     write(*,*) shft/sum, ndtfast
       t2 = (cff10-cff1m)*(j+1)*ndtfast-
      & (-1.+cff10)*(-1.+cff1m+cff1m*(j+1))*nfast
      
+      if (t2==0.) then ! discriminant is zero, only first equation is used
+      t3=0.
+      t4=1./(1.-cff10)
+      else
       t3 = t1/t2
-      
       t4 = (1.-t3*(1-cff1m))/(1.-cff10)
+      endif
            
       do i=0,j
         weight2(j,i) = t3*weight2(j+1,i)+t4*weight2(j+1,i+1)
