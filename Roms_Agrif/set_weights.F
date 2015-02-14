@@ -185,7 +185,7 @@ c**     write(*,*) shft/sum, ndtfast
       do i=1,nfast
         weight(1,i)=sum*weight(1,i)
         weight(2,i)=cff*weight(2,i) 
-        MPI_master_only print *,'i = ',i,nfast,weight(1,i),weight(2,i)
+!        MPI_master_only print *,'i = ',i,nfast,weight(1,i),weight(2,i)
       enddo
             
 # ifdef AGRIF
