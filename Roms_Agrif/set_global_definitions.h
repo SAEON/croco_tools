@@ -86,6 +86,16 @@
 #endif
 
 /*
+   Activate choice of Pressure Gradient formulation
+    (default is the Density Jacobian formulation with Cubic 
+     Polynomial fit from Shchepetkin et al. (2003). But
+     a standard Jacobian formulation can also be used 
+     (PGF_BASIC_JACOBIAN), especially for flat or smooth 
+     topography)
+*/
+#undef  PGF_BASIC_JACOBIAN
+
+/*
     Select MOMENTUM LATERAL advection-diffusion scheme:
     (The default is third-order upstream biased)
 */
