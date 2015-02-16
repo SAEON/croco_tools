@@ -14,8 +14,6 @@
 
       subroutine step3d_t (tile)
 !
-! version step3d_t3S
-!
       implicit none
       integer tile, trd, omp_get_thread_num
 # include "param.h"
@@ -81,11 +79,14 @@
 # if defined TS_HADV_UP5 || defined TS_HADV_C6 \
       || defined TS_HADV_WENO5 || defined BIO_HADV_WENO5
 !
+!--------------------------------------------------------------------
 ! Definition of flux operators: 1st, 2nd, 3rd, 4th, 5th or 6th order,
-! used in UP5 and C6 advection schemes (and order degradation near land masks)
-! cdiff is part of laplacian diffusion in flux1 (used near mask): 
+! used in UP5 and C6 advection schemes (and order degradation near 
+! land masks). cdiff is part of laplacian diffusion in flux1 (used
+! near mask): 
 !    0 --> flux1=flux2 (second order C2 advection scheme)
 !    1 --> flux1 gives 1st order monotonic UP1 advection scheme
+!--------------------------------------------------------------------
 !
       REAL    :: q_im3, q_im2, q_im1, q_i, q_ip1, q_ip2
       REAL    :: ua, vel, cdiff, cdif
@@ -121,11 +122,11 @@
 !
 # include "compute_auxiliary_bounds.h"
 !
-!===============================================================
+!======================================================================
 !
-! Compute horizontal advection
+!  Compute horizontal advection
 !
-!===============================================================
+!======================================================================
 !
       do itrc=1,NT
         do k=1,N
@@ -135,9 +136,9 @@
 # endif
 
 # if defined TS_HADV_UP5 || defined TS_HADV_C6 || defined TS_HADV_WENO5 
-!--------------------------------------------
+!----------------------------------------------------------
 ! 5th or 6th order or WENO5 advection schemes
-!--------------------------------------------
+!----------------------------------------------------------
 !
 #  ifdef TS_HADV_C6
 #   define FLUX5 flux6
@@ -164,10 +165,30 @@
 #  undef FLUX2
 #  undef UP5_MASKING
 
-# else
-!-------------------------------------------------
+# elif defined TS_HADV_C2
+!
+!----------------------------------------------------------
+! Second order advection scheme
+!----------------------------------------------------------
+!
+          do j=Jstr,Jend
+            do i=Istr,Iend+1
+              FX(i,j)=0.5*(t(i,j,k,3,itrc)+t(i-1,j,k,3,itrc))
+     &                                           *Huon(i,j,k)
+            enddo
+          enddo
+          do j=Jstr,Jend+1
+            do i=Istr,Iend
+              FE(i,j)=0.5*(t(i,j,k,3,itrc)+t(i,j-1,k,3,itrc))
+     &                                           *Hvom(i,j,k)
+            enddo
+          enddo  
+
+# else   /*  --> UP3 (default) or C4 */
+!
+!----------------------------------------------------------
 ! Fourth or Third order advection scheme (default)
-!-------------------------------------------------
+!----------------------------------------------------------
 !
 #  if !(defined TS_HADV_C4 || defined TS_HADV_AKIMA)
 #   define TS_HADV_UP3
@@ -349,9 +370,10 @@
 
 # ifdef BIO_HADV_WENO5
           else  ! if (itrc .gt. 2)
-!----------------------------------------------------
+!
+!----------------------------------------------------------
 ! WENO5 advection for passive tracers
-!----------------------------------------------------
+!----------------------------------------------------------
 !
 #  define FLUX5 flux5_weno
 #  define FLUX3 flux3_weno
@@ -369,9 +391,10 @@
 # endif
 
 # ifdef PSOURCE
-!----------------------------------------------------
+!
+!----------------------------------------------------------
 ! Apply point sources for river runoff simulations
-!----------------------------------------------------
+!----------------------------------------------------------
 !
           do is=1,Nsrc
 #  ifdef MPI
@@ -412,9 +435,9 @@
           enddo
 # endif /* PSOURCE */
 !
-!--------------------------------------------------------
+!----------------------------------------------------------
 ! Finalize horizontal advection: compute flux divergences
-!--------------------------------------------------------
+!----------------------------------------------------------
 !
           do j=Jstr,Jend
             do i=Istr,Iend
@@ -442,9 +465,9 @@
 # endif
 
 # ifdef DIAGNOSTICS_TS
-!--------------------------------------------------------
+!----------------------------------------------------------
 ! Store diagnostic transport term
-!--------------------------------------------------------
+!----------------------------------------------------------
           do j=Jstr,Jend
             do i=Istr,Iend 
               TXadv(i,j,k,itrc)=-(FX(i+1,j)-FX(i,j)) SWITCH rmask(i,j)
@@ -457,11 +480,11 @@
       enddo    !<-- itrc
 
 # if defined LMD_SKPP || defined LMD_BKPP || defined GLS_MIXING
-!---------------------------------------------------------------
+!----------------------------------------------------------
 ! Compute fraction of the solar shortwave flux "swdk"
 ! penetrating to grid level depth (at vertical w-points).
 ! (swdk is used later in this routine)
-!---------------------------------------------------------------
+!----------------------------------------------------------
 !
 #  define wrk1 FX
 #  define wrk2 FE
@@ -483,18 +506,20 @@
 # endif /* LMD_SKPP || LMD_BKPP */
 !
 !
-!===============================================================
+!======================================================================
 !
-! Compute vertical advection
+!  Compute vertical advection
 !
-!===============================================================
+!======================================================================
 !
       do j=Jstr,Jend
         do itrc=1,NT
 # ifdef TS_VADV_SPLINES
 !
+!----------------------------------------------------------
 ! Compute vertical advective fluxes using parabolic splines: 
 ! FC=W*[spline-interpolated tracer]
+!----------------------------------------------------------
 !
 ! Firts construct parabolic splines:
 ! here CF is the set of vertical derivatives of the tracer field
@@ -536,7 +561,10 @@
           enddo
 # elif defined TS_VADV_AKIMA
 !
-! Compute vertical advective fluxes using 4th-order Akima scheme
+!----------------------------------------------------------
+! Compute vertical advective fluxes 
+! using 4th-order Akima scheme
+!----------------------------------------------------------
 !
           do k=1,N-1
             do i=istr,iend
@@ -570,7 +598,10 @@
           enddo
 # elif defined TS_VADV_WENO5
 !
-! Compute vertical advective fluxes using 5th-order WENO scheme
+!----------------------------------------------------------
+! Compute vertical advective fluxes 
+! using 5th-order WENO scheme
+!----------------------------------------------------------
 !
           do k=3,N-3
             do i=Istr,Iend
@@ -597,7 +628,10 @@
           enddo
 # elif defined TS_VADV_C2
 !
-! Compute vertical advective fluxes using 2th-order centered scheme
+!----------------------------------------------------------
+! Compute vertical advective fluxes
+! using 2th-order centered scheme
+!----------------------------------------------------------
 !
           do k=1,N-1
             do i=Istr,Iend
@@ -613,7 +647,10 @@
 
 # else
 !
-! Compute vertical advective fluxes using 4th-order centered scheme
+!----------------------------------------------------------
+! Compute vertical advective fluxes
+! using 4th-order centered scheme
+!----------------------------------------------------------
 !
           do k=2,N-2
             do i=Istr,Iend
@@ -640,14 +677,18 @@
 # endif
 
 !
+!----------------------------------------------------------
 ! Apply flux correction for monotonicity
+!----------------------------------------------------------
 !
 #  ifdef TS_VADV_FCT
 #   include "FCT.h"          
 #  endif
 
 !
+!----------------------------------------------------------
 ! Apply vertical advective flux divergence
+!----------------------------------------------------------
 !
           do k=1,N
             do i=Istr,Iend
@@ -669,23 +710,27 @@
 
 !
 !
-!===============================================================
+!======================================================================
 !
-! Compute surface and Bottom forcing
+!  Compute surface and Bottom forcing
 !
-!===============================================================
+!======================================================================
 !
+!----------------------------------------------------------
 ! Add top and bottom fluxes
+!----------------------------------------------------------
 !
           do i=Istr,Iend
             FC(i,N)=dt*stflx(i,j,itrc)
             FC(i,0)=-dt*btflx(i,j,itrc)
           enddo
 !
+!----------------------------------------------------------
 ! Add solar radiation flux in temperature equation
 ! Also compute the nonlocal transport flux for unstable
 ! (convective) forcing conditions into matrix DC when using
 ! the Large et al. 1994 KPP scheme.
+!----------------------------------------------------------
 !
           if (itrc.eq.itemp) then
             do k=1,N-1
@@ -734,7 +779,7 @@
           endif
 !
 !
-!===============================================================
+!======================================================================
 !
 ! Compute vertical mixing (implicit step)
 !
@@ -742,7 +787,7 @@
 ! after lateral diffusion to include implicit correction to lateral
 ! diffusion
 !
-!===============================================================
+!======================================================================
 !
 # ifdef TS_MIX_IMP
 #  ifdef BIO_HADV_WENO5
@@ -784,10 +829,12 @@
         enddo      ! <-- itrc
 
 # if defined FLOATS && defined  RANDOM_WALK
-!---------------------------------------------------------------
-!  Compute vertical gradient in vertical T-diffusion coefficient
-!  for floats random walk.
-!---------------------------------------------------------------
+!
+!----------------------------------------------------------
+! Compute vertical gradient in vertical T-diffusion 
+! coefficient for floats random walk.
+!----------------------------------------------------------
+!
           do k=1,N
             do i=Istr,Iend
               dAktdz(i,j,k)=(Akt(i,j,k,1)-Akt(i,j,k-1,1))/Hz(i,j,k)
@@ -796,10 +843,10 @@
 # endif
       enddo      ! <-- j
 !
-!===============================================================
-! Set lateral boundary conditions; nudge toward tracer climatology;
-! apply land-sea mask and exchange periodic boundary conditions.
-!===============================================================
+!======================================================================
+!  Set lateral boundary conditions; nudge toward tracer climatology;
+!  apply land-sea mask and exchange periodic boundary conditions.
+!======================================================================
 !
       do itrc=1,NT
         call t3dbc_tile (Istr,Iend,Jstr,Jend, nnew,itrc, WORK)
@@ -807,9 +854,9 @@
 
 # ifdef BIOLOGY
 !
-!===============================================================
-! Compute biological fluxes
-!===============================================================
+!======================================================================
+!  Compute biological fluxes
+!======================================================================
 !
       call biology_tile (Istr,Iend,Jstr,Jend)
 # endif
@@ -817,9 +864,9 @@
 # if !defined TS_MIX_S && \
       (defined TS_DIF4 || defined TS_DIF2 || defined SPONGE_DIF2)
 !
-!===============================================================
-! Compute vertical Rho gradients for use in t3dmix
-!===============================================================
+!======================================================================
+!  Compute vertical Rho gradients for use in t3dmix
+!======================================================================
 !
       amaxx=5./100.
       smax=5.
@@ -884,9 +931,9 @@
 !
 # if defined TNUDGING && defined TCLIMATOLOGY
 !
-!===============================================================
-! Compute Nudging terms
-!===============================================================
+!======================================================================
+!  Compute Nudging terms
+!======================================================================
 !
 #  ifdef ZONAL_NUDGING
         if (iic.eq.ntstart .or. mod(iic,10).eq.0) then
@@ -930,7 +977,7 @@
 
 # ifdef DIAGNOSTICS_TS
 !
-!===============================================================
+!======================================================================
 ! Compute the tendency term of tracer diagnostics
 ! Divide all diagnostic terms by the cell volume
 ! (Hz(i,j,k,itrc)/(pm(i,j).*pn(i,j)). There after the unit
@@ -938,7 +985,7 @@
 !
 ! Note: the Horizontal mixing term is computed in t3dmix
 ! where Trate is updated accordingly
-!===============================================================
+!======================================================================
 !
         do k=1,N
           do j=Jstr,Jend
@@ -973,9 +1020,9 @@
         enddo
 !
 #  ifdef DIAGNOSTICS_TS_MLD
-!---------------------------------------------------------------
+!----------------------------------------------------------
 ! Compute tracer diagnostics averaged over the MLD
-!---------------------------------------------------------------
+!----------------------------------------------------------
 !
 #   define T_mld_nnew FX
 #   define T_mld_nstp FE

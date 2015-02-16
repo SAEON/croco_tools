@@ -14,8 +14,6 @@
 
       subroutine rhs3d (tile)
 !
-! version rhs3d35S
-!
       implicit none
       integer tile, trd, omp_get_thread_num
 # include "param.h"
@@ -266,22 +264,32 @@
 
 # ifdef UV_ADV
 !
-!====================================================================
+!======================================================================
 !
 !  Add in horizontal advection of momentum.
 !  Compute diagonal [UFx,VFe] and off-diagonal [UFe,VFx] components
 !  of tensor of momentum flux due to horizontal advection; after that
 !  add in horizontal advection terms.
 !
-!====================================================================
+!======================================================================
 !
-#  define uxx wrk1
-#  define Huxx wrk2
+#  if !(defined UV_HADV_UP3 || defined UV_HADV_C4 || defined UV_HADV_C2)
+#   define UV_HADV_UP3
+#  endif
+
+#  if defined UV_HADV_UP3 || defined UV_HADV_C4
 !
-#  ifdef EW_PERIODIC
-#   define IU_EXT_RANGE IstrU-1,Iend+1
-#  else
-#   ifdef MPI
+!----------------------------------------------------------
+! Fourth or Third order advection scheme (default)
+!----------------------------------------------------------
+!
+#   define uxx wrk1
+#   define Huxx wrk2
+!
+#   ifdef EW_PERIODIC
+#    define IU_EXT_RANGE IstrU-1,Iend+1
+#   else
+#    ifdef MPI
         if (WEST_INTER) then
           imin=IstrU-1
         else
@@ -292,11 +300,11 @@
         else
           imax=min(Iend+1,Lmmpi)
         endif
-#    define IU_EXT_RANGE imin,imax
-#   else
-#    define IU_EXT_RANGE max(IstrU-1,2),min(Iend+1,Lm)
+#     define IU_EXT_RANGE imin,imax
+#    else
+#     define IU_EXT_RANGE max(IstrU-1,2),min(Iend+1,Lm)
+#    endif
 #   endif
-#  endif
 
         do j=Jstr,Jend
           do i=IU_EXT_RANGE
@@ -307,7 +315,7 @@
           enddo
         enddo
 #   undef IU_EXT_RANGE
-#  ifndef EW_PERIODIC
+#   ifndef EW_PERIODIC
         if (WESTERN_EDGE) then
           do j=Jstr,Jend
             uxx(1,j)=uxx(2,j)
@@ -315,28 +323,28 @@
           enddo
         endif
         if (EASTERN_EDGE) then
-#   ifdef MPI        
+#    ifdef MPI        
           do j=Jstr,Jend
             uxx(Lmmpi+1,j)=uxx(Lmmpi,j)
             Huxx(Lmmpi+1,j)=Huxx(Lmmpi,j)
           enddo
-#   else
+#    else
           do j=Jstr,Jend
             uxx(Lm+1,j)=uxx(Lm,j)
             Huxx(Lm+1,j)=Huxx(Lm,j)
           enddo
-#   endif          
+#    endif          
         endif
-#  endif
+#   endif
 
         do j=Jstr,Jend
           do i=IstrU-1,Iend
-#  ifdef UV_HADV_C4
+#   ifdef UV_HADV_C4
             UFx(i,j)=0.25*( u(i,j,k,nrhs)+u(i+1,j,k,nrhs)
      &                         -0.125*(uxx(i,j)+uxx(i+1,j))
      &                  )*( Huon(i,j,k)+Huon(i+1,j,k)
      &                      -0.125*(Huxx(i,j)+Huxx(i+1,j)))
-#  else
+#   else
             cffX=u(i,j,k,nrhs)+u(i+1,j,k,nrhs)
             if (cffX.gt.0.) then
               curvX=uxx(i,j)
@@ -345,18 +353,18 @@
             endif
             UFx(i,j)=0.25*(cffX+gamma*curvX)*( Huon(i,j,k)+
      &            Huon(i+1,j,k)-0.125*(Huxx(i,j)+Huxx(i+1,j)))
-#  endif
+#   endif
           enddo
         enddo
-#  undef Huxx
-#  undef uxx
-#  define vee wrk1
-#  define Hvee wrk2
+#   undef Huxx
+#   undef uxx
+#   define vee wrk1
+#   define Hvee wrk2
       
-#  ifdef NS_PERIODIC
-#   define JV_EXT_RANGE JstrV-1,Jend+1
-#  else
-#   ifdef MPI
+#   ifdef NS_PERIODIC
+#    define JV_EXT_RANGE JstrV-1,Jend+1
+#   else
+#    ifdef MPI
         if (SOUTH_INTER) then
           jmin=JstrV-1
         else
@@ -367,11 +375,11 @@
         else
           jmax=min(Jend+1,Mmmpi)
         endif
-#    define JV_EXT_RANGE jmin,jmax
-#   else
-#    define JV_EXT_RANGE max(JstrV-1,2),min(Jend+1,Mm)
+#     define JV_EXT_RANGE jmin,jmax
+#    else
+#     define JV_EXT_RANGE max(JstrV-1,2),min(Jend+1,Mm)
+#    endif
 #   endif
-#  endif
 
         do j=JV_EXT_RANGE
           do i=Istr,Iend
@@ -382,7 +390,7 @@
           enddo
         enddo
 #   undef JV_EXT_RANGE
-#  ifndef NS_PERIODIC
+#   ifndef NS_PERIODIC
         if (SOUTHERN_EDGE) then
           do i=Istr,Iend
             vee(i,1)=vee(i,2)
@@ -390,27 +398,27 @@
           enddo
         endif
         if (NORTHERN_EDGE) then
-#   ifdef MPI
+#    ifdef MPI
           do i=Istr,Iend
             vee(i,Mmmpi+1)=vee(i,Mmmpi)
             Hvee(i,Mmmpi+1)=Hvee(i,Mmmpi)
           enddo
-#   else        
+#    else        
           do i=Istr,Iend
             vee(i,Mm+1)=vee(i,Mm)
             Hvee(i,Mm+1)=Hvee(i,Mm)
           enddo
-#   endif          
+#    endif          
         endif
-#  endif
+#   endif
         do j=JstrV-1,Jend
           do i=Istr,Iend
-#  ifdef UV_HADV_C4
+#   ifdef UV_HADV_C4
             VFe(i,j)=0.25*( v(i,j,k,nrhs)+v(i,j+1,k,nrhs)
      &                        -0.125*(vee(i,j)+vee(i,j+1))
      &                  )*( Hvom(i,j,k)+Hvom(i,j+1,k)
      &                      -0.125*(Hvee(i,j)+Hvee(i,j+1)))
-#  else
+#   else
             cffE=v(i,j,k,nrhs)+v(i,j+1,k,nrhs)
             if (cffE.gt.0.) then
               curvE=vee(i,j)
@@ -419,18 +427,18 @@
             endif
             VFe(i,j)=0.25*(cffE+gamma*curvE)*( Hvom(i,j,k)+
      &             Hvom(i,j+1,k)-0.125*(Hvee(i,j)+Hvee(i,j+1)))
-#  endif
+#   endif
           enddo
         enddo
-#  undef Hvee
-#  undef vee
-#  define uee wrk1
-#  define Hvxx wrk2
+#   undef Hvee
+#   undef vee
+#   define uee wrk1
+#   define Hvxx wrk2
 
-#  ifdef NS_PERIODIC
-#   define JU_EXT_RANGE Jstr-1,Jend+1
-#  else
-#   ifdef MPI
+#   ifdef NS_PERIODIC
+#    define JU_EXT_RANGE Jstr-1,Jend+1
+#   else
+#    ifdef MPI
         if (SOUTH_INTER) then
           jmin=Jstr-1
         else
@@ -441,11 +449,11 @@
         else
           jmax=min(Jend+1,Mmmpi)
         endif
-#    define JU_EXT_RANGE jmin,jmax
-#   else
-#    define JU_EXT_RANGE max(Jstr-1,1),min(Jend+1,Mm)
+#     define JU_EXT_RANGE jmin,jmax
+#    else
+#     define JU_EXT_RANGE max(Jstr-1,1),min(Jend+1,Mm)
+#    endif
 #   endif
-#  endif
 
         do j=JU_EXT_RANGE
           do i=IstrU,Iend
@@ -454,24 +462,24 @@
           enddo
         enddo
 #   undef JU_EXT_RANGE
-#  ifndef NS_PERIODIC
+#   ifndef NS_PERIODIC
         if (SOUTHERN_EDGE) then
           do i=IstrU,Iend
             uee(i,0)=uee(i,1)
           enddo
         endif
         if (NORTHERN_EDGE) then
-#   ifdef MPI
+#    ifdef MPI
           do i=IstrU,Iend
             uee(i,Mmmpi+1)=uee(i,Mmmpi)
           enddo
-#   else        
+#    else        
           do i=IstrU,Iend
             uee(i,Mm+1)=uee(i,Mm)
           enddo
-#   endif          
+#    endif          
         endif
-#  endif
+#   endif
         do j=Jstr,Jend+1
           do i=IstrU-1,Iend
            Hvxx(i,j)=Hvom(i-1,j,k)-2.*Hvom(i,j,k)+Hvom(i+1,j,k)
@@ -479,12 +487,12 @@
         enddo
         do j=Jstr,Jend+1
           do i=IstrU,Iend
-#  ifdef UV_HADV_C4
+#   ifdef UV_HADV_C4
             UFe(i,j)=0.25*( u(i,j,k,nrhs)+u(i,j-1,k,nrhs)
      &                        -0.125*(uee(i,j)+uee(i,j-1))
      &                  )*( Hvom(i,j,k)+Hvom(i-1,j,k)
      &                     -0.125*(Hvxx(i,j)+Hvxx(i-1,j)))
-#  else
+#   else
             cffX=u(i,j,k,nrhs)+u(i,j-1,k,nrhs)
             cffE=Hvom(i,j,k)+Hvom(i-1,j,k)
             if (cffE.gt.0.) then
@@ -494,18 +502,18 @@
             endif
             UFe(i,j)=0.25*(cffX+gamma*curvX)*(cffE-0.125*(
      &                             Hvxx(i,j)+Hvxx(i-1,j) ))
-#  endif
+#   endif
           enddo
         enddo
-#  undef Hvxx
-#  undef uee
-#  define vxx wrk1
-#  define Huee wrk2
+#   undef Hvxx
+#   undef uee
+#   define vxx wrk1
+#   define Huee wrk2
 
-#  ifdef EW_PERIODIC 
-#   define IV_EXT_RANGE Istr-1,Iend+1
-#  else
-#   ifdef MPI
+#   ifdef EW_PERIODIC 
+#    define IV_EXT_RANGE Istr-1,Iend+1
+#   else
+#    ifdef MPI
         if (WEST_INTER) then
           imin=Istr-1
         else
@@ -516,11 +524,11 @@
         else
           imax=min(Iend+1,Lmmpi)
         endif
-#    define IV_EXT_RANGE imin,imax
-#   else
-#    define IV_EXT_RANGE max(Istr-1,1),min(Iend+1,Lm)
+#     define IV_EXT_RANGE imin,imax
+#    else
+#     define IV_EXT_RANGE max(Istr-1,1),min(Iend+1,Lm)
+#    endif
 #   endif
-#  endif
 
         do j=JstrV,Jend
           do i=IV_EXT_RANGE
@@ -529,25 +537,25 @@
           enddo
         enddo
 #   undef IV_EXT_RANGE
-#  ifndef EW_PERIODIC
+#   ifndef EW_PERIODIC
         if (WESTERN_EDGE) then
           do j=JstrV,Jend
             vxx(0,j)=vxx(1,j)
           enddo
         endif
         if (EASTERN_EDGE) then
-#   ifdef MPI
+#    ifdef MPI
           do j=JstrV,Jend
             vxx(Lmmpi+1,j)=vxx(Lmmpi,j)
           enddo
-#   else        
+#    else        
           do j=JstrV,Jend
             vxx(Lm+1,j)=vxx(Lm,j)
           enddo
-#   endif          
+#    endif          
         endif
         
-#  endif
+#   endif
         do j=JstrV-1,Jend
           do i=Istr,Iend+1
            Huee(i,j)=Huon(i,j-1,k)-2.*Huon(i,j,k)+Huon(i,j+1,k)
@@ -555,12 +563,12 @@
         enddo
         do j=JstrV,Jend
           do i=Istr,Iend+1
-#  ifdef UV_HADV_C4
+#   ifdef UV_HADV_C4
             VFx(i,j)=0.25*( v(i,j,k,nrhs)+v(i-1,j,k,nrhs)
      &                        -0.125*(vxx(i,j)+vxx(i-1,j))
      &                  )*( Huon(i,j,k)+Huon(i,j-1,k)
      &                     -0.125*(Huee(i,j)+Huee(i,j-1)))
-#  else
+#   else
             cffE=v(i,j,k,nrhs)+v(i-1,j,k,nrhs)
             cffX=Huon(i,j,k)+Huon(i,j-1,k)
             if (cffX.gt.0.) then
@@ -570,15 +578,52 @@
             endif
             VFx(i,j)=0.25*(cffE+gamma*curvE)*(cffX-0.125*(
      &                             Huee(i,j)+Huee(i,j-1) ))
-#  endif
+#   endif
           enddo
         enddo
-#undef Huee
-#undef vxx
+#   undef Huee
+#   undef vxx
+
+#  else /* --> UV_HADV_C2 */
+!
+!----------------------------------------------------------
+! Second order advection scheme (default)
+!----------------------------------------------------------
+!
+        do j=Jstr,Jend
+          do i=IstrU-1,Iend
+            UFx(i,j)=0.25*(u(i,j,k,nrhs)+u(i+1,j,k,nrhs))
+     &                      *(Huon(i,j,k)+Huon(i+1,j,k))
+          enddo
+        enddo
+        do j=JstrV-1,Jend
+          do i=Istr,Iend
+            VFe(i,j)=0.25*(v(i,j,k,nrhs)+v(i,j+1,k,nrhs))
+     &                       *(Hvom(i,j,k)+Hvom(i,j+1,k))
+          enddo
+        enddo
+        do j=Jstr,Jend+1
+          do i=IstrU,Iend
+            UFe(i,j)=0.25*(u(i,j,k,nrhs)+u(i,j-1,k,nrhs))
+     &                      *( Hvom(i,j,k)+Hvom(i-1,j,k))
+          enddo
+        enddo
+        do j=JstrV,Jend
+          do i=Istr,Iend+1
+            VFx(i,j)=0.25*(v(i,j,k,nrhs)+v(i-1,j,k,nrhs))
+     &                       *(Huon(i,j,k)+Huon(i,j-1,k))
+          enddo
+        enddo
+#  endif /* UV_HADV_UP3 */
+!
+!----------------------------------------------------------
+! Finalize horizontal advection: compute flux divergences
+!----------------------------------------------------------
+!
         do j=Jstr,Jend
           do i=IstrU,Iend
             ru(i,j,k)=ru(i,j,k)-UFx(i,j  )+UFx(i-1,j)
-     &                                   -UFe(i,j+1)+UFe(i  ,j)
+     &                         -UFe(i,j+1)+UFe(i  ,j)
 #  ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
               MXadv(i,j,k,1) = -UFx(i,j)+UFx(i-1,j) SWITCH umask(i,j)
@@ -587,12 +632,10 @@
 #  endif
           enddo
         enddo
-
-
         do j=JstrV,Jend
           do i=Istr,Iend
             rv(i,j,k)=rv(i,j,k)-VFx(i+1,j)+VFx(i,j  )
-     &                                   -VFe(i  ,j)+VFe(i,j-1)
+     &                         -VFe(i  ,j)+VFe(i,j-1)
 #  ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
               MXadv(i,j,k,2) = -VFx(i+1,j)+VFx(i,j) SWITCH vmask(i,j)
@@ -607,16 +650,20 @@
       do j=Jstr,Jend
 # ifdef UV_ADV
 !
-!=================================================================
+!======================================================================
 !
 !  Compute and add in vertical advection terms
 !
-!=================================================================
+!======================================================================
 !
 #  ifdef UV_VADV_SPLINES
 !
-!  Construct conservative parabolic splines for the vertical
-!  derivatives "CF" of u-momentum.
+!----------------------------------------------------------
+!  U VERTICAL ADVECTION:
+!
+!  Construct conservative parabolic splines for the 
+!  vertical derivatives "CF" of u-momentum.
+!----------------------------------------------------------
 !
         do k=1,N
           do i=IstrU,Iend
@@ -663,6 +710,12 @@
           FC(i,0)=0.
         enddo
 #  elif defined UV_VADV_C2
+!
+!----------------------------------------------------------
+!  Compute vertical advective fluxes 
+!  using Second order advection scheme
+!----------------------------------------------------------
+!
         do k=1,N-1
           do i=IstrU,Iend
             FC(i,k)=0.25*(u(i,j,k,nrhs)+u(i,j,k+1,nrhs))
@@ -674,6 +727,12 @@
           FC(i,N)=0.
         enddo
 #  else
+!
+!----------------------------------------------------------
+!  Compute vertical advective fluxes using
+!  Fourth order advection scheme
+!----------------------------------------------------------
+!
         do k=2,N-2
           do i=IstrU,Iend
             FC(i,k)=( 0.5625*(u(i,j,k  ,nrhs)+u(i,j,k+1,nrhs))
@@ -696,6 +755,11 @@
           FC(i,0)=0.
         enddo
 #  endif
+!
+!----------------------------------------------------------
+! Finalize U vertical advection: compute flux divergences
+!----------------------------------------------------------
+!
         do k=1,N
           do i=IstrU,Iend
             ru(i,j,k)=ru(i,j,k)-FC(i,k)+FC(i,k-1)
@@ -710,8 +774,12 @@
         if (j.ge.JstrV) then
 #  ifdef UV_VADV_SPLINES
 !
-!  Construct conservative parabolic splines for the vertical
-!  derivatives "CF" of v-momentum.
+!----------------------------------------------------------
+!  V VERTICAL ADVECTION:
+!
+!  Construct conservative parabolic splines for the 
+!  vertical derivatives "CF" of u-momentum.
+!----------------------------------------------------------
 !
           do k=1,N
             do i=Istr,Iend
@@ -758,6 +826,11 @@
             FC(i,0)=0.
           enddo
 #  elif defined UV_VADV_C2
+!
+!----------------------------------------------------------
+!  Second order advection scheme
+!----------------------------------------------------------
+!
           do k=1,N-1
             do i=Istr,Iend
               FC(i,k)=0.25*(v(i,j,k,nrhs)+v(i,j,k+1,nrhs))
@@ -769,6 +842,11 @@
             FC(i,N)=0.
           enddo
 #  else
+!
+!----------------------------------------------------------
+!  Fourth order advection scheme
+!----------------------------------------------------------
+!
           do k=2,N-2
             do i=Istr,Iend
               FC(i,k)=( 0.5625*(v(i,j,k,nrhs)+v(i,j,k+1,nrhs))
@@ -791,6 +869,11 @@
             FC(i,0)=0.
           enddo
 #  endif
+!
+!----------------------------------------------------------
+! Finalize V vertical advection: compute flux divergences
+!----------------------------------------------------------
+!
           do k=1,N
             do i=Istr,Iend
               rv(i,j,k)=rv(i,j,k)-FC(i,k)+FC(i,k-1)
@@ -805,11 +888,11 @@
 # endif /* UV_ADV */
 
 !
-!====================================================================
+!======================================================================
 !
 ! Add combined vortex-force and advection terms & breaking terms
 !
-!====================================================================
+!======================================================================
 !
 # ifdef MRL_WCI
         do k=1,N
@@ -884,7 +967,7 @@ ccc            dvde =0.5*( v(i,j-1,k,nrhs) -v(i,j+1,k,nrhs) )
 # endif   /* MRL_WCI */
 
 !
-!====================================================================
+!======================================================================
 !
 !  Start computation of the forcing terms for the 2D (barotropic
 !  mode) momentum equations: vertically integrate the just computed
@@ -896,7 +979,7 @@ ccc            dvde =0.5*( v(i,j-1,k,nrhs) -v(i,j+1,k,nrhs) )
 !  barotropically computed r.h.ss "rubar", "rvbar" will be subtracted
 !  from the vertically integrated (here) "rufrc", "rvfrc".
 !
-!====================================================================
+!======================================================================
 !
         do i=IstrU,Iend
           rufrc(i,j)=ru(i,j,1)

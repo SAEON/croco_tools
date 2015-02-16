@@ -99,7 +99,10 @@
     Select MOMENTUM LATERAL advection-diffusion scheme:
     (The default is third-order upstream biased)
 */
+#define UV_HADV_UP3       /* 3rd-order upstream lateral advection */
 #undef  UV_HADV_C4        /* 4th-order centered lateral advection */
+#undef  UV_HADV_C2        /* 2nd-order centered lateral advection */
+
 #ifdef UV_VIS_SMAGO 
 # define VIS_COEF_3D
 #endif
@@ -131,10 +134,10 @@
 /* #undef  TS_HADV_UP3    3rd-order upstream lateral advection */
                      
 #ifdef TS_HADV_C4      /* 4th-order centered advection        */
-# define TS_DIF2      /*   + Laplacian Diffusion             */
-# undef  TS_DIF4      /*                                     */
-# define TS_DIF_SMAGO /*   + Smagorinsky diffusivity         */
-# define TS_MIX_ISO   /*   + Isopycnal rotation              */ 
+# define TS_DIF2       /*   + Laplacian Diffusion             */
+# undef  TS_DIF4       /*                                     */
+# define TS_DIF_SMAGO  /*   + Smagorinsky diffusivity         */
+# define TS_MIX_ISO    /*   + Isopycnal rotation              */ 
 #endif 
 #ifdef TS_HADV_RSUP3   /*  Rotated-Split 3rd-order scheme is:  */
 # define TS_HADV_C4    /*    4th-order centered advection      */

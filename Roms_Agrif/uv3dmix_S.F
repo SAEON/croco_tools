@@ -224,6 +224,50 @@
           enddo
         enddo
       enddo
+
+#ifdef NBQ
+!
+!  Compute XI- and ETA-components of diffusive wz flux.
+!
+# define FX UFx
+# define FE UFe
+# define kp cff
+      do k=1,N
+        kp=min(k+1,N)
+        do j=jstr,jend
+          do i=istr,iend+1
+              FX(i,j)=0.5*visc2_r(i,j)
+     &                   *pmon_u(i,j)*(Hz(i,j,k )+Hz(i-1,j,k )+
+     &                                 Hz(i,j,kp)+Hz(i-1,j,kp))
+     &                       *(wz(i,j,k,nrhs)-wz(i-1,j,k,nrhs))
+     &                                        SWITCH umask(i,j)
+          enddo
+        enddo
+        do j=jstr,jend+1
+          do i=istr,iend
+              FE(i,j)=0.5*visc2_r(i,j)
+     &                   *pnom_v(i,j)*(Hz(i,j,k )+Hz(i,j-1,k )+
+     &                                (Hz(i,j,kp)+Hz(i,j-1,kp))
+     &                       *(wz(i,j,k,nrhs)-wz(i,j-1,k,nrhs))
+     &                                      ) SWITCH vmask(i,j)
+          enddo
+        enddo
+!
+!  Add in horizontal diffusion of tracer [T m^3/s].
+!
+        do j=jstr,jend
+          do i=istr,iend
+            cff1=pm(i,j)*pn(i,j)
+            wz(i,j,k,nnew)=wz(i,j,k,nnew)+dt*cff1
+     &                 *(FX(i+1,j)-FX(i,j)+FE(i,j+1)-FE(i,j))
+     &                               /(Hz(i,j,k)+(Hz(i,j,kp))
+          enddo
+        enddo
+      enddo ! <-- k
+# undef FX
+# undef FE
+# undef kp
+#endif
 !
       return
       end

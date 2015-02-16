@@ -14,8 +14,6 @@
 
       subroutine pre_step3d (tile)
 !
-! version pre_step3d4S
-!
       implicit none
       integer tile,  trd,omp_get_thread_num
 # include "param.h"
@@ -294,11 +292,11 @@
 !  This preliminary step shall be done before field t(:,:,:,???,:)
 !  loses its meaningful values during the pre-step operation. 
 !
-!===============================================================
+!======================================================================
 !
-! Compute horizontal advection
+!  Compute horizontal advection
 !
-!===============================================================
+!======================================================================
 !
       do itrc=1,NT
         do k=1,N
@@ -307,10 +305,11 @@
           if (itrc .le. 2) then
 # endif
 
-# if defined TS_HADV_UP5 || defined TS_HADV_C6 || defined TS_HADV_WENO5 
-!--------------------------------
+# if defined TS_HADV_UP5 || defined TS_HADV_C6 || defined TS_HADV_WENO5
+!
+!----------------------------------------------------------
 ! Sixth order advection scheme
-!--------------------------------
+!----------------------------------------------------------
 !
 #  define FLUX5 flux6
 #  define FLUX3 flux4
@@ -325,10 +324,29 @@
 #  undef FLUX2
 #  undef UP5_MASKING
 
+# elif defined TS_HADV_C2
+!
+!----------------------------------------------------------
+! Second order advection scheme
+!----------------------------------------------------------
+!
+          do j=Jstr,Jend
+            do i=Istr,Iend+1
+              FX(i,j)=0.5*(t(i,j,k,nstp,itrc)+t(i-1,j,k,nstp,itrc))
+     &                                                 *Huon(i,j,k)
+            enddo
+          enddo
+          do j=Jstr,Jend+1
+            do i=Istr,Iend
+              FE(i,j)=0.5*(t(i,j,k,nstp,itrc)+t(i,j-1,k,nstp,itrc))
+     &                                                 *Hvom(i,j,k)
+            enddo
+          enddo
+
 # else  /*  --> default: C4 */
-!----------------------------------------
+!----------------------------------------------------------
 ! Fourth order advection scheme
-!----------------------------------------
+!----------------------------------------------------------
 !
 #  define grad WORK
 #  ifdef EW_PERIODIC
@@ -454,9 +472,10 @@
 
 # ifdef BIO_HADV_WENO5
           else  ! if (itrc .gt. 2)
-!----------------------------------------------------
+!
+!----------------------------------------------------------
 ! C6 advection for passive tracers 
-!----------------------------------------------------
+!----------------------------------------------------------
 !
 #  define FLUX5 flux6
 #  define FLUX3 flux4
@@ -475,9 +494,9 @@
 
 # ifdef PSOURCE
 !
-!-------------------------------------------------------------------
+!----------------------------------------------------------
 ! Apply point sources for river runoff simulations
-!-------------------------------------------------------------------
+!----------------------------------------------------------
 !
           do is=1,Nsrc
 #  ifdef MPI
@@ -518,9 +537,9 @@
           enddo
 # endif /* PSOURCE */
 !
-!--------------------------------------------------------
+!----------------------------------------------------------
 ! Finalize horizontal advection: compute flux divergences
-!--------------------------------------------------------
+!----------------------------------------------------------
 !
           if (FIRST_TIME_STEP) then
             cff=0.5*dt
@@ -554,11 +573,11 @@
 ! where Hz_half_new is Hz at time step n+1/2 as it would be computed
 ! from three-dimensional divergence of volume fluxes Huon,Hvom and W.
 !
-!===============================================================
+!======================================================================
 !
 ! Compute vertical advection
 !
-!===============================================================
+!======================================================================
 !
 ! Finalize computation of the auxiliary tracer field: compute its
 ! change due to vertical advection. Computation of vertical advective
@@ -575,6 +594,12 @@
         enddo
         do itrc=1,NT
 # ifdef TS_VADV_SPLINES
+!
+!----------------------------------------------------------
+! Compute vertical advective fluxes using parabolic splines: 
+! FC=W*[spline-interpolated tracer]
+!----------------------------------------------------------
+!
                               ! Construct parabolic splines: here
           do i=Istr,Iend      ! CF is the set of vertical derivatives
             FC(i,0)=0.        ! of the tracer field t(:,:,:,nstp,:),
@@ -610,7 +635,10 @@
           enddo
 # elif defined TS_VADV_AKIMA
 !
-! Compute vertical advective fluxes using 4th-order Akima scheme
+!----------------------------------------------------------
+! Compute vertical advective fluxes 
+! using 4th-order Akima scheme
+!----------------------------------------------------------
 !
           do k=1,N-1
             do i=istr,iend
@@ -643,7 +671,10 @@
           enddo
 # elif defined TS_VADV_WENO5
 !
-! Compute vertical advective fluxes using 5th-order WENO scheme
+!----------------------------------------------------------
+! Compute vertical advective fluxes 
+! using 5th-order WENO scheme
+!----------------------------------------------------------
 !
           do k=3,N-3
             do i=Istr,Iend
@@ -669,7 +700,10 @@
           enddo
 # elif defined TS_VADV_C2
 !
-! Compute vertical advective fluxes using 2th-order centered scheme
+!----------------------------------------------------------
+! Compute vertical advective fluxes
+! using 2th-order centered scheme
+!----------------------------------------------------------
 !
           do k=1,N-1
            do i=Istr,Iend
@@ -683,7 +717,10 @@
          enddo
 # else
 !
-! Compute vertical advective fluxes using 4th-order centered scheme
+!----------------------------------------------------------
+! Compute vertical advective fluxes
+! using 4th-order centered scheme
+!----------------------------------------------------------
 !
           do k=2,N-2
             do i=Istr,Iend
@@ -726,9 +763,11 @@
         enddo   !<-- itrc  !--> discard DC
 
 !
-!---------------------------------------------------------------
+!======================================================================
+!
 ! Momentum equations: time stepping to time n+1/2
-!---------------------------------------------------------------
+!
+!======================================================================
 !
         do i=IstrU,Iend
           DC(i,0)=pm_u(i,j)*pn_u(i,j)
@@ -840,11 +879,12 @@
       enddo     !<-- j
 
 #ifdef NBQ
-!=============================================================
+!----------------------------------------------------------
 !<-- at this point 
 !<-- rw            contains internal 3D advection + Coriolis
-!<-- rw_nbq_avg1   contains NBQ pressure gradient + gravity + second viscosity 
-!=============================================================
+!<-- rw_nbq_avg1   contains NBQ pressure gradient + gravity 
+!                                        + second viscosity 
+!----------------------------------------------------------
       do j=Jstr,Jend
 !==
       if (FIRST_TIME_STEP) then
@@ -916,12 +956,11 @@
       endif
       enddo
 !==
-!=============================================================
 #endif      
 !
-!---------------------------------------------------------------
+!======================================================================
 ! Set PHYSICAL lateral boundary conditions.
-!---------------------------------------------------------------
+!======================================================================
 !
       do itrc=1,NT
         call t3dbc_tile (Istr,Iend,Jstr,Jend, nnew,itrc, WORK)
@@ -942,11 +981,11 @@
       call w3dbc_tile (Istr,Iend,Jstr,Jend, WORK)      
 # endif
 !
-!---------------------------------------------------------------
+!======================================================================
 ! Coupling, include ghost points associated with PHYSICAL
 ! boundaries ONLY. Do not touch periodic ghost points or
 ! internal computational margins (MPI code). 
-!---------------------------------------------------------------
+!======================================================================
 !
 # ifdef EW_PERIODIC
 #  define IU_RANGE Istr,Iend
@@ -1042,12 +1081,12 @@
 # endif
 
 !
-!---------------------------------------------------------------
+!======================================================================
 ! Prepare to start two-dimensional time stepping:
 ! set the initial values of the fast-time-step free-surface
 ! field to its fast-time-averaged values corresponding
-! o the time step n (nstp).
-!---------------------------------------------------------------
+! to the time step n (nstp).
+!======================================================================
 !
 # ifdef MPI
       do j=JU_RANGE
