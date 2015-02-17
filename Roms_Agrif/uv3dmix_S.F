@@ -120,6 +120,9 @@
 #ifdef AGRIF
 #include "zoom.h"
 #endif
+#ifdef NBQ
+      integer kp
+#endif
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -231,7 +234,6 @@
 !
 # define FX UFx
 # define FE UFe
-# define kp cff
       do k=1,N
         kp=min(k+1,N)
         do j=jstr,jend
@@ -247,9 +249,9 @@
           do i=istr,iend
               FE(i,j)=0.5*visc2_r(i,j)
      &                   *pnom_v(i,j)*(Hz(i,j,k )+Hz(i,j-1,k )+
-     &                                (Hz(i,j,kp)+Hz(i,j-1,kp))
+     &                                 Hz(i,j,kp)+Hz(i,j-1,kp))
      &                       *(wz(i,j,k,nrhs)-wz(i,j-1,k,nrhs))
-     &                                      ) SWITCH vmask(i,j)
+     &                                        SWITCH vmask(i,j)
           enddo
         enddo
 !
@@ -260,13 +262,12 @@
             cff1=pm(i,j)*pn(i,j)
             wz(i,j,k,nnew)=wz(i,j,k,nnew)+dt*cff1
      &                 *(FX(i+1,j)-FX(i,j)+FE(i,j+1)-FE(i,j))
-     &                               /(Hz(i,j,k)+(Hz(i,j,kp))
+     &                                /(Hz(i,j,k)+Hz(i,j,kp))
           enddo
         enddo
       enddo ! <-- k
 # undef FX
 # undef FE
-# undef kp
 #endif
 !
       return
