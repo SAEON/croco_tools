@@ -169,9 +169,9 @@
 # define ANA_INI_WKB
 # ifdef ANA_INI_WKB
 
-#if defined AGRIF
+#  if defined AGRIF
         if( AGRIF_Root() ) then
-#endif
+#  endif
 
 #  ifdef WKB_OBC_WEST
         ho=h(1,1)+zeta(1,1,knew)     !+wkb_tide       ! offshore depth
@@ -179,35 +179,35 @@
         call MPI_Bcast(ho, 1, MPI_DOUBLE_PRECISION,
      &                     0, MPI_COMM_WORLD, ierr)
 #   endif
-#  endif
-#  ifdef WKB_OBC_EAST
+#  elif WKB_OBC_EAST
         ho=h(LLm,1)+zeta(LLm,1,knew) !+wkb_tide       ! offshore depth
 #   ifdef MPI
         call MPI_Bcast(ho, 1, MPI_DOUBLE_PRECISION,
      &                     NP_XI-1, MPI_COMM_WORLD, ierr)
 #   endif
 #  endif
+
 #  ifdef ANA_BRY_WKB 
         wamp = wkb_amp               ! wave amplitude (m)
         cfrq = 2.0*pi/wkb_prd        ! peak wave frequency (rad/s)
         cdir = wkb_ang*deg2rad       ! wave direction rad
-#   else
-#    ifdef WKB_OBC_WEST
+#  else
+#   ifdef WKB_OBC_WEST
          wkb_bry(1)=wacbry_west(1) 
          wkb_bry(2)=wkxbry_west(1)
          wkb_bry(3)=wkebry_west(1)
          prc = 0
-#    endif
-#    ifdef WKB_OBC_EAST
+#   endif
+#   ifdef WKB_OBC_EAST
          wkb_bry(1)=wacbry_east(1) 
          wkb_bry(2)=wkxbry_east(1)
          wkb_bry(3)=wkebry_east(1)
          prc = NP_XI-1
-#    endif
-#    ifdef MPI
+#   endif
+#   ifdef MPI
         call MPI_Bcast(wkb_bry, 3, MPI_DOUBLE_PRECISION,
      &                     prc, MPI_COMM_WORLD, ierr)
-#    endif
+#   endif
         cff1=sqrt(wkb_bry(2)**2+wkb_bry(3)**2)
         inv_k =1.0/cff1
         khn =cff1*(ho+zeta(1,1,knew))
@@ -216,7 +216,8 @@
         sinw = inv_k*wkb_bry(3)           
         cdir=ATAN2(sinw,cosw)
         wamp=sqrt(2*wkb_bry(1)/g*cfrq)
-#   endif        
+#  endif /*  ANA_BRY_WKB */      
+
         Btg  = wkb_btg               ! B parameter
         gamw = wkb_gam               ! gamma paramemer (Hrms/h ratio)
 
@@ -251,7 +252,7 @@
               dsup=-0.125*(wh**2)*kw/sinh(2.*kw*dd) ! wave set-up
             enddo
             do k=1,2
-              hrm(i,j,k)=wh*2.0
+              hrm(i,j,k)=wamp*2.0  ! wh
               frq(i,j,k)=cfrq
               wcg(i,j,k)=nw*cw/kw
               wac(i,j,k)=0.125*g*(hrm(i,j,k)**2)/frq(i,j,k)
@@ -296,9 +297,10 @@
         endif
 #   endif  /* WKB_OBC_WEST */
 #  endif /* ANA_BRY_WKB */
-#ifdef AGRIF
-        endif
-#endif
+
+#  ifdef AGRIF
+        endif    ! <-- AGRIF_Root()
+#  endif
 
 # else /* !ANA_INI_WKB */
         do j=jstrR,jendR
@@ -329,7 +331,7 @@
           enddo
         enddo
 # endif /* ANA_INI_WKB */
-!
+
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
         do k=1,2
           call exchange_r2d_tile (istr,iend,jstr,jend,
@@ -345,7 +347,7 @@
           call exchange_r2d_tile (istr,iend,jstr,jend,
      &                            wcg(START_2D_ARRAY,k))
           call exchange_r2d_tile (istr,iend,jstr,jend,
-     &                        wsb(START_2D_ARRAY,k))
+     &                            wsb(START_2D_ARRAY,k))
           call exchange_r2d_tile (istr,iend,jstr,jend,
      &                            wvn(START_2D_ARRAY,k))
 #  ifdef WAVE_ROLLER
