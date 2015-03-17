@@ -310,7 +310,7 @@
      &                   'Grid File:', grdname(1:lstr)
 #endif
 
-#if       (!defined ANA_SMFLUX) \
+#if        (!defined BULK_FLUX  && !defined ANA_SMFLUX) \
         || (defined TIDES) \
         || (defined MRL_WCI     && !defined ANA_WWAVE   && !defined WKB_WWAVE) \
         || (defined SOLVE3D     && (\

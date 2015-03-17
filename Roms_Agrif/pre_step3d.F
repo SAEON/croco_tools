@@ -234,7 +234,7 @@
 #  endif
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
       call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
-     &                        Hz_half_nbq(START_2D_ARRAY,1))
+     &                        Hzr_half_nbq(START_2D_ARRAY,1))
 #  endif
       do j=Jstr-1,Jend+1
         do i=Istr-1,Iend+1
