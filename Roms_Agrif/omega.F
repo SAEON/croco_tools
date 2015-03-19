@@ -49,9 +49,7 @@
 # include "grid.h"
 # include "ocean3d.h"
 # include "scalars.h"
-# include "nbq.h"
 !
-
 #ifdef MPI
 #define LOCALLM Lmmpi
 #define LOCALMM Mmmpi
