@@ -267,21 +267,18 @@ c********************************************************************
 
         do j=Jstr,Jend
           do i=IstrU,Iend
-# ifdef NBQ
-            ru(i,j,k)=0.5*rho0*(Hzr(i,j,k)+Hzr(i-1,j,k))*on_u(i,j)*(
-# else
-            ru(i,j,k)=0.5*(Hz(i,j,k)+Hz(i-1,j,k))*on_u(i,j)*(
-# endif
-     &                                            P(i-1,j,k)-P(i,j,k)
-     &                          -HalfGRho*( (rho(i,j,k)+rho(i-1,j,k))
-     &                                     *(z_r(i,j,k)-z_r(i-1,j,k))
+            ru(i,j,k)=0.5*(HZR(i,j,k)+HZR(i-1,j,k)) RHO0
+     &                                                    *on_u(i,j)*(
+     &                                             P(i-1,j,k)-P(i,j,k)
+     &                           -HalfGRho*( (rho(i,j,k)+rho(i-1,j,k))
+     &                                      *(z_r(i,j,k)-z_r(i-1,j,k))
 
      &   -OneFifth*( (dRx(i,j)-dRx(i-1,j))*( z_r(i,j,k)-z_r(i-1,j,k)
-     &                            -OneTwelfth*(dZx(i,j)+dZx(i-1,j)) ) 
+     &                             -OneTwelfth*(dZx(i,j)+dZx(i-1,j)) )
 
      &              -(dZx(i,j)-dZx(i-1,j))*( rho(i,j,k)-rho(i-1,j,k)
-     &                            -OneTwelfth*(dRx(i,j)+dRx(i-1,j)) )
-     &                                                            )))
+     &                             -OneTwelfth*(dRx(i,j)+dRx(i-1,j)) )
+     &                                                             )))
 
 # ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
@@ -371,20 +368,21 @@ c********************************************************************
 
         do j=JstrV,Jend
           do i=Istr,Iend
-            rv(i,j,k)=0.5*(Hz(i,j,k)+Hz(i,j-1,k))*om_v(i,j)*(
+            rv(i,j,k)=0.5*(HZR(i,j,k)+HZR(i,j-1,k)) RHO0
+     &                                                   *om_v(i,j)*(
 # ifdef INNERSHELF_APG
-     &      on_v(i,j)*f(i,j)*UG +    ! specified alongshore PG
+     &             on_v(i,j)*f(i,j)*UG +    ! specified alongshore PG
 # endif
-     &                                            P(i,j-1,k)-P(i,j,k)
-     &                          -HalfGRho*( (rho(i,j,k)+rho(i,j-1,k))
-     &                                     *(z_r(i,j,k)-z_r(i,j-1,k))
+     &                                             P(i,j-1,k)-P(i,j,k)
+     &                           -HalfGRho*( (rho(i,j,k)+rho(i,j-1,k))
+     &                                      *(z_r(i,j,k)-z_r(i,j-1,k))
 
      &   -OneFifth*( (dRx(i,j)-dRx(i,j-1))*( z_r(i,j,k)-z_r(i,j-1,k)
-     &                            -OneTwelfth*(dZx(i,j)+dZx(i,j-1)) )
+     &                             -OneTwelfth*(dZx(i,j)+dZx(i,j-1)) )
 
      &              -(dZx(i,j)-dZx(i,j-1))*( rho(i,j,k)-rho(i,j-1,k)
-     &                            -OneTwelfth*(dRx(i,j)+dRx(i,j-1)) )
-     &                                                            )))
+     &                             -OneTwelfth*(dRx(i,j)+dRx(i,j-1)) )
+     &                                                             )))
 
 #  ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then

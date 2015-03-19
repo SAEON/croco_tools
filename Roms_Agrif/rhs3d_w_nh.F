@@ -280,13 +280,16 @@
 !====================================================================
 #  define NEUMANN
 #  ifdef UV_VADV_SPLINES
-        do k=N-1,2,-1
+        do k=2,N-1
           do i=Istr,Iend
-            DC(i,k)=0.5625*(HZR(i,j,k  )+HZR(i,j,k-1))
-     &             -0.0625*(HZR(i,j,k+1)+HZR(i,j,k-2))
+            kp   = min(k+1,N-1)
+            DC(i,k)=0.5625*(HZR(i,j,k   )+HZR(i,j,k+1))
+     &             -0.0625*(HZR(i,j,kp+1)+HZR(i,j,k-1))
           enddo
         enddo
         do i=Istr,Iend
+          DC(i,1)=0.5*(HZR(i,j,1)+HZR(i,j,2))
+          DC(i,N)=0.5*HZR(i,j,N)
 #   if defined NEUMANN
           FC(i,0)=1.5*Wz(i,j,1,nrhs)
           CF(i,1)=0.5
@@ -321,7 +324,7 @@
 
         do k=1,N-1
           do i=Istr,Iend
-            kp   = min(k+1,N)    !<-- extrapolation at k=N
+            kp   = min(k+1,N-1)    !<-- extrapolation at k=N
             Omeg_r = 0.5625*(W(i  ,j,k)+W(i,j,k+1))
      &              -0.0625*(W(i,j,kp+1)+W(i,j,k-1))
 !            Omeg_r = 0.5*(W(i,j,k)+W(i,j,k+1))

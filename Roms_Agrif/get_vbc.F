@@ -499,7 +499,7 @@
       END IF
       IF (WESTERN_EDGE) THEN
         DO j=Jstr,Jend
-          bustr(Istr-1,j)=bustr(Istr,j)
+          bustr(IstrU-1,j)=bustr(IstrU,j)
         END DO
         DO j=JstrV,Jend
           bvstr(Istr-1,j)=bvstr(Istr,j)
@@ -520,7 +520,7 @@
           bustr(i,Jstr-1)=bustr(i,Jstr)
         END DO
         DO i=Istr,Iend
-          bvstr(i,Jstr-1)=bvstr(i,Jstr)
+          bvstr(i,JstrV-1)=bvstr(i,JstrV)
         END DO
       END IF
 #  endif
