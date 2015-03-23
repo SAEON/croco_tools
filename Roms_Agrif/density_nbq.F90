@@ -1,9 +1,12 @@
 #include "cppdefs.h"
 #ifdef NBQ
-!------------------------------------------------------------------------------
-!                               NHOMS
-!                Non Hydrostatic Ocean Modeling System      
-!------------------------------------------------------------------------------
+
+      subroutine density_nbq(ichoix)
+
+!**********************************************************************
+!
+!                      Various Computations related to
+!                            NBQ density
 !
 !> @note <a href="http://poc.obs-mip.fr/auclair/WOcean.fr/SNH/index_snh_home.htm"> Main web documentation </a>
 !
@@ -26,36 +29,32 @@
 !> @date 2015 January
 !> @todo
 !
-!------------------------------------------------------------------------------
-      subroutine density_nbq(ichoix)
-
-!__________________________________________________________________________
-!
-!                               SNH2012.14      
-!                 Non-Hydrostatic & Non-Boussinesq Kernel Version  
-! Laboratoire d'Aerologie, 14 Avenue Edouard Belin, F-31400 Toulouse 
-! http://poc.obs-mip.fr/auclair/WOcean.fr/SNH/index_snh_home.htm  
-!
-!__________________________________________________________________________
-
-
+!**********************************************************************
 !      use module_principal , only : kount0, iteration3d, rhp_t, rho, mask_t, &
 !			    dz_t, iteration2d_max_now, hz_w, iteration2d,    &
 !			    imax, jmax, kmax
-!      use module_parallele                ! #MPI#
-      use module_nh , only : nzq_nh, neqmom_nh, momv_nh, momj_nh, momi_nh, &
-                      l2iq_nh, l2jq_nh, l2kq_nh, l2imom_nh, l2jmom_nh,     &
-                      l2kmom_nh,contv_nh,conti_nh,contj_nh,nmcont_nh       ! #NH#
+!      use module_parallele               ! #MPI#
+      use module_nh                       ! #NH#
       use module_nbq                      ! #NBQ#
       implicit none
-      integer :: ichoix, i,j ,k, k1
-# include "param_F90.h"
-# include "nbq.h"
-# include "work.h"
-# include "scalars_F90.h"
+      integer :: ichoix, i,j ,k, k1,indm_d
 
-      real Hzr(GLOBAL_2D_ARRAY,N)
-      common /grid_Hzr/Hzr
+# include "param_F90.h"
+# include "scalars_F90.h"
+# include "work.h"
+# include "grid.h"
+# include "ocean3d.h"
+# include "nbq.h"
+
+#ifdef MPI
+#define LOCALLM Lmmpi
+#define LOCALMM Mmmpi
+#else
+#define LOCALLM Lm
+#define LOCALMM Mm
+#endif    
+
+      real :: dist_d
 
       if (ichoix.eq.0) then
 !
@@ -70,7 +69,8 @@
           j     = l2jq_nh (l_nbq)
           k     = l2kq_nh (l_nbq)
 #  ifdef NBQ_REINIT
-          rhp_nbq_a(l_nbq,0)=rho_nbq_avg1(i,j,k)-rho0
+          rhp_nbq_a(l_nbq,0)=rho_nbq_avg1(i,j,k) *rho0/(1. RHO0)       &
+                                                           -rho0
           rhp_nbq_a(l_nbq,1)=rhp_nbq_a(l_nbq,0)
 #  else
           rhp_nbq_a(l_nbq,:)=rhp_nbq_a_bak(l_nbq,:)
@@ -92,26 +92,33 @@
           j     = l2jq_nh (l_nbq)
           k     = l2kq_nh (l_nbq)
        
-          rho_nbq_ext(i,j,k)  = 0.5*(rhp_nbq_a(l_nbq,0)+rhp_nbq_a(l_nbq,1))
-          work2d(i,j)         = work2d(i,j)+Hzr(i,j,k)
-          rhobar_nbq(i,j)     = rhobar_nbq(i,j)+                      &
-                                rho_nbq_ext(i,j,k)*Hzr(i,j,k)
+          rho_nbq_ext(i,j,k)  = 0.5*(rhp_nbq_a(l_nbq,0)                &
+                                    +rhp_nbq_a(l_nbq,1))
+          work2d(i,j)         = work2d(i,j)+Hzr_half_nbq(i,j,k)
+          rhobar_nbq(i,j)     = rhobar_nbq(i,j)+                       &
+                                rho_nbq_ext(i,j,k)*Hzr_half_nbq(i,j,k)
         enddo
-
-        rhobar_nbq(1:Lm,1:Mm)=rhobar_nbq(1:Lm,1:Mm)/work2d(1:Lm,1:Mm)
 !
-!.......Rho s added subsequently for added precision 
+!.......Rho0 added subsequently for added precision 
 !
-        rho_nbq_ext(:,:,:)  = rho_nbq_ext(:,:,:) + rho0
-        rhobar_nbq(:,:)     = rhobar_nbq(:,:)    + rho0
+        rho_nbq_ext(:,:,:)  = (rho_nbq_ext(:,:,:) + rho0) RHO0 / rho0
 
+        do j=0,LOCALMM+1
+        do i=0,LOCALLM+1
+           rhobar_nbq(i,j)=(rhobar_nbq(i,j)/work2d(i,j) + rho0)       &
+                                                    RHO0 / rho0
+        enddo
+        enddo
+   
       elseif (ichoix.eq.3) then
 !
 !**********************************************************************
-!   Transformation z--> s for time derivative ??? 
+! Store density fields at internal timestep n+1
 !**********************************************************************
 !
-   
+         rhp_nbq_a_bak(1:nzq_nh,0)=rhp_nbq_a(1:nzq_nh,0)
+         rhp_nbq_a_bak(1:nzq_nh,1)=rhp_nbq_a(1:nzq_nh,1)
+
       elseif (ichoix.eq.6) then
 !
 !**********************************************************************
@@ -119,28 +126,28 @@
 !**********************************************************************
 !
          if(iteration_nbq  > 1) then
-
+            indm_d=conti_nh(neqmom_nh(0)+1)+1
             call amux(                                                &
                   nzq_nh                                              &
-               !  neqcont_nh(0)                                       &
                  ,qdm_nbq_a(1:neqmom_nh(0),2)                         &
                  ,div_nbq_a(1:nzq_nh,1)                               &
-               ! ,div_nbq_a(1:neqcont_nh(0),1)                        &
-                 ,contv_nh(1:nmcont_nh)                               &
-                 ,contj_nh(1:)                                        &
-                 ,conti_nh(1:)       )
+                 ,contv_nh(1:indm_d)                                  &
+                 ,contj_nh(1:indm_d)                                  &
+                 ,conti_nh(1:neqmom_nh(0)+1)                          &
+               ! ,nmlcont_nh                                          &
+                       )
 
          else
 
             call amux(                                                &
                   nzq_nh                                              &
-              !   neqcont_nh(0)                                       &
                  ,qdm_nbq_a(1:neqmom_nh(0),1)                         &
                  ,div_nbq_a(1:nzq_nh,1)                               &
-              !  ,div_nbq_a(1:neqcont_nh(0),1)                        &
-                 ,contv_nh(1:nmcont_nh)                               &
-                 ,contj_nh(1:)                                        &
-                 ,conti_nh(1:)    )
+                 ,contv_nh(1:indm_d)                                  &
+                 ,contj_nh(1:indm_d)                                  &
+                 ,conti_nh(1:neqmom_nh(0)+1)                          &
+             !   ,nmlcont_nh                                          &
+                  )
 
          endif
 
@@ -149,12 +156,44 @@
 !*******************************************************************
 !......Move forward: Masse
 !*******************************************************************
+!          
+         rhp_nbq_a(1:nzq_nh,0)  = rhp_nbq_a(1:nzq_nh,1) 
+         rhp_nbq_a(1:nzq_nh,1)  = rhp_nbq_a(1:nzq_nh,2) 
+         div_nbq_a(1:nzq_nh,0)  = div_nbq_a(1:nzq_nh,1)  ! for second viscosity
+
+      elseif (ichoix.eq.10) then
 !
-        do l_nbq = 1 , nzq_nh
-!          rhp_nbq_a(l_nbq,-1) = rhp_nbq_a(l_nbq,0)                                  
-          rhp_nbq_a(l_nbq,0)  = rhp_nbq_a(l_nbq,1) 
-          rhp_nbq_a(l_nbq,1)  = rhp_nbq_a(l_nbq,2) 
-          div_nbq_a(l_nbq,0)  = div_nbq_a(l_nbq,1)  
+!*******************************************************************
+!......Acoustic waves: Initialization
+!*******************************************************************
+
+          period_exp = 0.025/2.
+          for_a_exp  = 2.5
+          amp_exp = 1.e-3
+          hmax_exp = 128.
+          dg_exp = 2.
+
+      elseif (ichoix.eq.11) then
+!
+!*******************************************************************
+!......Acoustic waves: Forcing
+!*******************************************************************
+
+        time_nbq = time_nbq + 0.5*dtnbq
+
+        do l_nbq = 1 , nzq_nh 
+
+          i=l2iq_nh(l_nbq)
+          j=l2jq_nh(l_nbq)
+          k=l2kq_nh(l_nbq)
+
+          dist_d=sqrt((xr(i,j)-xl/2.)**2+(0.*(yr(i,j)-el/2.))**2       &
+                              +(abs(z_r(i,j,k))-hmax_exp/2.)**2)
+!         if (dist_d.le.for_a_exp(1)) then
+             div_nbq_a(l_nbq,1) = div_nbq_a(l_nbq,1)                   &
+                        +amp_exp*sin(2*acos(-1.)*time_nbq/period_exp)  &
+                                        *exp(-dist_d**2/for_a_exp**2)
+!         endif
         enddo
 
       endif  ! ichoix

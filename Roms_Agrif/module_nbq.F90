@@ -78,7 +78,6 @@
       double precision,dimension(:),allocatable    ::                   &
        rhs1_nbq            						&         ! (nmv_nbq)                                    &
       ,rhs2_nbq            						&         ! (nmv_nbq)                                    &
-      ,rhs2r_nbq            						&         ! (nmv_nbq)                                    &
       ,rhsd1_nbq           						&         ! (nmv_nbq)                                    &    ! Pour Diffusion(s) "Boucle NBQ"
       ,rhsd3_nbq           						&         ! (nmq_nbq)                                    &    ! Pour Diffusion(s) "Boucle NBQ"
       ,rhsd2_nbq                   		   		        &  	  ! (nmv_nbq)  ! Pour Diffusion(s) "Boucle NBQ"
@@ -313,12 +312,11 @@
        allocate(  rhpsum2_nbq_a     (0:nmq_nbq,1:2)                              )   
        allocate(  diffsum_nbq_a     (0:nmv_nbq,0:2)                              )
        allocate(  diffsum2_nbq_a    (0:nmv_nbq,0:2)                              )
-       allocate(  rhssum_nbq_a      (0:nmv_nbq,0:2)                              )
+       allocate(  rhssum_nbq_a      (0:nmv_nbq,2:2)                                  )
        allocate(  div_nbq_a         (0:nmq_nbq,0:1) 				 )                 
 !....Tableaux de travail NBQ:
        allocate(  rhs1_nbq          (0:nmv_nbq)                                    )
        allocate(  rhs2_nbq          (0:nmv_nbq)                                    )
-       allocate(  rhs2r_nbq          (0:nmv_nbq)                                    )
        allocate(  rhsd1_nbq         (0:nmv_nbq)                                    )    ! Pour Diffusion(s) "Boucle NBQ"
        allocate(  rhsd2_nbq         (0:nmv_nbq)                                    )    ! Pour Diffusion(s) "Boucle NBQ"
        allocate(  rhsd3_nbq         (0:nmq_nbq)                                    )    ! Pour Diffusion(s) "Boucle NBQ"

@@ -140,6 +140,7 @@ subroutine amubdg ( nrow, ncol, ncolb, ja, ia, jb, ib, ndegr, nnz, iw )
   return
 end
 subroutine amux ( n, x, y, a, ja, ia )
+!subroutine amux ( n, x, y, a, ja, nl )
 
 !*****************************************************************************80
 !
@@ -157,7 +158,7 @@ subroutine amux ( n, x, y, a, ja, ia )
 !  Author:
 !
 !    Youcef Saad
-!
+! 
 !  Parameters:
 !
 !    Input, integer N, the row dimension of the matrix.
@@ -179,39 +180,27 @@ subroutine amux ( n, x, y, a, ja, ia )
   integer n
 
   real ( kind = 8 ) a(*)
-  integer i
+  integer i,j
   integer ia(*)
   integer ja(*)
   integer k
-  character(len=1) :: TRANS='N'
+! integer nl
+! character(len=1) :: TRANS='N'
   real ( kind = 8 ) t
   real ( kind = 8 ) x(*)
   real ( kind = 8 ) y(*)
-  double precision :: cput1, cput2
 
-  !cput1=mpi_wtime()
-!#ifdef old_amux
   do i = 1, n
 !
 !  Compute the inner product of row I with vector X.
 !
     t = 0.0D+00
-    do k = ia(i), ia(i+1)-1
-      t = t + a(k) * x(ja(k))
-    end do
-
-    y(i) = t
-
+     do k = ia(i), ia(i+1)-1
+!    do k = 1 + nl*(i-1), nl*i
+       t = t + a(k) * x(ja(k))
+     end do
+     y(i) = t
   end do
-!#endif
-
-
-#ifdef new_amux
-  call mkl_dcsrgemv(TRANS,n,a,ia,ja,x,y)
-#endif
-
-  !cput2=mpi_wtime()
-  time_omp_nh(10) = time_omp_nh(10) + cput2 - cput1
 
   return
 end

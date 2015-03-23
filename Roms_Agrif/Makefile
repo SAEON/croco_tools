@@ -29,12 +29,13 @@ include Makedefs
 #--------------------------------------------------------------------
 
  SRCS90 = \
-	module_nh.F90	module_nbq.F90\
-	module_tracetxt_out.F90	nump_nh.F90	mat_cont_init_nh.F90\
-	mat_cont_nh.F90 mat_mom_init_nh.F90	mat_mom_nh.F90\
-	initial_nh.F90	z_thickness_nh.F90 	module_tracetxt_out.F90\
-	ru_nbq.F90	viscous_nbq.F90		step3d_nbq.F90\
-	density_nbq.F90	spkitlocal_nh.F90	module_param.F90
+	module_nh.F90		module_nbq.F90		module_qsort.F90\
+        module_parallel_nbq.F90 module_tracetxt_out.F90	module_param.F90\
+	nump_nh.F90		mat_cont_init_nh.F90	mat_cont_nh.F90\
+	mat_mom_init_nh.F90	mat_mom_nh.F90		initial_nh.F90\
+	z_thickness_nh.F90 	ru_nbq.F90		viscous_nbq.F90\
+	step3d_nbq.F90		density_nbq.F90		spkitlocal_nh.F90\
+	MPI_setup_nbq.F90	parallele_nbq.F90	output_nbq.F90
 
  SRCS = main.F		step.F		read_inp.F\
 	timers_roms.F	init_scalars.F	init_arrays.F	set_weights.F\
@@ -45,8 +46,8 @@ include Makedefs
 \
 	step3d_w.F	rhs3d_w_nh.F	w3dbc.F\
 \
-        cpl_prism_define.F cpl_prism_put.F cpl_prism_init.F\
-        cpl_prism_get.F cpl_prism_getvar.F cpl_prism_getlistvals.F\
+        cpl_prism_define.F	cpl_prism_put.F 	cpl_prism_init.F\
+        cpl_prism_get.F 	cpl_prism_getvar.F 	cpl_prism_getlistvals.F\
 \
 	step2d.F	u2dbc.F		v2dbc.F		zetabc.F\
 	obc_volcons.F\
@@ -84,8 +85,10 @@ include Makedefs
         get_smflux.F    get_stflux.F    get_srflux.F    get_sst.F\
         get_tides.F     clm_tides.F     get_bulk.F      bulk_flux.F\
         get_bry.F       get_bry_bio.F	nf_read_bry.F	sstskin.F\
-        get_psource.F   get_psource_ts.F nf_add_attribute.F fillvalue.F\
-	mrl_wci.F  	wkb_wwave.F wkbbc.F get_bry_wkb.F\
+        get_psource.F   fillvalue.F	nf_add_attribute.F\
+	get_psource_ts.F\
+\
+	mrl_wci.F  	wkb_wwave.F 	wkbbc.F		get_bry_wkb.F\
 \
         online_bulk_var.F		online_get_bulk.F\
 	online_interp.F			online_interpolate_bulk.F\
@@ -115,7 +118,8 @@ include Makedefs
         p4zlim.F        p4zrem.F	p4zche.F\
         p4zbio.F        p4zmeso.F       p4zsink2.F\
         p4zsed.F\
-	autotiling.F debug.F Agrif2Model.F
+\
+	autotiling.F	debug.F		Agrif2Model.F
 #\
 #module_nh.F	nump_nh.F
 

@@ -73,13 +73,6 @@ C      real*8 start_time2, start_time1, exe_time
       call MPI_Init (ierr)
 #endif   
 
-#ifdef NBQ
-      call alloc_module_nh() 
-# ifndef MPI
-      MPI_STATUS_SIZE=1
-# endif
-      call alloc_module_nbq(MPI_STATUS_SIZE)
-#endif
 
 #if (defined OA_COUPLING && !defined AGRIF)
 !-- Initialization phase of OASIS3
@@ -107,6 +100,15 @@ C     start_time1=PMPI_Wtime()
       call MPI_Setup (ierr)
       if (ierr.ne.0) goto 100        !--> ERROR
 #endif
+
+#ifdef NBQ
+      call alloc_module_nh() 
+# ifndef MPI
+      MPI_STATUS_SIZE=1
+# endif
+      call alloc_module_nbq(MPI_STATUS_SIZE)
+#endif
+
 
 #define CR  !
 

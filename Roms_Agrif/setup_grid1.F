@@ -35,14 +35,7 @@ C$    integer omp_get_thread_num
 #  include "wkb_wwave.h"
 # endif
 #ifdef NBQ
-      real e(GLOBAL_2D_ARRAY)
-      common /nbq_e/ e
-      real eomn(GLOBAL_2D_ARRAY)
-      common /nbq_eomn/ eomn
-      real cosa(GLOBAL_2D_ARRAY)
-      common /nbq_cosa/ cosa
-      real sina(GLOBAL_2D_ARRAY)
-      common /nbq_sina/ sina
+# include "nbq.h"
 #endif
 !
 #include "compute_extended_bounds.h"

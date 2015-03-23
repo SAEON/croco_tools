@@ -1,4 +1,4 @@
-
+#include "cppdefs.h"
 #if defined NBQ && defined TRACETXT
 ! Module pour ecritre les trace d exectuion du programme 
 ! au format ASCII

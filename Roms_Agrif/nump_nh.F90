@@ -1,26 +1,18 @@
 #include "cppdefs.h"
 #ifdef NBQ
+
       subroutine nump_nh
-!__________________________________________________________________________
-!
-!                               SNH2012.14      
-!                 Non-Hydrostatic & Non-Boussinesq Kernel Version  
-! Laboratoire d Aerologie, 14 Avenue Edouard Belin, F-31400 Toulouse
-! http://poc.obs-mip.fr/auclair/WOcean.fr/SNH/index_snh_home.htm  
-!
-!__________________________________________________________________________
 
-!!! manque modules + codes en dur a plusieurs endroits
-!!! g de global a transformer en e pour tableau ijk2lqg_nh
+!******************************************************************************************
+!                   Numbering of Mass Points
+!
+!******************************************************************************************
 
-!CXA MODULES TO ADD 
-!CXA      use module_principal
-!CXA      use module_parallele !#MPI
       use module_nh
       implicit none
 # include "param_F90.h"
-# include "grid_F90.h"
-!CXA MODULES TO ADD 
+# include "scalars_F90.h"
+# include "grid.h"
 
       integer                                                         &
          i,j,k,kmax,                                                  &
@@ -44,24 +36,10 @@
 #define LOCALMM Mm
 #endif    
 
-
-
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!
-!  ATTENTION:
-!
-!     la numerotation doit etre coherente avec celle de l equations
-!     de continuite et de ses conditionx aux limites:
-!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!CXA PAS UTILISE - OPTIMISATION EN COURS
 !******************************************************************************************
 ! Nombre de colonnes max par lignes des matrices MOM et CONT
 !******************************************************************************************
-!     nmlmat_nh = 0
-!C     if ((iglb.le.3.and.(.not.iperiodicboundary)).or.(jglb.le.3.and.(.not.jperiodicboundary))) then
+
 #ifdef MASKING
        if (LOCALLM.eq.1 .or. LOCALMM.eq.1) then
            nmlmom_nh  = 6 
@@ -73,43 +51,44 @@
 #ifdef MASKING
        endif
 #endif
-!C     endif
-!     write(6,*) par%rank,nmlmom_nh,nmlcont_nh
 
-!CXA PAS UTILISE - OPTIMISATION EN COURS
-
- 
+! 
 !******************************************************************************************
-! numerotation de l interieure du domaine
+!     MPI domain 
 !******************************************************************************************
-!CXA serial
-#ifdef TOTO
+!
       nzq_nh   = 0
 
+!
+! SNBQ Version:
+!
 !!! on étend le domaine au maximum en prenant tous les points dispos
-      i1_n = 2
-      if (par%tvoisin(ouest).eq.mpi_proc_null) i1_n = 1
-      i2_n = imax - 1
-      if (par%tvoisin(est).eq.mpi_proc_null) i2_n = imax
-      j1_n = 2
-      if (par%tvoisin(sud).eq.mpi_proc_null) j1_n = 1
-      j2_n = jmax - 1
-      if (par%tvoisin(nord).eq.mpi_proc_null) j2_n = jmax
-#else
-      kmax=N  !CXA
-      i1_n=1
-      i2_n=LOCALLM
-      j1_n=1
-      j2_n=LOCALMM
-#endif
+!      i1_n = 2
+!      if (par%tvoisin(ouest).eq.mpi_proc_null) i1_n = 1
+!      i2_n = imax - 1
+!      if (par%tvoisin(est).eq.mpi_proc_null) i2_n = imax
+!      j1_n = 2
+!      if (par%tvoisin(sud).eq.mpi_proc_null) j1_n = 1
+!      j2_n = jmax - 1
+!      if (par%tvoisin(nord).eq.mpi_proc_null) j2_n = jmax
+!
 
-!.....numerotation: 
+      kmax = N
+      i1_n = 0
+      i2_n = LOCALLM + 1
+      j1_n = 0
+      j2_n = LOCALMM + 1
+ 
+!******************************************************************************************
+! Inner MPI domain:
 ! cf: http://poc.obs-mip.fr/auclair/WOcean.fr/SNH/Restricted/NH-NBQ/Html_pages/Algebrique_Numerotation_Base.htm
-      do k=1,kmax 
+!******************************************************************************************
+
+      do k = 1    , kmax 
       do i = i1_n , i2_n
-      do j = j1_n , j2_n
-!      do k=1,kmax                                   ! autre numerotation possible (inversion des boucles)
-!CXA         if (mask_t(i,j,k).ne.0) then
+      do j = j1_n , j2_n   
+                
+!CXA      if (mask_t(i,j,k).ne.0) then
 #ifdef MASKING
           if (rmask(i,j).ne.0) then
 #endif
@@ -122,26 +101,25 @@
 #ifdef MASKING
           endif
 #endif
-      enddo
-      enddo
-      enddo
-  
-!---->equation du mouvement suivant x:
 
-!******************************************************************************************
-!.....mise a jour du nombre total de points du domaine local:
-!******************************************************************************************
+      enddo
+      enddo
+      enddo
+
 
       neqcont_nh(0) = nzq_nh
+  
 
-#ifdef TOTO
+#ifdef SNBQ 
+!******************************************************************************************
+! Extended MPIdomain (not yet implemented!)
+!******************************************************************************************
 
+      
 !.....nombre de points interieurs  !!!XA pour hips ou autre solveur:
 !combien de points sur chaque domaine a broadcaster
 
       neqint_nh(par%rank) = neqcont_nh(0)
-
-
 
       call mpi_allgather(  ijk2lq_nh                                  &
                            ,(imax+2)*(jmax+2)*(kmax+3)                &  ! nombre d'elements (envoi)
@@ -154,10 +132,8 @@
                            ,ierr                                      &
                           )
 
-
-
 !******************************************************************************************
-!.....numerotation locale etendue
+!.....numerotation locale etendue (not yet implemented!)
 !******************************************************************************************
 
 !-----> calcul de l'offset du domaine local:
@@ -227,8 +203,6 @@
          enddo
         enddo
       endif
-
-       
       
 !.....calcul de l'offset pour le domaine se trouvant a l'est:
       if (par%tvoisin(est).ne.mpi_proc_null) then 

@@ -165,6 +165,12 @@
       enddo
 
 # ifdef NBQ
+
+#ifdef NBQ_DRHODT
+      zr_half_nbq(:,:,:,0) =  zr_half_nbq(:,:,:,1)
+      zr_half_nbq(:,:,:,1) =  zr_half_nbq(:,:,:,2)
+#endif
+
       do k=1,N
         do j=JstrV-1,Jend
           do i=IstrU-1,Iend
@@ -236,36 +242,73 @@
       call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                        Hzr_half_nbq(START_2D_ARRAY,1))
 #  endif
-      do j=Jstr-1,Jend+1
-        do i=Istr-1,Iend+1
+!
+!  Set extended range
+!
+#  ifdef EW_PERIODIC
+      imin=Istr-2
+      imax=Iend+2
+#  else
+      if (WESTERN_EDGE) then
+        imin=Istr-1
+      else
+        imin=Istr-2
+      endif
+      if (EASTERN_EDGE) then
+        imax=Iend+1
+      else
+        imax=Iend+2
+      endif
+#  endif
+#  ifdef NS_PERIODIC
+      jmin=Jstr-2
+      jmax=Jend+2
+#  else
+      if (SOUTHERN_EDGE) then
+        jmin=Jstr-1
+      else
+        jmin=Jstr-2
+      endif
+      if (NORTHERN_EDGE) then
+        jmax=Jend+1
+      else
+        jmax=Jend+2
+      endif
+#  endif
+!
+!  Compute other vertical grid variables at n+1/2
+!
+      do j=jmin,jmax
+        do i=imin,imax
            zw_half_nbq(i,j,0)=-h(i,j)
-           zr_half_nbq(i,j,1)=zw_half_nbq(i,j,0)+0.5*Hzr_half_nbq(i,j,1)
+           zr_half_nbq(i,j,1,2)=zw_half_nbq(i,j,0)
+     &                          +0.5*Hzr_half_nbq(i,j,1)
         enddo
       enddo
       do k=1,N
-        do j=Jstr-1,Jend+1
-          do i=Istr-1,Iend+1
+        do j=jmin,jmax
+          do i=imin,imax
             zw_half_nbq(i,j,k)=zw_half_nbq(i,j,k-1)+Hzr_half_nbq(i,j,k)
           enddo
         enddo
       enddo
       do k=2,N
-        do j=Jstr-1,Jend+1
-          do i=Istr-1,Iend+1
-            zr_half_nbq(i,j,k)=zr_half_nbq(i,j,k-1)
+        do j=jmin,jmax
+          do i=imin,imax
+            zr_half_nbq(i,j,k,2)=zr_half_nbq(i,j,k-1,2)
      &                  +0.5*(Hzr_half_nbq(i,j,k)+Hzr_half_nbq(i,j,k-1))
           enddo
         enddo
       enddo
       do k=1,N-1
-        do j=JstrV-1,Jend
-          do i=IstrU-1,Iend
+        do j=jmin,jmax
+          do i=imin,imax
             Hzw_half_nbq(i,j,k)=z_r(i,j,k+1)-z_r(i,j,k)
         enddo
       enddo
       enddo
-      do j=Jstr-1,Jend+1
-        do i=Istr-1,Iend+1
+      do j=jmin,jmax
+        do i=imin,imax
           Hzr_half_nbq(i,j,0  )=0.
           Hzr_half_nbq(i,j,N+1)=0.
           Hzw_half_nbq(i,j,0  )=z_r(i,j,1)-z_w(i,j,0)

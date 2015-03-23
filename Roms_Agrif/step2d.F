@@ -130,11 +130,9 @@ C$    trd=omp_get_thread_num()
 #endif
 #include "grid.h"
 #include "ocean2d.h"
-!#ifdef SOLVE3D
-# include "coupling.h"
-!#else
-# include "forces.h"
-!#endif
+#include "ocean3d.h"
+#include "coupling.h"
+#include "forces.h"
 #ifdef MRL_WCI
       real vstu,ustv,dudx,dvdx,dude,dvde
 #endif
@@ -155,8 +153,6 @@ C$    trd=omp_get_thread_num()
 #ifdef NBQ
 # include "nbq.h"
       integer k
-      real Hz_half(GLOBAL_2D_ARRAY,N)
-      common /grid_Hz_half/Hz_half
 #endif
 !
 #ifdef MASKING
@@ -247,12 +243,10 @@ C$    trd=omp_get_thread_num()
 !
       do j=jmin,jmax
         do i=imin,imax
-#ifdef NBQ
           Drhs(i,j)=cff1*zeta(i,j,kstp)+cff2*zeta(i,j,kbak)
-     &                                        +cff3*zeta(i,j,kold)
-#else
-          Drhs(i,j)=h(i,j)+cff1*zeta(i,j,kstp)+cff2*zeta(i,j,kbak)
-     &                                        +cff3*zeta(i,j,kold)
+     &                                 +cff3*zeta(i,j,kold)
+#ifndef NBQ
+     &                                             + h(i,j)
 #endif
         enddo
       enddo
@@ -436,6 +430,12 @@ C$OMP END MASTER
 # endif
         enddo
       enddo
+
+#ifdef TANK
+!.....Outputs: SSA for TANK
+      call output_nbq(40)
+#endif
+
 #else
       do j=JstrV-1,Jend
         do i=IstrU-1,Iend
@@ -454,6 +454,7 @@ C$OMP END MASTER
         enddo
       enddo
 #endif /* NBQ */
+
 !
 !-----------------------------------------------------------------------
 ! Load new free-surface values into shared array
@@ -599,11 +600,7 @@ C$OMP END MASTER
 ! (61% of peak speed) on R10000 vs. 16+16 cycles of separate loop
 ! version for the case when both CPP switches below are defined.
 !
-#ifdef NBQ
-      cff=0.5*g*rho0
-#else
-      cff=0.5*g
-#endif
+      cff=0.5*g RHO0
       do j=Jstr,Jend
         do i=Istr,Iend
           rubar(i,j)=cff*on_u(i,j)*( (h(i-1,j)+h(i,j))*(rzeta(i-1,j)
@@ -1305,11 +1302,7 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
         enddo
 # endif /* NBQ */
 
-# ifdef NBQ
-        cff=0.5*g*rho0
-# else
-        cff=0.5*g
-# endif
+        cff=0.5*g RHO0
         do j=Jstr,Jend
           do i=Istr,Iend
             rubar(i,j)=rubar(i,j) +cff*on_u(i,j)*( (h(i-1,j)+h(i,j))
@@ -1996,10 +1989,15 @@ C$OMP END MASTER
 !
       VMAXL=100.
       VMAX=0.
-      do j=JstrV,Jend
+      do j=Jstr,Jend
         do i=Istr,Iend
-          IF(ABS(vbar(i,j,knew)).GE.VMAX) THEN
-            VMAX=ABS(vbar(i,j,knew))
+          cff=max(ABS(ubar(i,j,knew)),ABS(vbar(i,j,knew)))
+          IF (cff.GE.VMAX .or. cff.ne.cff) THEN
+            IF (cff.GE.VMAX) THEN 
+              VMAX=cff
+            ELSE
+              VMAX=666.
+            ENDIF
 #ifdef MPI
             imax=i+iminmpi-1
             jmax=j+jminmpi-1
@@ -2010,26 +2008,49 @@ C$OMP END MASTER
           ENDIF
         enddo
       enddo
-      IF(VMAX.GT.VMAXL) THEN
-         write(stdout,'(A)') '                                         '
-         write(stdout,'(A)') '                                         '
-         write(stdout,'(A)') ' ======================================= '
-         write(stdout,'(A)') ' =                                     = '
-         write(stdout,'(A)') ' =   STEP2D:   ABNORMAL JOB END        = '
-         write(stdout,'(A)') ' =                 BLOW UP             = '
-         write(stdout,'(A)') ' =                                     = '
-         write(stdout,'(A)') ' ======================================= '
-         write(stdout,'(A)') '                                         '
-         write(stdout,'(A,F8.2)') '  VMAX (M/S) =',VMAX
-         write(stdout,'(A,2I6)')  '  IMAX JMAX  =',imax,jmax
+      IF (VMAX.GT.VMAXL .or. VMAX.NE.VMAX) THEN
+        MPI_master_only write(stdout,'(9(A/))')
+     &     '                                         ',
+     &     '                                         ',
+     &     ' ======================================= ',
+     &     ' =                                     = ',
+     &     ' =   STEP2D:   ABNORMAL JOB END        = ',
+     &     ' =                 BLOW UP             = ',
+     &     ' =                                     = ',
+     &     ' ======================================= ',
+     &     '                                         '
+        MPI_master_only write(stdout,'(A,F10.2)') '  VMAX (M/S) =',VMAX
+        MPI_master_only write(stdout,'(A,2I6)')  
+     &                                       '  IMAX JMAX  =',imax,jmax
 #ifdef SOLVE3D
-        WRITE(stdout,'(A,2I6)')   '  IINT IEXT  =',iic,iif
+        MPI_master_only WRITE(stdout,'(A,2I6)')
+     &                                         '  IINT IEXT  =',iic,iif
 #else
-        WRITE(stdout,'(A,I6)')    '  IIC        =',iic
+        MPI_master_only WRITE(stdout,'(A,I6)')     '  IIC        =',iic
 #endif
         may_day_flag=1
         stop                            !-->  EXIT
       ENDIF
-        
+
+!       ! Fin CN
+!       if (iic.eq.10) then
+!#ifdef MPI       
+!       call MPI_Finalize (i)
+!       if (mynode.eq.0) write(6,*) 'fin step2d'
+!#else
+!       write(6,*) 'fin step2d'
+!#endif       
+!       stop 
+!       endif
+
+#ifdef DEBUG_NBQ
+        if (iic.eq.10) then
+         call MPI_Finalize (i)
+         if (mynode.eq.0) write(6,*) 'Stop in step2d: debug NBQ'
+         stop
+        endif
+#endif
+
+  
       return
       end

@@ -62,9 +62,9 @@ C$    integer omp_get_thread_num
 # else
 #  define J_RANGE JstrR,JendR
 # endif
-      if (iic.eq.0) then               ! During initialization and /or restart: copy initial
-        do j=J_RANGE                   ! free surface field into array for holding fast-time
-          do i=I_RANGE                 ! averaged free surface.
+      if (iic.eq.0) then  ! During initialization and /or restart: copy initial
+        do j=J_RANGE      ! free surface field into array for holding fast-time
+          do i=I_RANGE    ! averaged free surface.
 # ifdef WET_DRY
             IF (h(i,j).eq.0.) THEN
               h(i,j)=eps
@@ -84,11 +84,10 @@ C$    integer omp_get_thread_num
 #  endif
             Zt_avg1(i,j)=zeta(i,j,1)    
 #  ifdef NBQ
-            !  Set Zt_avg1 before call to ana_initial (zeta=0)
-            if (zeta(i,j,1).eq.0.) then
-              Zt_avg1(i,j)=h(i,j)*rho0
+            if (zeta(i,j,1).eq.0.) then     ! Set Zt_avg1 and rhobar_nbq_avg1
+              Zt_avg1(i,j) = h(i,j) RHO0    ! before call to ana_initial (zeta=0)
             endif
-            rhobar_nbq_avg1(i,j)=rho0
+            rhobar_nbq_avg1(i,j) = 1. RHO0
 #  endif
 # endif /* SOLVE3D */
           enddo

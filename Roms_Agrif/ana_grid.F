@@ -97,6 +97,10 @@ C$    integer omp_get_thread_num
 #  endif
                      f0=0.
                      beta=0.
+# elif defined ACOUSTIC
+                     depth=128.
+                     f0=0.
+                     beta=0.
 # elif defined INNERSHELF
                      depth=0.
                      f0=4*pi/86400*sin(-21*pi/180)
@@ -180,6 +184,9 @@ C$    integer omp_get_thread_num
                      Length_XI =64.0E+3
                      Length_ETA=2.0E+3
 #  endif
+# elif defined ACOUSTIC
+                     Length_XI =128.0
+                     Length_ETA=2.0
 # elif defined INNERSHELF
                      Length_XI =200.0e+3
                      Length_ETA=3.0e+3
@@ -223,7 +230,7 @@ C$    integer omp_get_thread_num
                      Length_ETA=199.e+3 
 # elif defined TANK
                      Length_XI =10.0
-                     Length_ETA=1.0 !0.20
+                     Length_ETA=0.20
 # else
                      Length_XI =???
                      Length_ETA=??? 
@@ -305,7 +312,8 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
 !  Set bathymetry [meters; positive] at RHO-points.
 !
 # if defined BASIN || defined EQUATOR || defined GRAV_ADJ \
-                   || defined SOLITON || defined JET
+                   || defined SOLITON || defined JET \
+                   || defined ACOUSTIC
       do j=JstrR,JendR
         do i=IstrR,IendR
           h(i,j)=depth
@@ -554,7 +562,7 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
             rmask(3,j)=1.                      ! <-- channel
         endif
       enddo
-#  elif defined TANK || defined GRAV_ADJ
+#  elif defined TANK || defined GRAV_ADJ || defined ACOUSTIC
       do j=JstrR,JendR
         do i=IstrR,IendR
           rmask(i,j)=1.

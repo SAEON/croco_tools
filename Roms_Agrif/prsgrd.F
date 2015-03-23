@@ -453,7 +453,7 @@ c********************************************************************
 !  Original coefficient by Tony was 0.25
 !
 !#define WJ_GRADP 0.125
-#undef WJ_GRADP
+!#undef WJ_GRADP
 !
 ! Compute XI-component of pressure gradient term:
 !----------------------------------------------------------------
@@ -467,7 +467,6 @@ c********************************************************************
       do j=Jstr,Jend
         cff=0.5D0*g/rho0
 c*      cff1=(1000.D0-rho0)*g/rho0
-
         cff1= 1000.D0      *g/rho0
 
         do i=IstrU,Iend
@@ -551,7 +550,6 @@ c*      cff1=(1000.D0-rho0)*g/rho0
 !
           cff=0.5D0*g/rho0
 c*        cff1=g*(1000.D0-rho0)/rho0
-
           cff1= 1000.D0      *g/rho0
 
           do i=Istr,Iend

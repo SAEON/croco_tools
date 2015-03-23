@@ -89,7 +89,7 @@ C$    integer omp_get_thread_num
    || defined SEAMOUNT  || defined SHELFRONT  || defined UPWELLING \
    || defined RIVER     || defined INTERNAL   || defined REGIONAL  \
    || defined JET       || defined INNERSHELF || defined SHOREFACE \
-   || defined RIP
+   || defined RIP       || defined ACOUSTIC
 #  if defined RIP_TOPO_2D
       if (nrrec.eq.0) then
 #  endif
@@ -215,7 +215,7 @@ C$    integer omp_get_thread_num
 #ifdef NBQ
       do j=JR_RANGE
         do i=IR_RANGE
-          zeta(i,j,1)=rho0*(h(i,j)+zeta(i,j,1))
+          zeta(i,j,1)=(h(i,j)+zeta(i,j,1)) RHO0
           zeta(i,j,2)=zeta(i,j,1)
         enddo
       enddo
@@ -231,7 +231,7 @@ C$    integer omp_get_thread_num
    || defined SEAMOUNT  || defined SHELFRONT  || defined UPWELLING \
    || defined RIVER     || defined INTERNAL   || defined REGIONAL  \
    || defined JET       || defined INNERSHELF || defined SHOREFACE \
-   || defined RIP
+   || defined RIP       || defined ACOUSTIC
 #  ifdef RIP_TOPO_2D
       if (nrrec.eq.0) then
 #   endif
@@ -443,6 +443,15 @@ C$    integer omp_get_thread_num
         enddo
       enddo
 #   endif /* GRAV_ADJ_SOLITON */
+#  elif defined ACOUSTIC
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          do k=1,N
+             t(i,j,k,1,itemp)=5/Tcoef
+             t(i,j,k,2,itemp)=5/Tcoef
+          enddo
+        enddo
+      enddo
 #  elif defined INNERSHELF
       do k=1,N
         do j=JR_RANGE

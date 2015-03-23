@@ -20,8 +20,8 @@
       common /nbq_rvbar/ rvbar_nbq
 
       real rho_nbq_ext(GLOBAL_2D_ARRAY,N)
-      real rho_nbq_avg1(GLOBAL_2D_ARRAY,N)
-      real rho_nbq_avg2(GLOBAL_2D_ARRAY,N)
+      real rho_nbq_avg1(GLOBAL_2D_ARRAY,0:N)
+      real rho_nbq_avg2(GLOBAL_2D_ARRAY,0:N)
       common /nbq_rho_ext/ rho_nbq_ext
       common /avg1_rhonbq/ rho_nbq_avg1
       common /avg2_rhonbq/ rho_nbq_avg2
@@ -71,7 +71,7 @@
       real Hzw_half_nbq(GLOBAL_2D_ARRAY,0:N)
       common /grid_Hzw_half_nbq/ Hzw_half_nbq
 
-      real zr_half_nbq(GLOBAL_2D_ARRAY,N)
+      real zr_half_nbq(GLOBAL_2D_ARRAY,N,0:2)
       common /grid_zr_half_nbq/ zr_half_nbq
       real zw_half_nbq(GLOBAL_2D_ARRAY,0:N)
       common /grid_zw_half_nbq/ zw_half_nbq

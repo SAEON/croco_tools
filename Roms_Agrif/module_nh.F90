@@ -98,6 +98,16 @@
          dkpred_nh
 
 !**********************************************************************
+!.....Variables Real
+!**********************************************************************
+      real ::      &
+       period_exp  &
+      ,for_a_exp   &
+      ,dg_exp      &
+      ,hmax_exp    &
+      ,amp_exp
+
+!**********************************************************************
 !.....Tableaux "integer"
 !**********************************************************************
       integer, dimension(:), allocatable     ::                           &
@@ -275,8 +285,10 @@
 !CXA         integer,intent(in) :: imax,jmax,kmax,nbdom_world
          integer :: imax,jmax,kmax,nbdom_world
 #ifdef MPI
-#define LOCALLM Lmmpi
-#define LOCALMM Mmmpi
+!#define LOCALLM Lmmpi
+!#define LOCALMM Mmmpi
+#define LOCALLM Lm
+#define LOCALMM Mm
 #else
 #define LOCALLM Lm
 #define LOCALMM Mm

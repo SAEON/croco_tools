@@ -140,7 +140,7 @@ CR      write(*,*) 'wrt_his:  time  ' MYID
 !     
       if (wrthis(indxZ)) then
 #ifdef NBQ     
-         work2d=zeta(:,:,fast_indx_out)/rho0 - h(:,:)
+         work2d=zeta(:,:,fast_indx_out)/rhobar_nbq(:,:) - h(:,:)
 #else
          work2d=zeta(:,:,fast_indx_out)
 #endif

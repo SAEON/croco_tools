@@ -75,11 +75,12 @@
 # define M2FILTER_NONE
 # undef  M2FILTER_POWER
 # undef  VAR_RHO_2D
-# define NBQ_REINIT
+# undef  NBQ_REINIT
 # undef  TRACETXT
 # undef  CHECK_CROCO
 # define HZR Hzr
-# define RHO0 *rho0
+/* # define RHO0 *rho0 */
+# define RHO0
 #else
 # define HZR Hz
 # define RHO0
@@ -87,13 +88,22 @@
 
 /*
    Activate choice of Pressure Gradient formulation
-    (default is the Density Jacobian formulation with Cubic 
-     Polynomial fit from Shchepetkin et al. (2003). But
-     a standard Jacobian formulation can also be used 
-     (PGF_BASIC_JACOBIAN), especially for flat or smooth 
-     topography)
+   (default is the Density Jacobian formulation with Cubic 
+   Polynomial fit from Shchepetkin et al. (2003). But:
+   1- a cheaper standard Jacobian formulation can also be used 
+   (PGF_BASIC_JACOBIAN), especially for flat or smooth 
+   topography). 
+   2- The Weighted Jacobian formulation of Song & Haidvogel (1994)
+   can also be used by defining the WJ_GRADP key, which then serves 
+   as the weight value. 
 */
-#undef  PGF_BASIC_JACOBIAN
+#if defined BASIN || defined EQUATOR  || defined GRAV_ADJ \
+                  || defined SOLITON  || defined JET \
+                  || defined ACOUSTIC || defined VORTEX
+# define PGF_BASIC_JACOBIAN
+/*# define WJ_GRADP 0.125 */
+# undef WJ_GRADP
+#endif
 
 /*
     Select MOMENTUM LATERAL advection-diffusion scheme:
@@ -111,8 +121,8 @@
 #endif
 
 /*
-    if defined apply MOMENTUM LATERAL diffusion in the interior 
-    over an anomaly only with respect to a reference frame (climatology)
+    if defined apply interior MOMENTUM LATERAL diffusion
+    over an anomaly with respect to a reference frame (climatology)
 */
 #ifdef M3CLIMATOLOGY
 # undef CLIMAT_UV_MIXH
@@ -134,10 +144,10 @@
 /* #undef  TS_HADV_UP3    3rd-order upstream lateral advection */
                      
 #ifdef TS_HADV_C4      /* 4th-order centered advection        */
-# define TS_DIF2       /*   + Laplacian Diffusion             */
-# undef  TS_DIF4       /*                                     */
-# define TS_DIF_SMAGO  /*   + Smagorinsky diffusivity         */
-# define TS_MIX_ISO    /*   + Isopycnal rotation              */ 
+# define TS_DIF2      /*   + Laplacian Diffusion             */
+# undef  TS_DIF4      /*                                     */
+# define TS_DIF_SMAGO /*   + Smagorinsky diffusivity         */
+# define TS_MIX_ISO   /*   + Isopycnal rotation              */ 
 #endif 
 #ifdef TS_HADV_RSUP3   /*  Rotated-Split 3rd-order scheme is:  */
 # define TS_HADV_C4    /*    4th-order centered advection      */
