@@ -31,8 +31,8 @@
 #undef  RIP             /* Rip Current Test Case */
 #undef  SHOREFACE       /* Shoreface Test Case on a Planar Beach */
 #undef  THACKER         /* Thacker wetting-drying Example */
-#define TANK            /* Tank Example */
-#undef REGIONAL        /* REGIONAL Applications */
+#undef  TANK            /* Tank Example */
+#define REGIONAL        /* REGIONAL Applications */
 
 
 #if defined REGIONAL
@@ -384,7 +384,7 @@
 */
 # undef  OPENMP
 # undef  MPI
-# define GRAV_ADJ_SOLITON
+# undef  GRAV_ADJ_SOLITON
 # define NBQ
 # define SOLVE3D
 # define NEW_S_COORD
@@ -909,7 +909,6 @@
 */
 # undef  OPENMP
 # undef  MPI
-
 # define NBQ
 # define SOLVE3D
 # undef  UV_ADV
