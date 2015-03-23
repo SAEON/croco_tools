@@ -384,7 +384,7 @@
 */
 # undef  OPENMP
 # undef  MPI
-# define GRAV_ADJ_SOLITON
+# undef  GRAV_ADJ_SOLITON
 # define NBQ
 # define SOLVE3D
 # define NEW_S_COORD
