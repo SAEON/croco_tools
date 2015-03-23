@@ -33,11 +33,11 @@
 
       implicit none
 
-#     include "param_F90.h"
-#     include "scalars_F90.h"
-#     include "ocean3d_F90.h"
-#     include "grid.h"
-#     include "nbq.h"
+# include "param_F90.h"
+# include "scalars_F90.h"
+# include "ocean3d.h"
+# include "grid.h"
+# include "nbq.h"
 
       real :: dum_s
 

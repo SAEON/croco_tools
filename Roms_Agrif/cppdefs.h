@@ -909,7 +909,6 @@
 */
 # undef  OPENMP
 # undef  MPI
-
 # define NBQ
 # define SOLVE3D
 # undef  UV_ADV

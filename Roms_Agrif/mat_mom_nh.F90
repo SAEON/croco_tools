@@ -21,7 +21,7 @@
       implicit none
 # include "param_F90.h"
 # include "scalars_F90.h"
-# include "grid_F90.h"
+# include "grid.h"
 # include "ocean3d.h"
 # include "nbq.h"
 
