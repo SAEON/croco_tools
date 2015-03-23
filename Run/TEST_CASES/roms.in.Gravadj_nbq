@@ -2,10 +2,10 @@ title:
 	Gravitational Adjustment Example
 
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
-                1000      0.02      60      1
+                1000      0.02     60      10 
 
 time_stepping_nbq: NDTNBQ    CSOUND_NBQ    VISC2_NBQ
-                     20        100          0.1
+                    8          40           0.1
 
 S-coord: THETA_S,   THETA_B,    Hc (m)
          0.0d0      0.0d0       1.d16

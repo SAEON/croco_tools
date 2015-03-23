@@ -35,7 +35,7 @@ close all
 %
 % --- model params ---
 %
-nbq       = 0;              % 0:hydro   1: non-hydro solutions
+nbq       = 1;              % 0:hydro   1: non-hydro solutions
 fname     = 'tank_his.nc';  % roms file name
 g         = 9.81;           % gravity acceleration (m^2/s)
 yindex    = 2;              % y index
@@ -85,8 +85,6 @@ theta_s=nc.theta_s(:);
 theta_b=nc.theta_b(:); 
 hc=nc.hc(:); 
 
-%Lt=Lt-dx;
-
 %============================================================
 %              --- plot time series ---
 % zeta: upper right
@@ -105,16 +103,11 @@ zeta01= 100*squeeze(nc{'zeta'}(1:tindex,yindex,L-1));
 u01   = 100*squeeze(nc{'u'}(1:tindex,end,yindex,L/2));
 w01   = 100*squeeze(nc{'w'}(1:tindex,kk,yindex,L-1)); % z=-4.95m
 o01   = 100*squeeze(nc{'omega'}(1:tindex,kk,yindex,L-1));
-if nbq,
-  zeta01=zeta01/rho0-100*D0;
-end
+
 % set vertical grid
 zr0=zeros(tend,N,L);
 for i=1:tend
  zeta0 = mask.*squeeze(nc{'zeta'}(i,yindex,:));
- if nbq,
-   zeta0 = mask.*(zeta0/rho0-D0);
- end
  zr0(i,:,:)= squeeze(zlevs(hr,zeta0,theta_s,theta_b,hc,N,'r',2));
  zw0(i,:,:)= squeeze(zlevs(hr,zeta0,theta_s,theta_b,hc,N,'w',2));
 end
@@ -155,7 +148,11 @@ t_per=t0/T_lw;
 figure('pos',[100 500 600 600])
 subplot(3,1,1)
 plot(t_per,zeta03,'k',t_per,zeta02,'k--',t_per,zeta01,'r')
-legend('Analytical hydro','Analytical N-hydro','Numerical hydro')
+if nbq,
+ legend('Analytical hydro','Analytical N-hydro','Numerical N-hydro')
+else
+ legend('Analytical hydro','Analytical N-hydro','Numerical hydro')
+end
 %axis([0 5 -11 11])
 xlabel('time (periods)')
 ylabel('zeta (cm)')

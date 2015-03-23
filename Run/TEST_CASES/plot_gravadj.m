@@ -32,17 +32,27 @@ close all
 %
 fname     = 'gravadj_his.nc';
 
-nbq       = 1;           % 0:hydro   1: non-hydro case
-tindex    = [1;5;11];    % tindex size gives subplot number
-plot_psi  = 0;           % plot streamfunction
-makepdf   = 0;           % make pdf file
+nbq       = 1;             % 0/1: hydro / non-hydro case
+soliton   = 0;             % 0/1: lock-exchange / soliton
+
+plot_psi  = 0;             % plot streamfunction
+makepdf   = 1;             % make pdf file
 %
 %======================================================================
 
 hFig = figure;
-set(hFig, 'Position', [200 500 700 200*length(tindex)])
-colormap('lines')
-%AdvancedColormap('swr',20)
+
+if soliton
+ tindex    = [1;40;51];      % size gives subplot number
+ AdvancedColormap('swr',20)
+else
+ tindex    = [1;4;11];
+ colormap('lines')
+end
+
+nplot=length(tindex);
+set(hFig, 'Position', [200 500 700 200*nplot])
+
 
 for it=1:length(tindex); % --------------- time loop
 
@@ -79,7 +89,7 @@ for i=2:M;
   psi(:,i)=psi(:,i-1)-w(:,i).*(xr(:,i)-xr(:,i-1));
 end
 
-%t(t==0)=NaN;
+t(t==0)=NaN;
 
 % -------------------------------------
 %  --- Plot ---
@@ -111,9 +121,9 @@ end
 end % ----------------------- time loop
 
 if makepdf
-% export_fig -transparent -pdf gravadj.pdf
- print -dpdf gravadj.pdf
- eval('!pdfcrop gravadj.pdf gravadj.pdf')
+ export_fig -transparent -pdf gravadj.pdf
+% print -dpdf gravadj.pdf
+% eval('!pdfcrop gravadj.pdf gravadj.pdf')
 end
 
 
