@@ -1991,9 +1991,11 @@ C$OMP END MASTER
       VMAX=0.
       do j=Jstr,Jend
         do i=Istr,Iend
-          cff=max(ABS(ubar(i,j,knew)),ABS(vbar(i,j,knew)))
-          IF (cff.GE.VMAX .or. cff.ne.cff) THEN
-            IF (cff.GE.VMAX) THEN 
+          cff1=ubar(i,j,knew)
+          cff2=vbar(i,j,knew)
+          cff=max(abs(cff1),abs(cff2))
+          IF (cff.GE.VMAX .or. cff1.ne.cff1 .or. cff2.ne.cff2) THEN
+            IF (cff.GE.VMAX .and. cff1.eq.cff1 .and. cff2.eq.cff2) THEN 
               VMAX=cff
             ELSE
               VMAX=666.
@@ -2008,7 +2010,7 @@ C$OMP END MASTER
           ENDIF
         enddo
       enddo
-      IF (VMAX.GT.VMAXL .or. VMAX.NE.VMAX) THEN
+      IF (VMAX.GT.VMAXL) THEN
         MPI_master_only write(stdout,'(9(A/))')
      &     '                                         ',
      &     '                                         ',
@@ -2019,14 +2021,20 @@ C$OMP END MASTER
      &     ' =                                     = ',
      &     ' ======================================= ',
      &     '                                         '
-        MPI_master_only write(stdout,'(A,F10.2)') '  VMAX (M/S) =',VMAX
+        if (VMAX.eq.666.) then
+          MPI_master_only write(stdout,'(A,F10.2)')
+     &                                            '  VMAX (M/S) =   NaN'
+        else
+          MPI_master_only write(stdout,'(A,F10.2)') 
+     &                                            '  VMAX (M/S) =',VMAX
+        endif
         MPI_master_only write(stdout,'(A,2I6)')  
      &                                       '  IMAX JMAX  =',imax,jmax
 #ifdef SOLVE3D
-        MPI_master_only WRITE(stdout,'(A,2I6)')
+        MPI_master_only WRITE(stdout,'(A,2I6/)')
      &                                         '  IINT IEXT  =',iic,iif
 #else
-        MPI_master_only WRITE(stdout,'(A,I6)')     '  IIC        =',iic
+        MPI_master_only WRITE(stdout,'(A,I6/)')    '  IIC        =',iic
 #endif
         may_day_flag=1
         stop                            !-->  EXIT
