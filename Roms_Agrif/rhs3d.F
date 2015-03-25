@@ -112,13 +112,13 @@
         do j=Jstr,Jend
           do i=IstrU,Iend
             ru(i,j,k)=ru(i,j,k)+Uwrk(i,j)*(Hz(i,j,k)+
-     &                                     Hz(i-1,j,k)) RHO0
+     &                                     Hz(i-1,j,k))
           enddo
         enddo
         do j=JstrV,Jend
           do i=Istr,Iend
             rv(i,j,k)=rv(i,j,k)+Vwrk(i,j)*(Hz(i,j,k)+
-     &                                     Hz(i,j-1,k)) RHO0
+     &                                     Hz(i,j-1,k))
           enddo
         enddo
       enddo          !--> discard Uwrk,Vwrk
@@ -984,10 +984,10 @@ ccc            dvde =0.5*( v(i,j-1,k,nrhs) -v(i,j+1,k,nrhs) )
         do i=IstrU,Iend
           rufrc(i,j)=ru(i,j,1)
 # ifndef BODYFORCE
-     &        +(sustr(i,j)-bustr(i,j))*om_u(i,j)*on_u(i,j) RHO0
+     &        +(sustr(i,j)-bustr(i,j))*om_u(i,j)*on_u(i,j)
 # endif
 #  if defined MRL_WCI && defined WAVE_SFC_BREAK
-     &                    +brk2dx(i,j)*om_u(i,j)*on_u(i,j) RHO0
+     &                    +brk2dx(i,j)*om_u(i,j)*on_u(i,j)
 #  endif
         enddo
         do k=2,N
@@ -999,10 +999,10 @@ ccc            dvde =0.5*( v(i,j-1,k,nrhs) -v(i,j+1,k,nrhs) )
           do i=Istr,Iend
             rvfrc(i,j)=rv(i,j,1)
 # ifndef BODYFORCE
-     &       +(svstr(i,j)-bvstr(i,j))*om_v(i,j)*on_v(i,j) RHO0
+     &       +(svstr(i,j)-bvstr(i,j))*om_v(i,j)*on_v(i,j)
 # endif
 # if defined MRL_WCI && defined WAVE_SFC_BREAK
-     &                   +brk2de(i,j)*om_v(i,j)*on_v(i,j) RHO0
+     &                   +brk2de(i,j)*om_v(i,j)*on_v(i,j)
 # endif
           enddo
           do k=2,N

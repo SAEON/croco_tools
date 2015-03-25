@@ -1048,8 +1048,8 @@ C$    integer omp_get_thread_num
 # ifdef NBQ
       do j=JstrR,JendR
         do i=IstrR,IendR
-          rhobar_nbq(i,j)=1. RHO0
-          rhobar_nbq_avg1(i,j)=1. RHO0
+          rhobar_nbq(i,j)=1.
+          rhobar_nbq_avg1(i,j)=1.
           rubar_nbq(i,j)=init
           rvbar_nbq(i,j)=init
         enddo
@@ -1057,9 +1057,9 @@ C$    integer omp_get_thread_num
       do k=1,N
         do j=JstrR,JendR
           do i=IstrR,IendR
-            rho_nbq_ext(i,j,k)=1. RHO0
-            rho_nbq_avg1(i,j,k)=1. RHO0
-            rho_nbq_avg2(i,j,k)=1. RHO0
+            rho_nbq_ext(i,j,k)=1.
+            rho_nbq_avg1(i,j,k)=1.
+            rho_nbq_avg2(i,j,k)=1.
             ruext_nbq(i,j,k)=init
             rvext_nbq(i,j,k)=init
             ru_nbq_ext(i,j,k)=init

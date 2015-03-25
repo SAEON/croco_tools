@@ -79,11 +79,8 @@
 # undef  TRACETXT
 # undef  CHECK_CROCO
 # define HZR Hzr
-/* # define RHO0 *rho0 */
-# define RHO0
 #else
 # define HZR Hz
-# define RHO0
 #endif
 
 /*
@@ -101,8 +98,10 @@
                   || defined SOLITON  || defined JET \
                   || defined ACOUSTIC || defined VORTEX
 # define PGF_BASIC_JACOBIAN
-/*# define WJ_GRADP 0.125 */
 # undef WJ_GRADP
+#elif defined RIP
+# define PGF_BASIC_JACOBIAN
+# define WJ_GRADP 0.125
 #endif
 
 /*

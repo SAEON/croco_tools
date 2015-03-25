@@ -85,9 +85,9 @@ C$    integer omp_get_thread_num
             Zt_avg1(i,j)=zeta(i,j,1)    
 #  ifdef NBQ
             if (zeta(i,j,1).eq.0.) then     ! Set Zt_avg1 and rhobar_nbq_avg1
-              Zt_avg1(i,j) = h(i,j) RHO0    ! before call to ana_initial (zeta=0)
+              Zt_avg1(i,j) = h(i,j)         ! before call to ana_initial (zeta=0)
             endif
-            rhobar_nbq_avg1(i,j) = 1. RHO0
+            rhobar_nbq_avg1(i,j) = 1.
 #  endif
 # endif /* SOLVE3D */
           enddo

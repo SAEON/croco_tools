@@ -34,8 +34,7 @@
 
       integer i,j,k, indm_r
       integer :: ichoix
-
-!      real sum_nbq(GLOBAL_2D_ARRAY,2)
+      real    cff
 
       if (ichoix.eq.0) then
 !
@@ -52,8 +51,7 @@
            j=l2jmom_nh(l_nbq)
            k=l2kmom_nh(l_nbq)
 #  ifdef NBQ_REINIT
-             qdm_nbq_a(l_nbq,0)=u(i,j,k,nnew)   & ! WARNING: u(nnew) <-- Hz*u(nstp)
-                              *rho0/(1. RHO0)    
+             qdm_nbq_a(l_nbq,0)=rho0*u(i,j,k,nnew)   ! WARNING: u(nnew) <-- Hz*u(nstp)
              qdm_nbq_a(l_nbq,1)=qdm_nbq_a(l_nbq,0)
 #  else
              qdm_nbq_a(l_nbq,:)=qdm_nbq_a_bak(l_nbq,:)
@@ -64,8 +62,7 @@
            j=l2jmom_nh(l_nbq)
            k=l2kmom_nh(l_nbq)
 #  ifdef NBQ_REINIT
-             qdm_nbq_a(l_nbq,0)=v(i,j,k,nnew)   & ! WARNING: v(nnew) <-- Hz*v(nstp)
-                              *rho0/(1. RHO0)
+             qdm_nbq_a(l_nbq,0)=rho0*v(i,j,k,nnew)   ! WARNING: v(nnew) <-- Hz*v(nstp)
              qdm_nbq_a(l_nbq,1)=qdm_nbq_a(l_nbq,0)
 #  else
              qdm_nbq_a(l_nbq,:)=qdm_nbq_a_bak(l_nbq,:)
@@ -76,8 +73,7 @@
            j=l2jmom_nh(l_nbq)
            k=l2kmom_nh(l_nbq)
 #  ifdef NBQ_REINIT
-             qdm_nbq_a(l_nbq,0)=wz(i,j,k,nnew)  & ! WARNING: wz(nnew) <-- Hz*wz(nstp)
-                               *rho0/(1. RHO0)
+             qdm_nbq_a(l_nbq,0)=rho0*wz(i,j,k,nnew)  ! WARNING: wz(nnew) <-- Hz*wz(nstp)
              qdm_nbq_a(l_nbq,1)=qdm_nbq_a(l_nbq,0)
 
 #  else
@@ -97,24 +93,23 @@
            i=l2imom_nh(l_nbq)
            j=l2jmom_nh(l_nbq)
            k=l2kmom_nh(l_nbq)
-           dqdmdt_nbq_a(l_nbq)=(ruint_nbq(i,j,k)+ruext_nbq(i,j,k))  &
-                                                   *rho0/(1. RHO0)
+           dqdmdt_nbq_a(l_nbq)=rho0*(ruint_nbq(i,j,k)                  &
+                                    +ruext_nbq(i,j,k))
        enddo
 
        do l_nbq=neqmom_nh(1)+1,neqmom_nh(1)+neqmom_nh(2)
            i=l2imom_nh(l_nbq)
            j=l2jmom_nh(l_nbq)
            k=l2kmom_nh(l_nbq)
-           dqdmdt_nbq_a(l_nbq)=(rvint_nbq(i,j,k)+rvext_nbq(i,j,k))  &
-                                                   *rho0/(1. RHO0)
+           dqdmdt_nbq_a(l_nbq)=rho0*(rvint_nbq(i,j,k)+                 &
+                                     rvext_nbq(i,j,k))
        enddo
 
        do l_nbq=neqmom_nh(1)+neqmom_nh(2)+1,neqmom_nh(1)+neqmom_nh(2)+neqmom_nh(3)
            i=l2imom_nh(l_nbq)
            j=l2jmom_nh(l_nbq)
            k=l2kmom_nh(l_nbq)
-           dqdmdt_nbq_a(l_nbq)=rwint_nbq(i,j,k) *rho0/(1. RHO0)
-
+           dqdmdt_nbq_a(l_nbq)=rho0*rwint_nbq(i,j,k)
        enddo
 
       elseif (ichoix.eq.2) then
@@ -123,35 +118,34 @@
 !  Prepare feedback of NBQ rhs terms to external equations
 !*******************************************************************
 !
+        cff=1/(rho0*real(ndtnbq))
+!
         rubar_nbq(:,:)=0.
         do l_nbq=1,neqmom_nh(1)
             i=l2imom_nh(l_nbq)
             j=l2jmom_nh(l_nbq)
             k=l2kmom_nh(l_nbq)
 
-            ru_nbq_ext(i,j,k) = rhssum_nbq_a(l_nbq,2)        &
-                                  / real(ndtnbq)             &
-                                  * on_u(i,j)*om_u(i,j) RHO0/rho0
+            ru_nbq_ext(i,j,k) = cff*rhssum_nbq_a(l_nbq,2)        &
+                                   *on_u(i,j)*om_u(i,j)
  
             rhssum_nbq_a(l_nbq,2) = 0.
 
-            rubar_nbq(i,j)        = rubar_nbq(i,j)+ru_nbq_ext(i,j,k)
+            rubar_nbq(i,j) = rubar_nbq(i,j)+ru_nbq_ext(i,j,k)
         enddo
         
-
         rvbar_nbq(:,:)=0.
         do l_nbq=neqmom_nh(1)+1,neqmom_nh(1)+neqmom_nh(2)
             i=l2imom_nh(l_nbq)
             j=l2jmom_nh(l_nbq)
             k=l2kmom_nh(l_nbq)
 
-            rv_nbq_ext(i,j,k) = rhssum_nbq_a(l_nbq,2)        &
-                                  / real(ndtnbq)             &
-                                  * on_v(i,j)*om_v(i,j) RHO0/rho0
+            rv_nbq_ext(i,j,k) = cff*rhssum_nbq_a(l_nbq,2)        &
+                                   *on_v(i,j)*om_v(i,j)
 
             rhssum_nbq_a(l_nbq,2) = 0.
 
-            rvbar_nbq(i,j)        = rvbar_nbq(i,j)+rv_nbq_ext(i,j,k)
+            rvbar_nbq(i,j) = rvbar_nbq(i,j)+rv_nbq_ext(i,j,k)
         enddo
 
         do l_nbq=neqmom_nh(1)+neqmom_nh(2)+1,neqmom_nh(1)+neqmom_nh(2)+neqmom_nh(3)
@@ -159,9 +153,8 @@
             j = l2jmom_nh (l_nbq)
             k = l2kmom_nh (l_nbq)
 
-            rw_nbq_ext(i,j,k) = rhssum_nbq_a(l_nbq,2)        &
-                                  / real(ndtnbq)             &
-                                  * on_r(i,j)*om_r(i,j) RHO0/rho0
+            rw_nbq_ext(i,j,k) = cff*rhssum_nbq_a(l_nbq,2)        &
+                                   *on_r(i,j)*om_r(i,j)
 
             rhssum_nbq_a(l_nbq,2) = 0.
         enddo

@@ -131,8 +131,8 @@
 !
 # ifndef BODYFORCE
         do i=IstrU,Iend
-          DC(i,N)=DC(i,N)+dt*sustr(i,j) RHO0
-          DC(i,1)=DC(i,1)-dt*bustr(i,j) RHO0
+          DC(i,N)=DC(i,N)+dt*sustr(i,j)
+          DC(i,1)=DC(i,1)-dt*bustr(i,j)
         enddo
 # endif
 

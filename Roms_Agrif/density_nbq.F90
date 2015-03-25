@@ -69,8 +69,7 @@
           j     = l2jq_nh (l_nbq)
           k     = l2kq_nh (l_nbq)
 #  ifdef NBQ_REINIT
-          rhp_nbq_a(l_nbq,0)=rho_nbq_avg1(i,j,k) *rho0/(1. RHO0)       &
-                                                           -rho0
+          rhp_nbq_a(l_nbq,0)=rho0*(rho_nbq_avg1(i,j,k) - 1.)
           rhp_nbq_a(l_nbq,1)=rhp_nbq_a(l_nbq,0)
 #  else
           rhp_nbq_a(l_nbq,:)=rhp_nbq_a_bak(l_nbq,:)
@@ -101,12 +100,11 @@
 !
 !.......Rho0 added subsequently for added precision 
 !
-        rho_nbq_ext(:,:,:)  = (rho_nbq_ext(:,:,:) + rho0) RHO0 / rho0
+        rho_nbq_ext(:,:,:) = (rho_nbq_ext(:,:,:) + rho0) / rho0
 
         do j=0,LOCALMM+1
         do i=0,LOCALLM+1
-           rhobar_nbq(i,j)=(rhobar_nbq(i,j)/work2d(i,j) + rho0)       &
-                                                    RHO0 / rho0
+           rhobar_nbq(i,j) = (rhobar_nbq(i,j)/work2d(i,j) + rho0) / rho0
         enddo
         enddo
    

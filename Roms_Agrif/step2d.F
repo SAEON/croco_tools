@@ -600,7 +600,7 @@ C$OMP END MASTER
 ! (61% of peak speed) on R10000 vs. 16+16 cycles of separate loop
 ! version for the case when both CPP switches below are defined.
 !
-      cff=0.5*g RHO0
+      cff=0.5*g
       do j=Jstr,Jend
         do i=Istr,Iend
           rubar(i,j)=cff*on_u(i,j)*( (h(i-1,j)+h(i,j))*(rzeta(i-1,j)
@@ -1079,13 +1079,13 @@ C$OMP END MASTER
         do j=Jstr,Jend
           do i=IstrU,Iend
             rubar(i,j)=rubar(i,j) - bustr(i,j)
-     &                             *om_u(i,j)*on_u(i,j) RHO0
+     &                             *om_u(i,j)*on_u(i,j)
           enddo
         enddo
         do j=JstrV,Jend
           do i=Istr,Iend
             rvbar(i,j)=rvbar(i,j) - bvstr(i,j)
-     &                             *om_v(i,j)*on_v(i,j) RHO0
+     &                             *om_v(i,j)*on_v(i,j)
           enddo
         enddo
 # else
@@ -1097,7 +1097,7 @@ C$OMP END MASTER
  
             rubar(i,j)=rubar(i,j) - ubar(i,j,kstp)*( rdrg+rdrg2
      &              *sqrt(ubar(i,j,kstp)*ubar(i,j,kstp)+cff*cff)
-     &                               )*om_u(i,j)*on_u(i,j) RHO0
+     &                               )*om_u(i,j)*on_u(i,j)
           enddo
         enddo
         do j=JstrV,Jend
@@ -1107,20 +1107,20 @@ C$OMP END MASTER
  
             rvbar(i,j)=rvbar(i,j) - vbar(i,j,kstp)*( rdrg+rdrg2
      &              *sqrt(cff*cff+vbar(i,j,kstp)*vbar(i,j,kstp))
-     &                               )*om_v(i,j)*on_v(i,j) RHO0
+     &                               )*om_v(i,j)*on_v(i,j)
           enddo
         enddo
       else if (rdrg.gt.0.0) then
         do j=Jstr,Jend
           do i=IstrU,Iend
             rubar(i,j)=rubar(i,j) - rdrg*ubar(i,j,kstp)
-     &                             *om_u(i,j)*on_u(i,j) RHO0
+     &                             *om_u(i,j)*on_u(i,j)
           enddo
         enddo
         do j=JstrV,Jend
           do i=Istr,Iend
             rvbar(i,j)=rvbar(i,j) - rdrg*vbar(i,j,kstp)
-     &                             *om_v(i,j)*on_v(i,j) RHO0
+     &                             *om_v(i,j)*on_v(i,j)
           enddo
         enddo
       endif
@@ -1302,7 +1302,7 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
         enddo
 # endif /* NBQ */
 
-        cff=0.5*g RHO0
+        cff=0.5*g
         do j=Jstr,Jend
           do i=Istr,Iend
             rubar(i,j)=rubar(i,j) +cff*on_u(i,j)*( (h(i-1,j)+h(i,j))
@@ -1514,7 +1514,7 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 #ifdef SOLVE3D
       cff1=0.5*weight(1,iif)
 #else
-      cff2=2.*dtfast RHO0
+      cff2=2.*dtfast
 #endif
       do j=Jstr,Jend
         do i=IstrU,Iend

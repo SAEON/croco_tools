@@ -267,7 +267,7 @@ c********************************************************************
 
         do j=Jstr,Jend
           do i=IstrU,Iend
-            ru(i,j,k)=0.5*(HZR(i,j,k)+HZR(i-1,j,k)) RHO0
+            ru(i,j,k)=0.5*(HZR(i,j,k)+HZR(i-1,j,k))
      &                                                    *on_u(i,j)*(
      &                                             P(i-1,j,k)-P(i,j,k)
      &                           -HalfGRho*( (rho(i,j,k)+rho(i-1,j,k))
@@ -368,7 +368,7 @@ c********************************************************************
 
         do j=JstrV,Jend
           do i=Istr,Iend
-            rv(i,j,k)=0.5*(HZR(i,j,k)+HZR(i,j-1,k)) RHO0
+            rv(i,j,k)=0.5*(HZR(i,j,k)+HZR(i,j-1,k))
      &                                                   *om_v(i,j)*(
 # ifdef INNERSHELF_APG
      &             on_v(i,j)*f(i,j)*UG +    ! specified alongshore PG
@@ -478,7 +478,7 @@ c*      cff1=(1000.D0-rho0)*g/rho0
      &                              *(z_w(i,j,N)-z_w(i-1,j,N))
 #endif
           ru(i,j,N)=-0.5*(HZR(i,j,N)+HZR(i-1,j,N))
-     &                                 *on_u(i,j)*pgrd(i) RHO0
+     &                                 *on_u(i,j)*pgrd(i)
 
 # ifdef DIAGNOSTICS_UV
           if (nnew.ne.3) then
@@ -531,7 +531,7 @@ c*      cff1=(1000.D0-rho0)*g/rho0
      &                                                      )
 
             ru(i,j,k)=-0.5*(HZR(i,j,k)+HZR(i-1,j,k))
-     &                                *on_u(i,j)*pgrd(i) RHO0
+     &                                *on_u(i,j)*pgrd(i)
 
 # ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
@@ -563,7 +563,7 @@ c*        cff1=g*(1000.D0-rho0)/rho0
 #endif
 
             rv(i,j,N)=-0.5D0*(HZR(i,j,N)+HZR(i,j-1,N))
-     &                                   *om_v(i,j)*pgrd(i) RHO0
+     &                                   *om_v(i,j)*pgrd(i)
 
 #  ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
@@ -610,7 +610,7 @@ c*        cff1=g*(1000.D0-rho0)/rho0
      &                                                       )
 
               rv(i,j,k)=-0.5*(HZR(i,j,k)+HZR(i,j-1,k))
-     &                                 *om_v(i,j)*pgrd(i) RHO0
+     &                                 *om_v(i,j)*pgrd(i)
 
 #  ifdef DIAGNOSTICS_UV
               if (nnew.ne.3) then
