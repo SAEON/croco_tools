@@ -1,8 +1,5 @@
-
 #include "cppdefs.h"
-
-
-#ifdef MPI
+#if defined NBQ && defined MPI
 
 module module_parallel_nbq
 !------------------------------------------------------------------------------
@@ -790,9 +787,9 @@ subroutine create_echange_rhs2_nh(imax,jmax,kmax)
 end subroutine create_echange_rhs2_nh
 !--------------------------------------------------------------------------
 
+end module module_parallel_nbq
 
-end module module_parallel_nbq
 #else
-module module_parallel_nbq
-end module module_parallel_nbq
+ module module_parallel_nbq
+ end module module_parallel_nbq
 #endif

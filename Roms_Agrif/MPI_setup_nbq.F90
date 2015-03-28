@@ -1,7 +1,5 @@
-
 #include "cppdefs.h"
-
-#ifdef MPI
+# if defined NBQ && defined MPI
 
  subroutine MPI_nbq_Setup(imax,jmax,kmax)
 !------------------------------------------------------------------------------
@@ -30,6 +28,7 @@
   call create_echange_div_nbq_a(imax,jmax,kmax)
   !call create_echange_rhs2_nh(imax,jmax,kmax) !No longer used
  end subroutine MPI_nbq_Setup
+
 #else
  subroutine MPI_nbq_Setup(imax,jmax,kmax)
   use module_parallel_nbq
