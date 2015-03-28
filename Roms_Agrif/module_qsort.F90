@@ -1,3 +1,5 @@
+#include "cppdefs.h"
+#ifdef NBQ
 !------------------------------------------------------------------------------
 !                               NHOMS
 !                Non Hydrostatic Ocean Modeling System      
@@ -290,3 +292,8 @@ subroutine getblocks(nb,tabin,nbblock,blockdeb,blocklength)
 end subroutine getblocks
 
 end module module_qsort
+
+#else
+      module module_qsort_empty
+      end module
+#endif      
