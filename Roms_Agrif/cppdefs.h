@@ -225,7 +225,7 @@
    for passive/biology/sediment tracers 
 */
 # if defined PASSIVE_TRACER || defined BIOLOGY || defined SEDIMENT
-#  undef BIO_HADV_WENO5
+#  define BIO_HADV_WENO5
 # endif
                       /*   Choice of Biology models   */
 # ifdef BIOLOGY

@@ -1803,6 +1803,7 @@ C$    integer  trd, omp_get_thread_num
       implicit none          
       integer Istr,Iend,Jstr,Jend, i,j,k, itrc
 # include "param.h"
+# include "scalars.h"
 # include "boundary.h"
 !
 # include "compute_auxiliary_bounds.h"
@@ -1820,7 +1821,7 @@ C$    integer  trd, omp_get_thread_num
           vbarbry_west(j)=0.
         enddo
 #  endif
-#  ifdef SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
+#  if defined SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
         do k=1,N
           do j=JstrR,JendR
 #   ifdef M3_FRC_BRY
@@ -1851,7 +1852,7 @@ C$    integer  trd, omp_get_thread_num
           vbarbry_east(j)=0.
         enddo
 #  endif
-#  ifdef SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
+#  if defined SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
         do k=1,N
           do j=JstrR,JendR
 #   ifdef M3_FRC_BRY
@@ -1882,7 +1883,7 @@ C$    integer  trd, omp_get_thread_num
           vbarbry_south(i)=0.
         enddo
 #  endif
-#  ifdef SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
+#  if defined SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
         do k=1,N
           do i=IstrR,IendR
 #   ifdef M3_FRC_BRY
@@ -1913,7 +1914,7 @@ C$    integer  trd, omp_get_thread_num
           vbarbry_north(i)=0.
         enddo
 #  endif
-#  ifdef SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
+#  if defined SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
         do k=1,N
           do i=IstrR,IendR
 #   ifdef M3_FRC_BRY

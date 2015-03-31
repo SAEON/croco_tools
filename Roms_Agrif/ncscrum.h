@@ -691,12 +691,11 @@
      &      , diabioVSink(NumVSinkTerms)
      &      , diabioGasExc(NumGasExcTerms)
 # endif
-#endif
-#ifdef MRL_WCI
+#elif defined DIAGNOSTICS_UV && defined MRL_WCI
      &      , diaMvf(2), diaMbrk(2), diaMStCo(2)
      &      , diaMVvf(2), diaMPrscrt(2), diaMsbk(2)
      &      , diaMbwf(2), diaMfrc(2)
-#endif
+#endif /* SOLVE3D */
 #ifdef AVERAGES
       integer ncidavg, nrecavg,  nrpfavg
      &      , avgTime, avgTime2, avgTstep, avgZ, avgUb,  avgVb

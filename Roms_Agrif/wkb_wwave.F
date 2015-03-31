@@ -179,7 +179,7 @@
         call MPI_Bcast(ho, 1, MPI_DOUBLE_PRECISION,
      &                     0, MPI_COMM_WORLD, ierr)
 #   endif
-#  elif WKB_OBC_EAST
+#  elif defined WKB_OBC_EAST
         ho=h(LLm,1)+zeta(LLm,1,knew) !+wkb_tide       ! offshore depth
 #   ifdef MPI
         call MPI_Bcast(ho, 1, MPI_DOUBLE_PRECISION,
