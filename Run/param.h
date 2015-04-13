@@ -37,7 +37,9 @@
 #elif defined GRAV_ADJ
 # ifdef NBQ
 #  ifdef GRAV_ADJ_SOLITON
-      parameter (LLm0=100,  MMm0=1,    N=60)   !   3 cm resolution
+!     parameter (LLm0=100,  MMm0=1,    N=60)   !   3 cm resolution
+#  elif GRAV_ADJ_ACOUSTIC
+      parameter (LLm0=64,   MMm0=1,    N=64)   !   2  m resolution
 #  else
 !     parameter (LLm0=600,  MMm0=1,    N=60)   !   5 mm resolution
       parameter (LLm0=300,  MMm0=1,    N=30)   !  10 mm resolution
@@ -420,24 +422,24 @@
      &          , iN2O
 #    endif 
      &          , NFlux_lightlimitP1, NFlux_lightlimitP2
-     &          , NFlux_templimitP1, NFlux_templimitP2     
-     &          , NFlux_NO3limitP1, NFlux_NO2limitP1			
-     &          , NFlux_NH4limitP1, NFlux_NO3limitP2			
-     &          , NFlux_NO2limitP2, NFlux_NH4limitP2		
-     &          , NFlux_ProdNO3P1, NFlux_ProdNO3P2			
-     &          , NFlux_ProdNO2P1, NFlux_ProdNO2P2			
-     &          , NFlux_Nitrif1, NFlux_Nitrif2, NFlux_ProdNH4P1				
-     &          , NFlux_ProdNH4P2, NFlux_P1Z1Grazing			
-     &          , NFlux_P2Z1Grazing, NFlux_P1mort, NFlux_P2mort				
-     &          , NFlux_P1Z2Grazing, NFlux_P2Z2Grazing			
-     &          , NFlux_Z1Z2Grazing, NFlux_Z1metab, NFlux_Z1mort				
-     &          , NFlux_Z2metab, NFlux_Z2mort, NFlux_HydrolD1 			
-     &          , NFlux_ReminOxyD1, NFlux_Denitr1D1   			
-     &          , NFlux_Denitr2D1			
-     &          , NFlux_HydrolD2, NFlux_ReminOxyD2 			
-     &          , NFlux_Denitr1D2, NFlux_Denitr2D2 			
-     &          , NFlux_ReminOxyDON 			
-     &          , NFlux_Denitr1DON, NFlux_Denitr2DON 			
+     &          , NFlux_templimitP1, NFlux_templimitP2
+     &          , NFlux_NO3limitP1, NFlux_NO2limitP1
+     &          , NFlux_NH4limitP1, NFlux_NO3limitP2
+     &          , NFlux_NO2limitP2, NFlux_NH4limitP2
+     &          , NFlux_ProdNO3P1, NFlux_ProdNO3P2
+     &          , NFlux_ProdNO2P1, NFlux_ProdNO2P2
+     &          , NFlux_Nitrif1, NFlux_Nitrif2, NFlux_ProdNH4P1
+     &          , NFlux_ProdNH4P2, NFlux_P1Z1Grazing
+     &          , NFlux_P2Z1Grazing, NFlux_P1mort, NFlux_P2mort
+     &          , NFlux_P1Z2Grazing, NFlux_P2Z2Grazing
+     &          , NFlux_Z1Z2Grazing, NFlux_Z1metab, NFlux_Z1mort
+     &          , NFlux_Z2metab, NFlux_Z2mort, NFlux_HydrolD1
+     &          , NFlux_ReminOxyD1, NFlux_Denitr1D1
+     &          , NFlux_Denitr2D1
+     &          , NFlux_HydrolD2, NFlux_ReminOxyD2
+     &          , NFlux_Denitr1D2, NFlux_Denitr2D2
+     &          , NFlux_ReminOxyDON
+     &          , NFlux_Denitr1DON, NFlux_Denitr2DON
      &          , NFlux_NO2anammox
      &          , NFlux_NH4anammox, O2Flux_GasExc, NumFluxTermsN
 #    ifdef NITROUS_OXIDE
@@ -604,56 +606,56 @@
   
       parameter(  NFlux_lightlimitP1=1
      &          , NFlux_lightlimitP2=2
-     &          , NFlux_templimitP1=3   
-     &          , NFlux_templimitP2=4       
-     &          , NFlux_NO3limitP1=5		
-     &          , NFlux_NO2limitP1=6			
-     &          , NFlux_NH4limitP1=7			
-     &          , NFlux_NO3limitP2=8			
-     &          , NFlux_NO2limitP2=9			
+     &          , NFlux_templimitP1=3
+     &          , NFlux_templimitP2=4
+     &          , NFlux_NO3limitP1=5
+     &          , NFlux_NO2limitP1=6
+     &          , NFlux_NH4limitP1=7
+     &          , NFlux_NO3limitP2=8
+     &          , NFlux_NO2limitP2=9
      &          , NFlux_NH4limitP2=10
-     &          , NFlux_ProdNO3P1=11			
-     &          , NFlux_ProdNO3P2=12			
-     &          , NFlux_ProdNO2P1=13		
-     &          , NFlux_ProdNO2P2=14			
-     &          , NFlux_Nitrif1=15			
-     &          , NFlux_Nitrif2=16				
-     &          , NFlux_ProdNH4P1=17				
-     &          , NFlux_ProdNH4P2=18				
-     &          , NFlux_P1Z1Grazing=19			
-     &          , NFlux_P2Z1Grazing=20			
-     &          , NFlux_P1mort=21				
-     &          , NFlux_P2mort=22				
-     &          , NFlux_P1Z2Grazing=23		
-     &          , NFlux_P2Z2Grazing=24			
-     &          , NFlux_Z1Z2Grazing=25			
-     &          , NFlux_Z1metab=26				
-     &          , NFlux_Z1mort=27				
-     &          , NFlux_Z2metab=28				
-     &          , NFlux_Z2mort=29			
-     &          , NFlux_HydrolD1=30 			
+     &          , NFlux_ProdNO3P1=11
+     &          , NFlux_ProdNO3P2=12
+     &          , NFlux_ProdNO2P1=13
+     &          , NFlux_ProdNO2P2=14
+     &          , NFlux_Nitrif1=15
+     &          , NFlux_Nitrif2=16
+     &          , NFlux_ProdNH4P1=17
+     &          , NFlux_ProdNH4P2=18
+     &          , NFlux_P1Z1Grazing=19
+     &          , NFlux_P2Z1Grazing=20
+     &          , NFlux_P1mort=21
+     &          , NFlux_P2mort=22
+     &          , NFlux_P1Z2Grazing=23
+     &          , NFlux_P2Z2Grazing=24
+     &          , NFlux_Z1Z2Grazing=25
+     &          , NFlux_Z1metab=26
+     &          , NFlux_Z1mort=27
+     &          , NFlux_Z2metab=28
+     &          , NFlux_Z2mort=29
+     &          , NFlux_HydrolD1=30
      &          , NFlux_ReminOxyD1=31 			
-     &          , NFlux_Denitr1D1=32 			
-     &          , NFlux_Denitr2D1=33 			
-     &          , NFlux_HydrolD2=34 				
-     &          , NFlux_ReminOxyD2=35 			
-     &          , NFlux_Denitr1D2=36  				
-     &          , NFlux_Denitr2D2=37			
-     &          , NFlux_ReminOxyDON=38			
-     &          , NFlux_Denitr1DON=39   			
-     &          , NFlux_Denitr2DON=40			
+     &          , NFlux_Denitr1D1=32
+     &          , NFlux_Denitr2D1=33
+     &          , NFlux_HydrolD2=34
+     &          , NFlux_ReminOxyD2=35
+     &          , NFlux_Denitr1D2=36
+     &          , NFlux_Denitr2D2=37
+     &          , NFlux_ReminOxyDON=38
+     &          , NFlux_Denitr1DON=39
+     &          , NFlux_Denitr2DON=40
      &          , NFlux_NO2anammox=41
-     &          , NFlux_NH4anammox=42     
+     &          , NFlux_NH4anammox=42
 #   ifdef NITROUS_OXIDE     
-     &          , NFlux_paramN2O=43     
+     &          , NFlux_paramN2O=43
      &          , NumFluxTermsN=NFlux_paramN2O
 #   else 
      &          , NumFluxTermsN=NFlux_NH4anammox
 #   endif      
      &          , NumFluxTerms=NumFluxTermsN
      &          , O2Flux_GasExc=1
-#   ifdef NITROUS_OXIDE			
-     &          , N2OFlux_GasExc=2     			
+#   ifdef NITROUS_OXIDE
+     &          , N2OFlux_GasExc=2
      &          , NumGasExcTerms=2
 #   else
      &          , NumGasExcTerms=1
