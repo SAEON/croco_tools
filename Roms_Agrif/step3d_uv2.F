@@ -322,46 +322,44 @@
 ! There after the unit of diag terms are :
 ! (unit of velocity) * s-1  =  m * s-2
 !
-            cff=0.5*(pm(i,j)+pm(i-1,j))
-     &             *(pn(i,j)+pn(i-1,j))
-     &             /(Hz(i,j,k)+Hz(i-1,j,k))
-            MXadv(i,j,k,1)=MXadv(i,j,k,1)*cff
-            MYadv(i,j,k,1)=MYadv(i,j,k,1)*cff
-            MVadv(i,j,k,1)=MVadv(i,j,k,1)*cff
-            MCor(i,j,k,1)=MCor(i,j,k,1)*cff
-            MPrsgrd(i,j,k,1)=MPrsgrd(i,j,k,1)*cff
-            MVmix(i,j,k,1)=MVmix(i,j,k,1)*cff
-            Mrate(i,j,k,1)=Mrate(i,j,k,1)*cff
+            cff=2.*pm_u(i,j)*pn_u(i,j)/(Hz(i,j,k)+Hz(i-1,j,k))
+            MXadv(i,j,k,1)   = MXadv(i,j,k,1)*cff
+            MYadv(i,j,k,1)   = MYadv(i,j,k,1)*cff
+            MVadv(i,j,k,1)   = MVadv(i,j,k,1)*cff
+            MCor(i,j,k,1)    = MCor(i,j,k,1)*cff
+            MPrsgrd(i,j,k,1) = MPrsgrd(i,j,k,1)*cff
+            MHmix(i,j,k,1)   = MHmix(i,j,k,1)*cff
+            MVmix(i,j,k,1)   = MVmix(i,j,k,1)*cff
+            Mrate(i,j,k,1)   = Mrate(i,j,k,1)*cff
 #  ifdef MRL_WCI
-            Mvf(i,j,k,1)=Mvf(i,j,k,1)*cff
-            Mbrk(i,j,k,1)=Mbrk(i,j,k,1)*cff
-            MStCo(i,j,k,1)=MStCo(i,j,k,1)*cff
-            MVvf(i,j,k,1)=MVvf(i,j,k,1)*cff
-            MPrscrt(i,j,k,1)=MPrscrt(i,j,k,1)*cff
-            Msbk(i,j,k,1)=Msbk(i,j,k,1)*cff
-            Mbwf(i,j,k,1)=Mbwf(i,j,k,1)*cff
-            Mfrc(i,j,k,1)=Mfrc(i,j,k,1)*cff
+            Mvf(i,j,k,1)     = Mvf(i,j,k,1)*cff
+            Mbrk(i,j,k,1)    = Mbrk(i,j,k,1)*cff
+            MStCo(i,j,k,1)   = MStCo(i,j,k,1)*cff
+            MVvf(i,j,k,1)    = MVvf(i,j,k,1)*cff
+            MPrscrt(i,j,k,1) = MPrscrt(i,j,k,1)*cff
+            Msbk(i,j,k,1)    = Msbk(i,j,k,1)*cff
+            Mbwf(i,j,k,1)    = Mbwf(i,j,k,1)*cff
+            Mfrc(i,j,k,1)    = Mfrc(i,j,k,1)*cff
 #  endif
 !
-            cff=0.5*(pm(i,j)+pm(i,j-1))
-     &             *(pn(i,j)+pn(i,j-1))
-     &             /(Hz(i,j,k)+Hz(i,j-1,k))
-            MXadv(i,j,k,2)=MXadv(i,j,k,2)*cff
-            MYadv(i,j,k,2)=MYadv(i,j,k,2)*cff
-            MVadv(i,j,k,2)=MVadv(i,j,k,2)*cff
-            MCor(i,j,k,2)=MCor(i,j,k,2)*cff
-            MPrsgrd(i,j,k,2)=MPrsgrd(i,j,k,2)*cff
-            MVmix(i,j,k,2)=MVmix(i,j,k,2)*cff
-            Mrate(i,j,k,2)=Mrate(i,j,k,2)*cff
+            cff=2.*pm_v(i,j)*pn_v(i,j)/(Hz(i,j,k)+Hz(i,j-1,k))
+            MXadv(i,j,k,2)   = MXadv(i,j,k,2)*cff
+            MYadv(i,j,k,2)   = MYadv(i,j,k,2)*cff
+            MVadv(i,j,k,2)   = MVadv(i,j,k,2)*cff
+            MCor(i,j,k,2)    = MCor(i,j,k,2)*cff
+            MPrsgrd(i,j,k,2) = MPrsgrd(i,j,k,2)*cff
+            MHmix(i,j,k,2)   = MHmix(i,j,k,2)*cff
+            MVmix(i,j,k,2)   = MVmix(i,j,k,2)*cff
+            Mrate(i,j,k,2)   = Mrate(i,j,k,2)*cff
 #  ifdef MRL_WCI
-            Mvf(i,j,k,2)=Mvf(i,j,k,2)*cff
-            Mbrk(i,j,k,2)=Mbrk(i,j,k,2)*cff
-            MStCo(i,j,k,2)=MStCo(i,j,k,2)*cff
-            MVvf(i,j,k,2)=MVvf(i,j,k,2)*cff
-            MPrscrt(i,j,k,2)=MPrscrt(i,j,k,2)*cff
-            Msbk(i,j,k,2)=Msbk(i,j,k,2)*cff
-            Mbwf(i,j,k,2)=Mbwf(i,j,k,2)*cff
-            Mfrc(i,j,k,2)=Mfrc(i,j,k,2)*cff
+            Mvf(i,j,k,2)     = Mvf(i,j,k,2)*cff
+            Mbrk(i,j,k,2)    = Mbrk(i,j,k,2)*cff
+            MStCo(i,j,k,2)   = MStCo(i,j,k,2)*cff
+            MVvf(i,j,k,2)    = MVvf(i,j,k,2)*cff
+            MPrscrt(i,j,k,2) = MPrscrt(i,j,k,2)*cff
+            Msbk(i,j,k,2)    = Msbk(i,j,k,2)*cff
+            Mbwf(i,j,k,2)    = Mbwf(i,j,k,2)*cff
+            Mfrc(i,j,k,2)    = Mfrc(i,j,k,2)*cff
 #  endif
           enddo
         enddo
@@ -725,41 +723,10 @@
       enddo
 # endif
 
-#undef DEBUG
-#ifdef DEBUG
-      print *,'STEP3D_UV2: ',u(22,1,49,nnew),v(22,1,49,nnew),wz(22,1,49,nnew)
-      do k=1,N
-        do j=JU_RANGE
-          do i=IU_RANGE
-            if (abs(u(i,j,k,nnew)).gt.1) 
-     &        print *,' U TEST ',i,j,k,u(i,j,k,nnew)
-          enddo
-        enddo
-      enddo
-      do k=1,N
-        do j=JV_RANGE
-          do i=IV_RANGE
-            if (abs(v(i,j,k,nnew)).gt.1) 
-     &        print *,' V TEST ',i,j,k,v(i,j,k,nnew)
-          enddo
-        enddo
-      enddo
-      do k=0,N
-        do j=Jstr,Jend
-          do i=Istr,Iend
-            if (abs(wz(i,j,k,nnew)).gt.1) 
-     &         print *,' W TEST ',i,j,k,wz(i,j,k,nnew)
-          enddo
-        enddo
-      enddo
-#endif
-
 # undef IU_RANGE
 # undef JU_RANGE
 # undef IV_RANGE
 # undef JV_RANGE
-
-
 !
 !--------------------------------------------------------------------
 ! Exchange periodic boundaries and computational margins.

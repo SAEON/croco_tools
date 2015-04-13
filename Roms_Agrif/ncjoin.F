@@ -407,7 +407,10 @@ c**               write(*,'(2I3,1x,A)') code_size, k, ncname0(1:lstr)
         j=lenstr(sffx_bak)
         ncname0=root_bak(1:i)/ /sffx_bak(1:j)
         lstr=lenstr(ncname0)
-        ierr=nf_create ( ncname0(1:lstr), nf_clobber, ncid0)
+!       to enable ncjoin with large netcdf files : 
+!       use nf_64bit_offset instead of the original nf_clobber
+!       ierr=nf_create ( ncname0(1:lstr), nf_clobber, ncid0)
+        ierr=nf_create ( ncname0(1:lstr), nf_64bit_offset, ncid0)
         if (ierr .eq. nf_noerr) then
           write(stdout,'(8x,3A)')  'Created netCDF file ''',
      &                                ncname0(1:lstr), '''.'

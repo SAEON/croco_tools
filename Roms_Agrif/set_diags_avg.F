@@ -14,8 +14,6 @@
 
       subroutine set_diags_avg(tile)
 
-!      USE param
-
       implicit none
       integer tile
 # include "param.h"
@@ -33,8 +31,8 @@
 ! averaged are sampled during the next time step, rather than at
 ! the end of the time step when they were computed.
 !
-! Thought this algorithm results in somewhat ackwad controlling
-! logic it has the advantage that that all fields to be sampled
+! Although this algorithm results in somewhat awkward controlling
+! logic it has the advantage that all fields to be sampled
 ! correspond to exactly the same time, which is time step "n".
 ! Particularly, this is done this way because vertical velocity
 ! corresponding to the newly computed horizontal velocities
@@ -47,16 +45,9 @@
 ! data, when mod(ilc-1,navg).gt.1; and (3) adding the last
 ! contribution and scaling.
 !
-!      USE scalars
-!      USE grid
-!      USE averages
-!      USE ocean2d
-!      USE physflux
-!      USE ncscrum
-
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j, itrc, k, ilc
-      real cff
+      real    cff,cff1
 # include "param.h"
 # include "scalars.h"
 # include "ncscrum.h"
@@ -74,163 +65,85 @@
 ! is a positive number
 !
       if (ilc.gt.ntsdia_avg) then
+
         if (mod(ilc-1,nwrtdia_avg).eq.1) then
-          do itrc=1,NT
-            do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR 
-                  TXadv_avg(i,j,k,itrc)=TXadv(i,j,k,itrc)  
-                  TYadv_avg(i,j,k,itrc)=TYadv(i,j,k,itrc)
-                  TVadv_avg(i,j,k,itrc)=TVadv(i,j,k,itrc)
-                  THmix_avg(i,j,k,itrc)=THmix(i,j,k,itrc)
-                  TVmix_avg(i,j,k,itrc)=TVmix(i,j,k,itrc)
-                  TForc_avg(i,j,k,itrc)=TForc(i,j,k,itrc)
-                  Trate_avg(i,j,k,itrc)=Trate(i,j,k,itrc)
-                enddo
-              enddo
-            enddo
-          enddo
-
-#ifdef DIAGNOSTICS_TS_MLD
-!
-! Diagnostics averaged over MLD
-!
-          do itrc=1,NT
-            do j=JstrR,JendR
-              do i=IstrR,IendR 
-                TXadv_mld_avg(i,j,itrc)=TXadv_mld(i,j,itrc)  
-                TYadv_mld_avg(i,j,itrc)=TYadv_mld(i,j,itrc)
-                TVadv_mld_avg(i,j,itrc)=TVadv_mld(i,j,itrc)
-                THmix_mld_avg(i,j,itrc)=THmix_mld(i,j,itrc)
-                TVmix_mld_avg(i,j,itrc)=TVmix_mld(i,j,itrc)
-                TForc_mld_avg(i,j,itrc)=TForc_mld(i,j,itrc)
-                Trate_mld_avg(i,j,itrc)=Trate_mld(i,j,itrc)
-                Tentr_mld_avg(i,j,itrc)=Tentr_mld(i,j,itrc)
-              enddo
-            enddo
-          enddo
-#endif /* DIAGNOSTICS_TS_MLD  */
+          cff =1.0
+          cff1=0.0
         elseif (mod(ilc-1,nwrtdia_avg).gt.1) then
-          do itrc=1,NT
-            do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR 
-                  TXadv_avg(i,j,k,itrc) = 
-     &                       TXadv_avg(i,j,k,itrc) +
-     &                       TXadv(i,j,k,itrc)
-                  TYadv_avg(i,j,k,itrc) = 
-     &                       TYadv_avg(i,j,k,itrc) +
-     &                       TYadv(i,j,k,itrc)
-                  TVadv_avg(i,j,k,itrc) = 
-     &                       TVadv_avg(i,j,k,itrc) +
-     &                       TVadv(i,j,k,itrc)
-                  THmix_avg(i,j,k,itrc) =
-     &                       THmix_avg(i,j,k,itrc) +
-     &                       THmix(i,j,k,itrc)
-                  TVmix_avg(i,j,k,itrc) = 
-     &                       TVmix_avg(i,j,k,itrc) +
-     &                       TVmix(i,j,k,itrc)
-                  TForc_avg(i,j,k,itrc) = 
-     &                    TForc_avg(i,j,k,itrc) + 
-     &                    TForc(i,j,k,itrc)  
-                  Trate_avg(i,j,k,itrc) = 
-     &                    Trate_avg(i,j,k,itrc) + 
-     &                    Trate(i,j,k,itrc)  
-                enddo
-              enddo
-            enddo
-          enddo
-
-
-#ifdef DIAGNOSTICS_TS_MLD
-!
-! Diagnostics averaged over MLD
-!
-          do itrc=1,NT
-            do j=JstrR,JendR
-              do i=IstrR,IendR 
-                TXadv_mld_avg(i,j,itrc)=TXadv_mld(i,j,itrc) +
-     &                                  TXadv_mld_avg(i,j,itrc)
-                TYadv_mld_avg(i,j,itrc)=TYadv_mld(i,j,itrc) +
-     &                                  TYadv_mld_avg(i,j,itrc)
-                TVadv_mld_avg(i,j,itrc)=TVadv_mld(i,j,itrc) +
-     &                                  TVadv_mld_avg(i,j,itrc)
-                THmix_mld_avg(i,j,itrc)=THmix_mld(i,j,itrc) +
-     &                                  THmix_mld_avg(i,j,itrc)
-                TVmix_mld_avg(i,j,itrc)=TVmix_mld(i,j,itrc) +
-     &                                  TVmix_mld_avg(i,j,itrc)
-                TForc_mld_avg(i,j,itrc)=TForc_mld(i,j,itrc) +
-     &                                  TForc_mld_avg(i,j,itrc)
-                Trate_mld_avg(i,j,itrc)=Trate_mld(i,j,itrc) +
-     &                                  Trate_mld_avg(i,j,itrc)
-                Tentr_mld_avg(i,j,itrc)=Tentr_mld(i,j,itrc) +
-     &                                  Tentr_mld_avg(i,j,itrc)
-              enddo
-            enddo
-          enddo
-#endif /* DIAGNOSTICS_TS_MLD  */
+          cff =1.0
+          cff1=1.0
         elseif (mod(ilc-1,nwrtdia_avg).eq.0) then
-
-          cff=1./float(nwrtdia_avg)
+          cff =1.0/float(nwrtdia_avg)
+          cff1=1.0
           if (ZEROTH_TILE) timedia_avg=timedia_avg+float(nwrtdia_avg)*dt
-          do itrc=1,NT
-            do k=1,N
-              do j=JstrR,JendR
-                do i=IstrR,IendR 
-                  TXadv_avg(i,j,k,itrc) = cff *
-     &                       ( TXadv_avg(i,j,k,itrc) +
-     &                         TXadv(i,j,k,itrc) )
-                  TYadv_avg(i,j,k,itrc) = cff *
-     &                       ( TYadv_avg(i,j,k,itrc) +
-     &                         TYadv(i,j,k,itrc) )
-                  TVadv_avg(i,j,k,itrc) = cff *
-     &                       ( TVadv_avg(i,j,k,itrc) +
-     &                         TVadv(i,j,k,itrc) )
-                  THmix_avg(i,j,k,itrc) = cff *
-     &                       ( THmix_avg(i,j,k,itrc) +
-     &                         THmix(i,j,k,itrc) )
-                  TVmix_avg(i,j,k,itrc) = cff *
-     &                       ( TVmix_avg(i,j,k,itrc) +
-     &                         TVmix(i,j,k,itrc) )
-                  TForc_avg(i,j,k,itrc) = cff *
-     &                    ( TForc_avg(i,j,k,itrc) + 
-     &                      TForc(i,j,k,itrc) )
-                  Trate_avg(i,j,k,itrc) = cff *
-     &                    ( Trate_avg(i,j,k,itrc) + 
-     &                      Trate(i,j,k,itrc) )
-                enddo
+        endif
+
+        do itrc=1,NT
+          do k=1,N
+            do j=JstrR,JendR
+              do i=IstrR,IendR 
+                TXadv_avg(i,j,k,itrc) = cff *
+     &                     ( cff1*TXadv_avg(i,j,k,itrc) +
+     &                            TXadv(i,j,k,itrc) )
+                TYadv_avg(i,j,k,itrc) = cff *
+     &                     ( cff1*TYadv_avg(i,j,k,itrc) +
+     &                            TYadv(i,j,k,itrc) )
+                TVadv_avg(i,j,k,itrc) = cff *
+     &                     ( cff1*TVadv_avg(i,j,k,itrc) +
+     &                            TVadv(i,j,k,itrc) )
+                THmix_avg(i,j,k,itrc) = cff *
+     &                     ( cff1*THmix_avg(i,j,k,itrc) +
+     &                            THmix(i,j,k,itrc) )
+                TVmix_avg(i,j,k,itrc) = cff *
+     &                     ( cff1*TVmix_avg(i,j,k,itrc) +
+     &                            TVmix(i,j,k,itrc) )
+                TForc_avg(i,j,k,itrc) = cff *
+     &                    ( cff1*TForc_avg(i,j,k,itrc) + 
+     &                           TForc(i,j,k,itrc) )
+                Trate_avg(i,j,k,itrc) = cff *
+     &                    ( cff1*Trate_avg(i,j,k,itrc) + 
+     &                           Trate(i,j,k,itrc) )
               enddo
             enddo
           enddo
+        enddo
 
 #ifdef DIAGNOSTICS_TS_MLD
 !
 ! Diagnostics averaged over MLD
 !
-          do itrc=1,NT
-            do j=JstrR,JendR
-              do i=IstrR,IendR 
-                TXadv_mld_avg(i,j,itrc)=cff*( TXadv_mld(i,j,itrc) +
-     &                                        TXadv_mld_avg(i,j,itrc) )
-                TYadv_mld_avg(i,j,itrc)=cff*( TYadv_mld(i,j,itrc) +
-     &                                        TYadv_mld_avg(i,j,itrc) )
-                TVadv_mld_avg(i,j,itrc)=cff*( TVadv_mld(i,j,itrc) +
-     &                                        TVadv_mld_avg(i,j,itrc) )
-                THmix_mld_avg(i,j,itrc)=cff*( THmix_mld(i,j,itrc) +
-     &                                        THmix_mld_avg(i,j,itrc) )
-                TVmix_mld_avg(i,j,itrc)=cff*( TVmix_mld(i,j,itrc) +
-     &                                        TVmix_mld_avg(i,j,itrc) )
-                TForc_mld_avg(i,j,itrc)=cff*( TForc_mld(i,j,itrc) +
-     &                                        TForc_mld_avg(i,j,itrc) )
-                Trate_mld_avg(i,j,itrc)=cff*( Trate_mld(i,j,itrc) +
-     &                                        Trate_mld_avg(i,j,itrc) )
-                Tentr_mld_avg(i,j,itrc)=cff*( Tentr_mld(i,j,itrc) +
-     &                                        Tentr_mld_avg(i,j,itrc) )
-              enddo
+        do itrc=1,NT
+          do j=JstrR,JendR
+            do i=IstrR,IendR 
+              TXadv_mld_avg(i,j,itrc) = cff *
+     &                    ( cff1*TXadv_mld(i,j,itrc) +
+     &                           TXadv_mld_avg(i,j,itrc) )
+              TYadv_mld_avg(i,j,itrc) = cff * 
+     &                    ( cff1*TYadv_mld(i,j,itrc) +
+     &                           TYadv_mld_avg(i,j,itrc) )
+              TVadv_mld_avg(i,j,itrc) = cff *
+     &                    ( cff1*TVadv_mld(i,j,itrc) +
+     &                           TVadv_mld_avg(i,j,itrc) )
+              THmix_mld_avg(i,j,itrc) = cff *
+     &                    ( cff1*THmix_mld(i,j,itrc) +
+     &                           THmix_mld_avg(i,j,itrc) )
+              TVmix_mld_avg(i,j,itrc) = cff *
+     &                    ( cff1*TVmix_mld(i,j,itrc) +
+     &                           TVmix_mld_avg(i,j,itrc) )
+              TForc_mld_avg(i,j,itrc) = cff *
+     &                    ( cff1*TForc_mld(i,j,itrc) +
+     &                           TForc_mld_avg(i,j,itrc) )
+              Trate_mld_avg(i,j,itrc) = cff *
+     &                    ( cff1*Trate_mld(i,j,itrc) +
+     &                           Trate_mld_avg(i,j,itrc) )
+              Tentr_mld_avg(i,j,itrc) = cff *
+     &                    ( cff1*Tentr_mld(i,j,itrc) +
+     &                           Tentr_mld_avg(i,j,itrc) )
             enddo
           enddo
+        enddo
 #endif /* DIAGNOSTICS_TS_MLD  */
-        endif
+
       endif
       return
       end

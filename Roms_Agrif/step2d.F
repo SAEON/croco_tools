@@ -100,6 +100,9 @@ C$    trd=omp_get_thread_num()
       implicit none
 #include "param.h"
       integer Istr,Iend,Jstr,Jend, i,j, kbak, kold,
+#ifdef MPI
+     &         comm,err,
+#endif
 #ifdef PSOURCE
      &        is,
 #endif
@@ -2037,7 +2040,11 @@ C$OMP END MASTER
         MPI_master_only WRITE(stdout,'(A,I6/)')    '  IIC        =',iic
 #endif
         may_day_flag=1
+#ifdef MPI
+        call mpi_abort (comm, err)
+#else
         stop                            !-->  EXIT
+#endif
       ENDIF
 
 !       ! Fin CN
