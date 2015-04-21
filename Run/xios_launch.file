@@ -1,0 +1,8 @@
+# --- xios_launch.file ---
+#
+# For running ROMS with XIOS I/O server, use the command:
+#
+#    mpirun --app xios_launch.file
+#
+-np 2 ./roms
+-np 1  ./xios_server.exe
