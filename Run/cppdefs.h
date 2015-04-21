@@ -56,6 +56,8 @@
 # undef  AGRIF_2WAY
                       /* OA Coupling via OASIS (MPI) */
 # undef  OA_COUPLING
+                      /* I/O server */
+# undef  XIOS
                       /* Open Boundary Conditions */
 # undef  TIDES
 # define OBC_EAST
@@ -225,7 +227,7 @@
    for passive/biology/sediment tracers 
 */
 # if defined PASSIVE_TRACER || defined BIOLOGY || defined SEDIMENT
-#  undef BIO_HADV_WENO5
+#  define BIO_HADV_WENO5
 # endif
                       /*   Choice of Biology models   */
 # ifdef BIOLOGY
@@ -911,7 +913,7 @@
 # undef  MPI
 # define NBQ
 # define SOLVE3D
-# undef  UV_ADV
+# define UV_ADV
 # define NEW_S_COORD
 # define ANA_GRID
 # define MASKING

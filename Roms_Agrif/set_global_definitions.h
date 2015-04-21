@@ -47,6 +47,15 @@
 # undef OA_GRID_UV
 # undef BULK_FLUX
 #endif
+
+/* 
+   Set XIOS options:    
+   Change the generic name of MPI communicator MPI_COMM_WORLD
+   to XIOS local communicator
+*/ 
+#ifdef XIOS
+# define MPI_COMM_WORLD ocean_grid_comm
+#endif
   
 /*
    Activate barotropic pressure gradient response to the

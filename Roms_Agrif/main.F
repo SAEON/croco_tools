@@ -14,6 +14,9 @@
 #ifdef OA_MCT
           USE mod_prism     ! OASIS3 prism module
 #endif
+#ifdef XIOS
+          USE xios          ! XIOS module
+#endif
 #ifdef NBQ
           USE module_nh
           USE module_nbq
@@ -39,7 +42,7 @@
 #endif 
 #ifdef MPI
       include 'mpif.h'
-C      real*8 start_time2, start_time1, exe_time
+!      real*8 start_time2, start_time1, exe_time
 #elif defined NBQ
        integer MPI_STATUS_SIZE
 #endif 
@@ -67,22 +70,23 @@ C      real*8 start_time2, start_time1, exe_time
       NSUB_E = NPP
 #endif
 
-# include "dynderivparam.h"
+#include "dynderivparam.h"
 
-#if (defined MPI && !defined AGRIF && !defined OA_COUPLING)
+#ifdef MPI
+# if (!defined AGRIF && !defined OA_COUPLING)
       call MPI_Init (ierr)
-#endif   
-
-
-#if (defined OA_COUPLING && !defined AGRIF)
-!-- Initialization phase of OASIS3
-!-- In case of AGRIF, the cpl_prism_init is done in zoom.F
-      call cpl_prism_init
-#endif
-
-#if (defined MPI && defined AGRIF)
-       call agrif_mpi_set_grid_comm(MPI_COMM_WORLD) 
-#endif
+# endif   
+!
+!  XIOS, OASIS and AGRIF: split MPI communicator
+!
+# ifdef XIOS
+      call xios_initialize( "roms",return_comm=MPI_COMM_WORLD )
+# elif (defined OA_COUPLING && !defined AGRIF)
+      call cpl_prism_init  ! In AGRIF case, cpl_prism_init is in zoom.F
+# elif defined AGRIF
+      call agrif_mpi_set_grid_comm(MPI_COMM_WORLD) 
+# endif
+#endif /* MPI */
 
 #ifdef AGRIF
       call Agrif_Init_Grids()
@@ -92,11 +96,13 @@ C      real*8 start_time2, start_time1, exe_time
 #ifdef AUTOTILING
       call init_auto_tiling
 #endif
+
 #if defined RVTK_DEBUG || defined RVTK_DEBUG_ADVANCED
        call debug_ini
-#endif       
+#endif
+
 #ifdef MPI
-C     start_time1=PMPI_Wtime()
+!     start_time1=PMPI_Wtime()
       call MPI_Setup (ierr)
       if (ierr.ne.0) goto 100        !--> ERROR
 #endif
@@ -368,8 +374,24 @@ C#endif
 #endif
 CR      write(*,*) ' -1' MYID 
 
+#ifdef XIOS
+      do tile=0,NSUB_X*NSUB_E-1
+        call init_xios(tile)
+      enddo
+#endif
+
       if (may_day_flag.ne.0) goto 99 !-->  EXIT
+
+#ifdef XIOS
+      if (nrrec.eq.0) then
+        do tile=0,NSUB_X*NSUB_E-1
+          call send_xios_diags(tile)
+        enddo
+      endif
+#else
       if (ldefhis .and. wrthis(indxTime)) call wrt_his
+#endif
+
 !#if defined DIAGNOSTICS_TS
 !      if (ldefdia .and. wrtdia) call wrt_diags
 !#endif
@@ -519,6 +541,13 @@ CR      write(*,*) '  0' MYID
       next_kstp=kstp
       time_start=time
 
+! XIOS (
+!  Clean log output a bit
+#ifdef MPI
+      call MPI_Barrier(ocean_grid_comm, ierr)
+#endif
+! XIOS )
+
 #ifdef SOLVE3D      
       iif = -1
       nbstep3d = 0
@@ -575,19 +604,28 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Stop timers and
 #endif
 
  100  continue
+
 #ifdef MPI
-      call MPI_Barrier(MPI_COMM_WORLD, ierr)
+!      call MPI_Barrier(MPI_COMM_WORLD, ierr)
+      call MPI_Barrier(ocean_grid_comm, ierr)   ! XIOS
+
 !     start_time2=PMPI_Wtime()
 !     exe_time = start_time2 - start_time1
 !     if(mynode.eq.0) print*,'exe_time =',exe_time
 
-#ifdef OA_COUPLING
+# ifdef OA_COUPLING
       ! Finalize phase of OASIS3
       call prism_terminate_proto(ierr)
-#else
+# else 
+#  ifdef XIOS
+      call xios_context_finalize()
+      call xios_finalize()      ! end mpp communications with xios
+#  else
       call MPI_Finalize (ierr)
-#endif     
+#  endif
+# endif     
 #endif
+
       stop
       end
 

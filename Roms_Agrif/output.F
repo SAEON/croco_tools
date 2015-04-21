@@ -35,6 +35,10 @@
 # include "nc_sta.h"
 #endif
 !
+                integer ntrds,trd,range,
+     &        my_first,my_last, tile, my_iif
+
+      integer omp_get_num_threads, omp_get_thread_num
       ilc=1+iic-ntstart   ! number of time step since restart
 !
 !
@@ -148,9 +152,21 @@
 !        write(*,*) "wrtdiaM_avg ",wrtdiaM_avg
 !
         if (mod(ilc-1,nrst).eq.0) call wrt_rst
+#ifdef XIOS
+       ntrds=omp_get_num_threads()
+      trd=omp_get_thread_num()
+      range=(NSUB_X*NSUB_E+ntrds-1)/ntrds
+      my_first=trd*range
+      my_last=min(my_first + range-1, NSUB_X*NSUB_E-1)
+      
+      do tile=my_first,my_last
+          call send_xios_diags(tile)
+      end do
+#else
         if (mod(ilc-1,nwrt).eq.0 .and. wrthis(indxTime)) call wrt_his
-#ifdef AVERAGES
+#  ifdef AVERAGES
         if (mod(ilc-1,navg).eq.0 .and. wrtavg(indxTime)) call wrt_avg
+#  endif
 #endif
 #if defined DIAGNOSTICS_TS
         if (mod(ilc-1,nwrtdia).eq.0 .and. (wrtdia3D(NT+1) .or.

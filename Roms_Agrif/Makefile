@@ -119,7 +119,9 @@ include Makedefs
         p4zbio.F        p4zmeso.F       p4zsink2.F\
         p4zsed.F\
 \
-	autotiling.F	debug.F		Agrif2Model.F
+	autotiling.F	debug.F		Agrif2Model.F\
+\
+	init_xios.F	send_xios_diags.F
 #\
 #module_nh.F	nump_nh.F
 

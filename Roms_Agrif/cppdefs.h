@@ -56,6 +56,8 @@
 # undef  AGRIF_2WAY
                       /* OA Coupling via OASIS (MPI) */
 # undef  OA_COUPLING
+                      /* I/O server */
+# undef  XIOS
                       /* Open Boundary Conditions */
 # undef  TIDES
 # define OBC_EAST
