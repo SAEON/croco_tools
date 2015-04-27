@@ -2300,7 +2300,7 @@ CR     &                          ,indxbioVSink+NFlux_VSinkD1-1
 #  ifdef OXYGEN
 !     gas exchange terms
 CR      write(stdout,'(1x,A,I3)') 'indxGasExcFlux='
-CR          &                          ,indxGasExcFlux
+CR     &                          ,indxGasExcFlux
       vname(1,indxGasExcFlux)=
      &     'GasExchangeO2                   '        
       vname(2,indxGasExcFlux)=
