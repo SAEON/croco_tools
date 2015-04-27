@@ -50,6 +50,9 @@
 !
       subroutine Agrif_initworkspace()
       implicit none
+# ifdef XIOS
+      USE xios          ! XIOS module
+# endif
 # ifdef MPI
       integer ierr  
 # endif          
@@ -74,7 +77,9 @@
 # include "dynparam.h"
 # ifdef MPI
         IF (.Not.MPIisinitialize) THEN
-#  ifdef OA_COUPLING
+#  if defined XIOS
+           Call xios_initialize( "roms",return_comm=MPI_COMM_WORLD)
+#  elif defined OA_COUPLING
            Call cpl_prism_init
 #  else
            Call MPI_Init(ierr)
@@ -602,6 +607,11 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Set initial conditions
         enddo                        ! from initial conditions
       else                           ! NetCDF file).
 # endif
+#ifdef XIOS
+      do tile=0,NSUB_X*NSUB_E-1      ! Create parallel threads;
+        call  init_xios(tile)
+      enddo                          ! GRID NetCDF file).
+#endif
 
 # ifndef AGRIF_ADAPTIVE
         call get_initial
@@ -931,8 +941,15 @@ C$OMP END MASTER
 
 CR      write(*,*) ' -1' MYID 
       if (may_day_flag.ne.0) goto 99     !-->  EXIT
-
+#ifdef XIOS
+      if (nrrec.eq.0) then
+        do tile=0,NSUB_X*NSUB_E-1
+          call send_xios_diags(tile)
+        enddo
+      endif
+#else
       if (ldefhis .and. wrthis(indxTime)) call wrt_his
+#endif
 CR      write(*,*) '  0' MYID
       if (may_day_flag.ne.0) goto 99     !-->  EXIT
 
@@ -1789,8 +1806,12 @@ CR      write(*,*) '  0' MYID
 # include "scalars.h"
 # include "ncscrum.h"
 
+# ifdef XIOS
+      call iom_swap( "roms" )
+      call send_xios_diags(0)
+# else
       call wrt_his
-
+# endif
       if (.Not.Agrif_Root()) Then
         Call Agrif_ChildGrid_To_ParentGrid()
         Call UpdateGridhis()

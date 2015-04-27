@@ -233,8 +233,6 @@
 
       end module xios_module
 
-#endif
-
 
 
 !=====================================================================
@@ -242,13 +240,10 @@
 #include "cppdefs.h"
        subroutine init_xios(tile)
 
-#ifdef XIOS
-
       implicit none
 # include "param.h"
       integer tile
 # include "compute_tile_bounds.h"
-      write(*,*) 'toto3'
       call init_xios_tile (Istr,Iend,Jstr,Jend)
       return
       end
@@ -281,6 +276,8 @@
       TYPE(xios_file) :: file_hdl
       logical ok
 !
+      CHARACTER(len=10) :: clname
+      CHARACTER(len=10) :: cdname
       integer Istr,Iend,Jstr,Jend
 
 # include "compute_auxiliary_bounds.h"
@@ -300,17 +297,27 @@
 #  define JU_RANGE JstrR,JendR
 #  define JV_RANGE Jstr,JendR
 # endif
-      CALL xios_context_initialize("roms", ocean_grid_comm)
-      CALL xios_get_handle("roms",ctx_hdl)
-      CALL xios_set_current_context(ctx_hdl)
+      cdname='roms'
+      clname = cdname
+# ifdef AGRIF
+      IF( TRIM(Agrif_CFixed()) /= '0' )
+!     & clname = TRIM(Agrif_CFixed())//"_"//TRIM(cdname)
+     & clname =TRIM(cdname)//"."//TRIM(Agrif_CFixed())
+# endif
+# if defined MPI
+      CALL xios_context_initialize(TRIM(clname), MPI_COMM_WORLD)
+# else
+      CALL xios_context_initialize(TRIM(clname), 0)
+# endif
+      CALL iom_swap( cdname )
 
 ! calendar parameters
-      CALL xios_set_context_attr("roms", calendar_type= 
+      CALL xios_set_context_attr(TRIM(clname), calendar_type= 
      &      "Gregorian")
 # ifdef START_DATE
 ! Should do with the start date variable
 # else
-      CALL xios_set_context_attr("roms",
+      CALL xios_set_context_attr(TRIM(clname),
      &            start_date="1900-01-01 00:00:00" )  
 # endif
 
@@ -335,14 +342,48 @@
       ! end definition phase
       CALL xios_close_context_definition()
 
-!      write(*,*) 'XIOS init done'
 
-
-#endif /* XIOS */
       return
       end
 
+      SUBROUTINE iom_swap( cdname )
+      !!---------------------------------------------------------------------
+      !!                   ***  SUBROUTINE  iom_swap  ***
+      !!
+      !! ** Purpose :  swap context between different agrif grid for xmlio_server
+      !!---------------------------------------------------------------------
+      USE xios
+      CHARACTER(len=*), INTENT(in) :: cdname
+      TYPE(xios_context) :: roms_hdl
+#ifdef AGRIF
+      IF( TRIM(Agrif_CFixed()) == '0' ) THEN
+        CALL xios_get_handle(TRIM(cdname),roms_hdl)
+      ELSE
+        CALL xios_get_handle(TRIM(cdname)//"."//TRIM(Agrif_CFixed()),roms_hdl)
+      ENDIF
+#else
+      CALL xios_get_handle(TRIM(cdname),roms_hdl)
 
+#endif
+      !
+      CALL xios_set_current_context(roms_hdl)
+      !
+      END SUBROUTINE iom_swap
+
+      SUBROUTINE iom_context_finalize( cdname )
+      USE xios
+      CHARACTER(LEN=*), INTENT(in) :: cdname
+      TYPE(xios_context) :: roms_hdl
+      !
+      IF( xios_is_valid_context(cdname) ) THEN
+         CALL iom_swap( cdname )   ! swap to cdname context
+         CALL xios_context_finalize() ! finalize the context
+         IF( cdname /= "roms" ) CALL iom_swap( "roms" )   ! return back to roms context
+      ENDIF
+      !
+      END SUBROUTINE iom_context_finalize
+
+#endif /* XIOS */
 
 
 

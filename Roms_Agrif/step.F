@@ -85,6 +85,9 @@ C$OMP END PARALLEL
       subroutine prestep3D_thread()
 #ifdef AGRIF
       use Agrif_Util
+# ifdef XIOS
+# include "zoom.h"
+# endif
 #endif
       implicit none
 #include "param.h"
@@ -140,6 +143,13 @@ C$OMP MASTER
       nnew=3
 #endif
 
+#ifdef AGRIF
+# ifdef XIOS
+      if( nbcoarse == 1 )then
+        call iom_swap( "roms" )
+      endif
+# endif
+#endif
 
 #ifdef FLOATS
       nfp1=MOD(nfp1+1,NFT+1)  ! Shift time indices

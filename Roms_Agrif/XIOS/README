@@ -49,4 +49,5 @@ in xios_launch.file:
 Run ROMS and XIOS:
 	mpirun --app xios_launch.file
 
-
+With AGRIF
+        define a section in iodef.xml file for each child grid (roms.1, roms.2 ...)

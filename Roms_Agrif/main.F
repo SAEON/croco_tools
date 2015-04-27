@@ -78,8 +78,8 @@
 # endif   
 !
 !  XIOS, OASIS and AGRIF: split MPI communicator
-!
-# ifdef XIOS
+!  XIOS with OASIS not done yet
+# if (defined XIOS && !defined AGRIF)
       call xios_initialize( "roms",return_comm=MPI_COMM_WORLD )
 # elif (defined OA_COUPLING && !defined AGRIF)
       call cpl_prism_init  ! In AGRIF case, cpl_prism_init is in zoom.F
@@ -591,6 +591,9 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Stop timers and
         call stop_timers()
       enddo
       call closecdf
+# ifdef XIOS
+      call iom_context_finalize( "roms") ! needed for XIOS+AGRIF 
+# endif
 #ifdef AGRIF
 !
 !  Close the netcdf files also for the child grids
@@ -599,6 +602,9 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Stop timers and
       do while (associated(parcours))
         Call Agrif_Instance(parcours % gr)
         call closecdf
+# ifdef XIOS
+        call iom_context_finalize( "roms") ! needed for XIOS+AGRIF 
+# endif
         parcours => parcours % next             
       enddo
 #endif
@@ -606,7 +612,6 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Stop timers and
  100  continue
 
 #ifdef MPI
-!      call MPI_Barrier(MPI_COMM_WORLD, ierr)
       call MPI_Barrier(ocean_grid_comm, ierr)   ! XIOS
 
 !     start_time2=PMPI_Wtime()
@@ -616,13 +621,14 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Stop timers and
 # ifdef OA_COUPLING
       ! Finalize phase of OASIS3
       call prism_terminate_proto(ierr)
-# else 
-#  ifdef XIOS
-      call xios_context_finalize()
+# elif defined XIOS
+      ! MPI finalize done by XIOS, XIOS+OASIS not coded
       call xios_finalize()      ! end mpp communications with xios
-#  else
+#  if !defined AGRIF      
       call MPI_Finalize (ierr)
-#  endif
+#  endif 
+# else
+      call MPI_Finalize (ierr)
 # endif     
 #endif
 
