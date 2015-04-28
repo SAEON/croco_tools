@@ -174,17 +174,31 @@
 #endif
 
 #  ifdef WKB_OBC_WEST
-        ho=h(1,1)+zeta(1,1,knew)     !+wkb_tide       ! offshore depth
+        ho=h(1,1)+zeta(1,1,knew)         !+wkb_tide       ! offshore depth
 #   ifdef MPI
         call MPI_Bcast(ho, 1, MPI_DOUBLE_PRECISION,
      &                     0, MPI_COMM_WORLD, ierr)
 #   endif
 #  endif
 #  ifdef WKB_OBC_EAST
-        ho=h(LLm,1)+zeta(LLm,1,knew) !+wkb_tide       ! offshore depth
+        ho=h(LLm,1)+zeta(LLm,1,knew)      !+wkb_tide       ! offshore depth
 #   ifdef MPI
         call MPI_Bcast(ho, 1, MPI_DOUBLE_PRECISION,
      &                     NP_XI-1, MPI_COMM_WORLD, ierr)
+#   endif
+#  endif
+#  ifdef WKB_OBC_NORTH
+        ho=h(LLm,MMm)+zeta(LLm,MMm,knew)  !+wkb_tide       ! offshore depth
+#   ifdef MPI
+        call MPI_Bcast(ho, 1, MPI_DOUBLE_PRECISION,
+     &                     NPP-1, MPI_COMM_WORLD, ierr)!faux
+#   endif
+#  endif
+#  ifdef WKB_OBC_SOUTH
+        ho=h(1,1)+zeta(1,1,knew)          !+wkb_tide       ! offshore depth
+#   ifdef MPI
+        call MPI_Bcast(ho, 1, MPI_DOUBLE_PRECISION,
+     &                     0, MPI_COMM_WORLD, ierr)!faux
 #   endif
 #  endif
 #  ifdef ANA_BRY_WKB 
@@ -295,6 +309,24 @@
           enddo
         endif
 #   endif  /* WKB_OBC_WEST */
+#   ifdef WKB_OBC_SOUTH
+        if (SOUTHERN_EDGE) then
+          do i=istr-1,iend+1
+            wacbry_south(j)=wac(i,jstr-1,1)
+            wkxbry_south(j)=wkx(i,jstr-1,1)
+            wkebry_south(j)=wke(i,jstr-1,1)
+          enddo
+        endif
+#   endif  /* WKB_OBC_SOUTH */
+#   ifdef WKB_OBC_NORTH
+        if (NORTHERN_EDGE) then
+          do i=istr-1,iend+1
+            wacbry_north(i)=wac(i,jendR,1)
+            wkxbry_north(i)=wkx(i,jendR,1)
+            wkebry_north(i)=wke(i,jendR,1)
+          enddo
+        endif
+#   endif  /* WKB_OBCNORTH */
 #  endif /* ANA_BRY_WKB */
 #ifdef AGRIF
         endif
