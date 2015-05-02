@@ -382,16 +382,6 @@ CR      write(*,*) ' -1' MYID
 
       if (may_day_flag.ne.0) goto 99 !-->  EXIT
 
-#ifdef XIOS
-      if (nrrec.eq.0) then
-        do tile=0,NSUB_X*NSUB_E-1
-          call send_xios_diags(tile)
-        enddo
-      endif
-#else
-      if (ldefhis .and. wrthis(indxTime)) call wrt_his
-#endif
-
 !#if defined DIAGNOSTICS_TS
 !      if (ldefdia .and. wrtdia) call wrt_diags
 !#endif
@@ -522,6 +512,15 @@ C$OMP MASTER
 C$OMP END MASTER
 #endif
 
+#ifdef XIOS
+      if (nrrec.eq.0) then
+        do tile=0,NSUB_X*NSUB_E-1
+          call send_xios_diags(tile)
+        enddo
+      endif
+#else
+      if (ldefhis .and. wrthis(indxTime)) call wrt_his
+#endif
 
 CR      write(*,*) '  0' MYID
       if (may_day_flag.ne.0) goto 99     !-->  EXIT
