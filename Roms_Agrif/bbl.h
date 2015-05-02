@@ -9,7 +9,7 @@
 ! ROMS_AGRIF website : http://www.romsagrif.org
 !======================================================================
 !
-#ifdef BBL
+#if defined BBL || defined SEDIMENT
 
 /*
 ** Include file "bbl.h"
