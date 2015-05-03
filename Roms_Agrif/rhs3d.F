@@ -308,10 +308,10 @@
 
         do j=Jstr,Jend
           do i=IU_EXT_RANGE
-            uxx(i,j)=u(i-1,j,k,nrhs)-2.*u(i,j,k,nrhs)
-     &                                +u(i+1,j,k,nrhs)
-            Huxx(i,j)=Huon(i-1,j,k)-2.*Huon(i,j,k)
-     &                                  +Huon(i+1,j,k)
+            uxx(i,j)=(u(i-1,j,k,nrhs)-2.*u(i,j,k,nrhs)
+     &               +u(i+1,j,k,nrhs))  SWITCH umask(i,j)
+            Huxx(i,j)=(Huon(i-1,j,k)-2.*Huon(i,j,k)
+     &                +Huon(i+1,j,k))   SWITCH umask(i,j)
           enddo
         enddo
 #   undef IU_EXT_RANGE
@@ -383,10 +383,10 @@
 
         do j=JV_EXT_RANGE
           do i=Istr,Iend
-            vee(i,j)=v(i,j-1,k,nrhs)-2.*v(i,j,k,nrhs)
-     &                                 +v(i,j+1,k,nrhs)
-            Hvee(i,j)=Hvom(i,j-1,k)-2.*Hvom(i,j,k)
-     &                                   +Hvom(i,j+1,k)
+            vee(i,j)=(v(i,j-1,k,nrhs)-2.*v(i,j,k,nrhs)
+     &               +v(i,j+1,k,nrhs))  SWITCH  vmask(i,j)
+            Hvee(i,j)=(Hvom(i,j-1,k)-2.*Hvom(i,j,k)
+     &                +Hvom(i,j+1,k))   SWITCH  vmask(i,j)
           enddo
         enddo
 #   undef JV_EXT_RANGE
@@ -457,8 +457,8 @@
 
         do j=JU_EXT_RANGE
           do i=IstrU,Iend
-            uee(i,j)=u(i,j-1,k,nrhs)-2.*u(i,j,k,nrhs)
-     &                                 +u(i,j+1,k,nrhs)
+            uee(i,j)=(u(i,j-1,k,nrhs)-u(i,j,k,nrhs)) SWITCH pmask(i,j  )
+     &              +(u(i,j+1,k,nrhs)-u(i,j,k,nrhs)) SWITCH pmask(i,j+1)
           enddo
         enddo
 #   undef JU_EXT_RANGE
@@ -532,8 +532,8 @@
 
         do j=JstrV,Jend
           do i=IV_EXT_RANGE
-            vxx(i,j)=v(i-1,j,k,nrhs)-2.*v(i,j,k,nrhs)
-     &                                 +v(i+1,j,k,nrhs)
+            vxx(i,j)=(v(i-1,j,k,nrhs)-v(i,j,k,nrhs)) SWITCH pmask(i  ,j)
+     &              +(v(i+1,j,k,nrhs)-v(i,j,k,nrhs)) SWITCH pmask(i+1,j)
           enddo
         enddo
 #   undef IV_EXT_RANGE
