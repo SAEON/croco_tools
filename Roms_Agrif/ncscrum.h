@@ -433,7 +433,7 @@
 
 #ifdef MRL_WCI
       integer indxSUP, indxUST2D,indxVST2D
-      parameter (indxSUP  =indxSUSTR+42,
+      parameter (indxSUP  =indxSUSTR+44,
      &           indxUST2D =indxSUP+1, indxVST2D=indxSUP+2)
 # ifdef SOLVE3D
       integer indxUST,indxVST,indxWST,indxAkb,indxAkw,indxKVF,
