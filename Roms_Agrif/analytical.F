@@ -1346,6 +1346,7 @@ C$    integer  trd, omp_get_thread_num
 # include "scalars.h"
 # include "sediment.h"
 # include "bbl.h"
+      real d50 ,tau_cb,wset,rhosed  
       integer Istr,Iend,Jstr,Jend, i,j, ilay, itrc
 !
 # undef DEBUG 
@@ -1390,10 +1391,37 @@ C$    integer  trd, omp_get_thread_num
              do itrc=1,NST
               bed_frac(i,j,ilay,itrc)=Bfr(ilay,itrc)
              enddo
+
+              bed_age(i,j,ilay)=time
+              bot_thick(i,j) = 0.003
+            do itrc=1,NST
+              bed_mass(i,j,ilay,1,itrc)=
+     &                     bed_thick(i,j,ilay)*
+     &                     Srho(itrc)*
+     &                     (1.0-bed_poros(i,j,ilay))*
+     &                     bed_frac(i,j,ilay,itrc)
+# ifdef MASKING
+     &                           *rmask(i,j)
+# endif
+              bed_mass(i,j,ilay,2,itrc)=bed_mass(i,j,ilay,1,itrc)
+              bed_mass(i,j,ilay,3,itrc)=bed_mass(i,j,ilay,1,itrc)
+            enddo
+          enddo
+          d50   = 1.0
+          tau_cb= 1.0
+          wset  = 1.0
+          rhosed= 1.0
+
+          do itrc=1,NST
+            Ssize(i,j) = d50   *(Sd  (itrc))**bed_frac(i,j,1,itrc)
+            taucb(i,j) = tau_cb*(tau_ce(itrc))**bed_frac(i,j,1,itrc) ! [m2/s2] CHECK tau(d50)
+            w_set(i,j) = wset  *(wsed  (itrc))**bed_frac(i,j,1,itrc) ! [m/s]
+            Sdens(i,j) = rhosed*(Srho  (itrc))**bed_frac(i,j,1,itrc)
+          enddo
+
 # ifndef ANA_SEDIMENT
             endif            
 # endif                    
-          enddo
 
 # ifdef DEBUG
           if(j.eq.jck.and.i.eq.ick) then
