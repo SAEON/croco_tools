@@ -1,6 +1,7 @@
 #include "cppdefs.h"
 #ifdef SEDIMENT
 
+# define SUSPLOAD
 # undef BEDLOAD
 # undef SED_MORPH
 # ifdef BEDLOAD
@@ -156,7 +157,7 @@ C$OMP BARRIER
         jmax=Jend+1
       endif
 #   define J_EXT_RANGE jmin,jmax
-#  endif /* NS_PERIODIC *
+#  endif /* NS_PERIODIC */
    
       bedload_coeff=0.15 ! bedload rate to investigate
 
@@ -212,7 +213,7 @@ C$OMP BARRIER
 #    endif
         enddo
       enddo
-#   endif /* BBL *
+#   endif /* BBL */
 #  endif /* BEDLOAD_MPM */
 
 !
@@ -600,7 +601,9 @@ C$OMP BARRIER
      &                           cff/(Srho(ised)*              
      &                                (1.0-bed_poros(i,j,1))),  
      &                           0.0)
+#  ifdef WET_DRY
             bed_thick(i,j,1)=bed_thick(i,j,1)*rmask_wet(i,j)
+#  endif
           enddo
         enddo
 !
@@ -957,9 +960,9 @@ C$OMP BARRIER
       real cff,cff1,cff2,cff3,cff4,tau_water,Zr
       real tau_w(PRIVATE_2D_SCRATCH_ARRAY)
 
-# ifdef EW_PERIODIC
-#  define I_EXT_RANGE Istr-1,Iend+1
-# else
+#  ifdef EW_PERIODIC
+#   define I_EXT_RANGE Istr-1,Iend+1
+#  else
       if (WESTERN_EDGE) then
         imin=Istr
       else
@@ -970,11 +973,11 @@ C$OMP BARRIER
       else
         imax=Iend+1
       endif
-#  define I_EXT_RANGE imin,imax
-# endif
-# ifdef NS_PERIODIC
-#  define J_EXT_RANGE Jstr-1,Jend+1
-# else
+#   define I_EXT_RANGE imin,imax
+#  endif
+#  ifdef NS_PERIODIC
+#   define J_EXT_RANGE Jstr-1,Jend+1
+#  else
       if (SOUTHERN_EDGE) then
         jmin=Jstr
       else
@@ -985,10 +988,7 @@ C$OMP BARRIER
       else
         jmax=Jend+1
       endif
-#  define J_EXT_RANGE jmin,jmax
-# endif
-       #  ifdef WET_DRY
-          tau_w(i,j)=tau_w(i,j)*rmask_wet(i,j)
+#   define J_EXT_RANGE jmin,jmax
 #  endif
 
       do j=J_EXT_RANGE
@@ -999,6 +999,12 @@ C$OMP BARRIER
 #  else
           tau_w(i,j)=0.5*sqrt( (bustr(i,j)+bustr(i+1,j))**2
      &                        +(bvstr(i,j)+bvstr(i,j+1))**2)
+#  endif
+#  ifdef MASKING
+          tau_w(i,j)=tau_w(i,j)*rmask(i,j)
+#  endif
+#  ifdef WET_DRY
+          tau_w(i,j)=tau_w(i,j)*rmask_wet(i,j)
 #  endif
         enddo
       enddo
@@ -1021,7 +1027,9 @@ C$OMP BARRIER
      &            MIN(MAX(0.,cff2*(cff*tau_water-1.)),      
      &                MIN(cff3*bot_thick(i,j),cff4)+              
      &                settling_flux(i,j,ised))
+#  ifdef WET_DRY
      &      *rmask_wet(i,j)
+#  endif
 !
 !  Update global tracer variables (m Tunits for nnew indx, Tuints for 3)
 !  for erosive flux.
@@ -1030,7 +1038,7 @@ C$OMP BARRIER
      & *1./Hz(i,j,1)                     
 #  ifdef WET_DRY
      &                                     *rmask_wet(i,j)
-#   endif
+#  endif
           enddo  ! ised loop
         enddo    ! i loop 
       enddo      ! j loop 
@@ -1106,9 +1114,9 @@ C$OMP BARRIER
           tau_w(i,j)=0.5*sqrt( (bustr(i,j)+bustr(i+1,j))**2
      &                        +(bvstr(i,j)+bvstr(i,j+1))**2)
 #  endif
-#   ifdef WET_DRY
+#  ifdef WET_DRY
           tau_w(i,j)=tau_w(i,j)*rmask_wet(i,j)
-#   endif
+#  endif
         enddo
       enddo
 # endif
@@ -1226,7 +1234,7 @@ C$OMP BARRIER
       enddo        ! j loop
 !
 !
-#  endif /* SUSPLOAD */
+# endif /* SUSPLOAD */
 !
 !  Ensure top bed layer thickness is greater or equal than active layer
 !  thickness. If need to add sed to top layer, then entrain from lower
@@ -1240,7 +1248,7 @@ C$OMP BARRIER
           bot_thick(i,j)=MAX(0.,                                 
      &                          0.007*                               
      &                          (tau_w(i,j)-taucb(i,j))*rho0)+   
-     &                          6.*Ssize(i,j)*rmask_wet(i,j)
+     &                          6.*Ssize(i,j)
 # ifdef WET_DRY
      &                           *rmask_wet(i,j)
 # endif
@@ -1340,7 +1348,7 @@ C$OMP BARRIER
 !
 ! Set boundary conditions
 !
-#  ifndef EW_PERIODIC
+# ifndef EW_PERIODIC
       if (EASTERN_EDGE) then
         do j=Jstr,Jend
               do k=1,NLAY
@@ -1364,8 +1372,8 @@ C$OMP BARRIER
           bed_age(Istr-1,j,:)=bed_age(Istr,j,:)
         enddo
       endif
-#  endif
-#  ifndef NS_PERIODIC
+# endif
+# ifndef NS_PERIODIC
       if (NORTHERN_EDGE) then
         do i=Istr,Iend
           bed_mass (i,Jend+1,:,nnew,:)=bed_mass(i,Jend,:,nnew,:)
@@ -1385,8 +1393,8 @@ C$OMP BARRIER
           bot_thick  (i,Jstr-1)=bot_thick(i,Jstr)
         enddo
       endif
-#  endif
-#  if !defined EW_PERIODIC && !defined NS_PERIODIC
+# endif
+# if !defined EW_PERIODIC && !defined NS_PERIODIC
       if (SOUTHERN_EDGE.and.WESTERN_EDGE) then
         bed_mass(Istr-1,Jstr-1,:,nnew,:)=
      &  0.5*(bed_mass(Istr,Jstr-1,:,nnew,:)
@@ -1455,7 +1463,7 @@ C$OMP BARRIER
      &   0.5*(bed_age(Iend,Jend+1,:)
      &       +bed_age(Iend+1,Jend,:))
       endif
-#  endif
+# endif
 
 !
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
@@ -1490,7 +1498,7 @@ C$OMP BARRIER
       enddo
         
 #  define BED_FILTER
-#  ifdef BED_FILTERING
+#  ifdef BED_FILTER
 !  Initialize filter in the Y-direction.
       do j=Jstr,Jend
         do i=Istr-1,Iend+1
@@ -1520,7 +1528,7 @@ C$OMP BARRIER
           bed_thick_tot(i,j,2)=Awrk2(i,j)+Awrk1(i,j)
         enddo
       enddo
-#  endif
+#  endif /* BED FILTER */
 
 !
 ! Set boundary conditions
@@ -1594,7 +1602,7 @@ C$OMP BARRIER
       real cff1,cff2,cff3,cff4,eps
       parameter (eps=1.D-20)
 !
-#  include "compute_auxiliary_bounds.h"
+# include "compute_auxiliary_bounds.h"
 
       do j=Jstr,Jend
         do i=Istr-1,Iend+1
@@ -1609,9 +1617,9 @@ C$OMP BARRIER
             cff4=cff4*Srho(ised)**bed_frac(i,j,1,ised)
           enddo
           taucb(i,j)=cff1
-          Ssize(i,j)=MIN(cff2,Zob)
+          Ssize(i,j)=cff2!MIN(cff2,Zob)
           w_set(i,j)=cff3
-          Sdens(i,j)=MAX(cff4,1050.)
+          Sdens(i,j)=cff4!MAX(cff4,1050.)
         enddo
       enddo
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
