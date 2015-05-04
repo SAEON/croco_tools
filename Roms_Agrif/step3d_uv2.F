@@ -478,12 +478,26 @@
             ust(i,j,k)=ust(i,j,k)*umask_wet(i,j)
 #  endif
 # endif
-# ifdef MRL_WCI
+
+# define EPSIL 0.125
+# define DELTA 0.75
+# ifdef TR
+#  ifdef MRL_WCI
             FC(i,k)=DC(i,k)*(0.5*(u(i,j,k,nstp)+u(i,j,k,nnew)) 
      &                                            +ust(i,j,k))
-# else
+#  else
             FC(i,k)=0.5*(u(i,j,k,nstp)+u(i,j,k,nnew))*DC(i,k)
-# endif
+#  endif
+# else
+#  ifdef MRL_WCI
+            FC(i,k)=DELTA*Huon(i,j,k) +
+     &              EPSIL*DC(i,k)*(0.5*(u(i,j,k,nstp)+u(i,j,k,nnew)) 
+     &                                                +2*ust(i,j,k))
+#  else
+            FC(i,k)=DELTA*Huon(i,j,k) +
+     &              EPSIL*DC(i,k)*(0.5*(u(i,j,k,nstp)+u(i,j,k,nnew)))
+#  endif
+# endif /* TR */
             FC(i,0)=FC(i,0)+FC(i,k)
           enddo
         enddo
@@ -572,12 +586,24 @@
               vst(i,j,k)=vst(i,j,k)*vmask_wet(i,j)
 #  endif
 # endif
-# ifdef MRL_WCI
+
+# ifdef TR
+#  ifdef MRL_WCI
               FC(i,k)=DC(i,k)*( 0.5*(v(i,j,k,nstp)+v(i,j,k,nnew))
      &                                              +vst(i,j,k) )
-# else
+#  else
               FC(i,k)=0.5*(v(i,j,k,nstp)+v(i,j,k,nnew))*DC(i,k) 
-# endif
+#  endif
+# else
+#  ifdef MRL_WCI
+              FC(i,k)=DELTA*Hvom(i,j,k)+
+     &                EPSIL*DC(i,k)*(0.5*(v(i,j,k,nstp)+v(i,j,k,nnew))
+     &                                                  +2*vst(i,j,k))
+#  else
+              FC(i,k)=DELTA*Hvom(i,j,k)+
+     &                EPSIL*DC(i,k)*(0.5*(v(i,j,k,nstp)+v(i,j,k,nnew)))
+#  endif
+# endif /* TR */
               FC(i,0)=FC(i,0)+FC(i,k)
             enddo
           enddo
