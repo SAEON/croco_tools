@@ -84,7 +84,6 @@
        integer :: parentnbstep
        real DC(Istr-1:Iend+1,Jstr-1:Jend+1,0:N)
        real CF(Istr-1:Iend+1,Jstr-1:Jend+1,0:N)
-       real,dimension(:,:,:),allocatable :: uext, vext
 !
 # include "compute_auxiliary_bounds.h"
 
@@ -99,30 +98,17 @@ C$OMP MASTER
 
       If ((nbcoarse == 1).AND.(UVspongeTimeindex .NE. parentnbstep)) THEN
 
-!     usponge = 0.
-!     vsponge = 0.
-
-      allocate(uext(i1u:i2u,j1t:j2t,N))
-      uext = 0.
-      allocate(vext(i1t:i2t,j1v:j2v,N))
-      vext = 0.
-      
       Call Agrif_Set_bc(uspongeid,(/-decal,0/),
      &         InterpolationShouldbemade=.TRUE.)
       Call Agrif_Set_bc(vspongeid,(/-decal,0/),
      &         InterpolationShouldbemade=.TRUE.)
 
        tinterp = 1.
-               
-      Call Agrif_Bc_Variable(uext,uspongeid,calledweight=tinterp,
+
+      Call Agrif_Bc_Variable(uspongeid,calledweight=tinterp,
      &                         procname=interpspongeu)
-      Call Agrif_Bc_Variable(vext,vspongeid,calledweight=tinterp,
+      Call Agrif_Bc_Variable(vspongeid,calledweight=tinterp,
      &                         procname=interpspongev)
-     
-      usponge(i1u:i2u,j1t:j2t,1:N) = uext
-      vsponge(i1t:i2t,j1v:j2v,1:N) = vext      
-      
-      deallocate(uext,vext)
 
       UVTimesponge = 3 - UVTimesponge
         UVspongeTimeindex = parentnbstep
@@ -405,34 +391,43 @@ C$OMP BARRIER
 
       return
       end
-      
-      subroutine interpspongeu(tabres,i1,i2,j1,j2,k1,k2)
+
+      subroutine interpspongeu(tabres,i1,i2,j1,j2,k1,k2,before)
       implicit none
 # include "param.h"
 # include "ocean3d.h"
 # include "scalars.h"
+# include "zoom.h"
 
        integer i1,i2,j1,j2,k1,k2
+       logical before
        real tabres(i1:i2,j1:j2,k1:k2)
-       
-       tabres(i1:i2,j1:j2,k1:k2) = u(i1:i2,j1:j2,k1:k2,nstp)
-             
+       if (before) then
+           tabres(i1:i2,j1:j2,k1:k2) = u(i1:i2,j1:j2,k1:k2,nstp)
+       else
+           usponge(i1:i2,j1:j2,k1:k2) = tabres(i1:i2,j1:j2,k1:k2)
+       endif
+
       return
       end
-      
-      subroutine interpspongev(tabres,i1,i2,j1,j2,k1,k2)
+
+      subroutine interpspongev(tabres,i1,i2,j1,j2,k1,k2,before)
       implicit none
 # include "param.h"
 # include "ocean3d.h"
 # include "scalars.h"
+# include "zoom.h"
 
        integer i1,i2,j1,j2,k1,k2
+       logical before
        real tabres(i1:i2,j1:j2,k1:k2)
-       
-       tabres(i1:i2,j1:j2,k1:k2) = v(i1:i2,j1:j2,k1:k2,nstp)
-             
+       if (before) then
+           tabres(i1:i2,j1:j2,k1:k2) = v(i1:i2,j1:j2,k1:k2,nstp)
+       else
+           vsponge(i1:i2,j1:j2,k1:k2) = tabres(i1:i2,j1:j2,k1:k2)
+       endif
       return
-      end      
+      end    
             
 #else
       subroutine uv3dpremix_empty

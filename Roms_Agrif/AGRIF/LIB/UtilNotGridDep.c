@@ -70,14 +70,11 @@ void Add_NotGridDepend_Var_1 (char *name)
      parcours= parcours->suiv;
    }
    /* if variable does not exist, we add it                                   */
-   newvar=(listvar *)malloc(sizeof(listvar));
-   newvar->var=(variable *)malloc(sizeof(variable));
+   newvar=(listvar *)calloc(1,sizeof(listvar));
+   newvar->var=(variable *)calloc(1,sizeof(variable));
    strcpy(newvar->var->v_nomvar,name);
-   Save_Length(name,4);
-   strcpy(newvar->var->v_commoninfile,mainfile);
-   Save_Length(mainfile,10);
+   strcpy(newvar->var->v_commoninfile,cur_filename);
    strcpy(newvar->var->v_subroutinename,subroutinename);
-   Save_Length(subroutinename,11);
    newvar->var->v_notgrid = 1 ;
    newvar->suiv = List_NotGridDepend_Var;
    List_NotGridDepend_Var = newvar;

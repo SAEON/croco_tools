@@ -24,10 +24,10 @@
 !
 module Agrif_Types
 !
+use Agrif_Procs
+!
 implicit none
-!gc
-integer            :: agrif_mpi_comm
-!gcend
+!
 integer, parameter :: Agrif_MaxRaff = 7       !< Maximum refinement ratio
 integer, parameter :: Agrif_NbMaxGrids = 10   !< Maximum number of grids of the hierarchy
 !
@@ -50,7 +50,6 @@ type Agrif_Rectangle
 !<  refinement factors, etc).
 !
     integer                         :: number       !< Number of the grid
-    integer                         :: nbgridchild  !< Number of child grids
     integer, dimension(3)           :: imin         !< Minimal position in the x,y and z direction
     integer, dimension(3)           :: imax         !< Maximal position in the x,y and z direction
     integer, dimension(3)           :: spaceref     !< Space refinement factor in the x,y and z direction
@@ -62,146 +61,79 @@ end type Agrif_Rectangle
 !===================================================================================================
 !
 !===================================================================================================
-type Agrif_PGrid
-!---------------------------------------------------------------------------------------------------
-!<  Data type to go over the grid hierarchy (used for the creation of this grid hierarchy
-!<  and during the time integration).
-!
-    type(Agrif_Grid) , pointer :: gr   => NULL()  !< allows to reach a child grid
-    type(Agrif_PGrid), pointer :: next => NULL()  !< allows to reach the grids of the same level
-!
-!---------------------------------------------------------------------------------------------------
-end type Agrif_PGrid
-!===================================================================================================
-!
-!===================================================================================================
-type Agrif_PVariable
-!---------------------------------------------------------------------------------------------------
-!<  Data type to define a grid variable.
-!
-    type(Agrif_Variable) , pointer  :: var        => NULL() !< Allows to get various characteristics of the variable
-                                                            !<   (defined by the Agrif_Variable data type)
-    type(Agrif_PVariable), pointer  :: parent_var => NULL() !< Pointer on the parent grid
-!---------------------------------------------------------------------------------------------------
-end type Agrif_PVariable
-!===================================================================================================
-!
-!===================================================================================================
-type Agrif_Grid
-!---------------------------------------------------------------------------------------------------
-!<  Data type to define a grid (position, space and time refinement factors).
-!
-    type(Agrif_Grid)                   , pointer :: parent      => NULL() !< pointer on the parent grid
-    type(Agrif_PGrid)                  , pointer :: child_grids => NULL() !< pointer on the child grids
-    type(Agrif_PVariable), dimension(:), pointer :: tabvars     => NULL() !< list of the grid variables
-    type(Agrif_Grid)                   , pointer :: save_grid   => NULL() !< pointer on the save grid
-!
-    real   , dimension(3)              :: Agrif_x   !< global x,y and z position
-    real   , dimension(3)              :: Agrif_d   !< global space step in the x,y and z direction
-    integer, dimension(3)              :: nb        !< number of cells in the x,y and z direction
-    integer, dimension(3)              :: ix        !< minimal position in the x,y and z direction
-    integer, dimension(3)              :: spaceref  !< space refinement factor in the x,y and z direction
-    integer, dimension(3)              :: timeref   !< Time refinement factor in the x,y and z direction
-    integer                            :: ngridstep !< number of time steps
-    integer                            :: rank
-    integer                            :: grid_id   !< moving grid id
-    integer                            :: fixedrank !< number of the grid
-    logical                            :: fixed     !< fixed or moving grid ?
-    logical                            :: oldgrid
-!> \name logicals indicating if the current grid has a common border with the root coarse grid
-!> @{
-    logical, dimension(3)              :: NearRootBorder
-    logical, dimension(3)              :: DistantRootBorder
-!> @}
-!> \name Arrays for adaptive grid refinement
-!> @{
-    integer, dimension(:)    ,   allocatable :: tabpoint1D
-    integer, dimension(:,:)  ,   allocatable :: tabpoint2D
-    integer, dimension(:,:,:),   allocatable :: tabpoint3D
-!> @}
-    type(Agrif_Flux)               , pointer :: fluxes    => NULL()
-    type(Agrif_List_Variables)     , pointer :: variables => NULL()
-    integer                                  :: NbVariables = 0
-    integer                                  :: level    !< level of the grid in the hierarchy
-!---------------------------------------------------------------------------------------------------
-end type Agrif_Grid
-!===================================================================================================
-!
-!===================================================================================================
 type Agrif_Variable
 !---------------------------------------------------------------------------------------------------
 !<  Data type to characterize a grid variable.
 !
-    character*80 :: variablename
+    type(Agrif_Variable), pointer  :: root_var   => NULL()  !< pointer on the variable of the root grid
+    type(Agrif_Variable), pointer  :: parent_var => NULL()  !< pointer on the parent variable
 !
-    type(Agrif_Variable), pointer  :: root_var => NULL() !< pointer on the variable of the root grid
-!
-    integer, dimension(6)              :: point                 !< index of the first point in the
-                                                                !<    real domain (x,y and z direction)
-    integer, dimension(:)    , pointer :: posvar      => NULL() !< position of the variable on the cell
-                                                                !<   (1 for the boarder of the edge, 2 for the center)
-    integer                  , pointer :: interpIndex => NULL() !< Indication for the space interpolation (module Agrif_Boundary)
-    integer                            :: nbdim = 0             !< number of dimensions of the grid variable
-    character(6),dimension(:), pointer :: interptab   => NULL() !< Array indicating the type of dimension (space or not)
-                                                                !<   for each of them
-!> \name Pointers to real Arrays containing the values of the grid variables
-!> @{
-    real  , dimension(:)          , pointer :: parray1 => NULL()
-    real  , dimension(:,:)        , pointer :: parray2 => NULL()
-    real  , dimension(:,:,:)      , pointer :: parray3 => NULL()
-    real  , dimension(:,:,:,:)    , pointer :: parray4 => NULL()
-    real  , dimension(:,:,:,:,:)  , pointer :: parray5 => NULL()
-    real  , dimension(:,:,:,:,:,:), pointer :: parray6 => NULL()
+    integer,   dimension(6)              :: point           !< index of the first point in the
+                                                            !<    real domain (x,y and z direction)
+    integer,   dimension(:), allocatable :: posvar          !< position of the variable on the cell
+                                                            !<   (1 for the boarder of the edge, 2 for the center)
+    integer                            :: interpIndex = -1  !< Indication for the space interpolation (module Agrif_Boundary)
+    integer                            :: nbdim = 0         !< number of dimensions of the grid variable
+    character(1), dimension(:), allocatable :: interptab    !< Array indicating the type of dimension (space or not)
+                                                            !!   for each of them
+    integer,   dimension(:), allocatable :: coords          !< Array indicating the coordinate for each dimension
+                                                            !!   of the array that is refined :
+                                                            !!  'x' -> 1 ; 'y' -> 2 ; 'z' -> 3 ; 'N' -> 0
+
 !> @}
 !> \name Arrays containing the values of the grid variables (real)
 !> @{
-    real                                        :: array0
-    real  , dimension(:)          , allocatable :: array1
-    real  , dimension(:,:)        , allocatable :: array2
-    real  , dimension(:,:,:)      , allocatable :: array3
-    real  , dimension(:,:,:,:)    , allocatable :: array4
-    real  , dimension(:,:,:,:,:)  , allocatable :: array5
-    real  , dimension(:,:,:,:,:,:), allocatable :: array6
+    real,    dimension(:)          , allocatable :: array1
+    real,    dimension(:,:)        , allocatable :: array2
+    real,    dimension(:,:,:)      , allocatable :: array3
+    real,    dimension(:,:,:,:)    , allocatable :: array4
+    real,    dimension(:,:,:,:,:)  , allocatable :: array5
+    real,    dimension(:,:,:,:,:,:), allocatable :: array6
 !> @}
 !> \name Arrays containing the values of the grid variables (real*8)
 !> @{
-    real*8                                      :: darray0
-    real*8, dimension(:)          , allocatable :: darray1
-    real*8, dimension(:,:)        , allocatable :: darray2
-    real*8, dimension(:,:,:)      , allocatable :: darray3
-    real*8, dimension(:,:,:,:)    , allocatable :: darray4
-    real*8, dimension(:,:,:,:,:)  , allocatable :: darray5
-    real*8, dimension(:,:,:,:,:,:), allocatable :: darray6
+    real(8), dimension(:)          , allocatable :: darray1
+    real(8), dimension(:,:)        , allocatable :: darray2
+    real(8), dimension(:,:,:)      , allocatable :: darray3
+    real(8), dimension(:,:,:,:)    , allocatable :: darray4
+    real(8), dimension(:,:,:,:,:)  , allocatable :: darray5
+    real(8), dimension(:,:,:,:,:,:), allocatable :: darray6
 !> @}
 !> \name Arrays containing the values of the grid variables (real*4)
 !> @{
-    real*4                                      :: sarray0
-    real*4, dimension(:)          , allocatable :: sarray1
-    real*4, dimension(:,:)        , allocatable :: sarray2
-    real*4, dimension(:,:,:)      , allocatable :: sarray3
-    real*4, dimension(:,:,:,:)    , allocatable :: sarray4
-    real*4, dimension(:,:,:,:,:)  , allocatable :: sarray5
-    real*4, dimension(:,:,:,:,:,:), allocatable :: sarray6
+    real(4), dimension(:)          , allocatable :: sarray1
+    real(4), dimension(:,:)        , allocatable :: sarray2
+    real(4), dimension(:,:,:)      , allocatable :: sarray3
+    real(4), dimension(:,:,:,:)    , allocatable :: sarray4
+    real(4), dimension(:,:,:,:,:)  , allocatable :: sarray5
+    real(4), dimension(:,:,:,:,:,:), allocatable :: sarray6
 !> @}
-!> \name Arrays containing the values of the grid variables (logical)
+!> \name Arrays containing the values of the grid variables (real)
 !> @{
-    logical                                     :: larray0
-    logical, dimension(:)          ,allocatable :: larray1
-    logical, dimension(:,:)        ,allocatable :: larray2
-    logical, dimension(:,:,:)      ,allocatable :: larray3
-    logical, dimension(:,:,:,:)    ,allocatable :: larray4
-    logical, dimension(:,:,:,:,:)  ,allocatable :: larray5
-    logical, dimension(:,:,:,:,:,:),allocatable :: larray6
+    real,    dimension(:)          , pointer :: parray1
+    real,    dimension(:,:)        , pointer :: parray2
+    real,    dimension(:,:,:)      , pointer :: parray3
+    real,    dimension(:,:,:,:)    , pointer :: parray4
+    real,    dimension(:,:,:,:,:)  , pointer :: parray5
+    real,    dimension(:,:,:,:,:,:), pointer :: parray6
 !> @}
-!> \name Arrays containing the values of the grid variables (integer)
+!> \name Arrays containing the values of the grid variables (real*8)
 !> @{
-    integer                                     :: iarray0
-    integer, dimension(:)          ,allocatable :: iarray1
-    integer, dimension(:,:)        ,allocatable :: iarray2
-    integer, dimension(:,:,:)      ,allocatable :: iarray3
-    integer, dimension(:,:,:,:)    ,allocatable :: iarray4
-    integer, dimension(:,:,:,:,:)  ,allocatable :: iarray5
-    integer, dimension(:,:,:,:,:,:),allocatable :: iarray6
+    real(8), dimension(:)          , pointer :: pdarray1
+    real(8), dimension(:,:)        , pointer :: pdarray2
+    real(8), dimension(:,:,:)      , pointer :: pdarray3
+    real(8), dimension(:,:,:,:)    , pointer :: pdarray4
+    real(8), dimension(:,:,:,:,:)  , pointer :: pdarray5
+    real(8), dimension(:,:,:,:,:,:), pointer :: pdarray6
+!> @}
+!> \name Arrays containing the values of the grid variables (real*4)
+!> @{
+    real(4), dimension(:)          , pointer :: psarray1
+    real(4), dimension(:,:)        , pointer :: psarray2
+    real(4), dimension(:,:,:)      , pointer :: psarray3
+    real(4), dimension(:,:,:,:)    , pointer :: psarray4
+    real(4), dimension(:,:,:,:,:)  , pointer :: psarray5
+    real(4), dimension(:,:,:,:,:,:), pointer :: psarray6
 !> @}
 !> \name Arrays used to restore the values
 !> @{
@@ -212,27 +144,22 @@ type Agrif_Variable
     integer, dimension(:,:,:,:,:)  , pointer :: restore5D => NULL()
     integer, dimension(:,:,:,:,:,:), pointer :: restore6D => NULL()
 !> @}
-!> \name Arrays containing the values of the grid variables (character)
-!> @{
-    character(2400)                             :: carray0
-    character(2400), dimension(:)  , allocatable :: carray1
-    character(2400), dimension(:,:), allocatable :: carray2
-!> @}
 
     real, dimension(:,:), pointer :: oldvalues2D => NULL() !< Array used for the time interpolation
 
-    logical :: restaure = .FALSE. !< =1 if the variable should be restored
+    logical :: restore = .FALSE. !< =1 if the variable should be restored
     logical :: Interpolationshouldbemade = .FALSE. !< TRUE if the interpolation should be made in any case
-    integer :: bcinf !< option bc
-    integer :: bcsup !< option bc
-    integer, dimension(6) :: updateinf      !< option update
-    integer, dimension(6) :: updatesup      !< option update
-    integer, dimension(6,6) :: BCTypeInterp !< option bcinterp
-    integer, dimension(6) :: TypeInterp     !< option interp
-    integer, dimension(6) :: TypeUpdate     !< option update
+    integer                 :: bcinf !< option bc
+    integer                 :: bcsup !< option bc
+    integer, dimension(6)   :: type_interp    !< option interp
+    integer, dimension(6,6) :: type_interp_bc !< option bcinterp
+    integer, dimension(6)   :: type_update    !< option update
 
-    integer, dimension(6) :: lb
-    integer, dimension(6) :: ub
+    integer, dimension(6)   :: lb
+    integer, dimension(6)   :: ub
+
+    logical,dimension(6,2) :: memberin
+    integer,dimension(6,2,2,6,2) :: childarray
 
     type(Agrif_List_Interp_Loc), pointer :: list_interp => NULL()
     type(Agrif_List_Interp_Loc), pointer :: list_update => NULL()
@@ -241,9 +168,122 @@ end type Agrif_Variable
 !===================================================================================================
 !
 !===================================================================================================
+type Agrif_Variable_c
+!---------------------------------------------------------------------------------------------------
+!<  Data type to characterize a grid variable.
+!
+    type(Agrif_Variable_c), pointer  :: root_var   => NULL()      !< pointer on the variable of the root grid
+    type(Agrif_Variable_c), pointer  :: parent_var => NULL()      !< pointer on the parent variable
+!
+    integer                          :: nbdim = 0                 !< number of dimensions of the grid variable
+!
+!> \name Arrays containing the values of the grid variables (character)
+!> @{
+    character(2400)                             :: carray0
+    character(200), dimension(:)  , allocatable :: carray1
+    character(200), dimension(:,:), allocatable :: carray2
+!> @}
+!---------------------------------------------------------------------------------------------------
+end type Agrif_Variable_c
+!===================================================================================================
+!
+!===================================================================================================
+type Agrif_Variable_r
+!---------------------------------------------------------------------------------------------------
+!<  Data type to characterize a grid variable.
+!
+    type(Agrif_Variable_r), pointer  :: root_var   => NULL()      !< pointer on the variable of the root grid
+    type(Agrif_Variable_r), pointer  :: parent_var => NULL()      !< pointer on the parent variable
+!
+    integer                          :: nbdim = 0                 !< number of dimensions of the grid variable
+!
+!> \name Arrays containing the values of the grid variables (real)
+!> @{
+    real                                         :: array0
+    real,    dimension(:)          , allocatable :: array1
+    real,    dimension(:,:)        , allocatable :: array2
+    real,    dimension(:,:,:)      , allocatable :: array3
+    real,    dimension(:,:,:,:)    , allocatable :: array4
+    real,    dimension(:,:,:,:,:)  , allocatable :: array5
+    real,    dimension(:,:,:,:,:,:), allocatable :: array6
+!> @}
+!> \name Arrays containing the values of the grid variables (real*8)
+!> @{
+    real(8)                                      :: darray0
+    real(8), dimension(:)          , allocatable :: darray1
+    real(8), dimension(:,:)        , allocatable :: darray2
+    real(8), dimension(:,:,:)      , allocatable :: darray3
+    real(8), dimension(:,:,:,:)    , allocatable :: darray4
+    real(8), dimension(:,:,:,:,:)  , allocatable :: darray5
+    real(8), dimension(:,:,:,:,:,:), allocatable :: darray6
+!> @}
+!> \name Arrays containing the values of the grid variables (real*4)
+!> @{
+    real(4)                                      :: sarray0
+    real(4), dimension(:)          , allocatable :: sarray1
+    real(4), dimension(:,:)        , allocatable :: sarray2
+    real(4), dimension(:,:,:)      , allocatable :: sarray3
+    real(4), dimension(:,:,:,:)    , allocatable :: sarray4
+    real(4), dimension(:,:,:,:,:)  , allocatable :: sarray5
+    real(4), dimension(:,:,:,:,:,:), allocatable :: sarray6
+!> @}
+!---------------------------------------------------------------------------------------------------
+end type Agrif_Variable_r
+!===================================================================================================
+!===================================================================================================
+!
+!===================================================================================================
+type Agrif_Variable_l
+!---------------------------------------------------------------------------------------------------
+!<  Data type to characterize a grid variable.
+!
+    type(Agrif_Variable_l), pointer  :: root_var   => NULL()      !< pointer on the variable of the root grid
+    type(Agrif_Variable_l), pointer  :: parent_var => NULL()      !< pointer on the parent variable
+!
+    integer                          :: nbdim = 0                 !< number of dimensions of the grid variable
+!
+!> \name Arrays containing the values of the grid variables (logical)
+!> @{
+    logical                                      :: larray0
+    logical, dimension(:)          , allocatable :: larray1
+    logical, dimension(:,:)        , allocatable :: larray2
+    logical, dimension(:,:,:)      , allocatable :: larray3
+    logical, dimension(:,:,:,:)    , allocatable :: larray4
+    logical, dimension(:,:,:,:,:)  , allocatable :: larray5
+    logical, dimension(:,:,:,:,:,:), allocatable :: larray6
+!> @}
+!---------------------------------------------------------------------------------------------------
+end type Agrif_Variable_l
+!===================================================================================================
+!
+!===================================================================================================
+type Agrif_Variable_i
+!---------------------------------------------------------------------------------------------------
+!<  Data type to characterize a grid variable.
+!
+    type(Agrif_Variable_i), pointer  :: root_var   => NULL()      !< pointer on the variable of the root grid
+    type(Agrif_Variable_i), pointer  :: parent_var => NULL()      !< pointer on the parent variable
+!
+    integer                          :: nbdim = 0             !< number of dimensions of the grid variable
+!
+!> \name Arrays containing the values of the grid variables (integer)
+!> @{
+    integer                                      :: iarray0
+    integer, dimension(:)          , allocatable :: iarray1
+    integer, dimension(:,:)        , allocatable :: iarray2
+    integer, dimension(:,:,:)      , allocatable :: iarray3
+    integer, dimension(:,:,:,:)    , allocatable :: iarray4
+    integer, dimension(:,:,:,:,:)  , allocatable :: iarray5
+    integer, dimension(:,:,:,:,:,:), allocatable :: iarray6
+!> @}
+!---------------------------------------------------------------------------------------------------
+end type Agrif_Variable_i
+!===================================================================================================
+!
+!===================================================================================================
 type Agrif_Interp_Loc
 !---------------------------------------------------------------------------------------------------
-    integer,dimension(6)              :: pttab,petab, pttab_Child, pttab_Parent = -99
+    integer,dimension(6)              :: pttab, petab, pttab_Child, pttab_Parent = -99
     integer,dimension(6)              :: indmin, indmax
     integer,dimension(6)              :: pttruetab,cetruetab
     logical :: member, memberin
@@ -275,79 +315,31 @@ end type Agrif_List_Interp_Loc
 !===================================================================================================
 
 !===================================================================================================
-type Agrif_List_Variables
+type Agrif_Variables_List
 !---------------------------------------------------------------------------------------------------
-    type(Agrif_PVariable),      pointer :: pvar          => NULL()
-    type(Agrif_List_Variables), pointer :: nextvariable  => NULL()
+    type(Agrif_Variable),       pointer :: var  => NULL()
+    type(Agrif_Variables_List), pointer :: next => NULL()
 !---------------------------------------------------------------------------------------------------
-end type Agrif_List_Variables
-!===================================================================================================
-
-!===================================================================================================
-type Agrif_Profile
-!---------------------------------------------------------------------------------------------------
-    character*80 :: profilename
-!
-    integer :: nbdim = 0       !< number of dimensions of the grid variable
-
-    !> index of the first point in the real domain (x,y and z direction)
-    integer, dimension(6)          :: point
-
-    !> Position of the variable on the cell (1 for the boarder of the edge, 2 for the center)
-    integer, dimension(:), pointer :: posvar      => NULL()
-
-    !> Indication for the space interpolation (module Agrif_Boundary)
-    integer              , pointer :: interpIndex => NULL()
-
-    !> Array indicating the type of dimension (space or not) for each of them
-    character(6), dimension(:), pointer :: interptab   => NULL()
-
-    type(Agrif_Variable), pointer   :: var          => NULL()
-    type(Agrif_Profile),  pointer   :: nextprofile  => NULL()
-!---------------------------------------------------------------------------------------------------
-end type Agrif_Profile
-!===================================================================================================
-
-type(Agrif_Profile), pointer :: Agrif_MyProfiles => NULL()
-
-!  Boundaries Fluxes
-
-!===================================================================================================
-type Agrif_Flux
-!---------------------------------------------------------------------------------------------------
-    character*80 fluxname
-    type(Agrif_Variable), pointer :: fluxtabx => NULL()
-    type(Agrif_Variable), pointer :: fluxtaby => NULL()
-    type(Agrif_Variable), pointer :: fluxtabz => NULL()
-    type(Agrif_Profile),  pointer :: profile  => NULL()
-    logical :: Fluxallocated = .FALSE.
-    type(Agrif_Flux), pointer     :: nextflux => NULL()
-!---------------------------------------------------------------------------------------------------
-end type Agrif_Flux
+end type Agrif_Variables_List
 !===================================================================================================
 !
 !===================================================================================================
 !> Different parameters
 !
-    type(Agrif_PVariable), dimension(:), pointer :: Agrif_tabvars => NULL()
+    type(Agrif_Variable),   dimension(:), pointer :: Agrif_tabvars => NULL()
+    type(Agrif_Variable_c), dimension(:), pointer :: Agrif_tabvars_c => NULL()
+    type(Agrif_Variable_r), dimension(:), pointer :: Agrif_tabvars_r => NULL()
+    type(Agrif_Variable_l), dimension(:), pointer :: Agrif_tabvars_l => NULL()
+    type(Agrif_Variable_i), dimension(:), pointer :: Agrif_tabvars_i => NULL()
 !
-    !> this pointer always points on the root grid of the grid hierarchy
-    type(Agrif_Grid) , pointer :: Agrif_Mygrid => NULL()
-
-    !> Pointer used in the \link Agrif_Util::Agrif_Regrid() Agrif_regrid \endlink subroutine.
-    !> It contains  the safeguard of the grid hierarchy.
-    type(Agrif_PGrid), pointer :: Agrif_oldmygrid => NULL()
-
-    !> Pointer to the current grid (the link is done by using the Agrif_Instance procedure (\see module Agrif_Init))
-    type(Agrif_Grid) , pointer :: Agrif_Curgrid => NULL()
-
     integer               :: Agrif_Probdim          !< Problem dimension
-    integer               :: Agrif_NbVariables      !< Number of variables
+    integer,dimension(0:4):: Agrif_NbVariables      !< Number of variables
     integer               :: Agrif_nbfixedgrids     !< Number of fixed grids in the grid hierarchy
     integer, dimension(3) :: Agrif_coeffref         !< Space refinement factor
     integer, dimension(3) :: Agrif_coeffreft        !< Time refinement factor
     logical               :: Agrif_UseSpecialValue          !< T if use special values on the parent grid
     logical               :: Agrif_UseSpecialValueInUpdate  !< T if use special values on the parent grid
+    logical               :: Agrif_Update_Weights = .FALSE.
     logical               :: Agrif_UseSpecialValueFineGrid  !< T if use special values on the current grid
     real                  :: Agrif_SpecialValue             !< Special value on the parent grid
     real                  :: Agrif_SpecialValueFineGrid     !< Special value on the current grid
@@ -371,6 +363,7 @@ end type Agrif_Flux
     integer, parameter    :: Agrif_linearconservlim = 7 !< linear conservative interpolation
     integer, parameter    :: Agrif_ppm = 8              !< PPM interpolation
     integer, parameter    :: Agrif_weno = 9             !< WENO5 interpolation
+    integer, parameter    :: Agrif_ppm_lim = 10         !< PPM interpolation with monotonicity
 !> @}
 !> \name parameters for the update of the parent grids
 !> @{
@@ -388,9 +381,31 @@ end type Agrif_Flux
 #if defined AGRIF_MPI
     integer :: Agrif_Nbprocs  !< Number of processors
     integer :: Agrif_ProcRank !< Rank of the current processor
-    integer :: Agrif_Group    !< Group associated to agrif_mpi_comm
-    integer :: Agrif_MPIPREC
+    integer :: Agrif_Group    !< Group associated to Agrif_mpi_comm
+    integer :: Agrif_mpi_comm
+#else
+    integer :: Agrif_ProcRank = 0
 #endif
+!
+    integer :: Agrif_Extra_Boundary_Cells = 3       !< When computing integration sequences, the grid rects
+                                                    !! are expanded to this number of cells.
+    logical :: Agrif_Parallel_sisters = .FALSE.     !< When TRUE, try to compute sister grids (which have the same parent)
+                                                    !! in parallel rather than sequentially.
+    logical :: agrif_regrid_has_been_done = .FALSE. !< switch to skip Agrif_Regrid call
+!
+    real, dimension(:)          , allocatable :: parray1
+    real, dimension(:,:)        , allocatable :: parray2
+    real, dimension(:,:,:)      , allocatable :: parray3
+    real, dimension(:,:,:,:)    , allocatable :: parray4
+    real, dimension(:,:,:,:,:)  , allocatable :: parray5
+    real, dimension(:,:,:,:,:,:), allocatable :: parray6
+!
+    logical :: agrif_debug = .false.    ! may be activaded in users subroutine for debugging purposes
+
+! If a grand mother grid is present
+    logical :: agrif_coarse = .false.
+    integer, dimension(3) :: coarse_spaceref = (/1,1,1/)
+    integer, dimension(3) :: coarse_timeref  = (/1,1,1/)
 !
 contains
 !

@@ -47,94 +47,85 @@
 /******************************************************************************/
 void Add_Common_var_1()
 {
-   listvar *newvar;
-   listvar *newvar2;
-   variable *newvariable;
-   listdim *dims;
-   char listdimension[LONG_C];
-   char ligne[LONG_C];
-   int out;
+    listvar *newvar;
+    listvar *newvar2;
+    variable *newvariable;
+    listdim *dims;
+    char listdimension[LONG_M];
+    char ligne[LONG_M];
+    int out;
 
-   if ( firstpass == 1 )
-   {
+    if ( firstpass == 1 )
+    {
+        newvar = (listvar *) calloc(1,sizeof(listvar));
+        newvariable = (variable *) calloc(1,sizeof(variable));
 
-   newvar = (listvar *)malloc(sizeof(listvar));
-   newvariable = (variable *)malloc(sizeof(variable));
-   /*                                                                         */
-   Init_Variable(newvariable);
-   /*                                                                         */
-   strcpy(newvariable->v_nomvar,commonvar);
-   Save_Length(commonvar,4);
-   strcpy(newvariable->v_commonname,commonblockname);
-   Save_Length(commonblockname,7);
-   strcpy(newvariable->v_modulename,curmodulename);
-   Save_Length(curmodulename,6);
-   strcpy(newvariable->v_subroutinename,subroutinename);
-   Save_Length(subroutinename,11);
-   newvariable->v_positioninblock= positioninblock;
-   newvariable->v_common=1;
-   strcpy(newvariable->v_commoninfile,mainfile);
-   Save_Length(mainfile,10);
+        Init_Variable(newvariable);
 
-   newvar->var = newvariable;
+        strcpy(newvariable->v_nomvar,commonvar);
+        strcpy(newvariable->v_commonname,commonblockname);
+        strcpy(newvariable->v_modulename,curmodulename);
+        strcpy(newvariable->v_subroutinename,subroutinename);
+        strcpy(newvariable->v_commoninfile,cur_filename);
+        newvariable->v_positioninblock = positioninblock;
+        newvariable->v_common = 1;
+        newvar->var = newvariable;
 
-   if ( commondim )
-   {
-      newvariable->v_dimension=commondim;
-      newvariable->v_dimensiongiven=1;
-      newvariable->v_nbdim=num_dims(commondim);
-      /* Creation of the string for the dimension of this variable            */
-      dimsempty = 1;
-      strcpy(listdimension,"");
+        if ( commondim )
+        {
+            newvariable->v_dimension = commondim;
+            newvariable->v_dimensiongiven = 1;
+            newvariable->v_nbdim = get_num_dims(commondim);
 
-      if ( commondim )
-      {
-         dims = commondim;
-         while (dims)
-         {
-            if ( strcasecmp(dims->dim.first,"") ||
-                 strcasecmp(dims->dim.last,""))  dimsempty = 0;
-            sprintf(ligne,"%s:%s",dims->dim.first,dims->dim.last);
-            strcat(listdimension,ligne);
-            if ( dims->suiv ) strcat(listdimension,",");
-            dims = dims->suiv;
-         }
-         if ( dimsempty == 1 ) newvariable->v_dimsempty=1;
-      }
-      strcpy(newvariable->v_readedlistdimension,listdimension);
-      Save_Length(listdimension,15);
-   }
+            /* Creation of the string for the dimension of this variable            */
+            dimsempty = 1;
+            strcpy(listdimension,"");
 
+            dims = commondim;
+            while (dims)
+            {
+                if ( strcasecmp(dims->dim.first,"") ||
+                     strcasecmp(dims->dim.last,""))  dimsempty = 0;
+                sprintf(ligne,"%s:%s",dims->dim.first,dims->dim.last);
+                strcat(listdimension,ligne);
+                if ( dims->suiv ) strcat(listdimension,",");
+                dims = dims->suiv;
+            }
+            if ( dimsempty == 1 ) newvariable->v_dimsempty = 1;
 
-   newvar->suiv = NULL;
+            strcpy(newvariable->v_readedlistdimension,listdimension);
+            Save_Length(listdimension,15);
+        }
 
-   if ( !List_Common_Var )
-   {
-      List_Common_Var = newvar;
-   }
-   else
-   {
-      newvar2 = List_Common_Var;
-      out = 0 ;
-      while ( newvar2 && out == 0 )
-      {
-         if ( !strcasecmp(newvar2->var->v_nomvar,commonvar) &&
-              !strcasecmp(newvar2->var->v_commonname,commonblockname) &&
-              !strcasecmp(newvar2->var->v_subroutinename,subroutinename)
-                          ) out = 1 ;
-         else newvar2 = newvar2->suiv;
-      }
-      if ( out == 0 )
-      {
-         newvar->suiv = List_Common_Var;
-         List_Common_Var = newvar;
-      }
-      else
-      {
-         free(newvar);
-      }
-   }
-   }
+        newvar->suiv = NULL;
+
+        if ( !List_Common_Var )
+        {
+            List_Common_Var = newvar;
+        }
+        else
+        {
+            newvar2 = List_Common_Var;
+            out = 0 ;
+            while ( newvar2 && out == 0 )
+            {
+                if ( !strcasecmp(newvar2->var->v_nomvar,commonvar) &&
+                     !strcasecmp(newvar2->var->v_commonname,commonblockname) &&
+                     !strcasecmp(newvar2->var->v_subroutinename,subroutinename)
+                   ) out = 1 ;
+                else newvar2 = newvar2->suiv;
+            }
+            if ( out == 0 )
+            {
+                newvar->suiv = List_Common_Var;
+                List_Common_Var = newvar;
+            }
+            else
+            {
+                free(newvar);
+            }
+        }
+    }
 }
 
 /******************************************************************************/
@@ -144,39 +135,41 @@ void Add_Common_var_1()
 /******************************************************************************/
 /*                                                                            */
 /******************************************************************************/
-listnom *Addtolistnom(char *nom, listnom *listin,int value)
+listnom *Addtolistnom(const char *nom, listnom *listin, int value)
 {
-   listnom *newnom;
-   listnom *parcours;
-   int out;
+    listnom *newnom;
+    listnom *parcours;
+    int out;
 
-   newnom=(listnom *) malloc (sizeof (listnom));
-   strcpy(newnom->o_nom,nom);
-   Save_Length(nom,23);
-   newnom->o_val = value;
-   newnom->suiv = NULL;
+    newnom = (listnom*) calloc(1, sizeof(listnom));
+    strcpy(newnom->o_nom, nom);
+    newnom->o_val = value;
+    newnom->suiv = NULL;
 
-   if ( !listin ) listin = newnom;
-   else
-   {
-      parcours = listin;
-      out = 0 ;
-      while ( parcours && out == 0 )
-      {
-         if ( !strcasecmp(parcours->o_nom,nom) ) out = 1 ;
-         else parcours=parcours->suiv;
-      }
-      if ( out == 0 )
-      {
-          newnom->suiv = listin;
-          listin = newnom;
-      }
-      else
-      {
-         free(newnom);
-      }
-   }
-   return listin;
+    if ( listin == NULL )
+    {
+        listin = newnom;
+    }
+    else
+    {
+        parcours = listin;
+        out = 0 ;
+        while ( parcours && out == 0 )
+        {
+            if ( !strcasecmp(parcours->o_nom, nom) ) out = 1 ;
+            else parcours = parcours->suiv;
+        }
+        if ( out == 0 )
+        {
+            newnom->suiv = listin;
+            listin = newnom;
+        }
+        else
+        {
+            free(newnom);
+        }
+    }
+    return listin;
 }
 
 /******************************************************************************/
@@ -192,39 +185,37 @@ listnom *Addtolistnom(char *nom, listnom *listin,int value)
 /*                                                                            */
 /*                                                                            */
 /******************************************************************************/
-listname *Addtolistname(char *nom,listname *input)
+listname *Addtolistname(const char *nom, listname *input)
 {
-   listname *newnom;
-   listname *parcours;
-   int out;
+    listname *newnom;
+    listname *parcours;
+    int out;
 
-   if ( !input )
-   {
-      newnom=(listname *) malloc (sizeof (listname));
-      strcpy(newnom->n_name,nom);
-      Save_Length(nom,20);
-      newnom->suiv = NULL;
-      input = newnom;
-   }
-   else
-   {
-      parcours = input;
-      out = 0 ;
-      while ( parcours && out == 0 )
-      {
-         if ( !strcasecmp(parcours->n_name,nom) ) out = 1;
-         else parcours=parcours->suiv;
-      }
-      if ( out == 0 )
-      {
-         newnom=(listname *) malloc (sizeof (listname));
-         strcpy(newnom->n_name,nom);
-         Save_Length(nom,20);
-         newnom->suiv = input;
-         input = newnom;
-      }
-   }
-   return input;
+    if ( !input )
+    {
+        newnom = (listname*) calloc(1, sizeof(listname));
+        strcpy(newnom->n_name, nom);
+        newnom->suiv = NULL;
+        input = newnom;
+    }
+    else
+    {
+        parcours = input;
+        out = 0 ;
+        while ( parcours && out == 0 )
+        {
+            if ( !strcasecmp(parcours->n_name,nom) ) out = 1;
+            else parcours=parcours->suiv;
+        }
+        if ( out == 0 )
+        {
+            newnom = (listname*) calloc(1,sizeof(listname));
+            strcpy(newnom->n_name, nom);
+            newnom->suiv = input;
+            input = newnom;
+        }
+    }
+    return input;
 }
 
 /******************************************************************************/
@@ -235,22 +226,22 @@ listname *Addtolistname(char *nom,listname *input)
 /*                                                                            */
 /*                                                                            */
 /******************************************************************************/
-int ModuleIsDefineInInputFile(char *name)
+int ModuleIsDefineInInputFile(const char *name)
 {
-   listnom *newnom;
-   int out;
+    listnom *newnom;
+    int out;
 
-   out = 0;
-   if ( listofmodules )
-   {
-      newnom = listofmodules;
-      while( newnom && out == 0 )
-      {
-         if ( !strcasecmp(newnom->o_nom,name) ) out = 1 ;
-         else newnom=newnom->suiv;
-      }
-   }
-   return out;
+    out = 0;
+    if ( listofmodules )
+    {
+        newnom = listofmodules;
+        while( newnom && out == 0 )
+        {
+            if ( !strcasecmp(newnom->o_nom,name) ) out = 1 ;
+            else newnom = newnom->suiv;
+        }
+    }
+    return out;
 }
 
 /******************************************************************************/
@@ -269,42 +260,38 @@ int ModuleIsDefineInInputFile(char *name)
 /*       list =  listofmoduletmp                                              */
 /*                                                                            */
 /******************************************************************************/
-void Addmoduletothelisttmp(char *name)
+void Addmoduletothelisttmp(const char *name)
 {
-  listusemodule *newmodule;
-  listusemodule *parcours;
-  int out;
+    listusemodule *newmodule;
+    listusemodule *parcours;
+    int out;
 
-  if ( !listofmoduletmp)
-  {
-    newmodule =(listusemodule *)malloc(sizeof(listusemodule));
-    strcpy(newmodule->u_usemodule,name);
-    Save_Length(name,16);
-    strcpy(newmodule->u_cursubroutine,subroutinename);
-    Save_Length(subroutinename,18);
-    newmodule->suiv = NULL;
-    listofmoduletmp = newmodule ;
-  }
-  else
-  {
-    parcours = listofmoduletmp;
-    out = 0;
-    while( parcours && out == 0 )
+    if ( !listofmoduletmp )
     {
-       if ( !strcasecmp(parcours->u_usemodule,name) ) out = 1;
-       else parcours = parcours->suiv;
+        newmodule = (listusemodule*) calloc(1, sizeof(listusemodule));
+        strcpy(newmodule->u_usemodule, name);
+        strcpy(newmodule->u_cursubroutine, subroutinename);
+        newmodule->suiv = NULL;
+        listofmoduletmp = newmodule ;
     }
-    if ( out == 0 )
+    else
     {
-       newmodule =(listusemodule *)malloc(sizeof(listusemodule));
-       strcpy(newmodule->u_usemodule,name);
-       Save_Length(name,16);
-       strcpy(newmodule->u_cursubroutine,subroutinename);
-       Save_Length(subroutinename,18);
-       newmodule->suiv = listofmoduletmp;
-       listofmoduletmp = newmodule;
+        parcours = listofmoduletmp;
+        out = 0;
+        while( parcours && out == 0 )
+        {
+            if ( !strcasecmp(parcours->u_usemodule, name) ) out = 1;
+            else parcours = parcours->suiv;
+        }
+        if ( out == 0 )
+        {
+            newmodule = (listusemodule*) calloc(1, sizeof(listusemodule));
+            strcpy(newmodule->u_usemodule, name);
+            strcpy(newmodule->u_cursubroutine, subroutinename);
+            newmodule->suiv = listofmoduletmp;
+            listofmoduletmp = newmodule;
+        }
     }
-  }
 }
 
 /******************************************************************************/
@@ -320,18 +307,17 @@ void Addmoduletothelisttmp(char *name)
 /*                                                                            */
 /*                                                                            */
 /******************************************************************************/
-void Add_NameOfModule_1(char *nom)
+void Add_NameOfModule_1(const char *nom)
 {
-   listnom *newnom;
+    listnom *newnom;
 
-   if ( firstpass == 1 )
-   {
-      newnom=(listnom *) malloc (sizeof (listnom));
-      strcpy(newnom->o_nom,nom);
-      Save_Length(nom,23);
-      newnom->suiv = List_NameOfModule;
-      List_NameOfModule = newnom;
-   }
+    if ( firstpass == 1 )
+    {
+        newnom = (listnom *) calloc(1,sizeof(listnom));
+        strcpy(newnom->o_nom,nom);
+        newnom->suiv = List_NameOfModule;
+        List_NameOfModule = newnom;
+    }
 }
 
 /******************************************************************************/
@@ -347,26 +333,25 @@ void Add_NameOfModule_1(char *nom)
 /*                                                                            */
 /*                                                                            */
 /******************************************************************************/
-void Add_NameOfCommon_1(char *nom,char *cursubroutinename)
+void Add_NameOfCommon_1(const char *nom, const char *cursubroutinename)
 {
-   listnom *newnom;
-   listnom *parcours;
+    listnom *newnom;
+    listnom *parcours;
 
-   if ( firstpass == 1 )
-   {
-      parcours = List_NameOfCommon;
-      while ( parcours && strcasecmp(parcours->o_nom,nom) )
-                                                      parcours = parcours->suiv;
-      if ( !parcours )
-      {
-         newnom=(listnom *) malloc (sizeof (listnom));
-         strcpy(newnom->o_nom,nom);
-         strcpy(newnom->o_subroutinename,cursubroutinename);
-         Save_Length(nom,23);
-         newnom->suiv = List_NameOfCommon;
-         List_NameOfCommon = newnom;
-      }
-   }
+    if ( firstpass == 1 )
+    {
+        parcours = List_NameOfCommon;
+        while ( parcours && strcasecmp(parcours->o_nom,nom) )
+            parcours = parcours->suiv;
+        if ( !parcours )
+        {
+            newnom = (listnom *) calloc(1,sizeof(listnom));
+            strcpy(newnom->o_nom,nom);
+            strcpy(newnom->o_subroutinename,cursubroutinename);
+            newnom->suiv = List_NameOfCommon;
+            List_NameOfCommon = newnom;
+        }
+    }
 }
 
 /******************************************************************************/
@@ -377,30 +362,24 @@ void Add_NameOfCommon_1(char *nom,char *cursubroutinename)
 /******************************************************************************/
 /*                                                                            */
 /******************************************************************************/
-void Add_CouplePointed_Var_1(char *namemodule,listcouple *couple)
+void Add_CouplePointed_Var_1(const char *namemodule, listcouple *couple)
 {
-   listvarpointtovar *pointtmp;
+    listvarpointtovar *pointtmp;
 
-   if ( firstpass == 1 )
-   {
-      /* we should complete the List_CouplePointed_Var                        */
-      pointtmp=(listvarpointtovar *)malloc(sizeof(listvarpointtovar));
-      strcpy(pointtmp->t_usemodule,namemodule);
-      Save_Length(namemodule,28);
-      strcpy(pointtmp->t_cursubroutine,subroutinename);
-      Save_Length(subroutinename,29);
-      pointtmp->t_couple = couple;
-      if ( List_CouplePointed_Var )
-      {
-         pointtmp->suiv = List_CouplePointed_Var;
-         List_CouplePointed_Var = pointtmp;
-      }
-      else
-      {
-         pointtmp->suiv = NULL;
-         List_CouplePointed_Var = pointtmp;
-      }
-   }
+    /* we should complete the List_CouplePointed_Var                        */
+    pointtmp = (listvarpointtovar*) calloc(1, sizeof(listvarpointtovar));
+    strcpy(pointtmp->t_usemodule, namemodule);
+    strcpy(pointtmp->t_cursubroutine, subroutinename);
+    pointtmp->t_couple = couple;
+    if ( List_CouplePointed_Var )
+    {
+        pointtmp->suiv = List_CouplePointed_Var;
+    }
+    else
+    {
+        pointtmp->suiv = NULL;
+    }
+    List_CouplePointed_Var = pointtmp;
 }
 
 /******************************************************************************/
@@ -419,29 +398,19 @@ void Add_CouplePointed_Var_1(char *namemodule,listcouple *couple)
 /*       list =  List_Include                                                 */
 /*                                                                            */
 /******************************************************************************/
-void Add_Include_1(char *name)
+void Add_Include_1(const char *name)
 {
-  listusemodule *newinclude;
+    listusemodule *newinclude;
 
-  if ( firstpass == 1 )
-  {
-  newinclude =(listusemodule *)malloc(sizeof(listusemodule));
-  strcpy(newinclude->u_usemodule,name);
-  Save_Length(name,16);
-  strcpy(newinclude->u_cursubroutine,subroutinename);
-  Save_Length(subroutinename,18);
-  newinclude->suiv = NULL;
+    if ( firstpass == 1 )
+    {
+        newinclude = (listusemodule*) calloc(1, sizeof(listusemodule));
+        strcpy(newinclude->u_usemodule,name);
+        strcpy(newinclude->u_cursubroutine,subroutinename);
 
-  if ( !List_Include)
-  {
-     List_Include  = newinclude ;
-  }
-  else
-  {
-    newinclude->suiv = List_Include;
-    List_Include = newinclude;
-  }
-  }
+        newinclude->suiv = List_Include;
+        List_Include  = newinclude ;
+    }
 }
 
 /******************************************************************************/
@@ -454,14 +423,9 @@ void Add_Include_1(char *name)
 /******************************************************************************/
 void Add_ImplicitNoneSubroutine_1()
 {
-
-  if ( firstpass == 1 )
-  {
-     List_ImplicitNoneSubroutine = Addtolistname(subroutinename,
-                                                   List_ImplicitNoneSubroutine);
-  }
+    if ( firstpass == 1 )
+        List_ImplicitNoneSubroutine = Addtolistname(subroutinename,List_ImplicitNoneSubroutine);
 }
-
 
 /******************************************************************************/
 /*                        WriteIncludeDeclaration                             */
@@ -470,17 +434,17 @@ void Add_ImplicitNoneSubroutine_1()
 /******************************************************************************/
 /*                                                                            */
 /******************************************************************************/
-void WriteIncludeDeclaration()
+void WriteIncludeDeclaration(FILE* tofile)
 {
   listusemodule *newinclude;
 
   newinclude = List_Include;
-  fprintf(fortran_out,"\n");
+  fprintf(tofile,"\n");
   while ( newinclude )
   {
      if ( !strcasecmp(newinclude->u_cursubroutine,subroutinename) )
      {
-        fprintf(fortran_out,"      INCLUDE %s \n",newinclude->u_usemodule);
+        fprintf(tofile, "      include %s\n",newinclude->u_usemodule);
      }
      newinclude = newinclude ->suiv;
   }
@@ -497,110 +461,91 @@ void WriteIncludeDeclaration()
 /*       +______+    +______+    +______+    +______+    +______+             */
 /*                                                                            */
 /******************************************************************************/
-void Add_Save_Var_1 (char *name,listdim *d)
+void Add_Save_Var_1 (const char *name, listdim *d)
 {
-  listvar *newvar;
-  listdim *dims;
-  char ligne[LONG_C];
-  char listdimension[LONG_C];
+    listvar *newvar;
+    listdim *dims;
+    char ligne[LONG_M];
+    char listdimension[LONG_M];
 
-  if ( firstpass == 1 )
-  {
-     newvar=(listvar *)malloc(sizeof(listvar));
-     newvar->var=(variable *)malloc(sizeof(variable));
-     /*                                                                       */
-     Init_Variable(newvar->var);
-     /*                                                                       */
-     newvar->var->v_save=1;
-     strcpy(newvar->var->v_nomvar,name);
-     Save_Length(name,4);
-     strcpy(newvar->var->v_modulename,curmodulename);
-     Save_Length(curmodulename,6);
-     strcpy(newvar->var->v_subroutinename,subroutinename);
-     Save_Length(subroutinename,11);
-     strcpy(newvar->var->v_commoninfile,mainfile);
-     Save_Length(mainfile,10);
+    if ( firstpass == 1 )
+    {
+        newvar = (listvar *) calloc(1,sizeof(listvar));
+        newvar->var = (variable *) calloc(1,sizeof(variable));
 
-     newvar->var->v_dimension=d;
-     /* Creation of the string for the dimension of this variable             */
-     dimsempty = 1;
+        Init_Variable(newvar->var);
 
-     if ( d )
-     {
-        newvar->var->v_dimensiongiven=1;
-        dims = d;
-        while (dims)
+        newvar->var->v_save = 1;
+        strcpy(newvar->var->v_nomvar,name);
+        strcpy(newvar->var->v_modulename,curmodulename);
+        if (strcasecmp(curmodulename,""))
         {
-           if ( strcasecmp(dims->dim.first,"") || strcasecmp(dims->dim.last,""))
-                                                                  dimsempty = 0;
-           sprintf(ligne,"%s:%s",dims->dim.first,dims->dim.last);
-           strcat(listdimension,ligne);
-           if ( dims->suiv )
-           {
-              strcat(listdimension,",");
-           }
-           dims = dims->suiv;
+        newvar->var->v_module=1;
         }
-        if ( dimsempty == 1 ) newvar->var->v_dimsempty=1;
-     }
+        strcpy(newvar->var->v_subroutinename,subroutinename);
+        strcpy(newvar->var->v_commoninfile,cur_filename);
 
-/*     strcpy(newvar->var->v_readedlistdimension,listdimension);
-     Save_Length(listdimension,15);*/
-     /*                                                                       */
-     newvar->suiv = NULL;
+        newvar->var->v_dimension = d;
 
-     if ( !List_Save_Var )
-     {
-        List_Save_Var  = newvar ;
-     }
-     else
-     {
+        /* Creation of the string for the dimension of this variable             */
+        dimsempty = 1;
+
+        if ( d )
+        {
+            newvar->var->v_dimensiongiven = 1;
+            dims = d;
+            while (dims)
+            {
+                if ( strcasecmp(dims->dim.first,"") || strcasecmp(dims->dim.last,""))
+                    dimsempty = 0;
+                sprintf(ligne,"%s:%s",dims->dim.first,dims->dim.last);
+                strcat(listdimension,ligne);
+                if ( dims->suiv )   strcat(listdimension,",");
+                dims = dims->suiv;
+            }
+            if ( dimsempty == 1 ) newvar->var->v_dimsempty = 1;
+        }
+
         newvar->suiv = List_Save_Var;
         List_Save_Var = newvar;
-     }
-  }
+    }
 }
 
 void Add_Save_Var_dcl_1 (listvar *var)
 {
-  listvar *newvar;
-  listvar *parcours;
+    listvar *newvar;
+    listvar *parcours;
 
-  if ( firstpass == 1 )
-  {
-     parcours = var;
-     while ( parcours )
-     {
-        newvar=(listvar *)malloc(sizeof(listvar));
-        newvar->var=(variable *)malloc(sizeof(variable));
-        /*                                                                    */
-        Init_Variable(newvar->var);
-        /*                                                                    */
-        newvar->var->v_save=1;
-        strcpy(newvar->var->v_nomvar,parcours->var->v_nomvar);
-        strcpy(newvar->var->v_modulename,curmodulename);
-        Save_Length(curmodulename,6);
-        strcpy(newvar->var->v_subroutinename,subroutinename);
-        Save_Length(subroutinename,11);
-        strcpy(newvar->var->v_commoninfile,mainfile);
-        Save_Length(mainfile,10);
-        /*                                                                    */
-        strcpy(newvar->var->v_readedlistdimension,
-             parcours->var->v_readedlistdimension);
-        newvar->var->v_nbdim = parcours->var->v_nbdim;
-        newvar->var->v_dimension = parcours->var->v_dimension;
-        /*                                                                    */
-        newvar->var->v_dimensiongiven=parcours->var->v_dimensiongiven;
-        /*                                                                    */
-        newvar->suiv = NULL;
-
-        if ( !List_Save_Var ) List_Save_Var  = newvar ;
-        else
+    if ( firstpass == 1 )
+    {
+        parcours = var;
+        while ( parcours )
         {
-           newvar->suiv = List_Save_Var;
-           List_Save_Var = newvar;
+            newvar = (listvar *) calloc(1,sizeof(listvar));
+            newvar->var = (variable *) calloc(1,sizeof(variable));
+
+            Init_Variable(newvar->var);
+            newvar->var->v_save = 1;
+            strcpy(newvar->var->v_nomvar,parcours->var->v_nomvar);
+            strcpy(newvar->var->v_dimchar,parcours->var->v_dimchar);
+            strcpy(newvar->var->v_modulename,curmodulename);
+            strcpy(newvar->var->v_subroutinename,subroutinename);
+            strcpy(newvar->var->v_commoninfile,cur_filename);
+            strcpy(newvar->var->v_readedlistdimension,parcours->var->v_readedlistdimension);
+
+            newvar->var->v_nbdim = parcours->var->v_nbdim;
+            strcpy(newvar->var->v_typevar,parcours->var->v_typevar);
+            strcpy(newvar->var->v_precision,parcours->var->v_precision);
+            newvar->var->v_catvar = parcours->var->v_catvar;
+            newvar->var->v_dimension = parcours->var->v_dimension;
+            newvar->var->v_dimensiongiven=parcours->var->v_dimensiongiven;
+            newvar->var->v_allocatable = parcours->var->v_allocatable;
+            newvar->var->v_initialvalue = parcours->var->v_initialvalue;
+            newvar->var->v_initialvalue_array = parcours->var->v_initialvalue_array;
+            newvar->suiv = List_Save_Var;
+            List_Save_Var = newvar;
+
+            parcours = parcours->suiv;
         }
-        parcours = parcours->suiv;
-     }
-  }
+    }
 }

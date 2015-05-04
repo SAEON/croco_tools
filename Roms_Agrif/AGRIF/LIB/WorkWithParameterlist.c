@@ -46,12 +46,8 @@
 /******************************************************************************/
 void Add_GlobalParameter_Var_1(listvar *listin)
 {
-   if ( firstpass == 1 )
-   {
-      if ( VariableIsParameter == 1 ) {
-      List_GlobalParameter_Var =  AddListvarToListvar(listin,List_GlobalParameter_Var,1);
-      }
-   }
+    if ( VariableIsParameter )
+        List_GlobalParameter_Var =  AddListvarToListvar(listin, List_GlobalParameter_Var, 1);
 }
 
 /******************************************************************************/
@@ -63,21 +59,21 @@ void Add_GlobalParameter_Var_1(listvar *listin)
 /******************************************************************************/
 void Add_Parameter_Var_1(listvar *listin)
 {
-   listvar *parcours;
+    listvar *parcours;
 
-   if ( firstpass == 1 && VariableIsParameter == 1 )
-   {
-      if ( !List_Parameter_Var )
-      {
-         List_Parameter_Var = listin;
-      }
-      else
-      {
-         parcours = List_Parameter_Var;
-         while (parcours->suiv) parcours=parcours->suiv;
-         parcours->suiv = listin;
-      }
-   }
+    if ( !VariableIsParameter )    return;
+
+    if ( List_Parameter_Var == NULL )
+    {
+        List_Parameter_Var = listin;
+    }
+    else
+    {
+        parcours = List_Parameter_Var;
+        while ( parcours->suiv )
+            parcours = parcours->suiv;
+        parcours->suiv = listin;
+    }
 }
 
 /******************************************************************************/
@@ -91,17 +87,15 @@ void Add_Dimension_Var_1(listvar *listin)
 {
    listvar *parcours;
 
-   if ( firstpass == 1 )
-   {
-      if ( !List_Dimension_Var )
-      {
-         List_Dimension_Var = listin;
-      }
-      else
-      {
-         parcours = List_Dimension_Var;
-         while (parcours->suiv) parcours=parcours->suiv;
-         parcours->suiv = listin;
-      }
-   }
+    if ( List_Dimension_Var == NULL )
+    {
+        List_Dimension_Var = listin;
+    }
+    else
+    {
+        parcours = List_Dimension_Var;
+        while (parcours->suiv)
+            parcours = parcours->suiv;
+        parcours->suiv = listin;
+    }
 }

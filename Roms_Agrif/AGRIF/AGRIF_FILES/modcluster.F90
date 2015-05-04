@@ -34,51 +34,55 @@ module Agrif_Clustering
 !
     implicit none
 !
+    abstract interface
+        subroutine init_proc()
+        end subroutine init_proc
+    end interface
+!
 contains
 !
 !===================================================================================================
 !  subroutine Agrif_Cluster_All
 !
-!> Subroutine for the clustering. A temporary grid hierarchy, pointed by coarsegrid, is created.
+!> Subroutine for the clustering. A temporary grid hierarchy, pointed by parent_rect, is created.
 !---------------------------------------------------------------------------------------------------
-recursive subroutine Agrif_Cluster_All ( g, coarsegrid )
+recursive subroutine Agrif_Cluster_All ( g, parent_rect )
 !---------------------------------------------------------------------------------------------------
     TYPE(Agrif_Grid)     , pointer   :: g        !< Pointer on the current grid
-    TYPE(Agrif_Rectangle), pointer   :: coarsegrid
+    TYPE(Agrif_Rectangle), pointer   :: parent_rect
 !
     TYPE(Agrif_LRectangle), pointer  :: parcours
     TYPE(Agrif_Grid)      , pointer  :: newgrid
     REAL                             :: g_eps
-    INTEGER                          :: iii
+    INTEGER                          :: i
 !
     g_eps = huge(1.)
-    do iii = 1,Agrif_Probdim
-        g_eps = min(g_eps, g%Agrif_d(iii))
+    do i = 1,Agrif_Probdim
+        g_eps = min(g_eps, g % Agrif_dx(i))
     enddo
 !
     g_eps = g_eps / 100.
 !
 !   Necessary condition for clustering
-    do iii = 1,Agrif_Probdim
-        if ( g%Agrif_d(iii)/Agrif_coeffref(iii) < (Agrif_mind(iii)-g_eps)) return
+    do i = 1,Agrif_Probdim
+        if ( g%Agrif_dx(i)/Agrif_coeffref(i) < (Agrif_mind(i)-g_eps)) return
     enddo
 !
-    nullify(coarsegrid%childgrids)
+    nullify(parent_rect%childgrids)
 !
-    call Agrif_ClusterGridnD(g,coarsegrid)
+    call Agrif_ClusterGridnD(g,parent_rect)
 !
-    parcours => coarsegrid % childgrids
+    parcours => parent_rect % childgrids
 !
     do while ( associated(parcours) )
 !
 !       Newgrid is created. It is a copy of a fine grid created previously by clustering.
         allocate(newgrid)
-        nullify(newgrid%child_grids)
 !
-        do iii = 1,Agrif_Probdim
-            newgrid % nb(iii) = (parcours % r % imax(iii) - parcours % r % imin(iii)) * Agrif_Coeffref(iii)
-            newgrid % Agrif_x(iii) = g%Agrif_x(iii) + (parcours %r % imin(iii) -1) * g%Agrif_d(iii)
-            newgrid % Agrif_d(iii) = g%Agrif_d(iii) / Agrif_Coeffref(iii)
+        do i = 1,Agrif_Probdim
+            newgrid % nb(i) = (parcours % r % imax(i) - parcours % r % imin(i)) * Agrif_Coeffref(i)
+            newgrid % Agrif_x(i)  = g % Agrif_x(i)  + (parcours % r % imin(i) -1) * g%Agrif_dx(i)
+            newgrid % Agrif_dx(i) = g % Agrif_dx(i) / Agrif_Coeffref(i)
         enddo
 !
         if ( Agrif_Probdim == 1 ) then
@@ -132,11 +136,10 @@ recursive subroutine Agrif_TabpointsnD ( g, newgrid )
     REAL   , DIMENSION(3) :: xmin
     INTEGER, DIMENSION(3) :: igmin, inewmin
     INTEGER, DIMENSION(3) :: inewmax
-    INTEGER               :: iii
     INTEGER               :: i,  j,  k
     INTEGER               :: i0, j0, k0
 !
-    parcours => g % child_grids
+    parcours => g % child_list % first
 !
     do while( associated(parcours) )
         call Agrif_TabpointsnD(parcours%gr,newgrid)
@@ -146,33 +149,33 @@ recursive subroutine Agrif_TabpointsnD ( g, newgrid )
     g_eps = 10.
     newgrid_eps = 10.
 !
-    do iii = 1,Agrif_probdim
-        g_eps = min( g_eps , g % Agrif_d(iii) )
-        newgrid_eps = min(newgrid_eps,newgrid%Agrif_d(iii))
+    do i = 1,Agrif_probdim
+        g_eps = min( g_eps , g % Agrif_dx(i) )
+        newgrid_eps = min(newgrid_eps,newgrid%Agrif_dx(i))
     enddo
 !
     eps = min(g_eps,newgrid_eps)/100.
 !
-    do iii = 1,Agrif_probdim
+    do i = 1,Agrif_probdim
 !
-         if ( newgrid%Agrif_d(iii) < (g%Agrif_d(iii)-eps) ) return
+         if ( newgrid%Agrif_dx(i) < (g%Agrif_dx(i)-eps) ) return
 !
-         gmin(iii) = g%Agrif_x(iii)
-         gmax(iii) = g%Agrif_x(iii) + g%nb(iii) * g%Agrif_d(iii)
+         gmin(i) = g%Agrif_x(i)
+         gmax(i) = g%Agrif_x(i) + g%nb(i) * g%Agrif_dx(i)
 !
-         newmin(iii) = newgrid%Agrif_x(iii)
-         newmax(iii) = newgrid%Agrif_x(iii) + newgrid%nb(iii) * newgrid%Agrif_d(iii)
+         newmin(i) = newgrid%Agrif_x(i)
+         newmax(i) = newgrid%Agrif_x(i) + newgrid%nb(i) * newgrid%Agrif_dx(i)
 !
-         if (gmax(iii) < newmin(iii)) return
-         if (gmin(iii) > newmax(iii)) return
+         if (gmax(i) < newmin(i)) return
+         if (gmin(i) > newmax(i)) return
 !
-         inewmin(iii) = 1 - floor(-(max(gmin(iii),newmin(iii))-newmin(iii)) / newgrid%Agrif_d(iii))
+         inewmin(i) = 1 - floor(-(max(gmin(i),newmin(i))-newmin(i)) / newgrid%Agrif_dx(i))
 !
-         xmin(iii) = newgrid%Agrif_x(iii) + (inewmin(iii)-1)*newgrid%Agrif_d(iii)
+         xmin(i) = newgrid%Agrif_x(i) + (inewmin(i)-1)*newgrid%Agrif_dx(i)
 !
-         igmin(iii) = 1 + nint((xmin(iii)-gmin(iii))/g%Agrif_d(iii))
+         igmin(i) = 1 + nint((xmin(i)-gmin(i))/g%Agrif_dx(i))
 !
-         inewmax(iii) = 1 + int(   (min(gmax(iii),newmax(iii))-newmin(iii)) / newgrid%Agrif_d(iii))
+         inewmax(i) = 1 + int(   (min(gmax(i),newmax(i))-newmin(i)) / newgrid%Agrif_dx(i))
 !
     enddo
 !
@@ -181,7 +184,7 @@ recursive subroutine Agrif_TabpointsnD ( g, newgrid )
         do i = inewmin(1),inewmax(1)
             newgrid%tabpoint1D(i) = max( newgrid%tabpoint1D(i), g%tabpoint1D(i0) )
         enddo
-        i0 = i0 + int(newgrid%Agrif_d(1)/g%Agrif_d(1))
+        i0 = i0 + int(newgrid%Agrif_dx(1)/g%Agrif_dx(1))
     endif
 !
     if ( Agrif_probdim == 2 ) then
@@ -190,9 +193,9 @@ recursive subroutine Agrif_TabpointsnD ( g, newgrid )
             j0 = igmin(2)
             do j = inewmin(2),inewmax(2)
                 newgrid%tabpoint2D(i,j) = max( newgrid%tabpoint2D(i,j), g%tabpoint2D(i0,j0) )
-                j0 = j0 + int(newgrid%Agrif_d(2)/g%Agrif_d(2))
+                j0 = j0 + int(newgrid%Agrif_dx(2)/g%Agrif_dx(2))
             enddo
-            i0 = i0 + int(newgrid%Agrif_d(1)/g%Agrif_d(1))
+            i0 = i0 + int(newgrid%Agrif_dx(1)/g%Agrif_dx(1))
         enddo
     endif
 !
@@ -204,11 +207,11 @@ recursive subroutine Agrif_TabpointsnD ( g, newgrid )
                 k0 = igmin(3)
                 do k = inewmin(3),inewmax(3)
                     newgrid%tabpoint3D(i,j,k) = max( newgrid%tabpoint3D(i,j,k), g%tabpoint3D(i0,j0,k0))
-                    k0 = k0 + int(newgrid%Agrif_d(3)/g%Agrif_d(3))
+                    k0 = k0 + int(newgrid%Agrif_dx(3)/g%Agrif_dx(3))
                 enddo
-                j0 = j0 + int(newgrid%Agrif_d(2)/g%Agrif_d(2))
+                j0 = j0 + int(newgrid%Agrif_dx(2)/g%Agrif_dx(2))
             enddo
-            i0 = i0 + int(newgrid%Agrif_d(1)/g%Agrif_d(1))
+            i0 = i0 + int(newgrid%Agrif_dx(1)/g%Agrif_dx(1))
         enddo
     endif
 !---------------------------------------------------------------------------------------------------
@@ -220,24 +223,23 @@ end subroutine Agrif_TabpointsnD
 !
 !> Clustering on the grid pointed by g.
 !---------------------------------------------------------------------------------------------------
-subroutine Agrif_ClusterGridnD ( g, coarsegrid )
+subroutine Agrif_ClusterGridnD ( g, parent_rect )
 !---------------------------------------------------------------------------------------------------
     TYPE(Agrif_Grid)     , pointer  :: g          !< Pointer on the current grid
-    TYPE(Agrif_Rectangle), pointer  :: coarsegrid
+    TYPE(Agrif_Rectangle), pointer  :: parent_rect
 !
     TYPE(Agrif_Rectangle) :: newrect
-    TYPE(Agrif_Variable)  :: newflag
+    TYPE(Agrif_Variable_i)  :: newflag
 !
     INTEGER               :: i,j,k
     INTEGER, DIMENSION(3) :: sx
     INTEGER               :: bufferwidth,flagpoints
     INTEGER               :: n1,n2,m1,m2,o1,o2
-    INTEGER               :: iii
 !
     bufferwidth = int(Agrif_Minwidth/5.)
 !
-    do iii = 1,Agrif_probdim
-        sx(iii) = g % nb(iii) + 1
+    do i = 1,Agrif_probdim
+        sx(i) = g % nb(i) + 1
     enddo
 !
     if ( Agrif_probdim == 1 ) then
@@ -318,12 +320,12 @@ subroutine Agrif_ClusterGridnD ( g, coarsegrid )
         return
     endif
 !
-    do iii = 1 , Agrif_probdim
-        newrect % imin(iii) = 1
-        newrect % imax(iii) = sx(iii)
+    do i = 1 , Agrif_probdim
+        newrect % imin(i) = 1
+        newrect % imax(i) = sx(i)
     enddo
 !
-    call Agrif_Clusternd(newflag,coarsegrid%childgrids,newrect)
+    call Agrif_Clusternd(newflag,parent_rect%childgrids,newrect)
 !
     if ( Agrif_probdim == 1 ) deallocate(newflag%iarray1)
     if ( Agrif_probdim == 2 ) deallocate(newflag%iarray2)
@@ -339,13 +341,13 @@ end subroutine Agrif_ClusterGridnD
 !---------------------------------------------------------------------------------------------------
 recursive subroutine Agrif_Clusternd ( flag, boxlib, oldB )
 !---------------------------------------------------------------------------------------------------
-    TYPE(Agrif_Variable)            :: flag
+    TYPE(Agrif_Variable_i)            :: flag
     TYPE(Agrif_LRectangle), pointer :: boxlib
     TYPE(Agrif_Rectangle)           :: oldB
 !
     TYPE(Agrif_LRectangle),pointer :: tempbox,parcbox,parcbox2
     TYPE(Agrif_Rectangle) :: newB,newB2
-    INTEGER :: i,j,k,iii
+    INTEGER :: i,j,k
     INTEGER, DIMENSION(:), allocatable :: i_sig, j_sig, k_sig
     INTEGER, DIMENSION(3) :: ipu,ipl
     INTEGER, DIMENSION(3) :: istr,islice
@@ -359,8 +361,8 @@ recursive subroutine Agrif_Clusternd ( flag, boxlib, oldB )
     if ( Agrif_probdim == 3 ) allocate( k_sig(oldB%imin(3):oldB%imax(3)) )
 !
     test = .FALSE.
-    do iii = 1,Agrif_probdim
-        test = test .OR. ( (oldB%imax(iii)-oldB%imin(iii)+1) <  Agrif_Minwidth)
+    do i = 1,Agrif_probdim
+        test = test .OR. ( (oldB%imax(i)-oldB%imin(i)+1) <  Agrif_Minwidth)
     enddo
     if ( test ) return
 !
@@ -388,9 +390,9 @@ recursive subroutine Agrif_Clusternd ( flag, boxlib, oldB )
         enddo
     endif
 !
-    do iii = 1 , Agrif_probdim
-        ipl(iii) = oldB%imin(iii)
-        ipu(iii) = oldB%imax(iii)
+    do i = 1,Agrif_probdim
+        ipl(i) = oldB%imin(i)
+        ipu(i) = oldB%imax(i)
     enddo
 !
                               call Agrif_Clusterprune(i_sig,ipl(1),ipu(1))
@@ -398,15 +400,15 @@ recursive subroutine Agrif_Clusternd ( flag, boxlib, oldB )
     if ( Agrif_probdim == 3 ) call Agrif_Clusterprune(k_sig,ipl(3),ipu(3))
 !
     test = .TRUE.
-    do iii = 1,Agrif_probdim
-        test = test .AND. (ipl(iii) == oldB%imin(iii))
-        test = test .AND. (ipu(iii) == oldB%imax(iii))
+    do i = 1,Agrif_probdim
+        test = test .AND. (ipl(i) == oldB%imin(i))
+        test = test .AND. (ipu(i) == oldB%imax(i))
     enddo
 
     if (.NOT. test) then
-        do iii = 1 , Agrif_probdim
-            newB%imin(iii) = ipl(iii)
-            newB%imax(iii) = ipu(iii)
+        do i = 1 , Agrif_probdim
+            newB%imin(i) = ipl(i)
+            newB%imax(i) = ipu(i)
         enddo
 !
         if ( Agrif_probdim == 1 ) nbpoints = SUM(flag%iarray1(newB%imin(1):newB%imax(1)))
@@ -480,9 +482,9 @@ recursive subroutine Agrif_Clusternd ( flag, boxlib, oldB )
         return
     endif
 !
-    do iii = 1,Agrif_Probdim
-        istr(iii) = oldB%imax(iii)
-        islice(iii) = oldB%imin(iii)
+    do i = 1,Agrif_Probdim
+        istr(i) = oldB%imax(i)
+        islice(i) = oldB%imin(i)
     enddo
 !
                               call Agrif_Clusterslice(i_sig,islice(1),istr(1))
@@ -490,8 +492,8 @@ recursive subroutine Agrif_Clusternd ( flag, boxlib, oldB )
     if ( Agrif_probdim == 3 ) call Agrif_Clusterslice(k_sig,islice(3),istr(3))
 !
     ValSum = 0
-    do iii = 1,Agrif_Probdim
-        Valsum = valSum + islice(iii)
+    do i = 1,Agrif_Probdim
+        Valsum = valSum + islice(i)
     enddo
 !
     if ( Valsum == -Agrif_Probdim ) then
@@ -509,14 +511,14 @@ recursive subroutine Agrif_Clusternd ( flag, boxlib, oldB )
                                        (oldB%imax(3)-oldB%imin(3)+1)
     nullify(parcbox)
 !
-    do iii = 1,Agrif_Probdim
-        newB%imax(iii) = oldB%imax(iii)
-        newB%imin(iii) = oldB%imin(iii)
+    do i = 1,Agrif_Probdim
+        newB%imax(i) = oldB%imax(i)
+        newB%imin(i) = oldB%imin(i)
     enddo
 !
     ValMax = 0
-    do iii = 1 , Agrif_Probdim
-        ValMax = Max(ValMax,istr(iii))
+    do i = 1 , Agrif_Probdim
+        ValMax = Max(ValMax,istr(i))
     enddo
 !
     if (istr(1) == ValMax ) then
@@ -747,16 +749,16 @@ subroutine Agrif_Add_Rectangle ( R, LR )
 !
     TYPE(Agrif_LRectangle), pointer :: newrect
 !
-    integer                         :: iii
+    integer                         :: i
 !
     allocate(newrect)
     allocate(newrect % r)
 !
     newrect % r = R
 !
-    do iii = 1,Agrif_Probdim
-        newrect % r % spaceref(iii) = Agrif_Coeffref(iii)
-        newrect % r % timeref(iii) = Agrif_Coeffreft(iii)
+    do i = 1,Agrif_Probdim
+        newrect % r % spaceref(i) = Agrif_Coeffref(i)
+        newrect % r % timeref(i)  = Agrif_Coeffreft(i)
     enddo
 !
     newrect % r % number = -1
@@ -767,13 +769,37 @@ end subroutine Agrif_Add_Rectangle
 !===================================================================================================
 !
 !===================================================================================================
+!  subroutine Agrif_Copy_Rectangle
+!
+!> Creates and returns a copy of Agrif_Rectangle R.
+!---------------------------------------------------------------------------------------------------
+function Agrif_Copy_Rectangle ( R, expand ) result( copy )
+!---------------------------------------------------------------------------------------------------
+    TYPE(Agrif_Rectangle), pointer, intent(in) :: R
+    integer, optional,              intent(in) :: expand
+!
+    TYPE(Agrif_Rectangle), pointer :: copy
+!
+    allocate(copy)
+!
+    copy = R
+    if ( present(expand) ) then
+        copy % imin = copy % imin - expand
+        copy % imax = copy % imax + expand
+    endif
+    copy % childgrids => R % childgrids
+!---------------------------------------------------------------------------------------------------
+end function Agrif_Copy_Rectangle
+!===================================================================================================
+!
+!===================================================================================================
 !  subroutine Agrif_Read_Fix_Grd
 !
 !> Creates the grid hierarchy from the reading of the AGRIF_FixedGrids.in file.
 !---------------------------------------------------------------------------------------------------
-recursive subroutine Agrif_Read_Fix_Grd ( coarsegrid, j, nunit )
+recursive subroutine Agrif_Read_Fix_Grd ( parent_rect, j, nunit )
 !---------------------------------------------------------------------------------------------------
-    TYPE(Agrif_Rectangle), pointer   :: coarsegrid !< Pointer on the first grid of the grid hierarchy
+    TYPE(Agrif_Rectangle), pointer   :: parent_rect !< Pointer on the first grid of the grid hierarchy
     INTEGER                          :: j          !< Number of the new grid
     INTEGER                          :: nunit      !< unit associated with file
 !
@@ -781,24 +807,21 @@ recursive subroutine Agrif_Read_Fix_Grd ( coarsegrid, j, nunit )
     TYPE(Agrif_LRectangle), pointer  :: parcours   ! Pointer for the recursive procedure
     TYPE(Agrif_LRectangle), pointer  :: newlrect
     TYPE(Agrif_LRectangle), pointer  :: end_list
-    INTEGER                          :: i          ! for each child grid
+    INTEGER                          :: i,n        ! for each child grid
     INTEGER                          :: nb_grids   ! Number of child grids
-    INTEGER                          :: iii
 !
 !   Reading of the number of child grids
-    read(nunit,*) nb_grids
-!
-!   coarsegrid%nbgridchild = nb_grids
+    read(nunit,*,end=99) nb_grids
 !
     allocate(end_list)
 !
-    coarsegrid % childgrids => end_list
+    parent_rect % childgrids => end_list
 !
 !   Reading of imin(1),imax(1),imin(2),imax(2),imin(3),imax(3), and space and
 !        time refinement factors for each child grid.
 !   Creation and addition of the new grid to the grid hierarchy.
 !
-    do i = 1,nb_grids
+    do n = 1,nb_grids
 !
         allocate(newlrect)
         newrect % number = j   ! Number of the grid
@@ -839,8 +862,8 @@ recursive subroutine Agrif_Read_Fix_Grd ( coarsegrid, j, nunit )
             endif
 !
             if ( Agrif_probdim >= 2 ) then
-                do iii = 2 , Agrif_probdim
-                    newrect % timeref(iii) = newrect % timeref(1)
+                do i = 2,Agrif_probdim
+                    newrect % timeref(i) = newrect % timeref(1)
                 enddo
             endif
 !
@@ -856,8 +879,8 @@ recursive subroutine Agrif_Read_Fix_Grd ( coarsegrid, j, nunit )
 !
     enddo
 !
-    coarsegrid % childgrids => coarsegrid % childgrids % next
-    parcours => coarsegrid % childgrids
+    parent_rect % childgrids => parent_rect % childgrids % next
+    parcours => parent_rect % childgrids
 !
 !   recursive operation to create the grid hierarchy branch by branch
 !
@@ -865,6 +888,7 @@ recursive subroutine Agrif_Read_Fix_Grd ( coarsegrid, j, nunit )
         call Agrif_Read_Fix_Grd(parcours % r, j, nunit)
         parcours => parcours % next
     enddo
+99  continue
 !---------------------------------------------------------------------------------------------------
 end subroutine Agrif_Read_Fix_Grd
 !===================================================================================================
@@ -873,137 +897,112 @@ end subroutine Agrif_Read_Fix_Grd
 !  subroutine Agrif_Create_Grids
 !
 !> Creates the grid hierarchy (g) from the one created with the #Agrif_Read_Fix_Grd or
-!! #Agrif_Cluster_All procedures (coarsegrid).
+!! #Agrif_Cluster_All procedures (parent_rect).
 !---------------------------------------------------------------------------------------------------
-recursive subroutine Agrif_Create_Grids ( g, coarsegrid )
+recursive subroutine Agrif_Create_Grids ( parent_grid, parent_rect )
 !---------------------------------------------------------------------------------------------------
-    TYPE(Agrif_Grid)     , pointer  :: g          !< Pointer on the root coarse grid
-    TYPE(Agrif_Rectangle), pointer  :: coarsegrid !< Pointer on the root coarse grid of the grid hierarchy
-                                                  !< created with the #Agrif_Read_Fix_Grd subroutine
+    TYPE(Agrif_Grid)     , pointer  :: parent_grid  !< Pointer on the root coarse grid
+    TYPE(Agrif_Rectangle), pointer  :: parent_rect  !< Pointer on the root coarse grid of the grid hierarchy
+                                                    !!   created with the #Agrif_Read_Fix_Grd subroutine
 !
-    TYPE(Agrif_Grid)      , pointer :: newgrid    ! New grid
-    TYPE(Agrif_PGrid)     , pointer :: newpgrid
-    TYPE(Agrif_PGrid)     , pointer :: parcours2
-    TYPE(Agrif_LRectangle), pointer :: parcours
-    TYPE(Agrif_PGrid)     , pointer :: end_list
-    TYPE(Agrif_PGrid)     , pointer :: parcours3
+    TYPE(Agrif_Grid)      , pointer :: child_grid   ! Newly created child grid
+    TYPE(Agrif_PGrid)     , pointer :: child_grid_p
+    TYPE(Agrif_LRectangle), pointer :: child_rect_p
+    type(Agrif_Rectangle),  pointer :: child_rect
 !
-    LOGICAL                         :: nullliste
-    INTEGER                         :: iii
-    INTEGER                         :: moving_grid_id = 0
+    INTEGER                         :: i
+    INTEGER, save                   :: moving_grid_id = 0
 !
-    parcours3 => g % child_grids
-!
-    if ( associated(parcours3) ) then
-        do while ( associated(parcours3 % next) )
-            parcours3 => parcours3 % next
-        enddo
-        end_list => parcours3
-        nullliste = .FALSE.
-    else
-        allocate(end_list)
-        g % child_grids => end_list
-        parcours3 => end_list
-        nullliste = .TRUE.
-    endif
-!
-    parcours => coarsegrid % childgrids
+    child_rect_p => parent_rect % childgrids
 !
 !   Creation of the grid hierarchy from the one created by using the Agrif_Read_Fix_Grd subroutine
 !
-    do while ( associated(parcours) )
+    do while ( associated(child_rect_p) )
 !
-        allocate(newgrid)
-        moving_grid_id = moving_grid_id+1
-        newgrid % grid_id = moving_grid_id
-        do iii = 1,Agrif_Probdim
-            newgrid % spaceref(iii) = parcours % r % spaceref(iii)
-            newgrid % timeref(iii)  = parcours % r % timeref(iii)
-        enddo
+        child_rect => child_rect_p % r
 !
-        do iii = 1,Agrif_Probdim
-            newgrid % nb(iii) = (parcours % r % imax(iii) - parcours % r % imin(iii)) &
-                               * parcours % r % spaceref(iii)
-            newgrid % ix(iii) =  parcours % r % imin(iii)
-            newgrid % Agrif_d(iii) = g % Agrif_d(iii) / REAL(newgrid % spaceref(iii))
-            newgrid % Agrif_x(iii) = g % Agrif_x(iii) + (parcours % r % imin(iii) - 1) * g % Agrif_d(iii)
-        enddo
+        allocate(child_grid)
 !
 !       Pointer on the parent grid
-        newgrid % parent => g
-
-!       Level of the current grid
-        newgrid % level = newgrid % parent % level + 1
-        if (newgrid % level > Agrif_MaxLevelLoc) then
-          Agrif_MaxLevelLoc = newgrid%level
-        endif
+        child_grid % parent => parent_grid
+        child_grid % rect_in_parent => Agrif_Copy_Rectangle(child_rect_p % r, expand=Agrif_Extra_Boundary_Cells)
 !
-!       Grid pointed by newgrid is a fixed grid
-        if (parcours % r % number > 0) then
-            newgrid % fixed = .true.
-        else
-            newgrid % fixed = .false.
-        endif
+        moving_grid_id = moving_grid_id+1
+        child_grid % grid_id = moving_grid_id
 !
-!       Number of the grid pointed by newgrid
-        newgrid % fixedrank = parcours % r % number
-!
-!       No time calculation on this grid
-        newgrid % ngridstep = 0
-!
-!       Test indicating if the current grid has a common border with the root
-!       coarse grid in the x direction
-        do iii = 1 , Agrif_Probdim
-!
-            newgrid % NearRootBorder(iii) = (                  &
-                (newgrid % parent % NearRootBorder(iii)) .AND. &
-                (newgrid % ix(iii) == 1) )
-!
-            newgrid % DistantRootBorder(iii) = (                  &
-                (newgrid % parent % DistantRootBorder(iii)) .AND. &
-                (newgrid % ix(iii) + (newgrid%nb(iii)/newgrid%spaceref(iii))-1  == newgrid % parent % nb(iii)) )
+        do i = 1,Agrif_Probdim
+            child_grid % spaceref(i) = child_rect % spaceref(i)
+            child_grid % timeref(i)  = child_rect % timeref(i)
+            child_grid % nb(i) = (child_rect % imax(i) - child_rect % imin(i)) * child_rect % spaceref(i)
+            child_grid % ix(i) =  child_rect % imin(i)
+            child_grid % Agrif_dt(i) = parent_grid % Agrif_dt(i) / REAL(child_grid % timeref(i))
+            child_grid % Agrif_dx(i) = parent_grid % Agrif_dx(i) / REAL(child_grid % spaceref(i))
+            child_grid % Agrif_x(i)  = parent_grid % Agrif_x(i) + &
+                                            (child_rect % imin(i) - 1) * parent_grid % Agrif_dx(i)
         enddo
 !
-!       Writing in output files
-        newgrid % oldgrid = .FALSE.
+!       Size of the grid in terms of cpu cost (nx*ny*timeref)
+        child_grid % size = product( child_grid % nb(1:Agrif_Probdim) ) * child_grid % timeref(1)
 !
+!       Level of the current grid
+        child_grid % level = child_grid % parent % level + 1
+        if (child_grid % level > Agrif_MaxLevelLoc) then
+          Agrif_MaxLevelLoc = child_grid%level
+        endif
 !
-!       Definition of the characteristics of the variable of the grid pointed by newgrid
-        call Agrif_Create_Var (newgrid)
+!       Number of the grid pointed by child_grid
+        child_grid % fixedrank = child_rect % number
 !
-!       Instanciation of the grid pointed by newgrid and its variables
-        call Agrif_Instance (newgrid)
+!       Grid pointed by child_grid is a fixed grid
+        child_grid % fixed = ( child_grid % fixedrank > 0 )
 !
-!       Addition of this grid to the grid hierarchy
-        allocate(newpgrid)
-        newpgrid % gr => newgrid
-        end_list % next => newpgrid
-        end_list => end_list % next
-        parcours => parcours % next
-!
-!       Updating the total number of fixed grids
-        if (newgrid % fixed) then
+!       Update the total number of fixed grids
+        if (child_grid % fixed) then
             Agrif_nbfixedgrids = Agrif_nbfixedgrids + 1
         endif
 !
+!       Initialize integration counter
+        child_grid % ngridstep = 0
+!
+!       Test indicating if the current grid has a common border with the root
+!       coarse grid in the x direction
+        do i = 1 , Agrif_Probdim
+!
+            child_grid % NearRootBorder(i) = (                  &
+                (child_grid % parent % NearRootBorder(i)) .AND. &
+                (child_grid % ix(i) == 1) )
+!
+            child_grid % DistantRootBorder(i) = (                  &
+                (child_grid % parent % DistantRootBorder(i)) .AND. &
+                (child_grid % ix(i) + (child_grid%nb(i)/child_grid%spaceref(i))-1  == child_grid % parent % nb(i)) )
+        enddo
+!
+!       Writing in output files
+        child_grid % oldgrid = .FALSE.
+!
+#if defined AGRIF_MPI
+        child_grid % communicator = parent_grid % communicator
+#endif
+!
+!       Definition of the characteristics of the variable of the grid pointed by child_grid
+        call Agrif_Create_Var(child_grid)
+!
+!       Addition of this grid to the grid hierarchy
+        call Agrif_gl_append( parent_grid % child_list, child_grid )
+!
+        child_rect_p => child_rect_p % next
+!
     enddo
-!
-    if (nullliste) then
-        g % child_grids => g % child_grids % next
-        parcours2 => g % child_grids
-        deallocate(parcours3)
-    else
-        parcours2 => parcours3 % next
-    endif
-!
-    parcours => coarsegrid % childgrids
 !
 !   Recursive call to the subroutine Agrif_Create_Fixed_Grids to create the grid hierarchy
 !
-    do while ( associated(parcours) )
-        call Agrif_Create_Grids(parcours2%gr, parcours%r)
-        parcours => parcours % next
-        parcours2 => parcours2 % next
+    child_grid_p => parent_grid % child_list % first
+    child_rect_p => parent_rect % childgrids
+!
+    do while ( associated(child_rect_p) )
+        call Agrif_Create_Grids( child_grid_p % gr, child_rect_p % r )
+        child_grid_p => child_grid_p % next
+        child_rect_p => child_rect_p % next
     enddo
 !---------------------------------------------------------------------------------------------------
 end subroutine Agrif_Create_Grids
@@ -1016,14 +1015,34 @@ end subroutine Agrif_Create_Grids
 !! initialized by the subroutine Agrif_Util#Agrif_Init_Grids defined in the module Agrif_Util and
 !! called in the main program).
 !---------------------------------------------------------------------------------------------------
-recursive subroutine Agrif_Init_Hierarchy ( g )
+recursive subroutine Agrif_Init_Hierarchy ( g, procname )
 !---------------------------------------------------------------------------------------------------
-    TYPE(Agrif_Grid), pointer  :: g         !< Pointer on the root coarse grid
+    use Agrif_seq
+!
+    type(Agrif_Grid), pointer       :: g            !< Pointer on the current grid
+    procedure(init_proc), optional  :: procname     !< Initialisation subroutine (Default: Agrif_InitValues)
 !
     TYPE(Agrif_PGrid), pointer :: parcours  ! Pointer for the recursive call
     LOGICAL                    :: Init_Hierarchy
 !
-    parcours => g % child_grids
+! Initialise the grand mother grid (if any)
+!
+    if ( associated(g, Agrif_Mygrid) .and. agrif_coarse ) then
+        call Agrif_Instance(Agrif_Coarsegrid)
+        call Agrif_Allocation(Agrif_Coarsegrid)
+        call Agrif_initialisations(Agrif_Coarsegrid)
+        call Agrif_InitWorkspace()
+!
+!       Initialization by interpolation (this routine is written by the user)
+        if (present(procname)) Then
+            call procname()
+        else
+            call Agrif_InitValues()
+        endif
+        call Agrif_Instance(Agrif_Mygrid)
+    endif
+
+    parcours => g % child_list % first
 !
     do while ( associated(parcours) )
 !
@@ -1047,19 +1066,20 @@ recursive subroutine Agrif_Init_Hierarchy ( g )
 !
             call Agrif_Allocation(parcours % gr)
             call Agrif_initialisations(parcours % gr)
-            call Agrif_Instance(parcours % gr)
-!
-            if ( Agrif_USE_ONLY_FIXED_GRIDS == 0 ) then
-                call Agrif_Allocate_Restore(parcours % gr)
-            endif
 !
             if ( Agrif_USE_ONLY_FIXED_GRIDS == 0 ) then
 !               Initialization by copy of the grids created by clustering
-                call Agrif_CopyFromOld_All(parcours%gr, Agrif_oldmygrid)
+                call Agrif_Allocate_Restore(parcours % gr)
+                call Agrif_CopyFromOld_All(parcours % gr, Agrif_oldmygrid)
             endif
 !
 !           Initialization by interpolation (this routine is written by the user)
-            call Agrif_InitValues()
+            call Agrif_InitWorkSpace()
+            if (present(procname)) Then
+                call procname()
+            else
+                call Agrif_InitValues()
+            endif
 !
             if ( Agrif_USE_ONLY_FIXED_GRIDS == 0 ) then
                 call Agrif_Free_Restore(parcours % gr)
@@ -1071,16 +1091,115 @@ recursive subroutine Agrif_Init_Hierarchy ( g )
 !
     enddo
 !
-    parcours => g % child_grids
+    parcours => g % child_list % first
 !
 !   recursive operation to initialize all the grids
     do while ( associated(parcours) )
-        call Agrif_Init_Hierarchy(parcours%gr)
+        call Agrif_Init_Hierarchy(parcours%gr,procname)
         parcours => parcours%next
     enddo
 !---------------------------------------------------------------------------------------------------
 end subroutine Agrif_Init_Hierarchy
 !===================================================================================================
+!
+#if defined AGRIF_MPI
+!===================================================================================================
+!  subroutine Agrif_Init_Hierarchy_Parallel_1
+!---------------------------------------------------------------------------------------------------
+recursive subroutine Agrif_Init_Hierarchy_Parallel_1 ( g )
+!---------------------------------------------------------------------------------------------------
+    use Agrif_seq
+!
+    type(Agrif_Grid), pointer       :: g            !< Pointer on the current grid
+!
+    TYPE(Agrif_PGrid), pointer :: parcours  ! Pointer for the recursive call
+    LOGICAL                    :: Init_Hierarchy
+!
+    parcours => g % child_list % first
+!
+    do while ( associated(parcours) )
+!
+        Init_Hierarchy = .false.
+        if ( Agrif_USE_FIXED_GRIDS == 1 .OR. Agrif_USE_ONLY_FIXED_GRIDS == 1 ) then
+            if ( (parcours%gr%fixed) .AND. (Agrif_Mygrid%ngridstep == 0) ) then
+                Init_Hierarchy = .true.
+            endif
+        endif
+!
+        if (.NOT. parcours % gr % fixed) Init_Hierarchy = .true.
+        if (parcours % gr % oldgrid)     Init_Hierarchy = .false.
+!
+        if (Init_Hierarchy) then
+!
+!           Instanciation of the grid pointed by parcours%gr and its variables
+            call Agrif_Instance(parcours % gr)
+!
+!           Allocation of the arrays containing values of the variables of the
+!           grid pointed by parcours%gr
+!
+            call Agrif_Allocation(parcours % gr)
+            call Agrif_initialisations(parcours % gr)
+!
+        endif
+!
+        parcours => parcours % next
+!
+    enddo
+!
+    parcours => g % child_list % first
+!
+!   recursive operation to initialize all the grids
+    do while ( associated(parcours) )
+        call Agrif_Init_Hierarchy_Parallel_1(parcours%gr)
+        parcours => parcours%next
+    enddo
+!
+!---------------------------------------------------------------------------------------------------
+end subroutine Agrif_Init_Hierarchy_Parallel_1
+!===================================================================================================
+!
+!===================================================================================================
+!  subroutine Agrif_Init_Hierarchy_Parallel_2
+!---------------------------------------------------------------------------------------------------
+recursive subroutine Agrif_Init_Hierarchy_Parallel_2 ( g, procname )
+!---------------------------------------------------------------------------------------------------
+    use Agrif_seq
+!
+    type(Agrif_Grid),     pointer   :: g            !< Pointer on the current grid
+    procedure(init_proc), optional  :: procname     !< Initialisation subroutine (Default: Agrif_InitValues)
+!
+    type(Agrif_PGrid), pointer :: parcours  ! Pointer for the recursive call
+    integer :: is
+!
+    call Agrif_Instance(g)
+    call Agrif_seq_init_sequences( g )
+!
+    if ( .not. associated(g % child_seq) ) return
+!
+    do is = 1, g % child_seq % nb_seqs
+!
+        parcours => Agrif_seq_select_child(g,is)
+!
+!     Instanciation of the variables of the current grid
+        call Agrif_Instance(parcours % gr)
+!
+!     Initialization by interpolation (this routine is written by the user)
+        if (present(procname)) Then
+            call procname()
+        else
+            call Agrif_InitValues()
+        endif
+!
+        call Agrif_Init_ProcList(parcours % gr % proc_def_list, &
+                                 parcours % gr % proc_def_in_parent_list % nitems)
+!
+        call Agrif_Init_Hierarchy_Parallel_2(parcours%gr,procname)
+!
+    enddo
+!---------------------------------------------------------------------------------------------------
+end subroutine Agrif_Init_Hierarchy_Parallel_2
+!===================================================================================================
+#endif
 !
 !===================================================================================================
 !  subroutine Agrif_Allocate_Restore
@@ -1091,32 +1210,32 @@ subroutine Agrif_Allocate_Restore ( Agrif_Gr )
 !
     integer :: i
 !
-    do i = 1,Agrif_NbVariables
+    do i = 1,Agrif_NbVariables(0)
 !
-        if ( Agrif_Mygrid%tabvars(i)%var % restaure ) then
-            if ( Agrif_Gr%tabvars(i)%var % nbdim == 1 ) then
-                allocate( Agrif_Gr%tabvars(i)%var%Restore1D( &
-                    lbound(Agrif_Gr%tabvars(i)%var%array1,1):&
-                    ubound(Agrif_Gr%tabvars(i)%var%array1,1)))
-                Agrif_Gr%tabvars(i)%var%Restore1D = 0
+        if ( Agrif_Mygrid%tabvars(i) % restore ) then
+            if ( Agrif_Gr%tabvars(i) % nbdim == 1 ) then
+                allocate( Agrif_Gr%tabvars(i)%Restore1D( &
+                    lbound(Agrif_Gr%tabvars(i)%array1,1):&
+                    ubound(Agrif_Gr%tabvars(i)%array1,1)))
+                Agrif_Gr%tabvars(i)%Restore1D = 0
             endif
-            if ( Agrif_Gr%tabvars(i)%var % nbdim == 2 ) then
-                allocate( Agrif_Gr%tabvars(i)%var%Restore2D( &
-                    lbound(Agrif_Gr%tabvars(i)%var%array2,1):&
-                    ubound(Agrif_Gr%tabvars(i)%var%array2,1),&
-                    lbound(Agrif_Gr%tabvars(i)%var%array2,2):&
-                    ubound(Agrif_Gr%tabvars(i)%var%array2,2)))
-                Agrif_Gr%tabvars(i)%var%Restore2D = 0
+            if ( Agrif_Gr%tabvars(i) % nbdim == 2 ) then
+                allocate( Agrif_Gr%tabvars(i)%Restore2D( &
+                    lbound(Agrif_Gr%tabvars(i)%array2,1):&
+                    ubound(Agrif_Gr%tabvars(i)%array2,1),&
+                    lbound(Agrif_Gr%tabvars(i)%array2,2):&
+                    ubound(Agrif_Gr%tabvars(i)%array2,2)))
+                Agrif_Gr%tabvars(i)%Restore2D = 0
             endif
-            if ( Agrif_Mygrid%tabvars(i)%var % nbdim == 3 ) then
-                allocate( Agrif_Gr%tabvars(i)%var%Restore3D( &
-                    lbound(Agrif_Gr%tabvars(i)%var%array3,1):&
-                    ubound(Agrif_Gr%tabvars(i)%var%array3,1),&
-                    lbound(Agrif_Gr%tabvars(i)%var%array3,2):&
-                    ubound(Agrif_Gr%tabvars(i)%var%array3,2),&
-                    lbound(Agrif_Gr%tabvars(i)%var%array3,3):&
-                    ubound(Agrif_Gr%tabvars(i)%var%array3,3)))
-                Agrif_Gr%tabvars(i)%var%Restore3D = 0
+            if ( Agrif_Mygrid%tabvars(i) % nbdim == 3 ) then
+                allocate( Agrif_Gr%tabvars(i)%Restore3D( &
+                    lbound(Agrif_Gr%tabvars(i)%array3,1):&
+                    ubound(Agrif_Gr%tabvars(i)%array3,1),&
+                    lbound(Agrif_Gr%tabvars(i)%array3,2):&
+                    ubound(Agrif_Gr%tabvars(i)%array3,2),&
+                    lbound(Agrif_Gr%tabvars(i)%array3,3):&
+                    ubound(Agrif_Gr%tabvars(i)%array3,3)))
+                Agrif_Gr%tabvars(i)%Restore3D = 0
             endif
         endif
 !
@@ -1135,11 +1254,11 @@ subroutine Agrif_Free_Restore ( Agrif_Gr )
     TYPE(Agrif_Variable), pointer :: var
     integer                       :: i
 !
-    do i = 1,Agrif_NbVariables
+    do i = 1,Agrif_NbVariables(0)
 !
-        if ( Agrif_Mygrid % tabvars(i) % var % restaure) then
+        if ( Agrif_Mygrid % tabvars(i) % restore ) then
 !
-            var = Agrif_Gr % tabvars(i) % var
+            var = Agrif_Gr % tabvars(i)
 !
             if (associated(var%Restore1D)) deallocate(var%Restore1D)
             if (associated(var%Restore2D)) deallocate(var%Restore2D)

@@ -49,7 +49,7 @@
       real,dimension(GLOBAL_1D_ARRAYXI) :: DU_south6,DU_north6     
       real,dimension(GLOBAL_1D_ARRAYXI,0:NWEIGHT) :: DU_south4,DU_north4
       real :: lastcff
-      real,dimension(:,:),allocatable :: tabtemp2d
+C      real,dimension(:,:),allocatable :: tabtemp2d
 !$AGRIF_DO_NOT_TREAT
 !      real,dimension(:,:,:),pointer :: coarsevalues
 !      integer :: nbgrid, indinterp
@@ -98,15 +98,14 @@ C$OMP MASTER
 
         nbgrid = Agrif_Fixed()
 C        indinterp = 0 indinterp is set to zero in zetabc
-        
-        allocate(tabtemp2d(0:i2u,j1t:j2t))
-        Call Agrif_Bc_variable(tabtemp2d,ubarid,
+
+        Call Agrif_Bc_variable(ubarid,
      &    calledweight=tinterp,procname = u2dinterp)
-        dUinterp(0:i2u,j1t:j2t)=tabtemp2d
-        deallocate(tabtemp2d)
-       
-                  
-        Agrif_UseSpecialvalue=.false. 
+C        dUinterp(0:i2u,j1t:j2t)=tabtemp2d
+C        deallocate(tabtemp2d)
+
+
+        Agrif_UseSpecialvalue=.false.
 C$OMP END MASTER
 C$OMP BARRIER
         U2DTimeindex = parentnbstep
@@ -450,8 +449,76 @@ C$OMP BARRIER
 
       return
       end
-      
-      subroutine u2Dinterp(tabres,i1,i2,j1,j2)
+
+      subroutine u2Dinterp(tabres,i1,i2,j1,j2,before)
+      implicit none
+# include "param.h"
+# include "grid.h"
+# include "ocean2d.h"
+# include "scalars.h"
+# include "zoom.h"
+
+       integer i1,i2,j1,j2
+       real tabres(i1:i2,j1:j2)
+       logical before
+       integer i,j,iter,isize
+       real :: cff1
+!$AGRIF_DO_NOT_TREAT
+      integer :: indinterp,nbgrid
+      common/interp2d/indinterp,nbgrid
+!$AGRIF_END_DO_NOT_TREAT  
+
+       integer :: oldindinterp
+
+       if (before) then
+       isize = (j2-j1+1)*(i2-i1+1)
+       
+       IF (iif == 1) THEN
+         IF (.NOT.allocated(coarsevaluesinterp)) THEN
+         Allocate(coarsevaluesinterp(isize,0:nfast))
+         ELSE
+         CALL checksizeinterp(indinterp+isize)
+         ENDIF
+
+         oldindinterp = indinterp
+
+         do j=j1,j2
+         do i=i1,i2
+         oldindinterp=oldindinterp+1
+         coarsevaluesinterp(oldindinterp,0) =
+     &     0.5*(h(i-1,j)+zeta(i-1,j,kstp)+h(i,j)+
+     &    zeta(i,j,kstp))*on_u(i,j)*ubar(i,j,kstp)
+         enddo
+         enddo
+
+       ENDIF
+
+       oldindinterp = indinterp
+
+       do j=j1,j2
+       do i=i1,i2
+       oldindinterp=oldindinterp+1
+       coarsevaluesinterp(oldindinterp,iif) =
+     &   0.5*(h(i-1,j)+zeta(i-1,j,knew)+h(i,j)+
+     &  zeta(i,j,knew))*on_u(i,j)*ubar(i,j,knew)
+       enddo
+       enddo
+
+       do iter=0,iif
+          cff1 = weight2(iif,iter)
+          call copy1d(tabres,coarsevaluesinterp(indinterp+1,iter),
+     &                cff1,isize)
+       enddo
+
+       indinterp = oldindinterp
+
+       else
+!         tabtmp = tabres
+         dUinterp(i1:i2,j1:j2) = tabres
+       endif
+      return
+      end
+      subroutine u2Dinterp_old(tabres,i1,i2,j1,j2)
       implicit none
 # include "param.h"
 # include "grid.h"
@@ -466,12 +533,12 @@ C$OMP BARRIER
 !$AGRIF_DO_NOT_TREAT
       integer :: indinterp,nbgrid
       common/interp2d/indinterp,nbgrid
-!$AGRIF_END_DO_NOT_TREAT  
+!$AGRIF_END_DO_NOT_TREAT
 
        integer :: oldindinterp
-       
+
        isize = (j2-j1+1)*(i2-i1+1)
-       
+
        IF (iif == 1) THEN
        IF (.NOT.allocated(coarsevaluesinterp)) THEN
        Allocate(coarsevaluesinterp(isize,0:nfast))
@@ -598,12 +665,14 @@ C$OMP MASTER
         
         nbgrid = Agrif_Fixed()
 C        indinterp = 0 indinterp is set to zero in zetabc
-        allocate(tabtemp2d(i1t:i2t,0:j2v))
-        Call Agrif_Bc_variable(tabtemp2d,vbarid,calledweight=tinterp,
+C        allocate(tabtemp2d(i1t:i2t,0:j2v))
+C        Call Agrif_Bc_variable(tabtemp2d,vbarid,calledweight=tinterp,
+C     &   procname = v2dinterp)
+        Call Agrif_Bc_variable(vbarid,calledweight=tinterp,
      &   procname = v2dinterp)
-        dVinterp(i1t:i2t,0:j2v)=tabtemp2d
-        deallocate(tabtemp2d)
-                  
+C        dVinterp(i1t:i2t,0:j2v)=tabtemp2d
+C        deallocate(tabtemp2d)
+
         Agrif_UseSpecialvalue=.false.
 C$OMP END MASTER
 C$OMP BARRIER
@@ -951,7 +1020,7 @@ C$OMP BARRIER
       return
       end
 
-      subroutine v2Dinterp(tabres,i1,i2,j1,j2)
+      subroutine v2Dinterp(tabres,i1,i2,j1,j2,before)
       implicit none
 # include "param.h"
 # include "grid.h"
@@ -961,6 +1030,7 @@ C$OMP BARRIER
 
        integer i1,i2,j1,j2
        real tabres(i1:i2,j1:j2)
+       logical before
        integer i,j,iter,isize
        real :: cff1
 !$AGRIF_DO_NOT_TREAT
@@ -969,7 +1039,8 @@ C$OMP BARRIER
 !$AGRIF_END_DO_NOT_TREAT  
 
        integer :: oldindinterp
-       
+
+       if (before) then
        isize = (j2-j1+1)*(i2-i1+1)
        
        IF (iif == 1) THEN
@@ -1010,7 +1081,10 @@ C$OMP BARRIER
        enddo
        
        indinterp = oldindinterp
-                
+
+       else
+          dVinterp(i1:i2,j1:j2) = tabres
+       endif
       return
       end   
       
@@ -1099,7 +1173,7 @@ C$OMP BARRIER
       real,dimension(Iend:Iend+1,GLOBAL_1D_ARRAYETA,0:NWEIGHT) :: Zeta_east4
       real,dimension(GLOBAL_1D_ARRAYXI,Jstr-1:Jstr,0:NWEIGHT) :: Zeta_south4
       real,dimension(GLOBAL_1D_ARRAYXI,Jend:Jend+1,0:NWEIGHT) :: Zeta_north4
-      real,dimension(:,:),allocatable :: tabtemp2d
+!      real,dimension(:,:),allocatable :: tabtemp2d
       real lastcff
 !$AGRIF_DO_NOT_TREAT
       integer :: nbgrid, indinterp
@@ -1146,13 +1220,13 @@ C$OMP MASTER
         pngrid = Agrif_Parent_Fixed()
         if (nbgrid == grids_at_level(pngrid,0)) indinterp = 0
 
-        allocate(tabtemp2d(i1t:i2t,j1t:j2t))     
-            Call Agrif_Bc_variable(tabtemp2d,zetaid,
+C        allocate(tabtemp2d(i1t:i2t,j1t:j2t))
+            Call Agrif_Bc_variable(zetaid,
      &                                        calledweight=tinterp,
      &                                        procname=zetainterp)
-       dZtinterp(i1t:i2t,j1t:j2t)=tabtemp2d
-       deallocate(tabtemp2d)
-            Agrif_UseSpecialvalue=.false. 
+C       dZtinterp(i1t:i2t,j1t:j2t)=tabtemp2d
+C       deallocate(tabtemp2d)
+            Agrif_UseSpecialvalue=.false.
 C$OMP END MASTER
 C$OMP BARRIER
             ZetaTimeindex = parentnbstep
@@ -1450,8 +1524,8 @@ C$OMP BARRIER
      
       return
       end
-      
-      subroutine zetainterp(tabres,i1,i2,j1,j2)
+
+      subroutine zetainterp(tabres,i1,i2,j1,j2,before)
       implicit none
 # include "param.h"
 # include "ocean2d.h"
@@ -1460,6 +1534,7 @@ C$OMP BARRIER
 
        integer i1,i2,j1,j2
        real tabres(i1:i2,j1:j2)
+       logical before
        integer i,j,iter,isize
        real :: cff1
 !$AGRIF_DO_NOT_TREAT
@@ -1468,7 +1543,8 @@ C$OMP BARRIER
 !$AGRIF_END_DO_NOT_TREAT  
 
        integer :: oldindinterp
-       
+
+       if (before) then
        isize = (j2-j1+1)*(i2-i1+1)
        
        IF (iif == 1) THEN
@@ -1507,7 +1583,9 @@ C$OMP BARRIER
        enddo
        
        indinterp = oldindinterp
-      
+        else
+         dZtinterp(i1:i2,j1:j2) = tabres
+       endif     
       return
       end
       
@@ -1519,7 +1597,6 @@ C$OMP BARRIER
 # include "boundary.h"
 # include "zoom.h"
 # include "wkb_wwave.h"
-      real,dimension(:,:),allocatable :: tabtemp2d
       external :: wacinterp, wkxinterp,wkeinterp
 #ifdef WAVE_ROLLER
      &,warinterp
@@ -1533,23 +1610,17 @@ C$OMP BARRIER
       dWketinterp = 0.
       Agrif_UseSpecialValue = .TRUE.
       Agrif_SpecialValue = 0.
-
-      allocate(tabtemp2d(i1t:i2t,j1t:j2t))     
-      Call Agrif_Bc_variable(tabtemp2d,wacid,
+   
+      Call Agrif_Bc_variable(wacid,
      &   procname=wacinterp)
-       dWactinterp(i1t:i2t,j1t:j2t)=tabtemp2d
 #ifdef WAVE_ROLLER
-      Call Agrif_Bc_variable(tabtemp2d,warid,
+      Call Agrif_Bc_variable(warid,
      &   procname=warinterp)
-       dWartinterp(i1t:i2t,j1t:j2t)=tabtemp2d
 #endif
-      Call Agrif_Bc_variable(tabtemp2d,wkxid,
+      Call Agrif_Bc_variable(wkxid,
      &   procname=wkxinterp)
-       dWkxtinterp(i1t:i2t,j1t:j2t)=tabtemp2d
-      Call Agrif_Bc_variable(tabtemp2d,wkeid,
+      Call Agrif_Bc_variable(wkeid,
      &   procname=wkeinterp)
-       dWketinterp(i1t:i2t,j1t:j2t)=tabtemp2d
-       deallocate(tabtemp2d)
        Agrif_UseSpecialValue = .false.
 
 #  ifdef AGRIF_OBC_SOUTH
@@ -1603,62 +1674,78 @@ C$OMP BARRIER
       return
       end
       
-      subroutine wacinterp(tabres,i1,i2,j1,j2)
+      subroutine wacinterp(tabres,i1,i2,j1,j2,before)
       implicit none
 # include "param.h"
 # include "wkb_wwave.h"
 # include "scalars.h"
 
        integer i1,i2,j1,j2
+       logical before
        real tabres(i1:i2,j1:j2)
 
+       if (before) then
        tabres(i1:i2,j1:j2) = 
      &               wac(i1:i2,j1:j2,2)
-      
+       else
+       dWactinterp(i1:i2,j1:j2,2)=tabres(i1:i2,j1:j2)
+       endif
       return
       end       
 #ifdef WAVE_ROLLER
-      subroutine warinterp(tabres,i1,i2,j1,j2)
+      subroutine warinterp(tabres,i1,i2,j1,j2,before)
       implicit none
 # include "param.h"
 # include "wkb_wwave.h"
 # include "scalars.h"
 
        integer i1,i2,j1,j2
+       logical before
        real tabres(i1:i2,j1:j2)
 
+       if (before) then
        tabres(i1:i2,j1:j2) = 
      &               war(i1:i2,j1:j2,2)
-      
+       else
+         dWartinterp(i1:i2,j1:j2,2)=tabres(i1:i2,j1:j2)
+       endif
       return
       end       
 #endif
-      subroutine wkxinterp(tabres,i1,i2,j1,j2)
+      subroutine wkxinterp(tabres,i1,i2,j1,j2,before)
       implicit none
 # include "param.h"
 # include "wkb_wwave.h"
 # include "scalars.h"
 
        integer i1,i2,j1,j2
+       logical before
        real tabres(i1:i2,j1:j2)
 
+       if (before) then
        tabres(i1:i2,j1:j2) = 
      &               wkx(i1:i2,j1:j2,2)
-      
+       else
+         dWkxtinterp(i1:i2,j1:j2,2)=tabres(i1:i2,j1:j2)
+       endif
       return
       end       
-      subroutine wkeinterp(tabres,i1,i2,j1,j2)
+      subroutine wkeinterp(tabres,i1,i2,j1,j2,before)
       implicit none
 # include "param.h"
 # include "wkb_wwave.h"
 # include "scalars.h"
 
        integer i1,i2,j1,j2
+       logical before
        real tabres(i1:i2,j1:j2)
 
+       if (before) then
        tabres(i1:i2,j1:j2) = 
      &               wke(i1:i2,j1:j2,2)
-      
+       else
+       dWketinterp(i1:i2,j1:j2,2)=tabres(i1:i2,j1:j2)
+       endif
       return
       end       
 

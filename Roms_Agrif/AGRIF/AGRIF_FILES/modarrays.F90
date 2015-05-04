@@ -26,54 +26,76 @@
 module Agrif_Arrays
 !
     use Agrif_Types
+    use Agrif_Grids
 !
     implicit none
+!
+#if defined AGRIF_MPI
+    interface
+        subroutine Agrif_InvLoc ( indloc, proc_id, dir, indglob )
+            integer, intent(in)     :: indloc   !< local index
+            integer, intent(in)     :: proc_id  !< rank of the proc calling this function
+            integer, intent(in)     :: dir      !< direction of the index
+            integer, intent(out)    :: indglob  !< global index
+        end subroutine Agrif_InvLoc
+    end interface
+    private :: Agrif_InvLoc
+#endif
 !
 contains
 !
 !===================================================================================================
 ! subroutine Agrif_Childbounds
 !
-!> Subroutine calculating the global indices of the child grid
+!> Computes the global indices of the child grid
 !---------------------------------------------------------------------------------------------------
-subroutine Agrif_Childbounds ( nbdim, lboundloc, uboundloc, &
-                               pttab, petab, pttruetab, cetruetab, memberin )
+subroutine Agrif_Childbounds ( nbdim,           &
+                               lb_var, ub_var,  &
+                               lb_tab, ub_tab,  &
+                               proc_id,         &
+                               coords,          &
+                               lb_tab_true, ub_tab_true, memberin,  &
+                               indminglob3,indmaxglob3)
 !---------------------------------------------------------------------------------------------------
-    INTEGER,                  intent(in)  :: nbdim
-    INTEGER,DIMENSION(nbdim), intent(in)  :: lboundloc, uboundloc
-    INTEGER,DIMENSION(nbdim), intent(in)  :: pttab, petab
-    INTEGER,DIMENSION(nbdim), intent(out) :: pttruetab, cetruetab
-    LOGICAL,                  intent(out) :: memberin
+    integer,                   intent(in)  :: nbdim         !< Number of dimensions
+    integer, dimension(nbdim), intent(in)  :: lb_var        !< Local lower boundary on the current processor
+    integer, dimension(nbdim), intent(in)  :: ub_var        !< Local upper boundary on the current processor
+    integer, dimension(nbdim), intent(in)  :: lb_tab        !< Global lower boundary of the variable
+    integer, dimension(nbdim),OPTIONAL     :: indminglob3,indmaxglob3 !< True bounds for MPI USE
+    integer, dimension(nbdim), intent(in)  :: ub_tab        !< Global upper boundary of the variable
+    integer,                   intent(in)  :: proc_id       !< Current processor
+    integer, dimension(nbdim), intent(in)  :: coords
+    integer, dimension(nbdim), intent(out) :: lb_tab_true   !< Global value of lb_var on the current processor
+    integer, dimension(nbdim), intent(out) :: ub_tab_true   !< Global value of ub_var on the current processor
+    logical,                   intent(out) :: memberin
 !
-    INTEGER :: i,lbglob,ubglob
+    integer :: i, coord_i
+    integer :: lb_glob_index, ub_glob_index ! Lower and upper global indices
+!
+    do i = 1, nbdim
+!
+        coord_i = coords(i)
 !
 #if defined AGRIF_MPI
-    INTEGER :: indglob1, indglob2
-#endif
-!
-    do i = 1,nbdim
-!
-        lbglob = lboundloc(i)
-        ubglob = uboundloc(i)
-!
-#if defined AGRIF_MPI
-        call Agrif_InvLoc(lbglob,Agrif_ProcRank,i,indglob1)
-        call Agrif_InvLoc(ubglob,Agrif_ProcRank,i,indglob2)
-!
-        pttruetab(i) = max(pttab(i),indglob1)
-        cetruetab(i) = min(petab(i),indglob2)
+        call Agrif_InvLoc( lb_var(i), proc_id, coord_i, lb_glob_index )
+        call Agrif_InvLoc( ub_var(i), proc_id, coord_i, ub_glob_index )
+        if (present(indminglob3)) then
+          indminglob3(i)=lb_glob_index
+          indmaxglob3(i)=ub_glob_index
+        endif
 #else
-        pttruetab(i) = max(pttab(i),lbglob)
-        cetruetab(i) = min(petab(i),ubglob)
+        lb_glob_index = lb_var(i)
+        ub_glob_index = ub_var(i)
 #endif
-!
+        lb_tab_true(i) = max(lb_tab(i), lb_glob_index)
+        ub_tab_true(i) = min(ub_tab(i), ub_glob_index)
+
     enddo
-
-    memberin = .TRUE.
-
-    do i=1,nbdim
-        if (cetruetab(i) < pttruetab(i)) then
-            memberin = .FALSE.
+!
+    memberin = .true.
+    do i = 1,nbdim
+        if (ub_tab_true(i) < lb_tab_true(i)) then
+            memberin = .false.
             exit
         endif
     enddo
@@ -82,418 +104,423 @@ end subroutine Agrif_Childbounds
 !===================================================================================================
 !
 !===================================================================================================
-!  subroutine Agrif_nbdim_Get_bound
+subroutine Agrif_get_var_global_bounds( var, lubglob, nbdim )
+!---------------------------------------------------------------------------------------------------
+    type(Agrif_Variable),        intent(in)  :: var
+    integer, dimension(nbdim,2), intent(out) :: lubglob
+    integer,                     intent(in)  :: nbdim
 !
-!> Gets the lower and the upper boundaries of a table.
-!> Output datas are scalar.
-!---------------------------------------------------------------------------------------------------
-subroutine Agrif_nbdim_Get_bound ( Variable, lower, upper, indice )
-!---------------------------------------------------------------------------------------------------
-    TYPE(Agrif_Variable), pointer :: Variable   !< we want extract boundaries of this table
-    INTEGER, INTENT(out)          :: lower      !< output data
-    INTEGER, INTENT(out)          :: upper      !< output data
-    INTEGER, INTENT(in)           :: indice     !< direction in wich we want to know the dimension
-!
-    lower = Variable % lb(indice)
-    upper = Variable % ub(indice)
-!---------------------------------------------------------------------------------------------------
-end subroutine Agrif_nbdim_Get_bound
-!===================================================================================================
-!
-!===================================================================================================
-!  subroutine Agrif_nbdim_Get_bound_dimension
-!
-!> Gets the lower and the upper boundaries of a table.
-!> Output datas are scalar.
-!---------------------------------------------------------------------------------------------------
-subroutine Agrif_nbdim_Get_bound_dimension ( Variable, lower, upper, nbdim )
-!---------------------------------------------------------------------------------------------------
-    TYPE(Agrif_Variable), pointer           :: Variable   !< we want extract boundaries of this table
-    INTEGER,DIMENSION(nbdim), INTENT(out)   :: lower      !< output data
-    INTEGER,DIMENSION(nbdim), INTENT(out)   :: upper      !< output data
-    INTEGER, INTENT(in)                     :: nbdim      !< dimension of the table
-!
-    lower = Variable % lb(1:nbdim)
-    upper = Variable % ub(1:nbdim)
-!---------------------------------------------------------------------------------------------------
-end subroutine Agrif_nbdim_Get_bound_dimension
-!===================================================================================================
-!
-!===================================================================================================
-!  subroutine Agrif_nbdim_allocation
-!
-!> Allocates the table Variable
-!---------------------------------------------------------------------------------------------------
-subroutine Agrif_nbdim_allocation ( Variable, inf, sup, nbdim )
-!---------------------------------------------------------------------------------------------------
-    TYPE(Agrif_Variable),     pointer       :: Variable
-    INTEGER,DIMENSION(nbdim), intent(in)    :: inf, sup
-    INTEGER,                  intent(in)    :: nbdim     !< dimension of the table
-!
-    select case (nbdim)
-    case (1)
-        allocate(Variable%array1(inf(1):sup(1)))
-    case (2)
-        allocate(Variable%array2(inf(1):sup(1),    &
-                                 inf(2):sup(2)))
-    case (3)
-        allocate(Variable%array3(inf(1):sup(1),    &
-                                 inf(2):sup(2),    &
-                                 inf(3):sup(3)))
-    case (4)
-        allocate(Variable%array4(inf(1):sup(1),    &
-                                 inf(2):sup(2),    &
-                                 inf(3):sup(3),    &
-                                 inf(4):sup(4)))
-    case (5)
-        allocate(Variable%array5(inf(1):sup(1),    &
-                                 inf(2):sup(2),    &
-                                 inf(3):sup(3),    &
-                                 inf(4):sup(4),    &
-                                 inf(5):sup(5)))
-    case (6)
-        allocate(Variable%array6(inf(1):sup(1),    &
-                                 inf(2):sup(2),    &
-                                 inf(3):sup(3),    &
-                                 inf(4):sup(4),    &
-                                 inf(5):sup(5),    &
-                                 inf(6):sup(6)))
-    end select
-!---------------------------------------------------------------------------------------------------
-end subroutine Agrif_nbdim_allocation
-!===================================================================================================
-!
-!===================================================================================================
-!  subroutine Agrif_nbdim_deallocation
-!
-!> Dellocates the table Variable
-!---------------------------------------------------------------------------------------------------
-subroutine Agrif_nbdim_deallocation ( Variable, nbdim )
-!---------------------------------------------------------------------------------------------------
-    TYPE(Agrif_Variable), pointer   :: Variable
-    INTEGER, INTENT(in)             :: nbdim     !< dimension of the table
-!
-    select case (nbdim)
-    case (1)
-        deallocate(Variable%array1)
-    case (2)
-        deallocate(Variable%array2)
-    case (3)
-        deallocate(Variable%array3)
-    case (4)
-        deallocate(Variable%array4)
-    case (5)
-        deallocate(Variable%array5)
-    case (6)
-        deallocate(Variable%array6)
-    end select
-!---------------------------------------------------------------------------------------------------
-end subroutine Agrif_nbdim_deallocation
-!===================================================================================================
-!
-!===================================================================================================
-!  subroutine Agrif_nbdim_Full_VarEQreal
-!
-!> This subroutine is used to give the same value to the table Variable
-!---------------------------------------------------------------------------------------------------
-subroutine Agrif_nbdim_Full_VarEQreal ( Variable, Value, nbdim )
-!---------------------------------------------------------------------------------------------------
-    TYPE(Agrif_Variable), pointer   :: Variable
-    REAL,    INTENT(in)             :: Value    !< input value
-    INTEGER, INTENT(in)             :: nbdim    !< dimension of the table
-!
-    select case (nbdim)
-    case (1)
-        Variable%array1 = Value
-    case (2)
-        Variable%array2 = Value
-    case (3)
-        call Agrif_set_tozero3D(Variable%array3)
-!      Variable%array3 = Value
-    case (4)
-        Variable%array4 = Value
-    case (5)
-        Variable%array5 = Value
-    case (6)
-        Variable%array6 = Value
-    end select
-!---------------------------------------------------------------------------------------------------
-end subroutine Agrif_nbdim_Full_VarEQreal
-!===================================================================================================
-!
-!===================================================================================================
-    subroutine Agrif_set_tozero3D(tab3D)
-!---------------------------------------------------------------------------------------------------
-    real, dimension(:,:,:), target :: tab3D
-!
-    tab3D = 0.
-!---------------------------------------------------------------------------------------------------
-end subroutine agrif_set_tozero3D
-!===================================================================================================
-!
-#if !defined AGRIF_MPI
-!===================================================================================================
-!  subroutine Agrif_nbdim_VarEQreal
-!
-!> Gives the same value to a part of the table Variable
-!---------------------------------------------------------------------------------------------------
-    subroutine Agrif_nbdim_VarEQreal ( Variable, inf, sup, Value, nbdim )
-!---------------------------------------------------------------------------------------------------
-    TYPE(Agrif_Variable), pointer           :: Variable
-    INTEGER,                   intent(in)   :: nbdim     !< dimension of the table
-    INTEGER, DIMENSION(nbdim), intent(in)   :: inf,sup
-    REAL,                      intent(in)   :: Value
-!
-    select case (nbdim)
-    case (1)
-       Variable%array1( inf(1):sup(1) )  = Value
-    case (2)
-       Variable%array2( inf(1):sup(1),   &
-                        inf(2):sup(2) )  = Value
-    case (3)
-       Variable%array3( inf(1):sup(1),   &
-                        inf(2):sup(2),   &
-                        inf(3):sup(3) )  = Value
-    case (4)
-       Variable%array4( inf(1):sup(1),   &
-                        inf(2):sup(2),   &
-                        inf(3):sup(3),   &
-                        inf(4):sup(4) )  = Value
-    case (5)
-       Variable%array5( inf(1):sup(1),   &
-                        inf(2):sup(2),   &
-                        inf(3):sup(3),   &
-                        inf(4):sup(4),   &
-                        inf(5):sup(5) )  = Value
-    case (6)
-       Variable%array6( inf(1):sup(1),   &
-                        inf(2):sup(2),   &
-                        inf(3):sup(3),   &
-                        inf(4):sup(4),   &
-                        inf(5):sup(5),   &
-                        inf(6):sup(6) )  = Value
-    end select
-!---------------------------------------------------------------------------------------------------
-end subroutine Agrif_nbdim_VarEQreal
-!===================================================================================================
+#if defined AGRIF_MPI
+    include 'mpif.h'
+    integer, dimension(nbdim)   :: lb, ub
+    integer, dimension(nbdim,2) :: iminmaxg
+    integer :: i, code, coord_i
 #endif
 !
-!===================================================================================================
-!  subroutine Agrif_nbdim_VarEQvar
+#if !defined AGRIF_MPI
+    call Agrif_get_var_bounds_array(var, lubglob(:,1), lubglob(:,2), nbdim)
+#else
+    call Agrif_get_var_bounds_array(var, lb, ub, nbdim)
+
+    do i = 1,nbdim
+        coord_i = var % root_var % coords(i)
+        call Agrif_InvLoc( lb(i), Agrif_Procrank, coord_i, iminmaxg(i,1) )
+        call Agrif_InvLoc( ub(i), Agrif_Procrank, coord_i, iminmaxg(i,2) )
+    enddo
 !
-!> Gives the value of a part of the table Variable2 to the table Variable
+    iminmaxg(1:nbdim,2) = - iminmaxg(1:nbdim,2)
+    call MPI_ALLREDUCE(iminmaxg, lubglob, 2*nbdim, MPI_INTEGER, MPI_MIN, &
+                       Agrif_mpi_comm, code)
+    lubglob(1:nbdim,2)  = - lubglob(1:nbdim,2)
+#endif
 !---------------------------------------------------------------------------------------------------
-subroutine Agrif_nbdim_VarEQvar ( Variable, inf, sup,   &
-                                  Variable2,inf2,sup2, nbdim )
+end subroutine Agrif_get_var_global_bounds
+!===================================================================================================
+!
+!===================================================================================================
+!  subroutine Agrif_get_var_bounds
+!
+!> Gets the lower and the upper boundaries of a variable, for one particular direction.
 !---------------------------------------------------------------------------------------------------
-    TYPE(Agrif_Variable), pointer           :: Variable
-    TYPE(Agrif_Variable), pointer           :: Variable2
-    INTEGER,                   intent(in)   :: nbdim     !< dimension of the table
-    INTEGER, DIMENSION(nbdim), intent(in)   :: inf, sup
-    INTEGER, DIMENSION(nbdim), intent(in)   :: inf2,sup2
+subroutine Agrif_get_var_bounds ( variable, lower, upper, index )
+!---------------------------------------------------------------------------------------------------
+    type(Agrif_Variable), intent(in)    :: variable   !< Variable for which we want to extract boundaries
+    integer,              intent(out)   :: lower      !< Lower bound
+    integer,              intent(out)   :: upper      !< Upper bound
+    integer,              intent(in)    :: index      !< Direction for wich we want to know the boundaries
+!
+    lower = variable % lb(index)
+    upper = variable % ub(index)
+!---------------------------------------------------------------------------------------------------
+end subroutine Agrif_get_var_bounds
+!===================================================================================================
+!
+!===================================================================================================
+!  subroutine Agrif_get_var_bounds_array
+!
+!> Gets the lower and the upper boundaries of a table.
+!---------------------------------------------------------------------------------------------------
+subroutine Agrif_get_var_bounds_array ( variable, lower, upper, nbdim )
+!---------------------------------------------------------------------------------------------------
+    type(Agrif_Variable),      intent(in)   :: variable   !< Variable for which we want to extract boundaries
+    integer, dimension(nbdim), intent(out)  :: lower      !< Lower bounds array
+    integer, dimension(nbdim), intent(out)  :: upper      !< Upper bounds array
+    integer, intent(in)                     :: nbdim      !< Numer of dimensions of the variable
+!
+    lower = variable % lb(1:nbdim)
+    upper = variable % ub(1:nbdim)
+!---------------------------------------------------------------------------------------------------
+end subroutine Agrif_get_var_bounds_array
+!===================================================================================================
+!
+!===================================================================================================
+!  subroutine Agrif_array_allocate
+!
+!> Allocates data array in \b variable, according to the required dimension.
+!---------------------------------------------------------------------------------------------------
+subroutine Agrif_array_allocate ( variable, lb, ub, nbdim )
+!---------------------------------------------------------------------------------------------------
+    type(Agrif_Variable),      intent(inout) :: variable    !< Variable struct for allocation
+    integer, dimension(nbdim), intent(in)    :: lb          !< Lower bound
+    integer, dimension(nbdim), intent(in)    :: ub          !< Upper bound
+    integer,                   intent(in)    :: nbdim       !< Dimension of the array
 !
     select case (nbdim)
-    case (1)
-        Variable%array1(inf(1):sup(1)) = Variable2%array1(inf2(1):sup2(1))
-    case (2)
-        call Agrif_Copy_2d(Variable%array2,Variable2%array2, &
-                lbound(Variable%array2), &
-                lbound(Variable2%array2), &
-                inf,sup,inf2,sup2)
-    case (3)
-        call Agrif_Copy_3d(Variable%array3,Variable2%array3, &
-                lbound(Variable%array3),  &
-                lbound(Variable2%array3), &
-                inf,sup,inf2,sup2)
-    case (4)
-        call Agrif_Copy_4d(Variable%array4,Variable2%array4, &
-                lbound(Variable%array4),  &
-                lbound(Variable2%array4), &
-                inf,sup,inf2,sup2)
-    case (5)
-        Variable%array5(inf(1):sup(1),   &
-                        inf(2):sup(2),   &
-                        inf(3):sup(3),   &
-                        inf(4):sup(4),   &
-                        inf(5):sup(5)) = &
-            Variable2%array5(inf2(1):sup2(1), &
-                             inf2(2):sup2(2), &
-                             inf2(3):sup2(3), &
-                             inf2(4):sup2(4), &
-                             inf2(5):sup2(5))
-    case (6)
-        Variable%array6(inf(1):sup(1),   &
-                        inf(2):sup(2),   &
-                        inf(3):sup(3),   &
-                        inf(4):sup(4),   &
-                        inf(5):sup(5),   &
-                        inf(6):sup(6)) = &
-            Variable2%array6(inf2(1):sup2(1), &
-                             inf2(2):sup2(2), &
-                             inf2(3):sup2(3), &
-                             inf2(4):sup2(4), &
-                             inf2(5):sup2(5), &
-                             inf2(6):sup2(6))
+    case (1) ; allocate(variable%array1(lb(1):ub(1)))
+    case (2) ; allocate(variable%array2(lb(1):ub(1),lb(2):ub(2)))
+    case (3) ; allocate(variable%array3(lb(1):ub(1),lb(2):ub(2),lb(3):ub(3)))
+    case (4) ; allocate(variable%array4(lb(1):ub(1),lb(2):ub(2),lb(3):ub(3),lb(4):ub(4)))
+    case (5) ; allocate(variable%array5(lb(1):ub(1),lb(2):ub(2),lb(3):ub(3),lb(4):ub(4),lb(5):ub(5)))
+    case (6) ; allocate(variable%array6(lb(1):ub(1),lb(2):ub(2),lb(3):ub(3),lb(4):ub(4),lb(5):ub(5),lb(6):ub(6)))
     end select
 !---------------------------------------------------------------------------------------------------
-end subroutine Agrif_nbdim_VarEQvar
+end subroutine Agrif_array_allocate
 !===================================================================================================
 !
 !===================================================================================================
-!  subroutine Agrif_nbdim_Full_VarEQvar
+!  subroutine Agrif_array_deallocate
 !
-!> give the value of the table Variable2 to the table Variable
+!> Dellocates data array in \b variable, according to the required dimension.
 !---------------------------------------------------------------------------------------------------
-subroutine Agrif_nbdim_Full_VarEQvar ( Variable, Variable2, nbdim )
+subroutine Agrif_array_deallocate ( variable, nbdim )
 !---------------------------------------------------------------------------------------------------
-    TYPE(Agrif_Variable), pointer     :: Variable
-    TYPE(Agrif_Variable), pointer     :: Variable2
-    INTEGER,              intent(in)  :: nbdim     !< dimension of the table
+    type(Agrif_Variable), intent(inout) :: variable     !< Variable struct for deallocation
+    integer,              intent(in)    :: nbdim        !< Dimension of the array
 !
-    SELECT CASE (nbdim)
-    CASE (1) ; Variable%array1 = Variable2%array1
-    CASE (2) ; Variable%array2 = Variable2%array2
-    CASE (3) ; Variable%array3 = Variable2%array3
-    CASE (4) ; Variable%array4 = Variable2%array4
-    CASE (5) ; Variable%array5 = Variable2%array5
-    CASE (6) ; Variable%array6 = Variable2%array6
-    end SELECT
+    select case (nbdim)
+    case (1) ; deallocate(variable%array1)
+    case (2) ; deallocate(variable%array2)
+    case (3) ; deallocate(variable%array3)
+    case (4) ; deallocate(variable%array4)
+    case (5) ; deallocate(variable%array5)
+    case (6) ; deallocate(variable%array6)
+    end select
 !---------------------------------------------------------------------------------------------------
-end subroutine Agrif_nbdim_Full_VarEQvar
+end subroutine Agrif_array_deallocate
+!===================================================================================================
+!
+!===================================================================================================
+!  subroutine Agrif_var_set_array_tozero
+!
+!> Reset the value of the data array in \b variable, according to the required dimension.
+!---------------------------------------------------------------------------------------------------
+subroutine Agrif_var_set_array_tozero ( variable, nbdim )
+!---------------------------------------------------------------------------------------------------
+    type(Agrif_Variable), intent(inout) :: variable     !< Variable
+    integer, intent(in)                 :: nbdim        !< Dimension of the array you want to reset
+!
+    select case (nbdim)
+    case (1) ; call Agrif_set_array_tozero_1D(variable%array1)
+    case (2) ; call Agrif_set_array_tozero_2D(variable%array2)
+    case (3) ; call Agrif_set_array_tozero_3D(variable%array3)
+    case (4) ; call Agrif_set_array_tozero_4D(variable%array4)
+    case (5) ; call Agrif_set_array_tozero_5D(variable%array5)
+    case (6) ; call Agrif_set_array_tozero_6D(variable%array6)
+    end select
+!---------------------------------------------------------------------------------------------------
+contains
+!---------------------------------------------------------------------------------------------------
+    subroutine Agrif_set_array_tozero_1D ( array )
+        real, dimension(:),           intent(out) :: array
+        array = 0.
+    end subroutine Agrif_set_array_tozero_1D
+!
+    subroutine Agrif_set_array_tozero_2D ( array )
+        real, dimension(:,:),         intent(out) :: array
+        array = 0.
+    end subroutine Agrif_set_array_tozero_2D
+!
+    subroutine Agrif_set_array_tozero_3D ( array )
+        real, dimension(:,:,:),       intent(out) :: array
+        array = 0.
+    end subroutine Agrif_set_array_tozero_3D
+!
+    subroutine Agrif_set_array_tozero_4D ( array )
+        real, dimension(:,:,:,:),     intent(out) :: array
+        array = 0.
+    end subroutine Agrif_set_array_tozero_4D
+!
+    subroutine Agrif_set_array_tozero_5D ( array )
+        real, dimension(:,:,:,:,:),   intent(out) :: array
+        array = 0.
+    end subroutine Agrif_set_array_tozero_5D
+!
+    subroutine Agrif_set_array_tozero_6D ( array )
+        real, dimension(:,:,:,:,:,:), intent(out) :: array
+        array = 0.
+    end subroutine Agrif_set_array_tozero_6D
+!---------------------------------------------------------------------------------------------------
+end subroutine Agrif_var_set_array_tozero
+!===================================================================================================
+!
+!===================================================================================================
+!  subroutine Agrif_var_copy_array
+!
+!> Copy a part of data array from var2 to var1
+!---------------------------------------------------------------------------------------------------
+subroutine Agrif_var_copy_array ( var1, inf1, sup1, var2, inf2, sup2, nbdim )
+!---------------------------------------------------------------------------------------------------
+    type(Agrif_Variable),      intent(inout) :: var1    !< Modified variable
+    integer, dimension(nbdim), intent(in)    :: inf1    !< Lower boundary for var1
+    integer, dimension(nbdim), intent(in)    :: sup1    !< Upper boundary for var1
+    type(Agrif_Variable),      intent(in)    :: var2    !< Input variable
+    integer, dimension(nbdim), intent(in)    :: inf2    !< Lower boundary for var2
+    integer, dimension(nbdim), intent(in)    :: sup2    !< Upper boundary for var2
+    integer,                   intent(in)    :: nbdim   !< Dimension of the array
+!
+    select case (nbdim)
+    case (1) ; var1%array1(inf1(1):sup1(1)) = var2%array1(inf2(1):sup2(1))
+    case (2) ; call Agrif_copy_array_2d( var1%array2, var2%array2, &
+                                         lbound(var1%array2), lbound(var2%array2), inf1, sup1, inf2, sup2 )
+    case (3) ; call Agrif_copy_array_3d( var1%array3, var2%array3, &
+                                         lbound(var1%array3), lbound(var2%array3), inf1, sup1, inf2, sup2 )
+    case (4) ; call Agrif_copy_array_4d( var1%array4, var2%array4, &
+                                         lbound(var1%array4), lbound(var2%array4), inf1, sup1, inf2, sup2 )
+    case (5) ; var1%array5(inf1(1):sup1(1),   &
+                           inf1(2):sup1(2),   &
+                           inf1(3):sup1(3),   &
+                           inf1(4):sup1(4),   &
+                           inf1(5):sup1(5)) = var2%array5(inf2(1):sup2(1), &
+                                                          inf2(2):sup2(2), &
+                                                          inf2(3):sup2(3), &
+                                                          inf2(4):sup2(4), &
+                                                          inf2(5):sup2(5))
+    case (6) ; var1%array6(inf1(1):sup1(1),   &
+                           inf1(2):sup1(2),   &
+                           inf1(3):sup1(3),   &
+                           inf1(4):sup1(4),   &
+                           inf1(5):sup1(5),   &
+                           inf1(6):sup1(6)) = var2%array6(inf2(1):sup2(1), &
+                                                          inf2(2):sup2(2), &
+                                                          inf2(3):sup2(3), &
+                                                          inf2(4):sup2(4), &
+                                                          inf2(5):sup2(5), &
+                                                          inf2(6):sup2(6))
+    end select
+!---------------------------------------------------------------------------------------------------
+contains
+!---------------------------------------------------------------------------------------------------
+    subroutine Agrif_copy_array_2d ( tabout, tabin, l, m, inf1, sup1, inf2, sup2 )
+        integer, dimension(2), intent(in)   :: l, m
+        integer, dimension(2), intent(in)   :: inf1, sup1
+        integer, dimension(2), intent(in)   :: inf2, sup2
+        real, dimension(l(1):,l(2):), intent(out) :: tabout
+        real, dimension(m(1):,m(2):), intent(in)  :: tabin
+        tabout(inf1(1):sup1(1), &
+               inf1(2):sup1(2)) = tabin(inf2(1):sup2(1), &
+                                        inf2(2):sup2(2))
+    end subroutine Agrif_copy_array_2d
+!
+    subroutine Agrif_copy_array_3d ( tabout, tabin, l, m, inf1, sup1, inf2, sup2 )
+        integer, dimension(3), intent(in)   :: l, m
+        integer, dimension(3), intent(in)   :: inf1, sup1
+        integer, dimension(3), intent(in)   :: inf2,sup2
+        real, dimension(l(1):,l(2):,l(3):), intent(out) :: tabout
+        real, dimension(m(1):,m(2):,m(3):), intent(in)  :: tabin
+        tabout(inf1(1):sup1(1), &
+               inf1(2):sup1(2), &
+               inf1(3):sup1(3)) = tabin(inf2(1):sup2(1), &
+                                        inf2(2):sup2(2), &
+                                        inf2(3):sup2(3))
+    end subroutine Agrif_copy_array_3d
+!
+    subroutine Agrif_copy_array_4d ( tabout, tabin, l, m, inf1, sup1, inf2, sup2 )
+        integer, dimension(4), intent(in)   :: l, m
+        integer, dimension(4), intent(in)   :: inf1, sup1
+        integer, dimension(4), intent(in)   :: inf2, sup2
+        real, dimension(l(1):,l(2):,l(3):,l(4):), intent(out) :: tabout
+        real, dimension(m(1):,m(2):,m(3):,m(4):), intent(in)  :: tabin
+        tabout(inf1(1):sup1(1), &
+               inf1(2):sup1(2), &
+               inf1(3):sup1(3), &
+               inf1(4):sup1(4)) = tabin(inf2(1):sup2(1), &
+                                        inf2(2):sup2(2), &
+                                        inf2(3):sup2(3), &
+                                        inf2(4):sup2(4))
+    end subroutine Agrif_copy_array_4d
+!---------------------------------------------------------------------------------------------------
+end subroutine Agrif_var_copy_array
+!===================================================================================================
+!
+!===================================================================================================
+!  subroutine Agrif_var_full_copy_array
+!
+!> Copy the full data array from var2 to var1
+!---------------------------------------------------------------------------------------------------
+subroutine Agrif_var_full_copy_array ( var1, var2, nbdim )
+!---------------------------------------------------------------------------------------------------
+    type(Agrif_Variable), intent(inout) :: var1    !< Modified variable
+    type(Agrif_Variable), intent(in)    :: var2    !< Input variable
+    integer,              intent(in)    :: nbdim   !< Dimension of the array
+!
+    select case (nbdim)
+    case (1) ; var1 % array1 = var2 % array1
+    case (2) ; var1 % array2 = var2 % array2
+    case (3) ; var1 % array3 = var2 % array3
+    case (4) ; var1 % array4 = var2 % array4
+    case (5) ; var1 % array5 = var2 % array5
+    case (6) ; var1 % array6 = var2 % array6
+    end select
+!---------------------------------------------------------------------------------------------------
+end subroutine Agrif_var_full_copy_array
 !===================================================================================================
 !
 !===================================================================================================
 !  subroutine GiveAgrif_SpecialValueToTab_mpi
+!
+!> Copy \b value in data array \b var2 where it is present in \b var1.
 !---------------------------------------------------------------------------------------------------
-subroutine GiveAgrif_SpecialValueToTab_mpi ( Variable1, Variable2, bounds, Value, nbdim )
+subroutine GiveAgrif_SpecialValueToTab_mpi ( var1, var2, bounds, value, nbdim )
 !---------------------------------------------------------------------------------------------------
-    TYPE(Agrif_Variable),      pointer      :: Variable1
-    TYPE(Agrif_Variable),      pointer      :: Variable2
-    INTEGER,                   intent(in)   :: nbdim
-    INTEGER, DIMENSION(:,:,:), intent(in)   :: bounds
-    REAL,                      intent(in)   :: Value
+    type(Agrif_Variable),      intent(in)    :: var1    !< Modified variable
+    type(Agrif_Variable),      intent(inout) :: var2    !< Input variable
+    integer, dimension(:,:,:), intent(in)    :: bounds  !< Bound for both arrays
+    real,                      intent(in)    :: value   !< Special value
+    integer,                   intent(in)    :: nbdim   !< Dimension of the array
 !
     select case (nbdim)
     case (1)
-        where (Variable1 % array1( bounds(1,1,2):bounds(1,2,2)) == Value )
-            Variable2 % array1(bounds(1,1,1):bounds(1,2,1)) = Value
+        where (var1 % array1(bounds(1,1,2):bounds(1,2,2)) == value )
+            var2 % array1(bounds(1,1,1):bounds(1,2,1)) = value
         end where
     case (2)
-        where (Variable1 % array2( bounds(1,1,2):bounds(1,2,2), &
-                                   bounds(2,1,2):bounds(2,2,2)) == Value)
-            Variable2 % array2(bounds(1,1,1):bounds(1,2,1), &
-                               bounds(2,1,1):bounds(2,2,1)) = Value
+        where (var1 % array2(bounds(1,1,2):bounds(1,2,2), &
+                             bounds(2,1,2):bounds(2,2,2)) == value)
+            var2 % array2(bounds(1,1,1):bounds(1,2,1), &
+                          bounds(2,1,1):bounds(2,2,1)) = value
         end where
     case (3)
-        where (Variable1 % array3( bounds(1,1,2):bounds(1,2,2), &
-                                   bounds(2,1,2):bounds(2,2,2), &
-                                   bounds(3,1,2):bounds(3,2,2)) == Value)
-            Variable2 % array3(bounds(1,1,1):bounds(1,2,1), &
-                               bounds(2,1,1):bounds(2,2,1), &
-                               bounds(3,1,1):bounds(3,2,1)) = Value
+        where (var1 % array3(bounds(1,1,2):bounds(1,2,2), &
+                             bounds(2,1,2):bounds(2,2,2), &
+                             bounds(3,1,2):bounds(3,2,2)) == value)
+            var2 % array3(bounds(1,1,1):bounds(1,2,1), &
+                          bounds(2,1,1):bounds(2,2,1), &
+                          bounds(3,1,1):bounds(3,2,1)) = value
         end where
     case (4)
-        where (Variable1 % array4( bounds(1,1,2):bounds(1,2,2), &
-                                   bounds(2,1,2):bounds(2,2,2), &
-                                   bounds(3,1,2):bounds(3,2,2), &
-                                   bounds(4,1,2):bounds(4,2,2)) == Value)
-            Variable2 % array4(bounds(1,1,1):bounds(1,2,1), &
-                               bounds(2,1,1):bounds(2,2,1), &
-                               bounds(3,1,1):bounds(3,2,1), &
-                               bounds(4,1,1):bounds(4,2,1)) = Value
+        where (var1 % array4(bounds(1,1,2):bounds(1,2,2), &
+                             bounds(2,1,2):bounds(2,2,2), &
+                             bounds(3,1,2):bounds(3,2,2), &
+                             bounds(4,1,2):bounds(4,2,2)) == value)
+            var2 % array4(bounds(1,1,1):bounds(1,2,1), &
+                          bounds(2,1,1):bounds(2,2,1), &
+                          bounds(3,1,1):bounds(3,2,1), &
+                          bounds(4,1,1):bounds(4,2,1)) = value
         end where
     case (5)
-        where (Variable1 % array5( bounds(1,1,2):bounds(1,2,2), &
-                                   bounds(2,1,2):bounds(2,2,2), &
-                                   bounds(3,1,2):bounds(3,2,2), &
-                                   bounds(4,1,2):bounds(4,2,2), &
-                                   bounds(5,1,2):bounds(5,2,2)) == Value)
-            Variable2 % array5(bounds(1,1,1):bounds(1,2,1), &
-                               bounds(2,1,1):bounds(2,2,1), &
-                               bounds(3,1,1):bounds(3,2,1), &
-                               bounds(4,1,1):bounds(4,2,1), &
-                               bounds(5,1,1):bounds(5,2,1)) = Value
+        where (var1 % array5(bounds(1,1,2):bounds(1,2,2), &
+                             bounds(2,1,2):bounds(2,2,2), &
+                             bounds(3,1,2):bounds(3,2,2), &
+                             bounds(4,1,2):bounds(4,2,2), &
+                             bounds(5,1,2):bounds(5,2,2)) == value)
+            var2 % array5(bounds(1,1,1):bounds(1,2,1), &
+                          bounds(2,1,1):bounds(2,2,1), &
+                          bounds(3,1,1):bounds(3,2,1), &
+                          bounds(4,1,1):bounds(4,2,1), &
+                          bounds(5,1,1):bounds(5,2,1)) = value
         end where
     case (6)
-        where (Variable1 % array6( bounds(1,1,2):bounds(1,2,2), &
-                                   bounds(2,1,2):bounds(2,2,2), &
-                                   bounds(3,1,2):bounds(3,2,2), &
-                                   bounds(4,1,2):bounds(4,2,2), &
-                                   bounds(5,1,2):bounds(5,2,2), &
-                                   bounds(6,1,2):bounds(6,2,2)) == Value)
-            Variable2 % array6(bounds(1,1,1):bounds(1,2,1), &
-                               bounds(2,1,1):bounds(2,2,1), &
-                               bounds(3,1,1):bounds(3,2,1), &
-                               bounds(4,1,1):bounds(4,2,1), &
-                               bounds(5,1,1):bounds(5,2,1), &
-                               bounds(6,1,1):bounds(6,2,1)) = Value
+        where (var1 % array6(bounds(1,1,2):bounds(1,2,2), &
+                             bounds(2,1,2):bounds(2,2,2), &
+                             bounds(3,1,2):bounds(3,2,2), &
+                             bounds(4,1,2):bounds(4,2,2), &
+                             bounds(5,1,2):bounds(5,2,2), &
+                             bounds(6,1,2):bounds(6,2,2)) == value)
+            var2 % array6(bounds(1,1,1):bounds(1,2,1), &
+                          bounds(2,1,1):bounds(2,2,1), &
+                          bounds(3,1,1):bounds(3,2,1), &
+                          bounds(4,1,1):bounds(4,2,1), &
+                          bounds(5,1,1):bounds(5,2,1), &
+                          bounds(6,1,1):bounds(6,2,1)) = value
         end where
     end select
 !---------------------------------------------------------------------------------------------------
 end subroutine GiveAgrif_SpecialValueToTab_mpi
 !===================================================================================================
 !
+! no more used ???
+#if 0
 !===================================================================================================
 !  subroutine GiveAgrif_SpecialValueToTab
 !---------------------------------------------------------------------------------------------------
-subroutine GiveAgrif_SpecialValueToTab ( Variable1, Variable2, &
+subroutine GiveAgrif_SpecialValueToTab ( var1, var2, &
                                          lower, upper, Value, nbdim )
 !---------------------------------------------------------------------------------------------------
-    TYPE(Agrif_Variable),      pointer      :: Variable1
-    TYPE(Agrif_Variable),      pointer      :: Variable2
+    TYPE(Agrif_Variable),      pointer      :: var1
+    TYPE(Agrif_Variable),      pointer      :: var2
     INTEGER,                   intent(in)   :: nbdim
     INTEGER, DIMENSION(nbdim), intent(in)   :: lower, upper
     REAL,                      intent(in)   :: Value
 !
     select case (nbdim)
     case (1)
-        where (Variable1 % array1( lower(1):upper(1)) == Value)
-            Variable2 % array1(lower(1):upper(1)) = Value
+        where (var1 % array1( lower(1):upper(1)) == Value)
+            var2 % array1(lower(1):upper(1)) = Value
         end where
     case (2)
-        where (Variable1 % array2( lower(1):upper(1), &
+        where (var1 % array2( lower(1):upper(1), &
                                    lower(2):upper(2)) == Value)
-            Variable2 % array2(lower(1):upper(1), &
+            var2 % array2(lower(1):upper(1), &
                                lower(2):upper(2)) = Value
         end where
     case (3)
-        where (Variable1 % array3( lower(1):upper(1), &
+        where (var1 % array3( lower(1):upper(1), &
                                    lower(2):upper(2), &
                                    lower(3):upper(3)) == Value)
-            Variable2 % array3(lower(1):upper(1), &
+            var2 % array3(lower(1):upper(1), &
                                lower(2):upper(2), &
                                lower(3):upper(3)) = Value
         end where
     case (4)
-        where (Variable1 % array4( lower(1):upper(1), &
+        where (var1 % array4( lower(1):upper(1), &
                                    lower(2):upper(2), &
                                    lower(3):upper(3), &
                                    lower(4):upper(4)) == Value)
-            Variable2 % array4(lower(1):upper(1), &
+            var2 % array4(lower(1):upper(1), &
                                lower(2):upper(2), &
                                lower(3):upper(3), &
                                lower(4):upper(4)) = Value
         end where
     case (5)
-        where (Variable1 % array5( lower(1):upper(1), &
+        where (var1 % array5( lower(1):upper(1), &
                                    lower(2):upper(2), &
                                    lower(3):upper(3), &
                                    lower(4):upper(4), &
                                    lower(5):upper(5)) == Value)
-            Variable2 % array5(lower(1):upper(1), &
+            var2 % array5(lower(1):upper(1), &
                                lower(2):upper(2), &
                                lower(3):upper(3), &
                                lower(4):upper(4), &
                                lower(5):upper(5)) = Value
         end where
     case (6)
-        where (Variable1 % array6( lower(1):upper(1), &
+        where (var1 % array6( lower(1):upper(1), &
                                    lower(2):upper(2), &
                                    lower(3):upper(3), &
                                    lower(4):upper(4), &
                                    lower(5):upper(5), &
                                    lower(6):upper(6)) == Value)
-            Variable2 % array6(lower(1):upper(1), &
+            var2 % array6(lower(1):upper(1), &
                                lower(2):upper(2), &
                                lower(3):upper(3), &
                                lower(4):upper(4), &
@@ -504,33 +531,37 @@ subroutine GiveAgrif_SpecialValueToTab ( Variable1, Variable2, &
 !---------------------------------------------------------------------------------------------------
 end subroutine GiveAgrif_SpecialValueToTab
 !===================================================================================================
+#endif
 !
 #if defined AGRIF_MPI
 !===================================================================================================
-!  subroutine Where_ValTabToTab_mpi
+!  subroutine Agrif_var_replace_value
+!
+!> Replace \b value by \var2 content in \var1 data array.
 !---------------------------------------------------------------------------------------------------
-subroutine Where_ValTabToTab_mpi ( Variable1, Variable2, lower, upper, Value, nbdim )
+subroutine Agrif_var_replace_value ( var1, var2, lower, upper, value, nbdim )
 !---------------------------------------------------------------------------------------------------
-    TYPE(Agrif_Variable),     pointer       :: Variable1
-    TYPE(Agrif_Variable),     pointer       :: Variable2
-    INTEGER,                  intent(in)    :: nbdim
-    INTEGER,DIMENSION(nbdim), intent(in)    :: lower,upper
-    REAL,                     intent(in)    :: Value
+    type(Agrif_Variable),      intent(inout) :: var1    !< Modified variable
+    type(Agrif_Variable),      intent(in)    :: var2    !< Input variable
+    integer, dimension(nbdim), intent(in)    :: lower   !< Lower bound
+    integer, dimension(nbdim), intent(in)    :: upper   !< Upper bound
+    real,                      intent(in)    :: value   !< Special value
+    integer,                   intent(in)    :: nbdim   !< Dimension of the array
 !
     integer :: i,j,k,l,m,n
 !
     select case (nbdim)
     case (1)
         do i = lower(1),upper(1)
-            if (variable1%array1(i) == Value) then
-                variable1%array1(i) = Variable2%array1(i)
+            if (var1%array1(i) == value) then
+                var1%array1(i) = var2%array1(i)
             endif
         enddo
     case (2)
         do j = lower(2),upper(2)
         do i = lower(1),upper(1)
-            if (variable1%array2(i,j) == Value) then
-                variable1%array2(i,j) = Variable2%array2(i,j)
+            if (var1%array2(i,j) == value) then
+                var1%array2(i,j) = var2%array2(i,j)
             endif
         enddo
         enddo
@@ -538,8 +569,8 @@ subroutine Where_ValTabToTab_mpi ( Variable1, Variable2, lower, upper, Value, nb
         do k = lower(3),upper(3)
         do j = lower(2),upper(2)
         do i = lower(1),upper(1)
-            if (variable1%array3(i,j,k) == Value) then
-                variable1%array3(i,j,k) = Variable2%array3(i,j,k)
+            if (var1%array3(i,j,k) == value) then
+                var1%array3(i,j,k) = var2%array3(i,j,k)
             endif
         enddo
         enddo
@@ -549,8 +580,8 @@ subroutine Where_ValTabToTab_mpi ( Variable1, Variable2, lower, upper, Value, nb
         do k = lower(3),upper(3)
         do j = lower(2),upper(2)
         do i = lower(1),upper(1)
-            if (variable1%array4(i,j,k,l) == Value) then
-                variable1%array4(i,j,k,l) = Variable2%array4(i,j,k,l)
+            if (var1%array4(i,j,k,l) == value) then
+                var1%array4(i,j,k,l) = var2%array4(i,j,k,l)
             endif
         enddo
         enddo
@@ -562,8 +593,8 @@ subroutine Where_ValTabToTab_mpi ( Variable1, Variable2, lower, upper, Value, nb
         do k = lower(3),upper(3)
         do j = lower(2),upper(2)
         do i = lower(1),upper(1)
-            if (variable1%array5(i,j,k,l,m) == Value) then
-                variable1%array5(i,j,k,l,m) = Variable2%array5(i,j,k,l,m)
+            if (var1%array5(i,j,k,l,m) == value) then
+                var1%array5(i,j,k,l,m) = var2%array5(i,j,k,l,m)
             endif
         enddo
         enddo
@@ -577,8 +608,8 @@ subroutine Where_ValTabToTab_mpi ( Variable1, Variable2, lower, upper, Value, nb
         do k = lower(3),upper(3)
         do j = lower(2),upper(2)
         do i = lower(1),upper(1)
-            if (variable1%array6(i,j,k,l,m,n) == Value) then
-                variable1%array6(i,j,k,l,m,n) = Variable2%array6(i,j,k,l,m,n)
+            if (var1%array6(i,j,k,l,m,n) == value) then
+                var1%array6(i,j,k,l,m,n) = var2%array6(i,j,k,l,m,n)
             endif
         enddo
         enddo
@@ -588,119 +619,125 @@ subroutine Where_ValTabToTab_mpi ( Variable1, Variable2, lower, upper, Value, nb
         enddo
     end select
 !---------------------------------------------------------------------------------------------------
-end subroutine Where_ValTabToTab_mpi
+end subroutine Agrif_var_replace_value
 !===================================================================================================
 #endif
 !
 !===================================================================================================
 !  subroutine PreProcessToInterpOrUpdate
 !---------------------------------------------------------------------------------------------------
-subroutine PreProcessToInterpOrUpdate ( parent, child, petab_Child,     &
-                                        pttab_Child, pttab_Parent,      &
-                                        s_Child,  s_Parent,             &
-                                        ds_Child, ds_Parent, nbdim, interp )
+subroutine PreProcessToInterpOrUpdate ( parent, child,              &
+                                        nb_child, ub_child,         &
+                                        lb_child, lb_parent,        &
+                                        s_child,  s_parent,         &
+                                        ds_child, ds_parent, nbdim, interp )
 !---------------------------------------------------------------------------------------------------
-    TYPE(Agrif_PVariable), intent(in)   :: parent   !< Variable on the parent grid
-    TYPE(Agrif_PVariable), intent(in)   :: child    !< Variable on the child grid
-    INTEGER, DIMENSION(6), intent(out)  :: petab_child
-    INTEGER, DIMENSION(6), intent(out)  :: pttab_child
-    INTEGER, DIMENSION(6), intent(out)  :: pttab_parent
-    REAL, DIMENSION(6),    intent(out)  :: s_child, s_parent
-    REAL, DIMENSION(6),    intent(out)  :: ds_child,ds_parent
-    INTEGER                 :: nbdim
-    LOGICAL                 :: interp
+    type(Agrif_Variable), pointer, intent(in)   :: parent       !< Variable on the parent grid
+    type(Agrif_Variable), pointer, intent(in)   :: child        !< Variable on the child grid
+    integer, dimension(6), intent(out)          :: nb_child     !< Number of cells on the child grid
+    integer, dimension(6), intent(out)          :: ub_child     !< Upper bound on the child grid
+    integer, dimension(6), intent(out)          :: lb_child     !< Lower bound on the child grid
+    integer, dimension(6), intent(out)          :: lb_parent    !< Lower bound on the parent grid
+    real, dimension(6),    intent(out)          :: s_child      !< Child  grid position (s_root = 0)
+    real, dimension(6),    intent(out)          :: s_parent     !< Parent grid position (s_root = 0)
+    real, dimension(6),    intent(out)          :: ds_child     !< Child  grid dx (ds_root = 1)
+    real, dimension(6),    intent(out)          :: ds_parent    !< Parent grid dx (ds_root = 1)
+    integer,               intent(out)          :: nbdim        !< Number of dimensions
+    logical,               intent(in)           :: interp       !< .true. if preprocess for interpolation, \n
+                                                                !! .false. if preprocess for update
 !
-    TYPE(Agrif_Variable), pointer :: root ! pointer on the variable of the root grid
-    TYPE(Agrif_Grid), pointer   :: Agrif_Child_Gr
-    TYPE(Agrif_Grid), pointer   :: Agrif_Parent_Gr
-    INTEGER :: n
+    type(Agrif_Variable), pointer :: root_var
+    type(Agrif_Grid),     pointer :: Agrif_Child_Gr
+    type(Agrif_Grid),     pointer :: Agrif_Parent_Gr
+    integer :: n
 !
     Agrif_Child_Gr  => Agrif_Curgrid
     Agrif_Parent_Gr => Agrif_Curgrid % parent
 !
-    root => child % var % root_var
+    root_var => child % root_var
 !
 !   Number of dimensions of the current grid
-    nbdim = root % nbdim
+    nbdim = root_var % nbdim
 !
     do n = 1,nbdim
 !
 !       Value of interptab(n) can be either x,y,z or N for a no space dimension
-        select case(root % interptab(n))
+        select case(root_var % interptab(n))
 !
-!       The dimension is 'x'
         case('x')
 !
-            pttab_Child(n)  = root % point(1)
-            pttab_Parent(n) = root % point(1)
-            s_Child(n)  = Agrif_Child_Gr  % Agrif_x(1)
-            s_Parent(n) = Agrif_Parent_Gr % Agrif_x(1)
-            ds_Child(n)  = Agrif_Child_Gr  % Agrif_d(1)
-            ds_Parent(n) = Agrif_Parent_Gr % Agrif_d(1)
+            lb_child(n)  = root_var % point(n)
+            lb_parent(n) = root_var % point(n)
+            nb_child(n)  = Agrif_Child_Gr % nb(1)
+            s_child(n)   = Agrif_Child_Gr  % Agrif_x(1)
+            s_parent(n)  = Agrif_Parent_Gr % Agrif_x(1)
+            ds_child(n)  = Agrif_Child_Gr  % Agrif_dx(1)
+            ds_parent(n) = Agrif_Parent_Gr % Agrif_dx(1)
 !
-            if ( root % posvar(n) == 1 ) then
-                petab_Child(n) = pttab_Child(n) + Agrif_Child_Gr%nb(1)
+            if ( root_var % posvar(n) == 1 ) then
+                ub_child(n) = lb_child(n) + Agrif_Child_Gr % nb(1)
             else
-                petab_Child(n) = pttab_Child(n) + Agrif_Child_Gr%nb(1) - 1
-                s_Child(n)  = s_Child(n) + ds_Child(n)/2.
-                s_Parent(n) = s_Parent(n) + ds_Parent(n)/2.
+                ub_child(n) = lb_child(n) + Agrif_Child_Gr % nb(1) - 1
+                s_child(n)  = s_child(n)  + 0.5*ds_child(n)
+                s_parent(n) = s_parent(n) + 0.5*ds_parent(n)
             endif
 !
-!       The dimension is 'y'
         case('y')
 !
-            pttab_Child(n)  = root % point(2)
-            pttab_Parent(n) = root % point(2)
-            s_Child(n)  = Agrif_Child_Gr  % Agrif_x(2)
-            s_Parent(n) = Agrif_Parent_Gr % Agrif_x(2)
-            ds_Child(n)  = Agrif_Child_Gr  % Agrif_d(2)
-            ds_Parent(n) = Agrif_Parent_Gr % Agrif_d(2)
+            lb_child(n)  = root_var % point(n)
+            lb_parent(n) = root_var % point(n)
+            nb_child(n)  = Agrif_Child_Gr % nb(2)
+            s_child(n)   = Agrif_Child_Gr  % Agrif_x(2)
+            s_parent(n)  = Agrif_Parent_Gr % Agrif_x(2)
+            ds_child(n)  = Agrif_Child_Gr  % Agrif_dx(2)
+            ds_parent(n) = Agrif_Parent_Gr % Agrif_dx(2)
 !
-            if (root % posvar(n)==1) then
-                petab_Child(n) = pttab_Child(n) + Agrif_Child_Gr%nb(2)
+            if (root_var % posvar(n)==1) then
+                ub_child(n) = lb_child(n) + Agrif_Child_Gr % nb(2)
             else
-                petab_Child(n) = pttab_Child(n) + Agrif_Child_Gr%nb(2) - 1
-                s_Child(n)  = s_Child(n) + ds_Child(n)/2.
-                s_Parent(n) = s_Parent(n) + ds_Parent(n)/2.
+                ub_child(n) = lb_child(n) + Agrif_Child_Gr % nb(2) - 1
+                s_child(n)  = s_child(n)  + 0.5*ds_child(n)
+                s_parent(n) = s_parent(n) + 0.5*ds_parent(n)
             endif
 !
-!       The DIMENSION is 'z'
         case('z')
 !
-            pttab_Child(n)  = root % point(3)
-            pttab_Parent(n) = root % point(3)
-            s_Child(n)  = Agrif_Child_Gr  % Agrif_x(3)
-            s_Parent(n) = Agrif_Parent_Gr % Agrif_x(3)
-            ds_Child(n)  = Agrif_Child_Gr  % Agrif_d(3)
-            ds_Parent(n) = Agrif_Parent_Gr % Agrif_d(3)
+            lb_child(n)  = root_var % point(n)
+            lb_parent(n) = root_var % point(n)
+            nb_child(n)  = Agrif_Child_Gr % nb(3)
+            s_child(n)   = Agrif_Child_Gr  % Agrif_x(3)
+            s_parent(n)  = Agrif_Parent_Gr % Agrif_x(3)
+            ds_child(n)  = Agrif_Child_Gr  % Agrif_dx(3)
+            ds_parent(n) = Agrif_Parent_Gr % Agrif_dx(3)
 !
-            if (root % posvar(n)==1) then
-                petab_Child(n) = pttab_Child(n) + Agrif_Child_Gr%nb(3)
+            if (root_var % posvar(n)==1) then
+                ub_child(n) = lb_child(n) + Agrif_Child_Gr % nb(3)
             else
-                petab_Child(n) = pttab_Child(n) + Agrif_Child_Gr%nb(3) - 1
-                s_Child(n)  = s_Child(n) + ds_Child(n)/2.
-                s_Parent(n) = s_Parent(n) + ds_Parent(n)/2.
+                ub_child(n) = lb_child(n) + Agrif_Child_Gr % nb(3) - 1
+                s_child(n)  = s_child(n)  + 0.5*ds_child(n)
+                s_parent(n) = s_parent(n) + 0.5*ds_parent(n)
             endif
 !
-!       The DIMENSION is not space
-        case('N')
+        case('N') ! No space dimension
 !
 !       The next coefficients are calculated in order to do a simple copy of
-!       values of the grid variable when the procedure of interpolation is
-!       called for this DIMENSION
+!       values of the grid variable when the interpolation routine is
+!       called for this dimension.
 !
             if (interp) then
-                call Agrif_nbdim_Get_bound(parent % var, pttab_Child(n),petab_Child(n),n)
+                call Agrif_get_var_bounds(parent, lb_child(n), ub_child(n), n)
+                nb_child(n) = parent % ub(n) - parent % lb(n)
             else
-                call Agrif_nbdim_Get_bound(child % var, pttab_Child(n),petab_Child(n),n)
+                call Agrif_get_var_bounds(child,  lb_child(n), ub_child(n), n)
+                nb_child(n) = child % ub(n) - child % lb(n)
             endif
 !
 !           No interpolation but only a copy of the values of the grid variable
-            pttab_Parent(n) = pttab_Child(n)
-            s_Child(n)=0.
-            s_Parent(n)=0.
-            ds_Child(n)=1.
-            ds_Parent(n)=1.
+            lb_parent(n) = lb_child(n)
+            s_child(n)   = 0.
+            s_parent(n)  = 0.
+            ds_child(n)  = 1.
+            ds_parent(n) = 1.
 !
         end select
 !
@@ -711,20 +748,21 @@ end subroutine PreProcessToInterpOrUpdate
 !
 #if defined AGRIF_MPI
 !===================================================================================================
-!   subroutine GetLocalBoundaries
+!   subroutine Agrif_GetLocalBoundaries
 !---------------------------------------------------------------------------------------------------
-subroutine GetLocalBoundaries ( tab1, tab2, i, lb, ub, deb, fin )
+subroutine Agrif_GetLocalBoundaries ( tab1, tab2, coord, lb, ub, deb, fin )
 !---------------------------------------------------------------------------------------------------
-    INTEGER  ::  tab1,tab2
-    INTEGER  ::  i
-    INTEGER  ::  lb,ub
-    INTEGER  ::  deb,fin
+    integer, intent(in)     ::  tab1
+    integer, intent(in)     ::  tab2
+    integer, intent(in)     ::  coord
+    integer, intent(in)     ::  lb, ub
+    integer, intent(out)    ::  deb, fin
 !
-    INTEGER  ::  imin,imax
-    INTEGER  ::  i1,i2
+    integer :: imin, imax
+    integer :: i1, i2
 !
-    call Agrif_InvLoc(lb,AGRIF_ProcRank,i,imin)
-    call Agrif_InvLoc(ub,AGRIF_ProcRank,i,imax)
+    call Agrif_InvLoc(lb, AGRIF_ProcRank, coord, imin)
+    call Agrif_InvLoc(ub, AGRIF_ProcRank, coord, imax)
 !
     if ( imin > tab2 ) then
         i1 = imax - imin
@@ -741,116 +779,56 @@ subroutine GetLocalBoundaries ( tab1, tab2, i, lb, ub, deb, fin )
     deb = lb + i1
     fin = ub + i2
 !---------------------------------------------------------------------------------------------------
-end subroutine GetLocalBoundaries
+end subroutine Agrif_GetLocalBoundaries
 !===================================================================================================
-#endif
 !
-#if defined AGRIF_MPI
 !===================================================================================================
-!  subroutine Agrif_GlobtoLocInd2
+!  subroutine Agrif_GlobalToLocalBounds
 !
 !> For a global index located on the current processor, tabarray gives the corresponding local index
 !---------------------------------------------------------------------------------------------------
-subroutine Agrif_GlobtoLocInd2 ( tabarray, lboundl, uboundl, tab1, tab2,    &
-                                 nbdim, rank, member )
+subroutine Agrif_GlobalToLocalBounds ( locbounds, lb_var, ub_var, lb_glob, ub_glob,    &
+                                       coords, nbdim, rank, member )
 !---------------------------------------------------------------------------------------------------
-    INTEGER,                      intent(in)    :: nbdim
-    INTEGER,DIMENSION(nbdim),     intent(in)    :: tab1, tab2
-    INTEGER,DIMENSION(nbdim,2,2), intent(inout) :: tabarray
-    INTEGER,DIMENSION(nbdim),     intent(in)    :: lboundl, uboundl
-    INTEGER,                      intent(in)    :: rank
-    LOGICAL,                      intent(out)   :: member
+    integer, dimension(nbdim,2,2), intent(out)   :: locbounds   !< Local values of \b lb_glob and \b ub_glob
+    integer, dimension(nbdim),     intent(in)    :: lb_var      !< Local lower boundary on the current processor
+    integer, dimension(nbdim),     intent(in)    :: ub_var      !< Local upper boundary on the current processor
+    integer, dimension(nbdim),     intent(in)    :: lb_glob     !< Global lower boundary
+    integer, dimension(nbdim),     intent(in)    :: ub_glob     !< Global upper boundary
+    integer, dimension(nbdim),     intent(in)    :: coords
+    integer,                       intent(in)    :: nbdim       !< Dimension of the array
+    integer,                       intent(in)    :: rank        !< Rank of the processor
+    logical,                       intent(out)   :: member
 !
-    INTEGER     :: i,i1,k
-    INTEGER     :: nbloc(nbdim)
+    integer     :: i, i1, k
+    integer     :: nbloc(nbdim)
 !
-    tabarray(:,1,:) = HUGE(1)
-    tabarray(:,2,:) = -HUGE(1)
+    locbounds(:,1,:) =  HUGE(1)
+    locbounds(:,2,:) = -HUGE(1)
 !
     nbloc = 0
 !
     do i = 1,nbdim
 !
-        call Agrif_Invloc(lboundl(i),rank,i,i1)
-
-        do k=tab1(i)+lboundl(i)-i1,tab2(i)+lboundl(i)-i1
+        call Agrif_InvLoc(lb_var(i), rank, coords(i), i1)
 !
-            if ( (k >= lboundl(i)) .AND. (k.LE.uboundl(i)) ) then
+        do k = lb_glob(i)+lb_var(i)-i1,ub_glob(i)+lb_var(i)-i1
+!
+            if ( (k >= lb_var(i)) .AND. (k <= ub_var(i)) ) then
                 nbloc(i) = 1
-                tabarray(i,1,1) = min(tabarray(i,1,1),k-lboundl(i)+i1)
-                tabarray(i,2,1) = max(tabarray(i,2,1),k-lboundl(i)+i1)
+                locbounds(i,1,1) = min(locbounds(i,1,1),k-lb_var(i)+i1)
+                locbounds(i,2,1) = max(locbounds(i,2,1),k-lb_var(i)+i1)
 
-                tabarray(i,1,2) = min(tabarray(i,1,2),k)
-                tabarray(i,2,2) = max(tabarray(i,2,2),k)
+                locbounds(i,1,2) = min(locbounds(i,1,2),k)
+                locbounds(i,2,2) = max(locbounds(i,2,2),k)
             endif
         enddo
     enddo
 
-    member = .FALSE.
-    if (sum(nbloc) == nbdim)  member = .TRUE.
+    member = ( sum(nbloc) == nbdim )
 !---------------------------------------------------------------------------------------------------
-end subroutine Agrif_GlobtoLocInd2
+end subroutine Agrif_GlobalToLocalBounds
 !===================================================================================================
 #endif
-!
-!===================================================================================================
-!  subroutine Agrif_Copy_2d
-!---------------------------------------------------------------------------------------------------
-subroutine Agrif_Copy_2d ( tabout, tabin, l, m, inf, sup, inf2, sup2 )
-!---------------------------------------------------------------------------------------------------
-    integer, dimension(2), intent(in)   :: l, m
-    integer, dimension(2), intent(in)   :: inf, sup
-    integer, dimension(2), intent(in)   :: inf2,sup2
-    real, target, dimension(l(1):,l(2):) :: tabout
-    real, target, dimension(m(1):,m(2):) :: tabin
-!
-    tabout( inf(1):sup(1), &
-            inf(2):sup(2)) = tabin(inf2(1):sup2(1), &
-                                   inf2(2):sup2(2))
-!---------------------------------------------------------------------------------------------------
-end subroutine Agrif_Copy_2d
-!===================================================================================================
-!
-!===================================================================================================
-!  subroutine Agrif_Copy_3d
-!---------------------------------------------------------------------------------------------------
-subroutine Agrif_Copy_3d ( tabout, tabin, l, m, inf, sup, inf2, sup2 )
-!---------------------------------------------------------------------------------------------------
-    integer, dimension(3), intent(in)   :: l, m
-    integer, dimension(3), intent(in)   :: inf, sup
-    integer, dimension(3), intent(in)   :: inf2,sup2
-    real, target, dimension(l(1):,l(2):,l(3):) :: tabout
-    real, target, dimension(m(1):,m(2):,m(3):) :: tabin
-!
-    tabout(inf(1):sup(1), &
-           inf(2):sup(2), &
-           inf(3):sup(3)) = tabin(inf2(1):sup2(1), &
-                                  inf2(2):sup2(2), &
-                                  inf2(3):sup2(3))
-!---------------------------------------------------------------------------------------------------
-end subroutine Agrif_Copy_3d
-!===================================================================================================
-!
-!===================================================================================================
-!  subroutine Agrif_Copy_4d
-!---------------------------------------------------------------------------------------------------
-subroutine Agrif_Copy_4d ( tabout, tabin, l, m, inf, sup, inf2, sup2 )
-!---------------------------------------------------------------------------------------------------
-    integer, dimension(4), intent(in)   :: l, m
-    integer, dimension(4), intent(in)   :: inf, sup
-    integer, dimension(4), intent(in)   :: inf2,sup2
-    real, target, dimension(l(1):,l(2):,l(3):,l(4):) :: tabout
-    real, target, dimension(m(1):,m(2):,m(3):,m(4):) :: tabin
-!
-    tabout(inf(1):sup(1), &
-           inf(2):sup(2), &
-           inf(3):sup(3), &
-           inf(4):sup(4)) = tabin(inf2(1):sup2(1), &
-                                  inf2(2):sup2(2), &
-                                  inf2(3):sup2(3), &
-                                  inf2(4):sup2(4))
-!---------------------------------------------------------------------------------------------------
-end subroutine Agrif_Copy_4d
-!===================================================================================================
 !
 end module Agrif_Arrays

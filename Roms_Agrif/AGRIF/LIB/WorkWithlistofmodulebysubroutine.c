@@ -74,57 +74,52 @@ void RecordUseModulesVariables()
 /*                RecordUseModulesUseModulesVariables                         */
 /******************************************************************************/
 /******************************************************************************/
-void  RecordUseModulesUseModulesVariables()
+void RecordUseModulesUseModulesVariables()
 {
-  listusemodule *tmplistmodule;
-  listusemodule *tmplistmodule1;
+    listusemodule *tmplistmodule;
+    listusemodule *save_list;
 
-  /* we should record all variables defined in modules used in this file      */
-  if ( List_NameOfModuleUsed )
-  {
-     /* and we should read the .depend of the module used by the module used  */
-     tmplistmodule = List_NameOfModuleUsed;
-     while ( tmplistmodule )
-     {
+    if ( ! List_NameOfModuleUsed )  return;
+
+    /* we should record all variables defined in modules used in this file      */
+    /* and we should read the .depend of the module used by the module used  */
+    tmplistmodule = List_NameOfModuleUsed;
+    while ( tmplistmodule )
+    {
         Readthedependlistofmoduleused(tmplistmodule->u_usemodule);
         while( tmpuselocallist )
         {
-           Addmoduletothelisttmp(tmpuselocallist->u_usemodule);
-           tmplistmodule1 = tmpuselocallist->suiv;
-           free(tmpuselocallist);
-           tmpuselocallist = tmplistmodule1;
+            Addmoduletothelisttmp(tmpuselocallist->u_usemodule);
+            save_list = tmpuselocallist->suiv;
+            free(tmpuselocallist);
+            tmpuselocallist = save_list;
         }
         tmplistmodule = tmplistmodule->suiv;
-     }
-
-     tmplistmodule = listofmoduletmp;
-     while ( tmplistmodule )
-     {
+    }
+    tmplistmodule = listofmoduletmp;
+    while ( tmplistmodule )
+    {
         Readthedependlistofmoduleused(tmplistmodule->u_usemodule);
         while( tmpuselocallist )
         {
-           Addmoduletothelisttmp(tmpuselocallist->u_usemodule);
-           tmplistmodule1 = tmpuselocallist->suiv;
-           free(tmpuselocallist);
-           tmpuselocallist = tmplistmodule1;
+            Addmoduletothelisttmp(tmpuselocallist->u_usemodule);
+            save_list = tmpuselocallist->suiv;
+            free(tmpuselocallist);
+            tmpuselocallist = save_list;
         }
         tmplistmodule = tmplistmodule->suiv;
-     }
+    }
+    tmplistmodule = listofmoduletmp;
+    while ( tmplistmodule )
+    {
+        // check if the file .depend<u_usemodule> exists
+        List_ModuleUsedInModuleUsed_Var =
+            Readthedependfile(tmplistmodule->u_usemodule,List_ModuleUsedInModuleUsed_Var);
 
-
-
-     tmplistmodule = listofmoduletmp;
-     while ( tmplistmodule )
-     {
-        /* check if the file .depend<u_usemodule> exist                       */
-        List_ModuleUsedInModuleUsed_Var = Readthedependfile
-                   (tmplistmodule->u_usemodule,List_ModuleUsedInModuleUsed_Var);
-
-        List_GlobParamModuleUsedInModuleUsed_Var = ReaddependParameterList
-          (tmplistmodule->u_usemodule,List_GlobParamModuleUsedInModuleUsed_Var);
+        List_GlobParamModuleUsedInModuleUsed_Var =
+            ReaddependParameterList(tmplistmodule->u_usemodule,List_GlobParamModuleUsedInModuleUsed_Var);
         tmplistmodule = tmplistmodule->suiv;
-     }
-  }
+    }
 }
 
 /******************************************************************************/
@@ -145,62 +140,54 @@ void  RecordUseModulesUseModulesVariables()
 /******************************************************************************/
 void Add_NameOfModuleUsed_1(char *name)
 {
-  listusemodule *newmodule;
-  listusemodule *parcours;
-  int out;
+    listusemodule *newmodule;
+    listusemodule *parcours;
+    int out;
 
-  if ( firstpass == 1 )
-  {
-     newmodule =(listusemodule *)malloc(sizeof(listusemodule));
-     strcpy(newmodule->u_usemodule,name);
-     Save_Length(name,16);
-     strcpy(newmodule->u_charusemodule,charusemodule);
-     Save_Length(charusemodule,17);
-     strcpy(newmodule->u_modulename,curmodulename);
-     Save_Length(curmodulename,19);
-     strcpy(newmodule->u_cursubroutine,subroutinename);
-     Save_Length(subroutinename,18);
-     newmodule->u_firstuse = 1 ;
-     newmodule->suiv = NULL;
+    newmodule = (listusemodule*) calloc(1, sizeof(listusemodule));
+    strcpy(newmodule->u_usemodule, name);
+    strcpy(newmodule->u_charusemodule, charusemodule);
+    strcpy(newmodule->u_modulename, curmodulename);
+    strcpy(newmodule->u_cursubroutine, subroutinename);
+    newmodule->u_firstuse = 1 ;
+    newmodule->suiv = NULL;
 
-     if ( !List_NameOfModuleUsed)
-     {
-         List_NameOfModuleUsed = newmodule ;
-     }
-     else
-     {
-    parcours = List_NameOfModuleUsed;
-    while ( parcours && newmodule->u_firstuse == 1 )
+    if ( List_NameOfModuleUsed == NULL )
     {
-       if ( !strcasecmp(name,parcours->u_usemodule) )
-       {
-          newmodule->u_firstuse = 0 ;
-       }
-       parcours=parcours->suiv;
+        List_NameOfModuleUsed = newmodule ;
     }
-    /* we can not add the same module twice for the same subroutine           */
-    parcours = List_NameOfModuleUsed;
-    out = 0 ;
-    while ( parcours && out == 0 )
+    else
     {
-       if ( !strcasecmp(name,parcours->u_usemodule) &&
-            !strcasecmp(subroutinename,parcours->u_cursubroutine)
-           )
-       {
-          out = 1 ;
-          free(newmodule);
-       }
-       else parcours=parcours->suiv;
+        parcours = List_NameOfModuleUsed;
+        while ( parcours && newmodule->u_firstuse )
+        {
+            if ( !strcasecmp(name,parcours->u_usemodule) )
+            {
+                newmodule->u_firstuse = 0 ;
+            }
+            parcours = parcours->suiv;
+        }
+        /* we can not add the same module twice for the same subroutine           */
+        parcours = List_NameOfModuleUsed;
+        out = 0 ;
+        while ( parcours && out == 0 )
+        {
+            if ( !strcasecmp(name,parcours->u_usemodule) &&
+                 !strcasecmp(subroutinename,parcours->u_cursubroutine) )
+            {
+                out = 1 ;
+                free(newmodule);
+            }
+            else
+                parcours = parcours->suiv;
+        }
+        if ( out == 0 )
+        {
+            newmodule->suiv = List_NameOfModuleUsed;
+            List_NameOfModuleUsed = newmodule;
+        }
     }
-    if ( out == 0 )
-    {
-       newmodule->suiv = List_NameOfModuleUsed;
-       List_NameOfModuleUsed = newmodule;
-    }
-  }
-  }
 }
-
 
 /******************************************************************************/
 /*                        Addmoduletothelist                                  */
@@ -218,57 +205,54 @@ void Add_NameOfModuleUsed_1(char *name)
 /*       list =  List_NameOfModuleUsed                                     */
 /*                                                                            */
 /******************************************************************************/
-void Addmoduletothelist(char *name)
+void Addmoduletothelist(const char *name)
 {
-  listusemodule *newmodule;
-  listusemodule *parcours;
-  int out;
+    listusemodule *newmodule;
+    listusemodule *parcours;
+    int out;
 
-     newmodule =(listusemodule *)malloc(sizeof(listusemodule));
-     strcpy(newmodule->u_usemodule,name);
-     Save_Length(name,16);
-     strcpy(newmodule->u_charusemodule,charusemodule);
-     Save_Length(charusemodule,17);
-     strcpy(newmodule->u_cursubroutine,subroutinename);
-     Save_Length(subroutinename,18);
-     newmodule->u_firstuse = 1 ;
-     newmodule->suiv = NULL;
+    newmodule = (listusemodule*) calloc(1,sizeof(listusemodule));
+    strcpy(newmodule->u_usemodule, name);
+    strcpy(newmodule->u_charusemodule, charusemodule);
+    strcpy(newmodule->u_cursubroutine, subroutinename);
+    newmodule->u_firstuse = 1 ;
+    newmodule->suiv = NULL;
 
-     if ( !List_NameOfModuleUsed)
-     {
-         List_NameOfModuleUsed = newmodule ;
-     }
-     else
-     {
-    parcours = List_NameOfModuleUsed;
-    while ( parcours && newmodule->u_firstuse == 1 )
+    if ( !List_NameOfModuleUsed )
     {
-       if ( !strcasecmp(name,parcours->u_usemodule) )
-       {
-          newmodule->u_firstuse = 0 ;
-       }
-       parcours=parcours->suiv;
+        List_NameOfModuleUsed = newmodule ;
     }
-    /* we can not add the same module twice for the same subroutine           */
-    parcours = List_NameOfModuleUsed;
-    out = 0 ;
-    while ( parcours && out == 0 )
+    else
     {
-       if ( !strcasecmp(name,parcours->u_usemodule) &&
-            !strcasecmp(subroutinename,parcours->u_cursubroutine)
-           )
-       {
-          out = 1 ;
-          free(newmodule);
-       }
-       else parcours=parcours->suiv;
+        parcours = List_NameOfModuleUsed;
+        while ( parcours && newmodule->u_firstuse == 1 )
+        {
+            if ( !strcasecmp(name,parcours->u_usemodule) )
+            {
+                newmodule->u_firstuse = 0 ;
+            }
+            parcours=parcours->suiv;
+        }
+        /* we can not add the same module twice for the same subroutine           */
+        parcours = List_NameOfModuleUsed;
+        out = 0 ;
+        while ( parcours && out == 0 )
+        {
+            if ( !strcasecmp(name,parcours->u_usemodule) &&
+                 !strcasecmp(subroutinename,parcours->u_cursubroutine) )
+            {
+                out = 1 ;
+                free(newmodule);
+            }
+            else
+                parcours=parcours->suiv;
+        }
+        if ( out == 0 )
+        {
+            newmodule->suiv = List_NameOfModuleUsed;
+            List_NameOfModuleUsed = newmodule;
+        }
     }
-    if ( out == 0 )
-    {
-       newmodule->suiv = List_NameOfModuleUsed;
-       List_NameOfModuleUsed = newmodule;
-    }
-  }
 }
 
 
@@ -279,24 +263,41 @@ void Addmoduletothelist(char *name)
 /******************************************************************************/
 /*                                                                            */
 /******************************************************************************/
-void WriteUsemoduleDeclaration(char *cursubroutinename)
+void WriteUsemoduleDeclaration(const char *cursubroutinename)
 {
-  listusemodule *newmodule;
-  
+    listusemodule     *newmodule;
+    listvarpointtovar *pointtmp;
+    long int          fictifpos;
+    int               findcoupled;
 
-  newmodule = List_NameOfModuleUsed;
-  fprintf(fortran_out,"\n");
+    fprintf(fortran_out,"\n");
+    newmodule = List_NameOfModuleUsed;
 
-  while ( newmodule )
-  {
-     if ( !strcasecmp(newmodule->u_cursubroutine,cursubroutinename) )
-     {
-     if (strcmp(newmodule->u_charusemodule,""))
-     {
-             fprintf(fortran_out,"      USE %s \n"
-                                                   ,newmodule->u_charusemodule);
-      }
-     }
+    while ( newmodule )
+    {
+        if ( !strcasecmp(newmodule->u_cursubroutine, cursubroutinename) )
+        {
+            if (strcmp(newmodule->u_charusemodule,""))
+            {
+/*
+                findcoupled = 0;
+                pointtmp = List_CouplePointed_Var;
+                while(pointtmp)
+                {
+                    if ((!strcasecmp(pointtmp->t_usemodule, newmodule->u_charusemodule)) && \
+                        (!strcasecmp(pointtmp->t_cursubroutine, cursubroutinename)))
+                    {
+                        fictifpos = setposcur();
+                        variableisglobalinmodule(pointtmp->t_couple,newmodule->u_charusemodule,fortran_out,fictifpos);
+                        findcoupled = 1;
+                    }
+                    pointtmp=pointtmp->suiv;
+                }
+                if (findcoupled == 0)   fprintf(fortran_out,"      use %s\n",newmodule->u_charusemodule);
+*/
+                fprintf(fortran_out,"      use %s\n", newmodule->u_charusemodule);
+            }
+        }
         newmodule = newmodule ->suiv;
-  }
+    }
 }

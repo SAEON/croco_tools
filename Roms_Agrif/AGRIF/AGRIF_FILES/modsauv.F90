@@ -39,9 +39,9 @@ contains
 !===================================================================================================
 ! subroutine Agrif_deallocate_Arrays
 !---------------------------------------------------------------------------------------------------
-subroutine Agrif_deallocate_Arrays ( Var )
+subroutine Agrif_deallocate_Arrays ( var )
 !---------------------------------------------------------------------------------------------------
-    type(Agrif_Variable), pointer :: Var
+    type(Agrif_Variable), pointer :: var
 !
     if (allocated(var%array1))  deallocate(var%array1)
     if (allocated(var%array2))  deallocate(var%array2)
@@ -64,75 +64,113 @@ subroutine Agrif_deallocate_Arrays ( Var )
     if (allocated(var%sarray5)) deallocate(var%sarray5)
     if (allocated(var%sarray6)) deallocate(var%sarray6)
 !
-    if (allocated(var%larray1)) deallocate(var%larray1)
-    if (allocated(var%larray2)) deallocate(var%larray2)
-    if (allocated(var%larray3)) deallocate(var%larray3)
-    if (allocated(var%larray4)) deallocate(var%larray4)
-    if (allocated(var%larray5)) deallocate(var%larray5)
-    if (allocated(var%larray6)) deallocate(var%larray6)
-!
-    if (allocated(var%iarray1)) deallocate(var%iarray1)
-    if (allocated(var%iarray2)) deallocate(var%iarray2)
-    if (allocated(var%iarray3)) deallocate(var%iarray3)
-    if (allocated(var%iarray4)) deallocate(var%iarray4)
-    if (allocated(var%iarray5)) deallocate(var%iarray5)
-    if (allocated(var%iarray6)) deallocate(var%iarray6)
-!
-    if (allocated(var%carray1)) deallocate(var%carray1)
-    if (allocated(var%carray2)) deallocate(var%carray2)
 !
     if (associated(var%oldvalues2D))    deallocate(var%oldvalues2D)
-    if (associated(var%interpIndex))    deallocate(var%interpIndex)
-!
-    if (associated(var%posvar))     deallocate(var%posvar)
-    if (associated(var%interptab))  deallocate(var%interptab)
+    if (allocated(var%posvar))          deallocate(var%posvar)
+    if (allocated(var%interptab))       deallocate(var%interptab)
+    if (allocated(var%coords))          deallocate(var%coords)
 !---------------------------------------------------------------------------------------------------
 end subroutine Agrif_deallocate_Arrays
+!---------------------------------------------------------------------------------------------------
+subroutine Agrif_deallocate_Arrays_c ( var_c )
+!---------------------------------------------------------------------------------------------------
+    type(Agrif_Variable_c), pointer :: var_c
+!
+    if (allocated(var_c%carray1)) deallocate(var_c%carray1)
+    if (allocated(var_C%carray2)) deallocate(var_c%carray2)
+!
+!---------------------------------------------------------------------------------------------------
+end subroutine Agrif_deallocate_Arrays_c
 !===================================================================================================
+!---------------------------------------------------------------------------------------------------
+subroutine Agrif_deallocate_Arrays_l ( var_l )
+!---------------------------------------------------------------------------------------------------
+    type(Agrif_Variable_l), pointer :: var_l
+!
+!
+    if (allocated(var_l%larray1)) deallocate(var_l%larray1)
+    if (allocated(var_l%larray2)) deallocate(var_l%larray2)
+    if (allocated(var_l%larray3)) deallocate(var_l%larray3)
+    if (allocated(var_l%larray4)) deallocate(var_l%larray4)
+    if (allocated(var_l%larray5)) deallocate(var_l%larray5)
+    if (allocated(var_l%larray6)) deallocate(var_l%larray6)
+!
+!---------------------------------------------------------------------------------------------------
+end subroutine Agrif_deallocate_Arrays_l
+!---------------------------------------------------------------------------------------------------
+subroutine Agrif_deallocate_Arrays_i ( var_i )
+!---------------------------------------------------------------------------------------------------
+    type(Agrif_Variable_i), pointer :: var_i
+!
+!
+    if (allocated(var_i%iarray1)) deallocate(var_i%iarray1)
+    if (allocated(var_i%iarray2)) deallocate(var_i%iarray2)
+    if (allocated(var_i%iarray3)) deallocate(var_i%iarray3)
+    if (allocated(var_i%iarray4)) deallocate(var_i%iarray4)
+    if (allocated(var_i%iarray5)) deallocate(var_i%iarray5)
+    if (allocated(var_i%iarray6)) deallocate(var_i%iarray6)
+!
+!---------------------------------------------------------------------------------------------------
+end subroutine Agrif_deallocate_Arrays_i
 !
 !===================================================================================================
 !  subroutine Agrif_Free_data_before
 !---------------------------------------------------------------------------------------------------
 subroutine Agrif_Free_data_before ( Agrif_Gr )
 !---------------------------------------------------------------------------------------------------
-    type(Agrif_Grid),pointer   :: Agrif_Gr ! Pointer on the current grid
+    type(Agrif_Grid), pointer   :: Agrif_Gr ! Pointer on the current grid
 !
     integer :: i
-    type(Agrif_List_Variables), pointer :: parcours
+    type(Agrif_Variables_List), pointer :: parcours
+    type(Agrif_Variable),       pointer :: var
+    type(Agrif_Variable_c),     pointer :: var_c
+    type(Agrif_Variable_r),     pointer :: var_r
+    type(Agrif_Variable_l),     pointer :: var_l
+    type(Agrif_Variable_i),     pointer :: var_i
 !
-    do i = 1,Agrif_NbVariables
+    do i = 1,Agrif_NbVariables(0)
 !
-        if ( .NOT. Agrif_Mygrid % tabvars(i) % var % restaure ) then
-            call Agrif_deallocate_Arrays(Agrif_Gr%tabvars(i)%var)
+        var => Agrif_Gr % tabvars(i)
+!
+        if ( .NOT. Agrif_Mygrid % tabvars(i) % restore ) then
+            call Agrif_deallocate_Arrays(var)
         endif
 !
-        if (associated(Agrif_Gr%tabvars(i)%var%list_interp)) then
-            call Agrif_Free_list_interp(Agrif_Gr%tabvars(i)%var%list_interp)
-        endif
-!
-        if ( .NOT. Agrif_Mygrid % tabvars(i) % var % restaure ) then
-            deallocate(Agrif_Gr%tabvars(i)%var)
+        if (associated(var%list_interp)) then
+            call Agrif_Free_list_interp(var%list_interp)
         endif
 !
     enddo
+    do i=1,Agrif_NbVariables(1)
+        var_c => Agrif_Gr % tabvars_c(i)
+        call Agrif_deallocate_Arrays_c(var_c)
+    enddo
+    do i=1,Agrif_NbVariables(3)
+        var_l => Agrif_Gr % tabvars_l(i)
+        call Agrif_deallocate_Arrays_l(var_l)
+    enddo
+    do i=1,Agrif_NbVariables(4)
+        var_i => Agrif_Gr % tabvars_i(i)
+        call Agrif_deallocate_Arrays_i(var_i)
+    enddo
 
-    parcours => Agrif_Gr%variables
+    parcours => Agrif_Gr % variables
 
     do i = 1,Agrif_Gr%NbVariables
 !
-        if ( .NOT. parcours%pvar%var%root_var%restaure ) then
-            call Agrif_deallocate_Arrays(parcours%pvar%var)
+        if ( .NOT. parcours%var%root_var % restore ) then
+            call Agrif_deallocate_Arrays(parcours%var)
         endif
 !
-        if (associated(parcours%pvar%var%list_interp)) then
-            call Agrif_Free_list_interp(parcours%pvar%var%list_interp)
+        if (associated(parcours%var%list_interp)) then
+            call Agrif_Free_list_interp(parcours%var%list_interp)
         endif
 !
-        if ( .NOT. parcours%pvar%var%root_var % restaure ) then
-            deallocate(parcours%pvar%var)
+        if ( .NOT. parcours%var%root_var % restore ) then
+            deallocate(parcours%var)
         endif
 !
-        parcours => parcours%nextvariable
+        parcours => parcours % next
 !
     enddo
 !
@@ -175,12 +213,13 @@ subroutine Agrif_Free_data_after ( Agrif_Gr )
     type(Agrif_Grid), pointer   :: Agrif_Gr  !< Pointer on the current grid
 !
     integer :: i
-    type(Agrif_List_Variables), pointer :: parcours, rootparcours
+    type(Agrif_Variables_List), pointer :: parcours, rootparcours
+    type(Agrif_Variable),       pointer :: var
 !
-    do i = 1,Agrif_NbVariables
-        if ( Agrif_Mygrid % tabvars(i) % var % restaure) then
-            call Agrif_deallocate_Arrays(Agrif_Gr%tabvars(i)%var)
-            deallocate(Agrif_Gr%tabvars(i)%var)
+    do i = 1,Agrif_NbVariables(0)
+        if ( Agrif_Mygrid % tabvars(i) % restore ) then
+            var => Agrif_Gr%tabvars(i)
+            call Agrif_deallocate_Arrays(var)
         endif
     enddo
 !
@@ -188,12 +227,12 @@ subroutine Agrif_Free_data_after ( Agrif_Gr )
     rootparcours => Agrif_Mygrid%variables
 !
     do i = 1,Agrif_Gr%NbVariables
-        if (rootparcours%pvar%var%restaure) then
-            call Agrif_deallocate_Arrays(parcours%pvar%var)
-            deallocate(parcours%pvar%var)
+        if (rootparcours%var % restore ) then
+            call Agrif_deallocate_Arrays(parcours%var)
+            deallocate(parcours%var)
         endif
-        parcours => parcours%nextvariable
-        rootparcours => rootparcours%nextvariable
+        parcours => parcours % next
+        rootparcours => rootparcours % next
     enddo
 !---------------------------------------------------------------------------------------------------
 end subroutine Agrif_Free_data_after
@@ -204,10 +243,10 @@ end subroutine Agrif_Free_data_after
 !
 !> Called in Agrif_Clustering#Agrif_Init_Hierarchy.
 !---------------------------------------------------------------------------------------------------
-recursive subroutine Agrif_CopyFromOld_All ( g, oldchildgrids )
+recursive subroutine Agrif_CopyFromOld_All ( g, oldchildlist )
 !---------------------------------------------------------------------------------------------------
-    type(Agrif_Grid),  pointer  :: g   !< Pointer on the current grid
-    type(Agrif_PGrid), pointer  :: oldchildgrids
+    type(Agrif_Grid), pointer, intent(inout) :: g   !< Pointer on the current grid
+    type(Agrif_Grid_List),     intent(in)    :: oldchildlist
 !
     type(Agrif_PGrid), pointer  :: parcours ! Pointer for the recursive procedure
     real    :: g_eps, eps, oldgrid_eps
@@ -216,7 +255,7 @@ recursive subroutine Agrif_CopyFromOld_All ( g, oldchildgrids )
 !
     out = 0
 !
-    parcours => oldchildgrids
+    parcours => oldchildlist % first
 !
     do while (associated(parcours))
 !
@@ -225,14 +264,14 @@ recursive subroutine Agrif_CopyFromOld_All ( g, oldchildgrids )
             g_eps = huge(1.)
             oldgrid_eps = huge(1.)
             do iii = 1,Agrif_Probdim
-                g_eps = min(g_eps,g % Agrif_d(iii))
-                oldgrid_eps = min(oldgrid_eps, parcours % gr % Agrif_d(iii))
+                g_eps = min(g_eps,g % Agrif_dx(iii))
+                oldgrid_eps = min(oldgrid_eps, parcours % gr % Agrif_dx(iii))
             enddo
 !
             eps = min(g_eps,oldgrid_eps)/100.
 !
             do iii = 1,Agrif_Probdim
-                if (g % Agrif_d(iii) < (parcours % gr % Agrif_d(iii) - eps)) then
+                if (g % Agrif_dx(iii) < (parcours % gr % Agrif_dx(iii) - eps)) then
                     parcours => parcours % next
                     out = 1
                     exit
@@ -245,7 +284,7 @@ recursive subroutine Agrif_CopyFromOld_All ( g, oldchildgrids )
 !
         endif
 !
-        call Agrif_CopyFromOld_All(g,parcours % gr % child_grids)
+        call Agrif_CopyFromOld_All(g,parcours % gr % child_list)
 !
         parcours => parcours % next
 !
@@ -259,17 +298,20 @@ end subroutine Agrif_CopyFromOld_All
 !
 !> Call to the Agrif_Copy procedure.
 !---------------------------------------------------------------------------------------------------
-subroutine Agrif_CopyFromOld ( Agrif_New_Gr, Agrif_Old_Gr )
+subroutine Agrif_CopyFromOld ( new_gr, old_gr )
 !---------------------------------------------------------------------------------------------------
-    type(Agrif_Grid), pointer   :: Agrif_New_Gr  !< Pointer on the current grid
-    type(Agrif_Grid), pointer   :: Agrif_Old_Gr  !< Pointer on an old grid
+    type(Agrif_Grid), pointer, intent(inout) :: new_gr  !< Pointer on the current grid
+    type(Agrif_Grid), pointer, intent(inout) :: old_gr  !< Pointer on an old grid
 !
+    type(Agrif_Variable), pointer   :: new_var
+    type(Agrif_Variable), pointer   :: old_var
     integer :: i
 !
-    do i = 1,Agrif_NbVariables
-        if ( Agrif_Mygrid % tabvars(i) % var % restaure ) then
-            call Agrif_Copy(Agrif_New_Gr,Agrif_Old_Gr,Agrif_New_Gr % tabvars(i), &
-                                                      Agrif_Old_Gr % tabvars(i))
+    do i = 1,Agrif_NbVariables(0)
+        if ( Agrif_Mygrid % tabvars(i) % restore ) then
+            old_var => old_gr % tabvars(i)
+            new_var => new_gr % tabvars(i)
+            call Agrif_Copy(new_gr, old_gr, new_var, old_var )
         endif
     enddo
 !---------------------------------------------------------------------------------------------------
@@ -281,11 +323,11 @@ end subroutine Agrif_CopyFromOld
 !
 !> Called in Agrif_Clustering#Agrif_Init_Hierarchy.
 !---------------------------------------------------------------------------------------------------
-recursive subroutine Agrif_CopyFromOld_AllOneVar ( g, oldchildgrids, indic )
+recursive subroutine Agrif_CopyFromOld_AllOneVar ( g, oldchildlist, indic )
 !---------------------------------------------------------------------------------------------------
-    type(Agrif_Grid),  pointer      :: g                !< Pointer on the current grid
-    type(Agrif_PGrid), pointer      :: oldchildgrids
-    integer,           intent(in)   :: indic
+    type(Agrif_Grid), pointer, intent(inout) :: g            !< Pointer on the current grid
+    type(Agrif_Grid_List),     intent(in)    :: oldchildlist
+    integer,                   intent(in)    :: indic
 !
     type(Agrif_PGrid), pointer  :: parcours ! Pointer for the recursive procedure
     real    :: g_eps,eps,oldgrid_eps
@@ -294,7 +336,7 @@ recursive subroutine Agrif_CopyFromOld_AllOneVar ( g, oldchildgrids, indic )
 !
     out = 0
 !
-    parcours => oldchildgrids
+    parcours => oldchildlist % first
 !
     do while (associated(parcours))
 !
@@ -303,27 +345,27 @@ recursive subroutine Agrif_CopyFromOld_AllOneVar ( g, oldchildgrids, indic )
             g_eps = huge(1.)
             oldgrid_eps = huge(1.)
             do iii = 1,Agrif_Probdim
-                g_eps = min(g_eps,g % Agrif_d(iii))
-                oldgrid_eps = min(oldgrid_eps,parcours % gr % Agrif_d(iii))
+                g_eps = min(g_eps,g % Agrif_dx(iii))
+                oldgrid_eps = min(oldgrid_eps,parcours % gr % Agrif_dx(iii))
             enddo
 !
             eps = min(g_eps,oldgrid_eps)/100.
 !
             do iii = 1,Agrif_Probdim
-                if (g % Agrif_d(iii) < (parcours % gr % Agrif_d(iii) - eps)) then
+                if (g % Agrif_dx(iii) < (parcours % gr % Agrif_dx(iii) - eps)) then
                     parcours => parcours % next
                     out = 1
                     exit
                 endif
             enddo
-        
+
             if ( out == 1 ) cycle
 !
             call Agrif_CopyFromOldOneVar(g,parcours%gr,indic)
 !
         endif
 !
-        call Agrif_CopyFromOld_AllOneVar(g,parcours%gr % child_grids,indic)
+        call Agrif_CopyFromOld_AllOneVar(g,parcours%gr % child_list,indic)
 !
         parcours => parcours % next
 !
@@ -337,19 +379,19 @@ end subroutine Agrif_CopyFromOld_AllOneVar
 !
 !> Call to Agrif_Copy
 !---------------------------------------------------------------------------------------------------
-subroutine Agrif_CopyFromOldOneVar ( Agrif_New_Gr, Agrif_Old_Gr, indic )
+subroutine Agrif_CopyFromOldOneVar ( new_gr, old_gr, indic )
 !---------------------------------------------------------------------------------------------------
-    type(Agrif_Grid), pointer       :: Agrif_New_Gr     !< Pointer on the current grid
-    type(Agrif_Grid), pointer       :: Agrif_Old_Gr     !< Pointer on an old grid
-    integer,          intent(in)    :: indic
+    type(Agrif_Grid), pointer, intent(inout) :: new_gr     !< Pointer on the current grid
+    type(Agrif_Grid), pointer, intent(in)    :: old_gr     !< Pointer on an old grid
+    integer,                   intent(in)    :: indic
 !
-    type(Agrif_PVariable), pointer  :: tabvars,oldtabvars
+    type(Agrif_Variable),  pointer  :: new_var, old_var
 !
-    tabvars    => Agrif_Search_Variable(Agrif_New_Gr,-indic)
-    oldtabvars => Agrif_Search_Variable(Agrif_Old_Gr,-indic)
+    new_var => Agrif_Search_Variable(new_gr, -indic)
+    old_var => Agrif_Search_Variable(old_gr, -indic)
 !
-    call Agrif_Nbdim_Allocation(tabvars%var,tabvars%var%lb,tabvars%var%ub,tabvars%var%nbdim)
-    call Agrif_Copy(Agrif_New_Gr,Agrif_Old_Gr,tabvars,oldtabvars)
+    call Agrif_array_allocate(new_var,new_var%lb,new_var%ub,new_var%nbdim)
+    call Agrif_Copy(new_gr, old_gr, new_var,old_var)
 !---------------------------------------------------------------------------------------------------
 end subroutine Agrif_CopyFromOldOneVar
 !===================================================================================================
@@ -357,12 +399,12 @@ end subroutine Agrif_CopyFromOldOneVar
 !===================================================================================================
 !  subroutine Agrif_Copy
 !---------------------------------------------------------------------------------------------------
-subroutine Agrif_Copy ( Agrif_New_Gr, Agrif_Old_Gr, New_Var, Old_Var )
+subroutine Agrif_Copy ( new_gr, old_gr, new_var, old_var )
 !---------------------------------------------------------------------------------------------------
-    type(Agrif_Grid), pointer   :: Agrif_New_Gr   ! Pointer on the current grid
-    type(Agrif_Grid), pointer :: Agrif_Old_Gr    ! Pointer on an old grid
-    type(Agrif_PVariable) :: New_Var
-    type(Agrif_PVariable) :: Old_Var
+    type(Agrif_Grid),     pointer, intent(in)       :: new_gr !< Pointer on the current grid
+    type(Agrif_Grid),     pointer, intent(in)       :: old_gr !< Pointer on an old grid
+    type(Agrif_Variable), pointer, intent(inout)    :: new_var
+    type(Agrif_Variable), pointer, intent(in)       :: old_var
 !
     type(Agrif_Variable), pointer :: root ! Pointer on the variable of the root grid
     integer               :: nbdim     ! Number of dimensions of the current grid
@@ -377,7 +419,7 @@ subroutine Agrif_Copy ( Agrif_New_Gr, Agrif_Old_Gr, New_Var, Old_Var )
     real    :: eps
     integer :: n
 !
-    root => New_Var % var % root_var
+    root => new_var % root_var
     nbdim = root % nbdim
 !
     do n = 1,nbdim
@@ -386,64 +428,64 @@ subroutine Agrif_Copy ( Agrif_New_Gr, Agrif_Old_Gr, New_Var, Old_Var )
 !
         case('x')
 !
-            pttabnew(n) = root % point(1)
-            pttabold(n) = root % point(1)
-            snew(n) = Agrif_New_Gr % Agrif_x(1)
-            sold(n) = Agrif_Old_Gr % Agrif_x(1)
-            dsnew(n) = Agrif_New_Gr % Agrif_d(1)
-            dsold(n) = Agrif_Old_Gr % Agrif_d(1)
+            pttabnew(n) = root % point(n)
+            pttabold(n) = root % point(n)
+            snew(n)  = new_gr % Agrif_x(1)
+            sold(n)  = old_gr % Agrif_x(1)
+            dsnew(n) = new_gr % Agrif_dx(1)
+            dsold(n) = old_gr % Agrif_dx(1)
 !
             if (root % posvar(n) == 1) then
-                petabnew(n) = pttabnew(n) + Agrif_New_Gr % nb(1)
-                petabold(n) = pttabold(n) + Agrif_Old_Gr % nb(1)
+                petabnew(n) = pttabnew(n) + new_gr % nb(1)
+                petabold(n) = pttabold(n) + old_gr % nb(1)
             else
-                petabnew(n) = pttabnew(n) + Agrif_New_Gr % nb(1) - 1
-                petabold(n) = pttabold(n) + Agrif_Old_Gr % nb(1) - 1
+                petabnew(n) = pttabnew(n) + new_gr % nb(1) - 1
+                petabold(n) = pttabold(n) + old_gr % nb(1) - 1
                 snew(n) = snew(n) + dsnew(n)/2.
                 sold(n) = sold(n) + dsold(n)/2.
             endif
 !
         case('y')
 !
-            pttabnew(n) = root % point(2)
-            pttabold(n) = root % point(2)
-            snew(n) = Agrif_New_Gr % Agrif_x(2)
-            sold(n) = Agrif_Old_Gr % Agrif_x(2)
-            dsnew(n) = Agrif_New_Gr % Agrif_d(2)
-            dsold(n) = Agrif_Old_Gr % Agrif_d(2)
+            pttabnew(n) = root % point(n)
+            pttabold(n) = root % point(n)
+            snew(n) = new_gr % Agrif_x(2)
+            sold(n) = old_gr % Agrif_x(2)
+            dsnew(n) = new_gr % Agrif_dx(2)
+            dsold(n) = old_gr % Agrif_dx(2)
 !
             if (root % posvar(n) == 1) then
-                petabnew(n) = pttabnew(n) + Agrif_New_Gr % nb(2)
-                petabold(n) = pttabold(n) + Agrif_Old_Gr % nb(2)
+                petabnew(n) = pttabnew(n) + new_gr % nb(2)
+                petabold(n) = pttabold(n) + old_gr % nb(2)
             else
-                petabnew(n) = pttabnew(n) + Agrif_New_Gr % nb(2) - 1
-                petabold(n) = pttabold(n) + Agrif_Old_Gr % nb(2) - 1
+                petabnew(n) = pttabnew(n) + new_gr % nb(2) - 1
+                petabold(n) = pttabold(n) + old_gr % nb(2) - 1
                 snew(n) = snew(n) + dsnew(n)/2.
                 sold(n) = sold(n) + dsold(n)/2.
             endif
 !
         case('z')
 !
-            pttabnew(n) = root % point(3)
-            pttabold(n) = root % point(3)
-            snew(n) = Agrif_New_Gr % Agrif_x(3)
-            sold(n) = Agrif_Old_Gr % Agrif_x(3)
-            dsnew(n) = Agrif_New_Gr % Agrif_d(3)
-            dsold(n) = Agrif_Old_Gr % Agrif_d(3)
+            pttabnew(n) = root % point(n)
+            pttabold(n) = root % point(n)
+            snew(n)  = new_gr % Agrif_x(3)
+            sold(n)  = old_gr % Agrif_x(3)
+            dsnew(n) = new_gr % Agrif_dx(3)
+            dsold(n) = old_gr % Agrif_dx(3)
 !
             if (root % posvar(n) == 1) then
-                petabnew(n) = pttabnew(n) + Agrif_New_Gr % nb(3)
-                petabold(n) = pttabold(n) + Agrif_Old_Gr % nb(3)
+                petabnew(n) = pttabnew(n) + new_gr % nb(3)
+                petabold(n) = pttabold(n) + old_gr % nb(3)
             else
-                petabnew(n) = pttabnew(n) + Agrif_New_Gr % nb(3) - 1
-                petabold(n) = pttabold(n) + Agrif_Old_Gr % nb(3) - 1
+                petabnew(n) = pttabnew(n) + new_gr % nb(3) - 1
+                petabold(n) = pttabold(n) + old_gr % nb(3) - 1
                 snew(n) = snew(n) + dsnew(n)/2.
                 sold(n) = sold(n) + dsold(n)/2.
             endif
 !
         case('N')
 !
-            call Agrif_nbdim_Get_bound(New_Var%var,pttabnew(n),petabnew(n),n)
+            call Agrif_get_var_bounds(new_var,pttabnew(n),petabnew(n),n)
 !
             pttabold(n) = pttabnew(n)
             petabold(n) = petabnew(n)
@@ -468,7 +510,7 @@ subroutine Agrif_Copy ( Agrif_New_Gr, Agrif_Old_Gr, New_Var, Old_Var )
         if ((snew(n)+dsnew(n)*nbtabnew(n)-eps) < sold(n)) return
     enddo
 !
-    call Agrif_CopynD(New_Var,Old_Var,pttabold,petabold,pttabnew,petabnew,  &
+    call Agrif_CopynD(new_var,old_var,pttabold,petabold,pttabnew,petabnew,  &
                       sold,snew,dsold,dsnew,nbdim)
 !---------------------------------------------------------------------------------------------------
 end subroutine Agrif_Copy
@@ -479,17 +521,18 @@ end subroutine Agrif_Copy
 !
 !> Copy from the nD variable Old_Var the nD variable New_Var
 !---------------------------------------------------------------------------------------------------
-subroutine Agrif_CopynD ( New_Var, Old_Var, pttabold, petabold, pttabnew, petabnew, &
+subroutine Agrif_CopynD ( new_var, old_var, pttabold, petabold, pttabnew, petabnew, &
                           sold, snew, dsold, dsnew, nbdim )
 !---------------------------------------------------------------------------------------------------
-    integer :: nbdim
-    type(Agrif_PVariable)       :: New_Var, Old_Var
-    integer,dimension(nbdim)    :: pttabnew
-    integer,dimension(nbdim)    :: petabnew
-    integer,dimension(nbdim)    :: pttabold
-    integer,dimension(nbdim)    :: petabold
-    real, dimension(nbdim)      :: snew, sold
-    real, dimension(nbdim)      :: dsnew,dsold
+    type(Agrif_Variable), pointer, intent(inout) :: new_var
+    type(Agrif_Variable), pointer, intent(in)    :: old_var
+    integer, dimension(nbdim),     intent(in)    :: pttabnew
+    integer, dimension(nbdim),     intent(in)    :: petabnew
+    integer, dimension(nbdim),     intent(in)    :: pttabold
+    integer, dimension(nbdim),     intent(in)    :: petabold
+    real,    dimension(nbdim),     intent(in)    :: snew, sold
+    real,    dimension(nbdim),     intent(in)    :: dsnew,dsold
+    integer,                       intent(in)    :: nbdim
 !
     integer :: i,j,k,l,m,n,i0,j0,k0,l0,m0,n0
 !
@@ -527,16 +570,16 @@ subroutine Agrif_CopynD ( New_Var, Old_Var, pttabold, petabold, pttabnew, petabn
     case (1)
         i0 = ind_gmin(1)
         do i = ind_newmin(1),ind_newmax(1)
-            New_Var % var % array1(i)    = Old_Var % var % array1(i0)
-            New_Var % var % restore1D(i) = 1
+            new_var % array1(i)    = old_var % array1(i0)
+            new_var % restore1D(i) = 1
             i0 = i0 + int(dsnew(1)/dsold(1))
         enddo
 !
     case (2)
         i0 = ind_gmin(1) ; do i = ind_newmin(1),ind_newmax(1)
         j0 = ind_gmin(2) ; do j = ind_newmin(2),ind_newmax(2)
-            New_Var % var % array2(i,j)    = Old_Var % var % array2(i0,j0)
-            New_Var % var % restore2D(i,j) = 1
+            new_var % array2(i,j)    = old_var % array2(i0,j0)
+            new_var % restore2D(i,j) = 1
             j0 = j0 + int(dsnew(2)/dsold(2))
         enddo
         i0 = i0 + int(dsnew(1)/dsold(1))
@@ -546,8 +589,8 @@ subroutine Agrif_CopynD ( New_Var, Old_Var, pttabold, petabold, pttabnew, petabn
         i0 = ind_gmin(1) ; do i = ind_newmin(1),ind_newmax(1)
         j0 = ind_gmin(2) ; do j = ind_newmin(2),ind_newmax(2)
         k0 = ind_gmin(3) ; do k = ind_newmin(3),ind_newmax(3)
-            New_Var % var % array3(i,j,k)    =  Old_Var % var % array3(i0,j0,k0)
-            New_Var % var % restore3D(i,j,k) = 1
+            new_var % array3(i,j,k)    =  old_var % array3(i0,j0,k0)
+            new_var % restore3D(i,j,k) = 1
             k0 = k0 + int(dsnew(3)/dsold(3))
         enddo
         j0 = j0 + int(dsnew(2)/dsold(2))
@@ -560,8 +603,8 @@ subroutine Agrif_CopynD ( New_Var, Old_Var, pttabold, petabold, pttabnew, petabn
         j0 = ind_gmin(2) ; do j = ind_newmin(2),ind_newmax(2)
         k0 = ind_gmin(3) ; do k = ind_newmin(3),ind_newmax(3)
         l0 = ind_gmin(4) ; do l = ind_newmin(4),ind_newmax(4)
-            New_Var % var % array4(i,j,k,l)    = Old_Var % var % array4(i0,j0,k0,l0)
-            New_Var % var % restore4D(i,j,k,l) = 1
+            new_var % array4(i,j,k,l)    = old_var % array4(i0,j0,k0,l0)
+            new_var % restore4D(i,j,k,l) = 1
             l0 = l0 + int(dsnew(4)/dsold(4))
         enddo
         k0 = k0 + int(dsnew(3)/dsold(3))
@@ -577,8 +620,8 @@ subroutine Agrif_CopynD ( New_Var, Old_Var, pttabold, petabold, pttabnew, petabn
         k0 = ind_gmin(3) ; do k = ind_newmin(3),ind_newmax(3)
         l0 = ind_gmin(4) ; do l = ind_newmin(4),ind_newmax(4)
         m0 = ind_gmin(5) ; do m = ind_newmin(5),ind_newmax(5)
-            New_Var % var % array5(i,j,k,l,m)    = Old_Var % var % array5(i0,j0,k0,l0,m0)
-            New_Var % var % restore5D(i,j,k,l,m) = 1
+            new_var % array5(i,j,k,l,m)    = old_var % array5(i0,j0,k0,l0,m0)
+            new_var % restore5D(i,j,k,l,m) = 1
             m0 = m0 + int(dsnew(5)/dsold(5))
         enddo
         l0 = l0 + int(dsnew(4)/dsold(4))
@@ -597,8 +640,8 @@ subroutine Agrif_CopynD ( New_Var, Old_Var, pttabold, petabold, pttabnew, petabn
         l0 = ind_gmin(4) ; do l = ind_newmin(4),ind_newmax(4)
         m0 = ind_gmin(5) ; do m = ind_newmin(5),ind_newmax(5)
         n0 = ind_gmin(6) ; do n = ind_newmin(6),ind_newmax(6)
-            New_Var % var % array6(i,j,k,l,m,n)    = Old_Var % var % array6(i0,j0,k0,l0,m0,n0)
-            New_Var % var % restore6D(i,j,k,l,m,n) = 1
+            new_var % array6(i,j,k,l,m,n)    = old_var % array6(i0,j0,k0,l0,m0,n0)
+            new_var % restore6D(i,j,k,l,m,n) = 1
             n0 = n0 + int(dsnew(6)/dsold(6))
         enddo
         m0 = m0 + int(dsnew(5)/dsold(5))

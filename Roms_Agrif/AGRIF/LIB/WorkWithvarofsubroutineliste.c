@@ -40,64 +40,39 @@
 /******************************************************************************/
 /*                      Add_SubroutineArgument_Var_1                          */
 /******************************************************************************/
-/* Firstpass 1                                                                */
-/* We should complete the                                                     */
-/******************************************************************************/
-/*                                                                            */
-/*                                                                            */
-/******************************************************************************/
 void Add_SubroutineArgument_Var_1(listvar *listtoadd)
 {
-   if ( firstpass == 1 )
-   {
-       List_SubroutineArgument_Var = AddListvarToListvar(listtoadd,List_SubroutineArgument_Var,1);
-   }
+    List_SubroutineArgument_Var = AddListvarToListvar(listtoadd, List_SubroutineArgument_Var, 1);
 }
 
 /******************************************************************************/
 /*                             Add_FunctionType_Var_1                         */
 /******************************************************************************/
-/* Firstpass 1                                                                */
-/* We should complete the                                                     */
-/******************************************************************************/
-/*                                                                            */
-/*                                                                            */
-/******************************************************************************/
-void Add_FunctionType_Var_1(char *nom)
+void Add_FunctionType_Var_1(const char *nom)
 {
-   listvar *newvar;
+    listvar *newvar;
 
-   if ( firstpass == 1 )
-   {
-      curvar=createvar(nom,NULL);
-      strcpy(curvar->v_typevar,DeclType);
-      newvar = insertvar(NULL,curvar);
-      List_FunctionType_Var = AddListvarToListvar
-                              (newvar,List_FunctionType_Var,1);
-   }
+    curvar = createvar(nom, NULL);
+    strcpy(curvar->v_typevar, DeclType);
+    newvar = insertvar(NULL, curvar);
+    List_FunctionType_Var = AddListvarToListvar(newvar,List_FunctionType_Var,1);
 }
-
 
 /******************************************************************************/
 /*                      Add_SubroutineDeclaration_Var_1                       */
 /******************************************************************************/
-/* Firstpass 1                                                                */
 /* We should complete the listvarofsubroutine                                 */
 /******************************************************************************/
-/*                                                                            */
-/*                                                                            */
-/******************************************************************************/
-void Add_SubroutineDeclaration_Var_1 (listvar *listtoadd)
-{
-   if ( firstpass == 1 )
-   {
-      if ( VariableIsParameter == 0 &&
-           SaveDeclare         == 0 )
-      {
-         listduplicated = (listvar *)NULL;
-         duplicatelistvar(listtoadd);
-         List_SubroutineDeclaration_Var = AddListvarToListvar
-                              (listduplicated,List_SubroutineDeclaration_Var,1);
-      }
-   }
-}
+// void Add_SubroutineDeclaration_Var_1 (listvar *listtoadd)
+// {
+//    if ( firstpass == 1 )
+//    {
+//       if ( VariableIsParameter == 0 &&
+//            SaveDeclare         == 0 )
+//       {
+//          listduplicated = (listvar *)NULL;
+//          duplicatelistvar(listtoadd);
+//          List_SubroutineDeclaration_Var = AddListvarToListvar(listduplicated,List_SubroutineDeclaration_Var,1);
+//       }
+//    }
+// }

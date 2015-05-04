@@ -29,7 +29,7 @@
 #  include "zoom.h"
 #  include "ocean3d.h"
       integer Istr,Iend,Jstr,Jend, i,j,k
-      real, dimension(:,:,:), allocatable :: uext
+!      real, dimension(:,:,:), allocatable :: uext
       integer itrcind
       real tinterp
       INTEGER :: nbstep3dparent
@@ -64,81 +64,83 @@ C$OMP MASTER
      &   ((nbcoarse == irhot).AND.(nnew /=3))).AND.
      &    (UTimeindex.NE.parentnbstep)) THEN
 
-        Allocate(uext(i1u:i2u,j1t:j2t,N))
-        tinterp=1. 
-#ifdef MASKING      
+C        Allocate(uext(i1u:i2u,j1t:j2t,N))
+        tinterp=1.
+#ifdef MASKING
         Agrif_UseSpecialvalue=.true.
 #endif        
         Agrif_Specialvalue=0.
-        uext=0.   
+!        uext=0.
         Call Agrif_Set_bc(uid,(/0,0/),InterpolationShouldbemade=.TRUE.)
-        Call Agrif_Bc_variable(uext,uid,calledweight=tinterp,
+!        Call Agrif_Bc_variable(uext,uid,calledweight=tinterp,
+!     &procname=u3dinterp)
+        Call Agrif_Bc_variable(uid,calledweight=tinterp,
      &procname=u3dinterp)
         Agrif_UseSpecialValue=.false.
 
-        IF (nnew == 3) THEN
-        nsource = 2
-        ELSE
-        nsource = 4
-        ENDIF
-        ndest = nsource - 1
-             
-#  ifdef AGRIF_OBC_SOUTH
-#   ifdef MPI        
-            if (.not.SOUTH_INTER) then
-#   endif
-                U_south(0:LOCALLM+1,0:0,1:N,ndest)=
-     &          U_south(0:LOCALLM+1,0:0,1:N,nsource)
-     
-                U_south(0:LOCALLM+1,0:0,1:N,nsource)=
-     &             uext(0:LOCALLM+1,0:0,1:N)
-          
-#   ifdef MPI           
-            endif          
-#   endif            
-#  endif            
-#  ifdef AGRIF_OBC_NORTH
-#   ifdef MPI        
-            if (.not.NORTH_INTER) then  
-#   endif
-                U_north(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N,ndest)=
-     &          U_north(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N,nsource)
-     
-                U_north(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N,nsource)=
-     &             uext(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N)
-          
-#   ifdef MPI                    
-            endif  
-#   endif            
-#  endif            
-#  ifdef AGRIF_OBC_WEST
-#   ifdef MPI        
-            if (.not.WEST_INTER) then
-#   endif
-                U_west(1:1,0:LOCALMM+1,1:N,ndest)=
-     &          U_west(1:1,0:LOCALMM+1,1:N,nsource)
-     
-                U_west(1:1,0:LOCALMM+1,1:N,nsource)=
-     &            uext(1:1,0:LOCALMM+1,1:N)
-          
-#   ifdef MPI            
-            endif
-#   endif            
-#  endif            
-#  ifdef AGRIF_OBC_EAST
-#   ifdef MPI        
-            if (.not.EAST_INTER) then
-#   endif
-                U_east(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N,ndest)=
-     &          U_east(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N,nsource)
-
-                U_east(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N,nsource)=
-     &            uext(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N)     
-#   ifdef MPI               
-            endif  
-#   endif                            
-#  endif
-        deallocate(uext)
+C        IF (nnew == 3) THEN
+C        nsource = 2
+C        ELSE
+C        nsource = 4
+C        ENDIF
+C        ndest = nsource - 1
+C
+C#  ifdef AGRIF_OBC_SOUTH
+C#   ifdef MPI
+C            if (.not.SOUTH_INTER) then
+C#   endif
+C                U_south(0:LOCALLM+1,0:0,1:N,ndest)=
+C     &          U_south(0:LOCALLM+1,0:0,1:N,nsource)
+C
+C                U_south(0:LOCALLM+1,0:0,1:N,nsource)=
+C     &             uext(0:LOCALLM+1,0:0,1:N)
+C
+C#   ifdef MPI
+C            endif
+C#   endif
+C#  endif
+C#  ifdef AGRIF_OBC_NORTH
+C#   ifdef MPI
+C            if (.not.NORTH_INTER) then
+C#   endif
+C                U_north(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N,ndest)=
+C     &          U_north(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N,nsource)
+C
+C                U_north(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N,nsource)=
+C     &             uext(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N)
+C
+C#   ifdef MPI
+C            endif
+C#   endif
+C#  endif
+C#  ifdef AGRIF_OBC_WEST
+C#   ifdef MPI
+C            if (.not.WEST_INTER) then
+C#   endif
+C                U_west(1:1,0:LOCALMM+1,1:N,ndest)=
+C     &          U_west(1:1,0:LOCALMM+1,1:N,nsource)
+C
+C                U_west(1:1,0:LOCALMM+1,1:N,nsource)=
+C     &            uext(1:1,0:LOCALMM+1,1:N)
+C
+C#   ifdef MPI
+C            endif
+C#   endif
+C#  endif
+C#  ifdef AGRIF_OBC_EAST
+C#   ifdef MPI
+C            if (.not.EAST_INTER) then
+C#   endif
+C                U_east(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N,ndest)=
+C     &          U_east(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N,nsource)
+C
+C                U_east(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N,nsource)=
+C     &            uext(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N)
+C#   ifdef MPI
+C            endif
+C#   endif
+C#  endif
+!        deallocate(uext)
 
         UTimeindex = parentnbstep
 
@@ -312,7 +314,136 @@ C$OMP BARRIER
 # endif /* SOLVE3D */
 !
 
-      subroutine u3Dinterp(tabres,i1,i2,j1,j2,k1,k2)
+      subroutine u3Dinterp(tabres,i1,i2,j1,j2,k1,k2,before,nb,ndir)
+      implicit none
+# include "param.h"
+# include "ocean3d.h"
+# include "scalars.h"
+#  include "zoom.h"
+
+       integer i1,i2,j1,j2,k1,k2
+       real tabres(i1:i2,j1:j2,k1:k2)
+       logical before
+       integer nb,ndir
+       integer nparent
+       integer nsource, ndest
+       logical :: western_side, eastern_side
+       logical :: northern_side,southern_side
+
+       if (before) then
+         IF ((iif == 0)) THEN
+           nparent = 3
+         ELSE
+           nparent = nnew
+         ENDIF
+
+         tabres(i1:i2,j1:j2,k1:k2) = u(i1:i2,j1:j2,k1:k2,nparent)
+       else
+
+#  ifdef MPI
+#   define LOCALLM Lmmpi
+#   define LOCALMM Mmmpi
+#  else
+#   define LOCALLM Lm
+#   define LOCALMM Mm
+#  endif
+
+         western_side  = (nb == 1).AND.(ndir == 1)
+         eastern_side  = (nb == 1).AND.(ndir == 2)
+         southern_side = (nb == 2).AND.(ndir == 1)
+         northern_side = (nb == 2).AND.(ndir == 2)
+
+! FIXME :
+!         U_south(...) = tabres !(0:LOCALLM+1,1:1,1:N)
+!         U_north(...) = tabres !(0:LOCALLM+1,1:1,1:N)
+         IF (nnew == 3) THEN
+           nsource = 2
+         ELSE
+           nsource = 4
+         ENDIF
+         ndest = nsource - 1
+
+#  ifdef AGRIF_OBC_SOUTH
+        if (southern_side) then
+#   ifdef MPI
+            if (.not.SOUTH_INTER) then
+#   endif
+C                U_south(0:LOCALLM+1,0:0,1:N,ndest)=
+C     &          U_south(0:LOCALLM+1,0:0,1:N,nsource)
+C
+C                U_south(0:LOCALLM+1,0:0,1:N,nsource)=
+C     &             tabres(0:LOCALLM+1,0:0,1:N)
+                U_south(i1:i2,j1:j2,1:N,ndest)=
+     &          U_south(i1:i2,j1:j2,1:N,nsource)
+
+                U_south(i1:i2,j1:j2,1:N,nsource) = tabres
+#   ifdef MPI
+            endif
+#   endif
+        endif
+#  endif
+#  ifdef AGRIF_OBC_NORTH
+        if (northern_side) then
+#   ifdef MPI
+            if (.not.NORTH_INTER) then
+#   endif
+C                U_north(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N,ndest)=
+C     &          U_north(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N,nsource)
+C
+C                U_north(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N,nsource)=
+C     &             tabres(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N)
+                U_north(i1:i2,j1:j2,1:N,ndest)=
+     &          U_north(i1:i2,j1:j2,1:N,nsource)
+
+                U_north(i1:i2,j1:j2,1:N,nsource) = tabres
+#   ifdef MPI
+            endif
+#   endif
+        endif
+#  endif
+#  ifdef AGRIF_OBC_WEST
+        if (western_side) then
+#   ifdef MPI
+            if (.not.WEST_INTER) then
+#   endif
+C                U_west(1:1,0:LOCALMM+1,1:N,ndest)=
+C     &          U_west(1:1,0:LOCALMM+1,1:N,nsource)
+C
+C                U_west(1:1,0:LOCALMM+1,1:N,nsource)=
+C     &            tabres(1:1,0:LOCALMM+1,1:N)
+                U_west(i1:i2,j1:j2,1:N,ndest)=
+     &          U_west(i1:i2,j1:j2,1:N,nsource)
+
+                U_west(i1:i2,j1:j2,1:N,nsource) = tabres
+#   ifdef MPI
+            endif
+#   endif
+        endif
+#  endif
+#  ifdef AGRIF_OBC_EAST
+        if (eastern_side) then
+#   ifdef MPI
+            if (.not.EAST_INTER) then
+#   endif
+C                U_east(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N,ndest)=
+C     &          U_east(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N,nsource)
+C
+C                U_east(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N,nsource)=
+C     &            tabres(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N)
+                U_east(i1:i2,j1:j2,1:N,ndest)=
+     &          U_east(i1:i2,j1:j2,1:N,nsource)
+
+                U_east(i1:i2,j1:j2,1:N,nsource) = tabres
+#   ifdef MPI
+            endif
+#   endif
+        endif
+#  endif
+
+       endif
+      return
+      end
+      subroutine u3Dinterp_old(tabres,i1,i2,j1,j2,k1,k2)
       implicit none
 # include "param.h"
 # include "ocean3d.h"
@@ -321,8 +452,8 @@ C$OMP BARRIER
        integer i1,i2,j1,j2,k1,k2
        real tabres(i1:i2,j1:j2,k1:k2)
        integer nparent
-       
-       IF ((iif == 0)) THEN  
+
+       IF ((iif == 0)) THEN
          nparent = 3
        ELSE
          nparent = nnew
@@ -332,8 +463,136 @@ C$OMP BARRIER
              
       return
       end
-      
-      subroutine v3Dinterp(tabres,i1,i2,j1,j2,k1,k2)
+
+      subroutine v3Dinterp(tabres,i1,i2,j1,j2,k1,k2,before,nb,ndir)
+      implicit none
+# include "param.h"
+# include "ocean3d.h"
+# include "scalars.h"
+# include "zoom.h"
+
+       integer i1,i2,j1,j2,k1,k2
+       real tabres(i1:i2,j1:j2,k1:k2)
+       logical before
+       integer nb,ndir
+       integer nparent
+       integer nsource, ndest
+       logical :: western_side, eastern_side
+       logical :: northern_side,southern_side
+
+       if (before) then
+         IF ((iif == 0)) THEN
+           nparent = 3
+         ELSE
+           nparent = nnew
+         ENDIF
+
+         tabres(i1:i2,j1:j2,k1:k2) = v(i1:i2,j1:j2,k1:k2,nparent)
+       else
+! FIXME
+!         V_south(...) = tabres !(0:LOCALLM+1,1:1,1:N)
+!         V_north(...) = tabres !(0:LOCALLM+1,1:1,1:N)
+#  ifdef MPI
+#   define LOCALLM Lmmpi
+#   define LOCALMM Mmmpi
+#  else
+#   define LOCALLM Lm
+#   define LOCALMM Mm
+#  endif
+
+         western_side  = (nb == 1).AND.(ndir == 1)
+         eastern_side  = (nb == 1).AND.(ndir == 2)
+         southern_side = (nb == 2).AND.(ndir == 1)
+         northern_side = (nb == 2).AND.(ndir == 2)
+
+         IF (nnew == 3) THEN
+           nsource = 2
+         ELSE
+           nsource = 4
+         ENDIF
+         ndest = nsource - 1
+
+#  ifdef AGRIF_OBC_SOUTH
+        if (southern_side) then
+#   ifdef MPI
+            if (.not.SOUTH_INTER) then
+#   endif
+C                V_south(0:LOCALLM+1,1:1,1:N,ndest)=
+C     &          V_south(0:LOCALLM+1,1:1,1:N,nsource)
+C
+C                V_south(0:LOCALLM+1,1:1,1:N,nsource)=
+C     &             tabres(0:LOCALLM+1,1:1,1:N)
+                V_south(i1:i2,j1:j2,1:N,ndest)=
+     &          V_south(i1:i2,j1:j2,1:N,nsource)
+
+                V_south(i1:i2,j1:j2,1:N,nsource) = tabres
+#   ifdef MPI
+            endif
+#   endif
+        endif
+#  endif
+#  ifdef AGRIF_OBC_NORTH
+        if (northern_side) then
+#   ifdef MPI
+            if (.not.NORTH_INTER) then
+#   endif
+C                V_north(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N,ndest)=
+C     &          V_north(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N,nsource)
+C
+C                V_north(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N,nsource)=
+C     &             tabres(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N)
+                V_north(i1:i2,j1:j2,1:N,ndest)=
+     &          V_north(i1:i2,j1:j2,1:N,nsource)
+
+                V_north(i1:i2,j1:j2,1:N,nsource) = tabres
+#   ifdef MPI
+            endif
+#   endif
+        endif
+#  endif
+#  ifdef AGRIF_OBC_WEST
+        if (western_side) then
+#   ifdef MPI
+            if (.not.WEST_INTER) then
+#   endif
+C                V_west(0:0,0:LOCALMM+1,1:N,ndest)=
+C     &          V_west(0:0,0:LOCALMM+1,1:N,nsource)
+C
+C                V_west(0:0,0:LOCALMM+1,1:N,nsource)=
+C     &            tabres(0:0,0:LOCALMM+1,1:N)
+                V_west(i1:i2,j1:j2,1:N,ndest)=
+     &          V_west(i1:i2,j1:j2,1:N,nsource)
+
+                V_west(i1:i2,j1:j2,1:N,nsource) = tabres
+#   ifdef MPI
+            endif
+#   endif
+        endif
+#  endif
+#  ifdef AGRIF_OBC_EAST
+        if (eastern_side) then
+#   ifdef MPI
+            if (.not.EAST_INTER) then
+#   endif
+C                V_east(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N,ndest)=
+C     &          V_east(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N,nsource)
+C
+C                V_east(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N,nsource)=
+C     &            tabres(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N)
+                V_east(i1:i2,j1:j2,1:N,ndest)=
+     &          V_east(i1:i2,j1:j2,1:N,nsource)
+
+                V_east(i1:i2,j1:j2,1:N,nsource) = tabres
+#   ifdef MPI
+            endif
+#   endif
+        endif
+#  endif
+
+       endif
+      return
+      end
+      subroutine v3Dinterp_old(tabres,i1,i2,j1,j2,k1,k2)
       implicit none
 # include "param.h"
 # include "ocean3d.h"
@@ -341,9 +600,9 @@ C$OMP BARRIER
 
        integer i1,i2,j1,j2,k1,k2
        real tabres(i1:i2,j1:j2,k1:k2)
-       integer nparent       
-       
-       IF ((iif == 0)) THEN  
+       integer nparent
+
+       IF ((iif == 0)) THEN
          nparent = 3
        ELSE
          nparent = nnew
@@ -370,7 +629,7 @@ C$OMP BARRIER
 #  include "zoom.h"
 #  include "ocean3d.h"
       integer Istr,Iend,Jstr,Jend, i,j,k
-      real, dimension(:,:,:), allocatable :: vext
+!      real, dimension(:,:,:), allocatable :: vext
       integer itrcind
       real tinterp
       INTEGER :: nbstep3dparent
@@ -405,79 +664,82 @@ C$OMP MASTER
      &   ((nbcoarse == irhot).AND.(nnew /=3))).AND.
      &    (VTimeindex.NE.parentnbstep)) THEN 
 
-        allocate(vext(i1t:i2t,j1v:j2v,N))
+!        allocate(vext(i1t:i2t,j1v:j2v,N))
         tinterp=1.
 
 #ifdef MASKING
         AGRIF_UseSpecialvalue=.true.
 #endif        
         AGRIF_Specialvalue=0.
-        vext=0.
+!        vext=0.
         Call Agrif_Set_bc(vid,(/0,0/),InterpolationShouldbemade=.TRUE.)
-        Call Agrif_Bc_variable(vext,vid,calledweight=tinterp,
-     &procname=v3dinterp)     
+!        Call Agrif_Bc_variable(vext,vid,calledweight=tinterp,
+!     &procname=v3dinterp)
+        Call Agrif_Bc_variable(vid,calledweight=tinterp,
+     &procname=v3dinterp)
         AGRIF_UseSpecialValue=.false.
 
-        IF (nnew == 3) THEN
-        nsource = 2
-        ELSE
-        nsource = 4
-        ENDIF
-        ndest = nsource - 1
-        
-#  ifdef AGRIF_OBC_SOUTH
-#   ifdef MPI  
-            if (.not.SOUTH_INTER) then
-#   endif
-                V_south(0:LOCALLM+1,1:1,1:N,ndest)=
-     &          V_south(0:LOCALLM+1,1:1,1:N,nsource)
-     
-                V_south(0:LOCALLM+1,1:1,1:N,nsource)=
-     &             vext(0:LOCALLM+1,1:1,1:N)
-#   ifdef MPI           
-            endif          
-#   endif
-#  endif
-#  ifdef AGRIF_OBC_NORTH
-#   ifdef MPI  
-            if (.not.NORTH_INTER) then  
-#   endif
-                V_north(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N,ndest)=
-     &          V_north(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N,nsource)
-     
-                V_north(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N,nsource)=
-     &             vext(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N)
-#   ifdef MPI                    
-            endif  
-#   endif
-#  endif
-#  ifdef AGRIF_OBC_WEST
-#   ifdef MPI           
-            if (.not.WEST_INTER) then
-#   endif
-                V_west(0:0,0:LOCALMM+1,1:N,ndest)=
-     &          V_west(0:0,0:LOCALMM+1,1:N,nsource)
-     
-                V_west(0:0,0:LOCALMM+1,1:N,nsource)=
-     &            vext(0:0,0:LOCALMM+1,1:N)
-#   ifdef MPI            
-            endif
-#   endif
-#  endif
-#  ifdef AGRIF_OBC_EAST
-#   ifdef MPI           
-            if (.not.EAST_INTER) then
-#   endif
-                V_east(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N,ndest)=
-     &          V_east(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N,nsource)
-     
-                V_east(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N,nsource)=
-     &            vext(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N)
-#   ifdef MPI               
-            endif  
-#   endif                               
-#  endif
-        deallocate(vext)
+C        IF (nnew == 3) THEN
+C        nsource = 2
+C        ELSE
+C        nsource = 4
+C        ENDIF
+C        ndest = nsource - 1
+C
+C
+C#  ifdef AGRIF_OBC_SOUTH
+C#   ifdef MPI
+C            if (.not.SOUTH_INTER) then
+C#   endif
+C                V_south(0:LOCALLM+1,1:1,1:N,ndest)=
+C     &          V_south(0:LOCALLM+1,1:1,1:N,nsource)
+C
+C                V_south(0:LOCALLM+1,1:1,1:N,nsource)=
+C     &             vext(0:LOCALLM+1,1:1,1:N)
+C#   ifdef MPI
+C            endif
+C#   endif
+C#  endif
+C#  ifdef AGRIF_OBC_NORTH
+C#   ifdef MPI
+C            if (.not.NORTH_INTER) then
+C#   endif
+C                V_north(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N,ndest)=
+C     &          V_north(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N,nsource)
+C
+C                V_north(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N,nsource)=
+C     &             vext(0:LOCALLM+1,LOCALMM+1:LOCALMM+1,1:N)
+C#   ifdef MPI
+C            endif
+C#   endif
+C#  endif
+C#  ifdef AGRIF_OBC_WEST
+C#   ifdef MPI
+C            if (.not.WEST_INTER) then
+C#   endif
+C                V_west(0:0,0:LOCALMM+1,1:N,ndest)=
+C     &          V_west(0:0,0:LOCALMM+1,1:N,nsource)
+C
+C                V_west(0:0,0:LOCALMM+1,1:N,nsource)=
+C     &            vext(0:0,0:LOCALMM+1,1:N)
+C#   ifdef MPI
+C            endif
+C#   endif
+C#  endif
+C#  ifdef AGRIF_OBC_EAST
+C#   ifdef MPI
+C            if (.not.EAST_INTER) then
+C#   endif
+C                V_east(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N,ndest)=
+C     &          V_east(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N,nsource)
+C
+C                V_east(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N,nsource)=
+C     &            vext(LOCALLM+1:LOCALLM+1,0:LOCALMM+1,1:N)
+C#   ifdef MPI
+C            endif
+C#   endif
+C#  endif
+!        deallocate(vext)
 
         VTimeindex=parentnbstep
 
@@ -663,7 +925,7 @@ C$OMP BARRIER
 #  include "zoom.h"
 #  include "ocean3d.h"
       integer Istr,Iend,Jstr,Jend,itrc,i,j,k
-      real,dimension(:,:,:,:),allocatable :: text
+!      real,dimension(:,:,:,:),allocatable :: text
       integer itrcind, ntind, indx
       real tinterp
       INTEGER :: nbstep3dparent
@@ -700,85 +962,85 @@ C$OMP MASTER
      &   ((nbcoarse == irhot).AND.(nnew /=3))).AND.
      &    (TTimeindex.NE.parentnbstep)) THEN 
 
-        allocate(text(i1t:i2t,j1t:j2t,N,NT))
+!        allocate(text(i1t:i2t,j1t:j2t,N,NT))
         tinterp=1.
 #ifdef MASKING        
         Agrif_UseSpecialvalue=.true.
 #endif        
         Agrif_Specialvalue=0.
-        text=0. 
+!        text=0.
         Call Agrif_Set_bc(tid,(/-1,0/),
-     &     InterpolationShouldbemade=.TRUE.)        
-        Call Agrif_Bc_variable(text,tid,calledweight=tinterp,
+     &     InterpolationShouldbemade=.TRUE.)
+!        Call Agrif_Bc_variable(text,tid,calledweight=tinterp,
+!     & procname = t3dinterp)
+        Call Agrif_Bc_variable(tid,calledweight=tinterp,
      & procname = t3dinterp)
       
         Agrif_UseSpecialValue=.false.
 
-        IF (nnew == 3) THEN
-        nsource = 2
-        ELSE
-        nsource = 4
-        ENDIF
-        ndest = nsource - 1
-        
-#  ifdef AGRIF_OBC_SOUTH
-#   ifdef MPI        
-              if (.not.SOUTH_INTER) Then
-#   endif           
-                T_south(0:LOCALLM+1,0:1,1:N,ndest,1:NT)=
-     &          T_south(0:LOCALLM+1,0:1,1:N,nsource,1:NT)
-     
-                T_south(0:LOCALLM+1,0:1,1:N,nsource,1:NT)=
-     &              text(0:LOCALLM+1,0:1,1:N,1:NT)
-          
-#   ifdef MPI           
-              endif          
-#   endif               
-#  endif               
-#  ifdef AGRIF_OBC_NORTH
-#   ifdef MPI                    
-              if (.not.NORTH_INTER) then  
-#   endif 
-                T_north(0:LOCALLM+1,LOCALMM:LOCALMM+1,1:N,ndest,1:NT)=
-     &          T_north(0:LOCALLM+1,LOCALMM:LOCALMM+1,1:N,nsource,1:NT)
-     
-                T_north(0:LOCALLM+1,LOCALMM:LOCALMM+1,1:N,nsource,1:NT)=
-     &              text(0:LOCALLM+1,LOCALMM:LOCALMM+1,1:N,1:NT)
-          
-#   ifdef MPI                    
-              endif  
-#   endif               
-#  endif               
-#  ifdef AGRIF_OBC_WEST
-#   ifdef MPI                    
-              if (.not.WEST_INTER) then
-#   endif               
-                  T_west(0:1,0:LOCALMM+1,1:N,ndest,1:NT)=
-     &            T_west(0:1,0:LOCALMM+1,1:N,nsource,1:NT)
-     
-                  T_west(0:1,0:LOCALMM+1,1:N,nsource,1:NT)=
-     &                text(0:1,0:LOCALMM+1,1:N,1:NT)     
-#   ifdef MPI            
-              endif
-#   endif               
-#  endif               
-#  ifdef AGRIF_OBC_EAST
-#   ifdef MPI                    
-              if (.not.EAST_INTER) then
-#   endif
-                  T_east(LOCALLM:LOCALLM+1,0:LOCALMM+1,1:N,ndest,1:NT)=
-     &            T_east(LOCALLM:LOCALLM+1,0:LOCALMM+1,1:N,nsource,1:NT)
-     
-                  T_east(LOCALLM:LOCALLM+1,0:LOCALMM+1,1:N,nsource,1:NT)=
-     &                text(LOCALLM:LOCALLM+1,0:LOCALMM+1,1:N,1:NT)     
-#   ifdef MPI               
-              endif  
-#   endif                           
-#  endif
-        
-        deallocate(text)
+C        IF (nnew == 3) THEN
+C        nsource = 2
+C        ELSE
+C        nsource = 4
+C        ENDIF
+C        ndest = nsource - 1
+C
+C#  ifdef AGRIF_OBC_SOUTH
+C#   ifdef MPI
+C              if (.not.SOUTH_INTER) Then
+C#   endif
+C                T_south(0:LOCALLM+1,0:1,1:N,ndest,1:NT)=
+C     &          T_south(0:LOCALLM+1,0:1,1:N,nsource,1:NT)
+C
+C                T_south(0:LOCALLM+1,0:1,1:N,nsource,1:NT)=
+C     &              text(0:LOCALLM+1,0:1,1:N,1:NT)
+C
+C#   ifdef MPI
+C              endif
+C#   endif
+C#  endif
+C#  ifdef AGRIF_OBC_NORTH
+C#   ifdef MPI
+C              if (.not.NORTH_INTER) then
+C#   endif
+C                T_north(0:LOCALLM+1,LOCALMM:LOCALMM+1,1:N,ndest,1:NT)=
+C     &          T_north(0:LOCALLM+1,LOCALMM:LOCALMM+1,1:N,nsource,1:NT)
+C
+C                T_north(0:LOCALLM+1,LOCALMM:LOCALMM+1,1:N,nsource,1:NT)=
+C     &              text(0:LOCALLM+1,LOCALMM:LOCALMM+1,1:N,1:NT)
+C
+C#   ifdef MPI
+C              endif
+C#   endif
+C#  endif
+C#  ifdef AGRIF_OBC_WEST
+C#   ifdef MPI
+C              if (.not.WEST_INTER) then
+C#   endif
+C                  T_west(0:1,0:LOCALMM+1,1:N,ndest,1:NT)=
+C     &            T_west(0:1,0:LOCALMM+1,1:N,nsource,1:NT)
+C
+C                  T_west(0:1,0:LOCALMM+1,1:N,nsource,1:NT)=
+C     &                text(0:1,0:LOCALMM+1,1:N,1:NT)
+C#   ifdef MPI
+C              endif
+C#   endif
+C#  endif
+C#  ifdef AGRIF_OBC_EAST
+C#   ifdef MPI
+C              if (.not.EAST_INTER) then
+C#   endif
+C                  T_east(LOCALLM:LOCALLM+1,0:LOCALMM+1,1:N,ndest,1:NT)=
+C     &            T_east(LOCALLM:LOCALLM+1,0:LOCALMM+1,1:N,nsource,1:NT)
+C
+C                  T_east(LOCALLM:LOCALLM+1,0:LOCALMM+1,1:N,nsource,1:NT)=
+C     &                text(LOCALLM:LOCALLM+1,0:LOCALMM+1,1:N,1:NT)
+C#   ifdef MPI
+C              endif
+C#   endif
+C#  endif
 
-         TTimeindex=parentnbstep 
+!        deallocate(text)
 
       endif
 C$OMP END MASTER
@@ -909,8 +1171,137 @@ C$OMP BARRIER
 #  endif     
       return
       end
-      
-      subroutine t3Dinterp(tabres,i1,i2,j1,j2,k1,k2,m1,m2)
+
+      subroutine t3Dinterp(tabres,i1,i2,j1,j2,k1,k2,m1,m2,before,nb,ndir)
+      implicit none
+# include "param.h"
+# include "ocean3d.h"
+# include "scalars.h"
+# include "zoom.h"
+#  ifdef MPI
+#   define LOCALLM Lmmpi
+#   define LOCALMM Mmmpi
+#  else
+#   define LOCALLM Lm
+#   define LOCALMM Mm
+#  endif
+
+       integer i1,i2,j1,j2,k1,k2,m1,m2
+       real tabres(i1:i2,j1:j2,k1:k2,m1:m2)
+       logical before
+       integer nb,ndir
+       integer nparent
+       integer nsource, ndest
+       logical :: western_side, eastern_side
+       logical :: northern_side,southern_side
+
+       if (before) then
+         IF ((iif == 0)) THEN
+           nparent = 3
+         ELSE
+           nparent = nnew
+         ENDIF
+
+         tabres(i1:i2,j1:j2,k1:k2,m1:m2) =
+     &               t(i1:i2,j1:j2,k1:k2,nparent,m1:m2)
+        else
+! FIXME :
+!         T_south(...) = tabres !(0:LOCALLM+1,1:1,1:N)
+!         T_north(...) = tabres !(0:LOCALLM+1,1:1,1:N)
+
+          western_side  = (nb == 1).AND.(ndir == 1)
+          eastern_side  = (nb == 1).AND.(ndir == 2)
+          southern_side = (nb == 2).AND.(ndir == 1)
+          northern_side = (nb == 2).AND.(ndir == 2)
+
+          IF (nnew == 3) THEN
+            nsource = 2
+          ELSE
+            nsource = 4
+          ENDIF
+          ndest = nsource - 1
+
+#  ifdef AGRIF_OBC_SOUTH
+        if (southern_side) then
+#   ifdef MPI
+              if (.not.SOUTH_INTER) Then
+#   endif
+C                T_south(0:LOCALLM+1,0:1,1:N,ndest,1:NT)=
+C     &          T_south(0:LOCALLM+1,0:1,1:N,nsource,1:NT)
+C
+C                T_south(0:LOCALLM+1,0:1,1:N,nsource,1:NT)=
+C     &              tabres(0:LOCALLM+1,0:1,1:N,1:NT)
+                T_south(i1:i2,j1:j2,1:N,ndest,1:NT)=
+     &          T_south(i1:i2,j1:j2,1:N,nsource,1:NT)
+
+                T_south(i1:i2,j1:j2,1:N,nsource,1:NT) = tabres
+#   ifdef MPI
+              endif
+#   endif
+        endif
+#  endif
+#  ifdef AGRIF_OBC_NORTH
+        if (northern_side) then
+#   ifdef MPI
+              if (.not.NORTH_INTER) then
+#   endif
+C                T_north(0:LOCALLM+1,LOCALMM:LOCALMM+1,1:N,ndest,1:NT)=
+C     &          T_north(0:LOCALLM+1,LOCALMM:LOCALMM+1,1:N,nsource,1:NT)
+C
+C                T_north(0:LOCALLM+1,LOCALMM:LOCALMM+1,1:N,nsource,1:NT)=
+C     &              tabres(0:LOCALLM+1,LOCALMM:LOCALMM+1,1:N,1:NT)
+                T_north(i1:i2,j1:j2,1:N,ndest,1:NT)=
+     &          T_north(i1:i2,j1:j2,1:N,nsource,1:NT)
+
+                T_north(i1:i2,j1:j2,1:N,nsource,1:NT) = tabres
+#   ifdef MPI
+              endif
+#   endif
+        endif
+#  endif
+#  ifdef AGRIF_OBC_WEST
+        if (western_side) then
+#   ifdef MPI
+              if (.not.WEST_INTER) then
+#   endif
+C                  T_west(0:1,0:LOCALMM+1,1:N,ndest,1:NT)=
+C     &            T_west(0:1,0:LOCALMM+1,1:N,nsource,1:NT)
+C
+C                  T_west(0:1,0:LOCALMM+1,1:N,nsource,1:NT)=
+C     &                tabres(0:1,0:LOCALMM+1,1:N,1:NT)
+                  T_west(i1:i2,j1:j2,1:N,ndest,1:NT)=
+     &            T_west(i1:i2,j1:j2,1:N,nsource,1:NT)
+
+                  T_west(i1:i2,j1:j2,1:N,nsource,1:NT) = tabres
+#   ifdef MPI
+              endif
+#   endif
+        endif
+#  endif
+#  ifdef AGRIF_OBC_EAST
+        if (eastern_side) then
+#   ifdef MPI
+              if (.not.EAST_INTER) then
+#   endif
+C                  T_east(LOCALLM:LOCALLM+1,0:LOCALMM+1,1:N,ndest,1:NT)=
+C     &            T_east(LOCALLM:LOCALLM+1,0:LOCALMM+1,1:N,nsource,1:NT)
+C
+C                  T_east(LOCALLM:LOCALLM+1,0:LOCALMM+1,1:N,nsource,1:NT)=
+C     &                tabres(LOCALLM:LOCALLM+1,0:LOCALMM+1,1:N,1:NT)
+                  T_east(i1:i2,j1:j2,1:N,ndest,1:NT)=
+     &            T_east(i1:i2,j1:j2,1:N,nsource,1:NT)
+
+                  T_east(i1:i2,j1:j2,1:N,nsource,1:NT) = tabres
+#   ifdef MPI
+              endif
+#   endif
+        endif
+#  endif
+
+        endif
+      return
+      end
+      subroutine t3Dinterp_old(tabres,i1,i2,j1,j2,k1,k2,m1,m2)
       implicit none
 # include "param.h"
 # include "ocean3d.h"
@@ -919,8 +1310,8 @@ C$OMP BARRIER
        integer i1,i2,j1,j2,k1,k2,m1,m2
        real tabres(i1:i2,j1:j2,k1:k2,m1:m2)
        integer nparent
-       
-       IF ((iif == 0)) THEN  
+
+       IF ((iif == 0)) THEN
          nparent = 3
        ELSE
          nparent = nnew

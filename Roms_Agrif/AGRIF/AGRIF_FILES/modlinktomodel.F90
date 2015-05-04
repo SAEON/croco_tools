@@ -24,29 +24,39 @@
 !
 module Agrif_Link
 !
-    external Agrif_probdim_modtype_def
-    external Agrif_clustering_def
-!
     interface
+!
+        subroutine Agrif_clustering_def ( )
+!
+        end subroutine Agrif_clustering_def
+!
         subroutine Agrif_Set_numberofcells ( Agrif_Gr )
-            use Agrif_Types, only : Agrif_Grid
+            use Agrif_Grids, only : Agrif_Grid
             type(Agrif_Grid), pointer :: Agrif_Gr   !< Pointer on the current grid
         end subroutine Agrif_Set_numberofcells
-    end interface
 !
-    interface
         subroutine Agrif_Get_numberofcells ( Agrif_Gr )
-            use Agrif_Types, only : Agrif_Grid
+            use Agrif_Grids, only : Agrif_Grid
             type(Agrif_Grid), pointer :: Agrif_Gr   !< Pointer on the current grid
         end subroutine Agrif_Get_numberofcells
+!
     end interface
 !
-    interface
-        subroutine Agrif_Allocationcalls ( Agrif_Gr )
-            use Agrif_Types, only : Agrif_Grid
+    abstract interface
+!
+        subroutine alloc_proc ( Agrif_Gr )
+            use Agrif_Grids, only : Agrif_Grid
             type(Agrif_Grid), pointer :: Agrif_Gr   !< Pointer on the current grid
-        end subroutine Agrif_Allocationcalls
+        end subroutine alloc_proc
+!
+        subroutine typedef_proc ( )
+            implicit none
+        end subroutine typedef_proc
+!
     end interface
+    
+    procedure(alloc_proc)   :: Agrif_Allocationcalls
+    procedure(typedef_proc) :: Agrif_probdim_modtype_def
 !
 end module Agrif_Link
 !
@@ -69,10 +79,6 @@ end module Agrif_Link
 !        modify by conv. To use : var = Agrif_Parent_IRhox()
 !                    Agrif_Curgrid % spaceref(1)
 !===================================================================================================
-!  function Agrif_Parent_Irhox
-!        modify by conv. To use : var = Agrif_Parent_IRhox()
-!                    Agrif_Curgrid % parent % spaceref(1)
-!===================================================================================================
 !  function Agrif_Rhoy
 !        modify by conv. To use : var = Agrif_Rhoy()
 !                    REAL(Agrif_Curgrid % spaceref(2))
@@ -85,9 +91,8 @@ end module Agrif_Link
 !        modify by conv. To use : var = Agrif_Parent_IRhoy()
 !                    Agrif_Curgrid % spaceref(2)
 !===================================================================================================
-!  function Agrif_Parent_Irhoy
-!        modify by conv. To use : var = Agrif_Parent_IRhoy()
-!                    Agrif_Curgrid % parent % spaceref(2)
+
+
 !===================================================================================================
 !  function Agrif_Rhoz
 !        modify by conv. To use : var = Agrif_Rhoz()
@@ -100,10 +105,7 @@ end module Agrif_Link
 !  function Agrif_Irhoz
 !        modify by conv. To use : var = Agrif_Parent_IRhoz()
 !                    Agrif_Curgrid % spaceref(3)
-!===================================================================================================
-!  function Agrif_Parent_Irhoz
-!        modify by conv. To use : var = Agrif_Parent_IRhoz()
-!                    Agrif_Curgrid % parent % spaceref(3)
+
 !===================================================================================================
 !  function Agrif_NearCommonBorderX
 !        modify by conv. To use : var = Agrif_NearCommonBorderX()

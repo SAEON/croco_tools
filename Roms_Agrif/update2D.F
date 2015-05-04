@@ -43,7 +43,7 @@
 #  include "scalars.h"
 #  include "zoom.h"	
 #  include "coupling.h"
-      real tabtemp(GLOBAL_2D_ARRAY,4)
+!      real tabtemp(GLOBAL_2D_ARRAY,4)
       external updateubar,updatevbar,updatezeta
       external updateduavg2, updatedvavg2
       real,dimension(:,:),pointer :: ztavg1_parent,duavg2parent
@@ -114,30 +114,30 @@ C$OMP MASTER
       global_update_2d = .FALSE.
 
 #if defined AGRIF_UPDATE_DECAL
-       Call Agrif_Update_Variable(tabtemp,updatezetaid,
+       Call Agrif_Update_Variable(updatezetaid,
      &         locupdate=(/1,4/),procname = updatezeta)
 
       Agrif_UseSpecialValueInUpdate = .FALSE.
             
-      Call Agrif_Update_Variable(tabtemp,updateubarid,
+      Call Agrif_Update_Variable(updateubarid,
      &     locupdate1=(/0,3/),locupdate2=(/1,4/),
      &     procname = updateubar)
      
-      Call Agrif_Update_Variable(tabtemp,updatevbarid,
+      Call Agrif_Update_Variable(updatevbarid,
      &     locupdate1=(/1,4/),locupdate2=(/0,3/),
      &     procname = updatevbar) 
      
 #else
-       Call Agrif_Update_Variable(tabtemp,updatezetaid,
+       Call Agrif_Update_Variable(updatezetaid,
      &         locupdate=(/0,1/),procname = updatezeta)
 
       Agrif_UseSpecialValueInUpdate = .FALSE.
             
-      Call Agrif_Update_Variable(tabtemp,updateubarid,
+      Call Agrif_Update_Variable(updateubarid,
      &     locupdate1=(/0,1/),locupdate2=(/0,1/),
      &     procname = updateubar)
      
-      Call Agrif_Update_Variable(tabtemp,updatevbarid,
+      Call Agrif_Update_Variable(updatevbarid,
      &     locupdate1=(/0,1/),locupdate2=(/0,1/),
      &     procname = updatevbar)          
 #endif
@@ -154,29 +154,29 @@ C$OMP MASTER
       Agrif_SpecialValueFineGrid = 0.
 
 #if defined AGRIF_UPDATE_DECAL
-      Call Agrif_Update_Variable(tabtemp,updatezetaid,
+      Call Agrif_Update_Variable(updatezetaid,
      &         locupdate=(/1,0/),procname = updatezeta)
 
       Agrif_UseSpecialValueInUpdate = .FALSE.
 
-      Call Agrif_Update_Variable(tabtemp,updateubarid,
+      Call Agrif_Update_Variable(updateubarid,
      &     locupdate1=(/0,-1/),locupdate2=(/1,-2/),
      &     procname = updateubar)
      
-      Call Agrif_Update_Variable(tabtemp,updatevbarid,
+      Call Agrif_Update_Variable(updatevbarid,
      &     locupdate1=(/1,-2/),locupdate2=(/0,-1/),
      &     procname = updatevbar)
      
 #else
-      Call Agrif_Update_Variable(tabtemp,updatezetaid,
+      Call Agrif_Update_Variable(updatezetaid,
      &         procname = updatezeta)
 
       Agrif_UseSpecialValueInUpdate = .FALSE.
 
-      Call Agrif_Update_Variable(tabtemp,updateubarid,
+      Call Agrif_Update_Variable(updateubarid,
      &     procname = updateubar)
      
-      Call Agrif_Update_Variable(tabtemp,updatevbarid,
+      Call Agrif_Update_Variable(updatevbarid,
      &     procname = updatevbar)
 #endif
 
@@ -186,11 +186,11 @@ C$OMP MASTER
 
 #if defined AGRIF_UPDATE_DECAL && !defined AGRIF_OLD_CONSERV
 
-      Call Agrif_Update_Variable(tabtemp(:,:,1),updateduavg2id,
+      Call Agrif_Update_Variable(updateduavg2id,
      &     locupdate1=(/0,0/),locupdate2=(/1,1/),        
      &         procname = updateduavg2)
      
-      Call Agrif_Update_Variable(tabtemp(:,:,1),updatedvavg2id,
+      Call Agrif_Update_Variable(updatedvavg2id,
      &     locupdate1=(/1,1/),locupdate2=(/0,0/),         
      &         procname = updatedvavg2)
 
