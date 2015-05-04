@@ -45,14 +45,10 @@
 /******************************************************************************/
 void Add_Globliste_1(listvar *listtoadd)
 {
-   if ( firstpass == 1 )
-   {
-      if ( aftercontainsdeclare == 0 &&
-           VariableIsParameter  == 0 )
-      {
-         List_Global_Var = AddListvarToListvar(listtoadd,List_Global_Var,1);
-      }
-   }
+    if ( aftercontainsdeclare == 0 && VariableIsParameter == 0 )
+    {
+        List_Global_Var = AddListvarToListvar(listtoadd, List_Global_Var, 1);
+    }
 }
 
 /******************************************************************************/
@@ -99,7 +95,7 @@ while (parcours1 && out == 0)
    if (newvar->v_dimensiongiven == 1)
    {
     strcpy(oldvar->v_dimension->dim.last,newvar->v_dimension->dim.last);
-    strcpy(oldvar->v_dimension->dim.first,newvar->v_dimension->dim.first);    
+    strcpy(oldvar->v_dimension->dim.first,newvar->v_dimension->dim.first);
    }
    out = 1;
    }

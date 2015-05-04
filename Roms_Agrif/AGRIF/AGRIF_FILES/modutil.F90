@@ -24,64 +24,67 @@
 !!
 !! This module contains the two procedures called in the main program :
 !! - #Agrif_Init_Grids allows the initialization of the root coarse grid
-!! - #Agrif_step allows the creation of the grid hierarchy and the management of the time integration.
+!! - #Agrif_Step allows the creation of the grid hierarchy and the management of the time integration.
 !
 module Agrif_Util
 !
     use Agrif_Clustering
     use Agrif_BcFunction
+    use Agrif_seq
 !
     implicit none
+!
+    abstract interface
+        subroutine step_proc()
+        end subroutine step_proc
+    end interface
 !
 contains
 !
 !===================================================================================================
 !  subroutine Agrif_Step
 !
-!> creates the grid hierarchy and manages the time integration procedure.
+!> Creates the grid hierarchy and manages the time integration procedure.
 !> It is called in the main program.
-!> calls subroutines #Agrif_Regrid and #Agrif_Integrate.
+!> Calls subroutines #Agrif_Regrid and #Agrif_Integrate.
 !---------------------------------------------------------------------------------------------------
 subroutine Agrif_Step ( procname )
 !---------------------------------------------------------------------------------------------------
-    external :: procname
+    procedure(step_proc)    :: procname     !< subroutine to call on each grid
+    type(agrif_grid), pointer :: ref_grid
 !
-#if defined AGRIF_MPI
-    integer      :: code
-    include 'mpif.h'
-    if ( Agrif_Mygrid % ngridstep == 0 ) then
-        call MPI_COMM_SIZE(agrif_mpi_comm,Agrif_Nbprocs,code)
-        call MPI_COMM_RANK(agrif_mpi_comm,Agrif_ProcRank,code)
-        call MPI_COMM_GROUP(agrif_mpi_comm,Agrif_Group,code)
-    endif
-#endif
-!
-!   Creation and initialization of the grid hierarchy
-!
-!   Set the clustering variables
+! Set the clustering variables
     call Agrif_clustering_def()
 !
+! Creation and initialization of the grid hierarchy
     if ( Agrif_USE_ONLY_FIXED_GRIDS == 1 ) then
 !
-        if (Agrif_Mygrid % ngridstep == 0) then
+        if ( (Agrif_Mygrid % ngridstep == 0) .AND. (.not. Agrif_regrid_has_been_done) ) then
             call Agrif_Regrid()
-            call Agrif_Instance(Agrif_Mygrid)
+            Agrif_regrid_has_been_done = .TRUE.
         endif
 !
     else
 !
         if (mod(Agrif_Mygrid % ngridstep,Agrif_Regridding) == 0) then
             call Agrif_Regrid()
-            call Agrif_Instance(Agrif_Mygrid)
         endif
 !
     endif
 !
-!   Time integration of the grid hierarchy
+! Time integration of the grid hierarchy
+    if (agrif_coarse) then
+      ref_grid => agrif_coarsegrid
+    else
+      ref_grid => agrif_mygrid
+    endif
+    if ( Agrif_Parallel_sisters ) then
+        call Agrif_Integrate_Parallel(ref_grid,procname)
+    else
+        call Agrif_Integrate(ref_grid,procname)
+    endif
 !
-    call Agrif_Integrate(Agrif_Mygrid,procname)
-!
-    if (associated(Agrif_Mygrid%child_grids)) call Agrif_Instance(Agrif_Mygrid)
+    if ( ref_grid%child_list%nitems > 0 ) call Agrif_Instance(ref_grid)
 !---------------------------------------------------------------------------------------------------
 end subroutine Agrif_Step
 !===================================================================================================
@@ -93,13 +96,59 @@ end subroutine Agrif_Step
 !---------------------------------------------------------------------------------------------------
 subroutine Agrif_Step_Child ( procname )
 !---------------------------------------------------------------------------------------------------
-    external :: procname
+    procedure(step_proc)    :: procname     !< subroutine to call on each grid
 !
-    call Agrif_Integrate_Child(Agrif_Mygrid,procname)
+    if ( Agrif_Parallel_sisters ) then
+        call Agrif_Integrate_Child_Parallel(Agrif_Mygrid,procname)
+    else
+        call Agrif_Integrate_Child(Agrif_Mygrid,procname)
+    endif
 !
-    if (associated(Agrif_Mygrid%child_grids)) call Agrif_Instance(Agrif_Mygrid)
+    if ( Agrif_Mygrid%child_list%nitems > 0 ) call Agrif_Instance(Agrif_Mygrid)
 !---------------------------------------------------------------------------------------------------
 end subroutine Agrif_Step_Child
+!===================================================================================================
+!
+!===================================================================================================
+!  subroutine Agrif_Step_Childs
+!
+!> Apply 'procname' to each child grids of the current grid
+!---------------------------------------------------------------------------------------------------
+!     **************************************************************************
+!!!   Subroutine Agrif_Step_Childs
+!     **************************************************************************
+!
+      Subroutine Agrif_Step_Childs(procname)
+!
+    procedure(step_proc)    :: procname     !< subroutine to call on each grid
+!     Pointer argument
+      Type(Agrif_Grid),pointer   :: g        ! Pointer on the current grid
+!
+
+!
+!     Local pointer
+      Type(Agrif_pgrid),pointer  :: parcours ! Pointer for the recursive
+                                             ! procedure
+!
+      g => Agrif_Curgrid
+      
+      parcours => g % child_list % first
+!
+!     Recursive procedure for the time integration of the grid hierarchy      
+      Do while (associated(parcours))
+!
+!       Instanciation of the variables of the current grid
+        Call Agrif_Instance(parcours % gr)
+
+!     One step on the current grid
+
+         Call procname ()
+        parcours => parcours % next
+      enddo
+   
+      If (associated(g % child_list % first)) Call Agrif_Instance (g)
+      Return
+      End Subroutine Agrif_Step_Childs
 !===================================================================================================
 !
 !===================================================================================================
@@ -107,14 +156,17 @@ end subroutine Agrif_Step_Child
 !
 !> Creates the grid hierarchy from fixed grids and adaptive mesh refinement.
 !---------------------------------------------------------------------------------------------------
-subroutine Agrif_Regrid
+subroutine Agrif_Regrid ( procname )
 !---------------------------------------------------------------------------------------------------
-    Type(Agrif_Rectangle), pointer     :: coarsegrid_fixed
-    Type(Agrif_Rectangle), pointer     :: coarsegrid_moving
-    integer                            :: j
+    procedure(init_proc), optional    :: procname     !< Initialisation subroutine (Default: Agrif_InitValues)
+!
+    type(Agrif_Rectangle), pointer     :: coarsegrid_fixed
+    type(Agrif_Rectangle), pointer     :: coarsegrid_moving
+    integer                            :: i, j
     integer :: nunit
-    integer                            :: iii
     logical :: BEXIST
+    TYPE(Agrif_Rectangle)            :: newrect    ! Pointer on a new grid
+    integer :: is_coarse, rhox, rhoy, rhoz, rhot
 !
     if ( Agrif_USE_ONLY_FIXED_GRIDS == 0 ) &
         call Agrif_detect_all(Agrif_Mygrid)     ! Detection of areas to be refined
@@ -128,29 +180,38 @@ subroutine Agrif_Regrid
     if ( Agrif_USE_FIXED_GRIDS == 1 .OR. Agrif_USE_ONLY_FIXED_GRIDS == 1 ) then
 !
         if (Agrif_Mygrid % ngridstep == 0) then
-!
+!            
             nunit = Agrif_Get_Unit()
             open(nunit, file='AGRIF_FixedGrids.in', form='formatted', status="old", ERR=99)
-            j = 1
+            if (agrif_coarse) then ! SKIP the coarse grid declaration
+                if (Agrif_Probdim == 3) then
+                    read(nunit,*) is_coarse, rhox, rhoy, rhoz, rhot
+                elseif (Agrif_Probdim == 2) then
+                    read(nunit,*) is_coarse, rhox, rhoy, rhot
+                elseif (Agrif_Probdim == 2) then
+                    read(nunit,*) is_coarse, rhox, rhot
+                endif
+            endif
 !           Creation of the grid hierarchy from the Agrif_FixedGrids.in file
-            do iii = 1,Agrif_Probdim
-                coarsegrid_fixed % imin(iii) = 1
-                coarsegrid_fixed % imax(iii) = Agrif_Mygrid % nb(iii) + 1
+            do i = 1,Agrif_Probdim
+                coarsegrid_fixed % imin(i) = 1
+                coarsegrid_fixed % imax(i) = Agrif_Mygrid % nb(i) + 1
             enddo
+            j = 1
             call Agrif_Read_Fix_Grd(coarsegrid_fixed,j,nunit)
             close(nunit)
 !
-            nullify(Agrif_oldmygrid)
-            nullify(Agrif_Mygrid  % child_grids)
+            call Agrif_gl_clear(Agrif_oldmygrid)
 !
 !           Creation of the grid hierarchy from coarsegrid_fixed
             call Agrif_Create_Grids(Agrif_Mygrid,coarsegrid_fixed)
+            
         else
-            Agrif_oldmygrid => Agrif_Mygrid % child_grids
+            call Agrif_gl_copy(Agrif_oldmygrid, Agrif_Mygrid % child_list)
         endif
     else
-        Agrif_oldmygrid => Agrif_Mygrid % child_grids
-        nullify(Agrif_Mygrid % child_grids)
+        call Agrif_gl_copy(Agrif_oldmygrid, Agrif_Mygrid % child_list)
+        call Agrif_gl_clear(Agrif_Mygrid % child_list)
     endif
 !
     if ( Agrif_USE_ONLY_FIXED_GRIDS == 0 ) then
@@ -165,9 +226,22 @@ subroutine Agrif_Regrid
 !
 !   Initialization of the grid hierarchy by copy or interpolation
 !
-    call Agrif_Init_Hierarchy(Agrif_Mygrid)
+#if defined AGRIF_MPI
+    if ( Agrif_Parallel_sisters ) then
+        call Agrif_Init_Hierarchy_Parallel_1(Agrif_Mygrid)
+        call Agrif_Init_Hierarchy_Parallel_2(Agrif_Mygrid,procname)
+    else
+        call Agrif_Init_Hierarchy(Agrif_Mygrid,procname)
+    endif
+#else
+        call Agrif_Init_Hierarchy(Agrif_Mygrid,procname)
+#endif
 !
     if ( Agrif_USE_ONLY_FIXED_GRIDS == 0 ) call Agrif_Free_after_All(Agrif_oldmygrid)
+!
+    Agrif_regrid_has_been_done = .TRUE.
+!
+    call Agrif_Instance( Agrif_Mygrid )
 !
     deallocate(coarsegrid_fixed)
     deallocate(coarsegrid_moving)
@@ -199,10 +273,10 @@ recursive subroutine Agrif_detect_all ( g )
 !
     Type(Agrif_PGrid), pointer  :: parcours ! Pointer for the recursive procedure
     integer, DIMENSION(3)       :: size
-    integer                     :: iii
+    integer                     :: i
     real                        :: g_eps
 !
-    parcours => g % child_grids
+    parcours => g % child_list % first
 !
 !   To be positioned on the finer grids of the grid hierarchy
 !
@@ -212,26 +286,26 @@ recursive subroutine Agrif_detect_all ( g )
     enddo
 !
     g_eps = huge(1.)
-    do iii = 1,Agrif_Probdim
-        g_eps=min(g_eps, g%Agrif_d(iii))
+    do i = 1,Agrif_Probdim
+        g_eps = min(g_eps, g % Agrif_dx(i))
     enddo
 !
-    g_eps = g_eps/100.
+    g_eps = g_eps / 100.
 !
     if ( Agrif_Probdim == 1 ) g%tabpoint1D = 0
     if ( Agrif_Probdim == 2 ) g%tabpoint2D = 0
     if ( Agrif_Probdim == 3 ) g%tabpoint3D = 0
 !
-    do iii = 1 , Agrif_Probdim
-        if (g%Agrif_d(iii)/Agrif_coeffref(iii) < (Agrif_mind(iii)-g_eps)) Return
+    do i = 1,Agrif_Probdim
+        if ( g%Agrif_dx(i)/Agrif_coeffref(i) < (Agrif_mind(i)-g_eps) ) return
     enddo
 !
     call Agrif_instance(g)
 !
 !   Detection (Agrif_detect is a users routine)
 !
-    do iii = 1,Agrif_Probdim
-        size(iii) = g%nb(iii) + 1
+    do i = 1,Agrif_Probdim
+        size(i) = g % nb(i) + 1
     enddo
 !
     SELECT CASE (Agrif_Probdim)
@@ -245,7 +319,7 @@ recursive subroutine Agrif_detect_all ( g )
 !
 !   Addition of the areas detected on the child grids
 !
-    parcours => g % child_grids
+    parcours => g % child_list % first
 !
     do while (associated(parcours))
         call Agrif_Add_detected_areas(g,parcours % gr)
@@ -300,13 +374,13 @@ end subroutine Agrif_Add_detected_areas
 !===================================================================================================
 !  subroutine Agrif_Free_before_All
 !---------------------------------------------------------------------------------------------------
-recursive subroutine Agrif_Free_before_All ( g )
+recursive subroutine Agrif_Free_before_All ( gridlist )
 !---------------------------------------------------------------------------------------------------
-    Type(Agrif_PGrid), pointer   :: g        !< Pointer on the current grid
+    Type(Agrif_Grid_List), intent(inout)    :: gridlist !< Grid list
 !
     Type(Agrif_PGrid), pointer   :: parcours ! Pointer for the recursive procedure
 !
-    parcours => g
+    parcours => gridlist % first
 !
     do while (associated(parcours))
 !
@@ -315,7 +389,7 @@ recursive subroutine Agrif_Free_before_All ( g )
             parcours % gr % oldgrid = .TRUE.
         endif
 !
-        call Agrif_Free_before_all (parcours % gr % child_grids)
+        call Agrif_Free_before_all (parcours % gr % child_list)
 !
         parcours => parcours % next
 !
@@ -327,13 +401,13 @@ end subroutine Agrif_Free_before_All
 !===================================================================================================
 !  subroutine Agrif_Save_All
 !---------------------------------------------------------------------------------------------------
-recursive subroutine Agrif_Save_All ( g )
+recursive subroutine Agrif_Save_All ( gridlist )
 !---------------------------------------------------------------------------------------------------
-    Type(Agrif_PGrid), pointer   :: g        !< Pointer on the current grid
+    type(Agrif_Grid_List), intent(inout)    :: gridlist !< Grid list
 !
-    Type(Agrif_PGrid), pointer   :: parcours ! Pointer for the recursive procedure
+    type(Agrif_PGrid), pointer   :: parcours ! Pointer for the recursive procedure
 !
-    parcours => g
+    parcours => gridlist % first
 !
     do while (associated(parcours))
 !
@@ -343,7 +417,7 @@ recursive subroutine Agrif_Save_All ( g )
             parcours % gr % oldgrid = .TRUE.
         endif
 !
-        call Agrif_Save_All (parcours % gr % child_grids)
+        call Agrif_Save_All(parcours % gr % child_list)
 !
         parcours => parcours % next
 !
@@ -355,9 +429,9 @@ end subroutine Agrif_Save_All
 !===================================================================================================
 !  subroutine Agrif_Free_after_All
 !---------------------------------------------------------------------------------------------------
-recursive subroutine Agrif_Free_after_All ( g )
+recursive subroutine Agrif_Free_after_All ( gridlist )
 !---------------------------------------------------------------------------------------------------
-    Type(Agrif_PGrid), pointer   :: g       !< Pointer on the current grid
+    Type(Agrif_Grid_List), intent(inout)    :: gridlist       !< Grid list to free
 !
     Type(Agrif_PGrid), pointer  :: parcours ! Pointer for the recursive proced
     Type(Agrif_PGrid), pointer  :: preparcours
@@ -369,8 +443,8 @@ recursive subroutine Agrif_Free_after_All ( g )
 !
     nullify(preparcours % gr)
 !
-    preparcours % next => g
-    parcours => g
+    preparcours % next => gridlist % first
+    parcours => gridlist % first
 !
     do while (associated(parcours))
 !
@@ -378,7 +452,7 @@ recursive subroutine Agrif_Free_after_All ( g )
             call Agrif_Free_data_after(parcours%gr)
         endif
 !
-        call Agrif_Free_after_all (parcours%gr % child_grids)
+        call Agrif_Free_after_all( parcours%gr % child_list )
 !
         if (parcours % gr % oldgrid) then
             deallocate(parcours % gr)
@@ -401,21 +475,21 @@ end subroutine Agrif_Free_after_All
 !  subroutine Agrif_Integrate
 !
 !> Manages the time integration of the grid hierarchy.
-!! Recursive subroutine and call on subroutines #Agrif_Instance and #Agrif_Step
+!! Recursive subroutine and call on subroutines Agrif_Init::Agrif_Instance and #Agrif_Step
 !---------------------------------------------------------------------------------------------------
 recursive subroutine Agrif_Integrate ( g, procname )
 !---------------------------------------------------------------------------------------------------
-    Type(Agrif_Grid), pointer   :: g        !< Pointer on the current grid
-    External                    :: procname
+    type(Agrif_Grid), pointer   :: g        !< Pointer on the current grid
+    procedure(step_proc)        :: procname !< Subroutine to call on each grid
 !
-    Type(Agrif_PGrid), pointer  :: parcours ! Pointer for the recursive procedure
+    type(Agrif_PGrid), pointer  :: parcours ! Pointer for the recursive procedure
     integer                     :: nbt      ! Number of time steps of the current grid
-    integer                     :: k, iii
+    integer                     :: i, k
 !
 !   Instanciation of the variables of the current grid
-    if (g%fixedrank /= 0) then
+!    if ( g % fixedrank /= 0 ) then
         call Agrif_Instance(g)
-    endif
+!    endif
 !
 !   One step on the current grid
 !
@@ -424,7 +498,7 @@ recursive subroutine Agrif_Integrate ( g, procname )
 !   Number of time steps on the current grid
 !
     g%ngridstep = g % ngridstep + 1
-    parcours => g % child_grids
+    parcours => g % child_list % first
 !
 !   Recursive procedure for the time integration of the grid hierarchy
     do while (associated(parcours))
@@ -434,8 +508,8 @@ recursive subroutine Agrif_Integrate ( g, procname )
 !
 !       Number of time steps
         nbt = 1
-        do iii = 1,Agrif_Probdim
-            nbt = max(nbt, parcours % gr % timeref(iii))
+        do i = 1,Agrif_Probdim
+            nbt = max(nbt, parcours % gr % timeref(i))
         enddo
 !
         do k = 1,nbt
@@ -450,6 +524,143 @@ end subroutine Agrif_Integrate
 !===================================================================================================
 !
 !===================================================================================================
+!  subroutine Agrif_Integrate_Parallel
+!
+!> Manages the time integration of the grid hierarchy in parallel
+!! Recursive subroutine and call on subroutines Agrif_Init::Agrif_Instance and #Agrif_Step
+!---------------------------------------------------------------------------------------------------
+recursive subroutine Agrif_Integrate_Parallel ( g, procname )
+!---------------------------------------------------------------------------------------------------
+    type(Agrif_Grid), pointer   :: g        !< Pointer on the current grid
+    procedure(step_proc)        :: procname !< Subroutine to call on each grid
+!
+#if defined AGRIF_MPI
+    type(Agrif_PGrid), pointer  :: gridp    ! Pointer for the recursive procedure
+    integer                     :: nbt      ! Number of time steps of the current grid
+    integer                     :: i, k, is
+!
+!   Instanciation of the variables of the current grid
+    if ( g % fixedrank /= 0 ) then
+        call Agrif_Instance(g)
+    endif
+!
+! One step on the current grid
+    call procname ()
+!
+! Number of time steps on the current grid
+    g % ngridstep = g % ngridstep + 1
+!
+! Continue only if the grid has defined sequences of child integrations.
+    if ( .not. associated(g % child_seq) ) return
+!
+    do is = 1, g % child_seq % nb_seqs
+!
+!     For each sequence, a given processor does integrate only on grid.
+        gridp => Agrif_seq_select_child(g,is)
+!
+!     Instanciation of the variables of the current grid
+        call Agrif_Instance(gridp % gr)
+!
+!     Number of time steps
+        nbt = 1
+        do i = 1,Agrif_Probdim
+            nbt = max(nbt, gridp % gr % timeref(i))
+        enddo
+!
+        do k = 1,nbt
+            call Agrif_Integrate_Parallel(gridp % gr, procname)
+        enddo
+!
+    enddo
+#else
+    call Agrif_Integrate( g, procname )
+#endif
+!---------------------------------------------------------------------------------------------------
+end subroutine Agrif_Integrate_Parallel
+!===================================================================================================
+!
+!===================================================================================================
+!
+!
+!===================================================================================================
+!  subroutine Agrif_Integrate_ChildGrids
+!
+!> Manages the time integration of the grid hierarchy.
+!! Call the subroutine procname on each child grid of the current grid
+!---------------------------------------------------------------------------------------------------
+recursive subroutine Agrif_Integrate_ChildGrids ( procname )
+!---------------------------------------------------------------------------------------------------
+    procedure(step_proc)        :: procname !< Subroutine to call on each grid
+!
+    type(Agrif_PGrid), pointer  :: parcours ! Pointer for the recursive procedure
+    integer                     :: nbt      ! Number of time steps of the current grid
+    integer                     :: i, k, is
+    type(Agrif_Grid)                    , pointer :: save_grid
+    type(Agrif_PGrid), pointer  :: gridp    ! Pointer for the recursive procedure
+    
+    save_grid => Agrif_Curgrid
+
+! Number of time steps on the current grid
+    save_grid % ngridstep = save_grid % ngridstep + 1
+    
+#ifdef AGRIF_MPI
+    if ( .not. Agrif_Parallel_sisters ) then
+#endif
+    parcours => save_grid % child_list % first
+!
+!   Recursive procedure for the time integration of the grid hierarchy
+    do while (associated(parcours))
+!
+!       Instanciation of the variables of the current grid
+        call Agrif_Instance(parcours % gr)
+!
+!       Number of time steps
+        nbt = 1
+        do i = 1,Agrif_Probdim
+            nbt = max(nbt, parcours % gr % timeref(i))
+        enddo
+!
+        do k = 1,nbt
+            call procname()
+        enddo
+!
+        parcours => parcours % next
+!
+    enddo
+
+#ifdef AGRIF_MPI
+    else
+! Continue only if the grid has defined sequences of child integrations.
+    if ( .not. associated(save_grid % child_seq) ) return
+!
+    do is = 1, save_grid % child_seq % nb_seqs
+!
+!     For each sequence, a given processor does integrate only on grid.
+        gridp => Agrif_seq_select_child(save_grid,is)
+!
+!     Instanciation of the variables of the current grid
+        call Agrif_Instance(gridp % gr)
+!
+!     Number of time steps
+        nbt = 1
+        do i = 1,Agrif_Probdim
+            nbt = max(nbt, gridp % gr % timeref(i))
+        enddo
+!
+        do k = 1,nbt
+            call procname()
+        enddo
+!
+    enddo
+    endif
+#endif 
+
+    call Agrif_Instance(save_grid)
+    
+!---------------------------------------------------------------------------------------------------
+end subroutine Agrif_Integrate_ChildGrids
+!===================================================================================================
+!===================================================================================================
 !  subroutine Agrif_Integrate_Child
 !
 !> Manages the time integration of the grid hierarchy.
@@ -457,10 +668,10 @@ end subroutine Agrif_Integrate
 !---------------------------------------------------------------------------------------------------
 recursive subroutine Agrif_Integrate_Child ( g, procname )
 !---------------------------------------------------------------------------------------------------
-    Type(Agrif_Grid), pointer   :: g        !< Pointer on the current grid
-    External                    :: procname
+    type(Agrif_Grid), pointer   :: g        !< Pointer on the current grid
+    procedure(step_proc)        :: procname !< Subroutine to call on each grid
 !
-    Type(Agrif_PGrid), pointer  :: parcours ! Pointer for the recursive procedure
+    type(Agrif_PGrid), pointer  :: parcours ! Pointer for the recursive procedure
 !
 !   One step on the current grid
 !
@@ -468,7 +679,7 @@ recursive subroutine Agrif_Integrate_Child ( g, procname )
 !
 !   Number of time steps on the current grid
 !
-    parcours => g % child_grids
+    parcours => g % child_list % first
 !
 !   Recursive procedure for the time integration of the grid hierarchy
     do while (associated(parcours))
@@ -484,50 +695,120 @@ end subroutine Agrif_Integrate_Child
 !===================================================================================================
 !
 !===================================================================================================
+!  subroutine Agrif_Integrate_Child_Parallel
+!
+!> Manages the time integration of the grid hierarchy.
+!! Recursive subroutine and call on subroutines Agrif_Instance & Agrif_Step.
+!---------------------------------------------------------------------------------------------------
+recursive subroutine Agrif_Integrate_Child_Parallel ( g, procname )
+!---------------------------------------------------------------------------------------------------
+    type(Agrif_Grid), pointer   :: g        !< Pointer on the current grid
+    procedure(step_proc)        :: procname !< Subroutine to call on each grid
+!
+#if defined AGRIF_MPI
+    type(Agrif_PGrid), pointer  :: gridp    ! Pointer for the recursive procedure
+    integer                     :: is
+!
+! Instanciation of the variables of the current grid
+    call Agrif_Instance(g)
+!
+! One step on the current grid
+    call procname ()
+!
+! Continue only if the grid has defined sequences of child integrations.
+    if ( .not. associated(g % child_seq) ) return
+!
+    do is = 1, g % child_seq % nb_seqs
+!
+!     For each sequence, a given processor does integrate only on grid.
+        gridp => Agrif_seq_select_child(g,is)
+        call Agrif_Integrate_Child_Parallel(gridp % gr, procname)
+!
+    enddo
+!
+    call Agrif_Instance(g)
+#else
+    call Agrif_Integrate_Child( g, procname )
+#endif
+!---------------------------------------------------------------------------------------------------
+end subroutine Agrif_Integrate_Child_Parallel
+!===================================================================================================
+!
+!===================================================================================================
 !  subroutine Agrif_Init_Grids
 !
 !> Initializes the root coarse grid pointed by Agrif_Mygrid. It is called in the main program.
 !---------------------------------------------------------------------------------------------------
-subroutine Agrif_Init_Grids
+subroutine Agrif_Init_Grids ( procname1, procname2 )
 !---------------------------------------------------------------------------------------------------
-    integer :: iii
+    procedure(typedef_proc), optional   :: procname1 !< (Default: Agrif_probdim_modtype_def)
+    procedure(alloc_proc),   optional   :: procname2 !< (Default: Agrif_Allocationcalls)
 !
-#ifdef AGRIF_MPI
-    include 'mpif.h'
-    Agrif_MPIPREC = MPI_DOUBLE_PRECISION
-#endif
+    integer :: i, ierr_allocate, nunit
+    integer :: is_coarse, rhox,rhoy,rhoz,rhot
+    logical :: BEXIST
 !
-    call Agrif_probdim_modtype_def()
+    if (present(procname1)) Then
+        call procname1()
+    else
+        call Agrif_probdim_modtype_def()
+    endif
 !
+
+! TEST FOR COARSE GRID (GRAND MOTHER GRID) in AGRIF_FixedGrids.in
+    nunit = Agrif_Get_Unit()
+    open(nunit, file='AGRIF_FixedGrids.in', form='formatted', status="old", ERR=98)
+    if (Agrif_Probdim == 3) then
+       read(nunit,*) is_coarse, rhox, rhoy, rhoz, rhot
+    elseif (Agrif_Probdim == 2) then
+       read(nunit,*) is_coarse, rhox, rhoy, rhot
+    elseif (Agrif_Probdim == 2) then
+       read(nunit,*) is_coarse, rhox, rhot
+    endif
+    if (is_coarse == -1) then
+       agrif_coarse = .TRUE.
+       if (Agrif_Probdim == 3) then
+          coarse_spaceref(1:3)=(/rhox,rhoy,rhoz/)
+       elseif (Agrif_Probdim == 2) then
+          coarse_spaceref(1:2)=(/rhox,rhoy/)
+       elseif (Agrif_Probdim == 2) then
+          coarse_spaceref(1:1)=(/rhox/)
+       endif
+       coarse_timeref(1:Agrif_Probdim) = rhot
+    endif
+    close(nunit)
+    
     Agrif_UseSpecialValue = .FALSE.
     Agrif_UseSpecialValueFineGrid = .FALSE.
     Agrif_SpecialValue = 0.
     Agrif_SpecialValueFineGrid = 0.
 !
     allocate(Agrif_Mygrid)
+    allocate(Agrif_OldMygrid)
 !
 !   Space and time refinement factors are set to 1 on the root grid
 !
-    do iii = 1,Agrif_Probdim
-        Agrif_Mygrid % spaceref(iii) = 1
-        Agrif_Mygrid % timeref(iii) = 1
+    do i = 1,Agrif_Probdim
+        Agrif_Mygrid % spaceref(i) = coarse_spaceref(i)
+        Agrif_Mygrid % timeref(i)  = coarse_timeref(i)
     enddo
 !
 !   Initialization of the number of time steps
     Agrif_Mygrid % ngridstep = 0
-    Agrif_Mygrid % grid_id = 0
+    Agrif_Mygrid % grid_id   = 0
 !
 !   No parent grid for the root coarse grid
     nullify(Agrif_Mygrid % parent)
 !
 !   Initialization of the minimum positions, global abscissa and space steps
-    do iii = 1, Agrif_Probdim
-        Agrif_Mygrid % ix(iii) = 1
-        Agrif_Mygrid % Agrif_x(iii) = 0.
-        Agrif_Mygrid % Agrif_d(iii) = 1.
+    do i = 1, Agrif_Probdim
+        Agrif_Mygrid % ix(i) = 1
+        Agrif_Mygrid % Agrif_x(i)  = 0.
+        Agrif_Mygrid % Agrif_dx(i) = 1./Agrif_Mygrid % spaceref(i)
+        Agrif_Mygrid % Agrif_dt(i) = 1./Agrif_Mygrid % timeref(i)
 !       Borders of the root coarse grid
-        Agrif_Mygrid % NearRootBorder(iii) = .true.
-        Agrif_Mygrid % DistantRootBorder(iii) = .true.
+        Agrif_Mygrid % NearRootBorder(i) = .true.
+        Agrif_Mygrid % DistantRootBorder(i) = .true.
     enddo
 !
 !   The root coarse grid is a fixed grid
@@ -544,24 +825,91 @@ subroutine Agrif_Init_Grids
     Agrif_Mygrid % fixedrank = 0
 !
 !   Initialization of some fields of the root grid variables
-    call Agrif_Create_Var(Agrif_Mygrid)
+    ierr_allocate = 0
+    if( Agrif_NbVariables(0) > 0 ) allocate(Agrif_Mygrid % tabvars(Agrif_NbVariables(0)),stat=ierr_allocate)
+    if( Agrif_NbVariables(1) > 0 ) allocate(Agrif_Mygrid % tabvars_c(Agrif_NbVariables(1)),stat=ierr_allocate)
+    if( Agrif_NbVariables(2) > 0 ) allocate(Agrif_Mygrid % tabvars_r(Agrif_NbVariables(2)),stat=ierr_allocate)
+    if( Agrif_NbVariables(3) > 0 ) allocate(Agrif_Mygrid % tabvars_l(Agrif_NbVariables(3)),stat=ierr_allocate)
+    if( Agrif_NbVariables(4) > 0 ) allocate(Agrif_Mygrid % tabvars_i(Agrif_NbVariables(4)),stat=ierr_allocate)
+    if (ierr_allocate /= 0) THEN
+      STOP "*** ERROR WHEN ALLOCATING TABVARS ***"
+    endif
 !
 !   Initialization of the other fields of the root grid variables (number of
 !   cells, positions, number and type of its dimensions, ...)
-    call Agrif_Set_numberofcells(Agrif_Mygrid)
-    call Agrif_Instance (Agrif_Mygrid)
+    call Agrif_Instance(Agrif_Mygrid)
     call Agrif_Set_numberofcells(Agrif_Mygrid)
 !
 !   Allocation of the array containing the values of the grid variables
-    call Agrif_Allocation (Agrif_Mygrid)
+    call Agrif_Allocation(Agrif_Mygrid, procname2)
     call Agrif_initialisations(Agrif_Mygrid)
-!
-    nullify(Agrif_Mygrid % child_grids)
 !
 !   Total number of fixed grids
     Agrif_nbfixedgrids = 0
+    
+! If a grand mother grid is declared
+
+    if (agrif_coarse) then
+      allocate(Agrif_Coarsegrid)
+
+      Agrif_Coarsegrid % ngridstep = 0
+      Agrif_Coarsegrid % grid_id   = -9999
+      
+    do i = 1, Agrif_Probdim
+        Agrif_Coarsegrid%spaceref(i) = coarse_spaceref(i)
+        Agrif_Coarsegrid%timeref(i) = coarse_timeref(i)
+        Agrif_Coarsegrid % ix(i) = 1
+        Agrif_Coarsegrid % Agrif_x(i)  = 0.
+        Agrif_Coarsegrid % Agrif_dx(i) = 1.
+        Agrif_Coarsegrid % Agrif_dt(i) = 1.
+!       Borders of the root coarse grid
+        Agrif_Coarsegrid % NearRootBorder(i) = .true.
+        Agrif_Coarsegrid % DistantRootBorder(i) = .true.
+        Agrif_Coarsegrid % nb(i) =Agrif_mygrid%nb(i) / coarse_spaceref(i)
+    enddo      
+
+!   The root coarse grid is a fixed grid
+    Agrif_Coarsegrid % fixed = .TRUE.
+!   Level of the root grid
+    Agrif_Coarsegrid % level = -1
+    
+    Agrif_Coarsegrid % grand_mother_grid = .true.
+
+!   Number of the grid pointed by Agrif_Mygrid (root coarse grid)
+    Agrif_Coarsegrid % rank = -9999
 !
-    call Agrif_Instance (Agrif_Mygrid)
+!   Number of the root grid as a fixed grid
+    Agrif_Coarsegrid % fixedrank = -9999
+    
+      Agrif_Mygrid%parent => Agrif_Coarsegrid
+      
+! Not used but required to prevent seg fault
+      Agrif_Coarsegrid%parent => Agrif_Mygrid
+      
+      call Agrif_Create_Var(Agrif_Coarsegrid)
+
+! Reset to null
+      Nullify(Agrif_Coarsegrid%parent)
+      
+      Agrif_Coarsegrid%child_list%nitems = 1
+      allocate(Agrif_Coarsegrid%child_list%first)
+      allocate(Agrif_Coarsegrid%child_list%last)
+      Agrif_Coarsegrid%child_list%first%gr => Agrif_Mygrid
+      Agrif_Coarsegrid%child_list%last%gr => Agrif_Mygrid
+
+    endif
+    
+    return
+
+98  INQUIRE(FILE='AGRIF_FixedGrids.in',EXIST=BEXIST)
+    if (.not. BEXIST) then
+        print*,'ERROR : File AGRIF_FixedGrids.in not found.'
+        STOP
+    else
+        print*,'Error opening file AGRIF_FixedGrids.in'
+        STOP
+    endif
+    
 !---------------------------------------------------------------------------------------------------
 end subroutine Agrif_Init_Grids
 !===================================================================================================
@@ -574,11 +922,14 @@ end subroutine Agrif_Init_Grids
 subroutine Agrif_Deallocation
 !---------------------------------------------------------------------------------------------------
     integer                         :: nb
-    TYPE(Agrif_Variable), pointer   :: var
+    type(Agrif_Variable), pointer   :: var
+    type(Agrif_Variable_c), pointer   :: var_c
+    type(Agrif_Variable_l), pointer   :: var_l
+    type(Agrif_Variable_i), pointer   :: var_i
 !
-    do nb = 1,Agrif_NbVariables
+    do nb = 1,Agrif_NbVariables(0)
 !
-        var => Agrif_Mygrid % tabvars(nb) % var
+        var => Agrif_Mygrid % tabvars(nb)
 !
         if ( allocated(var % array1) ) deallocate(var % array1)
         if ( allocated(var % array2) ) deallocate(var % array2)
@@ -586,13 +937,6 @@ subroutine Agrif_Deallocation
         if ( allocated(var % array4) ) deallocate(var % array4)
         if ( allocated(var % array5) ) deallocate(var % array5)
         if ( allocated(var % array6) ) deallocate(var % array6)
-!
-        if ( allocated(var % iarray1) ) deallocate(var % iarray1)
-        if ( allocated(var % iarray2) ) deallocate(var % iarray2)
-        if ( allocated(var % iarray3) ) deallocate(var % iarray3)
-        if ( allocated(var % iarray4) ) deallocate(var % iarray4)
-        if ( allocated(var % iarray5) ) deallocate(var % iarray5)
-        if ( allocated(var % iarray6) ) deallocate(var % iarray6)
 !
         if ( allocated(var % sarray1) ) deallocate(var % sarray1)
         if ( allocated(var % sarray2) ) deallocate(var % sarray2)
@@ -608,24 +952,199 @@ subroutine Agrif_Deallocation
         if ( allocated(var % darray5) ) deallocate(var % darray5)
         if ( allocated(var % darray6) ) deallocate(var % darray6)
 !
-        if ( allocated(var % larray1) ) deallocate(var % larray1)
-        if ( allocated(var % larray2) ) deallocate(var % larray2)
-        if ( allocated(var % larray3) ) deallocate(var % larray3)
-        if ( allocated(var % larray4) ) deallocate(var % larray4)
-        if ( allocated(var % larray5) ) deallocate(var % larray5)
-        if ( allocated(var % larray6) ) deallocate(var % larray6)
+    enddo
 !
-        if ( allocated(var % carray1) ) deallocate(var % carray1)
-        if ( allocated(var % carray2) ) deallocate(var % carray2)
+    do nb = 1,Agrif_NbVariables(1)
 !
-        deallocate(var)
+        var_c => Agrif_Mygrid % tabvars_c(nb)
+!
+        if ( allocated(var_c % carray1) ) deallocate(var_c % carray1)
+        if ( allocated(var_c % carray2) ) deallocate(var_c % carray2)
+!
+    enddo
+
+    do nb = 1,Agrif_NbVariables(3)
+!
+        var_l => Agrif_Mygrid % tabvars_l(nb)
+!
+        if ( allocated(var_l % larray1) ) deallocate(var_l % larray1)
+        if ( allocated(var_l % larray2) ) deallocate(var_l % larray2)
+        if ( allocated(var_l % larray3) ) deallocate(var_l % larray3)
+        if ( allocated(var_l % larray4) ) deallocate(var_l % larray4)
+        if ( allocated(var_l % larray5) ) deallocate(var_l % larray5)
+        if ( allocated(var_l % larray6) ) deallocate(var_l % larray6)
 !
     enddo
 !
-    deallocate(Agrif_Mygrid % tabvars)
+    do nb = 1,Agrif_NbVariables(4)
+!
+        var_i => Agrif_Mygrid % tabvars_i(nb)
+!
+        if ( allocated(var_i % iarray1) ) deallocate(var_i % iarray1)
+        if ( allocated(var_i % iarray2) ) deallocate(var_i % iarray2)
+        if ( allocated(var_i % iarray3) ) deallocate(var_i % iarray3)
+        if ( allocated(var_i % iarray4) ) deallocate(var_i % iarray4)
+        if ( allocated(var_i % iarray5) ) deallocate(var_i % iarray5)
+        if ( allocated(var_i % iarray6) ) deallocate(var_i % iarray6)
+!
+    enddo
+!
+    if ( allocated(Agrif_Mygrid % tabvars) )   deallocate(Agrif_Mygrid % tabvars)
+    if ( allocated(Agrif_Mygrid % tabvars_c) ) deallocate(Agrif_Mygrid % tabvars_c)
+    if ( allocated(Agrif_Mygrid % tabvars_r) ) deallocate(Agrif_Mygrid % tabvars_r)
+    if ( allocated(Agrif_Mygrid % tabvars_l) ) deallocate(Agrif_Mygrid % tabvars_l)
+    if ( allocated(Agrif_Mygrid % tabvars_i) ) deallocate(Agrif_Mygrid % tabvars_i)
     deallocate(Agrif_Mygrid)
 !---------------------------------------------------------------------------------------------------
 end subroutine Agrif_Deallocation
 !===================================================================================================
 !
+!===================================================================================================
+!  subroutine Agrif_Step_adj
+!
+!> creates the grid hierarchy and manages the backward time integration procedure.
+!> It is called in the main program.
+!> calls subroutines #Agrif_Regrid and #Agrif_Integrate_adj.
+!---------------------------------------------------------------------------------------------------
+subroutine Agrif_Step_adj ( procname )
+!---------------------------------------------------------------------------------------------------
+    procedure(step_proc)    :: procname     !< Subroutine to call on each grid
+!
+!   Creation and initialization of the grid hierarchy
+!
+!   Set the clustering variables
+    call Agrif_clustering_def()
+!
+    if ( Agrif_USE_ONLY_FIXED_GRIDS .EQ. 1 ) then
+!
+        if (Agrif_Mygrid % ngridstep == 0) then
+            if (.not.Agrif_regrid_has_been_done ) then
+                call Agrif_Regrid()
+            endif
+            call Agrif_Instance(Agrif_Mygrid)
+        endif
+!
+    else
+!
+        if (mod(Agrif_Mygrid % ngridstep, Agrif_Regridding) == 0) then
+            call Agrif_Regrid()
+            call Agrif_Instance(Agrif_Mygrid)
+        endif
+!
+    endif
+!
+!   Time integration of the grid hierarchy
+!
+    call Agrif_Integrate_adj (Agrif_Mygrid,procname)
+!
+    if ( Agrif_Mygrid % child_list % nitems > 0 ) call Agrif_Instance(Agrif_Mygrid)
+!
+!---------------------------------------------------------------------------------------------------
+end subroutine Agrif_Step_adj
+!===================================================================================================
+!
+!===================================================================================================
+!  subroutine Agrif_Integrate_adj
+!
+!> Manages the backward time integration of the grid hierarchy.
+!! Recursive subroutine and call on subroutines Agrif_Init::Agrif_Instance and #Agrif_Step_adj
+!---------------------------------------------------------------------------------------------------
+recursive subroutine Agrif_Integrate_adj ( g, procname )
+!---------------------------------------------------------------------------------------------------
+    type(Agrif_Grid), pointer   :: g        !< Pointer on the current grid
+    procedure(step_proc)        :: procname !< Subroutine to call on each grid
+!
+    type(Agrif_pgrid), pointer :: parcours ! pointer for the recursive procedure
+    integer                    :: nbt      ! Number of time steps of the current grid
+    integer                    :: k
+!
+!   Instanciation of the variables of the current grid
+    if ( g%fixedrank /= 0 ) then
+        call Agrif_Instance(g)
+    endif
+!
+!   Number of time steps on the current grid
+!
+    g%ngridstep = g % ngridstep + 1
+    parcours => g % child_list % first
+!
+!   Recursive procedure for the time integration of the grid hierarchy
+    do while (associated(parcours))
+!
+!   Instanciation of the variables of the current grid
+        call Agrif_Instance(parcours % gr)
+!
+!       Number of time steps
+        nbt = 1
+        do k = 1,Agrif_Probdim
+            nbt = max(nbt, parcours % gr % timeref(k))
+        enddo
+!
+        do k = nbt,1,-1
+            call Agrif_Integrate_adj(parcours % gr, procname)
+        enddo
+!
+        parcours => parcours % next
+!
+    enddo
+!
+    if ( g % child_list % nitems > 0 )  call Agrif_Instance(g)
+!
+!   One step on the current grid
+    call procname ()
+!
+end subroutine Agrif_Integrate_adj
+!===================================================================================================
+!
+!===================================================================================================
+!  subroutine Agrif_Step_Child_adj
+!
+!> Apply 'procname' to each grid of the hierarchy from Child to Parent
+!---------------------------------------------------------------------------------------------------
+subroutine Agrif_Step_Child_adj ( procname )
+!---------------------------------------------------------------------------------------------------
+    procedure(step_proc)        :: procname !< Subroutine to call on each grid
+!
+    call Agrif_Integrate_Child_adj(Agrif_Mygrid,procname)
+!
+    if ( Agrif_Mygrid % child_list % nitems > 0 ) call Agrif_Instance(Agrif_Mygrid)
+!
+end subroutine Agrif_Step_Child_adj
+!===================================================================================================
+!
+!===================================================================================================
+!  subroutine Agrif_Integrate_Child_adj
+!
+!> Manages the backward time integration of the grid hierarchy.
+!! Recursive subroutine and call on subroutines Agrif_Init::Agrif_Instance & Agrif_Step_adj.
+!---------------------------------------------------------------------------------------------------
+recursive subroutine Agrif_Integrate_Child_adj ( g, procname )
+!---------------------------------------------------------------------------------------------------
+    type(Agrif_Grid),pointer   :: g          !< Pointer on the current grid
+    procedure(step_proc)       :: procname   !< Subroutine to call on each grid
+!
+    type(Agrif_PGrid),pointer  :: parcours   !< Pointer for the recursive procedure
+!
+    parcours => g % child_list % first
+!
+!   Recursive procedure for the time integration of the grid hierarchy
+    do while (associated(parcours))
+!
+!       Instanciation of the variables of the current grid
+        call Agrif_Instance(parcours % gr)
+        call Agrif_Integrate_Child_adj(parcours % gr, procname)
+!
+       parcours => parcours % next
+!
+    enddo
+    if ( g % child_list % nitems > 0 )  call Agrif_Instance(g)
+!
+!   One step on the current grid
+    call procname()
+!---------------------------------------------------------------------------------------------------
+end subroutine Agrif_Integrate_Child_adj
+!===================================================================================================
+!
+!===================================================================================================
+
 end module Agrif_Util

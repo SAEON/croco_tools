@@ -17,7 +17,7 @@
 !     ************************************************************************** 
 ! 
       Subroutine Agrif_Set_numberofcells(Agrif_Gr)
-      USE Agrif_types
+      USE Agrif_Grids
       Implicit none
       Type(Agrif_Grid), Pointer :: Agrif_Gr
       if ( associated(Agrif_Curgrid) )then
@@ -29,7 +29,7 @@
 !!!   Subroutine   Agrif_Get_numberofcells
 !     ************************************************************************** 
       Subroutine Agrif_Get_numberofcells(Agrif_Gr)
-      USE Agrif_types
+      USE Agrif_Grids
       Implicit none
       Type(Agrif_Grid), Pointer :: Agrif_Gr
 #include "GetNumberofcells.h"     
@@ -39,7 +39,7 @@
 !!!   Subroutine Agrif_Allocationcalls
 !     ************************************************************************** 
       Subroutine Agrif_Allocationcalls(Agrif_Gr)
-      USE Agrif_types
+      USE Agrif_Grids
 #include "include_use_Alloc_agrif.h"
       Implicit none
       Type(Agrif_Grid), Pointer :: Agrif_Gr
@@ -50,7 +50,7 @@
 !!!   Subroutine Agrif_probdim_modtype_def
 !     **************************************************************************
       Subroutine Agrif_probdim_modtype_def()
-      Use Agrif_Types
+      Use Agrif_Grids
       Implicit none
 #include "modtype_agrif.h"
 #include "probdim_agrif.h"
@@ -62,7 +62,7 @@
 !!!   Subroutine Agrif_clustering_def
 !     **************************************************************************  
       Subroutine Agrif_clustering_def()
-      Use Agrif_Types
+      Use Agrif_Grids
       Implicit none
 !!#include "clustering_agrif.h"      
       Return

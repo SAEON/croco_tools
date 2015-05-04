@@ -44,7 +44,7 @@
 /******************************************************************************/
 /*                                                                            */
 /******************************************************************************/
-void Add_Allocate_Var_1(char *nom,char *nommodule)
+void Add_Allocate_Var_1(const char *nom, const char *nommodule)
 {
    listallocate *newvar;
    listallocate *parcours;
@@ -54,13 +54,11 @@ void Add_Allocate_Var_1(char *nom,char *nommodule)
    {
       if ( !List_Allocate_Var )
       {
-         newvar = (listallocate *)malloc(sizeof(listallocate));
+         newvar = (listallocate *)calloc(1,sizeof(listallocate));
          strcpy(newvar->a_nomvar,nom);
-         Save_Length(nom,25);
          strcpy(newvar->a_subroutine,subroutinename);
-         Save_Length(subroutinename,26);
          strcpy(newvar->a_module,nommodule);
-         Save_Length(nommodule,27);
+         Save_Length(nom,25);
          newvar->suiv = NULL;
          List_Allocate_Var = newvar;
       }
@@ -70,9 +68,9 @@ void Add_Allocate_Var_1(char *nom,char *nommodule)
          out = 0 ;
          while ( parcours->suiv && out == 0 )
          {
-            if (  !strcasecmp(parcours->a_nomvar,nom) &&
-                  !strcasecmp(parcours->a_subroutine,subroutinename) &&
-                  !strcasecmp(parcours->a_module,nommodule) ) out = 1;
+            if (  !strcasecmp(parcours->a_nomvar, nom) &&
+                  !strcasecmp(parcours->a_subroutine, subroutinename) &&
+                  !strcasecmp(parcours->a_module, nommodule) ) out = 1;
             else
                parcours=parcours->suiv;
          }
@@ -84,13 +82,11 @@ void Add_Allocate_Var_1(char *nom,char *nommodule)
             else
             {
                /* add the record                                              */
-              newvar = (listallocate *)malloc(sizeof(listallocate));
-              strcpy(newvar->a_nomvar,nom);
+              newvar = (listallocate *)calloc(1,sizeof(listallocate));
+              strcpy(newvar->a_nomvar, nom);
+              strcpy(newvar->a_subroutine, subroutinename);
+              strcpy(newvar->a_module, nommodule);
               Save_Length(nom,25);
-              strcpy(newvar->a_subroutine,subroutinename);
-              Save_Length(subroutinename,26);
-              strcpy(newvar->a_module,nommodule);
-              Save_Length(nommodule,27);
               newvar->suiv = NULL;
               parcours->suiv = newvar;
             }
@@ -107,46 +103,20 @@ void Add_Allocate_Var_1(char *nom,char *nommodule)
 /******************************************************************************/
 /*                                                                            */
 /******************************************************************************/
-int IsVarAllocatable_0(char *ident)
-{
-   listallocate *parcours;
-   int out;
-
-   out = 0 ;
-   if ( firstpass == 0 )
-   {
-      parcours = List_Allocate_Var;
-      while ( parcours && out == 0 )
-      {
-         if ( !strcasecmp(parcours->a_nomvar,ident)  ) out = 1 ;
-         else parcours=parcours->suiv;
-      }
-   }
-   return out;
-}
-
-
-/******************************************************************************/
-/*                          varisallocatable_0                                */
-/******************************************************************************/
-/* Firstpass 0                                                                */
-/******************************************************************************/
-/*                                                                            */
-/******************************************************************************/
-int varisallocatable_0(char *ident)
-{
-   listallocate *newvaralloc;
-   int out;
-
-   out =0;
-   if (firstpass == 0 )
-   {
-         newvaralloc = List_Allocate_Var;
-         while ( newvaralloc && out == 0 )
-         {
-            if ( !strcasecmp(ident,newvaralloc->a_nomvar) )  out = 1;
-            else newvaralloc = newvaralloc->suiv;
-         }
-   }
-   return out;
-}
+// int IsVarAllocatable_0(const char *ident)
+// {
+//    listallocate *parcours;
+//    int out;
+// 
+//    out = 0 ;
+//    if ( firstpass == 0 )
+//    {
+//       parcours = List_Allocate_Var;
+//       while ( parcours && out == 0 )
+//       {
+//          if ( !strcasecmp(parcours->a_nomvar,ident)  ) out = 1 ;
+//          else parcours=parcours->suiv;
+//       }
+//    }
+//    return out;
+// }

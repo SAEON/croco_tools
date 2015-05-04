@@ -445,20 +445,6 @@ C$OMP BARRIER
 
       if (may_day_flag.ne.0) return  !-->  EXIT
 
-       
-#if defined AGRIF && defined AGRIF_2WAY
-!
-! Update the outer domain after the last child step
-! in case of 2-way nesting.
-!
-C$OMP BARRIER
-C$OMP SINGLE
-      if (.Not.Agrif_Root()) then
-        call Agrif_update_np1pre
-      endif
-C$OMP END SINGLE
-#endif /*AGRIF && AGRIF_2WAY*/
-
 
       return
       end

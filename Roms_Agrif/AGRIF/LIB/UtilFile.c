@@ -45,8 +45,8 @@
 /******************************************************************************/
 FILE* open_for_write (const char *filename)
 {
-    char filefich[LONG_C];
-    sprintf(filefich,"%s/%s",nomdir,filename);
+    char filefich[LONG_FNAME];
+    sprintf(filefich,"%s/%s",include_dir,filename);
     return fopen(filefich, "w");
 }
 
@@ -57,8 +57,8 @@ FILE* open_for_write (const char *filename)
 /******************************************************************************/
 FILE* open_for_append (const char *filename)
 {
-    char filefich[LONG_C];
-    sprintf(filefich,"%s/%s",nomdir,filename);
+    char filefich[LONG_M];
+    sprintf(filefich,"%s/%s",include_dir,filename);
     return fopen(filefich, "a+");
 }
 
@@ -88,23 +88,7 @@ long int setposcurname(FILE *fileout)
 /******************************************************************************/
 long int setposcur()
 {
-    fflush(fortran_out);
-    return ftell(fortran_out);
-}
-
-/******************************************************************************/
-/*                      setposcurinoldfortran_out                              */
-/******************************************************************************/
-/* This subroutine is used to know the position in the oldfortran_out         */
-/******************************************************************************/
-/*                                                                            */
-/*             setposcurinoldfortran_out ---------> position in file           */
-/*                                                                            */
-/******************************************************************************/
-long int setposcurinoldfortran_out()
-{
-    fflush(oldfortran_out);
-    return ftell(oldfortran_out);
+    return setposcurname(fortran_out);
 }
 
 /******************************************************************************/
@@ -116,13 +100,13 @@ long int setposcurinoldfortran_out()
 /******************************************************************************/
 /*                                                                            */
 /******************************************************************************/
-void copyuse_0(char *namemodule)
+void copyuse_0(const char *namemodule)
 {
-   if (firstpass == 0 && IsTabvarsUseInArgument_0() == 1 )
-   {
-      /* We should write this declaration into the original subroutine too    */
-      fprintf(oldfortran_out,"      USE %s \n",namemodule);
-   }
+    if ( IsTabvarsUseInArgument_0() == 1 )
+    {
+        /* We should write this declaration into the original subroutine too    */
+        fprintf(oldfortran_out,"      use %s\n", namemodule);
+    }
 }
 
 /******************************************************************************/
@@ -134,11 +118,11 @@ void copyuse_0(char *namemodule)
 /******************************************************************************/
 /*                                                                            */
 /******************************************************************************/
-void copyuseonly_0(char *namemodule)
+void copyuseonly_0(const char *namemodule)
 {
    if (firstpass == 0 && IsTabvarsUseInArgument_0() == 1 )
    {
       /* We should write this declaration into the original subroutine too    */
-      fprintf(oldfortran_out,"      USE %s , ONLY : \n",namemodule);
+      fprintf(oldfortran_out,"      use %s , only : \n", namemodule);
    }
 }

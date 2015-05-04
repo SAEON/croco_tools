@@ -41,28 +41,28 @@ contains
 !---------------------------------------------------------------------------------------------------
 subroutine Agrif_CheckMasknD ( tempP, parent, pbtab, petab, ppbtab, ppetab, noraftab, nbdim )
 !---------------------------------------------------------------------------------------------------
-    type(Agrif_PVariable)       :: tempP  !< Part of the parent grid used for the interpolation of the child grid
-    type(Agrif_PVariable)       :: parent !< The parent grid
-    integer, dimension(nbdim)   :: pbtab  !< limits of the parent grid used
-    integer, dimension(nbdim)   :: petab  !< interpolation of the child grid
-    integer, dimension(nbdim)   :: ppbtab, ppetab
-    logical, dimension(nbdim)   :: noraftab
-    integer                     :: nbdim
+    type(Agrif_Variable), pointer   :: tempP  !< Part of the parent grid used for the interpolation of the child grid
+    type(Agrif_Variable), pointer   :: parent !< The parent grid
+    integer, dimension(nbdim)       :: pbtab  !< limits of the parent grid used
+    integer, dimension(nbdim)       :: petab  !< interpolation of the child grid
+    integer, dimension(nbdim)       :: ppbtab, ppetab
+    logical, dimension(nbdim)       :: noraftab
+    integer                         :: nbdim
 !
     integer :: i0,j0,k0,l0,m0,n0
 !
     select case (nbdim)
     case (1)
         do i0 = pbtab(1),petab(1)
-            if (tempP%var%array1(i0) == Agrif_SpecialValue) then
-                call CalculNewValTempP((/i0/),tempP,parent, ppbtab,ppetab,noraftab,nbdim)
+            if (tempP%array1(i0) == Agrif_SpecialValue) then
+                call CalculNewValTempP((/i0/),tempP,parent,ppbtab,ppetab,noraftab,nbdim)
             endif
         enddo
     case (2)
         do j0 = pbtab(2),petab(2)
         do i0 = pbtab(1),petab(1)
-            if (tempP%var%array2(i0,j0) == Agrif_SpecialValue) then
-                call CalculNewValTempP((/i0,j0/),tempP,parent, ppbtab,ppetab, noraftab,nbdim)
+            if (tempP%array2(i0,j0) == Agrif_SpecialValue) then
+                call CalculNewValTempP((/i0,j0/),tempP,parent,ppbtab,ppetab, noraftab,nbdim)
             endif
         enddo
         enddo
@@ -70,11 +70,11 @@ subroutine Agrif_CheckMasknD ( tempP, parent, pbtab, petab, ppbtab, ppetab, nora
         do k0 = pbtab(3),petab(3)
         do j0 = pbtab(2),petab(2)
         do i0 = pbtab(1),petab(1)
-            if (tempP%var%array3(i0,j0,k0) == Agrif_SpecialValue) then
+            if (tempP%array3(i0,j0,k0) == Agrif_SpecialValue) then
 !------CDIR NEXPAND
                 call CalculNewValTempP3D((/i0,j0,k0/), &
-                    tempP%var%array3(ppbtab(1),ppbtab(2),ppbtab(3)),  &
-                    parent%var%array3(ppbtab(1),ppbtab(2),ppbtab(3)), &
+                    tempP%array3(ppbtab(1),ppbtab(2),ppbtab(3)),  &
+                    parent%array3(ppbtab(1),ppbtab(2),ppbtab(3)), &
                     ppbtab,ppetab,noraftab,MaxSearch,Agrif_SpecialValue)
 
 !            Call CalculNewValTempP((/i0,j0,k0/),
@@ -91,10 +91,10 @@ subroutine Agrif_CheckMasknD ( tempP, parent, pbtab, petab, ppbtab, ppetab, nora
         do k0 = pbtab(3),petab(3)
         do j0 = pbtab(2),petab(2)
         do i0 = pbtab(1),petab(1)
-            if (tempP%var%array4(i0,j0,k0,l0) == Agrif_SpecialValue) then
+            if (tempP%array4(i0,j0,k0,l0) == Agrif_SpecialValue) then
                 call CalculNewValTempP4D((/i0,j0,k0,l0/), &
-                    tempP%var%array4(ppbtab(1),ppbtab(2),ppbtab(3),ppbtab(4)),  &
-                    parent%var%array4(ppbtab(1),ppbtab(2),ppbtab(3),ppbtab(4)), &
+                    tempP%array4(ppbtab(1),ppbtab(2),ppbtab(3),ppbtab(4)),  &
+                    parent%array4(ppbtab(1),ppbtab(2),ppbtab(3),ppbtab(4)), &
                     ppbtab,ppetab,noraftab,MaxSearch,Agrif_SpecialValue)
             endif
         enddo
@@ -107,7 +107,7 @@ subroutine Agrif_CheckMasknD ( tempP, parent, pbtab, petab, ppbtab, ppetab, nora
         do k0 = pbtab(3),petab(3)
         do j0 = pbtab(2),petab(2)
         do i0 = pbtab(1),petab(1)
-            if (tempP%var%array5(i0,j0,k0,l0,m0) == Agrif_SpecialValue) then
+            if (tempP%array5(i0,j0,k0,l0,m0) == Agrif_SpecialValue) then
                 call CalculNewValTempP((/i0,j0,k0,l0,m0/), &
                     tempP,parent,ppbtab,ppetab,noraftab,nbdim)
             endif
@@ -123,7 +123,7 @@ subroutine Agrif_CheckMasknD ( tempP, parent, pbtab, petab, ppbtab, ppetab, nora
         do k0 = pbtab(3),petab(3)
         do j0 = pbtab(2),petab(2)
         do i0 = pbtab(1),petab(1)
-            if (tempP%var%array6(i0,j0,k0,l0,m0,n0) == Agrif_SpecialValue) then
+            if (tempP%array6(i0,j0,k0,l0,m0,n0) == Agrif_SpecialValue) then
                 call CalculNewValTempP((/i0,j0,k0,l0,m0,n0/), &
                     tempP,parent,ppbtab,ppetab,noraftab,nbdim)
             endif
@@ -146,12 +146,12 @@ end subroutine Agrif_CheckMasknD
 !---------------------------------------------------------------------------------------------------
 subroutine CalculNewValTempP ( indic, tempP, parent, ppbtab, ppetab, noraftab, nbdim )
 !---------------------------------------------------------------------------------------------------
-    integer, dimension(nbdim)   :: indic
-    type(Agrif_PVariable)       :: tempP  !< Part of the parent grid used for the interpolation of the child grid
-    type(Agrif_PVariable)       :: parent !< The parent grid
-    integer, dimension(nbdim)   :: ppbtab, ppetab
-    logical, dimension(nbdim)   :: noraftab
-    integer                     :: nbdim
+    integer, dimension(nbdim)       :: indic
+    type(Agrif_Variable), pointer   :: tempP  !< Part of the parent grid used for the interpolation of the child grid
+    type(Agrif_Variable), pointer   :: parent !< The parent grid
+    integer, dimension(nbdim)       :: ppbtab, ppetab
+    logical, dimension(nbdim)       :: noraftab
+    integer                         :: nbdim
 !
     integer                     :: i,ii,iii,jj,kk,ll,mm,nn
     integer, dimension(nbdim)   :: imin,imax,idecal
@@ -194,28 +194,28 @@ subroutine CalculNewValTempP ( indic, tempP, parent, ppbtab, ppetab, noraftab, n
                         idecal(iii) = idecal(iii)-1
                         SELECT CASE(nbdim)
                         CASE (1)
-                            if (tempP%var%array1(idecal(1) &
+                            if (tempP%array1(idecal(1) &
                                     ) == Agrif_SpecialValue) imin(iii) = imax(iii)
                         CASE (2)
-                            if (tempP%var%array2(idecal(1), idecal(2) &
+                            if (tempP%array2(idecal(1), idecal(2) &
                                     ) == Agrif_SpecialValue) imin(iii) = imax(iii)
                         CASE (3)
-                            if (tempP%var%array3(idecal(1), &
-                                                 idecal(2), idecal(3) &
+                            if (tempP%array3(idecal(1), &
+                                             idecal(2), idecal(3) &
                                     ) == Agrif_SpecialValue) imin(iii) = imax(iii)
                         CASE (4)
-                            if (tempP%var%array4(idecal(1), idecal(2), &
-                                                 idecal(3), idecal(4)  &
+                            if (tempP%array4(idecal(1), idecal(2), &
+                                             idecal(3), idecal(4)  &
                                     ) == Agrif_SpecialValue) imin(iii) = imax(iii)
                         CASE (5)
-                            if (tempP%var%array5(idecal(1), idecal(2), &
-                                                 idecal(3), idecal(4), &
-                                                 idecal(5)             &
+                            if (tempP%array5(idecal(1), idecal(2), &
+                                             idecal(3), idecal(4), &
+                                             idecal(5)             &
                                     ) == Agrif_SpecialValue) imin(iii) = imax(iii)
                         CASE (6)
-                            if (tempP%var%array6(idecal(1), idecal(2), &
-                                                 idecal(3), idecal(4), &
-                                                 idecal(5), idecal(6)  &
+                            if (tempP%array6(idecal(1), idecal(2), &
+                                             idecal(3), idecal(4), &
+                                             idecal(5), idecal(6)  &
                                     ) == Agrif_SpecialValue) imin(iii) = imax(iii)
                         END SELECT
                     endif
@@ -231,7 +231,7 @@ subroutine CalculNewValTempP ( indic, tempP, parent, ppbtab, ppetab, noraftab, n
 !CDIR ALTCODE
 !CDIR SHORTLOOP
             do ii = imin(1),imax(1)
-                ValParent = parent%var%array1(ii)
+                ValParent = parent%array1(ii)
                 if ( ValParent /= Agrif_SpecialValue) then
                     Res = Res + ValParent
                     Nbvals = Nbvals + 1
@@ -243,7 +243,7 @@ subroutine CalculNewValTempP ( indic, tempP, parent, ppbtab, ppetab, noraftab, n
 !CDIR ALTCODE
 !CDIR SHORTLOOP
             do ii = imin(1),imax(1)
-                ValParent = parent%var%array2(ii,jj)
+                ValParent = parent%array2(ii,jj)
                 if ( ValParent /= Agrif_SpecialValue) then
                     Res = Res + ValParent
                     Nbvals = Nbvals + 1
@@ -257,7 +257,7 @@ subroutine CalculNewValTempP ( indic, tempP, parent, ppbtab, ppetab, noraftab, n
 !CDIR ALTCODE
 !CDIR SHORTLOOP
             do ii = imin(1),imax(1)
-                ValParent = parent%var%array3(ii,jj,kk)
+                ValParent = parent%array3(ii,jj,kk)
                 if ( ValParent /= Agrif_SpecialValue) then
                     Res = Res + ValParent
                     Nbvals = Nbvals + 1
@@ -273,7 +273,7 @@ subroutine CalculNewValTempP ( indic, tempP, parent, ppbtab, ppetab, noraftab, n
 !CDIR ALTCODE
 !CDIR SHORTLOOP
             do ii = imin(1),imax(1)
-                ValParent = parent%var%array4(ii,jj,kk,ll)
+                ValParent = parent%array4(ii,jj,kk,ll)
                 if ( ValParent /= Agrif_SpecialValue) then
                     Res = Res + ValParent
                     Nbvals = Nbvals + 1
@@ -291,7 +291,7 @@ subroutine CalculNewValTempP ( indic, tempP, parent, ppbtab, ppetab, noraftab, n
 !CDIR ALTCODE
 !CDIR SHORTLOOP
             do ii = imin(1),imax(1)
-                ValParent = parent%var%array5(ii,jj,kk,ll,mm)
+                ValParent = parent%array5(ii,jj,kk,ll,mm)
                 if ( ValParent /= Agrif_SpecialValue) then
                     Res = Res + ValParent
                     Nbvals = Nbvals + 1
@@ -311,7 +311,7 @@ subroutine CalculNewValTempP ( indic, tempP, parent, ppbtab, ppetab, noraftab, n
 !CDIR ALTCODE
 !CDIR SHORTLOOP
             do ii = imin(1),imax(1)
-                ValParent = parent%var%array6(ii,jj,kk,ll,mm,nn)
+                ValParent = parent%array6(ii,jj,kk,ll,mm,nn)
                 if ( ValParent /= Agrif_SpecialValue) then
                     Res = Res + ValParent
                     Nbvals = Nbvals + 1
@@ -333,29 +333,23 @@ subroutine CalculNewValTempP ( indic, tempP, parent, ppbtab, ppetab, noraftab, n
             endif
             SELECT CASE(nbdim)
             CASE (1)
-                tempP%var%array1(indic(1)) &
-                    = Res/Nbvals
+                tempP%array1(indic(1))           = Res/Nbvals
             CASE (2)
-                tempP%var%array2(indic(1), indic(2)) &
-                    = Res/Nbvals
+                tempP%array2(indic(1), indic(2)) = Res/Nbvals
             CASE (3)
-                tempP%var%array3(indic(1), indic(2), &
-                                 indic(3))           &
-                    = Res/Nbvals
+                tempP%array3(indic(1), indic(2), &
+                             indic(3))           = Res/Nbvals
             CASE (4)
-                tempP%var%array4(indic(1), indic(2), &
-                                 indic(3), indic(4)) &
-                    = Res/Nbvals
+                tempP%array4(indic(1), indic(2), &
+                             indic(3), indic(4)) = Res/Nbvals
             CASE (5)
-                tempP%var%array5(indic(1), indic(2), &
-                                 indic(3), indic(4), &
-                                 indic(5)) &
-                    = Res/Nbvals
+                tempP%array5(indic(1), indic(2), &
+                             indic(3), indic(4), &
+                             indic(5))           = Res/Nbvals
             CASE (6)
-                tempP%var%array6(indic(1), indic(2), &
-                                 indic(3), indic(4), &
-                                 indic(5), indic(6)) &
-                    = Res/Nbvals
+                tempP%array6(indic(1), indic(2), &
+                             indic(3), indic(4), &
+                             indic(5), indic(6)) = Res/Nbvals
             END SELECT
             exit
         else

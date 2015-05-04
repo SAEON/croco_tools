@@ -28,6 +28,7 @@
 module Agrif_Init_Vars
 !
     use Agrif_Types
+    use Agrif_Grids
     use Agrif_Link
 !
     implicit none
@@ -45,17 +46,37 @@ subroutine Agrif_Create_Var ( Agrif_Gr )
 !
     integer :: nb
 !
-    allocate(Agrif_Gr % tabvars(Agrif_NbVariables))
-!
-    do nb = 1,Agrif_NbVariables
-        allocate(Agrif_Gr % tabvars(nb) % var)
-    enddo
+    if (Agrif_NbVariables(0) > 0) allocate(Agrif_Gr % tabvars  (Agrif_NbVariables(0)))
+    if (Agrif_NbVariables(1) > 0) allocate(Agrif_Gr % tabvars_c(Agrif_NbVariables(1)))
+    if (Agrif_NbVariables(2) > 0) allocate(Agrif_Gr % tabvars_r(Agrif_NbVariables(2)))
+    if (Agrif_NbVariables(3) > 0) allocate(Agrif_Gr % tabvars_l(Agrif_NbVariables(3)))
+    if (Agrif_NbVariables(4) > 0) allocate(Agrif_Gr % tabvars_i(Agrif_NbVariables(4)))
 !
     if ( Agrif_Gr % fixedrank /= 0 ) then
-        do nb = 1, Agrif_NbVariables
-            Agrif_Gr % tabvars(nb) % parent_var     => Agrif_Gr % parent %tabvars(nb)
-            Agrif_Gr % tabvars(nb) % var % nbdim    =  Agrif_Mygrid % tabvars(nb) % var % nbdim
-            Agrif_Gr % tabvars(nb) % var % root_var => Agrif_Mygrid % tabvars(nb) % var
+        do nb = 1, Agrif_NbVariables(0)
+            Agrif_Gr % tabvars(nb) % parent_var => Agrif_Gr % parent % tabvars(nb)
+            Agrif_Gr % tabvars(nb) % nbdim      =  Agrif_Mygrid % tabvars(nb) % nbdim
+            Agrif_Gr % tabvars(nb) % root_var   => Agrif_Mygrid % tabvars(nb)
+        enddo
+        do nb = 1, Agrif_NbVariables(1)
+            Agrif_Gr % tabvars_c(nb) % parent_var => Agrif_Gr % parent % tabvars_c(nb)
+            Agrif_Gr % tabvars_c(nb) % nbdim      =  Agrif_Mygrid % tabvars_c(nb) % nbdim
+            Agrif_Gr % tabvars_c(nb) % root_var   => Agrif_Mygrid % tabvars_c(nb)
+        enddo
+        do nb = 1, Agrif_NbVariables(2)
+            Agrif_Gr % tabvars_r(nb) % parent_var => Agrif_Gr % parent % tabvars_r(nb)
+            Agrif_Gr % tabvars_r(nb) % nbdim      =  Agrif_Mygrid % tabvars_r(nb) % nbdim
+            Agrif_Gr % tabvars_r(nb) % root_var   => Agrif_Mygrid % tabvars_r(nb)
+        enddo
+        do nb = 1, Agrif_NbVariables(3)
+            Agrif_Gr % tabvars_l(nb) % parent_var => Agrif_Gr % parent % tabvars_l(nb)
+            Agrif_Gr % tabvars_l(nb) % nbdim      =  Agrif_Mygrid % tabvars_l(nb) % nbdim
+            Agrif_Gr % tabvars_l(nb) % root_var   => Agrif_Mygrid % tabvars_l(nb)
+        enddo
+        do nb = 1, Agrif_NbVariables(4)
+            Agrif_Gr % tabvars_i(nb) % parent_var => Agrif_Gr % parent % tabvars_i(nb)
+            Agrif_Gr % tabvars_i(nb) % nbdim      =  Agrif_Mygrid % tabvars_i(nb) % nbdim
+            Agrif_Gr % tabvars_i(nb) % root_var   => Agrif_Mygrid % tabvars_i(nb)
         enddo
     endif
 !---------------------------------------------------------------------------------------------------

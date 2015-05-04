@@ -168,11 +168,8 @@
       integer iprmin,iprmax,jprmin,jprmax
       real,dimension(:,:),allocatable :: hconstraint,constraints,
      &gradconstraints
-      real,dimension(:,:,:,:),allocatable :: text
-      real,dimension(:,:),allocatable :: tabtemp2d
-      real,dimension(:,:,:),allocatable :: tabtemp3d   
       integer :: irhot   
-      external hinterp, updateh   
+      external hinterp, updateh, updatermask
       external initzeta,initubar,initvbar
       external initu,initv,initt
 #ifdef WKB_WWAVE
@@ -195,336 +192,79 @@
 
 # ifdef AUTOTILING
       call init_auto_tiling
-# endif
-       
-      Call Agrif_Set_type(zeta,(/2,2,0/),(/1,1,0/))
-      Call Agrif_Set_raf(zeta,(/'x','y','N'/))
-#ifdef WKB_WWAVE
-      Call Agrif_Set_type(wac,(/2,2,0/),(/1,1,0/))
-      Call Agrif_Set_type(wkx,(/2,2,0/),(/1,1,0/))
-      Call Agrif_Set_type(wke,(/2,2,0/),(/1,1,0/))
-      Call Agrif_Set_raf(wac,(/'x','y','N'/))
-      Call Agrif_Set_raf(wkx,(/'x','y','N'/))
-      Call Agrif_Set_raf(wke,(/'x','y','N'/))
-# ifdef WAVE_ROLLER
-      Call Agrif_Set_type(war,(/2,2,0/),(/1,1,0/))
-      Call Agrif_Set_raf(war,(/'x','y','N'/))
-# endif
 #endif
-
-# ifdef SOLVE3D
-      Call Agrif_Set_type(DU_avg1,(/1,2,0/),(/1,1,0/))
-      Call Agrif_Set_type(DV_avg1,(/2,1,0/),(/1,1,0/))
-      Call Agrif_Set_raf(DU_avg1,(/'x','y','N'/))
-      Call Agrif_Set_raf(DV_avg1,(/'x','y','N'/))
-      
-      Call Agrif_Set_type(DU_avg2,(/1,2/),(/1,1/))
-      Call Agrif_Set_type(DV_avg2,(/2,1/),(/1,1/))
-      Call Agrif_Set_raf(DU_avg2,(/'x','y'/))
-      Call Agrif_Set_raf(DV_avg2,(/'x','y'/))
-
-      Call Agrif_Set_type(u,(/1,2,0,0/),(/1,1,0,0/))
-      Call Agrif_Set_type(v,(/2,1,0,0/),(/1,1,0,0/))
-      Call Agrif_Set_raf(u,(/'x','y','N','N'/))
-      Call Agrif_Set_raf(v,(/'x','y','N','N'/))
-
-
-      Call Agrif_Set_type(Hz,(/1,2,0,0/),(/1,1,0,0/))
-      Call Agrif_Set_type(Hz_bak,(/2,1,0,0/),(/1,1,0,0/))
-      Call Agrif_Set_raf(Hz,(/'x','y','N','N'/))
-      Call Agrif_Set_raf(Hz_bak,(/'x','y','N','N'/))
-      
-      Call Agrif_Set_type(t,(/2,2,0,0,0/),(/1,1,0,0,0/))
-      Call Agrif_Set_raf(t,(/'x','y','N','N','N'/))
-      
-      Call Agrif_Set_type(Zt_avg1,(/2,2/),(/1,1/))
-      Call Agrif_Set_raf(Zt_avg1,(/'x','y'/))
-
-      Call Agrif_Set_type(Zt_avg2,(/2,2,0/),(/1,1,0/))
-      Call Agrif_Set_raf(Zt_avg2,(/'x','y','N'/))
-            
-      Call Agrif_Set_type(h,(/2,2/),(/1,1/))
-      Call Agrif_Set_raf(h,(/'x','y'/))  
+       
+!      Call Agrif_Set_type(zeta,(/2,2,0/),(/1,1,0/))
+!      Call Agrif_Set_raf(zeta,(/'x','y','N'/))
+#ifdef SOLVE3D
+!      Call Agrif_Set_type(DU_avg1,(/1,2,0/),(/1,1,0/))
+!      Call Agrif_Set_type(DV_avg1,(/2,1,0/),(/1,1,0/))
+!      Call Agrif_Set_raf(DU_avg1,(/'x','y','N'/))
+!      Call Agrif_Set_raf(DV_avg1,(/'x','y','N'/))
+!      
+!      Call Agrif_Set_type(DU_avg2,(/1,2/),(/1,1/))
+!      Call Agrif_Set_type(DV_avg2,(/2,1/),(/1,1/))
+!      Call Agrif_Set_raf(DU_avg2,(/'x','y'/))
+!      Call Agrif_Set_raf(DV_avg2,(/'x','y'/))
+!
+!      Call Agrif_Set_type(u,(/1,2,0,0/),(/1,1,0,0/))
+!      Call Agrif_Set_type(v,(/2,1,0,0/),(/1,1,0,0/))
+!      Call Agrif_Set_raf(u,(/'x','y','N','N'/))
+!      Call Agrif_Set_raf(v,(/'x','y','N','N'/))
+!
+!
+!      Call Agrif_Set_type(Hz,(/1,2,0,0/),(/1,1,0,0/))
+!      Call Agrif_Set_type(Hz_bak,(/2,1,0,0/),(/1,1,0,0/))
+!      Call Agrif_Set_raf(Hz,(/'x','y','N','N'/))
+!      Call Agrif_Set_raf(Hz_bak,(/'x','y','N','N'/))
+!      
+!      Call Agrif_Set_type(t,(/2,2,0,0,0/),(/1,1,0,0,0/))
+!      Call Agrif_Set_raf(t,(/'x','y','N','N','N'/))
+!      
+!      Call Agrif_Set_type(Zt_avg1,(/2,2/),(/1,1/))
+!      Call Agrif_Set_raf(Zt_avg1,(/'x','y'/))
+!
+!      Call Agrif_Set_type(Zt_avg2,(/2,2,0/),(/1,1,0/))
+!      Call Agrif_Set_raf(Zt_avg2,(/'x','y','N'/))
+!            
+!      Call Agrif_Set_type(h,(/2,2/),(/1,1/))
+!      Call Agrif_Set_raf(h,(/'x','y'/))  
 
 #  ifdef MASKING      
-      Call Agrif_Set_type(rmask,(/2,2/),(/1,1/))
-      Call Agrif_Set_raf(rmask,(/'x','y'/))          
+!      Call Agrif_Set_type(rmask,(/2,2/),(/1,1/))
+!      Call Agrif_Set_raf(rmask,(/'x','y'/))          
 #  endif            
 
-# else
-      Call Agrif_Set_type(ubar,(/1,2,0/),(/1,1,0/))
-      Call Agrif_Set_type(vbar,(/2,1,0/),(/1,1,0/))
-      Call Agrif_Set_raf(ubar,(/'x','y','N'/))
-      Call Agrif_Set_raf(vbar,(/'x','y','N'/))
-# endif
-!
-      Call Agrif_Set_bcinterp(zeta,AGRIF_linear)
-      Call Agrif_Set_bc(zeta,(/-1,0/))
-
-      Call Agrif_Set_bcinterp(h,AGRIF_linear)
-      Call Agrif_Set_interp(h,AGRIF_linear)
-      Call Agrif_Set_bc(h,(/0,0/))
-
-#ifdef WKB_WWAVE
-      Call Agrif_Set_bcinterp(wac,AGRIF_linear)
-      Call Agrif_Set_interp(wac,AGRIF_linear)
-      Call Agrif_Set_bc(wac,(/0,0/))
-      Call Agrif_Set_bcinterp(wkx,AGRIF_linear)
-      Call Agrif_Set_interp(wkx,AGRIF_linear)
-      Call Agrif_Set_bc(wkx,(/0,0/))
-      Call Agrif_Set_bcinterp(wke,AGRIF_linear)
-      Call Agrif_Set_interp(wke,AGRIF_linear)
-      Call Agrif_Set_bc(wke,(/0,0/))
-# ifdef WAVE_ROLLER
-!      Call Agrif_Set_bcinterp(war,AGRIF_linear)
-!      Call Agrif_Set_interp(war,AGRIF_linear)
-!      Call Agrif_Set_bc(war,(/0,0/))
-# endif
+#else
+!      Call Agrif_Set_type(ubar,(/1,2,0/),(/1,1,0/))
+!      Call Agrif_Set_type(vbar,(/2,1,0/),(/1,1,0/))
+!      Call Agrif_Set_raf(ubar,(/'x','y','N'/))
+!      Call Agrif_Set_raf(vbar,(/'x','y','N'/))
 #endif
+!
+!      Call Agrif_Set_bcinterp(zeta,AGRIF_linear)
+!      Call Agrif_Set_bc(zeta,(/-1,0/))
+!
+!      Call Agrif_Set_bcinterp(h,AGRIF_linear)
+!      Call Agrif_Set_interp(h,AGRIF_linear)
+!      Call Agrif_Set_bc(h,(/0,0/))
      
-# if defined AGRIF_UPDATE_FULLWEIGHTING || defined AGRIF_UPDATE_MIX        
-      Call Agrif_Set_UpdateType(h,update=
-     &   Agrif_Update_Full_Weighting)
-# endif
+#if defined AGRIF_UPDATE_FULLWEIGHTING || defined AGRIF_UPDATE_MIX        
+!      Call Agrif_Set_UpdateType(h,update=
+!     &   Agrif_Update_Full_Weighting)
+#endif
 
-# if defined AGRIF_UPDATE_MIX_HIGH
-      Call Agrif_Set_UpdateType(h,update=
-     &   Agrif_Update_4rdorder)
-# endif
+#if defined AGRIF_UPDATE_MIX_HIGH
+!      Call Agrif_Set_UpdateType(h,update=
+!     &   Agrif_Update_4rdorder)
+#endif
 
-# if defined AGRIF_UPDATE_AVERAGE || defined AGRIF_UPDATE_MIX_LOW
-      Call Agrif_Set_UpdateType(h,update=
-     &   Agrif_Update_Average)
-# endif
-
-
-# ifdef MASKING      
-      Call Agrif_Set_UpdateType(rmask,update=
-     &   Agrif_Update_Average)
-# endif
-                      
-# ifdef SOLVE3D
-
-      Call Agrif_Set_bcinterp(Zt_avg1,AGRIF_linear)
-      Call Agrif_Set_bc(Zt_avg1,(/-1,0/))
-      
-      Call Agrif_Set_bcinterp(u,interp1=agrif_linear
-     &  ,interp2=agrif_ppm)
-      Call Agrif_Set_bcinterp(v,interp1=agrif_ppm
-     &  ,interp2=agrif_linear)
-      Call Agrif_Set_bc(u,(/0,0/))
-      Call Agrif_Set_bc(v,(/0,0/))
-      
-      
-      Call Agrif_Set_bcinterp(t,AGRIF_linear)
-      Call Agrif_Set_bc(t,(/-1,0/))
-
-      Call Agrif_Set_bcinterp(DU_avg2,interp1=agrif_linear
-     &   ,interp2=agrif_ppm)
-      Call Agrif_Set_bcinterp(DV_avg2,interp1=agrif_ppm
-     &  ,interp2=agrif_linear)
-      Call Agrif_Set_bc(DU_avg2,(/0,0/))
-      Call Agrif_Set_bc(DV_avg2,(/0,0/))
-
-      Call Agrif_Set_bcinterp(DU_avg1,interp1=agrif_linear
-     &   ,interp2=agrif_ppm)
-      Call Agrif_Set_bcinterp(DV_avg1,interp1=agrif_ppm
-     &  ,interp2=agrif_linear)
-      Call Agrif_Set_bc(DU_avg1,(/0,0/))
-      Call Agrif_Set_bc(DV_avg1,(/0,0/))
-      Call Agrif_Set_type(updateTprof,(/2,2,0,0/),(/1,1,0,0/))
-      Call Agrif_Set_type(tsponge,(/2,2,0,0/),(/1,1,0,0/))      
-      Call Agrif_Set_raf(updateTprof,(/'x','y','N','N'/)) 
-      Call Agrif_Set_raf(tsponge,(/'x','y','N','N'/))            
-      Call Agrif_Set_type(Huon,(/1,2,0/),(/1,1,0/))
-      Call Agrif_Set_raf(Huon,(/'x','y','N'/))
-      Call Agrif_Set_type(Hvom,(/2,1,0/),(/1,1,0/))
-      Call Agrif_Set_raf(Hvom,(/'x','y','N'/))  
-      
-      Call Agrif_Set_type(usponge,(/1,2,0/),(/1,1,0/))
-      Call Agrif_Set_raf(usponge,(/'x','y','N'/))
-      Call Agrif_Set_type(vsponge,(/2,1,0/),(/1,1,0/))
-      Call Agrif_Set_raf(vsponge,(/'x','y','N'/))      
-          
-      Call Agrif_Set_bcinterp(updateTprof,agrif_linear)
-      Call Agrif_Set_bc(updateTprof,(/-1,0/))     
-
-      Call Agrif_Set_bcinterp(tsponge,agrif_linear)
-      Call Agrif_Set_bc(tsponge,(/-1,0/))           
-      
-      Call Agrif_Set_bcinterp(Huon,interp1=agrif_linear
-     &    ,interp2=agrif_ppm)
-      Call Agrif_Set_bc(Huon,(/0,0/))     
-      
-      Call Agrif_Set_bcinterp(Hvom,interp1=agrif_ppm
-     &   ,interp2=agrif_linear)
-      Call Agrif_Set_bc(Hvom,(/0,0/))
-
-      Call Agrif_Set_bcinterp(usponge,interp1=agrif_linear
-     &    ,interp2=agrif_ppm)
-      Call Agrif_Set_bc(usponge,(/0,0/))     
-      
-      Call Agrif_Set_bcinterp(vsponge,interp1=agrif_ppm
-     &   ,interp2=agrif_linear)
-      Call Agrif_Set_bc(vsponge,(/0,0/))
-# else
-      Call Agrif_Set_bcinterp(ubar,AGRIF_linearconserv)
-      Call Agrif_Set_bcinterp(vbar,AGRIF_linearconserv)
-      Call Agrif_Set_bc(ubar,(/0,2/))
-      Call Agrif_Set_bc(vbar,(/0,2/))
-# endif /* SOLVE3D */
+#ifdef MASKING      
+!      Call Agrif_Set_UpdateType(rmask,update=
+!     &   Agrif_Update_Average)
+#endif
 
       call declare_zoom_variables()
-
-# ifdef AGRIF_2WAY
-      Call Agrif_Set_UpdateType(updateTprof,update=
-     &   Agrif_Update_full_weighting)
-
-      Call Agrif_Set_UpdateType(tsponge,update=
-     &   Agrif_Update_full_weighting)
-     
-      Call Agrif_Set_UpdateType(Huon,
-     &update1=Agrif_Update_full_weighting,
-     &update2=
-     &Agrif_Update_full_weighting)
-
-#  ifdef AGRIF_UPDATE_FULLWEIGHTING
-      Call Agrif_Set_UpdateType(DU_avg2,update=
-     &Agrif_Update_full_weighting)
-#  endif
-
-#  ifdef AGRIF_UPDATE_AVERAGE
-      Call Agrif_Set_UpdateType(DU_avg2,
-     &update=Agrif_Update_Average)
-#  endif
-
-#  ifdef AGRIF_UPDATE_MIX
-      Call Agrif_Set_UpdateType(DU_avg2,
-     &update1=Agrif_Update_Average,
-     &update2=Agrif_Update_Full_Weighting)
-#  endif
-
-#  ifdef AGRIF_UPDATE_MIX_HIGH
-      Call Agrif_Set_UpdateType(DU_avg2,
-     &update1=Agrif_Update_Full_Weighting,
-     &update2=Agrif_Update_4rdorder)
-#  endif
-
-#  ifdef AGRIF_UPDATE_MIX_LOW
-      Call Agrif_Set_UpdateType(DU_avg2,
-     &update1=Agrif_Update_Copy,
-     &update2=Agrif_Update_Average)
-#  endif
-
-      Call Agrif_Set_UpdateType(DU_avg1,update=
-     &Agrif_Update_full_weighting)
-
-      Call Agrif_Set_UpdateType(Hvom,update1=
-     &Agrif_Update_full_weighting,update2=
-     &Agrif_Update_full_weighting)
-
-#  ifdef AGRIF_UPDATE_FULLWEIGHTING
-      Call Agrif_Set_UpdateType(DV_avg2,update=
-     &Agrif_Update_full_weighting)
-#  endif
-
-#  ifdef AGRIF_UPDATE_FULLWEIGHTING
-      Call Agrif_Set_UpdateType(DV_avg2,update=
-     &Agrif_Update_Average)
-#  endif
-
-#  ifdef AGRIF_UPDATE_MIX     
-      Call Agrif_Set_UpdateType(DV_avg2,
-     &update1=Agrif_Update_Full_Weighting,
-     &update2=Agrif_Update_Average)
-#  endif
-
-#  ifdef AGRIF_UPDATE_MIX_HIGH    
-      Call Agrif_Set_UpdateType(DV_avg2,
-     &update1=Agrif_Update_4rdorder,
-     &update2=Agrif_Update_Full_Weighting)
-#  endif
-
-#  ifdef AGRIF_UPDATE_MIX_LOW    
-      Call Agrif_Set_UpdateType(DV_avg2,
-     &update1=Agrif_Update_Average,
-     &update2=Agrif_Update_Copy)
-#  endif
-
-      Call Agrif_Set_UpdateType(DV_avg1,update=
-     &Agrif_Update_full_weighting) 
-      
-      Call Agrif_Set_UpdateType(Zt_avg1,update=
-     &Agrif_Update_full_weighting)  
-
-      Call Agrif_Set_UpdateType(Zt_avg2,update=
-     &Agrif_Update_full_weighting)                       
-
-!       Call Agrif_Set_UpdateType(updateTprof,update=
-!      &   Agrif_Update_Average)
-! 
-!       Call Agrif_Set_UpdateType(Huon,
-!      &update1=Agrif_Update_Average,
-!      &update2=
-!      &Agrif_Update_Average)
-! 
-!       Call Agrif_Set_UpdateType(DU_avg2,update=
-!      &Agrif_Update_Average)
-! 
-!       Call Agrif_Set_UpdateType(DU_avg1,update=
-!      &Agrif_Update_Average)
-! 
-!       Call Agrif_Set_UpdateType(Hvom,update1=
-!      &Agrif_Update_Average,update2=
-!      &Agrif_Update_Average)
-! 
-!       Call Agrif_Set_UpdateType(DV_avg2,update=
-!      &Agrif_Update_Average)   
-! 
-!       Call Agrif_Set_UpdateType(DV_avg1,update=
-!      &Agrif_Update_Average) 
-!       
-!       Call Agrif_Set_UpdateType(Zt_avg1,update=
-!      &Agrif_Update_Average)  
-! 
-!       Call Agrif_Set_UpdateType(Zt_avg2,update=
-!      &Agrif_Update_Average)
-
-
-!       Call Agrif_Set_UpdateType(updateTprof,update=
-!      &   Agrif_Update_Average)
-! 
-!       Call Agrif_Set_UpdateType(Huon,
-!      &update1=Agrif_Update_Average,
-!      &update2=Agrif_Update_Average)
-! 
-!       Call Agrif_Set_UpdateType(DU_avg2,
-!      &update1=Agrif_Update_Average,
-!      &update2=Agrif_Update_Average)
-! 
-!       Call Agrif_Set_UpdateType(DU_avg1,
-!      &update1=Agrif_Update_Average,
-!      &update2=Agrif_Update_Average)
-! 
-!       Call Agrif_Set_UpdateType(Hvom,update1=
-!      &Agrif_Update_Average,update2=
-!      &Agrif_Update_Average)
-! 
-!       Call Agrif_Set_UpdateType(DV_avg2,update1=
-!      &Agrif_Update_Average,update2=
-!      &Agrif_Update_Average)
-! 
-!       Call Agrif_Set_UpdateType(DV_avg1,update1=
-!      &Agrif_Update_Average,update2=
-!      &Agrif_Update_Average)
-! 
-!       Call Agrif_Set_UpdateType(Zt_avg1,update=
-!      &Agrif_Update_Average)
-! 
-!       Call Agrif_Set_UpdateType(Zt_avg2,update=
-!      &Agrif_Update_Average)
-
-# endif /* AGRIF_2WAY */
 
 # ifdef MPI
       call MPI_Setup (ierr)
@@ -615,10 +355,7 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Set initial conditions
 
 # ifndef AGRIF_ADAPTIVE
         call get_initial
-# else    
-       
-        allocate(tabtemp2d(GLOBAL_2D_ARRAY))
-        allocate(tabtemp3d(GLOBAL_2D_ARRAY,1:N))
+# else
 
         call Agrif_Declare_Variable((/2,2/),(/1,1/),(/'x','y'/),lbound(Zt_avg1),
      &   ubound(Zt_avg1),zetaid,torestore=.true.)
@@ -668,26 +405,18 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Set initial conditions
         call Agrif_Set_interp(vid,interp1=Agrif_ppm,
      &                                 interp2=Agrif_linear)
      
-        call Agrif_Init_Variable(tabtemp2d,zetaid,procname=initzeta)
-        zeta(:,:,1) = tabtemp2d
+        call Agrif_Init_Variable(zetaid,procname=initzeta)
 
 
-        call Agrif_Init_Variable(tabtemp2d,ubarid,procname=initubar)
-        DU_avg1(:,:,1) = tabtemp2d/Agrif_irhoy()
-        call Agrif_Init_Variable(tabtemp2d,vbarid,procname=initvbar)
-        DV_avg1(:,:,1) = tabtemp2d/Agrif_irhox()
+        call Agrif_Init_Variable(ubarid,procname=initubar)
+        call Agrif_Init_Variable(vbarid,procname=initvbar)
 
-        call Agrif_Init_Variable(text,tid,procname=initt)
+        call Agrif_Init_Variable(tid,procname=initt)
         do itrc=1,NT
             got_tini(itrc) = .true.
-            t(:,:,:,1,itrc)=text(:,:,:,itrc)
         enddo        
-        call Agrif_Init_Variable(tabtemp3d,uid,procname=initu)
-        u(:,:,:,1) = tabtemp3d
-        call Agrif_Init_Variable(tabtemp3d,vid,procname=initv)
-        v(:,:,:,1) = tabtemp3d
-        
-        deallocate(tabtemp2d,tabtemp3d,text)
+        call Agrif_Init_Variable(uid,procname=initu)
+        call Agrif_Init_Variable(vid,procname=initv)
 
 
         if (Agrif_Parent_Nb_Step() == 0) then
@@ -850,26 +579,17 @@ CR      write(*,*) ' -2' MYID
       call get_vbc
 
 #ifdef WKB_WWAVE
-        allocate(tabtemp2d(GLOBAL_2D_ARRAY))
         call Agrif_Set_interp(wacid,interp=Agrif_ppm)
-        call Agrif_Init_Variable(tabtemp2d,wacid,procname=initwac)
-        wac(:,:,1) = tabtemp2d
-        wac(:,:,2) = tabtemp2d
+        call Agrif_Init_Variable(wacid,procname=initwac)
         call Agrif_Set_interp(wkxid,interp=Agrif_ppm)
-        call Agrif_Init_Variable(tabtemp2d,wkxid,procname=initwkx)
-        wkx(:,:,1) = tabtemp2d
-        wkx(:,:,2) = tabtemp2d
+        call Agrif_Init_Variable(wkxid,procname=initwkx)
         call Agrif_Set_interp(wkeid,interp=Agrif_ppm)
-        call Agrif_Init_Variable(tabtemp2d,wkeid,procname=initwke)
-        wke(:,:,1) = tabtemp2d
-        wke(:,:,2) = tabtemp2d
+        call Agrif_Init_Variable(wkeid,procname=initwke)
 # ifdef WAVE_ROLLER
         call Agrif_Set_interp(warid,interp=Agrif_ppm)
-        call Agrif_Init_Variable(tabtemp2d,warid,procname=initwar)
-        war(:,:,1) = tabtemp2d
-        war(:,:,2) = tabtemp2d
+        call Agrif_Init_Variable(warid,procname=initwar)
 # endif
-        deallocate(tabtemp2d)
+
 C$OMP BARRIER
 C$OMP MASTER
         MPI_master_only write(stdout,'(/1x,A/)')
@@ -1071,7 +791,7 @@ CR      write(*,*) '  0' MYID
       Agrif_UseSpecialValueInUpdate = .TRUE.
       Agrif_SpecialValueFineGrid = 0.
       
-      Call Agrif_Update_Variable(rmask,rmask)
+      Call Agrif_Update_Variable(rmaskid,procname=updatermask)
       
       Agrif_UseSpecialValueInUpdate = .FALSE.   
 
@@ -1082,98 +802,21 @@ CR      write(*,*) '  0' MYID
    
       Agrif_UseSpecialValueInUpdate = .TRUE.
       Agrif_SpecialValueFineGrid = 0.   
-      Call Agrif_Update_Variable(h,h,locupdate=(/1,0/),
-     &                           procname=updateh)
+      Call Agrif_Update_Variable(hid,locupdate=(/1,0/),
+     &     procname=updateh)
       Agrif_UseSpecialValueInUpdate = .FALSE.
 
-      isens = 1
-      
-      allocate(tabtemp2d(0:i2u,j1t:j2t))
-      Call Agrif_Bc_Variable(tabtemp2d,ubarid,calledweight=1.,
-     &                       procname=hinterp)
-      hbis(0:i2u,j1t:j2t)=tabtemp2d
-      deallocate(tabtemp2d)  
-           
-#  ifdef AGRIF_OBC_WEST
-#   ifdef MPI           
-      if (.not.WEST_INTER) then
-#   endif      
-      Do j=0,LOCALMM+1
-        h(0,j) = 2.*hbis(1,j)-h(1,j)
-#   ifdef NEW_S_COORD
-        hinv(0,j) = 1./(h(0,j)+hc)
-#   else
-        hinv(0,j) = 1./h(0,j)
-#   endif
-      enddo
-#   ifdef MPI            
-      endif
-#   endif 
-#  endif 
-
-#  ifdef AGRIF_OBC_EAST
-#   ifdef MPI           
-      if (.not.EAST_INTER) then
-#   endif      
-      Do j=0,LOCALMM+1
-        h(LOCALLM+1,j) = 2.*hbis(LOCALLM+1,j)-h(LOCALLM,j)
-#   ifdef NEW_S_COORD
-        hinv(LOCALLM+1,j) = 1./(h(LOCALLM+1,j)+hc)
-#   else
-        hinv(LOCALLM+1,j) = 1./h(LOCALLM+1,j)
-#   endif
-      enddo
-#   ifdef MPI            
-      endif
-#   endif 
-#  endif       
+      isens = 1 
+      Call Agrif_Bc_Variable(ubarid,calledweight=1.,procname=hinterp)
           
       isens = 2
-      allocate(tabtemp2d(i1t:i2t,0:j2v))
-      Call Agrif_Bc_Variable(tabtemp2d,vbarid,calledweight=1.,
-     &                       procname=hinterp)
-      hbis(i1t:i2t,0:j2v)=tabtemp2d
-      deallocate(tabtemp2d)
-              
-#  ifdef AGRIF_OBC_SOUTH
-#   ifdef MPI           
-      if (.not.SOUTH_INTER) then
-#   endif       
-      Do i=0,LOCALLM+1
-        h(i,0) = 2.*hbis(i,1)-h(i,1)
-#   ifdef NEW_S_COORD
-        hinv(i,0) = 1./(h(i,0)+hc)
-#   else
-        hinv(i,0) = 1./h(i,0)
-#   endif
-      enddo
-#   ifdef MPI            
-      endif
-#   endif 
-#  endif 
-
-#  ifdef AGRIF_OBC_NORTH
-#   ifdef MPI           
-      if (.not.NORTH_INTER) then
-#   endif       
-      Do i=0,LOCALLM+1
-        h(i,LOCALMM+1) = 2.*hbis(i,LOCALMM+1)-h(i,LOCALMM)
-#   ifdef NEW_S_COORD
-        hinv(i,LOCALMM+1) = 1./(h(i,LOCALMM+1)+hc)
-#   else
-        hinv(i,LOCALMM+1) = 1./h(i,LOCALMM+1)
-#   endif
-      enddo
-#   ifdef MPI            
-      endif
-#   endif 
-#  endif 
+      Call Agrif_Bc_Variable(vbarid,calledweight=1.,procname=hinterp)
 
       Agrif_UseSpecialValueInUpdate = .TRUE.
       Agrif_SpecialValueFineGrid = 0.   
-      Call Agrif_Update_Variable(h,h,locupdate=(/1,0/),
-     &                           procname=updateh)
-      Agrif_UseSpecialValueInUpdate = .FALSE.           
+      Call Agrif_Update_Variable(hid,locupdate=(/1,0/),
+     &     procname=updateh)
+      Agrif_UseSpecialValueInUpdate = .FALSE.
 
       Call Agrif_ChildGrid_To_ParentGrid()
       Call UpdateGridhis()
@@ -1578,6 +1221,10 @@ CR      write(*,*) '  0' MYID
 
      
         call Agrif_Declare_Variable((/2,2/),(/1,1/),(/'x','y'/),
+     &   (/i1t,j1t/),(/i2t,j2t/),hid)
+        call Agrif_Declare_Variable((/2,2/),(/1,1/),(/'x','y'/),
+     &   (/i1t,j1t/),(/i2t,j2t/),rmaskid)
+        call Agrif_Declare_Variable((/2,2/),(/1,1/),(/'x','y'/),
      &   (/i1t,j1t/),(/i2t,j2t/),zetaid)
         call Agrif_Declare_Variable((/1,2/),(/1,1/),(/'x','y'/),
      &   (/0,j1t/),(/i2u,j2t/),ubarid)
@@ -1622,6 +1269,7 @@ CR      write(*,*) '  0' MYID
 # endif
 #endif 
 
+        call Agrif_Set_bc(hid,(/0,0/)) 
         call Agrif_Set_bc(zetaid,(/-1,0/))     
         call Agrif_Set_bc(ubarid,(/0,0/))
         call Agrif_Set_bc(vbarid,(/0,0/))
@@ -1629,6 +1277,7 @@ CR      write(*,*) '  0' MYID
         call Agrif_Set_bc(uid,(/0,0/))
         call Agrif_Set_bc(vid,(/0,0/))
         
+        call Agrif_Set_bcinterp(hid,   interp=AGRIF_linear)        
         call Agrif_Set_bcinterp(zetaid,interp=Agrif_lagrange)        
         call Agrif_Set_bcinterp(ubarid,interp1=Agrif_lagrange,
      &                                 interp2=Agrif_ppm)
@@ -1648,7 +1297,25 @@ CR      write(*,*) '  0' MYID
      
         call Agrif_Set_bcinterp(vspongeid,interp1=Agrif_ppm,
      &                                 interp2=Agrif_lagrange) 
-           
+
+      Call Agrif_Set_UpdateType(rmaskid,update=
+     &Agrif_Update_Average)
+     
+#if defined AGRIF_UPDATE_FULLWEIGHTING || defined AGRIF_UPDATE_MIX        
+      Call Agrif_Set_UpdateType(hid,update=
+     &Agrif_Update_full_weighting)
+#endif
+
+#if defined AGRIF_UPDATE_MIX_HIGH
+      Call Agrif_Set_UpdateType(hid,update=
+     &Agrif_Update_4rdorder)
+#endif
+
+#if defined AGRIF_UPDATE_AVERAGE || defined AGRIF_UPDATE_MIX_LOW
+      Call Agrif_Set_UpdateType(hid,update=
+     &Agrif_Update_Average)
+#endif
+
       end subroutine declare_zoom_variables
 !
 !====================================================================
@@ -1661,7 +1328,9 @@ CR      write(*,*) '  0' MYID
 #  include "param.h"
 #  include "grid.h"
 #  include "scalars.h"
+#  include "zoom.h"
        integer i,j
+       external updatermask
        
 #  ifdef MPI
       call exchange_r2d_tile (1,Lm,1,Mm,  rmask)
@@ -1697,7 +1366,7 @@ CR      write(*,*) '  0' MYID
         Agrif_UseSpecialValueInUpdate = .TRUE.
         Agrif_SpecialValueFineGrid = 0.
       
-        Call Agrif_Update_Variable(rmask,rmask)
+        Call Agrif_Update_Variable(rmaskid,procname=updatermask)
       
         Agrif_UseSpecialValueInUpdate = .FALSE.   
 
@@ -1794,6 +1463,35 @@ CR      write(*,*) '  0' MYID
       
       return
       end
+!====================================================================
+!                   subroutine Updatermask
+!====================================================================
+!
+#ifdef MASKING
+      Subroutine Updatermask(tabres,i1,i2,j1,j2,before)
+      implicit none
+#  include "param.h"
+#  include "grid.h"
+#  include "ocean2d.h"
+#  include "ocean3d.h"
+#  include "coupling.h"
+#  include "scalars.h"
+#  include "zoom.h"
+      integer i1,i2,j1,j2
+      real tabres(i1:i2,j1:j2)
+      logical before
+      
+      integer i,j,k
+              
+      IF (before) THEN
+        tabres(i1:i2,j1:j2) = rmask(i1:i2,j1:j2)
+       ELSE
+        rmask(i1:i2,j1:j2)=tabres(i1:i2,j1:j2)
+       ENDIF
+      
+      return
+      end
+#endif ! endif MASKING
 !
 !====================================================================
 !                   subroutine UpdateGridhis
@@ -1821,7 +1519,87 @@ CR      write(*,*) '  0' MYID
       end subroutine UpdateGridhis
 
 
-      subroutine hinterp(tabres,i1,i2,j1,j2)
+      subroutine hinterp(tabres,i1,i2,j1,j2,before,nb,ndir)
+      implicit none
+# include "param.h"
+# include "grid.h"
+# include "ocean2d.h"
+# include "scalars.h"
+# ifdef MPI
+#  define LOCALLM Lmmpi
+#  define LOCALMM Mmmpi
+# else
+#  define LOCALLM Lm
+#  define LOCALMM Mm
+# endif 
+!$AGRIF_DO_NOT_TREAT
+       integer isens
+       common/interph/isens
+!$AGRIF_END_DO_NOT_TREAT
+
+       integer i1,i2,j1,j2
+       logical before
+       real tabres(i1:i2,j1:j2)
+       integer i,j
+       integer nb,ndir
+       logical :: western_side, eastern_side
+       logical :: northern_side,southern_side
+       
+       if (before) then
+           IF (isens == 1) THEN
+           do j=j1,j2
+           do i=max(i1,lbound(h,1)+1),i2
+             tabres(i,j) = 0.5*(h(i-1,j)+h(i,j))
+           enddo
+           enddo       
+           ELSE
+           do j=max(j1,lbound(h,2)+1),j2
+           do i=i1,i2
+             tabres(i,j) = 0.5*(h(i,j-1)+h(i,j))
+           enddo
+           enddo       
+           ENDIF  
+       else
+       
+         western_side  = (nb == 1).AND.(ndir == 1)
+         eastern_side  = (nb == 1).AND.(ndir == 2)
+         southern_side = (nb == 2).AND.(ndir == 1)
+         northern_side = (nb == 2).AND.(ndir == 2)
+
+         if (isens == 1) then
+           if ( western_side ) then    
+              Do j=j1,j2
+                 h(0,j) = 2.*tabres(1,j)-h(1,j)
+                 hinv(0,j) = 1./h(0,j)
+              enddo
+           endif
+           
+           if ( eastern_side ) then 
+              Do j=j1,j2
+                 h(LOCALLM+1,j) = 2.*tabres(LOCALLM+1,j)-h(LOCALLM,j)
+                 hinv(LOCALLM+1,j) = 1./h(LOCALLM+1,j)
+              enddo
+           endif
+         elseif (isens == 2) then
+           if ( southern_side ) then      
+             Do i=i1,i2
+               h(i,0) = 2.*tabres(i,1)-h(i,1)
+               hinv(i,0) = 1./h(i,0)
+             enddo
+           endif
+           
+           if ( northern_side ) then
+             Do i=i1,i2
+               h(i,LOCALMM+1) = 2.*tabres(i,LOCALMM+1)-h(i,LOCALMM)
+               hinv(i,LOCALMM+1) = 1./h(i,LOCALMM+1)
+             enddo
+           endif
+         endif ! <- endif isens
+
+        endif  ! <- endif before
+      return
+      end      
+      subroutine hinterp_old(tabres,i1,i2,j1,j2)
       implicit none
 # include "param.h"
 # include "grid.h"
@@ -1854,62 +1632,87 @@ CR      write(*,*) '  0' MYID
       end      
 
 # ifdef WKB_WWAVE
-      subroutine initwac(tabres,i1,i2,j1,j2)
+      subroutine initwac(tabres,i1,i2,j1,j2,before)
       implicit none
 # include "wkb_wwave.h"
        integer i1,i2,j1,j2
+       logical before
        real tabres(i1:i2,j1:j2)
        integer i,j
 
+       if (before) then
        do j=j1,j2
        do i=i1,i2
          tabres(i,j) = wac(i,j,2)
        enddo
        enddo
+       else
+       wac(i1:i2,j1:j2,1)=tabres
+       wac(i1:i2,j1:j2,2)=tabres
+       endif
       return
       end
+      
 #  ifdef WAVE_ROLLER
-      subroutine initwar(tabres,i1,i2,j1,j2)
+      subroutine initwar(tabres,i1,i2,j1,j2,before)
       implicit none
 # include "wkb_wwave.h"
        integer i1,i2,j1,j2
+       logical before
        real tabres(i1:i2,j1:j2)
        integer i,j
 
+       if (before) then
        do j=j1,j2
        do i=i1,i2
          tabres(i,j) = war(i,j,2)
        enddo
        enddo
+       else
+       war(i1:i2,j1:j2,1)=tabres
+       war(i1:i2,j1:j2,2)=tabres
+       endif
       return
       end
 #  endif
-      subroutine initwkx(tabres,i1,i2,j1,j2)
+      subroutine initwkx(tabres,i1,i2,j1,j2,before)
       implicit none
 # include "wkb_wwave.h"
        integer i1,i2,j1,j2
+       logical before
        real tabres(i1:i2,j1:j2)
        integer i,j
 
+       if (before) then
        do j=j1,j2
        do i=i1,i2
          tabres(i,j) = wkx(i,j,2)
        enddo
        enddo
+       else
+       wkx(i1:i2,j1:j2,1)=tabres
+       wkx(i1:i2,j1:j2,2)=tabres
+       endif
       return
       end
-      subroutine initwke(tabres,i1,i2,j1,j2)
+      subroutine initwke(tabres,i1,i2,j1,j2,before)
       implicit none
 # include "wkb_wwave.h"
        integer i1,i2,j1,j2
+       logical before
        real tabres(i1:i2,j1:j2)
        integer i,j
 
+       if (before) then
        do j=j1,j2
        do i=i1,i2
          tabres(i,j) = wke(i,j,2)
        enddo
        enddo
+       else
+       wke(i1:i2,j1:j2,1)=tabres
+       wke(i1:i2,j1:j2,2)=tabres       
+       endif
       return
       end
 # endif
@@ -2011,12 +1814,29 @@ CR      write(*,*) '  0' MYID
         End If
         Return
         End
+
+        subroutine Agrif_get_proc_info ( oimin, oimax, ojmin, ojmax )
+        implicit none
+        integer, intent(out) :: oimin, oimax
+        integer, intent(out) :: ojmin, ojmax
+# include "param.h"        
+        oimin = iminmpi
+        oimax = imaxmpi
+        ojmin = jminmpi
+        ojmax = jmaxmpi
+        end subroutine Agrif_get_proc_info
 # endif
 !
-!====================================================================
-!                   subroutine Agrif_detect
-!====================================================================
-!
+        subroutine Agrif_estimate_parallel_cost(i1,i2,j1,j2,nbprocs,grid_cost)
+        implicit none
+        integer, intent(in)  :: i1, i2, j1, j2, nbprocs
+        real,    intent(out) :: grid_cost
+
+!        grid_cost = SIZE((/i1:i2, j1:j2/)) / real(nbprocs)     ! FIXME: Does not work with conv
+        grid_cost = (i2-i1+1)*(j2-j1+1) / real(nbprocs)
+
+        end subroutine agrif_estimate_parallel_cost
+
       SUBROUTINE Agrif_detect(taberr,sizexy)
 !
 !     Modules used:
@@ -2113,12 +1933,29 @@ CR      write(*,*) '  0' MYID
                     
       Return
       End Subroutine Agrif_Before_Regridding
-!
-!====================================================================
-!                   subroutine initzeta
-!====================================================================
-!
-      subroutine initzeta(tabres,i1,i2,j1,j2)
+
+      subroutine initzeta(tabres,i1,i2,j1,j2,before)
+      implicit none
+# include "param.h"
+# include "ocean2d.h"
+# include "scalars.h"
+# include "zoom.h"
+# include "ocean3d.h"
+# include "coupling.h"
+
+       integer i1,i2,j1,j2
+       real tabres(i1:i2,j1:j2)
+       logical before
+
+       if (before) then
+         tabres = Zt_avg1(i1:i2,j1:j2)
+       else
+         zeta(i1:i2,j1:j2,1) = tabres
+       endif
+             
+      return
+      end
+      subroutine initzeta_old(tabres,i1,i2,j1,j2)
       implicit none
 # include "param.h"
 # include "ocean2d.h"
@@ -2134,12 +1971,29 @@ CR      write(*,*) '  0' MYID
              
       return
       end
-!
-!====================================================================
-!                   subroutine initubar
-!====================================================================
-!
-      subroutine initubar(tabres,i1,i2,j1,j2)
+      
+      subroutine initubar(tabres,i1,i2,j1,j2,before)
+      implicit none
+# include "param.h"
+# include "ocean2d.h"
+# include "scalars.h"
+# include "zoom.h"
+# include "ocean3d.h"
+# include "coupling.h"
+
+       integer i1,i2,j1,j2
+       real tabres(i1:i2,j1:j2)
+       logical before
+
+       if (before) then
+         tabres = DU_avg1(i1:i2,j1:j2,nnew)
+       else
+         DU_avg1(i1:i2,j1:j2,1) = tabres / Agrif_irhoy()
+       endif
+             
+      return
+      end 
+      subroutine initubar_old(tabres,i1,i2,j1,j2)
       implicit none
 # include "param.h"
 # include "ocean2d.h"
@@ -2155,12 +2009,29 @@ CR      write(*,*) '  0' MYID
              
       return
       end 
-!
-!====================================================================
-!                   subroutine initvbar
-!====================================================================
-!
-      subroutine initvbar(tabres,i1,i2,j1,j2)
+      
+      subroutine initvbar(tabres,i1,i2,j1,j2,before)
+      implicit none
+# include "param.h"
+# include "ocean2d.h"
+# include "scalars.h"
+# include "zoom.h"
+# include "ocean3d.h"
+# include "coupling.h"
+
+       integer i1,i2,j1,j2
+       real tabres(i1:i2,j1:j2)
+       logical before
+       
+       if (before) then
+         tabres = DV_avg1(i1:i2,j1:j2,nnew)
+       else
+         DV_avg1(i1:i2,j1:j2,1) = tabres / Agrif_irhox()
+       endif
+             
+      return
+      end            
+      subroutine initvbar_old(tabres,i1,i2,j1,j2)
       implicit none
 # include "param.h"
 # include "ocean2d.h"
@@ -2176,12 +2047,26 @@ CR      write(*,*) '  0' MYID
              
       return
       end            
-!
-!====================================================================
-!                   subroutine initu
-!====================================================================
-!
-      subroutine initu(tabres,i1,i2,j1,j2,k1,k2)
+      
+      subroutine initu(tabres,i1,i2,j1,j2,k1,k2,before)
+      implicit none
+# include "param.h"
+# include "ocean3d.h"
+# include "scalars.h"
+# include "zoom.h"
+
+       integer i1,i2,j1,j2,k1,k2
+       real tabres(i1:i2,j1:j2,k1:k2)
+       logical before
+       
+       if (before) then
+         tabres = u(i1:i2,j1:j2,k1:k2,nnew)
+       else
+         u(i1:i2,j1:j2,k1:k2,1) = tabres
+       endif      
+      return
+      end 
+      subroutine initu_old(tabres,i1,i2,j1,j2,k1,k2)
       implicit none
 # include "param.h"
 # include "ocean3d.h"
@@ -2195,12 +2080,26 @@ CR      write(*,*) '  0' MYID
              
       return
       end 
-!
-!====================================================================
-!                   subroutine initv
-!====================================================================
-!
-      subroutine initv(tabres,i1,i2,j1,j2,k1,k2)
+      
+      subroutine initv(tabres,i1,i2,j1,j2,k1,k2,before)
+      implicit none
+# include "param.h"
+# include "ocean3d.h"
+# include "scalars.h"
+# include "zoom.h"
+
+       integer i1,i2,j1,j2,k1,k2
+       real tabres(i1:i2,j1:j2,k1:k2)
+       logical before
+       
+       if (before) then
+         tabres = v(i1:i2,j1:j2,k1:k2,nnew)
+       else
+         v(i1:i2,j1:j2,k1:k2,1) = tabres
+       endif      
+      return
+      end
+      subroutine initv_old(tabres,i1,i2,j1,j2,k1,k2)
       implicit none
 # include "param.h"
 # include "ocean3d.h"
@@ -2214,12 +2113,30 @@ CR      write(*,*) '  0' MYID
              
       return
       end
-!
-!====================================================================
-!                   subroutine initt
-!====================================================================
-!
-      subroutine initt(tabres,i1,i2,j1,j2,k1,k2,m1,m2)
+      
+      subroutine initt(tabres,i1,i2,j1,j2,k1,k2,m1,m2,before)
+      implicit none
+# include "param.h"
+# include "ocean3d.h"
+# include "scalars.h"
+# include "zoom.h"
+
+       integer i1,i2,j1,j2,k1,k2,m1,m2
+       real tabres(i1:i2,j1:j2,k1:k2,m1:m2)
+       logical before
+       integer itrc
+       
+       if (before) then
+         tabres = t(i1:i2,j1:j2,k1:k2,nnew,m1:m2)
+       else 
+         do itrc=m1,m2
+             got_tini(itrc) = .true.
+             t(i1:i2,j1:j2,k1:k2,1,itrc)=tabres(i1:i2,j1:j2,k1:k2,itrc)
+         enddo        
+       endif   
+      return
+      end                   
+      subroutine initt_old(tabres,i1,i2,j1,j2,k1,k2,m1,m2)
       implicit none
 # include "param.h"
 # include "ocean3d.h"

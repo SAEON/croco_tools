@@ -17,9 +17,21 @@ all: conv
 	@echo   CONV is ok
 	@echo ===================================================
 	@echo
+# Modif Laurent Debreu car Version de bison trop ancienne => Eviter l'appel a Bison
+#main.c: convert.y convert.lex
+#	@echo ===================================================
+#	@echo   Rebuilding main.c ...
+#	@echo ===================================================
+#	$(MAKE) -f Makefile.lex main.c
+#
+#fortran.c: fortran.y fortran.lex
+#	@echo ===================================================
+#	@echo   Rebuilding fortran.c ...
+#	@echo ===================================================
+#	$(MAKE) -f Makefile.lex fortran.c
 
 conv: $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $@
+	$(CC) $(CFLAGS) $(OBJS) -o ./$@
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -49,6 +61,8 @@ WorkWithlistmoduleinfile.o : WorkWithlistmoduleinfile.c decl.h
 WorkWithlistofcoupled.o : WorkWithlistofcoupled.c decl.h
 
 clean:
+	$(MAKE) -f Makefile.lex clean
 	$(RM) *.o conv
 	
 clean-all: clean
+	$(MAKE) -f Makefile.lex clean-all

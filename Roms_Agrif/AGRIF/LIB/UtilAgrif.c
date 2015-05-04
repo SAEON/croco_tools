@@ -44,7 +44,7 @@
 /******************************************************************************/
 /*                                                                            */
 /******************************************************************************/
-int Vartonumber(char *tokname)
+int Vartonumber(const char *tokname)
 {
    int agrifintheword;
 
@@ -67,8 +67,13 @@ int Vartonumber(char *tokname)
    else if ( !strcasecmp(tokname,"Agrif_Set_UpdateType") ) agrifintheword = 1;
    else if ( !strcasecmp(tokname,"Agrif_Set_restore")    ) agrifintheword = 1;
    else if ( !strcasecmp(tokname,"Agrif_Save_Forrestore")) agrifintheword = 1;
-   else if ( !strcasecmp(tokname,"agrif_init_grids")     ) agrifintheword = 1;
-   else if ( !strcasecmp(tokname,"agrif_step")           ) agrifintheword = 1;
+   else if ( !strcasecmp(tokname,"Agrif_init_grids")     ) agrifintheword = 1;
+   else if ( !strcasecmp(tokname,"Agrif_step")           ) agrifintheword = 1;
+/**************************************************/
+/* adding specific adjoint agrif subroutine names */
+/**************************************************/
+   else if ( !strcasecmp(tokname,"Agrif_bc_variable_adj")    ) agrifintheword = 1;
+   else if ( !strcasecmp(tokname,"Agrif_update_variable_adj")) agrifintheword = 1;
 
    return agrifintheword;
 }
@@ -84,13 +89,9 @@ int Vartonumber(char *tokname)
 /*                       name --------------> Agrif_in_Tok_NAME = 0           */
 /*                                                                            */
 /******************************************************************************/
-int Agrif_in_Tok_NAME(char *tokname)
+int Agrif_in_Tok_NAME(const char *tokname)
 {
-   int agrifintheword = 0;
-
-   if ( strncasecmp(tokname,"Agrif_",6) == 0 )  agrifintheword = 1;
-
-   return agrifintheword;
+    return ( strncasecmp(tokname,"Agrif_",6) == 0 );
 }
 
 /******************************************************************************/
@@ -102,213 +103,95 @@ int Agrif_in_Tok_NAME(char *tokname)
 /*               Agrif_<toto>(variable) ====>     Agrif_<toto>(variable)      */
 /*                                                                            */
 /******************************************************************************/
-void ModifyTheVariableName_0(char *ident, int lengthname)
+void ModifyTheVariableName_0(const char *ident, int lengthname)
 {
-   listvar *newvar;
-   int out;
-   
-   if ( firstpass == 0 )
-   {
-      newvar = List_Global_Var;
-      out=0;
-      while ( newvar && out == 0 )
-      {
-         if ( !strcasecmp(newvar->var->v_nomvar,ident) ) out = 1;
-         else newvar=newvar->suiv;
-      }
-      if ( out == 0 )
-      {
-         newvar = List_ModuleUsed_Var;
-         while ( newvar && out == 0 )
-         {
-            if ( !strcasecmp(newvar->var->v_nomvar,ident) ) out = 1;
-            else newvar=newvar->suiv;
-         }
-      }
-      if (out == 1 && !strcasecmp(newvar->var->v_typevar,"type")) return;
+    listvar *newvar;
+    int out;
 
-      if ( out == 0 )
-      {
-         newvar = List_Common_Var;
-         while ( newvar && out == 0 )
-         {
-            if ( !strcasecmp(newvar->var->v_nomvar,ident) ) out = 1;
-            else newvar=newvar->suiv;
-         }
-      }
+    if ( firstpass )  return;
 
-      if ( out == 0 )
-      {
-         newvar = List_ModuleUsedInModuleUsed_Var;
-         while ( newvar && out == 0 )
-         {
+    newvar = List_Global_Var;
+    out = 0;
+    while ( newvar && out == 0 )
+    {
+        if ( !strcasecmp(newvar->var->v_nomvar, ident) ) out = 1;
+        else newvar = newvar->suiv;
+    }
+    if ( out == 0 )
+    {
+        newvar = List_ModuleUsed_Var;
+        while ( newvar && out == 0 )
+        {
             if ( !strcasecmp(newvar->var->v_nomvar,ident) ) out = 1;
-            else newvar=newvar->suiv;
-         }
-      }
+            else newvar = newvar->suiv;
+        }
+    }
+    if ( out && !strcasecmp(newvar->var->v_typevar,"type")) return;
 
-      if ( out == 1 && strcasecmp(newvar->var->v_typevar,"type"))
-      {
-         /* remove the variable                                               */
-         RemoveWordCUR_0(fortran_out,(long)(-lengthname), lengthname);
-         fseek(fortran_out,(long)(-lengthname),SEEK_CUR);
-         /* then write the new name                                           */
-         if ( inagrifcallargument == 1 && agrif_parentcall == 0 )
-            fprintf(fortran_out,"%d",newvar->var->v_indicetabvars);
-         else
-         {
-            if ( retour77 == 0 )
-            {
-               fprintf(fortran_out," Agrif_tabvars & \n      ");
-            }
-            else
-            {
-               fprintf(fortran_out,"Agrif_tabvars");
-               fprintf(fortran_out," \n     & ");
-            }
-            fprintf(fortran_out,"%s",vargridcurgridtabvarswithoutAgrif_Gr(newvar->var));
-         }
-      }
-      else
-      {
-         /* we should look in the List_ModuleUsed_Var                         */
-         if ( inagrifcallargument != 1 )
-         {
+    if ( out == 0 )
+    {
+        newvar = List_Common_Var;
+        while ( newvar && out == 0 )
+        {
+            if ( !strcasecmp(newvar->var->v_nomvar,ident) ) out = 1;
+            else newvar = newvar->suiv;
+        }
+    }
+    if ( out == 0 )
+    {
+        newvar = List_ModuleUsedInModuleUsed_Var;
+        while ( newvar && out == 0 )
+        {
+            if ( !strcasecmp(newvar->var->v_nomvar,ident) ) out = 1;
+            else newvar = newvar->suiv;
+        }
+    }
+    if ( out == 1 && strcasecmp(newvar->var->v_typevar,"type"))
+    {
+        // remove the variable
+ //       RemoveWordCUR_0(fortran_out,lengthname);
+        // then write the new name
+ //        if ( inagrifcallargument == 1 && agrif_parentcall == 0 )
+//             fprintf(fortran_out,"%d",newvar->var->v_indicetabvars);
+//         else
+//         {
+//             if ( retour77 == 0 )
+//                 fprintf(fortran_out,"Agrif_%s & \n      ", tabvarsname(newvar->var));
+//             else
+//             {
+//                fprintf(fortran_out,"Agrif_%s", tabvarsname(newvar->var));
+//                fprintf(fortran_out," \n     & ");
+//             }
+//             fprintf(fortran_out,"%s",vargridcurgridtabvarswithoutAgrif_Gr(newvar->var));
+//         }
+    }
+    else
+    {
+        // we should look in the List_ModuleUsed_Var
+        if ( inagrifcallargument != 1 )
+        {
             newvar = List_ModuleUsed_Var;
             while ( newvar && out == 0 )
             {
-               if ( !strcasecmp(newvar->var->v_nomvar,ident) ) out = 1;
-               else newvar=newvar->suiv;
+                if ( !strcasecmp(newvar->var->v_nomvar,ident) ) out = 1;
+                else newvar = newvar->suiv;
             }
-            if ( out == 1 && strcasecmp(newvar->var->v_typevar,"type"))
+            if ( out == 1 && strcasecmp(newvar->var->v_typevar, "type"))
             {
-               /* remove the variable                                         */
-               RemoveWordCUR_0(fortran_out,(long)(-lengthname), lengthname);
-               fseek(fortran_out,(long)(-lengthname),SEEK_CUR);
-               /* then write the new name                                     */
-               if ( retour77 == 0 )
-               {
-                  fprintf(fortran_out," Agrif_tabvars & \n      ");
-               }
-               else
-               {
-                  fprintf(fortran_out," \n     & Agrif_tabvars");
-               }
-               fprintf(fortran_out,"%s",vargridcurgridtabvarswithoutAgrif_Gr(newvar->var));
+                // remove the variable
+                RemoveWordCUR_0(fortran_out,lengthname);
+                // then write the new name
+                if ( retour77 == 0 )
+                    fprintf(fortran_out,"Agrif_%s & \n      ",tabvarsname(newvar->var));
+                else
+                {
+                    fprintf(fortran_out," \n     &Agrif_%s",tabvarsname(newvar->var));
+                }
+                fprintf(fortran_out,"%s",vargridcurgridtabvarswithoutAgrif_Gr(newvar->var));
             }
-         }
-      }
-   }
+        }
+    }
 }
-
-/******************************************************************************/
-/*                     ModifyTheVariableName_0                                */
-/******************************************************************************/
-/* Firstpass 0                                                                */
-/******************************************************************************/
-/*                                                                            */
-/*               Agrif_<toto>(variable) ====>     Agrif_<toto>(variable)      */
-/*                                                                            */
-/******************************************************************************/
-void ModifyTheVariableNamecoupled_0(char *ident, char* coupledident)
-{
-   listvar *newvar;
-   int out;
-   
-   if ( firstpass == 0 )
-   {
-      newvar = List_Global_Var;
-      out=0;
-      while ( newvar && out == 0 )
-      {
-         if ( !strcasecmp(newvar->var->v_nomvar,coupledident) ) out = 1;
-         else newvar=newvar->suiv;
-      }
-
-      if ( out == 0 )
-      {
-         newvar = List_ModuleUsed_Var;
-         while ( newvar && out == 0 )
-         {
-            if ( !strcasecmp(newvar->var->v_nomvar,coupledident) ) out = 1;
-            else newvar=newvar->suiv;
-         }
-      }
-      if ( out == 0 )
-      {
-         newvar = List_Common_Var;
-         while ( newvar && out == 0 )
-         {
-            if ( !strcasecmp(newvar->var->v_nomvar,coupledident) ) out = 1;
-            else newvar=newvar->suiv;
-         }
-      }
-
-      if ( out == 0 )
-      {
-         newvar = List_ModuleUsedInModuleUsed_Var;
-         while ( newvar && out == 0 )
-         {
-            if ( !strcasecmp(newvar->var->v_nomvar,coupledident) ) out = 1;
-            else newvar=newvar->suiv;
-         }
-      }
-
-      if ( out == 1 )
-      {
-         /* remove the variable                                               */
-         RemoveWordCUR_0(fortran_out,(long)(-strlen(ident)), strlen(ident));
-         fseek(fortran_out,(long)(-strlen(ident)),SEEK_CUR);
-         /* then write the new name                                           */
-         if ( inagrifcallargument == 1 && agrif_parentcall == 0 )
-            fprintf(fortran_out,"%d",newvar->var->v_indicetabvars);
-         else
-         {
-            if ( retour77 == 0 )
-            {
-               fprintf(fortran_out," Agrif_tabvars & \n      ");
-            }
-            else
-            {
-               fprintf(fortran_out,"Agrif_tabvars");
-               fprintf(fortran_out," \n     & ");
-            }
-            fprintf(fortran_out,"%s",vargridcurgridtabvarswithoutAgrif_Gr(newvar->var));
-         }
-      }
-      else
-      {
-         /* we should look in the List_ModuleUsed_Var                         */
-         if ( inagrifcallargument != 1 )
-         {
-            newvar = List_ModuleUsed_Var;
-            while ( newvar && out == 0 )
-            {
-               if ( !strcasecmp(newvar->var->v_nomvar,coupledident) ) out = 1;
-               else newvar=newvar->suiv;
-            }
-            if ( out == 1 )
-            {
-               /* remove the variable                                         */
-               RemoveWordCUR_0(fortran_out,(long)(-strlen(ident)), strlen(ident));
-               fseek(fortran_out,(long)(-strlen(ident)),SEEK_CUR);
-               /* then write the new name                                     */
-               if ( retour77 == 0 )
-               {
-                  fprintf(fortran_out," Agrif_tabvars & \n      ");
-               }
-               else
-               {
-                  fprintf(fortran_out," \n     & Agrif_tabvars");
-               }
-               fprintf(fortran_out,"%s",vargridcurgridtabvarswithoutAgrif_Gr(newvar->var));
-            }
-         }
-      }
-   }
-}
-
-
 
 /******************************************************************************/
 /*                         Add_SubroutineWhereAgrifUsed_1                     */
@@ -327,7 +210,7 @@ void ModifyTheVariableNamecoupled_0(char *ident, char* coupledident)
 /*       list = List_SubroutineWhereAgrifUsed                                 */
 /*                                                                            */
 /******************************************************************************/
-void Add_SubroutineWhereAgrifUsed_1(char *sub,char *mod)
+void Add_SubroutineWhereAgrifUsed_1(const char *sub, const char *mod)
 {
     listnom *listnomtmp;
     listnom *parcours;
@@ -336,13 +219,11 @@ void Add_SubroutineWhereAgrifUsed_1(char *sub,char *mod)
     {
         if ( !List_SubroutineWhereAgrifUsed )
         {
-            listnomtmp = (listnom*) malloc(sizeof(listnom));
-            strcpy(listnomtmp->o_nom,sub);
-            Save_Length(sub,23);
-            strcpy(listnomtmp->o_module,mod);
-            Save_Length(mod,24);
+            listnomtmp = (listnom*) calloc(1, sizeof(listnom));
+            strcpy(listnomtmp->o_nom, sub);
+            strcpy(listnomtmp->o_module, mod);
             listnomtmp->suiv = NULL;
-            List_SubroutineWhereAgrifUsed  =  listnomtmp;
+            List_SubroutineWhereAgrifUsed = listnomtmp;
         }
         else
         {
@@ -353,13 +234,11 @@ void Add_SubroutineWhereAgrifUsed_1(char *sub,char *mod)
             }
             if ( !parcours )
             {
-                listnomtmp = (listnom*) malloc(sizeof(listnom));
-                strcpy(listnomtmp->o_nom,sub);
-                Save_Length(sub,23);
-                strcpy(listnomtmp->o_module,mod);
-                Save_Length(mod,24);
+                listnomtmp = (listnom*) calloc(1, sizeof(listnom));
+                strcpy(listnomtmp->o_nom, sub);
+                strcpy(listnomtmp->o_module, mod);
                 listnomtmp->suiv = List_SubroutineWhereAgrifUsed;
-                List_SubroutineWhereAgrifUsed  =  listnomtmp;
+                List_SubroutineWhereAgrifUsed = listnomtmp;
             }
         }
     }
@@ -390,35 +269,40 @@ void  AddUseAgrifUtil_0(FILE *fileout)
   {
      parcours = List_SubroutineWhereAgrifUsed;
      while ( parcours && strcasecmp(parcours->o_nom,subroutinename) )
-                                                    parcours = parcours -> suiv;
+     {
+        parcours = parcours -> suiv;
+     }
      if ( parcours && parcours->o_val != 0 )
-                                   fprintf(fileout,"\n      USE Agrif_Util \n");
+        fprintf(fileout,"\n      use Agrif_Util\n");
+     else
+        fprintf(fileout,"\n      use Agrif_Types, only : Agrif_tabvars\n");
   }
 }
 
 void  AddUseAgrifUtilBeforeCall_0(FILE *fileout)
 {
-  listusemodule *parcours;
+    listusemodule *parcours;
 
-  int out;
+    int out;
 
-  if ( firstpass == 0 )
-  {
-     parcours = List_NameOfModuleUsed;
-     out = 0 ;
-     while ( parcours && out == 0 )
-     {
-        if ( !strcasecmp(parcours->u_usemodule,"Agrif_Util")     &&
-             !strcasecmp(parcours->u_modulename,curmodulename)   &&
-             !strcasecmp(parcours->u_cursubroutine,subroutinename)
-            ) out = 1;
-        else parcours = parcours->suiv;
-     }
-     if ( out == 0 )
-     {
-        fprintf(fileout,"\n      USE Agrif_Util \n");
-     }
-  }
+    if ( firstpass == 0 )
+    {
+        parcours = List_NameOfModuleUsed;
+        out = 0 ;
+        while ( parcours && out == 0 )
+        {
+            if ( !strcasecmp(parcours->u_usemodule, "Agrif_Util")   &&
+                 !strcasecmp(parcours->u_modulename, curmodulename) &&
+                 !strcasecmp(parcours->u_cursubroutine, subroutinename) )
+                out = 1;
+            else
+                parcours = parcours->suiv;
+        }
+        if ( out == 0 )
+        {
+            fprintf(fileout,"\n      use Agrif_Util\n");
+        }
+    }
 }
 
 /******************************************************************************/
@@ -430,166 +314,165 @@ void  AddUseAgrifUtilBeforeCall_0(FILE *fileout)
 /*               Agrif_<toto>(variable) ====>     Agrif_<toto>(variable)      */
 /*                                                                            */
 /******************************************************************************/
-void NotifyAgrifFunction_0(char *ident)
+void NotifyAgrifFunction_0(const char *ident)
 {
-   if ( firstpass == 0 )
-   {
-      if ( !strcasecmp(ident,"Agrif_parent") )
-      {
-         InAgrifParentDef = 1;
-         pos_curagrifparent = setposcur()-12;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Get_Coarse_grid") )
-      {
-         InAgrifParentDef = 2;
-         pos_curagrifparent = setposcur()-21;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Rhox") )
-      {
-         InAgrifParentDef = 3;
-         pos_curagrifparent = setposcur()-10;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Parent_Rhox") )
-      {
-         InAgrifParentDef = 4;
-         pos_curagrifparent = setposcur()-17;
-      }
-      else if ( !strcasecmp(ident,"Agrif_IRhox") )
-      {
-         InAgrifParentDef = 5;
-         pos_curagrifparent = setposcur()-11;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Parent_IRhox") )
-      {
-         InAgrifParentDef = 6;
-         pos_curagrifparent = setposcur()-18;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Rhoy") )
-      {
-         InAgrifParentDef = 7;
-         pos_curagrifparent = setposcur()-10;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Parent_Rhoy") )
-      {
-         InAgrifParentDef = 8;
-         pos_curagrifparent = setposcur()-17;
-      }
-      else if ( !strcasecmp(ident,"Agrif_IRhoy") )
-      {
-         InAgrifParentDef = 9;
-         pos_curagrifparent = setposcur()-11;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Parent_IRhoy") )
-      {
-         InAgrifParentDef = 10;
-         pos_curagrifparent = setposcur()-18;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Rhoz") )
-      {
-         InAgrifParentDef = 11;
-         pos_curagrifparent = setposcur()-10;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Parent_Rhoz") )
-      {
-         InAgrifParentDef = 12;
-         pos_curagrifparent = setposcur()-17;
-      }
-      else if ( !strcasecmp(ident,"Agrif_IRhoz") )
-      {
-         InAgrifParentDef = 13;
-         pos_curagrifparent = setposcur()-11;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Parent_IRhoz") )
-      {
-         InAgrifParentDef = 14;
-         pos_curagrifparent = setposcur()-18;
-      }
-      else if ( !strcasecmp(ident,"Agrif_NearCommonBorderX") )
-      {
-         InAgrifParentDef = 15;
-         pos_curagrifparent = setposcur()-23;
-      }
-      else if ( !strcasecmp(ident,"Agrif_NearCommonBorderY") )
-      {
-         InAgrifParentDef = 16;
-         pos_curagrifparent = setposcur()-23;
-      }
-      else if ( !strcasecmp(ident,"Agrif_NearCommonBorderZ") )
-      {
-         InAgrifParentDef = 17;
-         pos_curagrifparent = setposcur()-23;
-      }
-      else if ( !strcasecmp(ident,"Agrif_DistantCommonBorderX") )
-      {
-         InAgrifParentDef = 18;
-         pos_curagrifparent = setposcur()-26;
-      }
-      else if ( !strcasecmp(ident,"Agrif_DistantCommonBorderY") )
-      {
-         InAgrifParentDef = 19;
-         pos_curagrifparent = setposcur()-26;
-      }
-      else if ( !strcasecmp(ident,"Agrif_DistantCommonBorderZ") )
-      {
-         InAgrifParentDef = 20;
-         pos_curagrifparent = setposcur()-26;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Get_parent_id") )
-      {
-         InAgrifParentDef = 21;
-         pos_curagrifparent = setposcur()-19;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Get_grid_id") )
-      {
-         InAgrifParentDef = 22;
-         pos_curagrifparent = setposcur()-17;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Parent_Iz") )
-      {
-         InAgrifParentDef = 23;
-         pos_curagrifparent = setposcur()-15;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Parent_Iy") )
-      {
-         InAgrifParentDef = 24;
-         pos_curagrifparent = setposcur()-15;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Parent_Ix") )
-      {
-         InAgrifParentDef = 25;
-         pos_curagrifparent = setposcur()-15;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Iz") )
-      {
-         InAgrifParentDef = 26;
-         pos_curagrifparent = setposcur()-8;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Iy") )
-      {
-         InAgrifParentDef = 27;
-         pos_curagrifparent = setposcur()-8;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Ix") )
-      {
-         InAgrifParentDef = 28;
-         pos_curagrifparent = setposcur()-8;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Nb_Fixed_Grids") )
-      {
-         InAgrifParentDef = 29;
-         pos_curagrifparent = setposcur()-20;
-      }
-      else if ( !strcasecmp(ident,"Agrif_Nb_Fine_Grids") )
-      {
-         InAgrifParentDef = 29;
-         pos_curagrifparent = setposcur()-19;
-      }
-      else if ( !strcasecmp(ident,"AGRIF_Nb_Step") )
-      {
-         InAgrifParentDef = 30;
-         pos_curagrifparent = setposcur()-13;
-      }
-   }
+    if ( firstpass == 1 )   return;
+
+    if ( !strcasecmp(ident,"Agrif_parent") )
+    {
+        InAgrifParentDef = 1;
+        pos_curagrifparent = setposcur()-12;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Get_Coarse_grid") )
+    {
+        InAgrifParentDef = 2;
+        pos_curagrifparent = setposcur()-21;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Rhox") )
+    {
+        InAgrifParentDef = 3;
+        pos_curagrifparent = setposcur()-10;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Parent_Rhox") )
+    {
+        InAgrifParentDef = 4;
+        pos_curagrifparent = setposcur()-17;
+    }
+    else if ( !strcasecmp(ident,"Agrif_IRhox") )
+    {
+        InAgrifParentDef = 5;
+        pos_curagrifparent = setposcur()-11;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Parent_IRhox") )
+    {
+        InAgrifParentDef = 6;
+        pos_curagrifparent = setposcur()-18;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Rhoy") )
+    {
+        InAgrifParentDef = 7;
+        pos_curagrifparent = setposcur()-10;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Parent_Rhoy") )
+    {
+        InAgrifParentDef = 8;
+        pos_curagrifparent = setposcur()-17;
+    }
+    else if ( !strcasecmp(ident,"Agrif_IRhoy") )
+    {
+        InAgrifParentDef = 9;
+        pos_curagrifparent = setposcur()-11;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Parent_IRhoy") )
+    {
+        InAgrifParentDef = 10;
+        pos_curagrifparent = setposcur()-18;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Rhoz") )
+    {
+        InAgrifParentDef = 11;
+        pos_curagrifparent = setposcur()-10;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Parent_Rhoz") )
+    {
+        InAgrifParentDef = 12;
+        pos_curagrifparent = setposcur()-17;
+    }
+    else if ( !strcasecmp(ident,"Agrif_IRhoz") )
+    {
+        InAgrifParentDef = 13;
+        pos_curagrifparent = setposcur()-11;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Parent_IRhoz") )
+    {
+        InAgrifParentDef = 14;
+        pos_curagrifparent = setposcur()-18;
+    }
+    else if ( !strcasecmp(ident,"Agrif_NearCommonBorderX") )
+    {
+        InAgrifParentDef = 15;
+        pos_curagrifparent = setposcur()-23;
+    }
+    else if ( !strcasecmp(ident,"Agrif_NearCommonBorderY") )
+    {
+        InAgrifParentDef = 16;
+        pos_curagrifparent = setposcur()-23;
+    }
+    else if ( !strcasecmp(ident,"Agrif_NearCommonBorderZ") )
+    {
+        InAgrifParentDef = 17;
+        pos_curagrifparent = setposcur()-23;
+    }
+    else if ( !strcasecmp(ident,"Agrif_DistantCommonBorderX") )
+    {
+        InAgrifParentDef = 18;
+        pos_curagrifparent = setposcur()-26;
+    }
+    else if ( !strcasecmp(ident,"Agrif_DistantCommonBorderY") )
+    {
+        InAgrifParentDef = 19;
+        pos_curagrifparent = setposcur()-26;
+    }
+    else if ( !strcasecmp(ident,"Agrif_DistantCommonBorderZ") )
+    {
+        InAgrifParentDef = 20;
+        pos_curagrifparent = setposcur()-26;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Get_parent_id") )
+    {
+        InAgrifParentDef = 21;
+        pos_curagrifparent = setposcur()-19;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Get_grid_id") )
+    {
+        InAgrifParentDef = 22;
+        pos_curagrifparent = setposcur()-17;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Parent_Iz") )
+    {
+        InAgrifParentDef = 23;
+        pos_curagrifparent = setposcur()-15;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Parent_Iy") )
+    {
+        InAgrifParentDef = 24;
+        pos_curagrifparent = setposcur()-15;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Parent_Ix") )
+    {
+        InAgrifParentDef = 25;
+        pos_curagrifparent = setposcur()-15;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Iz") )
+    {
+        InAgrifParentDef = 26;
+        pos_curagrifparent = setposcur()-8;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Iy") )
+    {
+        InAgrifParentDef = 27;
+        pos_curagrifparent = setposcur()-8;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Ix") )
+    {
+        InAgrifParentDef = 28;
+        pos_curagrifparent = setposcur()-8;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Nb_Fixed_Grids") )
+    {
+        InAgrifParentDef = 29;
+        pos_curagrifparent = setposcur()-20;
+    }
+    else if ( !strcasecmp(ident,"Agrif_Nb_Fine_Grids") )
+    {
+        InAgrifParentDef = 29;
+        pos_curagrifparent = setposcur()-19;
+    }
+    else if ( !strcasecmp(ident,"AGRIF_Nb_Step") )
+    {
+        InAgrifParentDef = 30;
+        pos_curagrifparent = setposcur()-13;
+    }
 }
 
 /******************************************************************************/
@@ -601,11 +484,10 @@ void NotifyAgrifFunction_0(char *ident)
 /*               Agrif_<toto>(variable) ====>     Agrif_<toto>(variable)      */
 /*                                                                            */
 /******************************************************************************/
-void ModifyTheAgrifFunction_0(char *ident)
+void ModifyTheAgrifFunction_0(const char *ident)
 {
    if ( InAgrifParentDef != 0 )
           AgriffunctionModify_0(ident,InAgrifParentDef);
-   /*                                                                         */
    InAgrifParentDef = 0;
 }
 
@@ -679,9 +561,9 @@ void ModifyTheAgrifFunction_0(char *ident)
 /*                                                                            */
 /*                                                                            */
 /******************************************************************************/
-void AgriffunctionModify_0(char *ident,int whichone)
+void AgriffunctionModify_0(const char *ident,int whichone)
 {
-    char toprint[LONG_C];
+    char toprint[LONG_M];
     if ( firstpass == 0 )
     {
         strcpy(toprint,"");
@@ -913,50 +795,44 @@ void AgriffunctionModify_0(char *ident,int whichone)
 /*               Agrif_<toto>(variable) ====>     Agrif_<toto>(variable)      */
 /*                                                                            */
 /******************************************************************************/
-void Instanciation_0(char *ident)
+void Instanciation_0(const char *ident)
 {
-   listvar *newvar;
-   int out;
+    listvar *newvar;
+    int out;
 
-   if ( firstpass == 0 && sameagrifargument == 1 )
-   {
-      newvar = List_Global_Var;
-
-      out=0;
-      while ( newvar && out == 0 )
-      {
-         if ( !strcasecmp(newvar->var->v_nomvar,ident) ) out = 1;
-         else newvar=newvar->suiv;
-      }
-
-      if ( out == 0 )
-      {
-         newvar = List_Common_Var;
-
-         out=0;
-         while ( newvar && out == 0 )
-         {
+    if ( firstpass == 0 && sameagrifargument == 1 )
+    {
+        newvar = List_Global_Var;
+        out = 0;
+        while ( newvar && out == 0 )
+        {
             if ( !strcasecmp(newvar->var->v_nomvar,ident) ) out = 1;
-            else newvar=newvar->suiv;
-         }
-      }
-      if ( out == 0 )
-      {
-         newvar = List_ModuleUsed_Var;
-
-         out=0;
-         while ( newvar && out == 0 )
-         {
-            if ( !strcasecmp(newvar->var->v_nomvar,ident) ) out = 1;
-            else newvar=newvar->suiv;
-         }
-      }
-
-      if ( out == 1 )
-      {
-         /* then write the instanciation                                      */
-         fprintf(fortran_out,"\n      %s = %s",ident,vargridcurgridtabvars(newvar->var,3));
-      }
-   }
-   sameagrifargument = 0;
+            else newvar = newvar->suiv;
+        }
+        if ( out == 0 )
+        {
+            newvar = List_Common_Var;
+            while ( newvar && out == 0 )
+            {
+                if ( !strcasecmp(newvar->var->v_nomvar,ident) ) out = 1;
+                else newvar = newvar->suiv;
+            }
+        }
+        if ( out == 0 )
+        {
+            newvar = List_ModuleUsed_Var;
+            while ( newvar && out == 0 )
+            {
+                if ( !strcasecmp(newvar->var->v_nomvar,ident) ) out = 1;
+                else newvar = newvar->suiv;
+            }
+        }
+//         if ( out == 1 )
+//         {
+//             /* then write the instanciation                                      */
+//             fprintf(fortran_out,"\n      %s = %s",ident,vargridcurgridtabvars(newvar->var,3));
+//             printf("#\n# Instanciation_0: |%s = %s|\n#\n", ident,vargridcurgridtabvars(newvar->var,3));
+//         }
+    }
+    sameagrifargument = 0;
 }

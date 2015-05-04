@@ -180,13 +180,14 @@
       common/arraysindices/i1t,j1t,i2t,j2t,
      &     i1u,i2u,j1v,j2v
             
-      integer zetaid,ubarid,vbarid,uid,vid,tid
+      integer hid, zetaid,ubarid,vbarid,uid,vid,tid
+      integer rmaskid
       integer tspongeid, uspongeid, vspongeid
 # ifdef WKB_WWAVE
       integer wacid,warid,wkxid,wkeid
 # endif
-      common/varids/zetaid,ubarid,vbarid,uid,vid,tid,
-     &  tspongeid, uspongeid, vspongeid
+      common/varids/hid,zetaid,ubarid,vbarid,uid,vid,tid,
+     &  tspongeid, uspongeid, vspongeid, rmaskid
 # ifdef WKB_WWAVE
      &  ,wacid,warid,wkxid,wkeid
 # endif

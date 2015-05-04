@@ -51,7 +51,6 @@
        integer :: irhot
        external interpsponget
        integer :: parentnbstep
-       real, dimension(:,:,:,:), allocatable :: text
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -77,12 +76,8 @@ C$OMP MASTER
         Agrif_Specialvalue=0.
 
         tinterp = 1.
-        allocate(text(i1t:i2t,j1t:j2t,N,NT))
-        text = 0.
-        Call Agrif_Bc_Variable(text,tspongeid,calledweight=tinterp,
+        Call Agrif_Bc_Variable(tspongeid,calledweight=tinterp,
      &                              procname=interpsponget)
-        tsponge(i1t:i2t,j1t:j2t,1:N,1:NT) = text
-        deallocate(text)
       
         Agrif_UseSpecialvalue=.false.
 
@@ -231,19 +226,24 @@ C$OMP BARRIER
      
       return
       end
-      
-      subroutine interpsponget(tabres,i1,i2,j1,j2,k1,k2,m1,m2)
+
+      subroutine interpsponget(tabres,i1,i2,j1,j2,k1,k2,m1,m2,before)
       implicit none
 # include "param.h"
 # include "ocean3d.h"
 # include "scalars.h"
+# include "zoom.h"
 
       integer i1,i2,j1,j2,k1,k2,m1,m2
+      logical :: before
       real tabres(i1:i2,j1:j2,k1:k2,m1:m2)
-       
-      tabres(i1:i2,j1:j2,k1:k2,m1:m2) = 
+
+      if (before) then
+          tabres(i1:i2,j1:j2,k1:k2,m1:m2) =
      &               t(i1:i2,j1:j2,k1:k2,nrhs,m1:m2)
-      
+      else
+          tsponge(i1:i2,j1:j2,k1:k2,m1:m2) = tabres(i1:i2,j1:j2,k1:k2,m1:m2)
+      endif
       return
       end  
 #else

@@ -50,32 +50,28 @@
 void Add_Data_Var_1 (listvar **curlist,char *name,char *values)
 {
   listvar *newvar;
-  char ligne[LONG_C];
+  char ligne[LONG_M];
 
 //  if ( firstpass == 1 )
 //  {
-     newvar=(listvar *)malloc(sizeof(listvar));
-     newvar->var=(variable *)malloc(sizeof(variable));
+     newvar=(listvar *)calloc(1,sizeof(listvar));
+     newvar->var=(variable *)calloc(1,sizeof(variable));
      /*                                                                       */
      Init_Variable(newvar->var);
      /*                                                                       */
      if ( inmoduledeclare == 1 ) newvar->var->v_module=1;
      strcpy(newvar->var->v_nomvar,name);
-     Save_Length(name,4);
      strcpy(newvar->var->v_subroutinename,subroutinename);
-     Save_Length(subroutinename,11);
      strcpy(newvar->var->v_modulename,curmodulename);
-     Save_Length(curmodulename,6);
-     strcpy(newvar->var->v_commoninfile,mainfile);
-     Save_Length(mainfile,10);
+     strcpy(newvar->var->v_commoninfile,cur_filename);
      if (strchr(values,',') && strncasecmp(values,"'",1))
-            {
-            sprintf(ligne,"(/%s/)",values);
-            }
+        sprintf(ligne,"(/%s/)",values);
      else
-       strcpy(ligne,values);
+        strcpy(ligne,values);
        
-     strcpy(newvar->var->v_initialvalue,ligne);
+     newvar->var->v_initialvalue=Insertname(newvar->var->v_initialvalue,ligne,0);
+     
+     // strcpy(newvar->var->v_initialvalue,ligne);
      Save_Length(ligne,14);
      newvar->suiv = NULL;
      if ( ! (*curlist) )
@@ -90,53 +86,131 @@ void Add_Data_Var_1 (listvar **curlist,char *name,char *values)
 //  }
 }
 
-void Add_Data_Var_Names_01 (listvar **curlist,listname *l1,listname *l2)
+void Add_Data_Var_Names_01 (listvar **curlist,listvar *l1,listname *l2)
 {
-  listvar *newvar;
-  listvar *tmpvar;
-  listname *tmpvar1;
-  listname *tmpvar2;  
+    listvar *newvar;
+    listvar *tmpvar;
+    listvar *tmpvar1;
+    listname *tmpvar2;
+    char tempname[LONG_M];
+    variable *found_var = NULL;
+    int out;
+    size_t i = 0;
+    char chartmp[2];
+    
+    tmpvar1 = l1;
+    tmpvar2 = l2;
   
-  tmpvar1 = l1;
-  tmpvar2 = l2;
-  
-  while (tmpvar1)
-  {
-     newvar=(listvar *)malloc(sizeof(listvar));
-     newvar->var=(variable *)malloc(sizeof(variable));
-     /*                                                                       */
-     Init_Variable(newvar->var);
-     /*                                                                       */
-     if ( inmoduledeclare == 1 ) newvar->var->v_module=1;
-     strcpy(newvar->var->v_nomvar,tmpvar1->n_name);
-     Save_Length(tmpvar1->n_name,4);
-     strcpy(newvar->var->v_subroutinename,subroutinename);
-     Save_Length(subroutinename,11);
-     strcpy(newvar->var->v_modulename,curmodulename);
-     Save_Length(curmodulename,6);
-     strcpy(newvar->var->v_commoninfile,mainfile);
-     Save_Length(mainfile,10);
-       
-     strcpy(newvar->var->v_initialvalue,tmpvar2->n_name);
-     Save_Length(tmpvar2->n_name,14);
-     newvar->suiv = NULL;
-     
-     if ( ! (*curlist) )
-     {
-        *curlist  = newvar ;
-     }
-     else
-     {
+    while (tmpvar1)
+    {
+//    printf("TMPVAR 1 nomvar = %s, initialvaluearra = %s\n",tmpvar1->var->v_nomvar,tmpvar1->var->v_initialvalue_array->n_name);
+       strcpy(tempname,tmpvar1->var->v_nomvar);
+//        while ( i < strlen(tmpvar1->var->v_nomvar) )
+//        {
+//        if (tmpvar1->var->v_nomvar[i]=='(') break;
+//          sprintf(chartmp,"%c",tmpvar1->var->v_nomvar[i]);
+//          strcat(tempname,chartmp);
+//          i++;
+//        }
+        found_var = get_variable_in_list_from_name(List_Common_Var, tempname);
+        if ( ! found_var )  found_var = get_variable_in_list_from_name(List_Global_Var,tempname);
+        if ( ! found_var )  found_var = get_variable_in_list_from_name(List_SubroutineDeclaration_Var,tempname);
+        
+        if ( found_var && found_var->v_nbdim > 1000 )
+        {
+            printf("##############################################################################################################\n");
+            printf("## CONV Error : arrays in data_stmt_object lists not yet supported. Please complain to the proper authorities.\n");
+            printf("##   variable name : %s (in %s:%s:%s)\n", found_var->v_nomvar, found_var->v_modulename,
+                                                              found_var->v_subroutinename, found_var->v_commonname);
+            exit(1);
+        }
+        
+        if (tmpvar1->var->v_initialvalue_array)
+        {
+        if ((firstpass == 1) && strcmp(tmpvar1->var->v_initialvalue_array->n_name,""))
+        {
+        DecomposeTheName(tmpvar1->var->v_initialvalue_array->n_name);
+        }
+        }
+        
+        // Search for existing newvar
+        
         tmpvar = *curlist;
-        while (tmpvar->suiv)
-          tmpvar=tmpvar->suiv;
-        tmpvar->suiv = newvar;
-     }
+        out = 0;
+        while (tmpvar)
+        {
+        if (!strcasecmp(tempname,tmpvar->var->v_nomvar) && !strcasecmp(subroutinename,tmpvar->var->v_subroutinename) && !strcasecmp(curmodulename,tmpvar->var->v_modulename) && !strcasecmp(cur_filename,tmpvar->var->v_commoninfile) )
+        {
+        out = 1;
+        break;
+        }
+        tmpvar=tmpvar->suiv;
+        }
+        if (out == 0)
+        {
+        newvar = (listvar *) calloc(1,sizeof(listvar));
+        newvar->var = (variable *) calloc(1,sizeof(variable));
+
+        Init_Variable(newvar->var);
+
+        if ( inmoduledeclare == 1 ) newvar->var->v_module=1;
+        
+        strcpy(newvar->var->v_nomvar,tempname);
+        strcpy(newvar->var->v_subroutinename,subroutinename);
+        strcpy(newvar->var->v_modulename,curmodulename);
+        strcpy(newvar->var->v_commoninfile,cur_filename);
+        /*printf("TMPVAR 2 nomvar = %s\n",tmpvar2->n_name);*/
+        newvar->var->v_initialvalue=Insertname(newvar->var->v_initialvalue,tmpvar2->n_name,0);
+        
+        if (tmpvar1->var->v_initialvalue_array)
+        {
+        if (strcmp(tmpvar1->var->v_initialvalue_array->n_name,""))
+        {
+        newvar->var->v_initialvalue_array=Insertname(newvar->var->v_initialvalue_array,tmpvar1->var->v_initialvalue_array->n_name,0);
+        }
+        }
+        newvar->var->v_do_loop=tmpvar1->var->v_do_loop;
+//        strcpy(newvar->var->v_initialvalue,tmpvar2->n_name);
+//        strcpy(newvar->var->v_initialvalue_array,tmpvar1->var->v_initialvalue_array);
+        
+        newvar->var->v_dimension=tmpvar1->var->v_dimension;
+
+        Save_Length(tmpvar2->n_name,14);
+
+        newvar->suiv = NULL;
      
-  tmpvar1 = tmpvar1->suiv;
-  tmpvar2 = tmpvar2->suiv;  
-  }
-  return;
-
-
+        if ( *curlist != NULL )
+        {
+            tmpvar = *curlist;
+            while (tmpvar->suiv)
+                tmpvar = tmpvar->suiv;
+            tmpvar->suiv = newvar;
+        }
+        else
+        {
+            *curlist  = newvar ;
+        }
+        tmpvar=newvar;
+        }
+        else // out = 1
+        {
+        tmpvar->var->v_initialvalue=Insertname(tmpvar->var->v_initialvalue,tmpvar2->n_name,0);
+        if (strcmp(tmpvar1->var->v_initialvalue_array->n_name,""))
+        {
+        tmpvar->var->v_initialvalue_array=Insertname(tmpvar->var->v_initialvalue_array,tmpvar1->var->v_initialvalue_array->n_name,0);
+        }
+        tmpvar->var->v_do_loop=tmpvar1->var->v_do_loop;
+        }
+     
+        tmpvar1 = tmpvar1->suiv;
+        tmpvar2 = tmpvar2->suiv;
+    }
+    
+    while (tmpvar2)
+    {
+    strcpy(tempname,tmpvar2->n_name);
+    tmpvar->var->v_initialvalue = Insertname(tmpvar->var->v_initialvalue,tempname,1);
+    tmpvar2 = tmpvar2->suiv; 
+    }
+    
 }

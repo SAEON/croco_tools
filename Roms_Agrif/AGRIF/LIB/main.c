@@ -1,8 +1,8 @@
-/* A Bison parser, made by GNU Bison 2.5.  */
+/* A Bison parser, made by GNU Bison 2.7.  */
 
 /* Bison implementation for Yacc-like parsers in C
    
-      Copyright (C) 1984, 1989-1990, 2000-2011 Free Software Foundation, Inc.
+      Copyright (C) 1984, 1989-1990, 2000-2012 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,7 +44,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.5"
+#define YYBISON_VERSION "2.7"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -58,8 +58,6 @@
 /* Pull parsers.  */
 #define YYPULL 1
 
-/* Using locations.  */
-#define YYLSP_NEEDED 0
 
 /* Substitute the variable and function names.  */
 #define yyparse         convert_parse
@@ -70,10 +68,8 @@
 #define yydebug         convert_debug
 #define yynerrs         convert_nerrs
 
-
 /* Copy the first part of user declarations.  */
-
-/* Line 268 of yacc.c  */
+/* Line 371 of yacc.c  */
 #line 35 "convert.y"
 
 #include <stdlib.h>
@@ -86,20 +82,21 @@ extern FILE * convert_in;
 
 int convert_error(const char *s)
 {
-    if (!strcasecmp(curfile,mainfile))  printf("Dans convert %s line %d, fichier %s\n",s,line_num,curfile);
-    else                                printf("Dans convert %s line %d, fichier %s\n",s,line_num,curfile);
+    printf("##\n## ERROR in conv: '%s' (line %d, file: %s)\n##\n", s, line_num, config_file);
     exit(0);
 }
 
 
+/* Line 371 of yacc.c  */
+#line 92 "convert.tab.c"
 
-/* Line 268 of yacc.c  */
-#line 98 "convert.tab.c"
-
-/* Enabling traces.  */
-#ifndef YYDEBUG
-# define YYDEBUG 1
-#endif
+# ifndef YY_NULL
+#  if defined __cplusplus && 201103L <= __cplusplus
+#   define YY_NULL nullptr
+#  else
+#   define YY_NULL 0
+#  endif
+# endif
 
 /* Enabling verbose error messages.  */
 #ifdef YYERROR_VERBOSE
@@ -109,11 +106,14 @@ int convert_error(const char *s)
 # define YYERROR_VERBOSE 0
 #endif
 
-/* Enabling the token table.  */
-#ifndef YYTOKEN_TABLE
-# define YYTOKEN_TABLE 0
-#endif
 
+/* Enabling traces.  */
+#ifndef YYDEBUG
+# define YYDEBUG 1
+#endif
+#if YYDEBUG
+extern int convert_debug;
+#endif
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -122,29 +122,29 @@ int convert_error(const char *s)
       know about them.  */
    enum yytokentype {
      TOK_SEP = 258,
-     TOK_USE = 259,
-     TOK_MODULEMAIN = 260,
-     TOK_NOTGRIDDEP = 261,
-     TOK_USEITEM = 262,
-     TOK_NAME = 263,
-     TOK_PROBTYPE = 264
+     TOK_KIND = 259,
+     TOK_EQUAL = 260,
+     TOK_USE = 261,
+     TOK_MODULEMAIN = 262,
+     TOK_NOTGRIDDEP = 263,
+     TOK_USEITEM = 264,
+     TOK_NAME = 265,
+     TOK_CSTINT = 266,
+     TOK_PROBTYPE = 267
    };
 #endif
-
 
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
 {
+/* Line 387 of yacc.c  */
+#line 52 "convert.y"
 
-/* Line 293 of yacc.c  */
-#line 53 "convert.y"
-
-    char na[LONG_C];
-
+    char na[LONG_M];
 
 
-/* Line 293 of yacc.c  */
+/* Line 387 of yacc.c  */
 #line 149 "convert.tab.c"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
@@ -152,12 +152,28 @@ typedef union YYSTYPE
 # define YYSTYPE_IS_DECLARED 1
 #endif
 
+extern YYSTYPE convert_lval;
+
+#ifdef YYPARSE_PARAM
+#if defined __STDC__ || defined __cplusplus
+int convert_parse (void *YYPARSE_PARAM);
+#else
+int convert_parse ();
+#endif
+#else /* ! YYPARSE_PARAM */
+#if defined __STDC__ || defined __cplusplus
+int convert_parse (void);
+#else
+int convert_parse ();
+#endif
+#endif /* ! YYPARSE_PARAM */
+
+
 
 /* Copy the second part of user declarations.  */
 
-
-/* Line 343 of yacc.c  */
-#line 161 "convert.tab.c"
+/* Line 390 of yacc.c  */
+#line 177 "convert.tab.c"
 
 #ifdef short
 # undef short
@@ -210,24 +226,24 @@ typedef short int yytype_int16;
 # if defined YYENABLE_NLS && YYENABLE_NLS
 #  if ENABLE_NLS
 #   include <libintl.h> /* INFRINGES ON USER NAME SPACE */
-#   define YY_(msgid) dgettext ("bison-runtime", msgid)
+#   define YY_(Msgid) dgettext ("bison-runtime", Msgid)
 #  endif
 # endif
 # ifndef YY_
-#  define YY_(msgid) msgid
+#  define YY_(Msgid) Msgid
 # endif
 #endif
 
 /* Suppress unused-variable warnings by "using" E.  */
 #if ! defined lint || defined __GNUC__
-# define YYUSE(e) ((void) (e))
+# define YYUSE(E) ((void) (E))
 #else
-# define YYUSE(e) /* empty */
+# define YYUSE(E) /* empty */
 #endif
 
 /* Identity function, used to suppress warnings about constant conditions.  */
 #ifndef lint
-# define YYID(n) (n)
+# define YYID(N) (N)
 #else
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
@@ -263,6 +279,7 @@ YYID (yyi)
 #    if ! defined _ALLOCA_H && ! defined EXIT_SUCCESS && (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 #     include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
+      /* Use EXIT_SUCCESS as a witness for stdlib.h.  */
 #     ifndef EXIT_SUCCESS
 #      define EXIT_SUCCESS 0
 #     endif
@@ -354,20 +371,20 @@ union yyalloc
 #endif
 
 #if defined YYCOPY_NEEDED && YYCOPY_NEEDED
-/* Copy COUNT objects from FROM to TO.  The source and destination do
+/* Copy COUNT objects from SRC to DST.  The source and destination do
    not overlap.  */
 # ifndef YYCOPY
 #  if defined __GNUC__ && 1 < __GNUC__
-#   define YYCOPY(To, From, Count) \
-      __builtin_memcpy (To, From, (Count) * sizeof (*(From)))
+#   define YYCOPY(Dst, Src, Count) \
+      __builtin_memcpy (Dst, Src, (Count) * sizeof (*(Src)))
 #  else
-#   define YYCOPY(To, From, Count)		\
-      do					\
-	{					\
-	  YYSIZE_T yyi;				\
-	  for (yyi = 0; yyi < (Count); yyi++)	\
-	    (To)[yyi] = (From)[yyi];		\
-	}					\
+#   define YYCOPY(Dst, Src, Count)              \
+      do                                        \
+        {                                       \
+          YYSIZE_T yyi;                         \
+          for (yyi = 0; yyi < (Count); yyi++)   \
+            (Dst)[yyi] = (Src)[yyi];            \
+        }                                       \
       while (YYID (0))
 #  endif
 # endif
@@ -376,20 +393,20 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  2
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   21
+#define YYLAST   29
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  13
+#define YYNTOKENS  16
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  3
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  10
+#define YYNRULES  11
 /* YYNRULES -- Number of states.  */
-#define YYNSTATES  24
+#define YYNSTATES  29
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   264
+#define YYMAXUTOK   267
 
 #define YYTRANSLATE(YYX)						\
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -398,11 +415,11 @@ union yyalloc
 static const yytype_uint8 yytranslate[] =
 {
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      12,     2,     2,     2,     2,     2,     2,     2,     2,     2,
+      15,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,    10,     2,     2,     2,     2,     2,
-       2,     2,     2,     2,     2,     2,     2,     2,     2,    11,
+       2,     2,     2,     2,    13,     2,     2,     2,     2,     2,
+       2,     2,     2,     2,     2,     2,     2,     2,     2,    14,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -423,7 +440,7 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9
+       5,     6,     7,     8,     9,    10,    11,    12
 };
 
 #if YYDEBUG
@@ -432,34 +449,36 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyprhs[] =
 {
        0,     0,     3,     4,     7,     9,    13,    19,    27,    31,
-      36
+      37,    42
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-      14,     0,    -1,    -1,    14,    15,    -1,    12,    -1,     9,
-       8,    11,    -1,     9,     8,    10,     8,    11,    -1,     9,
-       8,    10,     8,    10,     8,    11,    -1,     5,     8,    11,
-      -1,     6,     3,     8,    11,    -1,     4,     7,    11,    -1
+      17,     0,    -1,    -1,    17,    18,    -1,    15,    -1,    12,
+      10,    14,    -1,    12,    10,    13,    10,    14,    -1,    12,
+      10,    13,    10,    13,    10,    14,    -1,     7,    10,    14,
+      -1,     4,    10,     5,    11,    14,    -1,     8,     3,    10,
+      14,    -1,     6,     9,    14,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    69,    69,    70,    73,    74,    75,    76,    77,    82,
-      86
+       0,    71,    71,    72,    75,    76,    77,    78,    79,    84,
+     100,   104
 };
 #endif
 
-#if YYDEBUG || YYERROR_VERBOSE || YYTOKEN_TABLE
+#if YYDEBUG || YYERROR_VERBOSE || 0
 /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
    First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
-  "$end", "error", "$undefined", "TOK_SEP", "TOK_USE", "TOK_MODULEMAIN",
-  "TOK_NOTGRIDDEP", "TOK_USEITEM", "TOK_NAME", "TOK_PROBTYPE", "','",
-  "';'", "'\\n'", "$accept", "input", "line", 0
+  "$end", "error", "$undefined", "TOK_SEP", "TOK_KIND", "TOK_EQUAL",
+  "TOK_USE", "TOK_MODULEMAIN", "TOK_NOTGRIDDEP", "TOK_USEITEM", "TOK_NAME",
+  "TOK_CSTINT", "TOK_PROBTYPE", "','", "';'", "'\\n'", "$accept", "input",
+  "line", YY_NULL
 };
 #endif
 
@@ -469,22 +488,22 @@ static const char *const yytname[] =
 static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
-      44,    59,    10
+     265,   266,   267,    44,    59,    10
 };
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    13,    14,    14,    15,    15,    15,    15,    15,    15,
-      15
+       0,    16,    17,    17,    18,    18,    18,    18,    18,    18,
+      18,    18
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
 static const yytype_uint8 yyr2[] =
 {
-       0,     2,     0,     2,     1,     3,     5,     7,     3,     4,
-       3
+       0,     2,     0,     2,     1,     3,     5,     7,     3,     5,
+       4,     3
 };
 
 /* YYDEFACT[STATE-NAME] -- Default reduction number in state STATE-NUM.
@@ -492,31 +511,31 @@ static const yytype_uint8 yyr2[] =
    means the default is an error.  */
 static const yytype_uint8 yydefact[] =
 {
-       2,     0,     1,     0,     0,     0,     0,     4,     3,     0,
-       0,     0,     0,    10,     8,     0,     0,     5,     9,     0,
-       0,     6,     0,     7
+       2,     0,     1,     0,     0,     0,     0,     0,     4,     3,
+       0,     0,     0,     0,     0,     0,    11,     8,     0,     0,
+       5,     0,    10,     0,     9,     0,     6,     0,     7
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     1,     8
+      -1,     1,     9
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
-#define YYPACT_NINF -10
+#define YYPACT_NINF -13
 static const yytype_int8 yypact[] =
 {
-     -10,     0,   -10,    -4,     2,     8,     5,   -10,   -10,     3,
-       4,     9,    -9,   -10,   -10,     7,    11,   -10,   -10,    -3,
-      12,   -10,    10,   -10
+     -13,     0,   -13,    -7,     2,    -5,    10,     4,   -13,   -13,
+      11,     3,     5,     8,   -12,     9,   -13,   -13,     7,    12,
+     -13,    13,   -13,    -4,   -13,    14,   -13,    15,   -13
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -10,   -10,   -10
+     -13,   -13,   -13
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]].  What to do in state STATE-NUM.  If
@@ -525,31 +544,31 @@ static const yytype_int8 yypgoto[] =
 #define YYTABLE_NINF -1
 static const yytype_uint8 yytable[] =
 {
-       2,    16,    17,     9,     3,     4,     5,    20,    21,     6,
-      10,    11,     7,    12,    13,    14,     0,    15,    18,    19,
-      22,    23
+       2,    19,    20,    10,     3,    12,     4,     5,     6,    25,
+      26,    11,     7,    13,    14,     8,    15,    16,    18,    17,
+      21,    22,    23,     0,    27,     0,     0,    24,     0,    28
 };
 
-#define yypact_value_is_default(yystate) \
-  ((yystate) == (-10))
+#define yypact_value_is_default(Yystate) \
+  (!!((Yystate) == (-13)))
 
-#define yytable_value_is_error(yytable_value) \
+#define yytable_value_is_error(Yytable_value) \
   YYID (0)
 
 static const yytype_int8 yycheck[] =
 {
-       0,    10,    11,     7,     4,     5,     6,    10,    11,     9,
-       8,     3,    12,     8,    11,    11,    -1,     8,    11,     8,
-       8,    11
+       0,    13,    14,    10,     4,    10,     6,     7,     8,    13,
+      14,     9,    12,     3,    10,    15,     5,    14,    10,    14,
+      11,    14,    10,    -1,    10,    -1,    -1,    14,    -1,    14
 };
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,    14,     0,     4,     5,     6,     9,    12,    15,     7,
-       8,     3,     8,    11,    11,     8,    10,    11,    11,     8,
-      10,    11,     8,    11
+       0,    17,     0,     4,     6,     7,     8,    12,    15,    18,
+      10,     9,    10,     3,    10,     5,    14,    14,    10,    13,
+      14,    11,    14,    10,    14,    13,    14,    10,    14
 };
 
 #define yyerrok		(yyerrstatus = 0)
@@ -579,62 +598,35 @@ static const yytype_uint8 yystos[] =
 
 #define YYRECOVERING()  (!!yyerrstatus)
 
-#define YYBACKUP(Token, Value)					\
-do								\
-  if (yychar == YYEMPTY && yylen == 1)				\
-    {								\
-      yychar = (Token);						\
-      yylval = (Value);						\
-      YYPOPSTACK (1);						\
-      goto yybackup;						\
-    }								\
-  else								\
-    {								\
+#define YYBACKUP(Token, Value)                                  \
+do                                                              \
+  if (yychar == YYEMPTY)                                        \
+    {                                                           \
+      yychar = (Token);                                         \
+      yylval = (Value);                                         \
+      YYPOPSTACK (yylen);                                       \
+      yystate = *yyssp;                                         \
+      goto yybackup;                                            \
+    }                                                           \
+  else                                                          \
+    {                                                           \
       yyerror (YY_("syntax error: cannot back up")); \
       YYERROR;							\
     }								\
 while (YYID (0))
 
-
+/* Error token number */
 #define YYTERROR	1
 #define YYERRCODE	256
 
 
-/* YYLLOC_DEFAULT -- Set CURRENT to span from RHS[1] to RHS[N].
-   If N is 0, then set CURRENT to the empty location which ends
-   the previous symbol: RHS[0] (always defined).  */
-
-#define YYRHSLOC(Rhs, K) ((Rhs)[K])
-#ifndef YYLLOC_DEFAULT
-# define YYLLOC_DEFAULT(Current, Rhs, N)				\
-    do									\
-      if (YYID (N))                                                    \
-	{								\
-	  (Current).first_line   = YYRHSLOC (Rhs, 1).first_line;	\
-	  (Current).first_column = YYRHSLOC (Rhs, 1).first_column;	\
-	  (Current).last_line    = YYRHSLOC (Rhs, N).last_line;		\
-	  (Current).last_column  = YYRHSLOC (Rhs, N).last_column;	\
-	}								\
-      else								\
-	{								\
-	  (Current).first_line   = (Current).last_line   =		\
-	    YYRHSLOC (Rhs, 0).last_line;				\
-	  (Current).first_column = (Current).last_column =		\
-	    YYRHSLOC (Rhs, 0).last_column;				\
-	}								\
-    while (YYID (0))
-#endif
-
-
 /* This macro is provided for backward compatibility. */
-
 #ifndef YY_LOCATION_PRINT
 # define YY_LOCATION_PRINT(File, Loc) ((void) 0)
 #endif
 
 
 /* YYLEX -- calling `yylex' with the right arguments.  */
-
 #ifdef YYLEX_PARAM
 # define YYLEX yylex (YYLEX_PARAM)
 #else
@@ -684,6 +676,8 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep)
     YYSTYPE const * const yyvaluep;
 #endif
 {
+  FILE *yyo = yyoutput;
+  YYUSE (yyo);
   if (!yyvaluep)
     return;
 # ifdef YYPRINT
@@ -695,7 +689,7 @@ yy_symbol_value_print (yyoutput, yytype, yyvaluep)
   switch (yytype)
     {
       default:
-	break;
+        break;
     }
 }
 
@@ -935,12 +929,11 @@ static int
 yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
                 yytype_int16 *yyssp, int yytoken)
 {
-  YYSIZE_T yysize0 = yytnamerr (0, yytname[yytoken]);
+  YYSIZE_T yysize0 = yytnamerr (YY_NULL, yytname[yytoken]);
   YYSIZE_T yysize = yysize0;
-  YYSIZE_T yysize1;
   enum { YYERROR_VERBOSE_ARGS_MAXIMUM = 5 };
   /* Internationalized format string. */
-  const char *yyformat = 0;
+  const char *yyformat = YY_NULL;
   /* Arguments of yyformat. */
   char const *yyarg[YYERROR_VERBOSE_ARGS_MAXIMUM];
   /* Number of reported tokens (one for the "unexpected", one per
@@ -1000,11 +993,13 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
                     break;
                   }
                 yyarg[yycount++] = yytname[yyx];
-                yysize1 = yysize + yytnamerr (0, yytname[yyx]);
-                if (! (yysize <= yysize1
-                       && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
-                  return 2;
-                yysize = yysize1;
+                {
+                  YYSIZE_T yysize1 = yysize + yytnamerr (YY_NULL, yytname[yyx]);
+                  if (! (yysize <= yysize1
+                         && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+                    return 2;
+                  yysize = yysize1;
+                }
               }
         }
     }
@@ -1024,10 +1019,12 @@ yysyntax_error (YYSIZE_T *yymsg_alloc, char **yymsg,
 # undef YYCASE_
     }
 
-  yysize1 = yysize + yystrlen (yyformat);
-  if (! (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
-    return 2;
-  yysize = yysize1;
+  {
+    YYSIZE_T yysize1 = yysize + yystrlen (yyformat);
+    if (! (yysize <= yysize1 && yysize1 <= YYSTACK_ALLOC_MAXIMUM))
+      return 2;
+    yysize = yysize1;
+  }
 
   if (*yymsg_alloc < yysize)
     {
@@ -1087,32 +1084,27 @@ yydestruct (yymsg, yytype, yyvaluep)
     {
 
       default:
-	break;
+        break;
     }
 }
 
 
-/* Prevent warnings from -Wmissing-prototypes.  */
-#ifdef YYPARSE_PARAM
-#if defined __STDC__ || defined __cplusplus
-int yyparse (void *YYPARSE_PARAM);
-#else
-int yyparse ();
-#endif
-#else /* ! YYPARSE_PARAM */
-#if defined __STDC__ || defined __cplusplus
-int yyparse (void);
-#else
-int yyparse ();
-#endif
-#endif /* ! YYPARSE_PARAM */
 
 
 /* The lookahead symbol.  */
 int yychar;
 
+
+#ifndef YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
+# define YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
+# define YY_IGNORE_MAYBE_UNINITIALIZED_END
+#endif
+#ifndef YY_INITIAL_VALUE
+# define YY_INITIAL_VALUE(Value) /* Nothing. */
+#endif
+
 /* The semantic value of the lookahead symbol.  */
-YYSTYPE yylval;
+YYSTYPE yylval YY_INITIAL_VALUE(yyval_default);
 
 /* Number of syntax errors so far.  */
 int yynerrs;
@@ -1152,7 +1144,7 @@ yyparse ()
        `yyss': related to states.
        `yyvs': related to semantic values.
 
-       Refer to the stacks thru separate pointers, to allow yyoverflow
+       Refer to the stacks through separate pointers, to allow yyoverflow
        to reallocate them elsewhere.  */
 
     /* The state stack.  */
@@ -1170,7 +1162,7 @@ yyparse ()
   int yyn;
   int yyresult;
   /* Lookahead token as an internal (translated) token number.  */
-  int yytoken;
+  int yytoken = 0;
   /* The variables used to return semantic value and location from the
      action routines.  */
   YYSTYPE yyval;
@@ -1188,9 +1180,8 @@ yyparse ()
      Keep to zero when no symbol should be popped.  */
   int yylen = 0;
 
-  yytoken = 0;
-  yyss = yyssa;
-  yyvs = yyvsa;
+  yyssp = yyss = yyssa;
+  yyvsp = yyvs = yyvsa;
   yystacksize = YYINITDEPTH;
 
   YYDPRINTF ((stderr, "Starting parse\n"));
@@ -1199,14 +1190,6 @@ yyparse ()
   yyerrstatus = 0;
   yynerrs = 0;
   yychar = YYEMPTY; /* Cause a token to be read.  */
-
-  /* Initialize stack pointers.
-     Waste one element of value and location stack
-     so that they stay on the same level as the state stack.
-     The wasted elements are never initialized.  */
-  yyssp = yyss;
-  yyvsp = yyvs;
-
   goto yysetstate;
 
 /*------------------------------------------------------------.
@@ -1347,7 +1330,9 @@ yybackup:
   yychar = YYEMPTY;
 
   yystate = yyn;
+  YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
   *++yyvsp = yylval;
+  YY_IGNORE_MAYBE_UNINITIALIZED_END
 
   goto yynewstate;
 
@@ -1384,30 +1369,26 @@ yyreduce:
   switch (yyn)
     {
         case 5:
-
-/* Line 1806 of yacc.c  */
-#line 74 "convert.y"
+/* Line 1807 of yacc.c  */
+#line 76 "convert.y"
     { initdimprob(1,(yyvsp[(2) - (3)].na),"0","0"); }
     break;
 
   case 6:
-
-/* Line 1806 of yacc.c  */
-#line 75 "convert.y"
+/* Line 1807 of yacc.c  */
+#line 77 "convert.y"
     { initdimprob(2,(yyvsp[(2) - (5)].na), (yyvsp[(4) - (5)].na),"0"); }
     break;
 
   case 7:
-
-/* Line 1806 of yacc.c  */
-#line 76 "convert.y"
+/* Line 1807 of yacc.c  */
+#line 78 "convert.y"
     { initdimprob(3,(yyvsp[(2) - (7)].na), (yyvsp[(4) - (7)].na), (yyvsp[(6) - (7)].na)); }
     break;
 
   case 8:
-
-/* Line 1806 of yacc.c  */
-#line 78 "convert.y"
+/* Line 1807 of yacc.c  */
+#line 80 "convert.y"
     {
             listofmodules = Addtolistnom((yyvsp[(2) - (3)].na),listofmodules,0);
             Addmoduletothelist((yyvsp[(2) - (3)].na));
@@ -1415,18 +1396,36 @@ yyreduce:
     break;
 
   case 9:
+/* Line 1807 of yacc.c  */
+#line 85 "convert.y"
+    {
+            if (!strcasecmp((yyvsp[(4) - (5)].na),"4"))
+            {
+                listofkind = Addtolistnom((yyvsp[(2) - (5)].na),listofkind,4);
+            }
+            else if (!strcasecmp((yyvsp[(4) - (5)].na),"8"))
+            {
+                listofkind = Addtolistnom((yyvsp[(2) - (5)].na),listofkind,8);
+            }
+            else
+            {
+                printf("##\n## Unknown kind type : %s (must be 4 or 8)\n##",(yyvsp[(4) - (5)].na));
+                exit(0);
+            }
+        }
+    break;
 
-/* Line 1806 of yacc.c  */
-#line 83 "convert.y"
+  case 10:
+/* Line 1807 of yacc.c  */
+#line 101 "convert.y"
     {
             Add_NotGridDepend_Var_1((yyvsp[(3) - (4)].na));
         }
     break;
 
-  case 10:
-
-/* Line 1806 of yacc.c  */
-#line 87 "convert.y"
+  case 11:
+/* Line 1807 of yacc.c  */
+#line 105 "convert.y"
     {
             if (!strcasecmp((yyvsp[(2) - (3)].na),"FIXED_GRIDS"))      fixedgrids = 1;
             if (!strcasecmp((yyvsp[(2) - (3)].na),"ONLY_FIXED_GRIDS")) onlyfixedgrids = 1;
@@ -1434,9 +1433,8 @@ yyreduce:
     break;
 
 
-
-/* Line 1806 of yacc.c  */
-#line 1440 "convert.tab.c"
+/* Line 1807 of yacc.c  */
+#line 1438 "convert.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1599,7 +1597,9 @@ yyerrlab1:
       YY_STACK_PRINT (yyss, yyssp);
     }
 
+  YY_IGNORE_MAYBE_UNINITIALIZED_BEGIN
   *++yyvsp = yylval;
+  YY_IGNORE_MAYBE_UNINITIALIZED_END
 
 
   /* Shift the error token.  */
@@ -1623,7 +1623,7 @@ yyabortlab:
   yyresult = 1;
   goto yyreturn;
 
-#if !defined(yyoverflow) || YYERROR_VERBOSE
+#if !defined yyoverflow || YYERROR_VERBOSE
 /*-------------------------------------------------.
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
@@ -1665,10 +1665,19 @@ yyreturn:
 }
 
 
+/* Line 2055 of yacc.c  */
+#line 110 "convert.y"
 
-/* Line 2067 of yacc.c  */
-#line 92 "convert.y"
 
+void print_usage()
+{
+    printf("usage : conv <config_file> -convfile  <FILENAME>\n");
+    printf(" [-workdir <directory>] [-incdir <directory>]\n");
+    printf(" [-comdirin   <directory>] [-comdirout <directory>]\n");
+    printf(" [-convfile  <FILENAME>] [-SubloopScalar] [-SubloopScalar1] \n");
+    printf(" [-free|-fixed]\n");
+    exit(0);
+}
 
 int main(int argc,char *argv[])
 {
@@ -1680,16 +1689,9 @@ int main(int argc,char *argv[])
     int stylegiven = 0;
     int infreegiven ;
     int infixedgiven ;
-    int lengthmainfile;
 
-    if (argc < 2)
-    {
-        printf("usage : conv <file> [-rm] [-incdir <directory>] \n");
-        printf(" [-comdirin   <directory>] [-comdirout <directory>]\n");
-        printf(" [-convfile  <FILENAME >] -SubloopScalar -SubloopScalar1 \n");
-        printf(" [-free|-fixed]\n");
-        exit(0);
-    }
+    char filetoparse[LONG_FNAME];
+
 /******************************************************************************/
 /*  1-  Variables initialization                                              */
 /******************************************************************************/
@@ -1706,6 +1708,7 @@ int main(int argc,char *argv[])
     List_UsedInSubroutine_Var = (listvar *) NULL;
     List_NotGridDepend_Var = (listvar *) NULL;
     Listofavailableindices = (listindice *) NULL;
+    Listofavailableindices_glob = (listindice **) calloc(NB_CAT_VARIABLES,sizeof(listindice *));
     List_CouplePointed_Var = (listvarpointtovar *) NULL;
     List_ModuleUsed_Var = (listvar *) NULL;
     List_ModuleUsedInModuleUsed_Var = (listvar *) NULL;
@@ -1715,59 +1718,34 @@ int main(int argc,char *argv[])
     List_FunctionType_Var = (listvar *) NULL;
     tmpuselocallist = (listusemodule *) NULL;
     List_ContainsSubroutine = (listnom *) NULL;
+    List_Do_labels = (listname *) NULL;
     oldfortran_out = (FILE *) NULL;
 
-    strcpy(mainfile,argv[1]);
-    strcpy(nomdir,"AGRIF_INC");
-    strcpy(commondirin,".");
-    strcpy(commondirout,".");
-    strcpy(filetoparse," ");
-    strcpy(subofagrifinitgrids,"");
-    strcpy(meetagrifinitgrids,"");
-    strcpy(mpiinitvar,"");
+    if ( argc < 2 )
+        print_usage();
+
+    strcpy(config_file, argv[1]);
+    strcpy(work_dir, ".");
+    strcpy(input_dir, ".");
+    strcpy(output_dir, "AGRIF_MODELFILES");
+    strcpy(include_dir, "AGRIF_INC");
+    strcpy(filetoparse, "");
+    strcpy(subofagrifinitgrids, "");
+    strcpy(meetagrifinitgrids, "");
+    strcpy(mpiinitvar, "");
 
     length_last = 0 ;
     length_first = 0 ;
-    length_v_typevar = 0 ;
-    length_v_nomvar = 0 ;
-    length_v_dimchar = 0 ;
-    length_v_modulename = 0 ;
-    length_v_commonname = 0 ;
     length_v_vallengspec = 0 ;
-    length_v_nameinttypename = 0 ;
     length_v_commoninfile = 0 ;
-    length_v_subroutinename = 0 ;
     length_v_precision = 0 ;
     length_v_IntentSpec = 0 ;
     length_v_initialvalue = 0 ;
     length_v_readedlistdimension = 0 ;
-    length_u_usemodule = 0 ;
-    length_u_charusemodule = 0 ;
-    length_u_cursubroutine = 0 ;
-    length_u_modulename = 0 ;
-    length_n_name = 0 ;
-    length_c_namevar = 0 ;
-    length_c_namepointedvar = 0 ;
-    length_o_nom = 0 ;
-    length_o_module = 0 ;
     length_a_nomvar = 0 ;
-    length_a_subroutine = 0 ;
-    length_a_module = 0 ;
-    length_t_usemodule = 0 ;
-    length_t_cursubroutine = 0 ;
-    length_curfilename = 0 ;
-    length_nomfileoutput = 0 ;
-    length_motparse = 0 ;
-    length_mainfile = 0 ;
-    length_nomdir = 0 ;
-    length_commondirout = 0 ;
-    length_commondirin = 0 ;
-    length_filetoparse = 0 ;
-    length_curbuf = 0 ;
     length_toprintglob = 0 ;
     length_tmpvargridname = 0 ;
     length_ligne_Subloop = 0 ;
-    length_lvargridname_toamr = 0 ;
     length_toprint_utilagrif = 0 ;
     length_toprinttmp_utilchar = 0 ;
     length_ligne_writedecl = 0 ;
@@ -1783,7 +1761,6 @@ int main(int argc,char *argv[])
     infixed = 1;
     infree  = 0;
 
-    checkexistcommon=1;
     onlyfixedgrids=0;
     fixedgrids=0;
     InAgrifParentDef = 0;
@@ -1791,10 +1768,13 @@ int main(int argc,char *argv[])
     IndicenbmaillesY=0;
     IndicenbmaillesZ=0;
     created_dimensionlist = 1;
-    indicemaxtabvars = 0;   /* current indice in the table tabvars             */
+    /* current indice in the table tabvars             */
+    for ( i=0 ; i<NB_CAT_VARIABLES ; i++)
+    {
+        indicemaxtabvars[i] = 0;
+    }
     SubloopScalar = 0;
     todebug = 0;
-    todebugfree = 0;
     retour77 = 1 ;
     shouldincludempif = 0 ;
 
@@ -1804,127 +1784,122 @@ int main(int argc,char *argv[])
 /*  2-  Program arguments                                                     */
 /******************************************************************************/
 
-    if ((convert_in=fopen(argv[1],"r"))==NULL)
+    if ( (convert_in=fopen(config_file,"r")) == NULL )
     {
-        printf("the file %s doesn't exist \n",argv[1]);
-        exit(0);
+        printf("##\n## ERROR: the configuration file '%s' doesn't exist.\n##\n", config_file);
+        print_usage();
     }
 
     i=2;
     while ( i < argc )
     {
-        if (!strcasecmp(argv[i],"-incdir"))
+        if (!strcasecmp(argv[i], "-workdir"))
         {
-            strcpy(nomdir,argv[i+1]);
+            strcpy(work_dir,argv[i+1]);
             i++;
         }
-        else if (!strcasecmp(argv[i],"-comdirin")) /* input directory           */
+        else if (!strcasecmp(argv[i], "-incdir"))
         {
-            strcpy(commondirin,argv[i+1]);
+            strcpy(include_dir,argv[i+1]);
             i++;
         }
-        else if (!strcasecmp(argv[i],"-comdirout")) /* output directory         */
+        else if (!strcasecmp(argv[i], "-comdirin")) /* input directory           */
         {
-            strcpy(commondirout,argv[i+1]);
+            strcpy(input_dir,argv[i+1]);
             i++;
         }
-        else if (!strcasecmp(argv[i],"-convfile")) /* file to parse             */
+        else if (!strcasecmp(argv[i], "-comdirout")) /* output directory         */
         {
-            strcpy(filetoparse,argv[i+1]);
+            strcpy(output_dir,argv[i+1]);
             i++;
-            lengthmainfile = strlen(filetoparse);
-            if (!strcasecmp(&filetoparse[lengthmainfile-4],".f90"))
-            {
-                infixed = 0;
-                infree = 1;
-            }
-            else
-            {
-                infixed = 1;
-                infree = 0;
-            }
         }
-        else if (!strcasecmp(argv[i],"-free")) /* file to parse        */
+        else if (!strcasecmp(argv[i], "-convfile")) /* file to parse             */
+        {
+            strcpy(filetoparse, argv[i+1]);
+            i++;
+            infree  = (strstr(filetoparse, ".f90") != NULL) || (strstr(filetoparse, ".F90") != NULL);
+            infixed = ! infree;
+        }
+        else if (!strcasecmp(argv[i], "-free"))
         {
             stylegiven = 1;
             infreegiven  = 1 ;
             infixedgiven = 0;
         }
-        else if (!strcasecmp(argv[i],"-fixed")) /* file to parse        */
+        else if (!strcasecmp(argv[i], "-fixed"))
         {
             stylegiven = 1;
             infreegiven  = 0;
             infixedgiven = 1;
         }
-        else if (!strcasecmp(argv[i],"-SubloopScalar")) /* file to parse        */
+        else if (!strcasecmp(argv[i], "-SubloopScalar"))
         {
-                SubloopScalar = 1 ;
+            SubloopScalar = 1 ;
         }
-        else if (!strcasecmp(argv[i],"-SubloopScalar1")) /* file to parse       */
+        else if (!strcasecmp(argv[i], "-SubloopScalar1"))
         {
             SubloopScalar = 2 ;
         }
-        else if (!strcasecmp(argv[i],"-todebug")) /* file to parse       */
+        else if (!strcasecmp(argv[i], "-todebug"))
         {
             todebug = 1 ;
         }
-        else if (!strcasecmp(argv[i],"-todebugfree")) /* file to parse       */
-        {
-            todebugfree = 1 ;
-        }
-        else if (!strcasecmp(argv[i],"-rm"))
-        {
-            checkexistcommon=0;
-        }
+        else if (!strcasecmp(argv[i],"-rm")) { }
         else
         {
-            printf("Unkwon option : %s\n",argv[i]);
+            printf("##\n## Unkwon option : %s\n##\n", argv[i]);
             exit(0);
         }
         i++;
     }
-
+    // Check input file
+    if ( strlen(filetoparse) == 0 )         // -convfile has not been specified
+    {
+        printf("##\n## ERROR: please provide a file to parse with -convfile.\n##\n");
+        print_usage();
+    }
+    // Setup input & output directories
+    if ( strcasecmp(work_dir, ".") != 0 )   // -workdir has been changed...
+    {
+        if ( strcasecmp(input_dir,  ".") == 0 )                 // ...and -comdirin  has NOT been changed
+        {
+            strcpy(input_dir, work_dir);
+        }
+        if ( strcasecmp(output_dir, "AGRIF_MODELFILES") == 0 )  // ...and -comdirout has NOT been changed
+        {
+            sprintf(output_dir, "%s/%s", work_dir, "AGRIF_MODELFILES");
+        }
+        if ( strcasecmp(include_dir, "AGRIF_INC") == 0 )        // ...and -incdir    has NOT been changed
+        {
+            sprintf(include_dir, "%s/%s", work_dir, "AGRIF_INC");
+        }
+    }
     if (stylegiven == 1)
     {
-        infree = infreegiven;
+        infree  = infreegiven;
         infixed = infixedgiven;
     }
-    Save_Length(nomdir,34);
-    Save_Length(commondirout,35);
-    Save_Length(commondirin,36);
-    Save_Length(filetoparse,37);
 
 /******************************************************************************/
-/*  3-  Parsing of the  conv file <name>.in                                   */
+/*  3-  Parsing of the conv file <name>.in                                    */
 /******************************************************************************/
 
-    if ( (convert_in=fopen(argv[1],"r")) == NULL )
-    {
-        printf("the file %s doesn't exist \n",argv[1]);
-        exit(0);
-    }
-    strcpy(mainfile,argv[1]);
-    Save_Length(mainfile,33);
-
-    if ( strstr(filetoparse,".f90") || strstr(filetoparse,".F90") ) retour77 = 0;
+    if ( strstr(filetoparse, ".f90") || strstr(filetoparse, ".F90") ) retour77 = 0;
 
     convert_parse();
 
 /******************************************************************************/
 /*  4-  Preparation of the file parsing                                       */
 /******************************************************************************/
-   
-    if ( (convert_in=fopen(filetoparse,"r")) == NULL ) /* Does the file to parse exist ? */
-    {
-        printf("the file %s doesn't exist \n",filetoparse);
-        exit(0);
-    }
-    /* mainfile : the name of the file to parse                                */
-    strcpy(mainfile,filetoparse);
+
+    sprintf(dependfilename, "%s/.dependglobal_agrif", work_dir);
     /*                                                                         */
-    if ( (dependglobaloutput=fopen(".dependglobal_agrif","r")) != NULL )
+    if ( (dependglobaloutput=fopen(dependfilename, "r")) != NULL )
     {
-        fscanf(dependglobaloutput,"%d\n",&indicemaxtabvars);
+        for (i=0;i<NB_CAT_VARIABLES;i++)
+        {
+            fscanf(dependglobaloutput,"%d\n",&indicemaxtabvars[i]);
+        }
         fclose(dependglobaloutput);
     }
     Readthedependavailablefile();
@@ -1939,7 +1914,7 @@ int main(int argc,char *argv[])
     /* Record all variables in list                                            */
     firstpass = 1;
     process_fortran(filetoparse);
-    /*                                                                         */
+
     CompleteThelistvarindoloop();
     /* Read list of module used                                                */
     RecordUseModulesVariables();
@@ -1949,7 +1924,7 @@ int main(int argc,char *argv[])
     Update_List_Global_Var_From_List_Save_Var();
     /* Update all lists                                                        */
     ListUpdate();
-    /*                                                                         */
+
     Clean_List_Global_Var();
     /* Indice tabvars identification                                           */
     IndiceTabvarsIdentification();
@@ -1968,16 +1943,19 @@ int main(int argc,char *argv[])
     /* Update List_SubroutineWhereAgrifUsed                                    */
     UpdateList_SubroutineWhereAgrifUsed();
     /* Update List_UsedInSubroutine_Var with v_readedlistdimension             */
-    UpdateList_UsedInSubroutine_With_dimension();;
-    /*                                                                         */
+    UpdateList_UsedInSubroutine_With_dimension();
+
     ModifyThelistvarindoloop();
-    /*                                                                         */
     UpdateListDeclarationWithDimensionList();
-    /*                                                                         */
     GiveTypeOfVariables();
-    Affiche();
+
     /* Build new subroutines                                                   */
     firstpass = 0;
+    /*
+    printf("**********************************\n");
+    printf("SECOND PASSES \n");
+    printf("**********************************\n");
+    */
     process_fortran(filetoparse);
 
     newvar = (listvar *) NULL;
@@ -1999,8 +1977,12 @@ int main(int argc,char *argv[])
 
     /* Write the .dependglobal_agrif file which contain the max indice         */
     /*    of the tabvars table                                                 */
-    dependglobaloutput = fopen(".dependglobal_agrif","w");
-    fprintf(dependglobaloutput,"%d\n",indicemaxtabvars);
+    sprintf(dependfilename, "%s/.dependglobal_agrif", work_dir);
+    dependglobaloutput = fopen(dependfilename, "w");
+    for (i=0;i<NB_CAT_VARIABLES;i++)
+    {
+        fprintf(dependglobaloutput,"%d\n",indicemaxtabvars[i]);
+    }
     fclose(dependglobaloutput);
     /* Write the list of available indice                                      */
     Writethedependavailablefile();
@@ -2029,14 +2011,13 @@ int main(int argc,char *argv[])
 /*  7-  Create files in AGRIF_INC directory                                   */
 /******************************************************************************/
 
-    creefichieramr(NameTamponfile);
+    creefichieramr();
 
     Write_val_max();
 
     if ( todebug == 1 ) printf("Out of CONV \n");
     return 0;
 }
-
 #line 2 "convert.yy.c"
 
 #line 4 "convert.yy.c"
@@ -2105,6 +2086,7 @@ typedef int16_t flex_int16_t;
 typedef uint16_t flex_uint16_t;
 typedef int32_t flex_int32_t;
 typedef uint32_t flex_uint32_t;
+typedef uint64_t flex_uint64_t;
 #else
 typedef signed char flex_int8_t;
 typedef short int flex_int16_t;
@@ -2211,7 +2193,12 @@ typedef unsigned int flex_uint32_t;
 typedef struct yy_buffer_state *YY_BUFFER_STATE;
 #endif
 
-extern int convert_leng;
+#ifndef YY_TYPEDEF_YY_SIZE_T
+#define YY_TYPEDEF_YY_SIZE_T
+typedef size_t yy_size_t;
+#endif
+
+extern yy_size_t convert_leng;
 
 extern FILE *convert_in, *convert_out;
 
@@ -2237,11 +2224,6 @@ extern FILE *convert_in, *convert_out;
 
 #define unput(c) yyunput( c, (yytext_ptr)  )
 
-#ifndef YY_TYPEDEF_YY_SIZE_T
-#define YY_TYPEDEF_YY_SIZE_T
-typedef size_t yy_size_t;
-#endif
-
 #ifndef YY_STRUCT_YY_BUFFER_STATE
 #define YY_STRUCT_YY_BUFFER_STATE
 struct yy_buffer_state
@@ -2259,7 +2241,7 @@ struct yy_buffer_state
 	/* Number of characters read into yy_ch_buf, not including EOB
 	 * characters.
 	 */
-	int yy_n_chars;
+	yy_size_t yy_n_chars;
 
 	/* Whether we "own" the buffer - i.e., we know we created it,
 	 * and can realloc() it to grow it, and should free() it to
@@ -2329,8 +2311,8 @@ static YY_BUFFER_STATE * yy_buffer_stack = 0; /**< Stack as an array. */
 
 /* yy_hold_char holds the character lost when convert_text is formed. */
 static char yy_hold_char;
-static int yy_n_chars;		/* number of characters read into yy_ch_buf */
-int convert_leng;
+static yy_size_t yy_n_chars;		/* number of characters read into yy_ch_buf */
+yy_size_t convert_leng;
 
 /* Points to current character in buffer. */
 static char *yy_c_buf_p = (char *) 0;
@@ -2358,7 +2340,7 @@ static void convert__init_buffer (YY_BUFFER_STATE b,FILE *file  );
 
 YY_BUFFER_STATE convert__scan_buffer (char *base,yy_size_t size  );
 YY_BUFFER_STATE convert__scan_string (yyconst char *yy_str  );
-YY_BUFFER_STATE convert__scan_bytes (yyconst char *bytes,int len  );
+YY_BUFFER_STATE convert__scan_bytes (yyconst char *bytes,yy_size_t len  );
 
 void *convert_alloc (yy_size_t  );
 void *convert_realloc (void *,yy_size_t  );
@@ -2416,13 +2398,13 @@ static void yy_fatal_error (yyconst char msg[]  );
  */
 #define YY_DO_BEFORE_ACTION \
 	(yytext_ptr) = yy_bp; \
-	convert_leng = (size_t) (yy_cp - yy_bp); \
+	convert_leng = (yy_size_t) (yy_cp - yy_bp); \
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
 
-#define YY_NUM_RULES 12
-#define YY_END_OF_BUFFER 13
+#define YY_NUM_RULES 15
+#define YY_END_OF_BUFFER 16
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -2430,16 +2412,17 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static yyconst flex_int16_t yy_accept[77] =
+static yyconst flex_int16_t yy_accept[84] =
     {   0,
-        0,    0,    0,    0,   13,   12,   11,   10,   12,    9,
-       12,   12,   12,    9,    8,    8,    8,    8,    8,    8,
-       11,    0,    4,    7,    7,    7,    5,    8,    8,    8,
-        8,    8,    8,    8,    6,    8,    8,    8,    8,    3,
-        8,    8,    8,    8,    8,    8,    8,    8,    8,    8,
-        8,    8,    8,    8,    8,    8,    8,    8,    8,    8,
-        8,    8,    8,    8,    8,    2,    8,    8,    8,    1,
-        8,    8,    8,    8,    6,    0
+        0,    0,    0,    0,   16,   15,   14,   13,   15,   12,
+       11,   11,   11,   11,   12,    7,   10,   10,   10,   10,
+       10,   10,   10,   14,    0,    4,   11,    9,    9,    9,
+        5,   10,   10,   10,   10,   10,   10,   10,   10,    8,
+       10,   10,   10,   10,   10,    3,   10,    6,   10,   10,
+       10,   10,   10,   10,   10,   10,   10,   10,   10,   10,
+       10,   10,   10,   10,   10,   10,   10,   10,   10,   10,
+       10,   10,    2,   10,   10,   10,    1,   10,   10,   10,
+       10,    8,    0
     } ;
 
 static yyconst flex_int32_t yy_ec[256] =
@@ -2450,14 +2433,14 @@ static yyconst flex_int32_t yy_ec[256] =
         1,    2,    1,    1,    1,    1,    4,    1,    1,    5,
         6,    1,    1,    7,    1,    1,    1,    8,    9,   10,
        11,    8,    8,    8,   12,    8,    8,   13,   14,    1,
-        1,    1,    1,    1,   15,   16,   16,   17,   18,   19,
-       20,   16,   21,   16,   16,   22,   23,   24,   25,   26,
-       16,   27,   28,   29,   30,   16,   16,   31,   32,   16,
-       33,    1,   34,    1,   35,    1,   36,   16,   16,   37,
+       15,    1,    1,    1,   16,   17,   17,   18,   19,   20,
+       21,   17,   22,   17,   23,   24,   25,   26,   27,   28,
+       17,   29,   30,   31,   32,   17,   17,   33,   34,   17,
+       35,    1,   36,    1,   37,    1,   38,   17,   17,   39,
 
-       38,   39,   40,   16,   41,   16,   16,   42,   43,   44,
-       45,   46,   16,   47,   48,   49,   50,   16,   16,   51,
-       52,   16,    1,    1,    1,    1,    1,    1,    1,    1,
+       40,   41,   42,   17,   43,   17,   44,   45,   46,   47,
+       48,   49,   17,   50,   51,   52,   53,   17,   17,   54,
+       55,   17,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -2474,94 +2457,102 @@ static yyconst flex_int32_t yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static yyconst flex_int32_t yy_meta[53] =
+static yyconst flex_int32_t yy_meta[56] =
     {   0,
         1,    1,    2,    1,    1,    1,    1,    3,    3,    3,
-        3,    3,    1,    1,    3,    3,    3,    3,    3,    3,
+        3,    3,    1,    1,    1,    3,    3,    3,    3,    3,
         3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
-        3,    3,    1,    1,    3,    3,    3,    3,    3,    3,
+        3,    3,    3,    3,    1,    1,    3,    3,    3,    3,
         3,    3,    3,    3,    3,    3,    3,    3,    3,    3,
-        3,    3
+        3,    3,    3,    3,    3
     } ;
 
-static yyconst flex_int16_t yy_base[79] =
+static yyconst flex_int16_t yy_base[86] =
     {   0,
-        0,    0,    0,    0,  150,  164,  147,  164,  144,  164,
-       36,   37,   38,  134,    0,   44,   32,   34,   44,   33,
-      144,  141,  140,  164,  164,  164,  164,    0,  131,   31,
-       34,   42,   39,   49,    0,   50,   49,   38,   56,    0,
-       59,   52,  107,   68,  106,   72,   75,   72,   77,   81,
-       79,   76,   75,   86,   73,   88,   85,   89,   90,   79,
-       93,   86,   99,   97,  103,    0,   37,  115,  114,    0,
-      108,  116,  121,  112,    0,  164,  160,   57
+        0,    0,    0,    0,  192,  194,  186,  194,  176,  194,
+       48,   53,   58,   69,  164,  194,    0,   60,   51,   47,
+       49,   67,   55,  173,  170,  169,   90,  194,  194,  194,
+      194,    0,  160,   53,   62,   58,   66,   62,   74,    0,
+       85,   95,   94,   82,  101,    0,  101,    0,   91,  134,
+       96,  133,  100,  103,   99,  105,  109,  106,  102,  101,
+      113,   99,  115,  113,  119,  127,  123,  139,  130,  142,
+      137,  132,    0,   81,  144,  143,    0,  136,  144,  150,
+      139,    0,  194,  190,   81
     } ;
 
-static yyconst flex_int16_t yy_def[79] =
+static yyconst flex_int16_t yy_def[86] =
     {   0,
-       76,    1,    1,    1,   76,   76,   76,   76,   77,   76,
-       76,   76,   76,   76,   78,   78,   78,   78,   78,   78,
-       76,   77,   77,   76,   76,   76,   76,   78,   78,   78,
-       78,   78,   78,   78,   78,   78,   78,   78,   78,   78,
-       78,   78,   78,   78,   78,   78,   78,   78,   78,   78,
-       78,   78,   78,   78,   78,   78,   78,   78,   78,   78,
-       78,   78,   78,   78,   78,   78,   78,   78,   78,   78,
-       78,   78,   78,   78,   78,    0,   76,   76
+       83,    1,    1,    1,   83,   83,   83,   83,   84,   83,
+       83,   83,   83,   83,   83,   83,   85,   85,   85,   85,
+       85,   85,   85,   83,   84,   84,   83,   83,   83,   83,
+       83,   85,   85,   85,   85,   85,   85,   85,   85,   85,
+       85,   85,   85,   85,   85,   85,   85,   85,   85,   85,
+       85,   85,   85,   85,   85,   85,   85,   85,   85,   85,
+       85,   85,   85,   85,   85,   85,   85,   85,   85,   85,
+       85,   85,   85,   85,   85,   85,   85,   85,   85,   85,
+       85,   85,    0,   83,   83
     } ;
 
-static yyconst flex_int16_t yy_nxt[217] =
+static yyconst flex_int16_t yy_nxt[250] =
     {   0,
-        6,    7,    8,    9,   10,   10,   10,    6,   11,   12,
-       13,    6,   14,   10,   15,   15,   15,   15,   16,   15,
-       15,   15,   15,   17,   18,   19,   15,   15,   15,   20,
-       15,   15,   10,   10,   15,   15,   15,   15,   16,   15,
-       15,   15,   15,   17,   18,   19,   15,   15,   15,   20,
-       15,   15,   24,   25,   26,   29,   31,   32,   33,   28,
-       34,   36,   37,   38,   30,   39,   40,   41,   42,   43,
-       44,   69,   24,   25,   26,   45,   31,   32,   46,   33,
-       34,   36,   37,   38,   30,   39,   40,   41,   42,   43,
-       48,   44,   50,   51,   52,   45,   53,   54,   46,   55,
+        6,    7,    8,    9,   10,   10,   10,   11,   12,   13,
+       14,   11,   15,   10,   16,   17,   17,   17,   17,   18,
+       17,   17,   19,   17,   17,   20,   21,   22,   17,   17,
+       17,   23,   17,   17,   10,   10,   17,   17,   17,   17,
+       18,   17,   17,   19,   17,   17,   20,   21,   22,   17,
+       17,   17,   23,   17,   17,   27,   27,   27,   27,   27,
+       27,   27,   27,   27,   27,   27,   27,   27,   27,   27,
+       28,   33,   35,   36,   37,   29,   27,   27,   27,   27,
+       27,   34,   38,   32,   39,   41,   30,   42,   43,   44,
+       45,   28,   46,   35,   36,   37,   29,   27,   27,   27,
 
-       56,   57,   58,   59,   60,   61,   62,   63,   64,   65,
-       48,   66,   50,   51,   52,   67,   53,   54,   68,   55,
-       56,   57,   58,   59,   60,   61,   62,   63,   64,   65,
-       35,   66,   70,   71,   72,   67,   73,   74,   68,   75,
-       49,   47,   35,   23,   23,   21,   27,   23,   21,   76,
-       35,   76,   70,   71,   72,   76,   73,   74,   76,   75,
-       22,   76,   22,    5,   76,   76,   76,   76,   76,   76,
-       76,   76,   76,   76,   76,   76,   76,   76,   76,   76,
-       76,   76,   76,   76,   76,   76,   76,   76,   76,   76,
-       76,   76,   76,   76,   76,   76,   76,   76,   76,   76,
+       27,   27,   34,   47,   38,   39,   41,   30,   42,   43,
+       44,   45,   48,   46,   49,   50,   51,   76,   52,   53,
+       55,   57,   58,   59,   47,   60,   61,   62,   63,   64,
+       65,   66,   67,   48,   68,   49,   50,   69,   51,   52,
+       53,   55,   57,   58,   59,   70,   60,   61,   62,   63,
+       64,   65,   66,   67,   71,   68,   72,   73,   69,   74,
+       75,   40,   77,   78,   79,   80,   70,   81,   82,   56,
+       54,   40,   26,   26,   24,   71,   31,   72,   73,   26,
+       74,   75,   40,   77,   78,   79,   80,   24,   81,   82,
+       25,   83,   25,    5,   83,   83,   83,   83,   83,   83,
 
-       76,   76,   76,   76,   76,   76,   76,   76,   76,   76,
-       76,   76,   76,   76,   76,   76
+       83,   83,   83,   83,   83,   83,   83,   83,   83,   83,
+       83,   83,   83,   83,   83,   83,   83,   83,   83,   83,
+       83,   83,   83,   83,   83,   83,   83,   83,   83,   83,
+       83,   83,   83,   83,   83,   83,   83,   83,   83,   83,
+       83,   83,   83,   83,   83,   83,   83,   83,   83
     } ;
 
-static yyconst flex_int16_t yy_chk[217] =
+static yyconst flex_int16_t yy_chk[250] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,   11,   12,   13,   16,   17,   18,   19,   78,
-       20,   30,   31,   32,   16,   33,   34,   36,   37,   38,
-       39,   67,   11,   12,   13,   41,   17,   18,   42,   19,
-       20,   30,   31,   32,   16,   33,   34,   36,   37,   38,
-       44,   39,   46,   47,   48,   41,   49,   50,   42,   51,
+        1,    1,    1,    1,    1,   11,   11,   11,   11,   11,
+       12,   12,   12,   12,   12,   13,   13,   13,   13,   13,
+       12,   18,   19,   20,   21,   13,   14,   14,   14,   14,
+       14,   18,   22,   85,   23,   34,   14,   35,   36,   37,
+       38,   12,   39,   19,   20,   21,   13,   27,   27,   27,
 
-       52,   53,   54,   55,   56,   57,   58,   59,   60,   61,
-       44,   62,   46,   47,   48,   63,   49,   50,   64,   51,
-       52,   53,   54,   55,   56,   57,   58,   59,   60,   61,
-       65,   62,   68,   69,   71,   63,   72,   73,   64,   74,
-       45,   43,   29,   23,   22,   21,   14,    9,    7,    5,
-       65,    0,   68,   69,   71,    0,   72,   73,    0,   74,
-       77,    0,   77,   76,   76,   76,   76,   76,   76,   76,
-       76,   76,   76,   76,   76,   76,   76,   76,   76,   76,
-       76,   76,   76,   76,   76,   76,   76,   76,   76,   76,
-       76,   76,   76,   76,   76,   76,   76,   76,   76,   76,
+       27,   27,   18,   41,   22,   23,   34,   14,   35,   36,
+       37,   38,   42,   39,   43,   44,   45,   74,   47,   49,
+       51,   53,   54,   55,   41,   56,   57,   58,   59,   60,
+       61,   62,   63,   42,   64,   43,   44,   65,   45,   47,
+       49,   51,   53,   54,   55,   66,   56,   57,   58,   59,
+       60,   61,   62,   63,   67,   64,   68,   69,   65,   70,
+       71,   72,   75,   76,   78,   79,   66,   80,   81,   52,
+       50,   33,   26,   25,   24,   67,   15,   68,   69,    9,
+       70,   71,   72,   75,   76,   78,   79,    7,   80,   81,
+       84,    5,   84,   83,   83,   83,   83,   83,   83,   83,
 
-       76,   76,   76,   76,   76,   76,   76,   76,   76,   76,
-       76,   76,   76,   76,   76,   76
+       83,   83,   83,   83,   83,   83,   83,   83,   83,   83,
+       83,   83,   83,   83,   83,   83,   83,   83,   83,   83,
+       83,   83,   83,   83,   83,   83,   83,   83,   83,   83,
+       83,   83,   83,   83,   83,   83,   83,   83,   83,   83,
+       83,   83,   83,   83,   83,   83,   83,   83,   83
     } ;
 
 static yy_state_type yy_last_accepting_state;
@@ -2620,7 +2611,7 @@ char *convert_text;
 #include <string.h>
 
 #define YY_NO_INPUT
-#line 585 "convert.yy.c"
+#line 595 "convert.yy.c"
 
 #define INITIAL 0
 #define character 1
@@ -2660,7 +2651,7 @@ FILE *convert_get_out (void );
 
 void convert_set_out  (FILE * out_str  );
 
-int convert_get_leng (void );
+yy_size_t convert_get_leng (void );
 
 char *convert_get_text (void );
 
@@ -2721,7 +2712,7 @@ static int input (void );
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
 		{ \
 		int c = '*'; \
-		int n; \
+		yy_size_t n; \
 		for ( n = 0; n < max_size && \
 			     (c = getc( convert_in )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \
@@ -2803,9 +2794,9 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 53 "convert.lex"
+#line 54 "convert.lex"
 
-#line 770 "convert.yy.c"
+#line 780 "convert.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -2858,13 +2849,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 77 )
+				if ( yy_current_state >= 84 )
 					yy_c = yy_meta[(unsigned int) yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
 			++yy_cp;
 			}
-		while ( yy_base[yy_current_state] != 164 );
+		while ( yy_base[yy_current_state] != 194 );
 
 yy_find_action:
 		yy_act = yy_accept[yy_current_state];
@@ -2890,66 +2881,81 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 54 "convert.lex"
+#line 55 "convert.lex"
 { return TOK_MODULEMAIN; } /* name of the module                      */
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 55 "convert.lex"
+#line 56 "convert.lex"
 { return TOK_NOTGRIDDEP; } /* variable which are not grid dependent   */
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 56 "convert.lex"
+#line 57 "convert.lex"
 { return TOK_USE; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 57 "convert.lex"
+#line 58 "convert.lex"
 { }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 58 "convert.lex"
+#line 59 "convert.lex"
 { return TOK_SEP; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 59 "convert.lex"
-{ strcpy(yylval.na,convert_text); return TOK_USEITEM;  }
+#line 60 "convert.lex"
+{ return TOK_KIND; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 60 "convert.lex"
-{ strcpy(yylval.na,convert_text); return TOK_PROBTYPE; }  /* dimension of the problem */
+#line 61 "convert.lex"
+{ return TOK_EQUAL; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 61 "convert.lex"
-{ strcpy(yylval.na,convert_text); return TOK_NAME; }
+#line 62 "convert.lex"
+{ strcpy(yylval.na,convert_text); return TOK_USEITEM;  }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 62 "convert.lex"
-{ return (int) *convert_text; }
+#line 63 "convert.lex"
+{ strcpy(yylval.na,convert_text); return TOK_PROBTYPE; }  /* dimension of the problem */
 	YY_BREAK
 case 10:
-/* rule 10 can match eol */
 YY_RULE_SETUP
-#line 63 "convert.lex"
-{ line_num++; return (int) *convert_text; }
+#line 64 "convert.lex"
+{ strcpy(yylval.na,convert_text); return TOK_NAME; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 64 "convert.lex"
-;
+#line 65 "convert.lex"
+{ strcpy(yylval.na,convert_text); return TOK_CSTINT; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 65 "convert.lex"
+#line 66 "convert.lex"
+{ return (int) *convert_text; }
+	YY_BREAK
+case 13:
+/* rule 13 can match eol */
+YY_RULE_SETUP
+#line 67 "convert.lex"
+{ line_num++; return (int) *convert_text; }
+	YY_BREAK
+case 14:
+YY_RULE_SETUP
+#line 68 "convert.lex"
+;
+	YY_BREAK
+case 15:
+YY_RULE_SETUP
+#line 69 "convert.lex"
 ECHO;
 	YY_BREAK
-#line 914 "convert.yy.c"
+#line 939 "convert.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(character):
 	yyterminate();
@@ -3136,7 +3142,7 @@ static int yy_get_next_buffer (void)
 
 	else
 		{
-			int num_to_read =
+			yy_size_t num_to_read =
 			YY_CURRENT_BUFFER_LVALUE->yy_buf_size - number_to_move - 1;
 
 		while ( num_to_read <= 0 )
@@ -3150,7 +3156,7 @@ static int yy_get_next_buffer (void)
 
 			if ( b->yy_is_our_buffer )
 				{
-				int new_size = b->yy_buf_size * 2;
+				yy_size_t new_size = b->yy_buf_size * 2;
 
 				if ( new_size <= 0 )
 					b->yy_buf_size += b->yy_buf_size / 8;
@@ -3181,7 +3187,7 @@ static int yy_get_next_buffer (void)
 
 		/* Read in more data. */
 		YY_INPUT( (&YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[number_to_move]),
-			(yy_n_chars), (size_t) num_to_read );
+			(yy_n_chars), num_to_read );
 
 		YY_CURRENT_BUFFER_LVALUE->yy_n_chars = (yy_n_chars);
 		}
@@ -3242,7 +3248,7 @@ static int yy_get_next_buffer (void)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 77 )
+			if ( yy_current_state >= 84 )
 				yy_c = yy_meta[(unsigned int) yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
@@ -3270,11 +3276,11 @@ static int yy_get_next_buffer (void)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 77 )
+		if ( yy_current_state >= 84 )
 			yy_c = yy_meta[(unsigned int) yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + (unsigned int) yy_c];
-	yy_is_jam = (yy_current_state == 76);
+	yy_is_jam = (yy_current_state == 83);
 
 	return yy_is_jam ? 0 : yy_current_state;
 }
@@ -3291,7 +3297,7 @@ static int yy_get_next_buffer (void)
 	if ( yy_cp < YY_CURRENT_BUFFER_LVALUE->yy_ch_buf + 2 )
 		{ /* need to shift things up to make room */
 		/* +2 for EOB chars. */
-		register int number_to_move = (yy_n_chars) + 2;
+		register yy_size_t number_to_move = (yy_n_chars) + 2;
 		register char *dest = &YY_CURRENT_BUFFER_LVALUE->yy_ch_buf[
 					YY_CURRENT_BUFFER_LVALUE->yy_buf_size + 2];
 		register char *source =
@@ -3340,7 +3346,7 @@ static int yy_get_next_buffer (void)
 
 		else
 			{ /* need more input */
-			int offset = (yy_c_buf_p) - (yytext_ptr);
+			yy_size_t offset = (yy_c_buf_p) - (yytext_ptr);
 			++(yy_c_buf_p);
 
 			switch ( yy_get_next_buffer(  ) )
@@ -3364,7 +3370,7 @@ static int yy_get_next_buffer (void)
 				case EOB_ACT_END_OF_FILE:
 					{
 					if ( convert_wrap( ) )
-						return EOF;
+						return 0;
 
 					if ( ! (yy_did_buffer_switch_on_eof) )
 						YY_NEW_FILE;
@@ -3616,7 +3622,7 @@ void convert_pop_buffer_state (void)
  */
 static void convert_ensure_buffer_stack (void)
 {
-	int num_to_alloc;
+	yy_size_t num_to_alloc;
     
 	if (!(yy_buffer_stack)) {
 
@@ -3713,12 +3719,11 @@ YY_BUFFER_STATE convert__scan_string (yyconst char * yystr )
  * 
  * @return the newly allocated buffer state object.
  */
-YY_BUFFER_STATE convert__scan_bytes  (yyconst char * yybytes, int  _yybytes_len )
+YY_BUFFER_STATE convert__scan_bytes  (yyconst char * yybytes, yy_size_t  _yybytes_len )
 {
 	YY_BUFFER_STATE b;
 	char *buf;
-	yy_size_t n;
-	int i;
+	yy_size_t n, i;
     
 	/* Get memory for full buffer, including space for trailing EOB's. */
 	n = _yybytes_len + 2;
@@ -3800,7 +3805,7 @@ FILE *convert_get_out  (void)
 /** Get the length of the current token.
  * 
  */
-int convert_get_leng  (void)
+yy_size_t convert_get_leng  (void)
 {
         return convert_leng;
 }
@@ -3948,7 +3953,7 @@ void convert_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 65 "convert.lex"
+#line 69 "convert.lex"
 
 
 

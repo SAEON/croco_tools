@@ -35,446 +35,58 @@ module Agrif_Boundary
 contains
 !
 !===================================================================================================
-!  subroutine Agrif_Interp_bc_1d
-!
-!> calculates the boundary conditions on a fine grid for a 1D grid variable
-!---------------------------------------------------------------------------------------------------
-subroutine Agrif_Interp_bc_1d ( TypeInterp, parent, child, tab, deb, fin, &
-                                weight, pweight, procname )
-!---------------------------------------------------------------------------------------------------
-    INTEGER, DIMENSION(6,6) :: TypeInterp   !< Type of interpolation (linear, lagrange, spline, ... )
-    TYPE(Agrif_PVariable)   :: parent       !< Variable on the parent grid
-    TYPE(Agrif_PVariable)   :: child        !< Variable on the child grid
-    REAL, DIMENSION(                    &
-        child%var%lb(1):child%var%ub(1) &
-    ), target               :: tab          !< Values of the grid variable
-    INTEGER :: deb,fin                      !< Positions where interpolations are done on the fine grid
-    External :: procname
-    Optional :: procname
-    
-    TYPE(Agrif_PVariable) :: childtemp      ! Temporary variable on the child grid
-    LOGICAL :: pweight                      ! Indicates if weight is used for the temporal interpolation
-    REAL :: weight                          ! Coefficient for the time
-                                            ! interpolation
-!
-!   Definition of a temporary Agrif_PVariable data type representing the grid  variable.
-!
-    allocate(childtemp % var)
-!
-    childtemp % var % root_var => child % var % root_var
-!
-!   Values of the grid variable
-    childtemp % var % parray1 => tab
-!
-!   Temporary results for the time interpolation before and after the space interpolation
-    childtemp % var % oldvalues2D => child % var % oldvalues2D
-!
-!   Index indicating if a space interpolation is necessary
-    childtemp % var % interpIndex => child % var % interpIndex
-    childtemp % var % list_interp => child % var % list_interp
-    childtemp % var % Interpolationshouldbemade = child % var % Interpolationshouldbemade
-
-    childtemp % var % lb = child % var % lb
-    childtemp % var % ub = child % var % ub
-!
-!   Call to the procedure for the calculations of the boundary conditions
-    IF (present(procname)) THEN
-        Call Agrif_CorrectVariable(TypeInterp,parent,childtemp,deb,fin,pweight,weight,procname)
-    ELSE
-        Call Agrif_CorrectVariable(TypeInterp,parent,childtemp,deb,fin,pweight,weight)
-    ENDIF
-!
-    child % var % oldvalues2D => childtemp % var % oldvalues2D
-    child % var % list_interp => childtemp % var % list_interp
-!
-    deallocate(childtemp % var)
-!---------------------------------------------------------------------------------------------------
-end subroutine Agrif_Interp_bc_1D
-!===================================================================================================
-!
-!===================================================================================================
-!  subroutine Agrif_Interp_bc_2d
-!
-!> calculates the boundary conditions on a fine grid for a 2D grid variable
-!---------------------------------------------------------------------------------------------------
-subroutine Agrif_Interp_bc_2d ( TypeInterp, parent, child, tab, deb, fin, &
-                                weight, pweight, procname )
-!---------------------------------------------------------------------------------------------------
-    INTEGER, DIMENSION(6,6) :: TypeInterp   !< Type of interpolation (linear, lagrange, spline, ... )
-    TYPE(Agrif_PVariable)   :: parent       !< Variable on the parent grid
-    TYPE(Agrif_PVariable)   :: child        !< Variable on the child grid
-    REAL, DIMENSION(                    &
-        child%var%lb(1):child%var%ub(1),&
-        child%var%lb(2):child%var%ub(2) &
-    ), target               :: tab          !< Values of the grid variable
-    INTEGER :: deb,fin                      !< Positions where interpolations are done on the fine grid
-    External :: procname
-    Optional :: procname
-    
-    TYPE(Agrif_PVariable) :: childtemp      ! Temporary variable on the child grid
-    LOGICAL :: pweight                      ! Indicates if weight is used for the temporal interpolation
-    REAL :: weight                          ! Coefficient for the time
-                                            ! interpolation
-!
-!   Definition of a temporary Agrif_PVariable data type representing the grid  variable.
-!
-    allocate(childtemp % var)
-!
-    childtemp % var % root_var => child % var % root_var
-!
-!   Values of the grid variable
-    childtemp % var % parray2 => tab
-!
-!   Temporary results for the time interpolation before and after the space interpolation
-    childtemp % var % oldvalues2D => child % var % oldvalues2D
-!
-!   Index indicating if a space interpolation is necessary
-    childtemp % var % interpIndex => child % var % interpIndex
-    childtemp % var % list_interp => child % var % list_interp
-    childtemp % var % Interpolationshouldbemade = child % var % Interpolationshouldbemade
-
-    childtemp % var % lb = child % var % lb
-    childtemp % var % ub = child % var % ub
-!
-!   Call to the procedure for the calculations of the boundary conditions
-    IF (present(procname)) THEN
-        Call Agrif_CorrectVariable(TypeInterp,parent,childtemp,deb,fin,pweight,weight,procname)
-    ELSE
-        Call Agrif_CorrectVariable(TypeInterp,parent,childtemp,deb,fin,pweight,weight)
-    ENDIF
-!
-    child % var % oldvalues2D => childtemp % var % oldvalues2D
-    child % var % list_interp => childtemp % var % list_interp
-!
-    deallocate(childtemp % var)
-!---------------------------------------------------------------------------------------------------
-end subroutine Agrif_Interp_bc_2D
-!===================================================================================================
-!
-!===================================================================================================
-!  subroutine Agrif_Interp_bc_3d
-!
-!> calculates the boundary conditions on a fine grid for a 3D grid variable
-!---------------------------------------------------------------------------------------------------
-subroutine Agrif_Interp_bc_3d ( TypeInterp, parent, child, tab, deb, fin, &
-                                weight, pweight, procname )
-!---------------------------------------------------------------------------------------------------
-    INTEGER, DIMENSION(6,6) :: TypeInterp   !< Type of interpolation (linear, lagrange, spline, ... )
-    TYPE(Agrif_PVariable)   :: parent       !< Variable on the parent grid
-    TYPE(Agrif_PVariable)   :: child        !< Variable on the child grid
-    REAL, DIMENSION(                    &
-        child%var%lb(1):child%var%ub(1),&
-        child%var%lb(2):child%var%ub(2),&
-        child%var%lb(3):child%var%ub(3) &
-    ), target               :: tab          !< Values of the grid variable
-    INTEGER :: deb,fin                      !< Positions where interpolations are done on the fine grid
-    External :: procname
-    Optional :: procname
-    
-    TYPE(Agrif_PVariable) :: childtemp      ! Temporary variable on the child grid
-    LOGICAL :: pweight                      ! Indicates if weight is used for the temporal interpolation
-    REAL :: weight                          ! Coefficient for the time
-                                            ! interpolation
-!
-!   Definition of a temporary Agrif_PVariable data type representing the grid  variable.
-!
-    allocate(childtemp % var)
-!
-    childtemp % var % root_var => child % var % root_var
-!
-!   Values of the grid variable
-    childtemp % var % parray3 => tab
-!
-!   Temporary results for the time interpolation before and after the space interpolation
-    childtemp % var % oldvalues2D => child % var % oldvalues2D
-!
-!   Index indicating if a space interpolation is necessary
-    childtemp % var % interpIndex => child % var % interpIndex
-    childtemp % var % list_interp => child % var % list_interp
-    childtemp % var % Interpolationshouldbemade = child % var % Interpolationshouldbemade
-
-    childtemp % var % lb = child % var % lb
-    childtemp % var % ub = child % var % ub
-!
-!   Call to the procedure for the calculations of the boundary conditions
-    IF (present(procname)) THEN
-        Call Agrif_CorrectVariable(TypeInterp,parent,childtemp,deb,fin,pweight,weight,procname)
-    ELSE
-        Call Agrif_CorrectVariable(TypeInterp,parent,childtemp,deb,fin,pweight,weight)
-    ENDIF
-!
-    child % var % oldvalues2D => childtemp % var % oldvalues2D
-    child % var % list_interp => childtemp % var % list_interp
-!
-    deallocate(childtemp % var)
-!---------------------------------------------------------------------------------------------------
-end subroutine Agrif_Interp_bc_3D
-!===================================================================================================
-!
-!===================================================================================================
-!  subroutine Agrif_Interp_bc_4d
-!
-!> calculates the boundary conditions on a fine grid for a 4D grid variable
-!---------------------------------------------------------------------------------------------------
-subroutine Agrif_Interp_bc_4d ( TypeInterp, parent, child, tab, deb, fin, &
-                                weight, pweight, procname )
-!---------------------------------------------------------------------------------------------------
-    INTEGER, DIMENSION(6,6) :: TypeInterp   !< Type of interpolation (linear, lagrange, spline, ... )
-    TYPE(Agrif_PVariable)   :: parent       !< Variable on the parent grid
-    TYPE(Agrif_PVariable)   :: child        !< Variable on the child grid
-    REAL, DIMENSION(                    &
-        child%var%lb(1):child%var%ub(1),&
-        child%var%lb(2):child%var%ub(2),&
-        child%var%lb(3):child%var%ub(3),&
-        child%var%lb(4):child%var%ub(4) &
-    ), target               :: tab          !< Values of the grid variable
-    INTEGER :: deb,fin                      !< Positions where interpolations are done on the fine grid
-    External :: procname
-    Optional :: procname
-    
-    TYPE(Agrif_PVariable) :: childtemp      ! Temporary variable on the child grid
-    LOGICAL :: pweight                      ! Indicates if weight is used for the temporal interpolation
-    REAL :: weight                          ! Coefficient for the time
-                                            ! interpolation
-!
-!   Definition of a temporary Agrif_PVariable data type representing the grid  variable.
-!
-    allocate(childtemp % var)
-!
-    childtemp % var % root_var => child % var % root_var
-!
-!   Values of the grid variable
-    childtemp % var % parray4 => tab
-!
-!   Temporary results for the time interpolation before and after the space interpolation
-    childtemp % var % oldvalues2D => child % var % oldvalues2D
-!
-!   Index indicating if a space interpolation is necessary
-    childtemp % var % interpIndex => child % var % interpIndex
-    childtemp % var % list_interp => child % var % list_interp
-    childtemp % var % Interpolationshouldbemade = child % var % Interpolationshouldbemade
-
-    childtemp % var % lb = child % var % lb
-    childtemp % var % ub = child % var % ub
-!
-!   Call to the procedure for the calculations of the boundary conditions
-    IF (present(procname)) THEN
-        Call Agrif_CorrectVariable(TypeInterp,parent,childtemp,deb,fin,pweight,weight,procname)
-    ELSE
-        Call Agrif_CorrectVariable(TypeInterp,parent,childtemp,deb,fin,pweight,weight)
-    ENDIF
-!
-    child % var % oldvalues2D => childtemp % var % oldvalues2D
-    child % var % list_interp => childtemp % var % list_interp
-!
-    deallocate(childtemp % var)
-!---------------------------------------------------------------------------------------------------
-end subroutine Agrif_Interp_bc_4D
-!===================================================================================================
-!
-!===================================================================================================
-!  subroutine Agrif_Interp_bc_5d
-!
-!> calculates the boundary conditions on a fine grid for a 5D grid variable
-!---------------------------------------------------------------------------------------------------
-subroutine Agrif_Interp_bc_5d ( TypeInterp, parent, child, tab, deb, fin, &
-                                weight, pweight, procname )
-!---------------------------------------------------------------------------------------------------
-    INTEGER, DIMENSION(6,6) :: TypeInterp   !< Type of interpolation (linear, lagrange, spline, ... )
-    TYPE(Agrif_PVariable)   :: parent       !< Variable on the parent grid
-    TYPE(Agrif_PVariable)   :: child        !< Variable on the child grid
-    REAL, DIMENSION(                    &
-        child%var%lb(1):child%var%ub(1),&
-        child%var%lb(2):child%var%ub(2),&
-        child%var%lb(3):child%var%ub(3),&
-        child%var%lb(4):child%var%ub(4),&
-        child%var%lb(5):child%var%ub(5) &
-    ), target               :: tab          !< Values of the grid variable
-    INTEGER :: deb,fin                      !< Positions where interpolations are done on the fine grid
-    External :: procname
-    Optional :: procname
-    
-    TYPE(Agrif_PVariable) :: childtemp      ! Temporary variable on the child grid
-    LOGICAL :: pweight                      ! Indicates if weight is used for the temporal interpolation
-    REAL :: weight                          ! Coefficient for the time
-                                            ! interpolation
-!
-!   Definition of a temporary Agrif_PVariable data type representing the grid  variable.
-!
-    allocate(childtemp % var)
-!
-    childtemp % var % root_var => child % var % root_var
-!
-!   Values of the grid variable
-    childtemp % var % parray5 => tab
-!
-!   Temporary results for the time interpolation before and after the space interpolation
-    childtemp % var % oldvalues2D => child % var % oldvalues2D
-!
-!   Index indicating if a space interpolation is necessary
-    childtemp % var % interpIndex => child % var % interpIndex
-    childtemp % var % list_interp => child % var % list_interp
-    childtemp % var % Interpolationshouldbemade = child % var % Interpolationshouldbemade
-
-    childtemp % var % lb = child % var % lb
-    childtemp % var % ub = child % var % ub
-!
-!   Call to the procedure for the calculations of the boundary conditions
-    IF (present(procname)) THEN
-        Call Agrif_CorrectVariable(TypeInterp,parent,childtemp,deb,fin,pweight,weight,procname)
-    ELSE
-        Call Agrif_CorrectVariable(TypeInterp,parent,childtemp,deb,fin,pweight,weight)
-    ENDIF
-!
-    child % var % oldvalues2D => childtemp % var % oldvalues2D
-    child % var % list_interp => childtemp % var % list_interp
-!
-    deallocate(childtemp % var)
-!---------------------------------------------------------------------------------------------------
-end subroutine Agrif_Interp_bc_5D
-!===================================================================================================
-!
-!===================================================================================================
-!  subroutine Agrif_Interp_bc_6d
-!
-!> calculates the boundary conditions on a fine grid for a 6D grid variable
-!---------------------------------------------------------------------------------------------------
-subroutine Agrif_Interp_bc_6d ( TypeInterp, parent, child, tab, deb, fin, &
-                                weight, pweight, procname )
-!---------------------------------------------------------------------------------------------------
-    INTEGER, DIMENSION(6,6) :: TypeInterp   !< Type of interpolation (linear, lagrange, spline, ... )
-    TYPE(Agrif_PVariable)   :: parent       !< Variable on the parent grid
-    TYPE(Agrif_PVariable)   :: child        !< Variable on the child grid
-    REAL, DIMENSION(                    &
-        child%var%lb(1):child%var%ub(1),&
-        child%var%lb(2):child%var%ub(2),&
-        child%var%lb(3):child%var%ub(3),&
-        child%var%lb(4):child%var%ub(4),&
-        child%var%lb(5):child%var%ub(5),&
-        child%var%lb(6):child%var%ub(6) &
-    ), target               :: tab          !< Values of the grid variable
-    INTEGER :: deb,fin                      !< Positions where interpolations are done on the fine grid
-    External :: procname
-    Optional :: procname
-    
-    TYPE(Agrif_PVariable) :: childtemp      ! Temporary variable on the child grid
-    LOGICAL :: pweight                      ! Indicates if weight is used for the temporal interpolation
-    REAL :: weight                          ! Coefficient for the time
-                                            ! interpolation
-!
-!   Definition of a temporary Agrif_PVariable data type representing the grid  variable.
-!
-    allocate(childtemp % var)
-!
-    childtemp % var % root_var => child % var % root_var
-!
-!   Values of the grid variable
-    childtemp % var % parray6 => tab
-!
-!   Temporary results for the time interpolation before and after the space interpolation
-    childtemp % var % oldvalues2D => child % var % oldvalues2D
-!
-!   Index indicating if a space interpolation is necessary
-    childtemp % var % interpIndex => child % var % interpIndex
-    childtemp % var % list_interp => child % var % list_interp
-    childtemp % var % Interpolationshouldbemade = child % var % Interpolationshouldbemade
-
-    childtemp % var % lb = child % var % lb
-    childtemp % var % ub = child % var % ub
-!
-!   Call to the procedure for the calculations of the boundary conditions
-    IF (present(procname)) THEN
-        Call Agrif_CorrectVariable(TypeInterp,parent,childtemp,deb,fin,pweight,weight,procname)
-    ELSE
-        Call Agrif_CorrectVariable(TypeInterp,parent,childtemp,deb,fin,pweight,weight)
-    ENDIF
-!
-    child % var % oldvalues2D => childtemp % var % oldvalues2D
-    child % var % list_interp => childtemp % var % list_interp
-!
-    deallocate(childtemp % var)
-!---------------------------------------------------------------------------------------------------
-end subroutine Agrif_Interp_bc_6D
-!===================================================================================================
-!
-!===================================================================================================
 !  subroutine Agrif_CorrectVariable
 !
 !> subroutine to calculate the boundary conditions on a fine grid
 !---------------------------------------------------------------------------------------------------
-subroutine Agrif_CorrectVariable ( TypeInterp, parent, child, deb, fin, &
-                                   pweight, weight, procname )
+subroutine Agrif_CorrectVariable ( parent, child, pweight, weight, procname )
 !---------------------------------------------------------------------------------------------------
-    INTEGER,DIMENSION(6,6), intent(in)  :: TypeInterp     !< Type of interpolation (linear,lagrange,...)
-    TYPE(Agrif_PVariable)   :: parent         !< Variable on the parent grid
-    TYPE(Agrif_PVariable)   :: child          !< Variable on the child grid
-    INTEGER                 :: deb,fin        !< Positions where boundary conditions are calculated
-    LOGICAL                 :: pweight        !< Indicates if weight is used for the time interpolation
-    REAL                    :: weight         !< Coefficient for the time interpolation
-    External :: procname
-    Optional :: procname
+    type(Agrif_Variable), pointer       :: parent       !< Variable on the parent grid
+    type(Agrif_Variable), pointer       :: child        !< Variable on the child grid
+    logical                             :: pweight      !< Indicates if weight is used for the time interpolation
+    real                                :: weight       !< Coefficient for the time interpolation
+    procedure()                         :: procname     !< Data recovery procedure
 !
-    TYPE(Agrif_Grid)    , pointer :: Agrif_Child_Gr, Agrif_Parent_Gr
-    TYPE(Agrif_Variable), pointer :: root   ! Variable on the root grid
-    INTEGER                :: nbdim  ! Number of dimensions of the grid variable
-    INTEGER                :: n
-    INTEGER,DIMENSION(6)   :: pttab_child       ! Index of the first point inside the domain for
+    type(Agrif_Grid)    , pointer :: Agrif_Child_Gr, Agrif_Parent_Gr
+    type(Agrif_Variable), pointer :: root_var   ! Variable on the root grid
+    integer                :: nbdim  ! Number of dimensions of the grid variable
+    integer                :: n
+    integer, dimension(6)  :: lb_child       ! Index of the first point inside the domain for
                                                 !    the child grid variable
-    INTEGER,DIMENSION(6)   :: pttab_parent      ! Index of the first point inside the domain for
+    integer, dimension(6)  :: lb_parent      ! Index of the first point inside the domain for
                                                 !    the parent grid variable
-    INTEGER,DIMENSION(6)   :: nbtab_Child       ! Number of cells for child
-    INTEGER,DIMENSION(6)   :: posvartab_Child   ! Position of the variable on the cell
-    INTEGER,DIMENSION(6)   :: loctab_Child      ! Indicates if the child grid has a common border
+    integer, dimension(6)  :: ub_child     !  Upper bound on the child grid
+    integer, dimension(6)  :: nb_child       ! Number of cells for child
+    integer, dimension(6)  :: posvartab_child   ! Position of the variable on the cell
+    integer, dimension(6)  :: loctab_child      ! Indicates if the child grid has a common border
                                                 !    with the root grid
-    REAL, DIMENSION(6)     :: s_child, s_parent   ! Positions of the parent and child grids
-    REAL, DIMENSION(6)     :: ds_child, ds_parent ! Space steps of the parent and child grids
+    real, dimension(6)     :: s_child, s_parent   ! Positions of the parent and child grids
+    real, dimension(6)     :: ds_child, ds_parent ! Space steps of the parent and child grids
 !
-    loctab_child(:) = 0
-!
+    call PreProcessToInterpOrUpdate( parent,   child,       &
+                                     nb_child, ub_child,    &
+                                     lb_child, lb_parent,   &
+                                      s_child,  s_parent,   &
+                                     ds_child, ds_parent, nbdim, interp=.true.)
+    root_var => child % root_var
     Agrif_Child_Gr => Agrif_Curgrid
     Agrif_Parent_Gr => Agrif_Curgrid % parent
-    root => child % var % root_var
-    nbdim = root % nbdim
 !
-    do n = 1,nbdim
-        posvartab_child(n) = root % posvar(n)
-    enddo
+    loctab_child(:) = 0
+    posvartab_child(1:nbdim) = root_var % posvar(1:nbdim)
 !
     do n = 1,nbdim
 !
-        select case(root % interptab(n))
+        select case(root_var % interptab(n))
 !
         case('x') ! x DIMENSION
 !
-            nbtab_Child(n) = Agrif_Child_Gr % nb(1)
-            pttab_Child(n) = root % point(1)
-            pttab_Parent(n) = root % point(1)
-            s_Child(n) = Agrif_Child_Gr % Agrif_x(1)
-            s_Parent(n) = Agrif_Parent_Gr % Agrif_x(1)
-            ds_Child(n) = Agrif_Child_Gr % Agrif_d(1)
-            ds_Parent(n) = Agrif_Parent_Gr % Agrif_d(1)
-            if (root % posvar(n) == 2) then
-                s_Child(n)  = s_Child(n)  + ds_Child(n)/2.
-                s_Parent(n) = s_Parent(n) + ds_Parent(n)/2.
-            endif
             if (Agrif_Curgrid % NearRootBorder(1))      loctab_child(n) = -1
             if (Agrif_Curgrid % DistantRootBorder(1))   loctab_child(n) = -2
             if ((Agrif_Curgrid % NearRootBorder(1)) .AND. &
                 (Agrif_Curgrid % DistantRootBorder(1))) loctab_child(n) = -3
 !
         case('y') ! y DIMENSION
-!
-            nbtab_Child(n) = Agrif_Child_Gr % nb(2)
-            pttab_Child(n) = root % point(2)
-            pttab_Parent(n) = root % point(2)
-            s_Child(n) = Agrif_Child_Gr % Agrif_x(2)
-            s_Parent(n) = Agrif_Parent_Gr % Agrif_x(2)
-            ds_Child(n) = Agrif_Child_Gr % Agrif_d(2)
-            ds_Parent(n) = Agrif_Parent_Gr % Agrif_d(2)
-            if (root % posvar(n) == 2) then
-                s_Child(n)  = s_Child(n) + ds_Child(n)/2.
-                s_Parent(n) = s_Parent(n) + ds_Parent(n)/2.
-            endif
 !
             if (Agrif_Curgrid % NearRootBorder(2))      loctab_child(n) = -1
             if (Agrif_Curgrid % DistantRootBorder(2))   loctab_child(n) = -2
@@ -483,18 +95,6 @@ subroutine Agrif_CorrectVariable ( TypeInterp, parent, child, deb, fin, &
 !
         case('z') ! z DIMENSION
 !
-            nbtab_Child(n) = Agrif_Child_Gr % nb(3)
-            pttab_Child(n) = root % point(3)
-            pttab_Parent(n) = root % point(3)
-            s_Child(n) = Agrif_Child_Gr % Agrif_x(3)
-            s_Parent(n) = Agrif_Parent_Gr % Agrif_x(3)
-            ds_Child(n) = Agrif_Child_Gr % Agrif_d(3)
-            ds_Parent(n) = Agrif_Parent_Gr % Agrif_d(3)
-            if (root % posvar(n) == 2) then
-                s_Child(n) = s_Child(n) + ds_Child(n)/2.
-                s_Parent(n) = s_Parent(n) + ds_Parent(n)/2.
-            endif
-!
             if (Agrif_Curgrid % NearRootBorder(3))      loctab_child(n) = -1
             if (Agrif_Curgrid % DistantRootBorder(3))   loctab_child(n) = -2
             if ((Agrif_Curgrid % NearRootBorder(3)) .AND. &
@@ -502,37 +102,19 @@ subroutine Agrif_CorrectVariable ( TypeInterp, parent, child, deb, fin, &
 !
         case('N') ! No space DIMENSION
 !
-            nbtab_Child(n) = parent % var % ub(n) - parent % var % lb(n)
-            pttab_Child(n) = parent % var % lb(n)
-!
-!           No interpolation but only a copy of the values of the grid variable
             posvartab_child(n) = 1
-            pttab_Parent(n) = pttab_Child(n)
-            s_Child(n) = 0.
-            s_Parent(n) = 0.
-            ds_Child(n) = 1.
-            ds_Parent(n) = 1.
             loctab_child(n) = -3
 !
         end select
 !
     enddo
 !
-    IF (present(procname)) THEN
-        Call Agrif_Correctnd(TypeInterp,parent,child,deb,fin,pweight,weight,    &
-                             pttab_Child(1:nbdim), pttab_Parent(1:nbdim),       &
-                             nbtab_Child(1:nbdim), posvartab_Child(1:nbdim),    &
-                             loctab_Child(1:nbdim),                             &
-                             s_Child(1:nbdim), s_Parent(1:nbdim),               &
-                             ds_Child(1:nbdim),ds_Parent(1:nbdim), nbdim, procname )
-    ELSE
-        Call Agrif_Correctnd(TypeInterp,parent,child,deb,fin,pweight,weight,    &
-                             pttab_Child(1:nbdim), pttab_Parent(1:nbdim),       &
-                             nbtab_Child(1:nbdim), posvartab_Child(1:nbdim),    &
-                             loctab_Child(1:nbdim),                             &
-                             s_Child(1:nbdim), s_Parent(1:nbdim),               &
-                             ds_Child(1:nbdim),ds_Parent(1:nbdim), nbdim )
-    ENDIF
+    call Agrif_Correctnd(parent, child, pweight, weight,                    &
+                         lb_child(1:nbdim), lb_parent(1:nbdim),             &
+                         nb_child(1:nbdim), posvartab_child(1:nbdim),       &
+                         loctab_child(1:nbdim),                             &
+                         s_child(1:nbdim), s_parent(1:nbdim),               &
+                         ds_child(1:nbdim),ds_parent(1:nbdim), nbdim, procname )
 !---------------------------------------------------------------------------------------------------
 end subroutine Agrif_CorrectVariable
 !===================================================================================================
@@ -543,7 +125,7 @@ end subroutine Agrif_CorrectVariable
 !> calculates the boundary conditions for a nD grid variable on a fine grid by using
 !> a space and time interpolations; it is called by the #Agrif_CorrectVariable procedure
 !---------------------------------------------------------------------------------------------------
-subroutine Agrif_Correctnd ( TypeInterp, parent, child, deb, fin, pweight, weight,  &
+subroutine Agrif_Correctnd ( parent, child, pweight, weight,                        &
                              pttab_child, pttab_Parent,                             &
                              nbtab_Child, posvartab_Child, loctab_Child,            &
                              s_Child, s_Parent, ds_Child, ds_Parent,                &
@@ -553,74 +135,59 @@ subroutine Agrif_Correctnd ( TypeInterp, parent, child, deb, fin, pweight, weigh
     include 'mpif.h'
 #endif
 !
-    INTEGER, DIMENSION(6,6), intent(in) :: TypeInterp   !< Type of interpolation (linear, spline,...)
-    TYPE(Agrif_PVariable)       :: parent           !< Variable on the parent grid
-    TYPE(Agrif_PVariable)       :: child            !< Variable on the child grid
-    INTEGER                     :: deb, fin         !< Positions where interpolations are done
-    LOGICAL                     :: pweight          !< Indicates if weight is used for the temporal
-                                                    !<    interpolation
-    REAL                        :: weight           !< Coefficient for the temporal interpolation
-    INTEGER, DIMENSION(nbdim)   :: pttab_child      !< Index of the first point inside the domain
-                                                    !<     for the parent grid variable
-    INTEGER, DIMENSION(nbdim)   :: pttab_Parent     !< Index of the first point inside the domain
-                                                    !<    for the child grid variable
-    INTEGER, DIMENSION(nbdim)   :: nbtab_Child      !< Number of cells of the child grid
-    INTEGER, DIMENSION(nbdim)   :: posvartab_Child  !< Position of the grid variable (1 or 2)
-    INTEGER, DIMENSION(nbdim)   :: loctab_Child     !< Indicates if the child grid has a common
-                                                    !<    border with the root grid
+    TYPE(Agrif_Variable), pointer       :: parent       !< Variable on the parent grid
+    TYPE(Agrif_Variable), pointer       :: child        !< Variable on the child grid
+    LOGICAL                             :: pweight      !< Indicates if weight is used for the temporal interpolation
+    REAL                                :: weight       !< Coefficient for the temporal interpolation
+    INTEGER, DIMENSION(nbdim)   :: pttab_child          !< Index of the first point inside the domain for the parent grid variable
+    INTEGER, DIMENSION(nbdim)   :: pttab_Parent         !< Index of the first point inside the domain for the child  grid variable
+    INTEGER, DIMENSION(nbdim)   :: nbtab_Child          !< Number of cells of the child grid
+    INTEGER, DIMENSION(nbdim)   :: posvartab_Child      !< Position of the grid variable (1 or 2)
+    INTEGER, DIMENSION(nbdim)   :: loctab_Child         !< Indicates if the child grid has a common border with the root grid
     REAL   , DIMENSION(nbdim)   :: s_Child,  s_Parent   !< Positions of the parent and child grids
     REAL   , DIMENSION(nbdim)   :: ds_Child, ds_Parent  !< Space steps of the parent and child grids
-    INTEGER                     :: nbdim            !< Number of dimensions of the grid variable
-    External :: procname
-    Optional :: procname
+    INTEGER                             :: nbdim        !< Number of dimensions of the grid variable
+    procedure()                         :: procname     !< Data recovery procedure
 !
-    TYPE(Agrif_PVariable)               :: restore      ! Variable on the parent
+    INTEGER,DIMENSION(6)                :: type_interp     ! Type of interpolation (linear, spline,...)
+    INTEGER,DIMENSION(6,6)              :: type_interp_bc  ! Type of interpolation (linear, spline,...)
+    INTEGER,DIMENSION(nbdim,2,2)        :: childarray
     INTEGER,DIMENSION(nbdim,2)          :: lubglob
     INTEGER                             :: kindex       ! Index used for safeguard and time interpolation
     INTEGER,DIMENSION(nbdim,2,2)        :: indtab       ! Arrays indicating the limits of the child
     INTEGER,DIMENSION(nbdim,2,2)        :: indtruetab   ! grid variable where boundary conditions are
     INTEGER,DIMENSION(nbdim,2,2,nbdim)  :: ptres,ptres2 ! calculated
-    INTEGER                             :: i, nb,ndir,n,sizetab(1)
-    REAL, DIMENSION(:), Allocatable     :: tab          ! Array used for the interpolation
+    INTEGER,DIMENSION(nbdim)            :: coords
+    INTEGER                             :: i, nb, ndir
+    INTEGER                             :: n, sizetab
+    INTEGER                             :: ibeg, iend
+    INTEGER                             :: i1,i2,j1,j2,k1,k2,l1,l2,m1,m2,n1,n2
     REAL                                :: c1t,c2t      ! Coefficients for the time interpolation (c2t=1-c1t)
-!
 #if defined AGRIF_MPI
 !
     INTEGER, DIMENSION(nbdim)   :: lower, upper
     INTEGER, DIMENSION(nbdim)   :: ltab, utab
-    INTEGER, DIMENSION(nbdim)   :: lb, ub
-    INTEGER, DIMENSION(nbdim,2) :: iminmaxg
-    INTEGER                     :: code
 !
 #endif
 !
-    indtab(1:nbdim,2,1) = pttab_child(1:nbdim) + nbtab_child(1:nbdim) + deb
-    indtab(1:nbdim,2,2) = indtab(1:nbdim,2,1) + ( fin - deb )
+    type_interp_bc = child % root_var % type_interp_bc
+    coords         = child % root_var % coords
+!
+    ibeg = child % bcinf
+    iend = child % bcsup
+!
+    indtab(1:nbdim,2,1) = pttab_child(1:nbdim) + nbtab_child(1:nbdim) + ibeg
+    indtab(1:nbdim,2,2) = indtab(1:nbdim,2,1) + ( iend - ibeg )
 
-    indtab(1:nbdim,1,1) = pttab_child(1:nbdim) - fin
-    indtab(1:nbdim,1,2) = pttab_child(1:nbdim) - deb
+    indtab(1:nbdim,1,1) = pttab_child(1:nbdim) - iend
+    indtab(1:nbdim,1,2) = pttab_child(1:nbdim) - ibeg
 
     WHERE (posvartab_child(1:nbdim) == 2)
         indtab(1:nbdim,1,1) = indtab(1:nbdim,1,1) - 1
         indtab(1:nbdim,1,2) = indtab(1:nbdim,1,2) - 1
     END WHERE
-
-#if !defined AGRIF_MPI
-    Call Agrif_nbdim_Get_bound_dimension(child%var,lubglob(:,1), lubglob(:,2),nbdim)
-#else
-    Call Agrif_nbdim_Get_bound_dimension(child%var,lb,ub,nbdim)
-
-    DO i = 1,nbdim
-        Call Agrif_Invloc(lb(i),Agrif_Procrank,i,iminmaxg(i,1))
-        Call Agrif_Invloc(ub(i),Agrif_Procrank,i,iminmaxg(i,2))
-    ENDDO
 !
-    iminmaxg(1:nbdim,2) = - iminmaxg(1:nbdim,2)
-
-    CALL MPI_ALLREDUCE(iminmaxg,lubglob,2*nbdim,MPI_INTEGER,MPI_MIN,agrif_mpi_comm,code)
-
-    lubglob(1:nbdim,2) = - lubglob(1:nbdim,2)
-#endif
+    call Agrif_get_var_global_bounds(child,lubglob,nbdim)
 !
     indtruetab(1:nbdim,1,1) = max(indtab(1:nbdim,1,1), lubglob(1:nbdim,1))
     indtruetab(1:nbdim,1,2) = max(indtab(1:nbdim,1,2), lubglob(1:nbdim,1))
@@ -661,12 +228,12 @@ subroutine Agrif_Correctnd ( TypeInterp, parent, child, deb, fin, pweight, weigh
 
 !
 #if defined AGRIF_MPI
-                Call Agrif_nbdim_Get_bound_dimension(child%var,lower,upper,nbdim)
+                call Agrif_get_var_bounds_array(child,lower,upper,nbdim)
 
                 do i = 1,nbdim
 !
-                    Call GetLocalBoundaries(ptres(i,1,ndir,nb), ptres(i,2,ndir,nb), i,  &
-                                            lower(i), upper(i), ltab(i), utab(i) )
+                    Call Agrif_GetLocalBoundaries(ptres(i,1,ndir,nb), ptres(i,2,ndir,nb),  &
+                                                  coords(i), lower(i), upper(i), ltab(i), utab(i) )
                     ptres2(i,1,ndir,nb) = max(ltab(i),lower(i))
                     ptres2(i,2,ndir,nb) = min(utab(i),upper(i))
                     if ((i == nb) .AND. (ndir == 1)) then
@@ -684,49 +251,44 @@ subroutine Agrif_Correctnd ( TypeInterp, parent, child, deb, fin, pweight, weigh
         enddo   ! ndir = 1,2
     enddo       ! nb = 1,nbdim
 !
-    if ( child % var % interpIndex /= Agrif_Curgrid % parent % ngridstep .OR. &
-         child % var % Interpolationshouldbemade ) then
+    if ( child % interpIndex /= Agrif_Curgrid % parent % ngridstep .OR. &
+         child % Interpolationshouldbemade ) then
 !
 !     Space interpolation
 !
         kindex = 1
 !
         do nb = 1,nbdim
+
+            type_interp = type_interp_bc(nb,:)
+
             do ndir = 1,2
 !
                 if (loctab_child(nb) /= (-ndir) .AND. loctab_child(nb) /= -3) then
 !
-                    IF (present(procname)) THEN
-                        Call Agrif_InterpnD(TYPEInterp(nb,:), parent, child,        &
-                                            ptres(1:nbdim,1,ndir,nb),               &
-                                            ptres(1:nbdim,2,ndir,nb),               &
-                                            pttab_child(1:nbdim),                   &
-                                            pttab_Parent(1:nbdim),                  &
-                                            s_Child(1:nbdim), s_Parent(1:nbdim),    &
-                                            ds_Child(1:nbdim),ds_Parent(1:nbdim),   &
-                                            restore, .FALSE., nbdim, procname )
-                    ELSE
-                        Call Agrif_InterpnD(TYPEInterp(nb,:), parent, child,        &
-                                            ptres(1:nbdim,1,ndir,nb),               &
-                                            ptres(1:nbdim,2,ndir,nb),               &
-                                            pttab_child(1:nbdim),                   &
-                                            pttab_Parent(1:nbdim),                  &
-                                            s_Child(1:nbdim), s_Parent(1:nbdim),    &
-                                            ds_Child(1:nbdim),ds_Parent(1:nbdim),   &
-                                            restore, .FALSE., nbdim )
-                    ENDIF
+                    call Agrif_InterpnD(type_interp, parent, child,             &
+                                        ptres(1:nbdim,1,ndir,nb),               &
+                                        ptres(1:nbdim,2,ndir,nb),               &
+                                        pttab_child(1:nbdim),                   &
+                                        pttab_Parent(1:nbdim),                  &
+                                        s_Child(1:nbdim), s_Parent(1:nbdim),    &
+                                        ds_Child(1:nbdim),ds_Parent(1:nbdim),   &
+                                        NULL(), .FALSE., nbdim,                 &
+                                        childarray,                             &
+                                        child%memberin(nb,ndir), .TRUE., procname, coords(nb), ndir)
 
-                    IF (.NOT. child%var%interpolationshouldbemade) THEN
+                    child % childarray(1:nbdim,:,:,nb,ndir) = childarray
+
+                    if (.not. child%interpolationshouldbemade) then
 !
-!                       Safeguard of the values of the grid variable (at times n and n+1 on the
-!                       parent grid)
+!                       Safeguard of the values of the grid variable (at times n and n+1 on the parent grid)
 !
-                        sizetab(1) = 1
+                        sizetab = 1
                         do i = 1,nbdim
-                            sizetab(1) = sizetab(1) * (ptres2(i,2,ndir,nb)-ptres2(i,1,ndir,nb)+1)
+                            sizetab = sizetab * (ptres2(i,2,ndir,nb)-ptres2(i,1,ndir,nb)+1)
                         enddo
 
-                        Call saveAfterInterp(child%var,ptres2(:,:,ndir,nb),kindex,sizetab(1),nbdim)
+                        call saveAfterInterp(child,ptres2(:,:,ndir,nb),kindex,sizetab,nbdim)
 !
                     endif
 !
@@ -735,11 +297,11 @@ subroutine Agrif_Correctnd ( TypeInterp, parent, child, deb, fin, pweight, weigh
             enddo   ! ndir = 1,2
         enddo       ! nb = 1,nbdim
 !
-        child % var % interpIndex = Agrif_Curgrid % parent % ngridstep
+        child % interpIndex = Agrif_Curgrid % parent % ngridstep
 !
     endif
-
-    IF (.NOT. child%var%interpolationshouldbemade) THEN
+!
+    if (.not. child%interpolationshouldbemade) then
 !
 !       Calculation of the coefficients c1t and c2t for the temporary interpolation
 !
@@ -757,12 +319,87 @@ subroutine Agrif_Correctnd ( TypeInterp, parent, child, deb, fin, pweight, weigh
         do nb = 1,nbdim
             do ndir = 1,2
                 if (loctab_child(nb) /= (-ndir) .AND. loctab_child(nb) /= -3) then
-                    Call timeInterpolation(child%var,ptres2(:,:,ndir,nb),kindex,c1t,c2t,nbdim)
+                    Call timeInterpolation(child,ptres2(:,:,ndir,nb),kindex,c1t,c2t,nbdim)
                 endif
             enddo
         enddo
 !
-    ENDIF
+    endif
+!
+    do nb = 1,nbdim
+    do ndir = 1,2
+        if ( (loctab_child(nb) /= (-ndir)) .AND. (loctab_child(nb) /= -3) .AND. child%memberin(nb,ndir) ) then
+            select case(nbdim)
+            case(1)
+                i1 = child % childarray(1,1,2,nb,ndir)
+                i2 = child % childarray(1,2,2,nb,ndir)
+
+                call procname(parray1(i1:i2),                               &
+                              i1,i2, .FALSE.,coords(nb),ndir)
+            case(2)
+                i1 = child % childarray(1,1,2,nb,ndir)
+                i2 = child % childarray(1,2,2,nb,ndir)
+                j1 = child % childarray(2,1,2,nb,ndir)
+                j2 = child % childarray(2,2,2,nb,ndir)
+
+                call procname(parray2(i1:i2,j1:j2),                         &
+                              i1,i2,j1,j2, .FALSE.,coords(nb),ndir)
+            case(3)
+                i1 = child % childarray(1,1,2,nb,ndir)
+                i2 = child % childarray(1,2,2,nb,ndir)
+                j1 = child % childarray(2,1,2,nb,ndir)
+                j2 = child % childarray(2,2,2,nb,ndir)
+                k1 = child % childarray(3,1,2,nb,ndir)
+                k2 = child % childarray(3,2,2,nb,ndir)
+
+                call procname(parray3(i1:i2,j1:j2,k1:k2),                   &
+                              i1,i2,j1,j2,k1,k2, .FALSE.,coords(nb),ndir)
+            case(4)
+                i1 = child % childarray(1,1,2,nb,ndir)
+                i2 = child % childarray(1,2,2,nb,ndir)
+                j1 = child % childarray(2,1,2,nb,ndir)
+                j2 = child % childarray(2,2,2,nb,ndir)
+                k1 = child % childarray(3,1,2,nb,ndir)
+                k2 = child % childarray(3,2,2,nb,ndir)
+                l1 = child % childarray(4,1,2,nb,ndir)
+                l2 = child % childarray(4,2,2,nb,ndir)
+
+                call procname(parray4(i1:i2,j1:j2,k1:k2,l1:l2),             &
+                              i1,i2,j1,j2,k1,k2,l1,l2, .FALSE.,coords(nb),ndir)
+            case(5)
+                i1 = child % childarray(1,1,2,nb,ndir)
+                i2 = child % childarray(1,2,2,nb,ndir)
+                j1 = child % childarray(2,1,2,nb,ndir)
+                j2 = child % childarray(2,2,2,nb,ndir)
+                k1 = child % childarray(3,1,2,nb,ndir)
+                k2 = child % childarray(3,2,2,nb,ndir)
+                l1 = child % childarray(4,1,2,nb,ndir)
+                l2 = child % childarray(4,2,2,nb,ndir)
+                m1 = child % childarray(5,1,2,nb,ndir)
+                m2 = child % childarray(5,2,2,nb,ndir)
+
+                call procname(parray5(i1:i2,j1:j2,k1:k2,l1:l2,m1:m2),       &
+                              i1,i2,j1,j2,k1,k2,l1,l2,m1,m2, .FALSE.,coords(nb),ndir)
+            case(6)
+                i1 = child % childarray(1,1,2,nb,ndir)
+                i2 = child % childarray(1,2,2,nb,ndir)
+                j1 = child % childarray(2,1,2,nb,ndir)
+                j2 = child % childarray(2,2,2,nb,ndir)
+                k1 = child % childarray(3,1,2,nb,ndir)
+                k2 = child % childarray(3,2,2,nb,ndir)
+                l1 = child % childarray(4,1,2,nb,ndir)
+                l2 = child % childarray(4,2,2,nb,ndir)
+                m1 = child % childarray(5,1,2,nb,ndir)
+                m2 = child % childarray(5,2,2,nb,ndir)
+                n1 = child % childarray(6,1,2,nb,ndir)
+                n2 = child % childarray(6,2,2,nb,ndir)
+
+                call procname(parray6(i1:i2,j1:j2,k1:k2,l1:l2,m1:m2,n1:n2), &
+                              i1,i2,j1,j2,k1,k2,l1,l2,m1,m2,n1,n2, .FALSE.,coords(nb),ndir)
+            end select
+        endif
+    enddo
+    enddo
 !---------------------------------------------------------------------------------------------------
 end subroutine Agrif_Correctnd
 !===================================================================================================
@@ -798,7 +435,7 @@ subroutine saveAfterInterp ( child_var, bounds, kindex, newsize, nbdim )
     CASE (1)
 !CDIR ALTCODE
         do ir = bounds(1,1), bounds(1,2)
-            child_var % oldvalues2d(2,kindex) = child_var % parray1(ir)
+            child_var % oldvalues2d(2,kindex) = parray1(ir)
             kindex = kindex + 1
         enddo
 !
@@ -806,7 +443,7 @@ subroutine saveAfterInterp ( child_var, bounds, kindex, newsize, nbdim )
         do jr = bounds(2,1),bounds(2,2)
 !CDIR ALTCODE
         do ir = bounds(1,1),bounds(1,2)
-            child_var % oldvalues2d(2,kindex) = child_var % parray2(ir,jr)
+            child_var % oldvalues2d(2,kindex) = parray2(ir,jr)
             kindex = kindex + 1
         enddo
         enddo
@@ -816,7 +453,7 @@ subroutine saveAfterInterp ( child_var, bounds, kindex, newsize, nbdim )
         do jr = bounds(2,1),bounds(2,2)
 !CDIR ALTCODE
         do ir = bounds(1,1),bounds(1,2)
-            child_var % oldvalues2d(2,kindex) = child_var % parray3(ir,jr,kr)
+            child_var % oldvalues2d(2,kindex) = parray3(ir,jr,kr)
             kindex = kindex + 1
         enddo
         enddo
@@ -828,7 +465,7 @@ subroutine saveAfterInterp ( child_var, bounds, kindex, newsize, nbdim )
         do jr = bounds(2,1),bounds(2,2)
 !CDIR ALTCODE
         do ir = bounds(1,1),bounds(1,2)
-            child_var % oldvalues2d(2,kindex) = child_var % parray4(ir,jr,kr,lr)
+            child_var % oldvalues2d(2,kindex) = parray4(ir,jr,kr,lr)
             kindex = kindex + 1
         enddo
         enddo
@@ -842,7 +479,7 @@ subroutine saveAfterInterp ( child_var, bounds, kindex, newsize, nbdim )
         do jr = bounds(2,1),bounds(2,2)
 !CDIR ALTCODE
         do ir = bounds(1,1),bounds(1,2)
-            child_var % oldvalues2d(2,kindex) = child_var % parray5(ir,jr,kr,lr,mr)
+            child_var % oldvalues2d(2,kindex) = parray5(ir,jr,kr,lr,mr)
             kindex = kindex + 1
         enddo
         enddo
@@ -858,7 +495,7 @@ subroutine saveAfterInterp ( child_var, bounds, kindex, newsize, nbdim )
         do jr = bounds(2,1),bounds(2,2)
 !CDIR ALTCODE
         do ir = bounds(1,1),bounds(1,2)
-            child_var % oldvalues2d(2,kindex) = child_var % parray6(ir,jr,kr,lr,mr,nr)
+            child_var % oldvalues2d(2,kindex) = parray6(ir,jr,kr,lr,mr,nr)
             kindex = kindex + 1
         enddo
         enddo
@@ -892,7 +529,7 @@ subroutine timeInterpolation ( child_var, bounds, kindex, c1t, c2t, nbdim )
     CASE (1)
 !CDIR ALTCODE
         do ir = bounds(1,1),bounds(1,2)
-            child_var % parray1(ir) = c2t*child_var % oldvalues2d(1,kindex) + &
+            parray1(ir) = c2t*child_var % oldvalues2d(1,kindex) + &
                                       c1t*child_var % oldvalues2d(2,kindex)
             kindex = kindex + 1
         enddo
@@ -901,7 +538,7 @@ subroutine timeInterpolation ( child_var, bounds, kindex, c1t, c2t, nbdim )
         do jr = bounds(2,1),bounds(2,2)
 !CDIR ALTCODE
         do ir = bounds(1,1),bounds(1,2)
-            child_var % parray2(ir,jr) = c2t*child_var % oldvalues2d(1,kindex) + &
+            parray2(ir,jr) = c2t*child_var % oldvalues2d(1,kindex) + &
                                          c1t*child_var % oldvalues2d(2,kindex)
             kindex = kindex + 1
         enddo
@@ -912,7 +549,7 @@ subroutine timeInterpolation ( child_var, bounds, kindex, c1t, c2t, nbdim )
         do jr = bounds(2,1),bounds(2,2)
 !CDIR ALTCODE
         do ir = bounds(1,1),bounds(1,2)
-            child_var % parray3(ir,jr,kr) = c2t*child_var % oldvalues2d(1,kindex) + &
+            parray3(ir,jr,kr) = c2t*child_var % oldvalues2d(1,kindex) + &
                                             c1t*child_var % oldvalues2d(2,kindex)
             kindex = kindex + 1
         enddo
@@ -925,7 +562,7 @@ subroutine timeInterpolation ( child_var, bounds, kindex, c1t, c2t, nbdim )
         do jr = bounds(2,1),bounds(2,2)
 !CDIR ALTCODE
         do ir = bounds(1,1),bounds(1,2)
-            child_var % parray4(ir,jr,kr,lr) = c2t*child_var % oldvalues2d(1,kindex) + &
+            parray4(ir,jr,kr,lr) = c2t*child_var % oldvalues2d(1,kindex) + &
                                                c1t*child_var % oldvalues2d(2,kindex)
             kindex = kindex + 1
         enddo
@@ -940,7 +577,7 @@ subroutine timeInterpolation ( child_var, bounds, kindex, c1t, c2t, nbdim )
         do jr=bounds(2,1),bounds(2,2)
 !CDIR ALTCODE
         do ir=bounds(1,1),bounds(1,2)
-            child_var % parray5(ir,jr,kr,lr,mr) = c2t*child_var % oldvalues2d(1,kindex) + &
+            parray5(ir,jr,kr,lr,mr) = c2t*child_var % oldvalues2d(1,kindex) + &
                                                   c1t*child_var % oldvalues2d(2,kindex)
             kindex = kindex + 1
         enddo
@@ -957,7 +594,7 @@ subroutine timeInterpolation ( child_var, bounds, kindex, c1t, c2t, nbdim )
         do jr=bounds(2,1),bounds(2,2)
 !CDIR ALTCODE
         do ir=bounds(1,1),bounds(1,2)
-            child_var % parray6(ir,jr,kr,lr,mr,nr) = c2t*child_var % oldvalues2d(1,kindex) + &
+            parray6(ir,jr,kr,lr,mr,nr) = c2t*child_var % oldvalues2d(1,kindex) + &
                                                      c1t*child_var % oldvalues2d(2,kindex)
             kindex = kindex + 1
         enddo

@@ -38,71 +38,74 @@ module Agrif_UpdateBasic
 contains
 !
 !===================================================================================================
-!  subroutine Agrif_Copy1d
+!  subroutine Agrif_basicupdate_copy1d
 !
 !> Carries out a copy on a parent grid (vector x) from its child grid (vector y).
 !---------------------------------------------------------------------------------------------------
-subroutine Agrif_Copy1d ( x, y, np, nc, s_parent, s_child, ds_parent, ds_child )
+subroutine Agrif_basicupdate_copy1d ( x, y, np, nc, s_parent, s_child, ds_parent, ds_child )
 !---------------------------------------------------------------------------------------------------
-    REAL, DIMENSION(np), intent(out)    :: x
-    REAL, DIMENSION(nc), intent(in)     :: y
-    INTEGER,             intent(in)     :: np, nc
-    REAL,                intent(in)     :: s_parent,  s_child
-    REAL,                intent(in)     :: ds_parent, ds_child
-!
-    INTEGER :: i, locind_child_left, coeffraf
+    real, dimension(np), intent(out)    :: x            !< Coarse output data to parent
+    real, dimension(nc), intent(in)     :: y            !< Fine input data from child
+    integer,             intent(in)     :: np           !< Length of parent array
+    integer,             intent(in)     :: nc           !< Length of child  array
+    real,                intent(in)     :: s_parent     !< Parent grid position (s_root = 0)
+    real,                intent(in)     :: s_child      !< Child  grid position (s_root = 0)
+    real,                intent(in)     :: ds_parent    !< Parent grid dx (ds_root = 1)
+    real,                intent(in)     :: ds_child     !< Child  grid dx (ds_root = 1)
+!---------------------------------------------------------------------------------------------------
+    integer :: i, locind_child_left, coeffraf
 !
     coeffraf = nint(ds_parent/ds_child)
+    locind_child_left = 1 + nint((s_parent - s_child)/ds_child)
 !
-    if (coeffraf == 1) then
-        locind_child_left = 1 + nint((s_parent - s_child)/ds_child)
-
+    if ( coeffraf == 1 ) then
 !CDIR ALTCODE
         x(1:np) = y(locind_child_left:locind_child_left+np-1)
         return
     endif
 !
-    locind_child_left = 1 + nint((s_parent - s_child)/ds_child)
-
 !CDIR ALTCODE
     do i = 1,np
         x(i) = y(locind_child_left)
         locind_child_left = locind_child_left + coeffraf
     enddo
 !---------------------------------------------------------------------------------------------------
-end subroutine Agrif_Copy1d
+end subroutine Agrif_basicupdate_copy1d
 !===================================================================================================
 !
 !===================================================================================================
-!  subroutine Copy1dPrecompute
+!  subroutine Agrif_basicupdate_copy1d_before
 !
 !> Precomputes index for a copy on a parent grid (vector x) from its child grid (vector y).
 !---------------------------------------------------------------------------------------------------
-subroutine Copy1dPrecompute ( nc2, np, nc, s_parent, s_child, ds_parent, ds_child, dir )
+subroutine Agrif_basicupdate_copy1d_before ( nc2, np, nc, s_parent, s_child, ds_parent, ds_child, dir )
 !---------------------------------------------------------------------------------------------------
-    INTEGER, intent(in) :: nc2
-    INTEGER, intent(in) :: np, nc
-    REAL,    intent(in) :: s_parent,  s_child
-    REAL,    intent(in) :: ds_parent, ds_child
-    INTEGER, intent(in) :: dir
-!
-    INTEGER, DIMENSION(:,:), ALLOCATABLE    :: indchildcopy_tmp
-    INTEGER                                 :: i,locind_child_left,coeffraf
-!
+    integer,             intent(in)     :: nc2          !< Length of parent array
+    integer,             intent(in)     :: np           !< Length of parent array
+    integer,             intent(in)     :: nc           !< Length of child  array
+    real,                intent(in)     :: s_parent     !< Parent grid position (s_root = 0)
+    real,                intent(in)     :: s_child      !< Child  grid position (s_root = 0)
+    real,                intent(in)     :: ds_parent    !< Parent grid dx (ds_root = 1)
+    real,                intent(in)     :: ds_child     !< Child  grid dx (ds_root = 1)
+    integer,             intent(in)     :: dir          !< Direction
+!---------------------------------------------------------------------------------------------------
+    integer, dimension(:,:), allocatable    :: indchildcopy_tmp
+    integer :: i, n_old, locind_child_left, coeffraf
 !
     coeffraf = nint(ds_parent/ds_child)
 !
     locind_child_left = 1 + nint((s_parent - s_child)/ds_child)
 
-    if (.not.allocated(indchildcopy)) then
-        allocate(indchildcopy(np*nc2,3))
+    if ( .not.allocated(indchildcopy) ) then
+        allocate(indchildcopy(np*nc2, 3))
     else
-        if (size(indchildcopy,1)<np*nc2) then
-            allocate( indchildcopy_tmp(size(indchildcopy,1),size(indchildcopy,2)))
+        n_old = size(indchildcopy,1)
+        if ( n_old < np*nc2 ) then
+            allocate( indchildcopy_tmp(1:n_old, 3))
             indchildcopy_tmp = indchildcopy
             deallocate(indchildcopy)
-            allocate(indchildcopy(np*nc2,3))
-            indchildcopy(1:size(indchildcopy_tmp,1),1:size(indchildcopy_tmp,2)) = indchildcopy_tmp
+            allocate(indchildcopy(np*nc2, 3))
+            indchildcopy(1:n_old,:) = indchildcopy_tmp
             deallocate(indchildcopy_tmp)
         endif
     endif
@@ -116,38 +119,39 @@ subroutine Copy1dPrecompute ( nc2, np, nc, s_parent, s_child, ds_parent, ds_chil
         indchildcopy(1+(i-1)*np:i*np,dir) = indchildcopy(1+(i-2)*np:(i-1)*np,dir) + nc
     enddo
 !---------------------------------------------------------------------------------------------------
-end subroutine Copy1dPrecompute
+end subroutine Agrif_basicupdate_copy1d_before
 !===================================================================================================
 !
 !===================================================================================================
-!  subroutine Copy1dAfterCompute
+!  subroutine Agrif_basicupdate_copy1d_after
 !
 !> Carries out a copy on a parent grid (vector x) from its child grid (vector y)
 !! using precomputed index.
 !---------------------------------------------------------------------------------------------------
-subroutine Copy1dAfterCompute ( x, y, np, nc, dir )
+subroutine Agrif_basicupdate_copy1d_after ( x, y, np, nc, dir )
 !---------------------------------------------------------------------------------------------------
-    REAL, DIMENSION(np), intent(out)    :: x
-    REAL, DIMENSION(nc), intent(in)     :: y
-    INTEGER,             intent(in)     :: np, nc
-    INTEGER,             intent(in)     :: dir
-!
-    INTEGER :: i
+    real, dimension(np), intent(out)    :: x            !< Coarse output data to parent
+    real, dimension(nc), intent(in)     :: y            !< Fine input data from child
+    integer,             intent(in)     :: np           !< Length of parent array
+    integer,             intent(in)     :: nc           !< Length of child  array
+    integer,             intent(in)     :: dir          !< Direction
+!---------------------------------------------------------------------------------------------------
+    integer :: i
 !
 !CDIR ALTCODE
     do i = 1,np
         x(i) = y(indchildcopy(i,dir))
     enddo
 !---------------------------------------------------------------------------------------------------
-end subroutine Copy1dAfterCompute
+end subroutine Agrif_basicupdate_copy1d_after
 !===================================================================================================
 !
 !===================================================================================================
-!  subroutine average1d
+!  subroutine Agrif_basicupdate_average1d
 !
 !> Carries out an update by average on a parent grid (vector x)from its child grid (vector y).
 !---------------------------------------------------------------------------------------------------
-subroutine average1d ( x, y, np, nc, s_parent, s_child, ds_parent, ds_child )
+subroutine Agrif_basicupdate_average1d ( x, y, np, nc, s_parent, s_child, ds_parent, ds_child )
 !---------------------------------------------------------------------------------------------------
     REAL, DIMENSION(np), intent(out)    :: x
     REAL, DIMENSION(nc), intent(in)     :: y
@@ -185,15 +189,15 @@ subroutine average1d ( x, y, np, nc, s_parent, s_child, ds_parent, ds_child )
             do ii = -coeffraf/2+locind_child_left+diffmod, &
                      coeffraf/2+locind_child_left
                 IF (y(ii) /= Agrif_SpecialValueFineGrid) THEN
-                    nbnonnuls = nbnonnuls + 1
+!                    nbnonnuls = nbnonnuls + 1
                     x(i) = x(i) + y(ii)
                 ENDIF
             enddo
-            IF (nbnonnuls /= 0) THEN
-                x(i) = x(i)/nbnonnuls
-            ELSE
-                x(i) = Agrif_SpecialValueFineGrid
-            ENDIF
+!            IF (nbnonnuls /= 0) THEN
+!                x(i) = x(i)/nbnonnuls
+!            ELSE
+!                x(i) = Agrif_SpecialValueFineGrid
+!            ENDIF
             locind_child_left = locind_child_left + coeffraf
         enddo
     ELSE
@@ -205,12 +209,15 @@ subroutine average1d ( x, y, np, nc, s_parent, s_child, ds_parent, ds_child )
                      coeffraf/2+locind_child_left
                 x(i) = x(i) + y(ii)
             enddo
-            x(i) = x(i)*invcoeffraf
+!            x(i) = x(i)*invcoeffraf
             locind_child_left = locind_child_left + coeffraf
         enddo
+        IF (.not.Agrif_Update_Weights) THEN
+           x = x * invcoeffraf
+        ENDIF
     ENDIF
 !---------------------------------------------------------------------------------------------------
-end subroutine average1d
+end subroutine Agrif_basicupdate_average1d
 !===================================================================================================
 !
 !===================================================================================================
@@ -280,24 +287,25 @@ subroutine Average1dAfterCompute ( x, y, np, nc, s_parent, s_child, ds_parent, d
     REAL    :: invcoeffraf
     INTEGER :: i, j, coeffraf
     INTEGER, DIMENSION(np) :: nbnonnuls
-    REAL, DIMENSION(0:5), parameter :: invcoeff = (/1.,1.,0.5,1./3.,0.25,0.2/)
+    REAL, DIMENSION(0:7), parameter :: invcoeff = (/1.,1.,0.5,1./3.,0.25,0.2,1./6.,1./7./)
 !
     coeffraf = nint(ds_parent/ds_child)
     invcoeffraf = 1./coeffraf
 !
     IF (Agrif_UseSpecialValueInUpdate) THEN
 !
-        nbnonnuls = 0
+!        nbnonnuls = 0
         do  j = 1,coeffraf
             do i = 1,np
                 IF (y(indchildaverage(i,dir) + j -1) /= Agrif_SpecialValueFineGrid) THEN
-                    nbnonnuls(i) = nbnonnuls(i) + 1
+!                    nbnonnuls(i) = nbnonnuls(i) + 1
                     x(i) = x(i) +  y(indchildaverage(i,dir) + j-1 )
                 ENDIF
             enddo
         enddo
         do i=1,np
-            x(i) = x(i)*invcoeff(nbnonnuls(i))
+  !          x(i) = x(i)*invcoeff(nbnonnuls(i))
+  !          if (nbnonnuls(i) == 0) x(i) = Agrif_SpecialValueFineGrid
         enddo
 !
     ELSE
@@ -309,35 +317,40 @@ subroutine Average1dAfterCompute ( x, y, np, nc, s_parent, s_child, ds_parent, d
                 x(i) = x(i) + y(indchildaverage(i,dir) + j-1 )
             enddo
         enddo
-        x = x * invcoeffraf
+        IF (.not.Agrif_Update_Weights) THEN
+           x = x * invcoeffraf
+        ENDIF
 !
     ENDIF
+
 !---------------------------------------------------------------------------------------------------
 end subroutine Average1dAfterCompute
 !===================================================================================================
 !
 !===================================================================================================
-!  subroutine full_weighting1D
+!  subroutine Agrif_basicupdate_full_weighting1D
 !
 !> Carries out an update by full_weighting on a parent grid (vector x) from its child grid (vector y).
 !---------------------------------------------------------------------------------------------------
-subroutine full_weighting1D ( x, y, np, nc, s_parent, s_child, ds_parent, ds_child, &
-                              coeffraf, locind_child_left )
+subroutine Agrif_basicupdate_full_weighting1D ( x, y, np, nc, s_parent, s_child, ds_parent, ds_child )
 !---------------------------------------------------------------------------------------------------
-    REAL, DIMENSION(np), intent(out)    :: x
-    REAL, DIMENSION(nc), intent(in)     :: y
-    INTEGER,             intent(in)     :: np, nc
-    REAL,                intent(in)     :: s_parent,  s_child
-    REAL,                intent(in)     :: ds_parent, ds_child
-    INTEGER,             intent(in)     :: coeffraf
-    INTEGER,             intent(in)     :: locind_child_left
-!
+    real, dimension(np), intent(out)    :: x
+    real, dimension(nc), intent(in)     :: y
+    integer,             intent(in)     :: np, nc
+    real,                intent(in)     :: s_parent,  s_child
+    real,                intent(in)     :: ds_parent, ds_child
+!---------------------------------------------------------------------------------------------------
     REAL    :: xpos, xposfin
     INTEGER :: i, ii, diffmod
     INTEGER :: it1, it2
     INTEGER :: i1,  i2
+    INTEGER :: coeffraf
+    INTEGER :: locind_child_left
     REAL    :: sumweight, invsumweight
-    REAL    :: weights(-(coeffraf):coeffraf)
+    REAL    :: weights(-Agrif_MaxRaff:Agrif_MaxRaff)
+
+    coeffraf = nint(ds_parent/ds_child)
+    locind_child_left = 1 + agrif_int((s_parent-s_child)/ds_child)
 !
     if (coeffraf == 1) then
         x(1:np) = y(locind_child_left:locind_child_left+np-1)
@@ -365,6 +378,7 @@ subroutine full_weighting1D ( x, y, np, nc, s_parent, s_child, ds_parent, ds_chi
         it1 = -coeffraf
         i1 = -(coeffraf-1)+locind_child_left
         i2 = 2*coeffraf - 1
+        
     else
         invsumweight=1./coeffraf**2
         do i = -(coeffraf-1),0
@@ -376,18 +390,26 @@ subroutine full_weighting1D ( x, y, np, nc, s_parent, s_child, ds_parent, ds_chi
         it1 = -(coeffraf-1)
         i1 = -(coeffraf-1)+locind_child_left
         i2 = 2*coeffraf - 2
+
     endif
 !
-    sumweight = 0
-    do i = 1,np
+    sumweight = 0.
+    MYLOOP : do i = 1,np
 !
         it2 = it1
+
+!    sumweight = 0.
+    
         do ii = i1,i1+i2
 !
             IF (Agrif_UseSpecialValueInUpdate) THEN
                 IF (y(ii) /= Agrif_SpecialValueFineGrid) THEN
                     x(i) = x(i) + weights(it2)*y(ii)
-                    sumweight = sumweight+weights(it2)
+!                    sumweight = sumweight+weights(it2)
+                ELSE
+                    x(i) = Agrif_SpecialValueFineGrid
+                    i1=i1+coeffraf
+                    CYCLE MYLOOP
                 ENDIF
             ELSE
                 x(i) = x(i) + weights(it2)*y(ii)
@@ -397,20 +419,16 @@ subroutine full_weighting1D ( x, y, np, nc, s_parent, s_child, ds_parent, ds_chi
 !
         enddo
 !
-        IF (Agrif_UseSpecialValueInUpdate) THEN
-            IF (sumweight /= 0.) THEN
-                x(i) = x(i)/sumweight
-                sumweight = 0
-            ELSE
-                x(i) = Agrif_SpecialValueFineGrid
-            ENDIF
-        ENDIF
-!
         i1 = i1 + coeffraf
 !
-    enddo
+        enddo MYLOOP
+        
+        IF (Agrif_UseSpecialValueInUpdate) THEN
+          x = x * coeffraf ! x will be divided by coeffraf later in modupdate.F90
+        ENDIF
+        
 !---------------------------------------------------------------------------------------------------
-end subroutine full_weighting1D
+end subroutine Agrif_basicupdate_full_weighting1D
 !===================================================================================================
 !
 end module Agrif_UpdateBasic

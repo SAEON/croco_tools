@@ -84,7 +84,7 @@
 # elif (defined OA_COUPLING && !defined AGRIF)
       call cpl_prism_init  ! In AGRIF case, cpl_prism_init is in zoom.F
 # elif defined AGRIF
-      call agrif_mpi_set_grid_comm(MPI_COMM_WORLD) 
+      call Agrif_MPI_Init(MPI_COMM_WORLD)
 # endif
 #endif /* MPI */
 
@@ -597,7 +597,7 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Stop timers and
 !
 !  Close the netcdf files also for the child grids
 !
-      parcours=>Agrif_Curgrid%child_grids
+      parcours=>Agrif_Curgrid%child_list % first
       do while (associated(parcours))
         Call Agrif_Instance(parcours % gr)
         call closecdf

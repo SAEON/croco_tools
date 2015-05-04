@@ -17,78 +17,6 @@
 !====================================================================
 !
 #if defined AGRIF && defined SOLVE3D && defined AGRIF_2WAY
-
-      subroutine Agrif_update_np1pre
-!
-! Update in case of 2-way nesting
-!
-      use Agrif_Util
-      implicit none
-#  include "param.h"
-#  include "grid.h"
-#  include "ocean3d.h"
-#  include "ocean2d.h"
-#  include "scalars.h"
-#  include "zoom.h"
-#  include "coupling.h"
-      integer NNO,NNOX,NNOY,ich,jch,k,itrc,ipr,jpr,nnewpr
-      integer irmin,irmax,jrmin,jrmax,iumin,iumax,jvmin,jvmax
-      integer ii,jj,iint,jint
-      real eps,cff,fxc,surfc 
-      parameter (eps=1.E-20)
-      real tabtemp(GLOBAL_2D_ARRAY,N,NT)
-      External UpdateTranp1pre
-      External Updateunp1pre
-      External Updatevnp1pre
-      real,dimension(:,:,:,:,:),pointer ::tparent
-      integer :: i,j
-!$AGRIF_DO_NOT_TREAT
-      integer :: nbcoarsechild
-      common/updateprestepint/nbcoarsechild      
-!$AGRIF_END_DO_NOT_TREAT
-      
-      
-!
-      return
-
-      nbcoarsechild = nbcoarse
-
-      Call Agrif_ChildGrid_To_ParentGrid()
-      Call ResetAlready()
-      Call Agrif_ParentGrid_To_ChildGrid()
-     
-#ifdef MASKING
-      Agrif_UseSpecialValueInUpdate = .TRUE.
-#endif
-      Agrif_SpecialValueFineGrid = 0.
-            
-
-      
-!     Call Agrif_Update_Variable(tabtemp,updateTprof,
-!    &         locupdate=(/0,2/),procname = updateTranp1pre)  
-
-!     Agrif_UseSpecialValueInUpdate = .FALSE.
-           
-!     Call Agrif_Update_Variable(tabtemp(:,:,:,1),Huon,
-!    &         locupdate=(/0,2/),procname = updateunp1pre)
-
-!     Call Agrif_Update_Variable(tabtemp(:,:,:,1),Hvom,
-!    &         locupdate=(/0,2/),procname = updatevnp1pre) 
-      
-      Call Agrif_Update_Variable(tabtemp,updateTprof,
-     &         locupdate=(/1,3/),procname = updateTranp1pre)
-     
-      Agrif_UseSpecialValueInUpdate = .FALSE.
-           
-!      Call Agrif_Update_Variable(tabtemp(:,:,:,1),Huon,
-!     &     locupdate1=(/0,2/),locupdate2=(/1,3/),
-!     &     procname = updateunp1pre)
-!      Call Agrif_Update_Variable(tabtemp(:,:,:,1),Hvom,
-!     &     locupdate1=(/1,3/),locupdate2=(/0,2/),
-!     &     procname = updatevnp1pre)
-
-      return
-      end  
       
       subroutine ResetAlready()
 #include "zoom.h"
@@ -148,18 +76,18 @@
       IF (.TRUE.) THEN
 
 #ifdef AGRIF_UPDATE_DECAL
-      Call Agrif_Update_Variable(tabtemp,updatetid,
+      Call Agrif_Update_Variable(updatetid,
      &         procname = updateTranp1,locupdate=(/1,0/))
       Agrif_UseSpecialValueInUpdate = .FALSE.
 #else
-      Call Agrif_Update_Variable(tabtemp,updatetid,
+      Call Agrif_Update_Variable(updatetid,
      &         procname = updateTranp1)
       Agrif_UseSpecialValueInUpdate = .FALSE.
 #endif
       ELSE
 
 #ifdef AGRIF_UPDATE_DECAL
-      Call Agrif_Update_Variable(tabtemp,updatetid,
+      Call Agrif_Update_Variable(updatetid,
      &         locupdate=(/1,3/),procname = updateTranp1)
      
       Agrif_UseSpecialValueInUpdate = .FALSE.
@@ -171,7 +99,7 @@
 !     &     locupdate1=(/1,3/),locupdate2=(/0,2/),
 !     &     procname = updatevnp1) 
 #else
-      Call Agrif_Update_Variable(tabtemp,updatetid,
+      Call Agrif_Update_Variable(updatetid,
      &         locupdate=(/0,1/),procname = updateTranp1)
      
       Agrif_UseSpecialValueInUpdate = .FALSE.
@@ -194,11 +122,11 @@
       Agrif_UseSpecialValueInUpdate = .FALSE.
 
       
-      Call Agrif_Update_Variable(tabtemp,updatemyfxid,
+      Call Agrif_Update_Variable(updatemyfxid,
      &     locupdate1=(/0,0/),locupdate2=(/1,1/),
      &     procname = updatemyfx)
     
-      Call Agrif_Update_Variable(tabtemp,updatemyfyid,
+      Call Agrif_Update_Variable(updatemyfyid,
      &     locupdate1=(/1,1/),locupdate2=(/0,0/),
      &     procname = updatemyfy) 
 #endif
@@ -334,10 +262,10 @@
 !     &     locupdate1=(/1,5/),locupdate2=(/0,5/),
 !     &     procname = updatevnp1pre)
      
-      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updatehuonid,
+      Call Agrif_Update_Variable(updatehuonid,
      &     locupdate1=(/0,0/),locupdate2=(/1,1/),
      &     procname = updateunp1pre)
-      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updatehvomid,
+      Call Agrif_Update_Variable(updatehvomid,
      &     locupdate1=(/1,1/),locupdate2=(/0,0/),
      &     procname = updatevnp1pre)
      
@@ -359,20 +287,20 @@
 #ifdef AGRIF_UPDATE_DECAL
       Agrif_UseSpecialValueInUpdate = .FALSE.
            
-      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updateuid,
+      Call Agrif_Update_Variable(updateuid,
      &     locupdate1=(/0,-1/),locupdate2=(/1,-2/),
      &     procname = updateunp1)
      
-      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updatevid,
+      Call Agrif_Update_Variable(updatevid,
      &     locupdate1=(/1,-2/),locupdate2=(/0,-1/),
      &     procname = updatevnp1)
      
 #else
       Agrif_UseSpecialValueInUpdate = .FALSE.
            
-      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updateuid,
+      Call Agrif_Update_Variable(updateuid,
      &     procname = updateunp1)
-      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updatevid,
+      Call Agrif_Update_Variable(updatevid,
      &     procname = updatevnp1)
 #endif
       ELSE
@@ -381,20 +309,20 @@
      
       Agrif_UseSpecialValueInUpdate = .FALSE.
            
-      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updateuid,
+      Call Agrif_Update_Variable(updateuid,
      &     locupdate1=(/0,2/),locupdate2=(/1,3/),
      &     procname = updateunp1)
-      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updatevid,
+      Call Agrif_Update_Variable(updatevid,
      &     locupdate1=(/1,3/),locupdate2=(/0,2/),
      &     procname = updatevnp1) 
 #else
      
       Agrif_UseSpecialValueInUpdate = .FALSE.
            
-      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updateuid,
+      Call Agrif_Update_Variable(updateuid,
      &     locupdate1=(/0,2/),locupdate2=(/0,2/),
      &     procname = updateunp1)
-      Call Agrif_Update_Variable(tabtemp(:,:,:,1),updatevid,
+      Call Agrif_Update_Variable(updatevid,
      &     locupdate1=(/0,2/),locupdate2=(/0,2/),
      &     procname = updatevnp1) 
 #endif    

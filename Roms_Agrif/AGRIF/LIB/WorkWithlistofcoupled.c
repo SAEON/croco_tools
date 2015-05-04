@@ -39,13 +39,13 @@
 #include "decl.h"
 
 /******************************************************************************/
-/*                          varisallocatable_0                                */
+/*                          variscoupled_0                                    */
 /******************************************************************************/
 /* Firstpass 0                                                                */
 /******************************************************************************/
 /*                                                                            */
 /******************************************************************************/
-int variscoupled_0(char *ident)
+int variscoupled_0(const char *ident)
 {
     listvarpointtovar *pointtmplist; 
     listcouple *coupletmp;   
@@ -60,9 +60,9 @@ int variscoupled_0(char *ident)
             while ( coupletmp && out == 0)
             {
                 /* we should find the same variable name in the same subroutine    */
-                if ( !strcasecmp(ident,coupletmp->c_namevar) &&
-                     !strcasecmp(subroutinename,pointtmplist->t_cursubroutine) &&
-                      strcasecmp(coupletmp->c_namepointedvar,"") )
+                if ( !strcasecmp(ident, coupletmp->c_namevar) &&
+                     !strcasecmp(subroutinename, pointtmplist->t_cursubroutine) &&
+                      strcasecmp(coupletmp->c_namepointedvar, "") )
                 {
                     out = 1;
                 }
@@ -74,7 +74,7 @@ int variscoupled_0(char *ident)
     return out;
 }
 
-char * getcoupledname_0(char *ident)
+const char * getcoupledname_0(const char *ident)
 {
     listvarpointtovar *pointtmplist; 
     listcouple *coupletmp;   
@@ -89,11 +89,11 @@ char * getcoupledname_0(char *ident)
             while ( coupletmp && out == 0)
             {
                 /* we should find the same variable name in the same subroutine    */
-                if ( !strcasecmp(ident,coupletmp->c_namevar) &&
-                     !strcasecmp(subroutinename, pointtmplist->t_cursubroutine) &&
+                if ( !strcasecmp(coupletmp->c_namevar,ident) &&
+                     !strcasecmp(pointtmplist->t_cursubroutine,subroutinename) &&
                       strcasecmp(coupletmp->c_namepointedvar,"") )
                 {
-                    return(coupletmp->c_namepointedvar);
+                    return coupletmp->c_namepointedvar;
                 }
                 coupletmp = coupletmp->suiv;
             }
@@ -101,4 +101,5 @@ char * getcoupledname_0(char *ident)
         }
     }
     printf("end of getcoupledname_0 -- you should not be there !!! \n");
+    return NULL;
 }

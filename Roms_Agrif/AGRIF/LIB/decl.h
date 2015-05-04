@@ -32,12 +32,12 @@
 /******************************************************************************/
 /* version 1.7                                                                */
 /******************************************************************************/
-#define LONGNOM 8000
+#define LONG_VNAME 80		// Max length for a variable name
+#define LONG_FNAME 1000		// Max length for a file name
+#define LONG_C     200
+#define LONG_M     1500
 
-#define LONG_C 3000
-#define LONG_4C 400
-#define LONG_10M 10000
-#define LONG_40M 4000000
+#define NB_CAT_VARIABLES 5
 
 /******************************************************************************/
 /*********** Declaration of structures used in conv ***************************/
@@ -45,8 +45,8 @@
 
 typedef struct
 {
-   char first[LONG_C];
-   char last[LONG_C];
+   char first[LONG_M];
+   char last[LONG_M];
 } typedim ;                /* fortran dimension as 'ndeb:nfin'                */
 
 typedef struct listdim
@@ -55,27 +55,50 @@ typedef struct listdim
    struct listdim *suiv;
 } listdim;                 /* list of the dimensions of a variable            */
 
+typedef struct listname
+{
+   char n_name[LONG_M];
+   struct  listname* suiv;
+} listname ;            /* list of names                                  */
+
+typedef struct do_loop
+{
+   char do_variable[LONG_VNAME];
+   char do_begin[LONG_VNAME];
+   char do_end[LONG_VNAME];
+   char do_step[LONG_VNAME];
+} do_loop ;
+
+typedef struct listdoloop
+{
+   do_loop *cur_do_loop;
+   struct listdoloop* suiv;
+} listdoloop;
+
 typedef struct variable
 {
-   char v_typevar[LONG_C];
-   char v_nomvar[LONG_C] ;
-   char v_oldname[LONG_C] ;
-   char v_dimchar[LONG_C];
-   char v_modulename[LONG_C];
-   char v_commonname[LONG_C];
-   char v_vallengspec[LONG_C];
-   char v_nameinttypename[LONG_C];
-   char v_commoninfile[LONG_C];
-   char v_subroutinename[LONG_C];
+   char v_typevar[LONG_VNAME];
+   char v_nomvar[LONG_VNAME] ;
+   char v_oldname[LONG_VNAME] ;
+   char v_dimchar[LONG_VNAME];
+   char v_modulename[LONG_VNAME];
+   char v_commonname[LONG_VNAME];
+   char v_vallengspec[LONG_VNAME];
+   char v_nameinttypename[LONG_VNAME];
+   char v_commoninfile[LONG_FNAME];
+   char v_subroutinename[LONG_VNAME];
+   listdoloop *v_do_loop;
    char v_precision[LONG_C];
-   char v_initialvalue[LONG_4C];
-   char v_IntentSpec[LONG_C];
-   char v_readedlistdimension[LONG_C];
+   listname *v_initialvalue;
+   listname *v_initialvalue_array;
+   char v_IntentSpec[LONG_M];
+   char v_readedlistdimension[LONG_M];
    int  v_nbdim;
    int  v_common;
    int  v_positioninblock;
    int  v_module;
    int  v_save;
+   int  v_catvar;
    int  v_VariableIsParameter;
    int  v_PublicDeclare;
    int  v_PrivateDeclare;
@@ -109,31 +132,25 @@ typedef struct listvar
 
 typedef struct listusemodule
 {
-   char u_usemodule[LONG_C];
-   char u_charusemodule[LONG_C];
-   char u_cursubroutine[LONG_C];
-   char u_modulename[LONG_C];
+   char u_usemodule[LONG_VNAME];
+   char u_charusemodule[LONG_VNAME];
+   char u_cursubroutine[LONG_VNAME];
+   char u_modulename[LONG_VNAME];
    int  u_firstuse;
    struct listusemodule * suiv;
 } listusemodule;           /* list of names                                   */
 
 typedef struct listparameter
 {
-   char p_name[LONG_C];
-   char p_modulename[LONG_C];
+   char p_name[LONG_M];
+   char p_modulename[LONG_M];
    struct listparameter * suiv;
 } listparameter ;           /* list of names                                  */
 
-typedef struct listname
-{
-   char n_name[LONG_C];
-   struct  listname* suiv;
-} listname ;            /* list of names                                  */
-
 typedef struct listcouple
 {
-   char c_namevar[LONG_C];
-   char c_namepointedvar[LONG_C];
+   char c_namevar[LONG_VNAME];
+   char c_namepointedvar[LONG_VNAME];
    struct listcouple * suiv;
 } listcouple;              /* list of names                                   */
 
@@ -141,8 +158,8 @@ typedef struct listcouple
 typedef struct listnom
 {
    char o_nom[LONG_C];
-   char o_module[LONG_C];
-   char o_subroutinename[LONG_C];
+   char o_module[LONG_VNAME];
+   char o_subroutinename[LONG_M];
    int  o_val;
    listcouple *couple;
    struct listnom * suiv;
@@ -152,16 +169,16 @@ typedef struct listnom
 typedef struct listallocate
 {
    char a_nomvar[LONG_C];
-   char a_subroutine[LONG_C];
-   char a_module[LONG_C];
+   char a_subroutine[LONG_VNAME];
+   char a_module[LONG_VNAME];
    struct listallocate * suiv;
 } listallocate ;
 
 
 typedef struct listvarpointtovar
 {
-   char t_usemodule[LONG_C];
-   char t_cursubroutine[LONG_C];
+   char t_usemodule[LONG_VNAME];
+   char t_cursubroutine[LONG_VNAME];
    listcouple *t_couple;
    struct  listvarpointtovar* suiv;
 }listvarpointtovar ;       /* list of names                                   */
@@ -196,6 +213,9 @@ typedef struct listindice
 
  listname *List_Pointer_Var;
  listname *List_ImplicitNoneSubroutine;
+ 
+ listname *List_Do_labels; 
+ /* A list that contains the do labels if any */
 
  listusemodule *List_NameOfModuleUsed;
  listusemodule *List_Include;
@@ -208,6 +228,7 @@ typedef struct listindice
  listnom *List_ContainsSubroutine;
  listnom *List_Subroutine_For_Alloc;
  listnom *listofmodules;
+ listnom *listofkind;
  listnom *List_NameOfModule;
  listnom *List_NameOfCommon;
  listnom *List_SubroutineWhereAgrifUsed;
@@ -219,6 +240,7 @@ typedef struct listindice
 
  listindice *Listofavailableindices;
                            /* List of available indices in the tabvars table  */
+ listindice **Listofavailableindices_glob;
 
  listdim *curdim;
  listdim *commondim;
@@ -228,8 +250,8 @@ typedef struct listindice
 /******************************************************************************/
 
  int positioninblock;
- char commonvar[LONG_C];
- char commonblockname[LONG_C];
+ char commonvar[LONG_VNAME];
+ char commonblockname[LONG_VNAME];
 
 /******************************************************************************/
 /****************   *** AGRIF Variables ***   *********************************/
@@ -238,11 +260,11 @@ typedef struct listindice
  int afterpercent;
  int sameagrifargument;
  int InAgrifParentDef;
- char sameagrifname[LONG_C];
+ char sameagrifname[LONG_VNAME];
 /******************************************************************************/
 /****************   *** VAR DEF Variables ***   *******************************/
 /******************************************************************************/
- int indicemaxtabvars;     /* Number of variables in the model i.e. last      */
+ int indicemaxtabvars[NB_CAT_VARIABLES];     /* Number of variables in the model i.e. last      */
                            /*    indice used in  the tabvars table            */
  int PublicDeclare;        /* Variable has been declared as PUBLIC */
  int PrivateDeclare;       /* Variable has been declared as PRIVATE */
@@ -254,25 +276,23 @@ typedef struct listindice
  int functiondeclarationisdone;
  int pointerdeclare;
  int optionaldeclare;
- int VarType;
- int VarTypepar;
+ int inside_type_declare;
  int VariableIsParameter;
  int dimsgiven;
  int shouldincludempif;
  int c_star;
- char DeclType[LONG_C];
- char nameinttypename[LONG_C];
- char nameinttypenameback[LONG_C]; 
+ char DeclType[LONG_VNAME];
+ char nameinttypename[LONG_VNAME];
+ char nameinttypenameback[LONG_VNAME];
  int GlobalDeclaration;
- char InitValue[LONG_4C];
- char IntentSpec[LONG_C];
+ int GlobalDeclarationType;
+ char InitValue[LONG_M];
+ char IntentSpec[LONG_M];
  char NamePrecision[LONG_C];
- char CharacterSize[LONG_C];
- char curmodulename[LONG_C];
- char vallengspec[LONG_C];
- char subroutinename[LONG_C];
+ char CharacterSize[LONG_VNAME];
+ char vallengspec[LONG_VNAME];
  int isrecursive;
- char previoussubroutinename[LONG_C];
+ int is_result_present;
 
 /******************************************************************************/
 /****************   *** CONV Variables ***   **********************************/
@@ -281,11 +301,10 @@ typedef struct listindice
                            /*    3 for 3D                                     */
  int onlyfixedgrids;       /* = 1 if onlyfixedgrids is true                   */
  int todebug;
- int todebugfree;
  int fixedgrids;           /* = 1 if fixedgrids is true                       */
- char nbmaillesX[LONG_C]; /* number of cells in the x direction              */
- char nbmaillesY[LONG_C]; /* number of cells in the y direction              */
- char nbmaillesZ[LONG_C]; /* number of cells in the z direction              */
+ char nbmaillesX[LONG_VNAME];	// number of cells in the x direction
+ char nbmaillesY[LONG_VNAME];	// number of cells in the y direction
+ char nbmaillesZ[LONG_VNAME];	// number of cells in the z direction
  int IndicenbmaillesX;
  int IndicenbmaillesY;
  int IndicenbmaillesZ;
@@ -297,7 +316,6 @@ typedef struct listindice
  int callagrifinitgrids;
  int callmpiinit;
  int firstpass;
- int couldaddvariable;
  int pointedvar;
  int NbMailleXDefined;
  int agrif_parentcall;
@@ -305,40 +323,37 @@ typedef struct listindice
  int SubloopScalar;        /* = 1 we should put in argument of sub_loop       */
                            /*    only                                         */
                            /*    scalar and not table u(1,1,1) in place of u  */
- int checkexistcommon;
+ int inprogramdeclare;
  int insubroutinedeclare;
  int inmoduledeclare;
  int dimsempty;
  int created_dimensionlist;
  int incontainssubroutine;
 
- char meetagrifinitgrids[LONG_C];
- char mpiinitvar[LONG_C];
- char *NameTamponfile;
- char toprintglob[LONG_4C];
- char tmpvargridname[LONG_4C];
- char EmptyChar[2];        /* An empty char */
- char curfilename[LONG_C];
- char nomfileoutput[LONG_C];
- char curbuf[LONG_40M];
- char motparse[LONG_4C];
- char motparse1[LONG_4C];
- char charusemodule[LONG_C];
- char subofagrifinitgrids[LONG_C];
- char curfile[LONG_C];
- char mainfile[LONG_C];
- char nomdir[LONG_C];
- char commondirout[LONG_C];
- char commondirin[LONG_C];
- char filetoparse[LONG_C];
+ char meetagrifinitgrids[LONG_M];
+ char mpiinitvar[LONG_M];
+ char toprintglob[LONG_M];
+ char tmpvargridname[LONG_M];
+ char dependfilename[LONG_FNAME];
+ char charusemodule[LONG_VNAME];
+ char subofagrifinitgrids[LONG_M];
+ char curmodulename[LONG_VNAME];
+ char subroutinename[LONG_VNAME];
+ char old_subroutinename[LONG_VNAME]; // For internal subprogramm
+ char cur_filename[LONG_FNAME];		// Name of the current parsed Fortran file
+ char config_file[LONG_FNAME];		// Name of conv configuration file (ex: amr.in)
+ char work_dir[LONG_FNAME];			// Work directory         (default: './')
+ char include_dir[LONG_FNAME];		// Include directory      (default: './AGRIF_INC')
+ char output_dir[LONG_FNAME];		// output directory       (default: './AGRIF_MODELFILES')
+ char input_dir[LONG_FNAME];		// source input directory (default: './')
 
  FILE *fortran_out;          /* Output File                                    */
  FILE *fortran_in;           /* Input File                                     */
  FILE *oldfortran_out;
+ FILE *old_oldfortran_out; // For internal subprogramm
  FILE *subloop;
  FILE *module_declar;
  FILE *allocationagrif;
- FILE *paramout;
 
  long int pos_cur;         /* current position in the output file             */
  long int pos_curagrifparent;
@@ -353,81 +368,23 @@ typedef struct listindice
  long int pos_curcommon;   /* current position in the output file             */
  long int pos_cursave;     /* current position in the output file             */
  long int pos_curdimension;/* current position in the output file             */
- long int pos_curinit;     /* current position in the output file             */
  long int pos_curinclude;  /* final position of a line in file                */
  long int pos_end;         /* final position of a line in file                */
  long int pos_endsubroutine;
                            /* final position of a line in file                */
 
-/* v_oldname = v_nomvar; */
-/* commonvar = v_nomvar; */
-/* commonblockname = v_commonname;*/
-/* sameagrifname = v_nomvar ; */
-/* DeclType = v_typevar; */
-/* nameinttypename = v_nameinttypename; */
-/* IntentSpec = v_IntentSpec; */
-/* NamePrecision = v_precision; */
-/* CharacterSize = v_dimchar; */
-/* curmodulename = v_modulename; */
-/* vallengspec = v_vallengspec; */
-/* subroutinename = v_subroutinename; */
-/* meetagrifinitgrids = v_subroutinename; */
-/* nbmaillesX = v_nomvar; */
-/* nbmaillesY = v_nomvar; */
-/* nbmaillesZ = v_nomvar; */
-/* mpiinitvar = v_nomvar; */
-/* EmptyChar = 2; */
-/* motparse1 = motparse;*/
-/* charusemodule = p_modulename; */
-/* subofagrifinitgrids = v_subroutinename; */
-/* curfile = mainfile; */
-/* InitValue = v_initialvalue; */
-
-/* p_name;???????? */
-/* p_modulename; ?????????????*/
-
 size_t length_last;
 size_t length_first;
-size_t length_v_typevar;
-size_t length_v_nomvar;
-size_t length_v_dimchar;
-size_t length_v_modulename;
-size_t length_v_commonname;
 size_t length_v_vallengspec;
-size_t length_v_nameinttypename;
 size_t length_v_commoninfile;
-size_t length_v_subroutinename;
 size_t length_v_precision;
 size_t length_v_IntentSpec;
 size_t length_v_initialvalue;
 size_t length_v_readedlistdimension;
-size_t length_u_usemodule;
-size_t length_u_charusemodule;
-size_t length_u_cursubroutine;
-size_t length_u_modulename;
-size_t length_n_name;
-size_t length_c_namevar;
-size_t length_c_namepointedvar;
-size_t length_o_nom;
-size_t length_o_module;
 size_t length_a_nomvar;
-size_t length_a_subroutine;
-size_t length_a_module;
-size_t length_t_usemodule;
-size_t length_t_cursubroutine;
-size_t length_curfilename;
-size_t length_nomfileoutput;
-size_t length_motparse;
-size_t length_mainfile;
-size_t length_nomdir;
-size_t length_commondirout;
-size_t length_commondirin;
-size_t length_filetoparse;
-size_t length_curbuf;
 size_t length_toprintglob;
 size_t length_tmpvargridname;
 size_t length_ligne_Subloop;
-size_t length_lvargridname_toamr;
 size_t length_toprint_utilagrif;
 size_t length_toprinttmp_utilchar;
 size_t length_ligne_writedecl;
@@ -440,117 +397,114 @@ size_t length_tmpligne_writedecl;
  int value_char_size2;
  int value_char_size3;
 
- 
+
  int inallocate;
  int infixed;
  int infree;
 /******************************************************************************/
 /*********** Declaration of externals subroutines *****************************/
 /***************************************************** ************************/
+extern char *fortran_text;
 /******************************************************************************/
 /*********** convert.y ********************************************************/
 /******************************************************************************/
 extern int main(int argc,char *argv[]);
+extern int convert_error(const char *s);
 /******************************************************************************/
 /*********** fortran.y ********************************************************/
 /******************************************************************************/
-extern void process_fortran(char *fichier_entree);
+extern void process_fortran(const char *input_file);
+extern int fortran_error(const char *s);
 /******************************************************************************/
 /*********** dependfile.c *****************************************************/
 /******************************************************************************/
 extern void Writethedependnbxnbyfile();
 extern void Readthedependnbxnbyfile();
-extern void Writethedependlistofmoduleused(char *NameTampon );
-extern void Readthedependlistofmoduleused(char *NameTampon);
-extern void WritedependParameterList(char *NameTampon );
-extern listparameter *ReaddependParameterList(char *NameTampon,
-                                                        listparameter *listout);
-extern void Writethedependfile(char *NameTampon, listvar *input );
-extern listvar *Readthedependfile( char *NameTampon , listvar *listout);
+extern void Writethedependlistofmoduleused(const char *NameTampon );
+extern void Readthedependlistofmoduleused(const char *NameTampon);
+extern void WritedependParameterList(const char *NameTampon );
+extern listparameter *ReaddependParameterList(const char *NameTampon, listparameter *listout);
+extern void Writethedependfile(const char *NameTampon, listvar *input );
+extern listvar *Readthedependfile(const char *NameTampon , listvar *listout);
 extern void Write_Subroutine_For_Alloc();
 extern void Read_Subroutine_For_Alloc();
 extern void Writethedependavailablefile();
 extern void Readthedependavailablefile();
-extern int Did_filetoparse_readed(char *NameTampon);
-extern int Did_module_common_treaded(char *NameTampon);
+extern int is_dependfile_created(const char *NameTampon);
 extern void Write_val_max();
 extern void Read_val_max();
 /******************************************************************************/
 /*********** DiversListe.c ****************************************************/
 /******************************************************************************/
 extern void Add_Common_var_1();
-extern listnom *Addtolistnom(char *nom, listnom *listin,int value);
-extern listname *Addtolistname(char *nom,listname *input);
-extern int ModuleIsDefineInInputFile(char *name);
-extern void Addmoduletothelisttmp(char *name);
-extern void Add_NameOfModule_1(char *nom);
-extern void Add_NameOfCommon_1(char *nom,char *cursubroutinename);
-extern void Add_CouplePointed_Var_1(char *namemodule,listcouple *couple);
-extern void Add_Include_1(char *name);
+extern listnom  *Addtolistnom(const char *nom, listnom *listin, int value);
+extern listname *Addtolistname(const char *nom, listname *input);
+extern int ModuleIsDefineInInputFile(const char *name);
+extern void Addmoduletothelisttmp(const char *name);
+extern void Add_NameOfModule_1(const char *nom);
+extern void Add_NameOfCommon_1(const char *nom, const char *cursubroutinename);
+extern void Add_CouplePointed_Var_1(const char *namemodule, listcouple *couple);
+extern void Add_Include_1(const char *name);
 extern void Add_ImplicitNoneSubroutine_1();
-extern void WriteIncludeDeclaration();
-extern void Add_Save_Var_1 (char *name,listdim *d);
+extern void WriteIncludeDeclaration(FILE* tofile);
+extern void Add_Save_Var_1 (const char *name,listdim *d);
 extern void Add_Save_Var_dcl_1 (listvar *var);
 /******************************************************************************/
 /*********** SubLoopCreation.c ************************************************/
 /******************************************************************************/
-extern void writeheadnewsub_0();
-extern void WriteVariablelist_subloop(char *ligne);
-extern void WriteVariablelist_subloop_Call(char *ligne);
-extern void WriteVariablelist_subloop_Def(char *ligne);
+extern void WriteBeginof_SubLoop();
+extern void WriteVariablelist_subloop(char **ligne, size_t *line_length);
+extern void WriteVariablelist_subloop_Call(char **ligne, size_t *line_length);
+extern void WriteVariablelist_subloop_Def(char **ligne, size_t *line_length);
 extern void WriteHeadofSubroutineLoop();
 extern void closeandcallsubloopandincludeit_0(int suborfun);
 extern void closeandcallsubloop_contains_0();
 /******************************************************************************/
 /*********** toamr.c **********************************************************/
 /******************************************************************************/
-extern char *variablenameroottabvars (variable * var);
-extern char *variablenametabvars (variable * var, int iorindice);
-extern char *variablecurgridtabvars (variable * var,int ParentOrCurgrid);
-extern void WARNING_CharSize(variable *var);
-extern char *vargridnametabvars (variable * var,int iorindice);
-extern char *vargridcurgridtabvars (variable * var,int ParentOrCurgrid);
-extern char *vargridcurgridtabvarswithoutAgrif_Gr (variable * var);
-extern char *vargridparam (variable * v, int whichone);
+extern void WARNING_CharSize(const variable *var);
+extern const char * tabvarsname(const variable *var);
+extern const char * variablecurgridtabvars(int which_grid);
+extern const char * vargridnametabvars(const variable *var, int iorindice);
+extern const char * vargridcurgridtabvars(const variable *var, int which_grid);
+extern const char * vargridcurgridtabvarswithoutAgrif_Gr(const variable *var);
+extern const char * vargridparam(const variable *var);
 extern void write_probdimagrif_file();
 extern void write_keysagrif_file();
 extern void write_modtypeagrif_file();
-extern void write_createvarnameagrif_file(variable *v,FILE *createvarname,
-                                                                int *InitEmpty);
+extern void write_createvarnameagrif_file(variable *v,FILE *createvarname,int *InitEmpty);
+extern void write_initialisationsagrif_file(variable *v,FILE *initproc,int *VarnameEmpty);
 extern void write_Setnumberofcells_file();
 extern void write_Getnumberofcells_file();
-extern void write_initialisationsagrif_file(variable *v,FILE *initproc,
-                                                             int *VarnameEmpty);
 extern void Write_Alloc_Agrif_Files();
 extern int IndiceInlist(int indic, listindice *listin);
 extern void write_allocation_Common_0();
 extern void write_allocation_Global_0();
-extern void creefichieramr (const char *NameTampon);
+extern void creefichieramr();
 /******************************************************************************/
 /*********** UtilAgrif.c ******************************************************/
 /******************************************************************************/
-extern int Vartonumber(char *tokname);
-extern int Agrif_in_Tok_NAME(char *tokname);
-extern void ModifyTheVariableName_0(char *ident,int lengthname);
-extern void Add_SubroutineWhereAgrifUsed_1(char *sub,char *mod);
+extern int Vartonumber(const char *tokname);
+extern int Agrif_in_Tok_NAME(const char *tokname);
+extern void ModifyTheVariableName_0(const char *ident,int lengthname);
+extern void Add_SubroutineWhereAgrifUsed_1(const char *sub, const char *mod);
 extern void AddUseAgrifUtil_0(FILE *fileout);
 extern void AddUseAgrifUtilBeforeCall_0(FILE *fileout);
-extern void NotifyAgrifFunction_0(char *ident);
-extern void ModifyTheAgrifFunction_0(char *ident);
-extern void AgriffunctionModify_0(char *ident,int whichone);
-extern void Instanciation_0(char *ident);
+extern void NotifyAgrifFunction_0(const char *ident);
+extern void ModifyTheAgrifFunction_0(const char *ident);
+extern void AgriffunctionModify_0(const char *ident,int whichone);
+extern void Instanciation_0(const char *ident);
 /******************************************************************************/
 /*********** UtilCharacter.c **************************************************/
 /******************************************************************************/
-extern void FindAndChangeNameToTabvars(char name[LONG_C],char toprint[LONG_4C],
+extern void FindAndChangeNameToTabvars(const char name[LONG_M],char toprint[LONG_M],
                                              listvar * listtosee, int whichone);
-extern char *ChangeTheInitalvaluebyTabvarsName(char *nom,listvar *listtoread,
-                                                                  int whichone);
-extern int IsVariableReal(char *nom);
-extern void IsVarInUseFile(char *nom);
-extern listnom *DecomposeTheNameinlistnom(char *nom, listnom * listout);
-extern void DecomposeTheName(char *nom);
-extern void convert2lower(char *name);
+extern const char *ChangeTheInitalvaluebyTabvarsName(const char *nom,listvar *listtoread);
+extern int IsVariableReal(const char *nom);
+extern void IsVarInUseFile(const char *nom);
+extern listnom *DecomposeTheNameinlistnom(const char *nom, listnom * listout);
+extern void DecomposeTheName(const char *nom);
+extern void convert2lower(char *lowername, const char* inputname);
 extern int convert2int(const char *name);
 /******************************************************************************/
 /*********** UtilFile.c *******************************************************/
@@ -559,59 +513,57 @@ extern FILE * open_for_write (const char *filename);
 extern FILE * open_for_append (const char *filename);
 extern long int setposcur();
 extern long int setposcurname(FILE *fileout);
-extern long int setposcurinoldfortran_out();
-extern void copyuse_0(char *namemodule);
-extern void copyuseonly_0(char *namemodule);
+extern void copyuse_0(const char *namemodule);
+extern void copyuseonly_0(const char *namemodule);
 /******************************************************************************/
 /*********** UtilFortran.c ****************************************************/
 /******************************************************************************/
-extern void initdimprob(int dimprobmod, char * nx, char * ny,char* nz);
-extern int Variableshouldberemove(char *nom);
+extern void initdimprob(int dimprobmod, const char *nx, const char *ny, const char *nz);
+extern int Variableshouldberemoved(const char *nom);
 extern int variableisglobal(listvar *curvar, listvar *listin);
 extern int VariableIsInListCommon(listvar *curvar,listvar *listin);
 extern int VariableIsInList(listvar *curvar,listvar *listin);
-extern void variableisglobalinmodule(listcouple *listin, char *module,
+extern void variableisglobalinmodule(listcouple *listin, const char *module,
                                                                  FILE *fileout,long int oldposcuruse);
-extern void Remove_Word_Contains_0();
-extern void Remove_Word_end_module_0(int modulenamelength);
-extern void Write_Word_Contains_0();
 extern void Write_Word_end_module_0();
-extern void Add_Subroutine_For_Alloc(char *nom);
-extern void Write_Alloc_Subroutine_0();
-extern void Write_Alloc_Subroutine_For_End_0();
-extern void Write_GlobalParameter_Declaration_0();
-extern void Write_GlobalType_Declaration_0();
-extern void Write_NotGridDepend_Declaration_0();
+extern void Add_Subroutine_For_Alloc(const char *nom);
+extern void Write_Closing_Module();
 extern int IsTabvarsUseInArgument_0();
 extern int ImplicitNoneInSubroutine();
 extern void Add_Pointer_Var_From_List_1(listvar *listin);
 extern void Add_Pointer_Var_1(char *nom);
 extern int varispointer_0(char *ident);
-extern int VariableIsNotFunction(char *ident);
+extern int VariableIsFunction(const char *ident);
 extern int varistyped_0(char *ident);
+extern void dump_var(const variable* var);
+extern void removenewline(char *nom);
 /******************************************************************************/
 /*********** UtilListe.c ******************************************************/
 /******************************************************************************/
 extern void Init_Variable(variable *var);
-extern listvar * AddListvarToListvar(listvar *l,listvar *glob,
-                                                            int ValueFirstpass);
-extern void CreateAndFillin_Curvar(char *type,variable *curvar);
-extern void duplicatelistvar(listvar *orig);
+extern listvar * AddListvarToListvar(listvar *l,listvar *glob, int ValueFirstpass);
+extern void CreateAndFillin_Curvar(const char *type, variable *curvar);
+// extern void duplicatelistvar(listvar *orig);
 extern listdim * insertdim(listdim *lin,typedim nom);
 extern void change_dim_char(listdim *lin,listvar * l);
-extern int num_dims(listdim *d);
-extern variable * createvar(char *nom,listdim *d);
+extern int get_num_dims(const listdim *d);
+extern variable * createvar(const char *nom, listdim *d);
 extern listvar * insertvar(listvar *lin,variable *v);
-extern listvar *settype(char *nom,listvar *lin);
+extern listvar * settype(const char *nom,listvar *lin);
 extern void printliste(listvar * lin);
 extern int IsinListe(listvar *lin,char *nom);
 extern listname *Insertname(listname *lin,char *nom,int sens);
+extern int testandextractfromlist(listname **lin, char*nom);
+extern void removefromlist(listname **lin, char*nom);
 extern listname *concat_listname(listname *l1, listname *l2);
 extern void createstringfromlistname(char *ligne, listname *lin);
 extern void printname(listname * lin);
 extern void removeglobfromlist(listname **lin);
 extern void writelistpublic(listname *lin);
 extern void Init_List_Data_Var();
+extern void  addprecision_derivedfromkind(variable *curvar);
+extern int get_cat_var(variable *var);
+extern void Insertdoloop(variable *var,char *do_var, char *do_begin, char *do_end, char *do_step);
 /******************************************************************************/
 /*********** UtilNotGridDep.c *************************************************/
 /******************************************************************************/
@@ -620,9 +572,8 @@ extern int VarIsNonGridDepend(char *name);
 /******************************************************************************/
 /*********** WorkWithAllocatelist.c *******************************************/
 /******************************************************************************/
-extern void Add_Allocate_Var_1(char *nom,char *nommodule);
-extern int IsVarAllocatable_0(char *ident);
-extern int varisallocatable_0(char *ident);
+extern void Add_Allocate_Var_1(const char *nom, const char *nommodule);
+extern int IsVarAllocatable_0(const char *ident);
 /******************************************************************************/
 /*********** WorkWithglobliste.c **********************************************/
 /******************************************************************************/
@@ -633,11 +584,11 @@ extern void checkandchangedims(listvar *listsecondpass);
 /*********** WorkWithlistdatavariable.c ***************************************/
 /******************************************************************************/
 extern void Add_Data_Var_1 (listvar **curlist,char *name,char *values);
-extern void Add_Data_Var_Names_01 (listvar **curlist,listname *l1, listname *l2);
+extern void Add_Data_Var_Names_01 (listvar **curlist,listvar *l1, listname *l2);
 /******************************************************************************/
 /*********** WorkWithlistmoduleinfile.c ***************************************/
 /******************************************************************************/
-extern void Save_Length(char *nom, int whichone);
+extern void Save_Length(const char *nom, int whichone);
 extern void Save_Length_int(int val, int whichone);
 /******************************************************************************/
 /*********** WorkWithlistofmodulebysubroutine.c *******************************/
@@ -645,16 +596,16 @@ extern void Save_Length_int(int val, int whichone);
 extern void RecordUseModulesVariables();
 extern void  RecordUseModulesUseModulesVariables();
 extern void Add_NameOfModuleUsed_1(char *name);
-extern void Addmoduletothelist(char *name);
-extern void WriteUsemoduleDeclaration(char *cursubroutinename);
+extern void Addmoduletothelist(const char *name);
+extern void WriteUsemoduleDeclaration(const char *cursubroutinename);
 /******************************************************************************/
 /*********** WorkWithlistvarindoloop.c ****************************************/
 /******************************************************************************/
-extern void Add_UsedInSubroutine_Var_1 (char *ident);
+extern void Add_UsedInSubroutine_Var_1 (const char *ident);
 extern void ajoutevarindoloop_definedimension (char *name);
 extern void  ModifyThelistvarindoloop();
 extern void  CompleteThelistvarindoloop();
-extern void CopyRecord(variable *var1,variable *var2);
+extern void Merge_Variables(variable *var1,variable *var2);
 extern void Update_List_Subroutine_Var(listvar *list_to_modify);
 extern void Update_List_Global_Var_From_List_Save_Var();
 extern void Update_List_From_Common_Var(listvar *list_to_modify);
@@ -663,12 +614,13 @@ extern void List_UsedInSubroutine_Var_Update_From_Module_Used();
 extern void Update_NotGridDepend_Var(listvar *list_to_modify);
 extern int LookingForVariableInList(listvar *listin,variable *var);
 extern int LookingForVariableInListGlobal(listvar *listin,variable *var);
-extern int LookingForVariableInListName(listvar *listin,char *var);
+extern int LookingForVariableInListName(listvar *listin,const char *var);
 extern int LookingForVariableInListGlob(listvar *listin,variable *var);
-extern int LookingForVariableInListParamGlob(listparameter *listin,
-                                                                 variable *var);
+extern int LookingForVariableInListParamGlob(listparameter *listin, variable *var);
+extern variable *get_variable_in_list_from_name(listvar *listin, const char *name);
 extern void UpdateListDeclarationWithDimensionList();
 extern void Clean_List_UsedInSubroutine_Var();
+extern void Clean_List_ModuleUsed_Var();
 extern void Clean_List_SubroutineDeclaration_Var();
 extern void Clean_List_Global_Var();
 extern void ListClean();
@@ -686,8 +638,9 @@ extern void New_Allocate_Subroutine_For_Common_Is_Necessary();
 extern void NewModule_Creation_0();
 extern void UpdateList_SubroutineWhereAgrifUsed();
 extern void UpdateList_UsedInSubroutine_With_dimension();
-extern void Affiche();
+extern void Affiche(listvar *parcours);
 extern int SubInList_ContainsSubroutine();
+extern void update_indicemaxtabvars(variable *var,listindice **Listofindices);
 /******************************************************************************/
 /*********** WorkWithParameterlist.c ******************************************/
 /******************************************************************************/
@@ -698,27 +651,24 @@ extern void Add_Dimension_Var_1(listvar *listin);
 /*********** WorkWithvarofsubroutineliste.c ***********************************/
 /******************************************************************************/
 extern void Add_SubroutineArgument_Var_1(listvar *listtoadd);
-extern void Add_FunctionType_Var_1(char *nom);
-extern void Add_SubroutineDeclaration_Var_1 (listvar *listtoadd);
+extern void Add_FunctionType_Var_1(const char *nom);
+// extern void Add_SubroutineDeclaration_Var_1 (listvar *listtoadd);
 /******************************************************************************/
 /*********** Writedeclarations.c **********************************************/
 /******************************************************************************/
-extern void WriteBeginDeclaration(variable *v,char ligne[LONG_4C],int visibility);
-extern void WriteScalarDeclaration(variable *v,char ligne[LONG_4C]);
-extern void WriteTableDeclaration(variable * v,char ligne[LONG_4C],int tmpok);
-extern void writevardeclaration (listvar * var_record, FILE *fileout,
-                                                                     int value,int visibility);
-extern void WriteLocalParamDeclaration();
-extern void WriteFunctionDeclaration(int value);
+extern void WriteBeginDeclaration(variable *v,char ligne[LONG_M],int visibility);
+extern void WriteScalarDeclaration(variable *v,char ligne[LONG_M]);
+extern void WriteTableDeclaration(variable * v,char ligne[LONG_M],int tmpok);
+extern void WriteVarDeclaration( variable *v, FILE *fileout, int value, int visibility );
+extern void WriteLocalParamDeclaration(FILE* tofile);
+extern void WriteFunctionDeclaration(FILE* tofile, int value);
 extern void WriteSubroutineDeclaration(int value);
 extern void WriteArgumentDeclaration_beforecall();
-extern void WriteArgumentDeclaration_Sort();
-extern listnom *writedeclarationintoamr (listvar * deb_common, FILE *fileout,
-                                       variable *var , char commonname[LONG_C],
-                           listnom *neededparameter, char name_common[LONG_C]);
-extern void writesub_loopdeclaration_scalar (listvar * deb_common,
-                                                                 FILE *fileout);
-extern void writesub_loopdeclaration_tab (listvar * deb_common, FILE *fileout);
+extern void WriteArgumentDeclaration_Sort(FILE* tofile);
+extern int writedeclarationintoamr(listvar *deb_common, FILE *fileout, variable *var,
+						const char *commonname, listnom **neededparameter, const char *name_common, int global_check);
+extern void writesub_loopdeclaration_scalar(listvar *deb_common, FILE *fileout);
+extern void writesub_loopdeclaration_tab(listvar *deb_common, FILE *fileout);
 extern void ReWriteDeclarationAndAddTosubroutine_01(listvar *listdecl);
 extern void ReWriteDataStatement_0(FILE * filout);
 /******************************************************************************/
@@ -728,11 +678,10 @@ extern void tofich_reste (FILE * filout, const char *s, int do_returnline);
 extern void tofich (FILE * filout, const char *s, int do_returnline);
 extern void tofich_blanc (FILE * filout, int size);
 extern void RemoveWordSET_0(FILE * filout, long int position, int sizetoremove);
-extern void RemoveWordCUR_0(FILE * filout, long int position, int sizetoremove);
+extern void RemoveWordCUR_0(FILE * filout, int sizetoremove);
 
 /******************************************************************************/
 /*********** WorkWithlistofcoupled.c **********************************************/
-/******************************************************************************/                                                        
-extern int variscoupled_0(char *ident) ;
-extern char * getcoupledname_0(char *ident);
-extern void ModifyTheVariableNamecoupled_0(char *ident, char* coupledident);
+/******************************************************************************/
+extern int variscoupled_0(const char *ident) ;
+extern const char * getcoupledname_0(const char *ident);

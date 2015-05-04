@@ -39,26 +39,30 @@ module Agrif_InterpBasic
     integer, dimension(:,:), allocatable    :: indparent
     integer, dimension(:,:), allocatable    :: indparentppm, indchildppm
     integer, dimension(:), allocatable      :: indparentppm_1d, indchildppm_1d
-
+!
+    private :: Agrif_limiter_vanleer
+!
 contains
 !
 !===================================================================================================
-!  subroutine Linear1d
+!  subroutine Agrif_basicinterp_linear1D
 !
 !> Linear 1D interpolation on a child grid (vector y) from its parent grid (vector x).
 !---------------------------------------------------------------------------------------------------
-subroutine Linear1d ( x, y, np, nc, s_parent, s_child, ds_parent, ds_child )
+subroutine Agrif_basicinterp_linear1D ( x, y, np, nc, s_parent, s_child, ds_parent, ds_child )
 !---------------------------------------------------------------------------------------------------
-    real, dimension(np), intent(in)     :: x
-    real, dimension(nc), intent(out)    :: y
-    integer,             intent(in)     :: np, nc
-    real,                intent(in)     :: s_parent, s_child
-    real,                intent(in)     :: ds_parent, ds_child
+    real, dimension(np), intent(in)     :: x            !< Coarse input data from parent
+    real, dimension(nc), intent(out)    :: y            !< Fine output data to child
+    integer,             intent(in)     :: np           !< Length of input array
+    integer,             intent(in)     :: nc           !< Length of output array
+    real,                intent(in)     :: s_parent     !< Parent grid position (s_root = 0)
+    real,                intent(in)     :: s_child      !< Child  grid position (s_root = 0)
+    real,                intent(in)     :: ds_parent    !< Parent grid dx (ds_root = 1)
+    real,                intent(in)     :: ds_child     !< Child  grid dx (ds_root = 1)
 !
-    integer :: i,coeffraf,locind_parent_left
-    real    :: ypos,globind_parent_left,globind_parent_right
-    real    :: invds, invds2
-    real :: ypos2,diff
+    integer :: i, coeffraf, locind_parent_left
+    real    :: globind_parent_left, globind_parent_right
+    real    :: invds, invds2, ypos, ypos2, diff
 !
     coeffraf = nint(ds_parent/ds_child)
 !
@@ -81,7 +85,7 @@ subroutine Linear1d ( x, y, np, nc, s_parent, s_child, ds_parent, ds_child )
     do i = 1,nc-1
 !
         if (ypos2 > globind_parent_right) then
-            locind_parent_left = locind_parent_left + 1.
+            locind_parent_left = locind_parent_left + 1
             globind_parent_right = globind_parent_right + 1.
             ypos2 = ypos*invds+(i-1)*invds2
         endif
@@ -103,7 +107,7 @@ subroutine Linear1d ( x, y, np, nc, s_parent, s_child, ds_parent, ds_child )
                            + (ypos - globind_parent_left)*x(locind_parent_left+1))*invds
     endif
 !---------------------------------------------------------------------------------------------------
-end subroutine Linear1d
+end subroutine Agrif_basicinterp_linear1D
 !===================================================================================================
 !
 !===================================================================================================
@@ -199,115 +203,6 @@ end subroutine Linear1dPrecompute2d
 !===================================================================================================
 !
 !===================================================================================================
-!  subroutine Linear1dPrecompute
-!
-!> Computes 1D coefficient and index for a linear 1D interpolation on a child grid (vector y)
-!! from its parent grid (vector x).
-!---------------------------------------------------------------------------------------------------
-!subroutine Linear1dPrecompute(np,nc,&
-!                    s_parent,s_child,ds_parent,ds_child)
-!!---------------------------------------------------------------------------------------------------
-!!
-!!CC   Description:
-!!CC   subroutine to compute 1D coefficient and index for a linear 1D interpolation
-!!CC   on a child grid (vector y) from its parent grid (vector x).
-!!
-!!C    Method:
-!!
-!!     Declarations:
-!!
-!
-!!
-!!     Arguments
-!      INTEGER             :: np,nc
-!      REAL                :: s_parent,s_child,ds_parent,ds_child
-!!
-!!     Local scalars
-!      INTEGER :: i,coeffraf,locind_parent_left
-!      REAL    :: ypos,globind_parent_left,globind_parent_right
-!      REAL    :: invds, invds2, invds3
-!      REAL :: ypos2,diff
-!!
-!!
-!
-!      coeffraf = nint(ds_parent/ds_child)
-!!
-!      if (coeffraf == 1) then
-!!
-!          return
-!!
-!      endif
-!!
-!      ypos = s_child
-!
-!      locind_parent_left = 1 + agrif_int((ypos - s_parent)/ds_parent)
-!
-!        globind_parent_left = s_parent&
-!                        + (locind_parent_left - 1)*ds_parent
-!
-!        globind_parent_right = globind_parent_left + ds_parent
-!
-!!
-!      invds = 1./ds_parent
-!      invds2 = ds_child/ds_parent
-!      invds3 = 0.5/real(coeffraf)
-!
-!      ypos2 = ypos*invds
-!      globind_parent_right=globind_parent_right*invds
-!
-!      if (.not.allocated(indparent)) then
-!      allocate(indparent(nc,1),coeffparent(nc,1))
-!      else
-!      if (size(indparent)<nc) then
-!      deallocate(indparent,coeffparent)
-!      allocate(indparent(nc,1),coeffparent(nc,1))
-!      endif
-!      endif
-!
-!      do i = 1,nc-1
-!!
-!        if (ypos2 > globind_parent_right) then
-!           locind_parent_left = locind_parent_left + 1
-!           globind_parent_right = globind_parent_right + 1.
-!           ypos2 = ypos*invds+(i-1)*invds2
-!        endif
-!
-!        diff=(globind_parent_right - ypos2)
-!
-!        diff = invds3*nint(2*coeffraf*diff)
-!
-!        indparent(i,1) = locind_parent_left
-!
-!        coeffparent(i,1) = diff
-!        ypos2 = ypos2 + invds2
-!!
-!      enddo
-!!
-!      ypos = s_child + (nc-1)*ds_child
-!      locind_parent_left = 1 + agrif_int((ypos - s_parent)/ds_parent)
-!
-!      if (locind_parent_left == np) then
-!      indparent(nc,1) = locind_parent_left-1
-!      coeffparent(nc,1) = 0.
-!        else
-!!
-!          globind_parent_left = s_parent&
-!                        + (locind_parent_left - 1)*ds_parent
-!!
-!       indparent(nc,1) = locind_parent_left
-!
-!       diff = (globind_parent_left + ds_parent - ypos)&
-!       * invds
-!        diff = invds3*nint(2*coeffraf*diff)
-!         coeffparent(nc,1) = diff
-!         endif
-!!
-!      Return
-!!
-!!
-!      End subroutine Linear1dPrecompute
-!
-!===================================================================================================
 !  subroutine Linear1dAfterCompute
 !
 !> Carries out a linear 1D interpolation on a child grid (vector y) from its parent grid (vector x)
@@ -352,7 +247,7 @@ subroutine Lagrange1d ( x, y, np, nc, s_parent, s_child, ds_parent, ds_child )
     real    :: t2,t3,t4,t5,t6,t7,t8
 !
     if (np <= 2) then
-        call Linear1D(x,y,np,nc,s_parent,s_child,ds_parent,ds_child)
+        call Agrif_basicinterp_linear1D(x,y,np,nc,s_parent,s_child,ds_parent,ds_child)
         return
     endif
 !
@@ -578,7 +473,7 @@ subroutine Linear1dConservLim ( x, y, np, nc, s_parent, s_child, ds_parent, ds_c
     if (locind_parent_left == 1) then
         slope=0.
     else
-        slope = vanleer(x(locind_parent_left-1:locind_parent_left+1))
+        slope = Agrif_limiter_vanleer(x(locind_parent_left-1:locind_parent_left+1))
         slope = slope / coeffraf
     endif
 
@@ -589,7 +484,7 @@ subroutine Linear1dConservLim ( x, y, np, nc, s_parent, s_child, ds_parent, ds_c
     locind_parent_left = locind_parent_left + 1
 
     do i = i1+coeffraf, i2-coeffraf,coeffraf
-        slope = vanleer(x(locind_parent_left-1:locind_parent_left+1))
+        slope = Agrif_limiter_vanleer(x(locind_parent_left-1:locind_parent_left+1))
         slope = slope / coeffraf
         do ii=i-coeffraf/2+diffmod,i+coeffraf/2
             ytemp(ii) = x(locind_parent_left)+(ii-i-xdiffmod/2.)*slope
@@ -602,7 +497,7 @@ subroutine Linear1dConservLim ( x, y, np, nc, s_parent, s_child, ds_parent, ds_c
     if (locind_parent_left == np) then
         slope=0.
     else
-        slope = vanleer(x(locind_parent_left-1:locind_parent_left+1))
+        slope = Agrif_limiter_vanleer(x(locind_parent_left-1:locind_parent_left+1))
         slope = slope / coeffraf
     endif
 
@@ -1274,7 +1169,7 @@ subroutine ENO1d ( x, y, np, nc, s_parent, s_child, ds_parent, ds_child )
     real,                intent(in)     :: ds_parent, ds_child
 !
     integer :: i,coeffraf,locind_parent_left,locind_parent_last
-    integer :: ipos,pos
+    integer :: ipos, pos
     real    :: ypos,xi
     integer :: i1,jj
     real :: xpmin
@@ -1338,7 +1233,7 @@ subroutine ENO1d ( x, y, np, nc, s_parent, s_child, ds_parent, ds_child )
 !
     do i = locind_parent_left,locind_parent_last
 !
-        pos = 1.
+        pos = 1
 !
         do jj = ipos - coeffraf/2+diffmod,ipos + coeffraf/2
             ytemp(jj) = ( c(1,i)*(xbar(pos,2)-xbar(pos,1))              &
@@ -1359,6 +1254,155 @@ subroutine ENO1d ( x, y, np, nc, s_parent, s_child, ds_parent, ds_child )
 end subroutine ENO1d
 !===================================================================================================
 !
+!     **************************************************************************  
+!CC   Subroutine ppm1d_lim
+!     ************************************************************************** 
+! 
+      Subroutine ppm1d_lim(x,y,np,nc,s_parent,s_child,ds_parent,ds_child) 
+!
+!CC   Description:
+!CC   Subroutine to do a 1D interpolation and apply monotonicity constraints
+!CC   using piecewise parabolic method  
+!CC   on a child grid (vector y) from its parent grid (vector x).
+!C    Method:
+!
+!     Declarations:
+!
+      Implicit none
+!        
+!     Arguments
+      Integer             :: np,nc      
+      Real, Dimension(np) :: x      
+      Real, Dimension(nc) :: y
+      Real, Dimension(:),Allocatable :: ytemp
+      Real                :: s_parent,s_child,ds_parent,ds_child
+!
+!     Local scalars
+      Integer :: i,coeffraf,locind_parent_left,locind_parent_last
+      Integer :: iparent,ipos,pos,nmin,nmax
+      Real    :: ypos
+      integer :: i1,jj
+      Real :: xpmin,cavg,a,b
+!      
+      Real :: xrmin,xrmax,am3,s2,s1  
+      Real, Dimension(np) :: dela,xr,xl,delta,a6,slope,slope2
+      Real, Dimension(:),Allocatable  :: diff,diff2,diff3    
+      INTEGER :: diffmod
+!      
+      coeffraf = nint(ds_parent/ds_child)
+!
+      If (coeffraf == 1) Then
+          locind_parent_left = 1 + nint((s_child - s_parent)/ds_parent)
+          y(1:nc) = x(locind_parent_left:locind_parent_left+nc-1)
+          return
+      End If
+!      
+      Allocate(ytemp(-2*coeffraf:nc+2*coeffraf))
+      ypos = s_child  
+!
+      locind_parent_left = 1 + agrif_int((ypos - s_parent)/ds_parent) 
+      locind_parent_last = 1 + &
+           agrif_ceiling((ypos +(nc - 1)  &
+           *ds_child - s_parent)/ds_parent)  
+!
+      xpmin = s_parent + (locind_parent_left-1)*ds_parent       
+      i1 = 1+agrif_int((xpmin-s_child)/ds_child)        
+!     
+      Allocate( diff(coeffraf),diff2(coeffraf),diff3(coeffraf) )
+!      
+         diff(:) = ds_child/ds_parent
+!      
+      Do i=1,coeffraf
+         a = real(i-1)*ds_child/ds_parent
+         b = real(i)*ds_child/ds_parent
+         diff2(i) = 0.5*(b*b - a*a)  
+         diff3(i) = (1./3.)*(b*b*b - a*a*a)
+      End do
+!
+      if( locind_parent_last+2 <= np ) then
+           nmax = locind_parent_last+2    
+      else if( locind_parent_last+1 <= np ) then
+           nmax = locind_parent_last+1
+      else
+           nmax = locind_parent_last 
+      endif     
+!      
+      if(locind_parent_left-1 >= 1) then
+          nmin = locind_parent_left-1
+      else 
+          nmin = locind_parent_left
+      endif    
+! 
+      Do i = nmin,nmax
+         slope(i) = x(i) - x(i-1)
+         slope2(i) = 2.*abs(slope(i))
+      Enddo
+!
+      Do i = nmin,nmax-1
+         dela(i) = 0.5 * ( slope(i) + slope(i+1) )
+! Van Leer slope limiter
+         dela(i) = min( abs(dela(i)),slope2(i), &
+                       slope2(i+1) )*sign(1.,dela(i))
+         IF( slope(i)*slope(i+1) <= 0. ) dela(i) = 0.
+      Enddo
+!
+      Do i = nmin,nmax-2
+         xr(i) = x(i) + (1./2.)*slope(i+1) + (-1./6.)*dela(i+1) &
+                                          + ( 1./6. )*dela(i)
+      Enddo
+!
+      Do i = nmin,nmax-2
+         xrmin = min(x(i),x(i+1))
+         xrmax = max(x(i),x(i+1))
+         xr(i) = min(xr(i),xrmax)
+         xr(i) = max(xr(i),xrmin)
+         xl(i+1) = xr(i)         
+      Enddo
+! apply parabolic monotonicity
+       Do i = locind_parent_left,locind_parent_last
+          If( ( (xr(i)-x(i))* (x(i)-xl(i)) ) .le. 0. ) then
+             xl(i) = x(i) 
+             xr(i) = x(i)
+          Endif          
+          delta(i) = xr(i) - xl(i)
+          am3 = 3. * x(i)
+          s1  = am3 - 2. * xr(i)
+          s2  = am3 - 2. * xl(i)
+          IF( delta(i) * (xl(i) - s1) .le. 0. ) xl(i) = s1
+          IF( delta(i) * (s2 - xr(i)) .le. 0. ) xr(i) = s2
+          delta(i) = xr(i) - xl(i)
+          a6(i) = 6.*x(i)-3.*(xl(i) +xr(i))
+!
+       End do   
+!
+        diffmod = 0
+       IF (mod(coeffraf,2) == 0) diffmod = 1           
+!
+        ipos = i1
+!               
+        Do iparent = locind_parent_left,locind_parent_last       
+             pos=1
+             cavg = 0.
+             Do jj = ipos - coeffraf/2+diffmod,ipos + coeffraf/2
+!
+               ytemp(jj) = (diff(pos)*xl(iparent)   &
+                  + diff2(pos) &
+                  *  (delta(iparent)+a6(iparent)) &
+                  - diff3(pos)*a6(iparent))*coeffraf
+                              
+               cavg = cavg + ytemp(jj)
+               pos = pos+1 
+             End do 
+             ipos = ipos + coeffraf
+!
+        End do     
+!
+!
+        y(1:nc)=ytemp(1:nc)                                 
+        deallocate(ytemp)                
+        deallocate(diff, diff2, diff3)
+      Return
+      End Subroutine ppm1d_lim
 !===================================================================================================
 !  subroutine taylor
 !---------------------------------------------------------------------------------------------------
@@ -1394,9 +1438,9 @@ end subroutine taylor
 !===================================================================================================
 !
 !===================================================================================================
-!  function vanleer
+!  function Agrif_limiter_vanleer
 !---------------------------------------------------------------------------------------------------
-real function vanleer ( tab ) result(res)
+real function Agrif_limiter_vanleer ( tab ) result(res)
 !---------------------------------------------------------------------------------------------------
     real, dimension(3), intent(in) :: tab
 !
@@ -1414,7 +1458,7 @@ real function vanleer ( tab ) result(res)
         res=0.
     endif
 !---------------------------------------------------------------------------------------------------
-end function vanleer
+end function Agrif_limiter_vanleer
 !===================================================================================================
 !
 end module Agrif_InterpBasic
