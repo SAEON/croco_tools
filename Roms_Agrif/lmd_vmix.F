@@ -1,4 +1,4 @@
-! $Id$
+! $Id: lmd_vmix.F 1556 2014-06-19 07:42:15Z marchesiello $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France

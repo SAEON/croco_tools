@@ -1,4 +1,4 @@
-! $Id$
+! $Id: uv3dmix_S.F 1547 2014-06-13 09:31:52Z penven $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -120,6 +120,9 @@
 #ifdef AGRIF
 #include "zoom.h"
 #endif
+#ifdef NBQ
+      integer kp
+#endif
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -224,6 +227,48 @@
           enddo
         enddo
       enddo
+
+#ifdef NBQ
+!
+!  Compute XI- and ETA-components of diffusive wz flux.
+!
+# define FX UFx
+# define FE UFe
+      do k=1,N
+        kp=min(k+1,N)
+        do j=jstr,jend
+          do i=istr,iend+1
+              FX(i,j)=0.5*visc2_r(i,j)
+     &                   *pmon_u(i,j)*(Hz(i,j,k )+Hz(i-1,j,k )+
+     &                                 Hz(i,j,kp)+Hz(i-1,j,kp))
+     &                       *(wz(i,j,k,nstp)-wz(i-1,j,k,nstp))
+     &                                        SWITCH umask(i,j)
+          enddo
+        enddo
+        do j=jstr,jend+1
+          do i=istr,iend
+              FE(i,j)=0.5*visc2_r(i,j)
+     &                   *pnom_v(i,j)*(Hz(i,j,k )+Hz(i,j-1,k )+
+     &                                 Hz(i,j,kp)+Hz(i,j-1,kp))
+     &                       *(wz(i,j,k,nstp)-wz(i,j-1,k,nstp))
+     &                                        SWITCH vmask(i,j)
+          enddo
+        enddo
+!
+!  Add in horizontal diffusion of tracer [T m^3/s].
+!
+        do j=jstr,jend
+          do i=istr,iend
+            cff1=pm(i,j)*pn(i,j)
+            wz(i,j,k,indx)=wz(i,j,k,indx)+dt*cff1
+     &                 *(FX(i+1,j)-FX(i,j)+FE(i,j+1)-FE(i,j))
+     &                                /(Hz(i,j,k)+Hz(i,j,kp))
+          enddo
+        enddo
+      enddo ! <-- k
+# undef FX
+# undef FE
+#endif
 !
       return
       end

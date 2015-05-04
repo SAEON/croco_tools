@@ -1,4 +1,4 @@
-! $Id$
+! $Id: wrt_his.F 1571 2014-07-01 12:38:05Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -53,6 +53,9 @@
 #  ifdef SEDIMENT
      &      , indxWrk
 #  endif
+#endif
+#ifdef NBQ
+# include "nbq.h"
 #endif
 #include "work.h"
 #include "netcdf.inc"
@@ -135,8 +138,12 @@ CR      write(*,*) 'wrt_his:  time  ' MYID
 !     Barotropic mode variables: free-surface and 2D momentum
 !     components in XI-,ETA-directions.
 !     
-      if (wrthis(indxZ)) then          
+      if (wrthis(indxZ)) then
+#ifdef NBQ     
+         work2d=zeta(:,:,fast_indx_out)/rhobar_nbq(:,:) - h(:,:)
+#else
          work2d=zeta(:,:,fast_indx_out)
+#endif
          call fillvalue2d(work2d,ncidhis,hisZ,indxZ,
      &        record,r2dvar,type)
       endif
@@ -509,6 +516,9 @@ CR      write(*,*) 'wrt_his:  wrtRHO' MYID
             do j=0,Mm+1
                do i=0,Lm+1
                   work(i,j,k)=w(i,j,k)*pm(i,j)*pn(i,j)
+#ifdef NBQ
+     &                            /rho_nbq_avg1(i,j,k)
+#endif
                enddo
             enddo
          enddo
@@ -520,9 +530,19 @@ CR      write(*,*) 'wrt_his:  wrtO  ' MYID
 !     Write out true vertical velocity (m/s).
 !     
       if (wrthis(indxW)) then
+#ifdef NBQ
+         do k=1,N
+            do j=0,Mm+1
+               do i=0,Lm+1
+                  workr(i,j,k)=0.5*(wz(i,j,k,nstp)+wz(i,j,k-1,nstp))
+               enddo
+            enddo
+         enddo
+#else
          do tile=0,NSUB_X*NSUB_E-1
             call Wvlcty (tile, workr) 
          enddo
+#endif
          call fillvalue3d(workr,ncidhis,hisW,indxW,record,r3dvar,type)
          
 CR      write(*,*) 'wrt_his:  wrtW  ' MYID

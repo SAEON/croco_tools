@@ -1,4 +1,4 @@
-! $Id$
+! $Id: private_scratch.h 1458 2014-02-03 15:01:25Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -12,7 +12,7 @@
 #if defined AUTOTILING
       real,dimension(:,:,:), pointer :: A2d, A3d
 #else
-      real A2d(N2d,NSA,0:NPP-1), A3d(N3d,4,0:NPP-1)
+      real A2d(N2d,NSA,0:NPP-1), A3d(N3d,5,0:NPP-1)
 #endif
 #  if defined SEDIMENT || defined LMD_MIXING
       integer B2d(N2d,0:NPP-1)

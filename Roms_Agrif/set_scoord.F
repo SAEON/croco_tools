@@ -1,4 +1,4 @@
-! $Id$
+! $Id: set_scoord.F 1339 2013-10-01 15:02:13Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France

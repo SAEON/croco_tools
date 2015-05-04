@@ -1,4 +1,4 @@
-! $Id$
+! $Id: init_scalars.F 1564 2014-06-24 17:39:21Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -2300,7 +2300,7 @@ CR     &                          ,indxbioVSink+NFlux_VSinkD1-1
 #  ifdef OXYGEN
 !     gas exchange terms
 CR      write(stdout,'(1x,A,I3)') 'indxGasExcFlux='
-CR          &                          ,indxGasExcFlux
+CR     &                          ,indxGasExcFlux
       vname(1,indxGasExcFlux)=
      &     'GasExchangeO2                   '        
       vname(2,indxGasExcFlux)=

@@ -1,4 +1,4 @@
-! $Id$
+! $Id: ncscrum.h 1588 2014-08-04 16:26:01Z marchesiello $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -433,7 +433,7 @@
 
 #ifdef MRL_WCI
       integer indxSUP, indxUST2D,indxVST2D
-      parameter (indxSUP  =indxSUSTR+42,
+      parameter (indxSUP  =indxSUSTR+44,
      &           indxUST2D =indxSUP+1, indxVST2D=indxSUP+2)
 # ifdef SOLVE3D
       integer indxUST,indxVST,indxWST,indxAkb,indxAkw,indxKVF,
@@ -454,7 +454,7 @@
 # ifdef WKB_WWAVE
       integer indxHRM,indxFRQ,indxWAC, indxWKX,indxWKE, indxEPB
      &       ,indxEPD,indxWAR,indxEPR
-      parameter (indxHRM=indxSUP+25,
+      parameter (indxHRM=indxSUP+30,
      &           indxFRQ=indxHRM+1, indxWAC=indxHRM+2,
      &           indxWKX=indxHRM+3, indxWKE=indxHRM+4,
      &           indxEPB=indxHRM+5, indxEPD=indxHRM+6,
@@ -691,12 +691,11 @@
      &      , diabioVSink(NumVSinkTerms)
      &      , diabioGasExc(NumGasExcTerms)
 # endif
-#endif
-#ifdef MRL_WCI
+#elif defined DIAGNOSTICS_UV && defined MRL_WCI
      &      , diaMvf(2), diaMbrk(2), diaMStCo(2)
      &      , diaMVvf(2), diaMPrscrt(2), diaMsbk(2)
      &      , diaMbwf(2), diaMfrc(2)
-#endif
+#endif /* SOLVE3D */
 #ifdef AVERAGES
       integer ncidavg, nrecavg,  nrpfavg
      &      , avgTime, avgTime2, avgTstep, avgZ, avgUb,  avgVb

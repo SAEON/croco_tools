@@ -1,4 +1,4 @@
-! $Id$
+! $Id: diag.F 1458 2014-02-03 15:01:25Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -115,12 +115,12 @@
           cff=g/rho0
           do k=N,1,-1
             do i=Istr,Iend
-             ke2d(i,j)=ke2d(i,j)+Hz(i,j,k)*0.25*(
+             ke2d(i,j)=ke2d(i,j)+HZR(i,j,k)*0.25*(
      &                               u(i  ,j,k,nstp)*u(i,j,k,nstp)+
      &                               u(i+1,j,k,nstp)*u(i+1,j,k,nstp)+
      &                               v(i,j  ,k,nstp)*v(i,j  ,k,nstp)+
      &                               v(i,j+1,k,nstp)*v(i,j+1,k,nstp))
-             pe2d(i,j)=pe2d(i,j)+cff*Hz(i,j,k)*rho(i,j,k)
+             pe2d(i,j)=pe2d(i,j)+cff*HZR(i,j,k)*rho(i,j,k)
      &                                       *(z_r(i,j,k)-z_w(i,j,0))
             enddo
           enddo
@@ -161,8 +161,10 @@
 #endif
             pe2d(i,Jstr-1)=pe2d(i,Jstr-1)+cff*pe2d(i,j)
             ke2d(i,Jstr-1)=ke2d(i,Jstr-1)+cff*ke2d(i,j)
+
           enddo
         enddo
+
         my_volume=0.
         my_avgpe=0.
         my_avgke=0.
@@ -218,6 +220,7 @@ C$OMP CRITICAL (diag_cr_rgn)
             endif
             if (mynode.eq.0) then
 #endif
+
               avgke=avgke/volume          ! Compute and print global
               avgpe=avgpe/volume          ! diagnostics (last thread
               avgkp=avgke+avgpe           ! of master MPI process)

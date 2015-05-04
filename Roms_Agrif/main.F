@@ -1,4 +1,4 @@
-! $Id$
+! $Id: main.F 1615 2014-12-17 13:27:07Z rblod $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -13,6 +13,13 @@
       program main
 #ifdef OA_MCT
           USE mod_prism     ! OASIS3 prism module
+#endif
+#ifdef XIOS
+          USE xios          ! XIOS module
+#endif
+#ifdef NBQ
+          USE module_nh
+          USE module_nbq
 #endif
 !     implicit none
       integer tile, subs, trd, ierr
@@ -35,7 +42,9 @@
 #endif 
 #ifdef MPI
       include 'mpif.h'
-C      real*8 start_time2, start_time1, exe_time
+!      real*8 start_time2, start_time1, exe_time
+#elif defined NBQ
+       integer MPI_STATUS_SIZE
 #endif 
 
       integer :: iifroot, iicroot
@@ -61,21 +70,23 @@ C      real*8 start_time2, start_time1, exe_time
       NSUB_E = NPP
 #endif
 
-# include "dynderivparam.h"
+#include "dynderivparam.h"
 
-#if (defined MPI && !defined AGRIF && !defined OA_COUPLING)
+#ifdef MPI
+# if (!defined AGRIF && !defined OA_COUPLING)
       call MPI_Init (ierr)
-#endif   
-
-#if (defined OA_COUPLING && !defined AGRIF)
-!-- Initialization phase of OASIS3
-!-- In case of AGRIF, the cpl_prism_init is done in zoom.F
-      call cpl_prism_init
-#endif
-
-#if (defined MPI && defined AGRIF)
-       call agrif_mpi_set_grid_comm(MPI_COMM_WORLD) 
-#endif
+# endif   
+!
+!  XIOS, OASIS and AGRIF: split MPI communicator
+!  XIOS with OASIS not done yet
+# if (defined XIOS && !defined AGRIF)
+      call xios_initialize( "roms",return_comm=MPI_COMM_WORLD )
+# elif (defined OA_COUPLING && !defined AGRIF)
+      call cpl_prism_init  ! In AGRIF case, cpl_prism_init is in zoom.F
+# elif defined AGRIF
+      call agrif_mpi_set_grid_comm(MPI_COMM_WORLD) 
+# endif
+#endif /* MPI */
 
 #ifdef AGRIF
       call Agrif_Init_Grids()
@@ -85,14 +96,25 @@ C      real*8 start_time2, start_time1, exe_time
 #ifdef AUTOTILING
       call init_auto_tiling
 #endif
+
 #if defined RVTK_DEBUG || defined RVTK_DEBUG_ADVANCED
        call debug_ini
-#endif       
+#endif
+
 #ifdef MPI
-C     start_time1=PMPI_Wtime()
+!     start_time1=PMPI_Wtime()
       call MPI_Setup (ierr)
       if (ierr.ne.0) goto 100        !--> ERROR
 #endif
+
+#ifdef NBQ
+      call alloc_module_nh() 
+# ifndef MPI
+      MPI_STATUS_SIZE=1
+# endif
+      call alloc_module_nbq(MPI_STATUS_SIZE)
+#endif
+
 
 #define CR  !
 
@@ -227,7 +249,14 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Create three-dimensional
         call set_depth (tile)        ! time free surface is set to
       enddo                          ! a non-zero field, either 
 CR      write(*,*)  ' -5' MYID       ! analytically or from restart.
-#endif      
+#endif
+#ifdef NBQ
+      call initial_nh(1)
+      call z_thickness_nh(0)
+!CXA      call nump_nh
+!CXA      call mat_mom_init_nh
+!CXA      call mat_cont_init_nh
+# endif
 #ifdef SOLVE3D
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
@@ -345,8 +374,14 @@ C#endif
 #endif
 CR      write(*,*) ' -1' MYID 
 
+#ifdef XIOS
+      do tile=0,NSUB_X*NSUB_E-1
+        call init_xios(tile)
+      enddo
+#endif
+
       if (may_day_flag.ne.0) goto 99 !-->  EXIT
-      if (ldefhis .and. wrthis(indxTime)) call wrt_his
+
 !#if defined DIAGNOSTICS_TS
 !      if (ldefdia .and. wrtdia) call wrt_diags
 !#endif
@@ -477,6 +512,15 @@ C$OMP MASTER
 C$OMP END MASTER
 #endif
 
+#ifdef XIOS
+      if (nrrec.eq.0) then
+        do tile=0,NSUB_X*NSUB_E-1
+          call send_xios_diags(tile)
+        enddo
+      endif
+#else
+      if (ldefhis .and. wrthis(indxTime)) call wrt_his
+#endif
 
 CR      write(*,*) '  0' MYID
       if (may_day_flag.ne.0) goto 99     !-->  EXIT
@@ -495,6 +539,13 @@ CR      write(*,*) '  0' MYID
      &                'MAIN: started time-steping.'
       next_kstp=kstp
       time_start=time
+
+! XIOS (
+!  Clean log output a bit
+#ifdef MPI
+      call MPI_Barrier(ocean_grid_comm, ierr)
+#endif
+! XIOS )
 
 #ifdef SOLVE3D      
       iif = -1
@@ -539,6 +590,9 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Stop timers and
         call stop_timers()
       enddo
       call closecdf
+# ifdef XIOS
+      call iom_context_finalize( "roms") ! needed for XIOS+AGRIF 
+# endif
 #ifdef AGRIF
 !
 !  Close the netcdf files also for the child grids
@@ -547,24 +601,36 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Stop timers and
       do while (associated(parcours))
         Call Agrif_Instance(parcours % gr)
         call closecdf
+# ifdef XIOS
+        call iom_context_finalize( "roms") ! needed for XIOS+AGRIF 
+# endif
         parcours => parcours % next             
       enddo
 #endif
 
  100  continue
+
 #ifdef MPI
-      call MPI_Barrier(MPI_COMM_WORLD, ierr)
+      call MPI_Barrier(ocean_grid_comm, ierr)   ! XIOS
+
 !     start_time2=PMPI_Wtime()
 !     exe_time = start_time2 - start_time1
 !     if(mynode.eq.0) print*,'exe_time =',exe_time
 
-#ifdef OA_COUPLING
+# ifdef OA_COUPLING
       ! Finalize phase of OASIS3
       call prism_terminate_proto(ierr)
-#else
+# elif defined XIOS
+      ! MPI finalize done by XIOS, XIOS+OASIS not coded
+      call xios_finalize()      ! end mpp communications with xios
+#  if !defined AGRIF      
       call MPI_Finalize (ierr)
-#endif     
+#  endif 
+# else
+      call MPI_Finalize (ierr)
+# endif     
 #endif
+
       stop
       end
 

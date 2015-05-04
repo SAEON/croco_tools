@@ -1,4 +1,4 @@
-! $Id$
+! $Id: sources.h 1225 2013-07-11 15:33:27Z gcambon $
 #if defined PSOURCE || defined PSOURCE_NCFILE
 !
 ! Nsrc       Number of point Sources/Sinks.

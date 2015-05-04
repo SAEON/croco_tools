@@ -1,4 +1,4 @@
-! $Id$
+! $Id: grid.h 1458 2014-02-03 15:01:25Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -100,12 +100,12 @@
       real pm_u(GLOBAL_2D_ARRAY)
       real pn_v(GLOBAL_2D_ARRAY)
       common /metrics_pm/pm    /metrics_pn/pn
-     &       /metrics_omr/om_r /metrics_on_r/on_r
-     &       /metrics_omu/om_u /metrics_on_u/on_u
-     &       /metrics_omv/om_v /metrics_on_v/on_v
-     &       /metrics_omp/om_p /metrics_on_p/on_p
-     &       /metrics_pnu/pn_u /metrics_pmv/pm_v
-     &       /metrics_pmu/pm_u /metrics_pnv/pn_v
+      common /metrics_omr/om_r /metrics_on_r/on_r
+      common /metrics_omu/om_u /metrics_on_u/on_u
+      common /metrics_omv/om_v /metrics_on_v/on_v
+      common /metrics_omp/om_p /metrics_on_p/on_p
+      common /metrics_pnu/pn_u /metrics_pmv/pm_v
+      common /metrics_pmu/pm_u /metrics_pnv/pn_v
 
 #if (defined CURVGRID && defined UV_ADV)
       real dmde(GLOBAL_2D_ARRAY)
@@ -121,9 +121,9 @@
       real pnom_v(GLOBAL_2D_ARRAY)
       real grdscl(GLOBAL_2D_ARRAY)
       common /metrics_pmon_p/pmon_p /metrics_pnom_p/pnom_p
-     &       /metrics_pmon_r/pmon_r /metrics_pnom_r/pnom_r
-     &       /metrics_pmon_u/pmon_u /metrics_pnom_v/pnom_v
-     &                              /metrics_grdscl/grdscl
+      common /metrics_pmon_r/pmon_r /metrics_pnom_r/pnom_r
+      common /metrics_pmon_u/pmon_u /metrics_pnom_v/pnom_v
+      common /metrics_grdscl/grdscl
 
 #ifdef MASKING
       real rmask(GLOBAL_2D_ARRAY)
@@ -131,7 +131,7 @@
       real umask(GLOBAL_2D_ARRAY)
       real vmask(GLOBAL_2D_ARRAY)
       common /mask_r/rmask /mask_p/pmask
-     &       /mask_u/umask /mask_v/vmask
+      common /mask_u/umask /mask_v/vmask
 #endif
 
 #ifdef WET_DRY
@@ -142,7 +142,7 @@
       real rmask_wet_avg(GLOBAL_2D_ARRAY)
       real Dcrit(GLOBAL_2D_ARRAY)
       common /mask_r_wet/rmask_wet /mask_p_wet/pmask_wet
-     &       /mask_u_wet/umask_wet /mask_v_wet/vmask_wet
+      common /mask_u_wet/umask_wet /mask_v_wet/vmask_wet
       common /mask_r_wet_avg/rmask_wet_avg
       common /Dcrit_wet/Dcrit
 #endif

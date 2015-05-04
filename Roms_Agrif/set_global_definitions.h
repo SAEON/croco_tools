@@ -1,4 +1,4 @@
-! $Id$
+! $Id: set_global_definitions.h 1618 2014-12-18 14:39:51Z rblod $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -47,31 +47,80 @@
 # undef OA_GRID_UV
 # undef BULK_FLUX
 #endif
+
+/* 
+   Set XIOS options:    
+   Change the generic name of MPI communicator MPI_COMM_WORLD
+   to XIOS local communicator
+*/ 
+#ifdef XIOS
+# define MPI_COMM_WORLD ocean_grid_comm
+#endif
   
 /*
    Activate barotropic pressure gradient response to the
    perturbation of free-surface in the presence of stratification
 */
-#ifdef SOLVE3D
+#if defined SOLVE3D
 # define VAR_RHO_2D
 #endif
 
 /*
    Set default time-averaging filter for barotropic fields.
 */
+#define M2FILTER_NONE
+#undef  M2FILTER_POWER
 #undef  M2FILTER_COSINE
 #undef  M2FILTER_FLAT
-#define M2FILTER_POWER
 #if defined SSH_TIDES || defined UV_TIDES
-# undef M2FILTER_POWER
+# undef  M2FILTER_POWER
 # define M2FILTER_FLAT
+#endif
+
+/*
+   Activate NBQ choices for non-hydrostatic simulations
+*/
+#ifdef NBQ
+# define M2FILTER_NONE
+# undef  M2FILTER_POWER
+# undef  VAR_RHO_2D
+# undef  NBQ_REINIT
+# undef  TRACETXT
+# undef  CHECK_CROCO
+# define HZR Hzr
+#else
+# define HZR Hz
+#endif
+
+/*
+   Activate choice of Pressure Gradient formulation
+   (default is the Density Jacobian formulation with Cubic 
+   Polynomial fit from Shchepetkin et al. (2003). But:
+   1- a cheaper standard Jacobian formulation can also be used 
+   (PGF_BASIC_JACOBIAN), especially for flat or smooth 
+   topography). 
+   2- The Weighted Jacobian formulation of Song & Haidvogel (1994)
+   can also be used by defining the WJ_GRADP key, which then serves 
+   as the weight value. 
+*/
+#if defined BASIN || defined EQUATOR  || defined GRAV_ADJ \
+                  || defined SOLITON  || defined JET \
+                  || defined ACOUSTIC || defined VORTEX
+# define PGF_BASIC_JACOBIAN
+# undef WJ_GRADP
+#elif defined RIP
+# define PGF_BASIC_JACOBIAN
+# define WJ_GRADP 0.125
 #endif
 
 /*
     Select MOMENTUM LATERAL advection-diffusion scheme:
     (The default is third-order upstream biased)
 */
+#define UV_HADV_UP3       /* 3rd-order upstream lateral advection */
 #undef  UV_HADV_C4        /* 4th-order centered lateral advection */
+#undef  UV_HADV_C2        /* 2nd-order centered lateral advection */
+
 #ifdef UV_VIS_SMAGO 
 # define VIS_COEF_3D
 #endif
@@ -80,8 +129,8 @@
 #endif
 
 /*
-    if defined apply MOMENTUM LATERAL diffusion in the interior 
-    over an anomaly only with respect to a reference frame (climatology)
+    if defined apply interior MOMENTUM LATERAL diffusion
+    over an anomaly with respect to a reference frame (climatology)
 */
 #ifdef M3CLIMATOLOGY
 # undef CLIMAT_UV_MIXH
@@ -157,7 +206,8 @@
     (The default is 4th-order centered)
 */
 #undef  TS_VADV_SPLINES   /* splines vertical advection */
-#define TS_VADV_AKIMA     /* 4th-order Akima vertical advection */
+#undef  TS_VADV_AKIMA     /* 4th-order Akima vertical advection */
+#define TS_VADV_WENO5     /* 5th-order WENOZ vertical advection */
 #undef  TS_VADV_C2        /* 2nd-order centered vertical advection */
 #undef  TS_VADV_FCT       /* Flux correction of vertical advection */
 
@@ -345,6 +395,9 @@
 #    define START_1D_ARRAYETA -2
 #   else
 #    define GLOBAL_2D_ARRAY -2:Lm+3+padd_X,0:Mm+1+padd_E
+#    ifdef NBQ
+#     define GLOBAL_2D_ARRAY_EXT_NBQ -2:Lm+3+padd_X,-1:Mm+2+padd_E
+#    endif
 #    define GLOBAL_1D_ARRAYETA 0:Mm+1+padd_E
 #    define START_2D_ARRAY -2,0
 #    define START_1D_ARRAYETA 0
@@ -354,11 +407,17 @@
 #   define START_1D_ARRAYXI 0
 #   ifdef NS_PERIODIC
 #    define GLOBAL_2D_ARRAY 0:Lm+1+padd_X,-2:Mm+3+padd_E
+#    ifdef NBQ
+#     define GLOBAL_2D_ARRAY_EXT_NBQ -1:Lm+2+padd_X,-2:Mm+3+padd_E
+#    endif
 #    define GLOBAL_1D_ARRAYETA -2:Mm+3+padd_E
 #    define START_2D_ARRAY 0,-2
 #    define START_1D_ARRAYETA -2
 #   else
 #    define GLOBAL_2D_ARRAY 0:Lm+1+padd_X,0:Mm+1+padd_E
+#    ifdef NBQ
+#     define GLOBAL_2D_ARRAY_EXT_NBQ -1:Lm+2+padd_X,-1:Mm+2+padd_E
+#    endif
 #    define GLOBAL_1D_ARRAYETA 0:Mm+1+padd_E
 #    define START_2D_ARRAY 0,0
 #    define START_1D_ARRAYETA 0
@@ -384,6 +443,9 @@
 #    define START_1D_ARRAYETA -1
 #   else
 #    define GLOBAL_2D_ARRAY -1:Lm+2+padd_X,0:Mm+1+padd_E
+#    ifdef NBQ
+#     define GLOBAL_2D_ARRAY_EXT_NBQ -1:Lm+2+padd_X,-1:Mm+2+padd_E
+#    endif
 #    define GLOBAL_1D_ARRAYETA 0:Mm+1+padd_E
 #    define START_2D_ARRAY -1,0
 #    define START_1D_ARRAYETA 0
@@ -393,11 +455,17 @@
 #   define START_1D_ARRAYXI 0
 #   ifdef NS_PERIODIC
 #    define GLOBAL_2D_ARRAY 0:Lm+1+padd_X,-1:Mm+2+padd_E
+#    ifdef NBQ
+#     define GLOBAL_2D_ARRAY_EXT_NBQ -1:Lm+2+padd_X,-1:Mm+2+padd_E
+#    endif
 #    define GLOBAL_1D_ARRAYETA -1:Mm+2+padd_E
 #    define START_2D_ARRAY 0,-1
 #    define START_1D_ARRAYETA -1
 #   else
 #    define GLOBAL_2D_ARRAY 0:Lm+1+padd_X,0:Mm+1+padd_E
+#    ifdef NBQ
+#     define GLOBAL_2D_ARRAY_EXT_NBQ -1:Lm+2+padd_X,-1:Mm+2+padd_E
+#    endif
 #    define GLOBAL_1D_ARRAYETA 0:Mm+1+padd_E
 #    define START_2D_ARRAY 0,0
 #    define START_1D_ARRAYETA 0
@@ -544,15 +612,15 @@
 */
 #ifdef DBLEPREC
 
-c-# define float dfloat
-c-# define FLoaT dfloat
-c-# define FLOAT dfloat
-c-# define sqrt dsqrt
-c-# define SQRT dsqrt
-c-# define exp dexp
-c-# define EXP dexp
-c-# define dtanh dtanh
-c-# define TANH dtanh
+!-# define float dfloat
+!-# define FLoaT dfloat
+!-# define FLOAT dfloat
+!-# define sqrt dsqrt
+!-# define SQRT dsqrt
+!-# define exp dexp
+!-# define EXP dexp
+!-# define dtanh dtanh
+!-# define TANH dtanh
 
 # define NF_FTYPE NF_DOUBLE
 # define nf_get_att_FTYPE nf_get_att_double

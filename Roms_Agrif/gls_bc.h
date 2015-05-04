@@ -1,4 +1,4 @@
-! $Id$
+! $Id: gls_bc.h 1160 2013-06-11 09:48:32Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France

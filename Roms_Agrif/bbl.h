@@ -1,4 +1,4 @@
-! $Id$
+! $Id: bbl.h 1458 2014-02-03 15:01:25Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -9,7 +9,7 @@
 ! ROMS_AGRIF website : http://www.romsagrif.org
 !======================================================================
 !
-#ifdef BBL
+#if defined BBL || defined SEDIMENT
 
 /*
 ** Include file "bbl.h"
