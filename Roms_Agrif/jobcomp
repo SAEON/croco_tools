@@ -42,36 +42,33 @@ fi
 #
 # set NETCDF directories
 #
-
 if [[ $OS == Linux ]] ; then
   if [[ $LINUX_FC == g77 ]] ; then
     if [[ $BITS == THIRTYTWO ]] ; then
-      NETCDFLIB="-L../../netcdf_g77 -lnetcdf"
-      NETCDFINC="-I../../netcdf_g77"
+      NETCDFLIB=-L../../netcdf_g77/
+      NETCDFINC=-I../../netcdf_g77/
     fi
   elif [[ $LINUX_FC == ifort || $LINUX_FC == gfortran ]] ; then
     if [[ $BITS == THIRTYTWO ]] ; then
-      NETCDFLIB="-L../../netcdf_ifc -lnetcdf"
-      NETCDFINC="-I../../netcdf_ifc"
+      NETCDFLIB=-L../../netcdf_ifc/
+      NETCDFINC=-I../../netcdf_ifc/
     else
-      NETCDFLIB="-L../../netcdf_x86_64 -lnetcdf"
-      NETCDFINC="-I../../netcdf_x86_64"
+      NETCDFLIB=-L../../netcdf_x86_64
+      NETCDFINC=-I../../netcdf_x86_64
     fi
   fi
 fi
-
 #
 # If needed set your own NETCDF directories
-#
-#NETCDFLIB="-L/usr/local/lib -lnetcdf"
-#NETCDFINC="-I/usr/local/include"
-
 #-----------------------------------------------------------
 # Use : 
 #-lnetcdf           : version netcdf-3.6.3                --
 #-lnetcdff -lnetcdf : version netcdf-4.1.2                --
 #-lnetcdff          : version netcdf-fortran-4.2-gfortran --
 #-----------------------------------------------------------
+#
+NETCDFLIB="-L/usr/local/lib -lnetcdf"
+NETCDFINC="-I/usr/local/include"
 
 #
 # set MPI directories if needed
@@ -79,10 +76,16 @@ fi
 MPIF90="/usr/local/bin/mpif90"
 MPILIB="-L/usr/local/lib -lmpi"
 MPIINC="-I/usr/local/include"
+
 #
 # set OASIS-MCT (or OASIS3) directories if needed
 #
 PRISM_ROOT_DIR=../../oasis3-mct/compile_oa3-mct
+
+#
+# set XIOS directory if needed
+#
+XIOS_ROOT_DIR=$HOME/SVN/XIOS
 #
 # END OF USER'S MODIFICATIONS
 ####################################################
@@ -102,6 +105,7 @@ AGRIF_SRC=${SOURCE}/AGRIF
 #
 # copy SOURCE code
 #
+/bin/cp -f ${SOURCE}/*.F90 $SCRDIR
 /bin/cp -f ${SOURCE}/*.F $SCRDIR
 /bin/cp -f ${SOURCE}/*.h $SCRDIR
 /bin/cp -f ${SOURCE}/Make* $SCRDIR
@@ -109,6 +113,7 @@ AGRIF_SRC=${SOURCE}/AGRIF
 /bin/cp -f ${SOURCE}/jobcomp $SCRDIR
 /bin/cp -f ${SOURCE}/amr.in $SCRDIR
 /bin/cp -RLf ${AGRIF_SRC} $SCRDIR
+/bin/cp -f ${SOURCE}/XIOS/*.F $SCRDIR
 /bin/cp -f ${SOURCE}/PISCES/* $SCRDIR
 /bin/cp -f ${SOURCE}/PISCES/kRGB61.txt $RUNDIR
 if [[ -e "namelist.trc.sms" ]] ; then
@@ -120,11 +125,11 @@ fi
 #
 # overwrite with local files
 #
+/bin/cp -f *.F90 $SCRDIR
 /bin/cp -f *.F $SCRDIR
 /bin/cp -f *.h $SCRDIR
 /bin/cp -f Make* $SCRDIR
-#/bin/cp -f jobcomp.bash $SCRDIR
-#/bin/cp -f amr.in $SCRDIR
+/bin/cp -f jobcomp $SCRDIR
 #
 # Change directory
 #
@@ -213,7 +218,6 @@ if $($CPP1 testkeys.F | grep -i -q agrifisdefined) ; then
 # we use the AGRIF Makedefs.generic definition
 	/bin/cp -f Makedefs.generic.AGRIF Makedefs.generic
 fi
-
 #
 # determine if MPI compilation is required
 #
@@ -228,6 +232,19 @@ if $($CPP1 testkeys.F | grep -i -q mpiisdefined) ; then
 	CFT1="$MPIF90"
 fi
 #
+# determine if XIOS compilation is required
+#
+unset COMPILEXIOS
+echo "Checking COMPILEXIOS..."
+if $($CPP1 testkeys.F | grep -i -q xiosisdefined) ; then
+        echo " => XIOS activated"
+        COMPILEXIOS=TRUE
+        LDFLAGS1="$LDFLAGS1 $XIOS_ROOT_DIR/lib/libxios.a  -lstdc++ -lnetcdff"
+        CPPFLAGS1="$CPPFLAGS1 -I$XIOS_ROOT_DIR/inc"
+        FFLAGS1="$FFLAGS1 -I$XIOS_ROOT_DIR/inc"
+        ln -s $XIOS_ROOT_DIR/bin/xios_server.exe $RUNDIR/.
+fi
+#
 # determine if OASIS compilation is required
 #
 unset COMPILEOASIS
@@ -237,17 +254,29 @@ if $($CPP1 testkeys.F | grep -i -q oacplisdefined) ; then
     CHAN=MPI1
     if $($CPP1 testkeys.F | grep -i -q oacpl_mctisdefined) ; then
 	echo " => OASIS-MCT activated"
-	LIBPSMILE="${PRISM_ROOT_DIR}/lib/libpsmile.${CHAN}.a ${PRISM_ROOT_DIR}/lib/libmct.a  ${PRISM_ROOT_DIR}/lib/libmpeu.a ${PRISM_ROOT_DIR}/lib/libscrip.a"
-	PSMILE_INCDIR="-I${PRISM_ROOT_DIR}/build/lib/psmile.${CHAN} -I${PRISM_ROOT_DIR}/build/lib/mct"
+	LIBPSMILE="${PRISM_ROOT_DIR}/lib/libpsmile.${CHAN}.a \
+		${PRISM_ROOT_DIR}/lib/libmct.a  \
+		${PRISM_ROOT_DIR}/lib/libmpeu.a \
+		${PRISM_ROOT_DIR}/lib/libscrip.a"
+	PSMILE_INCDIR="-I${PRISM_ROOT_DIR}/build/lib/psmile.${CHAN} \
+		-I${PRISM_ROOT_DIR}/build/lib/mct"
     elif $($CPP1 testkeys.F | grep -i -q oacpl_oa3isdefined) ; then
 	echo " => OASIS3 activated"
-	LIBPSMILE="${PRISM_ROOT_DIR}/lib/libanaisg.a ${PRISM_ROOT_DIR}/lib/libanaism.a ${PRISM_ROOT_DIR}/lib/libclim.${CHAN}.a ${PRISM_ROOT_DIR}/lib/libpsmile.${CHAN}.a ${PRISM_ROOT_DIR}/lib/libfscint.a  ${PRISM_ROOT_DIR}/lib/libmpp_io.a ${PRISM_ROOT_DIR}/lib/libscrip.a"
-	PSMILE_INCDIR="-I${PRISM_ROOT_DIR}/build/lib/psmile.${CHAN} -I${PRISM_ROOT_DIR}/build/lib/clim.${CHAN} -I${PRISM_ROOT_DIR}/build/lib/mpp_io"
+	LIBPSMILE="${PRISM_ROOT_DIR}/lib/libanaisg.a \
+		${PRISM_ROOT_DIR}/lib/libanaism.a \
+		${PRISM_ROOT_DIR}/lib/libclim.${CHAN}.a \
+		${PRISM_ROOT_DIR}/lib/libpsmile.${CHAN}.a \
+		${PRISM_ROOT_DIR}/lib/libfscint.a  \
+		${PRISM_ROOT_DIR}/lib/libmpp_io.a \
+		${PRISM_ROOT_DIR}/lib/libscrip.a"
+	PSMILE_INCDIR="-I${PRISM_ROOT_DIR}/build/lib/psmile.${CHAN} \
+		-I${PRISM_ROOT_DIR}/build/lib/clim.${CHAN} \
+		-I${PRISM_ROOT_DIR}/build/lib/mpp_io"
     fi
     COMPILEOASIS=TRUE
-    LDFLAGS1="$LIBPSMILE $LDFLAGS1"
-    CPPFLAGS1="${PSMILE_INCDIR} $CPPFLAGS1"
-    FFLAGS1="${PSMILE_INCDIR} $FFLAGS1"
+    LDFLAGS1="$LDFLAGS1 $LIBPSMILE"
+    CPPFLAGS1="$CPPFLAGS1 ${PSMILE_INCDIR}"
+    FFLAGS1="$FFLAGS1 ${PSMILE_INCDIR}"
 fi
 #
 # rewrite Makedefs according to previous flags

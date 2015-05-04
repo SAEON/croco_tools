@@ -1,4 +1,4 @@
-! $Id$
+! $Id: get_bry_wkb.F 1514 2014-04-06 09:22:29Z rblod $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France

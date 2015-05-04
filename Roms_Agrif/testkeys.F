@@ -1,4 +1,4 @@
-! $Id$
+! $Id: testkeys.F 1458 2014-02-03 15:01:25Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -27,4 +27,8 @@ OACPL_MCTISDEFINED
 OACPL_OA3ISDEFINED
 #endif
 #endif
+#ifdef XIOS
+XIOSISDEFINED
+#endif
+
 

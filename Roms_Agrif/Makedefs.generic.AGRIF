@@ -1,7 +1,7 @@
 # $Id$
 # [1] Machine independent rules and definitions.
 #==== ======= =========== ===== === ============
-.SUFFIXES: .o .f .i .F
+.SUFFIXES: .o .f .i .F .F90 .f90
 
 .f.o:
 	$(CFT) -c $(FFLAGS) $*_.f -o $*.o
@@ -17,6 +17,22 @@
 		-comdirin ./ -comdirout AGRIF_MODELFILES/. -convfile $*.F)
 	$(CPP) -P $(CPPFLAGS) -IROMSFILES/AGRIF_INC ROMSFILES/AGRIF_MODELFILES/$*.F > $*_.f
 	$(CFT) -c $(FFLAGS) $*_.f -o $*.o
+#	/bin/rm $*.f
+
+.f90.o:
+	$(CFT) -c $(FFLAGS) $*_.f90 -o $*.o
+#	rm -f $*.f
+.F90.f90:
+	@$(CPP) -P $(CPPFLAGS) $*.F90 > ROMSFILES/$*.F90
+	@(cd ROMSFILES ; ./conv amr.scrum -rm \
+		-comdirin ./ -comdirout AGRIF_MODELFILES/. -convfile $*.F90)
+	@$(CPP) -P $(CPPFLAGS) -IROMSFILES/AGRIF_INC ROMSFILES/AGRIF_MODELFILES/$*.F90 > $*_.f90
+.F90.o:
+	$(CPP) -P $(CPPFLAGS) $*.F90 > ROMSFILES/$*.F90
+	(cd ROMSFILES ; ./conv amr.scrum -rm \
+		-comdirin ./ -comdirout AGRIF_MODELFILES/. -convfile $*.F90)
+	$(CPP) -P $(CPPFLAGS) -IROMSFILES/AGRIF_INC ROMSFILES/AGRIF_MODELFILES/$*.F90 > $*_.f90
+	$(CFT) -c $(FFLAGS) $*_.f90 -o $*.o
 #	/bin/rm $*.f
 
 .F:

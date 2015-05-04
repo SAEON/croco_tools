@@ -1,4 +1,4 @@
-! $Id$
+! $Id: ocean2d.h 1587 2014-08-04 14:56:01Z marchesiello $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -19,8 +19,8 @@
       real ubar(GLOBAL_2D_ARRAY,4)
       real vbar(GLOBAL_2D_ARRAY,4)
       common /ocean_zeta/zeta
-     &       /ocean_ubar/ubar
-     &       /ocean_vbar/vbar
+      common /ocean_ubar/ubar
+      common /ocean_vbar/vbar
 
 #if !defined SOLVE3D && defined M2_HADV_UP3
       real urhs(GLOBAL_2D_ARRAY)

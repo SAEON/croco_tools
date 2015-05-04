@@ -1,4 +1,4 @@
-! $Id$
+! $Id: bbl.F 1588 2014-08-04 16:26:01Z marchesiello $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -229,34 +229,15 @@
 ! Since most parameterizations have been derived ignoring multiple grain sizes, 
 ! we apply this single d50 also in the case of mixed beds. 
 !---------------------------------------------------------------------
-# ifdef ANA_BSEDIM
+#if defined ANA_BSEDIM || defined SEDIMENT
 
           d50 = Ssize(i,j)             ! [m]
-          tau_cb = taucb(i,j)/rhow     ! [m^2/s^2]
-                                       ! Critical stress for bedload transport
-
+          tau_cb = taucb(i,j)          ! [m^2/s^2]
+# ifdef ANA_BSEDIM
+     &      /rhow
+# endif
           wset = w_set(i,j)            ! [m/s]
           rhosed = Sdens(i,j)/rhow     ! [ ] relative density
-  
- 
-
-# elif defined SEDIMENT
-! Compute representative median d50, rho_grain, tau_cb, w_settle using bed_frac 
-! For local use only, assume log-normal distribution of size classes
-
-          d50   = 1.0
-          tau_cb= 1.0
-          wset  = 1.0
-          rhosed= 1.0
-       
-          do ised=1,NST
-            d50    = d50   *(Sd  (ised))**bed_frac(i,j,1,ised)
-            tau_cb = tau_cb*(tau_ce(ised))**bed_frac(i,j,1,ised) ! [m2/s2] CHECK tau(d50)
-            wset   = wset  *(wsed  (ised))**bed_frac(i,j,1,ised) ! [m/s]    
-            rhosed = rhosed*(Srho  (ised))**bed_frac(i,j,1,ised)
-          enddo 
-
-          rhosed= rhosed/rhow
        
 # endif /* ANA_BSEDIM || SEDIMENT */ 
 

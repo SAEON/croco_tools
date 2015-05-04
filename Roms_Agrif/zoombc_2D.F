@@ -1,4 +1,4 @@
-! $Id$
+! $Id: zoombc_2D.F 1615 2014-12-17 13:27:07Z rblod $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France

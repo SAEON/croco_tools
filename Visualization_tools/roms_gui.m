@@ -921,8 +921,8 @@ return
 function varargout = editcscale_Callback(h, eventdata, handles, varargin)
 % Stub for Callback of the cscale text box
 handles.cscale = str2num(get(handles.editcscale,'String'));
-if handles.cscale <= 0.01
-  handles.cscale=0.01;
+if handles.cscale <= 1.e-6
+  handles.cscale=1.e-6;
   set(handles.editcscale,'String',num2str(handles.cscale))
 end
 if handles.cscale >= 100

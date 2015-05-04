@@ -1,4 +1,4 @@
-! $Id$
+! $Id: get_srflux.F 1570 2014-07-01 10:20:21Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France

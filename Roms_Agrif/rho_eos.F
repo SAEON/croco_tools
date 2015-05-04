@@ -1,4 +1,4 @@
-! $Id$
+! $Id: rho_eos.F 1458 2014-02-03 15:01:25Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -360,26 +360,26 @@
         do i=IstrR,IendR 
 #  ifdef SPLIT_EOS
           dpth=z_w(i,j,N)-z_r(i,j,N)
-          cff=Hz(i,j,N)*(rho1(i,j,N)+qp1(i,j,N)*dpth*(1.-qp2*dpth))
+          cff=HZR(i,j,N)*(rho1(i,j,N)+qp1(i,j,N)*dpth*(1.-qp2*dpth))
 cc          cff=Hz(i,j,N)*( rho1(i,j,N) +qp1(i,j,N)*( z_w(i,j,N)
 cc     &                                            -z_r(i,j,N) ))
 #  else
-          cff=Hz(i,j,N)*rho(i,j,N)
+          cff=HZR(i,j,N)*rho(i,j,N)
 #  endif
-          rhoS(i,j)=0.5*cff*Hz(i,j,N)
+          rhoS(i,j)=0.5*cff*HZR(i,j,N)
           rhoA(i,j)=cff
         enddo
         do k=N-1,1,-1
           do i=IstrR,IendR
 #  ifdef SPLIT_EOS
             dpth=z_w(i,j,N)-z_r(i,j,k)
-            cff=Hz(i,j,k)*(rho1(i,j,k)+qp1(i,j,k)*dpth*(1.-qp2*dpth))
+            cff=HZR(i,j,k)*(rho1(i,j,k)+qp1(i,j,k)*dpth*(1.-qp2*dpth))
 cc            cff=Hz(i,j,k)*( rho1(i,j,k) +qp1(i,j,k)*( z_w(i,j,N)
 cc     &                                              -z_r(i,j,k) ))
 #  else
-            cff=Hz(i,j,k)*rho(i,j,k)
+            cff=HZR(i,j,k)*rho(i,j,k)
 #  endif
-            rhoS(i,j)=rhoS(i,j)+Hz(i,j,k)*(rhoA(i,j)+0.5*cff)
+            rhoS(i,j)=rhoS(i,j)+HZR(i,j,k)*(rhoA(i,j)+0.5*cff)
             rhoA(i,j)=rhoA(i,j)+cff
           enddo
         enddo

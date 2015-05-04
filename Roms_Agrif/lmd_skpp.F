@@ -1,4 +1,4 @@
-! $Id$
+! $Id: lmd_skpp.F 1477 2014-02-17 16:00:43Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France

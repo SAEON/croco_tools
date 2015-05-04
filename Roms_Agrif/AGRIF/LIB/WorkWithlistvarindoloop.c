@@ -33,8 +33,10 @@
 /* version 1.7                                                                */
 /******************************************************************************/
 #include <stdio.h>
+/*
 #include <stdlib.h>
-#include <string.h>
+#include <string.h> 
+*/
 
 #include "decl.h"
 

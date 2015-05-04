@@ -1,4 +1,4 @@
-! $Id$
+! $Id: set_avg.F 1458 2014-02-03 15:01:25Z gcambon $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -11,7 +11,9 @@
 !
 #include "cppdefs.h"
 #ifdef AVERAGES
+
       subroutine set_avg (tile)
+
       implicit none
 # include "param.h"
 # ifdef SOLVE3D
@@ -30,7 +32,6 @@ C$    integer omp_get_thread_num
       endif
 # endif
       call set_avg_tile (Istr,Iend,Jstr,Jend)
-
       return
       end
 
@@ -43,7 +44,7 @@ C$    integer omp_get_thread_num
 ! averaged are sampled during the next time step, rather than at
 ! the end of the time step when they were computed.
 !
-! Though this algorithm results in somewhat ackward controlling
+! Although this algorithm results in somewhat awkward controlling
 ! logic it has the advantage that all fields to be sampled
 ! correspond to exactly the same time, which is time step "n".
 ! Particularly, this is done this way because vertical velocity

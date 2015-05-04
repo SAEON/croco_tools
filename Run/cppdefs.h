@@ -1,4 +1,4 @@
-! $Id$
+! $Id: cppdefs.h 1628 2015-01-10 13:53:00Z marchesiello $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -56,6 +56,8 @@
 # undef  AGRIF_2WAY
                       /* OA Coupling via OASIS (MPI) */
 # undef  OA_COUPLING
+                      /* I/O server */
+# undef  XIOS
                       /* Open Boundary Conditions */
 # undef  TIDES
 # define OBC_EAST
@@ -225,7 +227,7 @@
    for passive/biology/sediment tracers 
 */
 # if defined PASSIVE_TRACER || defined BIOLOGY || defined SEDIMENT
-#  undef BIO_HADV_WENO5
+#  define BIO_HADV_WENO5
 # endif
                       /*   Choice of Biology models   */
 # ifdef BIOLOGY
@@ -382,14 +384,20 @@
 !                       Gravitational Adjustment Example
 !                       ============= ========== =======
 */
-# define ETALON_CHECK
-# undef OPENMP
-# undef MPI
+# undef  OPENMP
+# undef  MPI
+# undef  GRAV_ADJ_SOLITON
+# define NBQ
 # define SOLVE3D
+# define NEW_S_COORD
 # define UV_ADV
-# define UV_VIS2
-# define UV_MIX_S
-# undef  TS_HADV_WENO5
+# ifdef NBQ
+#  define MASKING
+# else
+#  define UV_VIS2
+#  define UV_MIX_S
+# endif
+# define TS_HADV_WENO5
 # define ANA_GRID
 # define ANA_INITIAL
 # define ANA_SMFLUX
@@ -771,10 +779,13 @@
 # define MRL_WCI
 # ifdef MRL_WCI
 #  undef  WKB_WWAVE
-#  undef  WAVE_ROLLER
+#  undef  WKB_UNSTEADY
+#  define WKB_OBC_WEST
+#  define WAVE_ROLLER
+#  undef  WAVE_FRICTION
 #  undef  WAVE_STREAMING
 #  undef  MRL_CEW
-#  define WAVE_RAMP
+#  undef  WAVE_RAMP
 # endif
 # define LMD_MIXING
 # define LMD_SKPP
@@ -845,7 +856,9 @@
 #  define MRL_CEW
 #  undef  WKB_KZ_FILTER
 #  undef  WKB_TIME_FILTER
-#  define WAVE_RAMP
+#  ifdef RIP_TOPO_2D
+#   define WAVE_RAMP
+#  endif
 # endif
 # define LMD_MIXING
 # define LMD_SKPP
@@ -898,11 +911,12 @@
 */
 # undef  OPENMP
 # undef  MPI
+# define NBQ
 # define SOLVE3D
 # define UV_ADV
 # define NEW_S_COORD
-# define NS_PERIODIC
 # define ANA_GRID
+# define MASKING
 # define ANA_INITIAL
 # define ANA_BTFLUX
 # define ANA_SMFLUX

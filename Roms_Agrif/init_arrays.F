@@ -1,4 +1,4 @@
-! $Id$
+! $Id: init_arrays.F 1554 2014-06-18 16:40:09Z ericm $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -48,6 +48,7 @@ C$    integer omp_get_thread_num
 #include "diagnostics.h"
 #include "boundary.h"
 #include "sources.h"
+#include "nbq.h"
       integer Istr,Iend,Jstr,Jend, i,j
 #ifdef SOLVE3D
      &       ,k,itrc
@@ -1039,6 +1040,51 @@ C$    integer omp_get_thread_num
             gls(i,j,k,1)=gls_Pmin
             gls(i,j,k,2)=gls_Pmin
             Lscale(i,j,k)=init
+          enddo
+        enddo
+      enddo
+# endif
+
+# ifdef NBQ
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          rhobar_nbq(i,j)=1.
+          rhobar_nbq_avg1(i,j)=1.
+          rubar_nbq(i,j)=init
+          rvbar_nbq(i,j)=init
+        enddo
+      enddo
+      do k=1,N
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+            rho_nbq_ext(i,j,k)=1.
+            rho_nbq_avg1(i,j,k)=1.
+            rho_nbq_avg2(i,j,k)=1.
+            ruext_nbq(i,j,k)=init
+            rvext_nbq(i,j,k)=init
+            ru_nbq_ext(i,j,k)=init
+            ru_nbq_avg1(i,j,k)=init
+            ru_nbq_avg2(i,j,k)=init
+            rv_nbq_ext(i,j,k)=init
+            rv_nbq_avg1(i,j,k)=init
+            rv_nbq_avg2(i,j,k)=init
+            ruint_nbq(i,j,k)=init
+            rvint_nbq(i,j,k)=init
+            ruint_bak_nbq(i,j,k,1:2)=init
+            rvint_bak_nbq(i,j,k,1:2)=init
+          enddo
+        enddo
+      enddo
+      do k=0,N
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+            wz(i,j,k,1)=init
+            wz(i,j,k,2)=init
+            rw_nbq_ext(i,j,k)=init
+            rw_nbq_avg1(i,j,k)=init
+            rw_nbq_avg2(i,j,k)=init
+            rwint_nbq(i,j,k)=init
+            rwint_bak_nbq(i,j,k,1:2)=init
           enddo
         enddo
       enddo

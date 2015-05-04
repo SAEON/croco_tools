@@ -1,4 +1,4 @@
-! $Id$
+! $Id: t3dmix_S.F 1466 2014-02-06 17:37:07Z marchesiello $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France

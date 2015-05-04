@@ -1,4 +1,4 @@
-! $Id$
+! $Id: v2dbc.F 1419 2014-01-13 11:16:42Z marchesiello $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
