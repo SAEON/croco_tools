@@ -54,6 +54,7 @@
 # include "coupling.h"
 # include "forces.h"
 # include "scalars.h"  
+# include "nbq.h"
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -75,7 +76,7 @@
             cff = 0.25*(Hz(i,j,k)+Hz(i,j,k+1))*eomn(i,j)*  ( !<-- e is 2 Omega cos(lat)
      &          - cosa(i,j)*(u(i,j,k,nrhs)+u(i+1,j,k,nrhs))
      &          + sina(i,j)*(v(i,j,k,nrhs)+v(i,j+1,k,nrhs)) 
-                                                           ) !<-- Hz contains rho Hz 
+     &                                                     ) !<-- Hz contains rho Hz 
                                                              !<-- units of cff : kg.m.s-2       
             rw(i,j,k  ) =               0.5*cff
             rw(i,j,k-1) = rw(i,j,k-1) + 0.5*cff
@@ -88,7 +89,7 @@
             cff = 0.25*Hz(i,j,N)*eomn(i,j)*(                  !<-- e is 2 Omega cos(lat)
      &          - cosa(i,j)*(u(i,j,N,nrhs)+u(i+1,j,N,nrhs))
      &          + sina(i,j)*(v(i,j,N,nrhs)+v(i,j+1,N,nrhs)) 
-                                                           ) !<-- Hz contains rho Hz 
+     &                                                     ) !<-- Hz contains rho Hz 
                                                              !<-- units of cff : kg.m.s-2       
             rw(i,j,N  ) = cff
           enddo
