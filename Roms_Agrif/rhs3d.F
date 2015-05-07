@@ -56,6 +56,9 @@
 # include "coupling.h"
 # include "forces.h"
 # include "scalars.h"
+# ifdef NBQ
+#  include "nbq.h"
+# endif
 # ifdef MRL_WCI
       real vstu,dudx,dvdx,ustv,dude,dvde
 # endif

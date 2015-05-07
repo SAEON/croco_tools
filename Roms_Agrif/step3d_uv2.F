@@ -479,8 +479,7 @@
 #  endif
 # endif
 
-# define EPSIL 0.125
-# define DELTA 0.75
+c--# define TR
 # ifdef TR
 #  ifdef MRL_WCI
             FC(i,k)=DC(i,k)*(0.5*(u(i,j,k,nstp)+u(i,j,k,nnew)) 
@@ -489,15 +488,18 @@
             FC(i,k)=0.5*(u(i,j,k,nstp)+u(i,j,k,nnew))*DC(i,k)
 #  endif
 # else
+#  define EPSIL 0.125
+#  define DELTA 0.75
 #  ifdef MRL_WCI
             FC(i,k)=DELTA*Huon(i,j,k) +
-     &              EPSIL*DC(i,k)*(0.5*(u(i,j,k,nstp)+u(i,j,k,nnew)) 
-     &                                                +2*ust(i,j,k))
+     &              EPSIL*DC(i,k)*(u(i,j,k,nstp)+u(i,j,k,nnew) 
+     &                                        +2.0*ust(i,j,k))
 #  else
             FC(i,k)=DELTA*Huon(i,j,k) +
-     &              EPSIL*DC(i,k)*(0.5*(u(i,j,k,nstp)+u(i,j,k,nnew)))
+     &              EPSIL*DC(i,k)*(u(i,j,k,nstp)+u(i,j,k,nnew))
 #  endif
 # endif /* TR */
+
             FC(i,0)=FC(i,0)+FC(i,k)
           enddo
         enddo
@@ -589,21 +591,22 @@
 
 # ifdef TR
 #  ifdef MRL_WCI
-              FC(i,k)=DC(i,k)*( 0.5*(v(i,j,k,nstp)+v(i,j,k,nnew))
-     &                                              +vst(i,j,k) )
+              FC(i,k)=DC(i,k)*(0.5*(v(i,j,k,nstp)+v(i,j,k,nnew))
+     &                                              +vst(i,j,k))
 #  else
               FC(i,k)=0.5*(v(i,j,k,nstp)+v(i,j,k,nnew))*DC(i,k) 
 #  endif
 # else
 #  ifdef MRL_WCI
               FC(i,k)=DELTA*Hvom(i,j,k)+
-     &                EPSIL*DC(i,k)*(0.5*(v(i,j,k,nstp)+v(i,j,k,nnew))
-     &                                                  +2*vst(i,j,k))
+     &                EPSIL*DC(i,k)*(v(i,j,k,nstp)+v(i,j,k,nnew)
+     &                                          +2.0*vst(i,j,k))
 #  else
               FC(i,k)=DELTA*Hvom(i,j,k)+
-     &                EPSIL*DC(i,k)*(0.5*(v(i,j,k,nstp)+v(i,j,k,nnew)))
+     &                EPSIL*DC(i,k)*(v(i,j,k,nstp)+v(i,j,k,nnew))
 #  endif
 # endif /* TR */
+
               FC(i,0)=FC(i,0)+FC(i,k)
             enddo
           enddo
