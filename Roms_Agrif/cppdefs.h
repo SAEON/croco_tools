@@ -50,15 +50,15 @@
 # define BENGUELA_LR
                       /* Parallelization */
 # undef  OPENMP
-# undef  MPI
+# define MPI
                       /* Nesting */
-# undef  AGRIF
-# undef  AGRIF_2WAY
+# define AGRIF
+# define AGRIF_2WAY
                       /* OA Coupling via OASIS (MPI) */
 # undef  OA_COUPLING
-                      /* I/O server */
-# undef  XIOS
                       /* Open Boundary Conditions */
+# undef  XIOS
+                      /* I/O server */
 # undef  TIDES
 # define OBC_EAST
 # define OBC_WEST
@@ -199,9 +199,6 @@
 #  undef  OBC_M2FLATHER
 #  define OBC_M2CHARACT
 #  undef  OBC_M2ORLANSKI
-#  ifdef  OBC_M2ORLANSKI
-#   define OBC_VOLCONS
-#  endif
 # endif
 # define OBC_M3ORLANSKI
 # define OBC_TORLANSKI
@@ -210,11 +207,11 @@
                       /* Input/Output & Diagnostics */
 # define AVERAGES
 # define AVERAGES_K
-# undef  DIAGNOSTICS_TS
-# undef  DIAGNOSTICS_UV
+# define DIAGNOSTICS_TS
+# define DIAGNOSTICS_UV
 # ifdef DIAGNOSTICS_TS
 #  undef DIAGNOSTICS_TS_ADV
-#  undef DIAGNOSTICS_TS_MLD
+#  define DIAGNOSTICS_TS_MLD
 # endif
 /*
 !           Applications:
@@ -248,7 +245,7 @@
 #   define NITROUS_OXIDE
 #  endif
                       /*   Biology diagnostics    */
-#  undef DIAGNOSTICS_BIO
+#  define DIAGNOSTICS_BIO
 #  if defined DIAGNOSTICS_BIO && defined PISCES
 #   define key_trc_diaadd
 #   define key_trc_dia3d
@@ -386,7 +383,7 @@
 */
 # undef  OPENMP
 # undef  MPI
-# undef  GRAV_ADJ_SOLITON
+# define GRAV_ADJ_SOLITON
 # define NBQ
 # define SOLVE3D
 # define NEW_S_COORD
@@ -911,9 +908,10 @@
 */
 # undef  OPENMP
 # undef  MPI
+
 # define NBQ
 # define SOLVE3D
-# define UV_ADV
+# undef  UV_ADV
 # define NEW_S_COORD
 # define ANA_GRID
 # define MASKING
@@ -926,5 +924,6 @@
 
 #endif /* END OF CONFIGURATION CHOICE */
 
+#include "cppdefs_dev.h"
 #include "set_global_definitions.h"
 
