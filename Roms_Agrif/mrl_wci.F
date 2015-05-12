@@ -212,7 +212,7 @@
           act(i,j) =wramp2*max(wac(i,j,wnew),0.)         ! wave action density
 #  else
           act(i,j) =wramp2*(max(wac(i,j,wnew),0.)
-      &                    +max(war(i,j,wnew),0.))
+     &                     +max(war(i,j,wnew),0.))
 #  endif
 
 # else    /* ifndef WKB_WWAVE */
