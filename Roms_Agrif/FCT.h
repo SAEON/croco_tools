@@ -17,7 +17,7 @@
 !
 ! Compute low-order (diffusive) and antidiffusive fluxes
 !
-#  undef  MINMAX_UPSTREAM
+#  define MINMAX_UPSTREAM
 #  define WENO_SELECTION
 !
 ! MINMAX_UPSTREAM: Max and min tracer values giving permissible bounds use a more 

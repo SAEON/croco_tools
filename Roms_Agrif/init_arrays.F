@@ -918,6 +918,16 @@ C$    integer omp_get_thread_num
           enddo
         enddo
 #endif
+#ifdef TS_MIX_ISO
+        do k=1,N-1
+          do j=JstrR,JendR
+            do i=IstrR,IendR
+              dRdx(i,j,k)=0.
+              dRde(i,j,k)=0.
+            enddo
+          enddo
+        enddo
+#endif
 #ifdef SOLVE3D
 !
 !  Initialize vertical mixing coefficients (see "mixing.h") to their
