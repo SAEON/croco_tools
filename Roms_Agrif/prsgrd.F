@@ -45,12 +45,6 @@ c********************************************************************
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j,k, imin,imax,jmin,jmax
 # include "param.h"
-# ifdef DIAGNOSTICS_UV
-#  include "diagnostics.h"
-# endif
-# ifdef MRL_WCI
-#   include "forces.h"
-# endif
       real ru(PRIVATE_2D_SCRATCH_ARRAY,N),   OneFifth,
      &     rv(PRIVATE_2D_SCRATCH_ARRAY,N),   OneTwelfth,
      &      P(PRIVATE_2D_SCRATCH_ARRAY,N),   epsil,dpth,cff1,cff2,
@@ -60,14 +54,8 @@ c********************************************************************
      &    dZx(PRIVATE_2D_SCRATCH_ARRAY),
      &     rx(PRIVATE_2D_SCRATCH_ARRAY),
      &    dRx(PRIVATE_2D_SCRATCH_ARRAY)
-
-      parameter (OneFifth=0.2, OneTwelfth=1./12., epsil=0.) !1.E-10) 
 !
-#ifdef MASKING
-# define SWITCH *
-#else
-# define SWITCH !
-#endif
+      parameter (OneFifth=0.2, OneTwelfth=1./12., epsil=0.) !1.E-10) 
 !
 # include "grid.h"
 # include "ocean3d.h"
@@ -78,6 +66,18 @@ c********************************************************************
        real UG
        parameter (UG=0.02)
 # endif
+# ifdef DIAGNOSTICS_UV
+#  include "diagnostics.h"
+# endif
+# ifdef MRL_WCI
+#   include "forces.h"
+# endif
+!
+#ifdef MASKING
+# define SWITCH *
+#else
+# define SWITCH !
+#endif
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -422,38 +422,54 @@ c********************************************************************
 !
       implicit none
       integer tile, trd, omp_get_thread_num
-# include "param.h"
-# include "private_scratch.h"
-# include "compute_tile_bounds.h" 
+#  include "param.h"
+#  include "private_scratch.h"
+#  include "compute_tile_bounds.h" 
       trd=omp_get_thread_num()
       call prsgrd_tile (Istr,Iend,Jstr,Jend, A3d(1,1,trd),
-     &                              A3d(1,2,trd),A2d(1,1,trd))
+     &                              A3d(1,2,trd),A2d(1,1,trd),
+     &                              A2d(1,2,trd),A2d(1,3,trd))
       return
       end
 !
-      subroutine prsgrd_tile (Istr,Iend,Jstr,Jend, ru,rv,pgrd)
+      subroutine prsgrd_tile (Istr,Iend,Jstr,Jend, ru,rv,pgrd
+#  ifdef MRL_WCI
+     &                                                 ,FC,rx)
+#  else
+     &                                                       )
+#  endif
 !
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j,k
-# include "param.h"
+#  include "param.h"
       real ru(PRIVATE_2D_SCRATCH_ARRAY,N),  cff,
      &     rv(PRIVATE_2D_SCRATCH_ARRAY,N),  cff1,
      &     pgrd(PRIVATE_1D_SCRATCH_ARRAY),  gamma
-# include "grid.h"
-# include "ocean3d.h"
-# include "scalars.h"
+#  ifdef MRL_WCI
+     &    ,FC(PRIVATE_2D_SCRATCH_ARRAY),    cff2,
+     &     rx(PRIVATE_2D_SCRATCH_ARRAY)
+#  endif
+#  include "grid.h"
+#  include "ocean3d.h"
+#  include "scalars.h"
+#  ifdef DIAGNOSTICS_UV
+#   include "diagnostics.h"
+#  endif
+#  ifdef MRL_WCI
+#    include "forces.h"
+#  endif
 !
-# include "compute_auxiliary_bounds.h"
+#  include "compute_auxiliary_bounds.h"
 !
 !  Switches: RHO_SURF:  Include/Disregard the barotropic part.
 !           WJ_GRADP:  WEIGHTED/STANDARD jacobian form.
 !
-#define RHO_SURF
+#  define RHO_SURF
 !
 !  Original coefficient by Tony was 0.25
 !
-!#define WJ_GRADP 0.125
-!#undef WJ_GRADP
+!# define WJ_GRADP 0.125
+!# undef WJ_GRADP
 !
 ! Compute XI-component of pressure gradient term:
 !----------------------------------------------------------------
@@ -473,18 +489,18 @@ c*      cff1=(1000.D0-rho0)*g/rho0
           pgrd(i)=cff*(rho(i,j,N)-rho(i-1,j,N))
      &                             *( z_w(i,j,N)+z_w(i-1,j,N)
      &                               -z_r(i,j,N)-z_r(i-1,j,N))
-#ifdef RHO_SURF
+#  ifdef RHO_SURF
      &                 +(cff1+cff*(rho(i,j,N)+rho(i-1,j,N)))
      &                              *(z_w(i,j,N)-z_w(i-1,j,N))
-#endif
+#  endif
           ru(i,j,N)=-0.5*(HZR(i,j,N)+HZR(i-1,j,N))
      &                                 *on_u(i,j)*pgrd(i)
 
-# ifdef DIAGNOSTICS_UV
+#  ifdef DIAGNOSTICS_UV
           if (nnew.ne.3) then
             MPrsgrd(i,j,N,1) = ru(i,j,N) SWITCH umask(i,j)
           endif
-# endif
+#  endif
 
         enddo
 !
@@ -496,7 +512,7 @@ c*      cff1=(1000.D0-rho0)*g/rho0
         cff=0.25D0*g/rho0
         do k=N-1,1,-1
           do i=IstrU,Iend
-# ifdef WJ_GRADP
+#  ifdef WJ_GRADP
             gamma=WJ_GRADP *( z_r(i  ,j,k+1)-z_r(i-1,j,k+1)
      &                       +z_r(i  ,j,k  )-z_r(i-1,j,k  ))
 
@@ -505,9 +521,9 @@ c*      cff1=(1000.D0-rho0)*g/rho0
 
      &                     /( (z_r(i  ,j,k+1)-z_r(i  ,j,k))
      &                       *(z_r(i-1,j,k+1)-z_r(i-1,j,k)))
-# endif
+#  endif
             pgrd(i)=pgrd(i)+cff*(
-# ifdef WJ_GRADP
+#  ifdef WJ_GRADP
      &            ( (1.+gamma)*(rho(i,j,k+1)-rho(i-1,j,k+1))
      &             +(1.-gamma)*(rho(i,j,k  )-rho(i-1,j,k  )))
      &                        *( z_r(i,j,k+1)+z_r(i-1,j,k+1)
@@ -517,7 +533,7 @@ c*      cff1=(1000.D0-rho0)*g/rho0
      &                          -rho(i,j,k  )-rho(i-1,j,k  ))
      &           *( (1.+gamma)*(z_r(i,j,k+1)-z_r(i-1,j,k+1))
      &             +(1.-gamma)*(z_r(i,j,k  )-z_r(i-1,j,k  )))
-# else
+#  else
      &                         ( rho(i,j,k+1)-rho(i-1,j,k+1)
      &                          +rho(i,j,k  )-rho(i-1,j,k  ))
      &                        *( z_r(i,j,k+1)+z_r(i-1,j,k+1)
@@ -527,17 +543,17 @@ c*      cff1=(1000.D0-rho0)*g/rho0
      &                          -rho(i,j,k  )-rho(i-1,j,k  ))
      &                        *( z_r(i,j,k+1)-z_r(i-1,j,k+1)
      &                          +z_r(i,j,k  )-z_r(i-1,j,k  ))
-# endif
+#  endif
      &                                                      )
 
             ru(i,j,k)=-0.5*(HZR(i,j,k)+HZR(i-1,j,k))
      &                                *on_u(i,j)*pgrd(i)
 
-# ifdef DIAGNOSTICS_UV
+#  ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
               MPrsgrd(i,j,k,1) = ru(i,j,k) SWITCH umask(i,j)
             endif
-# endif
+#  endif
 
           enddo
         enddo     !--> discard pgrd
@@ -557,10 +573,10 @@ c*        cff1=g*(1000.D0-rho0)/rho0
      &                               *( z_w(i,j,N)+z_w(i,j-1,N)
      &                                 -z_r(i,j,N)-z_r(i,j-1,N))
 
-#ifdef RHO_SURF
+#  ifdef RHO_SURF
      &                   +(cff1+cff*(rho(i,j,N)+rho(i,j-1,N)))
      &                                *(z_w(i,j,N)-z_w(i,j-1,N))
-#endif
+#  endif
 
             rv(i,j,N)=-0.5D0*(HZR(i,j,N)+HZR(i,j-1,N))
      &                                   *om_v(i,j)*pgrd(i)
@@ -575,7 +591,7 @@ c*        cff1=g*(1000.D0-rho0)/rho0
           cff=0.25*g/rho0
           do k=N-1,1,-1
             do i=Istr,Iend
-# ifdef WJ_GRADP
+#  ifdef WJ_GRADP
               gamma=WJ_GRADP *( z_r(i,j  ,k+1)-z_r(i,j-1,k+1)
      &                         +z_r(i,j  ,k  )-z_r(i,j-1,k  ))
 
@@ -584,9 +600,9 @@ c*        cff1=g*(1000.D0-rho0)/rho0
 
      &                       /( (z_r(i,j  ,k+1)-z_r(i,j  ,k))
      &                         *(z_r(i,j-1,k+1)-z_r(i,j-1,k)))
-# endif
+#  endif
               pgrd(i)=pgrd(i)+cff*(
-# ifdef WJ_GRADP
+#  ifdef WJ_GRADP
      &              ( (1.+gamma)*(rho(i,j,k+1)-rho(i,j-1,k+1))
      &               +(1.-gamma)*(rho(i,j,k  )-rho(i,j-1,k  )))
      &                         *( z_r(i,j,k+1)+z_r(i,j-1,k+1)
@@ -596,7 +612,7 @@ c*        cff1=g*(1000.D0-rho0)/rho0
      &                           -rho(i,j,k  )-rho(i,j-1,k  ))
      &             *( (1.+gamma)*(z_r(i,j,k+1)-z_r(i,j-1,k+1))
      &               +(1.-gamma)*(z_r(i,j,k  )-z_r(i,j-1,k  )))
-# else
+#  else
      &                          ( rho(i,j,k+1)-rho(i,j-1,k+1)
      &                           +rho(i,j,k  )-rho(i,j-1,k  ))
      &                         *( z_r(i,j,k+1)+z_r(i,j-1,k+1)
@@ -606,7 +622,7 @@ c*        cff1=g*(1000.D0-rho0)/rho0
      &                           -rho(i,j,k  )-rho(i,j-1,k  ))
      &                         *( z_r(i,j,k+1)-z_r(i,j-1,k+1)
      &                           +z_r(i,j,k  )-z_r(i,j-1,k  ))
-# endif
+#  endif
      &                                                       )
 
               rv(i,j,k)=-0.5*(HZR(i,j,k)+HZR(i,j-1,k))
@@ -632,7 +648,7 @@ c*        cff1=g*(1000.D0-rho0)/rho0
 !  add in wave effect using POM-Jacobian
 !  =====================================
 !
-# ifdef  MRL_WCI
+# ifdef MRL_WCI
 #  define DC rx
       do k=N,1,-1           !--> irreversible
         if (k.eq.N) then
