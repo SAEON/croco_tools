@@ -47,6 +47,9 @@
 # endif
       integer Istr,Iend,Jstr,Jend, itrc, i,j,k, indx, kmld
      &       ,imin,imax,jmin,jmax
+# ifdef TS_MIX_ISO_FILT
+     &       ,ilc
+# endif
 # ifdef PSOURCE
      &       ,is
 # endif
@@ -851,67 +854,30 @@
       do itrc=1,NT
         call t3dbc_tile (Istr,Iend,Jstr,Jend, nnew,itrc, WORK)
       enddo
-
-# ifdef BIOLOGY
 !
 !======================================================================
 !  Compute biological fluxes
 !======================================================================
 !
+# ifdef BIOLOGY
       call biology_tile (Istr,Iend,Jstr,Jend)
 # endif
-
-# if !defined TS_MIX_S && \
-      (defined TS_DIF4 || defined TS_DIF2 || defined SPONGE_DIF2)
 !
 !======================================================================
 !  Compute vertical Rho gradients for use in t3dmix
 !======================================================================
 !
-      amaxx=5./100.
-      smax=5.
+# if !defined TS_MIX_S && \
+      (defined TS_DIF4 || defined TS_DIF2 || defined SPONGE_DIF2)
+
+#  ifdef TS_MIX_GEO
+!
+! --- Geopotential diffusion: idRz contains idZ values ---
+!
       do k=1,N-1
         do j=jstr,jend
           do i=istr,iend
-#  ifdef TS_MIX_ISO
-#   ifdef SPLIT_EOS
-            dpth=z_w(i,j,N)-0.5*(z_r(i,j,k+1)+z_r(i,j,k))
-            dRz = ( rho1(i,j,k+1)-rho1(i,j,k)
-     &           +(  qp1(i,j,k+1)- qp1(i,j,k))
-     &                 *dpth*(1.-2.*qp2*dpth))
-#   else
-            dRz = rho1(i,j,k+1)-rho1(i,j,k)
-#   endif
-            cff  = min( 1./dRz,-1.E-14 ) !++ even if rho(i,j,k+1)=rho(i,j,k)
-                                         !++ we should have cff = -1.E-14  ...
-            cff1 = 1./(z_r(i,j,k+1)-z_r(i,j,k))
-#   ifdef LMD_SKPP2005
-            hbltmp=hbls(i,j,3-nstp)
-#   elif defined LMD_SKPP1994
-            hbltmp=hbl(i,j)
-#   else
-            hbltmp=5.
-#   endif
-            sig  = - z_w(i,j,k+1) / max( hbltmp, 5.  )     
-                     !++ imposes that the depth of the boundary layer is
-                     !at least 5m
-            dXmax = max( abs(dRdx(i,j,k  )),abs(dRdx(i+1,j,k  )),
-     &                   abs(dRdx(i,j,k+1)),abs(dRdx(i+1,j,k+1)),1E-14)
-
-            dEmax = max( abs(dRde(i,j,k  )),abs(dRde(i,j+1,k  )),
-     &                   abs(dRde(i,j,k+1)),abs(dRde(i,j+1,k+1)),1E-14)
-
-            gama  = 1.
-            if(sig .le. 1.) then
-              gama  = sig*sig*(3.-2.*sig)
-            endif
-            amax=min(amaxx,smax*min(pm(i,j),pn(i,j))/cff1)
-            idRz(i,j,k) = max(  -amax*gama*cff1 / dXmax,
-     &                          -amax*gama*cff1 / dEmax,
-     &                                                   cff  )
-#  else
             idRz(i,j,k) = 1./(z_r(i,j,k+1)-z_r(i,j,k))
-#  endif
           enddo
         enddo
       enddo
@@ -921,20 +887,118 @@
           idRz(i,j,0) = 0.
         enddo
       enddo
-#  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+#   if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
       call exchange_w3d_tile (  istr,iend,jstr,jend,
-     &                          idRz(START_2D_ARRAY,0)  )
-#  endif
+     &                            idRz(START_2D_ARRAY,0)  )
+#   endif
+
+#  elif defined TS_MIX_ISO
+!
+! --- Isopycnal diffusion ---
+!
+#   ifdef TS_MIX_ISO_FILT
+      ilc=1+iic-ntstart
+#   endif
+      do k=1,N-1
+        do j=jstr,jend
+          do i=istr,iend
+#   ifdef SPLIT_EOS
+            dpth=z_w(i,j,N)-0.5*(z_r(i,j,k+1)+z_r(i,j,k))
+#    ifdef TS_MIX_ISO_FILT
+            dRz_tmp(i,j,k) = dRz_tmp(i,j,k) +
+#    else
+            dRz = 
+#    endif
+     &            ( rho1(i,j,k+1)-rho1(i,j,k)
+     &           +(  qp1(i,j,k+1)- qp1(i,j,k))
+     &                 *dpth*(1.-2.*qp2*dpth))
+#   else
+#    ifdef TS_MIX_ISO_FILT
+            dRz_tmp(i,j,k) = dRz_tmp(i,j,k) +
+#    else
+            dRz = 
+#    endif
+     &              rho1(i,j,k+1)-rho1(i,j,k)
+#   endif
+
+#   ifdef TS_MIX_ISO_FILT
+          enddo
+        enddo
+      enddo
+      if (ilc.eq.1) then
+        do k=1,N-1
+          do j=JstrR,JendR
+            do i=IstrR,IendR
+              idRz(i,j,k) = 1./(z_r(i,j,k+1)-z_r(i,j,k))
+            enddo
+          enddo
+        enddo
+        do j=jstrR,jendR
+          do i=istrR,iendR
+            idRz(i,j,N) = 0.
+            idRz(i,j,0) = 0.
+          enddo
+        enddo
+      elseif (mod(ilc,Rslope_ntimes).eq.0) then
+        do k=1,N-1
+          do j=jstr,jend
+            do i=istr,iend
+              dRz=dRz_tmp(i,j,k)/Rslope_ntimes ! time average rho gradients
+              dRz_tmp(i,j,k)=0.
+#   endif
+
+              cff  = min( 1./dRz,-1.E-14 ) !++ if rho(i,j,k+1)=rho(i,j,k)
+                                           !++ cff = -1.E-14  ...
+              cff1 = 1./(z_r(i,j,k+1)-z_r(i,j,k))
+#   ifdef LMD_SKPP2005
+              hbltmp=hbls(i,j,3-nstp)
+#   elif defined LMD_SKPP1994
+              hbltmp=hbl(i,j)
+#   else
+              hbltmp=5.
+#   endif
+              sig  = - z_w(i,j,k+1) / max( hbltmp, 5.  )     
+                     !--> the depth of the boundary layer is at least 5m
+              dXmax = max(abs(dRdx(i,j,k  )),abs(dRdx(i+1,j,k  )),
+     &                    abs(dRdx(i,j,k+1)),abs(dRdx(i+1,j,k+1)),1E-14)
+
+              dEmax = max(abs(dRde(i,j,k  )),abs(dRde(i,j+1,k  )),
+     &                    abs(dRde(i,j,k+1)),abs(dRde(i,j+1,k+1)),1E-14)
+
+              gama  = 1.
+              if(sig .le. 1.) then
+                gama  = sig*sig*(3.-2.*sig)
+              endif
+              smax=min(Rslope_max,Gslope_max*min(pm(i,j),pn(i,j))/cff1)
+              idRz(i,j,k) = max(cff,   -smax*gama*cff1 / dXmax,
+     &                                 -smax*gama*cff1 / dEmax )
+            enddo
+          enddo
+        enddo
+        do j=jstr,jend
+          do i=istr,iend
+            idRz(i,j,N) = 0.
+            idRz(i,j,0) = 0.
+          enddo
+        enddo
+#   if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+        call exchange_w3d_tile (  istr,iend,jstr,jend,
+     &                            idRz(START_2D_ARRAY,0)  )
+#   endif
+#   ifdef TS_MIX_ISO_FILT
+      endif  ! ilc
+#   endif
+#  endif /* TS_MIX_ISO */
 # endif /* TS_DIF2 || TS_DIF4 || SPONGE_DIF2 */
 !
-      do itrc=1,NT
 !
-# if defined TNUDGING && defined TCLIMATOLOGY
+      do itrc=1,NT   !<-- itrc
 !
 !======================================================================
 !  Compute Nudging terms
 !======================================================================
 !
+# if defined TNUDGING && defined TCLIMATOLOGY
 #  ifdef ZONAL_NUDGING
         if (iic.eq.ntstart .or. mod(iic,10).eq.0) then
           call zonavg_3d(istr,iend,jstr,jend,

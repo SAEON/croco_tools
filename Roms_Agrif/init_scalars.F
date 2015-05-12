@@ -220,6 +220,10 @@ C$OMP END PARALLEL
        brywkb_id=-1
 #endif
       call get_date (date_str)
+
+#ifdef TS_MIX_ISO_FILT
+      Rslope_ntimes=int(Rslope_ndays*86400/dt)
+#endif
 !
 !---------------------------------------------------------------
 ! Define names of variables in NetCDF output files.

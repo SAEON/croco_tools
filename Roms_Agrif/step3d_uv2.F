@@ -67,6 +67,9 @@
 #  include "diagnostics.h"
 # endif
       integer Istr,Iend,Jstr,Jend, i,j,k
+# ifdef TS_MIX_ISO_FILT
+     &       ,ilc
+# endif
 # ifdef PSOURCE
      &       ,is
 # endif
@@ -518,6 +521,11 @@ c--# define TR
 !
 # if !defined TS_MIX_S && \
       (defined TS_DIF4 || defined TS_DIF2 || defined SPONGE_DIF2)
+!
+#  ifdef TS_MIX_ISO_FILT
+        ilc=1+iic-ntstart
+#  endif
+!
         do k=1,N,+1
           do i=IU_RANGE
             cff =0.5*(pm(i,j)+pm(i-1,j)) SWITCH umask(i,j)
@@ -525,11 +533,21 @@ c--# define TR
 #   ifdef SPLIT_EOS
             dpth=0.5*( z_w(i,j,N)+z_w(i-1,j,N)
      &                -z_r(i,j,k)-z_r(i-1,j,k))
-            dRdx(i,j,k)=cff*( rho1(i,j,k)-rho1(i-1,j,k)
+#    ifdef TS_MIX_ISO_FILT
+            dRdx_tmp(i,j,k)=dRdx_tmp(i,j,k)+
+#    else
+            dRdx(i,j,k)=
+#    endif
+     &                  cff*( rho1(i,j,k)-rho1(i-1,j,k)
      &                 +    (  qp1(i,j,k)- qp1(i-1,j,k))
      &                             *dpth*(1.-qp2*dpth) )
 #   else
-            dRdx(i,j,k)=cff*(rho1(i,j,k)-rho1(i-1,j,k))
+#    ifdef TS_MIX_ISO_FILT
+            dRdx_tmp(i,j,k)=dRdx_tmp(i,j,k)+
+#    else
+            dRdx(i,j,k)=
+#    endif
+     &                  cff*(rho1(i,j,k)-rho1(i-1,j,k))
 #   endif
 #  elif defined TS_MIX_GEO
                          ! dRdx contains dZdx values
@@ -539,6 +557,17 @@ c--# define TR
 #  endif
           enddo
         enddo
+!
+#  ifdef TS_MIX_ISO_FILT
+        if (mod(ilc,Rslope_ntimes).eq.0) then
+          do k=1,N,+1
+            do i=IU_RANGE
+              dRdx(i,j,k)=dRdx_tmp(i,j,k)/Rslope_ntimes
+              dRdx_tmp(i,j,k)=0.
+            enddo
+          enddo
+        endif
+#  endif
 # endif /* TS_DIF2 || TS_DIF4 || SPONGE_DIF2 */
 !
 !--------------------------------------------------
@@ -631,11 +660,21 @@ c--# define TR
 #   ifdef SPLIT_EOS
               dpth=0.5*( z_w(i,j,N)+z_w(i,j-1,N)
      &                -  z_r(i,j,k)-z_r(i,j-1,k))
-              dRde(i,j,k)=cff*( rho1(i,j,k)-rho1(i,j-1,k)
+#    ifdef TS_MIX_ISO_FILT
+              dRde_tmp(i,j,k)=dRde_tmp(i,j,k)+
+#    else
+              dRde(i,j,k)=
+#    endif
+     &                    cff*( rho1(i,j,k)-rho1(i,j-1,k)
      &                       +(  qp1(i,j,k)- qp1(i,j-1,k))
      &                               *dpth*(1.-qp2*dpth) )
 #   else
-              dRde(i,j,k)=cff*(rho1(i,j,k)-rho1(i,j-1,k))
+#    ifdef TS_MIX_ISO_FILT
+              dRde_tmp(i,j,k)=dRde_tmp(i,j,k)+
+#    else
+              dRde(i,j,k)=
+#    endif
+     &                    cff*(rho1(i,j,k)-rho1(i,j-1,k))
 #   endif
 #  elif defined TS_MIX_GEO
                            ! dRde contains dZde values
@@ -645,10 +684,23 @@ c--# define TR
 #  endif
             enddo
           enddo
+!
+#  ifdef TS_MIX_ISO_FILT
+          if (mod(ilc,Rslope_ntimes).eq.0) then
+            do k=1,N,+1
+              do i=IV_RANGE
+                dRde(i,j,k)=dRde_tmp(i,j,k)/Rslope_ntimes
+                dRde_tmp(i,j,k)=0.
+              enddo
+            enddo
+          endif
+#  endif
 # endif /* TS_DIF2 || TS_DIF4 */
-
-        endif
-      enddo
+!
+!
+        endif  !<-- j.ge.Jstr
+      enddo    !<-- j loop
+!
 !
 !--------------------------------------------------------------------
 ! Apply mass point sources
