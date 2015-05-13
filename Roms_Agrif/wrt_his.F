@@ -515,7 +515,11 @@ CR      write(*,*) 'wrt_his:  wrtRHO' MYID
          do k=0,N
             do j=0,Mm+1
                do i=0,Lm+1
-                  work(i,j,k)=w(i,j,k)*pm(i,j)*pn(i,j)
+                  work(i,j,k)= ( We(i,j,k)
+#ifdef VADV_ADAPT_IMP
+     &                       +   Wi(i,j,k)
+#endif                  
+     &                              ) *pm(i,j)*pn(i,j)
 #ifdef NBQ
      &                            /rho_nbq_avg1(i,j,k)
 #endif
