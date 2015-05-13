@@ -24,16 +24,23 @@
       call pre_step3d_tile (Istr,Iend,Jstr,Jend,
      &                A3d(1,1,trd), A3d(1,2,trd), A3d(1,5,trd),
      &                A2d(1,1,trd), A2d(1,2,trd), A2d(1,3,trd),
+#ifdef VADV_ADAPT_IMP     
+     &                A2d(1,4,trd), 
+#endif           
      &                A2d(1,1,trd), A2d(1,2,trd), A2d(1,3,trd)
 # ifndef NBQ
      &                                          , A3d(1,3,trd)
 # endif
-     &                      )
+     &                                                        )
       return
       end
 
       subroutine pre_step3d_tile (Istr,Iend,Jstr,Jend, ru,rv,rw,
-     &                                     FC,CF,DC, FX,FE,WORK
+     &                                     FC,CF,DC, 
+#ifdef VADV_ADAPT_IMP     
+     &     WC, 
+#endif     
+     &     FX,FE,WORK
 # ifndef NBQ
      &                                                 ,Hz_half
 # endif
@@ -59,7 +66,7 @@
       implicit none
 # include "param.h"
       integer Istr,Iend,Jstr,Jend, itrc, i,j,k, indx
-     &       ,imin,imax,jmin,jmax
+     &       ,imin,imax,jmin,jmax,nadv,iAkt
 # ifdef PSOURCE
      &       ,is
 # endif
@@ -70,8 +77,11 @@
      &       CF(PRIVATE_1D_SCRATCH_ARRAY,0:N),
      &       DC(PRIVATE_1D_SCRATCH_ARRAY,0:N),  gamma, 
      &       FX(PRIVATE_2D_SCRATCH_ARRAY),      epsil,
-     &       FE(PRIVATE_2D_SCRATCH_ARRAY),
+     &       FE(PRIVATE_2D_SCRATCH_ARRAY),        cdt,
      &     WORK(PRIVATE_2D_SCRATCH_ARRAY)
+#ifdef VADV_ADAPT_IMP      
+      real   WC(PRIVATE_1D_SCRATCH_ARRAY,0:N) 
+#endif 
 # ifndef NBQ
       real Hz_half(PRIVATE_2D_SCRATCH_ARRAY,N)
 # endif
@@ -137,11 +147,13 @@
      &      (q_ip2-q_im3)-5.*(q_ip1-q_im2)+10.*(q_i-q_im1) )/60.0
 
 # endif
+!
 !--------------------------------------------------------------------
 !
 # include "compute_auxiliary_bounds.h"
 !
       indx=3-nstp
+      nadv=  nstp       !<-- do not remove used in compute_tracer_fluxes.h files
 
       if (FIRST_TIME_STEP) then
         cff=0.5*dt
@@ -158,12 +170,17 @@
             Hz_half(i,j,k)=cff1*Hz(i,j,k)+cff2*Hz_bak(i,j,k)
      &        -cff*pm(i,j)*pn(i,j)*( Huon(i+1,j,k)-Huon(i,j,k)
      &                              +Hvom(i,j+1,k)-Hvom(i,j,k)
-     &                                    +W(i,j,k)-W(i,j,k-1)
+     &                                  +We(i,j,k)-We(i,j,k-1)
+#ifdef VADV_ADAPT_IMP     
+     &                                  +Wi(i,j,k)-Wi(i,j,k-1)     
+#endif     
      &                                                       )
           enddo
         enddo
       enddo
-
+!
+!--------------------------------------------------------------------
+!
 # ifdef NBQ
 
 #ifdef NBQ_DRHODT
@@ -316,6 +333,8 @@
         enddo
       enddo
 # endif /* NBQ */
+!--------------------------------------------------------------------
+!
 
 !
 !  Start computation of the auxiliary tracer field.
@@ -347,171 +366,14 @@
 # ifdef BIO_HADV_WENO5
           if (itrc .le. 2) then
 # endif
-
-# if defined TS_HADV_UP5 || defined TS_HADV_C6 || defined TS_HADV_WENO5
 !
 !----------------------------------------------------------
-! Sixth order advection scheme
+! advection for active tracers 
 !----------------------------------------------------------
 !
-#  define FLUX5 flux6
-#  define FLUX3 flux4
-#  define FLUX2 flux2
-#  undef  UP5_MASKING
-!
-            cdif=0.
-#  include "t3dadv_order5.h"
-!
-#  undef FLUX5
-#  undef FLUX3
-#  undef FLUX2
-#  undef UP5_MASKING
-
-# elif defined TS_HADV_C2
-!
-!----------------------------------------------------------
-! Second order advection scheme
-!----------------------------------------------------------
-!
-          do j=Jstr,Jend
-            do i=Istr,Iend+1
-              FX(i,j)=0.5*(t(i,j,k,nstp,itrc)+t(i-1,j,k,nstp,itrc))
-     &                                                 *Huon(i,j,k)
-            enddo
-          enddo
-          do j=Jstr,Jend+1
-            do i=Istr,Iend
-              FE(i,j)=0.5*(t(i,j,k,nstp,itrc)+t(i,j-1,k,nstp,itrc))
-     &                                                 *Hvom(i,j,k)
-            enddo
-          enddo
-
-# else  /*  --> default: C4 */
-!----------------------------------------------------------
-! Fourth order advection scheme
-!----------------------------------------------------------
-!
-#  define grad WORK
-#  ifdef EW_PERIODIC
-#   define I_EXT_RANGE Istr-1,Iend+2
-#  else
-#   ifdef MPI
-          if (WEST_INTER) then
-            imin=Istr-1
-          else
-            imin=max(Istr-1,1)
-          endif
-          if (EAST_INTER) then
-            imax=Iend+2
-          else
-            imax=min(Iend+2,Lmmpi+1)
-          endif
-#    define I_EXT_RANGE imin,imax
-#   else
-#    define I_EXT_RANGE max(Istr-1,1),min(Iend+2,Lm+1)
-#   endif
-#  endif
-# ifdef NS_PERIODIC
-#  define J_EXT_RANGE Jstr-1,Jend+2
-# else
-#  ifdef MPI
-          if (SOUTH_INTER) then
-            jmin=Jstr-1
-          else
-            jmin=max(Jstr-1,1)
-          endif
-          if (NORTH_INTER) then
-            jmax=Jend+2
-          else
-            jmax=min(Jend+2,Mmmpi+1)
-          endif
-#   define J_EXT_RANGE jmin,jmax
-#  else
-#   define J_EXT_RANGE max(Jstr-1,1),min(Jend+2,Mm+1)
-#  endif
-# endif
-
-          do j=Jstr,Jend
-            do i=I_EXT_RANGE
-              FX(i,j)=(t(i,j,k,nstp,itrc)-t(i-1,j,k,nstp,itrc))
-#  ifdef MASKING
-     &                                               *umask(i,j)
-#  endif
-            enddo
-          enddo
-#  undef I_EXT_RANGE
-#  ifndef EW_PERIODIC 
-          if (WESTERN_EDGE) then
-            do j=Jstr,Jend
-              FX(0,j)=FX(1,j)
-            enddo
-          endif
-          if (EASTERN_EDGE) then
-#   ifdef MPI
-            do j=Jstr,Jend
-              FX(Lmmpi+2,j)=FX(Lmmpi+1,j)
-            enddo
-#   else
-             do j=Jstr,Jend
-              FX(Lm+2,j)=FX(Lm+1,j)
-            enddo
-#   endif
-          endif
-#  endif
-          do j=Jstr,Jend
-            do i=Istr-1,Iend+1
-              grad(i,j)=0.5*(FX(i+1,j)+FX(i,j))
-            enddo
-          enddo             !--> discard FX
-          do j=Jstr,Jend
-            do i=Istr,Iend+1
-              FX(i,j)=0.5*( t(i,j,k,nstp,itrc)+t(i-1,j,k,nstp,itrc)
-     &                     -0.333333333333*(grad(i,j)-grad(i-1,j))
-     &                                               )*Huon(i,j,k)
-            enddo
-          enddo            !--> discard grad
-
-          do j=J_EXT_RANGE
-            do i=Istr,Iend
-              FE(i,j)=(t(i,j,k,nstp,itrc)-t(i,j-1,k,nstp,itrc))
-#  ifdef MASKING
-     &                                               *vmask(i,j)
-#  endif
-            enddo
-          enddo
-#  undef J_EXT_RANGE
-#  ifndef NS_PERIODIC
-          if (SOUTHERN_EDGE) then
-            do i=Istr,Iend
-              FE(i,0)=FE(i,1)
-            enddo
-          endif
-          if (NORTHERN_EDGE) then
-#   ifdef MPI
-            do i=Istr,Iend
-              FE(i,Mmmpi+2)=FE(i,Mmmpi+1)
-            enddo
-#   else
-            do i=Istr,Iend
-              FE(i,Mm+2)=FE(i,Mm+1)
-            enddo
-#   endif
-          endif
-#  endif
-          do j=Jstr-1,Jend+1
-            do i=Istr,Iend
-              grad(i,j)=0.5*(FE(i,j+1)+FE(i,j))
-            enddo
-          enddo            !--> discard FE
-          do j=Jstr,Jend+1
-            do i=Istr,Iend
-              FE(i,j)=0.5*( t(i,j,k,nstp,itrc)+t(i,j-1,k,nstp,itrc)
-     &                     -0.333333333333*(grad(i,j)-grad(i,j-1))
-     &                                               )*Hvom(i,j,k)
-#  undef grad
-            enddo
-          enddo            !--> discard grad
-# endif /* TS_HADV_UP5 */
+#  define PREDICTOR
+#  include "compute_horiz_tracer_fluxes.h"     !<-- Compute fluxes FX and FE
+#  undef PREDICTOR
 
 # ifdef BIO_HADV_WENO5
           else  ! if (itrc .gt. 2)
@@ -628,183 +490,63 @@
 ! box interfaces (W-points). This can be done by either using
 ! parabolic spline interpolation or, more simple local cubic
 ! polynomial [linear interpolation is considered obsolete].
-!
+!      
+      if (FIRST_TIME_STEP) then
+            cdt=0.5*dt
+      else
+            cdt=(1.-gamma)*dt
+      endif 
+
+
       do j=Jstr,Jend
-        do k=1,N
-          do i=Istr,Iend
-            DC(i,k)=1./Hz_half(i,j,k)
-          enddo
+
+        do i=Istr,Iend
+#ifndef VADV_ADAPT_IMP 
+           do k=1,N
+             DC(i,k)=1./Hz_half(i,j,k)
+           enddo   
+#endif
+             DC(i,0)=cdt*pn(i,j)*pm(i,j)
         enddo
+        
         do itrc=1,NT
-# ifdef TS_VADV_SPLINES
-!
-!----------------------------------------------------------
-! Compute vertical advective fluxes using parabolic splines: 
-! FC=W*[spline-interpolated tracer]
-!----------------------------------------------------------
-!
-                              ! Construct parabolic splines: here
-          do i=Istr,Iend      ! CF is the set of vertical derivatives
-            FC(i,0)=0.        ! of the tracer field t(:,:,:,nstp,:),
-            CF(i,0)=0.        ! FC is an auxiliary scratch variable. 
-          enddo
-          do k=1,N-1,+1
-            do i=Istr,Iend
-              cff=1./(2.*HZR(i,j,k+1)+HZR(i,j,k)*(2.-FC(i,k-1)))
-              FC(i,k)=cff*HZR(i,j,k+1)
-              CF(i,k)=cff*( 6.*( t(i,j,k+1,nstp,itrc)
-     &               -t(i,j,k,nstp,itrc))-HZR(i,j,k)*CF(i,k-1))
-            enddo
-          enddo
-          do i=Istr,Iend
-            CF(i,N)=0.
-          enddo
-          do k=N-1,1,-1       !<-- irreversible
-            do i=Istr,Iend
-              CF(i,k)=CF(i,k)-FC(i,k)*CF(i,k+1)
-            enddo
-          enddo               !--> discard FC, keep CF
-
-          cff=1./3.           ! Compute vertical advective fluxes 
-          do k=1,N-1          ! FC=W*[spline-interpolated tracer]
-            do i=Istr,Iend
-              FC(i,k)=W(i,j,k)*( t(i,j,k,nstp,itrc)+cff*HZR(i,j,k)
-     &                                  *(CF(i,k)+0.5*CF(i,k-1)) )
-            enddo
-          enddo               !--> discard CF
-          do i=Istr,Iend
-            FC(i,N)=0.
-            FC(i,0)=0.
-          enddo
-# elif defined TS_VADV_AKIMA
-!
-!----------------------------------------------------------
-! Compute vertical advective fluxes 
-! using 4th-order Akima scheme
-!----------------------------------------------------------
-!
-          do k=1,N-1
-            do i=istr,iend
-              FC(i,k)=t(i,j,k+1,nstp,itrc)-t(i,j,k,nstp,itrc)
-            enddo
-          enddo
-          do i=istr,iend
-            FC(i,0)=FC(i,1)
-            FC(i,N)=FC(i,N-1)
-          enddo
-          do k=1,N
-            do i=istr,iend
-              cff=2.*FC(i,k)*FC(i,k-1)
-              if (cff.gt.epsil) then
-                CF(i,k)=cff/(FC(i,k)+FC(i,k-1))
-              else
-                CF(i,k)=0.
-              endif
-            enddo
-          enddo            !--> discard FC
-          do k=1,N-1
-            do i=istr,iend
-              FC(i,k)=0.5*( t(i,j,k,nstp,itrc)+t(i,j,k+1,nstp,itrc)
-     &                -0.333333333333*(CF(i,k+1)-CF(i,k)) )*W(i,j,k)
-            enddo
-          enddo            !--> discard CF
-          do i=istr,iend
-            FC(i,0)=0.
-            FC(i,N)=0.
-          enddo
-# elif defined TS_VADV_WENO5
-!
-!----------------------------------------------------------
-! Compute vertical advective fluxes 
-! using 5th-order WENO scheme
-!----------------------------------------------------------
-!
-          do k=3,N-3
-            do i=Istr,Iend
-              FC(i,k)=W(i,j,k)*flux6(
-     &             t(i,j,k-2,nstp,itrc), t(i,j,k-1,nstp,itrc), 
-     &             t(i,j,k  ,nstp,itrc), t(i,j,k+1,nstp,itrc),
-     &             t(i,j,k+2,nstp,itrc), t(i,j,k+3,nstp,itrc), W(i,j,k))
-            enddo
-          enddo
-          do i=Istr,Iend
-            FC(i,2)=W(i,j,2)*flux4(
-     &           t(i,j,1,nstp,itrc), t(i,j,2,nstp,itrc), 
-     &           t(i,j,3,nstp,itrc), t(i,j,4,nstp,itrc), W(i,j,2))
-            FC(i,N-2)=W(i,j,N-2)*flux4(
-     &           t(i,j,N-3,nstp,itrc), t(i,j,N-2,nstp,itrc), 
-     &           t(i,j,N-1,nstp,itrc), t(i,j,N  ,nstp,itrc), W(i,j,N-2))
-            FC(i,1)=0.5*W(i,j,1)*(t(i,j,1,nstp,itrc)
-     &                           +t(i,j,2,nstp,itrc))
-            FC(i,N-1)=0.5*W(i,j,N-1)*(t(i,j,N-1,nstp,itrc)
-     &                               +t(i,j,N,  nstp,itrc))
-            FC(i, 0)=0.
-            FC(i,N )=0.
-          enddo
-# elif defined TS_VADV_C2
-!
-!----------------------------------------------------------
-! Compute vertical advective fluxes
-! using 2th-order centered scheme
-!----------------------------------------------------------
-!
-          do k=1,N-1
-           do i=Istr,Iend
-             FC(i,k)=0.5*W(i,j,k)*(t( i,j,k,nstp,itrc)
-     &                           +t(i,j,k+1,nstp,itrc))
-           enddo
-         enddo
-         do i=Istr,Iend
-           FC(i, 0)=0.
-           FC(i,N )=0.
-         enddo
-# else
-!
-!----------------------------------------------------------
-! Compute vertical advective fluxes
-! using 4th-order centered scheme
-!----------------------------------------------------------
-!
-          do k=2,N-2
-            do i=Istr,Iend
-              FC(i,k)=W(i,j,k)*(
-     &                     0.58333333333333*( t(i,j,k  ,nstp,itrc)
-     &                                       +t(i,j,k+1,nstp,itrc))
-     &                    -0.08333333333333*( t(i,j,k-1,nstp,itrc)
-     &                                       +t(i,j,k+2,nstp,itrc))
-     &                                                            )
-            enddo
-          enddo
-          do i=Istr,Iend
-            FC(i, 0)=0.0
-            FC(i,  1)=W(i,j,  1)*(     0.5*t(i,j,  1,nstp,itrc)
-     &                       +0.58333333333333*t(i,j,  2,nstp,itrc)
-     &                       -0.08333333333333*t(i,j,  3,nstp,itrc)
-     &                                                            )
-            FC(i,N-1)=W(i,j,N-1)*(     0.5*t(i,j,N  ,nstp,itrc)
-     &                       +0.58333333333333*t(i,j,N-1,nstp,itrc)
-     &                       -0.08333333333333*t(i,j,N-2,nstp,itrc)
-     &                                                            )
-            FC(i,N )=0.0
-          enddo
-# endif
-
-          if (FIRST_TIME_STEP) then
-            cff=0.5*dt
-          else
-            cff=(1.-gamma)*dt
-          endif
+!======================================================================
+# define PREDICTOR
+#   include "compute_vert_tracer_fluxes.h"       !<-- compute vertical fluxes FC
+# undef PREDICTOR
+!======================================================================       
+!++ Apply vertical advection of tracers (DC corresponds to 1/Hz_half)
+!======================================================================           
           do k=1,N
             do i=Istr,Iend
+#ifdef VADV_ADAPT_IMP
+              t(i,j,k,nnew,itrc)= t(i,j,k,nnew,itrc)  !<-- in this case division by Hz
+     &               -DC(i,0)*(FC(i,k)-FC(i,k-1))     !<-- in the tridiagonal matrix problem
+#else
               t(i,j,k,nnew,itrc)=DC(i,k)*( t(i,j,k,nnew,itrc)
-     &               -cff*pm(i,j)*pn(i,j)*(FC(i,k)-FC(i,k-1)))
-#ifdef CONST_TRACERS 
-              t(i,j,k,nnew,itrc)=t(i,j,k,nstp,itrc)
+     &               -DC(i,0)*(FC(i,k)-FC(i,k-1)))
+#  ifdef CONST_TRACERS 
+              t(i,j,k,nnew,itrc)=t(i,j,k,nstp,itrc)  
+#  endif
 #endif
             enddo
-          enddo            !--> discard FC
+          enddo            !--> discard FC  
+!======================================================================          
+#ifdef VADV_ADAPT_IMP
+# ifdef SALINITY
+        iAKt=min(itrc,isalt)
+# else
+        iAKt=min(itrc,itemp)
+# endif  
+# define TRIDIAG_TRA
+# undef  TRIDIAG_U
+# undef  TRIDIAG_V 
+#  include "tridiag_pred.h"         !<-- implicit vertical advection/diffusion
+# undef TRIDIAG_TRA
+#endif          
+!======================================================================
         enddo   !<-- itrc  !--> discard DC
-
+!======================================================================
 !
 !======================================================================
 !
@@ -815,12 +557,18 @@
         do i=IstrU,Iend
           DC(i,0)=pm_u(i,j)*pn_u(i,j)
         enddo
+        
         if (FIRST_TIME_STEP) then
           do k=1,N
             do i=IstrU,Iend
-              u(i,j,k,nnew)=( u(i,j,k,nstp)*(Hz(i,j,k)+Hz(i-1,j,k))
-     &                                        +dt*DC(i,0)*ru(i,j,k)
-     &                          )/(Hz_half(i,j,k)+Hz_half(i-1,j,k))
+#ifdef VADV_ADAPT_IMP              
+              cff = 1.
+#else
+              cff = 2./(Hz_half(i,j,k)+Hz_half(i-1,j,k))
+#endif                         
+              u(i,j,k,nnew)=( u(i,j,k,nstp)*0.5*(Hz(i,j,k)+Hz(i-1,j,k))
+     &                                           +cdt*DC(i,0)*ru(i,j,k)
+     &                          )*cff
 
               u(i,j,k,indx)=u(i,j,k,nstp)*0.5*(Hz(i,j,k)+
      &                                         Hz(i-1,j,k))
@@ -832,25 +580,31 @@
             enddo
           enddo
         else
-          cff=2.*(1.-gamma)*dt
           cff1=0.5+gamma
           cff2=0.5-gamma
           do k=1,N
             do i=IstrU,Iend
+#  ifdef VADV_ADAPT_IMP              
+              cff = 1.
+#  else
+              cff = 2./(Hz_half(i,j,k)+Hz_half(i-1,j,k))
+#  endif 
+
 #ifdef NBQ
-              u(i,j,k,nnew)=( cff1*u(i,j,k,nstp)*(Hz(i,j,k)+
+              u(i,j,k,nnew)=( cff1*u(i,j,k,nstp)*0.5*(Hz(i,j,k)+
      &                                            Hz(i-1,j,k))
-     &                       +cff2*u(i,j,k,indx)*(Hz_bak(i,j,k)+
+     &                       +cff2*u(i,j,k,indx)*0.5*(Hz_bak(i,j,k)+
      &                                            Hz_bak(i-1,j,k))
-     &                       +cff*DC(i,0)*(ru(i,j,k)+ru_nbq_avg1(i,j,k))
-     &                         )/(Hz_half(i,j,k)+Hz_half(i-1,j,k))
+     &                       +cdt*DC(i,0)*(ru(i,j,k)+ru_nbq_avg1(i,j,k))
+     &                                                     )*cff
 #else
-              u(i,j,k,nnew)=( cff1*u(i,j,k,nstp)*(Hz(i,j,k)+
-     &                                            Hz(i-1,j,k))
-     &                       +cff2*u(i,j,k,indx)*(Hz_bak(i,j,k)+
-     &                                            Hz_bak(i-1,j,k))
-     &                       +cff*DC(i,0)*ru(i,j,k)
-     &                         )/(Hz_half(i,j,k)+Hz_half(i-1,j,k))
+              u(i,j,k,nnew)=( cff1*u(i,j,k,nstp)*0.5*(Hz(i,j,k)+
+     &                                              Hz(i-1,j,k))
+     &                       +cff2*u(i,j,k,indx)*0.5*(Hz_bak(i,j,k)+
+     &                                              Hz_bak(i-1,j,k))
+     &                       +cdt*DC(i,0)*ru(i,j,k)
+     &                                                     )*cff
+
 #endif
 
               u(i,j,k,indx)=u(i,j,k,nstp)*0.5*(Hz(i,j,k)+
@@ -862,9 +616,20 @@
      &                                /(Zt_avg1(i,j)+Zt_avg1(i-1,j)) )
 #endif
             enddo
-          enddo
+          enddo          
          endif
-
+!
+!======================================================================
+!
+#ifdef VADV_ADAPT_IMP
+# undef  TRIDIAG_TRA
+# define  TRIDIAG_U
+# undef  TRIDIAG_V
+#  include "tridiag_pred.h"        !<-- compute implicit vertical advection/viscosity
+#endif
+!
+!======================================================================
+!
         if (j.ge.JstrV) then
           do i=Istr,Iend
             DC(i,0)=pm_v(i,j)*pn_v(i,j)
@@ -872,9 +637,14 @@
           if (FIRST_TIME_STEP) then
             do k=1,N
               do i=Istr,Iend
-                v(i,j,k,nnew)=(v(i,j,k,nstp)*(Hz(i,j,k)+Hz(i,j-1,k))
-     &                                         +dt*DC(i,0)*rv(i,j,k)
-     &                           )/(Hz_half(i,j,k)+Hz_half(i,j-1,k))
+#ifdef VADV_ADAPT_IMP              
+                cff = 1.
+#else
+                cff = 2./(Hz_half(i,j,k)+Hz_half(i,j-1,k))
+#endif 
+                v(i,j,k,nnew)=(v(i,j,k,nstp)*0.5*(Hz(i,j,k)+Hz(i,j-1,k))
+     &                                           +cdt*DC(i,0)*rv(i,j,k)
+     &                           )*cff
 
                 v(i,j,k,indx)=v(i,j,k,nstp)*0.5*(Hz(i,j  ,k)+
      &                                           Hz(i,j-1,k))
@@ -886,27 +656,32 @@
               enddo
             enddo
           else
-            cff=2.*(1.-gamma)*dt
             cff1=0.5+gamma
             cff2=0.5-gamma
             do k=1,N
               do i=Istr,Iend
-#ifdef NBQ
-                v(i,j,k,nnew)=( cff1*v(i,j,k,nstp)*(Hz(i,j,k)+
-     &                                              Hz(i,j-1,k))
-     &                         +cff2*v(i,j,k,indx)*(Hz_bak(i,j,k)+
-     &                                              Hz_bak(i,j-1,k))
-     &                       +cff*DC(i,0)*(rv(i,j,k)+rv_nbq_avg1(i,j,k))
-     &                           )/(Hz_half(i,j,k)+Hz_half(i,j-1,k))
+              
+#ifdef VADV_ADAPT_IMP              
+                cff = 1.
 #else
-                v(i,j,k,nnew)=( cff1*v(i,j,k,nstp)*(Hz(i,j,k)+
-     &                                              Hz(i,j-1,k))
-     &                         +cff2*v(i,j,k,indx)*(Hz_bak(i,j,k)+
+                cff = 2./(Hz_half(i,j,k)+Hz_half(i,j-1,k))
+#endif              
+              
+#ifdef NBQ
+                v(i,j,k,nnew)=( cff1*v(i,j,k,nstp)*0.5*(Hz(i,j,k)+
+     &                                                Hz(i,j-1,k))
+     &                         +cff2*v(i,j,k,indx)*0.5*(Hz_bak(i,j,k)+
      &                                              Hz_bak(i,j-1,k))
-     &                         +cff*DC(i,0)*rv(i,j,k)
-     &                           )/(Hz_half(i,j,k)+Hz_half(i,j-1,k))
+     &                         +cdt*DC(i,0)*(rv(i,j,k)+rv_nbq_avg1(i,j,k))
+     &                                                               )*cff
+#else
+                v(i,j,k,nnew)=( cff1*v(i,j,k,nstp)*0.5*(Hz(i,j,k)+
+     &                                                Hz(i,j-1,k))
+     &                         +cff2*v(i,j,k,indx)*0.5*(Hz_bak(i,j,k)+
+     &                                                Hz_bak(i,j-1,k))
+     &                         +cdt*DC(i,0)*rv(i,j,k)
+     &                                                               )*cff
 #endif
-
                 v(i,j,k,indx)=v(i,j,k,nstp)*0.5*(Hz(i,j,k)+
      &                                           Hz(i,j-1,k))
 #ifdef NBQ
@@ -919,8 +694,23 @@
             enddo               !--> discard DC(:,0)
           endif
         endif
+        
+!         print*,'Pre_step_3d vbef : ',
+!     &                maxval(abs(v(istr:iend,j,2:N,nnew)))          
+!
+!======================================================================
+!
+# ifdef VADV_ADAPT_IMP
+# undef  TRIDIAG_TRA
+# undef  TRIDIAG_U
+# define TRIDIAG_V
+#  include "tridiag_pred.h"  !<-- compute implicit vertical advection/viscosity
+# endif
+!
+!======================================================================
+!
       enddo     !<-- j
-
+      
 #ifdef NBQ
 !----------------------------------------------------------
 !<-- at this point 
@@ -961,7 +751,6 @@
 !==        
       else
 !==      
-        cff=2.*(1.-gamma)*dt
         cff1=0.5+gamma
         cff2=0.5-gamma
 !==        
@@ -971,7 +760,7 @@
      &                                             Hz(i,j,k+1))
      &                       +cff2*wz(i,j,k,indx)*(Hz_bak(i,j,k  )+
      &                                             Hz_bak(i,j,k+1))
-     &                       +cff*pn(i,j)*pm(i,j)
+     &                       +2.*cdt*pn(i,j)*pm(i,j)
      &                              *(rw(i,j,k)+rw_nbq_avg1(i,j,k))
      &                      ) / (Hz_half(i,j,k)+Hz_half(i,j,k+1))  !<-- wz has units m.s-1
 
@@ -987,7 +776,7 @@
        do i=Istr,Iend
              wz(i,j,N,nnew)=( cff1*wz(i,j,N,nstp)*Hz    (i,j,N)
      &                       +cff2*wz(i,j,N,indx)*Hz_bak(i,j,N)
-     &                       +cff*pn(i,j)*pm(i,j)
+     &                       +2.*cdt*pn(i,j)*pm(i,j)
      &                          *(rw(i,j,N)+rw_nbq_avg1(i,j,N))
      &                      )/ Hz_half(i,j,N)                !<-- wz has units m.s-1
 
