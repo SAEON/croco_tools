@@ -29,8 +29,17 @@
       real z_w(GLOBAL_2D_ARRAY,0:N)
       real Huon(GLOBAL_2D_ARRAY,N)
       real Hvom(GLOBAL_2D_ARRAY,N)
-      real W(GLOBAL_2D_ARRAY,0:N)
-      common /grid_Hz/Hz /grid_zr/z_r /grid_W/W
+
+      real We(GLOBAL_2D_ARRAY,0:N)
+# ifdef VADV_ADAPT_IMP
+      real Wi(GLOBAL_2D_ARRAY,0:N)
+# endif
+
+      common /grid_Hz/Hz /grid_zr/z_r /grid_We/We
+# ifdef VADV_ADAPT_IMP
+      common /grid_Wi/Wi
+# endif      
+      
       common /grid_Hz_bak/Hz_bak /grid_zw/z_w /grid_Huon/Huon
       common /grid_Hvom/Hvom
 
