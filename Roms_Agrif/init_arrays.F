@@ -234,7 +234,10 @@ C$    integer omp_get_thread_num
       do k=0,N
         do j=JstrR,JendR
           do i=IstrR,IendR
-            w(i,j,k)=init
+             We(i,j,k)=init
+# ifdef VADV_ADAPT_IMP
+             Wi(i,j,k)=init
+# endif
 # ifdef AVERAGES
             omega_avg(i,j,k)=init
 # endif
