@@ -79,8 +79,8 @@
    Set default time-averaging filter for barotropic fields.
 ======================================================================
 */
-#define M2FILTER_NONE
-#undef  M2FILTER_POWER
+#undef M2FILTER_NONE
+#define  M2FILTER_POWER
 #undef  M2FILTER_COSINE
 #undef  M2FILTER_FLAT
 #if defined SSH_TIDES || defined UV_TIDES
@@ -184,6 +184,10 @@
 # undef  UV_VADV_C2        /* 2nd-order centered vertical advection */
 #endif
 
+# ifdef VADV_ADAPT_IMP
+#  define UV_VADV_SPLINES   /* splines vertical advection */
+#  undef  UV_VADV_C2
+# endif
 /*
 ======================================================================
     Select TRACER LATERAL advection-diffusion scheme
@@ -282,6 +286,12 @@
 
 #undef  TS_VADV_FCT       /* Flux correction of vertical advection */
 
+#ifdef VADV_ADAPT_IMP
+# define  TS_VADV_SPLINES   /* Splines vertical advection            */
+# undef   TS_VADV_AKIMA     /* 4th-order Akima vertical advection    */
+# undef   TS_VADV_WENO5     /* 5th-order WENOZ vertical advection    */
+# undef   TS_VADV_C2        /* 2nd-order centered vertical advection */
+#endif
 /*
 ======================================================================
    SPONGE:  
