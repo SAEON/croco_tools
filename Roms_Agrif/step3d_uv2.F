@@ -22,11 +22,19 @@
 
       call step3d_uv2_tile (Istr,Iend,Jstr,Jend, A2d(1,1,trd),
      &                                  A2d(1,2,trd), A2d(1,3,trd),
-     &                                                A2d(1,4,trd))
+     &                                                A2d(1,4,trd)
+#ifdef VADV_ADAPT_IMP
+     &                                               ,A2d(1,5,trd)
+#endif
+     &                                                            )
       return
       end
 
-      subroutine step3d_uv2_tile (Istr,Iend,Jstr,Jend, BC,CF,FC,DC)
+      subroutine step3d_uv2_tile (Istr,Iend,Jstr,Jend, BC,CF,FC,DC
+#ifdef VADV_ADAPT_IMP
+     &                                                         ,WC
+#endif
+     &                                                            )
 !
 !--------------------------------------------------------------------
 !  This routine  performs the timestep for the horizontal momentum
@@ -77,8 +85,11 @@
      &     CF(PRIVATE_1D_SCRATCH_ARRAY,0:N),
      &     FC(PRIVATE_1D_SCRATCH_ARRAY,0:N), cff,
      &     DC(PRIVATE_1D_SCRATCH_ARRAY,0:N)
+#ifdef VADV_ADAPT_IMP
+      real WC(PRIVATE_1D_SCRATCH_ARRAY,0:N)
+#endif
       real grad(PRIVATE_2D_SCRATCH_ARRAY)
-      real dpth
+      real dpth,aa,cc
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -111,35 +122,7 @@
           enddo
         enddo
 # endif
-!
-        do k=1,N-1
-          do i=IstrU,Iend
-            FC(i,k)=-dt*(Akv(i,j,k)+Akv(i-1,j,k))
-     &                 /( z_r(i,j,k+1)+z_r(i-1,j,k+1)
-     &                   -z_r(i,j,k  )-z_r(i-1,j,k  ))
-          enddo
-        enddo
-        do i=IstrU,Iend
-          FC(i,0)=0.
-          FC(i,N)=0.
-        enddo
-        do k=1,N
-          do i=IstrU,Iend
-            DC(i,k)=u(i,j,k,nnew)
-            BC(i,k)=0.5*(Hz(i,j,k)+Hz(i-1,j,k))-FC(i,k)-FC(i,k-1)
-          enddo
-        enddo      !--> discard DC(:,0); keep FC
-!
-! Apply wind forcing.
-!
-# ifndef BODYFORCE
-        do i=IstrU,Iend
-          DC(i,N)=DC(i,N)+dt*sustr(i,j)
-          DC(i,1)=DC(i,1)-dt*bustr(i,j)
-        enddo
-# endif
-
-!
+!--------------------------------------------------------------------
 ! Resolve the tri-diagonal system. Also perform coupling between the
 ! barotropic and baroclinic modes. For the purpose of the processor
 ! efficiency these two operations are partially overlapped. So that
@@ -154,22 +137,78 @@
 ! as DC(:,0)], and replace it with the more accurate mean obtained
 ! from the 2D barotropic sub-model ubar=DU_avg1/(D*on_u), where
 ! D=CF(:,0) is the total depth of water column.
-! 
+!
+!--------------------------------------------------------------------
+        do i=IstrU,Iend
+          FC(i,0)=0.
+          FC(i,N)=0.
+#ifdef VADV_ADAPT_IMP
+          DC(i,0)=0.25*dt*(pm(i,j)+pm(i-1,j))*(pn(i,j)+pn(i-1,j))
+          WC(i,0)=0.
+          WC(i,N)=0.
+#endif
+        enddo
+
+        do k=1,N-1
+          do i=IstrU,Iend
+            FC(i,k)=-dt*(Akv(i,j,k)+Akv(i-1,j,k))
+     &                 /( z_r(i,j,k+1)+z_r(i-1,j,k+1)
+     &                   -z_r(i,j,k  )-z_r(i-1,j,k  ))
+#ifdef VADV_ADAPT_IMP
+            WC(i,k)=DC(i,0)*0.5*(Wi(i,j,k)+Wi(i-1,j,k))
+#endif
+          enddo
+        enddo
+
+        do k=1,N
+          do i=IstrU,Iend
+            DC(i,k)=u(i,j,k,nnew)
+            BC(i,k)=0.5*(Hz(i,j,k)+Hz(i-1,j,k))-FC(i,k)-FC(i,k-1)
+#ifdef VADV_ADAPT_IMP
+     &              +max(WC(i,k  ),0.)-min(WC(i,k-1),0.)
+#endif
+          enddo
+        enddo      !--> discard DC(:,0); keep FC
+!
+! Apply wind forcing.
+!
+# ifndef BODYFORCE
+        do i=IstrU,Iend
+          DC(i,N)=DC(i,N)+dt*sustr(i,j)
+          DC(i,1)=DC(i,1)-dt*bustr(i,j)
+        enddo
+# endif
         do i=IstrU,Iend
           cff=1./BC(i,1)
-          CF(i,1)=cff*FC(i,1)
+          CF(i,1)=cff*( FC(i,1)                          !<-- q(1) = c(1)/b(1)
+#ifdef VADV_ADAPT_IMP
+     &                +min( WC(i,1),0.)
+#endif
+     &                                 )
           DC(i,1)=cff*DC(i,1)
         enddo
         do k=2,N-1
           do i=IstrU,Iend
-            cff=1./(BC(i,k)-FC(i,k-1)*CF(i,k-1))
-            CF(i,k)=cff*FC(i,k)
-            DC(i,k)=cff*(DC(i,k)-FC(i,k-1)*DC(i,k-1))
+#ifdef VADV_ADAPT_IMP
+              aa = FC(i,k-1)-max(WC(i,k-1),0.)             !<-- a = sub   (lower) diagonal
+              cc = FC(i,k  )+min(WC(i,k  ),0.)             !<-- c = super (upper) diagonal
+#else
+              aa = FC(i,k-1)
+              cc = FC(i,k  )
+#endif
+            cff=1./(BC(i,k)-aa*CF(i,k-1))                  !<-- p    = 1/(b(k)-a(k)*q(k))
+            CF(i,k)=cff*cc
+            DC(i,k)=cff*(DC(i,k)-aa*DC(i,k-1))          
           enddo
         enddo
         do i=IstrU,Iend
-          DC(i,N)=(DC(i,N)-FC(i,N-1)*DC(i,N-1))
-     &           /(BC(i,N)-FC(i,N-1)*CF(i,N-1))
+#ifdef VADV_ADAPT_IMP
+              aa = FC(i,N-1)-max(WC(i,N-1),0.)             !<-- a = sub   (lower) diagonal
+#else
+              aa = FC(i,N-1)
+#endif
+          DC(i,N)=(DC(i,N)-aa*DC(i,N-1))
+     &           /(BC(i,N)-aa*CF(i,N-1))
 
           CF(i,0)=0.5*(Hz(i,j,N)+Hz(i-1,j,N))
           DC(i,0)=CF(i,0)*DC(i,N)
@@ -191,7 +230,6 @@
         do k=1,N
           do i=IstrU,Iend
             u(i,j,k,nnew)=(DC(i,k)-DC(i,0)) SWITCH umask(i,j)
-
 # ifdef DIAGNOSTICS_UV
             MVmix(i,j,k,1)=-( MVmix(i,j,k,1) - u(i,j,k,nnew)*
      &                           0.5*(Hz(i,j,k)+Hz(i-1,j,k)) )
@@ -226,22 +264,34 @@
          enddo
 # endif /* DIAGNOSTICS_UV */
 !
+          do i=Istr,Iend
+            FC(i,0)=0.
+            FC(i,N)=0.
+#ifdef VADV_ADAPT_IMP
+            DC(i,0)=0.25*dt*(pm(i,j)+pm(i,j-1))*(pn(i,j)+pn(i,j-1))
+            WC(i,0)=0.
+            WC(i,N)=0.
+#endif
+          enddo
+
           do k=1,N-1
             do i=Istr,Iend
               FC(i,k)=-dt*(Akv(i,j,k)+Akv(i,j-1,k))
      &                   /( z_r(i,j,k+1)+z_r(i,j-1,k+1)
      &                     -z_r(i,j,k  )-z_r(i,j-1,k  ))
-
+#ifdef VADV_ADAPT_IMP
+              WC(i,k)=DC(i,0)*0.5*(Wi(i,j,k)+Wi(i,j-1,k))
+#endif
             enddo
           enddo
-          do i=Istr,Iend
-            FC(i,0)=0.
-            FC(i,N)=0.
-          enddo
+
           do k=1,N
             do i=Istr,Iend
               DC(i,k)=v(i,j,k,nnew)
               BC(i,k)=0.5*(Hz(i,j,k)+Hz(i,j-1,k))-FC(i,k)-FC(i,k-1)
+#ifdef VADV_ADAPT_IMP
+     &              +max(WC(i,k  ),0.)-min(WC(i,k-1),0.)
+#endif
             enddo
           enddo
 !
@@ -260,19 +310,35 @@
 !
           do i=Istr,Iend
             cff=1./BC(i,1)
-            CF(i,1)=cff*FC(i,1)
+            CF(i,1)=cff*( FC(i,1)                          !<-- q(1) = c(1)/b(1)
+#ifdef VADV_ADAPT_IMP
+     &                +min( WC(i,1),0.)
+#endif
+     &                                 )
             DC(i,1)=cff*DC(i,1)
           enddo
           do k=2,N-1
             do i=Istr,Iend
-              cff=1./(BC(i,k)-FC(i,k-1)*CF(i,k-1))
-              CF(i,k)=cff*FC(i,k)
-              DC(i,k)=cff*(DC(i,k)-FC(i,k-1)*DC(i,k-1))
+#ifdef VADV_ADAPT_IMP
+              aa = FC(i,k-1)-max(WC(i,k-1),0.)             !<-- a = sub   (lower) diagonal
+              cc = FC(i,k  )+min(WC(i,k  ),0.)             !<-- c = super (upper) diagonal
+#else
+              aa = FC(i,k-1)
+              cc = FC(i,k  )
+#endif
+              cff=1./(BC(i,k)-aa*CF(i,k-1))
+              CF(i,k)=cff*cc
+              DC(i,k)=cff*(DC(i,k)-aa*DC(i,k-1))
             enddo
           enddo
           do i=Istr,Iend
-            DC(i,N)=(DC(i,N)-FC(i,N-1)*DC(i,N-1))
-     &             /(BC(i,N)-FC(i,N-1)*CF(i,N-1))
+#ifdef VADV_ADAPT_IMP
+              aa = FC(i,N-1)-max(WC(i,N-1),0.)             !<-- a = sub   (lower) diagonal
+#else
+              aa = FC(i,N-1)
+#endif
+            DC(i,N)=(DC(i,N)-aa*DC(i,N-1))
+     &             /(BC(i,N)-aa*CF(i,N-1))
 
             CF(i,0)=0.5*(Hz(i,j,N)+Hz(i,j-1,N))
             DC(i,0)=CF(i,0)*DC(i,N)
