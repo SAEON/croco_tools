@@ -246,7 +246,11 @@ C$    integer omp_get_thread_num
             do j=JstrR,JendR
               do i=IstrR,IendR
                 omega_avg(i,j,k)=cff*( cff1*omega_avg(i,j,k)
-     &                                 +W(i,j,k)*pm(i,j)*pn(i,j))
+     &                                 +We(i,j,k)*pm(i,j)*pn(i,j)
+#ifdef VADV_ADAPT_IMP
+     &                                 +Wi(i,j,k)*pm(i,j)*pn(i,j)
+#endif      
+     &                                                          )
               enddo
             enddo
           enddo
