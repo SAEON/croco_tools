@@ -114,14 +114,25 @@
             FC(i,1)=dt* Akt(i,j,1,indx) 
 # endif
      &                               /( z_r(i,j,2)-z_r(i,j,1) )
+# ifdef VADV_ADAPT_IMP            
+            BC(i,1)=DC(i,0)*Wi(i,j,1)   
+            cff=1./(Hz(i,j,1)      +FC(i,1)+max(BC(i,1),0.))    !<- 1/b(1)
+            CF(i,1)=cff*(           FC(i,1)-min(BC(i,1),0.))    !<- q(1) = c(1) / b(1)            
+# else
             cff=1./(Hz(i,j,1)+FC(i,1))
             CF(i,1)= cff*FC(i,1)
+# endif            
+
 # ifdef TS_MIX_IMP 
             DC(i,1)= cff*(t(i,j,1,nnew,itrc)-dt*(CD(i,1)-CD(i,0)))
 # else
             DC(i,1)= cff* t(i,j,1,nnew,itrc)
 # endif
           enddo
+          
+          
+          
+          
           do k=2,N-1,+1
             do i=istr,iend
 # ifdef TS_MIX_IMP
@@ -129,27 +140,55 @@
 # else 
               FC(i,k)=dt* Akt(i,j,k,indx) 
 # endif
-     &                              /( z_r(i,j,k+1)-z_r(i,j,k) ) 
+     &                              /( z_r(i,j,k+1)-z_r(i,j,k) )
+     
+# ifdef VADV_ADAPT_IMP     
+              BC(i,k)=DC(i,0)*Wi(i,j,k)
+              cff=1./(      Hz(i,j,k) +FC(i,k)+max(BC(i,k),0.)
+     &                              +FC(i,k-1)-min(BC(i,k-1),0.)   
+     &                   -CF(i,k-1)*(FC(i,k-1)+max(BC(i,k-1),0.))
+     &                                                          )   !<- p = 1/(b(j)-a(j)*q(j-1))
+              CF(i,k)=cff*(FC(i,k)-min(BC(i,k),0.))                 !<- c(j)*p
+              DC(i,k)=cff*( t(i,j,k,nnew,itrc) +DC(i,k-1)*(         !<- f(j) = ( f(j) - a(j)*f(j-1) )*p 
+     &                          FC(i,k-1)+max(BC(i,k-1),0.) )       !<- DC(j) = cff*( DC(j-1)*a(j) )
+#else           
               cff=1./(Hz(i,j,k)+FC(i,k)+FC(i,k-1)*(1.-CF(i,k-1)))
               CF(i,k)=cff*FC(i,k)
               DC(i,k)=cff*(t(i,j,k,nnew,itrc)+FC(i,k-1)*DC(i,k-1)
+#endif
 # ifdef TS_MIX_IMP
      &                                    -dt*(CD(i,k)-CD(i,k-1))
 # endif
      &                                                          )
             enddo
-          enddo
+          enddo       
 !
 ! Second pass: back-substitution
 !
           do i=istr,iend
-             t(i,j,N,nnew,itrc)=( t(i,j,N,nnew,itrc)
-# ifdef TS_MIX_IMP
+# ifdef VADV_ADAPT_IMP 
+            t(i,j,N,nnew,itrc)=( t(i,j,N,nnew,itrc) 
+#  ifdef TS_MIX_IMP
      &                           -dt*(CD(i,N)-CD(i,N-1))   
-# endif
+#  endif            
+     &                                           +DC(i,N-1)*(        !<- f(j) = f(j) + 
+     &                                FC(i,N-1)+max(BC(i,N-1),0.) )
+     &               )/( Hz(i,j,N) +FC(i,N-1)-min(BC(i,N-1),0.)
+     &                      -CF(i,N-1)*(FC(i,N-1)+max(BC(i,N-1),0.))
+     &                                                            )
+# else
+             t(i,j,N,nnew,itrc)=( t(i,j,N,nnew,itrc)
+#  ifdef TS_MIX_IMP
+     &                           -dt*(CD(i,N)-CD(i,N-1))   
+#  endif
      &                           +FC(i,N-1)*DC(i,N-1) )
      &                        /(Hz(i,j,N)+FC(i,N-1)*(1.-CF(i,N-1)))
-          enddo
+# endif          
+        enddo     
+          
+          
+          
+          
           do k=N-1,1,-1
             do i=istr,iend
               t(i,j,k,nnew,itrc)=DC(i,k)+CF(i,k)*t(i,j,k+1,nnew,itrc)
