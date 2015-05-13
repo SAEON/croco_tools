@@ -700,8 +700,8 @@
 !
         do k=1,N-1
           do i=IstrU,Iend
-            FC(i,k)=( 0.5625*(W(i  ,j,k)+W(i-1,j,k))-0.0625*(
-     &                                 W(i+1,j,k)+W(i-2,j,k) ))
+            FC(i,k)=( 0.5625*(We(i  ,j,k)+We(i-1,j,k))-0.0625*(
+     &                                 We(i+1,j,k)+We(i-2,j,k) ))
      &             *( u(i,j,k,nrhs)+DC(i,k)*(
      &                              0.33333333333333*CF(i,k  )
      &                             +0.16666666666667*CF(i,k-1)
@@ -722,7 +722,7 @@
         do k=1,N-1
           do i=IstrU,Iend
             FC(i,k)=0.25*(u(i,j,k,nrhs)+u(i,j,k+1,nrhs))
-     &                            *(W(i,j,k)+W(i-1,j,k))
+     &                            *(We(i,j,k)+We(i-1,j,k))
           enddo
         enddo
         do i=IstrU,Iend
@@ -740,21 +740,21 @@
           do i=IstrU,Iend
             FC(i,k)=( 0.5625*(u(i,j,k  ,nrhs)+u(i,j,k+1,nrhs))
      &                 -0.0625*(u(i,j,k-1,nrhs)+u(i,j,k+2,nrhs)))
-     &                         *( 0.5625*(W(i  ,j,k)+W(i-1,j,k))
-     &                           -0.0625*(W(i+1,j,k)+W(i-2,j,k)))
+     &                         *( 0.5625*(We(i  ,j,k)+We(i-1,j,k))
+     &                           -0.0625*(We(i+1,j,k)+We(i-2,j,k)))
           enddo
         enddo
         do i=IstrU,Iend
           FC(i,N)=0.
           FC(i,N-1)=( 0.5625*(u(i,j,N-1,nrhs)+u(i,j,N,nrhs))
      &                   -0.0625*(u(i,j,N-2,nrhs)+u(i,j,N,nrhs)))
-     &                     *( 0.5625*(W(i  ,j,N-1)+W(i-1,j,N-1))
-     &                       -0.0625*(W(i+1,j,N-1)+W(i-2,j,N-1)))
+     &                     *( 0.5625*(We(i  ,j,N-1)+We(i-1,j,N-1))
+     &                       -0.0625*(We(i+1,j,N-1)+We(i-2,j,N-1)))
 
           FC(i,  1)=( 0.5625*(u(i,j,  1,nrhs)+u(i,j,2,nrhs))
      &                   -0.0625*(u(i,j,  1,nrhs)+u(i,j,3,nrhs)))
-     &                         *( 0.5625*(W(i  ,j,1)+W(i-1,j,1))
-     &                           -0.0625*(W(i+1,j,1)+W(i-2,j,1)))
+     &                         *( 0.5625*(We(i  ,j,1)+We(i-1,j,1))
+     &                           -0.0625*(We(i+1,j,1)+We(i-2,j,1)))
           FC(i,0)=0.
         enddo
 #  endif
@@ -816,8 +816,8 @@
 !
           do k=1,N-1
             do i=Istr,Iend
-              FC(i,k)=( 0.5625*(W(i,j  ,k)+W(i,j-1,k))-0.0625*(
-     &                                   W(i,j+1,k)+W(i,j-2,k) ))
+              FC(i,k)=( 0.5625*(We(i,j  ,k)+We(i,j-1,k))-0.0625*(
+     &                                   We(i,j+1,k)+We(i,j-2,k) ))
      &               *( v(i,j,k,nrhs)+DC(i,k)*(
      &                                0.33333333333333*CF(i,k  )
      &                               +0.16666666666667*CF(i,k-1)
@@ -837,7 +837,7 @@
           do k=1,N-1
             do i=Istr,Iend
               FC(i,k)=0.25*(v(i,j,k,nrhs)+v(i,j,k+1,nrhs))
-     &                              *(W(i,j,k)+W(i,j-1,k))
+     &                              *(We(i,j,k)+We(i,j-1,k))
             enddo
           enddo
           do i=Istr,Iend
@@ -854,21 +854,21 @@
             do i=Istr,Iend
               FC(i,k)=( 0.5625*(v(i,j,k,nrhs)+v(i,j,k+1,nrhs))
      &                   -0.0625*(v(i,j,k-1,nrhs)+v(i,j,k+2,nrhs)))
-     &                           *( 0.5625*(W(i,j  ,k)+W(i,j-1,k))
-     &                             -0.0625*(W(i,j+1,k)+W(i,j-2,k)))
+     &                           *( 0.5625*(We(i,j  ,k)+We(i,j-1,k))
+     &                             -0.0625*(We(i,j+1,k)+We(i,j-2,k)))
             enddo
           enddo
           do i=Istr,Iend
             FC(i,N)=0.
             FC(i,N-1)=( 0.5625*(v(i,j,N-1,nrhs)+v(i,j,N,nrhs))
      &                   -0.0625*(v(i,j,N-2,nrhs)+v(i,j,N,nrhs)))
-     &                     *( 0.5625*(W(i,j  ,N-1)+W(i,j-1,N-1))
-     &                       -0.0625*(W(i,j+1,N-1)+W(i,j-2,N-1)))
+     &                     *( 0.5625*(We(i,j  ,N-1)+We(i,j-1,N-1))
+     &                       -0.0625*(We(i,j+1,N-1)+We(i,j-2,N-1)))
 
             FC(i,  1)=(+0.5625*(v(i,j,  1,nrhs)+v(i,j,2,nrhs))
      &                   -0.0625*(v(i,j,  1,nrhs)+v(i,j,3,nrhs)))
-     &                         *( 0.5625*(W(i,j  ,1)+W(i,j-1,1))
-     &                           -0.0625*(W(i,j+1,1)+W(i,j-2,1)))
+     &                         *( 0.5625*(We(i,j  ,1)+We(i,j-1,1))
+     &                           -0.0625*(We(i,j+1,1)+We(i,j-2,1)))
             FC(i,0)=0.
           enddo
 #  endif
