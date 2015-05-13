@@ -877,6 +877,11 @@
       enddo   ! --> k
 
 # ifdef TS_MIX_IMP
+#  ifdef VADV_ADAPT_IMP
+       do i=Istr,Iend
+            DC(i,0)=dt*pn(i,j)*pm(i,j)
+       enddo
+#  endif
       do j=jstr,jend 
 # define FC FFC
 # include "t3dmix_tridiagonal.h"
