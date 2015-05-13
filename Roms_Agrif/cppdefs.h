@@ -52,8 +52,8 @@
 # undef  OPENMP
 # define MPI
                       /* Nesting */
-# define AGRIF
-# define AGRIF_2WAY
+# undef AGRIF
+# undef AGRIF_2WAY
                       /* OA Coupling via OASIS (MPI) */
 # undef  OA_COUPLING
                       /* Open Boundary Conditions */
@@ -104,11 +104,14 @@
 #  define UV_MIX_S
 #  define UV_VIS_SMAGO
 # endif
-                      /* Lateral Tracer Advection (default UP3) */
-# define TS_HADV_RSUP3
+               /* Lateral Tracer Advection (default UP3) */
+# define TS_HADV_UP3
+# undef TS_HADV_RSUP3
 # undef  TS_HADV_UP5
 # undef  TS_HADV_C4
 # undef  TS_HADV_WENO5
+               /* Vertical tracer/momentum advection */
+# undef VADV_ADAPT_IMP
                       /* Lateral Explicit Tracer Mixing */
 # undef TS_MIX_S
 # ifdef TS_HADV_C4
