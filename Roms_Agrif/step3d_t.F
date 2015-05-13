@@ -46,7 +46,7 @@
 # include "diagnostics.h"
 # endif
       integer Istr,Iend,Jstr,Jend, itrc, i,j,k, indx, kmld
-     &       ,imin,imax,jmin,jmax
+     &       ,imin,imax,jmin,jmax,iAkt,nadv
 # ifdef TS_MIX_ISO_FILT
      &       ,ilc
 # endif
@@ -124,6 +124,8 @@
 # endif
 !
 # include "compute_auxiliary_bounds.h"
+
+      nadv = 3   !<-- do not remove used in compute_tracer_fluxes.h files
 !
 !======================================================================
 !
@@ -138,238 +140,8 @@
           if (itrc .le. 2) then
 # endif
 
-# if defined TS_HADV_UP5 || defined TS_HADV_C6 || defined TS_HADV_WENO5 
-!----------------------------------------------------------
-! 5th or 6th order or WENO5 advection schemes
-!----------------------------------------------------------
-!
-#  ifdef TS_HADV_C6
-#   define FLUX5 flux6
-#   define FLUX3 flux3
-#   define FLUX2 flux2
-#   undef  UP5_MASKING
-#  elif defined TS_HADV_WENO5
-#   define FLUX5 flux5_weno
-#   define FLUX3 flux3
-#   define FLUX2 flux1
-#   define UP5_MASKING
-#  else
-#   define FLUX5 flux5
-#   define FLUX3 flux3
-#   define FLUX2 flux1
-#   define UP5_MASKING
-#  endif
-!
-            cdif=0.2 
-#  include "t3dadv_order5.h"
-!
-#  undef FLUX5
-#  undef FLUX3
-#  undef FLUX2
-#  undef UP5_MASKING
-
-# elif defined TS_HADV_C2
-!
-!----------------------------------------------------------
-! Second order advection scheme
-!----------------------------------------------------------
-!
-          do j=Jstr,Jend
-            do i=Istr,Iend+1
-              FX(i,j)=0.5*(t(i,j,k,3,itrc)+t(i-1,j,k,3,itrc))
-     &                                           *Huon(i,j,k)
-            enddo
-          enddo
-          do j=Jstr,Jend+1
-            do i=Istr,Iend
-              FE(i,j)=0.5*(t(i,j,k,3,itrc)+t(i,j-1,k,3,itrc))
-     &                                           *Hvom(i,j,k)
-            enddo
-          enddo  
-
-# else   /*  --> UP3 (default) or C4 */
-!
-!----------------------------------------------------------
-! Fourth or Third order advection scheme (default)
-!----------------------------------------------------------
-!
-#  if !(defined TS_HADV_C4 || defined TS_HADV_AKIMA)
-#   define TS_HADV_UP3
-#  endif
-!
-#  ifdef TS_HADV_UP3
-#   define curv WORK
-#  else
-#   define grad WORK
-#  endif
-#  ifdef EW_PERIODIC
-#   define I_EXT_RANGE Istr-1,Iend+2
-#  else
-#   ifdef MPI
-          if (WEST_INTER) then
-            imin=Istr-1
-          else
-            imin=max(Istr-1,1)
-          endif
-          if (EAST_INTER) then
-            imax=Iend+2
-          else
-            imax=min(Iend+2,Lmmpi+1)
-          endif
-#    define I_EXT_RANGE imin,imax
-#   else
-#    define I_EXT_RANGE max(Istr-1,1),min(Iend+2,Lm+1)
-#   endif
-#  endif
-#  ifdef NS_PERIODIC
-#   define J_EXT_RANGE Jstr-1,Jend+2
-#  else
-#   ifdef MPI
-          if (SOUTH_INTER) then
-            jmin=Jstr-1
-          else
-            jmin=max(Jstr-1,1)
-          endif
-          if (NORTH_INTER) then
-            jmax=Jend+2
-          else
-            jmax=min(Jend+2,Mmmpi+1)
-          endif
-#    define J_EXT_RANGE jmin,jmax
-#   else
-#    define J_EXT_RANGE max(Jstr-1,1),min(Jend+2,Mm+1)
-#   endif
-#  endif
-          do j=Jstr,Jend
-            do i=I_EXT_RANGE
-              FX(i,j)=(t(i,j,k,3,itrc)-t(i-1,j,k,3,itrc))
-#  ifdef MASKING
-     &                                        *umask(i,j)
-#  endif
-            enddo
-          enddo
-#  undef I_EXT_RANGE
-#  ifndef EW_PERIODIC
-          if (WESTERN_EDGE) then
-            do j=Jstr,Jend
-              FX(0,j)=FX(1,j)
-            enddo
-          endif
-          if (EASTERN_EDGE) then
-#   ifdef MPI
-            do j=Jstr,Jend
-              FX(Lmmpi+2,j)=FX(Lmmpi+1,j)
-            enddo
-#   else
-             do j=Jstr,Jend
-              FX(Lm+2,j)=FX(Lm+1,j)
-            enddo
-#   endif
-          endif
-#  endif
-
-          do j=Jstr,Jend
-            do i=Istr-1,Iend+1
-#  ifdef TS_HADV_UP3
-              curv(i,j)=FX(i+1,j)-FX(i,j)
-#  elif defined TS_HADV_AKIMA
-              cff=2.*FX(i+1,j)*FX(i,j)
-              if (cff.gt.epsil) then
-                grad(i,j)=cff/(FX(i+1,j)+FX(i,j))
-              else
-                grad(i,j)=0.
-              endif
-#  else
-              grad(i,j)=0.5*(FX(i+1,j)+FX(i,j))
-#  endif
-            enddo
-          enddo             !--> discard FX
-
-
-          do j=Jstr,Jend
-            do i=Istr,Iend+1
-#  ifdef TS_HADV_UP3
-              if (Huon(i,j,k) .gt. 0.) then
-                cff=curv(i-1,j)
-              else
-                cff=curv(i,j)
-              endif
-              FX(i,j)=0.5*( t(i,j,k,3,itrc)+t(i-1,j,k,3,itrc)
-     &                           -0.333333333333*cff )*Huon(i,j,k)
-#  else
-              FX(i,j)=0.5*( t(i,j,k,3,itrc)+t(i-1,j,k,3,itrc)
-     &                     -0.333333333333*(grad(i,j)-grad(i-1,j))
-     &                                               )*Huon(i,j,k)
-#  endif
-            enddo          !--> discard grad
-          enddo
-
-          do j=J_EXT_RANGE
-            do i=Istr,Iend
-              FE(i,j)=(t(i,j,k,3,itrc)-t(i,j-1,k,3,itrc)) 
-#  ifdef MASKING
-     &                                         *vmask(i,j)
-#  endif
-            enddo
-          enddo
-#  undef J_EXT_RANGE
-#  ifndef NS_PERIODIC
-          if (SOUTHERN_EDGE) then
-            do i=Istr,Iend
-              FE(i,0)=FE(i,1)
-            enddo
-          endif
-          if (NORTHERN_EDGE) then
-#   ifdef MPI
-            do i=Istr,Iend
-              FE(i,Mmmpi+2)=FE(i,Mmmpi+1)
-            enddo
-#   else
-            do i=Istr,Iend
-              FE(i,Mm+2)=FE(i,Mm+1)
-            enddo
-#   endif
-          endif
-#  endif
-
-          do j=Jstr-1,Jend+1
-            do i=Istr,Iend
-#  ifdef TS_HADV_UP3
-              curv(i,j)=FE(i,j+1)-FE(i,j)
-#  elif defined TS_HADV_AKIMA
-              cff=2.*FE(i,j+1)*FE(i,j)
-              if (cff.gt.epsil) then
-                grad(i,j)=cff/(FE(i,j+1)+FE(i,j))
-              else
-                grad(i,j)=0.
-              endif
-#  else
-              grad(i,j)=0.5*(FE(i,j+1)+FE(i,j))
-#  endif
-            enddo
-          enddo            !--> discard FE
-
-
-          do j=Jstr,Jend+1
-            do i=Istr,Iend
-#  ifdef TS_HADV_UP3
-              if (Hvom(i,j,k) .gt. 0.) then
-                cff=curv(i,j-1)
-              else
-                cff=curv(i,j)
-              endif
-              FE(i,j)=0.5*( t(i,j,k,3,itrc)+t(i,j-1,k,3,itrc)
-     &                          -0.333333333333*cff )*Hvom(i,j,k)
-#   undef curv
-#  else
-              FE(i,j)=0.5*( t(i,j,k,3,itrc)+t(i,j-1,k,3,itrc)
-     &                     -0.333333333333*(grad(i,j)-grad(i,j-1))
-     &                                               )*Hvom(i,j,k)
-#   undef grad
-#  endif
-            enddo
-          enddo            !--> discard grad
-# endif /* TS_HADV_UP5 */
+#  undef PREDICTOR
+#  include "compute_horiz_tracer_fluxes.h"    !<-- Compute fluxes FX and FE
 
 # ifdef BIO_HADV_WENO5
           else  ! if (itrc .gt. 2)
@@ -517,169 +289,10 @@
 !
       do j=Jstr,Jend
         do itrc=1,NT
-# ifdef TS_VADV_SPLINES
-!
-!----------------------------------------------------------
-! Compute vertical advective fluxes using parabolic splines: 
-! FC=W*[spline-interpolated tracer]
-!----------------------------------------------------------
-!
-! Firts construct parabolic splines:
-! here CF is the set of vertical derivatives of the tracer field
-! t(:,:,:,3,itrc) at the grid-box interfaces, W-points;
-! FC is an auxiliary scratch variable.
-!
-          do i=Istr,Iend
-            FC(i,0)=0.
-            CF(i,0)=0.
-          enddo
-          do k=1,N-1,+1
-            do i=Istr,Iend
-              cff=1./(2.*HZR(i,j,k+1)+HZR(i,j,k)*(2.-FC(i,k-1)))
-              FC(i,k)=cff*HZR(i,j,k+1)
-              CF(i,k)=cff*(6.*(t(i,j,k+1,3,itrc)-t(i,j,k,3,itrc))
-     &                                      -HZR(i,j,k)*CF(i,k-1))
-            enddo
-          enddo
-          do i=Istr,Iend
-            CF(i,N)=0.
-          enddo
-          do k=N-1,1,-1
-            do i=Istr,Iend
-              CF(i,k)=CF(i,k)-FC(i,k)*CF(i,k+1)
-            enddo
-          enddo               !--> discard FC
-!
-          cff=1./3.
-          do k=1,N-1
-            do i=Istr,Iend
-              FC(i,k)=W(i,j,k)*( t(i,j,k,3,itrc)+cff*HZR(i,j,k)
-     &                               *(CF(i,k)+0.5*CF(i,k-1)) )
-            enddo
-          enddo               !--> discard CF
-          do i=Istr,Iend
-            FC(i,N)=0.
-            FC(i,0)=0.
-            CF(i,0)=dt*pm(i,j)*pn(i,j)
-          enddo
-# elif defined TS_VADV_AKIMA
-!
-!----------------------------------------------------------
-! Compute vertical advective fluxes 
-! using 4th-order Akima scheme
-!----------------------------------------------------------
-!
-          do k=1,N-1
-            do i=istr,iend
-              FC(i,k)=t(i,j,k+1,3,itrc)-t(i,j,k,3,itrc)
-            enddo
-          enddo
-          do i=istr,iend
-            FC(i,0)=FC(i,1)
-            FC(i,N)=FC(i,N-1)
-          enddo
-          do k=1,N
-            do i=istr,iend
-              cff=2.*FC(i,k)*FC(i,k-1)
-              if (cff.gt.epsil) then
-                CF(i,k)=cff/(FC(i,k)+FC(i,k-1))
-              else
-                CF(i,k)=0.
-              endif
-            enddo
-          enddo            !--> discard FC
-          do k=1,N-1
-            do i=istr,iend
-              FC(i,k)=0.5*( t(i,j,k,3,itrc)+t(i,j,k+1,3,itrc)
-     &                -0.333333333333*(CF(i,k+1)-CF(i,k)) )*W(i,j,k)
-            enddo
-          enddo            !--> discard CF
-          do i=istr,iend
-            FC(i,0)=0.
-            FC(i,N)=0.
-            CF(i,0)=dt*pm(i,j)*pn(i,j)
-          enddo
-# elif defined TS_VADV_WENO5
-!
-!----------------------------------------------------------
-! Compute vertical advective fluxes 
-! using 5th-order WENO scheme
-!----------------------------------------------------------
-!
-          do k=3,N-3
-            do i=Istr,Iend
-              FC(i,k)=W(i,j,k)*flux5_weno(
-     &             t(i,j,k-2,3,itrc), t(i,j,k-1,3,itrc), 
-     &             t(i,j,k  ,3,itrc), t(i,j,k+1,3,itrc),
-     &             t(i,j,k+2,3,itrc), t(i,j,k+3,3,itrc), W(i,j,k))
-            enddo
-          enddo
-          do i=Istr,Iend
-            FC(i,2)=W(i,j,2)*flux3_weno(
-     &           t(i,j,1,3,itrc), t(i,j,2,3,itrc), 
-     &           t(i,j,3,3,itrc), t(i,j,4,3,itrc), W(i,j,2))
-            FC(i,N-2)=W(i,j,N-2)*flux3_weno(
-     &           t(i,j,N-3,3,itrc), t(i,j,N-2,3,itrc), 
-     &           t(i,j,N-1,3,itrc), t(i,j,N  ,3,itrc), W(i,j,N-2))
-            FC(i,1)=0.5*W(i,j,1)*(t(i,j,1,3,itrc)
-     &                           +t(i,j,2,3,itrc))
-            FC(i,N-1)=0.5*W(i,j,N-1)*(t(i,j,N-1,3,itrc)
-     &                               +t(i,j,N,3,itrc))
-            FC(i, 0)=0.
-            FC(i,N )=0.
-            CF(i,0)=dt*pm(i,j)*pn(i,j)
-          enddo
-# elif defined TS_VADV_C2
-!
-!----------------------------------------------------------
-! Compute vertical advective fluxes
-! using 2th-order centered scheme
-!----------------------------------------------------------
-!
-          do k=1,N-1
-            do i=Istr,Iend
-              FC(i,k)=0.5*W(i,j,k)*(t(i,j,k  ,3,itrc)
-     &                             +t(i,j,k+1,3,itrc))
-            enddo
-          enddo
-          do i=Istr,Iend
-            FC(i, 0)=0.
-            FC(i,N )=0.
-            CF(i,0)=dt*pm(i,j)*pn(i,j)
-          enddo
-
-# else
-!
-!----------------------------------------------------------
-! Compute vertical advective fluxes
-! using 4th-order centered scheme
-!----------------------------------------------------------
-!
-          do k=2,N-2
-            do i=Istr,Iend
-              FC(i,k)=W(i,j,k)*(0.58333333333333*( t(i,j,k,3,itrc)
-     &                                            +t(i,j,k+1,3,itrc))
-     &                         -0.08333333333333*( t(i,j,k-1,3,itrc)
-     &                                            +t(i,j,k+2,3,itrc))
-     &                                                              )
-            enddo
-          enddo
-          do i=Istr,Iend
-            FC(i, 0)=0.
-            FC(i,  1)=W(i,j,  1)*( 0.5*t(i,j,  1,3,itrc)
-     &                         +0.58333333333333*t(i,j,  2,3,itrc)
-     &                         -0.08333333333333*t(i,j,  3,3,itrc)
-     &                                                           )
-            FC(i,N-1)=W(i,j,N-1)*( 0.5*t(i,j,N  ,3,itrc)
-     &                         +0.58333333333333*t(i,j,N-1,3,itrc)
-     &                         -0.08333333333333*t(i,j,N-2,3,itrc)
-     &                                                           )
-            FC(i,N )=0.
-            CF(i,0)=dt*pm(i,j)*pn(i,j)
-          enddo
-# endif
-
-!
+!======================================================================
+# undef PREDICTOR
+#   include "compute_vert_tracer_fluxes.h"    !<-- compute vertical fluxes FC
+!======================================================================
 !----------------------------------------------------------
 ! Apply flux correction for monotonicity
 !----------------------------------------------------------
@@ -792,6 +405,12 @@
 !
 !======================================================================
 !
+#  ifdef VADV_ADAPT_IMP
+       do i=Istr,Iend
+            DC(i,0)=dt*pn(i,j)*pm(i,j)
+       enddo
+#  endif
+
 # ifdef TS_MIX_IMP
 #  ifdef BIO_HADV_WENO5
 #   undef TS_MIX_IMP 
