@@ -326,8 +326,8 @@
         do k=1,N-1
           do i=Istr,Iend
             kp   = min(k+1,N-1)    !<-- extrapolation at k=N
-            Omeg_r = 0.5625*(W(i  ,j,k)+W(i,j,k+1))
-     &              -0.0625*(W(i,j,kp+1)+W(i,j,k-1))
+            Omeg_r = 0.5625*(We(i  ,j,k)+We(i,j,k+1))
+     &              -0.0625*(We(i,j,kp+1)+We(i,j,k-1))
 !            Omeg_r = 0.5*(W(i,j,k)+W(i,j,k+1))
             FC(i,k)=FC(i,k)*Omeg_r
           enddo
@@ -340,7 +340,7 @@
 #  else
         do k=1,N-1
           do i=Istr,Iend
-           Omeg_r  = 0.5*(W (i,j,k     ) + W (i,j,k+1     ))
+           Omeg_r  = 0.5*(We(i,j,k     ) + We(i,j,k+1     ))
            FC(i,k) = 0.5*(wz(i,j,k,nrhs) + wz(i,j,k+1,nrhs))*Omeg_r    
           enddo
         enddo
