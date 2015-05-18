@@ -24,9 +24,9 @@
       call pre_step3d_tile (Istr,Iend,Jstr,Jend,
      &                A3d(1,1,trd), A3d(1,2,trd), A3d(1,5,trd),
      &                A2d(1,1,trd), A2d(1,2,trd), A2d(1,3,trd),
-#ifdef VADV_ADAPT_IMP     
+# ifdef VADV_ADAPT_IMP     
      &                A2d(1,4,trd), 
-#endif           
+# endif           
      &                A2d(1,1,trd), A2d(1,2,trd), A2d(1,3,trd)
 # ifndef NBQ
      &                                          , A3d(1,3,trd)
@@ -37,9 +37,9 @@
 
       subroutine pre_step3d_tile (Istr,Iend,Jstr,Jend, ru,rv,rw,
      &                                     FC,CF,DC, 
-#ifdef VADV_ADAPT_IMP     
+# ifdef VADV_ADAPT_IMP     
      &     WC, 
-#endif     
+# endif     
      &     FX,FE,WORK
 # ifndef NBQ
      &                                                 ,Hz_half
@@ -79,9 +79,9 @@
      &       FX(PRIVATE_2D_SCRATCH_ARRAY),      epsil,
      &       FE(PRIVATE_2D_SCRATCH_ARRAY),        cdt,
      &     WORK(PRIVATE_2D_SCRATCH_ARRAY)
-#ifdef VADV_ADAPT_IMP      
+# ifdef VADV_ADAPT_IMP      
       real   WC(PRIVATE_1D_SCRATCH_ARRAY,0:N) 
-#endif 
+# endif 
 # ifndef NBQ
       real Hz_half(PRIVATE_2D_SCRATCH_ARRAY,N)
 # endif
@@ -171,9 +171,9 @@
      &        -cff*pm(i,j)*pn(i,j)*( Huon(i+1,j,k)-Huon(i,j,k)
      &                              +Hvom(i,j+1,k)-Hvom(i,j,k)
      &                                  +We(i,j,k)-We(i,j,k-1)
-#ifdef VADV_ADAPT_IMP     
+# ifdef VADV_ADAPT_IMP     
      &                                  +Wi(i,j,k)-Wi(i,j,k-1)     
-#endif     
+# endif     
      &                                                       )
           enddo
         enddo
@@ -373,13 +373,13 @@
 #  include "compute_horiz_tracer_fluxes.h"
 #  undef PREDICTOR
 
+!
+!----------------------------------------------------------
+! C6 advection for passive tracers (biology ...)
+!----------------------------------------------------------
+!
 # ifdef BIO_HADV_WENO5
           else  ! if (itrc .gt. 2)
-!
-!----------------------------------------------------------
-! C6 advection for passive tracers 
-!----------------------------------------------------------
-!
 #  define FLUX5 flux6
 #  define FLUX3 flux4
 #  define FLUX2 flux2
@@ -394,13 +394,12 @@
 #  undef UP5_MASKING
           endif
 # endif
-
-# ifdef PSOURCE
 !
 !----------------------------------------------------------
 ! Apply point sources for river runoff simulations
 !----------------------------------------------------------
 !
+# ifdef PSOURCE
           do is=1,Nsrc
 #  ifdef MPI
            i=Isrc_mpi(is,mynode)
@@ -498,11 +497,11 @@
       do j=Jstr,Jend
 
         do i=Istr,Iend
-#ifndef VADV_ADAPT_IMP 
+# ifndef VADV_ADAPT_IMP 
            do k=1,N
              DC(i,k)=1./Hz_half(i,j,k)
            enddo   
-#endif
+# endif
              DC(i,0)=cdt*pn(i,j)*pm(i,j)
         enddo
         
@@ -513,7 +512,7 @@
 !----------------------------------------------------------------------
 !
 # define PREDICTOR
-#   include "compute_vert_tracer_fluxes.h"
+# include "compute_vert_tracer_fluxes.h"
 # undef PREDICTOR
 !
 !----------------------------------------------------------------------    
@@ -522,16 +521,16 @@
 !
           do k=1,N
             do i=Istr,Iend
-#ifdef VADV_ADAPT_IMP
+# ifdef VADV_ADAPT_IMP
               t(i,j,k,nnew,itrc)= t(i,j,k,nnew,itrc)  !<-- in this case division by Hz
      &               -DC(i,0)*(FC(i,k)-FC(i,k-1))     !<-- in the tridiagonal matrix problem
-#else
+# else
               t(i,j,k,nnew,itrc)=DC(i,k)*( t(i,j,k,nnew,itrc)
      &               -DC(i,0)*(FC(i,k)-FC(i,k-1)))
 #  ifdef CONST_TRACERS 
               t(i,j,k,nnew,itrc)=t(i,j,k,nstp,itrc)  
 #  endif
-#endif
+# endif
             enddo
           enddo            !--> discard FC  
 !
@@ -539,18 +538,18 @@
 !  Compute implicit vertical advection/diffusion
 !----------------------------------------------------------------------
 !
-#ifdef VADV_ADAPT_IMP
-# ifdef SALINITY
+# ifdef VADV_ADAPT_IMP
+#  ifdef SALINITY
         iAKt=min(itrc,isalt)
-# else
+#  else
         iAKt=min(itrc,itemp)
-# endif  
-# define TRIDIAG_TRA
-# undef  TRIDIAG_U
-# undef  TRIDIAG_V 
-#  include "tridiag_pred.h"
-# undef TRIDIAG_TRA
-#endif          
+#  endif  
+#  define TRIDIAG_TRA
+#  undef  TRIDIAG_U
+#  undef  TRIDIAG_V 
+#   include "tridiag_pred.h"
+#  undef TRIDIAG_TRA
+# endif          
 !
         enddo   !<-- itrc  !--> discard DC
 !
@@ -567,22 +566,22 @@
         if (FIRST_TIME_STEP) then
           do k=1,N
             do i=IstrU,Iend
-#ifdef VADV_ADAPT_IMP              
+# ifdef VADV_ADAPT_IMP              
               cff = 1.
-#else
+# else
               cff = 2./(Hz_half(i,j,k)+Hz_half(i-1,j,k))
-#endif                         
+# endif                         
               u(i,j,k,nnew)=( u(i,j,k,nstp)*0.5*(Hz(i,j,k)+Hz(i-1,j,k))
      &                                           +cdt*DC(i,0)*ru(i,j,k)
      &                          )*cff
 
               u(i,j,k,indx)=u(i,j,k,nstp)*0.5*(Hz(i,j,k)+
      &                                         Hz(i-1,j,k))
-#ifdef NBQ
+# ifdef NBQ
               ruint_nbq(i,j,k)=DC(i,0)*( ru(i,j,k) - rufrc(i,j)
      &                                      *(Hz(i,j,k)+Hz(i-1,j,k))
      &                                /(Zt_avg1(i,j)+Zt_avg1(i-1,j)) )
-#endif
+# endif
             enddo
           enddo
         else
@@ -590,20 +589,20 @@
           cff2=0.5-gamma
           do k=1,N
             do i=IstrU,Iend
-#  ifdef VADV_ADAPT_IMP              
+# ifdef VADV_ADAPT_IMP              
               cff = 1.
-#  else
+# else
               cff = 2./(Hz_half(i,j,k)+Hz_half(i-1,j,k))
-#  endif 
+# endif 
 
-#ifdef NBQ
+# ifdef NBQ
               u(i,j,k,nnew)=( cff1*u(i,j,k,nstp)*0.5*(Hz(i,j,k)+
      &                                            Hz(i-1,j,k))
      &                       +cff2*u(i,j,k,indx)*0.5*(Hz_bak(i,j,k)+
      &                                            Hz_bak(i-1,j,k))
      &                       +cdt*DC(i,0)*(ru(i,j,k)+ru_nbq_avg1(i,j,k))
      &                                                     )*cff
-#else
+# else
               u(i,j,k,nnew)=( cff1*u(i,j,k,nstp)*0.5*(Hz(i,j,k)+
      &                                              Hz(i-1,j,k))
      &                       +cff2*u(i,j,k,indx)*0.5*(Hz_bak(i,j,k)+
@@ -611,16 +610,16 @@
      &                       +cdt*DC(i,0)*ru(i,j,k)
      &                                                     )*cff
 
-#endif
+# endif
 
               u(i,j,k,indx)=u(i,j,k,nstp)*0.5*(Hz(i,j,k)+
      &                                         Hz(i-1,j,k))
 
-#ifdef NBQ
+# ifdef NBQ
               ruint_nbq(i,j,k)=DC(i,0)*( ru(i,j,k) - rufrc(i,j)
      &                                      *(Hz(i,j,k)+Hz(i-1,j,k))
      &                                /(Zt_avg1(i,j)+Zt_avg1(i-1,j)) )
-#endif
+# endif
             enddo
           enddo          
          endif
@@ -629,12 +628,12 @@
 !
 !  Compute implicit vertical advection/viscosity
 !
-#ifdef VADV_ADAPT_IMP
-# undef  TRIDIAG_TRA
-# define TRIDIAG_U
-# undef  TRIDIAG_V
-#  include "tridiag_pred.h"
-#endif
+# ifdef VADV_ADAPT_IMP
+#  undef  TRIDIAG_TRA
+#  define TRIDIAG_U
+#  undef  TRIDIAG_V
+#   include "tridiag_pred.h"
+# endif
 !
 !======================================================================
 !
@@ -645,22 +644,22 @@
           if (FIRST_TIME_STEP) then
             do k=1,N
               do i=Istr,Iend
-#ifdef VADV_ADAPT_IMP              
+# ifdef VADV_ADAPT_IMP              
                 cff = 1.
-#else
+# else
                 cff = 2./(Hz_half(i,j,k)+Hz_half(i,j-1,k))
-#endif 
+# endif 
                 v(i,j,k,nnew)=(v(i,j,k,nstp)*0.5*(Hz(i,j,k)+Hz(i,j-1,k))
      &                                           +cdt*DC(i,0)*rv(i,j,k)
      &                           )*cff
 
                 v(i,j,k,indx)=v(i,j,k,nstp)*0.5*(Hz(i,j  ,k)+
      &                                           Hz(i,j-1,k))
-#ifdef NBQ
+# ifdef NBQ
                 rvint_nbq(i,j,k)=DC(i,0)*( rv(i,j,k) - rvfrc(i,j)
      &                                   *(Hz(i,j,k)+Hz(i,j-1,k))
      &                             /(Zt_avg1(i,j)+Zt_avg1(i,j-1)) )
-#endif
+# endif
               enddo
             enddo
           else
@@ -669,42 +668,39 @@
             do k=1,N
               do i=Istr,Iend
               
-#ifdef VADV_ADAPT_IMP              
+# ifdef VADV_ADAPT_IMP              
                 cff = 1.
-#else
+# else
                 cff = 2./(Hz_half(i,j,k)+Hz_half(i,j-1,k))
-#endif              
+# endif              
               
-#ifdef NBQ
+# ifdef NBQ
                 v(i,j,k,nnew)=( cff1*v(i,j,k,nstp)*0.5*(Hz(i,j,k)+
      &                                                Hz(i,j-1,k))
      &                         +cff2*v(i,j,k,indx)*0.5*(Hz_bak(i,j,k)+
      &                                              Hz_bak(i,j-1,k))
-     &                         +cdt*DC(i,0)*(rv(i,j,k)+rv_nbq_avg1(i,j,k))
-     &                                                               )*cff
-#else
+     &                     +cdt*DC(i,0)*(rv(i,j,k)+rv_nbq_avg1(i,j,k))
+     &                                                           )*cff
+# else
                 v(i,j,k,nnew)=( cff1*v(i,j,k,nstp)*0.5*(Hz(i,j,k)+
      &                                                Hz(i,j-1,k))
      &                         +cff2*v(i,j,k,indx)*0.5*(Hz_bak(i,j,k)+
      &                                                Hz_bak(i,j-1,k))
      &                         +cdt*DC(i,0)*rv(i,j,k)
-     &                                                               )*cff
-#endif
+     &                                                           )*cff
+# endif
                 v(i,j,k,indx)=v(i,j,k,nstp)*0.5*(Hz(i,j,k)+
      &                                           Hz(i,j-1,k))
-#ifdef NBQ
+# ifdef NBQ
                 rvint_nbq(i,j,k)=DC(i,0)*( rv(i,j,k) - rvfrc(i,j)
      &                                   *(Hz(i,j,k)+Hz(i,j-1,k))
      &                             /(Zt_avg1(i,j)+Zt_avg1(i,j-1)) )
-#endif
+# endif
 
               enddo
             enddo               !--> discard DC(:,0)
           endif
         endif
-        
-!         print*,'Pre_step_3d vbef : ',
-!     &                maxval(abs(v(istr:iend,j,2:N,nnew)))          
 !
 !======================================================================
 !
@@ -721,7 +717,7 @@
 !
       enddo     !<-- j
       
-#ifdef NBQ
+# ifdef NBQ
 !----------------------------------------------------------
 !<-- at this point 
 !<-- rw            contains internal 3D advection + Coriolis
@@ -798,10 +794,10 @@
       endif
       enddo
 !==
-#endif      
+# endif /* NBQ */     
 !
 !======================================================================
-! Set PHYSICAL lateral boundary conditions.
+! Set PHYSICAL lateral boundary conditions for tracers.
 !======================================================================
 !
       do itrc=1,NT
@@ -910,7 +906,11 @@
             enddo
           enddo
       enddo
-
+!
+!======================================================================
+! Set PHYSICAL lateral boundary conditions for momentum.
+!======================================================================
+!
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
       call exchange_u3d_tile (Istr,Iend,Jstr,Jend,
      &                        u(START_2D_ARRAY,1,nnew))

@@ -125,7 +125,7 @@
 !
 # include "compute_auxiliary_bounds.h"
 
-      nadv = 3   !<-- do not remove used in compute_tracer_fluxes.h files
+      nadv = 3   !<-- do not remove: used in compute_tracer_fluxes.h
 !
 !======================================================================
 !
@@ -139,7 +139,6 @@
 # ifdef BIO_HADV_WENO5
           if (itrc .le. 2) then
 # endif
-
 !
 !----------------------------------------------------------
 ! Compute fluxes FX and FE
@@ -148,13 +147,13 @@
 #  undef PREDICTOR
 #  include "compute_horiz_tracer_fluxes.h"
 
+!
+!----------------------------------------------------------
+! WENO5 advection for passive tracers (biology ...)
+!----------------------------------------------------------
+!
 # ifdef BIO_HADV_WENO5
           else  !<-- if (itrc .gt. 2)
-!
-!----------------------------------------------------------
-! WENO5 advection for passive tracers
-!----------------------------------------------------------
-!
 #  define FLUX5 flux5_weno
 #  define FLUX3 flux3_weno
 #  define FLUX2 flux1
@@ -169,13 +168,12 @@
 #  undef UP5_MASKING
           endif
 # endif
-
-# ifdef PSOURCE
 !
 !----------------------------------------------------------
 ! Apply point sources for river runoff simulations
 !----------------------------------------------------------
 !
+# ifdef PSOURCE
           do is=1,Nsrc
 #  ifdef MPI
            i=Isrc_mpi(is,mynode)
@@ -243,11 +241,12 @@
      &      +dt*FE(IstrR:IendR,JstrR:JendR)
           EndIF
 # endif
-
-# ifdef DIAGNOSTICS_TS
+!
 !----------------------------------------------------------
 ! Store diagnostic transport term
 !----------------------------------------------------------
+!
+# ifdef DIAGNOSTICS_TS
           do j=Jstr,Jend
             do i=Istr,Iend 
               TXadv(i,j,k,itrc)=-(FX(i+1,j)-FX(i,j)) SWITCH rmask(i,j)
@@ -259,13 +258,14 @@
         enddo    !<-- k
       enddo    !<-- itrc
 
-# if defined LMD_SKPP || defined LMD_BKPP || defined GLS_MIXING
+!
 !----------------------------------------------------------
 ! Compute fraction of the solar shortwave flux "swdk"
 ! penetrating to grid level depth (at vertical w-points).
 ! (swdk is used later in this routine)
 !----------------------------------------------------------
 !
+# if defined LMD_SKPP || defined LMD_BKPP || defined GLS_MIXING
 #  define wrk1 FX
 #  define wrk2 FE
       do k=1,N-1
@@ -300,7 +300,7 @@
 !----------------------------------------------------------
 !
 # undef PREDICTOR
-#   include "compute_vert_tracer_fluxes.h"
+# include "compute_vert_tracer_fluxes.h"
 
 !----------------------------------------------------------
 ! Apply flux correction for monotonicity
@@ -457,13 +457,13 @@
 # endif /* CONST_TRACERS */
         enddo      ! <-- itrc
 
-# if defined FLOATS && defined  RANDOM_WALK
 !
 !----------------------------------------------------------
 ! Compute vertical gradient in vertical T-diffusion 
 ! coefficient for floats random walk.
 !----------------------------------------------------------
 !
+# if defined FLOATS && defined  RANDOM_WALK
           do k=1,N
             do i=Istr,Iend
               dAktdz(i,j,k)=(Akt(i,j,k,1)-Akt(i,j,k-1,1))/Hz(i,j,k)
@@ -664,8 +664,6 @@
           enddo
         enddo
 # endif /* TNUDGING && TCLIMATOLOGY */
-
-# ifdef DIAGNOSTICS_TS
 !
 !======================================================================
 ! Compute the tendency term of tracer diagnostics
@@ -677,6 +675,7 @@
 ! where Trate is updated accordingly
 !======================================================================
 !
+# ifdef DIAGNOSTICS_TS
         do k=1,N
           do j=Jstr,Jend
             do i=Istr,Iend
@@ -709,11 +708,11 @@
           enddo
         enddo
 !
-#  ifdef DIAGNOSTICS_TS_MLD
 !----------------------------------------------------------
 ! Compute tracer diagnostics averaged over the MLD
 !----------------------------------------------------------
 !
+#  ifdef DIAGNOSTICS_TS_MLD
 #   define T_mld_nnew FX
 #   define T_mld_nstp FE
         do j=Jstr,Jend
@@ -823,8 +822,17 @@
         endif
 #  endif /* DIAGNOSTICS_DEBUG */
 # endif /* DIAGNOSTICS_TS */
-
-# if defined MASKING
+!
+!
+!======================================================================
+!  Set PHYSICAL lateral boundary conditions.
+!======================================================================
+!
+!----------------------------------------------------------
+! Apply land mask
+!----------------------------------------------------------
+!
+# ifdef MASKING
 #  ifdef EW_PERIODIC
 #   define I_RANGE Istr,Iend
 #  else
@@ -845,7 +853,11 @@
 #  undef I_RANGE
 #  undef J_RANGE
 # endif /* MASKING */
-
+!
+!----------------------------------------------------------
+! Exchange periodic boundaries and computational margins.
+!----------------------------------------------------------
+!
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
 #  ifdef THREE_GHOST_POINTS_TS
         call exchange_r3d_3pts_tile (Istr,Iend,Jstr,Jend,
