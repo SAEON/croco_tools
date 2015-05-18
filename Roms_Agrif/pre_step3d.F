@@ -183,10 +183,10 @@
 !
 # ifdef NBQ
 
-#ifdef NBQ_DRHODT
+#  ifdef NBQ_DRHODT
       zr_half_nbq(:,:,:,0) =  zr_half_nbq(:,:,:,1)
       zr_half_nbq(:,:,:,1) =  zr_half_nbq(:,:,:,2)
-#endif
+#  endif
 
       do k=1,N
         do j=JstrV-1,Jend
@@ -333,12 +333,10 @@
         enddo
       enddo
 # endif /* NBQ */
+!
 !--------------------------------------------------------------------
-!
-
-!
-!  Start computation of the auxiliary tracer field.
-!----------------------------------------------------
+!  Start computation of the auxiliary tracer field
+!  -----------------------------------------------
 !  Once it will be completed, t(:,:,???,:) is effectively halfway
 !  between time steps n and n+1. A high spatial order, centered,
 !  non-conservative [but constancy preserving!] scheme is used for
@@ -368,11 +366,11 @@
 # endif
 !
 !----------------------------------------------------------
-! advection for active tracers 
+! Advection for active tracers: Compute fluxes FX and FE
 !----------------------------------------------------------
 !
 #  define PREDICTOR
-#  include "compute_horiz_tracer_fluxes.h"     !<-- Compute fluxes FX and FE
+#  include "compute_horiz_tracer_fluxes.h"
 #  undef PREDICTOR
 
 # ifdef BIO_HADV_WENO5
@@ -497,7 +495,6 @@
             cdt=(1.-gamma)*dt
       endif 
 
-
       do j=Jstr,Jend
 
         do i=Istr,Iend
@@ -510,13 +507,19 @@
         enddo
         
         do itrc=1,NT
-!======================================================================
+!
+!----------------------------------------------------------------------
+! Compute vertical fluxes FC
+!----------------------------------------------------------------------
+!
 # define PREDICTOR
-#   include "compute_vert_tracer_fluxes.h"       !<-- compute vertical fluxes FC
+#   include "compute_vert_tracer_fluxes.h"
 # undef PREDICTOR
-!======================================================================       
-!++ Apply vertical advection of tracers (DC corresponds to 1/Hz_half)
-!======================================================================           
+!
+!----------------------------------------------------------------------    
+!++ Apply vertical advection for tracers (DC corresponds to 1/Hz_half)
+!----------------------------------------------------------------------
+!
           do k=1,N
             do i=Istr,Iend
 #ifdef VADV_ADAPT_IMP
@@ -531,7 +534,11 @@
 #endif
             enddo
           enddo            !--> discard FC  
-!======================================================================          
+!
+!----------------------------------------------------------------------
+!  Compute implicit vertical advection/diffusion
+!----------------------------------------------------------------------
+!
 #ifdef VADV_ADAPT_IMP
 # ifdef SALINITY
         iAKt=min(itrc,isalt)
@@ -541,12 +548,11 @@
 # define TRIDIAG_TRA
 # undef  TRIDIAG_U
 # undef  TRIDIAG_V 
-#  include "tridiag_pred.h"         !<-- implicit vertical advection/diffusion
+#  include "tridiag_pred.h"
 # undef TRIDIAG_TRA
 #endif          
-!======================================================================
+!
         enddo   !<-- itrc  !--> discard DC
-!======================================================================
 !
 !======================================================================
 !
@@ -621,11 +627,13 @@
 !
 !======================================================================
 !
+!  Compute implicit vertical advection/viscosity
+!
 #ifdef VADV_ADAPT_IMP
 # undef  TRIDIAG_TRA
-# define  TRIDIAG_U
+# define TRIDIAG_U
 # undef  TRIDIAG_V
-#  include "tridiag_pred.h"        !<-- compute implicit vertical advection/viscosity
+#  include "tridiag_pred.h"
 #endif
 !
 !======================================================================
@@ -700,11 +708,13 @@
 !
 !======================================================================
 !
+!  Compute implicit vertical advection/viscosity
+!
 # ifdef VADV_ADAPT_IMP
 # undef  TRIDIAG_TRA
 # undef  TRIDIAG_U
 # define TRIDIAG_V
-#  include "tridiag_pred.h"  !<-- compute implicit vertical advection/viscosity
+#  include "tridiag_pred.h"
 # endif
 !
 !======================================================================
@@ -911,7 +921,6 @@
      &                       wz(START_2D_ARRAY,1,nnew))     
 #  endif
 # endif
-
 !
 !======================================================================
 ! Prepare to start two-dimensional time stepping:

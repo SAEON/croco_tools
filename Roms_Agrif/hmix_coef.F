@@ -37,7 +37,7 @@
       integer Istr,Iend,Jstr,Jend, i,j,k,itrc
       real grd_scale(PRIVATE_2D_SCRATCH_ARRAY)
       real cff, surf, defrate, horcon, cff_peclet
-      parameter (horcon=0.1)
+      parameter (horcon=0.03)
 # include "param.h"
 # include "grid.h"
 # include "mixing.h"

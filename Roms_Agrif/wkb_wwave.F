@@ -1200,7 +1200,7 @@ c        cff1=3.D0/16.D0
       endif
       cff =1.D0/dble(cewavg)
 #  ifdef SOLVE3D
-      cff2=cff*(dble(mod(iic-ntstart,cewavg))+dble(iif_wave-1)/ndtfast)
+      cff2=cff*(dble(mod(iic-ntstart,cewavg))+dble(iwave-1)/ndtfast)
 #  else
       cff2=cff*dble(mod(iic-ntstart,cewavg))
 #  endif

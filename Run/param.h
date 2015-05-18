@@ -228,7 +228,7 @@
 #ifdef NBQ
       parameter (NWEIGHT=100000)
 #else
-      parameter (NWEIGHT=137)
+      parameter (NWEIGHT=1000)
 #endif
 
 !

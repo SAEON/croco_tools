@@ -79,8 +79,8 @@
    Set default time-averaging filter for barotropic fields.
 ======================================================================
 */
-#undef M2FILTER_NONE
-#define  M2FILTER_POWER
+#undef  M2FILTER_NONE
+#define M2FILTER_POWER
 #undef  M2FILTER_COSINE
 #undef  M2FILTER_FLAT
 #if defined SSH_TIDES || defined UV_TIDES
@@ -144,13 +144,19 @@
     (The default is third-order upstream biased)
 ======================================================================
 */
-#ifdef UV_HADV_UP3    /* check if options are defined in cppdefs.h */
+#ifdef UV_HADV_UP3     /* check if options are defined in cppdefs.h */
 #elif defined UV_HADV_C4
 #elif defined UV_HADV_C2
 #else
 # define UV_HADV_UP3       /* 3rd-order upstream lateral advection */
 # undef  UV_HADV_C4        /* 4th-order centered lateral advection */
 # undef  UV_HADV_C2        /* 2nd-order centered lateral advection */
+#endif
+
+#ifdef UV_MIX_S        /* UV DIFFUSION: check if options are defined */
+#elif defined UV_MIX_GEO
+#else
+# define UV_MIX_S      /*  Default: diffusion along sigma surfaces   */
 #endif
 
 #ifdef UV_VIS_SMAGO 
@@ -184,10 +190,10 @@
 # undef  UV_VADV_C2        /* 2nd-order centered vertical advection */
 #endif
 
-# ifdef VADV_ADAPT_IMP
-#  define UV_VADV_SPLINES   /* splines vertical advection */
-#  undef  UV_VADV_C2
-# endif
+#ifdef VADV_ADAPT_IMP
+# define UV_VADV_SPLINES   /* splines vertical advection */
+# undef  UV_VADV_C2
+#endif
 /*
 ======================================================================
     Select TRACER LATERAL advection-diffusion scheme
@@ -223,8 +229,6 @@
 # define TS_DIF4       /*         Hyperdiffusion  with         */
 # define TS_MIX_GEO    /*        Geopotential rotation         */
 # undef  TS_MIX_ISO    /*     or Isopycnal    rotation         */
-# define TS_MIX_IMP    /*   and  Semi-Implicit Time-Stepping   */
-# define DIF_COEF_3D 
 #endif
 #ifdef TS_HADV_RSUP5   /*    Pseudo RS 5th-order scheme is:    */
 # define TS_HADV_C6    /*    6th-order centered advection      */
@@ -232,20 +236,23 @@
 # define TS_DIF4       /*         Hyperdiffusion  with         */
 # define TS_MIX_GEO    /*        Geopotential rotation         */
 # undef  TS_MIX_ISO    /*     or Isopycnal    rotation         */
-# define TS_MIX_IMP    /*   and  Semi-Implicit Time-Stepping   */
-# define DIF_COEF_3D 
 #endif
 
-#ifdef TS_DIF_SMAGO    /*   Smagorinsky diffusivity option   */
-# define DIF_COEF_3D
+#ifdef TS_MIX_S        /* TS DIFFUSION: check if options are defined  */
+#elif defined TS_MIX_GEO
+#elif defined TS_MIX_ISO
+#else
+# define TS_MIX_S      /*   Default: diffusion along sigma surfaces   */
 #endif
 
 #if defined TS_MIX_ISO || (defined TS_DIF4 && defined TS_MIX_GEO)
-# define TS_MIX_IMP    /*  Implicit treatment of vertical fluxes  */
+# define TS_MIX_IMP       /*  Implicit treatment of vertical fluxes  */
 #endif
-
+#ifdef TS_MIX_ISO
+# define TS_MIX_ISO_FILT  /*  neutral slope filtering */
+#endif
 #if !defined TS_MIX_S && !defined TS_MIX_ISO
-# define TS_MIX_GEO   /*  Set geopotential diffusion as default  */
+# define TS_MIX_GEO       /*  Set geopotential diffusion as default  */
 #endif
 
 /*
@@ -256,6 +263,14 @@
 #  undef CLIMAT_TS_MIXH
 #  undef CLIMAT_TS_MIXH_FINE
 # endif
+
+/*
+   Use 3D viscosity arrays if needed       
+*/
+#if defined TS_HADV_RSUP3 \
+ || defined TS_HADV_RSUP5 || defined TS_DIF_SMAGO
+# define DIF_COEF_3D
+#endif
 
 /* 
    If BIO_HADV_WENO5 is chosen, the advection scheme for passive tracers is
@@ -279,8 +294,8 @@
 #elif defined TS_VADV_C2
 #else
 # undef  TS_VADV_SPLINES   /* Splines vertical advection            */
-# undef  TS_VADV_AKIMA     /* 4th-order Akima vertical advection    */
-# define TS_VADV_WENO5     /* 5th-order WENOZ vertical advection    */
+# define TS_VADV_AKIMA     /* 4th-order Akima vertical advection    */
+# undef  TS_VADV_WENO5     /* 5th-order WENOZ vertical advection    */
 # undef  TS_VADV_C2        /* 2nd-order centered vertical advection */
 #endif
 
@@ -295,8 +310,7 @@
 /*
 ======================================================================
    SPONGE:  
-   define SPONGE_GRID, SPONGE_DIF2 
-   and SPONGE_VIS2 
+   define SPONGE_GRID, SPONGE_DIF2 and SPONGE_VIS2 
 ======================================================================
 */
 #ifdef SPONGE
@@ -371,8 +385,14 @@
 #  define WAVE_OFFLINE
 #  undef  WAVE_ROLLER
 # endif
+# ifdef WKB_WWAVE
+#  ifdef MRL_CEW
+#   define WKB_KZ_FILTER
+#   undef  WKB_TIME_FILTER
+#  endif
+#  define ANA_BRY_WKB
+# endif
 #endif
-#define ANA_BRY_WKB
 
 /*
 ======================================================================

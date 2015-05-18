@@ -143,7 +143,7 @@
         do j=JstrV-1,Jend
           do i=IstrU-1,Iend
 #ifdef UV_VIS_SMAGO
-            cff=Hz(i,j,k)*(visc2_r(i,j)+visc3d_r(i,j,k))*
+            cff=Hz(i,j,k)*max(visc2_r(i,j),visc3d_r(i,j,k))*
 #else
             cff=Hz(i,j,k)*visc2_r(i,j)*
 #endif
@@ -167,7 +167,7 @@
         do j=Jstr,Jend+1
           do i=Istr,Iend+1
 #ifdef UV_VIS_SMAGO
-            cff=0.0625*(visc2_p(i,j)+visc3d_p(i,j,k))*
+            cff=0.0625*max(visc2_p(i,j),visc3d_p(i,j,k))*
 #else
             cff=0.0625*visc2_p(i,j)*
 #endif
