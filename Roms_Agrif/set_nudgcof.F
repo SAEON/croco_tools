@@ -38,15 +38,14 @@
 # include "ocean3d.h"
 # include "mpi_roms.h"
       integer Istr,Iend,Jstr,Jend, i, j, k, isp, itrc, ibnd
-!      real visc2_sponge, visc4_sponge, diff2_sponge, diff4_sponge
-      real wrk(PRIVATE_2D_SCRATCH_ARRAY)
+      real    wrk(PRIVATE_2D_SCRATCH_ARRAY), vspg
 # if defined CANARY  || defined IBERIA
-      real lon0,lat0, rsponge, dx,dy,dr,cff,cff1,cff2
+      real    lon0,lat0, rsponge, dx,dy,dr,cff,cff1,cff2
 # endif
 # ifdef SPONGE_GRID
 !  vsponge is defined over 10 boundary points with max:
-!       A = uscale * grd_scale
-!  and  B = A * grd_scale**2
+!          A = uscale * grd_scale
+!     and  B = A * grd_scale**2
       real uscale
       parameter (uscale=0.1)
 # endif
@@ -103,8 +102,8 @@
 #  endif
 # endif
 !
-          wrk(i,j)=.5*(cos(pi*float(ibnd)/float(isp))+1.)! cosine profile
-!          wrk(i,j)=float(isp-ibnd)/float(isp)            ! linear profile
+          wrk(i,j)=.5*(cos(pi*float(ibnd)/float(isp))+1.) ! cosine profile
+!         wrk(i,j)=float(isp-ibnd)/float(isp)             ! linear profile
         enddo
       enddo
 !
@@ -178,21 +177,41 @@
 # ifdef SPONGE
 !
 !-------------------------------------------------------------------
-! Add Viscosity and Diffusivity in SPONGE layers
+!  Add Viscosity and Diffusivity in SPONGE layers
 !-------------------------------------------------------------------
 !
 #  if defined UV_VIS2 || defined UV_VIS4 || defined SPONGE_VIS2
 !
-! Add Viscosity at rho points 
+!  Compute or read sponge viscosity
+!
+#   ifdef SPONGE_GRID
+      vspg=uscale*grdmax
+#   else
+      vspg=v_sponge
+#   endif
+!
+!  Check CFL limit for Laplacian diffusion
+!
+!
+      if (vspg .ge. 0.7*grdmin**2/(8.*dt)) then
+        MPI_master_only write(stdout,
+     &                    '(/8x,2A,E7.2,A/,17x,A,E7.2,A//,17x,A//)') 
+     &   'WARNING: ',
+     &   'Viscosity in SPONGE layers is ',vspg,' m2/s',
+     &   'that is near or above CFL-imposed limit: ',grdmin**2/(8.*dt)
+     &                                        ,' m2/s',
+     &   '  -->  VSPONGE IS CLIPPED'
+        vspg=min(vspg,0.7*grdmin**2/(8.*dt))  ! clipped viscosity
+!     &   '  -->  REDUCE TIME STEP'
+!        may_day_flag=1
+!        stop                 !-->  EXIT
+      endif
+!
+!  Add Viscosity at rho points 
 !
       do j=JstrR,JendR
         do i=IstrR,IendR
-
-#   ifdef SPONGE_GRID
-          visc2_sponge_r(i,j)=uscale*grdmax*wrk(i,j)
-#   else
-          visc2_sponge_r(i,j)=v_sponge*wrk(i,j)
-#   endif
+          visc2_sponge_r(i,j)=vspg*wrk(i,j)
 #   ifdef UV_VIS4
           visc4_sponge_r(i,j)=visc2_sponge_r(i,j)/(pm(i,j)*pn(i,j))
 #   endif
@@ -203,11 +222,7 @@
 !
       do j=Jstr,JendR
         do i=Istr,IendR
-#   ifdef SPONGE_GRID
-          visc2_sponge_p(i,j)=0.25*uscale*grdmax*
-#   else
-          visc2_sponge_p(i,j)=0.25*v_sponge*
-#   endif
+          visc2_sponge_p(i,j)=0.25*vspg*
      &                       ( wrk(i,j  )+wrk(i-1,j  )
      &                        +wrk(i,j-1)+wrk(i-1,j-1) ) 
 #   ifdef UV_VIS4
@@ -224,11 +239,7 @@
        do itrc=1,NT
         do j=JstrR,JendR
           do i=IstrR,IendR
-#   ifdef SPONGE_GRID
-            diff2_sponge(i,j)=uscale*grdmax*wrk(i,j) 
-#   else
-            diff2_sponge(i,j)=v_sponge*wrk(i,j) 
-#   endif
+            diff2_sponge(i,j)=vspg*wrk(i,j) 
 #   ifdef TS_DIF4 
             diff4_sponge(i,j)=diff2_sponge(i,j)/(pm(i,j)*pn(i,j))
 #   endif

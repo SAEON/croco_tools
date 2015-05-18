@@ -140,11 +140,16 @@
           if (itrc .le. 2) then
 # endif
 
+!
+!----------------------------------------------------------
+! Compute fluxes FX and FE
+!----------------------------------------------------------
+!
 #  undef PREDICTOR
-#  include "compute_horiz_tracer_fluxes.h"    !<-- Compute fluxes FX and FE
+#  include "compute_horiz_tracer_fluxes.h"
 
 # ifdef BIO_HADV_WENO5
-          else  ! if (itrc .gt. 2)
+          else  !<-- if (itrc .gt. 2)
 !
 !----------------------------------------------------------
 ! WENO5 advection for passive tracers
@@ -289,10 +294,14 @@
 !
       do j=Jstr,Jend
         do itrc=1,NT
-!======================================================================
+!
+!----------------------------------------------------------
+! Compute vertical fluxes FC
+!----------------------------------------------------------
+!
 # undef PREDICTOR
-#   include "compute_vert_tracer_fluxes.h"    !<-- compute vertical fluxes FC
-!======================================================================
+#   include "compute_vert_tracer_fluxes.h"
+
 !----------------------------------------------------------
 ! Apply flux correction for monotonicity
 !----------------------------------------------------------
@@ -300,7 +309,6 @@
 #  ifdef TS_VADV_FCT
 #   include "FCT.h"          
 #  endif
-
 !
 !----------------------------------------------------------
 ! Apply vertical advective flux divergence
@@ -323,7 +331,6 @@
          enddo
        enddo
 # endif /* DIAGNOSTICS_TS */  
-
 !
 !
 !======================================================================
