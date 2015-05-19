@@ -61,9 +61,13 @@
 #ifdef VADV_ADAPT_IMP      
       real cu_adv(PRIVATE_1D_SCRATCH_ARRAY,0:N)
       real gamma,Cdt,cff,my_cu_adv,c_min,c_max,cu_cut,fcu
+# ifdef VADV_ADAPT_PRED
       parameter(c_min=0.6,c_max=1.0,cu_cut=2.*c_max-c_min,
      &          fcu=4.*c_max*(c_max-c_min))
-      
+# else
+      parameter(c_min=0.6,c_max=0.95,cu_cut=2.*c_max-c_min,
+     &          fcu=4.*c_max*(c_max-c_min))
+# endif
 #endif
 
 # include "grid.h"

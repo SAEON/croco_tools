@@ -1,9 +1,12 @@
-! Compute implicitly vertical diffusion and vertical advection (if needed).
-! Vertical advection is handled via a first order upwind scheme
-! It is possible here to apply vertical diffusion during the predictor step 
-!      [historically it was done only for the predictor]
+!----------------------------------------------------------------------
+! Implicit treatment of vertical advection (if needed) during predictor 
+! step. Vertical advection is handled via a first order upwind scheme
+!
+! With few additions to the scheme, vertical diffusion can also be added
+! to this implicit greatment at the predictor step (VMIX_PREDICTOR key). 
+! Historically, it is only done at the corrector step.
+!----------------------------------------------------------------------
 # define VMIX_PREDICTOR
-
 
 #if defined TRIDIAG_TRA
           do i=istr,iend
