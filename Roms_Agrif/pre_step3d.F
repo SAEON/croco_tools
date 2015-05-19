@@ -11,6 +11,9 @@
 !
 #include "cppdefs.h"
 #ifdef SOLVE3D
+# ifndef VADV_ADAPT_PRED
+#  undef VADV_ADAPT_IMP
+# endif
 
       subroutine pre_step3d (tile)
 !
@@ -25,7 +28,7 @@
      &                A3d(1,1,trd), A3d(1,2,trd), A3d(1,5,trd),
      &                A2d(1,1,trd), A2d(1,2,trd), A2d(1,3,trd),
 # ifdef VADV_ADAPT_IMP     
-     &                A2d(1,4,trd), 
+     &                                            A2d(1,4,trd), 
 # endif           
      &                A2d(1,1,trd), A2d(1,2,trd), A2d(1,3,trd)
 # ifndef NBQ
@@ -36,15 +39,15 @@
       end
 
       subroutine pre_step3d_tile (Istr,Iend,Jstr,Jend, ru,rv,rw,
-     &                                     FC,CF,DC, 
+     &                                                 FC,CF,DC, 
 # ifdef VADV_ADAPT_IMP     
-     &     WC, 
+     &                                                       WC, 
 # endif     
-     &     FX,FE,WORK
+     &                                               FX,FE,WORK
 # ifndef NBQ
      &                                                 ,Hz_half
 # endif
-     &                           )  
+     &                                                         )  
 !
 !--------------------------------------------------------------------
 ! Preliminary step: initialize computations of the new time step
@@ -153,7 +156,7 @@
 # include "compute_auxiliary_bounds.h"
 !
       indx=3-nstp
-      nadv=  nstp       !<-- do not remove used in compute_tracer_fluxes.h files
+      nadv=  nstp   !<-- do not remove: used in compute_tracer_fluxes.h
 
       if (FIRST_TIME_STEP) then
         cff=0.5*dt

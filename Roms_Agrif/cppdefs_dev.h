@@ -144,7 +144,7 @@
     (The default is third-order upstream biased)
 ======================================================================
 */
-#ifdef UV_HADV_UP3     /* check if options are defined in cppdefs.h */
+#ifdef UV_HADV_UP3     /* Check if options are defined in cppdefs.h */
 #elif defined UV_HADV_C4
 #elif defined UV_HADV_C2
 #else
@@ -152,27 +152,29 @@
 # undef  UV_HADV_C4        /* 4th-order centered lateral advection */
 # undef  UV_HADV_C2        /* 2nd-order centered lateral advection */
 #endif
-
-#ifdef UV_MIX_S        /* UV DIFFUSION: check if options are defined */
+/* 
+   UV DIFFUSION: set default orientation
+*/
+#ifdef UV_MIX_S        /* Check if options are defined */
 #elif defined UV_MIX_GEO
 #else
-# define UV_MIX_S      /*  Default: diffusion along sigma surfaces   */
+# define UV_MIX_S      /* Default: diffusion along sigma surfaces */
 #endif
-
+/* 
+   Set keys related to Smagorinsky viscosity 
+*/
 #ifdef UV_VIS_SMAGO 
-# define VIS_COEF_3D   /* Set keys related to Smagorinsky viscosity */
+# define VIS_COEF_3D  
 #endif
-
 /*
-  Set UP3 scheme in barotropic equations in 2D model applications
+   Set UP3 scheme in barotropic equations for 2DH applications
 */
 #if !defined SOLVE3D && !defined SOLITON
 # define M2_HADV_UP3
 #endif
-
 /*
-  if interior MOMENTUM LATERAL diffusion is defined, apply it
-  over an anomaly with respect to a reference frame (climatology)
+   If interior MOMENTUM LATERAL diffusion is defined, apply it
+   over an anomaly with respect to a reference frame (climatology)
 */
 #ifdef M3CLIMATOLOGY
 # undef CLIMAT_UV_MIXH
@@ -183,24 +185,26 @@
     Select MOMENTUM VERTICAL advection scheme:
 ======================================================================
 */
-#ifdef UV_VADV_SPLINES  /* check if options are defined in cppdefs.h */
+#ifdef UV_VADV_SPLINES  /* Check if options are defined in cppdefs.h */
 #elif defined UV_VADV_C2
 #else
-# define UV_VADV_SPLINES   /* splines vertical advection */
-# undef  UV_VADV_C2        /* 2nd-order centered vertical advection */
+# define UV_VADV_SPLINES   /* Splines vertical advection             */
+# undef  UV_VADV_C2        /* 2nd-order centered vertical advection  */
 #endif
 
-#ifdef VADV_ADAPT_IMP
-# define UV_VADV_SPLINES   /* splines vertical advection */
+#ifdef VADV_ADAPT_IMP      /* Semi-implicit vertical advection       */
+# undef  VADV_ADAPT_PRED   /* apply to both pred/corr steps (choice) */
+# define UV_VADV_SPLINES   /* Impose splines advection (no choice)   */
 # undef  UV_VADV_C2
 #endif
+
 /*
 ======================================================================
     Select TRACER LATERAL advection-diffusion scheme
     (The default is third-order upstream biased)
 ======================================================================
 */
-#ifdef TS_HADV_UP3    /* check if options are defined in cppdefs.h */
+#ifdef TS_HADV_UP3    /* Check if options are defined in cppdefs.h */
 #elif defined TS_HADV_C4
 #elif defined TS_HADV_UP5
 #elif defined TS_HADV_WENO5
@@ -216,7 +220,9 @@
 # undef  TS_HADV_RSUP3  /* Rotated-Split UP3  lateral advection */
 # undef  TS_HADV_RSUP5  /* Pseudo R-Split UP5 lateral advection */
 #endif
-
+/* 
+  Options for split-rotated advection-diffusion schemes
+*/
 #ifdef TS_HADV_C4      /* 4th-order centered advection with:  */
 # define TS_DIF2       /*   + Laplacian Diffusion             */
 # undef  TS_DIF4       /*                                     */
@@ -237,24 +243,24 @@
 # define TS_MIX_GEO    /*        Geopotential rotation         */
 # undef  TS_MIX_ISO    /*     or Isopycnal    rotation         */
 #endif
-
-#ifdef TS_MIX_S        /* TS DIFFUSION: check if options are defined  */
+/* 
+   TS DIFFUSION: set default orientation
+*/
+#ifdef TS_MIX_S        /* Check if options are defined  */
 #elif defined TS_MIX_GEO
 #elif defined TS_MIX_ISO
 #else
-# define TS_MIX_S      /*   Default: diffusion along sigma surfaces   */
+# define TS_MIX_S      /* Set iso-sigma diffusion as default */
 #endif
-
+/* 
+   Apply implicit treatment and filters
+*/
 #if defined TS_MIX_ISO || (defined TS_DIF4 && defined TS_MIX_GEO)
 # define TS_MIX_IMP       /*  Implicit treatment of vertical fluxes  */
 #endif
 #ifdef TS_MIX_ISO
 # define TS_MIX_ISO_FILT  /*  neutral slope filtering */
 #endif
-#if !defined TS_MIX_S && !defined TS_MIX_ISO
-# define TS_MIX_GEO       /*  Set geopotential diffusion as default  */
-#endif
-
 /*
    Apply interior diffusion (if defined) over tracer anomalies
    with respect to a reference frame (climatology)
@@ -263,7 +269,6 @@
 #  undef CLIMAT_TS_MIXH
 #  undef CLIMAT_TS_MIXH_FINE
 # endif
-
 /*
    Use 3D viscosity arrays if needed       
 */
@@ -271,7 +276,6 @@
  || defined TS_HADV_RSUP5 || defined TS_DIF_SMAGO
 # define DIF_COEF_3D
 #endif
-
 /* 
    If BIO_HADV_WENO5 is chosen, the advection scheme for passive tracers is
    independent from that selected for the two active tracers (TS_HADV)
@@ -288,7 +292,7 @@
     (The default is 4th-order centered)
 ======================================================================
 */
-#ifdef TS_VADV_SPLINES  /* check if options are defined in cppdefs.h */
+#ifdef TS_VADV_SPLINES  /* Check if options are defined in cppdefs.h */
 #elif defined TS_VADV_AKIMA
 #elif defined TS_VADV_WENO5
 #elif defined TS_VADV_C2
@@ -299,13 +303,13 @@
 # undef  TS_VADV_C2        /* 2nd-order centered vertical advection */
 #endif
 
-#undef  TS_VADV_FCT       /* Flux correction of vertical advection */
+#undef  TS_VADV_FCT        /* Flux correction of vertical advection */
 
 #ifdef VADV_ADAPT_IMP
-# define  TS_VADV_SPLINES   /* Splines vertical advection            */
-# undef   TS_VADV_AKIMA     /* 4th-order Akima vertical advection    */
-# undef   TS_VADV_WENO5     /* 5th-order WENOZ vertical advection    */
-# undef   TS_VADV_C2        /* 2nd-order centered vertical advection */
+# define  TS_VADV_SPLINES
+# undef   TS_VADV_AKIMA
+# undef   TS_VADV_WENO5
+# undef   TS_VADV_C2
 #endif
 /*
 ======================================================================
