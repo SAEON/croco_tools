@@ -314,6 +314,21 @@ CR      write(stdout,'(1x,A,I3)') 'indxVb = ',indxVb
       vname(7,indxVb)='                                           '
       vname(11,indxVb)=' '
 
+#ifdef MOVING_BATHY
+CR      write(stdout,'(1x,A,I3)') 'indxHm =',indxHm
+      vname(1,indxHm)='hmorph                                     '
+      vname(2,indxHm)='moving bathymetry                          '
+      vname(3,indxHm)='meter                                      '
+      vname(4,indxHm)='moving_bathymetry , scalar, series         '
+      vname(5,indxHm)='moving_bathymetry                          '
+# ifdef SPHERICAL
+      vname(6,indxHm)='moving_bathymetry                          '
+# else
+      vname(6,indxHm)='x_rho y_rho                                '
+# endif
+      vname(7,indxHm)='                                           '
+#endif
+
 CR      write(stdout,'(1x,A,I3)') 'indxBostr =',indxBostr
       vname(1,indxBostr)='bostr                                   '
       vname(2,indxBostr)='Kinematic bottom stress                 '

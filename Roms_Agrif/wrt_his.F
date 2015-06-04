@@ -161,6 +161,18 @@ CR      write(*,*) 'wrt_his: wrtUBAR' MYID
      &        record,v2dvar,type)
 CR           write(*,*) 'wrt_his: wrtVBAR' MYID
       endif    
+
+#ifdef MOVING_BATHY
+!     
+!     Write out ktime evolving bathymetry
+!     
+      if (wrthis(indxHm)) then
+         work2d(:,:)=h(:,:)
+         call fillvalue2d(work2d,ncidhis,hisHm,indxHm,
+     &        record,r2dvar,type)
+      endif
+#endif
+
 !     
 !     Write out kinematic bottom stress (N/m2).
 !     

@@ -83,6 +83,9 @@
 # define vidTke hisTke
 # define vidGls hisGls
 # define vidLsc hisLsc
+# ifdef MOVING_BATHY
+#  define vidHm hisHm
+# endif
 # ifdef WKB_WWAVE
 #  define vidWKB hisWKB
 # endif
@@ -182,6 +185,9 @@
 # define vidWstr avgWstr
 # define vidUWstr avgUWstr
 # define vidVWstr avgVWstr
+# ifdef MOVING_BATHY
+#  define vidHm avgHm
+# endif
 # ifdef WKB_WWAVE
 #  define vidWKB avgWKB
 # endif
@@ -498,6 +504,33 @@
           call nf_add_attribute(ncid, vidVb, indxVb, 5, NF_REAL, ierr)
 
         endif
+
+#ifdef MOVING_BATHY 
+        if (wrt(indxHm)) then
+          lvar=lenstr(vname(1,indxHm))
+          ierr=nf_def_var (ncid, vname(1,indxHm)(1:lvar),
+     &                              NF_REAL, 3, r2dgrd, vidHm)
+#ifndef AVRH
+          lvar=lenstr(vname(2,indxHm))
+          ierr=nf_put_att_text (ncid, vidHm, 'long_name', lvar,
+     &                                  vname(2,indxHm)(1:lvar))
+#else
+          text='averaged '/ /vname(2,indxHm)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidHm, 'long_name', lvar,
+     &                                             text(1:lvar))
+#endif
+          lvar=lenstr(vname(3,indxHm))
+          ierr=nf_put_att_text (ncid, vidHm, 'units',     lvar,
+     &                                  vname(3,indxHm)(1:lvar))
+          lvar=lenstr(vname(4,indxHm))
+          ierr=nf_put_att_text (ncid, vidHm, 'field',     lvar,
+     &                                  vname(4,indxHm)(1:lvar))
+
+          call nf_add_attribute(ncid, vidHm, indxHm, 5, NF_REAL, ierr)
+
+        endif
+#endif
 
 #ifdef SOLVE3D
 !
@@ -1949,6 +1982,19 @@
           endif
         endif
 
+!
+! time evolving bathymetry
+!
+# ifdef MOVING_BATHY
+        if (wrt(indxHm)) then
+          lvar=lenstr(vname(1,indxHm))
+          ierr=nf_inq_varid (ncid, vname(1,indxHm)(1:lvar), vidHm)
+          if (ierr .ne. nf_noerr) then
+            write(stdout,1) vname(1,indxHm)(1:lvar), ncname(1:lstr)
+            goto 99                                       !--> ERROR
+          endif
+        endif
+# endif
 !
 ! bostr     Kinematic bottom stress (N/m2)
 !

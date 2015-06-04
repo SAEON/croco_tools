@@ -556,7 +556,11 @@
           enddo               !--> discard CF
           do i=Istr,Iend
             FC(i,N)=0.
+#  ifdef MOVING_BATHY
+            FC(i,0)=W(i,j,0)*t(i,j,1,3,itrc)
+#  else
             FC(i,0)=0.
+#  endif
             CF(i,0)=dt*pm(i,j)*pn(i,j)
           enddo
 # elif defined TS_VADV_AKIMA
@@ -592,7 +596,11 @@
             enddo
           enddo            !--> discard CF
           do i=istr,iend
+#  ifdef MOVING_BATHY
+            FC(i,0)=W(i,j,0)*t(i,j,1,3,itrc)
+#  else
             FC(i,0)=0.
+#  endif
             FC(i,N)=0.
             CF(i,0)=dt*pm(i,j)*pn(i,j)
           enddo
@@ -622,7 +630,11 @@
      &                           +t(i,j,2,3,itrc))
             FC(i,N-1)=0.5*W(i,j,N-1)*(t(i,j,N-1,3,itrc)
      &                               +t(i,j,N,3,itrc))
-            FC(i, 0)=0.
+#  ifdef MOVING_BATHY
+            FC(i,0)=W(i,j,0)*t(i,j,1,3,itrc)
+#  else
+            FC(i,0)=0.
+#  endif
             FC(i,N )=0.
             CF(i,0)=dt*pm(i,j)*pn(i,j)
           enddo
@@ -640,7 +652,11 @@
             enddo
           enddo
           do i=Istr,Iend
-            FC(i, 0)=0.
+#  ifdef MOVING_BATHY
+            FC(i,0)=W(i,j,0)*t(i,j,1,3,itrc)
+#  else
+            FC(i,0)=0.
+#  endif
             FC(i,N )=0.
             CF(i,0)=dt*pm(i,j)*pn(i,j)
           enddo
@@ -662,7 +678,6 @@
             enddo
           enddo
           do i=Istr,Iend
-            FC(i, 0)=0.
             FC(i,  1)=W(i,j,  1)*( 0.5*t(i,j,  1,3,itrc)
      &                         +0.58333333333333*t(i,j,  2,3,itrc)
      &                         -0.08333333333333*t(i,j,  3,3,itrc)
@@ -671,6 +686,13 @@
      &                         +0.58333333333333*t(i,j,N-1,3,itrc)
      &                         -0.08333333333333*t(i,j,N-2,3,itrc)
      &                                                           )
+#  ifdef MOVING_BATHY
+            FC(i,0)=W(i,j,0)*2.*
+     &       (   0.58333333333333* t(i,j,1,3,itrc)
+     &          -0.08333333333333* t(i,j,2,3,itrc)  )
+#  else
+            FC(i,0)=0.
+#  endif
             FC(i,N )=0.
             CF(i,0)=dt*pm(i,j)*pn(i,j)
           enddo

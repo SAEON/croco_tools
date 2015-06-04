@@ -246,9 +246,12 @@ C$OMP BARRIER
 # ifdef AGRIF
         ENDIF
 # endif
-#  ifdef ANA_WWAVE
+# ifdef ANA_WWAVE
         call ana_wwave (tile)
-#  endif
+# endif
+# ifdef ANA_MOVING_BATHY
+        call ana_hmorph (tile)
+# endif
         call rho_eos (tile)
         call set_HUV (tile)
 # if defined BIOLOGY && !defined PISCES
