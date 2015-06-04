@@ -3,7 +3,6 @@
 
 # define SUSPLOAD
 # undef BEDLOAD
-# undef SED_MORPH
 # ifdef BEDLOAD
 #  undef SLOPE_NEMETH
 #  undef  SLOPE_LESSER
@@ -399,7 +398,7 @@ C$OMP BARRIER
 #  endif /* SLOPE_NEMETH */
 !
 !
-#  ifdef SED_MORPH
+#  ifdef MOVING_BATHY
 !
 ! Apply morphology factor.
 !
@@ -1138,7 +1137,7 @@ C$OMP BARRIER
 !
           do i=Istr,Iend
             dep_mass(i,ised)=0.0
-#  ifdef SED_MORPH
+#  ifdef MOVING_BATHY
 ! Apply morphology factor.
 !
             ero_flux(i,j,ised)=ero_flux(i,j,ised)*morph_fac(ised)
@@ -1256,7 +1255,7 @@ C$OMP BARRIER
      &                           *rmask(i,j)
 # endif
 !
-# ifdef SED_MORPH
+# ifdef MOVING_BATHY
 !
 ! Apply morphology factor.
 !
@@ -1485,7 +1484,7 @@ C$OMP BARRIER
       enddo   
 # endif
 
-# if defined SED_MORPH
+# if defined MOVING_BATHY
       do j=Jstr-1,Jend+1
         do i=Istr-1,Iend+1
           bed_thick_tot(i,j,1)=bed_thick_tot(i,j,2)
@@ -1584,7 +1583,7 @@ C$OMP BARRIER
           call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
      &                 bed_thick_tot(START_2D_ARRAY,2))
 #  endif
-# endif /* SED_MORPH */
+# endif /* MOVING_BATHY*/
 
       return
       end
@@ -1774,7 +1773,7 @@ C$OMP BARRIER
  100  format(/,
      &       'Number of size classes in sediment computation:'i2)
 
-# ifdef SED_MORPH
+# ifdef MOVING_BATHY
       morph_fac(:)=1.  
 # endif
 

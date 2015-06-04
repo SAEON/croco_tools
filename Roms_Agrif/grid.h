@@ -13,6 +13,7 @@
 ! arrays associated with curvilinear horizontal coordinate system.
 ! 
 ! h       Model topography (bottom depth [m] at RHO-points.)
+! dh      Topograhy increment in case of moving bathymetry 
 ! f       Coriolis parameter [1/s].
 ! fomn    Compound term, f/[pm*pn] at RHO points.
 !
@@ -59,7 +60,14 @@
       real hinv(GLOBAL_2D_ARRAY)
       real f(GLOBAL_2D_ARRAY)
       real fomn(GLOBAL_2D_ARRAY)
+# ifdef MOVING_BATHY
+      real dh(GLOBAL_2D_ARRAY)
+# endif      
       common /grid_h/h /grid_hinv/hinv /grid_f/f /grid_fomn/fomn
+# ifdef MOVING_BATHY
+     & /grid_dh/dh
+# endif      
+      
 
 # ifdef CURVGRID
       real angler(GLOBAL_2D_ARRAY)

@@ -188,6 +188,61 @@
 
 !
 !====================================================================
+!                   subroutine ana_hmorph
+!====================================================================
+!
+#ifdef ANA_MOVING_BATHY
+      subroutine ana_hmorph (tile)
+      implicit none
+# include "param.h"
+      integer tile
+#ifdef  ALLOW_SINGLE_BLOCK_MODE
+C$    integer  trd, omp_get_thread_num
+#endif
+# include "compute_tile_bounds.h"
+      call ana_hmorph_tile (Istr,Iend,Jstr,Jend)
+      return
+      end 
+      
+      subroutine ana_hmorph_tile (Istr,Iend,Jstr,Jend)
+!
+!---------------------------------------------------------------------
+!  This routine sets bathymetry increment
+!  dh using an analytical expression:
+!  example for SEAMOUNT test case
+!---------------------------------------------------------------------
+!
+      implicit none
+# include "param.h"
+# include "grid.h"
+# include "forces.h"
+# include "scalars.h"
+      integer Istr,Iend,Jstr,Jend, i,j
+      real cff,cff1
+!
+# include "compute_auxiliary_bounds.h"
+!
+
+      cff=(1./50.e3)**2
+      cff1=0.5*xl+time*1.
+      ! 0.1m/s translation
+      ! starting for mid-basin 
+      ! for example purpoe
+      ! has to be coherent with initial bathymetry
+      ! definition in ana_grif.F  
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          dh(i,j)=4500*(1-0.6*exp(-cff*((xr(i,j)-cff1  )**2+
+     &                                  (yr(i,j)-0.5*el)**2)))
+     &           -h(i,j)
+        enddo
+      enddo
+
+      return
+      end
+#endif /* ANA_MOVING_BATHY */ 
+!
+!====================================================================
 !                   subroutine ana_bsedim
 !====================================================================
 !

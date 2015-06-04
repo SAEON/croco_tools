@@ -547,7 +547,7 @@
 !                       Seamount Example
 !                       ======== =======
 */
-# define ETALON_CHECK
+# undef ETALON_CHECK
 # undef OPENMP
 # undef MPI
 # define UV_ADV
@@ -564,6 +564,11 @@
 # define ANA_SRFLUX
 # define ANA_BTFLUX
 # define ANA_BSFLUX
+# undef MOVING_BATHY
+# ifdef MOVING_BATHY
+#  define ANA_MOVING_BATHY
+#  define EW_PERIODIC
+# endif
 
 # elif defined SHELFRONT
 /*

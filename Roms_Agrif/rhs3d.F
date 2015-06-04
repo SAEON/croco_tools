@@ -707,7 +707,13 @@
         enddo               !--> discard CF,DC
         do i=IstrU,Iend
           FC(i,N)=0.
+#   ifdef MOVING_BATHY
+          FC(i,0)=0.5*u(i,j,1,nrhs)*
+     &            (W(i  ,j,0)+
+     &             W(i-1,j,0))
+#   else
           FC(i,0)=0.
+#   endif
         enddo
 #  elif defined UV_VADV_C2
 !
@@ -723,7 +729,13 @@
           enddo
         enddo
         do i=IstrU,Iend
+#   ifdef MOVING_BATHY
+          FC(i,0)=0.5*u(i,j,1,nrhs)*
+     &            (W(i  ,j,0)+
+     &             W(i-1,j,0))
+#   else
           FC(i,0)=0.
+#   endif
           FC(i,N)=0.
         enddo
 #  else
@@ -752,7 +764,21 @@
      &                   -0.0625*(u(i,j,  1,nrhs)+u(i,j,3,nrhs)))
      &                         *( 0.5625*(W(i  ,j,1)+W(i-1,j,1))
      &                           -0.0625*(W(i+1,j,1)+W(i-2,j,1)))
+#   ifdef MOVING_BATHY
+          FC(i,0)=2.*
+     &     (0.5625* u(i,j,1,nrhs)-
+     &     -0.0625* u(i,j,2,nrhs)
+     &     )*
+     &     (0.5625*(W(i  ,j,0)+
+     &              W(i-1,j,0)
+     &             )
+     &      -0.0625*(W(i+1,j,0)+
+     &                   W(i-2,j,0)
+     &              )
+     &      )
+#   else
           FC(i,0)=0.
+#   endif
         enddo
 #  endif
 !
@@ -823,7 +849,13 @@
           enddo             !--> discard CF,DC
           do i=Istr,Iend
             FC(i,N)=0.
+#   ifdef MOVING_BATHY
+            FC(i,0)=0.5*v(i,j,1,nrhs)*
+     &              (W(i,j  ,0)+
+     &               W(i,j-1,0))
+#   else
             FC(i,0)=0.
+#   endif
           enddo
 #  elif defined UV_VADV_C2
 !
@@ -838,7 +870,13 @@
             enddo
           enddo
           do i=Istr,Iend
+#   ifdef MOVING_BATHY
+            FC(i,0)=0.5*v(i,j,1,nrhs)*
+     &              (W(i,j  ,0)+
+     &               W(i,j-1,0))
+#   else
             FC(i,0)=0.
+#   endif
             FC(i,N)=0.
           enddo
 #  else
@@ -866,8 +904,22 @@
      &                   -0.0625*(v(i,j,  1,nrhs)+v(i,j,3,nrhs)))
      &                         *( 0.5625*(W(i,j  ,1)+W(i,j-1,1))
      &                           -0.0625*(W(i,j+1,1)+W(i,j-2,1)))
-            FC(i,0)=0.
-          enddo
+#   ifdef MOVING_BATHY
+          FC(i,0)=2.*
+     &     (0.5625* v(i,j,1,nrhs)-
+     &     -0.0625* v(i,j,2,nrhs)
+     &     )*
+     &     (0.5625*(W(i,j  ,0)+
+     &              W(i,j-1,0)
+     &             )
+     &      -0.0625*(W(i,j+1,0)+
+     &               W(i,j-2,0)
+     &              )
+     &      )
+#   else
+          FC(i,0)=0.
+#   endif
+           enddo
 #  endif
 !
 !----------------------------------------------------------

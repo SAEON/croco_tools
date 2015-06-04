@@ -116,6 +116,9 @@ C$    integer omp_get_thread_num
 
       do j=J_RANGE              !!! WARNING: Setting old-new (!<,!>)
         do i=I_RANGE            !!!          must be consistent with
+#  ifdef MOVING_BATHY
+          h(i,j)=h(i,j)+dh(i,j)
+#  endif
           z_w(i,j,0)=-h(i,j)    !!!          similar setting in
         enddo                   !!!          omega.F
         do k=1,N,+1
@@ -141,11 +144,17 @@ C$    integer omp_get_thread_num
             z_w0=cff_w+cff1_w*h(i,j) 
             z_r0=cff_r+cff1_r*h(i,j)            
 #  ifdef NEW_S_COORD
+#   ifdef MOVING_BATHY
+            hinv(i,j)=1./(h(i,j)+hc)
+#   endif
             z_w(i,j,k)=z_w0*h(i,j)*hinv(i,j)+zetatmp
      &                                       *(1.+z_w0*hinv(i,j)) 
             z_r(i,j,k)=z_r0*h(i,j)*hinv(i,j)+zetatmp
      &                                       *(1.+z_r0*hinv(i,j))
 #  else
+#   ifdef MOVING_BATHY
+            hinv(i,j)=1./h(i,j)
+#   endif
             z_w(i,j,k)=z_w0+zetatmp*(1.+z_w0*hinv(i,j))      
             z_r(i,j,k)=z_r0+zetatmp*(1.+z_r0*hinv(i,j))
 #  endif
@@ -170,6 +179,9 @@ C$    integer omp_get_thread_num
      &                        Hz(START_2D_ARRAY,1))
       call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                        Hz_bak(START_2D_ARRAY,1))
+#   ifdef MOVING_BATHY
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend, h)
+#   endif
 #   ifdef NBQ
       call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                        Hzr(START_2D_ARRAY,1))

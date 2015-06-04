@@ -39,6 +39,7 @@
 ! indxTke         Turbulent kinetic energy
 ! indxGls         Generic length scale
 ! indxLsc         vertical mixing length scale
+! indexHm         time evolving bathymetry
 !
 ! indxSSH         observed sea surface height (from climatology)
 ! indxSUSTR,indxSVSTR  surface U-, V-momentum stress (wind forcing)
@@ -117,9 +118,13 @@
 !
       integer indxTime, indxZ, indxUb, indxVb
       parameter (indxTime=1, indxZ=2, indxUb=3, indxVb=4)
+#ifdef MOVING_BATHY
+      integer indxHm
+      parameter (indxHm=5)
+#endif
 #ifdef SOLVE3D
       integer indxU, indxV, indxT
-      parameter (indxU=5, indxV=6, indxT=7)
+      parameter (indxU=6, indxV=7, indxT=8)
 
 # ifdef SALINITY
       integer indxS
@@ -391,7 +396,14 @@
       integer indxSed, indxBTHK, indxBPOR, indxBFRA
       parameter (indxSed=indxSUSTR+28,
      &           indxBTHK=indxSed, indxBPOR=indxSed+1,
-     &           indxBFRA=indxSed+2)
+     &           indxBFRA=indxSed+2
+#  ifdef SUSPLOAD
+     &          ,indxSFLX=indxSed+3,indxEFLX=indxSed+4
+#  endif
+#  ifdef BEDLOAD
+     &          ,indxBDU=indxSed+5,indxBDVindxSed+6
+#  endif
+     &           )
 # endif
 # ifdef SST_SKIN
       integer indxSST_skin
@@ -628,6 +640,9 @@
      &      , hisTime, hisTime2, hisTstep, hisZ,    hisUb,  hisVb
      &      , hisBostr, hisWstr, hisUWstr, hisVWstr
      &      , hisShflx, hisSwflx, hisShflx_rsw
+# ifdef MOVING_BATHY
+     &      , hisHm
+# endif
 # ifdef BBL
      &      , hisBBL(6)
 # endif
@@ -844,6 +859,9 @@
      &      , hisTime, hisTime2, hisTstep, hisZ,    hisUb,  hisVb
      &      , hisBostr, hisWstr, hisUWstr, hisVWstr
      &      , hisShflx, hisSwflx, hisShflx_rsw
+# ifdef MOVING_BATHY
+     &      , hisHm
+# endif
 #ifdef SOLVE3D
      &      , hisU,    hisV,     hisT,    hisR
      &      , hisO,    hisW,     hisVisc, hisDiff
