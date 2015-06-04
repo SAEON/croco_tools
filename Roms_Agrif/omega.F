@@ -104,10 +104,15 @@
 !  Integrate divergence of horizontal mass fluxes
 !---------------------------------------------------------
         do i=Istr,Iend 
-          We(i,j,0)=0.
 #ifdef VADV_ADAPT_IMP
           Wi(i,j,0)=0.
 #endif
+# ifdef MOVING_BATHY
+          We(i,j,0)=-1./dt*dh(i,j)*
+     &                 1./(pm(i,j)*pn(i,j))
+# else
+          We(i,j,0)=0.
+# endif
         enddo
         do k=1,N,+1
           do i=Istr,Iend

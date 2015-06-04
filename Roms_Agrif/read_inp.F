@@ -773,6 +773,9 @@ c        close(testunit)
      &                                          , wrthis(indxShflx_lat)
      &                                          , wrthis(indxShflx_sen)
 # endif
+# ifdef MOVING_BATHY
+     &                                          , wrthis(indxHm)
+# endif
 # if defined BIOLOGY && !defined PISCES
      &                                          ,  wrthis(indxHel)
 #  ifdef BIO_NChlPZD
@@ -866,6 +869,10 @@ c        close(testunit)
      &  , wrthis(indxShflx_sen), 'write shflx_sen [W/m2]',
      &                                 'Sensible heat flux'
 # endif
+# ifdef MOVING_BATY
+     &  , wrthis(indxHm), 'write Hm [m]',
+     &                                 'Time evolving bathymetry'
+# endif 
 # if defined BIOLOGY && !defined PISCES
      &  , wrthis(indxHel),   'write Hel  ',
      &                       'Depth of the euphotic layer'
@@ -990,6 +997,9 @@ c        close(testunit)
      &                                          ,  wrtavg(indxShflx_lat)
      &                                          ,  wrtavg(indxShflx_sen)
 #  endif
+# ifdef MOVING_BATHY
+     &                                          ,  wrtavg(indxHm)
+# endif
 #  if defined BIOLOGY && !defined PISCES
      &                                          ,  wrtavg(indxHel)
 #   ifdef BIO_NChlPZD
@@ -1082,6 +1092,10 @@ c        close(testunit)
      &  , wrtavg(indxShflx_sen), 'write shflx_sen [W/m2]',
      &                                 'Sensible heat flux.'
 #  endif
+# ifdef MOVING_BATHY
+     &  , wrtavg(indxHm), 'write Hm [m]',
+     &                                 'Time evolving bathymetry.'
+# endif
 #  if defined BIOLOGY && !defined PISCES
      &  , wrtavg(indxHel),'write Hel  ',
      &                          'Depth of the euphotic layer'

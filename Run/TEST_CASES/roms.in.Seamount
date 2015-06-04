@@ -2,7 +2,7 @@ title:
 	Seamount Example
 
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
-               360      1200     50       1
+               360      1000     50       1
 
 S-coord: THETA_S,   THETA_B,    Hc (m)
          1.0d0      0.0d0       10.d0
@@ -22,8 +22,8 @@ history: LDEFHIS, NWRT, NRPFHIS / filename
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
                          T   T    T     T  T    10*T
 
-auxiliary_history_fields: rho Omega  W  Akv  Akt  Aks  HBL Hbbl Bostr Wstr Ustr Vstr Shflux Swflux Swrad
-                          F   F      T  F    T    F    T   T    T     F    F     F     F      F      F  
+auxiliary_history_fields: rho Omega  W  Akv  Akt  Aks  Bostr Wstr Ustr Vstr Shflux Swflux Swrad Hm
+                          F   F      T  F    T    F    T     F    F     F     F      F      F   T
 
 rho0:
       1000.
