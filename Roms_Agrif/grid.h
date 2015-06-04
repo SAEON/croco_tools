@@ -65,7 +65,7 @@
 # endif      
       common /grid_h/h /grid_hinv/hinv /grid_f/f /grid_fomn/fomn
 # ifdef MOVING_BATHY
-     & /grid_dh/dh
+      common /grid_dh/dh
 # endif      
       
 

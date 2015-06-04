@@ -223,13 +223,14 @@ C$    integer  trd, omp_get_thread_num
 # include "compute_auxiliary_bounds.h"
 !
 
-      cff=(1./50.e3)**2
+# if defined SEAMOUNT 
+       cff=(1./50.e3)**2
       cff1=0.5*xl+time*1.
       ! 0.1m/s translation
       ! starting for mid-basin 
       ! for example purpoe
       ! has to be coherent with initial bathymetry
-      ! definition in ana_grif.F  
+      ! definition in ana_grid.F  
       do j=JstrR,JendR
         do i=IstrR,IendR
           dh(i,j)=4500*(1-0.6*exp(-cff*((xr(i,j)-cff1  )**2+
@@ -237,7 +238,20 @@ C$    integer  trd, omp_get_thread_num
      &           -h(i,j)
         enddo
       enddo
+# elif defined TANK
+      cff=1./(0.03686)**2
+      cff1=2.+0.001*sin(2.*pi/10.5*time)
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          dh(i,j)=0.394-0.1*exp(-cff*((xr(i,j)-cff1)**2+
+     &                                  (yr(i,j)-el*0.5)**2)) 
+     &           -h(i,j)
+        enddo
+      enddo
 
+# else
+        dh(:,:) =??? 
+# endif
       return
       end
 #endif /* ANA_MOVING_BATHY */ 
