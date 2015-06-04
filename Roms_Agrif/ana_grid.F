@@ -156,7 +156,11 @@ C$    integer omp_get_thread_num
                      f0=1.E-4
                      beta=0
 # elif defined TANK
+#  if ! defined MOVING_BATHY 
                      depth=10.
+#  else
+                     depth=0.394
+#  endif
                      f0=0.
                      beta=0.
 # else
@@ -229,8 +233,13 @@ C$    integer omp_get_thread_num
                      Length_XI =199.e+3 
                      Length_ETA=199.e+3 
 # elif defined TANK
+#  if ! defined MOVING_BATHY
                      Length_XI =10.0
                      Length_ETA=0.20
+#  else
+                     Length_XI =4.0
+                     Length_ETA=0.001
+#  endif
 # else
                      Length_XI =???
                      Length_ETA=??? 
@@ -520,11 +529,21 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
         enddo
       enddo
 # elif defined TANK
+#  if ! defined MOVING_BATHY
       do j=JstrR,JendR
         do i=IstrR,IendR
           h(i,j)=depth
         enddo
       enddo
+#  else
+      cff=1./(0.03686)**2
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          h(i,j)=depth-0.1*exp(-cff*((xr(i,j)-2.)**2+
+     &                                  (yr(i,j)-el*0.5)**2)) 
+        enddo
+      enddo
+#  endif      
 # else
       do j=JstrR,JendR
         do i=IstrR,IendR

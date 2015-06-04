@@ -98,6 +98,12 @@
       fname='TEST_CASES/roms.in.Rip'
 #elif defined THACKER
       fname='TEST_CASES/roms.in.Thacker'
+#elif defined TANK
+# ifdef NBQ
+      fname='TEST_CASES/roms.in.Tank'
+# else
+      fname='TEST_CASES/roms.in.Tank_nbq'
+# endif
 #elif defined REGIONAL
       fname='roms.in'
 #else

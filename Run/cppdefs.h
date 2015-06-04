@@ -873,7 +873,10 @@
 # define ANA_SMFLUX
 # define ANA_SRFLUX
 # define ANA_STFLUX
-
+# undef MOVING_BATHY
+# ifdef MOVING_BATHY
+#  define ANA_MOVING_BATHY
+# endif
 
 #endif /* END OF CONFIGURATION CHOICE */
 

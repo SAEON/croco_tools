@@ -55,7 +55,7 @@ C$    integer omp_get_thread_num
       real ETA0, omega, depth, Lt
 # endif
 # ifdef TANK
-      real ETA0, depth, Lt
+      real ETA0, depth, Lt,cff
 # endif
 # ifdef RIP
       integer iper
@@ -200,7 +200,11 @@ C$    integer omp_get_thread_num
       Lt=10.
       do j=JR_RANGE
         do i=IR_RANGE
+#  if ! defined MOVING_BATHY       
           zeta(i,j,1)=ETA0*cos(pi*xr(i,j)/Lt)
+#  else
+          zeta(i,j,1)=0.
+#  endif        
           ubar(i,j,1)=0.
           vbar(i,j,1)=0.
           zeta(i,j,2)=zeta(i,j,1)
@@ -387,6 +391,7 @@ C$    integer omp_get_thread_num
         enddo
       enddo
 #  elif defined TANK
+#   if ! defined MOVING_BATHY
       do k=1,N
         do j=JR_RANGE
           do i=IR_RANGE
@@ -394,7 +399,18 @@ C$    integer omp_get_thread_num
             t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
           enddo
         enddo
+#    else
+#   define BVFREQ 2.510e-4
+      cff=BVFREQ*BVFREQ/g
+      do k=1,N
+        do j=JR_RANGE
+          do i=IR_RANGE
+            t(i,j,k,1,itemp)=rho0*(1-cff*z_r(i,j,k))
+            t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
+          enddo
+        enddo
       enddo
+#   endif      
 #  elif defined EQUATOR
       do k=1,N
         do j=JstrR,JendR
