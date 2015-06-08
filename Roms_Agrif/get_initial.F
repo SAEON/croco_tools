@@ -309,7 +309,7 @@
 !
       got_inised(3)=.true.
       do itrc=1,NST
-         indxWrk=indxBFRA+itrc-1
+         indxWrk=indxBFRA(1)+itrc-1
          lvar=lenstr(vname(1,indxWrk))
       ierr=nf_inq_varid (ncid, vname(1,indxWrk)(1:lvar), varid)
       if (ierr .eq. nf_noerr) then
