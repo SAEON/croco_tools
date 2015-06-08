@@ -440,6 +440,8 @@
 #ifdef SEDIMENT
 # define LINEAR_CONTINUATION
 # undef  NEUMANN
+# define SUSPLOAD
+# undef BEDLOAD
 #endif
 
 /*

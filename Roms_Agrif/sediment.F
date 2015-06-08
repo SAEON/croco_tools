@@ -1,8 +1,6 @@
 #include "cppdefs.h"
 #ifdef SEDIMENT
 
-# define SUSPLOAD
-# undef BEDLOAD
 # ifdef BEDLOAD
 #  undef SLOPE_NEMETH
 #  undef  SLOPE_LESSER

@@ -212,7 +212,7 @@ CR    write(*,*) 'wrt_rst:  Bed_thick' MYID
 CR    write(*,*) 'wrt_rst:  Bed_poros' MYID
 
       do itrc=1,NST
-        indxWrk=indxBFRA+itrc-1
+        indxWrk=indxBFRA(1)+itrc-1
         ierr=nf_fwrite(bed_frac(START_2D_ARRAY,1,itrc), 
      &             ncidrst, rstSed(itrc+2), record, b3dvar)
         if (ierr .ne. nf_noerr) then

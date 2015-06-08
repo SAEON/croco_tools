@@ -397,7 +397,7 @@
 ! Bed size class fractions.
 !
         do itrc=1,NST
-           indxWrk=indxBFRA+itrc-1
+           indxWrk=indxBFRA(1)+itrc-1
           lvar=lenstr(vname(1,indxWrk))
           ierr=nf_def_var (ncid, vname(1,indxWrk)(1:lvar),
      &                          NF_DOUBLE, 4, b3dgrd, rstSed(itrc+2))
@@ -694,7 +694,7 @@
 ! Bed size class fractions.
 !
         do itrc=1,NST
-          indxWrk=indxBFRA+itrc-1
+          indxWrk=indxBFRA(1)+itrc-1
           lvar=lenstr(vname(1,indxWrk))
           ierr=nf_inq_varid (ncid, vname(1,indxWrk)(1:lvar),
      &                                                 rstSed(itrc+2))

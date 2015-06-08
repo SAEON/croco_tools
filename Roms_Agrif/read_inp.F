@@ -1613,9 +1613,22 @@ CR        write(*,*)'NumGasExcTerms=',NumGasExcTerms
       elseif (keyword(1:kwlen).eq.'sediment_history_fields') then
         call cancel_kwd (keyword(1:kwlen), ierr)
         read(input,*,err=95) 
-     &                   (wrthis(itrc), itrc=indxSed,indxSed+NST+1) 
+     &                   (wrthis(itrc), itrc=indxSed,indxSed+NST+1
+#  ifdef SUSPLOAD
+     &                                       +2*NST
+#  endif
+#  ifdef BEDLOAD
+    &                                        +2*NST 
+#  endif     
+     &  ) 
 #  ifdef AVERAGES
         do itrc=indxSed,indxSed+NST+1
+#  ifdef SUSPLOAD
+     &                                       +2*NST
+#  endif
+#  ifdef BEDLOAD
+    &                                        +2*NST 
+#  endif     
           wrtavg(itrc)=wrthis(itrc)
         enddo
 #  endif
@@ -1626,9 +1639,33 @@ CR        write(*,*)'NumGasExcTerms=',NumGasExcTerms
      &                             'porosity of sediment bed layer.'
         do itrc=1,NST
             MPI_master_only write(stdout, '(6x,L1,2x,A,I2,A,I2,A)')
-     &          wrthis(indxBFRA+itrc-1), 'write bed_frac(',itrc,
+     &          wrthis(indxBFRA(itrc)), 'write bed_frac(',itrc,
      &                   ') Sediment fraction of index ',itrc,'.'
         enddo
+#  ifdef SUSPLOAD
+        do itrc=1,NST
+            MPI_master_only write(stdout, '(6x,L1,2x,A,I2,A,I2,A)')
+     &          wrthis(indxDFLX(itrc)), 'write erosion flux(',itrc,
+     &                   ') for sediment of index ',itrc,'.'
+        enddo
+        do itrc=1,NST
+            MPI_master_only write(stdout, '(6x,L1,2x,A,I2,A,I2,A)')
+     &          wrthis(indxEFLX(itrc)), 'write deposition flux(',itrc,
+     &                   ') for sediment of index ',itrc,'.'
+        enddo
+#  endif
+#  ifdef BEDLOAD
+        do itrc=1,NST
+            MPI_master_only write(stdout, '(6x,L1,2x,A,I2,A,I2,A)')
+     &          wrthis(indxBDLU(itrc)), 'write xi-bedload flux(',itrc,
+     &                   ') for sediment of index ',itrc,'.'
+        enddo
+        do itrc=1,NST
+            MPI_master_only write(stdout, '(6x,L1,2x,A,I2,A,I2,A)')
+     &          wrthis(indxBDLU(itrc)), 'write eta-bedload flux(',itrc,
+     &                   ') for sediment of index ',itrc,'.'
+        enddo
+#  endif
 # endif /* SEDIMENT */
 #endif
 #ifdef BBL
