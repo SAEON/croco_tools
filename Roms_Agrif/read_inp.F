@@ -1618,7 +1618,7 @@ CR        write(*,*)'NumGasExcTerms=',NumGasExcTerms
      &                                       +2*NST
 #  endif
 #  ifdef BEDLOAD
-    &                                        +2*NST 
+     &                                       +2*NST 
 #  endif     
      &  ) 
 #  ifdef AVERAGES
@@ -1627,7 +1627,7 @@ CR        write(*,*)'NumGasExcTerms=',NumGasExcTerms
      &                                       +2*NST
 #  endif
 #  ifdef BEDLOAD
-    &                                        +2*NST 
+     &                                       +2*NST 
 #  endif     
           wrtavg(itrc)=wrthis(itrc)
         enddo

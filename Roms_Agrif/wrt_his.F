@@ -907,7 +907,6 @@ CR      write(*,*) 'wrt_his:  stflx(:,:,isalt)' MYID
          indxWrk=indxDFLX(1)+itrc-1
          if (wrthis(indxWrk)) then
             work2d=settling_flux(:,:,itrc)
-            write(*,*) 'his_wri', hisSed(itrc+2+NST)
             call fillvalue2d(work2d,ncidhis,hisSed(itrc+2+NST),
      &           indxWrk,record,r2dvar,type)
          endif

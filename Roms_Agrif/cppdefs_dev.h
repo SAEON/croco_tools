@@ -438,12 +438,18 @@
 ======================================================================
 */
 #ifdef SEDIMENT
-# define LINEAR_CONTINUATION
+# undef LINEAR_CONTINUATION
 # undef  NEUMANN
 # define SUSPLOAD
 # undef BEDLOAD
+# ifdef BEDLOAD
+#  if (defined WAVE_OFFLINE || defined WKB_WWAVE || defined ANA_WWAVE)
+#   define BEDLOAD_SOULSBY
+#  else
+#   define BEDLOAD_MPM
+#  endif
+# endif
 #endif
-
 /*
 ======================================================================
                               OBCs
