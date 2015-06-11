@@ -365,7 +365,11 @@
 # else
 #  define ANA_BSEDIM
 # endif
-# undef  Z0_BL
+# ifdef SEDIMENT
+#  define  Z0_BL
+# else
+#  undef  Z0_BL
+# endif
 # ifdef Z0_BL
 #  define Z0_RIP
 # endif

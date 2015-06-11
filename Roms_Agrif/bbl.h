@@ -74,7 +74,7 @@
       common /bbl_bustrw/ bustrw
 
       real bvstrw(GLOBAL_2D_ARRAY)
-      common /bbl_bvstrcw/ bvstrw
+      common /bbl_bvstrw/ bvstrw
       
       real bustrcwmax(GLOBAL_2D_ARRAY)
       common /bbl_bustrcwmax/ bustrcwmax

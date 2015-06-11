@@ -164,8 +164,8 @@ C$OMP BARRIER
 #   ifdef BBL
       do j=Jstr-1,Jend+1
         do i=Istr-1,Iend+1
-          tau_w(i,j)sqrt( bustrcwmax(i,j)**2
-     &                    bvstrcwmax(i,j)**2)
+          tau_w(i,j)=sqrt( bustrcwmax(i,j)**2
+     &                   + bvstrcwmax(i,j)**2)
 #    ifdef WET_DRY
           tau_w(i,j)=tau_w(i,j)*rmask_wet(i,j)
 #    endif
@@ -233,9 +233,9 @@ C$OMP BARRIER
             phic(i,j)=ATAN2(bvstrc(i,j),bustrc(i,j))
           endif
 # ifdef WKB_WWAVE
-          phicw=Dwave(i,j)-phic
+          phicw(i,j)=Dwave(i,j)-phic(i,j)
 # else
-          phicw=(3.0*pi)/2.0 -Dwave(i,j)-phic
+          phicw(i,j)=(3.0*pi)/2.0-Dwave(i,j)-phic(i,j)
 # endif
 # ifdef CURVGRID
      &                                  -angler(i,j)
@@ -277,7 +277,7 @@ C$OMP BARRIER
             waven=max(wvn(i,j,wnew),eps)
 #  else
             Fwave=2*pi/Pwave(i,j)
-            Kdh=h(i,j)*Fwave*Fwave/g
+            Kdh=Dstp*Fwave*Fwave/g
             Kbh2=Kdh*Kdh+
      &      Kdh/(1.0+Kdh*(K1+Kdh*(K2+Kdh*(K3+Kdh*(K4+
      &      Kdh*(K5+K6*Kdh))))))
