@@ -297,7 +297,6 @@
 !  combined wave-current stress 
             tau_cw= tauc(i,j)*
      &          (1.+scf4*((tau_w/(tau_w+tauc(i,j)))**scf5))
-
 # ifdef Z0_BL
 !---------------------------------------------------------------------
 !  Compute bedload roughness for ripple predictor & sediment purposes.

@@ -75,7 +75,7 @@
       real bed_thick(GLOBAL_2D_ARRAY,NLAY),
      &     bed_poros(GLOBAL_2D_ARRAY,NLAY),
      &     bed_age  (GLOBAL_2D_ARRAY,NLAY),
-     &     bed_mass (GLOBAL_2D_ARRAY,NLAY,3,NST),
+     &     bed_mass (GLOBAL_2D_ARRAY,NLAY,2,NST),
      &     worksed_bed(GLOBAL_2D_ARRAY,NLAY)
       common /sediment_bed/ bed_thick, bed_poros,
      &                      bed_age  , bed_mass,
