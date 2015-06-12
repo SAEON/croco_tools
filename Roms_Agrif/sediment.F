@@ -1503,15 +1503,15 @@ C$OMP BARRIER
 !  Initialize filter in the Y-direction.
       do j=Jstr,Jend
         do i=Istr-1,Iend+1
-          Awrk1(i,j)=0.25*(bed_thick_tot(i,j-1,2)
-     &  +bed_thick_tot(i,j+1,2)-2.*bed_thick_tot(i,j,2))
+          Awrk1(i,j)=0.25*(bed_thick_tot(i,j-1,nnew)
+     &  +bed_thick_tot(i,j+1,nnew)-2.*bed_thick_tot(i,j,nnew))
         enddo
       enddo
 !
 !  Add the changes to the field.
       do j=Jstr,Jend
         do i=Istr-1,Iend+1
-          Awrk2(i,j)=bed_thick_tot(i,j,2)+Awrk1(i,j)
+          Awrk2(i,j)=bed_thick_tot(i,j,nnew)+Awrk1(i,j)
         enddo
       enddo
 !
@@ -1526,7 +1526,7 @@ C$OMP BARRIER
 !  Add changes to field.
       do j=Jstr,Jend
         do i=Istr,Iend
-          bed_thick_tot(i,j,2)=Awrk2(i,j)+Awrk1(i,j)
+          bed_thick_tot(i,j,nnew)=Awrk2(i,j)+Awrk1(i,j)
         enddo
       enddo
 #  endif /* BED FILTER */
@@ -1560,24 +1560,24 @@ C$OMP BARRIER
 #  endif
 #  if !defined EW_PERIODIC && !defined NS_PERIODIC
       if (SOUTHERN_EDGE.and.WESTERN_EDGE) then
-        bed_thick_tot(Istr-1,Jstr-1,2)=
-     &  0.5*(bed_thick_tot(Istr,Jstr-1,2)
-     &      +bed_thick_tot(Istr-1,Jstr,2))
+        bed_thick_tot(Istr-1,Jstr-1,nnew)=
+     &  0.5*(bed_thick_tot(Istr,Jstr-1,nnew)
+     &      +bed_thick_tot(Istr-1,Jstr,nnew))
       endif
       if (SOUTHERN_EDGE.and.EASTERN_EDGE) then
-        bed_thick_tot(Iend+1,Jstr-1,2)=
-     &  0.5*(bed_thick_tot(Iend,Jstr-1,2)
-     &      +bed_thick_tot(Iend+1,Jstr,2))
+        bed_thick_tot(Iend+1,Jstr-1,nnew)=
+     &  0.5*(bed_thick_tot(Iend,Jstr-1,nnew)
+     &      +bed_thick_tot(Iend+1,Jstr,nnew))
       endif
       if (NORTHERN_EDGE.and.WESTERN_EDGE) then
-        bed_thick_tot(Istr-1,Jend+1,2)=
-     &  0.5*(bed_thick_tot(Istr,Jend+1,2)
-     &      +bed_thick_tot(Istr-1,Jend,2))
+        bed_thick_tot(Istr-1,Jend+1,nnew)=
+     &  0.5*(bed_thick_tot(Istr,Jend+1,nnew)
+     &      +bed_thick_tot(Istr-1,Jend,nnew))
       endif
       if (NORTHERN_EDGE.and.EASTERN_EDGE) then
-        bed_thick_tot(Iend+1,Jend+1,2)=
-     &   0.5*(bed_thick_tot(Iend,Jend+1,2)
-     &       +bed_thick_tot(Iend+1,Jend,2))
+        bed_thick_tot(Iend+1,Jend+1,nnew)=
+     &   0.5*(bed_thick_tot(Iend,Jend+1,nnew)
+     &       +bed_thick_tot(Iend+1,Jend,nnew))
       endif
 #  endif
 !
