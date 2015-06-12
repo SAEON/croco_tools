@@ -52,13 +52,13 @@
       call bblm_tile (Istr,Iend,Jstr,Jend,
      &                  A2d(1, 1,trd),A2d(1, 2,trd),A2d(1, 3,trd),
      &                  A2d(1, 4,trd),A2d(1, 5,trd),A2d(1, 6,trd),
-     &                  A2d(1, 7,trd))
+     &                  A2d(1, 7,trd),A2d(1, 8,trd),A2d(1, 9,trd))
       return
       end
 
 !********************************************************************!
       SUBROUTINE bblm_tile (Istr,Iend,Jstr,Jend,Ub,Zr,Ur,Vr,Umag,
-     &                      tauc,tauw)
+     &                      tauc,tauw,taucw,taucwmax)
 !********************************************************************!
 !  output: bu/vstr = tauc = t_cw 
 !     effective wave-averaged bottom stress
@@ -92,7 +92,7 @@
      &        Iend, Istr, Jend, Jstr, i, ised, j
 
       real
-     &  Ab, anglec, anglew, cff, cff1, cff2, d50,
+     &  Ab, anglec, anglew,cff, cff1, cff2, d50,
      &  Fwave, Kbh, Kbh2, Kdh, phic, phicw, 
      &  rhbio, rhbiomax, rhgt, rhmax, rhmin, rhfac, 
      &  rlbio, rlen, rlmin, rhosed, rhow,
@@ -105,6 +105,8 @@
       real
      &            tauc(PRIVATE_2D_SCRATCH_ARRAY),
      &            tauw(PRIVATE_2D_SCRATCH_ARRAY),
+     &           taucw(PRIVATE_2D_SCRATCH_ARRAY),
+     &        taucwmax(PRIVATE_2D_SCRATCH_ARRAY),
      &              Ub(PRIVATE_2D_SCRATCH_ARRAY),
      &            Umag(PRIVATE_2D_SCRATCH_ARRAY),
      &              Ur(PRIVATE_2D_SCRATCH_ARRAY),
@@ -139,8 +141,9 @@
       do j=JstrV-1,Jend+1
         do i=IstrU-1,Iend+1
           tauc(i,j)=0.0       ! [m^2/s^2]
-          tauw(i,j)=0.0
-        enddo
+          taucw(i,j)=0.0
+          taucwmax(i,j)=0.0
+       enddo
       enddo
 !---------------------------------------------------------------------
 !  Set currents above bed.
@@ -179,7 +182,7 @@
 !  polynomial expr. to approximate wave number on shoaling water
 !---------------------------------------------------------------------
           Fwave=twopi/Pwave(i,j)
-          Kdh=h(i,j)*Fwave*Fwave/g
+          Kdh=(h(i,j)+z_w(i,j,N))*Fwave*Fwave/g
           Kbh2=Kdh*Kdh+
      &         Kdh/(1.0+Kdh*(K1+Kdh*(K2+Kdh*(K3+Kdh*(K4+
      &              Kdh*(K5+K6*Kdh))))))
@@ -238,7 +241,7 @@
 # endif
           wset = w_set(i,j)            ! [m/s]
           rhosed = Sdens(i,j)/rhow     ! [ ] relative density
-       
+          
 # endif /* ANA_BSEDIM || SEDIMENT */ 
 
 ! critical stress for transition to sheet flow  (Li&Amos'01, eq.11)
@@ -248,12 +251,11 @@
 !         tau_crs = max(0.64*wset*wset,ustr_shields)              ! [m^2/s^2]
 
 ! threshold stress for break off (Grant & Madsen,1982)   
-          tau_bf = 0.79*(visk**(-0.6))*(((rhosed-1)*g)**0.3)
+          tau_bf = 0.79*(visk**(-0.6))*(((rhosed-1.)*g)**0.3)
      &                                  *(d50**0.9)*tau_cb        ! [m^2/s^2]
 
           znotc= d50/12.0
           znot = MAX(Zob,znotc) 
-             
 !---------------------------------------------------------------------
 !  set tauc acc. to current-only case (max znot & skin friction) [m/s]
 !---------------------------------------------------------------------
@@ -286,8 +288,9 @@
             tau_cws = SQRT((tau_cw+tau_w*COS(phicw))**2
      &                     + (tau_w*SIN(phicw))**2) 
             
-            tauw(i,j)=tau_cws             ! [m^2/s^2]
-                       
+!            tauw(i,j)=tau_cws             ! [m^2/s^2]
+            taucwmax(i,j)=tau_cws
+            tauw(i,j)=tau_w                       
 !  combined wave-current stress using znot
             tau_w = scf1*((znot*Fwave)**scf2)*(Ub(i,j)**scf3)
     
@@ -321,8 +324,8 @@
 
             tau_cwb = SQRT((tau_cw+tau_wb*COS(phicw))**2 +
      &                   (tau_wb*SIN(phicw))**2)
-            tauw(i,j) = tau_cwb                 ! [m^2/s^2]
-    
+            taucwmax(i,j)=tau_cwb
+            tauw(i,j)=tau_wb
 
 #  ifdef Z0_RIP        
 !---------------------------------------------------------------------
@@ -408,14 +411,17 @@
 !  relevant for flow and eddy-diffusivities/viscosity
 !---------------------------------------------------------------------
 
-            tauc(i,j) = tau_cw
+!!          tauc(i,j)=tau_cw
+            taucw(i,j)=tau_cw
+            tauw(i,j)=tau_w
           
           else ! (Ub < Ubc)   
 
 ! If current-only: tauw = tauc(skin) for use in sediment.F (ifdef BBL)
 ! tauc for current still depending on roughness due to current ripples (ifdef Z0_RIP)
             
-            tauw(i,j) = tau_cs
+            taucwmax(i,j)=tauc(i,j)
+            tauw(i,j)=0.0
 
 # ifdef Z0_RIP    
             if(tau_cs.gt.tau_up) then
@@ -433,7 +439,8 @@
         
             cff1=vonKar/LOG(Zr(i,j)/znotc)
             cff2=MIN(Cdb_max,MAX(Cdb_min,cff1*cff1))
-            tauc(i,j) = cff2*Umag(i,j)*Umag(i,j)
+!!          tauc(i,j)=cff2*Umag(i,j)*Umag(i,j)
+            taucw(i,j)=cff2*Umag(i,j)*Umag(i,j)
 # endif 
           endif 
 !---------------------------------------------------------------------
@@ -470,15 +477,9 @@
 !
       do j=Jstr,Jend
         do i=IstrU,Iend
-          cff1=0.5*(tauc(i-1,j)+tauc(i,j))
-          cff2=0.5*(tauw(i-1,j)+tauw(i,j))
+          cff1=0.5*(taucw(i-1,j)+taucw(i,j))
           anglec=Ur(i,j)/(0.5*(Umag(i-1,j)+Umag(i,j)+1.e-10))
-          anglew=COS(0.5*(Dwave(i-1,j)+Dwave(i,j)))
           bustr(i,j)=cff1*anglec
-# ifdef MASKING
-     &                                   *umask(i,j)
-# endif
-          bustrw(i,j)=cff2*anglew
 # ifdef MASKING
      &                                   *umask(i,j)
 # endif
@@ -487,20 +488,54 @@
 
       do j=JstrV,Jend
         do i=Istr,Iend
-          cff1=0.5*(tauc(i,j-1)+tauc(i,j))
-          cff2=0.5*(tauw(i,j-1)+tauw(i,j))
+          cff1=0.5*(taucw(i,j-1)+taucw(i,j))
           anglec=Vr(i,j)/(0.5*(Umag(i,j-1)+Umag(i,j)+1.e-10))
-          anglew=SIN(0.5*(Dwave(i,j-1)+Dwave(i,j)))
           bvstr(i,j)=cff1*anglec
-# ifdef MASKING
-     &                                   *vmask(i,j)
-# endif
-          bvstrw(i,j)=cff2*anglew
 # ifdef MASKING
      &                                   *vmask(i,j)
 # endif
         enddo
       enddo
+
+      do j=Jstr,Jend
+        do i=Istr,Iend
+          Ucur=0.5*(Ur(i,j)+Ur(i+1,j))
+          Vcur=0.5*(Vr(i,j)+Vr(i,j+1))
+
+          anglec=Ucur/(Umag(i,j)+1.e-10)
+# ifdef WKB_WWAVE
+          anglew=cos(Dwave(i,j)
+# else
+          anglew=cos(1.5*pi-Dwave(i,j)
+# endif
+# ifdef CURVGRID
+     &     -angler(i,j)
+# endif          
+     &     )
+          bustrc(i,j)=taucw(i,j)*anglec
+          bustrw(i,j)=tauw(i,j)*anglew
+          bustrcwmax(i,j)=taucwmax(i,j)*anglew
+!          Ubot(i,j)=Ub(i,j)*anglew
+          Ur(i,j)=Ucur
+!
+          anglec=Vcur/(Umag(i,j)+1.e-10)
+# ifdef WKB_WWAVE
+          anglew=sin(Dwave(i,j)
+# else
+          anglew=sin(1.5*pi-Dwave(i,j)
+# endif
+# ifdef CURVGRID
+     &     -angler(i,j)
+# endif          
+     &     )
+          bvstrc(i,j)=taucw(i,j)*anglec
+          bvstrw(i,j)=tauw(i,j)*anglew
+          bvstrcwmax(i,j)=taucwmax(i,j)*anglew
+!          Vbot(i,j)=Ub(i,j)*anglew
+          Vr(i,j)=Vcur
+        enddo
+      enddo
+
 
 # ifdef LIMIT_BSTRESS
 !---------------------------------------------------------------------
@@ -535,43 +570,68 @@
       IF (EASTERN_EDGE) THEN
         DO j=Jstr,Jend
           bustr(Iend+1,j )=bustr(Iend,j)
-          bustrw(Iend+1,j)=bustrw(Iend,j)
         END DO
         DO j=JstrV,Jend
           bvstr(Iend+1,j )=bvstr(Iend,j)
-          bvstrw(Iend+1,j)=bvstrw(Iend,j)
+        END DO
+        !
+        DO j=Jstr,Jend
+          bustrc(Iend+1,j )=bustrc(Iend,j)
+          bustrw(Iend+1,j )=bustrw(Iend,j)
+          bustrcwmax(Iend+1,j )=bustrcwmax(Iend,j)
+          bvstrc(Iend+1,j )=bvstrc(Iend,j)
+          bvstrw(Iend+1,j )=bvstrw(Iend,j)
+          bvstrcwmax(Iend+1,j )=bvstrcwmax(Iend,j)
         END DO
       END IF
       IF (WESTERN_EDGE) THEN
         DO j=Jstr,Jend
-          bustr(IstrU-1,j) =bustr(IstrU,j)
-          bustrw(IstrU-1,j)=bustrw(IstrU,j)
+          bustr(IstrU-1,j)=bustr(IstrU,j)
         END DO
         DO j=JstrV,Jend
-          bvstr(Istr-1,j) =bvstr(Istr,j)
-          bvstrw(Istr-1,j)=bvstrw(Istr,j)
+          bvstr(Istr-1,j)=bvstr(Istr,j)
         END DO
+        DO j=Jstr,Jend
+          bustrc(Istr-1,j)=bustrc(Istr,j)
+          bustrw(Istr-1,j)=bustrw(Istr,j)
+          bustrcwmax(Istr-1,j)=bustrcwmax(Istr,j)
+          bvstrc(Istr-1,j)=bvstrc(Istr,j)
+          bvstrw(Istr-1,j)=bvstrw(Istr,j)
+          bvstrcwmax(Istr-1,j)=bvstrcwmax(Istr,j)
+        END DO        
       END IF
 # endif
 # ifndef NS_PERIODIC
       IF (NORTHERN_EDGE) THEN
         DO i=IstrU,Iend
           bustr(i,Jend+1) =bustr(i,Jend)
-          bustrw(i,Jend+1)=bustrw(i,Jend)
         END DO
         DO i=Istr,Iend
           bvstr(i,Jend+1) =bvstr(i,Jend)
-          bvstrw(i,Jend+1)=bvstrw(i,Jend)
+        END DO
+        DO i=Istr,Iend
+          bustrc(i,Jend+1) =bustrc(i,Jend)
+          bustrw(i,Jend+1) =bustrw(i,Jend)
+          bustrcwmax(i,Jend+1) =bustrcwmax(i,Jend)
+          bvstrc(i,Jend+1) =bvstrc(i,Jend)
+          bvstrw(i,Jend+1) =bvstrw(i,Jend)
+          bvstrcwmax(i,Jend+1) =bvstrcwmax(i,Jend)
         END DO
       END IF
       IF (SOUTHERN_EDGE) THEN
         DO i=IstrU,Iend
-          bustr(i,Jstr-1) =bustr(i,Jstr)
-          bustrw(i,Jstr-1)=bustrw(i,Jstr)
+          bustr(i,Jstr-1)=bustr(i,Jstr)
         END DO
         DO i=Istr,Iend
-          bvstr(i,JstrV-1) =bvstr(i,JstrV)
-          bvstrw(i,JstrV-1)=bvstrw(i,JstrV)
+          bvstr(i,JstrV-1)=bvstr(i,JstrV)
+        END DO
+        DO i=Istr,Iend
+          bustrc(i,Jstr-1)=bustrc(i,Jstr)
+          bustrw(i,Jstr-1)=bustrw(i,Jstr)
+          bustr(i,Jstr-1)=bustrcwmax(i,Jstr)
+          bvstrc(i,Jstr-1)=bvstrc(i,Jstr)
+          bvstrw(i,Jstr-1)=bvstrw(i,Jstr)
+          bvstrcwmax(i,Jstr-1)=bvstrcwmax(i,Jstr)
         END DO
       END IF
 # endif
@@ -579,26 +639,42 @@
       IF (SOUTHERN_EDGE.and.WESTERN_EDGE) THEN
         bustr(Istr,Jstr-1)=0.5*(bustr(Istr+1,Jstr-1)+bustr(Istr,Jstr))
         bvstr(Istr-1,Jstr)=0.5*(bvstr(Istr,Jstr)+bvstr(Istr-1,Jstr+1))
-        bustrw(Istr,Jstr-1)=0.5*(bustrw(Istr+1,Jstr-1)+bustrw(Istr,Jstr))
-        bvstrw(Istr-1,Jstr)=0.5*(bvstrw(Istr,Jstr)+bvstrw(Istr-1,Jstr+1))
+        bustrc(Istr-1,Jstr-1)=0.5*(bustrc(Istr,Jstr-1)+bustrc(Istr-1,Jstr))
+        bvstrc(Istr-1,Jstr-1)=0.5*(bvstrc(Istr,Jstr-1)+bvstrc(Istr-1,Jstr))
+        bustrw(Istr-1,Jstr-1)=0.5*(bustrw(Istr,Jstr-1)+bustrw(Istr-1,Jstr))
+        bvstrw(Istr-1,Jstr-1)=0.5*(bvstrw(Istr,Jstr-1)+bvstrw(Istr-1,Jstr))
+        bustrcwmax(Istr-1,Jstr-1)=0.5*(bustrcmwax(Istr,Jstr-1)+bustrcwmax(Istr-1,Jstr))
+        bvstrcwmax(Istr-1,Jstr-1)=0.5*(bvstrcwmax(Istr,Jstr-1)+bvstrcwmax(Istr-1,Jstr))
       END IF
       IF (SOUTHERN_EDGE.and.EASTERN_EDGE) THEN
         bustr(Iend+1,Jstr-1)=0.5*(bustr(Iend+1,Jstr)+bustr(Iend,Jstr-1))
         bvstr(Iend+1,Jstr)=0.5*(bvstr(Iend+1,Jstr+1)+bvstr(Iend,Jstr))
+        bustrc(Iend+1,Jstr-1)=0.5*(bustrc(Iend+1,Jstr)+bustrc(Iend,Jstr-1))
+        bvstrc(Iend+1,Jstr-1)=0.5*(bvstrc(Iend+1,Jstr)+bvstrc(Iend,Jstr-1))
         bustrw(Iend+1,Jstr-1)=0.5*(bustrw(Iend+1,Jstr)+bustrw(Iend,Jstr-1))
-        bvstrw(Iend+1,Jstr)=0.5*(bvstrw(Iend+1,Jstr+1)+bvstrw(Iend,Jstr))
+        bvstrw(Iend+1,Jstr-1)=0.5*(bvstrw(Iend+1,Jstr)+bvstrw(Iend,Jstr-1))
+        bustrcwmax(Iend+1,Jstr-1)=0.5*(bustrcwmax(Iend+1,Jstr)+bustrcwmax(Iend,Jstr-1))
+        bvstrcwmax(Iend+1,Jstr-1)=0.5*(bvstrcwmax(Iend+1,Jstr)+bvstrcwmax(Iend,Jstr-1))
       END IF
       IF (NORTHERN_EDGE.and.WESTERN_EDGE) THEN
         bustr(Istr,Jend+1)=0.5*(bustr(Istr,Jend)+bustr(Istr+1,Jend+1))
         bvstr(Istr-1,Jend+1)=0.5*(bvstr(Istr-1,Jend)+bvstr(Istr,Jend+1))
-        bustrw(Istr,Jend+1)=0.5*(bustrw(Istr,Jend)+bustrw(Istr+1,Jend+1))
+        bustrc(Istr-1,Jend+1)=0.5*(bustrc(Istr-1,Jend)+bustrc(Istr,Jend+1))
+        bvstrc(Istr-1,Jend+1)=0.5*(bvstrc(Istr-1,Jend)+bvstrc(Istr,Jend+1))
+        bustrw(Istr-1,Jend+1)=0.5*(bustrw(Istr-1,Jend)+bustrw(Istr,Jend+1))
         bvstrw(Istr-1,Jend+1)=0.5*(bvstrw(Istr-1,Jend)+bvstrw(Istr,Jend+1))
+        bustrcwmax(Istr-1,Jend+1)=0.5*(bustrcwmax(Istr-1,Jend)+bustrcwmax(Istr,Jend+1))
+        bvstrcwmax(Istr-1,Jend+1)=0.5*(bvstrcwmax(Istr-1,Jend)+bvstrcwmax(Istr,Jend+1))
       END IF
       IF (NORTHERN_EDGE.and.EASTERN_EDGE) THEN
         bustr(Iend+1,Jend+1)=0.5*(bustr(Iend+1,Jend)+bustr(Iend,Jend+1))
         bvstr(Iend+1,Jend+1)=0.5*(bvstr(Iend+1,Jend)+bvstr(Iend,Jend+1))
+        bustrc(Iend+1,Jend+1)=0.5*(bustrc(Iend+1,Jend)+bustrc(Iend,Jend+1))
+        bvstrc(Iend+1,Jend+1)=0.5*(bvstrc(Iend+1,Jend)+bvstrc(Iend,Jend+1))
         bustrw(Iend+1,Jend+1)=0.5*(bustrw(Iend+1,Jend)+bustrw(Iend,Jend+1))
         bvstrw(Iend+1,Jend+1)=0.5*(bvstrw(Iend+1,Jend)+bvstrw(Iend,Jend+1))
+        bustrcwmax(Iend+1,Jend+1)=0.5*(bustrcwmax(Iend+1,Jend)+bustrcwmax(Iend,Jend+1))
+        bvstrcwmax(Iend+1,Jend+1)=0.5*(bvstrcwmax(Iend+1,Jend)+bvstrcwmax(Iend,Jend+1))
       END IF
 # endif
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
@@ -609,8 +685,12 @@
       call exchange_r2d_tile (Istr,Iend,Jstr,Jend,Zbapp(START_2D_ARRAY))
       call exchange_u2d_tile (Istr,Iend,Jstr,Jend,bustr(START_2D_ARRAY))
       call exchange_v2d_tile (Istr,Iend,Jstr,Jend,bvstr(START_2D_ARRAY))
-      call exchange_u2d_tile (Istr,Iend,Jstr,Jend,bustrw(START_2D_ARRAY))
-      call exchange_v2d_tile (Istr,Iend,Jstr,Jend,bvstrw(START_2D_ARRAY))
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,bustrc(START_2D_ARRAY))
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,bvstrc(START_2D_ARRAY))
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,bustrw(START_2D_ARRAY))
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,bvstrw(START_2D_ARRAY))
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,bustrcwmax(START_2D_ARRAY))
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,bvstrcwmax(START_2D_ARRAY))
 # endif
 
       return

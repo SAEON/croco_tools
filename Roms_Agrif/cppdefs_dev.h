@@ -365,7 +365,11 @@
 # else
 #  define ANA_BSEDIM
 # endif
-# undef  Z0_BL
+# ifdef SEDIMENT
+#  define  Z0_BL /* Mandotory with BEDLOAD_SOULSBY */
+# else
+#  undef  Z0_BL
+# endif
 # ifdef Z0_BL
 #  define Z0_RIP
 # endif
@@ -438,10 +442,20 @@
 ======================================================================
 */
 #ifdef SEDIMENT
-# define LINEAR_CONTINUATION
+# undef LINEAR_CONTINUATION
 # undef  NEUMANN
+# define SUSPLOAD
+# undef BEDLOAD
+# ifdef BEDLOAD
+#  undef SLOPE_NEMETH
+#  define  SLOPE_LESSER
+#  if (defined WAVE_OFFLINE || defined WKB_WWAVE || defined ANA_WWAVE)
+#   define BEDLOAD_SOULSBY
+#  else
+#   define BEDLOAD_MPM
+#  endif
+# endif
 #endif
-
 /*
 ======================================================================
                               OBCs

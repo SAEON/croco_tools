@@ -17,6 +17,12 @@ ROMS - Sediment - Test
 6 Lrip
        0.14  
 
+7 bedload_coeff 
+       1.
+
+8 morph_fac
+       1.
+
 99 END of sediment input data
 
 !
@@ -82,3 +88,16 @@ ROMS - Sediment - Test
    Lrip     Initial ripple length [m]
             used in ana_sediment ifdef ANA_SEDIMENT || not in init.nc*
   
+*** CARD 7: bedload transport rate
+
+   bedload_coeff    ???  []
+            Fraction of dedload fluxes taken into account|| not in init.nc*
+            A value of 1 had nof effect 
+            
+*** CARD 8: morphological factor
+
+   morph_fac   
+            Morphlogical scale factor []
+            Bedload fluxes, erosion and deposition || not in init.nc*
+            are multiplied by this cale factor in case of morphodynamic evolution
+            A value of 1 had nof effect

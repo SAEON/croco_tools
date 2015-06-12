@@ -22,7 +22,8 @@
 ! indxU,indxV     3D U- and V-momenta.
 ! indxT,indxS,.., indxZoo  tracers (temperature, salinity,
 !                 biological tracers.
-! indxsand,silt   sand & silt sediment tracers
+! indxSAND,indxGRAV...
+! indxMUD         gravel,sand & mud sediment tracers
 ! indxO,indeW     omega vertical mass flux and true vertical velocity
 ! indxR           density anomaly
 ! indxAOU  	  Apparent Oxygen Utilization
@@ -116,6 +117,7 @@
      &           filetype_diaM=5, filetype_diaM_avg=6,
      &           filetype_diabio=7,filetype_diabio_avg=8)
 !
+      integer iloop, indextemp
       integer indxTime, indxZ, indxUb, indxVb
       parameter (indxTime=1, indxZ=2, indxUb=3, indxVb=4)
 #ifdef MOVING_BATHY
@@ -196,9 +198,15 @@
 #  endif
 # endif /* BIOLOGY */
 # ifdef SEDIMENT
-      integer indxsand, indxsilt
-      parameter (indxsand=indxT+ntrc_salt+ntrc_pas+ntrc_bio+1, 
-     &           indxsilt=indxsand+1)
+      integer, dimension(NGRAV) ::  indxGRAV
+     & =(/(iloop,iloop=indxT+ntrc_salt+ntrc_pas+ntrc_bio+1,
+     &  indxT+ntrc_salt+ntrc_pas+ntrc_bio+NGRAV)/)
+      integer, dimension(NSAND) :: indxSAND 
+     & =(/(iloop,iloop=indxT+ntrc_salt+ntrc_pas+ntrc_bio+1+NGRAV,
+     &  indxT+ntrc_salt+ntrc_pas+ntrc_bio+NGRAV+NSAND)/)
+      integer, dimension(NMUD)   :: indxMUD
+     & =(/(iloop,iloop=indxT+ntrc_salt+ntrc_pas+ntrc_bio+1+NGRAV+NSAND,
+     &  indxT+ntrc_salt+ntrc_pas+ntrc_bio+NGRAV+NSAND+NMUD)/)
 # endif
 
 # if(!defined ANA_BSEDIM  && !defined SEDIMENT)
@@ -393,17 +401,23 @@
       parameter (indxBostr=indxSUSTR+24)
 #ifdef SOLVE3D
 # ifdef SEDIMENT
-      integer indxSed, indxBTHK, indxBPOR, indxBFRA
+      integer indxSed, indxBTHK, indxBPOR 
       parameter (indxSed=indxSUSTR+28,
-     &           indxBTHK=indxSed, indxBPOR=indxSed+1,
-     &           indxBFRA=indxSed+2
+     &           indxBTHK=indxSed, indxBPOR=indxSed+1)
+      integer, dimension(NST) :: indxBFRA    
+     & =(/(iloop,iloop=indxSed+2,indxSed+1+NST)/)
 #  ifdef SUSPLOAD
-     &          ,indxSFLX=indxSed+3,indxEFLX=indxSed+4
+      integer, dimension(NST):: indxDFLX
+     & =(/(iloop,iloop=indxSed+2+NST,indxSed+1+2*NST)/)
+      integer, dimension(NST) ::indxEFLX
+     & =(/(iloop,iloop=indxSed+2+2*NST,indxSed+1+3*NST)/)
 #  endif
 #  ifdef BEDLOAD
-     &          ,indxBDU=indxSed+5,indxBDVindxSed+6
+      integer, dimension(NST):: indxBDLU
+     & =(/(iloop,iloop=indxSed+2+3*NST,indxSed+1+4*NST)/)
+      integer, dimension(NST) ::indxBDLV
+     & =(/(iloop,iloop=indxSed+2+4*NST,indxSed+1+5*NST)/)
 #  endif
-     &           )
 # endif
 # ifdef SST_SKIN
       integer indxSST_skin
@@ -415,7 +429,7 @@
       integer indxBBL, indxAbed, indxHrip, indxLrip, indxZbnot, 
      &        indxZbapp, indxBostrw
 # ifdef SEDIMENT 
-      parameter (indxBBL=indxSUSTR+32+NST,
+      parameter (indxBBL=indxSUSTR+32+6*NST,
 # else
       parameter (indxBBL=indxSUSTR+32, 
 # endif
@@ -445,7 +459,11 @@
 
 #ifdef MRL_WCI
       integer indxSUP, indxUST2D,indxVST2D
+# ifdef SEDIMENT 
+      parameter (indxSUP=indxSUSTR+44+6*NST,
+# else
       parameter (indxSUP  =indxSUSTR+44,
+# endif      
      &           indxUST2D =indxSUP+1, indxVST2D=indxSUP+2)
 # ifdef SOLVE3D
       integer indxUST,indxVST,indxWST,indxAkb,indxAkw,indxKVF,
@@ -673,7 +691,14 @@
 # endif  /* BIOLOGY */
       integer hisT(NT)
 # ifdef SEDIMENT
-      integer hisSed(NST+2)
+      integer hisSed(NST+2
+#  ifdef SUSPLOAD
+     &      +2*NST
+#   endif   
+#  ifdef BEDLOAD
+     &      +2*NST
+#   endif   
+     & )
 # endif
 # if defined DIAGNOSTICS_TS 
       integer nciddia, nrecdia, nrpfdia
