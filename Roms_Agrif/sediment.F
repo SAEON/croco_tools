@@ -2,8 +2,6 @@
 #ifdef SEDIMENT
 
 # ifdef BEDLOAD
-#  undef SLOPE_NEMETH
-#  undef  SLOPE_LESSER
 #  define bnew nnew
 # else
 #  define bnew nstp      
@@ -288,7 +286,7 @@ C$OMP BARRIER
             cff4=MIN(waven*Dstp,kdmax)
             cff1=-0.1875*wavec*(waven*Dstp)**2/(SINH(cff4))**4
             cff2=0.125*g*(2*Awave(i,j))**2/(wavec*Dstp+eps)
-            cff3=pi*2*Awave(i,j)/(Pwave(i,j)*SINH(cff4)+eps)
+            cff3=pi*2*Max(Awave(i,j),eps)/(Pwave(i,j)*SINH(cff4)+eps)
             w_asym=MAX(MIN((cff1-cff2)/cff3,0.2),0.0)
 !
 ! Compute nondimensional stresses.
@@ -1102,17 +1100,22 @@ C$OMP BARRIER
 !-----------------------------------------------------------------------
 !
 # ifdef SUSPLOAD
+#  ifdef BBL
+      do j=Jstr-1,Jend+1
+        do i=Istr-1,Iend+1
+          tau_w(i,j)=0.5*sqrt( bustrcwmax(i,j)**2
+     &                        +bvstrcwmax(i,j)**2)
+#  else
       do j=J_EXT_RANGE
         do i=I_EXT_RANGE
-#  ifdef BBL
-          tau_w(i,j)=0.5*sqrt( (bustrw(i,j)+bustrw(i+1,j))**2
-     &                        +(bvstrw(i,j)+bvstrw(i,j+1))**2)
-#  else
           tau_w(i,j)=0.5*sqrt( (bustr(i,j)+bustr(i+1,j))**2
      &                        +(bvstr(i,j)+bvstr(i,j+1))**2)
 #  endif
 #  ifdef WET_DRY
           tau_w(i,j)=tau_w(i,j)*rmask_wet(i,j)
+#  endif
+#  ifdef MASKING
+          tau_w(i,j)=tau_w(i,j)*rmask(i,j)
 #  endif
         enddo
       enddo
@@ -1614,9 +1617,9 @@ C$OMP BARRIER
             cff4=cff4*Srho(ised)**bed_frac(i,j,1,ised)
           enddo
           taucb(i,j)=cff1
-          Ssize(i,j)=cff2!MIN(cff2,Zob)
+          Ssize(i,j)=MIN(cff2,Zob)
           w_set(i,j)=cff3
-          Sdens(i,j)=cff4!MAX(cff4,1050.)
+          Sdens(i,j)=MAX(cff4,1050.)
         enddo
       enddo
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI

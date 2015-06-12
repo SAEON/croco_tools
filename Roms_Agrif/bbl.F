@@ -182,7 +182,7 @@
 !  polynomial expr. to approximate wave number on shoaling water
 !---------------------------------------------------------------------
           Fwave=twopi/Pwave(i,j)
-          Kdh=h(i,j)*Fwave*Fwave/g
+          Kdh=(h(i,j)+z_w(i,j,N))*Fwave*Fwave/g
           Kbh2=Kdh*Kdh+
      &         Kdh/(1.0+Kdh*(K1+Kdh*(K2+Kdh*(K3+Kdh*(K4+
      &              Kdh*(K5+K6*Kdh))))))
@@ -241,7 +241,7 @@
 # endif
           wset = w_set(i,j)            ! [m/s]
           rhosed = Sdens(i,j)/rhow     ! [ ] relative density
-       
+          
 # endif /* ANA_BSEDIM || SEDIMENT */ 
 
 ! critical stress for transition to sheet flow  (Li&Amos'01, eq.11)
@@ -251,12 +251,11 @@
 !         tau_crs = max(0.64*wset*wset,ustr_shields)              ! [m^2/s^2]
 
 ! threshold stress for break off (Grant & Madsen,1982)   
-          tau_bf = 0.79*(visk**(-0.6))*(((rhosed-1)*g)**0.3)
+          tau_bf = 0.79*(visk**(-0.6))*(((rhosed-1.)*g)**0.3)
      &                                  *(d50**0.9)*tau_cb        ! [m^2/s^2]
 
           znotc= d50/12.0
           znot = MAX(Zob,znotc) 
-             
 !---------------------------------------------------------------------
 !  set tauc acc. to current-only case (max znot & skin friction) [m/s]
 !---------------------------------------------------------------------
@@ -503,7 +502,7 @@
           Ucur=0.5*(Ur(i,j)+Ur(i+1,j))
           Vcur=0.5*(Vr(i,j)+Vr(i,j+1))
 
-          anglec=Ucur/Umag(i,j)
+          anglec=Ucur/(Umag(i,j)+1.e-10)
 # ifdef WKB_WWAVE
           anglew=cos(Dwave(i,j)
 # else
@@ -519,7 +518,7 @@
 !          Ubot(i,j)=Ub(i,j)*anglew
           Ur(i,j)=Ucur
 !
-          anglec=Vcur/Umag(i,j)
+          anglec=Vcur/(Umag(i,j)+1.e-10)
 # ifdef WKB_WWAVE
           anglew=sin(Dwave(i,j)
 # else
