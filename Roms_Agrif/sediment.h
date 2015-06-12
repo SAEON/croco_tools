@@ -99,7 +99,7 @@
 # ifdef BEDLOAD
       real bedldu(GLOBAL_2D_ARRAY,NST)
       real bedldv(GLOBAL_2D_ARRAY,NST)
-      common /sed_bedload/ bedload_coeff,bedldu,bedldv  
+      common /sed_bedload/ bedldu, bedldv  
 # endif
 # ifdef MOVING_BATHY
       real bed_thick_tot(GLOBAL_2D_ARRAY,2)
