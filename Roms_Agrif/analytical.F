@@ -1473,7 +1473,6 @@ C$    integer  trd, omp_get_thread_num
      &                           *rmask(i,j)
 # endif
               bed_mass(i,j,ilay,2,itrc)=bed_mass(i,j,ilay,1,itrc)
-              bed_mass(i,j,ilay,3,itrc)=bed_mass(i,j,ilay,1,itrc)
             enddo
           enddo
           d50   = 1.0
@@ -1508,9 +1507,17 @@ C$    integer  trd, omp_get_thread_num
             enddo
           endif
 # endif
+# ifdef MOVING_BATHY
+          bed_thick_tot(i,j,1)=0
+          bed_thick_tot(i,j,2)=0.
+          do ilay=1,NLAY
+            bed_thick_tot(i,j,2)=bed_thick_tot(i,j,2)+             
+     &                           bed_thick(i,j,ilay)
+          enddo
+          bed_thick_tot(i,j,1)=bed_thick_tot(i,j,2)
         enddo
       enddo
-
+# endif
       return
       end
 #endif /* SEDIMENT */

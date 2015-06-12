@@ -366,7 +366,7 @@
 #  define ANA_BSEDIM
 # endif
 # ifdef SEDIMENT
-#  define  Z0_BL /* Mandotory with BEDLOAD_SOULSBY */
+#  undef  Z0_BL /* Mandotory with BEDLOAD_SOULSBY */
 # else
 #  undef  Z0_BL
 # endif
@@ -455,6 +455,7 @@
 #   define BEDLOAD_MPM
 #  endif
 # endif
+# undef MOVING_BATHY    
 #endif
 /*
 ======================================================================

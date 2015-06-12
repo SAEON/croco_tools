@@ -1125,6 +1125,7 @@ C$OMP BARRIER
 !  Update bed properties according to ero_flux and dep_flux.
 !-----------------------------------------------------------------------
 !
+
 # ifdef SUSPLOAD
       do j=Jstr,Jend
         do ised=1,NST
@@ -1488,16 +1489,16 @@ C$OMP BARRIER
 # if defined MOVING_BATHY
       do j=Jstr-1,Jend+1
         do i=Istr-1,Iend+1
-          bed_thick_tot(i,j,1)=bed_thick_tot(i,j,2)
-          bed_thick_tot(i,j,2)=0.
+          bed_thick_tot(i,j,nstp)=bed_thick_tot(i,j,nnew)
+          bed_thick_tot(i,j,nnew)=0.
           do k=1,NLAY
-            bed_thick_tot(i,j,2)=bed_thick_tot(i,j,2)+             
+            bed_thick_tot(i,j,nnew)=bed_thick_tot(i,j,nnew)+             
      &                           bed_thick(i,j,k)
           enddo
         enddo
       enddo
         
-#  define BED_FILTER
+#  undef BED_FILTER
 #  ifdef BED_FILTER
 !  Initialize filter in the Y-direction.
       do j=Jstr,Jend
@@ -1536,24 +1537,24 @@ C$OMP BARRIER
 #  ifndef EW_PERIODIC
       if (EASTERN_EDGE) then
         do j=Jstr,Jend
-          bed_thick_tot(Iend+1,j,2)=bed_thick_tot(Iend,j,2)
+          bed_thick_tot(Iend+1,j,nnew)=bed_thick_tot(Iend,j,nnew)
       enddo
       endif
       if (WESTERN_EDGE) then
         do j=Jstr,Jend
-          bed_thick_tot(Istr-1,j,2)=bed_thick_tot(Istr,j,2)
+          bed_thick_tot(Istr-1,j,nnew)=bed_thick_tot(Istr,j,nnew)
         enddo
       endif
 #  endif
 #  ifndef NS_PERIODIC
       if (NORTHERN_EDGE) then
         do i=Istr,Iend
-          bed_thick_tot(i,Jend+1,2)=bed_thick_tot(i,Jend,2)
+          bed_thick_tot(i,Jend+1,nnew)=bed_thick_tot(i,Jend,nnew)
         enddo
       endif
       if (SOUTHERN_EDGE) then
         do i=Istr,Iend
-          bed_thick_tot(i,Jstr-1,2)=bed_thick_tot(i,Jstr,2)
+          bed_thick_tot(i,Jstr-1,nnew)=bed_thick_tot(i,Jstr,nnew)
         enddo
       endif
 #  endif
@@ -1584,7 +1585,7 @@ C$OMP BARRIER
           call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
      &                 bed_thick_tot(START_2D_ARRAY,2))
 #  endif
-       dh(:,:)=bed_thick_tot(:,:,1)-bed_thick_tot(:,:,2)
+       dh(:,:)=(bed_thick_tot(:,:,nstp)-bed_thick_tot(:,:,nnew))
 # endif /* MOVING_BATHY*/
 
       return
