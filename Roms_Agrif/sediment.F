@@ -1583,7 +1583,7 @@ C$OMP BARRIER
 !
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
           call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
-     &                 bed_thick_tot(START_2D_ARRAY,2))
+     &                 bed_thick_tot(START_2D_ARRAY,nnew))
 #  endif
        dh(:,:)=(bed_thick_tot(:,:,nstp)-bed_thick_tot(:,:,nnew))
 !       write(*,*) dh(10,4),bed_thick_tot(10,4,:),bed_thick(10,4,:)
