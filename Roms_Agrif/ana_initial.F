@@ -38,6 +38,9 @@ C$    integer omp_get_thread_num
 # include "ocean2d.h"
 # include "ocean3d.h"
 # include "scalars.h"
+# ifdef SEDIMENT
+#  include "sediment.h"
+# endif
       integer Istr,Iend,Jstr,Jend, i,j,k, itrc
 # ifdef SOLITON
       real fac, x,y, x0,y0, cff1,cff2,cff3
@@ -356,6 +359,12 @@ C$    integer omp_get_thread_num
               endif
               t(i,j,k,2,itpas)=t(i,j,k,1,itpas)
             endif
+#   endif
+#   ifdef SEDIMENT
+              t(i,j,k,1,isand)=Csed(1)
+              t(i,j,k,1,isilt)=Csed(2)             
+              t(i,j,k,2,isand)=Csed(1)
+              t(i,j,k,2,isilt)=Csed(2)             
 #   endif
           enddo
         enddo

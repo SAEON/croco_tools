@@ -86,7 +86,10 @@
       common /sediment_frac/ bed_frac, worksed_frac     
 
       real bot_thick(GLOBAL_2D_ARRAY)
-       common /bot_thick/ bot_thick 
+      common /bot_thick/ bot_thick 
+
+      real bedload_coeff, morph_fac
+      common /bed_coeff/ bedload_coeff, morph_fac 
   
 # ifdef SUSPLOAD
       real settling_flux(GLOBAL_2D_ARRAY,NST)
@@ -94,14 +97,13 @@
       common /sed_settling/ settling_flux,ero_flux  
 # endif
 # ifdef BEDLOAD
-      real bedload_coeff
       real bedldu(GLOBAL_2D_ARRAY,NST)
       real bedldv(GLOBAL_2D_ARRAY,NST)
       common /sed_bedload/ bedload_coeff,bedldu,bedldv  
 # endif
 # ifdef MOVING_BATHY
-      real morph_fac,bed_thick_tot(GLOBAL_2D_ARRAY,2)
-      common /sed_morph/ morph_fac,bed_thick_tot
+      real bed_thick_tot(GLOBAL_2D_ARRAY,2)
+      common /sed_morph/ bed_thick_tot
 # endif
   
 # ifdef AVERAGES

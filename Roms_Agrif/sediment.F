@@ -1489,7 +1489,7 @@ C$OMP BARRIER
 # if defined MOVING_BATHY
       do j=Jstr-1,Jend+1
         do i=Istr-1,Iend+1
-          bed_thick_tot(i,j,nstp)=bed_thick_tot(i,j,nnew)
+!          bed_thick_tot(i,j,nstp)=bed_thick_tot(i,j,nnew)
           bed_thick_tot(i,j,nnew)=0.
           do k=1,NLAY
             bed_thick_tot(i,j,nnew)=bed_thick_tot(i,j,nnew)+             
@@ -1586,8 +1586,8 @@ C$OMP BARRIER
      &                 bed_thick_tot(START_2D_ARRAY,2))
 #  endif
        dh(:,:)=(bed_thick_tot(:,:,nstp)-bed_thick_tot(:,:,nnew))
+!       write(*,*) dh(10,4),bed_thick_tot(10,4,:),bed_thick(10,4,:)
 # endif /* MOVING_BATHY*/
-
       return
       end
 
@@ -1748,19 +1748,16 @@ C$OMP BARRIER
             MPI_master_only write(stdout,'(f10.5,2x,A)')
      &      Lrip, 'Lrip   Init. riple height (m).'
 
-# ifdef BEDLOAD
         elseif (icard.eq.7) then
           read(iunit,*,err=60) bedload_coeff                     
             MPI_master_only write(stdout,'(f10.5,2x,A)')
      &      bedload_coeff, 'bedload_coeff   Bedload rate.'
-# endif
 
-# ifdef MOVING_BATHY
         elseif (icard.eq.8) then
           read(iunit,*,err=60) morph_fac                     
             MPI_master_only write(stdout,'(f10.5,2x,A)')
      &      morph_fac, 'morph_fac   Mophological factor.'
-# endif
+
         endif ! icard 
 !
 !  Read until last input card ID.
