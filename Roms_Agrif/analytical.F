@@ -1515,9 +1515,10 @@ C$    integer  trd, omp_get_thread_num
      &                           bed_thick(i,j,ilay)
           enddo
           bed_thick_tot(i,j,1)=bed_thick_tot(i,j,2)
+# endif
         enddo
       enddo
-# endif
+
       return
       end
 #endif /* SEDIMENT */
