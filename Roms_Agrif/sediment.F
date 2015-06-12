@@ -1584,6 +1584,7 @@ C$OMP BARRIER
           call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
      &                 bed_thick_tot(START_2D_ARRAY,2))
 #  endif
+       dh(:,:)=bed_thick_tot(:,:,1)-bed_thick_tot(:,:,2)
 # endif /* MOVING_BATHY*/
 
       return
