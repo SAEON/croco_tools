@@ -1,14 +1,7 @@
 #include "cppdefs.h"
 #ifdef SEDIMENT
 
-# define SUSPLOAD
-# undef BEDLOAD
 # ifdef BEDLOAD
-#  undef SLOPE_NEMETH
-#  undef  SLOPE_LESSER
-#  undef  BSTRESS_UPWIND
-#  define BEDLOAD_MPM
-#  undef BEDLOAD_SOULSBY /* under development */
 #  define bnew nnew
 # else
 #  define bnew nstp      
@@ -30,10 +23,8 @@
       call sed_bedload_tile (Istr,Iend,Jstr,Jend,
      &    A2d(1,1,trd), A2d(1,2,trd), 
      &    A2d(1,3,trd), A2d(1,4,trd),
-     &    A2d(1,5,trd)  
-#  ifdef BSTRESS_UPWIND
-     &    , A2d(1,6,trd),A2d(1,7,trd)     
-#  endif
+     &    A2d(1,5,trd),  
+     &    A2d(1,6,trd),A2d(1,7,trd)     
 #  if defined BEDLOAD_MPM
      &    , A2d(1,8,trd),A2d(1,9,trd)     
 #  endif
@@ -70,9 +61,7 @@ C$OMP BARRIER
 # ifdef BEDLOAD
       subroutine sed_bedload_tile (Istr, Iend, Jstr, Jend,
      &     tau_w,FX,FE,FX_r,FE_r
-#  ifdef BSTRESS_UPWIND
      &    ,tau_wX,tau_wE      
-#  endif
 #  if defined BEDLOAD_MPM
      &    ,angleu,anglev
 #  endif
@@ -87,10 +76,8 @@ C$OMP BARRIER
       real FE(PRIVATE_2D_SCRATCH_ARRAY)
       real FX_r(PRIVATE_2D_SCRATCH_ARRAY)
       real FE_r(PRIVATE_2D_SCRATCH_ARRAY)
-#  ifdef BSTRESS_UPWIND
       real tau_wX(PRIVATE_2D_SCRATCH_ARRAY)
       real tau_wE(PRIVATE_2D_SCRATCH_ARRAY)
-#  endif
 #  if defined BEDLOAD_MPM
       real angleu(PRIVATE_2D_SCRATCH_ARRAY)
       real  anglev(PRIVATE_2D_SCRATCH_ARRAY)
@@ -114,16 +101,24 @@ C$OMP BARRIER
       real phi_x1, phi_x2, phi_x, phi_y, Dstp
       real bedld_x, bedld_y, tau_cur, waven, wavec
 #  endif
-      real kdmax
-      real bedload_coeff
+      real kdmax,Kbh,Kbh2,Kdh,Fwave
       integer imin,imax,jmin,jmax
       parameter  (eps = 1.e-20)
       parameter(kdmax = 100.)
+      real
+     &        K1, K2, K3, K4, K5, K6
+      parameter (K1=0.6666666666, K2=0.3555555555,
+     &           K3=0.1608465608, K4=0.0632098765,
+     &           K5=0.0217540484, K6=0.0065407983)
 #  include "param.h"
 #  include "scalars.h"
 #  include "grid.h"
+#  include "ocean3d.h"
 #  include "sediment.h"
 #  include "forces.h"
+#  ifdef WKB_WWAVE
+#  include "wkb_wwave.h"
+#  endif
 #  include "bbl.h"
 #  include "compute_auxiliary_bounds.h"
 
@@ -158,8 +153,6 @@ C$OMP BARRIER
 #   define J_EXT_RANGE jmin,jmax
 #  endif /* NS_PERIODIC */
    
-      bedload_coeff=0.15 ! bedload rate to investigate
-
 !
 !-----------------------------------------------------------------------
 ! Compute maximum bottom stress for MPM bedload or suspended load.
@@ -167,10 +160,10 @@ C$OMP BARRIER
 !
 #  if defined BEDLOAD_MPM 
 #   ifdef BBL
-      do j=J_EXT_RANGE
-        do i=I_EXT_RANGE
-          tau_w(i,j)=0.5*sqrt( (bustrw(i,j)+bustrw(i+1,j))**2
-     &                        +(bvstrw(i,j)+bvstrw(i,j+1))**2)
+      do j=Jstr-1,Jend+1
+        do i=Istr-1,Iend+1
+          tau_w(i,j)=sqrt( bustrcwmax(i,j)**2
+     &                   + bvstrcwmax(i,j)**2)
 #    ifdef WET_DRY
           tau_w(i,j)=tau_w(i,j)*rmask_wet(i,j)
 #    endif
@@ -182,7 +175,6 @@ C$OMP BARRIER
 #   else
       do j=J_EXT_RANGE
         do i=I_EXT_RANGE
-#    ifdef BSTRESS_UPWIND
             cff1=0.5*(1.0+SIGN(1.0,bustr(i+1,j)))
             cff2=0.5*(1.0-SIGN(1.0,bustr(i+1,j)))
             cff3=0.5*(1.0+SIGN(1.0,bustr(i  ,j)))
@@ -199,7 +191,6 @@ C$OMP BARRIER
      &                  cff2*0.5*(bvstr(i,j)+bvstr(i,j+1)))+         
      &                  cff4*(cff2*bvstr(i,j+1)+                        
      &                  cff1*0.5*(bvstr(i,j)+bvstr(i,j+1)))
-#    endif /* BSTRESS_UPWIND */
           tau_w(i,j)=0.5*SQRT((bustr(i,j)+bustr(i+1,j))*             
      &                           (bustr(i,j)+bustr(i+1,j))+             
      &                           (bvstr(i,j)+bvstr(i,j+1))*             
@@ -234,12 +225,19 @@ C$OMP BARRIER
 ! Compute angle between currents and waves, measure CCW from current
 ! direction toward wave vector.
 !
-          if (bustr(i,j).eq.0.0) then
-            phic(i,j)=0.5*pi*SIGN(1.0,bvstr(i,j))
+          if (bustrc(i,j).eq.0.0) then
+            phic(i,j)=0.5*pi*SIGN(1.0,bvstrc(i,j))
           else
-            phic(i,j)=ATAN2(bvstr(i,j),bustr(i,j))
+            phic(i,j)=ATAN2(bvstrc(i,j),bustrc(i,j))
           endif
-          phicw(i,j)=1.5*pi-Dwave(i,j)-phic(i,j)-angler(i,j)
+# ifdef WKB_WWAVE
+          phicw(i,j)=Dwave(i,j)-phic(i,j)
+# else
+          phicw(i,j)=(3.0*pi)/2.0-Dwave(i,j)-phic(i,j)
+# endif
+# ifdef CURVGRID
+     &                                  -angler(i,j)
+# endif
 !
 ! Compute stress components at rho points.
 !
@@ -271,13 +269,24 @@ C$OMP BARRIER
 !
 ! Compute wave asymmetry factor, based on Fredosoe and Deigaard.
 !
-            Dstp=z_w(i,j,N)+h(i,j)
-            waven=2.0*pi/(Lwave(i,j)+eps)
+            Dstp=z_w(i,j,N)+h(i,j)  
+            !          
+#  ifdef WKB_WWAVE
+            waven=max(wvn(i,j,wnew),eps)
+#  else
+            Fwave=2*pi/Pwave(i,j)
+            Kdh=Dstp*Fwave*Fwave/g
+            Kbh2=Kdh*Kdh+
+     &      Kdh/(1.0+Kdh*(K1+Kdh*(K2+Kdh*(K3+Kdh*(K4+
+     &      Kdh*(K5+K6*Kdh))))))
+            waven = SQRT(Kbh2)/Dstp           
+# endif
+            !
             wavec=SQRT(g/waven*tanh(waven*Dstp))
             cff4=MIN(waven*Dstp,kdmax)
             cff1=-0.1875*wavec*(waven*Dstp)**2/(SINH(cff4))**4
-            cff2=0.125*g*Hwave(i,j)**2/(wavec*Dstp+eps)
-            cff3=pi*Hwave(i,j)/(Pwave_bot(i,j)*SINH(cff4)+eps)
+            cff2=0.125*g*(2*Awave(i,j))**2/(wavec*Dstp+eps)
+            cff3=pi*2*Max(Awave(i,j),eps)/(Pwave(i,j)*SINH(cff4)+eps)
             w_asym=MAX(MIN((cff1-cff2)/cff3,0.2),0.0)
 !
 ! Compute nondimensional stresses.
@@ -325,7 +334,6 @@ C$OMP BARRIER
             FE_r(i,j)=(bedld_x*SIN(phic(i,j))+bedld_y*COS(phic(i,j)))*
      &                om_r(i,j)*dt
 #  elif defined BEDLOAD_MPM
-#   ifdef BSTRESS_UPWIND
 !
 ! Magnitude of bed load at rho points. Meyer-Peter Muller formulation.
 ! bedld has dimensions of kg m-1 s-1. Use partitions of stress 
@@ -340,20 +348,6 @@ C$OMP BARRIER
      &                        0.0)**1.5)*smgdr*             
      &                        SIGN(1.0,tau_wE(i,j))
             FE_r(i,j)=bedld*om_r(i,j)*dt
-#   else
-!
-! Magnitude of bed load at rho points. Meyer-Peter Muller formulation.
-! bedld has dimensions of kg m-1 s-1
-!
-            bedld=8.0*(MAX((tau_w(i,j)*osmgd-0.047),      
-     &                        0.0)**1.5)*smgdr
-!
-! Partition bedld into xi and eta directions, still at rho points.
-! FX_r and FE_r have dimensions of kg.
-!
-            FX_r(i,j)=angleu(i,j)*bedld*on_r(i,j)*dt
-            FE_r(i,j)=anglev(i,j)*bedld*om_r(i,j)*dt
-#   endif /* BSTRESS_UPWIND */
 #  endif /* BEDLOAD_SOULSBY or BEDLOAD_MPM */
 !
 ! Correct for along-direction slope. Limit slope to 0.9*sed angle.
@@ -391,7 +385,7 @@ C$OMP BARRIER
             cff=DATAN(dzdy)
             a_slopey=sed_angle/(COS(cff)*(sed_angle-dzdy))
 !
-! Add contriubiton of bed slope to bed load transport fluxes.
+! Add contribution of bed slope to bed load transport fluxes.
 !
             FX_r(i,j)=FX_r(i,j)*a_slopex
             FE_r(i,j)=FE_r(i,j)*a_slopey
@@ -402,8 +396,8 @@ C$OMP BARRIER
 !
 ! Apply morphology factor.
 !
-            FX_r(i,j)=FX_r(i,j)*morph_fac(ised)
-            FE_r(i,j)=FE_r(i,j)*morph_fac(ised)
+            FX_r(i,j)=FX_r(i,j)*morph_fac
+            FE_r(i,j)=FE_r(i,j)*morph_fac
 
 #  endif
 !
@@ -990,12 +984,14 @@ C$OMP BARRIER
 #   define J_EXT_RANGE jmin,jmax
 #  endif
 
+#  ifdef BBL
+      do j=Jstr-1,Jend+1
+        do i=Istr-1,Iend+1
+          tau_w(i,j)=sqrt( bustrcwmax(i,j)**2
+     &                    +bvstrcwmax(i,j)**2)
+#  else
       do j=J_EXT_RANGE
         do i=I_EXT_RANGE
-#  ifdef BBL
-          tau_w(i,j)=0.5*sqrt( (bustrw(i,j)+bustrw(i+1,j))**2
-     &                        +(bvstrw(i,j)+bvstrw(i,j+1))**2)
-#  else
           tau_w(i,j)=0.5*sqrt( (bustr(i,j)+bustr(i+1,j))**2
      &                        +(bvstr(i,j)+bvstr(i,j+1))**2)
 #  endif
@@ -1104,17 +1100,22 @@ C$OMP BARRIER
 !-----------------------------------------------------------------------
 !
 # ifdef SUSPLOAD
+#  ifdef BBL
+      do j=Jstr-1,Jend+1
+        do i=Istr-1,Iend+1
+          tau_w(i,j)=0.5*sqrt( bustrcwmax(i,j)**2
+     &                        +bvstrcwmax(i,j)**2)
+#  else
       do j=J_EXT_RANGE
         do i=I_EXT_RANGE
-#  ifdef BBL
-          tau_w(i,j)=0.5*sqrt( (bustrw(i,j)+bustrw(i+1,j))**2
-     &                        +(bvstrw(i,j)+bvstrw(i,j+1))**2)
-#  else
           tau_w(i,j)=0.5*sqrt( (bustr(i,j)+bustr(i+1,j))**2
      &                        +(bvstr(i,j)+bvstr(i,j+1))**2)
 #  endif
 #  ifdef WET_DRY
           tau_w(i,j)=tau_w(i,j)*rmask_wet(i,j)
+#  endif
+#  ifdef MASKING
+          tau_w(i,j)=tau_w(i,j)*rmask(i,j)
 #  endif
         enddo
       enddo
@@ -1140,9 +1141,9 @@ C$OMP BARRIER
 #  ifdef MOVING_BATHY
 ! Apply morphology factor.
 !
-            ero_flux(i,j,ised)=ero_flux(i,j,ised)*morph_fac(ised)
+            ero_flux(i,j,ised)=ero_flux(i,j,ised)*morph_fac
             settling_flux(i,j,ised)=settling_flux(i,j,ised)*        
-     &                              morph_fac(ised)
+     &                              morph_fac
 #  endif
             if ((ero_flux(i,j,ised)-settling_flux(i,j,ised)).lt.
      &           0.) then
@@ -1259,7 +1260,7 @@ C$OMP BARRIER
 !
 ! Apply morphology factor.
 !
-          bot_thick(i,j)=MAX(bot_thick(i,j)*morph_fac(1),      
+          bot_thick(i,j)=MAX(bot_thick(i,j)*morph_fac,      
      &                         bot_thick(i,j))
 # endif
 !
@@ -1616,9 +1617,9 @@ C$OMP BARRIER
             cff4=cff4*Srho(ised)**bed_frac(i,j,1,ised)
           enddo
           taucb(i,j)=cff1
-          Ssize(i,j)=cff2!MIN(cff2,Zob)
+          Ssize(i,j)=MIN(cff2,Zob)
           w_set(i,j)=cff3
-          Sdens(i,j)=cff4!MAX(cff4,1050.)
+          Sdens(i,j)=MAX(cff4,1050.)
         enddo
       enddo
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
@@ -1745,6 +1746,19 @@ C$OMP BARRIER
             MPI_master_only write(stdout,'(f10.5,2x,A)')
      &      Lrip, 'Lrip   Init. riple height (m).'
 
+# ifdef BEDLOAD
+        elseif (icard.eq.7) then
+          read(iunit,*,err=60) bedload_coeff                     
+            MPI_master_only write(stdout,'(f10.5,2x,A)')
+     &      bedload_coeff, 'bedload_coeff   Bedload rate.'
+# endif
+
+# ifdef MOVING_BATHY
+        elseif (icard.eq.8) then
+          read(iunit,*,err=60) morph_fac                     
+            MPI_master_only write(stdout,'(f10.5,2x,A)')
+     &      morph_fac, 'morph_fac   Mophological factor.'
+# endif
         endif ! icard 
 !
 !  Read until last input card ID.
@@ -1772,10 +1786,6 @@ C$OMP BARRIER
       write(stdout,100) Nclass
  100  format(/,
      &       'Number of size classes in sediment computation:'i2)
-
-# ifdef MOVING_BATHY
-      morph_fac(:)=1.  
-# endif
 
       return
       end

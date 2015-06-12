@@ -64,10 +64,22 @@
       real Zbapp(GLOBAL_2D_ARRAY)
       common /bbl_Zbapp/ Zbapp
 
+      real bustrc(GLOBAL_2D_ARRAY)
+      common /bbl_bustrc/ bustrc
+
+      real bvstrc(GLOBAL_2D_ARRAY)
+      common /bbl_bvstrc/ bvstrc
+
       real bustrw(GLOBAL_2D_ARRAY)
       common /bbl_bustrw/ bustrw
 
       real bvstrw(GLOBAL_2D_ARRAY)
       common /bbl_bvstrw/ bvstrw
+      
+      real bustrcwmax(GLOBAL_2D_ARRAY)
+      common /bbl_bustrcwmax/ bustrcwmax
+
+      real bvstrcwmax(GLOBAL_2D_ARRAY)
+      common /bbl_bvstrcwmax/ bvstrcwmax
 
 #endif

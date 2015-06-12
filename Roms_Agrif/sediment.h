@@ -94,12 +94,13 @@
       common /sed_settling/ settling_flux,ero_flux  
 # endif
 # ifdef BEDLOAD
+      real bedload_coeff
       real bedldu(GLOBAL_2D_ARRAY,NST)
       real bedldv(GLOBAL_2D_ARRAY,NST)
-      common /sed_bedload/ bedldu,bedldv  
+      common /sed_bedload/ bedload_coeff,bedldu,bedldv  
 # endif
 # ifdef MOVING_BATHY
-      real morph_fac(NST),bed_thick_tot(GLOBAL_2D_ARRAY,2)
+      real morph_fac,bed_thick_tot(GLOBAL_2D_ARRAY,2)
       common /sed_morph/ morph_fac,bed_thick_tot
 # endif
   

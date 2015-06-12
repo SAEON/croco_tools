@@ -97,8 +97,12 @@
 #elif defined THACKER
       parameter (LLm0=199,  MMm0=199,  N=5 )   !  1 km resolution
 #elif defined TANK
+# if ! defined MOVING_BATHY
        parameter (LLm0=50,   MMm0=1,    N=50)   ! 20 cm resolution
 !      parameter (LLm0=10,   MMm0=1,    N=10)   !  1  m resolution
+# else
+       parameter (LLm0=4000,   MMm0=1,  N=30)  !  1 mm resolution
+# endif
 #elif defined REGIONAL
 #  if   defined USWC0
       parameter (LLm0=62,   MMm0=126,  N=40)   ! US_West grid15 L0
@@ -315,11 +319,15 @@
 # endif /* BIOLOGY */
 !
 # ifdef SEDIMENT
+! NGRAV          Number of gravel classes
+! NSAND          Number of sand classes
+! NMUD           Number of mud classes  
 ! NST            Number of sediment (tracer) size classes
 ! NLAY           Number of layers in sediment bed
 !
-      integer    NST, NLAY
-      parameter (NST=2, NLAY=2)
+      integer    NGRAV, NSAND, NMUD, NST, NLAY
+      parameter (NGRAV=0, NSAND=2, NMUD=0, 
+     &           NST=NGRAV+NSAND+NMUD, NLAY=2)
       parameter (ntrc_sed=NST)
 # else
       parameter (ntrc_sed=0)

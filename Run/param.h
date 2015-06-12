@@ -319,11 +319,15 @@
 # endif /* BIOLOGY */
 !
 # ifdef SEDIMENT
+! NGRAV          Number of gravel classes
+! NSAND          Number of sand classes
+! NMUD           Number of mud classes  
 ! NST            Number of sediment (tracer) size classes
 ! NLAY           Number of layers in sediment bed
 !
-      integer    NST, NLAY
-      parameter (NST=2, NLAY=2)
+      integer    NGRAV, NSAND, NMUD, NST, NLAY
+      parameter (NGRAV=0, NSAND=2, NMUD=0, 
+     &           NST=NGRAV+NSAND+NMUD, NLAY=2)
       parameter (ntrc_sed=NST)
 # else
       parameter (ntrc_sed=0)

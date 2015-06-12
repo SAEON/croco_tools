@@ -893,13 +893,51 @@ CR      write(*,*) 'wrt_his:  stflx(:,:,isalt)' MYID
       endif
 !     
       do itrc=1,NST
-         indxWrk=indxBFRA+itrc-1
+         indxWrk=indxBFRA(1)+itrc-1
          if (wrthis(indxWrk)) then
             worksed_frac=bed_frac(:,:,:,itrc)
             call fillvalue3d(worksed_frac,ncidhis,hisSed(itrc+2),
      &           indxWrk,record,b3dvar,type)
          endif
       enddo
+
+
+#  ifdef SUSPLOAD
+      do itrc=1,NST
+         indxWrk=indxDFLX(1)+itrc-1
+         if (wrthis(indxWrk)) then
+            work2d=settling_flux(:,:,itrc)
+            call fillvalue2d(work2d,ncidhis,hisSed(itrc+2+NST),
+     &           indxWrk,record,r2dvar,type)
+         endif
+      enddo
+      do itrc=1,NST
+         indxWrk=indxEFLX(1)+itrc-1
+         if (wrthis(indxWrk)) then
+            work2d=ero_flux(:,:,itrc)
+            call fillvalue2d(work2d,ncidhis,hisSed(itrc+2+2*NST),
+     &           indxWrk,record,r2dvar,type)
+         endif
+      enddo
+#  endif
+#  ifdef BEDLOAD
+      do itrc=1,NST
+         indxWrk=indxBDLU(1)+itrc-1
+         if (wrthis(indxWrk)) then
+            work2d=bedldu(:,:,itrc)
+            call fillvalue2d(work2d,ncidhis,hisSed(itrc+2+3*NST),
+     &           indxWrk,record,r2dvar,type)
+         endif
+      enddo
+      do itrc=1,NST
+         indxWrk=indxBDLV(1)+itrc-1
+         if (wrthis(indxWrk)) then
+            work2d=bedldv(:,:,itrc)
+            call fillvalue2d(work2d,ncidhis,hisSed(itrc+2+4*NST),
+     &           indxWrk,record,r2dvar,type)
+         endif
+      enddo
+#  endif
 !     
 # endif /* SEDIMENT */
 !     

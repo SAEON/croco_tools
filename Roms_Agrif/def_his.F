@@ -1499,8 +1499,11 @@
 ! bed_poros  Bed porosity (-)
 ! bed_frac_sand/silt
 !           volume fraction of size class ised in each bed layer (-)
+! dflx_ ; e_flx_   
+!            Deposition/Erosion fluxes
+! bdlu_ ; bdlv_
 !
-        do itrc=1,NST+2
+        do itrc=1,2+NST
          indxWrk=indxSed+itrc-1
          if (wrt(indxWrk)) then
           lvar=lenstr(vname(1,indxWrk))
@@ -1522,6 +1525,36 @@
 
           call nf_add_attribute(ncid, vidSed(itrc), indxWrk, 5, NF_REAL, ierr)
 
+         endif
+        enddo
+
+        do itrc=2+NST+1,2+NST
+#  ifdef SUSPLOAD
+     &                 +2*NST
+#  endif
+#  ifdef BEDLOAD
+     &                 +2*NST
+#  endif                         
+         indxWrk=indxSed+itrc-1
+         if (wrt(indxWrk)) then
+          lvar=lenstr(vname(1,indxWrk))
+          ierr=nf_def_var (ncid, vname(1,indxWrk)(1:lvar),
+     &                             NF_REAL, 3, r2dgrd, vidSed(itrc))
+#  ifndef AVRH
+          lvar=lenstr(vname(2,indxWrk))
+          ierr=nf_put_att_text (ncid, vidSed(itrc), 'long_name', lvar,
+     &                                  vname(2,indxWrk)(1:lvar))
+#  else
+          text='averaged '/ /vname(2,indxWrk)
+          lvar=lenstr(text)
+          ierr=nf_put_att_text (ncid, vidSed(itrc), 'long_name', lvar,
+     &                                              text(1:lvar))
+#  endif
+          lvar=lenstr(vname(3,indxWrk))
+          ierr=nf_put_att_text (ncid, vidSed(itrc), 'units',     lvar,
+     &                                  vname(3,indxWrk)(1:lvar))
+
+          call nf_add_attribute(ncid, vidSed(itrc), indxWrk, 5, NF_REAL, ierr)
          endif
         enddo
 !
@@ -2418,17 +2451,23 @@
 
 # ifdef SEDIMENT
 !
-! Sediment bed layer thickness, porosity, and volume fraction of 
-! size class ised in sediment layer (2+NST r2dgrd variables)
+! Sediment bed layer thickness, porosity, volume fraction of 
+! size class ised in sediment layer, bed fluxes (2+5*NST r2dgrd variables)
 !
-        do itrc=1,NST+2
+        do itrc=1,2+  NST
+#  ifdef SUSPLOAD
+     &             +2*NST
+#  endif
+#  ifdef BEDLOAD
+     &             +2*NST
+#  endif                         
          indxWrk=indxSed+itrc-1
          if (wrt(indxWrk)) then
-          lvar=lenstr(vname(1,indxWrk))
-          ierr=nf_inq_varid (ncid,vname(1,indxWrk)(1:lvar), 
+           lvar=lenstr(vname(1,indxWrk))
+           ierr=nf_inq_varid (ncid,vname(1,indxWrk)(1:lvar), 
      &                                                vidSed(itrc))
-          if (ierr .ne. nf_noerr) then
-          write(stdout,1) vname(1,indxWrk)(1:lvar), ncname(1:lstr)
+           if (ierr .ne. nf_noerr) then
+           write(stdout,1) vname(1,indxWrk)(1:lvar), ncname(1:lstr)
             goto 99                                       !--> ERROR
           endif
          endif

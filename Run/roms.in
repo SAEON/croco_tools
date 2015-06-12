@@ -134,8 +134,9 @@ biology:   forcing file
 
 sediments: input file
            sediment.in
-sediment_history_fields: bed_thick bed_poros bed_fra(sand,silt)
-                            T         F        T  T
+
+sediment_history_fields: bed_thick bed_poros bed_fra(NST) dep_flux(NST) ero_flux(NST) bedlu(NST) bedlv(NST)
+                            T         F          2*T           2*F           2*F         2*F        2*F 
 
 bbl_history_fields: Abed Hripple Lripple Zbnot Zbapp Bostrw
                      T      F       F      T     F     T

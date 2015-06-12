@@ -380,6 +380,12 @@ C$    integer omp_get_thread_num
 !
       do j=JstrR,JendR
         do i=IstrR,IendR
+           Ssize(i,j)=init
+           Sdens(i,j)=init
+           taucb(i,j)=init
+           w_set(i,j)=init
+           Hripple(i,j)=init
+           Lripple(i,j)=init
           do ilay=1,NLAY
             bed_thick(i,j,ilay)=init
             bed_poros(i,j,ilay)=init

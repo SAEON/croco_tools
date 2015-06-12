@@ -82,7 +82,7 @@
             my_grdmin=min(my_grdmin, cff)
             my_grdmax=max(my_grdmax, cff)
 
-            cff=dtfast*sqrt( g*h(i,j)*( pm(i,j)*pm(i,j)
+            cff=dtfast*sqrt( g*max(h(i,j),0.)*( pm(i,j)*pm(i,j)
      &                                 +pn(i,j)*pn(i,j) ))
 
             my_Cu_min=min(my_Cu_min, cff)
