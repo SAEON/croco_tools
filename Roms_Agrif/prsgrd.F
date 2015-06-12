@@ -427,17 +427,19 @@ c********************************************************************
 #  include "compute_tile_bounds.h" 
       trd=omp_get_thread_num()
       call prsgrd_tile (Istr,Iend,Jstr,Jend, A3d(1,1,trd),
-     &                              A3d(1,2,trd),A2d(1,1,trd),
-     &                              A2d(1,2,trd),A2d(1,3,trd))
+     &                              A3d(1,2,trd),A2d(1,1,trd)
+#  ifdef MRL_WCI
+     &                             ,A2d(1,2,trd),A2d(1,3,trd)
+#  endif
+     &                                                      )
       return
       end
 !
       subroutine prsgrd_tile (Istr,Iend,Jstr,Jend, ru,rv,pgrd
 #  ifdef MRL_WCI
-     &                                                 ,FC,rx)
-#  else
-     &                                                       )
+     &                                                 ,FC,rx
 #  endif
+     &                                                       )
 !
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j,k
