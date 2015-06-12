@@ -366,7 +366,7 @@
 #  define ANA_BSEDIM
 # endif
 # ifdef SEDIMENT
-#  define  Z0_BL
+#  define  Z0_BL /* Mandotory with BEDLOAD_SOULSBY */
 # else
 #  undef  Z0_BL
 # endif
@@ -447,6 +447,8 @@
 # define SUSPLOAD
 # undef BEDLOAD
 # ifdef BEDLOAD
+#  undef SLOPE_NEMETH
+#  define  SLOPE_LESSER
 #  if (defined WAVE_OFFLINE || defined WKB_WWAVE || defined ANA_WWAVE)
 #   define BEDLOAD_SOULSBY
 #  else

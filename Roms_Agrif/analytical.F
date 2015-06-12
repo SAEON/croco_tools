@@ -1487,7 +1487,7 @@ C$    integer  trd, omp_get_thread_num
             w_set(i,j) = wset  *(wsed  (itrc))**bed_frac(i,j,1,itrc) ! [m/s]
             Sdens(i,j) = rhosed*(Srho  (itrc))**bed_frac(i,j,1,itrc)
           enddo
-
+          Sdens(i,j) = Max(Sdens(i,j),1050.)
 # ifndef ANA_SEDIMENT
             endif            
 # endif                    
