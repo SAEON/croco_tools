@@ -20,7 +20,19 @@
 # include "scalars.h"
 # include "ncscrum.h"
 # include "grid.h"
-#include "netcdf.inc"
+# include "netcdf.inc"
+# ifdef NBQ
+      integer i,j,Istr,Iend,Jstr,Jend
+#  include "compute_extended_bounds.h"
+# endif
+# ifdef MPI
+#  define LOCALLM Lmmpi
+#  define LOCALMM Mmmpi
+# else
+#  define LOCALLM Lm
+#  define LOCALMM Mm
+# endif
+
 !
 ! Open grid netCDF file for reading. Check that dimensions in that
 ! file are consistent with the model, then read all necessary
@@ -118,9 +130,9 @@
         write(stdout,1) 'f', grdname(1:lstr)
         goto 99                                           !--> ERROR
       endif
-#ifdef NBQ
+#if defined NBQ && defined UV_COR_HORIZ
 !
-! Coriolis parameter.
+! Horizontal Coriolis parameter.
 !
       ierr=nf_inq_varid (ncid, 'e', varid)
       if (ierr .eq. nf_noerr) then
@@ -294,7 +306,37 @@
         write(stdout,1) 'mask_rho', grdname(1:lstr)
         goto 99                                           !--> ERROR
       endif
-# endif
+#  ifdef NBQ
+      IstrR=0
+      JstrR=0
+      IendR=LOCALLM+1
+      JendR=LOCALMM+1
+#   ifndef EW_PERIODIC
+#    ifndef OBC_WEST
+      do i=IstrR,IendR
+        rmask(i,0)=0.
+      enddo
+#    endif
+#    ifndef OBC_EAST
+      do i=IstrR,IendR
+        rmask(i,LOCALMM+1)=0.
+      enddo
+#    endif
+#   endif
+#   ifndef NS_PERIODIC
+#    ifndef OBC_SOUTH
+      do j=JstrR,JendR
+        rmask(0,j)=0.
+      enddo
+#    endif
+#    ifndef OBC_NORTH
+      do j=JstrR,JendR
+        rmask(LOCALLM+1,j)=0.
+      enddo
+#    endif
+#   endif
+#  endif /* NBQ */
+# endif /* MASKING */
       ierr=nf_close(ncid)
       return                                      !--> NORMAL RETURN
 
