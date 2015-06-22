@@ -1488,7 +1488,7 @@ C$    integer  trd, omp_get_thread_num
           enddo
           Sdens(i,j) = Max(Sdens(i,j),1050.)
 # ifndef ANA_SEDIMENT
-            endif            
+          endif            
 # endif                    
 
 # ifdef DEBUG

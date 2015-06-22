@@ -395,7 +395,7 @@
 # endif
 # ifdef WKB_WWAVE
 #  ifdef MRL_CEW
-#   define WKB_KZ_FILTER
+#   undef WKB_KZ_FILTER
 #   undef  WKB_TIME_FILTER
 #  endif
 #  define ANA_BRY_WKB

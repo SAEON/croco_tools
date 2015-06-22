@@ -642,8 +642,10 @@
         bvstrc(Istr-1,Jstr-1)=0.5*(bvstrc(Istr,Jstr-1)+bvstrc(Istr-1,Jstr))
         bustrw(Istr-1,Jstr-1)=0.5*(bustrw(Istr,Jstr-1)+bustrw(Istr-1,Jstr))
         bvstrw(Istr-1,Jstr-1)=0.5*(bvstrw(Istr,Jstr-1)+bvstrw(Istr-1,Jstr))
-        bustrcwmax(Istr-1,Jstr-1)=0.5*(bustrcmwax(Istr,Jstr-1)+bustrcwmax(Istr-1,Jstr))
-        bvstrcwmax(Istr-1,Jstr-1)=0.5*(bvstrcwmax(Istr,Jstr-1)+bvstrcwmax(Istr-1,Jstr))
+        bustrcwmax(Istr-1,Jstr-1)=0.5*(bustrcwmax(Istr,Jstr-1)
+     &   +bustrcwmax(Istr-1,Jstr))
+        bvstrcwmax(Istr-1,Jstr-1)=0.5*(bvstrcwmax(Istr,Jstr-1)
+     &   +bvstrcwmax(Istr-1,Jstr))
       END IF
       IF (SOUTHERN_EDGE.and.EASTERN_EDGE) THEN
         bustr(Iend+1,Jstr-1)=0.5*(bustr(Iend+1,Jstr)+bustr(Iend,Jstr-1))
@@ -652,8 +654,10 @@
         bvstrc(Iend+1,Jstr-1)=0.5*(bvstrc(Iend+1,Jstr)+bvstrc(Iend,Jstr-1))
         bustrw(Iend+1,Jstr-1)=0.5*(bustrw(Iend+1,Jstr)+bustrw(Iend,Jstr-1))
         bvstrw(Iend+1,Jstr-1)=0.5*(bvstrw(Iend+1,Jstr)+bvstrw(Iend,Jstr-1))
-        bustrcwmax(Iend+1,Jstr-1)=0.5*(bustrcwmax(Iend+1,Jstr)+bustrcwmax(Iend,Jstr-1))
-        bvstrcwmax(Iend+1,Jstr-1)=0.5*(bvstrcwmax(Iend+1,Jstr)+bvstrcwmax(Iend,Jstr-1))
+        bustrcwmax(Iend+1,Jstr-1)=0.5*(bustrcwmax(Iend+1,Jstr)
+     &   +bustrcwmax(Iend,Jstr-1))
+        bvstrcwmax(Iend+1,Jstr-1)=0.5*(bvstrcwmax(Iend+1,Jstr)
+     &   +bvstrcwmax(Iend,Jstr-1))
       END IF
       IF (NORTHERN_EDGE.and.WESTERN_EDGE) THEN
         bustr(Istr,Jend+1)=0.5*(bustr(Istr,Jend)+bustr(Istr+1,Jend+1))
@@ -662,8 +666,10 @@
         bvstrc(Istr-1,Jend+1)=0.5*(bvstrc(Istr-1,Jend)+bvstrc(Istr,Jend+1))
         bustrw(Istr-1,Jend+1)=0.5*(bustrw(Istr-1,Jend)+bustrw(Istr,Jend+1))
         bvstrw(Istr-1,Jend+1)=0.5*(bvstrw(Istr-1,Jend)+bvstrw(Istr,Jend+1))
-        bustrcwmax(Istr-1,Jend+1)=0.5*(bustrcwmax(Istr-1,Jend)+bustrcwmax(Istr,Jend+1))
-        bvstrcwmax(Istr-1,Jend+1)=0.5*(bvstrcwmax(Istr-1,Jend)+bvstrcwmax(Istr,Jend+1))
+        bustrcwmax(Istr-1,Jend+1)=0.5*(bustrcwmax(Istr-1,Jend)
+     &   +bustrcwmax(Istr,Jend+1))
+        bvstrcwmax(Istr-1,Jend+1)=0.5*(bvstrcwmax(Istr-1,Jend)
+     &   +bvstrcwmax(Istr,Jend+1))
       END IF
       IF (NORTHERN_EDGE.and.EASTERN_EDGE) THEN
         bustr(Iend+1,Jend+1)=0.5*(bustr(Iend+1,Jend)+bustr(Iend,Jend+1))
@@ -672,8 +678,10 @@
         bvstrc(Iend+1,Jend+1)=0.5*(bvstrc(Iend+1,Jend)+bvstrc(Iend,Jend+1))
         bustrw(Iend+1,Jend+1)=0.5*(bustrw(Iend+1,Jend)+bustrw(Iend,Jend+1))
         bvstrw(Iend+1,Jend+1)=0.5*(bvstrw(Iend+1,Jend)+bvstrw(Iend,Jend+1))
-        bustrcwmax(Iend+1,Jend+1)=0.5*(bustrcwmax(Iend+1,Jend)+bustrcwmax(Iend,Jend+1))
-        bvstrcwmax(Iend+1,Jend+1)=0.5*(bvstrcwmax(Iend+1,Jend)+bvstrcwmax(Iend,Jend+1))
+        bustrcwmax(Iend+1,Jend+1)=0.5*(bustrcwmax(Iend+1,Jend)
+     &   +bustrcwmax(Iend,Jend+1))
+        bvstrcwmax(Iend+1,Jend+1)=0.5*(bvstrcwmax(Iend+1,Jend)
+     &   +bvstrcwmax(Iend,Jend+1))
       END IF
 # endif
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI

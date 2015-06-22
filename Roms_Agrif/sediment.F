@@ -18,7 +18,7 @@
 # include "compute_tile_bounds.h"
 !
       trd=omp_get_thread_num()
-
+      morph_fac=TANH(dt*sec2day*float(iic-ntstart))
 # ifdef BEDLOAD
       call sed_bedload_tile (Istr,Iend,Jstr,Jend,
      &    A2d(1,1,trd), A2d(1,2,trd), 
@@ -933,6 +933,14 @@ C$OMP BARRIER
         enddo   ! sed loop
       enddo     ! j   lood    
 
+#  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      ! exchange for output purpose
+      do ised=1,NST
+          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 settling_flux(START_2D_ARRAY,ised))
+       enddo
+#  endif
+
       return
       end
 
@@ -1037,6 +1045,14 @@ C$OMP BARRIER
           enddo  ! ised loop
         enddo    ! i loop 
       enddo      ! j loop 
+
+#  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      ! exchange for output purpose
+      do ised=1,NST
+          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 ero_flux(START_2D_ARRAY,ised))
+       enddo
+#  endif
 
       return
       end
