@@ -53,7 +53,7 @@
       integer stdout, max_buff_size, maxdims, maxvars, maxnodes
       parameter (stdout=6,           max_buff_size=300*300*30,
      &           maxdims=40,         maxvars=64,     maxnodes=512)
-      character*80 ncname0, ncname(0:maxnodes-1), string 
+      character*120 ncname0, ncname(0:maxnodes-1), string 
       character*32 dimname(maxdims), varname(maxvars)
       logical XiPeriodic, EtaPeriodic, part_switch(maxvars),
      &                                           series(maxvars)

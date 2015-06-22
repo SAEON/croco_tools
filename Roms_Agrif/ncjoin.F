@@ -18,7 +18,7 @@
       implicit none
       integer stdout, maxdims, maxvars, maxnodes
       parameter (stdout=6, maxdims=16, maxvars=64, maxnodes=512)
-      character*64 ncname0, ncname(0:maxnodes-1), string
+      character*120 ncname0, ncname(0:maxnodes-1), string
       character root*64, root_bak*64, sffx*8, sffx_bak*8
       character*32 dimname(maxdims), varname(maxvars)
       logical complete, digits, part_switch(maxvars),series(maxvars)

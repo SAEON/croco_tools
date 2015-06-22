@@ -421,7 +421,7 @@
 # ifdef TS_MIX_IMP
 #  ifdef BIO_HADV_WENO5
 #   undef TS_MIX_IMP 
-         if (itrc. gt. 2) then   ! for passive tracers only
+         if (itrc .gt. 2) then   ! for passive tracers only
 #   include "t3dmix_tridiagonal.h"
 #   define TS_MIX_IMP
          else
