@@ -32,10 +32,6 @@
         <field field_ref="v" name="v" />
         <field field_ref="w" name="w" />
         <field field_ref="temp" name="T" />
-        <field field_ref="sand_1" name="sand1" />
-        <field field_ref="bed_thick" name="bed" />
-        <field field_ref="eflux_sand_1" name="eflux_sand_1" />
-        <field field_ref="dflux_sand_1" name="dflux_sand_1" />
        </field_group>
       </file>
     </file_group>
