@@ -62,6 +62,7 @@
      &                   khmax=20.D0     ! deep-water limit for k*h
 #if defined MPI 
       include 'mpif.h'
+# include "mpi_roms.h"
       integer ierr
 #endif
 # include "grid.h"
@@ -1266,6 +1267,7 @@ c        cff1=3.D0/16.D0
 #ifdef MPI
       include 'mpif.h'
       integer status(MPI_STATUS_SIZE), ierr
+#     include "mpi_roms.h"
 #endif
 #include "grid.h"
 #include "wkb_wwave.h"
