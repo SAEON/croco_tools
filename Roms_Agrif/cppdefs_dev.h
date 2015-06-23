@@ -389,6 +389,8 @@
 # define WAVE_BREAK_CT93
 # undef  WAVE_BREAK_TG86
 # undef  WAVE_BREAK_TG86A
+# undef WAVE_BREAK_R93
+
 # if !defined WKB_WWAVE && !defined ANA_WWAVE
 #  define WAVE_OFFLINE
 #  undef  WAVE_ROLLER
