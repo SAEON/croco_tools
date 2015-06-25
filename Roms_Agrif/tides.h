@@ -66,3 +66,15 @@
       real UV_Tphase(GLOBAL_2D_ARRAY,Ntides)
       common /tides_UV_Tphase/ UV_Tphase
 #endif
+
+#ifdef POT_TIDES
+      real POT_Tamp(GLOBAL_2D_ARRAY,Ntides)
+      common /tides_POT_Tamp/ POT_Tamp
+
+      real POT_Tphase(GLOBAL_2D_ARRAY,Ntides)
+      common /tides_POT_Tphase/ POT_Tphase
+
+      real PTide(GLOBAL_2D_ARRAY)
+      common /tides_Ptide/ Ptide
+#endif
+
