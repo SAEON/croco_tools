@@ -389,13 +389,15 @@
 # define WAVE_BREAK_CT93
 # undef  WAVE_BREAK_TG86
 # undef  WAVE_BREAK_TG86A
+# undef WAVE_BREAK_R93
+
 # if !defined WKB_WWAVE && !defined ANA_WWAVE
 #  define WAVE_OFFLINE
 #  undef  WAVE_ROLLER
 # endif
 # ifdef WKB_WWAVE
 #  ifdef MRL_CEW
-#   define WKB_KZ_FILTER
+#   undef WKB_KZ_FILTER
 #   undef  WKB_TIME_FILTER
 #  endif
 #  define ANA_BRY_WKB

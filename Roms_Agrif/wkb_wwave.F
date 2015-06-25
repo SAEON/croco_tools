@@ -48,7 +48,7 @@
       implicit none
 # include "param.h"
       integer istr,iend,jstr,jend, i, j, k, wprv, wbak, wold, 
-     &        imin,imax,jmin,jmax, prc 
+     &        imin,imax,jmin,jmax, prc
       real, dimension(PRIVATE_2D_SCRATCH_ARRAY) :: cgx,cge,acx,ace,
      &                                             Dstp,rkx,rke,rwac
       real, dimension(3) :: wkb_bry
@@ -62,6 +62,7 @@
      &                   khmax=20.D0     ! deep-water limit for k*h
 #if defined MPI 
       include 'mpif.h'
+# include "mpi_roms.h"
       integer ierr
 #endif
 # include "grid.h"
@@ -148,6 +149,8 @@
       sbc=3.0/16.0*sqrt(pi)*g*(wkb_btg**3)/(wkb_gam**2)/(2.0*pi)
 # elif defined WAVE_BREAK_CT93
       sbc=3.0/16.0*sqrt(pi)*g*(wkb_btg**3)/(2.0*pi)
+# elif defined WAVE_BREAK_R93
+      sbc=0.25*g*(wkb_btg**3)/(2.0*pi)
 # else
       sbc=3.0/16.0*sqrt(pi)*g*(wkb_btg**3)/(2.0*pi)
 # endif
@@ -352,6 +355,10 @@
             cff1=hrm(i,j,wstp)/(wkb_gam*h(i,j))
             wsb(i,j,wstp)=sbc/h(i,j)*(hrm(i,j,wstp)**3)
      &      *( 1.0+tanh(8.0*(cff1-1.0)) )*( 1.0-(1.0+cff1**2)**(-2.5) )
+#  elif defined WAVE_BREAK_R93
+            cff1=hrm(i,j,wstp)/(wkb_gam*h(i,j))
+            wsb(i,j,wstp)=sbc/h(i,j)*hrm(i,j,wstp)**3*cff1**4
+     &       *(1 -exp (-cff1**5 ) )
 #  endif
 #  ifdef WAVE_ROLLER
             wcr(i,j,wstp)=frq(i,j,wstp)/max(kk**2,eps)  ! c/k
@@ -627,6 +634,11 @@ C$OMP BARRIER
           cff1=hrm(i,j,wnew)/(wkb_gam*Dstp(i,j))
           wsb(i,j,wnew) =sbc/Dstp(i,j)*(hrm(i,j,wnew)**3)
      &      *( 1.0+tanh(8.0*(cff1-1.0)) )*( 1.0-(1.0+cff1**2)**(-2.5) )
+
+#  elif defined WAVE_BREAK_R93
+            cff1=hrm(i,j,wnew)/(wkb_gam*Dstp(i,j))
+            wsb(i,j,wstp)=sbc/Dstp(i,j)*hrm(i,j,wnew)**3*cff1**4
+     &       *(1 -exp (-cff1**5 ) )
 # else
           cff1=hrm(i,j,wnew)/(wkb_gam*Dstp(i,j))
           wsb(i,j,wnew) =sbc/Dstp(i,j)*(hrm(i,j,wnew)**3)
@@ -1255,6 +1267,7 @@ c        cff1=3.D0/16.D0
 #ifdef MPI
       include 'mpif.h'
       integer status(MPI_STATUS_SIZE), ierr
+#     include "mpi_roms.h"
 #endif
 #include "grid.h"
 #include "wkb_wwave.h"
