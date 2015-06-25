@@ -1,106 +1,45 @@
 <?xml version="1.0"?>
 <simulation> 
 <!-- <context id="romsc" calendar_type="Gregorian" start_date="2012-03-01 15:00:00" time_origin="2012-02-29 15:00:00"> -->
- <context id="roms" calendar_type="Gregorian" time_origin="1900-01-01 00:00:00">
+ <context id="roms" time_origin="1950-01-01 00:00:00" >
     
 
 
   <!-- ========================================================================== -->
   <!-- ========================================================================== -->
 
-
-   <field_definition level="1" enabled=".TRUE.">
-
-
-      <!-- T grid -->
-
-     <field_group id="groupT" grid_ref="grd_T_2D">
-
-         <field id="T" long_name="temperature" unit="degC" grid_ref="grd_T_3D" />
-         <field id="S" long_name="salinity" unit="psu" grid_ref="grd_T_3D" />
-         <field id="sst" long_name="sea surface temperature" unit="degC" />
-         <field id="ssh" long_name="sea surface height" unit="m" />
-
-     </field_group>
-
-
-      <!-- U grid -->
-
-     <field_group id="groupU" grid_ref="grd_U_2D">
-
-         <field id="ubar" long_name="depth-averaged x velocity" unit="m/s"/>
-         <field id="u" long_name="x velocity" unit="m/s" grid_ref="grd_U_3D"/>
-
-     </field_group>
-
-
-      <!-- V grid -->
-
-     <field_group id="groupV" grid_ref="grd_V_2D">
-
-         <field id="vbar" long_name="depth-averaged y velocity" unit="m/s"/>
-         <field id="v" long_name="y velocity" unit="m/s" grid_ref="grd_V_3D"/>
-
-     </field_group>
-    
-
-      <!-- W grid -->
-
-     <field_group id="groupW" grid_ref="grd_W_2D">
-
-         <field id="w" long_name="vertical velocity" unit="m/s" grid_ref="grd_W_3D"/>
-
-     </field_group>
-
-   </field_definition>
-
-
+    <field_definition src="./field_def.xml"/>
 
    <!-- ========================================================================== -->
    <!-- ========================================================================== -->
 
-   <file_definition type="multiple_file" par_access="collective" output_level="10" enabled=".TRUE.">
+   <file_definition type="multiple_file"  name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">
 <!--   <file_definition type="one_file" output_freq="1800s" output_level="10" enabled=".TRUE."> -->
+      <file_group id="1ts" output_freq="1ts"  output_level="10" enabled=".TRUE."/> <!-- 1 time step files -->
+      <file_group id="1h" output_freq="1h"  output_level="10" enabled=".TRUE."/> <!-- 1h files -->
+      <file_group id="2h" output_freq="2h"  output_level="10" enabled=".TRUE."/> <!-- 2h files -->
+      <file_group id="3h" output_freq="3h"  output_level="10" enabled=".TRUE."/> <!-- 3h files -->
+      <file_group id="4h" output_freq="4h"  output_level="10" enabled=".TRUE."/> <!-- 4h files -->
+      <file_group id="6h" output_freq="6h"  output_level="10" enabled=".TRUE."/> <!-- 6h files -->
+      <file_group id="5d" output_freq="5d"  output_level="10" enabled=".TRUE."/> <!-- 1d files -->
+      <file_group id="3d" output_freq="3d"  output_level="10" enabled=".TRUE."/> <!-- 3d files -->
 
-     <file id="output_his" name="file_his" output_freq="5d" sync_freq="5d" split_freq="50d">
+     <file_group id="1d" output_freq="1d"  output_level="10" enabled=".TRUE." >  <!-- 1d files -->
+     <file id="file1" name_suffix="_his" >
        <field_group id="his_fields" operation="instant">
-        <field field_ref="ssh" />
+        <field field_ref="zeta" />
         <field field_ref="u" name="u" />
         <field field_ref="v" name="v" />
         <field field_ref="w" name="w" />
-        <field field_ref="T" name="T" />
+        <field field_ref="temp" name="T" />
        </field_group>
-     </file>
+      </file>
+    </file_group>
 
    </file_definition>
 
-
   <!-- ========================================================================== -->
   <!-- ========================================================================== -->
-
-   <domain_definition>
-
-    <domain_group id="grid_T">
-        <domain id="dom_T" long_name="grid T"/>
-     </domain_group>
-
-     <domain_group id="grid_U">
-        <domain id="dom_U" long_name="grid U"/>
-     </domain_group>
-
-     <domain_group id="grid_V">
-        <domain id="dom_V" long_name="grid V"/>
-     </domain_group>
-
-<!--      <domain_group id="grid_W">
-         <domain id="grid_W" long_name="grid W"/>
-      </domain_group> -->
-
-     <domain_group id="scalarpoint">
-         <domain id="scalarpoint" long_name="scalar"/>
-     </domain_group>
-
-   </domain_definition>
 
    <axis_definition>
     <axis_group id="s_r">
@@ -109,147 +48,30 @@
     <axis_group id="s_w">
      <axis id="s_w" />
     </axis_group>
-   </axis_definition>
-
-   <grid_definition>    
-
-     <grid id="grd_T_2D" domain_ref="dom_T"/>
-     <grid id="grd_T_3D" domain_ref="dom_T" axis_ref="s_r"/>
-     <grid id="grd_U_2D" domain_ref="dom_U"/>
-     <grid id="grd_U_3D" domain_ref="dom_U" axis_ref="s_r"/>
-     <grid id="grd_V_2D" domain_ref="dom_V"/>
-     <grid id="grd_V_3D" domain_ref="dom_V" axis_ref="s_r"/>
-     <grid id="grd_W_2D" domain_ref="dom_T"/>
-     <grid id="grd_W_3D" domain_ref="dom_T" axis_ref="s_w"/> 
-
-   </grid_definition>    
-
-  
-  </context>
-
-<context id="roms.1" calendar_type="Gregorian" time_origin="1900-01-01 00:00:00">
-    
-
-
-  <!-- ========================================================================== -->
-  <!-- ========================================================================== -->
-
-
-   <field_definition level="1" enabled=".TRUE.">
-
-
-      <!-- T grid -->
-
-     <field_group id="groupT" grid_ref="grd_T_2D">
-
-         <field id="T" long_name="temperature" unit="degC" grid_ref="grd_T_3D" />
-         <field id="S" long_name="salinity" unit="psu" grid_ref="grd_T_3D" />
-         <field id="sst" long_name="sea surface temperature" unit="degC" />
-         <field id="ssh" long_name="sea surface height" unit="m" />
-
-     </field_group>
-
-
-      <!-- U grid -->
-
-     <field_group id="groupU" grid_ref="grd_U_2D">
-
-         <field id="ubar" long_name="depth-averaged x velocity" unit="m/s"/>
-         <field id="u" long_name="x velocity" unit="m/s" grid_ref="grd_U_3D"/>
-
-     </field_group>
-
-
-      <!-- V grid -->
-
-     <field_group id="groupV" grid_ref="grd_V_2D">
-
-         <field id="vbar" long_name="depth-averaged y velocity" unit="m/s"/>
-         <field id="v" long_name="y velocity" unit="m/s" grid_ref="grd_V_3D"/>
-
-     </field_group>
-    
-
-      <!-- W grid -->
-
-     <field_group id="groupW" grid_ref="grd_W_2D">
-
-         <field id="w" long_name="vertical velocity" unit="m/s" grid_ref="grd_W_3D"/>
-
-     </field_group>
-
-   </field_definition>
-
-
-
-   <!-- ========================================================================== -->
-   <!-- ========================================================================== -->
-
-   <file_definition type="multiple_file" par_access="collective" output_level="10" enabled=".TRUE.">
-<!--   <file_definition type="one_file" output_freq="1800s" output_level="10" enabled=".TRUE."> -->
-     <file id="output_his" name="1_file_his" output_freq="5d" sync_freq="5d" split_freq="50d">
-       <field_group id="his_fields" operation="instant">
-        <field field_ref="ssh" />
-        <field field_ref="u" name="u" />
-        <field field_ref="v" name="v" />
-        <field field_ref="w" name="w" />
-        <field field_ref="T" name="T" />
-       </field_group>
-     </file>
-   </file_definition>
-
-
-  <!-- ========================================================================== -->
-  <!-- ========================================================================== -->
-
-   <domain_definition>
-
-    <domain_group id="grid_T">
-        <domain id="dom_T" long_name="grid T"/>
-     </domain_group>
-
-     <domain_group id="grid_U">
-        <domain id="dom_U" long_name="grid U"/>
-     </domain_group>
-
-     <domain_group id="grid_V">
-        <domain id="dom_V" long_name="grid V"/>
-     </domain_group>
-
-<!--      <domain_group id="grid_W">
-         <domain id="grid_W" long_name="grid W"/>
-      </domain_group> -->
-
-     <domain_group id="scalarpoint">
-         <domain id="scalarpoint" long_name="scalar"/>
-     </domain_group>
-
-   </domain_definition>
-
-   <axis_definition>
-    <axis_group id="s_r">
-     <axis id="s_r" />
-    </axis_group>
-    <axis_group id="s_w">
-     <axis id="s_w" />
+ <!-- For Sediment -->
+    <axis_group id="s_b">
+     <axis id="s_b" />
     </axis_group>
    </axis_definition>
 
+   <domain_definition src="./domain_def.xml"/>
+
    <grid_definition>    
-
-     <grid id="grd_T_2D" domain_ref="dom_T"/>
-     <grid id="grd_T_3D" domain_ref="dom_T" axis_ref="s_r"/>
-     <grid id="grd_U_2D" domain_ref="dom_U"/>
-     <grid id="grd_U_3D" domain_ref="dom_U" axis_ref="s_r"/>
-     <grid id="grd_V_2D" domain_ref="dom_V"/>
-     <grid id="grd_V_3D" domain_ref="dom_V" axis_ref="s_r"/>
-     <grid id="grd_W_2D" domain_ref="dom_T"/>
-     <grid id="grd_W_3D" domain_ref="dom_T" axis_ref="s_w"/> 
-
+     <grid id="grid_T_2D" domain_ref="grid_T"/>
+     <grid id="grid_T_3D" domain_ref="grid_T" axis_ref="s_r"/>
+     <grid id="grid_U_2D" domain_ref="grid_U"/>
+     <grid id="grid_U_3D" domain_ref="grid_U" axis_ref="s_r"/>
+     <grid id="grid_V_2D" domain_ref="grid_V"/>
+     <grid id="grid_V_3D" domain_ref="grid_V" axis_ref="s_r"/>
+     <grid id="grid_W_2D" domain_ref="grid_W"/>
+     <grid id="grid_W_3D" domain_ref="grid_W" axis_ref="s_w"/> 
+     <grid id="grid_b_2D" domain_ref="grid_b"/>
+     <grid id="grid_b_3D" domain_ref="grid_b" axis_ref="s_b"/> 
    </grid_definition>    
-
   
   </context>
+
+  
 
   <!-- ========================================================================== -->
   <!-- ========================================================================== -->
@@ -257,16 +79,12 @@
   
   <context id="xios">
       <variable_definition>
-        <variable_group id="buffer">
-<!-- buffer_size > jpi*jpj*jpk*8 (with jpi and jpj are subdomain size) -->
-            buffer_size = 10000000
-            buffer_server_factor_size = 2 
-         </variable_group>
-
-        <variable_group id="parameters" >
-          <variable id="using_server" type="boolean">true</variable>
-          <variable id="info_level" type="int">0</variable>
-        </variable_group>
+          <variable id="buffer_size"               type="integer">5000000</variable>
+          <variable id="buffer_server_factor_size" type="integer">2</variable>
+          <variable id="info_level"                type="integer">0</variable>
+          <variable id="using_server"              type="boolean">true</variable>
+          <variable id="using_oasis"               type="boolean">false</variable>
+          <variable id="oasis_codes_id"            type="string" >oceanx</variable>
       </variable_definition>
   </context>
 

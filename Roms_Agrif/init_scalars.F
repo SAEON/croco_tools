@@ -1000,7 +1000,7 @@ CR      write(stdout,'(1x,A,I3,1x,I3)') 'indxBFRA_mud  N°',i, indxBFRA(i)
 
 #  ifdef SUSPLOAD
       do i=1,NGRAV
-       write(nametrc,'(A,I1)') 'gravel_dflx_',i
+       write(nametrc,'(A,I1)') 'dflx_gravel_',i
 CR        write(stdout,'(1x,A,I3,1x,I3)') 'gravel_dflx Nb',i, indxDFLX(i)
         vname(1,indxDFLX(i))=TRIM(nametrc)
         vname(2,indxDFLX(i))=TRIM(nametrc)                          
@@ -1012,7 +1012,7 @@ CR        write(stdout,'(1x,A,I3,1x,I3)') 'gravel_dflx Nb',i, indxDFLX(i)
       enddo
 
       do i=NGRAV+1,NGRAV+NSAND
-       write(nametrc,'(A,I1)') 'sand_dflx_',i
+       write(nametrc,'(A,I1)') 'dflx_sand_',i
 CR        write(stdout,'(1x,A,I3,1x,I3)') 'sand_dflx Nb',i, indxDFLX(i)
         vname(1,indxDFLX(i))=TRIM(nametrc)
         vname(2,indxDFLX(i))=TRIM(nametrc)//" sediment"                          
@@ -1024,7 +1024,7 @@ CR        write(stdout,'(1x,A,I3,1x,I3)') 'sand_dflx Nb',i, indxDFLX(i)
       enddo
 
       do i=NGRAV+NSAND+1,NGRAV+NSAND+NMUD
-       write(nametrc,'(A,I1)') 'mud_dflx_',i
+       write(nametrc,'(A,I1)') 'dflx_mud_',i
 CR        write(stdout,'(1x,A,I3,1x,I3)') 'mud_dflx Nb',i, indxDFLX(i)
         vname(1,indxDFLX(i))=TRIM(nametrc)
         vname(2,indxDFLX(i))=TRIM(nametrc)//" sediment"                          
@@ -1036,7 +1036,7 @@ CR        write(stdout,'(1x,A,I3,1x,I3)') 'mud_dflx Nb',i, indxDFLX(i)
       enddo
 
       do i=1,NGRAV
-       write(nametrc,'(A,I1)') 'gravel_eflx',i
+       write(nametrc,'(A,I1)') 'eflx_gravel_',i
 CR        write(stdout,'(1x,A,I3,1x,I3)') 'gravel_eflx Nb',i, indxEFLX(i)
         vname(1,indxEFLX(i))=TRIM(nametrc)
         vname(2,indxEFLX(i))=TRIM(nametrc)//" sediment"                          
@@ -1048,7 +1048,7 @@ CR        write(stdout,'(1x,A,I3,1x,I3)') 'gravel_eflx Nb',i, indxEFLX(i)
       enddo
 
       do i=NGRAV+1,NGRAV+NSAND
-       write(nametrc,'(A,I1)') 'sand_eflx',i
+       write(nametrc,'(A,I1)') 'eflx_sand_',i
 CR        write(stdout,'(1x,A,I3,1x,I3)') 'sand_eflx Nb',i, indxEFLX(i)
         vname(1,indxEFLX(i))=TRIM(nametrc)
         vname(2,indxEFLX(i))=TRIM(nametrc)//" sediment"                          
@@ -1060,7 +1060,7 @@ CR        write(stdout,'(1x,A,I3,1x,I3)') 'sand_eflx Nb',i, indxEFLX(i)
       enddo
 
       do i=NGRAV+NSAND+1,NGRAV+NSAND+NMUD
-       write(nametrc,'(A,I1)') 'mud_eflx_',i
+       write(nametrc,'(A,I1)') 'eflx_mud_',i
 CR        write(stdout,'(1x,A,I3,1x,I3)') 'mud_eflx Nb',i, indxEFLX(i)
         vname(1,indxEFLX(i))=TRIM(nametrc)
         vname(2,indxEFLX(i))=TRIM(nametrc)//" sediment"                          
@@ -1074,7 +1074,7 @@ CR        write(stdout,'(1x,A,I3,1x,I3)') 'mud_eflx Nb',i, indxEFLX(i)
 #  endif
 #  ifdef BEDLOAD
       do i=1,NGRAV
-       write(nametrc,'(A,I1)') 'gravel_bdlu_',i
+       write(nametrc,'(A,I1)') 'bdlu_gravel_',i
 CR        write(stdout,'(1x,A,I3,1x,I3)') 'gravel_bdlu Nb',i, indxBDLU(i)
         vname(1,indxBDLU(i))=TRIM(nametrc)
         vname(2,indxBDLU(i))=TRIM(nametrc)                          
@@ -1086,7 +1086,7 @@ CR        write(stdout,'(1x,A,I3,1x,I3)') 'gravel_bdlu Nb',i, indxBDLU(i)
       enddo
 
       do i=NGRAV+1,NGRAV+NSAND
-       write(nametrc,'(A,I1)') 'sand_bdlu_',i
+       write(nametrc,'(A,I1)') 'bdlu_sand_',i
 CR        write(stdout,'(1x,A,I3,1x,I3)') 'sand_bdlu Nb',i, indxBDLU(i)
         vname(1,indxBDLU(i))=TRIM(nametrc)
         vname(2,indxBDLU(i))=TRIM(nametrc)                        
@@ -1098,7 +1098,7 @@ CR        write(stdout,'(1x,A,I3,1x,I3)') 'sand_bdlu Nb',i, indxBDLU(i)
       enddo
 
       do i=NGRAV+NSAND+1,NGRAV+NSAND+NMUD
-       write(nametrc,'(A,I1)') 'mud_bdlu_',i
+       write(nametrc,'(A,I1)') 'bdlu_mud_',i
 CR        write(stdout,'(1x,A,I3,1x,I3)') 'mud_bdlu Nb',i, indxBDLU(i)
         vname(1,indxBDLU(i))=TRIM(nametrc)
         vname(2,indxBDLU(i))=TRIM(nametrc)                        
@@ -1110,7 +1110,7 @@ CR        write(stdout,'(1x,A,I3,1x,I3)') 'mud_bdlu Nb',i, indxBDLU(i)
       enddo
       
       do i=1,NGRAV
-       write(nametrc,'(A,I1)') 'gravel_bdlv_',i
+       write(nametrc,'(A,I1)') 'bdlv_gravel_',i
 CR        write(stdout,'(1x,A,I3,1x,I3)') 'gravel_bdlv_ Nb',i, indxBDLV(i)
         vname(1,indxBDLV(i))=TRIM(nametrc)
         vname(2,indxBDLV(i))=TRIM(nametrc)                          
@@ -1122,7 +1122,7 @@ CR        write(stdout,'(1x,A,I3,1x,I3)') 'gravel_bdlv_ Nb',i, indxBDLV(i)
       enddo
 
       do i=NGRAV+1,NGRAV+NSAND
-       write(nametrc,'(A,I1)') 'sand_bdlv_',i
+       write(nametrc,'(A,I1)') 'bdlv_sand_',i
 CR        write(stdout,'(1x,A,I3,1x,I3)') 'sand_bdlv_ Nb',i, indxBDLV(i)
         vname(1,indxBDLV(i))=TRIM(nametrc)
         vname(2,indxBDLV(i))=TRIM(nametrc)                          
@@ -1134,7 +1134,7 @@ CR        write(stdout,'(1x,A,I3,1x,I3)') 'sand_bdlv_ Nb',i, indxBDLV(i)
       enddo
 
       do i=NGRAV+NSAND+1,NGRAV+NSAND+NMUD
-       write(nametrc,'(A,I1)') 'mud_bdlv_',i
+       write(nametrc,'(A,I1)') 'bdlv_mud_',i
 CR        write(stdout,'(1x,A,I3,1x,I3)') 'mud_bdlv Nb',i, indxBDLV(i)
         vname(1,indxBDLV(i))=TRIM(nametrc)
         vname(2,indxBDLV(i))=TRIM(nametrc)                        
@@ -1733,7 +1733,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxVST =',indxVST
 
 CR      write(stdout,'(1x,A,I3)') 'indxWST =',indxWST
       vname(1,indxWST)  ='wst                                    '
-      vname(2,indxWST)  ='w veitical 3D Stokes drift velocity    '
+      vname(2,indxWST)  ='w vertical 3D Stokes drift velocity    '
       vname(3,indxWST)  ='meter second-1                         '
 
 CR      write(stdout,'(1x,A,I3)') 'indxAKB =',indxAKB
