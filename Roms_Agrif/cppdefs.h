@@ -190,6 +190,7 @@
 # ifdef TIDES
 #  define SSH_TIDES
 #  define UV_TIDES
+#  undef  POT_TIDES
 #  define TIDERAMP
 #  define OBC_M2FLATHER
 # else

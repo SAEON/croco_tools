@@ -52,6 +52,19 @@
 ! divided by the total depth of water column, i.e. the whole
 ! S-coordinate system is "brethes" by linear in Z-space expansion
 ! and contraction set by free-surface variation.
+!
+! VADV_ADAPT_IMP: Adaptive implicit vertical advection:
+! ----------------------------------------------------
+! Shchepetkin A.F., 2015: An adaptive, Courant-number-dependent
+! implicit scheme for vertical advection in oceanic modeling,
+! Ocean Modelling, 91, 38-69.
+!
+! c_min: Courant number threshold value for fully explicit advection
+! c_max: Courant number threshold value for fully implicit advection
+! between c_min and c_max: mixed advection
+! if the scheme is only applied at corrector step, c_max takes on
+! a slightly different value for stability reasons
+!
 !======================================================================
 !
       implicit none
