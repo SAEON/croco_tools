@@ -358,11 +358,14 @@
         enddo
       endif
 !
+! Compute Greenwich hour angle 
+! (cos_h=1 at solar noon in Greenwich)
+!
+      cos_h=cos(2.*pi*(tdays+.5-int(tdays+.5))
+     &                     -lonr(i,j)*deg2rad)
+!
 ! Compute declination angle
 !
-      cos_h=cos(2.*pi*(tdays+.5-int(tdays+.5)))
-      cff1=dt*sec2day
-      cff2=tdays-int(tdays)
       dec=-0.406*cos(deg2rad*(tdays-
      &               int(tdays*day2year)*year2day))
       cos_dec=cos(dec)
