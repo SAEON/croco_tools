@@ -190,6 +190,7 @@
 # ifdef TIDES
 #  define SSH_TIDES
 #  define UV_TIDES
+#  undef  POT_TIDES
 #  define TIDERAMP
 #  define OBC_M2FLATHER
 # else
@@ -536,11 +537,6 @@
 # define ANA_SRFLUX
 # define ANA_BTFLUX
 # define ANA_BSFLUX
-# undef MOVING_BATHY
-# ifdef MOVING_BATHY
-#  define ANA_MOVING_BATHY
-#  define EW_PERIODIC
-# endif
 
 # elif defined SHELFRONT
 /*
@@ -873,10 +869,7 @@
 # define ANA_SMFLUX
 # define ANA_SRFLUX
 # define ANA_STFLUX
-# undef MOVING_BATHY
-# ifdef MOVING_BATHY
-#  define ANA_MOVING_BATHY
-# endif
+
 
 #endif /* END OF CONFIGURATION CHOICE */
 

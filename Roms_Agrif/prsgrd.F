@@ -70,7 +70,10 @@ c********************************************************************
 #  include "diagnostics.h"
 # endif
 # ifdef MRL_WCI
-#   include "forces.h"
+#  include "forces.h"
+# endif
+# ifdef POT_TIDES
+#  include "tides.h"
 # endif
 !
 #ifdef MASKING
@@ -170,6 +173,9 @@ c********************************************************************
           P(i,j,N)=g*z_w(i,j,N) + GRho*( rho(i,j,N)
      &       +0.5*(rho(i,j,N)-rho(i,j,N-1))*(z_w(i,j,N)-z_r(i,j,N))
      &          /(z_r(i,j,N)-z_r(i,j,N-1)) )*(z_w(i,j,N)-z_r(i,j,N))
+# ifdef POT_TIDES
+          P(i,j,N) = P(i,j,N) - g*Ptide(i,j)
+# endif
         enddo
         do k=N-1,1,-1
           do i=IstrU-1,Iend
@@ -483,9 +489,8 @@ c********************************************************************
 ! integration.
 !
       do j=Jstr,Jend
-        cff=0.5D0*g/rho0
-c*      cff1=(1000.D0-rho0)*g/rho0
-        cff1= 1000.D0      *g/rho0
+        cff=0.5*g/rho0
+        cff1=1000.0*g/rho0
 
         do i=IstrU,Iend
           pgrd(i)=cff*(rho(i,j,N)-rho(i-1,j,N))
@@ -495,6 +500,10 @@ c*      cff1=(1000.D0-rho0)*g/rho0
      &                 +(cff1+cff*(rho(i,j,N)+rho(i-1,j,N)))
      &                              *(z_w(i,j,N)-z_w(i-1,j,N))
 #  endif
+#  ifdef POT_TIDES
+                 - g*(Ptide(i,j)-Ptide(i-1,j))
+#  endif
+
           ru(i,j,N)=-0.5*(HZR(i,j,N)+HZR(i-1,j,N))
      &                                 *on_u(i,j)*pgrd(i)
 
@@ -511,7 +520,7 @@ c*      cff1=(1000.D0-rho0)*g/rho0
 ! Integrate it vertically, from top to bottom, properly scale
 ! it and add into r.h.s. "ru".
 !
-        cff=0.25D0*g/rho0
+        cff=0.25*g/rho0
         do k=N-1,1,-1
           do i=IstrU,Iend
 #  ifdef WJ_GRADP
@@ -566,9 +575,8 @@ c*      cff1=(1000.D0-rho0)*g/rho0
 !-----------------------------------------
 ! Same sequence as for the XI-component.
 !
-          cff=0.5D0*g/rho0
-c*        cff1=g*(1000.D0-rho0)/rho0
-          cff1= 1000.D0      *g/rho0
+          cff=0.5*g/rho0
+          cff1=1000.0*g/rho0
 
           do i=Istr,Iend
             pgrd(i)=cff*(rho(i,j,N)-rho(i,j-1,N))
@@ -578,6 +586,9 @@ c*        cff1=g*(1000.D0-rho0)/rho0
 #  ifdef RHO_SURF
      &                   +(cff1+cff*(rho(i,j,N)+rho(i,j-1,N)))
      &                                *(z_w(i,j,N)-z_w(i,j-1,N))
+#  endif
+#  ifdef POT_TIDES
+                 - g*(Ptide(i,j)-Ptide(i,j-1))
 #  endif
 
             rv(i,j,N)=-0.5D0*(HZR(i,j,N)+HZR(i,j-1,N))
