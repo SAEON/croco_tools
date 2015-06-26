@@ -20,15 +20,15 @@
 #ifdef LMD_BKPP
          <field id="hbbl" long_name="depth of bottom boundary layer" unit="meter" />
 #endif
-#ifdef MOVING_MATHY
-         <!-- MOVING_MATHY -->
+#ifdef MOVING_BATHY
+         <!-- MOVING_BATHY -->
          <field id="hmorph" long_name="moving bathymetry" unit="meter" />
-         <!-- END MOVING_MATHY -->
+         <!-- END MOVING_BATHY -->
 #endif
          <field id="rho" long_name="density anomaly" unit="kilogram meter-3" grid_ref="grid_T_3D"/>
 #ifdef VIS_COEF_3D
          <!-- VIS_COEF_3D -->
-         <field id="visc3d" long_name="horizontal viscosity coefficient" unit="meter2 second-1 " />
+         <field id="visc3d" long_name="horizontal viscosity coefficient" unit="meter2 second-1" grid_ref="grid_T_3D"/>
          <!--END VIS_COEF_3D -->
 #endif
 #ifdef DIF_COEF_3D

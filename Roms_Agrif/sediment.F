@@ -380,9 +380,11 @@ C$OMP BARRIER
             dzdy=MIN(((h(i,j+1)-h(i,j  ))/on_v(i,j+1)*cff1+      
      &                (h(i,j  )-h(i,j-1))/on_v(i  ,j)*cff2),0.52)* 
      &                SIGN(1.0,FE_r(i,j))
-            cff=DATAN(dzdx)
+            !cff=DATAN(dzdx)
+            cff=ATAN(dzdx)
             a_slopex=sed_angle/(COS(cff)*(sed_angle-dzdx))
-            cff=DATAN(dzdy)
+            !cff=DATAN(dzdy)
+            cff=ATAN(dzdy)
             a_slopey=sed_angle/(COS(cff)*(sed_angle-dzdy))
 !
 ! Add contribution of bed slope to bed load transport fluxes.
