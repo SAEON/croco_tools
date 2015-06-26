@@ -143,8 +143,11 @@ C$    trd=omp_get_thread_num()
 #include "climat.h"
 #include "scalars.h"
 #include "sources.h"
+#ifdef POT_TIDES
+# include "tides.h"
+#endif
 #ifdef AGRIF
-#include "zoom.h"
+# include "zoom.h"
         integer irhox, irhoy, irhot
 #endif
 #if defined INTERNAL || defined BODYTIDE
@@ -617,6 +620,10 @@ C$OMP END MASTER
      &                  + ( h(i-1,j)+h(i,j)+rzeta(i-1,j)+rzeta(i,j) )
      &                                       *( sup(i,j)-sup(i-1,j) )
 #endif
+#if defined POT_TIDES && !defined SOLVE3D
+     &                  + ( h(i-1,j)+h(i,j)+rzeta(i-1,j)+rzeta(i,j) )
+     &                                   *( Ptide(i,j)-Ptide(i-1,j) )
+#endif
      &                                                              )
 ! 
           rvbar(i,j)=cff*om_v(i,j)*( (h(i,j-1)+h(i,j))*(rzeta(i,j-1)
@@ -629,6 +636,10 @@ C$OMP END MASTER
 #ifdef MRL_WCI
      &                  + ( h(i,j-1)+h(i,j)+rzeta(i,j-1)+rzeta(i,j) )
      &                                       *( sup(i,j)-sup(i,j-1) )
+#endif
+#if defined POT_TIDES && !defined SOLVE3D
+     &                  + ( h(i,j-1)+h(i,j)+rzeta(i,j-1)+rzeta(i,j) )
+     &                                   *( Ptide(i,j)-Ptide(i,j-1) )
 #endif
      &                                                              )
         enddo

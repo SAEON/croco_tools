@@ -74,6 +74,18 @@ nc{'tide_Cphase'}.long_name = 'Tidal current phase angle';
 nc{'tide_Cphase'}.units = ncchar('Degrees');
 nc{'tide_Cphase'}.units = 'Degrees';
 
+nc{'tide_Pamp'} = ncdouble('tide_period', 'eta_rho', 'xi_rho');
+nc{'tide_Pamp'}.long_name = ncchar('Tidal potential amplitude');
+nc{'tide_Pamp'}.long_name = 'Tidal potential amplitude';
+nc{'tide_Pamp'}.units = ncchar('Meter');
+nc{'tide_Pamp'}.units = 'Meter';
+
+nc{'tide_Pphase'} = ncdouble('tide_period', 'eta_rho', 'xi_rho');
+nc{'tide_Pphase'}.long_name = ncchar('Tidal potential phase angle');
+nc{'tide_Pphase'}.long_name = 'Tidal potential phase angle';
+nc{'tide_Pphase'}.units = ncchar('Degrees');
+nc{'tide_Pphase'}.units = 'Degrees';
+
 nc.date = ncchar(date);
 nc.date = date;
 nc.start_tide_mjd=start_tide_mjd;

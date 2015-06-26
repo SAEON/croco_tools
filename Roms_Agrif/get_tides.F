@@ -123,7 +123,30 @@
             UV_Tphase(i,j,itide)=UV_Tphase(i,j,itide)*deg2rad
           enddo
         enddo
-
+# endif
+# ifdef POT_TIDES
+!
+!  Tidal potential amplitude and phase.
+!
+        status=nf_inq_varid(ncidfrc,'tide_Pamp',varid)
+        status=nf_fread(POT_Tamp(START_2D_ARRAY,itide),
+     &                              ncidfrc,varid,itide,r2dvar)
+        if (status.ne.NF_NOERR) then
+          write(6,3) 'tide_Pamp',itide,frcname(1:lstr)
+          stop                           !-->  EXIT
+        endif
+        status=nf_inq_varid(ncidfrc,'tide_Pphase',varid)
+        status=nf_fread(POT_Tphase(START_2D_ARRAY,itide),
+     &                              ncidfrc,varid,itide,r2dvar)
+        if (status.ne.NF_NOERR) then
+          write(6,3) 'tide_Pphase',itide,frcname(1:lstr)
+          stop                           !-->  EXIT
+        endif
+        do j=0,LOCALMM+1
+          do i=0,LOCALLM+1
+            POT_Tphase(i,j,itide)=POT_Tphase(i,j,itide)*deg2rad
+          enddo
+        enddo
 # endif
 
       enddo !Ntides

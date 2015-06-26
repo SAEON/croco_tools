@@ -52,7 +52,7 @@
       integer
      &     Iend, Istr, Jend, Jstr, i, itide, j
       real
-     &     angle, phase, omega, ramp
+     &     angle, phase, omega, ramp, cff
       real
      &        Cangle(PRIVATE_2D_SCRATCH_ARRAY),
      &        Cphase(PRIVATE_2D_SCRATCH_ARRAY),
@@ -77,6 +77,7 @@
 # ifdef TIDERAMP
       ramp=TANH(dt*sec2day*float(iic-ntstart)) 
 # endif
+      cff=2.*pi*time
 !
 # if defined SSH_TIDES
 !---------------------------------------------------------------------
@@ -90,7 +91,7 @@
       enddo
       do itide=1,Ntides
         if (Tperiod(itide).gt.0.) then
-          omega=2.*pi*time/Tperiod(itide)
+          omega=cff/Tperiod(itide)
           do j=JRANGE
             do i=IRANGE
               Etide(i,j)=Etide(i,j)+ramp*
@@ -178,7 +179,7 @@
       enddo
       do itide=1,Ntides
         if (Tperiod(itide).gt.0.) then
-          omega=2.*pi*time/Tperiod(itide)
+          omega=cff/Tperiod(itide)
           do j=Jstr-1,JendR
             do i=Istr-1,IendR
               angle=UV_Tangle(i,j,itide)-angler(i,j)
@@ -284,6 +285,43 @@
 #   endif
 # endif /* M2_FRC_BRY */
 # endif /* UV_TIDES */
+
+# if defined POT_TIDES
+!
+!-----------------------------------------------------------------------
+!  Compute tidal potential (m) 
+!  -- > to be applied as a pressure-gradient force
+!       in prsgrd (if SOLVE3D) or step2d (if not SOLVE3D)
+!-----------------------------------------------------------------------
+!
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          Ptide(i,j)=0.
+        enddo
+      enddo
+      do itide=1,Ntides
+        if (Tperiod(itide).gt.0.) then
+          omega=cff/Tperiod(itide)
+          do j=JstrR,JendR
+            do i=IstrR,IendR
+              Ptide(i,j)=Ptide(i,j)+ 
+     &                   ramp*POT_Tamp(i,j,itide)*
+     &                   COS(omega-POT_Tphase(i,j,itide))
+#  ifdef MASKING
+              Ptide(i,j)=Ptide(i,j)*rmask(i,j)
+#  endif
+            enddo
+          enddo
+        endif
+      enddo
+
+#  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+      call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                        Ptide(START_2D_ARRAY))
+#  endif
+
+# endif /* POT_TIDES */
+
 #else
       subroutine clm_tides_empty
 #endif /* SSH_TIDES || UV_TIDES */
