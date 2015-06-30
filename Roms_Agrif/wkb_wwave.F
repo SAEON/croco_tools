@@ -1306,9 +1306,9 @@ C$OMP CRITICAL (diag_cr_rgn)
           if (NNODES.gt.1) then         ! Perform global max
             call MPI_allreduce(my_ww,buff,2,
      &              MPI_DOUBLE_PRECISION, MPI_MAX,MPI_COMM_WORLD,ierr)
-          endif
           av_wac = buff(1)
           av_wkn = buff(2)
+          endif
           if (mynode.eq.0) then               ! Compute diagnostics 
 #endif
             if (first_time.eq.0) then
