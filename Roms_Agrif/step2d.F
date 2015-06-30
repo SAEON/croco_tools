@@ -101,7 +101,7 @@ C$    trd=omp_get_thread_num()
 #include "param.h"
       integer Istr,Iend,Jstr,Jend, i,j, kbak, kold,
 #ifdef MPI
-     &         comm,err,
+     &         err,
 #endif
 #ifdef PSOURCE
      &        is,
@@ -165,6 +165,8 @@ C$    trd=omp_get_thread_num()
 #endif
 !
 #ifdef MPI
+#include "mpi_roms.h"
+      include 'mpif.h'
 # define LOCALLM Lmmpi
 # define LOCALMM Mmmpi
 #else
@@ -2014,7 +2016,7 @@ C$OMP END MASTER
         enddo
       enddo
       IF (VMAX.GT.VMAXL) THEN
-        MPI_master_only write(stdout,'(9(A/))')
+        write(stdout,'(9(A/))')
      &     '                                         ',
      &     '                                         ',
      &     ' ======================================= ',
@@ -2025,23 +2027,23 @@ C$OMP END MASTER
      &     ' ======================================= ',
      &     '                                         '
         if (VMAX.eq.666.) then
-          MPI_master_only write(stdout,'(A,F10.2)')
+          write(stdout,'(A,F10.2)')
      &                                            '  VMAX (M/S) =   NaN'
         else
-          MPI_master_only write(stdout,'(A,F10.2)') 
+          write(stdout,'(A,F10.2)') 
      &                                            '  VMAX (M/S) =',VMAX
         endif
-        MPI_master_only write(stdout,'(A,2I6)')  
+        write(stdout,'(A,2I6)')  
      &                                       '  IMAX JMAX  =',imax,jmax
 #ifdef SOLVE3D
-        MPI_master_only WRITE(stdout,'(A,2I6/)')
+        write(stdout,'(A,2I6/)')
      &                                         '  IINT IEXT  =',iic,iif
 #else
-        MPI_master_only WRITE(stdout,'(A,I6/)')    '  IIC        =',iic
+        write(stdout,'(A,I6/)')    '  IIC        =',iic
 #endif
         may_day_flag=1
 #ifdef MPI
-        call mpi_abort (comm, err)
+        call mpi_abort (MPI_COMM_WORLD, err)
 #else
         stop                            !-->  EXIT
 #endif
