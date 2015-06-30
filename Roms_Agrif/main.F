@@ -543,7 +543,7 @@ CR      write(*,*) '  0' MYID
 ! XIOS (
 !  Clean log output a bit
 #ifdef MPI
-      call MPI_Barrier(ocean_grid_comm, ierr)
+      call MPI_Barrier(MPI_COMM_WORLD, ierr)
 #endif
 ! XIOS )
 
@@ -611,7 +611,7 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Stop timers and
  100  continue
 
 #ifdef MPI
-      call MPI_Barrier(ocean_grid_comm, ierr)   ! XIOS
+      call MPI_Barrier(MPI_COMM_WORLD, ierr)   ! XIOS
 
 !     start_time2=PMPI_Wtime()
 !     exe_time = start_time2 - start_time1
