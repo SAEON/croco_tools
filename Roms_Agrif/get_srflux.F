@@ -341,7 +341,7 @@
 # include "grid.h"
       integer Istr,Iend,Jstr,Jend, i,j
       real cff,cff1,cff2, 
-     &     cos_h,phi,h0,dec,cos_dec,sin_dec,tan_dec
+     &     hour,cos_h,phi,h0,dec,cos_dec,sin_dec,tan_dec
 !
 # include "compute_extended_bounds.h"
 !
@@ -358,11 +358,9 @@
         enddo
       endif
 !
-! Compute Greenwich hour angle 
-! (cos_h=1 at solar noon in Greenwich)
+! Compute local hour angle (radians)
 !
-      cos_h=cos(2.*pi*(tdays+.5-int(tdays+.5))
-     &                     -lonr(i,j)*deg2rad)
+      hour=2.*pi*(tdays+.5-int(tdays+.5))
 !
 ! Compute declination angle
 !
@@ -374,9 +372,12 @@
 !
 ! Compute daily insolation coefficient
 ! Modulate srflx and update stflx
+!  --> use Greenwich hour angle: 
+!      cos_h=1 at solar noon in Greenwich
 !
       do j=JstrR,JendR
         do i=IstrR,IendR
+          cos_h=cos(hour-lonr(i,j)*deg2rad)
           h0=acos(-tan_phi(i,j)*tan_dec)
           cff1=cos_dec*cos_phi(i,j)
           cff2=sin_dec*sin_phi(i,j)

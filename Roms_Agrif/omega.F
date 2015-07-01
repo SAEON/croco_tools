@@ -121,8 +121,7 @@
           Wi(i,j,0)=0.
 #endif
 # ifdef MOVING_BATHY
-          We(i,j,0)=-1./dt*dh(i,j)*
-     &                 1./(pm(i,j)*pn(i,j))
+          We(i,j,0)=-om_r(i,j)*on_r(i,j)*dh(i,j)/dt
 # else
           We(i,j,0)=0.
 # endif

@@ -114,13 +114,13 @@ C$    integer omp_get_thread_num
       call exchange_r2d_tile (Istr,Iend,Jstr,Jend, Zt_avg1)
 #  endif
 
-      do j=J_RANGE              !!! WARNING: Setting old-new (!<,!>)
-        do i=I_RANGE            !!!          must be consistent with
+      do j=J_RANGE              !!! WARNING: Setting must be consistent 
+        do i=I_RANGE            !!!          with omega.F
 #  ifdef MOVING_BATHY
           h(i,j)=h(i,j)+dh(i,j)
 #  endif
-          z_w(i,j,0)=-h(i,j)    !!!          similar setting in
-        enddo                   !!!          omega.F
+          z_w(i,j,0)=-h(i,j)
+        enddo
         do k=1,N,+1
 #  ifdef NEW_S_COORD
           cff_w =hc*sc_w(k)
