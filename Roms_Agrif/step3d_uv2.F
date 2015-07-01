@@ -700,6 +700,8 @@ c--# define TR
               FC(i,k)=DELTA*Hvom(i,j,k)+
      &                EPSIL*DC(i,k)*(v(i,j,k,nstp)+v(i,j,k,nnew))
 #  endif
+#  undef DELTA
+#  undef EPSIL
 # endif /* TR */
 
               FC(i,0)=FC(i,0)+FC(i,k)
