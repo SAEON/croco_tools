@@ -112,6 +112,8 @@
      &                                                    *rho0
          enddo
       enddo
+      call xios_send_field("bustr",bustr*rho0)
+      call xios_send_field("bvstr",bvstr*rho0)
       call xios_send_field("bostr",work2d)
 
       do j=1,Mm
@@ -391,7 +393,7 @@
      &    bedldu(:,:,NGRAV+i))
          write(nametrc,'(A,I1)') 'bdlv_sand_',i
          call xios_send_field(TRIM(nametrc),
-     &    bedldu(:,:,NGRAV+i))
+     &    bedldv(:,:,NGRAV+i))
       enddo      
       do i=1,NMUD
          write(nametrc,'(A,I1)') 'bdlu_mud_',i
@@ -399,7 +401,7 @@
      &    bedldu(:,:,NGRAV+NSAND+i))
          write(nametrc,'(A,I1)') 'bdlv_mud_',i
          call xios_send_field(TRIM(nametrc),
-     &    bedldu(:,:,NGRAV+NSAND+i))
+     &    bedldv(:,:,NGRAV+NSAND+i))
       enddo      
 #   endif
 #  endif /* SEDIMENT */
@@ -411,13 +413,9 @@
          call xios_send_field("Zbnot",Zbnot)
          call xios_send_field("Zbapp",Zbapp)
 
-         do j=0,Mm
-            do i=0,Lm
-               work2d(i,j)=0.5*sqrt((bustrw(i,j)+bustrw(i+1,j))**2
-     &                             +(bvstrw(i,j)+bvstrw(i,j+1))**2)
-     &                                                       *rho0
-            enddo
-         enddo
+         work2d=sqrt(bustrw**2
+     &                             +bvstrw**2)
+     &                                   *rho0
          call xios_send_field("bostrw",work2d)
 !     
 #  endif /* BBL */

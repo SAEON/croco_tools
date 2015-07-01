@@ -380,10 +380,15 @@ C$OMP BARRIER
             dzdy=MIN(((h(i,j+1)-h(i,j  ))/on_v(i,j+1)*cff1+      
      &                (h(i,j  )-h(i,j-1))/on_v(i  ,j)*cff2),0.52)* 
      &                SIGN(1.0,FE_r(i,j))
+<<<<<<< HEAD
             !cff=DATAN(dzdx)
             cff=ATAN(dzdx)
             a_slopex=sed_angle/(COS(cff)*(sed_angle-dzdx))
             !cff=DATAN(dzdy)
+=======
+            cff=ATAN(dzdx)
+            a_slopex=sed_angle/(COS(cff)*(sed_angle-dzdx))
+>>>>>>> 08b894c6a7a3d939a958fbb3e66f8272633cf834
             cff=ATAN(dzdy)
             a_slopey=sed_angle/(COS(cff)*(sed_angle-dzdy))
 !
@@ -585,6 +590,15 @@ C$OMP BARRIER
           do i=Istr,Iend
             cff=(FX(i+1,j)-FX(i,j)+                           
      &           FE(i,j+1)-FE(i,j))*pm(i,j)*pn(i,j)
+     &                   -dt* pm(i,j)*pn(i,j)*(0.5*on_r(i,j)*(
+     &                            bed_mass(i+1,j,1,nstp,ised)
+     &                        -2.*bed_mass(i,j,1,nstp,ised)
+     &                           +bed_mass(i-1,j,1,nstp,ised))
+     &                           -0.5*om_r(i,j)*(
+     &                            bed_mass(i,j+1,1,nstp,ised)
+     &                        -2.*bed_mass(i,j,1,nstp,ised)
+     &                           +bed_mass(i,j-1,1,nstp,ised)) )
+
             bed_mass(i,j,1,nnew,ised)=MAX(bed_mass(i,j,1,nstp,ised)-   
      &                                    cff,0.0)
 #  if !defined SUSPLOAD
@@ -596,8 +610,8 @@ C$OMP BARRIER
      &                           cff/(Srho(ised)*              
      &                                (1.0-bed_poros(i,j,1))),  
      &                           0.0)
-#  ifdef WET_DRY
-            bed_thick(i,j,1)=bed_thick(i,j,1)*rmask_wet(i,j)
+#  ifdef MASKING
+            bed_thick(i,j,1)=bed_thick(i,j,1)*rmask(i,j)
 #  endif
           enddo
         enddo
@@ -653,7 +667,7 @@ C$OMP BARRIER
           do k=1,NLAY
             do ised=1,NST
                bed_mass(i,Jend+1,k,nnew,ised)=
-     &              bed_mass(i,Jend+1,k,nnew,ised)
+     &              bed_mass(i,Jend,k,nnew,ised)
             enddo
           enddo
           bed_thick(i,Jend+1,1)=bed_thick(i,Jend,1)
@@ -1395,20 +1409,33 @@ C$OMP BARRIER
 # ifndef NS_PERIODIC
       if (NORTHERN_EDGE) then
         do i=Istr,Iend
-          bed_mass (i,Jend+1,:,nnew,:)=bed_mass(i,Jend,:,nnew,:)
-          bed_frac (i,Jend+1,:,:)=bed_frac(i,Jend,:,:)
-          bed_thick(i,Jend+1,:)=bed_thick(i,Jend,:)
-          bed_poros(i,Jend+1,:)=bed_poros(i,Jend,:)
-          bed_age  (i,Jend+1,:)=bed_age(i,Jend,:)
+          do k=1,NLAY
+            do ised=1,NST
+              bed_mass (i,Jend+1,k,nnew,ised)=
+     &                            bed_mass(i,Jend,k,nnew,ised)
+              bed_frac (i,Jend+1,k,ised)=
+     &                            bed_frac(i,Jend,k,ised)
+            enddo
+            bed_thick(i,Jend+1,k)=bed_thick(i,Jend,k)
+            bed_poros(i,Jend+1,k)=bed_poros(i,Jend,k)
+            bed_age  (i,Jend+1,k)=bed_age(i,Jend,k)
+          enddo
           bot_thick  (i,Jend+1)=bot_thick(i,Jend)
         enddo
       endif
       if (SOUTHERN_EDGE) then
         do i=Istr,Iend
-          bed_mass (i,Jstr-1,:,nnew,:)=bed_mass(i,Jstr,:,nnew,:)
-          bed_frac (i,Jstr-1,:,:)=bed_frac(i,Jstr,:,:)
-          bed_thick(i,Jstr-1,:)=bed_thick(i,Jstr,:)
-          bed_poros(i,Jstr-1,:)=bed_poros(i,Jstr,:)
+          do k=1,NLAY
+            do ised=1,NST
+              bed_mass (i,Jstr-1,k,nnew,ised)=
+     &                            bed_mass(i,Jstr,k,nnew,ised)
+              bed_frac (i,Jstr-1,k,ised)=
+     &                            bed_frac(i,Jstr,k,ised)
+            enddo
+            bed_thick(i,Jstr-1,k)=bed_thick(i,Jstr,k)
+            bed_poros(i,Jstr-1,k)=bed_poros(i,Jstr,k)
+            bed_age  (i,Jstr-1,k)=bed_age(i,Jend,k)
+          enddo
           bot_thick  (i,Jstr-1)=bot_thick(i,Jstr)
         enddo
       endif
@@ -1516,39 +1543,6 @@ C$OMP BARRIER
         enddo
       enddo
         
-#  undef BED_FILTER
-#  ifdef BED_FILTER
-!  Initialize filter in the Y-direction.
-      do j=Jstr,Jend
-        do i=Istr-1,Iend+1
-          Awrk1(i,j)=0.25*(bed_thick_tot(i,j-1,nnew)
-     &  +bed_thick_tot(i,j+1,nnew)-2.*bed_thick_tot(i,j,nnew))
-        enddo
-      enddo
-!
-!  Add the changes to the field.
-      do j=Jstr,Jend
-        do i=Istr-1,Iend+1
-          Awrk2(i,j)=bed_thick_tot(i,j,nnew)+Awrk1(i,j)
-        enddo
-      enddo
-!
-!  Initialize filter in the X-direction.
-      do j=Jstr,Jend
-        do i=Istr,Iend
-          Awrk1(i,j)=0.25*( Awrk2(i-1,j)
-     &      +Awrk2(i+1,j)-2.*Awrk2(i,j) )
-        enddo
-      enddo
-!
-!  Add changes to field.
-      do j=Jstr,Jend
-        do i=Istr,Iend
-          bed_thick_tot(i,j,nnew)=Awrk2(i,j)+Awrk1(i,j)
-        enddo
-      enddo
-#  endif /* BED FILTER */
-
 !
 ! Set boundary conditions
 !
@@ -1604,7 +1598,7 @@ C$OMP BARRIER
      &                 bed_thick_tot(START_2D_ARRAY,nnew))
 #  endif
        dh(:,:)=(bed_thick_tot(:,:,nstp)-bed_thick_tot(:,:,nnew))
-!       write(*,*) dh(10,4),bed_thick_tot(10,4,:),bed_thick(10,4,:)
+     &   *rmask_wet(:,:)
 # endif /* MOVING_BATHY*/
       return
       end
@@ -1624,7 +1618,7 @@ C$OMP BARRIER
 !
 # include "compute_auxiliary_bounds.h"
 
-      do j=Jstr,Jend
+      do j=Jstr-1,Jend+1
         do i=Istr-1,Iend+1
           cff1=1.
           cff2=1.

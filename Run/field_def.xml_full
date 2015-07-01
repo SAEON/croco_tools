@@ -28,7 +28,11 @@
          <field id="rho" long_name="density anomaly" unit="kilogram meter-3" grid_ref="grid_T_3D"/>
 #ifdef VIS_COEF_3D
          <!-- VIS_COEF_3D -->
+<<<<<<< HEAD
          <field id="visc3d" long_name="horizontal viscosity coefficient" unit="meter2 second-1" grid_ref="grid_T_3D"/>
+=======
+         <field id="visc3d" long_name="horizontal viscosity coefficient" unit="meter2 second-1 " grid_ref="grid_T_3D"/>
+>>>>>>> 08b894c6a7a3d939a958fbb3e66f8272633cf834
          <!--END VIS_COEF_3D -->
 #endif
 #ifdef DIF_COEF_3D
@@ -134,6 +138,7 @@
      <field_group id="grid_U" grid_ref="grid_U_2D">
          <field id="ubar" long_name="vertically integrated u-momentum component" unit="meter second-1"/>
          <field id="sustr" long_name="surface u-momentum stress" unit="N/m2" />
+         <field id="bustr" long_name="bottom  u-momentum stress" unit="N/m2" />
          <field id="u" long_name="v-momentum component" unit="meter second-1" grid_ref="grid_U_3D"/>
 #ifdef MRL_WCI
          <!-- MRL_WCI -->
@@ -152,7 +157,8 @@
      <!-- V grid -->
      <field_group id="grid_V" grid_ref="grid_V_2D">
          <field id="vbar" long_name="vertically integrated v-momentum component" unit="meter second-1"/>
-         <field id="svstr" long_name="surface u-momentum stress" unit="N/m2" />
+         <field id="svstr" long_name="surface v-momentum stress" unit="N/m2" />
+         <field id="bvstr" long_name="bottom  v-momentum stress" unit="N/m2" />
          <field id="v" long_name="v-momentum component" unit="meter second-1" grid_ref="grid_V_3D"/>
 #ifdef MRL_WCI
          <!-- MRL_WCI -->
