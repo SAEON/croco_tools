@@ -231,9 +231,9 @@ C$OMP BARRIER
 # endif
 # ifdef FRC_BRY
 #  ifdef ANA_BRY
-          call ana_bry(tile)
+          call ana_bry (tile)
 #  else
-          call set_bry(tile)
+          call set_bry (tile)
 #  endif
 #  ifdef BIOLOGY
           call ana_bry_bio (tile)  ! analytical values are given
@@ -243,6 +243,13 @@ C$OMP BARRIER
 # if defined WKB_WWAVE && !defined ANA_BRY_WKB
           call set_bry_wkb (tile)  
 # endif
+
+# ifdef NBQCLIMATOLOGY
+          call ana_nbq_clima (tile)
+# elif defined NBQ_FRC_BRY
+          call ana_nbq_bry (tile)
+# endif
+
 # ifdef AGRIF
         ENDIF
 # endif

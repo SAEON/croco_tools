@@ -438,6 +438,7 @@
       integer Istr,Iend,Jstr,Jend, i,j,k, it1,it2, itrc
       real cff, cff1,cff2
 # include "param.h"
+# include "grid.h"
 # include "scalars.h"
 # include "boundary.h"
 !
@@ -460,15 +461,18 @@
 #  ifdef Z_FRC_BRY
           do j=JstrR,JendR
             zetabry_west(j)=cff1*zetabry_west_dt(j,it1)
-     &                  +cff2*zetabry_west_dt(j,it2)
+     &                     +cff2*zetabry_west_dt(j,it2)
+#   ifdef NBQ
+     &                                      +h(IstrR,j)
+#   endif
           enddo
 #  endif
 #  ifdef M2_FRC_BRY
           do j=JstrR,JendR
             ubarbry_west(j)=cff1*ubarbry_west_dt(j,it1)
-     &                  +cff2*ubarbry_west_dt(j,it2)
+     &                     +cff2*ubarbry_west_dt(j,it2)
             vbarbry_west(j)=cff1*vbarbry_west_dt(j,it1)
-     &                  +cff2*vbarbry_west_dt(j,it2)
+     &                     +cff2*vbarbry_west_dt(j,it2)
           enddo
 #  endif
 #  ifdef SOLVE3D
@@ -476,9 +480,9 @@
           do k=1,N
             do j=JstrR,JendR
               ubry_west(j,k)=cff1*ubry_west_dt(j,k,it1)
-     &                   +cff2*ubry_west_dt(j,k,it2)
+     &                      +cff2*ubry_west_dt(j,k,it2)
               vbry_west(j,k)=cff1*vbry_west_dt(j,k,it1)
-     &                   +cff2*vbry_west_dt(j,k,it2)
+     &                      +cff2*vbry_west_dt(j,k,it2)
             enddo
           enddo
 #   endif
@@ -487,7 +491,7 @@
             do k=1,N
               do j=JstrR,JendR
                 tbry_west(j,k,itrc)=cff1*tbry_west_dt(j,k,it1,itrc)
-     &                          +cff2*tbry_west_dt(j,k,it2,itrc)
+     &                             +cff2*tbry_west_dt(j,k,it2,itrc)
               enddo
             enddo
           enddo
@@ -501,15 +505,18 @@
 #  ifdef Z_FRC_BRY
           do j=JstrR,JendR
             zetabry_east(j)=cff1*zetabry_east_dt(j,it1)
-     &                  +cff2*zetabry_east_dt(j,it2)
+     &                     +cff2*zetabry_east_dt(j,it2)
+#   ifdef NBQ
+     &                                      +h(IendR,j)
+#   endif
           enddo
 #  endif
 #  ifdef M2_FRC_BRY
           do j=JstrR,JendR
             ubarbry_east(j)=cff1*ubarbry_east_dt(j,it1)
-     &                  +cff2*ubarbry_east_dt(j,it2)
+     &                     +cff2*ubarbry_east_dt(j,it2)
             vbarbry_east(j)=cff1*vbarbry_east_dt(j,it1)
-     &                  +cff2*vbarbry_east_dt(j,it2)
+     &                     +cff2*vbarbry_east_dt(j,it2)
           enddo
 #  endif
 #  ifdef SOLVE3D
@@ -517,9 +524,9 @@
           do k=1,N
             do j=JstrR,JendR
               ubry_east(j,k)=cff1*ubry_east_dt(j,k,it1)
-     &                   +cff2*ubry_east_dt(j,k,it2)
+     &                      +cff2*ubry_east_dt(j,k,it2)
               vbry_east(j,k)=cff1*vbry_east_dt(j,k,it1)
-     &                   +cff2*vbry_east_dt(j,k,it2)
+     &                      +cff2*vbry_east_dt(j,k,it2)
             enddo
           enddo
 #   endif
@@ -528,7 +535,7 @@
             do k=1,N
               do j=JstrR,JendR
                 tbry_east(j,k,itrc)=cff1*tbry_east_dt(j,k,it1,itrc)
-     &                          +cff2*tbry_east_dt(j,k,it2,itrc)
+     &                             +cff2*tbry_east_dt(j,k,it2,itrc)
               enddo
             enddo
           enddo
@@ -542,15 +549,18 @@
 #  ifdef Z_FRC_BRY
           do i=IstrR,IendR
             zetabry_south(i)=cff1*zetabry_south_dt(i,it1)
-     &                   +cff2*zetabry_south_dt(i,it2)
+     &                      +cff2*zetabry_south_dt(i,it2)
+#   ifdef NBQ
+     &                                        +h(i,JstrR)
+#   endif
           enddo
 #  endif
 #  ifdef M2_FRC_BRY
           do i=IstrR,IendR
             ubarbry_south(i)=cff1*ubarbry_south_dt(i,it1)
-     &                   +cff2*ubarbry_south_dt(i,it2)
+     &                      +cff2*ubarbry_south_dt(i,it2)
             vbarbry_south(i)=cff1*vbarbry_south_dt(i,it1)
-     &                   +cff2*vbarbry_south_dt(i,it2)
+     &                      +cff2*vbarbry_south_dt(i,it2)
           enddo
 #  endif
 #  ifdef SOLVE3D
@@ -558,9 +568,9 @@
           do k=1,N
             do i=IstrR,IendR
               ubry_south(i,k)=cff1*ubry_south_dt(i,k,it1)
-     &                    +cff2*ubry_south_dt(i,k,it2)
+     &                       +cff2*ubry_south_dt(i,k,it2)
               vbry_south(i,k)=cff1*vbry_south_dt(i,k,it1)
-     &                    +cff2*vbry_south_dt(i,k,it2)
+     &                       +cff2*vbry_south_dt(i,k,it2)
             enddo
           enddo
 #   endif
@@ -569,7 +579,7 @@
             do k=1,N
               do i=IstrR,IendR
                 tbry_south(i,k,itrc)=cff1*tbry_south_dt(i,k,it1,itrc)
-     &                           +cff2*tbry_south_dt(i,k,it2,itrc)
+     &                              +cff2*tbry_south_dt(i,k,it2,itrc)
               enddo
             enddo
           enddo
@@ -583,15 +593,18 @@
 #  ifdef Z_FRC_BRY
           do i=IstrR,IendR
             zetabry_north(i)=cff1*zetabry_north_dt(i,it1)
-     &                   +cff2*zetabry_north_dt(i,it2)
+     &                      +cff2*zetabry_north_dt(i,it2)
+#   ifdef NBQ
+     &                                        +h(i,JendR)
+#   endif
           enddo
 #  endif
 #  ifdef M2_FRC_BRY
           do i=IstrR,IendR
             ubarbry_north(i)=cff1*ubarbry_north_dt(i,it1)
-     &                   +cff2*ubarbry_north_dt(i,it2)
+     &                      +cff2*ubarbry_north_dt(i,it2)
             vbarbry_north(i)=cff1*vbarbry_north_dt(i,it1)
-     &                   +cff2*vbarbry_north_dt(i,it2)
+     &                      +cff2*vbarbry_north_dt(i,it2)
           enddo
 #  endif
 #  ifdef SOLVE3D
@@ -599,9 +612,9 @@
           do k=1,N
             do i=IstrR,IendR
               ubry_north(i,k)=cff1*ubry_north_dt(i,k,it1)
-     &                    +cff2*ubry_north_dt(i,k,it2)
+     &                       +cff2*ubry_north_dt(i,k,it2)
               vbry_north(i,k)=cff1*vbry_north_dt(i,k,it1)
-     &                    +cff2*vbry_north_dt(i,k,it2)
+     &                       +cff2*vbry_north_dt(i,k,it2)
             enddo
           enddo
 #   endif
@@ -610,7 +623,7 @@
             do k=1,N
               do i=IstrR,IendR
                 tbry_north(i,k,itrc)=cff1*tbry_north_dt(i,k,it1,itrc)
-     &                           +cff2*tbry_north_dt(i,k,it2,itrc)
+     &                              +cff2*tbry_north_dt(i,k,it2,itrc)
               enddo
             enddo
           enddo

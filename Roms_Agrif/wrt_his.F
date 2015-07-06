@@ -140,7 +140,7 @@ CR      write(*,*) 'wrt_his:  time  ' MYID
 !     
       if (wrthis(indxZ)) then
 #ifdef NBQ     
-         work2d=zeta(:,:,fast_indx_out)/rhobar_nbq(:,:) - h(:,:)
+         work2d=zeta(:,:,fast_indx_out) - h(:,:)
 #else
          work2d=zeta(:,:,fast_indx_out)
 #endif
@@ -164,7 +164,7 @@ CR           write(*,*) 'wrt_his: wrtVBAR' MYID
 
 #ifdef MOVING_BATHY
 !     
-!     Write out ktime evolving bathymetry
+!     Write out time evolving bathymetry
 !     
       if (wrthis(indxHm)) then
          work2d(:,:)=h(:,:)
