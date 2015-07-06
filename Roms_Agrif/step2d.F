@@ -1394,7 +1394,6 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 !-----------------------------------------------------------------------
 !
 #ifdef NBQ
-
 !
 ! Resolve 3D NBQ equation for ndtnbq time steps
 !
@@ -1404,7 +1403,9 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
         call mat_cont_nh
       endif
 
-      call step3d_nbq
+# define WORK UFx
+      call step3d_nbq (Istr,Iend,Jstr,Jend, WORK)
+# undef WORK
 
 !
 ! Get filtered rhs terms

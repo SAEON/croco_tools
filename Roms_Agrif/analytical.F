@@ -615,6 +615,15 @@ C$    integer  trd, omp_get_thread_num
         enddo
       enddo
 # endif
+
+#ifdef NBQ
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          ssh(i,j)=h(i,j)+ssh(i,j)
+        enddo
+      enddo
+#endif
+
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r2d_tile (istr,iend,jstr,jend, ssh(START_2D_ARRAY))
 # endif
@@ -1200,6 +1209,7 @@ C$    integer  trd, omp_get_thread_num
       call exchange_v2d_tile (Istr,Iend,Jstr,Jend,  vbclm)
 #  endif
 # endif
+
 # if defined ANA_M3CLIMA && defined M3CLIMATOLOGY && defined SOLVE3D
 #  if defined REGIONAL
       do k=1,N
@@ -1235,6 +1245,88 @@ C$    integer  trd, omp_get_thread_num
       end
 #endif /* ANA_M2CLIMA && M2CLIMATOLOGY || (ANA_M3CLIMA && M3CLIMATOLOGY) */
 
+!
+!====================================================================
+!                   subroutine ana_nbq_clima
+!====================================================================
+!
+#ifdef NBQCLIMATOLOGY 
+      subroutine ana_nbq_clima (tile)
+      implicit none
+# include "param.h"
+      integer tile
+# ifdef  ALLOW_SINGLE_BLOCK_MODE
+C$    integer  trd, omp_get_thread_num
+# endif
+# include "compute_tile_bounds.h"
+      call ana_nbq_clima_tile (Istr,Iend,Jstr,Jend)
+      return
+      end
+!
+      subroutine ana_nbq_clima_tile (Istr,Iend,Jstr,Jend)
+!
+!---------------------------------------------------------------------
+!  This routine sets analytical NBQ climatology fields.
+!---------------------------------------------------------------------
+!
+      implicit none
+# include "param.h"
+# include "grid.h"
+# include "ocean3d.h"
+# include "climat.h"
+# include "scalars.h"
+      integer Istr,Iend,Jstr,Jend, i,j,k
+!
+# include "compute_auxiliary_bounds.h"
+!
+# ifdef EW_PERIODIC
+#  define IU_RANGE Istr,Iend
+#  define IV_RANGE Istr,Iend
+# else
+#  define IU_RANGE Istr,IendR
+#  define IV_RANGE IstrR,IendR
+# endif
+
+# ifdef NS_PERIODIC
+#  define JU_RANGE Jstr,Jend
+#  define JV_RANGE Jstr,Jend
+# else
+#  define JU_RANGE JstrR,JendR
+#  define JV_RANGE Jstr,JendR
+# endif
+!
+      do k=1,N
+        do j=JU_RANGE
+          do i=IU_RANGE
+            unbqclm(i,j,k)=0.5*rho0*(Hz(i,j,k)+Hz(i-1,j,k)*uclm(i,j,k)
+          enddo
+        enddo
+        do j=JV_RANGE
+          do i=IV_RANGE
+            vnbqclm(i,j,k)=0.5*rho0*(Hz(i,j,k)+Hz(i,j-1,k)*vclm(i,j,k)
+          enddo
+        enddo
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+            wnbqclm(i,j,k)=0.
+            rnbqclm(i,j,k)=rho0
+          enddo
+        enddo
+      enddo
+
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      call exchange_u3d_tile (Istr,Iend,Jstr,Jend,  unbqclm)
+      call exchange_v3d_tile (Istr,Iend,Jstr,Jend,  vnbqclm)
+      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,  wnbqclm)
+      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,  rnbqclm)
+# endif
+# undef IU_RANGE
+# undef JU_RANGE
+# undef IV_RANGE
+# undef JV_RANGE
+      return
+      end
+#endif /*  NBQCLIMATOLOGY */
 !
 !====================================================================
 !                   subroutine ana_wwave
@@ -1908,6 +2000,7 @@ C$    integer  trd, omp_get_thread_num
       implicit none          
       integer Istr,Iend,Jstr,Jend, i,j,k, itrc
 # include "param.h"
+# include "grid.h"
 # include "scalars.h"
 # include "boundary.h"
 !
@@ -1918,6 +2011,9 @@ C$    integer  trd, omp_get_thread_num
 #  ifdef Z_FRC_BRY
         do j=JstrR,JendR
           zetabry_west(j)=0.
+#   ifdef NBQ
+     &                   +h(IstrR,j)
+#   endif
         enddo
 #  endif
 #  ifdef M2_FRC_BRY
@@ -1949,6 +2045,9 @@ C$    integer  trd, omp_get_thread_num
 #  ifdef Z_FRC_BRY
         do j=JstrR,JendR
           zetabry_east(j)=0.
+#   ifdef NBQ
+     &                   +h(IendR,j)
+#   endif
         enddo
 #  endif
 #  ifdef M2_FRC_BRY
@@ -1980,6 +2079,9 @@ C$    integer  trd, omp_get_thread_num
 #  ifdef Z_FRC_BRY
         do i=IstrR,IendR
           zetabry_south(i)=0.
+#   ifdef NBQ
+     &                   +h(i,JstrR)
+#   endif
         enddo
 #  endif
 #  ifdef M2_FRC_BRY
@@ -2011,6 +2113,9 @@ C$    integer  trd, omp_get_thread_num
 #  ifdef Z_FRC_BRY
         do i=IstrR,IendR
           zetabry_north(i)=0.
+#   ifdef NBQ
+     &                   +h(i,JendR)
+#   endif
         enddo
 #  endif
 #  ifdef M2_FRC_BRY
@@ -2040,7 +2145,168 @@ C$    integer  trd, omp_get_thread_num
       return
       end
 #endif /* defined ANA_BRY */
-
+!
+!====================================================================
+!                   subroutine ana_nbq_bry
+!====================================================================
+!
+#ifdef NBQ_FRC_BRY
+      subroutine ana_nbq_bry (tile)
+      implicit none
+# include "param.h"
+      integer tile
+# ifdef  ALLOW_SINGLE_BLOCK_MODE
+C$    integer  trd, omp_get_thread_num
+# endif
+# include "compute_tile_bounds.h"
+      call ana_nbq_bry_tile (Istr,Iend,Jstr,Jend)
+      return
+      end
+!
+      subroutine ana_nbq_bry_tile (Istr,Iend,Jstr,Jend) 
+!
+!---------------------------------------------------------------------
+!  Set analytical boundary forcing
+!---------------------------------------------------------------------
+!
+      implicit none          
+      integer Istr,Iend,Jstr,Jend, i,j,k, itrc
+# include "param.h"
+# include "grid.h"
+# include "scalars.h"
+# include "boundary.h"
+# include "climat.h"
+# include "ocean3d.h"
+!
+# include "compute_auxiliary_bounds.h"
+!
+# ifdef OBC_WEST
+      if (WESTERN_EDGE) then
+        do k=1,N
+          do j=JstrR,JendR
+#  ifdef M3CLIMATOLOGY
+            unbqbry_west(j,k)=0.5*rho0*(Hz(0,j,k)+Hz(1,j,k))
+     &                                          *uclm(1,j,k)
+#  elif defined M3_FRC_BRY
+            unbqbry_west(j,k)=0.5*rho0*(Hz(0,j,k)+Hz(1,j,k))
+     &                                       *ubry_west(j,k)
+#  else
+            unbqbry_west(j,k)=0.
+#  endif
+            wnbqbry_west(j,k)=0.
+            rnbqbry_west(j,k)=rho0
+          enddo
+          do j=JstrR+1,JendR
+#  ifdef M3CLIMATOLOGY
+            vnbqbry_west(j,k)=0.5*rho0*(Hz(0,j,k)+Hz(0,j-1,k))
+     &                                            *vclm(0,j,k)
+#  elif defined M3_FRC_BRY
+            vnbqbry_west(j,k)=0.5*rho0*(Hz(0,j,k)+Hz(0,j-1,k))
+     &                                         *vbry_west(j,k)
+#  else
+            vnbqbry_west(j,k)=0.
+#  endif
+          enddo
+        enddo
+      endif
+# endif /* OBC_WEST */
+!
+# ifdef OBC_EAST
+      if (EASTERN_EDGE) then
+        do k=1,N
+          do j=JstrR,JendR
+#  ifdef M3CLIMATOLOGY
+            unbqbry_east(j,k)=0.5*rho0*(Hz(IendR,j,k)+Hz(IendR-1,j,k))
+     &                                                *uclm(IendR,j,k)
+#  elif defined M3_FRC_BRY
+            unbqbry_east(j,k)=0.5*rho0*(Hz(IendR,j,k)+Hz(IendR-1,j,k))
+     &                                                 *ubry_east(j,k)
+#  else
+            unbqbry_east(j,k)=0.
+#  endif
+            wnbqbry_east(j,k)=0.
+            rnbqbry_east(j,k)=rho0
+          enddo
+          do j=JstrR+1,JendR
+#  ifdef M3CLIMATOLOGY
+            vnbqbry_east(j,k)=0.5*rho0*(Hz(IendR,j,k)+Hz(IendR-1,j-1,k))
+     &                                                  *vclm(IendR,j,k)
+#  elif defined M3_FRC_BRY
+            vnbqbry_east(j,k)=0.5*rho0*(Hz(IendR,j,k)+Hz(IendR-1,j-1,k))
+     &                                                   *vbry_east(j,k)
+#  else
+            vnbqbry_east(j,k)=0.
+#  endif
+          enddo
+        enddo
+      endif
+# endif /* OBC_EAST */
+!
+# ifdef OBC_SOUTH
+      if (SOUTHERN_EDGE) then
+        do k=1,N
+          do i=IstrR,IendR
+#  ifdef M3CLIMATOLOGY
+            vnbqbry_south(i,k)=0.5*rho0*(Hz(i,0,k)+Hz(i,1,k))
+     &                                           *vclm(i,1,k)
+#  elif defined M3_FRC_BRY
+            vnbqbry_south(i,k)=0.5*rho0*(Hz(i,0,k)+Hz(i,1,k))
+     &                                       *vbry_south(i,k)
+#  else
+            vnbqbry_south(j,k)=0.
+#  endif
+            wnbqbry_south(i,k)=0.
+            rnbqbry_south(i,k)=rho0
+          enddo
+          do i=IstrR+1,IendR
+#  ifdef M3CLIMATOLOGY
+            unbqbry_south(i,k)=0.5*rho0*(Hz(i,0,k)+Hz(i-1,0,k))
+     &                                             *uclm(i,0,k)
+#  elif defined M3_FRC_BRY
+            unbqbry_south(i,k)=0.5*rho0*(Hz(i,0,k)+Hz(i-1,0,k))
+     &                                         *ubry_south(i,k)
+#  else
+            unbqbry_south(i,k)=0.
+#  endif
+          enddo
+        enddo
+      endif
+# endif /* OBC_SOUTH */
+!
+# ifdef OBC_NORTH
+      if (NORTHERN_EDGE) then
+        do k=1,N
+          do i=IstrR,IendR
+#  ifdef M3CLIMATOLOGY
+            vnbqbry_north(i,k)=0.5*rho0*(Hz(i,JendR,k)+Hz(i,JendR-1,k))
+     &                                                 *vclm(i,JendR,k)
+#  elif defined M3_FRC_BRY
+            vnbqbry_north(i,k)=0.5*rho0*(Hz(i,JendR,k)+Hz(i,JendR-1,k))
+     &                                                 *vbry_north(i,k)
+#  else
+            vnbqbry_north(j,k)=0.
+#  endif
+            wnbqbry_north(i,k)=0.
+            rnbqbry_north(i,k)=rho0
+          enddo
+          do i=IstrR+1,IendR
+#  ifdef M3CLIMATOLOGY
+            unbqbry_north(i,k)=0.5*rho0*(Hz(i,JendR,k)+Hz(i-1,JendR,k))
+     &                                                 *uclm(i,JendR,k)
+#  elif defined M3_FRC_BRY
+            unbqbry_north(i,k)=0.5*rho0*(Hz(i,JendR,k)+Hz(i-1,JendR,k))
+     &                                                 *ubry_north(i,k)
+#  else
+            unbqbry_north(i,k)=0.
+#  endif
+          enddo
+        enddo
+      endif
+# endif /* OBC_NORTH */
+!
+      return
+      end
+#endif /* defined NBQ_FRC_BRY */
 !
 !====================================================================
 !                   subroutine ana_bry_bio

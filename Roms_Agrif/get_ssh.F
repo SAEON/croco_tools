@@ -147,6 +147,7 @@ C$    integer  trd, omp_get_thread_num
       integer Istr,Iend,Jstr,Jend, i,j, it1,it2
       real cff,cff1,cff2
 # include "param.h"
+# include "grid.h"
 # include "climat.h"
 # include "scalars.h"
 !
@@ -183,6 +184,9 @@ C$    integer  trd, omp_get_thread_num
         do j=JstrR,JendR
           do i=IstrR,IendR
             ssh(i,j)=cff1*sshg(i,j,it1)+cff2*sshg(i,j,it2)
+# ifdef NBQ
+     &                                             +h(i,j)
+# endif
           enddo
         enddo
 !
