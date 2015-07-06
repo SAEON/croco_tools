@@ -32,6 +32,8 @@
 #undef OBC_COM_ZSPECIFIED
 #undef OBC_COM_ZORLANSKI
 #undef OBC_COM_ZCHAPMAN
+#undef OBC_COM_NBQSPECIFIED
+#undef OBC_COM_NBQORLANSKI
 #undef EW_COM_PERIODIC
 #undef NS_COM_PERIODIC
 
@@ -82,6 +84,12 @@
 #  ifdef OBC_M2CHARACT
 #   define OBC_COM_M2CHARACT
 #   define OBC_COM_ZCHAPMAN
+#  endif
+#  ifdef OBC_NBQSPECIFIED
+#   define OBC_COM_NBQSPECIFIED
+#  endif
+#  ifdef OBC_NBQORLANSKI
+#   define OBC_COM_NBQORLANSKI
 #  endif
 #  ifdef EW_PERIODIC
 #   define EW_COM_PERIODIC
@@ -135,5 +143,11 @@
 #  ifdef AGRIF_OBC_M2CHARACT
 #   define OBC_COM_M2CHARACT
 #   define OBC_COM_ZSPECIFIED
+#  endif
+#  ifdef AGRIF_OBC_NBQSPECIFIED
+#   define OBC_COM_NBQSPECIFIED
+#  endif
+#  ifdef AGRIF_OBC_NBQORLANSKI
+#   define OBC_COM_NBQORLANSKI
 #  endif
 #endif /* CHILD */

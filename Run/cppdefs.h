@@ -631,6 +631,7 @@
 # undef  MPI
 # define AGRIF
 # define AGRIF_2WAY
+# undef  NBQ
 # define SOLVE3D
 # define UV_COR
 # define UV_ADV
@@ -639,6 +640,10 @@
 # define ANA_BSFLUX
 # define ANA_BTFLUX
 # define ANA_VMIX
+# define OBC_EAST
+# define OBC_WEST
+# define OBC_NORTH
+# define OBC_SOUTH
 # define SPONGE
 # define ZCLIMATOLOGY
 # define M2CLIMATOLOGY
@@ -648,10 +653,6 @@
 # define M2NUDGING
 # define M3NUDGING
 # define TNUDGING
-# define OBC_EAST
-# define OBC_WEST
-# define OBC_NORTH
-# define OBC_SOUTH
 
 #elif defined JET
 /*
