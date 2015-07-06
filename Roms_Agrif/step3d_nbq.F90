@@ -26,7 +26,7 @@
 !
 !======================================================================
 !
-      subroutine step3d_nbq
+      subroutine step3d_nbq (Istr,Iend,Jstr,Jend, WORK)
 
       use module_nh 
       use module_nbq
@@ -38,7 +38,8 @@
 # include "ocean3d.h"
 # include "grid.h"
 # include "nbq.h"
-
+      integer Istr,Iend,Jstr,Jend
+      real    WORK(PRIVATE_2D_SCRATCH_ARRAY)
       real :: dum_s
 
 # undef DEBUG
@@ -97,9 +98,9 @@
 !.......Output to debug MPI:
 !-------------------------------------------------------------------
 !
-#ifdef DEBUG_NBQ
+# ifdef DEBUG_NBQ
         call output_nbq(10)
-#endif
+# endif
 !
 !-------------------------------------------------------------------
 !.......Output: qdm in Internal and NBQ modes
@@ -159,13 +160,14 @@
         enddo 
 !
 !-------------------------------------------------------------------
-!......Horizontal momentum boundary conditions
+!......Horizontal momentum open boundary conditions
 !-------------------------------------------------------------------
 !
 # ifdef OBC_NBQ
-!        call obc_nbq
+        call unbq_bc_tile (Istr,Iend,Jstr,Jend, WORK)
+        call vnbq_bc_tile (Istr,Iend,Jstr,Jend, WORK)
+        call wnbq_bc_tile (Istr,Iend,Jstr,Jend, WORK)
 # endif
-
 !
 !-------------------------------------------------------------------
 !......Message passing 
@@ -193,6 +195,14 @@
                              + rhs1_nbq(neqmom_nh(0)+l_nbq)
         enddo
 #endif
+!
+!-------------------------------------------------------------------
+!......Density open boundary conditions
+!-------------------------------------------------------------------
+!
+# ifdef OBC_NBQ
+        call rnbq_bc_tile (Istr,Iend,Jstr,Jend, WORK)
+# endif
 !
 !-------------------------------------------------------------------
 !.......Output to debug MPI:
