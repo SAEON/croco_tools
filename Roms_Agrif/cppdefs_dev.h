@@ -111,6 +111,14 @@
 # undef  TRACETXT
 # undef  CHECK_CROCO
 # define HZR Hzr
+# if defined OBC_WEST || defined OBC_EAST ||\
+     defined OBC_SOUTH || defined OBC_NORTH
+#  define OBC_NBQ
+#  define OBC_NBQORLANSKI
+#  define NBQ_FRC_BRY
+#  undef  NBQCLIMATOLOGY
+#  undef  NBQNUDGING
+# endif
 #else
 # define HZR Hz
 #endif
@@ -215,7 +223,7 @@
 # define TS_HADV_UP3    /* 3rd-order upstream lateral advection */
 # undef  TS_HADV_C4     /* 4th-order centered lateral advection */
 # undef  TS_HADV_UP5    /* 5th-order upstream lateral advection */
-# undef  TS_HADV_UP5    /* 5th-order WENOZ    lateral advection */
+# undef  TS_HADV_WENO5  /* 5th-order WENOZ    lateral advection */
 # undef  TS_HADV_C6     /* 6th-order centered lateral advection */
 # undef  TS_HADV_RSUP3  /* Rotated-Split UP3  lateral advection */
 # undef  TS_HADV_RSUP5  /* Pseudo R-Split UP5 lateral advection */
