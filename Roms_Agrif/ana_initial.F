@@ -361,10 +361,10 @@ C$    integer omp_get_thread_num
             endif
 #   endif
 #   ifdef SEDIMENT
-              t(i,j,k,1,isand)=Csed(1)
-              t(i,j,k,1,isilt)=Csed(2)             
-              t(i,j,k,2,isand)=Csed(1)
-              t(i,j,k,2,isilt)=Csed(2)             
+              t(i,j,k,1,isand)=0.
+              t(i,j,k,1,isilt)=0.
+              t(i,j,k,2,isand)=0.
+              t(i,j,k,2,isilt)=0.
 #   endif
           enddo
         enddo

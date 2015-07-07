@@ -380,15 +380,8 @@ C$OMP BARRIER
             dzdy=MIN(((h(i,j+1)-h(i,j  ))/on_v(i,j+1)*cff1+      
      &                (h(i,j  )-h(i,j-1))/on_v(i  ,j)*cff2),0.52)* 
      &                SIGN(1.0,FE_r(i,j))
-<<<<<<< HEAD
-            !cff=DATAN(dzdx)
             cff=ATAN(dzdx)
             a_slopex=sed_angle/(COS(cff)*(sed_angle-dzdx))
-            !cff=DATAN(dzdy)
-=======
-            cff=ATAN(dzdx)
-            a_slopex=sed_angle/(COS(cff)*(sed_angle-dzdx))
->>>>>>> 08b894c6a7a3d939a958fbb3e66f8272633cf834
             cff=ATAN(dzdy)
             a_slopey=sed_angle/(COS(cff)*(sed_angle-dzdy))
 !
@@ -555,34 +548,6 @@ C$OMP BARRIER
         endif
 #  endif
 
-#  if !defined EW_PERIODIC && !defined NS_PERIODIC
-        if ((SOUTHERN_EDGE).and.(WESTERN_EDGE)) then
-          FX(Istr-1,Jstr-1)=0.5*(FX(Istr  ,Jstr-1)+     
-     &                                FX(Istr-1,Jstr  ))
-          FE(Istr-1,Jstr-1)=0.5*(FE(Istr  ,Jstr-1)+       
-     &                                FE(Istr-1,Jstr  ))
-        endif
-        if ((SOUTHERN_EDGE).and.(EASTERN_EDGE)) then
-          FX(Iend+1,Jstr-1)=0.5*(FX(Iend  ,Jstr-1)+      
-     &                                FX(Iend+1,Jstr  ))
-          FE(Iend+1,Jstr-1)=0.5*(FE(Iend  ,Jstr-1)+       
-     &                                FE(Iend+1,Jstr  ))
-        endif
-        if ((NORTHERN_EDGE).and.(WESTERN_EDGE)) then
-          FX(Istr-1,Jend+1)=0.5*(FX(Istr-1,Jend  )+       
-     &                                FX(Istr  ,Jend+1))
-          FE(Istr-1,Jend+1)=0.5*(FE(Istr-1,Jend  )+      
-     &                                FE(Istr  ,Jend+1))
-        endif
-        if ((NORTHERN_EDGE).and.(EASTERN_EDGE)) then
-          FX(Iend+1,Jend+1)=0.5*(FX(Iend+1,Jend  )+      
-     &                                FX(Iend  ,Jend+1))
-          FE(Iend+1,Jend+1)=0.5*(FE(Iend+1,Jend  )+    
-     &                                FE(Iend  ,Jend+1))
-        endif
-#  endif
-
-
 !
 !  Determine flux divergence and evaluate change in bed properties.
 !
@@ -594,7 +559,7 @@ C$OMP BARRIER
      &                            bed_mass(i+1,j,1,nstp,ised)
      &                        -2.*bed_mass(i,j,1,nstp,ised)
      &                           +bed_mass(i-1,j,1,nstp,ised))
-     &                           -0.5*om_r(i,j)*(
+     &                           +0.5*om_r(i,j)*(
      &                            bed_mass(i,j+1,1,nstp,ised)
      &                        -2.*bed_mass(i,j,1,nstp,ised)
      &                           +bed_mass(i,j-1,1,nstp,ised)) )
@@ -644,6 +609,8 @@ C$OMP BARRIER
              do ised=1,NST
                 bed_mass(Iend+1,j,k,nnew,ised)=
      &              bed_mass(Iend,j,k,nnew,ised)
+                bed_frac(Iend+1,j,k,ised)=
+     &              bed_frac(Iend,j,k,ised)
              enddo
            enddo
            bed_thick(Iend+1,j,1)=bed_thick(Iend,j,1)
@@ -655,6 +622,8 @@ C$OMP BARRIER
             do ised=1,NST
                 bed_mass(Istr-1,j,k,nnew,ised)=
      &              bed_mass(Istr,j,k,nnew,ised)
+                bed_frac(Istr-1,j,k,ised)=
+     &              bed_frac(Istr,j,k,ised)
              enddo
            enddo
           bed_thick(Istr-1,j,1)=bed_thick(Istr,j,1)
@@ -668,6 +637,8 @@ C$OMP BARRIER
             do ised=1,NST
                bed_mass(i,Jend+1,k,nnew,ised)=
      &              bed_mass(i,Jend,k,nnew,ised)
+               bed_frac(i,Jend+1,k,ised)=
+     &              bed_frac(i,Jend,k,ised)
             enddo
           enddo
           bed_thick(i,Jend+1,1)=bed_thick(i,Jend,1)
@@ -679,6 +650,8 @@ C$OMP BARRIER
             do ised=1,NST
                bed_mass(i,Jstr-1,k,nnew,ised)=
      &              bed_mass(i,Jstr,k,nnew,ised)
+               bed_frac(i,Jstr-1,k,ised)=
+     &              bed_frac(i,Jstr,k,ised)
             enddo
           enddo
           bed_thick(i,Jstr-1,1)=bed_thick(i,Jstr,1)
@@ -690,6 +663,9 @@ C$OMP BARRIER
         bed_mass(Istr-1,Jstr-1,:,nnew,:)=
      &  0.5*(bed_mass(Istr,Jstr-1,:,nnew,:)
      &      +bed_mass(Istr-1,Jstr,:,nnew,:))
+        bed_frac(Istr-1,Jstr-1,:,:)=
+     &  0.5*(bed_frac(Istr,Jstr-1,:,:)
+     &      +bed_frac(Istr-1,Jstr,:,:))
         bed_thick(Istr-1,Jstr-1,1)=
      &  0.5*(bed_thick(Istr,Jstr-1,1)
      &      +bed_thick(Istr-1,Jstr,1))
@@ -698,6 +674,9 @@ C$OMP BARRIER
         bed_mass(Iend+1,Jstr-1,:,nnew,:)=
      &  0.5*(bed_mass(Iend,Jstr-1,:,nnew,:)
      &      +bed_mass(Iend+1,Jstr,:,nnew,:))
+        bed_frac(Iend+1,Jstr-1,:,:)=
+     &  0.5*(bed_frac(Iend,Jstr-1,:,:)
+     &      +bed_frac(Iend+1,Jstr,:,:))
         bed_thick(Iend+1,Jstr-1,:)=
      &  0.5*(bed_thick(Iend,Jstr-1,1)
      &      +bed_thick(Iend+1,Jstr,1))
@@ -706,6 +685,9 @@ C$OMP BARRIER
         bed_mass(Istr-1,Jend+1,:,nnew,:)=
      &  0.5*(bed_mass(Istr,Jend+1,:,nnew,:)
      &      +bed_mass(Istr-1,Jend,:,nnew,:))
+        bed_frac(Istr-1,Jend+1,:,:)=
+     &  0.5*(bed_frac(Istr,Jend+1,:,:)
+     &      +bed_frac(Istr-1,Jend,:,:))
         bed_thick(Istr-1,Jend+1,1)=
      &  0.5*(bed_thick(Istr,Jend+1,1)
      &      +bed_thick(Istr-1,Jend,1))
@@ -714,6 +696,9 @@ C$OMP BARRIER
         bed_mass(Iend+1,Jend+1,:,nnew,:)=
      &   0.5*(bed_mass(Iend,Jend+1,:,nnew,:)
      &       +bed_mass(Iend+1,Jend,:,nnew,:))
+        bed_frac(Iend+1,Jend+1,:,:)=
+     &   0.5*(bed_Frac(Iend,Jend+1,:,:)
+     &       +bed_Frac(Iend+1,Jend,:,:))
         bed_thick(Iend+1,Jend+1,:)=
      &   0.5*(bed_thick(Iend,Jend+1,1)
      &       +bed_thick(Iend+1,Jend,1))
@@ -727,9 +712,11 @@ C$OMP BARRIER
         do k=1,NLAY
           call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
      &                 bed_mass(START_2D_ARRAY,k,nnew,ised))
+          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bed_frac(START_2D_ARRAY,k,ised))
         enddo 
         call exchange_u2d_tile (Istr,Iend,Jstr,Jend,
-     &                 bedldv(START_2D_ARRAY,ised))
+     &                 bedldu(START_2D_ARRAY,ised))
         call exchange_v2d_tile (Istr,Iend,Jstr,Jend,
      &                 bedldv(START_2D_ARRAY,ised))
       enddo
@@ -1384,25 +1371,34 @@ C$OMP BARRIER
 # ifndef EW_PERIODIC
       if (EASTERN_EDGE) then
         do j=Jstr,Jend
-              do k=1,NLAY
-              do ised=1,NST
-          bed_mass(Iend+1,j,k,nnew,ised)=bed_mass(Iend,j,k,nnew,ised)
-          bed_frac(Iend+1,j,k,ised)=bed_frac(Iend,j,k,ised)
+          do k=1,NLAY
+            do ised=1,NST
+            bed_mass(Iend+1,j,k,nnew,ised)=
+     &                       bed_mass(Iend,j,k,nnew,ised)
+            bed_frac(Iend+1,j,k,ised)=
+     &                        bed_frac(Iend,j,k,ised)
              enddo
-          bed_thick(Iend+1,j,k)=bed_thick(Iend,j,k)
-          bed_poros(Iend+1,j,k)=bed_poros(Iend,j,k)
-          bed_age(Iend+1,j,k)=bed_age(Iend,j,k)
-        enddo
-            bot_thick(Iend+1,j)=bot_thick(Iend,j)
-      enddo
-      endif
+             bed_thick(Iend+1,j,k)=bed_thick(Iend,j,k)
+             bed_poros(Iend+1,j,k)=bed_poros(Iend,j,k)
+             bed_age(Iend+1,j,k)=bed_age(Iend,j,k)
+           enddo
+           bot_thick(Iend+1,j)=bot_thick(Iend,j)
+         enddo
+        endif
       if (WESTERN_EDGE) then
         do j=Jstr,Jend
-          bed_mass(Istr-1,j,:,nnew,:)=bed_mass(Istr,j,:,nnew,:)
-          bed_frac(Istr-1,j,:,:)=bed_frac(Istr,j,:,:)
-          bed_thick(Istr-1,j,:)=bed_thick(Istr,j,:)
-          bed_poros(Istr-1,j,:)=bed_poros(Istr,j,:)
-          bed_age(Istr-1,j,:)=bed_age(Istr,j,:)
+          do k=1,NLAY
+            do ised=1,NST
+            bed_mass(Istr-1,j,k,nnew,ised)=
+     &                       bed_mass(Istr,j,k,nnew,ised)
+            bed_frac(Istr-1,j,k,ised)=
+     &                        bed_frac(Istr,j,k,ised)
+             enddo
+             bed_thick(Istr-1,j,k)=bed_thick(Istr,j,k)
+             bed_poros(Istr-1,j,k)=bed_poros(Istr,j,k)
+             bed_age(Istr-1,j,k)=bed_age(Istr,j,k)
+           enddo
+           bot_thick(Istr-1,j)=bot_thick(Istr,j)
         enddo
       endif
 # endif
@@ -1529,12 +1525,13 @@ C$OMP BARRIER
          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
      &                 bed_age(START_2D_ARRAY,k))
       enddo   
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bot_thick(START_2D_ARRAY))
 # endif
 
 # if defined MOVING_BATHY
-      do j=Jstr-1,Jend+1
-        do i=Istr-1,Iend+1
-!          bed_thick_tot(i,j,nstp)=bed_thick_tot(i,j,nnew)
+      do j=Jstr,Jend
+        do i=Istr,Iend
           bed_thick_tot(i,j,nnew)=0.
           do k=1,NLAY
             bed_thick_tot(i,j,nnew)=bed_thick_tot(i,j,nnew)+             
@@ -1550,7 +1547,7 @@ C$OMP BARRIER
       if (EASTERN_EDGE) then
         do j=Jstr,Jend
           bed_thick_tot(Iend+1,j,nnew)=bed_thick_tot(Iend,j,nnew)
-      enddo
+         enddo
       endif
       if (WESTERN_EDGE) then
         do j=Jstr,Jend
@@ -1594,12 +1591,16 @@ C$OMP BARRIER
 #  endif
 !
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
-          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+       call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
      &                 bed_thick_tot(START_2D_ARRAY,nnew))
 #  endif
+!
        dh(:,:)=(bed_thick_tot(:,:,nstp)-bed_thick_tot(:,:,nnew))
-     &   *rmask_wet(:,:)
+#  ifdef WET_DRY
+     &  *rmask_wet(i,j)
+#  endif     
 # endif /* MOVING_BATHY*/
+
       return
       end
 
