@@ -114,10 +114,10 @@
 # if defined OBC_WEST || defined OBC_EAST ||\
      defined OBC_SOUTH || defined OBC_NORTH
 #  define OBC_NBQ
-#  define OBC_NBQORLANSKI
+#  undef  OBC_NBQORLANSKI
+#  define OBC_NBQSPECIFIED
 #  define NBQ_FRC_BRY
-#  undef  NBQCLIMATOLOGY
-#  undef  NBQNUDGING
+#  define W_FRC_BRY
 # endif
 #else
 # define HZR Hz

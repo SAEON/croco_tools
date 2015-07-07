@@ -313,15 +313,15 @@
           do j=Jstr,Jend
             l_b_j     = ijk2lmom_nh(Iend+1,j,k,1)
 #    ifdef NBQ_FRC_BRY
-             qdm_nbq_a(l_b_j,nnew)=unbqbry_east(j,k)       ! specified
+            qdm_nbq_a(l_b_j,nnew)=unbqbry_east(j,k)       ! specified
 #    else
-             qdm_nbq_a(l_b_j,nnew)=unbqclm(Iend+1,j,k)
+            qdm_nbq_a(l_b_j,nnew)=unbqclm(Iend+1,j,k)
 #    endif
 #    ifdef MASKING
-     &                                *umask(Iend+1,j)
+     &                               *umask(Iend+1,j)
 #    endif
 #    ifdef WET_DRY
-     &                            *umask_wet(Iend+1,j)
+     &                           *umask_wet(Iend+1,j)
 #    endif
           enddo
         enddo
@@ -577,7 +577,7 @@
             qdm_nbq_a(l_b_i,nnew)=unbqclm(i,Jend+1,k)
 #    endif
 #    ifdef MASKING
-     &                           *umask(i,Jend+1)
+     &                               *umask(i,Jend+1)
 #    endif
 #    ifdef WET_DRY
      &                           *umask_wet(i,Jend+1)
@@ -593,10 +593,10 @@
             l_bm1_i   = ijk2lmom_nh(i  ,Jend  ,k,1)
             qdm_nbq_a(l_b_i,nnew)=qdm_nbq_a(l_bm1_i,nnew)  ! gradient (default)
 #    ifdef MASKING
-     &                           *umask(i,Jend+1)
+     &                                   *umask(i,Jend+1)
 #    endif
 #    ifdef WET_DRY
-     &                           *umask_wet(i,Jend+1)
+     &                               *umask_wet(i,Jend+1)
 #    endif
           enddo
         enddo
@@ -613,7 +613,7 @@
             l_bm1_i   = ijk2lmom_nh(i  ,Jend  ,k,1)
             qdm_nbq_a(l_b_i,nnew)=gamma2*qdm_nbq_a(l_bm1_i,nnew)
 #   ifdef MASKING
-     &                                      *umask(i,Jend+1)
+     &                                          *umask(i,Jend+1)
 #   endif
           enddo
         enddo

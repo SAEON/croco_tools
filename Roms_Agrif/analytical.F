@@ -1309,7 +1309,7 @@ C$    integer  trd, omp_get_thread_num
         do j=JstrR,JendR
           do i=IstrR,IendR
             wnbqclm(i,j,k)=0.
-            rnbqclm(i,j,k)=rho0
+            rnbqclm(i,j,k)=0.
           enddo
         enddo
       enddo
@@ -2228,7 +2228,10 @@ C$    integer  trd, omp_get_thread_num
             unbqbry_west(j,k)=0.
 #  endif
             wnbqbry_west(j,k)=0.
-            rnbqbry_west(j,k)=rho0
+            rnbqbry_west(j,k)=0.
+#  ifdef W_FRC_BRY
+            wbry_west(j,k)=0.
+#  endif
           enddo
           do j=JstrR+1,JendR
 #  ifdef M3CLIMATOLOGY
@@ -2259,7 +2262,10 @@ C$    integer  trd, omp_get_thread_num
             unbqbry_east(j,k)=0.
 #  endif
             wnbqbry_east(j,k)=0.
-            rnbqbry_east(j,k)=rho0
+            rnbqbry_east(j,k)=0.
+#  ifdef W_FRC_BRY
+            wbry_east(j,k)=0.
+#  endif
           enddo
           do j=JstrR+1,JendR
 #  ifdef M3CLIMATOLOGY
@@ -2290,7 +2296,10 @@ C$    integer  trd, omp_get_thread_num
             vnbqbry_south(j,k)=0.
 #  endif
             wnbqbry_south(i,k)=0.
-            rnbqbry_south(i,k)=rho0
+            rnbqbry_south(i,k)=0.
+#  ifdef W_FRC_BRY
+            wbry_south(i,k)=0.
+#  endif
           enddo
           do i=IstrR+1,IendR
 #  ifdef M3CLIMATOLOGY
@@ -2321,7 +2330,10 @@ C$    integer  trd, omp_get_thread_num
             vnbqbry_north(j,k)=0.
 #  endif
             wnbqbry_north(i,k)=0.
-            rnbqbry_north(i,k)=rho0
+            rnbqbry_north(i,k)=0.
+#  ifdef W_FRC_BRY
+            wbry_north(i,k)=0.
+#  endif
           enddo
           do i=IstrR+1,IendR
 #  ifdef M3CLIMATOLOGY
