@@ -623,8 +623,81 @@
           enddo
         endif
       enddo
-
 # endif /* UV_MIX_S_SPONGE */
+
+#  ifdef NBQ
+!==================================================================
+!
+! WZ horizontal Laplacian diffusion along constant S-surfaces.
+!
+!==================================================================
+#   define FX UFe
+#   define FE VFe
+
+      do k=1,N-1
+!
+!  Compute XI- and ETA-components of diffusive wz flux.
+!
+        do j=Jstr,Jend
+          do i=Istr,Iend+1
+          FX(i,j)=0.125*(visc2_sponge_r(i,j)+visc2_sponge_r(i-1,j))
+     &                    *pmon_u(i,j)*(Hz(i,j,k  )+Hz(i-1,j,k  )+
+     &                                  Hz(i,j,k+1)+Hz(i-1,j,k+1))
+     &                          *(wz(i,j,k,nstp)-wz(i-1,j,k,nstp))
+     &                                           SWITCH umask(i,j)
+          enddo
+        enddo
+        do j=Jstr,Jend+1
+          do i=Istr,Iend
+          FE(i,j)=0.125*(visc2_sponge_r(i,j)+visc2_sponge_r(i,j-1))
+     &                    *pnom_v(i,j)*(Hz(i,j,k  )+Hz(i,j-1,k  )+
+     &                                  Hz(i,j,k+1)+Hz(i,j-1,k+1))
+     &                          *(wz(i,j,k,nstp)-wz(i,j-1,k,nstp))
+     &                                           SWITCH vmask(i,j)
+          enddo
+        enddo
+!
+!  Apply viscous term. Note that at this stage arrays wz(...,3-nstp)
+!  contains Hz*W with units of [m2/s].
+!
+        do j=Jstr,Jend
+          do i=Istr,Iend
+            cff1=pm(i,j)*pn(i,j)
+            wz(i,j,k,indx)=wz(i,j,k,indx)+dt*cff1*(FX(i+1,j)-FX(i,j)
+     &                                           + FE(i,j+1)-FE(i,j))
+          enddo
+        enddo
+      enddo ! 1,N-1
+!
+!  Repeat computation for top layer N
+!
+      do j=Jstr,Jend
+        do i=Istr,Iend+1
+        FX(i,j)=0.25*(visc2_sponge_r(i,j)+visc2_sponge_r(i-1,j))
+     &                  *pmon_u(i,j)*(Hz(i,j,N  )+Hz(i-1,j,N  ))
+     &                        *(wz(i,j,N,nrhs)-wz(i-1,j,N,nrhs))
+     &                                         SWITCH umask(i,j)
+        enddo
+      enddo
+      do j=Jstr,Jend+1
+        do i=Istr,Iend
+        FE(i,j)=0.25*(visc2_sponge_r(i,j)+visc2_sponge_r(i,j-1))
+     &                  *pnom_v(i,j)*(Hz(i,j,N  )+Hz(i,j-1,N  ))
+     &                        *(wz(i,j,k,nstp)-wz(i,j-1,k,nstp))
+     &                                         SWITCH vmask(i,j)
+        enddo
+      enddo
+      do j=Jstr,Jend
+        do i=Istr,Iend
+          cff1=pm(i,j)*pn(i,j)
+          wz(i,j,N,indx)=wz(i,j,N,indx)+dt*cff1*(FX(i+1,j)-FX(i,j)
+     &                                         + FE(i,j+1)-FE(i,j))
+        enddo
+      enddo
+#   undef FX 
+#   undef FE
+#  endif /* NBQ */
+
 
       return
       end

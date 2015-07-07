@@ -374,4 +374,22 @@
 # endif
 #endif /* NBQ */
 
+#if defined NBQ && defined W_FRC_BRY
+# if defined OBC_WEST || defined AGRIF_OBC_WEST
+      real wbry_west(GLOBAL_1D_ARRAYETA,N)
+      common /bry_w_west/ wbry_west
+# endif
+# if defined OBC_EAST || defined AGRIF_OBC_EAST
+      real wbry_east(GLOBAL_1D_ARRAYETA,N)
+      common /bry_w_east/ wbry_east
+# endif
+# if defined OBC_SOUTH || defined AGRIF_OBC_SOUTH
+      real wbry_south(GLOBAL_1D_ARRAYETA,N)
+      common /bry_w_south/ wbry_south
+# endif
+# if defined OBC_NORTH || defined AGRIF_OBC_NORTH
+      real wbry_north(GLOBAL_1D_ARRAYETA,N)
+      common /bry_w_west/ wbry_north
+# endif
+#endif /* NBQ */
 

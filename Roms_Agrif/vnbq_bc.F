@@ -108,12 +108,12 @@ c        call vnbq_bc_interp_tile(Istr,Iend,Jstr,Jend)
             grad(i,Jstr  )=(qdm_nbq_a(l_b_i  ,nstp)
      &                     -qdm_nbq_a(l_b_im1,nstp))
 #    ifdef MASKING
-     &                                              *pmask(i  ,Jstr)
+     &                              *pmask(i  ,Jstr)
 #    endif
             grad(i,Jstr+1)=(qdm_nbq_a(l_bm1_i  ,nstp)
      &                     -qdm_nbq_a(l_bm1_im1,nstp))
 #    ifdef MASKING
-     &                                              *pmask(i,Jstr+1)
+     &                                *pmask(i,Jstr+1)
 #    endif
           enddo
           do i=Istr,Iend
@@ -249,8 +249,8 @@ c        call vnbq_bc_interp_tile(Istr,Iend,Jstr,Jend)
             l_bm1_i   = ijk2lmom_nh(i  ,Jend  ,k,2)
             l_bm2_i   = ijk2lmom_nh(i  ,Jend-1,k,2)
 
-            dft=qdm_nbq_a(l_bm1_i ,nstp)-qdm_nbq_a(l_bm1_i,nnew)
-            dfx=qdm_nbq_a(l_bm1_i ,nnew)-qdm_nbq_a(l_bm2_i,nnew)
+            dft=qdm_nbq_a(l_bm1_i,nstp)-qdm_nbq_a(l_bm1_i,nnew)
+            dfx=qdm_nbq_a(l_bm1_i,nnew)-qdm_nbq_a(l_bm2_i,nnew)
 
             if (dfx*dft .lt. 0.) then
               dft=0.                       ! <-- cancel cx, if inflow
@@ -374,8 +374,8 @@ c        call vnbq_bc_interp_tile(Istr,Iend,Jstr,Jend)
             l_bm1_j   = ijk2lmom_nh(Istr  ,j  ,k,2)
             l_bm2_j   = ijk2lmom_nh(Istr+1,j  ,k,2)
 
-            dft=qdm_nbq_a(l_bm1_j ,nstp)-qdm_nbq_a(l_bm1_j,nnew)
-            dfx=qdm_nbq_a(l_bm1_j ,nnew)-qdm_nbq_a(l_bm2_j,nnew)
+            dft=qdm_nbq_a(l_bm1_j,nstp)-qdm_nbq_a(l_bm1_j,nnew)
+            dfx=qdm_nbq_a(l_bm1_j,nnew)-qdm_nbq_a(l_bm2_j,nnew)
  
             if (dfx*dft .lt. 0.) then
               dft=0.                       ! <-- cancel cx, if inflow
@@ -437,7 +437,7 @@ c        call vnbq_bc_interp_tile(Istr,Iend,Jstr,Jend)
             qdm_nbq_a(l_b_j,nnew)=vnbqclm(Istr-1,j,k)
 #    endif
 #    ifdef MASKING
-     &                           *vmask(Istr-1,j)
+     &                               *vmask(Istr-1,j)
 #    endif
 #    ifdef WET_DRY
      &                           *vmask_wet(Istr-1,j)
@@ -506,8 +506,8 @@ c        call vnbq_bc_interp_tile(Istr,Iend,Jstr,Jend)
             l_bm1_j   = ijk2lmom_nh(Iend  ,j  ,k,2)
             l_bm2_j   = ijk2lmom_nh(Iend-1,j  ,k,2)
 
-            dft=qdm_nbq_a(l_bm1_j ,nstp)-qdm_nbq_a(l_bm1_j,nnew)
-            dfx=qdm_nbq_a(l_bm1_j ,nnew)-qdm_nbq_a(l_bm2_j,nnew)
+            dft=qdm_nbq_a(l_bm1_j,nstp)-qdm_nbq_a(l_bm1_j,nnew)
+            dfx=qdm_nbq_a(l_bm1_j,nnew)-qdm_nbq_a(l_bm2_j,nnew)
  
             if (dfx*dft .lt. 0.) then
               dft=0.                       ! <-- cancel cx, if inflow
@@ -570,7 +570,7 @@ c        call vnbq_bc_interp_tile(Istr,Iend,Jstr,Jend)
             qdm_nbq_a(l_b_j,nnew)=vnbqclm(Iend+1,j,k)
 #    endif
 #    ifdef MASKING
-     &                           *vmask(Iend+1,j)
+     &                               *vmask(Iend+1,j)
 #    endif
 #    ifdef WET_DRY
      &                           *vmask_wet(Iend+1,j)

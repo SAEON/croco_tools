@@ -123,8 +123,8 @@
             l_bm1_j   = ijk2lq_nh(Istr  ,j,k)
             l_bm2_j   = ijk2lq_nh(Istr+1,j,k)
 
-            dft=rhp_nbq_a(l_bm1_j ,nstp)-rhp_nbq_a(l_bm1_j,nnew)
-            dfx=rhp_nbq_a(l_bm1_j ,nnew)-rhp_nbq_a(l_bm2_j,nnew)
+            dft=rhp_nbq_a(l_bm1_j,nstp)-rhp_nbq_a(l_bm1_j,nnew)
+            dfx=rhp_nbq_a(l_bm1_j,nnew)-rhp_nbq_a(l_bm2_j,nnew)
 
             if (dfx*dft .lt. 0.) then
               dft=0.                       ! <-- cancel cx, if inflow
@@ -233,8 +233,8 @@
             l_bm1_j   = ijk2lq_nh(Iend  ,j,k)
             l_bm2_j   = ijk2lq_nh(Iend-1,j,k)
 
-            dft=rhp_nbq_a(l_bm1_j ,nstp)-rhp_nbq_a(l_bm1_j,nnew)
-            dfx=rhp_nbq_a(l_bm1_j ,nnew)-rhp_nbq_a(l_bm2_j,nnew)
+            dft=rhp_nbq_a(l_bm1_j,nstp)-rhp_nbq_a(l_bm1_j,nnew)
+            dfx=rhp_nbq_a(l_bm1_j,nnew)-rhp_nbq_a(l_bm2_j,nnew)
  
             if (dfx*dft .lt. 0.) then
               dft=0.                      ! <-- cancel cx, if inflow
@@ -332,12 +332,12 @@
             grad(i,Jstr-1)=(rhp_nbq_a(l_b_i  ,nstp)
      &                     -rhp_nbq_a(l_b_im1,nstp))
 #   ifdef MASKING
-     &                                              *pmask(i  ,Jstr)
+     &                              *pmask(i  ,Jstr)
 #   endif
             grad(i,Jstr  )=(rhp_nbq_a(l_bm1_i  ,nstp)
      &                     -rhp_nbq_a(l_bm1_im1,nstp))
 #   ifdef MASKING
-     &                                              *pmask(i,Jstr+1)
+     &                                *pmask(i,Jstr+1)
 #   endif
           enddo
           do i=Istr,Iend
@@ -455,8 +455,8 @@
             l_bm1_i   = ijk2lq_nh(i  ,Jend  ,k)
             l_bm2_i   = ijk2lq_nh(i  ,Jend-1,k)
 
-            dft=rhp_nbq_a(l_bm1_i ,nstp)-rhp_nbq_a(l_bm1_i,nnew)
-            dfx=rhp_nbq_a(l_bm1_i ,nnew)-rhp_nbq_a(l_bm2_i,nnew)
+            dft=rhp_nbq_a(l_bm1_i,nstp)-rhp_nbq_a(l_bm1_i,nnew)
+            dfx=rhp_nbq_a(l_bm1_i,nnew)-rhp_nbq_a(l_bm2_i,nnew)
 
             if (dfx*dft .lt. 0.) then
               dft=0.                       ! <-- cancel cx, if inflow
