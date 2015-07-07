@@ -1520,41 +1520,41 @@ C$    integer  trd, omp_get_thread_num
 
       do j=JstrR,JendR
         do i=IstrR,IendR
-# ifdef BBL 
-#  ifndef ANA_SEDIMENT 
-          if(.not.got_inibed(1)) then 
-#  endif                    
+# ifdef BBL
+#  ifndef ANA_SEDIMENT
+          if(.not.got_inibed(1)) then
+#  endif
             Hripple(i,j)=Hrip
-#  ifndef ANA_SEDIMENT 
-          endif            
-          if(.not.got_inibed(2)) then 
-#  endif                    
+#  ifndef ANA_SEDIMENT
+          endif
+          if(.not.got_inibed(2)) then
+#  endif
             Lripple(i,j)=Lrip
-#  ifndef ANA_SEDIMENT 
-          endif            
-#  endif                    
-# endif                    
+#  ifndef ANA_SEDIMENT
+          endif
+#  endif
+# endif
           do ilay=1,NLAY
 # ifndef ANA_SEDIMENT
-            if(.not.got_inised(1)) then 
-# endif                    
+            if(.not.got_inised(1)) then
+# endif
               bed_thick(i,j,ilay)=Bthk(ilay)
 
 # ifndef ANA_SEDIMENT
-            endif            
-            if(.not.got_inised(2)) then 
-# endif                    
+            endif
+            if(.not.got_inised(2)) then
+# endif
               bed_poros(i,j,ilay)=Bpor(ilay)
 # ifndef ANA_SEDIMENT
-            endif            
-            if(.not.got_inised(3)) then 
-# endif                    
-             do itrc=1,NST
+            endif
+            if(.not.got_inised(3)) then
+# endif
+            do itrc=1,NST
               bed_frac(i,j,ilay,itrc)=Bfr(ilay,itrc)
-             enddo
+            enddo
 
-              bed_age(i,j,ilay)=time
-              bot_thick(i,j) = 0.003
+            bed_age(i,j,ilay)=time
+            bot_thick(i,j) = 0.003
             do itrc=1,NST
               bed_mass(i,j,ilay,1,itrc)=
      &                     bed_thick(i,j,ilay)*
@@ -1571,7 +1571,6 @@ C$    integer  trd, omp_get_thread_num
           tau_cb= 1.0
           wset  = 1.0
           rhosed= 1.0
-
           do itrc=1,NST
             Ssize(i,j) = d50   *(Sd  (itrc))**bed_frac(i,j,1,itrc)
             taucb(i,j) = tau_cb*(tau_ce(itrc))**bed_frac(i,j,1,itrc) ! [m2/s2] CHECK tau(d50)
@@ -1580,9 +1579,8 @@ C$    integer  trd, omp_get_thread_num
           enddo
           Sdens(i,j) = Max(Sdens(i,j),1050.)
 # ifndef ANA_SEDIMENT
-          endif            
-# endif                    
-
+          endif
+# endif
 # ifdef DEBUG
           if(j.eq.jck.and.i.eq.ick) then
             write(6,*) '********** ANA_SEDIMENT ***********'
@@ -1600,16 +1598,52 @@ C$    integer  trd, omp_get_thread_num
           endif
 # endif
 # ifdef MOVING_BATHY
-          bed_thick_tot(i,j,1)=0
           bed_thick_tot(i,j,2)=0.
           do ilay=1,NLAY
-            bed_thick_tot(i,j,2)=bed_thick_tot(i,j,2)+             
+            bed_thick_tot(i,j,2)=bed_thick_tot(i,j,2)+
      &                           bed_thick(i,j,ilay)
           enddo
           bed_thick_tot(i,j,1)=bed_thick_tot(i,j,2)
 # endif
         enddo
       enddo
+
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      do itrc=1,NST
+        do ilay=1,NLAY
+          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bed_frac(START_2D_ARRAY,ilay,itrc))
+          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bed_mass(START_2D_ARRAY,ilay,1,itrc))
+          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bed_mass(START_2D_ARRAY,ilay,2,itrc))
+         enddo
+      enddo
+      do ilay=1,NLAY
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bed_poros(START_2D_ARRAY,ilay))
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bed_thick(START_2D_ARRAY,ilay))
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bed_age(START_2D_ARRAY,ilay))
+      enddo
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bot_thick(START_2D_ARRAY))
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bed_thick_tot(START_2D_ARRAY,1))
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bed_thick_tot(START_2D_ARRAY,2))
+# endif
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 taucb(START_2D_ARRAY))
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 Ssize(START_2D_ARRAY))
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 w_set(START_2D_ARRAY))
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 Sdens(START_2D_ARRAY))
+# endif
 
       return
       end

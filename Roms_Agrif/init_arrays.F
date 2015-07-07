@@ -389,8 +389,11 @@ C$    integer omp_get_thread_num
           do ilay=1,NLAY
             bed_thick(i,j,ilay)=init
             bed_poros(i,j,ilay)=init
+            bed_age(i,j,ilay)=init
             do itrc=1,NST
               bed_frac(i,j,ilay,itrc)=init
+              bed_mass(i,j,ilay,1,itrc)=init
+              bed_mass(i,j,ilay,2,itrc)=init
             enddo
           enddo
         enddo
@@ -404,8 +407,15 @@ C$    integer omp_get_thread_num
           Lripple(i,j)=init
           Zbnot(i,j)=init
           Zbapp(i,j)=init
+          Bustrc(i,j)=init
+          Bvstrc(i,j)=init
           Bustrw(i,j)=init
           Bvstrw(i,j)=init
+          Bustrcwmax(i,j)=init
+          Bvstrcwmax(i,j)=init
+#ifdef MOVING_BATHY 
+          dh(i,j)=init
+#endif
         enddo
       enddo
 # endif /* BBL */
