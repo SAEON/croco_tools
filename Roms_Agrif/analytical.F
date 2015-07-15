@@ -585,6 +585,10 @@ C$    integer  trd, omp_get_thread_num
 # ifdef INTERNAL
       real U0,omega,kwave,ETA0
 # endif
+# if defined RIP || defined SHOREFACE
+      real surelev,omega1,omega2
+      real tide_ampli_moy,tide_ampli_var
+# endif
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -608,6 +612,27 @@ C$    integer  trd, omp_get_thread_num
       enddo
 # elif defined JET
            ! climatology computed in ana_initial
+# elif defined RIP || defined SHOREFACE
+#  ifndef NS_PERIODIC
+      omega1=2.*pi/(14.*86400.)
+      omega2=2.*pi/(12.*3600. )
+      tide_ampli_moy=1
+      tide_ampli_var=30./70
+      surelev=1.
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          ssh(i,j)=tide_ampli_moy*(1.+tide_ampli_var
+     &                *sin(time*omega1)
+     &                *sin(time*omega2)
+     &                    +time*surelev/31536000.)
+#   ifdef WET_DRY
+          if (ssh(i,j) .lt. Dcrit(i,j)-h(i,j)) then
+            ssh(i,j)=Dcrit(i,j)-h(i,j)
+          endif
+#   endif
+        enddo
+      enddo
+#  endif
 # else
       do j=JstrR,JendR
         do i=IstrR,IendR
