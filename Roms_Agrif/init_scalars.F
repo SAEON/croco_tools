@@ -968,7 +968,7 @@ CR      write(stdout,'(1x,A,I3)') 'indxBPOR =',indxBPOR
       vname(7,indxBPOR)='                                         '    
 
       do i=1,NGRAV
-        write(nametrc,'(A,I1)') 'bred_frac_grav_',i
+        write(nametrc,'(A,I1)') 'bed_frac_grav_',i
 CR      write(stdout,'(1x,A,I3,1x,I3)') 'indxBFRA_grav  Nb',i, indxBFRA(i)
         vname(1,indxBFRA(i))  =TRIM(nametrc)                       
         vname(2,indxBFRA(i))  ='volume fraction of gravel in bed layer'
@@ -978,7 +978,7 @@ CR      write(stdout,'(1x,A,I3,1x,I3)') 'indxBFRA_grav  Nb',i, indxBFRA(i)
         vname(7,indxBFRA(i))='                                       '
       enddo
       do i=NGRAV+1,NGRAV+NSAND
-        write(nametrc,'(A,I1)') 'bred_frac_sand_',i
+        write(nametrc,'(A,I1)') 'bed_frac_sand_',i
 CR      write(stdout,'(1x,A,I3,1x,I3)') 'indxBFRA_sand  Nb',i, indxBFRA(i)
         vname(1,indxBFRA(i))  =TRIM(nametrc)                       
         vname(2,indxBFRA(i))  ='volume fraction of sand in bed layer'
@@ -988,8 +988,8 @@ CR      write(stdout,'(1x,A,I3,1x,I3)') 'indxBFRA_sand  Nb',i, indxBFRA(i)
         vname(7,indxBFRA(i))='                                       '
       enddo
       do i=NGRAV+NSAND+1,NGRAV+NSAND+NMUD
-        write(nametrc,'(A,I1)') 'bred_frac_mud_',i
-CR      write(stdout,'(1x,A,I3,1x,I3)') 'indxBFRA_mud  N°',i, indxBFRA(i)
+        write(nametrc,'(A,I1)') 'bed_frac_mud_',i
+CR      write(stdout,'(1x,A,I3,1x,I3)') 'indxBFRA_mud  Nb',i, indxBFRA(i)
         vname(1,indxBFRA(i))  =TRIM(nametrc)                       
         vname(2,indxBFRA(i))  ='volume fraction of mud in bed layer'
         vname(3,indxBFRA(i))  ='no units                             '
