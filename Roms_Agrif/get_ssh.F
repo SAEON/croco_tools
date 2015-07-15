@@ -202,6 +202,17 @@ C$    integer  trd, omp_get_thread_num
           may_day_flag=2
         endif
       endif
+
+# ifdef WET_DRY
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+           if (ssh(i,j) .lt. Dcrit(i,j)-h(i,j)) then
+               ssh(i,j)=Dcrit(i,j)-h(i,j)
+           endif
+        enddo
+      enddo
+# endif
+
       return
       end
 #else
