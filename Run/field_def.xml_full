@@ -28,11 +28,7 @@
          <field id="rho" long_name="density anomaly" unit="kilogram meter-3" grid_ref="grid_T_3D"/>
 #ifdef VIS_COEF_3D
          <!-- VIS_COEF_3D -->
-<<<<<<< HEAD
          <field id="visc3d" long_name="horizontal viscosity coefficient" unit="meter2 second-1" grid_ref="grid_T_3D"/>
-=======
-         <field id="visc3d" long_name="horizontal viscosity coefficient" unit="meter2 second-1 " grid_ref="grid_T_3D"/>
->>>>>>> 08b894c6a7a3d939a958fbb3e66f8272633cf834
          <!--END VIS_COEF_3D -->
 #endif
 #ifdef DIF_COEF_3D
@@ -64,6 +60,12 @@
          <field id="Zbnot" long_name="Physical hydraulic bottom roughness" unit="m" />
          <field id="Zbapp" long_name="Apparent hydraulic bottom roughness" unit="m" />
          <field id="bostrw" long_name="Wave-induced kinematic bottom stress" unit="N/m2" />
+         <field id="bustrc" long_name="Courant only bottom stress in xi direction" unit="N" />
+         <field id="bustrw" long_name="Wave only bottom stress in xi direction" unit="N" />
+         <field id="bustrcwmax" long_name="Critical bottom stress in xi direction" unit="N" />
+         <field id="bvstrc" long_name="Courant only bottom stress in eta direction" unit="N" />
+         <field id="bvstrw" long_name="Wave only bottom stress in eta direction" unit="N" />
+         <field id="bvstrcwmax" long_name="Critical bottom stress in eta direction" unit="N" />
          <!-- END BBL -->
 #endif
 #ifdef MRL_WCI         
@@ -121,6 +123,9 @@
          <field id="eflux_sand_2" long_name="erosion flux of Sand No 2" unit="kg/m2"  />
          <!-- END SEDIMENT --> 
 #endif
+#ifdef WET_DRY
+         <field id="rmask_wet" long_name="" unit=""  />
+#endif
      </field_group>
         
 #ifdef SEDIMENT
@@ -130,6 +135,8 @@
          <field id="bed_poros" long_name="Porosity of sediment bed layer" unit="no units" grid_ref="grid_b_3D" />
          <field id="bed_frac_sand_1" long_name="volume fraction of sand No 1 in bed layer" unit="no units" grid_ref="grid_b_3D" />
          <field id="bed_frac_sand_2" long_name="volume fraction of sand No 2 in bed layer" unit="no units" grid_ref="grid_b_3D" />
+         <field id="bed_mass_sand_1" long_name="bed mass of sand No 1" unit="kg/m2" grid_ref="grid_b_3D" />
+         <field id="bed_mass_sand_2" long_name="bed mass of sand No 2" unit="kg/m2" grid_ref="grid_b_3D" />
      </field_group>
      <!-- END SEDIMENT -->  
 #endif
@@ -152,6 +159,9 @@
          <field id="bdlu_sand_2" long_name="Bedload flux in x direction for Sand No 2" unit="kg/m/s"  />
          <!-- END SEDIMENT -->
 #endif
+#ifdef WET_DRY
+         <field id="umask_wet" long_name="" unit=""  />
+#endif
      </field_group>
 
      <!-- V grid -->
@@ -171,6 +181,9 @@
          <field id="bdlv_sand_1" long_name="Bedload flux in y direction for Sand No 1" unit="kg/m/s" />
          <field id="bdlv_sand_2" long_name="Bedload flux in y direction for Sand No 2" unit="kg/m/s" />
          <!-- END SEDIMENT -->
+#endif
+#ifdef WET_DRY
+         <field id="vmask_wet" long_name="" unit=""  />
 #endif
      </field_group>
     
