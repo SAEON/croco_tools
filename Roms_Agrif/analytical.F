@@ -1533,7 +1533,7 @@ C$    integer  trd, omp_get_thread_num
 #  ifndef ANA_SEDIMENT
           endif
 #  endif
-# endif
+# endif /* BBL */
           do ilay=1,NLAY
 # ifndef ANA_SEDIMENT
             if(.not.got_inised(1)) then
@@ -1566,6 +1566,9 @@ C$    integer  trd, omp_get_thread_num
 # endif
               bed_mass(i,j,ilay,2,itrc)=bed_mass(i,j,ilay,1,itrc)
             enddo
+# ifndef ANA_SEDIMENT
+          endif
+# endif
           enddo
           d50   = 1.0
           tau_cb= 1.0
@@ -1578,9 +1581,7 @@ C$    integer  trd, omp_get_thread_num
             Sdens(i,j) = rhosed*(Srho  (itrc))**bed_frac(i,j,1,itrc)
           enddo
           Sdens(i,j) = Max(Sdens(i,j),1050.)
-# ifndef ANA_SEDIMENT
-          endif
-# endif
+
 # ifdef DEBUG
           if(j.eq.jck.and.i.eq.ick) then
             write(6,*) '********** ANA_SEDIMENT ***********'
@@ -1629,10 +1630,12 @@ C$    integer  trd, omp_get_thread_num
       enddo
          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
      &                 bot_thick(START_2D_ARRAY))
+#  ifdef MOVING_BATHY
          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
      &                 bed_thick_tot(START_2D_ARRAY,1))
          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
      &                 bed_thick_tot(START_2D_ARRAY,2))
+#  endif
 # endif
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
