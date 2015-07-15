@@ -104,6 +104,11 @@
 # ifdef MOVING_BATHY
       call xios_send_field("hmorph",h)
 # endif
+# ifdef WET_DRY
+      call xios_send_field("rmask_wet",rmask_wet)
+      call xios_send_field("umask_wet",umask_wet)
+      call xios_send_field("vmask_wet",vmask_wet)
+#endif
 
       do j=0,Mm
          do i=0,Lm
@@ -334,21 +339,29 @@
       call xios_send_field("bed_thick",bed_thick) 
       call xios_send_field("bed_poros",bed_poros) 
 
-
       do i=1,NGRAV
          write(nametrc,'(A,I1)') 'bed_frac_grav_',i
          call xios_send_field(TRIM(nametrc),
      &    bed_frac(:,:,:,i))
+         write(nametrc,'(A,I1)') 'bed_mass_grav_',i
+         call xios_send_field(TRIM(nametrc),
+     &    bed_mass(:,:,:,nstp,i))
       enddo      
       do i=1,NSAND
          write(nametrc,'(A,I1)') 'bed_frac_sand_',i
          call xios_send_field(TRIM(nametrc),
      &    bed_frac(:,:,:,NGRAV+i))
+         write(nametrc,'(A,I1)') 'bed_mass_sand_',i
+         call xios_send_field(TRIM(nametrc),
+     &    bed_mass(:,:,:,nstp,NGRAV+i))
       enddo      
       do i=1,NMUD
          write(nametrc,'(A,I1)') 'bed_frac_mud_',i
          call xios_send_field(TRIM(nametrc),
      &    bed_frac(:,:,:,NGRAV+NSAND+i))
+         write(nametrc,'(A,I1)') 'bed_mass_mud_',i
+         call xios_send_field(TRIM(nametrc),
+     &    bed_mass(:,:,:,nstp,NGRAV+NSAND+i))
       enddo      
 
 #   ifdef SUSPLOAD
@@ -417,6 +430,12 @@
      &                             +bvstrw**2)
      &                                   *rho0
          call xios_send_field("bostrw",work2d)
+         call xios_send_field("bustrc",bustrc)
+         call xios_send_field("bvstrc",bvstrc)
+         call xios_send_field("bustrw",bustrw)
+         call xios_send_field("bvstrw",bvstrw)
+         call xios_send_field("bustrcwmax",bustrcwmax)
+         call xios_send_field("bvstrcwmax",bvstrcwmax)
 !     
 #  endif /* BBL */
 # endif /* SOLVE3D */
