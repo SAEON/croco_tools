@@ -138,8 +138,8 @@
       rlmin = 1.0d-2    ! user-defined minimum ripple length [m]  
       rhfac = 1.0d0/EXP(4.11d0)
 
-      do j=JstrV-1,Jend+1
-        do i=IstrU-1,Iend+1
+      do j=JstrV-1,Jend
+        do i=IstrU-1,Iend
           tauc(i,j)=0.0       ! [m^2/s^2]
           taucw(i,j)=0.0
           taucwmax(i,j)=0.0
@@ -515,7 +515,7 @@
           bustrw(i,j)=tauw(i,j)*anglew
           bustrcwmax(i,j)=taucwmax(i,j)*anglew
 !          Ubot(i,j)=Ub(i,j)*anglew
-          Ur(i,j)=Ucur
+!          Ur(i,j)=Ucur
 !
           anglec=Vcur/(Umag(i,j)+1.e-10)
 # ifdef WKB_WWAVE
@@ -531,7 +531,7 @@
           bvstrw(i,j)=tauw(i,j)*anglew
           bvstrcwmax(i,j)=taucwmax(i,j)*anglew
 !          Vbot(i,j)=Ub(i,j)*anglew
-          Vr(i,j)=Vcur
+!          Vr(i,j)=Vcur
         enddo
       enddo
 
@@ -627,7 +627,7 @@
         DO i=Istr,Iend
           bustrc(i,Jstr-1)=bustrc(i,Jstr)
           bustrw(i,Jstr-1)=bustrw(i,Jstr)
-          bustr(i,Jstr-1)=bustrcwmax(i,Jstr)
+          bustrcwmax(i,Jstr-1)=bustrcwmax(i,Jstr)
           bvstrc(i,Jstr-1)=bvstrc(i,Jstr)
           bvstrw(i,Jstr-1)=bvstrw(i,Jstr)
           bvstrcwmax(i,Jstr-1)=bvstrcwmax(i,Jstr)
