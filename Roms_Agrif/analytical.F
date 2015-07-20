@@ -616,15 +616,15 @@ C$    integer  trd, omp_get_thread_num
 #  ifndef NS_PERIODIC
       omega1=2.*pi/(14.*86400.)
       omega2=2.*pi/(12.*3600. )
-      tide_ampli_moy=1
-      tide_ampli_var=30./70
+      tide_ampli_moy=1.
+      tide_ampli_var=30./70.
       surelev=1.
       do j=JstrR,JendR
         do i=IstrR,IendR
           ssh(i,j)=tide_ampli_moy*(1.+tide_ampli_var
-     &                *sin(time*omega1)
+     &                *sin(time*omega1))
      &                *sin(time*omega2)
-     &                    +time*surelev/31536000.)
+     &                    +time*surelev/31536000.
 #   ifdef WET_DRY
           if (ssh(i,j) .lt. Dcrit(i,j)-h(i,j)) then
             ssh(i,j)=Dcrit(i,j)-h(i,j)
