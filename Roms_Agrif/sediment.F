@@ -1,3 +1,17 @@
+!
+!======================================================================
+! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
+! The two other branches from UCLA (Shchepetkin et al)
+! and Rutgers University (Arango et al) are under MIT/X style license.
+! ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
+!
+! ROMS_AGRIF website : http://www.romsagrif.org/
+!
+! New sediments routines were adapted from John Warner's code
+! by R. Benshila, CNRS 2015
+!
+!======================================================================
+!
 #include "cppdefs.h"
 #ifdef SEDIMENT
 
@@ -94,7 +108,7 @@ C$OMP BARRIER
       real a_slopex, a_slopey, sed_angle
       real bedld, bedld_mass, dzdx, dzdy
       real smgd, smgdr, osmgd, Umag
-      real rhs_bed, Ua, Ra, phi, Clim
+      real Ua, Ra, phi, Clim
 #  if defined BEDLOAD_SOULSBY
       real theta_mean, theta_wav, w_asym
       real theta_max, theta_max1, theta_max2
@@ -102,6 +116,7 @@ C$OMP BARRIER
       real bedld_x, bedld_y, tau_cur, waven, wavec
 #  endif
       real kdmax,Kbh,Kbh2,Kdh,Fwave
+      real rhs_bed, bed_change
       integer imin,imax,jmin,jmax
       parameter  (eps = 1.e-20)
       parameter(kdmax = 100.)
@@ -164,13 +179,7 @@ C$OMP BARRIER
         do i=Istr-1,Iend+1
           tau_w(i,j)=sqrt( bustrcwmax(i,j)**2
      &                   + bvstrcwmax(i,j)**2)
-#    ifdef WET_DRY
-          tau_w(i,j)=tau_w(i,j)*rmask_wet(i,j)
-#    endif
-#    ifdef MASKING
-          tau_w(i,j)=tau_w(i,j)*rmask(i,j)
-#    endif
-        enddo
+       enddo
       enddo
 #   else
       do j=J_EXT_RANGE
@@ -195,13 +204,7 @@ C$OMP BARRIER
      &                           (bustr(i,j)+bustr(i+1,j))+             
      &                           (bvstr(i,j)+bvstr(i,j+1))*             
      &                           (bvstr(i,j)+bvstr(i,j+1)))
-#    ifdef WET_DRY
-          tau_w(i,j)=tau_w(i,j)*rmask_wet(i,j)
-#    endif
-#    ifdef MASKING
-          tau_w(i,j)=tau_w(i,j)*rmask(i,j)
-#    endif
-        enddo
+       enddo
       enddo
 #   endif /* BBL */
 #  endif /* BEDLOAD_MPM */
@@ -287,8 +290,16 @@ C$OMP BARRIER
             cff1=-0.1875*wavec*(waven*Dstp)**2/(SINH(cff4))**4
             cff2=0.125*g*(2*Awave(i,j))**2/(wavec*Dstp+eps)
             cff3=pi*2*Max(Awave(i,j),eps)/(Pwave(i,j)*SINH(cff4)+eps)
-            w_asym=MAX(MIN((cff1-cff2)/cff3,0.2),0.0)
+!            w_asym=MAX(MIN((cff1-cff2)/cff3,0.2),0.0)
 !
+! Compute wave asymmetry factor, based on the note of Soulsby
+!
+            cff1=MIN(0.375*(2*Awave(i,j)/Dstp)*         
+     &                    ((waven*Dstp)/(SINH(cff4))**3),0.15)
+            w_asym=2.0_r8*cff1/(1.0+cff1**2.)
+!
+!
+
 ! Compute nondimensional stresses.
 !
             theta_wav=tau_wav(i,j)*osmgd+eps
@@ -307,18 +318,23 @@ C$OMP BARRIER
 ! Motion initiation factor.
 !
             cff3=0.5*(1.0+SIGN(1.0,                            
-     &                               theta_max/tau_ce(ised)-1.0))
+     &                   theta_max/(tau_ce(ised)*osmgd)-1.0))
 !
 ! Calc bed loads in direction of current and perpendicular direction.
 !
-            phi_x1=12.0*SQRT(theta_mean)*         
-     &             (theta_mean-tau_ce(ised))
-            phi_x2=12.0*(0.9534+0.1907*COS(2.0*phicw(i,j)))* 
-     &             SQRT(theta_wav)*theta_mean+           
-     &             12.0*(0.229*w_asym*theta_wav**1.5*    
+            phi_x1=12.*SQRT(theta_mean)*                    
+     &             MAX((theta_mean-tau_ce(ised)*osmgd),0.)
+            phi_x2=12.*(0.9534+0.1907*COS(2.*phicw(i,j)))* 
+     &             SQRT(theta_wav)*theta_mean+                  
+     &             12.*(0.229*w_asym*theta_wav**1.5*  
      &                      COS(phicw(i,j)))
-            phi_x=MAX(phi_x1,phi_x2)*cff3
-            bedld_x=phi_x*smgdr
+!           phi_x=MAX(phi_x1,phi_x2) !  <- original
+            IF (ABS(phi_x2).gt.phi_x1) THEN
+              phi_x=phi_x2
+            ELSE
+              phi_x=phi_x1
+            END IF
+            bedld_x=phi_x*smgdr*cff3
 !
             cff5=theta_wav**1.5+1.5*(theta_mean**1.5)
             phi_y=12.0*0.1907*theta_wav*theta_wav*       
@@ -352,33 +368,33 @@ C$OMP BARRIER
 !
 ! Correct for along-direction slope. Limit slope to 0.9*sed angle.
 !
+
             cff1=0.5*(1.0+SIGN(1.0,FX_r(i,j)))
             cff2=0.5*(1.0-SIGN(1.0,FX_r(i,j)))
+            cff3=0.5*(1.0+SIGN(1.0,FE_r(i,j)))
+            cff4=0.5*(1.0-SIGN(1.0,FE_r(i,j)))
 #  if defined SLOPE_NEMETH
             dzdx=(h(i+1,j)-h(i  ,j))/om_u(i+1,j)*cff1+       
      &           (h(i-1,j)-h(i  ,j))/om_u(i  ,j)*cff2
-            dzdy=(h(i,j+1)-h(i,j  ))/on_v(i,j+1)*cff1+      
-     &           (h(i,j-1)-h(i,j  ))/on_v(i  ,j)*cff2
-#   ifdef BEDLOAD_MPM
-            cff=ABS(tau_w(i,j))
-#   else
-            cff=ABS(tau_mean(i,j))
-#   endif 
-            a_slopex=0.3*cff**0.5*0.002*dzdx+       
-     &               0.3*cff**1.5*3.330*dzdx
-            a_slopey=0.3*cff**0.5*0.002*dzdy+      
-     &               0.3*cff**1.5*3.330*dzdy
+            dzdy=(h(i,j+1)-h(i,j  ))/on_v(i,j+1)*cff3+      
+     &           (h(i,j-1)-h(i,j  ))/on_v(i  ,j)*cff4
+
+            a_slopex=1.7*dzdx
+            a_slopey=1.7*dzdy
+!
 !
 ! Add contriubiton of bed slope to bed load transport fluxes.
 !
-            FX_r(i,j)=FX_r(i,j)+a_slopex
-            FE_r(i,j)=FE_r(i,j)+a_slopey
+            FX_r(i,j)=FX_r(i,j)*(1.0+a_slopex)
+            FE_r(i,j)=FE_r(i,j)*(1.0+a_slopey)
+!
+
 #  elif defined SLOPE_LESSER
             dzdx=MIN(((h(i+1,j)-h(i  ,j))/om_u(i+1,j)*cff1+      
      &                (h(i  ,j)-h(i-1,j))/om_u(i  ,j)*cff2),0.52)* 
      &                SIGN(1.0,FX_r(i,j))
-            dzdy=MIN(((h(i,j+1)-h(i,j  ))/on_v(i,j+1)*cff1+      
-     &                (h(i,j  )-h(i,j-1))/on_v(i  ,j)*cff2),0.52)* 
+            dzdy=MIN(((h(i,j+1)-h(i,j  ))/on_v(i,j+1)*cff3+      
+     &                (h(i,j  )-h(i,j-1))/on_v(i  ,j)*cff4),0.52)* 
      &                SIGN(1.0,FE_r(i,j))
             cff=ATAN(dzdx)
             a_slopex=sed_angle/(COS(cff)*(sed_angle-dzdx))
@@ -420,8 +436,19 @@ C$OMP BARRIER
      &                    om_r(i,j)*on_r(i,j)*ABS(FE_r(i,j))/     
      &                    bedld_mass)*             
      &                    SIGN(1.0,FE_r(i,j))
+#   ifdef MASKING
+#    ifdef WET_DRY
+            FX_r(i,j)=FX_r(i,j)*rmask_wet(i,j)
+            FE_r(i,j)=FE_r(i,j)*rmask_wet(i,j)
+#    else
+            FX_r(i,j)=FX_r(i,j)*rmask(i,j)
+            FE_r(i,j)=FE_r(i,j)*rmask(i,j)
+#    endif
+#   endif
+ 
           enddo
         enddo
+
 #  ifndef EW_PERIODIC
         if (WESTERN_EDGE) then
           do j=J_EXT_RANGE
@@ -483,7 +510,7 @@ C$OMP BARRIER
 !
 ! Upwind shift FX_r and FE_r to u and v points.
 !
-        do j=Jstr-1,Jend+1
+        do j=Jstr,Jend
           do i=Istr,Iend+1
             cff1=0.5*(1.0+SIGN(1.0,FX_r(i,j)))
             cff2=0.5*(1.0-SIGN(1.0,FX_r(i,j)))
@@ -493,16 +520,29 @@ C$OMP BARRIER
      &              0.5*(1.0-SIGN(1.0,FX_r(i-1,j)))*    
      &              (cff2*FX_r(i  ,j)+                   
      &               cff1*0.5*(FX_r(i-1,j)+FX_r(i,j)))
+#  ifdef MASKING
+            FX(i,j)=FX(i,j)*umask(i,j)
+#  endif
 #  ifdef WET_DRY
             FX(i,j)=FX(i,j)*umask_wet(i,j)
 #  endif
-#  ifdef MASKING
-            FX(i,j)=FX(i,j)*umask(i,j)
+#  ifdef SLOPE_KIRWAN
+            dzdx=(h(i,j)-h(i-1  ,j))/om_u(i,j)
+            a_slopex=(MAX(0.0,abs(dzdx)-0.01)                     &
+     &               *SIGN(1.0,dzdx)*0.1)                         &
+     &               *om_r(i,j)*dt
+#   ifdef SED_MORPH
+            a_slopex=a_slopex*morph_fac
+#   endif
+            FX(i,j)=FX(i,j)+a_slopex
+#   ifdef MASKING
+            FX(i,j)=FX(i,j)*rmask(i-1,j)*rmask(i,j)
+#   endif
 #  endif
           enddo
         enddo
         do j=Jstr,Jend+1
-          do i=Istr-1,Iend+1
+          do i=Istr,Iend
             cff1=0.5*(1.0+SIGN(1.0,FE_r(i,j)))
             cff2=0.5*(1.0-SIGN(1.0,FE_r(i,j)))
             FE(i,j)=0.5*(1.0+SIGN(1.0,FE_r(i,j-1)))*     
@@ -511,14 +551,52 @@ C$OMP BARRIER
      &              0.5*(1.0-SIGN(1.0,FE_r(i,j-1)))*      
      &              (cff2*FE_r(i  ,j)+                    
      &               cff1*0.5*(FE_r(i,j-1)+FE_r(i,j)))
-#  ifdef WET_DRY
-            FE(i,j)=FE(i,j)*vmask_wet(i,j)
-#  endif
 #  ifdef MASKING
             FE(i,j)=FE(i,j)*vmask(i,j)
 #  endif
+#  ifdef WET_DRY
+            FE(i,j)=FE(i,j)*vmask_wet(i,j)
+#  endif
+#  ifdef SLOPE_KIRWAN
+            dzdy=(h(i,j)-h(i  ,j-1))/on_v(i,j)
+            a_slopey=(MAX(0.0,abs(dzdy)-0.01_                     &
+     &               *SIGN(1.0,dzdy)*0.1)                         &
+     &               *on_r(i,j)*dt
+#   ifdef SED_MORPH
+            a_slopey=a_slopey*morph_fac
+#   endif
+            FE(i,j)=FE(i,j)+a_slopey
+#   ifdef MASKING
+            FE(i,j)=FE(i,j)*rmask(i,j-1)*rmask(i,j)
+#   endif
+#  endif
           enddo
         enddo
+
+!
+! Limit fluxes to prevent bottom from breaking thru water surface.
+!
+        DO j=Jstr,Jend
+          DO i=Istr,Iend
+!
+! Total thickness available.
+            Dstp=MAX(z_w(i,j,N)-z_w(i,j,0)-Dcrit(i,j),0.)
+!
+! Thickness change that wants to occur.
+            rhs_bed=(FX(i+1,j)-FX(i,j)+                          
+     &               FE(i,j+1)-FE(i,j))*pm(i,j)*pn(i,j)
+            bed_change=rhs_bed/(Srho(ised)*(1.0-bed_poros(i,j,1)))
+!
+! Limit that change to be less than available.
+            cff=MAX(bed_change-Dstp,0.0)
+            cff1=cff/ABS(bed_change+eps)
+            FX(i+1,j  )=FX(i+1,j  )*(1.0-cff1)
+            FX(i  ,j  )=FX(i  ,j  )*(1.0-cff1)
+            FE(i  ,j+1)=FE(i  ,j+1)*(1.0-cff1)
+            FE(i  ,j  )=FE(i  ,j  )*(1.0-cff1)
+          END DO
+        END DO
+!
 
 !
 ! Apply boundary conditions
@@ -526,7 +604,7 @@ C$OMP BARRIER
 #  ifndef EW_PERIODIC
         if (WESTERN_EDGE) then
           do j=Jstr-1,Jend+1
-            FX(Istr-1,j)=0.
+            FX(Istr,j)=0.
           enddo
         endif
         if (EASTERN_EDGE) then
@@ -538,7 +616,7 @@ C$OMP BARRIER
 #  ifndef NS_PERIODIC
         if (SOUTHERN_EDGE) then
           do i=Istr-1,Iend+1
-            FE(i,Jstr-1)=0.
+            FE(i,Jstr)=0.
           enddo
         endif
         if (NORTHERN_EDGE) then
@@ -555,6 +633,8 @@ C$OMP BARRIER
           do i=Istr,Iend
             cff=(FX(i+1,j)-FX(i,j)+                           
      &           FE(i,j+1)-FE(i,j))*pm(i,j)*pn(i,j)
+#define DIFF_BED
+#ifdef DIFF_BED
      &                   -dt* pm(i,j)*pn(i,j)*(0.5*on_r(i,j)*(
      &                            bed_mass(i+1,j,1,nstp,ised)
      &                        -2.*bed_mass(i,j,1,nstp,ised)
@@ -563,7 +643,7 @@ C$OMP BARRIER
      &                            bed_mass(i,j+1,1,nstp,ised)
      &                        -2.*bed_mass(i,j,1,nstp,ised)
      &                           +bed_mass(i,j-1,1,nstp,ised)) )
-
+#endif
             bed_mass(i,j,1,nnew,ised)=MAX(bed_mass(i,j,1,nstp,ised)-   
      &                                    cff,0.0)
 #  if !defined SUSPLOAD
@@ -575,9 +655,6 @@ C$OMP BARRIER
      &                           cff/(Srho(ised)*              
      &                                (1.0-bed_poros(i,j,1))),  
      &                           0.0)
-#  ifdef MASKING
-            bed_thick(i,j,1)=bed_thick(i,j,1)*rmask(i,j)
-#  endif
           enddo
         enddo
 !
@@ -598,6 +675,146 @@ C$OMP BARRIER
         enddo
       enddo
 !
+#undef toto
+#ifdef toto
+      do j=Jstr,Jend
+        do i=Istr,Iend
+          cff3=0.0
+          DO ised=1,NST
+            cff3=cff3+bed_mass(i,j,1,nnew,ised)
+          END DO
+          IF (cff3.eq.0.0) THEN
+            cff3=eps
+          END IF
+          DO ised=1,NST
+            bed_frac(i,j,1,ised)=bed_mass(i,j,1,nnew,ised)/cff3
+          END DO
+!
+          cff1=1.
+          cff2=1.
+          cff3=1.
+          cff4=1.
+          do ised=1,NST
+            cff1=cff1*tau_ce(ised)**bed_frac(i,j,1,ised)
+            cff2=cff2*Sd(ised)**bed_frac(i,j,1,ised)
+            cff3=cff3*(wsed(ised)+eps)**bed_frac(i,j,1,ised)
+            cff4=cff4*Srho(ised)**bed_frac(i,j,1,ised)
+          enddo
+          taucb(i,j)=cff1
+          Ssize(i,j)=MIN(cff2,Zob)
+          w_set(i,j)=cff3
+          Sdens(i,j)=MAX(cff4,1050.)
+        enddo
+      enddo
+
+!
+! Set boundary conditions
+# ifndef EW_PERIODIC
+      if (EASTERN_EDGE) then
+        do j=Jstr,Jend
+           taucb(Iend+1,j)=taucb(Iend,j)
+           Ssize(Iend+1,j)=Ssize(Iend,j)
+           w_set(Iend+1,j)=w_set(Iend,j)
+           Sdens(Iend+1,j)=Sdens(Iend,j)
+        enddo
+      endif
+      if (WESTERN_EDGE) then
+        do j=Jstr,Jend
+           taucb(Istr-1,j)=taucb(Istr,j)
+           Ssize(Istr-1,j)=Ssize(Istr,j)
+           w_set(Istr-1,j)=w_set(Istr,j)
+           Sdens(Istr-1,j)=Sdens(Istr,j)
+        enddo
+      endif
+# endif
+# ifndef NS_PERIODIC
+      if (NORTHERN_EDGE) then
+        do i=Istr,Iend
+          taucb  (i,Jend+1)=taucb(i,Jend)
+          Ssize  (i,Jend+1)=Ssize(i,Jend)
+          w_set  (i,Jend+1)=w_set(i,Jend)
+          Sdens  (i,Jend+1)=Sdens(i,Jend)
+        enddo
+      endif
+      if (SOUTHERN_EDGE) then
+        do i=Istr,Iend
+          taucb  (i,Jstr-1)=taucb(i,Jstr)
+          Ssize  (i,Jstr-1)=Ssize(i,Jstr)
+          w_set  (i,Jstr-1)=w_set(i,Jstr)
+          Sdens  (i,Jstr-1)=Sdens(i,Jstr)
+        enddo
+      endif
+# endif
+# if !defined EW_PERIODIC && !defined NS_PERIODIC
+      if (SOUTHERN_EDGE.and.WESTERN_EDGE) then
+        taucb(Istr-1,Jstr-1)=
+     &  0.5*(taucb(Istr,Jstr-1)
+     &      +taucb(Istr-1,Jstr))
+        Ssize(Istr-1,Jstr-1)=
+     &  0.5*(Ssize(Istr,Jstr-1)
+     &      +Ssize(Istr-1,Jstr))
+        w_set(Istr-1,Jstr-1)=
+     &  0.5*(w_set(Istr,Jstr-1)
+     &      +w_set(Istr-1,Jstr))
+        Sdens(Istr-1,Jstr-1)=
+     &  0.5*(Sdens(Istr,Jstr-1)
+     &      +Sdens(Istr-1,Jstr))
+      endif
+      if (SOUTHERN_EDGE.and.EASTERN_EDGE) then
+        taucb(Iend+1,Jstr-1)=
+     &  0.5*(taucb(Iend,Jstr-1)
+     &      +taucb(Iend+1,Jstr))
+        Ssize(Iend+1,Jstr-1)=
+     &  0.5*(Ssize(Iend,Jstr-1)
+     &      +Ssize(Iend+1,Jstr))
+        w_set(Iend+1,Jstr-1)=
+     &  0.5*(w_set(Iend,Jstr-1)
+     &      +w_set(Iend+1,Jstr))
+        Sdens(Iend+1,Jstr-1)=
+     &  0.5*(Sdens(Iend,Jstr-1)
+     &      +Sdens(Iend+1,Jstr))
+      endif
+      if (NORTHERN_EDGE.and.WESTERN_EDGE) then
+        taucb(Istr-1,Jend+1)=
+     &  0.5*(taucb(Istr,Jend+1)
+     &      +taucb(Istr-1,Jend))
+        Ssize(Istr-1,Jend+1)=
+     &  0.5*(Ssize(Istr,Jend+1)
+     &      +Ssize(Istr-1,Jend))
+        w_set(Istr-1,Jend+1)=
+     &  0.5*(w_set(Istr,Jend+1)
+     &      +w_set(Istr-1,Jend))
+        Sdens(Istr-1,Jend+1)=
+     &  0.5*(Sdens(Istr,Jend+1)
+     &      +Sdens(Istr-1,Jend))
+      endif
+      if (NORTHERN_EDGE.and.EASTERN_EDGE) then
+        taucb(Iend+1,Jend+1)=
+     &   0.5*(taucb(Iend,Jend+1)
+     &       +taucb(Iend+1,Jend))
+        Ssize(Iend+1,Jend+1)=
+     &   0.5*(Ssize(Iend,Jend+1)
+     &       +Ssize(Iend+1,Jend))
+        w_set(Iend+1,Jend+1)=
+     &   0.5*(w_set(Iend,Jend+1)
+     &       +w_set(Iend+1,Jend))
+        Sdens(Iend+1,Jend+1)=
+     &   0.5*(Sdens(Iend,Jend+1)
+     &       +Sdens(Iend+1,Jend))
+      endif
+# endif
+
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 taucb(START_2D_ARRAY))
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 Ssize(START_2D_ARRAY))
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 w_set(START_2D_ARRAY))
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 Sdens(START_2D_ARRAY))
+# endif
+#endif
 !-----------------------------------------------------------------------
 ! Set boundary conditions
 !-----------------------------------------------------------------------
@@ -783,7 +1000,7 @@ C$OMP BARRIER
           indx=itrc_sed+ised-1
           do k=1,N
             do i=Istr,Iend
-              qc(i,k)=t(i,j,k,nnew,indx)!*Hz_inv(i,k)
+              qc(i,k)=t(i,j,k,nnew,indx)
             enddo
           enddo
 
@@ -887,10 +1104,10 @@ C$OMP BARRIER
           do k=1,N                        ! WL is z-coordinate of the
             do i=Istr,Iend                ! departure point for grid
               FC(i,k-1)=0.                ! box interface z_w with
-              WL(i,k)=z_w(i,j,k-1)+cff*   ! the same indices;
+              WL(i,k)=z_w(i,j,k-1)+cff    ! the same indices;
 #  ifdef WET_DRY
-     &    * rmask_wet(i,j)   
-#  endif           
+     &    * rmask_wet(i,j)
+#  endif
               WR(i,k)=Hz(i,j,k)*qc(i,k)   ! FC is finite volume flux;
               ksource(i,k)=k              ! ksource(:,k) is index of
             enddo                         ! vertical grid box which
@@ -915,25 +1132,14 @@ C$OMP BARRIER
      &             -(1.5-cu)*(qR(i,ks)+qL(i,ks)-2.*qc(i,ks))  ))
             enddo
           enddo
-          do k=1,N,+1
-            do i=Istr,Iend
-               t(i,j,k,nnew,indx)=qc(i,k)
-     &                   +(FC(i,k)-FC(i,k-1))*Hz_inv(i,k)
-#  ifdef WET_DRY
-     &                                   *rmask_wet(i,j)
-#  endif           
-#  ifdef MASKING
-     &                                   *rmask(i,j)
-#  endif           
-            enddo
-          enddo   
           do i=Istr,Iend
-            settling_flux(i,j,ised)=FC(i,0)*0.001       ! mg/l > kg/m3
-#  ifdef WET_DRY
-     &                                   *rmask_wet(i,j)
-#  endif           
+            do k=1,N,+1
+               t(i,j,k,nnew,indx)=qc(i,k)
+     &                   +(FC(i,k)-FC(i,k-1))*Hz_inv(i,k) 
+            enddo   
+            settling_flux(i,j,ised)=FC(i,0)
           enddo   
-        enddo   ! sed loop
+        enddo   
       enddo     ! j   lood    
 
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
@@ -1006,19 +1212,17 @@ C$OMP BARRIER
           tau_w(i,j)=0.5*sqrt( (bustr(i,j)+bustr(i+1,j))**2
      &                        +(bvstr(i,j)+bvstr(i,j+1))**2)
 #  endif
-#  ifdef MASKING
-          tau_w(i,j)=tau_w(i,j)*rmask(i,j)
-#  endif
 #  ifdef WET_DRY
           tau_w(i,j)=tau_w(i,j)*rmask_wet(i,j)
 #  endif
         enddo
       enddo
+
       do j=jstr,jend
-        do i=istr,iend
-          do ised=1,NST
-            tau_water=tau_w(i,j)
-            indx=itrc_sed+ised-1     
+        do ised=1,NST
+          do i=istr,iend
+          indx=itrc_sed+ised-1     
+          
 !  Calculate critical shear stress in Pa
 !  => change for COHESIVE bed here
             cff=1./tau_ce(ised)
@@ -1030,23 +1234,20 @@ C$OMP BARRIER
             cff3=Srho(ised)*cff1
             cff4=bed_mass(i,j,1,bnew,ised)
             ero_flux(i,j,ised)=                                     
-     &            MIN(MAX(0.,cff2*(cff*tau_water-1.)),      
+     &            MIN(MAX(0.,cff2*(cff*tau_w(i,j)-1.)),      
      &                MIN(cff3*bot_thick(i,j),cff4)+              
      &                settling_flux(i,j,ised))
-#  ifdef WET_DRY
-     &      *rmask_wet(i,j)
-#  endif
 !
 !  Update global tracer variables (m Tunits for nnew indx, Tuints for 3)
 !  for erosive flux.
 !                        
-            t(i,j,1,nnew,indx)=t(i,j,1,nnew,indx)+1000*ero_flux(i,j,ised)
+            t(i,j,1,nnew,indx)=t(i,j,1,nnew,indx)+ero_flux(i,j,ised)
      & *1./Hz(i,j,1)                     
 #  ifdef WET_DRY
-     &                                     *rmask_wet(i,j)
+!     &                                     *rmask_wet(i,j)
 #  endif
-          enddo  ! ised loop
-        enddo    ! i loop 
+          enddo  ! i loop
+        enddo    ! ised loop 
       enddo      ! j loop 
 
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
@@ -1122,7 +1323,7 @@ C$OMP BARRIER
 #  ifdef BBL
       do j=Jstr-1,Jend+1
         do i=Istr-1,Iend+1
-          tau_w(i,j)=0.5*sqrt( bustrcwmax(i,j)**2
+          tau_w(i,j)=sqrt( bustrcwmax(i,j)**2
      &                        +bvstrcwmax(i,j)**2)
 #  else
       do j=J_EXT_RANGE
@@ -1132,9 +1333,6 @@ C$OMP BARRIER
 #  endif
 #  ifdef WET_DRY
           tau_w(i,j)=tau_w(i,j)*rmask_wet(i,j)
-#  endif
-#  ifdef MASKING
-          tau_w(i,j)=tau_w(i,j)*rmask(i,j)
 #  endif
         enddo
       enddo
@@ -1269,13 +1467,6 @@ C$OMP BARRIER
      &                          0.007*                               
      &                          (tau_w(i,j)-taucb(i,j))*rho0)+   
      &                          6.*Ssize(i,j)
-# ifdef WET_DRY
-     &                           *rmask_wet(i,j)
-# endif
-# ifdef MASKING
-     &                           *rmask(i,j)
-# endif
-!
 # ifdef MOVING_BATHY
 !
 ! Apply morphology factor.
@@ -1597,7 +1788,7 @@ C$OMP BARRIER
 !
        dh(:,:)=(bed_thick_tot(:,:,nstp)-bed_thick_tot(:,:,nnew))
 #  ifdef WET_DRY
-     &  *rmask_wet(i,j)
+     &  *rmask_wet(:,:)
 #  endif     
 # endif /* MOVING_BATHY*/
 
@@ -1637,6 +1828,104 @@ C$OMP BARRIER
           Sdens(i,j)=MAX(cff4,1050.)
         enddo
       enddo
+
+!
+! Set boundary conditions
+# ifndef EW_PERIODIC
+      if (EASTERN_EDGE) then
+        do j=Jstr,Jend
+           taucb(Iend+1,j)=taucb(Iend,j)
+           Ssize(Iend+1,j)=Ssize(Iend,j)
+           w_set(Iend+1,j)=w_set(Iend,j)
+           Sdens(Iend+1,j)=Sdens(Iend,j)
+        enddo
+      endif
+      if (WESTERN_EDGE) then
+        do j=Jstr,Jend
+           taucb(Istr-1,j)=taucb(Istr,j)
+           Ssize(Istr-1,j)=Ssize(Istr,j)
+           w_set(Istr-1,j)=w_set(Istr,j)
+           Sdens(Istr-1,j)=Sdens(Istr,j)
+        enddo
+      endif
+# endif
+# ifndef NS_PERIODIC
+      if (NORTHERN_EDGE) then
+        do i=Istr,Iend
+          taucb  (i,Jend+1)=taucb(i,Jend)
+          Ssize  (i,Jend+1)=Ssize(i,Jend)
+          w_set  (i,Jend+1)=w_set(i,Jend)
+          Sdens  (i,Jend+1)=Sdens(i,Jend)
+        enddo
+      endif
+      if (SOUTHERN_EDGE) then
+        do i=Istr,Iend
+          taucb  (i,Jstr-1)=taucb(i,Jstr)
+          Ssize  (i,Jstr-1)=Ssize(i,Jstr)
+          w_set  (i,Jstr-1)=w_set(i,Jstr)
+          Sdens  (i,Jstr-1)=Sdens(i,Jstr)
+        enddo
+      endif
+# endif
+# if !defined EW_PERIODIC && !defined NS_PERIODIC
+      if (SOUTHERN_EDGE.and.WESTERN_EDGE) then
+        taucb(Istr-1,Jstr-1)=
+     &  0.5*(taucb(Istr,Jstr-1)
+     &      +taucb(Istr-1,Jstr))
+        Ssize(Istr-1,Jstr-1)=
+     &  0.5*(Ssize(Istr,Jstr-1)
+     &      +Ssize(Istr-1,Jstr))
+        w_set(Istr-1,Jstr-1)=
+     &  0.5*(w_set(Istr,Jstr-1)
+     &      +w_set(Istr-1,Jstr))
+        Sdens(Istr-1,Jstr-1)=
+     &  0.5*(Sdens(Istr,Jstr-1)
+     &      +Sdens(Istr-1,Jstr))
+      endif
+      if (SOUTHERN_EDGE.and.EASTERN_EDGE) then
+        taucb(Iend+1,Jstr-1)=
+     &  0.5*(taucb(Iend,Jstr-1)
+     &      +taucb(Iend+1,Jstr))
+        Ssize(Iend+1,Jstr-1)=
+     &  0.5*(Ssize(Iend,Jstr-1)
+     &      +Ssize(Iend+1,Jstr))
+        w_set(Iend+1,Jstr-1)=
+     &  0.5*(w_set(Iend,Jstr-1)
+     &      +w_set(Iend+1,Jstr))
+        Sdens(Iend+1,Jstr-1)=
+     &  0.5*(Sdens(Iend,Jstr-1)
+     &      +Sdens(Iend+1,Jstr))
+      endif
+      if (NORTHERN_EDGE.and.WESTERN_EDGE) then
+        taucb(Istr-1,Jend+1)=
+     &  0.5*(taucb(Istr,Jend+1)
+     &      +taucb(Istr-1,Jend))
+        Ssize(Istr-1,Jend+1)=
+     &  0.5*(Ssize(Istr,Jend+1)
+     &      +Ssize(Istr-1,Jend))
+        w_set(Istr-1,Jend+1)=
+     &  0.5*(w_set(Istr,Jend+1)
+     &      +w_set(Istr-1,Jend))
+        Sdens(Istr-1,Jend+1)=
+     &  0.5*(Sdens(Istr,Jend+1)
+     &      +Sdens(Istr-1,Jend))
+      endif
+      if (NORTHERN_EDGE.and.EASTERN_EDGE) then
+        taucb(Iend+1,Jend+1)=
+     &   0.5*(taucb(Iend,Jend+1)
+     &       +taucb(Iend+1,Jend))
+        Ssize(Iend+1,Jend+1)=
+     &   0.5*(Ssize(Iend,Jend+1)
+     &       +Ssize(Iend+1,Jend))
+        w_set(Iend+1,Jend+1)=
+     &   0.5*(w_set(Iend,Jend+1)
+     &       +w_set(Iend+1,Jend))
+        Sdens(Iend+1,Jend+1)=
+     &   0.5*(Sdens(Iend,Jend+1)
+     &       +Sdens(Iend+1,Jend))
+      endif
+# endif
+
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
      &                 taucb(START_2D_ARRAY))
