@@ -19,6 +19,11 @@
 #include "ncscrum.h"
 #include "strings.h"
 
+#ifdef SEDIMENT
+# include "sediment.h"
+      character(32) namatt
+      integer i,j
+#endif /* FLOATS */
 #ifdef FLOATS
 # include "init_floats.h"
 # include "ncscrum_floats.h"
@@ -475,6 +480,102 @@
      &                                                     x_sponge)
       ierr=nf_put_att_FTYPE(ncid,nf_global,'v_sponge',nf_ftype, 1,
      &                                                     v_sponge)
+      ierr=nf_put_att_text (ncid,nf_global,'sponge_expl', 51,
+     &        'Sponge parameters : extent (m) & viscosity (m2.s-1)')
+# endif
+!
+! Sediment parameters
+!
+# ifdef SEDIMENT
+      do i=1, NST
+        write(namatt,'(A,I1)') ' sand_',i
+        ierr=nf_put_att_FTYPE(ncid,nf_global,'Sd'//TRIM(namatt),
+     &       nf_ftype, 1, Sd(i))
+      enddo
+      ierr=nf_put_att_text(ncid,nf_global,'Sd_expl', 32,
+     &                         'Diameter of grain per size class')       
+
+      do i=1, NST
+        write(namatt,'(A,I1)') ' sand_',i
+        ierr=nf_put_att_FTYPE(ncid,nf_global,'Csed'//TRIM(namatt),
+     &       nf_ftype, 1, Csed(i))
+      enddo
+      ierr=nf_put_att_text(ncid,nf_global,'Csed_expl', 21,
+     &                         'Initial concentration')       
+
+      do i=1, NST
+        write(namatt,'(A,I1)') ' sand_',i
+        ierr=nf_put_att_FTYPE(ncid,nf_global,'Srho'//TRIM(namatt),
+     &       nf_ftype, 1,Srho(i))
+      enddo
+      ierr=nf_put_att_text(ncid,nf_global,'Srho', 43,
+     &                  'Density of sediment material per size class')       
+
+      do i=1, NST
+        write(namatt,'(A,I1)') ' sand_',i
+        ierr=nf_put_att_FTYPE(ncid,nf_global,'Wsed '//TRIM(namatt),
+     &       nf_ftype, 1,Wsed(i))
+      enddo
+      ierr=nf_put_att_text(ncid,nf_global,'Wsed_expl', 32,
+     &                         'Settling velocity per size class')       
+
+      do i=1, NST
+        write(namatt,'(A,I1)') ' sand_',i
+        ierr=nf_put_att_FTYPE(ncid,nf_global,'Erate'//TRIM(namatt),
+     &       nf_ftype, 1,Erate(i))
+       enddo
+      ierr=nf_put_att_text(ncid,nf_global,'Erate_expl', 27,
+     &                         'Erosion rate per size class')       
+
+      do i=1, NST
+        write(namatt,'(A,I1)') ' sand_',i
+        ierr=nf_put_att_FTYPE(ncid,nf_global,'tau_ce'//TRIM(namatt),
+     &       nf_ftype, 1,tau_ce(i))
+       enddo
+      ierr=nf_put_att_text(ncid,nf_global,'tau_ce_expl', 41,
+     &                   'Critical shear stress for sediment motion')       
+
+      do i=1, NST
+        do j=1, NLAY
+          write(namatt,'(A,I1,A,I1)') ' sand_',i, ' layer_',j
+          ierr=nf_put_att_FTYPE(ncid,nf_global,'bfr'//TRIM(namatt),
+     &         nf_ftype, 1,bfr(j,i))
+        enddo
+      enddo
+      ierr=nf_put_att_text(ncid,nf_global,'bfr_expl', 52,
+     &         'Volume fraction of each size class in each bed layer')       
+  
+      do i=1, NLAY
+         write(namatt,'(A,I1,A,I1)') ' layer_',i
+         ierr=nf_put_att_FTYPE(ncid,nf_global,'Bthk'//TRIM(namatt),
+     &        nf_ftype, 1, Bthk(i))
+      enddo
+      ierr=nf_put_att_text(ncid,nf_global,'Bthk_expl', 33,
+     &                         'Initial thicknesses of bed layers')       
+      do i=1, NLAY
+         ierr=nf_put_att_FTYPE(ncid,nf_global,'Bpor'//TRIM(namatt),
+     &        nf_ftype, 1, Bpor(i))
+      enddo
+      ierr=nf_put_att_text(ncid,nf_global,'Bpor_expl', 30,
+     &                         'Initial porosity of bed layers')       
+
+      ierr=nf_put_att_FTYPE(ncid,nf_global,'Hrip',nf_ftype, 1,
+     &                                            Hrip)
+      ierr=nf_put_att_text(ncid,nf_global,'Hrip_expl', 21,
+     &                         'Initial ripple height')       
+      ierr=nf_put_att_FTYPE(ncid,nf_global,'Lrip',nf_ftype, 1,
+     &                                            Lrip)
+      ierr=nf_put_att_text(ncid,nf_global,'Lrip_expl', 21,
+     &                         'Initial ripple length')       
+      ierr=nf_put_att_FTYPE(ncid,nf_global,'bedload_coeff',nf_ftype, 1,
+     &                                            bedload_coeff)
+      ierr=nf_put_att_text(ncid,nf_global,'bedload_coeff_expl', 19,
+     &                         'Bedload coefficient')       
+       ierr=nf_put_att_FTYPE(ncid,nf_global,'morph_fac',nf_ftype, 1,
+     &                                            morph_fac)
+      ierr=nf_put_att_text(ncid,nf_global,'morph_fac_expl', 26,
+     &                         'Morphological scale factor')
+      
       ierr=nf_put_att_text (ncid,nf_global,'sponge_expl', 51,
      &        'Sponge parameters : extent (m) & viscosity (m2.s-1)')
 # endif
