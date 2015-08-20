@@ -311,12 +311,15 @@
         if (k.gt.0) then
           do j=JstrV-1,Jend
             do i=IstrU-1,Iend
-#ifdef UV_VIS_SMAGO
-              cff=(visc2_r(i,j)+visc3d_r(i,j,k))*Hz(i,j,k)*(
-#else
-              cff=visc2_r(i,j)*Hz(i,j,k)*(
+              cff=Hz(i,j,k)*max(0.,visc2_r(i,j)
+#ifdef SPONGE_VIS2
+     &                            ,visc2_sponge_r(i,j)
 #endif
-     &         om_r(i,j)*( dnUdx(i,j,k1) - 0.5*pn(i,j)*(
+#ifdef UV_VIS_SMAGO
+     &                            ,visc3d_r(i,j,k)
+#endif
+     &                         )
+     &      *( om_r(i,j)*( dnUdx(i,j,k1) - 0.5*pn(i,j)*(
      &           min(dZdx_r(i,j,k1),0.)*(dUdz(i,j,k1)+dUdz(i+1,j,k2))
      &          +max(dZdx_r(i,j,k1),0.)*(dUdz(i,j,k2)+dUdz(i+1,j,k1))
      &                                                             ))
@@ -333,11 +336,14 @@
           enddo
           do j=Jstr,Jend+1
             do i=Istr,Iend+1
-#ifdef UV_VIS_SMAGO
-              cff=0.25*(visc2_p(i,j)+visc3d_p(i,j,k))
-#else
-              cff=0.25*visc2_p(i,j)
+            cff=0.25*max(0.,visc2_p(i,j)
+#ifdef SPONGE_VIS2
+     &                     ,visc2_sponge_p(i,j)
 #endif
+#ifdef UV_VIS_SMAGO
+     &                     ,visc3d_p(i,j,k)
+#endif
+     &                  )
      &             *(Hz(i,j,k)+Hz(i-1,j,k)+Hz(i,j-1,k)+Hz(i-1,j-1,k))
      &       *( om_p(i,j)*( dnVdx(i,j,k1)-0.125*( pn(i,j)+pn(i-1,j)
      &                                        +pn(i,j-1)+pn(i-1,j-1))
@@ -365,8 +371,8 @@
               do i=IstrU,Iend
                 cff1=pn_u(i,j)
                 cff2=pm_u(i,j)
-                cff=0.25*( dVdz(i,j,k2)+dVdz(i-1,j,k2)
-     &                +dVdz(i,j+1,k2)+dVdz(i-1,j+1,k2))
+                cff=0.25*( dVdz(i,j  ,k2)+dVdz(i-1,j  ,k2)
+     &                    +dVdz(i,j+1,k2)+dVdz(i-1,j+1,k2))
                 dnUdz=cff1*dUdz(i,j,k2)
                 dmUdz=cff2*dUdz(i,j,k2)
                 dnVdz=cff1*cff
@@ -411,13 +417,15 @@
      &                         +cff3*(cff7*dnVdz-dnVdx(i,j  ,k2))
      &                         +cff4*(cff8*dnVdz-dnVdx(i,j+1,k1))
      &                                                          )
- 
-#ifdef UV_VIS_SMAGO
-                UFs(i,j,k2)=0.25*(visc2_r(i-1,j)+visc2_r(i,j)+
-     &                      visc3d_r(i-1,j,k)+visc3d_r(i,j,k))*cff
-#else
-                UFs(i,j,k2)=0.25*(visc2_r(i-1,j)+visc2_r(i,j))*cff
+
+                UFs(i,j,k2)=0.25*cff*max(0.,visc2_r(i,j)+visc2_r(i-1,j)
+#ifdef SPONGE_VIS2
+     &                       ,visc2_sponge_r(i,j)+visc2_sponge_r(i-1,j)
 #endif
+#ifdef UV_VIS_SMAGO
+     &                               ,visc3d_r(i,j,k)+visc3d_r(i-1,j,k)
+#endif
+     &                                  )
               enddo
             enddo
  
@@ -472,13 +480,14 @@
      &                         +cff4*(cff8*dnUdz-dnUdx(i,j  ,k1))
      &                                                          )
  
-#ifdef UV_VIS_SMAGO
-                VFs(i,j,k2)=0.25*(visc2_r(i,j-1)+visc2_r(i,j)+
-     &                      visc3d_r(i,j-1,k)+visc3d_r(i,j,k))*cff
-#else
-                VFs(i,j,k2)=0.25*(visc2_r(i,j-1)+visc2_r(i,j))*cff
+                VFs(i,j,k2)=0.25*cff*max(0.,visc2_r(i,j)+visc2_r(i,j-1)
+#ifdef SPONGE_VIS2
+     &                       ,visc2_sponge_r(i,j)+visc2_sponge_r(i,j-1)
 #endif
-
+#ifdef UV_VIS_SMAGO
+     &                               ,visc3d_r(i,j,k)+visc3d_r(i,j-1,k)
+#endif
+     &                                  )
               enddo
             enddo
           endif

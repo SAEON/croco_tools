@@ -38,16 +38,9 @@
 # include "ocean3d.h"
 # include "mpi_roms.h"
       integer Istr,Iend,Jstr,Jend, i, j, k, isp, itrc, ibnd
-      real    wrk(PRIVATE_2D_SCRATCH_ARRAY), vspg
+      real    wrk(PRIVATE_2D_SCRATCH_ARRAY)
 # if defined CANARY  || defined IBERIA
       real    lon0,lat0, rsponge, dx,dy,dr,cff,cff1,cff2
-# endif
-# ifdef SPONGE_GRID
-!  vsponge is defined over 10 boundary points with max:
-!          A = uscale * grd_scale
-!     and  B = A * grd_scale**2
-      real uscale
-      parameter (uscale=0.1)
 # endif
 !
 # include "compute_extended_bounds.h"
@@ -190,28 +183,11 @@
       vspg=v_sponge
 #   endif
 !
-!  Check CFL limit for Laplacian diffusion
-!
-!
-      if (vspg .ge. 0.7*grdmin**2/(8.*dt)) then
-        MPI_master_only write(stdout,
-     &                    '(/8x,2A,E7.2,A/,17x,A,E7.2,A//,17x,A//)') 
-     &   'WARNING: ',
-     &   'Viscosity in SPONGE layers is ',vspg,' m2/s',
-     &   'that is near or above CFL-imposed limit: ',grdmin**2/(8.*dt)
-     &                                        ,' m2/s',
-     &   '  -->  VSPONGE IS CLIPPED'
-        vspg=min(vspg,0.7*grdmin**2/(8.*dt))  ! clipped viscosity
-!     &   '  -->  REDUCE TIME STEP'
-!        may_day_flag=1
-!        stop                 !-->  EXIT
-      endif
-!
 !  Add Viscosity at rho points 
 !
       do j=JstrR,JendR
         do i=IstrR,IendR
-          visc2_sponge_r(i,j)=vspg*wrk(i,j)
+          visc2_sponge_r(i,j)=(0.01/(pm(i,j)*pn(i,j)*dt))*wrk(i,j)
 #   ifdef UV_VIS4
           visc4_sponge_r(i,j)=visc2_sponge_r(i,j)/(pm(i,j)*pn(i,j))
 #   endif
@@ -222,9 +198,9 @@
 !
       do j=Jstr,JendR
         do i=Istr,IendR
-          visc2_sponge_p(i,j)=0.25*vspg*
-     &                       ( wrk(i,j  )+wrk(i-1,j  )
-     &                        +wrk(i,j-1)+wrk(i-1,j-1) ) 
+          visc2_sponge_p(i,j)=0.25*(0.01/(pm(i,j)*pn(i,j)*dt))*
+     &                              ( wrk(i,j  )+wrk(i-1,j  )
+     &                               +wrk(i,j-1)+wrk(i-1,j-1) ) 
 #   ifdef UV_VIS4
           visc4_sponge_p(i,j)=visc2_sponge_p(i,j)/(pm(i,j)*pn(i,j))
 #   endif
@@ -239,12 +215,12 @@
        do itrc=1,NT
         do j=JstrR,JendR
           do i=IstrR,IendR
-            diff2_sponge(i,j)=vspg*wrk(i,j) 
-#   ifdef TS_DIF4 
+            diff2_sponge(i,j)=(0.01/(pm(i,j)*pn(i,j)*dt))*wrk(i,j)
+#   ifdef TS_DIF4
             diff4_sponge(i,j)=diff2_sponge(i,j)/(pm(i,j)*pn(i,j))
 #   endif
-         enddo
         enddo
+       enddo
       enddo
 #  endif /* TS_DIF2 || TS_DIF4 || SPONGE_DIF2 */
 # endif /* SPONGE */          
