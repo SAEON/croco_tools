@@ -411,7 +411,7 @@ C$OMP BARRIER
 # if defined UV_VIS2 || defined UV_VIS4 
         call uv3dmix (tile)
 # endif
-# if defined SPONGE_VIS2
+# if defined SPONGE_VIS2 && !defined UV_VIS2
         call uv3dmix_spg (tile)
 # endif
 # ifdef SST_SKIN

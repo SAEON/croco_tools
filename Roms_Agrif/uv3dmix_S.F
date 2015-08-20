@@ -142,23 +142,26 @@
       do k=1,N
         do j=JstrV-1,Jend
           do i=IstrU-1,Iend
-#ifdef UV_VIS_SMAGO
-            cff=Hz(i,j,k)*max(visc2_r(i,j),visc3d_r(i,j,k))*
-#else
-            cff=Hz(i,j,k)*visc2_r(i,j)*
+            cff=Hz(i,j,k)*max(0.,visc2_r(i,j)
+#ifdef SPONGE_VIS2
+     &                          ,visc2_sponge_r(i,j)
 #endif
+#ifdef UV_VIS_SMAGO
+     &                          ,visc3d_r(i,j,k)
+#endif
+     &                       )*
 #if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
-     &    ( on_r(i,j)*pm(i,j)*
+     &    ( pmon_r(i,j)*
      &        ( pn_u(i+1,j)*(u(i+1,j,k,nstp)-UCLM(i+1,j,k))
      &         -pn_u(i  ,j)*(u(i  ,j,k,nstp)-UCLM(i  ,j,k)) )
-     &     -om_r(i,j)*pn(i,j)*
+     &     -pnom_r(i,j)*
      &        ( pm_v(i,j+1)*(v(i,j+1,k,nstp)-VCLM(i,j+1,k))
      &         -pm_v(i,j  )*(v(i,j  ,k,nstp)-VCLM(i,j  ,k)) ) )
 #else
-     &    ( on_r(i,j)*pm(i,j)*( pn_u(i+1,j)*u(i+1,j,k,nstp)
-     &                         -pn_u(i  ,j)*u(i  ,j,k,nstp) )
-     &     -om_r(i,j)*pn(i,j)*( pm_v(i,j+1)*v(i,j+1,k,nstp)
-     &                         -pm_v(i,j  )*v(i,j  ,k,nstp) ) )
+     &    ( pmon_r(i,j)*( pn_u(i+1,j)*u(i+1,j,k,nstp)
+     &                   -pn_u(i  ,j)*u(i  ,j,k,nstp) )
+     &     -pnom_r(i,j)*( pm_v(i,j+1)*v(i,j+1,k,nstp)
+     &                   -pm_v(i,j  )*v(i,j  ,k,nstp) ) )
 #endif
             UFx(i,j)=on_r(i,j)*on_r(i,j)*cff
             VFe(i,j)=om_r(i,j)*om_r(i,j)*cff
@@ -166,30 +169,36 @@
         enddo
         do j=Jstr,Jend+1
           do i=Istr,Iend+1
-#ifdef UV_VIS_SMAGO
-            cff=0.0625*max(visc2_p(i,j),visc3d_p(i,j,k))*
-#else
-            cff=0.0625*visc2_p(i,j)*
+            cff=0.25*max(0.,visc2_p(i,j)
+#ifdef SPONGE_VIS2
+     &                     ,visc2_sponge_p(i,j)
 #endif
-     &      (Hz(i-1,j,k)+Hz(i,j,k)+Hz(i-1,j-1,k)+Hz(i,j-1,k))*
+#ifdef UV_VIS_SMAGO
+     &                     ,visc3d_p(i,j,k)
+#endif
+     &                    )*
+     &             (Hz(i-1,j,k)+Hz(i,j,k)+Hz(i-1,j-1,k)+Hz(i,j-1,k))*
 #if defined CLIMAT_UV_MIXH || defined CLIMAT_UV_MIXH_FINE
-     &      (  (pm(i-1,j)+pm(i,j)+pm(i-1,j-1)+pm(i,j-1))*on_p(i,j)
+     &      (  pmon_p(i,j)
      &              *( pn_v(i  ,j)*(v(i  ,j,k,nstp)-VCLM(i  ,j,k))
      &                -pn_v(i-1,j)*(v(i-1,j,k,nstp)-VCLM(i-1,j,k)) )
-     &        +(pn(i-1,j)+pn(i,j)+pn(i-1,j-1)+pn(i,j-1))*om_p(i,j)
+     &        +pnom_p(i,j)
      &              *( pm_u(i,j  )*(u(i,j  ,k,nstp)-UCLM(i  ,j,k))
      &                -pm_u(i,j-1)*(u(i,j-1,k,nstp)-UCLM(i,j-1,k)) ))
 #else
-     &      (  (pm(i-1,j)+pm(i,j)+pm(i-1,j-1)+pm(i,j-1))*on_p(i,j)
+     &      (  pmon_p(i,j)
      &                     *( pn_v(i  ,j)*v(i  ,j,k,nstp)
      &                       -pn_v(i-1,j)*v(i-1,j,k,nstp) )
-     &        +(pn(i-1,j)+pn(i,j)+pn(i-1,j-1)+pn(i,j-1))*om_p(i,j)
+     &        +pnom_p(i,j)
      &                     *( pm_u(i,j  )*u(i,j  ,k,nstp)
      &                       -pm_u(i,j-1)*u(i,j-1,k,nstp) ))
 #endif
 #ifdef MASKING
      &                                            * pmask(i,j)
 #endif
+!#ifdef WET_DRY
+!     &                                            * pmask_wet(i,j)
+!#endif
             UFe(i,j)=om_p(i,j)*om_p(i,j)*cff
             VFx(i,j)=on_p(i,j)*on_p(i,j)*cff
           enddo

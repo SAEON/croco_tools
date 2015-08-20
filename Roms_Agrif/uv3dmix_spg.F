@@ -204,17 +204,17 @@
           do i=IstrU-1,Iend
             cff=Hz(i,j,k)*visc2_sponge_r(i,j)*
 #  if defined CLIMAT_UV_SPONGE || defined CLIMAT_UV_SPONGE_FINE
-     &    ( on_r(i,j)*pm(i,j)*
+     &    ( pmon_r(i,j)*
      &        ( pn_u(i+1,j)*(u(i+1,j,k,nstp)-UCLM(i+1,j,k))
      &         -pn_u(i  ,j)*(u(i  ,j,k,nstp)-UCLM(i  ,j,k)) )
-     &     -om_r(i,j)*pn(i,j)*
+     &     -pnom_r(i,j)*
      &        ( pm_v(i,j+1)*(v(i,j+1,k,nstp)-VCLM(i,j+1,k))
      &         -pm_v(i,j  )*(v(i,j  ,k,nstp)-VCLM(i,j  ,k)) ) )
 #  else
-     &    ( on_r(i,j)*pm(i,j)*( pn_u(i+1,j)*u(i+1,j,k,nstp)
-     &                         -pn_u(i  ,j)*u(i  ,j,k,nstp) )
-     &     -om_r(i,j)*pn(i,j)*( pm_v(i,j+1)*v(i,j+1,k,nstp)
-     &                         -pm_v(i,j  )*v(i,j  ,k,nstp) ) )
+     &    ( pmon_r(i,j)*( pn_u(i+1,j)*u(i+1,j,k,nstp)
+     &                   -pn_u(i  ,j)*u(i  ,j,k,nstp) )
+     &     -pnom_r(i,j)*( pm_v(i,j+1)*v(i,j+1,k,nstp)
+     &                   -pm_v(i,j  )*v(i,j  ,k,nstp) ) )
 #  endif
             UFx(i,j)=on_r(i,j)*on_r(i,j)*cff
             VFe(i,j)=om_r(i,j)*om_r(i,j)*cff
@@ -222,20 +222,20 @@
         enddo
         do j=Jstr,Jend+1
           do i=Istr,Iend+1
-            cff=0.0625*visc2_sponge_p(i,j)*
-     &      (Hz(i-1,j,k)+Hz(i,j,k)+Hz(i-1,j-1,k)+Hz(i,j-1,k))*
+            cff=0.25*visc2_sponge_p(i,j)*
+     &              (Hz(i-1,j,k)+Hz(i,j,k)+Hz(i-1,j-1,k)+Hz(i,j-1,k))*
 #  if defined CLIMAT_UV_SPONGE || defined CLIMAT_UV_SPONGE_FINE
-     &      (  (pm(i-1,j)+pm(i,j)+pm(i-1,j-1)+pm(i,j-1))*on_p(i,j)
+     &      (  pmon_p(i,j)
      &              *( pn_v(i  ,j)*(v(i  ,j,k,nstp)-VCLM(i  ,j,k))
      &                -pn_v(i-1,j)*(v(i-1,j,k,nstp)-VCLM(i-1,j,k)) )
-     &        +(pn(i-1,j)+pn(i,j)+pn(i-1,j-1)+pn(i,j-1))*om_p(i,j)
+     &        +pnom_p(i,j)
      &              *( pm_u(i,j  )*(u(i,j  ,k,nstp)-UCLM(i  ,j,k))
      &                -pm_u(i,j-1)*(u(i,j-1,k,nstp)-UCLM(i-1,j,k)) ) )
 #  else
-     &      (  (pm(i-1,j)+pm(i,j)+pm(i-1,j-1)+pm(i,j-1))*on_p(i,j)
+     &      (  pmon_p(i,j)
      &                     *( pn_v(i  ,j)*v(i  ,j,k,nstp)
      &                       -pn_v(i-1,j)*v(i-1,j,k,nstp) )
-     &        +(pn(i-1,j)+pn(i,j)+pn(i-1,j-1)+pn(i,j-1))*om_p(i,j)
+     &        +pnom_p(i,j)
      &                     *( pm_u(i,j  )*u(i,j  ,k,nstp)
      &                       -pm_u(i,j-1)*u(i,j-1,k,nstp) ) ) 
 #  endif
@@ -260,9 +260,11 @@
             rufrc(i,j)=rufrc(i,j) + cff
             u(i,j,k,indx)=u(i,j,k,indx) + dt*cff1
 #  ifdef DIAGNOSTICS_UV
-            MHmix(i,j,k,1) = MHmix(i,j,k,1)+
-     &                       2*cff1/(Hz(i-1,j,k)+Hz(i,j,k))
+            MHmix(i,j,k,1) = 2*cff1/(Hz(i-1,j,k)+Hz(i,j,k))
      &                       SWITCH umask(i,j)
+#   ifdef UV_VIS4
+     &                     + MHmix(i,j,k,1)
+#   endif
 #  endif
           enddo
         enddo
@@ -274,9 +276,11 @@
             rvfrc(i,j)=rvfrc(i,j) + cff
             v(i,j,k,indx)=v(i,j,k,indx) + dt*cff1
 #  ifdef DIAGNOSTICS_UV
-            MHmix(i,j,k,2) = MHmix(i,j,k,2)+
-     &                       2*cff1/(Hz(i,j,k)+Hz(i,j-1,k))
+            MHmix(i,j,k,2) = 2*cff1/(Hz(i,j,k)+Hz(i,j-1,k))
      &                       SWITCH vmask(i,j)
+#   ifdef UV_VIS4
+     &                     + MHmix(i,j,k,2)
+#   endif
 #  endif
           enddo
         enddo
@@ -598,10 +602,12 @@
               u(i,j,k,indx)=u(i,j,k,indx) + dt*(cff1+UFs(i,j,k2)
      &                                              -UFs(i,j,k1))
 #  ifdef DIAGNOSTICS_UV
-              MHmix(i,j,k,1) = MHmix(i,j,k,1)+
-     &                         2*(cff1+UFs(i,j,k2)-UFs(i,j,k1))
+              MHmix(i,j,k,1) = 2*(cff1+UFs(i,j,k2)-UFs(i,j,k1))
      &                         /(Hz(i-1,j,k)+Hz(i,j,k))
      &                          SWITCH umask(i,j)
+#   ifdef UV_VIS4
+     &                        + MHmix(i,j,k,1)
+#   endif
 #  endif
             enddo
           enddo
@@ -614,10 +620,12 @@
               v(i,j,k,indx)=v(i,j,k,indx) + dt*(cff1+VFs(i,j,k2)
      &                                              -VFs(i,j,k1))
 #  ifdef DIAGNOSTICS_UV
-              MHmix(i,j,k,2) = MHmix(i,j,k,2)+
-     &                         2*(cff1+VFs(i,j,k2)-VFs(i,j,k1))
+              MHmix(i,j,k,2) = 2*(cff1+VFs(i,j,k2)-VFs(i,j,k1))
      &                         /(Hz(i,j,k)+Hz(i,j-1,k))
      &                          SWITCH vmask(i,j)
+#   ifdef UV_VIS4
+     &                        + MHmix(i,j,k,2)
+#   endif
 #  endif
             enddo
           enddo
@@ -625,14 +633,14 @@
       enddo
 # endif /* UV_MIX_S_SPONGE */
 
-#  ifdef NBQ
+# ifdef NBQ
 !==================================================================
 !
 ! WZ horizontal Laplacian diffusion along constant S-surfaces.
 !
 !==================================================================
-#   define FX UFe
-#   define FE VFe
+#  define FX UFe
+#  define FE VFe
 
       do k=1,N-1
 !
@@ -694,9 +702,9 @@
      &                                         + FE(i,j+1)-FE(i,j))
         enddo
       enddo
-#   undef FX 
-#   undef FE
-#  endif /* NBQ */
+#  undef FX 
+#  undef FE
+# endif /* NBQ */
 
 
       return

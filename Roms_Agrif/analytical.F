@@ -581,6 +581,7 @@ C$    integer  trd, omp_get_thread_num
 # include "ocean2d.h"
 # include "climat.h"
 # include "scalars.h"
+# include "coupling.h"
       integer Istr,Iend,Jstr,Jend, i,j
 # ifdef INTERNAL
       real U0,omega,kwave,ETA0
@@ -588,6 +589,12 @@ C$    integer  trd, omp_get_thread_num
 # if defined RIP || defined SHOREFACE
       real surelev,omega1,omega2
       real tide_ampli_moy,tide_ampli_var
+      real*QUAD mssh,area,cff1
+#  ifdef MPI
+#   include "mpif.h"
+      integer ierr
+      real*QUAD allmssh(1,NNODES),allarea(1,NNODES)
+#  endif
 # endif
 !
 # include "compute_auxiliary_bounds.h"
@@ -614,6 +621,34 @@ C$    integer  trd, omp_get_thread_num
            ! climatology computed in ana_initial
 # elif defined RIP || defined SHOREFACE
 #  ifndef NS_PERIODIC
+!
+! Remove mean sea level (mssh)  !!! MPI DEBUG problems here !!!
+!
+      mssh=QuadZero
+      area=QuadZero
+      do j=Jstr,Jend
+        do i=Istr,Iend
+           cff1=1./(pm(i,j)*pn(i,j))
+           mssh=mssh+cff1*Zt_avg1(i,j)
+           area=area+cff1
+        enddo
+      enddo
+      mssh=mssh/area
+#  ifdef MPI
+      call MPI_ALLGATHER(mssh,1,MPI_DOUBLE_PRECISION,
+     &                allmssh,1,MPI_DOUBLE_PRECISION,
+     &                          MPI_COMM_WORLD,ierr)
+      call MPI_ALLGATHER(area,1,MPI_DOUBLE_PRECISION,
+     &                allarea,1,MPI_DOUBLE_PRECISION,
+     &                          MPI_COMM_WORLD,ierr)
+      mssh=QuadZero
+      area=QuadZero
+      do i=1,NNODES
+        mssh=mssh+allmssh(1,i)*allarea(1,i)
+        area=area+allarea(1,i)
+      enddo
+      mssh=mssh/area
+#  endif
       omega1=2.*pi/(14.*86400.)
       omega2=2.*pi/(12.*3600. )
       tide_ampli_moy=1.
@@ -621,7 +656,8 @@ C$    integer  trd, omp_get_thread_num
       surelev=1.
       do j=JstrR,JendR
         do i=IstrR,IendR
-          ssh(i,j)=tide_ampli_moy*(1.+tide_ampli_var
+          ssh(i,j)=zeta(i,j,knew)-mssh
+     &                +tide_ampli_moy*(1.+tide_ampli_var
      &                *sin(time*omega1))
      &                *sin(time*omega2)
      &                    +time*surelev/31536000.
@@ -1177,6 +1213,7 @@ C$    integer  trd, omp_get_thread_num
 # ifdef INTERNAL
       real U0,omega,kwave,V0
 # endif
+      real ramp
 !
 # include "compute_auxiliary_bounds.h"
 !
