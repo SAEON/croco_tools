@@ -802,6 +802,18 @@
 # endif
 # define OBC_WEST
 # define SPONGE
+# define CLIMATOLOGY
+# ifdef CLIMATOLOGY
+#  define ANA_SSH
+#  define ANA_M2CLIMA
+#  define ANA_M3CLIMA
+#  define ZCLIMATOLOGY
+#  define M2CLIMATOLOGY
+#  define M3CLIMATOLOGY
+#  define ZNUDGING
+#  define M2NUDGING
+#  define M3NUDGING
+# endif
 # define WET_DRY
 # define MRL_WCI
 # ifdef MRL_WCI
