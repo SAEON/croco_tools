@@ -245,9 +245,8 @@
       parameter (Ntides=8)       ! ====== == =====
 #endif
 #ifdef WET_DRY
-      real Dcmin, Dcmax          ! Critical Depth for Drying cells
-      parameter (Dcmin=0.20)     ! ======== ===== === ====== =====
-      parameter (Dcmax=0.20)
+      real D_wetdry             ! Critical Depth for Drying cells
+      parameter (D_wetdry=0.10) ! ======== ===== === ====== =====
 #endif
 #if defined PSOURCE || defined PSOURCE_NCFILE
       integer Msrc               ! Number of point sources
