@@ -28,7 +28,7 @@
 !
 !# include "compute_auxiliary_bounds.h"
 !
-# if defined OBC_TORLANSKI && (defined T_FRC_BRY || defined TNUDGING)
+# if defined OBC_TORLANSKI && (defined T_FRC_BRY || defined TCLIMATOLOGY)
       tau_in=dt*tauT_in
       tau_out=dt*tauT_out
 # endif
