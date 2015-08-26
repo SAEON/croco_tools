@@ -15,7 +15,7 @@
 #include "cppdefs.h"
 #ifdef WET_DRY
 !***********************************************************************
-      SUBROUTINE wetdry_tile (Istr,Iend,Jstr,Jend, wetdry)
+      SUBROUTINE wetdry_tile (Istr,Iend,Jstr,Jend)
 !***********************************************************************
 !
       implicit none
@@ -26,8 +26,7 @@
 # include "ocean2d.h"
 # include "coupling.h"
 !
-      real   wetdry(PRIVATE_2D_SCRATCH_ARRAY)
-      real   cff, eps
+      real   cff, eps, cff1,cff2,cff3
       parameter (eps=1.e-10)
 #ifdef MASKING
 # define SWITCH *
@@ -53,7 +52,7 @@
 # ifdef MASKING
             wetdry(i,j)=wetdry(i,j)*rmask(i,j)
 # endif
-            IF ((zeta(i,j,kstp)+h(i,j)).le.Dcrit(i,j)+eps) THEN
+            IF ((zeta(i,j,knew)+h(i,j)).le.Dcrit(i,j)+eps) THEN
               wetdry(i,j)=0.
             END IF
           END DO
@@ -116,10 +115,10 @@
             END DO
           END DO
         END IF
+      END IF
 !
 !  If done fast time-stepping, scale mask by 2 nfast.
 !
-      END IF
       IF (iif.eq.nfast+1) THEN
         cff=1./REAL(nfast)
         DO j=Jstr-1,JendR
@@ -149,11 +148,17 @@
 !
         DO j=JstrR,JendR
           DO i=Istr,IendR
-            umask_wet(i,j)=1.
-            IF (DU_avg1(i,j,nnew).eq.0.) THEN
-              IF ((wetdry(i-1,j)+wetdry(i,j)).le.1.) THEN
-                umask_wet(i,j)=0.
-              END IF
+            cff1=wetdry(i-1,j)+wetdry(i,j)
+            IF (cff1.eq.1.) THEN
+              cff1=wetdry(i-1,j)-wetdry(i,j)
+            END IF
+            cff2=ABS(ABS(cff1)-1.)
+            cff3=0.5+SIGN(0.5,DU_avg1(i,j,nnew))*cff1
+            umask_wet(i,j)=0.5*cff1*cff2+cff3*(1.-cff2)
+!                                                    catch lone ponds
+            IF (DU_avg1(i,j,nnew).eq.0. .and.
+     &          wetdry(i-1,j)+wetdry(i,j).le.1.) THEN
+              umask_wet(i,j)=0.
             END IF
           END DO
         END DO
@@ -162,11 +167,17 @@
 !
         DO j=Jstr,JendR
           DO i=IstrR,IendR
-            vmask_wet(i,j)=1.
-            IF (DV_avg1(i,j,nnew).eq.0.) THEN
-              IF ((wetdry(i,j-1)+wetdry(i,j)).le.1.) THEN
-                vmask_wet(i,j)=0.
-              END IF
+            cff1=wetdry(i,j-1)+wetdry(i,j)
+            IF (cff1.eq.1.) THEN
+              cff1=wetdry(i,j-1)-wetdry(i,j)
+            END IF
+            cff2=ABS(ABS(cff1)-1.)
+            cff3=0.5+SIGN(0.5,DV_avg1(i,j,nnew))*cff1
+            vmask_wet(i,j)=0.5*cff1*cff2+cff3*(1.-cff2)
+!                                                    catch lone ponds
+            IF (DV_avg1(i,j,nnew).eq.0. .and.
+     &          wetdry(i,j-1)+wetdry(i,j).le.1.) THEN
+              vmask_wet(i,j)=0.
             END IF
           END DO
         END DO

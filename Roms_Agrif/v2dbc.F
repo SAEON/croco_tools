@@ -95,7 +95,7 @@ C$    trd=omp_get_thread_num()
 #  endif
 #endif
 !
-#if defined M2_FRC_BRY || defined M2NUDGING
+#if defined M2_FRC_BRY || defined M2CLIMATOLOGY
       tau_in=dtfast*tauM_in
       tau_out=dtfast*tauM_out
 #endif
@@ -150,7 +150,7 @@ C$    trd=omp_get_thread_num()
  
           if (dfx*dft .lt. 0.) then
             dft=0.                       ! <-- cancel cx, if inflow
-#   if defined M2_FRC_BRY || defined M2NUDGING
+#   if defined M2_FRC_BRY || defined M2CLIMATOLOGY
             tau=tau_in
           else
             tau=tau_out
@@ -179,7 +179,7 @@ C$    trd=omp_get_thread_num()
      &                    -max(cy,0.)*grad(i  ,Jstr)
      &                    -min(cy,0.)*grad(i+1,Jstr)
      &                                   )/(cff+cx)
-#   if defined M2_FRC_BRY || defined M2NUDGING
+#   if defined M2_FRC_BRY || defined M2CLIMATOLOGY
           vbar(i,Jstr,knew)=(1.-tau)*vbar(i,Jstr,knew)
 #    ifdef M2_FRC_BRY
      &                              +tau*vbarbry_south(i)
@@ -200,13 +200,13 @@ C$    trd=omp_get_thread_num()
      &                  *(0.5*(zeta(i,Jstr-1,knew)+zeta(i,Jstr,knew))
 #   ifdef Z_FRC_BRY
      &                                           -zetabry_south(i)
-#   elif defined ZNUDGING
+#   elif defined ZCLIMATOLOGY
      &                            -0.5*(ssh(i,Jstr-1)+ssh(i,Jstr))
 #   endif 
      &             )*grad(i,Jstr)
 #   ifdef M2_FRC_BRY
      &                                           +vbarbry_south(i)
-#   elif defined M2NUDGING
+#   elif defined M2CLIMATOLOGY
      &                                              +vbclm(i,Jstr)
 #   endif 
 #   ifdef MASKING
@@ -239,13 +239,13 @@ C$    trd=omp_get_thread_num()
      &                                     +cx*vbar(i,Jstr+1,kstp)
 #   ifdef M2_FRC_BRY
      &                                           +vbarbry_south(i)
-#   elif defined M2NUDGING
+#   elif defined M2CLIMATOLOGY
      &                                              +vbclm(i,Jstr)
 #    endif
      &                                      -hx*( zx
 #   ifdef Z_FRC_BRY
      &                                           -zetabry_south(i)
-#   elif defined ZNUDGING
+#   elif defined ZCLIMATOLOGY
      &                                              -ssh(i,Jstr-1)
 #   endif
      &                           ) ) !*grad(i,Jstr)
@@ -307,7 +307,7 @@ C$    trd=omp_get_thread_num()
  
           if (dfx*dft .lt. 0.) then
             dft=0.                         ! <-- cancel cx, if inflow
-#   if defined M2_FRC_BRY || defined M2NUDGING
+#   if defined M2_FRC_BRY || defined M2CLIMATOLOGY
             tau=tau_in
           else
             tau=tau_out
@@ -336,7 +336,7 @@ C$    trd=omp_get_thread_num()
      &                      -max(cy,0.)*grad(i  ,Jend+1)
      &                      -min(cy,0.)*grad(i+1,Jend+1)
      &                                      )/(cff+cx)
-#   if defined M2_FRC_BRY || defined M2NUDGING
+#   if defined M2_FRC_BRY || defined M2CLIMATOLOGY
           vbar(i,Jend+1,knew)=(1.-tau)*vbar(i,Jend+1,knew)
 #    ifdef M2_FRC_BRY
      &                                  +tau*vbarbry_north(i)
@@ -357,13 +357,13 @@ C$    trd=omp_get_thread_num()
      &               *(0.5*( zeta(i,Jend,knew)+zeta(i,Jend+1,knew))
 #   ifdef Z_FRC_BRY
      &                                            -zetabry_north(i)
-#   elif defined ZNUDGING
+#   elif defined ZCLIMATOLOGY
      &                             -0.5*(ssh(i,Jend)+ssh(i,Jend+1))
 #   endif
      &               )*grad(i,Jend+1)
 #   ifdef M2_FRC_BRY
      &                                            +vbarbry_north(i)
-#   elif defined M2NUDGING
+#   elif defined M2CLIMATOLOGY
      &                                             +vbclm(i,Jend+1)
 #   endif
 #   ifdef MASKING
@@ -396,13 +396,13 @@ C$    trd=omp_get_thread_num()
      &                                       +cx*vbar(i,Jend,kstp)
 #   ifdef M2_FRC_BRY
      &                                           +vbarbry_north(i)
-#   elif defined M2NUDGING
+#   elif defined M2CLIMATOLOGY
      &                                            +vbclm(i,Jend+1)
 #    endif
      &                                     +hx*( zx
 #   ifdef Z_FRC_BRY
      &                                          -zetabry_north(i)
-#   elif defined ZNUDGING
+#   elif defined ZCLIMATOLOGY
      &                                               -ssh(i,Jend) 
 #   endif
      &                            ) )  !*grad(i,Jend+1)
@@ -463,7 +463,7 @@ C$    trd=omp_get_thread_num()
  
           if (dfx*dft .lt. 0.) then
             dft=0.                        ! <-- cancel cx, if inflow
-#   if defined M2_FRC_BRY || defined M2NUDGING
+#   if defined M2_FRC_BRY || defined M2CLIMATOLOGY
             tau=tau_in
           else
             tau=tau_out
@@ -492,7 +492,7 @@ C$    trd=omp_get_thread_num()
      &                      -max(cy,0.)*grad(Istr-1,j-1)
      &                      -min(cy,0.)*grad(Istr-1,j  )
      &                                       )/(cff+cx)
-#   if defined M2_FRC_BRY || defined M2NUDGING
+#   if defined M2_FRC_BRY || defined M2CLIMATOLOGY
           vbar(Istr-1,j,knew)=(1.-tau)*vbar(Istr-1,j,knew)
 #    ifdef M2_FRC_BRY
      &                                   +tau*vbarbry_west(j)
@@ -593,7 +593,7 @@ C$    trd=omp_get_thread_num()
  
           if (dfx*dft .lt. 0.) then
             dft=0.                                 ! <-- INFLOW
-#   if defined M2_FRC_BRY || defined M2NUDGING
+#   if defined M2_FRC_BRY || defined M2CLIMATOLOGY
             tau=tau_in
           else
             tau=tau_out
@@ -622,10 +622,10 @@ C$    trd=omp_get_thread_num()
      &                      -max(cy,0.)*grad(Iend+1,j-1)
      &                      -min(cy,0.)*grad(Iend+1,j  )
      &                                       )/(cff+cx)
-#   if defined M2_FRC_BRY || defined M2NUDGING
+#   if defined M2_FRC_BRY || defined M2CLIMATOLOGY
           vbar(Iend+1,j,knew)=(1.-tau)*vbar(Iend+1,j,knew)
 #    ifdef M2_FRC_BRY
-     &                                   +tau*vbarbry_east(j)
+     &                                +tau*vbarbry_east(j)
 #    else
      &                                +tau*vbclm(Iend+1,j)
 #    endif

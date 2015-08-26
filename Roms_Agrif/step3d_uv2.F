@@ -440,7 +440,7 @@
 !--------------------------------------------------------------------
 !
 # ifdef WET_DRY
-      CALL wetdry_tile (Istr,Iend,Jstr,Jend, grad)
+      CALL wetdry_tile (Istr,Iend,Jstr,Jend)
 # endif
 !
 !--------------------------------------------------------------------
@@ -530,6 +530,9 @@
           ubar(i,j,knew)=ubar(i,j,knew)*umask(i,j)
      &                +ust2d(i,j)*(umask(i,j)-1.0)
 #  endif
+# endif
+# ifdef WET_DRY
+          ubar(i,j,knew)=ubar(i,j,knew)*umask_wet(i,j)
 # endif
         enddo
         do k=N,1,-1
@@ -666,6 +669,9 @@ c--# define TR
             vbar(i,j,knew)=vbar(i,j,knew)*vmask(i,j)
      &                  +vst2d(i,j)*(vmask(i,j)-1.0)
 #  endif
+# endif
+# ifdef WET_DRY
+          vbar(i,j,knew)=vbar(i,j,knew)*vmask_wet(i,j)
 # endif
           enddo
           do k=N,1,-1

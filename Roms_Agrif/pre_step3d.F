@@ -88,6 +88,9 @@
 # ifndef NBQ
       real Hz_half(PRIVATE_2D_SCRATCH_ARRAY,N)
 # endif
+# ifdef WET_DRY
+      real cff3,cff4,cff5
+#  endif
       parameter (gamma=1./6., epsil=1.E-16)
 # include "grid.h"
 # include "ocean3d.h"
@@ -865,7 +868,7 @@
         endif
         do i=IU_RANGE
           CF(i,0)=( CF(i,0)-cff1*DU_avg1(i,j,nstp)
-     &             +cff2*DU_avg1(i,j,indx) )/DC(i,0)
+     &                     +cff2*DU_avg1(i,j,indx) )/DC(i,0)
         enddo
         do k=N,1,-1
           do i=IU_RANGE
@@ -873,41 +876,73 @@
 # ifdef MASKING
      &                                 *umask(i,j)
 # endif
+# ifdef WET_DRY
+            cff3=wetdry(i-1,j)+wetdry(i,j)
+            IF (cff3.eq.1.) THEN
+              cff3=wetdry(i-1,j)-wetdry(i,j)
+            END IF
+            cff4=ABS(ABS(cff3)-1.)
+            cff5=0.5+SIGN(0.5,(cff1*DU_avg1(i,j,nstp)
+     &                        -cff2*DU_avg1(i,j,indx)))*cff3
+            umask_wet(i,j)=0.5*cff3*cff4+cff5*(1.-cff4)
+!            IF (cff1*DU_avg1(i,j,nstp)
+!     &         -cff2*DU_avg1(i,j,indx).eq.0. .and.
+!     &          wetdry(i-1,j)+wetdry(i,j).le.1.) THEN
+!              umask_wet(i,j)=0.
+!            END IF
+            u(i,j,k,nnew)=u(i,j,k,nnew)*umask_wet(i,j)
+# endif
           enddo
         enddo
       enddo
 
       do j=JV_RANGE
-          do i=IV_RANGE                   ! ETA-component
-            DC(i,0)=0.
-            CF(i,0)=0.
-          enddo
-          do k=1,N,+1
-            do i=IV_RANGE
-              DC(i,k)=0.5*(Hz(i,j,k)+Hz(i,j-1,k))*om_v(i,j)
-              DC(i,0)=DC(i,0)+DC(i,k)
-              CF(i,0)=CF(i,0)+DC(i,k)*v(i,j,k,nnew)
-            enddo
-          enddo
-          if (FIRST_TIME_STEP) then
-            cff1=1.
-            cff2=0.
-          else
-            cff1=1.5
-            cff2=0.5
-          endif
+        do i=IV_RANGE                   ! ETA-component
+          DC(i,0)=0.
+          CF(i,0)=0.
+        enddo
+        do k=1,N,+1
           do i=IV_RANGE
-            CF(i,0)=( CF(i,0)-cff1*DV_avg1(i,j,nstp)
-     &               +cff2*DV_avg1(i,j,indx) )/DC(i,0)
+            DC(i,k)=0.5*(Hz(i,j,k)+Hz(i,j-1,k))*om_v(i,j)
+            DC(i,0)=DC(i,0)+DC(i,k)
+            CF(i,0)=CF(i,0)+DC(i,k)*v(i,j,k,nnew)
           enddo
-          do k=N,1,-1
-            do i=IV_RANGE
-              v(i,j,k,nnew)=(v(i,j,k,nnew)-CF(i,0))
+        enddo
+        if (FIRST_TIME_STEP) then
+          cff1=1.
+          cff2=0.
+        else
+          cff1=1.5
+          cff2=0.5
+        endif
+        do i=IV_RANGE
+          CF(i,0)=( CF(i,0)-cff1*DV_avg1(i,j,nstp)
+     &                     +cff2*DV_avg1(i,j,indx) )/DC(i,0)
+        enddo
+        do k=N,1,-1
+          do i=IV_RANGE
+            v(i,j,k,nnew)=(v(i,j,k,nnew)-CF(i,0))
 # ifdef MASKING
      &                                  *vmask(i,j)
 # endif
-            enddo
+# ifdef WET_DRY
+            cff3=wetdry(i,j-1)+wetdry(i,j)
+            IF (cff3.eq.1.) THEN
+              cff3=wetdry(i,j-1)-wetdry(i,j)
+            END IF
+            cff4=ABS(ABS(cff3)-1.)
+            cff5=0.5+SIGN(0.5,(cff1*DV_avg1(i,j,nstp)
+     &                        -cff2*DV_avg1(i,j,indx)))*cff3
+            vmask_wet(i,j)=0.5*cff3*cff4+cff5*(1.-cff4)
+!            IF (cff1*DV_avg1(i,j,nstp)
+!     &         -cff2*DV_avg1(i,j,indx).eq.0. .and.
+!     &          wetdry(i,j-1)+wetdry(i,j).le.1.) THEN
+!              vmask_wet(i,j)=0.
+!            END IF
+            v(i,j,k,nnew)=v(i,j,k,nnew)*vmask_wet(i,j)
+# endif
           enddo
+        enddo
       enddo
 !
 !======================================================================

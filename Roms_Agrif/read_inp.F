@@ -1546,10 +1546,10 @@ CR        write(*,*)'NumGasExcTerms=',NumGasExcTerms
      &   'are set generically in set_nudgcof.F routine'
 #endif
 !
-#if  defined T_FRC_BRY  || defined M2_FRC_BRY || \
-     defined M3_FRC_BRY || defined Z_FRC_BRY  || \
-     defined TNUDGING   || defined M2NUDGING  || \
-     defined M3NUDGING  || defined ZNUDGING
+#if  defined T_FRC_BRY     || defined M2_FRC_BRY    || \
+     defined M3_FRC_BRY    || defined Z_FRC_BRY     || \
+     defined TCLIMATOLOGY  || defined M2CLIMATOLOGY || \
+     defined M3CLIMATOLOGY || defined ZCLIMATOLOGY
 !
 ! Nudging parameters for OBC and nudging layers 
 ! (converted from [days] to [sec^-1]
