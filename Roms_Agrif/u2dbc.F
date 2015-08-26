@@ -97,7 +97,7 @@ C$    trd=omp_get_thread_num()
 #  endif
 #endif
 !
-#if defined M2_FRC_BRY || defined M2NUDGING
+#if defined M2_FRC_BRY || defined M2CLIMATOLOGY
       tau_in=dtfast*tauM_in
       tau_out=dtfast*tauM_out
 #endif
@@ -153,7 +153,7 @@ C$    trd=omp_get_thread_num()
  
           if (dfx*dft .lt. 0.) then
             dft=0.                       ! <-- cancel cx, if inflow
-#   if defined M2_FRC_BRY || defined M2NUDGING
+#   if defined M2_FRC_BRY || defined M2CLIMATOLOGY
             tau=tau_in
           else
             tau=tau_out
@@ -182,7 +182,7 @@ C$    trd=omp_get_thread_num()
      &                    -max(cy,0.)*grad(Istr,j  )
      &                    -min(cy,0.)*grad(Istr,j+1)
      &                                   )/(cff+cx)
-#   if defined M2_FRC_BRY || defined M2NUDGING
+#   if defined M2_FRC_BRY || defined M2CLIMATOLOGY
           ubar(Istr,j,knew)=(1.-tau)*ubar(Istr,j,knew)
 #    ifdef M2_FRC_BRY
      &                            +tau*ubarbry_west(j)
@@ -203,13 +203,13 @@ C$    trd=omp_get_thread_num()
      &               *(0.5*(zeta(Istr-1,j,knew)+zeta(Istr,j,knew))
 #   ifdef Z_FRC_BRY
      &                                           -zetabry_west(j) 
-#   elif defined ZNUDGING
+#   elif defined ZCLIMATOLOGY
      &                           -0.5*(ssh(Istr-1,j)+ssh(Istr,j)) 
 #   endif
      &              )*grad(Istr,j)
 #   ifdef M2_FRC_BRY
      &                                           +ubarbry_west(j)
-#   elif defined M2NUDGING
+#   elif defined M2CLIMATOLOGY
      &                                             +ubclm(Istr,j)
 #   endif
 #   ifdef MASKING
@@ -242,13 +242,13 @@ c          endif
      &                                    +cx*ubar(Istr+1,j,kstp)
 #   ifdef M2_FRC_BRY
      &                                           +ubarbry_west(j)
-#   elif defined M2NUDGING
+#   elif defined M2CLIMATOLOGY
      &                                             +ubclm(Istr,j)
 #    endif
      &                                      -hx*( zx
 #   ifdef Z_FRC_BRY
      &                                           -zetabry_west(j)
-#   elif defined ZNUDGING
+#   elif defined ZCLIMATOLOGY
      &                                             -ssh(Istr-1,j)
 #   endif
      &                           )) !*grad(Istr,j)
@@ -330,7 +330,7 @@ c          endif
  
           if (dfx*dft .lt. 0.) then
             dft=0.                       ! <-- cancel cx, if inflow
-#   if defined M2_FRC_BRY || defined M2NUDGING
+#   if defined M2_FRC_BRY || defined M2CLIMATOLOGY
             tau=tau_in
           else
             tau=tau_out
@@ -359,7 +359,7 @@ c          endif
      &                      -max(cy,0.)*grad(Iend+1,j  )
      &                      -min(cy,0.)*grad(Iend+1,j+1)
      &                                       )/(cff+cx)
-#   if defined M2_FRC_BRY || defined M2NUDGING
+#   if defined M2_FRC_BRY || defined M2CLIMATOLOGY
           ubar(Iend+1,j,knew)=(1.-tau)*ubar(Iend+1,j,knew)
 #    ifdef M2_FRC_BRY
      &                                +tau*ubarbry_east(j)
@@ -380,13 +380,13 @@ c          endif
      &               *(0.5*( zeta(Iend,j,knew)+zeta(Iend+1,j,knew))
 #   ifdef Z_FRC_BRY
      &                                             -zetabry_east(j)
-#   elif defined ZNUDGING
+#   elif defined ZCLIMATOLOGY
      &                             -0.5*(ssh(Iend,j)+ssh(Iend+1,j))
 #   endif
      &               )*grad(Iend+1,j)
 #   ifdef M2_FRC_BRY
      &                                             +ubarbry_east(j)
-#   elif defined M2NUDGING
+#   elif defined M2CLIMATOLOGY
      &                                             +ubclm(Iend+1,j)
 #   endif
 #   ifdef MASKING
@@ -419,13 +419,13 @@ c          endif
      &                                        +cx*ubar(Iend,j,kstp)
 #   ifdef M2_FRC_BRY
      &                                             +ubarbry_east(j)
-#   elif defined M2NUDGING
+#   elif defined M2CLIMATOLOGY
      &                                             +ubclm(Iend+1,j)
 #    endif
      &                                      +hx*( zx
 #   ifdef Z_FRC_BRY
      &                                           -zetabry_east(j)
-#   elif defined ZNUDGING
+#   elif defined ZCLIMATOLOGY
      &                                               -ssh(Iend,j)
 #   endif
      &                             )) !*grad(Iend+1,j)
@@ -507,7 +507,7 @@ c          endif
  
           if (dfx*dft .lt. 0.) then
             dft=0.                        ! <-- cancel cx, if inflow
-#   if defined M2_FRC_BRY || defined M2NUDGING
+#   if defined M2_FRC_BRY || defined M2CLIMATOLOGY
             tau=tau_in
           else
             tau=tau_out
@@ -536,7 +536,7 @@ c          endif
      &                      -max(cy,0.)*grad(i-1,Jstr-1)
      &                      -min(cy,0.)*grad(i  ,Jstr-1)
      &                                       )/(cff+cx)
-#   if defined M2_FRC_BRY || defined M2NUDGING
+#   if defined M2_FRC_BRY || defined M2CLIMATOLOGY
           ubar(i,Jstr-1,knew)=(1.-tau)*ubar(i,Jstr-1,knew)
 #    ifdef M2_FRC_BRY
      &                               +tau*ubarbry_south(i)
@@ -637,7 +637,7 @@ c          endif
  
           if (dfx*dft .lt. 0.) then
             dft=0.                        ! <-- cancel cx, if inflow
-#   if defined M2_FRC_BRY || defined M2NUDGING
+#   if defined M2_FRC_BRY || defined M2CLIMATOLOGY
             tau=tau_in
           else
             tau=tau_out
@@ -666,7 +666,7 @@ c          endif
      &                      -max(cy,0.)*grad(i-1,Jend+1)
      &                      -min(cy,0.)*grad(i  ,Jend+1)
      &                                       )/(cff+cx)
-#   if defined M2_FRC_BRY || defined M2NUDGING
+#   if defined M2_FRC_BRY || defined M2CLIMATOLOGY
           ubar(i,Jend+1,knew)=(1.-tau)*ubar(i,Jend+1,knew)
 #    ifdef M2_FRC_BRY
      &                               +tau*ubarbry_north(i)

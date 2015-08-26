@@ -168,9 +168,7 @@ C$    integer omp_get_thread_num
 !
       do j=Jstr,Jend
         do i=Istr,Iend
-          cff=10.*sqrt( ((h(i+1,j  )-h(i-1,j  ))*pm(i,j))**2
-     &                + ((h(i  ,j+1)-h(i  ,j-1))*pn(i,j))**2 )
-          Dcrit(i,j)=min(Dcmax,max(Dcmin,cff))
+          Dcrit(i,j)=D_wetdry
         enddo
       enddo
 # ifndef EW_PERIODIC

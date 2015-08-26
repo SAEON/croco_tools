@@ -75,7 +75,7 @@ c        call t3dbc_interp_tile(Istr,Iend,Jstr,Jend,indx,itrc)
       call t3dbc_interp_tile(Istr,Iend,Jstr,Jend,indx,itrc)
 # endif
 !
-# if defined T_FRC_BRY || defined TNUDGING
+# if defined T_FRC_BRY || defined TCLIMATOLOGY
       tau_in=dt*tauT_in
       tau_out=dt*tauT_out
 # endif
@@ -108,7 +108,7 @@ c        call t3dbc_interp_tile(Istr,Iend,Jstr,Jend,indx,itrc)
  
             if (dfx*dft .lt. 0.) then
               dft=0.                  ! <-- cancel, if inflow 
-#   if defined T_FRC_BRY || defined TNUDGING
+#   if defined T_FRC_BRY || defined TCLIMATOLOGY
               tau=tau_in
             else
               tau=tau_out
@@ -136,7 +136,7 @@ c        call t3dbc_interp_tile(Istr,Iend,Jstr,Jend,indx,itrc)
      &                                -max(cy,0.)*grad(Istr-1,j  )
      &                                -min(cy,0.)*grad(Istr-1,j+1)
      &                                                 )/(cff+cx)
-#   if defined T_FRC_BRY || defined TNUDGING
+#   if defined T_FRC_BRY || defined TCLIMATOLOGY
             t(Istr-1,j,k,indx,itrc)=(1.-tau)*t(Istr-1,j,k,indx,itrc)
 #    ifdef T_FRC_BRY
      &                                    +tau*tbry_west(j,k,itrc)     
@@ -225,7 +225,7 @@ c        call t3dbc_interp_tile(Istr,Iend,Jstr,Jend,indx,itrc)
  
             if (dfx*dft .lt. 0.) then
               dft=0.                  ! <-- cancel, if inflow 
-#   if defined T_FRC_BRY || defined TNUDGING
+#   if defined T_FRC_BRY || defined TCLIMATOLOGY
               tau=tau_in
             else
               tau=tau_out
@@ -254,7 +254,7 @@ c        call t3dbc_interp_tile(Istr,Iend,Jstr,Jend,indx,itrc)
      &                                -max(cy,0.)*grad(Iend+1,j  )
      &                                -min(cy,0.)*grad(Iend+1,j+1)
      &                                                 )/(cff+cx)
-#   if defined T_FRC_BRY || defined TNUDGING
+#   if defined T_FRC_BRY || defined TCLIMATOLOGY
             t(Iend+1,j,k,indx,itrc)=(1.-tau)*t(Iend+1,j,k,indx,itrc)
 #    ifdef T_FRC_BRY
      &                                      +tau*tbry_east(j,k,itrc)
@@ -346,7 +346,7 @@ c        call t3dbc_interp_tile(Istr,Iend,Jstr,Jend,indx,itrc)
  
             if (dfx*dft .lt. 0.) then
               dft=0.                   ! <-- cancel, if inflow 
-#   if defined T_FRC_BRY || defined TNUDGING
+#   if defined T_FRC_BRY || defined TCLIMATOLOGY
               tau=tau_in
             else
               tau=tau_out
@@ -375,7 +375,7 @@ c        call t3dbc_interp_tile(Istr,Iend,Jstr,Jend,indx,itrc)
      &                                -max(cy,0.)*grad(i  ,Jstr-1)
      &                                -min(cy,0.)*grad(i+1,Jstr-1)
      &                                                 )/(cff+cx)
-#   if defined T_FRC_BRY || defined TNUDGING
+#   if defined T_FRC_BRY || defined TCLIMATOLOGY
             t(i,Jstr-1,k,indx,itrc)=(1.-tau)*t(i,Jstr-1,k,indx,itrc)
 #    ifdef T_FRC_BRY
      &                                     +tau*tbry_south(i,k,itrc)
@@ -464,7 +464,7 @@ c        call t3dbc_interp_tile(Istr,Iend,Jstr,Jend,indx,itrc)
  
             if (dfx*dft .lt. 0.) then
               dft=0.                          ! <-- cancel, if inflow 
-#   if defined T_FRC_BRY || defined TNUDGING
+#   if defined T_FRC_BRY || defined TCLIMATOLOGY
               tau=tau_in
             else
               tau=tau_out
@@ -492,7 +492,7 @@ c        call t3dbc_interp_tile(Istr,Iend,Jstr,Jend,indx,itrc)
      &                                -max(cy,0.)*grad(i  ,Jend+1)
      &                                -min(cy,0.)*grad(i+1,Jend+1)
      &                                                 )/(cff+cx)
-#   if defined T_FRC_BRY || defined TNUDGING
+#   if defined T_FRC_BRY || defined TCLIMATOLOGY
             t(i,Jend+1,k,indx,itrc)=(1.-tau)*t(i,Jend+1,k,indx,itrc)
 #    ifdef T_FRC_BRY
      &                                     +tau*tbry_north(i,k,itrc)

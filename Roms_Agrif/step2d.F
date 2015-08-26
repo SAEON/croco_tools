@@ -545,8 +545,7 @@ C$OMP END MASTER
 !-----------------------------------------------------------------------
 !
 #ifdef WET_DRY
-# define WETDRY zeta_new
-      call wetdry_tile (Istr,Iend,Jstr,Jend, WETDRY)
+      call wetdry_tile (Istr,Iend,Jstr,Jend)
 # undef WETDRY
 #endif
 !
@@ -571,7 +570,7 @@ C$OMP END MASTER
       if (FIRST_2D_STEP) then
         do j=JstrR,JendR
           do i=IstrR,IendR
-            !Zt_avg1(i,j)=cff1*zeta(i,j,knew)
+            Zt_avg1(i,j)=cff1*zeta(i,j,knew)
             DU_avg1(i,j,nnew)=0.
             DV_avg1(i,j,nnew)=0.
             DU_avg2(i,j)=cff2*DUon(i,j)
@@ -581,7 +580,7 @@ C$OMP END MASTER
       else
         do j=JstrR,JendR
           do i=IstrR,IendR
-            !Zt_avg1(i,j)=Zt_avg1(i,j)+cff1*zeta(i,j,knew)
+            Zt_avg1(i,j)=Zt_avg1(i,j)+cff1*zeta(i,j,knew)
             DU_avg2(i,j)=DU_avg2(i,j)+cff2*DUon(i,j)
             DV_avg2(i,j)=DV_avg2(i,j)+cff2*DVom(i,j)
           enddo
@@ -688,6 +687,9 @@ C$OMP END MASTER
 #  ifdef MASKING
      &                                 *pmask(i+1,j)
 #  endif
+#  ifdef WET_DRY0
+     &                                 *pmask_wet(i+1,j)
+#  endif
         enddo
       enddo
       do j=Jstr-1,Jend
@@ -699,6 +701,9 @@ C$OMP END MASTER
      &                   *(urhs(i,j+1)+urhs(i,j))
 #  ifdef MASKING
      &                                 *pmask(i,j+1)
+#  endif
+#  ifdef WET_DRY0
+     &                                 *pmask_wet(i,j+1)
 #  endif
         enddo
       enddo
@@ -1347,21 +1352,6 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 # undef rzeta
 # undef zwrk
 
-        cff1=weight(1,iif)
-        do j=JstrR,JendR
-          do i=IstrR,IendR
-            Zt_avg1(i,j)=cff1*zeta(i,j,knew)
-          enddo
-        enddo 
-
-      else    !<-- not FIRST_2D_STEP
-
-        do j=JstrR,JendR
-          do i=IstrR,IendR
-            Zt_avg1(i,j)=Zt_avg1(i,j)+cff1*zeta(i,j,knew)
-          enddo
-        enddo
-
       endif   !<-- FIRST_2D_STEP
 
 #ifdef NBQ
@@ -1566,7 +1556,6 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
           ust2d(i,j)=ust2d(i,j)*umask_wet(i,j)
 # endif
 #endif
-
           ubar(i,j,knew)=DUnew/(Dnew(i,j)+Dnew(i-1,j))
 #ifdef SOLVE3D
           DU_avg1(i,j,nnew)=DU_avg1(i,j,nnew) +cff1*on_u(i,j)*( DUnew
@@ -1611,7 +1600,6 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
           vst2d(i,j)=vst2d(i,j)*vmask_wet(i,j)
 # endif
 #endif
-
           vbar(i,j,knew)=DVnew/(Dnew(i,j)+Dnew(i,j-1))
 #ifdef SOLVE3D
           DV_avg1(i,j,nnew)=DV_avg1(i,j,nnew) +cff1*om_v(i,j)*(DVnew

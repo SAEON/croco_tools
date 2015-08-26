@@ -66,7 +66,7 @@
 ! Report information about vertical S-levels.
 !
 # ifdef WET_DRY
-        if (hmin.lt.0.) hmin=Dcmin
+        if (hmin.lt.0.) hmin=D_wetdry
 # endif
       MPI_master_only write(stdout,'(/1x,A/,/1x,A,10x,A/)')
      &                       'Vertical S-coordinate System:',

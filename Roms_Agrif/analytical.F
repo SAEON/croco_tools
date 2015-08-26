@@ -620,9 +620,9 @@ C$    integer  trd, omp_get_thread_num
 # elif defined JET
            ! climatology computed in ana_initial
 # elif defined RIP || defined SHOREFACE
-#  ifndef NS_PERIODIC
+#  ifdef ANA_TIDES
 !
-! Remove mean sea level (mssh)  !!! MPI DEBUG problems here !!!
+! Remove mean sea level (mssh) !!! MPI DEBUG problems here !!!
 !
       mssh=QuadZero
       area=QuadZero
@@ -634,7 +634,7 @@ C$    integer  trd, omp_get_thread_num
         enddo
       enddo
       mssh=mssh/area
-#  ifdef MPI
+#   ifdef MPI
       call MPI_ALLGATHER(mssh,1,MPI_DOUBLE_PRECISION,
      &                allmssh,1,MPI_DOUBLE_PRECISION,
      &                          MPI_COMM_WORLD,ierr)
@@ -648,7 +648,7 @@ C$    integer  trd, omp_get_thread_num
         area=area+allarea(1,i)
       enddo
       mssh=mssh/area
-#  endif
+#   endif
       omega1=2.*pi/(14.*86400.)
       omega2=2.*pi/(12.*3600. )
       tide_ampli_moy=1.
@@ -668,7 +668,7 @@ C$    integer  trd, omp_get_thread_num
 #   endif
         enddo
       enddo
-#  endif
+#  endif /* ANA_TIDES */
 # else
       do j=JstrR,JendR
         do i=IstrR,IendR
@@ -1001,9 +1001,9 @@ C$    integer  trd, omp_get_thread_num
             tclm(i,j,k,iDON) =0.5*exp(z_r(i,j,k)/100.) 
 #     ifdef NITROUS_OXIDE
             tclm(i,j,k,iN2O)=-(0.008*exp(z_r(i,j,k)/100.)-0.01)
-               if (tclm(i,j,k,iN2O).lt.0.) then
-	          tclm(i,j,k,iN2O)=0.
-	       endif
+            if (tclm(i,j,k,iN2O).lt.0.) then
+              tclm(i,j,k,iN2O)=0.
+            endif
 #     endif
 #   endif
 #  else
@@ -1234,7 +1234,7 @@ C$    integer  trd, omp_get_thread_num
 # endif
 !
 # if defined ANA_M2CLIMA && defined M2CLIMATOLOGY
-#  if defined REGIONAL
+#  if defined REGIONAL || defined RIP
       do j=JstrR,JendR
         do i=IstrR,IendR
           ubclm(i,j)=0.
@@ -1273,7 +1273,7 @@ C$    integer  trd, omp_get_thread_num
 # endif
 
 # if defined ANA_M3CLIMA && defined M3CLIMATOLOGY && defined SOLVE3D
-#  if defined REGIONAL
+#  if defined REGIONAL || defined RIP
       do k=1,N
         do j=JstrR,JendR
           do i=IstrR,IendR

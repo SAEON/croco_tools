@@ -77,7 +77,7 @@
       call u3dbc_interp_tile(Istr,Iend,Jstr,Jend)
 # endif
 !
-# if defined M3_FRC_BRY || defined M3NUDGING
+# if defined M3_FRC_BRY || defined M3CLIMATOLOGY
       tau_in=dt*tauM_in
       tau_out=dt*tauM_out
 # endif
@@ -107,7 +107,7 @@
  
             if (dfx*dft .lt. 0.) then
               dft=0.                       ! <-- cancel cx, if inflow
-#    if defined M3_FRC_BRY || defined M3NUDGING
+#    if defined M3_FRC_BRY || defined M3CLIMATOLOGY
               tau=tau_in
             else
               tau=tau_out
@@ -136,7 +136,7 @@
      &                    -max(cy,0.)*grad(Istr,j  )
      &                    -min(cy,0.)*grad(Istr,j+1)
      &                                   )/(cff+cx)
-#    if defined M3_FRC_BRY  || defined M3NUDGING 
+#    if defined M3_FRC_BRY  || defined M3CLIMATOLOGY 
             u(Istr,j,k,nnew)=(1.-tau)*u(Istr,j,k,nnew)+tau*
 #     ifdef M3_FRC_BRY
      &                                      ubry_west(j,k)
@@ -238,7 +238,7 @@
  
             if (dfx*dft .lt. 0.) then
               dft=0.                      ! <-- cancel cx, if inflow
-#    if defined M3_FRC_BRY || defined M3NUDGING
+#    if defined M3_FRC_BRY || defined M3CLIMATOLOGY
               tau=tau_in
             else
               tau=tau_out
@@ -267,7 +267,7 @@
      &                      -max(cy,0.)*grad(Iend+1,j  )
      &                      -min(cy,0.)*grad(Iend+1,j+1)
      &                                       )/(cff+cx)
-#    if defined M3_FRC_BRY  || defined M3NUDGING 
+#    if defined M3_FRC_BRY  || defined M3CLIMATOLOGY 
             u(Iend+1,j,k,nnew)=(1.-tau)*u(Iend+1,j,k,nnew)+tau*
 #     ifdef M3_FRC_BRY
      &                                          ubry_east(j,k)
@@ -366,7 +366,7 @@
  
             if (dfx*dft .lt. 0.) then
               dft=0.                       ! <-- cancel cx, if inflow
-#    if defined M3_FRC_BRY || defined M3NUDGING
+#    if defined M3_FRC_BRY || defined M3CLIMATOLOGY
               tau=tau_in
             else
               tau=tau_out
@@ -394,7 +394,7 @@
      &                      -max(cy,0.)*grad(i-1,Jstr-1)
      &                      -min(cy,0.)*grad(i  ,Jstr-1)
      &                                       )/(cff+cx)
-#    if defined M3_FRC_BRY  || defined M3NUDGING 
+#    if defined M3_FRC_BRY  || defined M3CLIMATOLOGY 
            u(i,Jstr-1,k,nnew)=(1.-tau)*u(i,Jstr-1,k,nnew)
 #     ifdef M3_FRC_BRY
      &                               +tau*ubry_south(i,k)
@@ -479,7 +479,7 @@
  
             if (dfx*dft .lt. 0.) then
               dft=0.                                 ! <-- INFLOW
-#    if defined M3_FRC_BRY || defined M3NUDGING
+#    if defined M3_FRC_BRY || defined M3CLIMATOLOGY
               tau=tau_in
             else
               tau=tau_out
@@ -508,7 +508,7 @@
      &                      -max(cy,0.)*grad(i-1,Jend+1)
      &                      -min(cy,0.)*grad(i  ,Jend+1)
      &                                       )/(cff+cx)
-#    if defined M3_FRC_BRY  || defined M3NUDGING 
+#    if defined M3_FRC_BRY  || defined M3CLIMATOLOGY 
             u(i,Jend+1,k,nnew)=(1.-tau)*u(i,Jend+1,k,nnew)
 #     ifdef M3_FRC_BRY
      &                                +tau*ubry_north(i,k)
