@@ -774,7 +774,7 @@
 # endif
 !
 # undef  OPENMP
-# define MPI
+# undef  MPI
 # define SOLVE3D
 # define UV_ADV
 # undef  VADV_ADAPT_IMP
@@ -794,7 +794,8 @@
 # define ANA_SRFLUX
 # define ANA_SST
 # define ANA_BTFLUX
-# if !defined BISCA
+# undef  ANA_TIDES
+# if !defined BISCA && !defined ANA_TIDES
 #  define NS_PERIODIC
 # else
 #  define OBC_NORTH
@@ -802,15 +803,13 @@
 # endif
 # define OBC_WEST
 # define SPONGE
-# define CLIMATOLOGY
-# ifdef CLIMATOLOGY
+# ifdef ANA_TIDES
 #  define ANA_SSH
 #  define ANA_M2CLIMA
 #  define ANA_M3CLIMA
 #  define ZCLIMATOLOGY
 #  define M2CLIMATOLOGY
 #  define M3CLIMATOLOGY
-#  define ZNUDGING
 #  define M2NUDGING
 #  define M3NUDGING
 # endif
@@ -820,6 +819,7 @@
 #  define WKB_WWAVE
 #  define WKB_OBC_WEST
 #  define WAVE_ROLLER
+#  define WAVE_FRICTION
 #  define WAVE_STREAMING
 #  define MRL_CEW
 #  ifdef RIP_TOPO_2D

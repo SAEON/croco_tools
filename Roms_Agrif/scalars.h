@@ -155,10 +155,10 @@
      defined M3NUDGING  || defined ZNUDGING
       real  x_sponge,   v_sponge
 #endif
-#if  defined T_FRC_BRY  || defined M2_FRC_BRY || \
-     defined M3_FRC_BRY || defined Z_FRC_BRY  || \
-     defined TNUDGING   || defined M2NUDGING  || \
-     defined M3NUDGING  || defined ZNUDGING
+#if  defined T_FRC_BRY     || defined M2_FRC_BRY    || \
+     defined M3_FRC_BRY    || defined Z_FRC_BRY     || \
+     defined TCLIMATOLOGY  || defined M2CLIMATOLOGY || \
+     defined M3CLIMATOLOGY || defined ZCLIMATOLOGY
        real  tauT_in, tauT_out, tauM_in, tauM_out
 #endif
       integer numthreads,     ntstart,   ntimes,  ninfo
@@ -247,10 +247,10 @@
      defined M3NUDGING  || defined ZNUDGING
      &                      , x_sponge,   v_sponge
 #endif
-#if  defined T_FRC_BRY  || defined M2_FRC_BRY || \
-     defined M3_FRC_BRY || defined Z_FRC_BRY  || \
-     defined TNUDGING   || defined M2NUDGING  || \
-     defined M3NUDGING  || defined ZNUDGING
+#if  defined T_FRC_BRY     || defined M2_FRC_BRY    || \
+     defined M3_FRC_BRY    || defined Z_FRC_BRY     || \
+     defined TCLIMATOLOGY  || defined M2CLIMATOLOGY || \
+     defined M3CLIMATOLOGY || defined ZCLIMATOLOGY
      &                      , tauT_in, tauT_out, tauM_in, tauM_out
 #endif
      &      , numthreads,     ntstart,   ntimes,  ninfo
