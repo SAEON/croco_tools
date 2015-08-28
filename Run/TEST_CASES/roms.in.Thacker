@@ -1,7 +1,7 @@
 title:
 	Thacker Example
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
-               4320      60       60       1
+               4320      60       30       1
 S-coord: THETA_S,   THETA_B,    Hc (m)
          0.0d0      0.0d0       1.e16
 initial: NRREC  filename
