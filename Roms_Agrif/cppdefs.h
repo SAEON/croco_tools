@@ -848,9 +848,11 @@
 */
 # undef  OPENMP
 # undef  MPI
+# define THACKER_2DV
 # define SOLVE3D
 # define UV_COR
 # define UV_ADV
+# undef  UV_VIS2
 # define WET_DRY
 # define NEW_S_COORD
 # define ANA_GRID
