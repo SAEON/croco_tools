@@ -190,7 +190,7 @@ C$    integer omp_get_thread_num
       omega=0.5*f(1,1) + sqrt( 0.25*f(1,1)**2 + 2*g*depth/Lt**2 )
       do j=JR_RANGE
         do i=IR_RANGE
-          zeta(i,j,1)=2*ETA0*depth*(xr(i,j)/Lt - .5*ETA0/Lt)
+          zeta(i,j,1)=2*ETA0*depth*(xr(i,j)/Lt - .5*ETA0)
           zeta(i,j,2)=zeta(i,j,1)
           ubar(i,j,1)=0.
           vbar(i,j,1)=-ETA0*omega*Lt
@@ -408,6 +408,7 @@ C$    integer omp_get_thread_num
             t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
           enddo
         enddo
+      enddo
 #    else
 #   define BVFREQ 2.510e-4
       cff=BVFREQ*BVFREQ/g
