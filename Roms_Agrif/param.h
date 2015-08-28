@@ -9,8 +9,10 @@
 ! ROMS_AGRIF website : http://www.romsagrif.org
 !======================================================================
 !
-! Dimensions of Physical Grid and array dimensions: 
-! =========== == ======== ==== === ===== ============
+!----------------------------------------------------------------------
+! Dimensions of Physical Grid and array dimensions
+!----------------------------------------------------------------------
+!
 ! LLm,MMm  Number of the internal points of the PHYSICAL grid.
 !          in the XI- and ETA-directions [physical side boundary
 !          points and peroodic ghost points (if any) are excluded].
@@ -95,13 +97,17 @@
       parameter (LLm0= 48,  MMm0= 48,  N=20)   ! 16 m resolution
 # endif
 #elif defined THACKER
+# ifdef THACKER_2DV
+      parameter (LLm0=199,  MMm0=1,    N=5 )   !  1 km resolution
+# else
       parameter (LLm0=199,  MMm0=199,  N=5 )   !  1 km resolution
+# endif
 #elif defined TANK
 # if ! defined MOVING_BATHY
-       parameter (LLm0=50,   MMm0=1,    N=50)   ! 20 cm resolution
-!      parameter (LLm0=10,   MMm0=1,    N=10)   !  1  m resolution
+      parameter (LLm0=50,   MMm0=1,    N=50)   ! 20 cm resolution
+!     parameter (LLm0=10,   MMm0=1,    N=10)   !  1  m resolution
 # else
-       parameter (LLm0=4000,   MMm0=1,  N=30)  !  1 mm resolution
+      parameter (LLm0=4000,   MMm0=1,  N=30)  !  1 mm resolution
 # endif
 #elif defined REGIONAL
 #  if   defined USWC0
@@ -146,8 +152,9 @@
 #endif
 
 !
+!----------------------------------------------------------------------
 ! MPI related variables
-! === ======= =========
+!----------------------------------------------------------------------
 !
       integer Lmmpi,Mmmpi,iminmpi,imaxmpi,jminmpi,jmaxmpi
       common /comm_setup_mpi1/ Lmmpi,Mmmpi
@@ -165,7 +172,7 @@
       integer NSUB_X, NSUB_E, NPP
 #ifdef MPI
       integer NP_XI, NP_ETA, NNODES     
-      parameter (NP_XI=1, NP_ETA=4,  NNODES=NP_XI*NP_ETA)
+      parameter (NP_XI=1, NP_ETA=2,  NNODES=NP_XI*NP_ETA)
       parameter (NPP=1)
       parameter (NSUB_X=1, NSUB_E=1)
 #elif defined OPENMP
@@ -185,8 +192,55 @@
 #endif
 
 !
+!----------------------------------------------------------------------
+! Number maximum of weights for the barotropic mode
+!----------------------------------------------------------------------
+!
+      integer NWEIGHT
+#ifdef NBQ
+      parameter (NWEIGHT=100000)
+#else
+      parameter (NWEIGHT=1000)
+#endif
+
+!
+!----------------------------------------------------------------------
+! Tides, Wetting-Drying, Point sources, Floast, Stations
+!----------------------------------------------------------------------
+!
+
+#if defined SSH_TIDES || defined UV_TIDES
+      integer Ntides             ! Number of tides
+      parameter (Ntides=8)       ! ====== == =====
+#endif
+#ifdef WET_DRY
+      real D_wetdry             ! Critical Depth for Drying cells
+                                ! ======== ===== === ====== =====
+# ifdef THACKER
+      parameter (D_wetdry=0.01)
+# else
+      parameter (D_wetdry=0.10)
+# endif
+#endif
+#if defined PSOURCE || defined PSOURCE_NCFILE
+      integer Msrc               ! Number of point sources
+      parameter (Msrc=10)        ! ====== == ===== =======
+#endif
+#ifdef FLOATS
+       integer Mfloats           ! Maximum number of floats
+       parameter (Mfloats=32000) ! ======= ====== == ======
+#endif
+#ifdef STATIONS
+       integer NS                ! Number of output stations
+       parameter (NS=5)          ! ====== == ====== ========
+       integer Msta              ! Maximum number of stations
+       parameter (Msta=1000)     ! ======= ====== == ========
+#endif
+
+!
+!----------------------------------------------------------------------
 ! Derived dimension parameters
-! ======= ========= ==========
+!----------------------------------------------------------------------
 !
       integer stdout, Np, padd_X,padd_E
 #ifdef AGRIF
@@ -224,49 +278,10 @@
 #endif
 
 !
-! Number maximum of weights for the barotropic mode
-! ====== ======= == ======= === === ========== ====
-!
-
-      integer NWEIGHT
-#ifdef NBQ
-      parameter (NWEIGHT=100000)
-#else
-      parameter (NWEIGHT=1000)
-#endif
-
-!
-! Tides, Wetting-Drying, Point sources, Floast, Stations
-! =====  ==============  ===== =======  ======  ========
-!
-
-#if defined SSH_TIDES || defined UV_TIDES
-      integer Ntides             ! Number of tides
-      parameter (Ntides=8)       ! ====== == =====
-#endif
-#ifdef WET_DRY
-      real D_wetdry             ! Critical Depth for Drying cells
-      parameter (D_wetdry=0.10) ! ======== ===== === ====== =====
-#endif
-#if defined PSOURCE || defined PSOURCE_NCFILE
-      integer Msrc               ! Number of point sources
-      parameter (Msrc=10)        ! ====== == ===== =======
-#endif
-#ifdef FLOATS
-       integer Mfloats           ! Maximum number of floats
-       parameter (Mfloats=32000) ! ======= ====== == ======
-#endif
-#ifdef STATIONS
-       integer NS                ! Number of output stations
-       parameter (NS=5)          ! ====== == ====== ========
-       integer Msta              ! Maximum number of stations
-       parameter (Msta=1000)     ! ======= ====== == ========
-#endif
-
-!
+!----------------------------------------------------------------------
 ! I/O : flag for type sigma vertical transformation
+!----------------------------------------------------------------------
 !
-
 #ifdef NEW_S_COORD
       real Vtransform          
       parameter (Vtransform=2) 
@@ -276,10 +291,10 @@
 #endif
 
 !
+!----------------------------------------------------------------------
 ! Number of tracers 
-! ====== == =======
+!----------------------------------------------------------------------
 !
-
 #ifdef SOLVE3D
       integer   NT, itemp
       integer   ntrc_salt, ntrc_pas, ntrc_bio, ntrc_sed 
@@ -344,10 +359,10 @@
 #endif /* SOLVE3D */
 
 !
+!----------------------------------------------------------------------
 ! Tracer identification indices
-! ====== ============== =======
+!----------------------------------------------------------------------
 !
-
 #if defined SOLVE3D && !defined F90CODE
       integer   ntrc_diats, ntrc_diauv, ntrc_diabio
 # ifdef BIOLOGY

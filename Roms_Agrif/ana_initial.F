@@ -187,6 +187,19 @@ C$    integer omp_get_thread_num
       ETA0=0.1
       depth=10.
       Lt=80.e3
+#  ifdef THACKER_2DV
+      omega=sqrt( f(1,1)**2 + 2*g*depth/Lt**2 )
+      do j=JR_RANGE
+        do i=IR_RANGE
+          zeta(i,j,1)=2*ETA0*depth*(xr(i,j)/Lt - .5*ETA0)
+          zeta(i,j,2)=zeta(i,j,1)
+          ubar(i,j,1)=0.
+          vbar(i,j,1)=-ETA0*f(1,1)*omega*Lt
+          ubar(i,j,2)=0
+          vbar(i,j,2)=vbar(i,j,1)
+        enddo
+      enddo
+#  else
       omega=0.5*f(1,1) + sqrt( 0.25*f(1,1)**2 + 2*g*depth/Lt**2 )
       do j=JR_RANGE
         do i=IR_RANGE
@@ -198,6 +211,7 @@ C$    integer omp_get_thread_num
           vbar(i,j,2)=vbar(i,j,1)
         enddo
       enddo
+#  endif
 # elif defined TANK
       ETA0=0.001
       Lt=10.

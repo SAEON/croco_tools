@@ -138,7 +138,8 @@
 */
 #if defined BASIN || defined EQUATOR  || defined GRAV_ADJ \
                   || defined SOLITON  || defined JET \
-                  || defined ACOUSTIC || defined VORTEX
+                  || defined ACOUSTIC || defined VORTEX \
+                  || defined THACKER  || defined TANK
 # define PGF_BASIC_JACOBIAN
 # undef WJ_GRADP
 #elif defined RIP

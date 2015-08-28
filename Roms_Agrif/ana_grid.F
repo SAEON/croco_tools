@@ -153,8 +153,12 @@ C$    integer omp_get_thread_num
                      beta=0.
 # elif defined THACKER
                      depth=10.
+                     beta=0.
+#  ifdef THACKER_2DV
+                     f0=0.
+#  else
                      f0=1.E-4
-                     beta=0
+#  endif
 # elif defined TANK
 #  if ! defined MOVING_BATHY 
                      depth=10.
@@ -231,7 +235,11 @@ C$    integer omp_get_thread_num
                     Length_ETA=768.0
 # elif defined THACKER
                      Length_XI =199.e+3 
-                     Length_ETA=199.e+3 
+#  ifdef THACKER_2DV
+                     Length_ETA=3.e+3
+#  else
+                     Length_ETA=199.e+3
+#  endif
 # elif defined TANK
 #  if ! defined MOVING_BATHY
                      Length_XI =10.0
@@ -524,8 +532,12 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
       cff=80.e3
       do j=JstrR,JendR
         do i=IstrR,IendR
+#  ifdef THACKER_2DV
+          h(i,j)=depth*(1-(xr(i,j)/cff)**2)
+#  else
           h(i,j)=depth*(1-(xr(i,j)/cff)**2 -
      &                    (yr(i,j)/cff)**2 )
+#  endif
         enddo
       enddo
 # elif defined TANK
