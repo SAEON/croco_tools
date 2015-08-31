@@ -161,7 +161,7 @@ for tindex=tstr:tend % ---------------------------------------------
  axis([-100 100 -10 5])
  caxis([cmin cmax])
  grid on
- thour=floor(time*24);
+ thour=floor(time/3600);
  title(['THACKER: U Err at Time ',num2str(thour),' hour'])
 
 % D1=~isnan(zeta1); D2=~isnan(zeta2);
