@@ -27,6 +27,7 @@
 #undef  UPWELLING       /* Upwelling Example */
 #undef  VORTEX          /* Baroclinic Vortex Example */
 #undef  INTERNAL        /* Internal Tide Example */
+#undef  IGW             /* COMODO Internal Tide Example */
 #undef  JET             /* Baroclinic Jet Example */
 #undef  RIP             /* Rip Current Test Case */
 #undef  SHOREFACE       /* Shoreface Test Case on a Planar Beach */
@@ -456,9 +457,8 @@
 # define ANA_VMIX
 # define EW_PERIODIC
 # define NS_PERIODIC
-# undef  UV_VIS2
-# undef  TS_DIF2
-# undef  TS_MIX_GEO
+# undef  OBC_EAST
+# undef  OBC_WEST
 # undef  SPONGE
 # undef  ANA_SSH
 # undef  ANA_M2CLIMA
@@ -468,12 +468,53 @@
 # undef  M2CLIMATOLOGY
 # undef  M3CLIMATOLOGY
 # undef  TCLIMATOLOGY
-# undef  ZNUDGING
 # undef  M2NUDGING
 # undef  M3NUDGING
 # undef  TNUDGING
-# undef  OBC_EAST
-# undef  OBC_WEST
+
+#elif defined IGW
+/*
+!                  COMODO Internal Tide Example
+!                  ====== ======== ==== =======
+!
+! Pichon, A., 2007: Tests academiques de maree, Rapport interne n 21 du 19 octobre 2007, 
+! Service Hydrographique et Oceanographique de la Marine. 
+*/
+
+# define EXPERIMENT3
+# undef  OPENMP
+# undef  MPI
+# define TIDES
+# define SSH_TIDES
+# define UV_TIDES
+# define SOLVE3D 
+# define UV_COR
+# define UV_ADV
+# define SPHERICAL
+# define CURVGRID
+# define ANA_INITIAL
+# define ANA_VMIX
+# define ANA_SMFLUX
+# define ANA_STFLUX
+# define ANA_SRFLUX
+# define ANA_SSFLUX
+# define ANA_BTFLUX
+# define ANA_BSFLUX
+# define NS_PERIODIC
+# define OBC_EAST
+# define OBC_WEST
+# define SPONGE
+# define ANA_SSH
+# define ANA_M2CLIMA
+# define ANA_M3CLIMA
+# define ANA_TCLIMA
+# define ZCLIMATOLOGY
+# define M2CLIMATOLOGY
+# define M3CLIMATOLOGY
+# define TCLIMATOLOGY
+# define M2NUDGING
+# define M3NUDGING
+# define TNUDGING
 
 #elif defined RIVER
 /*

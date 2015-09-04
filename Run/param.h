@@ -57,6 +57,10 @@
 !     parameter (LLm0=120,  MMm0=10,   N=40)   !  10 km resolution
 !     parameter (LLm0=800,  MMm0=4,    N=40)   ! 1.5 km resolution
       parameter (LLm0=1600, MMm0=4,    N=40)   ! .75 km resolution
+#elif defined IGW
+!      parameter (LLm0=878, MMm0=3,    N=80)   !   1 km resolution  
+       parameter (LLm0=878, MMm0=3,    N=40)
+!      parameter (LLm0=878, MMm0=3,    N=20)
 #elif defined OVERFLOW
       parameter (LLm0=4,    MMm0=128,  N=10)
 #elif defined RIVER
@@ -172,7 +176,7 @@
       integer NSUB_X, NSUB_E, NPP
 #ifdef MPI
       integer NP_XI, NP_ETA, NNODES     
-      parameter (NP_XI=1, NP_ETA=2,  NNODES=NP_XI*NP_ETA)
+      parameter (NP_XI=1, NP_ETA=4,  NNODES=NP_XI*NP_ETA)
       parameter (NPP=1)
       parameter (NSUB_X=1, NSUB_E=1)
 #elif defined OPENMP
@@ -211,7 +215,12 @@
 
 #if defined SSH_TIDES || defined UV_TIDES
       integer Ntides             ! Number of tides
-      parameter (Ntides=8)       ! ====== == =====
+                                 ! ====== == =====
+# ifdef IGW
+      parameter (Ntides=1)
+# else
+      parameter (Ntides=8)
+# endif
 #endif
 #ifdef WET_DRY
       real D_wetdry             ! Critical Depth for Drying cells
