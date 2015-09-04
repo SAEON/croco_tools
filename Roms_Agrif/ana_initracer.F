@@ -66,7 +66,8 @@ C$    integer omp_get_thread_num
   || defined SOLITON    || defined SHELFRONT || defined RIVER    \
   || defined VORTEX     || defined INTERNAL  || defined JET      \
   || defined SHOREFACE  || defined RIP       || defined THACKER  \
-  || defined TANK
+  || defined TANK       || defined IGW
+
       do k=1,N
         do j=JR_RANGE
           do i=IR_RANGE

@@ -593,7 +593,8 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
             rmask(3,j)=1.                      ! <-- channel
         endif
       enddo
-#  elif defined TANK || defined GRAV_ADJ || defined ACOUSTIC
+#  elif defined TANK || defined GRAV_ADJ || defined ACOUSTIC\
+                     || defined INTERNAL || defined IGW
       do j=JstrR,JendR
         do i=IstrR,IendR
           rmask(i,j)=1.

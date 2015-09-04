@@ -11,7 +11,9 @@
 !
 #include "cppdefs.h"
 #ifdef ANA_INITIAL
+
       subroutine ana_initial (tile)
+
       implicit none
 # include "param.h"
        integer tile, trd
@@ -38,9 +40,6 @@ C$    integer omp_get_thread_num
 # include "ocean2d.h"
 # include "ocean3d.h"
 # include "scalars.h"
-# ifdef SEDIMENT
-#  include "sediment.h"
-# endif
       integer Istr,Iend,Jstr,Jend, i,j,k, itrc
 # ifdef SOLITON
       real fac, x,y, x0,y0, cff1,cff2,cff3
@@ -51,6 +50,9 @@ C$    integer omp_get_thread_num
 # ifdef INTERNAL
       real cff
 # endif
+# ifdef IGW
+      real    cff,sig,rhom,depth
+# endif 
 # ifdef BIOLOGY
       real temp, SiO4
 # endif
@@ -84,18 +86,12 @@ C$    integer omp_get_thread_num
 #  define JV_RANGE Jstr,JendR
 # endif
 !
+!--------------------------------------------------------------------
 !  Initial conditions for free surface and 2D momentum components.
-!------------------------------------------------------------------
+!--------------------------------------------------------------------
 !
-# if defined BASIN      || defined CANYON_A   || defined CANYON_B  \
-   || defined EQUATOR   || defined GRAV_ADJ   || defined OVERFLOW  \
-   || defined SEAMOUNT  || defined SHELFRONT  || defined UPWELLING \
-   || defined RIVER     || defined INTERNAL   || defined REGIONAL  \
-   || defined JET       || defined INNERSHELF || defined SHOREFACE \
-   || defined RIP       || defined ACOUSTIC
-#  if defined RIP_TOPO_2D
+# if defined RIP && defined RIP_TOPO_2D
       if (nrrec.eq.0) then
-#  endif
         do j=JR_RANGE
           do i=IR_RANGE
             zeta(i,j,1)=0.
@@ -106,7 +102,6 @@ C$    integer omp_get_thread_num
             vbar(i,j,2)=0.
           enddo
         enddo
-#  ifdef RIP_TOPO_2D
       else
 !
 !  Add perturbation to restart field
@@ -131,7 +126,7 @@ C$    integer omp_get_thread_num
             yper=0.
             do iper=1,12
               yper= yper+eps*cos(2*pi*float(iper)*yy/(xs+db)
-     &                                  +2*pi*tanh(float(iper)/10))
+     &                           +2*pi*tanh(float(iper)/10))
             enddo
             ubar(i,j,1)=(1+xper)*ubar(i,j,1);
             ubar(i,j,2)=ubar(i,j,1);
@@ -140,7 +135,6 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       endif
-#  endif
 # elif defined SOLITON
 #  ifdef AGRIF
       if (Agrif_Root()) then
@@ -187,23 +181,10 @@ C$    integer omp_get_thread_num
       ETA0=0.1
       depth=10.
       Lt=80.e3
-#  ifdef THACKER_2DV
-      omega=sqrt( f(1,1)**2 + 2*g*depth/Lt**2 )
-      do j=JR_RANGE
-        do i=IR_RANGE
-          zeta(i,j,1)=2*ETA0*depth*(xr(i,j)/Lt - .5*ETA0)
-          zeta(i,j,2)=zeta(i,j,1)
-          ubar(i,j,1)=0.
-          vbar(i,j,1)=-ETA0*f(1,1)*omega*Lt
-          ubar(i,j,2)=0
-          vbar(i,j,2)=vbar(i,j,1)
-        enddo
-      enddo
-#  else
       omega=0.5*f(1,1) + sqrt( 0.25*f(1,1)**2 + 2*g*depth/Lt**2 )
       do j=JR_RANGE
         do i=IR_RANGE
-          zeta(i,j,1)=2*ETA0*depth*(xr(i,j)/Lt - .5*ETA0)
+          zeta(i,j,1)=2*ETA0*depth*(xr(i,j)/Lt - .5*ETA0/Lt)
           zeta(i,j,2)=zeta(i,j,1)
           ubar(i,j,1)=0.
           vbar(i,j,1)=-ETA0*omega*Lt
@@ -211,13 +192,12 @@ C$    integer omp_get_thread_num
           vbar(i,j,2)=vbar(i,j,1)
         enddo
       enddo
-#  endif
 # elif defined TANK
       ETA0=0.001
       Lt=10.
       do j=JR_RANGE
         do i=IR_RANGE
-#  if ! defined MOVING_BATHY       
+#  ifndef MOVING_BATHY       
           zeta(i,j,1)=ETA0*cos(pi*xr(i,j)/Lt)
 #  else
           zeta(i,j,1)=0.
@@ -230,32 +210,35 @@ C$    integer omp_get_thread_num
         enddo
       enddo
 # else
-      ERROR: ANA_INITIAL: no initials for ubar,vbar,zeta
+        do j=JR_RANGE
+          do i=IR_RANGE
+            zeta(i,j,1)=0.
+            zeta(i,j,2)=0.
+            ubar(i,j,1)=0.
+            vbar(i,j,1)=0.
+            ubar(i,j,2)=0.
+            vbar(i,j,2)=0.
+          enddo
+        enddo
 # endif
 
-#ifdef NBQ
+# ifdef NBQ
       do j=JR_RANGE
         do i=IR_RANGE
           zeta(i,j,1)=h(i,j)+zeta(i,j,1)
           zeta(i,j,2)=zeta(i,j,1)
         enddo
       enddo
-#endif
+# endif
 
 # ifdef SOLVE3D
 !
+!--------------------------------------------------------------------
 !  Initial conditions for momentum components [m/s].
 !--------------------------------------------------------------------
 !
-#  if defined BASIN     || defined CANYON_A   || defined CANYON_B  \
-   || defined EQUATOR   || defined GRAV_ADJ   || defined OVERFLOW  \
-   || defined SEAMOUNT  || defined SHELFRONT  || defined UPWELLING \
-   || defined RIVER     || defined INTERNAL   || defined REGIONAL  \
-   || defined JET       || defined INNERSHELF || defined SHOREFACE \
-   || defined RIP       || defined ACOUSTIC
-#  ifdef RIP_TOPO_2D
+#  if defined RIP && defined RIP_TOPO_2D
       if (nrrec.eq.0) then
-#   endif
         do k=1,N
           do j=JR_RANGE
             do i=IR_RANGE
@@ -266,8 +249,10 @@ C$    integer omp_get_thread_num
             enddo
           enddo
         enddo
-#  ifdef RIP_TOPO_2D
       else
+!
+!  Add perturbation to restart field
+!
         do k=1,N
           do j=JstrR,JendR
             do i=IstrR,IendR
@@ -281,7 +266,7 @@ C$    integer omp_get_thread_num
               yper=0.
               do iper=1,12
                 yper= yper+eps*cos(2*pi*float(iper)*yy/(xs+db)
-     &                                  +2*pi*tanh(float(iper)/10))
+     &                             +2*pi*tanh(float(iper)/10))
               enddo
               u(i,j,k,1)=(1+xper)*u(i,j,k,1)
               u(i,j,k,2)=u(i,j,k,1)
@@ -291,7 +276,6 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       endif
-#   endif
 #  elif defined THACKER
       do k=1,N
         do j=JR_RANGE
@@ -303,7 +287,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
-#  elif defined TANK
+#  else
       do k=1,N
         do j=JR_RANGE
           do i=IR_RANGE
@@ -314,12 +298,12 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
-#  else
-        ERROR: ANA_INITIAL: no initial conditions for u,v.
 #  endif
 !
+!--------------------------------------------------------------------
 !  Initial conditions for tracer type variables.
 !--------------------------------------------------------------------
+!
 !  Set initial conditions for potential temperature [degC] and
 !  salinity [PSU].
 !
@@ -374,12 +358,6 @@ C$    integer omp_get_thread_num
               t(i,j,k,2,itpas)=t(i,j,k,1,itpas)
             endif
 #   endif
-#   ifdef SEDIMENT
-              t(i,j,k,1,isand)=0.
-              t(i,j,k,1,isilt)=0.
-              t(i,j,k,2,isand)=0.
-              t(i,j,k,2,isilt)=0.
-#   endif
           enddo
         enddo
       enddo
@@ -414,7 +392,7 @@ C$    integer omp_get_thread_num
         enddo
       enddo
 #  elif defined TANK
-#   if ! defined MOVING_BATHY
+#   ifndef MOVING_BATHY
       do k=1,N
         do j=JR_RANGE
           do i=IR_RANGE
@@ -422,14 +400,12 @@ C$    integer omp_get_thread_num
             t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
           enddo
         enddo
-      enddo
-#    else
-#   define BVFREQ 2.510e-4
-      cff=BVFREQ*BVFREQ/g
+#   else
+      cff=((2.510e-4)**2)/g
       do k=1,N
         do j=JR_RANGE
           do i=IR_RANGE
-            t(i,j,k,1,itemp)=rho0*(1-cff*z_r(i,j,k))
+            t(i,j,k,1,itemp)=rho0*(1-cff*z_r(i,j,k)) - 1000.
             t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
           enddo
         enddo
@@ -522,12 +498,43 @@ C$    integer omp_get_thread_num
         enddo
       enddo
 #  elif defined  INTERNAL
-#   define BVFREQ 2.e-3
-      cff=BVFREQ*BVFREQ/g
+      cff=((2.e-3)**2)/g
       do k=1,N
         do j=JR_RANGE
           do i=IR_RANGE
-            t(i,j,k,1,itemp)=rho0*(1-cff*z_r(i,j,k))
+            t(i,j,k,1,itemp)=rho0*(1-cff*z_r(i,j,k)) - 1000.
+            t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
+          enddo
+        enddo
+      enddo
+#  elif defined IGW
+      cff=((2.e-3)**2)/g
+      rhom=1027.037885
+      do k=1,N
+        do j=JR_RANGE
+          do i=IR_RANGE
+            depth = -z_r(i,j,k)         
+#   ifdef EXPERIMENT1
+            if(depth.le.50.) then
+              sig = 25.0  
+            elseif( depth.gt.50. .and. depth.le.60.) then
+              sig = 26.2 + rhom*(depth-50.)*cff
+              sig = sig + 1.2*(depth-60.)/10.
+            else
+              sig = 26.2 + rhom*(depth-50.)*cff
+            endif
+            t(i,j,k,1,itemp)=(R0-sig)/Tcoef
+#   elif defined EXPERIMENT2	    
+            if (depth.le.50.) then
+             sig = 25.8
+            else
+             sig = 27.0
+            endif
+            t(i,j,k,1,itemp)=(R0-sig)/Tcoef
+#   else /* default EXPERIMENT3 */
+            sig = 26.2 + rhom*(depth-50.)*cff
+            t(i,j,k,1,itemp)=(R0-sig)/Tcoef
+#   endif
             t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
           enddo
         enddo
@@ -536,9 +543,7 @@ C$    integer omp_get_thread_num
       do k=1,N
         do j=JR_RANGE
           do i=IR_RANGE
-
-            t(i,j,k,1,itemp)=T0*(0.5-0.5*tanh( yr(i,j)/1000.-25.))
-
+            t(i,j,k,1,itemp)=T0*(0.5-0.5*tanh(yr(i,j)/1000.-25.))
             t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
           enddo
         enddo
@@ -558,7 +563,7 @@ C$    integer omp_get_thread_num
       do k=1,N
         do j=JR_RANGE
           do i=IR_RANGE
-            t(i,j,k,1,itemp)=5.+15.*exp(z_r(i,j,k)/100.)
+            t(i,j,k,1,itemp)=5.*15.*exp(z_r(i,j,k)/100.)
             t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
 #   ifdef SALINITY
             t(i,j,k,1,isalt)=35.

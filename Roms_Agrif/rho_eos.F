@@ -13,7 +13,9 @@
 #ifdef SOLVE3D
 # ifdef NONLIN_EOS
 # define DUKO_2001
+!
       subroutine rho_eos (tile)
+!
       implicit none
       integer tile, trd, omp_get_thread_num
 #  include "param.h"
@@ -27,6 +29,7 @@
 
       subroutine rho_eos_tile (Istr,Iend,Jstr,Jend, K_up,K_dw)
 !
+!======================================================================
 ! Compute density anomaly via Equation Of State (EOS) for seawater.
 ! Following Jackett and McDougall, 1995, physical EOS is assumed to
 ! have form 
@@ -99,27 +102,13 @@
 ! rising/lowering the water parcel from RHO point above/below to
 ! the W-point depth at "z_w".
 !
-! WARNING: Shared target arrays in the code below: "rho1",
-!          "bvf" (if needed), and
+! References:
+! ----------
+!  Shchepetkin, A.F., McWilliams, J.C., 2003: A method for computing 
+!  horizontal pressure-gradient force in an oceanic model with a 
+!  non-aligned vertical coordinate. J. Geophys. Res. 108 (C3), 3090.
 !
-!          SPLIT_EOS is defined: "qp1"  ["rho" does not exist]   
-!                   not defined  "rho"  ["qp1" does not exist]
-!
-! I CHANGED THE ABOVE (PATRICK MARCHESIELLO): RHO IS DEFINED ANYWAY!
-! 
-!
-! Reference:  Jackett, D. R. and T. J. McDougall, 1995, Minimal
-!             Adjustment of Hydrostatic Profiles to Achieve Static
-!             Stability. J. Atmos. Ocean. Tec., vol. 12, pp. 381-389.
-!
-! << This equation of state formulation has been derived by Jackett
-! and McDougall (1992), unpublished manuscript, CSIRO, Australia. It
-! computes in-situ density anomaly as a function of potential
-! temperature (Celsius) relative to the surface, salinity (PSU),
-! and depth (meters).  It assumes  no  pressure  variation along 
-! geopotential  surfaces,  that  is,  depth  and  pressure  are  
-! interchangeable. >>                                             
-!                                          John Wilkin, 29 July 92   
+!====================================================================== 
 !
       implicit none
 #  include "param.h"
@@ -158,15 +147,14 @@
      &          E00=+1.045941e-5, E01=-5.782165e-10,E02=+1.296821e-7,
      &          E10=-2.595994e-7, E11=-1.248266e-9, E12=-3.508914e-9)
 #  ifdef DUKO_2001
-      real rho1_0, K0_Duk
+      real K0_Duk
 #  endif
 #  include "grid.h"
 #  include "ocean3d.h"
 #  include "coupling.h"
 #  include "scalars.h"
-#  if defined ANA_VMIX || defined BVF_MIXING \
-      || defined LMD_MIXING || defined LMD_SKPP || defined LMD_BKPP \
-      || defined GLS_MIXING
+#  if defined ANA_VMIX || defined BVF_MIXING || defined GLS_MIXING \
+      || defined LMD_MIXING || defined LMD_SKPP || defined LMD_BKPP
 #   include "mixing.h"
 #  endif
 !
@@ -176,31 +164,27 @@
       Tt=3.8D0
       Ts=34.5D0
       sqrtTs=sqrt(Ts)
-
-      dr00=r00-1000.D0
-
-      rho1_0=dr00 +Tt*( r01+Tt*( r02+Tt*( r03+Tt*( r04+Tt*r05 ))))
-     &                            +Ts*( R10+Tt*( r11+Tt*( r12+Tt*(
-     &                                              r13+Tt*r14 )))
-     &                   +sqrtTs*( rS0+Tt*( rS1+Tt*rS2 ))+Ts*r20 )
-
       K0_Duk= Tt*( K01+Tt*( K02+Tt*( K03+Tt*K04 )))
      &       +Ts*( K10+Tt*( K11+Tt*( K12+Tt*K13 ))
      &            +sqrtTs*( KS0+Tt*( KS1+Tt*KS2 )))
 #  endif
 
+!
+!  compute rho as a perturbation to rho0 (at the surface)
+!
       dr00=r00-rho0
+!
       do j=JstrR,JendR
+
         do k=1,N                                       ! NONLINEAR
           do i=IstrR,IendR                             !  EQUATION
             Tt=t(i,j,k,nrhs,itemp)                     !  OF STATE
 #  ifdef SALINITY
             Ts=max(t(i,j,k,nrhs,isalt), 0.)
-            sqrtTs=sqrt(Ts)
 #  else
-            Ts=0.0
-            sqrtTs=0.0
+            Ts=34.5
 #  endif
+            sqrtTs=sqrt(Ts)
             rho1(i,j,k)=( dr00 +Tt*( r01+Tt*( r02+Tt*( r03+Tt*(
      &                                            r04+Tt*r05 ))))
      &                         +Ts*( r10+Tt*( r11+Tt*( r12+Tt*(
@@ -208,24 +192,27 @@
      &                              +sqrtTs*(rS0+Tt*(
      &                                    rS1+Tt*rS2 ))+Ts*r20 ))
 #  ifdef MASKING
-     &                                               *rmask(i,j)
+     &                                                *rmask(i,j)
 #  endif     
             K0= Tt*( K01+Tt*( K02+Tt*( K03+Tt*K04 )))
      &         +Ts*( K10+Tt*( K11+Tt*( K12+Tt*K13 ))
      &              +sqrtTs*( KS0+Tt*( KS1+Tt*KS2 )))
-# ifdef SPLIT_EOS
-# ifdef DUKO_2001
+
+#  ifdef SPLIT_EOS
+#   ifdef DUKO_2001
             qp1(i,j,k)= 0.1D0*(rho0+rho1(i,j,k))*(K0_Duk-K0)
      &                               /((K00+K0)*(K00+K0_Duk))
-#else
+#   else
             qp1(i,j,k)=0.1*(K00*rho1(i,j,k)-rho0*K0)/(K00*(K00+K0))
-#endif
+#   endif
 #   ifdef MASKING 
-            qp1(i,j,k)=qp1(i,j,k)*rmask(i,j)
+     &                                                  *rmask(i,j)
 #   endif
             dpth=z_w(i,j,N)-z_r(i,j,k)
             rho(i,j,k)=rho1(i,j,k) +qp1(i,j,k)*dpth*(1.-qp2*dpth)
-#  else 
+
+#  else /* ! SPLIT_EOS */
+
             K1=B00+Tt*(B01+Tt*(B02+Tt*B03)) +Ts*( B10+Tt*( B11
      &                                    +Tt*B12 )+sqrtTs*BS1 )
 
@@ -238,12 +225,17 @@
      &                           -0.1*dpth*rho0*cff1
      &                            )/(cff*(cff+cff1))
 #  endif /* SPLIT_EOS */
-#   ifdef MASKING
+#  ifdef MASKING
             rho(i,j,k)=rho(i,j,k)*rmask(i,j)
-#   endif
-#  if defined ANA_VMIX || defined BVF_MIXING \
-      || defined LMD_MIXING || defined LMD_SKPP || defined LMD_BKPP \
-      || defined GLS_MIXING
+#  endif
+!
+!-----------------------------------------------------------------------
+!  Compute Brunt-Vaisala frequency (1/s2) at horizontal RHO-points
+!  and vertical W-points!                  
+!-----------------------------------------------------------------------
+!
+#  if defined ANA_VMIX || defined BVF_MIXING || defined GLS_MIXING \
+      || defined LMD_MIXING || defined LMD_SKPP || defined LMD_BKPP
 #   ifndef SPLIT_EOS
             dpth=z_w(i,j,N)-z_w(i,j,k)
             K_up(i,k)=K0+dpth*(K1+K2*dpth)
@@ -253,11 +245,10 @@
           enddo
         enddo
 
-
         cff=g/rho0
         do k=1,N-1
           do i=IstrR,IendR
-# ifdef SPLIT_EOS
+#   ifdef SPLIT_EOS
             dpth=z_w(i,j,N)-0.5*(z_r(i,j,k+1)+z_r(i,j,k))
             cff2=( rho1(i,j,k+1)-rho1(i,j,k)             ! Elementary
      &                        +(qp1(i,j,k+1)-qp1(i,j,k)) ! adiabatic 
@@ -265,7 +256,7 @@
      &                       )
 
             bvf(i,j,k)=-cff*cff2 / (z_r(i,j,k+1)-z_r(i,j,k))
-# else
+#   else
            cff1=0.1*(z_w(i,j,N)-z_w(i,j,k))
 
             bvf(i,j,k)=-cff*(   (rho1(i,j,k+1)-rho1(i,j,k))
@@ -279,25 +270,31 @@
      &          ) )/(  (K00+K_dw(i,k+1)-cff1)*(K00+K_up(i,k)-cff1)
      &                                  *(z_r(i,j,k+1)-z_r(i,j,k))
      &                                                          )
-# endif
+#   endif
 #   ifdef MASKING
             bvf (i,j,k)= bvf (i,j,k)*rmask(i,j)
 #   endif
-#  endif
+#  endif /* ANA_VMIX ... */
           enddo
         enddo
-#  if defined BVF_MIXING || defined LMD_MIXING  || defined LMD_KPP \
-                         || defined GLS_MIXING
+#  if defined ANA_VMIX || defined BVF_MIXING || defined GLS_MIXING \
+      || defined LMD_MIXING || defined LMD_SKPP || defined LMD_BKPP
         do i=istrR,iendR
-          bvf  (i,j,N)  =  bvf  (i,j,N-1)
-          bvf  (i,j,0)  =  bvf  (i,j,  1)
+          bvf(i,j,N)=bvf(i,j,N-1)
+          bvf(i,j,0)=bvf(i,j,  1)
         enddo
 #  endif
-# else
 
-      subroutine rho_eos (tile)                        ! LINEAR
-      implicit none                                    ! EQUATION
-      integer tile                                     ! OF STATE
+# else /* ! NONLIN_EOS */
+!
+!======================================================================
+!               LINEAR EQUATION OF STATE
+!======================================================================
+!
+      subroutine rho_eos (tile)
+
+      implicit none 
+      integer tile
 #  include "param.h"
 #  include "compute_tile_bounds.h"
       call rho_eos_tile (Istr,Iend,Jstr,Jend)
@@ -308,7 +305,7 @@
       implicit none
 #  include "param.h"
       integer Istr,Iend,Jstr,Jend, i,j,k
-      real cff,cff1
+      real    cff,cff1
 #  include "grid.h"
 #  include "ocean3d.h"
 #  include "coupling.h"
@@ -317,52 +314,65 @@
 !
 #  include "compute_extended_bounds.h"
 !
+!-----------------------------------------------------------------------
+!  Compute density anomaly sigma-t (kg/m3 - 1000) using the linear
+!  equation of state. Then Convert sigma-t into density anomaly 
+!  refered to rho0
+!-----------------------------------------------------------------------
+!
       do j=JstrR,JendR
         do k=1,N
           do i=IstrR,IendR
-            rho1(i,j,k)=R0 -Tcoef*t(i,j,k,nrhs,itemp)
+            rho1(i,j,k)=R0 -Tcoef*(t(i,j,k,nrhs,itemp)-T0)
 #  ifdef SALINITY
-     &                     +Scoef*t(i,j,k,nrhs,isalt)
+     &                     +Scoef*(t(i,j,k,nrhs,isalt)-S0)
 #  endif
-            rho(i,j,k)=rho1(i,j,k)
+            rho(i,j,k)=rho1(i,j,k)+1000-rho0
 #  ifdef MASKING
             rho1(i,j,k)=rho1(i,j,k)*rmask(i,j)
             rho(i,j,k)=rho(i,j,k)*rmask(i,j)
 #  endif
           enddo
         enddo
-#  if defined ANA_VMIX || defined BVF_MIXING \
-      || defined LMD_MIXING  || defined LMD_SKPP || defined LMD_BKPP \
-      || defined GLS_MIXING
+!
+!-----------------------------------------------------------------------
+!  Compute Brunt-Vaisala frequency (1/s2) at horizontal RHO-points
+!  and vertical W-points.
+!-----------------------------------------------------------------------
+!
+#  if defined ANA_VMIX || defined BVF_MIXING || defined GLS_MIXING \
+      || defined LMD_MIXING || defined LMD_SKPP || defined LMD_BKPP
         cff=g/rho0
         do k=1,N-1
           do i=IstrR,IendR
             bvf(i,j,k)=cff*(rho(i,j,k)-rho(i,j,k+1))
-     &                     /(z_r(i,j,k+1)-z_r(i,j,k))
+     &                    /(z_r(i,j,k+1)-z_r(i,j,k))
 #   ifdef MASKING
-     &                             *rmask(i,j)
+     &                                   *rmask(i,j)
 #   endif
           enddo
         enddo
 #  endif 
 # endif /* NONLIN_EOS */
+
+# ifdef VAR_RHO_2D
 !
-! Computation of 2-way averaged densities for barotropic mode. 
+!======================================================================
+!          COMPUTE DEPTH-AVERAGED DENSITY FOR MODE COUPLING
+!                 OF BAROTROPIC PRESSURE GRADIENT
+!======================================================================
 ! In the code segment below "rhoA" is vertically averaged density
 ! perturbation normalized by rho0, while "rhoS" is vertically
 ! integrated pressure normalized by (1/2)*total_depth^2/rho0, i.e.,
 ! by vertically integrated pressure generated by water column with
 ! uniform density rho0. Hence both "rhoA" and "rhoS" are
 ! nondimensional quantities of comparable value.
+!----------------------------------------------------------------------
 ! 
-!
-# ifdef VAR_RHO_2D
         do i=IstrR,IendR 
 #  ifdef SPLIT_EOS
           dpth=z_w(i,j,N)-z_r(i,j,N)
           cff=HZR(i,j,N)*(rho1(i,j,N)+qp1(i,j,N)*dpth*(1.-qp2*dpth))
-cc          cff=Hz(i,j,N)*( rho1(i,j,N) +qp1(i,j,N)*( z_w(i,j,N)
-cc     &                                            -z_r(i,j,N) ))
 #  else
           cff=HZR(i,j,N)*rho(i,j,N)
 #  endif
@@ -374,8 +384,6 @@ cc     &                                            -z_r(i,j,N) ))
 #  ifdef SPLIT_EOS
             dpth=z_w(i,j,N)-z_r(i,j,k)
             cff=HZR(i,j,k)*(rho1(i,j,k)+qp1(i,j,k)*dpth*(1.-qp2*dpth))
-cc            cff=Hz(i,j,k)*( rho1(i,j,k) +qp1(i,j,k)*( z_w(i,j,N)
-cc     &                                              -z_r(i,j,k) ))
 #  else
             cff=HZR(i,j,k)*rho(i,j,k)
 #  endif
@@ -389,10 +397,167 @@ cc     &                                              -z_r(i,j,k) ))
           rhoA(i,j)=cff*cff1*rhoA(i,j)
           rhoS(i,j)=2.*cff*cff*cff1*rhoS(i,j)
         enddo
-# endif 
+# endif /* VAR_RHO_2D */
+
       enddo    ! <-- j
       return
       end
+
+# ifdef RESET_RHO0
+!
+!======================================================================
+!
+!               Reset background density rho0 (kg/m3)
+!             as initial volume averaged sigma-t + 1000
+!
+! This is done to minimize Boussinesq errors. The alternative is to
+! let model users choose rho0 appropriately in roms.in, but users
+! generally miss it.
+!
+! Reference:
+! ---------
+! Shchepetkin A.F., J.C. McWilliams, 2011: Accurate Boussinesq oceanic 
+! modeling with a practical, ¿Stiffened¿ Equation of State. 
+! Ocean Modelling, 38, 41-70.
+!
+! Patrick Marchesiello Sep. 2015
+!======================================================================
+!
+      subroutine reset_rho0 (tile)
+!
+      implicit none
+      integer tile, trd, omp_get_thread_num
+#  include "param.h"
+#  include "private_scratch.h"
+#  include "compute_tile_bounds.h"
+      trd=omp_get_thread_num()
+      call reset_rho0_tile (Istr,Iend,Jstr,Jend)
+      return
+      end
+
+      subroutine reset_rho0_tile (Istr,Iend,Jstr,Jend)
+      implicit none
+#  include "param.h"
+      integer Istr,Iend,Jstr,Jend, i,j,k, NSUB
+      real    cff,cff1
+#  ifdef NONLIN_EOS
+      real dr00, Ts,Tt,sqrtTs,
+     &     r00,r01,r02,r03,r04,r05,
+     &     r10,r11,r12,r13,r14,
+     &     rS0,rS1,rS2,
+     &     r20
+      parameter(r00=999.842594,   r01=6.793952E-2,  r02=-9.095290E-3,
+     &                            r03=1.001685E-4,  r04=-1.120083E-6,
+     &                                              r05=6.536332E-9,
+     &          r10=0.824493,     r11=-4.08990E-3,  r12=7.64380E-5,
+     &                            r13=-8.24670E-7,  r14=5.38750E-9,
+     &          rS0=-5.72466E-3,  rS1=1.02270E-4,   rS2=-1.65460E-6,
+     &          r20=4.8314E-4)
+#  endif
+      real*QUAD mrho,vol
+#  ifdef MPI
+#   include "mpif.h"
+      integer ierr
+      real*QUAD allrho(1,NNODES),allvol(1,NNODES)
+#  endif
+#  include "grid.h"
+#  include "ocean3d.h"
+#  include "scalars.h"
+!
+#  include "compute_extended_bounds.h"
+!
+      mrho=QuadZero
+      vol=QuadZero
+#  ifdef NONLIN_EOS
+      dr00=r00-1000.
+#  endif
+      do k=1,N
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+#  ifdef NONLIN_EOS
+!
+!  Compute density anomaly sigma-t(T,S) from nonlinear EOS
+!
+            Tt=t(i,j,k,1,itemp)
+#   ifdef SALINITY
+            Ts=max(t(i,j,k,1,isalt), 0.)
+#   else
+            Ts=34.5
+#   endif
+            sqrtTs=sqrt(Ts)
+            rho1(i,j,k)=( dr00 +Tt*( r01+Tt*( r02+Tt*( r03+Tt*(
+     &                                            r04+Tt*r05 ))))
+     &                         +Ts*( r10+Tt*( r11+Tt*( r12+Tt*(
+     &                                            r13+Tt*r14 )))
+     &                              +sqrtTs*(rS0+Tt*(
+     &                                    rS1+Tt*rS2 ))+Ts*r20 ))
+#  else
+!
+!  Compute density anomaly sigma-t from linear EOS
+!
+            rho1(i,j,k)=R0 -Tcoef*(t(i,j,k,nrhs,itemp)-T0)
+#   ifdef SALINITY
+     &                     +Scoef*(t(i,j,k,nrhs,isalt)-S0)
+#   endif
+#  endif /* NONLIN_EOS */
+!
+!  Make local volume average of sigma-t(T,S)
+!
+            cff1=HZR(i,j,k)*om_r(i,j)*on_r(i,j)
+            mrho=mrho+cff1*rho1(i,j,k)
+            vol=vol+cff1
+          enddo
+        enddo
+      enddo
+      mrho=mrho/vol
+!
+!  Make global volume average of sigma-t(T,S) ~ sigma-t(T0,S0)
+!
+      if (SINGLE_TILE_MODE) then
+        NSUB=1
+       else
+        NSUB=NSUB_X*NSUB_E
+      endif
+C$OMP CRITICAL (rho_cr_rgn)
+      if (tile_count.eq.0) then
+        avg_rho=QuadZero               ! Reset global summations
+        avg_vol=QuadZero
+      endif 
+      avg_rho=avg_rho+mrho*vol         ! Make global summations
+      avg_vol=avg_vol+vol              ! among threads
+      tile_count=tile_count+1          ! This counter identifies
+      if (tile_count.eq.NSUB) then     ! the last thread, whoever
+        tile_count=0                   ! it is, not always master.
+        mrho=avg_rho/avg_vol
+#  ifdef MPI
+        call MPI_ALLGATHER(mrho,1,MPI_DOUBLE_PRECISION,
+     &                   allrho,1,MPI_DOUBLE_PRECISION,
+     &                            MPI_COMM_WORLD,ierr)
+        call MPI_ALLGATHER(vol,1,MPI_DOUBLE_PRECISION,
+     &                  allvol,1,MPI_DOUBLE_PRECISION,
+     &                           MPI_COMM_WORLD,ierr)
+        mrho=QuadZero
+        vol=QuadZero
+        do i=1,NNODES
+          mrho=mrho+allrho(1,i)*allvol(1,i)
+          vol=vol+allvol(1,i)
+        enddo
+        rho0=1000. + mrho/vol   !  add 1000. to get rho0 from sigma-t(T0,S0)
+#  else
+        rho0=1000. + mrho
+#  endif
+
+        MPI_master_only write(stdout,'(F10.4,2x,A,1x,A/)')
+     &        rho0, 'rho0     Reset Boussinesq approximation',
+     &                                 'mean density, kg/m3.'
+
+      endif  ! <-- tile_count.eq.nsubs
+!
+C$OMP END CRITICAL (rho_cr_rgn)
+      return
+      end
+# endif /* RESET_RHO0 */
+
 #else
       subroutine rho_eos_empty
       end

@@ -12,40 +12,43 @@
 #include "cppdefs.h"
 !
 !  ANALYTICAL PACKAGE:
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
 !  This package is used to provide various analytical fields to the
 !  model when appropriate.
 !
 !  Routines:
 !
-!  ana_bmflux_tile   Analytical kinematic bottom momentum flux.
-!  ana_btflux_tile   Analytical kinematic bottom flux of tracer
-!                          type variables.
-!  ana_bsedim_tile   Analytical bottom sediment grain size
-!                          and density.
-!  ana_smflux_tile   Analytical kinematic surface momentum flux
-!                          (wind stress).
-!  ana_srflux_tile   Analytical kinematic surface shortwave
-!                          radiation.
-!  ana_ssh_tile      Analytical sea surface height climatology.      
-!  ana_sst_tile      Analytical sea surface temperature and dQdSST  
-!                         which are used during heat flux correction.
-!  ana_sss_tile      Analytical sea surface salinity which is used 
-!                         during salt flux correction.
-!  ana_stflux_tile   Analytical kinematic surface flux of tracer type
-!                          variables.
-!  ana_tclima_tile   Analytical tracer climatology fields.     
-!  ana_uclima_tile   Analytical tracer climatology fields.  
-!  ana_wwave_tile    Analytical wind induced wave amplitude,
-!                         direction and period.
-!  ana_sediment_tile Analytical sediment
-!  ana_psource_tile  Analytical point source
-!  ana_bry_tile      Analytical boundary forcing.
+!  ana_bmflux     Analytical kinematic bottom momentum flux.
+!  ana_btflux     Analytical kinematic bottom flux of tracer
+!                            type variables.
+!  ana_hmorph     Analytical dynamic bathymetry
+!  ana_bsedim     Analytical bottom sediment grain size
+!                            and density.
+!  ana_smflux     Analytical kinematic surface momentum flux
+!                            (wind stress).
+!  ana_srflux     Analytical kinematic surface shortwave
+!                            radiation.
+!  ana_ssh        Analytical sea surface height climatology.      
+!  ana_sst        Analytical sea surface temperature and dQdSST  
+!                            which are used during heat flux correction.
+!  ana_sss        Analytical sea surface salinity which is used 
+!                            during salt flux correction.
+!  ana_stflux     Analytical kinematic surface flux of tracer type
+!                            variables.
+!  ana_tclima     Analytical tracer climatology fields.     
+!  ana_uclima     Analytical tracer climatology fields.  
+!  ana_nbq_clima  Analytical NBQ variable climatology fields
+!  ana_wwave      Analytical wind induced wave amplitude,
+!                            direction and period.
+!  ana_sediment   Analytical sediment
+!  ana_psource    Analytical point source
+!  ana_bry        Analytical boundary forcing.
+!  ana_nbq_bry    Analytical boundary forcing for NBQ variables
+!  ana_bry_bio    Analytical boundary forcing for BIO variables
 !
-!-------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
-
 # if !defined OPENMP
       integer function omp_get_thread_num()
       omp_get_thread_num=0
@@ -56,19 +59,18 @@
       return
       end
 # endif
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_bmflux
-!====================================================================
+!======================================================================
 !
 #ifdef ANA_BMFLUX
       subroutine ana_bmflux_tile (Istr,Iend,Jstr,Jend)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets kinematic bottom momentum flux (bottom stress)
 ! "bustr" and "bvstr" [m^2/s^2] using an analytical expression.
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -92,23 +94,22 @@
       return
       end
 #endif /* ANA_BMFLUX */ 
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_btflux
-!====================================================================
+!======================================================================
 !
 #ifdef SOLVE3D
 # if defined ANA_BTFLUX || defined ANA_BSFLUX || defined ANA_BPFLUX 
       subroutine ana_btflux_tile (Istr,Iend,Jstr,Jend, itrc)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets kinematic bottom flux of tracer type variables
 !  [tracer units m/s].
 !
 !  On Input:
 !     itrc      Tracer type array index.
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 #  include "param.h"
@@ -121,59 +122,36 @@
 !
       if (itrc.eq.itemp) then
 !
+!----------------------------------------------------------------------
 ! Set kinematic bottom heat flux [degC m/s] at horizontal RHO-points.
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
-#  if defined BASIN     || defined CANYON_A  || defined CANYON_B   \
-   || defined EQUATOR   || defined GRAV_ADJ  || defined INNERSHELF \
-   || defined OVERFLOW  || defined REGIONAL  || defined RIVER      \
-   || defined SEAMOUNT  || defined SED_TEST2 || defined SHELFRONT  \
-   || defined UPWELLING || defined VORTEX    || defined INTERNAL   \
-   || defined JET       || defined SHOREFACE || defined RIP        \
-   || defined THACKER   || defined TANK
         do j=JstrR,JendR
           do i=IstrR,IendR
             btflx(i,j,itemp)=0.
           enddo
         enddo
-#  else
-        do j=JstrR,JendR
-          do i=IstrR,IendR
-            btflx(i,j,itemp)=???
-          enddo
-        enddo
-#  endif
+!
 #  ifdef SALINITY
       elseif (itrc.eq.isalt) then
 !
+!----------------------------------------------------------------------
 !  Set kinematic bottom salt flux (m/s) at horizontal RHO-points,
 !  scaling by bottom salinity is done in STEP3D.
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
-#   if  defined EQUATOR || defined INNERSHELF || defined REGIONAL  \
-   || defined RIVER     || defined SED_TEST2  || defined SHELFRONT \
-   || defined UPWELLING || defined SEAMOUNT   || defined VORTEX    \
-   || defined JET
-
         do j=JstrR,JendR
           do i=IstrR,IendR
             btflx(i,j,isalt)=0.
           enddo
         enddo
-#   else
-        do j=JstrR,JendR
-          do i=IstrR,IendR
-            btflx(i,j,isalt)=???
-          enddo
-        enddo
-#   endif
 #  endif /* SALINITY */
       else
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  Set kinematic surface flux of additional tracers, 
 ! for example sediments, bio..., to zero
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
         do j=JstrR,JendR
           do i=IstrR,IendR
@@ -185,11 +163,10 @@
       end
 # endif /* ANA_BTFLUX */
 #endif /* SOLVE3D */
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_hmorph
-!====================================================================
+!======================================================================
 !
 #ifdef ANA_MOVING_BATHY
       subroutine ana_hmorph (tile)
@@ -206,11 +183,11 @@ C$    integer  trd, omp_get_thread_num
       
       subroutine ana_hmorph_tile (Istr,Iend,Jstr,Jend)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets bathymetry increment
 !  dh using an analytical expression:
 !  example for SEAMOUNT test case
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -222,9 +199,8 @@ C$    integer  trd, omp_get_thread_num
 !
 # include "compute_auxiliary_bounds.h"
 !
-
 # if defined SEAMOUNT 
-       cff=(1./50.e3)**2
+      cff=(1./50.e3)**2
       cff1=0.5*xl+time*1.
       ! 0.1m/s translation
       ! starting for mid-basin 
@@ -235,7 +211,7 @@ C$    integer  trd, omp_get_thread_num
         do i=IstrR,IendR
           dh(i,j)=4500*(1-0.6*exp(-cff*((xr(i,j)-cff1  )**2+
      &                                  (yr(i,j)-0.5*el)**2)))
-     &           -h(i,j)
+     &                                                 -h(i,j)
         enddo
       enddo
 # elif defined TANK
@@ -244,8 +220,8 @@ C$    integer  trd, omp_get_thread_num
       do j=JstrR,JendR
         do i=IstrR,IendR
           dh(i,j)=0.394-0.1*exp(-cff*((xr(i,j)-cff1)**2+
-     &                                  (yr(i,j)-el*0.5)**2)) 
-     &           -h(i,j)
+     &                                (yr(i,j)-el*0.5)**2)) 
+     &                                              -h(i,j)
         enddo
       enddo
 
@@ -256,9 +232,9 @@ C$    integer  trd, omp_get_thread_num
       end
 #endif /* ANA_MOVING_BATHY */ 
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_bsedim
-!====================================================================
+!======================================================================
 !
 #if defined ANA_BSEDIM && defined BBL
       subroutine ana_bsedim (tile)
@@ -274,10 +250,10 @@ C$    integer  trd, omp_get_thread_num
       end
       subroutine ana_bsedim_tile (Istr,Iend,Jstr,Jend)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets initial bottom sediment grain diameter size [m]
 !  and density used in the bottom boundary formulation [kg/m^3].
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -335,9 +311,9 @@ C$    integer  trd, omp_get_thread_num
       end
 #endif /* ANA_BSEDIM && BBL */
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_smflux
-!====================================================================
+!======================================================================
 !
 #ifdef ANA_SMFLUX
       subroutine ana_smflux_tile (Istr,Iend,Jstr,Jend)
@@ -427,20 +403,10 @@ C$    integer  trd, omp_get_thread_num
         enddo
       enddo
 #  endif
-# elif defined GRAV_ADJ  || defined OVERFLOW || defined SEAMOUNT   \
-    || defined SHELFRONT || defined SOLITON  || defined INNERSHELF \
-    || defined RIVER     || defined VORTEX   || defined REGIONAL   \
-    || defined INTERNAL  || defined JET      || defined RIP        \
-    || defined THACKER   || defined TANK
-      do j=JstrR,JendR
-        do i=IstrR,IendR
-          sustr(i,j)=0.
-        enddo
-      enddo
 # else
       do j=JstrR,JendR
         do i=IstrR,IendR
-          sustr(i,j)=???
+          sustr(i,j)=0.
         enddo
       enddo
 # endif
@@ -448,18 +414,7 @@ C$    integer  trd, omp_get_thread_num
 !  Set kinematic surface momentum flux (wind stress) component in the
 !  ETA-direction (m^2/s^2) at horizontal V-points.
 !
-# if defined BASIN     || defined CANYON_A  || defined CANYON_B  \
-  || defined EQUATOR   || defined GRAV_ADJ  || defined OVERFLOW  \
-  || defined REGIONAL  || defined RIVER     || defined SEAMOUNT  \
-  || defined SHELFRONT || defined SOLITON   || defined UPWELLING \
-  || defined VORTEX    || defined INTERNAL  || defined JET       \
-  || defined RIP       || defined THACKER   || defined TANK
-      do j=JstrR,JendR
-        do i=IstrR,IendR
-          svstr(i,j)=0.
-        enddo
-      enddo
-# elif defined SED_TEST2
+# if defined SED_TEST2
       do j=JstrR,JendR
         do i=IstrR,IendR
           windamp=0.5+
@@ -494,26 +449,25 @@ C$    integer  trd, omp_get_thread_num
 # else
       do j=JstrR,JendR
         do i=IstrR,IendR
-          svstr(i,j)=???
+          svstr(i,j)=0.
         enddo
       enddo
 # endif
       return
       end
 #endif /* ANA_SMFLUX */
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_srflux
-!====================================================================
+!======================================================================
 !
 #ifdef ANA_SRFLUX
       subroutine ana_srflux_tile (Istr,Iend,Jstr,Jend)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This subroutine sets kinematic surface solar shortwave radiation
 !  flux "srflx" (degC m/s) using an analytical expression.
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -527,43 +481,30 @@ C$    integer  trd, omp_get_thread_num
 !  Set kinematic surface solar shortwave radiation [degC m/s] at
 !  horizontal RHO-points.
 !
-# if defined EQUATOR   || defined INNERSHELF || defined OVERFLOW \
-  || defined REGIONAL  || defined RIVER      || defined SEAMOUNT \
-  || defined SHELFRONT || defined UPWELLING  || defined VORTEX \
-  || defined INTERNAL  || defined JET        || defined SHOREFACE\
-  || defined RIP       || defined THACKER    || defined TANK
       do j=JstrR,JendR
         do i=IstrR,IendR
           srflx(i,j)=0.
 # ifdef DIURNAL_INPUT_SRFLX
           srflxbio(i,j)=0.
-# endif /* DIURNAL_INPUT_SRFLX */
-        enddo
-      enddo
-# else
-      do j=JstrR,JendR
-        do i=IstrR,IendR
-          srflx(i,j)=???
-        enddo
-      enddo
 # endif
+        enddo
+      enddo
       return
       end
 #endif /* ANA_SRFLUX */
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_ssh
-!====================================================================
+!======================================================================
 !
 #if defined ANA_SSH && defined ZCLIMATOLOGY
       subroutine ana_ssh (tile)
       implicit none
 # include "param.h"
       integer tile
-#ifdef  ALLOW_SINGLE_BLOCK_MODE
+# ifdef  ALLOW_SINGLE_BLOCK_MODE
 C$    integer  trd, omp_get_thread_num
-#endif
+# endif
 # include "compute_tile_bounds.h"
       call ana_ssh_tile (Istr,Iend,Jstr,Jend)
       return
@@ -571,9 +512,9 @@ C$    integer  trd, omp_get_thread_num
 !
       subroutine ana_ssh_tile (Istr,Iend,Jstr,Jend)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets analytical sea surface height climatology [m].
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -601,13 +542,7 @@ C$    integer  trd, omp_get_thread_num
 !
 !  Set sea surface height (meters).
 !
-# if defined REGIONAL
-      do j=JstrR,JendR
-        do i=IstrR,IendR
-          ssh(i,j)=0.
-        enddo
-      enddo
-# elif defined INTERNAL
+# if defined INTERNAL
       U0=0.02
       omega=2.*pi/(12.4*3600)
       kwave=((omega*omega)-(f(1,1)*f(1,1)))/(g*h(1,1))
@@ -618,19 +553,21 @@ C$    integer  trd, omp_get_thread_num
         enddo
       enddo
 # elif defined JET
-           ! climatology computed in ana_initial
-# elif defined RIP || defined SHOREFACE
-#  ifdef ANA_TIDES
 !
-! Remove mean sea level (mssh) !!! MPI DEBUG problems here !!!
+!    --> climatology computed in ana_initial
+!
+# elif (defined RIP || defined SHOREFACE) && defined ANA_TIDES
+!
+! Remove mean sea level (mssh) 
+!  !!! not OPENMP compliant and MPI DEBUG problems !!!
 !
       mssh=QuadZero
       area=QuadZero
       do j=Jstr,Jend
         do i=Istr,Iend
-           cff1=1./(pm(i,j)*pn(i,j))
-           mssh=mssh+cff1*Zt_avg1(i,j)
-           area=area+cff1
+          cff1=1./(pm(i,j)*pn(i,j))
+          mssh=mssh+cff1*Zt_avg1(i,j)
+          area=area+cff1
         enddo
       enddo
       mssh=mssh/area
@@ -661,29 +598,33 @@ C$    integer  trd, omp_get_thread_num
      &                *sin(time*omega1))
      &                *sin(time*omega2)
      &                    +time*surelev/31536000.
-#   ifdef WET_DRY
-          if (ssh(i,j) .lt. Dcrit(i,j)-h(i,j)) then
-            ssh(i,j)=Dcrit(i,j)-h(i,j)
-          endif
-#   endif
         enddo
       enddo
-#  endif /* ANA_TIDES */
 # else
       do j=JstrR,JendR
         do i=IstrR,IendR
-          ssh(i,j)=zeta(i,j,1)
+          ssh(i,j)=0.
         enddo
       enddo
 # endif
 
-#ifdef NBQ
+#   ifdef WET_DRY
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          if (ssh(i,j) .lt. Dcrit(i,j)-h(i,j)) then
+            ssh(i,j)=Dcrit(i,j)-h(i,j)
+          endif
+        enddo
+      enddo
+#   endif
+
+# ifdef NBQ
       do j=JstrR,JendR
         do i=IstrR,IendR
           ssh(i,j)=h(i,j)+ssh(i,j)
         enddo
       enddo
-#endif
+# endif
 
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r2d_tile (istr,iend,jstr,jend, ssh(START_2D_ARRAY))
@@ -691,16 +632,15 @@ C$    integer  trd, omp_get_thread_num
       return
       end
 #endif /* ANA_SSH && ZCLIMATOLOGY */
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_sst
-!====================================================================
+!======================================================================
 !
 #if defined ANA_SST && defined QCORRECTION
       subroutine ana_sst_tile (Istr,Iend,Jstr,Jend)
 !
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets sea surface temperature SST[Celsius] and surface
 !  net heat flux sensitivity dQdSTT to sea surface temperature using
 !  analytical expressions. dQdSTT is usually computed in units of
@@ -709,7 +649,7 @@ C$    integer  trd, omp_get_thread_num
 !  correction is activated:
 !
 !       Q_model ~ Q + dQdSST * (T_model - SST)
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -758,14 +698,14 @@ C$    integer  trd, omp_get_thread_num
 #endif /* ANA_SST && QCORRECTION */
 
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_sss
-!====================================================================
+!======================================================================
 !
 #if defined SALINITY && defined SFLX_CORR && defined ANA_SSS
       subroutine ana_sss_tile (Istr,Iend,Jstr,Jend)
 !
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets sea surface salinity SSS[PSU] using
 !  analytical expressions. This forcing field is used when the
 !  salt flux correction is activated:
@@ -774,7 +714,7 @@ C$    integer  trd, omp_get_thread_num
 !
 !  we use DQDSST for CST.... 
 !
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -793,22 +733,21 @@ C$    integer  trd, omp_get_thread_num
       return
       end
 #endif /* SALINITY && SFLX_CORR && ANA_SSS */
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_stflux
-!====================================================================
+!======================================================================
 !
 #if defined ANA_STFLUX || defined ANA_SSFLUX
       subroutine ana_stflux_tile (Istr,Iend,Jstr,Jend, itrc)
 !
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets kinematic surface flux of tracer type variables
 !  "stflx" (tracer units m/s) using analytical expressions.
 !
 !  On Input:
 !     itrc      Tracer type array index.
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -824,47 +763,23 @@ c
 !  Set kinematic surface heat flux [degC m/s] at horizontal
 !  RHO-points.
 !
-#if defined BASIN     || defined CANYON_A  || defined CANYON_B   \
- || defined EQUATOR   || defined GRAV_ADJ  || defined INNERSHELF \
- || defined OVERFLOW  || defined REGIONAL  || defined RIVER      \
- || defined SEAMOUNT  || defined SHELFRONT || defined UPWELLING  \
- || defined VORTEX    || defined INTERNAL  || defined JET        \
- || defined SHOREFACE || defined RIP       || defined THACKER    \
- || defined TANK
         do j=JstrR,JendR
           do i=IstrR,IendR
             stflx(i,j,itemp)=0.
           enddo
         enddo
-#else
-        do j=JstrR,JendR
-          do i=IstrR,IendR
-            stflx(i,j,itemp)=???
-          enddo
-        enddo
-#endif
+!
 #ifdef SALINITY
       elseif (itrc.eq.isalt) then
 !
 !  Set kinematic surface freshwater flux (m/s) at horizontal
 !  RHO-points, scaling by surface salinity is done in STEP3D.
 !
-# if defined EQUATOR   || defined INNERSHELF || defined REGIONAL  \
-  || defined RIVER     || defined SEAMOUNT   || defined SHELFRONT \
-  || defined UPWELLING || defined SHOREFACE  || defined RIP 
-
         do j=JstrR,JendR
           do i=IstrR,IendR
             stflx(i,j,isalt)=0.
           enddo
         enddo
-# else
-        do j=JstrR,JendR
-          do i=IstrR,IendR
-            stflx(i,j,isalt)=???
-          enddo
-        enddo
-# endif
 #endif /* SALINITY */
       else
 !
@@ -879,11 +794,10 @@ c
       return
       end
 #endif /* ANA_STFLUX || ANA_SSFLUX */
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_tclima
-!====================================================================
+!======================================================================
 !
 #if defined TCLIMATOLOGY
       subroutine ana_tclima (tile)
@@ -899,9 +813,9 @@ C$    integer  trd, omp_get_thread_num
       end
       subroutine ana_tclima_tile (Istr,Iend,Jstr,Jend)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets analytical ACTIVE (T&S) tracer climatology fields.
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -912,12 +826,48 @@ C$    integer  trd, omp_get_thread_num
 # include "sediment.h"
       integer Istr,Iend,Jstr,Jend, i,j,k, itrc
       real    cff,cff1
+# ifdef IGW
+      real    sig,rhom,depth
+# endif  
 !
 # include "compute_auxiliary_bounds.h"
 !
 # ifdef ANA_TCLIMA
 #  ifdef JET
-           ! climatology computed in ana_initial
+!
+!        --> climatology computed in ana_initial
+!
+#  elif defined IGW
+      cff=((2.e-3)**2)/g
+      rhom=1027.037885
+      do k=1,N
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+            depth = -z_r(i,j,k)         
+#   ifdef EXPERIMENT1
+            if(depth.le.50.) then
+              sig = 25.0  
+            elseif( depth.gt.50. .and. depth.le.60.) then
+              sig = 26.2 + rhom*(depth-50.)*cff
+              sig = sig + 1.2*(depth-60.)/10.
+            else
+              sig = 26.2 + rhom*(depth-50.)*cff
+            endif
+            t(i,j,k,1,itemp)=(R0-sig)/Tcoef
+#   elif defined EXPERIMENT2	    
+            if (depth.le.50.) then
+             sig = 25.8
+            else
+             sig = 27.0
+            endif
+            t(i,j,k,1,itemp)=(R0-sig)/Tcoef
+#   else /* default EXPERIMENT3 */
+            sig = 26.2 + rhom*(depth-50.)*cff
+            tclm(i,j,k,itemp)=(R0-sig)/Tcoef
+#   endif
+          enddo
+        enddo
+      enddo
 #  else
       do k=1,N
         do j=JstrR,JendR
@@ -1178,9 +1128,9 @@ C$    integer  trd, omp_get_thread_num
       end
 #endif /* TCLIMATOLOGY */
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_uclima
-!====================================================================
+!======================================================================
 !
 #if defined ANA_M2CLIMA && defined M2CLIMATOLOGY ||\
    (defined ANA_M3CLIMA && defined M3CLIMATOLOGY)
@@ -1198,9 +1148,9 @@ C$    integer  trd, omp_get_thread_num
 !
       subroutine ana_uclima_tile (Istr,Iend,Jstr,Jend)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets analytical momentum climatology fields.
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -1234,14 +1184,7 @@ C$    integer  trd, omp_get_thread_num
 # endif
 !
 # if defined ANA_M2CLIMA && defined M2CLIMATOLOGY
-#  if defined REGIONAL || defined RIP
-      do j=JstrR,JendR
-        do i=IstrR,IendR
-          ubclm(i,j)=0.
-          vbclm(i,j)=0.
-        enddo
-      enddo
-#  elif defined INTERNAL
+#  if defined INTERNAL
       U0=0.02
       omega=2.*pi/(12.4*3600)
       kwave=sqrt(((omega*omega)-(f(1,1)*f(1,1)))/(g*h(1,1)))
@@ -1257,12 +1200,14 @@ C$    integer  trd, omp_get_thread_num
         enddo
       enddo
 #  elif defined JET
-           ! climatology computed in ana_initial
+!
+!       --> climatology computed in ana_initial
+!
 #  else
       do j=JstrR,JendR
         do i=IstrR,IendR
-          ubclm(i,j)=ubar(i,j,1)
-          vbclm(i,j)=vbar(i,j,1)
+          ubclm(i,j)=0.
+          vbclm(i,j)=0.
         enddo
       enddo
 #  endif
@@ -1273,23 +1218,16 @@ C$    integer  trd, omp_get_thread_num
 # endif
 
 # if defined ANA_M3CLIMA && defined M3CLIMATOLOGY && defined SOLVE3D
-#  if defined REGIONAL || defined RIP
+#  if defined JET
+!
+!       --> climatology computed in ana_initial
+!
+#  else
       do k=1,N
         do j=JstrR,JendR
           do i=IstrR,IendR
             uclm(i,j,k)=0.
             vclm(i,j,k)=0.
-          enddo
-        enddo
-      enddo
-#  elif defined JET
-           ! climatology computed in ana_initial
-#  else
-      do k=1,N
-        do j=JstrR,JendR
-          do i=IstrR,IendR
-            uclm(i,j,k)=u(i,j,k,1)
-            vclm(i,j,k)=v(i,j,k,1)
           enddo
         enddo
       enddo
@@ -1306,11 +1244,10 @@ C$    integer  trd, omp_get_thread_num
       return
       end
 #endif /* ANA_M2CLIMA && M2CLIMATOLOGY || (ANA_M3CLIMA && M3CLIMATOLOGY) */
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_nbq_clima
-!====================================================================
+!======================================================================
 !
 #ifdef NBQCLIMATOLOGY 
       subroutine ana_nbq_clima (tile)
@@ -1327,9 +1264,9 @@ C$    integer  trd, omp_get_thread_num
 !
       subroutine ana_nbq_clima_tile (Istr,Iend,Jstr,Jend)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets analytical NBQ climatology fields.
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -1390,9 +1327,9 @@ C$    integer  trd, omp_get_thread_num
       end
 #endif /*  NBQCLIMATOLOGY */
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_wwave
-!====================================================================
+!======================================================================
 !
 #if defined ANA_WWAVE
       subroutine ana_wwave (tile)
@@ -1409,10 +1346,10 @@ C$    integer  trd, omp_get_thread_num
 !
       subroutine ana_wwave_tile (Istr,Iend,Jstr,Jend)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets wind induced wave amplitude, direction
 !  and period used in the bottom boundary layer formulation.
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
       real wamp,wdir,wprd,
@@ -1526,15 +1463,13 @@ C$    integer  trd, omp_get_thread_num
       enddo
 #   endif
 # endif
-
       return
       end
 #endif /* ANA_WWAVE */
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_sediment
-!====================================================================
+!======================================================================
 !
 #if defined SEDIMENT
       subroutine ana_sediment (tile)
@@ -1551,7 +1486,7 @@ C$    integer  trd, omp_get_thread_num
 !
       subroutine ana_sediment_tile (Istr,Iend,Jstr,Jend)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets sediment ripple and bed parameters
 !  from values found in sediment.in:
 !
@@ -1561,7 +1496,7 @@ C$    integer  trd, omp_get_thread_num
 !    Bpor    initial porosity of bed layers [m]
 !    Bfrac   volume fraction of each size class in each bed layer 
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -1709,21 +1644,19 @@ C$    integer  trd, omp_get_thread_num
          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
      &                 Sdens(START_2D_ARRAY))
 # endif
-
       return
       end
 #endif /* SEDIMENT */
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_psource
-!====================================================================
+!======================================================================
 !
 #if defined PSOURCE && defined ANA_PSOURCE && defined SOLVE3D
 !
-!-----------------------------------------------------------
+!----------------------------------------------------------------------
 !  Set analytical tracer and mass point sources and sinks
-!-----------------------------------------------------------
+!----------------------------------------------------------------------
 !
       subroutine ana_psource_tile (Istr,Iend,Jstr,Jend) 
       implicit none          
@@ -2010,7 +1943,7 @@ C$    integer  trd, omp_get_thread_num
           Tsrc(is,k,iZoo1)=Tsrc0(is,iZoo1)
           Tsrc(is,k,iDet1)=Tsrc0(is,iDet1)
           Tsrc(is,k,iDet2)=Tsrc0(is,iDet2)
-!-----------------------------------------------------------------------------	
+!----------------------------------------------------------------------
 #    elif defined BIO_BioEBUS
           zsrc=z_r(Isrc(is),Jsrc(is),k)
 #      if defined PSOURCE_NCFILE_TS
@@ -2059,7 +1992,7 @@ C$    integer  trd, omp_get_thread_num
           Tsrc(is,k,iN2O)=-(0.008*exp(zsrc/100.)-0.01)
           if (Tsrc(is,k,iN2O).lt.0.) Tsrc(is,k,iN2O)=0.
 #    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS*/
-!-----------------------------------------------------------------------------	
+!----------------------------------------------------------------------
 #  endif /* BIOLOGY */
         enddo
       enddo
@@ -2071,11 +2004,10 @@ C$    integer  trd, omp_get_thread_num
       return
       end
 #endif /* PSOURCE && ANA_PSOURCE SOLVE3D*/
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_bry
-!====================================================================
+!======================================================================
 !
 #ifdef ANA_BRY
       subroutine ana_bry (tile)
@@ -2092,9 +2024,9 @@ C$    integer  trd, omp_get_thread_num
 !
       subroutine ana_bry_tile (Istr,Iend,Jstr,Jend) 
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  Set analytical boundary forcing
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none          
       integer Istr,Iend,Jstr,Jend, i,j,k, itrc
@@ -2245,9 +2177,9 @@ C$    integer  trd, omp_get_thread_num
       end
 #endif /* defined ANA_BRY */
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_nbq_bry
-!====================================================================
+!======================================================================
 !
 #ifdef NBQ_FRC_BRY
       subroutine ana_nbq_bry (tile)
@@ -2264,9 +2196,9 @@ C$    integer  trd, omp_get_thread_num
 !
       subroutine ana_nbq_bry_tile (Istr,Iend,Jstr,Jend) 
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  Set analytical boundary forcing
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none          
       integer Istr,Iend,Jstr,Jend, i,j,k, itrc
@@ -2419,15 +2351,15 @@ C$    integer  trd, omp_get_thread_num
       end
 #endif /* defined NBQ_FRC_BRY */
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_bry_bio
-!====================================================================
+!======================================================================
 !
 #if defined BIOLOGY && defined T_FRC_BRY
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  Set analytical boundary forcing for biological tracers
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       subroutine ana_bry_bio (tile)
       implicit none

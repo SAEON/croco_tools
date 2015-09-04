@@ -261,6 +261,9 @@ CR      write(*,*)  ' -5' MYID       ! analytically or from restart.
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
         call set_HUV (tile)
+# ifdef RESET_RHO0
+        call reset_rho0 (tile)
+# endif
       enddo
 CR      write(*,*)  ' -4' MYID
 C$OMP PARALLEL DO PRIVATE(tile)

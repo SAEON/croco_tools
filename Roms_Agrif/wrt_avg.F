@@ -221,7 +221,7 @@ CR      write(*,*) 'wrt_avg:  wrtT  ' MYID
 !     Density anomaly.
 !     
       if (wrtavg(indxR)) then
-         workr=rho_avg
+         workr=rho_avg+rho0-1000.
          call fillvalue3d(workr,ncidavg,avgR,indxR,record,r3dvar,type) 
 CR      write(*,*) 'wrt_avg:  wrtRHO' MYID
       endif

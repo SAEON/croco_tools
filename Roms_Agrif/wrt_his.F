@@ -515,7 +515,7 @@ CR      write(*,*) 'wrt_his:  wrtT  ' MYID
 !     Density anomaly.
 !     
       if (wrthis(indxR)) then
-         workr=rho
+         workr=rho+rho0-1000.
          call fillvalue3d(workr,ncidhis,hisR,indxR,
      &        record,r3dvar,type)           
 CR      write(*,*) 'wrt_his:  wrtRHO' MYID

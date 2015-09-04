@@ -444,6 +444,10 @@
 #ifdef BIOLOGY
      &        , global_sum(0:2*NT+1)
 #endif
+#ifdef RESET_RHO0
+     &        , avg_vol, avg_rho
+#endif
+
       common /communicators_rq/
      &          volume, avgke, avgpe, avgkp, bc_crss
 #ifdef OBC_VOLCONS
@@ -452,6 +456,10 @@
 #ifdef BIOLOGY
      &        , global_sum
 #endif
+#ifdef RESET_RHO0
+     &        , avg_vol, avg_rho
+#endif
+
 !
 !  The following common block contains process counters and model
 ! timers. These are used to measure CPU time consumed by different
