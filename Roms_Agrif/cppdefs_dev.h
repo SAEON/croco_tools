@@ -83,11 +83,6 @@
 #define M2FILTER_POWER
 #undef  M2FILTER_COSINE
 #undef  M2FILTER_FLAT
-#if defined SSH_TIDES || defined UV_TIDES
-# undef  M2FILTER_POWER
-# define M2FILTER_FLAT
-#endif
-
 /*
 ======================================================================
    Activate barotropic pressure gradient response to the
@@ -96,6 +91,9 @@
 */
 #if defined SOLVE3D
 # define VAR_RHO_2D
+# if !defined NONLIN_EOS && !defined RVTK_DEBUG
+#  define RESET_RHO0
+# endif
 #endif
 
 /*

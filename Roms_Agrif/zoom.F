@@ -1491,7 +1491,7 @@ CR      write(*,*) '  0' MYID
       
       return
       end
-#endif ! endif MASKING
+#endif /*  MASKING */
 !
 !====================================================================
 !                   subroutine UpdateGridhis

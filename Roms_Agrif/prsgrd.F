@@ -84,6 +84,7 @@ c********************************************************************
 !
 # include "compute_auxiliary_bounds.h"
 !
+!----------------------------------------------------------------------
 ! Non-conservative Density-Jacobian scheme, based on cubic polynomial
 ! fits for rho and z_r as functions of nondimensianal coordinates xi,
 ! eta, and s (basically their respective fortran indices). The cubic
@@ -122,7 +123,8 @@ c********************************************************************
 ! to standard Jacobian.
 !
 ! NOTE: This routine is an alternative form of prsgrd32 and it
-!       produces results identical to that if its prototype. 
+!       produces results identical to that of its prototype. 
+!----------------------------------------------------------------------
 !
 ! Preliminary step (same for XI- and ETA-components:
 !------------ ---- ----- --- --- --- ---------------
@@ -171,8 +173,8 @@ c********************************************************************
 
         do i=IstrU-1,Iend
           P(i,j,N)=g*z_w(i,j,N) + GRho*( rho(i,j,N)
-     &       +0.5*(rho(i,j,N)-rho(i,j,N-1))*(z_w(i,j,N)-z_r(i,j,N))
-     &          /(z_r(i,j,N)-z_r(i,j,N-1)) )*(z_w(i,j,N)-z_r(i,j,N))
+     &            +0.5*(rho(i,j,N)-rho(i,j,N-1))*(z_w(i,j,N)-z_r(i,j,N))
+     &              /(z_r(i,j,N)-z_r(i,j,N-1)) )*(z_w(i,j,N)-z_r(i,j,N))
 # ifdef POT_TIDES
           P(i,j,N) = P(i,j,N) - g*Ptide(i,j)
 # endif
@@ -180,13 +182,12 @@ c********************************************************************
         do k=N-1,1,-1
           do i=IstrU-1,Iend
             P(i,j,k)=P(i,j,k+1)+HalfGRho*( (rho(i,j,k+1)+rho(i,j,k))
-     &                                     *(z_r(i,j,k+1)-z_r(i,j,k))
+     &                                    *(z_r(i,j,k+1)-z_r(i,j,k))
      &     -OneFifth*( (dR(i,k+1)-dR(i,k))*( z_r(i,j,k+1)-z_r(i,j,k)
-     &                              -OneTwelfth*(dZ(i,k+1)+dZ(i,k)) )
-
+     &                             -OneTwelfth*(dZ(i,k+1)+dZ(i,k)) )
      &                -(dZ(i,k+1)-dZ(i,k))*( rho(i,j,k+1)-rho(i,j,k)
-     &                              -OneTwelfth*(dR(i,k+1)+dR(i,k)) )
-     &                                                             ))
+     &                             -OneTwelfth*(dR(i,k+1)+dR(i,k)) )
+     &                                                            ))
           enddo
         enddo
       enddo   !<-- j
@@ -273,19 +274,15 @@ c********************************************************************
 
         do j=Jstr,Jend
           do i=IstrU,Iend
-            ru(i,j,k)=0.5*(HZR(i,j,k)+HZR(i-1,j,k))
-     &                                                    *on_u(i,j)*(
+            ru(i,j,k)=0.5*(HZR(i,j,k)+HZR(i-1,j,k))*on_u(i,j)*(
      &                                             P(i-1,j,k)-P(i,j,k)
      &                           -HalfGRho*( (rho(i,j,k)+rho(i-1,j,k))
      &                                      *(z_r(i,j,k)-z_r(i-1,j,k))
-
-     &   -OneFifth*( (dRx(i,j)-dRx(i-1,j))*( z_r(i,j,k)-z_r(i-1,j,k)
+     &     -OneFifth*( (dRx(i,j)-dRx(i-1,j))*( z_r(i,j,k)-z_r(i-1,j,k)
      &                             -OneTwelfth*(dZx(i,j)+dZx(i-1,j)) )
-
-     &              -(dZx(i,j)-dZx(i-1,j))*( rho(i,j,k)-rho(i-1,j,k)
+     &                -(dZx(i,j)-dZx(i-1,j))*( rho(i,j,k)-rho(i-1,j,k)
      &                             -OneTwelfth*(dRx(i,j)+dRx(i-1,j)) )
      &                                                             )))
-
 # ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
               MPrsgrd(i,j,k,1) = ru(i,j,k) SWITCH umask(i,j)
@@ -374,22 +371,18 @@ c********************************************************************
 
         do j=JstrV,Jend
           do i=Istr,Iend
-            rv(i,j,k)=0.5*(HZR(i,j,k)+HZR(i,j-1,k))
-     &                                                   *om_v(i,j)*(
+            rv(i,j,k)=0.5*(HZR(i,j,k)+HZR(i,j-1,k))*om_v(i,j)*(
 # ifdef INNERSHELF_APG
-     &             on_v(i,j)*f(i,j)*UG +    ! specified alongshore PG
+     &                on_v(i,j)*f(i,j)*UG +  ! specified alongshore PG
 # endif
      &                                             P(i,j-1,k)-P(i,j,k)
      &                           -HalfGRho*( (rho(i,j,k)+rho(i,j-1,k))
      &                                      *(z_r(i,j,k)-z_r(i,j-1,k))
-
-     &   -OneFifth*( (dRx(i,j)-dRx(i,j-1))*( z_r(i,j,k)-z_r(i,j-1,k)
+     &     -OneFifth*( (dRx(i,j)-dRx(i,j-1))*( z_r(i,j,k)-z_r(i,j-1,k)
      &                             -OneTwelfth*(dZx(i,j)+dZx(i,j-1)) )
-
-     &              -(dZx(i,j)-dZx(i,j-1))*( rho(i,j,k)-rho(i,j-1,k)
+     &                -(dZx(i,j)-dZx(i,j-1))*( rho(i,j,k)-rho(i,j-1,k)
      &                             -OneTwelfth*(dRx(i,j)+dRx(i,j-1)) )
      &                                                             )))
-
 #  ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
               MPrsgrd(i,j,k,2) = rv(i,j,k) SWITCH vmask(i,j)
@@ -412,15 +405,22 @@ c********************************************************************
 ! horizontal differencing of the density field is done before
 ! its vertical integration.
 !
-!  Input:   rho      Density anomaly [kg/m^3].
+!  Input:   rho      Density anomaly [kg/m^3] to rho0
 !
 !  Output:  Initialize computation of right-hand-sides
 !                            for the 3D momentum equations.
 !    ru = - pgrd_XI      ! XI,ETA-components of pressure
 !    rv = - pgrd_ETA     ! gradient terms.
+
+!  Switch: WJ_GRADP:  WEIGHTED/STANDARD jacobian form.
+!    Original coefficient by Tony was 0.25
+!    Least error with 0.125 (Shchepetkin and Mcwilliams, 2003)
+!    The switch is set in cppdefs_dev.h
+!       # define WJ_GRADP 0.125  or
+!       # undef WJ_GRADP
 !
 !  Reference:
-!
+!  ---------
 !  Song, Y.T. and D.G. Wright, 1997: A general pressure gradient
 !          formutlation for numerical ocean models. Part I: Scheme
 !          design and diagnostic analysis.  DRAFT.
@@ -432,27 +432,30 @@ c********************************************************************
 #  include "private_scratch.h"
 #  include "compute_tile_bounds.h" 
       trd=omp_get_thread_num()
-      call prsgrd_tile (Istr,Iend,Jstr,Jend, A3d(1,1,trd),
-     &                              A3d(1,2,trd),A2d(1,1,trd)
+      call prsgrd_tile (Istr,Iend,Jstr,Jend, 
+     &                  A3d(1,1,trd), A3d(1,2,trd),
+     &                  A2d(1,1,trd), A2d(1,2,trd)
 #  ifdef MRL_WCI
-     &                             ,A2d(1,2,trd),A2d(1,3,trd)
+     &                 ,A2d(1,2,trd), A2d(1,3,trd)
 #  endif
-     &                                                      )
+     &                                           )
       return
       end
 !
-      subroutine prsgrd_tile (Istr,Iend,Jstr,Jend, ru,rv,pgrd
+      subroutine prsgrd_tile (Istr,Iend,Jstr,Jend, 
+     &                          ru,rv,rsurf, pgrd
 #  ifdef MRL_WCI
-     &                                                 ,FC,rx
+     &                                     ,FC,rx
 #  endif
-     &                                                       )
+     &                                           )
 !
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j,k
 #  include "param.h"
       real ru(PRIVATE_2D_SCRATCH_ARRAY,N),  cff,
      &     rv(PRIVATE_2D_SCRATCH_ARRAY,N),  cff1,
-     &     pgrd(PRIVATE_1D_SCRATCH_ARRAY),  gamma
+     &  rsurf(PRIVATE_2D_SCRATCH_ARRAY),    gamma,
+     &   pgrd(PRIVATE_1D_SCRATCH_ARRAY)
 #  ifdef MRL_WCI
      &    ,FC(PRIVATE_2D_SCRATCH_ARRAY),    cff2,
      &     rx(PRIVATE_2D_SCRATCH_ARRAY)
@@ -469,177 +472,151 @@ c********************************************************************
 !
 #  include "compute_auxiliary_bounds.h"
 !
-!  Switches: RHO_SURF:  Include/Disregard the barotropic part.
-!           WJ_GRADP:  WEIGHTED/STANDARD jacobian form.
-!
-#  define RHO_SURF
-!
-!  Original coefficient by Tony was 0.25
-!
-!# define WJ_GRADP 0.125
-!# undef WJ_GRADP
-!
 ! Compute XI-component of pressure gradient term:
-!----------------------------------------------------------------
-! Compute pgrd(:,N) which is the pressure gradient at the top most
-! grid box around u(:,:,N) point, which includes the contribution
-! due to the free surface elevation (barotropic part) and the
-! contribution due to the density difference in the top-most grid
-! box (baroclinic part). This operation also initializes vertical
-! integration.
+!-------- ------------ -- -------- -------- -----
+! Computation starts with extrapolation of density field toward
+! sea surface , after which compute pressure gradient at the topmost
+! grid box around u(:,:,N) point, including the contribution due to
+! free-surface elevation (barotropic part) and due to the density
+! difference in the top-most grid box (baroclinic part). This
+! operation initializes vertical integration. Once done, proceed
+! to the grid points below throughout the vertical column using
+! either Weighted or Standard Jacobian.  The standard jacobian is
+! rewritten in diagonal form (lile in Lin, 1997), which minimizes
+! the number of operations relatively to any other form.
 !
-      do j=Jstr,Jend
-        cff=0.5*g/rho0
-        cff1=1000.0*g/rho0
-
-        do i=IstrU,Iend
-          pgrd(i)=cff*(rho(i,j,N)-rho(i-1,j,N))
-     &                             *( z_w(i,j,N)+z_w(i-1,j,N)
-     &                               -z_r(i,j,N)-z_r(i-1,j,N))
-#  ifdef RHO_SURF
-     &                 +(cff1+cff*(rho(i,j,N)+rho(i-1,j,N)))
-     &                              *(z_w(i,j,N)-z_w(i-1,j,N))
-#  endif
-#  ifdef POT_TIDES
-                 - g*(Ptide(i,j)-Ptide(i-1,j))
-#  endif
-
-          ru(i,j,N)=-0.5*(HZR(i,j,N)+HZR(i-1,j,N))
-     &                                 *on_u(i,j)*pgrd(i)
-
-#  ifdef DIAGNOSTICS_UV
-          if (nnew.ne.3) then
-            MPrsgrd(i,j,N,1) = ru(i,j,N) SWITCH umask(i,j)
-          endif
-#  endif
-
+      do j=jstrV-1,jend
+        do i=istrU-1,iend
+          rsurf(i,j)=rho(i,j,N) + (rho(i,j,N)-rho(i,j,N-1))
+     &                             *(z_w(i,j,N)-z_r(i,j,N))
+     &                           /(z_r(i,j,N)-z_r(i,j,N-1))
         enddo
-!
-! Compute XI-component of interior [truly-] horizontal density
-! gradient, using standard or weighted Jacobian, J(rho,z_r).
-! Integrate it vertically, from top to bottom, properly scale
-! it and add into r.h.s. "ru".
-!
-        cff=0.25*g/rho0
-        do k=N-1,1,-1
+ 
+        if (j.ge.Jstr) then
+          cff=0.5*g/rho0
           do i=IstrU,Iend
-#  ifdef WJ_GRADP
-            gamma=WJ_GRADP *( z_r(i  ,j,k+1)-z_r(i-1,j,k+1)
-     &                       +z_r(i  ,j,k  )-z_r(i-1,j,k  ))
+            pgrd(i)=(g+cff*(rsurf(i-1,j)+rsurf(i,j)))*( z_w(i-1,j,N)
+     &                                                   -z_w(i,j,N))
+ 
+     &     +cff*( (rho(i-1,j,N)-rsurf(i,j))*(z_w(i-1,j,N)-z_r(i,j,N))
+     &           +(rsurf(i-1,j)-rho(i,j,N))*(z_w(i,j,N)-z_r(i-1,j,N))
+     &                                                              )
 
-     &                     *( z_r(i  ,j,k+1)-z_r(i-1,j,k+1)
-     &                       -z_r(i  ,j,k  )+z_r(i-1,j,k  ))
-
-     &                     /( (z_r(i  ,j,k+1)-z_r(i  ,j,k))
-     &                       *(z_r(i-1,j,k+1)-z_r(i-1,j,k)))
+#  ifdef POT_TIDES
+                                        - g*(Ptide(i,j)-Ptide(i-1,j))
 #  endif
-            pgrd(i)=pgrd(i)+cff*(
-#  ifdef WJ_GRADP
-     &            ( (1.+gamma)*(rho(i,j,k+1)-rho(i-1,j,k+1))
-     &             +(1.-gamma)*(rho(i,j,k  )-rho(i-1,j,k  )))
-     &                        *( z_r(i,j,k+1)+z_r(i-1,j,k+1)
-     &                          -z_r(i,j,k  )-z_r(i-1,j,k  ))
-
-     &                        -( rho(i,j,k+1)+rho(i-1,j,k+1)
-     &                          -rho(i,j,k  )-rho(i-1,j,k  ))
-     &           *( (1.+gamma)*(z_r(i,j,k+1)-z_r(i-1,j,k+1))
-     &             +(1.-gamma)*(z_r(i,j,k  )-z_r(i-1,j,k  )))
-#  else
-     &                         ( rho(i,j,k+1)-rho(i-1,j,k+1)
-     &                          +rho(i,j,k  )-rho(i-1,j,k  ))
-     &                        *( z_r(i,j,k+1)+z_r(i-1,j,k+1)
-     &                          -z_r(i,j,k  )-z_r(i-1,j,k  ))
-
-     &                        -( rho(i,j,k+1)+rho(i-1,j,k+1)
-     &                          -rho(i,j,k  )-rho(i-1,j,k  ))
-     &                        *( z_r(i,j,k+1)-z_r(i-1,j,k+1)
-     &                          +z_r(i,j,k  )-z_r(i-1,j,k  ))
-#  endif
-     &                                                      )
-
-            ru(i,j,k)=-0.5*(HZR(i,j,k)+HZR(i-1,j,k))
-     &                                *on_u(i,j)*pgrd(i)
+ 
+            ru(i,j,N)=0.5*(HZR(i,j,N)+HZR(i-1,j,N))*on_u(i,j)*pgrd(i)
 
 #  ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
-              MPrsgrd(i,j,k,1) = ru(i,j,k) SWITCH umask(i,j)
+              MPrsgrd(i,j,N,1) = ru(i,j,N) SWITCH umask(i,j)
             endif
 #  endif
-
           enddo
-        enddo     !--> discard pgrd
-
-        if (j.ge.JstrV) then
-!
-! ETA-component of pressure gradient term:
-!-----------------------------------------
-! Same sequence as for the XI-component.
-!
+# ifdef WJ_GRADP
+          cff=0.25*g/rho0
+# else
           cff=0.5*g/rho0
-          cff1=1000.0*g/rho0
+# endif
+          do k=N-1,1,-1
+            do i=istrU,iend
+# ifdef WJ_GRADP
+              gamma=WJ_GRADP
+     &         *(z_r(i,j,k+1)-z_r(i-1,j,k+1)+z_r(i,j,k)-z_r(i-1,j,k))
+     &         *(z_r(i,j,k+1)-z_r(i-1,j,k+1)-z_r(i,j,k)+z_r(i-1,j,k))
+     &     /((z_r(i,j,k+1)-z_r(i,j,k))*(z_r(i-1,j,k+1)-z_r(i-1,j,k)))
+# endif
+              pgrd(i)=pgrd(i)-cff*(
+# ifdef WJ_GRADP
+     &                    ( (1.+gamma)*(rho(i,j,k+1)-rho(i-1,j,k+1))
+     &                     +(1.-gamma)*(rho(i,j,k  )-rho(i-1,j,k  )))
+     &                               *( z_r(i,j,k+1)+z_r(i-1,j,k+1)
+     &                                 -z_r(i,j,k  )-z_r(i-1,j,k  ))
+ 
+     &                               -( rho(i,j,k+1)+rho(i-1,j,k+1)
+     &                                 -rho(i,j,k  )-rho(i-1,j,k  ))
+     &                   *( (1.+gamma)*(z_r(i,j,k+1)-z_r(i-1,j,k+1))
+     &                     +(1.-gamma)*(z_r(i,j,k  )-z_r(i-1,j,k  )))
+# else
+     &                                   (rho(i,j,k+1)-rho(i-1,j,k))
+     &                                  *(z_r(i-1,j,k+1)-z_r(i,j,k))
+     &                                  +(rho(i,j,k)-rho(i-1,j,k+1))
+     &                                  *(z_r(i,j,k+1)-z_r(i-1,j,k))
+# endif
+     &                                                             )
+ 
+              ru(i,j,k)=0.5*(HZR(i,j,k)+HZR(i-1,j,k))*on_u(i,j)*pgrd(i)
 
-          do i=Istr,Iend
-            pgrd(i)=cff*(rho(i,j,N)-rho(i,j-1,N))
-     &                               *( z_w(i,j,N)+z_w(i,j-1,N)
-     &                                 -z_r(i,j,N)-z_r(i,j-1,N))
-
-#  ifdef RHO_SURF
-     &                   +(cff1+cff*(rho(i,j,N)+rho(i,j-1,N)))
-     &                                *(z_w(i,j,N)-z_w(i,j-1,N))
+#  ifdef DIAGNOSTICS_UV
+              if (nnew.ne.3) then
+                MPrsgrd(i,j,k,1) = ru(i,j,k) SWITCH umask(i,j)
+              endif
 #  endif
+
+            enddo
+          enddo     !--> discard pgrd
+        endif
+!
+! ETA-component: same sequence as above.
+!---- ---------- ---- -------- -- ------
+!
+        if (j.ge.jstrV) then
+          cff=0.5*g/rho0
+          do i=istr,iend
+            pgrd(i)=(g+cff*(rsurf(i,j-1)+rsurf(i,j)))*( z_w(i,j-1,N)
+     &                                                   -z_w(i,j,N))
+ 
+     &     +cff*( (rho(i,j-1,N)-rsurf(i,j))*(z_w(i,j-1,N)-z_r(i,j,N))
+     &           +(rsurf(i,j-1)-rho(i,j,N))*(z_w(i,j,N)-z_r(i,j-1,N))
+     &                                                              )
+
 #  ifdef POT_TIDES
-                 - g*(Ptide(i,j)-Ptide(i,j-1))
+                                        - g*(Ptide(i,j)-Ptide(i,j-1))
 #  endif
-
-            rv(i,j,N)=-0.5D0*(HZR(i,j,N)+HZR(i,j-1,N))
-     &                                   *om_v(i,j)*pgrd(i)
+ 
+            rv(i,j,N)=0.5*(HZR(i,j,N)+HZR(i,j-1,N))*om_v(i,j)*pgrd(i)
 
 #  ifdef DIAGNOSTICS_UV
             if (nnew.ne.3) then
               MPrsgrd(i,j,N,2) = rv(i,j,N) SWITCH vmask(i,j)
             endif
 #  endif
+
           enddo
-
+# ifdef WJ_GRADP
           cff=0.25*g/rho0
+# else
+          cff=0.5*g/rho0
+# endif
           do k=N-1,1,-1
-            do i=Istr,Iend
-#  ifdef WJ_GRADP
-              gamma=WJ_GRADP *( z_r(i,j  ,k+1)-z_r(i,j-1,k+1)
-     &                         +z_r(i,j  ,k  )-z_r(i,j-1,k  ))
-
-     &                       *( z_r(i,j  ,k+1)-z_r(i,j-1,k+1)
-     &                         -z_r(i,j  ,k  )+z_r(i,j-1,k  ))
-
-     &                       /( (z_r(i,j  ,k+1)-z_r(i,j  ,k))
-     &                         *(z_r(i,j-1,k+1)-z_r(i,j-1,k)))
-#  endif
-              pgrd(i)=pgrd(i)+cff*(
-#  ifdef WJ_GRADP
-     &              ( (1.+gamma)*(rho(i,j,k+1)-rho(i,j-1,k+1))
-     &               +(1.-gamma)*(rho(i,j,k  )-rho(i,j-1,k  )))
-     &                         *( z_r(i,j,k+1)+z_r(i,j-1,k+1)
-     &                           -z_r(i,j,k  )-z_r(i,j-1,k  ))
-
-     &                         -( rho(i,j,k+1)+rho(i,j-1,k+1)
-     &                           -rho(i,j,k  )-rho(i,j-1,k  ))
-     &             *( (1.+gamma)*(z_r(i,j,k+1)-z_r(i,j-1,k+1))
-     &               +(1.-gamma)*(z_r(i,j,k  )-z_r(i,j-1,k  )))
-#  else
-     &                          ( rho(i,j,k+1)-rho(i,j-1,k+1)
-     &                           +rho(i,j,k  )-rho(i,j-1,k  ))
-     &                         *( z_r(i,j,k+1)+z_r(i,j-1,k+1)
-     &                           -z_r(i,j,k  )-z_r(i,j-1,k  ))
-
-     &                         -( rho(i,j,k+1)+rho(i,j-1,k+1)
-     &                           -rho(i,j,k  )-rho(i,j-1,k  ))
-     &                         *( z_r(i,j,k+1)-z_r(i,j-1,k+1)
-     &                           +z_r(i,j,k  )-z_r(i,j-1,k  ))
-#  endif
-     &                                                       )
-
-              rv(i,j,k)=-0.5*(HZR(i,j,k)+HZR(i,j-1,k))
-     &                                 *om_v(i,j)*pgrd(i)
+            do i=istr,iend
+# ifdef WJ_GRADP
+              gamma=WJ_GRADP
+     &         *(z_r(i,j,k+1)-z_r(i,j-1,k+1)+z_r(i,j,k)-z_r(i,j-1,k))
+     &         *(z_r(i,j,k+1)-z_r(i,j-1,k+1)-z_r(i,j,k)+z_r(i,j-1,k))
+     &     /((z_r(i,j,k+1)-z_r(i,j,k))*(z_r(i,j-1,k+1)-z_r(i,j-1,k)))
+# endif
+              pgrd(i)=pgrd(i)-cff*(
+# ifdef WJ_GRADP
+     &                    ( (1.+gamma)*(rho(i,j,k+1)-rho(i,j-1,k+1))
+     &                     +(1.-gamma)*(rho(i,j,k  )-rho(i,j-1,k  )))
+     &                               *( z_r(i,j,k+1)+z_r(i,j-1,k+1)
+     &                                 -z_r(i,j,k  )-z_r(i,j-1,k  ))
+ 
+     &                               -( rho(i,j,k+1)+rho(i,j-1,k+1)
+     &                                 -rho(i,j,k  )-rho(i,j-1,k  ))
+     &                   *( (1.+gamma)*(z_r(i,j,k+1)-z_r(i,j-1,k+1))
+     &                     +(1.-gamma)*(z_r(i,j,k  )-z_r(i,j-1,k  )))
+# else
+     &                                   (rho(i,j,k+1)-rho(i,j-1,k))
+     &                                  *(z_r(i,j-1,k+1)-z_r(i,j,k))
+     &                                  +(rho(i,j,k)-rho(i,j-1,k+1))
+     &                                  *(z_r(i,j,k+1)-z_r(i,j-1,k))
+# endif
+     &                                                             )
+ 
+              rv(i,j,k)=0.5*(HZR(i,j,k)+HZR(i,j-1,k))*om_v(i,j)*pgrd(i)
 
 #  ifdef DIAGNOSTICS_UV
               if (nnew.ne.3) then

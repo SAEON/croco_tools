@@ -84,7 +84,9 @@
           enddo
         enddo
       enddo
-# elif defined VORTEX || defined INTERNAL || defined EQUATOR  || defined JET || defined SHOREFACE
+# elif defined VORTEX || defined INTERNAL || defined EQUATOR \
+                      || defined JET      || defined SHOREFACE \
+                      || defined IGW
       do k=1,N-1
         do j=Jstr,Jend
           do i=Istr,Iend
