@@ -485,8 +485,8 @@ c********************************************************************
 ! rewritten in diagonal form (lile in Lin, 1997), which minimizes
 ! the number of operations relatively to any other form.
 !
-      do j=jstrV-1,jend
-        do i=istrU-1,iend
+      do j=JstrV-1,Jend
+        do i=IstrU-1,Iend
           rsurf(i,j)=rho(i,j,N) + (rho(i,j,N)-rho(i,j,N-1))
      &                             *(z_w(i,j,N)-z_r(i,j,N))
      &                           /(z_r(i,j,N)-z_r(i,j,N-1))
@@ -520,7 +520,7 @@ c********************************************************************
           cff=0.5*g/rho0
 # endif
           do k=N-1,1,-1
-            do i=istrU,iend
+            do i=IstrU,Iend
 # ifdef WJ_GRADP
               gamma=WJ_GRADP
      &         *(z_r(i,j,k+1)-z_r(i-1,j,k+1)+z_r(i,j,k)-z_r(i-1,j,k))
@@ -561,9 +561,9 @@ c********************************************************************
 ! ETA-component: same sequence as above.
 !---- ---------- ---- -------- -- ------
 !
-        if (j.ge.jstrV) then
+        if (j.ge.JstrV) then
           cff=0.5*g/rho0
-          do i=istr,iend
+          do i=Istr,Iend
             pgrd(i)=(g+cff*(rsurf(i,j-1)+rsurf(i,j)))*( z_w(i,j-1,N)
      &                                                   -z_w(i,j,N))
  
@@ -590,7 +590,7 @@ c********************************************************************
           cff=0.5*g/rho0
 # endif
           do k=N-1,1,-1
-            do i=istr,iend
+            do i=Istr,Iend
 # ifdef WJ_GRADP
               gamma=WJ_GRADP
      &         *(z_r(i,j,k+1)-z_r(i,j-1,k+1)+z_r(i,j,k)-z_r(i,j-1,k))
