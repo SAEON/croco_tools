@@ -53,7 +53,7 @@ if [[ $OS == Linux ]] ; then
       NETCDFLIB=-L../../netcdf_ifc/
       NETCDFINC=-I../../netcdf_ifc/
     else
-      NETCDFLIB=-L../../netcdf_x86_64
+      NETCDFLIB="-L../../netcdf_x86_64 -lnetcdf"
       NETCDFINC=-I../../netcdf_x86_64
     fi
   fi
@@ -67,8 +67,8 @@ fi
 #-lnetcdff          : version netcdf-fortran-4.2-gfortran --
 #-----------------------------------------------------------
 #
-NETCDFLIB="-L/usr/local/lib -lnetcdf"
-NETCDFINC="-I/usr/local/include"
+#NETCDFLIB="-L/usr/local/lib -lnetcdf"
+#NETCDFINC="-I/usr/local/include"
 #NETCDFLIB=$(nf-config --flibs)
 #NETCDFINC=-I$(nf-config --includedir)
 
