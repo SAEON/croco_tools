@@ -45,6 +45,7 @@ include Makedefs
         check_switches1.F		check_switches2.F\
 \
 	step3d_w.F	rhs3d_w_nh.F	w3dbc.F\
+        unbq_bc.F	vnbq_bc.F	wnbq_bc.F	rnbq_bc.F\
 \
         cpl_prism_define.F	cpl_prism_put.F 	cpl_prism_init.F\
         cpl_prism_get.F 	cpl_prism_getvar.F 	cpl_prism_getlistvals.F\
