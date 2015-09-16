@@ -159,6 +159,7 @@
          rhp_nbq_a(1:nzq_nh,1)  = rhp_nbq_a(1:nzq_nh,2) 
          div_nbq_a(1:nzq_nh,0)  = div_nbq_a(1:nzq_nh,1)  ! for second viscosity
 
+# ifdef ACOUSTIC
       elseif (ichoix.eq.10) then
 !
 !*******************************************************************
@@ -193,6 +194,7 @@
                                         *exp(-dist_d**2/for_a_exp**2)
 !         endif
         enddo
+# endif /* ACOUSTIC */
 
       endif  ! ichoix
 
