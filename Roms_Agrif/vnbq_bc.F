@@ -681,8 +681,13 @@ c        call vnbq_bc_interp_tile(Istr,Iend,Jstr,Jend)
       return
       end
 #else
-      subroutine vnbq_bc_empty
+# ifndef CHILD
+      subroutine vnbq_bc_parent_empty
       end
+# else
+      subroutine vnbq_bc_child_empty
+      end
+# endif
 #endif /* NBQ */
 #ifndef CHILD
 # define CHILD

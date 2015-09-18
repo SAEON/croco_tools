@@ -602,8 +602,13 @@
       return
       end
 #else
-      subroutine rnbq_bc_empty
+# ifndef CHILD
+      subroutine rnbq_bc_parent_empty
       end
+# else
+      subroutine rnbq_bc_child_empty
+      end
+# endif
 #endif /* NBQ */
 #ifndef CHILD
 # define CHILD
