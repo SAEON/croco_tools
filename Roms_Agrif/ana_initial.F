@@ -400,6 +400,7 @@ C$    integer omp_get_thread_num
             t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
           enddo
         enddo
+      enddo
 #   else
       cff=((2.510e-4)**2)/g
       do k=1,N
@@ -435,7 +436,8 @@ C$    integer omp_get_thread_num
           zint=depth*(del-1)+gam*del*depth*(2*xr(i,j)/xl - 1)
           do k=1,N
             t(i,j,k,1,itemp)=0.5*(5/Tcoef+10/Tcoef)
-     &                      -0.5*(5/Tcoef-10/Tcoef)*tanh((z_r(i,j,k)-zint)/dz);
+     &                      -0.5*(5/Tcoef-10/Tcoef)
+     &                          *tanh((z_r(i,j,k)-zint)/dz);
             t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
           enddo
         enddo
