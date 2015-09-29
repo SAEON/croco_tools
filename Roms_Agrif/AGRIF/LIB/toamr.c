@@ -655,10 +655,18 @@ void write_allocation_Common_0()
                                         tofich(allocationagrif,ligne,1);
                                         IndiceMin = parcours->var->v_indicetabvars;
                                         IndiceMax = parcours->var->v_indicetabvars+compteur;
-                                        sprintf(ligne,"    if (.not. allocated(%s)) allocate(%s", vargridnametabvars(v,1), vargridnametabvars(v,1));
+                                        sprintf(ligne,"    if (.not. allocated(%s)) then", vargridnametabvars(v,1));
+                                        tofich(allocationagrif,ligne,1);
+                                        sprintf(ligne,"    allocate(%s", vargridnametabvars(v,1));
                                         sprintf(ligne2,"%s)", vargridparam(v));
                                         strcat(ligne,ligne2);
                                         tofich(allocationagrif,ligne,1);
+                                        if (!strcasecmp(parcours->var->v_typevar,"real") || !strcasecmp(parcours->var->v_typevar,"integer"))
+                                        {
+                                        sprintf(ligne,"    %s = 0", vargridnametabvars(v,1));
+                                        tofich(allocationagrif,ligne,1);
+                                        }
+                                        tofich(allocationagrif,"endif",1);
                                         tofich(allocationagrif,"enddo",1);
                                         i = parcours->var->v_indicetabvars;
                                         do
@@ -673,10 +681,19 @@ void write_allocation_Common_0()
                                     }
                                     else
                                     {
-                                        sprintf(ligne,"if (.not. allocated(%s)) allocate(%s", vargridnametabvars(v,0), vargridnametabvars(v,0));
+                                        sprintf(ligne,"    if (.not. allocated(%s)) then", vargridnametabvars(v,0));
+                                        tofich(allocationagrif,ligne,1);
+                                        sprintf(ligne,"    allocate(%s", vargridnametabvars(v,0));
                                         sprintf(ligne2,"%s)", vargridparam(v));
                                         strcat(ligne,ligne2);
                                         tofich(allocationagrif,ligne,1);
+                                        if (!strcasecmp(parcours->var->v_typevar,"real") || !strcasecmp(parcours->var->v_typevar,"integer"))
+                                        {
+                                        sprintf(ligne,"    %s = 0", vargridnametabvars(v,0));
+                                        tofich(allocationagrif,ligne,1);
+                                        }
+                                        tofich(allocationagrif,"endif",1);
+
                                         parcoursindic =  (listindice *) calloc(1,sizeof(listindice));
                                         parcoursindic -> i_indice = parcours->var->v_indicetabvars;
                                         parcoursindic -> suiv = list_indic[parcours->var->v_catvar];
@@ -899,19 +916,35 @@ void write_allocation_Global_0()
                                         tofich(allocationagrif,ligne,1);
                                         IndiceMin = parcours->var->v_indicetabvars;
                                         IndiceMax = parcours->var->v_indicetabvars+compteur;
-                                        sprintf(ligne,"    if (.not. allocated(%s)) allocate(%s", vargridnametabvars(v,1), vargridnametabvars(v,1));
+                                        sprintf(ligne,"    if (.not. allocated(%s)) then", vargridnametabvars(v,1));
+                                        tofich(allocationagrif,ligne,1);
+                                        sprintf(ligne,"    allocate(%s", vargridnametabvars(v,1));
                                         sprintf(ligne2,"%s)", vargridparam(v));
                                         strcat(ligne,ligne2);
                                         tofich(allocationagrif,ligne,1);
+                                        if (!strcasecmp(parcours->var->v_typevar,"real") || !strcasecmp(parcours->var->v_typevar,"integer"))
+                                        {
+                                        sprintf(ligne,"    %s = 0", vargridnametabvars(v,1));
+                                        tofich(allocationagrif,ligne,1);
+                                        }
+                                        tofich(allocationagrif,"endif",1);
                                         tofich(allocationagrif,"enddo",1);
                                         parcours = parcoursprec;
                                     }
                                     else
                                     {
-                                        sprintf(ligne,"if (.not. allocated(%s)) allocate(%s", vargridnametabvars(v,0), vargridnametabvars(v,0));
+                                        sprintf(ligne,"    if (.not. allocated(%s)) then", vargridnametabvars(v,0));
+                                        tofich(allocationagrif,ligne,1);
+                                        sprintf(ligne,"    allocate(%s", vargridnametabvars(v,0));
                                         sprintf(ligne2,"%s)", vargridparam(v));
                                         strcat(ligne,ligne2);
                                         tofich(allocationagrif,ligne,1);
+                                        if (!strcasecmp(parcours->var->v_typevar,"real") || !strcasecmp(parcours->var->v_typevar,"integer"))
+                                        {
+                                        sprintf(ligne,"    %s = 0", vargridnametabvars(v,0));
+                                        tofich(allocationagrif,ligne,1);
+                                        }
+                                        tofich(allocationagrif,"endif",1);
                                     }
                                 }
                             } /* end of the allocation part                                       */
