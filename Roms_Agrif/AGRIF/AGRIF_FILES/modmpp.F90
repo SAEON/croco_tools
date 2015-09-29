@@ -178,7 +178,7 @@ subroutine Get_External_Data_first ( pttruetab, cetruetab, pttruetabwhole, cetru
     logical, dimension(0:Agrif_Nbprocs-1),       intent(out) :: recvfromproc
     integer, dimension(nbdim,0:Agrif_NbProcs-1), intent(out) :: imin,imax
     integer, dimension(nbdim,0:Agrif_NbProcs-1), intent(out) :: imin_recv,imax_recv
-    integer, dimension(nbdim,0:Agrif_NbProcs-1), intent(in)  :: bornesmin, bornesmax
+    integer, dimension(nbdim,0:Agrif_NbProcs-1), intent(in) :: bornesmin, bornesmax
 !
     integer :: imintmp, imaxtmp, i, j, k, i1
     integer :: imin1,imax1
@@ -248,6 +248,9 @@ subroutine Get_External_Data_first ( pttruetab, cetruetab, pttruetabwhole, cetru
 !
         sendtoproc(k) = .true.
 !
+        IF ( .not. memberoutall(k) ) THEN
+            sendtoproc(k) = .false.
+        ELSE
 !CDIR SHORTLOOP
         do i = 1,nbdim
             imin(i,k) = max(pttruetab2(i,Agrif_Procrank), pttruetabwhole(i,k))
@@ -257,8 +260,6 @@ subroutine Get_External_Data_first ( pttruetab, cetruetab, pttruetabwhole, cetru
                 sendtoproc(k) = .false.
             endif
         enddo
-        IF ( .not. memberoutall(k) ) THEN
-            sendtoproc(k) = .false.
         ENDIF
     enddo
 !

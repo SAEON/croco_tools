@@ -810,6 +810,13 @@ subroutine Agrif_GlobalToLocalBounds ( locbounds, lb_var, ub_var, lb_glob, ub_gl
 !
     do i = 1,nbdim
 !
+     if (coords(i) == 0) then
+       nbloc(i) = 1
+       locbounds(i,1,1) = lb_glob(i)
+       locbounds(i,2,1) = ub_glob(i)
+       locbounds(i,1,2) = lb_glob(i)
+       locbounds(i,2,2) = ub_glob(i)
+     else
         call Agrif_InvLoc(lb_var(i), rank, coords(i), i1)
 !
         do k = lb_glob(i)+lb_var(i)-i1,ub_glob(i)+lb_var(i)-i1
@@ -823,6 +830,7 @@ subroutine Agrif_GlobalToLocalBounds ( locbounds, lb_var, ub_var, lb_glob, ub_gl
                 locbounds(i,2,2) = max(locbounds(i,2,2),k)
             endif
         enddo
+     endif
     enddo
 
     member = ( sum(nbloc) == nbdim )
