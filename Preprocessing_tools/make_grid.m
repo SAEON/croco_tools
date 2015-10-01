@@ -122,7 +122,7 @@ angle=get_angle(Latu,Lonu);
 %
 %  Coriolis parameter
 %
-f=4*pi*sin(pi*Latr/180)/(24*3600);
+f=4*pi*sin(pi*Latr/180)*366.25/(24*3600*365.25);
 %
 % Fill the grid file
 %

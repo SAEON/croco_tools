@@ -6,34 +6,40 @@
 clear all
 close all
 %
-alti_prefix='/u/AVISO/madt_h_all_sat/madt_h_';
+AVISO_DIR='../AVISO/MADT_RENAME';
+AVISO_TYPE='madt';
+%
+alti_prefix=[AVISO_DIR,'/',AVISO_TYPE,'_'];
 alti_suffix='.nc';
 %
 nonseason=0;
 name='beng';
 %
+Yorig=2000;
+%
 % First date to process
 %
-Ymin=1993;
+Ymin=2014;
 Mmin=01;
 Dmin=01;
 %
 % Last date to process
 %
 Ymax=2014;
-Mmax=05;
-Dmax=01;
+Mmax=12;
+Dmax=27;
 %
 dt=1; % Interval between AVISO maps [days]
 %
-lonmin=-10;
-lonmax= 30;
-latmin=-45;
-latmax=-10;
+lonmin =   8;   % Minimum longitude [degree east]
+lonmax =  22;   % Maximum longitude [degree east]
+latmin = -38;   % Minimum latitudeF  [degree north]
+latmax = -26;   % Maximum latitude  [degree north]
+%
+coastfile='coastline_l.mat';
 %
 % Times of start and end
 %
-Yorig=1950;
 tstart=datenum(Ymin,Mmin,Dmin)-datenum(Yorig,1,1);
 tend  =datenum(Ymax,Mmax,Dmax)-datenum(Yorig,1,1);
 t=(tstart:dt:tend);
@@ -159,24 +165,16 @@ varssh=sqrt(z2);
 % Save 
 %
 if nonseason==1
-  save([name,'_eke_aviso_ns.mat'],'lon','lat','eke','varssh','uu','vv','uv')
+  fname=[name,'_eke_aviso_ns.mat']
 else
-  save([name,'_eke_aviso.mat'],'lon','lat','eke','varssh','uu','vv','uv')
+  fname=[name,'_eke_aviso.mat']
 end
+%
+save(fname,'lon','lat','avgzeta',...
+       'eke','varssh','uu','vv','uv')
+%
 disp(['nindex= ',num2str(a)])
 %
 % Plot
 %
-colmin=0;
-colmax=2500;
-ncol=10;
-m_proj('mercator',...
-       'lon',[lonmin lonmax],...
-       'lat',[latmin latmax]);
-m_pcolor(lon,lat,1e4*eke);
-shading interp
-colormap(jet)
-caxis([colmin colmax])
-m_grid('box','fancy','xtick',5,'ytick',5,'tickdir','out','fontsize',7);
-set(findobj('tag','m_grid_color'),'facecolor','white')
-colorbar
+plot_eke(fname)
