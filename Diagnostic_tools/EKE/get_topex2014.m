@@ -1,6 +1,6 @@
 function [x,y,data]=get_topex(lonmin,lonmax,latmin,latmax,fname)
 %
-% Get data from a AVISO netcdf file
+% Get altimetry data [m] from a AVISO netcdf file
 %
 % Pierrick Penven 2004
 %
@@ -39,7 +39,7 @@ if ~isempty(i3)
 end
 close(ncdat)
 %
-% A few transformations
+% A few transformations (zeta in meters)
 %
 data(data<-1e9)=NaN;
 data=data*0.0001;

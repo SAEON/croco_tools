@@ -95,7 +95,7 @@ handles=update_limits(h,handles);
 %	    
 if (~isempty(handles.Isrcparent)) & ~(isempty(handles.Jsrcparent))
   disp('   Plot the river')
-  nc=netcdf(handles.parentgrid);
+  nc=netcdf(handles.parentgrid,'r');
   lon_src=nc{'lon_rho'}(handles.Jsrcparent+1,handles.Isrcparent+1);
   lat_src=nc{'lat_rho'}(handles.Jsrcparent+1,handles.Isrcparent+1);
   close(nc);
@@ -105,7 +105,7 @@ if (~isempty(handles.Isrcparent)) & ~(isempty(handles.Jsrcparent))
                 'MarkerEdgeColor','k',...
                 'MarkerFaceColor','b',...
                 'MarkerSize',10);
-  nc=netcdf(handles.childgrid);
+  nc=netcdf(handles.childgrid,'r');
   lon_src=nc{'lon_rho'}(handles.Jsrcchild+1,handles.Isrcchild+1);
   lat_src=nc{'lat_rho'}(handles.Jsrcchild+1,handles.Isrcchild+1);
   close(nc);
