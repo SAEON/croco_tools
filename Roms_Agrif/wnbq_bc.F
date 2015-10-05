@@ -677,8 +677,13 @@
       return
       end
 #else
-      subroutine wnbq_bc_empty
+# ifndef CHILD
+      subroutine wnbq_bc_parent_empty
       end
+# else
+      subroutine wnbq_bc_child_empty
+      end
+# endif
 #endif /* NBQ */
 #ifndef CHILD
 # define CHILD

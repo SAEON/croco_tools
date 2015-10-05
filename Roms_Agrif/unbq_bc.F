@@ -688,8 +688,13 @@
       return
       end
 #else
-      subroutine unbq_bc_empty
+# ifndef CHILD
+      subroutine unbq_bc_parent_empty
       end
+# else
+      subroutine unbq_bc_child_empty
+      end
+# endif
 #endif /* NBQ */
 #ifndef CHILD
 # define CHILD

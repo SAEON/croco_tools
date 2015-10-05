@@ -325,6 +325,8 @@ subroutine Agrif_Bc_variable ( tabvarsindic, procname, calledweight )
     type(Agrif_Variable), pointer :: parent_var
     type(Agrif_Variable), pointer :: child_var
     type(Agrif_Variable), pointer :: child_tmp      ! Temporary variable on the child grid
+    integer :: i
+    integer,dimension(7) :: lb, ub
 !
     if ( Agrif_Curgrid%level <= 0 ) return
 !
@@ -343,34 +345,44 @@ subroutine Agrif_Bc_variable ( tabvarsindic, procname, calledweight )
 !
     nbdim = root_var % nbdim
 !
+    do i=1,nbdim
+      if (root_var%coords(i) == 0) then
+        lb(i) = parent_var%lb(i)
+        ub(i) = parent_var%ub(i)
+      else
+        lb(i) = child_var%lb(i)
+        ub(i) = child_var%ub(i)
+      endif
+    enddo
+
     select case( nbdim )
     case(1)
-        allocate(parray1(child_var%lb(1):child_var%ub(1)))
+        allocate(parray1(lb(1):ub(1)))
     case(2)
-        allocate(parray2(child_var%lb(1):child_var%ub(1), &
-                         child_var%lb(2):child_var%ub(2) ))
+        allocate(parray2(lb(1):ub(1), &
+                         lb(2):ub(2) ))
     case(3)
-        allocate(parray3(child_var%lb(1):child_var%ub(1), &
-                         child_var%lb(2):child_var%ub(2), &
-                         child_var%lb(3):child_var%ub(3) ))
+        allocate(parray3(lb(1):ub(1), &
+                         lb(2):ub(2), &
+                         lb(3):ub(3) ))
     case(4)
-        allocate(parray4(child_var%lb(1):child_var%ub(1), &
-                         child_var%lb(2):child_var%ub(2), &
-                         child_var%lb(3):child_var%ub(3), &
-                         child_var%lb(4):child_var%ub(4) ))
+        allocate(parray4(lb(1):ub(1), &
+                         lb(2):ub(2), &
+                         lb(3):ub(3), &
+                         lb(4):ub(4) ))
     case(5)
-        allocate(parray5(child_var%lb(1):child_var%ub(1), &
-                         child_var%lb(2):child_var%ub(2), &
-                         child_var%lb(3):child_var%ub(3), &
-                         child_var%lb(4):child_var%ub(4), &
-                         child_var%lb(5):child_var%ub(5) ))
+        allocate(parray5(lb(1):ub(1), &
+                         lb(2):ub(2), &
+                         lb(3):ub(3), &
+                         lb(4):ub(4), &
+                         lb(5):ub(5) ))
     case(6)
-        allocate(parray6(child_var%lb(1):child_var%ub(1), &
-                         child_var%lb(2):child_var%ub(2), &
-                         child_var%lb(3):child_var%ub(3), &
-                         child_var%lb(4):child_var%ub(4), &
-                         child_var%lb(5):child_var%ub(5), &
-                         child_var%lb(6):child_var%ub(6) ))
+        allocate(parray6(lb(1):ub(1), &
+                         lb(2):ub(2), &
+                         lb(3):ub(3), &
+                         lb(4):ub(4), &
+                         lb(5):ub(5), &
+                         lb(6):ub(6) ))
     end select
 !
 !   Create temporary child variable

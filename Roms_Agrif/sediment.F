@@ -675,8 +675,6 @@ C$OMP BARRIER
         enddo
       enddo
 !
-#undef toto
-#ifdef toto
       do j=Jstr,Jend
         do i=Istr,Iend
           cff3=0.0
@@ -814,7 +812,6 @@ C$OMP BARRIER
          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
      &                 Sdens(START_2D_ARRAY))
 # endif
-#endif
 !-----------------------------------------------------------------------
 ! Set boundary conditions
 !-----------------------------------------------------------------------
