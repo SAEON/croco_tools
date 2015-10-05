@@ -22,14 +22,13 @@ C$    integer omp_get_thread_num
       call ana_initial_tile (Istr,Iend,Jstr,Jend)
       return
       end
-!*********************************************************************
+
       subroutine ana_initial_tile (Istr,Iend,Jstr,Jend)
-!*********************************************************************
 !
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  Set initial conditions for momentum and tracer variables using
 !  analytical expressions.
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
 # ifdef AGRIF
       use Agrif_Util
@@ -40,6 +39,9 @@ C$    integer omp_get_thread_num
 # include "ocean2d.h"
 # include "ocean3d.h"
 # include "scalars.h"
+# ifdef SEDIMENT
+#  include "sediment.h"
+# endif
       integer Istr,Iend,Jstr,Jend, i,j,k, itrc
 # ifdef SOLITON
       real fac, x,y, x0,y0, cff1,cff2,cff3
@@ -86,9 +88,9 @@ C$    integer omp_get_thread_num
 #  define JV_RANGE Jstr,JendR
 # endif
 !
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  Initial conditions for free surface and 2D momentum components.
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
 # if defined RIP && defined RIP_TOPO_2D
       if (nrrec.eq.0) then
@@ -135,6 +137,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       endif
+
 # elif defined SOLITON
 #  ifdef AGRIF
       if (Agrif_Root()) then
@@ -177,6 +180,7 @@ C$    integer omp_get_thread_num
      &                                  *exp(-0.5*y*y)
         enddo
       enddo
+
 # elif defined THACKER
       ETA0=0.1
       depth=10.
@@ -192,6 +196,7 @@ C$    integer omp_get_thread_num
           vbar(i,j,2)=vbar(i,j,1)
         enddo
       enddo
+
 # elif defined TANK
       ETA0=0.001
       Lt=10.
@@ -209,6 +214,7 @@ C$    integer omp_get_thread_num
           vbar(i,j,2)=vbar(i,j,1)
         enddo
       enddo
+
 # else
         do j=JR_RANGE
           do i=IR_RANGE
@@ -233,9 +239,9 @@ C$    integer omp_get_thread_num
 
 # ifdef SOLVE3D
 !
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  Initial conditions for momentum components [m/s].
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
 #  if defined RIP && defined RIP_TOPO_2D
       if (nrrec.eq.0) then
@@ -276,6 +282,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       endif
+
 #  elif defined THACKER
       do k=1,N
         do j=JR_RANGE
@@ -287,6 +294,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
+
 #  else
       do k=1,N
         do j=JR_RANGE
@@ -300,12 +308,10 @@ C$    integer omp_get_thread_num
       enddo
 #  endif
 !
-!--------------------------------------------------------------------
-!  Initial conditions for tracer type variables.
-!--------------------------------------------------------------------
-!
+!----------------------------------------------------------------------
 !  Set initial conditions for potential temperature [degC] and
-!  salinity [PSU].
+!  salinity [PSU] and passive tracer
+!----------------------------------------------------------------------
 !
 #  ifdef BASIN
       cff1=(44.690/39.382)**2
@@ -319,6 +325,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
+
 #  elif defined CANYON_A
       do k=1,N
         do j=JR_RANGE
@@ -328,6 +335,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
+
 #  elif defined CANYON_B
       do k=1,N
         do j=JR_RANGE
@@ -338,6 +346,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
+
 #  elif defined SHOREFACE || defined RIP
       do k=1,N
         do j=jstrR,jendR
@@ -349,14 +358,12 @@ C$    integer omp_get_thread_num
             t(i,j,k,2,isalt)=t(i,j,k,1,isalt)
 #   endif
 #   ifdef PASSIVE_TRACER
-            if (.not.got_tini(itpas)) then
-              if (h(i,j).lt.2) then
-                t(i,j,k,1,itpas)=1.
-              else
-                t(i,j,k,1,itpas)=0
-              endif
-              t(i,j,k,2,itpas)=t(i,j,k,1,itpas)
+            if (h(i,j).lt.2) then
+              t(i,j,k,1,itpas)=1.
+            else
+              t(i,j,k,1,itpas)=0
             endif
+            t(i,j,k,2,itpas)=t(i,j,k,1,itpas)
 #   endif
           enddo
         enddo
@@ -381,6 +388,7 @@ C$    integer omp_get_thread_num
       endif
 #    endif
 #   endif   /* ANA_BRY */
+
 #  elif defined THACKER
       do k=1,N
         do j=JR_RANGE
@@ -391,6 +399,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
+
 #  elif defined TANK
 #   ifndef MOVING_BATHY
       do k=1,N
@@ -411,7 +420,8 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
-#   endif      
+#   endif
+
 #  elif defined EQUATOR
       do k=1,N
         do j=JstrR,JendR
@@ -425,6 +435,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
+
 #  elif defined GRAV_ADJ
 #   ifdef GRAV_ADJ_SOLITON
       depth=h(1,1)
@@ -461,6 +472,7 @@ C$    integer omp_get_thread_num
         enddo
       enddo
 #   endif /* GRAV_ADJ_SOLITON */
+
 #  elif defined ACOUSTIC
       do j=JstrR,JendR
         do i=IstrR,IendR
@@ -470,6 +482,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
+
 #  elif defined INNERSHELF
       do k=1,N
         do j=JR_RANGE
@@ -499,6 +512,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
+
 #  elif defined  INTERNAL
       cff=((2.e-3)**2)/g
       do k=1,N
@@ -509,6 +523,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
+
 #  elif defined IGW
       cff=((2.e-3)**2)/g
       rhom=1027.037885
@@ -541,6 +556,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
+
 #  elif defined OVERFLOW
       do k=1,N
         do j=JR_RANGE
@@ -550,6 +566,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
+
 #  elif defined  RIVER
       do k=1,N
         do j=JR_RANGE
@@ -561,6 +578,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
+
 #  elif defined SEAMOUNT
       do k=1,N
         do j=JR_RANGE
@@ -574,6 +592,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
+
 #  elif defined SHELFRONT
       do k=1,N
         do j=JR_RANGE
@@ -585,6 +604,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
+
 #  elif  defined SED_TEST2 
       do k=1,N
         do j=JstrR,JendR
@@ -596,6 +616,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
+
 #  elif defined UPWELLING
       do k=1,N
         do j=JR_RANGE
@@ -621,6 +642,7 @@ C$    integer omp_get_thread_num
           enddo
         enddo
       enddo
+
 #  elif defined REGIONAL
       do k=1,N
         do j=JR_RANGE
@@ -643,7 +665,53 @@ C$    integer omp_get_thread_num
             t(i,j,k,1,isalt)=35.
             t(i,j,k,2,isalt)=t(i,j,k,1,isalt)
 #   endif
-#   ifdef BIOLOGY
+          enddo
+        enddo
+      enddo
+
+#  elif defined JET
+!
+! Compute analytical t and geostrophically adjusted 
+! zeta,ub,vb,u,v fields with no zonal perturbation first
+!  --> store in climatological arrays
+!
+      call ana_jet_tile (Istr,Iend,Jstr,Jend,0) 
+!
+! Compute same fields with zonal perturbation 
+! --> store in initial arrays
+!
+      call ana_jet_tile (Istr,Iend,Jstr,Jend,1)
+
+#  else
+      do k=1,N
+        do j=JR_RANGE
+          do i=IR_RANGE
+            t(i,j,k,1,itemp)=20.
+            t(i,j,k,2,itemp)=20.
+#   ifdef SALINITY
+            t(i,j,k,1,isalt)=35.
+            t(i,j,k,2,isalt)=35.
+#   endif
+#   ifdef PASSIVE_TRACER
+            if (h(i,j).lt.300) then
+              t(i,j,k,1,itpas)=1.
+            else
+              t(i,j,k,1,itpas)=0
+            endif
+#   endif
+          enddo
+        enddo
+      enddo
+#  endif
+!
+!--------------------------------------------------------------------
+!  Initial conditions for biology tracer variables.
+!--------------------------------------------------------------------
+!
+#  ifdef BIOLOGY
+      do k=1,N
+        do j=JR_RANGE
+          do i=IR_RANGE
             temp=t(i,j,k,1,itemp)
             if (temp.lt.8.) then
                SiO4=30.
@@ -659,7 +727,7 @@ C$    integer omp_get_thread_num
             t(i,j,k,1,iNO3_)=1.67+0.5873*SiO4+0.0144*SiO4**2
      &                               +0.0003099*SiO4**3
             t(i,j,k,2,iNO3_)=t(i,j,k,1,iNO3_)
-#  ifdef PISCES
+#   ifdef PISCES
             t(i,j,k,1,iDIC_)=2150.
             t(i,j,k,2,iDIC_)=t(i,j,k,1,iDIC_)
             t(i,j,k,1,iTAL_)=2350.
@@ -706,7 +774,7 @@ C$    integer omp_get_thread_num
             t(i,j,k,2,iDCH_)=t(i,j,k,1,iDCH_)
             t(i,j,k,1,iNH4_)=0.01
             t(i,j,k,2,iNH4_)=t(i,j,k,1,iNH4_)
-#  elif defined BIO_NChlPZD
+#    elif defined BIO_NChlPZD
             t(i,j,k,1,iChla)=0.08
             t(i,j,k,2,iChla)=t(i,j,k,1,iChla)
             t(i,j,k,1,iPhy1)=0.1
@@ -757,39 +825,34 @@ C$    integer omp_get_thread_num
               t(i,j,k,1,iN2O)=0.
             endif
             t(i,j,k,2,iN2O)=t(i,j,k,1,iN2O)  
-#     endif
-#    endif
-#   endif /* BIOLOGY */
           enddo
         enddo
       enddo
-
-#  elif defined JET
+#     endif
+#    endif /* PISCES */
+#  endif /* BIOLOGY */
 !
-! Compute analytical t and geostrophically adjusted zeta,ub,vb,u,v fields
-! with no zonal perturbation first
-!  --> store in climatological arrays
+!--------------------------------------------------------------------
+!  Initial conditions for sediment tracer variables.
+!--------------------------------------------------------------------
 !
-      call ana_jet_tile (Istr,Iend,Jstr,Jend,0) 
-!
-! Compute same fields with zonal perturbation 
-! --> store in initial arrays
-!
-      call ana_jet_tile (Istr,Iend,Jstr,Jend,1)
-
-#  else
+#  ifdef SEDIMENT
       do k=1,N
         do j=JR_RANGE
           do i=IR_RANGE
-            t(i,j,k,1,itemp)=???
-            t(i,j,k,2,itemp)=???
-            t(i,j,k,1,isalt)=???
-            t(i,j,k,2,isalt)=???
+            t(i,j,k,1,isand)=Csed(1)
+            t(i,j,k,2,isand)=t(i,j,k,1,isand)
+            t(i,j,k,1,isilt)=Csed(2)
+            t(i,j,k,2,isilt)=t(i,j,k,1,isilt)
           enddo
         enddo
       enddo
 #  endif
-
+!
+!--------------------------------------------------------------------
+!  Exchange boundary information
+!--------------------------------------------------------------------
+!
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_u3d_tile (Istr,Iend,Jstr,Jend,
      &                        u(START_2D_ARRAY,1,1))

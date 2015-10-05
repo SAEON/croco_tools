@@ -10,13 +10,15 @@
 !======================================================================
 !
 #include "cppdefs.h"
+#ifdef SOLVE3D
 
       subroutine ana_initracer (tile)
+
       implicit none
-#include "param.h"
+# include "param.h"
       integer tile, trd
 C$    integer omp_get_thread_num
-#include "compute_tile_bounds.h"
+# include "compute_tile_bounds.h"
       call ana_initracer_tile (Istr,Iend,Jstr,Jend)
       return
       end
@@ -29,89 +31,61 @@ C$    integer omp_get_thread_num
 !--------------------------------------------------------------------
 !
       implicit none
-#include "param.h"
-#include "grid.h"
-#include "ocean2d.h"
-#include "ocean3d.h"
-#include "scalars.h"
-#include "sediment.h"
-#ifdef SST_SKIN
-# include "forces.h"
-#endif
+# include "param.h"
+# include "grid.h"
+# include "ocean2d.h"
+# include "ocean3d.h"
+# include "scalars.h"
+# ifdef SEDIMENT
+#  include "sediment.h"
+# endif
+# ifdef SST_SKIN
+#  include "forces.h"
+# endif
       integer Istr,Iend,Jstr,Jend, i,j,k
      &      , itrc
-#ifdef BIOLOGY
+# ifdef BIOLOGY
       real temp, SiO4
-#endif
+# endif
 !
 # include "compute_auxiliary_bounds.h"
 !
-#ifdef EW_PERIODIC
+# ifdef EW_PERIODIC
 #  define IR_RANGE IstrR,IendR
-#else
+# else
 #  define IR_RANGE IstrR,IendR
-#endif
+# endif
 
-#ifdef NS_PERIODIC
+# ifdef NS_PERIODIC
 #  define JR_RANGE Jstr,Jend
-#else
+# else
 #  define JR_RANGE JstrR,JendR
-#endif
-
-#ifdef SOLVE3D
-
-# if defined INNERSHELF || defined UPWELLING || defined BASIN    \
-  || defined CANYON_A   || defined CANYON_B  || defined EQUATOR  \
-  || defined GRAV_ADJ   || defined OVERFLOW  || defined SEAMOUNT \
-  || defined SOLITON    || defined SHELFRONT || defined RIVER    \
-  || defined VORTEX     || defined INTERNAL  || defined JET      \
-  || defined SHOREFACE  || defined RIP       || defined THACKER  \
-  || defined TANK       || defined IGW
-
+# endif
+!
+!----------------------------------------------------------------------
+!  Set initial conditions for potential temperature [degC] and
+!  salinity [PSU] and passive tracer
+!----------------------------------------------------------------------
+!
       do k=1,N
         do j=JR_RANGE
           do i=IR_RANGE
-            if (.not.got_tini(itemp)) then
-              t(i,j,k,1,itemp)=1.e30
-              t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
-            endif
-#  ifdef SALINITY
-            if (.not.got_tini(isalt)) then
-              t(i,j,k,1,isalt)=1.e30
-              t(i,j,k,2,isalt)=t(i,j,k,1,isalt)
-            endif
-#  endif
-#  if defined PASSIVE_TRACER && !defined ANA_PSOURCE
-            if (.not.got_tini(itpas)) then
-              if (h(i,j).lt.300) then
-                t(i,j,k,1,itpas)=1.
-              else
-                t(i,j,k,1,itpas)=0
-              endif
-            endif
-#  endif
 
-          enddo
-        enddo
-      enddo
-# elif defined REGIONAL
-      do k=1,N
-        do j=JR_RANGE
-          do i=IR_RANGE
+# ifdef REGIONAL
             if (.not.got_tini(itemp)) then
-#define Z0 (-80.)
-#define THKNSS 50.
-#define Z1 0.
-#define STRAT 1000.
+#  define Z0 (-80.)
+#  define THKNSS 50.
+#  define Z1 0.
+#  define STRAT 1000.
               t(i,j,k,1,itemp)=14.+5.*THKNSS*log(
-     &                            cosh((z_w(i,j,k )-Z0)/THKNSS)
-     &                           /cosh((z_w(i,j,k-1)-Z0)/THKNSS)
-     &                               )/(z_w(i,j,k)-z_w(i,j,k-1))
+     &                         cosh((z_w(i,j,k  )-Z0)/THKNSS)
+     &                        /cosh((z_w(i,j,k-1)-Z0)/THKNSS)
+     &                            )/(z_w(i,j,k)-z_w(i,j,k-1))
      &               +((z_w(i,j,k)+z_w(i,j,k-1))/2.-Z1)/STRAT
-#undef Z0
-#undef THKNSS
-#undef Z1
-#undef STRAT
+#  undef Z0
+#  undef THKNSS
+#  undef Z1
+#  undef STRAT
               t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
             endif
 #  ifdef SALINITY
@@ -122,16 +96,43 @@ C$    integer omp_get_thread_num
 #  endif
 #  if defined PASSIVE_TRACER && !defined ANA_PSOURCE
             if (.not.got_tini(itpas)) then
-c              if (h(i,j).lt.300) then
-             if (z_r(i,j,k).lt.-800 .and.
-     &           z_r(i,j,k).gt.-1200 ) then
+              if (h(i,j).lt.300) then
+!             if (z_r(i,j,k).lt.-800 .and.
+!     &           z_r(i,j,k).gt.-1200 ) then
                 t(i,j,k,1,itpas)=1
               else
                  t(i,j,k,1,itpas)=0
               endif
             endif
 #  endif
-#  ifdef BIOLOGY
+
+# else
+            if (.not.got_tini(itemp)) then
+              t(i,j,k,1,itemp)=20.
+              t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
+            endif
+#  ifdef SALINITY
+            if (.not.got_tini(isalt)) then
+              t(i,j,k,1,isalt)=35.
+              t(i,j,k,2,isalt)=t(i,j,k,1,isalt)
+            endif
+#  endif
+#  ifdef PASSIVE_TRACER
+            if (.not.got_tini(itpas)) then
+              if (h(i,j).lt.300) then
+                t(i,j,k,1,itpas)=1.
+              else
+                t(i,j,k,1,itpas)=0
+              endif
+            endif
+#  endif
+# endif /* REGIONAL */
+!
+!----------------------------------------------------------------------
+!  Initial conditions for biology tracer variables.
+!----------------------------------------------------------------------
+!
+# ifdef BIOLOGY
             if (.not.got_tini(iNO3_)) then
               temp=t(i,j,k,1,itemp)
                if (temp.lt.8.) then
@@ -149,7 +150,7 @@ c              if (h(i,j).lt.300) then
      &                               +0.0003099*SiO4**3
                t(i,j,k,2,iNO3_)=t(i,j,k,1,iNO3_)
             endif
-#   ifdef PISCES
+#  ifdef PISCES
             if (.not.got_tini(iDIC_))  then
               t(i,j,k,1,iDIC_)=2150.
               t(i,j,k,2,iDIC_)=t(i,j,k,1,iDIC_)
@@ -255,7 +256,7 @@ c              if (h(i,j).lt.300) then
               t(i,j,k,1,iNH4_)=1.e-2
               t(i,j,k,2,iNH4_)=t(i,j,k,1,iNH4_)
             endif
-#   elif defined BIO_NChlPZD
+#  elif defined BIO_NChlPZD
             if (.not.got_tini(iChla)) then
                t(i,j,k,1,iChla)=0.08
                t(i,j,k,2,iChla)=t(i,j,k,1,iChla)
@@ -272,13 +273,13 @@ c              if (h(i,j).lt.300) then
                t(i,j,k,1,iDet1)=0.02
                t(i,j,k,2,iDet1)=t(i,j,k,1,iDet1)
             endif
-#    ifdef OXYGEN
+#   ifdef OXYGEN
              if (.not.got_tini(iO2))  then
               t(i,j,k,1,iO2)=250.0
               t(i,j,k,2,iO2)=t(i,j,k,1,iO2)
             endif
-#    endif
-#   elif defined BIO_N2ChlPZD2
+#   endif
+#  elif defined BIO_N2ChlPZD2
             if (.not.got_tini(iNH4_))  then
                t(i,j,k,1,iNH4_)=0.1
                t(i,j,k,2,iNH4_)=t(i,j,k,1,iNH4_)
@@ -303,7 +304,7 @@ c              if (h(i,j).lt.300) then
                t(i,j,k,1,iDet2)=0.02
                t(i,j,k,2,iDet2)=t(i,j,k,1,iDet2)
             endif
-#   elif defined BIO_BioEBUS
+#  elif defined BIO_BioEBUS
             if (.not.got_tini(iNO2_))  then
                t(i,j,k,1,iNO2_)=0.05*exp(z_r(i,j,k)/100.) 
                t(i,j,k,2,iNO2_)=t(i,j,k,1,iNO2_)
@@ -329,7 +330,7 @@ c              if (h(i,j).lt.300) then
                t(i,j,k,2,iZoo2)=t(i,j,k,1,iZoo2)
             endif
             if (.not.got_tini(iDet1)) then
-	       t(i,j,k,1,iDet1)=0.02
+               t(i,j,k,1,iDet1)=0.02
                t(i,j,k,2,iDet1)=t(i,j,k,1,iDet1)
             endif
             if (.not.got_tini(iDet2)) then
@@ -343,8 +344,8 @@ c              if (h(i,j).lt.300) then
              if (.not.got_tini(iO2)) then
                t(i,j,k,1,iO2)=250.*exp(z_r(i,j,k)/100.) 
                t(i,j,k,2,iO2)=t(i,j,k,1,iO2)
-             endif	
-#    ifdef NITROUS_OXIDE
+             endif
+#   ifdef NITROUS_OXIDE
             if (.not.got_tini(iN2O)) then
               t(i,j,k,1,iN2O)=-(0.008*exp(z_r(i,j,k)/100.)-0.01)
               if (t(i,j,k,1,iN2O).lt.0.) then
@@ -352,10 +353,15 @@ c              if (h(i,j).lt.300) then
               endif
               t(i,j,k,2,iN2O)=t(i,j,k,1,iN2O)
             endif
-#    endif
 #   endif
-#  endif
-#  ifdef SEDIMENT
+#  endif /* PISCES */
+# endif /* BIOLOGY */
+!
+!----------------------------------------------------------------------
+!  Initial conditions for sediment tracer variables.
+!----------------------------------------------------------------------
+!
+# ifdef SEDIMENT
             if (.not.got_tini(isand)) then
               t(i,j,k,1,isand)=Csed(1)
               t(i,j,k,2,isand)=t(i,j,k,1,isand)
@@ -368,28 +374,20 @@ c              if (h(i,j).lt.300) then
           enddo
         enddo
       enddo
-# else
-      do itrc=1,NT
-        do k=1,N
-          do j=JR_RANGE
-            do i=IR_RANGE
-              t(i,j,k,1,itrc)=???
-              t(i,j,k,2,itrc)=???
-            enddo
-          enddo
+
+# ifdef SST_SKIN
+      do j=JR_RANGE
+        do i=IR_RANGE
+          sst_skin(i,j)=t(i,j,N,1,itemp)
+          dT_skin(i,j)=0.
         enddo
       enddo
 # endif
-
-# ifdef SST_SKIN
-          do j=JR_RANGE
-            do i=IR_RANGE
-              sst_skin(i,j)=t(i,j,N,1,itemp)
-              dT_skin(i,j)=0.
-            enddo
-          enddo
-# endif
-
+!
+!----------------------------------------------------------------------
+!  Exchange boundary information
+!----------------------------------------------------------------------
+!
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       do itrc=1,NT
 #  ifdef THREE_GHOST_POINTS_TS
@@ -408,9 +406,14 @@ c              if (h(i,j).lt.300) then
 #  endif
 # endif
 
+# undef IR_RANGE
+# undef JR_RANGE
+
+#else
+      subroutine ana_initracer_empty
+      return
+      end
 #endif /* SOLVE3D */
-#undef IR_RANGE
-#undef JR_RANGE
       return
       end
 
