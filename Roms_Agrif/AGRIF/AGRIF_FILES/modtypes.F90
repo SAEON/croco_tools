@@ -179,9 +179,9 @@ type Agrif_Variable_c
 !
 !> \name Arrays containing the values of the grid variables (character)
 !> @{
-    character(2800)                             :: carray0
-    character(200), dimension(:)  , allocatable :: carray1
-    character(200), dimension(:,:), allocatable :: carray2
+    character(4000)                             :: carray0
+    character(400), dimension(:)  , allocatable :: carray1
+    character(400), dimension(:,:), allocatable :: carray2
 !> @}
 !---------------------------------------------------------------------------------------------------
 end type Agrif_Variable_c
@@ -244,7 +244,7 @@ type Agrif_Variable_l
 !
 !> \name Arrays containing the values of the grid variables (logical)
 !> @{
-    logical                                      :: larray0
+    logical                                      :: larray0 = .FALSE.
     logical, dimension(:)          , allocatable :: larray1
     logical, dimension(:,:)        , allocatable :: larray2
     logical, dimension(:,:,:)      , allocatable :: larray3
@@ -268,7 +268,7 @@ type Agrif_Variable_i
 !
 !> \name Arrays containing the values of the grid variables (integer)
 !> @{
-    integer                                      :: iarray0
+    integer                                      :: iarray0 = 0
     integer, dimension(:)          , allocatable :: iarray1
     integer, dimension(:,:)        , allocatable :: iarray2
     integer, dimension(:,:,:)      , allocatable :: iarray3

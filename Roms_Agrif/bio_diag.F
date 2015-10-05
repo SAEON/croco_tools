@@ -37,7 +37,7 @@
       include 'mpif.h'
       integer size, step, status(MPI_STATUS_SIZE), ierr
       real*QUAD buff(0:2*NT+1)
-      common /xyz/ buff
+      common /xyz_bio/ buff
 #endif
 # undef  ETALON_CHECK
 # ifdef ETALON_CHECK
@@ -108,10 +108,10 @@ C$OMP CRITICAL (bio_cr_rgn)
                   do itrc=1,2*NT+1
                     buff(itrc)=global_sum(itrc)  ! This is MPI_Reduce
                   enddo
-                  call MPI_Send (buff,  6, MPI_DOUBLE_PRECISION,
+                  call MPI_Send (buff, 2*NT+1, MPI_DOUBLE_PRECISION,
      &                 mynode-step, 17, MPI_COMM_WORLD,      ierr)
                 elseif (mynode .lt. size-step) then
-                  call MPI_Recv (buff,  6, MPI_DOUBLE_PRECISION,
+                  call MPI_Recv (buff, 2*NT+1, MPI_DOUBLE_PRECISION,
      &                 mynode+step, 17, MPI_COMM_WORLD, status, ierr)
                   do itrc=1,2*NT+1
                     global_sum(itrc)=global_sum(itrc)+buff(itrc)

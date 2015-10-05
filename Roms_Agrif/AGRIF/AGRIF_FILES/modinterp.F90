@@ -228,6 +228,17 @@ subroutine Agrif_InterpnD ( type_interp, parent, child, pttab, petab, pttab_Chil
         indmax = indmaxglob
         member = .TRUE.
 #endif
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Correct for non refined directions
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        do i=1,nbdim
+          if (coords(i) == 0) then
+             indmin(i) = indminglob(i)
+             indmax(i) = indmaxglob(i)
+             pttruetab(i) = indminglob(i)
+             cetruetab(i) = indmaxglob(i)
+          endif
+        enddo
 
     else
 
