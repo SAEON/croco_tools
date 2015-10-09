@@ -31,7 +31,6 @@ echo 'Process namelist files'
 
 #--
 ln -sf ${dir_home}/VHR/AGRIF_FixedGrids.in.REGIONAL.VHR AGRIF_FixedGrids.in.REGIONAL
-ln -sf ${dir_home}/VORTEX/AGRIF_FixedGrids.in.VORTEX AGRIF_FixedGrids.in.VORTEX
 ln -sf VHR/roms.in.VHR.1 roms.in.1
 ln -sf VHR/roms.in.VHR roms.in 
 #--
