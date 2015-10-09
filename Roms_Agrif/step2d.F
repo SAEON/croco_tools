@@ -69,8 +69,8 @@ C$    trd=omp_get_thread_num()
 !
 ! AB3 Forward step:
 ! ----------------
-! ubarrhs = (3/2+beta)*ubar(n) + (1/2+2*beta)*ubar(n-1) + beta*ubar(n-2)
-! vbarrhs = (3/2+beta)*vbar(n) + (1/2+2*beta)*vbar(n-1) + beta*vbar(n-2)
+! ubarrhs = (3/2+beta)*ubar(n) - (1/2+2*beta)*ubar(n-1) + beta*ubar(n-2)
+! vbarrhs = (3/2+beta)*vbar(n) - (1/2+2*beta)*vbar(n-1) + beta*vbar(n-2)
 ! zeta(n+1) = zeta(n) + RZETA(ubarhs,vbarrhs)
 !
 ! AM4 Backward step:
