@@ -6,13 +6,13 @@
 # and Rutgers University (Arango et al) are under MIT/X style license.
 # ROMS_AGRIF specific routines (nesting) are under CeCILL-C license.
 # 
-# ROMS_AGRIF website : http://roms.mpl.ird.fr
+# ROMS_AGRIF website : http://www.croco-ocean.org
 #======================================================================
 #
 #---------------------------------------------------------------------
 # Script to Run RVTK DEBUG procedure managing parallelization type 
 # AND AGRIF nesting type (No nesting, Nesting 1-way, Nesting 2-ways) : 
-# VORTEX and REGIONAL
+# VORTEX
 #--------------------------------------------------------------------
 echo "======================================"
 echo "MPIRUN COMMAND: "$MPIRUN
@@ -35,8 +35,11 @@ echo
 LIST_EXAMPLE='VORTEX'
 LIST_KEY='TIDES AGRIF AGRIF_2WAY BULK_FLUX MPI OPENMP REGIONAL BENGUELA_LR ETALON_CHECK'
 LIST_WORDS='ETALON difference: ABNORMAL ERROR BUGBIN GRID#'
-# 2x2 1x4 4x1 1X8 and 8X1 additional tests
+# 2x2 1x4 4x1 2x4 4x2 additional tests
 ADDTEST='ON'
+# 1X8 and 8X1 additional tests / need ADDTEST='ON' to be activated
+# DO NOT ACTIVATE in default VORTEX test case : not enought grid points.
+ADDTEST_8TILING='OFF'
 #=============================================================================================
 # Type of parallelization
 #
@@ -413,67 +416,67 @@ do
 		    grep --binary-files=text $WORD openmp4X2_${EXAMPLE}_${AGRIFFLAG}.log
 		done
 		#----------------------------------------------------------------------------------
-		echo "======================"
-		echo OPEN-MP 1X8 NPP=8 TESTS
-		echo
-		/bin/rm param_bak1.h
-		sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=1,\ NSUB_E=8'/' < param_bak0.h > param_bak1.h
-		sed 's/'NPP=4'/'NPP=8'/' < param_bak1.h > param_bak2.h
-		/bin/mv param_bak2.h param_bak1.h
-		export OMP_NUM_THREADS=8
-		#
-		echo "--------------------------"
-		echo COMPILE OPENMP 1X8 $EXAMPLE
-		sed 's/'undef\ \ \*$EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
-		/bin/mv cppdefs_bak2.h cppdefs_bak1.h
-		date
-		time ./jobcomp_rvtk.bash > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
-		date
-		sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
-		/bin/mv cppdefs_bak2.h cppdefs_bak1.h
-		/bin/mv roms roms_omp1X8_${EXAMPLE}_${AGRIFFLAG}.exe
-		echo RUN OPENMP 1X8 $EXAMPLE
-		time ./roms_omp1X8_${EXAMPLE}_${AGRIFFLAG}.exe > openmp1X8_${EXAMPLE}_${AGRIFFLAG}.log
-		date
-		echo TEST OPENMP 1X8 $EXAMPLE AGRIF: $AGRIFFLAG
-		for  WORD in $LIST_WORDS 
-		do
-		    grep --binary-files=text $WORD openmp1X8_${EXAMPLE}_${AGRIFFLAG}.log
-		done		    
-		#----------------------------------------------------------------------------------
-		echo "======================"
-		echo OPEN-MP 8X1 NPP=8 TESTS
-		echo
-		/bin/rm param_bak1.h
-		sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=8,\ NSUB_E=1'/' < param_bak0.h > param_bak1.h
-		sed 's/'NPP=4'/'NPP=8'/' < param_bak1.h > param_bak2.h
-		/bin/mv param_bak2.h param_bak1.h
-		export OMP_NUM_THREADS=8
-		#
-		echo "--------------------------"
-		echo COMPILE OPENMP 8X1 $EXAMPLE
-		sed 's/'undef\ \ \*$EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
-		/bin/mv cppdefs_bak2.h cppdefs_bak1.h
-		date
-		time ./jobcomp_rvtk.bash > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
-		date
-		sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
-		/bin/mv cppdefs_bak2.h cppdefs_bak1.h
-		/bin/mv roms roms_omp8X1_${EXAMPLE}_${AGRIFFLAG}.exe
-		echo RUN OPENMP 8X1 $EXAMPLE
-		time ./roms_omp8X1_${EXAMPLE}_${AGRIFFLAG}.exe > openmp8X1_${EXAMPLE}_${AGRIFFLAG}.log
-		date
-		echo TEST OPENMP 8X1 $EXAMPLE AGRIF: $AGRIFFLAG
-		for  WORD in $LIST_WORDS 
-		do
-		    grep --binary-files=text $WORD openmp8X1_${EXAMPLE}_${AGRIFFLAG}.log
-		done
-		#----------------------------------------------------------------------------------
-	    fi   #additional tests
-	fi
-	# COMPOMP
+		if [ $ADDTEST_8TILING == 'ON' ]; then
+		    echo "======================"
+		    echo OPEN-MP 1X8 NPP=8 TESTS
+		    echo
+		    /bin/rm param_bak1.h
+		    sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=1,\ NSUB_E=8'/' < param_bak0.h > param_bak1.h
+		    sed 's/'NPP=4'/'NPP=8'/' < param_bak1.h > param_bak2.h
+		    /bin/mv param_bak2.h param_bak1.h
+		    export OMP_NUM_THREADS=8
+		    #
+		    echo "--------------------------"
+		    echo COMPILE OPENMP 1X8 $EXAMPLE
+		    sed 's/'undef\ \ \*$EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
+		    /bin/mv cppdefs_bak2.h cppdefs_bak1.h
+		    date
+		    time ./jobcomp_rvtk.bash > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
+		    date
+		    sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
+		    /bin/mv cppdefs_bak2.h cppdefs_bak1.h
+		    /bin/mv roms roms_omp1X8_${EXAMPLE}_${AGRIFFLAG}.exe
+		    echo RUN OPENMP 1X8 $EXAMPLE
+		    time ./roms_omp1X8_${EXAMPLE}_${AGRIFFLAG}.exe > openmp1X8_${EXAMPLE}_${AGRIFFLAG}.log
+		    date
+		    echo TEST OPENMP 1X8 $EXAMPLE AGRIF: $AGRIFFLAG
+		    for  WORD in $LIST_WORDS 
+		    do
+			grep --binary-files=text $WORD openmp1X8_${EXAMPLE}_${AGRIFFLAG}.log
+		    done		    
+		    #----------------------------------------------------------------------------------
+		    echo "======================"
+		    echo OPEN-MP 8X1 NPP=8 TESTS
+		    echo
+		    /bin/rm param_bak1.h
+		    sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=8,\ NSUB_E=1'/' < param_bak0.h > param_bak1.h
+		    sed 's/'NPP=4'/'NPP=8'/' < param_bak1.h > param_bak2.h
+		    /bin/mv param_bak2.h param_bak1.h
+		    export OMP_NUM_THREADS=8
+		    #
+		    echo "--------------------------"
+		    echo COMPILE OPENMP 8X1 $EXAMPLE
+		    sed 's/'undef\ \ \*$EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
+		    /bin/mv cppdefs_bak2.h cppdefs_bak1.h
+		    date
+		    time ./jobcomp_rvtk.bash > jobcomp_openmp_${EXAMPLE}_${AGRIFFLAG}.log
+		    date
+		    sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
+		    /bin/mv cppdefs_bak2.h cppdefs_bak1.h
+		    /bin/mv roms roms_omp8X1_${EXAMPLE}_${AGRIFFLAG}.exe
+		    echo RUN OPENMP 8X1 $EXAMPLE
+		    time ./roms_omp8X1_${EXAMPLE}_${AGRIFFLAG}.exe > openmp8X1_${EXAMPLE}_${AGRIFFLAG}.log
+		    date
+		    echo TEST OPENMP 8X1 $EXAMPLE AGRIF: $AGRIFFLAG
+		    for  WORD in $LIST_WORDS 
+		    do
+			grep --binary-files=text $WORD openmp8X1_${EXAMPLE}_${AGRIFFLAG}.log
+		    done
+		fi     # ADDTEST_8TILING : additional 8-tiles case (1x8 and  8x1 )
+	    fi     # ADDTEST :  additional test case   (2x2 / 1x4 / 4x1 / 2x4 /4x2)
+	fi   #COMPOMP
+	# 
 	# Undef OPENMP
-	#
 	sed 's/'define\ OPENMP'/'undef\ OPENMP'/' < cppdefs_bak1.h > cppdefs_bak2.h
 	/bin/mv cppdefs_bak2.h cppdefs_bak1.h
 
@@ -675,68 +678,67 @@ do
 		    grep --binary-files=text $WORD mpi4X2_${EXAMPLE}_${AGRIFFLAG}.log
 		done
 		#----------------------------------------------------------------
-		echo '=============='
-		echo MPI 1X8 TESTS
-		echo
-		/bin/rm param_bak1.h
-		/bin/cp param_bak0.h param_bak1.h
-		sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=1,\ NP_ETA=8'/' < param_bak0.h > param_bak1.h
-		#
-		echo '----------------'
-		echo COMPILE MPI 1X8 $EXAMPLE
-		sed 's/'undef\ \ \*$EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
-		/bin/mv cppdefs_bak2.h cppdefs_bak1.h
-		date
-		time ./jobcomp_rvtk.bash > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
-		date
-		sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
-		/bin/mv cppdefs_bak2.h cppdefs_bak1.h
-		/bin/mv roms roms_mpi1X8_${EXAMPLE}_${AGRIFFLAG}.exe
-		echo RUN MPI 1X8 $EXAMPLE
-		time $MPIRUN -np 8 ./roms_mpi1X8_${EXAMPLE}_${AGRIFFLAG}.exe > mpi1X8_${EXAMPLE}_${AGRIFFLAG}.log
-		date
-		echo TEST MPI 1X8 $EXAMPLE AGRIF: $AGRIFFLAG
-		for  WORD in $LIST_WORDS 
-		do
-		    grep --binary-files=text $WORD mpi1X8_${EXAMPLE}_${AGRIFFLAG}.log
-		done
-		#----------------------------------------------------------------
-		#----------------------------------------------------------------
-		echo '=============='
-		echo MPI 8X1 TESTS
-		echo
-		/bin/rm param_bak1.h
-		/bin/cp param_bak0.h param_bak1.h
-		sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=8,\ NP_ETA=1'/' < param_bak0.h > param_bak1.h
-		#
-		echo '----------------'
-		echo COMPILE MPI 8X1 $EXAMPLE
-		sed 's/'undef\ \ \*$EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
-		/bin/mv cppdefs_bak2.h cppdefs_bak1.h
-		date
-		time ./jobcomp_rvtk.bash > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
-		date
-		sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
-		/bin/mv cppdefs_bak2.h cppdefs_bak1.h
-		/bin/mv roms roms_mpi8X1_${EXAMPLE}_${AGRIFFLAG}.exe
-		echo RUN MPI 8X1 $EXAMPLE
-		time $MPIRUN -np 8 ./roms_mpi8X1_${EXAMPLE}_${AGRIFFLAG}.exe > mpi8X1_${EXAMPLE}_${AGRIFFLAG}.log
-		date
-		echo TEST MPI 8X1 $EXAMPLE AGRIF: $AGRIFFLAG
-		for  WORD in $LIST_WORDS 
-		do
-		    grep --binary-files=text $WORD mpi8X1_${EXAMPLE}_${AGRIFFLAG}.log
-		done
-		echo "Fin Cas Test "$EXAMPLE
-		#----------------------------------------------------------------
-	    fi          # additional test case
-	    
-	fi
-	#Compmpi
-    done           # boucle sur type d'agrif
-done  
-#boucle sur les cas tests VORTEX ou REGIONAL
-
+		if [ $ADDTEST_8TILING == 'ON' ]; then
+		    echo '=============='
+		    echo MPI 1X8 TESTS
+		    echo
+		    /bin/rm param_bak1.h
+		    /bin/cp param_bak0.h param_bak1.h
+		    sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=1,\ NP_ETA=8'/' < param_bak0.h > param_bak1.h
+		    #
+		    echo '----------------'
+		    echo COMPILE MPI 1X8 $EXAMPLE
+		    sed 's/'undef\ \ \*$EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
+		    /bin/mv cppdefs_bak2.h cppdefs_bak1.h
+		    date
+		    time ./jobcomp_rvtk.bash > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
+		    date
+		    sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
+		    /bin/mv cppdefs_bak2.h cppdefs_bak1.h
+		    /bin/mv roms roms_mpi1X8_${EXAMPLE}_${AGRIFFLAG}.exe
+		    echo RUN MPI 1X8 $EXAMPLE
+		    time $MPIRUN -np 8 ./roms_mpi1X8_${EXAMPLE}_${AGRIFFLAG}.exe > mpi1X8_${EXAMPLE}_${AGRIFFLAG}.log
+		    date
+		    echo TEST MPI 1X8 $EXAMPLE AGRIF: $AGRIFFLAG
+		    for  WORD in $LIST_WORDS 
+		    do
+			grep --binary-files=text $WORD mpi1X8_${EXAMPLE}_${AGRIFFLAG}.log
+		    done
+		    #----------------------------------------------------------------
+		    echo '=============='
+		    echo MPI 8X1 TESTS
+		    echo
+		    /bin/rm param_bak1.h
+		    /bin/cp param_bak0.h param_bak1.h
+		    sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=8,\ NP_ETA=1'/' < param_bak0.h > param_bak1.h
+		    #
+		    echo '----------------'
+		    echo COMPILE MPI 8X1 $EXAMPLE
+		    sed 's/'undef\ \ \*$EXAMPLE'/'define\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
+		    /bin/mv cppdefs_bak2.h cppdefs_bak1.h
+		    date
+		    time ./jobcomp_rvtk.bash > jobcomp_mpi_${EXAMPLE}_${AGRIFFLAG}.log
+		    date
+		    sed 's/'define\ $EXAMPLE'/'undef\ $EXAMPLE'/' < cppdefs_bak1.h > cppdefs_bak2.h
+		    /bin/mv cppdefs_bak2.h cppdefs_bak1.h
+		    /bin/mv roms roms_mpi8X1_${EXAMPLE}_${AGRIFFLAG}.exe
+		    echo RUN MPI 8X1 $EXAMPLE
+		    time $MPIRUN -np 8 ./roms_mpi8X1_${EXAMPLE}_${AGRIFFLAG}.exe > mpi8X1_${EXAMPLE}_${AGRIFFLAG}.log
+		    date
+		    echo TEST MPI 8X1 $EXAMPLE AGRIF: $AGRIFFLAG
+		    for  WORD in $LIST_WORDS 
+		    do
+			grep --binary-files=text $WORD mpi8X1_${EXAMPLE}_${AGRIFFLAG}.log
+		    done
+		fi      # ADDTEST_8TILING :additional 8-tiles case (1x8 and  8x1 )
+	    fi     # ADDTEST :  additional test case   (2x2 / 1x4 / 4x1 / 2x4 /4x2)
+	    #----------------------------------------------------------------
+	    echo "Fin Cas Test "$EXAMPLE
+	fi    #Compmpi
+	#=============================================================================================================
+    done    # boucle sur type d'agrif
+    #=============================================================================================================
+done  #boucle sur les cas tests VORTEX LIST EXAMPLE not needed in fact ...
 #----------------------------------------------------------------
 #----------------------------------------------------------------
 # Cleaning
