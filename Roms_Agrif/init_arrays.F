@@ -245,6 +245,7 @@ C$    integer omp_get_thread_num
         enddo
       enddo
       do itrc=1,NT
+        got_tini(itrc)=.false.
         do k=1,N
           do j=JstrR,JendR
             do i=IstrR,IendR
@@ -348,19 +349,17 @@ C$    integer omp_get_thread_num
 #  endif
 # endif /*DIAGNOSTICS_BIO*/
 
-!---------------------------------------------------------------------------      
-# if defined BIO_BioEBUS
-
+# ifdef BIO_BioEBUS
           do j=JstrR,JendR
             do i=IstrR,IendR
-               wind10(i,j) =init	       
+               wind10(i,j) =init
 #   ifdef AVERAGES
-               wind10_avg(i,j) =init	       
+               wind10_avg(i,j) =init
 #   endif     	    
             enddo
           enddo
 
-        do k=1,N	  
+        do k=1,N  
           do j=JstrR,JendR
             do i=IstrR,IendR
                AOU(i,j,k) =init
@@ -369,10 +368,8 @@ C$    integer omp_get_thread_num
 #   endif 
             enddo
           enddo
-        enddo	  
- 		  
+        enddo
 # endif 
-!----------------------------------------------------------------------------
 
 # ifdef SEDIMENT
 !

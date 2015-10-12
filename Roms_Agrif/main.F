@@ -10,15 +10,25 @@
 !======================================================================
 !
 #include "cppdefs.h"
+!
       program main
+!
+!======================================================================
+!                                                                      
+!                     OCEAN MODEL MAIN DRIVER
+!
+!    Advances forward the equations for all nested grids, if any.             
+!                                                                     
+!======================================================================
+!
 #ifdef OA_MCT
-          USE mod_prism     ! OASIS3 prism module
+          USE mod_prism     ! OASIS3 module
 #endif
 #ifdef XIOS
           USE xios          ! XIOS module
 #endif
 #ifdef NBQ
-          USE module_nh
+          USE module_nh     ! NBQ modules
           USE module_nbq
 #endif
 !     implicit none
@@ -69,44 +79,62 @@
       NSUB_X = 1
       NSUB_E = NPP
 #endif
-
+!
 #include "dynderivparam.h"
-
+!
+!----------------------------------------------------------------------
+!  Initialize communicators and subgrids decomposition:
+!  MPI parallelization, XIOS server, OASIS coupling, AGRIF nesting, 
+!----------------------------------------------------------------------
+!
 #ifdef MPI
 # if (!defined AGRIF && !defined OA_COUPLING)
       call MPI_Init (ierr)
 # endif   
 !
 !  XIOS, OASIS and AGRIF: split MPI communicator
-!  XIOS with OASIS not done yet
+!  (XIOS with OASIS is not done yet)
+!
 # if (defined XIOS && !defined AGRIF)
       call xios_initialize( "roms",return_comm=MPI_COMM_WORLD )
 # elif (defined OA_COUPLING && !defined AGRIF)
-      call cpl_prism_init  ! In AGRIF case, cpl_prism_init is in zoom.F
+      call cpl_prism_init  ! If AGRIF --> call cpl_prism_init in zoom.F
 # elif defined AGRIF
       call Agrif_MPI_Init(MPI_COMM_WORLD)
 # endif
 #endif /* MPI */
-
+!
+!  Initialize AGRIF nesting
+!
 #ifdef AGRIF
       call Agrif_Init_Grids()
       call declare_zoom_variables()
 #endif
-   
+!
+!  Initialize automatic tiling
+!
 #ifdef AUTOTILING
       call init_auto_tiling
 #endif
-
+!
+!  Initialize debug procedure
+!
 #if defined RVTK_DEBUG || defined RVTK_DEBUG_ADVANCED
        call debug_ini
 #endif
-
+!
+!  Setup MPI domain decomposition
+!
 #ifdef MPI
 !     start_time1=PMPI_Wtime()
       call MPI_Setup (ierr)
       if (ierr.ne.0) goto 100        !--> ERROR
 #endif
-
+!
+!----------------------------------------------------------------------
+!  Set allocations for non-boussinesq (NBQ) equation arrays
+!----------------------------------------------------------------------
+!
 #ifdef NBQ
       call alloc_module_nh() 
 # ifndef MPI
@@ -114,149 +142,202 @@
 # endif
       call alloc_module_nbq(MPI_STATUS_SIZE)
 #endif
-
-
+!
 #define CR  !
-
-      call read_inp (ierr)           ! Read in tunable model
-      if (ierr.ne.0) goto 100        ! parameters.
-      call init_scalars (ierr)       ! Also initialize global
-      if (ierr.ne.0) goto 100        ! scalar variables.
-
+!
+!----------------------------------------------------------------------
+!  Read in tunable model parameters in roms.in file
+!----------------------------------------------------------------------
+!
+      call read_inp (ierr)
+      if (ierr.ne.0) goto 100
+!
+!----------------------------------------------------------------------
+!  Initialize global model parameters
+!----------------------------------------------------------------------
+!
+!  Gobal scalar variables
+!
+      call init_scalars (ierr)
+      if (ierr.ne.0) goto 100
+!
+!  Generic Length Scale (GLS) model parameters
+!
 #ifdef SOLVE3D
 # ifdef GLS_MIXING
-      call init_gls (ierr)           ! GLS model parameters,
+      call init_gls (ierr)
 # endif
-
+!
+!  PISCES biogeochemeical model parameters
+!
 # ifdef PISCES
-      call trclsm                    ! PISCES model parameters
+      call trclsm
       call get_dust
 # endif
-
+!
+!  Read sediment initial values and parameters from sediment.in file
+!
 # ifdef SEDIMENT
 #  ifdef AGRIF
       if (Agrif_lev_sedim.EQ.0) call init_sediment
 #  else
-      call init_sediment             ! Read sediment initial values and
-                                     ! parameters from sediment.in file
+      call init_sediment
 #  endif
 # endif
 #endif
- 
+!
+!----------------------------------------------------------------------
+!  Create parallel threads; start timers for each thread;
+!  initialize (FIRST-TOUCH) model global arrays (most of them
+!  are just set to to zero).
+!----------------------------------------------------------------------
+!
 C$OMP PARALLEL DO PRIVATE(tile)
-      do tile=0,NSUB_X*NSUB_E-1      ! Create parallel threads;
-        call start_timers()          ! start timers for each thread;
-        call init_arrays (tile)      ! initialize (FIRST-TOUCH) model 
-      enddo                          ! global arrays (most of them 
-CR      write(*,*) '-11' MYID        ! are just set to to zero).
-
+      do tile=0,NSUB_X*NSUB_E-1
+        call start_timers()
+        call init_arrays (tile) 
+      enddo 
+CR      write(*,*) '-11' MYID
+!
+!----------------------------------------------------------------------
+!  Set horizontal grid, model bathymetry and Land/Sea mask
+!----------------------------------------------------------------------
+!
 #ifdef ANA_GRID
-C$OMP PARALLEL DO PRIVATE(tile)      ! Set horizontal curvilinear 
-      do tile=0,NSUB_X*NSUB_E-1      ! grid and model bathymetry 
-        call ana_grid (tile)         ! (analyticaly or read from 
-      enddo                          ! GRID NetCDF file).
-                                     ! Also read Land/Sea mask
-                                     ! from GRID NetCDF file).
+!
+!  Set grid analytically
+!
+C$OMP PARALLEL DO PRIVATE(tile) 
+      do tile=0,NSUB_X*NSUB_E-1
+        call ana_grid (tile) 
+      enddo
 # if defined RVTK_DEBUG || defined RVTK_DEBUG_ADVANCED
 C$OMP BARRIER
 C$OMP MASTER
        call check_tab2d(h(:,:),'h initialisation #1','r')
 C$OMP END MASTER
-
 # endif
-
 #else
+!
+!  Read grid from GRID NetCDF file 
+!
       call get_grid
       if (may_day_flag.ne.0) goto 99 !-->  EXIT
 #endif
-
+!
+!  Compute various metric term combinations.
+!
 C$OMP PARALLEL DO PRIVATE(tile)
-      do tile=0,NSUB_X*NSUB_E-1      ! Compute various metric
-        call setup_grid1 (tile)      ! term combinations.
+      do tile=0,NSUB_X*NSUB_E-1      
+        call setup_grid1 (tile)
       enddo
 CR      write(*,*) '-10' MYID
+!
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
         call setup_grid2 (tile)
       enddo
 CR      write(*,*) ' -9' MYID
-
+!
+!----------------------------------------------------------------------
+!  Setup vertical grid variables setup vertical S-coordinates 
+!  and fast-time averaging for coupling of 
+!  split-explicit baroropic mode.
+!----------------------------------------------------------------------
+!
 #ifdef SOLVE3D
-                                     ! Set up vertical S-coordinate
-      call set_scoord                ! and fast-time averaging  
-      call set_weights               ! weights for coupling of 
-                                     ! split-explicit baroropic mode.
-#endif
+!
+!  Set vertical S-coordinate functions
+!
+      call set_scoord
+!
+!  Set fast-time averaging for coupling of split-explicit baroropic mode.
+!
+      call set_weights 
 CR      write(*,*) ' -8' MYID 
-#ifdef SOLVE3D
-#if defined VIS_GRID || defined DIF_GRID 
-C$OMP PARALLEL DO PRIVATE(tile)
-      do tile=0,NSUB_X*NSUB_E-1      ! Rescale horizontal mixing
-!        call hmix_coef (tile)        ! coefficients according to
-      enddo                          ! local grid size.
-#endif
-C$OMP PARALLEL DO PRIVATE(tile)      ! Create three-dimensional
-      do tile=0,NSUB_X*NSUB_E-1      ! S-coordinate system, which
-        call set_depth (tile)        ! may be needed by ana_initial
-      enddo                          ! (here it is assumed that free
-CR      write(*,*) ' -7' MYID        ! surface zeta=0).
+!
+!  Create three-dimensional S-coordinate system,
+!  which may be needed by ana_initial 
+!  (here it is assumed that free surface zeta=0).
+!
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
-        call grid_stiffness (tile)   ! Grid diagnostics only
+        call set_depth (tile)
+      enddo
+CR      write(*,*) ' -7' MYID
+!
+!  Make grid diagnostics
+!
+C$OMP PARALLEL DO PRIVATE(tile)
+      do tile=0,NSUB_X*NSUB_E-1
+        call grid_stiffness (tile)
       enddo
 #endif
-
-#ifdef ANA_INITIAL
-      if (nrrec.eq.0) then
-C$OMP PARALLEL DO PRIVATE(tile)      ! Set initial conditions
-        do tile=0,NSUB_X*NSUB_E-1    ! for primitive variables
-          call ana_initial (tile)    ! (analytically or read
-        enddo                        ! from initial conditions
-      else                           ! NetCDF file).
-# ifdef JET
-C$OMP PARALLEL DO PRIVATE(tile)      ! for JET test case
-        do tile=0,NSUB_X*NSUB_E-1    ! set climatology fields
-          call ana_initial (tile)    ! in ana_initial
-        enddo                        !
-# endif
-#endif
+!
+!----------------------------------------------------------------------
+!  Set initial conditions for momentum and tracer variables
+!----------------------------------------------------------------------
+!
+!  Read from NetCDF file
+!
+#ifndef ANA_INITIAL
+      call get_initial               ! Set initial conditions
+#else
+      if (nrrec.ne.0) then           ! read from NetCDF file
         call get_initial
-# ifdef RIP_TOPO_2D
-C$OMP PARALLEL DO PRIVATE(tile)      ! for RIP test case
-        do tile=0,NSUB_X*NSUB_E-1    ! set perturbation
-          call ana_initial (tile)    ! in initial fields
-        enddo                        !
-# endif
-C$OMP PARALLEL DO PRIVATE(tile)      ! Set analytical initial 
-        do tile=0,NSUB_X*NSUB_E-1    ! conditions for tracers
-          call ana_initracer (tile)  ! if not found in initial
-        enddo                        ! conditions NetCDF file). 
-#ifdef ANA_INITIAL
       endif
 #endif
+!
+!  Set initial conditions analytically for ideal cases
+!  or for tracer variables not present in NetCDF file
+!
+C$OMP PARALLEL DO PRIVATE(tile)
+      do tile=0,NSUB_X*NSUB_E-1
+        call ana_initial (tile)
+      enddo
+!
+!----------------------------------------------------------------------
+!  Initialize specific PISCES variables
+!----------------------------------------------------------------------
+!
 #if defined BIOLOGY && defined PISCES
-C$OMP PARALLEL DO PRIVATE(tile)      ! Set analytical initial
-        do tile=0,NSUB_X*NSUB_E-1    ! conditions for tracers
-          call  pisces_ini (tile)  ! if not found in initial
-        enddo                        ! conditions NetCDF file).
+C$OMP PARALLEL DO PRIVATE(tile)
+      do tile=0,NSUB_X*NSUB_E-1
+        call  pisces_ini (tile)
+      enddo
 #endif
 CR      write(*,*) ' -6' MYID 
       if (may_day_flag.ne.0) goto 99 !-->  EXIT
-
+!
+!----------------------------------------------------------------------
+!  Finalize grid setup
+!----------------------------------------------------------------------
+!
+!  Finalize vertical grid now that zeta is knowned
+!  zeta is also corrected here fr Wetting/Drying
+!  in both 2D and 3D cases
+!
 #if defined  SOLVE3D || defined WET_DRY
-C$OMP PARALLEL DO PRIVATE(tile)      ! Create three-dimensional
-      do tile=0,NSUB_X*NSUB_E-1      ! S-coordinate system: at this
-        call set_depth (tile)        ! time free surface is set to
-      enddo                          ! a non-zero field, either 
-CR      write(*,*)  ' -5' MYID       ! analytically or from restart.
+C$OMP PARALLEL DO PRIVATE(tile)
+      do tile=0,NSUB_X*NSUB_E-1
+        call set_depth (tile)
+      enddo
+CR      write(*,*)  ' -5' MYID
 #endif
+!
+!----------------------------------------------------------------------
+!  Set initial Non-boussinesq variables
+!----------------------------------------------------------------------
+!
 #ifdef NBQ
       call initial_nh(1)
       call z_thickness_nh(0)
-!CXA      call nump_nh
-!CXA      call mat_mom_init_nh
-!CXA      call mat_cont_init_nh
 # endif
+!
+!----------------------------------------------------------------------
+!  Initialize diagnostic fields: mass flux, rho, omega
+!----------------------------------------------------------------------
+!
 #ifdef SOLVE3D
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
@@ -272,34 +353,47 @@ C$OMP PARALLEL DO PRIVATE(tile)
         call rho_eos (tile)
       enddo
 CR      write(*,*)  ' -3' MYID
-# ifdef MRL_WCI
+#endif
+!
+!----------------------------------------------------------------------
+!  Initialize surface wave variables
+!----------------------------------------------------------------------
+!
+#ifdef MRL_WCI
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
         call mrl_wci (tile)
       enddo
 CR      write(*,*)  ' -2' MYID
-# endif
 #endif
 !
-! Create climatological environment:
-!-------------------------------------------------------
-! Set nudging coefficient for sea surface hight and tracer
-!                 climatology;
-! Set bottom sediment grain size [m] and density [kg/m^3]
-!                 used in bottom boundary layer formulation;
-! Set initial analytical tracer climatology fields;
-! Set initial sea surface height climatology;
+!======================================================================
+!     Create environment for surface, bottom and lateral forcing
+!======================================================================
 !
 #if defined TNUDGING || defined ZNUDGING || defined SPONGE \
   || (defined BBL && defined ANA_BSEDIM)\
   || (defined SEDIMENT && defined ANA_SEDIMENT)\
   || (defined TCLIMATOLOGY)\
   || (defined ZCLIMATOLOGY && defined ANA_SSH)
+
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
+!
+!----------------------------------------------------------------------
+!  Set nudging coefficients 
+!  for sea surface height, momentum and tracers
+!----------------------------------------------------------------------
+!
 # if defined TNUDGING || defined ZNUDGING || defined SPONGE
         call set_nudgcof (tile)
 # endif
+!
+!----------------------------------------------------------------------
+!  Set analytical bottom sediment grain size [m] and density [kg/m^3]
+!  used in bottom boundary layer formulation;
+!----------------------------------------------------------------------
+!
 # if defined BBL && defined ANA_BSEDIM
 #  ifdef AGRIF
         if (Agrif_lev_sedim.EQ.0) call ana_bsedim (tile)
@@ -314,7 +408,14 @@ C$OMP PARALLEL DO PRIVATE(tile)
         call ana_sediment (tile)
 #  endif
 # endif
-# if defined TCLIMATOLOGY
+!
+!----------------------------------------------------------------------
+!  Set analytical initial climatology fields
+!  (or any external oceanic forcing data)
+!  for sea surface height, momentum and tracers
+!----------------------------------------------------------------------
+!
+# ifdef TCLIMATOLOGY
         call ana_tclima (tile)
 # endif
 # if defined M2CLIMATOLOGY && defined ANA_M2CLIMA ||\
@@ -324,16 +425,14 @@ C$OMP PARALLEL DO PRIVATE(tile)
 # if defined ZCLIMATOLOGY && defined ANA_SSH
         call ana_ssh (tile)
 # endif
-      enddo
-#endif
+      enddo  !<-- tile
+#endif /* NUDGING ... */
 CR      write(*,*) ' -2' MYID 
 !
-!  Read tracer climatology fields from input NetCDF file;
-!  Read sea surface height climatology from input NetCDF file;
-!       [recall that the CPP-logic here is mutually exclussive
-!       for the calls to ana_bsedim_tile -- get_bsedim;
-!       ana_tclima_tile -- get_tclima; ana_ssh_tile -- get_ssh]
-!  Read initial data from input forcing NetCDF files.
+!----------------------------------------------------------------------
+!  Read bottom sediment grain size [m] and density [kg/m^3]
+!  from NetCDF file
+!----------------------------------------------------------------------
 !
 #if defined BBL && !defined ANA_BSEDIM && !defined SEDIMENT
 # ifdef AGRIF
@@ -342,15 +441,21 @@ CR      write(*,*) ' -2' MYID
       call get_bsedim
 #  endif
 #endif
-C#if defined SEDIMENT && !defined ANA_SEDIMENT
-C# ifdef AGRIF
-C      if (Agrif_lev_sedim.EQ.0) call get_sediment
-C#  else
-C      call get_sediment
-C#  endif
-C#endif
-C#endif
-
+!
+#if defined SEDIMENT && !defined ANA_SEDIMENT
+# ifdef AGRIF
+      if (Agrif_lev_sedim.EQ.0) call get_sediment
+# else
+      call get_sediment
+# endif
+#endif
+!
+!----------------------------------------------------------------------
+!  Read initial climatology fields from NetCDF file
+!  (or any external oceanic forcing data)
+!  in 3D interior or 2D boundary arrays
+!----------------------------------------------------------------------
+!
 #if defined SOLVE3D && defined TCLIMATOLOGY && !defined ANA_TCLIMA
       call get_tclima
 #endif
@@ -370,36 +475,47 @@ C#endif
 #if !defined ANA_BRY_WKB && defined WKB_WWAVE
       call get_bry_wkb
 # endif
-
+!
+!----------------------------------------------------------------------
+!  Read surface forcing from NetCDF file
+!----------------------------------------------------------------------
+!
       call get_vbc
+!
+!----------------------------------------------------------------------
+!  Read tidal harmonics from NetCDF file
+!----------------------------------------------------------------------
+!
 #if defined SSH_TIDES || defined UV_TIDES
       call get_tides
 #endif
 CR      write(*,*) ' -1' MYID 
-
+!
+!====== End environment for surface, bottom and lateral forcing =======
+!
+!----------------------------------------------------------------------
+!  Initialize XIOS I/O server
+!----------------------------------------------------------------------
+!
 #ifdef XIOS
       do tile=0,NSUB_X*NSUB_E-1
         call init_xios(tile)
       enddo
 #endif
-
+!
       if (may_day_flag.ne.0) goto 99 !-->  EXIT
-
-!#if defined DIAGNOSTICS_TS
-!      if (ldefdia .and. wrtdia) call wrt_diags
-!#endif
-!#if defined DIAGNOSTICS_UV
-!      if (ldefdiaM .and. wrtdiaM) call wrt_diagsM
-!#endif
-
+!
+!----------------------------------------------------------------------
+!  Initialization for Lagrangian floats
+! 
+!  It is done here and not in init_scalars since it must be done only
+!  once (whether child levels exist or not)
+!----------------------------------------------------------------------
+!
 #ifdef FLOATS
-! Initialization for Lagrangian floats
-!-------------------------------------------------------
-      nrecflt=0        ! initialization done here and not in 
-      ncidflt=-1       ! init_scalars since it must be done only 
-                       ! once (whether child levels exist or not)
+      nrecflt=0 
+      ncidflt=-1 
       flopspval=1.E15  ! spval is the nodata flag for float variables
-
       deltac2p=2.3     ! distance from the boundary at which a float
                        ! is transferred from child to parent
       deltap2c=2.5     ! same for transfer from parent to child
@@ -419,18 +535,20 @@ CR      write(*,*) ' -1' MYID
 # endif
       if (ldefflt) call wrt_floats
 #endif /* FLOATS */
-
+!
+!----------------------------------------------------------------------
+!  Initialization for stations
+!
+!  It is done here and not in init_scalars since it must be done only
+!  once (whether child levels exist or not)
+!----------------------------------------------------------------------
+!
 #ifdef STATIONS
-! Initialization for stations
-!-------------------------------------------------------
-      nrecsta=0       ! initialization done here and not in
-      ncidsta=-1      ! init_scalars since it must be done only
-                      ! once (whether child levels exist or not)
+      nrecsta=0
+      ncidsta=-1
       staspval=1.E15  ! nodata flag for float variables.
-
       stadeltap2c=2.5 ! distance from the boundary at which a
                       ! float is transfered from parent to child
-
       call init_arrays_sta
       call init_sta
 # ifdef SPHERICAL
@@ -446,7 +564,13 @@ CR      write(*,*) ' -1' MYID
 # endif
       if (ldefsta) call wrt_sta
 #endif /* STATIONS */
-
+!
+!----------------------------------------------------------------------
+!  WKB surface wave model:
+!
+!  initialization and spinup to equilibrium 
+!----------------------------------------------------------------------
+!
 #ifdef WKB_WWAVE
 C$OMP BARRIER
 C$OMP MASTER
@@ -460,13 +584,13 @@ C$OMP END MASTER
 # ifndef ANA_BRY_WKB
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
-        call set_bry_wkb (tile)
+        call set_bry_wkb (tile)   ! set boundary forcing
       enddo
 # endif
 # ifdef MRL_CEW
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
-        call wkb_cew_prep (tile)
+        call wkb_cew_prep (tile)  ! prepare coupling mode
       enddo
 C$OMP BARRIER
       wint=0
@@ -484,7 +608,10 @@ C$OMP PARALLEL DO PRIVATE(tile)
         call wkb_cew_finalize (tile)
       enddo
 C$OMP BARRIER
-# endif
+# endif /* MRL_CEW */
+!
+!  Spinup: intergrate wave model to equilibrium
+!
       do while (iwave.le.50000.and.thwave.ge.1.D-10)
         wstp=wnew
         wnew=wstp+1
@@ -503,6 +630,9 @@ C$OMP MASTER
       call check_tab2d(wac(:,:,wnew),'wac initialisation #1','r')
 C$OMP END MASTER
 # endif
+!
+!  Re-initialize wave forcing terms
+!
       first_time=0
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
@@ -513,8 +643,12 @@ C$OMP MASTER
         MPI_master_only write(stdout,'(/1x,A/)')
      &     'WKB: completed steady wave computation.'
 C$OMP END MASTER
-#endif
-
+#endif /* WKB_WWAVE */
+!
+!----------------------------------------------------------------------
+!  Write initial fields into history NetCDF files
+!----------------------------------------------------------------------
+!
 #ifdef XIOS
       if (nrrec.eq.0) then
         do tile=0,NSUB_X*NSUB_E-1
@@ -529,13 +663,18 @@ CR      write(*,*) '  0' MYID
       if (may_day_flag.ne.0) goto 99     !-->  EXIT
 !
 !
-!          *****   ********   *****   ******  ********
-!         **   **  *  **  *  *   **   **   ** *  **  *
-!         **          **    **   **   **   **    **
-!          *****      **    **   **   **   *     **
-!              **     **    *******   *****      **
-!         **   **     **    **   **   **  **     **
-!          *****      **    **   **   **   **    **
+!**********************************************************************
+!                                                                     *
+!             *****   ********   *****   ******  ********             *
+!            **   **  *  **  *  *   **   **   ** *  **  *             *
+!            **          **    **   **   **   **    **                *
+!             *****      **    **   **   **   *     **                *
+!                 **     **    *******   *****      **                *
+!            **   **     **    **   **   **  **     **                *
+!             *****      **    **   **   **   **    **                *
+!                                                                     *
+!**********************************************************************
+!
 !
 #undef CR
       MPI_master_only write(stdout,'(/1x,A27/)') 
@@ -585,16 +724,16 @@ CR      write(*,*) '  0' MYID
         enddo
 #endif
         if (may_day_flag.ne.0) goto 99     !-->  EXIT
-      enddo                          !--> end of time step
+      enddo                                !-->  end of time step
 
-  99  continue                       ! SHUTDOWN:
-C$OMP PARALLEL DO PRIVATE(tile)      ! Stop timers and 
-      do tile=0,NSUB_X*NSUB_E-1      ! close netCDF files.
+  99  continue                             ! SHUTDOWN:
+C$OMP PARALLEL DO PRIVATE(tile)            ! Stop timers and 
+      do tile=0,NSUB_X*NSUB_E-1            ! close netCDF files.
         call stop_timers()
       enddo
       call closecdf
 # ifdef XIOS
-      call iom_context_finalize( "roms") ! needed for XIOS+AGRIF 
+      call iom_context_finalize( "roms")   ! needed for XIOS+AGRIF 
 # endif
 #ifdef AGRIF
 !
@@ -614,18 +753,17 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Stop timers and
  100  continue
 
 #ifdef MPI
-      call MPI_Barrier(MPI_COMM_WORLD, ierr)   ! XIOS
+      call MPI_Barrier(MPI_COMM_WORLD, ierr)  ! XIOS
 
 !     start_time2=PMPI_Wtime()
 !     exe_time = start_time2 - start_time1
 !     if(mynode.eq.0) print*,'exe_time =',exe_time
 
 # ifdef OA_COUPLING
-      ! Finalize phase of OASIS3
-      call prism_terminate_proto(ierr)
+      call prism_terminate_proto(ierr)       ! Finalize OASIS3
 # elif defined XIOS
-      ! MPI finalize done by XIOS, XIOS+OASIS not coded
-      call xios_finalize()      ! end mpp communications with xios
+                             ! MPI finalize done by XIOS, XIOS+OASIS not coded
+      call xios_finalize()   ! end mpp communications with xios
 #  if !defined AGRIF      
       call MPI_Finalize (ierr)
 #  endif 
