@@ -66,13 +66,13 @@ echo
 #
 # Get updated files
 #
-/bin/cp ${SOURCE}/set_global_definitions.h set_global_definitions_bak1.h 
+/bin/cp ${SOURCE}/cppdefs_dev.h cppdefs_dev_bak1.h 
 /bin/cp ${SOURCE}/cppdefs.h cppdefs_bak1.h
 /bin/cp ${SOURCE}/param.h param_bak0.h
 #
 # Replace with local files if any ### PAT
 #
-/bin/cp set_global_definitions.h set_global_definitions_bak1.h 
+/bin/cp cppdefs_dev.h cppdefs_dev_bak1.h 
 /bin/cp cppdefs.h cppdefs_bak1.h
 /bin/cp param.h param_bak0.h
 #
@@ -107,10 +107,10 @@ done
 #
 echo " "
 echo "============================================"
-echo "TEST RVTK_DEBUG [set_global_definitions.h]  "
+echo "TEST RVTK_DEBUG [cppdefs_dev.h]  "
 echo "============================================"
-sed 's/'undef\ \ \*RVTK_DEBUG'/'define\ RVTK_DEBUG'/' < set_global_definitions_bak1.h > set_global_definitions_bak2.h
-/bin/mv set_global_definitions_bak2.h set_global_definitions_bak1.h
+sed 's/'undef\ \ \*RVTK_DEBUG'/'define\ RVTK_DEBUG'/' < cppdefs_dev_bak1.h > cppdefs_dev_bak2.h
+/bin/mv cppdefs_dev_bak2.h cppdefs_dev_bak1.h
 #
 #=============================================================================================
 echo " "
