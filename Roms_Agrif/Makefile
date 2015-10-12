@@ -10,45 +10,35 @@
 #======================================================================
 #
 # Universal machine independent makefile for ROMS model 
-#====================================================================
+#
+#======================================================================
 # Set machine dependent definitions and rules.
+#======================================================================
 
 include Makedefs
 
-# Configuration for SCRUM/ROMS model:
-#====================================================================
-# All source codes files are sorted into eight groups, separated by
+#======================================================================
+# Model Configuration:
+#======================================================================
+# SRCS: source codes files are sorted into groups, separated by
 # blanc lines:
-#   1) main driving part;	 2) 2D time stepping engine;
-#   3) 3D time stepping engine;	 4) sea-water EOS routines;
-#   5) vertical mixing schemes;	 6) on-fly model diagnostic routines;
-#   7) netCDF I/O routines;	 8) model forcing routines;
-#   9) MPI routines;		10) Modules routines;
-#  11) Floats routines;		12) Stations routines;
-#  13) AGRIF routines;          14) PISCES routines
-#--------------------------------------------------------------------
-
- SRCS90 = \
-	module_nh.F90		module_nbq.F90		module_qsort.F90\
-        module_parallel_nbq.F90 module_tracetxt_out.F90	module_param.F90\
-	nump_nh.F90		mat_cont_init_nh.F90	mat_cont_nh.F90\
-	mat_mom_init_nh.F90	mat_mom_nh.F90		initial_nh.F90\
-	z_thickness_nh.F90 	ru_nbq.F90		viscous_nbq.F90\
-	step3d_nbq.F90		density_nbq.F90		spkitlocal_nh.F90\
-	MPI_setup_nbq.F90	parallele_nbq.F90	output_nbq.F90
+#   1) main driving part;	   2) 2D time stepping engine;
+#   3) 3D time stepping engine;	   4) sea-water EOS routines;
+#   5) vertical mixing schemes;    6) on-fly model diagnostic routines;
+#   7) netCDF I/O routines;	   8) main forcing routines;
+#   9) Wave forcing routines;	  10) Online surface forcing routines;
+#  11) Floats routines;		  12) Stations routines;
+#  13) biology/sediment routines; 14) PISCES routines
+#  15) MPI routines;		  16) AGRIF routines;           
+#  17) non-hydrostatic engine     18) OASIS coupling interface;
+#
+# SRC90: additional F90 routines for the non-hydrostatic engine
+#======================================================================
 
  SRCS = main.F		step.F		read_inp.F\
 	timers_roms.F	init_scalars.F	init_arrays.F	set_weights.F\
 	set_scoord.F	ana_grid.F	setup_grid1.F	setup_grid2.F\
 	set_nudgcof.F	ana_initial.F	analytical.F	zonavg.F\
-	setup_kwds.F    check_kwds.F	check_srcs.F\
-        check_switches1.F		check_switches2.F\
-\
-	step3d_w.F	rhs3d_w_nh.F	w3dbc.F\
-        unbq_bc.F	vnbq_bc.F	wnbq_bc.F	rnbq_bc.F\
-\
-        cpl_prism_define.F	cpl_prism_put.F 	cpl_prism_init.F\
-        cpl_prism_get.F 	cpl_prism_getvar.F 	cpl_prism_getlistvals.F\
 \
 	step2d.F	u2dbc.F		v2dbc.F		zetabc.F\
 	obc_volcons.F\
@@ -66,38 +56,34 @@ include Makedefs
 	gls_prestep.F\
 \
 	diag.F		wvlcty.F	checkdims.F	grid_stiffness.F\
-	bio_diag.F\
+	bio_diag.F	setup_kwds.F    check_kwds.F	check_srcs.F\
+	check_switches1.F		check_switches2.F\
+	debug.F\
 \
-	get_date.F	lenstr.F	closecdf.F	ana_initracer.F\
-	insert_node.F	nf_fread.F	get_grid.F	get_initial.F\
+	output.F	put_global_atts.F\
+	nf_fread.F	nf_fread_x.F	nf_fread_y.F	nf_read_bry.F\
+	get_date.F	lenstr.F	closecdf.F	insert_node.F\
+	fillvalue.F	nf_add_attribute.F		set_cycle.F\
 	def_grid_2d.F   def_grid_3d.F   def_his.F       def_rst.F\
-        set_avg.F       wrt_grid.F      wrt_his.F       wrt_rst.F\
-        wrt_avg.F       output.F        put_global_atts.F\
-	nf_fread_x.F 	nf_fread_y.F\
-	def_diags.F			wrt_diags.F\
-        wrt_diags_avg.F 		set_diags_avg.F\
-        def_diagsM.F			wrt_diagsM.F\
-        wrt_diagsM_avg.F 		set_diagsM_avg.F\
-        def_bio_diags.F			wrt_bio_diags.F\
-	wrt_bio_diags_avg.F 		set_bio_diags_avg.F\
+	def_diags.F	def_diagsM.F	def_bio_diags.F\
+	wrt_grid.F      wrt_his.F       wrt_avg.F	wrt_rst.F\
+	wrt_diags.F	wrt_diags_avg.F	wrt_diagsM.F	wrt_diagsM_avg.F\
+	wrt_bio_diags.F	wrt_bio_diags_avg.F\
+	set_avg.F	set_diags_avg.F	set_diagsM_avg.F\
+	set_bio_diags_avg.F\
 \
-        get_vbc.F       set_cycle.F     get_wwave.F\
-        get_tclima.F    get_uclima.F    get_ssh.F       get_sss.F\
-        get_smflux.F    get_stflux.F    get_srflux.F    get_sst.F\
-        get_tides.F     clm_tides.F     get_bulk.F      bulk_flux.F\
-        get_bry.F       get_bry_bio.F	nf_read_bry.F	sstskin.F\
-        get_psource.F   fillvalue.F	nf_add_attribute.F\
-	get_psource_ts.F\
+	get_grid.F	get_initial.F	get_vbc.F	get_wwave.F\
+	get_tclima.F    get_uclima.F    get_ssh.F       get_sss.F\
+	get_smflux.F    get_stflux.F    get_srflux.F    get_sst.F\
+	get_tides.F     clm_tides.F     get_bulk.F      bulk_flux.F\
+	get_bry.F       get_bry_bio.F	sstskin.F\
+	get_psource.F   get_psource_ts.F\
 \
 	mrl_wci.F  	wkb_wwave.F 	wkbbc.F		get_bry_wkb.F\
 \
-        online_bulk_var.F		online_get_bulk.F\
+	online_bulk_var.F		online_get_bulk.F\
 	online_interp.F			online_interpolate_bulk.F\
 	online_set_bulk.F\
-\
-	MPI_Setup.F	MessPass2D.F	MessPass3D.F	exchange.F\
-\
-	biology.F	o2sato.F	sediment.F	bbl.F\
 \
 	init_floats.F	wrt_floats.F	step_floats.F	rhs_floats.F\
 	interp_rho.F	def_floats.F	init_arrays_floats.F\
@@ -106,29 +92,45 @@ include Makedefs
 	init_sta.F	wrt_sta.F	step_sta.F	interp_sta.F\
 	def_sta.F	init_arrays_sta.F\
 \
-        zoom.F		update2D.F	set_nudgcof_fine.F\
-	zoombc_2D.F	zoombc_3D.F	uv3dpremix.F\
-        t3dpremix.F     update3D.F\
+	biology.F	o2sato.F	sediment.F	bbl.F\
 \
 	ropigrid.F	ropistep.F	pirostep.F\
 	trcini.F	trclsm.F	pisces_ini.F\
 	p4zday.F	p4znano.F	p4zlys.F\
-        p4zdiat.F       p4zopt.F        p4zsink.F\
-        p4zflx.F        p4zprg.F        p4zslow.F\
-        p4zint.F        p4zprod.F	p4zmicro.F\
-        p4zlim.F        p4zrem.F	p4zche.F\
-        p4zbio.F        p4zmeso.F       p4zsink2.F\
-        p4zsed.F\
+	p4zdiat.F       p4zopt.F        p4zsink.F\
+	p4zflx.F        p4zprg.F        p4zslow.F\
+	p4zint.F        p4zprod.F	p4zmicro.F\
+	p4zlim.F        p4zrem.F	p4zche.F\
+	p4zbio.F        p4zmeso.F       p4zsink2.F\
+	p4zsed.F\
 \
-	autotiling.F	debug.F		Agrif2Model.F\
+	MPI_Setup.F	MessPass2D.F	MessPass3D.F	exchange.F\
+	autotiling.F\
 \
-	init_xios.F	send_xios_diags.F
-#\
-#module_nh.F	nump_nh.F
+	zoom.F		update2D.F	set_nudgcof_fine.F\
+	zoombc_2D.F	zoombc_3D.F	uv3dpremix.F\
+	t3dpremix.F     update3D.F	Agrif2Model.F\
+\
+	init_xios.F	send_xios_diags.F\
+\
+	step3d_w.F	rhs3d_w_nh.F	w3dbc.F\
+	unbq_bc.F	vnbq_bc.F	wnbq_bc.F	rnbq_bc.F\
+\
+	cpl_prism_define.F	cpl_prism_put.F 	cpl_prism_init.F\
+	cpl_prism_get.F 	cpl_prism_getvar.F 	cpl_prism_getlistvals.F
+
+ SRCS90 = \
+	module_nh.F90		module_nbq.F90		module_qsort.F90\
+	module_parallel_nbq.F90 module_tracetxt_out.F90	module_param.F90\
+	nump_nh.F90		mat_cont_init_nh.F90	mat_cont_nh.F90\
+	mat_mom_init_nh.F90	mat_mom_nh.F90		initial_nh.F90\
+	z_thickness_nh.F90 	ru_nbq.F90		viscous_nbq.F90\
+	step3d_nbq.F90		density_nbq.F90		spkitlocal_nh.F90\
+	MPI_setup_nbq.F90	parallele_nbq.F90	output_nbq.F90
 
 AMRDIR = AGRIF/AGRIF_YOURFILES
 
-#--------------------------------------------------------------------
+#======================================================================
 
  RCS = $(SRCS:.F=.f)
  RCS90 = $(SRCS90:.F90=.f90)
