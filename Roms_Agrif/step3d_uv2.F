@@ -75,9 +75,6 @@
 #  include "diagnostics.h"
 # endif
       integer Istr,Iend,Jstr,Jend, i,j,k
-# ifdef TS_MIX_ISO_FILT
-     &       ,ilc
-# endif
 # ifdef PSOURCE
      &       ,is
 # endif
@@ -85,11 +82,14 @@
      &     CF(PRIVATE_1D_SCRATCH_ARRAY,0:N),
      &     FC(PRIVATE_1D_SCRATCH_ARRAY,0:N), cff,
      &     DC(PRIVATE_1D_SCRATCH_ARRAY,0:N)
-#ifdef VADV_ADAPT_IMP
+# ifdef VADV_ADAPT_IMP
       real WC(PRIVATE_1D_SCRATCH_ARRAY,0:N)
-#endif
+# endif
       real grad(PRIVATE_2D_SCRATCH_ARRAY)
       real dpth,aa,cc
+# ifdef TS_MIX_ISO
+      real dRx,dRe, cfilt
+# endif
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -97,6 +97,13 @@
 #  define SWITCH *
 # else
 #  define SWITCH !
+# endif
+# ifdef TS_MIX_ISO_FILT
+      if (iic.eq.ntstart) then
+       cfilt=1.                 ! exponential
+      else                      ! time smoothing
+       cfilt=csmooth            ! coefficient
+      endif
 # endif
 !
 !--------------------------------------------------------------------
@@ -142,11 +149,11 @@
         do i=IstrU,Iend
           FC(i,0)=0.
           FC(i,N)=0.
-#ifdef VADV_ADAPT_IMP
+# ifdef VADV_ADAPT_IMP
           DC(i,0)=0.25*dt*(pm(i,j)+pm(i-1,j))*(pn(i,j)+pn(i-1,j))
           WC(i,0)=0.
           WC(i,N)=0.
-#endif
+# endif
         enddo
 
         do k=1,N-1
@@ -154,9 +161,9 @@
             FC(i,k)=-dt*(Akv(i,j,k)+Akv(i-1,j,k))
      &                 /( z_r(i,j,k+1)+z_r(i-1,j,k+1)
      &                   -z_r(i,j,k  )-z_r(i-1,j,k  ))
-#ifdef VADV_ADAPT_IMP
+# ifdef VADV_ADAPT_IMP
             WC(i,k)=DC(i,0)*0.5*(Wi(i,j,k)+Wi(i-1,j,k))
-#endif
+# endif
           enddo
         enddo
 
@@ -164,9 +171,9 @@
           do i=IstrU,Iend
             DC(i,k)=u(i,j,k,nnew)
             BC(i,k)=0.5*(Hz(i,j,k)+Hz(i-1,j,k))-FC(i,k)-FC(i,k-1)
-#ifdef VADV_ADAPT_IMP
+# ifdef VADV_ADAPT_IMP
      &              +max(WC(i,k  ),0.)-min(WC(i,k-1),0.)
-#endif
+# endif
           enddo
         enddo      !--> discard DC(:,0); keep FC
 !
@@ -180,33 +187,33 @@
 # endif
         do i=IstrU,Iend
           cff=1./BC(i,1)
-          CF(i,1)=cff*( FC(i,1)                          !<-- q(1) = c(1)/b(1)
-#ifdef VADV_ADAPT_IMP
+          CF(i,1)=cff*( FC(i,1)                  !<-- q(1) = c(1)/b(1)
+# ifdef VADV_ADAPT_IMP
      &                +min( WC(i,1),0.)
-#endif
+# endif
      &                                 )
           DC(i,1)=cff*DC(i,1)
         enddo
         do k=2,N-1
           do i=IstrU,Iend
-#ifdef VADV_ADAPT_IMP
-              aa = FC(i,k-1)-max(WC(i,k-1),0.)             !<-- a = sub   (lower) diagonal
-              cc = FC(i,k  )+min(WC(i,k  ),0.)             !<-- c = super (upper) diagonal
-#else
+# ifdef VADV_ADAPT_IMP
+              aa = FC(i,k-1)-max(WC(i,k-1),0.)   !<-- a = sub   (lower) diagonal
+              cc = FC(i,k  )+min(WC(i,k  ),0.)   !<-- c = super (upper) diagonal
+# else
               aa = FC(i,k-1)
               cc = FC(i,k  )
-#endif
-            cff=1./(BC(i,k)-aa*CF(i,k-1))                  !<-- p    = 1/(b(k)-a(k)*q(k))
+# endif
+            cff=1./(BC(i,k)-aa*CF(i,k-1))        !<-- p    = 1/(b(k)-a(k)*q(k))
             CF(i,k)=cff*cc
             DC(i,k)=cff*(DC(i,k)-aa*DC(i,k-1))          
           enddo
         enddo
         do i=IstrU,Iend
-#ifdef VADV_ADAPT_IMP
-              aa = FC(i,N-1)-max(WC(i,N-1),0.)             !<-- a = sub   (lower) diagonal
-#else
+# ifdef VADV_ADAPT_IMP
+              aa = FC(i,N-1)-max(WC(i,N-1),0.)   !<-- a = sub   (lower) diagonal
+# else
               aa = FC(i,N-1)
-#endif
+# endif
           DC(i,N)=(DC(i,N)-aa*DC(i,N-1))
      &           /(BC(i,N)-aa*CF(i,N-1))
 
@@ -234,7 +241,7 @@
             MVmix(i,j,k,1)=-( MVmix(i,j,k,1) - u(i,j,k,nnew)*
      &                           0.5*(Hz(i,j,k)+Hz(i-1,j,k)) )
      &                    *om_u(i,j)*on_u(i,j)/dt SWITCH umask(i,j)
-#  endif 
+# endif 
 !
           enddo
         enddo        !--> discard DC,CF(:,0)
@@ -267,11 +274,11 @@
           do i=Istr,Iend
             FC(i,0)=0.
             FC(i,N)=0.
-#ifdef VADV_ADAPT_IMP
+# ifdef VADV_ADAPT_IMP
             DC(i,0)=0.25*dt*(pm(i,j)+pm(i,j-1))*(pn(i,j)+pn(i,j-1))
             WC(i,0)=0.
             WC(i,N)=0.
-#endif
+# endif
           enddo
 
           do k=1,N-1
@@ -279,9 +286,9 @@
               FC(i,k)=-dt*(Akv(i,j,k)+Akv(i,j-1,k))
      &                   /( z_r(i,j,k+1)+z_r(i,j-1,k+1)
      &                     -z_r(i,j,k  )-z_r(i,j-1,k  ))
-#ifdef VADV_ADAPT_IMP
+# ifdef VADV_ADAPT_IMP
               WC(i,k)=DC(i,0)*0.5*(Wi(i,j,k)+Wi(i,j-1,k))
-#endif
+# endif
             enddo
           enddo
 
@@ -289,9 +296,9 @@
             do i=Istr,Iend
               DC(i,k)=v(i,j,k,nnew)
               BC(i,k)=0.5*(Hz(i,j,k)+Hz(i,j-1,k))-FC(i,k)-FC(i,k-1)
-#ifdef VADV_ADAPT_IMP
+# ifdef VADV_ADAPT_IMP
      &              +max(WC(i,k  ),0.)-min(WC(i,k-1),0.)
-#endif
+# endif
             enddo
           enddo
 !
@@ -310,33 +317,33 @@
 !
           do i=Istr,Iend
             cff=1./BC(i,1)
-            CF(i,1)=cff*( FC(i,1)                          !<-- q(1) = c(1)/b(1)
-#ifdef VADV_ADAPT_IMP
+            CF(i,1)=cff*( FC(i,1)                  !<-- q(1) = c(1)/b(1)
+# ifdef VADV_ADAPT_IMP
      &                +min( WC(i,1),0.)
-#endif
+# endif
      &                                 )
             DC(i,1)=cff*DC(i,1)
           enddo
           do k=2,N-1
             do i=Istr,Iend
-#ifdef VADV_ADAPT_IMP
-              aa = FC(i,k-1)-max(WC(i,k-1),0.)             !<-- a = sub   (lower) diagonal
-              cc = FC(i,k  )+min(WC(i,k  ),0.)             !<-- c = super (upper) diagonal
-#else
+# ifdef VADV_ADAPT_IMP
+              aa = FC(i,k-1)-max(WC(i,k-1),0.)     !<-- a = sub   (lower) diagonal
+              cc = FC(i,k  )+min(WC(i,k  ),0.)     !<-- c = super (upper) diagonal
+# else
               aa = FC(i,k-1)
               cc = FC(i,k  )
-#endif
+# endif
               cff=1./(BC(i,k)-aa*CF(i,k-1))
               CF(i,k)=cff*cc
               DC(i,k)=cff*(DC(i,k)-aa*DC(i,k-1))
             enddo
           enddo
           do i=Istr,Iend
-#ifdef VADV_ADAPT_IMP
-              aa = FC(i,N-1)-max(WC(i,N-1),0.)             !<-- a = sub   (lower) diagonal
-#else
+# ifdef VADV_ADAPT_IMP
+              aa = FC(i,N-1)-max(WC(i,N-1),0.)     !<-- a = sub   (lower) diagonal
+# else
               aa = FC(i,N-1)
-#endif
+# endif
             DC(i,N)=(DC(i,N)-aa*DC(i,N-1))
      &             /(BC(i,N)-aa*CF(i,N-1))
 
@@ -551,7 +558,7 @@
 #  endif
 # endif
 
-c--# define TR
+!--# define TR
 # ifdef TR
 #  ifdef MRL_WCI
             FC(i,k)=DC(i,k)*(0.5*(u(i,j,k,nstp)+u(i,j,k,nnew)) 
@@ -591,10 +598,6 @@ c--# define TR
 # if !defined TS_MIX_S && \
       (defined TS_DIF4 || defined TS_DIF2 || defined SPONGE_DIF2)
 !
-#  ifdef TS_MIX_ISO_FILT
-        ilc=1+iic-ntstart
-#  endif
-!
         do k=1,N,+1
           do i=IU_RANGE
             cff =0.5*(pm(i,j)+pm(i-1,j)) SWITCH umask(i,j)
@@ -602,41 +605,38 @@ c--# define TR
 #   ifdef SPLIT_EOS
             dpth=0.5*( z_w(i,j,N)+z_w(i-1,j,N)
      &                -z_r(i,j,k)-z_r(i-1,j,k))
-#    ifdef TS_MIX_ISO_FILT
-            dRdx_tmp(i,j,k)=dRdx_tmp(i,j,k)+
-#    else
-            dRdx(i,j,k)=
-#    endif
-     &                  cff*( rho1(i,j,k)-rho1(i-1,j,k)
-     &                 +    (  qp1(i,j,k)- qp1(i-1,j,k))
-     &                             *dpth*(1.-qp2*dpth) )
+            dRx=cff*( rho1(i,j,k)-rho1(i-1,j,k)
+     &             +(  qp1(i,j,k)- qp1(i-1,j,k))
+     &                     *dpth*(1.-qp2*dpth) )
 #   else
-#    ifdef TS_MIX_ISO_FILT
-            dRdx_tmp(i,j,k)=dRdx_tmp(i,j,k)+
-#    else
-            dRdx(i,j,k)=
-#    endif
-     &                  cff*(rho1(i,j,k)-rho1(i-1,j,k))
+            dRx=cff*(rho1(i,j,k)-rho1(i-1,j,k))
 #   endif
+#   ifdef TS_MIX_ISO_FILT
+            dRx  = cfilt*dRx + (1.-cfilt)*dRdx(i,j,k)  ! exp. time smoothing
+#   endif
+            dRdx(i,j,k)=dRx
 #  elif defined TS_MIX_GEO
-                         ! dRdx contains dZdx values
-            dRdx(i,j,k)=cff*( z_r(i,j,k)-z_r(i-1,j,k))
+            dRdx(i,j,k)=cff*(z_r(i,j,k)-z_r(i-1,j,k))  ! dRdx get dZdx values
 #  else
             dRdx(i,j,k)=0.
 #  endif
           enddo
         enddo
 !
+!  Smooth vertically at the interior points.
+!
 #  ifdef TS_MIX_ISO_FILT
-        if (mod(ilc,Rslope_ntimes).eq.0) then
-          do k=1,N,+1
-            do i=IU_RANGE
-              dRdx(i,j,k)=dRdx_tmp(i,j,k)/Rslope_ntimes
-              dRdx_tmp(i,j,k)=0.
-            enddo
+      if (mod(iic-ntstart,ismooth).eq.0) then
+        do k=N-1,2,-1
+          do i=IU_RANGE
+            dRdx(i,j,k)=0.05*dRdx(i,j,k-1)+
+     &                  0.90*dRdx(i,j,k  )+
+     &                  0.05*dRdx(i,j,k+1)
           enddo
-        endif
-#  endif
+        enddo
+      endif
+#  endif /* TS_MIX_ISO_FILT */
+!
 # endif /* TS_DIF2 || TS_DIF4 || SPONGE_DIF2 */
 !
 !--------------------------------------------------
@@ -734,41 +734,38 @@ c--# define TR
 #   ifdef SPLIT_EOS
               dpth=0.5*( z_w(i,j,N)+z_w(i,j-1,N)
      &                -  z_r(i,j,k)-z_r(i,j-1,k))
-#    ifdef TS_MIX_ISO_FILT
-              dRde_tmp(i,j,k)=dRde_tmp(i,j,k)+
-#    else
-              dRde(i,j,k)=
-#    endif
-     &                    cff*( rho1(i,j,k)-rho1(i,j-1,k)
-     &                       +(  qp1(i,j,k)- qp1(i,j-1,k))
-     &                               *dpth*(1.-qp2*dpth) )
+              dRe=cff*( rho1(i,j,k)-rho1(i,j-1,k)
+     &               +(  qp1(i,j,k)- qp1(i,j-1,k))
+     &                       *dpth*(1.-qp2*dpth) )
 #   else
-#    ifdef TS_MIX_ISO_FILT
-              dRde_tmp(i,j,k)=dRde_tmp(i,j,k)+
-#    else
-              dRde(i,j,k)=
-#    endif
-     &                    cff*(rho1(i,j,k)-rho1(i,j-1,k))
+              dRe=cff*(rho1(i,j,k)-rho1(i,j-1,k))
 #   endif
+#   ifdef TS_MIX_ISO_FILT
+              dRe  = cfilt*dRe + (1.-cfilt)*dRde(i,j,k)  ! exp. time smoothing
+#   endif
+              dRde(i,j,k)=dRe
 #  elif defined TS_MIX_GEO
-                           ! dRde contains dZde values
-              dRde(i,j,k)=cff*(z_r(i,j,k)-z_r(i,j-1,k))
+              dRde(i,j,k)=cff*(z_r(i,j,k)-z_r(i,j-1,k))  ! dRde gets dZde values
 #  else
               dRde(i,j,k)=0.
 #  endif
             enddo
           enddo
 !
+!  Smooth vertically at the interior points.
+!
 #  ifdef TS_MIX_ISO_FILT
-          if (mod(ilc,Rslope_ntimes).eq.0) then
-            do k=1,N,+1
-              do i=IV_RANGE
-                dRde(i,j,k)=dRde_tmp(i,j,k)/Rslope_ntimes
-                dRde_tmp(i,j,k)=0.
-              enddo
-            enddo
-          endif
-#  endif
+      if (mod(iic-ntstart,ismooth).eq.0) then
+        do k=N-1,2,-1
+          do i=IV_RANGE
+            dRde(i,j,k)=0.05*dRde(i,j,k-1)+
+     &                  0.90*dRde(i,j,k  )+
+     &                  0.05*dRde(i,j,k+1)
+          enddo
+        enddo
+      endif
+#  endif /* TS_MIX_ISO_FILT */
+!
 # endif /* TS_DIF2 || TS_DIF4 */
 !
 !
