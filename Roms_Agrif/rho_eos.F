@@ -456,7 +456,7 @@
 #  endif
       real*QUAD mrho,vol
 #  ifdef MPI
-#   include "mpif.h"
+      include 'mpif.h'
       integer ierr
       real*QUAD allrho(1,NNODES),allvol(1,NNODES)
 #  endif
