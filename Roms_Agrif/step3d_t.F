@@ -487,7 +487,7 @@
 # endif
 !
 !======================================================================
-!  Compute vertical Rho gradients for use in t3dmix
+!  Compute inverse vertical Rho gradients for use in t3dmix
 !======================================================================
 !
 # if !defined TS_MIX_S && \
@@ -510,14 +510,10 @@
           idRz(i,j,0) = 0.
         enddo
       enddo
-#   if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
-      call exchange_w3d_tile (  istr,iend,jstr,jend,
-     &                          idRz(START_2D_ARRAY,0)  )
-#   endif
 
 #  elif defined TS_MIX_ISO
 !
-! --- Isopycnal diffusion ---
+!  --- Isopycnal diffusion: idRz is inverse vertical rho gradient ---
 !
       do k=1,N-1
         do j=jstr,jend
@@ -530,7 +526,7 @@
 #   else
             dRz = rho1(i,j,k+1)-rho1(i,j,k)
 #   endif
-            cff  = min( 1./dRz,-1.E-14 )  ! background value if rho(k+1)=rho(k)
+            cff  = min( 1./dRz,-1.E-14 )   !  minimum stratification imposed
             cff1 = 1./(z_r(i,j,k+1)-z_r(i,j,k))
 #   ifdef LMD_SKPP2005
             hbltmp=hbls(i,j,3-nstp)
@@ -539,14 +535,15 @@
 #   else
             hbltmp=5.
 #   endif
-            gama = 1.
-            sig = (z_w(i,j,N)-z_w(i,j,k+1))/max(hbltmp,5.)  ! PBL depth > 5 m   
-            if (sig .lt. 1.) gama = sig*sig*(3.-2.*sig)
+            gama = 1.                                     ! mixing becomes
+            sig = (z_w(i,j,N)-z_w(i,j,k))/max(hbltmp,5.)  ! isosigma within  
+            if (sig .lt. 1.) gama = sig*sig*(3.-2.*sig)   ! PBL depth (>5m)
             dXmax = max(abs(dRdx(i,j,k  )),abs(dRdx(i+1,j,k  )),
      &                  abs(dRdx(i,j,k+1)),abs(dRdx(i+1,j,k+1)),1E-14)
             dEmax = max(abs(dRde(i,j,k  )),abs(dRde(i,j+1,k  )),
      &                  abs(dRde(i,j,k+1)),abs(dRde(i,j+1,k+1)),1E-14)
             smax=min(Rslope_max,Gslope_max*min(pm(i,j),pn(i,j))/cff1)
+!
             idRz(i,j,k) = max(cff,   -smax*gama*cff1 / dXmax,
      &                               -smax*gama*cff1 / dEmax )
           enddo
@@ -558,11 +555,13 @@
           idRz(i,j,0) = 0.
         enddo
       enddo
-#   if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+#  endif /* TS_MIX_ISO */
+!
+#  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
       call exchange_w3d_tile (  istr,iend,jstr,jend,
      &                          idRz(START_2D_ARRAY,0)  )
-#   endif
-#  endif /* TS_MIX_ISO */
+#  endif
+!
 # endif /* TS_DIF2 || TS_DIF4 || SPONGE_DIF2 */
 !
 !
