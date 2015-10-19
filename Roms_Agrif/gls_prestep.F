@@ -127,7 +127,7 @@
             Hz_half(i,j,k)=cff1*Hz(i,j,k)+cff2*Hz_bak(i,j,k)
      &        -cff*pm(i,j)*pn(i,j)*( Huon(i+1,j,k)-Huon(i,j,k)
      &                              +Hvom(i,j+1,k)-Hvom(i,j,k)
-     &                                    +W(i,j,k)-W(i,j,k-1)
+     &                                  +We(i,j,k)-We(i,j,k-1)
      &                                                       )
           enddo
         enddo
@@ -432,10 +432,10 @@
         cff=1./3.           ! Compute vertical advective fluxes 
         do k=1,N-1          ! FC=W*[spline-interpolated tracer]
           do i=Istr,Iend
-            FC(i,k)=W(i,j,k)*( tke(i,j,k,nstp)+cff*Hz(i,j,k)
-     &                                  *(CF(i,k)+0.5*CF(i,k-1)) )
-            FCL(i,k)=W(i,j,k)*( gls(i,j,k,nstp)+cff*Hz(i,j,k)
-     &                                  *(CFL(i,k)+0.5*CFL(i,k-1)) )
+            FC(i,k)=We(i,j,k)*( tke(i,j,k,nstp)+cff*Hz(i,j,k)
+     &                                   *(CF(i,k)+0.5*CF(i,k-1)) )
+            FCL(i,k)=We(i,j,k)*( gls(i,j,k,nstp)+cff*Hz(i,j,k)
+     &                                   *(CFL(i,k)+0.5*CFL(i,k-1)) )
           enddo
         enddo               !--> discard CF
         do i=Istr,Iend
@@ -480,9 +480,9 @@
         do k=1,N-1
           do i=istr,iend
             FC(i,k)=0.5*( tke(i,j,k,nstp)+tke(i,j,k+1,nstp)
-     &                    -0.333333333333*(CF(i,k+1)-CF(i,k)) )*W(i,j,k)
+     &                   -0.333333333333*(CF(i,k+1)-CF(i,k)) )*We(i,j,k)
             FCL(i,k)=0.5*( gls(i,j,k,nstp)+gls(i,j,k+1,nstp)
-     &               -0.333333333333*(CFL(i,k+1)-CFL(i,k)) )*W(i,j,k)
+     &                 -0.333333333333*(CFL(i,k+1)-CFL(i,k)) )*We(i,j,k)
           enddo
         enddo            !--> discard CF
         do i=istr,iend
@@ -498,10 +498,10 @@
 # elif GLS_VADV_C2
         do k=1,N-1
           do i=Istr,Iend
-            FC(i,k)=0.5*W(i,j,k)*(tke( i,j,k,nstp)
-     &                         +tke(i,j,k+1,nstp))
-            FCL(i,k)=0.5*W(i,j,k)*(gls( i,j,k,nstp)
-     &                         +gls(i,j,k+1,nstp))
+            FC(i,k)=0.5*We(i,j,k)*(tke(i,j,k  ,nstp)
+     &                            +tke(i,j,k+1,nstp))
+            FCL(i,k)=0.5*We(i,j,k)*(gls(i,j,k  ,nstp)
+     &                             +gls(i,j,k+1,nstp))
           enddo
         enddo
         do i=Istr,Iend
@@ -517,13 +517,13 @@
 # else
         do k=2,N-2
           do i=Istr,Iend
-            FC(i,k)=W(i,j,k)*(
+            FC(i,k)=We(i,j,k)*(
      &                     0.58333333333333*( tke(i,j,k  ,nstp)
      &                                       +tke(i,j,k+1,nstp))
      &                    -0.08333333333333*( tke(i,j,k-1,nstp)
      &                                       +tke(i,j,k+2,nstp))
      &                                                            )
-            FCL(i,k)=W(i,j,k)*(
+            FCL(i,k)=We(i,j,k)*(
      &                     0.58333333333333*( gls(i,j,k  ,nstp)
      &                                       +gls(i,j,k+1,nstp))
      &                    -0.08333333333333*( gls(i,j,k-1,nstp)
@@ -533,21 +533,21 @@
         enddo
         do i=Istr,Iend
           FC(i, 0)=0.0
-          FC(i,  1)=W(i,j,  1)*(     0.5*tke(i,j,  1,nstp)
+          FC(i,  1)=We(i,j,  1)*(     0.5*tke(i,j,  1,nstp)
      &                       +0.58333333333333*tke(i,j,  2,nstp)
      &                       -0.08333333333333*tke(i,j,  3,nstp)
      &                                                            )
-          FC(i,N-1)=W(i,j,N-1)*(     0.5*tke(i,j,N  ,nstp)
+          FC(i,N-1)=We(i,j,N-1)*(     0.5*tke(i,j,N  ,nstp)
      &                       +0.58333333333333*tke(i,j,N-1,nstp)
      &                       -0.08333333333333*tke(i,j,N-2,nstp)
      &                                                            )
           FC(i,N )=0.0
           FCL(i, 0)=0.0
-          FCL(i,  1)=W(i,j,  1)*(     0.5*gls(i,j,  1,nstp)
+          FCL(i,  1)=We(i,j,  1)*(     0.5*gls(i,j,  1,nstp)
      &                       +0.58333333333333*gls(i,j,  2,nstp)
      &                       -0.08333333333333*gls(i,j,  3,nstp)
      &                                                            )
-          FCL(i,N-1)=W(i,j,N-1)*(     0.5*gls(i,j,N  ,nstp)
+          FCL(i,N-1)=We(i,j,N-1)*(     0.5*gls(i,j,N  ,nstp)
      &                       +0.58333333333333*gls(i,j,N-1,nstp)
      &                       -0.08333333333333*gls(i,j,N-2,nstp)
      &                                                            )

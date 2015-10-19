@@ -219,7 +219,7 @@ c    &     Tinfo(ixgrd,iflt), Tinfo(iygrd,iflt)
 # ifdef SOLVE3D
       call rhs_floats (u(START_2D_ARRAY,1,nnew), 
      &                 v(START_2D_ARRAY,1,nnew),
-     &                 W(START_2D_ARRAY,0),
+     &                We(START_2D_ARRAY,0),
      &                           nfltmax, indx)
 
 # else
@@ -380,7 +380,7 @@ CDEBUG      write(*,*)'level',level
 # ifdef SOLVE3D
       call rhs_floats (u(START_2D_ARRAY,1,nnew),
      &                 v(START_2D_ARRAY,1,nnew),
-     &                 W(START_2D_ARRAY,0),
+     &                We(START_2D_ARRAY,0),
      &                           nfltmax, indx)
 
 # else
