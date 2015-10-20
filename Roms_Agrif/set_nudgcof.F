@@ -175,14 +175,6 @@
 !
 #  if defined UV_VIS2 || defined UV_VIS4 || defined SPONGE_VIS2
 !
-!  Compute or read sponge viscosity
-!
-#   ifdef SPONGE_GRID
-      vspg=uscale*grdmax
-#   else
-      vspg=v_sponge
-#   endif
-!
 !  Add Viscosity at rho points 
 !
       do j=JstrR,JendR
