@@ -367,46 +367,44 @@ C$OMP PARALLEL DO PRIVATE(tile)
 CR      write(*,*)  ' -2' MYID
 #endif
 !
-!======================================================================
-!     Create environment for surface, bottom and lateral forcing
-!======================================================================
-!
-#if defined TNUDGING || defined ZNUDGING || defined SPONGE \
-  || (defined BBL && defined ANA_BSEDIM)\
-  || (defined SEDIMENT && defined ANA_SEDIMENT)\
-  || (defined TCLIMATOLOGY)\
-  || (defined ZCLIMATOLOGY && defined ANA_SSH)
-
-C$OMP PARALLEL DO PRIVATE(tile)
-      do tile=0,NSUB_X*NSUB_E-1
-!
 !----------------------------------------------------------------------
 !  Set nudging coefficients 
 !  for sea surface height, momentum and tracers
 !----------------------------------------------------------------------
 !
-# if defined TNUDGING || defined ZNUDGING || defined SPONGE
+# if defined TNUDGING  || defined ZNUDGING  \
+  || defined M2NUDGING || defined M3NUDGING \
+                       || defined SPONGE
+C$OMP PARALLEL DO PRIVATE(tile)
+      do tile=0,NSUB_X*NSUB_E-1
         call set_nudgcof (tile)
+      enddo
 # endif
 !
 !----------------------------------------------------------------------
-!  Set analytical bottom sediment grain size [m] and density [kg/m^3]
-!  used in bottom boundary layer formulation;
+!  Read initial climatology fields from NetCDF file
+!  (or any external oceanic forcing data)
+!  in 3D interior or 2D boundary arrays
 !----------------------------------------------------------------------
 !
-# if defined BBL && defined ANA_BSEDIM
-#  ifdef AGRIF
-        if (Agrif_lev_sedim.EQ.0) call ana_bsedim (tile)
-#  else
-        call ana_bsedim (tile)
-#  endif
+#if defined TCLIMATOLOGY && !defined ANA_TCLIMA
+      call get_tclima
+#endif
+#if defined M2CLIMATOLOGY && !defined ANA_M2CLIMA ||\
+   (defined M3CLIMATOLOGY && !defined ANA_M3CLIMA)
+      call get_uclima
+#endif
+#if defined ZCLIMATOLOGY && !defined ANA_SSH
+      call get_ssh
+#endif
+#if defined FRC_BRY && !defined ANA_BRY
+      call get_bry
+# ifdef BIOLOGY 
+      call get_bry_bio
 # endif
-# if defined SEDIMENT && defined ANA_SEDIMENT
-#  ifdef AGRIF
-        if (Agrif_lev_sedim.EQ.0) call ana_sediment (tile)
-#  else
-        call ana_sediment (tile)
-#  endif
+#endif
+#if !defined ANA_BRY_WKB && defined WKB_WWAVE
+      call get_bry_wkb
 # endif
 !
 !----------------------------------------------------------------------
@@ -415,6 +413,12 @@ C$OMP PARALLEL DO PRIVATE(tile)
 !  for sea surface height, momentum and tracers
 !----------------------------------------------------------------------
 !
+#if (defined ZCLIMATOLOGY  && defined ANA_SSH)     || \
+    (defined M2CLIMATOLOGY && defined ANA_M2CLIMA) || \
+    (defined M3CLIMATOLOGY && defined ANA_M3CLIMA) || \
+     defined TCLIMATOLOGY
+C$OMP PARALLEL DO PRIVATE(tile)
+      do tile=0,NSUB_X*NSUB_E-1
 # ifdef TCLIMATOLOGY
         call ana_tclima (tile)
 # endif
@@ -425,56 +429,10 @@ C$OMP PARALLEL DO PRIVATE(tile)
 # if defined ZCLIMATOLOGY && defined ANA_SSH
         call ana_ssh (tile)
 # endif
-      enddo  !<-- tile
-#endif /* NUDGING ... */
+      enddo
+#endif
+!
 CR      write(*,*) ' -2' MYID 
-!
-!----------------------------------------------------------------------
-!  Read bottom sediment grain size [m] and density [kg/m^3]
-!  from NetCDF file
-!----------------------------------------------------------------------
-!
-#if defined BBL && !defined ANA_BSEDIM && !defined SEDIMENT
-# ifdef AGRIF
-      if (Agrif_lev_sedim.EQ.0) call get_bsedim
-#  else
-      call get_bsedim
-#  endif
-#endif
-!
-#if defined SEDIMENT && !defined ANA_SEDIMENT
-# ifdef AGRIF
-      if (Agrif_lev_sedim.EQ.0) call get_sediment
-# else
-      call get_sediment
-# endif
-#endif
-!
-!----------------------------------------------------------------------
-!  Read initial climatology fields from NetCDF file
-!  (or any external oceanic forcing data)
-!  in 3D interior or 2D boundary arrays
-!----------------------------------------------------------------------
-!
-#if defined SOLVE3D && defined TCLIMATOLOGY && !defined ANA_TCLIMA
-      call get_tclima
-#endif
-#if defined M2CLIMATOLOGY && !defined ANA_M2CLIMA ||\
-   (defined M3CLIMATOLOGY && !defined ANA_M3CLIMA)
-      call get_uclima
-#endif
-#if defined ZCLIMATOLOGY && !defined ANA_SSH
-      call get_ssh
-#endif
-#if !defined ANA_BRY && defined FRC_BRY
-      call get_bry
-#  ifdef BIOLOGY 
-      call get_bry_bio
-#  endif
-# endif
-#if !defined ANA_BRY_WKB && defined WKB_WWAVE
-      call get_bry_wkb
-# endif
 !
 !----------------------------------------------------------------------
 !  Read surface forcing from NetCDF file
@@ -489,15 +447,61 @@ CR      write(*,*) ' -2' MYID
 #if defined SSH_TIDES || defined UV_TIDES
       call get_tides
 #endif
+!
 CR      write(*,*) ' -1' MYID 
 !
-!====== End environment for surface, bottom and lateral forcing =======
+!----------------------------------------------------------------------
+!  Bottom sediment parameters for BBL or SEDIMENT model
+!----------------------------------------------------------------------
+!
+#if (defined BBL && defined ANA_BSEDIM) || defined SEDIMENT
+!
+!  --- Set analytically ---
+!
+C$OMP PARALLEL DO PRIVATE(tile)
+      do tile=0,NSUB_X*NSUB_E-1
+
+# if defined BBL && defined ANA_BSEDIM
+#  ifdef AGRIF
+        if (Agrif_lev_sedim.EQ.0) call ana_bsedim (tile)
+#  else
+        call ana_bsedim (tile)
+#  endif
+# endif
+# ifdef SEDIMENT
+#  ifdef AGRIF
+        if (Agrif_lev_sedim.EQ.0) call ana_sediment (tile)
+#  else
+        call ana_sediment (tile)
+#  endif
+# endif
+      enddo
+#endif
+!
+!  --- Read from NetCDF file ---
+!
+#if defined BBL && !defined ANA_BSEDIM && !defined SEDIMENT
+# ifdef AGRIF
+      if (Agrif_lev_sedim.EQ.0) call get_bsedim
+#  else
+      call get_bsedim
+#  endif
+#endif
+!
+!#if defined SEDIMENT && !defined ANA_SEDIMENT
+!# ifdef AGRIF
+!      if (Agrif_lev_sedim.EQ.0) call get_sediment
+!# else
+!      call get_sediment
+!# endif
+!#endif
 !
 !----------------------------------------------------------------------
 !  Initialize XIOS I/O server
 !----------------------------------------------------------------------
 !
 #ifdef XIOS
+C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
         call init_xios(tile)
       enddo
@@ -651,6 +655,7 @@ C$OMP END MASTER
 !
 #ifdef XIOS
       if (nrrec.eq.0) then
+C$OMP PARALLEL DO PRIVATE(tile)
         do tile=0,NSUB_X*NSUB_E-1
           call send_xios_diags(tile)
         enddo
