@@ -973,9 +973,9 @@ C$    integer omp_get_thread_num
               endif
               t(i,j,k,2,iN2O)=t(i,j,k,1,iN2O)
             endif
-          enddo
 #   endif
 #  endif /* PISCES */
+          enddo
         enddo
       enddo
 # endif /* BIOLOGY */
