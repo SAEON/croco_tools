@@ -55,7 +55,7 @@ warning off
 %
 % Directory and file names
 %
-directory='../../Run/ROMS_FILES/';
+directory='SCRATCH/';
 model='roms';
 filetype='avg';  % 'his' or 'avg'
 outfile='kmke.mat';
@@ -63,7 +63,7 @@ Ymin=5;
 Ymax=10;
 Yorig=nan;
 endf='.nc';
-vtransform=1;
+vtransform=1;  %!!!! warning !!!
 offomega=0; % 1: compute W from u and v
 H0=-100; % depth of integration
 %
@@ -244,7 +244,7 @@ figure(1)
 pcolor(lon,lat,mask.*1e6.*KmKe2D)
 axis image
 shading flat
-caxis([-20 20])
+caxis([-4 4])
 colorbar
 title('KmKe')
 
@@ -252,6 +252,6 @@ figure(2)
 pcolor(lon,lat,mask.*1e6.*KmKe2D2)
 axis image
 shading flat
-caxis([-20 20])
+caxis([-4 4])
 colorbar
 title('KmKe2')

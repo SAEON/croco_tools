@@ -4,18 +4,20 @@ close all
 %
 % Directory and file names
 %
-directory='/media/disk/SAFE_ZOOM_BEN_2006_12_21/SCRATCH_DIAGS/';
+name='beng';
+directory='SCRATCH/';
 model='roms';
 filetype='avg';  % 'his' or 'avg'
-Ymin=9;
-Ymax=16;
+Ymin=4;
+Ymax=10;
 Mmin=1;
-Mmax=6;
-skipstep=3;
+Mmax=12;
+skipstep=1;
 nonseason=0;
 Yorig=nan;
 endf='.nc';
 filter=0;
+coastfile='coastline_l.mat';
 %
 % Read the grid
 %
@@ -92,7 +94,11 @@ for Y=Ymin:Ymax
         plot_index=plot_index+1;
         if mod(plot_index,skipstep)==0
 	  [day,month,year,imonth,thedate]=get_date(fname,tindex,Yorig);
-	  zeta=squeeze(mean(100*nc{'zeta'}(tindex-floor((skipstep-1)/2):tindex+floor((skipstep-1)/2),:,:),1));
+          if(skipstep==1) 
+            zeta=squeeze(nc{'zeta'}(tindex,:,:));
+          else
+	    zeta=squeeze(mean(nc{'zeta'}(tindex-floor((skipstep-1)/2):tindex+floor((skipstep-1)/2),:,:),1));
+          end
 	  if filter==1
 	    zeta=nine_point_avg(zeta,mask);
 	  end
@@ -161,7 +167,11 @@ for Y=Ymin:Ymax
         plot_index=plot_index+1;
         if mod(plot_index,skipstep)==0
           [day,month,year,imonth,thedate]=get_date(fname,tindex,Yorig);
- 	  zeta=squeeze(mean(100*nc{'zeta'}(tindex-floor((skipstep-1)/2):tindex+floor((skipstep-1)/2),:,:),1));
+          if(skipstep==1) 
+            zeta=squeeze(nc{'zeta'}(tindex,:,:));
+          else
+	    zeta=squeeze(mean(nc{'zeta'}(tindex-floor((skipstep-1)/2):tindex+floor((skipstep-1)/2),:,:),1));
+          end
 	  if filter==1
 	    zeta=nine_point_avg(zeta,mask);
 	  end
@@ -200,30 +210,21 @@ eke=0.5*(u2+v2);
 %
 varssh=sqrt(z2);
 %
+% 
+%
+eke(rmask==0)=NaN;
+varssh(rmask==0)=NaN;
+avgzeta(rmask==0)=NaN;
+%
 % Save
 %
 if nonseason==1
-  save eke_roms_ns.mat lat lon eke varssh avgzeta
+  fname=[name,'_eke_roms_ns.mat']
 else
-  save eke_roms.mat lat lon eke varssh avgzeta
+  fname=[name,'_eke_roms.mat']
 end
+save(fname,'lat','lon','eke','varssh','avgzeta')
 %
 % Plot
 %
-lonmin=-55;
-lonmax=-15;
-latmin=-30;
-latmax=0;
-%
-colmax=1000;
-ncol=10;
-m_proj('mercator',...
-       'lon',[lonmin lonmax],...
-       'lat',[latmin latmax]);
-m_pcolor(lon,lat,eke);
-shading interp
-colormap(jet)
-caxis([colmin colmax])
-m_grid('box','fancy','xtick',5,'ytick',5,'tickdir','out','fontsize',7);
-set(findobj('tag','m_grid_color'),'facecolor','white')
-colorbar
+plot_eke(fname)
