@@ -76,6 +76,17 @@
       blkvar_id = 0
   10  blkvar_id = blkvar_id+1
 !
+! Do not process #7 :  upward longwave is obsolete
+!
+        if (blkvar_id.eq.7) goto 10
+#  ifdef ERA_ECMWF
+!
+! In the case of ERA the net short wave is used
+! Net Short wave - 5 downward short wave not used
+!
+        if (blkvar_id.eq.4) goto 10
+#  endif
+!
 ! -> End of loop on blkvar_id : goto 10
 !
         if (blkvar_id.gt.nblkvrs) return

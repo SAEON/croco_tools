@@ -151,6 +151,8 @@
 #  undef  SST_SKIN
 #  undef  ANA_DIURNAL_SW
 #  undef  ONLINE
+#  undef  ERA_ECMWF
+#  undef  RELATIVE_WIND
 # else
 #  define QCORRECTION
 #  define SFLX_CORR

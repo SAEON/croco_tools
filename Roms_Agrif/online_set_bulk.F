@@ -44,6 +44,9 @@
 # include "forces.h"
 # include "scalars.h"
 # include "grid.h"
+# ifdef RELATIVE_WIND
+#  include "ocean3d.h"
+# endif
 # include "online.h"
       integer Istr,Iend,Jstr,Jend, i,j, it1,it2, blkvar_id
       real cff,cff1,cff2, cff3,cff4
@@ -53,6 +56,9 @@
 # ifndef BULK_SM_UPDATE
       real cff7,cff8
 # endif
+# ifdef RELATIVE_WIND
+      real cff9,cff10
+# endif
 # include "compute_extended_bounds.h"
 
       !===== == === === ======= ========= 
@@ -60,7 +66,20 @@
       !===== == === === ======= =========  
       blkvar_id=0
   10  blkvar_id = blkvar_id+1
+!
+! Do not process #7 :  upward longwave is obsolete
+!
+        if (blkvar_id.eq.7) goto 10
+#  ifdef ERA_ECMWF
+!
+! In the case of ERA the net short wave is used
+! Net Short wave - 5 downward short wave not used
+!
+        if (blkvar_id.eq.4) goto 10
+#  endif
+
       if(blkvar_id.gt.nblkvrs) return
+
       it1=3-itbulkO(blkvar_id)
       it2=itbulkO(blkvar_id)
       ! --------------------------
@@ -132,20 +151,54 @@
             enddo
           enddo
         elseif (blkvar_id.eq.9) then
+# ifdef RELATIVE_WIND
+          do j=JstrR,JendR
+#  ifdef MPI
+            do i=IstrR,Lmmpi+2
+#  else
+            do i=IstrR,LLm+2
+#  endif
+              uwnd(i,j)=cff1*uwndg(i,j,it1)+cff2*uwndg(i,j,it2)
+              uwnd(i,j)=uwnd(i,j)-u(i,j,N,nrhs)
+            enddo
+          enddo
+#  ifdef MPI
+          do j=JstrR,Mmmpi+2
+#  else
+          do j=JstrR,LLm+2
+#  endif
+            do i=IstrR,IendR
+              vwnd(i,j)=cff1*vwndg(i,j,it1)+cff2*vwndg(i,j,it2)
+              vwnd(i,j)=vwnd(i,j)-v(i,j,N,nrhs)
+            enddo
+          enddo
+          do j=JstrR,JendR
+            do i=IstrR,IendR
+              cff9 =0.5*(uwnd(i,j)+uwnd(i+1,j  ))
+              cff10=0.5*(vwnd(i,j)+vwnd(i  ,j+1))
+              wspd(i,j)=sqrt(cff9*cff9 + cff10*cff10)
+            enddo
+          enddo
+#  ifdef MPI
+	  call exchange_r2d_tile(Istr,Iend,Jstr,Jend,
+     &                           wspd(START_2D_ARRAY))
+#  endif
+# else
           do j=JstrR,JendR
             do i=IstrR,IendR
               wspd(i,j)=cff1*wspdg(i,j,it1)+cff2*wspdg(i,j,it2)
-# ifdef BULK_SMFLUX
-#  ifdef BULK_SM_UPDATE
+#  ifdef BULK_SMFLUX
+#   ifdef BULK_SM_UPDATE
               uwnd(i,j)=cff1*uwndg(i,j,it1)+cff2*uwndg(i,j,it2)
               vwnd(i,j)=cff1*vwndg(i,j,it1)+cff2*vwndg(i,j,it2)
-#  else 
+#   else 
               sustr(i,j)=cff7*sustrg(i,j,it1)+cff8*sustrg(i,j,it2)
               svstr(i,j)=cff7*svstrg(i,j,it1)+cff8*svstrg(i,j,it2)
-#  endif /* BULK_SM_UPDATE */
-# endif
+#   endif /* BULK_SM_UPDATE */
+#  endif
             enddo
           enddo
+# endif
         endif
 
       !====== == ==== ============== 
