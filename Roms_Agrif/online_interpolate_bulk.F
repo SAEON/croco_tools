@@ -111,6 +111,10 @@
             tairg(i,j,iblkrec)=tairg(i,j,iblkrec)-273.15
           enddo
         enddo
+# ifdef MPI
+	call exchange_r2d_tile(1,Lm,1,Mm,
+     &                         tairg(START_2D_ARRAY,iblkrec))
+# endif
 
       elseif  (blkvar_id.eq.2) then
 !
@@ -133,6 +137,10 @@
             rhumg(i,j,iblkrec)=rhumg(i,j,iblkrec)/Qsat
           enddo
         enddo
+# ifdef MPI
+	call exchange_r2d_tile(1,Lm,1,Mm,
+     &                         rhumg(START_2D_ARRAY,iblkrec))
+# endif
 
       elseif (blkvar_id.eq.3) then
 !
@@ -161,6 +169,9 @@
 ! 4 process radsw (warning!! first (4) downward then (5) upward)
 ! Net solar shortwave radiation: Downwards short wave  
 !
+#  ifdef ERA_ECMWF
+! In the case of ERA we used the net short wave - downward short wave is not used
+#  else
         call MYINTERP(1, NXref, 1, NYref,
      &                lonref, latref, varref,
      &                I_RANGE,J_RANGE,
@@ -168,6 +179,7 @@
      &                latr(GLOBAL_2D_ARRAY),
      &                radswg(GLOBAL_2D_ARRAY,iblkrec))
 
+#  endif      
       elseif (blkvar_id.eq.5) then
 !
 ! 5 process radsw (warning!! first (4) downward then (5) upward)
@@ -182,13 +194,16 @@
 
         do j=J_RANGE
           do i=I_RANGE
+#  ifdef ERA_ECMWF
+            radswg(i,j,iblkrec)=blk_dum1(i,j)
+#  else
             radswg(i,j,iblkrec)=radswg(i,j,iblkrec)-blk_dum1(i,j)
+#  endif      
             if (1e-10.gt.abs(radswg(i,j,iblkrec))) then
               radswg(i,j,iblkrec)=0.
             endif
           enddo
         enddo
-      
 
       elseif (blkvar_id.eq.6) then
 !
@@ -241,50 +256,55 @@
      
         do j=J_RANGE
           do i=I_RANGE
+#  ifndef RELATIVE_WIND
             wspdg(i,j,iblkrec)=sqrt(uwndg(i,j,iblkrec)*uwndg(i,j,iblkrec)
      &                             +vwndg(i,j,iblkrec)*vwndg(i,j,iblkrec))
-# ifdef CURVGRID
+#  endif
+#  ifdef CURVGRID
             blk_dum1(i,j)=uwndg(i,j,iblkrec)*COS(angler(i,j))+
      &                    vwndg(i,j,iblkrec)*SIN(angler(i,j))
             blk_dum2(i,j)=vwndg(i,j,iblkrec)*COS(angler(i,j))-
      &                         uwndg(i,j,iblkrec)*SIN(angler(i,j))
-# else
+#  else
             blk_dum1(i,j)=uwndg(i,j,iblkrec)
             blk_dum2(i,j)=vwndg(i,j,iblkrec)
-# endif
+#  endif
            enddo
         enddo
 	 
-
-# ifdef MPI
+#  ifdef MPI
         do j=0,Mmmpi+1
           do i=1,Lmmpi+1
-# else
+#  else
         do j=0,MMm+1
           do i=1,LLm+1
-# endif
+#  endif
             uwndg(i,j,iblkrec)=0.5*(blk_dum1(i-1,j)+blk_dum1(i,j))
           enddo
         enddo
 
-# ifdef MPI
+#  ifdef MPI
         do j=1,Mmmpi+1
           do i=0,Lmmpi+1
-# else
+#  else
         do j=1,MMm+1
           do i=0,LLm+1
-# endif
+#  endif
             vwndg(i,j,iblkrec)=0.5*(blk_dum2(i,j-1)+blk_dum2(i,j))
           enddo
         enddo
 
-# ifdef MPI
+#  ifdef MPI
 	call exchange_u2d_tile(1,Lm,1,Mm,
      &                         uwndg(START_2D_ARRAY,iblkrec))
 
 	call exchange_v2d_tile(1,Lm,1,Mm,
      &                         vwndg(START_2D_ARRAY,iblkrec))
-# endif
+#   ifndef RELATIVE_WIND
+	call exchange_r2d_tile(1,Lm,1,Mm,
+     &                         wspdg(START_2D_ARRAY,iblkrec))
+#   endif
+#  endif
 
 
 # else

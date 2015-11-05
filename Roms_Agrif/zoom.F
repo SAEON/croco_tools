@@ -121,9 +121,9 @@
       use AGRIF_UTIL
       implicit none
       integer tile, ierr, trd, subs
-#ifdef WKB_WWAVE
+# ifdef WKB_WWAVE
       integer winterp 
-#endif
+# endif
 # include "param.h"
 # include "private_scratch.h"
 # include "ncscrum.h"
@@ -172,9 +172,9 @@
       external hinterp, updateh, updatermask
       external initzeta,initubar,initvbar
       external initu,initv,initt
-#ifdef WKB_WWAVE
+# ifdef WKB_WWAVE
       external initwac,initwkx,initwke,initwar
-#endif
+# endif
 !$AGRIF_DO_NOT_TREAT
        integer isens
        common/interph/isens
@@ -192,11 +192,11 @@
 
 # ifdef AUTOTILING
       call init_auto_tiling
-#endif
+# endif
        
 !      Call Agrif_Set_type(zeta,(/2,2,0/),(/1,1,0/))
 !      Call Agrif_Set_raf(zeta,(/'x','y','N'/))
-#ifdef SOLVE3D
+# ifdef SOLVE3D
 !      Call Agrif_Set_type(DU_avg1,(/1,2,0/),(/1,1,0/))
 !      Call Agrif_Set_type(DV_avg1,(/2,1,0/),(/1,1,0/))
 !      Call Agrif_Set_raf(DU_avg1,(/'x','y','N'/))
@@ -235,12 +235,12 @@
 !      Call Agrif_Set_raf(rmask,(/'x','y'/))          
 #  endif            
 
-#else
+# else
 !      Call Agrif_Set_type(ubar,(/1,2,0/),(/1,1,0/))
 !      Call Agrif_Set_type(vbar,(/2,1,0/),(/1,1,0/))
 !      Call Agrif_Set_raf(ubar,(/'x','y','N'/))
 !      Call Agrif_Set_raf(vbar,(/'x','y','N'/))
-#endif
+# endif
 !
 !      Call Agrif_Set_bcinterp(zeta,AGRIF_linear)
 !      Call Agrif_Set_bc(zeta,(/-1,0/))
@@ -249,120 +249,180 @@
 !      Call Agrif_Set_interp(h,AGRIF_linear)
 !      Call Agrif_Set_bc(h,(/0,0/))
      
-#if defined AGRIF_UPDATE_FULLWEIGHTING || defined AGRIF_UPDATE_MIX        
+# if defined AGRIF_UPDATE_FULLWEIGHTING || defined AGRIF_UPDATE_MIX        
 !      Call Agrif_Set_UpdateType(h,update=
 !     &   Agrif_Update_Full_Weighting)
-#endif
+# endif
 
-#if defined AGRIF_UPDATE_MIX_HIGH
+# if defined AGRIF_UPDATE_MIX_HIGH
 !      Call Agrif_Set_UpdateType(h,update=
 !     &   Agrif_Update_4rdorder)
-#endif
+# endif
 
-#ifdef MASKING      
+# ifdef MASKING      
 !      Call Agrif_Set_UpdateType(rmask,update=
 !     &   Agrif_Update_Average)
-#endif
+# endif
 
       call declare_zoom_variables()
 
 # ifdef MPI
       call MPI_Setup (ierr)
-      if (ierr.ne.0) goto 100                            !--> ERROR
+      if (ierr.ne.0) goto 100         !--> ERROR
 # endif
-
-      call read_inp (ierr)           ! Read in tunable model
-      if (ierr.ne.0) goto 100        ! parameters.
-      call init_scalars (ierr)       ! Also initialize global
-      if (ierr.ne.0) goto 100        ! scalar variables.
-
+!
+!----------------------------------------------------------------------
+!  Read in tunable model parameters in roms.in file
+!----------------------------------------------------------------------
+!
+      call read_inp (ierr)
+      if (ierr.ne.0) goto 100
+!
+!----------------------------------------------------------------------
+!  Initialize global model parameters
+!----------------------------------------------------------------------
+!
+!  Gobal scalar variables
+!
+      call init_scalars (ierr)
+      if (ierr.ne.0) goto 100
+!
+!  Generic Length Scale (GLS) model parameters
+!
 # ifdef SOLVE3D
 #  ifdef GLS_MIXING
-      call init_gls (ierr)           ! GLS model parameters
+      call init_gls (ierr)
 #  endif
-
+!
+!  PISCES biogeochemeical model parameters
+!
 #  ifdef PISCES
       call trclsm
       call get_dust
 #  endif
-
+!
+!  Read sediment initial values and parameters from sediment.in file
+!
 #  ifdef SEDIMENT
       if (Agrif_Fixed().GE.Agrif_lev_sedim) then
-        call init_sediment           ! Read sediment initial values and
-                                     ! parameters from sediment.in file
+        call init_sediment
       endif
 #  endif
 # endif
-
+!
+!----------------------------------------------------------------------
+!  Create parallel threads 
+!  initialize (FIRST-TOUCH) model global arrays (most of them
+!  are just set to to zero).
+!----------------------------------------------------------------------
+!
 C$OMP PARALLEL DO PRIVATE(tile)
-      do tile=0,NSUB_X*NSUB_E-1      ! Create parallel threads;
-c        call start_timers()          ! start timers for each thread;
-        call init_arrays (tile)      ! initialize (FIRST-TOUCH) model 
-      enddo                          ! global arrays (most of them 
-CR      write(*,*) '-11' MYID        ! are just set to to zero).
-
+      do tile=0,NSUB_X*NSUB_E-1
+!        call start_timers()
+        call init_arrays (tile) 
+      enddo 
+CR      write(*,*) '-11' MYID
+!
+!----------------------------------------------------------------------
+!  Set horizontal grid, model bathymetry and Land/Sea mask
+!----------------------------------------------------------------------
+!
 # ifdef ANA_GRID
-C$OMP PARALLEL DO PRIVATE(tile)      ! Set horizontal curvilinear 
-      do tile=0,NSUB_X*NSUB_E-1      ! grid and model bathymetry 
-        call ana_grid (tile)         ! (analyticaly or read from 
-      enddo                          ! GRID NetCDF file).
+!
+!  Set grid analytically
+!
+C$OMP PARALLEL DO PRIVATE(tile) 
+      do tile=0,NSUB_X*NSUB_E-1 
+        call ana_grid (tile) 
+      enddo
 # else
-                                     ! Also read Land/Sea mask
-      call get_grid                  ! from GRID NetCDF file). 
-      if (may_day_flag.ne.0) goto 99     !-->  EXIT
+!
+!  Read grid from GRID NetCDF file 
+!
+      call get_grid 
+      if (may_day_flag.ne.0) goto 99  !-->  EXIT
 # endif
+!
+!  Compute various metric term combinations.
+!
 C$OMP PARALLEL DO PRIVATE(tile)
-      do tile=0,NSUB_X*NSUB_E-1      ! Compute various metric
-        call setup_grid1 (tile)      ! term combinations.
+      do tile=0,NSUB_X*NSUB_E-1
+        call setup_grid1 (tile)
       enddo
 CR      write(*,*) '-10' MYID
+!
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
         call setup_grid2 (tile)
       enddo
 CR      write(*,*) ' -9' MYID
-                                     ! Set up vertical S-coordinate
+!
+!----------------------------------------------------------------------
+!  Setup vertical grid variables setup vertical S-coordinates 
+!  and fast-time averaging for coupling of 
+!  split-explicit baroropic mode.
+!----------------------------------------------------------------------
+!
 # ifdef SOLVE3D
-      call set_scoord                ! and fast-time averaging  
-      call set_weights               ! weights for coupling of 
-                                     ! split-explicit baroropic mode.
+!
+!  Set vertical S-coordinate functions
+!
+      call set_scoord 
+!
+!  Set fast-time averaging for coupling of split-explicit baroropic mode.
+!
+      call set_weights
 # endif
 CR      write(*,*) ' -8' MYID 
+!
+!  Create three-dimensional S-coordinate system,
+!  which may be needed by ana_initial 
+!  (here it is assumed that free surface zeta=0).
+!
 # ifdef SOLVE3D
-C$OMP PARALLEL DO PRIVATE(tile)      ! Create three-dimensional
-      do tile=0,NSUB_X*NSUB_E-1      ! S-coordinate system, which
-        call set_depth (tile)        ! may be neded by ana_ninitial
-      enddo                          ! (here it is assumed that free
-CR      write(*,*) ' -7' MYID        ! surface zeta=0).
-C$OMP PARALLEL DO PRIVATE(tile)      ! Create three-dimensional
-      do tile=0,NSUB_X*NSUB_E-1      ! S-coordinate system, which
+C$OMP PARALLEL DO PRIVATE(tile)
+      do tile=0,NSUB_X*NSUB_E-1
+        call set_depth (tile)
+      enddo
+CR      write(*,*) ' -7' MYID
+!
+!  Make grid diagnostics
+!
+C$OMP PARALLEL DO PRIVATE(tile)
+      do tile=0,NSUB_X*NSUB_E-1
         call grid_stiffness (tile) 
-      enddo                          ! (here it is assumed that free
+      enddo
 # endif
-# ifdef ANA_INITIAL
-      if (nrrec.eq.0) then
-C$OMP PARALLEL DO PRIVATE(tile)      ! Set initial conditions
-        do tile=0,NSUB_X*NSUB_E-1    ! for primitive variables
-          call ana_initial (tile)    ! (analytically or read
-        enddo                        ! from initial conditions
-      else                           ! NetCDF file).
-# endif
-#ifdef XIOS
-      do tile=0,NSUB_X*NSUB_E-1      ! Create parallel threads;
+!
+!----------------------------------------------------------------------
+!  Initialize XIOS I/O server
+!----------------------------------------------------------------------
+!
+# ifdef XIOS
+      do tile=0,NSUB_X*NSUB_E-1
         call  init_xios(tile)
-      enddo                          ! GRID NetCDF file).
-#endif
-
+      enddo
+# endif
+!
+!----------------------------------------------------------------------
+!  Set initial conditions for momentum and tracer variables
+!----------------------------------------------------------------------
+!
+# ifdef ANA_INITIAL
+      if (nrrec.ne.0) then
+# endif
 # ifndef AGRIF_ADAPTIVE
+!
+!  Read from NetCDF file
+!
         call get_initial
 # else
-
-        call Agrif_Declare_Variable((/2,2/),(/1,1/),(/'x','y'/),lbound(Zt_avg1),
-     &   ubound(Zt_avg1),zetaid,torestore=.true.)
-        call Agrif_Declare_Variable((/1,2/),(/1,1/),(/'x','y'/),lbound(DU_avg2),
-     &   ubound(DU_avg2),ubarid,torestore=.true.)
-        call Agrif_Declare_Variable((/2,1/),(/1,1/),(/'x','y'/),lbound(DV_avg2),
-     &   ubound(DV_avg2),vbarid,torestore=.true.)  
+        call Agrif_Declare_Variable((/2,2/),(/1,1/),(/'x','y'/)
+     &   ,lbound(Zt_avg1),ubound(Zt_avg1),zetaid,torestore=.true.)
+        call Agrif_Declare_Variable((/1,2/),(/1,1/),(/'x','y'/)
+     &   ,lbound(DU_avg2),ubound(DU_avg2),ubarid,torestore=.true.)
+        call Agrif_Declare_Variable((/2,1/),(/1,1/),(/'x','y'/)
+     &   ,lbound(DV_avg2),ubound(DV_avg2),vbarid,torestore=.true.)  
      
         allocate(text(GLOBAL_2D_ARRAY,N,NT))  
              
@@ -407,47 +467,65 @@ C$OMP PARALLEL DO PRIVATE(tile)      ! Set initial conditions
      
         call Agrif_Init_Variable(zetaid,procname=initzeta)
 
-
         call Agrif_Init_Variable(ubarid,procname=initubar)
         call Agrif_Init_Variable(vbarid,procname=initvbar)
 
         call Agrif_Init_Variable(tid,procname=initt)
+
         do itrc=1,NT
-            got_tini(itrc) = .true.
-        enddo        
+          got_tini(itrc) = .true.
+        enddo
+
         call Agrif_Init_Variable(uid,procname=initu)
         call Agrif_Init_Variable(vid,procname=initv)
 
-
         if (Agrif_Parent_Nb_Step() == 0) then
-        call get_initial
+          call get_initial
         endif
 # endif /* AGRIF_ADAPTIVE */
-
-C$OMP PARALLEL DO PRIVATE(tile)      ! Set analytical initial 
-        do tile=0,NSUB_X*NSUB_E-1    ! conditions for tracers
-          call ana_initracer (tile)  ! if not found in initial
-        enddo                        ! conditions NetCDF file). 
 # ifdef ANA_INITIAL
-      endif
+      endif  ! (nrrec.ne.0)
 # endif
+!
+!  Set initial conditions analytically for ideal cases
+!  or for tracer variables not present in NetCDF file
+!
+C$OMP PARALLEL DO PRIVATE(tile)
+      do tile=0,NSUB_X*NSUB_E-1
+        call ana_initial (tile)
+      enddo
+!
+!----------------------------------------------------------------------
+!  Initialize specific PISCES variables
+!----------------------------------------------------------------------
+!
 # if defined BIOLOGY && defined PISCES
-C$OMP PARALLEL DO PRIVATE(tile)      ! Set analytical initial
-        do tile=0,NSUB_X*NSUB_E-1    ! conditions for tracers
-          call  pisces_ini (tile)  ! if not found in initial
-        enddo                        ! conditions NetCDF file).
+C$OMP PARALLEL DO PRIVATE(tile)
+      do tile=0,NSUB_X*NSUB_E-1
+        call  pisces_ini (tile)
+      enddo
 # endif
 CR      write(*,*) ' -6' MYID 
-      if (may_day_flag.ne.0) goto 99     !-->  EXIT
-
-# ifdef SOLVE3D
+      if (may_day_flag.ne.0) goto 99 !-->  EXIT
+!
+!----------------------------------------------------------------------
+!  Finalize grid setup
+!----------------------------------------------------------------------
+!
+!  Finalize vertical grid now that zeta is knowned
+!  zeta is also corrected here fr Wetting/Drying
+!  in both 2D and 3D cases
+!
+# if defined  SOLVE3D || defined WET_DRY
 C$OMP PARALLEL DO PRIVATE(tile)      ! Create three-dimensional
       do tile=0,NSUB_X*NSUB_E-1      ! S-coordinate system: at this
         call set_depth (tile)        ! time free surface is set to
       enddo                          ! a non-zero field, either 
 CR      write(*,*)  ' -5' MYID       ! analytically or from restart.
+# endif
 
-#  if defined AGRIF_ADAPTIVE
+# ifdef SOLVE3D
+#  ifdef AGRIF_ADAPTIVE
       if (Agrif_Parent_Nb_Step() /= 0) then
       do j=0,Mm+1
       do i=1,Lm+1
@@ -517,13 +595,15 @@ CR      write(*,*)  ' -5' MYID       ! analytically or from restart.
           
       endif 
 #  endif /* AGRIF_ADAPTIVE */
-     
+!
+!----------------------------------------------------------------------
+!  Initialize diagnostic fields: mass flux, rho, omega
+!----------------------------------------------------------------------
+!
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
         call set_HUV (tile)
       enddo
-
-            
 CR      write(*,*)  ' -4' MYID
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
@@ -533,17 +613,19 @@ C$OMP PARALLEL DO PRIVATE(tile)
 CR      write(*,*)  ' -3' MYID
 # endif /* SOLVE3D */
 !
-! Create climatological environment:
-!-------------------------------------------------------
-! Set nudging coefficient for sea surface hight and tracer
-!                 climatology;
-! Set bottom sediment grain size [m] and density [kg/m^3]
-!                 used in bottom boundary layer formulation;
-! Set initial analytical tracer climatology fields;
-! Set initial sea surface height climatology;
+!----------------------------------------------------------------------
+! Create environment for lateral forcing:
+!----------------------------------------------------------------------
+! Set nudging coefficient for sea surface hight and tracer climatology;
+! Set ANALYTICAL:
+!   bottom sediment grain size [m] and density [kg/m^3]
+!     used in bottom boundary layer formulation;
+!   surface forcing from NetCDF file
+!----------------------------------------------------------------------
 !
 # if defined TNUDGING || defined ZNUDGING || defined SPONGE \
-      || (defined BBL && defined ANA_BSEDIM)
+                      || (defined BBL && defined ANA_BSEDIM)
+!
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
 #  if defined TNUDGING || defined ZNUDGING || defined SPONGE
@@ -559,12 +641,12 @@ C$OMP PARALLEL DO PRIVATE(tile)
           call ana_sediment (tile)
         endif
 #  endif
-      enddo
+      enddo !<-- tile
 # endif
 CR      write(*,*) ' -2' MYID 
 !
-!  Read bottom sediment grain size [m] and density [kg/m^3] from
-!           input NetCDF file;
+!  Read bottom sediment grain size [m] and density [kg/m^3] 
+!  from input NetCDF file;
 !
 # if defined BBL && !defined ANA_BSEDIM && !defined SEDIMENT
       if (Agrif_Fixed().GE.Agrif_lev_sedim) then
@@ -576,19 +658,28 @@ CR      write(*,*) ' -2' MYID
           call get_sediment
       endif
 # endif
+!
+!  Read surface forcing from NetCDF file
+!
       call get_vbc
-
-#ifdef WKB_WWAVE
+!
+!----------------------------------------------------------------------
+!  WKB surface wave model:
+!
+!  initialization and initial run to equilibrium 
+!----------------------------------------------------------------------
+!
+# ifdef WKB_WWAVE
         call Agrif_Set_interp(wacid,interp=Agrif_ppm)
         call Agrif_Init_Variable(wacid,procname=initwac)
         call Agrif_Set_interp(wkxid,interp=Agrif_ppm)
         call Agrif_Init_Variable(wkxid,procname=initwkx)
         call Agrif_Set_interp(wkeid,interp=Agrif_ppm)
         call Agrif_Init_Variable(wkeid,procname=initwke)
-# ifdef WAVE_ROLLER
+#  ifdef WAVE_ROLLER
         call Agrif_Set_interp(warid,interp=Agrif_ppm)
         call Agrif_Init_Variable(warid,procname=initwar)
-# endif
+#  endif
 
 C$OMP BARRIER
 C$OMP MASTER
@@ -627,7 +718,7 @@ C$OMP PARALLEL DO PRIVATE(tile)
         call wkb_cew_finalize (tile)
       enddo
 C$OMP BARRIER
-# endif
+#  endif
       do while (iwave.le.50000.and.thwave.ge.1.D-10)
         wstp=wnew
         wnew=wstp+1
@@ -640,12 +731,12 @@ C$OMP PARALLEL DO PRIVATE(tile)
         iwave=iwave+1
         thwave=max(av_wac,av_wkn)
       enddo
-# if defined RVTK_DEBUG || defined RVTK_DEBUG_ADVANCED
+#  if defined RVTK_DEBUG || defined RVTK_DEBUG_ADVANCED
 C$OMP BARRIER
 C$OMP MASTER
       call check_tab2d(wac(:,:,wnew),'wac initialisation #1','r')
 C$OMP END MASTER
-# endif
+#  endif
       first_time=0
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
@@ -656,20 +747,25 @@ C$OMP MASTER
         MPI_master_only write(stdout,'(/1x,A/)')
      &     'WKB: completed child wave computation.'
 C$OMP END MASTER
-#endif 
-
-
+# endif /* WKB_WWAVE */
+!
 CR      write(*,*) ' -1' MYID 
       if (may_day_flag.ne.0) goto 99     !-->  EXIT
-#ifdef XIOS
+!
+!----------------------------------------------------------------------
+!  Write initial fields into history NetCDF files
+!----------------------------------------------------------------------
+!
+# ifdef XIOS
       if (nrrec.eq.0) then
         do tile=0,NSUB_X*NSUB_E-1
           call send_xios_diags(tile)
         enddo
       endif
-#else
+# else
       if (ldefhis .and. wrthis(indxTime)) call wrt_his
-#endif
+# endif
+
 CR      write(*,*) '  0' MYID
       if (may_day_flag.ne.0) goto 99     !-->  EXIT
 
@@ -679,6 +775,11 @@ CR      write(*,*) '  0' MYID
       next_kstp=kstp
       time_start=time
 
+!
+!----------------------------------------------------------------------
+!   AGRIF initialization
+!----------------------------------------------------------------------
+!
       U2DTimeindex = -1
       V2DTimeindex = -1
       ZetaTimeindex = -1
@@ -749,8 +850,6 @@ CR      write(*,*) '  0' MYID
      
                 T_east(LOCALLM:LOCALLM+1,0:LOCALMM+1,1:N,4,1:NT)=
      &          t(LOCALLM:LOCALLM+1,0:LOCALMM+1,1:N,1,1:NT)     
-
-          
 #   ifdef MPI               
             endif  
 #   endif                            

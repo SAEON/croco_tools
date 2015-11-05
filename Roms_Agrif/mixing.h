@@ -78,19 +78,13 @@
 # ifdef TS_MIX_ISO
       real Rslope_max,Gslope_max
       parameter (Gslope_max=5., Rslope_max=0.05)
-#  ifdef TS_MIX_ISO_FILT
-      real Rslope_ndays
-      parameter (Rslope_ndays=1.)
-      integer Rslope_ntimes
-      real dRdx_tmp(GLOBAL_2D_ARRAY,N)
-      real dRde_tmp(GLOBAL_2D_ARRAY,N)
-      real dRz_tmp(GLOBAL_2D_ARRAY,0:N)
-      common /mixing_Rslope/Rslope_ntimes
-      common /mixing_dRdx_tmp/dRdx_tmp
-      common /mixing_dRde_tmp/dRde_tmp
-      common /mixing_dRz_tmp/dRz_tmp
-#  endif
 # endif
+#ifdef TS_MIX_ISO_FILT
+      integer ismooth
+      real csmooth
+      common /mixing_csmooth/ csmooth
+      common /mixing_ismooth/ ismooth
+#endif
 #endif /*  TS_MIX_ISO || TS_MIX_GEO */
 
 #ifdef SOLVE3D

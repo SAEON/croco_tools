@@ -3,7 +3,7 @@ function [lon,lat,f,pm,pn]=get_tpx_grid(x,y);
 %
 %
 [lon,lat]=meshgrid(x,y);
-f=4*pi*sin(pi*lat/180)/(24*3600);
+f=4*pi*sin(pi*lat/180)*366.25/(24*3600*365.25);
 %
 % Get the metrics
 %

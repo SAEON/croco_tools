@@ -222,7 +222,8 @@ C$OMP END PARALLEL
       call get_date (date_str)
 
 #ifdef TS_MIX_ISO_FILT
-      Rslope_ntimes=int(Rslope_ndays*86400/dt)
+      csmooth=dt/(86400.)
+      ismooth=int(1./csmooth)
 #endif
 !
 !---------------------------------------------------------------

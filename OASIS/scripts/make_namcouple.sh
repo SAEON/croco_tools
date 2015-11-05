@@ -5,8 +5,8 @@
 #
 #======================================================================
 #
-export ROMS_FILES_DIR=$HOME/OASIS/Run_benguela/roms_files
-export WRF_FILES_DIR=$HOME/OASIS/Run_benguela/wrf_files
+export ROMS_FILES_DIR=$HOME/GIT/croco/Run_benguela_lr_oa/ROMS_FILES
+export WRF_FILES_DIR=/local/tmp/2/gcambon/ATMO_MODEL/WRF/WRF3.6.1/run_benguela_lr_oa
 export OASIS_FILES_DIR='./'
 
 myconfig='TOY'
@@ -297,6 +297,7 @@ BILINEAR LR SCALAR LATLON 1
 #
 WRF_d01_EXT_d01_TAUX RRMTAUX0 23 $CPL_FREQ  2  flxat.nc  EXPOUT
 $LWRF $MWRF $LROMS $MROMS wrp0 rrp0  LAG=$MYLAG
+R 0 R 0
 LOCTRANS SCRIPR
 AVERAGE
 BILINEAR LR SCALAR LATLON 1
@@ -418,9 +419,11 @@ BILINEAR LR SCALAR LATLON 1
 WRF_d0${DNW}_EXT_d0${DNW}_TAUX RRMTAUX${DNRm} 23 $CPL_FREQ  2  flxat.nc  EXPOUT
 LWRF MWRF LROMS MROMS wrp0 rrp0  LAG=MYLAG
 $LWRF $MWRF $LROMS $MROMS  wrp${DNWm} rrp${DNRm}  LAG=$MYLAG
+R 0 R 0
 LOCTRANS SCRIPR
 AVERAGE
 BILINEAR LR SCALAR LATLON 1
+#
 ###############################################################################
 #
 # Field 5 : stress along Y axis (a->o tau 1)
@@ -483,9 +486,11 @@ BILINEAR LR SCALAR LATLON 1
 WRF_d0${DNW}_EXT_d0${DNW}_TAUX RRMTAUX${DNRm} 23 $CPL_FREQ  2  flxat.nc  EXPOUT
 LWRF MWRF LROMS MROMS wrp0 rrp0  LAG=MYLAG
 $LWRF $MWRF $LROMS $MROMS  wrp${DNWm} rrp${DNRm}  LAG=$MYLAG
+R 0 R 0
 LOCTRANS SCRIPR
 AVERAGE
 BILINEAR LR SCALAR LATLON 1
+#
 ###############################################################################
 #
 # Field 5 : stress along Y axis (a->o tau 1)
@@ -496,6 +501,7 @@ R 0 R 0
 LOCTRANS SCRIPR
 AVERAGE
 BILINEAR LR SCALAR LATLON 1
+#
 ###############################################################################
 #
 End_Of_Namelist

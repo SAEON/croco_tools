@@ -240,8 +240,8 @@
 # define TS_HADV_C4    /*    4th-order centered advection      */
 # undef  TS_DIF2       /*               +                      */
 # define TS_DIF4       /*         Hyperdiffusion  with         */
-# define TS_MIX_GEO    /*        Geopotential rotation         */
-# undef  TS_MIX_ISO    /*     or Isopycnal    rotation         */
+# undef  TS_MIX_GEO    /*        Geopotential rotation         */
+# define TS_MIX_ISO    /*     or Isopycnal    rotation         */
 #endif
 #ifdef TS_HADV_RSUP5   /*    Pseudo RS 5th-order scheme is:    */
 # define TS_HADV_C6    /*    6th-order centered advection      */
@@ -265,7 +265,7 @@
 #if defined TS_MIX_ISO || (defined TS_DIF4 && defined TS_MIX_GEO)
 # define TS_MIX_IMP       /*  Implicit treatment of vertical fluxes  */
 #endif
-#ifdef TS_MIX_ISO
+#if defined TS_MIX_ISO && defined SALINITY
 # define TS_MIX_ISO_FILT  /*  neutral slope filtering */
 #endif
 /*

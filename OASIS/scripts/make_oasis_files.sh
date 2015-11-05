@@ -8,8 +8,8 @@
 #
 functions_path=$HOME/OASIS/functions
 
-export ROMS_FILES_DIR=$HOME/OASIS/Run_benguela/roms_files
-export WRF_FILES_DIR=$HOME/OASIS/Run_benguela/wrf_files
+export ROMS_FILES_DIR=$HOME/GIT/croco/OASIS/Run_benguela/roms_files
+export WRF_FILES_DIR=$HOME/GIT/croco/OASIS/Run_benguela/wrf_files
 export OASIS_FILES_DIR='./'
 
 roms_grid_file=$ROMS_FILES_DIR/roms_grd.nc

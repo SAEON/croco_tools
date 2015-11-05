@@ -180,7 +180,7 @@
           enddo
           do i=Istr,Iend
 #  ifdef MOVING_BATHY
-            FC(i,0)=W(i,j,0)*2.
+            FC(i,0)=We(i,j,0)*2.
      &              (0.58333333333333*t(i,j,1,nstp,itrc)-
      &               0.08333333333333*t(i,j,2,nstp,itrc))
 #  else

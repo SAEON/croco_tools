@@ -33,7 +33,7 @@
 #                       USER CHANGES                                 = 
 #=====================================================================
 
-CONFIGURE_NAMELIST=configure.namelist_BENGUELA
+CONFIGURE_NAMELIST=configure.namelist_benguela_lr_oa
 
 #============= Define OPTIONS for running the script =================
 
@@ -77,27 +77,45 @@ if [ -f /etc/bashrc ]; then
    . /etc/bashrc
 fi
 # Set Environment for WPS and WRF
-export WPS_ROOT=$HOME/WRF/WPS3.6
-export WRF_ROOT=$HOME/WRF/WRFV3
-export RUN_ROOT=$HOME/WRF/WRFV3/run_benguela
+export WPS_ROOT=$HOME/WRF/WPS3.6.1
+export WRF_ROOT=$HOME/WRF/WRF3.6.1
+export RUN_ROOT=$HOME/WRF/WRF3.6.1/run_benguela_lr_oa
 export REAL_ROOT=$RUN_ROOT
 export WRF_ROOM=$RUN_ROOT
 
 source $WPS_ROOT/$CONFIGURE_NAMELIST
 export MY_PATH=`pwd`
-export I_DATAROOT=$HOME/WRF/WPS3.3.1/I_DATA
-export O_DATAROOT=$WPS_ROOT/O_DATA
-export GEOG_DATAROOT=$HOME/WRF/WPS3.3.1/geog
+export I_DATAROOT=$WPS_ROOT/I_DATA/ncep_fnl_2008_09-10
+echo "  "
+echo "==============================="
+echo "O_DATAROOT=> "$O_DATAROOT
+echo "==============================="
+
+export O_DATAROOT=$WPS_ROOT/O_DATA/$domain_name
+echo "  "
+echo "==============================="
+echo "O_DATAROOT=> "$O_DATAROOT
+echo "==============================="
+
+export GEOG_DATAROOT=$WPS_ROOT/geog
+echo "  "
+echo "==============================="
+echo "GEOG_DATAROOT=> "$GEOG_DATAROOT
+echo "==============================="
 
 export NETCDF=/usr/local
 export NCDUMP=$NETCDF/bin/ncdump
 export LBC_type='FNL'
+export LBC_type_dir=$O_DATAROOT'/'$LBC_type
+
 export LBC_type_Vtable='GFS'
 export LSM_type='FNL'
 export LBC_MOTIF='fnl'
 
-export myMPI=
-#export myMPI="mpirun -np 2"
+#export myMPI=
+export myMPI="mpirun -np 2"
+
+mkdir $O_DATAROOT
 
 
 #=========================================================================
@@ -360,7 +378,7 @@ cat << End_Of_Namelist | sed -e 's/#.*//; s/  *$//' > ./namelist.wps
 
 &ungrib
  out_format = 'WPS',
- prefix = '$LBC_type',
+ prefix = '$LBC_type_dir',
 /
 End_Of_Namelist
 
@@ -398,8 +416,9 @@ fi
   echo "   Data type is ${LBC_type}                             "
 
   if [ $LBC_type = 'FNL' ]; then
-#      echo "- FNL FNL FNL FNL -"
-      ./link_grib.csh $I_DATAROOT/fnl
+      echo "- FNL FNL FNL FNL -"
+      echo "./link_grib.csh $I_DATAROOT/fnl*"
+      ./link_grib.csh $I_DATAROOT/fnl*
       echo $I_DATAROOT
   elif [ $LBC_type = 'GFS' ]; then
      ./link_grib.csh $I_DATAROOT/gfs*.grb
@@ -647,7 +666,7 @@ if [ $switch_real -eq 1 ]; then
       fi
     fi
     dxn=`$NCDUMP -h met_em.d0${DN}.${start_date_d0N}.nc\
-    | head -n 1000 | grep -i ':DX =' | awk -F '= ' '{print $2}' | awk -F 'f ;' '{print $1}'`
+    | head -n 1000 | grep -i ':DX =' | gawk -F '= ' '{print $2}' | gawk -F 'f ;' '{print $1}'`
     #echo $xdim $ydim $dxn
 
     # Grid nudging : Only Domain 1
@@ -928,11 +947,11 @@ if [ $switch_wrf -eq 1 ]; then
   DN=1
   while [ $DN -le $max_domains ]; do
     export xdim_d0${DN}=`$NCDUMP -h wrfinput_d0${DN}\
-    | head -n 12 | grep -i 'west_east_stag =' | awk -F '= ' '{print $2}' | awk -F ' ;' '{print $1}'`
+    | head -n 12 | grep -i 'west_east_stag =' | gawk -F '= ' '{print $2}' | gawk -F ' ;' '{print $1}'`
     export ydim_d0${DN}=`$NCDUMP -h wrfinput_d0${DN}\
-    | head -n 12 | grep -i 'south_north_stag =' | awk -F '= ' '{print $2}' | awk -F ' ;' '{print $1}'`
+    | head -n 12 | grep -i 'south_north_stag =' | gawk -F '= ' '{print $2}' | gawk -F ' ;' '{print $1}'`
     export dx_d0${DN}=`$NCDUMP -h wrfinput_d0${DN}\
-    | head -n 1000 | grep -i ':DX =' | awk -F '= ' '{print $2}' | awk -F 'f ;' '{print $1}'`
+    | head -n 1000 | grep -i ':DX =' | gawk -F '= ' '{print $2}' | gawk -F 'f ;' '{print $1}'`
     let DN=DN+1
   done
 
