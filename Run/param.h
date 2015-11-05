@@ -138,6 +138,8 @@
       parameter (LLm0=81,   MMm0=77,   N=32)   ! CORAL sea
 #  elif defined  BENGUELA_LR
       parameter (LLm0=41,   MMm0=42,   N=32)   ! BENGUELA_LR
+#  elif defined  BENGUELA_LR_OA
+      parameter (LLm0=73,   MMm0=60,   N=32)   ! BENGUELA_LR_OA     
 #  elif defined  BENGUELA_HR
       parameter (LLm0=83,   MMm0=85,   N=32)   ! BENGUELA_HR
 #  elif defined  BENGUELA_VHR
