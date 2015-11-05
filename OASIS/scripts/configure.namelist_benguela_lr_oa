@@ -3,7 +3,7 @@
 # to generate namelist.wps and namelist.input
 #============================================================
 
-domain_name="BENGUELA_LR"
+domain_name="BENGUELA_LR_OA"
 
 #-------------------------------------
 # Nb domains
