@@ -47,9 +47,6 @@
 # endif
       integer Istr,Iend,Jstr,Jend, itrc, i,j,k, indx, kmld
      &       ,imin,imax,jmin,jmax,iAkt,nadv
-# ifdef TS_MIX_ISO_FILT
-     &       ,ilc
-# endif
 # ifdef PSOURCE
      &       ,is
 # endif
@@ -490,7 +487,7 @@
 # endif
 !
 !======================================================================
-!  Compute vertical Rho gradients for use in t3dmix
+!  Compute inverse vertical Rho gradients for use in t3dmix
 !======================================================================
 !
 # if !defined TS_MIX_S && \
@@ -513,108 +510,58 @@
           idRz(i,j,0) = 0.
         enddo
       enddo
-#   if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
-      call exchange_w3d_tile (  istr,iend,jstr,jend,
-     &                            idRz(START_2D_ARRAY,0)  )
-#   endif
 
 #  elif defined TS_MIX_ISO
 !
-! --- Isopycnal diffusion ---
+!  --- Isopycnal diffusion: idRz is inverse vertical rho gradient ---
 !
-#   ifdef TS_MIX_ISO_FILT
-      ilc=1+iic-ntstart
-#   endif
       do k=1,N-1
         do j=jstr,jend
           do i=istr,iend
 #   ifdef SPLIT_EOS
             dpth=z_w(i,j,N)-0.5*(z_r(i,j,k+1)+z_r(i,j,k))
-#    ifdef TS_MIX_ISO_FILT
-            dRz_tmp(i,j,k) = dRz_tmp(i,j,k) +
-#    else
-            dRz = 
-#    endif
-     &            ( rho1(i,j,k+1)-rho1(i,j,k)
-     &           +(  qp1(i,j,k+1)- qp1(i,j,k))
-     &                 *dpth*(1.-2.*qp2*dpth))
+            dRz =rho1(i,j,k+1)-rho1(i,j,k)
+     &          +(qp1(i,j,k+1)- qp1(i,j,k))
+     &               *dpth*(1.-2.*qp2*dpth)
 #   else
-#    ifdef TS_MIX_ISO_FILT
-            dRz_tmp(i,j,k) = dRz_tmp(i,j,k) +
-#    else
-            dRz = 
-#    endif
-     &              rho1(i,j,k+1)-rho1(i,j,k)
+            dRz = rho1(i,j,k+1)-rho1(i,j,k)
 #   endif
-
-#   ifdef TS_MIX_ISO_FILT
+            cff  = min( 1./dRz,-1.E-14 )   !  minimum stratification imposed
+            cff1 = 1./(z_r(i,j,k+1)-z_r(i,j,k))
+#   ifdef LMD_SKPP2005
+            hbltmp=hbls(i,j,3-nstp)
+#   elif defined LMD_SKPP1994
+            hbltmp=hbl(i,j)
+#   else
+            hbltmp=5.
+#   endif
+            gama = 1.                                     ! mixing becomes
+            sig = (z_w(i,j,N)-z_w(i,j,k))/max(hbltmp,5.)  ! isosigma within  
+            if (sig .lt. 1.) gama = sig*sig*(3.-2.*sig)   ! PBL depth (>5m)
+            dXmax = max(abs(dRdx(i,j,k  )),abs(dRdx(i+1,j,k  )),
+     &                  abs(dRdx(i,j,k+1)),abs(dRdx(i+1,j,k+1)),1E-14)
+            dEmax = max(abs(dRde(i,j,k  )),abs(dRde(i,j+1,k  )),
+     &                  abs(dRde(i,j,k+1)),abs(dRde(i,j+1,k+1)),1E-14)
+            smax=min(Rslope_max,Gslope_max*min(pm(i,j),pn(i,j))/cff1)
+!
+            idRz(i,j,k) = max(cff,   -smax*gama*cff1 / dXmax,
+     &                               -smax*gama*cff1 / dEmax )
           enddo
         enddo
       enddo
-      if (ilc.eq.1) then
-        do k=1,N-1
-          do j=JstrR,JendR
-            do i=IstrR,IendR
-              idRz(i,j,k) = 1./(z_r(i,j,k+1)-z_r(i,j,k))
-            enddo
-          enddo
+      do j=jstr,jend
+        do i=istr,iend
+          idRz(i,j,N) = 0.
+          idRz(i,j,0) = 0.
         enddo
-        do j=jstrR,jendR
-          do i=istrR,iendR
-            idRz(i,j,N) = 0.
-            idRz(i,j,0) = 0.
-          enddo
-        enddo
-      elseif (mod(ilc,Rslope_ntimes).eq.0) then
-        do k=1,N-1
-          do j=jstr,jend
-            do i=istr,iend
-              dRz=dRz_tmp(i,j,k)/Rslope_ntimes ! time average rho gradients
-              dRz_tmp(i,j,k)=0.
-#   endif
-
-              cff  = min( 1./dRz,-1.E-14 ) !++ if rho(i,j,k+1)=rho(i,j,k)
-                                           !++ cff = -1.E-14  ...
-              cff1 = 1./(z_r(i,j,k+1)-z_r(i,j,k))
-#   ifdef LMD_SKPP2005
-              hbltmp=hbls(i,j,3-nstp)
-#   elif defined LMD_SKPP1994
-              hbltmp=hbl(i,j)
-#   else
-              hbltmp=5.
-#   endif
-              sig  = - z_w(i,j,k+1) / max( hbltmp, 5.  )     
-                     !--> the depth of the boundary layer is at least 5m
-              dXmax = max(abs(dRdx(i,j,k  )),abs(dRdx(i+1,j,k  )),
-     &                    abs(dRdx(i,j,k+1)),abs(dRdx(i+1,j,k+1)),1E-14)
-
-              dEmax = max(abs(dRde(i,j,k  )),abs(dRde(i,j+1,k  )),
-     &                    abs(dRde(i,j,k+1)),abs(dRde(i,j+1,k+1)),1E-14)
-
-              gama  = 1.
-              if(sig .le. 1.) then
-                gama  = sig*sig*(3.-2.*sig)
-              endif
-              smax=min(Rslope_max,Gslope_max*min(pm(i,j),pn(i,j))/cff1)
-              idRz(i,j,k) = max(cff,   -smax*gama*cff1 / dXmax,
-     &                                 -smax*gama*cff1 / dEmax )
-            enddo
-          enddo
-        enddo
-        do j=jstr,jend
-          do i=istr,iend
-            idRz(i,j,N) = 0.
-            idRz(i,j,0) = 0.
-          enddo
-        enddo
-#   if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
-        call exchange_w3d_tile (  istr,iend,jstr,jend,
-     &                            idRz(START_2D_ARRAY,0)  )
-#   endif
-#   ifdef TS_MIX_ISO_FILT
-      endif  ! ilc
-#   endif
+      enddo
 #  endif /* TS_MIX_ISO */
+!
+#  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      call exchange_w3d_tile (  istr,iend,jstr,jend,
+     &                          idRz(START_2D_ARRAY,0)  )
+#  endif
+!
 # endif /* TS_DIF2 || TS_DIF4 || SPONGE_DIF2 */
 !
 !

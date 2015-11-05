@@ -69,8 +69,8 @@ C$    trd=omp_get_thread_num()
 !
 ! AB3 Forward step:
 ! ----------------
-! ubarrhs = (3/2+beta)*ubar(n) + (1/2+2*beta)*ubar(n-1) + beta*ubar(n-2)
-! vbarrhs = (3/2+beta)*vbar(n) + (1/2+2*beta)*vbar(n-1) + beta*vbar(n-2)
+! ubarrhs = (3/2+beta)*ubar(n) - (1/2+2*beta)*ubar(n-1) + beta*ubar(n-2)
+! vbarrhs = (3/2+beta)*vbar(n) - (1/2+2*beta)*vbar(n-1) + beta*vbar(n-2)
 ! zeta(n+1) = zeta(n) + RZETA(ubarhs,vbarrhs)
 !
 ! AM4 Backward step:
@@ -129,7 +129,7 @@ C$    trd=omp_get_thread_num()
      &         DVom(PRIVATE_2D_SCRATCH_ARRAY)
 #endif
 #ifdef M2FILTER_NONE
-      real :: myepsilon,mybeta,myalpha
+      real :: myepsilon,mybeta,myalpha,mygamma
 #endif
 #include "grid.h"
 #include "ocean2d.h"
@@ -189,13 +189,12 @@ C$    trd=omp_get_thread_num()
 ! data to compute nonlinear advection terms for the barotropic
 ! momentum equations.
 !
-
 #ifdef M2FILTER_NONE
-         mybeta=0.281105
-         myalpha=0.045
-         myepsilon=0.001
+         myalpha   = 0.5
+         mybeta    = 0.281105
+         myepsilon = 0.00976186 - 0.13451357*myalpha
+         mygamma   = 0.08344500 - 0.51358400*myalpha
 #endif
-
 #ifdef AGRIF
         irhox = Agrif_Irhox()
         irhoy = Agrif_Irhoy()
@@ -221,7 +220,7 @@ C$    trd=omp_get_thread_num()
         if (kold.lt.1) kold=4
 #ifdef M2FILTER_NONE
         cff1= 1.5+mybeta
-        cff2=-2.*mybeta-0.5
+        cff2=-2.0*mybeta-0.5
         cff3= mybeta
 #else
         cff1= 1.781105
@@ -350,13 +349,13 @@ C$OMP END MASTER
         cff0= 1.0833333333333    ! Logically AB2-AM3 forward-backward
         cff1=-0.1666666666666    ! scheme with coefficients chosen for
         cff2= 0.0833333333333    ! maximum stability, while maintaining
-        cff3=0.                  ! third-accuracy; alpha_max=1.73
+        cff3= 0.                 ! third-accuracy; alpha_max=1.73
       else
 #ifdef M2FILTER_NONE
-        cff0= 5./6.+2.*myalpha-2.*myalpha**2-mybeta-myepsilon
-        cff1=-1./6.-2.*myalpha+4.*myalpha**2+2.*mybeta+3.*myepsilon
-        cff2= 1./3.-2.*myalpha**2-mybeta-3.*myepsilon
-        cff3= myepsilon
+        cff0=0.5+2.*myepsilon+mygamma+2.*myalpha
+        cff1=1.-cff0-mygamma-myepsilon
+        cff2=mygamma
+        cff3=myepsilon
 #else
         cff0=0.614
         cff1=0.285
@@ -546,7 +545,6 @@ C$OMP END MASTER
 !
 #ifdef WET_DRY
       call wetdry_tile (Istr,Iend,Jstr,Jend)
-# undef WETDRY
 #endif
 !
 !-----------------------------------------------------------------------

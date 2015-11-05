@@ -6,6 +6,12 @@ Same grid for ROMS (Lm x Mm = 73x60 points)
 
 NOTE: ROMS TIMESTEP (roms.in) MUST BE MULTIPLE OF WRF TIMESTEP (namelist.input)
 
+Get the sources code
+--------------------
+- CROCO[/ROMS] (ocean model): follow the instruction there https://gforge.inria.fr/plugins/mediawiki/wiki/croco/index.php/Get_the_code	
+- WRF (from 3.6.1 and after, atmopheric model) (atmopheric model): http://www2.mmm.ucar.edu/wrf/users/
+- OASIS3-MCT_v3.0 (generic coupler) : https://verc.enes.org/oasis/download/oasis-registration-form
+
 Create file system
 ------------------
 The file system may look like that:
@@ -13,7 +19,7 @@ The file system may look like that:
 					$HOME/OASIS
 					    |
 
-	README	oasis3-mct_v2.0	  compile_oa3-mct_v2.0	Run_CONFIG	scripts
+	README	oasis3-mct_v3.0	  compile_oa3-mct_v3.0	Run_CONFIG	scripts
 					   		   |
 
  				roms_files wrf_files oasis_files outputs run_oasis.sh
@@ -28,15 +34,15 @@ The file system may look like that:
 
 COMPILING
 ---------
- 1 - First Compile OASIS in $HOME/OASIS/oasis3-mct_v2.0
-	* in $HOME/OASIS/oasis3-mct_v2.0/util/make_dir, create make.my_pc 
+ 1 - First Compile OASIS in $HOME/OASIS/oasis3-mct_v3.0
+	* in $HOME/OASIS/oasis3-mct_v3.0/util/make_dir, create make.my_pc 
           from existing examples (e.g., make.linux.openmpi_gfortran)
 	* in make.my_pc set all library path (netcdf, gfortran, gcc, mpif90 ...) 
           and name of directory where library will be put 
-          (e.g. $(HOME)/OASIS/compile_oa3-mct_v2.0)
+          (e.g. $(HOME)/OASIS/compile_oa3-mct_v3.0)
 	* set make.my_pc name in make.inc
 	* make -f TopMakefileOasis3 --> creates libraries in 
-          $(HOME)/OASIS/compile_oa3-mct_v2.0
+          $(HOME)/OASIS/compile_oa3-mct_v3.0
 
  2 - Compile WRF in $HOME/WRF/WRFV3_coupled and $HOME/WRF/WRFV3.
 	* In $HOME/WRF/WRFV3_coupled:

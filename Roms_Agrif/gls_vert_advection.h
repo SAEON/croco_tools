@@ -52,8 +52,8 @@
           cff=1./3.
           do k=1,N-1
             do i=Istr,Iend
-              FC(i,k)=W(i,j,k)*( tmp(i,j,k,3)+cff*Hz(i,j,k)
-     &                               *(CF(i,k)+0.5*CF(i,k-1)) )
+              FC(i,k)=We(i,j,k)*( tmp(i,j,k,3)+cff*Hz(i,j,k)
+     &                              *(CF(i,k)+0.5*CF(i,k-1)) )
             enddo
           enddo               !--> discard CF
           do i=Istr,Iend
@@ -87,7 +87,7 @@
           do k=1,N-1
             do i=istr,iend
               FC(i,k)=0.5*( tmp(i,j,k,3)+tmp(i,j,k+1,3)
-     &                -0.333333333333*(CF(i,k+1)-CF(i,k)) )*W(i,j,k)
+     &                -0.333333333333*(CF(i,k+1)-CF(i,k)) )*We(i,j,k)
             enddo
           enddo            !--> discard CF
           do i=istr,iend
@@ -101,8 +101,8 @@
 !
           do k=1,N-1
             do i=Istr,Iend
-              FC(i,k)=0.5*W(i,j,k)*(tmp( i,j,k,3)
-     &                             +tmp(i,j,k+1,3))
+              FC(i,k)=0.5*We(i,j,k)*(tmp( i,j,k,3)
+     &                              +tmp(i,j,k+1,3))
             enddo
           enddo
           do i=Istr,Iend
@@ -116,20 +116,20 @@
 !
           do k=2,N-2
             do i=Istr,Iend
-              FC(i,k)=W(i,j,k)*(0.58333333333333*( tmp(i,j,k,3)
-     &                                            +tmp(i,j,k+1,3))
-     &                         -0.08333333333333*( tmp(i,j,k-1,3)
-     &                                            +tmp(i,j,k+2,3))
+              FC(i,k)=We(i,j,k)*(0.58333333333333*( tmp(i,j,k,3)
+     &                                             +tmp(i,j,k+1,3))
+     &                          -0.08333333333333*( tmp(i,j,k-1,3)
+     &                                             +tmp(i,j,k+2,3))
      &                                                              )
             enddo
           enddo
           do i=Istr,Iend
             FC(i, 0)=0.
-            FC(i,  1)=W(i,j,  1)*( 0.5*tmp(i,j,  1,3 )
+            FC(i,  1)=We(i,j,  1)*( 0.5*tmp(i,j,  1,3 )
      &                         +0.58333333333333*tmp(i,j,  2,3)
      &                         -0.08333333333333*tmp(i,j,  3,3)
      &                                                           )
-            FC(i,N-1)=W(i,j,N-1)*( 0.5*tmp(i,j,N  ,3)
+            FC(i,N-1)=We(i,j,N-1)*( 0.5*tmp(i,j,N  ,3)
      &                         +0.58333333333333*tmp(i,j,N-1,3)
      &                         -0.08333333333333*tmp(i,j,N-2,3)
      &                                                           )
