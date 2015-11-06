@@ -5,8 +5,8 @@
 #
 #======================================================================
 #
-export ROMS_FILES_DIR=$HOME/GIT/croco/Run_benguela_lr_oa/ROMS_FILES
-export WRF_FILES_DIR=/local/tmp/2/gcambon/ATMO_MODEL/WRF/WRF3.6.1/run_benguela_lr_oa
+export ROMS_FILES_DIR=$HOME/OASIS/Run_benguela_lr_oa/roms_files
+export WRF_FILES_DIR=$HOME/OASIS/Run_benguela_lr_oa/wrf_files
 export OASIS_FILES_DIR='./'
 
 myconfig='TOY'
