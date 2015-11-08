@@ -156,6 +156,7 @@ C$    integer omp_get_thread_num
 #ifdef MASKING
           pmask(i,j)=rmask(i,j)*rmask(i-1,j)*rmask(i,j-1)
      &                                      *rmask(i-1,j-1)
+          pmask2(i,j)=pmask(i,j)
           if (gamma2.lt.0.) pmask(i,j)=2.-pmask(i,j)
 #endif
         enddo
@@ -253,6 +254,7 @@ C$    integer omp_get_thread_num
       call exchange_u2d_tile (Istr,Iend,Jstr,Jend,  umask)
       call exchange_v2d_tile (Istr,Iend,Jstr,Jend,  vmask)
       call exchange_p2d_tile (Istr,Iend,Jstr,Jend,  pmask)
+      call exchange_p2d_tile (Istr,Iend,Jstr,Jend,  pmask2)
 # endif
 #endif
       return

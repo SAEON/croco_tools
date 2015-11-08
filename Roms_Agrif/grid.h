@@ -138,8 +138,12 @@
       real pmask(GLOBAL_2D_ARRAY)
       real umask(GLOBAL_2D_ARRAY)
       real vmask(GLOBAL_2D_ARRAY)
-      common /mask_r/rmask /mask_p/pmask
-      common /mask_u/umask /mask_v/vmask
+      real pmask2(GLOBAL_2D_ARRAY)
+      common /mask_r/rmask 
+      common /mask_p/pmask
+      common /mask_u/umask
+      common /mask_v/vmask
+      common /mask_p2/pmask2
 #endif
 
 #ifdef WET_DRY
