@@ -55,15 +55,15 @@
           wrk3(i,j)=0.25*(hwrk(i,j,k)  +hwrk(i-1,j,k)
      &                   +hwrk(i,j-1,k)+hwrk(i-1,j-1,k))
 #   ifdef MASKING
-     &                   *pmask(i,j)
+     &                   *pmask2(i,j)
 #   endif
         enddo
       enddo
       do j=Jstr,Jend
         do i=Istr,Iend
 #   ifdef MASKING
-          cff=0.25*(pmask(i,j)   +pmask(i+1,j)
-     &             +pmask(i,j+1) +pmask(i+1,j+1))
+          cff=0.25*(pmask2(i,j)   +pmask2(i+1,j)
+     &             +pmask2(i,j+1) +pmask2(i+1,j+1))
 #   else
           cff=1.
 #   endif

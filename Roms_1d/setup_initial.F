@@ -1,4 +1,4 @@
-! $Id$
+! $Id: setup_initial.F 985 2012-12-17 15:07:30Z gcambon $
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
 ! The two other branches from UCLA (Shchepetkin et al) 

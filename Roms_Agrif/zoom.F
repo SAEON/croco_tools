@@ -1451,6 +1451,7 @@ CR      write(*,*) '  0' MYID
        do i=1,Lm+1
           pmask(i,j)=rmask(i,j)*rmask(i-1,j)*rmask(i,j-1)
      &                                      *rmask(i-1,j-1)
+          pmask2(i,j)=pmask(i,j)
           if (gamma2.lt.0.) pmask(i,j)=2.-pmask(i,j)
       enddo
       enddo
@@ -1459,6 +1460,7 @@ CR      write(*,*) '  0' MYID
       call exchange_u2d_tile (1,Lm,1,Mm,  umask)
       call exchange_v2d_tile (1,Lm,1,Mm,  vmask)
       call exchange_p2d_tile (1,Lm,1,Mm,  pmask)
+      call exchange_p2d_tile (1,Lm,1,Mm,  pmask2)
 #  endif
 
       if (.Not.Agrif_Root()) Then

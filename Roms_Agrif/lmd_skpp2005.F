@@ -292,9 +292,6 @@
           else
             my_hbl(i,j)=z_w(i,j,N)-z_w(i,j,0)
           endif
-#  ifdef MASKING
-          my_hbl(i,j)=my_hbl(i,j)*rmask(i,j)
-#  endif
         enddo
 !======================================================================
       enddo  !<-- terminate j-loop
@@ -326,6 +323,9 @@
         do k=N-1,1,-1       ! find new boundary layer index "kbl".
           do i=istr,iend
             my_hbl(i,j)=min(my_hbl(i,j),z_w(i,j,N)-z_w(i,j,0))
+#  ifdef MASKING
+     &                                             *rmask(i,j)
+#  endif
             if (z_w(i,j,k) .gt. z_w(i,j,N)-my_hbl(i,j)) kbl(i,j)=k
           enddo
         enddo
