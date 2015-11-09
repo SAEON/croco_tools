@@ -217,9 +217,6 @@
         do i=I_EXT_RANGE
           hekman=lmd_cekman*ustar(i,j)/max(abs(f(i,j)),1.e-6)
           my_hbbl(i,j)=min(my_hbbl(i,j),hekman)
-# ifdef MASKING
-          my_hbbl(i,j)=my_hbbl(i,j)*rmask(i,j)
-# endif
         enddo
       enddo
 
@@ -236,6 +233,9 @@
       do j=Jstr,Jend
         do i=Istr,Iend
           hbbl(i,j)=min(my_hbbl(i,j),z_w(i,j,N)-z_w(i,j,0))
+# ifdef MASKING
+     &                                          *rmask(i,j)
+# endif
           kbbl(i,j)=N
         enddo
       enddo

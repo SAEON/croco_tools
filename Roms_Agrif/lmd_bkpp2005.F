@@ -202,9 +202,6 @@
      &                            )/(Cr(i,k-1)-Cr(i,k)) -z_w(i,j,0)
             endif
           endif
-#  ifdef MASKING
-          hbbl(i,j)=hbbl(i,j)*rmask(i,j)
-#  endif
         enddo     !--> discard kbl
 
 !=============================
@@ -226,6 +223,9 @@
       do j=Jstr,Jend
         do i=Istr,Iend
           hbbl(i,j)=min(my_hbbl(i,j),z_w(i,j,N)-z_w(i,j,0))
+#  ifdef MASKING
+     &                                          *rmask(i,j)
+#  endif
           kbbl(i,j)=N               
         enddo
         do k=N-1,1,-1     ! find new boundary layer index "kbbl".
