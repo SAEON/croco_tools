@@ -113,9 +113,9 @@ C
       DO j=Jstr,Jend
         DO i=Istr,Iend
 #ifdef DIURNAL_INPUT_SRFLX
-           qsr(i,j)=rho0*Cp*srflxbio(i,j)
+           qsr(i,j)=max(1.e-10,rho0*Cp*srflxbio(i,j))
 #else
-           qsr(i,j)=rho0*Cp*srflx(i,j)
+           qsr(i,j)=max(1.e-10,rho0*Cp*srflx(i,j))
 #endif
 #ifdef LMD_SKPP2005
            hmld(i,j)=hbls(i,j,nstp)
