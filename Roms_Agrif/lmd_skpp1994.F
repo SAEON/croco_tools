@@ -322,9 +322,6 @@
             my_hbl(i,j)=min(my_hbl(i,j),hmonob)
 # endif
           endif
-# ifdef MASKING
-          my_hbl(i,j)=my_hbl(i,j)*rmask(i,j)
-# endif
           !my_kbl(i,j)=1
         enddo
       enddo
@@ -378,15 +375,15 @@
           wrk1(i,j)=0.25*(my_hbl(i,j)  +my_hbl(i-1,j)
      &                   +my_hbl(i,j-1)+my_hbl(i-1,j-1))
 #   ifdef MASKING
-     &                   *pmask(i,j)
+     &                   *pmask2(i,j)
 #   endif
         enddo
       enddo
       do j=Jstr,Jend
         do i=Istr,Iend
 #   ifdef MASKING
-          cff=0.25*(pmask(i,j)   +pmask(i+1,j)
-     &             +pmask(i,j+1) +pmask(i+1,j+1))
+          cff=0.25*(pmask2(i,j)   +pmask2(i+1,j)
+     &             +pmask2(i,j+1) +pmask2(i+1,j+1))
 #   else
           cff=1.
 #   endif
@@ -404,6 +401,9 @@
       do j=Jstr,Jend
         do i=Istr,Iend
            hbl(i,j)=my_hbl(i,j)
+#   ifdef MASKING
+     &                         *rmask(i,j)
+#   endif
         enddo
       enddo
 #  endif /* HBL_SMOOTH */
