@@ -598,7 +598,7 @@
 # if !defined TS_MIX_S && \
       (defined TS_DIF4 || defined TS_DIF2 || defined SPONGE_DIF2)
 !
-        do k=1,N,+1
+        do k=1,N-1,+1
           do i=IU_RANGE
             cff =0.5*(pm(i,j)+pm(i-1,j)) SWITCH umask(i,j)
 #  ifdef TS_MIX_ISO
@@ -622,8 +622,11 @@
 #  endif
           enddo
         enddo
+        do i=IU_RANGE
+          dRdx(i,j,N)=0.  ! no rotation at surface level
+        enddo
 !
-!  Smooth vertically at the interior points.
+!  Smooth vertically at interior points.
 !
 #  ifdef TS_MIX_ISO_FILT
       if (mod(iic-ntstart,ismooth).eq.0) then
@@ -727,7 +730,7 @@
 !-------------------------------------------------
 !
 # if !defined TS_MIX_S && (defined TS_DIF4 || defined TS_DIF2)
-          do k=1,N,+1
+          do k=1,N-1,+1
             do i=IV_RANGE
               cff=0.5*(pn(i,j)+pn(i,j-1)) SWITCH vmask(i,j)
 #  ifdef  TS_MIX_ISO
@@ -751,8 +754,11 @@
 #  endif
             enddo
           enddo
+          do i=IV_RANGE
+            dRde(i,j,N)=0.    ! no rotation at surface level
+          enddo
 !
-!  Smooth vertically at the interior points.
+!  Smooth vertically at interior points.
 !
 #  ifdef TS_MIX_ISO_FILT
       if (mod(iic-ntstart,ismooth).eq.0) then
