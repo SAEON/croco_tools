@@ -87,7 +87,6 @@ hmax_coast = 500;
 % extrapolations below WOA data)
 %
 hmax = 5000;
-
 %
 %  Topography netcdf file name (ETOPO 2 or any other netcdf file
 %  in the same format)
@@ -295,12 +294,12 @@ psource_ts=0;
 %
 % TPXO file name (TPXO6 or TPXO7)
 %
-tidename=[DATADIR,'TPXO/TPXO7.nc'];
+tidename=[DATADIR,'TPXO7/TPXO7.nc'];
 %
 % Self-Attraction and Loading GOT99.2 file name
 %
 sal_tides=1;
-salname=[DATADIR,'TPXO/GOT99_SAL.nc'];
+salname=[DATADIR,'GOT99.2/GOT99_SAL.nc'];
 %
 % Number of tides component to process
 %
