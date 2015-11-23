@@ -291,7 +291,7 @@ if makeplot==1
            'fontsize',7);
     fname=['Potential Tides: K1 Phase [m]'];
     title(fname,'fontsize',16)
-    close(nc)
+    close(ncfrc)
   end  % <-- pot_tides
 
 end  % <-- makeplot
