@@ -241,29 +241,24 @@ insitu2pot = 1;   % transform in-situ temperature to potential temperature
 %
 tini=0;  
 %
-% World Ocean Atlas directory (WOA2009)
-% (temp, salt and biological variables)
-woa_dir=[DATADIR,'WOA2009/'];
+% Select Climatology Atlas (temp, salt and biological variables) from:
+%    - World Ocean Atlas directory (WOA2009)  OR ...
+%    - CARS2009 climatology directory (CARS2009)
 %
-% CARS2009 climatology directory (CARS2009) 
-% (temp, salt and biological variables)
-cars2009_dir=[DATADIR,'CARS2009/'];
+woa_dir       = [DATADIR,'WOA2009/'];
+cars2009_dir  = [DATADIR,'CARS2009/'];
+climato_dir   = woa_dir;
 %
 % Pisces biogeochemical seasonal climatology
 %
-woapisces_dir=[DATADIR,'WOAPISCES/'];
-%
-% Climatological data dir (t, s and biological variables)
-climato_dir=cars2009_dir;
-%climato_dir=woa_dir;  % Select this to use the WOAPISCES 
-                       % biogeochemical seasonal climatology with PISCES 
-                       % biogeochemical model
+woapisces_dir = [DATADIR,'WOAPISCES/'];  % only compatible with woa_dir
 %
 % Surface chlorophyll seasonal climatology (SeaWifs)
 %
 chla_dir=[DATADIR,'SeaWifs/'];
 %
 % Runoff monthly seasonal climatology (Dai and Trenberth)
+%
 global_clim_riverdir=[DATADIR,'RUNOFF_DAI/'];
 global_clim_rivername=[global_clim_riverdir,'Dai_Trenberth_runoff_global_clim.nc'];
 %
@@ -273,12 +268,13 @@ global_clim_rivername=[global_clim_riverdir,'Dai_Trenberth_runoff_global_clim.nc
 woa_time=(15:30:345); % days: middle of each month
 woa_cycle=360;        % repetition of a typical year of 360 days  
 %
-%woa_time=(15.2188:30.4375:350.0313); % year of 365.25 days in the case
+%woa_time=(15.2188:30.4375:350.0313); % year of 365.25 days in case
 %woa_cycle=365.25;                    % of QSCAT experiments with 
-%                                     climatological boundary conditions
+%                                     % climatological boundary conditions
 %
 %   Set times and cycles for runoff conditions:
 %   monthly climatology
+%
 qbar_time=[15:30:365]; 
 qbar_cycle=360;
 %
@@ -288,6 +284,7 @@ qbar_cycle=360;
 %     psource_ts = 0 => No Runoff tracers concentration processing 
 %                       It reads analytical values in roms.in 
 %                       or use default value defined in analytical.F
+%
 psource_ts=0; 
 %  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
