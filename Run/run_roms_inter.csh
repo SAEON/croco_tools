@@ -272,6 +272,23 @@ while ($NY != $NY_END)
     ./$CODFILE  ${MODEL}_${TIME}_inter.in > ${MODEL}_${TIME}.out
     date
 #
+# Test if the month has finised properly
+    echo "Test ${MODEL}_${TIME}.out"
+    tail -2 ${MODEL}_${TIME}.out | grep DONE >& /dev/null
+    if ($status == 0) then
+      echo "All good"
+      echo "XXXX${MYTEST}XXXX"
+    else
+      echo
+      echo "Warning: month not finished properly"
+      echo
+      tail -20 ${MODEL}_${TIME}.out
+      echo
+      echo "Month ${TIME} did not work after ${NRUN} attempts"
+      echo
+      exit 1
+    end
+#
 #  Archive
 #
     set LEVEL=0
