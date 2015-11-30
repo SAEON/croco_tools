@@ -209,7 +209,7 @@ for Y=Ymin:Ymax
                 disp('file found')
 
                 time=readdap(myurl,'time',[]);
-                disp(['Processing date: ',datestr(time/24+datenum(1900,1,1))])
+                %disp(['Processing date: ',datestr(time/24+datenum(1900,1,1))])
                 time=time/24+datenum(1900,1,1)-datenum(Yorig,1,1);
 
 
@@ -259,13 +259,13 @@ for Y=Ymin:Ymax
 
                 if isnan(max(tx(:))) |  isnan(max(ty(:)))
 
-                    error('download_QSCAT - all nan values')
+                    warning('download_QSCAT - all nan values')
 
                 end
 
                 if (max(tx(:))==0 & min(tx(:))==0) | (max(ty(:))==0 & min(ty(:))==0)
 
-                    error('download_QSCAT - all 0 values')
+                    warning('download_QSCAT - all 0 values')
 
                 end
 
