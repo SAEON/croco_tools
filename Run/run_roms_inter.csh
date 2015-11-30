@@ -58,6 +58,9 @@ set NY_END=2000
 set NM_START=1
 set NM_END=3
 #
+# Number of year that are considered to be part of the spin-up (i.e. 365 days per year)
+set NY_SPIN=0
+#
 #  Restart file - RSTFLAG=0 --> No Restart
 #		  RSTFLAG=1 --> Restart
 #
@@ -226,15 +229,18 @@ while ($NY != $NY_END)
 
 	
         if ($NY == $B4 & ((!($NY == $B100))||($NY == $B400))) then
-	  echo Leap Year - $NY $B4 $B100 $B400
-          set NDAYS = 29
 #
-#... SPINUP!!!! In case of spinup I cant have leap years.
-#
-#         if ($NY == 1956) then
-#	        echo 'Spinup case: no leap year'
-#           set NDAYS = 28
-#         endif
+          set BSPIN=0
+          @ BSPIN = 1 + $NY - ${NY_START}
+          if ($BSPIN > $NY_SPIN) then
+	     echo Leap Year - $NY $B4 $B100 $B400
+             set NDAYS = 29
+          else
+#.........   SPINUP!!!! In case of spinup I cant have leap years.
+	     echo year $NY should be a Leap Year     
+	     echo 'BUT : Spinup case: no leap year'
+             set NDAYS = 28
+          endif
 #
         else
 	  echo Not a Leap Year - $NY $B4 $B100 $B400
