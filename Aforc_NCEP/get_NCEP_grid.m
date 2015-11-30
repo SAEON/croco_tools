@@ -46,6 +46,13 @@ latmax=latmax+dl;
 if Get_My_Data~=1
   disp(['Get_My_Data =', num2str(Get_My_Data)])
   lon=readdap(url_path,'lon',[]);
+  if lon(end)>360 
+     disp('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')  
+     longitudes=[lon(1) lon(2)] 
+     longitudes=[lon(end-1) lon(end)]
+     lon=lon(2:end-1);
+     disp('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!') 
+  end
   lat=readdap(url_path,'lat',[]);
 % $$$   lat(1:2);
 % $$$   lon(1:2);

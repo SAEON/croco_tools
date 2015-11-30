@@ -49,7 +49,11 @@ addpath([mypath,'Forecast_tools'])
 addpath([mypath,'Nesting_tools'])
 addpath([mypath,'Preprocessing_tools'])
 addpath([mypath,'Oforc_OGCM'])
-addpath([mypath,'Opendap_tools'])
+if verLessThan('matlab','7.14')
+   addpath([mypath,'Opendap_tools'])
+else
+   addpath([mypath,'Opendap_tools_no_loaddap'])
+end
 addpath([mypath,'Tides'])
 addpath([mypath,'Tides/T_TIDE'])
 addpath([mypath,'Visualization_tools'])
