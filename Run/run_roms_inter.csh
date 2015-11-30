@@ -231,9 +231,10 @@ while ($NY != $NY_END)
 #
 #... SPINUP!!!! In case of spinup I cant have leap years.
 #
-#          if ($NY == 1956) then
-#	    echo Spinup case: no leap year
-#            set NDAYS = 28
+#         if ($NY == 1956) then
+#	        echo 'Spinup case: no leap year'
+#           set NDAYS = 28
+#         endif
 #
         else
 	  echo Not a Leap Year - $NY $B4 $B100 $B400
