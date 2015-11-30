@@ -198,8 +198,10 @@ for Y=Ymin:Ymax
             %  Check if the file exists
             %
             x = loaddap('-A -e +v',myurl);
-            if (dods_err==1)
-                error(dods_err_msg)
+            if verLessThan('matlab','7.14')
+                if (dods_err==1)
+                    error(dods_err_msg)
+                end
             end
             
             if ~isempty(x)

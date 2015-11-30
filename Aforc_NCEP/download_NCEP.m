@@ -188,8 +188,10 @@ for k=1:length(vnames)
     disp(['Get time units and time:  Get_My_Data is OFF '])
     disp(['------'])  
     x=loaddap('-A -e +v',[ncep_url,char(catalog(k))]);
-    if (dods_err==1)
-      error(dods_err_msg)
+    if verLessThan('matlab','7.14')
+      if (dods_err==1)
+        error(dods_err_msg)
+      end
     end
 % check time unit (APDRC dataset are daily)
     if isempty(x.time.units)
