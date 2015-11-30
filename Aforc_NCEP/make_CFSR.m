@@ -382,11 +382,7 @@ if SPIN_Long>0
             % Change the time
             %
             nc=netcdf(frcname2,'write');
-            time=nc{'sms_time'}(:)+datenum(Yorig,1,1);
-            [y,m,d,h,mi,s]=datevec(time);
-            dy=Ymin-Y;
-            y=y-dy;
-            time=datenum(y,m,d,h,mi,s)-datenum(Yorig,1,1);
+	    time=nc{'sms_time'}(:)-365.*(Ymin-Y);
             nc{'sms_time'}(:)=time;
             close(nc)
         end
@@ -405,11 +401,7 @@ if SPIN_Long>0
             % Change the time
             %
             nc=netcdf(blkname2,'write');
-            time=nc{'bulk_time'}(:)+datenum(Yorig,1,1);
-            [y,m,d,h,mi,s]=datevec(time);
-            dy=Ymin-Y;
-            y=y-dy;
-            time=datenum(y,m,d,h,mi,s)-datenum(Yorig,1,1);
+	    time=nc{'bulk_time'}(:)-365.*(Ymin-Y);
             nc{'bulk_time'}(:)=time;
             close(nc)
         end

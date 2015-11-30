@@ -378,12 +378,8 @@ if SPIN_Long>0
     % Change the time
     %
     nc=netcdf(ininame2,'write');
-    time=nc{'scrum_time'}(:);
-    time=time/(24*3600)+datenum(Yorig,1,1);
-    [y,m,d,h,mi,s]=datevec(time);
-    time=datenum(y-SPIN_Long,m,d,h,mi,s)-datenum(Yorig,1,1);
-    disp(datestr(time+datenum(Yorig,1,1)))
-    nc{'scrum_time'}(:)=time*(24*3600);
+    time=nc{'scrum_time'}(:)-365.*SPIN_Long*(24*3600);
+    nc{'scrum_time'}(:)=time;
     close(nc)
   end
   %
@@ -410,12 +406,7 @@ if SPIN_Long>0
       % Change the time
       %
       nc=netcdf(clmname2,'write');
-      time=nc{'tclm_time'}(:)+datenum(Yorig,1,1);
-      [y,m,d,h,mi,s]=datevec(time);
-      dy=Ymin-Y;
-      y=y-dy;
-      time=datenum(y,m,d,h,mi,s)-datenum(Yorig,1,1);
-      disp(datestr(time+datenum(Yorig,1,1)))
+      time=nc{'tclm_time'}(:)-365.*(Ymin-Y);
       nc{'tclm_time'}(:)=time;
       nc{'temp_time'}(:)=time;
       nc{'sclm_time'}(:)=time;
@@ -443,12 +434,7 @@ if SPIN_Long>0
       % Change the time
       %
       nc=netcdf(bryname2,'write');
-      time=nc{'bry_time'}(:)+datenum(Yorig,1,1);
-      [y,m,d,h,mi,s]=datevec(time);
-      dy=Ymin-Y;
-      y=y-dy;
-      time=datenum(y,m,d,h,mi,s)-datenum(Yorig,1,1);
-      disp(datestr(time+datenum(Yorig,1,1)))
+      time=nc{'bry_time'}(:)-365.*(Ymin-Y);
       nc{'bry_time'}(:)=time;
       close(nc)
     end
