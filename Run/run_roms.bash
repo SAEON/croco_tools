@@ -180,6 +180,15 @@ while [[ $NY != $NY_END ]]; do
     ./$CODFILE  ${MODEL}.in > ${MODEL}_${TIME}.out
     date
 #
+# Test if the month has finised properly
+    status=`tail -2 ${MODEL}_${TIME}.out | grep DONE | wc -l`
+    if [[ $status != 1 ]]; then
+        echo
+        echo "Month ${TIME} did not work"
+        echo
+        exit 1
+    fi
+#
 #  Archive
 #
     LEVEL=0
