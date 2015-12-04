@@ -127,7 +127,8 @@
 !
  10   if (create_new_file) then
         lstr=lenstr(ncname)
-        ierr=nf_create(ncname(1:lstr),nf_clobber,ncid)
+!        ierr=nf_create(ncname(1:lstr),nf_clobber,ncid)
+        ierr=nf_create(ncname(1:lstr),nf_64bit_offset,ncid)
         if (ierr.ne.nf_noerr) then
           write(stdout,11) ncname(1:lstr)
           may_day_flag=3
