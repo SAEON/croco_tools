@@ -328,7 +328,8 @@ C          endif
           ierr=0
           call insert_node (ncname(node), lstr, node, NNODES, ierr)
           if (ierr. ne. 0) goto 97     !--> next file
-          ierr=nf_create (ncname(node)(1:lstr),nf_clobber,ncid(node))
+!          ierr=nf_create (ncname(node)(1:lstr),nf_clobber,ncid(node))
+          ierr=nf_create (ncname(node)(1:lstr),nf_64bit_offset,ncid(node))
           if (ierr .eq. nf_noerr) then
             write(stdout,'(12x,3A)') 'Created partitioned file ''',
      &                                  ncname(node)(1:lstr), '''.' 
