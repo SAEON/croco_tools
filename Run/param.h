@@ -39,7 +39,7 @@
 #elif defined GRAV_ADJ
 # ifdef NBQ
 #  ifdef GRAV_ADJ_SOLITON
-!     parameter (LLm0=100,  MMm0=1,    N=60)   !   3 cm resolution
+      parameter (LLm0=100,  MMm0=1,    N=60)   !   3 cm resolution
 #  elif GRAV_ADJ_ACOUSTIC
       parameter (LLm0=64,   MMm0=1,    N=64)   !   2  m resolution
 #  else
