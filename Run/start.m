@@ -49,11 +49,6 @@ addpath([mypath,'Forecast_tools'])
 addpath([mypath,'Nesting_tools'])
 addpath([mypath,'Preprocessing_tools'])
 addpath([mypath,'Oforc_OGCM'])
-if verLessThan('matlab','7.14')
-   addpath([mypath,'Opendap_tools'])
-else
-   addpath([mypath,'Opendap_tools_no_loaddap'])
-end
 addpath([mypath,'Tides'])
 addpath([mypath,'Tides/T_TIDE'])
 addpath([mypath,'Visualization_tools'])
@@ -87,10 +82,14 @@ if ((myversion > 13)    )
 %
 % - If these directories are already in your matlab native path, 
 % you can comment these lines
-addpath([mypath,'mexcdf/netcdf_toolbox/netcdf'])
-addpath([mypath,'mexcdf/netcdf_toolbox/netcdf/ncsource'])
-addpath([mypath,'mexcdf/netcdf_toolbox/netcdf/nctype'])
-addpath([mypath,'mexcdf/netcdf_toolbox/netcdf/ncutility'])
+  addpath([mypath,'mexcdf/netcdf_toolbox/netcdf'])
+  addpath([mypath,'mexcdf/netcdf_toolbox/netcdf/ncsource'])
+  addpath([mypath,'mexcdf/netcdf_toolbox/netcdf/nctype'])
+  addpath([mypath,'mexcdf/netcdf_toolbox/netcdf/ncutility'])
+%
+% Use of built in opendap libraries (no loaddap) - S. Illig 2015 
+%
+  addpath([mypath,'Opendap_tools_no_loaddap'])
 %
 %-------------------------------------------------------
 elseif (myversion <= 13)
@@ -102,10 +101,15 @@ elseif (myversion <= 13)
 % - In this case, if problems with subsrefs.m ans subsasign.m,
 % it is because there is a conflict with another native subs.m routines in the
 % symbolic native toolbox
-addpath([mypath,'netcdf_matlab_60'])
-addpath([mypath,'netcdf_matlab_60/ncfiles'])
-addpath([mypath,'netcdf_matlab_60/nctype'])
-addpath([mypath,'netcdf_matlab_60/ncutility'])
+  
+  addpath([mypath,'netcdf_matlab_60'])
+  addpath([mypath,'netcdf_matlab_60/ncfiles'])
+  addpath([mypath,'netcdf_matlab_60/nctype'])
+  addpath([mypath,'netcdf_matlab_60/ncutility'])
+%
+% Use of loaddap  (older versions of matlab)
+%
+  addpath([mypath,'Opendap_tools'])
 
 else
   disp(['Arch : ',mysystem,...
