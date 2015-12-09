@@ -49,6 +49,7 @@
 #ifdef SOLVE3D
      &                                       , itrc
 #endif
+      logical dumboolean
 !
 ! Use pre-set default startup filename for known applications,
 ! or get it as an argument from command line via iargc-getarg
@@ -758,12 +759,28 @@ c        close(testunit)
      &                                          ,  wrthis(indxAkt)
 # ifdef SALINITY
      &                                          ,  wrthis(indxAks)
+# else 
+     &                                          ,  dumboolean
+# endif
+# ifdef VIS_COEF_3D
+     &                                          ,  wrthis(indxVisc)
+# else 
+     &                                          ,  dumboolean
+# endif
+# ifdef DIF_COEF_3D
+     &                                          ,  wrthis(indxDiff)
+# else 
+     &                                          ,  dumboolean
 # endif
 # ifdef LMD_SKPP
      &                                          ,  wrthis(indxHbl)
+# else 
+     &                                          ,  dumboolean
 # endif
 # ifdef LMD_BKPP
      &                                          ,  wrthis(indxHbbl)
+# else 
+     &                                          ,  dumboolean
 # endif
      &                                          ,  wrthis(indxBostr)
      &                                          ,  wrthis(indxWstr)
@@ -772,15 +789,23 @@ c        close(testunit)
      &                                          ,  wrthis(indxShflx)
 # ifdef SALINITY
      &                                          ,  wrthis(indxSwflx)
+# else 
+     &                                          ,  dumboolean
 # endif
      &                                          ,  wrthis(indxShflx_rsw)
 # ifdef BULK_FLUX
      &                                          , wrthis(indxShflx_rlw)
      &                                          , wrthis(indxShflx_lat)
      &                                          , wrthis(indxShflx_sen)
+# else 
+     &                                          ,  dumboolean
+     &                                          ,  dumboolean
+     &                                          ,  dumboolean
 # endif
 # ifdef MOVING_BATHY
      &                                          , wrthis(indxHm)
+# else 
+     &                                          ,  dumboolean
 # endif
 # if defined BIOLOGY && !defined PISCES
      &                                          ,  wrthis(indxHel)
@@ -804,6 +829,12 @@ c        close(testunit)
      &                                        .or. wrthis(indxAkt)
 # ifdef SALINITY
      &                                        .or. wrthis(indxAks)
+# endif
+# ifdef VIS_COEF_3D
+     &                                        .or. wrthis(indxVisc)
+# endif
+# ifdef DIF_COEF_3D
+     &                                        .or. wrthis(indxDiff)
 # endif
 # ifdef LMD_SKPP
      &                                        .or. wrthis(indxHbl)
@@ -841,12 +872,6 @@ c        close(testunit)
 # endif
      &     ) wrthis(indxTime)=.true.
 
-# ifdef VIS_COEF_3D
-        wrthis(indxVisc)=.true.
-# endif
-# ifdef DIF_COEF_3D
-        wrthis(indxDiff)=.true.
-# endif
 
         MPI_master_only write(stdout,'(8(/6x,l1,2x,A,1x,A))')
      &    wrthis(indxR),    'write RHO  ', 'Density anomaly.'
@@ -858,6 +883,12 @@ c        close(testunit)
 # ifdef SALINITY
      &  , wrthis(indxAks),  'write Aks  ',
      &                      'Vertical diffusivity for salinity.'
+# endif
+# ifdef VIS_COEF_3D
+     &  , wrthis(indxVisc),  'write Visc3d', 'Horizontal viscosity.'
+# endif
+# ifdef DIF_COEF_3D
+     &  , wrthis(indxDiff),  'write Visc3d', 'Horizontal diffusivity.'
 # endif
 # ifdef LMD_SKPP
      &  , wrthis(indxHbl),  'write Hbl  ',
@@ -911,12 +942,6 @@ c        close(testunit)
 # endif
      &  , wrthis(indxShflx_rsw),'write Shflx_rsw [W/m2]', 
      &                          'Short-wave surface radiation'
-# ifdef VIS_COEF_3D
-     &  , wrthis(indxVisc),  'write Visc3d', 'Horizontal viscosity.'
-# endif
-# ifdef DIF_COEF_3D
-     &  , wrthis(indxDiff),  'write Visc3d', 'Horizontal diffusivity.'
-# endif
 
 !
 ! Switches for GLS fields to be saved into history file.
@@ -980,53 +1005,82 @@ c        close(testunit)
         call cancel_kwd (keyword(1:kwlen), ierr)
         read(input,*,err=95) wrtavg(indxR), wrtavg(indxO)
      &        ,  wrtavg(indxW),  wrtavg(indxAkv),  wrtavg(indxAkt)
-#  ifdef SALINITY
+# ifdef SALINITY
      &                                          ,  wrtavg(indxAks)
-#  endif
-#  ifdef LMD_SKPP
+# else 
+     &                                          ,  dumboolean
+# endif
+# ifdef VIS_COEF_3D
+     &                                          ,  wrtavg(indxVisc)
+# else 
+     &                                          ,  dumboolean
+# endif
+# ifdef DIF_COEF_3D
+     &                                          ,  wrtavg(indxDiff)
+# else 
+     &                                          ,  dumboolean
+# endif
+# ifdef LMD_SKPP
      &                                          ,  wrtavg(indxHbl)
-#  endif
-#  ifdef LMD_BKPP
+# else 
+     &                                          ,  dumboolean
+# endif
+# ifdef LMD_BKPP
      &                                          ,  wrtavg(indxHbbl)
-#  endif
+# else 
+     &                                          ,  dumboolean
+# endif
      &                                          ,  wrtavg(indxBostr)
      &                                          ,  wrtavg(indxWstr)
      &                                          ,  wrtavg(indxUWstr)
      &                                          ,  wrtavg(indxVWstr)
      &                                          ,  wrtavg(indxShflx)
-#  ifdef SALINITY
+# ifdef SALINITY
      &                                          ,  wrtavg(indxSwflx)
-#  endif
-     &                                          ,  wrtavg(indxShflx_rsw)
-#  ifdef BULK_FLUX
-     &                                          ,  wrtavg(indxShflx_rlw)
-     &                                          ,  wrtavg(indxShflx_lat)
-     &                                          ,  wrtavg(indxShflx_sen)
-#  endif
-# ifdef MOVING_BATHY
-     &                                          ,  wrtavg(indxHm)
+# else 
+     &                                          ,  dumboolean
 # endif
-#  if defined BIOLOGY && !defined PISCES
+     &                                          ,  wrtavg(indxShflx_rsw)
+# ifdef BULK_FLUX
+     &                                          , wrtavg(indxShflx_rlw)
+     &                                          , wrtavg(indxShflx_lat)
+     &                                          , wrtavg(indxShflx_sen)
+# else 
+     &                                          ,  dumboolean
+     &                                          ,  dumboolean
+     &                                          ,  dumboolean
+# endif
+# ifdef MOVING_BATHY
+     &                                          , wrtavg(indxHm)
+# else 
+     &                                          ,  dumboolean
+# endif
+# if defined BIOLOGY && !defined PISCES
      &                                          ,  wrtavg(indxHel)
-#   ifdef BIO_NChlPZD
+#  ifdef BIO_NChlPZD
      &                                          ,  wrtavg(indxChC)
-#    ifdef OXYGEN
+#   ifdef OXYGEN
      &                                          ,  wrtavg(indxU10)
      &                                          ,  wrtavg(indxKvO2)
      &                                          ,  wrtavg(indxO2sat)
-#    endif
-
-#   elif defined BIO_BioEBUS
-     &                                       ,  wrtavg(indxAOU) 
-     &                                       ,  wrtavg(indxWIND10)
 #   endif
-#  endif /* BIOLOGY */
+#  elif defined BIO_BioEBUS
+     &                                          ,  wrtavg(indxAOU)
+     &                                          ,  wrtavg(indxWIND10)
+#  endif
+# endif
 
         if ( wrtavg(indxR) .or. wrtavg(indxO) .or. wrtavg(indxW)
      &                   .or. wrtavg(indxAkv) .or. wrtavg(indxAkt)
 #  ifdef SALINITY
      &                                        .or. wrtavg(indxAks)
 #  endif
+# ifdef VIS_COEF_3D
+     &                                        .or. wrtavg(indxVisc)
+# endif
+# ifdef DIF_COEF_3D
+     &                                        .or. wrtavg(indxDiff)
+# endif
 #  ifdef LMD_SKPP
      &                                        .or. wrtavg(indxHbl)
 #  endif
@@ -1064,12 +1118,7 @@ c        close(testunit)
 #  endif  /* BIOLOGY */
      &     ) wrtavg(indxTime)=.true.
 
-#  ifdef VIS_COEF_3D
-        wrtavg(indxVisc)=.true.
-#  endif
-#  ifdef DIF_COEF_3D
-        wrtavg(indxDiff)=.true.
-#  endif
+
 
         MPI_master_only write(stdout,'(8(/6x,l1,2x,A,1x,A))')
      &    wrtavg(indxR),    'write RHO  ', 'Density anomaly'
@@ -1081,6 +1130,12 @@ c        close(testunit)
 #  ifdef SALINITY
      &  , wrtavg(indxAks),  'write Aks  ',
      &                         'Vertical diffusivity for salinity.'
+#  endif
+#  ifdef VIS_COEF_3D
+     &  , wrtavg(indxVisc),'write visc3d', 'Horizontal viscosity'
+#  endif
+#  ifdef DIF_COEF_3D
+     &  , wrtavg(indxDiff),'write diff3d', 'Horizontal diffusivity'
 #  endif
 #  ifdef LMD_SKPP
      &  , wrtavg(indxHbl),  'write Hbl  ',
@@ -1135,12 +1190,6 @@ c        close(testunit)
 #  endif
      &  , wrtavg(indxShflx_rsw),'write Shflx_rsw [W/m2]', 
      &                      'Short-wave surface radiation.'
-#  ifdef VIS_COEF_3D
-     &  , wrtavg(indxVisc),'write visc3d', 'Horizontal viscosity'
-#  endif
-#  ifdef DIF_COEF_3D
-     &  , wrtavg(indxDiff),'write diff3d', 'Horizontal diffusivity'
-#  endif
 
 !
 ! Switches for GLS fields to be saved into history file.
