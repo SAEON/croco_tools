@@ -278,8 +278,7 @@
 !=================================================================
 !
   10  if (create_new_file) then
-!        ierr=nf_create(ncname(1:lstr), nf_clobber, ncid)
-        ierr=nf_create(ncname(1:lstr), nf_64bit_offset, ncid)
+        ierr=nf_create(ncname(1:lstr),NF_CLOBBER, ncid)
         if (ierr .ne. nf_noerr) then
           write(stdout,'(/3(1x,A)/)') 'ERROR in def_his/avg:',
      &           'Cannot create netCDF file:', ncname(1:lstr)
