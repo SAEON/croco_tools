@@ -196,8 +196,8 @@
 # ifndef BULK_LW
      &                    -radlw(i,j)
 # else
-     &                    +emiss_lw*(radlw(i,j)
-     &                    -rho0i*cpi*sigmaSB*(Tsea+CtoK)**4)
+     &                    +radlw(i,j)
+     &                    -emiss_lw*rho0i*cpi*sigmaSB*(Tsea+CtoK)**4
 # endif
 # ifdef BULK_EP
           stflx(i,j,isalt)=(evap-prate(i,j))*Ssea
@@ -221,8 +221,8 @@
 # ifndef BULK_LW
           shflx_rlw(i,j)=-radlw(i,j)
 # else
-          shflx_rlw(i,j)=emiss_lw*(radlw(i,j)
-     &                   -rho0i*cpi*sigmaSB*(Tsea+CtoK)**4)
+          shflx_rlw(i,j)= radlw(i,j)
+     &                   -emiss_lw*rho0i*cpi*sigmaSB*(Tsea+CtoK)**4
 # endif
 !
 !  Save for the calc of wind stress
