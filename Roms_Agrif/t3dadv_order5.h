@@ -48,9 +48,9 @@
 #  endif
 
           DO j = Jstr,Jend+1  !j_loop_y_flux_5
-                                                      !
-            IF( (j.ge.jmin ) .and. (j.le.jmax) ) THEN ! use full stencil
-                                                      !
+                                                  !
+            IF ( j.ge.jmin .and. j.le.jmax ) THEN ! use full stencil
+                                                  !
               DO i = Istr,Iend
                 vel = Hvom(i,j,k)
                 flx5 = vel*FLUX5(
@@ -94,9 +94,9 @@
                 FE(i,j) = vel*FLUX2(
      &             t(i,j-1,k,nrhs,itrc), t(i,j,k,nrhs,itrc), vel, cdif)
               ENDDO
-                                           !
-            ELSE IF  ( j.eq.jmin-1 ) THEN  ! 3rd of 4th order flux 2 in
-                                           ! from south boundary
+                                                             !
+            ELSE IF ( j.eq.jmin-1 .and. jmax.ge.jmin ) THEN  ! 3rd of 4th order flux 2 in
+                                                             ! from south boundary
               DO i = Istr,Iend
                 vel = Hvom(i,j,k)
                 flx3 = vel*FLUX3(
@@ -140,9 +140,9 @@
           ENDDO ! j_loop_y_flux_5
 
           DO i = Istr,Iend+1  !i_loop_x_flux_5
-                                                      !
-            IF( (i.ge.imin ) .and. (i.le.imax) ) THEN ! use full stencil
-                                                      !
+                                                  !
+            IF ( i.ge.imin .and. i.le.imax ) THEN ! use full stencil
+                                                  !
               DO j = Jstr,Jend
                 vel = Huon(i,j,k)
                 flx5 = vel*FLUX5(
@@ -186,9 +186,9 @@
                 FX(i,j) = vel*FLUX2(
      &             t(i-1,j,k,nrhs,itrc), t(i,j,k,nrhs,itrc), vel, cdif)
               ENDDO
-                                           !
-            ELSE IF  ( i.eq.imin-1 ) THEN  ! 3rd of 4th order flux 2 in
-                                           ! from south boundary
+                                                             !
+            ELSE IF ( i.eq.imin-1 .and. imax.ge.imin ) THEN  ! 3rd of 4th order flux 2 in
+                                                             ! from south boundary
               DO j = Jstr,Jend
                 vel = Huon(i,j,k)
                 flx3 = vel*FLUX3(
