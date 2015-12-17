@@ -359,44 +359,18 @@
 
 /*
 ======================================================================
-    Bottom stress option:
-
-    LIMIT_BSTRESS: Set limiting factor for bottom stress and avoid 
-    numerical instability associated with reversing bottom flow
-======================================================================
-*/
-#define LIMIT_BSTRESS
-#ifdef BBL
-# ifdef SEDIMENT
-#  undef  ANA_BSEDIM
-# else
-#  define ANA_BSEDIM
-# endif
-# ifdef SEDIMENT
-#  undef  Z0_BL /* Mandotory with BEDLOAD_SOULSBY */
-# else
-#  undef  Z0_BL
-# endif
-# ifdef Z0_BL
-#  define Z0_RIP
-# endif
-# undef  Z0_BIO
-#endif
-
-/*
-======================================================================
     Wave Current Interaction
 ======================================================================
 */
 #ifdef MRL_WCI
 # ifdef WAVE_STREAMING
-#  define  WAVE_BODY_STREAMING
+#  define WAVE_BODY_STREAMING
 # endif
 # undef  WAVE_SFC_BREAK
 # define WAVE_BREAK_CT93
 # undef  WAVE_BREAK_TG86
 # undef  WAVE_BREAK_TG86A
-# undef WAVE_BREAK_R93
+# undef  WAVE_BREAK_R93
 
 # if !defined WKB_WWAVE && !defined ANA_WWAVE
 #  define WAVE_OFFLINE
@@ -404,7 +378,7 @@
 # endif
 # ifdef WKB_WWAVE
 #  ifdef MRL_CEW
-#   undef WKB_KZ_FILTER
+#   undef  WKB_KZ_FILTER
 #   undef  WKB_TIME_FILTER
 #  endif
 #  define ANA_BRY_WKB
@@ -445,27 +419,55 @@
 #  undef HYDROGEN_SULFIDE      /* Under Development */
 # endif
 #endif
+
+/*
+======================================================================
+    Bottom stress option:
+
+    LIMIT_BSTRESS: Set limiting factor for bottom stress and avoid 
+    numerical instability associated with reversing bottom flow
+======================================================================
+*/
+#define LIMIT_BSTRESS
+#ifdef BBL
+# ifdef SEDIMENT
+#  undef  ANA_BSEDIM
+# else
+#  define ANA_BSEDIM
+# endif
+# ifdef SEDIMENT
+#  define Z0_BL
+# else
+#  undef  Z0_BL
+# endif
+# ifdef Z0_BL
+#  define Z0_RIP
+# endif
+# undef  Z0_BIO
+#endif
+
 /*
 ======================================================================
                 Sediment dynamics models
 ======================================================================
 */
 #ifdef SEDIMENT
-# undef LINEAR_CONTINUATION
-# undef  NEUMANN
 # define SUSPLOAD
-# undef BEDLOAD
+# define BEDLOAD
 # ifdef BEDLOAD
-#  undef SLOPE_NEMETH
-#  define  SLOPE_LESSER
+#  undef  SLOPE_NEMETH
+#  define SLOPE_LESSER
 #  if (defined WAVE_OFFLINE || defined WKB_WWAVE || defined ANA_WWAVE)
 #   define BEDLOAD_SOULSBY
+#   define Z0_BL  /* Mandatory with BEDLOAD_SOULSBY */
+#   define Z0_RIP
 #  else
 #   define BEDLOAD_MPM
 #  endif
 # endif
-# undef MOVING_BATHY    
+# define MOVING_BATHY
 #endif
+
 /*
 ======================================================================
                               OBCs

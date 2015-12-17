@@ -7,8 +7,11 @@
 !
 ! ROMS_AGRIF website : http://www.romsagrif.org/
 !
-! New sediments routines were adapted from John Warner's code
-! by R. Benshila, CNRS 2015
+! These Sediment Dynamics routines are based on the Community Sediment 
+! Transport Model (CSTM) as implemented in ROMS by J. Warner (USGS)
+!
+! Adapted from John Warner's code to CROCO by R. Benshila, CNRS 2015
+! -- modifs: P. Marchesiello, Dec 2015
 !
 !======================================================================
 !
@@ -19,9 +22,78 @@
 #  define bnew nnew
 # else
 #  define bnew nstp      
-# endif  /* BEDLOAD */     
-
+# endif  /* BEDLOAD */
+# ifndef BBL_MODEL
+#  define BSTRESS_UPWIND
+# endif
+!
+# ifdef MOVING_BATHY
+#  define MORPH_FAC *morph_fac
+# else
+#  define MORPH_FAC 
+# endif  /* MOVING_BATHY */
+!
+# undef  LINEAR_CONTINUATION /* for settling scheme */
+# undef  NEUMANN
+!
       subroutine sediment (tile)
+!
+!=======================================================================
+!                                                                      !
+!  This routine it is the main driver for the sediment-transport       !
+!  model. Currently, it includes calls to the following routines:      !
+!                                                                      !
+!  * Vertical settling of sediment in the water column.                !
+!  * Erosive and depositional flux interactions of sediment            !
+!    between water column and the bed.                                 !
+!  * Transport of multiple grain sizes.                                !
+!  * Bed layer stratigraphy.                                           !
+!  * Bed morphology.                                                   !
+!  * Bedload based on Meyer Peter Mueller.                             !
+!  * Bedload based on Soulsby combined waves + currents                !
+!    (p166 Soulsby 1997)                                               !
+!  * Bedload slope term options: Nemeth et al, 2006, Coastal           !
+!    Engineering, v 53, p 265-275; Lesser et al, 2004, Coastal         !
+!    Engineering, v 51, p 883-915.                                     !
+!                                                                      !
+!  * Seawater/sediment vertical level distribution:                    !
+!                                                                      !
+!         W-level  RHO-level                                           !
+!                                                                      !
+!            N     _________                                           !
+!                 |         |                                          !
+!                 |    N    |                                          !
+!          N-1    |_________|  S                                       !
+!                 |         |  E                                       !
+!                 |   N-1   |  A                                       !
+!            2    |_________|  W                                       !
+!                 |         |  A                                       !
+!                 |    2    |  T                                       !
+!            1    |_________|  E                                       !
+!                 |         |  R                                       !
+!                 |    1    |                                          !
+!            0    |_________|_____ bathymetry                          !
+!                 |/////////|                                          !
+!                 |    1    |                                          !
+!            1    |_________|  S                                       !
+!                 |         |  E                                       !
+!                 |    2    |  D                                       !
+!            2    |_________|  I                                       !
+!                 |         |  M                                       !
+!                 |  NLAY-1 |  E                                       !
+!        Nbed-1   |_________|  N                                       !
+!                 |         |  T                                       !
+!                 |  NLAY   |                                          !
+!         Nbed    |_________|                                          !
+!                                                                      !
+!  References:                                                         !
+!                                                                      !
+!  Warner, J.C., C.R. Sherwood, R.P. Signell, C.K. Harris, and H.G.    !
+!    Arango, 2008:  Development of a three-dimensional,  regional,     !
+!    coupled wave, current, and sediment-transport model, Computers    !
+!    & Geosciences, 34, 1284-1306.                                     !
+!                                                                      !
+!=======================================================================
 
       implicit none
 # include "param.h"
@@ -32,57 +104,82 @@
 # include "compute_tile_bounds.h"
 !
       trd=omp_get_thread_num()
-      morph_fac=TANH(dt*sec2day*float(iic-ntstart))
 # ifdef BEDLOAD
       call sed_bedload_tile (Istr,Iend,Jstr,Jend,
-     &    A2d(1,1,trd), A2d(1,2,trd), 
-     &    A2d(1,3,trd), A2d(1,4,trd),
-     &    A2d(1,5,trd),  
-     &    A2d(1,6,trd),A2d(1,7,trd)     
-#  if defined BEDLOAD_MPM
-     &    , A2d(1,8,trd),A2d(1,9,trd)     
+     &                       A2d(1,1,trd), A2d(1,2,trd), 
+     &                       A2d(1,3,trd), A2d(1,4,trd),
+     &                       A2d(1,5,trd)     
+#  ifdef BEDLOAD_MPM
+     &                     , A2d(1,6,trd),A2d(1,7,trd)
+     &                     , A2d(1,8,trd),A2d(1,9,trd)     
 #  endif
-#  if defined BEDLOAD_SOULSBY
-     &    , A2d(1,10,trd),A2d(1,11,trd)     
-     &    , A2d(1,12,trd),A2d(1,12,trd)     
+#  ifdef BEDLOAD_SOULSBY
+     &                     , A2d(1,6,trd),A2d(1,7,trd)     
+     &                     , A2d(1,8,trd),A2d(1,9,trd)     
 #  endif      
      &  )
 C$OMP BARRIER
 # endif /* BEDLOAD */
+!
 # ifdef SUSPLOAD
       call sed_settling_tile (Istr,Iend,Jstr,Jend, 
-     &                               A2d(1,1,trd), A2d(1,2,trd),
-     &                               A2d(1,3,trd), A2d(1,4,trd),
-     &                               A2d(1,5,trd), A2d(1,6,trd),
-     &                               A2d(1,7,trd), A2d(1,8,trd),
-     &                               A2d(1,9,trd),
-     &                               B2d(1,trd))
+     &                        A2d(1,1,trd), A2d(1,2,trd),
+     &                        A2d(1,3,trd), A2d(1,4,trd),
+     &                        A2d(1,5,trd), A2d(1,6,trd),
+     &                        A2d(1,7,trd), A2d(1,8,trd),
+     &                        A2d(1,9,trd),
+     &                        B2d(1,trd) )
 C$OMP BARRIER
       call sed_fluxes_tile (Istr,Iend,Jstr,Jend,A2d(1,1,trd))
 C$OMP BARRIER
 # endif /* SUSPLOAD */
+!
       call sed_bed_tile (Istr,Iend,Jstr,Jend,
      &                   A2d(1,1,trd), A2d(1,2,trd) ,
-     &    A2d(1,3,trd), A2d(1,4,trd) )
-
+     &                   A2d(1,3,trd), A2d(1,4,trd) )
 C$OMP BARRIER
-      call sed_surf_tile (Istr, Iend, Jstr, Jend
-     &   )     
+!
+      call sed_surf_tile (Istr,Iend,Jstr,Jend)     
 C$OMP BARRIER
+!
       return
       end
       
 # ifdef BEDLOAD
+!======================================================================
+!                                                                      !
+!  This routine computes sediment bedload transport using the Meyer-   !
+!  Peter and Muller (1948) formulation  for unidirectional flow and    !
+!  Souksby and Damgaard (2005) algorithm that accounts for combined    !
+!  effect of currents and waves.                                       !
+!                                                                      !
+!  References:                                                         !
+!                                                                      !
+!  Meyer-Peter, E. and R. Muller, 1948: Formulas for bedload transport !
+!    In: Report on the 2nd Meeting International Association Hydraulic !
+!    Research, Stockholm, Sweden, pp 39-64.                            !
+!                                                                      !
+!  Soulsby, R.L. and J.S. Damgaard, 2005: Bedload sediment transport   !
+!    in coastal waters, Coastal Engineering, 52 (8), 673-689.          !
+!                                                                      !
+!  Warner, J.C., C.R. Sherwood, R.P. Signell, C.K. Harris, and H.G.    !
+!    Arango, 2008:  Development of a three-dimensional,  regional,     !
+!    coupled wave, current, and sediment-transport model, Computers    !
+!    & Geosciences, 34, 1284-1306.                                     !
+!                                                                      !
+!======================================================================
+!
       subroutine sed_bedload_tile (Istr, Iend, Jstr, Jend,
-     &     tau_w,FX,FE,FX_r,FE_r
-     &    ,tau_wX,tau_wE      
-#  if defined BEDLOAD_MPM
-     &    ,angleu,anglev
+     &                             tau_w,FX,FE,FX_r,FE_r
+#  ifdef BEDLOAD_MPM
+     &                            ,tau_wX,tau_wE
+     &                            ,angleu,anglev
 #  endif
-#  if defined BEDLOAD_SOULSBY
-     &    ,phic,phicw,tau_wav,tau_mean 
+#  ifdef BEDLOAD_SOULSBY
+     &                            ,phic,phicw,tau_wav,tau_mean 
 #  endif      
-     &  ) 
+     &                            )
+!
       implicit none
       integer Istr,Iend,Jstr,Jend
       real tau_w(PRIVATE_2D_SCRATCH_ARRAY)
@@ -90,26 +187,26 @@ C$OMP BARRIER
       real FE(PRIVATE_2D_SCRATCH_ARRAY)
       real FX_r(PRIVATE_2D_SCRATCH_ARRAY)
       real FE_r(PRIVATE_2D_SCRATCH_ARRAY)
+#  ifdef BEDLOAD_MPM
       real tau_wX(PRIVATE_2D_SCRATCH_ARRAY)
       real tau_wE(PRIVATE_2D_SCRATCH_ARRAY)
-#  if defined BEDLOAD_MPM
       real angleu(PRIVATE_2D_SCRATCH_ARRAY)
-      real  anglev(PRIVATE_2D_SCRATCH_ARRAY)
+      real anglev(PRIVATE_2D_SCRATCH_ARRAY)
 #  endif
-#  if defined BEDLOAD_SOULSBY
+#  ifdef BEDLOAD_SOULSBY
       real phic(PRIVATE_2D_SCRATCH_ARRAY)
       real phicw(PRIVATE_2D_SCRATCH_ARRAY)
       real tau_wav(PRIVATE_2D_SCRATCH_ARRAY)
       real tau_mean(PRIVATE_2D_SCRATCH_ARRAY)
 #  endif
-      integer :: i, ised, j, k
+      integer i, j, k, ised
       real eps 
       real cff, cff1, cff2, cff3, cff4, cff5
       real a_slopex, a_slopey, sed_angle
       real bedld, bedld_mass, dzdx, dzdy
       real smgd, smgdr, osmgd, Umag
       real Ua, Ra, phi, Clim
-#  if defined BEDLOAD_SOULSBY
+#  ifdef BEDLOAD_SOULSBY
       real theta_mean, theta_wav, w_asym
       real theta_max, theta_max1, theta_max2
       real phi_x1, phi_x2, phi_x, phi_y, Dstp
@@ -118,10 +215,9 @@ C$OMP BARRIER
       real kdmax,Kbh,Kbh2,Kdh,Fwave
       real rhs_bed, bed_change
       integer imin,imax,jmin,jmax
-      parameter  (eps = 1.e-20)
-      parameter(kdmax = 100.)
-      real
-     &        K1, K2, K3, K4, K5, K6
+      parameter (eps = 1.e-20)
+      parameter (kdmax = 100.)
+      real K1, K2, K3, K4, K5, K6
       parameter (K1=0.6666666666, K2=0.3555555555,
      &           K3=0.1608465608, K4=0.0632098765,
      &           K5=0.0217540484, K6=0.0065407983)
@@ -132,7 +228,7 @@ C$OMP BARRIER
 #  include "sediment.h"
 #  include "forces.h"
 #  ifdef WKB_WWAVE
-#  include "wkb_wwave.h"
+#   include "wkb_wwave.h"
 #  endif
 #  include "bbl.h"
 #  include "compute_auxiliary_bounds.h"
@@ -167,13 +263,12 @@ C$OMP BARRIER
       endif
 #   define J_EXT_RANGE jmin,jmax
 #  endif /* NS_PERIODIC */
-   
 !
 !-----------------------------------------------------------------------
-! Compute maximum bottom stress for MPM bedload or suspended load.
+! Compute maximum bottom stress for MPM bedload
 !-----------------------------------------------------------------------
 !
-#  if defined BEDLOAD_MPM 
+#  ifdef BEDLOAD_MPM 
 #   ifdef BBL
       do j=Jstr-1,Jend+1
         do i=Istr-1,Iend+1
@@ -184,6 +279,7 @@ C$OMP BARRIER
 #   else
       do j=J_EXT_RANGE
         do i=I_EXT_RANGE
+#    ifdef BSTRESS_UPWIND
             cff1=0.5*(1.0+SIGN(1.0,bustr(i+1,j)))
             cff2=0.5*(1.0-SIGN(1.0,bustr(i+1,j)))
             cff3=0.5*(1.0+SIGN(1.0,bustr(i  ,j)))
@@ -200,30 +296,29 @@ C$OMP BARRIER
      &                  cff2*0.5*(bvstr(i,j)+bvstr(i,j+1)))+         
      &                  cff4*(cff2*bvstr(i,j+1)+                        
      &                  cff1*0.5*(bvstr(i,j)+bvstr(i,j+1)))
-          tau_w(i,j)=0.5*SQRT((bustr(i,j)+bustr(i+1,j))*             
-     &                           (bustr(i,j)+bustr(i+1,j))+             
-     &                           (bvstr(i,j)+bvstr(i,j+1))*             
-     &                           (bvstr(i,j)+bvstr(i,j+1)))
+#    endif
+            tau_w(i,j)=0.5*SQRT((bustr(i,j)+bustr(i+1,j))*             
+     &                          (bustr(i,j)+bustr(i+1,j))+             
+     &                          (bvstr(i,j)+bvstr(i,j+1))*             
+     &                          (bvstr(i,j)+bvstr(i,j+1)))
        enddo
       enddo
 #   endif /* BBL */
 #  endif /* BEDLOAD_MPM */
-
 !
 !-----------------------------------------------------------------------
 !  Compute bedload sediment transport.
 !-----------------------------------------------------------------------
-
 !
 ! Compute some constant bed slope parameters.
 !
-       sed_angle=DTAN(33.0*pi/180.0)
+      sed_angle=DTAN(33.0*pi/180.0)
 !
 !  Compute angle between currents and waves (radians).
 !
       do j=J_EXT_RANGE
        do i=I_EXT_RANGE
-#  if defined BEDLOAD_SOULSBY
+#  ifdef BEDLOAD_SOULSBY
 !
 ! Compute angle between currents and waves, measure CCW from current
 ! direction toward wave vector.
@@ -233,14 +328,14 @@ C$OMP BARRIER
           else
             phic(i,j)=ATAN2(bvstrc(i,j),bustrc(i,j))
           endif
-# ifdef WKB_WWAVE
+#   ifdef WKB_WWAVE
           phicw(i,j)=Dwave(i,j)-phic(i,j)
-# else
-          phicw(i,j)=(3.0*pi)/2.0-Dwave(i,j)-phic(i,j)
-# endif
-# ifdef CURVGRID
-     &                                  -angler(i,j)
-# endif
+#   else
+          phicw(i,j)=1.5*pi-Dwave(i,j)-phic(i,j)
+#   endif
+#   ifdef CURVGRID
+     &                              -angler(i,j)
+#   endif
 !
 ! Compute stress components at rho points.
 !
@@ -251,7 +346,7 @@ C$OMP BARRIER
           tau_mean(i,j)=tau_cur*(1.0+1.2*((tau_wav(i,j)/  
      &                  (tau_cur+tau_wav(i,j)+eps))**3.2))
 !
-#  elif defined BEDLOAD_MPM
+#  elif defined BEDLOAD_MPM && !defined BSTRESS_UPWIND
           cff1=0.5*(bustr(i,j)+bustr(i+1,j))
           cff2=0.5*(bvstr(i,j)+bvstr(i,j+1))
           Umag=SQRT(cff1*cff1+cff2*cff2)+eps
@@ -273,24 +368,21 @@ C$OMP BARRIER
 ! Compute wave asymmetry factor, based on Fredosoe and Deigaard.
 !
             Dstp=z_w(i,j,N)+h(i,j)  
-            !          
-#  ifdef WKB_WWAVE
+#   ifdef WKB_WWAVE
             waven=max(wvn(i,j,wnew),eps)
-#  else
+#   else
             Fwave=2*pi/Pwave(i,j)
             Kdh=Dstp*Fwave*Fwave/g
             Kbh2=Kdh*Kdh+
      &      Kdh/(1.0+Kdh*(K1+Kdh*(K2+Kdh*(K3+Kdh*(K4+
      &      Kdh*(K5+K6*Kdh))))))
             waven = SQRT(Kbh2)/Dstp           
-# endif
-            !
+#   endif
             wavec=SQRT(g/waven*tanh(waven*Dstp))
             cff4=MIN(waven*Dstp,kdmax)
             cff1=-0.1875*wavec*(waven*Dstp)**2/(SINH(cff4))**4
             cff2=0.125*g*(2*Awave(i,j))**2/(wavec*Dstp+eps)
             cff3=pi*2*Max(Awave(i,j),eps)/(Pwave(i,j)*SINH(cff4)+eps)
-!            w_asym=MAX(MIN((cff1-cff2)/cff3,0.2),0.0)
 !
 ! Compute wave asymmetry factor, based on the note of Soulsby
 !
@@ -298,8 +390,6 @@ C$OMP BARRIER
      &                    ((waven*Dstp)/(SINH(cff4))**3),0.15)
             w_asym=2.0_r8*cff1/(1.0+cff1**2.)
 !
-!
-
 ! Compute nondimensional stresses.
 !
             theta_wav=tau_wav(i,j)*osmgd+eps
@@ -320,7 +410,7 @@ C$OMP BARRIER
             cff3=0.5*(1.0+SIGN(1.0,                            
      &                   theta_max/(tau_ce(ised)*osmgd)-1.0))
 !
-! Calc bed loads in direction of current and perpendicular direction.
+! Compute bed loads in parallel and perpendicular direction of currents
 !
             phi_x1=12.*SQRT(theta_mean)*                    
      &             MAX((theta_mean-tau_ce(ised)*osmgd),0.)
@@ -346,34 +436,45 @@ C$OMP BARRIER
 ! FX_r and FE_r have dimensions of kg.
 !
             FX_r(i,j)=(bedld_x*COS(phic(i,j))-bedld_y*SIN(phic(i,j)))* 
-     &                on_r(i,j)*dt
+     &                                                    on_r(i,j)*dt
             FE_r(i,j)=(bedld_x*SIN(phic(i,j))+bedld_y*COS(phic(i,j)))*
-     &                om_r(i,j)*dt
+     &                                                    om_r(i,j)*dt
 #  elif defined BEDLOAD_MPM
+#   ifdef BSTRESS_UPWIND
 !
 ! Magnitude of bed load at rho points. Meyer-Peter Muller formulation.
 ! bedld has dimensions of kg m-1 s-1. Use partitions of stress 
 ! from upwind direction, still at rho points.
 ! FX_r and FE_r have dimensions of kg.
 !
-            bedld=8.0*(MAX((ABS(tau_wX(i,j))*osmgd-0.047), 
-     &                        0.0)**1.5)*smgdr*            
-     &                        SIGN(1.0,tau_wX(i,j))
+            bedld=8.0*(MAX((ABS(tau_wX(i,j))*osmgd-0.047),0.0)**1.5)
+     &                                   *smgdr*IGN(1.0,tau_wX(i,j))
             FX_r(i,j)=bedld*on_r(i,j)*dt
-            bedld=8.0*(MAX((ABS(tau_wE(i,j))*osmgd-0.047),  
-     &                        0.0)**1.5)*smgdr*             
-     &                        SIGN(1.0,tau_wE(i,j))
+            bedld=8.0*(MAX((ABS(tau_wE(i,j))*osmgd-0.047),0.0)**1.5)
+     &                                   *smgdr*IGN(1.0,tau_wE(i,j))
             FE_r(i,j)=bedld*om_r(i,j)*dt
+#   else
+!
+! Magnitude of bed load at rho points. Meyer-Peter Muller formulation.
+! (BEDLD has dimensions of kg m-1 s-1).
+!
+            bedld=8.0*(MAX((tau_w(i,j)*osmgd-0.047),0.0)**1.5)*smgdr
+!
+! Partition bedld into xi and eta directions, still at rho points.
+! (FX_r and FE_r have dimensions of kg).
+!
+            FX_r(i,j)=angleu(i,j)*bedld*on_r(i,j)*dt(ng)
+            FE_r(i,j)=anglev(i,j)*bedld*om_r(i,j)*dt(ng)
+#   endif /* BSTRESS_UPWIND */
 #  endif /* BEDLOAD_SOULSBY or BEDLOAD_MPM */
 !
 ! Correct for along-direction slope. Limit slope to 0.9*sed angle.
 !
-
             cff1=0.5*(1.0+SIGN(1.0,FX_r(i,j)))
             cff2=0.5*(1.0-SIGN(1.0,FX_r(i,j)))
             cff3=0.5*(1.0+SIGN(1.0,FE_r(i,j)))
             cff4=0.5*(1.0-SIGN(1.0,FE_r(i,j)))
-#  if defined SLOPE_NEMETH
+#  ifdef SLOPE_NEMETH
             dzdx=(h(i+1,j)-h(i  ,j))/om_u(i+1,j)*cff1+       
      &           (h(i-1,j)-h(i  ,j))/om_u(i  ,j)*cff2
             dzdy=(h(i,j+1)-h(i,j  ))/on_v(i,j+1)*cff3+      
@@ -382,13 +483,11 @@ C$OMP BARRIER
             a_slopex=1.7*dzdx
             a_slopey=1.7*dzdy
 !
-!
 ! Add contriubiton of bed slope to bed load transport fluxes.
 !
             FX_r(i,j)=FX_r(i,j)*(1.0+a_slopex)
             FE_r(i,j)=FE_r(i,j)*(1.0+a_slopey)
 !
-
 #  elif defined SLOPE_LESSER
             dzdx=MIN(((h(i+1,j)-h(i  ,j))/om_u(i+1,j)*cff1+      
      &                (h(i  ,j)-h(i-1,j))/om_u(i  ,j)*cff2),0.52)* 
@@ -407,14 +506,12 @@ C$OMP BARRIER
             FE_r(i,j)=FE_r(i,j)*a_slopey
 #  endif /* SLOPE_NEMETH */
 !
-!
 #  ifdef MOVING_BATHY
 !
 ! Apply morphology factor.
 !
             FX_r(i,j)=FX_r(i,j)*morph_fac
             FE_r(i,j)=FE_r(i,j)*morph_fac
-
 #  endif
 !
 ! Apply bedload transport rate coefficient. Also limit
@@ -436,16 +533,14 @@ C$OMP BARRIER
      &                    om_r(i,j)*on_r(i,j)*ABS(FE_r(i,j))/     
      &                    bedld_mass)*             
      &                    SIGN(1.0,FE_r(i,j))
-#   ifdef MASKING
-#    ifdef WET_DRY
-            FX_r(i,j)=FX_r(i,j)*rmask_wet(i,j)
-            FE_r(i,j)=FE_r(i,j)*rmask_wet(i,j)
-#    else
+#  ifdef MASKING
             FX_r(i,j)=FX_r(i,j)*rmask(i,j)
             FE_r(i,j)=FE_r(i,j)*rmask(i,j)
-#    endif
-#   endif
- 
+#  endif
+#  ifdef WET_DRY
+            FX_r(i,j)=FX_r(i,j)*rmask_wet(i,j)
+            FE_r(i,j)=FE_r(i,j)*rmask_wet(i,j)
+#  endif
           enddo
         enddo
 
@@ -508,7 +603,7 @@ C$OMP BARRIER
 #  undef I_EXT_RANGE
 #  undef J_EXT_RANGE
 !
-! Upwind shift FX_r and FE_r to u and v points.
+! Compute face fluxes at u and v points before taking divergence.
 !
         do j=Jstr,Jend
           do i=Istr,Iend+1
@@ -528,17 +623,17 @@ C$OMP BARRIER
 #  endif
 #  ifdef SLOPE_KIRWAN
             dzdx=(h(i,j)-h(i-1  ,j))/om_u(i,j)
-            a_slopex=(MAX(0.0,abs(dzdx)-0.01)                     &
-     &               *SIGN(1.0,dzdx)*0.1)                         &
+            a_slopex=(MAX(0.0,abs(dzdx)-0.01)
+     &               *SIGN(1.0,dzdx)*0.1)
      &               *om_r(i,j)*dt
-#   ifdef SED_MORPH
+#   ifdef MOVING_BATHY
             a_slopex=a_slopex*morph_fac
 #   endif
             FX(i,j)=FX(i,j)+a_slopex
 #   ifdef MASKING
-            FX(i,j)=FX(i,j)*rmask(i-1,j)*rmask(i,j)
+            FX(i,j)=FX(i,j)*umask(i,j)
 #   endif
-#  endif
+#  endif /* SLOPE_KIRWAN */
           enddo
         enddo
         do j=Jstr,Jend+1
@@ -559,20 +654,19 @@ C$OMP BARRIER
 #  endif
 #  ifdef SLOPE_KIRWAN
             dzdy=(h(i,j)-h(i  ,j-1))/on_v(i,j)
-            a_slopey=(MAX(0.0,abs(dzdy)-0.01_                     &
-     &               *SIGN(1.0,dzdy)*0.1)                         &
+            a_slopey=(MAX(0.0,abs(dzdy)-0.01
+     &               *SIGN(1.0,dzdy)*0.1)
      &               *on_r(i,j)*dt
-#   ifdef SED_MORPH
+#   ifdef MOVING_BATHY
             a_slopey=a_slopey*morph_fac
 #   endif
             FE(i,j)=FE(i,j)+a_slopey
 #   ifdef MASKING
-            FE(i,j)=FE(i,j)*rmask(i,j-1)*rmask(i,j)
+            FE(i,j)=FE(i,j)*vmask(i,j)
 #   endif
-#  endif
+#  endif /* SLOPE_KIRWAN */
           enddo
         enddo
-
 !
 ! Limit fluxes to prevent bottom from breaking thru water surface.
 !
@@ -580,14 +674,21 @@ C$OMP BARRIER
           DO i=Istr,Iend
 !
 ! Total thickness available.
+!
+#  ifdef WET_DRY
             Dstp=MAX(z_w(i,j,N)-z_w(i,j,0)-Dcrit(i,j),0.)
+#  else
+            Dstp=MAX(z_w(i,j,N)-z_w(i,j,0)-hmin,0.)
+#  endif
 !
 ! Thickness change that wants to occur.
+!
             rhs_bed=(FX(i+1,j)-FX(i,j)+                          
      &               FE(i,j+1)-FE(i,j))*pm(i,j)*pn(i,j)
             bed_change=rhs_bed/(Srho(ised)*(1.0-bed_poros(i,j,1)))
 !
 ! Limit that change to be less than available.
+!
             cff=MAX(bed_change-Dstp,0.0)
             cff1=cff/ABS(bed_change+eps)
             FX(i+1,j  )=FX(i+1,j  )*(1.0-cff1)
@@ -597,35 +698,40 @@ C$OMP BARRIER
           END DO
         END DO
 !
-
-!
 ! Apply boundary conditions
 !
 #  ifndef EW_PERIODIC
+#   ifndef OBC_WEST
         if (WESTERN_EDGE) then
           do j=Jstr-1,Jend+1
             FX(Istr,j)=0.
           enddo
         endif
+#   endif
+#   ifndef OBC_EAST
         if (EASTERN_EDGE) then
           do j=Jstr-1,Jend+1
             FX(Iend+1,j)=0.
           enddo
         endif
+#   endif
 #  endif
 #  ifndef NS_PERIODIC
+#   ifndef OBC_SOUTH
         if (SOUTHERN_EDGE) then
           do i=Istr-1,Iend+1
             FE(i,Jstr)=0.
           enddo
         endif
+#   endif
+#   ifndef OBC_NORTH
         if (NORTHERN_EDGE) then
           do i=Istr-1,Iend+1
             FE(i,Jend+1)=0.
           enddo
         endif
+#   endif
 #  endif
-
 !
 !  Determine flux divergence and evaluate change in bed properties.
 !
@@ -633,17 +739,25 @@ C$OMP BARRIER
           do i=Istr,Iend
             cff=(FX(i+1,j)-FX(i,j)+                           
      &           FE(i,j+1)-FE(i,j))*pm(i,j)*pn(i,j)
-#define DIFF_BED
-#ifdef DIFF_BED
-     &                   -dt* pm(i,j)*pn(i,j)*(0.5*on_r(i,j)*(
+#  define DIFF_BED
+#  ifdef DIFF_BED
+     &                    -dt*pm(i,j)*pn(i,j)*1.e-2 MORPH_FAC
+     &                                       *(0.5*on_r(i,j)*(
      &                            bed_mass(i+1,j,1,nstp,ised)
-     &                        -2.*bed_mass(i,j,1,nstp,ised)
+     &                        -2.*bed_mass(i  ,j,1,nstp,ised)
      &                           +bed_mass(i-1,j,1,nstp,ised))
-     &                           +0.5*om_r(i,j)*(
+#   ifdef WET_DRY
+     &       *rmask_wet(i-1,j)*rmask_wet(i,j)*rmask_wet(i+1,j)
+#   endif
+     &                                        +0.5*om_r(i,j)*(
      &                            bed_mass(i,j+1,1,nstp,ised)
-     &                        -2.*bed_mass(i,j,1,nstp,ised)
-     &                           +bed_mass(i,j-1,1,nstp,ised)) )
-#endif
+     &                        -2.*bed_mass(i,j  ,1,nstp,ised)
+     &                           +bed_mass(i,j-1,1,nstp,ised))
+#   ifdef WET_DRY
+     &       *rmask_wet(i,j-1)*rmask_wet(i,j)*rmask_wet(i,j+1)
+#   endif
+     &                                                       )
+#  endif /* DIFF_BED */
             bed_mass(i,j,1,nnew,ised)=MAX(bed_mass(i,j,1,nstp,ised)-   
      &                                    cff,0.0)
 #  if !defined SUSPLOAD
@@ -653,8 +767,7 @@ C$OMP BARRIER
 #  endif
             bed_thick(i,j,1)=MAX(bed_thick(i,j,1)-            
      &                           cff/(Srho(ised)*              
-     &                                (1.0-bed_poros(i,j,1))),  
-     &                           0.0)
+     &                           (1.0-bed_poros(i,j,1))), 0.0)
           enddo
         enddo
 !
@@ -673,7 +786,12 @@ C$OMP BARRIER
             bedldv(i,j,ised)=FE(i,j)*(pm(i,j-1)+pm(i,j))*cff
           enddo
         enddo
-      enddo
+!
+      enddo  ! ised
+!
+!-----------------------------------------------------------------------
+!  Update mean surface properties.
+!-----------------------------------------------------------------------
 !
       do j=Jstr,Jend
         do i=Istr,Iend
@@ -704,9 +822,9 @@ C$OMP BARRIER
           Sdens(i,j)=MAX(cff4,1050.)
         enddo
       enddo
-
 !
 ! Set boundary conditions
+!
 # ifndef EW_PERIODIC
       if (EASTERN_EDGE) then
         do j=Jstr,Jend
@@ -812,6 +930,7 @@ C$OMP BARRIER
          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
      &                 Sdens(START_2D_ARRAY))
 # endif
+!
 !-----------------------------------------------------------------------
 ! Set boundary conditions
 !-----------------------------------------------------------------------
@@ -919,8 +1038,6 @@ C$OMP BARRIER
       endif
 #  endif
 
-
-!
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
       do ised=1,NST
         do k=1,NLAY
@@ -943,8 +1060,32 @@ C$OMP BARRIER
 # endif /* BEDLOAD */
       
 # ifdef SUSPLOAD
-      subroutine sed_settling_tile (Istr, Iend, Jstr, Jend,
-     &   Hz_inv,Hz_inv2,Hz_inv3,qc,FC,qR,qL,WR,WL,ksource) 
+!======================================================================
+!                                                                      !
+!  This routine computes the vertical settling (sinking) of suspended  !
+!  sediment via a semi-Lagrangian advective flux algorithm. It uses a  !
+!  parabolic,  vertical reconstructuion of the suspended  sediment in  !
+!  the water column with PPT/WENO constraints to avoid oscillations.   !
+!                                                                      !
+!  References:                                                         !
+!                                                                      !
+!  Colella, P. and P. Woodward, 1984: The piecewise parabolic method   !
+!    (PPM) for gas-dynamical simulations, J. Comp. Phys., 54, 174-201. !
+!                                                                      !
+!  Liu, X.D., S. Osher, and T. Chan, 1994: Weighted essentially        !
+!    nonoscillatory shemes, J. Comp. Phys., 115, 200-212.              !
+!                                                                      !
+!  Warner, J.C., C.R. Sherwood, R.P. Signell, C.K. Harris, and H.G.    !
+!    Arango, 2008:  Development of a three-dimensional,  regional,     !
+!    coupled wave, current, and sediment-transport model, Computers    !
+!    & Geosciences, 34, 1284-1306.                                     !
+!                                                                      !
+!=======================================================================
+!
+      subroutine sed_settling_tile (Istr,Iend,Jstr,Jend,
+     &                              Hz_inv,Hz_inv2,Hz_inv3,qc,
+     &                              FC,qR,qL,WR,WL,ksource) 
+!
       implicit none
 #  include "param.h"
 #  include "ocean3d.h"
@@ -965,7 +1106,6 @@ C$OMP BARRIER
       integer  ksource(PRIVATE_1D_SCRATCH_ARRAY,N),
      &         ised,indx,i,j,k,ks  
       real dltR, dltL,cff,cffR,cffL,cu
-!
 
       do j=Jstr,Jend                        ! Auxiliary step: save   
         do k=1,N                            ! inverses of grid box 
@@ -1103,7 +1243,7 @@ C$OMP BARRIER
               FC(i,k-1)=0.                ! box interface z_w with
               WL(i,k)=z_w(i,j,k-1)+cff    ! the same indices;
 #  ifdef WET_DRY
-     &    * rmask_wet(i,j)
+     &                *rmask_wet(i,j)
 #  endif
               WR(i,k)=Hz(i,j,k)*qc(i,k)   ! FC is finite volume flux;
               ksource(i,k)=k              ! ksource(:,k) is index of
@@ -1139,19 +1279,34 @@ C$OMP BARRIER
         enddo   
       enddo     ! j   lood    
 
+!
+!  Exchange for output purpose
+!
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
-      ! exchange for output purpose
       do ised=1,NST
-          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
-     &                 settling_flux(START_2D_ARRAY,ised))
-       enddo
+        call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                          settling_flux(START_2D_ARRAY,ised))
+      enddo
 #  endif
 
       return
       end
-
-      subroutine sed_fluxes_tile (Istr, Iend, Jstr, Jend
-     &  ,tau_w ) 
+!
+!=======================================================================
+!                                                                      !
+!  This computes sediment erosion flux and resuspended load.           !
+!                                                                      !
+!  References:                                                         !
+!                                                                      !
+!  Warner, J.C., C.R. Sherwood, R.P. Signell, C.K. Harris, and H.G.    !
+!    Arango, 2008:  Development of a three-dimensional,  regional,     !
+!    coupled wave, current, and sediment-transport model, Computers    !
+!    & Geosciences, 34, 1284-1306.                                     !
+!                                                                      !
+!=======================================================================
+!
+      subroutine sed_fluxes_tile (Istr,Iend,Jstr,Jend, tau_w) 
+!
       implicit none
 #  include "param.h"
 #  include "grid.h"
@@ -1197,7 +1352,12 @@ C$OMP BARRIER
       endif
 #   define J_EXT_RANGE jmin,jmax
 #  endif
-
+!
+!-----------------------------------------------------------------------
+!  Compute bottom skin-friction stress due to combined maximum wave 
+!  and current interaction
+!-----------------------------------------------------------------------
+!
 #  ifdef BBL
       do j=Jstr-1,Jend+1
         do i=Istr-1,Iend+1
@@ -1214,14 +1374,19 @@ C$OMP BARRIER
 #  endif
         enddo
       enddo
-
+!
+!-----------------------------------------------------------------------
+!  Compute erosion flux and resuspended load
+!-----------------------------------------------------------------------
+!
       do j=jstr,jend
         do ised=1,NST
           do i=istr,iend
           indx=itrc_sed+ised-1     
-          
+! 
 !  Calculate critical shear stress in Pa
 !  => change for COHESIVE bed here
+!
             cff=1./tau_ce(ised)
 !
 !  Compute erosion, ero_flux (kg/m2).
@@ -1232,35 +1397,47 @@ C$OMP BARRIER
             cff4=bed_mass(i,j,1,bnew,ised)
             ero_flux(i,j,ised)=                                     
      &            MIN(MAX(0.,cff2*(cff*tau_w(i,j)-1.)),      
-     &                MIN(cff3*bot_thick(i,j),cff4)+              
+     &                MIN(cff3*bot_thick(i,j) MORPH_FAC ,cff4)+
      &                settling_flux(i,j,ised))
 !
 !  Update global tracer variables (m Tunits for nnew indx, Tuints for 3)
 !  for erosive flux.
 !                        
             t(i,j,1,nnew,indx)=t(i,j,1,nnew,indx)+ero_flux(i,j,ised)
-     & *1./Hz(i,j,1)                     
-#  ifdef WET_DRY
-!     &                                     *rmask_wet(i,j)
-#  endif
+     &                                                 *1./Hz(i,j,1)
           enddo  ! i loop
         enddo    ! ised loop 
       enddo      ! j loop 
 
+!
+!  Exchange for output purpose
+!
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
-      ! exchange for output purpose
       do ised=1,NST
-          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
-     &                 ero_flux(START_2D_ARRAY,ised))
-       enddo
+        call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                          ero_flux(START_2D_ARRAY,ised))
+      enddo
 #  endif
 
       return
       end
 # endif /* SUSPLOAD */
-      
-      subroutine sed_bed_tile (Istr, Iend, Jstr, Jend,
-     &   tau_w,dep_mass,Awrk1,Awrk2) 
+
+!
+!=======================================================================
+!                                                                      !
+!  This routine computes sediment bed layer stratigraphy.              !
+!                                                                      !
+!  Warner, J.C., C.R. Sherwood, R.P. Signell, C.K. Harris, and H.G.    !
+!    Arango, 2008:  Development of a three-dimensional,  regional,     !
+!    coupled wave, current, and sediment-transport model, Computers    !
+!    & Geosciences, 34, 1284-1306.                                     !
+!                                                                      !
+!=======================================================================
+!
+      subroutine sed_bed_tile (Istr,Iend,Jstr,Jend,
+     &                         tau_w,dep_mass,Awrk1,Awrk2)
+!
       implicit none
 # include "param.h"
 # include "bbl.h"
@@ -1270,7 +1447,7 @@ C$OMP BARRIER
 # include "scalars.h"
 # include "sediment.h"
       integer Istr,Iend,Jstr,Jend
-      integer i,j,k,ks,ised,Ksed
+      integer i,j,k,ks,ised,Ksed, NLAYm1
       real tau_w(PRIVATE_2D_SCRATCH_ARRAY)
       real dep_mass(PRIVATE_1D_SCRATCH_ARRAY,NST)
       real Awrk1(PRIVATE_2D_SCRATCH_ARRAY)
@@ -1310,42 +1487,48 @@ C$OMP BARRIER
       endif
 #  define J_EXT_RANGE jmin,jmax
 # endif
-
 !
 !-----------------------------------------------------------------------
-! Compute sediment bed layer stratigraphy.
+!  Compute bottom skin-friction stress due to combined maximum wave 
+!  and current interaction
 !-----------------------------------------------------------------------
 !
-# ifdef SUSPLOAD
-#  ifdef BBL
+# ifdef BBL
       do j=Jstr-1,Jend+1
         do i=Istr-1,Iend+1
           tau_w(i,j)=sqrt( bustrcwmax(i,j)**2
-     &                        +bvstrcwmax(i,j)**2)
-#  else
+     &                    +bvstrcwmax(i,j)**2)
+# else
       do j=J_EXT_RANGE
         do i=I_EXT_RANGE
           tau_w(i,j)=0.5*sqrt( (bustr(i,j)+bustr(i+1,j))**2
      &                        +(bvstr(i,j)+bvstr(i,j+1))**2)
-#  endif
-#  ifdef WET_DRY
-          tau_w(i,j)=tau_w(i,j)*rmask_wet(i,j)
-#  endif
+# endif
+!
+!-----------------------------------------------------------------------
+!  Calculate active layer thickness
+!     --> Harris and Wiberg 1997: za = k1 (tau-tc)rho + k2 Sd50
+!-----------------------------------------------------------------------
+!
+          bot_thick(i,j)=MAX(newlayer_thick,            
+     &                       0.007*(tau_w(i,j)-taucb(i,j))*rho0)+   
+     &                       6.*Ssize(i,j)
         enddo
       enddo
-# endif
 !
 !-----------------------------------------------------------------------
 !  Update bed properties according to ero_flux and dep_flux.
 !-----------------------------------------------------------------------
 !
-
 # ifdef SUSPLOAD
+!
+      NLAYm1=max(NLAY-1,1)  ! for NLAY=1 case
+!
       do j=Jstr,Jend
         do ised=1,NST
 !
 !  The deposition and resuspension of sediment on the bottom "bed"
-!  is due to precepitation flux FC(:,0), already computed, and the
+!  is due to precipitation flux, already computed, and the
 !  resuspension (erosion, hence called ero_flux). The resuspension is
 !  applied to the bottom-most grid box value qc(:,1) so the total mass
 !  is conserved. Restrict "ero_flux" so that "bed" cannot go negative
@@ -1353,32 +1536,33 @@ C$OMP BARRIER
 !
           do i=Istr,Iend
             dep_mass(i,ised)=0.0
-#  ifdef MOVING_BATHY
+!
 ! Apply morphology factor.
 !
+#  ifdef MOVING_BATHY
             ero_flux(i,j,ised)=ero_flux(i,j,ised)*morph_fac
-            settling_flux(i,j,ised)=settling_flux(i,j,ised)*        
-     &                              morph_fac
+            settling_flux(i,j,ised)=settling_flux(i,j,ised)*morph_fac
 #  endif
-            if ((ero_flux(i,j,ised)-settling_flux(i,j,ised)).lt.
-     &           0.) then
+            if ( settling_flux(i,j,ised)-ero_flux(i,j,ised)
+     &                                            .gt. 0. ) then
 !
 !  If first time step of deposit, then store deposit material in
 !  temporary array, dep_mass.
-              if (time.gt.(bed_age(i,j,1)+1.1*dt).and.   
-     &            (bed_thick(i,j,1).gt.newlayer_thick)) then
+! 
+              if ( time .gt. (bed_age(i,j,1)+1.1*dt) .and.
+     &             bed_thick(i,j,1) .gt. newlayer_thick ) then
                 dep_mass(i,ised)=settling_flux(i,j,ised)-          
-     &                           ero_flux(i,j,ised)
+     &                                ero_flux(i,j,ised)
               endif
-                bed_age(i,j,1)=time
+              bed_age(i,j,1)=time
             endif
 !
 !  Update bed mass arrays.
+!
             bed_mass(i,j,1,nnew,ised)=MAX(bed_mass(i,j,1,bnew,ised)- 
      &                                   (ero_flux(i,j,ised)-        
      &                                    settling_flux(i,j,ised)),  
      &                                    0.) 
-     
             do k=2,NLAY
               bed_mass(i,j,k,nnew,ised)=bed_mass(i,j,k,nstp,ised)
             enddo
@@ -1387,29 +1571,37 @@ C$OMP BARRIER
 !
 !  If first time step of deposit, create new layer and combine bottom
 !  two bed layers.
+!
         do i=Istr,Iend
           cff=0.
 !
 !  Determine if deposition ocurred here.
 !
           if (NLAY.gt.1) then
+!
             do ised=1,NST
               cff=cff+dep_mass(i,ised)
+     &                     /(Srho(ised)*
+     &                     (1.0-bed_poros(i,j,1)))
             enddo
-            if (cff.gt.0.0) then
+!
+!            if (cff.gt.0.0) then
+            if (cff.gt.1.e-7 MORPH_FAC) then
 !     
 !  Combine bottom layers.
-              bed_poros(i,j,NLAY)=0.5*(bed_poros(i,j,NLAY-1)+        
-     &                                    bed_poros(i,j,NLAY))
-              bed_age  (i,j,NLAY)=0.5*(bed_age  (i,j,NLAY)+     
-     &                                    bed_age  (i,j,NLAY))
+!
+              bed_poros(i,j,NLAY)=0.5*(bed_poros(i,j,NLAYm1)+        
+     &                                 bed_poros(i,j,NLAY))
+              bed_age  (i,j,NLAY)=0.5*(bed_age  (i,j,NLAYm1)+     
+     &                                 bed_age  (i,j,NLAY))
               do ised=1,NST
                 bed_mass(i,j,NLAY,nnew,ised)=                           
-     &                             bed_mass(i,j,NLAY-1,nnew,ised)+      
+     &                             bed_mass(i,j,NLAYm1,nnew,ised)+      
      &                             bed_mass(i,j,NLAY  ,nnew,ised)
               enddo
 !
 !  Push layers down.
+!
               do k=NLAY-1,2,-1
                 bed_poros(i,j,k)=bed_poros(i,j,k-1)
                 bed_age  (i,j,k)=bed_age  (i,j,k-1)
@@ -1419,15 +1611,17 @@ C$OMP BARRIER
               enddo
 !
 !  Set new top layer parameters.
+!
               do ised=1,NST
                 bed_mass(i,j,2,nnew,ised)=MAX(bed_mass(i,j,2,nnew,ised)-
-     &                                    dep_mass(i,ised),0.)
+     &                                        dep_mass(i,ised),0.)
                 bed_mass(i,j,1,nnew,ised)=dep_mass(i,ised)
               enddo
             endif
-          endif !NLAY=1
+          endif  ! NLAY=1
 !
-! Recalculate thickness and fractions for all layers.
+!  Recalculate thickness and fractions for all layers.
+!
           do k=1,NLAY
             cff3=0.
             do ised=1,NST
@@ -1441,13 +1635,11 @@ C$OMP BARRIER
               bed_frac(i,j,k,ised)=bed_mass(i,j,k,nnew,ised)/cff3
               bed_thick(i,j,k)=MAX(bed_thick(i,j,k)+                    
      &                         bed_mass(i,j,k,nnew,ised)/               
-     &                         (Srho(ised)*                          
-     &                          (1.-bed_poros(i,j,k))),0.)
+     &                         (Srho(ised)*(1.-bed_poros(i,j,k))),0.)
             enddo  ! ised loop 
-          enddo    ! k lopp   
+          enddo    ! k loop   
         enddo      ! i loop
       enddo        ! j loop
-!
 !
 # endif /* SUSPLOAD */
 !
@@ -1457,28 +1649,13 @@ C$OMP BARRIER
 !
       do j=Jstr,Jend
         do i=Istr,Iend
-!
-!  Calculate active layer thickness, bot_thick(i,j) : Harris and Wiberg 1997
-!  za=k1(tau-tc)rho + k2 Sd50
-          bot_thick(i,j)=MAX(0.,                                 
-     &                          0.007*                               
-     &                          (tau_w(i,j)-taucb(i,j))*rho0)+   
-     &                          6.*Ssize(i,j)
-# ifdef MOVING_BATHY
-!
-! Apply morphology factor.
-!
-          bot_thick(i,j)=MAX(bot_thick(i,j)*morph_fac,      
-     &                         bot_thick(i,j))
-# endif
-!
           if (bot_thick(i,j).gt.bed_thick(i,j,1)) then
             if (NLAY.eq.1) then
               bot_thick(i,j)=bed_thick(i,j,1)
             else
               thck_to_add=bot_thick(i,j)-bed_thick(i,j,1)
               thck_avail=0.
-              Ksed=1                                        ! initialize
+              Ksed=1       ! initialize
               do k=2,NLAY
                 if (thck_avail.lt.thck_to_add) then
                   thck_avail=thck_avail+bed_thick(i,j,k)
@@ -1487,12 +1664,14 @@ C$OMP BARRIER
               enddo
 !
 !  Catch here if there was not enough bed material.
+!
               if (thck_avail.lt.thck_to_add) then
                 bot_thick(i,j)=bed_thick(i,j,1)+thck_avail
                 thck_to_add=thck_avail
               endif
 !
 !  Update bed mass of top layer and fractional layer.
+!
               cff2=MAX(thck_avail-thck_to_add,0.)/            
      &             MAX(bed_thick(i,j,Ksed),eps)
               do ised=1,NST
@@ -1506,9 +1685,11 @@ C$OMP BARRIER
               enddo
 !
 !  Update thickness of fractional layer ksource_sed
+!
               bed_thick(i,j,Ksed)=MAX(thck_avail-thck_to_add,0.)
 !
 !  Upate bed fraction of top layer.
+!
               cff3=0.
               do ised=1,NST
                 cff3=cff3+bed_mass(i,j,1,nnew,ised)
@@ -1521,9 +1702,11 @@ C$OMP BARRIER
               enddo
 !
 !  Upate bed thickness of top layer.
+!
               bed_thick(i,j,1)=bot_thick(i,j)
 !
 !  Pull all layers closer to the surface.
+!
               do k=Ksed,NLAY
                 ks=Ksed-2
                 bed_thick(i,j,k-ks)=bed_thick(i,j,k)
@@ -1537,6 +1720,7 @@ C$OMP BARRIER
 !
 !  Add new layers onto the bottom. Split what was in the bottom layer to
 !  fill these new empty cells. ("ks" is the number of new layers).
+!
               ks=Ksed-2
               cff=1./REAL(ks+1)
               do k=NLAY,NLAY-ks,-1
@@ -1548,11 +1732,10 @@ C$OMP BARRIER
      &                             bed_mass(i,j,NLAY-ks,nnew,ised)*cff
                 enddo   ! ised loop
               enddo     ! k loop
-            endif  ! NLAY > 1
-          endif  ! increase top bed layer
-        enddo    ! i loop
-      enddo  ! jloop
-
+            endif       ! NLAY > 1
+          endif         ! increase top bed layer
+        enddo           ! i loop
+      enddo             ! j loop
 !
 ! Set boundary conditions
 !
@@ -1695,7 +1878,6 @@ C$OMP BARRIER
       endif
 # endif
 
-!
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
       do ised=1,NST
         do k=1,NLAY
@@ -1716,18 +1898,21 @@ C$OMP BARRIER
          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
      &                 bot_thick(START_2D_ARRAY))
 # endif
-
-# if defined MOVING_BATHY
+!
+!-----------------------------------------------------------------------
+!  Store total bed thickness
+!-----------------------------------------------------------------------
+!
+# ifdef MOVING_BATHY
       do j=Jstr,Jend
         do i=Istr,Iend
           bed_thick_tot(i,j,nnew)=0.
           do k=1,NLAY
-            bed_thick_tot(i,j,nnew)=bed_thick_tot(i,j,nnew)+             
-     &                           bed_thick(i,j,k)
+            bed_thick_tot(i,j,nnew)=bed_thick_tot(i,j,nnew)+
+     &                              bed_thick(i,j,k)
           enddo
         enddo
       enddo
-        
 !
 ! Set boundary conditions
 !
@@ -1780,20 +1965,36 @@ C$OMP BARRIER
 !
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
        call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
-     &                 bed_thick_tot(START_2D_ARRAY,nnew))
+     &                         bed_thick_tot(START_2D_ARRAY,nnew))
 #  endif
 !
-       dh(:,:)=(bed_thick_tot(:,:,nstp)-bed_thick_tot(:,:,nnew))
-#  ifdef WET_DRY
-     &  *rmask_wet(:,:)
-#  endif     
+!-----------------------------------------------------------------------
+!  Store bed evolution
+!-----------------------------------------------------------------------
+!
+       dh(:,:)=bed_thick_tot(:,:,nstp)-bed_thick_tot(:,:,nnew)
+!
 # endif /* MOVING_BATHY*/
 
       return
       end
-
-      subroutine sed_surf_tile (Istr, Iend, Jstr, Jend
-     &   )
+!
+!=======================================================================
+!                                                                      !
+!  This routine computed sediment surface layer (sediment-water        !
+!  interface) properties.                                              !
+!                                                                      !
+!  References:                                                         !
+!                                                                      !
+!  Warner, J.C., C.R. Sherwood, R.P. Signell, C.K. Harris, and H.G.    !
+!    Arango, 2008:  Development of a three-dimensional,  regional,     !
+!    coupled wave, current, and sediment-transport model, Computers    !
+!    & Geosciences, 34, 1284-1306.                                     !
+!                                                                      !
+!=======================================================================
+!
+      subroutine sed_surf_tile (Istr,Iend,Jstr,Jend)
+!
       implicit none
 # include "param.h"
 # include "bbl.h"
@@ -1807,6 +2008,11 @@ C$OMP BARRIER
 !
 # include "compute_auxiliary_bounds.h"
 
+!
+!  Update mean surface properties.
+!  Sd50 must be positive definite, due to BBL routines.
+!  Srho must be >1000, due to (s-1) in BBL routines
+!
       do j=Jstr-1,Jend+1
         do i=Istr-1,Iend+1
           cff1=1.
@@ -1825,9 +2031,9 @@ C$OMP BARRIER
           Sdens(i,j)=MAX(cff4,1050.)
         enddo
       enddo
-
 !
 ! Set boundary conditions
+!
 # ifndef EW_PERIODIC
       if (EASTERN_EDGE) then
         do j=Jstr,Jend
@@ -1944,12 +2150,14 @@ C$OMP BARRIER
 #endif /* SEDIMENT*/
       
 #ifdef SEDIMENT
-       subroutine init_sediment
 !====================================================================
-!                                                                    !
-!  This routine reads in and processes sediment parameters and       !
-!  some initial data from sediments.in file.                         !
+!
+!  This routine reads in and processes sediment parameters and
+!  some initial data from sediments.in file.
+!
 !=====================================================================
+!
+       subroutine init_sediment
 !
       implicit none
 # include "param.h"

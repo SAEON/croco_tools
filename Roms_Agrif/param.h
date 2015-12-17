@@ -80,7 +80,7 @@
       parameter (LLm0=60,   MMm0=60,   N=10)   ! 30 km resolution
 #elif defined JET
 # ifdef ANA_JET
-!     parameter (LLm0=250,  MMm0=1000,N=100)   !  2 km resolution
+!     parameter (LLm0=250,  MMm0=1000, N=100)  !  2 km resolution
 !     parameter (LLm0=100,  MMm0=400,  N=80)   !  5 km resolution
 !     parameter (LLm0= 50,  MMm0=200,  N=60)   ! 10 km resolution
       parameter (LLm0= 25,  MMm0=100,  N=40)   ! 20 km resolution
@@ -91,10 +91,10 @@
       parameter (LLm0=30,   MMm0=50,   N=30)   ! 20 km resolution
 # endif
 #elif defined SHOREFACE
-      parameter (LLm0=59,   MMm0=7,    N=20)   ! Planar Beach 20m
+      parameter (LLm0=59,   MMm0=3,    N=20)   ! 20 m Planar Beach
 #elif defined RIP
 # ifdef BISCA
-      parameter (LLm0= 86,  MMm0= 92,  N=20)   ! 10 m Bisca Rip
+      parameter (LLm0= 86,  MMm0=92,   N=20)   ! 10 m Bisca Rip
 # else
 !     parameter (LLm0=256,  MMm0=256,  N=20)   !  3 m resolution 
 !     parameter (LLm0= 96,  MMm0= 96,  N=20)   !  8 m resolution

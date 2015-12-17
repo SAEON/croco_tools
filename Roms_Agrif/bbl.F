@@ -262,7 +262,7 @@
           cff1 = vonKar/LOG(Zr(i,j)/znot)
           cff2 = MIN(Cdb_max,MAX(Cdb_min,cff1*cff1))
           tauc(i,j)= cff2*Umag(i,j)*Umag(i,j)        ! [m^2/s^2] 
-      
+
           cff1 = vonKar/LOG(Zr(i,j)/znotc)
           tau_cs = cff1*cff1*Umag(i,j)*Umag(i,j)     ! [m^2/s^2] 
  
@@ -286,7 +286,7 @@
  
 !  Maximum of combined wave-current skin stress component for sediment
             tau_cws = SQRT((tau_cw+tau_w*COS(phicw))**2
-     &                     + (tau_w*SIN(phicw))**2) 
+     &                          + (tau_w*SIN(phicw))**2) 
             
 !            tauw(i,j)=tau_cws             ! [m^2/s^2]
             taucwmax(i,j)=tau_cws
@@ -297,6 +297,7 @@
 !  combined wave-current stress 
             tau_cw= tauc(i,j)*
      &          (1.+scf4*((tau_w/(tau_w+tauc(i,j)))**scf5))
+
 # ifdef Z0_BL
 !---------------------------------------------------------------------
 !  Compute bedload roughness for ripple predictor & sediment purposes.
@@ -322,10 +323,9 @@
 !  Maximum of combined wave-current stress component for sediment purposes
 
             tau_cwb = SQRT((tau_cw+tau_wb*COS(phicw))**2 +
-     &                   (tau_wb*SIN(phicw))**2)
+     &                            (tau_wb*SIN(phicw))**2)
             taucwmax(i,j)=tau_cwb
             tauw(i,j)=tau_wb
-
 #  ifdef Z0_RIP        
 !---------------------------------------------------------------------
 !  Determine bedform roughness  ripple height (m)
@@ -359,7 +359,7 @@
 ! break off regime
                   rlen = 535.*d50
                   rhgt = 0.15*rlen*(SQRT(tau_up)-SQRT(tau_cwb))/
-     &                          (SQRT(tau_up)-SQRT(tau_bf )) 
+     &                             (SQRT(tau_up)-SQRT(tau_bf )) 
               else if  (tau_cwb.ge.tau_up) then 
 ! sheet flow, plane bed
                 rlen = 0.0
@@ -388,7 +388,6 @@
               rhgt = min(rhbio,rhbiomax)
               rlen = rlbio
             endif
-
 # endif /* Z0_BIO */
 
 # if defined Z0_RIP || defined Z0_BIO
@@ -431,7 +430,7 @@
               rlen=Lripple(i,j) 
             else
               rlen=1000.*d50               ! Yalin (1964)
-              rhgt=7.4*(rlen/100.)**1.19 ! Allen (1970)
+              rhgt=7.4*(rlen/100.)**1.19   ! Allen (1970)
             endif
  
             znotc = znotc+0.92*rhgt*rhgt/(max(rlen,rlmin))
@@ -532,9 +531,9 @@
           bvstrcwmax(i,j)=taucwmax(i,j)*anglew
 !          Vbot(i,j)=Ub(i,j)*anglew
 !          Vr(i,j)=Vcur
+
         enddo
       enddo
-
 
 # ifdef LIMIT_BSTRESS
 !---------------------------------------------------------------------
