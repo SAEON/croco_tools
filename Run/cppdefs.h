@@ -778,20 +778,25 @@
 # define WET_DRY
 # define MRL_WCI
 # ifdef MRL_WCI
-#  undef  WKB_WWAVE
+#  define WKB_WWAVE
 #  undef  WKB_UNSTEADY
-#  undef  MRL_CEW
+#  define MRL_CEW
 #  define WKB_OBC_WEST
 #  define WAVE_ROLLER
-#  undef  WAVE_FRICTION
-#  undef  WAVE_STREAMING
-#  undef  WAVE_RAMP
+#  define WAVE_FRICTION
+#  define WAVE_STREAMING
+#  define WAVE_RAMP
 # endif
 # define LMD_MIXING
 # define LMD_SKPP
 # define LMD_BKPP
 # undef  BBL
 # undef  SEDIMENT
+# ifdef SEDIMENT
+#  define TCLIMATOLOGY
+#  define TNUDGING
+#  define ANA_TCLIMA
+# endif
 
 #elif defined RIP
 /*
