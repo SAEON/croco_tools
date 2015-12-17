@@ -2043,7 +2043,11 @@ C$    integer  trd, omp_get_thread_num
       if (WESTERN_EDGE) then
 #  ifdef Z_FRC_BRY
         do j=JstrR,JendR
+#   ifdef SWASH
+           zetabry_west(j)=0.05*sin(2*pi*time/20.)
+#   else
           zetabry_west(j)=0.
+#   endif
 #   ifdef NBQ
      &                   +h(IstrR,j)
 #   endif

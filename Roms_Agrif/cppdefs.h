@@ -886,6 +886,39 @@
 # endif
 # undef  DIAGNOSTICS_UV
 
+#elif defined SWASH
+/*
+!                       SWASH PLANAR BEACH Example
+!                       ===== ====== ===== =======
+!
+*/
+# undef  OPENMP
+# undef  MPI
+# define SOLVE3D
+# undef  NBQ
+# define UV_ADV
+# define UV_VIS2
+# define UV_VIS_SMAGO
+# define MASKING
+# define NEW_S_COORD
+# define ANA_GRID
+# define ANA_INITIAL
+# define ANA_SMFLUX
+# define ANA_STFLUX
+# define ANA_SSFLUX
+# define ANA_SRFLUX
+# define ANA_SST
+# define ANA_BTFLUX
+# define OBC_WEST
+# define SPONGE
+# define FRC_BRY
+# define ANA_BRY
+# define Z_FRC_BRY
+# define M2_FRC_BRY
+# define M3_FRC_BRY
+# define T_FRC_BRY
+# define WET_DRY
+
 #elif defined THACKER
 /*
 !                       Thacker Example

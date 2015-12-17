@@ -52,7 +52,11 @@
 # ifdef MASKING
             wetdry(i,j)=wetdry(i,j)*rmask(i,j)
 # endif
+# ifdef NBQ
+            IF (zeta(i,j,knew).le.Dcrit(i,j)+eps) THEN
+# else
             IF ((zeta(i,j,knew)+h(i,j)).le.Dcrit(i,j)+eps) THEN
+# endif
               wetdry(i,j)=0.
             END IF
           END DO

@@ -147,6 +147,10 @@ C$    integer omp_get_thread_num
                      depth=15.
                      f0=0.   
                      beta=0.
+# elif defined SWASH
+                     depth=1.
+                     f0=0.   
+                     beta=0.
 # elif defined RIP
                      depth=15.
                      f0=0.   
@@ -230,6 +234,9 @@ C$    integer omp_get_thread_num
 # elif defined SHOREFACE
                     Length_XI =1180.0 
                     Length_ETA=140.0
+# elif defined SWASH
+                    Length_XI =110.0 
+                    Length_ETA=1.0
 # elif defined RIP
                     Length_XI =768.0 
                     Length_ETA=768.0
@@ -453,11 +460,6 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
 # elif defined SHOREFACE
       do j=JstrR,JendR
         do i=IstrR,IendR
-#  ifdef OBC_EAST
-          cff=xr(i,j)
-#  else
-          cff=Length_XI-xr(i,j)
-#  endif
 #  ifdef MPI
           cff=(float(i +ii*Lm) )
 #  else
@@ -476,6 +478,21 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
             rmask(48,j)=1.0
           endif
 #  endif
+        enddo
+      enddo
+# elif defined SWASH
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+#  ifdef MPI
+          cff=(float(i +ii*Lm) )
+#  else
+          cff=(float(i       ) )
+#  endif
+          h(i,j)=1.0571-0.0125*Length_XI/float(LLm+1)*cff  ! GLOBEX profil
+#  ifndef WET_DRY
+     &                                              + 0.6
+#  endif
+!          if (xr(i,j).lt.16.57) h(i,j)=0.85               ! GLOBEX
         enddo
       enddo
 # elif defined RIP
@@ -613,6 +630,27 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
       if (WESTERN_EDGE) then
         do j=JstrR,JendR
           rmask(0,j)=0.
+        enddo
+      endif
+      if (EASTERN_EDGE) then
+        do j=JstrR,JendR
+          rmask(LOCALLM+1,j)=0.
+        enddo
+      endif
+#  elif defined SWASH
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          rmask(i,j)=1.
+        enddo
+      enddo
+      if (SOUTHERN_EDGE) then
+        do i=IstrR,IendR
+          rmask(i,0)=0.
+        enddo
+      endif
+      if (NORTHERN_EDGE) then
+        do i=IstrR,IendR
+          rmask(i,LOCALMM+1)=0.
         enddo
       endif
       if (EASTERN_EDGE) then

@@ -92,6 +92,8 @@
 # endif
 #elif defined SHOREFACE
       parameter (LLm0=59,   MMm0=3,    N=20)   ! 20 m Planar Beach
+#elif defined SWASH
+      parameter (LLm0=109,  MMm0=1,    N=10)   !  1 m Swash
 #elif defined RIP
 # ifdef BISCA
       parameter (LLm0= 86,  MMm0=92,   N=20)   ! 10 m Bisca Rip
@@ -227,6 +229,8 @@
                                 ! ======== ===== === ====== =====
 # ifdef THACKER
       parameter (D_wetdry=0.01)
+# ifdef SWASH
+      parameter (D_wetdry=0.05)
 # else
       parameter (D_wetdry=0.10)
 # endif
