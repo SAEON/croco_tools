@@ -247,7 +247,16 @@
         kp=min(k+1,N)
         do j=jstr,jend
           do i=istr,iend+1
-              FX(i,j)=0.5*visc2_r(i,j)
+              FX(i,j)=0.25*
+     &                max(0.,visc2_r(i,j)+visc2_r(i-1,j)
+#ifdef SPONGE_VIS2
+     &                      ,visc2_sponge_r(i,j)+visc2_sponge_r(i-1,j)
+#endif
+#ifdef UV_VIS_SMAGOXXX
+     &                      ,0.5*(visc3d_r(i,j,k )+visc3d_r(i-1,j,k )
+     &                           +visc3d_r(i,j,kp)+visc3d_r(i-1,j,kp))
+#endif
+     &                       )
      &                   *pmon_u(i,j)*(Hz(i,j,k )+Hz(i-1,j,k )+
      &                                 Hz(i,j,kp)+Hz(i-1,j,kp))
      &                       *(wz(i,j,k,nstp)-wz(i-1,j,k,nstp))
@@ -256,7 +265,16 @@
         enddo
         do j=jstr,jend+1
           do i=istr,iend
-              FE(i,j)=0.5*visc2_r(i,j)
+              FE(i,j)=0.25*
+     &                max(0.,visc2_r(i,j)+visc2_r(i,j-1)
+#ifdef SPONGE_VIS2
+     &                      ,visc2_sponge_r(i,j)+visc2_sponge_r(i,j-1)
+#endif
+#ifdef UV_VIS_SMAGOXXX
+     &                      ,0.5*(visc3d_r(i,j,k )+visc3d_r(i,j-1,k )
+     &                           +visc3d_r(i,j,kp)+visc3d_r(i,j-1,kp))
+#endif
+     &                       )
      &                   *pnom_v(i,j)*(Hz(i,j,k )+Hz(i,j-1,k )+
      &                                 Hz(i,j,kp)+Hz(i,j-1,kp))
      &                       *(wz(i,j,k,nstp)-wz(i,j-1,k,nstp))
@@ -264,14 +282,13 @@
           enddo
         enddo
 !
-!  Add in horizontal diffusion of tracer [T m^3/s].
-!
+!  Add in horizontal diffusion of wz
         do j=jstr,jend
           do i=istr,iend
             cff1=pm(i,j)*pn(i,j)
             wz(i,j,k,indx)=wz(i,j,k,indx)+dt*cff1
-     &                 *(FX(i+1,j)-FX(i,j)+FE(i,j+1)-FE(i,j))
-     &                                /(Hz(i,j,k)+Hz(i,j,kp))
+     &                     *(FX(i+1,j)-FX(i,j)+FE(i,j+1)-FE(i,j))
+     &                                    /(Hz(i,j,k)+Hz(i,j,kp))
           enddo
         enddo
       enddo ! <-- k

@@ -373,7 +373,8 @@ C$    trd=omp_get_thread_num()
 ! Ensure that water level on boundary cells is above bed elevation.
 !====================================================================
 !
-# ifndef EW_COM_PERIODIC
+# ifndef NBQ
+#  ifndef EW_COM_PERIODIC
       if (WESTERN_EDGE) then
         DO j=JstrV-1,Jend
           IF (zeta(Istr-1,j,knew).le.
@@ -390,8 +391,8 @@ C$    trd=omp_get_thread_num()
           END IF
         END DO
       END IF
-# endif
-# ifndef NS_COM_PERIODIC
+#  endif
+#  ifndef NS_COM_PERIODIC
       if (SOUTHERN_EDGE) then
         DO i=IstrU-1,Iend
           IF (zeta(i,Jstr-1,knew).le.
@@ -408,8 +409,8 @@ C$    trd=omp_get_thread_num()
           END IF
         END DO
       END IF
-# endif
-# if !defined EW_COM_PERIODIC && !defined NS_COM_PERIODIC
+#  endif
+#  if !defined EW_COM_PERIODIC && !defined NS_COM_PERIODIC
       if (SOUTHERN_EDGE .and. WESTERN_EDGE) then
         IF (zeta(Istr-1,Jstr-1,knew).le.
      &      (Dcrit(Istr-1,Jstr-1)-h(Istr-1,Jstr-1))) THEN
@@ -438,7 +439,65 @@ C$    trd=omp_get_thread_num()
      &            Dcrit(Iend+1,Jend+1)-h(Iend+1,Jend+1)-eps
         END IF
       END IF
-# endif
+#  endif
+
+# else /* NBQ */
+
+#  ifndef EW_COM_PERIODIC
+      if (WESTERN_EDGE) then
+        DO j=JstrV-1,Jend
+          IF (zeta(Istr-1,j,knew).le.Dcrit(Istr-1,j)) THEN
+            zeta(Istr-1,j,knew)=Dcrit(Istr-1,j)-eps
+          END IF
+        END DO
+      END IF
+      if (EASTERN_EDGE) then
+        DO j=JstrV-1,Jend
+          IF (zeta(Iend+1,j,knew).le.Dcrit(Iend+1,j)) THEN
+            zeta(Iend+1,j,knew)=Dcrit(Iend+1,j)-eps
+          END IF
+        END DO
+      END IF
+#  endif
+#  ifndef NS_COM_PERIODIC
+      if (SOUTHERN_EDGE) then
+        DO i=IstrU-1,Iend
+          IF (zeta(i,Jstr-1,knew).le.Dcrit(i,Jstr-1)) THEN
+               zeta(i,Jstr-1,knew)=Dcrit(i,Jstr-1)-eps
+          END IF
+        END DO
+      END IF
+      if (NORTHERN_EDGE) then
+        DO i=IstrU-1,Iend
+          IF (zeta(i,Jend+1,knew).le.Dcrit(i,Jend+1)) THEN
+               zeta(i,Jend+1,knew)=Dcrit(i,Jend+1)-eps
+          END IF
+        END DO
+      END IF
+#  endif
+#  if !defined EW_COM_PERIODIC && !defined NS_COM_PERIODIC
+      if (SOUTHERN_EDGE .and. WESTERN_EDGE) then
+        IF (zeta(Istr-1,Jstr-1,knew).le.Dcrit(Istr-1,Jstr-1)) THEN
+            zeta(Istr-1,Jstr-1,knew)=Dcrit(Istr-1,Jstr-1)-eps
+        END IF
+      END IF
+      if (SOUTHERN_EDGE .and. EASTERN_EDGE) then
+        IF (zeta(Iend+1,Jstr-1,knew).le.Dcrit(Iend+1,Jstr-1)) THEN
+            zeta(Iend+1,Jstr-1,knew)=Dcrit(Iend+1,Jstr-1)-eps
+        END IF
+      END IF
+      if (NORTHERN_EDGE .and. WESTERN_EDGE) then
+        IF (zeta(Istr-1,Jend+1,knew).le.Dcrit(Istr-1,Jend+1)) THEN
+            zeta(Istr-1,Jend+1,knew)=Dcrit(Istr-1,Jend+1)-eps
+        END IF
+      END IF
+      if (NORTHERN_EDGE .and. EASTERN_EDGE) then
+        IF (zeta(Iend+1,Jend+1,knew).le.Dcrit(Iend+1,Jend+1)) THEN
+            zeta(Iend+1,Jend+1,knew)=Dcrit(Iend+1,Jend+1)-eps
+        END IF
+      END IF
+#  endif
+# endif /* NBQ */
 #endif /* WET_DRY */
 
 

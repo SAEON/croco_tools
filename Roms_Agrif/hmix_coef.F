@@ -44,6 +44,9 @@
 # include "ocean3d.h"
 # include "ocean2d.h"
 # include "scalars.h"
+#ifdef SWASH
+      real dZdt,dZdt0,Bbr,Dbr
+#endif
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -77,6 +80,35 @@
           enddo
         enddo
       enddo
+!
+! Add Wave breaking dissipation in wave-resolved cases
+!
+#  ifdef SWASH
+      do j=JstrV-1,Jend
+        do i=IstrU-1,Iend
+          dZdt=abs(zeta(i,j,knew)-zeta(i,j,kstp))/dtfast
+#   ifdef NBQ
+          cff=zeta(i,j,knew)
+          Dbr=100.
+#   else
+          cff=z_w(i,j,N)-z_w(i,j,0)
+          Dbr=100.
+#   endif
+          dZdt0=0.01*sqrt(g*cff)
+          Bbr=max(0.,min(1.,dZdt/dZdt0-1.))
+          do k=1,N
+            visc3d_r(i,j,k)=max(0.1/horcon*visc3d_r(i,j,k),
+     &                                    Dbr*Bbr*cff*dZdt)
+!     &                         *1000*max(pm(i,j)*pm(i,j)*
+!     &                              (z_r(i+1,j,k)-z_r(i-1,j,k)-
+!     &                               z_w(i+1,j,0)+z_w(i-1,j,0))**2,
+!     &                              pn(i,j)*pn(i,j)*
+!     &                               (z_r(i,j+1,k)-z_r(i,j-1,k)-
+!     &                               z_w(i,j+1,0)+z_w(i,j-1,0))**2))
+          enddo
+        enddo
+      enddo
+#  endif
 !
 !------------------------------------------------------------
 ! Boundary conditions
