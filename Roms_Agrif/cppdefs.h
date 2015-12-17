@@ -31,6 +31,7 @@
 #undef  JET             /* Baroclinic Jet Example */
 #undef  RIP             /* Rip Current Test Case */
 #undef  SHOREFACE       /* Shoreface Test Case on a Planar Beach */
+#undef  SWASH           /* Swash Test Case on a Planar Beach */
 #undef  THACKER         /* Thacker wetting-drying Example */
 #undef  TANK            /* Tank Example */
 #define REGIONAL        /* REGIONAL Applications */
