@@ -229,7 +229,7 @@
                                 ! ======== ===== === ====== =====
 # ifdef THACKER
       parameter (D_wetdry=0.01)
-# ifdef SWASH
+# elif defined SWASH
       parameter (D_wetdry=0.05)
 # else
       parameter (D_wetdry=0.10)
