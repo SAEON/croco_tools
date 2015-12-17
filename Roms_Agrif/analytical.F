@@ -1504,8 +1504,8 @@ C$    integer  trd, omp_get_thread_num
 # include "scalars.h"
 # include "sediment.h"
 # include "bbl.h"
-      real d50 ,tau_cb,wset,rhosed  
-      integer Istr,Iend,Jstr,Jend, i,j, ilay, itrc
+      real    cff1,cff2,cff3,cff4
+      integer Istr,Iend,Jstr,Jend, i,j, ilay, ised
 !
 # undef DEBUG 
 # ifdef DEBUG
@@ -1546,47 +1546,49 @@ C$    integer  trd, omp_get_thread_num
             endif
             if(.not.got_inised(3)) then
 # endif
-            do itrc=1,NST
-              bed_frac(i,j,ilay,itrc)=Bfr(ilay,itrc)
+            do ised=1,NST
+              bed_frac(i,j,ilay,ised)=Bfr(ilay,ised)
             enddo
 
             bed_age(i,j,ilay)=time
             bot_thick(i,j) = 0.003
-            do itrc=1,NST
-              bed_mass(i,j,ilay,1,itrc)=
+            do ised=1,NST
+              bed_mass(i,j,ilay,1,ised)=
      &                     bed_thick(i,j,ilay)*
-     &                     Srho(itrc)*
+     &                     Srho(ised)*
      &                     (1.0-bed_poros(i,j,ilay))*
-     &                     bed_frac(i,j,ilay,itrc)
+     &                     bed_frac(i,j,ilay,ised)
 # ifdef MASKING
-     &                           *rmask(i,j)
+     &                                 *rmask(i,j)
 # endif
-              bed_mass(i,j,ilay,2,itrc)=bed_mass(i,j,ilay,1,itrc)
+              bed_mass(i,j,ilay,2,ised)=bed_mass(i,j,ilay,1,ised)
             enddo
 # ifndef ANA_SEDIMENT
           endif
 # endif
           enddo
-          d50   = 1.0
-          tau_cb= 1.0
-          wset  = 1.0
-          rhosed= 1.0
-          do itrc=1,NST
-            Ssize(i,j) = d50   *(Sd  (itrc))**bed_frac(i,j,1,itrc)
-            taucb(i,j) = tau_cb*(tau_ce(itrc))**bed_frac(i,j,1,itrc) ! [m2/s2] CHECK tau(d50)
-            w_set(i,j) = wset  *(wsed  (itrc))**bed_frac(i,j,1,itrc) ! [m/s]
-            Sdens(i,j) = rhosed*(Srho  (itrc))**bed_frac(i,j,1,itrc)
+          cff1=1.0
+          cff2=1.0
+          cff3=1.0
+          cff4=1.          
+          do ised=1,NST
+            cff1=cff1*tau_ce(ised)**bed_frac(i,j,1,ised)
+            cff2=cff2*Sd(ised)**bed_frac(i,j,1,ised)
+            cff3=cff3*wsed(ised)**bed_frac(i,j,1,ised)
+            cff4=cff4*Srho(ised)**bed_frac(i,j,1,ised)
           enddo
-          Sdens(i,j) = Max(Sdens(i,j),1050.)
-
+          taucb(i,j)=cff1                ! [m2/s2]
+          Ssize(i,j)=MIN(cff2,Zob)
+          w_set(i,j)=cff3                ! [m/s]
+          Sdens(i,j)=MAX(cff4,1050.)
 # ifdef DEBUG
           if(j.eq.jck.and.i.eq.ick) then
             write(6,*) '********** ANA_SEDIMENT ***********'
-            do itrc=1,NST
-              write(6,*) 'Sd(itrc)',Sd(itrc)
+            do ised=1,NST
+              write(6,*) 'Sd(ised)',Sd(ised)
               do ilay=1,NLAY
-                write(6,*) 'i,j,ilay,itrc',i,j,ilay,itrc
-                write(6,*) 'bed_frac',bed_frac(i,j,ilay,itrc)
+                write(6,*) 'i,j,ilay,ised',i,j,ilay,ised
+                write(6,*) 'bed_frac',bed_frac(i,j,ilay,ised)
               enddo
             enddo
             do ilay=1,NLAY
@@ -1607,14 +1609,14 @@ C$    integer  trd, omp_get_thread_num
       enddo
 
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
-      do itrc=1,NST
+      do ised=1,NST
         do ilay=1,NLAY
           call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
-     &                 bed_frac(START_2D_ARRAY,ilay,itrc))
+     &                 bed_frac(START_2D_ARRAY,ilay,ised))
           call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
-     &                 bed_mass(START_2D_ARRAY,ilay,1,itrc))
+     &                 bed_mass(START_2D_ARRAY,ilay,1,ised))
           call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
-     &                 bed_mass(START_2D_ARRAY,ilay,2,itrc))
+     &                 bed_mass(START_2D_ARRAY,ilay,2,ised))
          enddo
       enddo
       do ilay=1,NLAY

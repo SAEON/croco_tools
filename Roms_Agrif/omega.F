@@ -21,18 +21,18 @@
 # include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
       call omega_tile (Istr,Iend,Jstr,Jend, A2d(1,1,trd)
-#ifdef VADV_ADAPT_IMP
+# ifdef VADV_ADAPT_IMP
      &                                     ,A2d(1,2,trd)
-#endif
+# endif
      &                                                  )
       return
       end
 !======================================================================
 !
       subroutine omega_tile (Istr,Iend,Jstr,Jend, wrk
-#ifdef VADV_ADAPT_IMP
+# ifdef VADV_ADAPT_IMP
      &      ,Cu_adv
-#endif
+# endif
      &                      )      
 !======================================================================
 !
@@ -71,35 +71,38 @@
       integer Istr,Iend,Jstr,Jend, i,j,k
 # include "param.h"
       real wrk   (PRIVATE_1D_SCRATCH_ARRAY    )
-#ifdef VADV_ADAPT_IMP      
+# ifdef VADV_ADAPT_IMP      
       real cu_adv(PRIVATE_1D_SCRATCH_ARRAY,0:N)
       real gamma,Cdt,cff,my_cu_adv,c_min,c_max,cu_cut,fcu
-# ifdef VADV_ADAPT_PRED
+#  ifdef VADV_ADAPT_PRED
       parameter(c_min=0.6,c_max=1.0,cu_cut=2.*c_max-c_min,
      &          fcu=4.*c_max*(c_max-c_min))
-# else
+#  else
       parameter(c_min=0.6,c_max=0.95,cu_cut=2.*c_max-c_min,
      &          fcu=4.*c_max*(c_max-c_min))
+#  endif
 # endif
-#endif
+# ifdef MOVING_BATHY
+      real cmorph
+# endif
 
 # include "grid.h"
 # include "ocean3d.h"
 # include "scalars.h"
 !
-#ifdef MPI
-#define LOCALLM Lmmpi
-#define LOCALMM Mmmpi
-#else
-#define LOCALLM Lm
-#define LOCALMM Mm
-#endif
+# ifdef MPI
+#  define LOCALLM Lmmpi
+#  define LOCALMM Mmmpi
+# else
+#  define LOCALLM Lm
+#  define LOCALMM Mm
+# endif
 
 # include "compute_auxiliary_bounds.h"
 !
 !--------------------------------------------------------
 !
-#ifdef VADV_ADAPT_IMP
+# ifdef VADV_ADAPT_IMP
       gamma = 0.08333333333333
       if(nrhs.eq.3) then
         cdt =     dt                 !<-- Corrector
@@ -108,7 +111,14 @@
       else
         cdt = (1.-2*gamma)*dt        !<-- Predictor
       endif
-#endif
+# endif
+# ifdef MOVING_BATHY
+      if(nrhs.eq.3) then
+        cmorph=1.                    !<-- Corrector
+      else
+        cmorph=0.                    !<-- Predictor
+      endif
+# endif
 !
 !---------------------------------------------------------
 !
@@ -117,11 +127,11 @@
 !  Integrate divergence of horizontal mass fluxes
 !---------------------------------------------------------
         do i=Istr,Iend 
-#ifdef VADV_ADAPT_IMP
+# ifdef VADV_ADAPT_IMP
           Wi(i,j,0)=0.
-#endif
+# endif
 # ifdef MOVING_BATHY
-          We(i,j,0)=-om_r(i,j)*on_r(i,j)*dh(i,j)/dt
+          We(i,j,0)=cmorph*om_r(i,j)*on_r(i,j)*dh(i,j)/dt
 # else
           We(i,j,0)=0.
 # endif
@@ -130,10 +140,10 @@
           do i=Istr,Iend
             We(i,j,k)=We(i,j,k-1) -Huon(i+1,j,k)+Huon(i,j,k)
      &                            -Hvom(i,j+1,k)+Hvom(i,j,k)
-#ifdef VADV_ADAPT_IMP
 !---------------------------------------------------------
 !  Compute the horizontal Courant number
 !---------------------------------------------------------
+#ifdef VADV_ADAPT_IMP
             Cu_adv(i,k)=max(HUon(i+1,j,k),0.)-min(Huon(i,j,k),0.) 
      &                 +max(Hvom(i,j+1,k),0.)-min(Hvom(i,j,k),0.)
 #endif
@@ -152,9 +162,9 @@
         enddo
         do i=Istr,Iend
           We(i,j,N)=0.
-#ifdef VADV_ADAPT_IMP
+# ifdef VADV_ADAPT_IMP
           Wi(i,j,N)=0.
-#endif
+# endif
         enddo
 !
 #ifdef VADV_ADAPT_IMP
@@ -167,8 +177,8 @@
             cff = cdt*pm(i,j)*pn(i,j)/Hz(i,j,k)
             Cu_adv(i,k)=cff*(
      &                   Cu_adv(i,k)
-     &                 + max(We(i,j,k),0.)-min(We(i,j,k-1),0.)      !<-- 3D Advective Courant number
-     &                       )
+     &                 + max(We(i,j,k),0.)-min(We(i,j,k-1),0.)
+     &                       )        !<-- 3D Advective Courant number
           enddo
         enddo
 
