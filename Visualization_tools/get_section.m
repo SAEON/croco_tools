@@ -201,6 +201,18 @@ h=h(mask==1);
 h=griddata(londata,latdata,h,lonsec,latsec,interp_type);
 %
 nc=netcdf(fname);
+%
+% First reset h for morphodynamics cases
+%
+hmorph=squeeze(nc{'hmorph'}(tindex,:,:));
+if ~isempty(hmorph),
+ h=hmorph; 
+ hmin=min(min(h));
+ h=h(jmin:jmax,imin:imax);
+ h=h(sub==1);
+ h=h(mask==1);
+ h=griddata(londata,latdata,h,lonsec,latsec,interp_type);
+end;
 zeta=squeeze(nc{'zeta'}(tindex,jmin:jmax,imin:imax));
 if isempty(zeta)
   zeta=0.*h;
