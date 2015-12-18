@@ -59,12 +59,26 @@ if level==0
 %
 % 2D variable
 %
-  var=squeeze(nc{vname}(tindex,:,:));
+   var=squeeze(nc{vname}(tindex,:,:));
+   h=nc{'h'}(:);
+   hmorph=squeeze(nc{'hmorph'}(tindex,:,:));
+   if ~isempty(hmorph), h=hmorph; end;
+   zeta=squeeze(nc{'zeta'}(tindex,:,:));
+   D=zeta+h;
+   Dcrit=nc{'Dcrit'}(:)+1.e-5;
+   if isempty(Dcrit), Dcrit=0.2+1.e-5; end;
+   if type=='u',
+     D=rho2u_2d(D);
+   elseif type=='v';
+     D=rho2v_2d(D);
+   end
+   var(D<=Dcrit)=NaN;
 elseif level>0
 %
 % Get a sigma level of a 3D variable
 %
   var=squeeze(nc{vname}(tindex,level,:,:));
+  var(var==0)=NaN;
 else
 %
 % Get a horizontal level of a 3D variable

@@ -35,6 +35,8 @@ close(nc);
 %
 nc=netcdf(fname);
 zeta=squeeze(nc{'zeta'}(tindex,:,:));
+hmorph=squeeze(nc{'hmorph'}(tindex,:,:));
+if ~isempty(hmorph), h=hmorph; end;
 theta_s=nc.theta_s(:); 
 if (isempty(theta_s))
 %  disp('Rutgers version')
