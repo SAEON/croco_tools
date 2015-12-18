@@ -70,6 +70,7 @@
         goto 99                                           !--> ERROR
       endif
 
+#ifdef WET_DRY
 !
 ! Critical Depth for Drying cells
 !
@@ -79,6 +80,7 @@
         write(stdout,2) 'xl', ncname(1:lstr)
         goto 99                                           !--> ERROR
       endif
+#endif
 
 #ifdef SOLVE3D
 !
