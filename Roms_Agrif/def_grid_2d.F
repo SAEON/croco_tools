@@ -61,6 +61,15 @@
      &                  'domain length in the ETA-direction')
       ierr=nf_put_att_text (ncid, varid, 'units', 5, 'meter')
 
+#ifdef WET_DRY
+!
+! Critical Depth for Drying cells
+!
+      ierr=nf_def_var (ncid, 'Dcrit', nf_ftype, 0, 0, varid)
+      ierr=nf_put_att_text (ncid, varid, 'long_name',   31,
+     &                   'Critical Depth for Drying cells')
+      ierr=nf_put_att_text (ncid, varid, 'units', 5, 'meter')
+#endif
 !
 ! Variable-dimensions : xi_rho, eta_rho, eta_v, xi_u
 !
