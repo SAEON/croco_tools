@@ -108,9 +108,7 @@ end
 % transformation metrics compute evolving depths of of the three-
 % dimensional model grid. Also adjust zeta for dry cells.
 %  
-Dcrit=0.2; % min water depth in dry cells
 h(h==0)=1.e-14;
-zeta(zeta<(Dcrit-h))=Dcrit-h(zeta<(Dcrit-h));
 hinv=1./h;
 z=zeros(N,M,L);
 if (vtransform == 2)
