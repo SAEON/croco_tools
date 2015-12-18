@@ -236,7 +236,7 @@ C$    integer omp_get_thread_num
                     Length_ETA=140.0
 # elif defined SWASH
                     Length_XI =110.0 
-                    Length_ETA=1.0
+                    Length_ETA=MMm*Length_XI/LLm
 # elif defined RIP
                     Length_XI =768.0 
                     Length_ETA=768.0
@@ -492,7 +492,7 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
 #  ifndef WET_DRY
      &                                              + 0.6
 #  endif
-!          if (xr(i,j).lt.16.57) h(i,j)=0.85               ! GLOBEX
+          if (xr(i,j).lt.16.57) h(i,j)=0.85               ! GLOBEX
         enddo
       enddo
 # elif defined RIP

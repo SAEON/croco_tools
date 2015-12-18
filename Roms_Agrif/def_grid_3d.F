@@ -121,6 +121,16 @@
       ierr=nf_put_att_text (ncid, varid, 'c_grid_dynamic_range',
      &  len_trim(strtmp), trim(strtmp))
 
+#ifdef WET_DRY
+!
+! Critical Depth for Drying cells
+!
+      ierr=nf_def_var (ncid, 'Dcrit', nf_ftype, 0, 0, varid)
+      ierr=nf_put_att_text (ncid, varid, 'long_name',   31,
+     &                   'Critical Depth for Drying cells')
+      ierr=nf_put_att_text (ncid, varid, 'units', 5, 'meter')
+#endif
+
 #ifdef SOLVE3D
 !
 ! Vtransform 
@@ -369,13 +379,13 @@
       ierr=nf_put_att_text (ncid, varid, 'option_1',    5,   'water')
       ierr=nf_put_att_text (ncid, varid, 'standard_name', 16,
      &                                   'land_binary_mask')
-#ifdef SPHERICAL
+# ifdef SPHERICAL
       ierr=nf_put_att_text (ncid, varid, 'coordinates', 15,
      &                      'lat_rho lon_rho')
-#else
+# else
       ierr=nf_put_att_text (ncid, varid, 'coordinates', 11,
      &                      'x_rho y_rho')
-#endif
+# endif
 #endif
 !
 #else /* SOLVE3D */

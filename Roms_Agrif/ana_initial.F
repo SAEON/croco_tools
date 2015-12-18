@@ -353,6 +353,17 @@ C$    integer omp_get_thread_num
           enddo
         enddo
 
+#  elif defined SWASH
+        do k=1,N
+          do j=JR_RANGE
+            do i=IR_RANGE
+              t(i,j,k,1,itemp)=20.
+!              t(i,j,k,1,itemp)=20.-(zeta(i,j,1)-z_r(i,j,k))
+              t(i,j,k,2,itemp)=t(i,j,k,1,itemp)
+            enddo
+          enddo
+        enddo
+
 #  elif defined THACKER
         do k=1,N
           do j=JR_RANGE

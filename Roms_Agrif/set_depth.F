@@ -69,8 +69,13 @@ C$    integer omp_get_thread_num
             IF (h(i,j).eq.0.) THEN
               h(i,j)=eps
             END IF
+#  ifdef NBQ
+            IF (zeta(i,j,1) .lt. Dcrit(i,j)) THEN
+              zeta(i,j,1)=Dcrit(i,j)
+#  else
             IF (zeta(i,j,1) .lt. Dcrit(i,j)-h(i,j)) THEN
               zeta(i,j,1)=Dcrit(i,j)-h(i,j)
+#  endif
               zeta(i,j,2)=zeta(i,j,1)
               zeta(i,j,3)=zeta(i,j,1)
               zeta(i,j,4)=zeta(i,j,1)
@@ -137,7 +142,7 @@ C$    integer omp_get_thread_num
             zetatmp=Zt_avg1(i,j)
 # ifdef NBQ
      &              /rhobar_nbq_avg1(i,j)-h(i,j)
-#  ifdef MASKING
+#  if defined MASKING && !defined WET_DRY
             zetatmp=zetatmp*rmask(i,j)
 #  endif
 # endif

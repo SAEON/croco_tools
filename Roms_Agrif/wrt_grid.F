@@ -70,6 +70,16 @@
         goto 99                                           !--> ERROR
       endif
 
+!
+! Critical Depth for Drying cells
+!
+      ierr=nf_inq_varid (ncid, 'Dcrit', varid)
+      ierr=nf_put_var1_FTYPE (ncid, varid, 1, D_wetdry)
+      if (ierr.ne.nf_noerr) then
+        write(stdout,2) 'xl', ncname(1:lstr)
+        goto 99                                           !--> ERROR
+      endif
+
 #ifdef SOLVE3D
 !
 ! Variable dimension on vertical : s_rho and s_w
