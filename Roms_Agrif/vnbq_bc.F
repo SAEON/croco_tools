@@ -210,9 +210,10 @@ c        call vnbq_bc_interp_tile(Istr,Iend,Jstr,Jend)
         enddo
 #   endif
 #  else
-        do k=1,N                               ! Southern edge closed
-          do i=Istr,Iend                       ! ======== ==== ======
-            qdm_nbq_a(l_b_i,nnew)=0.              !  (no-flux: default)
+        do k=1,N                                     ! Southern edge closed
+          do i=Istr,Iend                             ! ======== ==== ======
+            l_b_i     = ijk2lmom_nh(i  ,Jstr  ,k,2)  !  (no-flux: default)
+            qdm_nbq_a(l_b_i,nnew)=0.
           enddo
         enddo
 #  endif              /* OBC_COM_SOUTH */
@@ -338,9 +339,10 @@ c        call vnbq_bc_interp_tile(Istr,Iend,Jstr,Jend)
         enddo
 #   endif
 #  else
-        do k=1,N                               ! Northern edge closed
-          do i=Istr,Iend                       ! ======== ==== ======
-            qdm_nbq_a(l_b_i,nnew)=0.              !   (no-flux: default)
+        do k=1,N                                    ! Northern edge closed
+          do i=Istr,Iend                            ! ======== ==== ======
+            l_b_i     = ijk2lmom_nh(i  ,Jend+1,k,2) !   (no-flux: default)
+            qdm_nbq_a(l_b_i,nnew)=0.
           enddo
         enddo
 #  endif

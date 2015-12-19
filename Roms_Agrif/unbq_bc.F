@@ -214,10 +214,10 @@
 #   endif
 !
 #  else           /* alternative to open */
-        do k=1,N                               ! Western edge closed
-          do j=jstr,jend                       ! ======= ==== ======
-            l_b_j     = ijk2lmom_nh(Istr  ,j  ,k,1)
-            qdm_nbq_a(l_b_j,nnew)=0.                !  (no-flux: default)
+        do k=1,N                                      ! Western edge closed
+          do j=jstr,jend                              ! ======= ==== ======
+            l_b_j     = ijk2lmom_nh(Istr  ,j  ,k,1)   !  (no-flux: default)
+            qdm_nbq_a(l_b_j,nnew)=0. 
           enddo
         enddo
 #  endif              /* OBC_COM_WEST */
@@ -344,9 +344,10 @@
 #   endif
 !
 #  else
-        do k=1,N                                ! Eastern edge closed
-          do j=jstr,jend                        ! ======= ==== ======
-             qdm_nbq_a(l_b_j,nnew)=0.               !  (no-flux: default)
+        do k=1,N                                     ! Eastern edge closed
+          do j=jstr,jend                             ! ======= ==== ======
+             l_b_j     = ijk2lmom_nh(Iend+1,j,k,1)   !  (no-flux: default)
+             qdm_nbq_a(l_b_j,nnew)=0.               
           enddo
         enddo
 #  endif            /* OBC_COM_EAST */
