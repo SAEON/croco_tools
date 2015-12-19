@@ -109,9 +109,8 @@
 # undef  TRACETXT
 # undef  CHECK_CROCO
 # define HZR Hzr
-# if defined OBC_WEST || defined OBC_EAST ||\
-     defined OBC_SOUTH || defined OBC_NORTH
-#  define OBC_NBQ
+# define OBC_NBQ
+# ifdef OBC_NBQ
 #  undef  OBC_NBQORLANSKI
 #  define OBC_NBQSPECIFIED
 #  define NBQ_FRC_BRY
