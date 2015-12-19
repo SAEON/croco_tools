@@ -165,7 +165,7 @@
 !
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
       call exchange_w3d_tile (Istr,Iend,Jstr,Jend,
-     &                                 wz(START_2D_ARRAY,1,nnew))
+     &                        wz(START_2D_ARRAY,0,nnew))
 # endif
 !
       return
