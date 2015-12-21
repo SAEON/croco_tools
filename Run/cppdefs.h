@@ -389,6 +389,7 @@
 #  define UV_VIS2
 # endif
 # define TS_HADV_WENO5
+# define TS_VADV_WENO5
 # define ANA_GRID
 # define ANA_INITIAL
 # define ANA_SMFLUX
@@ -954,7 +955,6 @@
 */
 # undef  OPENMP
 # undef  MPI
-
 # define NBQ
 # define SOLVE3D
 # undef  UV_ADV
