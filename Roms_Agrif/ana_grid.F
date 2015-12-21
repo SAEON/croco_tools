@@ -612,6 +612,7 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
       enddo
 #  elif defined TANK || defined GRAV_ADJ || defined ACOUSTIC\
                      || defined INTERNAL || defined IGW
+      gamma2=1.
       do j=JstrR,JendR
         do i=IstrR,IendR
           rmask(i,j)=1.
@@ -638,6 +639,7 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
         enddo
       endif
 #  elif defined SWASH
+      gamma2=1.
       do j=JstrR,JendR
         do i=IstrR,IendR
           rmask(i,j)=1.

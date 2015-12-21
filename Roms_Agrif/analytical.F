@@ -2044,7 +2044,9 @@ C$    integer  trd, omp_get_thread_num
 #  ifdef Z_FRC_BRY
         do j=JstrR,JendR
 #   ifdef SWASH
-           zetabry_west(j)=0.05*sin(2*pi*time/20.)
+           zetabry_west(j)=0.2*sin(2*pi*time/20.)      ! long waves of 20 sec period
+!           zetabry_west(j)=0.07*sin(0.420*2*pi*time)   ! GLOBEX B3
+!     &                    +0.03*sin(0.462*2*pi*time)   ! but with 1rst order waves
 #   else
           zetabry_west(j)=0.
 #   endif

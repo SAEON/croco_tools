@@ -252,7 +252,7 @@
 #ifdef SPONGE_VIS2
      &                      ,visc2_sponge_r(i,j)+visc2_sponge_r(i-1,j)
 #endif
-#ifdef UV_VIS_SMAGOXXX
+#ifdef UV_VIS_SMAGO
      &                      ,0.5*(visc3d_r(i,j,k )+visc3d_r(i-1,j,k )
      &                           +visc3d_r(i,j,kp)+visc3d_r(i-1,j,kp))
 #endif
@@ -270,7 +270,7 @@
 #ifdef SPONGE_VIS2
      &                      ,visc2_sponge_r(i,j)+visc2_sponge_r(i,j-1)
 #endif
-#ifdef UV_VIS_SMAGOXXX
+#ifdef UV_VIS_SMAGO
      &                      ,0.5*(visc3d_r(i,j,k )+visc3d_r(i,j-1,k )
      &                           +visc3d_r(i,j,kp)+visc3d_r(i,j-1,kp))
 #endif
