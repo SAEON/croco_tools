@@ -523,7 +523,9 @@
 # define AGRIF_CONSERV_VOL
 # undef  AGRIF_CONSERV_TRA
 /*                    Sponge layer */
-# define AGRIF_SPONGE
+# define SPONGE
+# define SPONGE_DIF2
+# define SPONGE_VIS2
 /*                    Boundary conditions */
 # define AGRIF_OBC_EAST
 # define AGRIF_OBC_WEST
