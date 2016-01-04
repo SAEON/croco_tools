@@ -3,6 +3,28 @@
 
      <!-- T grid -->
      <field_group id="grid_T" grid_ref="grid_T_2D">
+         <field id="h" long_name="bathymetry at RHO-points" unit="meter" />
+         <field id="f" long_name="Coriolis parameter at RHO-points" unit="second-1" />
+         <field id="pm" long_name="curvilinear coordinates metric in XI" unit="meter-1" />
+         <field id="pn" long_name="curvilinear coordinates metric in ETA" unit="meter-1" />
+#ifdef SPHERICAL
+         <field id="lon_rho" long_name="longitude of RHO-points" unit="degree_east" />
+         <field id="lat_rho" long_name="latitude of RHO-points" unit="degree_north" />
+         <field id="lon_u" long_name="longitude of U-points" unit="degree_east" />
+         <field id="lat_u" long_name="latitude of U-points" unit="degree_north" />
+         <field id="lon_v" long_name="longitude of V-points" unit="degree_east" />
+         <field id="lat_v" long_name="latitude of V-points" unit="degree_north" />
+#else
+         <field id="x_rho" long_name="x-locations of RHO-points" unit="meter" />
+         <field id="x_rho" long_name="mask on RHO-points" unit="none" />
+#endif
+#ifdef CURVGRID
+         <field id="angle" long_name="angle between XI-axis and EAST" unit="radians" />
+#endif
+#ifdef MASKING
+         <field id="mask_rho" long_name="angle between XI-axis and EAST" unit="radians" />
+#endif
+
          <field id="zeta" long_name="free-surface" unit="meter" />
          <field id="bostr" long_name="Kinematic bottom stress" unit="N/m2" />
          <field id="wstr" long_name="Kinematic wind stress" unit="N/m2" />

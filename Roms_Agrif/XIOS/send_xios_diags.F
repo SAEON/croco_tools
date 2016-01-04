@@ -78,6 +78,10 @@
       integer i,j,k
       integer ilc
       character*20 nametrc
+      real eps
+      parameter (eps=1.D-20)
+      real stf_cff
+      parameter(stf_cff=86400/0.01)
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -91,6 +95,41 @@
 
 !      call xios_send_field("scrum_time",time)
 !      call xios_send_field("time",time)
+
+! static attributes
+!
+! Bathymetry.
+!
+      call xios_send_field("h",h)
+!
+! Coriolis parameter.
+!
+      call xios_send_field("f",f)
+!
+! Curvilinear transformation metrics.
+!
+      call xios_send_field("pm",pm)
+      call xios_send_field("pn",pn)
+!
+! Longitude/latitude or cartezian coordinates of RHO-points
+!
+# ifdef SPHERICAL
+      call xios_send_field("lon_rho",lonr)
+      call xios_send_field("lat_rho",latr)
+      call xios_send_field("lon_u",lonu)
+      call xios_send_field("lat_u",latu)
+      call xios_send_field("lon_v",lonv)
+      call xios_send_field("lat_v",latv)
+# else  
+      call xios_send_field("x_rho",xr)
+      call xios_send_field("y_rho",yr)
+# endif
+# ifdef CURVGRID
+      call xios_send_field("angle",angler)
+# endif
+# ifdef MASKING
+      call xios_send_field("mask_rho",rmask)
+# endif
 
 # ifdef NBQ     
       work2d=zeta(:,:,fast_indx_out)/rhobar_nbq(:,:) - h(:,:)
@@ -242,7 +281,7 @@
       work=Akt(:,:,:,itemp)
       call xios_send_field("AKt",work)
 #  ifdef SALINITY      
-      work=Aks(:,:,:,isalt)
+      work=Akt(:,:,:,isalt)
       call xios_send_field("AKs",work)
 #  endif
 #  ifdef GLS_MIXING
