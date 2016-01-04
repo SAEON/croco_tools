@@ -26,6 +26,21 @@
 
      <file_group id="1d" output_freq="1d"  output_level="10" enabled=".TRUE." >  <!-- 1d files -->
      <file id="file1" name_suffix="_his" >
+       <field_group id="grid_fields" operation="once">
+        <field field_ref="h" />
+        <field field_ref="f" />
+        <field field_ref="pm" />
+        <field field_ref="pn" />
+        <field field_ref="lon_rho" />
+        <field field_ref="lat_rho" />
+        <field field_ref="lon_u" />
+        <field field_ref="lat_u" />
+        <field field_ref="lon_v" />
+        <field field_ref="lat_v" />
+        <field field_ref="angle" />
+        <field field_ref="mask_rho" />
+      </field_group>
+
        <field_group id="his_fields" operation="instant">
         <field field_ref="zeta" />
         <field field_ref="u" name="u" />
