@@ -229,8 +229,8 @@
      &              *( pn_v(i  ,j)*(v(i  ,j,k,nstp)-VCLM(i  ,j,k))
      &                -pn_v(i-1,j)*(v(i-1,j,k,nstp)-VCLM(i-1,j,k)) )
      &        +pnom_p(i,j)
-     &              *( pm_u(i,j  )*(u(i,j  ,k,nstp)-UCLM(i  ,j,k))
-     &                -pm_u(i,j-1)*(u(i,j-1,k,nstp)-UCLM(i-1,j,k)) ) )
+     &              *( pm_u(i,j  )*(u(i,j  ,k,nstp)-UCLM(i,j  ,k))
+     &                -pm_u(i,j-1)*(u(i,j-1,k,nstp)-UCLM(i,j-1,k)) ) )
 #  else
      &      (  pmon_p(i,j)
      &                     *( pn_v(i  ,j)*v(i  ,j,k,nstp)

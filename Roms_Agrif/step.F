@@ -396,15 +396,12 @@ C$OMP BARRIER
 # ifdef GLS_MIXING
         call gls_prestep (tile)
 # endif
-# if defined UV_VIS2 || defined UV_VIS4
-#   if defined AGRIF
-      if (.Not.Agrif_Root()) then
-!         call uv3dpremix (tile)  !-- Quick fix for blocking on the child western boundary -- 2014/6/13
-      endif
-#   endif
+# ifdef AGRIF
+        if (.Not.Agrif_Root()) then
+          call uv3dpremix (tile)
+        endif
 # endif
       enddo
-
 C$OMP BARRIER
 
       do tile=my_first,my_last
@@ -807,19 +804,17 @@ C$OMP BARRIER
 # ifdef SEDIMENT
 #  ifdef AGRIF
         IF (Agrif_Fixed().GE.Agrif_lev_sedim)
-     &    call sediment (tile)
+     &  call sediment (tile)
 #  else
         call sediment (tile)
 #  endif
 # endif
-# if defined TS_DIF2 || defined TS_DIF4
-#   if defined AGRIF
-      if (.Not.Agrif_Root()) then
-         call t3dpremix (tile)
-      endif
+# ifdef AGRIF
+        if (.Not.Agrif_Root()) then
+          call t3dpremix (tile)
+        endif
 #   endif
 # endif
-
       enddo
 C$OMP BARRIER
 
