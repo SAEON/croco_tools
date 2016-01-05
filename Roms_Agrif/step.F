@@ -813,7 +813,6 @@ C$OMP BARRIER
         if (.Not.Agrif_Root()) then
           call t3dpremix (tile)
         endif
-#   endif
 # endif
       enddo
 C$OMP BARRIER
