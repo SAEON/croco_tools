@@ -157,8 +157,10 @@
 #endif
 #if  defined T_FRC_BRY     || defined M2_FRC_BRY    || \
      defined M3_FRC_BRY    || defined Z_FRC_BRY     || \
+     defined W_FRC_BRY     ||                          \
      defined TCLIMATOLOGY  || defined M2CLIMATOLOGY || \
-     defined M3CLIMATOLOGY || defined ZCLIMATOLOGY
+     defined M3CLIMATOLOGY || defined ZCLIMATOLOGY  || \
+     defined WCLIMATOLOGY
        real  tauT_in, tauT_out, tauM_in, tauM_out
 #endif
       integer numthreads,     ntstart,   ntimes,  ninfo
@@ -249,8 +251,10 @@
 #endif
 #if  defined T_FRC_BRY     || defined M2_FRC_BRY    || \
      defined M3_FRC_BRY    || defined Z_FRC_BRY     || \
+     defined W_FRC_BRY     ||                          \
      defined TCLIMATOLOGY  || defined M2CLIMATOLOGY || \
-     defined M3CLIMATOLOGY || defined ZCLIMATOLOGY
+     defined M3CLIMATOLOGY || defined ZCLIMATOLOGY  || \
+     defined WCLIMATOLOGY
      &                      , tauT_in, tauT_out, tauM_in, tauM_out
 #endif
      &      , numthreads,     ntstart,   ntimes,  ninfo
