@@ -70,7 +70,7 @@
 !
 ! Interpolations of the parent values to get wbry_east or wclm
 !
-# if defined W_FRC_BRY || defined WNUDGING
+# if defined W_FRC_BRY || defined WCLIMATOLOGY
       tau_in=dt*tauT_in
       tau_out=dt*tauT_out
 # endif
@@ -104,7 +104,7 @@
  
             if (dfx*dft .lt. 0.) then
               dft=0.                  ! <-- cancel, if inflow 
-#    if defined W_FRC_BRY || defined WNUDGING
+#    if defined W_FRC_BRY || defined WCLIMATOLOGY
               tau=tau_in
             else
               tau=tau_out
@@ -132,7 +132,7 @@
      &                  -max(cy,0.)*grad(Istr-1,j  )
      &                  -min(cy,0.)*grad(Istr-1,j+1)
      &                                                 )/(cff+cx)
-#    if defined W_FRC_BRY || defined WNUDGING
+#    if defined W_FRC_BRY || defined WCLIMATOLOGY
             wz(Istr-1,j,k,nnew)=(1.-tau)*wz(Istr-1,j,k,nnew)
 #     ifdef W_FRC_BRY
      &                                  +tau*wbry_west(j,k)     
@@ -219,7 +219,7 @@
  
             if (dfx*dft .lt. 0.) then
               dft=0.                  ! <-- cancel, if inflow 
-#    if defined W_FRC_BRY || defined WNUDGING
+#    if defined W_FRC_BRY || defined WCLIMATOLOGY
               tau=tau_in
             else
               tau=tau_out
@@ -248,7 +248,7 @@
      &                  -max(cy,0.)*grad(Iend+1,j  )
      &                  -min(cy,0.)*grad(Iend+1,j+1)
      &                                                 )/(cff+cx)
-#    if defined W_FRC_BRY || defined WNUDGING
+#    if defined W_FRC_BRY || defined WCLIMATOLOGY
             wz(Iend+1,j,k,nnew)=(1.-tau)*wz(Iend+1,j,k,nnew)
 #     ifdef W_FRC_BRY
      &                                  +tau*wbry_east(j,k)
@@ -337,7 +337,7 @@
  
             if (dfx*dft .lt. 0.) then
               dft=0.                   ! <-- cancel, if inflow 
-#    if defined W_FRC_BRY || defined WNUDGING
+#    if defined W_FRC_BRY || defined WCLIMATOLOGY
               tau=tau_in
             else
               tau=tau_out
@@ -366,7 +366,7 @@
      &                  -max(cy,0.)*grad(i  ,Jstr-1)
      &                  -min(cy,0.)*grad(i+1,Jstr-1)
      &                                                 )/(cff+cx)
-#    if defined W_FRC_BRY || defined WNUDGING
+#    if defined W_FRC_BRY || defined WCLIMATOLOGY
             wz(i,Jstr-1,k,nnew)=(1.-tau)*wz(i,Jstr-1,k,nnew)
 #     ifdef W_FRC_BRY
      &                                  +tau*wbry_south(i,k)
@@ -452,7 +452,7 @@
  
             if (dfx*dft .lt. 0.) then
               dft=0.                          ! <-- cancel, if inflow 
-#    if defined W_FRC_BRY || defined WNUDGING
+#    if defined W_FRC_BRY || defined WCLIMATOLOGY
               tau=tau_in
             else
               tau=tau_out
@@ -480,7 +480,7 @@
      &                  -max(cy,0.)*grad(i  ,Jend+1)
      &                  -min(cy,0.)*grad(i+1,Jend+1)
      &                                                 )/(cff+cx)
-#    if defined W_FRC_BRY || defined WNUDGING
+#    if defined W_FRC_BRY || defined WCLIMATOLOGY
             wz(i,Jend+1,k,nnew)=(1.-tau)*wz(i,Jend+1,k,nnew)
 #     ifdef W_FRC_BRY
      &                                   +tau*wbry_north(i,k)
