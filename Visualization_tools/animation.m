@@ -54,6 +54,10 @@ if ntime==0
   ntime=length(nc('tclm_time'));
 end
 if ntime==0
+  disp('Warning no time dimension found.. looking for time_counter')
+  ntime=length(nc('time_counter'));
+end
+if ntime==0
   error('Warning no time dimension found')
 end
 close(nc)
