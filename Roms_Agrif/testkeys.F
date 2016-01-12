@@ -30,5 +30,8 @@ OACPL_OA3ISDEFINED
 #ifdef XIOS
 XIOSISDEFINED
 #endif
+#ifdef NBQ
+NBQISDEFINED
+#endif
 
 
