@@ -39,7 +39,7 @@
 #elif defined GRAV_ADJ
 # ifdef NBQ
 #  ifdef GRAV_ADJ_SOLITON
-      parameter (LLm0=100,  MMm0=1,    N=60)   !   3 cm resolution
+      parameter (LLm0=60,   MMm0=1,    N=74)   !  10 cm resolution
 #  elif GRAV_ADJ_ACOUSTIC
       parameter (LLm0=64,   MMm0=1,    N=64)   !   2  m resolution
 #  else
@@ -110,9 +110,12 @@
       parameter (LLm0=199,  MMm0=199,  N=5 )   !  1 km resolution
 # endif
 #elif defined TANK
-# if ! defined MOVING_BATHY
+# ifndef MOVING_BATHY
+#  ifndef TANKY
       parameter (LLm0=50,   MMm0=1,    N=50)   ! 20 cm resolution
-!     parameter (LLm0=10,   MMm0=1,    N=10)   !  1  m resolution
+#  else
+      parameter (LLm0=1,    MMm0=50,   N=50)   ! 20 cm resolution
+#  endif
 # else
       parameter (LLm0=4000,   MMm0=1,  N=30)  !  1 mm resolution
 # endif
@@ -179,7 +182,7 @@
       integer NSUB_X, NSUB_E, NPP
 #ifdef MPI
       integer NP_XI, NP_ETA, NNODES     
-      parameter (NP_XI=2, NP_ETA=1,  NNODES=NP_XI*NP_ETA)
+      parameter (NP_XI=1, NP_ETA=4,  NNODES=NP_XI*NP_ETA)
       parameter (NPP=1)
       parameter (NSUB_X=1, NSUB_E=1)
 #elif defined OPENMP
