@@ -375,6 +375,12 @@
 /*
 !                       Gravitational Adjustment Example
 !                       ============= ========== =======
+!
+!  Soliton case GRAV_ADJ_SOLITON (non-hydro test) is setup from:
+!  Horn, D.A., J. Imberger, & G.N. Ivey, (2001). 
+!  The degeneration of large-scale interfacial gravity waves in lakes. 
+!  J. Fluid Mech., 434:181-207. 
+!
 */
 # undef  OPENMP
 # undef  MPI
@@ -383,9 +389,7 @@
 # define SOLVE3D
 # define NEW_S_COORD
 # define UV_ADV
-# ifdef NBQ
-#  define MASKING
-# else
+# ifndef NBQ
 #  define UV_VIS2
 # endif
 # define TS_HADV_WENO5
@@ -926,7 +930,8 @@
 !                       Thacker Example
 !                       ======= =======
 !
-! Thacker, W., (1981), Some exact solutions to the nonlinear shallow-water wave equations. 
+! Thacker, W., (1981), Some exact solutions to the nonlinear 
+! shallow-water wave equations. 
 ! J. Fluid Mech., 107, 499–508.
 */
 # undef  OPENMP
@@ -950,17 +955,21 @@
 !                       Tank Example
 !                       ======= =======
 !
-! Chen, X.J., 2003. A fully hydrodynamic model for three-dimensional, free-surface flows. 
+! Chen, X.J., 2003. A fully hydrodynamic model for three-dimensional, 
+! free-surface flows. 
 ! Int. J. Numer. Methods Fluids 42, 929–952.
 */
-# undef  OPENMP
 # undef  MPI
 # define NBQ
+# ifdef NBQ
+#  undef  NBQ_IMP /* under development */
+#  undef  DEBUG_NBQ
+# endif
 # define SOLVE3D
+# undef  MASKING
 # undef  UV_ADV
 # define NEW_S_COORD
 # define ANA_GRID
-# define MASKING
 # define ANA_INITIAL
 # define ANA_BTFLUX
 # define ANA_SMFLUX

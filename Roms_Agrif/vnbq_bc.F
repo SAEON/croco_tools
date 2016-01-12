@@ -209,13 +209,13 @@ c        call vnbq_bc_interp_tile(Istr,Iend,Jstr,Jend)
           enddo
         enddo
 #   endif
-#  else
-        do k=1,N                                     ! Southern edge closed
-          do i=Istr,Iend                             ! ======== ==== ======
-            l_b_i     = ijk2lmom_nh(i  ,Jstr  ,k,2)  !  (no-flux: default)
-            qdm_nbq_a(l_b_i,nnew)=0.
-          enddo
-        enddo
+!#  else
+!        do k=1,N                                     ! Southern edge closed
+!          do i=Istr,Iend                             ! ======== ==== ======
+!            l_b_i     = ijk2lmom_nh(i  ,Jstr  ,k,2)  !  (no-flux: default)
+!            qdm_nbq_a(l_b_i,nnew)=0.
+!          enddo
+!        enddo
 #  endif              /* OBC_COM_SOUTH */
       endif         !<-- SOUTHERN_EDGE
 !
@@ -338,13 +338,13 @@ c        call vnbq_bc_interp_tile(Istr,Iend,Jstr,Jend)
           enddo
         enddo
 #   endif
-#  else
-        do k=1,N                                    ! Northern edge closed
-          do i=Istr,Iend                            ! ======== ==== ======
-            l_b_i     = ijk2lmom_nh(i  ,Jend+1,k,2) !   (no-flux: default)
-            qdm_nbq_a(l_b_i,nnew)=0.
-          enddo
-        enddo
+!#  else
+!        do k=1,N                                    ! Northern edge closed
+!          do i=Istr,Iend                            ! ======== ==== ======
+!            l_b_i     = ijk2lmom_nh(i  ,Jend+1,k,2) !   (no-flux: default)
+!            qdm_nbq_a(l_b_i,nnew)=0.
+!          enddo
+!        enddo
 #  endif
       endif     !<--  NORTHERN_EDGE
 # endif          /* !NS_COM_PERIODIC */
@@ -463,23 +463,23 @@ c        call vnbq_bc_interp_tile(Istr,Iend,Jstr,Jend)
           enddo
         enddo
 #   endif
-#  else
-#   ifdef NS_COM_PERIODIC
-#    define J_RANGE JstrV,Jend
-#   else
-#    define J_RANGE Jstr,JendR
-#   endif
-        do k=1,N                        ! Wall: free-slip (gamma2=+1)
-          do j=J_RANGE                  ! =====   no-slip (gamma2=-1)
-            l_b_j     = ijk2lmom_nh(Istr-1,j  ,k,2)
-            l_bm1_j   = ijk2lmom_nh(Istr  ,j  ,k,2)
-            qdm_nbq_a(l_b_j,nnew)=gamma2*qdm_nbq_a(l_bm1_j,nnew)
-#   ifdef MASKING
-     &                                          *vmask(Istr-1,j)
-#   endif
-          enddo
-        enddo
-#   undef J_RANGE
+!#  else
+!#   ifdef NS_COM_PERIODIC
+!#    define J_RANGE JstrV,Jend
+!#   else
+!#    define J_RANGE Jstr,JendR
+!#   endif
+!        do k=1,N                        ! Wall: free-slip (gamma2=+1)
+!          do j=J_RANGE                  ! =====   no-slip (gamma2=-1)
+!            l_b_j     = ijk2lmom_nh(Istr-1,j  ,k,2)
+!            l_bm1_j   = ijk2lmom_nh(Istr  ,j  ,k,2)
+!            qdm_nbq_a(l_b_j,nnew)=gamma2*qdm_nbq_a(l_bm1_j,nnew)
+!#   ifdef MASKING
+!     &                                          *vmask(Istr-1,j)
+!#   endif
+!          enddo
+!        enddo
+!#   undef J_RANGE
 #  endif
       endif          !<-- WESTERN_EDGE
 !
@@ -596,23 +596,23 @@ c        call vnbq_bc_interp_tile(Istr,Iend,Jstr,Jend)
           enddo
         enddo
 #   endif
-#  else
-#   ifdef NS_COM_PERIODIC
-#    define J_RANGE JstrV,Jend
-#   else
-#    define J_RANGE Jstr,JendR
-#   endif
-        do k=1,N                        ! Wall: free-slip (gamma2=+1)
-          do j=J_RANGE                  ! ====    no-slip (gamma2=-1)
-            l_b_j     = ijk2lmom_nh(Iend+1,j  ,k,2)
-            l_bm1_j   = ijk2lmom_nh(Iend  ,j  ,k,2)
-            qdm_nbq_a(l_b_j,nnew)=gamma2*qdm_nbq_a(l_bm1_j,nnew)
-#   ifdef MASKING
-     &                                          *vmask(Iend+1,j)
-#   endif
-          enddo
-        enddo
-#   undef J_RANGE
+!#  else
+!#   ifdef NS_COM_PERIODIC
+!#    define J_RANGE JstrV,Jend
+!#   else
+!#    define J_RANGE Jstr,JendR
+!#   endif
+!        do k=1,N                        ! Wall: free-slip (gamma2=+1)
+!          do j=J_RANGE                  ! ====    no-slip (gamma2=-1)
+!            l_b_j     = ijk2lmom_nh(Iend+1,j  ,k,2)
+!            l_bm1_j   = ijk2lmom_nh(Iend  ,j  ,k,2)
+!            qdm_nbq_a(l_b_j,nnew)=gamma2*qdm_nbq_a(l_bm1_j,nnew)
+!#   ifdef MASKING
+!     &                                          *vmask(Iend+1,j)
+!#   endif
+!          enddo
+!        enddo
+!#   undef J_RANGE
 #  endif
       endif     !<-- EASTERN_EDGE
 # endif          /* !EW_COM_PERIODIC */

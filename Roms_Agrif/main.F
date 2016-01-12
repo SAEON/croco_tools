@@ -331,7 +331,6 @@ CR      write(*,*)  ' -5' MYID
 !
 #ifdef NBQ
       call initial_nh(1)
-      call z_thickness_nh(0)
 # endif
 !
 !----------------------------------------------------------------------
@@ -353,6 +352,14 @@ C$OMP PARALLEL DO PRIVATE(tile)
         call rho_eos (tile)
       enddo
 CR      write(*,*)  ' -3' MYID
+#endif
+!
+!----------------------------------------------------------------------
+!  Set initial Non-boussinesq density field: rhp_nbq_a
+!----------------------------------------------------------------------
+!
+#ifdef NBQ
+      call initial_nh(2)
 #endif
 !
 !----------------------------------------------------------------------

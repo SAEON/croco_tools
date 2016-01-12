@@ -213,13 +213,13 @@
         enddo
 #   endif
 !
-#  else           /* alternative to open */
-        do k=1,N                                      ! Western edge closed
-          do j=jstr,jend                              ! ======= ==== ======
-            l_b_j     = ijk2lmom_nh(Istr  ,j  ,k,1)   !  (no-flux: default)
-            qdm_nbq_a(l_b_j,nnew)=0. 
-          enddo
-        enddo
+!#  else           /* alternative to open */
+!        do k=1,N                                      ! Western edge closed
+!          do j=jstr,jend                              ! ======= ==== ======
+!            l_b_j     = ijk2lmom_nh(Istr  ,j  ,k,1)   !  (no-flux: default)
+!            qdm_nbq_a(l_b_j,nnew)=0. 
+!          enddo
+!        enddo
 #  endif              /* OBC_COM_WEST */
       endif         !<-- WESTERN_EDGE
 !
@@ -343,13 +343,13 @@
         enddo
 #   endif
 !
-#  else
-        do k=1,N                                     ! Eastern edge closed
-          do j=jstr,jend                             ! ======= ==== ======
-             l_b_j     = ijk2lmom_nh(Iend+1,j,k,1)   !  (no-flux: default)
-             qdm_nbq_a(l_b_j,nnew)=0.               
-          enddo
-        enddo
+!#  else
+!        do k=1,N                                     ! Eastern edge closed
+!          do j=jstr,jend                             ! ======= ==== ======
+!             l_b_j     = ijk2lmom_nh(Iend+1,j,k,1)   !  (no-flux: default)
+!             qdm_nbq_a(l_b_j,nnew)=0.               
+!          enddo
+!        enddo
 #  endif            /* OBC_COM_EAST */
       endif         !<-- EASTERN_EDGE
 # endif             /* !EW_COM_PERIODIC */
@@ -468,23 +468,23 @@
           enddo
         enddo
 #   endif
-#  else
-#   ifdef EW_COM_PERIODIC
-#    define I_RANGE IstrU,Iend
-#   else
-#    define I_RANGE Istr,IendR
-#   endif
-        do k=1,N                        ! Wall: free-slip (gamma2=+1)
-          do i=I_RANGE                  ! =====   no-slip (gamma2=-1)
-            l_b_i     = ijk2lmom_nh(i  ,Jstr-1,k,1)
-            l_bm1_i   = ijk2lmom_nh(i  ,Jstr  ,k,1)
-            qdm_nbq_a(l_b_i,nnew)=gamma2*qdm_nbq_a(l_bm1_i,nnew)
-#   ifdef MASKING
-     &                                          *umask(i,Jstr-1)
-#   endif
-          enddo
-        enddo
-#   undef I_RANGE
+!#  else
+!#   ifdef EW_COM_PERIODIC
+!#    define I_RANGE IstrU,Iend
+!#   else
+!#    define I_RANGE Istr,IendR
+!#   endif
+!        do k=1,N                        ! Wall: free-slip (gamma2=+1)
+!          do i=I_RANGE                  ! =====   no-slip (gamma2=-1)
+!            l_b_i     = ijk2lmom_nh(i  ,Jstr-1,k,1)
+!            l_bm1_i   = ijk2lmom_nh(i  ,Jstr  ,k,1)
+!            qdm_nbq_a(l_b_i,nnew)=gamma2*qdm_nbq_a(l_bm1_i,nnew)
+!#   ifdef MASKING
+!     &                                          *umask(i,Jstr-1)
+!#   endif
+!          enddo
+!        enddo
+!#   undef I_RANGE
 #  endif
       endif              !<-- SOUTHERN_EDGE
 !
@@ -602,23 +602,23 @@
           enddo
         enddo
 #   endif
-#  else
-#   ifdef EW_COM_PERIODIC
-#    define I_RANGE IstrU,Iend
-#   else
-#    define I_RANGE Istr,IendR
-#   endif
-        do k=1,N                        ! Wall: free-slip (gamma2=+1)
-          do i=I_RANGE                  ! =====   no-slip (gamma2=-1)
-            l_b_i     = ijk2lmom_nh(i  ,Jend+1,k,1)
-            l_bm1_i   = ijk2lmom_nh(i  ,Jend  ,k,1)
-            qdm_nbq_a(l_b_i,nnew)=gamma2*qdm_nbq_a(l_bm1_i,nnew)
-#   ifdef MASKING
-     &                                          *umask(i,Jend+1)
-#   endif
-          enddo
-        enddo
-#   undef I_RANGE
+!#  else
+!#   ifdef EW_COM_PERIODIC
+!#    define I_RANGE IstrU,Iend
+!#   else
+!#    define I_RANGE Istr,IendR
+!#   endif
+!        do k=1,N                        ! Wall: free-slip (gamma2=+1)
+!          do i=I_RANGE                  ! =====   no-slip (gamma2=-1)
+!            l_b_i     = ijk2lmom_nh(i  ,Jend+1,k,1)
+!            l_bm1_i   = ijk2lmom_nh(i  ,Jend  ,k,1)
+!            qdm_nbq_a(l_b_i,nnew)=gamma2*qdm_nbq_a(l_bm1_i,nnew)
+!#   ifdef MASKING
+!     &                                          *umask(i,Jend+1)
+!#   endif
+!          enddo
+!        enddo
+!#   undef I_RANGE
 #  endif
       endif   !<-- NORTHERN_EDGE
 # endif        /* !NS_COM_PERIODIC */

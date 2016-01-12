@@ -2,10 +2,10 @@ title:
 	Gravitational Adjustment Example
 
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
-                1000      0.02     60      10 
+                7000      0.02     20      10 
 
 time_stepping_nbq: NDTNBQ    CSOUND_NBQ    VISC2_NBQ
-                    8          40           0.1
+                    8          10           0.01
 
 S-coord: THETA_S,   THETA_B,    Hc (m)
          0.0d0      0.0d0       1.d16
@@ -15,7 +15,7 @@ initial: NRREC  filename
                           gravadj_rst.nc
 
 restart:          NRST, NRPFRST / filename
-                  2000      -1
+                  7000      -1
                           gravadj_rst.nc
 
 history: LDEFHIS, NWRT, NRPFHIS / filename 

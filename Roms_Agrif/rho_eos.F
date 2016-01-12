@@ -38,7 +38,7 @@
 !           rho(T,S,z) = ------------------------                 (1)
 !                         1 - 0.1*|z|/K(T,S,|z|)
 !
-! where rho1(T,S) is sea-water density perturbation[kg/m^3] at
+! where rho1(T,S) is sea-water density perturbation [kg/m^3] at
 ! standard pressure of 1 Atm (sea surface); |z| is absolute depth,
 ! i.e. distance from free-surface to the point at which density is
 ! computed, and
@@ -91,7 +91,7 @@
 ! in computation of pressure gradient within prsgrd32ACx-family
 ! schemes.] 
 !
-! If so prescribed compute the Brunt-Väisäla frequency [1/s^2] at
+! If so prescribed compute the Brunt-VÃ¤isÃ¤la frequency [1/s^2] at
 ! horizontal RHO-points and vertical W-points,
 !
 !                          g    d rho  |
@@ -417,7 +417,7 @@
 ! Reference:
 ! ---------
 ! Shchepetkin A.F., J.C. McWilliams, 2011: Accurate Boussinesq oceanic 
-! modeling with a practical, ¿Stiffened¿ Equation of State. 
+! modeling with a practical, Stiffened Equation of State. 
 ! Ocean Modelling, 38, 41-70.
 !
 ! Patrick Marchesiello Sep. 2015
