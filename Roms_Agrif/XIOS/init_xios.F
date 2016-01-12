@@ -19,7 +19,7 @@
 
       PUBLIC set_grid
       PUBLIC iom_set_domain_attr
-      PUBLIC iom_set_a_attr
+      PUBLIC iom_set_axis_attr
       PUBLIC iom_set_field_attr
       PUBLIC iom_set_file_attr
       PUBLIC iom_get_file_attr
@@ -42,20 +42,21 @@
       !!                S. Masson  , original version (NEMO)  
       !!
       !!----------------------------------------------------------------------
-      CHARACTER(LEN=1)            , INTENT(in) ::   cdgrd
-      REAL plon(GLOBAL_2D_ARRAY)
-      REAL plat(GLOBAL_2D_ARRAY)
+      CHARACTER(LEN=*)            , INTENT(in) ::   cdgrd
+      REAL plon(:,:)
+      REAL plat(:,:)
       !
       INTEGER vtype, horiz_type, vert_type
       INTEGER imin, imax, jmin, jmax, ni, nj
       INTEGER nx_glo, ny_glo 
       INTEGER istart, jstart
-      INTEGER data_ni,data_nj     
+      INTEGER data_ni,data_nj 
+      INTEGER :: ji
       !!----------------------------------------------------------------------
       !
       ! See ncscrum.h for r2dvar ...
-      SELECT CASE (cdgrd)
-      CASE ("T")
+      SELECT CASE (TRIM(cdgrd))
+      CASE ("rho")
          vtype=r2dvar
          nx_glo=LLm0+2
          ny_glo=MMm0+2
@@ -63,15 +64,15 @@
          vtype=r2dvar
          nx_glo=LLm0+2
          ny_glo=MMm0+2
-      CASE ("U")
+      CASE ("u")
          vtype=u2dvar
          nx_glo=LLm0+1
          ny_glo=MMm0+2
-      CASE ("V")
+      CASE ("v")
          vtype=v2dvar
          nx_glo=LLm0+2
          ny_glo=MMm0+1
-      CASE ("W")
+      CASE ("w")
          vtype=r2dvar
          nx_glo=LLm0+2
          ny_glo=MMm0+2
@@ -130,17 +131,17 @@
 # endif
 
       ! notes iminmpi, jminmpi are computed in MPI_Setup.F
-      CALL iom_set_domain_attr("grid_"//cdgrd,ni_glo=nx_glo, nj_glo=ny_glo,
+      CALL iom_set_domain_attr(TRIM(cdgrd),ni_glo=nx_glo, nj_glo=ny_glo,
      &     ibegin=istart, ni=ni,jbegin=jstart,nj=nj)
       ! to do: below should have be rewritten to match all configs (periodic, number of ghost points, ...)
       ! see set_global_definitions.h
-      CALL iom_set_domain_attr("grid_"//cdgrd,data_dim=2,
+      CALL iom_set_domain_attr(TRIM(cdgrd),data_dim=2,
      &     data_ibegin=START_1D_ARRAYXI-imin,
      &     data_ni=data_ni,
      &     data_jbegin=START_1D_ARRAYETA-jmin, 
      &     data_nj=data_nj)
 
-      CALL iom_set_domain_attr("grid_"//cdgrd,
+      CALL iom_set_domain_attr(TRIM(cdgrd),
      &     lonvalue=RESHAPE(plon(imin:imax,jmin:jmax), (/ni*nj/)),
      &     latvalue=RESHAPE(plat(imin:imax,jmin:jmax), (/ni*nj/)))
       !
@@ -199,9 +200,9 @@
       END SUBROUTINE iom_set_domain_attr
 
       
-      SUBROUTINE iom_set_a_attr( cdid, paxis )
+      SUBROUTINE iom_set_axis_attr( cdid, paxis )
       !!----------------------------------------------------------------------
-      !!                     ***  ROUTINE iom_set_a_attr  ***
+      !!                     ***  ROUTINE iom_set_axis_attr  ***
       !!
       !! ** Purpose :   set axis attribute for XIOS
       !!
@@ -225,7 +226,7 @@
       !
       CALL xios_solve_inheritance()
       !
-      END SUBROUTINE iom_set_a_attr
+      END SUBROUTINE iom_set_axis_attr
  
       SUBROUTINE iom_set_field_attr( cdid, freq_op, freq_offset )
       !!----------------------------------------------------------------------
@@ -354,7 +355,7 @@
       REAL, DIMENSION(1,1) ::   zz = 1.
       !!----------------------------------------------------------------------
       ! 
-      CALL iom_set_domain_attr('scalarpoint', ni_glo=10, nj_glo=1, 
+      CALL iom_set_domain_attr('scalarpoint', ni_glo=1, nj_glo=1, 
      &  ibegin=1, jbegin=1, ni=1, nj=1)
       CALL iom_set_domain_attr('scalarpoint', data_dim=1)
       CALL iom_set_domain_attr('scalarpoint', lonvalue=(/ zz /), 
@@ -690,7 +691,7 @@
 
             idx = INDEX(clname,'@expname@') + INDEX(clname,'@EXPNAME@')
             DO WHILE ( idx /= 0 ) 
-               clname = clname(1:idx-1)//TRIM(replace_blank(title,"_"))
+               clname = clname(1:idx-1)//TRIM(replace_blank(TRIM(title),"_"))
      &          //clname(idx+9:LEN_TRIM(clname))
                idx = INDEX(clname,'@expname@') + INDEX(clname,'@EXPNAME@')
             END DO
@@ -1067,6 +1068,7 @@
         IF (string(last:last) == ' ') THEN
             actual = actual + 1
             outs(last:last) = '_'
+            last=actual
         ELSE
             last = last + 1
             IF (actual < last) actual = last
@@ -1187,28 +1189,31 @@
       CALL set_scalar
 
 # ifdef SPHERICAL
-      CALL set_grid( "T", lonr, latr )
+      CALL set_grid( "rho", lonr, latr )
       CALL set_grid( "b", lonr, latr )
-      CALL set_grid( "U", lonu, latu )
-      CALL set_grid( "V", lonv, latv )
-      CALL set_grid( "W", lonr, latr )
+      CALL set_grid( "u", lonu, latu )
+      CALL set_grid( "v", lonv, latv )
+      CALL set_grid( "w", lonr, latr )
 # else
-      CALL set_grid( "T", xr, yr )
+      CALL set_grid( "rho", xr, yr )
       CALL set_grid( "b", xr, yr )
-      CALL set_grid( "U", xp, yr )
-      CALL set_grid( "V", xr, yp )
-      CALL set_grid( "W", xr, yr )
-# endif
-
+      CALL set_grid( "u", xp, yr )
+      CALL set_grid( "v", xr, yp )
+      CALL set_grid( "w", xr, yr )
+# endif       
+ 
       ! vertical grid definition
-      CALL iom_set_a_attr( "s_r", sc_r )
-      CALL iom_set_a_attr( "s_w", sc_w )
+      CALL iom_set_axis_attr( "s_rho", sc_r )
+      CALL iom_set_axis_attr( "s_w", sc_w )
 # ifdef SEDIMENT
-      CALL iom_set_a_attr( "s_b",  (/ (REAL(ji), ji=1,NLAY) /) )
+      CALL iom_set_axis_attr( "s_b",(/ (REAL(ji), ji=1,NLAY) /))
 # else
       ! fake axis to avoid chaning xml file 
-      CALL iom_set_a_attr( "s_b",  (/ (REAL(ji), ji=1,1) /) )
+      CALL iom_set_axis_attr( "s_b",(/ (REAL(ji), ji=1,1) /))
 # endif
+      
+      ! time axis (for ROMS tools)
+
       ! automatic definitions of some of the xml attributs
       CALL set_xmlatt
 

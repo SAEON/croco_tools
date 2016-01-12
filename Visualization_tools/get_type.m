@@ -51,8 +51,9 @@ end
 i=1;
 name=char(names(i));
 lname=length(name);
-if name(lname-3:lname)~='time'
-  disp('warning no time dependent')
+
+if name(lname-3:lname)~='time' & name(1:4)~='time'
+    disp('warning no time dependent')
 else
   i=i+1;
 end
@@ -68,14 +69,19 @@ if name(1)=='s'
 else
   vlevout=0;
 end
+
 name=char(names(i));
-if name(1)~='e' 
-  type='';
+if name(1)~='e' &  name(1)~='y'
+    type='';
   return
 else
   l=length(name);
   if name(l)=='v'
     type='v';
+    return
+  end
+  if name(l)=='u'
+    type='u';
     return
   end
 end
@@ -87,6 +93,10 @@ else
   l=length(name);
   if name(l)=='u'
     type='u';
+    return
+  end
+  if name(l)=='v'
+    type='v';
     return
   end
 end

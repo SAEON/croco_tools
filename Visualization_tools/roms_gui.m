@@ -330,6 +330,10 @@ nc=netcdf(handles.hisfile,'nowrite');
 handles.N=length(nc('s_rho'));
 handles.T=length(nc('time'));
 if handles.T==0
+  disp('Warning no time dimension found.. looking for time_counter')
+  handles.T=length(nc('time_counter'));
+end
+if handles.T==0
   disp('Warning no time dimension found.. looking for tclm_time')
   handles.T=length(nc('tclm_time'));
 end
