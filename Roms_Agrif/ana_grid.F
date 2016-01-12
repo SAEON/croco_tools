@@ -91,7 +91,7 @@ C$    integer omp_get_thread_num
                      beta=2.2829e-11
 # elif defined GRAV_ADJ
 #  ifdef NBQ
-                     depth=0.3
+                     depth=0.29      ! Horn et al. (2001)
 #  else
                      depth=20.
 #  endif
@@ -164,7 +164,7 @@ C$    integer omp_get_thread_num
                      f0=1.E-4
 #  endif
 # elif defined TANK
-#  if ! defined MOVING_BATHY 
+#  ifndef MOVING_BATHY 
                      depth=10.
 #  else
                      depth=0.394
@@ -190,8 +190,12 @@ C$    integer omp_get_thread_num
                      Length_XI =4000.0E+3
 # elif defined GRAV_ADJ
 #  ifdef NBQ
+#   ifdef GRAV_ADJ_SOLITON
+                     Length_XI =6.0    ! Horn et al. (2001)
+#   else
                      Length_XI =3.0
-                     Length_ETA=1.0
+#   endif
+                     Length_ETA=0.1
 #  else
                      Length_XI =64.0E+3
                      Length_ETA=2.0E+3
@@ -248,9 +252,14 @@ C$    integer omp_get_thread_num
                      Length_ETA=199.e+3
 #  endif
 # elif defined TANK
-#  if ! defined MOVING_BATHY
+#  ifndef MOVING_BATHY
+#   ifndef TANKY
                      Length_XI =10.0
                      Length_ETA=0.20
+#   else
+                     Length_XI =0.20
+                     Length_ETA=10.0
+#   endif
 #  else
                      Length_XI =4.0
                      Length_ETA=0.001
@@ -558,7 +567,7 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
         enddo
       enddo
 # elif defined TANK
-#  if ! defined MOVING_BATHY
+#  ifndef MOVING_BATHY
       do j=JstrR,JendR
         do i=IstrR,IendR
           h(i,j)=depth
@@ -569,7 +578,7 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
       do j=JstrR,JendR
         do i=IstrR,IendR
           h(i,j)=depth-0.1*exp(-cff*((xr(i,j)-2.)**2+
-     &                                  (yr(i,j)-el*0.5)**2)) 
+     &                               (yr(i,j)-el*0.5)**2)) 
         enddo
       enddo
 #  endif      
@@ -585,7 +594,7 @@ CR     &                                'x0=',x0, 'y0=',y0, mynode
 !  Set masking at RHO-points.
 !
 # ifdef MASKING
-#  if defined RIVER
+#  ifdef RIVER
       do j=JstrR,JendR             ! Set mask to all-water status,
         do i=IstrR,IendR           ! then mask out 5-point wide strip
           rmask(i,j)=1.            ! of land on the west, and finally

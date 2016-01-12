@@ -1,7 +1,7 @@
 #include "cppdefs.h"
 #ifdef NBQ
 
-      subroutine ru_nbq(ichoix)
+      subroutine ru_nbq(icall)
 
 !**********************************************************************
 !
@@ -32,87 +32,38 @@
 # include "ocean3d.h"
 # include "nbq.h"
 
-      integer i,j,k, indm_r
-      integer :: ichoix
-      real    cff
+      integer :: i,j,k
+      integer :: icall
+      real    :: cff
 
-      if (ichoix.eq.0) then
+      if (icall.eq.1) then
 !
 !*******************************************************************
 !  Fill external and internal forcing terms
-!  and reinitialize momentum fields
-!  If reinitialization only!
 !*******************************************************************
 !
-# if defined NBQ_REINIT || !defined M2FILTER_NONE
-!
-       do l_nbq=1,neqmom_nh(1)
+        do l_nbq = nequ_nh(1)+1,nequ_nh(6)
            i=l2imom_nh(l_nbq)
            j=l2jmom_nh(l_nbq)
            k=l2kmom_nh(l_nbq)
-#  ifdef NBQ_REINIT
-             qdm_nbq_a(l_nbq,0)=rho0*u(i,j,k,nnew)   ! WARNING: u(nnew) <-- Hz*u(nstp)
-             qdm_nbq_a(l_nbq,1)=qdm_nbq_a(l_nbq,0)
-#  else
-             qdm_nbq_a(l_nbq,:)=qdm_nbq_a_bak(l_nbq,:)
-#  endif
-       enddo
-       do l_nbq=neqmom_nh(1)+1,neqmom_nh(1)+neqmom_nh(2)
-           i=l2imom_nh(l_nbq)
-           j=l2jmom_nh(l_nbq)
-           k=l2kmom_nh(l_nbq)
-#  ifdef NBQ_REINIT
-             qdm_nbq_a(l_nbq,0)=rho0*v(i,j,k,nnew)   ! WARNING: v(nnew) <-- Hz*v(nstp)
-             qdm_nbq_a(l_nbq,1)=qdm_nbq_a(l_nbq,0)
-#  else
-             qdm_nbq_a(l_nbq,:)=qdm_nbq_a_bak(l_nbq,:)
-#  endif
-       enddo
-       do l_nbq=neqmom_nh(1)+neqmom_nh(2)+1,neqmom_nh(1)+neqmom_nh(2)+neqmom_nh(3)
-           i=l2imom_nh(l_nbq)
-           j=l2jmom_nh(l_nbq)
-           k=l2kmom_nh(l_nbq)
-#  ifdef NBQ_REINIT
-             qdm_nbq_a(l_nbq,0)=rho0*wz(i,j,k,nnew)  ! WARNING: wz(nnew) <-- Hz*wz(nstp)
-             qdm_nbq_a(l_nbq,1)=qdm_nbq_a(l_nbq,0)
+           dqdmdt_nbq_a(l_nbq)=rho0*(ruint_nbq(i,j,k)+ruext_nbq(i,j,k))
+        enddo
 
-#  else
-             qdm_nbq_a(l_nbq,:)=qdm_nbq_a_bak(l_nbq,:)
-#  endif
-       enddo
-# endif
-
-      elseif (ichoix.eq.1) then
-!
-!*******************************************************************
-!  Fill external and internal forcing terms
-!  and reinitialize momentum fields
-!*******************************************************************
-!
-       do l_nbq=1,neqmom_nh(1)
+        do l_nbq = neqv_nh(1)+1,neqv_nh(6)  
            i=l2imom_nh(l_nbq)
            j=l2jmom_nh(l_nbq)
            k=l2kmom_nh(l_nbq)
-           dqdmdt_nbq_a(l_nbq)=rho0*(ruint_nbq(i,j,k)                  &
-                                    +ruext_nbq(i,j,k))
-       enddo
+           dqdmdt_nbq_a(l_nbq)=rho0*(rvint_nbq(i,j,k)+rvext_nbq(i,j,k))
+        enddo
 
-       do l_nbq=neqmom_nh(1)+1,neqmom_nh(1)+neqmom_nh(2)
-           i=l2imom_nh(l_nbq)
-           j=l2jmom_nh(l_nbq)
-           k=l2kmom_nh(l_nbq)
-           dqdmdt_nbq_a(l_nbq)=rho0*(rvint_nbq(i,j,k)+                 &
-                                     rvext_nbq(i,j,k))
-       enddo
-
-       do l_nbq=neqmom_nh(1)+neqmom_nh(2)+1,neqmom_nh(1)+neqmom_nh(2)+neqmom_nh(3)
+        do l_nbq = neqw_nh(1)+1,neqw_nh(2)
            i=l2imom_nh(l_nbq)
            j=l2jmom_nh(l_nbq)
            k=l2kmom_nh(l_nbq)
            dqdmdt_nbq_a(l_nbq)=rho0*rwint_nbq(i,j,k)
-       enddo
-
-      elseif (ichoix.eq.2) then
+        enddo
+       
+      elseif (icall.eq.2) then
 !
 !*******************************************************************
 !  Prepare feedback of NBQ rhs terms to external equations
@@ -121,81 +72,56 @@
         cff=1/(rho0*real(ndtnbq))
 !
         rubar_nbq(:,:)=0.
-        do l_nbq=1,neqmom_nh(1)
-            i=l2imom_nh(l_nbq)
-            j=l2jmom_nh(l_nbq)
-            k=l2kmom_nh(l_nbq)
-
-            ru_nbq_ext(i,j,k) = cff*rhssum_nbq_a(l_nbq,2)        &
-                                   *on_u(i,j)*om_u(i,j)
- 
-            rhssum_nbq_a(l_nbq,2) = 0.
-
-            rubar_nbq(i,j) = rubar_nbq(i,j)+ru_nbq_ext(i,j,k)
+        do l_nbq = nequ_nh(1)+1,nequ_nh(6)
+           i=l2imom_nh(l_nbq)
+           j=l2jmom_nh(l_nbq)
+           k=l2kmom_nh(l_nbq)
+           ru_nbq_ext(i,j,k) = cff*rhssum_nbq_a(l_nbq,2)*on_u(i,j)*om_u(i,j)
+           rubar_nbq(i,j)    = rubar_nbq(i,j)+ru_nbq_ext(i,j,k)
         enddo
         
         rvbar_nbq(:,:)=0.
-        do l_nbq=neqmom_nh(1)+1,neqmom_nh(1)+neqmom_nh(2)
+        do l_nbq = neqv_nh(1)+1,neqv_nh(6)  
             i=l2imom_nh(l_nbq)
             j=l2jmom_nh(l_nbq)
             k=l2kmom_nh(l_nbq)
-
-            rv_nbq_ext(i,j,k) = cff*rhssum_nbq_a(l_nbq,2)        &
-                                   *on_v(i,j)*om_v(i,j)
-
-            rhssum_nbq_a(l_nbq,2) = 0.
-
-            rvbar_nbq(i,j) = rvbar_nbq(i,j)+rv_nbq_ext(i,j,k)
+            rv_nbq_ext(i,j,k) = cff*rhssum_nbq_a(l_nbq,2)*on_v(i,j)*om_v(i,j)
+            rvbar_nbq(i,j)    = rvbar_nbq(i,j)+rv_nbq_ext(i,j,k)
         enddo
 
-        do l_nbq=neqmom_nh(1)+neqmom_nh(2)+1,neqmom_nh(1)+neqmom_nh(2)+neqmom_nh(3)
+        do l_nbq = neqw_nh(1)+1,neqw_nh(2)
             i = l2imom_nh (l_nbq)
             j = l2jmom_nh (l_nbq)
             k = l2kmom_nh (l_nbq)
-
-            rw_nbq_ext(i,j,k) = cff*rhssum_nbq_a(l_nbq,2)        &
-                                   *on_r(i,j)*om_r(i,j)
-
-            rhssum_nbq_a(l_nbq,2) = 0.
+            rw_nbq_ext(i,j,k) = cff*rhssum_nbq_a(l_nbq,2)*on_r(i,j)*om_r(i,j)
         enddo
 
-      elseif (ichoix.eq.3) then
-!
-!**********************************************************************
-! Store momentum fields at internal timestep n+1
-! If not "flat filter" only !
-!**********************************************************************
+        rhssum_nbq_a(1:neqmom_nh(0),2) = 0.
 
-        qdm_nbq_a_bak(1:neqmom_nh(0),0)=qdm_nbq_a(1:neqmom_nh(0),0)
-        qdm_nbq_a_bak(1:neqmom_nh(0),1)=qdm_nbq_a(1:neqmom_nh(0),1)
-
-      elseif (ichoix.eq.6) then
+      elseif (icall.eq.6) then
 !
 !*******************************************************************
-!  Increment momentum:
+!  Increment momentum and density time derivative sigma correction:
 !*******************************************************************
 !
-        indm_r=momi_nh(nzq_nh+1)+1
         call amux(                                                   &
                neqcorrt_nbq                                          &
-              ,rhp_nbq_a(1:nzq_nh,1)                                 &  
-              ,rhs1_nbq(1:neqcorrt_nbq)                              &
-              ,momvg_nh(1:indm_r)                                    &
-              ,momj_nh(1:indm_r)                                     & 
-              ,momi_nh(1:nzq_nh+1)                                   &
-          !   ,nmlmom_nh                                             &
+              ,rhp_nbq_a(1:neqcont_nh,1)-rhp_bq_a(1:neqcont_nh)      & 
+              ,rhs1_nbq (1)                                          &
+              ,momvg_nh (1)                                          &
+              ,momj_nh  (1)                                          & 
+              ,momi_nh  (1)                                          &
                       ) 
-   
-      elseif (ichoix.eq.7) then
+
+      elseif (icall.eq.7) then
 !
 !*******************************************************************
 !  Move forward momentum
 !*******************************************************************
 !
-          qdm_nbq_a  (1:neqmom_nh(0),0)  = qdm_nbq_a(1:neqmom_nh(0),1) 
-          qdm_nbq_a  (1:neqmom_nh(0),1)  = qdm_nbq_a(1:neqmom_nh(0),2)
+          qdm_nbq_a  (1:neqmom_nh(0),0:1)  = qdm_nbq_a(1:neqmom_nh(0),1:2) 
 
-       endif  ! ichoix
+       endif  ! icall
 
        return
        end

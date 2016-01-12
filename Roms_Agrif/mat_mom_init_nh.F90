@@ -18,318 +18,289 @@
 # include "param_F90.h"
 # include "scalars_F90.h"
 # include "grid.h"
+# include "nbq.h"
 
-      real :: dte_lp
-      integer                                                         &
-       i1_n                                                           &
-      ,i2_n                                                           &
-      ,j1_n                                                           &
-      ,j2_n                                                           &
-      ,i1o_n                                                          &
-      ,i2o_n                                                          &
-      ,j1o_n                                                          &
-      ,j2o_n
-      integer :: l1_m,i,j,k,kmax,imax,jmax
-
-#ifdef MPI
-#define LOCALLM Lmmpi
-#define LOCALMM Mmmpi
-#else
-#define LOCALLM Lm
-#define LOCALMM Mm
-#endif    
+      integer :: l1_m,i,j,k,i_m
 
 !*******************************************************************
 !     Various Initializations:
 !*******************************************************************
 
-      dte_lp=2*dtfast   !CXA
-      imax=LOCALLM
-      jmax=LOCALMM
-
       nzmimp_nbq   = 1
       nzmom_nh     = 1
       nindkun_nbq  = 0
-
-      neqmom_nh(0:4) = 0
-
       neqmimp_nbq = 0
       
+      momi_nh = 1
       momj_nh = 1
       momv_nh = 0.
 
       mimpj_nbq = 1
       mimpv_nbq = 0.
 
-
-!*******************************************************************
-!     MPI domain
-!*******************************************************************
-
-!......X-Direction:
-
-! CXA  conditions ouvertes doivent etre prises en compte dans la matrice
-! CXA  => on augmente i2o_n et on reduit i1o_n pour prendre ces points
-!
-!      SNBQ
-!
-!      j1_n = 2
-!      if (par%tvoisin(sud).eq.mpi_proc_null.or.ifl_nbq.eq.1) j1_n = 1
-!      j2_n = jmax - 1
-!      if (par%tvoisin(nord).eq.mpi_proc_null.or.ifl_nbq.eq.1) j2_n = jmax
-!      i1o_n = 2
-!      if (par%tvoisin(ouest).eq.mpi_proc_null.or.ifl_nbq.eq.1) i1o_n = 1
-!      i2o_n = imax
-!      if (par%tvoisin(est).eq.mpi_proc_null.or.ifl_nbq.eq.1) i2o_n = imax+1
-
-      i1o_n=0
-      i2o_n=LOCALLM + 1
-      j1_n=0
-      j2_n=LOCALMM+1     
-
-!......Y-Direction:
-!
-!      SNBQ
-!
-!      i1_n = 2
-!      if (par%tvoisin(ouest).eq.mpi_proc_null.or.ifl_nbq.eq.1) i1_n = 1
-!      i2_n = imax - 1
-!      if (par%tvoisin(est).eq.mpi_proc_null.or.ifl_nbq.eq.1) i2_n = imax
-!      j1o_n = 2
-!      if (par%tvoisin(sud).eq.mpi_proc_null.or.ifl_nbq.eq.1) j1o_n = 1
-!      j2o_n = jmax
-
-      i1_n=0
-      i2_n=LOCALLM+1  
-      j1o_n=0
-      j2o_n=LOCALMM+1
-
-!......Z-Direction:   obtained from X- and Y-directions.
-
-      kmax=N
-      
-
 !*******************************************************************
 !     Momentum Equation: X-direction
 !******************************************************************* 
       
-      do j=j1_n,j2_n
-      do i=i1o_n,i2o_n
-      do k=1,kmax 
-
-#ifdef MASKING
-      if (umask(i,j).ne.0) then
+#ifdef OBC_WEST
+!-------------------------------------------------------------------
+!     Boundary condition (istru_nh-1):
+!-------------------------------------------------------------------
+      do l_nh=nequ_nh(1)+1,nequ_nh(2)
+         i = l2imom_nh(l_nh)
+         j = l2jmom_nh(l_nh)
+         k = l2kmom_nh(l_nh)
+         momi_nh  (l_nh)      = nzmom_nh 
+         momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,k)
+         nzmom_nh             = nzmom_nh + mijk2lq_nh(i,j,k) 
+      enddo
 #endif
-        neqmom_nh(0)              = neqmom_nh(0) + 1  !!! <=> nump_nh
-        ijk2lmom_nh(i,j,k,1)      = neqmom_nh(0)
-        mijk2lmom_nh(i,j,k,1)     = 1 
-        l2imom_nh(neqmom_nh(0))   = i
-        l2jmom_nh(neqmom_nh(0))   = j
-        l2kmom_nh(neqmom_nh(0))   = k
-        momi_nh  (neqmom_nh(0))   = nzmom_nh 
 
-        if (i.eq.imax+1) then
-!.......point p(i,j,k): condition aux limites a l est
-        momj_nh(nzmom_nh)    = ijk2lq_nh (i-1,j,k)
-        momjg_nh(nzmom_nh)   = ijk2lqg_nh(i-1,j,k)
-        nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i-1,j,k))
+!-------------------------------------------------------------------
+!     Inner domain, all layers: (i,j,k)
+!-------------------------------------------------------------------
+      do i_m=0,2
+      do l_nh=nequ_nh(2+i_m)+1,nequ_nh(3+i_m)
+         i = l2imom_nh(l_nh)
+         j = l2jmom_nh(l_nh)
+         k = l2kmom_nh(l_nh)
+         momi_nh  (l_nh)     = nzmom_nh 
 
-        elseif (i.eq.0) then
-!.......point p(i,j,k): condition aux limites a l ouest
-        momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,k)
-        momjg_nh(nzmom_nh)   = ijk2lqg_nh(i,j,k)
-        nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i,j,k))
-
-        else   ! point courant   
-!!!     XA bottom et surface conditions traitees implicitement car 
-!!!     alors ijk2lq_nh vaut 0 et rien n est fait. 
+!-----------------------------
 !.......point p(i,j,k+1):
+!-----------------------------
         momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,k+1)
-        momjg_nh(nzmom_nh)   = ijk2lqg_nh(i,j,k+1)
-        nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i,j,k+1))
+        nzmom_nh             = nzmom_nh + mijk2lq_nh(i,j,k+1)
 
+!-----------------------------
 !.......point p(i,j,k):
+!-----------------------------
         momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,k)
-        momjg_nh(nzmom_nh)   = ijk2lqg_nh(i,j,k)
-        nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i,j,k))
+        nzmom_nh             = nzmom_nh + mijk2lq_nh(i,j,k)
 
+!-----------------------------
 !.......point p(i,j,k-1):
+!-----------------------------
         momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,k-1)
-        momjg_nh(nzmom_nh)   = ijk2lqg_nh(i,j,k-1)
-        nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i,j,k-1))
+        nzmom_nh             = nzmom_nh + mijk2lq_nh(i,j,k-1)
 
+!-----------------------------
 !.......point p(i-1,j,k+1):
+!-----------------------------
         momj_nh(nzmom_nh)    = ijk2lq_nh (i-1,j,k+1)
-        momjg_nh(nzmom_nh)   = ijk2lqg_nh(i-1,j,k+1)
-        nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i-1,j,k+1))
+        nzmom_nh             = nzmom_nh + mijk2lq_nh(i-1,j,k+1)
 
+!-----------------------------
 !.......point p(i-1,j,k):
+!-----------------------------
         momj_nh(nzmom_nh)    = ijk2lq_nh (i-1,j,k)
-        momjg_nh(nzmom_nh)   = ijk2lqg_nh(i-1,j,k)
-        nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i-1,j,k))
+        nzmom_nh             = nzmom_nh + mijk2lq_nh(i-1,j,k)
 
+!-----------------------------
 !.......point p(i-1,j,k-1):
+!-----------------------------
         momj_nh(nzmom_nh)    = ijk2lq_nh (i-1,j,k-1)
-        momjg_nh(nzmom_nh)   = ijk2lqg_nh(i-1,j,k-1)
-        nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i-1,j,k-1))
+        nzmom_nh             = nzmom_nh + mijk2lq_nh(i-1,j,k-1) 
+      enddo 
+      enddo 
 
-!.......Lignes a largeur fixe:
-!        momj_nh(nzmom_nh) =max(1,momj_nh(nzmom_nh))
-!        if (nzmom_nh-momi_nh(neqmom_nh(0)).gt.nmlmom_nh) then
-!              write(6,*) MYID,"MOM===>bande trop etroite!"
-!              stop 
-!        endif
-!        nzmom_nh = momi_nh(neqmom_nh(0)) + nmlmom_nh
-
-        endif
-#ifdef MASKING
-      endif
+#ifdef OBC_EAST
+!-------------------------------------------------------------------
+!.....Boundary condition (iendu_nh+1):
+!-------------------------------------------------------------------
+      do l_nh=nequ_nh(5)+1,nequ_nh(6)
+         i = l2imom_nh(l_nh)
+         j = l2jmom_nh(l_nh)
+         k = l2kmom_nh(l_nh)
+         momi_nh  (l_nh)     = nzmom_nh 
+         momj_nh(nzmom_nh)   = ijk2lq_nh (i-1,j,k)
+         nzmom_nh            = nzmom_nh + mijk2lq_nh(i-1,j,k) 
+      enddo
 #endif
-      enddo
-      
-      enddo
-      enddo
 
-!.....Number of equations in X-direction:
-      neqmom_nh(1) = neqmom_nh(0)
+#ifdef MPI
+!-------------------------------------------------------------------
+!.....MOM matrix structure when points are added at the eastearn boundary!
+!-------------------------------------------------------------------
+      momi_nh(nequ_nh(6)+1:nequ_nh(7))=nzmom_nh
+#endif
 
 !*******************************************************************
 !     Momentum Equation: Y-direction
 !******************************************************************* 
 
-      do j=j1o_n,j2o_n
-      do i=i1_n,i2_n
-      do k=1,kmax 
-
-#ifdef MASKING
-      if (vmask(i,j).ne.0) then
+#ifdef OBC_SOUTH
+!-------------------------------------------------------------------
+!     Boundary condition (jstrv_nh-1):
+!-------------------------------------------------------------------
+      do l_nh=neqv_nh(1)+1,neqv_nh(2)
+         i = l2imom_nh(l_nh)
+         j = l2jmom_nh(l_nh)
+         k = l2kmom_nh(l_nh)
+        momi_nh  (l_nh)     = nzmom_nh
+        momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,k)
+        nzmom_nh             = nzmom_nh + mijk2lq_nh(i,j,k) 
+      enddo
 #endif
-        neqmom_nh(0)              = neqmom_nh(0) + 1
-        ijk2lmom_nh(i,j,k,2)      = neqmom_nh(0)
-        mijk2lmom_nh(i,j,k,2)     = 1 
-        l2imom_nh(neqmom_nh(0))   = i
-        l2jmom_nh(neqmom_nh(0))   = j
-        l2kmom_nh(neqmom_nh(0))   = k
-        momi_nh  (neqmom_nh(0))   = nzmom_nh 
     
-        if (j.eq.jmax+1) then
-!.......point p(i,j-1,k): condition aux limites au nord
-        momj_nh(nzmom_nh)    = ijk2lq_nh (i,j-1,k)
-        momjg_nh(nzmom_nh)   = ijk2lqg_nh(i,j-1,k)
-        nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i,j-1,k))
+!-------------------------------------------------------------------
+!     Inner domain, all layers: (i,j,k)
+!-------------------------------------------------------------------
+      do i_m=0,2
+      do l_nh=neqv_nh(2+i_m)+1,neqv_nh(3+i_m)
+         i = l2imom_nh(l_nh)
+         j = l2jmom_nh(l_nh)
+         k = l2kmom_nh(l_nh)
+         momi_nh  (l_nh)     = nzmom_nh 
 
-        elseif (j.eq.0) then
-!.......point p(i,j,k): concdition aux limites au sud
-        momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,k)
-        momjg_nh(nzmom_nh)   = ijk2lqg_nh(i,j,k)
-        nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i,j,k))
-
-        else ! point courant
+!-----------------------------
 !.......point p(i,j,k+1):
+!-----------------------------
         momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,k+1)
-        momjg_nh(nzmom_nh)   = ijk2lqg_nh(i,j,k+1)
-        nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i,j,k+1))
+        nzmom_nh             = nzmom_nh + mijk2lq_nh(i,j,k+1) 
 
+!-----------------------------
 !.......point p(i,j,k):
+!-----------------------------
         momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,k)
-        momjg_nh(nzmom_nh)   = ijk2lqg_nh(i,j,k)
-        nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i,j,k))
+        nzmom_nh             = nzmom_nh + mijk2lq_nh(i,j,k) 
 
+!-----------------------------
 !.......point p(i,j,k-1):
+!-----------------------------
         momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,k-1)
-        momjg_nh(nzmom_nh)   = ijk2lqg_nh(i,j,k-1)
-        nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i,j,k-1))
+        nzmom_nh             = nzmom_nh + mijk2lq_nh(i,j,k-1) 
 
+!-----------------------------
 !.......point p(i,j-1,k+1):
+!-----------------------------
         momj_nh(nzmom_nh)    = ijk2lq_nh (i,j-1,k+1)
-        momjg_nh(nzmom_nh)   = ijk2lqg_nh(i,j-1,k+1)
-        nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i,j-1,k+1))
+        nzmom_nh             = nzmom_nh + mijk2lq_nh(i,j-1,k+1) 
 
+!-----------------------------
 !.......point p(i,j-1,k):
+!-----------------------------
         momj_nh(nzmom_nh)    = ijk2lq_nh (i,j-1,k)
-        momjg_nh(nzmom_nh)   = ijk2lqg_nh(i,j-1,k)
-        nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i,j-1,k))
+        nzmom_nh             = nzmom_nh + mijk2lq_nh(i,j-1,k) 
 
+!-----------------------------
 !.......point p(i,j-1,k-1):
+!-----------------------------
         momj_nh(nzmom_nh)    = ijk2lq_nh (i,j-1,k-1)
-        momjg_nh(nzmom_nh)   = ijk2lqg_nh(i,j-1,k-1)
-        nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i,j-1,k-1))
-
-!.......Lignes a largeur fixe:
-!       momj_nh(nzmom_nh) =max(1,momj_nh(nzmom_nh))
-!       if (nzmom_nh-momi_nh(neqmom_nh(0)).gt.nmlmom_nh) then
-!             write(6,*) MYID,"MOM===>bande trop etroite!"
-!             stop 
-!       endif
-!       nzmom_nh = momi_nh(neqmom_nh(0)) + nmlmom_nh
-
-        endif
-#ifdef MASKING
-      endif
-#endif
-      enddo
-      enddo
-      enddo
+        nzmom_nh             = nzmom_nh + mijk2lq_nh(i,j-1,k-1) 
+       enddo
+       enddo
       
-!.....Number of equations in Y-direction:
-      neqmom_nh(2) = neqmom_nh(0) - neqmom_nh(1)
+#ifdef OBC_NORTH
+!-------------------------------------------------------------------
+!.....Boundary condition (jendv_nh):
+!-------------------------------------------------------------------
+      do l_nh=neqv_nh(5)+1,neqv_nh(6)
+         i = l2imom_nh(l_nh)
+         j = l2jmom_nh(l_nh)
+         k = l2kmom_nh(l_nh)
+         momi_nh  (l_nh)      = nzmom_nh 
+         momj_nh(nzmom_nh)    = ijk2lq_nh (i,j-1,k)
+         nzmom_nh             = nzmom_nh + mijk2lq_nh(i,j-1,k) 
+       enddo
+#endif
+
+#ifdef MPI
+!-------------------------------------------------------------------
+!.....MOM matrix structure when points are added at the northern boundary !
+!-------------------------------------------------------------------
+      momi_nh(neqv_nh(6)+1:neqw_nh(1))=nzmom_nh
+#endif
 
 !*******************************************************************
 ! Momentum Equation: Z-direction
 !******************************************************************* 
-      do j=j1_n,j2_n
-      do i=i1_n,i2_n
-      do k=0,N
+      do l_nh=neqw_nh(1)+1,neqw_nh(2)
 
-#ifdef MASKING
-      if (rmask(i,j).ne.0) then
-#endif
-        neqmom_nh(0)            = neqmom_nh(0) + 1
-        ijk2lmom_nh(i,j,k,3)    = neqmom_nh(0)
-        mijk2lmom_nh(i,j,k,3)   = 1 
-        l2imom_nh(neqmom_nh(0)) = i
-        l2jmom_nh(neqmom_nh(0)) = j
-        l2kmom_nh(neqmom_nh(0)) = k
-        momi_nh  (neqmom_nh(0)) = nzmom_nh 
+        i = l2imom_nh(l_nh)
+        j = l2jmom_nh(l_nh)
+        k = l2kmom_nh(l_nh)
+        momi_nh  (l_nh)     = nzmom_nh
 
+!-----------------------------
 !.......point p(i,j,k+1):
+!-----------------------------
         momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,k+1)
-        momjg_nh(nzmom_nh)   = ijk2lqg_nh(i,j,k+1)
-        if (k.ne.0) then
-          momv_nh(nzmom_nh)  = -1. 
-        else
-          momv_nh(nzmom_nh)       = 0.
-        endif
-        nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i,j,k+1))
+        momv_nh(nzmom_nh)    = -1. * float(mijk2lq_nh(i,j,k+1)) &
+                                   * float(mijk2lq_nh(i,j,k))
+        nzmom_nh             = nzmom_nh  + mijk2lq_nh(i,j,k+1)  &
+                                   * float(mijk2lq_nh(i,j,k))
 
-        if (k.ne.0) then
+!-----------------------------
 !.......point p(i,j,k):
+!-----------------------------
         momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,k)
-        momjg_nh(nzmom_nh)   = ijk2lqg_nh(i,j,k)
-        momv_nh(nzmom_nh)    = 1. 
-        nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i,j,k))
-        endif
+        momv_nh(nzmom_nh)    = 1. * float(mijk2lq_nh(i,j,k))
+        nzmom_nh             = nzmom_nh + mijk2lq_nh(i,j,k) 
 
-!.......Lignes a largeur fixe:
-!       momj_nh(nzmom_nh) =max(1,momj_nh(nzmom_nh))
-!       if (nzmom_nh-momi_nh(neqmom_nh(0)).gt.nmlmom_nh) then
-!             write(6,*) MYID,"MOM===>bande trop etroite!"
-!             stop
-!       endif
-!       nzmom_nh = momi_nh(neqmom_nh(0)) + nmlmom_nh
+      enddo
 
-#ifdef MASKING
-      endif
+#ifdef MPI
+!-------------------------------------------------------------------
+!.....MOM matrix structure when points are added at the northern boundary !
+!-------------------------------------------------------------------
+      momi_nh(neqw_nh(2)+1:neqw_nh(3))=nzmom_nh
 #endif
-      enddo
-      enddo
-      enddo
 
-!.....Number of equation in Z-direction:
-      neqmom_nh(3) = neqmom_nh(0) -(neqmom_nh(1)+neqmom_nh(2)) 
-      neqmom_nh(4) = neqmom_nh(0) -(neqmom_nh(1)+neqmom_nh(2)        &
-                                   +neqmom_nh(3)) 
-      neqmom_nh(5) = neqmom_nh(0)
+
+      if (ifl_imp_nbq.eq.1) then
+!*******************************************************************
+!.......Partie implicite:
+!*******************************************************************
+
+      neqmimp_nbq = 0
+
+!-------------------------------------------------------------------
+!     Inner domain, bottom layer: (i,j,k=0)
+!-------------------------------------------------------------------
+
+     do l_nh=neqmom_nh(1)+neqmom_nh(2)+1,neqmom_nh(0)
+!!      do l_nh=neqw_nh(1)+1,neqw_nh(2)
+
+        i = l2imom_nh(l_nh)
+        j = l2jmom_nh(l_nh)
+        k = l2kmom_nh(l_nh)
+
+!-----------------------------
+        if (k.eq.0) then
+!-----------------------------
+        neqmimp_nbq             = neqmimp_nbq  + 1
+        mimpi_nbq (neqmimp_nbq) = nzmimp_nbq
+
+        mimpj_nbq(nzmimp_nbq)   = ijk2lq_nh (i,j,k+1)
+        mimpv_nbq(nzmimp_nbq)   = 0.
+        nzmimp_nbq              = nzmimp_nbq + mijk2lq_nh(i,j,k+1)
+        nindkun_nbq             = nindkun_nbq +1
+        indkun_nbq(nindkun_nbq) = neqmimp_nbq
+
+!        mimpj_nbq(nzmimp_nbq)   = ijk2lq_nh (i,j,k)
+!        mimpv_nbq(nzmimp_nbq)   = 0.
+!        nzmimp_nbq              = nzmimp_nbq + mijk2lq_nh(i,j,k)
+!-----------------------------
+        else
+!-----------------------------
+        neqmimp_nbq             = neqmimp_nbq  + 1
+        mimpi_nbq (neqmimp_nbq) = nzmimp_nbq
+
+        mimpj_nbq(nzmimp_nbq)   = ijk2lq_nh (i,j,k+1)
+        mimpv_nbq(nzmimp_nbq)   = - ( soundspeed_nbq**2 - visc2_nbq ) * dtnbq 
+        nzmimp_nbq              = nzmimp_nbq + mijk2lq_nh(i,j,k+1)
+
+        mimpj_nbq(nzmimp_nbq)   = ijk2lq_nh (i,j,k)
+        mimpv_nbq(nzmimp_nbq)   =   ( soundspeed_nbq**2 - visc2_nbq ) * dtnbq 
+        nzmimp_nbq              = nzmimp_nbq + mijk2lq_nh(i,j,k)
+!-----------------------------
+       endif
+!-----------------------------
+
+      enddo
+      endif
+
 
 !*******************************************************************
 !.....Correction temporelle:
@@ -340,7 +311,7 @@
       neqcorrt_nbq=neqmom_nh(0) 
 
 #ifdef NBQ_DRHODT
-      do l_nh = 1,nzq_nh
+      do l_nh = 1,neqcont_nh
        i = l2iq_nh (l_nh)
        j = l2jq_nh (l_nh)
        k = l2kq_nh (l_nh)
@@ -355,22 +326,12 @@
        momi_nh  (neqcorrt_nbq) = nzmom_nh
 
 !......Point rh(i,j,k+1)
-       momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,min(kmax,k+1))
-       momjg_nh(nzmom_nh)   = ijk2lqg_nh(i,j,min(kmax,k+1))
-       nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i,j,min(kmax,k+1)))
+       momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,min(N,k+1))
+       nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i,j,min(N,k+1)))
  
 !......Point rh(i,j,k-1)
        momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,max(1,k-1))
-       momjg_nh(nzmom_nh)   = ijk2lqg_nh(i,j,max(1,k-1))
        nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i,j,max(1,k-1)))
-
-!.......Lignes a largeur fixe:
-!       momj_nh(nzmom_nh) =max(1,momj_nh(nzmom_nh))
-!       if (nzmom_nh-momi_nh(neqcorrt_nbq).gt.nmlmom_nh) then
-!             write(6,*) MYID,"MOM===>bande trop etroite!"
-!             stop 
-!       endif
-!       nzmom_nh = momi_nh(neqcorrt_nbq) + nmlmom_nh
 
       enddo
 #endif

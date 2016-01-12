@@ -42,9 +42,16 @@ C$    integer omp_get_thread_num
 # include "sediment.h"
 #endif
       integer Istr,Iend,Jstr,Jend, i,j,k, itrc
+#if defined NBQ && ! defined MPI
+      integer :: mynode
+#endif
 #ifdef SOLITON
       real fac, x,y, x0,y0, cff1,cff2,cff3
 #endif
+#ifdef GRAV_ADJ_SOLITON
+      real rho1_exp,rho2_exp,h1_exp,amp_exp, Lt
+      real d(0:N)
+# endif
 #ifdef BASIN
       real cff1,cff2
 #endif
@@ -161,7 +168,11 @@ C$    integer omp_get_thread_num
         do j=JR_RANGE
           do i=IR_RANGE
 #  ifndef MOVING_BATHY       
+#   ifndef TANKY
             zeta(i,j,1)=ETA0*cos(pi*xr(i,j)/Lt)
+#   else
+            zeta(i,j,1)=ETA0*cos(pi*yr(i,j)/Lt)
+#   endif
 #  else
             zeta(i,j,1)=0.
 #  endif        
@@ -172,7 +183,6 @@ C$    integer omp_get_thread_num
             vbar(i,j,2)=vbar(i,j,1)
           enddo
         enddo
-
 # else
         do j=JR_RANGE
           do i=IR_RANGE
@@ -413,6 +423,36 @@ C$    integer omp_get_thread_num
 
 #  elif defined GRAV_ADJ
 #   ifdef GRAV_ADJ_SOLITON
+#    define HORN_PROFILE
+#    ifdef HORN_PROFILE
+!
+!  Horn, D.A., J. Imberger, & G.N. Ivey, (2001). 
+!  The degeneration of large-scale interfacial gravity waves in lakes. 
+!  J. Fluid Mech., 434:181-207.
+!  --> initialy setup with variable salinity in the tank experiment of 
+!      Horn et al (2001); the conversion to temperature variations 
+!      through linear EOS gives unrealistic range
+!
+        rho1_exp = R0 - 10.  ! * 0.7286 /2.
+        rho2_exp = R0 + 10.  ! * 0.7286 /2.
+        h1_exp = 0.7 * h(1,1)
+        amp_exp = 0.0391
+        Lt=6.
+        !write(6,*) h(1,1),h1_exp,R0,Tcoef
+        do j=JstrR,JendR
+           do i=IstrR,IendR
+              do k=1,N
+                 d(k)=0.5*(rho1_exp+rho2_exp)               
+     &              + 0.5*(rho2_exp-rho1_exp)
+     &                   *tanh(exp(1.)*(-h1_exp 
+     &                          -2.*amp_exp*(xr(i,j)-Lt/2.)/Lt 
+     &                          +abs(z_r(i,j,k)))/(0.015/2.))   ! 0.005=dz_q   
+                 t(i,j,k,1,itemp) = 13. - ( d(k) - R0 )  / Tcoef
+                 t(i,j,k,2,itemp) = t(i,j,k,1,itemp)
+              enddo
+           enddo
+        enddo
+#    else
         depth=h(1,1)
         gam=0.9
         del=0.3
@@ -428,6 +468,7 @@ C$    integer omp_get_thread_num
             enddo
           enddo
         enddo
+#    endif /* HORN_PROFILE */ 
 #   else
         do k=1,N
           do j=JstrR,JendR

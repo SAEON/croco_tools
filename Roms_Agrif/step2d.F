@@ -190,7 +190,11 @@ C$    trd=omp_get_thread_num()
 ! momentum equations.
 !
 #ifdef M2FILTER_NONE
+# ifdef TANK
+         myalpha   = 0.01
+# else
          myalpha   = 0.5
+# endif
          mybeta    = 0.281105
          myepsilon = 0.00976186 - 0.13451357*myalpha
          mygamma   = 0.08344500 - 0.51358400*myalpha
@@ -437,12 +441,6 @@ C$OMP END MASTER
 # endif
         enddo
       enddo
-
-#ifdef TANK
-!.....Outputs: SSA for TANK
-      call output_nbq(40)
-#endif
-
 #else
       do j=JstrV-1,Jend
         do i=IstrU-1,Iend
@@ -1386,7 +1384,7 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 ! Resolve 3D NBQ equation for ndtnbq time steps
 !
       if (FIRST_2D_STEP) then
-        call z_thickness_nh(1)
+        call grid_coef_nh
         call mat_mom_nh
         call mat_cont_nh
       endif
@@ -2058,12 +2056,12 @@ C$OMP END MASTER
 !       stop 
 !       endif
 
-#ifdef DEBUG_NBQ
-        if (iic.eq.10) then
-         call MPI_Finalize (i)
-         if (mynode.eq.0) write(6,*) 'Stop in step2d: debug NBQ'
-         stop
-        endif
+#if defined DEBUG_NBQ && defined MPI
+!        if (iic.eq.10) then
+!         call MPI_Finalize (i)
+!         if (mynode.eq.0) write(6,*) 'Stop in step2d: debug NBQ'
+!         stop
+!        endif
 #endif
 
   

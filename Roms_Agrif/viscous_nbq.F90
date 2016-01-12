@@ -1,7 +1,7 @@
 #include "cppdefs.h"
 #ifdef NBQ
 
-      subroutine viscous_nbq(ichoix)
+      subroutine viscous_nbq(icall)
 !**********************************************************************
 !
 !                      Various Computations related to
@@ -32,9 +32,9 @@
 # include "grid.h"
 # include "nbq.h"
 
-      integer :: i,j,k,ichoix,indm_v
+      integer :: i,j,k,icall,indm_v
 
-      if (ichoix.eq.0) then
+      if (icall.eq.0) then
 !*******************************************************************
 !*******************************************************************
 !       Initialisation de la seconde viscosite
@@ -43,13 +43,11 @@
 !*******************************************************************
 !*******************************************************************
        
-        do l_nbq=1,neqmom_nh(0)
-           visc2_nbq_a(l_nbq) = visc2_nbq
-        enddo
+        visc2_nbq_a(1:neqmom_nh(0)) = visc2_nbq
 
       endif
 
-      if (ichoix.eq.1) then
+      if (icall.eq.1) then
 !*******************************************************************
 !*******************************************************************
 !               Seconde viscosite:
@@ -65,45 +63,18 @@
 !*******************************************************************
 !*******************************************************************
 
-         indm_v=momi_nh(nzq_nh+1)+1
+         indm_v=momi_nh(neqcont_nh+1)+1
          call amux(                                                 &
               neqmom_nh(0)                                          &
-             ,div_nbq_a(1:nzq_nh,0)                                 &    ! div decentree (0)
+             ,div_nbq_a(1:neqcont_nh,0)                             &    ! div decentree (0)
              ,rhsd2_nbq(1:neqmom_nh(0))                             &
              ,momv_nh(1:indm_v)                                     &
              ,momj_nh(1:indm_v)                                     &
-             ,momi_nh(1:nzq_nh+1)                                   &
-         !   ,nmlmom_nh                                             &    
+             ,momi_nh(1:neqcont_nh+1)                               &
                  )   
     
       endif
 
-
-      if (ichoix.eq.2) then
-!*******************************************************************
-!*******************************************************************
-!             Diffusion numerique sur masse volumique:
-!*******************************************************************
-!*******************************************************************
-#ifdef diff_nbq
-          call amux(                                                &
-              neqmom_nh(0)                                          &
-             ,rhp_nbq_a(1:neqcont_nh(0),0)                          &
-             ,rhsd1_nbq(1:neqmom_nh(0))                             &
-             ,momv_nh                                               &
-             ,momj_nh                                               &
-             ,momi_nh       )       
-
-          call amux(                                                &
-             neqcont_omp                                            &
-             ,rhsd1_nbq(1:neqmom_nh(0))                             &
-             ,rhsd3_nbq(1:neqmom_nh(0))                             &
-             ,ompcontv_nh(1:nmcont_nh)                              &
-             ,ompcontj_nh                                           &
-             ,ompconti_nh       )   
-
-#endif
-       endif
 
       end subroutine viscous_nbq
 

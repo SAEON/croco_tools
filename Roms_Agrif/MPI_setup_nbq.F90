@@ -1,5 +1,5 @@
 #include "cppdefs.h"
-# if defined NBQ && defined MPI
+#if defined NBQ && defined MPI
 
  subroutine MPI_nbq_Setup(imax,jmax,kmax)
 !------------------------------------------------------------------------------
@@ -25,6 +25,9 @@
   !print *,mynode,"imax,jmax,kmax=",imax,jmax,kmax
   
   call create_echange_qdm_nbq_a(imax,jmax,kmax)
+  call create_echange_qdmU_nbq_a(imax,jmax,kmax)
+  call create_echange_qdmV_nbq_a(imax,jmax,kmax)
+  call create_echange_qdmW_nbq_a(imax,jmax,kmax)
   call create_echange_div_nbq_a(imax,jmax,kmax)
   !call create_echange_rhs2_nh(imax,jmax,kmax) !No longer used
  end subroutine MPI_nbq_Setup

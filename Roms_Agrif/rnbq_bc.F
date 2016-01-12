@@ -187,19 +187,19 @@
 #   endif
           enddo
         enddo
-#  else
+!#  else
 !                                            Western edge gradient BC
 !                                            ======= ==== ======== ==
-        do k=1,N
-          do j=Jstr,Jend
-            l_b_j     = ijk2lq_nh(Istr-1,j  ,k)
-            l_bm1_j   = ijk2lq_nh(Istr  ,j  ,k)
-            rhp_nbq_a(l_b_j,nnew)=rhp_nbq_a(l_bm1_j,nnew) ! Gradient: default
-#   ifdef MASKING
-     &                                     *rmask(Istr,j)
-#   endif
-          enddo
-        enddo
+!        do k=1,N
+!          do j=Jstr,Jend
+!            l_b_j     = ijk2lq_nh(Istr-1,j  ,k)
+!            l_bm1_j   = ijk2lq_nh(Istr  ,j  ,k)
+!            rhp_nbq_a(l_b_j,nnew)=rhp_nbq_a(l_bm1_j,nnew) ! Gradient: default
+!#   ifdef MASKING
+!     &                                     *rmask(Istr,j)
+!#   endif
+!          enddo
+!        enddo
 # endif              /* OBC_COM_WEST */
       endif         !<-- WESTERN_EDGE
 !
@@ -297,19 +297,19 @@
 #   endif
           enddo
         enddo
-#  else
+!#  else
 !                                            Eastern edge gradient BC
 !                                            ======= ==== ======== ==
-        do k=1,N
-          do j=Jstr,Jend
-            l_b_j     = ijk2lq_nh(Iend+1,j,k)
-            l_bm1_j   = ijk2lq_nh(Iend  ,j,k)
-            rhp_nbq_a(l_b_j,nnew)=rhp_nbq_a(l_bm1_j,nnew)  ! gradient (default)
-#   ifdef MASKING
-     &                                   *rmask(Iend+1,j)
-#   endif
-          enddo
-        enddo
+!        do k=1,N
+!          do j=Jstr,Jend
+!            l_b_j     = ijk2lq_nh(Iend+1,j,k)
+!            l_bm1_j   = ijk2lq_nh(Iend  ,j,k)
+!            rhp_nbq_a(l_b_j,nnew)=rhp_nbq_a(l_bm1_j,nnew)  ! gradient (default)
+!#   ifdef MASKING
+!     &                                   *rmask(Iend+1,j)
+!#   endif
+!          enddo
+!        enddo
 #  endif            /* OBC_COM_EAST */
       endif         !<-- EASTERN_EDGE
 # endif             /* !EW_COM_PERIODIC */
@@ -409,19 +409,19 @@
 #   endif
           enddo
         enddo
-#  else
+!#  else
 !                                           Southern edge gradient BC
 !                                           ======== ==== ======== ==
-        do k=1,N
-          do i=Istr,Iend
-            l_b_i     = ijk2lq_nh(i  ,Jstr-1,k)
-            l_bm1_i   = ijk2lq_nh(i  ,Jstr  ,k)
-            rhp_nbq_a(l_b_i,nnew)=rhp_nbq_a(l_bm1_i,nnew)  ! gradient (default)
-#   ifdef MASKING
-     &                                   *rmask(i,Jstr-1)
-#   endif
-          enddo
-        enddo
+!        do k=1,N
+!          do i=Istr,Iend
+!            l_b_i     = ijk2lq_nh(i  ,Jstr-1,k)
+!            l_bm1_i   = ijk2lq_nh(i  ,Jstr  ,k)
+!            rhp_nbq_a(l_b_i,nnew)=rhp_nbq_a(l_bm1_i,nnew)  ! gradient (default)
+!#   ifdef MASKING
+!     &                                   *rmask(i,Jstr-1)
+!#   endif
+!          enddo
+!        enddo
 #  endif              /* OBC_COM_SOUTH */
       endif         !<-- SOUTHERN_EDGE
 !
@@ -519,19 +519,19 @@
 #   endif
           enddo
         enddo
-#  else
-        do k=1,N
-          do i=Istr,Iend
+!#  else
+!        do k=1,N
+!          do i=Istr,Iend
 !                                           Northern edge gradient BC
 !                                           ======== ==== ======== ==
-            l_b_i     = ijk2lq_nh(i  ,Jend+1,k)
-            l_bm1_i   = ijk2lq_nh(i  ,Jend  ,k)
-            rhp_nbq_a(l_b_i,nnew)=rhp_nbq_a(l_bm1_i,nnew) ! gradient (default)
-#   ifdef MASKING
-     &                                   *rmask(i,Jend+1)
-#   endif
-          enddo
-        enddo
+!            l_b_i     = ijk2lq_nh(i  ,Jend+1,k)
+!            l_bm1_i   = ijk2lq_nh(i  ,Jend  ,k)
+!            rhp_nbq_a(l_b_i,nnew)=rhp_nbq_a(l_bm1_i,nnew) ! gradient (default)
+!#   ifdef MASKING
+!     &                                   *rmask(i,Jend+1)
+!#   endif
+!          enddo
+!        enddo
 #  endif
       endif     !<--  NORTHERN_EDGE
 # endif          /* !NS_COM_PERIODIC */

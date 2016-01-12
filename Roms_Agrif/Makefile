@@ -124,9 +124,11 @@ include Makedefs
 	module_parallel_nbq.F90 module_tracetxt_out.F90	module_param.F90\
 	nump_nh.F90		mat_cont_init_nh.F90	mat_cont_nh.F90\
 	mat_mom_init_nh.F90	mat_mom_nh.F90		initial_nh.F90\
-	z_thickness_nh.F90 	ru_nbq.F90		viscous_nbq.F90\
+	grid_coef_nh.F90 	ru_nbq.F90		viscous_nbq.F90\
 	step3d_nbq.F90		density_nbq.F90		spkitlocal_nh.F90\
-	MPI_setup_nbq.F90	parallele_nbq.F90	output_nbq.F90
+	MPI_setup_nbq.F90	parallele_nbq.F90	grid_exchange.F90\
+	implicit_nbq.F90        amub2_tri.F90	        numuvw_nh.F90\
+	grid_def_nh.F90	
 
 AMRDIR = AGRIF/AGRIF_YOURFILES
 

@@ -234,6 +234,16 @@ if $($CPP1 testkeys.F | grep -i -q mpiisdefined) ; then
 	CFT1="$MPIF90"
 fi
 #
+# determine if NBQ related solvers (BLAS/LAPACK) are required
+#
+unset COMPILENBQ
+echo "Checking COMPILENBQ..."
+if $($CPP1 testkeys.F | grep -i -q nbqisdefined) ; then
+	echo " => NBQ activated"
+	COMPILENBQ=TRUE
+	LDFLAGS1="-lblas -llapack $LDFLAGS1"
+fi
+#
 # determine if XIOS compilation is required
 #
 unset COMPILEXIOS

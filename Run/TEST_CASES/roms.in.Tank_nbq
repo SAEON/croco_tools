@@ -1,10 +1,10 @@
 title:
 	Tank Example
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
-                200       0.1      40      5
+                200       0.1      100      5
 
 time_stepping_nbq: NDTNBQ    CSOUND_NBQ    VISC2_NBQ
-                     2         40           1.
+                     2         100           1.
 
 S-coord: THETA_S,   THETA_B,    Hc (m)
           0.0d0      0.0d0      1.e16
