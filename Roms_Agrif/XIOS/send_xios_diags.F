@@ -47,6 +47,7 @@
 
       implicit none
 # include "param.h"
+# include "ncscrum.h"
 # include "grid.h"
 # include "ocean2d.h"
 # include "ocean3d.h"
@@ -81,6 +82,7 @@
       real eps
       parameter (eps=1.D-20)
       real stf_cff
+      real zz(1,1)
       parameter(stf_cff=86400/0.01)
 !
 # include "compute_auxiliary_bounds.h"
@@ -97,6 +99,30 @@
 !      call xios_send_field("time",time)
 
 ! static attributes
+# ifdef SOLVE3D
+!
+! Variable dimension on vertical : s_rho and s_w
+!
+! done automatically
+!
+! S-coordinate independent variables "sc_w", "sc_r" and stretching
+! curves "Cs_w", "Cs_r" at W- and RHO-points.
+!
+      call xios_send_field("Cs_r",Cs_r)
+      call xios_send_field("Cs_w",Cs_w)
+      call xios_send_field("sc_r",sc_r)
+      call xios_send_field("sc_w",sc_w)
+      zz=hc
+      call xios_send_field("hc",zz)
+      zz=theta_s
+      call xios_send_field("theta_s",zz)
+      zz=theta_b
+      call xios_send_field("theta_b",zz)
+      zz=Tcline
+      call xios_send_field("Tcline",zz)
+      zz=REAL(Vtransform)
+      call xios_send_field("Vtransform",zz)
+# endif
 !
 ! Bathymetry.
 !
@@ -129,6 +155,13 @@
 # endif
 # ifdef MASKING
       call xios_send_field("mask_rho",rmask)
+# endif
+
+!
+! Critical Depth for Drying cells
+!
+# if WET_DRY
+      call xios_send_field("Dcrit",Dcrit)
 # endif
 
 # ifdef NBQ     
