@@ -108,22 +108,22 @@
 !-------------------------------------------------------------------
 !     WESTERN EDGE
 !-------------------------------------------------------------------
-# ifdef OBC_WEST
+# ifdef OBC_NBQ_XXX
       if (WESTERN_EDGE) then
         i = istru_nh-1
 
 !........Corner (South-West):
-        if (SOUTHERN_EDGE) then
-          jstr_n = jstr_nh-1
-        else
-          jstr_n = jstr_nh
-        endif
+         if (SOUTH_INTER) then
+            jstr_n = jstr_nh-1
+         else
+            jstr_n = jstr_nh
+         endif
 !........Corner (North-West):
-        if (NORTHERN_EDGE) then
-          jend_n = jend_nh+1
-        else
-          jend_n = jend_nh
-        endif
+         if (NORTH_INTER) then
+            jend_n = jend_nh+1
+         else
+            jend_n = jend_nh
+         endif
 
         do k=1,N    
         do j=jstr_n,jend_n
@@ -143,17 +143,17 @@
         enddo
 
       endif
-# endif /* OBC_WEST */
+# endif /* OBC_NBQ_XXX */
 
 !-------------------------------------------------------------------
 !     SOUTHERN EDGE (tangential velocity)
 !-------------------------------------------------------------------
-# ifdef OBC_SOUTH
+# ifdef OBC_NBQ_XXX
       if (SOUTHERN_EDGE) then
         j = jstr_nh-1
 
         do k=1,N    
-        do i=istru_nh,iendu_nh
+        do i=istru_nh-1,iendu_nh+1
 #  ifdef MASKING
           if (umask(i,j).ne.0) then
 #  endif
@@ -170,7 +170,7 @@
         enddo
 
       endif
-# endif /* OBC_SOUTH */
+# endif /* OBC_NBQ_XXX */
 
       nequ_nh(2) = nzuvw_n
       
@@ -247,22 +247,22 @@
 !-------------------------------------------------------------------
 !     EASTERN EDGE
 !-------------------------------------------------------------------
-# ifdef OBC_EAST
+# ifdef OBC_NBQ_XXX
       if (EASTERN_EDGE) then
         i = iendu_nh+1
 
 !........Corner (South-East):
-        if (SOUTHERN_EDGE) then
-          jstr_n = jstr_nh-1
-        else
-          jstr_n = jstr_nh
-        endif
+         if (SOUTH_INTER) then
+            jstr_n = jstr_nh-1
+         else
+            jstr_n = jstr_nh
+         endif
 !........Corner (North-East):
-        if (NORTHERN_EDGE) then
-          jend_n = jend_nh+1
-        else
-          jend_n = jend_nh
-        endif
+         if (NORTH_INTER) then
+            jend_n = jend_nh+1
+         else
+            jend_n = jend_nh
+         endif
 
         do j=jstr_n,jend_n
         do k=1,N                 
@@ -282,17 +282,17 @@
         enddo
 
       endif
-# endif /* OBC_EAST */
+# endif /* OBC_NBQ_XXX */
 
 !-------------------------------------------------------------------
 !     NORTHERN EDGE (tangential velocity)
 !-------------------------------------------------------------------
-# ifdef OBC_NORTH
+# ifdef OBC_NBQ_XXX
       if (NORTHERN_EDGE) then
         j = jend_nh+1
 
         do k=1,N    
-        do i=istru_nh,iendu_nh
+        do i=istru_nh-1,iendu_nh+1
 #  ifdef MASKING
           if (umask(i,j).ne.0) then
 #  endif
@@ -309,7 +309,7 @@
         enddo
 
       endif
-# endif /* OBC_NORTH */
+# endif /* OBC_NBQ_XXX */
 
       nequ_nh(6) = nzuvw_n
 
@@ -461,24 +461,24 @@
 !-------------------------------------------------------------------
 !     WESTERN EDGE (tangential velocity)
 !-------------------------------------------------------------------
-# ifdef OBC_WEST
+# ifdef OBC_NBQ_XXX
       if (WESTERN_EDGE) then
          i = istr_nh-1
 
 !........Corner (South-West):
-         if (SOUTHERN_EDGE) then
+         if (SOUTH_INTER) then
             jstr_n = jstrv_nh-1
          else
             jstr_n = jstrv_nh
          endif
 !........Corner (North-West):
-         if (NORTHERN_EDGE) then
+         if (NORTH_INTER) then
             jend_n = jendv_nh+1
          else
             jend_n = jendv_nh
          endif
 
-         do j=jstrv_n,jendv_n
+         do j=jstr_n,jend_n
          do k=1,N    
 #  ifdef MASKING
             if (vmask(i,j).ne.0) then
@@ -496,18 +496,17 @@
          enddo
 
       endif
-# endif /* OBC_WEST */
+# endif /* OBC_NBQ_XXX */
 
 !-------------------------------------------------------------------
 !     SOUTHERN EDGE
 !-------------------------------------------------------------------
-# ifdef OBC_SOUTH
+# ifdef OBC_NBQ_XXX
       if (SOUTHERN_EDGE) then
         j=jstrv_nh-1
 
-        do i=istr_nh,iend_nh
+        do i=istr_nh-1,iend_nh+1
         do k=1,N 
-
 #  ifdef MASKING
           if (vmask(i,j).ne.0) then
 #  endif
@@ -601,18 +600,18 @@
 !-------------------------------------------------------------------
 !     EASTERN EDGE
 !-------------------------------------------------------------------
-# ifdef OBC_EAST
+# ifdef OBC_NBQ_XXX
       if (EASTERN_EDGE) then
          i = iend_nh+1
 
 !........Corner (South-East):
-         if (SOUTHERN_EDGE) then
+         if (SOUTH_INTER) then
             jstr_n = jstrv_nh-1
          else
             jstr_n = jstrv_nh
          endif
 !........Corner (North-East):
-         if (NORTHERN_EDGE) then
+         if (NORTH_INTER) then
             jend_n = jendv_nh+1
          else
             jend_n = jendv_nh
@@ -636,16 +635,16 @@
          enddo
 
       endif
-# endif /* OBC_EAST */
+# endif /* OBC_NBQ_XXX */
 
 !-------------------------------------------------------------------
 !     NORTHERN EDGE
 !-------------------------------------------------------------------
-# ifdef OBC_NORTH 
+# ifdef OBC_NBQ_XXX
       if (NORTHERN_EDGE) then
         j=jendv_nh+1
 
-        do i=istr_nh,iend_nh
+        do i=istr_nh-1,iend_nh+1
         do k=1,N
 #  ifdef MASKING
           if (vmask(i,j).ne.0) then
@@ -663,7 +662,7 @@
         enddo
 
       endif
-# endif /* OBC_NORTH */
+# endif /* OBC_NBQ_XXX */
 
       neqv_nh(6) = nzuvw_n
 

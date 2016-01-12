@@ -156,7 +156,7 @@
 !  U-momentum open boundary conditions
 !
 # ifdef OBC_NBQ
-        call unbq_bc_tile (Istr,Iend,Jstr,Jend, WORK)
+!        call unbq_bc_tile (Istr,Iend,Jstr,Jend, WORK)
 # endif
 !
 !  Message passing: Send U (51) 
@@ -177,7 +177,7 @@
 !  V-momentum open boundary conditions
 !
 # ifdef OBC_NBQ
-        call vnbq_bc_tile (Istr,Iend,Jstr,Jend, WORK)
+!        call vnbq_bc_tile (Istr,Iend,Jstr,Jend, WORK)
 # endif
 !
 !  Message passing: Send V (52) 
