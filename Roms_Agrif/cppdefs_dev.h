@@ -72,7 +72,7 @@
 ======================================================================
 */ 
 #ifdef XIOS
-i# define MPI
+# define MPI
 # define MPI_COMM_WORLD ocean_grid_comm
 #endif
   
