@@ -212,7 +212,7 @@
 !
         lvar=lenstr(vname(1,indxTime))
         ierr=nf_def_var (ncid, vname(1,indxTime)(1:lvar),
-     &                            NF_REAL, 1, timedim, vidTime)
+     &                            NF_FOUT, 1, timedim, vidTime)
 !
 #ifndef AVRH
         lvar=lenstr(vname(2,indxTime))
@@ -238,13 +238,13 @@
      &                                vname(4,indxTime)(1:lvar))
 
         call nf_add_attribute(ncid, vidTime, indxTime, 5, 
-     &       NF_REAL, ierr)
+     &       NF_FOUT, ierr)
 !
 ! Time2.
 !
         lvar=lenstr(vname(1,indxTime2))
         ierr=nf_def_var (ncid, vname(1,indxTime2)(1:lvar),
-     &                            NF_REAL, 1, timedim, vidTime2)
+     &                            NF_FOUT, 1, timedim, vidTime2)
 !
 #ifndef AVRH
         lvar=lenstr(vname(2,indxTime2))
@@ -270,7 +270,7 @@
      &                                vname(4,indxTime2)(1:lvar))
 
         call nf_add_attribute(ncid, vidTime2, indxTime2, 5, 
-     &       NF_REAL, ierr)
+     &       NF_FOUT, ierr)
 
 ! Momentum diagnostics variables.
 ! -------- ----------- --------
@@ -290,7 +290,7 @@
 !
           lvar=lenstr(vname(1,indxMXadv+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMXadv+itrc-1)(1:lvar),
-     &                     NF_REAL, 4, r3dgrd, vidMXadv(itrc))
+     &                     NF_FOUT, 4, r3dgrd, vidMXadv(itrc))
 # ifndef AVRH
           lvar=lenstr(vname(2,indxMXadv+itrc-1))
           ierr=nf_put_att_text (ncid, vidMXadv(itrc), 'long_name',
@@ -309,13 +309,13 @@
      &                      lvar, vname(4,indxMXadv+itrc-1)(1:lvar))
 
         call nf_add_attribute(ncid, vidMXadv(itrc), indxMXadv+itrc-1, 5, 
-     &                        NF_REAL, ierr)
+     &                        NF_FOUT, ierr)
 !
 ! indxMYadv
 !
           lvar=lenstr(vname(1,indxMYadv+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMYadv+itrc-1)(1:lvar),
-     &                     NF_REAL, 4, r3dgrd, vidMYadv(itrc))
+     &                     NF_FOUT, 4, r3dgrd, vidMYadv(itrc))
 # ifndef AVRH
           lvar=lenstr(vname(2,indxMYadv+itrc-1))
           ierr=nf_put_att_text (ncid, vidMYadv(itrc), 'long_name',
@@ -334,13 +334,13 @@
      &                      lvar, vname(4,indxMYadv+itrc-1)(1:lvar))
 
         call nf_add_attribute(ncid, vidMYadv(itrc), indxMYadv+itrc-1, 5, 
-     &                        NF_REAL, ierr)
+     &                        NF_FOUT, ierr)
 !
 ! indxMVadv
 !
           lvar=lenstr(vname(1,indxMVadv+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMVadv+itrc-1)(1:lvar),
-     &                     NF_REAL, 4, r3dgrd, vidMVadv(itrc))
+     &                     NF_FOUT, 4, r3dgrd, vidMVadv(itrc))
 # ifndef AVRH
           lvar=lenstr(vname(2,indxMVadv+itrc-1))
           ierr=nf_put_att_text (ncid, vidMVadv(itrc), 'long_name',
@@ -359,13 +359,13 @@
      &                      lvar, vname(4,indxMVadv+itrc-1)(1:lvar))
 
         call nf_add_attribute(ncid, vidMVadv(itrc), indxMVadv+itrc-1, 5, 
-     &                        NF_REAL, ierr)
+     &                        NF_FOUT, ierr)
 !
 ! indxMCor
 !
           lvar=lenstr(vname(1,indxMCor+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMCor+itrc-1)(1:lvar),
-     &                     NF_REAL, 4, r3dgrd, vidMCor(itrc))
+     &                     NF_FOUT, 4, r3dgrd, vidMCor(itrc))
 # ifndef AVRH
           lvar=lenstr(vname(2,indxMCor+itrc-1))
           ierr=nf_put_att_text (ncid, vidMCor(itrc), 'long_name',
@@ -384,13 +384,13 @@
      &                      lvar, vname(4,indxMCor+itrc-1)(1:lvar))
 
         call nf_add_attribute(ncid, vidMCor(itrc), indxMCor+itrc-1, 5, 
-     &                        NF_REAL, ierr)
+     &                        NF_FOUT, ierr)
 !
 ! indxMPrsgrd
 !
           lvar=lenstr(vname(1,indxMPrsgrd+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMPrsgrd+itrc-1)(1:lvar),
-     &                     NF_REAL, 4, r3dgrd, vidMPrsgrd(itrc))
+     &                     NF_FOUT, 4, r3dgrd, vidMPrsgrd(itrc))
 # ifndef AVRH
           lvar=lenstr(vname(2,indxMPrsgrd+itrc-1))
           ierr=nf_put_att_text (ncid, vidMPrsgrd(itrc), 'long_name',
@@ -409,13 +409,13 @@
      &                      lvar, vname(4,indxMPrsgrd+itrc-1)(1:lvar))
 
         call nf_add_attribute(ncid, vidMPrsgrd(itrc),indxMPrsgrd+itrc-1, 
-     &                        5, NF_REAL, ierr)
+     &                        5, NF_FOUT, ierr)
 !
 ! indxMHmix
 !
           lvar=lenstr(vname(1,indxMHmix+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMHmix+itrc-1)(1:lvar),
-     &                     NF_REAL, 4, r3dgrd, vidMHmix(itrc))
+     &                     NF_FOUT, 4, r3dgrd, vidMHmix(itrc))
 # ifndef AVRH
           lvar=lenstr(vname(2,indxMHmix+itrc-1))
           ierr=nf_put_att_text (ncid, vidMHmix(itrc), 'long_name',
@@ -434,13 +434,13 @@
      &                      lvar, vname(4,indxMHmix+itrc-1)(1:lvar))
 
         call nf_add_attribute(ncid, vidMHmix(itrc), indxMHmix+itrc-1, 5, 
-     &                        NF_REAL, ierr)
+     &                        NF_FOUT, ierr)
 !
 !indxMVmix
 !
           lvar=lenstr(vname(1,indxMVmix+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMVmix+itrc-1)(1:lvar),
-     &                     NF_REAL, 4, r3dgrd, vidMVmix(itrc))
+     &                     NF_FOUT, 4, r3dgrd, vidMVmix(itrc))
 # ifndef AVRH
           lvar=lenstr(vname(2,indxMVmix+itrc-1))
           ierr=nf_put_att_text (ncid, vidMVmix(itrc), 'long_name',
@@ -459,14 +459,14 @@
      &                      lvar, vname(4,indxMVmix+itrc-1)(1:lvar))
 
         call nf_add_attribute(ncid, vidMVmix(itrc), indxMVmix+itrc-1, 5, 
-     &                        NF_REAL, ierr)
+     &                        NF_FOUT, ierr)
 #ifdef MRL_WCI
 !
 ! indxMvf
 !
           lvar=lenstr(vname(1,indxMvf+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMvf+itrc-1)(1:lvar),
-     &                     NF_REAL, 4, r3dgrd, vidMvf(itrc))
+     &                     NF_FOUT, 4, r3dgrd, vidMvf(itrc))
 # ifndef AVRH
           lvar=lenstr(vname(2,indxMvf+itrc-1))
           ierr=nf_put_att_text (ncid, vidMvf(itrc), 'long_name',
@@ -485,13 +485,13 @@
      &                      lvar, vname(4,indxMvf+itrc-1)(1:lvar))
 
         call nf_add_attribute(ncid, vidMvf(itrc), indxMvf+itrc-1, 5, 
-     &                        NF_REAL, ierr)
+     &                        NF_FOUT, ierr)
 !
 ! indxMbrk
 !
           lvar=lenstr(vname(1,indxMbrk+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMbrk+itrc-1)(1:lvar),
-     &                     NF_REAL, 4, r3dgrd, vidMbrk(itrc))
+     &                     NF_FOUT, 4, r3dgrd, vidMbrk(itrc))
 # ifndef AVRH
           lvar=lenstr(vname(2,indxMbrk+itrc-1))
           ierr=nf_put_att_text (ncid, vidMbrk(itrc), 'long_name',
@@ -510,13 +510,13 @@
      &                      lvar, vname(4,indxMbrk+itrc-1)(1:lvar))
 
         call nf_add_attribute(ncid, vidMbrk(itrc), indxMbrk+itrc-1, 5, 
-     &                        NF_REAL, ierr)
+     &                        NF_FOUT, ierr)
 !
 ! indxMStCo
 !
           lvar=lenstr(vname(1,indxMStCo+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMStCo+itrc-1)(1:lvar),
-     &                     NF_REAL, 4, r3dgrd, vidMStCo(itrc))
+     &                     NF_FOUT, 4, r3dgrd, vidMStCo(itrc))
 # ifndef AVRH
           lvar=lenstr(vname(2,indxMStCo+itrc-1))
           ierr=nf_put_att_text (ncid, vidMStCo(itrc), 'long_name',
@@ -535,13 +535,13 @@
      &                      lvar, vname(4,indxMStCo+itrc-1)(1:lvar))
 
         call nf_add_attribute(ncid, vidMStCo(itrc), indxMStCo+itrc-1, 5, 
-     &                        NF_REAL, ierr)
+     &                        NF_FOUT, ierr)
 !
 ! indxMVvf
 !
           lvar=lenstr(vname(1,indxMVvf+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMVvf+itrc-1)(1:lvar),
-     &                     NF_REAL, 4, r3dgrd, vidMVvf(itrc))
+     &                     NF_FOUT, 4, r3dgrd, vidMVvf(itrc))
 # ifndef AVRH
           lvar=lenstr(vname(2,indxMVvf+itrc-1))
           ierr=nf_put_att_text (ncid, vidMVvf(itrc), 'long_name',
@@ -560,13 +560,13 @@
      &                      lvar, vname(4,indxMVvf+itrc-1)(1:lvar))
 
         call nf_add_attribute(ncid, vidMVvf(itrc), indxMVvf+itrc-1, 5, 
-     &                        NF_REAL, ierr)
+     &                        NF_FOUT, ierr)
 !
 ! indxMPrscrt
 !
           lvar=lenstr(vname(1,indxMPrscrt+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMPrscrt+itrc-1)(1:lvar),
-     &                     NF_REAL, 4, r3dgrd, vidMPrscrt(itrc))
+     &                     NF_FOUT, 4, r3dgrd, vidMPrscrt(itrc))
 # ifndef AVRH
           lvar=lenstr(vname(2,indxMPrscrt+itrc-1))
           ierr=nf_put_att_text (ncid, vidMPrscrt(itrc), 'long_name',
@@ -585,13 +585,13 @@
      &                      lvar, vname(4,indxMPrscrt+itrc-1)(1:lvar))
 
         call nf_add_attribute(ncid, vidMPrscrt(itrc), indxMPrscrt+itrc-1, 5, 
-     &                        NF_REAL, ierr)
+     &                        NF_FOUT, ierr)
 !
 ! indxMsbk
 !
           lvar=lenstr(vname(1,indxMsbk+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMsbk+itrc-1)(1:lvar),
-     &                     NF_REAL, 4, r3dgrd, vidMsbk(itrc))
+     &                     NF_FOUT, 4, r3dgrd, vidMsbk(itrc))
 # ifndef AVRH
           lvar=lenstr(vname(2,indxMsbk+itrc-1))
           ierr=nf_put_att_text (ncid, vidMsbk(itrc), 'long_name',
@@ -610,13 +610,13 @@
      &                      lvar, vname(4,indxMsbk+itrc-1)(1:lvar))
 
         call nf_add_attribute(ncid, vidMsbk(itrc), indxMsbk+itrc-1, 5, 
-     &                        NF_REAL, ierr)
+     &                        NF_FOUT, ierr)
 !
 ! indxMbwf
 !
           lvar=lenstr(vname(1,indxMbwf+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMbwf+itrc-1)(1:lvar),
-     &                     NF_REAL, 4, r3dgrd, vidMbwf(itrc))
+     &                     NF_FOUT, 4, r3dgrd, vidMbwf(itrc))
 # ifndef AVRH
           lvar=lenstr(vname(2,indxMbwf+itrc-1))
           ierr=nf_put_att_text (ncid, vidMbwf(itrc), 'long_name',
@@ -635,13 +635,13 @@
      &                      lvar, vname(4,indxMbwf+itrc-1)(1:lvar))
 
         call nf_add_attribute(ncid, vidMbwf(itrc), indxMbwf+itrc-1, 5, 
-     &                        NF_REAL, ierr)
+     &                        NF_FOUT, ierr)
 !
 ! indxMfrc
 !
           lvar=lenstr(vname(1,indxMfrc+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMfrc+itrc-1)(1:lvar),
-     &                     NF_REAL, 4, r3dgrd, vidMfrc(itrc))
+     &                     NF_FOUT, 4, r3dgrd, vidMfrc(itrc))
 # ifndef AVRH
           lvar=lenstr(vname(2,indxMfrc+itrc-1))
           ierr=nf_put_att_text (ncid, vidMfrc(itrc), 'long_name',
@@ -660,14 +660,14 @@
      &                      lvar, vname(4,indxMfrc+itrc-1)(1:lvar))
 
         call nf_add_attribute(ncid, vidMfrc(itrc), indxMfrc+itrc-1, 5, 
-     &                        NF_REAL, ierr)
+     &                        NF_FOUT, ierr)
 #endif
 !
 ! Mrate indxMrate
 !
           lvar=lenstr(vname(1,indxMrate+itrc-1))
           ierr=nf_def_var (ncid, vname(1,indxMrate+itrc-1)(1:lvar),
-     &                     NF_REAL, 4, r3dgrd, vidMrate(itrc))
+     &                     NF_FOUT, 4, r3dgrd, vidMrate(itrc))
 # ifndef AVRH
           lvar=lenstr(vname(2,indxMrate+itrc-1))
           ierr=nf_put_att_text (ncid, vidMrate(itrc), 'long_name', 
@@ -686,7 +686,7 @@
      &                    lvar, vname(4,indxMrate+itrc-1)(1:lvar))
 
         call nf_add_attribute(ncid, vidMrate(itrc), indxMrate+itrc-1, 5, 
-     &                        NF_REAL, ierr)
+     &                        NF_FOUT, ierr)
 !
         endif
       enddo
