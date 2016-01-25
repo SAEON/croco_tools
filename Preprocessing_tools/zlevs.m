@@ -1,5 +1,4 @@
 function z = zlevs(h,zeta,theta_s,theta_b,hc,N,type,vtransform);
-vtransform
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %  function z = zlevs(h,zeta,theta_s,theta_b,hc,N,type,vtransform);
