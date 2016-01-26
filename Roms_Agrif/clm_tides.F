@@ -100,12 +100,6 @@
 #  ifdef MASKING
               Etide(i,j)=Etide(i,j)*rmask(i,j)
 #  endif
-#  ifdef WET_DRY
-!  Ensure total ssh forcing is above bed elevation
-              if (Etide(i,j) .lt. Dcrit(i,j)-h(i,j)-ssh(i,j)) then
-                Etide(i,j)=Dcrit(i,j)-h(i,j)-ssh(i,j)
-              endif
-#  endif 
             enddo
           enddo
         endif
@@ -117,20 +111,34 @@
       do j=JRANGE
         do i=IRANGE
           ssh(i,j)=ssh(i,j)+Etide(i,j)
+#   ifdef WET_DRY
+          if (ssh(i,j) .lt. Dcrit(i,j)-h(i,j)) then
+            ssh(i,j)=Dcrit(i,j)-h(i,j)
+          endif
+#   endif
         enddo
       enddo
 #  endif /* ZCLIMATOLOGY */
 !
 !  If appropriate, load tidal forcing into boundary arrays.
-!  Note: Interpolation is done at normal U point in preparation 
-!        for FLATHER conditions
+!  Note: for OBC_M2FLATHER only interpolation is done at normal
+!        U point in preparation for u2dbc and v2dbc routines
 !
 #  ifdef Z_FRC_BRY
 #   if defined OBC_WEST
       if (WESTERN_EDGE) then
         do j=JstrR,JendR
           zetabry_west(j)=zetabry_west(j)+
-     &                 0.5*(Etide(Istr-1,j)+Etide(Istr,j))
+#    ifdef OBC_M2FLATHER
+     &                    0.5*(Etide(Istr-1,j)+Etide(Istr,j))
+#    else
+     &                    Etide(Istr-1,j)
+#    endif
+#    ifdef WET_DRY
+          if (zetabry_west(j) .lt. Dcrit(Istr-1,j)-h(Istr-1,j)) then
+            zetabry_west(j)=Dcrit(Istr-1,j)-h(Istr-1,j)
+          endif
+#    endif
         enddo
       endif
 #   endif
@@ -138,23 +146,50 @@
       if (EASTERN_EDGE) then
         do j=JstrR,JendR
           zetabry_east(j)=zetabry_east(j)+
-     &                 0.5*(Etide(Iend,j)+Etide(Iend+1,j))
+#    ifdef OBC_M2FLATHER
+     &                    0.5*(Etide(Iend,j)+Etide(Iend+1,j))
+#    else
+     &                    Etide(Iend+1,j)
+#    endif
+#    ifdef WET_DRY
+          if (zetabry_east(j) .lt. Dcrit(Iend+1,j)-h(Iend+1,j)) then
+            zetabry_east(j)=Dcrit(Iend+1,j)-h(Iend+1,j)
+          endif
+#    endif
         enddo
       endif
 #   endif
-#  if defined OBC_SOUTH
+#   if defined OBC_SOUTH
       if (SOUTHERN_EDGE) then
         do i=IstrR,IendR
           zetabry_south(i)=zetabry_south(i)+
-     &                  0.5*(Etide(i,Jstr-1)+Etide(i,Jstr))
+#    ifdef OBC_M2FLATHER
+     &                     0.5*(Etide(i,Jstr-1)+Etide(i,Jstr))
+#    else
+     &                     Etide(i,Jstr-1)
+#    endif
+#    ifdef WET_DRY
+          if (zetabry_south(i) .lt. Dcrit(i,Jstr-1)-h(i,Jstr-1)) then
+            zetabry_south(i)=Dcrit(i,Jstr-1)-h(i,Jstr-1)
+          endif
+#    endif
         enddo
       endif
 #   endif
-#  if defined OBC_NORTH
+#   if defined OBC_NORTH
       if (NORTHERN_EDGE) then
         do i=IstrR,IendR
           zetabry_north(i)=zetabry_north(i)+
-     &                  0.5*(Etide(i,Jend)+Etide(i,Jend+1))
+#    ifdef OBC_M2FLATHER
+     &                     0.5*(Etide(i,Jend)+Etide(i,Jend+1))
+#    else
+     &                     Etide(i,Jend+1)
+#    endif
+#    ifdef WET_DRY
+          if (zetabry_north(i) .lt. Dcrit(i,Jend+1)-h(i,Jend+1)) then
+            zetabry_north(i)=Dcrit(i,Jend+1)-h(i,Jend+1)
+          endif
+#    endif
         enddo
       endif
 #   endif
