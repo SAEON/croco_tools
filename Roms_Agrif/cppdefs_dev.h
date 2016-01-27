@@ -85,6 +85,7 @@
 #define M2FILTER_POWER
 #undef  M2FILTER_COSINE
 #undef  M2FILTER_FLAT
+
 /*
 ======================================================================
    Activate barotropic pressure gradient response to the
@@ -93,8 +94,9 @@
 */
 #if defined SOLVE3D
 # define VAR_RHO_2D
-# if !defined NONLIN_EOS && !defined RVTK_DEBUG
-#  define RESET_RHO0
+# if !defined NONLIN_EOS && !defined RVTK_DEBUG &&\
+     !defined INNERSHELF
+#   define RESET_RHO0
 # endif
 #endif
 
@@ -319,6 +321,7 @@
 # undef   TS_VADV_WENO5
 # undef   TS_VADV_C2
 #endif
+
 /*
 ======================================================================
    SPONGE:  
@@ -326,7 +329,9 @@
 ======================================================================
 */
 #ifdef SPONGE
-# define SPONGE_GRID
+# ifndef INNERSHELF 
+#  define SPONGE_GRID
+# endif
 # define SPONGE_DIF2
 # define SPONGE_VIS2
 #endif
@@ -429,7 +434,11 @@
     numerical instability associated with reversing bottom flow
 ======================================================================
 */
-#define LIMIT_BSTRESS
+
+#ifndef INNERSHELF
+# define LIMIT_BSTRESS
+#endif
+
 #ifdef BBL
 # ifdef SEDIMENT
 #  undef  ANA_BSEDIM

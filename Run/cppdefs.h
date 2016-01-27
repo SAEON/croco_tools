@@ -384,14 +384,15 @@
 */
 # undef  OPENMP
 # undef  MPI
-# define GRAV_ADJ_SOLITON
-# define NBQ
+# undef  NBQ
+# ifdef NBQ
+#  define GRAV_ADJ_SOLITON
+# else
+#  define UV_VIS2
+# endif
 # define SOLVE3D
 # define NEW_S_COORD
 # define UV_ADV
-# ifndef NBQ
-#  define UV_VIS2
-# endif
 # define TS_HADV_WENO5
 # define TS_VADV_WENO5
 # define ANA_GRID
