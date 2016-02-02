@@ -45,15 +45,6 @@ try
         [varname, xtype, dimid, nattvar] = netcdf.inqVar(ncid, varid);
         varname2=varname;
         varname2=strrep(varname, '-', '_2d');
-        if strcmp(varname2,'Upward_Long_2dWave_Rad_Flux');
-           varname2='Upward_Long_2dWave_Rad_Flux_surface';
-        end
-        if strcmp(varname2,'Downward_Short_2dWave_Rad_Flux');
-           varname2='Downward_Short_2dWave_Rad_Flux_surface';
-        end
-        if strcmp(varname2,'Upward_Short_2dWave_Rad_Flux');
-             varname2='Upward_Short_2dWave_Rad_Flux_surface';
-        end
         for jj= 1:nattvar
             attid=jj-1;
             attname = netcdf.inqAttName(ncid,varid,attid);
