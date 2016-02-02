@@ -406,7 +406,16 @@ QSCAT_dir        = [FORC_DATA_DIR,'QSCAT_',ROMS_config,'/']; % QSCAT data direct
 QSCAT_frc_prefix = [frc_prefix,'_QSCAT_'];                   %  generic file name
                                                              %  for interannual simulations
 QSCAT_clim_file  = [DATADIR,'QuikSCAT_clim/',...             % QuikSCAT climatology file
-                    'roms_SCOW_month_clim_1999_2009.nc'];   % for make_QSCAT_clim.
+                    'roms_SCOW_month_clim_1999_2009.nc'];    % for make_QSCAT_clim.
+%
+%--------------------------------------------------
+%  Options for make_ECMWF and make_ECMWF_daily  
+%--------------------------------------------------
+%
+ECMWF_dir= [FORC_DATA_DIR,'ECMWF_',ROMS_config,'/'];    % ECMWF data directory
+My_ECMWF_dir=[FORC_DATA_DIR,'ERAI/'];                 % ERA-I data downloaded with python script
+itolap_ecmwf = 3;                                      % 3 records for daily  ECMWF
+% 
 %
 %-----------------------
 % Options for make_OGCM 

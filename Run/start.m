@@ -44,6 +44,7 @@ addpath([mypath,'mask'])
 %
 addpath([mypath,'Aforc_NCEP'])
 addpath([mypath,'Aforc_QuikSCAT'])
+addpath([mypath,'Aforc_ECMWF'])
 addpath([mypath,'Diagnostic_tools'])
 addpath([mypath,'Forecast_tools'])
 addpath([mypath,'Nesting_tools'])
