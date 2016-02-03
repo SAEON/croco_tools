@@ -46,7 +46,7 @@
 #ifdef SOLVE3D
      &      , r3dgrd(4),  u3dgrd(4), v3dgrd(4), w3dgrd(4), itrc
 #endif
-#ifdef WKB_WWAVE
+#if defined WKB_WWAVE || defined OW_COUPLING
      &      , iwkb
 #endif
 #include "param.h"
@@ -86,7 +86,7 @@
 # ifdef MOVING_BATHY
 #  define vidHm hisHm
 # endif
-# ifdef WKB_WWAVE
+# if defined WKB_WWAVE || defined OW_COUPLING
 #  define vidWKB hisWKB
 # endif
 # if defined MRL_WCI
@@ -188,7 +188,7 @@
 # ifdef MOVING_BATHY
 #  define vidHm avgHm
 # endif
-# ifdef WKB_WWAVE
+# if defined WKB_WWAVE || defined OW_COUPLING 
 #  define vidWKB avgWKB
 # endif
 # if defined MRL_WCI
@@ -1637,7 +1637,7 @@
 !
 #endif /* SOLVE3D */
 
-#ifdef WKB_WWAVE
+#if defined WKB_WWAVE || defined OW_COUPLING
 !
 ! WKB wave model prognostic/diagnostic variables in XI/ETA direction.
 ! ==================================================================
@@ -2526,7 +2526,7 @@
 
 #endif /* SOLVE3D */
 
-#ifdef WKB_WWAVE
+#if defined WKB_WWAVE || defined OW_COUPLING
 !
 ! Wave action density, wavenumber in XI/ETA directions
 !
@@ -2776,7 +2776,7 @@
 # undef vidShflx_sen
 #endif
 #undef vidSST_skin
-#if defined WKB_WWAVE
+#if defined WKB_WWAVE || defined OW_COUPLING
 # undef vidWKB
 #endif
 #if defined MRL_WCI

@@ -43,8 +43,8 @@
         call get_psource_ts
 # endif
 #endif
-
-#ifndef OA_COUPLING
+!
+#ifndef OW_COUPLING
 !
 !---------------------------------------------------------------
 ! Initial wave periode, amplitude, direction and dissipation
@@ -58,6 +58,9 @@
       call get_wwave
 #  endif
 # endif
+#endif /* !OW_COUPLING */
+!
+#ifndef OA_COUPLING
 !
 !---------------------------------------------------------------
 ! Kinematic surface momentum flux (wind stress) components
@@ -581,9 +584,11 @@ C$OMP MASTER
       call ana_psource_tile (Istr,Iend,Jstr,Jend)
 C$OMP END MASTER
 #endif
-#if (defined BBL || defined MRL_WCI) &&\
+#ifndef OW_COUPLING
+# if (defined BBL || defined MRL_WCI) &&\
      (!defined ANA_WWAVE && !defined WKB_WWAVE)
       call set_wwave_tile(Istr,Iend,Jstr,Jend)  
+# endif
 #endif
 
       return

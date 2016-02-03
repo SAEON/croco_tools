@@ -79,7 +79,7 @@
         IF (.Not.MPIisinitialize) THEN
 #  if defined XIOS
            Call xios_initialize( "roms",return_comm=MPI_COMM_WORLD)
-#  elif defined OA_COUPLING
+#  elif defined OA_COUPLING || defined OW_COUPLING
            Call cpl_prism_init
 #  else
            Call MPI_Init(ierr)

@@ -148,6 +148,8 @@
       parameter (LLm0=83,   MMm0=85,   N=32)   ! BENGUELA_HR
 #  elif defined  BENGUELA_VHR
       parameter (LLm0=167,  MMm0=170,  N=32)   ! BENGUELA_VHR
+#  elif defined  BENGUELA_HR_OA
+      parameter (LLm0=73, MMm0=60,  N=32)      ! BENGUELA_HR-OA
 #  else
       parameter (LLm0=94,   MMm0=81,   N=40)
 #  endif

@@ -14,7 +14,7 @@
       common /cpl_comm/ ocean_grid_comm
 !$AGRIF_END_DO_NOT_TREAT 
 
-#ifdef OA_COUPLING  
+#if defined OA_COUPLING || defined OW_COUPLING 
       INTEGER :: comp_id                       ! component identification	
       CHARACTER(len=6)   :: comp_name = 'roms3d'
 

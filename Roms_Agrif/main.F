@@ -88,7 +88,7 @@
 !----------------------------------------------------------------------
 !
 #ifdef MPI
-# if (!defined AGRIF && !defined OA_COUPLING)
+# if (!defined AGRIF && !defined OA_COUPLING && !defined OW_COUPLING)
       call MPI_Init (ierr)
 # endif   
 !
@@ -99,6 +99,8 @@
       call xios_initialize( "roms",return_comm=MPI_COMM_WORLD )
 # elif (defined OA_COUPLING && !defined AGRIF)
       call cpl_prism_init  ! If AGRIF --> call cpl_prism_init in zoom.F
+# elif (defined OW_COUPLING && !defined AGRIF)
+      call cpl_prism_init  ! In AGRIF case, cpl_prism_init is in zoom.F
 # elif defined AGRIF
       call Agrif_MPI_Init(MPI_COMM_WORLD)
 # endif
@@ -771,7 +773,7 @@ C$OMP PARALLEL DO PRIVATE(tile)            ! Stop timers and
 !     exe_time = start_time2 - start_time1
 !     if(mynode.eq.0) print*,'exe_time =',exe_time
 
-# ifdef OA_COUPLING
+# if defined OA_COUPLING || defined OW_COUPLING
       call prism_terminate_proto(ierr)       ! Finalize OASIS3
 # elif defined XIOS
                              ! MPI finalize done by XIOS, XIOS+OASIS not coded

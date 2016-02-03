@@ -20,7 +20,7 @@
 !     !----------------------------------------------------------------------
       
 #include "cppdefs.h"
-#ifdef OA_COUPLING
+#if defined OA_COUPLING || defined OW_COUPLING
 #ifdef OA_MCT
       USE mod_prism             ! OASIS3 prism module
 #else 
@@ -37,9 +37,12 @@
 !
 !     1.0. Get rcv_field from OASIS
       iok = 0
+!      print *,'name of received field = ',prcv_name
+!      print *,'received time = ',rcvtime
       call prism_get_proto(prcv_id, rcvtime,
      &        rcv_field(1:Lmmpi,1:Mmmpi), comp_ierror)
 
+!      print *,'comp_ierror=',comp_ierror
       if ( (comp_ierror == 3) .or. 
      &     (comp_ierror == 10) .or.  
      &     (comp_ierror == 11) .or. 
