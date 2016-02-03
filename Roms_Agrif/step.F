@@ -34,12 +34,13 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #ifdef SOLVE3D   
  
-#ifdef OA_COUPLING
+#if defined OA_COUPLING || defined OW_COUPLING
 !--Get phase of OASIS3  
        if ((iif==-1).and.(oasis_time < oasis_runtime)) then 
-         call cpl_prism_put (oasis_time)        
+         print *, 'oasis time before get = ', oasis_time
+!         call cpl_prism_put (oasis_time) ! moved to the end of the step       
          call cpl_prism_get (oasis_time)
-         oasis_time = oasis_time + dt    
+!         oasis_time = oasis_time + dt   ! moved to the end of the step 
        endif 
 #endif /* OA_COUPLING */
 
@@ -74,6 +75,14 @@ C$OMP END PARALLEL
         iif = -1
         nbstep3d = nbstep3d + 1
       endif
+#if defined OA_COUPLING || defined OW_COUPLING
+!--Get phase of OASIS3  
+       if ((iif==-1).and.(oasis_time < oasis_runtime)) then
+         oasis_time = oasis_time + dt
+         print *, 'oasis time before put = ', oasis_time
+         call cpl_prism_put (oasis_time)        
+       endif
+#endif /* OA_COUPLING */
 #endif
       return
       end

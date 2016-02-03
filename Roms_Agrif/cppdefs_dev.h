@@ -65,6 +65,23 @@
 
 /* 
 ======================================================================
+   Set OW COUPLING options:
+   Define MPI, select OA_MCT    
+   Change the generic name of MPI communicator MPI_COMM_WORLD
+   to OASIS-MCT local communicator
+======================================================================
+*/
+#ifdef OW_COUPLING
+# undef  OPENMP
+# define MPI
+# define OA_MCT
+# define MPI_COMM_WORLD ocean_grid_comm
+# undef  OA_GRID_UV
+# undef  WKB_WWAVE
+#endif
+
+/* 
+======================================================================
    Set XIOS options:    
    Activate MPI
    Change the generic name of MPI communicator MPI_COMM_WORLD
@@ -378,7 +395,7 @@
 # undef  WAVE_BREAK_TG86A
 # undef  WAVE_BREAK_R93
 
-# if !defined WKB_WWAVE && !defined ANA_WWAVE
+# if !defined WKB_WWAVE && !defined ANA_WWAVE && !defined OW_COUPLING
 #  define WAVE_OFFLINE
 #  undef  WAVE_ROLLER
 # endif

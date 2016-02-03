@@ -240,7 +240,7 @@
           kD(i,j) =kh
           kw(i,j) =kh*inv_d(i,j)
 
-#  ifdef ANA_WWAVE
+#  if defined ANA_WWAVE || defined OW_COUPLING
 #   ifdef WAVE_BREAK_TG86
           cff=3.0/16.0*sqrt(pi)*g*(0.8**3)/(0.4**4)/(2.0*pi)
           Eb(i,j)=cff/(Dstp(i,j)**5)*(Hrms**7)  ! ep_b/rho/sigma

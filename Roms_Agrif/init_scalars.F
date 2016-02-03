@@ -1704,6 +1704,53 @@ CR      write(stdout,'(1x,A,I3)') 'indxEPR =',indxEPR
       vname(1,indxEPR)='epr                                      '
       vname(2,indxEPR)='roller dissipation, epsilon_r            '
       vname(3,indxEPR)='meter^3/second^3                         '
+
+#elif defined OW_COUPLING 
+CR      write(stdout,'(1x,A,I3)') 'indxHRM =',indxHRM
+      vname(1,indxHRM)='whrm                                     '
+      vname(2,indxHRM)='RMS wave height                          '
+      vname(3,indxHRM)='meter                                    '
+
+CR      write(stdout,'(1x,A,I3)') 'indxFRQ =',indxFRQ
+      vname(1,indxFRQ)='wfrq                                     '
+      vname(2,indxFRQ)='wave frequency                           '
+      vname(3,indxFRQ)='rad/second                               '
+
+CR      write(stdout,'(1x,A,I3)') 'indxWAC =',indxWAC
+      vname(1,indxWAC)='wac                                      '
+      vname(2,indxWAC)='wave action                              '
+      vname(3,indxWAC)='meter^3 second^-1                        '
+
+CR      write(stdout,'(1x,A,I3)') 'indxWKX =',indxWKX
+      vname(1,indxWKX)='wdrx                                     '
+      vname(2,indxWKX)='cosine wave direction                    '
+      vname(3,indxWKX)='ND                                       '
+
+CR      write(stdout,'(1x,A,I3)') 'indxWKE =',indxWKE
+      vname(1,indxWKE)='wdre                                     '
+      vname(2,indxWKE)='sine wave direction                      '
+      vname(3,indxWKE)='ND                                       '
+
+CR      write(stdout,'(1x,A,I3)') 'indxEPB =',indxEPB
+      vname(1,indxEPB)='wdsp                                     '
+      vname(2,indxEPB)='breaking dissipation rate, epsilon_b     '
+      vname(3,indxEPB)='meter^3/second^3                         '
+
+CR      write(stdout,'(1x,A,I3)') 'indxEPD =',indxEPD
+      vname(1,indxEPD)='wdrg                                     '
+      vname(2,indxEPD)='frictional dissipation rate, epsilon_d   '
+      vname(3,indxEPD)='meter^3/second^3                         '
+
+CR      write(stdout,'(1x,A,I3)') 'indxWAR =',indxWAR
+      vname(1,indxWAR)='war                                      '
+      vname(2,indxWAR)='wave action of roller component          '
+      vname(3,indxWAR)='meter^3 second^-1                        '
+
+CR      write(stdout,'(1x,A,I3)') 'indxEPR =',indxEPR
+      vname(1,indxEPR)='rdsp                                     '
+      vname(2,indxEPR)='roller dissipation, epsilon_r            '
+      vname(3,indxEPR)='meter^3/second^3                         ' 
+
 #endif
 
 #ifdef MRL_WCI

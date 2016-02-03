@@ -417,7 +417,7 @@
 ! wbst | MRL/BKPP| frictional dissipation stress (e_d k/sigma) [m2/s2]
 !--------------------------------------------------------------------
 
-#if defined BBL || defined MRL_WCI 
+#if defined BBL || defined MRL_WCI || defined OW_COUPLING 
       real wfrq(GLOBAL_2D_ARRAY)
       common /forces_wfrq/wfrq
 #endif
@@ -428,7 +428,7 @@
       common /forces_uorb/uorb /forces_vorb/vorb
 #endif   /* BBL */
 
-#if defined MRL_WCI 
+#if defined MRL_WCI || defined OW_COUPLING
       real whrm(GLOBAL_2D_ARRAY)
       real wdsp(GLOBAL_2D_ARRAY)
       real wdrg(GLOBAL_2D_ARRAY)
@@ -565,7 +565,7 @@
       real Eb  (GLOBAL_2D_ARRAY)
       common /wwf_wwhrm/wwhrm /wwf_wwdrx/wwdrx /wwf_wwdre/wwdre
      &       /wwf_wweb/wweb /forces_Eb/Eb
-#   ifdef WAVE_OFFLINE
+#   if defined WAVE_OFFLINE || defined OW_COUPLING
       real wved(GLOBAL_2D_ARRAY)
       real wwed(GLOBAL_2D_ARRAY,2)
       common /forces_wved/wved /wwf_wwed/wwed

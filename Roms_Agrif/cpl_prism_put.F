@@ -18,7 +18,7 @@
 !     !
 !     !----------------------------------------------------------------------
 #include "cppdefs.h"
-#ifdef OA_COUPLING
+#if defined OA_COUPLING || defined OW_COUPLING
 # ifdef OA_MCT
       USE mod_prism             ! OASIS3 prism module
 # else
@@ -34,6 +34,7 @@
 # include "param.h"
 # include "scalars.h"
 # include "ocean3d.h"
+# include "ocean2d.h"
 # include "mpi_roms.h"
       
       INTEGER    :: sndtime, i, level
@@ -57,6 +58,7 @@
       endif
 !      
       DO i = 1, ksnd
+!-------------------------------------------------
          if (ssnd_clname(i)=='SRMSSTV'//clevel) then
             snd_field = dble(t(1:Lmmpi,1:Mmmpi,N,nnew,itemp) + 273.15 )         
             call prism_put_proto(ssnd_nid(i), sndtime, 
@@ -70,6 +72,52 @@
      & ssnd_clname(i),' sent at time ',sndtime
             endif
          endif
+!-------------------------------------------------
+!        ! ssh : sea surface height (m)
+         if (ssnd_clname(i)=='SRMSSHV'//clevel) then
+            snd_field = dble(zeta(1:Lmmpi,1:Mmmpi,nnew))
+            call prism_put_proto(ssnd_nid(i), sndtime,
+     &        snd_field, comp_ierror)
+            if ( (comp_ierror == 4) .or.
+     &           (comp_ierror == 5) .or.
+     &           (comp_ierror == 6) .or.
+     &           (comp_ierror == 8) .or.
+     &           (comp_ierror == 9) ) then
+           MPI_master_only write(*,*) 'CPL-ROMS : ',
+     & ssnd_clname(i),' sent at time ',sndtime
+            endif
+         endif
+!-------------------------------------------------
+!        ! uz : sea surface zonal currents (m.s-1)
+         if (ssnd_clname(i)=='SRM_UZV'//clevel) then
+            snd_field = dble(u(1:Lmmpi,1:Mmmpi,N,nnew))
+            call prism_put_proto(ssnd_nid(i), sndtime,
+     &        snd_field, comp_ierror)
+            if ( (comp_ierror == 4) .or.
+     &           (comp_ierror == 5) .or.
+     &           (comp_ierror == 6) .or.
+     &           (comp_ierror == 8) .or.
+     &           (comp_ierror == 9) ) then
+           MPI_master_only write(*,*) 'CPL-ROMS : ',
+     & ssnd_clname(i),' sent at time ',sndtime
+            endif
+         endif
+!-------------------------------------------------
+!        ! vz : sea surface meridional currents (m.s-1)
+         if (ssnd_clname(i)=='SRM_VZV'//clevel) then
+            snd_field = dble(v(1:Lmmpi,1:Mmmpi,N,nnew))
+            call prism_put_proto(ssnd_nid(i), sndtime,
+     &        snd_field, comp_ierror)
+            if ( (comp_ierror == 4) .or.
+     &           (comp_ierror == 5) .or.
+     &           (comp_ierror == 6) .or.
+     &           (comp_ierror == 8) .or.
+     &           (comp_ierror == 9) ) then
+           MPI_master_only write(*,*) 'CPL-ROMS : ',
+     & ssnd_clname(i),' sent at time ',sndtime
+            endif
+         endif
+!-------------------------------------------------
       END DO
 #else 
 !---------------------------------------------------------------------------------------

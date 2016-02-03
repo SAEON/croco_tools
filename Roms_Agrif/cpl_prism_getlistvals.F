@@ -22,7 +22,7 @@
       
 #include "cppdefs.h"
 
-#ifdef OA_COUPLING
+#if defined OA_COUPLING || defined OW_COUPLING
 #ifdef AGRIF
       use Agrif_Util
 #endif
@@ -46,6 +46,7 @@
       level=0
 #endif
       write(clevel,'(i1.1)') level
+!      print *,'getlistvals'
 !
 !     Initialisation
       krcvn = 0
@@ -98,72 +99,134 @@
         endif
 !     
 !     5. Test field codes
-        cvarcode=TRIM(ADJUSTL('SRMSSTV'//clevel))
-        if (SNDCODE.eq.cvarcode) then
+!------------------
 !     Variables sent by ROMS
 !-----------------
 !     SST
 !------------------
+        cvarcode=TRIM(ADJUSTL('SRMSSTV'//clevel))
+        if (SNDCODE.eq.cvarcode) then
           ksndn=ksndn+1
           psnd_clname(ksndn)=cvarcode
           goto 111
         endif
-!     
+!------------------    
+!     add OW_COUPLING
+!------------------
+!     SSH
+!------------------
+        cvarcode=TRIM(ADJUSTL('SRMSSHV'//clevel))
+        if (SNDCODE.eq.cvarcode) then
+          ksndn=ksndn+1
+          psnd_clname(ksndn)=cvarcode
+          goto 111
+        endif
+!-----------------
+!     u
+!------------------     
+        cvarcode=TRIM(ADJUSTL('SRM_UZV'//clevel))
+        if (SNDCODE.eq.cvarcode) then
+          ksndn=ksndn+1
+          psnd_clname(ksndn)=cvarcode
+          goto 111
+        endif
+!-----------------
+!     v
+!------------------
+        cvarcode=TRIM(ADJUSTL('SRM_VZV'//clevel))
+        if (SNDCODE.eq.cvarcode) then
+          ksndn=ksndn+1
+          psnd_clname(ksndn)=cvarcode
+          goto 111
+        endif
+!------------------
+!     Variable received by ROMS
+!------------------
+!     Evaporation-Precipitation
+!------------------ 
         cvarcode=TRIM(ADJUSTL('RRMEVPR'//clevel))
         if (RCVCODE.eq.cvarcode) then
-!------------------
-!     Variable received by ROMS
-!     Evaporation-Precipitation
-!------------------
           krcvn=krcvn+1
           prcv_clname(krcvn)=cvarcode
           goto 111
         endif
-!     
+!------------------
+!     Solar heat flux
+!------------------     
         cvarcode=TRIM(ADJUSTL('RRMSRFL'//clevel))
         if (RCVCODE.eq.cvarcode) then
-!------------------
-!     Variable received by ROMS
-!     Evaporation-Precipitation
-!------------------
           krcvn=krcvn+1
           prcv_clname(krcvn)=cvarcode
           goto 111
         endif
-!     
+!------------------
+!     Total heat flux
+!------------------     
         cvarcode=TRIM(ADJUSTL('RRMSTFL'//clevel))
         if (RCVCODE.eq.cvarcode) then
-!------------------
-!     Variable received by ROMS
-!     Evaporation-Precipitation
-!------------------
           krcvn=krcvn+1
           prcv_clname(krcvn)=cvarcode
           goto 111
         endif
-!     
+!------------------
+!     wind stress : x-component
+!------------------     
         cvarcode=TRIM(ADJUSTL('RRMTAUX'//clevel))
         if (RCVCODE.eq.cvarcode) then
-!------------------
-!     Variable received by ROMS
-!     Evaporation-Precipitation
-!------------------
           krcvn=krcvn+1
           prcv_clname(krcvn)=cvarcode
           goto 111
         endif
-!     
+!------------------
+!     wind stress : y-component
+!------------------      
         cvarcode=TRIM(ADJUSTL('RRMTAUY'//clevel))
         if (RCVCODE.eq.cvarcode) then
-!------------------
-!     Variable received by ROMS
-!     Evaporation-Precipitation
-!------------------
           krcvn=krcvn+1
           prcv_clname(krcvn)=cvarcode
           goto 111
         endif
-!     
+!------------------
+!     add OW_COUPLING
+!------------------
+!     mean wave period
+!------------------
+        cvarcode=TRIM(ADJUSTL('RRMT0M1'//clevel))
+        if (RCVCODE.eq.cvarcode) then
+          krcvn=krcvn+1
+          prcv_clname(krcvn)=cvarcode
+          goto 111
+        endif
+!------------------
+!     wave height
+!------------------     
+        cvarcode=TRIM(ADJUSTL('RRM__HS'//clevel))
+        if (RCVCODE.eq.cvarcode) then
+          krcvn=krcvn+1
+          prcv_clname(krcvn)=cvarcode
+          goto 111
+        endif
+!------------------
+!     cos of mean wave direction
+!------------------     
+        cvarcode=TRIM(ADJUSTL('RRMCDIR'//clevel))
+        if (RCVCODE.eq.cvarcode) then
+          krcvn=krcvn+1
+          prcv_clname(krcvn)=cvarcode
+          goto 111
+        endif
+!------------------
+!     sin of mean wave direction
+!------------------     
+        cvarcode=TRIM(ADJUSTL('RRMSDIR'//clevel))
+        if (RCVCODE.eq.cvarcode) then
+          krcvn=krcvn+1
+          prcv_clname(krcvn)=cvarcode
+          goto 111
+        endif
+!------------------     
+!   end add OW_COUPLING  
+!------------------
  111    CONTINUE
         
       enddo	
