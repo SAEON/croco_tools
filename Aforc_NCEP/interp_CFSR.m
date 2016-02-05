@@ -48,7 +48,7 @@ prate(abs(prate)<1.e-4)=0;
 %
 % Downward solar shortwave
 %
-vname='Downward_Short-Wave_Rad_Flux';
+vname='Downward_Short-Wave_Rad_Flux_surface';
 nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
 dswrf=squeeze(nc{vname}(tin,:,:));
 close(nc);
@@ -56,7 +56,7 @@ dswrf=get_missing_val(lon1,lat1,mask1.*dswrf,nan,Roa,nan);
 %  
 % Upward solar shortwave
 % 
-vname='Upward_Short-Wave_Rad_Flux';
+vname='Upward_Short-Wave_Rad_Flux_surface';
 nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
 uswrf=squeeze(nc{vname}(tin,:,:));
 close(nc);
@@ -89,7 +89,7 @@ dlwrf=get_missing_val(lon1,lat1,mask1.*dlwrf,nan,Roa,nan);
 %
 %  5.2 get the upward longwave flux [W/m^2]
 %
-vname='Upward_Long-Wave_Rad_Flux';
+vname='Upward_Long-Wave_Rad_Flux_surface';
 nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
 ulwrf=squeeze(nc{vname}(tin,:,:));
 close(nc);
