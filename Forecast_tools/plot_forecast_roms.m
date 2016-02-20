@@ -89,15 +89,17 @@ if plot_fig_1,
 %
 % 1: wind
 %
+ disp('PLot winds ...')
  itime=0;
  cmin=0; cint=5; cmax=30; cff_wnd=.4; % winds
  [LON,LAT]=meshgrid([lonmin:1/3:lonmax],[latmin:1/3:latmax]);
  nc=netcdf(frcname);
  smstime=nc{'sms_time'}(:);
  smstime0=floor(now)-datenum(Yorig,1,1)-1/24-1;  %midday
- for tndx=1:6;
+ for tndx=1:nx;
   smstime0=smstime0+1;
   itime=itime+1;
+  disp(['Day ',num2str(itime)])
   outname=['WIND',num2str(itime)];
   close all
   figure('position',[5 5 1000 600]);
@@ -167,10 +169,12 @@ if plot_fig_2,
 %
 % 2: Surface currents
 %
+disp('PLot surface currents ...')
 itime=0;
 cmin=0; cint=0.1; cmax=2.0; cff_cur=2; 
-for tndx=1:nx
+for tndx=hdays+1:nx+hdays
   itime=itime+1;
+  disp(['Day ',num2str(itime)])
   outname=['FLOW',num2str(itime)];
   close all
   figure('position',[5 5 1000 600]);
@@ -253,6 +257,7 @@ if plot_fig_3,
 %
 % 3: SST and Surface Currents
 %
+disp('PLot SST and surface currents ...')
 itime=0;
 nc=netcdf(avgname);
 sst=mask.*squeeze(nc{'temp'}(1,N,:,:));
@@ -261,8 +266,9 @@ cmin=floor(min(min(sst)));
 cmax= ceil(max(max(sst)));
 cint=1; cff_cur=1.5;
 %cmin=13; cmax=20;
-for tndx=1:nx
+for tndx=hdays+1:nx+hdays
   itime=itime+1;
+  disp(['Day ',num2str(itime)])
   outname=['SST',num2str(itime)];
   close all
   figure('position',[5 5 1000 600]);
@@ -328,10 +334,12 @@ if plot_fig_4,
 %
 % 4: Sea Surface Height
 %
+disp('PLot SSH ...')
 itime=0;
 cmin=-50; cint=5; cmax=50;
-for tndx=1:nx
+for tndx=hdays+1:nx+hdays
   itime=itime+1;
+  disp(['Day ',num2str(itime)])
   outname=['SSH',num2str(itime)];
   close all
   figure('position',[5 5 1000 600]);
@@ -381,10 +389,12 @@ if plot_fig_5,
 %
 % 5: Surface Boundary Layer Depth
 %
+disp('PLot HBL ...')
 itime=0;
 cmin=0; cint=10; cmax=100;
-for tndx=1:nx
+for tndx=hdays+1:nx+hdays
   itime=itime+1;
+  disp(['Day ',num2str(itime)])
   outname=['HBL',num2str(itime)];
   close all
   figure('position',[5 5 1000 600]);
