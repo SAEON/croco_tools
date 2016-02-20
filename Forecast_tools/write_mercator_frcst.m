@@ -1,5 +1,5 @@
-function extract_mercator_frcst_python(FRCST_dir,FRCST_prefix,url,...
-                      time,Yorig)
+function write_mercator_frcst(FRCST_dir,FRCST_prefix,url,...
+                              mercator_type,vars,time,Yorig)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Extract a subset from Marcator using python motu client (cls)
@@ -30,23 +30,34 @@ function extract_mercator_frcst_python(FRCST_dir,FRCST_prefix,url,...
 %
 %  Updated    9-Sep-2006 by Pierrick Penven
 %  Updated    19-May-2011 by Andres Sepulveda & Gildas Cambon
+%  Updated    12-Feb-2016 by P. Marchesiello
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-disp(['    Download MERCATOR'])
+disp(['    writing MERCATOR file'])
+%
+% Get grid and time frame
 %
 nc = netcdf(url);
-lon = nc{'longitude'}(:);
-lat = nc{'latitude'}(:);
-depth = nc{'depth'}(:);
-time = nc{'time'}(:);
-time = time / 24 + datenum(1950,1,1) - datenum(Yorig,1,1);
-
+if mercator_type==1,
+  lon = nc{'longitude'}(:);
+  lat = nc{'latitude'}(:);
+  depth = nc{'depth'}(:);
+  time = nc{'time_counter'}(:);
+  time = time / 24 + datenum(1950,1,1) - datenum(Yorig,1,1);
+else
+  lon = nc{'lon'}(:);
+  lat = nc{'lat'}(:);
+  depth = nc{'depth'}(:);
+  time = nc{'time'}(:);
+  time = time / 86400 + datenum(2014,3,16) - datenum(Yorig,1,1);
+end
+%
 % Get SSH
 %
 %missval = -32767;
 disp('    ...SSH')
-%vname='sea_surface_height_above_geoid';
-vname='ssh';
+vname=sprintf('%s',vars{1});
 ncc=nc{vname};
 ssh=ncc(:);
 missval=ncc.FillValue_(:);
@@ -59,8 +70,7 @@ ssh = ssh.*scale_factor + add_offset;
 % Get U
 %
 disp('    ...U')
-%vname='sea_water_x_velocity';
-vname='u';
+vname=sprintf('%s',vars{2});
 ncc=nc{vname};
 u=ncc(:);
 missval=ncc.FillValue_(:);
@@ -72,8 +82,7 @@ u = u.*scale_factor + add_offset;
 % Get V
 %
 disp('    ...V')
-%vname='sea_water_y_velocity';
-vname='v';
+vname=sprintf('%s',vars{3});
 ncc=nc{vname};
 v=ncc(:);
 missval=ncc.FillValue_(:);
@@ -85,23 +94,20 @@ v = v.*scale_factor + add_offset;
 % Get TEMP
 %
 disp('    ...TEMP')
-%vname='sea_water_potential_temperature';
-vname='temperature';
+vname=sprintf('%s',vars{4});
 ncc=nc{vname};
 temp=ncc(:);
 missval=ncc.FillValue_(:);
 scale_factor=ncc.scale_factor(:);
 add_offset=ncc.add_offset(:);
 ktoc=272.15;
-
 temp(temp<=missval)=NaN;
 temp = temp.*scale_factor + add_offset - ktoc;
 %
 % Get SALT
 %
 disp('    ...SALT')
-%vname='sea_water_salinity';
-vname='salinity';
+vname=sprintf('%s',vars{5});
 ncc=nc{vname};
 salt=ncc(:);
 missval=ncc.FillValue_(:);
@@ -110,8 +116,8 @@ add_offset=ncc.add_offset(:);
 salt(salt<=missval)=NaN;
 salt = salt.*scale_factor + add_offset;
 %
-%
 % Create the Mercator file
+%
 rundate_str=date;
 rundate=datenum(rundate_str)-datenum(Yorig,1,1);
 close(nc)

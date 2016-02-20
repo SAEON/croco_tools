@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Python motu client v.1.0.1 
+# Python motu client v.1.0.8 
 #
 # Motu, a high efficient, robust and Standard compliant Web Server for Geographic
 #  Data Dissemination.
@@ -26,6 +26,7 @@
 #  along with this library; if not, write to the Free Software Foundation,
 #  Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 
+import urlparse # WARNING : The urlparse module is renamed to urllib.parse
 import urllib
 import urllib2
 import traceback
@@ -36,6 +37,7 @@ import os
 import re
 import tempfile
 import datetime
+import time
 import shutil
 import zipfile
 import logging
@@ -43,6 +45,7 @@ import logging.config
 import ConfigParser
 import optparse
 import socket
+from xml.dom import minidom
 
 # Import project libraries
 import utils_log
@@ -59,6 +62,10 @@ AUTHENTICATION_MODE_NONE  = 'none'
 AUTHENTICATION_MODE_BASIC = 'basic'
 AUTHENTICATION_MODE_CAS   = 'cas'
 
+# constant for date time string format
+DATETIME_FORMAT = "%Y-%m-%d% %H:%M:%S"
+
+
 # shared logger
 log = None
 
@@ -67,7 +74,7 @@ def get_client_version():
     
     The value is automatically set by the maven processing build, so don't 
     touch it unless you know what you are doing."""
-    return '1.0.1'
+    return '1.0.8'
 
 def get_client_artefact():
     """Return the artifact identifier (as a string) of this client.
@@ -75,12 +82,6 @@ def get_client_artefact():
     The value is automatically set by the maven processing build, so don't 
     touch it unless you know what you are doing."""
     return 'motu-client-python'
-
-def format_date(date):
-    """
-    Format JulianDay date in unix time
-    """
-    return date.isoformat()
     
 def build_params(_options):
     """Function that builds the query string for Motu according to the given options"""
@@ -89,18 +90,37 @@ def build_params(_options):
     vertical = ''
     other_opt = ''
     
-
     """
     Build the main url to connect to
     """
     query_options = utils_collection.ListMultimap()
     
-    query_options.insert( action  = 'productdownload',
-                          mode    = 'console',
-                          service = _options.service_id,
-                          product = _options.product_id 
-                        )   
-
+	# describeProduct in XML format (sync) / productDownload (sync/async)
+    if _options.describe:
+		_options.sync = True
+		log.info('Synchronous mode set')		
+		query_options.insert( action  = 'describeProduct',				
+							  service = _options.service_id,
+							  product = _options.product_id 
+							)   
+    else:						
+		# synchronous/asynchronous mode
+		if _options.sync:
+			log.info('Synchronous mode set')
+			query_options.insert( action  = 'productdownload',	
+								  mode = 'console',
+								  service = _options.service_id,
+								  product = _options.product_id 
+								)						
+		else:
+			log.info('Asynchronous mode set')
+			query_options.insert( action  = 'productdownload',
+								  mode    = 'status',
+								  service = _options.service_id,
+								  product = _options.product_id 
+								)
+	
+	# geographical parameters
     if _options.extraction_geographic:
         query_options.insert( x_lo = _options.longitude_min,
                               x_hi = _options.longitude_max,
@@ -114,20 +134,18 @@ def build_params(_options):
                             )
     
     if _options.extraction_temporal:
-        # we change date types
-        date_max = _options.date_max
-        if isinstance(date_max, basestring):
-            date_max = datetime.date(*(int(x) for x in date_max.split('-')))
-        
-        date_min = _options.date_min
-        if date_min is None or date_min == None:
-            date_min = date_max - datetime.timedelta(20)
-        elif isinstance(date_min, basestring):
-            date_min = datetime.date(*(int(x) for x in date_min.split('-')))
-        
-        query_options.insert( t_lo = format_date(date_min),
-                              t_hi = format_date(date_max)
-                            )
+        # date are strings, and they are send to Motu "as is". If not, we convert them into string
+        if _options.date_min is not None or _options.date_min != None:            
+            date_min = _options.date_min
+            if not isinstance(date_min, basestring):
+               date_min = date_min.strftime(DATETIME_FORMAT)
+            query_options.insert( t_lo = date_min )
+            
+        if _options.date_max is not None or _options.date_max != None:            
+            date_max = _options.date_max
+            if not isinstance(date_max, basestring):
+               date_max = date_max.strftime(DATETIME_FORMAT)
+            query_options.insert( t_hi = date_max )
 
     variable = _options.variable
     if variable is not None:
@@ -252,9 +270,10 @@ def get_url_config(_options, data = None):
     kargs = {}
     # proxy
     if _options.proxy:
-        proxyUrl = _options.proxy_server.partition(':')
-        kargs['proxy'] = { "url": proxyUrl[0],
-                           "port": proxyUrl[2] }
+        #proxyUrl = _options.proxy_server.partition(':')
+        proxyUrl = urlparse.urlparse(_options.proxy_server)
+        kargs['proxy'] = { "scheme": proxyUrl.scheme,
+                           "netloc": proxyUrl.netloc }
         if _options.proxy_user != None:
             kargs['proxy']['user']     = _options.proxy_user
             kargs['proxy']['password'] = _options.proxy_pwd
@@ -271,8 +290,35 @@ def get_url_config(_options, data = None):
         kargs['data'] = data
     
     return kargs
-        
-def dl_2_file(dl_url, fh, block_size = 65535, **options):
+
+def get_requestUrl(dl_url, server, **options):
+    """ Get the request url."""    
+    
+    stopWatch = stop_watch.localThreadStopWatch()    
+    start_time = datetime.datetime.now()
+    stopWatch.start('get_request')
+    log.info( "Requesting file to download (this can take a while)..." ) 
+	
+	# Get request id    	
+    m = utils_http.open_url(dl_url, **options)
+    dom = minidom.parseString(m.read())
+	
+    for node in dom.getElementsByTagName('statusModeResponse'):
+		requestId = node.getAttribute('requestId')
+    
+	# Get request url
+    get_req_url = server + '?action=getreqstatus&requestid=' + requestId
+    stopWatch.stop('get_request')
+	
+    return get_req_url
+	
+def wait_till_finished(reqUrlCAS, **options):	
+
+    stopWatch = stop_watch.localThreadStopWatch()    
+    start_time = datetime.datetime.now()
+
+	
+def dl_2_file(dl_url, fh, block_size = 65535, describe = 'None', **options):
     """ Download the file with the main url (of Motu) file.
      
     Motu can return an error message in the response stream without setting an
@@ -282,11 +328,11 @@ def dl_2_file(dl_url, fh, block_size = 65535, **options):
     dl_url: the complete download url of Motu
     fh: file handler to use to write the downstream"""    
     
-    stopWatch = stop_watch.localThreadStopWatch()
-    
+    stopWatch = stop_watch.localThreadStopWatch()    
     start_time = datetime.datetime.now()
-    log.info( "Requesting file to download (this can take a while)..." )    
-    
+    log.info( "Downloading file (this can take a while)..." )    
+
+	# download file
     temp = open(fh, 'w+b')             
     try:
       stopWatch.start('processing')
@@ -307,7 +353,6 @@ def dl_2_file(dl_url, fh, block_size = 65535, **options):
                raise Exception( utils_messages.get_external_messages()['motu-client.exception.motu.error'] % m.read() )
           
           log.info( 'File type: %s' % headers['Content-Type'] )
-                
         # check if a content length (size of the file) has been send
         if "Content-Length" in headers:        
             try:
@@ -320,10 +365,9 @@ def dl_2_file(dl_url, fh, block_size = 65535, **options):
         else:
           size = -1
           log.warn( 'File size: %s' % 'unknown' )
+
         processing_time = datetime.datetime.now();        
         stopWatch.stop('processing')        
-        
-        
         stopWatch.start('downloading')
         
         # performs the download           
@@ -334,7 +378,12 @@ def dl_2_file(dl_url, fh, block_size = 65535, **options):
            log.info( "- %s (%.1f%%)", utils_unit.convert_bytes(size).rjust(8), percent )
            td = datetime.datetime.now()- start_time;           
         
-        read = utils_stream.copy(m,temp,progress_function if size != -1 else None, block_size )
+	def none_function(sizeRead):
+           percent = 100
+           log.info( "- %s (%.1f%%)", utils_unit.convert_bytes(size).rjust(8), percent )
+           td = datetime.datetime.now()- start_time;           
+
+	read = utils_stream.copy(m,temp,progress_function if size != -1 else none_function, block_size )
         
         end_time = datetime.datetime.now()
         stopWatch.stop('downloading')
@@ -388,9 +437,9 @@ def execute_request(_options):
       - depth_max: 1000
       - depth_min: 0
     
-    * Temporal extraction parameters
-      - date_max: '2010-04-25'
-      - date_min: '2010-04-25'
+    * Temporal extraction parameters, as a datetime instance or a string (format: '%Y-%m-%d %H:%M:%S')
+      - date_max: 2010-04-25 12:05:36
+      - date_min: 2010-04-25
 
     * Variable extraction
       - variable: ['variable1','variable2']
@@ -440,8 +489,10 @@ def execute_request(_options):
         questionMark = '?'
         if url_service.endswith(questionMark) :
             questionMark = ''
-
         url = url_service+questionMark+url_params
+
+        if _options.describe == True: 
+	    _options.out_name = _options.out_name.replace('.nc','.xml')
 
         # set-up the socket timeout if any
         if _options.socket_timeout != None:
@@ -461,9 +512,58 @@ def execute_request(_options):
 
         # create a file for storing downloaded stream
         fh = os.path.join(_options.out_dir,_options.out_name)
+		
         try:
-            dl_2_file(download_url, fh, _options.block_size, **url_config)
-            log.info( "Done" )
+			# Synchronous mode
+			if _options.sync == True:
+				dl_2_file(download_url, fh, _options.block_size, **url_config)
+				log.info( "Done" )			
+			# Asynchronous mode
+			else:
+				stopWatch.start('wait_request')
+				requestUrl = get_requestUrl(download_url, url_service, **url_config)			
+				
+				# asynchronous mode
+				status = 0
+				dwurl = ""
+				
+				while True:	
+					if _options.auth_mode == AUTHENTICATION_MODE_CAS:
+						stopWatch.start('authentication')
+						# perform authentication before acceding service
+						requestUrlCas = utils_cas.authenticate_CAS_for_URL(requestUrl,
+																		 _options.user,
+																		 _options.pwd,**url_config)
+						stopWatch.stop('authentication')
+					else:
+						# if none, we do nothing more, in basic, we let the url requester doing the job
+						requestUrlCas = requestUrl	
+					
+					m = utils_http.open_url(requestUrlCas, **url_config)				
+					motu_reply=m.read()
+					dom = minidom.parseString(motu_reply)
+
+					for node in dom.getElementsByTagName('statusModeResponse'):
+						status = node.getAttribute('status')	
+						dwurl = node.getAttribute('msg')
+						
+					# Check status
+					if status == "0" or status == "3": # in progress/pending
+						log.info('Product is not yet available (request in process)') 		
+						time.sleep(10)
+					else: # finished (error|success)
+						break
+					
+				stopWatch.stop('wait_request')							
+
+				if status == "2": log.error(dwurl) 
+				if status == "1": 
+					log.info('The product is ready for download')
+					if dwurl != "":
+						dl_2_file(dwurl, fh, _options.block_size, _options.describe, **url_config)
+						log.info( "Done" )
+					else:
+						log.error("Couldn't retrieve file")
         except:
             try:
                 if (os.path.isfile(fh)):
