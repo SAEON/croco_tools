@@ -14,27 +14,27 @@ disp('Forecast analysis')
 dirin     = './';
 dirout    = './Figs/';
 eval(['!mkdir ',dirout])
-grdname   = [dirin,'roms_grd.nc'];
+grdname   = [dirin,'SCRATCH/roms_grd.nc'];
 frcname   = [dirin,'SCRATCH/roms_frc_GFS_0.nc'];
 avgname   = [dirin,'SCRATCH/roms_avg.nc'];
 coastfile = [dirin,'coastline_l.mat'];
 
-lonmin=8; lonmax=22; latmin=-38; latmax=-26;
+%lonmin=8; lonmax=22; latmin=-38; latmax=-26;
 
-skip_wnd  =  1;
-skip_cur  =  1;
+skip_wnd  =  2;
+skip_cur  =  2;
 zoom      =  0;
 fsize     = 14;   % Font size
-nx        =  6;   % number of days
-titlemark = ['IRD-LEGOS: ',datestr(now)];
+nx        =  3;   % number of days
+titlemark = ['IRD: ',datestr(now)];
 
 mean_currents = 0;  % 1: plot 0-500 mean currents
                     % 0: surface currents
 
-plot_fig_1 = 1; % wind
+plot_fig_1 = 0; % wind
 plot_fig_2 = 0; % surface currents
-plot_fig_3 = 0; % SST + surface currents
-plot_fig_4 = 0; % SSH
+plot_fig_3 = 1; % SST + surface currents
+plot_fig_4 = 1; % SSH
 plot_fig_5 = 0; % HBL
 
 % offset to convert UTC  model time 
@@ -89,13 +89,13 @@ if plot_fig_1,
 %
 % 1: wind
 %
-itime=0;
-cmin=0; cint=5; cmax=30; cff_wnd=.4; % winds
-[LON,LAT]=meshgrid([lonmin:1/3:lonmax],[latmin:1/3:latmax]);
-nc=netcdf(frcname);
-smstime=nc{'sms_time'}(:);
-smstime0=floor(now)-datenum(Yorig,1,1)-1/24-1;  %midday
-for tndx=1:6;
+ itime=0;
+ cmin=0; cint=5; cmax=30; cff_wnd=.4; % winds
+ [LON,LAT]=meshgrid([lonmin:1/3:lonmax],[latmin:1/3:latmax]);
+ nc=netcdf(frcname);
+ smstime=nc{'sms_time'}(:);
+ smstime0=floor(now)-datenum(Yorig,1,1)-1/24-1;  %midday
+ for tndx=1:6;
   smstime0=smstime0+1;
   itime=itime+1;
   outname=['WIND',num2str(itime)];
@@ -140,8 +140,8 @@ for tndx=1:6;
   m_grid('box','fancy','tickdir','in','FontSize',fsize);
   set(findobj('tag','m_grid_color'),'facecolor','white')
   title([datestr(smstime0+days_off,1)],'FontSize',fsize+1)
-  ht=m_text(lonmin-0.2,latmax+.5,titlemark);
-  set(ht,'horizontalalignment','right','fontsize',fsize-2,'Color','b');
+  ht=m_text(lonmax,latmax+.5,titlemark);
+  set(ht,'horizontalalignment','right','fontsize',fsize-4,'Color','b');
   set(gca,'Layer','top');
   subplot('Position',[0.5-0.5*barwidth vmargin barwidth barheight])
   colormap(1-copper)
@@ -153,15 +153,13 @@ for tndx=1:6;
   set(gca,'XTick',[cmin:cint:cmax],'YTickLabel',[' '])
   set(gca,'FontSize',fsize)
   set(gca,'Layer','top');
-%    xlabel('Wind Stress [N m^{-2}]','FontSize',fsize)
+%  xlabel('Wind Stress [N m^{-2}]','FontSize',fsize)
   xlabel('Wind [knots]','FontSize',fsize)
   set(gcf, 'PaperPositionMode', 'auto');
-  eval(['print -painter -depsc2 ',outname,'.eps;'])
-  eval(['! convert -quality 50 ',outname,'.eps ',outname,'.jpg'])
-  eval(['! mv -f ',outname,'.jpg ',dirout]);
-  %eval(['! scp ',outname,'.jpg ',dirout]);
-  eval(['! rm -f ',outname,'.eps']);
-end
+
+  export_fig -transparent file.pdf
+  eval(['! mv -f file.pdf ',dirout,outname,'.pdf']);
+ end
 close(nc)
 end % plot_fig_1
 
@@ -225,8 +223,8 @@ for tndx=1:nx
     m_grid('box','fancy','tickdir','in','FontSize',fsize);
     set(findobj('tag','m_grid_color'),'facecolor','white')
     title([datestr(scrumtime,1)],'FontSize',fsize+1)
-    ht=m_text(lonmin-0.2,latmax+.5,titlemark);
-    set(ht,'horizontalalignment','right','fontsize',fsize-2,'Color','b');
+    ht=m_text(lonmax,latmax+.5,titlemark);
+    set(ht,'horizontalalignment','right','fontsize',fsize-3,'Color','b');
     set(gca,'Layer','top');
     subplot('Position',[0.5-0.5*barwidth vmargin barwidth barheight])
     colormap(1-copper)
@@ -245,14 +243,8 @@ for tndx=1:nx
     end
     set(gcf, 'PaperPositionMode', 'auto');
 
-    eval(['print -painter -depsc2 ',outname,'.eps;'])
-    %eval(['print -depsc2 ',outname,'.eps;'])
-    %eval(['print -djpeg ',outname,'.jpeg;'])
-    eval(['! convert -density 100 ',outname,'.eps ',outname,'.jpg'])
-    %eval(['! convert -quality 50 -density 100 ',outname,'.eps ',outname,'.jpg'])
-    eval(['! mv -f ',outname,'.jpg ',dirout]);
-    %eval(['! scp ',outname,'.jpg ',dirout]);
-    eval(['! rm -f ',outname,'.eps']);
+    export_fig -transparent file.pdf
+    eval(['! mv -f file.pdf ',dirout,outname,'.pdf']);
   end
 end
 end % plot_fig_2
@@ -262,7 +254,13 @@ if plot_fig_3,
 % 3: SST and Surface Currents
 %
 itime=0;
-cmin=13; cint=1; cmax=20; cff_cur=1.5;
+nc=netcdf(avgname);
+sst=mask.*squeeze(nc{'temp'}(1,N,:,:));
+close(nc)
+cmin=floor(min(min(sst)));
+cmax= ceil(max(max(sst)));
+cint=1; cff_cur=1.5;
+%cmin=13; cmax=20;
 for tndx=1:nx
   itime=itime+1;
   outname=['SST',num2str(itime)];
@@ -290,7 +288,7 @@ for tndx=1:nx
     %U=interp2(lonr,latr,ur,LON,LAT);
     %V=interp2(lonr,latr,vr,LON,LAT);
 
-     m_proj('mercator',...
+    m_proj('mercator',...
          'lon',[lonmin lonmax],...
          'lat',[latmin latmax]);
     [C0,h0]=m_contourf(lon,lat,sst,[cmin:cint:cmax],'k');
@@ -303,9 +301,9 @@ for tndx=1:nx
     hold off
     m_grid('box','fancy','tickdir','in','FontSize',fsize-2);
     set(findobj('tag','m_grid_color'),'facecolor','white')
-    title([datestr(scrumtime,1)],'FontSize',fsize+1)
-	ht=m_text(lonmin-0.2,latmax+.5,titlemark);
-    set(ht,'horizontalalignment','right','fontsize',fsize-2,'Color','b');
+    title([datestr(scrumtime,1)],'FontSize',fsize+1);
+    ht=m_text(lonmax,latmax+.5,titlemark);
+    set(ht,'horizontalalignment','right','fontsize',fsize-3,'Color','b');
     set(gca,'Layer','top');
 
     subplot('Position',[0.5-0.5*barwidth vmargin barwidth barheight])
@@ -320,11 +318,8 @@ for tndx=1:nx
     xlabel('SST [^{o}C]','FontSize',fsize)
     set(gcf, 'PaperPositionMode', 'auto');
 
-    eval(['print -painter -depsc2 ',outname,'.eps;'])
-    eval(['! convert -quality 50 ',outname,'.eps ',outname,'.jpg'])
-    eval(['! mv -f ',outname,'.jpg ',dirout]);
-    %eval(['! scp ',outname,'.jpg ',dirout]);
-    eval(['! rm -f ',outname,'.eps']);
+    export_fig -transparent file.pdf
+    eval(['! mv -f file.pdf ',dirout,outname,'.pdf']);
   end
 end
 end % plot_fig_3
@@ -360,8 +355,8 @@ for tndx=1:nx
     m_grid('box','fancy','tickdir','in','FontSize',fsize-2);
     set(findobj('tag','m_grid_color'),'facecolor','white')
     title([datestr(scrumtime,1)],'FontSize',fsize+1)
-	ht=m_text(lonmin-0.2,latmax+.5,titlemark);
-    set(ht,'horizontalalignment','right','fontsize',fsize-2,'Color','b');
+	ht=m_text(lonmax,latmax+.5,titlemark);
+    set(ht,'horizontalalignment','right','fontsize',fsize-3,'Color','b');
     set(gca,'Layer','top');
 
     subplot('Position',[0.5-0.5*barwidth vmargin barwidth barheight])
@@ -376,11 +371,8 @@ for tndx=1:nx
     xlabel('SSH [cm]','FontSize',fsize)
     set(gcf, 'PaperPositionMode', 'auto');
 
-    eval(['print -painter -depsc2 ',outname,'.eps;'])
-    eval(['! convert -quality 50 ',outname,'.eps ',outname,'.jpg'])
-    eval(['! mv -f ',outname,'.jpg ',dirout]);
-    %eval(['! scp ',outname,'.jpg ',dirout]);
-    eval(['! rm -f ',outname,'.eps']);
+    export_fig -transparent file.pdf
+    eval(['! mv -f file.pdf ',dirout,outname,'.pdf']);
   end
 end
 end % plot_fig_4
@@ -414,8 +406,8 @@ for tndx=1:nx
     m_grid('box','fancy','tickdir','in','FontSize',fsize-2);
     set(findobj('tag','m_grid_color'),'facecolor','white')
     title([datestr(scrumtime,1)],'FontSize',fsize+1)
-	ht=m_text(lonmin-0.2,latmax+.5,titlemark);
-    set(ht,'horizontalalignment','right','fontsize',fsize-2,'Color','b');
+	ht=m_text(lonmax,latmax+.5,titlemark);
+    set(ht,'horizontalalignment','right','fontsize',fsize-3,'Color','b');
     set(gca,'Layer','top');
 
     subplot('Position',[0.5-0.5*barwidth vmargin barwidth barheight])
@@ -429,11 +421,9 @@ for tndx=1:nx
     set(gca,'Layer','top');
     xlabel('HBL [m]','FontSize',fsize)
     set(gcf, 'PaperPositionMode', 'auto');
-    eval(['print -painter -depsc2 ',outname,'.eps;'])
-    eval(['! convert -quality 50 -density 100',outname,'.eps ',outname,'.jpg'])
-    eval(['! mv -f ',outname,'.jpg ',dirout]);
-    %eval(['! scp ',outname,'.jpg ',dirout]);
-    eval(['! rm -f ',outname,'.eps']);
+
+    export_fig -transparent file.pdf
+    eval(['! mv -f file.pdf ',dirout,outname,'.pdf']);
   end
 end
 end % plot_fig_5

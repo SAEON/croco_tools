@@ -69,21 +69,25 @@ tx=mask.*getdap('',fname,'uflxsfc',trange,'',jrange,...
 tx(abs(tx)>=missvalue)=NaN;
 
 %disp('skt...')
-skt=mask.*getdap('',fname,'tmpsfc',trange,'',jrange,...
-                  i1min,i1max,i2min,i2max,i3min,i3max);
-skt(abs(skt)>=missvalue)=NaN;
+%skt=mask.*getdap('',fname,'tmpsfc',trange,'',jrange,...
+%                  i1min,i1max,i2min,i2max,i3min,i3max);
+%skt(abs(skt)>=missvalue)=NaN;
+
 %disp('tair...')
 tair=mask.*getdap('',fname,'tmp2m',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
 tair(abs(tair)>=missvalue)=NaN;
+
 %disp('rhum...')
 %rhum=mask.*getdap('',fname,'rh2m',trange,'',jrange,...
 %                i1min,i1max,i2min,i2max,i3min,i3max);
 %rhum(abs(rhum)>=missvalue)=NaN;
-%disp('rhum...')
+
+%disp('spfh2...')
 spfh2m=mask.*getdap('',fname,'spfh2m',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);
 spfh2m(abs(spfh2m)>=missvalue)=NaN;
+
 %disp('prate...')
 prate=mask.*getdap('',fname,'pratesfc',trange,'',jrange,...
                 i1min,i1max,i2min,i2max,i3min,i3max);

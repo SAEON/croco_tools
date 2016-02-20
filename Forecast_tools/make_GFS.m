@@ -31,6 +31,7 @@
 %
 %  Updated    9-Sep-2006 by Pierrick Penven
 %  Updated    20-Aug-2008 by Matthieu Caillaud & P. Marchesiello
+%  Updated    12-Feb-2016 by P. Marchesiello
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -82,7 +83,6 @@ sina=sin(angle);
 %
 % Extract data over the internet
 %
-Download_data=0;
 if Download_data==1
 %
 % Get the model limits
@@ -205,7 +205,6 @@ for l=1:tlen
   
   nc_blk{'uwnd'}(l,:,:)=rho2u_2d(uwnd.*cosa+vwnd.*sina);
   nc_blk{'vwnd'}(l,:,:)=rho2v_2d(vwnd.*cosa-uwnd.*sina);
-  
   
   %Net longwave flux
   var=squeeze(nc{'radlw'}(l,:,:));

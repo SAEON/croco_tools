@@ -72,9 +72,9 @@ tx(abs(tx)>=missvalue)=NaN;
 
 
 %disp('skt...')
-skt=mask.*getdap('',fname,'tmpsfc',trange,'',jrange,...
-                  i1min,i1max,i2min,i2max,i3min,i3max);
-skt(abs(skt)>=missvalue)=NaN;
+%skt=mask.*getdap('',fname,'tmpsfc',trange,'',jrange,...
+%                  i1min,i1max,i2min,i2max,i3min,i3max);
+%skt(abs(skt)>=missvalue)=NaN;
 
 %disp('tair...')
 tair=mask.*getdap('',fname,'tmp2m',trange,'',jrange,...
