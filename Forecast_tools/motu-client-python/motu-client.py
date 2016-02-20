@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Python motu client v.1.0.1 
+# Python motu client v.1.0.8
 #
 # Motu, a high efficient, robust and Standard compliant Web Server for Geographic
 #  Data Dissemination.
@@ -45,7 +45,7 @@ import optparse
 import socket
 
 # The necessary required version of Python interpreter
-REQUIRED_VERSION = (2,5)
+REQUIRED_VERSION = (2,7)
 
 # error code to use when exiting after exception catch
 ERROR_CODE_EXIT=1
@@ -81,14 +81,14 @@ def get_client_version():
     
     The value is automatically set by the maven processing build, so don't 
     touch it unless you know what you are doing."""
-    return '1.0.1'
+    return '1.0.8'
 
 def get_client_artefact():
     """Return the artifact identifier (as a string) of this client.
     
     The value is automatically set by the maven processing build, so don't 
     touch it unless you know what you are doing."""
-    return 'motu-client-python'    
+    return 'motu-client-python'   
                                      
 def load_options():
     """load options to handle"""
@@ -153,10 +153,10 @@ def load_options():
                        help = "The product (data set) to download (string)")
 
     parser.add_option( '--date-min', '-t',
-                       help = "The min date (string following format YYYY-MM-DD)")
+                       help = "The min date with optional hour resolution (string following format YYYY-MM-DD [HH:MM:SS])")
 
     parser.add_option( '--date-max', '-T',
-                       help = "The max date (string following format YYYY-MM-DD)",
+                       help = "The max date with optional hour resolution (string following format YYYY-MM-DD [HH:MM:SS])",
                        default = datetime.date.today().isoformat())
                
     parser.add_option( '--latitude-min', '-y',
@@ -190,6 +190,16 @@ def load_options():
                        type="string",
                        action="callback")
                        
+    parser.add_option( '--sync-mode', '-S',
+                       help = "Sets the download mode to synchronous (not recommended)",
+                       action='store_true',
+					   dest='sync')
+					   
+    parser.add_option( '--describe-product', '-D',
+                       help = "It allows to have all updated information on a dataset. Output is in XML format",
+                       action='store_true',
+					   dest='describe')					   
+
     parser.add_option( '--out-dir', '-o',
                        help = "The output dir (string)",
                        default=".")
@@ -240,7 +250,7 @@ def check_version():
         cur_version[1] >= REQUIRED_VERSION[1]):   
        return
     else:
-       raise Exception( "This tool uses python 2.5 or greater. You version is %s. " % str(cur_version) )
+       raise Exception( "This tool uses python 2.7 or greater. You version is %s. " % str(cur_version) )
     
 #===============================================================================
 # The Main function

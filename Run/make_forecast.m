@@ -28,6 +28,7 @@
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %  Updated    8-Sep-2006 by Pierrick Penven
+%  Updated   12-Feb-2016 by P. Marchesiello
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 start
@@ -45,11 +46,21 @@ make_GFS
 %
 % Copy the resulting files
 %
+%rundate=datenum(date)-datenum(Yorig,1,1); nc_suffix='.nc';
 eval(['!cp ',bry_prefix,num2str(rundate),nc_suffix,' ',bry_prefix,'0',nc_suffix])
 eval(['!cp ',blk_prefix,num2str(rundate),nc_suffix,' ',blk_prefix,'0',nc_suffix])
 eval(['!cp ',frc_prefix,num2str(rundate),nc_suffix,' ',frc_prefix,'0',nc_suffix])
 eval(['!cp ',clm_prefix,num2str(rundate),nc_suffix,' ',clm_prefix,'0',nc_suffix])
-
+eval(['!cp ',ini_prefix,num2str(rundate),nc_suffix,' ',ini_prefix,'0',nc_suffix])
+%
+% Add tidal data in forcing file
+%
+if add_tides_fcst==1
+  disp(['Add tidal data ... '])
+  frcname=[ROMS_files_dir,'roms_frc_GFS_0.nc'];
+  add_tidal_data(tidename,grdname,frcname,Ntides,tidalrank,...
+                 Ymin,Mmin,Dmin,Hmin,Min_min,Smin,coastfileplot)
+end
 %
 %  Set the clock right: 
 %  - copy roms_ini.nc in FORECAST/roms_ini.nc if not available
@@ -63,7 +74,7 @@ time=(floor(now)-datenum(Yorig,1,1)-(hdays-1)-timezone/24)*86400;
 ininame='FORECAST/roms_ini.nc';
 nc=netcdf(ininame,'write');
 if isempty(nc)
-  disp('No restart file available in FORECAST, copy OGCM inifile')
+  disp('No restart file available in ROMS_FILES, copy OGCM inifile')
   eval(['!cp ',ini_prefix,num2str(rundate),nc_suffix,' ',ininame])
   nc=netcdf(ininame,'write');
 end

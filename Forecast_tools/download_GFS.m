@@ -36,6 +36,7 @@ function download_GFS(today,lonmin,lonmax,latmin,latmax,FRCST_dir,Yorig,it)
 %
 %  Updated    9-Sep-2006 by Pierrick Penven
 %  Updated    20-Aug-2008 by Matthieu Caillaud & P. Marchesiello
+%  Updated    12-Feb-2016 by P. Marchesiello
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 romstools_param
@@ -109,7 +110,7 @@ mask(mask==1)=NaN;
 mask(isfinite(mask))=1;
 %
 % Initialisation
-N=70;
+N=(hdays+fdays)*8/it+3;
 [M,L]=size(mask);
 tx=zeros(N,M,L);
 ty=tx;
@@ -150,7 +151,7 @@ mask(isfinite(mask))=1;
 %
 gfs_run_time0=12;
 gfs_date0=today-(hdays+1); 
-for frcst=1:4*hdays-3             % number of files until before yesterday 18Z 
+for frcst=1:4*hdays-2             % number of files until yesterday 00Z 
   gfs_run_time0=gfs_run_time0+6;  
   if gfs_run_time0>18
     gfs_date0=gfs_date0+1;
@@ -190,8 +191,9 @@ for frcst=1:4*hdays-3             % number of files until before yesterday 18Z
    n=n+1;
    disp(['N=',num2str(n)])
    [gfstime(n),tx0,ty0,tair0,rhum0,...
-	 prate0,wspd0,uwnd0,vwnd0,radlw0,radlw_in0,radsw0]=...
+	 prate0,wspd0,uwnd0,vwnd0,radlw0,radlw_in0,radsw0]= ...
    get_GDAS(fname,mask,t1dap,jrange,i1min,i1max,i2min,i2max,i3min,i3max,missvalue);
+%
    TX=interp2(lon,lat',tx0,LON,LAT');
    TY=interp2(lon,lat',ty0,LON,LAT');
    TAIR=interp2(lon,lat',tair0,LON,LAT');
@@ -214,19 +216,21 @@ for frcst=1:4*hdays-3             % number of files until before yesterday 18Z
    radlw(n,:,:)=RADLW;
    radlw_in(n,:,:)=RADLW_IN;
    radsw(n,:,:)=RADSW;
-%
   end 
 end
 %
 %==================================================================
 % 2: Get the variables for Forecast starting  yesterday 00Z
 %==================================================================
-gfs_run_time0=gfs_run_time1+6;
+%
+% Get starting GFS date following last GDAS date
+%
+gfs_run_time0=gfs_run_time1;
 gfs_date0=gfs_date1;
-  if gfs_run_time0>18
-    gfs_date0=gfs_date0+1;
-    gfs_run_time0=0;
-  end
+if gfs_run_time0>18
+  gfs_date0=gfs_date0+1;
+  gfs_run_time0=0;
+end
 gfs_run_time=gfs_run_time0;
 gfs_date=gfs_date0;
 
@@ -260,10 +264,7 @@ while foundfile==0
   else
     foundfile=0;
     disp(['  GFS : did not found ',fname])
-    %%t1=t1+it; % increment time index  POSSIBLE BUG
-	          % if it=2 it is Ok, if it=1, (*--> 3h00)
-			  % need to to add 2*it ...
-	t1=t1+2;
+    t1=t1+2;
     gfs_run_time=gfs_run_time-6;
     if gfs_run_time<0
       gfs_date=gfs_date-1;
@@ -276,20 +277,21 @@ while foundfile==0
   warning on
 end
 %
-% 2.2: read 60 time steps (dt = 3h)
+% 2.2: read time steps in forecast file (dt = 3h * it)
 %
-for tndx=t1:it:60
+tend=(fdays+1)*8+4;
+for tndx=t1+it:it:tend
   tndxdap=tndx-1;
   n=n+1;
   %disp(['tndxdap=',num2str(tndxdap)])
   %disp(['tndx=',num2str(tndx)])
   disp(['N_gfs=',num2str(n)])
   [gfstime(n),tx(n,:,:),ty(n,:,:),tair(n,:,:),rhum(n,:,:),...
-   prate(n,:,:),wspd(n,:,:),uwnd(n,:,:),vwnd(n,:,:),...
-   radlw(n,:,:),radlw_in(n,:,:),...
-   radsw(n,:,:)]=...
-   get_GFS(fname,mask,tndxdap,jrange,i1min,i1max,i2min,i2max,...
-           i3min,i3max,missvalue);
+      prate(n,:,:),wspd(n,:,:),uwnd(n,:,:),vwnd(n,:,:),...
+      radlw(n,:,:),radlw_in(n,:,:),...
+      radsw(n,:,:)]=...
+           get_GFS(fname,mask,tndxdap,jrange,i1min,i1max,i2min,i2max, ...
+                   i3min,i3max,missvalue);
 end
 %
 % Reduce the matrices
