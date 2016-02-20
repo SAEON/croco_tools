@@ -35,8 +35,8 @@
  
 
       integer ncidsta,    nrecsta,    staGlevel
-     &      , staTstep,   staTime,    staXgrd,  staYgrd
-     &      , staZgrd,    staV,       staU
+     &      , staTstep,   staTime,    staXgrd,   staYgrd
+     &      , staZgrd,    staZeta,    staU,      staV
 #ifdef SPHERICAL
      &      , staLon,     staLat
 #else
@@ -52,8 +52,8 @@
 
       common/incscrum_sta/
      &        ncidsta,    nrecsta,    staGlevel
-     &      , staTstep,   staTime,    staXgrd,  staYgrd
-     &      , staZgrd,    staV,       staU
+     &      , staTstep,   staTime,    staXgrd,   staYgrd
+     &      , staZgrd,    staZeta,    staU,      staV
 #ifdef SPHERICAL
      &      , staLon,     staLat
 #else

@@ -22,6 +22,7 @@
 ! istalat    Index for station latitude location.            
 ! istalon    Index for station longitude location.          
 ! istadpt    Index for station depth.                      
+! istaz      Index for station sea level
 ! istatem    Index for station potential temperature.     
 ! istasal    Index for station salinity.                 
 ! istaden    Index for station density anomaly.          
@@ -39,13 +40,13 @@
      &        istaxgrd,          istaygrd,        istazgrd,
      &        istalon,           istalat,         istadpt,
      &        istatem,           istasal,         istaden, 
-     &        istav,		 istau
-      parameter (NSTAVARS=11,
+     &        istau,             istav,           istaz
+      parameter (NSTAVARS=12,
      &        istagrd=-1,        istatstr=0,  
      &        istaxgrd=1,        istaygrd=2,      istazgrd=3, 
      &        istalon=4,         istalat=5,       istadpt=6,
      &        istatem=7,         istasal=8,       istaden=9, 
-     &        istav=10,          istau=11                    ) 
+     &        istau=10,          istav=11,        istaz=12) 
 
       logical diagsta
       integer nstas0,nstas, stagrd(Msta)
@@ -58,12 +59,12 @@
       common /sta_scalars/ staspval, stadeltap2c
 
 # ifdef ALL_SIGMA
-      real stadata(1:NSTAVARS,Msta), staSigm(istadpt:istau,Msta,N)
-c     common /sta_data/ stadata,stagrd
+      real stadata(1:NSTAVARS,Msta), staSigm(istadpt:istav,Msta,N)
+!     common /sta_data/ stadata,stagrd
       common /sta_data/ stadata, staSigm
 # else
       real stadata(1:NSTAVARS,Msta)
-c     common /sta_data/ stadata,stagrd
+!     common /sta_data/ stadata,stagrd
       common /sta_data/ stadata
 # endif
 

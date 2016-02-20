@@ -28,6 +28,7 @@
 #include "ocean2d.h"
 #include "ocean3d.h"
 #include "scalars.h"
+#include "coupling.h"
       integer Lstr, Lend, mon_thread, tmpnfp1, tmpnf, 
      &        tmpnfm1, tmpnfm2, entier
       integer i, itrc, iflt, level, rcoeft,rcoefx,rcoefy, 
@@ -152,6 +153,9 @@ c       write(*,*) 'FLT# ',iflt, 'stazgrd= ', stainfo(istazgrd,iflt)
           call interp_r2d_sta (  yr(START_2D_ARRAY), istalat,
      &                                      nfltmax, indx)
 # endif
+
+          call interp_r2d_sta (Zt_avg1(START_2D_ARRAY), istaz,
+     &                                      nfltmax, indx)
 
 # ifdef SOLVE3D
 #  ifdef ALL_SIGMA

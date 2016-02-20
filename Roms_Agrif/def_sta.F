@@ -281,7 +281,7 @@
 ! Define  vertical positions S or depth(m)
 !
 #  ifdef ALL_SIGMA 
-!     Do nothing in this case Zgird is allways 1:N
+!     Do nothing in this case Zgrid is allways 1:N
 #  else
         vinfo(1)='Zgrid'
         vinfo(2)='time varing sigma level of point stations'
@@ -305,6 +305,21 @@
 !
 !  --- Define variables for station data ---
 !
+!
+!  Define sea level
+!
+        vinfo(1)='zeta'
+        vinfo(2)='sea level at station'
+        vinfo(3)='meter'
+        lvar=lenstr(vinfo(1))
+        ierr=nf_def_var(ncid,vinfo(1)(1:lvar),NF_FTYPE,
+     &                    2,pgrd,staZeta)
+        lvar=lenstr(vinfo(2))
+        ierr=nf_put_att_text(ncid,staZeta,'long_name',lvar,
+     &                       vinfo(2)(1:lvar))
+        lvar=lenstr(vinfo(3))
+        ierr=nf_put_att_text(ncid,staZeta,'units',lvar,
+     &                       vinfo(3)(1:lvar))
 # ifdef SOLVE3D
 !
 !  Define temperature
@@ -409,18 +424,6 @@
 !
        if (wrtsta(indxstaVel)) then
 #  ifdef ALL_SIGMA
-        vinfo(1)='v'
-        vinfo(2)='V component velocity'
-        vinfo(3)='meter/s'
-        lvar=lenstr(vinfo(1))
-        ierr=nf_def_var(ncid,vinfo(1)(1:lvar),NF_FTYPE,
-     &                    3,allSigma,staV)
-        lvar=lenstr(vinfo(2))
-        ierr=nf_put_att_text(ncid,staV,'long_name',lvar,
-     &                         vinfo(2)(1:lvar))
-        lvar=lenstr(vinfo(3))
-        ierr=nf_put_att_text(ncid,staV,'units',lvar,
-     &                         vinfo(3)(1:lvar))
         vinfo(1)='u'
         vinfo(2)='U component velocity'
         vinfo(3)='meter/s'
@@ -433,19 +436,19 @@
         lvar=lenstr(vinfo(3))
         ierr=nf_put_att_text(ncid,staU,'units',lvar,
      &                         vinfo(3)(1:lvar))
-#  else
         vinfo(1)='v'
         vinfo(2)='V component velocity'
         vinfo(3)='meter/s'
         lvar=lenstr(vinfo(1))
         ierr=nf_def_var(ncid,vinfo(1)(1:lvar),NF_FTYPE,
-     &                    2,pgrd,staV)
+     &                    3,allSigma,staV)
         lvar=lenstr(vinfo(2))
         ierr=nf_put_att_text(ncid,staV,'long_name',lvar,
      &                         vinfo(2)(1:lvar))
         lvar=lenstr(vinfo(3))
         ierr=nf_put_att_text(ncid,staV,'units',lvar,
      &                         vinfo(3)(1:lvar))
+#  else
         vinfo(1)='u'
         vinfo(2)='U component velocity'
         vinfo(3)='meter/s'
@@ -457,6 +460,18 @@
      &                         vinfo(2)(1:lvar))
         lvar=lenstr(vinfo(3))
         ierr=nf_put_att_text(ncid,staU,'units',lvar,
+     &                         vinfo(3)(1:lvar))
+        vinfo(1)='v'
+        vinfo(2)='V component velocity'
+        vinfo(3)='meter/s'
+        lvar=lenstr(vinfo(1))
+        ierr=nf_def_var(ncid,vinfo(1)(1:lvar),NF_FTYPE,
+     &                    2,pgrd,staV)
+        lvar=lenstr(vinfo(2))
+        ierr=nf_put_att_text(ncid,staV,'long_name',lvar,
+     &                         vinfo(2)(1:lvar))
+        lvar=lenstr(vinfo(3))
+        ierr=nf_put_att_text(ncid,staV,'units',lvar,
      &                         vinfo(3)(1:lvar))
 #  endif
        endif ! velocity
@@ -616,6 +631,16 @@
 !
 ! --- Define veriables for station data ---
 !
+!
+!  Define sea level
+!
+        vinfo(1)='zeta'
+        lvar=lenstr(vinfo(1))
+        ierr=nf_inq_varid(ncid,vinfo(1)(1:lvar),staZeta)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,1) vinfo(1)(1:lvar), staname(1:lstr)
+          goto 99                                         !--> ERROR 
+        endif
 # ifdef SOLVE3D
 !
 !  Define temperature

@@ -61,6 +61,9 @@
         stamax=stamin+nstas-1
       endif
 # endif
+
+      if (nstas.gt.0) then
+
 !
 ! Create/open history file; write grid arrays, if so needed.
 !
@@ -399,6 +402,17 @@ c      endif ! iic=0
 !
 !  PUT HERE OTHER VARIABLES LIKE 2D ETC....
 !
+      do ista=1,nstas
+        Tout(ista)=stadata(istaz,ista)
+      enddo
+      ierr=nf_put_vara_FTYPE (ncidsta, staZeta, start,count, Tout)
+      if (ierr .ne. nf_noerr) then
+        vinfo='zeta'
+        lvar=lenstr(vinfo)
+        write(stdout,1) vinfo(1:lvar), record, ierr,
+     &                  nf_strerror(ierr) MYID
+        goto 99                                           !--> ERROR
+      endif
 !
 
   1   format(/1x, 'WRT_STA ERROR while writing variable ''', A,
@@ -436,6 +450,8 @@ c      endif ! iic=0
      &        'synchronize/close station netCDF file.'
          may_day_flag=3
       endif
+
+      endif ! (nstas.gt.0)
 
 # if defined MPI & !defined PARALLEL_FILES
       if (mynode .lt. NNODES-1) then
