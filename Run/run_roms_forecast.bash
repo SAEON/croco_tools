@@ -162,6 +162,8 @@ echo "Getting ${MODEL}_hindcast.in from $INPUTDIR"
 $CP -f $INPUTDIR/${MODEL}_hindcast.in $SCRATCHDIR
 echo "Getting ${MODEL}_forecast.in from $INPUTDIR"
 $CP -f $INPUTDIR/${MODEL}_forecast.in $SCRATCHDIR
+echo "Getting ${MODEL}_stations.in from $INPUTDIR"
+$CP -f $INPUTDIR/${MODEL}_stations.in $SCRATCHDIR
 #
 #  Change directory
 #
