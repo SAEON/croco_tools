@@ -173,7 +173,7 @@
       return
 
  195  write(stdout,205) staposname
- 205  format(/,'float file ',A,/,' not found => float initialization', 
+ 205  format(/,'float file ',A,/,' not found => station initialization',
      &   ' using restart file')
 
 c         call get_initial_sta
@@ -204,11 +204,12 @@ C! Fin test
 !                                                                    !
 !=====================================================================
 !
-#ifdef AGRIF
+# ifdef AGRIF
         USE Agrif_Util
-#endif
+# endif
       implicit none
 # include "param.h"
+# include "scalars.h"
 !
       logical found
       logical Try_Range
@@ -237,13 +238,21 @@ C! Fin test
 !
       do k=1,Npos
 
-      found=Try_Range(0,LLm+1,0,MMm+1,Xpos(k),Ypos(k),Xgrd,Ygrd)
+# ifdef MPI
+        Imin=ii*Lm
+        Imax=ii*Lm+Lmmpi+1
+        Jmin=jj*Mm
+        Jmax=jj*Mm+Mmmpi+1
+# else
+        Imin=0
+        Imax=LLm+1
+        Jmin=0
+        Jmax=MMm+1
+# endif
 
-      if (found) then
-          Imin=0
-          Imax=LLm+1
-          Jmin=0
-          Jmax=MMm+1
+        found=Try_Range(Imin,Imax,Jmin,Jmax,Xpos(k),Ypos(k),Xgrd,Ygrd)
+
+        if (found) then
           do while (((Imax-Imin).gt.1).or.((Jmax-Jmin).gt.1))
             if ((Imax-Imin).gt.1) then
               i0=(Imin+Imax)/2
@@ -272,28 +281,28 @@ C! Fin test
 ! The nonalignment of xsi (eta) axis with longitude 
 ! (latitude) direction is taken into account. 
 
-           dy1=Ygrd(Imin,Jmin+1)-Ygrd(Imin,Jmin)
-           dx1=Xgrd(Imin,Jmin+1)-Xgrd(Imin,Jmin)
-           dy2=Ygrd(Imin+1,Jmin)-Ygrd(Imin,Jmin)
-           dx2=Xgrd(Imin+1,Jmin)-Xgrd(Imin,Jmin)
+          dy1=Ygrd(Imin,Jmin+1)-Ygrd(Imin,Jmin)
+          dx1=Xgrd(Imin,Jmin+1)-Xgrd(Imin,Jmin)
+          dy2=Ygrd(Imin+1,Jmin)-Ygrd(Imin,Jmin)
+          dx2=Xgrd(Imin+1,Jmin)-Xgrd(Imin,Jmin)
 
-           c1=Xpos(k)        *dy1-Ypos(k)        *dx1
-           c2=Xgrd(Imin,Jmin)*dy2-Ygrd(Imin,Jmin)*dx2
-           deltax=(c1*dx2-c2*dx1)/(dx2*dy1-dy2*dx1)
-           deltax=(deltax-Xgrd(Imin,Jmin))/dx2
-           Ipos(k)=FLOAT(Imin)+MIN(MAX(0.0,deltax),1.0)
+          c1=Xpos(k)        *dy1-Ypos(k)        *dx1
+          c2=Xgrd(Imin,Jmin)*dy2-Ygrd(Imin,Jmin)*dx2
+          deltax=(c1*dx2-c2*dx1)/(dx2*dy1-dy2*dx1)
+          deltax=(deltax-Xgrd(Imin,Jmin))/dx2
+          Ipos(k)=FLOAT(Imin)+MIN(MAX(0.0,deltax),1.0)
 
-           c1=Xgrd(Imin,Jmin)*dy1-Ygrd(Imin,Jmin)*dx1
-           c2=Xpos(k)        *dy2-Ypos(k)        *dx2
-           deltay=(c1*dy2-c2*dy1)/(dx2*dy1-dy2*dx1) 
-           deltay=(deltay-Ygrd(Imin,Jmin))/dy1
-           Jpos(k)=FLOAT(Jmin)+MIN(MAX(0.0,deltay),1.0)
+          c1=Xgrd(Imin,Jmin)*dy1-Ygrd(Imin,Jmin)*dx1
+          c2=Xpos(k)        *dy2-Ypos(k)        *dx2
+          deltay=(c1*dy2-c2*dy1)/(dx2*dy1-dy2*dx1) 
+          deltay=(deltay-Ygrd(Imin,Jmin))/dy1
+          Jpos(k)=FLOAT(Jmin)+MIN(MAX(0.0,deltay),1.0)
 
         endif
-
       enddo
       return
       end
+
       function Try_Range (Imin,Imax,Jmin,Jmax,Xo,Yo,Xgrd,Ygrd)
 !
 !================================================ Hernan G. Arango ===
