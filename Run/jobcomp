@@ -67,10 +67,10 @@ fi
 #-lnetcdff          : version netcdf-fortran-4.2-gfortran --
 #-----------------------------------------------------------
 #
-NETCDFLIB="-L/usr/local/lib -lnetcdf"
-NETCDFINC="-I/usr/local/include"
-#NETCDFLIB=$(nf-config --flibs)
-#NETCDFINC=-I$(nf-config --includedir)
+#NETCDFLIB="-L/usr/local/lib -lnetcdf"
+#NETCDFINC="-I/usr/local/include"
+NETCDFLIB=$(nf-config --flibs)
+NETCDFINC=-I$(nf-config --includedir)
 
 #
 # set MPI directories if needed
