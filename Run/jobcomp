@@ -87,7 +87,7 @@ PRISM_ROOT_DIR=../../oasis3-mct/compile_oa3-mct
 #
 # set XIOS directory if needed
 #
-XIOS_ROOT_DIR=$HOME/XIOS
+XIOS_ROOT_DIR=$HOME/xios-1.0
 #
 # END OF USER'S MODIFICATIONS
 ####################################################
