@@ -50,7 +50,7 @@ dl=1;
 if dataname(1)=='u' | dataname(1)=='v'
   [xh,yh,h]=read_data_tpxo(datafile,'h',[],lon,lat,'r',2*dl);
   h=interp2(xh,yh,h,x,y,'linear');
-  h(h<30)=NaN;  %problems in shallow water with TPXO7
+  h(h<10)=NaN;  %problems in shallow water with TPXO7
   data=data./h;
 end
 %

@@ -160,7 +160,7 @@
 !
 ! Critical Depth for Drying cells
 !
-# if WET_DRY
+# ifdef WET_DRY
       call xios_send_field("Dcrit",Dcrit)
 # endif
 

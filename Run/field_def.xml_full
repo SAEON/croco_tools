@@ -36,7 +36,7 @@
          <field id="lat_v" long_name="latitude of V-points" unit="degree_north" />
 #else
          <field id="x_rho" long_name="x-locations of RHO-points" unit="meter" />
-         <field id="x_rho" long_name="mask on RHO-points" unit="none" />
+         <field id="y_rho" long_name="y-locations of RHO-points" unit="none" />
 #endif
 #ifdef CURVGRID
          <field id="angle" long_name="angle between XI-axis and EAST" unit="radians" />

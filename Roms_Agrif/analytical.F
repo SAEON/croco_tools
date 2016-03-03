@@ -1,4 +1,4 @@
-! $Id: analytical.F 1637 2015-03-31 08:25:09Z marchesiello $
+! $Id: analytical.F 1619 2015-01-07 13:53:03Z marchesiello $
 !
 !======================================================================
 ! ROMS_AGRIF is a branch of ROMS developped at IRD and INRIA, in France
@@ -12,41 +12,44 @@
 #include "cppdefs.h"
 !
 !  ANALYTICAL PACKAGE:
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
 !  This package is used to provide various analytical fields to the
 !  model when appropriate.
 !
 !  Routines:
 !
-!  ana_bmflux_tile   Analytical kinematic bottom momentum flux.
-!  ana_btflux_tile   Analytical kinematic bottom flux of tracer
-!                          type variables.
-!  ana_bsedim_tile   Analytical bottom sediment grain size
-!                          and density.
-!  ana_smflux_tile   Analytical kinematic surface momentum flux
-!                          (wind stress).
-!  ana_srflux_tile   Analytical kinematic surface shortwave
-!                          radiation.
-!  ana_ssh_tile      Analytical sea surface height climatology.      
-!  ana_sst_tile      Analytical sea surface temperature and dQdSST  
-!                         which are used during heat flux correction.
-!  ana_sss_tile      Analytical sea surface salinity which is used 
-!                         during salt flux correction.
-!  ana_stflux_tile   Analytical kinematic surface flux of tracer type
-!                          variables.
-!  ana_tclima_tile   Analytical tracer climatology fields.     
-!  ana_uclima_tile   Analytical tracer climatology fields.  
-!  ana_wwave_tile    Analytical wind induced wave amplitude,
-!                         direction and period.
-!  ana_sediment_tile Analytical sediment
-!  ana_psource_tile  Analytical point source
-!  ana_bry_tile      Analytical boundary forcing.
+!  ana_bmflux     Analytical kinematic bottom momentum flux.
+!  ana_btflux     Analytical kinematic bottom flux of tracer
+!                            type variables.
+!  ana_hmorph     Analytical dynamic bathymetry
+!  ana_bsedim     Analytical bottom sediment grain size
+!                            and density.
+!  ana_smflux     Analytical kinematic surface momentum flux
+!                            (wind stress).
+!  ana_srflux     Analytical kinematic surface shortwave
+!                            radiation.
+!  ana_ssh        Analytical sea surface height climatology.      
+!  ana_sst        Analytical sea surface temperature and dQdSST  
+!                            which are used during heat flux correction.
+!  ana_sss        Analytical sea surface salinity which is used 
+!                            during salt flux correction.
+!  ana_stflux     Analytical kinematic surface flux of tracer type
+!                            variables.
+!  ana_tclima     Analytical tracer climatology fields.     
+!  ana_uclima     Analytical tracer climatology fields.  
+!  ana_nbq_clima  Analytical NBQ variable climatology fields
+!  ana_wwave      Analytical wind induced wave amplitude,
+!                            direction and period.
+!  ana_sediment   Analytical sediment
+!  ana_psource    Analytical point source
+!  ana_bry        Analytical boundary forcing.
+!  ana_nbq_bry    Analytical boundary forcing for NBQ variables
+!  ana_bry_bio    Analytical boundary forcing for BIO variables
 !
-!-------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
-
-# if !defined OPENMP
+#if !defined OPENMP
       integer function omp_get_thread_num()
       omp_get_thread_num=0
       return
@@ -55,20 +58,19 @@
       omp_get_num_threads=1
       return
       end
-# endif
-
+#endif
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_bmflux
-!====================================================================
+!======================================================================
 !
 #ifdef ANA_BMFLUX
       subroutine ana_bmflux_tile (Istr,Iend,Jstr,Jend)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets kinematic bottom momentum flux (bottom stress)
 ! "bustr" and "bvstr" [m^2/s^2] using an analytical expression.
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -81,34 +83,33 @@
 !
       do j=JstrR,JendR
         do i=Istr,IendR
-          bustr(i,j)=???
+          bustr(i,j)=0.
         enddo
       enddo
       do j=Jstr,JendR
         do i=IstrR,IendR
-          bvstr(i,j)=???
+          bvstr(i,j)=0.
         enddo
       enddo
       return
       end
 #endif /* ANA_BMFLUX */ 
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_btflux
-!====================================================================
+!======================================================================
 !
 #ifdef SOLVE3D
 # if defined ANA_BTFLUX || defined ANA_BSFLUX || defined ANA_BPFLUX 
       subroutine ana_btflux_tile (Istr,Iend,Jstr,Jend, itrc)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets kinematic bottom flux of tracer type variables
 !  [tracer units m/s].
 !
 !  On Input:
 !     itrc      Tracer type array index.
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 #  include "param.h"
@@ -121,59 +122,36 @@
 !
       if (itrc.eq.itemp) then
 !
+!----------------------------------------------------------------------
 ! Set kinematic bottom heat flux [degC m/s] at horizontal RHO-points.
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
-#  if defined BASIN     || defined CANYON_A  || defined CANYON_B   \
-   || defined EQUATOR   || defined GRAV_ADJ  || defined INNERSHELF \
-   || defined OVERFLOW  || defined REGIONAL  || defined RIVER      \
-   || defined SEAMOUNT  || defined SED_TEST2 || defined SHELFRONT  \
-   || defined UPWELLING || defined VORTEX    || defined INTERNAL   \
-   || defined JET       || defined SHOREFACE || defined RIP        \
-   || defined THACKER   || defined TANK
         do j=JstrR,JendR
           do i=IstrR,IendR
             btflx(i,j,itemp)=0.
           enddo
         enddo
-#  else
-        do j=JstrR,JendR
-          do i=IstrR,IendR
-            btflx(i,j,itemp)=???
-          enddo
-        enddo
-#  endif
+!
 #  ifdef SALINITY
       elseif (itrc.eq.isalt) then
 !
+!----------------------------------------------------------------------
 !  Set kinematic bottom salt flux (m/s) at horizontal RHO-points,
 !  scaling by bottom salinity is done in STEP3D.
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
-#   if  defined EQUATOR || defined INNERSHELF || defined REGIONAL  \
-   || defined RIVER     || defined SED_TEST2  || defined SHELFRONT \
-   || defined UPWELLING || defined SEAMOUNT   || defined VORTEX    \
-   || defined JET
-
         do j=JstrR,JendR
           do i=IstrR,IendR
             btflx(i,j,isalt)=0.
           enddo
         enddo
-#   else
-        do j=JstrR,JendR
-          do i=IstrR,IendR
-            btflx(i,j,isalt)=???
-          enddo
-        enddo
-#   endif
 #  endif /* SALINITY */
       else
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  Set kinematic surface flux of additional tracers, 
 ! for example sediments, bio..., to zero
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
         do j=JstrR,JendR
           do i=IstrR,IendR
@@ -185,14 +163,13 @@
       end
 # endif /* ANA_BTFLUX */
 #endif /* SOLVE3D */
-
 !
-!====================================================================
-!                   subroutine ana_bsedim
-!====================================================================
+!======================================================================
+!                   subroutine ana_hmorph
+!======================================================================
 !
-#if defined ANA_BSEDIM && defined BBL
-      subroutine ana_bsedim (tile)
+#ifdef ANA_MOVING_BATHY
+      subroutine ana_hmorph (tile)
       implicit none
 # include "param.h"
       integer tile
@@ -200,15 +177,83 @@
 C$    integer  trd, omp_get_thread_num
 #endif
 # include "compute_tile_bounds.h"
+      call ana_hmorph_tile (Istr,Iend,Jstr,Jend)
+      return
+      end 
+      
+      subroutine ana_hmorph_tile (Istr,Iend,Jstr,Jend)
+!
+!----------------------------------------------------------------------
+!  This routine sets bathymetry increment
+!  dh using an analytical expression:
+!  example for SEAMOUNT test case
+!----------------------------------------------------------------------
+!
+      implicit none
+# include "param.h"
+# include "grid.h"
+# include "forces.h"
+# include "scalars.h"
+      integer Istr,Iend,Jstr,Jend, i,j
+      real cff,cff1
+!
+# include "compute_auxiliary_bounds.h"
+!
+# if defined SEAMOUNT 
+      cff=(1./50.e3)**2
+      cff1=0.5*xl+time*1.
+      ! 0.1m/s translation
+      ! starting for mid-basin 
+      ! for example purpoe
+      ! has to be coherent with initial bathymetry
+      ! definition in ana_grid.F  
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          dh(i,j)=4500*(1-0.6*exp(-cff*((xr(i,j)-cff1  )**2+
+     &                                  (yr(i,j)-0.5*el)**2)))
+     &                                                 -h(i,j)
+        enddo
+      enddo
+# elif defined TANK
+      cff=1./(0.03686)**2
+      cff1=2.+0.001*sin(2.*pi/10.5*time)
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          dh(i,j)=0.394-0.1*exp(-cff*((xr(i,j)-cff1)**2+
+     &                                (yr(i,j)-el*0.5)**2)) 
+     &                                              -h(i,j)
+        enddo
+      enddo
+
+# else
+        dh(:,:) =??? 
+# endif
+      return
+      end
+#endif /* ANA_MOVING_BATHY */ 
+!
+!======================================================================
+!                   subroutine ana_bsedim
+!======================================================================
+!
+#if defined ANA_BSEDIM && defined BBL
+      subroutine ana_bsedim (tile)
+      implicit none
+# include "param.h"
+      integer tile
+# ifdef  ALLOW_SINGLE_BLOCK_MODE
+C$    integer  trd, omp_get_thread_num
+# endif
+# include "compute_tile_bounds.h"
       call ana_bsedim_tile   (Istr,Iend,Jstr,Jend)
       return
       end
       subroutine ana_bsedim_tile (Istr,Iend,Jstr,Jend)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets initial bottom sediment grain diameter size [m]
 !  and density used in the bottom boundary formulation [kg/m^3].
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -266,9 +311,9 @@ C$    integer  trd, omp_get_thread_num
       end
 #endif /* ANA_BSEDIM && BBL */
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_smflux
-!====================================================================
+!======================================================================
 !
 #ifdef ANA_SMFLUX
       subroutine ana_smflux_tile (Istr,Iend,Jstr,Jend)
@@ -358,20 +403,10 @@ C$    integer  trd, omp_get_thread_num
         enddo
       enddo
 #  endif
-# elif defined GRAV_ADJ  || defined OVERFLOW || defined SEAMOUNT   \
-    || defined SHELFRONT || defined SOLITON  || defined INNERSHELF \
-    || defined RIVER     || defined VORTEX   || defined REGIONAL   \
-    || defined INTERNAL  || defined JET      || defined RIP        \
-    || defined THACKER   || defined TANK
-      do j=JstrR,JendR
-        do i=IstrR,IendR
-          sustr(i,j)=0.
-        enddo
-      enddo
 # else
       do j=JstrR,JendR
         do i=IstrR,IendR
-          sustr(i,j)=???
+          sustr(i,j)=0.
         enddo
       enddo
 # endif
@@ -379,18 +414,7 @@ C$    integer  trd, omp_get_thread_num
 !  Set kinematic surface momentum flux (wind stress) component in the
 !  ETA-direction (m^2/s^2) at horizontal V-points.
 !
-# if defined BASIN     || defined CANYON_A  || defined CANYON_B  \
-  || defined EQUATOR   || defined GRAV_ADJ  || defined OVERFLOW  \
-  || defined REGIONAL  || defined RIVER     || defined SEAMOUNT  \
-  || defined SHELFRONT || defined SOLITON   || defined UPWELLING \
-  || defined VORTEX    || defined INTERNAL  || defined JET       \
-  || defined RIP       || defined THACKER   || defined TANK
-      do j=JstrR,JendR
-        do i=IstrR,IendR
-          svstr(i,j)=0.
-        enddo
-      enddo
-# elif defined SED_TEST2
+# if defined SED_TEST2
       do j=JstrR,JendR
         do i=IstrR,IendR
           windamp=0.5+
@@ -425,26 +449,25 @@ C$    integer  trd, omp_get_thread_num
 # else
       do j=JstrR,JendR
         do i=IstrR,IendR
-          svstr(i,j)=???
+          svstr(i,j)=0.
         enddo
       enddo
 # endif
       return
       end
 #endif /* ANA_SMFLUX */
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_srflux
-!====================================================================
+!======================================================================
 !
 #ifdef ANA_SRFLUX
       subroutine ana_srflux_tile (Istr,Iend,Jstr,Jend)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This subroutine sets kinematic surface solar shortwave radiation
 !  flux "srflx" (degC m/s) using an analytical expression.
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -458,43 +481,30 @@ C$    integer  trd, omp_get_thread_num
 !  Set kinematic surface solar shortwave radiation [degC m/s] at
 !  horizontal RHO-points.
 !
-# if defined EQUATOR   || defined INNERSHELF || defined OVERFLOW \
-  || defined REGIONAL  || defined RIVER      || defined SEAMOUNT \
-  || defined SHELFRONT || defined UPWELLING  || defined VORTEX \
-  || defined INTERNAL  || defined JET        || defined SHOREFACE\
-  || defined RIP       || defined THACKER    || defined TANK
       do j=JstrR,JendR
         do i=IstrR,IendR
           srflx(i,j)=0.
 # ifdef DIURNAL_INPUT_SRFLX
           srflxbio(i,j)=0.
-# endif /* DIURNAL_INPUT_SRFLX */
-        enddo
-      enddo
-# else
-      do j=JstrR,JendR
-        do i=IstrR,IendR
-          srflx(i,j)=???
-        enddo
-      enddo
 # endif
+        enddo
+      enddo
       return
       end
 #endif /* ANA_SRFLUX */
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_ssh
-!====================================================================
+!======================================================================
 !
 #if defined ANA_SSH && defined ZCLIMATOLOGY
       subroutine ana_ssh (tile)
       implicit none
 # include "param.h"
       integer tile
-#ifdef  ALLOW_SINGLE_BLOCK_MODE
+# ifdef  ALLOW_SINGLE_BLOCK_MODE
 C$    integer  trd, omp_get_thread_num
-#endif
+# endif
 # include "compute_tile_bounds.h"
       call ana_ssh_tile (Istr,Iend,Jstr,Jend)
       return
@@ -502,9 +512,9 @@ C$    integer  trd, omp_get_thread_num
 !
       subroutine ana_ssh_tile (Istr,Iend,Jstr,Jend)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets analytical sea surface height climatology [m].
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -512,22 +522,27 @@ C$    integer  trd, omp_get_thread_num
 # include "ocean2d.h"
 # include "climat.h"
 # include "scalars.h"
+# include "coupling.h"
       integer Istr,Iend,Jstr,Jend, i,j
 # ifdef INTERNAL
       real U0,omega,kwave,ETA0
+# endif
+# if defined RIP || defined SHOREFACE
+      real surelev,omega1,omega2
+      real tide_ampli_moy,tide_ampli_var
+      real*QUAD mssh,area,cff1
+#  ifdef MPI
+      include 'mpif.h'
+      integer ierr
+      real*QUAD allmssh(1,NNODES),allarea(1,NNODES)
+#  endif
 # endif
 !
 # include "compute_auxiliary_bounds.h"
 !
 !  Set sea surface height (meters).
 !
-# if defined REGIONAL
-      do j=JstrR,JendR
-        do i=IstrR,IendR
-          ssh(i,j)=0.
-        enddo
-      enddo
-# elif defined INTERNAL
+# if defined INTERNAL
       U0=0.02
       omega=2.*pi/(12.4*3600)
       kwave=((omega*omega)-(f(1,1)*f(1,1)))/(g*h(1,1))
@@ -538,30 +553,94 @@ C$    integer  trd, omp_get_thread_num
         enddo
       enddo
 # elif defined JET
-           ! climatology computed in ana_initial
+!
+!    --> climatology computed in ana_initial
+!
+# elif (defined RIP || defined SHOREFACE) && defined ANA_TIDES
+!
+! Remove mean sea level (mssh) 
+!  !!! not OPENMP compliant and MPI DEBUG problems !!!
+!
+      mssh=QuadZero
+      area=QuadZero
+      do j=Jstr,Jend
+        do i=Istr,Iend
+          cff1=1./(pm(i,j)*pn(i,j))
+          mssh=mssh+cff1*Zt_avg1(i,j)
+          area=area+cff1
+        enddo
+      enddo
+      mssh=mssh/area
+#   ifdef MPI
+      call MPI_ALLGATHER(mssh,1,MPI_DOUBLE_PRECISION,
+     &                allmssh,1,MPI_DOUBLE_PRECISION,
+     &                          MPI_COMM_WORLD,ierr)
+      call MPI_ALLGATHER(area,1,MPI_DOUBLE_PRECISION,
+     &                allarea,1,MPI_DOUBLE_PRECISION,
+     &                          MPI_COMM_WORLD,ierr)
+      mssh=QuadZero
+      area=QuadZero
+      do i=1,NNODES
+        mssh=mssh+allmssh(1,i)*allarea(1,i)
+        area=area+allarea(1,i)
+      enddo
+      mssh=mssh/area
+#   endif
+      omega1=2.*pi/(14.*86400.)
+      omega2=2.*pi/(12.*3600. )
+      tide_ampli_moy=1.
+      tide_ampli_var=30./70.
+      surelev=1.
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          ssh(i,j)=zeta(i,j,knew)-mssh
+     &                +tide_ampli_moy*(1.+tide_ampli_var
+     &                *sin(time*omega1))
+     &                *sin(time*omega2)
+     &                    +time*surelev/31536000.
+        enddo
+      enddo
 # else
       do j=JstrR,JendR
         do i=IstrR,IendR
-          ssh(i,j)=zeta(i,j,1)
+          ssh(i,j)=0.
         enddo
       enddo
 # endif
+
+#   ifdef WET_DRY
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          if (ssh(i,j) .lt. Dcrit(i,j)-h(i,j)) then
+            ssh(i,j)=Dcrit(i,j)-h(i,j)
+          endif
+        enddo
+      enddo
+#   endif
+
+# ifdef NBQ
+      do j=JstrR,JendR
+        do i=IstrR,IendR
+          ssh(i,j)=h(i,j)+ssh(i,j)
+        enddo
+      enddo
+# endif
+
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r2d_tile (istr,iend,jstr,jend, ssh(START_2D_ARRAY))
 # endif
       return
       end
 #endif /* ANA_SSH && ZCLIMATOLOGY */
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_sst
-!====================================================================
+!======================================================================
 !
 #if defined ANA_SST && defined QCORRECTION
       subroutine ana_sst_tile (Istr,Iend,Jstr,Jend)
 !
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets sea surface temperature SST[Celsius] and surface
 !  net heat flux sensitivity dQdSTT to sea surface temperature using
 !  analytical expressions. dQdSTT is usually computed in units of
@@ -570,7 +649,7 @@ C$    integer  trd, omp_get_thread_num
 !  correction is activated:
 !
 !       Q_model ~ Q + dQdSST * (T_model - SST)
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -619,14 +698,14 @@ C$    integer  trd, omp_get_thread_num
 #endif /* ANA_SST && QCORRECTION */
 
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_sss
-!====================================================================
+!======================================================================
 !
 #if defined SALINITY && defined SFLX_CORR && defined ANA_SSS
       subroutine ana_sss_tile (Istr,Iend,Jstr,Jend)
 !
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets sea surface salinity SSS[PSU] using
 !  analytical expressions. This forcing field is used when the
 !  salt flux correction is activated:
@@ -635,7 +714,7 @@ C$    integer  trd, omp_get_thread_num
 !
 !  we use DQDSST for CST.... 
 !
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -654,22 +733,21 @@ C$    integer  trd, omp_get_thread_num
       return
       end
 #endif /* SALINITY && SFLX_CORR && ANA_SSS */
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_stflux
-!====================================================================
+!======================================================================
 !
 #if defined ANA_STFLUX || defined ANA_SSFLUX
       subroutine ana_stflux_tile (Istr,Iend,Jstr,Jend, itrc)
 !
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets kinematic surface flux of tracer type variables
 !  "stflx" (tracer units m/s) using analytical expressions.
 !
 !  On Input:
 !     itrc      Tracer type array index.
-!--------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -685,47 +763,23 @@ c
 !  Set kinematic surface heat flux [degC m/s] at horizontal
 !  RHO-points.
 !
-#if defined BASIN     || defined CANYON_A  || defined CANYON_B   \
- || defined EQUATOR   || defined GRAV_ADJ  || defined INNERSHELF \
- || defined OVERFLOW  || defined REGIONAL  || defined RIVER      \
- || defined SEAMOUNT  || defined SHELFRONT || defined UPWELLING  \
- || defined VORTEX    || defined INTERNAL  || defined JET        \
- || defined SHOREFACE || defined RIP       || defined THACKER    \
- || defined TANK
         do j=JstrR,JendR
           do i=IstrR,IendR
             stflx(i,j,itemp)=0.
           enddo
         enddo
-#else
-        do j=JstrR,JendR
-          do i=IstrR,IendR
-            stflx(i,j,itemp)=???
-          enddo
-        enddo
-#endif
+!
 #ifdef SALINITY
       elseif (itrc.eq.isalt) then
 !
 !  Set kinematic surface freshwater flux (m/s) at horizontal
 !  RHO-points, scaling by surface salinity is done in STEP3D.
 !
-# if defined EQUATOR   || defined INNERSHELF || defined REGIONAL  \
-  || defined RIVER     || defined SEAMOUNT   || defined SHELFRONT \
-  || defined UPWELLING || defined SHOREFACE  || defined RIP 
-
         do j=JstrR,JendR
           do i=IstrR,IendR
             stflx(i,j,isalt)=0.
           enddo
         enddo
-# else
-        do j=JstrR,JendR
-          do i=IstrR,IendR
-            stflx(i,j,isalt)=???
-          enddo
-        enddo
-# endif
 #endif /* SALINITY */
       else
 !
@@ -740,11 +794,10 @@ c
       return
       end
 #endif /* ANA_STFLUX || ANA_SSFLUX */
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_tclima
-!====================================================================
+!======================================================================
 !
 #if defined TCLIMATOLOGY
       subroutine ana_tclima (tile)
@@ -760,9 +813,9 @@ C$    integer  trd, omp_get_thread_num
       end
       subroutine ana_tclima_tile (Istr,Iend,Jstr,Jend)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets analytical ACTIVE (T&S) tracer climatology fields.
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -773,12 +826,48 @@ C$    integer  trd, omp_get_thread_num
 # include "sediment.h"
       integer Istr,Iend,Jstr,Jend, i,j,k, itrc
       real    cff,cff1
+# ifdef IGW
+      real    sig,rhom,depth
+# endif  
 !
 # include "compute_auxiliary_bounds.h"
 !
 # ifdef ANA_TCLIMA
 #  ifdef JET
-           ! climatology computed in ana_initial
+!
+!        --> climatology computed in ana_initial
+!
+#  elif defined IGW
+      cff=((2.e-3)**2)/g
+      rhom=1027.037885
+      do k=1,N
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+            depth = -z_r(i,j,k)         
+#   ifdef EXPERIMENT1
+            if(depth.le.50.) then
+              sig = 25.0  
+            elseif( depth.gt.50. .and. depth.le.60.) then
+              sig = 26.2 + rhom*(depth-50.)*cff
+              sig = sig + 1.2*(depth-60.)/10.
+            else
+              sig = 26.2 + rhom*(depth-50.)*cff
+            endif
+            t(i,j,k,1,itemp)=(R0-sig)/Tcoef
+#   elif defined EXPERIMENT2	    
+            if (depth.le.50.) then
+             sig = 25.8
+            else
+             sig = 27.0
+            endif
+            t(i,j,k,1,itemp)=(R0-sig)/Tcoef
+#   else /* default EXPERIMENT3 */
+            sig = 26.2 + rhom*(depth-50.)*cff
+            tclm(i,j,k,itemp)=(R0-sig)/Tcoef
+#   endif
+          enddo
+        enddo
+      enddo
 #  else
       do k=1,N
         do j=JstrR,JendR
@@ -862,9 +951,9 @@ C$    integer  trd, omp_get_thread_num
             tclm(i,j,k,iDON) =0.5*exp(z_r(i,j,k)/100.) 
 #     ifdef NITROUS_OXIDE
             tclm(i,j,k,iN2O)=-(0.008*exp(z_r(i,j,k)/100.)-0.01)
-               if (tclm(i,j,k,iN2O).lt.0.) then
-	          tclm(i,j,k,iN2O)=0.
-	       endif
+            if (tclm(i,j,k,iN2O).lt.0.) then
+              tclm(i,j,k,iN2O)=0.
+            endif
 #     endif
 #   endif
 #  else
@@ -1039,9 +1128,9 @@ C$    integer  trd, omp_get_thread_num
       end
 #endif /* TCLIMATOLOGY */
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_uclima
-!====================================================================
+!======================================================================
 !
 #if defined ANA_M2CLIMA && defined M2CLIMATOLOGY ||\
    (defined ANA_M3CLIMA && defined M3CLIMATOLOGY)
@@ -1059,9 +1148,9 @@ C$    integer  trd, omp_get_thread_num
 !
       subroutine ana_uclima_tile (Istr,Iend,Jstr,Jend)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets analytical momentum climatology fields.
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -1074,6 +1163,7 @@ C$    integer  trd, omp_get_thread_num
 # ifdef INTERNAL
       real U0,omega,kwave,V0
 # endif
+      real ramp
 !
 # include "compute_auxiliary_bounds.h"
 !
@@ -1094,14 +1184,7 @@ C$    integer  trd, omp_get_thread_num
 # endif
 !
 # if defined ANA_M2CLIMA && defined M2CLIMATOLOGY
-#  if defined REGIONAL
-      do j=JstrR,JendR
-        do i=IstrR,IendR
-          ubclm(i,j)=0.
-          vbclm(i,j)=0.
-        enddo
-      enddo
-#  elif defined INTERNAL
+#  if defined INTERNAL
       U0=0.02
       omega=2.*pi/(12.4*3600)
       kwave=sqrt(((omega*omega)-(f(1,1)*f(1,1)))/(g*h(1,1)))
@@ -1117,12 +1200,14 @@ C$    integer  trd, omp_get_thread_num
         enddo
       enddo
 #  elif defined JET
-           ! climatology computed in ana_initial
+!
+!       --> climatology computed in ana_initial
+!
 #  else
       do j=JstrR,JendR
         do i=IstrR,IendR
-          ubclm(i,j)=ubar(i,j,1)
-          vbclm(i,j)=vbar(i,j,1)
+          ubclm(i,j)=0.
+          vbclm(i,j)=0.
         enddo
       enddo
 #  endif
@@ -1131,24 +1216,18 @@ C$    integer  trd, omp_get_thread_num
       call exchange_v2d_tile (Istr,Iend,Jstr,Jend,  vbclm)
 #  endif
 # endif
+
 # if defined ANA_M3CLIMA && defined M3CLIMATOLOGY && defined SOLVE3D
-#  if defined REGIONAL
+#  if defined JET
+!
+!       --> climatology computed in ana_initial
+!
+#  else
       do k=1,N
         do j=JstrR,JendR
           do i=IstrR,IendR
             uclm(i,j,k)=0.
             vclm(i,j,k)=0.
-          enddo
-        enddo
-      enddo
-#  elif defined JET
-           ! climatology computed in ana_initial
-#  else
-      do k=1,N
-        do j=JstrR,JendR
-          do i=IstrR,IendR
-            uclm(i,j,k)=u(i,j,k,1)
-            vclm(i,j,k)=v(i,j,k,1)
           enddo
         enddo
       enddo
@@ -1165,11 +1244,92 @@ C$    integer  trd, omp_get_thread_num
       return
       end
 #endif /* ANA_M2CLIMA && M2CLIMATOLOGY || (ANA_M3CLIMA && M3CLIMATOLOGY) */
-
 !
-!====================================================================
+!======================================================================
+!                   subroutine ana_nbq_clima
+!======================================================================
+!
+#ifdef NBQCLIMATOLOGY 
+      subroutine ana_nbq_clima (tile)
+      implicit none
+# include "param.h"
+      integer tile
+# ifdef  ALLOW_SINGLE_BLOCK_MODE
+C$    integer  trd, omp_get_thread_num
+# endif
+# include "compute_tile_bounds.h"
+      call ana_nbq_clima_tile (Istr,Iend,Jstr,Jend)
+      return
+      end
+!
+      subroutine ana_nbq_clima_tile (Istr,Iend,Jstr,Jend)
+!
+!----------------------------------------------------------------------
+!  This routine sets analytical NBQ climatology fields.
+!----------------------------------------------------------------------
+!
+      implicit none
+# include "param.h"
+# include "grid.h"
+# include "ocean3d.h"
+# include "climat.h"
+# include "scalars.h"
+      integer Istr,Iend,Jstr,Jend, i,j,k
+!
+# include "compute_auxiliary_bounds.h"
+!
+# ifdef EW_PERIODIC
+#  define IU_RANGE Istr,Iend
+#  define IV_RANGE Istr,Iend
+# else
+#  define IU_RANGE Istr,IendR
+#  define IV_RANGE IstrR,IendR
+# endif
+
+# ifdef NS_PERIODIC
+#  define JU_RANGE Jstr,Jend
+#  define JV_RANGE Jstr,Jend
+# else
+#  define JU_RANGE JstrR,JendR
+#  define JV_RANGE Jstr,JendR
+# endif
+!
+      do k=1,N
+        do j=JU_RANGE
+          do i=IU_RANGE
+            unbqclm(i,j,k)=0.5*rho0*(Hz(i,j,k)+Hz(i-1,j,k)*uclm(i,j,k)
+          enddo
+        enddo
+        do j=JV_RANGE
+          do i=IV_RANGE
+            vnbqclm(i,j,k)=0.5*rho0*(Hz(i,j,k)+Hz(i,j-1,k)*vclm(i,j,k)
+          enddo
+        enddo
+        do j=JstrR,JendR
+          do i=IstrR,IendR
+            wnbqclm(i,j,k)=0.
+            rnbqclm(i,j,k)=0.
+          enddo
+        enddo
+      enddo
+
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      call exchange_u3d_tile (Istr,Iend,Jstr,Jend,  unbqclm)
+      call exchange_v3d_tile (Istr,Iend,Jstr,Jend,  vnbqclm)
+      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,  wnbqclm)
+      call exchange_r3d_tile (Istr,Iend,Jstr,Jend,  rnbqclm)
+# endif
+# undef IU_RANGE
+# undef JU_RANGE
+# undef IV_RANGE
+# undef JV_RANGE
+      return
+      end
+#endif /*  NBQCLIMATOLOGY */
+!
+!======================================================================
 !                   subroutine ana_wwave
-!====================================================================
+!======================================================================
 !
 #if defined ANA_WWAVE
       subroutine ana_wwave (tile)
@@ -1186,10 +1346,10 @@ C$    integer  trd, omp_get_thread_num
 !
       subroutine ana_wwave_tile (Istr,Iend,Jstr,Jend)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets wind induced wave amplitude, direction
 !  and period used in the bottom boundary layer formulation.
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
       real wamp,wdir,wprd,
@@ -1207,8 +1367,7 @@ C$    integer  trd, omp_get_thread_num
 # endif
       integer Istr,Iend,Jstr,Jend, i,j,k
 !
-# include "compute_extended_bounds.h"
-
+# include "compute_extended_bounds.h" 
 !
 !  Set wind induced wave amplitude (m), direction (radians) and
 !  period (s) at RHO-points.
@@ -1294,8 +1453,8 @@ C$    integer  trd, omp_get_thread_num
 !
 !  Fill global arrays
 !
-      do j=JstrR,JendR
-        do i=IstrR,IendR
+      do j=jstr-1,jend+1
+        do i=istr-1,iend+1
           whrm(i,j)=Hrms
           wfrq(i,j)=cfrq
           wdrx(i,j)=cos(cdir)
@@ -1304,15 +1463,13 @@ C$    integer  trd, omp_get_thread_num
       enddo
 #   endif
 # endif
-
       return
       end
 #endif /* ANA_WWAVE */
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_sediment
-!====================================================================
+!======================================================================
 !
 #if defined SEDIMENT
       subroutine ana_sediment (tile)
@@ -1329,7 +1486,7 @@ C$    integer  trd, omp_get_thread_num
 !
       subroutine ana_sediment_tile (Istr,Iend,Jstr,Jend)
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  This routine sets sediment ripple and bed parameters
 !  from values found in sediment.in:
 !
@@ -1339,7 +1496,7 @@ C$    integer  trd, omp_get_thread_num
 !    Bpor    initial porosity of bed layers [m]
 !    Bfrac   volume fraction of each size class in each bed layer 
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none
 # include "param.h"
@@ -1347,7 +1504,8 @@ C$    integer  trd, omp_get_thread_num
 # include "scalars.h"
 # include "sediment.h"
 # include "bbl.h"
-      integer Istr,Iend,Jstr,Jend, i,j, ilay, itrc
+      real    cff1,cff2,cff3,cff4
+      integer Istr,Iend,Jstr,Jend, i,j, ilay, ised
 !
 # undef DEBUG 
 # ifdef DEBUG
@@ -1359,51 +1517,78 @@ C$    integer  trd, omp_get_thread_num
 
       do j=JstrR,JendR
         do i=IstrR,IendR
-# ifdef BBL 
-#  ifndef ANA_SEDIMENT 
-          if(.not.got_inibed(1)) then 
-#  endif                    
+# ifdef BBL
+#  ifndef ANA_SEDIMENT
+          if(.not.got_inibed(1)) then
+#  endif
             Hripple(i,j)=Hrip
-#  ifndef ANA_SEDIMENT 
-          endif            
-          if(.not.got_inibed(2)) then 
-#  endif                    
+#  ifndef ANA_SEDIMENT
+          endif
+          if(.not.got_inibed(2)) then
+#  endif
             Lripple(i,j)=Lrip
-#  ifndef ANA_SEDIMENT 
-          endif            
-#  endif                    
-# endif                    
+#  ifndef ANA_SEDIMENT
+          endif
+#  endif
+# endif /* BBL */
           do ilay=1,NLAY
 # ifndef ANA_SEDIMENT
-            if(.not.got_inised(1)) then 
-# endif                    
+            if(.not.got_inised(1)) then
+# endif
               bed_thick(i,j,ilay)=Bthk(ilay)
 
 # ifndef ANA_SEDIMENT
-            endif            
-            if(.not.got_inised(2)) then 
-# endif                    
+            endif
+            if(.not.got_inised(2)) then
+# endif
               bed_poros(i,j,ilay)=Bpor(ilay)
 # ifndef ANA_SEDIMENT
-            endif            
-            if(.not.got_inised(3)) then 
-# endif                    
-             do itrc=1,NST
-              bed_frac(i,j,ilay,itrc)=Bfr(ilay,itrc)
-             enddo
-# ifndef ANA_SEDIMENT
-            endif            
-# endif                    
-          enddo
+            endif
+            if(.not.got_inised(3)) then
+# endif
+            do ised=1,NST
+              bed_frac(i,j,ilay,ised)=Bfr(ilay,ised)
+            enddo
 
+            bed_age(i,j,ilay)=time
+            bot_thick(i,j) = 0.003
+            do ised=1,NST
+              bed_mass(i,j,ilay,1,ised)=
+     &                     bed_thick(i,j,ilay)*
+     &                     Srho(ised)*
+     &                     (1.0-bed_poros(i,j,ilay))*
+     &                     bed_frac(i,j,ilay,ised)
+# ifdef MASKING
+     &                                 *rmask(i,j)
+# endif
+              bed_mass(i,j,ilay,2,ised)=bed_mass(i,j,ilay,1,ised)
+            enddo
+# ifndef ANA_SEDIMENT
+          endif
+# endif
+          enddo
+          cff1=1.0
+          cff2=1.0
+          cff3=1.0
+          cff4=1.          
+          do ised=1,NST
+            cff1=cff1*tau_ce(ised)**bed_frac(i,j,1,ised)
+            cff2=cff2*Sd(ised)**bed_frac(i,j,1,ised)
+            cff3=cff3*wsed(ised)**bed_frac(i,j,1,ised)
+            cff4=cff4*Srho(ised)**bed_frac(i,j,1,ised)
+          enddo
+          taucb(i,j)=cff1                ! [m2/s2]
+          Ssize(i,j)=MIN(cff2,Zob)
+          w_set(i,j)=cff3                ! [m/s]
+          Sdens(i,j)=MAX(cff4,1050.)
 # ifdef DEBUG
           if(j.eq.jck.and.i.eq.ick) then
             write(6,*) '********** ANA_SEDIMENT ***********'
-            do itrc=1,NST
-              write(6,*) 'Sd(itrc)',Sd(itrc)
+            do ised=1,NST
+              write(6,*) 'Sd(ised)',Sd(ised)
               do ilay=1,NLAY
-                write(6,*) 'i,j,ilay,itrc',i,j,ilay,itrc
-                write(6,*) 'bed_frac',bed_frac(i,j,ilay,itrc)
+                write(6,*) 'i,j,ilay,ised',i,j,ilay,ised
+                write(6,*) 'bed_frac',bed_frac(i,j,ilay,ised)
               enddo
             enddo
             do ilay=1,NLAY
@@ -1412,23 +1597,68 @@ C$    integer  trd, omp_get_thread_num
             enddo
           endif
 # endif
+# ifdef MOVING_BATHY
+          bed_thick_tot(i,j,2)=0.
+          do ilay=1,NLAY
+            bed_thick_tot(i,j,2)=bed_thick_tot(i,j,2)+
+     &                           bed_thick(i,j,ilay)
+          enddo
+          bed_thick_tot(i,j,1)=bed_thick_tot(i,j,2)
+# endif
         enddo
       enddo
 
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+      do ised=1,NST
+        do ilay=1,NLAY
+          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bed_frac(START_2D_ARRAY,ilay,ised))
+          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bed_mass(START_2D_ARRAY,ilay,1,ised))
+          call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bed_mass(START_2D_ARRAY,ilay,2,ised))
+         enddo
+      enddo
+      do ilay=1,NLAY
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bed_poros(START_2D_ARRAY,ilay))
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bed_thick(START_2D_ARRAY,ilay))
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bed_age(START_2D_ARRAY,ilay))
+      enddo
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bot_thick(START_2D_ARRAY))
+#  ifdef MOVING_BATHY
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bed_thick_tot(START_2D_ARRAY,1))
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 bed_thick_tot(START_2D_ARRAY,2))
+#  endif
+# endif
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined MPI
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 taucb(START_2D_ARRAY))
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 Ssize(START_2D_ARRAY))
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 w_set(START_2D_ARRAY))
+         call exchange_r2d_tile (Istr,Iend,Jstr,Jend,
+     &                 Sdens(START_2D_ARRAY))
+# endif
       return
       end
 #endif /* SEDIMENT */
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_psource
-!====================================================================
+!======================================================================
 !
 #if defined PSOURCE && defined ANA_PSOURCE && defined SOLVE3D
 !
-!-----------------------------------------------------------
+!----------------------------------------------------------------------
 !  Set analytical tracer and mass point sources and sinks
-!-----------------------------------------------------------
+!----------------------------------------------------------------------
 !
       subroutine ana_psource_tile (Istr,Iend,Jstr,Jend) 
       implicit none          
@@ -1715,7 +1945,7 @@ C$    integer  trd, omp_get_thread_num
           Tsrc(is,k,iZoo1)=Tsrc0(is,iZoo1)
           Tsrc(is,k,iDet1)=Tsrc0(is,iDet1)
           Tsrc(is,k,iDet2)=Tsrc0(is,iDet2)
-!-----------------------------------------------------------------------------	
+!----------------------------------------------------------------------
 #    elif defined BIO_BioEBUS
           zsrc=z_r(Isrc(is),Jsrc(is),k)
 #      if defined PSOURCE_NCFILE_TS
@@ -1764,7 +1994,7 @@ C$    integer  trd, omp_get_thread_num
           Tsrc(is,k,iN2O)=-(0.008*exp(zsrc/100.)-0.01)
           if (Tsrc(is,k,iN2O).lt.0.) Tsrc(is,k,iN2O)=0.
 #    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS*/
-!-----------------------------------------------------------------------------	
+!----------------------------------------------------------------------
 #  endif /* BIOLOGY */
         enddo
       enddo
@@ -1776,20 +2006,19 @@ C$    integer  trd, omp_get_thread_num
       return
       end
 #endif /* PSOURCE && ANA_PSOURCE SOLVE3D*/
-
 !
-!====================================================================
+!======================================================================
 !                   subroutine ana_bry
-!====================================================================
+!======================================================================
 !
 #ifdef ANA_BRY
       subroutine ana_bry (tile)
       implicit none
 # include "param.h"
       integer tile
-#ifdef  ALLOW_SINGLE_BLOCK_MODE
+# ifdef  ALLOW_SINGLE_BLOCK_MODE
 C$    integer  trd, omp_get_thread_num
-#endif
+# endif
 # include "compute_tile_bounds.h"
       call ana_bry_tile   (Istr,Iend,Jstr,Jend)
       return
@@ -1797,13 +2026,14 @@ C$    integer  trd, omp_get_thread_num
 !
       subroutine ana_bry_tile (Istr,Iend,Jstr,Jend) 
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  Set analytical boundary forcing
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       implicit none          
       integer Istr,Iend,Jstr,Jend, i,j,k, itrc
 # include "param.h"
+# include "grid.h"
 # include "scalars.h"
 # include "boundary.h"
 !
@@ -1813,7 +2043,16 @@ C$    integer  trd, omp_get_thread_num
       if (WESTERN_EDGE) then
 #  ifdef Z_FRC_BRY
         do j=JstrR,JendR
+#   ifdef SWASH
+           zetabry_west(j)=0.2*sin(2*pi*time/20.)      ! long waves of 20 sec period
+!           zetabry_west(j)=0.07*sin(0.420*2*pi*time)   ! GLOBEX B3
+!     &                    +0.03*sin(0.462*2*pi*time)   ! but with 1rst order waves
+#   else
           zetabry_west(j)=0.
+#   endif
+#   ifdef NBQ
+     &                   +h(IstrR,j)
+#   endif
         enddo
 #  endif
 #  ifdef M2_FRC_BRY
@@ -1822,7 +2061,7 @@ C$    integer  trd, omp_get_thread_num
           vbarbry_west(j)=0.
         enddo
 #  endif
-#  ifdef SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
+#  if defined SOLVE3D && (defined M3_FRC_BRY || defined T_FRC_BRY)
         do k=1,N
           do j=JstrR,JendR
 #   ifdef M3_FRC_BRY
@@ -1845,6 +2084,9 @@ C$    integer  trd, omp_get_thread_num
 #  ifdef Z_FRC_BRY
         do j=JstrR,JendR
           zetabry_east(j)=0.
+#   ifdef NBQ
+     &                   +h(IendR,j)
+#   endif
         enddo
 #  endif
 #  ifdef M2_FRC_BRY
@@ -1876,6 +2118,9 @@ C$    integer  trd, omp_get_thread_num
 #  ifdef Z_FRC_BRY
         do i=IstrR,IendR
           zetabry_south(i)=0.
+#   ifdef NBQ
+     &                   +h(i,JstrR)
+#   endif
         enddo
 #  endif
 #  ifdef M2_FRC_BRY
@@ -1907,6 +2152,9 @@ C$    integer  trd, omp_get_thread_num
 #  ifdef Z_FRC_BRY
         do i=IstrR,IendR
           zetabry_north(i)=0.
+#   ifdef NBQ
+     &                   +h(i,JendR)
+#   endif
         enddo
 #  endif
 #  ifdef M2_FRC_BRY
@@ -1936,25 +2184,198 @@ C$    integer  trd, omp_get_thread_num
       return
       end
 #endif /* defined ANA_BRY */
-
 !
-!====================================================================
+!======================================================================
+!                   subroutine ana_nbq_bry
+!======================================================================
+!
+#ifdef NBQ_FRC_BRY
+      subroutine ana_nbq_bry (tile)
+      implicit none
+# include "param.h"
+      integer tile
+# ifdef  ALLOW_SINGLE_BLOCK_MODE
+C$    integer  trd, omp_get_thread_num
+# endif
+# include "compute_tile_bounds.h"
+      call ana_nbq_bry_tile (Istr,Iend,Jstr,Jend)
+      return
+      end
+!
+      subroutine ana_nbq_bry_tile (Istr,Iend,Jstr,Jend) 
+!
+!----------------------------------------------------------------------
+!  Set analytical boundary forcing
+!----------------------------------------------------------------------
+!
+      implicit none          
+      integer Istr,Iend,Jstr,Jend, i,j,k, itrc
+# include "param.h"
+# include "grid.h"
+# include "scalars.h"
+# include "boundary.h"
+# include "climat.h"
+# include "ocean3d.h"
+!
+# include "compute_auxiliary_bounds.h"
+!
+# ifdef OBC_WEST
+      if (WESTERN_EDGE) then
+        do k=1,N
+          do j=JstrR,JendR
+#  ifdef M3CLIMATOLOGY
+            unbqbry_west(j,k)=0.5*rho0*(Hz(0,j,k)+Hz(1,j,k))
+     &                                          *uclm(1,j,k)
+#  elif defined M3_FRC_BRY
+            unbqbry_west(j,k)=0.5*rho0*(Hz(0,j,k)+Hz(1,j,k))
+     &                                       *ubry_west(j,k)
+#  else
+            unbqbry_west(j,k)=0.
+#  endif
+            wnbqbry_west(j,k)=0.
+            rnbqbry_west(j,k)=0.
+#  ifdef W_FRC_BRY
+            wbry_west(j,k)=0.
+#  endif
+          enddo
+          do j=JstrR+1,JendR
+#  ifdef M3CLIMATOLOGY
+            vnbqbry_west(j,k)=0.5*rho0*(Hz(0,j,k)+Hz(0,j-1,k))
+     &                                            *vclm(0,j,k)
+#  elif defined M3_FRC_BRY
+            vnbqbry_west(j,k)=0.5*rho0*(Hz(0,j,k)+Hz(0,j-1,k))
+     &                                         *vbry_west(j,k)
+#  else
+            vnbqbry_west(j,k)=0.
+#  endif
+          enddo
+        enddo
+      endif
+# endif /* OBC_WEST */
+!
+# ifdef OBC_EAST
+      if (EASTERN_EDGE) then
+        do k=1,N
+          do j=JstrR,JendR
+#  ifdef M3CLIMATOLOGY
+            unbqbry_east(j,k)=0.5*rho0*(Hz(IendR,j,k)+Hz(IendR-1,j,k))
+     &                                                *uclm(IendR,j,k)
+#  elif defined M3_FRC_BRY
+            unbqbry_east(j,k)=0.5*rho0*(Hz(IendR,j,k)+Hz(IendR-1,j,k))
+     &                                                 *ubry_east(j,k)
+#  else
+            unbqbry_east(j,k)=0.
+#  endif
+            wnbqbry_east(j,k)=0.
+            rnbqbry_east(j,k)=0.
+#  ifdef W_FRC_BRY
+            wbry_east(j,k)=0.
+#  endif
+          enddo
+          do j=JstrR+1,JendR
+#  ifdef M3CLIMATOLOGY
+            vnbqbry_east(j,k)=0.5*rho0*(Hz(IendR,j,k)+Hz(IendR-1,j-1,k))
+     &                                                  *vclm(IendR,j,k)
+#  elif defined M3_FRC_BRY
+            vnbqbry_east(j,k)=0.5*rho0*(Hz(IendR,j,k)+Hz(IendR-1,j-1,k))
+     &                                                   *vbry_east(j,k)
+#  else
+            vnbqbry_east(j,k)=0.
+#  endif
+          enddo
+        enddo
+      endif
+# endif /* OBC_EAST */
+!
+# ifdef OBC_SOUTH
+      if (SOUTHERN_EDGE) then
+        do k=1,N
+          do i=IstrR,IendR
+#  ifdef M3CLIMATOLOGY
+            vnbqbry_south(i,k)=0.5*rho0*(Hz(i,0,k)+Hz(i,1,k))
+     &                                           *vclm(i,1,k)
+#  elif defined M3_FRC_BRY
+            vnbqbry_south(i,k)=0.5*rho0*(Hz(i,0,k)+Hz(i,1,k))
+     &                                       *vbry_south(i,k)
+#  else
+            vnbqbry_south(j,k)=0.
+#  endif
+            wnbqbry_south(i,k)=0.
+            rnbqbry_south(i,k)=0.
+#  ifdef W_FRC_BRY
+            wbry_south(i,k)=0.
+#  endif
+          enddo
+          do i=IstrR+1,IendR
+#  ifdef M3CLIMATOLOGY
+            unbqbry_south(i,k)=0.5*rho0*(Hz(i,0,k)+Hz(i-1,0,k))
+     &                                             *uclm(i,0,k)
+#  elif defined M3_FRC_BRY
+            unbqbry_south(i,k)=0.5*rho0*(Hz(i,0,k)+Hz(i-1,0,k))
+     &                                         *ubry_south(i,k)
+#  else
+            unbqbry_south(i,k)=0.
+#  endif
+          enddo
+        enddo
+      endif
+# endif /* OBC_SOUTH */
+!
+# ifdef OBC_NORTH
+      if (NORTHERN_EDGE) then
+        do k=1,N
+          do i=IstrR,IendR
+#  ifdef M3CLIMATOLOGY
+            vnbqbry_north(i,k)=0.5*rho0*(Hz(i,JendR,k)+Hz(i,JendR-1,k))
+     &                                                 *vclm(i,JendR,k)
+#  elif defined M3_FRC_BRY
+            vnbqbry_north(i,k)=0.5*rho0*(Hz(i,JendR,k)+Hz(i,JendR-1,k))
+     &                                                 *vbry_north(i,k)
+#  else
+            vnbqbry_north(j,k)=0.
+#  endif
+            wnbqbry_north(i,k)=0.
+            rnbqbry_north(i,k)=0.
+#  ifdef W_FRC_BRY
+            wbry_north(i,k)=0.
+#  endif
+          enddo
+          do i=IstrR+1,IendR
+#  ifdef M3CLIMATOLOGY
+            unbqbry_north(i,k)=0.5*rho0*(Hz(i,JendR,k)+Hz(i-1,JendR,k))
+     &                                                 *uclm(i,JendR,k)
+#  elif defined M3_FRC_BRY
+            unbqbry_north(i,k)=0.5*rho0*(Hz(i,JendR,k)+Hz(i-1,JendR,k))
+     &                                                 *ubry_north(i,k)
+#  else
+            unbqbry_north(i,k)=0.
+#  endif
+          enddo
+        enddo
+      endif
+# endif /* OBC_NORTH */
+!
+      return
+      end
+#endif /* defined NBQ_FRC_BRY */
+!
+!======================================================================
 !                   subroutine ana_bry_bio
-!====================================================================
+!======================================================================
 !
 #if defined BIOLOGY && defined T_FRC_BRY
 !
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !  Set analytical boundary forcing for biological tracers
-!---------------------------------------------------------------------
+!----------------------------------------------------------------------
 !
       subroutine ana_bry_bio (tile)
       implicit none
       integer tile
 # include "param.h"
-#ifdef  ALLOW_SINGLE_BLOCK_MODE
+# ifdef  ALLOW_SINGLE_BLOCK_MODE
 C$    integer  trd, omp_get_thread_num
-#endif
+# endif
 # include "compute_tile_bounds.h"
       call ana_bry_bio_tile (Istr,Iend,Jstr,Jend)
       return
@@ -1971,7 +2392,7 @@ C$    integer  trd, omp_get_thread_num
 !
 # include "compute_auxiliary_bounds.h"
 !
-#  ifdef OBC_WEST
+# ifdef OBC_WEST
       if (WESTERN_EDGE) then
         do k=1,N
           do j=JstrR,JendR
@@ -1990,7 +2411,7 @@ C$    integer  trd, omp_get_thread_num
             xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
      &           +0.0003099*SiO4**3
             if (.not.got_tbry(iNO3_)) tbry_west(j,k,iNO3_)=xno3
-#    ifdef PISCES
+#  ifdef PISCES
             if (.not.got_tbry(iCAL_)) tbry_west(j,k,iCAL_)=0.01   
             if (.not.got_tbry(iPOC_)) tbry_west(j,k,iPOC_)=0.01
             if (.not.got_tbry(iPHY_)) tbry_west(j,k,iPHY_)=0.01
@@ -2006,19 +2427,19 @@ C$    integer  trd, omp_get_thread_num
             if (.not.got_tbry(iNCH_)) tbry_west(j,k,iNCH_)=1.e-2*12./55.
             if (.not.got_tbry(iDCH_)) tbry_west(j,k,iDCH_)=1.e-2*12./55.
             if (.not.got_tbry(iNH4_)) tbry_west(j,k,iNH4_)=1.e-2
-#    elif defined BIO_NChlPZD
+#  elif defined BIO_NChlPZD
             if (.not.got_tbry(iChla)) tbry_west(j,k,iChla)=0.08  
             if (.not.got_tbry(iPhy1)) tbry_west(j,k,iPhy1)=0.1
             if (.not.got_tbry(iZoo1)) tbry_west(j,k,iZoo1)=0.06
             if (.not.got_tbry(iDet1)) tbry_west(j,k,iDet1)=0.02
-#    elif defined BIO_N2ChlPZD2
+#  elif defined BIO_N2ChlPZD2
             if (.not.got_tbry(iNH4_)) tbry_west(j,k,iNH4_)=0.1  
             if (.not.got_tbry(iChla)) tbry_west(j,k,iChla)=0.08
             if (.not.got_tbry(iPhy1)) tbry_west(j,k,iPhy1)=0.06
             if (.not.got_tbry(iZoo1)) tbry_west(j,k,iZoo1)=0.04
             if (.not.got_tbry(iDet1)) tbry_west(j,k,iDet1)=0.02
             if (.not.got_tbry(iDet2)) tbry_west(j,k,iDet2)=0.02
-#    elif defined BIO_BioEBUS
+#  elif defined BIO_BioEBUS
             zbry=z_r(Istr,j,k)
             if (.not.got_tbry(iNO2_)) tbry_west(j,k,iNO2_)=0.05*
      &                               exp(zbry/100.)
@@ -2036,18 +2457,18 @@ C$    integer  trd, omp_get_thread_num
             if (.not.got_tbry(iDet2)) tbry_west(j,k,iDet2)=0.02
             if (.not.got_tbry(iDON))  tbry_west(j,k,iDON) =0.5*
      &                               exp(zbry/100.)
-#     ifdef NITROUS_OXIDE
+#   ifdef NITROUS_OXIDE
             if (.not.got_tbry(iN2O)) tbry_west(j,k,iN2O)=-(0.008*
      &                              exp(zbry/100.)-0.01)
             if (tbry_west(j,k,iN2O).lt.0.) tbry_west(j,k,iN2O)=0.  
-#     endif
-#    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS */
+#   endif
+#  endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS */
           enddo
         enddo
       endif
-#  endif /* OBC_WEST */   
+# endif /* OBC_WEST */   
 !
-#  ifdef OBC_EAST
+# ifdef OBC_EAST
       if (EASTERN_EDGE) then
         do k=1,N
           do j=JstrR,JendR
@@ -2066,7 +2487,7 @@ C$    integer  trd, omp_get_thread_num
             xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
      &           +0.0003099*SiO4**3
             if (.not.got_tbry(iNO3_)) tbry_east(j,k,iNO3_)=xno3
-#    ifdef PISCES
+#  ifdef PISCES
             if (.not.got_tbry(iCAL_)) tbry_east(j,k,iCAL_)=0.01   
             if (.not.got_tbry(iPOC_)) tbry_east(j,k,iPOC_)=0.01
             if (.not.got_tbry(iPHY_)) tbry_east(j,k,iPHY_)=0.01
@@ -2082,19 +2503,19 @@ C$    integer  trd, omp_get_thread_num
             if (.not.got_tbry(iNCH_)) tbry_east(j,k,iNCH_)=1.e-2*12./55.
             if (.not.got_tbry(iDCH_)) tbry_east(j,k,iDCH_)=1.e-2*12./55.
             if (.not.got_tbry(iNH4_)) tbry_east(j,k,iNH4_)=1.e-2
-#    elif defined BIO_NChlPZD
+#  elif defined BIO_NChlPZD
             if (.not.got_tbry(iChla)) tbry_east(j,k,iChla)=0.08   
             if (.not.got_tbry(iPhy1)) tbry_east(j,k,iPhy1)=0.1
             if (.not.got_tbry(iZoo1)) tbry_east(j,k,iZoo1)=0.06
             if (.not.got_tbry(iDet1)) tbry_east(j,k,iDet1)=0.02
-#    elif defined BIO_N2ChlPZD2
+#  elif defined BIO_N2ChlPZD2
             if (.not.got_tbry(iNH4_)) tbry_east(j,k,iNH4_)=0.1   
             if (.not.got_tbry(iChla)) tbry_east(j,k,iChla)=0.08
             if (.not.got_tbry(iPhy1)) tbry_east(j,k,iPhy1)=0.06
             if (.not.got_tbry(iZoo1)) tbry_east(j,k,iZoo1)=0.04
             if (.not.got_tbry(iDet1)) tbry_east(j,k,iDet1)=0.02
             if (.not.got_tbry(iDet2)) tbry_east(j,k,iDet2)=0.02
-#    elif defined BIO_BioEBUS
+#  elif defined BIO_BioEBUS
             zbry=z_r(IendR,j,k)
             if (.not.got_tbry(iNO2_)) tbry_east(j,k,iNO2_)=0.05*
      &                               exp(zbry/100.)
@@ -2112,18 +2533,18 @@ C$    integer  trd, omp_get_thread_num
             if (.not.got_tbry(iDet2)) tbry_east(j,k,iDet2)=0.02
             if (.not.got_tbry(iDON))  tbry_east(j,k,iDON) =0.5*
      &                               exp(zbry/100.)
-#     ifdef NITROUS_OXIDE
+#   ifdef NITROUS_OXIDE
             if (.not.got_tbry(iN2O)) tbry_east(j,k,iN2O)=-(0.008*
      &                               exp(zbry/100.)-0.01)
              if (tbry_east(j,k,iN2O).lt.0.) tbry_east(j,k,iN2O)=0.
-#     endif
-#    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS */
+#   endif
+#  endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS */
            enddo
          enddo
       endif
-#  endif /* OBC_EAST */   
+# endif /* OBC_EAST */   
 !
-#  ifdef OBC_NORTH
+# ifdef OBC_NORTH
        if (NORTHERN_EDGE) then
          do k=1,N
            do j=IstrR,IendR
@@ -2142,7 +2563,7 @@ C$    integer  trd, omp_get_thread_num
              xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
      &            +0.0003099*SiO4**3
              if (.not.got_tbry(iNO3_)) tbry_north(j,k,iNO3_)=xno3
-#    ifdef PISCES
+#  ifdef PISCES
              if (.not.got_tbry(iCAL_)) tbry_north(j,k,iCAL_)=0.01   
              if (.not.got_tbry(iPOC_)) tbry_north(j,k,iPOC_)=0.01
              if (.not.got_tbry(iPHY_)) tbry_north(j,k,iPHY_)=0.01
@@ -2158,19 +2579,19 @@ C$    integer  trd, omp_get_thread_num
              if (.not.got_tbry(iNCH_)) tbry_north(j,k,iNCH_)=1.e-2*12./55.
              if (.not.got_tbry(iDCH_)) tbry_north(j,k,iDCH_)=1.e-2*12./55.
              if (.not.got_tbry(iNH4_)) tbry_north(j,k,iNH4_)=1.e-2
-#    elif defined BIO_NChlPZD
+#  elif defined BIO_NChlPZD
              if (.not.got_tbry(iChla)) tbry_north(j,k,iChla)=0.08   
              if (.not.got_tbry(iPhy1)) tbry_north(j,k,iPhy1)=0.1
              if (.not.got_tbry(iZoo1)) tbry_north(j,k,iZoo1)=0.06
              if (.not.got_tbry(iDet1)) tbry_north(j,k,iDet1)=0.02
-#    elif defined BIO_N2ChlPZD2
+#  elif defined BIO_N2ChlPZD2
              if (.not.got_tbry(iNH4_)) tbry_north(j,k,iNH4_)=0.1   
              if (.not.got_tbry(iChla)) tbry_north(j,k,iChla)=0.08
              if (.not.got_tbry(iPhy1)) tbry_north(j,k,iPhy1)=0.06
              if (.not.got_tbry(iZoo1)) tbry_north(j,k,iZoo1)=0.04
              if (.not.got_tbry(iDet1)) tbry_north(j,k,iDet1)=0.02
              if (.not.got_tbry(iDet2)) tbry_north(j,k,iDet2)=0.02
-#    elif defined BIO_BioEBUS
+#  elif defined BIO_BioEBUS
              zbry=z_r(j,JendR,k)
              if (.not.got_tbry(iNO2_)) tbry_north(j,k,iNO2_)=0.05*
      &                                             exp(zbry/100.)
@@ -2188,18 +2609,18 @@ C$    integer  trd, omp_get_thread_num
              if (.not.got_tbry(iDet2)) tbry_north(j,k,iDet2)=0.02
              if (.not.got_tbry(iDON))  tbry_north(j,k,iDON) =0.5*
      &                               exp(zbry/100.)
-#     ifdef NITROUS_OXIDE
+#   ifdef NITROUS_OXIDE
             if (.not.got_tbry(iN2O)) tbry_north(j,k,iN2O)=-(0.008*
      &                                 exp(zbry/100.)-0.01)
             if (tbry_north(j,k,iN2O).lt.0.) tbry_north(j,k,iN2O)=0.
-#     endif
-#    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS */
+#   endif
+#  endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS */
            enddo
          enddo
       endif
-#  endif /* OBC_NORTH */   
+# endif /* OBC_NORTH */   
 
-#  ifdef OBC_SOUTH
+# ifdef OBC_SOUTH
        if (SOUTHERN_EDGE) then
          do k=1,N
            do j=IstrR,IendR
@@ -2218,7 +2639,7 @@ C$    integer  trd, omp_get_thread_num
              xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
      &            +0.0003099*SiO4**3 
              if (.not.got_tbry(iNO3_)) tbry_south(j,k,iNO3_)=xno3
-#    ifdef PISCES
+#  ifdef PISCES
              if (.not.got_tbry(iCAL_)) tbry_south(j,k,iCAL_)=0.01   
              if (.not.got_tbry(iPOC_)) tbry_south(j,k,iPOC_)=0.01
              if (.not.got_tbry(iPHY_)) tbry_south(j,k,iPHY_)=0.01
@@ -2236,19 +2657,19 @@ C$    integer  trd, omp_get_thread_num
              if (.not.got_tbry(iDCH_)) tbry_south(j,k,iDCH_)=
      &                                                    1.e-2*12./55.
              if (.not.got_tbry(iNH4_)) tbry_south(j,k,iNH4_)=1.e-2
-#    elif defined BIO_NChlPZD
+#  elif defined BIO_NChlPZD
              if (.not.got_tbry(iChla)) tbry_south(j,k,iChla)=0.08   
              if (.not.got_tbry(iPhy1)) tbry_south(j,k,iPhy1)=0.1
              if (.not.got_tbry(iZoo1)) tbry_south(j,k,iZoo1)=0.06
              if (.not.got_tbry(iDet1)) tbry_south(j,k,iDet1)=0.02
-#    elif defined BIO_N2ChlPZD2
+#  elif defined BIO_N2ChlPZD2
              if (.not.got_tbry(iNH4_)) tbry_south(j,k,iNH4_)=0.1 
              if (.not.got_tbry(iChla)) tbry_south(j,k,iChla)=0.08
              if (.not.got_tbry(iPhy1)) tbry_south(j,k,iPhy1)=0.06
              if (.not.got_tbry(iZoo1)) tbry_south(j,k,iZoo1)=0.04
              if (.not.got_tbry(iDet1)) tbry_south(j,k,iDet1)=0.02
              if (.not.got_tbry(iDet2)) tbry_south(j,k,iDet2)=0.02
-#    elif defined BIO_BioEBUS
+#  elif defined BIO_BioEBUS
              zbry=z_r(j,JstrR,k)
             if (.not.got_tbry(iNO2_)) tbry_south(j,k,iNO2_)=0.05*
      &                                     exp(zbry/100.)
@@ -2266,18 +2687,18 @@ C$    integer  trd, omp_get_thread_num
             if (.not.got_tbry(iDet2)) tbry_south(j,k,iDet2)=0.02
             if (.not.got_tbry(iDON))  tbry_south(j,k,iDON) =0.5*
      &                                     exp(zbry/100.)
-#     ifdef NITROUS_OXIDE
+#   ifdef NITROUS_OXIDE
             if (.not.got_tbry(iN2O)) tbry_south(j,k,iN2O)=-(0.008*
      &                              exp(zbry/100.)-0.01)
              if (tbry_south(j,k,iN2O).lt.0.) then
                tbry_south(j,k,iN2O)=0.  
              endif
-#     endif
-#    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS */
+#   endif
+#  endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS */
            enddo
          enddo
       endif
-#  endif /* OBC_SOUTH */   
+# endif /* OBC_SOUTH */   
       return
       end
 #else 
