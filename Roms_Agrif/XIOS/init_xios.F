@@ -341,6 +341,8 @@
 
       
       SUBROUTINE set_scalar
+# include "param.h"
+# include "scalars.h"
       !!----------------------------------------------------------------------
       !!                     ***  ROUTINE set_scalar  ***
       !!
@@ -352,14 +354,16 @@
       !!                S. Masson  , original version (NEMO)  
       !!
       !!----------------------------------------------------------------------
-      REAL, DIMENSION(1,1) ::   zz = 1.
+      REAL, DIMENSION(1) ::   zz = 1.
       !!----------------------------------------------------------------------
       ! 
-      CALL iom_set_domain_attr('scalarpoint', ni_glo=1, nj_glo=1, 
-     &  ibegin=1, jbegin=1, ni=1, nj=1)
-      CALL iom_set_domain_attr('scalarpoint', data_dim=1)
-      CALL iom_set_domain_attr('scalarpoint', lonvalue=(/ zz /), 
-     &  latvalue=(/ zz /))
+      CALL iom_set_domain_attr('scalarpoint', ni_glo=NNODES, nj_glo=1, 
+     &  ibegin=mynode+1, jbegin=1, ni=1, nj=1)
+      CALL iom_set_domain_attr('scalarpoint', data_dim=2,data_ibegin = 1, 
+     &                         data_ni = 1, data_jbegin = 1, data_nj = 1)
+      zz=REAL(mynode+1)
+      CALL iom_set_domain_attr('scalarpoint', lonvalue=zz, 
+     &  latvalue=zz)
       !
       END SUBROUTINE set_scalar
 

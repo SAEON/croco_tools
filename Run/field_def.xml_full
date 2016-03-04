@@ -4,11 +4,11 @@
          <field id="Cs_r" long_name="ocean s roms coordinate at rho point"  />
          <field id="sc_r" long_name="S-coordinate stretching curves at RHO-points"  />
       </field_group>
-      <field_group id="Vertical_dimension_w" domain_ref="1point" axis_ref="s_w"  >
+      <field_group id="Vertical_dimension_w"  domain_ref="1point" axis_ref="s_w"  >
          <field id="Cs_w" long_name="ocean s roms coordinate at w point"  />
          <field id="sc_w" long_name="S-coordinate stretching curves at W-points"  />
       </field_group>
-      <field_group id="My_scalar" domain_ref="1point"  >
+      <field_group id="scalar" domain_ref="1point"  >
          <field id="hc" long_name="S-coordinate parameter, critical depth"  />
          <field id="theta_s" long_name="S-coordinate surface control parameter"  />
          <field id="theta_b" long_name="S-coordinate bottom control parameter"  />

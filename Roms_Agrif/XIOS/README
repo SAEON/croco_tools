@@ -10,7 +10,7 @@ or follow these few steps ...
 Install XIOS
 ============
 
-svn co http://forge.ipsl.jussieu.fr/ioserver/svn/XIOS/branchs/xios-1.0 XIOS
+svn co -r 7012 http://forge.ipsl.jussieu.fr/ioserver/svn/XIOS/branchs/xios-1.0 XIOS
 
 1- Install NECTD4 (including netcdf-c and netcdf-fortran) if not done before 
 
