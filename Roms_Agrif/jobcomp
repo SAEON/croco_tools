@@ -67,10 +67,10 @@ fi
 #-lnetcdff          : version netcdf-fortran-4.2-gfortran --
 #-----------------------------------------------------------
 #
-NETCDFLIB="-L/usr/local/lib -lnetcdf"
-NETCDFINC="-I/usr/local/include"
-#NETCDFLIB=$(nf-config --flibs)
-#NETCDFINC=-I$(nf-config --includedir)
+#NETCDFLIB="-L/usr/local/lib -lnetcdf"
+#NETCDFINC="-I/usr/local/include"
+NETCDFLIB=$(nf-config --flibs)
+NETCDFINC=-I$(nf-config --includedir)
 
 #
 # set MPI directories if needed
@@ -87,7 +87,7 @@ PRISM_ROOT_DIR=../../oasis3-mct/compile_oa3-mct
 #
 # set XIOS directory if needed
 #
-XIOS_ROOT_DIR=$HOME/SVN/XIOS
+XIOS_ROOT_DIR=$HOME/xios-1.0
 #
 # END OF USER'S MODIFICATIONS
 ####################################################
@@ -255,6 +255,7 @@ if $($CPP1 testkeys.F | grep -i -q xiosisdefined) ; then
         CPPFLAGS1="$CPPFLAGS1 -I$XIOS_ROOT_DIR/inc"
         FFLAGS1="$FFLAGS1 -I$XIOS_ROOT_DIR/inc"
         ln -s $XIOS_ROOT_DIR/bin/xios_server.exe $RUNDIR/.
+        $CPP1 -P -traditional -imacros cppdefs.h  ../field_def.xml_full ../field_def.xml
 fi
 #
 # determine if OASIS compilation is required
