@@ -82,7 +82,7 @@
       real eps
       parameter (eps=1.D-20)
       real stf_cff
-      real zz(1,1)
+      real zz(GLOBAL_2D_ARRAY,0:N)
       parameter(stf_cff=86400/0.01)
 !
 # include "compute_auxiliary_bounds.h"
@@ -108,20 +108,35 @@
 ! S-coordinate independent variables "sc_w", "sc_r" and stretching
 ! curves "Cs_w", "Cs_r" at W- and RHO-points.
 !
-      call xios_send_field("Cs_r",Cs_r)
-      call xios_send_field("Cs_w",Cs_w)
-      call xios_send_field("sc_r",sc_r)
-      call xios_send_field("sc_w",sc_w)
-      zz=hc
-      call xios_send_field("hc",zz)
-      zz=theta_s
-      call xios_send_field("theta_s",zz)
-      zz=theta_b
-      call xios_send_field("theta_b",zz)
-      zz=Tcline
-      call xios_send_field("Tcline",zz)
-      zz=REAL(Vtransform)
-      call xios_send_field("Vtransform",zz)
+!
+! Ugly fix to write scalars until XIOS 2.0 
+!
+      do k=1,N
+      zz(:,:,k)=Cs_r(k)
+      end do
+      call xios_send_field("Cs_r",zz(:,:,1:N) )
+      do k=0,N
+      zz(:,:,k)=Cs_w(k)
+      end do
+      call xios_send_field("Cs_w",zz)
+      do k=1,N
+      zz(:,:,k)=sc_r(k)
+      end do
+      call xios_send_field("sc_r",zz(:,:,1:N) )
+      do k=0,N
+      zz(:,:,k)=sc_w(k)
+      end do
+      call xios_send_field("sc_w",zz)
+      zz(:,:,1)=hc
+      call xios_send_field("hc",zz(:,:,1))
+      zz(:,:,1)=theta_s
+      call xios_send_field("theta_s",zz(:,:,1))
+      zz(:,:,1)=theta_b
+      call xios_send_field("theta_b",zz(:,:,1))
+      zz(:,:,1)=Tcline
+      call xios_send_field("Tcline",zz(:,:,1))
+      zz(:,:,1)=REAL(Vtransform)
+      call xios_send_field("Vtransform",zz(:,:,1))
 # endif
 !
 ! Bathymetry.
