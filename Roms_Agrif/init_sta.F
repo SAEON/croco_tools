@@ -254,17 +254,10 @@
 !
       do k=1,Npos
 
-# ifdef MPI
-        Imin=ii*Lm
-        Imax=ii*Lm+Lmmpi+1
-        Jmin=jj*Mm
-        Jmax=jj*Mm+Mmmpi+1
-# else
         Imin=0
-        Imax=LLm+1
+        Imax=LOCALLM+1
         Jmin=0
-        Jmax=MMm+1
-# endif
+        Jmax=LOCALMM+1
 
         found=Try_Range(Imin,Imax,Jmin,Jmax,Xpos(k),Ypos(k),Xgrd,Ygrd)
 
