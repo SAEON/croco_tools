@@ -43,8 +43,8 @@
       !!
       !!----------------------------------------------------------------------
       CHARACTER(LEN=*)            , INTENT(in) ::   cdgrd
-      REAL plon(:,:)
-      REAL plat(:,:)
+      REAL plon(GLOBAL_2D_ARRAY)
+      REAL plat(GLOBAL_2D_ARRAY)
       !
       INTEGER vtype, horiz_type, vert_type
       INTEGER imin, imax, jmin, jmax, ni, nj
