@@ -63,7 +63,7 @@
 # if defined MPI & !defined PARALLEL_FILES
       if (mynode.gt.0) create_new_file=.false.
 # endif
-
+ 
 !
 !=================================================================
 !  Create new station file
@@ -113,7 +113,7 @@
         temp(1)=twodim
         temp(2)=ftimedim
 !
-# ifdef ALL_SIGMA
+# if defined SOLVE3D && defined ALL_SIGMA
         allSigma(1)=srho
         allSigma(2)=stadim
         allSigma(3)=ftimedim
@@ -308,18 +308,18 @@
 !
 !  Define sea level
 !
-        vinfo(1)='zeta'
-        vinfo(2)='sea level at station'
-        vinfo(3)='meter'
-        lvar=lenstr(vinfo(1))
-        ierr=nf_def_var(ncid,vinfo(1)(1:lvar),NF_FTYPE,
-     &                    2,pgrd,staZeta)
-        lvar=lenstr(vinfo(2))
-        ierr=nf_put_att_text(ncid,staZeta,'long_name',lvar,
-     &                       vinfo(2)(1:lvar))
-        lvar=lenstr(vinfo(3))
-        ierr=nf_put_att_text(ncid,staZeta,'units',lvar,
-     &                       vinfo(3)(1:lvar))
+       vinfo(1)='zeta'
+       vinfo(2)='sea level at station'
+       vinfo(3)='meter'
+       lvar=lenstr(vinfo(1))
+       ierr=nf_def_var(ncid,vinfo(1)(1:lvar),NF_FTYPE,
+     &                 2,pgrd,staZeta)
+       lvar=lenstr(vinfo(2))
+       ierr=nf_put_att_text(ncid,staZeta,'long_name',lvar,
+     &                      vinfo(2)(1:lvar))
+       lvar=lenstr(vinfo(3))
+       ierr=nf_put_att_text(ncid,staZeta,'units',lvar,
+     &                      vinfo(3)(1:lvar))
 # ifdef SOLVE3D
 !
 !  Define temperature
@@ -475,6 +475,33 @@
      &                         vinfo(3)(1:lvar))
 #  endif
        endif ! velocity
+# else
+       if (wrtsta(indxstaVel)) then
+        vinfo(1)='u'
+        vinfo(2)='U barotrope component velocity'
+        vinfo(3)='meter/s'
+        lvar=lenstr(vinfo(1))
+        ierr=nf_def_var(ncid,vinfo(1)(1:lvar),NF_FTYPE,
+     &                   2,pgrd,staU)
+        lvar=lenstr(vinfo(2))
+        ierr=nf_put_att_text(ncid,staU,'long_name',lvar,
+     &                         vinfo(2)(1:lvar))
+        lvar=lenstr(vinfo(3))
+        ierr=nf_put_att_text(ncid,staU,'units',lvar,
+     &                         vinfo(3)(1:lvar))
+        vinfo(1)='v'
+        vinfo(2)='V barotrope component velocity'
+        vinfo(3)='meter/s'
+        lvar=lenstr(vinfo(1))
+        ierr=nf_def_var(ncid,vinfo(1)(1:lvar),NF_FTYPE,
+     &                    2,pgrd,staV)
+        lvar=lenstr(vinfo(2))
+        ierr=nf_put_att_text(ncid,staV,'long_name',lvar,
+     &                         vinfo(2)(1:lvar))
+        lvar=lenstr(vinfo(3))
+        ierr=nf_put_att_text(ncid,staV,'units',lvar,
+     &                         vinfo(3)(1:lvar))
+       endif
 # endif  /* SOLVE3D */
  
  
@@ -682,6 +709,27 @@
        endif
 !
 !  Velocity components
+!
+       if (wrtsta(indxstaVel)) then
+        vinfo(1)='v'
+        lvar=lenstr(vinfo(1))
+        ierr=nf_inq_varid(ncid,vinfo(1)(1:lvar),staV)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,1) vinfo(1)(1:lvar), staname(1:lstr)
+          goto 99                                         !--> ERROR 
+        endif
+!
+        vinfo(1)='u'
+        lvar=lenstr(vinfo(1))
+        ierr=nf_inq_varid(ncid,vinfo(1)(1:lvar),staU)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,1) vinfo(1)(1:lvar), staname(1:lstr)
+          goto 99                                         !--> ERROR 
+        endif
+       endif
+# else
+!
+!  Barotropic velocity components
 !
        if (wrtsta(indxstaVel)) then
         vinfo(1)='v'
