@@ -154,8 +154,20 @@ c       write(*,*) 'FLT# ',iflt, 'stazgrd= ', stainfo(istazgrd,iflt)
      &                                      nfltmax, indx)
 # endif
 
+# ifdef SOLVE3D
           call interp_r2d_sta (Zt_avg1(START_2D_ARRAY), istaz,
      &                                      nfltmax, indx)
+# else
+          call interp_r2d_sta (zeta(START_2D_ARRAY,knew), istaz,
+     &                                      nfltmax, indx)
+          if (wrtsta(indxstaVel)) then 
+            call interp_r2d_sta (ubar(START_2D_ARRAY,1,knew), istau,
+     &                                       nfltmax, indx)
+            call interp_r2d_sta (vbar(START_2D_ARRAY,1,knew), istav,
+     &                                      nfltmax, indx)
+          endif
+
+# endif
 
 # ifdef SOLVE3D
 #  ifdef ALL_SIGMA

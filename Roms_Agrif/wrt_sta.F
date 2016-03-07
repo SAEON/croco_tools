@@ -62,14 +62,18 @@
       endif
 # endif
 
-      if (nstas.gt.0) then
-
+      if (nstas0.gt.0) then
 !
 ! Create/open history file; write grid arrays, if so needed.
 !
       newf=.false.
       call def_sta (ncidsta, nrecsta, ierr, newf)
-      if (ierr .ne. nf_noerr) goto 99
+      if (ierr .ne. nf_noerr) goto 101 
+
+      endif
+
+      if (nstas.gt.0) then
+
 !                                       !!! WARNING: Once time  
 ! Set record within the file.           !!! stepping has been
 !                                       !!! started, it is assumed
@@ -453,10 +457,21 @@ c      endif ! iic=0
 
       endif ! (nstas.gt.0)
 
+      goto 102
+ 101  may_day_flag=3
+ 102  continue
+
 # if defined MPI & !defined PARALLEL_FILES
       if (mynode .lt. NNODES-1) then
         call MPI_Send (stamax, 1, MPI_INTEGER, mynode+1,
      &                         1, MPI_COMM_WORLD,  ierr)
+      endif
+# endif
+
+# ifdef MPI
+      if (mynode.eq.0 .and. nstas.eq.0 .and. nstas0.gt.0) then
+        MPI_master_only write(stdout,'(6x,A)') 
+     &                      'WRT_STA -- wrote station fields'
       endif
 # endif
 
