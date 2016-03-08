@@ -58,24 +58,24 @@
       SELECT CASE (TRIM(cdgrd))
       CASE ("rho")
          vtype=r2dvar
-         nx_glo=LLm0+2
-         ny_glo=MMm0+2
+         nx_glo=LLm+2
+         ny_glo=MMm+2
       CASE ("b")
          vtype=r2dvar
-         nx_glo=LLm0+2
-         ny_glo=MMm0+2
+         nx_glo=LLm+2
+         ny_glo=MMm+2
       CASE ("u")
          vtype=u2dvar
-         nx_glo=LLm0+1
-         ny_glo=MMm0+2
+         nx_glo=LLm+1
+         ny_glo=MMm+2
       CASE ("v")
          vtype=v2dvar
-         nx_glo=LLm0+2
-         ny_glo=MMm0+1
+         nx_glo=LLm+2
+         ny_glo=MMm+1
       CASE ("w")
          vtype=r2dvar
-         nx_glo=LLm0+2
-         ny_glo=MMm0+2
+         nx_glo=LLm+2
+         ny_glo=MMm+2
       END SELECT
 
       ! From nf_fread.F
@@ -144,7 +144,7 @@
       CALL iom_set_domain_attr(TRIM(cdgrd),
      &     lonvalue=RESHAPE(plon(imin:imax,jmin:jmax), (/ni*nj/)),
      &     latvalue=RESHAPE(plat(imin:imax,jmin:jmax), (/ni*nj/)))
-      !
+      !      
       END SUBROUTINE set_grid
 
 

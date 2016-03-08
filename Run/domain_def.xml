@@ -4,7 +4,7 @@
         <!--   My zoom: example of hand defined zoom   -->
         <domain id="myzoom" zoom_ibegin="10" zoom_jbegin="10" zoom_ni="5" zoom_nj="5" />
         <domain id="rho" long_name="grid Rho"/>
-         <domain id="1point" zoom_ibegin="10" zoom_jbegin="10" zoom_ni="1" zoom_nj="1" />
+         <domain id="1point" zoom_ibegin="1" zoom_jbegin="1" zoom_ni="1" zoom_nj="1" />
      </domain_group>
 
      <domain_group id="u">
