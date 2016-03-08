@@ -304,9 +304,9 @@ c**       write(*,*) mynode, ' crss =',bc_crss, 'vol =',volume
 
 #ifdef SPHERICAL
           MPI_master_only write(stdout,
-     &        '(A,F8.4,A,F8.4,A,F8.4,A,F8.4)')
-     &        'lonmin=', lonmin, ' lonmax=', lonmax,
-     &        'latmin=', latmin, ' latmax=', latmax
+     &        '(5x,A,F6.2,A,F6.2,A,F6.2,A,F6.2/)')
+     &        '  lonmin = ', lonmin, '  lonmax = ', lonmax,
+     &        '  latmin = ', latmin, '  latmax = ', latmax
 #endif
 
         endif
