@@ -757,11 +757,12 @@ CR      write(*,*) ' -1' MYID
 !----------------------------------------------------------------------
 !
 # ifdef XIOS
-      if (nrrec.eq.0) then
-        do tile=0,NSUB_X*NSUB_E-1
-          call send_xios_diags(tile)
-        enddo
-      endif
+!RB to be checked
+!      if (nrrec.eq.0) then
+!        do tile=0,NSUB_X*NSUB_E-1
+!          call send_xios_diags(tile)
+!        enddo
+!      endif
 # else
       if (ldefhis .and. wrthis(indxTime)) call wrt_his
 # endif
@@ -1606,8 +1607,9 @@ CR      write(*,*) '  0' MYID
 # include "ncscrum.h"
 
 # ifdef XIOS
-      call iom_swap( "roms" )
-      call send_xios_diags(0)
+!RB to be checked
+!      call iom_swap( "roms" )
+!      call send_xios_diags(0)
 # else
       call wrt_his
 # endif

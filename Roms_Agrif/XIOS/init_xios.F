@@ -1126,7 +1126,7 @@
       !
       INTEGER tile,ji
       INTEGER ilocal_comm
-      TYPE(xios_time) :: dtime 
+      TYPE(xios_time) :: dtime  = xios_time(0, 0, 0, 0, 0, 0)
       TYPE(xios_context) :: ctx_hdl
       TYPE(xios_field) :: field_hdl
       TYPE(xios_fieldgroup) :: fieldgroup_hdl
@@ -1228,6 +1228,7 @@
       ! end definition phase
       CALL xios_close_context_definition()
       !
+      CALL xios_update_calendar(0)
       END SUBROUTINE init_xios_tile
       
       

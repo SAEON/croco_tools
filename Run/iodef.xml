@@ -13,7 +13,7 @@
    <!-- ========================================================================== -->
    <!-- ========================================================================== -->
 
-   <file_definition type="multiple_file"  name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">
+   <file_definition type="one_file"  name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1h" min_digits="4">
 <!--   <file_definition type="one_file" output_freq="1800s" output_level="10" enabled=".TRUE."> -->
       <file_group id="1ts" output_freq="1ts"  output_level="10" enabled=".TRUE."/> <!-- 1 time step files -->
       <file_group id="1h" output_freq="1h"  output_level="10" enabled=".TRUE."/> <!-- 1h files -->
@@ -108,7 +108,7 @@
    <!-- ========================================================================== -->
    <!-- ========================================================================== -->
 
-   <file_definition type="multiple_file"  name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">
+   <file_definition type="one_file"  name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">
 <!--   <file_definition type="one_file" output_freq="1800s" output_level="10" enabled=".TRUE."> -->
       <file_group id="1ts" output_freq="1ts"  output_level="10" enabled=".TRUE."/> <!-- 1 time step files -->
       <file_group id="1h" output_freq="1h"  output_level="10" enabled=".TRUE."/> <!-- 1h files -->

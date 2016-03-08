@@ -154,9 +154,9 @@ C$OMP MASTER
 
 #ifdef AGRIF
 # ifdef XIOS
-      if( nbcoarse == 1 )then
+!      if( nbcoarse == 1 )then
         call iom_swap( "roms" )
-      endif
+!      endif
 # endif
 #endif
 

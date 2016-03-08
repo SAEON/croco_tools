@@ -663,12 +663,12 @@ C$OMP END MASTER
 !----------------------------------------------------------------------
 !
 #ifdef XIOS
-      if (nrrec.eq.0) then
-C$OMP PARALLEL DO PRIVATE(tile)
-        do tile=0,NSUB_X*NSUB_E-1
-          call send_xios_diags(tile)
-        enddo
-      endif
+!      if (nrrec.eq.0) then
+!C$OMP PARALLEL DO PRIVATE(tile)
+!        do tile=0,NSUB_X*NSUB_E-1
+!          call send_xios_diags(tile)
+!        enddo
+!      endif
 #else
       if (ldefhis .and. wrthis(indxTime)) call wrt_his
 #endif
