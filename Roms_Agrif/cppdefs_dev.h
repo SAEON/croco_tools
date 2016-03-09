@@ -65,6 +65,23 @@
 
 /* 
 ======================================================================
+   Set OW COUPLING options:
+   Define MPI, select OA_MCT    
+   Change the generic name of MPI communicator MPI_COMM_WORLD
+   to OASIS-MCT local communicator
+======================================================================
+*/
+#ifdef OW_COUPLING
+# undef  OPENMP
+# define MPI
+# define OA_MCT
+# define MPI_COMM_WORLD ocean_grid_comm
+# undef  OA_GRID_UV
+# undef  WKB_WWAVE
+#endif
+
+/* 
+======================================================================
    Set XIOS options:    
    Activate MPI
    Change the generic name of MPI communicator MPI_COMM_WORLD
@@ -96,7 +113,8 @@
 */
 #if defined SOLVE3D
 # define VAR_RHO_2D
-# if !defined NONLIN_EOS && !defined RVTK_DEBUG
+# if !defined NONLIN_EOS && !defined RVTK_DEBUG &&\
+     !defined INNERSHELF
 #  define RESET_RHO0
 # endif
 #endif
@@ -329,7 +347,9 @@
 ======================================================================
 */
 #ifdef SPONGE
-# define SPONGE_GRID
+# ifndef INNERSHELF 
+#  define SPONGE_GRID
+# endif
 # define SPONGE_DIF2
 # define SPONGE_VIS2
 #endif
@@ -376,7 +396,7 @@
 # undef  WAVE_BREAK_TG86A
 # undef  WAVE_BREAK_R93
 
-# if !defined WKB_WWAVE && !defined ANA_WWAVE
+# if !defined WKB_WWAVE && !defined ANA_WWAVE && !defined OW_COUPLING
 #  define WAVE_OFFLINE
 #  undef  WAVE_ROLLER
 # endif
@@ -432,7 +452,9 @@
     numerical instability associated with reversing bottom flow
 ======================================================================
 */
-#define LIMIT_BSTRESS
+#ifndef INNERSHELF
+# define LIMIT_BSTRESS
+#endif
 #ifdef BBL
 # ifdef SEDIMENT
 #  undef  ANA_BSEDIM
