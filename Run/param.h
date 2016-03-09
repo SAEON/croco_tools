@@ -403,18 +403,15 @@
      &          , iBFE_, iGOC_, iSFE_, iDFE_, iDSI_
      &          , iNFE_, iNCH_, iDCH_, iNO3_, iNH4_
 #   ifdef DIAGNOSTICS_BIO
-#    ifdef key_trc_dia3d
-     &          , Nhi,Nco3,Naksp,Netot,Nprorca
-     &          , Nprorca2,Npronew,Npronew2
-     &          , Nprorca3,Nprorca4,Nprorca5
-     &          , Ngraztot1,Ngraztot2,Nnitrifo2
-     &          , Npronewo2,Nprorego2,Nremino2
-     &          , Nmicroo2,Nmesoo2,Nfixo2
-#    endif
 #    ifdef key_trc_diaadd
+     &          , Nhi,Nco3,Naksp,Netot,Nprorca
+     &          , Nprorcad,Npronew,Npronewd
+     &          , Nprobsi,Nprofed,Nprofen
+     &          , Ngraztot,Nnitrifo2,Nfixo2,Nremino2
+     &          , Npronewo2,Nprorego2
      &          , Nfld,Nflu16,Nkgco2,Natcco2,Nsinking
-     &          , Nsinking2,Nsinkfer,Nsinkfer2,Nsinksil
-     &          , Nsinkcal,Nzmeu,Nirondep,Nnitrpot
+     &          , Nsinkfer,Nsinksil
+     &          , Nsinkcal,Nheup,Nirondep,Nnitrpot
 #    endif
 #   endif
      &          , NumFluxTerms,NumVSinkTerms,NumGasExcTerms
@@ -520,48 +517,41 @@
      &            iDFE_=iDIC_+17, iDSI_=iDIC_+18, iNFE_=iDIC_+19,
      &            iNCH_=iDIC_+20, iDCH_=iDIC_+21, iNO3_=iDIC_+22,
      &            iNH4_=iDIC_+23)
-#   ifdef key_trc_dia3d
+#   ifdef key_trc_diaadd
        parameter (Nhi       = 1,
      &            Nco3      = 2,
      &            Naksp     = 3,
      &            Netot     = 4,
      &            Nprorca   = 5,
-     &            Nprorca2  = 6,
+     &            Nprorcad  = 6,
      &            Npronew   = 7,
-     &            Npronew2  = 8,
-     &            Nprorca3  = 9,
-     &            Nprorca4  = 10,
-     &            Nprorca5  = 11,
-     &            Ngraztot1 = 12,
-     &            Ngraztot2 = 13,
-     &            Nnitrifo2 = 14,
-     &            Npronewo2 = 15,
-     &            Nprorego2 = 16,
-     &            Nremino2  = 17,
-     &            Nmicroo2  = 18,
-     &            Nmesoo2   = 19,
-     &            Nfixo2    = 20,
-     &            NumFluxTerms   = Nfixo2)
-#   else
-       parameter (NumFluxTerms = 0)
-#   endif
-#   ifdef key_trc_diaadd
+     &            Npronewd  = 8,
+     &            Nprobsi   = 9,
+     &            Nprofed   = 10,
+     &            Nprofen   = 11,
+     &            Npronewo2 = 12,
+     &            Nprorego2 = 13,
+     &            Ngraztot  = 14,
+     &            Nnitrifo2 = 15,
+     &            Nremino2  = 16,
+     &            Nfixo2    = 17,
+     &            NumFluxTerms = Nfixo2)
+
        parameter (Nfld      = 1,
      &            Nflu16    = 2,
      &            Nkgco2    = 3,
      &            Natcco2   = 4,
      &            Nsinking  = 5,
-     &            Nsinking2 = 6,
-     &            Nsinkfer  = 7,
-     &            Nsinkfer2 = 8,
-     &            Nsinksil  = 9,
-     &            Nsinkcal  = 10,
-     &            Nzmeu     = 11,
-     &            Nirondep  = 12,
-     &            Nnitrpot  = 13,
+     &            Nsinkfer  = 6,
+     &            Nsinksil  = 7,
+     &            Nsinkcal  = 8,
+     &            Nheup     = 9,
+     &            Nirondep  = 10,
+     &            Nnitrpot  = 11,
      &            NumGasExcTerms = 0,
      &            NumVSinkTerms = Nnitrpot)
 #   else
+       parameter (NumFluxTerms = 0)
        parameter (NumGasExcTerms = 0, NumVSinkTerms = 0)
 #   endif
 

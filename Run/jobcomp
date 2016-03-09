@@ -108,8 +108,9 @@ AGRIF_SRC=${SOURCE}/AGRIF
 # copy SOURCE code
 #
 /bin/cp -f ${SOURCE}/*.F90 $SCRDIR
-/bin/cp -f ${SOURCE}/*.F $SCRDIR
-/bin/cp -f ${SOURCE}/*.h $SCRDIR
+/bin/cp -f ${SOURCE}/*.h90 $SCRDIR
+/bin/cp -f ${SOURCE}/*.F   $SCRDIR
+/bin/cp -f ${SOURCE}/*.h   $SCRDIR
 /bin/cp -f ${SOURCE}/Make* $SCRDIR
 /bin/cp -f ${SOURCE}/testkeys.F $SCRDIR
 /bin/cp -f ${SOURCE}/jobcomp $SCRDIR
@@ -117,17 +118,18 @@ AGRIF_SRC=${SOURCE}/AGRIF
 /bin/cp -RLf ${AGRIF_SRC} $SCRDIR
 /bin/cp -f ${SOURCE}/XIOS/*.F $SCRDIR
 /bin/cp -f ${SOURCE}/PISCES/* $SCRDIR
-/bin/cp -f ${SOURCE}/PISCES/kRGB61.txt $RUNDIR
-if [[ -e "namelist.trc.sms" ]] ; then
-	echo "  file namelist.trc.sms exists in Run directory"
+/bin/cp -f ${SOURCE}/PISCES/kRGB61* $RUNDIR
+if [[ -e "namelist_pisces" ]] ; then
+	echo "  file namelist_pisces exists in Run directory"
 else
-	/bin/cp -f ${SOURCE}/PISCES/namelist.trc.sms* $RUNDIR
-	echo "  file namelist.trc.sms copied from source directory"
+	/bin/cp -f ${SOURCE}/PISCES/namelist_pisces* $RUNDIR
+	echo "  file namelist_pisces copied from source directory"
 fi
 #
 # overwrite with local files
 #
 /bin/cp -f *.F90 $SCRDIR
+/bin/cp -f *.h90 $SCRDIR
 /bin/cp -f *.F $SCRDIR
 /bin/cp -f *.h $SCRDIR
 /bin/cp -f Make* $SCRDIR
@@ -339,7 +341,7 @@ if [[ $COMPILEAGRIF ]] ; then
 	mkdir AGRIF_MODELFILES
 	mkdir AGRIF_INC
 	cd ..
-	for i in *.h ; do
+	for i in *.h *.h90 ; do
 		echo $i
 		cat cppdefs.h $i | cpp -P | grep -v -e ! -e '#' -e % -e '*' > ROMSFILES/$i
 	done

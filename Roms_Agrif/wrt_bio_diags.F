@@ -116,8 +116,8 @@ CDEBUG      write(*,*) 'Write Time'
 
 #ifdef PISCES
 
+#  if defined key_trc_diaadd
 ! 3-D terms (it is called Flux but it means nothing) Christophe Menkes
-#  if defined key_trc_dia3d
        do iflux=1,NumFluxTerms
          if (wrtdiabioFlux(iflux)) then
            workr=bioFlux(:,:,:,iflux)
@@ -125,9 +125,7 @@ CDEBUG      write(*,*) 'Write Time'
      &          indxbioFlux+iflux-1,record,r3dvar,type)
          endif
        end do
-#  endif
 !     2-D terms (it is called Vsink but it means nothing) Christophe Menkes
-#  if defined key_trc_diaadd
        do iflux=1,NumVSinkTerms
          if (wrtdiabioVSink(iflux)) then
 !     if (iflux.eq.11)  write(*,*) 'ZMEU WRT',bioVSink(30,30,iflux)

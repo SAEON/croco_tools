@@ -31,6 +31,10 @@
           USE module_nh     ! NBQ modules
           USE module_nbq
 #endif
+#ifdef PISCES
+          USE pisces_ini     ! PISCES modules
+          USE trcini_pisces 
+#endif
 !     implicit none
       integer tile, subs, trd, ierr
 #include "param.h"
@@ -69,9 +73,6 @@
 #endif
 #ifdef WKB_WWAVE
 # include "wkb_wwave.h"
-#endif
-#ifdef PISCES
-# include "parameter.h"
 #endif
      
 #ifdef AUTOTILING
@@ -173,8 +174,8 @@
 !  PISCES biogeochemeical model parameters
 !
 # ifdef PISCES
-      call trclsm
-      call get_dust
+!      CALL trc_nam_pisces
+!      CALL get_dust
 # endif
 !
 !  Read sediment initial values and parameters from sediment.in file
@@ -305,8 +306,9 @@ C$OMP PARALLEL DO PRIVATE(tile)
 #if defined BIOLOGY && defined PISCES
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
-        call  pisces_ini (tile)
+        call  pisces_ini_tile (tile)
       enddo
+      CALL trc_nam_pisces
 #endif
 CR      write(*,*) ' -6' MYID 
       if (may_day_flag.ne.0) goto 99 !-->  EXIT
@@ -667,6 +669,7 @@ C$OMP END MASTER
 !C$OMP PARALLEL DO PRIVATE(tile)
 !        do tile=0,NSUB_X*NSUB_E-1
 !          call send_xios_diags(tile)
+!          write(*,*)  'apres'
 !        enddo
 !      endif
 #else

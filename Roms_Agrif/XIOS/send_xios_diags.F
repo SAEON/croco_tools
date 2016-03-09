@@ -17,6 +17,7 @@
 
       subroutine send_xios_diags (tile)
       implicit none
+     
 # include "param.h"
 # ifdef SOLVE3D
 #  include "work.h"
@@ -44,6 +45,9 @@
 !
 
           USE xios     ! XIOS io
+#if defined BIOLOGY && defined PISCES
+          USE trcwri_pisces
+#endif
 
       implicit none
 # include "param.h"
@@ -109,7 +113,7 @@
 ! curves "Cs_w", "Cs_r" at W- and RHO-points.
 !
 !
-! Ugly fix to write scalars until XIOS 2.0 
+! Ugly fix to write scalars until XIOS 2.0
 !
       do k=1,N
       zz(:,:,k)=Cs_r(k)
@@ -389,7 +393,11 @@
       call xios_send_field("sst_skin",sst_skin)
 #  endif
      
-#  if defined BIOLOGY && !defined PISCES
+
+#  if defined BIOLOGY
+#   if defined PISCES
+      CALL trc_wri_pisces
+#   else
       call xios_send_field("hel",hel)     
 #   if (defined BIO_NChlPZD ||  defined BIO_N2ChlPZD2)
       call xios_send_field("theta",theta)
@@ -402,7 +410,7 @@
       call xios_send_field("AOU",AOU)
       call xios_send_field("wind10",wind10)
 #   endif
-! ouput of tracer to be done ...
+#   endif
 #  endif /* BIOLOGY */
 
 
@@ -526,6 +534,7 @@
 !     
 #  endif /* BBL */
 # endif /* SOLVE3D */
+
 
       return
       end

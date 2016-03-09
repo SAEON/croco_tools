@@ -121,8 +121,8 @@ C      write(*,*) 'Write Time'
 !
 !
 #ifdef PISCES
+#  if defined key_trc_diaadd
 !     3-D terms (it is called Flux but it means nothing)
-#  if defined key_trc_dia3d
       do iflux=1,NumFluxTerms
         if (wrtdiabioFlux_avg(iflux)) then
           workr=bioFlux_avg(:,:,:,iflux)
@@ -130,9 +130,7 @@ C      write(*,*) 'Write Time'
      &         indxbioFlux+iflux-1,record,r3dvar,type)
         endif
       end do
-#  endif
 !     2-D terms (it is called Vsink but it means nothing)
-#  if defined key_trc_diaadd
       do iflux=1,NumVSinkTerms
         if (wrtdiabioVSink_avg(iflux)) then
 !     if (iflux.eq.11)  write(*,*) 'ZMEU WRT_AVG',bioVSink_avg(30,30,iflux)

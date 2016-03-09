@@ -1704,53 +1704,6 @@ CR      write(stdout,'(1x,A,I3)') 'indxEPR =',indxEPR
       vname(1,indxEPR)='epr                                      '
       vname(2,indxEPR)='roller dissipation, epsilon_r            '
       vname(3,indxEPR)='meter^3/second^3                         '
-
-#elif defined OW_COUPLING 
-CR      write(stdout,'(1x,A,I3)') 'indxHRM =',indxHRM
-      vname(1,indxHRM)='whrm                                     '
-      vname(2,indxHRM)='RMS wave height                          '
-      vname(3,indxHRM)='meter                                    '
-
-CR      write(stdout,'(1x,A,I3)') 'indxFRQ =',indxFRQ
-      vname(1,indxFRQ)='wfrq                                     '
-      vname(2,indxFRQ)='wave frequency                           '
-      vname(3,indxFRQ)='rad/second                               '
-
-CR      write(stdout,'(1x,A,I3)') 'indxWAC =',indxWAC
-      vname(1,indxWAC)='wac                                      '
-      vname(2,indxWAC)='wave action                              '
-      vname(3,indxWAC)='meter^3 second^-1                        '
-
-CR      write(stdout,'(1x,A,I3)') 'indxWKX =',indxWKX
-      vname(1,indxWKX)='wdrx                                     '
-      vname(2,indxWKX)='cosine wave direction                    '
-      vname(3,indxWKX)='ND                                       '
-
-CR      write(stdout,'(1x,A,I3)') 'indxWKE =',indxWKE
-      vname(1,indxWKE)='wdre                                     '
-      vname(2,indxWKE)='sine wave direction                      '
-      vname(3,indxWKE)='ND                                       '
-
-CR      write(stdout,'(1x,A,I3)') 'indxEPB =',indxEPB
-      vname(1,indxEPB)='wdsp                                     '
-      vname(2,indxEPB)='breaking dissipation rate, epsilon_b     '
-      vname(3,indxEPB)='meter^3/second^3                         '
-
-CR      write(stdout,'(1x,A,I3)') 'indxEPD =',indxEPD
-      vname(1,indxEPD)='wdrg                                     '
-      vname(2,indxEPD)='frictional dissipation rate, epsilon_d   '
-      vname(3,indxEPD)='meter^3/second^3                         '
-
-CR      write(stdout,'(1x,A,I3)') 'indxWAR =',indxWAR
-      vname(1,indxWAR)='war                                      '
-      vname(2,indxWAR)='wave action of roller component          '
-      vname(3,indxWAR)='meter^3 second^-1                        '
-
-CR      write(stdout,'(1x,A,I3)') 'indxEPR =',indxEPR
-      vname(1,indxEPR)='rdsp                                     '
-      vname(2,indxEPR)='roller dissipation, epsilon_r            '
-      vname(3,indxEPR)='meter^3/second^3                         ' 
-
 #endif
 
 #ifdef MRL_WCI
@@ -3156,7 +3109,7 @@ CR     &                          ,indxbioFlux+NFlux_lightlimitP1-1
 !--------------------------------------------------------------------------------
 !====================================================================
 # elif defined PISCES
-#  ifdef key_trc_dia3d
+#  ifdef key_trc_diaadd
       vname(1,indxbioFlux+Nhi-1)=
      &     'PH                              '  
       vname(2,indxbioFlux+Nhi-1)=
@@ -3194,156 +3147,118 @@ CR     &                          ,indxbioFlux+NFlux_lightlimitP1-1
      &     'PAR           , scalar, series  '  
 
       vname(1,indxbioFlux+Nprorca-1)=
-     &     'PPN                             '  
+     &     'PPPHY                           '  
       vname(2,indxbioFlux+Nprorca-1)=
      &     'Primary production Nanoplankton '  
       vname(3,indxbioFlux+Nprorca-1)=
      &     'molC/m3/s                       '  
       vname(4,indxbioFlux+Nprorca-1)=
-     &     'PPN           , scalar, series  '  
+     &     'PPPHY         , scalar, series  '  
 
 
-      vname(1,indxbioFlux+Nprorca2-1)=
-     &     'PPD                             '  
-      vname(2,indxbioFlux+Nprorca2-1)=
+      vname(1,indxbioFlux+Nprorcad-1)=
+     &     'PPPHY2                          '  
+      vname(2,indxbioFlux+Nprorcad-1)=
      &     'Primary production Diatoms      '  
-      vname(3,indxbioFlux+Nprorca2-1)=
+      vname(3,indxbioFlux+Nprorcad-1)=
      &     'molC/m3/s                       '  
-      vname(4,indxbioFlux+Nprorca2-1)=
-     &     'PPD           , scalar, series  '  
+      vname(4,indxbioFlux+Nprorcad-1)=
+     &     'PPPHY2        , scalar, series  '  
 
       vname(1,indxbioFlux+Npronew-1)=
-     &     'PN                              '  
+     &     'PPNEWN                          '  
       vname(2,indxbioFlux+Npronew-1)=
      &     'New Production Nanoplankton     '  
       vname(3,indxbioFlux+Npronew-1)=
      &     'molC/m3/s                       '  
       vname(4,indxbioFlux+Npronew-1)=
-     &     'PN            , scalar, series  '  
+     &     'PPNEWN        , scalar, series  '  
 
 
-      vname(1,indxbioFlux+Npronew2-1)=
-     &     'PND                             '  
-      vname(2,indxbioFlux+Npronew2-1)=
+      vname(1,indxbioFlux+Npronewd-1)=
+     &     'PPNEWD                          '  
+      vname(2,indxbioFlux+Npronewd-1)=
      &     'New Production Diatoms          '  
-      vname(3,indxbioFlux+Npronew2-1)=
+      vname(3,indxbioFlux+Npronewd-1)=
      &     'molC/m3/s                       '  
-      vname(4,indxbioFlux+Npronew2-1)=
-     &     'PND           , scalar, series  '  
+      vname(4,indxbioFlux+Npronewd-1)=
+     &     'PPNEWD        , scalar, series  '  
 
-      vname(1,indxbioFlux+Nprorca3-1)=
+      vname(1,indxbioFlux+Nprobsi-1)=
      &     'PBSi                            '   
-      vname(2,indxbioFlux+Nprorca3-1)=
+      vname(2,indxbioFlux+Nprobsi-1)=
      &     'Silicate Production Diatoms     '   
-      vname(3,indxbioFlux+Nprorca3-1)=
+      vname(3,indxbioFlux+Nprobsi-1)=
      &     'molSi/m3/s                      '   
-      vname(4,indxbioFlux+Nprorca3-1)=
+      vname(4,indxbioFlux+Nprobsi-1)=
      &     'PBSi          , scalar, series  '   
       
-      vname(1,indxbioFlux+Nprorca4-1)=
+      vname(1,indxbioFlux+Nprofen-1)=
      &     'PFeN                            '   
-      vname(2,indxbioFlux+Nprorca4-1)=
+      vname(2,indxbioFlux+Nprofen-1)=
      &     'Iron Production Nano            '   
-      vname(3,indxbioFlux+Nprorca4-1)=
+      vname(3,indxbioFlux+Nprofen-1)=
      &     'molFe/m3/s                      '   
-      vname(4,indxbioFlux+Nprorca4-1)=
+      vname(4,indxbioFlux+Nprofen-1)=
      &     'PFeN          , scalar, series  '   
       
-      vname(1,indxbioFlux+Nprorca5-1)=
+      vname(1,indxbioFlux+Nprofed-1)=
      &     'PFeD                            '   
-      vname(2,indxbioFlux+Nprorca5-1)=
+      vname(2,indxbioFlux+Nprofed-1)=
      &     'Iron Production Diatoms         '   
-      vname(3,indxbioFlux+Nprorca5-1)=
+      vname(3,indxbioFlux+Nprofed-1)=
      &     'molFe/m3/s                      '   
-      vname(4,indxbioFlux+Nprorca5-1)=
+      vname(4,indxbioFlux+Nprofed-1)=
      &     'PFeD          , scalar, series  '  
 
-        vname(1,indxbioFlux+Ngraztot1-1)=
-     &     'grapoc                                     '
-        vname(2,indxbioFlux+Ngraztot1-1)=
-     &     'Microzooplankton Grazing                   '
-        vname(3,indxbioFlux+Ngraztot1-1)=
-     &     'molC/m3/s                                  '
-        vname(4,indxbioFlux+Ngraztot1-1)=
-     &     'grapoc        , scalar, series             '
-
-        vname(1,indxbioFlux+Ngraztot2-1)=
-     &     'grapoc2                                    '
-        vname(2,indxbioFlux+Ngraztot2-1)=
-     &     'Mesozooplankton Grazing                    '
-        vname(3,indxbioFlux+Ngraztot2-1)=
-     &     'molC/m3/s                                  '
-        vname(4,indxbioFlux+Ngraztot2-1)=
-     &     'grapoc2       , scalar, series             '
-
-        vname(1,indxbioFlux+Nnitrifo2-1)=
-     &     'Nito2                                      '
-        vname(2,indxbioFlux+Nnitrifo2-1)=
-     &     'o2 consumption by Nitrification            '
-        vname(3,indxbioFlux+Nnitrifo2-1)=
-     &     'molC/m3/s                                  '
-        vname(4,indxbioFlux+Nnitrifo2-1)=
-     &     'Nito2         , scalar, series             '
-
         vname(1,indxbioFlux+Npronewo2-1)=
-     &     'NPo2                                       '
+     &     'PPNEWo2                         '
         vname(2,indxbioFlux+Npronewo2-1)=
-     &     'o2 production by the NP                    '
+     &     'o2 production by the NP         '
         vname(3,indxbioFlux+Npronewo2-1)=
-     &     'molC/m3/s                                  '
+     &     'molC/m3/s                       '
         vname(4,indxbioFlux+Npronewo2-1)=
-     &     'NPo2         , scalar, series              '
+     &     'PPNEWo2         , scalar, series      '
 
         vname(1,indxbioFlux+Nprorego2-1)=
-     &     'RPo2                                       '
+     &     'PPRego2                                    '
         vname(2,indxbioFlux+Nprorego2-1)=
      &     'o2 production by the RP                    '
         vname(3,indxbioFlux+Nprorego2-1)=
      &     'molC/m3/s                                  '
         vname(4,indxbioFlux+Nprorego2-1)=
-     &     'RPo2         , scalar, series              '
+     &     'PPRego2         , scalar, series           '
 
-        vname(1,indxbioFlux+Nremino2-1)=
-     &     'Remo2                                      '
-        vname(2,indxbioFlux+Nremino2-1)=
-     &     'o2 consumption by the remineralization     '
-        vname(3,indxbioFlux+Nremino2-1)=
+        vname(1,indxbioFlux+Ngraztot-1)=   
+     &     'GRAZ                                       '
+        vname(2,indxbioFlux+Ngraztot-1)=
+     &     'Total  Grazing                             '
+        vname(3,indxbioFlux+Ngraztot-1)=
      &     'molC/m3/s                                  '
-        vname(4,indxbioFlux+Nremino2-1)=
-     &     'Remo2         , scalar, series             '
+        vname(4,indxbioFlux+Ngraztot-1)=
+     &     'GRAZ          , scalar, series             '
 
-        vname(1,indxbioFlux+Nmicroo2-1)=
-     &     'Mico2                                      '
-        vname(2,indxbioFlux+Nmicroo2-1)=
-     &     'o2 consumption by Microzoo                 '
-        vname(3,indxbioFlux+Nmicroo2-1)=
+        vname(1,indxbioFlux+Nnitrifo2-1)=
+     &     'NitO2                                      '
+        vname(2,indxbioFlux+Nnitrifo2-1)=
+     &     'o2 consumption by Nitrification            '
+        vname(3,indxbioFlux+Nnitrifo2-1)=
      &     'molC/m3/s                                  '
-        vname(4,indxbioFlux+Nmicroo2-1)=
-     &     'Mico2         , scalar, series             '
+        vname(4,indxbioFlux+Nnitrifo2-1)=
+     &     'NitO2         , scalar, series             '
 
-        vname(1,indxbioFlux+Nmesoo2-1)=
-     &     'Mso2                                       '
-        vname(2,indxbioFlux+Nmesoo2-1)=
-     &     'o2 consumption by Mesozoo                  '
-        vname(3,indxbioFlux+Nmesoo2-1)=
-     &     'molC/m3/s                                  '
-        vname(4,indxbioFlux+Nmesoo2-1)=
-     &     'Mso2         , scalar, series              '
 
       write(stdout,'(1x,A,I3)') 'indxbioFlux(Nfixo2)='
      &                          ,indxbioFlux+Nfixo2-1
         vname(1,indxbioFlux+Nfixo2-1)=
-     &     'Fixo2                                      '
+     &     'NFixo2                                      '
         vname(2,indxbioFlux+Nfixo2-1)=
      &     'o2 production by Nfix                      '
         vname(3,indxbioFlux+Nfixo2-1)=
      &     'molC/m3/s                                  '
         vname(4,indxbioFlux+Nfixo2-1)=
-     &     'Fixo2         , scalar, series             ' 
+     &     'NFixo2         , scalar, series             ' 
 
-#  endif
-      
-#  ifdef key_trc_diaadd
       write(stdout,'(1x,A,I3)') 'indxbioVSink(Nfld)='
      &                          ,indxbioVSink+Nfld-1
       vname(1,indxbioVSink+Nfld-1)=
@@ -3374,85 +3289,69 @@ CR     &                          ,indxbioFlux+NFlux_lightlimitP1-1
      &     'Kg              , scalar, series'  
 
       vname(1,indxbioVSink+Natcco2-1)=
-     &     'DelC                            '  
+     &     'Dpco2                            '  
       vname(2,indxbioVSink+Natcco2-1)=
-     &     'Deltaco2                        '  
-      vname(3,indxbioVSink+Natcco2-1)=
-     &     'uatm                            '  
+     &     'Delta Co2                        '  
+      vname(3,indxbioVSink+Natcco2-1)= 
+     &     'uatm                             '  
       vname(4,indxbioVSink+Natcco2-1)=
-     &     'DelC            , scalar, series'  
+     &     'Dpco2            , scalar, series'  
 
       vname(1,indxbioVSink+Nsinking-1)=
-     &     'ExpPOC1                         '  
+     &     'EPC100                           '  
       vname(2,indxbioVSink+Nsinking-1)=
-     &     'small POC export                '  
+     &     'Carbon export                    '  
       vname(3,indxbioVSink+Nsinking-1)=
-     &     'molC/m2/s                       '  
+     &     'molC/m2/s                        '  
       vname(4,indxbioVSink+Nsinking-1)=
-     &     'ExpPOC1         , scalar, series'  
+     &     'EPC100           , scalar, series'  
 
-      vname(1,indxbioVSink+Nsinking2-1)=
-     &     'ExpPOC2                         '  
-      vname(2,indxbioVSink+Nsinking2-1)=
-     &     'big POC export                  '  
-      vname(3,indxbioVSink+Nsinking2-1)=
-     &     'molC/m2/s                       '  
-      vname(4,indxbioVSink+Nsinking2-1)=
-     &     'ExpPOC2         , scalar, series'  
 
       vname(1,indxbioVSink+Nsinkfer-1)=
-     &     'ExpFe1                          '  
+     &     'EPFE100                         '  
       vname(2,indxbioVSink+Nsinkfer-1)=
-     &     'Fe export Nano                  '  
+     &     'Biogenic Iron export            '  
       vname(3,indxbioVSink+Nsinkfer-1)=
      &     'molFe/m2/s                      '  
       vname(4,indxbioVSink+Nsinkfer-1)=
-     &     'ExpFe1          , scalar, series'  
+     &     'EPFE100         , scalar, series'  
 
-      vname(1,indxbioVSink+Nsinkfer2-1)=
-     &     'ExpFe2                          '  
-      vname(2,indxbioVSink+Nsinkfer2-1)=
-     &     'Fe export Diatoms               '  
-      vname(3,indxbioVSink+Nsinkfer2-1)=
-     &     'molFe/m2/s                      '  
-      vname(4,indxbioVSink+Nsinkfer2-1)=
-     &     'ExpFe2          , scalar, series'  
 
       vname(1,indxbioVSink+Nsinksil-1)=
-     &     'ExpSi                           '  
+     &     'EPSI100                         '  
       vname(2,indxbioVSink+Nsinksil-1)=
      &     'BSi export                      '  
       vname(3,indxbioVSink+Nsinksil-1)=
      &     'molSi/m2/s                      '  
       vname(4,indxbioVSink+Nsinksil-1)=
-     &     'ExpSi           , scalar, series'  
+     &     'EPSI100         , scalar, series'  
 
       vname(1,indxbioVSink+Nsinkcal-1)=
-     &     'ExpCaco3                        '  
+     &     'EPCAL100                        '  
       vname(2,indxbioVSink+Nsinkcal-1)=
      &     'Calcite export                  '  
       vname(3,indxbioVSink+Nsinkcal-1)=
      &     'molC/m2/s                       '  
       vname(4,indxbioVSink+Nsinkcal-1)=
-     &     'ExpCaCo3        , scalar, series'  
+     &     'EPCAL100        , scalar, series'  
 
-      vname(1,indxbioVSink+Nzmeu-1)=
-     &     'Zmeu                            '  
-      vname(2,indxbioVSink+Nzmeu-1)=
+      vname(1,indxbioVSink+Nheup-1)=
+     &     'Heup                            '  
+      vname(2,indxbioVSink+Nheup-1)=
      &     'Euphotic Depth (1%)             '  
-      vname(3,indxbioVSink+Nzmeu-1)=
+      vname(3,indxbioVSink+Nheup-1)=
      &     'm                               '  
-      vname(4,indxbioVSink+Nzmeu-1)=
-     &     'Zmeu            , scalar, series'  
+      vname(4,indxbioVSink+Nheup-1)=
+     &     'Heup            , scalar, series'  
 
       vname(1,indxbioVSink+Nirondep-1)=
-     &     'Fedep                           '  
+     &     'Irondep                         '  
       vname(2,indxbioVSink+Nirondep-1)=
      &     'Iron surface deposition flux    '  
       vname(3,indxbioVSink+Nirondep-1)=
      &     'molFe/m2/s                      '  
       vname(4,indxbioVSink+Nirondep-1)=
-     &     'Fedep           , scalar, series'  
+     &     'Irondep           , scalar, series'  
 
       write(stdout,'(1x,A,I3)') 'indxbioVSink(Nnitrpot)='
      &                          ,indxbioVSink+Nnitrpot-1

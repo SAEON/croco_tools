@@ -58,21 +58,6 @@
 # undef AGRIF_2WAY
                       /* OA Coupling via OASIS (MPI) */
 # undef  OA_COUPLING
-                      /* OW Coupling via OASIS (MPI) */
-# undef  OW_COUPLING
-# ifdef OW_COUPLING
-#  define MRL_WCI
-#  ifdef MRL_WCI
-#   undef  WKB_WWAVE
-#   undef  WKB_UNSTEADY
-#   undef  MRL_CEW
-#   undef  WKB_OBC_WEST
-#   undef  WAVE_ROLLER
-#   undef  WAVE_FRICTION
-#   undef  WAVE_STREAMING
-#   undef  WAVE_RAMP
-# endif
-# endif 
                       /* Open Boundary Conditions */
 # undef  XIOS
                       /* I/O server */
@@ -252,9 +237,8 @@
 #  define BIO_BioEBUS
                       /*   Biology options    */
 #  ifdef PISCES
-#   define DIURNAL_INPUT_SRFLX
-#   define key_trc_pisces
-#   define key_passivetrc
+#   undef DIURNAL_INPUT_SRFLX
+#   define key_pisces
 #  endif
 #  ifdef BIO_NChlPZD
 #   define  OXYGEN
@@ -267,6 +251,7 @@
 #  if defined DIAGNOSTICS_BIO && defined PISCES
 #   define key_trc_diaadd
 #   define key_trc_dia3d
+#   define key_iomput
 #  endif
 # endif
                       /*   Lagrangian floats model    */
@@ -400,6 +385,7 @@
 # undef  OPENMP
 # undef  MPI
 # undef  NBQ
+
 # ifdef NBQ
 #  define GRAV_ADJ_SOLITON
 # else

@@ -65,23 +65,6 @@
 
 /* 
 ======================================================================
-   Set OW COUPLING options:
-   Define MPI, select OA_MCT    
-   Change the generic name of MPI communicator MPI_COMM_WORLD
-   to OASIS-MCT local communicator
-======================================================================
-*/
-#ifdef OW_COUPLING
-# undef  OPENMP
-# define MPI
-# define OA_MCT
-# define MPI_COMM_WORLD ocean_grid_comm
-# undef  OA_GRID_UV
-# undef  WKB_WWAVE
-#endif
-
-/* 
-======================================================================
    Set XIOS options:    
    Activate MPI
    Change the generic name of MPI communicator MPI_COMM_WORLD
@@ -91,6 +74,9 @@
 #ifdef XIOS
 # define MPI
 # define MPI_COMM_WORLD ocean_grid_comm
+# define key_iomput
+#else
+# undef key_iomput
 #endif
   
 /*
@@ -102,7 +88,6 @@
 #define M2FILTER_POWER
 #undef  M2FILTER_COSINE
 #undef  M2FILTER_FLAT
-
 /*
 ======================================================================
    Activate barotropic pressure gradient response to the
@@ -111,9 +96,8 @@
 */
 #if defined SOLVE3D
 # define VAR_RHO_2D
-# if !defined NONLIN_EOS && !defined RVTK_DEBUG &&\
-     !defined INNERSHELF
-#   define RESET_RHO0
+# if !defined NONLIN_EOS && !defined RVTK_DEBUG
+#  define RESET_RHO0
 # endif
 #endif
 
@@ -338,7 +322,6 @@
 # undef   TS_VADV_WENO5
 # undef   TS_VADV_C2
 #endif
-
 /*
 ======================================================================
    SPONGE:  
@@ -346,9 +329,7 @@
 ======================================================================
 */
 #ifdef SPONGE
-# ifndef INNERSHELF 
-#  define SPONGE_GRID
-# endif
+# define SPONGE_GRID
 # define SPONGE_DIF2
 # define SPONGE_VIS2
 #endif
@@ -395,7 +376,7 @@
 # undef  WAVE_BREAK_TG86A
 # undef  WAVE_BREAK_R93
 
-# if !defined WKB_WWAVE && !defined ANA_WWAVE && !defined OW_COUPLING
+# if !defined WKB_WWAVE && !defined ANA_WWAVE
 #  define WAVE_OFFLINE
 #  undef  WAVE_ROLLER
 # endif
@@ -451,11 +432,7 @@
     numerical instability associated with reversing bottom flow
 ======================================================================
 */
-
-#ifndef INNERSHELF
-# define LIMIT_BSTRESS
-#endif
-
+#define LIMIT_BSTRESS
 #ifdef BBL
 # ifdef SEDIMENT
 #  undef  ANA_BSEDIM
@@ -543,6 +520,7 @@
 ======================================================================
 */
 #ifdef AGRIF
+#define key_agrif
 /*                    Update schemes */
 # undef  AGRIF_UPDATE_MIX_LOW
 # define AGRIF_UPDATE_MIX
@@ -644,6 +622,5 @@
 # undef AGRIF_OBC_M3SPECIFIED
 # undef AGRIF_OBC_TORLANSKI
 # undef AGRIF_OBC_TSPECIFIED
-# undef ALL_SIGMA
 #endif
 

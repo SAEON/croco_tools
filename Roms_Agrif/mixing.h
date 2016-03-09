@@ -19,14 +19,14 @@
       real visc2_sponge_p(GLOBAL_2D_ARRAY)
       common /mixing_visc2_r/visc2_r /mixing_visc2_p/visc2_p
       common /mixing_visc2_sponge_r/visc2_sponge_r 
-     &       /mixing_visc2_sponge_p/visc2_sponge_p
+      common /mixing_visc2_sponge_p/visc2_sponge_p
 # endif
 #if defined UV_VIS4 
 # if !defined SPONGE_VIS2
       real visc2_sponge_r(GLOBAL_2D_ARRAY)
       real visc2_sponge_p(GLOBAL_2D_ARRAY)
-      common /mixing_visc2_sponge_r/visc2_sponge_r 
-     &       /mixing_visc2_sponge_p/visc2_sponge_p
+      common /mixing_visc2_sponge_r/visc2_sponge_r
+      common /mixing_visc2_sponge_p/visc2_sponge_p
 #endif
       real visc4_sponge_r(GLOBAL_2D_ARRAY)
       real visc4_sponge_p(GLOBAL_2D_ARRAY)
@@ -61,8 +61,8 @@
 #ifdef DIF_COEF_3D
       real diff3d_u(GLOBAL_2D_ARRAY,N)
       real diff3d_v(GLOBAL_2D_ARRAY,N)
-      common /mixing_diff3d_u/diff3d_u
-     &       /mixing_diff3d_v/diff3d_v
+      common /mixing_diff3d_u/diff3d_u 
+      common /mixing_diff3d_v/diff3d_v
 # ifdef TS_DIF_SMAGO
       real diff3d_r(GLOBAL_2D_ARRAY,N)
       common /mixing_diff3d_r/diff3d_r
@@ -119,20 +119,17 @@
 !
       integer kbl(GLOBAL_2D_ARRAY)
       integer kbbl(GLOBAL_2D_ARRAY)
+      real hbbl(GLOBAL_2D_ARRAY)
+      common /lmd_kpp_kbl/ kbl 
+      common /lmd_kpp_hbbl/ hbbl  
+      common /lmd_kpp_kbbl/ kbbl 
 #  ifdef LMD_SKPP2005      
       real hbls(GLOBAL_2D_ARRAY,2)
+      common /lmd_kpp_hbl/ hbls
 #  else           
       real hbl (GLOBAL_2D_ARRAY  )      
+      common /lmd_kpp_hbl/ hbl   
 #  endif
-      real hbbl(GLOBAL_2D_ARRAY)
-      common /lmd_kpp_kbl/kbl
-#  ifdef LMD_SKPP2005           
-     &       /lmd_kpp_hbl/hbls
-#  else     
-     &       /lmd_kpp_hbl/hbl     
-#  endif     
-     &       /lmd_kpp_hbbl/hbbl   
-     &       /lmd_kpp_kbbl/kbbl
 #  ifdef LMD_NONLOCAL
       real ghats(GLOBAL_2D_ARRAY,0:N)
       common /lmd_kpp_ghats/ghats

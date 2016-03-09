@@ -49,10 +49,10 @@
 !====================================================================
 !
       subroutine Agrif_initworkspace()
-      implicit none
 # ifdef XIOS
       USE xios          ! XIOS module
 # endif
+      implicit none
 # ifdef MPI
       integer ierr  
 # endif          
@@ -60,9 +60,6 @@
 # include "private_scratch.h"
 # include "ncscrum.h"
 # include "scalars.h"
-# ifdef PISCES
-#  include "parameter.h"
-# endif
 # ifdef AUTOTILING
 #  include "autotiling.h"
 # endif
@@ -119,6 +116,10 @@
 !
       subroutine Agrif_initvalues()
       use AGRIF_UTIL
+#ifdef PISCES
+      USE pisces_ini     ! PISCES modules
+      USE trcini_pisces
+#endif
       implicit none
       integer tile, ierr, trd, subs
 # ifdef WKB_WWAVE
@@ -134,9 +135,6 @@
 # ifdef SOLVE3D
 #  include "coupling.h"
 #  include "ocean3d.h"
-# endif
-# ifdef PISCES
-#  include "parameter.h"
 # endif
 # ifdef WKB_WWAVE
 #  include "wkb_wwave.h"
@@ -297,8 +295,7 @@
 !  PISCES biogeochemeical model parameters
 !
 #  ifdef PISCES
-      call trclsm
-      call get_dust
+!      call get_dust
 #  endif
 !
 !  Read sediment initial values and parameters from sediment.in file
@@ -502,8 +499,9 @@ C$OMP PARALLEL DO PRIVATE(tile)
 # if defined BIOLOGY && defined PISCES
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
-        call  pisces_ini (tile)
+        call  pisces_ini_tile (tile)
       enddo
+      CALL trc_nam_pisces
 # endif
 CR      write(*,*) ' -6' MYID 
       if (may_day_flag.ne.0) goto 99 !-->  EXIT

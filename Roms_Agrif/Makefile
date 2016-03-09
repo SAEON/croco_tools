@@ -94,16 +94,6 @@ include Makedefs
 \
 	biology.F	o2sato.F	sediment.F	bbl.F\
 \
-	ropigrid.F	ropistep.F	pirostep.F\
-	trcini.F	trclsm.F	pisces_ini.F\
-	p4zday.F	p4znano.F	p4zlys.F\
-	p4zdiat.F       p4zopt.F        p4zsink.F\
-	p4zflx.F        p4zprg.F        p4zslow.F\
-	p4zint.F        p4zprod.F	p4zmicro.F\
-	p4zlim.F        p4zrem.F	p4zche.F\
-	p4zbio.F        p4zmeso.F       p4zsink2.F\
-	p4zsed.F\
-\
 	MPI_Setup.F	MessPass2D.F	MessPass3D.F	exchange.F\
 	autotiling.F\
 \
@@ -128,7 +118,14 @@ include Makedefs
 	step3d_nbq.F90		density_nbq.F90		spkitlocal_nh.F90\
 	MPI_setup_nbq.F90	parallele_nbq.F90	grid_exchange.F90\
 	implicit_nbq.F90        amub2_tri.F90	        numuvw_nh.F90\
-	grid_def_nh.F90	
+	grid_def_nh.F90	 \
+\
+	par_pisces.F90	ocean2pisces.F90	trc.F90		sms_pisces.F90\
+	p4zche.F90	p4zint.F90		p4zlys.F90	p4zflx.F90\
+	p4zlim.F90	p4zsink.F90		p4zmicro.F90	p4zmeso.F90\
+	p4zmort.F90	p4zopt.F90		p4zprod.F90	p4zrem.F90\
+	p4zsed.F90	p4zbio.F90		trcwri_pisces.F90\
+	trcsms_pisces.F90	trcini_pisces.F90	pisces_ini.F90
 
 AMRDIR = AGRIF/AGRIF_YOURFILES
 

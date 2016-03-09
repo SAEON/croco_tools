@@ -237,9 +237,8 @@
 #  define BIO_BioEBUS
                       /*   Biology options    */
 #  ifdef PISCES
-#   define DIURNAL_INPUT_SRFLX
-#   define key_trc_pisces
-#   define key_passivetrc
+#   undef DIURNAL_INPUT_SRFLX
+#   define key_pisces
 #  endif
 #  ifdef BIO_NChlPZD
 #   define  OXYGEN
@@ -252,6 +251,7 @@
 #  if defined DIAGNOSTICS_BIO && defined PISCES
 #   define key_trc_diaadd
 #   define key_trc_dia3d
+#   define key_iomput
 #  endif
 # endif
                       /*   Lagrangian floats model    */
@@ -385,6 +385,7 @@
 # undef  OPENMP
 # undef  MPI
 # undef  NBQ
+
 # ifdef NBQ
 #  define GRAV_ADJ_SOLITON
 # else
