@@ -255,7 +255,7 @@
      &                                  *(d50**0.9)*tau_cb        ! [m^2/s^2]
 
           znotc= d50/12.0
-          znot = MAX(Zob,znotc) 
+          znot = MAX(Zob,znotc)
 !---------------------------------------------------------------------
 !  set tauc acc. to current-only case (max znot & skin friction) [m/s]
 !---------------------------------------------------------------------
@@ -278,7 +278,7 @@
 ! using Soulsby approximation of the wave friction factor
 !  fw = 2*scf1*(znotc/Ab)**scf2;  tauw = fw*Ub^2/2
  
-           tau_w = scf1*((znotc*Fwave)**scf2)*(Ub(i,j)**scf3)
+            tau_w = scf1*((znotc*Fwave)**scf2)*(Ub(i,j)**scf3)
  
 !  combined wave-current skin stress 
             tau_cw= tau_cs*
@@ -370,7 +370,6 @@
                 rlen=Lripple(i,j) 
               endif !tau_cws
             endif !d50
-       
 #  endif /* Z0_BL */
 # endif /* Z0_RIP */       
 
@@ -409,7 +408,6 @@
 !  relevant for flow and eddy-diffusivities/viscosity
 !---------------------------------------------------------------------
 
-!!          tauc(i,j)=tau_cw
             taucw(i,j)=tau_cw
             tauw(i,j)=tau_w
           
@@ -433,13 +431,14 @@
               rhgt=7.4*(rlen/100.)**1.19   ! Allen (1970)
             endif
  
-            znotc = znotc+0.92*rhgt*rhgt/(max(rlen,rlmin))
-        
+            znotc = znot + 0.92*rhgt*rhgt/(max(rlen,rlmin))
+
             cff1=vonKar/LOG(Zr(i,j)/znotc)
             cff2=MIN(Cdb_max,MAX(Cdb_min,cff1*cff1))
-!!          tauc(i,j)=cff2*Umag(i,j)*Umag(i,j)
             taucw(i,j)=cff2*Umag(i,j)*Umag(i,j)
-# endif 
+# else
+            taucw(i,j)=tauc(i,j)
+# endif
           endif 
 !---------------------------------------------------------------------
 !  Load variables for output purposes.
