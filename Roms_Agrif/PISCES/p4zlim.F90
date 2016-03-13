@@ -21,7 +21,7 @@ MODULE p4zlim
    PRIVATE
 
    PUBLIC p4z_lim    
-   PUBLIC p4z_lim_init
+   PUBLIC p4z_lim_nam
 
    !!* Substitution
 #  include "ocean2pisces.h90"
@@ -175,7 +175,7 @@ CONTAINS
       !
    END SUBROUTINE p4z_lim
 
-   SUBROUTINE p4z_lim_init
+   SUBROUTINE p4z_lim_nam
 
       !!----------------------------------------------------------------------
       !!                  ***  ROUTINE p4z_lim_init  ***
@@ -213,7 +213,7 @@ CONTAINS
          WRITE(numout,*) '    NH4 half saturation for diatoms           concdnh4  =', concdnh4
       ENDIF
 
-   END SUBROUTINE p4z_lim_init
+   END SUBROUTINE p4z_lim_nam
 
 #else
    !!======================================================================

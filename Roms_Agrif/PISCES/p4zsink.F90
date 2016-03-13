@@ -135,6 +135,16 @@ CONTAINS
          END DO
       END DO
 
+!      write(numout,*)
+!      write(numout,*) '  level      Depht          depthw    wsbio3      wsbio4'
+!      DO jk = KRANGE
+!         write(numout,*) ' jk = ',jk,' dept = ',fsdept(jip,jjp,K),'  depw =  ',fsdepw(jip,jjp,jk), &
+!            &            '   e3t = ', fse3t(jip,jjp,K), '  e3w = ', fse3w(jip,jjp,jk), &
+!            &            '   wsbio = ', wsbio3(jip,jjp,jk), '  wsbio4 = ', wsbio4(jip,jjp,jk)
+!      ENDDO
+!      write(numout,*) ' jk = ', jpk+1,'                              depw = ' ,fsdepw(jip,jjp,jpk+1), &
+!            &   '                              e3w = ', fse3w(jip,jjp,jpk+1)
+!      write(numout,*)
 
 !   INITIALIZE TO ZERO ALL THE SINKING ARRAYS
 !   -----------------------------------------

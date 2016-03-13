@@ -149,7 +149,7 @@ CONTAINS
             DO jj = JRANGE
 !CDIR NOVERRCHK
                DO ji = IRANGE
-                  zc0 = ze0(ji,jj,jk-1) * EXP( -fse3t(ji,jj,jk-1) * zxsi0r )
+                  zc0 = ze0(ji,jj,jk-1) * EXP( -fse3t(ji,jj,KUP) * zxsi0r )
                   zc1 = ze1(ji,jj,jk-1) * EXP( -zekb (ji,jj,jk-1 ) )
                   zc2 = ze2(ji,jj,jk-1) * EXP( -zekg (ji,jj,jk-1 ) )
                   zc3 = ze3(ji,jj,jk-1) * EXP( -zekr (ji,jj,jk-1 ) )
@@ -174,7 +174,7 @@ CONTAINS
          DO jj = JRANGE
            DO ji = IRANGE
               IF( etot(ji,jj,jk) >= 0.0043 * qsr(ji,jj) )  THEN
-                 neln(ji,jj) = jk-1                    ! Euphotic level : 1rst T-level strictly below Euphotic layer
+                 neln(ji,jj) = jk+1                    ! Euphotic level : 1rst T-level strictly below Euphotic layer
                  !                                     ! nb: ensure the compatibility with nmld_trc definition in trd_mld_trc_zint
                  heup(ji,jj) = fsdepw(ji,jj,jk+1)      ! Euphotic layer depth
               ENDIF
@@ -242,16 +242,24 @@ CONTAINS
       !!
       !! ** Input   :   external ascii and netcdf files
       !!----------------------------------------------------------------------
+      INTEGER :: ji, jj, jk
 !         IF(lwp) THEN
 !           WRITE(numout,*)
 !           WRITE(numout,*) ' level max of computation of qsr = ', nksrp, ' ref depth = ', gdepw_0(nksrp+1), ' m'
 !         ENDIF
 !!         CALL trc_oce_rgb( xkrgb )     ! tabulated attenuation coefficients
-         CALL trc_oce_rgb_read( xkrgb )     ! tabulated attenuation coefficients
-         etot (:,:,:) = 0.e0
-         enano(:,:,:) = 0.e0
-         ediat(:,:,:) = 0.e0
-         IF( ln_qsr_bio ) etot3(:,:,:) = 0.e0
+      CALL trc_oce_rgb_read( xkrgb )     ! tabulated attenuation coefficients
+
+      DO jk = KRANGE
+         DO jj = JRANGE
+            DO ji = IRANGE
+               etot (ji,jj,jk) = 0.e0
+               enano(ji,jj,jk) = 0.e0
+               ediat(ji,jj,jk) = 0.e0
+               etot3(ji,jj,jk) = 0.e0
+            END DO
+         END DO
+      END DO
       !
    END SUBROUTINE p4z_opt_init
 

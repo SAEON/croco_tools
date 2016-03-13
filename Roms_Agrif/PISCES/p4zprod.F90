@@ -24,7 +24,7 @@ MODULE p4zprod
 
    PUBLIC   p4z_prod    ! called in p4zbio.F90
    PUBLIC   p4z_prod_alloc    ! called in p4zbio.F90
-   PUBLIC   p4z_prod_init    ! called in p4zbio.F90
+   PUBLIC   p4z_prod_nam    ! called in p4zbio.F90
 
    !!* Substitution
 #  include "ocean2pisces.h90"
@@ -382,7 +382,7 @@ CONTAINS
 
    END SUBROUTINE p4z_prod
 
-   SUBROUTINE p4z_prod_init
+   SUBROUTINE p4z_prod_nam
 
       !!----------------------------------------------------------------------
       !!                  ***  ROUTINE p4z_prod_init  ***
@@ -423,7 +423,7 @@ CONTAINS
       tpp       = 0.
 
 
-   END SUBROUTINE p4z_prod_init
+   END SUBROUTINE p4z_prod_nam
 
    INTEGER FUNCTION p4z_prod_alloc()
       !!----------------------------------------------------------------------

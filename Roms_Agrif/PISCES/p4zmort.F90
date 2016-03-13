@@ -22,7 +22,7 @@ MODULE p4zmort
    PRIVATE
 
    PUBLIC   p4z_mort    
-   PUBLIC   p4z_mort_init    
+   PUBLIC   p4z_mort_nam    
 
 
    !!* Substitution
@@ -236,7 +236,7 @@ CONTAINS
              
    END SUBROUTINE p4z_diat
 
-   SUBROUTINE p4z_mort_init
+   SUBROUTINE p4z_mort_nam
 
       !!----------------------------------------------------------------------
       !!                  ***  ROUTINE p4z_mort_init  ***
@@ -266,7 +266,7 @@ CONTAINS
          WRITE(numout,*) '    Phytoplankton minimum mortality rate      mpratm    =', mpratm
       ENDIF
 
-   END SUBROUTINE p4z_mort_init
+   END SUBROUTINE p4z_mort_nam
 
 #else
    !!======================================================================

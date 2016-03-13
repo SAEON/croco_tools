@@ -198,16 +198,23 @@ CONTAINS
       DO jk = KRANGE
          DO jj = JRANGE
             DO ji = IRANGE          ! masked grid volume
-               zvol(ji,jj,jk)  = cvol(ji,jj,jk)
+               zvol(ji,jj,jk)  = cvol(ji,jj,K)
                zmask(ji,jj,jk) = tmask(ji,jj,K) * tmask_i(ji,jj) 
-               areatot        = areatot + zvol(ji,jj,jk)
+               areatot         = areatot + zvol(ji,jj,jk)
             ENDDO
         ENDDO
      ENDDO
      IF( lk_mpp )   CALL mpp_sum( areatot )     ! sum over the global domain  
 
      DO jn = 1, jptra
-         ztra  = ztra + SUM( ptra(:,:,:,jn) * zvol(:,:,:) )
+         ztra = 0.
+         DO jk = KRANGE
+            DO jj = JRANGE
+               DO ji = IRANGE          ! masked grid volume
+                  ztra  = ztra + ptra(ji,jj,jk,jn) * zvol(ji,jj,jk) 
+               ENDDO
+            ENDDO
+         ENDDO
          zmin  = MINVAL( ptra(:,:,:,jn), mask= ( zmask(:,:,:) /= 0. ) ) 
          zmax  = MAXVAL( ptra(:,:,:,jn), mask= ( zmask(:,:,:) /= 0. ) ) 
          IF( lk_mpp ) THEN

@@ -108,8 +108,7 @@ CONTAINS
       !!                    *** ROUTINE trc_alloc ***
       !!-------------------------------------------------------------------
       !
-      ALLOCATE( tra(PRIV_3D_BIOARRAY, jptra), &
-         &      ctrcnm(jptra), ctrcnl(jptra), ctrcnu(jptra), STAT = trc_alloc  )  
+      ALLOCATE( tra(PRIV_3D_BIOARRAY, jptra), STAT = trc_alloc  )  
 
       IF( trc_alloc /= 0 )   CALL ctl_warn('trc_alloc: failed to allocate arrays')
       !

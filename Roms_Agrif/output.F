@@ -152,7 +152,17 @@
 !        write(*,*) "wrtdiaM_avg ",wrtdiaM_avg
 !
         if (mod(ilc-1,nrst).eq.0) call wrt_rst
-#ifndef XIOS
+#ifdef XIOS
+       ntrds=omp_get_num_threads()
+      trd=omp_get_thread_num()
+      range=(NSUB_X*NSUB_E+ntrds-1)/ntrds
+      my_first=trd*range
+      my_last=min(my_first + range-1, NSUB_X*NSUB_E-1)
+      
+      do tile=my_first,my_last
+          call send_xios_diags(tile)
+      end do
+#else
         if (mod(ilc-1,nwrt).eq.0 .and. wrthis(indxTime)) call wrt_his
 #  ifdef AVERAGES
         if (mod(ilc-1,navg).eq.0 .and. wrtavg(indxTime)) call wrt_avg
@@ -177,7 +187,7 @@
      &                 .and. wrtdiaM_avg(3))        call wrt_diagsM_avg
 # endif
 #endif
-#if defined DIAGNOSTICS_BIO
+#if defined DIAGNOSTICS_BIO && ! defined XIOS
         if (mod(ilc-1,nwrtdiabio).eq.0 .and. 
      &       (      wrtdiabioFlux(NumFluxTerms+1)
      &       .or. wrtdiabioVSink(NumVSinkTerms+1)
@@ -217,18 +227,6 @@
 #endif
 !
       endif      ! conditions for writing output
-
-#ifdef XIOS
-      ntrds=omp_get_num_threads()
-      trd=omp_get_thread_num()
-      range=(NSUB_X*NSUB_E+ntrds-1)/ntrds
-      my_first=trd*range
-      my_last=min(my_first + range-1, NSUB_X*NSUB_E-1)
-      
-      do tile=my_first,my_last
-          call send_xios_diags(tile)
-      end do
-#endif
 !
 #ifdef FLOATS
 !

@@ -27,7 +27,6 @@ MODULE trcsms_pisces
    PRIVATE
 
    PUBLIC   trc_sms_pisces    ! called in trcsms.F90
-   PUBLIC   trc_sms_pisces_init    ! called in trcsms.F90
 
 #include "ocean2pisces.h90"
    !!----------------------------------------------------------------------
@@ -126,110 +125,9 @@ CONTAINS
         tra_ctl(:) = 0.
       ENDIF
 
-!      IF( kt-1 == nitend )  CALL  tracer_stat( kt )
-       CALL  tracer_stat( kt )
+      IF( kt - 1 == nitend )  CALL  tracer_stat( kt )
 
    END SUBROUTINE trc_sms_pisces
-
-   SUBROUTINE trc_sms_pisces_init
-      !!----------------------------------------------------------------------
-      !!                  ***  ROUTINE trc_sms_pisces_init  ***
-      !!
-      !! ** Purpose :   Initialization of PH variable
-      !!
-      !!----------------------------------------------------------------------
-      INTEGER  :: jn
-      TYPE(PTRACER), DIMENSION(jptra) :: tracer
-
-
-      NAMELIST/nampistrc/ tracer
-      NAMELIST/nampisbio/ part, nrdttrc, wsbio, xkmort, ferat3, wsbio2, niter1max, niter2max
-#if defined key_kriest
-      NAMELIST/nampiskrp/ xkr_eta, xkr_zeta, xkr_ncontent, xkr_mass_min, xkr_mass_max
-#endif
-
-      IF(lwp) WRITE(numout,*)
-      IF(lwp) WRITE(numout,*) ' trc_lsm_pisces : read PISCES namelists'
-      IF(lwp) WRITE(numout,*) ' ~~~~~~~~~~~~~~'
-
-
-      !                               ! Open the namelist file
-      !                               ! ----------------------
-      CALL ctl_opn( numnatp, 'namelist_pisces', 'OLD', 'FORMATTED', 'SEQUENTIAL', -1, numout, .FALSE. )
-      
-
-      IF(lwp) WRITE(numout,*) 'number of tracer : ', jptra
-      DO jn = 1, jptra
-         WRITE( ctrcnm(jn),'("TR_",I1)'           ) jn
-         WRITE( ctrcnl(jn),'("TRACER NUMBER ",I1)') jn
-         ctrcnu(jn) = 'mmole/m3'
-      END DO
-
-      REWIND( numnatp )                    
-      READ  ( numnatp, nampistrc )
-
-      DO jn = 1, jptra
-         ctrcnm(jn) = tracer(jn)%clsname
-         ctrcnl(jn) = tracer(jn)%cllname
-         ctrcnu(jn) = tracer(jn)%clunit
-      END DO
-
-
-      IF(lwp) THEN                   ! control print
-         DO jn = 1, jptra
-            WRITE(numout,*) '   tracer nb             : ', jn 
-            WRITE(numout,*) '   short name            : ', TRIM(ctrcnm(jn))
-            WRITE(numout,*) '   long name             : ', TRIM(ctrcnl(jn))
-            WRITE(numout,*) '   unit                  : ', TRIM(ctrcnu(jn))
-            WRITE(numout,*) ' '
-         END DO
-      ENDIF
-
-      REWIND( numnatp )                    
-      READ  ( numnatp, nampisbio )
-
-      IF(lwp) THEN                         ! control print
-         WRITE(numout,*) ' Namelist : nampisbio'
-         WRITE(numout,*) '    part of calcite not dissolved in guts     part      =', part
-         WRITE(numout,*) '    frequence pour la biologie                nrdttrc   =', nrdttrc
-         WRITE(numout,*) '    POC sinking speed                         wsbio     =', wsbio
-         WRITE(numout,*) '    half saturation constant for mortality    xkmort    =', xkmort
-         WRITE(numout,*) '    Fe/C in zooplankton                       ferat3    =', ferat3
-         WRITE(numout,*) '    Big particles sinking speed               wsbio2    =', wsbio2
-         WRITE(numout,*) '    Maximum number of iterations for POC      niter1max =', niter1max
-         WRITE(numout,*) '    Maximum number of iterations for GOC      niter2max =', niter2max
-      ENDIF
-
-#if defined key_kriest
-
-      !                               ! nampiskrp : kriest parameters
-      !                               ! -----------------------------
-      xkr_eta      = 0.62        
-      xkr_zeta     = 1.62        
-      xkr_mass_min = 0.0002     
-      xkr_mass_max = 1.      
-
-      REWIND( numnatp )                     ! read natkriest
-      READ  ( numnatp, nampiskrp )
-
-      IF(lwp) THEN
-         WRITE(numout,*)
-         WRITE(numout,*) ' Namelist : nampiskrp'
-         WRITE(numout,*) '    Sinking  exponent                        xkr_eta      = ', xkr_eta
-         WRITE(numout,*) '    N content exponent                       xkr_zeta     = ', xkr_zeta
-         WRITE(numout,*) '    Minimum mass for Aggregates              xkr_mass_min = ', xkr_mass_min
-         WRITE(numout,*) '    Maximum mass for Aggregates              xkr_mass_max = ', xkr_mass_max
-         WRITE(numout,*)
-     ENDIF
-
-
-     ! Computation of some variables
-     xkr_massp = 5.7E-6 * 7.6 * xkr_mass_min**xkr_zeta
-
-#endif
-
-
-   END SUBROUTINE trc_sms_pisces_init
 
 #else
    !!======================================================================

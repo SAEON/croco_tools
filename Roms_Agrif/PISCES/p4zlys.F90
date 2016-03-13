@@ -24,7 +24,7 @@ MODULE p4zlys
    PRIVATE
 
    PUBLIC   p4z_lys    ! called in p4zprg.F90
-   PUBLIC   p4z_lys_init    ! called in p4zprg.F90
+   PUBLIC   p4z_lys_nam    ! called in p4zprg.F90
 
 #include "ocean2pisces.h90"
 
@@ -183,7 +183,7 @@ CONTAINS
 
    END SUBROUTINE p4z_lys
 
-   SUBROUTINE p4z_lys_init
+   SUBROUTINE p4z_lys_nam
 
       !!----------------------------------------------------------------------
       !!                  ***  ROUTINE p4z_lys_init  ***
@@ -213,7 +213,7 @@ CONTAINS
       ! Number of seconds per month 
 !      rmtss =  nyear_len(1) * rday / raamo
 
-   END SUBROUTINE p4z_lys_init
+   END SUBROUTINE p4z_lys_nam
 
 #else
    !!======================================================================

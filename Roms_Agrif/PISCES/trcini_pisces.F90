@@ -42,6 +42,7 @@ MODULE trcini_pisces
 
    PUBLIC   trc_ini_pisces   ! called by trcini.F90 module
    PUBLIC   trc_nam_pisces   ! called by trcini.F90 module
+   PUBLIC   trc_sbc_pisces   ! called by trcini.F90 module
 
    !! * Module variables
    REAL(wp) :: &
@@ -81,6 +82,7 @@ CONTAINS
       IF(lwp) WRITE(numout,*) ' ~~~~~~~~~~~~~~'
 
 
+
       ierr =         sms_pisces_alloc()          
       ierr = ierr +  trc_alloc()          ! Start of PISCES-related alloc routines...
       ierr = ierr +  p4z_sink_alloc()
@@ -95,7 +97,7 @@ CONTAINS
 
       IF( ln_ctl )  CALL prt_ctl_trc_ini
 
-      CALL trc_sms_pisces_init
+      !
       !                                            ! Time-step
       rfact   = rdt                                ! ---------
       rfactr  = 1. / rfact
@@ -205,24 +207,198 @@ CONTAINS
       IF(lwp) WRITE(numout,*) 'Initialization of PISCES tracers done'
       IF(lwp) WRITE(numout,*) ' '
 
+      CALL p4z_sed_init       !  sedimentation 
+      CALL p4z_opt_init       !  Optic: PAR in the water column
+      CALL p4z_rem_init       !  remineralisation
+      CALL p4z_flx_init       !  gas exchange 
+
       !
    END SUBROUTINE trc_ini_pisces
 
-   SUBROUTINE trc_nam_pisces             ! Empty routine
 
-      CALL p4z_opt_init       !  Optic: PAR in the water column
-      CALL p4z_lim_init       !  co-limitations by the various nutrients
-      CALL p4z_prod_init      !  phytoplankton growth rate over the global ocean.
-      CALL p4z_rem_init       !  remineralisation
-      CALL p4z_mort_init      !  phytoplankton mortality 
-      CALL p4z_micro_init     !  microzooplankton
-      CALL p4z_meso_init      !  mesozooplankton
-      CALL p4z_lys_init       !  calcite saturation
-      CALL p4z_flx_init       !  gas exchange 
-      CALL p4z_sed_init       !  sedimentation 
+   SUBROUTINE trc_nam_pisces
+      !!----------------------------------------------------------------------
+      !!                  ***  ROUTINE trc_sms_pisces_init  ***
+      !!
+      !! ** Purpose :   Initialization of PH variable
+      !!
+      !!----------------------------------------------------------------------
+      INTEGER  :: jn, ierr
+      TYPE(PTRACER), DIMENSION(jptra) :: tracer
+
+
+      NAMELIST/nampistrc/ tracer
+      NAMELIST/nampisbio/ part, nrdttrc, wsbio, xkmort, ferat3, wsbio2, niter1max, niter2max
+#if defined key_kriest
+      NAMELIST/nampiskrp/ xkr_eta, xkr_zeta, xkr_ncontent, xkr_mass_min, xkr_mass_max
+#endif
+
+      IF(lwp) WRITE(numout,*)
+      IF(lwp) WRITE(numout,*) ' trc_sms_pisces : read PISCES namelists'
+      IF(lwp) WRITE(numout,*) ' ~~~~~~~~~~~~~~'
+
+
+      !                               ! Open the namelist file
+      !                               ! ----------------------
+      CALL ctl_opn( numnatp, 'namelist_pisces', 'OLD', 'FORMATTED', 'SEQUENTIAL', -1, numout, .FALSE. )
+      
+      ALLOCATE( ctrcnm(jptra), ctrcnl(jptra), ctrcnu(jptra), STAT = ierr  )  
+      IF( ierr /= 0 )   CALL ctl_warn('trc_alloc: failed to allocate arrays')
+
+      IF(lwp) WRITE(numout,*) 'number of tracer : ', jptra
+      DO jn = 1, jptra
+         WRITE( ctrcnm(jn),'("TR_",I1)'           ) jn
+         WRITE( ctrcnl(jn),'("TRACER NUMBER ",I1)') jn
+         ctrcnu(jn) = 'mmole/m3'
+      END DO
+
+      REWIND( numnatp )                    
+      READ  ( numnatp, nampistrc )
+
+      DO jn = 1, jptra
+         ctrcnm(jn) = tracer(jn)%clsname
+         ctrcnl(jn) = tracer(jn)%cllname
+         ctrcnu(jn) = tracer(jn)%clunit
+      END DO
+
+
+      IF(lwp) THEN                   ! control print
+         DO jn = 1, jptra
+            WRITE(numout,*) '   tracer nb             : ', jn 
+            WRITE(numout,*) '   short name            : ', TRIM(ctrcnm(jn))
+            WRITE(numout,*) '   long name             : ', TRIM(ctrcnl(jn))
+            WRITE(numout,*) '   unit                  : ', TRIM(ctrcnu(jn))
+            WRITE(numout,*) ' '
+         END DO
+      ENDIF
+
+      REWIND( numnatp )                    
+      READ  ( numnatp, nampisbio )
+
+      IF(lwp) THEN                         ! control print
+         WRITE(numout,*) ' Namelist : nampisbio'
+         WRITE(numout,*) '    part of calcite not dissolved in guts     part      =', part
+         WRITE(numout,*) '    frequence pour la biologie                nrdttrc   =', nrdttrc
+         WRITE(numout,*) '    POC sinking speed                         wsbio     =', wsbio
+         WRITE(numout,*) '    half saturation constant for mortality    xkmort    =', xkmort
+         WRITE(numout,*) '    Fe/C in zooplankton                       ferat3    =', ferat3
+         WRITE(numout,*) '    Big particles sinking speed               wsbio2    =', wsbio2
+         WRITE(numout,*) '    Maximum number of iterations for POC      niter1max =', niter1max
+         WRITE(numout,*) '    Maximum number of iterations for GOC      niter2max =', niter2max
+      ENDIF
+
+      CALL p4z_lim_nam       !  co-limitations by the various nutrients
+      CALL p4z_prod_nam      !  phytoplankton growth rate over the global ocean.
+      CALL p4z_rem_nam       !  remineralisation
+      CALL p4z_mort_nam      !  phytoplankton mortality 
+      CALL p4z_micro_nam     !  microzooplankton
+      CALL p4z_meso_nam      !  mesozooplankton
+      CALL p4z_lys_nam       !  calcite saturation
+      CALL p4z_flx_nam       !  gas exchange 
+      CALL p4z_sed_nam
+
+#if defined key_kriest
+
+      !                               ! nampiskrp : kriest parameters
+      !                               ! -----------------------------
+      xkr_eta      = 0.62        
+      xkr_zeta     = 1.62        
+      xkr_mass_min = 0.0002     
+      xkr_mass_max = 1.      
+
+      REWIND( numnatp )                     ! read natkriest
+      READ  ( numnatp, nampiskrp )
+
+      IF(lwp) THEN
+         WRITE(numout,*)
+         WRITE(numout,*) ' Namelist : nampiskrp'
+         WRITE(numout,*) '    Sinking  exponent                        xkr_eta      = ', xkr_eta
+         WRITE(numout,*) '    N content exponent                       xkr_zeta     = ', xkr_zeta
+         WRITE(numout,*) '    Minimum mass for Aggregates              xkr_mass_min = ', xkr_mass_min
+         WRITE(numout,*) '    Maximum mass for Aggregates              xkr_mass_max = ', xkr_mass_max
+         WRITE(numout,*)
+     ENDIF
+
+
+     ! Computation of some variables
+     xkr_massp = 5.7E-6 * 7.6 * xkr_mass_min**xkr_zeta
+
+#endif
 
 
    END SUBROUTINE trc_nam_pisces
+
+
+   SUBROUTINE trc_sbc_pisces 
+
+# include "netcdf.inc"
+
+      INTEGER :: ji, jj, irec
+      INTEGER :: ncid, varid, dimid, ierr, &
+     &           lstr, lenstr, nf_fread, nrec_dust
+      REAL(wp) ::  dustmp(GLOBAL_2D_ARRAY,366)
+
+#ifdef MPI
+#define LOCALLM Lmmpi
+#define LOCALMM Mmmpi
+#else
+#define LOCALLM Lm
+#define LOCALMM Mm
+#endif
+
+      ALLOCATE( dustmo(GLOBAL_2D_ARRAY,12), STAT= ierr )
+
+!
+!    READ DUST INPUT FROM ATMOSPHERE
+!    -------------------------------------
+!
+      IF( ln_dustfer ) THEN
+        lstr=lenstr(bioname)
+        ierr=nf_open (bioname(1:lstr), nf_nowrite, ncid)
+        if (ierr .ne. nf_noerr) then
+           write(stdout,4) bioname
+        endif
+        ierr=nf_inq_varid (ncid,"dust",varid)
+        if (ierr .ne. nf_noerr) then
+          write(stdout,5) "dust", bioname
+        endif
+        ierr=nf_inq_dimid(ncid,"dust_time",dimid)
+        ierr=nf_inq_dimlen(ncid,dimid,nrec_dust)
+!        write(*,*)'NREC_DUST=',nrec_dust
+!        write(*,*)'-----------------------------'
+        do irec=1,nrec_dust
+          ierr=nf_fread(dustmp(START_2D_ARRAY,irec), ncid, varid, &
+     &                                              irec, r2dvar)
+          if (ierr .ne. nf_noerr) then
+            write(stdout,6) "dust", irec 
+          endif
+        enddo
+        ierr=nf_close(ncid)
+        write(stdout,*) 
+        write(stdout,'(6x,A,1x,I4)') &
+#ifdef MPI
+     &                   'TRCINI_PISCES -- Read dust deposition ', mynode
+#else
+     &                   'TRCINI_PISCES -- Read dust deposition ' 
+#endif
+  4     format(/,' TRCINI_PISCES - unable to open forcing netCDF ',1x,A)
+  5     format(/,' TRCINI_PISCES - unable to find forcing variable: ',A, &
+     &                               /,14x,'in forcing netCDF  ',A)
+  6     format(/,' TRCINI_PISCES - error while reading variable: ',A,2x, &
+     &                                           ' at TIME index = ',i4)
+
+        DO irec = 1, nrec_dust
+           DO jj = 1, LOCALMM
+              DO ji = 1, LOCALLM
+                 dustmo(ji,jj,irec) = dustmp(ji,jj,irec)
+              ENDDO
+           ENDDO
+        ENDDO
+      
+      ENDIF
+
+   END SUBROUTINE trc_sbc_pisces 
+
 
 #else
    !!----------------------------------------------------------------------

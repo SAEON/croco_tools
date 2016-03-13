@@ -30,6 +30,7 @@ MODULE p4zflx
    PUBLIC   p4z_flx  
    PUBLIC   p4z_flx_alloc
    PUBLIC   p4z_flx_init
+   PUBLIC   p4z_flx_nam
    
    !!* Substitution
 #include "ocean2pisces.h90"
@@ -218,7 +219,7 @@ CONTAINS
 
    END SUBROUTINE p4z_flx
 
-   SUBROUTINE p4z_flx_init
+   SUBROUTINE p4z_flx_nam
 
       !!----------------------------------------------------------------------
       !!                  ***  ROUTINE p4z_flx_init  ***
@@ -241,6 +242,21 @@ CONTAINS
          WRITE(numout,*) ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
          WRITE(numout,*) '    Atmospheric pCO2      atcco2      =', atcco2
       ENDIF
+
+   END SUBROUTINE p4z_flx_nam
+
+   SUBROUTINE p4z_flx_init
+
+      !!----------------------------------------------------------------------
+      !!                  ***  ROUTINE p4z_flx_init  ***
+      !!
+      !! ** Purpose :   Initialization of atmospheric conditions
+      !!
+      !! ** Method  :   Read the nampisext namelist and check the parameters
+      !!      called at the first timestep (nittrc000)
+      !! ** input   :   Namelist nampisext
+      !!
+      !!----------------------------------------------------------------------
 
       ! interior global domain surface
       area = SUM( e1t(:,:) * e2t(:,:) * tmask_i(:,:) )

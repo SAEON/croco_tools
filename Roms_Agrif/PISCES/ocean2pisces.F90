@@ -8,6 +8,7 @@ MODULE ocean2pisces
    USE xios
 #endif
 
+
    IMPLICIT NONE
    PUBLIC
 
@@ -19,6 +20,7 @@ MODULE ocean2pisces
 #include "mixing.h"
 #include "diagnostics.h"
 #include "scalars_F90.h"
+#include "ncscrum_F90.h"
 # if defined MPI
   include 'mpif.h'
 # include "mpi_roms.h"

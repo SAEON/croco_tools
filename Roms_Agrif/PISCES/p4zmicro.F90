@@ -22,7 +22,7 @@ MODULE p4zmicro
    PRIVATE
 
    PUBLIC   p4z_micro    ! called in p4zbio.F90
-   PUBLIC   p4z_micro_init    ! called in p4zbio.F90
+   PUBLIC   p4z_micro_nam    ! called in p4zbio.F90
 
    !!* Substitution
 #  include "top_substitute.h90"
@@ -245,7 +245,7 @@ CONTAINS
    END SUBROUTINE p4z_micro
 
 
-   SUBROUTINE p4z_micro_init
+   SUBROUTINE p4z_micro_nam
 
       !!----------------------------------------------------------------------
       !!                  ***  ROUTINE p4z_micro_init  ***
@@ -281,7 +281,7 @@ CONTAINS
          WRITE(numout,*) '    half sturation constant for grazing 1     xkgraz    =', xkgraz
       ENDIF
 
-   END SUBROUTINE p4z_micro_init
+   END SUBROUTINE p4z_micro_nam
 
 #else
    !!======================================================================

@@ -89,7 +89,7 @@
 !----------------------------------------------------------------------
 !
 #ifdef MPI
-# if (!defined AGRIF && !defined OA_COUPLING && !defined OW_COUPLING)
+# if (!defined AGRIF && !defined OA_COUPLING)
       call MPI_Init (ierr)
 # endif   
 !
@@ -100,8 +100,6 @@
       call xios_initialize( "roms",return_comm=MPI_COMM_WORLD )
 # elif (defined OA_COUPLING && !defined AGRIF)
       call cpl_prism_init  ! If AGRIF --> call cpl_prism_init in zoom.F
-# elif (defined OW_COUPLING && !defined AGRIF)
-      call cpl_prism_init  ! In AGRIF case, cpl_prism_init is in zoom.F
 # elif defined AGRIF
       call Agrif_MPI_Init(MPI_COMM_WORLD)
 # endif
@@ -170,13 +168,15 @@
 # ifdef GLS_MIXING
       call init_gls (ierr)
 # endif
+
 !
 !  PISCES biogeochemeical model parameters
 !
-# ifdef PISCES
-!      CALL trc_nam_pisces
-!      CALL get_dust
-# endif
+#if defined BIOLOGY && defined PISCES
+      CALL trc_nam_pisces
+      CALL trc_sbc_pisces
+#endif
+!
 !
 !  Read sediment initial values and parameters from sediment.in file
 !
@@ -308,7 +308,6 @@ C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
         call  pisces_ini_tile (tile)
       enddo
-      CALL trc_nam_pisces
 #endif
 CR      write(*,*) ' -6' MYID 
       if (may_day_flag.ne.0) goto 99 !-->  EXIT
@@ -665,13 +664,12 @@ C$OMP END MASTER
 !----------------------------------------------------------------------
 !
 #ifdef XIOS
-!      if (nrrec.eq.0) then
-!C$OMP PARALLEL DO PRIVATE(tile)
-!        do tile=0,NSUB_X*NSUB_E-1
-!          call send_xios_diags(tile)
-!          write(*,*)  'apres'
-!        enddo
-!      endif
+      if (nrrec.eq.0) then
+C$OMP PARALLEL DO PRIVATE(tile)
+        do tile=0,NSUB_X*NSUB_E-1
+          call send_xios_diags(tile)
+        enddo
+      endif
 #else
       if (ldefhis .and. wrthis(indxTime)) call wrt_his
 #endif
@@ -776,7 +774,7 @@ C$OMP PARALLEL DO PRIVATE(tile)            ! Stop timers and
 !     exe_time = start_time2 - start_time1
 !     if(mynode.eq.0) print*,'exe_time =',exe_time
 
-# if defined OA_COUPLING || defined OW_COUPLING
+# ifdef OA_COUPLING
       call prism_terminate_proto(ierr)       ! Finalize OASIS3
 # elif defined XIOS
                              ! MPI finalize done by XIOS, XIOS+OASIS not coded

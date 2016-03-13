@@ -147,10 +147,10 @@
 !'''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 &nampissed     !   parameters for inputs deposition
 !,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-   ln_dustfer  =  .false.   ! boolean for dust input from the atmosphere
+   ln_dustfer  =  .true.   ! boolean for dust input from the atmosphere
    ln_river    =  .false.   ! boolean for river input of nutrients
    ln_ndepo    =  .false.   ! boolean for atmospheric deposition of N
-   ln_sedinput =  .false.   ! boolean for Fe input from sediments
+   ln_sedinput =  .true.   ! boolean for Fe input from sediments
    sedfeinput  =  1E-9     ! Coastal release of Iron
    dustsolub   =  0.014    ! Solubility of the dust
 /

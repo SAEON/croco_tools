@@ -857,7 +857,7 @@ C$    integer omp_get_thread_num
                t(i,j,k,2,iPO4_)=t(i,j,k,1,iPO4_)
             endif
             if (.not.got_tini(iPOC_))  then
-              t(i,j,k,1,iPOC_)=1.e-3
+              t(i,j,k,1,iPOC_)=1.e-2
               t(i,j,k,2,iPOC_)=t(i,j,k,1,iPOC_)
             endif
             if (.not.got_tini(iSIL_))  then

@@ -23,7 +23,7 @@ MODULE p4zmeso
    PRIVATE
 
    PUBLIC   p4z_meso         ! called in p4zbio.F90
-   PUBLIC   p4z_meso_init         ! called in p4zbio.F90
+   PUBLIC   p4z_meso_nam         ! called in p4zbio.F90
 
 
    !!* Substitution
@@ -355,7 +355,7 @@ CONTAINS
 
    END SUBROUTINE p4z_meso
 
-   SUBROUTINE p4z_meso_init
+   SUBROUTINE p4z_meso_nam
 
       !!----------------------------------------------------------------------
       !!                  ***  ROUTINE p4z_meso_init  ***
@@ -394,7 +394,7 @@ CONTAINS
          WRITE(numout,*) '    half sturation constant for grazing 2     xkgraz2   =', xkgraz2
       ENDIF
 
-   END SUBROUTINE p4z_meso_init
+   END SUBROUTINE p4z_meso_nam
 
 
 #else

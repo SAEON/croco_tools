@@ -30,6 +30,7 @@ MODULE p4zsed
    PUBLIC   p4z_sed   
    PUBLIC   p4z_sed_alloc   
    PUBLIC   p4z_sed_init   
+   PUBLIC   p4z_sed_nam   
 
    !!* Substitution
 #  include "ocean2pisces.h90"
@@ -55,7 +56,7 @@ MODULE p4zsed
       numdust,                  &  !: logical unit for surface fluxes data
       nflx1 , nflx2,            &  !: first and second record used
       nflx11, nflx12      ! ???
-   REAL(wp), DIMENSION(:,:,:), ALLOCATABLE, SAVE ::    &  !:
+   REAL(wp), DIMENSION(:,:,:), PUBLIC, ALLOCATABLE, SAVE ::    &  !:
      dustmo                                !: 2 consecutive set of dust fields 
    REAL(wp), DIMENSION(:,:), ALLOCATABLE, SAVE   ::    &
      rivinp, cotdep, nitdep, dust, sidep
@@ -93,9 +94,7 @@ CONTAINS
       CHARACTER (len=25) :: charout
       !!---------------------------------------------------------------------
 
-!      IF( (jnt == 1) .and. ( ln_dustfer ) )  CALL p4z_sbc( kt )
-
-
+      IF( (jnt == 1) .and. ( ln_dustfer ) )  CALL p4z_sbc( kt )
 
       ! Iron and Si deposition at the surface
       ! -------------------------------------
@@ -218,7 +217,7 @@ CONTAINS
 #if ! defined key_sed
             tra(ji,jj,ikt,jpsil) = tra(ji,jj,ikt,jpsil) + zconctmp   &
              &      * 0.98
- !           &      * ( 1.- ( sumdepsi + rivalkinput / ryyss / 6. ) / zsumsedsi )
+!             &      * ( 1.- ( sumdepsi + rivalkinput / ryyss / 6. ) / zsumsedsi )
 #endif
          END DO
       END DO
@@ -231,7 +230,7 @@ CONTAINS
 #if ! defined key_sed
             tra(ji,jj,ikt,jptal) = tra(ji,jj,ikt,jptal) + zconctmp   &
                &   * 0.85 * 2.0
-!              &   * ( 1.- ( rivalkinput / ryyss ) / zsumsedcal ) * 2.e0
+!               &   * ( 1.- ( rivalkinput / ryyss ) / zsumsedcal ) * 2.e0
             tra(ji,jj,ikt,jpdic) = tra(ji,jj,ikt,jpdic) + zconctmp   &
                &   * 0.85
 !               &   * ( 1.- ( rivalkinput / ryyss ) / zsumsedcal )
@@ -294,7 +293,7 @@ CONTAINS
       DO jk = KRANGE
          DO jj = JRANGE
             DO ji = IRANGE
-               znitrpottot = znitrpottot + nitrpot(ji,jj,jk) * cvol(ji,jj,jk)
+               znitrpottot = znitrpottot + nitrpot(ji,jj,jk) * cvol(ji,jj,K)
             END DO
          END DO
       END DO
@@ -349,21 +348,27 @@ CONTAINS
       !!----------------------------------------------------------------------
       !!                     ***  ROUTINE p4z_sed_alloc  ***
       !!----------------------------------------------------------------------
-      INTEGER ::   ierr(4)        ! Local variables
+      INTEGER ::   ierr(5)        ! Local variables
 
       ierr(:) = 0
       !
-      ALLOCATE( dust(PRIV_2D_BIOARRAY), dustmo(PRIV_2D_BIOARRAY,2),&
-         &      irondep(PRIV_3D_BIOARRAY),sidep(PRIV_2D_BIOARRAY), STAT= ierr(1) )
-      ALLOCATE( rivinp(PRIV_2D_BIOARRAY), cotdep(PRIV_2D_BIOARRAY), STAT=ierr(2) )
-      ALLOCATE( nitdep(PRIV_2D_BIOARRAY), STAT=ierr(3) )
-      ALLOCATE( nitrpot(PRIV_3D_BIOARRAY), ironsed(PRIV_3D_BIOARRAY), STAT=ierr(4) )
+#ifdef NEMO
+      ALLOCATE( dust(PRIV_2D_BIOARRAY), dustmo(PRIV_2D_BIOARRAY,2), STAT= ierr(1) )
+#else
+      ALLOCATE( dust(PRIV_2D_BIOARRAY), STAT= ierr(1) )
+#endif
+      ALLOCATE( irondep(PRIV_3D_BIOARRAY),sidep(PRIV_2D_BIOARRAY), STAT= ierr(2) )
+      ALLOCATE( rivinp(PRIV_2D_BIOARRAY), cotdep(PRIV_2D_BIOARRAY), STAT=ierr(3) )
+      ALLOCATE( nitdep(PRIV_2D_BIOARRAY), STAT=ierr(4) )
+      ALLOCATE( nitrpot(PRIV_3D_BIOARRAY), ironsed(PRIV_3D_BIOARRAY), STAT=ierr(5) )
       !
       p4z_sed_alloc = MAXVAL( ierr )
       !
       IF( p4z_sed_alloc /= 0 )   CALL ctl_warn('p4z_sed_alloc: failed to allocate arrays')
       !
    END FUNCTION p4z_sed_alloc
+
+# if defined NEMO
 
    SUBROUTINE p4z_sbc(kt)
 
@@ -380,8 +385,6 @@ CONTAINS
       !!----------------------------------------------------------------------
       !! * arguments
       INTEGER, INTENT( in  ) ::   kt   ! ocean time step
-# if defined key_iomget
-
       !! * Local declarations
       INTEGER ::   &
          imois, imois2,       &  ! temporary integers
@@ -452,10 +455,96 @@ CONTAINS
       dust(:,:) = ( (1.-zxy) * dustmo(:,:,1) + zxy * dustmo(:,:,2) )
 
       IF( kt == nitend ) CALL iom_close (numdust)
+
+#else
+
+   SUBROUTINE p4z_sbc(kt)
+
+      !!----------------------------------------------------------------------
+      !!                  ***  ROUTINE p4z_sbc  ***
+      !!
+      !! ** Purpose :   Read and interpolate the external sources of 
+      !!                nutrients
+      !!
+      !! ** Method  :   Read the files and interpolate the appropriate variables
+      !!
+      !! ** input   :   external netcdf files
+      !!
+      !!----------------------------------------------------------------------
+      !! * arguments
+      INTEGER, INTENT( in  ) ::   kt   ! ocean time step
+      !
+      INTEGER :: ji, jj, jk
+      INTEGER, PARAMETER :: jpmois = 12
+      INTEGER :: nspyr, irec1, irec2, nmois
+      REAL    :: zpdtan, zdum, zpdtmo, zdemi, zt
+
+
+      zpdtan = ryyss / rdt
+      nspyr  = nint( zpdtan )
+      zpdtmo = zpdtan / float( jpmois )
+      zdemi  = zpdtmo / 2.
+      zt     = ( float( kt ) + zdemi) / zpdtmo
+      
+
+      !  recherche de l'indice des enregistrements
+      !  du modele dynamique encadrant le pas de temps kt.
+      !  --------------------------------------------------
+      irec1 = zt - float(int ( zt ) )
+      irec1 = int( zt )
+      irec2 = irec1 + 1
+      irec1 = MOD( irec1, jpmois )
+      IF ( irec1 == 0 ) irec1 = jpmois
+      irec2 = MOD( irec2, jpmois )
+      IF ( irec2 == 0 ) irec2 = jpmois
+
+      !
+      ! Interpolation of dust deposition
+      ! --------------------------------
+
+      DO jj = JRANGE
+         DO ji = IRANGE
+            dust(ji,jj) = ( 1. - irec1 ) * dustmo(ji,jj,irec1)  &
+            &                  + irec2   * dustmo(ji,jj,irec2)
+        END DO
+      END DO
 #endif
 
    END SUBROUTINE p4z_sbc
 
+   SUBROUTINE p4z_sed_nam
+
+      !!----------------------------------------------------------------------
+      !!                  ***  ROUTINE p4z_sed_init  ***
+      !!
+      !! ** Purpose :   Initialization of the external sources of nutrients
+      !!
+      !! ** Method  :   Read the files and compute the budget
+      !!      called at the first timestep (nittrc000)
+      !!
+      !! ** input   :   external netcdf files
+      !!
+      !!----------------------------------------------------------------------
+      NAMELIST/nampissed/ ln_dustfer, ln_river, ln_ndepo, ln_sedinput, sedfeinput, dustsolub
+
+
+      REWIND( numnatp )                     ! read numnatp
+      READ  ( numnatp, nampissed )
+
+      IF(lwp) THEN
+         WRITE(numout,*) ' '
+         WRITE(numout,*) ' Namelist : nampissed '
+         WRITE(numout,*) ' ~~~~~~~~~~~~~~~~~ '
+         WRITE(numout,*) '    Dust input from the atmosphere           ln_dustfer  = ', ln_dustfer
+         WRITE(numout,*) '    River input of nutrients                 ln_river    = ', ln_river
+         WRITE(numout,*) '    Atmospheric deposition of N              ln_ndepo    = ', ln_ndepo
+         WRITE(numout,*) '    Fe input from sediments                  ln_sedinput = ', ln_sedinput
+         WRITE(numout,*) '    Coastal release of Iron                  sedfeinput  =', sedfeinput
+         WRITE(numout,*) '    Solubility of the dust                   dustsolub   =', dustsolub
+      ENDIF
+
+
+   END SUBROUTINE p4z_sed_nam
 
    SUBROUTINE p4z_sed_init
 
@@ -482,25 +571,6 @@ CONTAINS
       REAL(wp) , DIMENSION(PRIV_3D_BIOARRAY) ::   cmask
       REAL(wp) , DIMENSION(PRIV_2D_BIOARRAY,jpmois)    ::   zdustmo
 
-      NAMELIST/nampissed/ ln_dustfer, ln_river, ln_ndepo, ln_sedinput, sedfeinput, dustsolub
-
-
-      REWIND( numnatp )                     ! read numnatp
-      READ  ( numnatp, nampissed )
-
-      IF(lwp) THEN
-         WRITE(numout,*) ' '
-         WRITE(numout,*) ' Namelist : nampissed '
-         WRITE(numout,*) ' ~~~~~~~~~~~~~~~~~ '
-         WRITE(numout,*) '    Dust input from the atmosphere           ln_dustfer  = ', ln_dustfer
-         WRITE(numout,*) '    River input of nutrients                 ln_river    = ', ln_river
-         WRITE(numout,*) '    Atmospheric deposition of N              ln_ndepo    = ', ln_ndepo
-         WRITE(numout,*) '    Fe input from sediments                  ln_sedinput = ', ln_sedinput
-         WRITE(numout,*) '    Coastal release of Iron                  sedfeinput  =', sedfeinput
-         WRITE(numout,*) '    Solubility of the dust                   dustsolub   =', dustsolub
-      ENDIF
-
-      !                                        ! Initialisation
       DO jk = KRANGE
          DO jj = JRANGE
             DO ji = IRANGE
@@ -519,26 +589,26 @@ CONTAINS
       ! Dust input from the atmosphere
       ! ------------------------------
       IF( ln_dustfer ) THEN 
-         IF(lwp) WRITE(numout,*) '    Initialize dust input from atmosphere '
-         IF(lwp) WRITE(numout,*) '    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
-         CALL iom_open ( 'dust.orca.nc', numdust )
-         DO jm = 1, jpmois
-            CALL iom_get( numdust, jpdom_data, 'dust', zdustmo(:,:,jm), jm )
-         END DO
-         CALL iom_close( numdust )
+!         IF(lwp) WRITE(numout,*) '    Initialize dust input from atmosphere '
+!         IF(lwp) WRITE(numout,*) '    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
+!         CALL iom_open ( 'dust.orca.nc', numdust )
+!         DO jm = 1, jpmois
+!            CALL iom_get( numdust, jpdom_data, 'dust', zdustmo(:,:,jm), jm )
+!         END DO
+!         CALL iom_close( numdust )
          !
          ! total atmospheric supply of Si
          ! ------------------------------
          sumdepsi = 0.e0
-         DO jm = 1, jpmois
-            DO jj = JRANGE
-               DO ji = IRANGE
-                  sumdepsi = sumdepsi + zdustmo(ji,jj,jm) / (12.*rmtss) * 8.8        &
-                     &     * 0.075/28.1 * e1t(ji,jj) * e2t(ji,jj) * tmask(ji,jj,KSURF) * tmask_i(ji,jj)
-              END DO
-            END DO
-         END DO
-         IF( lk_mpp )  CALL mpp_sum( sumdepsi )  ! sum over the global domain
+!         DO jm = 1, jpmois
+!            DO jj = JRANGE
+!               DO ji = IRANGE
+!                  sumdepsi = sumdepsi + zdustmo(ji,jj,jm) / (12.*rmtss) * 8.8        &
+!                     &     * 0.075/28.1 * e1t(ji,jj) * e2t(ji,jj) * tmask(ji,jj,KSURF) * tmask_i(ji,jj)
+!              END DO
+!            END DO
+!         END DO
+!        IF( lk_mpp )  CALL mpp_sum( sumdepsi )  ! sum over the global domain
       ELSE
          sumdepsi = 0.e0
       ENDIF
@@ -546,17 +616,23 @@ CONTAINS
       ! Nutrient input from rivers
       ! --------------------------
       IF( ln_river ) THEN
-         IF(lwp) WRITE(numout,*) '    Initialize the nutrient input by rivers from river.orca.nc file'
-         IF(lwp) WRITE(numout,*) '    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
-         CALL iom_open ( 'river.orca.nc', numriv )
-         CALL iom_get  ( numriv, jpdom_data, 'riverdic', river   (:,:), jpan )
-         CALL iom_get  ( numriv, jpdom_data, 'riverdoc', riverdoc(:,:), jpan )
-         CALL iom_close( numriv )
+!        IF(lwp) WRITE(numout,*) '    Initialize the nutrient input by rivers from river.orca.nc file'
+!         IF(lwp) WRITE(numout,*) '    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+!         CALL iom_open ( 'river.orca.nc', numriv )
+!         CALL iom_get  ( numriv, jpdom_data, 'riverdic', river   (:,:), jpan )
+!         CALL iom_get  ( numriv, jpdom_data, 'riverdoc', riverdoc(:,:), jpan )
+!         CALL iom_close( numriv )
 
         ! Number of seconds per year and per month
 !      ryyss = nyear_len(1) * rday
 !      rmtss = ryyss / raamo
 
+         DO jj = JRANGE
+            DO ji = IRANGE
+               river   (ji,jj) = 0. 
+               riverdoc(ji,jj) = 0.
+            END DO
+         END DO
 
          ! N/P and Si releases due to coastal rivers
          ! -----------------------------------------
@@ -569,17 +645,17 @@ CONTAINS
          END DO
          rivpo4input = 0.e0
          rivalkinput = 0.e0
-         DO jj = JRANGE
-            DO ji = IRANGE
-               zcoef = cvol(ji,jj,KSURF) * ryyss
-               rivpo4input = rivpo4input + rivinp(ji,jj) * zcoef
-               rivalkinput = rivalkinput + cotdep(ji,jj) * zcoef
-            END DO
-         END DO
-         IF( lk_mpp ) THEN
-            CALL mpp_sum( rivpo4input )  ! sum over the global domain
-            CALL mpp_sum( rivalkinput )  ! sum over the global domain
-         ENDIF
+!         DO jj = JRANGE
+!            DO ji = IRANGE
+!               zcoef = cvol(ji,jj,KSURF) * ryyss
+!               rivpo4input = rivpo4input + rivinp(ji,jj) * zcoef
+!               rivalkinput = rivalkinput + cotdep(ji,jj) * zcoef
+!            END DO
+!         END DO
+!         IF( lk_mpp ) THEN
+!            CALL mpp_sum( rivpo4input )  ! sum over the global domain
+!            CALL mpp_sum( rivalkinput )  ! sum over the global domain
+!         ENDIF
       ELSE
          rivpo4input = 0.e0
          rivalkinput = 0.e0
@@ -588,12 +664,17 @@ CONTAINS
       ! Nutrient input from dust
       ! ------------------------
       IF( ln_ndepo ) THEN
-         IF(lwp) WRITE(numout,*) '    Initialize the nutrient input by dust from ndeposition.orca.nc'
-         IF(lwp) WRITE(numout,*) '    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
-         CALL iom_open ( 'ndeposition.orca.nc', numdep )
-         CALL iom_get  ( numdep, jpdom_data, 'ndep', ndepo(:,:), jpan )
-         CALL iom_close( numdep )
-      
+!        IF(lwp) WRITE(numout,*) '    Initialize the nutrient input by dust from ndeposition.orca.nc'
+!        IF(lwp) WRITE(numout,*) '    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+!         CALL iom_open ( 'ndeposition.orca.nc', numdep )
+!         CALL iom_get  ( numdep, jpdom_data, 'ndep', ndepo(:,:), jpan )
+!         CALL iom_close( numdep )
+!      
+         DO jj = JRANGE
+            DO ji = IRANGE               
+               ndepo(ji,jj) = 0.
+            END DO
+         END DO
          DO jj = JRANGE
             DO ji = IRANGE
                zcoef         = 14E6*ryyss*fse3t(ji,jj,KSURF) 
@@ -601,13 +682,13 @@ CONTAINS
             END DO
          END DO
          nitdepinput = 0.e0
-         DO jj = JRANGE
-            DO ji = IRANGE
-               zcoef = cvol(ji,jj,KSURF) * ryyss
-               nitdepinput = nitdepinput + nitdep(ji,jj) * zcoef
-            END DO
-         END DO
-         IF( lk_mpp ) CALL mpp_sum( nitdepinput )  ! sum over the global domain
+!         DO jj = JRANGE
+!            DO ji = IRANGE
+!               zcoef = cvol(ji,jj,KSURF) * ryyss
+!               nitdepinput = nitdepinput + nitdep(ji,jj) * zcoef
+!            END DO
+!         END DO
+!         IF( lk_mpp ) CALL mpp_sum( nitdepinput )  ! sum over the global domain
       ELSE
          nitdepinput = 0.e0
       ENDIF
@@ -615,19 +696,24 @@ CONTAINS
       ! Coastal and island masks
       ! ------------------------
       IF( ln_sedinput ) THEN     
-         IF(lwp) WRITE(numout,*) '    Computation of an island mask to enhance coastal supply of iron'
-         IF(lwp) WRITE(numout,*) '    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
-         IF(lwp) WRITE(numout,*) '       from bathy.orca.nc file '
-         CALL iom_open ( 'bathy.orca.nc', numbath )
-         CALL iom_get  ( numbath, jpdom_data, 'bathy', cmask(:,:,:), jpan )
-         CALL iom_close( numbath )
+!         IF(lwp) WRITE(numout,*) '    Computation of an island mask to enhance coastal supply of iron'
+!         IF(lwp) WRITE(numout,*) '    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
+!         IF(lwp) WRITE(numout,*) '       from bathy.orca.nc file '
+!         CALL iom_open ( 'bathy.orca.nc', numbath )
+!         CALL iom_get  ( numbath, jpdom_data, 'bathy', cmask(:,:,:), jpan )
+!         CALL iom_close( numbath )
          !
-         DO jk = 1, 5
+         DO jj = JRANGE
+            DO ji = IRANGE
+               cmask(ji,jj,jpk) = 1
+            ENDDO
+         ENDDO
+         DO jk = KRANGE-1
             DO jj = JRANGE-1
                DO ji = IRANGE-1
                   IF( tmask(ji,jj,K) /= 0. ) THEN
                      zmaskt = tmask(ji+1,jj,K) * tmask(ji-1,jj  ,K) * tmask(ji,jj+1,K)    &
-                        &                      * tmask(ji  ,jj-1,K) * tmask(ji,jj,KDOWN)
+                        &                      * tmask(ji  ,jj-1,K) * tmask(ji,jj  ,K)
                      IF( zmaskt == 0. )   cmask(ji,jj,K ) = 0.1
                   ENDIF
                END DO

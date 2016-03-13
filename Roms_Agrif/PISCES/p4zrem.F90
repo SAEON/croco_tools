@@ -28,6 +28,8 @@ MODULE p4zrem
    PUBLIC   p4z_rem    ! called in p4zbio.F90
    PUBLIC   p4z_rem_alloc 
    PUBLIC   p4z_rem_init 
+   PUBLIC   p4z_rem_nam 
+
 
    !!* Substitution
 #  include "ocean2pisces.h90"
@@ -79,10 +81,23 @@ CONTAINS
 
 
        ! Initialisation of temprary arrys
-       zdepbac (:,:,:) = 0.0
-       zfesatur(:,:,:) = 0.0
-       zolimi  (:,:,:) = 0.0
-       ztempbac(:,:)   = 0.0
+      DO jk = KRANGE
+         DO jj = JRANGE
+            DO ji = IRANGE
+               zdepbac (ji,jj,jk) = 0.0
+               zfesatur(ji,jj,jk) = 0.0
+               zolimi  (ji,jj,jk) = 0.0
+               zfesatur(ji,jj,jk) = 0.6e-9
+            END DO
+         END DO
+      END DO
+      DO jk = KRANGE
+         DO jj = JRANGE
+            DO ji = IRANGE
+               ztempbac(ji,jj)   = 0.0
+            END DO
+         END DO
+      END DO
 
 !      Computation of the mean phytoplankton concentration as
 !      a crude estimate of the bacterial biomass
@@ -111,11 +126,12 @@ CONTAINS
 
                nitrfac(ji,jj,jk) = MAX(  0.e0, 0.4 * ( 6.e-6  - trn(ji,jj,K,jpoxy) )    &
                   &                                / ( oxymin + trn(ji,jj,K,jpoxy) )  )
+               !
+               nitrfac(ji,jj,jk) = MIN( 1., nitrfac(ji,jj,jk) )
+              !
             END DO
          END DO
       END DO
-
-      nitrfac(:,:,:) = MIN( 1., nitrfac(:,:,:) )
 
 
       DO jk = KRANGE
@@ -305,7 +321,6 @@ CONTAINS
 !         CALL prt_ctl_trc(tab4d=tra, mask=tmask, clinfo=ctrcnm)
        ENDIF
 
-      zfesatur(:,:,:) = 0.6e-9
 !CDIR NOVERRCHK
       DO jk = KRANGE
 !CDIR NOVERRCHK
@@ -443,7 +458,7 @@ CONTAINS
 
    END SUBROUTINE p4z_rem
 
-   SUBROUTINE p4z_rem_init
+   SUBROUTINE p4z_rem_nam
 
       !!----------------------------------------------------------------------
       !!                  ***  ROUTINE p4z_rem_init  ***
@@ -475,8 +490,32 @@ CONTAINS
       ENDIF
 
       !
-      nitrfac(:,:,:) = 0.0
-      denitr (:,:,:) = 0.0  
+   END SUBROUTINE p4z_rem_nam
+
+   SUBROUTINE p4z_rem_init
+
+      !!----------------------------------------------------------------------
+      !!                  ***  ROUTINE p4z_rem_init  ***
+      !!
+      !! ** Purpose :   Initialization of remineralization parameters
+      !!
+      !! ** Method  :   Read the nampisrem namelist and check the parameters
+      !!      called at the first timestep (nittrc000)
+      !!
+      !! ** input   :   Namelist nampisrem
+      !!
+      !!----------------------------------------------------------------------
+      INTEGER :: ji, jj, jk
+
+      !
+      DO jk = KRANGE
+         DO jj = JRANGE
+            DO ji = IRANGE
+               nitrfac(ji,jj,jk) = 0.e0
+               denitr (ji,jj,jk) = 0.e0
+            END DO
+         END DO
+      END DO
 
 
    END SUBROUTINE p4z_rem_init
