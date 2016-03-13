@@ -198,8 +198,13 @@ C$    trd=omp_get_thread_num()
 !                                            Western edge Flather BC
 !                                            ======= ==== ======= ==
         do j=Jstr,Jend
-          ubar(Istr,j,knew)= -sqrt(2.*g/(h(Istr-1,j)+h(Istr,j)
-     &                    +zeta(Istr-1,j,kstp)+zeta(Istr,j,kstp)))
+#   ifdef NBQ
+          cff=-sqrt(2.*g/(zeta(Istr-1,j,kstp)+zeta(Istr,j,kstp)))
+#   else
+          cff=-sqrt(2.*g/(h(Istr-1,j)+h(Istr,j)
+     &                   +zeta(Istr-1,j,kstp)+zeta(Istr,j,kstp)))
+#   endif
+          ubar(Istr,j,knew)=cff
      &               *(0.5*(zeta(Istr-1,j,knew)+zeta(Istr,j,knew))
 #   ifdef Z_FRC_BRY
      &                                           -zetabry_west(j) 
@@ -220,8 +225,12 @@ C$    trd=omp_get_thread_num()
 !                                            Western edge Characteristic BC
 !                                            ======= ==== ======= ==
         do j=Jstr,Jend
+#   ifdef NBQ
+          cff=0.5*(zeta(Istr-1,j,kstp)+zeta(Istr,j,kstp))
+#   else
           cff=0.5*(h(Istr-1,j)+h(Istr,j)+
      &             zeta(Istr-1,j,kstp)+zeta(Istr,j,kstp))
+#   endif
           hx=sqrt(g/cff)
           cx=dtfast*cff*hx*0.5*(pm(Istr-1,j)+pm(Istr,j))
   
@@ -375,8 +384,13 @@ c          endif
 !                                            Eastern edge Flather BC
 !                                            ======= ==== ======= ==
         do j=Jstr,Jend
-          ubar(Iend+1,j,knew)=sqrt(2.*g/(h(Iend,j)+h(Iend+1,j)+
-     &                      zeta(Iend,j,kstp)+zeta(Iend+1,j,kstp)))
+#   ifdef NBQ
+          cff=sqrt(2.*g/(zeta(Iend,j,kstp)+zeta(Iend+1,j,kstp)))
+#   else
+          cff=sqrt(2.*g/(h(Iend,j)+h(Iend+1,j)+
+     &                   zeta(Iend,j,kstp)+zeta(Iend+1,j,kstp)))
+#   endif
+          ubar(Iend+1,j,knew)=cff
      &               *(0.5*( zeta(Iend,j,knew)+zeta(Iend+1,j,knew))
 #   ifdef Z_FRC_BRY
      &                                             -zetabry_east(j)
@@ -397,8 +411,12 @@ c          endif
 !                                            Eastern edge Characteristic BC
 !                                            ======= ==== ======= ==
         do j=Jstr,Jend
+#   ifdef NBQ
+          cff=0.5*(zeta(Iend,j,kstp)+zeta(Iend+1,j,kstp))
+#   else
           cff=0.5*(h(Iend,j)+h(Iend+1,j)+
      &             zeta(Iend,j,kstp)+zeta(Iend+1,j,kstp))
+#   endif
           hx=sqrt(g/cff)
           cx=dtfast*cff*hx*0.5*(pm(Iend,j)+pm(Iend+1,j))
   
@@ -552,10 +570,13 @@ c          endif
 !                                           Southern edge Chapman BC
 !                                           ======== ==== ======= ==
         do i=IstrU,Iend
-          cx=dtfast*0.5*(pn(i-1,Jstr-1)+pn(i,Jstr-1))
-     &                  *sqrt( 0.5*g*(h(i-1,Jstr-1)+h(i,Jstr-1)+
-     &                 zeta(i-1,Jstr-1,kstp)+zeta(i,Jstr-1,kstp)) )
-
+#   ifdef NBQ
+          cff=sqrt(0.5*g*(zeta(i-1,Jstr-1,kstp)+zeta(i,Jstr-1,kstp)))
+#   else
+          cff=sqrt(0.5*g*(h(i-1,Jstr-1)+h(i,Jstr-1)+
+     &                    zeta(i-1,Jstr-1,kstp)+zeta(i,Jstr-1,kstp)))
+#   endif
+          cx=dtfast*0.5*cff*(pn(i-1,Jstr-1)+pn(i,Jstr-1))
           ubar(i,Jstr-1,knew)=(ubar(i,Jstr-1,kstp)
      &                         +cx*ubar(i,Jstr,knew) )/(1.+cx)     
 #   ifdef MASKING
@@ -682,9 +703,13 @@ c          endif
 !                                           Northern edge Chapman BC
 !                                           ======== ==== ======= ==
         do i=IstrU,Iend
-          cx=dtfast*0.5*(pn(i-1,Jend+1)+pn(i,Jend+1))
-     &                 *sqrt(0.5*g*(h(i-1,Jend+1)+h(i,Jend+1)+
-     &                       zeta(i-1,Jend+1,kstp)+zeta(i,Jend+1,kstp)))
+#   ifdef NBQ
+          cff=sqrt(0.5*g*(zeta(i-1,Jend+1,kstp)+zeta(i,Jend+1,kstp)))
+#   else
+          cff=sqrt(0.5*g*(h(i-1,Jend+1)+h(i,Jend+1)+
+     &                    zeta(i-1,Jend+1,kstp)+zeta(i,Jend+1,kstp)))
+#   endif
+          cx=dtfast*0.5*cff*(pn(i-1,Jend+1)+pn(i,Jend+1))
      &                    
           ubar(i,Jend+1,knew)=(ubar(i,Jend+1,kstp)
      &                         +cx*ubar(i,Jend,knew))/(1.+cx)

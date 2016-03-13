@@ -1290,7 +1290,9 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
         do j=JstrV-1,Jend
           do i=IstrU-1,Iend
             zwrk(i,j)=zeta_new(i,j)-zeta(i,j,kstp)
-            zwrk(i,j)=zwrk(i,j)/rhobar_nbq(i,j)-h(i,j)
+            zwrk(i,j)=zwrk(i,j)/rhobar_nbq(i,j) ! here h(i,j) must not be 
+                                                ! subtracted because zwrk 
+                                                ! is an anomalie of zeta
 #  if defined VAR_RHO_2D && defined SOLVE3D
             rzeta(i,j)=(1.+rhoS(i,j))*zwrk(i,j)
             rzeta2(i,j)=rzeta(i,j)*
