@@ -56,12 +56,11 @@ REAL, DIMENSION(GLOBAL_2D_ARRAY,N+1) :: fsdepw    ! W-depht
   END INTERFACE
 
 
-  LOGICAL :: lwp        = .true.
+  LOGICAL :: lwp        
   LOGICAL :: ln_ctl     = .false.
   LOGICAL :: ln_qsr_bio = .false.   
   REAL    :: rn_abs     = 0.58
   REAL    :: rn_si0     = 0.35
-!  INTEGER :: numout     = 6
   INTEGER :: numout    
   INTEGER :: jpdom_data = 1
 
