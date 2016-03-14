@@ -10,8 +10,6 @@
 !======================================================================
 !
 #include "cppdefs.h"
-#undef M2FILTER_POWER
-#define NO_FILTER
 #ifdef SOLVE3D
 c--# define TEST_WEIGHTS
 
