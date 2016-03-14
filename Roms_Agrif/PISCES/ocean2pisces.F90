@@ -211,13 +211,13 @@ CONTAINS
    SUBROUTINE ctl_warn(clname)
       CHARACTER(len=*), INTENT(in) :: clname
       WRITE(numout,"(/,' ===>>> : W A R N I N G', /,'         ===============',/)") 
-      IF(lwp)  WRITE(numout,*) clname
+      IF(mynode .eq. 0 )  WRITE(numout,*) clname
    END SUBROUTINE
 
    SUBROUTINE ctl_stop(clname)
       CHARACTER(len=*), INTENT(in) :: clname
       WRITE(numout,"(/,' ===>>> : E R R O R',     /,'         ===========',/)") 
-      IF(lwp)  WRITE(numout,*) clname
+      IF(mynode .eq. 0 )  WRITE(numout,*) clname
       STOP
    END SUBROUTINE
 

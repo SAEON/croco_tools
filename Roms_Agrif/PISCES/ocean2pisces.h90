@@ -30,6 +30,7 @@
 /* Model specific variables */
 
 # define numout   stdout
+# define lwp      mynode .eq. 0
 
 #if defined MPI
 # define lk_mpp .true.
