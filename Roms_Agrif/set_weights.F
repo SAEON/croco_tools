@@ -62,55 +62,7 @@ c--# define TEST_WEIGHTS
       
       scale=(p+1.)*(p+q+1.)/((p+2.)*(p+q+2.)*float(ndtfast))
       do iter=1,16
-        nfast=0
-        do i=1,2*ndtfast
-          cff=scale*float(i)
-          weight(1,i)=cff**p - cff**(p+q) - r*cff
-          if (i.gt.ndtfast .and. weight(1,i).lt.0.) then
-            weight(1,i)=0.
-          else
-            nfast=i                  ! Find center of gravity of
-          endif                      ! the primary weighting shape
-        enddo                        ! function and iteratively 
-        sum=0.                       ! adjust "scale" to place the 
-        shft=0.                      ! centroid exactly at
-        do i=1,nfast                 ! "ndtfast".
-          sum=sum+weight(1,i)
-          shft=shft+weight(1,i)*float(i)
-        enddo
-        scale=scale * shft/(sum*float(ndtfast))
-c**     write(*,*) shft/sum, ndtfast
-      enddo
-# elif defined M2FILTER_FLAT
-      cff=1./float(ndtfast)               ! FLAT filter
-      do i=1,2*ndtfast                    ! with width of 2
-        arg=cff*float(i-ndtfast)
-        if (2.*abs(arg) .lt. 1.) then
-          weight(1,i)=1.
-          nfast=i
-        endif
-      enddo
-            
-# elif defined M2FILTER_COSINE
-      cff=pi/float(ndtfast)               ! cos**2 shaped
-      do i=1,2*ndtfast                    ! filter 
-        arg=cff*float(i-ndtfast)
-        if (2.*abs(arg) .lt. pi) then
-          weight(1,i)=(cos(arg))**2
-          nfast=i
-        endif
-      enddo
-# elif defined M2FILTER_NONE
-      weight(1,:)=0.
-      nfast=ndtfast
-      weight(1,nfast)=1.
-# else
-      cff=pi/float(ndtfast)
-      do i=1,2*ndtfast
-        arg=cff*float(i-ndtfast)
-        if (2.*abs(arg) .lt. pi) then
-!          weight(1,i)=???
-          weight(1,i)=(cos(arg))**2       ! cos**2 shaped
+cos**2 shaped
           nfast=i                         ! filter (DEFAULT).
         endif
       enddo
