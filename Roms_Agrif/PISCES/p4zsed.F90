@@ -319,7 +319,7 @@ CONTAINS
         DO jj = JRANGE
            DO ji = IRANGE
               zmsk = zrfact2 * fse3t(ji,jj,KSURF) * tmask(ji,jj,KSURF)
-              trc2d(ji,jj,jp_irondep)  = irondep(ji,jj,1) * zmsk + ironsed(ji,jj,1) * rfact2  ! surface downward net flux of iron      
+              trc2d(ji,jj,jp_irondep)  = irondep(ji,jj,1) * zmsk                ! iron deposition      
               trc2d(ji,jj,jp_nfix   )  = nitrpot(ji,jj,1) * zmsk * 1.e-7        ! nitrogen fixation at surface
            END DO
         END DO
