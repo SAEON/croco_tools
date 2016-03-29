@@ -476,12 +476,13 @@ CONTAINS
       !
       INTEGER :: ji, jj, jk
       INTEGER, PARAMETER :: jpmois = 12
-      INTEGER :: nspyr, irec1, irec2, nmois
-      REAL    :: zpdtan, zdum, zpdtmo, zdemi, zt
+      INTEGER :: irec1, irec2, i15
+      INTEGER :: nyear, nday, nmonth
+      REAL    :: zpdtan, zpdtmo, zdemi, zt
+      REAL    :: zxy, zjulian, zsec
 
 
       zpdtan = ryyss / rdt
-      nspyr  = nint( zpdtan )
       zpdtmo = zpdtan / float( jpmois )
       zdemi  = zpdtmo / 2.
       zt     = ( float( kt ) + zdemi) / zpdtmo
@@ -498,16 +499,22 @@ CONTAINS
       irec2 = MOD( irec2, jpmois )
       IF ( irec2 == 0 ) irec2 = jpmois
 
+
       !
       ! Interpolation of dust deposition
       ! --------------------------------
+      zjulian = FLOAT( nday_year )
+      CALL ju2ymds( zjulian, nyear, nmonth, nday, zsec)
 
+      i15 = nday_year / 16
+      zxy = FLOAT( nday_year + 15 - 30 * i15 ) / 30
       DO jj = JRANGE
          DO ji = IRANGE
-            dust(ji,jj) = ( 1. - irec1 ) * dustmo(ji,jj,irec1)  &
-            &                  + irec2   * dustmo(ji,jj,irec2)
+            dust(ji,jj) = ( 1. - zxy ) * dustmo(ji,jj,irec1)  &
+            &                  + zxy   * dustmo(ji,jj,irec2)
         END DO
       END DO
+
 #endif
 
    END SUBROUTINE p4z_sbc
@@ -741,8 +748,133 @@ CONTAINS
          !
       ENDIF
 
-
    END SUBROUTINE p4z_sed_init
+
+   
+      SUBROUTINE ju2ymds (julian,year,month,day,sec)
+      !!----------------------------------------------------------------------
+      !!                     ***  ROUTINE ymds2ju  ***
+      !!
+      !! ** Purpose :   send back the date corresponding to the given julian day
+      !!
+      !! ** Method  :   
+      !!
+      !! ** History :   R. Benshila, adaptation for CROCO 
+      !!                IPSL       , original version  
+      !!
+      !!---------------------------------------------------------------------
+      IMPLICIT NONE
+  !
+      REAL,INTENT(IN) :: julian
+      INTEGER,INTENT(OUT) :: year,month,day
+          REAL,INTENT(OUT)    :: sec
+  !
+      INTEGER :: julian_day
+      REAL    :: julian_sec
+      REAL,PARAMETER :: one_day = 86400.0
+      !---------------------------------------------------------------------
+      !! 
+      julian_day = INT(julian)
+      julian_sec = (julian-julian_day)*one_day
+      !
+      CALL ju2ymds_internal(julian_day,julian_sec,year,month,day,sec)
+      ! 
+     END SUBROUTINE ju2ymds
+
+
+      SUBROUTINE ju2ymds_internal (julian_day,julian_sec,year, month,day,sec)
+         !---------------------------------------------------------------------
+          !- This subroutine computes from the julian day the year,
+          !- month, day and seconds
+      !-
+          !- In 1968 in a letter to the editor of Communications of the ACM
+          !- (CACM, volume 11, number 10, October 1968, p.657) Henry F. Fliegel
+          !- and Thomas C. Van Flandern presented such an algorithm.
+          !-
+          !- See also :
+          !http://www.magnet.ch/serendipity/hermetic/cal_stud/jdn.htm
+          !-
+          !- In the case of the Gregorian calendar we have chosen to use
+          !- the Lilian day numbers. This is the day counter which starts
+      !- on the 15th October 1582. This is the day at which Pope
+          !- Gregory XIII introduced the Gregorian calendar.
+          !- Compared to the true Julian calendar, which starts some 7980
+          !- years ago, the Lilian days are smaler and are dealt with easily
+      !- on 32 bit machines. With the true Julian days you can only the
+          !- fraction of the day in the real part to a precision of a 1/4 of
+          !- a day with 32 bits.
+          !---------------------------------------------------------------------
+          IMPLICIT NONE
+      !
+          INTEGER,INTENT(IN) :: julian_day
+          REAL,INTENT(IN)    :: julian_sec
+          INTEGER,INTENT(OUT) :: year,month,day
+          REAL,INTENT(OUT)    :: sec
+          !
+          INTEGER :: l,n,i,jd,j,d,m,y,ml
+          INTEGER :: add_day
+          REAL :: eps_day
+          REAL,PARAMETER :: one_day = 86400.0
+!          REAL,PARAMETER :: one_year = 365.2425
+          REAL,PARAMETER :: one_year = 365.
+          INTEGER :: mon_len(12)=(/31,28,31,30,31,30,31,31,30,31,30,31/)
+      !---------------------------------------------------------------------
+      !  
+      eps_day = SPACING(one_day)
+          !
+          jd = julian_day
+          sec = julian_sec
+          IF (sec > (one_day-eps_day)) THEN
+            add_day = INT(sec/one_day)
+            sec = sec-add_day*one_day
+            jd = jd+add_day
+          ENDIF
+          IF (sec < -eps_day) THEN
+             sec = sec+one_day
+            jd = jd-1
+         ENDIF  !
+      IF ( (one_year > 365.0).AND.(one_year < 366.0) ) THEN
+             !-- Gregorian
+             jd = jd+2299160
+             !
+             l = jd+68569
+             n = (4*l)/146097
+             l = l-(146097*n+3)/4
+             i = (4000*(l+1))/1461001
+             l = l-(1461*i)/4+31
+             j = (80*l)/2447
+             d = l-(2447*j)/80
+             l = j/11
+             m = j+2-(12*l)
+             y = 100*(n-49)+i+l
+       ELSEIF (    (ABS(one_year-365.0) <= EPSILON(one_year)) &
+     &  .OR.(ABS(one_year-366.0) <= EPSILON(one_year)) ) THEN
+           !-- No leap or All leap
+           y = jd/NINT(one_year)
+           l = jd-y*NINT(one_year)
+           m = 1
+           ml = 0
+         DO WHILE (ml+mon_len(m) <= l)
+            ml = ml+mon_len(m)
+            m = m+1
+         ENDDO
+!           d = l-ml+1
+           d = l-ml
+      ELSE
+        !-- others
+        ml = NINT(one_year/12.)
+        y = jd/NINT(one_year)
+        l = jd-y*NINT(one_year)
+        m = (l/ml)+1
+!        d = l-(m-1)*ml+1
+        d = l-(m-1)*ml
+      ENDIF
+      !
+      day = d
+      month = m
+      year = y
+      !
+    END SUBROUTINE ju2ymds_internal
 
 #else
    !!======================================================================
