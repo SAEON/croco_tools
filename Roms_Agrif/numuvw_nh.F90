@@ -18,6 +18,7 @@
 
       integer   :: i,j,k,nzuvw_n   
       integer   :: jstr_n,jend_n
+      integer   :: ierr_n,ierrmpi_n
 
 
 !*******************************************************************
@@ -37,10 +38,9 @@
 !     Momentum Equation: X-direction
 !******************************************************************* 
 !*******************************************************************
-
 # ifdef MPI
 !-------------------------------------------------------------------
-!     WEST MPI Interface
+!     (U) WEST MPI Interface
 !-------------------------------------------------------------------
       if (WEST_INTER) then
          i = istru_nh-1
@@ -58,14 +58,14 @@
             jend_n = jend_nh
          endif
 
-         do k=1,N    
          do j=jstr_n,jend_n
+         do k=1,N    
 #  ifdef MASKING
             if (umask(i,j).ne.0) then
 #  endif
                nzuvw_n               = nzuvw_n + 1 
                ijk2lmom_nh(i,j,k,1)  = nzuvw_n
-               mijk2lmom_nh(i,j,k,1) = 1 
+               mijk2lmom_nh(i,j,k,1) = mijk2lmom_nh(i,j,k,1) + 1 
                l2imom_nh(nzuvw_n)    = i
                l2jmom_nh(nzuvw_n)    = j
                l2kmom_nh(nzuvw_n)    = k
@@ -78,10 +78,11 @@
       endif
 
 !-------------------------------------------------------------------
-!     SOUTH MPI Interface
+!     (U) SOUTH MPI Interface
 !-------------------------------------------------------------------
       if (SOUTH_INTER) then
-         j = jstr_nh-1
+         j        = jstr_nh - 1
+         jstru_nh = jstr_nh - 1
 
          do i=istru_nh,iendu_nh
          do k=1,N    
@@ -90,7 +91,7 @@
 #  endif
                nzuvw_n               = nzuvw_n + 1 
                ijk2lmom_nh(i,j,k,1)  = nzuvw_n
-               mijk2lmom_nh(i,j,k,1) = 1 
+               mijk2lmom_nh(i,j,k,1) = mijk2lmom_nh(i,j,k,1) + 1 
                l2imom_nh(nzuvw_n)    = i
                l2jmom_nh(nzuvw_n)    = j
                l2kmom_nh(nzuvw_n)    = k
@@ -103,36 +104,40 @@
       endif
 # endif /* MPI */
 
-      nequ_nh(1) = nzuvw_n
-
 !-------------------------------------------------------------------
-!     WESTERN EDGE
+!     (U) WESTERN EDGE
 !-------------------------------------------------------------------
-# ifdef OBC_NBQ_XXX
+# if defined OBC_NBQ && ! defined OBC_NH
+#  ifdef MPI
       if (WESTERN_EDGE) then
         i = istru_nh-1
 
 !........Corner (South-West):
-         if (SOUTH_INTER) then
-            jstr_n = jstr_nh-1
-         else
-            jstr_n = jstr_nh
-         endif
+        if (SOUTH_INTER) then
+          jstr_n = jstr_nh-1
+        else
+          jstr_n = jstr_nh
+        endif
 !........Corner (North-West):
-         if (NORTH_INTER) then
-            jend_n = jend_nh+1
-         else
-            jend_n = jend_nh
-         endif
+        if (NORTH_INTER) then
+          jend_n = jend_nh+1
+        else
+          jend_n = jend_nh
+        endif
+#  else
+        i = istru_nh-1
+        jstr_n = jstr_nh
+        jend_n = jend_nh
+#  endif /* MPI */
 
-        do k=1,N    
         do j=jstr_n,jend_n
+        do k=1,N    
 #  ifdef MASKING
           if (umask(i,j).ne.0) then
 #  endif
             nzuvw_n               = nzuvw_n + 1 
             ijk2lmom_nh(i,j,k,1)  = nzuvw_n
-            mijk2lmom_nh(i,j,k,1) = 1 
+            mijk2lmom_nh(i,j,k,1) = mijk2lmom_nh(i,j,k,1) + 1 
             l2imom_nh(nzuvw_n)    = i
             l2jmom_nh(nzuvw_n)    = j
             l2kmom_nh(nzuvw_n)    = k
@@ -141,25 +146,28 @@
 #  endif
         enddo
         enddo
-
+#  ifdef MPI
       endif
-# endif /* OBC_NBQ_XXX */
+#  endif
+# endif /* OBC_NBQ */
 
 !-------------------------------------------------------------------
-!     SOUTHERN EDGE (tangential velocity)
+!     (U) SOUTHERN EDGE (tangential velocity)
 !-------------------------------------------------------------------
-# ifdef OBC_NBQ_XXX
+# if defined OBC_NBQ 
+#  ifdef MPI
       if (SOUTHERN_EDGE) then
+#  endif
         j = jstr_nh-1
 
-        do k=1,N    
         do i=istru_nh-1,iendu_nh+1
+        do k=1,N    
 #  ifdef MASKING
           if (umask(i,j).ne.0) then
 #  endif
             nzuvw_n               = nzuvw_n + 1 
             ijk2lmom_nh(i,j,k,1)  = nzuvw_n
-            mijk2lmom_nh(i,j,k,1) = 1 
+            mijk2lmom_nh(i,j,k,1) = mijk2lmom_nh(i,j,k,1) + 1 
             l2imom_nh(nzuvw_n)    = i
             l2jmom_nh(nzuvw_n)    = j
             l2kmom_nh(nzuvw_n)    = k
@@ -168,14 +176,64 @@
 #  endif
         enddo
         enddo
-
+#  ifdef MPI
       endif
-# endif /* OBC_NBQ_XXX */
+#  endif
+# endif /* OBC_NBQ */
+
+      nequ_nh(1) = nzuvw_n
+
+!-------------------------------------------------------------------
+!     (U) WESTERN EDGE (MATRIX OBC)
+!-------------------------------------------------------------------
+# ifdef OBC_NH
+#  ifdef MPI
+      if (WESTERN_EDGE) then
+        i = istru_nh-1
+
+!........Corner (South-West):
+        if (SOUTH_INTER) then
+          jstr_n = jstr_nh-1
+        else
+          jstr_n = jstr_nh
+        endif
+!........Corner (North-West):
+        if (NORTH_INTER) then
+          jend_n = jend_nh+1
+        else
+          jend_n = jend_nh
+        endif
+#  else
+        i = istru_nh-1
+        jstr_n = jstr_nh
+        jend_n = jend_nh
+#  endif /* MPI */
+
+        do j=jstr_n,jend_n
+        do k=1,N    
+#  ifdef MASKING
+          if (umask(i,j).ne.0) then
+#  endif
+            nzuvw_n               = nzuvw_n + 1 
+            ijk2lmom_nh(i,j,k,1)  = nzuvw_n
+            mijk2lmom_nh(i,j,k,1) = mijk2lmom_nh(i,j,k,1) + 1 
+            l2imom_nh(nzuvw_n)    = i
+            l2jmom_nh(nzuvw_n)    = j
+            l2kmom_nh(nzuvw_n)    = k
+#  ifdef MASKING
+          endif
+#  endif
+        enddo
+        enddo
+#  ifdef MPI
+      endif
+#  endif
+# endif /* OBC_NH */
 
       nequ_nh(2) = nzuvw_n
       
 !-------------------------------------------------------------------
-!     Inner domain, bottom layer: (i,j,k=1)
+!     (U) Inner domain, bottom layer: (i,j,k=1)
 !-------------------------------------------------------------------
       k=1
       do i=istru_nh,iendu_nh
@@ -185,7 +243,7 @@
 # endif
             nzuvw_n               = nzuvw_n + 1 
             ijk2lmom_nh(i,j,k,1)  = nzuvw_n
-            mijk2lmom_nh(i,j,k,1) = 1 
+            mijk2lmom_nh(i,j,k,1) = mijk2lmom_nh(i,j,k,1) + 1 
             l2imom_nh(nzuvw_n)    = i
             l2jmom_nh(nzuvw_n)    = j
             l2kmom_nh(nzuvw_n)    = k
@@ -198,7 +256,7 @@
       nequ_nh(3) = nzuvw_n
 
 !-------------------------------------------------------------------
-!     Inner domain, inner layers: (i,j, 1<k<N )
+!     (U) Inner domain, inner layers: (i,j, 1<k<N )
 !-------------------------------------------------------------------
       do i=istru_nh,iendu_nh
       do j=jstr_nh,jend_nh
@@ -208,7 +266,7 @@
 # endif
             nzuvw_n               = nzuvw_n + 1 
             ijk2lmom_nh(i,j,k,1)  = nzuvw_n
-            mijk2lmom_nh(i,j,k,1) = 1 
+            mijk2lmom_nh(i,j,k,1) = mijk2lmom_nh(i,j,k,1) + 1 
             l2imom_nh(nzuvw_n)    = i
             l2jmom_nh(nzuvw_n)    = j
             l2kmom_nh(nzuvw_n)    = k
@@ -222,7 +280,7 @@
       nequ_nh(4) = nzuvw_n
 
 !-------------------------------------------------------------------
-!     Inner domain, surface layer: (i,j,k=N )
+!     (U) Inner domain, surface layer: (i,j,k=N )
 !-------------------------------------------------------------------
       k=N
       do i=istru_nh,iendu_nh
@@ -232,7 +290,7 @@
 # endif
             nzuvw_n               = nzuvw_n + 1 
             ijk2lmom_nh(i,j,k,1)  = nzuvw_n
-            mijk2lmom_nh(i,j,k,1) = 1 
+            mijk2lmom_nh(i,j,k,1) = mijk2lmom_nh(i,j,k,1) + 1 
             l2imom_nh(nzuvw_n)    = i
             l2jmom_nh(nzuvw_n)    = j
             l2kmom_nh(nzuvw_n)    = k
@@ -245,24 +303,30 @@
       nequ_nh(5) = nzuvw_n
 
 !-------------------------------------------------------------------
-!     EASTERN EDGE
+!     (U) EASTERN EDGE (MATRIX OBC)
 !-------------------------------------------------------------------
-# ifdef OBC_NBQ_XXX
+# ifdef OBC_NH
+#  ifdef MPI
       if (EASTERN_EDGE) then
         i = iendu_nh+1
 
 !........Corner (South-East):
-         if (SOUTH_INTER) then
-            jstr_n = jstr_nh-1
-         else
-            jstr_n = jstr_nh
-         endif
+        if (SOUTH_INTER) then
+          jstr_n = jstr_nh-1
+        else
+          jstr_n = jstr_nh
+        endif
 !........Corner (North-East):
-         if (NORTH_INTER) then
-            jend_n = jend_nh+1
-         else
-            jend_n = jend_nh
-         endif
+        if (NORTH_INTER) then
+          jend_n = jend_nh+1
+        else
+          jend_n = jend_nh
+        endif
+#  else
+        i = iendu_nh+1
+        jstr_n = jstr_nh
+        jend_n = jend_nh
+#  endif /* MPI */
 
         do j=jstr_n,jend_n
         do k=1,N                 
@@ -271,7 +335,7 @@
 #  endif
             nzuvw_n               = nzuvw_n + 1 
             ijk2lmom_nh(i,j,k,1)  = nzuvw_n
-            mijk2lmom_nh(i,j,k,1) = 1 
+            mijk2lmom_nh(i,j,k,1) = mijk2lmom_nh(i,j,k,1) + 1 
             l2imom_nh(nzuvw_n)    = i
             l2jmom_nh(nzuvw_n)    = j
             l2kmom_nh(nzuvw_n)    = k
@@ -280,25 +344,47 @@
 #  endif
         enddo
         enddo
-
+#  ifdef MPI
       endif
-# endif /* OBC_NBQ_XXX */
+#  endif
+# endif /* OBC_NH */
+
+      nequ_nh(6) = nzuvw_n
 
 !-------------------------------------------------------------------
-!     NORTHERN EDGE (tangential velocity)
+!     (U) EASTERN EDGE 
 !-------------------------------------------------------------------
-# ifdef OBC_NBQ_XXX
-      if (NORTHERN_EDGE) then
-        j = jend_nh+1
+# if defined OBC_NBQ && ! defined OBC_NH
+#  ifdef MPI
+      if (EASTERN_EDGE) then
+        i = iendu_nh+1
 
-        do k=1,N    
-        do i=istru_nh-1,iendu_nh+1
+!........Corner (South-East):
+        if (SOUTH_INTER) then
+          jstr_n = jstr_nh-1
+        else
+          jstr_n = jstr_nh
+        endif
+!........Corner (North-East):
+        if (NORTH_INTER) then
+          jend_n = jend_nh+1
+        else
+          jend_n = jend_nh
+        endif
+#  else
+        i = iendu_nh+1
+        jstr_n = jstr_nh
+        jend_n = jend_nh
+#  endif /* MPI */
+
+        do j=jstr_n,jend_n
+        do k=1,N                 
 #  ifdef MASKING
           if (umask(i,j).ne.0) then
 #  endif
             nzuvw_n               = nzuvw_n + 1 
             ijk2lmom_nh(i,j,k,1)  = nzuvw_n
-            mijk2lmom_nh(i,j,k,1) = 1 
+            mijk2lmom_nh(i,j,k,1) = mijk2lmom_nh(i,j,k,1) + 1 
             l2imom_nh(nzuvw_n)    = i
             l2jmom_nh(nzuvw_n)    = j
             l2kmom_nh(nzuvw_n)    = k
@@ -307,15 +393,45 @@
 #  endif
         enddo
         enddo
-
+#  ifdef MPI
       endif
-# endif /* OBC_NBQ_XXX */
+#  endif
+# endif /* OBC_NBQ */
 
-      nequ_nh(6) = nzuvw_n
+!-------------------------------------------------------------------
+!     (U) NORTHERN EDGE (tangential velocity)
+!-------------------------------------------------------------------
+# if defined OBC_NBQ 
+#  ifdef MPI
+      if (NORTHERN_EDGE) then
+#  endif
+        j = jend_nh+1
+
+        do i=istru_nh-1,iendu_nh+1
+        do k=1,N    
+#  ifdef MASKING
+          if (umask(i,j).ne.0) then
+#  endif
+            nzuvw_n               = nzuvw_n + 1 
+            ijk2lmom_nh(i,j,k,1)  = nzuvw_n
+            mijk2lmom_nh(i,j,k,1) = mijk2lmom_nh(i,j,k,1) + 1 
+            l2imom_nh(nzuvw_n)    = i
+            l2jmom_nh(nzuvw_n)    = j
+            l2kmom_nh(nzuvw_n)    = k
+#  ifdef MASKING
+          endif
+#  endif
+        enddo
+        enddo
+#  ifdef MPI
+      endif
+#  endif
+# endif /* OBC_NBQ */
+
 
 # ifdef MPI
 !-------------------------------------------------------------------
-!     EAST MPI Interface
+!     (U) EAST MPI Interface
 !-------------------------------------------------------------------
       if (EAST_INTER) then
          i = iendu_nh+1
@@ -340,7 +456,7 @@
 #  endif
                nzuvw_n               = nzuvw_n + 1 
                ijk2lmom_nh(i,j,k,1)  = nzuvw_n
-               mijk2lmom_nh(i,j,k,1) = 1 
+               mijk2lmom_nh(i,j,k,1) = mijk2lmom_nh(i,j,k,1) + 1 
                l2imom_nh(nzuvw_n)    = i
                l2jmom_nh(nzuvw_n)    = j
                l2kmom_nh(nzuvw_n)    = k
@@ -352,10 +468,11 @@
        endif
 
 !-------------------------------------------------------------------
-!     NORTH MPI Interface
+!     (U) NORTH MPI Interface
 !-------------------------------------------------------------------
       if (NORTH_INTER) then
-         j = jend_nh+1
+         j        = jend_nh+1
+         jendu_nh = jend_nh+1
 
          do i=istru_nh,iendu_nh
          do k=1,N    
@@ -364,7 +481,7 @@
 #  endif
                nzuvw_n               = nzuvw_n + 1 
                ijk2lmom_nh(i,j,k,1)  = nzuvw_n
-               mijk2lmom_nh(i,j,k,1) = 1 
+               mijk2lmom_nh(i,j,k,1) = mijk2lmom_nh(i,j,k,1) + 1 
                l2imom_nh(nzuvw_n)    = i
                l2jmom_nh(nzuvw_n)    = j
                l2kmom_nh(nzuvw_n)    = k
@@ -391,11 +508,11 @@
 
 # ifdef MPI
 !-------------------------------------------------------------------
-!     WEST MPI Interface
+!     (V) WEST MPI Interface
 !-------------------------------------------------------------------
       if (WEST_INTER) then
-
-         i = istr_nh-1
+         i        = istr_nh - 1
+         istrv_nh = istr_nh - 1
 
 !........Corner (South-West):
          if (SOUTH_INTER) then
@@ -417,7 +534,7 @@
 #  endif
                nzuvw_n               = nzuvw_n + 1 
                ijk2lmom_nh(i,j,k,2)  = nzuvw_n
-               mijk2lmom_nh(i,j,k,2) = 1 
+               mijk2lmom_nh(i,j,k,2) = mijk2lmom_nh(i,j,k,2) + 1 
                l2imom_nh(nzuvw_n)    = i
                l2jmom_nh(nzuvw_n)    = j
                l2kmom_nh(nzuvw_n)    = k
@@ -426,11 +543,10 @@
 #  endif
          enddo
          enddo
-
       endif
 
 !-------------------------------------------------------------------
-!     SOUTH MPI Interface
+!     (V) SOUTH MPI Interface
 !-------------------------------------------------------------------
       if (SOUTH_INTER) then
          j=jstrv_nh-1
@@ -442,7 +558,7 @@
 #  endif
                nzuvw_n               = nzuvw_n + 1 
                ijk2lmom_nh(i,j,k,2)  = nzuvw_n
-               mijk2lmom_nh(i,j,k,2) = 1 
+               mijk2lmom_nh(i,j,k,2) = mijk2lmom_nh(i,j,k,2) + 1 
                l2imom_nh(nzuvw_n)    = i
                l2jmom_nh(nzuvw_n)    = j
                l2kmom_nh(nzuvw_n)    = k
@@ -456,27 +572,31 @@
 
 # endif /* MPI */
 
-      neqv_nh(1) = nzuvw_n
-
 !-------------------------------------------------------------------
-!     WESTERN EDGE (tangential velocity)
+!     (V) WESTERN EDGE (tangential velocity)
 !-------------------------------------------------------------------
-# ifdef OBC_NBQ_XXX
+# if defined OBC_NBQ 
+#  ifdef MPI
       if (WESTERN_EDGE) then
-         i = istr_nh-1
+        i = istr_nh-1
 
 !........Corner (South-West):
-         if (SOUTH_INTER) then
-            jstr_n = jstrv_nh-1
-         else
-            jstr_n = jstrv_nh
-         endif
+        if (SOUTH_INTER) then
+          jstr_n = jstrv_nh-1
+        else
+          jstr_n = jstrv_nh
+        endif
 !........Corner (North-West):
-         if (NORTH_INTER) then
-            jend_n = jendv_nh+1
-         else
-            jend_n = jendv_nh
-         endif
+        if (NORTH_INTER) then
+          jend_n = jendv_nh+1
+        else
+          jend_n = jendv_nh
+        endif
+#  else
+         i = istr_nh-1
+         jstr_n = jstrv_nh
+         jend_n = jendv_nh
+#  endif /* MPI */
 
          do j=jstr_n,jend_n
          do k=1,N    
@@ -485,7 +605,7 @@
 #  endif
                nzuvw_n               = nzuvw_n + 1 
                ijk2lmom_nh(i,j,k,2)  = nzuvw_n
-               mijk2lmom_nh(i,j,k,2) = 1 
+               mijk2lmom_nh(i,j,k,2) = mijk2lmom_nh(i,j,k,2) + 1 
                l2imom_nh(nzuvw_n)    = i
                l2jmom_nh(nzuvw_n)    = j
                l2kmom_nh(nzuvw_n)    = k
@@ -494,15 +614,18 @@
 #  endif
          enddo
          enddo
-
+#  ifdef MPI
       endif
-# endif /* OBC_NBQ_XXX */
+#  endif
+# endif /* OBC_NBQ */
 
 !-------------------------------------------------------------------
-!     SOUTHERN EDGE
+!     (V) SOUTHERN EDGE
 !-------------------------------------------------------------------
-# ifdef OBC_NBQ_XXX
+# if defined OBC_NBQ && ! defined OBC_NH
+#  ifdef MPI
       if (SOUTHERN_EDGE) then
+#  endif
         j=jstrv_nh-1
 
         do i=istr_nh-1,iend_nh+1
@@ -512,7 +635,7 @@
 #  endif
             nzuvw_n               = nzuvw_n + 1 
             ijk2lmom_nh(i,j,k,2)  = nzuvw_n
-            mijk2lmom_nh(i,j,k,2) = 1 
+            mijk2lmom_nh(i,j,k,2) = mijk2lmom_nh(i,j,k,2) + 1 
             l2imom_nh(nzuvw_n)    = i
             l2jmom_nh(nzuvw_n)    = j
             l2kmom_nh(nzuvw_n)    = k
@@ -521,14 +644,47 @@
 #  endif
         enddo
         enddo
-
+#  ifdef MPI
       endif
-# endif /* OBC_SOUTH */
+#  endif
+# endif /* OBC_NBQ */
+
+      neqv_nh(1) = nzuvw_n
+
+!-------------------------------------------------------------------
+!     (V) SOUTHERN EDGE (MATRIX OBC)
+!-------------------------------------------------------------------
+# ifdef OBC_NH
+#  ifdef MPI
+      if (SOUTHERN_EDGE) then
+#  endif
+        j=jstrv_nh-1
+
+        do i=istr_nh-1,iend_nh+1
+        do k=1,N 
+#  ifdef MASKING
+          if (vmask(i,j).ne.0) then
+#  endif
+            nzuvw_n               = nzuvw_n + 1 
+            ijk2lmom_nh(i,j,k,2)  = nzuvw_n
+            mijk2lmom_nh(i,j,k,2) = mijk2lmom_nh(i,j,k,2) + 1 
+            l2imom_nh(nzuvw_n)    = i
+            l2jmom_nh(nzuvw_n)    = j
+            l2kmom_nh(nzuvw_n)    = k
+#  ifdef MASKING
+          endif
+#  endif
+        enddo
+        enddo
+#  ifdef MPI
+      endif
+#  endif
+# endif /* OBC_NH */
 
       neqv_nh(2) = nzuvw_n
 
 !-------------------------------------------------------------------
-!     Inner domain, bottom layer: (i,j,k=1)
+!     (V) Inner domain, bottom layer: (i,j,k=1)
 !-------------------------------------------------------------------
       k=1
       do j=jstrv_nh,jendv_nh
@@ -538,7 +694,7 @@
 # endif
             nzuvw_n               = nzuvw_n + 1 
             ijk2lmom_nh(i,j,k,2)  = nzuvw_n
-            mijk2lmom_nh(i,j,k,2) = 1 
+            mijk2lmom_nh(i,j,k,2) = mijk2lmom_nh(i,j,k,2) + 1 
             l2imom_nh(nzuvw_n)    = i
             l2jmom_nh(nzuvw_n)    = j
             l2kmom_nh(nzuvw_n)    = k
@@ -551,7 +707,7 @@
       neqv_nh(3) = nzuvw_n
 
 !-------------------------------------------------------------------
-!     Inner domain, inner layers: (i,j, 1<k<N )
+!     (V) Inner domain, inner layers: (i,j, 1<k<N )
 !-------------------------------------------------------------------
       do j=jstrv_nh,jendv_nh
       do i=istr_nh,iend_nh
@@ -561,7 +717,7 @@
 #endif
             nzuvw_n               = nzuvw_n + 1 
             ijk2lmom_nh(i,j,k,2)  = nzuvw_n
-            mijk2lmom_nh(i,j,k,2) = 1 
+            mijk2lmom_nh(i,j,k,2) = mijk2lmom_nh(i,j,k,2) + 1 
             l2imom_nh(nzuvw_n)    = i
             l2jmom_nh(nzuvw_n)    = j
             l2kmom_nh(nzuvw_n)    = k
@@ -575,7 +731,7 @@
       neqv_nh(4) = nzuvw_n
 
 !-------------------------------------------------------------------
-!     Inner domain, surface layer: (i,j,k=N )
+!     (V) Inner domain, surface layer: (i,j,k=N )
 !-------------------------------------------------------------------
       k=N
       do j=jstrv_nh,jendv_nh
@@ -585,7 +741,7 @@
 #endif
             nzuvw_n               = nzuvw_n + 1 
             ijk2lmom_nh(i,j,k,2)  = nzuvw_n
-            mijk2lmom_nh(i,j,k,2) = 1 
+            mijk2lmom_nh(i,j,k,2) = mijk2lmom_nh(i,j,k,2) + 1 
             l2imom_nh(nzuvw_n)    = i
             l2jmom_nh(nzuvw_n)    = j
             l2kmom_nh(nzuvw_n)    = k
@@ -598,9 +754,42 @@
       neqv_nh(5) = nzuvw_n
 
 !-------------------------------------------------------------------
-!     EASTERN EDGE
+!     (V) NORTHERN EDGE (MATRIX OBC)
 !-------------------------------------------------------------------
-# ifdef OBC_NBQ_XXX
+# ifdef OBC_NH
+#  ifdef MPI
+      if (NORTHERN_EDGE) then
+#  endif
+        j=jendv_nh+1
+
+        do i=istr_nh-1,iend_nh+1
+        do k=1,N
+#  ifdef MASKING
+          if (vmask(i,j).ne.0) then
+#  endif
+            nzuvw_n               = nzuvw_n + 1 
+            ijk2lmom_nh(i,j,k,2)  = nzuvw_n
+            mijk2lmom_nh(i,j,k,2) = mijk2lmom_nh(i,j,k,2) + 1 
+            l2imom_nh(nzuvw_n)    = i
+            l2jmom_nh(nzuvw_n)    = j
+            l2kmom_nh(nzuvw_n)    = k
+#  ifdef MASKING
+          endif
+#  endif
+        enddo
+        enddo
+#  ifdef MPI
+      endif
+#  endif
+# endif /* OBC_NH */
+
+      neqv_nh(6) = nzuvw_n
+
+!-------------------------------------------------------------------
+!     (V) EASTERN EDGE (tangential velocity)
+!-------------------------------------------------------------------
+# if defined OBC_NBQ 
+#  ifdef MPI
       if (EASTERN_EDGE) then
          i = iend_nh+1
 
@@ -616,6 +805,11 @@
          else
             jend_n = jendv_nh
          endif
+#  else
+         i = iend_nh+1
+         jstr_n = jstrv_nh
+         jend_n = jendv_nh
+#  endif /* MPI */
 
          do j=jstr_n,jend_n
          do k=1,N    
@@ -624,7 +818,7 @@
 #  endif
                nzuvw_n               = nzuvw_n + 1 
                ijk2lmom_nh(i,j,k,2)  = nzuvw_n
-               mijk2lmom_nh(i,j,k,2) = 1 
+               mijk2lmom_nh(i,j,k,2) = mijk2lmom_nh(i,j,k,2) + 1 
                l2imom_nh(nzuvw_n)    = i
                l2jmom_nh(nzuvw_n)    = j
                l2kmom_nh(nzuvw_n)    = k
@@ -633,15 +827,18 @@
 #  endif
          enddo
          enddo
-
+#  ifdef MPI
       endif
-# endif /* OBC_NBQ_XXX */
+#  endif
+# endif /* OBC_NBQ */
 
 !-------------------------------------------------------------------
-!     NORTHERN EDGE
+!     (V) NORTHERN EDGE
 !-------------------------------------------------------------------
-# ifdef OBC_NBQ_XXX
+# if defined OBC_NBQ && ! defined OBC_NH
+#  ifdef MPI
       if (NORTHERN_EDGE) then
+#  endif
         j=jendv_nh+1
 
         do i=istr_nh-1,iend_nh+1
@@ -651,7 +848,7 @@
 #  endif
             nzuvw_n               = nzuvw_n + 1 
             ijk2lmom_nh(i,j,k,2)  = nzuvw_n
-            mijk2lmom_nh(i,j,k,2) = 1 
+            mijk2lmom_nh(i,j,k,2) = mijk2lmom_nh(i,j,k,2) + 1 
             l2imom_nh(nzuvw_n)    = i
             l2jmom_nh(nzuvw_n)    = j
             l2kmom_nh(nzuvw_n)    = k
@@ -660,18 +857,19 @@
 #  endif
         enddo
         enddo
-
+#  ifdef MPI
       endif
-# endif /* OBC_NBQ_XXX */
+#  endif
+# endif /* OBC_NBQ */
 
-      neqv_nh(6) = nzuvw_n
 
 # ifdef MPI
 !-------------------------------------------------------------------
-!     EAST MPI Interface
+!     (V) EAST MPI Interface
 !-------------------------------------------------------------------
       if (EAST_INTER) then
-         i = iend_nh+1
+         i        = iend_nh+1
+         iendv_nh = iend_nh+1 
 
 !........Corner (South-East):
          if (SOUTH_INTER) then
@@ -693,7 +891,7 @@
 #  endif
                nzuvw_n               = nzuvw_n + 1 
                ijk2lmom_nh(i,j,k,2)  = nzuvw_n
-               mijk2lmom_nh(i,j,k,2) = 1 
+               mijk2lmom_nh(i,j,k,2) = mijk2lmom_nh(i,j,k,2) + 1 
                l2imom_nh(nzuvw_n)    = i
                l2jmom_nh(nzuvw_n)    = j
                l2kmom_nh(nzuvw_n)    = k
@@ -706,10 +904,10 @@
       endif
 
 !-------------------------------------------------------------------
-!     NORTH MPI Interface
+!     (V) NORTH MPI Interface
 !-------------------------------------------------------------------
       if (NORTH_INTER) then
-         j=jendv_nh+1
+         j        = jendv_nh + 1
 
          do i=istr_nh,iend_nh
          do k=1,N
@@ -719,7 +917,7 @@
 #  endif
                nzuvw_n               = nzuvw_n + 1 
                ijk2lmom_nh(i,j,k,2)  = nzuvw_n
-               mijk2lmom_nh(i,j,k,2) = 1 
+               mijk2lmom_nh(i,j,k,2) = mijk2lmom_nh(i,j,k,2) + 1 
                l2imom_nh(nzuvw_n)    = i
                l2jmom_nh(nzuvw_n)    = j
                l2kmom_nh(nzuvw_n)    = k
@@ -748,7 +946,7 @@
 
 # ifdef MPI
 !-------------------------------------------------------------------
-!     WEST MPI Interface
+!     (W) WEST MPI Interface
 !-------------------------------------------------------------------
       if (WEST_INTER) then
          i = istr_nh-1
@@ -773,7 +971,7 @@
 #  endif
              nzuvw_n               = nzuvw_n + 1 
              ijk2lmom_nh(i,j,k,3)  = nzuvw_n
-             mijk2lmom_nh(i,j,k,3) = 1 
+             mijk2lmom_nh(i,j,k,3) = mijk2lmom_nh(i,j,k,3) + 1 
              l2imom_nh(nzuvw_n)    = i
              l2jmom_nh(nzuvw_n)    = j
              l2kmom_nh(nzuvw_n)    = k
@@ -786,7 +984,7 @@
       endif
 
 !-------------------------------------------------------------------
-!     SOUTH MPI Interface
+!     (W) SOUTH MPI Interface
 !-------------------------------------------------------------------
       if (SOUTH_INTER) then
          j = jstr_nh-1
@@ -798,7 +996,7 @@
 #  endif
              nzuvw_n               = nzuvw_n + 1 
              ijk2lmom_nh(i,j,k,3)  = nzuvw_n
-             mijk2lmom_nh(i,j,k,3) = 1 
+             mijk2lmom_nh(i,j,k,3) = mijk2lmom_nh(i,j,k,3) + 1 
              l2imom_nh(nzuvw_n)    = i
              l2jmom_nh(nzuvw_n)    = j
              l2kmom_nh(nzuvw_n)    = k
@@ -811,13 +1009,92 @@
       endif
 # endif /* MPI */
 
-      neqw_nh(1)   = nzuvw_n
+!-------------------------------------------------------------------
+!     (W) WESTERN EDGE
+!-------------------------------------------------------------------
+# if defined OBC_NBQ 
+#  ifdef MPI
+      if (WESTERN_EDGE) then
+        i = istr_nh-1
+
+!........Corner (South-West):
+        if (SOUTH_INTER) then
+          jstr_n = jstr_nh-1
+        else
+          jstr_n = jstr_nh
+        endif
+!........Corner (North-West):
+        if (NORTH_INTER) then
+          jend_n = jend_nh+1
+        else
+          jend_n = jend_nh
+        endif
+#  else
+        i = istr_nh-1
+        jstr_n = jstr_nh
+        jend_n = jend_nh
+#  endif /* MPI */
+
+        do j=jstr_n,jend_n
+        do k=0,N    
+#  ifdef MASKING
+          if (rmask(i,j).ne.0) then
+#  endif
+            nzuvw_n               = nzuvw_n + 1 
+            ijk2lmom_nh(i,j,k,3)  = nzuvw_n
+            mijk2lmom_nh(i,j,k,3) = mijk2lmom_nh(i,j,k,3) + 1 
+            l2imom_nh(nzuvw_n)    = i
+            l2jmom_nh(nzuvw_n)    = j
+            l2kmom_nh(nzuvw_n)    = k
+#  ifdef MASKING
+          endif
+#  endif
+        enddo
+        enddo
+#  ifdef MPI
+      endif
+#  endif
+# endif /* OBC_NBQ */
 
 !-------------------------------------------------------------------
-!     Inner domain: (i,j, 0<=k<=N )
+!     (W) SOUTHERN EDGE 
+!-------------------------------------------------------------------
+# if defined OBC_NBQ
+#  ifdef MPI
+      if (SOUTHERN_EDGE) then
+#  endif
+        j = jstr_nh-1
+
+        do i=istr_nh-1,iend_nh+1
+        do k=0,N    
+#  ifdef MASKING
+          if (rmask(i,j).ne.0) then
+#  endif
+            nzuvw_n               = nzuvw_n + 1 
+            ijk2lmom_nh(i,j,k,3)  = nzuvw_n
+            mijk2lmom_nh(i,j,k,3) = mijk2lmom_nh(i,j,k,3) + 1 
+            l2imom_nh(nzuvw_n)    = i
+            l2jmom_nh(nzuvw_n)    = j
+            l2kmom_nh(nzuvw_n)    = k
+#  ifdef MASKING
+          endif
+#  endif
+        enddo
+        enddo
+#  ifdef MPI
+      endif
+#  endif
+# endif /* OBC_NBQ */
+
+      neqw_nh(1)   = nzuvw_n
+      neqw_nh(2)   = nzuvw_n
+      neqw_nh(3)   = nzuvw_n
+
+!-------------------------------------------------------------------
+!     (W) Inner domain: (i,j, 0<=k<=N )
 !
 !       Caution: do not change the order of the loops,
-!                k-loop must be insiderid
+!                k-loop must be inside
 !-------------------------------------------------------------------
       do j=jstr_nh,jend_nh
       do i=istr_nh,iend_nh
@@ -828,7 +1105,7 @@
 # endif
             nzuvw_n               = nzuvw_n + 1 
             ijk2lmom_nh(i,j,k,3)  = nzuvw_n
-            mijk2lmom_nh(i,j,k,3) = 1 
+            mijk2lmom_nh(i,j,k,3) = mijk2lmom_nh(i,j,k,3) + 1 
             l2imom_nh(nzuvw_n)    = i
             l2jmom_nh(nzuvw_n)    = j
             l2kmom_nh(nzuvw_n)    = k
@@ -840,11 +1117,91 @@
       enddo
       enddo
 
-      neqw_nh(2)   = nzuvw_n
+      neqw_nh(4)   = nzuvw_n
+      neqw_nh(5)   = nzuvw_n
+      neqw_nh(6)   = nzuvw_n
+
+!-------------------------------------------------------------------
+!     (W) EASTERN EDGE
+!-------------------------------------------------------------------
+# if defined OBC_NBQ 
+#  ifdef MPI
+      if (EASTERN_EDGE) then
+        i = iend_nh+1
+
+!........Corner (South-East):
+        if (SOUTH_INTER) then
+          jstr_n = jstr_nh-1
+        else
+          jstr_n = jstr_nh
+        endif
+!........Corner (North-East):
+        if (NORTH_INTER) then
+          jend_n = jend_nh+1
+        else
+          jend_n = jend_nh
+        endif
+#  else
+        i = iend_nh+1
+        jstr_n = jstr_nh
+        jend_n = jend_nh
+#  endif /* MPI */
+
+        do j=jstr_n,jend_n
+        do k=0,N                 
+#  ifdef MASKING
+          if (rmask(i,j).ne.0) then
+#  endif
+            nzuvw_n               = nzuvw_n + 1 
+            ijk2lmom_nh(i,j,k,3)  = nzuvw_n
+            mijk2lmom_nh(i,j,k,3) = mijk2lmom_nh(i,j,k,3) + 1 
+            l2imom_nh(nzuvw_n)    = i
+            l2jmom_nh(nzuvw_n)    = j
+            l2kmom_nh(nzuvw_n)    = k
+#  ifdef MASKING
+          endif
+#  endif
+        enddo
+        enddo
+#  ifdef MPI
+      endif
+#  endif
+# endif /* OBC_NBQ */
+
+!-------------------------------------------------------------------
+!     (W) NORTHERN EDGE 
+!-------------------------------------------------------------------
+# if defined OBC_NBQ
+#  ifdef MPI
+      if (NORTHERN_EDGE) then
+#  endif
+        j = jend_nh+1
+
+        do i=istr_nh-1,iend_nh+1
+        do k=0,N    
+#  ifdef MASKING
+          if (rmask(i,j).ne.0) then
+#  endif
+            nzuvw_n               = nzuvw_n + 1 
+            ijk2lmom_nh(i,j,k,3)  = nzuvw_n
+            mijk2lmom_nh(i,j,k,3) = mijk2lmom_nh(i,j,k,3) + 1 
+            l2imom_nh(nzuvw_n)    = i
+            l2jmom_nh(nzuvw_n)    = j
+            l2kmom_nh(nzuvw_n)    = k
+#  ifdef MASKING
+          endif
+#  endif
+        enddo
+        enddo
+#  ifdef MPI
+      endif
+#  endif
+# endif /* OBC_NBQ */
+
 
 # ifdef MPI
 !-------------------------------------------------------------------
-!     East MPI Interface
+!     (W) East MPI Interface
 !-------------------------------------------------------------------
       if (EAST_INTER) then
          i = iend_nh+1
@@ -869,7 +1226,7 @@
 #  endif
              nzuvw_n               = nzuvw_n + 1 
              ijk2lmom_nh(i,j,k,3)  = nzuvw_n
-             mijk2lmom_nh(i,j,k,3) = 1 
+             mijk2lmom_nh(i,j,k,3) = mijk2lmom_nh(i,j,k,3) + 1 
              l2imom_nh(nzuvw_n)    = i
              l2jmom_nh(nzuvw_n)    = j
              l2kmom_nh(nzuvw_n)    = k
@@ -882,7 +1239,7 @@
       endif
 
 !-------------------------------------------------------------------
-!     NORTH MPI Interface
+!     (W) NORTH MPI Interface
 !-------------------------------------------------------------------
       if (NORTH_INTER) then
          j = jend_nh+1
@@ -894,7 +1251,7 @@
 #  endif
              nzuvw_n               = nzuvw_n + 1 
              ijk2lmom_nh(i,j,k,3)  = nzuvw_n
-             mijk2lmom_nh(i,j,k,3) = 1 
+             mijk2lmom_nh(i,j,k,3) = mijk2lmom_nh(i,j,k,3) + 1 
              l2imom_nh(nzuvw_n)    = i
              l2jmom_nh(nzuvw_n)    = j
              l2kmom_nh(nzuvw_n)    = k
@@ -907,10 +1264,29 @@
       endif
 # endif /* MPI */
 
-      neqw_nh(3)   = nzuvw_n
+      neqw_nh(7)   = nzuvw_n
 
       neqmom_nh(3) = nzuvw_n -(neqmom_nh(1)+neqmom_nh(2)) 
       neqmom_nh(0) = nzuvw_n
+
+
+!*******************************************************************
+!*******************************************************************
+! Test Grid Definition
+!******************************************************************* 
+!*******************************************************************
+
+      ierr_n = maxval(mijk2lmom_nh)
+      return
+
+
+
+      if (ierr_n.gt.1) then
+# ifdef MPI
+         call mpi_finalize(ierrmpi_n)
+# endif
+         stop 'Grid Error in numuvw_nh'
+      endif
 
       return
 

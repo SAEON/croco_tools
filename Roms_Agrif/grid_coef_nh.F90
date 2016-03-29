@@ -31,19 +31,19 @@
         do k=1,N
           do j=jstr_nh ,jend_nh
           do i=istru_nh,iendu_nh
-              gdepth_u(i,j,k) = zr_half_nbq(i,j,k,2)-zr_half_nbq(i-1,j,k,2)
+              gdepth_u(i,j,k) = zr_half_nbq(i,j,k)-zr_half_nbq(i-1,j,k)
               coefa_u(i,j,k)  = 0.25*pm_u(i,j)*                        &
                      (Hzr_half_nbq(i,j,k  )+Hzr_half_nbq(i-1,j,k ))/  &
                      (Hzw_half_nbq(i,j,k-1)+Hzw_half_nbq(i-1,j,k-1))
               coefb_u(i,j,k)  = 0.25*pm_u(i,j)*                        &
-                     (Hzr_half_nbq(i,j,k  )+Hzr_half_nbq(i-1,j,k ))/  &
+                     (Hzr_half_nbq(i,j,k  )+Hzr_half_nbq(i-1,j,k ))/   &
                      (Hzw_half_nbq(i,j,k  )+Hzw_half_nbq(i-1,j,k  ))
           enddo
           enddo
 
           do j=jstrv_nh,jendv_nh
           do i=istr_nh ,iend_nh
-              gdepth_v(i,j,k) = zr_half_nbq(i,j,k,2)-zr_half_nbq(i ,j-1,k,2)
+              gdepth_v(i,j,k) = zr_half_nbq(i,j,k)-zr_half_nbq(i ,j-1,k)
               coefa_v(i,j,k)  = 0.25*pn_v(i,j)*                        &
                      (Hzr_half_nbq(i,j,k  )+Hzr_half_nbq(i,j-1,k ))/  &
                      (Hzw_half_nbq(i,j,k-1)+Hzw_half_nbq(i,j-1,k-1))
@@ -90,7 +90,7 @@
 !  
 !**********************************************************************
         
-      call grid_exchange()
+     call grid_exchange()
         
       return
       end subroutine grid_coef_nh

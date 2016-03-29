@@ -63,7 +63,7 @@
       logical,save :: firstpass=.true.
       integer :: vois
       integer(MPI_ADDRESS_KIND) :: addr1
-!       double precision,dimension(0:size(qdm_nbq_a(:,2))) :: qdm_tmp1,qdm_tmp2
+!       double precision,dimension(0:size(qdm_nbq_a(:,vnnew_nbq))) :: qdm_tmp1,qdm_tmp2
       integer :: sizeqdm, szsend, szrecv, debsend,debrecv
       integer :: kmax,imax,jmax
 #define LOCALLM Lmmpi
@@ -86,10 +86,10 @@
 	   call MPI_TYPE_SIZE(ech_qdm_nbq(vois)%recv, szrecv,ierr) 
            call MPI_TYPE_GET_EXTENT(ech_qdm_nbq(vois)%send, debsend, szsend, ierr)
            call MPI_TYPE_GET_EXTENT(ech_qdm_nbq(vois)%recv, debrecv, szrecv, ierr)
-            call MPI_IRECV(qdm_nbq_a(1,2),  1, ech_qdm_nbq(vois)%recv, par%tvoisin(vois), &
+            call MPI_IRECV(qdm_nbq_a(1,vnnew_nbq),  1, ech_qdm_nbq(vois)%recv, par%tvoisin(vois), &
 	      tagqdm_Recv(vois), par%comm2d, tabreq_qdm(nbreq_qdm), ierr)
  	     nbreq_qdm=nbreq_qdm+1
- 	     call MPI_IRSEND(qdm_nbq_a(1,2),  1, ech_qdm_nbq(vois)%send, par%tvoisin(vois), &
+ 	     call MPI_IRSEND(qdm_nbq_a(1,vnnew_nbq),  1, ech_qdm_nbq(vois)%send, par%tvoisin(vois), &
                tagqdm_Send(vois), par%comm2d, tabreq_qdm(nbreq_qdm), ierr)
   	     nbreq_qdm=nbreq_qdm+1	
            endif
@@ -118,10 +118,10 @@
 	   call MPI_TYPE_SIZE(ech_qdmU_nbq(vois)%send, szsend,ierr)
 	   call MPI_TYPE_SIZE(ech_qdmU_nbq(vois)%recv, szrecv,ierr) 
 	   if (szsend >0) then
-	      call MPI_IRECV(qdm_nbq_a(1,2),  1, ech_qdmU_nbq(vois)%recv, par%tvoisin(vois), &
+	      call MPI_IRECV(qdm_nbq_a(1,vnnew_nbq),  1, ech_qdmU_nbq(vois)%recv, par%tvoisin(vois), &
 		tagqdmU_Recv(vois), par%comm2d, tabreq_qdmU(nbreq_qdmU), ierr)
 		nbreq_qdmU=nbreq_qdmU+1
-	      call MPI_IRSEND(qdm_nbq_a(1,2),  1, ech_qdmU_nbq(vois)%send, par%tvoisin(vois), &
+	      call MPI_IRSEND(qdm_nbq_a(1,vnnew_nbq),  1, ech_qdmU_nbq(vois)%send, par%tvoisin(vois), &
 		tagqdmU_Send(vois), par%comm2d, tabreq_qdmU(nbreq_qdmU), ierr)
 	      nbreq_qdmU=nbreq_qdmU+1
   	   endif
@@ -151,10 +151,10 @@
 	   call MPI_TYPE_SIZE(ech_qdmV_nbq(vois)%send, szsend,ierr)
 	   call MPI_TYPE_SIZE(ech_qdmV_nbq(vois)%recv, szrecv,ierr) 
 	   if (szsend >0) then
-	    call MPI_IRECV(qdm_nbq_a(1,2),  1, ech_qdmV_nbq(vois)%recv, par%tvoisin(vois), &
+	    call MPI_IRECV(qdm_nbq_a(1,vnnew_nbq),  1, ech_qdmV_nbq(vois)%recv, par%tvoisin(vois), &
 		tagqdmV_Recv(vois), par%comm2d, tabreq_qdmV(nbreq_qdmV), ierr)
 	    nbreq_qdmV=nbreq_qdmV+1
- 	    call MPI_IRSEND(qdm_nbq_a(1,2),  1, ech_qdmV_nbq(vois)%send, par%tvoisin(vois), &
+ 	    call MPI_IRSEND(qdm_nbq_a(1,vnnew_nbq),  1, ech_qdmV_nbq(vois)%send, par%tvoisin(vois), &
                tagqdmV_Send(vois), par%comm2d, tabreq_qdmV(nbreq_qdmV), ierr)
 	      nbreq_qdmV=nbreq_qdmV+1	
 	   endif
@@ -184,10 +184,10 @@
 	   call MPI_TYPE_SIZE(ech_qdmW_nbq(vois)%send, szsend,ierr)
 	   call MPI_TYPE_SIZE(ech_qdmW_nbq(vois)%recv, szrecv,ierr) 
 	   if (szsend >0) then
-	    call MPI_IRECV(qdm_nbq_a(1,2),  1, ech_qdmW_nbq(vois)%recv, par%tvoisin(vois), &
+	    call MPI_IRECV(qdm_nbq_a(1,vnnew_nbq),  1, ech_qdmW_nbq(vois)%recv, par%tvoisin(vois), &
 		tagqdmW_Recv(vois), par%comm2d, tabreq_qdmW(nbreq_qdmW), ierr)
 	    nbreq_qdmW=nbreq_qdmW+1
-	    call MPI_IRSEND(qdm_nbq_a(1,2),  1, ech_qdmW_nbq(vois)%send, par%tvoisin(vois), &
+	    call MPI_IRSEND(qdm_nbq_a(1,vnnew_nbq),  1, ech_qdmW_nbq(vois)%send, par%tvoisin(vois), &
                tagqdmW_Send(vois), par%comm2d, tabreq_qdmW(nbreq_qdmW), ierr)
   	    nbreq_qdmW=nbreq_qdmW+1	
   	   endif
@@ -227,10 +227,10 @@
 ! 	    write(500+par%rank,*)  "tabreq_mv(nbreq_mv)=",tabreq_mv(nbreq_mv)
 ! 	    write(500+par%rank,*)
 
-            call MPI_IRECV(div_nbq_a(1,1),  1, ech_div_nbq(vois)%recv, par%tvoisin(vois), &
+            call MPI_IRECV(div_nbq_a(1,dnrhs_nbq),  1, ech_div_nbq(vois)%recv, par%tvoisin(vois), &
 	      tagdiv_Recv(vois), par%comm2d, tabreq_mv(nbreq_mv), ierr)
  	     nbreq_mv=nbreq_mv+1
- 	     call MPI_IRSEND(div_nbq_a(1,1),  1, ech_div_nbq(vois)%send, par%tvoisin(vois), &
+ 	     call MPI_IRSEND(div_nbq_a(1,dnrhs_nbq),  1, ech_div_nbq(vois)%send, par%tvoisin(vois), &
                tagdiv_Send(vois), par%comm2d, tabreq_mv(nbreq_mv), ierr)
   	     nbreq_mv=nbreq_mv+1
 ! 	    write(500+par%rank,*)     ierr

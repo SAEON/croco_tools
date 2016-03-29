@@ -19,6 +19,7 @@
 # endif      
 # include "param_F90.h"
 # include "scalars_F90.h"
+# include "work.h"
 # include "grid.h"
 # include "ocean3d.h"
 # include "nbq.h"
@@ -51,6 +52,7 @@
          MPI_master_only write(6,*) '---------------------------'
          MPI_master_only write(6,*)
 # endif
+
 !
 !----------------------------------------------------------------------
 !  Initialize density perturbation and momentum arrays
@@ -58,7 +60,19 @@
 !
         rhp_nbq_a(:,:) = 0.0
         qdm_nbq_a(:,:) = 0.0
-!
+        rhobar_nbq  = 1.
+
+        vnnew_nbq = 2
+        vnrhs_nbq = 1
+        vnstp_nbq = 0
+
+        rnnew_nbq = 2
+        rnrhs_nbq = 1
+        rnstp_nbq = 0
+
+        dnrhs_nbq = 1
+        dnstp_nbq = 0
+
 !----------------------------------------------------------------------
 !  Initialize parameters: should be done in a NH-namelist
 !----------------------------------------------------------------------
@@ -69,7 +83,9 @@
 
         iteration_nbq_max=ndtnbq
         soundspeed_nbq=csound_nbq !!! pseudoacoustic speed for tank
-        cw_int_nbq=soundspeed_nbq !!! ~ 2-10 sqrt(gH)_max
+!       cw_int_nbq=soundspeed_nbq !!! ~ 2-10 sqrt(gH)_max
+        cw_int_nbq=sqrt(9.81*4000.) !soundspeed_nbq !!! ~ 2-10 sqrt(gH)_max
+
 
 !       MPI_master_only write(stdout,'3(A,I4/)')
 !                       'NBQ: INITIALIZING ifl_nbq      =',ifl_nbq
@@ -125,20 +141,11 @@
 # endif
 !
 !----------------------------------------------------------------------
-!  Check!
+!... ASCII output for NBQ-grid 
 !----------------------------------------------------------------------
 !
-# ifdef CHECK_CROCO_0
-!CXA       call set_tracedirectory(iteration3d)
-      call set_tracedirectory(iic)
-      filetrace=                                                 &
-        'mat_mom_it_'//int2string(iic)//'.'//int2string(mynode)//'.txt'
-      call printmat_mm(filetrace,neqmom_nh(0),neqcont_nh,     &
-                       nzmom_nh,momi_nh,momj_nh,momv_nh)
-      filetrace=                                                 &
-        'mat_cont_it_'//int2string(iic)//'.'//int2string(mynode)//'.txt'
-      call printmat_mm(filetrace,neqcont_nh,neqmom_nh(0),     &
-                       nzcont_nh,conti_nh,contj_nh,contv_nh)
+# ifdef NBQ_OUT
+      call output_nbq(1)
 # endif
 !
 !----------------------------------------------------------------------
@@ -175,12 +182,52 @@
           call rho_eos
 
 !.........Initialize NBQ density field:
+!#ifdef NBQ_CONS7
+!          do l_nbq=1,neqcont_nh
+!            i = l2iq_nh(l_nbq)
+!            j = l2jq_nh(l_nbq)
+!            k = l2kq_nh(l_nbq)
+!            rhp_nbq_a(l_nbq,0:2) = rho(i,j,k)*Hzr(i,j,k) 
+!          enddo
+!#else
+!          do l_nbq=1,neqcont_nh
+!            i = l2iq_nh(l_nbq)
+!            j = l2jq_nh(l_nbq)
+!            k = l2kq_nh(l_nbq)
+!            rhp_nbq_a(l_nbq,0:2) = rho(i,j,k)
+!          enddo
+!#endif
+
+!.........Initialize NBQ density field:
           do l_nbq=1,neqcont_nh
             i = l2iq_nh(l_nbq)
             j = l2jq_nh(l_nbq)
             k = l2kq_nh(l_nbq)
-            rhp_nbq_a(l_nbq,0:2) = rho(i,j,k)  
+            rhp_nbq_a(l_nbq,0:2) = rho(i,j,k)
+            rho_nbq_ext(i,j,k)   = (rho0+rho(i,j,k))/rho0
+            rho_nbq_avg1(i,j,k)  = (rho0+rho(i,j,k))/rho0
+            rho_nbq_avg2(i,j,k)  = (rho0+rho(i,j,k))/rho0
           enddo
+
+        rhobar_nbq(:,:,:)=0.
+        work2d(:,:)=0.
+        do l_nbq = 1 , neqcont_nh
+          i     = l2iq_nh (l_nbq)
+          j     = l2jq_nh (l_nbq)
+          k     = l2kq_nh (l_nbq)
+          work2d(i,j)         = work2d(i,j)+Hzr(i,j,k)
+          rhobar_nbq(i,j,:)   = rhobar_nbq(i,j,:)+                       &
+                                rho(i,j,k)*Hzr(i,j,k)
+        enddo
+!
+!.......Rho0 added subsequently for added precision
+!
+        do j=jstrq_nh,jendq_nh
+        do i=istrq_nh,iendq_nh
+           rhobar_nbq(i,j,:) = (rhobar_nbq(i,j,:)/work2d(i,j) + rho0) / rho0
+           rhobar_nbq_avg1(i,j)= rhobar_nbq(i,j,1) 
+        enddo
+        enddo
 
        endif
 

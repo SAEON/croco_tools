@@ -54,25 +54,11 @@
 # undef  OPENMP
 # undef  MPI
                       /* Nesting */
-# undef AGRIF
-# undef AGRIF_2WAY
-                      /* OA Coupling via OASIS (MPI) */
+# undef  AGRIF
+# undef  AGRIF_2WAY
+                      /* OA and OW Coupling via OASIS (MPI) */
 # undef  OA_COUPLING
-                      /* OW Coupling via OASIS (MPI) */
 # undef  OW_COUPLING
-# ifdef OW_COUPLING
-#  define MRL_WCI
-#  ifdef MRL_WCI
-#   undef  WKB_WWAVE
-#   undef  WKB_UNSTEADY
-#   undef  MRL_CEW
-#   undef  WKB_OBC_WEST
-#   undef  WAVE_ROLLER
-#   undef  WAVE_FRICTION
-#   undef  WAVE_STREAMING
-#   undef  WAVE_RAMP
-# endif
-# endif 
                       /* I/O server */
 # undef  XIOS
                       /* Open Boundary Conditions */
@@ -252,7 +238,7 @@
 #  define BIO_BioEBUS
                       /*   Biology options    */
 #  ifdef PISCES
-#   undef DIURNAL_INPUT_SRFLX
+#   undef  DIURNAL_INPUT_SRFLX
 #   define key_pisces
 #  endif
 #  ifdef BIO_NChlPZD
@@ -400,7 +386,6 @@
 # undef  OPENMP
 # undef  MPI
 # undef  NBQ
-
 # ifdef NBQ
 #  define GRAV_ADJ_SOLITON
 # else
@@ -509,12 +494,14 @@
 # define EXPERIMENT3
 # undef  OPENMP
 # undef  MPI
+# undef  NBQ
 # define TIDES
+# define TIDERAMP
 # define SSH_TIDES
 # define UV_TIDES
 # define SOLVE3D 
-# define UV_COR
 # define UV_ADV
+# define VADV_ADAPT_IMP
 # define SPHERICAL
 # define CURVGRID
 # define ANA_INITIAL
@@ -525,7 +512,14 @@
 # define ANA_SSFLUX
 # define ANA_BTFLUX
 # define ANA_BSFLUX
-# define NS_PERIODIC
+# ifdef NBQ
+#  define MASKING
+#  define UV_VIS2
+#  undef  UV_COR
+#  define NBQ_IMP
+# else
+#  define NS_PERIODIC
+# endif
 # define OBC_EAST
 # define OBC_WEST
 # define SPONGE

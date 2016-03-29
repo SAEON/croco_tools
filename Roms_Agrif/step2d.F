@@ -17,7 +17,6 @@
       integer tile, trd
 #include "param.h"
 #include "private_scratch.h"
-
 C$    integer omp_get_thread_num
 #include "compute_tile_bounds.h"
       trd=0
@@ -97,6 +96,11 @@ C$    trd=omp_get_thread_num()
 !
 !======================================================================
 !
+#ifdef NBQ
+      use module_nh
+      use module_nbq
+#endif
+
       implicit none
 #include "param.h"
       integer Istr,Iend,Jstr,Jend, i,j, kbak, kold,
@@ -107,6 +111,7 @@ C$    trd=omp_get_thread_num()
      &        is,
 #endif
      &        imin,imax,jmin,jmax
+      real sum_c
       real    VMAX,VMAXL
       real zeta_new(PRIVATE_2D_SCRATCH_ARRAY),  cff,
      &         Dnew(PRIVATE_2D_SCRATCH_ARRAY),  cff0,
@@ -176,7 +181,6 @@ C$    trd=omp_get_thread_num()
 # define LOCALLM Lm
 # define LOCALMM Mm
 #endif   
-
 #include "compute_auxiliary_bounds.h"
 !
 !======================================================================
@@ -379,9 +383,15 @@ C$OMP END MASTER
 !
       do j=JstrV-1,Jend
         do i=IstrU-1,Iend
+#ifdef NBQ
+          l_nh=ijk2lq_nh(i,j,N)
+#endif
           zeta_new(i,j)=zeta(i,j,kstp) + dtfast*pm(i,j)*pn(i,j)
      &                                   *(DUon(i,j)-DUon(i+1,j  )
      &                                    +DVom(i,j)-DVom(i  ,j+1))
+#ifdef NBQ_CONS4
+     &        - rhscine_nh(l_nh,2)*dtfast/rho0
+#endif
 #ifdef ZONAL_NUDGING
           zeta(i,j,knew)=zeta_new(i,j)
 #endif
@@ -423,14 +433,17 @@ C$OMP END MASTER
 ! Computes zetarhs to use in mometum equations
 !-----------------------------------------------------------------------
 !
+   
 #ifdef NBQ
       do j=JstrV-1,Jend
         do i=IstrU-1,Iend
           zeta_new(i,j)=zeta_new(i,j) SWITCH rmask(i,j)
           Dnew(i,j)=zeta_new(i,j)
-          zwrk(i,j)=cff0*zeta_new(i,j) +cff1*zeta(i,j,kstp)
-     &             +cff2*zeta(i,j,kbak)+cff3*zeta(i,j,kold)
-          zwrk(i,j)=zwrk(i,j)/rhobar_nbq(i,j)-h(i,j)
+          zwrk(i,j)=cff0*zeta_new(i,j) /rhobar_nbq(i,j,knew)
+     &             +cff1*zeta(i,j,kstp)/rhobar_nbq(i,j,kstp)
+     &             +cff2*zeta(i,j,kbak)/rhobar_nbq(i,j,kbak)
+     &             +cff3*zeta(i,j,kold)/rhobar_nbq(i,j,kold)
+     &             -h(i,j)
 # if defined VAR_RHO_2D && defined SOLVE3D
           rzeta(i,j)=(1.+rhoS(i,j))*zwrk(i,j)
           rzeta2(i,j)=rzeta(i,j)*zwrk(i,j)
@@ -459,7 +472,6 @@ C$OMP END MASTER
         enddo
       enddo
 #endif /* NBQ */
-
 !
 !-----------------------------------------------------------------------
 ! Load new free-surface values into shared array
@@ -473,7 +485,7 @@ C$OMP END MASTER
 #if defined WET_DRY && defined MASKING
 # ifdef NBQ
           zeta(i,j,knew)=zeta(i,j,knew)+ 
-     &                   rhobar_nbq(i,j)*Dcrit(i,j)*(1.-rmask(i,j))
+     &               rhobar_nbq(i,j,knew)*Dcrit(i,j)*(1.-rmask(i,j))
 # else
           zeta(i,j,knew)=zeta(i,j,knew)+ 
      &                   (Dcrit(i,j)-h(i,j))*(1.-rmask(i,j))
@@ -582,6 +594,10 @@ C$OMP END MASTER
           enddo
         enddo
       endif
+#endif
+
+#ifdef NBQ_CONSOUT
+      if (cff1.ne.0) call consout_nbq(20)
 #endif
 !
 !
@@ -1289,19 +1305,21 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
 # ifdef NBQ
         do j=JstrV-1,Jend
           do i=IstrU-1,Iend
-            zwrk(i,j)=zeta_new(i,j)-zeta(i,j,kstp)
-            zwrk(i,j)=zwrk(i,j)/rhobar_nbq(i,j) ! here h(i,j) must not be 
-                                                ! subtracted because zwrk 
-                                                ! is an anomalie of zeta
+            zwrk(i,j)=zeta_new(i,j) /rhobar_nbq(i,j,knew)
+     &               -zeta(i,j,kstp)/rhobar_nbq(i,j,kstp)
 #  if defined VAR_RHO_2D && defined SOLVE3D
             rzeta(i,j)=(1.+rhoS(i,j))*zwrk(i,j)
             rzeta2(i,j)=rzeta(i,j)*
-     &          ((zeta_new(i,j)+zeta(i,j,kstp))/rhobar_nbq(i,j)-h(i,j))
+     &          (( zeta_new(i,j) /rhobar_nbq(i,j,knew)
+     &            +zeta(i,j,kstp)/rhobar_nbq(i,j,kstp) )
+     &            -2.*h(i,j))
             rzetaSA(i,j)=zwrk(i,j)*(rhoS(i,j)-rhoA(i,j))
 #  else
             rzeta(i,j)=zwrk(i,j)
             rzeta2(i,j)=zwrk(i,j)*
-     &           ((zeta_new(i,j)+zeta(i,j,kstp))/rhobar_nbq(i,j)-h(i,j))
+     &           ((zeta_new(i,j) /rhobar_nbq(i,j,knew)
+     &            +zeta(i,j,kstp)/rhobar_nbq(i,j,kstp))
+     &            -2.*h(i,j))
 #  endif
           enddo
         enddo
@@ -1404,7 +1422,7 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
         if (FIRST_2D_STEP) then
           do j=Jstr,Jend
             do i=Istr,Iend
-              rhobar_nbq_avg1(i,j)=cff1*rhobar_nbq(i,j)
+              rhobar_nbq_avg1(i,j)=cff1*rhobar_nbq(i,j,knew)
             enddo
           enddo 
           do k=1,N
@@ -1443,7 +1461,7 @@ ccc          dvde = 0.5*( vrhs(i,j-1)-vrhs(i,j+1) )
           do j=Jstr,Jend
             do i=Istr,Iend
               rhobar_nbq_avg1(i,j)=rhobar_nbq_avg1(i,j)
-     &                              +cff1*rhobar_nbq(i,j)
+     &                              +cff1*rhobar_nbq(i,j,knew)
             enddo
           enddo 
           do k=1,N

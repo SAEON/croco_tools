@@ -19,12 +19,12 @@
   if (SOUTH_INTER .and. WEST_INTER) par%tvoisin(sudouest)  = p_SW
   if (NORTH_INTER .and. EAST_INTER) par%tvoisin(nordest)   = p_NE
   if (SOUTH_INTER .and. EAST_INTER) par%tvoisin(sudest)    = p_SE
-  if (SOUTH_INTER .and. EAST_INTER) par%tvoisin(nordouest) = p_NW
+  if (NORTH_INTER .and. WEST_INTER) par%tvoisin(nordouest) = p_NW
   
   !print *,mynode,":",par%tvoisin
   !print *,mynode,"imax,jmax,kmax=",imax,jmax,kmax
   
-  call create_echange_qdm_nbq_a(imax,jmax,kmax)
+  !call create_echange_qdm_nbq_a(imax,jmax,kmax)
   call create_echange_qdmU_nbq_a(imax,jmax,kmax)
   call create_echange_qdmV_nbq_a(imax,jmax,kmax)
   call create_echange_qdmW_nbq_a(imax,jmax,kmax)

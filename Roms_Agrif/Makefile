@@ -116,16 +116,18 @@ include Makedefs
 	mat_mom_init_nh.F90	mat_mom_nh.F90		initial_nh.F90\
 	grid_coef_nh.F90 	ru_nbq.F90		viscous_nbq.F90\
 	step3d_nbq.F90		density_nbq.F90		spkitlocal_nh.F90\
-	MPI_setup_nbq.F90	parallele_nbq.F90	grid_exchange.F90\
+	MPI_setup_nbq.F90	parallele_nbq.F90	output_nbq.F90\
 	implicit_nbq.F90        amub2_tri.F90	        numuvw_nh.F90\
-	grid_def_nh.F90	 \
+	grid_def_nh.F90		grid_exchange.F90	cons_nbq.F90\
+	consout_nbq.F90\
 \
 	par_pisces.F90	ocean2pisces.F90	trc.F90		sms_pisces.F90\
 	p4zche.F90	p4zint.F90		p4zlys.F90	p4zflx.F90\
 	p4zlim.F90	p4zsink.F90		p4zmicro.F90	p4zmeso.F90\
 	p4zmort.F90	p4zopt.F90		p4zprod.F90	p4zrem.F90\
 	p4zsed.F90	p4zbio.F90		trcwri_pisces.F90\
-	trcsms_pisces.F90	trcini_pisces.F90	pisces_ini.F90
+	trcsms_pisces.F90			trcini_pisces.F90\
+	pisces_ini.F90
 
 AMRDIR = AGRIF/AGRIF_YOURFILES
 

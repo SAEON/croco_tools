@@ -26,7 +26,7 @@
 # include "nbq.h"
 
       integer          :: i,j,k
-      double precision ::  a_m,b_m
+      double precision :: a_m,b_m
 
 !*******************************************************************
 !     Momentum Equation: X-direction
@@ -45,9 +45,16 @@
 !-----------------------------
 !........point p(i,j,k):  
 !-----------------------------
+#ifdef NBQ_CONS7
+         momv_nh(l1_nh) = -(0.5*(Hzr_half_nbq(i-1,j,k)+           &
+                                     Hzr_half_nbq(i,j,k)))        &
+                              / cw_int_nbq / dt / 2.D0            &
+                          / Hzr_half_nbq(i,j,k)
+#else
          momv_nh(l1_nh) = -(0.5*(Hzr_half_nbq(i-1,j,k)+           &
                                      Hzr_half_nbq(i,j,k)))        &
                               / cw_int_nbq / dt / 2.D0
+#endif
          l1_nh = l1_nh + mijk2lq_nh(i,j,k) 
       enddo
 #endif
@@ -72,37 +79,67 @@
 !-----------------------------
 !.......point p(i,j,k+1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = b_m * coefb_u(i,j,k)          &
+                       / Hzr_half_nbq(i,j,k+1)
+#else
         momv_nh(l1_nh) = b_m * coefb_u(i,j,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k+1)
 
 !-----------------------------
 !.......point p(i,j,k):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = ( a_m  - b_m * coefb_u(i,j,k))         &
+                       / Hzr_half_nbq(i,j,k)
+#else
         momv_nh(l1_nh) =  a_m  - b_m * coefb_u(i,j,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k)
 
 !-----------------------------
 !.......point p(i,j,k-1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = - b_m * coefa_u(i,j,k)         &
+                       / Hzr_half_nbq(i,j,k-1)
+#else
         momv_nh(l1_nh) = - b_m * coefa_u(i,j,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k-1)
 
 !-----------------------------
 !.......point p(i-1,j,k+1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = b_m * coefb_u(i-1,j,k)      &
+                       / Hzr_half_nbq(i-1,j,k+1)
+#else
         momv_nh(l1_nh) = b_m * coefb_u(i-1,j,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i-1,j,k+1)
 
 !-----------------------------
 !.......point p(i-1,j,k):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = (- a_m  - b_m * coefb_u(i-1,j,k))      &
+                       / Hzr_half_nbq(i-1,j,k)
+#else
         momv_nh(l1_nh) = - a_m  - b_m * coefb_u(i-1,j,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i-1,j,k)
 
 !-----------------------------
 !.......point p(i-1,j,k-1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = - b_m * coefa_u(i-1,j,k)      &
+                       / Hzr_half_nbq(i-1,j,k-1)
+#else
         momv_nh(l1_nh) = - b_m * coefa_u(i-1,j,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i-1,j,k-1)
       enddo
 
@@ -126,39 +163,71 @@
 !-----------------------------
 !.......point p(i,j,k+1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = b_m * coefb_u(i,j,k)     &
+                       / Hzr_half_nbq(i,j,k+1)
+#else
         momv_nh(l1_nh) = b_m * coefb_u(i,j,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k+1)
 
 !-----------------------------
 !.......point p(i,j,k):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = (  a_m                                    &
+                             + b_m * (coefa_u(i,j,k)-coefb_u(i,j,k)))     &
+                       / Hzr_half_nbq(i,j,k)
+#else
         momv_nh(l1_nh) =   a_m                                    &
                              + b_m * (coefa_u(i,j,k)-coefb_u(i,j,k))
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k)
 
 !-----------------------------
 !.......point p(i,j,k-1):
 !-----------------------------
-        momv_nh(l1_nh) = - b_m * coefa_u(i,j,k)
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = - b_m * coefa_u(i,j,k)           &
+                       / Hzr_half_nbq(i,j,k-1)
+#else
+        momv_nh(l1_nh) = - b_m * coefa_u(i,j,k)      
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k-1)
 
 !-----------------------------
 !.......point p(i-1,j,k+1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = b_m * coefb_u(i-1,j,k)     &
+                       / Hzr_half_nbq(i-1,j,k+1)
+#else
         momv_nh(l1_nh) = b_m * coefb_u(i-1,j,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i-1,j,k+1)
 
 !-----------------------------
 !.......point p(i-1,j,k):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = (- a_m  + b_m *                          &
+                            (coefa_u(i-1,j,k) - coefb_u(i-1,j,k)) )    &
+                       / Hzr_half_nbq(i-1,j,k)
+#else
         momv_nh(l1_nh) = - a_m  + b_m *                          &
                             (coefa_u(i-1,j,k) - coefb_u(i-1,j,k))
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i-1,j,k)
 
 !-----------------------------
 !.......point p(i-1,j,k-1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = - b_m * coefa_u(i-1,j,k)     &
+                       / Hzr_half_nbq(i-1,j,k-1)
+#else
         momv_nh(l1_nh) = - b_m * coefa_u(i-1,j,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i-1,j,k-1)
       enddo
 
@@ -182,41 +251,74 @@
 !-----------------------------
 !.......point p(i,j,k+1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = b_m * coefb_u(i,j,k)     &
+                       / Hzr_half_nbq(i,j,k+1)
+#else
         momv_nh(l1_nh) = b_m * coefb_u(i,j,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k+1)
 
 !-----------------------------
 !.......point p(i,j,k):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = ( a_m +                                           &
+                              b_m * coefa_u(i,j,k)                         &
+                              - gdepth_u(i,j,k+1) * coefb_u(i,j,k+1) )     &
+                       / Hzr_half_nbq(i,j,k)
+#else
         momv_nh(l1_nh) =  a_m +                                      &
                               b_m * coefa_u(i,j,k)                   &
                               - gdepth_u(i,j,k+1) * coefb_u(i,j,k+1) 
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k)
 
 !-----------------------------
 !.......point p(i,j,k-1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = - b_m * coefa_u(i,j,k)     &
+                       / Hzr_half_nbq(i,j,k-1)
+#else
         momv_nh(l1_nh) = - b_m * coefa_u(i,j,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k-1)
 
 !-----------------------------
 !.......point p(i-1,j,k+1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = b_m * coefb_u(i-1,j,k)     &
+                       / Hzr_half_nbq(i-1,j,k+1)
+#else
         momv_nh(l1_nh) = b_m * coefb_u(i-1,j,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i-1,j,k+1)
 
 !-----------------------------
 !.......point p(i-1,j,k):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) =( - a_m                                      &
+                             + b_m * coefa_u(i-1,j,k)               &
+                             - gdepth_u(i,j,k+1) * coefb_u(i-1,j,k+1) )    &
+                       / Hzr_half_nbq(i-1,j,k)
+#else
         momv_nh(l1_nh) = - a_m                                      &
                              + b_m * coefa_u(i-1,j,k)               &
                              - gdepth_u(i,j,k+1) * coefb_u(i-1,j,k+1)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i-1,j,k)
 
 !-----------------------------
 !.......point p(i-1,j,k-1):
 !-----------------------------
+#ifdef NBQ_CONS7
         momv_nh(l1_nh) = - b_m * coefa_u(i-1,j,k)
+#else
+        momv_nh(l1_nh) = - b_m * coefa_u(i-1,j,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i-1,j,k-1)
       enddo
 
@@ -233,9 +335,16 @@
 !-----------------------------
 !.......point p(i-1,j,k):  
 !-----------------------------
+#ifdef NBQ_CONS7
+         momv_nh(l1_nh) = (0.5*(Hzr_half_nbq(i-1,j,k)+             &
+                                     Hzr_half_nbq(i,j,k)))         &
+                               / cw_int_nbq / dt / 2.D0     &
+                       / Hzr_half_nbq(i-1,j,k)
+#else
          momv_nh(l1_nh) = (0.5*(Hzr_half_nbq(i-1,j,k)+             &
                                      Hzr_half_nbq(i,j,k)))         &
                                / cw_int_nbq / dt / 2.D0
+#endif
          l1_nh = l1_nh + mijk2lq_nh(i-1,j,k) 
       enddo
 #endif
@@ -257,9 +366,16 @@
 !-----------------------------
 !........point p(i,j,k):
 !-----------------------------
+#ifdef NBQ_CONS7
          momv_nh(l1_nh) = -(0.5*(Hzr_half_nbq(i,j-1,k)+             &
                                      Hzr_half_nbq(i,j,k)))          &
-                               / cw_int_nbq / dt / 2.D0   
+                               / cw_int_nbq / dt / 2.D0        &
+                       / Hzr_half_nbq(i,j,k)
+#else
+         momv_nh(l1_nh) = -(0.5*(Hzr_half_nbq(i,j-1,k)+             &
+                                     Hzr_half_nbq(i,j,k)))          &
+                               / cw_int_nbq / dt / 2.D0  
+#endif
          l1_nh = l1_nh + mijk2lq_nh(i,j,k)
       enddo
 #endif
@@ -284,37 +400,67 @@
 !-----------------------------
 !.......point p(i,j,k+1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) =  b_m * coefb_v(i,j,k)      &
+                       / Hzr_half_nbq(i,j,k+1)
+#else
         momv_nh(l1_nh) =  b_m * coefb_v(i,j,k) 
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k+1)
 
 !-----------------------------
 !.......point p(i,j,k):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = ( a_m - b_m * coefb_v(i,j,k))     &
+                       / Hzr_half_nbq(i,j,k)
+#else
         momv_nh(l1_nh) =  a_m - b_m * coefb_v(i,j,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k)
 
 !-----------------------------
 !.......point p(i,j,k-1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = - b_m * coefa_v(i,j,k)     &
+                       / Hzr_half_nbq(i,j,k-1)
+#else
         momv_nh(l1_nh) = - b_m * coefa_v(i,j,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k-1)
 
 !-----------------------------
 !.......point p(i,j-1,k+1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = b_m * coefb_v(i,j-1,k)     &
+                       / Hzr_half_nbq(i,j-1,k+1)
+#else
         momv_nh(l1_nh) = b_m * coefb_v(i,j-1,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j-1,k+1)
 
 !-----------------------------
 !.......point p(i,j-1,k):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = (- a_m - b_m * coefb_v(i,j-1,k))     &
+                       / Hzr_half_nbq(i,j-1,k)
+#else
         momv_nh(l1_nh) = - a_m - b_m * coefb_v(i,j-1,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j-1,k)
 
 !-----------------------------
 !.......point p(i,j-1,k-1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = - b_m * coefa_v(i,j-1,k)     &
+                       / Hzr_half_nbq(i,j-1,k-1)
+#else
         momv_nh(l1_nh) = - b_m * coefa_v(i,j-1,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j-1,k-1)
       enddo
 
@@ -338,39 +484,71 @@
 !-----------------------------
 !.......point p(i,j,k+1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) =  b_m * coefb_v(i,j,k)      &
+                       / Hzr_half_nbq(i,j,k+1)
+#else
         momv_nh(l1_nh) =  b_m * coefb_v(i,j,k) 
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k+1)
 
 !-----------------------------
 !.......point p(i,j,k):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) =  (a_m  + b_m                                &
+                              * ( coefa_v(i,j,k) - coefb_v(i,j,k)))     &
+                       / Hzr_half_nbq(i,j,k)
+#else
         momv_nh(l1_nh) =  a_m  + b_m                                &
                               * ( coefa_v(i,j,k) - coefb_v(i,j,k))
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k)
 
 !-----------------------------
 !.......point p(i,j,k-1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = - b_m * coefa_v(i,j,k)     &
+                       / Hzr_half_nbq(i,j,k-1)
+#else
         momv_nh(l1_nh) = - b_m * coefa_v(i,j,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k-1)
 
 !-----------------------------
 !.......point p(i,j-1,k+1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = b_m * coefb_v(i,j-1,k)     &
+                       / Hzr_half_nbq(i,j-1,k+1)
+#else
         momv_nh(l1_nh) = b_m * coefb_v(i,j-1,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j-1,k+1)
 
 !-----------------------------
 !.......point p(i,j-1,k):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = (- a_m + b_m                                &
+                            * ( coefa_v(i,j-1,k) - coefb_v(i,j-1,k)))     &
+                       / Hzr_half_nbq(i,j-1,k)
+#else
         momv_nh(l1_nh) = - a_m + b_m                                &
                             * ( coefa_v(i,j-1,k) - coefb_v(i,j-1,k))
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j-1,k)
 
 !-----------------------------
 !.......point p(i,j-1,k-1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = - b_m * coefa_v(i,j-1,k)     &
+                       / Hzr_half_nbq(i,j-1,k-1)
+#else
         momv_nh(l1_nh) = - b_m * coefa_v(i,j-1,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j-1,k-1)
 
       enddo
@@ -395,39 +573,71 @@
 !-----------------------------
 !.......point p(i,j,k+1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) =  b_m * coefb_v(i,j,k)      &
+                       / Hzr_half_nbq(i,j,k+1)
+#else
         momv_nh(l1_nh) =  b_m * coefb_v(i,j,k) 
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k+1)
 
 !-----------------------------
 !.......point p(i,j,k):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = ( a_m + b_m * coefa_v(i,j,k)                &
+                              - gdepth_v(i,j,k+1) * coefb_v(i,j,k+1))      &
+                       / Hzr_half_nbq(i,j,k)
+#else
         momv_nh(l1_nh) =  a_m + b_m * coefa_v(i,j,k)                &
                               - gdepth_v(i,j,k+1) * coefb_v(i,j,k+1) 
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k)
 
 !-----------------------------
 !.......point p(i,j,k-1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = - b_m * coefa_v(i,j,k)     &
+                       / Hzr_half_nbq(i,j,k-1)
+#else
         momv_nh(l1_nh) = - b_m * coefa_v(i,j,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k-1)
 
 !-----------------------------
 !.......point p(i,j-1,k+1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = b_m * coefb_v(i,j-1,k)     &
+                       / Hzr_half_nbq(i,j-1,k+1)
+#else
         momv_nh(l1_nh) = b_m * coefb_v(i,j-1,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j-1,k+1)
 
 !-----------------------------
 !.......point p(i,j-1,k):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = (- a_m + b_m * coefa_v(i,j-1,k)            &
+                             - gdepth_v(i,j,k+1) * coefb_v(i,j-1,k+1) )    &
+                       / Hzr_half_nbq(i,j-1,k)
+#else
         momv_nh(l1_nh) = - a_m + b_m * coefa_v(i,j-1,k)            &
                              - gdepth_v(i,j,k+1) * coefb_v(i,j-1,k+1)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j-1,k)
 
 !-----------------------------
 !.......point p(i,j-1,k-1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh(l1_nh) = - b_m * coefa_v(i,j-1,k)     &
+                       / Hzr_half_nbq(i,j-1,k-1)
+#else
         momv_nh(l1_nh) = - b_m * coefa_v(i,j-1,k)
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j-1,k-1)
 
       enddo
@@ -445,9 +655,16 @@
 !-----------------------------
 !........point p(i,j-1,k):
 !-----------------------------
+#ifdef NBQ_CONS7
+         momv_nh(l1_nh) = (0.5*(Hzr_half_nbq(i,j-1,k)+            &
+                                    Hzr_half_nbq(i,j,k)))         &
+                              / cw_int_nbq / dt / 2.D0            &
+                       / Hzr_half_nbq(i,j-1,k)
+#else
          momv_nh(l1_nh) = (0.5*(Hzr_half_nbq(i,j-1,k)+            &
                                     Hzr_half_nbq(i,j,k)))         &
                               / cw_int_nbq / dt / 2.D0
+#endif
          l1_nh = l1_nh + mijk2lq_nh(i,j-1,k) 
       enddo
 #endif
@@ -464,7 +681,7 @@
 !-------------------------------------------------------------------
 !     Inner domain, inner and surface layers: (i,j, 0=<k<=N )
 !-------------------------------------------------------------------
-      do l_nh = neqw_nh(1)+1,neqw_nh(2)
+      do l_nh = neqw_nh(2)+1,neqw_nh(5)
 
 !.......caracteristiques de l'equation:
         i     = l2imom_nh (l_nh)
@@ -475,12 +692,23 @@
 !-----------------------------
 !.......point p(i,j,k+1):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh (l1_nh) =  -1. * float(mijk2lq_nh(i,j,k+1))    &
+                               * float(mijk2lq_nh(i,j,k))      &
+                       / Hzr_half_nbq(i,j,k+1)
+        momvg_nh(l1_nh) = ( -1.                                &
+           -  0.*Hzw_half_nbq(i,j,k)*g/soundspeed_nbq**2 )     &
+              * float(mijk2lq_nh(i,j,k+1))                     &
+              * float(mijk2lq_nh(i,j,k))     &
+                       / Hzr_half_nbq(i,j,k+1)
+#else
         momv_nh (l1_nh) =  -1. * float(mijk2lq_nh(i,j,k+1))    &
                                * float(mijk2lq_nh(i,j,k))
         momvg_nh(l1_nh) = ( -1.                                &
-           -  Hzw_half_nbq(i,j,k)*g/soundspeed_nbq**2 )        &
+           -  0.*Hzw_half_nbq(i,j,k)*g/soundspeed_nbq**2 )     &
               * float(mijk2lq_nh(i,j,k+1))                     &
               * float(mijk2lq_nh(i,j,k))
+#endif
                              
         l1_nh = l1_nh + mijk2lq_nh(i,j,k+1)                    &
                 * float(mijk2lq_nh(i,j,k))
@@ -488,58 +716,161 @@
 !-----------------------------
 !.......point p(i,j,k):
 !-----------------------------
+#ifdef NBQ_CONS7
+        momv_nh (l1_nh) =  1. * float(mijk2lq_nh(i,j,k))      &
+                       / Hzr_half_nbq(i,j,k)
+        momvg_nh(l1_nh) = ( 1.                                &
+            - 0.*Hzw_half_nbq(i,j,k)*g/soundspeed_nbq**2 )    &
+              * float(mijk2lq_nh(i,j,k))                      &
+                       / Hzr_half_nbq(i,j,k)
+#else
         momv_nh (l1_nh) =  1. * float(mijk2lq_nh(i,j,k)) 
-        momvg_nh(l1_nh) = ( 1.                           &
-            - Hzw_half_nbq(i,j,k)*g/soundspeed_nbq**2 )  &
+        momvg_nh(l1_nh) = ( 1.                                &
+            - 0.*Hzw_half_nbq(i,j,k)*g/soundspeed_nbq**2 )    &
               * float(mijk2lq_nh(i,j,k))
+#endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k)  
 
       enddo
 
-#ifdef NBQ_DRHODT
+      if (ifl_imp_nbq.eq.1) then
+!*******************************************************************
+!.......Partie implicite:
+!*******************************************************************
+
+!-------------------------------------------------------------------
+!     Inner domain, all layers: (i,j,k=0)
+!-------------------------------------------------------------------
+       
+        do l_nh=neqw_nh(2)+1,neqw_nh(5)
+
+           i = l2imom_nh(l_nh)
+           j = l2jmom_nh(l_nh)
+           k = l2kmom_nh(l_nh)      
+           l1_nh = mimpi_nbq(l_nh-neqmom_nh(1)-neqmom_nh(2)) 
+
+!-----------------------------
+!........point p(i,j,k+1):
+!-----------------------------
+#ifdef NBQ_CONS7
+           mimpv_nbq(l1_nh)   = - ( soundspeed_nbq**2 - visc2_nbq ) * dtnbq  &
+                                / Hzr_half_nbq(i,j,k+1)
+#else
+           mimpv_nbq(l1_nh)   = - ( soundspeed_nbq**2 - visc2_nbq ) * dtnbq  
+#endif
+           l1_nh = l1_nh + mijk2lq_nh(i,j,k+1)
+
+!-----------------------------
+!........point p(i,j,k):
+!-----------------------------
+#ifdef NBQ_CONS7
+           mimpv_nbq(l1_nh)   =   ( soundspeed_nbq**2 - visc2_nbq ) * dtnbq   &
+                       / Hzr_half_nbq(i,j,k)
+#else
+           mimpv_nbq(l1_nh)   =   ( soundspeed_nbq**2 - visc2_nbq ) * dtnbq 
+#endif
+
+      enddo
+      endif
+
+#ifdef NBQ_CONS0
 !*******************************************************************
 !---->Correction derivee temporelle de rho:
 !*******************************************************************
-      do l_nh=neqmom_nh(0)+1,neqcorrt_nbq
 
-!......caracteristiques de l'equation:
-       i = l2iq_nh (l_nh-neqmom_nh(0))
-       j = l2jq_nh (l_nh-neqmom_nh(0))
-       k = l2kq_nh (l_nh-neqmom_nh(0))
-   !    l1_nh = momi_nh   (l_nh) 
+#ifdef NBQ_CONS7
+      do l_nh=1,neqcont_nh
+       i = l2iq_nh (l_nh)
+       j = l2jq_nh (l_nh)
+       k = l2kq_nh (l_nh)
+       l1_nh = corri_nh(l_nh)
 
-       a_m = 0.25*dtnbq*(zr_half_nbq(i,j,k,2)-zr_half_nbq(i,j,k,0))    &
-                                       / (dt * Hzr_half_nbq(i,j,k))
+       if (k.lt.N.and.k.gt.1) then
+!........Point rh(i,j,k+1)
+         corrv_nh(l1_nh) =0.5 *  dzdt_nbq(i,j,k+1) &
+                          / Hzr_half_nbq(i,j,k+1)
+         l1_nh = l1_nh + mijk2lq_nh(i,j,k+1)
+!........Point rh(i,j,k)
+         corrv_nh(l1_nh) = 0.5 * ( dzdt_nbq(i,j,k) -  dzdt_nbq(i,j,k) ) &
+                          / Hzr_half_nbq(i,j,k)
+         l1_nh = l1_nh + mijk2lq_nh(i,j,k)
+!........Point rh(i,j,k-1)
+         corrv_nh(l1_nh) = - 0.5 *  dzdt_nbq(i,j,k-1) &
+                          / Hzr_half_nbq(i,j,k-1)
+         l1_nh = l1_nh + mijk2lq_nh(i,j,k-1)
+        elseif (k.eq.N) then
+!........Point rh(i,j,k)
+         corrv_nh(l1_nh) = (  0. *dzdt_nbq(i,j,k) &   ! Surface BC  ==> added in  rh_nbq
+                         - 0.5 * dzdt_nbq(i,j,k) )   &
+                          / Hzr_half_nbq(i,j,k)
+         l1_nh = l1_nh + mijk2lq_nh(i,j,k)
+!........Point rh(i,j,k-1)
+         corrv_nh(l1_nh) = - 0.5 *  dzdt_nbq(i,j,k-1) &
+                          / Hzr_half_nbq(i,j,k-1)
+         l1_nh = l1_nh + mijk2lq_nh(i,j,k-1)
+       else
+!........Point rh(i,j,k+1)
+         corrv_nh(l1_nh) = 0.5 *  dzdt_nbq(i,j,k+1) &
+                          / Hzr_half_nbq(i,j,k+1)
+         l1_nh = l1_nh + mijk2lq_nh(i,j,k+1)
+!........Point rh(i,j,k)
+         corrv_nh(l1_nh) = 0.5 * dzdt_nbq(i,j,k)  &
+                          / Hzr_half_nbq(i,j,k)
+         l1_nh = l1_nh + mijk2lq_nh(i,j,k)
+       endif
 
-!......Point rh(i,j,k+1)
-       momvg_nh(l1_nh) = a_m
 
-       if (k.eq.0.or.k.eq.N)                                           &
-                            momvg_nh(l1_nh) = 2.*momvg_nh(l1_nh)
-       l1_nh = l1_nh + mijk2lq_nh(i,j,k+1)
+      enddo
 
-!......Point rh(i,j,k-1)
-       momvg_nh(l1_nh) = -a_m
-       if (k.eq.0.or.k.eq.N)                                           &
-                            momvg_nh(l1_nh) = 2.*momvg_nh(l1_nh)
+#else
+
+      do l_nh=1,neqcont_nh
+       i = l2iq_nh (l_nh)
+       j = l2jq_nh (l_nh)
+       k = l2kq_nh (l_nh)
+       l1_nh = corri_nh(l_nh)
+
+       if (k.lt.N.and.k.gt.1) then
+!........Point rh(i,j,k+1)
+         corrv_nh(l1_nh) =0.5 *  dzdt_nbq(i,j,k) &
+                          / Hzr_half_nbq(i,j,k)
+         l1_nh = l1_nh + mijk2lq_nh(i,j,k+1)
+!........Point rh(i,j,k)
+         corrv_nh(l1_nh) = 0.5 * ( dzdt_nbq(i,j,k) -  dzdt_nbq(i,j,k) ) &
+                          / Hzr_half_nbq(i,j,k)
+         l1_nh = l1_nh + mijk2lq_nh(i,j,k)
+!........Point rh(i,j,k-1)
+         corrv_nh(l1_nh) = - 0.5 *  dzdt_nbq(i,j,k) &
+                          / Hzr_half_nbq(i,j,k)
+         l1_nh = l1_nh + mijk2lq_nh(i,j,k-1)
+        elseif (k.eq.N) then
+!........Point rh(i,j,k)
+         corrv_nh(l1_nh) = (  0. *dzdt_nbq(i,j,k) &   ! Surface BC  ==> added in  rh_nbq
+                         - 0.5 * dzdt_nbq(i,j,k) )   &
+                          / Hzr_half_nbq(i,j,k)
+         l1_nh = l1_nh + mijk2lq_nh(i,j,k)
+!........Point rh(i,j,k-1)
+         corrv_nh(l1_nh) = - 0.5 *  dzdt_nbq(i,j,k) &
+                          / Hzr_half_nbq(i,j,k)
+         l1_nh = l1_nh + mijk2lq_nh(i,j,k-1)
+       else
+!........Point rh(i,j,k+1)
+         corrv_nh(l1_nh) = 0.5 *  dzdt_nbq(i,j,k) &
+                          / Hzr_half_nbq(i,j,k)
+         l1_nh = l1_nh + mijk2lq_nh(i,j,k+1)
+!........Point rh(i,j,k)
+         corrv_nh(l1_nh) = 0.5 * dzdt_nbq(i,j,k)  &
+                          / Hzr_half_nbq(i,j,k)
+         l1_nh = l1_nh + mijk2lq_nh(i,j,k)
+       endif
+
 
       enddo
 #endif
 
-      endif
-
-!*******************************************************************
-!     Check!
-!*******************************************************************
-#ifdef CHECK_CROCO
-!CXA       call set_tracedirectory(iteration3d)
-        call set_tracedirectory(iic)
-        filetrace='mat_mom_it_'//int2string(iic)//'.'//int2string(mynode)//'.txt'
-        call printmat_mm(filetrace,neqmom_nh(0),neqcont_nh,        &
-                                             nzmom_nh,momi_nh,     &
-                                              momj_nh,momv_nh)
-
 #endif
+
+      endif
 
       return
       end subroutine mat_mom_nh

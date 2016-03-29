@@ -34,12 +34,23 @@
        jstr_nh  = 1
        jend_nh  = LOCALMM 
 
+!......The following coef. are updated in nump_nh:
+       istrq_nh = istr_nh
+       jstrq_nh = jstr_nh
+       iendq_nh = iend_nh 
+       jendq_nh = jend_nh
+
 !*******************************************************************
-!     NH domain:  velocity grid-points
+!     NH domain:  U-V velocity grid-points 
+!         (coef. updated in numuvw_nh)
 !*******************************************************************
 
        istru_nh = 2
        iendu_nh = LOCALLM 
+       jstru_nh = jstr_nh
+       jendu_nh = jend_nh
+       istrv_nh = istr_nh
+       iendv_nh = iend_nh 
        jstrv_nh = 2
        jendv_nh = LOCALMM 
 

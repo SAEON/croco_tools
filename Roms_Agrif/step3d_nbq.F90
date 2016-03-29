@@ -46,11 +46,8 @@
       real    WORK(PRIVATE_2D_SCRATCH_ARRAY)
       real :: dum_s
 # ifndef MPI
-      integer mynode,i
+      integer mynode
       mynode=0
-# else
-      integer i
-      
 # endif
 
 # undef DEBUG
@@ -62,11 +59,13 @@
         call density_nbq(4)
 !
 !-------------------------------------------------------------------
-!  Get internal and external forcing terms for nbq equation:
+!  Get internal and external forcing terms for nbq equations:
 !  ru+rubar (or lambda_ext+lambda_int)
+!  dzdt*rhosurf
 !-------------------------------------------------------------------
 !
       call ru_nbq(1)
+      call density_nbq(1)
 
 !-------------------------------------------------------------------
 !       Implicit part: system setup
@@ -145,18 +144,19 @@
 !  XI-Direction:
 !
         do l_nbq = nequ_nh(1)+1,nequ_nh(6)
-          dum_s =             soundspeed_nbq**2  * rhs1_nbq(l_nbq)     &
-                             - visc2_nbq_a(l_nbq) * rhsd2_nbq(l_nbq)   
-          qdm_nbq_a(l_nbq,2) = qdm_nbq_a(l_nbq,0)  + 2.*dtnbq*(        &
-                               dum_s                                   &
-                             + dqdmdt_nbq_a(l_nbq) )  
-          rhssum_nbq_a(l_nbq,2) = rhssum_nbq_a(l_nbq,2)  +  dum_s    
+          dum_s =             soundspeed_nbq**2  * rhs1_nbq(l_nbq)                     &
+                            - visc2_nbq_a(l_nbq) * rhsd2_nbq(l_nbq)   
+          qdm_nbq_a(l_nbq,vnnew_nbq) = qdm_nbq_a(l_nbq,vnstp_nbq)  + 2.*dtnbq*(        &
+                                       dum_s                                           &
+                                  + dqdmdt_nbq_a(l_nbq)                        )  
+          rhssum_nbq_a(l_nbq) = rhssum_nbq_a(l_nbq)  +  dum_s  
+          
         enddo 
 !
 !  U-momentum open boundary conditions
 !
 # ifdef OBC_NBQ
-!        call unbq_bc_tile (Istr,Iend,Jstr,Jend, WORK)
+         call unbq_bc_tile (Istr,Iend,Jstr,Jend, WORK)
 # endif
 !
 !  Message passing: Send U (51) 
@@ -166,18 +166,18 @@
 !  ETA-Direction:
 !
         do l_nbq = neqv_nh(1)+1,neqv_nh(6)  
-          dum_s =             soundspeed_nbq**2  * rhs1_nbq(l_nbq)     &
-                             - visc2_nbq_a(l_nbq) * rhsd2_nbq(l_nbq)   
-          qdm_nbq_a(l_nbq,2) = qdm_nbq_a(l_nbq,0)  + 2.*dtnbq*(        &
-                               dum_s                                   &
-                             + dqdmdt_nbq_a(l_nbq) )  
-          rhssum_nbq_a(l_nbq,2) = rhssum_nbq_a(l_nbq,2)  +  dum_s    
+          dum_s =             soundspeed_nbq**2  * rhs1_nbq(l_nbq)                     &
+                            - visc2_nbq_a(l_nbq) * rhsd2_nbq(l_nbq)   
+          qdm_nbq_a(l_nbq,vnnew_nbq) = qdm_nbq_a(l_nbq,vnstp_nbq)  + 2.*dtnbq*(        &
+                               dum_s                                                   &
+                             + dqdmdt_nbq_a(l_nbq)                            )  
+          rhssum_nbq_a(l_nbq) = rhssum_nbq_a(l_nbq)  +  dum_s    
         enddo 
 !
 !  V-momentum open boundary conditions
 !
 # ifdef OBC_NBQ
-!        call vnbq_bc_tile (Istr,Iend,Jstr,Jend, WORK)
+         call vnbq_bc_tile (Istr,Iend,Jstr,Jend, WORK)
 # endif
 !
 !  Message passing: Send V (52) 
@@ -194,28 +194,35 @@
 !
 !  Z-Direction: Explicit
 !
-           do l_nbq = neqw_nh(1)+1,neqw_nh(2)
-             dum_s =             soundspeed_nbq**2  * rhs1_nbq(l_nbq)  &
-                                - visc2_nbq_a(l_nbq) * rhsd2_nbq(l_nbq)
-             qdm_nbq_a(l_nbq,2) = qdm_nbq_a(l_nbq,0)  + 2.*dtnbq*(     &
-                                  dum_s                                &
-                                + dqdmdt_nbq_a(l_nbq) )  
-             rhssum_nbq_a(l_nbq,2) = rhssum_nbq_a(l_nbq,2)  +  dum_s
+           do l_nbq = neqw_nh(1)+1,neqw_nh(6)
+             dum_s =             soundspeed_nbq**2  * rhs1_nbq(l_nbq)                  &
+                               - visc2_nbq_a(l_nbq) * rhsd2_nbq(l_nbq)
+             qdm_nbq_a(l_nbq,vnnew_nbq) = qdm_nbq_a(l_nbq,vnstp_nbq)  + 2.*dtnbq*(     &
+                                  dum_s                                                &
+                                + dqdmdt_nbq_a(l_nbq)                            )  
+             rhssum_nbq_a(l_nbq) = rhssum_nbq_a(l_nbq)  +  dum_s
            enddo 
 # else
-!
-!  Z-Direction: Implicit
-!
+           do l_nbq = neqw_nh(1)+1,neqw_nh(6)
+             dum_s =             soundspeed_nbq**2  * rhs1_nbq(l_nbq)                  &
+                               - visc2_nbq_a(l_nbq) * rhsd2_nbq(l_nbq)
+             qdm_nbq_a(l_nbq,vnnew_nbq) = qdm_nbq_a(l_nbq,vnstp_nbq)  + 2.*dtnbq*(     &
+                                  dum_s                                                &
+                                + dqdmdt_nbq_a(l_nbq)                            )  
+             rhssum_nbq_a(l_nbq) = rhssum_nbq_a(l_nbq)  +  dum_s
+!             rhssum_nbq_a(l_nbq) = rhssum_nbq_a(l_nbq)                                 &
+!                               + soundspeed_nbq**2  * rhs1_nbq(l_nbq)                  &
+!                               - visc2_nbq_a(l_nbq) * rhsd2_nbq(l_nbq)
+           enddo 
            call parallele_nbq(151)  ! u only 
            call parallele_nbq(152)  ! v only 
            call implicit_nbq (2)
-           call implicit_nbq (3)
 # endif
 !
 !      Vertical momentum open boundary conditions
 !
 # ifdef OBC_NBQ
-!        call wnbq_bc_tile (Istr,Iend,Jstr,Jend, WORK)
+       call wnbq_bc_tile (Istr,Iend,Jstr,Jend, WORK)
 # endif
 !
 !-------------------------------------------------------------------
@@ -232,16 +239,16 @@
 !      Mass equation: leapfrog time stepping:
 !-------------------------------------------------------------------
 !
-#ifndef NBQ_DRHODT
-        do l_nbq = 1 , neqcont_nh
-          rhp_nbq_a(l_nbq,2) = rhp_nbq_a(l_nbq,0)                  &
-                             - div_nbq_a(l_nbq,1) * 2. * dtnbq 
+#ifndef NBQ_CONS0
+        do l_nbq=1,neqcont_nh
+          rhp_nbq_a(l_nbq,rnnew_nbq) = rhp_nbq_a(l_nbq,rnstp_nbq)         &
+                             - div_nbq_a(l_nbq,dnrhs_nbq) * 2. * dtnbq 
         enddo
 #else
-        do l_nbq = 1 , neqcont_nh 
-          rhp_nbq_a(l_nbq,2) = rhp_nbq_a(l_nbq,0)                  &
-                             - div_nbq_a(l_nbq,1) * 2. * dtnbq     &
-                             + rhs1_nbq(neqmom_nh(0)+l_nbq)
+        do l_nbq=1,neqcont_nh
+          rhp_nbq_a(l_nbq,rnnew_nbq) = rhp_nbq_a(l_nbq,rnstp_nbq)         &
+                             - div_nbq_a(l_nbq,dnrhs_nbq) * 2. * dtnbq    &
+                             + rhs1r_nbq(l_nbq) * 2. * dtnbq          
         enddo
 #endif
 !
@@ -261,7 +268,6 @@
 !
 !*******************************************************************
 !*******************************************************************
-
       enddo    ! NBQ loop
 
 !*******************************************************************
@@ -281,7 +287,7 @@
 # else       
        call parallele_nbq(153)  
 # endif
-
+!
 !-------------------------------------------------------------------
 !......Move forward: momentum
 !-------------------------------------------------------------------
@@ -289,11 +295,28 @@
        call ru_nbq(7)
 !
 !-------------------------------------------------------------------
+!......Computes surface kinematic condition
+!-------------------------------------------------------------------
+!
+#ifdef NBQ_CONS4
+       call cons_nbq(8)
+#endif
+!
+!-------------------------------------------------------------------
 !......Set NBQ/EXT coupling terms
 !-------------------------------------------------------------------
 !
       call ru_nbq(2)
+#ifdef RVTK_DEBUG
+!       call check_tab2d(rubar_nbq(:,:),'rubar_nbq step3d_nbq','u')
+!       call check_tab2d(rvbar_nbq(:,:),'rvbar_nbq step3d_nbq','v')
+!       call check_tab3d(rw_nbq_ext(:,:,0:N),'rw_nbq_ext step3d_nbq','r')
+#endif      
       call density_nbq(2)
+#ifdef RVTK_DEBUG
+      call check_tab3d(rho_nbq_ext(:,:,1:N),'rho_nbq_ext step3d_nbq','r')
+      call check_tab2d(rhobar_nbq(:,:,knew),'rhobar_nbq step3d_nbq','r')
+#endif      
 
 
       end subroutine step3d_nbq

@@ -37,6 +37,16 @@
       ,fl_nbq                                                         &
       ,cw_int_nbq                                      !CXA
 
+      integer             ::                                          &
+       rnnew_nbq &
+      ,rnrhs_nbq &
+      ,rnstp_nbq &
+      ,vnnew_nbq &
+      ,vnrhs_nbq &
+      ,vnstp_nbq &
+      ,dnrhs_nbq &
+      ,dnstp_nbq 
+
 !**********************************************************************
 !.....double precision
 !**********************************************************************
@@ -49,19 +59,20 @@
 
  !....Variables algébriques mode NBQ:
       double precision,dimension(:),allocatable     ::                &
-       dqdmdt_nbq_a      					      &    
-      ,rhp_bq_a
-
+       dqdmdt_nbq_a      					      &   
+      ,rhssum_nbq_a       				                
       double precision,dimension(:,:),allocatable     ::              &
        qdm_nbq_a           				      	      &        
       ,rhp_nbq_a           				              &        
-      ,rhssum_nbq_a       				              &         
-      ,div_nbq_a          					   
+      ,div_nbq_a          			&		           
+      ,rhp_bq_a
+
 
  !....Tableaux de travail NBQ:
       double precision,dimension(:),allocatable    ::                 &
        rhs1_nbq            				              &     
-      ,rhs2_nbq            					      &       
+      ,rhs2_nbq            					      &    
+      ,rhs1r_nbq            					      &       
       ,rhsd2_nbq                   		   		      &  	
       ,visc2_nbq_a                 					       
 
@@ -112,7 +123,6 @@
      ,puvsave_nbq    				                      &
      ,plvsave_nbq    				                      &
      ,pdvsave_nbq    				                      &
-     ,rhssum_nbq                                                      &
      ,rhsint_nbq
 
 
@@ -198,18 +208,19 @@
 
 
  !....Variables algébriques mode NBQ:
-       allocate(  dqdmdt_nbq_a      (0:nmv_nbq)      )
-       allocate(  qdm_nbq_a         (0:nmv_nbq,-2:2) )
-       allocate(  rhp_bq_a          (0:nmq_nbq)      )
-       allocate(  rhp_nbq_a         (0:nmq_nbq,-1:2) )
-       allocate(  rhssum_nbq_a      (0:nmv_nbq,2:2)  )        
-       allocate(  div_nbq_a         (0:nmq_nbq,0:1)  )     
+       allocate(  dqdmdt_nbq_a      (1:nmv_nbq)      )
+       allocate(  qdm_nbq_a         (1:nmv_nbq,-2:2) )
+       allocate(  rhp_bq_a          (1:nmq_nbq,0:2)      )
+       allocate(  rhp_nbq_a         (1:nmq_nbq,-1:2) )
+       allocate(  rhssum_nbq_a      (1:nmv_nbq)      )        
+       allocate(  div_nbq_a         (1:nmq_nbq,0:1)  )     
             
 !....Tableaux de travail NBQ:
-       allocate(  rhs1_nbq          (0:nmv_nbq)  )
-       allocate(  rhs2_nbq          (0:nmv_nbq)  )
-       allocate(  rhsd2_nbq         (0:nmv_nbq)  )   
-       allocate(  visc2_nbq_a       (0:nmv_nbq)	 )  
+       allocate(  rhs1_nbq          (1:nmv_nbq)  )
+       allocate(  rhs1r_nbq         (1:nmv_nbq)  )
+       allocate(  rhs2_nbq          (1:nmv_nbq)  )
+       allocate(  rhsd2_nbq         (1:nmv_nbq)  )   
+       allocate(  visc2_nbq_a       (1:nmv_nbq)	 )  
 
 !.....Variables mode EXT:
        allocate(  dqdmdtext_nbq_u   (GLOBAL_2D_ARRAY,1)      )
@@ -230,7 +241,6 @@
        allocate(  rhp_nbq_t     (GLOBAL_2D_ARRAY,0:N+1)   )  
 
 !......Pour partie implicit:
-       allocate(rhssum_nbq       (nmv_nbq)      )    
        allocate(rhsimp_nbq       (nmv_nbq)      )    
        allocate(rhsimp2_nbq      (nmv_nbq)      )   
        allocate(rhsint_nbq       (nmv_nbq)      )

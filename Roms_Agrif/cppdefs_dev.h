@@ -77,7 +77,16 @@
 # define OA_MCT
 # define MPI_COMM_WORLD ocean_grid_comm
 # undef  OA_GRID_UV
-# undef  WKB_WWAVE
+# define MRL_WCI
+# ifdef MRL_WCI
+#  undef  WKB_WWAVE
+#  undef  WKB_UNSTEADY
+#  undef  MRL_CEW
+#  undef  WAVE_ROLLER
+#  undef  WAVE_FRICTION
+#  undef  WAVE_STREAMING
+#  undef  WAVE_RAMP
+# endif
 #endif
 
 /* 
@@ -127,15 +136,17 @@
 #ifdef NBQ
 # define M2FILTER_NONE
 # undef  M2FILTER_POWER
-# undef  VAR_RHO_2D
+# define VAR_RHO_2D
 # undef  NBQ_REINIT
 # undef  TRACETXT
-# undef  CHECK_CROCO
+# undef  NBQ_OUT
+# define NBQ_CONS5
+# define NBQ_CONS6
 # define HZR Hzr
 # define OBC_NBQ
 # ifdef OBC_NBQ
-#  undef  OBC_NBQORLANSKI
-#  define OBC_NBQSPECIFIED
+#  define OBC_NBQORLANSKI
+#  undef  OBC_NBQSPECIFIED
 #  define NBQ_FRC_BRY
 #  define W_FRC_BRY
 # endif

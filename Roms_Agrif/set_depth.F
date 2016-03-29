@@ -91,8 +91,8 @@ C$    integer omp_get_thread_num
 #  ifdef NBQ
             if (zeta(i,j,1).eq.0.) then     ! Set Zt_avg1 and rhobar_nbq_avg1
               Zt_avg1(i,j) = h(i,j)         ! before call to ana_initial (zeta=0)
+              rhobar_nbq_avg1(i,j) = 1.
             endif
-            rhobar_nbq_avg1(i,j) = 1.
 #  endif
 # endif /* SOLVE3D */
           enddo
@@ -112,12 +112,16 @@ C$    integer omp_get_thread_num
      &                        zeta(START_2D_ARRAY,4))
 #  endif
 # endif
-      endif
+      endif   !  iic==0
+
+# ifdef NBQ_CONSOUT
+      call consout_nbq(10)
+# endif
 
 # ifdef SOLVE3D
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r2d_tile (Istr,Iend,Jstr,Jend, Zt_avg1)
-#  endif
+#  endif    
 
       do j=J_RANGE              !!! WARNING: Setting must be consistent 
         do i=I_RANGE            !!!          with omega.F
@@ -126,6 +130,7 @@ C$    integer omp_get_thread_num
 #  endif
           z_w(i,j,0)=-h(i,j)
         enddo
+
         do k=1,N,+1
 #  ifdef NEW_S_COORD
           cff_w =hc*sc_w(k)
@@ -173,6 +178,13 @@ C$    integer omp_get_thread_num
         enddo
       enddo
 
+#  ifdef NBQ_CONS5
+      call cons_nbq(30)
+#  endif
+#  ifdef NBQ_CONSOUT
+      call consout_nbq(11)
+#  endif
+
 #  undef I_RANGE
 #  undef J_RANGE
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
@@ -190,6 +202,7 @@ C$    integer omp_get_thread_num
 #   ifdef NBQ
       call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                        Hzr(START_2D_ARRAY,1))
+
 #   endif
 #  endif 
       return

@@ -18,36 +18,49 @@
       real t(GLOBAL_2D_ARRAY,N,3,NT)
       common /ocean_u/u /ocean_v/v /ocean_t/t
 
-# ifdef NBQ
-      real wz(GLOBAL_2D_ARRAY,0:N,3)
-      common /ocean_wz/wz
-# endif
-
       real Hz(GLOBAL_2D_ARRAY,N)
       real Hz_bak(GLOBAL_2D_ARRAY,N)
       real z_r(GLOBAL_2D_ARRAY,N)
       real z_w(GLOBAL_2D_ARRAY,0:N)
       real Huon(GLOBAL_2D_ARRAY,N)
       real Hvom(GLOBAL_2D_ARRAY,N)
+      common /grid_Hz_bak/Hz_bak /grid_zw/z_w /grid_Huon/Huon
+      common /grid_Hvom/Hvom
 
       real We(GLOBAL_2D_ARRAY,0:N)
 # ifdef VADV_ADAPT_IMP
       real Wi(GLOBAL_2D_ARRAY,0:N)
 # endif
-
       common /grid_Hz/Hz /grid_zr/z_r /grid_We/We
 # ifdef VADV_ADAPT_IMP
       common /grid_Wi/Wi
-# endif      
-      
-      common /grid_Hz_bak/Hz_bak /grid_zw/z_w /grid_Huon/Huon
-      common /grid_Hvom/Hvom
+# endif  
 
 # ifdef NBQ
+      real wz(GLOBAL_2D_ARRAY,0:N,3)
+      common /ocean_wz/wz
       real Hzr(GLOBAL_2D_ARRAY,N)
       common /grid_Hzr/Hzr
       real Hz_half(GLOBAL_2D_ARRAY,N)
       common /grid_Hz_half/Hz_half
+      real Hz_half_bak(GLOBAL_2D_ARRAY,N)
+      common /grid_Hz_half_bak/Hz_half_bak
+      real dHzdt(GLOBAL_2D_ARRAY,N)
+      common /grid_dHzdt/dHzdt
+#  if defined NBQ_CONSOUT || defined NBQ_CONS0
+      real u2(GLOBAL_2D_ARRAY,N,3)
+      common /ocean_u2/u2
+      real We3(GLOBAL_2D_ARRAY,0:N)
+      common /grid_We3/We3
+#  endif
+#  if defined NBQ_CONSOUT || defined NBQ_CONS2
+      real We2(GLOBAL_2D_ARRAY,0:N)
+      common /grid_We2/We2
+#  endif
+#  ifdef NBQ_CONS5
+      real h2d(GLOBAL_2D_ARRAY)
+      common /h2d/ h2d
+#  endif
 # endif
 
 # if defined UV_VIS4 && defined UV_MIX_GEO

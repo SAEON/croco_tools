@@ -66,7 +66,7 @@
          indm_v=momi_nh(neqcont_nh+1)+1
          call amux(                                                 &
               neqmom_nh(0)                                          &
-             ,div_nbq_a(1:neqcont_nh,0)                             &    ! div decentree (0)
+             ,div_nbq_a(1:neqcont_nh,dnstp_nbq)                     &    ! div decentree (0)
              ,rhsd2_nbq(1:neqmom_nh(0))                             &
              ,momv_nh(1:indm_v)                                     &
              ,momj_nh(1:indm_v)                                     &

@@ -188,12 +188,6 @@
 !--------------------------------------------------------------------
 !
 # ifdef NBQ
-
-#  ifdef NBQ_DRHODT
-      zr_half_nbq(:,:,:,0) =  zr_half_nbq(:,:,:,1)
-      zr_half_nbq(:,:,:,1) =  zr_half_nbq(:,:,:,2)
-#  endif
-
       do k=1,N
         do j=JstrV-1,Jend
           do i=IstrU-1,Iend
@@ -304,8 +298,8 @@
       do j=jmin,jmax
         do i=imin,imax
            zw_half_nbq(i,j,0)=-h(i,j)
-           zr_half_nbq(i,j,1,2)=zw_half_nbq(i,j,0)
-     &                          +0.5*Hzr_half_nbq(i,j,1)
+           zr_half_nbq(i,j,1)=zw_half_nbq(i,j,0)
+     &                        +0.5*Hzr_half_nbq(i,j,1)
         enddo
       enddo
       do k=1,N
@@ -318,7 +312,7 @@
       do k=2,N
         do j=jmin,jmax
           do i=imin,imax
-            zr_half_nbq(i,j,k,2)=zr_half_nbq(i,j,k-1,2)
+            zr_half_nbq(i,j,k)=zr_half_nbq(i,j,k-1)
      &                  +0.5*(Hzr_half_nbq(i,j,k)+Hzr_half_nbq(i,j,k-1))
           enddo
         enddo

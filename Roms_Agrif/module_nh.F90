@@ -43,8 +43,12 @@
         ,iend_nh                                                      &
         ,jend_nh                                                      &
         ,istru_nh                                                     &
+        ,jstru_nh                                                     &
+        ,istrv_nh                                                     &
         ,jstrv_nh                                                     &
         ,iendu_nh                                                     &
+        ,jendu_nh                                                     &
+        ,iendv_nh                                                     & 
         ,jendv_nh                                                     & 
         ,istrq_nh                                                     &
         ,iendq_nh                                                     &
@@ -56,21 +60,43 @@
         ,ifl_solv_nh                                                  &
         ,l_nh                                                         &
         ,l1_nh                                                        &
+        ,l2_nh                                                        &
         ,nnz_nh         (10)                                          &
         ,nzeq_nh                                                      &
-        ,nzcont_nh                                                    &             
+        ,nzcont_nh                                                    &
+#ifdef NBQ_CONS0  
+        ,nzcorr_nh                                                    &
+#endif             
         ,nzmom_nh                                                     &   
-        ,neqcont_nh                                                   &
+        ,neqcont_nh                                                   &  
         ,neqmom_nh      (0:3)                                         &
-        ,neqq_nh        (0:5)                                         &
+        ,neqq_nh        (0:7)                                         &
         ,nequ_nh        (0:7)                                         &
         ,neqv_nh        (0:7)                                         &
-        ,neqw_nh        (0:3)                                      
-       
+        ,neqw_nh        (0:7)                                      
+        
+#ifdef NBQ_CONS4
+      integer  ::                                                     &
+         neqcine_nh                                                   &
+        ,nzcine_nh                                                    
+#endif    
+
       integer,dimension(:),allocatable ::                             &        
-         conti_nh                                                     & 
+         conti_nh                                                     &   
         ,cont_nnz_nh                                                  & 
-        ,contj_nh       
+        ,contj_nh      
+
+#ifdef NBQ_CONS0                                                 
+      integer,dimension(:),allocatable ::                             &  
+         corri_nh                                                     & 
+        ,corrj_nh         
+#endif                   
+
+#ifdef NBQ_CONS4
+      integer,dimension(:),allocatable ::                             &  
+         cinei_nh                                                     &
+        ,cinej_nh
+#endif
 
 
 !**********************************************************************
@@ -115,8 +141,24 @@
         ,rhs1_nh        &  
         ,rhs2_nh      
 
+#ifdef NBQ_CONS4
+      double precision, dimension(:), allocatable      ::             &
+         cinev_nh                                                     & 
+        ,rhscine2_nh        
+#endif
+
+#ifdef NBQ_CONS0
+      double precision, dimension(:), allocatable      ::             & 
+         corrv_nh                                                     
+#endif
+ 
       double precision, dimension(:,:), allocatable    ::             &
-         coriolis_nh_t    
+         coriolis_nh_t                                                
+
+#ifdef NBQ_CONS4
+      double precision, dimension(:,:), allocatable    ::             &
+         rhscine_nh          
+#endif
         
       double precision, dimension(:,:,:), allocatable   ::            &
          coefa_u        &  
@@ -166,8 +208,23 @@
 
 ! Variables communes SNH / SNBQ
          allocate(conti_nh        (nmq_nh)                   )  
+
+#ifdef NBQ_CONS4
+         allocate(cinei_nh        (nmq_nh)                   )  
+#endif
+
+#ifdef NBQ_CONS0
+         allocate(corri_nh        (nmq_nh)                   ) 
+#endif 
+
          allocate(cont_nnz_nh     (nmq_nh)                   )  
-         allocate(contj_nh        (nmcont_nh)                ) 
+         allocate(contj_nh        (nmcont_nh)                )  
+#ifdef NBQ_CONS4
+         allocate(cinej_nh        (nmcont_nh)                ) 
+#endif
+#ifdef NBQ_CONS0 
+         allocate(corrj_nh        (nmcont_nh)                ) 
+#endif
          allocate(l2iq_nh         (nmq_nh)                   ) 
          allocate(l2jq_nh         (nmq_nh)                   ) 
          allocate(l2kq_nh         (nmq_nh)                   )  
@@ -178,12 +235,22 @@
          allocate(momj_nh         (nmmom_nh)                 )  
          allocate(ijk2lq_nh       (GLOBAL_2D_ARRAY,0:N+1)    )   
          allocate(mijk2lq_nh      (GLOBAL_2D_ARRAY,0:N+1)    )
-         allocate(ijk2lmom_nh     (GLOBAL_2D_ARRAY,0:N+1,3)  )   
-         allocate(mijk2lmom_nh    (GLOBAL_2D_ARRAY,0:N+1,3)  )
-         allocate(contv_nh        (0:nmcont_nh)              )  
+         allocate(ijk2lmom_nh     (GLOBAL_2D_ARRAY,0:N+1,4)  )   
+         allocate(mijk2lmom_nh    (GLOBAL_2D_ARRAY,0:N+1,4)  )
+         allocate(contv_nh        (0:nmcont_nh)              ) 
+#ifdef NBQ_CONS4
+         allocate(cinev_nh        (0:nmcont_nh)              )  
+#endif
+#ifdef NBQ_CONS0
+         allocate(corrv_nh        (0:nmcont_nh)              )  
+#endif
          allocate(momv_nh         (nmmom_nh)                 )  
          allocate(momvg_nh        (nmmom_nh)                 ) 
          allocate(rhs1_nh         (nmv_nh)                   )  
+#ifdef NBQ_CONS4
+         allocate(rhscine_nh      (nmq_nh,0:2)               )  
+         allocate(rhscine2_nh      (nmv_nh)                  )
+#endif
          allocate(rhs2_nh         (nmq_nh)                   )  
          allocate(coriolis_nh_t   (GLOBAL_2D_ARRAY)          )  
          allocate(coefa_u         (GLOBAL_2D_ARRAY,0:N+1)    )  
@@ -196,7 +263,6 @@
 
 ! 
 !        
-         
          end subroutine alloc_module_nh
 
         end module module_nh  

@@ -31,10 +31,17 @@
       nindkun_nbq  = 0
       neqmimp_nbq = 0
       
+#ifdef NBQ_CONS0
+      corri_nh = 1
+      corrj_nh = 1
+      corrv_nh = 0.
+#endif
+
       momi_nh = 1
       momj_nh = 1
       momv_nh = 0.
 
+      mimpi_nbq = 1
       mimpj_nbq = 1
       mimpv_nbq = 0.
 
@@ -42,7 +49,7 @@
 !     Momentum Equation: X-direction
 !******************************************************************* 
       
-#ifdef OBC_WEST
+#ifdef OBC_NH_WEST
 !-------------------------------------------------------------------
 !     Boundary condition (istru_nh-1):
 !-------------------------------------------------------------------
@@ -104,7 +111,7 @@
       enddo 
       enddo 
 
-#ifdef OBC_EAST
+#ifdef OBC_NH_EAST
 !-------------------------------------------------------------------
 !.....Boundary condition (iendu_nh+1):
 !-------------------------------------------------------------------
@@ -116,20 +123,20 @@
          momj_nh(nzmom_nh)   = ijk2lq_nh (i-1,j,k)
          nzmom_nh            = nzmom_nh + mijk2lq_nh(i-1,j,k) 
       enddo
+#else
+      momi_nh(nequ_nh(5)+1:nequ_nh(6))=nzmom_nh
 #endif
 
-#ifdef MPI
 !-------------------------------------------------------------------
 !.....MOM matrix structure when points are added at the eastearn boundary!
 !-------------------------------------------------------------------
-      momi_nh(nequ_nh(6)+1:nequ_nh(7))=nzmom_nh
-#endif
+      momi_nh(nequ_nh(6)+1:neqv_nh(1))=nzmom_nh
 
 !*******************************************************************
 !     Momentum Equation: Y-direction
 !******************************************************************* 
 
-#ifdef OBC_SOUTH
+#ifdef OBC_NH_SOUTH
 !-------------------------------------------------------------------
 !     Boundary condition (jstrv_nh-1):
 !-------------------------------------------------------------------
@@ -141,6 +148,9 @@
         momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,k)
         nzmom_nh             = nzmom_nh + mijk2lq_nh(i,j,k) 
       enddo
+#else
+      momi_nh(neqv_nh(1)+1:neqv_nh(2))=nzmom_nh
+
 #endif
     
 !-------------------------------------------------------------------
@@ -191,7 +201,7 @@
        enddo
        enddo
       
-#ifdef OBC_NORTH
+#ifdef OBC_NH_NORTH
 !-------------------------------------------------------------------
 !.....Boundary condition (jendv_nh):
 !-------------------------------------------------------------------
@@ -203,19 +213,19 @@
          momj_nh(nzmom_nh)    = ijk2lq_nh (i,j-1,k)
          nzmom_nh             = nzmom_nh + mijk2lq_nh(i,j-1,k) 
        enddo
+#else
+      momi_nh(neqv_nh(5)+1:neqv_nh(6))=nzmom_nh
 #endif
 
-#ifdef MPI
 !-------------------------------------------------------------------
 !.....MOM matrix structure when points are added at the northern boundary !
 !-------------------------------------------------------------------
-      momi_nh(neqv_nh(6)+1:neqw_nh(1))=nzmom_nh
-#endif
-
+      momi_nh(neqv_nh(6)+1:neqw_nh(2))=nzmom_nh
+      
 !*******************************************************************
 ! Momentum Equation: Z-direction
 !******************************************************************* 
-      do l_nh=neqw_nh(1)+1,neqw_nh(2)
+      do l_nh=neqw_nh(2)+1,neqw_nh(5)
 
         i = l2imom_nh(l_nh)
         j = l2jmom_nh(l_nh)
@@ -226,8 +236,14 @@
 !.......point p(i,j,k+1):
 !-----------------------------
         momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,k+1)
+#ifdef NBQ_CONS7
         momv_nh(nzmom_nh)    = -1. * float(mijk2lq_nh(i,j,k+1)) &
-                                   * float(mijk2lq_nh(i,j,k))
+                                   * float(mijk2lq_nh(i,j,k))   &
+                              / Hzr_half_nbq(i,j,k+1)
+#else
+        momv_nh(nzmom_nh)    = -1. * float(mijk2lq_nh(i,j,k+1)) &
+                                   * float(mijk2lq_nh(i,j,k)) 
+#endif
         nzmom_nh             = nzmom_nh  + mijk2lq_nh(i,j,k+1)  &
                                    * float(mijk2lq_nh(i,j,k))
 
@@ -235,18 +251,24 @@
 !.......point p(i,j,k):
 !-----------------------------
         momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,k)
+#ifdef NBQ_CONS7
+        momv_nh(nzmom_nh)    = 1. * float(mijk2lq_nh(i,j,k))  &
+                               / Hzr_half_nbq(i,j,k)
+#else
         momv_nh(nzmom_nh)    = 1. * float(mijk2lq_nh(i,j,k))
+#endif
         nzmom_nh             = nzmom_nh + mijk2lq_nh(i,j,k) 
 
       enddo
 
-#ifdef MPI
 !-------------------------------------------------------------------
 !.....MOM matrix structure when points are added at the northern boundary !
 !-------------------------------------------------------------------
-      momi_nh(neqw_nh(2)+1:neqw_nh(3))=nzmom_nh
-#endif
+      momi_nh(neqw_nh(5)+1:neqw_nh(7))=nzmom_nh
 
+!.....End of last line:
+      neqcorrt_nbq=neqmom_nh(0) 
+      momi_nh (neqcorrt_nbq+1) = nzmom_nh 
 
       if (ifl_imp_nbq.eq.1) then
 !*******************************************************************
@@ -256,51 +278,42 @@
       neqmimp_nbq = 0
 
 !-------------------------------------------------------------------
-!     Inner domain, bottom layer: (i,j,k=0)
+!     Inner domain, all layers: (i,j,k=0)
 !-------------------------------------------------------------------
+       
+        do l_nh=neqmom_nh(1)+neqmom_nh(2)+1,neqmom_nh(0)
 
-     do l_nh=neqmom_nh(1)+neqmom_nh(2)+1,neqmom_nh(0)
-!!      do l_nh=neqw_nh(1)+1,neqw_nh(2)
-
-        i = l2imom_nh(l_nh)
-        j = l2jmom_nh(l_nh)
-        k = l2kmom_nh(l_nh)
-
-!-----------------------------
-        if (k.eq.0) then
-!-----------------------------
         neqmimp_nbq             = neqmimp_nbq  + 1
         mimpi_nbq (neqmimp_nbq) = nzmimp_nbq
+        k = l2kmom_nh(l_nh)      
 
-        mimpj_nbq(nzmimp_nbq)   = ijk2lq_nh (i,j,k+1)
-        mimpv_nbq(nzmimp_nbq)   = 0.
-        nzmimp_nbq              = nzmimp_nbq + mijk2lq_nh(i,j,k+1)
-        nindkun_nbq             = nindkun_nbq +1
-        indkun_nbq(nindkun_nbq) = neqmimp_nbq
+        if (l_nh.ge.neqw_nh(2)+1.and.l_nh.le.neqw_nh(5).and.k.gt.0) then
+           i = l2imom_nh(l_nh)
+           j = l2jmom_nh(l_nh)
 
-!        mimpj_nbq(nzmimp_nbq)   = ijk2lq_nh (i,j,k)
-!        mimpv_nbq(nzmimp_nbq)   = 0.
-!        nzmimp_nbq              = nzmimp_nbq + mijk2lq_nh(i,j,k)
 !-----------------------------
-        else
+!........point p(i,j,k+1):
 !-----------------------------
-        neqmimp_nbq             = neqmimp_nbq  + 1
-        mimpi_nbq (neqmimp_nbq) = nzmimp_nbq
 
-        mimpj_nbq(nzmimp_nbq)   = ijk2lq_nh (i,j,k+1)
-        mimpv_nbq(nzmimp_nbq)   = - ( soundspeed_nbq**2 - visc2_nbq ) * dtnbq 
-        nzmimp_nbq              = nzmimp_nbq + mijk2lq_nh(i,j,k+1)
+      !     if (k.ne.N) then
+           mimpj_nbq(nzmimp_nbq)   = ijk2lq_nh (i,j,k+1)
+           nzmimp_nbq              = nzmimp_nbq + mijk2lq_nh(i,j,k+1)
+       !    endif
 
-        mimpj_nbq(nzmimp_nbq)   = ijk2lq_nh (i,j,k)
-        mimpv_nbq(nzmimp_nbq)   =   ( soundspeed_nbq**2 - visc2_nbq ) * dtnbq 
-        nzmimp_nbq              = nzmimp_nbq + mijk2lq_nh(i,j,k)
 !-----------------------------
+!........point p(i,j,k):
+!-----------------------------
+           mimpj_nbq(nzmimp_nbq)   = ijk2lq_nh (i,j,k)
+           nzmimp_nbq              = nzmimp_nbq + mijk2lq_nh(i,j,k)
        endif
-!-----------------------------
 
       enddo
       endif
 
+!.....End of last line:
+      mimpi_nbq(neqmimp_nbq+1) = nzmimp_nbq   
+
+      
 
 !*******************************************************************
 !.....Correction temporelle:
@@ -308,38 +321,40 @@
 !     on stocke la matrice qui sert dans l equation pour rho_nbq (M_corr ! dans le document)
 !     coherence car c est une matrice qui va etre multipliee par un rho
 !******************************************************************* 
-      neqcorrt_nbq=neqmom_nh(0) 
 
-#ifdef NBQ_DRHODT
+#ifdef NBQ_CONS0
+      nzcorr_nh = 1
+
       do l_nh = 1,neqcont_nh
        i = l2iq_nh (l_nh)
        j = l2jq_nh (l_nh)
        k = l2kq_nh (l_nh)
 
 !......caracteristiques de l equation:
-       neqcorrt_nbq            = neqcorrt_nbq+1
-       ijk2lmom_nh(i,j,k,4)    = neqcorrt_nbq
-       mijk2lmom_nh(i,j,k,4)   = 1
-       l2imom_nh(neqcorrt_nbq) = i
-       l2jmom_nh(neqcorrt_nbq) = j
-       l2kmom_nh(neqcorrt_nbq) = k
-       momi_nh  (neqcorrt_nbq) = nzmom_nh
+       corri_nh  (l_nh) = nzcorr_nh
 
+       if (k.lt.N) then
 !......Point rh(i,j,k+1)
-       momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,min(N,k+1))
-       nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i,j,min(N,k+1)))
- 
+          corrj_nh(nzcorr_nh)   = ijk2lq_nh (i,j,k+1)
+          nzcorr_nh             = nzcorr_nh + mijk2lq_nh(i,j,k+1)
+       endif
+
+!......Point rh(i,j,k)
+       corrj_nh(nzcorr_nh)   = ijk2lq_nh (i,j,k)
+       nzcorr_nh             = nzcorr_nh + mijk2lq_nh(i,j,k)
+
 !......Point rh(i,j,k-1)
-       momj_nh(nzmom_nh)    = ijk2lq_nh (i,j,max(1,k-1))
-       nzmom_nh             = nzmom_nh + min(1,ijk2lq_nh(i,j,max(1,k-1)))
+       if (k.gt.1) then
+          corrj_nh(nzcorr_nh)   = ijk2lq_nh (i,j,k-1)
+          nzcorr_nh             = nzcorr_nh + mijk2lq_nh(i,j,k-1)
+       endif
 
       enddo
-#endif
 
 !.....End of last line:
-      momi_nh (neqcorrt_nbq+1) = nzmom_nh 
-      mimpi_nbq(neqmimp_nbq+1) = nzmimp_nbq    ! Matrice implicite
-      
+      corri_nh  (neqcont_nh+1) = nzcorr_nh
+#endif
+
 !.....Tests matrix size:
       if (neqmom_nh(0).gt.nmv_nh) then
          write (6,*) 'nmv_nh trop petit!'

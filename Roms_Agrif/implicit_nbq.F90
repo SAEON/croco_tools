@@ -73,17 +73,18 @@
 !  Initialisation II
 !*******************************************************************************
 
-        call amubdg(                                               &
-             neqmimp_nbq                                           &
-            ,neqcimp_nbq                                           &
-            ,neqmimp_nbq                                           &
-            ,mimpj_nbq                                             &
-            ,mimpi_nbq                                             &
-            ,cimpj_nbq                                             &
-            ,cimpi_nbq                                             &
-            ,iw1_nbq                                               &
-            ,nnz_nbq                                               &
-            ,iw2_nbq       )
+
+ !       call amubdg(                                               &
+ !            neqmimp_nbq                                           &
+ !           ,neqcimp_nbq                                           &
+ !           ,neqmimp_nbq                                           &
+ !           ,mimpj_nbq                                             &
+ !           ,mimpi_nbq                                             &
+ !           ,cimpj_nbq                                             &
+ !           ,cimpi_nbq                                             &
+ !           ,iw1_nbq                                               &
+ !           ,nnz_nbq                                               &
+ !           ,iw2_nbq       )
 
        endif
 
@@ -98,17 +99,31 @@
              neqmimp_nbq                                           &
             ,neqcimp_nbq                                           &
             ,flag_i                                                &
-            ,mimpv_nbq                                             &  ! Taille!
+            ,mimpv_nbq(1:)                                         &  ! Taille!
             ,mimpj_nbq                                             &
             ,mimpi_nbq                                             &
             ,cimpv_nbq(1:)                                         &
             ,cimpj_nbq                                             &
             ,cimpi_nbq                                             &
+                )
+#ifdef toto
+       call amub2_tri(                                             &
+             neqmimp_nbq                                           &
+            ,neqcimp_nbq                                           &
+            ,flag_i                                                &
+            ,mimpv_nbq(1:)                                         &  ! Taille!
+            ,mimpj_nbq                                             &
+            ,mimpi_nbq                                             &
+            ,cimpv_nbq(1:)                                         &
+            ,cimpj_nbq                                             &
+            ,cimpi_nbq                                             &    
             ,pimpj_nbq                                             &
             ,pimpi_nbq                                             &
             ,nnz_nbq                                               &
             ,iw2_nbq                                               &
             ,ierr_i      )
+#endif
+
 
       endif  ! icall == 1
 
@@ -118,48 +133,51 @@
 !*******************************************************************************
 
 !.......QDM pour le RHS: terme CONTxQDM
-        qdmimp_nbq(1:neqmom_nh(1)+neqmom_nh(2)) =  &
-            qdm_nbq_a(1:neqmom_nh(1)+neqmom_nh(2),2) 
+        qdmimp_nbq(1:neqmom_nh(1)+neqmom_nh(2))=qdm_nbq_a(1:neqmom_nh(1)+neqmom_nh(2),vnnew_nbq) 
 
 !.......Produit MatxVect: CONTxQDM
-        call amux(                                                &
+        call amux               (                                   &
               neqcont_nh                                          &
              ,qdmimp_nbq(1)                                       &
              ,rhsimp2_nbq(1)                                      &
-             ,contv_nh(1:)                                        &
-             ,contj_nh(1:)                                        &
-             ,conti_nh(1:)       )                           
+             ,contv_nh(1)                                         &
+             ,contj_nh(1)                                         &
+             ,conti_nh(1)       )            
 
-       rhsimp2_nbq(1:neqcimp_nbq)=  (rhp_nbq_a(1:neqcimp_nbq,1)      &
-                                     -rhp_bq_a(1:neqcimp_nbq))       &
-                         - dtnbq * rhsimp2_nbq(1:neqcimp_nbq) 
+#ifndef NBQ_CONS0
+       rhsimp2_nbq(1:neqcimp_nbq)=  (rhp_nbq_a(1:neqcimp_nbq,rnrhs_nbq)      &
+                                     -rhp_bq_a(1:neqcimp_nbq,2))             &
+                         - dtnbq * rhsimp2_nbq(1:neqcimp_nbq)  
+#else
+       rhsimp2_nbq(1:neqcimp_nbq)=  (rhp_nbq_a(1:neqcimp_nbq,rnrhs_nbq)      &
+                                     -rhp_bq_a(1:neqcimp_nbq,2))             &
+                         - dtnbq * rhsimp2_nbq(1:neqcimp_nbq)                &
+                         + dtnbq * rhs1r_nbq  (1:neqcimp_nbq) 
+#endif
 
 !.......RHS = MOMxRHS(cont) 
         call amux(                                                   &
                neqmimp_nbq                                           &
               ,rhsimp2_nbq(1:neqcimp_nbq)                            & 
-              ,rhsimp_nbq                                            &
-              ,mimpv_nbq                                             &
-              ,mimpj_nbq                                             &
-              ,mimpi_nbq       )  
+              ,rhsimp_nbq(1)                                         &
+              ,mimpv_nbq(1)                                          &
+              ,mimpj_nbq(1)                                          &
+              ,mimpi_nbq(1)       )  
 
 !.....Sauvegarde du second membre &
 !     Ajouts des deux termes de l'equation QDM  du RHS: MOM * RHS(cont) + RHS(mom)
 !     Equation de continuite:
 
-      rhssum_nbq_a(neqmom_nh(1)+neqmom_nh(2)+1:neqmom_nh(0),2) =                 & 
-      rhssum_nbq_a(neqmom_nh(1)+neqmom_nh(2)+1:neqmom_nh(0),2)                   &
-                                  + rhsimp_nbq(1:neqmimp_nbq)/dtnbq 
+!      rhssum_nbq_a(neqmom_nh(1)+neqmom_nh(2)+1:neqmom_nh(0)) =                  & 
+!        rhssum_nbq_a(neqmom_nh(1)+neqmom_nh(2)+1:neqmom_nh(0))                  &
+!                                  + rhsimp_nbq(1:neqmimp_nbq) /dtnbq
 
       rhsimp_nbq(1:neqmimp_nbq) =                                                &
-        qdm_nbq_a(neqmom_nh(1)+neqmom_nh(2)+1:neqmom_nh(0),1)                    &
+        qdm_nbq_a(neqmom_nh(1)+neqmom_nh(2)+1:neqmom_nh(0),vnrhs_nbq)            &
                             + rhsimp_nbq(1:neqmimp_nbq)                          &
                  !          - visc2_nbq_a(l_nbq) * rhsd2_nbq(l_nbq) * dtnbq      &  ! Euler instable!
       + dqdmdt_nbq_a(neqmom_nh(1)+neqmom_nh(2)+1:neqmom_nh(0)) * dtnbq
      
-      endif     ! icall == 2
-
-      if (icall.eq.3) then
 !*******************************************************************************
 ! Inversion du systeme implicite
 !
@@ -206,13 +224,13 @@
                   ,ptri_nbq                   &
                   ,ierr_i )  
 
-!......Recopie de la solution implicite pour w (update) et calcul rhs (sum)
+!.....Recopie de la solution implicite pour w (update) et calcul rhs (sum)
 
-      qdm_nbq_a(neqw_nh(1)+1:neqw_nh(2),2) =  &
-                rhsimp_nbq(neqw_nh(1)-neqmom_nh(1)-neqmom_nh(2)+1:neqw_nh(2)-neqmom_nh(1)-neqmom_nh(2))
-
+      qdm_nbq_a(neqmom_nh(1)+neqmom_nh(2)+1:neqmom_nh(0),vnnew_nbq) =  &
+                rhsimp_nbq(1:neqmimp_nbq)
 
       endif
+      
 
  
        end subroutine implicit_nbq 
