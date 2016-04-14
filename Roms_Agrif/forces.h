@@ -410,7 +410,7 @@
 ! wbst | MRL/BKPP| frictional dissipation stress (e_d k/sigma) [m2/s2]
 !--------------------------------------------------------------------
 
-#if defined BBL || defined MRL_WCI 
+#if defined BBL || defined MRL_WCI || defined OW_COUPLING 
       real wfrq(GLOBAL_2D_ARRAY)
       common /forces_wfrq/wfrq
 #endif
@@ -421,15 +421,15 @@
       common /forces_uorb/uorb /forces_vorb/vorb
 #endif   /* BBL */
 
-#if defined MRL_WCI 
+#if defined MRL_WCI || defined OW_COUPLING
       real whrm(GLOBAL_2D_ARRAY)
       real wdsp(GLOBAL_2D_ARRAY)
       real wdrg(GLOBAL_2D_ARRAY)
       real wbst(GLOBAL_2D_ARRAY)
       real wdrx(GLOBAL_2D_ARRAY)
       real wdre(GLOBAL_2D_ARRAY)
-      common /forces_whrm/whrm /forces_wdsp/wdsp &
-     &       /forces_wdrx/wdrx /forces_wdre/wdre &
+      common /forces_whrm/whrm /forces_wdsp/wdsp 
+     &       /forces_wdrx/wdrx /forces_wdre/wdre 
      &       /forces_wdrg/wdrg /forces_wbst/wbst
 # ifdef WAVE_ROLLER
       real rdsp(GLOBAL_2D_ARRAY)
@@ -558,7 +558,7 @@
       real Eb  (GLOBAL_2D_ARRAY)
       common /wwf_wwhrm/wwhrm /wwf_wwdrx/wwdrx /wwf_wwdre/wwdre
      &       /wwf_wweb/wweb /forces_Eb/Eb
-#   ifdef WAVE_OFFLINE
+#   if defined WAVE_OFFLINE || defined OW_COUPLING
       real wved(GLOBAL_2D_ARRAY)
       real wwed(GLOBAL_2D_ARRAY,2)
       common /forces_wved/wved /wwf_wwed/wwed
@@ -569,8 +569,8 @@
       common /forces_wvqb/wvqb /wwf_wwqb/wwqb
 #   endif
 #  endif 
-      real ww_cycle,wwv_time(2),wwap(2), wwdp(2),wwpp(2),wwep(2)
-     &                 wwa_scale, wwd_scale, wwp_scale,wwe_scale
+      real ww_cycle,wwv_time(2),wwap(2), wwdp(2),wwpp(2),wwep(2),
+     &                 wwa_scale, wwd_scale, wwp_scale,wwe_scale,
      &                 wwagrd,   wwdgrd,    wwpgrd, wwegrd
       integer ww_ncycle,  ww_rec,  itww
      &        ,ww_file_id, ww_tid,  wwa_id, wwp_id, wwd_id

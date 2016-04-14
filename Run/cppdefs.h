@@ -59,6 +59,19 @@
                       /* OA and OW Coupling via OASIS (MPI) */
 # undef  OA_COUPLING
 # undef  OW_COUPLING
+# ifdef OW_COUPLING
+#  define MRL_WCI
+#  ifdef MRL_WCI
+#   undef  WKB_WWAVE
+#   undef  WKB_UNSTEADY
+#   undef  MRL_CEW
+#   undef  WKB_OBC_WEST
+#   undef  WAVE_ROLLER
+#   undef  WAVE_FRICTION
+#   undef  WAVE_STREAMING
+#   undef  WAVE_RAMP
+#  endif
+# endif 
                       /* I/O server */
 # undef  XIOS
                       /* Open Boundary Conditions */
