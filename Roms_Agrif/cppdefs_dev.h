@@ -77,7 +77,12 @@
 # define OA_MCT
 # define MPI_COMM_WORLD ocean_grid_comm
 # undef  OA_GRID_UV
+# define MRL_WCI
 # undef  WKB_WWAVE
+# undef  WAVE_ROLLER
+# undef  WAVE_FRICTION
+# undef  WAVE_STREAMING
+# undef  WAVE_RAMP
 #endif
 
 /* 
