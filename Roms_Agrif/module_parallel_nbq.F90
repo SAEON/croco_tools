@@ -865,7 +865,7 @@ end module module_parallel_nbq
   end type infopar_croco
 
 
-  type (infopar_croco) :: par
+  type(infopar_croco) :: par
   integer,dimension(8),parameter :: liste_voisin = &
       (/ ouest, est, nord, sud, sudouest, sudest, nordouest, nordest /)
   integer :: ierr,mynode
