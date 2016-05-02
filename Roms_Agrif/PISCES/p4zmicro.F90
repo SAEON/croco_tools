@@ -199,7 +199,7 @@ CONTAINS
 
       DO jk = KRANGE
          DO jj = JRANGE
-            DO ji = 1, IRANGE
+            DO ji = IRANGE
 
                zmortz = ztortz(ji,jj,jk) + zrespz(ji,jj,jk)
                tra(ji,jj,jk,jpzoo) = tra(ji,jj,jk,jpzoo) - zmortz  &
