@@ -66,6 +66,7 @@ C$    integer omp_get_thread_num
         do j=J_RANGE      ! free surface field into array for holding fast-time
           do i=I_RANGE    ! averaged free surface.
 # ifdef WET_DRY
+            wetdry(i,j)=1.
             IF (h(i,j).eq.0.) THEN
               h(i,j)=eps
             END IF
@@ -79,6 +80,7 @@ C$    integer omp_get_thread_num
               zeta(i,j,2)=zeta(i,j,1)
               zeta(i,j,3)=zeta(i,j,1)
               zeta(i,j,4)=zeta(i,j,1)
+              wetdry(i,j)=0.
             ENDIF
 # endif
 # if defined SOLVE3D

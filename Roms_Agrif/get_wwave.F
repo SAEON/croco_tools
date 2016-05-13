@@ -442,10 +442,10 @@
               wwdre(i,j) = wwdre(i,j)*rmask(i,j)
               Eb   (i,j) = Eb   (i,j)*rmask(i,j)
 #   if defined WAVE_OFFLINE && defined WAVE_FRICTION
-              wwqb(i,j,1)  = wwed(i,j)*rmask(i,j)
+              wwed(i,j,1)  = wwed(i,j,1)*rmask(i,j)
 #   endif
 #   if defined WAVE_OFFLINE && defined WAVE_ROLLER
-              wwqb(i,j,1)  = wwqb(i,j,k)*rmask(i,j)
+              wwqb(i,j,1)  = wwqb(i,j,1)*rmask(i,j)
 #   endif
 #  endif
 # endif         
