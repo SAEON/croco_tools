@@ -1671,28 +1671,44 @@ CR      write(*,*) '  0' MYID
            if ( western_side ) then    
               Do j=j1,j2
                  h(0,j) = 2.*tabres(1,j)-h(1,j)
+# ifdef NEW_S_COORD
+                 hinv(0,j) = 1./(h(0,j)+hc)
+# else
                  hinv(0,j) = 1./h(0,j)
+# endif
               enddo
            endif
            
            if ( eastern_side ) then 
               Do j=j1,j2
                  h(LOCALLM+1,j) = 2.*tabres(LOCALLM+1,j)-h(LOCALLM,j)
+# ifdef NEW_S_COORD
+                 hinv(LOCALLM+1,j) = 1./(h(LOCALLM+1,j)+hc)
+# else
                  hinv(LOCALLM+1,j) = 1./h(LOCALLM+1,j)
+# endif
               enddo
            endif
          elseif (isens == 2) then
            if ( southern_side ) then      
              Do i=i1,i2
                h(i,0) = 2.*tabres(i,1)-h(i,1)
+# ifdef NEW_S_COORD
+               hinv(i,0) = 1./(h(i,0)+hc)
+# else
                hinv(i,0) = 1./h(i,0)
+# endif
              enddo
            endif
            
            if ( northern_side ) then
              Do i=i1,i2
                h(i,LOCALMM+1) = 2.*tabres(i,LOCALMM+1)-h(i,LOCALMM)
+# ifdef NEW_S_COORD
+               hinv(i,LOCALMM+1) = 1./(h(i,LOCALMM+1)+hc)
+# else
                hinv(i,LOCALMM+1) = 1./h(i,LOCALMM+1)
+# endif
              enddo
            endif
          endif ! <- endif isens
