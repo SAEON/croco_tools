@@ -1671,44 +1671,28 @@ CR      write(*,*) '  0' MYID
            if ( western_side ) then    
               Do j=j1,j2
                  h(0,j) = 2.*tabres(1,j)-h(1,j)
-# ifdef NEW_S_COORD
                  hinv(0,j) = 1./(h(0,j)+hc)
-# else
-                 hinv(0,j) = 1./h(0,j)
-# endif
               enddo
            endif
            
            if ( eastern_side ) then 
               Do j=j1,j2
                  h(LOCALLM+1,j) = 2.*tabres(LOCALLM+1,j)-h(LOCALLM,j)
-# ifdef NEW_S_COORD
                  hinv(LOCALLM+1,j) = 1./(h(LOCALLM+1,j)+hc)
-# else
-                 hinv(LOCALLM+1,j) = 1./h(LOCALLM+1,j)
-# endif
               enddo
            endif
          elseif (isens == 2) then
            if ( southern_side ) then      
              Do i=i1,i2
                h(i,0) = 2.*tabres(i,1)-h(i,1)
-# ifdef NEW_S_COORD
                hinv(i,0) = 1./(h(i,0)+hc)
-# else
-               hinv(i,0) = 1./h(i,0)
-# endif
              enddo
            endif
            
            if ( northern_side ) then
              Do i=i1,i2
                h(i,LOCALMM+1) = 2.*tabres(i,LOCALMM+1)-h(i,LOCALMM)
-# ifdef NEW_S_COORD
                hinv(i,LOCALMM+1) = 1./(h(i,LOCALMM+1)+hc)
-# else
-               hinv(i,LOCALMM+1) = 1./h(i,LOCALMM+1)
-# endif
              enddo
            endif
          endif ! <- endif isens
@@ -1833,10 +1817,6 @@ CR      write(*,*) '  0' MYID
       return
       end
 # endif
-
-
-
-
 !
 !====================================================================
 !                   subroutine Agrif_transfer_floatsp2c
@@ -1857,16 +1837,18 @@ CR      write(*,*) '  0' MYID
         real xfloat,yfloat,margin,delta,tmp1,tmp2
         integer rank,timeindex
 
-        parcours=>Agrif_Curgrid%child_grids
+        parcours=>Agrif_Curgrid%child_list%first
         do while (associated(parcours))
           childgrid=>parcours%gr
           margin=0.5+delta
-          tmp1=childgrid%spacerefx*(xfloat+0.5-childgrid%ix)+0.5
+          tmp1=childgrid%spaceref(1)
+     &         *(xfloat+0.5-childgrid%ix(1))+0.5
           if ((tmp1 .ge. margin).and.
-     &        (tmp1 .le. (childgrid%nbx+1-margin))) then
-            tmp2=childgrid%spacerefy*(yfloat+0.5-childgrid%iy)+0.5
+     &        (tmp1 .le. (childgrid%nb(1)+1-margin))) then
+            tmp2=childgrid%spaceref(2)
+     &           *(yfloat+0.5-childgrid%ix(2))+0.5
             if ((tmp2 .ge. margin).and.
-     &          (tmp2 .le. (childgrid%nby+1-margin))) then
+     &          (tmp2 .le. (childgrid%nb(2)+1-margin))) then
               rank=childgrid%fixedrank
               xfloat=tmp1
               yfloat=tmp2
@@ -1884,10 +1866,10 @@ CR      write(*,*) '  0' MYID
         subroutine Agrif_laststep(logic)
         use Agrif_Util
 
-!----------------------------------------------
+!---------------------------------------------------------
 ! determines whether this time step is the last one before
 ! a ROOT time step.
-!----------------------------------------------
+!---------------------------------------------------------
         Implicit none
         logical logic
         type(Agrif_grid), Pointer :: parcours
@@ -1900,7 +1882,7 @@ CR      write(*,*) '  0' MYID
 
         Do While (associated(parcours%parent))
           rhot=1
-          rhot=max(rhot,parcours%timerefx,parcours%timerefy)
+          rhot=max(rhot,parcours%timeref(1),parcours%timeref(2))
           stepmod=mod(parcours%ngridstep,int(rhot))
           tmp2=tmp2*rhot
           tmp=stepmod+rhot*tmp

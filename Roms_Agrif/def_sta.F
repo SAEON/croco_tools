@@ -592,7 +592,7 @@
 # ifdef AGRIF
         vinfo(1)='grid_level'
         lvar=lenstr(vinfo(1))
-        ierr=nf_nq_varid(ncid,vinfo(1)(1:lvar),staGlevel)
+        ierr=nf_inq_varid(ncid,vinfo(1)(1:lvar),staGlevel)
         if (ierr .ne. nf_noerr) then
           write(stdout,1) vinfo(1)(1:lvar), staname(1:lstr)
           goto 99                                         !--> ERROR 

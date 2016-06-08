@@ -653,9 +653,9 @@ c        close(testunit)
      &        ldefflt, 'nflt =', nflt, 'rec/file =', nrpfflt
 #ifdef AGRIF
         else
-          ldefflt=Agrif_Parent("ldefflt",ldefflt)
-          nflt=Agrif_Parent("nflt",nflt)
-          nrpfflt=Agrif_Parent("nrpfflt",nrpfflt)
+          ldefflt=Agrif_Parent(ldefflt)
+          nflt=Agrif_Parent(nflt)
+          nrpfflt=Agrif_Parent(nrpfflt)
         endif
 #endif
 #endif /* FLOATS */
@@ -683,9 +683,9 @@ c        close(testunit)
      &        ldefsta, 'nsta =', nsta, 'rec/file =', nrpfsta
 # ifdef AGRIF
         else
-          ldefsta=Agrif_Parent("ldefsta",ldefsta)
-          nsta=Agrif_Parent("nsta",nsta)
-          nrpfsta=Agrif_Parent("nrpfsta",nrpfsta)
+          ldefsta=Agrif_Parent(ldefsta)
+          nsta=Agrif_Parent(nsta)
+          nrpfsta=Agrif_Parent(nrpfsta)
         endif
 # endif
 #endif /* STATIONS */
