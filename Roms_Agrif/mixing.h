@@ -12,7 +12,7 @@
 ! This is include file "mixing.h"
 !  ==== == ======= ==== ==========
 !
-# if defined UV_VIS2 || defined SPONGE_VIS2
+#if defined UV_VIS2 || defined SPONGE_VIS2
       real visc2_r(GLOBAL_2D_ARRAY)
       real visc2_p(GLOBAL_2D_ARRAY)
       real visc2_sponge_r(GLOBAL_2D_ARRAY)
@@ -20,14 +20,14 @@
       common /mixing_visc2_r/visc2_r /mixing_visc2_p/visc2_p
       common /mixing_visc2_sponge_r/visc2_sponge_r 
       common /mixing_visc2_sponge_p/visc2_sponge_p
-# endif
+#endif
 #if defined UV_VIS4 
 # if !defined SPONGE_VIS2
       real visc2_sponge_r(GLOBAL_2D_ARRAY)
       real visc2_sponge_p(GLOBAL_2D_ARRAY)
       common /mixing_visc2_sponge_r/visc2_sponge_r
       common /mixing_visc2_sponge_p/visc2_sponge_p
-#endif
+# endif
       real visc4_sponge_r(GLOBAL_2D_ARRAY)
       real visc4_sponge_p(GLOBAL_2D_ARRAY)
       real visc4_r(GLOBAL_2D_ARRAY)
@@ -36,12 +36,12 @@
       common /mixing_visc4_sponge_p/visc4_sponge_p
       common /mixing_visc4_r/visc4_r /mixing_visc4_p/visc4_p
 #endif
-# if defined TS_DIF2 || defined SPONGE_DIF2
+#if defined TS_DIF2 || defined SPONGE_DIF2
       real diff2_sponge(GLOBAL_2D_ARRAY)
       real diff2(GLOBAL_2D_ARRAY,NT)
       common /mixing_diff2_sponge/diff2_sponge
       common /mixing_diff2/diff2
-# endif
+#endif
 #if defined TS_DIF4 
 # if !defined SPONGE_DIF2
       real diff2_sponge(GLOBAL_2D_ARRAY)
@@ -79,22 +79,22 @@
       real Rslope_max,Gslope_max
       parameter (Gslope_max=5., Rslope_max=0.05)
 # endif
-#ifdef TS_MIX_ISO_FILT
+# ifdef TS_MIX_ISO_FILT
       integer ismooth
       real csmooth
       common /mixing_csmooth/ csmooth
       common /mixing_ismooth/ ismooth
-#endif
+# endif
 #endif /*  TS_MIX_ISO || TS_MIX_GEO */
 
 #ifdef SOLVE3D
       real Akv(GLOBAL_2D_ARRAY,0:N)
       real Akt(GLOBAL_2D_ARRAY,0:N,2)
       common /mixing_Akv/Akv /mixing_Akt/Akt
-#ifdef RANDOM_WALK
+# ifdef RANDOM_WALK
       real dAktdz(GLOBAL_2D_ARRAY,0:N)
       common /mixing_dAktdz/dAktdz
-#endif
+# endif
 
 # if defined ANA_VMIX || defined BVF_MIXING \
   || defined LMD_MIXING || defined LMD_SKPP || defined LMD_BKPP \
@@ -103,10 +103,10 @@
       common /mixing_bvf/ bvf
 # endif
 
-#  ifdef BIOLOGY
+# ifdef BIOLOGY
       real hel(GLOBAL_2D_ARRAY)
       common /lmd_hel/hel
-#  endif
+# endif
 
 # if defined LMD_SKPP || defined LMD_BKPP
 !
@@ -135,6 +135,7 @@
       common /lmd_kpp_ghats/ghats
 #  endif
 # endif /* LMD_SKPP || LMD_BKPP */
+
 # ifdef LMD_MIXING
       real ustar(GLOBAL_2D_ARRAY) 
       common /lmd_kpp_ustar/ustar

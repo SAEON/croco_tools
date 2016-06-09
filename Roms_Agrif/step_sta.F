@@ -65,7 +65,8 @@
          do iflt=Lstr,Lend
             if (NINT(stainfo(istagrd,iflt)) .eq. level) then 
               entier=nint(stainfo(istagrd,iflt))
-              call Agrif_transfer_floatsp2c(entier,stainfo(istaxgrd,iflt),
+              call Agrif_transfer_floatsp2c(entier,
+     &                              stainfo(istaxgrd,iflt),
      &                              stainfo(istaygrd,iflt),stadeltap2c)
               stainfo(istagrd,iflt)=float(entier)
             endif
@@ -161,9 +162,9 @@ c       write(*,*) 'FLT# ',iflt, 'stazgrd= ', stainfo(istazgrd,iflt)
           call interp_r2d_sta (zeta(START_2D_ARRAY,knew), istaz,
      &                                      nfltmax, indx)
           if (wrtsta(indxstaVel)) then 
-            call interp_r2d_sta (ubar(START_2D_ARRAY,1,knew), istau,
+            call interp_r2d_sta (ubar(START_2D_ARRAY,knew), istau,
      &                                       nfltmax, indx)
-            call interp_r2d_sta (vbar(START_2D_ARRAY,1,knew), istav,
+            call interp_r2d_sta (vbar(START_2D_ARRAY,knew), istav,
      &                                      nfltmax, indx)
           endif
 
