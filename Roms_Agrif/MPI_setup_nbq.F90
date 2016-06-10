@@ -33,9 +33,6 @@
  end subroutine MPI_nbq_Setup
 
 #else
- subroutine MPI_nbq_Setup(imax,jmax,kmax)
-  use module_parallel_nbq
-  implicit none
-  integer,intent(in) :: imax,jmax,kmax
- end subroutine MPI_nbq_Setup
+ subroutine MPI_nbq_Setup_empty
+ end subroutine MPI_nbq_Setup_empty
 #endif

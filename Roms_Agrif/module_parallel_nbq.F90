@@ -850,25 +850,6 @@ end subroutine create_echange_div_nbq_a
 end module module_parallel_nbq
 
 #else
- module module_parallel_nbq
-  implicit none
-  integer, parameter :: ouest=1,est=2,nord=3,sud=4,haut=5,bas=6
-  integer, parameter :: sudouest=7,sudest=8,nordouest=9,nordest=10
-  integer, parameter :: ouestest=1,nordsud=2
-
-  integer,parameter :: MPI_PROC_NULL=-2
-
-  type infopar_croco
-         integer ::  comm2d                 !COMMUNICATEUR GLOBAL
-         integer ::  rank
-         integer,dimension(10)                      ::  tvoisin=MPI_PROC_NULL         !LE NUMERO DES VOISINS DANS L'ORDRE(O,E,S,N)
-  end type infopar_croco
-
-
-  type(infopar_croco) :: par
-  integer,dimension(8),parameter :: liste_voisin = &
-      (/ ouest, est, nord, sud, sudouest, sudest, nordouest, nordest /)
-  integer :: ierr,mynode
-
- end module module_parallel_nbq
+ module module_parallel_nbq_empty
+ end module
 #endif
