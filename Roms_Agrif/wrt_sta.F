@@ -34,6 +34,7 @@
 # include "ocean2d.h"
 # include "ocean3d.h"
 # include "mixing.h"
+# include "mpi_roms.h"
 # include "netcdf.inc"
 
       integer ierr,  record, lvar, lenstr, ista, id
