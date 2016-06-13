@@ -64,7 +64,7 @@ for vv=1:length(catalog_vname)
         fname0=get_filename_ECCO2(vname,Y,M,Dst);
         fname=[url,prefix,fname0];
         %Determine if the dap file exist at day D0
-        dok=whodap(fname);
+        dok=1; % whodap(fname);
         while isempty(dok)==1
             Dst=Dst+1;
             fname0=get_filename_ECCO2(vname,Y,M,Dst);
@@ -88,7 +88,8 @@ for vv=1:length(catalog_vname)
             eval(['missing_value=x.',vname,'.missing_value;'])
             var0=getdap('',fname,vname,'[0:0]',krange,jrange,i1min,i1max,i2min,i2max,i3min,i3max);
             var0(var0<=-2000)=NaN;
-            var(tndx,:,:,:)=permute(var0,[3 1 2]);
+            %var(tndx,:,:,:)=permute(var0,[3 1 2]);
+            var(tndx,:,:,:)=var0;
             %size(var)
         end
         if strcmp(vname,'UVEL')
@@ -101,7 +102,8 @@ for vv=1:length(catalog_vname)
             salt=var;
         end
         %            disp(['Write variable ',vname2])
-        %            create_ECCO2_3D([OGCM_dir,vname2,'_Y',num2str(Y),'M',num2str(M),'.cdf'],vname2,lon,lat,depth,time3d,var,Yorig)
+        %            create_ECCO2_3D([OGCM_dir,vname2,'_Y',num2str(Y),'M',num2str(M),'.cdf'], ...
+        %                             vname2,lon,lat,depth,time3d,var,Yorig)
         clear var
         
     else
@@ -128,7 +130,8 @@ for vv=1:length(catalog_vname)
             ssh=var;
         end
         %           disp(['Write variable ',vname2])
-        %           create_ECCO2_2D([OGCM_dir,vname2,'_Y',num2str(Y),'M',num2str(M),'.cdf'],vname2,lon,lat,time3d,var,Yorig)
+        %           create_ECCO2_2D([OGCM_dir,vname2,'_Y',num2str(Y),'M',num2str(M),'.cdf'], ...
+        %                            vname2,lon,lat,time3d,var,Yorig)
         clear var
     end %-> if
     
