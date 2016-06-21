@@ -64,12 +64,15 @@ for vv=1:length(catalog_vname)
         fname0=get_filename_ECCO2(vname,Y,M,Dst);
         fname=[url,prefix,fname0];
         %Determine if the dap file exist at day D0
-        dok=1; % whodap(fname);
+        %dok=1; 
+        %dok=whodap(fname);
+        dok=loaddap('-A -e +v ', fname);
         while isempty(dok)==1
             Dst=Dst+1;
             fname0=get_filename_ECCO2(vname,Y,M,Dst);
             fname=[url,prefix,fname0];
-            dok=whodap(fname);
+            %dok=whodap(fname);
+            dok=loaddap('-A -e +v ', fname);
         end
     end
     %Compute 3D variable every 3 days
