@@ -853,14 +853,14 @@ C$    integer  trd, omp_get_thread_num
             else
               sig = 26.2 + rhom*(depth-50.)*cff
             endif
-            t(i,j,k,1,itemp)=(R0-sig)/Tcoef
+            tclm(i,j,k,itemp)=(R0-sig)/Tcoef
 #   elif defined EXPERIMENT2	    
             if (depth.le.50.) then
              sig = 25.8
             else
              sig = 27.0
             endif
-            t(i,j,k,1,itemp)=(R0-sig)/Tcoef
+            tclm(i,j,k,itemp)=(R0-sig)/Tcoef
 #   else /* default EXPERIMENT3 */
             sig = 26.2 + rhom*(depth-50.)*cff
             tclm(i,j,k,itemp)=(R0-sig)/Tcoef
