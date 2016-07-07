@@ -99,7 +99,4 @@
       return
       end function var_oa
 
-#else
-      real function var_oa_empty
-      end function var_oa_empty
 #endif

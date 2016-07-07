@@ -617,14 +617,14 @@
 # endif 
 
               u(i,j,k,nnew)=( cff1*u(i,j,k,nstp)*0.5*(Hz(i,j,k)+
-     &                                            Hz(i-1,j,k))
+     &                                                Hz(i-1,j,k))
      &                       +cff2*u(i,j,k,indx)*0.5*(Hz_bak(i,j,k)+
-     &                                            Hz_bak(i-1,j,k))
+     &                                                Hz_bak(i-1,j,k))
      &                       +cdt*DC(i,0)*(ru(i,j,k)
 # ifdef NBQ
-     &                                    +ru_nbq_avg1(i,j,k))
+     &                                    +ru_nbq_avg1(i,j,k)
 # endif
-     &                                                     )*cff
+     &                                    ) )*cff
               u(i,j,k,indx)=u(i,j,k,nstp)*0.5*(Hz(i,j,k)+
      &                                         Hz(i-1,j,k))
 
@@ -717,12 +717,12 @@
                 v(i,j,k,nnew)=( cff1*v(i,j,k,nstp)*0.5*(Hz(i,j,k)+
      &                                                  Hz(i,j-1,k))
      &                         +cff2*v(i,j,k,indx)*0.5*(Hz_bak(i,j,k)+
-     &                                              Hz_bak(i,j-1,k))
+     &                                                  Hz_bak(i,j-1,k))
      &                     +cdt*DC(i,0)*(rv(i,j,k)
 # ifdef NBQ
-     &                                  +rv_nbq_avg1(i,j,k))
+     &                                  +rv_nbq_avg1(i,j,k)
 # endif
-     &                                                           )*cff
+     &                                  )  )*cff
                 v(i,j,k,indx)=v(i,j,k,nstp)*0.5*(Hz(i,j,k)+
      &                                           Hz(i,j-1,k))
 
