@@ -598,7 +598,7 @@
 ! Service Hydrographique et Oceanographique de la Marine. 
 */
 
-# define EXPERIMENT1
+# define EXPERIMENT3
 # undef  OPENMP
 # undef  MPI
 # undef  NBQ
