@@ -675,23 +675,23 @@
 !.......point w(i,j,k):
 !-----------------------------
 #ifdef NBQ_CONS7
-     !   cimpv_nbq(l1imp_nbq) =  -1.d0 / Hzw_half_nbq(i,j,k) / Hzr_half_nbq(i,j,k) * dtnbq 
-        cimpv_nbq(l1imp_nbq) =  -1.d0 / Hzw_half_nbq(i,j,k) * dtnbq 
+!      cimpv_nbq(l1imp_nbq) =  -1.d0 / Hzw_half_nbq(i,j,k) / Hzr_half_nbq(i,j,k) * dtnbq 
+       cimpv_nbq(l1imp_nbq) =  -1.d0 / Hzw_half_nbq(i,j,k) * dtnbq 
 #else
-        cimpv_nbq(l1imp_nbq) =  -1.d0 / Hzw_half_nbq(i,j,k) / Hzr_half_nbq(i,j,k) * dtnbq 
+       cimpv_nbq(l1imp_nbq) =  -1.d0 / Hzw_half_nbq(i,j,k) / Hzr_half_nbq(i,j,k) * dtnbq 
 #endif
-        l1imp_nbq = l1imp_nbq + mijk2lmom_nh(i,j,k,3)
+       l1imp_nbq = l1imp_nbq + mijk2lmom_nh(i,j,k,3)
 
 !-----------------------------
 !.......point w(i,j,k-1):
 !-----------------------------
 #ifdef NBQ_CONS7
-!       cimpv_nbq(l1imp_nbq) =  1.d0 / Hzw_half_nbq(i,j,k-1) / Hzr_half_nbq(i,j,k) * dtnbq 
-        cimpv_nbq(l1imp_nbq) =  1.d0 / Hzw_half_nbq(i,j,k-1) * dtnbq 
+!      cimpv_nbq(l1imp_nbq) =  1.d0 / Hzw_half_nbq(i,j,k-1) / Hzr_half_nbq(i,j,k) * dtnbq 
+       cimpv_nbq(l1imp_nbq) =  1.d0 / Hzw_half_nbq(i,j,k-1) * dtnbq 
 #else
-        cimpv_nbq(l1imp_nbq) =  1.d0 / Hzw_half_nbq(i,j,k-1) / Hzr_half_nbq(i,j,k) * dtnbq 
+       cimpv_nbq(l1imp_nbq) =  1.d0 / Hzw_half_nbq(i,j,k-1) / Hzr_half_nbq(i,j,k) * dtnbq 
 #endif
-        l1imp_nbq = l1imp_nbq + mijk2lmom_nh(i,j,k-1,3)
+       l1imp_nbq = l1imp_nbq + mijk2lmom_nh(i,j,k-1,3)
 
       enddo
       endif

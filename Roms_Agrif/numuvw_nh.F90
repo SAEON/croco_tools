@@ -10,6 +10,7 @@
 !*******************************************************************
 
       use module_nh
+      use module_nbq
       implicit none
 # include "param_F90.h"
 # include "scalars_F90.h"
@@ -42,17 +43,17 @@
 !-------------------------------------------------------------------
 !     (U) WEST MPI Interface
 !-------------------------------------------------------------------
-      if (WEST_INTER) then
+      if (WEST_INTER_NBQ) then
          i = istru_nh-1
 
 !........Corner (South-West):
-         if (SOUTH_INTER) then
+         if (SOUTH_INTER_NBQ) then
             jstr_n = jstr_nh-1
          else
             jstr_n = jstr_nh
          endif
 !........Corner (North-West):
-         if (NORTH_INTER) then
+         if (NORTH_INTER_NBQ) then
             jend_n = jend_nh+1
          else
             jend_n = jend_nh
@@ -80,9 +81,8 @@
 !-------------------------------------------------------------------
 !     (U) SOUTH MPI Interface
 !-------------------------------------------------------------------
-      if (SOUTH_INTER) then
+      if (SOUTH_INTER_NBQ) then
          j        = jstr_nh - 1
-         jstru_nh = jstr_nh - 1
 
          do i=istru_nh,iendu_nh
          do k=1,N    
@@ -107,19 +107,19 @@
 !-------------------------------------------------------------------
 !     (U) WESTERN EDGE
 !-------------------------------------------------------------------
-# if defined OBC_NBQ && ! defined OBC_NH
+# if defined OBC_NBQ && !defined OBC_NH && defined OBC_WEST
 #  ifdef MPI
       if (WESTERN_EDGE) then
         i = istru_nh-1
 
 !........Corner (South-West):
-        if (SOUTH_INTER) then
+        if (SOUTH_INTER_NBQ) then
           jstr_n = jstr_nh-1
         else
           jstr_n = jstr_nh
         endif
 !........Corner (North-West):
-        if (NORTH_INTER) then
+        if (NORTH_INTER_NBQ) then
           jend_n = jend_nh+1
         else
           jend_n = jend_nh
@@ -154,7 +154,7 @@
 !-------------------------------------------------------------------
 !     (U) SOUTHERN EDGE (tangential velocity)
 !-------------------------------------------------------------------
-# if defined OBC_NBQ 
+# if defined OBC_NBQ && !defined NS_PERIODIC && defined OBC_SOUTH
 #  ifdef MPI
       if (SOUTHERN_EDGE) then
 #  endif
@@ -192,13 +192,13 @@
         i = istru_nh-1
 
 !........Corner (South-West):
-        if (SOUTH_INTER) then
+        if (SOUTH_INTER_NBQ) then
           jstr_n = jstr_nh-1
         else
           jstr_n = jstr_nh
         endif
 !........Corner (North-West):
-        if (NORTH_INTER) then
+        if (NORTH_INTER_NBQ) then
           jend_n = jend_nh+1
         else
           jend_n = jend_nh
@@ -311,13 +311,13 @@
         i = iendu_nh+1
 
 !........Corner (South-East):
-        if (SOUTH_INTER) then
+        if (SOUTH_INTER_NBQ) then
           jstr_n = jstr_nh-1
         else
           jstr_n = jstr_nh
         endif
 !........Corner (North-East):
-        if (NORTH_INTER) then
+        if (NORTH_INTER_NBQ) then
           jend_n = jend_nh+1
         else
           jend_n = jend_nh
@@ -354,19 +354,19 @@
 !-------------------------------------------------------------------
 !     (U) EASTERN EDGE 
 !-------------------------------------------------------------------
-# if defined OBC_NBQ && ! defined OBC_NH
+# if defined OBC_NBQ && ! defined OBC_NH && defined OBC_EAST
 #  ifdef MPI
       if (EASTERN_EDGE) then
         i = iendu_nh+1
 
 !........Corner (South-East):
-        if (SOUTH_INTER) then
+        if (SOUTH_INTER_NBQ) then
           jstr_n = jstr_nh-1
         else
           jstr_n = jstr_nh
         endif
 !........Corner (North-East):
-        if (NORTH_INTER) then
+        if (NORTH_INTER_NBQ) then
           jend_n = jend_nh+1
         else
           jend_n = jend_nh
@@ -401,7 +401,7 @@
 !-------------------------------------------------------------------
 !     (U) NORTHERN EDGE (tangential velocity)
 !-------------------------------------------------------------------
-# if defined OBC_NBQ 
+# if defined OBC_NBQ && !defined NS_PERIODIC && defined OBC_NORTH
 #  ifdef MPI
       if (NORTHERN_EDGE) then
 #  endif
@@ -433,17 +433,17 @@
 !-------------------------------------------------------------------
 !     (U) EAST MPI Interface
 !-------------------------------------------------------------------
-      if (EAST_INTER) then
+      if (EAST_INTER_NBQ) then
          i = iendu_nh+1
 
 !........Corner (South-East):
-         if (SOUTH_INTER) then
+         if (SOUTH_INTER_NBQ) then
             jstr_n = jstr_nh-1
          else
             jstr_n = jstr_nh
          endif
 !........Corner (North-East):
-         if (NORTH_INTER) then
+         if (NORTH_INTER_NBQ) then
             jend_n = jend_nh+1
          else
             jend_n = jend_nh
@@ -470,9 +470,8 @@
 !-------------------------------------------------------------------
 !     (U) NORTH MPI Interface
 !-------------------------------------------------------------------
-      if (NORTH_INTER) then
+      if (NORTH_INTER_NBQ) then
          j        = jend_nh+1
-         jendu_nh = jend_nh+1
 
          do i=istru_nh,iendu_nh
          do k=1,N    
@@ -510,18 +509,17 @@
 !-------------------------------------------------------------------
 !     (V) WEST MPI Interface
 !-------------------------------------------------------------------
-      if (WEST_INTER) then
+      if (WEST_INTER_NBQ) then
          i        = istr_nh - 1
-         istrv_nh = istr_nh - 1
 
 !........Corner (South-West):
-         if (SOUTH_INTER) then
+         if (SOUTH_INTER_NBQ) then
             jstr_n = jstrv_nh-1
          else
             jstr_n = jstrv_nh
          endif
 !........Corner (North-West):
-         if (NORTH_INTER) then
+         if (NORTH_INTER_NBQ) then
             jend_n = jendv_nh+1
          else
             jend_n = jendv_nh
@@ -548,7 +546,7 @@
 !-------------------------------------------------------------------
 !     (V) SOUTH MPI Interface
 !-------------------------------------------------------------------
-      if (SOUTH_INTER) then
+      if (SOUTH_INTER_NBQ) then
          j=jstrv_nh-1
 
          do i=istr_nh,iend_nh
@@ -575,19 +573,19 @@
 !-------------------------------------------------------------------
 !     (V) WESTERN EDGE (tangential velocity)
 !-------------------------------------------------------------------
-# if defined OBC_NBQ 
+# if defined OBC_NBQ && defined OBC_WEST
 #  ifdef MPI
       if (WESTERN_EDGE) then
         i = istr_nh-1
 
 !........Corner (South-West):
-        if (SOUTH_INTER) then
+        if (SOUTH_INTER_NBQ) then
           jstr_n = jstrv_nh-1
         else
           jstr_n = jstrv_nh
         endif
 !........Corner (North-West):
-        if (NORTH_INTER) then
+        if (NORTH_INTER_NBQ) then
           jend_n = jendv_nh+1
         else
           jend_n = jendv_nh
@@ -622,7 +620,7 @@
 !-------------------------------------------------------------------
 !     (V) SOUTHERN EDGE
 !-------------------------------------------------------------------
-# if defined OBC_NBQ && ! defined OBC_NH
+# if defined OBC_NBQ && ! defined OBC_NH && !defined NS_PERIODIC  && defined OBC_SOUTH
 #  ifdef MPI
       if (SOUTHERN_EDGE) then
 #  endif
@@ -788,19 +786,19 @@
 !-------------------------------------------------------------------
 !     (V) EASTERN EDGE (tangential velocity)
 !-------------------------------------------------------------------
-# if defined OBC_NBQ 
+# if defined OBC_NBQ  && defined OBC_EAST
 #  ifdef MPI
       if (EASTERN_EDGE) then
          i = iend_nh+1
 
 !........Corner (South-East):
-         if (SOUTH_INTER) then
+         if (SOUTH_INTER_NBQ) then
             jstr_n = jstrv_nh-1
          else
             jstr_n = jstrv_nh
          endif
 !........Corner (North-East):
-         if (NORTH_INTER) then
+         if (NORTH_INTER_NBQ) then
             jend_n = jendv_nh+1
          else
             jend_n = jendv_nh
@@ -835,7 +833,7 @@
 !-------------------------------------------------------------------
 !     (V) NORTHERN EDGE
 !-------------------------------------------------------------------
-# if defined OBC_NBQ && ! defined OBC_NH
+# if defined OBC_NBQ && ! defined OBC_NH && !defined NS_PERIODIC  && defined OBC_NORTH
 #  ifdef MPI
       if (NORTHERN_EDGE) then
 #  endif
@@ -867,18 +865,17 @@
 !-------------------------------------------------------------------
 !     (V) EAST MPI Interface
 !-------------------------------------------------------------------
-      if (EAST_INTER) then
+      if (EAST_INTER_NBQ) then
          i        = iend_nh+1
-         iendv_nh = iend_nh+1 
 
 !........Corner (South-East):
-         if (SOUTH_INTER) then
+         if (SOUTH_INTER_NBQ) then
             jstr_n = jstrv_nh-1
          else
             jstr_n = jstrv_nh
          endif
 !........Corner (North-East):
-         if (NORTH_INTER) then
+         if (NORTH_INTER_NBQ) then
             jend_n = jendv_nh+1
          else
             jend_n = jendv_nh
@@ -906,7 +903,7 @@
 !-------------------------------------------------------------------
 !     (V) NORTH MPI Interface
 !-------------------------------------------------------------------
-      if (NORTH_INTER) then
+      if (NORTH_INTER_NBQ) then
          j        = jendv_nh + 1
 
          do i=istr_nh,iend_nh
@@ -948,17 +945,17 @@
 !-------------------------------------------------------------------
 !     (W) WEST MPI Interface
 !-------------------------------------------------------------------
-      if (WEST_INTER) then
+      if (WEST_INTER_NBQ) then
          i = istr_nh-1
 
 !........Corner (South-West):
-         if (SOUTH_INTER) then
+         if (SOUTH_INTER_NBQ) then
             jstr_n = jstr_nh-1
          else
             jstr_n = jstr_nh
          endif
 !........Corner (North-West):
-         if (NORTH_INTER) then
+         if (NORTH_INTER_NBQ) then
             jend_n = jend_nh+1
          else
             jend_n = jend_nh
@@ -986,7 +983,7 @@
 !-------------------------------------------------------------------
 !     (W) SOUTH MPI Interface
 !-------------------------------------------------------------------
-      if (SOUTH_INTER) then
+      if (SOUTH_INTER_NBQ) then
          j = jstr_nh-1
 
          do i=istr_nh,iend_nh
@@ -1012,19 +1009,19 @@
 !-------------------------------------------------------------------
 !     (W) WESTERN EDGE
 !-------------------------------------------------------------------
-# if defined OBC_NBQ 
+# if defined OBC_NBQ  && defined OBC_WEST
 #  ifdef MPI
       if (WESTERN_EDGE) then
         i = istr_nh-1
 
 !........Corner (South-West):
-        if (SOUTH_INTER) then
+        if (SOUTH_INTER_NBQ) then
           jstr_n = jstr_nh-1
         else
           jstr_n = jstr_nh
         endif
 !........Corner (North-West):
-        if (NORTH_INTER) then
+        if (NORTH_INTER_NBQ) then
           jend_n = jend_nh+1
         else
           jend_n = jend_nh
@@ -1059,7 +1056,7 @@
 !-------------------------------------------------------------------
 !     (W) SOUTHERN EDGE 
 !-------------------------------------------------------------------
-# if defined OBC_NBQ
+# if defined OBC_NBQ && !defined NS_PERIODIC  && defined OBC_SOUTH
 #  ifdef MPI
       if (SOUTHERN_EDGE) then
 #  endif
@@ -1124,19 +1121,19 @@
 !-------------------------------------------------------------------
 !     (W) EASTERN EDGE
 !-------------------------------------------------------------------
-# if defined OBC_NBQ 
+# if defined OBC_NBQ  && defined OBC_EAST
 #  ifdef MPI
       if (EASTERN_EDGE) then
         i = iend_nh+1
 
 !........Corner (South-East):
-        if (SOUTH_INTER) then
+        if (SOUTH_INTER_NBQ) then
           jstr_n = jstr_nh-1
         else
           jstr_n = jstr_nh
         endif
 !........Corner (North-East):
-        if (NORTH_INTER) then
+        if (NORTH_INTER_NBQ) then
           jend_n = jend_nh+1
         else
           jend_n = jend_nh
@@ -1171,7 +1168,7 @@
 !-------------------------------------------------------------------
 !     (W) NORTHERN EDGE 
 !-------------------------------------------------------------------
-# if defined OBC_NBQ
+# if defined OBC_NBQ && !defined NS_PERIODIC && defined OBC_NORTH
 #  ifdef MPI
       if (NORTHERN_EDGE) then
 #  endif
@@ -1203,17 +1200,17 @@
 !-------------------------------------------------------------------
 !     (W) East MPI Interface
 !-------------------------------------------------------------------
-      if (EAST_INTER) then
+      if (EAST_INTER_NBQ) then
          i = iend_nh+1
 
 !........Corner (South-East):
-         if (SOUTH_INTER) then
+         if (SOUTH_INTER_NBQ) then
             jstr_n = jstr_nh-1
          else
             jstr_n = jstr_nh
          endif
 !........Corner (North-East):
-         if (NORTH_INTER) then
+         if (NORTH_INTER_NBQ) then
             jend_n = jend_nh+1
          else
             jend_n = jend_nh
@@ -1241,7 +1238,7 @@
 !-------------------------------------------------------------------
 !     (W) NORTH MPI Interface
 !-------------------------------------------------------------------
-      if (NORTH_INTER) then
+      if (NORTH_INTER_NBQ) then
          j = jend_nh+1
 
          do i=istr_nh,iend_nh

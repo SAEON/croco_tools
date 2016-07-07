@@ -57,6 +57,7 @@ if [[ $OS == Linux ]] ; then
       NETCDFINC=-I../../netcdf_x86_64
     fi
   fi
+  NETCDFLIB="$NETCDFLIB -lnetcdf"
 fi
 #
 # If needed set your own NETCDF directories

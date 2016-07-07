@@ -433,7 +433,6 @@ C$OMP END MASTER
 ! Computes zetarhs to use in mometum equations
 !-----------------------------------------------------------------------
 !
-   
 #ifdef NBQ
       do j=JstrV-1,Jend
         do i=IstrU-1,Iend

@@ -202,12 +202,17 @@
 
       do j=jstrq_nh,jendq_nh
       do i=istrq_nh,iendq_nh
-          rhobar_nbq_avg1(i,j)=rhobar_nbq_avg1(i,j)*Zt_avg1(i,j)/h2d(i,j)
-          do k=1,N,+1
-             hz(i,j,k)=hz(i,j,k)*Zt_avg1(i,j)/h2d(i,j)
-             rho_nbq_avg1(i,j,k)=rho_nbq_avg1(i,j,k)*Zt_avg1(i,j)/h2d(i,j)
-             rho_nbq_avg2(i,j,k)=rho_nbq_avg2(i,j,k)*Zt_avg1(i,j)/h2d(i,j)
-          enddo
+!        rhobar_nbq_avg1(i,j)=rhobar_nbq_avg1(i,j)*Zt_avg1(i,j)/h2d(i,j)
+!        rhobar_nbq(i,j,knew)=rhobar_nbq(i,j,knew)*Zt_avg1(i,j)/h2d(i,j)
+         do k=1,N,+1
+            Hz (i,j,k) = Hz(i,j,k)*Zt_avg1(i,j)/h2d(i,j)
+            Hzr(i,j,k) = Hzr(i,j,k)*Zt_avg1(i,j)/h2d(i,j)
+            z_w(i,j,k) = z_w(i,j,k)*Zt_avg1(i,j)/h2d(i,j)
+            z_r(i,j,k) = z_r(i,j,k)*Zt_avg1(i,j)/h2d(i,j)
+!           rho_nbq_avg1(i,j,k)=rho_nbq_avg1(i,j,k)*Zt_avg1(i,j)/h2d(i,j)
+!           rho_nbq_avg2(i,j,k)=rho_nbq_avg2(i,j,k)*Zt_avg1(i,j)/h2d(i,j)
+!           rho_nbq_ext(i,j,k)=rho_nbq_ext(i,j,k)*Zt_avg1(i,j)/h2d(i,j)
+         enddo
          enddo
       enddo
 #endif

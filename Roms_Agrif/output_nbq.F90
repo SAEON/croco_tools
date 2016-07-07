@@ -58,6 +58,63 @@
 
        open(unit=10,file=name_o)
 
+#ifdef MPI
+       if (WEST_INTER) then
+        write (10,*) 'WEST_INTER is true'
+       else
+        write (10,*) 'WEST_INTER is false'
+       endif
+       if (EAST_INTER) then
+        write (10,*) 'EAST_INTER is true'
+       else
+        write (10,*) 'EAST_INTER is false'
+       endif
+       if (SOUTH_INTER) then
+        write (10,*) 'SOUTH_INTER is true'
+       else
+        write (10,*) 'SOUTH_INTER is false'
+       endif
+       if (NORTH_INTER) then
+        write (10,*) 'NORTH_INTER is true'
+       else
+        write (10,*) 'NORTH_INTER is false'
+       endif
+
+       write (10,*) 
+
+# ifdef EW_PERIODIC
+       write (10,*) 'EW_PERIODIC defined'
+       write (10,*) 
+# endif
+
+# ifdef NS_PERIODIC
+       write (10,*) 'NS_PERIODIC defined'
+       write (10,*) 
+# endif
+       
+       if (WEST_INTER_NBQ) then
+        write (10,*) 'WEST_INTER_NBQ is true'
+       else
+        write (10,*) 'WEST_INTER_NBQ is false'
+       endif
+       if (EAST_INTER_NBQ) then
+        write (10,*) 'EAST_INTER_NBQ is true'
+       else
+        write (10,*) 'EAST_INTER_NBQ is false'
+       endif
+       if (SOUTH_INTER_NBQ) then
+        write (10,*) 'SOUTH_INTER_NBQ is true'
+       else
+        write (10,*) 'SOUTH_INTER_NBQ is false'
+       endif
+       if (NORTH_INTER_NBQ) then
+        write (10,*) 'NORTH_INTER_NBQ is true'
+       else
+        write (10,*) 'NORTH_INTER_NBQa is false'
+       endif
+       write (10,*) 
+#endif
+
 !......Grid characteristics:
        write(10,*) 'Grid(masse) :'
        write(10,*) istr_nh,iend_nh,jstr_nh,jend_nh

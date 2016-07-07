@@ -19,6 +19,15 @@
       integer  :: nmv_nbq,nmmom_nbq,nmprod_nbq
 
 !**********************************************************************
+! Logical
+!**********************************************************************
+      logical             ::                                          &
+       WEST_INTER_NBQ                                                 &
+      ,EAST_INTER_NBQ                                                 &
+      ,SOUTH_INTER_NBQ                                                &
+      ,NORTH_INTER_NBQ                                     
+      
+!**********************************************************************
 !.....Flags et dimensions
 !**********************************************************************
       integer             ::                                          &
@@ -57,94 +66,96 @@
       ,soundspeed2_nbq                                                &
       ,time_nbq           
 
- !....Variables algébriques mode NBQ:
+!....Variables algébriques mode NBQ:
       double precision,dimension(:),allocatable     ::                &
-       dqdmdt_nbq_a      					      &   
-      ,rhssum_nbq_a       				                
+       dqdmdt_nbq_a                                                   &
+      ,rhssum_nbq_a
       double precision,dimension(:,:),allocatable     ::              &
-       qdm_nbq_a           				      	      &        
-      ,rhp_nbq_a           				              &        
-      ,div_nbq_a          			&		           
+       qdm_nbq_a                                                      &
+      ,rhp_nbq_a                                                      &
+      ,div_nbq_a                                                      &
       ,rhp_bq_a
 
 
- !....Tableaux de travail NBQ:
+!....Tableaux de travail NBQ:
       double precision,dimension(:),allocatable    ::                 &
-       rhs1_nbq            				              &     
-      ,rhs2_nbq            					      &    
-      ,rhs1r_nbq            					      &       
-      ,rhsd2_nbq                   		   		      &  	
-      ,visc2_nbq_a                 					       
+       rhs1_nbq                                                       &
+      ,rhs2_nbq                                                       &
+      ,rhs1r_nbq                                                      &
+      ,rhsd2_nbq                                                      &
+      ,visc2_nbq_a     
 
 !.....Variables mode EXT:  
       double precision,dimension(:,:,:),allocatable   ::              &
-       dqdmdtext_nbq_u     &                         
-      ,dqdmdtext_nbq_v           
+       dqdmdtext_nbq_u                                                &
+      ,dqdmdtext_nbq_v                                                &
+      ,qdm_u_sum                                                      &
+      ,qdm_v_sum                                                      &
+      ,qdm_u_ext                                                      &
+      ,qdm_v_ext
 
 !.....Variables mode INT:
       double precision,dimension(:,:,:,:),allocatable   ::            &
-       dqdmdtint_nbq_u                                                &       
-      ,dqdmdtint_nbq_v                                                &        
-      ,dqdmdtint_nbq_w          		                      &        
-      ,qdm_u               				              &         
-      ,qdm_v               			                      &        
-      ,qdm_w               							            
+       dqdmdtint_nbq_u                                                &
+      ,dqdmdtint_nbq_v                                                &
+      ,dqdmdtint_nbq_w                                                &
+      ,qdm_u                                                          &
+      ,qdm_v                                                          &
+      ,qdm_w                                                          &
+      ,qdm_u_int                                                      &
+      ,qdm_v_int                                                      &
+      ,qdm_w_int
 
 !.....Pour echanges "parallele":
       double precision ,dimension(:,:,:),allocatable    ::            &
-      qdm_nbq_u     				                      &          
-     ,qdm_nbq_v     					              &            
-     ,qdm_nbq_w     						      &        
-     ,rhp_nbq_t     							    	            
+      qdm_nbq_u                                                       &
+     ,qdm_nbq_v                                                       &
+     ,qdm_nbq_w                                                       &
+     ,rhp_nbq_t        
 
 !.....Pour partie implicite:
-      integer::     				                      &
-      nzmimp_nbq    				                      &
-     ,nzcimp_nbq    				                      &
-     ,l1imp_nbq    				                      &
-     ,neqmimp_nbq   				                      &
-     ,neqcimp_nbq   				                      &
-     ,nnz_nbq       				                      &
-     ,nindkun_nbq   				                      &
+      integer::                                                       &
+      nzmimp_nbq                                                      &
+     ,nzcimp_nbq                                                      &
+     ,l1imp_nbq                                                       &
+     ,neqmimp_nbq                                                     &
+     ,neqcimp_nbq                                                     &
+     ,nnz_nbq                                                         &
+     ,nindkun_nbq                                                     &
      ,ifl_imp_nbq
 
       double precision,dimension(:), allocatable ::                   &
-      cimpv_nbq     				                      &
-     ,mimpv_nbq     				                      &
-     ,rhsimp_nbq    				                      &
-     ,rhsimp2_nbq   				                      &
-     ,qdmimp_nbq    				                      &
-     ,pdv_nbq       				                      &
-     ,puv_nbq       				                      &
-     ,plv_nbq       				                      &
-     ,pdvint_nbq       				                      &
-     ,puvint_nbq       				                      &
-     ,plvint_nbq       				                      &
-     ,puvsave_nbq    				                      &
-     ,plvsave_nbq    				                      &
-     ,pdvsave_nbq    				                      &
+      cimpv_nbq                                                       &
+     ,mimpv_nbq                                                       &
+     ,rhsimp_nbq                                                      &
+     ,rhsimp2_nbq                                                     &
+     ,qdmimp_nbq                                                      &
+     ,pdv_nbq                                                         &
+     ,puv_nbq                                                         &
+     ,plv_nbq                                                         &
+     ,pdvint_nbq                                                      &
+     ,puvint_nbq                                                      &
+     ,plvint_nbq                                                      &
+     ,puvsave_nbq                                                     &
+     ,plvsave_nbq                                                     &
+     ,pdvsave_nbq                                                     &
      ,rhsint_nbq
 
 
       integer,dimension(:), allocatable ::                            &
-      cimpi_nbq      				                      &
-     ,cimpj_nbq      				                      &
-     ,mimpi_nbq      				                      &
-     ,mimpj_nbq      				                      &
-     ,pimpi_nbq      				                      &
-     ,pimpj_nbq     				                      &
-     ,iw1_nbq       				                      &
-     ,iw2_nbq        				                      &
+      cimpi_nbq                                                       &
+     ,cimpj_nbq                                                       &
+     ,mimpi_nbq                                                       &
+     ,mimpj_nbq                                                       &
+     ,pimpi_nbq                                                       &
+     ,pimpj_nbq                                                       &
+     ,iw1_nbq                                                         &
+     ,iw2_nbq                                                         &
      ,indkun_nbq
 
       integer ::                                                      &
       ptri_nbq
 
-
-! Pour les echanges :: qdm et mv 
-      integer,dimension(18) :: tabreq_qdm,tabreq_mv,tabreq_rhs, tabreq
-      integer,dimension(18) :: tabreq_qdmU, tabreq_qdmV, tabreq_qdmW
-      integer,dimension(:,:), allocatable :: tstatus
 
       integer :: nbsendOUEST, idiOUEST=1
       integer :: nbsendEST, idiEST=1
@@ -174,9 +185,8 @@
       integer :: nbsendNORDEST_mv, idiNORDEST_mv=1
       integer :: nbsendNORDOUEST_mv, idiNORDOUEST_mv=1
 
+      integer,dimension(:,:), allocatable :: tstatus
 
-      integer :: nbreq=1,nbreq_qdm=1,nbreq_mv=1,nbreq_rhs=1
-      integer :: nbreq_qdmU=1,  nbreq_qdmV=1,  nbreq_qdmW=1
       integer,parameter :: TAGOUEST_qdm=55000, TAGEST_qdm=55010, TAGSUD_qdm=56000, TAGNORD_qdm=56010
       integer,parameter :: TAGSUDOUEST_qdm=155000, TAGSUDEST_qdm=515010, TAGNORDOUEST_qdm=516000, TAGNORDEST_qdm=516010
       integer,parameter :: TAGOUEST_mv=75000, TAGEST_mv=75010, TAGSUD_mv=76000, TAGNORD_mv=76010
@@ -207,10 +217,10 @@
       nmmom_nbq  = nmv_nbq*20
 
 
- !....Variables algébriques mode NBQ:
+!....Variables algébriques mode NBQ:
        allocate(  dqdmdt_nbq_a      (1:nmv_nbq)      )
        allocate(  qdm_nbq_a         (1:nmv_nbq,-2:2) )
-       allocate(  rhp_bq_a          (1:nmq_nbq,0:2)      )
+       allocate(  rhp_bq_a          (1:nmq_nbq,0:2)  )
        allocate(  rhp_nbq_a         (1:nmq_nbq,-1:2) )
        allocate(  rhssum_nbq_a      (1:nmv_nbq)      )        
        allocate(  div_nbq_a         (1:nmq_nbq,0:1)  )     
@@ -220,11 +230,15 @@
        allocate(  rhs1r_nbq         (1:nmv_nbq)  )
        allocate(  rhs2_nbq          (1:nmv_nbq)  )
        allocate(  rhsd2_nbq         (1:nmv_nbq)  )   
-       allocate(  visc2_nbq_a       (1:nmv_nbq)	 )  
+       allocate(  visc2_nbq_a       (1:nmv_nbq)  )  
 
 !.....Variables mode EXT:
-       allocate(  dqdmdtext_nbq_u   (GLOBAL_2D_ARRAY,1)      )
-       allocate(  dqdmdtext_nbq_v   (GLOBAL_2D_ARRAY,1)      )
+       allocate(  dqdmdtext_nbq_u   (GLOBAL_2D_ARRAY,1)    )
+       allocate(  dqdmdtext_nbq_v   (GLOBAL_2D_ARRAY,1)    )
+       allocate(  qdm_u_ext         (GLOBAL_2D_ARRAY,0:2)  )
+       allocate(  qdm_v_ext         (GLOBAL_2D_ARRAY,0:2)  )
+       allocate(  qdm_u_sum         (GLOBAL_2D_ARRAY,-1:2) )
+       allocate(  qdm_v_sum         (GLOBAL_2D_ARRAY,-1:2) )
 
 !.....Variables mode INT:
        allocate(  dqdmdtint_nbq_u   (GLOBAL_2D_ARRAY,0:N+1,1)    )
@@ -233,12 +247,15 @@
        allocate(  qdm_u             (GLOBAL_2D_ARRAY,0:N+1,0:2)  )
        allocate(  qdm_v             (GLOBAL_2D_ARRAY,0:N+1,0:2)  )
        allocate(  qdm_w             (GLOBAL_2D_ARRAY,-1:N+1,0:2) )
+       allocate(  qdm_u_int         (GLOBAL_2D_ARRAY,0:N+1,0:2)  )
+       allocate(  qdm_v_int         (GLOBAL_2D_ARRAY,0:N+1,0:2)  )
+       allocate(  qdm_w_int         (GLOBAL_2D_ARRAY,-1:N+1,0:2) )
 
 !.....Pour echanges "parallele":
-       allocate(  qdm_nbq_u     (GLOBAL_2D_ARRAY,0:N+1)   )     
-       allocate(  qdm_nbq_v     (GLOBAL_2D_ARRAY,0:N+1)   )     
-       allocate(  qdm_nbq_w     (GLOBAL_2D_ARRAY,-1:N+1)  )      
-       allocate(  rhp_nbq_t     (GLOBAL_2D_ARRAY,0:N+1)   )  
+       allocate(  qdm_nbq_u         (GLOBAL_2D_ARRAY,0:N+1)   )     
+       allocate(  qdm_nbq_v         (GLOBAL_2D_ARRAY,0:N+1)   )     
+       allocate(  qdm_nbq_w         (GLOBAL_2D_ARRAY,-1:N+1)  )      
+       allocate(  rhp_nbq_t         (GLOBAL_2D_ARRAY,0:N+1)   )  
 
 !......Pour partie implicit:
        allocate(rhsimp_nbq       (nmv_nbq)      )    
@@ -269,7 +286,7 @@
        allocate(plvsave_nbq      (nmv_nbq)      )
 
 
-      allocate( tstatus(MPI_STATUS_SIZE,18)	)
+      allocate( tstatus(MPI_STATUS_SIZE,60) )
       
       end subroutine alloc_module_nbq
 

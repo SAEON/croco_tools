@@ -17,7 +17,9 @@
 #undef  CANYON_A        /* Canyon_A Example */
 #undef  CANYON_B        /* Canyon_B Example */
 #undef  EQUATOR         /* Equator Example  */
+#undef  ACOUS           /* Acoustic wave test case */
 #undef  GRAV_ADJ        /* Graviational Adjustment Example */
+#undef  KH_INST         /* Kelvin-Helmholtz Instability Example */
 #undef  INNERSHELF      /* Inner Shelf Example */
 #undef  RIVER           /* River run-off Example */
 #undef  OVERFLOW        /* Graviational/Overflow Example */
@@ -34,6 +36,7 @@
 #undef  SWASH           /* Swash Test Case on a Planar Beach */
 #undef  THACKER         /* Thacker wetting-drying Example */
 #undef  TANK            /* Tank Example */
+#undef  S2DV            /* 2D Vertical Section Application */
 #define REGIONAL        /* REGIONAL Applications */
 
 
@@ -372,6 +375,57 @@
 # define LMD_RIMIX
 # define LMD_CONVEC
 
+#elif defined KH_INST 
+/*
+!                       Kelvin-Helmholtz Instability Example
+!                       ================ =========== =======
+!
+*/
+# undef  OPENMP
+# define MPI
+# define NBQ
+# ifdef NBQ
+#  undef  NBQ_IMP
+# endif
+# define UV_VIS2
+# define UV_MIX_S
+# define UV_VIS_SMAGO
+# define SOLVE3D
+# define NEW_S_COORD
+# define UV_ADV
+# define TS_HADV_WENO5
+# define TS_VADV_WENO5
+# define ANA_GRID
+# define ANA_INITIAL
+# define ANA_SMFLUX
+# define ANA_STFLUX
+# define ANA_BTFLUX
+# define EW_PERIODIC
+
+#elif defined ACOUS 
+/*
+!                       ACOUSTIC WAVE TESTCASE 
+!                       ======================
+*/
+# undef  OPENMP
+# define MPI
+# define NBQ
+# ifdef NBQ
+#  define NBQ_IMP
+# else
+# endif
+# undef  UV_VIS2
+# define SOLVE3D
+# define NEW_S_COORD
+# undef  UV_ADV
+# undef  TS_HADV_WENO5
+# undef  TS_VADV_WENO5
+# define ANA_GRID
+# define ANA_INITIAL
+# define ANA_SMFLUX
+# define ANA_STFLUX
+# define ANA_BTFLUX
+
 #elif defined GRAV_ADJ
 /*
 !                       Gravitational Adjustment Example
@@ -384,10 +438,11 @@
 !
 */
 # undef  OPENMP
-# undef  MPI
-# undef  NBQ
+# define MPI
+# define NBQ
 # ifdef NBQ
 #  define GRAV_ADJ_SOLITON
+#  define NBQ_IMP
 # else
 #  define UV_VIS2
 # endif
@@ -482,6 +537,58 @@
 # undef  M3NUDGING
 # undef  TNUDGING
 
+#elif defined S2DV 
+/*
+!                  2DV Sections 
+!                  ============
+!
+*/
+
+# undef  EXPERIMENT3
+# undef  OPENMP
+# undef  MPI
+# undef  NBQ
+# ifdef NBQ
+#  define NBQ_IMP
+# endif
+# define NEW_S_COORD
+# define SALINITY
+# define TIDES
+# define TIDERAMP
+# define SSH_TIDES
+# define UV_TIDES
+# define SOLVE3D 
+# define UV_ADV
+# define UV_COR
+# define UV_VIS2
+# undef  VADV_ADAPT_IMP
+# define SPHERICAL
+# define CURVGRID
+# undef  ANA_INITIAL
+# define ANA_VMIX
+# define ANA_SMFLUX
+# define ANA_STFLUX
+# define ANA_SRFLUX
+# define ANA_SSFLUX
+# define ANA_BTFLUX
+# define ANA_BSFLUX
+# define NS_PERIODIC
+# undef  OBC_EAST
+# define OBC_WEST
+# define SPONGE
+# define ANA_SSH
+# define ANA_M2CLIMA
+# define ANA_M3CLIMA
+# undef  ANA_TCLIMA
+# define ZCLIMATOLOGY
+# define M2CLIMATOLOGY
+# define M3CLIMATOLOGY
+# define TCLIMATOLOGY
+# define M2NUDGING
+# define M3NUDGING
+# define TNUDGING
+# undef  ONLINE_ANALYSIS
+
 #elif defined IGW
 /*
 !                  COMODO Internal Tide Example
@@ -491,17 +598,23 @@
 ! Service Hydrographique et Oceanographique de la Marine. 
 */
 
-# define EXPERIMENT3
+# define EXPERIMENT1
 # undef  OPENMP
 # undef  MPI
 # undef  NBQ
+# ifdef NBQ
+#  define NBQ_IMP
+# endif
+# define NEW_S_COORD
 # define TIDES
 # define TIDERAMP
 # define SSH_TIDES
 # define UV_TIDES
 # define SOLVE3D 
 # define UV_ADV
-# define VADV_ADAPT_IMP
+# define UV_COR
+# define UV_VIS2
+# undef  VADV_ADAPT_IMP
 # define SPHERICAL
 # define CURVGRID
 # define ANA_INITIAL
@@ -512,18 +625,10 @@
 # define ANA_SSFLUX
 # define ANA_BTFLUX
 # define ANA_BSFLUX
-# ifdef NBQ
-#  define MASKING
-#  define NEW_S_COORD
-#  define UV_VIS2
-#  undef  UV_COR
-#  define NBQ_IMP
-# else
-#  define NS_PERIODIC
-# endif
+# define NS_PERIODIC
 # define OBC_EAST
 # define OBC_WEST
-# define SPONGE
+# undef  SPONGE
 # define ANA_SSH
 # define ANA_M2CLIMA
 # define ANA_M3CLIMA
@@ -535,6 +640,7 @@
 # define M2NUDGING
 # define M3NUDGING
 # define TNUDGING
+# undef  ONLINE_ANALYSIS
 
 #elif defined RIVER
 /*
@@ -973,9 +1079,7 @@
 */
 # undef  MPI
 # define NBQ
-# ifdef NBQ
-#  undef  NBQ_IMP /* under development */
-#  undef  DEBUG_NBQ
+#  undef  NBQ_IMP
 # endif
 # define SOLVE3D
 # undef  MASKING

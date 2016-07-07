@@ -108,7 +108,7 @@ end
 % dimensional model grid. Also adjust zeta for dry cells.
 %  
 h(h==0)=1.e-2;
-Dcrit=0.1;   % min water depth in dry cells
+Dcrit=0.01;   % min water depth in dry cells
 zeta(zeta<(Dcrit-h))=Dcrit-h(zeta<(Dcrit-h));
 %
 hinv=1./h;

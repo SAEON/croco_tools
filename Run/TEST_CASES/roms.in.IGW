@@ -1,9 +1,9 @@
 title:
-        IGW TEST MODEL
+        BENGUELA TEST MODEL
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
                17280     150      60      10
 S-coord: THETA_S,   THETA_B,    Hc (m)
-           6.5d0      0.0d0     50.0d0
+           0.0d0      0.0d0     1.0d16
 grid:  filename
                           igw_grd.nc
 forcing: filename
@@ -16,7 +16,7 @@ initial: NRREC  filename
 restart:          NRST, NRPFRST / filename
                    72000    -1
                           igw_rst.nc
-history: LDEFHIS, NWRT, NRPFHIS / filename 
+history: LDEFHIS, NWRT, NRPFHIS / filename
             T      24     0
                           igw_his.nc
 averages: NTSAVG, NAVG, NRPFAVG / filename
@@ -25,13 +25,13 @@ averages: NTSAVG, NAVG, NRPFAVG / filename
 
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
                           T    T   T   T  T    30*T
-auxiliary_history_fields:   rho Omega W  Akv  Akt  Aks Visc3d Diff3d  HBL HBBL Bostr Wstr Ustr Vstr Shfl rsw rlw lat sen Hm HEL BIOL
-                             T   F    T   F    T    F   F      F       F   F    F     20*F
+auxiliary_history_fields:   rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Ustr Vstr Shfl Swfl rsw rlw lat sen HEL
+                             T   F     T   F    T    T    T   T    T     T    T    T    T    T    T  10*F             
 
 primary_averages: zeta UBAR VBAR  U  V   wrtT(1:NT)
                    T    T    T    T  T   30*T
-auxiliary_averages:   rho Omega W  Akv  Akt  Aks Visc3d Diff3d  HBL HBBL Bostr Wstr Ustr Vstr Shfl rsw rlw lat sen Hm HEL BIOL
-                       T   F    T   F    T    F   F      F       F   F    F     20*F
+auxiliary_averages: rho Omega  W  Akv  Akt  Aks  HBL HBBL Bostr Wstr Ustr Vstr Shfl Swfl rsw rlw lat sen HEL
+                     F   T     T   F    T    T    T   T    T     T   T    T     T    T    T  10*F
 
 rho0:
       1027.d0
@@ -59,7 +59,7 @@ gamma2:
                  1.d0
 
 nudg_cof:    TauT_in, TauT_out, TauM_in, TauM_out  [days for all]
-               1       30        0.05     0.05
+               0.05       0.05        0.05     0.05
 
 sponge:          X_SPONGE [m],    V_SPONGE [m^2/sec]
                     20.e+3          1.  

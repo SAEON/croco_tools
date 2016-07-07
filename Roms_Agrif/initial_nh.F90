@@ -21,6 +21,7 @@
 # include "scalars_F90.h"
 # include "work.h"
 # include "grid.h"
+# include "ocean2d.h"
 # include "ocean3d.h"
 # include "nbq.h"
 
@@ -78,7 +79,6 @@
 !----------------------------------------------------------------------
 !
         ifl_nbq  = 1        !CXA put elswhere or replace by cpp keys
-        slip_nbq = 0
         slip_nbq = 0
 
         iteration_nbq_max=ndtnbq
@@ -144,9 +144,9 @@
 !... ASCII output for NBQ-grid 
 !----------------------------------------------------------------------
 !
-# ifdef NBQ_OUT
+!# ifdef NBQ_OUT
       call output_nbq(1)
-# endif
+!# endif
 !
 !----------------------------------------------------------------------
 !... Initialize matrix products and HIPS:
@@ -182,54 +182,71 @@
           call rho_eos
 
 !.........Initialize NBQ density field:
-!#ifdef NBQ_CONS7
-!          do l_nbq=1,neqcont_nh
+# ifdef NBQ_CONS7
+          stop 'initial_nh !!!!!!!!'
+!         do l_nbq=1,neqcont_nh
 !            i = l2iq_nh(l_nbq)
 !            j = l2jq_nh(l_nbq)
 !            k = l2kq_nh(l_nbq)
 !            rhp_nbq_a(l_nbq,0:2) = rho(i,j,k)*Hzr(i,j,k) 
-!          enddo
-!#else
-!          do l_nbq=1,neqcont_nh
+!         enddo
+# else
+!         do l_nbq=1,neqcont_nh
 !            i = l2iq_nh(l_nbq)
 !            j = l2jq_nh(l_nbq)
 !            k = l2kq_nh(l_nbq)
 !            rhp_nbq_a(l_nbq,0:2) = rho(i,j,k)
-!          enddo
-!#endif
+!         enddo
+# endif
 
 !.........Initialize NBQ density field:
           do l_nbq=1,neqcont_nh
             i = l2iq_nh(l_nbq)
             j = l2jq_nh(l_nbq)
             k = l2kq_nh(l_nbq)
-            rhp_nbq_a(l_nbq,0:2) = rho(i,j,k)
+!           rhp_nbq_a(l_nbq,0:2) = rho(i,j,k)
+            rhp_bq_a(l_nbq,0:2)  = rho(i,j,k)
             rho_nbq_ext(i,j,k)   = (rho0+rho(i,j,k))/rho0
             rho_nbq_avg1(i,j,k)  = (rho0+rho(i,j,k))/rho0
             rho_nbq_avg2(i,j,k)  = (rho0+rho(i,j,k))/rho0
           enddo
 
-        rhobar_nbq(:,:,:)=0.
-        work2d(:,:)=0.
-        do l_nbq = 1 , neqcont_nh
-          i     = l2iq_nh (l_nbq)
-          j     = l2jq_nh (l_nbq)
-          k     = l2kq_nh (l_nbq)
-          work2d(i,j)         = work2d(i,j)+Hzr(i,j,k)
-          rhobar_nbq(i,j,:)   = rhobar_nbq(i,j,:)+                       &
+          rhobar_nbq     (:,:,:)=1.
+          rhobar_nbq_avg1(:,:  )=1.
+
+          do j=jstrq_nh-1,jendq_nh+1
+          do i=istrq_nh-1,iendq_nh+1
+             work2d(i,j)         = 0.
+             rhobar_nbq(i,j,:)   = 0.
+          enddo
+          enddo
+
+          do j=jstrq_nh-1,jendq_nh+1
+          do i=istrq_nh-1,iendq_nh+1
+          do k=1,N
+             work2d(i,j)         = work2d(i,j)+Hzr(i,j,k)
+             rhobar_nbq(i,j,:)   = rhobar_nbq(i,j,:)+     &
                                 rho(i,j,k)*Hzr(i,j,k)
-        enddo
+          enddo
+          enddo
+          enddo
 !
 !.......Rho0 added subsequently for added precision
-!
-        do j=jstrq_nh,jendq_nh
-        do i=istrq_nh,iendq_nh
-           rhobar_nbq(i,j,:) = (rhobar_nbq(i,j,:)/work2d(i,j) + rho0) / rho0
+ 
+        do j=jstrq_nh-1,jendq_nh+1
+        do i=istrq_nh-1,iendq_nh+1
+           rhobar_nbq(i,j,:)   = (rhobar_nbq(i,j,:)/work2d(i,j) + rho0)  &
+                                 / rho0
            rhobar_nbq_avg1(i,j)= rhobar_nbq(i,j,1) 
         enddo
         enddo
 
-       endif
+!.......Some remaining initializations:
+        rhssum_nbq_a(:)     = 0.d0
+        div_nbq_a   (:,:)   = 0.d0
+        qdm_v_ext   (:,:,:) = 0.d0  ! TO BE FINISHED
+
+       endif 
 
 
       return

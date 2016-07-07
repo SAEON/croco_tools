@@ -41,18 +41,17 @@
 !-------------------------------------------------------------------
 !     MPI Exchange (WEST):
 !-------------------------------------------------------------------
-      if (WEST_INTER) then
+      if (WEST_INTER_NBQ) then
          i        = istr_nh-1
-         istrq_nh = istr_nh-1
 
 !........Corner (South-West):
-         if (SOUTH_INTER) then
+         if (SOUTH_INTER_NBQ) then
             jstr_n = jstr_nh-1
          else
             jstr_n = jstr_nh
          endif
 !........Corner (North-West):
-         if (NORTH_INTER) then
+         if (NORTH_INTER_NBQ) then
             jend_n = jend_nh+1
          else
             jend_n = jend_nh
@@ -79,9 +78,8 @@
 !-------------------------------------------------------------------
 !     MPI Exchange (SOUTH):
 !-------------------------------------------------------------------
-      if (SOUTH_INTER) then
+      if (SOUTH_INTER_NBQ) then
          j        = jstr_nh-1
-         jstrq_nh = jstr_nh-1
          do i=istr_nh,iend_nh
          do k=1,N    
 #ifdef MASKING
@@ -104,19 +102,19 @@
 !-------------------------------------------------------------------
 !     WESTERN EDGE
 !-------------------------------------------------------------------
-# if defined OBC_NBQ 
+# if defined OBC_NBQ && defined OBC_WEST 
 #  ifdef MPI
       if (WESTERN_EDGE) then
         i = istr_nh-1
 
 !........Corner (South-West):
-        if (SOUTH_INTER) then
+        if (SOUTH_INTER_NBQ) then
           jstr_n = jstr_nh-1
         else
           jstr_n = jstr_nh
         endif
 !........Corner (North-West):
-        if (NORTH_INTER) then
+        if (NORTH_INTER_NBQ) then
           jend_n = jend_nh+1
         else
           jend_n = jend_nh
@@ -151,7 +149,7 @@
 !-------------------------------------------------------------------
 !     SOUTHERN EDGE 
 !-------------------------------------------------------------------
-# if defined OBC_NBQ
+# if defined OBC_NBQ && !defined NS_PERIODIC && defined OBC_SOUTH
 #  ifdef MPI
       if (SOUTHERN_EDGE) then
 #  endif
@@ -258,19 +256,19 @@
 !-------------------------------------------------------------------
 !     EASTERN EDGE
 !-------------------------------------------------------------------
-# if defined OBC_NBQ 
+# if defined OBC_NBQ && defined OBC_EAST
 #  ifdef MPI
       if (EASTERN_EDGE) then
         i = iend_nh+1
 
 !........Corner (South-East):
-        if (SOUTH_INTER) then
+        if (SOUTH_INTER_NBQ) then
           jstr_n = jstr_nh-1
         else
           jstr_n = jstr_nh
         endif
 !........Corner (North-East):
-        if (NORTH_INTER) then
+        if (NORTH_INTER_NBQ) then
           jend_n = jend_nh+1
         else
           jend_n = jend_nh
@@ -305,7 +303,7 @@
 !-------------------------------------------------------------------
 !     NORTHERN EDGE 
 !-------------------------------------------------------------------
-# if defined OBC_NBQ
+# if defined OBC_NBQ && !defined NS_PERIODIC && defined OBC_NORTH
 #  ifdef MPI
       if (NORTHERN_EDGE) then
 #  endif
@@ -337,18 +335,17 @@
 !-------------------------------------------------------------------
 !     MPI Exchange (EAST):
 !-------------------------------------------------------------------
-      if (EAST_INTER) then
+      if (EAST_INTER_NBQ) then
          i        = iend_nh+1
-         iendq_nh = iend_nh+1 
 
 !........Corner (South-East):
-         if (SOUTH_INTER) then
+         if (SOUTH_INTER_NBQ) then
             jstr_n = jstr_nh-1
          else
             jstr_n = jstr_nh
          endif
 !........Corner (North-East):
-         if (NORTH_INTER) then
+         if (NORTH_INTER_NBQ) then
             jend_n = jend_nh+1
          else
             jend_n = jend_nh
@@ -375,9 +372,8 @@
 !-------------------------------------------------------------------
 !     MPI Exchange (NORTH):
 !-------------------------------------------------------------------
-      if (NORTH_INTER) then
+      if (NORTH_INTER_NBQ) then
          j        = jend_nh+1
-         jendq_nh = jend_nh+1 
          do i=istr_nh,iend_nh
          do k=1,N    
 #ifdef MASKING

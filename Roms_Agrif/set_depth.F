@@ -14,10 +14,10 @@
 
       subroutine set_depth (tile)
       implicit none
-#include "param.h"
+# include "param.h"
       integer tile, trd
 C$    integer omp_get_thread_num
-#include "compute_tile_bounds.h"
+# include "compute_tile_bounds.h"
       call set_depth_tile (Istr,Iend,Jstr,Jend)
       return
       end
@@ -53,15 +53,18 @@ C$    integer omp_get_thread_num
 # include "compute_auxiliary_bounds.h"
 !
 # ifdef EW_PERIODIC
+!#  define I_RANGE Istr-1,Iend+1 !!! Francis or Cyril ???
 #  define I_RANGE Istr,Iend
 # else
 #  define I_RANGE IstrR,IendR
 # endif
 # ifdef NS_PERIODIC
+!#  define J_RANGE Jstr-1,Jend+1 !!! Francis or Cyril ???
 #  define J_RANGE Jstr,Jend
 # else
 #  define J_RANGE JstrR,JendR
 # endif
+!
       if (iic.eq.0) then  ! During initialization and /or restart: copy initial
         do j=J_RANGE      ! free surface field into array for holding fast-time
           do i=I_RANGE    ! averaged free surface.
@@ -83,7 +86,7 @@ C$    integer omp_get_thread_num
               wetdry(i,j)=0.
             ENDIF
 # endif
-# if defined SOLVE3D
+# ifdef SOLVE3D
 #  ifdef NEW_S_COORD 
             hinv(i,j)=1./(h(i,j)+hc)      
 #  else
@@ -93,7 +96,18 @@ C$    integer omp_get_thread_num
 #  ifdef NBQ
             if (zeta(i,j,1).eq.0.) then     ! Set Zt_avg1 and rhobar_nbq_avg1
               Zt_avg1(i,j) = h(i,j)         ! before call to ana_initial (zeta=0)
-              rhobar_nbq_avg1(i,j) = 1.
+              zeta(i,j,1)  = Zt_avg1(i,j)
+              zeta(i,j,2)  = zeta(i,j,1)
+              zeta(i,j,3)  = zeta(i,j,1)
+              zeta(i,j,4)  = zeta(i,j,1)
+            else
+             if (zeta(i,j,1).eq.h(i,j).and.rhobar_nbq(i,j,1).ne.1.) then
+              Zt_avg1(i,j) = rhobar_nbq(i,j,1)*h(i,j)
+              zeta(i,j,1)  = Zt_avg1(i,j)
+              zeta(i,j,2)  = zeta(i,j,1)
+              zeta(i,j,3)  = zeta(i,j,1)
+              zeta(i,j,4)  = zeta(i,j,1)
+             endif
             endif
 #  endif
 # endif /* SOLVE3D */
@@ -123,7 +137,7 @@ C$    integer omp_get_thread_num
 # ifdef SOLVE3D
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_r2d_tile (Istr,Iend,Jstr,Jend, Zt_avg1)
-#  endif    
+#  endif
 
       do j=J_RANGE              !!! WARNING: Setting must be consistent 
         do i=I_RANGE            !!!          with omega.F
@@ -147,12 +161,14 @@ C$    integer omp_get_thread_num
 #  endif
           do i=I_RANGE
             zetatmp=Zt_avg1(i,j)
-# ifdef NBQ
+#  ifdef NBQ
      &              /rhobar_nbq_avg1(i,j)-h(i,j)
-#  if defined MASKING && !defined WET_DRY
+            if (rhobar_nbq_avg1(i,j).eq.0) stop 'Error set_depth (1)'
+            if (rhobar_nbq(i,j,1).eq.0)    stop 'Error set_depth (2)'
+#   if defined MASKING && !defined WET_DRY
             zetatmp=zetatmp*rmask(i,j)
+#   endif
 #  endif
-# endif
             z_w0=cff_w+cff1_w*h(i,j) 
             z_r0=cff_r+cff1_r*h(i,j)            
 #  ifdef NEW_S_COORD
@@ -175,6 +191,7 @@ C$    integer omp_get_thread_num
 #  ifdef NBQ
             Hzr(i,j,k)=Hz(i,j,k)
             Hz(i,j,k) =Hz(i,j,k)*rho_nbq_avg1(i,j,k)
+            if (rho_nbq_ext(i,j,k).eq.0) stop 'Error set_depth (3)'
 #  endif
           enddo
         enddo
@@ -189,6 +206,7 @@ C$    integer omp_get_thread_num
 
 #  undef I_RANGE
 #  undef J_RANGE
+
 #  if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_w3d_tile (Istr,Iend,Jstr,Jend, 
      &                        z_w(START_2D_ARRAY,0))
@@ -218,10 +236,10 @@ C$    integer omp_get_thread_num
 !
       subroutine set_HUV (tile)
       implicit none
-#include "param.h"
+#  include "param.h"
       integer tile, trd
 C$    integer omp_get_thread_num
-#include "compute_tile_bounds.h"
+#  include "compute_tile_bounds.h"
       call set_HUV_tile (Istr,Iend,Jstr,Jend)
       return
       end
@@ -229,15 +247,15 @@ C$    integer omp_get_thread_num
       subroutine set_HUV_tile (Istr,Iend,Jstr,Jend)
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j,k
-# include "param.h"
-# include "grid.h"
-# include "ocean3d.h"
-# include "scalars.h"
+#  include "param.h"
+#  include "grid.h"
+#  include "ocean3d.h"
+#  include "scalars.h"
 !
 #  ifdef MRL_WCI
 #    include "forces.h"
 #  endif
-# include "compute_auxiliary_bounds.h"
+#  include "compute_auxiliary_bounds.h"
 !
 #  ifdef EW_PERIODIC 
 #   define IU_RANGE Istr,Iend
@@ -326,10 +344,10 @@ C$    integer omp_get_thread_num
 !
       subroutine set_HUV1 (tile)
       implicit none
-#include "param.h"
+#  include "param.h"
       integer tile, trd
 C$    integer omp_get_thread_num
-#include "compute_tile_bounds.h"
+#  include "compute_tile_bounds.h"
       call set_HUV1_tile (Istr,Iend,Jstr,Jend)
       return
       end
@@ -337,15 +355,15 @@ C$    integer omp_get_thread_num
       subroutine set_HUV1_tile (Istr,Iend,Jstr,Jend)
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j,k
-# include "param.h"
-# include "grid.h"
-# include "ocean3d.h"
-# include "scalars.h"
+#  include "param.h"
+#  include "grid.h"
+#  include "ocean3d.h"
+#  include "scalars.h"
 #  ifdef MRL_WCI
 #    include "forces.h"
 #  endif
 !
-# include "compute_auxiliary_bounds.h"
+#  include "compute_auxiliary_bounds.h"
 !
 #  ifdef EW_PERIODIC
 #   define IU_RANGE Istr,Iend
@@ -419,9 +437,9 @@ C$    integer omp_get_thread_num
       subroutine set_HUV2 (tile)
       implicit none
       integer tile, trd, omp_get_thread_num
-#include "param.h"
-#include "private_scratch.h"
-#include "compute_tile_bounds.h"
+#  include "param.h"
+#  include "private_scratch.h"
+#  include "compute_tile_bounds.h"
       trd=omp_get_thread_num()
       call set_HUV2_tile (Istr,Iend,Jstr,Jend, A2d(1,1,trd),
      &                                         A2d(1,2,trd))
@@ -431,12 +449,12 @@ C$    integer omp_get_thread_num
       subroutine set_HUV2_tile (Istr,Iend,Jstr,Jend,DC,FC)
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j,k
-# include "param.h"
+#  include "param.h"
       real DC(PRIVATE_1D_SCRATCH_ARRAY,0:N),
      &     FC(PRIVATE_1D_SCRATCH_ARRAY,0:N)
-# include "grid.h"
-# include "ocean3d.h"
-# include "scalars.h"
+#  include "grid.h"
+#  include "ocean3d.h"
+#  include "scalars.h"
 #  ifdef MRL_WCI
 #    include "forces.h"
 #  endif

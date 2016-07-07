@@ -36,12 +36,14 @@
       parameter (LLm0=66,   MMm0=48,   N=16)
 #elif defined EQUATOR
       parameter (LLm0=40,   MMm0=32,   N=32)   ! 100 km resolution
+#elif defined KH_INST 
+      parameter (LLm0=256,  MMm0=1,    N=256)   
+#elif defined ACOUS 
+      parameter (LLm0=64,   MMm0=1,    N=64)  
 #elif defined GRAV_ADJ
 # ifdef NBQ
 #  ifdef GRAV_ADJ_SOLITON
       parameter (LLm0=60,   MMm0=1,    N=74)   !  10 cm resolution
-#  elif GRAV_ADJ_ACOUSTIC
-      parameter (LLm0=64,   MMm0=1,    N=64)   !   2  m resolution
 #  else
 !     parameter (LLm0=600,  MMm0=1,    N=60)   !   5 mm resolution
       parameter (LLm0=300,  MMm0=1,    N=30)   !  10 mm resolution
@@ -57,10 +59,10 @@
 !     parameter (LLm0=120,  MMm0=10,   N=40)   !  10 km resolution
 !     parameter (LLm0=800,  MMm0=4,    N=40)   ! 1.5 km resolution
       parameter (LLm0=1600, MMm0=4,    N=40)   ! .75 km resolution
+#elif defined S2DV 
+      parameter (LLm0=256, MMm0=3,    N=40)
 #elif defined IGW
-!      parameter (LLm0=878, MMm0=3,    N=80)   !   1 km resolution  
        parameter (LLm0=878, MMm0=3,    N=40)
-!      parameter (LLm0=878, MMm0=3,    N=20)
 #elif defined OVERFLOW
       parameter (LLm0=4,    MMm0=128,  N=10)
 #elif defined RIVER
@@ -182,7 +184,7 @@
       integer NSUB_X, NSUB_E, NPP
 #ifdef MPI
       integer NP_XI, NP_ETA, NNODES     
-      parameter (NP_XI=1, NP_ETA=4,  NNODES=NP_XI*NP_ETA)
+      parameter (NP_XI=1,  NP_ETA=4,  NNODES=NP_XI*NP_ETA)
       parameter (NPP=1)
       parameter (NSUB_X=1, NSUB_E=1)
 #elif defined OPENMP
@@ -222,7 +224,7 @@
 #if defined SSH_TIDES || defined UV_TIDES
       integer Ntides             ! Number of tides
                                  ! ====== == =====
-# ifdef IGW
+# if defined IGW || defined S2DV
       parameter (Ntides=1)
 # else
       parameter (Ntides=8)

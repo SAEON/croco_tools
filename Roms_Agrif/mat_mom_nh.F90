@@ -697,7 +697,7 @@
                                * float(mijk2lq_nh(i,j,k))      &
                        / Hzr_half_nbq(i,j,k+1)
         momvg_nh(l1_nh) = ( -1.                                &
-           -  0.*Hzw_half_nbq(i,j,k)*g/soundspeed_nbq**2 )     &
+           -  Hzw_half_nbq(i,j,k)*g/soundspeed_nbq**2 )     &
               * float(mijk2lq_nh(i,j,k+1))                     &
               * float(mijk2lq_nh(i,j,k))     &
                        / Hzr_half_nbq(i,j,k+1)
@@ -705,7 +705,7 @@
         momv_nh (l1_nh) =  -1. * float(mijk2lq_nh(i,j,k+1))    &
                                * float(mijk2lq_nh(i,j,k))
         momvg_nh(l1_nh) = ( -1.                                &
-           -  0.*Hzw_half_nbq(i,j,k)*g/soundspeed_nbq**2 )     &
+           -  Hzw_half_nbq(i,j,k)*g/soundspeed_nbq**2 )     &
               * float(mijk2lq_nh(i,j,k+1))                     &
               * float(mijk2lq_nh(i,j,k))
 #endif
@@ -720,13 +720,13 @@
         momv_nh (l1_nh) =  1. * float(mijk2lq_nh(i,j,k))      &
                        / Hzr_half_nbq(i,j,k)
         momvg_nh(l1_nh) = ( 1.                                &
-            - 0.*Hzw_half_nbq(i,j,k)*g/soundspeed_nbq**2 )    &
+            - Hzw_half_nbq(i,j,k)*g/soundspeed_nbq**2 )    &
               * float(mijk2lq_nh(i,j,k))                      &
                        / Hzr_half_nbq(i,j,k)
 #else
         momv_nh (l1_nh) =  1. * float(mijk2lq_nh(i,j,k)) 
         momvg_nh(l1_nh) = ( 1.                                &
-            - 0.*Hzw_half_nbq(i,j,k)*g/soundspeed_nbq**2 )    &
+            - Hzw_half_nbq(i,j,k)*g/soundspeed_nbq**2 )    &
               * float(mijk2lq_nh(i,j,k))
 #endif
         l1_nh = l1_nh + mijk2lq_nh(i,j,k)  
@@ -753,21 +753,28 @@
 !........point p(i,j,k+1):
 !-----------------------------
 #ifdef NBQ_CONS7
-           mimpv_nbq(l1_nh)   = - ( soundspeed_nbq**2 - visc2_nbq ) * dtnbq  &
+           mimpv_nbq(l1_nh)   = - ( soundspeed_nbq**2 * dtnbq - visc2_nbq ) &
                                 / Hzr_half_nbq(i,j,k+1)
+
+           stop 'mat_mom_nh'
 #else
-           mimpv_nbq(l1_nh)   = - ( soundspeed_nbq**2 - visc2_nbq ) * dtnbq  
+           mimpv_nbq(l1_nh)   = - ( soundspeed_nbq**2 * dtnbq  - visc2_nbq ) &
+                               * float(mijk2lq_nh(i,j,k+1))                  &
+                               * float(mijk2lq_nh(i,j,k))
+
 #endif
-           l1_nh = l1_nh + mijk2lq_nh(i,j,k+1)
+           l1_nh = l1_nh + mijk2lq_nh(i,j,k+1)                   &
+                * float(mijk2lq_nh(i,j,k))
 
 !-----------------------------
 !........point p(i,j,k):
 !-----------------------------
 #ifdef NBQ_CONS7
-           mimpv_nbq(l1_nh)   =   ( soundspeed_nbq**2 - visc2_nbq ) * dtnbq   &
+           mimpv_nbq(l1_nh)   =   ( soundspeed_nbq**2 * dtnbq - visc2_nbq )  &
                        / Hzr_half_nbq(i,j,k)
 #else
-           mimpv_nbq(l1_nh)   =   ( soundspeed_nbq**2 - visc2_nbq ) * dtnbq 
+           mimpv_nbq(l1_nh)   =   ( soundspeed_nbq**2 * dtnbq - visc2_nbq ) &
+                                      * float(mijk2lq_nh(i,j,k)) 
 #endif
 
       enddo

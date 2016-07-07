@@ -47,6 +47,7 @@
 # include "scalars_F90.h"
 # include "work.h"
 # include "grid.h"
+# include "ocean2d.h"
 # include "ocean3d.h"
 # include "nbq.h"
 
@@ -60,7 +61,7 @@
 !  and time filter, ready for external mode
 !**********************************************************************
 !
-        rhobar_nbq(:,:,knew)=0.
+        rhobar_nbq(istrq_nh-1:iendq_nh+1,jstrq_nh-1:jendq_nh+1,knew)=0.
         work2d    (:,:     )=0.
 
 #ifdef NBQ_CONS7
@@ -69,12 +70,16 @@
           j     = l2jq_nh (l_nbq)
           k     = l2kq_nh (l_nbq)
           rho_nbq_ext(i,j,k)  = 0.5*(rhp_nbq_a(l_nbq,rnstp_nbq)                &
-                                    +rhp_nbq_a(l_nbq,rnrhs_nbq))               &
+                                    +rhp_nbq_a(l_nbq,rnrhs_nbq)                &
+                                    +2.*rho(i,j,k)                             &
+                                    )                                          &
                               / Hzr_half_nbq(i,j,k)
           work2d(i,j)         = work2d(i,j)+Hzr_half_nbq(i,j,k)
           rhobar_nbq(i,j,knew)= rhobar_nbq(i,j,knew)                           &
                               + 0.5*(rhp_nbq_a(l_nbq,rnstp_nbq)                &
-                                    +rhp_nbq_a(l_nbq,rnrhs_nbq))         
+                                    +rhp_nbq_a(l_nbq,rnrhs_nbq)                &
+                                    +2.*rho(i,j,k)                             &
+                                    )         
         enddo
 #else
         do l_nbq = 1 , neqcont_nh
@@ -82,23 +87,29 @@
           j     = l2jq_nh (l_nbq)
           k     = l2kq_nh (l_nbq)
           rho_nbq_ext(i,j,k)  = 0.5*(rhp_nbq_a(l_nbq,rnstp_nbq)                &
-                                    +rhp_nbq_a(l_nbq,rnrhs_nbq))
+                                    +rhp_nbq_a(l_nbq,rnrhs_nbq)                &
+                                    +2.*rho(i,j,k)                             &
+                                    )
           work2d(i,j)         = work2d(i,j)+Hzr_half_nbq(i,j,k)
           rhobar_nbq(i,j,knew)= rhobar_nbq(i,j,knew)                           &
                               + rho_nbq_ext(i,j,k)                             &
                                 *Hzr_half_nbq(i,j,k)
         enddo
 #endif
-
+!       rhobar_nbq = 0.
+!       rho_nbq_ext = 0.
+ 
 !
 !.......Rho0 added subsequently for added precision 
 !
         rho_nbq_ext(:,:,:) = (rho_nbq_ext(:,:,:) + rho0) / rho0
-        do j=jstrq_nh,jendq_nh
-        do i=istrq_nh,iendq_nh
+        do j=jstrq_nh-1,jendq_nh+1
+        do i=istrq_nh-1,iendq_nh+1
            rhobar_nbq(i,j,knew) = (rhobar_nbq(i,j,knew)/work2d(i,j) + rho0) / rho0
         enddo
         enddo
+!       rhobar_nbq = 1.
+!       rho_nbq_ext = 1.
 
 #ifdef NBQ_CONSOUT
         call consout_nbq(40)
@@ -107,11 +118,12 @@
       elseif (icall.eq.4) then
 !
 !**********************************************************************
-! Internal Mode Density Storage
+! Internal Mode Density Storage: NOT USED ANYMORE
 !**********************************************************************
 !
-
 !.......Termes de l'equation de continuite: RHS(cont)
+
+        return
       
 #ifdef NBQ_CONS6
         if (iif.eq.1) then
@@ -125,41 +137,49 @@
 #else
               rhp_bq_a(l_nbq,2)=rho(i,j,k)
 #endif
-              rhp_nbq_a(l_nbq,rnnew_nbq)= rhp_nbq_a(l_nbq,rnnew_nbq) &
-                       + (- rhp_bq_a(l_nbq,1) + rhp_bq_a(l_nbq,2)) / ndtfast
-              rhp_nbq_a(l_nbq,rnrhs_nbq)= rhp_nbq_a(l_nbq,rnrhs_nbq) &
-                       + (- rhp_bq_a(l_nbq,1) + rhp_bq_a(l_nbq,2)) / ndtfast
+!             rhp_nbq_a(l_nbq,rnnew_nbq)= rhp_nbq_a(l_nbq,rnnew_nbq) &
+!                      + (- rhp_bq_a(l_nbq,1) + rhp_bq_a(l_nbq,2)) / ndtfast
+!             rhp_nbq_a(l_nbq,rnrhs_nbq)= rhp_nbq_a(l_nbq,rnrhs_nbq) &
+!                      + (- rhp_bq_a(l_nbq,1) + rhp_bq_a(l_nbq,2)) / ndtfast
            enddo
         else ! iif > 1
            do l_nbq = 1 , neqcont_nh
               i=l2iq_nh(l_nbq)
               j=l2jq_nh(l_nbq)
               k=l2kq_nh(l_nbq)
-              rhp_nbq_a(l_nbq,rnnew_nbq)= rhp_nbq_a(l_nbq,rnnew_nbq) &
-                          + (- rhp_bq_a(l_nbq,1) + rhp_bq_a(l_nbq,2)) / ndtfast
-              rhp_nbq_a(l_nbq,rnrhs_nbq)= rhp_nbq_a(l_nbq,rnrhs_nbq) &
-                          + (- rhp_bq_a(l_nbq,1) + rhp_bq_a(l_nbq,2)) / ndtfast
-        enddo
+!             rhp_nbq_a(l_nbq,rnnew_nbq)= rhp_nbq_a(l_nbq,rnnew_nbq) &
+!                         + (- rhp_bq_a(l_nbq,1) + rhp_bq_a(l_nbq,2)) / ndtfast
+!             rhp_nbq_a(l_nbq,rnrhs_nbq)= rhp_nbq_a(l_nbq,rnrhs_nbq) &
+!                         + (- rhp_bq_a(l_nbq,1) + rhp_bq_a(l_nbq,2)) / ndtfast
+           enddo
         endif
 #else
-       if (iif.eq.1) then
+        if (iif.eq.1) then
+          rhp_bq_a(:,1)=rhp_bq_a(:,2)
           do l_nbq = 1 , neqcont_nh
              i=l2iq_nh(l_nbq)
              j=l2jq_nh(l_nbq)
              k=l2kq_nh(l_nbq)
 #ifdef NBQ_CONS7
-             rhp_bq_a(l_nbq,2)=rho(i,j,k)*Hzr_half_nbq(i,j,k)
+!            rhp_bq_a(l_nbq,2)=rho(i,j,k)*Hzr_half_nbq(i,j,k)
+             stop 'density_nbq'
 #else
              rhp_bq_a(l_nbq,2)=rho(i,j,k)
+!            rhp_nbq_a(l_nbq,rnnew_nbq)= rhp_nbq_a(l_nbq,rnnew_nbq) &
+!                     - rhp_bq_a(l_nbq,1) + rhp_bq_a(l_nbq,2)
+!            rhp_nbq_a(l_nbq,rnrhs_nbq)= rhp_nbq_a(l_nbq,rnrhs_nbq) &
+!                     - rhp_bq_a(l_nbq,1) + rhp_bq_a(l_nbq,2)
+!            rhp_nbq_a(l_nbq,rnstp_nbq)= rhp_nbq_a(l_nbq,rnstp_nbq) &
+!                     - rhp_bq_a(l_nbq,1) + rhp_bq_a(l_nbq,2)
 #endif
           enddo
-       endif
+        endif
 #endif
  
+
 #ifdef NBQ_CONSOUT
         call consout_nbq(41)
 #endif
-
       elseif (icall.eq.6) then
 !
 !**********************************************************************
@@ -190,13 +210,12 @@
          dnrhs_nbq = dnstp_nbq
          dnstp_nbq = ncp
 
-# ifdef ACOUSTIC
+# ifdef ACOUS
       elseif (icall.eq.10) then
 !
 !*******************************************************************
 !......Acoustic waves: Initialization
 !*******************************************************************
-
           period_exp = 0.025/2.
           for_a_exp  = 2.5
           amp_exp = 1.e-3
@@ -225,7 +244,8 @@
                                         *exp(-dist_d**2/for_a_exp**2)
 !         endif
         enddo
-# endif /* ACOUSTIC */
+!         write(6,*) 'ACOUS',div_nbq_a(10,dnrhs_nbq)
+# endif /* ACOUS */
 
       endif  ! icall
 

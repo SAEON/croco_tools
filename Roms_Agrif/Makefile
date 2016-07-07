@@ -127,7 +127,13 @@ include Makedefs
 	p4zmort.F90	p4zopt.F90		p4zprod.F90	p4zrem.F90\
 	p4zsed.F90	p4zbio.F90		trcwri_pisces.F90\
 	trcsms_pisces.F90			trcini_pisces.F90\
-	pisces_ini.F90
+	pisces_ini.F90\
+\
+	module_oa_parameter.F90\
+	module_oa_time.F90	module_oa_space.F90	module_oa_periode.F90\
+	module_oa_variables.F90	module_oa_type.F90	module_oa_stock.F90\
+	module_oa_level.F90	module_oa_interface.F90\
+	module_oa_upd.F90	croco_oa.F90		var_oa.F90
 
 AMRDIR = AGRIF/AGRIF_YOURFILES
 

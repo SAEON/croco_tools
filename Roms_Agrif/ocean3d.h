@@ -57,10 +57,8 @@
       real We2(GLOBAL_2D_ARRAY,0:N)
       common /grid_We2/We2
 #  endif
-#  ifdef NBQ_CONS5
       real h2d(GLOBAL_2D_ARRAY)
       common /h2d/ h2d
-#  endif
 # endif
 
 # if defined UV_VIS4 && defined UV_MIX_GEO

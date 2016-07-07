@@ -36,6 +36,7 @@
       integer :: icall,ncp
       real    :: cff
 
+
       if (icall.eq.1) then
 !
 !*******************************************************************
@@ -72,13 +73,22 @@
         cff=1/(rho0*real(ndtnbq))
 !
         rubar_nbq(:,:)=0.
-        do l_nbq = nequ_nh(1)+1,nequ_nh(6)
+!       do l_nbq = nequ_nh(1)+1,nequ_nh(6)
+        do l_nbq = 1,nequ_nh(7)
            i=l2imom_nh(l_nbq)
            j=l2jmom_nh(l_nbq)
            k=l2kmom_nh(l_nbq)
            ru_nbq_ext(i,j,k) = cff*rhssum_nbq_a(l_nbq)*on_u(i,j)*om_u(i,j)
            rubar_nbq(i,j)    = rubar_nbq(i,j)+ru_nbq_ext(i,j,k)
         enddo
+
+      call exchange_u3d_tile (Istru_nh,Iendu_nh,Jstru_nh,Jendu_nh,  &
+                                       ru_nbq_ext(START_2D_ARRAY,1))
+
+      call exchange_u2d_tile (Istru_nh,Iendu_nh,Jstru_nh,Jendu_nh,  &
+                        rubar_nbq(START_2D_ARRAY))
+
+
         
         rvbar_nbq(:,:)=0.
         do l_nbq = neqv_nh(1)+1,neqv_nh(6)  
@@ -106,7 +116,8 @@
 !
         call amux(                                                       &
                neqcorrt_nbq                                              &
-              ,rhp_nbq_a(1:neqcont_nh,rnrhs_nbq)-rhp_bq_a(1:neqcont_nh,2)  & 
+              ,rhp_nbq_a(1:neqcont_nh,rnrhs_nbq)                         & 
+!             ,rhp_nbq_a(1:neqcont_nh,rnrhs_nbq)-rhp_bq_a(1:neqcont_nh,2)  & 
               ,rhs1_nbq (1)                                              &
               ,momvg_nh (1)                                              &
               ,momj_nh  (1)                                              & 
@@ -114,6 +125,7 @@
                      ) 
 
 #ifdef NBQ_CONS0
+        stop 'ru_nbq'
 !.......Computes surface correction:
         call amux(                                                       &
                neqcont_nh                                                &

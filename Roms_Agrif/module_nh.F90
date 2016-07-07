@@ -197,10 +197,10 @@
          nbdom_world=1
 #endif
 
-         nmq_nh=(imax+2)*(jmax+2)*(N+1)
-         nmv_nh=(imax+2)*(jmax+2)*N                &
-               +(imax+2)*(jmax+2)*N                &
-               +(imax+2)*(jmax+2)*(N+1)*2.
+         nmq_nh=(imax+4)*(jmax+4)*(N+1)
+         nmv_nh=(imax+4)*(jmax+4)*N                &
+               +(imax+4)*(jmax+4)*N                &
+               +(imax+4)*(jmax+4)*(N+1)*2.
 
          nmw_nh    = nmv_nh*ntw_nh
          nmcont_nh = nmq_nh*ntcont_nh
