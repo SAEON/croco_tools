@@ -628,7 +628,7 @@
 # define NS_PERIODIC
 # define OBC_EAST
 # define OBC_WEST
-# define SPONGE
+# undef  SPONGE
 # define ANA_SSH
 # define ANA_M2CLIMA
 # define ANA_M3CLIMA
