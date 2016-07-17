@@ -1078,7 +1078,7 @@
 ! Int. J. Numer. Methods Fluids 42, 929–952.
 */
 # undef  MPI
-# define NBQ
+# ifdef NBQ
 #  undef  NBQ_IMP
 # endif
 # define SOLVE3D
