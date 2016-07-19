@@ -1079,6 +1079,7 @@
 */
 # undef  MPI
 # define NBQ
+# ifdef NBQ
 #  undef  NBQ_IMP
 # endif
 # define SOLVE3D
