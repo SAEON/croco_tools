@@ -41,6 +41,23 @@ function extract_ECCO_V2(OGCM_dir,OGCM_prefix,url,Y,M,catalog_vname,...
 disp(['    Download ECCO2 for ',num2str(Y),...
     ' - ',num2str(M)])
 %
+% Get Matlab version
+%
+matversion=version('-release');
+%myversion=str2num(matversion(3:4));
+disp([' Matlab version : ',matversion])
+if ~verLessThan('matlab','7.14')
+  disp([' !!! WARNING !!! '])
+  disp(['  Matlab version >= 2012a --> use Matlab built-in support for OPeNDAP'])
+  disp(['  with Matlab scripts in Opendap_tools_no_loaddap (see path in start.m)'])
+  disp([' !!! WARNING !!! '])
+else
+  disp([' !!! WARNING !!! '])
+  disp(['  Matlab version <= 2012a --> use Matlab scripts in Opendap_tools'])
+  disp(['                                            (see path in start.m)'])
+  disp([' !!! WARNING !!! '])
+end
+%
 % Get the number of days in the month
 %
 nmax=daysinmonth(Y,M);
@@ -75,7 +92,7 @@ for vv=1:length(catalog_vname)
             dok=loaddap('-A -e +v ', fname);
         end
     end
-    %Compute 3D variable every 3 days
+    % Compute 3D variable every 3 days
     if ~strcmp(vname,'SSH')% v-> name='UVEL, VVEL'
         var0=nan*zeros(N,Mm,Lm);
         tndx=0;
@@ -91,8 +108,12 @@ for vv=1:length(catalog_vname)
             eval(['missing_value=x.',vname,'.missing_value;'])
             var0=getdap('',fname,vname,'[0:0]',krange,jrange,i1min,i1max,i2min,i2max,i3min,i3max);
             var0(var0<=-2000)=NaN;
-            %var(tndx,:,:,:)=permute(var0,[3 1 2]);
-            var(tndx,:,:,:)=var0;
+            %if myversion > 11
+            if ~verLessThan('matlab','7.14')
+              var(tndx,:,:,:)=var0;
+            else
+              var(tndx,:,:,:)=permute(var0,[3 1 2]); % old readdap version
+            end
             %size(var)
         end
         if strcmp(vname,'UVEL')
