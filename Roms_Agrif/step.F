@@ -78,9 +78,9 @@ C$OMP END PARALLEL
 #if defined OA_COUPLING || defined OW_COUPLING
 !--Get phase of OASIS3  
        if ((iif==-1).and.(oasis_time < oasis_runtime)) then
-         oasis_time = oasis_time + dt
          print *, 'oasis time before put = ', oasis_time
          call cpl_prism_put (oasis_time)        
+         oasis_time = oasis_time + dt
        endif
 #endif /* OA_COUPLING */
 #endif
