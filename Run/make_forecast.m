@@ -58,8 +58,12 @@ eval(['!cp ',ini_prefix,num2str(rundate),nc_suffix,' ',ini_prefix,'0',nc_suffix]
 if add_tides_fcst==1
   disp(['Add tidal data ... '])
   frcname=[ROMS_files_dir,'roms_frc_GFS_0.nc'];
-  add_tidal_data(tidename,grdname,frcname,Ntides,tidalrank,...
-                 Ymin,Mmin,Dmin,Hmin,Min_min,Smin,coastfileplot)
+  %add_tidal_data(tidename,grdname,frcname,Ntides,tidalrank,...
+  %               Ymin,Mmin,Dmin,Hmin,Min_min,Smin,coastfileplot)
+   [Y,M,d,h,mi,s] = datevec(date);
+   add_tides(tidename,grdname,frcname,Ntides,tidalrank,...
+                                  Yorig,Y,M,coastfileplot)
+
 end
 %
 %  Set the clock right: 
