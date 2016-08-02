@@ -1,5 +1,5 @@
-function [] = add_tidal_data(tidename,gname,fname,Ntides,tidalrank,...
-                             year,month,day,hr,minute,second,coastfileplot)
+function [] = add_tides(tidename,gname,fname,Ntides,tidalrank,...
+                                  Yorig,year,month,coastfileplot)
 % 
 % Add tidal forcing in interannual forcing file 
 % of the type roms_frc_NCEP2_Y--M--.nc
@@ -9,8 +9,8 @@ function [] = add_tidal_data(tidename,gname,fname,Ntides,tidalrank,...
 %   fname : roms forcing (frc) file
 %   Ntides : number of tidala waves
 %   tidal rank : order from the rank in the TPXO file
-%   year,month,day,hr,minute,second : start time of simulation
-%                                     for nodal correction
+%   Yorig : time origin of simulation for phase correction
+%   year,month : current time of simulation for nodal correction
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 pot_tides=1;            % Potential tidal forcing
@@ -18,16 +18,16 @@ if ~exist('sal_tides'), % if Self-Attraction/Loading not in
   sal_tides=0;          % romstools_param, set to none
 end
 %
-% Get start time of simulation in fractional mjd for nodal correction
+% Get time of simulation in fractional mjd for nodal correction
 %
-date_mjd=mjd(year,month,day);
-[pf,pu,t0,phase_mkB]=egbert_correc(date_mjd,hr,minute,second);
+date_mjd=mjd(year,month,1);
+[pf,pu,t0,phase_mkB]=egbert_correc(date_mjd,0.,0.,0.);
 deg=180.0/pi;
 rad=pi/180.0;
 %
 % Add a phase correction to be consistent with the 'Yorig' time
 %
-t0=t0-24.*mjd(year,1,1);
+t0=t0-24.*mjd(Yorig,1,1);
 %
 %  Read in ROMS grid.
 %
