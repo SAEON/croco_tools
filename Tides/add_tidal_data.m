@@ -62,7 +62,7 @@ Lv=length(xv);
 Mv=length(yv);
 Nmax=length(periods);
 Ntides=min([Nmax Ntides]);
-cmpt=nc.components(:);
+cmpt=nctides.components(:);
 %
 % Prepare the forcing file
 %
