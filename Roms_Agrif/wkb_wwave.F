@@ -76,6 +76,11 @@
 # include "boundary.h"
 # include "scalars.h"
 # include "compute_auxiliary_bounds.h"
+#ifdef MASKING
+# define SWITCH *
+#else
+# define SWITCH !
+#endif
 !
 ! Sort out time-stepping parameters: For now, there are 3 choices,
 ! =================================  1) AB2, 2) AB3, and 3) AB2-CN2.
@@ -161,7 +166,6 @@
       cfrc = 0.5/sqrt(pi)
 # endif
       peg=8.0/g
-
 !
 !----------------------------------------------------------------------
 !  Initialisation of WKB model variables
@@ -172,9 +176,9 @@
 # define ANA_INI_WKB
 # ifdef ANA_INI_WKB
 
-#if defined AGRIF
+#  if defined AGRIF
         if( AGRIF_Root() ) then
-#endif
+#  endif
 
 #  ifdef WKB_OBC_WEST
         ho=h(1,1)+zeta(1,1,knew)         !+wkb_tide       ! offshore depth
@@ -208,23 +212,23 @@
         wamp = wkb_amp               ! wave amplitude (m)
         cfrq = 2.0*pi/wkb_prd        ! peak wave frequency (rad/s)
         cdir = wkb_ang*deg2rad       ! wave direction rad
-#   else
-#    ifdef WKB_OBC_WEST
+#  else
+#   ifdef WKB_OBC_WEST
          wkb_bry(1)=wacbry_west(1) 
          wkb_bry(2)=wkxbry_west(1)
          wkb_bry(3)=wkebry_west(1)
          prc = 0
-#    endif
-#    ifdef WKB_OBC_EAST
+#   endif
+#   ifdef WKB_OBC_EAST
          wkb_bry(1)=wacbry_east(1) 
          wkb_bry(2)=wkxbry_east(1)
          wkb_bry(3)=wkebry_east(1)
          prc = NP_XI-1
-#    endif
-#    ifdef MPI
+#   endif
+#   ifdef MPI
         call MPI_Bcast(wkb_bry, 3, MPI_DOUBLE_PRECISION,
      &                     prc, MPI_COMM_WORLD, ierr)
-#    endif
+#   endif
         cff1=sqrt(wkb_bry(2)**2+wkb_bry(3)**2)
         inv_k =1.0/cff1
         khn =cff1*(ho+zeta(1,1,knew))
@@ -233,7 +237,7 @@
         sinw = inv_k*wkb_bry(3)           
         cdir=ATAN2(sinw,cosw)
         wamp=sqrt(2*wkb_bry(1)/g*cfrq)
-#   endif        
+#  endif /* ANA_BRY_WKB */
         Btg  = wkb_btg               ! B parameter
         gamw = wkb_gam               ! gamma paramemer (Hrms/h ratio)
 
@@ -268,7 +272,7 @@
               dsup=-0.125*(wh**2)*kw/sinh(2.*kw*dd) ! wave set-up
             enddo
             do k=1,2
-              hrm(i,j,k)=wamp*2.0
+              hrm(i,j,k)=wamp*2.0 SWITCH rmask(i,j)
               frq(i,j,k)=cfrq
               wcg(i,j,k)=nw*cw/kw
               wac(i,j,k)=0.125*g*(hrm(i,j,k)**2)/frq(i,j,k)
@@ -329,13 +333,14 @@
             wkebry_north(i)=wke(i,jendR,1)
           enddo
         endif
-#   endif  /* WKB_OBCNORTH */
+#   endif  /* WKB_OBC_NORTH */
 #  endif /* ANA_BRY_WKB */
-#ifdef AGRIF
+#  ifdef AGRIF
         endif
-#endif
+#  endif
 
 # else /* !ANA_INI_WKB */
+
         do j=jstrR,jendR
           do i=istrR,iendR
             kk=max(sqrt(wkx(i,j,wstp)**2+wke(i,j,wstp)**2),eps)
@@ -398,6 +403,7 @@
         end do
 # endif
 C$OMP BARRIER
+
       endif  ! <-- iwave=1
 !
 ! ---------------------   End initialisation ------------------------------
