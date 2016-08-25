@@ -11,7 +11,9 @@
 
       use module_nh
       use module_nbq
+# ifdef MPI
       use module_parallel_nbq, only : mynode,ierr,par,OUEST,EST
+# endif
       implicit none
 
 # include "param_F90.h"

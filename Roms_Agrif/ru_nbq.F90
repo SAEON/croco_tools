@@ -82,13 +82,13 @@
            rubar_nbq(i,j)    = rubar_nbq(i,j)+ru_nbq_ext(i,j,k)
         enddo
 
+# if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
       call exchange_u3d_tile (Istru_nh,Iendu_nh,Jstru_nh,Jendu_nh,  &
                                        ru_nbq_ext(START_2D_ARRAY,1))
 
       call exchange_u2d_tile (Istru_nh,Iendu_nh,Jstru_nh,Jendu_nh,  &
                         rubar_nbq(START_2D_ARRAY))
-
-
+# endif
         
         rvbar_nbq(:,:)=0.
         do l_nbq = neqv_nh(1)+1,neqv_nh(6)  

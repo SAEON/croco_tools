@@ -175,7 +175,7 @@
         do l_nbq = nequ_nh(1)+1,nequ_nh(6)
           dum_s = soundspeed_nbq**2  * rhs1_nbq(l_nbq)                 &
                 - visc2_nbq_a(l_nbq) * rhsd2_nbq(l_nbq)   
-          qdm_nbq_a(l_nbq,vnnew_nbq) = qdm_nbq_a(l_nbq,vnstp_nbq)  
+          qdm_nbq_a(l_nbq,vnnew_nbq) = qdm_nbq_a(l_nbq,vnstp_nbq)      & 
                                        + 2.*dtnbq*(                    &
                                               dum_s                    &
                                             + dqdmdt_nbq_a(l_nbq) )  
@@ -199,7 +199,7 @@
         do l_nbq = neqv_nh(1)+1,neqv_nh(6)  
           dum_s =             soundspeed_nbq**2  * rhs1_nbq(l_nbq)     &
                             - visc2_nbq_a(l_nbq) * rhsd2_nbq(l_nbq)   
-          qdm_nbq_a(l_nbq,vnnew_nbq) = qdm_nbq_a(l_nbq,vnstp_nbq)  
+          qdm_nbq_a(l_nbq,vnnew_nbq) = qdm_nbq_a(l_nbq,vnstp_nbq)      &
                                        + 2.*dtnbq*(                    &
                                               dum_s                    &
                                             + dqdmdt_nbq_a(l_nbq) )  
@@ -230,7 +230,7 @@
         do l_nbq = neqw_nh(1)+1,neqw_nh(6)
           dum_s = soundspeed_nbq**2  * rhs1_nbq(l_nbq)                 &
                 - visc2_nbq_a(l_nbq) * rhsd2_nbq(l_nbq)
-          qdm_nbq_a(l_nbq,vnnew_nbq) = qdm_nbq_a(l_nbq,vnstp_nbq)  
+          qdm_nbq_a(l_nbq,vnnew_nbq) = qdm_nbq_a(l_nbq,vnstp_nbq)      &
                                           + 2.*dtnbq*(                 &
                                                  dum_s                 &
                                                + dqdmdt_nbq_a(l_nbq) )
