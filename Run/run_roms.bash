@@ -56,6 +56,8 @@ fi
 #
 GRDFILE=${MODEL}_grd.nc
 FORFILE=${MODEL}_frc.nc
+BLKFILE=${MODEL}_blk.nc
+BRYFILE=${MODEL}_bry.nc
 CLMFILE=${MODEL}_clm.nc
 INIFILE=${MODEL}_ini.nc
 #
@@ -91,12 +93,16 @@ cd $SCRATCHDIR
 echo "Getting $CODFILE from $INPUTDIR"
 $CP -f $INPUTDIR/$CODFILE $SCRATCHDIR
 chmod u+x $CODFILE
-echo "Getting $AGRIF_FILE from $INPUTDIR"
-$CP -f $INPUTDIR/$AGRIF_FILE $SCRATCHDIR
+if [[ $NLEVEL -gt 1 ]]; then
+   echo "Getting $AGRIF_FILE from $INPUTDIR"
+   $CP -f $INPUTDIR/$AGRIF_FILE $SCRATCHDIR
+fi
 #
 # Get the netcdf files
 #
 LEVEL=0
+echo "Getting ${BRYFILE} from $MSSDIR"
+$CP -f $MSSDIR/${BRYFILE} $SCRATCHDIR
 while [[ $LEVEL != $NLEVEL ]]; do
   if [[ ${LEVEL} == 0 ]]; then
     ENDF=
@@ -107,6 +113,8 @@ while [[ $LEVEL != $NLEVEL ]]; do
   $CP -f $MSSDIR/${GRDFILE}${ENDF} $SCRATCHDIR
   echo "Getting ${FORFILE}${ENDF} from $MSSDIR"
   $CP -f $MSSDIR/${FORFILE}${ENDF} $SCRATCHDIR
+  echo "Getting ${BLKFILE}${ENDF} from $MSSDIR"
+  $CP -f $MSSDIR/${BLKFILE}${ENDF} $SCRATCHDIR
   echo "Getting ${CLMFILE}${ENDF} from $MSSDIR"
   $CP -f $MSSDIR/${CLMFILE}${ENDF} $SCRATCHDIR
   if [[ $RSTFLAG == 0 ]]; then
@@ -132,10 +140,10 @@ echo "Writing in ${MODEL}_inter.in"
 LEVEL=0
 while [[ $LEVEL != $NLEVEL ]]; do
   if [[ ${LEVEL} == 0 ]]; then
-    set ENDF=
+    ENDF=''
   else
-    set ENDF=.${LEVEL}
-    NUMTIMES =$((3 * NUMTIMES))
+    ENDF=.${LEVEL}
+    NUMTIMES=$((3 * NUMTIMES))
   fi
   echo "USING NUMTIMES = $NUMTIMES"
   sed 's/NUMTIMES/'$NUMTIMES'/' < ${MODEL}_inter.in${ENDF} > ${MODEL}.in${ENDF}
