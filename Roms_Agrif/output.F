@@ -187,7 +187,7 @@
      &                 .and. wrtdiaM_avg(3))        call wrt_diagsM_avg
 # endif
 #endif
-#if defined DIAGNOSTICS_BIO
+#if defined DIAGNOSTICS_BIO && ! defined XIOS
         if (mod(ilc-1,nwrtdiabio).eq.0 .and. 
      &       (      wrtdiabioFlux(NumFluxTerms+1)
      &       .or. wrtdiabioVSink(NumVSinkTerms+1)

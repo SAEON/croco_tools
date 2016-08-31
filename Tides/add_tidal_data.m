@@ -1,5 +1,5 @@
-function [] = add_tidal_data(tidename,gname,fname,Ntides,tidalrank,...
-                             year,month,day,hr,minute,second,coastfileplot)
+function [] = add_tides(tidename,gname,fname,Ntides,tidalrank,...
+                                  Yorig,year,month,coastfileplot)
 % 
 % Add tidal forcing in interannual forcing file 
 % of the type roms_frc_NCEP2_Y--M--.nc
@@ -9,16 +9,25 @@ function [] = add_tidal_data(tidename,gname,fname,Ntides,tidalrank,...
 %   fname : roms forcing (frc) file
 %   Ntides : number of tidala waves
 %   tidal rank : order from the rank in the TPXO file
-%   year,month,day,hr,minute,second : start time of simulation
-%                                     for nodal correction
+%   Yorig : time origin of simulation for phase correction
+%   year,month : current time of simulation for nodal correction
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+pot_tides=1;            % Potential tidal forcing
+if ~exist('sal_tides'), % if Self-Attraction/Loading not in 
+  sal_tides=0;          % romstools_param, set to none
+end
 %
-% Get start time of simulation in fractional mjd for nodal correction
+% Get time of simulation in fractional mjd for nodal correction
 %
-date_mjd=mjd(year,month,day);
-[pf,pu,t0,phase_mkB]=egbert_correc(date_mjd,hr,minute,second);
+date_mjd=mjd(year,month,1);
+[pf,pu,t0,phase_mkB]=egbert_correc(date_mjd,0.,0.,0.);
 deg=180.0/pi;
+rad=pi/180.0;
+%
+% Add a phase correction to be consistent with the 'Yorig' time
+%
+t0=t0-24.*mjd(Yorig,1,1);
 %
 %  Read in ROMS grid.
 %
@@ -53,7 +62,7 @@ Lv=length(xv);
 Mv=length(yv);
 Nmax=length(periods);
 Ntides=min([Nmax Ntides]);
-cmpt=nc.components(:);
+cmpt=nctides.components(:);
 %
 % Prepare the forcing file
 %
@@ -103,6 +112,24 @@ hz(hz==0)=NaN;
 hu(hu==0)=NaN;
 hv(hv==0)=NaN;
 %
+% Tidal potential:
+%
+%    amplitudes and elasticity factors for:
+%        M2 S2 N2 K2 K1 O1 P1 Q1 Mf Mm
+%
+A=[0.242334 0.113033 0.046398 0.030704 ...
+   0.141565 0.100514 0.046843 0.019256 ...
+   0.041742 0.022026];                       % Amplitude (Schwiderski, 1978)
+B=[0.693 0.693 0.693 0.693 ...
+   0.736 0.695 0.706 0.695 ...
+   0.693 0.693];                             % Elasticity factor
+%
+coslat2=cos(rad*rlat).^2;                    % Phase arrays
+sin2lat=sin(2.*rad*rlat);
+%
+%----------------------------------------------------------
+%               Loop on tidal components
+%----------------------------------------------------------
 %
 for itide=1:Ntides
   it=tidalrank(itide);
@@ -184,7 +211,50 @@ for itide=1:Ntides
   ncfrc{'tide_Cangle'}(it,:,:)=inclination;
   ncfrc{'tide_Cphase'}(it,:,:)=phase;
 %
-end
+  if pot_tides,
+%
+% Process equilibrium tidal potential
+%
+   disp('Process equilibrium tidal potential...')
+   if periods(it)<13.0                 % semidiurnal
+     Pamp=correc_amp*A(it)*B(it)*coslat2;
+     Ppha=mod(-2.*rlon+correc_phase,360.0);
+   elseif periods(it)<26.0            % diurnal
+     Pamp=correc_amp*A(it)*B(it)*sin2lat;
+     Ppha=mod(-rlon+correc_phase,360.0);
+   else                                % long-term
+     Pamp=correc_amp*A(it)*B(it)*(1-1.5*coslat2);
+     Ppha=mod(correc_phase,360.0);
+   end
+%
+% Process tidal loading and self-attraction potential
+%            from GOT99.2b model
+%
+   if sal_tides & it<9
+    disp('Process tidal loading and self-attraction potential...')
+    [SALamp,SALpha]=ext_data_sal(grdname,salname, ...
+                                  'tide_SALamp','tide_SALpha',it);
+    SALamp=SALamp*correc_amp;
+    SALpha=mod(SALpha+correc_phase,360.0);
+%
+% --> Get total tidal potential = Eq + load
+%
+    disp('Get total tidal potential...')
+    Ptot=Pamp.*exp(1i*Ppha*rad) + SALamp.*exp(1i*SALpha*rad);
+    Pamp=abs(Ptot);
+    Ppha=deg*angle(Ptot);
+    Ppha(Pamp<0.0001)=0.;
+    Ppha=mod(Ppha,360.0);
+   end
+%
+% Write tidal potential into file
+%
+   ncfrc{'tide_Pamp'}(itide,:,:)=Pamp;
+   ncfrc{'tide_Pphase'}(itide,:,:)=Ppha;
+
+  end % <-- if pot_tides
+
+end % <-- itide ----
 %
 % Close the files
 %

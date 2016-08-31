@@ -70,7 +70,10 @@
       implicit none
       integer Istr,Iend,Jstr,Jend, i,j,k
 # include "param.h"
+
+# include "nbq.h" 
       real wrk   (PRIVATE_1D_SCRATCH_ARRAY    )
+      real wrk2  (PRIVATE_1D_SCRATCH_ARRAY    )
 # ifdef VADV_ADAPT_IMP      
       real cu_adv(PRIVATE_1D_SCRATCH_ARRAY,0:N)
       real gamma,Cdt,cff,my_cu_adv,c_min,c_max,cu_cut,fcu
@@ -121,11 +124,13 @@
 # endif
 !
 !---------------------------------------------------------
-!
+! 
       do j=Jstr,Jend
+!
 !---------------------------------------------------------
 !  Integrate divergence of horizontal mass fluxes
 !---------------------------------------------------------
+!
         do i=Istr,Iend 
 # ifdef VADV_ADAPT_IMP
           Wi(i,j,0)=0.
@@ -134,24 +139,39 @@
           We(i,j,0)=cmorph*om_r(i,j)*on_r(i,j)*dh(i,j)/dt
 # else
           We(i,j,0)=0.
+#  ifdef NBQ_CONS2
+          We2(i,j,0)=0.
+#  endif
 # endif
         enddo
         do k=1,N,+1
           do i=Istr,Iend
             We(i,j,k)=We(i,j,k-1) -Huon(i+1,j,k)+Huon(i,j,k)
      &                            -Hvom(i,j+1,k)+Hvom(i,j,k)
+# ifdef NBQ_CONS1
+     &                     -dHzdt(i,j,k)*om_r(i,j)*on_r(i,j)
+# endif
+# ifdef NBQ_CONS2
+            We2(i,j,k)=We2(i,j,k-1) -Huon(i+1,j,k)+Huon(i,j,k)
+     &                              -Hvom(i,j+1,k)+Hvom(i,j,k)
+# endif
+!
 !---------------------------------------------------------
 !  Compute the horizontal Courant number
 !---------------------------------------------------------
-#ifdef VADV_ADAPT_IMP
+!
+# ifdef VADV_ADAPT_IMP
             Cu_adv(i,k)=max(HUon(i+1,j,k),0.)-min(Huon(i,j,k),0.) 
      &                 +max(Hvom(i,j+1,k),0.)-min(Hvom(i,j,k),0.)
-#endif
+# endif
           enddo
         enddo
+!
 !---------------------------------------------------------
-!  Subtract vertical velocities of moving S-coordinate isosurfaces
+!  Subtract vertical velocities of moving S-coordinate 
+!  isosurfaces
 !---------------------------------------------------------
+!
         do i=Istr,Iend
           wrk(i)=We(i,j,N)/(z_w(i,j,N)-z_w(i,j,0))
         enddo
@@ -166,12 +186,27 @@
           Wi(i,j,N)=0.
 # endif
         enddo
+               
+# ifdef NBQ_CONS2
+        do i=Istr,Iend
+          dzdt_nbq(i,j,N) = (We2(i,j,N)*pm(i,j)*pn(i,j)
+     &                        - (z_w(i,j,N)-z_w(i,j,0))*drhobardt(i,j))
+     &                        / rhobar_nbq_int(i,j)
+        enddo
+        do k=N-1,1,-1 
+          do i=Istr,Iend
+            dzdt_nbq(i,j,k) =  dzdt_nbq(i,j,N)*(z_w(i,j,k)-z_w(i,j,0))
+     &                                        /(z_w(i,j,N)-z_w(i,j,0))  
+          enddo
+        enddo
+# endif /* NBQ_CONS2 */
 !
 #ifdef VADV_ADAPT_IMP
 !---------------------------------------------------------
 ! Compute the explicit and implicit components of Omega
 ! based on local Courant number Cu_adv
 !---------------------------------------------------------
+!
         do k=1,N
           do i=Istr,Iend
             cff = cdt*pm(i,j)*pn(i,j)/Hz(i,j,k)
@@ -197,12 +232,14 @@
              We(i,j,k) = (1.-cff)*We(i,j,k)
           enddo
         enddo
-!---------------------------------------------------------
 #endif
+
       enddo  ! j loop
+!
 !---------------------------------------------------------      
 !  Set lateral boundary conditions.
 !---------------------------------------------------------
+!
 # ifndef EW_PERIODIC
       if (WESTERN_EDGE) then
         do k=0,N

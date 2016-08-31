@@ -43,8 +43,8 @@
       !!
       !!----------------------------------------------------------------------
       CHARACTER(LEN=*)            , INTENT(in) ::   cdgrd
-      REAL plon(:,:)
-      REAL plat(:,:)
+      REAL plon(GLOBAL_2D_ARRAY)
+      REAL plat(GLOBAL_2D_ARRAY)
       !
       INTEGER vtype, horiz_type, vert_type
       INTEGER imin, imax, jmin, jmax, ni, nj
@@ -58,24 +58,24 @@
       SELECT CASE (TRIM(cdgrd))
       CASE ("rho")
          vtype=r2dvar
-         nx_glo=LLm0+2
-         ny_glo=MMm0+2
+         nx_glo=LLm+2
+         ny_glo=MMm+2
       CASE ("b")
          vtype=r2dvar
-         nx_glo=LLm0+2
-         ny_glo=MMm0+2
+         nx_glo=LLm+2
+         ny_glo=MMm+2
       CASE ("u")
          vtype=u2dvar
-         nx_glo=LLm0+1
-         ny_glo=MMm0+2
+         nx_glo=LLm+1
+         ny_glo=MMm+2
       CASE ("v")
          vtype=v2dvar
-         nx_glo=LLm0+2
-         ny_glo=MMm0+1
+         nx_glo=LLm+2
+         ny_glo=MMm+1
       CASE ("w")
          vtype=r2dvar
-         nx_glo=LLm0+2
-         ny_glo=MMm0+2
+         nx_glo=LLm+2
+         ny_glo=MMm+2
       END SELECT
 
       ! From nf_fread.F
@@ -144,7 +144,7 @@
       CALL iom_set_domain_attr(TRIM(cdgrd),
      &     lonvalue=RESHAPE(plon(imin:imax,jmin:jmax), (/ni*nj/)),
      &     latvalue=RESHAPE(plat(imin:imax,jmin:jmax), (/ni*nj/)))
-      !
+      !      
       END SUBROUTINE set_grid
 
 
@@ -341,6 +341,8 @@
 
       
       SUBROUTINE set_scalar
+# include "param.h"
+# include "scalars.h"
       !!----------------------------------------------------------------------
       !!                     ***  ROUTINE set_scalar  ***
       !!
@@ -352,14 +354,16 @@
       !!                S. Masson  , original version (NEMO)  
       !!
       !!----------------------------------------------------------------------
-      REAL, DIMENSION(1,1) ::   zz = 1.
+      REAL, DIMENSION(1) ::   zz = 1.
       !!----------------------------------------------------------------------
       ! 
-      CALL iom_set_domain_attr('scalarpoint', ni_glo=1, nj_glo=1, 
-     &  ibegin=1, jbegin=1, ni=1, nj=1)
-      CALL iom_set_domain_attr('scalarpoint', data_dim=1)
-      CALL iom_set_domain_attr('scalarpoint', lonvalue=(/ zz /), 
-     &  latvalue=(/ zz /))
+      CALL iom_set_domain_attr('scalarpoint', ni_glo=NNODES, nj_glo=1, 
+     &  ibegin=mynode+1, jbegin=1, ni=1, nj=1)
+      CALL iom_set_domain_attr('scalarpoint', data_dim=2,data_ibegin = 1, 
+     &                         data_ni = 1, data_jbegin = 1, data_nj = 1)
+      zz=REAL(mynode+1)
+      CALL iom_set_domain_attr('scalarpoint', lonvalue=zz, 
+     &  latvalue=zz)
       !
       END SUBROUTINE set_scalar
 
@@ -1122,7 +1126,7 @@
       !
       INTEGER tile,ji
       INTEGER ilocal_comm
-      TYPE(xios_time) :: dtime 
+      TYPE(xios_time) :: dtime  = xios_time(0, 0, 0, 0, 0, 0)
       TYPE(xios_context) :: ctx_hdl
       TYPE(xios_field) :: field_hdl
       TYPE(xios_fieldgroup) :: fieldgroup_hdl
@@ -1224,6 +1228,7 @@
       ! end definition phase
       CALL xios_close_context_definition()
       !
+      CALL xios_update_calendar(0)
       END SUBROUTINE init_xios_tile
       
       

@@ -195,9 +195,14 @@ C$    trd=omp_get_thread_num()
 !                                           Southern edge Flather BC
 !                                           ======== ==== ======= ==
         do i=Istr,Iend
-          vbar(i,Jstr,knew)=-sqrt(2.*g/(h(i,Jstr)+h(i,Jstr-1)+
-     &                        zeta(i,Jstr,kstp)+zeta(i,Jstr-1,kstp)))
-     &                  *(0.5*(zeta(i,Jstr-1,knew)+zeta(i,Jstr,knew))
+#    ifdef NBQ
+          cff=-sqrt(2.*g/(zeta(i,Jstr,kstp)+zeta(i,Jstr-1,kstp)))
+#    else
+          cff=-sqrt(2.*g/(h(i,Jstr)+h(i,Jstr-1)+
+     &                    zeta(i,Jstr,kstp)+zeta(i,Jstr-1,kstp)))
+#    endif
+          vbar(i,Jstr,knew)=cff
+     &               *(0.5*(zeta(i,Jstr-1,knew)+zeta(i,Jstr,knew))
 #   ifdef Z_FRC_BRY
      &                                           -zetabry_south(i)
 #   elif defined ZCLIMATOLOGY
@@ -217,8 +222,12 @@ C$    trd=omp_get_thread_num()
 !                                            Southern edge Characteristic BC
 !                                            ======= ==== ======= ==
         do i=Istr,Iend
+#   ifdef NBQ
+          cff=0.5*(zeta(i,Jstr,kstp)+zeta(i,Jstr-1,kstp))
+#   else
           cff=0.5*(h(i,Jstr-1)+h(i,Jstr)
      &            +zeta(i,Jstr,kstp)+zeta(i,Jstr-1,kstp))
+#   endif
           hx=sqrt(g/cff)
           cx=dtfast*cff*hx*0.5*(pn(i,Jstr-1)+pn(i,Jstr))
   
@@ -352,8 +361,13 @@ C$    trd=omp_get_thread_num()
 !                                           Northern edge Flather BC
 !                                           ======== ==== ======= ==
         do i=Istr,Iend
-          vbar(i,Jend+1,knew)=sqrt(2.*g/(h(i,Jend)+h(i,Jend+1)
-     &                     +zeta(i,Jend,kstp)+zeta(i,Jend+1,kstp)))
+#   ifdef NBQ
+        cff=sqrt(2.*g/(zeta(i,Jend,kstp)+zeta(i,Jend+1,kstp)))
+#   else
+        cff=sqrt(2.*g/(h(i,Jend)+h(i,Jend+1)
+     &                +zeta(i,Jend,kstp)+zeta(i,Jend+1,kstp)))
+#   endif
+          vbar(i,Jend+1,knew)=cff
      &               *(0.5*( zeta(i,Jend,knew)+zeta(i,Jend+1,knew))
 #   ifdef Z_FRC_BRY
      &                                            -zetabry_north(i)
@@ -374,8 +388,12 @@ C$    trd=omp_get_thread_num()
 !                                            Northern edge Characteristic BC
 !                                            ======= ==== ======= ==
         do i=Istr,Iend
+#   ifdef NBQ
+          cff=0.5*(zeta(i,Jend,kstp)+zeta(i,Jend+1,kstp))
+#   else
           cff=0.5*(h(i,Jend)+h(i,Jend+1)+
      &             zeta(i,Jend,kstp)+zeta(i,Jend+1,kstp))
+#   endif
           hx=sqrt(g/cff)
           cx=dtfast*cff*hx*0.5*(pn(i,Jend)+pn(i,Jend+1))
   
@@ -508,10 +526,13 @@ C$    trd=omp_get_thread_num()
 !                                             Western edge Chapman BC
 !                                             ======= ==== ======= ==
         do j=JstrV,Jend
-          cx=dtfast*0.5*(pm(Istr-1,j-1)+pm(Istr-1,j))
-     &                     *sqrt(0.5*g*(h(Istr-1,j-1)+h(Istr-1,j)+
-     &                   zeta(Istr-1,j-1,kstp)+zeta(Istr-1,j,kstp)))
-
+#   ifdef NBQ
+          cff=sqrt(0.5*g*(zeta(Istr-1,j-1,kstp)+zeta(Istr-1,j,kstp)))
+#   else
+          cff=sqrt(0.5*g*(h(Istr-1,j-1)+h(Istr-1,j)+
+     &                    zeta(Istr-1,j-1,kstp)+zeta(Istr-1,j,kstp)))
+#   endif
+          cx=dtfast*cff*0.5*(pm(Istr-1,j-1)+pm(Istr-1,j))
           vbar(Istr-1,j,knew)=( vbar(Istr-1,j,kstp)
      &                         +cx*vbar(Istr,j,knew) )/(1.+cx)
 #   ifdef MASKING
@@ -638,10 +659,13 @@ C$    trd=omp_get_thread_num()
 !                                           Eastern edge Chapman BC
 !                                           ======= ==== ======= ==
         do j=JstrV,Jend
-          cx=dtfast*0.5*(pm(Iend+1,j-1)+pm(Iend+1,j))
-     &                    *sqrt(0.5*g*(h(Iend+1,j-1)+h(Iend+1,j)
-     &                  +zeta(Iend+1,j-1,kstp)+zeta(Iend+1,j,kstp)))
-
+#   ifdef NBQ
+          cff=sqrt(0.5*g*(zeta(Iend+1,j-1,kstp)+zeta(Iend+1,j,kstp)))
+#   else
+          cff=sqrt(0.5*g*(h(Iend+1,j-1)+h(Iend+1,j)+
+     &                    zeta(Iend+1,j-1,kstp)+zeta(Iend+1,j,kstp)))
+#   endif
+          cx=dtfast*cff*0.5*(pm(Iend+1,j-1)+pm(Iend+1,j))
           vbar(Iend+1,j,knew)=( vbar(Iend+1,j,kstp)
      &                         +cx*vbar(Iend,j,knew) )/(1.+cx)
 #   ifdef MASKING

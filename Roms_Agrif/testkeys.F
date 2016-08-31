@@ -19,13 +19,13 @@ OPENMPISDEFINED
 #ifdef MPI
 MPIISDEFINED
 #endif
-#ifdef OA_COUPLING
+#if defined OA_COUPLING || defined OW_COUPLING
 OACPLISDEFINED
-#ifdef OA_MCT
+# ifdef OA_MCT
 OACPL_MCTISDEFINED
-#else
+# else
 OACPL_OA3ISDEFINED
-#endif
+# endif
 #endif
 #ifdef XIOS
 XIOSISDEFINED

@@ -24,8 +24,7 @@
 !======================================================================
 !
 
-subroutine amub2_tri ( nrow, ncol, job, a, ja, ia, b, jb, ib, jc, ic, nzmax, &
-  iw, ierr_a )
+subroutine amub2_tri ( nrow, ncol, job, a, ja, ia, b, jb, ib)
 
 !**********************************************************************
 !
@@ -74,10 +73,6 @@ subroutine amub2_tri ( nrow, ncol, job, a, ja, ia, b, jb, ib, jc, ic, nzmax, &
 !         i-th row  of C with i = ierr_a, because the number
 !         of elements in C exceeds nzmax.
 !
-! work arrays:
-!
-!  iw      = integer work array of length equal to the number of
-!         columns in A.
 !
 !**********************************************************************
 !
@@ -101,20 +96,13 @@ subroutine amub2_tri ( nrow, ncol, job, a, ja, ia, b, jb, ib, jc, ic, nzmax, &
 
   real ( kind = 8 ) a(*)
   real ( kind = 8 ) b(*)
-!  real ( kind = 8 ) c(nzmax)
-!  integer ia(nrow+1)
-!  integer ib(ncol+1)
-!  integer ic(ncol+1)
   integer k
   integer ia(*)
   integer ib(*)
-  integer ic(*)
   integer ierr_a
   integer iii
-  integer iw(*)
   integer ja(*)
   integer jb(*)
-  integer jc(nzmax)
   integer jcol
   integer jjj
   integer job
@@ -122,73 +110,28 @@ subroutine amub2_tri ( nrow, ncol, job, a, ja, ia, b, jb, ib, jc, ic, nzmax, &
 !  integer k
   integer ka
   integer kb
-  integer len
   real ( kind = 8 ) scal
   logical values
 
-  pdv_nbq(1:neqmimp_nbq)=1.d0
-  plv_nbq(1:neqmimp_nbq)=0.d0
-  puv_nbq(1:neqmimp_nbq)=0.d0
-
-  values = ( job /= 0 )
-  len = 0
-  ic(1) = 1
-  ierr_a = 0
-!
-!  Initialize IW.
-!
-   iw(1:ncol) = 0
+  pdv_nbq(1:nrow)=1.d0
+  plv_nbq(1:nrow)=0.d0
+  puv_nbq(1:nrow)=0.d0
 
    do iii = 1, nrow
-!
-!  Row I.
-!
     do ka = ia(iii), ia(iii+1)-1
-
-      if ( values ) then
-        scal = a(ka)
-      end if
-
+      scal = a(ka)
       jjj = ja(ka)
-
       do kb = ib(jjj), ib(jjj+1)-1
-
-           jcol = jb(kb)
-           jpos = iw(jcol)
-
-           if ( jpos == 0 ) then
-              len = len + 1
-              if ( nzmax < len ) then
-                 ierr_a = iii
-                 return
-              end if
-              jc(len) = jcol
-              iw(jcol)= len
-              if ( values ) then
-        !       c(len) = scal * b(kb)
-                if (jcol.eq.iii) pdv_nbq(iii)=pdv_nbq(iii)     - scal * b(kb)
-                if (jcol.lt.iii) plv_nbq(iii-1)=plv_nbq(iii-1) - scal * b(kb)
-                if (jcol.gt.iii) puv_nbq(iii)=puv_nbq(iii)     - scal * b(kb)
-              end if
-           else
-              if ( values ) then
-        !        c(jpos) = c(jpos) + scal * b(kb)
-                if (jcol.eq.iii) pdv_nbq(iii)=pdv_nbq(iii)     - scal * b(kb)
-                if (jcol.lt.iii) plv_nbq(iii-1)=plv_nbq(iii-1) - scal * b(kb)
-                if (jcol.gt.iii) puv_nbq(iii)=puv_nbq(iii)     - scal * b(kb)
-              end if
-           end if
-
-         end do
-
+         jcol = jb(kb)
+         if (jcol.gt.iii) then
+            puv_nbq(iii)=puv_nbq(iii)     - scal * b(kb)
+         elseif (jcol.eq.iii) then 
+            pdv_nbq(iii)=pdv_nbq(iii)     - scal * b(kb)
+         else
+            plv_nbq(iii-1)=plv_nbq(iii-1) - scal * b(kb)
+         endif
+      end do
     end do
-
-    do k = ic(iii), len
-      iw(jc(k)) = 0
-    end do
-
-    ic(iii+1) = len + 1
-
   end do
 
   return

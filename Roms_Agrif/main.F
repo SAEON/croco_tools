@@ -31,6 +31,10 @@
           USE module_nh     ! NBQ modules
           USE module_nbq
 #endif
+#ifdef PISCES
+          USE pisces_ini     ! PISCES modules
+          USE trcini_pisces 
+#endif
 !     implicit none
       integer tile, subs, trd, ierr
 #include "param.h"
@@ -70,9 +74,6 @@
 #ifdef WKB_WWAVE
 # include "wkb_wwave.h"
 #endif
-#ifdef PISCES
-# include "parameter.h"
-#endif
      
 #ifdef AUTOTILING
 ! Initial values of NSUB_X, NSUB_E
@@ -88,7 +89,7 @@
 !----------------------------------------------------------------------
 !
 #ifdef MPI
-# if (!defined AGRIF && !defined OA_COUPLING)
+# if (!defined AGRIF && !defined OA_COUPLING && !defined OW_COUPLING)
       call MPI_Init (ierr)
 # endif   
 !
@@ -99,6 +100,8 @@
       call xios_initialize( "roms",return_comm=MPI_COMM_WORLD )
 # elif (defined OA_COUPLING && !defined AGRIF)
       call cpl_prism_init  ! If AGRIF --> call cpl_prism_init in zoom.F
+# elif (defined OW_COUPLING && !defined AGRIF)
+      call cpl_prism_init  ! In AGRIF case, cpl_prism_init is in zoom.F
 # elif defined AGRIF
       call Agrif_MPI_Init(MPI_COMM_WORLD)
 # endif
@@ -167,13 +170,15 @@
 # ifdef GLS_MIXING
       call init_gls (ierr)
 # endif
+
 !
 !  PISCES biogeochemeical model parameters
 !
-# ifdef PISCES
-      call trclsm
-      call get_dust
-# endif
+#if defined BIOLOGY && defined PISCES
+      CALL trc_nam_pisces
+      CALL trc_sbc_pisces
+#endif
+!
 !
 !  Read sediment initial values and parameters from sediment.in file
 !
@@ -303,7 +308,7 @@ C$OMP PARALLEL DO PRIVATE(tile)
 #if defined BIOLOGY && defined PISCES
 C$OMP PARALLEL DO PRIVATE(tile)
       do tile=0,NSUB_X*NSUB_E-1
-        call  pisces_ini (tile)
+        call  pisces_ini_tile (tile)
       enddo
 #endif
 CR      write(*,*) ' -6' MYID 
@@ -360,6 +365,10 @@ CR      write(*,*)  ' -3' MYID
 !
 #ifdef NBQ
       call initial_nh(2)
+C$OMP PARALLEL DO PRIVATE(tile)
+      do tile=0,NSUB_X*NSUB_E-1
+        call set_depth (tile)
+      enddo
 #endif
 !
 !----------------------------------------------------------------------
@@ -771,7 +780,7 @@ C$OMP PARALLEL DO PRIVATE(tile)            ! Stop timers and
 !     exe_time = start_time2 - start_time1
 !     if(mynode.eq.0) print*,'exe_time =',exe_time
 
-# ifdef OA_COUPLING
+# if defined OA_COUPLING || defined OW_COUPLING
       call prism_terminate_proto(ierr)       ! Finalize OASIS3
 # elif defined XIOS
                              ! MPI finalize done by XIOS, XIOS+OASIS not coded

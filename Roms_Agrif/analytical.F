@@ -49,7 +49,7 @@
 !
 !----------------------------------------------------------------------
 !
-# if !defined OPENMP
+#if !defined OPENMP
       integer function omp_get_thread_num()
       omp_get_thread_num=0
       return
@@ -58,7 +58,7 @@
       omp_get_num_threads=1
       return
       end
-# endif
+#endif
 !
 !======================================================================
 !                   subroutine ana_bmflux
@@ -83,12 +83,12 @@
 !
       do j=JstrR,JendR
         do i=Istr,IendR
-          bustr(i,j)=???
+          bustr(i,j)=0.
         enddo
       enddo
       do j=Jstr,JendR
         do i=IstrR,IendR
-          bvstr(i,j)=???
+          bvstr(i,j)=0.
         enddo
       enddo
       return
@@ -241,9 +241,9 @@ C$    integer  trd, omp_get_thread_num
       implicit none
 # include "param.h"
       integer tile
-#ifdef  ALLOW_SINGLE_BLOCK_MODE
+# ifdef  ALLOW_SINGLE_BLOCK_MODE
 C$    integer  trd, omp_get_thread_num
-#endif
+# endif
 # include "compute_tile_bounds.h"
       call ana_bsedim_tile   (Istr,Iend,Jstr,Jend)
       return
@@ -853,14 +853,14 @@ C$    integer  trd, omp_get_thread_num
             else
               sig = 26.2 + rhom*(depth-50.)*cff
             endif
-            t(i,j,k,1,itemp)=(R0-sig)/Tcoef
+            tclm(i,j,k,itemp)=(R0-sig)/Tcoef
 #   elif defined EXPERIMENT2	    
             if (depth.le.50.) then
              sig = 25.8
             else
              sig = 27.0
             endif
-            t(i,j,k,1,itemp)=(R0-sig)/Tcoef
+            tclm(i,j,k,itemp)=(R0-sig)/Tcoef
 #   else /* default EXPERIMENT3 */
             sig = 26.2 + rhom*(depth-50.)*cff
             tclm(i,j,k,itemp)=(R0-sig)/Tcoef
@@ -1367,7 +1367,7 @@ C$    integer  trd, omp_get_thread_num
 # endif
       integer Istr,Iend,Jstr,Jend, i,j,k
 !
-# include "compute_auxiliary_bounds.h" 
+# include "compute_extended_bounds.h" 
 !
 !  Set wind induced wave amplitude (m), direction (radians) and
 !  period (s) at RHO-points.
@@ -2016,9 +2016,9 @@ C$    integer  trd, omp_get_thread_num
       implicit none
 # include "param.h"
       integer tile
-#ifdef  ALLOW_SINGLE_BLOCK_MODE
+# ifdef  ALLOW_SINGLE_BLOCK_MODE
 C$    integer  trd, omp_get_thread_num
-#endif
+# endif
 # include "compute_tile_bounds.h"
       call ana_bry_tile   (Istr,Iend,Jstr,Jend)
       return
@@ -2373,9 +2373,9 @@ C$    integer  trd, omp_get_thread_num
       implicit none
       integer tile
 # include "param.h"
-#ifdef  ALLOW_SINGLE_BLOCK_MODE
+# ifdef  ALLOW_SINGLE_BLOCK_MODE
 C$    integer  trd, omp_get_thread_num
-#endif
+# endif
 # include "compute_tile_bounds.h"
       call ana_bry_bio_tile (Istr,Iend,Jstr,Jend)
       return
@@ -2392,7 +2392,7 @@ C$    integer  trd, omp_get_thread_num
 !
 # include "compute_auxiliary_bounds.h"
 !
-#  ifdef OBC_WEST
+# ifdef OBC_WEST
       if (WESTERN_EDGE) then
         do k=1,N
           do j=JstrR,JendR
@@ -2411,7 +2411,7 @@ C$    integer  trd, omp_get_thread_num
             xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
      &           +0.0003099*SiO4**3
             if (.not.got_tbry(iNO3_)) tbry_west(j,k,iNO3_)=xno3
-#    ifdef PISCES
+#  ifdef PISCES
             if (.not.got_tbry(iCAL_)) tbry_west(j,k,iCAL_)=0.01   
             if (.not.got_tbry(iPOC_)) tbry_west(j,k,iPOC_)=0.01
             if (.not.got_tbry(iPHY_)) tbry_west(j,k,iPHY_)=0.01
@@ -2427,19 +2427,19 @@ C$    integer  trd, omp_get_thread_num
             if (.not.got_tbry(iNCH_)) tbry_west(j,k,iNCH_)=1.e-2*12./55.
             if (.not.got_tbry(iDCH_)) tbry_west(j,k,iDCH_)=1.e-2*12./55.
             if (.not.got_tbry(iNH4_)) tbry_west(j,k,iNH4_)=1.e-2
-#    elif defined BIO_NChlPZD
+#  elif defined BIO_NChlPZD
             if (.not.got_tbry(iChla)) tbry_west(j,k,iChla)=0.08  
             if (.not.got_tbry(iPhy1)) tbry_west(j,k,iPhy1)=0.1
             if (.not.got_tbry(iZoo1)) tbry_west(j,k,iZoo1)=0.06
             if (.not.got_tbry(iDet1)) tbry_west(j,k,iDet1)=0.02
-#    elif defined BIO_N2ChlPZD2
+#  elif defined BIO_N2ChlPZD2
             if (.not.got_tbry(iNH4_)) tbry_west(j,k,iNH4_)=0.1  
             if (.not.got_tbry(iChla)) tbry_west(j,k,iChla)=0.08
             if (.not.got_tbry(iPhy1)) tbry_west(j,k,iPhy1)=0.06
             if (.not.got_tbry(iZoo1)) tbry_west(j,k,iZoo1)=0.04
             if (.not.got_tbry(iDet1)) tbry_west(j,k,iDet1)=0.02
             if (.not.got_tbry(iDet2)) tbry_west(j,k,iDet2)=0.02
-#    elif defined BIO_BioEBUS
+#  elif defined BIO_BioEBUS
             zbry=z_r(Istr,j,k)
             if (.not.got_tbry(iNO2_)) tbry_west(j,k,iNO2_)=0.05*
      &                               exp(zbry/100.)
@@ -2457,18 +2457,18 @@ C$    integer  trd, omp_get_thread_num
             if (.not.got_tbry(iDet2)) tbry_west(j,k,iDet2)=0.02
             if (.not.got_tbry(iDON))  tbry_west(j,k,iDON) =0.5*
      &                               exp(zbry/100.)
-#     ifdef NITROUS_OXIDE
+#   ifdef NITROUS_OXIDE
             if (.not.got_tbry(iN2O)) tbry_west(j,k,iN2O)=-(0.008*
      &                              exp(zbry/100.)-0.01)
             if (tbry_west(j,k,iN2O).lt.0.) tbry_west(j,k,iN2O)=0.  
-#     endif
-#    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS */
+#   endif
+#  endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS */
           enddo
         enddo
       endif
-#  endif /* OBC_WEST */   
+# endif /* OBC_WEST */   
 !
-#  ifdef OBC_EAST
+# ifdef OBC_EAST
       if (EASTERN_EDGE) then
         do k=1,N
           do j=JstrR,JendR
@@ -2487,7 +2487,7 @@ C$    integer  trd, omp_get_thread_num
             xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
      &           +0.0003099*SiO4**3
             if (.not.got_tbry(iNO3_)) tbry_east(j,k,iNO3_)=xno3
-#    ifdef PISCES
+#  ifdef PISCES
             if (.not.got_tbry(iCAL_)) tbry_east(j,k,iCAL_)=0.01   
             if (.not.got_tbry(iPOC_)) tbry_east(j,k,iPOC_)=0.01
             if (.not.got_tbry(iPHY_)) tbry_east(j,k,iPHY_)=0.01
@@ -2503,19 +2503,19 @@ C$    integer  trd, omp_get_thread_num
             if (.not.got_tbry(iNCH_)) tbry_east(j,k,iNCH_)=1.e-2*12./55.
             if (.not.got_tbry(iDCH_)) tbry_east(j,k,iDCH_)=1.e-2*12./55.
             if (.not.got_tbry(iNH4_)) tbry_east(j,k,iNH4_)=1.e-2
-#    elif defined BIO_NChlPZD
+#  elif defined BIO_NChlPZD
             if (.not.got_tbry(iChla)) tbry_east(j,k,iChla)=0.08   
             if (.not.got_tbry(iPhy1)) tbry_east(j,k,iPhy1)=0.1
             if (.not.got_tbry(iZoo1)) tbry_east(j,k,iZoo1)=0.06
             if (.not.got_tbry(iDet1)) tbry_east(j,k,iDet1)=0.02
-#    elif defined BIO_N2ChlPZD2
+#  elif defined BIO_N2ChlPZD2
             if (.not.got_tbry(iNH4_)) tbry_east(j,k,iNH4_)=0.1   
             if (.not.got_tbry(iChla)) tbry_east(j,k,iChla)=0.08
             if (.not.got_tbry(iPhy1)) tbry_east(j,k,iPhy1)=0.06
             if (.not.got_tbry(iZoo1)) tbry_east(j,k,iZoo1)=0.04
             if (.not.got_tbry(iDet1)) tbry_east(j,k,iDet1)=0.02
             if (.not.got_tbry(iDet2)) tbry_east(j,k,iDet2)=0.02
-#    elif defined BIO_BioEBUS
+#  elif defined BIO_BioEBUS
             zbry=z_r(IendR,j,k)
             if (.not.got_tbry(iNO2_)) tbry_east(j,k,iNO2_)=0.05*
      &                               exp(zbry/100.)
@@ -2533,18 +2533,18 @@ C$    integer  trd, omp_get_thread_num
             if (.not.got_tbry(iDet2)) tbry_east(j,k,iDet2)=0.02
             if (.not.got_tbry(iDON))  tbry_east(j,k,iDON) =0.5*
      &                               exp(zbry/100.)
-#     ifdef NITROUS_OXIDE
+#   ifdef NITROUS_OXIDE
             if (.not.got_tbry(iN2O)) tbry_east(j,k,iN2O)=-(0.008*
      &                               exp(zbry/100.)-0.01)
              if (tbry_east(j,k,iN2O).lt.0.) tbry_east(j,k,iN2O)=0.
-#     endif
-#    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS */
+#   endif
+#  endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS */
            enddo
          enddo
       endif
-#  endif /* OBC_EAST */   
+# endif /* OBC_EAST */   
 !
-#  ifdef OBC_NORTH
+# ifdef OBC_NORTH
        if (NORTHERN_EDGE) then
          do k=1,N
            do j=IstrR,IendR
@@ -2563,7 +2563,7 @@ C$    integer  trd, omp_get_thread_num
              xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
      &            +0.0003099*SiO4**3
              if (.not.got_tbry(iNO3_)) tbry_north(j,k,iNO3_)=xno3
-#    ifdef PISCES
+#  ifdef PISCES
              if (.not.got_tbry(iCAL_)) tbry_north(j,k,iCAL_)=0.01   
              if (.not.got_tbry(iPOC_)) tbry_north(j,k,iPOC_)=0.01
              if (.not.got_tbry(iPHY_)) tbry_north(j,k,iPHY_)=0.01
@@ -2579,19 +2579,19 @@ C$    integer  trd, omp_get_thread_num
              if (.not.got_tbry(iNCH_)) tbry_north(j,k,iNCH_)=1.e-2*12./55.
              if (.not.got_tbry(iDCH_)) tbry_north(j,k,iDCH_)=1.e-2*12./55.
              if (.not.got_tbry(iNH4_)) tbry_north(j,k,iNH4_)=1.e-2
-#    elif defined BIO_NChlPZD
+#  elif defined BIO_NChlPZD
              if (.not.got_tbry(iChla)) tbry_north(j,k,iChla)=0.08   
              if (.not.got_tbry(iPhy1)) tbry_north(j,k,iPhy1)=0.1
              if (.not.got_tbry(iZoo1)) tbry_north(j,k,iZoo1)=0.06
              if (.not.got_tbry(iDet1)) tbry_north(j,k,iDet1)=0.02
-#    elif defined BIO_N2ChlPZD2
+#  elif defined BIO_N2ChlPZD2
              if (.not.got_tbry(iNH4_)) tbry_north(j,k,iNH4_)=0.1   
              if (.not.got_tbry(iChla)) tbry_north(j,k,iChla)=0.08
              if (.not.got_tbry(iPhy1)) tbry_north(j,k,iPhy1)=0.06
              if (.not.got_tbry(iZoo1)) tbry_north(j,k,iZoo1)=0.04
              if (.not.got_tbry(iDet1)) tbry_north(j,k,iDet1)=0.02
              if (.not.got_tbry(iDet2)) tbry_north(j,k,iDet2)=0.02
-#    elif defined BIO_BioEBUS
+#  elif defined BIO_BioEBUS
              zbry=z_r(j,JendR,k)
              if (.not.got_tbry(iNO2_)) tbry_north(j,k,iNO2_)=0.05*
      &                                             exp(zbry/100.)
@@ -2609,18 +2609,18 @@ C$    integer  trd, omp_get_thread_num
              if (.not.got_tbry(iDet2)) tbry_north(j,k,iDet2)=0.02
              if (.not.got_tbry(iDON))  tbry_north(j,k,iDON) =0.5*
      &                               exp(zbry/100.)
-#     ifdef NITROUS_OXIDE
+#   ifdef NITROUS_OXIDE
             if (.not.got_tbry(iN2O)) tbry_north(j,k,iN2O)=-(0.008*
      &                                 exp(zbry/100.)-0.01)
             if (tbry_north(j,k,iN2O).lt.0.) tbry_north(j,k,iN2O)=0.
-#     endif
-#    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS */
+#   endif
+#  endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS */
            enddo
          enddo
       endif
-#  endif /* OBC_NORTH */   
+# endif /* OBC_NORTH */   
 
-#  ifdef OBC_SOUTH
+# ifdef OBC_SOUTH
        if (SOUTHERN_EDGE) then
          do k=1,N
            do j=IstrR,IendR
@@ -2639,7 +2639,7 @@ C$    integer  trd, omp_get_thread_num
              xno3=1.67+0.5873*SiO4+0.0144*SiO4**2
      &            +0.0003099*SiO4**3 
              if (.not.got_tbry(iNO3_)) tbry_south(j,k,iNO3_)=xno3
-#    ifdef PISCES
+#  ifdef PISCES
              if (.not.got_tbry(iCAL_)) tbry_south(j,k,iCAL_)=0.01   
              if (.not.got_tbry(iPOC_)) tbry_south(j,k,iPOC_)=0.01
              if (.not.got_tbry(iPHY_)) tbry_south(j,k,iPHY_)=0.01
@@ -2657,19 +2657,19 @@ C$    integer  trd, omp_get_thread_num
              if (.not.got_tbry(iDCH_)) tbry_south(j,k,iDCH_)=
      &                                                    1.e-2*12./55.
              if (.not.got_tbry(iNH4_)) tbry_south(j,k,iNH4_)=1.e-2
-#    elif defined BIO_NChlPZD
+#  elif defined BIO_NChlPZD
              if (.not.got_tbry(iChla)) tbry_south(j,k,iChla)=0.08   
              if (.not.got_tbry(iPhy1)) tbry_south(j,k,iPhy1)=0.1
              if (.not.got_tbry(iZoo1)) tbry_south(j,k,iZoo1)=0.06
              if (.not.got_tbry(iDet1)) tbry_south(j,k,iDet1)=0.02
-#    elif defined BIO_N2ChlPZD2
+#  elif defined BIO_N2ChlPZD2
              if (.not.got_tbry(iNH4_)) tbry_south(j,k,iNH4_)=0.1 
              if (.not.got_tbry(iChla)) tbry_south(j,k,iChla)=0.08
              if (.not.got_tbry(iPhy1)) tbry_south(j,k,iPhy1)=0.06
              if (.not.got_tbry(iZoo1)) tbry_south(j,k,iZoo1)=0.04
              if (.not.got_tbry(iDet1)) tbry_south(j,k,iDet1)=0.02
              if (.not.got_tbry(iDet2)) tbry_south(j,k,iDet2)=0.02
-#    elif defined BIO_BioEBUS
+#  elif defined BIO_BioEBUS
              zbry=z_r(j,JstrR,k)
             if (.not.got_tbry(iNO2_)) tbry_south(j,k,iNO2_)=0.05*
      &                                     exp(zbry/100.)
@@ -2687,18 +2687,18 @@ C$    integer  trd, omp_get_thread_num
             if (.not.got_tbry(iDet2)) tbry_south(j,k,iDet2)=0.02
             if (.not.got_tbry(iDON))  tbry_south(j,k,iDON) =0.5*
      &                                     exp(zbry/100.)
-#     ifdef NITROUS_OXIDE
+#   ifdef NITROUS_OXIDE
             if (.not.got_tbry(iN2O)) tbry_south(j,k,iN2O)=-(0.008*
      &                              exp(zbry/100.)-0.01)
              if (tbry_south(j,k,iN2O).lt.0.) then
                tbry_south(j,k,iN2O)=0.  
              endif
-#     endif
-#    endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS */
+#   endif
+#  endif /* PISCES or BIO_NChlPZD or BIO_N2ChlPZD2 or BIO_BioEBUS */
            enddo
          enddo
       endif
-#  endif /* OBC_SOUTH */   
+# endif /* OBC_SOUTH */   
       return
       end
 #else 

@@ -17,6 +17,7 @@
 
       subroutine send_xios_diags (tile)
       implicit none
+     
 # include "param.h"
 # ifdef SOLVE3D
 #  include "work.h"
@@ -44,6 +45,9 @@
 !
 
           USE xios     ! XIOS io
+#if defined BIOLOGY && defined PISCES
+          USE trcwri_pisces
+#endif
 
       implicit none
 # include "param.h"
@@ -82,7 +86,7 @@
       real eps
       parameter (eps=1.D-20)
       real stf_cff
-      real zz(1,1)
+      real zz(GLOBAL_2D_ARRAY,0:N)
       parameter(stf_cff=86400/0.01)
 !
 # include "compute_auxiliary_bounds.h"
@@ -108,20 +112,35 @@
 ! S-coordinate independent variables "sc_w", "sc_r" and stretching
 ! curves "Cs_w", "Cs_r" at W- and RHO-points.
 !
-      call xios_send_field("Cs_r",Cs_r)
-      call xios_send_field("Cs_w",Cs_w)
-      call xios_send_field("sc_r",sc_r)
-      call xios_send_field("sc_w",sc_w)
-      zz=hc
-      call xios_send_field("hc",zz)
-      zz=theta_s
-      call xios_send_field("theta_s",zz)
-      zz=theta_b
-      call xios_send_field("theta_b",zz)
-      zz=Tcline
-      call xios_send_field("Tcline",zz)
-      zz=REAL(Vtransform)
-      call xios_send_field("Vtransform",zz)
+!
+! Ugly fix to write scalars until XIOS 2.0
+!
+      do k=1,N
+      zz(:,:,k)=Cs_r(k)
+      end do
+      call xios_send_field("Cs_r",zz(:,:,1:N) )
+      do k=0,N
+      zz(:,:,k)=Cs_w(k)
+      end do
+      call xios_send_field("Cs_w",zz)
+      do k=1,N
+      zz(:,:,k)=sc_r(k)
+      end do
+      call xios_send_field("sc_r",zz(:,:,1:N) )
+      do k=0,N
+      zz(:,:,k)=sc_w(k)
+      end do
+      call xios_send_field("sc_w",zz)
+      zz(:,:,1)=hc
+      call xios_send_field("hc",zz(:,:,1))
+      zz(:,:,1)=theta_s
+      call xios_send_field("theta_s",zz(:,:,1))
+      zz(:,:,1)=theta_b
+      call xios_send_field("theta_b",zz(:,:,1))
+      zz(:,:,1)=Tcline
+      call xios_send_field("Tcline",zz(:,:,1))
+      zz(:,:,1)=REAL(Vtransform)
+      call xios_send_field("Vtransform",zz(:,:,1))
 # endif
 !
 ! Bathymetry.
@@ -160,7 +179,7 @@
 !
 ! Critical Depth for Drying cells
 !
-# if WET_DRY
+# ifdef WET_DRY
       call xios_send_field("Dcrit",Dcrit)
 # endif
 
@@ -374,7 +393,11 @@
       call xios_send_field("sst_skin",sst_skin)
 #  endif
      
-#  if defined BIOLOGY && !defined PISCES
+
+#  if defined BIOLOGY
+#   if defined PISCES
+      CALL trc_wri_pisces
+#   else
       call xios_send_field("hel",hel)     
 #   if (defined BIO_NChlPZD ||  defined BIO_N2ChlPZD2)
       call xios_send_field("theta",theta)
@@ -387,7 +410,7 @@
       call xios_send_field("AOU",AOU)
       call xios_send_field("wind10",wind10)
 #   endif
-! ouput of tracer to be done ...
+#   endif
 #  endif /* BIOLOGY */
 
 
@@ -511,6 +534,7 @@
 !     
 #  endif /* BBL */
 # endif /* SOLVE3D */
+
 
       return
       end

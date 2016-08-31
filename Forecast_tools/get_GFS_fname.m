@@ -29,35 +29,24 @@ function fname=get_GFS_fname(time,gfs_run_time,gfstype)
 %
 %  Updated    9-Sep-2006 by Pierrick Penven
 %  Updated    20-Aug-2008 by Matthieu Caillaud & P. Marchesiello
+%  Updated   12-Feb-2016 by P. Marchesiello
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%----------------------------------------------
+% set URL
 %
 url='http://nomads.ncep.noaa.gov:9090';
-%url='http://nomad5.ncep.noaa.gov:9090';
-%url='http://nomad1.ncep.noaa.gov:9090';
+%
+% set file types
 %
 if gfstype==0
-  %=== nomads ===
-  gfsname='fnl/fnl';
-  gfsname1='fnlflx';
-  %=== nomad1-5 ===
-  %gfsname='gdas/rotating/gdas';
-  %gfsname1='gdas';
+  gfsname ='fnl';
+  gfsname1='fnlflx';     % 1/2 GDAS data
 else
-  %=== nomads ===
-  gfsname='gfs_hd/gfs_hd';
-  gfsname1='gfs_hd';
- %=== nomad1 ===
-  %gfsname='gfs_master/gfs';
-  %gfsname1='gfs_master';
- %=== nomad5 ===
- % gfsname='gfs/gfs';
- % gfsname1='gfs';
+  gfsname ='gfs';
+%  gfsname1='gfs_0p25';  % 1/4 deg res GFS data
+  gfsname1='gfs_0p50';   % 1/2 deg res GFS data
 end
-%
-%----------------------------------------------
 %
 % Get the date
 %
@@ -73,24 +62,19 @@ if d<10
 else
   strd=num2str(d);
 end
-%
-gfsdir=[url,'/dods/',gfsname,stry,strm,strd,'/'];
-gdasdir=[url,'/dods/',gfsname,stry,strm,strd];
+if gfs_run_time < 10
+  strh='_0';
+else
+  strh='_';
+end
 %
 % Get the grid
 %
-if gfs_run_time < 10
-  if gfstype==0
-    %fname=[gdasdir,'0',num2str(gfs_run_time)];
-    fname=[gfsdir,gfsname1,'_0',num2str(gfs_run_time),'z'];
-  else
-    fname=[gfsdir,gfsname1,'_0',num2str(gfs_run_time),'z'];
-  end
+if gfstype==0
+  gfsdir =[url,'/dods/',gfsname,'/',gfsname,stry,strm,strd,'/'];
+  fname=[gfsdir,gfsname1,strh,num2str(gfs_run_time),'z'];
 else
-  if gfstype==0
-    %fname=[gdasdir,num2str(gfs_run_time)];
-    fname=[gfsdir,gfsname1,'_',num2str(gfs_run_time),'z'];
-  else
-    fname=[gfsdir,gfsname1,'_',num2str(gfs_run_time),'z'];
-  end
+  gfsdir =[url,'/dods/',gfsname1,'/',gfsname,stry,strm,strd,'/'];
+  fname=[gfsdir,gfsname1,strh,num2str(gfs_run_time),'z'];
 end
+fname

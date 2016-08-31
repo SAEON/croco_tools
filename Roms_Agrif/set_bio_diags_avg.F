@@ -80,7 +80,7 @@
         endif
 
 #ifdef PISCES
-# ifdef key_trc_dia3d
+# ifdef key_trc_diaadd
             do iflux = 1, NumFluxTerms
               do k = 1, N
                 do j = JstrR, JendR
@@ -92,8 +92,6 @@
                 enddo
               enddo
             enddo
-# endif
-# ifdef key_trc_diaadd
             do iflux = 1, NumVSinkTerms
                do j = JstrR, JendR
                   do i = IstrR, IendR

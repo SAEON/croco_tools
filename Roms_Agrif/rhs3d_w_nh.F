@@ -149,7 +149,7 @@
 
           do j=Jstr,Jend
             do i=I_EXT_RANGE
-              WFx(i,j)=(Wz(i,j,k,nrhs)-Wz(i,j,k,nrhs))
+              WFx(i,j)=(Wz(i,j,k,nrhs)-Wz(i-1,j,k,nrhs))
 #  ifdef MASKING
      &                                             *umask(i,j)
 #  endif

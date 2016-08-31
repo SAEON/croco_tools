@@ -37,6 +37,14 @@
       character*35 frmt
       parameter (iunit=50)
 !
+# ifdef MPI
+#  define LOCALLM Lmmpi
+#  define LOCALMM Mmmpi
+# else
+#  define LOCALLM Lm
+#  define LOCALMM Mm
+# endif
+!
       k=0
 !
 !---------------------------------------------------------------------
@@ -52,6 +60,7 @@
 !  Read input parameters according to their input card number.
 !
       icard=0
+
       do while (icard.lt.99)
 !
 !  Read in stations identification title.
@@ -70,14 +79,15 @@
           do while (.true.)
             i=i+1
             read(iunit,*,err=40) stat0(i), stax0(i), stay0(i), staz0(i),
-     &                    STgrd(i),stacoor(i)
+     &                           STgrd(i),stacoor(i)
             nstas=i
           enddo
   40      if (stat0(i).ne.99.0) then
             write(stdout,50) icard, i, staposname
-  50        format(/,' INIT_STATIONS - error while reading input card: ',
-     &             i2, ', STATIONS location entry: ',i3,/,15x,
-     &             'in input script: ',a)
+  50        format(/,
+     &            ' INIT_STATIONS - error while reading input card: ',
+     &            i2, ', STATIONS location entry: ',i3,/,15x,
+     &            'in input script: ',a)
             stop
           else
             Ncount=i-1
@@ -105,8 +115,9 @@
      &       i2,15x,'in input script: ',a)
 
   90  close(iunit)
-!!      MPI_master_only write(stdout,100) nstas
-!! 100  format(2x,'Number of stations (nstas) : ',i6,/)
+
+      MPI_master_only write(stdout,100) nstas
+ 100  format(2x,' INIT_STATIONS -- Number of stations (nstas) : ',i6,/)
 !
 !---------------------------------------------------------------------
 !  Set station location.
@@ -128,17 +139,21 @@
             stax0(i)=stax0(i)-ii*Lm
             stay0(i)=stay0(i)-jj*Mm
 # endif
-            if (stax0(i).ge.0 .and. stax0(i).lt.Lm+1 .and.
-     &          stay0(i).ge.0 .and. stay0(i).lt.Mm+1) then
-              stainfo(istaxgrd,nc)=MIN(MAX(0.5,stax0(i)),FLOAT(Lm)+0.5)
-              stainfo(istaygrd,nc)=MIN(MAX(0.5,stay0(i)),FLOAT(Mm)+0.5)
+            if (stax0(i).ge.0 .and. stax0(i).lt.LOCALLM+1 .and.
+     &          stay0(i).ge.0 .and. stay0(i).lt.LOCALMM+1) then
+              stainfo(istaxgrd,nc)=MIN(MAX(0.5,stax0(i)),
+     &                                     FLOAT(LOCALLM)+0.5)
+              stainfo(istaygrd,nc)=MIN(MAX(0.5,stay0(i)),
+     &                                     FLOAT(LOCALMM)+0.5)
             else
               nc=nc-1
             endif
           else
             mc=mc+1
-            if (stax0(i).ge.lonu(1,1) .and. stax0(i).lt.lonu(Lm+1,1) .and.
-     &          stay0(i).ge.latv(1,1) .and. stay0(i).lt.latv(1,Mm+1)) then
+            if (stax0(i).ge.lonu(1,1) .and. 
+     &          stax0(i).lt.lonu(LOCALLM+1,1) .and.
+     &          stay0(i).ge.latv(1,1) .and. 
+     &          stay0(i).lt.latv(1,LOCALMM+1)) then
               lon(mc)=stax0(i)
               lat(mc)=stay0(i)
               index(mc)=nc
@@ -165,30 +180,31 @@
 # endif
         do i=1,mc
           nc=index(i)
-          stainfo(istaxgrd,nc)=MIN(MAX(0.5,Ip0(i)),FLOAT(Lm)+0.5)
-          stainfo(istaygrd,nc)=MIN(MAX(0.5,Jp0(i)),FLOAT(Mm)+0.5)
+          stainfo(istaxgrd,nc)=MIN(MAX(0.5,Ip0(i)),FLOAT(LOCALLM)+0.5)
+          stainfo(istaygrd,nc)=MIN(MAX(0.5,Jp0(i)),FLOAT(LOCALMM)+0.5)
         enddo
       endif
 !
       return
 
  195  write(stdout,205) staposname
- 205  format(/,'float file ',A,/,' not found => float initialization', 
-     &   ' using restart file')
+ 205  format(/,'station file ',A,/,
+     &   ' not found => station initialization using restart file')
 
-c         call get_initial_sta
-c         ldefsta= .false.
+!         call get_initial_sta
+!         ldefsta= .false.
 
-C! Test de l'initialisation des flotteurs xa
-C      do nc=1,nfloats
-C      write(stdout,53) nc, Tinfo(ixgrd,nc), Tinfo(iygrd,nc),
-C     &    Tinfo(izgrd,nc), NINT(Tinfo(igrd,nc)), Tinfo(itstr,nc)
-C      enddo
-C! Fin test
+! Test initialization
+!      do nc=1,nfloats
+!      write(stdout,53) nc, Tinfo(ixgrd,nc), Tinfo(iygrd,nc),
+!     &    Tinfo(izgrd,nc), NINT(Tinfo(igrd,nc)), Tinfo(itstr,nc)
+!      enddo
+! Fin test
 
 #endif /* STATIONS */
       return
       end
+
 #if defined STATIONS && !defined FLOATS
       subroutine hindices (Ipos,Jpos,Xpos,Ypos,Npos,Xgrd,Ygrd)
 !
@@ -204,11 +220,12 @@ C! Fin test
 !                                                                    !
 !=====================================================================
 !
-#ifdef AGRIF
+# ifdef AGRIF
         USE Agrif_Util
-#endif
+# endif
       implicit none
 # include "param.h"
+# include "scalars.h"
 !
       logical found
       logical Try_Range
@@ -237,13 +254,14 @@ C! Fin test
 !
       do k=1,Npos
 
-      found=Try_Range(0,LLm+1,0,MMm+1,Xpos(k),Ypos(k),Xgrd,Ygrd)
+        Imin=0
+        Imax=LOCALLM+1
+        Jmin=0
+        Jmax=LOCALMM+1
 
-      if (found) then
-          Imin=0
-          Imax=LLm+1
-          Jmin=0
-          Jmax=MMm+1
+        found=Try_Range(Imin,Imax,Jmin,Jmax,Xpos(k),Ypos(k),Xgrd,Ygrd)
+
+        if (found) then
           do while (((Imax-Imin).gt.1).or.((Jmax-Jmin).gt.1))
             if ((Imax-Imin).gt.1) then
               i0=(Imin+Imax)/2
@@ -272,28 +290,28 @@ C! Fin test
 ! The nonalignment of xsi (eta) axis with longitude 
 ! (latitude) direction is taken into account. 
 
-           dy1=Ygrd(Imin,Jmin+1)-Ygrd(Imin,Jmin)
-           dx1=Xgrd(Imin,Jmin+1)-Xgrd(Imin,Jmin)
-           dy2=Ygrd(Imin+1,Jmin)-Ygrd(Imin,Jmin)
-           dx2=Xgrd(Imin+1,Jmin)-Xgrd(Imin,Jmin)
+          dy1=Ygrd(Imin,Jmin+1)-Ygrd(Imin,Jmin)
+          dx1=Xgrd(Imin,Jmin+1)-Xgrd(Imin,Jmin)
+          dy2=Ygrd(Imin+1,Jmin)-Ygrd(Imin,Jmin)
+          dx2=Xgrd(Imin+1,Jmin)-Xgrd(Imin,Jmin)
 
-           c1=Xpos(k)        *dy1-Ypos(k)        *dx1
-           c2=Xgrd(Imin,Jmin)*dy2-Ygrd(Imin,Jmin)*dx2
-           deltax=(c1*dx2-c2*dx1)/(dx2*dy1-dy2*dx1)
-           deltax=(deltax-Xgrd(Imin,Jmin))/dx2
-           Ipos(k)=FLOAT(Imin)+MIN(MAX(0.0,deltax),1.0)
+          c1=Xpos(k)        *dy1-Ypos(k)        *dx1
+          c2=Xgrd(Imin,Jmin)*dy2-Ygrd(Imin,Jmin)*dx2
+          deltax=(c1*dx2-c2*dx1)/(dx2*dy1-dy2*dx1)
+          deltax=(deltax-Xgrd(Imin,Jmin))/dx2
+          Ipos(k)=FLOAT(Imin)+MIN(MAX(0.0,deltax),1.0)
 
-           c1=Xgrd(Imin,Jmin)*dy1-Ygrd(Imin,Jmin)*dx1
-           c2=Xpos(k)        *dy2-Ypos(k)        *dx2
-           deltay=(c1*dy2-c2*dy1)/(dx2*dy1-dy2*dx1) 
-           deltay=(deltay-Ygrd(Imin,Jmin))/dy1
-           Jpos(k)=FLOAT(Jmin)+MIN(MAX(0.0,deltay),1.0)
+          c1=Xgrd(Imin,Jmin)*dy1-Ygrd(Imin,Jmin)*dx1
+          c2=Xpos(k)        *dy2-Ypos(k)        *dx2
+          deltay=(c1*dy2-c2*dy1)/(dx2*dy1-dy2*dx1) 
+          deltay=(deltay-Ygrd(Imin,Jmin))/dy1
+          Jpos(k)=FLOAT(Jmin)+MIN(MAX(0.0,deltay),1.0)
 
         endif
-
       enddo
       return
       end
+
       function Try_Range (Imin,Imax,Jmin,Jmax,Xo,Yo,Xgrd,Ygrd)
 !
 !================================================ Hernan G. Arango ===

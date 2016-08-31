@@ -4,11 +4,11 @@
          <field id="Cs_r" long_name="ocean s roms coordinate at rho point"  />
          <field id="sc_r" long_name="S-coordinate stretching curves at RHO-points"  />
       </field_group>
-      <field_group id="Vertical_dimension_w" domain_ref="1point" axis_ref="s_w"  >
+      <field_group id="Vertical_dimension_w"  domain_ref="1point" axis_ref="s_w"  >
          <field id="Cs_w" long_name="ocean s roms coordinate at w point"  />
          <field id="sc_w" long_name="S-coordinate stretching curves at W-points"  />
       </field_group>
-      <field_group id="My_scalar" domain_ref="1point"  >
+      <field_group id="scalar" domain_ref="1point"  >
          <field id="hc" long_name="S-coordinate parameter, critical depth"  />
          <field id="theta_s" long_name="S-coordinate surface control parameter"  />
          <field id="theta_b" long_name="S-coordinate bottom control parameter"  />
@@ -36,7 +36,7 @@
          <field id="lat_v" long_name="latitude of V-points" unit="degree_north" />
 #else
          <field id="x_rho" long_name="x-locations of RHO-points" unit="meter" />
-         <field id="x_rho" long_name="mask on RHO-points" unit="none" />
+         <field id="y_rho" long_name="y-locations of RHO-points" unit="none" />
 #endif
 #ifdef CURVGRID
          <field id="angle" long_name="angle between XI-axis and EAST" unit="radians" />
@@ -135,11 +135,65 @@
 # endif
          <!-- END WKB_WWAVE -->
 #endif
-#if defined BIOLOGY && ! defined PISCES
-         <!-- BIOLOGY && ! PISCES -->
-         <!-- tracer to add manually -->
-         <field id="hel" long_name="depth of euphotic layer" unit="meter" />
-# if defined IO_NChlPZD || defined BIO_N2ChlPZD2
+#if defined BIOLOGY 
+         <!-- BIOLOGY  -->
+# if defined PISCES
+         <field id="DIC"      long_name="Dissolved inorganic Concentration"        unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="Alkalini" long_name="Total Alkalinity Concentration"           unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="O2"       long_name="Oxygen Concentration"                     unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="CaCO3"    long_name="Calcite Concentration"                    unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="PO4"      long_name="Phosphate Concentration"                  unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="POC"      long_name="Small organic carbon Concentration"       unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="Si"       long_name="Silicate Concentration"                   unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="PHY"      long_name="(Nano)Phytoplankton Concentration"        unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="ZOO"      long_name="(Micro)Zooplankton Concentration"         unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="DOC"      long_name="Dissolved organic Concentration"          unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="PHY2"     long_name="Diatoms Concentration"                    unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="ZOO2"     long_name="Mesozooplankton Concentration"            unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="BSi"      long_name="Diatoms Silicate Concentration"           unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="Fer"      long_name="Dissolved Iron Concentration"             unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="BFe"      long_name="Big iron particles Concentration"         unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="GOC"      long_name="Big organic carbon Concentration"         unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="SFe"      long_name="Small iron particles Concentration"       unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="DFe"      long_name="Diatoms iron  Concentration"              unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="DSi"      long_name="Sinking biogenic Silicate Concentration"  unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="NFe"      long_name="Nano iron Concentration"                  unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="NCHL"     long_name="Nano chlorophyl Concentration"            unit="mg/m3"   grid_ref="rho_3D" />
+         <field id="DCHL"     long_name="Diatoms chlorophyl Concentration"         unit="mg/m3"   grid_ref="rho_3D" />
+         <field id="NO3"      long_name="Nitrate Concentration"                    unit="mmol/m3" grid_ref="rho_3D" />
+         <field id="NH4"      long_name="Ammonium Concentration"                   unit="mmol/m3" grid_ref="rho_3D" />
+# if defined key_trc_diaadd
+         <field id="PH"       long_name="PH"                                       unit="-"           grid_ref="rho_3D" />
+         <field id="CO3"      long_name="Bicarbonates"                             unit="mol/L"       grid_ref="rho_3D" />
+         <field id="CO3sat"   long_name="CO3 saturation"                           unit="mol/L"       grid_ref="rho_3D" />
+         <field id="PAR"      long_name="Photosynthetically Available Radiation"   unit="W/m2"        grid_ref="rho_3D" />
+         <field id="PPPHY"    long_name="Primary production of nanophyto"          unit="molC/m3/s"   grid_ref="rho_3D" />
+         <field id="PPPHY2"   long_name="Primary production of diatoms"            unit="molC/m3/s"   grid_ref="rho_3D" />
+         <field id="PPNEWN"   long_name="New Primary production of nanophyto"      unit="molC/m3/s"   grid_ref="rho_3D" />
+         <field id="PPNEWD"   long_name="New Primary production of diatoms"        unit="molC/m3/s"   grid_ref="rho_3D" />
+         <field id="PBSi"     long_name="Primary production of Si diatoms"         unit="molSi/m3/s"  grid_ref="rho_3D" />
+         <field id="PFeN"     long_name="Primary production of nano iron"          unit="molFe/m3/s"  grid_ref="rho_3D" />
+         <field id="PFeD"     long_name="Primary production of diatoms iron"       unit="molFe/m3/s"  grid_ref="rho_3D" />
+         <field id="PPNEWo2"  long_name="Oxygen production by the New Produc."     unit="molC/m3/s"  grid_ref="rho_3D" />
+         <field id="PPRego2"  long_name="Oxygen production by the Regen Produc."   unit="molC/m3/s"  grid_ref="rho_3D" />
+         <field id="GRAZ"     long_name="Total Grazing by zooplankton"             unit="molC/m3/s"   grid_ref="rho_3D" />
+         <field id="Nito2"    long_name="O2 consumption by nitrification"          unit="molC/m2/s"  grid_ref="rho_3D" />
+         <field id="Nremino2" long_name="O2 consumption by remineralisation"       unit="molC/m2/s"  grid_ref="rho_3D" />
+         <field id="Nfixo2"   long_name="O2 production by Nfix"                    unit="molN/m2/s"  grid_ref="rho_3D"     />
+         <field id="Cflx"     long_name="DIC flux"                                 unit="molC/m2/s"      />
+         <field id="Oflx"     long_name="Oxygen flux"                              unit="molC/m2/s"      />
+         <field id="Kg"       long_name="Gas transfer"                             unit="molC/m2/s/uatm" />
+         <field id="Dpco2"    long_name="Delta CO2"                                unit="uatm"            />
+         <field id="EPC100"   long_name="Export of carbon particles at 100 m"      unit="molC/m2/s"      />
+         <field id="EPFE100"  long_name="Export of biogenic iron at 100 m"         unit="molFe/m2/s"     />
+         <field id="EPSI100"  long_name="Export of Silicate at 100 m"              unit="molSi/m2/s"     />
+         <field id="EPCAL100" long_name="Export of Calcite at 100 m"               unit="molC/m2/s"      />
+         <field id="Heup"     long_name="Euphotic layer depth"                     unit="m"               />
+         <field id="Nfix"     long_name="Nitrogen fixation at surface"             unit="molN/m2/s"      />
+         <field id="Irondep"  long_name="Iron deposition"                          unit="molFe/m2/s"     />
+# endif
+
+# elif defined IO_NChlPZD || defined BIO_N2ChlPZD2
          <!--BIO_NChlPZD || BIO_N2ChlPZD2 --> 
          <field id="theta" long_name="Chlorophyll to Carbon ratio" unit="mgChl/mgC" />
 #  if defined OXYGEN
@@ -152,6 +206,9 @@
          <!-- BIOEBUS --> 
          <field id="AOU" long_name="Apparent Oxygen Utilization" unit="mmol O2 m-3" />
          <field id="wind10" long_name="surface wind speed (10 m)" unit="meter second-1" />
+# else
+         <!-- tracer to add manually -->
+         <field id="hel" long_name="depth of euphotic layer" unit="meter" />
 # endif
          <!--  END BIOLOGY -->      
 #endif

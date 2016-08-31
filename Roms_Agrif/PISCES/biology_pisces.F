@@ -9,9 +9,8 @@
 ! ROMS_AGRIF website : http://www.romsagrif.org
 !=========================================================================
 !
-#include "cppdefs.h"
 
-      subroutine biology_tile (Istr,Iend,Jstr,Jend)
+       subroutine biology_tile(Istr,Iend,Jstr,Jend)
 !------------------------------------------------------------------
 !
 !   ROUTINE biology_pisces : PISCES MODEL
@@ -25,17 +24,67 @@
 !                       BETWEEN THE DIFFERENT COMPARTMENTS OF THE
 !                       MODEL
 !----------------------------------------------------------------
-      implicit none
-      INTEGER Istr,Iend,Jstr,Jend
-# include "param.h"
-# include "scalars.h"
-      INTEGER ktask
+       USE sms_pisces
+       USE trcsms_pisces
 
-      ktask=1
+C       implicit none
+       INTEGER Istr,Iend,Jstr,Jend
+       INTEGER i, j, jk, k, jn
+       REAL  zdiag(GLOBAL_2D_ARRAY,0:N)
 
-      CALL ropistep(Istr,Iend,Jstr,Jend)
-      CALL p4zprg(ktask,iic,Istr,Iend,Jstr,Jend)
-      CALL pirostep(Istr,Iend,Jstr,Jend)
+#include "ocean2pisces.h90"
+
+
+      CALL ocean_2_pisces( Istr,Iend,Jstr,Jend) 
+
+      DO jn = 1, jptra
+         DO jk = KRANGE
+            DO j = JRANGE
+               DO i = IRANGE          ! masked grid volume
+                  trn(i,j,K,jn) 
+     &           = MAX( 0., trn(i,j,K,jn) * 1.e-6 )
+               ENDDO
+            ENDDO
+         ENDDO
+      END DO
+      DO jk = KRANGE
+         DO j = JRANGE
+            DO i = IRANGE          ! masked grid volume
+                trn(i,j,K,jpno3) 
+     &        = trn(i,j,K,jpno3) / rno3
+                trn(i,j,K,jpnh4) 
+     &        = trn(i,j,K,jpnh4) / rno3
+                trn(i,j,K,jppo4) 
+     &        = trn(i,j,K,jppo4) / po4r
+            ENDDO
+         ENDDO
+      ENDDO
+
+      CALL trc_sms_pisces( iic )
+
+      DO jn = 1, jptra
+         DO jk = KRANGE
+            DO j = JRANGE
+               DO i = IRANGE          ! masked grid volume
+                  trn(i,j,K,jn) 
+     &          = trn(i,j,K,jn) * 1.e6
+               ENDDO
+            ENDDO
+         ENDDO
+      END DO
+      DO jk = KRANGE
+         DO j = JRANGE
+            DO i = IRANGE          ! masked grid volume
+               trn(i,j,K,jpno3)
+     &       = trn(i,j,K,jpno3) * rno3
+               trn(i,j,K,jpnh4) 
+     &       = trn(i,j,K,jpnh4) * rno3
+               trn(i,j,K,jppo4) 
+     &       = trn(i,j,K,jppo4) * po4r
+            ENDDO
+         ENDDO
+      ENDDO
+
 
       RETURN       
       END

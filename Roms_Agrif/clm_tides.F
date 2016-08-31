@@ -217,7 +217,10 @@
           omega=cff/Tperiod(itide)
           do j=Jstr-1,JendR
             do i=Istr-1,IendR
-              angle=UV_Tangle(i,j,itide)-angler(i,j)
+              angle=UV_Tangle(i,j,itide)
+#  ifdef CURVGRID
+     &                      -angler(i,j)
+#  endif
               phase=omega-UV_Tphase(i,j,itide)
               Cangle(i,j)=COS(angle)
               Cphase(i,j)=COS(phase)

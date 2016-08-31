@@ -25,7 +25,7 @@
 #ifdef BBL
 # include "bbl.h"
 #endif
-#ifdef OA_COUPLING
+#if defined OA_COUPLING || defined OW_COUPLING
 # include "mpi_roms.h"
 #endif
 #ifdef NBQ
@@ -377,7 +377,7 @@
       ierr=nf_close(ncid)
 #endif
 
-#ifdef OA_COUPLING
+#if defined OA_COUPLING || defined OW_COUPLING
       call cpl_prism_define
       oasis_time = 0
       MPI_master_only write(*,*)'CPL-ROMS: OASIS_TIME',oasis_time

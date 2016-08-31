@@ -857,7 +857,7 @@ C$    integer omp_get_thread_num
                t(i,j,k,2,iPO4_)=t(i,j,k,1,iPO4_)
             endif
             if (.not.got_tini(iPOC_))  then
-              t(i,j,k,1,iPOC_)=1.e-3
+              t(i,j,k,1,iPOC_)=1.e-2
               t(i,j,k,2,iPOC_)=t(i,j,k,1,iPOC_)
             endif
             if (.not.got_tini(iSIL_))  then
@@ -1056,8 +1056,13 @@ C$    integer omp_get_thread_num
 # ifdef SOLVE3D
       do itrc=1,NT
         if (.not.got_tini(itrc)) then
+#  ifdef THREE_GHOST_POINTS_TS
+          call exchange_r3d_3pts_tile (Istr,Iend,Jstr,Jend,
+     &                                 t(START_2D_ARRAY,1,1,itrc))
+#  else
           call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                            t(START_2D_ARRAY,1,1,itrc))
+#  endif
         endif
       enddo
 # endif
@@ -1249,8 +1254,13 @@ C$    integer omp_get_thread_num
         enddo
       enddo
 # if defined EW_PERIODIC || defined NS_PERIODIC || defined  MPI
+#  ifdef THREE_GHOST_POINTS_TS
+      call exchange_r3d_3pts_tile (Istr,Iend,Jstr,Jend,
+     &                             t(START_2D_ARRAY,1,tndx,1))
+#  else
       call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                        t(START_2D_ARRAY,1,tndx,1))
+#  endif
       call exchange_r3d_tile (Istr,Iend,Jstr,Jend,
      &                        rho(START_2D_ARRAY,1))
 # endif

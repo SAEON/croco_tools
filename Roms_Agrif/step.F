@@ -34,12 +34,13 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #ifdef SOLVE3D   
  
-#ifdef OA_COUPLING
+#if defined OA_COUPLING || defined OW_COUPLING
 !--Get phase of OASIS3  
        if ((iif==-1).and.(oasis_time < oasis_runtime)) then 
-         call cpl_prism_put (oasis_time)        
+         print *, 'oasis time before get = ', oasis_time
+!         call cpl_prism_put (oasis_time) ! moved to the end of the step       
          call cpl_prism_get (oasis_time)
-         oasis_time = oasis_time + dt    
+!         oasis_time = oasis_time + dt   ! moved to the end of the step 
        endif 
 #endif /* OA_COUPLING */
 
@@ -74,6 +75,14 @@ C$OMP END PARALLEL
         iif = -1
         nbstep3d = nbstep3d + 1
       endif
+#if defined OA_COUPLING || defined OW_COUPLING
+!--Get phase of OASIS3  
+       if ((iif==-1).and.(oasis_time < oasis_runtime)) then
+         print *, 'oasis time before put = ', oasis_time
+         call cpl_prism_put (oasis_time)        
+         oasis_time = oasis_time + dt
+       endif
+#endif /* OA_COUPLING */
 #endif
       return
       end
@@ -93,6 +102,9 @@ C$OMP END PARALLEL
 #include "param.h"
 #include "scalars.h"
 #include "ncscrum.h"
+#ifdef NBQ
+# include "nbq.h"
+#endif
 #ifdef FLOATS
 # include "floats.h"
 #endif
@@ -145,9 +157,9 @@ C$OMP MASTER
 
 #ifdef AGRIF
 # ifdef XIOS
-      if( nbcoarse == 1 )then
+!      if( nbcoarse == 1 )then
         call iom_swap( "roms" )
-      endif
+!      endif
 # endif
 #endif
 
@@ -379,7 +391,20 @@ C$OMP BARRIER
 # elif defined BVF_MIXING
         call bvf_mix (tile)
 # endif
+
+# ifdef NBQ_CONS2
+        call cons_nbq(300)
+# endif
+# ifdef NBQ_CONS3
+        call cons_nbq(100)
+# endif
+
         call omega (tile)
+
+# ifdef NBQ_CONSOUT
+        call consout_nbq(200)
+# endif
+
 # ifdef VIS_COEF_3D
         call hvisc_coef (tile)
 # endif
@@ -643,6 +668,9 @@ C$OMP END MASTER
 #include "param.h"
 #include "scalars.h"
 #include "ncscrum.h"
+#ifdef NBQ
+# include "nbq.h"
+#endif
 #ifdef FLOATS
 # include "floats.h"
 #endif
@@ -687,6 +715,7 @@ C$OMP BARRIER
       do tile=my_first,my_last
         call set_depth (tile)
       enddo
+
 C$OMP BARRIER
 
       do tile=my_first,my_last
@@ -695,9 +724,23 @@ C$OMP BARRIER
 C$OMP BARRIER
 
       do tile=my_first,my_last
+
+# ifdef NBQ_CONS2
+        call cons_nbq(301)
+# endif
+# ifdef NBQ_CONS3
+        call cons_nbq(101)
+# endif
+
         call omega (tile)
+
+# ifdef NBQ_CONSOUT
+        call consout_nbq(201)
+# endif
         call rho_eos (tile)
+
       enddo
+
 C$OMP BARRIER
 
       do tile=my_first,my_last
@@ -752,6 +795,9 @@ C$OMP END MASTER
 #include "param.h"
 #include "scalars.h"
 #include "ncscrum.h"
+#ifdef NBQ
+# include "nbq.h"
+#endif
 #ifdef FLOATS
 # include "floats.h"
 #endif
@@ -796,7 +842,20 @@ C$OMP BARRIER
 #ifdef SOLVE3D
 
       do tile=my_first,my_last
+
+# ifdef NBQ_CONS2
+        call cons_nbq(302)
+# endif
+# ifdef NBQ_CONS3
+        call cons_nbq(102)
+# endif
+
         call omega (tile)
+
+# ifdef NBQ_CONSOUT
+        call consout_nbq(202)
+# endif
+
 # ifdef GLS_MIXING
         call step3d_gls (tile)
 # endif

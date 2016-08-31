@@ -319,12 +319,16 @@
 
 #if        (!defined BULK_FLUX  && !defined ANA_SMFLUX) \
         || (defined TIDES) \
-        || (defined MRL_WCI     && !defined ANA_WWAVE   && !defined WKB_WWAVE) \
+        || (defined MRL_WCI     && !defined ANA_WWAVE   && \
+                                   !defined WKB_WWAVE && \
+                                   !defined OW_COUPLING) \
         || (defined SOLVE3D     && (\
                                   (!defined ANA_STFLUX  && !defined BULK_FLUX) \
         ||                         !defined ANA_BTFLUX   \
         || (defined BBL         && !defined ANA_BSEDIM  && !defined SEDIMENT) \
-        || (defined BBL         && !defined ANA_WWAVE   && !defined WKB_WWAVE) \
+        || (defined BBL         && !defined ANA_WWAVE   && \
+                                   !defined WKB_WWAVE && \
+                                   !defined OW_COUPLING) \
         || (defined QCORRECTION && !defined ANA_SST)   \
         || (defined SALINITY    && !defined ANA_SSFLUX  && \
                                    !defined BULK_FLUX   && !defined BULK_EP) \
@@ -649,9 +653,9 @@ c        close(testunit)
      &        ldefflt, 'nflt =', nflt, 'rec/file =', nrpfflt
 #ifdef AGRIF
         else
-          ldefflt=Agrif_Parent("ldefflt",ldefflt)
-          nflt=Agrif_Parent("nflt",nflt)
-          nrpfflt=Agrif_Parent("nrpfflt",nrpfflt)
+          ldefflt=Agrif_Parent(ldefflt)
+          nflt=Agrif_Parent(nflt)
+          nrpfflt=Agrif_Parent(nrpfflt)
         endif
 #endif
 #endif /* FLOATS */
@@ -679,9 +683,9 @@ c        close(testunit)
      &        ldefsta, 'nsta =', nsta, 'rec/file =', nrpfsta
 # ifdef AGRIF
         else
-          ldefsta=Agrif_Parent("ldefsta",ldefsta)
-          nsta=Agrif_Parent("nsta",nsta)
-          nrpfsta=Agrif_Parent("nrpfsta",nrpfsta)
+          ldefsta=Agrif_Parent(ldefsta)
+          nsta=Agrif_Parent(nsta)
+          nrpfsta=Agrif_Parent(nrpfsta)
         endif
 # endif
 #endif /* STATIONS */
@@ -1799,6 +1803,28 @@ CR        write(*,*)'NumGasExcTerms=',NumGasExcTerms
 # endif /* AVERAGES */
 #endif /* MRL_WCI */
 
+#ifdef OW_COUPLING
+!
+! coupled wave history fields
+!
+      elseif (keyword(1:kwlen).eq.'wkb_history_fields') then
+        call cancel_kwd (keyword(1:kwlen), ierr)
+        read(input,*,err=95) (wrthis(i), i=indxHRM,indxHRM+8)
+        MPI_master_only write(stdout,'(/1x,A,9(/6x,l1,2x,A))')
+     &    'Fields to be saved in wave history  (T/F)',
+     &    wrthis(indxHRM), 'write WHRM  RMS wave height (m)',
+     &    wrthis(indxFRQ), 'write WFRQ  intrinsic frequency (rad/s)',
+     &    wrthis(indxWAC), 'write WAC  primary wave action (m3/s)',
+     &    wrthis(indxWKX), 'write WDRX  cosine of wave direction',
+     &    wrthis(indxWKE), 'write WDRE  sine of wave direction',
+     &    wrthis(indxEPB), 'write WDSP  breaking dissipation (m3/s3)',
+     &    wrthis(indxEPD), 'write WDRG  frictional dissipation (m3/s3)',
+     &    wrthis(indxWAR), 'write WAR  roller wave action (m3/s)',
+     &    wrthis(indxEPR),
+     &              'write RDSP  roller dissipation (m3/s3): [0,1]'
+
+#endif /* OW_COUPLING */
+ 
 #ifdef WKB_WWAVE
 !
 ! WKB wave history fields

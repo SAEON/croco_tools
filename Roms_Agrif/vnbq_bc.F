@@ -86,8 +86,8 @@ c        call vnbq_bc_interp_tile(Istr,Iend,Jstr,Jend)
       tau_out=dt*tauM_out
 # endif
 !
-# define nnew 2
-# define nstp 1
+# define nnew vnnew_nbq
+# define nstp vnstp_nbq
 !
 # ifndef NS_COM_PERIODIC
 !
@@ -418,7 +418,8 @@ c        call vnbq_bc_interp_tile(Istr,Iend,Jstr,Jend)
 #     endif
 #    endif
 #    ifdef MASKING
-            qdm_nbq_a(l_b_j,nnew)=qdm_nbq_a(l_b_j,nnew)*vmask(Istr-1,j)
+            qdm_nbq_a(l_b_j,nnew)=qdm_nbq_a(l_b_j,nnew)
+     &                                             *vmask(Istr-1,j)
 #    endif
 #    ifdef WET_DRY
             qdm_nbq_a(l_b_j,nnew)=qdm_nbq_a(l_b_j,nnew)
@@ -551,7 +552,8 @@ c        call vnbq_bc_interp_tile(Istr,Iend,Jstr,Jend)
 #     endif
 #    endif
 #    ifdef MASKING
-            qdm_nbq_a(l_b_j,nnew)=qdm_nbq_a(l_b_j,nnew)*vmask(Iend+1,j)
+            qdm_nbq_a(l_b_j,nnew)=qdm_nbq_a(l_b_j,nnew)
+     &                                             *vmask(Iend+1,j)
 #    endif
 #    ifdef WET_DRY
            qdm_nbq_a(l_b_j,nnew)=qdm_nbq_a(l_b_j,nnew)

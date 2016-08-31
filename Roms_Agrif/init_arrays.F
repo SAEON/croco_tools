@@ -317,12 +317,10 @@ C$    integer omp_get_thread_num
         do j=JstrR,JendR
           do i=IstrR,IendR
 #  ifdef PISCES
-#   ifdef key_trc_dia3d
+#   ifdef key_trc_diaadd
             do iflux=1,NumFluxTerms
               bioFlux(i,j,k,iflux) = init
             enddo
-#   endif
-#   ifdef key_trc_diaadd
             do iflux=1,NumVSinkTerms
               bioVSink(i,j,iflux)= init
             enddo
@@ -1074,7 +1072,7 @@ C$    integer omp_get_thread_num
 # ifdef NBQ
       do j=JstrR,JendR
         do i=IstrR,IendR
-          rhobar_nbq(i,j)=1.
+          rhobar_nbq(i,j,:)=1.
           rhobar_nbq_avg1(i,j)=1.
           rubar_nbq(i,j)=init
           rvbar_nbq(i,j)=init

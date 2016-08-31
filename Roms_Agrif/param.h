@@ -36,12 +36,14 @@
       parameter (LLm0=66,   MMm0=48,   N=16)
 #elif defined EQUATOR
       parameter (LLm0=40,   MMm0=32,   N=32)   ! 100 km resolution
+#elif defined KH_INST 
+      parameter (LLm0=256,  MMm0=1,    N=256)   
+#elif defined ACOUS 
+      parameter (LLm0=64,   MMm0=1,    N=64)  
 #elif defined GRAV_ADJ
 # ifdef NBQ
 #  ifdef GRAV_ADJ_SOLITON
       parameter (LLm0=60,   MMm0=1,    N=74)   !  10 cm resolution
-#  elif GRAV_ADJ_ACOUSTIC
-      parameter (LLm0=64,   MMm0=1,    N=64)   !   2  m resolution
 #  else
 !     parameter (LLm0=600,  MMm0=1,    N=60)   !   5 mm resolution
       parameter (LLm0=300,  MMm0=1,    N=30)   !  10 mm resolution
@@ -57,10 +59,10 @@
 !     parameter (LLm0=120,  MMm0=10,   N=40)   !  10 km resolution
 !     parameter (LLm0=800,  MMm0=4,    N=40)   ! 1.5 km resolution
       parameter (LLm0=1600, MMm0=4,    N=40)   ! .75 km resolution
+#elif defined S2DV 
+      parameter (LLm0=256, MMm0=3,    N=40)
 #elif defined IGW
-!      parameter (LLm0=878, MMm0=3,    N=80)   !   1 km resolution  
        parameter (LLm0=878, MMm0=3,    N=40)
-!      parameter (LLm0=878, MMm0=3,    N=20)
 #elif defined OVERFLOW
       parameter (LLm0=4,    MMm0=128,  N=10)
 #elif defined RIVER
@@ -182,7 +184,7 @@
       integer NSUB_X, NSUB_E, NPP
 #ifdef MPI
       integer NP_XI, NP_ETA, NNODES     
-      parameter (NP_XI=1, NP_ETA=4,  NNODES=NP_XI*NP_ETA)
+      parameter (NP_XI=1,  NP_ETA=4,  NNODES=NP_XI*NP_ETA)
       parameter (NPP=1)
       parameter (NSUB_X=1, NSUB_E=1)
 #elif defined OPENMP
@@ -222,7 +224,7 @@
 #if defined SSH_TIDES || defined UV_TIDES
       integer Ntides             ! Number of tides
                                  ! ====== == =====
-# ifdef IGW
+# if defined IGW || defined S2DV
       parameter (Ntides=1)
 # else
       parameter (Ntides=8)
@@ -403,18 +405,15 @@
      &          , iBFE_, iGOC_, iSFE_, iDFE_, iDSI_
      &          , iNFE_, iNCH_, iDCH_, iNO3_, iNH4_
 #   ifdef DIAGNOSTICS_BIO
-#    ifdef key_trc_dia3d
-     &          , Nhi,Nco3,Naksp,Netot,Nprorca
-     &          , Nprorca2,Npronew,Npronew2
-     &          , Nprorca3,Nprorca4,Nprorca5
-     &          , Ngraztot1,Ngraztot2,Nnitrifo2
-     &          , Npronewo2,Nprorego2,Nremino2
-     &          , Nmicroo2,Nmesoo2,Nfixo2
-#    endif
 #    ifdef key_trc_diaadd
+     &          , Nhi,Nco3,Naksp,Netot,Nprorca
+     &          , Nprorcad,Npronew,Npronewd
+     &          , Nprobsi,Nprofed,Nprofen
+     &          , Ngraztot,Nnitrifo2,Nfixo2,Nremino2
+     &          , Npronewo2,Nprorego2
      &          , Nfld,Nflu16,Nkgco2,Natcco2,Nsinking
-     &          , Nsinking2,Nsinkfer,Nsinkfer2,Nsinksil
-     &          , Nsinkcal,Nzmeu,Nirondep,Nnitrpot
+     &          , Nsinkfer,Nsinksil
+     &          , Nsinkcal,Nheup,Nirondep,Nnitrpot
 #    endif
 #   endif
      &          , NumFluxTerms,NumVSinkTerms,NumGasExcTerms
@@ -520,48 +519,41 @@
      &            iDFE_=iDIC_+17, iDSI_=iDIC_+18, iNFE_=iDIC_+19,
      &            iNCH_=iDIC_+20, iDCH_=iDIC_+21, iNO3_=iDIC_+22,
      &            iNH4_=iDIC_+23)
-#   ifdef key_trc_dia3d
+#   ifdef key_trc_diaadd
        parameter (Nhi       = 1,
      &            Nco3      = 2,
      &            Naksp     = 3,
      &            Netot     = 4,
      &            Nprorca   = 5,
-     &            Nprorca2  = 6,
+     &            Nprorcad  = 6,
      &            Npronew   = 7,
-     &            Npronew2  = 8,
-     &            Nprorca3  = 9,
-     &            Nprorca4  = 10,
-     &            Nprorca5  = 11,
-     &            Ngraztot1 = 12,
-     &            Ngraztot2 = 13,
-     &            Nnitrifo2 = 14,
-     &            Npronewo2 = 15,
-     &            Nprorego2 = 16,
-     &            Nremino2  = 17,
-     &            Nmicroo2  = 18,
-     &            Nmesoo2   = 19,
-     &            Nfixo2    = 20,
-     &            NumFluxTerms   = Nfixo2)
-#   else
-       parameter (NumFluxTerms = 0)
-#   endif
-#   ifdef key_trc_diaadd
+     &            Npronewd  = 8,
+     &            Nprobsi   = 9,
+     &            Nprofed   = 10,
+     &            Nprofen   = 11,
+     &            Npronewo2 = 12,
+     &            Nprorego2 = 13,
+     &            Ngraztot  = 14,
+     &            Nnitrifo2 = 15,
+     &            Nremino2  = 16,
+     &            Nfixo2    = 17,
+     &            NumFluxTerms = Nfixo2)
+
        parameter (Nfld      = 1,
      &            Nflu16    = 2,
      &            Nkgco2    = 3,
      &            Natcco2   = 4,
      &            Nsinking  = 5,
-     &            Nsinking2 = 6,
-     &            Nsinkfer  = 7,
-     &            Nsinkfer2 = 8,
-     &            Nsinksil  = 9,
-     &            Nsinkcal  = 10,
-     &            Nzmeu     = 11,
-     &            Nirondep  = 12,
-     &            Nnitrpot  = 13,
+     &            Nsinkfer  = 6,
+     &            Nsinksil  = 7,
+     &            Nsinkcal  = 8,
+     &            Nheup     = 9,
+     &            Nirondep  = 10,
+     &            Nnitrpot  = 11,
      &            NumGasExcTerms = 0,
      &            NumVSinkTerms = Nnitrpot)
 #   else
+       parameter (NumFluxTerms = 0)
        parameter (NumGasExcTerms = 0, NumVSinkTerms = 0)
 #   endif
 

@@ -1,9 +1,9 @@
 title:
        Benguela LR Forecast 
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
-                720     720     60      1
+                600      720      60      1
 S-coord: THETA_S,   THETA_B,    Hc (m)
-           6.0d0      0.0d0      10.0d0
+           6.0d0      0.0d0      100.0d0
 grid:  filename
                           roms_grd.nc
 forcing: filename
@@ -15,16 +15,16 @@ boundary: filename
 climatology: filename    
                           roms_clm_mercator_0.nc
 initial: NRREC  filename
-          4
+          1
                           roms_ini.nc
 restart:          NRST, NRPFRST / filename
-                  840    0
+                  120    0
                           roms_rst.nc
 history: LDEFHIS, NWRT, NRPFHIS / filename 
             T     120     0
                           roms_his.nc
 averages: NTSAVG, NAVG, NRPFAVG / filename
-            1     120     0
+            1     120    0
                           roms_avg.nc
 
 
@@ -58,7 +58,7 @@ vertical_mixing: Akv_bak, Akt_bak [m^2/sec]
                    0.d0    30*0.d0
 
 bottom_drag:     RDRG [m/s],  RDRG2,  Zob [m],  Cdb_min, Cdb_max
-                 0.0d-04      0.d-3    1.d-2     1.d-4    1.d-1 
+                 0.0d-04      0.d-3   1.d-3     1.d-4    1.d-1 
 
 gamma2:
                  1.d0
@@ -67,7 +67,7 @@ sponge:          X_SPONGE [m],    V_SPONGE [m^2/sec]
                     XXX               XXX  
 
 nudg_cof:    TauT_in, TauT_out, TauM_in, TauM_out  [days for all]
-                1.       360.      3.      360.
+                1.       15.      1.      15.
 
 diagnostics:   ldefdia   nwrtdia    nrpfdia /filename
                   T        120         0
@@ -147,9 +147,9 @@ float_fields:  Grdvar Temp Salt Rho Vel
                 T     T    T    T   T
 
 stations: LDEFSTA, NSTA, NRPFSTA / inpname, hisname
-             T      400      0
-                                    stations.in
-                                    stations.nc
+             T      5      0
+                                    roms_stations.in
+                                    roms_stations.nc
 station_fields:  Grdvar Temp Salt Rho Vel
                    T     T    T    T   T
 

@@ -271,7 +271,6 @@
 #ifdef STATIONS
      &                      , nsta, nrpfsta
 #endif
-     &                      , ldefhis
 #ifdef SOLVE3D
      &                      , got_tini 
 #endif
@@ -311,6 +310,7 @@
 #ifdef STATIONS
      &                      , ldefsta
 #endif
+     &                      , ldefhis
 
 # if defined SOLVE3D  && !defined LMD_MIXING
       real Akv_bak

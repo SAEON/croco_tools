@@ -52,15 +52,6 @@
       eta_rho=MMm+2; eta_v=eta_rho-1
 # endif
 
-# ifdef PISCES
-      jpiglo = LLm
-      jpjglo = MMm
-      jpi = Lm
-      jpj = Mm
-      jpim1 = jpi - 1
-      jpjm1 = jpj - 1
-# endif
-
 #endif  
 ! <- key AGRIF
 

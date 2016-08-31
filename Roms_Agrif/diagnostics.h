@@ -178,10 +178,8 @@
 #endif /* DIAGNOSTICS_UV */
 #ifdef DIAGNOSTICS_BIO
 # ifdef PISCES 
-#  ifdef key_trc_dia3d
-      real bioFlux(GLOBAL_2D_ARRAY,N,NumFluxTerms)
-#  endif
 #  ifdef key_trc_diaadd
+      real bioFlux(GLOBAL_2D_ARRAY,N,NumFluxTerms)
       real bioVSink(GLOBAL_2D_ARRAY,NumVSinkTerms)
 #  endif
 # else
@@ -193,10 +191,8 @@
 # endif
 # ifdef AVERAGES
 #  ifdef PISCES 
-#    ifdef key_trc_dia3d
-      real bioFlux_avg(GLOBAL_2D_ARRAY,N,NumFluxTerms)
-#    endif
 #    ifdef key_trc_diaadd
+      real bioFlux_avg(GLOBAL_2D_ARRAY,N,NumFluxTerms)
       real bioVSink_avg(GLOBAL_2D_ARRAY,NumVSinkTerms)
 #    endif
 #  else
@@ -209,10 +205,8 @@
       real timediabio_avg
 # endif
 # ifdef PISCES 
-#    ifdef key_trc_dia3d
-      common /diag_bioFlux/bioFlux
-#    endif
 #    ifdef key_trc_diaadd
+      common /diag_bioFlux/bioFlux
       common /diag_bioVSink/bioVSink
 #    endif
 # else
@@ -224,10 +218,8 @@
 # endif
 # ifdef AVERAGES
 #  ifdef PISCES 
-#   ifdef key_trc_dia3d
-      common /diag_bioFlux_avg/bioFlux_avg
-#   endif
 #   ifdef key_trc_diaadd
+      common /diag_bioFlux_avg/bioFlux_avg
       common /diag_bioVSink_avg/bioVSink_avg
 #   endif
 #  else

@@ -69,7 +69,7 @@
 ! indxWWP          wind induced wave Period
 ! indxWEB          wave dissipation by breakig,
 !                 
-! ** WKB model **
+! ** WKB model ** or ** OW COUPLING **
 ! indxHRM,indxFRQ  RMS wave height and frequency
 ! indxWAC,indxWKX,indxWKE   wave action density, XI/ETA-dir wavenumber
 !
@@ -457,7 +457,7 @@
      &                             )                                            
 #endif  /* BBL */
 
-#ifdef MRL_WCI
+#if defined MRL_WCI || defined OW_COUPLING
       integer indxSUP, indxUST2D,indxVST2D
 # ifdef SEDIMENT 
       parameter (indxSUP=indxSUSTR+44+6*NST,
@@ -481,7 +481,7 @@
      &           indxMPrscrt=indxMvf+8,indxMsbk=indxMvf+10,
      &           indxMbwf=indxMvf+12,indxMfrc=indxMvf+14) 
 # endif
-# ifdef WKB_WWAVE
+# if defined WKB_WWAVE || defined OW_COUPLING
       integer indxHRM,indxFRQ,indxWAC, indxWKX,indxWKE, indxEPB
      &       ,indxEPD,indxWAR,indxEPR
       parameter (indxHRM=indxSUP+30,
@@ -639,7 +639,7 @@
 #ifdef BBL
       integer rstBBL(2)
 #endif
-#ifdef WKB_WWAVE
+#if defined WKB_WWAVE || defined OW_COUPLING
       integer rstWKB(3),hisWKB(9)
       common /ncvars/ rstWKB,hisWKB
 #endif
@@ -774,7 +774,7 @@
 # ifdef BBL
       integer avgBBL(6)
 # endif
-# ifdef WKB_WWAVE
+# if defined WKB_WWAVE || defined OW_COUPLING
       integer avgWKB(9)
 # endif
 # ifdef MRL_WCI
@@ -1016,7 +1016,7 @@
 # ifdef BBL
      &      , avgBBL
 # endif
-# ifdef WKB_WWAVE
+# if defined WKB_WWAVE || defined OW_COUPLING
      &      , avgWKB
 # endif
 # ifdef MRL_WCI

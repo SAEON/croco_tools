@@ -32,7 +32,7 @@ c       stagrd(iflt)=-1 ! -1 is the dead float value.
           stadata(j,iflt)=0.
         enddo
 # ifdef ALL_SIGMA
-        do j=istadpt,istau  
+        do j=istadpt,istav
          do k=1,N
            staSigm(j,iflt,k)=staspval
          enddo

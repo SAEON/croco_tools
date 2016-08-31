@@ -65,6 +65,28 @@
 
 /* 
 ======================================================================
+   Set OW COUPLING options:
+   Define MPI, select OA_MCT    
+   Change the generic name of MPI communicator MPI_COMM_WORLD
+   to OASIS-MCT local communicator
+======================================================================
+*/
+#ifdef OW_COUPLING
+# undef  OPENMP
+# define MPI
+# define OA_MCT
+# define MPI_COMM_WORLD ocean_grid_comm
+# undef  OA_GRID_UV
+# define MRL_WCI
+# undef  WKB_WWAVE
+# undef  WAVE_ROLLER
+# undef  WAVE_FRICTION
+# undef  WAVE_STREAMING
+# undef  WAVE_RAMP
+#endif
+
+/* 
+======================================================================
    Set XIOS options:    
    Activate MPI
    Change the generic name of MPI communicator MPI_COMM_WORLD
@@ -74,6 +96,9 @@
 #ifdef XIOS
 # define MPI
 # define MPI_COMM_WORLD ocean_grid_comm
+# define key_iomput
+#else
+# undef key_iomput
 #endif
   
 /*
@@ -85,7 +110,6 @@
 #define M2FILTER_POWER
 #undef  M2FILTER_COSINE
 #undef  M2FILTER_FLAT
-
 /*
 ======================================================================
    Activate barotropic pressure gradient response to the
@@ -96,7 +120,7 @@
 # define VAR_RHO_2D
 # if !defined NONLIN_EOS && !defined RVTK_DEBUG &&\
      !defined INNERSHELF
-#   define RESET_RHO0
+#  define RESET_RHO0
 # endif
 #endif
 
@@ -108,15 +132,17 @@
 #ifdef NBQ
 # define M2FILTER_NONE
 # undef  M2FILTER_POWER
-# undef  VAR_RHO_2D
+# define VAR_RHO_2D
 # undef  NBQ_REINIT
 # undef  TRACETXT
-# undef  CHECK_CROCO
+# undef  NBQ_OUT
+# define NBQ_CONS5
+# define NBQ_CONS6
 # define HZR Hzr
 # define OBC_NBQ
 # ifdef OBC_NBQ
-#  undef  OBC_NBQORLANSKI
-#  define OBC_NBQSPECIFIED
+#  define OBC_NBQORLANSKI
+#  undef  OBC_NBQSPECIFIED
 #  define NBQ_FRC_BRY
 #  define W_FRC_BRY
 # endif
@@ -321,7 +347,6 @@
 # undef   TS_VADV_WENO5
 # undef   TS_VADV_C2
 #endif
-
 /*
 ======================================================================
    SPONGE:  
@@ -378,7 +403,7 @@
 # undef  WAVE_BREAK_TG86A
 # undef  WAVE_BREAK_R93
 
-# if !defined WKB_WWAVE && !defined ANA_WWAVE
+# if !defined WKB_WWAVE && !defined ANA_WWAVE && !defined OW_COUPLING
 #  define WAVE_OFFLINE
 #  undef  WAVE_ROLLER
 # endif
@@ -434,11 +459,9 @@
     numerical instability associated with reversing bottom flow
 ======================================================================
 */
-
 #ifndef INNERSHELF
 # define LIMIT_BSTRESS
 #endif
-
 #ifdef BBL
 # ifdef SEDIMENT
 #  undef  ANA_BSEDIM
@@ -526,6 +549,7 @@
 ======================================================================
 */
 #ifdef AGRIF
+#define key_agrif
 /*                    Update schemes */
 # undef  AGRIF_UPDATE_MIX_LOW
 # define AGRIF_UPDATE_MIX

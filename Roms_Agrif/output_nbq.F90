@@ -19,8 +19,11 @@
 # include "grid.h"
 # include "nbq.h"
 
-      integer :: i,j,k,ichoix
+      integer :: i,j,k,ichoix,j_o
       integer::p1_nbq,p2_nbq,p3_nbq,p4_nbq,p5_nbq
+      integer::ierrmpi_o
+      character*16 name_o
+
 
        if (ichoix.eq.0) then
 !
@@ -38,249 +41,267 @@
           ' ======================= NBQ ==================== '
 
        endif
-!
-!-------------------------------------------------------------------
-! Output qdm to debug MPI (along x)
-!-------------------------------------------------------------------
-!
-        if (ichoix.eq.10) then
-#ifdef MPI
-         if (mynode.eq.0) then
-#endif
-          open(unit=10,file='mpi_nbq0.dat',access='append')
-          i=25
-          j=1
-          k=N
-          p1_nbq=ijk2lq_nh(i,j,k)
-          p4_nbq=ijk2lq_nh(i+1,j,k)
-          p5_nbq=ijk2lq_nh(i+2,j,k)
-          p2_nbq=ijk2lmom_nh(i,j,k,1)
-          p3_nbq=ijk2lmom_nh(i+1,j,k,1)
-          write(10,*) iic,iif
-          write(10,*) iteration_nbq,'test0',qdm_nbq_a(p2_nbq,0),qdm_nbq_a(p3_nbq,0)
-          write(10,*) iteration_nbq,'testd',qdm_nbq_a(p2_nbq,1),qdm_nbq_a(p3_nbq,1)
-          write(10,*) iteration_nbq,'teste',qdm_nbq_a(p2_nbq,2),qdm_nbq_a(p3_nbq,2)
-          close(10)
-#ifdef MPI
-         endif
-#endif
+
+       if (ichoix.eq.1) then
 
 #ifdef MPI
-         if (mynode.eq.1) then
-#endif
-          open(unit=10,file='mpi_nbq1.dat',access='append')
-          i=0
-          j=1
-          k=N
-          p1_nbq=ijk2lq_nh(i,j,k)
-          p4_nbq=ijk2lq_nh(i+1,j,k)
-          p2_nbq=ijk2lmom_nh(i,j,k,1)
-          p3_nbq=ijk2lmom_nh(i+1,j,k,1)
-          p5_nbq=ijk2lmom_nh(i+2,j,k,1)
-          write(10,*) iic,iif
-          write(10,*) iteration_nbq,'test0',qdm_nbq_a(p2_nbq,0),qdm_nbq_a(p3_nbq,0)
-          write(10,*) iteration_nbq,'testd',qdm_nbq_a(p2_nbq,1),qdm_nbq_a(p3_nbq,1)
-          write(10,*) iteration_nbq,'teste',qdm_nbq_a(p2_nbq,2),qdm_nbq_a(p3_nbq,2)
-          close(10)
-#ifdef MPI
-         endif
-#endif
-        endif
-
-!-------------------------------------------------------------------
-! Output rho_nbq and div_nbq to debug MPI (along x)
-!-------------------------------------------------------------------
-!
-        if (ichoix.eq.11) then
-#ifdef MPI
-         if (mynode.eq.0) then
-#endif
-          open(unit=10,file='mpi_nbq0.dat',access='append')
-          i=25
-          j=1
-          k=N
-          p1_nbq=ijk2lq_nh(i,j,k)
-          p4_nbq=ijk2lq_nh(i+1,j,k)
-          p5_nbq=ijk2lq_nh(i+2,j,k)
-          p2_nbq=ijk2lmom_nh(i,j,k,1)
-          p3_nbq=ijk2lmom_nh(i+1,j,k,1)
-          write(10,*) iteration_nbq,'testz',rhp_nbq_a(p1_nbq,0),rhp_nbq_a(p4_nbq,0)
-          write(10,*) iteration_nbq,'testa',rhp_nbq_a(p1_nbq,1),rhp_nbq_a(p4_nbq,1)
-          write(10,*) iteration_nbq,'testb',rhp_nbq_a(p1_nbq,2),rhp_nbq_a(p4_nbq,2)
-          write(10,*) iteration_nbq,'testc',div_nbq_a(p1_nbq,1),div_nbq_a(p4_nbq,1)
-          close(10)
-#ifdef MPI
-         endif
-#endif
-#ifdef MPI
-         if (mynode.eq.1) then
-#endif
-          open(unit=10,file='mpi_nbq1.dat',access='append')
-          i=0
-          j=1
-          k=N
-          p1_nbq=ijk2lq_nh(i,j,k)
-          p4_nbq=ijk2lq_nh(i+1,j,k)
-          p2_nbq=ijk2lmom_nh(i,j,k,1)
-          p3_nbq=ijk2lmom_nh(i+1,j,k,1)
-          p5_nbq=ijk2lmom_nh(i+2,j,k,1)
-          write(10,*) iteration_nbq,'testz',rhp_nbq_a(p1_nbq,0),rhp_nbq_a(p4_nbq,0)
-          write(10,*) iteration_nbq,'testa',rhp_nbq_a(p1_nbq,1),rhp_nbq_a(p4_nbq,1)
-          write(10,*) iteration_nbq,'testb',rhp_nbq_a(p1_nbq,2),rhp_nbq_a(p4_nbq,2)
-          write(10,*) iteration_nbq,'testc',div_nbq_a(p1_nbq,1),div_nbq_a(p4_nbq,1)
-          close(10)
-#ifdef MPI
-         endif
-#endif
-        endif
-
-!
-!-------------------------------------------------------------------
-! Output qdm to debug MPI (along y)
-!-------------------------------------------------------------------
-!
-        if (ichoix.eq.20) then
-#ifdef MPI
-         if (mynode.eq.0) then
-#endif
-          open(unit=10,file='mpi_nbq0.dat',access='append')
-          i=1
-          j=25
-          k=N
-          p1_nbq=ijk2lq_nh(i,j,k)
-          p4_nbq=ijk2lq_nh(i,j+1,k)
-          p5_nbq=ijk2lq_nh(i,j+2,k)
-          p2_nbq=ijk2lmom_nh(i,j,k,1)
-          p3_nbq=ijk2lmom_nh(i,j+1,k,1)
-          write(10,*) iic,iif
-          write(10,*) iteration_nbq,'test0',qdm_nbq_a(p2_nbq,0),qdm_nbq_a(p3_nbq,0)
-          write(10,*) iteration_nbq,'testd',qdm_nbq_a(p2_nbq,1),qdm_nbq_a(p3_nbq,1)
-          write(10,*) iteration_nbq,'teste',qdm_nbq_a(p2_nbq,2),qdm_nbq_a(p3_nbq,2)
-          close(10)
-#ifdef MPI
-         endif
+      if (mynode.lt.10) then
+         write (name_o,'(a,i1,a)') 'grid_nbq_',mynode,'.dat'
+      elseif (mynode.lt.100) then
+         write (name_o,'(a,i2,a)') 'grid_nbq_',mynode,'.dat'
+      elseif (mynode.lt.1000) then
+         write (name_o,'(a,i3,a)') 'grid_nbq_',mynode,'.dat'
+      endif
+#else
+      name_o = 'grid_nbq_s.dat'
 #endif
 
-#ifdef MPI
-         if (mynode.eq.1) then
-#endif
-          open(unit=10,file='mpi_nbq1.dat',access='append')
-          i=1
-          j=0
-          k=N
-          p1_nbq=ijk2lq_nh(i,j,k)
-          p4_nbq=ijk2lq_nh(i,j+1,k)
-          p2_nbq=ijk2lmom_nh(i,j,k,1)
-          p3_nbq=ijk2lmom_nh(i,j+1,k,1)
-          p5_nbq=ijk2lmom_nh(i,j+2,k,1)
-          write(10,*) iic,iif
-          write(10,*) iteration_nbq,'test0',qdm_nbq_a(p2_nbq,0),qdm_nbq_a(p3_nbq,0)
-          write(10,*) iteration_nbq,'testd',qdm_nbq_a(p2_nbq,1),qdm_nbq_a(p3_nbq,1)
-          write(10,*) iteration_nbq,'teste',qdm_nbq_a(p2_nbq,2),qdm_nbq_a(p3_nbq,2)
-          close(10)
-#ifdef MPI
-         endif
-#endif
-        endif
-
-
-!-------------------------------------------------------------------
-! Output rho_nbq and div_nbq to debug MPI (along y)
-!-------------------------------------------------------------------
-!
-        if (ichoix.eq.21) then
-#ifdef MPI
-         if (mynode.eq.0) then
-#endif
-          open(unit=10,file='mpi_nbq0.dat',access='append')
-          i=1
-          j=25
-          k=N
-          p1_nbq=ijk2lq_nh(i,j,k)
-          p4_nbq=ijk2lq_nh(i,j+1,k)
-          p5_nbq=ijk2lq_nh(i,j+2,k)
-          p2_nbq=ijk2lmom_nh(i,j,k,1)
-          p3_nbq=ijk2lmom_nh(i,j+1,k,1)
-          write(10,*) iteration_nbq,'testz',rhp_nbq_a(p1_nbq,0),rhp_nbq_a(p4_nbq,0)
-          write(10,*) iteration_nbq,'testa',rhp_nbq_a(p1_nbq,1),rhp_nbq_a(p4_nbq,1)
-          write(10,*) iteration_nbq,'testb',rhp_nbq_a(p1_nbq,2),rhp_nbq_a(p4_nbq,2)
-          write(10,*) iteration_nbq,'testc',div_nbq_a(p1_nbq,1),div_nbq_a(p4_nbq,1)
-          close(10)
-#ifdef MPI
-         endif
-#endif
-#ifdef MPI
-         if (mynode.eq.1) then
-#endif
-          open(unit=10,file='mpi_nbq1.dat',access='append')
-          i=1
-          j=0
-          k=N
-          p1_nbq=ijk2lq_nh(i,j,k)
-          p4_nbq=ijk2lq_nh(i,j+1,k)
-          p2_nbq=ijk2lmom_nh(i,j,k,1)
-          p3_nbq=ijk2lmom_nh(i,j+1,k,1)
-          p5_nbq=ijk2lmom_nh(i,j+2,k,1)
-          write(10,*) iteration_nbq,'testz',rhp_nbq_a(p1_nbq,0),rhp_nbq_a(p4_nbq,0)
-          write(10,*) iteration_nbq,'testa',rhp_nbq_a(p1_nbq,1),rhp_nbq_a(p4_nbq,1)
-          write(10,*) iteration_nbq,'testb',rhp_nbq_a(p1_nbq,2),rhp_nbq_a(p4_nbq,2)
-          write(10,*) iteration_nbq,'testc',div_nbq_a(p1_nbq,1),div_nbq_a(p4_nbq,1)
-          close(10)
-#ifdef MPI
-         endif
-#endif
-        endif
-
-
-!-------------------------------------------------------------------
-! Outputs QDM
-!-------------------------------------------------------------------
-!
-        if (ichoix.eq.30) then
+       open(unit=10,file=name_o)
 
 #ifdef MPI
-         if (mynode == 0) then
+       if (WEST_INTER) then
+        write (10,*) 'WEST_INTER is true'
+       else
+        write (10,*) 'WEST_INTER is false'
+       endif
+       if (EAST_INTER) then
+        write (10,*) 'EAST_INTER is true'
+       else
+        write (10,*) 'EAST_INTER is false'
+       endif
+       if (SOUTH_INTER) then
+        write (10,*) 'SOUTH_INTER is true'
+       else
+        write (10,*) 'SOUTH_INTER is false'
+       endif
+       if (NORTH_INTER) then
+        write (10,*) 'NORTH_INTER is true'
+       else
+        write (10,*) 'NORTH_INTER is false'
+       endif
+
+       write (10,*) 
+
+# ifdef EW_PERIODIC
+       write (10,*) 'EW_PERIODIC defined'
+       write (10,*) 
+# endif
+
+# ifdef NS_PERIODIC
+       write (10,*) 'NS_PERIODIC defined'
+       write (10,*) 
+# endif
+       
+       if (WEST_INTER_NBQ) then
+        write (10,*) 'WEST_INTER_NBQ is true'
+       else
+        write (10,*) 'WEST_INTER_NBQ is false'
+       endif
+       if (EAST_INTER_NBQ) then
+        write (10,*) 'EAST_INTER_NBQ is true'
+       else
+        write (10,*) 'EAST_INTER_NBQ is false'
+       endif
+       if (SOUTH_INTER_NBQ) then
+        write (10,*) 'SOUTH_INTER_NBQ is true'
+       else
+        write (10,*) 'SOUTH_INTER_NBQ is false'
+       endif
+       if (NORTH_INTER_NBQ) then
+        write (10,*) 'NORTH_INTER_NBQ is true'
+       else
+        write (10,*) 'NORTH_INTER_NBQa is false'
+       endif
+       write (10,*) 
 #endif
-          if (mod(iteration_nbq,1) == 0) then
-           i=4
-           j=1
-           k=int(N/2)
-           l_nbq =ijk2lmom_nh(i,j,k,1)
-           l1_nbq=ijk2lmom_nh(i,j,k,3)
-           open(unit=10,file='qdm.dat' ,access='append')
-             write(10,*) qdm_nbq_a(l_nbq,2)
-             write(10,*) qdm_nbq_a(l1_nbq,2)
-             write(10,*) u(i,j,k,nnew)
-             write(10,*) wz(i,j,k,nnew)
-           close(10)
+
+!......Grid characteristics:
+       write(10,*) 'Grid(masse) :'
+       write(10,*) istr_nh,iend_nh,jstr_nh,jend_nh
+       write(10,*) 'Grid(q) :'
+       write(10,*) istrq_nh,iendq_nh,jstrq_nh,jendq_nh
+       write(10,*) 'Grid(u) :'
+       write(10,*) istru_nh,iendu_nh,jstru_nh,jendu_nh
+       write(10,*) 'Grid(v) :'
+       write(10,*) istrv_nh,iendv_nh,jstrv_nh,jendv_nh
+       write(10,*)
+       write(10,*) 'Num(q) :'
+       write(10,*) neqq_nh(1:7)
+       write(10,*) 'Num(u) :'
+       write(10,*) nequ_nh(1:7)
+       write(10,*) 'Num(v) :'
+       write(10,*) neqv_nh(1:7)
+       write(10,*) 'Num(w) :'
+       write(10,*) neqw_nh(1:7)
+       write(10,*)
+       write(10,*) 'DNum(q) :'
+       write(10,*) neqq_nh(1),(neqq_nh(k+1)-neqq_nh(k),k=1,6)
+       write(10,*) 'DNum(u) :'
+       write(10,*) nequ_nh(1),(nequ_nh(k+1)-nequ_nh(k),k=1,6)
+       write(10,*) 'DNum(v) :'
+       write(10,*) neqv_nh(1)-nequ_nh(7),(neqv_nh(k+1)-neqv_nh(k),k=1,6)
+       write(10,*) 'DNum(w) :'
+       write(10,*) neqw_nh(1)-neqv_nh(7),(neqw_nh(k+1)-neqw_nh(k),k=1,6)
+       write(10,*)
+       write(10,*) 'Mat Mom  :'
+       write(10,*) (momi_nh(nequ_nh(k)+1),k=1,7)
+       write(10,*) (momi_nh(neqv_nh(k)+1),k=1,7)
+       write(10,*) (momi_nh(neqw_nh(k)+1),k=1,5)
+       write(10,*) 'Mat Cont :'
+       write(10,*) (conti_nh(neqq_nh(k)+1),k=1,7)
+
+!......Q-Points:
+       write(10,*)   
+       write(10,*) 'Q-points: mijk2lq_nh(istr_nh-1:iend_nh+1,jstr_nh-1:jend_nh+1,N)'
+
+       if (jend_nh-jstr_nh.ge.18) then
+           j_o = jstr_nh+8
+       else
+           j_o = jend_nh+1
+       endif
+
+       if (iend_nh-istr_nh.ge.18) then
+          do j=jstr_nh-1,j_o
+             write(10,'(10I1,A3,10I1)') (mijk2lq_nh(i,j,N),i=istr_nh-1,istr_nh+8) &
+                                       ,'...' &
+                                       ,(mijk2lq_nh(i,j,N),i=iend_nh-8,iend_nh+1)  
+          enddo
+       else
+          do j=jstr_nh-1,j_o
+             write(10,'(20I1)') (mijk2lq_nh(i,j,N),i=istr_nh-1,iend_nh+1) 
+          enddo
+       endif
+
+       if (jend_nh-jstr_nh.ge.18) then
+          write (10,*) '         ...'
+
+          if (iend_nh-istr_nh.ge.18) then
+             do j=max(jend_nh-8,jstr_nh),jend_nh+1
+                write(10,'(10I1,A3,10I1)') (mijk2lq_nh(i,j,N),i=istr_nh-1,istr_nh+8) &
+                                       ,'...' &
+                                       ,(mijk2lq_nh(i,j,N),i=iend_nh-8,iend_nh+1)  
+             enddo
+          else
+             do j=max(jend_nh-8,jstr_nh),jend_nh+1
+                write(10,'(20I1)') (mijk2lq_nh(i,j,N),i=istr_nh-1,iend_nh+1) 
+             enddo
           endif
-#ifdef MPI
-         endif
-#endif
-        endif
+      endif
 
+!.....U-Points:
+       write(10,*)
+       write(10,*) 'U-points: mijk2lmom_nh(istru_nh-1:iendu_nh+1,jstr_nh-1:jend_nh+1,N,1)'
 
-!-------------------------------------------------------------------
-! Outputs for TANK: SSA
-!-------------------------------------------------------------------
-!
-        if (ichoix.eq.40) then
+       if (iendu_nh-istru_nh.ge.18) then
+          do j=jstr_nh-1,j_o
+             write(10,'(10I1,A3,10I1)') (mijk2lmom_nh(i,j,N,1),i=istru_nh-1,istru_nh+8) &
+                                       ,'...' &
+                                       ,(mijk2lmom_nh(i,j,N,1),i=iendu_nh-8,iendu_nh+1)  
+          enddo
+       else
+          do j=jstr_nh-1,j_o
+             write(10,'(20I1)') (mijk2lmom_nh(i,j,N,1),i=istru_nh-1,iendu_nh+1) 
+          enddo
+       endif
 
-#ifdef MPI
-         if (mynode == 0) then
-#endif
-          if (mod(iif,10).eq.0.and.iif.le.ndtfast) then
-           open(unit=10,file='zta.dat',access='append')
-            i=1
-            j=1
-            write(10,*) (zeta(i,j,knew)/rhobar_nbq(i,j))-h(i,j)
-            close(10)
+       if (jend_nh-jstr_nh.ge.18) then
+          write (10,*) '         ...'
+          if (iendu_nh-istru_nh.ge.18) then
+             do j=max(jend_nh-8,jstr_nh),jend_nh+1
+                write(10,'(10I1,A3,10I1)') (mijk2lmom_nh(i,j,N,1),i=istru_nh-1,istru_nh+8) &
+                                       ,'...' &
+                                       ,(mijk2lmom_nh(i,j,N,1),i=iendu_nh-8,iendu_nh+1)  
+             enddo
+          else
+             do j=max(jend_nh-8,jstr_nh),jend_nh+1
+                write(10,'(20I1)') (mijk2lmom_nh(i,j,N,1),i=istru_nh-1,iendu_nh+1) 
+             enddo
           endif
+       endif
 
-#ifdef MPI
-         endif
-#endif
-        endif
+!.....V-Points:
+       write(10,*)    
+       write(10,*) 'V-points: mijk2lmom_nh(istr_nh-1:iend_nh+1,jstrv_nh-1:jendv_nh+1,N,2)'
+
+       if (jendv_nh-jstrv_nh.ge.18) then
+           j_o = jstrv_nh+8
+       else
+           j_o = jendv_nh+1
+       endif
+
+       if (iend_nh-istr_nh.ge.18) then
+          do j=jstrv_nh-1,j_o
+             write(10,'(10I1,A3,10I1)') (mijk2lmom_nh(i,j,N,2),i=istr_nh-1,istr_nh+8) &
+                                       ,'...' &
+                                       ,(mijk2lmom_nh(i,j,N,2),i=iend_nh-8,iend_nh+1)  
+          enddo
+       else
+          do j=jstrv_nh-1,j_o
+             write(10,'(20I1)') (mijk2lmom_nh(i,j,N,2),i=istr_nh-1,iend_nh+1) 
+          enddo
+       endif
+
+       if (jendv_nh-jstrv_nh.ge.18) then
+          write (10,*) '         ...'
+
+          if (iend_nh-istr_nh.ge.18) then
+             do j=max(jendv_nh-8,jstrv_nh),jendv_nh+1
+                write(10,'(10I1,A3,10I1)') (mijk2lmom_nh(i,j,N,2),i=istr_nh-1,istr_nh+8) &
+                                       ,'...' &
+                                       ,(mijk2lmom_nh(i,j,N,2),i=iend_nh-8,iend_nh+1)  
+             enddo
+          else
+             do j=max(jendv_nh-8,jstrv_nh),jendv_nh+1
+                write(10,'(20I1)') (mijk2lmom_nh(i,j,N,2),i=istr_nh-1,iend_nh+1) 
+             enddo
+          endif
+       endif
+
+!......W-Points:
+       write(10,*)  
+       write(10,*) 'W-points: mijk2lmom_nh(istr_nh-1:iend_nh+1,jstr_nh-1:jend_nh+1,N,3)'
+
+       if (jend_nh-jstr_nh.ge.18) then
+           j_o = jstr_nh+8
+       else
+           j_o = jend_nh+1
+       endif
+
+       if (iend_nh-istr_nh.ge.18) then
+          do j=jstr_nh-1,j_o
+             write(10,'(10I1,A3,10I1)') (mijk2lmom_nh(i,j,N,3),i=istr_nh-1,istr_nh+8) &
+                                       ,'...' &
+                                       ,(mijk2lmom_nh(i,j,N,3),i=iend_nh-8,iend_nh+1)  
+          enddo
+       else
+          do j=jstr_nh-1,j_o
+             write(10,'(20I1)') (mijk2lmom_nh(i,j,N,3),i=istr_nh-1,iend_nh+1) 
+          enddo
+       endif
+
+       if (jend_nh-jstr_nh.ge.18) then
+          write (10,*) '         ...'
+
+          if (iend_nh-istr_nh.ge.18) then
+             do j=max(jend_nh-8,jstr_nh),jend_nh+1
+                write(10,'(10I1,A3,10I1)') (mijk2lmom_nh(i,j,N,3),i=istr_nh-1,istr_nh+8) &
+                                       ,'...' &
+                                       ,(mijk2lmom_nh(i,j,N,3),i=iend_nh-8,iend_nh+1)  
+             enddo
+          else
+             do j=max(jend_nh-8,jstr_nh),jend_nh+1
+                write(10,'(20I1)') (mijk2lmom_nh(i,j,N,3),i=istr_nh-1,iend_nh+1) 
+             enddo
+          endif
+      endif
+
+      close(10)
+      
+!      call mpi_finalize(ierrmpi_o)
+!      stop 'coucou0'
+
+       endif
+
 
       end subroutine output_nbq
 

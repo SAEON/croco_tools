@@ -1,4 +1,0 @@
-penser a ajouter niter1max et niter2max a la fin de la namelist.trc.sms (juste avant les booleens).
-
-par exemple niter1max=10
-et niter2max=15

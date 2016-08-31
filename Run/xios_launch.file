@@ -4,5 +4,5 @@
 #
 #    mpirun --app xios_launch.file
 #
--np 2 ./roms
--np 1 ./xios_server.exe
+-np 4 ./roms
+-np 2 ./xios_server.exe

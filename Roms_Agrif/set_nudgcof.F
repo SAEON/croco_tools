@@ -42,6 +42,7 @@
 # if defined CANARY  || defined IBERIA
       real    lon0,lat0, rsponge, dx,dy,dr,cff,cff1,cff2
 # endif
+
 !
 # include "compute_extended_bounds.h"
 !
@@ -51,7 +52,11 @@
 !--------------------------------------------------------------------
 !
 # if defined SPONGE_GRID || !defined SPONGE
-      isp=10.
+#  ifdef IGW
+      isp=155
+#  else
+      isp=10
+#  endif
 # else
 #  ifdef MPI
       if (ii.eq.0.and.jj.eq.0.and.Istr.eq.1.and.Jstr.eq.1) then
@@ -63,6 +68,7 @@
       isp=int(x_sponge*pm(1,1)) ! number of points in layer     
 #  endif
 # endif /* SPONGE_GRID */
+
 !
       do j=max(-1,JstrR-1),JendR
         do i=max(-1,IstrR-1),IendR
@@ -94,9 +100,17 @@
           ibnd=min(ibnd,MMm+1-(j+jminmpi-1))          
 #  endif
 # endif
-!
+
+# ifdef IGW
+          if (ibnd .ge. isp) then
+            wrk(i,j)=0.
+          else
+            wrk(i,j)=exp(-5.d-5*float(ibnd)*grdmax)       ! exp. profile
+          endif
+# else
           wrk(i,j)=.5*(cos(pi*float(ibnd)/float(isp))+1.) ! cosine profile
 !         wrk(i,j)=float(isp-ibnd)/float(isp)             ! linear profile
+# endif
         enddo
       enddo
 !
@@ -179,11 +193,7 @@
 !
       do j=JstrR,JendR
         do i=IstrR,IendR
-#   ifdef SPONGE_GRID
           visc2_sponge_r(i,j)=(0.01/(pm(i,j)*pn(i,j)*dt))*wrk(i,j)
-#   else
-          visc2_sponge_r(i,j)=v_sponge*wrk(i,j)
-#   endif
 #   ifdef UV_VIS4
           visc4_sponge_r(i,j)=visc2_sponge_r(i,j)/(pm(i,j)*pn(i,j))
 #   endif
@@ -194,15 +204,9 @@
 !
       do j=Jstr,JendR
         do i=Istr,IendR
-#   ifdef SPONGE_GRID
           visc2_sponge_p(i,j)=0.25*(0.01/(pm(i,j)*pn(i,j)*dt))*
      &                              ( wrk(i,j  )+wrk(i-1,j  )
-     &                               +wrk(i,j-1)+wrk(i-1,j-1) )
-#   else
-          visc2_sponge_p(i,j)=0.25*v_sponge*
-     &                      ( wrk(i,j  )+wrk(i-1,j  )
-     &                       +wrk(i,j-1)+wrk(i-1,j-1) ) 
-#   endif
+     &                               +wrk(i,j-1)+wrk(i-1,j-1) ) 
 #   ifdef UV_VIS4
           visc4_sponge_p(i,j)=visc2_sponge_p(i,j)/(pm(i,j)*pn(i,j))
 #   endif
@@ -217,11 +221,7 @@
        do itrc=1,NT
         do j=JstrR,JendR
           do i=IstrR,IendR
-#   ifdef SPONGE_GRID
             diff2_sponge(i,j)=(0.01/(pm(i,j)*pn(i,j)*dt))*wrk(i,j)
-#   else
-            diff2_sponge(i,j)=v_sponge*wrk(i,j) 
-#   endif
 #   ifdef TS_DIF4
             diff4_sponge(i,j)=diff2_sponge(i,j)/(pm(i,j)*pn(i,j))
 #   endif

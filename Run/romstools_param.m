@@ -441,18 +441,50 @@ itolap_p    = 1;   % after
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% 8 Parameters for the forecast system
+% 8 - Parameters for the forecast system
+%
+%     --> select OGCM name above (mercator ...)
+%     --> don't forget to define in cppdefs.h:
+%                    - ROBUST_DIAG
+%                    - CLIMATOLOGY
+%                    - BULK_FLUX
+%                    - TIDES if you choose so, but without TIDERAMP
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-FRCST_dir = [FORC_DATA_DIR,'Forecast/'];  % path for storing local OGCM data
-FRCST_prefix  = [OGCM,'_'];               % generic OGCM file name 
-if strcmp(OGCM,'ECCO')                    % nb of hindcast days
+FRCST_dir = [FORC_DATA_DIR,'Forecast/'];  % path to local OGCM data directory
+%
+% Number of hindcast/forecast days
+%
+if strcmp(OGCM,'ECCO')
   hdays=1;
+  fdays=6;
 elseif strcmp(OGCM,'mercator')
-  hdays=5;
+  hdays=2;
+  fdays=3;
 end
-timezone = +1;                            % Local time= UTC + timezone
+%
+% Local time= UTC + timezone
+%
+timezone = +7;
+%
+% Add tides
+%
+add_tides_fcst = 1;       % 1: add tides
+%
+% MERCATOR case: Set login/password (see http://marine.copernicus.eu)
+%                and path to your motu-client-python/ package to
+%                download the data.
+%                Various sets of data are proposed in the 
+%                Copernicus web site (Mercator, UK Met Office ...)
+%
+if strcmp(OGCM,'mercator')
+  user     = 'XXX';
+  password = 'XXX';
+  pathMotu ='../Forecast_tools/';
+  mercator_type=2;   % 1 -->  1/12 deg Mercator forecast
+                     % 2 -->  1/4  deg Met-Office forecast (GloSea5)
+end
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %

@@ -57,15 +57,16 @@
         endif
 #else
         stadata(ifld,iflt)=p1*q1*(r1*A(i1,j1,k1)+r2*A(i1,j1,k2))
-     &                       +p2*q1*(r1*A(i2,j1,k1)+r2*A(i2,j1,k2))
-     &                       +p1*q2*(r1*A(i1,j2,k1)+r2*A(i1,j2,k2))
-     &                       +p2*q2*(r1*A(i2,j2,k1)+r2*A(i2,j2,k2))
+     &                    +p2*q1*(r1*A(i2,j1,k1)+r2*A(i2,j1,k2))
+     &                    +p1*q2*(r1*A(i1,j2,k1)+r2*A(i1,j2,k2))
+     &                    +p2*q2*(r1*A(i2,j2,k1)+r2*A(i2,j2,k2))
 #endif
       enddo
       return
       end
-
-
+!
+!======================================================================
+!
       subroutine interp_w3d_sta (A, ifld, nfltmax,indx)
       implicit none
 # include "param.h"
@@ -96,14 +97,15 @@
         q1=1.0-q2
 
         stadata(ifld,iflt)=p1*q1*(r1*A(i1,j1,k1)+r2*A(i1,j1,k2))
-     &                       +p2*q1*(r1*A(i2,j1,k1)+r2*A(i2,j1,k2))
-     &                       +p1*q2*(r1*A(i1,j2,k1)+r2*A(i1,j2,k2))
-     &                       +p2*q2*(r1*A(i2,j2,k1)+r2*A(i2,j2,k2))
+     &                    +p2*q1*(r1*A(i2,j1,k1)+r2*A(i2,j1,k2))
+     &                    +p1*q2*(r1*A(i1,j2,k1)+r2*A(i1,j2,k2))
+     &                    +p2*q2*(r1*A(i2,j2,k1)+r2*A(i2,j2,k2))
       enddo
       return
       end
-
-
+!
+!======================================================================
+!
       subroutine interp_r2d_sta (A, ifld, nfltmax, indx)
       implicit none
 # include "param.h"
@@ -128,11 +130,13 @@
         q1=1.0-q2
 
         stadata(ifld,iflt)=q1*(p1*A(i1,j1) + p2*A(i2,j1))
-     &                       +q2*(p1*A(i1,j2) + p2*A(i2,j2))
+     &                    +q2*(p1*A(i1,j2) + p2*A(i2,j2))
       enddo
       return
       end
-
+!
+!======================================================================
+!
       subroutine fill_sta_ini
       implicit none
 # include "param.h"
@@ -141,18 +145,19 @@
 # include "nc_sta.h"
       integer iflt
       do iflt=1,nstas
-         stadata(istadpt,iflt)=stainfo(istazgrd,iflt) ! Either the depth or the 
-
+         stadata(istadpt,iflt)=stainfo(istazgrd,iflt)    ! Either depth or
          if (wrtsta(indxstaGrd)) then
-           stadata(istazgrd,iflt)=stainfo(istazgrd,iflt)! sigma level position is 
-                                                 ! unavailaible
-           stadata(istaxgrd,iflt)=stainfo(istaxgrd,iflt)! for initial storage 
-           stadata(istaygrd,iflt)=stainfo(istaygrd,iflt)! for initial storage
+           stadata(istazgrd,iflt)=stainfo(istazgrd,iflt) ! sigma level position
+                                                         ! is unavailaible
+           stadata(istaxgrd,iflt)=stainfo(istaxgrd,iflt) ! for initial storage 
+           stadata(istaygrd,iflt)=stainfo(istaygrd,iflt)
          endif
       enddo
       return
       end
-
+!
+!======================================================================
+!
       subroutine interp_r2d_sta_ini (A, ifld)
       implicit none
 # include "param.h"
@@ -176,7 +181,7 @@
         q1=1.0-q2
 
         stadata(ifld,iflt)=q1*(p1*A(i1,j1) + p2*A(i2,j1))
-     &                       +q2*(p1*A(i1,j2) + p2*A(i2,j2))
+     &                    +q2*(p1*A(i1,j2) + p2*A(i2,j2))
       enddo
       return
       end

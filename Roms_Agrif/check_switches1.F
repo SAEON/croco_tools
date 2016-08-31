@@ -1136,19 +1136,11 @@
       Coptions(ie+1:ie+1)=' '
       is=ie+2
 #endif
-#ifdef key_trc_pisces
-      MPI_master_only write(stdout,'(10x,A)') 'key_trc_pisces'
+#ifdef key_pisces
+      MPI_master_only write(stdout,'(10x,A)') 'key_pisces'
       ie=is +13
       if (ie.ge.max_opt_size) goto 99
       Coptions(is:ie)='key_trc_pisces'
-      Coptions(ie+1:ie+1)=' '
-      is=ie+2
-#endif
-#ifdef key_passivetrc
-      MPI_master_only write(stdout,'(10x,A)') 'key_passivetrc'
-      ie=is +13
-      if (ie.ge.max_opt_size) goto 99
-      Coptions(is:ie)='key_passivetrc'
       Coptions(ie+1:ie+1)=' '
       is=ie+2
 #endif

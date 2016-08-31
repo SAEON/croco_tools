@@ -194,7 +194,9 @@ if makefrc==1 | makeblk==1
       % Add the tides (needs to be tested for this version of make_ECMWF)
       %
       if add_tides==1
-        add_tidal_data(tidename,grdname,frcname,Y,M)
+        %add_tidal_data(tidename,grdname,frcname,Y,M)
+        add_tides(tidename,grdname,frcname,Ntides,tidalrank,...
+                                       Yorig,Y,M,coastfileplot)
       end
       %
       % Open the ROMS forcing files

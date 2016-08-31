@@ -28,6 +28,7 @@
 #include "ocean2d.h"
 #include "ocean3d.h"
 #include "scalars.h"
+#include "coupling.h"
       integer Lstr, Lend, mon_thread, tmpnfp1, tmpnf, 
      &        tmpnfm1, tmpnfm2, entier
       integer i, itrc, iflt, level, rcoeft,rcoefx,rcoefy, 
@@ -64,7 +65,8 @@
          do iflt=Lstr,Lend
             if (NINT(stainfo(istagrd,iflt)) .eq. level) then 
               entier=nint(stainfo(istagrd,iflt))
-              call Agrif_transfer_floatsp2c(entier,stainfo(istaxgrd,iflt),
+              call Agrif_transfer_floatsp2c(entier,
+     &                              stainfo(istaxgrd,iflt),
      &                              stainfo(istaygrd,iflt),stadeltap2c)
               stainfo(istagrd,iflt)=float(entier)
             endif
@@ -151,6 +153,21 @@ c       write(*,*) 'FLT# ',iflt, 'stazgrd= ', stainfo(istazgrd,iflt)
      &                                      nfltmax, indx)
           call interp_r2d_sta (  yr(START_2D_ARRAY), istalat,
      &                                      nfltmax, indx)
+# endif
+
+# ifdef SOLVE3D
+          call interp_r2d_sta (Zt_avg1(START_2D_ARRAY), istaz,
+     &                                      nfltmax, indx)
+# else
+          call interp_r2d_sta (zeta(START_2D_ARRAY,knew), istaz,
+     &                                      nfltmax, indx)
+          if (wrtsta(indxstaVel)) then 
+            call interp_r2d_sta (ubar(START_2D_ARRAY,knew), istau,
+     &                                       nfltmax, indx)
+            call interp_r2d_sta (vbar(START_2D_ARRAY,knew), istav,
+     &                                      nfltmax, indx)
+          endif
+
 # endif
 
 # ifdef SOLVE3D

@@ -29,6 +29,7 @@
 %
 %  Updated    8-Sep-2006 by Pierrick Penven
 %  Updated    20-Aug-2008 by Matthieu Caillaud & P. Marchesiello
+%  Updated   12-Feb-2016 by P. Marchesiello
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %clear all
@@ -39,23 +40,17 @@
 %
 tic
 romstools_param
-% Get the date
-%
-rundate_str=date;
-rundate=datenum(rundate_str)-datenum(Yorig,1,1);
-OGCM_name=[FRCST_dir,FRCST_prefix,num2str(rundate),'.cdf'];
-%
 %
 % Specific to forecast
 %
 makeplot = 0;
 %
-%OGCM = 'mercator';
-bry_prefix  = [ROMS_files_dir,'roms_bry_',OGCM,'_']; % generic boundary file name
-clm_prefix  = [ROMS_files_dir,'roms_clm_',OGCM,'_']; % generic climatology file name
-ini_prefix  = [ROMS_files_dir,'roms_ini_',OGCM,'_']; % generic initial file name
-FRCST_prefix  = [OGCM,'_'];                          % generic OGCM file name
+% Get the date
 %
+rundate_str=date;
+rundate=datenum(rundate_str)-datenum(Yorig,1,1);
+FRCST_prefix=[OGCM,'_'];      % generic OGCM file name
+OGCM_name=[FRCST_dir,FRCST_prefix,num2str(rundate),'.cdf'];
 %
 if strcmp(OGCM,'ECCO')
   %
@@ -68,10 +63,7 @@ if strcmp(OGCM,'ECCO')
   %
 elseif strcmp(OGCM,'mercator')
   %
-  %  MERCATOR DODS URL
-  %
-  %  login/password can be entered here or in romstools params
-  %  and should be asked to the MyOCEAN team
+  %  MERCATOR : see get_file_python_mercator.m
   %
   url=[FRCST_dir,'motu_primaryrawformat_mercator_',num2str(rundate),'.nc'];
 else
@@ -119,8 +111,10 @@ if Download_data
 	  'FRCST_dir,FRCST_prefix,url,Yorig);'])
   elseif strcmp(OGCM,'mercator')
 	disp('Download data...')
-	eval(['OGCM_name=download_',OGCM,'_frcst_python(lonmin,lonmax,latmin,latmax,',...
-		'FRCST_dir,FRCST_prefix,url,Yorig);'])
+	eval(['OGCM_name=download_',OGCM,'_frcst_python(pathMotu,user,password,', ...
+                                                        'mercator_type,hdays,fdays,' ...
+                                                        'lonmin,lonmax,latmin,latmax,hmax,', ...
+	                                        	'FRCST_dir,FRCST_prefix,url,Yorig);'])
 % % 	if ~exist(OGCM_name);
 % % 	  disp([' '])
 % % 	  disp(['  ==> Download the raw motu Mercator file :',url])
@@ -137,6 +131,7 @@ if Download_data
 % % 	end
   end
 end
+%
 % Get the OGCM grid 
 % 
 nc=netcdf(OGCM_name)
@@ -156,13 +151,13 @@ if strcmp(OGCM,'ECCO')
   trange=[1 1];
   %hdays=1;
 elseif strcmp(OGCM,'mercator')
-  OGCM_time=nc{'time'}(:);
+  OGCM_time=floor(nc{'time'}(:));
   ntimes=length(OGCM_time);
   dt=max(gradient(OGCM_time));
   time_cycle=0;
   %hdays=5;
-  if OGCM_time(end)~=rundate+6
-    if OGCM_time(end)==rundate+5
+  if floor(OGCM_time(end))~=rundate+6
+    if floor(OGCM_time(end))==rundate+5
       roms_time=0*(1:ntimes+1);
       roms_time(1:end-1)=OGCM_time;
       roms_time(end)=roms_time(end-1)+dt;

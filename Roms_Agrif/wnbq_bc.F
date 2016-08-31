@@ -88,8 +88,8 @@
       tau_out=dt*tauM_out
 # endif
 !
-# define nnew 2
-# define nstp 1
+# define nnew vnnew_nbq
+# define nstp vnstp_nbq
 !
 # ifndef EW_COM_PERIODIC
 !
@@ -167,7 +167,8 @@
 #     endif
 #    endif
 #    ifdef MASKING
-            qdm_nbq_a(l_b_j,nnew)=qdm_nbq_a(l_b_j,nnew)*rmask(Istr-1,j)
+            qdm_nbq_a(l_b_j,nnew)=qdm_nbq_a(l_b_j,nnew)
+     &                                             *rmask(Istr-1,j)
 #    endif
 #    ifdef WET_DRY
             qdm_nbq_a(l_b_j,nnew)=qdm_nbq_a(l_b_j,nnew)
@@ -297,7 +298,8 @@
 #     endif
 #    endif
 #    ifdef MASKING
-            qdm_nbq_a(l_b_j,nnew)=qdm_nbq_a(l_b_j,nnew)*rmask(Iend+1,j)
+            qdm_nbq_a(l_b_j,nnew)=qdm_nbq_a(l_b_j,nnew)
+     &                                             *rmask(Iend+1,j)
 #    endif
 #    ifdef WET_DRY
             qdm_nbq_a(l_b_j,nnew)=qdm_nbq_a(l_b_j,nnew)
