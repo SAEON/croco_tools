@@ -60,7 +60,12 @@ if level==0
 % 2D variable
 %
    var=squeeze(nc{vname}(tindex,:,:));
-   h=nc{'h'}(:);
+%
+% Correction for wetting/drying
+%
+   ng=netcdf(gname);
+   h=ng{'h'}(:);
+   close(ng)
    hmorph=squeeze(nc{'hmorph'}(tindex,:,:));
    if ~isempty(hmorph), h=hmorph; end;
    zeta=squeeze(nc{'zeta'}(tindex,:,:));
