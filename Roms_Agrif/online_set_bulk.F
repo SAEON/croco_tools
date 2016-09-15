@@ -165,7 +165,7 @@
 #  ifdef MPI
           do j=JstrR,Mmmpi+2
 #  else
-          do j=JstrR,LLm+2
+          do j=JstrR,MMm+2
 #  endif
             do i=IstrR,IendR
               vwnd(i,j)=cff1*vwndg(i,j,it1)+cff2*vwndg(i,j,it2)
