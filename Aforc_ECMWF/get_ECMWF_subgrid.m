@@ -21,9 +21,6 @@ lon=squeeze(nc{'longitude'}(:));
 lat=squeeze(nc{'latitude'}(:));
 close(nc);
 %
-% North-South inversion
-lat=flipdim(lat,1);
-%
 % Get a subgrid
 %
 %
@@ -63,5 +60,9 @@ j=find(lat>=latmin & lat<=latmax);
 lat=lat(j);
 jmin=min(j);
 jmax=max(j);
+%
+% North-South inversion (! after jmin and jmax !)
+%
+lat=flipdim(lat,1);
 %
 return
