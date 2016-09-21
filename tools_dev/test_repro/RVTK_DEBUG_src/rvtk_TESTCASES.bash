@@ -14,7 +14,6 @@
 # AND AGRIF nesting type (No nesting, Nesting 1-way, Nesting 2-ways) : 
 # VORTEX and REGIONAL
 #--------------------------------------------------------------------
-#set -x
 echo "==========================="
 echo "MPIRUN COMMAND: "$MPIRUN
 echo "==========================="
@@ -27,8 +26,8 @@ echo " "
 #
 # Lists
 #
-LIST_EXAMPLE='BASIN CANYON_A CANYON_B EQUATOR GRAV_ADJ INNERSHELF OVERFLOW SEAMOUNT SHELFRONT SOLITON UPWELLING INTERNAL SHOREFACE THACKER JET'
-#LIST_EXAMPLE='SOLITON'
+#LIST_EXAMPLE='BASIN CANYON_A CANYON_B EQUATOR GRAV_ADJ INNERSHELF OVERFLOW SEAMOUNT SHELFRONT SOLITON UPWELLING INTERNAL SHOREFACE THACKER JET'
+LIST_EXAMPLE='SOLITON'
 LIST_KEY='MPI OPENMP REGIONAL ETALON_CHECK'
 LIST_WORDS='ETALON difference: ABNORMAL ERROR BUGBIN'
 # 1x4 4x1 2x2 1X8 and 8X1 additional tests
@@ -37,7 +36,7 @@ ADDTEST='ON'
 # Type of parallelization
 #
 COMPOMP='ON'
-COMPMPI='ON'
+COMPMPI='OFF'
 echo ' '
 #
 echo 'OpenMP testing: '$COMPOMP
@@ -48,7 +47,7 @@ echo 'MPI    testing: '$COMPMPI
 #
 sed -n -e '/SOURCE=/p' jobcomp_rvtk.bash > tmp1
 sed -n '$p' tmp1 > tmp2
-eval "set SOURCE=`sed -n -e '/SOURCE=/ s/.*\= *//p' tmp2`"
+eval "SOURCE=`sed -n -e '/SOURCE=/ s/.*\= *//p' tmp2`"
 rm -f tmp1 tmp2
 echo 'Sources code: '$SOURCE
 echo ' '
