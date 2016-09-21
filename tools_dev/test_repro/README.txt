@@ -1,7 +1,7 @@
 README pour utilisation du RVTK_DEBUG 
 -------------------------------------
-6 Oct 2015 : Gildas Cambon
-
+06 Oct. 2015 : Gildas Cambon V1
+21 Sep. 2016 : Gildas Cambon V2
 
 - INSTALLATION
 ================
@@ -10,6 +10,7 @@ README pour utilisation du RVTK_DEBUG
 - mettre RVTK_DEBUG sur son $WORKDIR
 - Se placer dans $WORKDIR/RVTK_DEBUG
 - Editer et renseigner create_link.sh
+- Lancer ./git_process.bash apres avoir renseigné le path pour les sources
 - Lancer ./create_link.sh :  ca cree les liens vers les sources.
 
 - UTILISATION
@@ -22,7 +23,9 @@ README pour utilisation du RVTK_DEBUG
 - ...
 - Ca tourne, ca tourne ....
 - ....
-- On regarde le log qui se trouve dans Log/Results_REGIONAL_$DATE.git$number
+- On regarde le log qui se trouve dans Log/Results_xxconfigxx_$DATE.git$number
+     - xxconfig = REGIONAL, VORTEX ou TESTCASES
+     - $number = le numero de revision du depot git master (obtenu avec git_process.bash)
 - La ou il y a des bugbin : pas bon ... mais il n'y en a pas bcp on est
   content :-)
 
