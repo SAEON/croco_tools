@@ -3,8 +3,7 @@
 #======================================================================
 # Global declaration
 #======================================================================
-do_gitupdate=on
-# -> Rq : Still under test when lauching slurm job...
+#do_gitupdate=off
 
 echo
 echo '============================================== '
@@ -32,7 +31,7 @@ sed -n -e '/SOURCE=/p' jobcomp_rvtk.bash > tmp1
 sed -n '$p' tmp1 > tmp2
 eval "SOURCE_ROMS=`sed -n -e '/SOURCE=/ s/.*\= *//p' tmp2`"
 rm -f tmp1 tmp2
-SOURCE_ROMS=$HOME/croco/Roms_Agrif
+SOURCE_ROMS=$HOME/GIT/croco/Roms_Agrif
 echo
 echo 'SOURCE_ROMS='$SOURCE_ROMS
 
@@ -73,6 +72,7 @@ echo
 ############################################################################
 #  Update the source
 #-------------------
+export PATH=/usr/bin/:$PATH
 echo
 echo 'PATH='$PATH
 echo
@@ -80,24 +80,27 @@ echo 'LD_LIBRARY_PATH='$LD_LIBRARY_PATH
 echo
 echo 'MPIRUN='$MPIRUN
 
-# GIT code update
-#-----------------
-if [[ $do_gitupdate == on ]]; then
-    echo
-    echo "PROCESS GIT UPDATE"
-    cd  $SOURCE_ROMS/..
-    git pull 
-    cd -
-    echo "GIT UPDATE DONE"
-else
-    echo
-    echo "NO GIT UPDATE"
-fi
+
+export PATH=/usr/bin/:$PATH
+
+## GIT code update
+##-----------------
+#if [[ $do_gitupdate == on ]]; then
+#    echo
+#    echo "PROCESS GIT UPDATE"
+#    cd  $SOURCE_ROMS/..
+#    /usr/bin/git pull 
+#    cd -
+#    echo "GIT UPDATE DONE"
+#else
+#    echo
+#    echo "NO GIT UPDATE"
+#fi
+
 # Get revision of sources
 #-------------------------
-./gitinfo.sh $SOURCE_ROMS > gitinfos
+#./gitinfo.sh $SOURCE_ROMS > gitinfos
 numrev0=`sed -n '/revision/{n;p;}' gitinfos`
-numrev=`echo $numrev0`
 numrev=`echo $numrev0 | tr -d [:blank:]`
 echo
 echo Rev$numrev

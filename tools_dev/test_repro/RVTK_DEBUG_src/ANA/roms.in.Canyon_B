@@ -22,9 +22,8 @@ history: LDEFHIS, NWRT, NRPFHIS / filename
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
                         T    T    T     T  T   T T
 
-auxiliary_history_fields: rho Omega  W  Akv  Akt  Aks  HBL Hbbl Bostr Wstr Ustr Vstr Shflux Swflux Swrad
-                          T  F       T  F    T    F    T   F    F     F    F     F     F      F      F 
-
+auxiliary_history_fields:  rho Omega W  Akv  Akt  Aks Visc3d Diff3d  HBL HBBL Bostr Wstr Ustr Vstr Shfl rsw rlw lat sen Hm HEL BIOL
+                           T   F    T   F    T    F   F      F       T   F    F     20*F
 rho0:
       1025.
 

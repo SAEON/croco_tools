@@ -1,1 +1,0 @@
-../RVTK_DEBUG_src/RIP/rip*.nc

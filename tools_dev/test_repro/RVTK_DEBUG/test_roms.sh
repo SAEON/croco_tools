@@ -1,1 +1,0 @@
-../RVTK_DEBUG_src/test_roms.sh

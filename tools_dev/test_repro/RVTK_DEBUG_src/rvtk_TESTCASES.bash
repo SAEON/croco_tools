@@ -110,7 +110,7 @@ for EXAMPLE in $LIST_EXAMPLE ; do
     echo " "
     
     echo "Undef NPP > 1"
-    sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=1,\ NSUB_E=1'/' < param_bak0.h > param_bak1.h
+    sed 's/'NSUB_X=1,\ \ \*NSUB_E=NPP'/'NSUB_X=1,\ NSUB_E=1'/' < param_bak0.h > param_bak1.h
     sed 's/'NPP=1'/'NPP=1'/' < param_bak1.h > param_bak2.h
     /bin/mv param_bak2.h param_bak1.h
     echo " "
@@ -158,7 +158,7 @@ for EXAMPLE in $LIST_EXAMPLE ; do
 	echo OPEN-MP 1X2 NPP=2 TESTS
 	echo
 	/bin/rm param_bak1.h
-	sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=1,\ NSUB_E=NPP'/' < param_bak0.h > param_bak1.h
+	sed 's/'NSUB_X=1,\ \ \*NSUB_E=NPP'/'NSUB_X=1,\ NSUB_E=NPP'/' < param_bak0.h > param_bak1.h
 	sed 's/'NPP=4'/'NPP=2'/' < param_bak1.h > param_bak2.h
 	/bin/mv param_bak2.h param_bak1.h
 	export OMP_NUM_THREADS=2
@@ -193,7 +193,7 @@ for EXAMPLE in $LIST_EXAMPLE ; do
 	echo OPEN-MP 2X1 NPP=2 TESTS
 	echo
 	/bin/rm param_bak1.h
-	sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=NPP,\ NSUB_E=1'/' < param_bak0.h > param_bak1.h
+	sed 's/'NSUB_X=1,\ \ \*NSUB_E=NPP'/'NSUB_X=NPP,\ NSUB_E=1'/' < param_bak0.h > param_bak1.h
 	sed 's/'NPP=4'/'NPP=2'/' < param_bak1.h > param_bak2.h
 	/bin/mv param_bak2.h param_bak1.h
 	export OMP_NUM_THREADS=2
@@ -228,7 +228,7 @@ for EXAMPLE in $LIST_EXAMPLE ; do
 	    echo
 	    /bin/rm param_bak1.h
 
-	    sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=2,\ NSUB_E=2'/' < param_bak0.h > param_bak1.h
+	    sed 's/'NSUB_X=1,\ \ \*NSUB_E=NPP'/'NSUB_X=2,\ NSUB_E=2'/' < param_bak0.h > param_bak1.h
 	    sed 's/'NPP=4'/'NPP=2'/'  param_bak1.h > param_bak2.h
 	    /bin/mv param_bak2.h param_bak1.h
 	    export OMP_NUM_THREADS=2
@@ -263,7 +263,7 @@ for EXAMPLE in $LIST_EXAMPLE ; do
 	    echo
 	    /bin/rm param_bak1.h
 	    
-	    sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=1,\ NSUB_E=4'/' < param_bak0.h > param_bak1.h
+	    sed 's/'NSUB_X=1,\ \ \*NSUB_E=NPP'/'NSUB_X=1,\ NSUB_E=4'/' < param_bak0.h > param_bak1.h
 	    sed 's/'NPP=4'/'NPP=4'/'  param_bak1.h > param_bak2.h
 	    /bin/mv param_bak2.h param_bak1.h
 	    export OMP_NUM_THREADS=4
@@ -297,7 +297,7 @@ for EXAMPLE in $LIST_EXAMPLE ; do
 	    echo
 	    /bin/rm param_bak1.h
 	    
-	    sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=4,\ NSUB_E=1'/' < param_bak0.h > param_bak1.h
+	    sed 's/'NSUB_X=1,\ \ \*NSUB_E=NPP'/'NSUB_X=4,\ NSUB_E=1'/' < param_bak0.h > param_bak1.h
 	    sed 's/'NPP=4'/'NPP=4'/' < param_bak1.h > param_bak2.h
 	    /bin/mv param_bak2.h param_bak1.h
 	    export OMP_NUM_THREADS=4
@@ -331,7 +331,7 @@ for EXAMPLE in $LIST_EXAMPLE ; do
 	    echo
 	    /bin/rm param_bak1.h
 
-	    sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=2,\ NSUB_E=4'/' < param_bak0.h > param_bak1.h
+	    sed 's/'NSUB_X=1,\ \ \*NSUB_E=NPP'/'NSUB_X=2,\ NSUB_E=4'/' < param_bak0.h > param_bak1.h
 	    sed 's/'NPP=4'/'NPP=8'/' < param_bak1.h > param_bak2.h
 	    /bin/mv param_bak2.h param_bak1.h
 	    export OMP_NUM_THREADS=8
@@ -365,7 +365,7 @@ for EXAMPLE in $LIST_EXAMPLE ; do
 	    echo
 	    /bin/rm param_bak1.h
 
-	    sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=4,\ NSUB_E=2'/' < param_bak0.h > param_bak1.h
+	    sed 's/'NSUB_X=1,\ \ \*NSUB_E=NPP'/'NSUB_X=4,\ NSUB_E=2'/' < param_bak0.h > param_bak1.h
 	    sed 's/'NPP=4'/'NPP=8'/' < param_bak1.h > param_bak2.h
 	    /bin/mv param_bak2.h param_bak1.h
 	    export OMP_NUM_THREADS=8
@@ -401,7 +401,7 @@ for EXAMPLE in $LIST_EXAMPLE ; do
 	    echo
 	    /bin/rm param_bak1.h
 
-	    sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=1,\ NSUB_E=8'/' < param_bak0.h > param_bak1.h
+	    sed 's/'NSUB_X=1,\ \ \*NSUB_E=NPP'/'NSUB_X=1,\ NSUB_E=8'/' < param_bak0.h > param_bak1.h
 	    sed 's/'NPP=4'/'NPP=8'/' < param_bak1.h > param_bak2.h
 	    /bin/mv param_bak2.h param_bak1.h
 	    export OMP_NUM_THREADS=8
@@ -435,7 +435,7 @@ for EXAMPLE in $LIST_EXAMPLE ; do
 	    echo
 	    /bin/rm param_bak1.h
 
-	    sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=8,\ NSUB_E=1'/' < param_bak0.h > param_bak1.h
+	    sed 's/'NSUB_X=1,\ \ \*NSUB_E=NPP'/'NSUB_X=8,\ NSUB_E=1'/' < param_bak0.h > param_bak1.h
 	    sed 's/'NPP=4'/'NPP=8'/' < param_bak1.h > param_bak2.h
 	    /bin/mv param_bak2.h param_bak1.h
 	    export OMP_NUM_THREADS=8
@@ -497,7 +497,7 @@ for EXAMPLE in $LIST_EXAMPLE ; do
 	/bin/rm param_bak1.h
 	/bin/cp param_bak0.h param_bak1.h
 
-	sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=1,\ NP_ETA=2'/' < param_bak0.h > param_bak1.h
+	sed 's/'NP_XI=1,\ \ \*NP_ETA=4'/'NP_XI=1,\ NP_ETA=2'/' < param_bak0.h > param_bak1.h
 	#
 
 	echo '----------------'
@@ -530,7 +530,7 @@ for EXAMPLE in $LIST_EXAMPLE ; do
 	/bin/rm param_bak1.h
 	/bin/cp param_bak0.h param_bak1.h
 
-	sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=2,\ NP_ETA=1'/' < param_bak0.h > param_bak1.h
+	sed 's/'NP_XI=1,\ \ \*NP_ETA=4'/'NP_XI=2,\ NP_ETA=1'/' < param_bak0.h > param_bak1.h
 	#
 
 	echo '----------------'
@@ -565,7 +565,7 @@ for EXAMPLE in $LIST_EXAMPLE ; do
 	    /bin/rm param_bak1.h
 	    /bin/cp param_bak0.h param_bak1.h
 
-	    sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=2,\ NP_ETA=2'/' < param_bak0.h > param_bak1.h
+	    sed 's/'NP_XI=1,\ \ \*NP_ETA=4'/'NP_XI=2,\ NP_ETA=2'/' < param_bak0.h > param_bak1.h
 
 	    echo '----------------'
 	    if [[ "${EXAMPLE}" == 'GRAV_ADJ'  || "${EXAMPLE}" == 'INNERSHELF' || "${EXAMPLE}" == 'INTERNAL' || "${EXAMPLE}" == 'SHELFRONT'|| "${EXAMPLE}" == 'OVERFLOW' ]] ; then
@@ -598,7 +598,7 @@ for EXAMPLE in $LIST_EXAMPLE ; do
 	    /bin/rm param_bak1.h
 	    /bin/cp param_bak0.h param_bak1.h
 
-	    sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=1,\ NP_ETA=4'/' < param_bak0.h > param_bak1.h
+	    sed 's/'NP_XI=1,\ \ \*NP_ETA=4'/'NP_XI=1,\ NP_ETA=4'/' < param_bak0.h > param_bak1.h
 	    #
 
 	    echo '----------------'
@@ -631,7 +631,7 @@ for EXAMPLE in $LIST_EXAMPLE ; do
 	    /bin/rm param_bak1.h
 	    /bin/cp param_bak0.h param_bak1.h
 
-	    sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=4,\ NP_ETA=1'/' < param_bak0.h > param_bak1.h
+	    sed 's/'NP_XI=1,\ \ \*NP_ETA=4'/'NP_XI=4,\ NP_ETA=1'/' < param_bak0.h > param_bak1.h
 	    #
 
 	    echo '----------------'
@@ -664,7 +664,7 @@ for EXAMPLE in $LIST_EXAMPLE ; do
 	    /bin/rm param_bak1.h
 	    /bin/cp param_bak0.h param_bak1.h
 
-	    sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=2,\ NP_ETA=4'/' < param_bak0.h > param_bak1.h
+	    sed 's/'NP_XI=1,\ \ \*NP_ETA=4'/'NP_XI=2,\ NP_ETA=4'/' < param_bak0.h > param_bak1.h
 	    echo '----------------'
 	    if [[ "${EXAMPLE}" == 'GRAV_ADJ'  || "${EXAMPLE}" == 'INNERSHELF' || "${EXAMPLE}" == 'OVERFLOW'  || "${EXAMPLE}" == 'SHELFRONT' || "${EXAMPLE}" == 'SHOREFACE' || "${EXAMPLE}" == 'INTERNAL' ]] ; then
 		echo 'SKIP THIS TEST CASE ' $EXAMPLE
@@ -695,7 +695,7 @@ for EXAMPLE in $LIST_EXAMPLE ; do
 	    /bin/rm param_bak1.h
 	    /bin/cp param_bak0.h param_bak1.h
 
-	    sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=4,\ NP_ETA=2'/' < param_bak0.h > param_bak1.h
+	    sed 's/'NP_XI=1,\ \ \*NP_ETA=4'/'NP_XI=4,\ NP_ETA=2'/' < param_bak0.h > param_bak1.h
 	    echo '----------------'
 	    if [[  "${EXAMPLE}" == 'JET' || "${EXAMPLE}" == 'GRAV_ADJ'  || "${EXAMPLE}" == 'INNERSHELF' || "${EXAMPLE}" == 'OVERFLOW'  || "${EXAMPLE}" == 'SHELFRONT' || "${EXAMPLE}" == 'SHOREFACE' || "${EXAMPLE}" == 'INTERNAL' ]] ; then
 		echo 'SKIP THIS TEST CASE ' $EXAMPLE
@@ -728,7 +728,7 @@ for EXAMPLE in $LIST_EXAMPLE ; do
 	    /bin/rm param_bak1.h
 	    /bin/cp param_bak0.h param_bak1.h
 
-	    sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=1,\ NP_ETA=8'/' < param_bak0.h > param_bak1.h
+	    sed 's/'NP_XI=1,\ \ \*NP_ETA=4'/'NP_XI=1,\ NP_ETA=8'/' < param_bak0.h > param_bak1.h
 	    #
 
 
@@ -764,7 +764,7 @@ for EXAMPLE in $LIST_EXAMPLE ; do
 	    /bin/rm param_bak1.h
 	    /bin/cp param_bak0.h param_bak1.h
 
-	    sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=8,\ NP_ETA=1'/' < param_bak0.h > param_bak1.h
+	    sed 's/'NP_XI=1,\ \ \*NP_ETA=4'/'NP_XI=8,\ NP_ETA=1'/' < param_bak0.h > param_bak1.h
 	    echo '----------------'
 	    if [[  "${EXAMPLE}" == 'JET' || "${EXAMPLE}" == 'OVERFLOW'  || "${EXAMPLE}" == 'SHELFRONT' || "${EXAMPLE}" == 'SHOREFACE' || "${EXAMPLE}" == 'JET' ]] ; then
 		echo 'SKIP THIS TEST CASE ' $EXAMPLE

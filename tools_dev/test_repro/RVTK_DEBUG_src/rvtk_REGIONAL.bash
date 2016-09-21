@@ -15,6 +15,8 @@
 # VORTEX and REGIONAL
 #--------------------------------------------------------------------
 
+MPIRUN=`which mpirun`
+
 echo "================================"
 echo "MPIRUN COMMAND: "$MPIRUN
 echo "================================"
@@ -37,7 +39,7 @@ LIST_WORDS='ETALON difference: ABNORMAL ERROR BUGBIN GRID#'
 ADDTEST='ON'
 # Type of parallelization
 #
-COMPOMP='ON'
+COMPOMP='OFF'
 COMPMPI='ON'
 echo ' '
 #
@@ -48,36 +50,36 @@ echo ' '
 # Psource or not in case of REGIONAL [ 'ON OFF' ]
 #
 #LIST_PSOURCEFLAG='OFF ON'
-LIST_PSOURCEFLAG='ON'
+LIST_PSOURCEFLAG='OFF'
 echo 'Psource testing: '$LIST_PSOURCEFLAG
 echo
 #=============================================================================================
 # Bulk or not in case of REGIONAL  [ 'OFF ON' ]
 #
-LIST_BULK_FLUXFLAG='OFF ON'
-#LIST_BULK_FLUXFLAG='ON'
+#LIST_BULK_FLUXFLAG='OFF ON'
+LIST_BULK_FLUXFLAG='OFF'
 echo 'Bulk flux testing: '$LIST_BULK_FLUXFLAG
 echo ' '
 #=============================================================================================
 # Tides or not in case of REGIONAL [ 'ON OFF' ]
 #
 #LIST_TIDESFLAG='OFF ON'
-LIST_TIDESFLAG='ON'
+LIST_TIDESFLAG='OFF'
 echo 'Tides testing: '$LIST_TIDESFLAG
 echo
 #=============================================================================================
 # Lateral forcing CLIM or BRY in case of REGIONAL  [ 'BRY CLM' ]
 #
-LIST_OBCFLAG='CLM BRY'
-#LIST_OBCFLAG='BRY'
+#LIST_OBCFLAG='CLM BRY'
+LIST_OBCFLAG='BRY'
 echo 'Lateral forcing type testing: '$LIST_OBCFLAG
 echo
 #=============================================================================================
 # Type of Nesting (in case of VORTEX OR BENGUELA_LR/VHR) [ 'OFF 1W 2W' ]
 #
-#LIST_AGRIFFLAG='OFF'
+LIST_AGRIFFLAG='OFF'
 #LIST_AGRIFFLAG='OFF 1W'
-LIST_AGRIFFLAG='OFF 1W 2W'
+#LIST_AGRIFFLAG='OFF 1W 2W'
 echo 'Agrif type testing: '$LIST_AGRIFFLAG
 echo ' '
 #=============================================================================================
@@ -326,7 +328,7 @@ for EXAMPLE in $LIST_EXAMPLE
 	      echo OPEN-MP 1X2 NPP=2 TESTS
 	      echo
 	      /bin/rm param_bak1.h
-	      sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=1,\ NSUB_E=NPP'/' < param_bak0.h > param_bak1.h
+	      sed 's/'NSUB_X=1,\ \ \*NSUB_E=NPP'/'NSUB_X=1,\ NSUB_E=NPP'/' < param_bak0.h > param_bak1.h
 	      sed 's/'NPP=4'/'NPP=2'/' < param_bak1.h > param_bak2.h
 	      /bin/mv param_bak2.h param_bak1.h
 	      export OMP_NUM_THREADS=2
@@ -353,7 +355,7 @@ for EXAMPLE in $LIST_EXAMPLE
 	      echo OPEN-MP 2X1 NPP=2 TESTS
 	      echo
 	      /bin/rm param_bak1.h
-	      sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=NPP,\ NSUB_E=1'/' < param_bak0.h > param_bak1.h
+	      sed 's/'NSUB_X=1,\ \ \*NSUB_E=NPP'/'NSUB_X=NPP,\ NSUB_E=1'/' < param_bak0.h > param_bak1.h
 	      sed 's/'NPP=4'/'NPP=2'/' < param_bak1.h > param_bak2.h
 	      /bin/mv param_bak2.h param_bak1.h
 	      export OMP_NUM_THREADS=2
@@ -383,7 +385,7 @@ for EXAMPLE in $LIST_EXAMPLE
 		echo
 		/bin/rm param_bak1.h
 
-		sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=2,\ NSUB_E=2'/' < param_bak0.h > param_bak1.h
+		sed 's/'NSUB_X=1,\ \ \*NSUB_E=NPP'/'NSUB_X=2,\ NSUB_E=2'/' < param_bak0.h > param_bak1.h
 		sed 's/'NPP=4'/'NPP=2'/' < param_bak1.h > param_bak2.h
 		/bin/mv param_bak2.h param_bak1.h
 		export OMP_NUM_THREADS=2
@@ -412,7 +414,7 @@ for EXAMPLE in $LIST_EXAMPLE
 		echo
 		/bin/rm param_bak1.h
 
-		sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=1,\ NSUB_E=4'/' < param_bak0.h > param_bak1.h
+		sed 's/'NSUB_X=1,\ \ \*NSUB_E=NPP'/'NSUB_X=1,\ NSUB_E=4'/' < param_bak0.h > param_bak1.h
 		sed 's/'NPP=4'/'NPP=4'/' < param_bak1.h > param_bak2.h
 		/bin/mv param_bak2.h param_bak1.h
 		export OMP_NUM_THREADS=4
@@ -441,7 +443,7 @@ for EXAMPLE in $LIST_EXAMPLE
 		echo
 		/bin/rm param_bak1.h
 
-		sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=4,\ NSUB_E=1'/' < param_bak0.h > param_bak1.h
+		sed 's/'NSUB_X=1,\ \ \*NSUB_E=NPP'/'NSUB_X=4,\ NSUB_E=1'/' < param_bak0.h > param_bak1.h
 		sed 's/'NPP=4'/'NPP=4'/' < param_bak1.h > param_bak2.h
 		/bin/mv param_bak2.h param_bak1.h
 		export OMP_NUM_THREADS=4
@@ -469,7 +471,7 @@ for EXAMPLE in $LIST_EXAMPLE
 		echo OPEN-MP 2X4 NPP=8 TESTS
 		echo
 		/bin/rm param_bak1.h
-		sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=2,\ NSUB_E=4'/' < param_bak0.h > param_bak1.h
+		sed 's/'NSUB_X=1,\ \ \*NSUB_E=NPP'/'NSUB_X=2,\ NSUB_E=4'/' < param_bak0.h > param_bak1.h
 		sed 's/'NPP=4'/'NPP=8'/' < param_bak1.h > param_bak2.h
 		/bin/mv param_bak2.h param_bak1.h
 		export OMP_NUM_THREADS=8
@@ -497,7 +499,7 @@ for EXAMPLE in $LIST_EXAMPLE
 		echo OPEN-MP 4X2 NPP=2 TESTS
 		echo
 		/bin/rm param_bak1.h
-		sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=4,\ NSUB_E=2'/' < param_bak0.h > param_bak1.h
+		sed 's/'NSUB_X=1,\ \ \*NSUB_E=NPP'/'NSUB_X=4,\ NSUB_E=2'/' < param_bak0.h > param_bak1.h
 		sed 's/'NPP=4'/'NPP=8'/' < param_bak1.h > param_bak2.h
 		/bin/mv param_bak2.h param_bak1.h
 		export OMP_NUM_THREADS=8
@@ -526,7 +528,7 @@ for EXAMPLE in $LIST_EXAMPLE
 		echo OPEN-MP 1X8 NPP=8 TESTS
 		echo
 		/bin/rm param_bak1.h
-		sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=1,\ NSUB_E=8'/' < param_bak0.h > param_bak1.h
+		sed 's/'NSUB_X=1,\ \ \*NSUB_E=NPP'/'NSUB_X=1,\ NSUB_E=8'/' < param_bak0.h > param_bak1.h
 		sed 's/'NPP=4'/'NPP=8'/' < param_bak1.h > param_bak2.h
 		/bin/mv param_bak2.h param_bak1.h
 		export OMP_NUM_THREADS=8
@@ -554,7 +556,7 @@ for EXAMPLE in $LIST_EXAMPLE
 		echo OPEN-MP 8X1 NPP=8 TESTS
 		echo
 		/bin/rm param_bak1.h
-		sed 's/'NSUB_X=1,\ NSUB_E=NPP'/'NSUB_X=8,\ NSUB_E=1'/' < param_bak0.h > param_bak1.h
+		sed 's/'NSUB_X=1,\ \ \*NSUB_E=NPP'/'NSUB_X=8,\ NSUB_E=1'/' < param_bak0.h > param_bak1.h
 		sed 's/'NPP=4'/'NPP=8'/' < param_bak1.h > param_bak2.h
 		/bin/mv param_bak2.h param_bak1.h
 		export OMP_NUM_THREADS=8
@@ -605,7 +607,7 @@ for EXAMPLE in $LIST_EXAMPLE
 	      echo
 	      /bin/rm param_bak1.h
 	      /bin/cp param_bak0.h param_bak1.h
-	      sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=1,\ NP_ETA=2'/' < param_bak0.h > param_bak1.h
+	      sed 's/'NP_XI=1,\ \ \*NP_ETA=4'/'NP_XI=1,\ NP_ETA=2'/' < param_bak0.h > param_bak1.h
 #
 	      echo '----------------'
 	      echo COMPILE MPI 1X2 $EXAMPLE
@@ -631,7 +633,7 @@ for EXAMPLE in $LIST_EXAMPLE
 	      echo
 	      /bin/rm param_bak1.h
 	      /bin/cp param_bak0.h param_bak1.h
-	      sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=2,\ NP_ETA=1'/' < param_bak0.h > param_bak1.h
+	      sed 's/'NP_XI=1,\ \ \*NP_ETA=4'/'NP_XI=2,\ NP_ETA=1'/' < param_bak0.h > param_bak1.h
 #
 	      echo '----------------'
 	      echo COMPILE MPI 2X1 $EXAMPLE
@@ -658,7 +660,7 @@ for EXAMPLE in $LIST_EXAMPLE
 		echo
 		/bin/rm param_bak1.h
 		/bin/cp param_bak0.h param_bak1.h
-		sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=2,\ NP_ETA=2'/' < param_bak0.h > param_bak1.h
+		sed 's/'NP_XI=1,\ \ \*NP_ETA=4'/'NP_XI=2,\ NP_ETA=2'/' < param_bak0.h > param_bak1.h
 #
 		echo '----------------'
 		echo COMPILE MPI 2X2 $EXAMPLE
@@ -685,7 +687,7 @@ for EXAMPLE in $LIST_EXAMPLE
 		/bin/rm param_bak1.h
 		/bin/cp param_bak0.h param_bak1.h
 
-		sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=1,\ NP_ETA=4'/' < param_bak0.h > param_bak1.h
+		sed 's/'NP_XI=1,\ \ \*NP_ETA=4'/'NP_XI=1,\ NP_ETA=4'/' < param_bak0.h > param_bak1.h
 #
 		echo '----------------'
 		echo COMPILE MPI 1X4 $EXAMPLE
@@ -711,7 +713,7 @@ for EXAMPLE in $LIST_EXAMPLE
 		echo
 		/bin/rm param_bak1.h
 		/bin/cp param_bak0.h param_bak1.h
-		sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=4,\ NP_ETA=1'/' < param_bak0.h > param_bak1.h
+		sed 's/'NP_XI=1,\ \ \*NP_ETA=4'/'NP_XI=4,\ NP_ETA=1'/' < param_bak0.h > param_bak1.h
 #
 		echo '----------------'
 		echo COMPILE MPI 4X1 $EXAMPLE
@@ -737,7 +739,7 @@ for EXAMPLE in $LIST_EXAMPLE
 		echo
 		/bin/rm param_bak1.h
 		/bin/cp param_bak0.h param_bak1.h
-		sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=2,\ NP_ETA=4'/' < param_bak0.h > param_bak1.h
+		sed 's/'NP_XI=1,\ \ \*NP_ETA=4'/'NP_XI=2,\ NP_ETA=4'/' < param_bak0.h > param_bak1.h
 #
 		echo '----------------'
 		echo COMPILE MPI 2X4 $EXAMPLE
@@ -763,7 +765,7 @@ for EXAMPLE in $LIST_EXAMPLE
 		echo
 		/bin/rm param_bak1.h
 		/bin/cp param_bak0.h param_bak1.h
-		sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=4,\ NP_ETA=2'/' < param_bak0.h > param_bak1.h
+		sed 's/'NP_XI=1,\ \ \*NP_ETA=4'/'NP_XI=4,\ NP_ETA=2'/' < param_bak0.h > param_bak1.h
 #
 		echo '----------------'
 		echo COMPILE MPI 4X2 $EXAMPLE
@@ -790,7 +792,7 @@ for EXAMPLE in $LIST_EXAMPLE
 		echo
 		/bin/rm param_bak1.h
 		/bin/cp param_bak0.h param_bak1.h
-		sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=1,\ NP_ETA=8'/' < param_bak0.h > param_bak1.h
+		sed 's/'NP_XI=1,\ \ \*NP_ETA=4'/'NP_XI=1,\ NP_ETA=8'/' < param_bak0.h > param_bak1.h
 #
 		echo '----------------'
 		echo COMPILE MPI 1X8 $EXAMPLE
@@ -816,7 +818,7 @@ for EXAMPLE in $LIST_EXAMPLE
 		echo
 		/bin/rm param_bak1.h
 		/bin/cp param_bak0.h param_bak1.h
-		sed 's/'NP_XI=1,\ NP_ETA=4'/'NP_XI=8,\ NP_ETA=1'/' < param_bak0.h > param_bak1.h
+		sed 's/'NP_XI=1,\ \ \*NP_ETA=4'/'NP_XI=8,\ NP_ETA=1'/' < param_bak0.h > param_bak1.h
 #
 		echo '----------------'
 		echo COMPILE MPI 8X1 $EXAMPLE

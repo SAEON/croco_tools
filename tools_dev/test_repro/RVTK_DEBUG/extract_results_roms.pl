@@ -1,1 +1,0 @@
-../RVTK_DEBUG_src/extract_results_roms.pl
