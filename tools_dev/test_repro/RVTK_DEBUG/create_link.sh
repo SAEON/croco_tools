@@ -19,14 +19,12 @@ ln -sf ${dir_home}/SHOREFACE .
 echo '==============='
 echo 'Process scripts'
 ln -sf ${dir_home}/gitinfo.sh .
-ln -sf ${dir_home}/jobcomp_rvtk.bash .
-ln -sf ${dir_home}/jobcomp_rvtk.bash .
 ln -sf ${dir_home}/test_* .
 ln -sf ${dir_home}/extract_* .
 ln -sf ${dir_home}/rvtk* .
 ln -sf ${dir_home}/Log .
 cp -Rf ${dir_home}/git_process.bash .
-
+cp -Rf ${dir_home}/jobcomp_rvtk.bash .
 echo '==============='
 echo 'Process namelist files'
 

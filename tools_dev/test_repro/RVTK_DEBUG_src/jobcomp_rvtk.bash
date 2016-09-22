@@ -5,13 +5,8 @@
 #
 # set source, compilation and run directories
 #
-source ${MODULESHOME}/init/bash
-module load intel-comp/11.1.073
-module load intel-mpi/4.0.0.028
-module load netCDF/4.2.1-intel-11.1.073_mpi-4.0.0.028
 
-#SOURCE=$HOME/SVN/romsagrif/Roms_tools/Roms_Agrif
-SOURCE=$HOME/GIT/croco/Roms_Agrif
+SOURCE=$HOME/croco/Roms_Agrif
 
 echo "============================"
 echo "SOURCE_ROMS_AGRIF="$SOURCE
@@ -77,34 +72,20 @@ fi
 #-lnetcdff          : version netcdf-fortran-4.2-gfortran --
 #-----------------------------------------------------------
 #
-
-#NETCDFLIB=$(nf-config --flibs)
-#NETCDFINC=-I$(nf-config --includedir)
-
-#NETCDFLIB="-L/usr/local/netcdf.4.3.2/lib -lnetcdff -lnetcdf"
-#NETCDFINC="-I/usr/local/netcdf.4.3.2/include"
-
-NETCDFLIB="-L/appli/netCDF/netcdf-4.2.1__intel-11.1.073_mpi-4.0.0.028/lib -lnetcdff -lnetcdf"
-NETCDFINC="-I/appli/netCDF/netcdf-4.2.1__intel-11.1.073_mpi-4.0.0.028/include"
+#NETCDFLIB="-L/usr/local/lib -lnetcdf"
+#NETCDFINC="-I/usr/local/include"
+NETCDFLIB=$(nf-config --flibs)
+NETCDFINC=-I$(nf-config --includedir)
+#
+# set MPI directories if needed
+#
+MPIF90="/usr/local/bin/mpif90"
+MPILIB="-L/usr/local/lib -lmpi"
+MPIINC="-I/usr/local/include"
 
 echo 'NETCDFLIB='$NETCDFLIB
 echo 'NETCDFINC='$NETCDFINC
 echo ' '
-#
-# set MPI directories if needed
-#
-#MPIF90="mpif90 -f90=ifort"
-#MPILIB=""
-#MPIINC=""
-
-#MPIF90="/usr/local/intel/impi/4.1.3.049/intel64/bin/mpiifort"
-#MPILIB="-L /usr/local/intel/impi/4.1.3.049/intel64/lib -lmpi"
-#MPIINC="-I/usr/local/intel/impi/4.1.3.049/intel64/include"
-
-MPIF90="/appli/intel/impi/4.0.0.028/bin64/mpiifort"
-MPILIB="-L/appli/intel/impi/4.0.0.028/lib64 -lmpi"
-MPIINC="-I/appli/intel/impi/4.0.0.028/include64"
-
 #
 # set OASIS-MCT (or OASIS3) directories if needed
 #

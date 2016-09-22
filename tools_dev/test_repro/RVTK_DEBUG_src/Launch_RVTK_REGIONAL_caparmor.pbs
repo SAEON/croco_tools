@@ -10,7 +10,7 @@
 cd $PBS_O_WORKDIR
 echo $PBS_O_LOGNAME
 
-#Chargement des modules nécessaires à l'exécution du script (et uniquement ces modules)
+#Chargement des modules nécessaire  l'exécution du script (et uniquement ces modules)
 #--------------------------------------------------------------------------------------
 
 source $MODULESHOME/init/bash
@@ -19,6 +19,10 @@ module load intel-comp/11.1.073
 module load intel-mpi/4.0.0.028
 module load netCDF/4.2.1-intel-11.1.073_mpi-4.0.0.028
 module list
+
+# Define $CC for AGRIF/conv compilation
+#--------------------------------------
+export CC=icc
 
 #==
 ./test_croco.sh REGIONAL
