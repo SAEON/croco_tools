@@ -25,6 +25,7 @@ ln -sf ${dir_home}/test_* .
 ln -sf ${dir_home}/extract_* .
 ln -sf ${dir_home}/rvtk* .
 ln -sf ${dir_home}/Log .
+cp -Rf ${dir_home}/git_process.bash .
 
 echo '==============='
 echo 'Process namelist files'
