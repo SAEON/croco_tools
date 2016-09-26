@@ -32,7 +32,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp(['Add the paths of the different toolboxes'])
-mypath='../';
+mypath='/home/gcambon/croco_tools/';
 %
 % Other software directories
 %
