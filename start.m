@@ -33,12 +33,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp(['Add the paths of the different toolboxes'])
 mypath='/home/gcambon/croco_tools/';
+myutilpath=[mypath,'UTILITIES/'];
 %
 % Other software directories
 %
-addpath([mypath,'m_map1.4f'])
-addpath([mypath,'air_sea'])
-addpath([mypath,'mask'])
+addpath([myutilpath,'m_map1.4f'])
+addpath([myutilpath,'air_sea'])
+addpath([myutilpath,'mask'])
 %
 % ROMSTOOLS directories
 %
@@ -79,14 +80,14 @@ disp(['Arch : ',mysystem,' - Matlab version : ',matversion])
 
 if ((myversion > 13)    )
   disp(['Use of mexnc and loaddap in ',mysystem2,' bits.'])
-  addpath([mypath,'mexcdf/mexnc'])   % 32 and 64 bits version of mexnc 
+  addpath([myutilpath,'mexcdf/mexnc'])   % 32 and 64 bits version of mexnc 
 %
 % - If these directories are already in your matlab native path, 
 % you can comment these lines
-  addpath([mypath,'mexcdf/netcdf_toolbox/netcdf'])
-  addpath([mypath,'mexcdf/netcdf_toolbox/netcdf/ncsource'])
-  addpath([mypath,'mexcdf/netcdf_toolbox/netcdf/nctype'])
-  addpath([mypath,'mexcdf/netcdf_toolbox/netcdf/ncutility'])
+  addpath([myutilpath,'mexcdf/netcdf_toolbox/netcdf'])
+  addpath([myutilpath,'mexcdf/netcdf_toolbox/netcdf/ncsource'])
+  addpath([myutilpath,'mexcdf/netcdf_toolbox/netcdf/nctype'])
+  addpath([myutilpath,'mexcdf/netcdf_toolbox/netcdf/ncutility'])
 %
 % Use of built in opendap libraries (no loaddap) - S. Illig 2015 
 %
@@ -95,7 +96,7 @@ if ((myversion > 13)    )
 %-------------------------------------------------------
 elseif (myversion <= 13)
   disp('Use of mex60 and loaddap in 32 bits.')
-  addpath([mypath,'mex60'])         % Older/32 bits version of mexcdf
+  addpath([myutilpath,'mex60'])         % Older/32 bits version of mexcdf
 
 % - If these directories are already in your matlab native path, 
 % you can comment these lines
@@ -103,10 +104,10 @@ elseif (myversion <= 13)
 % it is because there is a conflict with another native subs.m routines in the
 % symbolic native toolbox
   
-  addpath([mypath,'netcdf_matlab_60'])
-  addpath([mypath,'netcdf_matlab_60/ncfiles'])
-  addpath([mypath,'netcdf_matlab_60/nctype'])
-  addpath([mypath,'netcdf_matlab_60/ncutility'])
+  addpath([myutilpath,'netcdf_matlab_60'])
+  addpath([myutilpath,'netcdf_matlab_60/ncfiles'])
+  addpath([myutilpath,'netcdf_matlab_60/nctype'])
+  addpath([myutilpath,'netcdf_matlab_60/ncutility'])
 %
 % Use of loaddap  (older versions of matlab)
 %
