@@ -32,8 +32,9 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp(['Add the paths of the different toolboxes'])
-mypath='/home/gcambon/croco_tools/';
-myutilpath=[mypath,'UTILITIES/'];
+tools_path='../../croco_tools/';
+croco_path='../../croco/';
+myutilpath=[tools_path,'UTILITIES/'];
 %
 % Other software directories
 %
@@ -43,19 +44,19 @@ addpath([myutilpath,'mask'])
 %
 % ROMSTOOLS directories
 %
-addpath([mypath,'Aforc_NCEP'])
-addpath([mypath,'Aforc_QuikSCAT'])
-addpath([mypath,'Aforc_ECMWF'])
-addpath([mypath,'Diagnostic_tools'])
-addpath([mypath,'Forecast_tools'])
-addpath([mypath,'Nesting_tools'])
-addpath([mypath,'Preprocessing_tools'])
-addpath([mypath,'Oforc_OGCM'])
-addpath([mypath,'Tides'])
-addpath([mypath,'Tides/T_TIDE'])
-addpath([mypath,'Visualization_tools'])
-addpath([mypath,'Rivers'])
-addpath([mypath,'Run/TEST_CASES'])
+addpath([tools_path,'Aforc_NCEP'])
+addpath([tools_path,'Aforc_QuikSCAT'])
+addpath([tools_path,'Aforc_ECMWF'])
+addpath([tools_path,'Diagnostic_tools'])
+addpath([tools_path,'Forecast_tools'])
+addpath([tools_path,'Nesting_tools'])
+addpath([tools_path,'Preprocessing_tools'])
+addpath([tools_path,'Oforc_OGCM'])
+addpath([tools_path,'Tides'])
+addpath([tools_path,'Tides/T_TIDE'])
+addpath([tools_path,'Visualization_tools'])
+addpath([tools_path,'Rivers'])
+addpath([croco_path,'Run/TEST_CASES'])
 %
 %-------------------------------------------------------
 %
@@ -91,7 +92,7 @@ if ((myversion > 13)    )
 %
 % Use of built in opendap libraries (no loaddap) - S. Illig 2015 
 %
-  addpath([mypath,'Opendap_tools_no_loaddap'])
+  addpath([tools_path,'Opendap_tools_no_loaddap'])
 %
 %-------------------------------------------------------
 elseif (myversion <= 13)
@@ -105,13 +106,12 @@ elseif (myversion <= 13)
 % symbolic native toolbox
   
   addpath([myutilpath,'netcdf_matlab_60'])
-  addpath([myutilpath,'netcdf_matlab_60/ncfiles'])
   addpath([myutilpath,'netcdf_matlab_60/nctype'])
   addpath([myutilpath,'netcdf_matlab_60/ncutility'])
 %
 % Use of loaddap  (older versions of matlab)
 %
-  addpath([mypath,'Opendap_tools'])
+  addpath([tools_path,'Opendap_tools'])
 
 else
   disp(['Arch : ',mysystem,...
@@ -124,5 +124,5 @@ end
 % install the libdap and loaddap library and executable on tour computer manually
 % and add the specific path
 %
-%addpath([mypath,'Opendap_tools/FEDORA']) %tested on matlab6 / fedora4
-%addpath([mypath,'Opendap_tools/FEDORA_X64']) % 64bits version of loaddap
+%addpath([tools_path,'Opendap_tools/FEDORA']) %tested on matlab6 / fedora4
+%addpath([tools_path,'Opendap_tools/FEDORA_X64']) % 64bits version of loaddap

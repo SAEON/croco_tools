@@ -88,12 +88,6 @@ hmax_coast = 500;
 %
 hmax = 5000;
 %
-%  Topography netcdf file name (ETOPO 2 or any other netcdf file
-%  in the same format)
-%
-TOPODIR = '../';
-topofile = [TOPODIR,'Topo/etopo2.nc'];
-%
 % Slope parameter (r=grad(h)/h) maximum value for topography smoothing
 %
 rtarget = 0.25;
@@ -150,7 +144,7 @@ ROMS_files_dir=[RUN_dir,'ROMS_FILES/'];
 %
 %  Global data directory (etopo, coads, datasets download from ftp, etc..)
 %
-DATADIR=ROMSTOOLS_dir; 
+DATADIR='../../Roms_tools/'; 
 %
 %  Forcing data directory (ncep, quikscat, datasets download with opendap, etc..)
 %
@@ -178,6 +172,14 @@ Zbryname = [ROMS_files_dir,'roms_bry_Z.nc']; % for boundary data processing
 %
 frc_prefix=[ROMS_files_dir,'roms_frc'];      % forcing file name 
 blk_prefix=[ROMS_files_dir,'roms_blk'];      % bulk file name
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%
+%  Topography netcdf file name (ETOPO 2 or any other netcdf file
+%  in the same format)
+%
+topofile = [DATADIR,'Topo/etopo2.nc'];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
