@@ -12,3 +12,6 @@
 # Misc               #
 ######################
 doc/build
+
+UTILITIES/m_map1.4f/private/*.b
+UTILITIES/m_map1.4f/private/*.TXT
