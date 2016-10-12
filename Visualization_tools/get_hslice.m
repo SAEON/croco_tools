@@ -3,12 +3,12 @@ function var=get_hslice(fname,gname,vname,tindex,level,type);
 %
 % function var=get_hslice(fname,vname,tindex,level,type);
 %
-% get an horizontal slice of a ROMS variable
+% get an horizontal slice of a CROCO variable
 %
 % input:
 %
-%  fname    ROMS netcdf file name (average or history) (string)
-%  gname    ROMS netcdf grid file name  (string)
+%  fname    CROCO netcdf file name (average or history) (string)
+%  gname    CROCO netcdf grid file name  (string)
 %  vname    name of the variable (string)
 %  tindex   time index (integer)
 %  level    vertical level of the slice (scalar):
@@ -31,16 +31,16 @@ function var=get_hslice(fname,gname,vname,tindex,level,type);
 %
 %
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.

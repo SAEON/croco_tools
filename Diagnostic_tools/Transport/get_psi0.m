@@ -1,7 +1,7 @@
 function [psi0,psi1,island]=get_psi0(u,v,pm,pn,rmask)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Compute a stream function from a ROMS vector
+%  Compute a stream function from a CROCO vector
 %  field (velocity or transport)
 %
 %  1 - get boundary conditions for psi

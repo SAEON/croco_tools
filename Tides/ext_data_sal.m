@@ -4,16 +4,16 @@ function [amp,pha]=ext_data_sal(grdname,salname,ampname,phaname,itide)
 %  Extract and interpolate self-attraction and loading tidal data
 %
 %  Further Information:  
-%  http://www.romsagrif.org/Roms_tools/
+%  http://www.crocoagrif.org/croco_tools/
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -31,7 +31,7 @@ function [amp,pha]=ext_data_sal(grdname,salname,ampname,phaname,itide)
 %
 default=NaN;
 %
-% Open and Read ROMS grid file  
+% Open and Read CROCO grid file  
 % 
 ng=netcdf(grdname,'r');
 lon=ng{'lon_rho'}(:);
@@ -91,7 +91,7 @@ end
 pha=data;
 close(nc);
 %
-% Interpolate complex SAL data on ROMS grid
+% Interpolate complex SAL data on CROCO grid
 %
 cdata=amp.*exp(1i*pha*pi/180);
 i_cdata(:,:)=interp2(x,y,cdata,lon,lat,'linear');

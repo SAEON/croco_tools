@@ -8,14 +8,14 @@ function add_talk(oafile,climfile,inifile,gridfile,seas_datafile,...
 %
 %  pierrick 2001
 %
-%  Add talk (mMol P m-3) in a ROMS climatology file
+%  Add talk (mMol P m-3) in a CROCO climatology file
 %  take seasonal data for the upper levels and annual data for the
 %  lower levels
 %
 %  input:
 %    
-%    climfile      : roms climatology file to process (netcdf)
-%    gridfile      : roms grid file (netcdf)
+%    climfile      : croco climatology file to process (netcdf)
+%    gridfile      : croco grid file (netcdf)
 %    seas_datafile : regular longitude - latitude - z seasonal data 
 %                    file used for the upper levels  (netcdf)
 %    ann_datafile  : regular longitude - latitude - z annual data 

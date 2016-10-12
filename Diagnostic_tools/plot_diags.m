@@ -1,19 +1,19 @@
 function plot_diags
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Plot the averaged quantities from a ROMS simulation.
+%  Plot the averaged quantities from a CROCO simulation.
 %
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -33,7 +33,7 @@ function plot_diags
 
 close all
 
-load('roms.mat')
+load('croco.mat')
 
 z0=nan;  % compute average above z0 
          % (if z0=nan get the volume averaged)

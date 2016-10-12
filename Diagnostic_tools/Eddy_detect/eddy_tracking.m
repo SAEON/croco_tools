@@ -32,7 +32,7 @@ A0=0.1;    % typical eddy ssh amplitudes variations
 Umax=0.3; % mean + 3* std dev (spd for 2010)
 %
 %fname='eddies_aviso_2014_2014_select.nc';
-fname='eddies_roms_10_10_select.nc';
+fname='eddies_croco_10_10_select.nc';
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
 %

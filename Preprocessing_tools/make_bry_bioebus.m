@@ -1,10 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Build a ROMS boundary file
+%  Build a CROCO boundary file
 %
 %  Extrapole and interpole fields from a
 %  climatology to get boundary conditions for
-%  ROMS (boundary netcdf file) .
+%  CROCO (boundary netcdf file) .
 %
 %  Data input format (netcdf):
 %     variable(T, Z, Y, X)
@@ -18,16 +18,16 @@
 %    http://iridl.ldeo.columbia.edu/SOURCES/.NOAA/.NODC/.WOA98/
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -58,7 +58,7 @@ close all
 %
 % Common parameters
 %
-romstools_param
+crocotools_param
 Roa;
 %
 % Set times and cycles: seasonal climatology for all data
@@ -83,7 +83,7 @@ disp(' ')
 disp([' Making the file: ',bryname])
 disp([' Adding the BGC variables'])
 disp(' ')
-disp([' Title: ',ROMS_title])
+disp([' Title: ',CROCO_title])
 %
 % Read in the grid
 %
@@ -129,7 +129,7 @@ if (makebry)
   end
 disp('')
   disp('======================================================== ')
-  disp('=> You need the roms_bry_Z.nc file created by make_bry.m ')
+  disp('=> You need the croco_bry_Z.nc file created by make_bry.m ')
   disp('======================================================== ')
 
   add_bry_bioebus(bryname,obc,time_no3,time_o2,time_zoo,time_phyto,time_chla,cycle,'write');

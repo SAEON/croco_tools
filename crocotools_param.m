@@ -1,23 +1,23 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% romstools_param: common parameter file for the preprocessing
-%                  of ROMS simulations using ROMSTOOLS
+% crocotools_param: common parameter file for the preprocessing
+%                  of CROCO simulations using CROCOTOOLS
 %
 %                  This file is used by make_grid.m, make_forcing.m, 
 %                  make_clim.m, make_biol.m, make_bry.m, make_tides.m,
 %                  make_NCEP.m, make_OGCM.m, make_...
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -45,10 +45,10 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  ROMS title names and directories
+%  CROCO title names and directories
 %
-ROMS_title  = 'Benguela Model';
-ROMS_config = 'Benguela_LR';
+CROCO_title  = 'Benguela Model';
+CROCO_config = 'Benguela_LR';
 %
 % Grid dimensions:
 %
@@ -65,7 +65,7 @@ dl = 1/3;
 %
 N = 32;
 %
-%  Vertical grid parameters (! should be the same in roms.in !)
+%  Vertical grid parameters (! should be the same in croco.in !)
 %
 theta_s    =  6.;
 theta_b    =  0.;
@@ -130,48 +130,48 @@ makeplot     = 1;                 % 1: create a few graphics after each preproce
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %
-%  ROMSTOOLS directory
+%  CROCOTOOLS directory
 %
-ROMSTOOLS_dir = '../';
+CROCOTOOLS_dir = '../';
 %
 %  Run directory
 %
 RUN_dir=[pwd,'/'];
 %
-%  ROMS input netcdf files directory
+%  CROCO input netcdf files directory
 %
-ROMS_files_dir=[RUN_dir,'ROMS_FILES/'];
+CROCO_files_dir=[RUN_dir,'CROCO_FILES/'];
 %
 %  Global data directory (etopo, coads, datasets download from ftp, etc..)
 %
-DATADIR='../../Roms_tools/'; 
+DATADIR='../../croco_tools/'; 
 %
 %  Forcing data directory (ncep, quikscat, datasets download with opendap, etc..)
 %
 FORC_DATA_DIR = [RUN_dir,'DATA/'];
 %
-eval(['!mkdir ',ROMS_files_dir])
+eval(['!mkdir ',CROCO_files_dir])
 %
-% ROMS file names (grid, forcing, bulk, climatology, initial)
+% CROCO file names (grid, forcing, bulk, climatology, initial)
 %
-grdname  = [ROMS_files_dir,'roms_grd.nc'];
-frcname  = [ROMS_files_dir,'roms_frc.nc'];
-blkname  = [ROMS_files_dir,'roms_blk.nc'];
-clmname  = [ROMS_files_dir,'roms_clm.nc'];
-bryname  = [ROMS_files_dir,'roms_bry.nc'];
-ininame  = [ROMS_files_dir,'roms_ini.nc'];
-bioname  = [ROMS_files_dir,'roms_frcbio.nc']; % Iron Dust forcing for PISCES
-rivname =  [ROMS_files_dir,'roms_runoff.nc'];
+grdname  = [CROCO_files_dir,'croco_grd.nc'];
+frcname  = [CROCO_files_dir,'croco_frc.nc'];
+blkname  = [CROCO_files_dir,'croco_blk.nc'];
+clmname  = [CROCO_files_dir,'croco_clm.nc'];
+bryname  = [CROCO_files_dir,'croco_bry.nc'];
+ininame  = [CROCO_files_dir,'croco_ini.nc'];
+bioname  = [CROCO_files_dir,'croco_frcbio.nc']; % Iron Dust forcing for PISCES
+rivname =  [CROCO_files_dir,'croco_runoff.nc'];
 %
 % intermediate z-level data files (not used in simulations)
 %
-oaname   = [ROMS_files_dir,'roms_oa.nc'];    % for climatology data processing
-Zbryname = [ROMS_files_dir,'roms_bry_Z.nc']; % for boundary data processing
+oaname   = [CROCO_files_dir,'croco_oa.nc'];    % for climatology data processing
+Zbryname = [CROCO_files_dir,'croco_bry_Z.nc']; % for boundary data processing
 %
 % Generic forcing file root names for interannual simulations (NCEP/GFS)
 %
-frc_prefix=[ROMS_files_dir,'roms_frc'];      % forcing file name 
-blk_prefix=[ROMS_files_dir,'roms_blk'];      % bulk file name
+frc_prefix=[CROCO_files_dir,'croco_frc'];      % forcing file name 
+blk_prefix=[CROCO_files_dir,'croco_blk'];      % bulk file name
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -283,7 +283,7 @@ qbar_cycle=360;
 %     pource_ts = 1  => Runoff tracers concentration processing is activated. 
 %                       It needs the climatology file created with make_clim.m
 %     psource_ts = 0 => No Runoff tracers concentration processing 
-%                       It reads analytical values in roms.in 
+%                       It reads analytical values in croco.in 
 %                       or use default value defined in analytical.F
 %
 psource_ts=0; 
@@ -327,7 +327,7 @@ Z0   =  1;       % Mean depth of tide gauge
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 Yorig         = 2000;          % reference time for vector time
-                               % in roms initial and forcing files
+                               % in croco initial and forcing files
 %
 Ymin          = 2000;          % first forcing year
 Ymax          = 2000;          % last  forcing year
@@ -382,11 +382,11 @@ My_ECCO_dir  = [DATADIR,'ECCO/'];
 % NCEP data directory for files downloaded via opendap
 %
 if NCEP_version  == 1;
-  NCEP_dir= [FORC_DATA_DIR,'NCEP1_',ROMS_config,'/']; 
+  NCEP_dir= [FORC_DATA_DIR,'NCEP1_',CROCO_config,'/']; 
 elseif NCEP_version  == 2;
-  NCEP_dir= [FORC_DATA_DIR,'NCEP2_',ROMS_config,'/'];
+  NCEP_dir= [FORC_DATA_DIR,'NCEP2_',CROCO_config,'/'];
 elseif NCEP_version  == 3;
-  NCEP_dir= [FORC_DATA_DIR,'CFSR_',ROMS_config,'/']; 
+  NCEP_dir= [FORC_DATA_DIR,'CFSR_',CROCO_config,'/']; 
 end
 makefrc      = 1;       % 1: create forcing files
 makeblk      = 1;       % 1: create bulk files
@@ -404,17 +404,17 @@ itolap_ncep  = 8;      % 8 records for 4-daily NCEP
 % Options for make_QSCAT_daily and make_QSCAT_clim   
 %--------------------------------------------------
 %
-QSCAT_dir        = [FORC_DATA_DIR,'QSCAT_',ROMS_config,'/']; % QSCAT data directory
+QSCAT_dir        = [FORC_DATA_DIR,'QSCAT_',CROCO_config,'/']; % QSCAT data directory
 QSCAT_frc_prefix = [frc_prefix,'_QSCAT_'];                   %  generic file name
                                                              %  for interannual simulations
 QSCAT_clim_file  = [DATADIR,'QuikSCAT_clim/',...             % QuikSCAT climatology file
-                    'roms_SCOW_month_clim_1999_2009.nc'];    % for make_QSCAT_clim.
+                    'croco_SCOW_month_clim_1999_2009.nc'];    % for make_QSCAT_clim.
 %
 %--------------------------------------------------
 %  Options for make_ECMWF and make_ECMWF_daily  
 %--------------------------------------------------
 %
-ECMWF_dir= [FORC_DATA_DIR,'ECMWF_',ROMS_config,'/'];    % ECMWF data directory
+ECMWF_dir= [FORC_DATA_DIR,'ECMWF_',CROCO_config,'/'];    % ECMWF data directory
 My_ECMWF_dir=[FORC_DATA_DIR,'ERAI/'];                 % ERA-I data downloaded with python script
 itolap_ecmwf = 3;                                      % 3 records for daily  ECMWF
 % 
@@ -425,14 +425,14 @@ itolap_ecmwf = 3;                                      % 3 records for daily  EC
 %
 OGCM        = 'SODA';        % Select the OGCM: SODA, ECCO
 %
-OGCM_dir    = [FORC_DATA_DIR,OGCM,'_',ROMS_config,'/']; % OGCM data directory
-bry_prefix  = [ROMS_files_dir,'roms_bry_',OGCM,'_'];    % generic boundary file name
-clm_prefix  = [ROMS_files_dir,'roms_clm_',OGCM,'_'];    % generic climatology file name
-ini_prefix  = [ROMS_files_dir,'roms_ini_',OGCM,'_'];    % generic initial file name
+OGCM_dir    = [FORC_DATA_DIR,OGCM,'_',CROCO_config,'/']; % OGCM data directory
+bry_prefix  = [CROCO_files_dir,'croco_bry_',OGCM,'_'];    % generic boundary file name
+clm_prefix  = [CROCO_files_dir,'croco_clm_',OGCM,'_'];    % generic climatology file name
+ini_prefix  = [CROCO_files_dir,'croco_ini_',OGCM,'_'];    % generic initial file name
 OGCM_prefix = [OGCM,'_'];                               % generic OGCM file name 
 %
 % Number of OGCM bottom levels to remove 
-% (usefull if ROMS depth is shallower than OGCM depth)
+% (usefull if CROCO depth is shallower than OGCM depth)
 %
 rmdepth     = 2;
 %
@@ -494,7 +494,7 @@ end
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-DIAG_dir = [ROMSTOOLS_dir,'Diagnostic_tools/'];
+DIAG_dir = [CROCOTOOLS_dir,'Diagnostic_tools/'];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

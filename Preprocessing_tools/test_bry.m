@@ -4,16 +4,16 @@ function test_bry(bry_file,grid_file,tracer,l,obc)
 %  Test the bry (boundary) files.
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -83,31 +83,31 @@ for obcndx=1:4
         if obcndx==1
             disp(' Plot southern boundary...')
             suffix='south';
-            iroms=(1:L);
-            jroms=1;
+            icroco=(1:L);
+            jcroco=1;
         elseif obcndx==2
             disp(' Plot eastern boundary...')
             suffix='east';
-            iroms=L;
-            jroms=(1:M);
+            icroco=L;
+            jcroco=(1:M);
         elseif obcndx==3
             disp(' Plot northern boundary...')
             suffix='north';
-            iroms=(1:L);
-            jroms=M;
+            icroco=(1:L);
+            jcroco=M;
         elseif obcndx==4
             disp(' Plot western boundary...')
             suffix='west';
-            iroms=1;
-            jroms=(1:M);
+            icroco=1;
+            jcroco=(1:M);
         end
         subplot(2,2,obcndx)
-        topo=squeeze(h(jroms,iroms));
-        mask_vert=squeeze(mask(jroms,iroms));
+        topo=squeeze(h(jcroco,icroco));
+        mask_vert=squeeze(mask(jcroco,icroco));
         if (obcndx==1 | obcndx==3)
-            dx=1./squeeze(pm(jroms,iroms));
+            dx=1./squeeze(pm(jcroco,icroco));
         else
-            dx=1./squeeze(pn(jroms,iroms));
+            dx=1./squeeze(pn(jcroco,icroco));
         end
         temp=squeeze(nc{[tracer,'_',suffix]}(l,:,:));
         [Nz,Nx]=size(temp);

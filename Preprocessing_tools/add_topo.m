@@ -1,10 +1,10 @@
 function h=add_topo(grdname,toponame)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% add a topography (here etopo2) to a ROMS grid
+% add a topography (here etopo2) to a CROCO grid
 %
 % the topogaphy matrix is coarsened prior
-% to the interpolation on the ROMS grid tp
+% to the interpolation on the CROCO grid tp
 % prevent the generation of noise due to 
 % subsampling. this procedure ensure a better
 % general volume conservation.
@@ -13,16 +13,16 @@ function h=add_topo(grdname,toponame)
 %
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -41,7 +41,7 @@ function h=add_topo(grdname,toponame)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  read roms grid
+%  read croco grid
 %
 nc=netcdf(grdname,'r');
 lon=nc{'lon_rho'}(:);
@@ -50,14 +50,14 @@ pm=nc{'pm'}(:);
 pn=nc{'pn'}(:);
 close(nc);
 %
-% Get ROMS averaged resolution
+% Get CROCO averaged resolution
 %
 dx=mean(mean(1./pm));
 dy=mean(mean(1./pn));
-dx_roms=mean([dx dy]);
-disp(['   ROMS resolution : ',num2str(dx_roms/1000,3),' km'])
+dx_croco=mean([dx dy]);
+disp(['   CROCO resolution : ',num2str(dx_croco/1000,3),' km'])
 %
-dl=max([1 2*(dx_roms/(60*1852))]);
+dl=max([1 2*(dx_croco/(60*1852))]);
 lonmin=min(min(lon))-dl;
 lonmax=max(max(lon))+dl;
 latmin=min(min(lat))-dl;
@@ -107,7 +107,7 @@ disp(['   Topography data resolution : ',num2str(dx_topo/1000,3),' km'])
 % Degrade TOPO resolution
 %
 n=0;
-while dx_roms>(dx_topo)
+while dx_croco>(dx_topo)
   n=n+1;
 %  
   x=0.5*(x(2:end)+x(1:end-1));

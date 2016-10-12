@@ -14,10 +14,10 @@
 clear all
 close all
 %
-% ROMS output directory and names
+% CROCO output directory and names
 %
-roms_dir='SCRATCH/';
-model='roms';
+croco_dir='SCRATCH/';
+model='croco';
 filetype='avg';  % 'his' or 'avg'
 suffix='.nc';
 %
@@ -57,7 +57,7 @@ Nhanning=2;   % Number of Hanning filter pass on the Okubo-Weiss parameter
 % 
 % Eddies file name
 %
-netcdf_eddyfile=['eddies_roms_',num2str(Ymin),'_',num2str(Ymax),'.nc'];
+netcdf_eddyfile=['eddies_croco_',num2str(Ymin),'_',num2str(Ymax),'.nc'];
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -67,7 +67,7 @@ nw=create_eddynetcdf(netcdf_eddyfile);
 %
 % Get the grid
 %
-grd_file=[roms_dir,model,'_',filetype,'_Y',num2str(Ymin),...
+grd_file=[croco_dir,model,'_',filetype,'_Y',num2str(Ymin),...
                                         'M',num2str(Mmin),suffix];
 nc=netcdf(grd_file);
 lon=nc{'lon_rho'}(:);
@@ -103,7 +103,7 @@ for Y=Ymin:Ymax
     mo_max=12;
   end
   for M=mo_min:mo_max
-    hisfile=[roms_dir,model,'_',filetype,'_Y',num2str(Y),...
+    hisfile=[croco_dir,model,'_',filetype,'_Y',num2str(Y),...
                                           'M',num2str(M),suffix];
     disp(['Opening : ',hisfile])
     nc=netcdf(hisfile);

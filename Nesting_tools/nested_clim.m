@@ -5,16 +5,16 @@ function nested_clim(child_grd,parent_clim,child_clim,...
 %  compute the climatology of the embedded grid
 %
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -74,7 +74,7 @@ elseif (pisces & nvar>=47)
 else
     error(sprintf(['You don''t have the neccesary variables in the clim file. \n',...
         'or you didn''t choose the right bio. model. \n',...
-        'Check roms_ini.nc parent file and make_clim.m']))
+        'Check croco_ini.nc parent file and make_clim.m']))
 end
 %
 % Title

@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Create and fill ROMS clim and bry files with OGCM data.
+% Create and fill CROCO clim and bry files with OGCM data.
 %
 % The on-line reference to SODA is at
 % http://iridl.ldeo.columbia.edu./SOURCES/.CARTON-GIESE/.SODA/
@@ -8,16 +8,16 @@
 % http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -44,7 +44,7 @@ close all
 %
 % Common parameters
 %
-romstools_param
+crocotools_param
 %
 if strcmp(OGCM,'SODA')
   %
@@ -168,7 +168,7 @@ if makeini==1
   %
   tini=datenum(Ymin,Mmin,1)-datenum(Yorig,1,1);
   disp(['Create an initial file for ',datestr(tini+datenum(Yorig,1,1));])
-  create_inifile(ininame,grdname,ROMS_title,...
+  create_inifile(ininame,grdname,CROCO_title,...
 		 theta_s,theta_b,hc,N,...
 		 tini,'clobber', vtransform);
   nc_ini=netcdf(ininame,'write');
@@ -217,7 +217,7 @@ if makeclim==1 | makebry==1
 	Yp=Y+1;
       end
       %
-      % Add 2 times step in the ROMS files: 1 at the beginning and 1 at the end 
+      % Add 2 times step in the CROCO files: 1 at the beginning and 1 at the end 
       %
       nc=netcdf([OGCM_dir,OGCM_prefix,'Y',num2str(Y),'M',num2str(M),'.cdf']);
       OGCM_time=nc{'time'}(:);
@@ -230,9 +230,9 @@ if makeclim==1 | makebry==1
       %
       %% Fill the time axis
       %
-      roms_time=0*(1:ntimes+itolap_tot);
+      croco_time=0*(1:ntimes+itolap_tot);
       %Current month	
-      roms_time(itolap_a+1:end-itolap_p)=OGCM_time;
+      croco_time(itolap_a+1:end-itolap_p)=OGCM_time;
       %
       %Previous  month
       %
@@ -241,7 +241,7 @@ if makeclim==1 | makebry==1
 	disp(['Compute beginning overlap, time index:',num2str(aa)])	
 	disp(['Add ',num2str(-(itolap_a + 1 - aa)), ' timestep dt'])
 	disp(['--------'])
-	roms_time(aa) = roms_time(itolap_a+1) - ((itolap_a + 1 - aa).* dt);
+	croco_time(aa) = croco_time(itolap_a+1) - ((itolap_a + 1 - aa).* dt);
       end
       %
       %Next month	
@@ -251,20 +251,20 @@ if makeclim==1 | makebry==1
 	disp(['Compute end overlap, time index:',num2str(ntimes+itolap_tot - itolap_p + aa)])
 	disp(['Add ',num2str(aa), ' timestep dt'])
 	disp(['--------'])
-	roms_time(end - itolap_p +  aa   ) = roms_time(end - itolap_p) +  aa.* dt;
+	croco_time(end - itolap_p +  aa   ) = croco_time(end - itolap_p) +  aa.* dt;
       end
       disp(['==================================='])
       close(nc)
       %-----------------------------------------------------	
       %
-      % Create and open the ROMS files
+      % Create and open the CROCO files
       %
       if makebry==1
 	bryname=[bry_prefix,'Y',num2str(Y),...
 		 'M',num2str(M),nc_suffix];
-	create_bryfile(bryname,grdname,ROMS_title,[1 1 1 1],...
+	create_bryfile(bryname,grdname,CROCO_title,[1 1 1 1],...
 		       theta_s,theta_b,hc,N,...
-		       roms_time,0,'clobber',vtransform);
+		       croco_time,0,'clobber',vtransform);
 	nc_bry=netcdf(bryname,'write');
       else
 	nc_bry=[];
@@ -272,9 +272,9 @@ if makeclim==1 | makebry==1
       if makeclim==1
 	clmname=[clm_prefix,'Y',num2str(Y),...
 		 'M',num2str(M),nc_suffix];
-	create_climfile(clmname,grdname,ROMS_title,...
+	create_climfile(clmname,grdname,CROCO_title,...
 			theta_s,theta_b,hc,N,...
-			roms_time,0,'clobber',vtransform);
+			croco_time,0,'clobber',vtransform);
 	nc_clm=netcdf(clmname,'write');
       else
 	nc_clm=[];
@@ -346,7 +346,7 @@ if makeclim==1 | makebry==1
 		    nc_clm,nc_bry,lon,lat,angle,h,ntimes+itolap_a+aa,obc,vtransform)
       end
       %
-      % Close the ROMS files
+      % Close the CROCO files
       %
       if ~isempty(nc_clm)
 	close(nc_clm);

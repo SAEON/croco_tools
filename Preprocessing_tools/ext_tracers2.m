@@ -5,14 +5,14 @@ function ext_tracers2(oaname,month_datafile,seas_datafile,...
 %
 %  pierrick 2002
 %
-%  Ext tracers in a ROMS climatology file
+%  Ext tracers in a CROCO climatology file
 %  take monthly data for the upper levels and 
 %  seasonnal data for the
 %  lower levels
 %
 %  input:
 %    
-%    oaname      : roms oa file to process (netcdf)
+%    oaname      : croco oa file to process (netcdf)
 %    month_datafile : regular longitude - latitude - z seasonal data 
 %                    file used for the upper levels  (netcdf)
 %    seas_datafile  : regular longitude - latitude - z annual data 
@@ -86,7 +86,7 @@ if Nz > Nzmonth
     error('Vertical levels mismatch')
   end
 %
-% Interpole the seasonal dataset on the horizontal ROMS grid
+% Interpole the seasonal dataset on the horizontal CROCO grid
 %
   disp(' Ext tracers: horizontal interpolation of the annual data')
   if zmonth~=zseas(1:length(zmonth)) 
@@ -102,7 +102,7 @@ if Nz > Nzmonth
   close(ncseas);
 end
 %
-% interpole the seasonal dataset on the horizontal roms grid
+% interpole the seasonal dataset on the horizontal croco grid
 %
 disp([' Ext tracers: horizontal interpolation of the seasonal data'])
 %

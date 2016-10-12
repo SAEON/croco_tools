@@ -1,9 +1,9 @@
-function [Tvadv]=roms_vert_trcflux(maskr,trc,W);
+function [Tvadv]=croco_vert_trcflux(maskr,trc,W);
 
 %%% THIS FUNCTION COMPUTES V ADVECTION TERMS IN THE SAME WAY 
 %%% THAT THE CODE IS DOING IT (key AKIMA_V) 
 %%%
-%%% [Tvadv]=roms_vert_advection(grd,trc,W);
+%%% [Tvadv]=croco_vert_advection(grd,trc,W);
 %%%    grd   : grid structure as loaded from grd=rnt_gridload(model);
 %%%    trc   : tracer array of size Lp x Mp x N
 %%%    W     : sigma vertical velocity - This is a flux at this stage. 

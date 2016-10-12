@@ -2,20 +2,20 @@ function clm_tides(grdname,frcname,Ntides,Ymin,Mmin,Dmin,Hmin,...
                    Min_min,Smin,Yorig,lon0,lat0,Z0)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Reproduce ROMS clm_tides.F for tidal SSH. 
+%  Reproduce CROCO clm_tides.F for tidal SSH. 
 %  Takes care of 'Yorig' time 
 %
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -29,7 +29,7 @@ function clm_tides(grdname,frcname,Ntides,Ymin,Mmin,Dmin,Hmin,...
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Reproduce ROMS 'Yorig' time
+% Reproduce CROCO 'Yorig' time
 %
 date0=datenum(Ymin,Mmin,Dmin,Hmin,Min_min,Smin)-datenum(Yorig,1,1);
 time=date0*24*3600;

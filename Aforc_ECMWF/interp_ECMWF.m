@@ -48,7 +48,7 @@ prate=interp2(lon1,lat1,prate,lon,lat,interp_method);
 prate(prate<1.e-4)=0;
 %
 % 4: Shortwave flux: [W/m^2]
-%      ROMS convention: downward = positive
+%      CROCO convention: downward = positive
 %
 %  Solar shortwave
 %
@@ -62,7 +62,7 @@ radsw(radsw<1.e-10)=0;
 %
 %
 % 5: Longwave flux:  [W/m^2]
-%      ROMS convention: positive upward.
+%      CROCO convention: positive upward.
 %
 %  5.1 Get the net longwave flux [W/m^2]
 %
@@ -127,7 +127,7 @@ ty=interp2(lon1,lat1,ty,lon,lat,interp_method);
 %ty2=Cd.*rhoa.*vwnd.*wspd;
 
 %
-% Rotations on the ROMS grid
+% Rotations on the CROCO grid
 %
 cosa=cos(angle);
 sina=sin(angle);
@@ -140,7 +140,7 @@ svstr=rho2v_2d(ty.*cosa-tx.*sina);
 u10=rho2u_2d(uwnd.*cosa+vwnd.*sina);
 v10=rho2v_2d(vwnd.*cosa-uwnd.*sina);
 %
-% Fill the ROMS files
+% Fill the CROCO files
 %
 if ~isempty(nc_frc)
   nc_frc{'sustr'}(tout,:,:)=sustr;

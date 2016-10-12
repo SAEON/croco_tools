@@ -6,16 +6,16 @@
 %  
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -37,7 +37,7 @@ disp('Forecast analysis')
 %
 % Common parameters
 %
-romstools_param
+crocotools_param
 %
 % plot the wind speed at noon for each day
 %
@@ -100,7 +100,7 @@ bot7=bot6+height+1.5*vmargin;
 %
 subplot('Position',[0.5-0.5*barwidth bot7 barwidth titleheight])
 set(gca,'XTickLabel',[' '])
-xlabel(['ROMS experiment: ',datestr(today)],'FontSize',10)
+xlabel(['CROCO experiment: ',datestr(today)],'FontSize',10)
 %
 % 1: wind stress
 %
@@ -108,7 +108,7 @@ left=left1;
 bot=bot6;
 for tndx=4*5:4:4*5+4*(nx)
   subplot('Position',[left bot width height])
-  nc=netcdf('SCRATCH/roms_frc_GFS_0.nc');
+  nc=netcdf('SCRATCH/croco_frc_GFS_0.nc');
   smstime=[];
   smstime=nc{'sms_time'}(tndx);
   if ~isempty(smstime)
@@ -150,7 +150,7 @@ left=left1;
 bot=bot4;
 for tndx=1:nx
   subplot('Position',[left bot width height])
-  nc=netcdf('SCRATCH/roms_avg.nc');
+  nc=netcdf('SCRATCH/croco_avg.nc');
   scrumtime=[];
   scrumtime=(nc{'scrum_time'}(tndx))/(24*3600);
   if ~isempty(scrumtime)
@@ -193,7 +193,7 @@ left=left1;
 bot=bot2;
 for tndx=1:nx
   subplot('Position',[left bot width height])
-  nc=netcdf('SCRATCH/roms_avg.nc');
+  nc=netcdf('SCRATCH/croco_avg.nc');
   scrumtime=[];
   scrumtime=(nc{'scrum_time'}(tndx))/(24*3600);
   if ~isempty(scrumtime)
@@ -228,18 +228,18 @@ xlabel('SST [^{o}C]','FontSize',fsize)
 %
 % Print the image
 %
-eval(['print -depsc2 roms_',num2str(rundate),'.eps'])
-eval(['!convert -density 85 roms_',num2str(rundate),...
-      '.eps roms_',num2str(rundate),'.jpg'])
-eval(['!mv -f roms_',num2str(rundate),'.jpg roms_realtime.jpg'])
+eval(['print -depsc2 croco_',num2str(rundate),'.eps'])
+eval(['!convert -density 85 croco_',num2str(rundate),...
+      '.eps croco_',num2str(rundate),'.jpg'])
+eval(['!mv -f croco_',num2str(rundate),'.jpg croco_realtime.jpg'])
 %
 % send the file to the web site
 %
-% %!./envoi.csh roms_realtime.jpg
+% %!./envoi.csh croco_realtime.jpg
 % %
 % close all
 % %
-% nc=netcdf('SCRATCH/roms_sta_hindcast.nc');
+% nc=netcdf('SCRATCH/croco_sta_hindcast.nc');
 % t1=nc{'scrum_time'}(:)/(24*3600);
 % sst1=squeeze(nc{'temp'}(:,1,32));
 % bott1=squeeze(nc{'temp'}(:,1,1));
@@ -255,7 +255,7 @@ eval(['!mv -f roms_',num2str(rundate),'.jpg roms_realtime.jpg'])
 % v1(1,:)=NaN;
 % temp1(1,:)=NaN;
 % 
-% nc=netcdf('SCRATCH/roms_sta_forecast.nc');
+% nc=netcdf('SCRATCH/croco_sta_forecast.nc');
 % t2=nc{'scrum_time'}(:)/(24*3600);
 % sst2=squeeze(nc{'temp'}(:,1,32));
 % bott2=squeeze(nc{'temp'}(:,1,1));

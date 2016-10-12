@@ -9,14 +9,14 @@ function  create_runoff(runoffname,grdname,title,...
 %       title: title in the netcdf file
 %
 %
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -63,10 +63,10 @@ nw{'runoff_name'} = ncchar('n_qbar','runoffname_StrLen');
 nw{'runoff_name'}.long_name = ncchar('runoff time');
 
 nw{'runoff_position'} = ncdouble('n_qbar','two');
-nw{'runoff_position'}.long_name = ncchar('position of the runoff (by line) in the ROMS grid');
+nw{'runoff_position'}.long_name = ncchar('position of the runoff (by line) in the CROCO grid');
 
 nw{'runoff_direction'} = ncdouble('n_qbar','two');
-nw{'runoff_direction'}.long_name = ncchar('direction/sense of the runoff (by line) in the ROMS grid');
+nw{'runoff_direction'}.long_name = ncchar('direction/sense of the runoff (by line) in the CROCO grid');
 
 nw{'Qbar'} = ncdouble('n_qbar','qbar_time');
 nw{'Qbar'}.long_name = ncchar('runoff discharge');
@@ -103,8 +103,8 @@ nw.date = ncchar(date);
 nw.date = date;
 nw.grd_file = ncchar(grdname);
 nw.grd_file = grdname;
-nw.type = ncchar('ROMS runoff file');
-nw.type = 'ROMS runoff file';
+nw.type = ncchar('CROCO runoff file');
+nw.type = 'CROCO runoff file';
 
 %
 % Write time variables

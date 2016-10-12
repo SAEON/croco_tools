@@ -60,7 +60,7 @@ end
 FLOW_clm=FLOW_clm';
 
 
-%Create climatological ROMSTOOLS netcdf file
+%Create climatological CROCOTOOLS netcdf file
 runoff_global_clim='runoff_global_clim.nc';
 nw=netcdf(runoff_global_clim,'clobber');
 result = redef(nw);

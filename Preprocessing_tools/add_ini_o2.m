@@ -5,7 +5,7 @@ function add_ini_o2(ininame,grdname,oaname,cycle,O2min);
 %                                           month_datafile,ann_datafile,...
 %                                           cycle);
 %
-%  Add oxygen (mMol O2 m-3) in a ROMS initial file.
+%  Add oxygen (mMol O2 m-3) in a CROCO initial file.
 %  take monthly data for the upper levels and annual data for the
 %  lower levels.
 %  do a temporal interpolation to have values at initial
@@ -13,8 +13,8 @@ function add_ini_o2(ininame,grdname,oaname,cycle,O2min);
 %
 %  input:
 %    
-%    ininame       : roms initial file to process (netcdf)
-%    grdname      : roms grid file (netcdf)
+%    ininame       : croco initial file to process (netcdf)
+%    grdname      : croco grid file (netcdf)
 %    month_datafile : regular longitude - latitude - z monthly data 
 %                    file used for the upper levels  (netcdf)
 %    ann_datafile  : regular longitude - latitude - z annual data 
@@ -27,16 +27,16 @@ function add_ini_o2(ininame,grdname,oaname,cycle,O2min);
 %    [longrd,latgrd,o2] : surface field to plot (as an illustration)
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -89,9 +89,9 @@ tlen=length(oatime);
 %
 % Get the sigma depths
 %
-zroms=zlevs(h,0.*h,theta_s,theta_b,hc,N,'r',vtransform);
-zmin=min(min(min(zroms)));
-zmax=max(max(max(zroms)));
+zcroco=zlevs(h,0.*h,theta_s,theta_b,hc,N,'r',vtransform);
+zmin=min(min(min(zcroco)));
+zmax=max(max(max(zcroco)));
 %
 % Check if the min z level is below the min sigma level 
 %    (if not add a deep layer)
@@ -169,7 +169,7 @@ for l=1:tinilen
     cff2=0;
   end
 %
-% interpole the monthly dataset on the horizontal roms grid
+% interpole the monthly dataset on the horizontal croco grid
 %
   disp(['Add_ini_o2: vertical interpolation'])
   var=squeeze(noa{'O2'}(l1,:,:,:));
@@ -189,8 +189,8 @@ for l=1:tinilen
   end
   var=cff1*var + cff2*var2;
   zeta = squeeze(nc{'zeta'}(l,:,:));
-  zroms=zlevs(h,zeta,theta_s,theta_b,hc,N,'r',vtransform);
-  nc{'O2'}(l,:,:,:)=ztosigma(flipdim(var,1),zroms,flipud(z));
+  zcroco=zlevs(h,zeta,theta_s,theta_b,hc,N,'r',vtransform);
+  nc{'O2'}(l,:,:,:)=ztosigma(flipdim(var,1),zcroco,flipud(z));
 end
 close(noa);
 %

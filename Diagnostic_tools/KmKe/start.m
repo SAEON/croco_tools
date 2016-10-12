@@ -3,16 +3,16 @@
 %  Add the paths of the different toolboxes
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -32,7 +32,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp(['Add the paths of the different toolboxes'])
-mypath='/home/ppenven/romsagrif/Roms_tools/';
+mypath='/home/ppenven/crocoagrif/croco_tools/';
 %
 % Other software directories
 %
@@ -40,7 +40,7 @@ addpath([mypath,'m_map1.4f'])
 addpath([mypath,'air_sea'])
 addpath([mypath,'mask'])
 %
-% ROMSTOOLS directories
+% CROCOTOOLS directories
 %
 addpath([mypath,'Aforc_NCEP'])
 addpath([mypath,'Aforc_QuikSCAT'])

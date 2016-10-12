@@ -5,16 +5,16 @@
 %     - launch make_OGCM_frcst and make_GFS
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -33,7 +33,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 start
 tic
-romstools_param
+crocotools_param
 
 %
 % Get the lateral boundary conditions
@@ -57,7 +57,7 @@ eval(['!cp ',ini_prefix,num2str(rundate),nc_suffix,' ',ini_prefix,'0',nc_suffix]
 %
 if add_tides_fcst==1
   disp(['Add tidal data ... '])
-  frcname=[ROMS_files_dir,'roms_frc_GFS_0.nc'];
+  frcname=[CROCO_files_dir,'croco_frc_GFS_0.nc'];
   %add_tidal_data(tidename,grdname,frcname,Ntides,tidalrank,...
   %               Ymin,Mmin,Dmin,Hmin,Min_min,Smin,coastfileplot)
    [Y,M,d,h,mi,s] = datevec(date);
@@ -67,18 +67,18 @@ if add_tides_fcst==1
 end
 %
 %  Set the clock right: 
-%  - copy roms_ini.nc in FORECAST/roms_ini.nc if not available
-%  - update scrum_time in FORECAST/roms_ini.nc using timezone information
+%  - copy croco_ini.nc in FORECAST/croco_ini.nc if not available
+%  - update scrum_time in FORECAST/croco_ini.nc using timezone information
 %    In this case, initial scrum_time is the UTC time corresponding to 
 %    local midnight of day: now-hdays+1 (scrum_time needs to be a UTC time
 %    since all forcing fields are referenced to UTC time).
 %
 disp('Set the clock right in initial file using Time Zone information')
 time=(floor(now)-datenum(Yorig,1,1)-(hdays-1)-timezone/24)*86400;
-ininame='FORECAST/roms_ini.nc';
+ininame='FORECAST/croco_ini.nc';
 nc=netcdf(ininame,'write');
 if isempty(nc)
-  disp('No restart file available in ROMS_FILES, copy OGCM inifile')
+  disp('No restart file available in CROCO_FILES, copy OGCM inifile')
   eval(['!cp ',ini_prefix,num2str(rundate),nc_suffix,' ',ininame])
   nc=netcdf(ininame,'write');
 end

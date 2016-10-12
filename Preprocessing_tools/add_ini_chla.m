@@ -8,7 +8,7 @@ function add_ini_chla(inifile,gridfile,seas_datafile,cycle,Roa);
 %
 %  pierrick 2001
 %
-%  Add chlorophyll in a ROMS initial file.
+%  Add chlorophyll in a CROCO initial file.
 %  take seasonal data for the surface levels and extrapole 
 %  using Morel and Berthon (1989) parameterization for the
 %  lower levels. warning ! the unit is (micro mole/l) in the
@@ -23,8 +23,8 @@ function add_ini_chla(inifile,gridfile,seas_datafile,cycle,Roa);
 %
 %  input:
 %    
-%    inifile       : roms initial file to process (netcdf)
-%    gridfile      : roms grid file (netcdf)
+%    inifile       : croco initial file to process (netcdf)
+%    gridfile      : croco grid file (netcdf)
 %    seas_datafile : regular longitude - latitude - z seasonal data 
 %                    file used for the upper levels  (netcdf)
 %    ann_datafile  : regular longitude - latitude - z annual data 
@@ -37,16 +37,16 @@ function add_ini_chla(inifile,gridfile,seas_datafile,cycle,Roa);
 %    [longrd,latgrd,chla] : surface field to plot (as an illustration)
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -178,7 +178,7 @@ for l=1:tinilen
     cff2=0;
   end
 %
-% interpole the annual dataset on the horizontal roms grid
+% interpole the annual dataset on the horizontal croco grid
 %
   disp('Add_ini_chla: horizontal extrapolation of surface data')
   surfchla=squeeze(ncseas{'chlorophyll'}(l1,jmin:jmax,imin:imax));
@@ -186,16 +186,16 @@ for l=1:tinilen
   surfchla2=squeeze(ncseas{'chlorophyll'}(l2,jmin:jmax,imin:imax));
   surfchla2=get_missing_val(x,y,surfchla2,missval,Roa,default);
   surfchla=cff1*surfchla + cff2*surfchla2;
-  surfchlaroms=interp2(x,y,surfchla,lon,lat);
+  surfchlacroco=interp2(x,y,surfchla,lon,lat);
 %
 % extrapole the chlorophyll on the vertical
 %
   zeta = squeeze(nc{'zeta'}(l,:,:));
-  zroms=zlevs(h,zeta,theta_s,theta_b,hc,N,'r',vtransform);
+  zcroco=zlevs(h,zeta,theta_s,theta_b,hc,N,'r',vtransform);
   disp(['Add_ini_chla: vertical ',...
   'extrapolation of chlorophyll'])
-  chlaroms=extr_chlo(surfchlaroms,zroms);
-  nc{'CHLA'}(l,:,:,:)=chlaroms;
+  chlacroco=extr_chlo(surfchlacroco,zcroco);
+  nc{'CHLA'}(l,:,:,:)=chlacroco;
 end
 close(nc);
 close(ncseas);

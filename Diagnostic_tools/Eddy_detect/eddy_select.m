@@ -25,10 +25,10 @@ RadiusMax=5000e3;
 AmpMin=0.02;
 %
 %fname_in='eddies_aviso_2014_2014.nc';
-fname_in='eddies_roms_10_10.nc';
+fname_in='eddies_croco_10_10.nc';
 %
 %fname_out='eddies_aviso_2014_2014_select.nc';
-fname_out='eddies_roms_10_10_select.nc';
+fname_out='eddies_croco_10_10_select.nc';
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
 %

@@ -4,19 +4,19 @@ function ext_tracers_ini(ininame,grdname,seas_datafile,ann_datafile,...
 %
 % P. Marchesiello - 2005. Adapted from P. Penven's ext_tracers.m 
 %
-%  Ext tracers in a ROMS initial file
+%  Ext tracers in a CROCO initial file
 %  take seasonal data for the upper levels and annual data for the
 %  lower levels
 %
 %  input:
-%    ininame       : ROMS initial file name
-%    grdname       : ROMS grid file name    
+%    ininame       : CROCO initial file name
+%    grdname       : CROCO grid file name    
 %    seas_datafile : regular longitude - latitude - z seasonal data 
 %                    file used for the upper levels  (netcdf)
 %    ann_datafile  : regular longitude - latitude - z annual data 
 %                    file used for the lower levels  (netcdf)
 %    dataname      : variable name in data file
-%    vname         : variable name in ROMS file
+%    vname         : variable name in CROCO file
 %    type          : position on C-grid ('r', 'u', 'v', 'p')
 %    tini          : initialisation time [days]
 %
@@ -100,7 +100,7 @@ y=Y(j);
 %------------------------------------------------------------
 %
 %
-% Interpole annual dataset on horizontal ROMS grid
+% Interpole annual dataset on horizontal CROCO grid
 %
 if Nz > Nzseas
   if Zseas~=Zann(1:length(Zseas)) 
@@ -126,7 +126,7 @@ if Nz > Nzseas
 end
 close(ncann);
 %
-% interpole seasonal dataset on horizontal roms grid
+% interpole seasonal dataset on horizontal croco grid
 %
 disp(['   ext_tracers_ini: horizontal interpolation of seasonal data'])
 missval=ncseas{dataname}.missing_value(:);
@@ -158,15 +158,15 @@ disp('   ext_tracers_ini: vertical interpolation')
 %
 % Get the sigma depths
 %
-zroms=zlevs(h,0.*h,theta_s,theta_b,hc,N,'r',vtransform);
+zcroco=zlevs(h,0.*h,theta_s,theta_b,hc,N,'r',vtransform);
 if type=='u'
-  zroms=rho2u_3d(zroms);
+  zcroco=rho2u_3d(zcroco);
 end
 if type=='v'
-  zroms=rho2v_3d(zroms);
+  zcroco=rho2v_3d(zcroco);
 end
-zmin=min(min(min(zroms)));
-zmax=max(max(max(zroms)));
+zmin=min(min(min(zcroco)));
+zmax=max(max(max(zcroco)));
 %
 % Check if the min z level is below the min sigma level
 %    (if not add a deep layer)
@@ -193,7 +193,7 @@ var=var(1:Nz,:,:);
 %
 % Do the vertical interpolation and write in inifile
 %
-nc{vname}(1,:,:,:)=ztosigma(flipdim(var,1),zroms,flipud(z));
+nc{vname}(1,:,:,:)=ztosigma(flipdim(var,1),zcroco,flipud(z));
 close(nc);
 
 return

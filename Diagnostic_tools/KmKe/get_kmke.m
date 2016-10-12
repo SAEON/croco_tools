@@ -28,14 +28,14 @@
 %            <vp up> dvbar/dx|s=cst + <vp vp>  dvbar/dy|s=cst ]
 %
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -56,7 +56,7 @@ warning off
 % Directory and file names
 %
 directory='SCRATCH/';
-model='roms';
+model='croco';
 filetype='avg';  % 'his' or 'avg'
 outfile='kmke.mat';
 Ymin=5;
@@ -182,8 +182,8 @@ for Y=Ymin:Ymax
 % Compute the advection terms
 %
 
-      upXgradub=mnoHz.*roms_advection(masku,maskv,maskr,Hz,dn_u.*up,dm_v.*vp,omn_w.*Wp,u2rho_3d(ub));
-      upXgradvb=mnoHz.*roms_advection(masku,maskv,maskr,Hz,dn_u.*up,dm_v.*vp,omn_w.*Wp,v2rho_3d(vb));
+      upXgradub=mnoHz.*croco_advection(masku,maskv,maskr,Hz,dn_u.*up,dm_v.*vp,omn_w.*Wp,u2rho_3d(ub));
+      upXgradvb=mnoHz.*croco_advection(masku,maskv,maskr,Hz,dn_u.*up,dm_v.*vp,omn_w.*Wp,v2rho_3d(vb));
 %
       up=u2rho_3d(up);
       vp=v2rho_3d(vp);

@@ -8,14 +8,14 @@ function add_o2(oafile,climfile,inifile,gridfile,month_datafile,...
 %
 %  pierrick 2001
 %
-%  Add oxygen (mMol 0 m-3) in a ROMS climatology file
+%  Add oxygen (mMol 0 m-3) in a CROCO climatology file
 %  take monthly data for the upper levels and annual data for the
 %  lower levels
 %
 %  input:
 %    
-%    climfile      : roms climatology file to process (netcdf)
-%    gridfile      : roms grid file (netcdf)
+%    climfile      : croco climatology file to process (netcdf)
+%    gridfile      : croco grid file (netcdf)
 %    month_datafile : regular longitude - latitude - z monthly data 
 %                    file used for the upper levels  (netcdf)
 %    ann_datafile  : regular longitude - latitude - z annual data 

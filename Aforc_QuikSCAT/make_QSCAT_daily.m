@@ -1,9 +1,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Build a ROMS forcing file
+%  Build a CROCO forcing file
 %
 %  Extrapole and interpole surface data to get surface boundary
-%  conditions for ROMS (forcing netcdf file)
+%  conditions for CROCO (forcing netcdf file)
 %
 %  Data input format (netcdf):
 %     taux(T, Y, X)
@@ -23,16 +23,16 @@
 %  Modified by Penven, jan 2007, to use OPENDAP.
 %
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -49,7 +49,7 @@ close all
 %
 % Common parameters
 %
-romstools_param
+crocotools_param
 %
 %  Wind stress
 %
@@ -107,7 +107,7 @@ srf_name='shortrad';
 % Title
 %
 disp(' ')
-disp(ROMS_title)
+disp(CROCO_title)
 %
 if level==0
   nc_suffix='.nc';
@@ -170,8 +170,8 @@ for Y=Ymin:Ymax
     close(nc);
     dt=mean(gradient(QSCAT_time));
 %
-% Add 2 times step in the ROMS files: 1 at the beginning and 1 at the end 
-% (otherwise.. ROMS crashes)
+% Add 2 times step in the CROCO files: 1 at the beginning and 1 at the end 
+% (otherwise.. CROCO crashes)
 %
     tlen=length(QSCAT_time)+2;
     time=0*(1:tlen);
@@ -183,12 +183,12 @@ for Y=Ymin:Ymax
     time(end)=datenum(Y,M,31)-datenum(Yorig,1,1)+1+dt/2;
 
 %
-% Create a ROMS forcing file for each month
+% Create a CROCO forcing file for each month
 %
     frcname=[QSCAT_frc_prefix,'Y',num2str(Y),...
              'M',num2str(M),nc_suffix];
     disp(['Create a new forcing file: ' frcname])
-    create_forcing_QSCAT(frcname,grdname,ROMS_title,QSCAT_blk,...
+    create_forcing_QSCAT(frcname,grdname,CROCO_title,QSCAT_blk,...
                    time,coads_time,coads_time,...
                    coads_time,coads_time,coads_time,...
                    0,coads_cycle,coads_cycle,...

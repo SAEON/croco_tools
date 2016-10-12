@@ -13,14 +13,14 @@
 clear all
 close all
 %
-romstools_param
+crocotools_param
 %
 % Directory and file names
 %
 directory=[RUN_dir,'SCRATCH/'];
-model='roms';
+model='croco';
 %
-% ROMS average name
+% CROCO average name
 %
 fname=[directory,model,'_Smean.nc'];
 %
@@ -28,7 +28,7 @@ fname=[directory,model,'_Smean.nc'];
 %
 l=5;
 %
-%  !!! WARNING weak point: vtransform should be the one used for ROMS
+%  !!! WARNING weak point: vtransform should be the one used for CROCO
 %
 vtransform=1;
 %
@@ -42,7 +42,7 @@ z2=NaN;
 %
 % Output matlab file
 %
-outname='transport_roms.mat';
+outname='transport_croco.mat';
 %
 % Read data
 %

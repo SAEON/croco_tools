@@ -2,29 +2,29 @@ function ext_tracers(oaname,seas_datafile,ann_datafile,...
                       dataname,vname,tname,zname,Roa);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Ext tracers in a ROMS climatology file
+%  Ext tracers in a CROCO climatology file
 %  take seasonal data for the upper levels and annual data for the
 %  lower levels
 %
 %  input:
 %    
-%    oaname      : roms oa file to process (netcdf)
+%    oaname      : croco oa file to process (netcdf)
 %    seas_datafile : regular longitude - latitude - z seasonal data 
 %                    file used for the upper levels  (netcdf)
 %    ann_datafile  : regular longitude - latitude - z annual data 
 %                    file used for the lower levels  (netcdf)
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -107,7 +107,7 @@ if Nz > Nzseas
     error('Vertical levels mismatch')
   end
 %
-% Interpole the annual dataset on the horizontal ROMS grid
+% Interpole the annual dataset on the horizontal CROCO grid
 %
   disp(' Ext tracers: horizontal interpolation of the annual data')
   if Zseas~=zann(1:length(Zseas)) 
@@ -133,7 +133,7 @@ if Nz > Nzseas
   close(ncann);
 end
 %
-% interpole the seasonal dataset on the horizontal roms grid
+% interpole the seasonal dataset on the horizontal croco grid
 %
 disp([' Ext tracers: horizontal interpolation of the seasonal data'])
 %

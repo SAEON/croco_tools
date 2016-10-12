@@ -11,8 +11,8 @@ function pv = ertel(fname,gname,lambda,tindex);
 %
 %   -  Ertel PV is calculated on horizontal rho-points, vertical w-points.
 %
-%   fname - The ROMS NetCDF history file.
-%   gname - The ROMS NetCDF grid file.
+%   fname - The CROCO NetCDF history file.
+%   gname - The CROCO NetCDF grid file.
 %   lambda - The property 'lambda' above.  (Must be defined on rho-points.)
 %   tindex   - The time index at which to calculate the potential vorticity.
 %

@@ -45,7 +45,7 @@ legend(qbar_name)
 grid on; box on
 title(['\bf NO3 conc'])
 
-nw=netcdf('roms_runoff_monthly.nc','clobber');
+nw=netcdf('croco_runoff_monthly.nc','clobber');
 % Dimension 
 nw('qbar_time') = 12;
 nw('n_qbar') = 3;
@@ -109,7 +109,7 @@ close (nw)
 
 R_i= [32 36 28];
 R_j= [20 14 33];
-grdfile='ROMS_FILES/roms_grd.nc';
+grdfile='CROCO_FILES/croco_grd.nc';
 [lat, lon, mask]=read_latlonmask(grdfile,'r');
 
 figure

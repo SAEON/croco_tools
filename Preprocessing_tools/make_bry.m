@@ -1,10 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Build a ROMS boundary file
+%  Build a CROCO boundary file
 %
 %  Extrapole and interpole temperature and salinity from a
 %  climatology to get boundary conditions for
-%  ROMS (boundary netcdf file) .
+%  CROCO (boundary netcdf file) .
 %  Get the velocities and sea surface elevation via a 
 %  geostrophic computation.
 %
@@ -20,16 +20,16 @@
 %    http://iridl.ldeo.columbia.edu/SOURCES/.NOAA/.NODC/.WOA98/
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -51,7 +51,7 @@ close all
 %
 % Common parameters
 %
-romstools_param
+crocotools_param
 %
 %  Data climatologies file names:
 %
@@ -74,7 +74,7 @@ salt_ann_data=[climato_dir,'salt_ann.cdf']
 disp(' ')
 disp([' Making the file: ',bryname])
 disp(' ')
-disp([' Title: ',ROMS_title])
+disp([' Title: ',CROCO_title])
 
 %
 % Read in the grid
@@ -102,7 +102,7 @@ if (makebry)
         disp([' NO VTRANSFORM parameter found'])
         disp([' USE TRANSFORM default value vtransform = 1'])
     end
-  create_bryfile(bryname,grdname,ROMS_title,obc,...
+  create_bryfile(bryname,grdname,CROCO_title,obc,...
                  theta_s,theta_b,hc,N,...
                  woa_time,woa_cycle,'clobber',vtransform);
 end
@@ -121,7 +121,7 @@ if (makeZbry)
   kmax=max(find(Z<hmax))-1;
   Z=Z(1:kmax);
   close(nc)
-  create_bry_Z(Zbryname,grdname,ROMS_title,obc,...
+  create_bry_Z(Zbryname,grdname,CROCO_title,obc,...
                 Z,woa_time,woa_cycle,'clobber');
   disp(' ')
   disp(' Horizontal extrapolations')

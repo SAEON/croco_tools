@@ -1,10 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Build a ROMS boundary file
+%  Build a CROCO boundary file
 %
 %  Extrapole and interpole temperature and salinity from a
 %  climatology to get boundary conditions for
-%  ROMS (boundary netcdf file) .
+%  CROCO (boundary netcdf file) .
 %  Get the velocities and sea surface elevation via a 
 %  geostrophic computation.
 %
@@ -20,16 +20,16 @@
 %    http://iridl.ldeo.columbia.edu/SOURCES/.NOAA/.NODC/.WOA98/
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -59,7 +59,7 @@ close all
 %
 % Common parameters
 %
-romstools_param
+crocotools_param
 Roa;
 %
 % Set times and cycles: monthly climatology for all data
@@ -89,7 +89,7 @@ fer_ann_data   = [woapisces_dir,'fer_ann.cdf'];
 dust_seas_data = [woapisces_dir,'dust_seas.cdf'];
 dust_ann_data  = [woapisces_dir,'dust_ann.cdf'];
 if strcmp(climato_dir,cars2009_dir);
-    err_msg=sprintf(['Error : you need to use woadir when creating the roms_oa.nc (Z) \n'...
+    err_msg=sprintf(['Error : you need to use woadir when creating the croco_oa.nc (Z) \n'...
                      'file to be compatible with PISCES'])
     error(err_msg)
 end
@@ -103,7 +103,7 @@ disp(' ')
 disp([' Making the file: ',bryname])
 disp([' Adding the PISCES variables'])
 disp(' ')
-disp([' Title: ',ROMS_title])
+disp([' Title: ',CROCO_title])
 %
 % Read in the grid
 %
@@ -124,7 +124,7 @@ if (makebry)
   disp(' Redefine the boundary file...')
   disp('')
   disp('======================================================== ')
-  disp('=> You need the roms_bry_Z.nc file created by make_bry.m ')
+  disp('=> You need the croco_bry_Z.nc file created by make_bry.m ')
   disp('======================================================== ')
   add_bry_pisces(bryname,obc,time,cycle,'write');
 end

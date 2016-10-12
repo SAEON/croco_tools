@@ -1,6 +1,6 @@
 function [V,h0]=vintegr2(var,zw,zr,z01,z02)
 %
-% Vertically integrate a ROMS variable (var) from a constant depth 
+% Vertically integrate a CROCO variable (var) from a constant depth 
 % z01 (ex z01=-4000 m) to a constant depth z02 (ex z02=-2000m).
 %
 % If z01 = NaN : perform the integration from the bottom to z02.
@@ -10,7 +10,7 @@ function [V,h0]=vintegr2(var,zw,zr,z01,z02)
 %
 % Input :
 %
-% var : ROMS variable at RHO-points (3D matrix)
+% var : CROCO variable at RHO-points (3D matrix)
 % zw  : Depth of the W-points (3D matrix)
 % zr  : Depth of the RHO-points (3D matrix)
 % z01 : lower limit of integration (scalar)

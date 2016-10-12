@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
 # Script to download ERA Interim data
-#  This file is part of ROMSTOOLS
+#  This file is part of CROCOTOOLS
 #
-#  ROMSTOOLS is free software; you can redistribute it and/or modify
+#  CROCOTOOLS is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published
 #  by the Free Software Foundation; either version 2 of the License,
 #  or (at your option) any later version.
 #
-#  ROMSTOOLS is distributed in the hope that it will be useful, but
+#  CROCOTOOLS is distributed in the hope that it will be useful, but
 #  WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
@@ -43,10 +43,10 @@ monthStart = 1
 monthEnd   = 3
 
 # Area of interest
-ownArea = 0 	# 0 if area from a romstools_param.m file
+ownArea = 0 	# 0 if area from a crocotools_param.m file
 		# 1 if own area
 # To complete if ownArea==0
-paramFile='../Run/romstools_param.m'
+paramFile='../Run/crocotools_param.m'
 # To complete if ownArea==1
 #lonmin = str(-10)
 #lonmax = str(17.25)

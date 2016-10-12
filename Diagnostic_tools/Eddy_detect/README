@@ -20,8 +20,8 @@ Detect the eddies in a series of Aviso SSH
 files (such as /DATA/AVISO/madt_20100106.nc). Save the outputs in 
 a NetCDF file.
 
-eddy_detect_roms.m : 
-Detect the eddies in a series of ROMS model 
+eddy_detect_croco.m : 
+Detect the eddies in a series of CROCO model 
 solution files. Save the outputs in a NetCDF file.
 
 eddy_select.m : 

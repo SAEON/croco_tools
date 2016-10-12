@@ -73,9 +73,9 @@ Yorig=1900;
 %Yorig=NaN;
 %
 eddyfile='eddies_aviso_2014_2014_select.nc';
-%eddyfile='eddies_roms_10_10_select.nc';
+%eddyfile='eddies_croco_10_10_select.nc';
 statsfile='eddies_stats_euler_aviso_2014_2014.mat';
-%statsfile='eddies_stats_euler_roms_10_10.mat';
+%statsfile='eddies_stats_euler_croco_10_10.mat';
 %
 % Eddies minimum life duration [days] 
 % (to filter eddies out which have a too short duration)

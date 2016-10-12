@@ -1,22 +1,22 @@
 function download_ECCO (Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,...
                         OGCM_dir,OGCM_prefix,url,Yorig)
 %
-% Extract a subgrid from ECCO to get a ROMS forcing
+% Extract a subgrid from ECCO to get a CROCO forcing
 % Store that into monthly files.
 % Take care of the Greenwitch Meridian.
 %
 %
 %  Further Information:
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.

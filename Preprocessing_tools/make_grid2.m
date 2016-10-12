@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Build a ROMS grid file
+%  Build a CROCO grid file
 %
 %
 %  Pierrick Penven, IRD, 2002.

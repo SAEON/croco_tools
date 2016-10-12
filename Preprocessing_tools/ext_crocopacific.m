@@ -1,16 +1,16 @@
-function ext_romspacific(oaname,datafile,dataname,vname,tname,type);
+function ext_crocopacific(oaname,datafile,dataname,vname,tname,type);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
 %  pierrick 2003
 %
-%  Extrpolations in a ROMS climatology file
+%  Extrpolations in a CROCO climatology file
 %  take seasonal data for the upper levels and annual data for the
 %  lower levels
 %
 %  input:
 %    
-%    oaname      : roms oa file to process (netcdf)
+%    oaname      : croco oa file to process (netcdf)
 %    datafile    : regular longitude - latitude - z seasonal data
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -34,7 +34,7 @@ t=ncclim{'TIME'}(:);
 tlen=length(t);
 Nzclim=length(zclim);
 %
-% Open the grid file and get the ROMS positions  
+% Open the grid file and get the CROCO positions  
 % 
 ng=netcdf(oaname,'r');
 if type=='r'
@@ -87,9 +87,9 @@ if zclim~=Z
  error('Zlevels mismatch between data and OA')
 end
 %
-% interpole the seasonal dataset on the horizontal roms grid
+% interpole the seasonal dataset on the horizontal croco grid
 %
-disp([' Ext roms pacific: horizontal interpolation of the climatology data'])
+disp([' Ext croco pacific: horizontal interpolation of the climatology data'])
 %
 % loop on time
 %

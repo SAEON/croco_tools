@@ -1,10 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Build a ROMS initial file from Global Atlas (WOA or CARS)
+%  Build a CROCO initial file from Global Atlas (WOA or CARS)
 %
 %  Extrapole and interpole fields from a
 %  Climatology to get initial conditions for
-%  ROMS (initial netcdf files) .
+%  CROCO (initial netcdf files) .
 %
 %  Data input format (netcdf):
 %     variable(T, Z, Y, X)
@@ -30,7 +30,7 @@ close all
 %
 %  Title 
 %
-romstools_param
+crocotools_param
 %
 %  Data climatologies file names:
 %
@@ -48,8 +48,8 @@ O2min=0.01;
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
 disp('')
 disp('====================================================== ')
-disp('=> You need the roms_oa.nc file created by make_clim.m ')
-disp('=> with makeoa=1 from romstools_param.m                ')
+disp('=> You need the croco_oa.nc file created by make_clim.m ')
+disp('=> with makeoa=1 from crocotools_param.m                ')
 disp('====================================================== ')
 
 %

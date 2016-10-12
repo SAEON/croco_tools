@@ -1,10 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Build a ROMS climatology file
+%  Build a CROCO climatology file
 %
 %  Extrapole and interpole temperature and salinity from a
 %  Climatology to get boundary and initial conditions for
-%  ROMS (climatology and initial netcdf files) .
+%  CROCO (climatology and initial netcdf files) .
 %  Get data from ORCA 05 climatology
 %
 %  Data input format (netcdf):
@@ -37,11 +37,11 @@ makeini=1;  %1: process initial data
 %  Grid file name - Climatology file name
 %  Initial file name - OA file name
 %
-%grdname='roms_fd_plat_3000m_grd.nc';
-grdname='roms_grd.nc';
-clmname='roms_clm_r05.nc';
-ininame='roms_ini_r05.nc';
-oaname ='roms_oa_r05.nc';
+%grdname='croco_fd_plat_3000m_grd.nc';
+grdname='croco_grd.nc';
+clmname='croco_clm_r05.nc';
+ininame='croco_ini_r05.nc';
+oaname ='croco_oa_r05.nc';
 
 %
 %  Vertical grid parameters
@@ -76,7 +76,7 @@ cycle=365;           % cycle
 %
 %  Data climatology file name:
 %
-Dir_Data='/export/serveraid_vol0/ROMS_HOME/Roms_tools/DATA_PACIFIC/ORCA05_clim/'
+Dir_Data='/export/serveraid_vol0/CROCO_HOME/croco_tools/DATA_PACIFIC/ORCA05_clim/'
 datafile=[Dir_Data,'ORCA05_monthly_clim.cdf'];
 %
 %

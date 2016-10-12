@@ -1,10 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Build a ROMS climatology file
+%  Build a CROCO climatology file
 %
 %  Extrapole and interpole temperature and salinity from a
 %  Climatology to get boundary and initial conditions for
-%  ROMS (climatology and initial netcdf files) .
+%  CROCO (climatology and initial netcdf files) .
 %  Get the velocities and sea surface elevation via a 
 %  geostrophic computation.
 %
@@ -29,7 +29,7 @@ close all
 %
 % Common parameters
 %
-romstools_param
+crocotools_param
 %
 %  Title 
 %
@@ -44,10 +44,10 @@ makeini=1;  %1: process initial data
 %  Grid file name - Climatology file name
 %  Initial file name - OA file name
 %
-grdname='roms_grd.nc';
-clmname='roms_clm.nc';
-ininame='roms_ini.nc';
-oaname ='roms_oa.nc';
+grdname='croco_grd.nc';
+clmname='croco_clm.nc';
+ininame='croco_ini.nc';
+oaname ='croco_oa.nc';
 %
 %  Day of initialisation
 %
@@ -63,10 +63,10 @@ cycle=360;           % cycle
 %    monthtemp : monthly temperature climatology
 %    monthsalt : monthly salinity climatology
 %
-monthtemp='../Roms_Pacifico/roms_pacific_temp.nc';
-monthsalt='../Roms_Pacifico/roms_pacific_salt.nc';
-monthu='../Roms_Pacifico/roms_pacific_u.nc';
-monthv='../Roms_Pacifico/roms_pacific_v.nc';
+monthtemp='../croco_Pacifico/croco_pacific_temp.nc';
+monthsalt='../croco_Pacifico/croco_pacific_salt.nc';
+monthu='../croco_Pacifico/croco_pacific_u.nc';
+monthv='../croco_Pacifico/croco_pacific_v.nc';
 %
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
@@ -115,16 +115,16 @@ if (makeoa)
   disp(' Horizontal extrapolations')
   disp(' ')
   disp(' Temperature...')
-  ext_romspacific(oaname,monthtemp,'TEMP','temp','tclm_time','r');
+  ext_crocopacific(oaname,monthtemp,'TEMP','temp','tclm_time','r');
   disp(' ')
   disp(' Salinity...')
-  ext_romspacific(oaname,monthsalt,'SALT','salt','sclm_time','r');
+  ext_crocopacific(oaname,monthsalt,'SALT','salt','sclm_time','r');
   disp(' ')
   disp(' U...')
-  ext_romspacific(oaname,monthu,'U','u','uclm_time','u');
+  ext_crocopacific(oaname,monthu,'U','u','uclm_time','u');
   disp(' ')
   disp(' V...')
-  ext_romspacific(oaname,monthv,'V','v','vclm_time','v');
+  ext_crocopacific(oaname,monthv,'V','v','vclm_time','v');
 end
 %
 % Vertical interpolations 

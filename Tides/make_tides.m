@@ -1,19 +1,19 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Add the tides to the ROMS forcing file for tidal forcing
+%  Add the tides to the CROCO forcing file for tidal forcing
 %  by the boundary conditions.
 %
 %  Further Information:  
-%  http://www.romsagrif.org/Roms_tools/
+%  http://www.crocoagrif.org/croco_tools/
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -25,7 +25,7 @@
 %
 %  Copyright (c) 2003-2006 by Patrick Marchesiello and Meinte Blass
 %
-%  Updated   1-Sep-2006 by Pierrick Penven (generalisation of romstools_param.m)
+%  Updated   1-Sep-2006 by Pierrick Penven (generalisation of crocotools_param.m)
 %  Updated   3-Oct-2006 by Pierrick Penven (cleaning + phase lag for Yorig time)
 %  Updated  20-Jun-2015 by Patrick Marchesiello (add tidal potential)
 %
@@ -36,11 +36,11 @@ close all
 %
 % Common parameters
 %
-romstools_param
+crocotools_param
 
 pot_tides=1;            % Potential tidal forcing
 if ~exist('sal_tides'), % if Self-Attraction/Loading not in 
-  sal_tides=0;          % romstools_param, set to none
+  sal_tides=0;          % crocotools_param, set to none
 end
 %
 %%%%%%%~%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
@@ -56,9 +56,9 @@ rad=pi/180.0;
 %
 t0=t0-24.*mjd(Yorig,1,1);
 %
-% Read in ROMS grid.
+% Read in CROCO grid.
 %
-disp('Reading ROMS grid parameters ...');
+disp('Reading CROCO grid parameters ...');
 nc=netcdf(grdname,'r');
 lonr=nc{'lon_rho'}(:);
 latr=nc{'lat_rho'}(:);

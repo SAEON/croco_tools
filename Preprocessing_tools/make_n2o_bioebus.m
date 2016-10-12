@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Add N2O data in input ROMS files from Global Atlas (WOA or CARS)
+%  Add N2O data in input CROCO files from Global Atlas (WOA or CARS)
 %
 %  N2O distribution from Nevison et al. (2003) formulation
 %
@@ -20,7 +20,7 @@ close all
 %
 %  Title 
 %
-romstools_param
+crocotools_param
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
 
 %
@@ -45,7 +45,7 @@ end
 O2_ini   = nc{'O2'}(:);
 close(nc)   
 type = 'initial conditions file' ; 
-history = 'ROMS' ;
+history = 'CROCO' ;
 [KK,LL,MM]=size(O2_ini);
 %
 zw_ini=zlevs(h,0.,theta_s,theta_b,Tcline,N,'w',vtransform); 
@@ -123,7 +123,7 @@ find(isnan(N2O_clm)==1);
 %
 % add N20 in climatological file
 type = 'climatological conditions file' ; 
-history = 'ROMS' ;
+history = 'CROCO' ;
 %
 % open the clm file  
 % 
@@ -248,7 +248,7 @@ cycle=O2_cycle;
 % add N20 in bryfile file
 %
 type = 'boundary conditions file' ; 
-history = 'ROMS' ;
+history = 'CROCO' ;
 %
 % open the bry file  
 % 

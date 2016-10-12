@@ -6,16 +6,16 @@
 %  (ERA INTERIM Reanalysis)
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -40,7 +40,7 @@ close all
 %
 % Common parameters
 %
-romstools_param
+crocotools_param
 %
   frc_prefix=[frc_prefix,'_ECMWF_'];                           
   blk_prefix=[blk_prefix,'_ECMWF_'];
@@ -154,7 +154,7 @@ if makefrc==1 | makeblk==1
       time=0*(1:tlen);
       time(itolap_ecmwf+1:tlen0+itolap_ecmwf)=ECMWF_time;   
       disp(['====================='])
-      disp('Compute time for roms file')
+      disp('Compute time for croco file')
       disp(['====================='])
       for aa=1:itolap_ecmwf
         time(aa)=time(itolap_ecmwf+1)-(itolap_ecmwf+1-aa)*dt;
@@ -165,7 +165,7 @@ if makefrc==1 | makeblk==1
       end
       %-------------------------------------------------------------------%
       %
-      % Create the ROMS forcing files
+      % Create the CROCO forcing files
       %
       % ------------------------------------------------------------------%
       %
@@ -179,13 +179,13 @@ if makefrc==1 | makeblk==1
                'M',num2str(M),nc_suffix];
       if makeblk==1
         disp(['Create a new bulk file: ' blkname])
-        create_bulk(blkname,grdname,ROMS_title,time,0);
+        create_bulk(blkname,grdname,CROCO_title,time,0);
 	    disp([' '])
       end
       if makefrc==1
         disp(['Create a new forcing file: ' frcname])
 	    disp([' '])
-        create_forcing(frcname,grdname,ROMS_title,...
+        create_forcing(frcname,grdname,CROCO_title,...
                        time,0,0,...
                        0,0,0,...
                        0,0,0,0,0,0)
@@ -199,7 +199,7 @@ if makefrc==1 | makeblk==1
                                        Yorig,Y,M,coastfileplot)
       end
       %
-      % Open the ROMS forcing files
+      % Open the CROCO forcing files
       if makefrc==1
         nc_frc=netcdf(frcname,'write');
       else
@@ -333,7 +333,7 @@ if makefrc==1 | makeblk==1
 		    mask,tin,nc_frc,nc_blk,lon,lat,angle,tout)           
       end;
       %
-      % Close the ROMS forcing files
+      % Close the CROCO forcing files
       %
       if ~isempty(nc_frc)
         close(nc_frc);

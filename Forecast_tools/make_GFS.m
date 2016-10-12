@@ -7,16 +7,16 @@
 % http://nomad3.ncep.noaa.gov/
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -38,7 +38,7 @@
 % Common parameters
 %
 tic
-romstools_param
+crocotools_param
 %
 makeplot = 0;
 it=2;
@@ -112,11 +112,11 @@ tlen=length(time);
 %
 blkname=[blk_prefix,num2str(rundate),nc_suffix];
 disp(['Create a new bulk file: ' blkname])
-create_bulk(blkname,grdname,ROMS_title,time,0);
+create_bulk(blkname,grdname,CROCO_title,time,0);
 nc_blk=netcdf(blkname,'write');
 frcname=[frc_prefix,num2str(rundate),nc_suffix];
 disp(['Create a new forcing file: ' frcname])
-create_forcing(frcname,grdname,ROMS_title,...
+create_forcing(frcname,grdname,CROCO_title,...
                        time,0,0,...
                        0,0,0,...
   	               0,0,0,0,0,0)

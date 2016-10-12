@@ -1,4 +1,4 @@
-mypath='/obs/OA_COUPLING/Roms_tools_v3.1/';
+mypath='/obs/OA_COUPLING/croco_tools_v3.1/';
 addpath([mypath,'Serena'])
 addpath('/obs/OA_COUPLING/SCRIPTS_Serena/modif_mask')
 addpath([mypath,'netcdf_matlab'])

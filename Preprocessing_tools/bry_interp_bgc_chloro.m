@@ -9,16 +9,16 @@ function bry_interp_bgc_chloro(zbryname,grdfile,clmfile,lon,lat,seas_datafile,an
 %  horizontal z levels.
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -88,22 +88,22 @@ close(nc)
 %
 % loop on time
 %
-chlaroms=zeros(tlen,N,M,L);
+chlacroco=zeros(tlen,N,M,L);
 for l=1:tlen
 disp(['time index: ',num2str(l),' of total: ',num2str(tlen)])
 %
-% extrapole the annual dataset on the horizontal roms grid
+% extrapole the annual dataset on the horizontal croco grid
 %
   disp([dataname,' : horizontal interpolation of surface data'])
   surfchla=squeeze(ncseas{'chlorophyll'}(l,jmin:jmax,imin:imax));
   surfchla=get_missing_val(x,y,surfchla,missval,Roa,default);
-  surfchlaroms=interp2(x,y,surfchla,lon,lat);
+  surfchlacroco=interp2(x,y,surfchla,lon,lat);
 %
 % extrapole the chlorophyll on the vertical
 %
-  zroms=zlevs(h,0.*h,theta_s,theta_b,Tcline,N,'r',vtransform);
+  zcroco=zlevs(h,0.*h,theta_s,theta_b,Tcline,N,'r',vtransform);
   disp(['      ==> then vertical extrapolation'])
-  chlaroms(l,:,:,:)=extr_chlo(surfchlaroms,zroms);
+  chlacroco(l,:,:,:)=extr_chlo(surfchlacroco,zcroco);
 end
 close(ncseas);
 %
@@ -113,30 +113,30 @@ if obcndx==1
 %
 % Southern boundary
 % 
-  iroms=(1:L);
-  jroms=1;
+  icroco=(1:L);
+  jcroco=1;
 elseif obcndx==2
 %
 % Eastern boundary
 % 
-  iroms=L;
-  jroms=(1:M);
+  icroco=L;
+  jcroco=(1:M);
 elseif obcndx==3
 %
 % Northern boundary
 % 
-  iroms=(1:L);
-  jroms=M;
+  icroco=(1:L);
+  jcroco=M;
 elseif obcndx==4
 %
 % Western boundary
 % 
-  iroms=1;
-  jroms=(1:M);
+  icroco=1;
+  jcroco=(1:M);
 end
 %
-lon=lon(jroms,iroms);
-lat=lat(jroms,iroms);
+lon=lon(jcroco,icroco);
+lat=lat(jcroco,icroco);
 %
 % Open the boundary file
 %
@@ -148,7 +148,7 @@ dims=size(lon);
 for l=1:tlen
 %for l=1:1
   disp(['writing time index: ',num2str(l),' of total: ',num2str(tlen)])
-  datazgrid=squeeze(chlaroms(l,:,jroms,iroms));
+  datazgrid=squeeze(chlacroco(l,:,jcroco,icroco));
   nc{vname}(l,:,:)=coef.*datazgrid;
 end
 close(nc);

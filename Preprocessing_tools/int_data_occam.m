@@ -5,13 +5,13 @@ function int_data_occam(oaname,datafile,vname,vlon,vlat,...
 %
 %  pierrick 2003
 %
-%  Ext tracers in a ROMS climatology file
+%  Ext tracers in a CROCO climatology file
 %  take seasonal data for the upper levels and annual data for the
 %  lower levels
 %
 %  input:
 %    
-%    oaname      : roms oa file to process (netcdf)
+%    oaname      : croco oa file to process (netcdf)
 %    datafile : regular longitude - latitude - z seasonal data 
 %                    file used for the upper levels  (netcdf)
 %

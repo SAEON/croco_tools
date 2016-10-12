@@ -1,7 +1,7 @@
 function data=ext_data(datafile,dataname,tindex,lon,lat,time)
 %
 % Read a data file and extrapole 1 horizontal
-% slice on a ROMS grid
+% slice on a CROCO grid
 %
 disp(['Getting ',dataname,' for time index ',num2str(tindex)])
 %
@@ -97,7 +97,7 @@ stop
 
 data=get_missing_val(x,y,data,missval,ro,default);
 %
-% Interpolation on the ROMS grid
+% Interpolation on the CROCO grid
 %
 pcolor(data)
 

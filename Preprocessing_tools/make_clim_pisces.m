@@ -20,7 +20,7 @@ close all
 %
 %  Switches for selecting what to process (1=ON)
 %
-romstools_param
+crocotools_param
 %
 % Climatology files
 %
@@ -47,7 +47,7 @@ dust_ann_data  = [woapisces_dir,'dust_ann.cdf'];
 cycle=woa_cycle;
 NO3min=1;
 if strcmp(climato_dir,cars2009_dir);
-    err_msg=sprintf(['Error : you need to use woadir when creating the roms_oa.nc (Z) \n'...
+    err_msg=sprintf(['Error : you need to use woadir when creating the croco_oa.nc (Z) \n'...
                      'files to be compatible with PISCES'])
     error(err_msg)
 end
@@ -59,8 +59,8 @@ end
 %
 disp('')
 disp('====================================================== ')
-disp('=> You need the roms_oa.nc file created by make_clim.m ')
-disp('=> with makeoa=1 from romstools_param.m                ')
+disp('=> You need the croco_oa.nc file created by make_clim.m ')
+disp('=> with makeoa=1 from crocotools_param.m                ')
 disp('====================================================== ')
 add_no3(oaname,clmname,ininame,grdname,no3_seas_data,...
         no3_ann_data,cycle,makeoa,makeclim)

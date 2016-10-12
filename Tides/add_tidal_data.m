@@ -2,11 +2,11 @@ function [] = add_tides(tidename,gname,fname,Ntides,tidalrank,...
                                   Yorig,year,month,coastfileplot)
 % 
 % Add tidal forcing in interannual forcing file 
-% of the type roms_frc_NCEP2_Y--M--.nc
+% of the type croco_frc_NCEP2_Y--M--.nc
 %
 %   tidename : TPXO file name
-%   gname : roms grid file
-%   fname : roms forcing (frc) file
+%   gname : croco grid file
+%   fname : croco forcing (frc) file
 %   Ntides : number of tidala waves
 %   tidal rank : order from the rank in the TPXO file
 %   Yorig : time origin of simulation for phase correction
@@ -15,7 +15,7 @@ function [] = add_tides(tidename,gname,fname,Ntides,tidalrank,...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 pot_tides=1;            % Potential tidal forcing
 if ~exist('sal_tides'), % if Self-Attraction/Loading not in 
-  sal_tides=0;          % romstools_param, set to none
+  sal_tides=0;          % crocotools_param, set to none
 end
 %
 % Get time of simulation in fractional mjd for nodal correction
@@ -29,9 +29,9 @@ rad=pi/180.0;
 %
 t0=t0-24.*mjd(Yorig,1,1);
 %
-%  Read in ROMS grid.
+%  Read in CROCO grid.
 %
-disp('Reading ROMS grid parameters ...');
+disp('Reading CROCO grid parameters ...');
 nc=netcdf(gname,'r');
 rlon=nc{'lon_rho'}(:);
 rlat=nc{'lat_rho'}(:);

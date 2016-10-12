@@ -10,16 +10,16 @@ function interp_OGCM(OGCM_dir,OGCM_prefix,year,month,Roa,interp_method,...
 %
 %
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -46,7 +46,7 @@ disp(['  Horizontal interpolation: ',...
       OGCM_prefix,'Y',num2str(year),'M',num2str(month),'.cdf'])
 %
 %
-% ROMS grid angle
+% CROCO grid angle
 %
 cosa=cos(angle);
 sina=sin(angle);
@@ -55,9 +55,9 @@ sina=sin(angle);
 %
 nc=netcdf([OGCM_dir,OGCM_prefix,'Y',num2str(year),'M',num2str(month),'.cdf']);
 %
-% Interpole data on the OGCM Z grid and ROMS horizontal grid
+% Interpole data on the OGCM Z grid and CROCO horizontal grid
 %
-% Get zeta because it is needed to compute vertical levels of ROMS grid
+% Get zeta because it is needed to compute vertical levels of CROCO grid
 zeta=ext_data_OGCM(nc,lonT,latT,'ssh',tin,lon,lat,1,Roa,interp_method);
 %
 if ~isempty(nc_clm)
@@ -257,7 +257,7 @@ end
 close(nc)
 %
 %
-% Get the ROMS vertical grid
+% Get the CROCO vertical grid
 %
 disp('  Vertical interpolations')
 if ~isempty(nc_clm)
@@ -278,7 +278,7 @@ end
 %
 Z=[100;Z;-100000];
 %
-% ROMS vertical grid
+% CROCO vertical grid
 %
 zr=zlevs(h,zeta,theta_s,theta_b,hc,N,'r',vtransform);
 zu=rho2u_3d(zr);

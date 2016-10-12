@@ -1,21 +1,21 @@
 function data=ext_data_tpxo(datafile,dataname,itide,lon,lat,type,Roa)
 %
 %  Read in TPXO tide file and extrapole 1 horizontal
-%  slice on a ROMS grid
+%  slice on a CROCO grid
 %
 %  Change the transport into barotropic velocities
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -39,7 +39,7 @@ default=NaN;
 %
 missval=NaN;
 %
-% Distance (deg) to look for data outside roms grid.
+% Distance (deg) to look for data outside croco grid.
 %
 dl=1;
 %
@@ -58,7 +58,7 @@ end
 %
 data=get_missing_val(x,y,data,missval,Roa,default);
 %
-% Interpolation on the ROMS grid
+% Interpolation on the CROCO grid
 %
 data=interp2(x,y,data,lon,lat,'cubic');
 %

@@ -1,8 +1,8 @@
 close all
 clear all
-clim_file='roms_clm.nc';
-ini_file='roms_ini.nc';
-grid_file='roms_grd.nc';
+clim_file='croco_clm.nc';
+ini_file='croco_ini.nc';
+grid_file='croco_grd.nc';
 tracer='temp'
 l=1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

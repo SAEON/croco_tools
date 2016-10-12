@@ -1,18 +1,18 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Build a ROMS grid file
+%  Build a CROCO grid file
 %
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -35,7 +35,7 @@ clear all
 close all
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
 %
-romstools_param
+crocotools_param
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
 warning off
@@ -46,7 +46,7 @@ isoctave=exist('octave_config_info');
 disp(' ')
 disp([' Making the grid: ',grdname])
 disp(' ')
-disp([' Title: ',ROMS_title])
+disp([' Title: ',CROCO_title])
 disp(' ')
 disp([' Resolution: 1/',num2str(1/dl),' deg'])
 %
@@ -73,7 +73,7 @@ disp(' Create the grid file...')
 [M,L]=size(Latp);
 disp([' LLm = ',num2str(L-1)])
 disp([' MMm = ',num2str(M-1)])
-create_grid(L,M,grdname,ROMS_title)
+create_grid(L,M,grdname,CROCO_title)
 %
 % Fill the grid file
 %

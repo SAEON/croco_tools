@@ -1,10 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Build a ROMS climatology file
+%  Build a CROCO climatology file
 %
 %  Extrapole and interpole temperature and salinity from a
 %  Climatology to get boundary and initial conditions for
-%  ROMS (climatology and initial netcdf files) .
+%  CROCO (climatology and initial netcdf files) .
 %  Get the velocities and sea surface elevation via a 
 %  geostrophic computation.
 %
@@ -29,7 +29,7 @@ close all
 %
 % Common parameters
 %
-romstools_param
+crocotools_param
 %
 %  Title 
 %
@@ -44,10 +44,10 @@ makeini=1;  %1: process initial data
 %  Grid file name - Climatology file name
 %  Initial file name - OA file name
 %
-grdname='roms_grd.nc';
-clmname='roms_clm.nc';
-ininame='roms_ini.nc';
-oaname ='roms_oa.nc';
+grdname='croco_grd.nc';
+clmname='croco_clm.nc';
+ininame='croco_ini.nc';
+oaname ='croco_oa.nc';
 %
 %  Day of initialisation
 %

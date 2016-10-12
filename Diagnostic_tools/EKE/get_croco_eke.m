@@ -6,7 +6,7 @@ close all
 %
 name='beng';
 directory='SCRATCH/';
-model='roms';
+model='croco';
 filetype='avg';  % 'his' or 'avg'
 Ymin=4;
 Ymax=10;
@@ -219,9 +219,9 @@ avgzeta(rmask==0)=NaN;
 % Save
 %
 if nonseason==1
-  fname=[name,'_eke_roms_ns.mat']
+  fname=[name,'_eke_croco_ns.mat']
 else
-  fname=[name,'_eke_roms.mat']
+  fname=[name,'_eke_croco.mat']
 end
 save(fname,'lat','lon','eke','varssh','avgzeta')
 %

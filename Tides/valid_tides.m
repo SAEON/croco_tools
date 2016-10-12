@@ -1,7 +1,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% valid_tides: compares ROMS tidal time series with tide-gauge data
-%              and ROMS forcing data (TPXO), then computes harmonic
+% valid_tides: compares CROCO tidal time series with tide-gauge data
+%              and CROCO forcing data (TPXO), then computes harmonic
 %              constituants using Rich Pawlowicz's T_TIDE package 
 %              and intercompare model/data/forcing for each the 
 %              strongest model tidal constituents.
@@ -12,16 +12,16 @@
 %  Geosciences. 28, 929-937.
 
 %  Further Information:
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -49,13 +49,13 @@ t_tide_out='none';         % t_tide output: 'none' 'screen' or outfile
 %
 % MODEL ....................................
 %
-romstools_param
+crocotools_param
 %
-hisname =[ROMS_files_dir,'roms_his.nc'];
+hisname =[CROCO_files_dir,'croco_his.nc'];
 %
 % time series parameters: start, interval and duration
 %
-year=2004; month=1; day=3; % year can be different from Yorig in romstools_param
+year=2004; month=1; day=3; % year can be different from Yorig in crocotools_param
 timestep=2;                % tide sampling interval in days
 ndays=24;                   % Duration of tide sampling in days
 %
@@ -109,7 +109,7 @@ for i=1:T;
   time(i)=time0+(i-1)/res-jul_off;
 end;
 %
-% Read ROMS grid
+% Read CROCO grid
 %
 nc=netcdf(grdname);
 lon=nc{'lon_rho'}(:);
@@ -148,7 +148,7 @@ for k=1:nbstations
 end
 %
 %....................................................................
-% Model tides: read ROMS surface elevation 
+% Model tides: read CROCO surface elevation 
 %....................................................................
 %
 nc=netcdf(hisname);
@@ -159,7 +159,7 @@ close(nc);
 %
 %.....................................................................
 % Forcing tides (e;g. TPXO) 
-% Rebuild from harmonics stored in roms forcing file
+% Rebuild from harmonics stored in croco forcing file
 %.....................................................................
 %
 nc=netcdf(frcname);

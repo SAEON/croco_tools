@@ -1,6 +1,6 @@
 function editmask(grid_file,coast_file);
 
-% EDITMASK interactive Land/Sea mask editing for ROMS
+% EDITMASK interactive Land/Sea mask editing for CROCO
 %    EDITMASK(GRID_FILE,COAST_FILE) is tool for manual editing of the
 %    Land/Sea mask on RHO-points.  To accelerate the proccessing, the
 %    Land/Sea mask is edited in (I,J) grid coordinates.  GRID_FILE is
@@ -251,7 +251,7 @@ switch lower(grid_file),
 % If appropriate, inquire input file names.
 
     if (any(grid_file=='*')),
-      [fn,pth]=uigetfile(grid_file,'Select ROMS grid file...');
+      [fn,pth]=uigetfile(grid_file,'Select CROCO grid file...');
       if (~fn),
         return,
       end;

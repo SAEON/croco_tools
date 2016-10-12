@@ -2,7 +2,7 @@ clear all
 close all
 
 tindex=1;
-oafile='roms_oa.nc';
+oafile='croco_oa.nc';
 coastfile='noumea_i.mat';
 
 nc=netcdf(oafile,'r');

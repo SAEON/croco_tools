@@ -15,7 +15,7 @@ Re=6367442.76;
 % Graphics options
 %
 coastfile='coastline_l.mat';
-moviename='eddies_roms';
+moviename='eddies_croco';
 %
 Xfig=25; % Width of the Figure in cm
 Yfig=20; % Height of the Figure in cm
@@ -33,10 +33,10 @@ anim_gif=0;
 anim_mpeg=1;
 anim_fli=0;
 %
-% ROMS output directory and names
+% CROCO output directory and names
 %
-roms_dir='SCRATCH/';
-model='roms';
+croco_dir='SCRATCH/';
+model='croco';
 filetype='avg';  % 'his' or 'avg'
 suffix='.nc';
 %
@@ -60,7 +60,7 @@ latmax = -26;   % Maximum latitude  [degree north]
 %
 % Eddies netcdf file name
 %
-eddyfile='eddies_roms_10_10_select.nc';
+eddyfile='eddies_croco_10_10_select.nc';
 %
 % Eddies minimum life duration [days] 
 % (to filter eddies out which have a too short duration)
@@ -108,7 +108,7 @@ ngood
 %
 % Get the grid
 %
-grd_file=[roms_dir,model,'_',filetype,'_Y',num2str(Ymin),...
+grd_file=[croco_dir,model,'_',filetype,'_Y',num2str(Ymin),...
                                         'M',num2str(Mmin),suffix];
 nc=netcdf(grd_file);
 lon=nc{'lon_rho'}(:);
@@ -149,7 +149,7 @@ for Y=Ymin:Ymax
     mo_max=12;
   end
   for M=mo_min:mo_max
-    hisfile=[roms_dir,model,'_',filetype,'_Y',num2str(Y),...
+    hisfile=[croco_dir,model,'_',filetype,'_Y',num2str(Y),...
                                           'M',num2str(M),suffix];
     disp(['Opening : ',hisfile])
     nc=netcdf(hisfile);

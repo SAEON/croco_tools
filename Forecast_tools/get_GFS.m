@@ -3,21 +3,21 @@ function [t,tx,ty,tair,rhum,prate,wspd,uwnd,vwnd,radlw,radlw_in,radsw]=...
 	 i2min,i2max,i3min,i3max,missvalue)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Download one full subset of GFS for ROMS bulk for 1 time step
-% Put them in the ROMS units
+% Download one full subset of GFS for CROCO bulk for 1 time step
+% Put them in the CROCO units
 %
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -128,14 +128,14 @@ prate=prate*0.1*(24*60*60.0);
 prate(abs(prate)<1.e-4)=0;
 %
 % 4: Net shortwave flux: [W/m^2]
-%    ROMS convention: positive downward: same as GFS
+%    CROCO convention: positive downward: same as GFS
 % ?? albedo ??
 %
 radsw=dradsw - uradsw;
 radsw(radsw<1.e-10)=0;
 %
 % 5: Net outgoing Longwave flux:  [W/m^2]
-%    ROMS convention: positive upward (opposite to nswrs)
+%    CROCO convention: positive upward (opposite to nswrs)
 %    GFS convention: positive downward --> * (-1)
 %    input: downward longwave rad. and
 %    skin temperature.

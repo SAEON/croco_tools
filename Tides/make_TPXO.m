@@ -1,18 +1,18 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% 	Create and fill a netcdf TPXO file ready for ROMS
+% 	Create and fill a netcdf TPXO file ready for CROCO
 % 
 %  Further Information:  
-%  http://www.romsagrif.org/Roms_tools/
+%  http://www.crocoagrif.org/croco_tools/
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -38,7 +38,7 @@ hfname='DATA/hf.Med2011.nc';
 uvname='DATA/uv.Med2011.nc';
 grdname='DATA/gridMed.nc';
 %
-%  Output TPXO file for ROMS pre-processing
+%  Output TPXO file for CROCO pre-processing
 %
 outname='OTIS_Med.nc';
 %
@@ -197,8 +197,8 @@ nw{'v_i'}.units = 'm2/s';
 %
 %  Global attributes
 %
-nw.type = ncchar('Tides file for ROMS pre-processing');
-nw.type = 'Tides file for ROMS pre-processing';
+nw.type = ncchar('Tides file for CROCO pre-processing');
+nw.type = 'Tides file for CROCO pre-processing';
 nw.title = ncchar(title);
 nw.title = title;
 nw.date = ncchar(date);

@@ -1,21 +1,21 @@
-function varargout = roms_gui(varargin)
+function varargout = croco_gui(varargin)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%% ROMS_GUI Application M-file for roms_gui.fig
+%% CROCO_GUI Application M-file for croco_gui.fig
 %
-%  Visualization of ROMS model outputs
+%  Visualization of CROCO model outputs
 %
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -129,7 +129,7 @@ function varargout = hisfile_callback(h, eventdata, handles, varargin)
 [filename, pathname] = uigetfile( ...
 	{'*.nc', 'All netcdf-Files (*.nc)'; ...
 		'*.*','All Files (*.*)'}, ...
-	'SELECT A ROMS HISTORY NETCDF FILE');
+	'SELECT A CROCO HISTORY NETCDF FILE');
 % If "Cancel" is selected then return
 if isequal([filename,pathname],[0,0])
   return
@@ -169,7 +169,7 @@ function varargout = gridfile_callback(h, eventdata, handles, varargin)
 [filename, pathname] = uigetfile( ...
 	{'*.nc', 'All netcdf-Files (*.nc)'; ...
 		'*.*','All Files (*.*)'}, ...
-	'SELECT A ROMS GRID NETCDF FILE');
+	'SELECT A CROCO GRID NETCDF FILE');
 % If "Cancel" is selected then return
 if isequal([filename,pathname],[0,0])
   return

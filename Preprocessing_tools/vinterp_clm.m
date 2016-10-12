@@ -6,16 +6,16 @@ function vinterp(clmname,grdname,oaname,vname,tname,zname,tini,...
 %  case of climatology files.
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -59,15 +59,15 @@ tlen=length(t);
 %
 % Get the sigma depths
 %
-zroms=zlevs(h,0.*h,theta_s,theta_b,hc,N,'r',vtransform);
+zcroco=zlevs(h,0.*h,theta_s,theta_b,hc,N,'r',vtransform);
 if type=='u'
-  zroms=rho2u_3d(zroms);
+  zcroco=rho2u_3d(zcroco);
 end
 if type=='v'
-  zroms=rho2v_3d(zroms);
+  zcroco=rho2v_3d(zcroco);
 end
-zmin=min(min(min(zroms)));
-zmax=max(max(max(zroms)));
+zmin=min(min(min(zcroco)));
+zmax=max(max(max(zcroco)));
 %
 % Check if the min z level is below the min sigma level 
 %    (if not add a deep layer)
@@ -116,9 +116,9 @@ for l=1:tlen
   end
   var=var(1:Nz,:,:);
   if (isinitial == 0)
-    nc{vname}(l,:,:,:)=ztosigma(flipdim(var,1),zroms,flipud(z));
+    nc{vname}(l,:,:,:)=ztosigma(flipdim(var,1),zcroco,flipud(z));
   else
-    nc{vname}(1,:,:,:)=ztosigma(flipdim(var,1),zroms,flipud(z));
+    nc{vname}(1,:,:,:)=ztosigma(flipdim(var,1),zcroco,flipud(z));
   end
 end
 close(nc);

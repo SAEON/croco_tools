@@ -1,19 +1,19 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Create a ROMS run-off forcing file
+%  Create a CROCO run-off forcing file
 %
 %
 %  Further Information:
-%  http://www.romsagrif.org
+%  http://www.crocoagrif.org
 %
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -30,7 +30,7 @@ clear all
 close all
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
 %
-romstools_param
+crocotools_param
 %
 if (makenpzd | makepisces | makebioebus)
     makebio = 1;
@@ -78,10 +78,10 @@ end
 close(nw)
 
 disp([' '])
-disp(['Line to enter in the roms.in file in the psource_ncfile section :'])
+disp(['Line to enter in the croco.in file in the psource_ncfile section :'])
 disp(['-----------------------------------------------------------------'])
 disp(['psource_ncfile:   Nsrc  Isrc  Jsrc  Dsrc qbardir  Lsrc  Tsrc   runoff file name'])
-disp(['                           ROMS_FILES/roms_runoff.nc(.#nestlevel)'])
+disp(['                           CROCO_FILES/croco_runoff.nc(.#nestlevel)'])
 disp(['                 ',num2str(0)'])          
 
 %    
@@ -94,7 +94,7 @@ rivernumber=size(rivername,1);
 rivname_StrLen=size(rivername,2);
 %
 % Determine the positions of the river, from its lon/lat position
-% extract j and i to put in roms.in / roms.in.1 for that use of roms_grd.nc
+% extract j and i to put in croco.in / croco.in.1 for that use of croco_grd.nc
 %
 % Read the grid
 %
@@ -285,7 +285,7 @@ if plotting
     set(h3,'Clipping','off')
   end
   legend([h1,h3],{'Approximative first guess river location','final adjusted river location'});
-  title({'\bf Location of river in the roms grid';'(from Dai and Trenberth dataset)'});
+  title({'\bf Location of river in the croco grid';'(from Dai and Trenberth dataset)'});
 end
 %
 % Fill the river discharge and eventually
@@ -319,20 +319,20 @@ if psource_ts==1
     
     disp([' ...'])
     disp([' ...Note : '])
-    disp([' ... The Tsrc value reported in roms.in are the annual-mean tracer value'])
+    disp([' ... The Tsrc value reported in croco.in are the annual-mean tracer value'])
     disp([' ... It''s just for information !'])
     disp([' ... The Tsrc used are read in the runoff netCDF file created'])
 
 end
 close(nw)
 %
-% Line to enter in the roms.in file in the psource section
+% Line to enter in the croco.in file in the psource section
 %
 disp([' '])
-disp(['Line to enter in the roms.in file in the psource_ncfile section :'])
+disp(['Line to enter in the croco.in file in the psource_ncfile section :'])
 disp(['-----------------------------------------------------------------'])
 disp(['psource_ncfile:   Nsrc  Isrc  Jsrc  Dsrc qbardir  Lsrc  Tsrc   runoff file name'])
-disp(['                           ROMS_FILES/roms_runoff.nc(.#nestlevel)'])
+disp(['                           CROCO_FILES/croco_runoff.nc(.#nestlevel)'])
 disp(['                 ',num2str(number_rivertoprocess)'])
 for k=1:number_rivertoprocess
   if psource_ts==1

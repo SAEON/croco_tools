@@ -2,20 +2,20 @@
 %
 %  pathfinder_sst
 %
-%  Interpolate PATHFINDER data on ROMS grid and write
-%  into a ROMS netcdf forcing file
+%  Interpolate PATHFINDER data on CROCO grid and write
+%  into a CROCO netcdf forcing file
 %
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -29,14 +29,14 @@
 %  Contribution of P. Penven (IRD)
 %
 %  Updated  October-2006 by Pierrick Penven 
-%  (generalisation of romstool_param.m)
+%  (generalisation of crocotool_param.m)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 close all
 clear all 
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
 %
-romstools_param
+crocotools_param
 isoctave=exist('octave_config_info');
 %
 Roa=1e8;    % extrapolation decay length scale
@@ -46,7 +46,7 @@ spval=NaN;  % Missing value
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
 %
-% Read ROMS Grid
+% Read CROCO Grid
 %
 ncgrd=netcdf(grdname,'r');
 latgrd=ncgrd{'lat_rho'}(:);  % model grid
@@ -102,11 +102,11 @@ for tindex=1:12
              spval,Roa,default,0);              % 0 to load extrap
   end
 %  
-% Interpolation from coarse PATHFINDER grid to ROMS grid
+% Interpolation from coarse PATHFINDER grid to CROCO grid
 %
   SSTTMPgrd=interp2(lontmp,lattmp,SSTTMP,longrd,latgrd,'linear');
 % 
-% Interpolation from fine PATHFINDER grid to ROMS grid
+% Interpolation from fine PATHFINDER grid to CROCO grid
 %
   SSTgrd=interp2(lon,lat,SST,longrd,latgrd,'linear');
 %  
@@ -154,7 +154,7 @@ nc=netcdf(pathfinder_sst_name,'r');
   title(['Raw PATHFINDER data'])
   m_grid('box','fancy','tickdir','out','fontsize',fontsize);
 %
-% Data interpolated on ROMS grid
+% Data interpolated on CROCO grid
 %
   figure
 nc=netcdf(frcname,'r');
@@ -171,7 +171,7 @@ nc=netcdf(frcname,'r');
   if ~isempty(coastfileplot)
     m_usercoast(coastfileplot,'patch',[.9 .9 .9]);
   end
-  title('Data interpolated on ROMS grid')
+  title('Data interpolated on CROCO grid')
   m_grid('box','fancy','tickdir','out','fontsize',fontsize);
 end
  

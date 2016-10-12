@@ -31,11 +31,11 @@ disp('Creating biology forcing file')
 %
 %  Title - Grid file name - Forcing file name
 %
-romstools_param
+crocotools_param
 %
 % bioname
 %
-%bioname='roms_frcbio.nc'
+%bioname='croco_frcbio.nc'
 %
 % Dust deposition file 
 %
@@ -92,14 +92,14 @@ nc{'dust'}.fields = 'dust, scalar, series';
 %%endef(nc);
 
 % Create global attributes
-nc.title = ncchar(ROMS_title);
-nc.title = ROMS_title;
+nc.title = ncchar(CROCO_title);
+nc.title = CROCO_title;
 nc.date = ncchar(date);
 nc.date = date;
 nc.grd_file = ncchar(bioname);
 nc.grd_file = grdname;
-nc.type = ncchar('ROMS biology forcing file');
-nc.type = 'ROMS biology forcing file';
+nc.type = ncchar('CROCO biology forcing file');
+nc.type = 'CROCO biology forcing file';
 
 % Write time variable
 nc{'dust_time'}(:)=time.*30; % if time in month in the dataset !!!

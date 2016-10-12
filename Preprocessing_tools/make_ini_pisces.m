@@ -1,10 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Build a ROMS initial file from Levitus Data
+%  Build a CROCO initial file from Levitus Data
 %
 %  Extrapole and interpole temperature and salinity from a
 %  Climatology to get initial conditions for
-%  ROMS (initial netcdf files) .
+%  CROCO (initial netcdf files) .
 %  Get the velocities and sea surface elevation via a 
 %  geostrophic computation.
 %
@@ -31,7 +31,7 @@ close all
 %
 %  Title 
 %
-romstools_param
+crocotools_param
 %
 %  Data climatologies file names:
 %

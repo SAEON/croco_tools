@@ -1,10 +1,10 @@
 %*********************************************************
-% plot ROMS forecast analysis at noon for each day
+% plot CROCO forecast analysis at noon for each day
 %*********************************************************
 clear all
 close all
 start
-romstools_param
+crocotools_param
 as_consts % load constants
 
 disp('Forecast analysis')
@@ -14,9 +14,9 @@ disp('Forecast analysis')
 dirin     = './';
 dirout    = './Figs/';
 eval(['!mkdir ',dirout])
-grdname   = [dirin,'SCRATCH/roms_grd.nc'];
-frcname   = [dirin,'SCRATCH/roms_frc_GFS_0.nc'];
-avgname   = [dirin,'SCRATCH/roms_avg.nc'];
+grdname   = [dirin,'SCRATCH/croco_grd.nc'];
+frcname   = [dirin,'SCRATCH/croco_frc_GFS_0.nc'];
+avgname   = [dirin,'SCRATCH/croco_avg.nc'];
 coastfile = [dirin,'coastline_l.mat'];
 
 %lonmin=8; lonmax=22; latmin=-38; latmax=-26;

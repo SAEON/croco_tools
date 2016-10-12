@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Build a ROMS forcing file
+%  Build a CROCO forcing file
 %
 %  The program take the NCEP forcing [and bulk (optional)] file[s] 
 %  and replace tx, ty[, u, w, w] with the QSCAT data 
@@ -9,7 +9,7 @@
 %  make_NCEP_withQSCAT_daily.m
 
 %  Extrapole and interpole surface data to get surface boundary
-%  conditions for ROMS (forcing netcdf file)
+%  conditions for CROCO (forcing netcdf file)
 %
 %  Data input format (netcdf):
 %     taux(T, Y, X)
@@ -30,16 +30,16 @@
 %  Modified by S.Illig, March 2008
 %
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -56,7 +56,7 @@ close all
 %
 % Common parameters
 %
-romstools_param
+crocotools_param
 %
 %
 if NCEP_version==1
@@ -91,7 +91,7 @@ end
 % Title
 %
 disp(' ')
-disp(ROMS_title)
+disp(CROCO_title)
 %
 if level==0
   nc_suffix='.nc';
@@ -202,7 +202,7 @@ for Y=Ymin:Ymax
       ws=u;
     end
     %
-    % Create a ROMS forcing/bulk file for each month
+    % Create a CROCO forcing/bulk file for each month
     %
     nc_frc=netcdf(file_frc_qscat,'w');
     sms_time_ncep=nc_frc{'sms_time'}(:);

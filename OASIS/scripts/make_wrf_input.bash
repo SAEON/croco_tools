@@ -13,11 +13,11 @@
 #  - read "configure.namelist" defining basic domain and 
 #    run parameters
 #  - Vtable : Vtable.AMIP or Vtable.GFS
-#  - Vtable : Vtable.SSTROMS     
+#  - Vtable : Vtable.SSTCROCO     
 # 
 # Source grib file: 
 #   - AMIPII (run cdf2grib.sh first)
-#   - SST ROMS (run sst2grib.sh first)
+#   - SST CROCO (run sst2grib.sh first)
 #
 # IRD NOUMEA  January 2007, P. MARCHESIELLO, J. LEFEVRE
 # adapted from F. Lemarie. LMC-IMAG, Grenoble, France
@@ -66,7 +66,7 @@ switch_real=0
 switch_wrf=1
 
 # SWITCH SST update from other SOURCES? (1 : yes / 0 : no)
-# Case 1: AMIP SKT file is deleted and we put SST ROMS
+# Case 1: AMIP SKT file is deleted and we put SST CROCO
 # in Land Surface Module (LSM_ROOT)
 # Moreover, "grip_prep" is run twice
 switch_SST=0
@@ -213,7 +213,7 @@ if [ $LBC_type = 'AMIP' ]; then
 fi
 
 if [ $switch_SST -eq 1 ]; then 
-  list_SST=(`ls $I_DATAROOT/SSTROMS.*.grb`)
+  list_SST=(`ls $I_DATAROOT/SSTCROCO.*.grb`)
   if [ $#{list_SST} != "0" ]; then
     echo " BASH: SST forcing files are available"
   else

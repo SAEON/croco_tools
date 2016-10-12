@@ -1,10 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Build a ROMS climatology file
+%  Build a CROCO climatology file
 %
 %  Extrapole and interpole temperature and salinity from a
 %  Climatology to get boundary and initial conditions for
-%  ROMS (climatology and initial netcdf files) .
+%  CROCO (climatology and initial netcdf files) .
 %  Get the velocities and sea surface elevation via a 
 %  geostrophic computation.
 %
@@ -20,16 +20,16 @@
 %    http://iridl.ldeo.columbia.edu/SOURCES/.NOAA/.NODC/.WOA98/
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -53,7 +53,7 @@ close all
 %
 % Common parameters
 %
-romstools_param
+crocotools_param
 %
 %  Data climatologies file names:
 %
@@ -76,7 +76,7 @@ salt_ann_data=[climato_dir,'salt_ann.cdf'];
 disp(' ')
 disp([' Making the clim: ',clmname])
 disp(' ')
-disp([' Title: ',ROMS_title])
+disp([' Title: ',CROCO_title])
 
 %
 % Read in the grid
@@ -103,7 +103,7 @@ if (makeclim)
       disp([' NO VTRANSFORM parameter found'])
       disp([' USE VTRANSFORM default value vtransform = 1'])
   end
-  create_climfile(clmname,grdname,ROMS_title,...
+  create_climfile(clmname,grdname,CROCO_title,...
                   theta_s,theta_b,hc,N,...
                   woa_time,woa_cycle,'clobber',vtransform);
 end
@@ -121,7 +121,7 @@ if (makeoa)
   kmax=max(find(Z<hmax))-1;
   Z=Z(1:kmax);
   close(nc)
-  create_oafile(oaname,grdname,ROMS_title,Z,...
+  create_oafile(oaname,grdname,CROCO_title,Z,...
                 woa_time,woa_cycle,'clobber');
 
   %
@@ -177,7 +177,7 @@ if (makeini)
 
   disp('======================== ')
   disp('Initial')
-  create_inifile(ininame,grdname,ROMS_title,...
+  create_inifile(ininame,grdname,CROCO_title,...
                  theta_s,theta_b,hc,N,...
                  tini,'clobber',vtransform);
   disp(' ')

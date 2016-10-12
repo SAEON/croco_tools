@@ -9,14 +9,14 @@
 %
 % This is done before using online interpolation
 %
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -37,15 +37,15 @@ close all
 %
 % Common parameters
 %
-romstools_param
+crocotools_param
 %
 % Directory of the input CFSR unprocessd data
 %
-CFSR_dir=[FORC_DATA_DIR,'CFSR_',ROMS_config,'/'];
+CFSR_dir=[FORC_DATA_DIR,'CFSR_',CROCO_config,'/'];
 %
 % Directory of the output CFSR processd data
 %
-CFSR_COAST_dir=[FORC_DATA_DIR,'CFSR_COAST_',ROMS_config,'/'];
+CFSR_COAST_dir=[FORC_DATA_DIR,'CFSR_COAST_',CROCO_config,'/'];
 %
 % Width of the extrapolation band inland (200km is ok for a 1/4deg simulation).
 %

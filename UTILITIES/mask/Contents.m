@@ -1,9 +1,9 @@
 %
-% ROMS Land/Sea Mask Utility
+% CROCO Land/Sea Mask Utility
 % ==========================
 %
 % This utility is a graphical User interface enabling the User to easily
-% create and modify a land mask for ROMS. To accelerate the proccessing,
+% create and modify a land mask for CROCO. To accelerate the proccessing,
 % the Land/Sea mask is edited in (I,J) grid coordinates. This requires a
 % convertion of coastline data (used in SeaGRid) to (I,J) indices.  This
 % utility calls the MEXCDF interface for reading and writing to NetCDF
@@ -12,8 +12,8 @@
 %
 % Drivers:
 %
-%   editmask     - Interactive ROMS Land/Sea mask editing driver.
-%   landsea      - Authomatic ROMS Land/Sea processing.
+%   editmask     - Interactive CROCO Land/Sea mask editing driver.
+%   landsea      - Authomatic CROCO Land/Sea processing.
 %
 % Input/Output:
 %

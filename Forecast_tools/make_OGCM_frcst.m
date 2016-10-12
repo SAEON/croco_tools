@@ -1,20 +1,20 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Create and fill ROMS clim and bry files with OGCM data.
+% Create and fill CROCO clim and bry files with OGCM data.
 % for a forecast run
 %
 %
 %  Further Information:
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -39,7 +39,7 @@
 % Common parameters
 %
 tic
-romstools_param
+crocotools_param
 %
 % Specific to forecast
 %
@@ -118,14 +118,14 @@ if Download_data
 % % 	if ~exist(OGCM_name);
 % % 	  disp([' '])
 % % 	  disp(['  ==> Download the raw motu Mercator file :',url])
-% % 	  disp(['  ==> Then create the ROMS format Mercator file :',OGCM_name])
+% % 	  disp(['  ==> Then create the CROCO format Mercator file :',OGCM_name])
 % % 	  disp(['============================'])
 % % 	  eval(['OGCM_name=download_',OGCM,'_frcst_python(lonmin,lonmax,latmin,latmax,',...
 % % 		'FRCST_dir,FRCST_prefix,url,Yorig);'])
 % % 	else
-% % 	  disp(['  ==> No processing needed: ROMS Mercator file exists : ', OGCM_name])
+% % 	  disp(['  ==> No processing needed: CROCO Mercator file exists : ', OGCM_name])
 % % 	  if ~exist(url)
-% % 		disp([char({'  ROMS Mercator file exists';'  but not the Motu Mercator file. TAKE CARE'})])
+% % 		disp([char({'  CROCO Mercator file exists';'  but not the Motu Mercator file. TAKE CARE'})])
 % % 		disp(['==========================================='])
 % % 	  end
 % % 	end
@@ -158,27 +158,27 @@ elseif strcmp(OGCM,'mercator')
   %hdays=5;
   if floor(OGCM_time(end))~=rundate+6
     if floor(OGCM_time(end))==rundate+5
-      roms_time=0*(1:ntimes+1);
-      roms_time(1:end-1)=OGCM_time;
-      roms_time(end)=roms_time(end-1)+dt;
+      croco_time=0*(1:ntimes+1);
+      croco_time(1:end-1)=OGCM_time;
+      croco_time(end)=croco_time(end-1)+dt;
     else
-      roms_time=0*(1:ntimes+2);
-      roms_time(1:end-2)=OGCM_time;
-      roms_time(end-1)=roms_time(end-2)+dt;
-      roms_time(end)=roms_time(end-1)+dt;
+      croco_time=0*(1:ntimes+2);
+      croco_time(1:end-2)=OGCM_time;
+      croco_time(end-1)=croco_time(end-2)+dt;
+      croco_time(end)=croco_time(end-1)+dt;
     end
   else
-    roms_time=OGCM_time;
+    croco_time=OGCM_time;
   end
   nrec=1;
   if nrec==1  % nrec=1 3 records are used
     time=0*(1:3);
-    time(1)=roms_time(1);
-    time(2)=roms_time(OGCM_time==rundate);
-    time(3)=roms_time(end);
+    time(1)=croco_time(1);
+    time(2)=croco_time(OGCM_time==rundate);
+    time(3)=croco_time(end);
   else        % nrec=0 all records are used
-    for i=1:delta:length(roms_time)
-      time(i)=roms_time(i);
+    for i=1:delta:length(croco_time)
+      time(i)=croco_time(i);
     end
   end
   p=find(OGCM_time==OGCM_time(1));
@@ -194,7 +194,7 @@ close(nc)
 if makeini==1
   ininame=[ini_prefix,num2str(rundate),nc_suffix];
   disp(['Create an initial file for ',num2str(rundate);])
-  create_inifile(ininame,grdname,ROMS_title,...
+  create_inifile(ininame,grdname,CROCO_title,...
                  theta_s,theta_b,hc,N,...
                  rundate-hdays,'clobber',vtransform);
   nc_ini=netcdf(ininame,'write');
@@ -213,7 +213,7 @@ end
 if makeclim==1 | makebry==1
   if makebry==1
     bryname=[bry_prefix,num2str(rundate),nc_suffix];
-    create_bryfile(bryname,grdname,ROMS_title,[1 1 1 1],...
+    create_bryfile(bryname,grdname,CROCO_title,[1 1 1 1],...
                    theta_s,theta_b,hc,N,...
                    time,time_cycle,'clobber',vtransform);
     nc_bry=netcdf(bryname,'write');
@@ -222,7 +222,7 @@ if makeclim==1 | makebry==1
   end
   if makeclim==1
     clmname=[clm_prefix,num2str(rundate),nc_suffix];
-    create_climfile(clmname,grdname,ROMS_title,...
+    create_climfile(clmname,grdname,CROCO_title,...
                     theta_s,theta_b,hc,N,...
                     time,time_cycle,'clobber',vtransform);
     nc_clm=netcdf(clmname,'write');
@@ -241,7 +241,7 @@ for tndx=1:length(time)
 end
 
 %
-% Close the ROMS files
+% Close the CROCO files
 %
   if ~isempty(nc_clm)
     close(nc_clm);

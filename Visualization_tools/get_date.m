@@ -3,7 +3,7 @@ function [day,month,year,imonth,thedate]=get_date(fname,tindex,Yorig);
 %
 % function [day,month,year,thedate]=getdate(fname,tindex);
 %
-% get the date from the time index of a ROMS netcdf file
+% get the date from the time index of a CROCO netcdf file
 %   (for a 360 days year)
 %
 % if Yorig (year origin) is provided, the date is computed
@@ -11,7 +11,7 @@ function [day,month,year,imonth,thedate]=get_date(fname,tindex,Yorig);
 %
 % input:
 %
-%  fname    ROMS netcdf file name (average or history) (string)
+%  fname    CROCO netcdf file name (average or history) (string)
 %  tindex   time index (integer)
 %
 % output:
@@ -23,16 +23,16 @@ function [day,month,year,imonth,thedate]=get_date(fname,tindex,Yorig);
 %
 %
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.

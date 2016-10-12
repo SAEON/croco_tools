@@ -5,16 +5,16 @@ function geost_currents_bry(bryname,grdname,Zbryname,frcname,zref,obcndx)
 %
 % 
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -287,14 +287,14 @@ for l=1:tlen
 % Vertical interpolation of baroclinic fields
 %
 %  disp('Vertical interpolation ...')
-  zroms=squeeze(zlevs(h,0*h,theta_s,theta_b,hc,N,'r',vtransform));
+  zcroco=squeeze(zlevs(h,0*h,theta_s,theta_b,hc,N,'r',vtransform));
   if  obcndx==1 |  obcndx==3
-    zu=0.5*(zroms(:,1:end-1)+zroms(:,2:end));
-    zv=zroms;
+    zu=0.5*(zcroco(:,1:end-1)+zcroco(:,2:end));
+    zv=zcroco;
   end
   if  obcndx==2 |  obcndx==4
-    zu=zroms;
-    zv=0.5*(zroms(:,1:end-1)+zroms(:,2:end));
+    zu=zcroco;
+    zv=0.5*(zcroco(:,1:end-1)+zcroco(:,2:end));
   end
 %
 % Add non gradient velocities at the top and nul velocities 

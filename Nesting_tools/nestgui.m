@@ -3,20 +3,20 @@ function varargout = nestgui(varargin)
 %
 %  NESTGUI Application M-file for nestgui.fig
 % 
-%  GUI to generate embedded ROMS grid, forcing, bulk, initial, and restart
+%  GUI to generate embedded CROCO grid, forcing, bulk, initial, and restart
 %  netcdf files 
 %
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -343,22 +343,22 @@ set(handles.edit_Jsrcchild,'String',num2str(handles.Jsrcchild));
 guidata(h,handles)
 return
 %
-% Create the roms.in.# file
+% Create the croco.in.# file
 %
-function create_romsin_Callback(h, eventdata, handles, varargin)
+function create_crocoin_Callback(h, eventdata, handles, varargin)
 [filename,pathname]=uigetfile({'*.in*','All input files (*.in*)';...
 		    '*.*','All Files (*.*)'},'PARENT INPUT FILE');
 if isequal([filename,pathname],[0,0])
   return
 end
-romsin_parent_name=fullfile(pathname,filename);
-lev=str2num(romsin_parent_name(end));
+crocoin_parent_name=fullfile(pathname,filename);
+lev=str2num(crocoin_parent_name(end));
 if isempty(lev)
-  romsin_child_name=[romsin_parent_name,'.1'];
+  crocoin_child_name=[crocoin_parent_name,'.1'];
 else
-  romsin_child_name=[romsin_parent_name(1:end-1),num2str(lev+1)];
+  crocoin_child_name=[crocoin_parent_name(1:end-1),num2str(lev+1)];
 end
-create_romsin(romsin_parent_name,romsin_child_name,handles.rcoeff,lev)
+create_crocoin(crocoin_parent_name,crocoin_child_name,handles.rcoeff,lev)
 guidata(h,handles)
 return
 %

@@ -1,18 +1,18 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  Get the seasonnal and annual root mean square of ROMS variables
+%  Get the seasonnal and annual root mean square of CROCO variables
 %
 %  Further Information:  
-%  http://www.brest.ird.fr/Roms_tools/
+%  http://www.croco-ocean.org
 %  
-%  This file is part of ROMSTOOLS
+%  This file is part of CROCOTOOLS
 %
-%  ROMSTOOLS is free software; you can redistribute it and/or modify
+%  CROCOTOOLS is free software; you can redistribute it and/or modify
 %  it under the terms of the GNU General Public License as published
 %  by the Free Software Foundation; either version 2 of the License,
 %  or (at your option) any later version.
 %
-%  ROMSTOOLS is distributed in the hope that it will be useful, but
+%  CROCOTOOLS is distributed in the hope that it will be useful, but
 %  WITHOUT ANY WARRANTY; without even the implied warranty of
 %  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 %  GNU General Public License for more details.
@@ -26,7 +26,7 @@
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %  Updated    10-Sep-2006 by Pierrick Penven
-%  Updated    24-Oct-2006 by Pierrick Penven (generalisation to all ROMS
+%  Updated    24-Oct-2006 by Pierrick Penven (generalisation to all CROCO
 %                                             variables)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -34,15 +34,15 @@ clear all
 close all
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
 %
-romstools_param
+crocotools_param
 %
 % Directory and file names
 %
 directory=[RUN_dir,'SCRATCH/'];
-model='roms';
+model='croco';
 nonseannal=0; % 1:  non-seasonnal variance 
 %
-% ROMS files
+% CROCO files
 %
 if nonseannal==0
   infile=[directory,model,'_Meddy.nc'];
@@ -56,7 +56,7 @@ end
 %
 % Create the file
 %
-eval(['! ',DIAG_dir,'copycdf.csh ',infile,' ',outfile,' "ROMS seasonnal eddy file"'])
+eval(['! ',DIAG_dir,'copycdf.csh ',infile,' ',outfile,' "CROCO seasonnal eddy file"'])
 %
 % Initialisation
 %

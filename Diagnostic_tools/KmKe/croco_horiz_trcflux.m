@@ -1,4 +1,4 @@
-function [TXadv,Ttrun]=roms_horiz_trcflux(mask,maskr,trc,FlxU,dim);
+function [TXadv,Ttrun]=croco_horiz_trcflux(mask,maskr,trc,FlxU,dim);
 
 %%% THIS FUNCTION COMPUTES ADVECTION TERMS IN THE SAME WAY THAT 
 %%% THE CODE IS DOING IT- This is coded for Txadv. If Tyadv needs 
@@ -6,11 +6,11 @@ function [TXadv,Ttrun]=roms_horiz_trcflux(mask,maskr,trc,FlxU,dim);
 %%% function and the code remains unchanged in the middle. The 
 %%% truncation error is also computed here. 
 %%%
-%%% [Txadv,Ttrun]=roms_horiz_advection(grd,trc,Flxu,dim);
+%%% [Txadv,Ttrun]=croco_horiz_advection(grd,trc,Flxu,dim);
 %%%    grd   : grid structure as loaded by  grd=rnt_gridload(model);
 %%%    trc   : tracer array of size Lp x Mp x N
 %%%    Flxu  : flux through cell array as computed from 
-%%%               roms_volflux
+%%%               croco_volflux
 %%%    dim   : 1 for Txadv and 2 for Tyadv
 %%%    Txadv : tracer flux in xsi direction
 %%%    Ttrun : 4th order term ie diffusion estimate
