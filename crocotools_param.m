@@ -119,7 +119,7 @@ coastfilemask = 'coastline_l_mask.mat';
 %Roa=300e3;
 Roa=0;
 %
-interp_method = 'linear';         % Interpolation method: 'linear' or 'cubic'
+interp_method = 'cubic';         % Interpolation method: 'linear' or 'cubic'
 %
 makeplot     = 1;                 % 1: create a few graphics after each preprocessing step
 %

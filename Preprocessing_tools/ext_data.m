@@ -148,8 +148,8 @@ end
 %
 % Interpolation on the CROCO grid
 %
-data=interp2(x,y,data,lon,lat,'linear');
-%%data=interp2(x,y,data,lon,lat,'cubic');
+%data=interp2(x,y,data,lon,lat,'linear');
+data=interp2(x,y,data,lon,lat,'cubic');
 %
 % Apply offset
 %

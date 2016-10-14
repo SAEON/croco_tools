@@ -56,6 +56,7 @@ addpath([tools_path,'Tides'])
 addpath([tools_path,'Tides/T_TIDE'])
 addpath([tools_path,'Visualization_tools'])
 addpath([tools_path,'Rivers'])
+addpath([tools_path,'Town'])
 addpath([croco_path,'Run/TEST_CASES'])
 %
 %-------------------------------------------------------
