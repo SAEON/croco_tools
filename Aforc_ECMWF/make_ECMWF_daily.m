@@ -33,6 +33,7 @@
 %  Created by Serena Illig 2010
 %
 %  Updated    January 2016 (S. Illig and E. Cadier)
+%  Updated    November 2016 (P. Marchesiello)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all
 close all
@@ -194,9 +195,8 @@ if makefrc==1 | makeblk==1
       % Add the tides (needs to be tested for this version of make_ECMWF)
       %
       if add_tides==1
-        %add_tidal_data(tidename,grdname,frcname,Y,M)
-        add_tides(tidename,grdname,frcname,Ntides,tidalrank,...
-                                       Yorig,Y,M,coastfileplot)
+        add_tidal_data(tidename,grdname,frcname,Ntides,tidalrank,...
+                                            Yorig,Y,M,coastfileplot)
       end
       %
       % Open the CROCO forcing files
@@ -445,9 +445,16 @@ if makeplot==1
     test_forcing(blkname,grdname,'radsw',slides,3,coastfileplot)
   end
   if makefrc
+    figure
     test_forcing(frcname,grdname,'sustr',slides,3,coastfileplot)
     figure
     test_forcing(frcname,grdname,'svstr',slides,3,coastfileplot)  
+    figure
+    test_forcing(frcname,grdname,'Awave',slides,3,coastfileplot)
+    figure
+    test_forcing(frcname,grdname,'Dwave',slides,3,coastfileplot)
+    figure
+    test_forcing(frcname,grdname,'Pwave',slides,3,coastfileplot)
   end
 end
 

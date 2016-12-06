@@ -43,7 +43,10 @@ catalog={'EI_ecmwf_' ...
     'EI_ecmwf_' ...
     'EI_ecmwf_' ...
     'EI_ecmwf_' ...
-    'EI_ecmwf_' ...    
+    'EI_ecmwf_' ... 
+    'EI_ecmwf_' ...
+    'EI_ecmwf_' ...
+    'EI_ecmwf_' ...
     ''};
 vnames={'SSTK'...  % surface land-sea mask [1=land; 0=sea]
     'T2M' ...      % 2 m temp. [k]
@@ -51,19 +54,25 @@ vnames={'SSTK'...  % surface land-sea mask [1=land; 0=sea]
     'U10M' ...     % 10 m u wind [m/s]
     'V10M' ...     % 10 m v wind [m/s]
     'Q' ...        % 2 m specific humidity [kg/kg]
+    'SWH' ...      % significant wave height [m]
+    'MWD' ...      % mean wave direction [degree]
+    'PP1D' ...     % peak wave period [s]
     'STR' ...      % surface thermal radiation [w/m^2.s] -> [w/m^2]
     'STRD' ...     % surface downward thermal radiation [w/m^2.s] -> [w/m^2]
     'SSR' ...      % surface solar radiation [w/m^2.s] -> [w/m^2]
     'TP' ...       % surface precipitation rate [m]->[kg/m^2/s]
     'EWSS' ...     % east-west surface stress [N m-2 s] -> [N m-2]
     'NSSS' ...     % north-south surface stress [N m-2 s] -> [N m-2]
-    };          % 2 m specific humidity [kg/kg]
+    };
 fnames={'sst'...  % surface land-sea mask [1=land; 0=sea]
     't2m' ...      % 2 m temp. [k]
     'sst' ...     % surface temp. [k]
     'u10' ...     % 10 m u wind [m/s]
     'v10' ...     % 10 m v wind [m/s]
     'q' ...        % 2 m specific humidity [kg/kg]
+    'swh' ...      % significant wave height [m]
+    'mwd' ...      % mean wave direction [degree]
+    'pp1d' ...     % peak wave period [s]
     'str' ...      % surface thermal radiation [w/m^2.s] -> [w/m^2]
     'strd' ...     % surface downward thermal radiation [w/m^2.s] -> [w/m^2]
     'ssr' ...      % surface solar radiation [w/m^2.s] -> [w/m^2]
@@ -150,7 +159,7 @@ for k=1:length(vnames)
         %
         for M=mo_min:mo_max
             
-            if k<=6   % t2m, sst, u10, v10, q
+            if k<=9   % t2m, sst, u10, v10, q
                 
                 file =[ECMWF_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc'];
                 ifile=[char(ecmwf_url),char(catalog(k)),vname,'_',sprintf('%04d',Y),sprintf('%02d',M),'.nc'];
@@ -160,7 +169,7 @@ for k=1:length(vnames)
                 %--> do running daily mean with filter function
                 b=[0.5 1 1 1 0.5]/4.;
                 a=[1 0 0 0 0];
-                var2=filter(b,a,var); clear var;
+                var2=filtfilt(b,a,var); clear var;
                 var3=var2(5+2:end-2,:,:);clear var2;
                 %
                 %--> Extract noon ponts
@@ -171,7 +180,7 @@ for k=1:length(vnames)
                 clear time;clear var;clear time2;clear var2;
                 disp([' ']);
             
-            elseif k<=10 % str, strd, ssr, tp
+            elseif k<=13 % str, strd, ssr, tp
         
                 file=[ECMWF_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc'];
                 ifile12 = [char(ecmwf_url),char(catalog(k)),vname,'_',sprintf('%04d',Y),sprintf('%02d',M),'_step12.nc'];
@@ -227,7 +236,7 @@ for k=1:length(vnames)
                 %
                 b=[1 1 1 1]/4.;
                 a=[1 0 0 0];
-                var2=filter(b,a,var); 
+                var2=filtfilt(b,a,var); 
                 var3=var2(1:end,:,:);clear var2;
                 var2=var3(5:4:end-4,:,:);
                 %

@@ -60,6 +60,7 @@ nw('swf_time') = length(swft);
 nw('sst_time') = length(sstt);
 nw('srf_time') = length(srft);
 nw('sss_time') = length(ssst);
+nw('wwv_time') = length(smst);
 %
 %  Create variables and attributes
 %
@@ -84,7 +85,6 @@ nw{'swf_time'}.units = ncchar('days');
 nw{'swf_time'}.units = 'days';
 nw{'swf_time'}.cycle_length = swfc;
 
-
 nw{'sst_time'} = ncdouble('sst_time');
 nw{'sst_time'}.long_name = ncchar('sea surface temperature time');
 nw{'sst_time'}.long_name = 'sea surface temperature time';
@@ -105,6 +105,14 @@ nw{'srf_time'}.long_name = 'solar shortwave radiation time';
 nw{'srf_time'}.units = ncchar('days');
 nw{'srf_time'}.units = 'days';
 nw{'srf_time'}.cycle_length = srfc;
+
+nw{'wwv_time'} = ncdouble('wwv_time');
+nw{'wwv_time'}.long_name = ncchar('surface wave fields time');
+nw{'wwv_time'}.long_name = 'surface wave fields time';
+nw{'wwv_time'}.units = ncchar('days');
+nw{'wwv_time'}.units = 'days';
+nw{'wwv_time'}.cycle_length = smsc;
+
 
 nw{'sustr'} = ncdouble('sms_time', 'eta_u', 'xi_u');
 nw{'sustr'}.long_name = ncchar('surface u-momentum stress');
@@ -162,6 +170,24 @@ nw{'swrad'}.positive = 'downward flux, heating';
 nw{'swrad'}.negative = ncchar('upward flux, cooling');
 nw{'swrad'}.negative = 'upward flux, cooling';
 
+nw{'Awave'} = ncdouble('wwv_time', 'eta_rho', 'xi_rho');
+nw{'Awave'}.long_name = ncchar('wind induced wave amplitude');
+nw{'Awave'}.long_name = 'wind induced wave amplitude';
+nw{'Awave'}.units = ncchar('m');
+nw{'Awave'}.units = 'm';
+
+nw{'Dwave'} = ncdouble('wwv_time', 'eta_rho', 'xi_rho');
+nw{'Dwave'}.long_name = ncchar('wind induced wave direction');
+nw{'Dwave'}.long_name = 'wind induced wave direction';
+nw{'Dwave'}.units = ncchar('degree');
+nw{'Dwave'}.units = 'degree';
+
+nw{'Pwave'} = ncdouble('wwv_time', 'eta_rho', 'xi_rho');
+nw{'Pwave'}.long_name = ncchar('wind induced wave period');
+nw{'Pwave'}.long_name = 'wind induced wave period';
+nw{'Pwave'}.units = ncchar('second');
+nw{'Pwave'}.units = 'second';
+
 %result = endef(nw);
 
 %
@@ -187,5 +213,6 @@ nw{'swf_time'}(:) = swft;
 nw{'sst_time'}(:) = sstt;
 nw{'srf_time'}(:) = srft;
 nw{'sss_time'}(:) = ssst;
+nw{'wwv_time'}(:) = smst;
 
 close(nw);

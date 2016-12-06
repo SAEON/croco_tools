@@ -139,12 +139,44 @@ svstr=rho2v_2d(ty.*cosa-tx.*sina);
 %
 u10=rho2u_2d(uwnd.*cosa+vwnd.*sina);
 v10=rho2v_2d(vwnd.*cosa-uwnd.*sina);
+
+%
+% 8: Surface wave amplitude: convert from SWH to Amp
+%
+vname='SWH';
+nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
+awave=1/(2*sqrt(2))*squeeze(nc{vname}(tin,:,:));
+close(nc);
+awave=get_missing_val(lon1,lat1,mask1.*awave,nan,Roa,nan);
+awave=interp2(lon1,lat1,awave,lon,lat,interp_method);
+%
+% 9: Surface wave direction
+%
+vname='MWD';
+nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
+dwave=squeeze(nc{vname}(tin,:,:));
+close(nc);
+dwave=get_missing_val(lon1,lat1,mask1.*dwave,nan,Roa,nan);
+dwave=interp2(lon1,lat1,dwave,lon,lat,interp_method);
+%
+% 10: Surface wave peak period
+%
+vname='PP1D';
+nc=netcdf([NCEP_dir,vname,'_Y',num2str(Y),'M',num2str(M),'.nc']);
+pwave=squeeze(nc{vname}(tin,:,:));
+close(nc);
+pwave=get_missing_val(lon1,lat1,mask1.*pwave,nan,Roa,nan);
+pwave=interp2(lon1,lat1,pwave,lon,lat,interp_method);
+
 %
 % Fill the CROCO files
 %
 if ~isempty(nc_frc)
   nc_frc{'sustr'}(tout,:,:)=sustr;
   nc_frc{'svstr'}(tout,:,:)=svstr;
+  nc_frc{'Awave'}(tout,:,:)=awave;
+  nc_frc{'Dwave'}(tout,:,:)=dwave;
+  nc_frc{'Pwave'}(tout,:,:)=pwave;
 end
 if ~isempty(nc_blk)
   nc_blk{'tair'}(tout,:,:)=tair;

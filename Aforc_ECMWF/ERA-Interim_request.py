@@ -22,6 +22,7 @@
 #  e-mail:Pierrick.Penven@ird.fr  
 #
 #  Updated    January 2016 (E. Cadier and S. Illig)
+#  Updated    December 2016 (P. Marchesiello) for 6-hourly & wave fields
 #
 
 
@@ -45,8 +46,10 @@ monthEnd   = 3
 # Area of interest
 ownArea = 0 	# 0 if area from a crocotools_param.m file
 		# 1 if own area
+
 # To complete if ownArea==0
 paramFile='../Run/crocotools_param.m'
+
 # To complete if ownArea==1
 #lonmin = str(-10)
 #lonmax = str(17.25)
@@ -246,159 +249,7 @@ for year in range(yearStart, yearEnd+1):
 	})
 	shutil.move(filename,outdir+"/"+filename)
 
-	# 5. Total Precipitations
-	filename = 'EI_ecmwf_TP_'+ str(year) + str(month2) +'_step12.nc'
-	server.retrieve({
-	    "class": "ei",
-	    "dataset": "interim",
-	    "date": date,
-	    "expver": "1",
-	    "levtype": "sfc",
-	    "param": "228.128",
-	    "step": "12",
-	    "stream": "oper",
-	    "format" : "netcdf",
-	    "target": filename,
-	    "time": "00/12",
-	    "type": "fc",
-	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
-	    "grid": "0.25/0.25",
-	})
-	shutil.move(filename,outdir+"/"+filename)
-	filename = 'EI_ecmwf_TP_'+ str(year) + str(month2) +'_step24.nc'
-	server.retrieve({
-	    "class": "ei",
-	    "dataset": "interim",
-	    "date": date,
-	    "expver": "1",
-	    "levtype": "sfc",
-	    "param": "228.128",
-	    "step": "24",
-	    "stream": "oper",
-	    "format" : "netcdf",
-	    "target": filename,
-	    "time": "00/12",
-	    "type": "fc",
-	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
-	    "grid": "0.25/0.25",
-	})
-	shutil.move(filename,outdir+"/"+filename)
-
-	# 6. Surface solar radiation
-	filename = 'EI_ecmwf_SSR_'+ str(year) + str(month2) +'_step12.nc'
-	server.retrieve({
-	    "class": "ei",
-	    "dataset": "interim",
-	    "date": date,
-	    "expver": "1",
-	    "levtype": "sfc",
-	    "param": "176.128",
-	    "step": "12",
-	    "stream": "oper",
-	    "format" : "netcdf",
-	    "target": filename,
-	    "time": "00/12",
-	    "type": "fc",
-	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
-	    "grid": "0.25/0.25",
-	})
-	shutil.move(filename,outdir+"/"+filename)
-	filename = 'EI_ecmwf_SSR_'+ str(year) + str(month2) +'_step24.nc'
-	server.retrieve({
-	    "class": "ei",
-	    "dataset": "interim",
-	    "date": date,
-	    "expver": "1",
-	    "levtype": "sfc",
-	    "param": "176.128",
-	    "step": "24",
-	    "stream": "oper",
-	    "format" : "netcdf",
-	    "target": filename,
-	    "time": "00/12",
-	    "type": "fc",
-	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
-	    "grid": "0.25/0.25",
-	})
-	shutil.move(filename,outdir+"/"+filename)
-
-	# 7. Surface thermal radiation
-	filename = 'EI_ecmwf_STR_'+ str(year) + str(month2) +'_step12.nc'
-	server.retrieve({
-	    "class": "ei",
-	    "dataset": "interim",
-	    "date": date,
-	    "expver": "1",
-	    "levtype": "sfc",
-	    "param": "177.128",
-	    "step": "12",
-	    "stream": "oper",
-	    "format" : "netcdf",
-	    "target": filename,
-	    "time": "00/12",
-	    "type": "fc",
-	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
-	    "grid": "0.25/0.25",
-	})
-	shutil.move(filename,outdir+"/"+filename)
-	filename = 'EI_ecmwf_STR_'+ str(year) + str(month2) +'_step24.nc'
-	server.retrieve({
-	    "class": "ei",
-	    "dataset": "interim",
-	    "date": date,
-	    "expver": "1",
-	    "levtype": "sfc",
-	    "param": "177.128",
-	    "step": "24",
-	    "stream": "oper",
-	    "format" : "netcdf",
-	    "target": filename,
-	    "time": "00/12",
-	    "type": "fc",
-	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
-	    "grid": "0.25/0.25",
-	})
-	shutil.move(filename,outdir+"/"+filename)
-
-	# 8. Surface thermal radiation downwards
-	filename = 'EI_ecmwf_STRD_'+ str(year) + str(month2) +'_step12.nc'
-	server.retrieve({
-	    "class": "ei",
-	    "dataset": "interim",
-	    "date": date,
-	    "expver": "1",
-	    "levtype": "sfc",
-	    "param": "175.128",
-	    "step": "12",
-	    "stream": "oper",
-	    "format" : "netcdf",
-	    "target": filename,
-	    "time": "00/12",
-	    "type": "fc",
-	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
-	    "grid": "0.25/0.25",
-	})
-	shutil.move(filename,outdir+"/"+filename)
-	filename = 'EI_ecmwf_STRD_'+ str(year) + str(month2) +'_step24.nc'
-	server.retrieve({
-	    "class": "ei",
-	    "dataset": "interim",
-	    "date": date,
-	    "expver": "1",
-	    "levtype": "sfc",
-	    "param": "175.128",
-	    "step": "24",
-	    "stream": "oper",
-	    "format" : "netcdf",
-	    "target": filename,
-	    "time": "00/12",
-	    "type": "fc",
-	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
-	    "grid": "0.25/0.25",
-	})
-	shutil.move(filename,outdir+"/"+filename)
-
-	# 9. Specific humidity
+	# 5. Specific humidity
 	filename = 'EI_ecmwf_Q_'+ str(year) + str(month2) +'.nc'
 	server.retrieve({
 	    "class": "ei",
@@ -418,7 +269,308 @@ for year in range(yearStart, yearEnd+1):
 	})
 	shutil.move(filename,outdir+"/"+filename)
 
-	# 10. East-west surface stress
+	# 6. Significant wave height
+	filename = 'EI_ecmwf_SWH_'+ str(year) + str(month2) +'.nc'
+	server.retrieve({
+	    "class": "ei",
+	    "dataset": "interim",
+	    "date": date,
+	    "expver": "1",
+	    "levtype": "wave",
+	    "param": "229.140",
+	    "stream": "wave",
+	    "format" : "netcdf",
+	    "target": filename,
+	    "time": "00/06/12/18",
+	    "type": "an",
+	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
+	    "grid": "0.25/0.25",
+	})
+	shutil.move(filename,outdir+"/"+filename)
+
+	# 7. Mean wave direction
+	filename = 'EI_ecmwf_MWD_'+ str(year) + str(month2) +'.nc'
+	server.retrieve({
+	    "class": "ei",
+	    "dataset": "interim",
+	    "date": date,
+	    "expver": "1",
+	    "levtype": "wave",
+	    "param": "230.140",
+	    "stream": "wave",
+	    "format" : "netcdf",
+	    "target": filename,
+	    "time": "00/06/12/18",
+	    "type": "an",
+	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
+	    "grid": "0.25/0.25",
+	})
+	shutil.move(filename,outdir+"/"+filename)
+
+	# 8. Peak wave period
+	filename = 'EI_ecmwf_PP1D_'+ str(year) + str(month2) +'.nc'
+	server.retrieve({
+	    "class": "ei",
+	    "dataset": "interim",
+	    "date": date,
+	    "expver": "1",
+	    "levtype": "wave",
+	    "param": "231.140",
+	    "stream": "wave",
+	    "format" : "netcdf",
+	    "target": filename,
+	    "time": "00/06/12/18",
+	    "type": "an",
+	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
+	    "grid": "0.25/0.25",
+	})
+	shutil.move(filename,outdir+"/"+filename)
+
+	# 9. Coefficient of drag with waves
+	filename = 'EI_ecmwf_DRAGW_'+ str(year) + str(month2) +'.nc'
+	server.retrieve({
+	    "class": "ei",
+	    "dataset": "interim",
+	    "date": date,
+	    "expver": "1",
+	    "levtype": "wave",
+	    "param": "233.140",
+	    "stream": "wave",
+	    "format" : "netcdf",
+	    "target": filename,
+	    "time": "00/06/12/18",
+	    "type": "an",
+	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
+	    "grid": "0.25/0.25",
+	})
+	shutil.move(filename,outdir+"/"+filename)
+
+	# 10. Total Precipitations
+	filename = 'EI_ecmwf_TP_'+ str(year) + str(month2) +'_step3.nc'
+	server.retrieve({
+	    "class": "ei",
+	    "dataset": "interim",
+	    "date": date,
+	    "expver": "1",
+	    "levtype": "sfc",
+	    "param": "228.128",
+	    "step": "3",
+	    "stream": "oper",
+	    "format" : "netcdf",
+	    "target": filename,
+	    "time": "00/12",
+	    "type": "fc",
+	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
+	    "grid": "0.25/0.25",
+	})
+	shutil.move(filename,outdir+"/"+filename)
+	filename = 'EI_ecmwf_TP_'+ str(year) + str(month2) +'_step9.nc'
+	server.retrieve({
+	    "class": "ei",
+	    "dataset": "interim",
+	    "date": date,
+	    "expver": "1",
+	    "levtype": "sfc",
+	    "param": "228.128",
+	    "step": "9",
+	    "stream": "oper",
+	    "format" : "netcdf",
+	    "target": filename,
+	    "time": "00/12",
+	    "type": "fc",
+	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
+	    "grid": "0.25/0.25",
+	})
+	shutil.move(filename,outdir+"/"+filename)
+	filename = 'EI_ecmwf_TP_'+ str(year) + str(month2) +'_step15.nc'
+	server.retrieve({
+	    "class": "ei",
+	    "dataset": "interim",
+	    "date": date,
+	    "expver": "1",
+	    "levtype": "sfc",
+	    "param": "228.128",
+	    "step": "15",
+	    "stream": "oper",
+	    "format" : "netcdf",
+	    "target": filename,
+	    "time": "00/12",
+	    "type": "fc",
+	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
+	    "grid": "0.25/0.25",
+	})
+	shutil.move(filename,outdir+"/"+filename)
+
+
+	# 11. Surface solar radiation
+	filename = 'EI_ecmwf_SSR_'+ str(year) + str(month2) +'_step3.nc'
+	server.retrieve({
+	    "class": "ei",
+	    "dataset": "interim",
+	    "date": date,
+	    "expver": "1",
+	    "levtype": "sfc",
+	    "param": "176.128",
+	    "step": "3",
+	    "stream": "oper",
+	    "format" : "netcdf",
+	    "target": filename,
+	    "time": "00/12",
+	    "type": "fc",
+	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
+	    "grid": "0.25/0.25",
+	})
+	shutil.move(filename,outdir+"/"+filename)
+	filename = 'EI_ecmwf_SSR_'+ str(year) + str(month2) +'_step9.nc'
+	server.retrieve({
+	    "class": "ei",
+	    "dataset": "interim",
+	    "date": date,
+	    "expver": "1",
+	    "levtype": "sfc",
+	    "param": "176.128",
+	    "step": "9",
+	    "stream": "oper",
+	    "format" : "netcdf",
+	    "target": filename,
+	    "time": "00/12",
+	    "type": "fc",
+	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
+	    "grid": "0.25/0.25",
+	})
+	shutil.move(filename,outdir+"/"+filename)
+	filename = 'EI_ecmwf_SSR_'+ str(year) + str(month2) +'_step15.nc'
+	server.retrieve({
+	    "class": "ei",
+	    "dataset": "interim",
+	    "date": date,
+	    "expver": "1",
+	    "levtype": "sfc",
+	    "param": "176.128",
+	    "step": "15",
+	    "stream": "oper",
+	    "format" : "netcdf",
+	    "target": filename,
+	    "time": "00/12",
+	    "type": "fc",
+	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
+	    "grid": "0.25/0.25",
+	})
+	shutil.move(filename,outdir+"/"+filename)
+
+	# 12. Surface thermal radiation
+	filename = 'EI_ecmwf_STR_'+ str(year) + str(month2) +'_step3.nc'
+	server.retrieve({
+	    "class": "ei",
+	    "dataset": "interim",
+	    "date": date,
+	    "expver": "1",
+	    "levtype": "sfc",
+	    "param": "177.128",
+	    "step": "3",
+	    "stream": "oper",
+	    "format" : "netcdf",
+	    "target": filename,
+	    "time": "00/12",
+	    "type": "fc",
+	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
+	    "grid": "0.25/0.25",
+	})
+	shutil.move(filename,outdir+"/"+filename)
+	filename = 'EI_ecmwf_STR_'+ str(year) + str(month2) +'_step9.nc'
+	server.retrieve({
+	    "class": "ei",
+	    "dataset": "interim",
+	    "date": date,
+	    "expver": "1",
+	    "levtype": "sfc",
+	    "param": "177.128",
+	    "step": "9",
+	    "stream": "oper",
+	    "format" : "netcdf",
+	    "target": filename,
+	    "time": "00/12",
+	    "type": "fc",
+	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
+	    "grid": "0.25/0.25",
+	})
+	shutil.move(filename,outdir+"/"+filename)
+	filename = 'EI_ecmwf_STR_'+ str(year) + str(month2) +'_step15.nc'
+	server.retrieve({
+	    "class": "ei",
+	    "dataset": "interim",
+	    "date": date,
+	    "expver": "1",
+	    "levtype": "sfc",
+	    "param": "177.128",
+	    "step": "15",
+	    "stream": "oper",
+	    "format" : "netcdf",
+	    "target": filename,
+	    "time": "00/12",
+	    "type": "fc",
+	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
+	    "grid": "0.25/0.25",
+	})
+	shutil.move(filename,outdir+"/"+filename)
+
+	# 13. Surface thermal radiation downwards
+	filename = 'EI_ecmwf_STRD_'+ str(year) + str(month2) +'_step3.nc'
+	server.retrieve({
+	    "class": "ei",
+	    "dataset": "interim",
+	    "date": date,
+	    "expver": "1",
+	    "levtype": "sfc",
+	    "param": "175.128",
+	    "step": "3",
+	    "stream": "oper",
+	    "format" : "netcdf",
+	    "target": filename,
+	    "time": "00/12",
+	    "type": "fc",
+	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
+	    "grid": "0.25/0.25",
+	})
+	shutil.move(filename,outdir+"/"+filename)
+	filename = 'EI_ecmwf_STRD_'+ str(year) + str(month2) +'_step9.nc'
+	server.retrieve({
+	    "class": "ei",
+	    "dataset": "interim",
+	    "date": date,
+	    "expver": "1",
+	    "levtype": "sfc",
+	    "param": "175.128",
+	    "step": "9",
+	    "stream": "oper",
+	    "format" : "netcdf",
+	    "target": filename,
+	    "time": "00/12",
+	    "type": "fc",
+	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
+	    "grid": "0.25/0.25",
+	})
+	shutil.move(filename,outdir+"/"+filename)
+	filename = 'EI_ecmwf_STRD_'+ str(year) + str(month2) +'_step15.nc'
+	server.retrieve({
+	    "class": "ei",
+	    "dataset": "interim",
+	    "date": date,
+	    "expver": "1",
+	    "levtype": "sfc",
+	    "param": "175.128",
+	    "step": "15",
+	    "stream": "oper",
+	    "format" : "netcdf",
+	    "target": filename,
+	    "time": "00/12",
+	    "type": "fc",
+	    "area" : latmax+"/"+lonmin+"/"+latmin+"/"+lonmax,
+	    "grid": "0.25/0.25",
+	})
+	shutil.move(filename,outdir+"/"+filename)
+
+	# 14. East-west surface stress
 	filename = 'EI_ecmwf_EWSS_'+ str(year) + str(month2) +'_step3.nc'
 	server.retrieve({
 	    "class": "ei",
@@ -474,7 +626,7 @@ for year in range(yearStart, yearEnd+1):
 	})
 	shutil.move(filename,outdir+"/"+filename)
 
-	# 11. North-south surface stress
+	# 15. North-south surface stress
 	filename = 'EI_ecmwf_NSSS_'+ str(year) + str(month2) +'_step3.nc'
 	server.retrieve({
 	    "class": "ei",
@@ -530,5 +682,4 @@ for year in range(yearStart, yearEnd+1):
 	})
 	shutil.move(filename,outdir+"/"+filename)
 
-	
 

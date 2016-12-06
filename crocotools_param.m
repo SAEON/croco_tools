@@ -438,8 +438,15 @@ rmdepth     = 2;
 %
 % Overlap parameters : nb of records around each monthly sequence
 %
-itolap_a    = 1;   % before
-itolap_p    = 1;   % after
+itolap_a    = 2;   % before
+itolap_p    = 2;   % after
+%
+%--------------------------
+% Options for make_bry_WKB 
+%--------------------------
+%
+wkb_prefix=[CROCO_files_dir,'croco_wkb'];
+wkb_obc= [1 1 1 1];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
