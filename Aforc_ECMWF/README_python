@@ -24,8 +24,7 @@ Prerequisites:
 2- Install client libraries - Python:
     
     Install the ecmwfapi python library by running:
-	sudo pip install https://software.ecmwf.int/wiki/download/attachments/47287906/ecmwf-api-client-python.tgz
-	
+        sudo pip install https://software.ecmwf.int/wiki/download/attachments/56664858/ecmwf-api-client-python.tgz
 
 3- In the file ERA-Interim_request.py:
 	Complete the 'Parameters' paragraph to match your configuration
