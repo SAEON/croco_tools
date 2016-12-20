@@ -132,7 +132,11 @@ function varargout = handle_parameter ( varargin )  %#ok<DEFNU>
 %      status = mexnc('PARAMETER', name);
 
 
-error(nargchk(2,2,nargin,'struct'));
+if verLessThan('matlab','7.13')
+ error(nargchk(2,2,nargin,'struct'));
+else
+ narginchk(2,2)
+end
 
 varargout = cell(1,nargout);
 switch ( lower(varargin{2}) )
@@ -417,7 +421,11 @@ function varargout = handle_get_att ( varargin )
 %     [att_value,status] = mexnc('GET_ATT_UCHAR', ncid,varid,attname);
 %     [att_value,status] = mexnc('GET_ATT_TEXT',  ncid,varid,attname);
 
-error(nargchk(4,4,nargin,'struct'));
+if verLessThan('matlab','7.13')
+ error(nargchk(4,4,nargin,'struct'));
+else
+ narginchk(4,4)
+end
 
 varargout = cell(1,nargout);
 
@@ -1878,7 +1886,11 @@ end
 function varargout = handle_varputg(op,ncid,varid,start,count,stride,imap,value,autoscale) %#ok<DEFNU,INUSL>
 % status = mexnc('VARPUTG', cdfid, varid, start, count, stride, [], value, autoscale)
 
-error(nargchk(8,9,nargin,'struct'));
+if verLessThan('matlab','7.13')
+ error(nargchk(8,9,nargin,'struct'));
+else
+ narginchk(8,9)
+end
 
 if ischar(varid)
     varid = netcdf.inqVarID(ncid,varid);
@@ -2624,7 +2636,11 @@ function varargout = handle_varput1(op,ncid,varid,start,data,autoscale) %#ok<INU
 %     status = mexnc('PUT_VAR1_UCHAR', ncid,varid,start,data);
 %     status = mexnc('PUT_VAR1_TEXT',  ncid,varid,start,data);
 
-error(nargchk(5,6,nargin,'struct'));
+if verLessThan('matlab','7.13')
+ error(nargchk(5,6,nargin,'struct'));
+else
+ narginchk(5,6)
+end
 
 if ischar(varid)
     varid = netcdf.inqVarID(ncid,varid);
@@ -2687,7 +2703,11 @@ function varargout = handle_varget1(op,ncid,varid,start,autoscale) %#ok<INUSL,DE
 %     [data,status] = mexnc('GET_VAR1_UCHAR', ncid,varid,start);
 %     [data,status] = mexnc('GET_VAR1_TEXT',  ncid,varid,start);
 
-error(nargchk(4,5,nargin,'struct'));
+if verLessThan('matlab','7.13')
+ error(nargchk(4,5,nargin,'struct'));
+else
+ narginchk(4,5)
+end
 
 if ischar(varid)
     varid = netcdf.inqVarID(ncid,varid);
