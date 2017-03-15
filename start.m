@@ -38,7 +38,7 @@ myutilpath=[tools_path,'UTILITIES/'];
 %
 % Other software directories
 %
-addpath([myutilpath,'m_map1.4f'])
+addpath([myutilpath,'m_map1.4h'])
 addpath([myutilpath,'air_sea'])
 addpath([myutilpath,'mask'])
 %
