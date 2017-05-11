@@ -152,7 +152,7 @@ for Y=Ymin:Ymax
 
             disp(['    Processing day: ',num2str(day)])
 
-            if M<=10
+            if M<10
                 myM=['0',num2str(M)];
             else
                 myM=num2str(M);
@@ -178,7 +178,7 @@ for Y=Ymin:Ymax
                 end
             end
 
-            if Mp<=10
+            if Mp<10
                 myMp=['0',num2str(Mp)];
             else
                 myMp=num2str(Mp);
