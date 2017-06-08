@@ -67,9 +67,9 @@ N = 32;
 %
 %  Vertical grid parameters (! should be the same in croco.in !)
 %
-theta_s    =  6.;
-theta_b    =  0.;
-hc         = 10.;
+theta_s    =  7.;
+theta_b    =  2.;
+hc         = 200.;
 vtransform =  2.; % s-coordinate type (1: old- ; 2: new- coordinates)
                   % ! take care to define NEW_S_COORD cpp-key in cppdefs.h 
 %
