@@ -91,8 +91,8 @@ nw{'spherical'}.option_T = 'spherical';
 nw{'angle'} = ncdouble('eta_rho', 'xi_rho');
 nw{'angle'}.long_name = ncchar('angle between xi axis and east');
 nw{'angle'}.long_name = 'angle between xi axis and east';
-nw{'angle'}.units = ncchar('degree');
-nw{'angle'}.units = 'degree';
+nw{'angle'}.units = ncchar('radian');
+nw{'angle'}.units = 'radian';
 
 nw{'h'} = ncdouble('eta_rho', 'xi_rho');
 nw{'h'}.long_name = ncchar('Final bathymetry at RHO-points');
