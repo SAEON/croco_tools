@@ -1,0 +1,10 @@
+#!/bin/bash
+#PBS -q mpi_1
+#PBS -l walltime=01:00:00
+cd $PBS_O_WORKDIR
+
+source /usr/share/Modules/3.2.10/init/bash
+
+./run_frc_croco 4
+#./run_frc_ww3 4
+#./run_cpl 0 4 4

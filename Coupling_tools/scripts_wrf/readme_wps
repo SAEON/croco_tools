@@ -1,0 +1,39 @@
+1 - Download source data
+	ex. GDAS : use 	GDAS_get.pl + ncftp.pm
+			depandances: perl + Module DateManip + module TestInter + module DBI 
+			if not installed on your system download the 2 modules .tar.gz files
+			tar -zxvf ModuleName
+			cd ModuleName
+			perl Makefile.PL PREFIX=./
+			make
+			make test
+			make install
+
+			NB: if TestInter is not already intalled, install it first 
+			and place the following environment variable before intalling DateManip:
+			export PERL5LIB='YOURPATHTOPERLMODULES/Test-Inter-XX.X/lib 	
+			
+			Once installed, add the following lines at the beginning of your perl script:
+			BEGIN {
+
+        		push @INC,"/linkhome/rech/dgw/rdgw001/softs/Date-Manip-6.53/Date-Manip-6.53/lib";
+                        push @INC,"/linkhome/rech/dgw/rdgw001/softs/DBI-1.636/lib/Bundle";
+
+        		}	
+
+                   edit the date and paths in gdas_get.pl, then ./gdas_get.pl | tee gdas_get.log
+
+  Download CFSR data from: https://rda.ucar.edu/datasets/ds093.0/index.html#!description
+   (need to request an account, log in, and request the data subset you need, 
+    then NCAR will provide a wgetXXX.csh script to download the data. 
+    You need to get both pressure levels and surface data, specific WRF case exists on the NCAR website)
+
+
+2 - choose and eventually edit Vtable. 
+    Exsiting Vtables can be found in the source wps directory under : /workgpfs/rech/dgw/rdgw001/wrf/WPSV3.7.1/ungrib/Variable_Tables 
+
+3 - Run WPS : run_wps.bash + configure.namelist.wps_BENGUELA
+              edit all required lines, paths... in configure.namelist.wps_BENGUELA and in run_wps.bash
+              then run: ./run_wps.bash configure.namelist.wps_BENGUELA | tee run_wps.log
+
+

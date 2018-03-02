@@ -1,0 +1,86 @@
+#!/bin/bash
+#
+# --------------------------------------------------
+#
+# Script to Create config. architecture 
+#
+# --------------------------------------------------
+# Configuration architecture
+# --------------------------------------------------
+# $HOME/CONFIGS/MYCONFIG
+#                       - wrf_in
+#                       - ww3_in
+#                       - croco_in
+#                       - oasis_in
+#                       - toy_in
+# $WORKDIR/CONFIGS/MYCONFIG
+#                       - wrf_files
+#                       - ww3_files
+#                       - CROCO_FILES
+#                       - oasis_files
+#                       - toy_files
+# --------------------------------------------------
+#
+# Further Information:   
+# http://www.croco-ocean.org
+#  
+# This file is part of CROCOTOOLS
+#
+# CROCOTOOLS is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation; either version 2 of the License,
+# or (at your option) any later version.
+#
+# CROCOTOOLS is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+# MA  02111-1307  USA
+#
+# Copyright (c) 2018 S. Jullien
+# swen.jullien@ifremer.fr
+# --------------------------------------------------
+
+#=========================================================================
+#=======================  USER CHANGES  ==================================
+#=========================================================================
+
+# Home and Work configuration directories
+# ---------------------------------------
+export hconf=~/CONFIGS/BENGUELA
+export wconf=$WORKDIR/CONFIGS/BENGUELA
+
+# CROCO parent directory 
+# (where croco_tools directory and croco source directory can be found)
+# -----------------
+export croco=~/croco
+
+#=========================================================================
+#=====================  END USER CHANGES  ================================
+#=========================================================================
+
+ mkdir -p $hconf/croco_in
+ mkdir -p $hconf/ww3_in
+ mkdir -p $hconf/wrf_in
+ mkdir -p $hconf/oasis_in
+ mkdir -p $hconf/toy_in
+ cp $croco/croco_tools/Coupling_tools/readme_cpl $honf/.
+ cp -r $croco/croco_tools/Coupling_tools/scripts_croco/* $hconf/croco_in/.
+ cp -r $croco/croco_tools/Coupling_tools/scripts_wrf/* $hconf/wrf_in/.
+ cp -r $croco/croco_tools/Coupling_tools/scripts_ww3/* $hconf/ww3_in/.
+ cp -r $croco/croco_tools/Coupling_tools/scripts_oasis/* $hconf/oasis_in/.
+ cp -r $croco/croco_tools/Coupling_tools/toy_model/* $hconf/toy_in/.
+ cp -r $croco/croco_tools/Coupling_tools/scripts_run/* $hconf/.
+ cp -f $croco/croco/OCEAN/param.h $hconf/croco_in/.
+ cp -f $croco/croco/OCEAN/jobcomp $hconf/croco_in/.
+
+ mkdir -p $wconf/croco_files
+ mkdir -p $wconf/ww3_files
+ mkdir -p $wconf/wrf_files
+ mkdir -p $wconf/oasis_files
+ mkdir -p $wconf/toy_files
+

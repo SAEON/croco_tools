@@ -1,0 +1,241 @@
+###################################################
+#                                                 #
+# Steps to create and run a coupled configuration #
+# Example with BENGUELA_LR                        #
+# Detailed documentation can be found here:       #
+#                                                 #
+# https://www.croco-ocean.org/documentation       #
+#                                                 #
+# Copyright (c) 2018 S. Jullien                   #
+# swen.jullien@ifremer.fr                         #
+#                                                 #
+###################################################
+
+This file contains the following information sections: 
+
+-> Coupling_tools CONTENTS 
+-> Get the model source codes
+-> RUNNING the coupled model
+    -> Create configuration file system
+    -> Compiling
+    -> Pre-processing
+    -> Running
+
+
+-----------------------------------------------
+Coupling_tools CONTENTS
+-----------------------------------------------
+
+* create_config: script to create your configuration directory tree 
+                 and copy all the following scripts and files in the appropriate dir. 
+
+* scripts_run: 
+    run_env :source script to define a set of useful environment variables for your run
+             needs to be edited carefully when you start working on your configuration
+             it is called at the begining of all other scritps!
+    run_cpl: script to launch a coupled run  
+    run_frc_croco  |
+    run_frc_wrf    | scripts to launch each model in forced mode
+    run_frc_ww3    |
+
+* scripts_croco:
+    readme_download_CFSR             | readme and script to download and pre-process 
+    Process_CFSR_files_for_CROCO.sh  | CFSR file to be used for CROCO ONLINE interp BULK
+    readme_preprocess                | readme and scripts to use croco_tools classic 
+    crocotools_param.m               | pre-processing (in matlab)
+    start.m                          |
+    make_ww3_grd_input_files_from_croco_grd.m: script to generate coord. and bathy. file 
+                                               for WW3 from croco_grd.nc file
+    cppdefs.h.frc                    |
+    cppdefs.h.frc.cfsr.online        | examples of cppdefs.h files for the different
+    cppdefs.h.oa                     | forced or coupled cases. They will be linked in
+    cppdefs.h.ow                     | cppdefs.h during compilation (make_CROCO_compil)
+    cppdefs.h.owa                    |
+    make_CROCO_compil : script to define some variables and launch CROCO jobcomp
+    croco.in.base  : CROCO namelist file in which some stuff (timestep, etc) will be 
+                     replaced by run_frc_croco or run_cpl scripts  
+
+* scripts_ww3:
+    make_WW3_compil : script to define some variables and launch WW3 compilation
+    script_make_CFSR_wind_for_ww3.sh                |
+    script_make_WRF_wind_for_ww3.sh                 | scripts to create wind, current,
+    script_make_CROCO_current_and_level_for_ww3.sh  | and level input files for WW3
+    UV2T.sh                                         |
+    inputs_ww3:
+        switch_aw_BENGUELA     |
+        switch_ow_BENGUELA     | switches for the different modes
+        switch_owa_BENGUELA    |
+        switch_frc_BENGUELA    |
+        ww3_grid.inp.base :    grid input file in which some stuff (timesteps, etc)
+                               will be replaced by run_frc_ww3 or run_cpl scripts  
+        ww3_prnc.inp.wind      |   
+        ww3_prnc.inp.level     | prnc input file for prerpating ww3 input files
+        ww3_prnc.inp.current   |
+        ww3_strt.inp :         strt input file for running ww3_strt
+        ww3_shel.inp.base.frc  |
+        ww3_shel.inp.base.Afrc | shel input files for the different modes in which
+        ww3_shel.inp.base.ow   | some stuff (dates, etc) will be replaced by 
+        ww3_shel.inp.base.aw   | run_frc_ww3 or run_cpl scripts 
+        ww3_shel.inp.base.owa  |
+        ww3_ounf.inp.base :    ounf input file in which dates will be replaced 
+
+* scripts_wrf:
+    readme_download_CFSR_data  |
+    readme_wps                 | some useful readme for WPS
+    readme.Vtable              | 
+    configure.namelist.wps_BENGUELA : configure file to edit for running WPS and real  
+    run_wps.bash    :          script to run wps (wrf pre-processing)
+    run_real.bash   :          script to run real (wrf pre-processing)
+    make_WRF_compil :          script to compile wrf
+    inputs_wrf:
+        configure.wrf.coupled    | examples of configure files for compiling wrf
+        configure.wrf.uncoupled  | in forced and coupled modes
+        readme.Vtable             |
+        Vtable.CFSR_sfc_flxf06    | Vtables for CFSR data
+        Vtable.CFSR_press_pgbh06  |
+        namelist.input.base.complete    : namelist base in which stuff will be replaced
+                                          when running real
+        namelist.input.prep.BENGUELA.aw : namelist example for a coupled AW run 
+        README.namelist : readme to know all the namelist options available
+        myoutfields.txt : example of file that can be prescribed in wrf namelist to 
+                          add/remove variable outputs
+
+* scripts_oasis:
+    create_oasis_grids_for_wrf.sh : script to create grids.nc and masks.nc files for  
+                                    OASIS for WRF(call the the oasis function not 
+                                    implemented in WRF yet). Will be called in run_cpl
+    create_oasis_restart_from_calm_conditions.sh          | scripts to create restart 
+                                                          |files for OASIS from calm or
+    create_oasis_restart_from_preexisting_output_files.sh | pre-existing model files. 
+                                                          | Can be called in run_cpl.
+    from_croco.sh         |
+    from_ww3.sh           | functions called by the previous scripts for each model
+    from_wrf.sh           |
+    to_wrf_stag_grid.sh   |
+    create_oasis_toy_files.sh: script to create files that will be used by the toy 
+                               model to mimic another model
+    inputs_oasis:
+        make.ada_my   | example files for OASIS compilation on ADA and DATARMOR clusters
+        make.DATARMOR |
+        namcouple.base.aw or oa or owa or ow : namelist files for the different coupled 
+                                               modes in which stuff will be replaced by
+                                               run_cpl script  
+        namcouple.base.aw.debug : example of a namelist file with debug options
+        namcouple.base.aw.nointerp : example of namlist with given interpolation file
+        namcouple.base.aw.toyatm : namelist files for the different coupled modes 
+                                   in which stuff will be replaced by run_cpl script 
+                                   when running with a toy model
+
+* toy_model: toy model sources and namelists. This toy model can be used to test 
+             coupling, it mimics a model by exchanging prescribed fields with oasis.
+             For example if you are using CROCO and want to couple it with a wave 
+             model, you should first try to couple it with the toy wave model. 
+
+-----------------------------------------------
+Get the model source codes
+-----------------------------------------------
+- CROCO: https://www.croco-ocean.org/download/croco-project/
+- WRF: http://www2.mmm.ucar.edu/wrf/users/
+- WW3: https://forge.ifremer.fr/projects/ww3/
+- OASIS3-MCT: https://verc.enes.org/oasis/download/oasis-registration-form
+
+
+-----------------------------------------------
+RUNNING the coupled model
+-----------------------------------------------
+
+* Create configuration file system
+  --------------------------------
+- Be sure that you work in a bash environment (if not just do: bash)
+- Edit and run create_config
+- Edit and source run_env
+
+* Compiling
+  ---------
+- First, compile OASIS:
+        cd $HOME/oasis/OASIS3-MCT_3.0_branch/oasis3-mct/util/make_dir/
+        Edit your make.YOURMACHINE file for paths, libraries, compilers and options
+        Edit make.inc to include your make.YOURMACHINE
+        make realclean -f TopMakefileOasis3
+        make -f TopMakefileOasis3 > oasis_make.out
+        Check in your oasis compile directory if all the libraries are present: 
+             libmct.a  libmpeu.a  libpsmile.MPI1.a  libscrip.a
+
+- WW3 compilation:
+        Edit and run make_WW3_compil (in ww3_in)
+        WW3 has to be compiled again if you want to change physical/dynamical switches
+
+- CROCO compilation: this should be done, once CROCO config is set up...
+        Edit and run make_CROCO_compil (in croco_in)
+        CROCO has to be compiled again if you change physical/dynamical options 
+        in cppdefs.h or domain or parallelization settings in param.h
+
+- WRF compilation: 
+        go in your WRF source dir and execute ./configure.wrf
+        choose distributed memory option associated to your machine
+        cp configure.wrf configure.wrf.uncoupled
+        then set your configure for coupled case: 
+                cp configure.wrf configure.wrf.coupled
+                Edit configure.wrf.coupled by adding:
+                    OA3MCT_ROOT_DIR = $(OASISDIR)
+                    ARCH_LOCAL : for OASIS add -Dkey_cpp_oasis3
+                    INCLUDE_MODULES : add before netcdf include:  
+                        -I$(OA3MCT_ROOT_DIR)/build/lib/mct \
+                        -I$(OA3MCT_ROOT_DIR)/build/lib/psmile.MPI1 \
+                    LIB_EXTERNAL : add before netcdf library:     
+                        -L$(OA3MCT_ROOT_DIR)/lib -lpsmile.MPI1 -lmct -lmpeu -lscrip \
+        then go back in your config dir ($hconf) and go in wrf_in: set make_WRF_compil
+        create a job in which you can execute make_WRF_compil (WRF is long to compile 
+         (~1h or more) and takes a lot of memory...)
+
+* Pre-processing
+  --------------
+
+- WW3:
+        - set and run script_make_CFSR_wind_for_ww3.sh
+        - use GRIDGEN tool made for WW3 : 
+          ftp://ftp.ifremer.fr/ifremer/ww3/COURS/WAVES_SHORT_COURSE/TOOLS/GRIDGEN/
+          or to create an equivalent grid to CROCO grid use : 
+          make_ww3_grd_input_files_from_croco_grd.m available in croco_in after 
+          having run CROCO pre-processing
+
+- CROCO: 
+        - If you are using CFSR online interpolation, prepare your surface forcing 
+          with Process_CFSR_files_for_CROCO.sh. Link your files to $CROCO_FILES_DIR
+        - Matlab pre-processing for grid, forcing, ini, boundaries, etc: 
+            First set crocotools_param.m and start.m, then in matlab : 
+            start
+            make_grid
+            make_ini
+            make_forcing
+            make_bry
+            make_ww3_grd_input_files_from_croco_grd
+
+- WRF: Follow readme_wps
+
+- OASIS:
+        - eventually (otherwise they can be created in the run_cpl script) create 
+          restart files: from calm or pre-exising conditions
+        - eventually (otherwise they can be created in the run_cpl script) create 
+          grids for wrf
+
+* Running
+  -------
+
+** FORCED modes
+   ------------
+        - CROCO: edit run_frc_croco and submit a job that launch: 
+         ./run_frc_croco NB_PROCS (where NB_PROCS is the number of CPUs as in param.h)
+        
+        - WW3: edit run_frc_ww3 and submit a job that launch:
+         ./run_frc_croco NB_PROCS (where NB_PROCS is the number of CPUs you choose)
+
+
+** COUPLED modes
+   -------------
+        - edit run_cpl and submit a job that launch:
+         ./run_frc NB_PROCS1 NB_PROCS2 NB_PROCS3 (where NB_PROCS1 = nb of CPUs for WRF
+                                                        NB_PROCS2 = nb of CPUs for WW3
+                                                        NB_PROCS3 = nb of CPUs for CROCO
+                                        NB_PROCX can be set to 0 is the model is unused)  
+

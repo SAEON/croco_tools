@@ -1,0 +1,45 @@
+To download CFSR data
+*********************
+
+1 - Request an account on https://rda.ucar.edu/datasets/ds093.0/index.html#!description
+2 - Then go to the Data Access tab of https://rda.ucar.edu/datasets/ds093.0/index.html#!description
+3 - Click 'get a subset'
+4 - Adjust temporal selection to you time request
+5 - Choose in Parameter presets 
+	- WRF model inputs: Vtable.CFSR Pressure levels
+6 - Click Continue
+7 - If you want only a region, Choose in Spatial selection : Data within a bounding box, click on Draw box under the map, and then adjust the limit of your box 
+8 - Then submit request, you will be alerted when your data is ready to be downloaded
+
+- Repeat steps 2 to 8 but choosing for step 5 : WRF model inputs: Vtable.CFSR Surface
+
+- To get forcing for CROCO 
+	- repeat steps 2 to 4 
+	- for step 5, do not preselect anything on the Parameter presets menu, but select all necessary variables :  
+#              Temperature
+#              Latent heat flux
+#              Sensible heat flux
+#              Specific humidity
+#              Precipitation rate
+#              u-component of wind
+#              v-component of wind
+#              Downward shortwave radiation flux
+#              Upward shortwave radiation flux
+#              Downward longwave radiation flux
+#              Upward longwave radiation flux
+
+	- Click continue
+	- Then for Output Format, click Converted to netCDF
+	- Choose the following vertical levels:
+#              Ground or water surface
+#              Specified height above ground: 2 m
+#              Specified height above ground: 10 m
+	- In Gridded Products, choose:
+#              6-hour Forecast
+#              6-hour Average (initial+0 to initial+6)
+	- Finally choose the grid: 0.312 x 0.312
+	- Select a bounding box as in 7 if you want
+	- Choose gzip compression option and submit your request
+
+You will be alerted when your data is ready to be downloaded. Follow the given link and download the wgetXXX.csh script provided to download the data.
+Set your password in the wgetXXX.csh script, make it executable (chmod u+x wgetXXX.csh) and execute it to download your data. 

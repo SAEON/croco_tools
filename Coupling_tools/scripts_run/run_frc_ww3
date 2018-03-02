@@ -1,0 +1,225 @@
+#!/bin/bash -e
+
+# --------------------------------------------------
+#
+# Script to launch coupled simulations with WRF, WW3 and CROCO 
+#
+# --------------------------------------------------
+#
+# Further Information:   
+# http://www.croco-ocean.org
+#  
+# This file is part of CROCOTOOLS
+#
+# CROCOTOOLS is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation; either version 2 of the License,
+# or (at your option) any later version.
+#
+# CROCOTOOLS is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+# MA  02111-1307  USA
+#
+# Copyright (c) 2018 S. Jullien
+# swen.jullien@ifremer.fr
+# --------------------------------------------------
+
+#=========================================================================
+#=======================  USER CHANGES  ==================================
+#=========================================================================
+
+# source file exporting paths 
+# for the configuration
+# ----------------------------
+source run_env
+
+# Path of working directory 
+#(where the simulations are launched)
+# ----------------------------
+export MYWORKDIR=$wconf/outputs_frc_ww3_CFSR
+# flag for cleaning working dir or not
+flag_clean=1
+
+# Number of CPUs
+# ----------------------------
+NBPROC_1=$1
+#MPI_LAUNCH_CMD="mpirun"
+#MPI_LAUNCH_CMD="poe"
+MPI_LAUNCH_CMD=$MPI_LAUNCH
+#SERIAL_LAUNCH_WW3='./'
+SERIAL_LAUNCH_WW3="$MPI_LAUNCH -np 1 "
+
+# Runtime Settings
+# ----------------------------
+yr1=2009 ; mo1=01 ; dy1=01 ; hr1=00
+yr2=2009 ; mo2=02 ; dy2=01 ; hr2=00
+runtime=$((31*24*3600))
+
+# Time Steps
+# ----------------------------
+wavdt=3600 ; wavdtPRO=1200 ; wavdtREF=2400 ; wavdtSRC=60
+
+# Grids sizes
+# ----------------------------
+wavnx=43 ; wavny=44
+hmin=75; # minimum water depth in CROCO, delimiting coastline in WW3 
+
+# Outputs Settings
+# ----------------------------
+# WW3 (everything in seconds)
+wav_int=3600            # output interval (s)
+wav_rst=$((24*3600))    # restart interval (s)
+
+# Path for executables
+# ----------------------------
+export WW3_EXE_DIR=$ww3/exe_frc_BENGUELA
+
+# Inputs Settings
+# ----------------------------
+# suffix for ww3 input setting files
+ww3inpsuffix='.Afrc'
+# forcing file(s) list
+# name of input file
+forcin=(CFSR_wind_Y2009M1.nc)
+# name of ww3_prnc.inp extension/input file
+forcww3=(wind)
+#forcin=(CROCO_current_Y2009M1.nc \
+#        CROCO_level_Y2009M1.nc)
+#forcww3=(current \
+#         level)
+#forcin=()
+#forcww3=()
+
+#=========================================================================
+#=======================  END USER CHANGES  ==============================
+#=========================================================================
+
+## ---------------------------- #
+## - Create and Clean Workdir - #
+## ---------------------------- #
+
+if ! [ -e $MYWORKDIR ] ; then
+ echo 'create working directory: '$MYWORKDIR
+ mkdir $MYWORKDIR
+elif [ $flag_clean == 1 ] ; then
+ echo 'clean working directory: '$MYWORKDIR
+ rm -Rf $MYWORKDIR/*
+fi
+
+## -------------------- #
+## - Copy executables - #
+## -------------------- #
+
+echo 'copy executables'
+cp -f $WW3_EXE_DIR/ww3_* $MYWORKDIR/.
+mv -f $MYWORKDIR/ww3_shel $MYWORKDIR/wwatch
+
+## ------------------------ #
+## - Copy ww3 input files - #
+## ------------------------ #
+
+WW3_IN_DIR=${WW3_IN_DIR}/inputs_ww3
+
+echo 'copy and fill settings files *.inp'
+cp -f ${WW3_IN_DIR}/*.inp $MYWORKDIR/.
+
+## - Fill ww3_grid.inp file -##
+sed -e "s/<wavdt>/$wavdt/g" \
+    -e "s/<wavdtPRO>/$wavdtPRO/g"  -e "s/<wavdtREF>/$wavdtREF/g"  -e "s/<wavdtSRC>/$wavdtSRC/g"  \
+    -e "s/<wavnx>/$wavnx/g"   -e "s/<wavny>/$wavny/g"  \
+    -e "s/<hmin>/$hmin/g" \
+    $WW3_IN_DIR/ww3_grid.inp.base > $MYWORKDIR/ww3_grid.inp
+
+## - Fill ww3_ounf.inp file -##
+sed -e "s/<wav_int>/$wav_int/g" \
+    -e "s/<yr1>/$yr1/g"  -e "s/<mo1>/$mo1/g"  -e "s/<dy1>/$dy1/g"  -e "s/<hr1>/$hr1/g" \
+    $WW3_IN_DIR/ww3_ounf.inp.base > $MYWORKDIR/ww3_ounf.inp
+
+## - Fill ww3_shel.inp file -##
+sed -e "s/<yr1>/$yr1/g"  -e "s/<mo1>/$mo1/g"  -e "s/<dy1>/$dy1/g"  -e "s/<hr1>/$hr1/g"  \
+    -e "s/<yr2>/$yr2/g"  -e "s/<mo2>/$mo2/g"  -e "s/<dy2>/$dy2/g"  -e "s/<hr2>/$hr2/g" \
+    -e "s/<wav_int>/$wav_int/g"  -e "s/<wav_rst>/$wav_rst/g" \
+    -e "s/<wavdt>/$wavdt/g" \
+    $WW3_IN_DIR/ww3_shel.inp.base$ww3inpsuffix > $MYWORKDIR/ww3_shel.inp
+
+cp -f ${WW3_FILES_DIR}/*.inp $MYWORKDIR/.
+
+ls $MYWORKDIR/*.inp
+
+echo 'link input files and copy associated settings files'
+lengthforc=${#forcww3[@]}
+for  k in `seq 0 $(( ${lengthforc} - 1))` ; do
+ echo "ln -sf ${WW3_FILES_DIR}/${forcin[$k]} $MYWORKDIR/${forcww3[$k]}.nc"
+ ln -sf ${WW3_FILES_DIR}/${forcin[$k]} $MYWORKDIR/${forcww3[$k]}.nc
+ echo "cp -f ${WW3_IN_DIR}/ww3_prnc.inp.${forcww3[$k]} $MYWORKDIR/."
+ cp -f ${WW3_IN_DIR}/ww3_prnc.inp.${forcww3[$k]} $MYWORKDIR/.
+done
+
+## ------------- #
+## - Execution - #
+## ------------- #
+
+echo 'enter in the working directory'
+cd $MYWORKDIR
+pwd
+
+# Prepare MPI run command
+if [ $MPI_LAUNCH_CMD == poe ] ; then
+ for nn in $(seq 1 $NBPROC_1); do
+  echo "./wwatch" >> run_file
+ done
+ chmod +x run_file
+ mpirun_cmd="poe  -pgmmodel MPMD -cmdfile ./run_file"
+else
+#elif [ $MPI_LAUNCH_CMD == mpirun ] ; then
+ mpirun_cmd="$MPI_LAUNCH_CMD -np $NBPROC_1 wwatch"
+
+#else
+# echo 'ERROR: '$MPI_LAUNCH_CMD' not implemented yet... Exit'
+# exit
+fi
+
+echo 'WW3 pre-processing before run:'
+# WW3 grid 
+echo "${SERIAL_LAUNCH_WW3}ww3_grid &> grid.out"
+${SERIAL_LAUNCH_WW3}ww3_grid &> grid.out
+if [ ! -e mod_def.ww3 ]; then
+  echo 'ERROR when running ww3_grid, mod_def.ww3 does not exist'
+  exit 1
+fi
+# WW3 prnc
+for  k in `seq 0 $(( ${lengthforc} - 1))` ; do 
+ echo "ln -sf ww3_prnc.inp.${forcww3[$k]} ww3_prnc.inp"
+ ln -sf ww3_prnc.inp.${forcww3[$k]} ww3_prnc.inp
+ echo "${SERIAL_LAUNCH_WW3}ww3_prnc &> prnc.${forcww3[$k]}.out"
+ ${SERIAL_LAUNCH_WW3}ww3_prnc &> prnc.${forcww3[$k]}.out
+ if [ ! -e ${forcww3[$k]}.ww3 ]; then
+  echo 'ERROR when running ww3_prnc for '${forcww3[$k]}
+  exit 1
+ fi
+done
+# WW3 strt
+echo "${SERIAL_LAUNCH_WW3}ww3_strt &> strt.out"
+${SERIAL_LAUNCH_WW3}ww3_strt &> strt.out
+if [ ! -e restart.ww3 ]; then
+  echo 'ERROR when running ww3_strt, restart.ww3 does not exist'
+  exit 1
+fi
+
+echo 'launch run: '$mpirun_cmd
+# RUN
+$mpirun_cmd
+
+if [ -e out_grd.ww3 ]; then 
+ echo 'WW3 post-processing after run:'
+ # WW3 format to netcdf
+ echo "${SERIAL_LAUNCH_WW3}ww3_ounf &> ounf.out"
+ ${SERIAL_LAUNCH_WW3}ww3_ounf &> ounf.out
+ #${SERIAL_LAUNCH_WW3}ww3_ounp &> ounp.out
+fi

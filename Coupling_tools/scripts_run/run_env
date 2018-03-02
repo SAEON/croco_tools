@@ -1,0 +1,216 @@
+#!/bin/bash -e
+#
+# --------------------------------------------------
+#
+# Script to define environment variables for the run 
+#
+# --------------------------------------------------
+# Configuration architecture
+# --------------------------------------------------
+# $HOME/CONFIGS/MYCONFIG
+#                       - wrf_in
+#                       - ww3_in
+#                       - croco_in
+#                       - oasis_in
+# $WORKDIR/CONFIGS/MYCONFIG
+#                       - wrf_files
+#                       - ww3_files
+#                       - croco_files
+#                       - oasis_files
+# --------------------------------------------------
+#
+# Further Information:   
+# http://www.croco-ocean.org
+#  
+# This file is part of CROCOTOOLS
+#
+# CROCOTOOLS is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation; either version 2 of the License,
+# or (at your option) any later version.
+#
+# CROCOTOOLS is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+# MA  02111-1307  USA
+#
+# Copyright (c) 2018 S. Jullien
+# swen.jullien@ifremer.fr
+# S. Jullien, 2018
+# swen.jullien@ifremer.fr
+# --------------------------------------------------
+
+echo '-- In - run_env ----------------------------'
+
+# check shell is bash (requested to source this script...)
+# --------------------------
+echo $BASH
+
+# modules to use on your machine
+# --------------------------
+echo 'loading modules'
+## DATARMOR case 
+#module purge
+#module load NETCDF/4.3.3.1-mpt-intel2016
+#module load nco/4.6.4_gcc-6.3.0
+#module load matlab/2017a
+## ADA case
+#module load netcdf/mpi/4.3.3.1
+#module load nco/4.4.2
+module list
+
+# HOME directory of your machine
+# (where you will store scripts and model sources)
+# --------------------------
+CPL_HOME=$HOME
+
+# WORK/SCRATCH general directory of your machine
+# (where you will run the models)
+# --------------------------
+CPL_WORKDIR=$WORKDIR
+
+# Home and Work configuration directories
+# --------------------------
+echo 'define Home and Work configuration directories'
+export hconf=$CPL_HOME/CONFIGS/BENGUELA
+export wconf=$CPL_WORKDIR/CONFIGS/BENGUELA
+
+# Model sources directory
+# --------------------------
+echo 'define Model sources directories'
+export wrf=$CPL_HOME/wrf/WRFV3.7.1_dev_cpl_vagues_suite_new
+export croco=$CPL_HOME/croco
+export ww3=$CPL_HOME/ww3/model
+export oasisdir=$CPL_HOME/oasis/OASIS3-MCT_3.0_branch/compile_oasis3-mct
+
+
+# Input large files directories
+# --------------------------
+echo 'define large files inputs dir'
+export OASIS_FILES_DIR=$wconf/oasis_files
+export WRF_FILES_DIR=$wconf/wrf_files
+export WW3_FILES_DIR=$wconf/ww3_files
+export CROCO_FILES_DIR=$wconf/croco_files
+echo 'define data dir'
+export DATA_DIR=$CPL_WORKDIR/DATA
+
+# Settings files directories
+# --------------------------
+echo 'define settings input dir'
+export OASIS_IN_DIR=$hconf/oasis_in
+export WRF_IN_DIR=$hconf/wrf_in
+export WW3_IN_DIR=$hconf/ww3_in
+export CROCO_IN_DIR=$hconf/croco_in
+
+# Cheking run_env
+# --------------------------
+if [ -d "$CPL_HOME" ]; then
+ echo 'define CPL_HOME dir as '$CPL_HOME
+else
+ echo 'ERROR CPL_HOME: '$CPL_HOME' directory does not exist'
+ exit 1
+fi
+
+if [ -d "$CPL_WORKDIR" ]; then
+ echo 'define CPL_WORKDIR dir as '$CPL_WORKDIR
+else
+ echo 'ERROR CPL_WORKDIR: '$CPL_WORKDIR' directory does not exist'
+ exit 1
+fi
+
+if [ -d "$hconf" ]; then
+ echo 'define hconf dir as '$hconf
+else
+ echo 'ERROR hconf: '$hconf' directory does not exist'
+ exit 1
+fi
+
+if [ -d "$wconf" ]; then
+ echo 'define wconf dir as '$wconf
+else
+ echo 'ERROR wconf: '$wconf' directory does not exist'
+ exit 1
+fi
+
+if [ -d "$oasisdir" ]; then
+ echo 'define oasisdir dir as '$oasisdir
+else
+ echo 'ERROR oasisdir: '$oasisdir' directory does not exist'
+ exit 1
+fi
+
+if [ -d "$wrf" ]; then
+ echo 'define wrf dir as '$wrf
+else
+ echo 'WARNING wrf: '$wrf' directory does not exist'
+fi
+
+if [ -d "$croco" ]; then
+ echo 'define croco dir as '$croco
+else
+ echo 'WARNING croco: '$croco' directory does not exist'
+fi
+
+if [ -d "$ww3" ]; then
+ echo 'define ww3 dir as '$ww3
+else
+ echo 'WARNING ww3: '$ww3' directory does not exist'
+fi
+
+if [ -d "$OASIS_FILES_DIR" ]; then
+ echo 'define OASIS_FILES_DIR dir as '$OASIS_FILES_DIR
+else
+ echo 'ERROR OASIS_FILES_DIR: '$OASIS_FILES_DIR' directory does not exist'
+ exit 1
+fi
+
+if [ -d "$WRF_FILES_DIR" ]; then
+ echo 'define WRF_FILES_DIR dir as '$WRF_FILES_DIR
+else
+ echo 'WARNING WRF_FILES_DIR: '$WRF_FILES_DIR' directory does not exist'
+fi
+
+if [ -d "$CROCO_FILES_DIR" ]; then
+ echo 'define CROCO_FILES_DIR dir as '$CROCO_FILES_DIR
+else
+ echo 'WARNING CROCO_FILES_DIR: '$CROCO_FILES_DIR' directory does not exist'
+fi
+
+if [ -d "$WW3_FILES_DIR" ]; then
+ echo 'define WW3_FILES_DIR dir as '$WW3_FILES_DIR
+else
+ echo 'WARNING WW3_FILES_DIR: '$WW3_FILES_DIR' directory does not exist'
+fi
+
+if [ -d "$OASIS_IN_DIR" ]; then
+ echo 'define OASIS_IN_DIR dir as '$OASIS_IN_DIR
+else
+ echo 'ERROR OASIS_IN_DIR: '$OASIS_IN_DIR' directory does not exist'
+ exit 1
+fi
+
+if [ -d "$WRF_IN_DIR" ]; then
+ echo 'define WRF_IN_DIR dir as '$WRF_IN_DIR
+else
+ echo 'WARNING WRF_IN_DIR: '$WRF_IN_DIR' directory does not exist'
+fi
+
+if [ -d "$CROCO_IN_DIR" ]; then
+ echo 'define CROCO_IN_DIR dir as '$CROCO_IN_DIR
+else
+ echo 'WARNING CROCO_IN_DIR: '$CROCO_IN_DIR' directory does not exist'
+fi
+
+if [ -d "$WW3_IN_DIR" ]; then
+ echo 'define WW3_IN_DIR dir as '$WW3_IN_DIR
+else
+ echo 'WARNING WW3_IN_DIR: '$WW3_IN_DIR' directory does not exist'
+fi
+
+echo '-- End - run_env ---------------------------'
+

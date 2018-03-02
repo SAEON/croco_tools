@@ -1,0 +1,31 @@
+Download CFSR from https://rda.ucar.edu/datasets/ds093.0/index.html#!access
+(need to request an account and log in)
+
+Then select, dates and parameters and vertical levels and time and grid
+WARNING: select all the requested vertical levels and times below to be able to download all the parameters!
+WARNING2: Click the converted to netcdf button!!
+
+- Parameter(s):
+    Temperature
+    Latent heat flux
+    Sensible heat flux
+    Specific humidity
+    Precipitation rate
+    u-component of wind
+    v-component of wind
+    Downward shortwave radiation flux
+    Upward shortwave radiation flux
+    Downward longwave radiation flux
+    Upward longwave radiation flux
+- Vertical level(s):
+    Ground or water surface
+    Specified height above ground: 2 m
+    Specified height above ground: 10 m
+- Product(s):
+    6-hour Forecast
+    6-hour Average (initial+0 to initial+6)
+- Grid(s):
+    0.5-deg x 0.5-deg from 0E to 359.5E and 90N to 90S (720 x 361 Longitude/Latitude)
+
+Submit request. 
+Then download wget.XXXX.csh script, fill in with your password, chmod u+x the script and launch. 
