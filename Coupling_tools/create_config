@@ -68,7 +68,7 @@ export croco=~/croco
  mkdir -p $hconf/wrf_in
  mkdir -p $hconf/oasis_in
  mkdir -p $hconf/toy_in
- cp $croco/croco_tools/Coupling_tools/readme_cpl $honf/.
+ cp $croco/croco_tools/Coupling_tools/readme_cpl $hconf/.
  cp -r $croco/croco_tools/Coupling_tools/scripts_croco/* $hconf/croco_in/.
  cp -r $croco/croco_tools/Coupling_tools/scripts_wrf/* $hconf/wrf_in/.
  cp -r $croco/croco_tools/Coupling_tools/scripts_ww3/* $hconf/ww3_in/.
