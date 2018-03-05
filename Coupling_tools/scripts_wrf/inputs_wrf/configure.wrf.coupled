@@ -133,7 +133,7 @@ LIBWRFLIB = libwrflib.a
 #        and source bin64/mpivars.sh file from your Intel MPI installation
 #        before the build.
 
-OA3MCT_ROOT_DIR =       $(OASISDIR)
+OA3MCT_ROOT_DIR =       $(oasisdir)
 
 DESCRIPTION     =       INTEL ($SFC/$SCC): SGI MPT
 DMPARALLEL      =        1

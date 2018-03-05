@@ -51,7 +51,7 @@ my_compil_cases=(uncoupled \
 #      your machine architecture + dmpar
 # in case of coupled compilation you then need to add specificities in the generated configure.wrf:
 # Edit configure.wrf.coupled by adding:
-#      OA3MCT_ROOT_DIR = $(OASISDIR)
+#      OA3MCT_ROOT_DIR = $(oasisdir)
 #      ARCH_LOCAL : for OASIS add -Dkey_cpp_oasis3
 #      INCLUDE_MODULES : add before netcdf include: -I$(OA3MCT_ROOT_DIR)/build/lib/mct \
 #                                                   -I$(OA3MCT_ROOT_DIR)/build/lib/psmile.MPI1 \
