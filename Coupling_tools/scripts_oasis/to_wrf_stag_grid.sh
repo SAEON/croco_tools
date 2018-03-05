@@ -70,14 +70,14 @@ mytmp=$mydir/to_wrf_stag_tmp.nc
     echo 'south_north = '$Nlat
     echo ' ' 
     
-    # need one more latitude: repeat the first T point
-    echo '---> need one more latitude : repeat the first T point...'
+    # need one more latitude: repeat the last T point
+    echo '---> need one more latitude : repeat the last T point...'
     ncpdq -O -a south_north,Time $filein $mytmp
     ncks -F -O -d south_north,$Nlat $mytmp ${mytmp}2
     ncrcat -O $mytmp ${mytmp}2 $mytmp
     ncpdq -O -a Time,south_north $mytmp $mytmp
-    # need one more longitude: repeat the first T point
-    echo '---> need one more longitude: repeat the first T point...'
+    # need one more longitude: repeat the last T point
+    echo '---> need one more longitude: repeat the last T point...'
     ncpdq -O -a west_east,Time $mytmp $mytmp
     ncks -F -O -d west_east,$Nlon $mytmp ${mytmp}2
     ncrcat -O $mytmp ${mytmp}2 $mytmp
