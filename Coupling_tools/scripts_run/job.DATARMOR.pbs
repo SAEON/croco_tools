@@ -5,6 +5,7 @@ cd $PBS_O_WORKDIR
 
 source /usr/share/Modules/3.2.10/init/bash
 
-./run_frc_croco 4
+#./run_frc_croco 4
 #./run_frc_ww3 4
-#./run_cpl 0 4 4
+#./run_frc_wrf 16
+./run_cpl 8 0 4

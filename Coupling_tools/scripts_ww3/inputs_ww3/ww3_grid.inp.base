@@ -53,9 +53,12 @@ $  NX, NY                                                           -- $
 $  DX, DY, Scaling Factor                                           -- $
 $  Coord of (1,1) in X (deg), Coord of (1,1) in Y, scaling factor   -- $
 $  5th line:                                                        -- $
-$       - limiting bottom depth (m) delimiting coastline            -- $
-$       - min water depth (m) allowed in the model                  -- $
-$                                                                   -- $
+$       - coastline limiting depth (m, negative in the ocean)       -- $
+$          points with depth values above this limit will be        -- $
+$          considered as excluded points (never be wet points,      -- $
+$          even if the water level grows over)                      -- $
+$       - min water depth (m, positive absolute value) allowed      -- $
+$          for the model computation (to avoid blow up)             -- $
 $       - unit number of bathy file (not 10 (=current file))        -- $
 $       - scale factor for bathy                                    -- $
 $       - how to read bathy file (bot->top: 1 or 2, top->bot: 3 or 4)  $
@@ -65,6 +68,14 @@ $       - file type parameter ('UNIT' or 'NAME')                    -- $
 $       - filename (in quotes)                                      -- $
 $  additional lines if FLAGTR is indicated in namelists             -- $
 $                   with last 7 fields described above              -- $
+$  for mask input, the following values are allowed:                -- $
+$       -2 -> excluded boundary points (sea points covered by ice)  -- $
+$       -1 -> excluded sea points (sea points covered by ice)       -- $
+$        0 -> excluded points (land)                                -- $
+$        1 -> sea points (ocean)                                    -- $
+$        2 -> active boundary points                                -- $
+$        3 -> excluded points                                       -- $
+$        7 -> ice                                                   -- $
 $  
 $     'RECT'  T  'NONE'
 $     340     600

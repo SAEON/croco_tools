@@ -211,7 +211,7 @@ RUNNING the coupled model
             make_bry
             make_ww3_grd_input_files_from_croco_grd
 
-- WRF: Follow readme_wps
+- WRF: Follow readme_wps. Note: you will need to have WPS compiled before.
 
 - OASIS:
         - eventually (otherwise they can be created in the run_cpl script) create 

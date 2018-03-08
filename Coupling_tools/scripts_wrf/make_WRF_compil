@@ -42,6 +42,7 @@ export J='-j 8'
 export NETCDF=$(nf-config --prefix)
 #export NETCDF=$(nc-config --prefix)
 export NETCDF4=1
+export WRFIO_NCD_LARGE_FILE_SUPPORT=1
 
 # define your cases to be compiled
 my_compil_cases=(uncoupled \

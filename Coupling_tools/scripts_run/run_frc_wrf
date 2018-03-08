@@ -57,7 +57,7 @@ MPI_LAUNCH_CMD=$MPI_LAUNCH
 # Runtime Settings
 # ----------------------------
 yr1=2009 ; mo1=01 ; dy1=01 ; hr1=00
-yr2=2009 ; mo2=02 ; dy2=01 ; hr2=00
+yr2=2009 ; mo2=01 ; dy2=31 ; hr2=18
 runtime=$((31*24*3600))
 
 # Time Steps
@@ -91,7 +91,7 @@ wrfnamelist=namelist.input.prep.BENGUELA
 # Inputs Settings
 # ----------------------------
 # date in WRF input files
-date='2009_01_2009_12'
+date='2009_01_2009_01'
 # number of WRF domains
 nb_dom=1
 # is nudging activated?
@@ -137,8 +137,8 @@ if [ $nudge -eq 1 ] ; then
 fi
 for file in $filelist 
 do
- echo "ln -sf ${WRF_FILES_DIR}/${file}_${date} $MYWORKDIR/$file"
- ln -sf ${WRF_FILES_DIR}/${file}_${date} $MYWORKDIR/$file
+ echo "ln -sf ${WRF_FILES_DIR}/${yr1}/${file}_${date} $MYWORKDIR/$file"
+ ln -sf ${WRF_FILES_DIR}/${yr1}/${file}_${date} $MYWORKDIR/$file
 done
 # link data files necessary for running wrf in a dedicated directory $wrf/data
 if [ ! -d $wrf/data ] ; then
@@ -187,7 +187,7 @@ if [ $MPI_LAUNCH_CMD == poe ] ; then
  mpirun_cmd="poe  -pgmmodel MPMD -cmdfile ./run_file"
 else
 #elif [ $MPI_LAUNCH_CMD == mpirun ] ; then
- mpirun_cmd="$MPI_LAUNCH_CMD -np $NBPROC_1 $mod1"
+ mpirun_cmd="$MPI_LAUNCH_CMD -np $NBPROC_1 wrfexe"
 
 #else
 # echo 'ERROR: '$MPI_LAUNCH_CMD' not implemented yet... Exit'

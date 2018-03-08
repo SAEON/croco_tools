@@ -54,15 +54,20 @@ echo $BASH
 # modules to use on your machine
 # --------------------------
 echo 'loading modules'
-## DATARMOR case 
 #module purge
+
+## DATARMOR case 
 #module load NETCDF/4.3.3.1-mpt-intel2016
 #module load nco/4.6.4_gcc-6.3.0
 #module load matlab/2017a
+
 ## ADA case
 #module load netcdf/mpi/4.3.3.1
 #module load nco/4.4.2
-module list
+
+#module list
+# place NETCDF environment variable
+export NETCDF=$(nf-config --prefix)
 
 # HOME directory of your machine
 # (where you will store scripts and model sources)

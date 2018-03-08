@@ -52,7 +52,10 @@ export OASISDIR=$oasisdir
 
 # define your compiler extension 
 # (see what is available in $ww3/bin as comp.EXTENSION)
+# for ADA
 mycompil=Altix
+# for DATARMOR
+#mycompil=DATARMOR
 
 # define your switch extension to be used for compilation 
 # (see what is available in $ww3/bin or create one)

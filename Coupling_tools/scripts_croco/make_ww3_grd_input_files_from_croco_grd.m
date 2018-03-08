@@ -120,11 +120,9 @@ fclose(file);
 %
 disp(' ')
 disp([' Write WW3 mask file ',ww3maskfile])
-disp(' with only sea points except at the boundaries where it can be masked accroding to CROCO mask')
+disp(' As CROCO mask and without open boundary points')
 %
-tmp_m = mask;
-tmp_m(2:end-1, 2:end-1) = 1;
-m = tmp_m;
+m = mask;
 file = fopen(ww3maskfile,'w');
 for i = 1:Ny
  fprintf(file,' %d ',m(i,:));
@@ -134,14 +132,12 @@ fclose(file);
 %
 disp(' ')
 disp([' Write WW3 mask file ',ww3maskbdyfile])
-disp(' with sea points and open boundaries where they are according to CROCO mask')
+disp(' As CROCO mask and with open boundaries')
 %
-m = tmp_m;
-m(1,:) = 2;
-m(end,:) = 2;
-m(:,1) = 2;
-m(:,end) = 2;
-m(tmp_m==0) = 0;
+m(1,:) = 2 * mask(1,:);
+m(end,:) = 2 * mask(end,:);
+m(:,1) = 2 * mask(:,1);
+m(:,end) = 2 * mask(:,end);
 file = fopen(ww3maskbdyfile,'w');
 for i = 1:Ny
  fprintf(file,' %d ',m(i,:));

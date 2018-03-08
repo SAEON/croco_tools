@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash 
 
 # --------------------------------------------------
 #
@@ -98,7 +98,7 @@ export REAL_EXE_DIR="$wrf/exe_uncoupled"
 export REAL_WORK_DIR="$wconf/outputs_real"
 #
 # real outputs path
-export REAL_OUT_DIR="$WRF_FILES_DIR/WRF_DATA"
+export REAL_OUT_DIR="$WRF_FILES_DIR"
 #
 # wrf in dir
 export WRF_IN_DIR="$WRF_IN_DIR"
@@ -110,13 +110,15 @@ else
 fi
 # MPI launch commands
 # for ADA ----------
-export myMPI='poe ./'
+#export myMPI='poe ./'
 # ------------------
 # for NEA ----------
 #export myMPI="mpirun -np $NBPROCS "
 # ------------------
+# for DATARMOR ----------
+export myMPI="$MPI_LAUNCH -np $NBPROCS "
 #
-cp namelist.input.base.complete ${REAL_WORK_DIR}/.
+cp inputs_wrf/namelist.input.base.complete ${REAL_WORK_DIR}/.
 # MPI parameters
 nprocX=-1
 nprocY=-1

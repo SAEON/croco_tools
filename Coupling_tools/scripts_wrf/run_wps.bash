@@ -1,4 +1,4 @@
-#!/bin/bash -e 
+#!/bin/bash 
 
 # --------------------------------------------------
 #
@@ -73,7 +73,7 @@ source $CONFIGURE_NAMELIST
 # SWITCH to define the simulation domains, and interpolate static 
 # terrestrial data sets to the model grids.
 # (process $WPS_ROOT/geogrid.exe) ? (1 : yes / 0 : no)
-switch_geogrid=0
+switch_geogrid=1
 #
 # SWITCH to plot the domains with ferret
 switch_plot=0
@@ -81,11 +81,11 @@ switch_plot=0
 # SWITCH to degribs global model data, and write the data in a simple format
 # called intermediate GRIB format.
 # (process $WPS_ROOT/ungrib) ? (1 : yes / 0 : no)
-switch_ungrib=0
+switch_ungrib=1
 #
 # SWITCH to degribs a second time from another SOURCE? (1 : yes / 0 : no)
 # Example: different SST or 2nd type of surface files (e.g. CFSR)
-switch_ungrib_sfc=0
+switch_ungrib_sfc=1
 is_ungrib_sfc=1 # for use of a 2nd type of surface files in metgrid
 #
 # SWITCH to horizontally interpolates the intermediate-format meteorological 
@@ -98,26 +98,30 @@ switch_metgrid=1
 #
 source ../run_env
 #
+# add WPS dependencies to your library path: libpng and zlib (dynamic libraries)
+export LD_LIBRARY_PATH=$HOME/softs/libpng-1.2.59/install/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=$HOME/softs/zlib-1.2.11/install/lib:$LD_LIBRARY_PATH
+
 # WPS paths
 # WPS source dir
-export WPS_EXE_DIR="$wrf/WPSV3.7.1"
+export WPS_EXE_DIR="$wrf/../WPSV3.7.1"
 #
 # Geographical data for WPS
 export GEOG_DATAROOT="$DATA_DIR/geog"
 #
 # Variable Table Location
 #export Vtable_ROOT="${WPS_EXE_DIR}/ungrib/Variable_Tables"
-export Vtable_ROOT="$WRF_IN_DIR"
+export Vtable_ROOT="$WRF_IN_DIR/inputs_wrf"
 #
 # Inputs directory and prefix (initial and boundary data)
-export I_DATAROOT="$WORKDIR/DATA/CFSR_grib"
-export I_DATAprefix="pgbh06.gdas"
+export I_DATAROOT="$DATA_DIR/CFSR_grib"
+export I_DATAprefix="200901*pgbh06.gdas"
 # Surface Inputs directory and prefix (if different surface file)
-export SFC_DATAROOT="$WORKDIR/DATA/CFSR_grib"
-export SFC_DATAprefix="flxf06.gdas"
+export SFC_DATAROOT="$DATA_DIR/CFSR_grib"
+export SFC_DATAprefix="200901*flxf06.gdas"
 #
 # Outputs data directory
-export O_DATAROOT="$WORKDIR/DATA/WPS_DATA/$domain_name"
+export O_DATAROOT="$WRF_FILES_DIR/WPS_DATA"
 #
 # Path to workdir
 export MYWORKDIR="$wconf/outputs_wps"
@@ -129,10 +133,12 @@ fi
 #
 # MPI launch commands
 # for ADA ----------
-export myMPI="poe ./"
+#export myMPI="poe ./"
 # ------------------
 # for NEA ----------
 #export myMPI="mpirun -np $NBPROCS "
+# for DATARMOR ----------
+export myMPI="$MPI_LAUNCH -np $NBPROCS "
 # ------------------
 
 #=========================================================================
@@ -208,7 +214,7 @@ else
 fi
 
 if [ $switch_ungrib_sfc -eq 1 ]; then
-  list_SFC=(`ls $SFC_DATAROOT/*${LSM_type}*`)
+  list_SFC=(`ls $SFC_DATAROOT/*${SFC_DATAprefix}*`)
   if [ $#{list_SFC} != "0" ]; then
     echo " BASH: ${LSM_type} forcing files are available"
   else
