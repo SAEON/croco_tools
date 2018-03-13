@@ -274,8 +274,9 @@ if [ $mod1 = wrfexe -o $mod2 = wrfexe -o $mod3 = wrfexe ] ; then
  if [ ! -d $wrf/data ] ; then
   mkdir $wrf/data
   ln -s $wrf/run/* $wrf/data/.
-  # remove executables that could exist
+  # remove executables that could exist and namelist file
   rm -f $wrf/data/*.exe
+  rm -f $wrf/data/namelist.input*
  fi
  echo 'link wrf data files'
  echo "ln -sf ${wrf}/data/* $MYWORKDIR/."
