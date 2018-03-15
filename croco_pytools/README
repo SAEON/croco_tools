@@ -1,0 +1,132 @@
+README for py-roms2roms
+
+Version 1.0.1
+
+
+py-roms2roms is a Python version of roms2roms (see Mason etal, 2010 and
+www.molemaker.org) that was written in Matlab.
+
+pyroms2roms creates ROMS boundary files for offline nesting, but it has
+expanded to make:
+
+(1) boundary files with SODA, Mercator, ECCO2, IBI
+(2) forcing files using CFSR and/or CCMP.
+
+Copyright (c) 2014-2018 by Evan Mason, IMEDEA
+Email: emason@imedea.uib-csic.es
+
+***Usage summary for CFSR***
+Obtaining and using CFSR data for use with make_pyroms2frc*.py scripts
+
+Go here and select a product:
+https://rda.ucar.edu/#!lfd?nb=y&b=proj&v=NCEP%20Climate%20Forecast%20System%20Reanalysis
+
+For example, if you want the CFSv2 six-hourly product
+https://rda.ucar.edu/datasets/ds094.0/index.html#!access
+Clicking “Get a Subset” will take you to a page with list of variables.  Unfortunately you cannot select them all at the same time, so follow guidelines below:
+
+
+General parameters MUST be the same for all datasets, e.g.:
+- Output format: netCDF (DO NOT forget to tick the box for netCDF, if not you get a GRB file)
+- Start date: 2011-01-01 00:00
+- End date: 2018-01-25 03:00
+Longitude/Gaussian Latitude)
+- Spatial subsetting (bounding box):
+    Latitudes (top/bottom): 60 / 0
+    Longitudes (left/right): -50 / 44
+
+Some tips...
+It’s a good idea to tick the box for some sort of compression, e.g., bzip2.
+It’s also good to download the files using the Globus option, and download to separate directories as the file names are sometimes the same.
+Gotcha!  Notice that for ds094.0 the first 4 months of files have different names from the rest.
+
+
+Download the following batches:
+
+Precipitation: (tick “Precipitation rate”)
+- Parameter(s):
+    Precipitation rate
+- Product(s):
+    6-hour Average (initial+0 to initial+6)
+- Grid(s):
+    0.205-deg x ~0.204-deg from 0E to 359.795E and 89.844N to 89.844S (1760 x 880
+
+
+
+
+Salinity and evaporation minus precipitation: (tick “Salinity” and “Evaporation minus precipitation”)
+Parameter(s):
+     Evaporation minus precipitation
+     Salinity
+  Level(s):
+     Depth below sea level: 5 m
+     Ground or water surface
+  Product(s):
+    1-hour Average (initial+0 to initial+1)
+  Grid: 0.5-deg x 0.5-deg from 0.25E to 359.75E and 89.75N to 89.75S (720 x 360 Longitude/Latitude)
+
+
+
+
+Relative humidity: (tick “Relative humidity”)
+- Parameter(s):
+    Relative humidity
+- Vertical level(s):
+    Specified height above ground: 2 m
+- Product(s):
+    1-hour Forecast
+- Grid(s):
+    0.5-deg x 0.5-deg from 0E to 359.5E and 90N to 90S (720 x 361 Longitude/Latitude)
+
+Pressure and specific humidity: (tick “Pressure” and “Specific humidity”)
+- Parameter(s):
+    Specific humidity
+    Pressure
+- Vertical level(s):
+    Ground or water surface
+    Specified height above ground: 2 m
+- Product(s):
+    1-hour Forecast
+- Grid(s):
+    0.205-deg x ~0.204-deg from 0E to 359.795E and 89.844N to 89.844S (1760 x 880 
+
+
+Winds and temperature:  (tick “u wind”, “v wind” and “Temperature”)
+- Parameter(s):
+    Temperature
+    u-component of wind
+    v-component of wind
+- Vertical level(s):
+    Ground or water surface
+    Specified height above ground: 2 m
+    Specified height above ground: 10 m
+- Product(s):
+    1-hour Forecast
+- Grid(s):
+    0.205-deg x ~0.204-deg from 0E to 359.795E and 89.844N to 89.844S (1760 x 880 
+
+
+
+Heat fluxes:  (tick “”, ‘’”, ‘“’ and “”)
+- Parameter(s):
+    Downward shortwave radiation flux
+    Upward shortwave radiation flux
+    Downward longwave radiation flux
+    Upward longwave radiation flux
+- Vertical level(s):
+    Ground or water surface
+- Product(s):
+    1-hour Forecast
+- Grid(s):
+    0.205-deg x ~0.204-deg from 0E to 359.795E and 89.844N to 89.844S (1760 x 880
+
+
+
+Decompression and concatenation
+Once files are downloaded they need to be decompressed and then concatenated into single files.  This can be done with nco tools, an example here is for precipitation:
+bunzip2 cdas1.????????.sfluxgrbf.grb2.nc.bz2
+ncrcat -h cdas1.????????.sfluxgrbf.grb2.nc  ds094.0_precip_rate.nc
+
+Note that the file in blue above can take any name you want.  However its name (and names of other files) must be identical in the python scripts.  Once this is done, you can delete the individual files.
+
+
