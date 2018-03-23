@@ -79,11 +79,11 @@ end;
 
 global LARGVAL
 
-if verLessThan('matlab','8.3'),
+%if verLessThan('matlab','8.3'),
   LARGVAL=bitmax;
-else
-  LARGVAL=flintmax;
-end;    
+%else
+%  LARGVAL=flintmax;
+%end;    
 
 % Otherwise we are drawing a grid!
 
@@ -472,7 +472,8 @@ end;
 % Give a 1-1 aspect ratio and get rid of the matlab-provided axes stuff.
 
 
-if isempty(strfind(version,'R2013b')),  % 27/Sept/13 - Handling for 2013b provided by CB.
+%if isempty(strfind(version,'R2013b')),  % 27/Sept/13 - Handling for 2013b provided by CB.
+if 1==1
 set(gca,'visible','off',...
         'dataaspectratio',[1 1 1],...
         'xlim',MAP_VAR_LIST.xlims,...

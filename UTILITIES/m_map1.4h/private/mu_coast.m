@@ -191,11 +191,11 @@ switch optn,
       oncearound=2*pi;    
   end;
 
-  if verLessThan('matlab','8.4.0'),
+%  if verLessThan('matlab','8.4.0'),
      p_hand=zeros(length(k)-1,1); % Patch handles
-  else
-     p_hand=gobjects(length(k)-1,1); % Patch handles
-  end;
+%  else
+%     p_hand=gobjects(length(k)-1,1); % Patch handles
+%  end;
   
   
   for i=1:length(k)-1,
