@@ -79,11 +79,11 @@ end;
 
 global LARGVAL
 
-%if verLessThan('matlab','8.3'),
+if verLessThan('matlab','8.3'),
   LARGVAL=bitmax;
-%else
-%  LARGVAL=flintmax;
-%end;    
+else
+  LARGVAL=flintmax;
+end;    
 
 % Otherwise we are drawing a grid!
 
