@@ -43,14 +43,14 @@ if mercator_type==1,
   lon = nc{'longitude'}(:);
   lat = nc{'latitude'}(:);
   depth = nc{'depth'}(:);
-  time = nc{'time_counter'}(:);
+  time = nc{'time'}(:);
   time = time / 24 + datenum(1950,1,1) - datenum(Yorig,1,1);
 else
   lon = nc{'lon'}(:);
   lat = nc{'lat'}(:);
   depth = nc{'depth'}(:);
   time = nc{'time'}(:);
-  time = time / 86400 + datenum(2014,3,16) - datenum(Yorig,1,1);
+  time = time / 86400 + datenum(2014,1,9) - datenum(Yorig,1,1);
 end
 %
 % Get SSH

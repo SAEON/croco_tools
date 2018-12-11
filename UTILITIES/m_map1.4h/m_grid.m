@@ -89,6 +89,7 @@ catch
    LARGVAL=bitmax;
 end
 
+
 % Otherwise we are drawing a grid!
 
 % Set current projection to geographic
