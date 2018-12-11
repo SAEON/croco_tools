@@ -50,14 +50,13 @@ eval(['! rm ',outname])
 
 if mercator_type==1, % Mercator data 1/12 deg
 
-  command = {'!python '
+  command = {'!'
 	   sprintf('%s',pathmotu)
-	   'motu-client-python/motu-client.py'
+	   'motuclient-python/motuclient.py'
 	   sprintf(' -u %s -p %s',info{1},info{2}) 
-%	   ' -S' 
-	   ' -m http://atoll.mercator-ocean.fr/mfcglo-mercator-gateway-servlet/Motu'
-	   ' -s http://purl.org/myocean/ontology/service/database#GLOBAL_ANALYSIS_FORECAST_PHYS_001_002-TDS'
-	   ' -d global-analysis-forecast-phys-001-002'
+	   ' -m http://nrtcmems.mercator-ocean.fr/motu-web/Motu'
+	   ' -s GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS'
+	   ' -d global-analysis-forecast-phy-001-024'
 	   sprintf(' -t %s -T %s',date{1},date{2})
 	   sprintf(' -x %f -X %f',geom(1),geom(2))
 	   sprintf(' -y %f -Y %f',geom(3),geom(4))
@@ -70,14 +69,13 @@ if mercator_type==1, % Mercator data 1/12 deg
 
 else                 % UK Met Office data 1/4 deg
 
-  command = {'!python '
+  command = {'!'
 	   sprintf('%s',pathmotu)
-	   'motu-client-python/motu-client.py'
+	   'motuclient-python/motuclient.py'
 	   sprintf(' -u %s -p %s',info{1},info{2}) 
-%	   ' -S' 
-           ' -m http://data.ncof.co.uk/mis-gateway-servlet/Motu'
-	   ' -s http://purl.org/myocean/ontology/service/database#GLOBAL_ANALYSIS_FORECAST_PHYS_001_015'
-	   ' -d MetO-GLO-PHYS-daily'
+	   ' -m http://nrtcmems.mercator-ocean.fr/motu-web/Motu'
+	   ' -s GLOBAL_ANALYSIS_FORECAST_PHYS_001_015-TDS'
+	   ' -d global-analysis-forecast-phys-001-015'
 	   sprintf(' -t %s -T %s',date{1},date{2})
 	   sprintf(' -x %f -X %f',geom(1),geom(2))
 	   sprintf(' -y %f -Y %f',geom(3),geom(4))
