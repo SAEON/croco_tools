@@ -102,7 +102,7 @@ scale_factor=ncc.scale_factor(:);
 add_offset=ncc.add_offset(:);
 ktoc=272.15;
 temp(temp<=missval)=NaN;
-temp = temp.*scale_factor + add_offset - ktoc;
+temp = temp.*scale_factor + add_offset; % - ktoc;
 %
 % Get SALT
 %
