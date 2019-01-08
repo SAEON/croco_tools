@@ -79,9 +79,9 @@ echo '---> Remove time dimension...'
 ncwa -O -a Time ${mytmpgrd} ${mytmpgrd}
 
 # compute the last lon and lat
-Nlon=`ncdump -h $filein | grep "west_east = " | cut -d '=' -f2 | cut -d ';' -f1`
+Nlon=`ncdump -h $gridfile | grep "west_east = " | cut -d '=' -f2 | cut -d ';' -f1`
 Nlon=${Nlon// /}
-Nlat=`ncdump -h $filein | grep "south_north = " | cut -d '=' -f2 | cut -d ';' -f1`
+Nlat=`ncdump -h $gridfile | grep "south_north = " | cut -d '=' -f2 | cut -d ';' -f1`
 Nlat=${Nlat// /}
 Nlonstag=$(($Nlon + 1))
 Nlatstag=$(($Nlat + 1))
