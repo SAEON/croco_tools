@@ -36,7 +36,8 @@
  io_form_auxhist3                    = 2
  auxhist3_interval                   = <xtrm_int_m>,<xtrm_int_m>,<xtrm_int_m>,
  frames_per_auxhist3                 = <xtrm_nb_out>,<xtrm_nb_out>,<xtrm_nb_out>,
- debug_level                         = 100
+ iofields_filename                   = “myoutfields.txt”, “myoutfields.txt”
+ debug_level                         = 10
  /
 
  &domains
