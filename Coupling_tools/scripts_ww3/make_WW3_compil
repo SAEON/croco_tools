@@ -1,6 +1,5 @@
 #!/bin/bash -e
 
-set -x
 # --------------------------------------------------
 # Script to compile WW3 in coupled and uncoupled modes
 # --------------------------------------------------
@@ -63,9 +62,9 @@ mycompil=Ubuntu.intel.mpich
 # define your switch extension to be used for compilation 
 # (see what is available in $ww3/bin or create one)
 # (some examples are given in $WW3_IN_DIR/inputs_ww3/)
-#my_switches=(frc_BENGUELA \
-#             ow_BENGUELA)
-my_switches=(ow_BENGUELA)
+my_switches=(frc_BENGUELA \
+             ow_BENGUELA)
+#my_switches=(ow_BENGUELA)
 # flag to copy switches if you have defined them on your local ww3_in/inputs_ww3 directory
 flag_copy_switches=1
 
