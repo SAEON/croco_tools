@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+set -x
 # --------------------------------------------------
 # Script to compile WW3 in coupled and uncoupled modes
 # --------------------------------------------------
@@ -40,7 +41,7 @@ source ../run_env
 export WWATCH3_ENV=$hconf/wwatch3.env
 # define your compilers
 export WWATCH3_F77=ifort
-export WWATCH3_CC=gcc
+export WWATCH3_CC=icc
 # define your netcdf format
 export WWATCH3_NETCDF=NC4
 # define your ww3 source model
@@ -52,22 +53,26 @@ export OASISDIR=$oasisdir
 
 # define your compiler extension 
 # (see what is available in $ww3/bin as comp.EXTENSION)
+# for SPICA
+mycompil=Ubuntu.intel.mpich
 # for ADA
-mycompil=Altix
+#mycompil=Altix
 # for DATARMOR
 #mycompil=DATARMOR
 
 # define your switch extension to be used for compilation 
 # (see what is available in $ww3/bin or create one)
 # (some examples are given in $WW3_IN_DIR/inputs_ww3/)
-my_switches=(frc_BENGUELA \
-             ow_BENGUELA)
+#my_switches=(frc_BENGUELA \
+#             ow_BENGUELA)
+my_switches=(ow_BENGUELA)
 # flag to copy switches if you have defined them on your local ww3_in/inputs_ww3 directory
 flag_copy_switches=1
 
 # define the ww3 programs you want to compile 
 # make_MPI will compile all programs...
-my_pgm=make_MPI
+#my_pgm=make_MPI
+my_pgm=w3_automake
 #my_pgm='ww3_prnc ww3_grid ww3_bounc ww3_strt ww3_shel ww3_ounf'
 #my_pgm='w3_shel'
 
@@ -117,6 +122,8 @@ for k in `seq 0 $(( ${NB_switches} - 1))` ; do
     ./w3_setup .. -c $mycompil -s $MYSWITCH -q
     if [ "$my_pgm" == make_MPI ]; then
         ./make_MPI
+    elif [ "$my_pgm" == w3_automake ]; then
+        ./w3_automake
     else
         ./w3_make $my_pgm
     fi
