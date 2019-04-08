@@ -95,7 +95,7 @@ disp('    ...U')
 u=getdap(url,'',...
 	     'u',trange,krange,jrange,...
 	     i1min,i1max,i2min,i2max,i3min,i3max);
-u=shiftdim(u,2);
+%u=shiftdim(u,2);
 eval(['missval=double(x.u.',missname,');'])
 if missval<0
   u(u<=(0.9*missval))=NaN;
@@ -109,7 +109,7 @@ disp('    ...V')
 v=getdap(url,'',...
 	     'v',trange,krange,jrange,...
 	     i1min,i1max,i2min,i2max,i3min,i3max);
-v=shiftdim(v,2);
+%v=shiftdim(v,2);
 eval(['missval=double(x.v.',missname,');'])
 if missval<0
   v(v<=(0.9*missval))=NaN;
@@ -123,7 +123,7 @@ disp('    ...TEMP')
 temp=getdap(url,'',...
 		'temp',trange,krange,jrange,...
 		i1min,i1max,i2min,i2max,i3min,i3max);
-temp=shiftdim(temp,2);
+%temp=shiftdim(temp,2);
 eval(['missval=double(x.temp.',missname,');'])
 if missval<0
   temp(temp<=(0.9*missval))=NaN;
@@ -137,7 +137,7 @@ disp('    ...SALT')
 salt=getdap(url,'',...
 		'salt',trange,krange,jrange,...
 		i1min,i1max,i2min,i2max,i3min,i3max);
-salt=shiftdim(salt,2);
+%salt=shiftdim(salt,2);
 eval(['missval=double(x.salt.',missname,');'])
 if missval<0
   salt(salt<=(0.9*missval))=NaN;
