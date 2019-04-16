@@ -83,7 +83,7 @@ mytmp=$mydir/from_wrf_tmp.nc
     elif [ $var == ${gridlevels}_TAUY ] ; then
       varin=VTAU
     elif [ $var == ${gridlevels}_TAUMOD ] ; then
-      varin=TAUMOD
+      varin=TAUM
     elif [ $var == ${gridlevels}_U_01 ] ; then
 #      varin=U_01
       varin=U10

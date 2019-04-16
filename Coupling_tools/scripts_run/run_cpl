@@ -158,6 +158,8 @@ ww3file=$wconf/outputs_frc_ww3_CFSR/ww3.200901.nc
 toyfile=$wconf/outputs_frc_wrf/wrfout_d01_2009-01-01_00\:00\:00
 toytype=atm
 model_to_toy=wrf
+# timerange (indices of records) to extract in toyfile to create toy file for oasis
+timerange='1,240'
 toydt=${atmdt} ; toytimes=$((${runtime}/${toydt}))
 
 # Inputs Settings
@@ -475,7 +477,8 @@ sed -e "s/<toydt>/$toydt/g" -e "s/<toytimes>/$toytimes/g"   \
 
   echo 'create input files for TOY'
   cd ${OASIS_IN_DIR}
-  ./create_oasis_toy_files.sh $toyfile $MYWORKDIR/toy_${toytype}.nc $model_to_toy 1,$toytimes
+  echo "./create_oasis_toy_files.sh $toyfile $MYWORKDIR/toy_${toytype}.nc $model_to_toy 1,$timerange"
+  ./create_oasis_toy_files.sh $toyfile $MYWORKDIR/toy_${toytype}.nc $model_to_toy $timerange
   cd -
  fi
 
