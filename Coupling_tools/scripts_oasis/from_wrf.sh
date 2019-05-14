@@ -109,7 +109,6 @@ mytmp=$mydir/from_wrf_tmp.nc
     echo '==================='
 
     ncks -F -O -v $varin -d Time,$timerange $filein $mytmp
-#    ncks -F -O -v $varin -d Time,1,10 $filein $mytmp
 
     # rename or compute variable
     if [ $var == ${gridlevels}_SURF_NET_SOLAR ] ; then

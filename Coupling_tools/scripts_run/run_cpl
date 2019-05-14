@@ -117,7 +117,7 @@ wav_rst=$((24*3600))    # restart interval (s)
 # CROCO
 oce_nrst=24    # restart interval (in number of timesteps) 
 oce_nhis=1     # history output interval (in number of timesteps) 
-oce_navg=6     # average output interval (in number of timesteps) 
+oce_navg=1     # average output interval (in number of timesteps) 
 
 # MPI Settings for WRF (see WRF namelist documentation README.namelist in real_in directory)
 wrf_nprocX=-1      # -1 for automatic settings
@@ -158,12 +158,10 @@ ww3file=$wconf/outputs_frc_ww3_CFSR/ww3.200901.nc
 toyfile=$wconf/outputs_frc_wrf/wrfout_d01_2009-01-01_00\:00\:00
 toytype=atm
 model_to_toy=wrf
-toydt=${atmdt} ; 
-toytimes=$((${runtime}/${toydt}))
-model_to_toy_timerange=240
-# for wrf : example 10 days of run, outputs every hours
-# you have 10*24 records, so model_to_toy_timerange=240
-# 
+# timerange (indices of records) to extract in toyfile to create toy file for oasis
+timerange='1,240'
+toydt=${atmdt} ; toytimes=$((${runtime}/${toydt}))
+
 # Inputs Settings
 # ----------------------------
 
@@ -479,8 +477,8 @@ sed -e "s/<toydt>/$toydt/g" -e "s/<toytimes>/$toytimes/g"   \
 
   echo 'create input files for TOY'
   cd ${OASIS_IN_DIR}
-  echo "./create_oasis_toy_files.sh $toyfile $MYWORKDIR/toy_${toytype}.nc $model_to_toy 1,$toytimes"
-  ./create_oasis_toy_files.sh $toyfile $MYWORKDIR/toy_${toytype}.nc $model_to_toy 1,$model_to_toy_timerange
+  echo "./create_oasis_toy_files.sh $toyfile $MYWORKDIR/toy_${toytype}.nc $model_to_toy 1,$timerange"
+  ./create_oasis_toy_files.sh $toyfile $MYWORKDIR/toy_${toytype}.nc $model_to_toy $timerange
   cd -
  fi
 

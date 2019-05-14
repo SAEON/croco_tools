@@ -32,8 +32,8 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp(['Add the paths of the different toolboxes'])
-tools_path='../../croco_tools/';
-croco_path='../../croco/';
+tools_path='../croco_tools/';
+croco_path='../croco/';
 myutilpath=[tools_path,'UTILITIES/'];
 %
 % Other software directories

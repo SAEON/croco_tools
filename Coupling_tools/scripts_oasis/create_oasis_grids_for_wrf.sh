@@ -94,33 +94,24 @@ ncap2 -F -O -s "${wrflat}($Nlatstag,:)=${wrflat}($Nlat,:)+(${wrflat}($Nlat,:)-${
 
 # change mask from float to integer
 echo '---> Change mask from float to integer...'
-
-# FIX (possible) NCO ERROR : switching masks to int
-# ncap2 -O -s "${wrfmask}=int(${wrfmask})" ${mytmpgrd} ${mytmpgrd}
-echo $wrfmask
-ncks -O -v "${wrfmask}" ${mytmpgrd} ${mytmpgrd}_wrfmask
-ncks -O -x -v "${wrfmask}" ${mytmpgrd} ${mytmpgrd}
-ncap2 -O -v -s "new=int(${wrfmask})" ${mytmpgrd}_wrfmask ${mytmpgrd}_wrfmask
-ncrename -v new,atmt.msk ${mytmpgrd}_wrfmask
-ncks -A ${mytmpgrd}_wrfmask ${mytmpgrd}
-rm ${mytmpgrd}_wrfmask
-
-## FIX (possible ) NCO ERROR: to avoid netcdf 4 error
-## 1) convert to nc3 ;  2) do the renaming sequentially ; 3) convert back to netcd4
+ncap2 -O -s "${wrfmask}=int(${wrfmask})" ${mytmpgrd} ${mytmpgrd}
+# problem with some NCO versions... Possible fix:
+#ncks -O -v ${wrfmask} ${mytmpgrd} ${mytmpgrd}_mask
+#ncap2 -O -v -s "tmpmask=int(${wrfmask})" ${mytmpgrd}_mask ${mytmpgrd}_mask
+#ncrename -v tmpmask,${wrfmask} ${mytmpgrd}_mask
+#ncks -O -x -v ${wrfmask} ${mytmpgrd} ${mytmpgrd}
+#ncks -A -v ${wrfmask} ${mytmpgrd}_mask ${mytmpgrd}
+#rm ${mytmpgrd}_mask 
 
 # rename dimensions
 echo '---> rename dimensions...'
-## ncrename -d west_east,x_atmt -d south_north,y_atmt ${mytmpgrd}
+# problem with some NCO versions, need to be in netcdf3
 ncks -O --3 ${mytmpgrd} ${mytmpgrd}
 ncrename -d west_east,x_atmt -d south_north,y_atmt ${mytmpgrd}
-ncks -O --4 ${mytmpgrd} ${mytmpgrd}
-
 # rename variables
 echo '---> Rename variables...'
-ncks -O --3 ${mytmpgrd} ${mytmpgrd}
-##ncrename -v ${wrfmask},atmt.msk ${mytmpgrd}
-ncrename -v ${wrflon},atmt.lon ${mytmpgrd} 
-ncrename -v ${wrflat},atmt.lat ${mytmpgrd} 
+ncrename -v ${wrfmask},atmt.msk -v ${wrflon},atmt.lon -v ${wrflat},atmt.lat ${mytmpgrd} 
+# put the file back to netcdf4
 ncks -O --4 ${mytmpgrd} ${mytmpgrd}
 
 # create grid file

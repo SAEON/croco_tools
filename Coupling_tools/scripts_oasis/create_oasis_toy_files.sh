@@ -196,15 +196,12 @@ for k in `seq 0 $(( ${lengthvar} - 1))` ; do
         # Put them on the stag grid
         echo '---> Put them on the stag grid' 
         ./to_wrf_stag_grid.sh $filetmp $filetmp
-         # rename dimensions
+        # rename dimensions
         echo '---> Rename dimensions...'
-        #ncrename -d $dimx,nlon -d $dimy,nlat -d $dimtime,time $filetmp
-	#exit
-	ncks -O --3 $filetmp $filetmp
-	ncrename -d $dimx,nlon $filetmp
-	ncrename -d $dimy,nlat $filetmp
-	ncrename -d $dimtime,time $filetmp
-	ncks -O --4 $filetmp $filetmp
+        # problem with some NCO versions, need to be in netcdf3
+        ncks -O --3 $filetmp $filetmp
+        ncrename -d $dimx,nlon -d $dimy,nlat -d $dimtime,time $filetmp
+        ncks -O --4 $filetmp $filetmp
     fi
 
     ncks -A -v $var $filetmp $fileout
@@ -239,18 +236,15 @@ fi
 
 # rename dimensions
 echo '---> Rename dimensions...'
-
+# problem with some NCO versions, need to be in netcdf3
 ncks -O --3 $gridtoy $gridtoy
 ncrename -d $dimx,nlon $gridtoy
 ncrename -d $dimy,nlat $gridtoy
-
 # rename variables
 echo '---> Rename variables...'
 ncrename -v ${modelmask},imask_t $gridtoy
 if [ $model != ww3 ] ; then
-    #ncrename -v ${modellon},longitude -v ${modellat},latitude $gridtoy
-    ncrename -v ${modellon},longitude $gridtoy
-    ncrename -v ${modellat},latitude $gridtoy
+ ncrename -v ${modellon},longitude -v ${modellat},latitude $gridtoy
 fi
 ncks -O --4 $gridtoy $gridtoy
 
