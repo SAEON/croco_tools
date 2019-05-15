@@ -145,6 +145,8 @@ if plotting==1
        'lon',[lonmin lonmax],...
        'lat',[latmin latmax]);
   m_pcolor(lon,lat,mask)
+  shading flat
+  number_rivertoprocess
   m_grid('box','fancy','xtick',5,'ytick',5,'tickdir','out');
   set(findobj('tag','m_grid_color'),'facecolor','white');
   hold on
@@ -333,7 +335,7 @@ disp(['Line to enter in the croco.in file in the psource_ncfile section :'])
 disp(['-----------------------------------------------------------------'])
 disp(['psource_ncfile:   Nsrc  Isrc  Jsrc  Dsrc qbardir  Lsrc  Tsrc   runoff file name'])
 disp(['                           CROCO_FILES/croco_runoff.nc(.#nestlevel)'])
-disp(['                 ',num2str(number_rivertoprocess)'])
+disp(['                 ',num2str(number_rivertoprocess)])
 for k=1:number_rivertoprocess
   if psource_ts==1
     T=mean(my_temp_src(k,:));
