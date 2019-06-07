@@ -307,7 +307,7 @@ cff=1;
 %disp(['======================================================='])
 %
 my_flow=cff.*my_flow;
-nw{'Qbar'}(:) = my_flow;
+nw{'Qbar'}(:) = my_flow';
 disp(['... discharges'])
 if psource_ts==1
     nw{'temp_src'}(:) = my_temp_src;
