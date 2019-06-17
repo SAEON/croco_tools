@@ -67,12 +67,12 @@ create_runoff(rivname,grdname,title_name,...
 my_flow=0;
 nw=netcdf(rivname,'w');
 disp(['Write in runoff file'])
-nw{'Qbar'}(:) = my_flow;
+nw{'Qbar'}(:) = my_flow';
 if psource_ts==1
-    nw{'temp_src'}(:) = my_temp_src;
-    nw{'salt_src'}(:) = my_salt_src;
+    nw{'temp_src'}(:) = my_temp_src';
+    nw{'salt_src'}(:) = my_salt_src';
     if makebio
-      nw{'NO3_src'}(:) = my_no3_src;
+      nw{'NO3_src'}(:) = my_no3_src';
     end
 end  
 close(nw)
@@ -310,12 +310,12 @@ my_flow=cff.*my_flow;
 nw{'Qbar'}(:) = my_flow';
 disp(['... discharges'])
 if psource_ts==1
-    nw{'temp_src'}(:) = my_temp_src;
+    nw{'temp_src'}(:) = my_temp_src';
     disp(['... temperature concentration'])
-    nw{'salt_src'}(:) = my_salt_src;
+    nw{'salt_src'}(:) = my_salt_src';
     disp(['... salt concentration'])
     if makebio
-      nw{'NO3_src'}(:) = my_no3_src;
+      nw{'NO3_src'}(:) = my_no3_src';
       disp(['... NO3 concentration'])
     end
     
