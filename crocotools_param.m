@@ -44,6 +44,7 @@
 %      used by make_grid.m (and others..)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+isoctave=exist('octave_config_info');
 %
 %  CROCO title names and directories
 %
@@ -151,7 +152,11 @@ DATADIR='../../croco_tools/';
 %
 FORC_DATA_DIR = [RUN_dir,'DATA/'];
 %
-eval(['!mkdir ',CROCO_files_dir])
+if (isoctave == 0)
+	eval(['!mkdir ',CROCO_files_dir])
+else
+	system(['mkdir ',CROCO_files_dir])
+end
 %
 % CROCO file names (grid, forcing, bulk, climatology, initial)
 %
