@@ -224,6 +224,10 @@ if makeclim==1 | makebry==1
       ntimes=length(OGCM_time);
       if ntimes==1
 	dt=30; % monthly files (SODA..)
+        itolap_a=1; itolap_p=1;
+        itolap_tot=itolap_a + itolap_p;
+        disp(['Reduced overlap for monthly SODA files'])
+        disp(['...'])
       else
 	dt=max(gradient(OGCM_time));
       end
