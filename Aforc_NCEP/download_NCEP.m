@@ -29,7 +29,7 @@ if Get_My_Data ~= 1
 %
 % Definitions of names and directories for NCEP1
 %
-    ncep_url='http://nomad1.ncep.noaa.gov:9090/dods/reanalyses/reanalysis-1/';
+    ncep_url='https://nomad1.ncep.noaa.gov:9090/dods/reanalyses/reanalysis-1/';
     catalog={'6hr/grb2d/grb2d' ...
              '6hr/grb2d/grb2d' ...
              '6hr/grb2d/grb2d' ...
@@ -58,8 +58,8 @@ if Get_My_Data ~= 1
 %
 % Definitions of names and directories for NCEP2
 %
-    %ncep_url='http://nomad3.ncep.noaa.gov:9090/dods/reanalyses/reanalysis-2/';
-    ncep_url='http://nomad1.ncep.noaa.gov:9090/dods/reanalyses/reanalysis-2/';
+    %ncep_url='https://nomad3.ncep.noaa.gov:9090/dods/reanalyses/reanalysis-2/';
+    ncep_url='https://nomad1.ncep.noaa.gov:9090/dods/reanalyses/reanalysis-2/';
     catalog={'6hr/flx/flx' ...
              '6hr/flx/flx' ...
              '6hr/flx/flx' ...

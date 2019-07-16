@@ -39,7 +39,7 @@ function extract_CFSR(CFSR_dir,url,fname,vname,vname2,Y,M,...
 %close all
 if nargin < 1
   CFSR_dir='DATA/CFSR/';
-  url='http://nomads.ncdc.noaa.gov/thredds/dodsC/modeldata/cmd_flxf/';
+  url='https://nomads.ncdc.noaa.gov/thredds/dodsC/modeldata/cmd_flxf/';
   vname='Precipitation_rate';
   vname='Temperature_height_above_ground';
   vname='Downward_Long-Wave_Rad_Flux';

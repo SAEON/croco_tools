@@ -25,8 +25,8 @@ if NCEP_version==3
 %
 % Definitions of names and directories for NCEP1
 %
-%ncep_url='http://nomads.ncdc.noaa.gov/thredds/dodsC/modeldata/cmd_flxf/1979/197901/19790101/flxf00.gdas.1979010100.grb2';
-  ncep_url='http://nomads.ncdc.noaa.gov/thredds/dodsC/modeldata/cmd_flxf/';
+%ncep_url='https://nomads.ncdc.noaa.gov/thredds/dodsC/modeldata/cmd_flxf/1979/197901/19790101/flxf00.gdas.1979010100.grb2';
+  ncep_url='https://nomads.ncdc.noaa.gov/thredds/dodsC/modeldata/cmd_flxf/';
   vnames={'Land_cover_1land_2sea' ...    % surface land-sea mask [1=land; 0=sea]
       'Temperature_height_above_ground' ...      % 2 m temp. [k]
       'Downward_Long-Wave_Rad_Flux' ...   % surface downward long wave flux [w/m^2]
