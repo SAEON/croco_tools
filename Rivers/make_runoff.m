@@ -131,6 +131,10 @@ end
 % Remove rivers out of the domain, if any...
 %
 rivertoprocess=find(indomain==1);
+%%%%
+%%%debug
+%%%rivertoprocess=1
+%%%
 number_rivertoprocess=length(rivertoprocess);
 %
 rivername=strvcat(myrivername(rivertoprocess,:));
@@ -140,27 +144,58 @@ rivname_StrLen=size(rivername,2);
 % Make a figure
 %
 if plotting==1
-  figure
-  m_proj('mercator',...
-       'lon',[lonmin lonmax],...
-       'lat',[latmin latmax]);
-  m_pcolor(lon,lat,mask)
-  shading flat
-  number_rivertoprocess
-  m_grid('box','fancy','xtick',5,'ytick',5,'tickdir','out');
-  set(findobj('tag','m_grid_color'),'facecolor','white');
-  hold on
-  for k0=1:number_rivertoprocess
-    k=rivertoprocess(k0);
-    lon_src=lon(J(k)+1,I(k)+1);
-    lat_src=lat(J(k)+1,I(k)+1);
-    [px,py]=m_ll2xy(lon_src,lat_src);
-    h1=plot(px,py,'ro');
-    set(h1,'Clipping','off')
-    legend(h1,'first guess position');
-    h2=m_text(lon(J(k),I(k)),lat(J(k),I(k))+0.1,myrivername(k,:));
-    set(h2,'fontweight','demi','fontsize',13);
-  end
+    fig1=figure(1);
+    set(fig1,'Position',[659 34 1334 1307],'units','pixels');
+    m_proj('mercator',...
+        'lon',[lonmin lonmax],...
+        'lat',[latmin latmax]);
+    m_pcolor(lon,lat,mask)
+    shading flat
+    number_rivertoprocess
+    m_grid('box','fancy','xtick',5,'ytick',5,'tickdir','out');
+    set(findobj('tag','m_grid_color'),'facecolor','white');
+    hold on
+    for k=1:number_rivertoprocess
+        lon_src=lon(J(k)+1,I(k)+1);
+        lat_src=lat(J(k)+1,I(k)+1);
+        [px,py]=m_ll2xy(lon_src,lat_src);
+        h1=plot(px,py,'ro');
+        set(h1,'Clipping','off')
+        legend(h1,'first guess position');
+        h2=m_text(lon(J(k),I(k)),lat(J(k),I(k))+0.1,myrivername(k,:));
+        set(h2,'fontweight','demi','fontsize',13);
+    end
+    
+    dummyplot=1;
+    if dummyplot
+        extenddeg=6;
+        %fig2=figure(2);
+        %set(fig2,'Position',[659 34 1334 1307],'units','pixels');
+        nfig0=5; 
+        for k=1:number_rivertoprocess
+            %subplot(4,4,k)
+            nfig=nfig0+k
+            figure(nfig)
+            mylonmin=lon(J(k)+1,I(k)+1) - extenddeg;
+            mylonmax=lon(J(k)+1,I(k)+1) + extenddeg;
+            mylatmin=lat(J(k)+1,I(k)+1) - extenddeg;
+            mylatmax=lat(J(k)+1,I(k)+1) + extenddeg;
+            
+            m_proj('mercator',...
+                'lon',[mylonmin mylonmax],...
+                'lat',[mylatmin mylatmax]);
+            m_pcolor(lon,lat,mask) ; shading flat
+            %m_pcolor(lon,lat,mask) ;
+            m_grid('box','fancy','xtick',5,'ytick',5,'tickdir','out');
+            set(findobj('tag','m_grid_color'),'facecolor','white');
+            hold on
+            lon_src=lon(J(k)+1,I(k)+1);
+            lat_src=lat(J(k)+1,I(k)+1);
+            [px,py]=m_ll2xy(lon_src,lat_src);
+            h33=plot(px,py,'go');
+            title(['\bf', myrivername(k,:)]);
+        end
+    end
 end
 %
 % Choose which river you really want to process...
@@ -181,7 +216,7 @@ my_flow=my_flow(:,find(indomain_last==1));%
 % orientation. Second column is the direction of the flow in the choosen orientation
 %    
 if define_dir==0
-    for k0=1:length(rivertoprocess)
+    for k0=1:number_rivertoprocess
         k=rivertoprocess(k0);
         disp(['====='])
         disp(['River ',rivername(k0,:)])
@@ -197,6 +232,9 @@ if define_dir==0
             dir12= input('1 is positive [S-N or W-E], -1 negative [N-S or E-W]. ');
         end
         dir(k,:)=[dir11 dir12];
+        disp(['k=',num2str(k)])
+        disp(['k0=',num2str(k0)])
+        disp(['dir(k,:)=',num2str(dir(k,:))])
     end
 end
 %
@@ -212,17 +250,45 @@ create_runoff(rivname,grdname,title_name,...
 %
 disp(['Find the real positions of the rivers in the grid: '])
 disp(['==================================================='])
-for k=1:number_rivertoprocess
-  disp(['Process final position for river ',rivername(k,:)])
-  disp(['Choose the orientation'])  
-  jj=J(k); 
-  ii=I(k);
-  dir2=dir(k,:);
-  [jj2,ii2]=locate_runoff(dir2,jj,ii,mask,masku,maskv);
-  J2(k)=jj2; 
-  I2(k)=ii2;
-  disp([char(rivername(k,:)),' is J=',num2str(J2(k)),' and I=',num2str(I2(k))])
-  disp([' '])
+
+for k0=1:number_rivertoprocess
+    k=rivertoprocess(k0);
+    disp(['Process final position for river ',myrivername(k,:)])
+    disp(['Choose the orientation'])
+    jj=J(k);
+    ii=I(k);
+    dir2=dir(k,:);
+    %$$$$$$$$$$$$$$$$$$$$$$
+     %debug for gigatl6 [BASE]:  Amazon Tocantins Orenoque Mississipi
+     %                     Tapajos Xingu Magdalena  
+     if k0 == 1    % Amazon
+         jj=jj+5
+     end
+     if k0 == 6    % Tocantins
+         ii=ii+1
+     end
+     if k0 == 3    %Orenoque
+         jj=jj-12
+     end   
+     if k0 == 4    %Mississipi 
+         ii=ii-6
+     end
+     if k0 == 7    %Tapajos
+         jj=jj+14
+     end    
+     if k0 == 9    %Xingu
+         jj=jj+24
+     end     
+     if k0 == 10   %Magdalena
+         ii=ii+7
+     end   
+    %$$$$$$$$$$$$$$$$$$$$$$$$$
+     
+    [jj2,ii2]=locate_runoff(dir2,jj,ii,mask,masku,maskv);
+    J2(k)=jj2;
+    I2(k)=ii2;
+    disp([char(myrivername(k,:)),' is J=',num2str(J2(k)),' and I=',num2str(I2(k))])
+    disp([' '])
 end
 %
 % Adjust the rivers temperature and salinity
@@ -263,31 +329,160 @@ if psource_ts==1
   
 %   %Alternativaly : Define all mannually the tracer 
 %   %t, s, and eventually biogeochemical tracer concentration
-%   temp_src0=[11 9 9 12 20 20 24 25 21 18 13 12];
-%   my_temp_src(:,:)=[temp_src0;temp_src0+2;temp_src0+2.8]; % Example for 3 sources
-%   %
-%   salt_src0=[2 3 5 1 5 3 2 1 4 2 1 2];
-%   my_salt_src(:,:)=[salt_src0;salt_src0;salt_src0];       % Example for 3 sources
-%   %
-%   no3_src0=[0 0 0 0 0 0 0 0 0 0 0 0];
-%   my_no3_src(:,:)=[no3_src0;no3_src0+2;no3_src0+2.8];     % Example for 3 sources
-%   %
+   
+   my_temp_src(:,:)=[28.1677   27.7407   27.7290   27.9662   28.2562 ...
+                     28.3312   28.3832   28.4892   28.8444   28.9035 ...
+                     28.8618   28.6118 ;
+                    
+                     27.4397   28.2505   28.7115   28.3359   26.6957 ...
+                     24.3065   22.5866   22.1818   23.2263   24.9318 ...
+                     26.2492   26.8046 ;
+                     
+                     26.9818   27.0154   27.2094   27.5274   27.7536 ...
+                     27.8428 28.1083   28.5623   28.7645   28.6072 ...
+                     28.1333 27.3927 ; 
+                     
+                     18.4467   18.1003   19.3736   21.6955   24.9263   27.6829 ...
+                     29.2091   29.5412   28.3085   25.5634   22.6769 ...
+                     20.2277 ;
+                     
+                     22.6310   23.2607   22.4562   20.2833   17.2070   13.8076 ...
+                     11.6466   11.2372   12.5740   15.1383   18.1340 ...
+                     20.6393 ;
+                     
+                     27.9732   27.7875   27.9070   28.2647   28.5391   28.5458 ...
+                     28.3633   28.1903   28.2218   28.2947   28.3242 ...
+                     28.1359 ;
+                     
+                     28.1677   27.7407   27.7290   27.9662   28.2562   28.3312 ...
+                     28.3832   28.4892   28.8444   28.9035   28.8618 ...
+                     28.6118 ;
+                     
+                     -0.3210   -0.5013   -0.1819    1.5011    5.6784   10.6697 ...
+                     14.2692   14.6227   11.4167    7.0775    3.4114 ...
+                     1.1195 ;
+                     
+                     28.1677   27.7407   27.7290   27.9662   28.2562   28.3312 ...
+                     28.3832   28.4892   28.8444   28.9035   28.8618 ...
+                     28.6118 ;
+                     
+                     26.9245   26.7369   26.8849   27.2396   27.8931   28.3006 ...
+                     28.1773   28.4447   28.7895   28.8083   28.3689 ...
+                     27.6033 ;
+                     
+                     22.6310   23.2607   22.4562   20.2833   17.2070   13.8076 ...
+                     11.6466   11.2372   12.5740   15.1383   18.1340 ...
+                     20.6393 ;
+                     
+                     28.6263   28.9582   29.3015   29.4045   29.1542   28.3245 ...
+                     27.3215   26.8242   26.8997   27.4027   28.0562 ...
+                     28.4404 ];
+   
+   
+%    my_salt_src(:,:)=[  31.8610   30.2483   28.0273   25.8570 ...
+%                        25.5184   26.1775   27.5553   28.7191   29.7456 ...
+%                        30.7106   31.5538   32.1978 ;
+%                        
+%                        30.1895   30.2550   30.4903   30.8359   32.1160   33.4259 ...
+%                        33.8053   33.5998   32.8721   32.1840   31.4867 ...
+%                        30.8132 ;
+%                        
+%                        33.1099   33.8338   34.3348   34.4912   34.0427   33.1361 ...
+%                        31.6499   30.3496   30.2760   31.2658   32.1016 ...
+%                        32.5288 ;
+%                        
+%                        31.4802   30.8317   29.5911   28.0779   27.4586   27.6335 ...
+%                        28.4153   29.0401   29.9319   31.0356   31.6389 ...
+%                        31.6811 ;
+%                        
+%                        28.3315   28.3112   28.3833   28.5506   28.9386   29.3127 ...
+%                        29.1937   28.8813   28.5683   28.3198   28.2123 ...
+%                        28.2293 ;
+%                        
+%                        30.6917   28.2332   25.6524   23.7380   24.2345   26.3038 ...
+%                        28.2613   29.4522   30.6267   31.8787   32.6207 ...
+%                        32.4137 ;
+%                        
+%                        31.8610   30.2483   28.0273   25.8570   25.5184   26.1775 ...
+%                        27.5553   28.7191   29.7456   30.7106   31.5538 ...
+%                        32.1978 ;
+%                        
+%                        30.5800   31.1429   31.3964   30.9931   29.8125   28.4991 ...
+%                        27.7825   27.6972   27.8768   28.8042   29.5877 ...
+%                        30.1445 ;
+%                        
+%                        31.8610   30.2483   28.0273   25.8570   25.5184   26.1775 ...
+%                        27.5553   28.7191   29.7456   30.7106   31.5538 ...
+%                        32.1978 ;
+%                        
+%                        35.5176   35.7714   35.9853   35.8987   35.6900   35.5734 ...
+%                        35.7705   35.4552   35.1000   34.6942   34.7754 ...
+%                        35.1856 ;
+%                        
+%                        28.3315   28.3112   28.3833   28.5506   28.9386   29.3127 ...
+%                        29.1937   28.8813   28.5683   28.3198   28.2123 ...
+%                        28.2293 ;
+%                        
+%                        33.1350   33.2516   33.2083   33.0608   32.9854   33.0303 ...
+%                        33.3633   33.4677   33.3594   33.2315   33.0206 ...
+%                        33.0312  ];
+   
+  my_salt_src(:,:)=ones(12,12)*5;
+  
+   %
+   %no3_src0=[0 0 0 0 0 0 0 0 0 0 0 0];
+   %my_no3_src(:,:)=[no3_src0;no3_src0+2;no3_src0+2.8];     % Example for 3 sources
+   %
 end
 
 %
 % Continue the figure
 %
 if plotting
-  hold on
-  for k=1:number_rivertoprocess
-    lon_src=lon(J2(k)+1,I2(k)+1);
-    lat_src=lat(J2(k)+1,I2(k)+1);
-    [px,py]=m_ll2xy(lon_src,lat_src);
-    h3=plot(px,py,'ko');
-    set(h3,'Clipping','off')
-  end
-  legend([h1,h3],{'Approximative first guess river location','final adjusted river location'});
-  title({'\bf Location of river in the croco grid';'(from Dai and Trenberth dataset)'});
+    figure(1)
+    hold on
+    for k0=1:number_rivertoprocess
+        k=rivertoprocess(k0);
+        lon_src=lon(J2(k)+1,I2(k)+1);
+        lat_src=lat(J2(k)+1,I2(k)+1);
+        [px,py]=m_ll2xy(lon_src,lat_src);
+        h3=plot(px,py,'ko');
+        set(h3,'Clipping','off')
+    end
+    legend([h1,h3],{'Approximative first guess river location','final adjusted river location'});
+    title({'\bf Location of river in the croco grid';'(from Dai and Trenberth dataset)'});
+    
+    if dummyplot
+        nfig0=5
+        for k0=1:number_rivertoprocess
+            k=rivertoprocess(k0);
+            extenddeg=6;
+            
+            %figure(2);
+            %subplot(4,4,k)
+            
+            nfig=nfig0+k
+            figure(nfig)
+            mylonmin=lon(J(k)+1,I(k)+1) - extenddeg;
+            mylonmax=lon(J(k)+1,I(k)+1) + extenddeg;
+            mylatmin=lat(J(k)+1,I(k)+1) - extenddeg;
+            mylatmax=lat(J(k)+1,I(k)+1) + extenddeg;
+            
+            m_proj('mercator',...
+                'lon',[mylonmin mylonmax],...
+                'lat',[mylatmin mylatmax]);
+            m_pcolor(lon,lat,mask)
+            shading flat
+            m_grid('box','fancy','xtick',5,'ytick',5,'tickdir','out');
+            set(findobj('tag','m_grid_color'),'facecolor','white');
+            hold on
+            lon_src=lon(J2(k)+1,I2(k)+1);
+            lat_src=lat(J2(k)+1,I2(k)+1);
+            [px,py]=m_ll2xy(lon_src,lat_src);
+            h33=plot(px,py,'ro');
+            %title(['\bf Final position', myrivername(k,:)]);
+        end
+    end
 end
 %
 % Fill the river discharge and eventually
@@ -310,9 +505,10 @@ my_flow=cff.*my_flow;
 nw{'Qbar'}(:) = my_flow';
 disp(['... discharges'])
 if psource_ts==1
-    nw{'temp_src'}(:) = my_temp_src';
+    % take care : here there is no transposotion needed !!
+    nw{'temp_src'}(:) = my_temp_src;
     disp(['... temperature concentration'])
-    nw{'salt_src'}(:) = my_salt_src';
+    nw{'salt_src'}(:) = my_salt_src;
     disp(['... salt concentration'])
     if makebio
       nw{'NO3_src'}(:) = my_no3_src';
@@ -337,30 +533,31 @@ disp(['psource_ncfile:   Nsrc  Isrc  Jsrc  Dsrc qbardir  Lsrc  Tsrc   runoff fil
 disp(['                           CROCO_FILES/croco_runoff.nc(.#nestlevel)'])
 disp(['                 ',num2str(number_rivertoprocess)])
 for k=1:number_rivertoprocess
-  if psource_ts==1
-    T=mean(my_temp_src(k,:));
-    S=mean(my_salt_src(k,:));
-    
-  else
-    T=5;
-    S=1;
-  end
-  if dir(k,1) == 1     %flow meridien
-    disp(['                        ',num2str(I2(k)-1),'  ',num2str(J2(k)),...
-	  '  ',num2str(dir(k,1)),'  ',num2str(dir(k,2)),'   30*T   ',...
-	  num2str(T),' ',num2str(S)])
-  elseif dir(k,1) == 0 %flow zonal
-    disp(['                        ',num2str(I2(k)),'  ',num2str(J2(k)-1),...
-	  '  ',num2str(dir(k,1)),'  ',num2str(dir(k,2)),'   30*T   ',...
-	  num2str(T),' ',num2str(S)])
-  end
+
+    if psource_ts==1
+        T=mean(my_temp_src(k,:));
+        S=mean(my_salt_src(k,:));
+        %pause
+    else
+        T=5;
+        S=1;
+    end
+    if dir(k,1) == 1     %flow meridien
+        disp(['                        ',num2str(I2(k)-1),'  ',num2str(J2(k)),...
+              '  ',num2str(dir(k,1)),'  ',num2str(dir(k,2)),'   30*T   ',...
+              num2str(T),' ',num2str(S)])
+    elseif dir(k,1) == 0 %flow zonal
+        disp(['                        ',num2str(I2(k)),'  ',num2str(J2(k)-1),...
+              '  ',num2str(dir(k,1)),'  ',num2str(dir(k,2)),'   30*T   ',...
+              num2str(T),' ',num2str(S)])
+    end
 end
 disp(['-----------------------------------------------------------------'])
-   
+
 %
 % Plot the seasonal cycle
 %
-figure
+figure(30)
 if psource_ts==1
   subplot(3,1,1)
 end
@@ -381,8 +578,11 @@ if psource_ts==1
   subplot(3,1,3)
   plot([1:12],my_salt_src)
   box on, grid on
-  xlabel(['\bf Month']);ylabel(['\bf Salt [C]'])
+  xlabel(['\bf Month']);ylabel(['\bf Salt [psu]'])
   set(gca,'Xtick',[0.5:11.5],'XtickLabel',['J';'F';'M';'A';'M';'J';'J';'A';'S';'O';'N';'D']);
 end
+
+
+    
 end  %end at least one river !
 

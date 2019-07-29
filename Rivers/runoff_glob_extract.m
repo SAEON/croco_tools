@@ -32,12 +32,43 @@ stn_name=ncriv{'stn_name'}(:);
 warning on
 FLOW_clm=ncriv{'FLOW_clm'}(:);
 close(ncriv)
+%size(FLOW_clm)
 %
 % Select the rivers in the domain grid
 %-------------------------------------
 %
-my_riv=find(latriv_mou>=minlat & latriv_mou<=maxlat & lonriv_mou >= minlon & lonriv_mou <= maxlon);
+%========================================
+%River selection criteria
+maxmaxflow=(max(max(FLOW_clm)));
+maxflow=(max(FLOW_clm)');  % attention transpose
+
+meanflowmax=mean(FLOW_clm(:,1));    % pour amazon
+meanflow=nanmean(FLOW_clm(:,:),1)'; % pour les autres
+
+%size(meanflow)
+%plot(meanflow)
+%size(maxflow)
+
+%%% => by default : all rivers in the domain 
+%rivdetectype='DEFAULT';
+%my_riv=find(latriv_mou>=minlat & latriv_mou<=maxlat & lonriv_mou >= minlon & lonriv_mou <= maxlon);
 %
+%%% => megatl : rivers in the boxes + max value >= 20%*max val of the flow amazonia peak)
+rivdetectype='MEGATL';
+%thold=0.1;
+thold=0.03;
+%thold=0.01;
+%my_riv=find(latriv_mou>=minlat & latriv_mou<=maxlat & lonriv_mou >= minlon & lonriv_mou <= maxlon & maxflow >= thold.*maxmaxflow);
+my_riv=find(latriv_mou>=minlat & latriv_mou<=maxlat & lonriv_mou >= minlon & lonriv_mou <= maxlon & meanflow >= thold.*meanflowmax);
+
+%========================================
+%
+disp(['There are ',num2str(length(my_riv)),' rivers in the domain : '])
+disp(['===='])
+disp(' ')
+disp([' => Rivers detection type : ',rivdetectype,' (see in runoff_glob_extract.m)'])
+disp(' ')
+disp(['===='])
 disp(['There are ',num2str(length(my_riv)),' rivers in the domain : '])
 disp(['Domain contains rivers :'])
 for k=1:length(my_riv)
@@ -52,9 +83,9 @@ my_lonriv=lonriv_mou(my_riv);
 % make a figure
 %
 if ~isempty(my_flow)
-    figure
+    figure(100)
     plot([1:12],my_flow)
-    legend(my_rivername)
+    legend(my_rivername,'location','northeastoutside')
     box on, grid on
     title(['\bf Monthly clim of the domain run off'])
     xlabel(['\bf Month']);ylabel(['\bf Discharge in m3/s'])
