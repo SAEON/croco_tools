@@ -62,11 +62,13 @@ end
 nw{'runoff_name'} = ncchar('n_qbar','runoffname_StrLen');
 nw{'runoff_name'}.long_name = ncchar('runoff time');
 
-nw{'runoff_position'} = ncdouble('n_qbar','two');
-nw{'runoff_position'}.long_name = ncchar('position of the runoff (by line) in the CROCO grid');
+%% => actually not used/ read in croco.in
 
-nw{'runoff_direction'} = ncdouble('n_qbar','two');
-nw{'runoff_direction'}.long_name = ncchar('direction/sense of the runoff (by line) in the CROCO grid');
+%%nw{'runoff_position'} = ncdouble('n_qbar','two');
+%%nw{'runoff_position'}.long_name = ncchar('position of the runoff (by line) in the CROCO grid');
+
+%%nw{'runoff_direction'} = ncdouble('n_qbar','two');
+%%nw{'runoff_direction'}.long_name = ncchar('direction/sense of the runoff (by line) in the CROCO grid');
 
 nw{'Qbar'} = ncdouble('n_qbar','qbar_time');
 nw{'Qbar'}.long_name = ncchar('runoff discharge');
