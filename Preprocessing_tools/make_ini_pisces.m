@@ -103,26 +103,27 @@ disp(' ')
 disp('Iron ...')
 ext_tracers_ini(ininame,grdname,fer_month_data,fer_ann_data,...
              'fer','FER','r',tini);
+if (makeplot == 1)disp(' ')
 %
 % Make a few plots
 %
-disp(' ')
-disp(' Make a few plots...')
-test_clim(ininame,grdname,'NO3',1,coastfileplot)
-figure
-test_clim(ininame,grdname,'PO4',1,coastfileplot)
-figure
-test_clim(ininame,grdname,'Si',1,coastfileplot)
-figure
-test_clim(ininame,grdname,'O2',1,coastfileplot)
-figure
-test_clim(ininame,grdname,'DIC',1,coastfileplot)
-figure
-test_clim(ininame,grdname,'TALK',1,coastfileplot)
-figure
-test_clim(ininame,grdname,'DOC',1,coastfileplot)
-figure
-test_clim(ininame,grdname,'FER',1,coastfileplot)
+   disp(' Make a few plots...')
+   test_clim(ininame,grdname,'NO3',1,coastfileplot)
+   figure
+   test_clim(ininame,grdname,'PO4',1,coastfileplot)
+   figure
+   test_clim(ininame,grdname,'Si',1,coastfileplot)
+   figure
+   test_clim(ininame,grdname,'O2',1,coastfileplot)
+   figure
+   test_clim(ininame,grdname,'DIC',1,coastfileplot)
+   figure
+   test_clim(ininame,grdname,'TALK',1,coastfileplot)
+   figure
+   test_clim(ininame,grdname,'DOC',1,coastfileplot)
+   figure
+   test_clim(ininame,grdname,'FER',1,coastfileplot)
+end
 
 end %if makeini
 %

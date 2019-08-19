@@ -107,7 +107,8 @@ Nz=length(Z);
 %
 tbry=nc{'bry_time'}(:); 
 %Take care if time in the WOAPISCES data files !!!
-T=(T-1)*30; % if time in month in the dataset !!!
+%T
+T=(T)*30; % if time in month in the dataset !!!
 %tbry
 %T
 
