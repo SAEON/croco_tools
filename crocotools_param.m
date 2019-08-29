@@ -74,6 +74,10 @@ hc         = 200.;
 vtransform =  2.; % s-coordinate type (1: old- ; 2: new- coordinates)
                   % ! take care to define NEW_S_COORD cpp-key in cppdefs.h 
 %
+% Topography: choice of filter
+%
+topo_smooth =  1; % 1: old ; 2: new filter (better but slower)
+%
 % Minimum depth at the shore [m] (depends on the resolution,
 % rule of thumb: dl=1, hmin=300, dl=1/4, hmin=150, ...)
 % This affect the filtering since it works on grad(h)/h.

@@ -35,7 +35,7 @@ function fname=get_GFS_fname(time,gfs_run_time,gfstype)
 %
 % set URL
 %
-url='http://nomads.ncep.noaa.gov:9090';
+url='https://nomads.ncep.noaa.gov:9090';
 %
 % set file types
 %
@@ -44,8 +44,8 @@ if gfstype==0
   gfsname1='fnlflx';     % 1/2 GDAS data
 else
   gfsname ='gfs';
-%  gfsname1='gfs_0p25';  % 1/4 deg res GFS data
-  gfsname1='gfs_0p50';   % 1/2 deg res GFS data
+  gfsname1='gfs_0p25';  % 1/4 deg res GFS data
+  %gfsname1='gfs_0p50';   % 1/2 deg res GFS data
 end
 %
 % Get the date

@@ -40,6 +40,7 @@ crocotools_param
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
 warning off
 isoctave=exist('octave_config_info');
+
 %
 % Title
 %
@@ -49,8 +50,40 @@ disp(' ')
 disp([' Title: ',CROCO_title])
 disp(' ')
 disp([' Resolution: 1/',num2str(1/dl),' deg'])
+
 %
-% Get the Longitude
+% Choose interactive tool for making grid (rotated grid)
+%
+r='n';
+if (isoctave == 0)
+disp(' ')
+r=input([' Do you want to use interactive grid maker ?', ...
+         '\n (e.g., for grid rotation or parameter adjustments) : y,[n] '],'s');
+end
+
+if strcmp(r,'y')
+
+ disp(' ')
+ disp(' Use Easy interactive grid maker:')
+ easy
+ r=input([' Update grid and click "Apply" in "easy" window', ...
+          ' \n ... then press enter to finalize make_grid'],'s');
+
+ nc=netcdf(grdname);
+ Lonr=nc{'lon_rho'}(:);
+ Latr=nc{'lat_rho'}(:);
+ Lonu=nc{'lon_u'}(:);
+ Latu=nc{'lat_u'}(:);
+ close(nc)
+ [Mp,Lp]=size(Lonr);
+ L=Lp-1; M=Mp-1;
+ disp([' LLm = ',num2str(L-1)])
+ disp([' MMm = ',num2str(M-1)])
+
+else
+
+%
+% Get the longitude
 %
 lonr=(lonmin:dl:lonmax);
 %
@@ -89,6 +122,9 @@ nc{'lon_rho'}(:)=Lonr;
 nc{'lat_psi'}(:)=Latp;
 nc{'lon_psi'}(:)=Lonp;
 close(nc)
+
+end % end choice for interactive grid maker
+
 %
 %  Compute the metrics
 %
@@ -177,18 +213,18 @@ if ~isempty(coastfileplot)
   make_coast(grdname,coastfileplot);
 end
 %
-r=input('Do you want to use editmask ? y,[n]','s');
+
+r=input('\n Do you want to use editmask ? y,[n] ','s');
 if strcmp(r,'y')
   disp(' Editmask:')
   disp(' Edit manually the land mask.')
-  disp(' Press enter when finished.')
-  disp(' ')
+  disp(' ... ')
   if ~isempty(coastfileplot)
     editmask(grdname,coastfilemask)
   else
     editmask(grdname)
   end
-  r=input(' Finished with edit mask ? [press enter when finished]','s');
+  r=input(' Finished with Editmask? [press enter to finalize make_grid]','s');
 end
 %
 close all
@@ -200,8 +236,13 @@ nc=netcdf(grdname,'write');
 h=nc{'h'}(:);
 maskr=nc{'mask_rho'}(:);
 %
-h=smoothgrid(h,maskr,hmin,hmax_coast,hmax,...
-             rtarget,n_filter_deep_topo,n_filter_final);
+if topo_smooth==1,
+ h=smoothgrid(h,maskr,hmin,hmax_coast,hmax,...
+              rtarget,n_filter_deep_topo,n_filter_final);
+else
+ h=smoothgrid_new(h,maskr,hmin,hmax_coast,hmax,...
+                  rtarget,n_filter_deep_topo,n_filter_final);
+end
 %
 %  Write it down
 %
