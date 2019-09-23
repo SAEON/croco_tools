@@ -66,8 +66,10 @@ if strcmp(r,'y')
  disp(' ')
  disp(' Use Easy interactive grid maker:')
  easy
- r=input([' Update grid and click "Apply" in "easy" window', ...
-          ' \n ... then press enter to finalize make_grid'],'s');
+ disp(' Update grid and click "Apply" in "Easy" window')
+ disp(' (-> new parameters will be saved in easy_grid_params.mat)')
+ disp(' ... then press a key to finalize make_grid');
+ pause;
 
  nc=netcdf(grdname);
  Lonr=nc{'lon_rho'}(:);
@@ -224,7 +226,8 @@ if strcmp(r,'y')
   else
     editmask(grdname)
   end
-  r=input(' Finished with Editmask? [press enter to finalize make_grid]','s');
+  disp(' Finished with Editmask? [press a key to finalize make_grid]');
+  pause;
 end
 %
 close all
