@@ -58,7 +58,6 @@ addpath([tools_path,'Tides/T_TIDE'])
 addpath([tools_path,'Visualization_tools'])
 addpath([tools_path,'Rivers'])
 addpath([tools_path,'Town'])
-addpath([croco_path,'Run/TEST_CASES'])
 %
 %-------------------------------------------------------
 %
@@ -119,12 +118,3 @@ else
   disp(['Arch : ',mysystem,...
        ' you should provide the paths of your own loaddap and mexcdf directories'])
 end
-
-%-----------------------------------------------------------------
-% If your Linux distribution is FEDORA 4, you can try to install
-% opendap by uncommenting these lines. Otherwise you have to compile and
-% install the libdap and loaddap library and executable on tour computer manually
-% and add the specific path
-%
-%addpath([tools_path,'Opendap_tools/FEDORA']) %tested on matlab6 / fedora4
-%addpath([tools_path,'Opendap_tools/FEDORA_X64']) % 64bits version of loaddap
