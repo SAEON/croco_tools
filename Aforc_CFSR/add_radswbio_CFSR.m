@@ -32,13 +32,7 @@ clear all
 close all
 
 crocotools_param;
-%=============================================
-if NCEP_version==3
-    %frc_prefix=[frc_prefix,'_CFSR_'];
-    blk_prefix=[blk_prefix,'_CFSR_'];
-else
-    error('MAKE_CFSR: wrong NCEP version')
-end
+blk_prefix=[blk_prefix,'_CFSR_'];
 %
 if level==0
     nc_suffix='.nc';

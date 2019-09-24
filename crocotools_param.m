@@ -366,24 +366,6 @@ NCEP_version  = 3;   % NCEP version:
                      %  2: NCEP-DOE Reanalysis, 1/1/1979 - present
                      %  3: CFSR (Climate Forecast System Reanalysis), 
                      %           1/1/1979 - 31/3/2011
-%					      
-% Option for using local datasets (previously downloaded)
-% rather than online opendap procedure
-%
-Get_My_Data   = 0;     % 1: use local datasets
-%
-% Provide corresponding directory paths
-%
-if NCEP_version  == 1;
-  My_NCEP_dir  = [DATADIR,'NCEP_REA1/'];
-elseif NCEP_version  == 2;
-  My_NCEP_dir  = [DATADIR,'NCEP_REA2/'];
-elseif NCEP_version  == 3;
-  My_NCEP_dir  = [DATADIR,'CFSR/'];
-end
-My_QSCAT_dir = [DATADIR,'QSCAT/'];
-My_SODA_dir  = [DATADIR,'SODA/'];
-My_ECCO_dir  = [DATADIR,'ECCO/'];
 %
 %--------------------------------------------
 % Options for make_NCEP and make_QSCAT_daily
@@ -391,12 +373,7 @@ My_ECCO_dir  = [DATADIR,'ECCO/'];
 %
 % NCEP data directory for files downloaded via opendap
 %
-if NCEP_version  == 1;
-  NCEP_dir= [FORC_DATA_DIR,'NCEP1_',CROCO_config,'/']; 
-elseif NCEP_version  == 2;
-  NCEP_dir= [FORC_DATA_DIR,'NCEP2_',CROCO_config,'/'];
-elseif NCEP_version  == 3;
-  NCEP_dir= [FORC_DATA_DIR,'CFSR_',CROCO_config,'/']; 
+NCEP_dir= [FORC_DATA_DIR,'CFSR_',CROCO_config,'/']; % CFSR data directory [in a "croco_tools" format]
 end
 makefrc      = 1;       % 1: create forcing files
 makeblk      = 1;       % 1: create bulk files
@@ -414,7 +391,9 @@ itolap_ncep  = 8;      % 8 records for 4-daily NCEP
 % Options for make_QSCAT_daily and make_QSCAT_clim   
 %--------------------------------------------------
 %
-QSCAT_dir        = [FORC_DATA_DIR,'QSCAT_',CROCO_config,'/']; % QSCAT data directory
+QSCAT_dir        = [FORC_DATA_DIR,'QSCAT_',CROCO_config,'/']; % QSCAT
+                                                              % data
+                                                              % directory [processed into a "croco_tools" format]
 QSCAT_frc_prefix = [frc_prefix,'_QSCAT_'];                   %  generic file name
                                                              %  for interannual simulations
 QSCAT_clim_file  = [DATADIR,'QuikSCAT_clim/',...             % QuikSCAT climatology file
@@ -424,9 +403,9 @@ QSCAT_clim_file  = [DATADIR,'QuikSCAT_clim/',...             % QuikSCAT climatol
 %  Options for make_ECMWF and make_ECMWF_daily  
 %--------------------------------------------------
 %
-ECMWF_dir= [FORC_DATA_DIR,'ECMWF_',CROCO_config,'/'];    % ECMWF data directory
-My_ECMWF_dir=[FORC_DATA_DIR,'ERAI/'];                 % ERA-I data downloaded with python script
-itolap_ecmwf = 3;                                      % 3 records for daily  ECMWF
+ECMWF_dir= [FORC_DATA_DIR,'ECMWF_',CROCO_config,'/'];  % ERA-I data directory [processed into a "crocotools" format]
+My_ECMWF_dir=[FORC_DATA_DIR,'ERAI/'];                  % ERA-Inative native data downloaded with python script
+itolap_ecmwf = 3;                                       % 3 records for daily  ECMWF
 % 
 %
 %-----------------------
@@ -435,11 +414,13 @@ itolap_ecmwf = 3;                                      % 3 records for daily  EC
 %
 OGCM        = 'SODA';        % Select the OGCM: SODA, ECCO
 %
-OGCM_dir    = [FORC_DATA_DIR,OGCM,'_',CROCO_config,'/']; % OGCM data directory
+OGCM_dir    = [FORC_DATA_DIR,OGCM,'_',CROCO_config,'/'];  % OGCM data directory
+                                                          % [processed into a "crocotools" format]
+
 bry_prefix  = [CROCO_files_dir,'croco_bry_',OGCM,'_'];    % generic boundary file name
 clm_prefix  = [CROCO_files_dir,'croco_clm_',OGCM,'_'];    % generic climatology file name
 ini_prefix  = [CROCO_files_dir,'croco_ini_',OGCM,'_'];    % generic initial file name
-OGCM_prefix = [OGCM,'_'];                               % generic OGCM file name 
+OGCM_prefix = [OGCM,'_'];                                 % generic OGCM file name 
 %
 % Number of OGCM bottom levels to remove 
 % (usefull if CROCO depth is shallower than OGCM depth)

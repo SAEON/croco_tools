@@ -1,6 +1,6 @@
 function interp_CFSR(NCEP_dir,Y,M,Roa,interp_method,...
                      lon1,lat1,mask1,tin,...
-		     nc_frc,nc_blk,lon,lat,angle,tout,Get_My_Data)
+		     nc_frc,nc_blk,lon,lat,angle,tout)
 
 %
 % Read the local NCEP files and perform the interpolations

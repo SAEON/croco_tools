@@ -44,6 +44,7 @@ addpath([myutilpath,'mask'])
 %
 % ROMSTOOLS directories
 %
+addpath([tools_path,'Aforc_CFSR'])
 addpath([tools_path,'Aforc_NCEP'])
 addpath([tools_path,'Aforc_QuikSCAT'])
 addpath([tools_path,'Aforc_ECMWF'])
