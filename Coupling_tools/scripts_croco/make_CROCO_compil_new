@@ -1,0 +1,100 @@
+#!/bin/bash -e
+
+# --------------------------------------------------
+# Script to compile CROCO in coupled and uncoupled modes
+# --------------------------------------------------
+#
+# Further Information:   
+# http://www.croco-ocean.org
+#  
+# This file is part of CROCOTOOLS
+#
+# CROCOTOOLS is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation; either version 2 of the License,
+# or (at your option) any later version.
+#
+# CROCOTOOLS is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+# MA  02111-1307  USA
+#
+# Copyright (c) 2018 S. Jullien
+# swen.jullien@ifremer.fr
+# --------------------------------------------------
+
+#=========================================================================
+#=======================  USER CHANGES  ==================================
+#=========================================================================
+source ~/croco_env.sh
+source ../run_env
+
+# define environment variables for compiling CROCO
+# if not defined, default settings in jobcomp will be applied
+export CROCO_NETCDFLIB=$(nf-config --flibs)
+export CROCO_NETCDFINC=-I$(nf-config --includedir)
+export CROCO_PRISM_ROOT_DIR=$oasisdir
+#export CROCO_XIOS_ROOT_DIR=  : XIOS directory
+
+# mpi compiler
+change_compiler=1
+export MPIF90=$MPIF90
+need_mt_mp_flag=1
+
+# if your compilation fails with oasis, try this flag:
+flag_add_netcdf_after_oasis=1
+
+# define your cppdefs.h extension to be compiled
+my_compil_cases=(frc \
+                 oa)
+
+#=========================================================================
+#====================== END USER CHANGES  ================================
+#=========================================================================
+
+# replace CROCO source directory in jobcomp:
+sed -i -e "s#SOURCE=../../croco/OCEAN#SOURCE=${croco}/croco/OCEAN#g" jobcomp
+
+if [ $change_compiler == 1 ]; then
+  # replace MPI compiler in jobcomp:
+  sed -i -e 's#MPIF90="mpif90"#MPIF90="$MPIF90"#g' jobcomp
+fi
+
+if [ $need_mt_mp_flag == 1 ]; then
+  # replace compilation flags in jobcomp:
+  sed -i -e '#FFLAGS1="-O3 -fno-alias -i4 -r8 -fp-model precise -mcmodel=medium"#FFLAGS1="-O3 -fno-alias -i4 -r8 -fp-model precise -mcmodel=medium -mt_mpi"#g' jobcompi
+fi
+
+# if necessary add additional netcdf lib and include flags after oasis ones
+if [ $flag_add_netcdf_after_oasis == 1 ]; then
+
+sed -i -e 's/LDFLAGS1="$LDFLAGS1 $LIBPSMILE"/LDFLAGS1="$LDFLAGS1 $LIBPSMILE $NETCDFLIB"/g' \
+    -i -e 's/CPPFLAGS1="$CPPFLAGS1 ${PSMILE_INCDIR}"/CPPFLAGS1="$CPPFLAGS1 ${PSMILE_INCDIR} $NETCDFINC"/g' \
+    -i -e 's/FFLAGS1="$FFLAGS1 ${PSMILE_INCDIR}"/FFLAGS1="$FFLAGS1 ${PSMILE_INCDIR} $NETCDFINC"/g' jobcomp
+
+fi
+
+# Count number of cases to compile
+NB_cases=${#my_compil_cases[@]}
+
+# Loop on compil cases
+for k in `seq 0 $(( ${NB_cases} - 1))` ; do
+
+    mycase=${my_compil_cases[$k]}
+
+    # Check if cppdefs.h.$mycase file is available
+    if [ ! -e cppdefs.h.$mycase ]; then
+        echo 'ERROR cppdefs.h.'$mycase' file does not exist'
+        exit 1
+    fi
+    ln -sf cppdefs.h.$mycase cppdefs.h
+    ./jobcomp &> jobcomp.log.$mycase
+    mv -f croco croco.$mycase
+
+done
+
