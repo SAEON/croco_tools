@@ -24,7 +24,7 @@
 %  MA  02111-1307  USA
 %
 %
-%  July 2013: G.Cambon (IRD/LEGOS) & M. Herrmann (IRD/LEGOS)
+%  July 2013: G. Cambon (IRD/LEGOS) & M. Herrmann (IRD/LEGOS)
 %
 clear all
 close all
@@ -33,8 +33,7 @@ close all
 crocotools_param
 
 %#Choose the grid level into which you ant to set up the runoffs
-gridlevel=1
-
+gridlevel=0
 if ( gridlevel == 0 ) 
     % #-> Parent / zoom #O 
     grdname  = [CROCO_files_dir,'croco_grd.nc'];
@@ -46,8 +45,25 @@ else
     rivname =  [CROCO_files_dir,'croco_runoff.nc.',num2str(gridlevel)];
     clmname = [CROCO_files_dir,'croco_clm.nc.',num2str(gridlevel)]; % <- climato file for runoff                             
 end
+%% Choose the monthly runoff forcing time and cycle in days
+
+clim_run=0
+
+%% clim_run =1 
+%%     => climato experiment month of 30 days : qbar_time=[15:15:360] / qbar_cycle=360
+%% clim_run = 0
+%%     =>  interannual experiment with real calendar
+%%     qbar_time=[15.2188:30.4375:350.0313]/ qbar_cycle=365.25;
+
+if (clim_run == 1)
+    qbar_time=[15:30:365]; 
+    qbar_cycle=360; 
+else
+    qbar_time=[15.2188:30.4375:350.0313];
+    qbar_cycle=365.25;
+end
 %%
-plotting=1;
+plotting=0;
 plotting_zoom=0;
 %%
 psource_ts=1;
@@ -466,7 +482,7 @@ else
                           % equation of state
                 disp(['  Use psource_ts_auto using S = sclim -10 '])
                 disp(['  Check line 464 in make_runoff.m to change ' ...
-                       'this abitrary runoff salinity'])
+                       'this arbitrary runoff salinity'])
                 %%S=2;
                 my_salt_src0(k,:)=S';
                 if makebio==1

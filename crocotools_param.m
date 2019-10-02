@@ -357,7 +357,7 @@ SPIN_Long     = 0;             % SPIN-UP duration in Years
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-Download_data = 1;   % Get data from OPENDAP sites  
+Download_data = 0;   % Get data from OPENDAP sites  
 level         = 0;   % AGRIF level; 0 = parent grid
 %					  
 NCEP_version  = 3;   % NCEP version: 
@@ -373,9 +373,15 @@ NCEP_version  = 3;   % NCEP version:
 %
 % NCEP data directory for files downloaded via opendap
 %
-NCEP_dir= [FORC_DATA_DIR,'CFSR_',CROCO_config,'/']; % CFSR data directory [in a "croco_tools" format]
+if NCEP_version  == 1;
+  NCEP_dir= [FORC_DATA_DIR,'NCEP1_',CROCO_config,'/']; 
+elseif NCEP_version  == 2;
+  NCEP_dir= [FORC_DATA_DIR,'NCEP2_',CROCO_config,'/'];
+elseif NCEP_version  == 3;
+  %NCEP_dir= [FORC_DATA_DIR,'CFSR_',CROCO_config,'/']; % CFSR data directory [in a "croco" format]
+  NCEP_dir= '/home/datawork-croco/datarmor-only/DATA/METEOROLOGICAL_FORCINGS/CFSR/BENGUELA/CROCO_format/';
 end
-makefrc      = 1;       % 1: create forcing files
+makefrc      = 0;       % 1: create forcing files
 makeblk      = 1;       % 1: create bulk files
 QSCAT_blk    = 0;       % 1: a) correct NCEP frc/bulk files with
                         %        u,v,wspd fields from daily QSCAT data
@@ -391,9 +397,7 @@ itolap_ncep  = 8;      % 8 records for 4-daily NCEP
 % Options for make_QSCAT_daily and make_QSCAT_clim   
 %--------------------------------------------------
 %
-QSCAT_dir        = [FORC_DATA_DIR,'QSCAT_',CROCO_config,'/']; % QSCAT
-                                                              % data
-                                                              % directory [processed into a "croco_tools" format]
+QSCAT_dir        = [FORC_DATA_DIR,'QSCAT_',CROCO_config,'/']; % QSCAT data directory [processed into a "croco" format]
 QSCAT_frc_prefix = [frc_prefix,'_QSCAT_'];                   %  generic file name
                                                              %  for interannual simulations
 QSCAT_clim_file  = [DATADIR,'QuikSCAT_clim/',...             % QuikSCAT climatology file
@@ -403,9 +407,11 @@ QSCAT_clim_file  = [DATADIR,'QuikSCAT_clim/',...             % QuikSCAT climatol
 %  Options for make_ECMWF and make_ECMWF_daily  
 %--------------------------------------------------
 %
-ECMWF_dir= [FORC_DATA_DIR,'ECMWF_',CROCO_config,'/'];  % ERA-I data directory [processed into a "crocotools" format]
-My_ECMWF_dir=[FORC_DATA_DIR,'ERAI/'];                  % ERA-Inative native data downloaded with python script
-itolap_ecmwf = 3;                                       % 3 records for daily  ECMWF
+%ECMWF_dir= [FORC_DATA_DIR,'ECMWF_',CROCO_config,'/'];  % ERA-I data directory [processed into a "croco" format]
+%My_ECMWF_dir=[FORC_DATA_DIR,'ERAI/'];                  % ERA-I native native data downloaded with python script
+ECMWF_dir= ['/home/datawork-croco/datarmor-only/METEOROLOGICAL_FORCINGS/BENGUELA/CROCO_format/6h/'];
+My_ECMWF_dir=['/home/datawork-croco/datarmor-only/METEOROLOGICAL_FORCINGS/BENGUELA/NATIVE_format/6h/'];
+itolap_ecmwf = 3;                                       %3 records for daily  ECMWF
 % 
 %
 %-----------------------
@@ -416,6 +422,7 @@ OGCM        = 'SODA';        % Select the OGCM: SODA, ECCO
 %
 OGCM_dir    = [FORC_DATA_DIR,OGCM,'_',CROCO_config,'/'];  % OGCM data directory
                                                           % [processed into a "crocotools" format]
+OGCM_dir    = '/home/datawork-croco/datarmor-only/DATA/3D_OCEAN_FORCING/SODA/BENGUELA/'
 
 bry_prefix  = [CROCO_files_dir,'croco_bry_',OGCM,'_'];    % generic boundary file name
 clm_prefix  = [CROCO_files_dir,'croco_clm_',OGCM,'_'];    % generic climatology file name
