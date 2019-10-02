@@ -127,7 +127,7 @@ Roa=0;
 %
 interp_method = 'cubic';         % Interpolation method: 'linear' or 'cubic'
 %
-makeplot     = 1;                 % 1: create a few graphics after each preprocessing step
+makeplot     = 0;                 % 1: create a few graphics after each preprocessing step
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -138,7 +138,8 @@ makeplot     = 1;                 % 1: create a few graphics after each preproce
 %
 %  CROCOTOOLS directory
 %
-CROCOTOOLS_dir = '../';
+%CROCOTOOLS_dir = '../';
+CROCOTOOLS_dir = [getenv('tools') '/'];
 %
 %  Run directory
 %
@@ -150,11 +151,13 @@ CROCO_files_dir=[RUN_dir,'CROCO_FILES/'];
 %
 %  Global data directory (etopo, coads, datasets download from ftp, etc..)
 %
-DATADIR='../../croco_tools/'; 
+%DATADIR='../../croco_tools/'; 
+DATADIR=[getenv('CROCO_DIR') '/DATA/DATASETS_CROCOTOOLS/'];
 %
 %  Forcing data directory (ncep, quikscat, datasets download with opendap, etc..)
 %
-FORC_DATA_DIR = [RUN_dir,'DATA/'];
+%FORC_DATA_DIR = [RUN_dir,'DATA/'];
+FORC_DATA_DIR = [getenv('CROCO_DIR') '/DATA/'];
 %
 if (isoctave == 0)
 	eval(['!mkdir ',CROCO_files_dir])
@@ -168,6 +171,7 @@ grdname  = [CROCO_files_dir,'croco_grd.nc'];
 frcname  = [CROCO_files_dir,'croco_frc.nc'];
 blkname  = [CROCO_files_dir,'croco_blk.nc'];
 clmname  = [CROCO_files_dir,'croco_clm.nc'];
+
 bryname  = [CROCO_files_dir,'croco_bry.nc'];
 ininame  = [CROCO_files_dir,'croco_ini.nc'];
 bioname  = [CROCO_files_dir,'croco_frcbio.nc']; % Iron Dust forcing for PISCES
@@ -283,21 +287,29 @@ woa_cycle=360;        % repetition of a typical year of 360 days
 %woa_cycle=365.25;                    % of QSCAT experiments with 
 %                                     % climatological boundary conditions
 %
-%   Set times and cycles for runoff conditions:
-%   monthly climatology
+% For RIVER FORCING : 
+% =================
+%  Go in the routine Rivers/make_runoff.m to setup your options as 
+%   
+%     - times and cycles for runoff conditions:        
+%           - clim_run = 1 % climato forcing experiments with climato calendar 
+%                     qbar_time=[15:30:365]; 
+%                     qbar_cycle=360; 
+%         
+%           - clim_run = 0 % interanual forcing experiments with real calendar 
+%                     qbar_time=[15.2188:30.4375:350.0313];
+%                     qbar_cycle=365.25;
 %
-qbar_time=[15:30:365]; 
-qbar_cycle=360;
-%
-%   Tracer runoff concentration processing flag
-%     pource_ts = 1  => Runoff tracers concentration processing is activated. 
-%                       It needs the climatology file created with make_clim.m
-%     psource_ts = 0 => No Runoff tracers concentration processing 
-%                       It reads analytical values in croco.in 
-%                       or use default value defined in analytical.F
-%
-psource_ts=0; 
-%  
+%     - Tracer runoff concentration processing flag
+%          - pource_ts = 1  => Runoff tracers concentration processing is activated. 
+%                            It needs the climatology file created with make_clim.m
+%          - psource_ts = 0 => No Runoff tracers concentration processing 
+%                            It reads analytical values in croco.in 
+%                            or use default value defined in
+%                            analytical.F
+%          - psource_ts_auto / psource_ts_manual
+%          - define_dir= [0 or 1]
+%        
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % 5 - Parameters for tidal forcing
@@ -339,8 +351,8 @@ Z0   =  1;       % Mean depth of tide gauge
 Yorig         = 2000;          % reference time for vector time
                                % in croco initial and forcing files
 %
-Ymin          = 2000;          % first forcing year
-Ymax          = 2000;          % last  forcing year
+Ymin          = 2005;          % first forcing year
+Ymax          = 2005;          % last  forcing year
 Mmin          = 1;             % first forcing month
 Mmax          = 3;             % last  forcing month
 %
