@@ -1,0 +1,408 @@
+#!/bin/bash -e
+
+# --------------------------------------------------
+#
+# Script to launch coupled simulations with WRF, WW3 and CROCO 
+#
+# --------------------------------------------------
+#
+# Further Information:   
+# http://www.croco-ocean.org
+#  
+# This file is part of CROCOTOOLS
+#
+# CROCOTOOLS is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published
+# by the Free Software Foundation; either version 2 of the License,
+# or (at your option) any later version.
+#
+# CROCOTOOLS is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+# MA  02111-1307  USA
+#
+# Copyright (c) 2018 S. Jullien
+# swen.jullien@ifremer.fr
+# --------------------------------------------------
+
+#=========================================================================
+#=======================  USER CHANGES  ==================================
+#=========================================================================
+
+# source file exporting paths 
+# for the configuration
+# ----------------------------
+source run_env
+
+# Path of working directory 
+#(where the simulations are launched)
+# ----------------------------
+export MYWORKDIR=$wconf/outputs_cpl_oa
+# flag for cleaning working dir or not
+flag_clean=1
+
+# Simulation type and models 
+# (named as in namcouple)
+# ----------------------------
+RUN=oa
+#
+# "no" if no model
+mod1=wrfexe
+mod2=crocox
+
+#
+# Number of CPUs for each model
+# ----------------------------
+NBPROC_1=$1
+NBPROC_2=$2
+
+# on DATARMOR with MPT
+mpirun_cmd="$MPI_LAUNCH -np $NBPROC_1 $mod1 : -np $NBPROC_2 $mod2"
+# on DATARMOR with INTEL
+#mpirun_cmd="$MPI_LAUNCH -n $NBPROC_1 $mod1 : -n $NBPROC_2 $mod2"
+# on ADA
+#mpirun_cmd="poe -pgmmodel MPMD -cmdfile ./run_file"
+
+# Runtime Settings
+# ----------------------------
+yr1=2009 ; mo1=01 ; dy1=01 ; hr1=00
+#yr2=2009 ; mo2=02 ; dy2=01 ; hr2=00
+#runtime=$((31*24*3600))
+yr2=2009 ; mo2=01 ; dy2=11 ; hr2=00
+runtime=$((10*24*3600))
+
+# Time Steps
+# ----------------------------
+atmdt=150
+ocedt=3600 ; ocendtfast=60 ; ocentimes=$((${runtime}/${ocedt}))
+cpldt=3600
+
+# Grids sizes
+# ----------------------------
+atmnx=56 ; atmny=50
+ocenx=41 ; oceny=42
+hmin=75; # minimum water depth in CROCO, delimiting coastline in WW3 
+
+# Outputs Settings
+# ----------------------------
+# WRF
+wrf_rst_flag=false                 # start from restart ?
+wrf_rst_h=24                       # restart interval (h)
+wrf_his_h=1                        # output interval (h)
+wrf_his_frames=$((31*24))          # nb of outputs per file
+wrf_diag_int_m=$((${wrf_his_h}*60))  # diag output interval (m)
+wrf_diag_frames=$wrf_his_frames    # nb of diag outputs per file
+
+# CROCO
+oce_nrst=24    # restart interval (in number of timesteps) 
+oce_nhis=1     # history output interval (in number of timesteps) 
+oce_navg=1     # average output interval (in number of timesteps) 
+
+# MPI Settings for WRF (see WRF namelist documentation README.namelist in real_in directory)
+wrf_nprocX=-1      # -1 for automatic settings
+wrf_nprocY=-1      # -1 for automatic settings
+wrf_niotaskpg=0    # 0 for default settings
+wrf_niogp=1        # 1 for default settings
+
+# Paths for executables
+# ----------------------------
+export WRF_EXE_DIR=$wrf/exe_coupled
+export CROCO_EXE_DIR=$PWD/croco_in
+
+# Namelist files
+# ----------------------------
+# OASIS namcouple
+namcouplename=namcouple.base.${RUN}
+#namcouplename=namcouple.base.${RUN}.toyatm
+
+# WRF namelist
+wrfnamelist=namelist.input.prep.BENGUELA.${RUN}
+
+# WRF coupled domain(s) (set cplmask to 1 in the following domain(s))
+# set to empty if you have already defined your cplmask variable by yourself
+wrfcpldom='d01'
+
+# OASIS restart files
+# ----------------------------
+# flag for creating restart from calm coniditons (1) or not (0)
+# if not, atm.nc, wav.nc and oce.nc restart files have to exist in OASIS_FILES_DIR
+flag_restart=1
+
+# Inputs Settings
+# ----------------------------
+
+# WRF
+#-----
+# date in WRF input files
+date='2009_01_2009_12'
+# number of WRF domains
+nb_dom=1
+# is nudging activated?
+nudge=0
+
+# CROCO
+#-------
+# suffix for CROCO executable
+crocosuffix=".${RUN}"
+# list of CROCO input files
+inputlist='ini bry frc'
+# suffix for CROCO input files
+datesuffix=''
+datesuffixcfsr='_Y20??M*'
+# if online interpolation of atmospheric fields is used
+interponline=0
+
+#=========================================================================
+#=======================  END USER CHANGES  ==============================
+#=========================================================================
+
+## ---------------------------- #
+## - Create and Clean Workdir - #
+## ---------------------------- #
+
+if ! [ -e $MYWORKDIR ] ; then
+ echo 'create working directory: '$MYWORKDIR
+ mkdir $MYWORKDIR
+elif [ $flag_clean == 1 ] ; then
+ echo 'clean working directory: '$MYWORKDIR
+ rm -Rf $MYWORKDIR/*
+fi
+
+## -------------------- #
+## - Copy executables - #
+## -------------------- #
+
+if [ $mod1 = wrfexe -o $mod2 = wrfexe -o $mod3 = wrfexe ] ; then
+ echo 'copy wrf executables'
+ cp -f $WRF_EXE_DIR/wrf.exe $MYWORKDIR/wrfexe
+fi
+if [ $mod1 = crocox -o $mod2 = crocox -o $mod3 = crocox ] ; then
+ echo 'copy croco executables'
+ cp -f $CROCO_EXE_DIR/croco$crocosuffix $MYWORKDIR/crocox
+fi
+
+if [ $mod1 = wrfexe -o $mod2 = wrfexe -o $mod3 = wrfexe ] ; then
+ ## ------------------------ #
+ ## - Copy wrf input files - #
+ ## ------------------------ #
+
+ echo ' '
+ echo '-- WRF inputs --------------'
+ echo 'link wrf input files'
+ filelist='wrfinput_d01 wrflowinp_d01 wrfbdy_d01'
+ if [ $nb_dom -ge 2 ] ; then
+  filelist="$filelist wrfinput_d02 wrflowinp_d02"
+  if [ $nb_dom -eq 3 ] ; then
+   filelist="$filelist wrfinput_d03 wrflowinp_d03"
+  fi
+ fi
+ if [ $nudge -eq 1 ] ; then
+  filelist="$filelist wrffdda_d01"
+ fi
+ for file in $filelist 
+ do
+  echo "ln -sf ${WRF_FILES_DIR}/${file}_${date} $MYWORKDIR/$file"
+  ln -sf ${WRF_FILES_DIR}/${file}_${date} $MYWORKDIR/$file
+ done
+
+ if [ ! -z $wrfcpldom ] ; then
+  for dom in $wrfcpldom ; do
+   echo 'set CPLMASK to 1 in coupled domain'$dom
+   echo "ncap2 -O -s 'CPLMASK(:,0,:,:)=(LANDMASK-1)*(-1)' $MYWORKDIR/wrfinput_$dom $MYWORKDIR/wrfinput_$dom"
+   ncap2 -O -s "CPLMASK(:,0,:,:)=(LANDMASK-1)*(-1)" $MYWORKDIR/wrfinput_$dom $MYWORKDIR/wrfinput_$dom
+  done
+ fi
+
+ # link data files necessary for running wrf in a dedicated directory $wrf/data
+ if [ ! -d $wrf/data ] ; then
+  mkdir $wrf/data
+  ln -s $wrf/run/* $wrf/data/.
+  # remove executables that could exist and namelist file
+  rm -f $wrf/data/*.exe
+  rm -f $wrf/data/namelist.input*
+ fi
+ echo 'link wrf data files'
+ echo "ln -sf ${wrf}/data/* $MYWORKDIR/."
+ ln -sf ${wrf}/data/* $MYWORKDIR/.
+
+ # Fill WRF namelist file:
+ #  this replaces strings in <...> in namelist.input.base by values according to user settings 
+ #  in the USER CHANGE section
+ echo 'fill wrf namelist file'
+
+sed -e "s/<yr1>/$yr1/g"   -e "s/<yr2>/$yr2/g"  \
+    -e "s/<mo1>/$mo1/g"   -e "s/<mo2>/$mo2/g"  \
+    -e "s/<dy1>/$dy1/g"   -e "s/<dy2>/$dy2/g"  \
+    -e "s/<hr1>/$hr1/g"   -e "s/<hr2>/$hr2/g"  \
+    -e "s/<rst>/$wrf_rst_flag/g"              -e "s/<rst_int_h>/$wrf_rst_h/g"            \
+    -e "s/<his_int_h>/${wrf_his_h}/g"         -e "s/<his_nb_out>/${wrf_his_frames}/g"    \
+    -e "s/<xtrm_int_m>/${wrf_diag_int_m}/g"   -e "s/<xtrm_nb_out>/${wrf_diag_frames}/g"  \
+    -e "s/<nproc_x>/$wrf_nprocX/g"            -e "s/<nproc_y>/$wrf_nprocY/g"             \
+    -e "s/<niotaskpg>/$wrf_niotaskpg/g"       -e "s/<niogp>/$wrf_niogp/g"                \
+    -e "s/<dt>/${atmdt}/g"                    \
+    $WRF_IN_DIR/${wrfnamelist} > $MYWORKDIR/namelist.input
+
+ if [ -f $WRF_IN_DIR/myoutfields.txt ]; then
+  echo 'copy myoutfields.txt file'
+  cp -f $WRF_IN_DIR/myoutfields.txt $MYWORKDIR/.
+ fi
+
+fi
+
+if [ $mod1 = crocox -o $mod2 = crocox -o $mod3 = crocox ] ; then
+ ## -------------------------- #
+ ## - Copy CROCO input files - #
+ ## -------------------------- #
+
+ echo ' '
+ echo '-- CROCO inputs --------------'
+ echo 'copy croco settings files'
+ cp -f $CROCO_EXE_DIR/cppdefs.h${crocosuffix} $MYWORKDIR/.
+ cp -f $CROCO_EXE_DIR/param.h $MYWORKDIR/.
+
+ # Fill croco.in namelist file:
+ #  this replaces strings in <...> in croco.in.base by values according to user settings 
+ #  in the USER CHANGE section
+
+ echo 'fill namelist croco.in'
+
+sed -e "s/<ocentimes>/$ocentimes/g" -e "s/<ocedt>/$ocedt/g"       -e "s/<ocendtfast>/$ocendtfast/g" \
+    -e "s/<oce_nrst>/$oce_nrst/g"   -e "s/<oce_nhis>/$oce_nhis/g" -e "s/<oce_navg>/$oce_navg/g"     \
+    -e "s/<yr1>/$yr1/g"             -e "s/<mo1>/$mo1/g"           \
+    -e "s/<yr2>/$yr2/g"             -e "s/<mo2>/$mo2/g"           \
+    $CROCO_IN_DIR/croco.in.base > $MYWORKDIR/croco.in
+
+ echo 'link croco input files'
+ echo "ln -sf ${CROCO_FILES_DIR}/croco_grd.nc $MYWORKDIR/."
+ ln -sf ${CROCO_FILES_DIR}/croco_grd.nc $MYWORKDIR/.
+ for file in $inputlist ; do
+  echo "ln -sf ${CROCO_FILES_DIR}/croco_${file}${datesuffix}.nc $MYWORKDIR/croco_${file}.nc"
+  ln -sf ${CROCO_FILES_DIR}/croco_${file}${datesuffix}.nc $MYWORKDIR/croco_${file}.nc
+ done
+ if [ $interponline == 1 ] ; then
+  for varlist in Downward_Short-Wave_Rad_Flux_surface \
+                 Downward_Long-Wave_Rad_Flux \
+                 Upward_Long-Wave_Rad_Flux_surface \
+                 Upward_Short-Wave_Rad_Flux_surface \
+                 U-component_of_wind \
+                 V-component_of_wind \
+                 Precipitation_rate \
+                 Temperature_height_above_ground \
+                 Specific_humidity \
+                 Temperature_surface
+  do
+   echo "ln -sf ${CROCO_FILES_DIR}/*/${varlist}${datesuffixcfsr}.nc $MYWORKDIR/."
+   ln -sf ${CROCO_FILES_DIR}/*/${varlist}${datesuffixcfsr}.nc $MYWORKDIR/.
+  done
+ fi
+
+fi
+
+if [ $RUN != FRC ] ; then 
+
+ ## --------------------------------------- #
+ ## - Fill namcouple with times and grids - #
+ ##  this replaces strings in <...> in namcouple.base.oa 
+ ##  by values according to user settings 
+ ##  in the USER CHANGE section
+ ## --------------------------------------- #
+ echo ' '
+ echo '-- OASIS inputs --------------'
+ echo 'fill oasis namcouple'
+sed -e "s/<runtime>/$runtime/g" \
+    -e "s/<cpldt>/$cpldt/g"     \
+    -e "s/<atmdt>/$atmdt/g"   -e "s/<atmnx>/$atmnx/g"   -e "s/<atmny>/$atmny/g"  \
+    -e "s/<wavdt>/$wavdt/g"   -e "s/<wavnx>/$wavnx/g"   -e "s/<wavny>/$wavny/g"  \
+    -e "s/<ocedt>/$ocedt/g"   -e "s/<ocenx>/$ocenx/g"   -e "s/<oceny>/$oceny/g"  \
+    $OASIS_IN_DIR/inputs_oasis/$namcouplename > $MYWORKDIR/namcouple
+
+ ## ---------------------------------- #
+ ## - Create restart files for oasis - #
+ ## ---------------------------------- #
+
+ if [ $flag_restart == 1 ] ; then
+
+  echo 'copy oasis scripts'
+  cp -f $OASIS_IN_DIR/*.sh $MYWORKDIR/.
+
+  echo 'enter working directory'
+  cd $MYWORKDIR
+
+  if [ $mod1 = wrfexe -o $mod2 = wrfexe -o $mod3 = wrfexe ] ; then
+   varlist='WRF_d01_EXT_d01_SURF_NET_SOLAR WRF_d01_EXT_d01_EVAP-PRECIP WRF_d01_EXT_d01_SURF_NET_NON-SOLAR WRF_d01_EXT_d01_TAUX WRF_d01_EXT_d01_TAUY WRF_d01_EXT_d01_TAUMOD WRF_d01_EXT_d01_U_01 WRF_d01_EXT_d01_V_01'
+   echo 'create restart file for oasis from calm conditions for variables:'$varlist
+   ./create_oasis_restart_from_calm_conditions.sh wrfinput_d01 atm.nc wrf "$varlist"
+  fi
+
+  if [ $mod1 = crocox -o $mod2 = crocox -o $mod3 = crocox ] ; then
+   varlist='SRMSSTV0 SRMSSHV0 SRMVOCE0 SRMUOCE0'
+   echo 'create restart file for oasis from calm conditions for variables:'$varlist
+   ./create_oasis_restart_from_calm_conditions.sh croco_grd.nc oce.nc croco "$varlist"
+  fi
+
+  echo 'leave working directory'
+  cd -
+
+ else # - flag_restart
+
+  if [ $mod1 = wrfexe -o $mod2 = wrfexe -o $mod3 = wrfexe ] ; then
+   echo 'copy restart file for oasis: atm.nc'
+   cp -f ${OASIS_FILES_DIR}/atm.nc $MYWORKDIR
+  fi
+  if [ $mod1 = crocox -o $mod2 = crocox -o $mod3 = crocox ] ; then
+   echo 'copy restart file for oasis: oce.nc'
+   cp -f ${OASIS_FILES_DIR}/oce.nc $MYWORKDIR
+  fi
+
+ fi # - flag_restart
+
+ # grid files from WRF to OASIS (because oasis_grid is not yet implemented in WRF)
+ if [ $mod1 = wrfexe -o $mod2 = wrfexe -o $mod3 = wrfexe ] ; then
+  echo 'copy oasis scritpts into working dir'
+  cp -f $OASIS_IN_DIR/*.sh $MYWORKDIR/.
+  cd $MYWORKDIR
+  echo 'create grids.nc, masks.nc containing wrf grid for oasis'
+  ./create_oasis_grids_for_wrf.sh $MYWORKDIR/wrfinput_d01 ${OASIS_FILES_DIR}
+  cd -
+  echo 'copy grids.nc, masks.nc containing wrf grid'
+  cp -f ${OASIS_FILES_DIR}/grids.wrf.nc $MYWORKDIR/grids.nc
+  cp -f ${OASIS_FILES_DIR}/masks.wrf.nc $MYWORKDIR/masks.nc
+  #cp -f ${OASIS_FILES_DIR}/areas.wrf.nc $MYWORKDIR/areas.nc
+ fi
+
+fi
+## ------------- #
+## - Execution - #
+## ------------- #
+
+echo ' '
+echo '-- RUN section --------------'
+echo 'enter in the working directory'
+cd $MYWORKDIR
+pwd
+
+# Prepare MPI run command for poe
+if [ ${mpirun_cmd:0:2} == poe ] ; then
+ if [ $mod1 != no ] ; then
+  for nn in $(seq 1 $NBPROC_1); do
+   echo "./$mod1" >> run_file
+  done
+ fi
+ if [ $mod2 != no ] ; then
+  for nn in $(seq 1 $NBPROC_2); do
+   echo "./$mod2" >> run_file
+  done
+ fi
+ chmod +x run_file
+fi
+
+echo 'launch run: '$mpirun_cmd
+# RUN
+$mpirun_cmd
+
+

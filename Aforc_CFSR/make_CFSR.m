@@ -42,12 +42,8 @@ close all
 %
 crocotools_param
 %
-if NCEP_version==3
-    frc_prefix=[frc_prefix,'_CFSR_'];
-    blk_prefix=[blk_prefix,'_CFSR_'];
-else
-    error('MAKE_CFSR: wrong NCEP version')
-end
+frc_prefix=[frc_prefix,'_CFSR_'];
+blk_prefix=[blk_prefix,'_CFSR_'];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % end of user input  parameters
@@ -97,7 +93,7 @@ if Download_data==1
     disp('Download CFSR data with OPENDAP')
     disp(['===================='])
     download_CFSR(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,...
-        NCEP_dir,NCEP_version,Yorig,Get_My_Data,My_NCEP_dir)
+        NCEP_dir,NCEP_version,Yorig)
     disp(['====================='])
     disp(['DOWNLOAD STEP FINISH'])
     disp(['====================='])
@@ -262,7 +258,7 @@ if makefrc==1 | makeblk==1
             for aa=1:itolap_ncep
                 aa0=itolap_ncep-aa;
                 interp_CFSR(NCEP_dir,Ym,Mm,Roa,interp_method,lon1,lat1,...
-                    mask,tndx-aa0,nc_frc,nc_blk,lon,lat,angle,aa,Get_My_Data)
+                    mask,tndx-aa0,nc_frc,nc_blk,lon,lat,angle,aa)
             end
             %######################################################################
             %
@@ -280,7 +276,7 @@ if makefrc==1 | makeblk==1
                     disp(['Step: ',num2str(tndx),' of ',num2str(tlen0)])
                 end
                 interp_CFSR(NCEP_dir,Y,M,Roa,interp_method,lon1,lat1,...
-                    mask,tndx,nc_frc,nc_blk,lon,lat,angle,tndx+itolap_ncep,Get_My_Data)
+                    mask,tndx,nc_frc,nc_blk,lon,lat,angle,tndx+itolap_ncep)
             end
             
             disp(' ')
@@ -339,7 +335,7 @@ if makefrc==1 | makeblk==1
                     disp(['tin=',num2str(tin)])
                 end
                 interp_CFSR(NCEP_dir,Yp,Mp,Roa,interp_method,lon1,lat1,...
-                    mask,tin,nc_frc,nc_blk,lon,lat,angle,tout,Get_My_Data)
+                    mask,tin,nc_frc,nc_blk,lon,lat,angle,tout)
             end;
             %
             % Close the CROCO forcing files

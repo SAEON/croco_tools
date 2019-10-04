@@ -145,8 +145,7 @@ fi
 if [ -d "$oasisdir" ]; then
  echo 'define oasisdir dir as '$oasisdir
 else
- echo 'ERROR oasisdir: '$oasisdir' directory does not exist'
- exit 1
+ echo 'WARNING oasisdir: '$oasisdir' directory does not exist'
 fi
 
 if [ -d "$wrf" ]; then
@@ -170,8 +169,7 @@ fi
 if [ -d "$OASIS_FILES_DIR" ]; then
  echo 'define OASIS_FILES_DIR dir as '$OASIS_FILES_DIR
 else
- echo 'ERROR OASIS_FILES_DIR: '$OASIS_FILES_DIR' directory does not exist'
- exit 1
+ echo 'WARNING OASIS_FILES_DIR: '$OASIS_FILES_DIR' directory does not exist'
 fi
 
 if [ -d "$WRF_FILES_DIR" ]; then
@@ -195,8 +193,7 @@ fi
 if [ -d "$OASIS_IN_DIR" ]; then
  echo 'define OASIS_IN_DIR dir as '$OASIS_IN_DIR
 else
- echo 'ERROR OASIS_IN_DIR: '$OASIS_IN_DIR' directory does not exist'
- exit 1
+ echo 'WARNING OASIS_IN_DIR: '$OASIS_IN_DIR' directory does not exist'
 fi
 
 if [ -d "$WRF_IN_DIR" ]; then

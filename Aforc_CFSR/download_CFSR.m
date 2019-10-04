@@ -1,5 +1,5 @@
 function download_CFSR(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,...
-                       NCEP_dir,NCEP_version,Yorig,Get_My_Data,My_NCEP_dir)
+                       NCEP_dir,Yorig)
 %
 %clear all
 %close all
@@ -14,47 +14,40 @@ if nargin < 1
   latmin=-34;
   latmax=-32;
   NCEP_dir='DATA/CFSR/';
-  NCEP_version=3;
-  Get_My_Data=0;
-  My_NCEP_dir='../CFSR/';
 end
 %
 % Definitions of names and directories
 %
-if NCEP_version==3
 %
 % Definitions of names and directories for NCEP1
 %
 %ncep_url='https://nomads.ncdc.noaa.gov/thredds/dodsC/modeldata/cmd_flxf/1979/197901/19790101/flxf00.gdas.1979010100.grb2';
-  ncep_url='https://nomads.ncdc.noaa.gov/thredds/dodsC/modeldata/cmd_flxf/';
-  vnames={'Land_cover_1land_2sea' ...    % surface land-sea mask [1=land; 0=sea]
-      'Temperature_height_above_ground' ...      % 2 m temp. [k]
-      'Downward_Long-Wave_Rad_Flux' ...   % surface downward long wave flux [w/m^2]
-      'Upward_Long-Wave_Rad_Flux_surface'   ...   % surface upward long wave flux [w/m^2]
-      'Temperature_surface' ...     % surface temp. [k]
-      'Downward_Short-Wave_Rad_Flux_surface' ...   % surface downward solar radiation flux [w/m^2]
-      'Upward_Short-Wave_Rad_Flux_surface' ...   % surface upward solar radiation flux [w/m^2]
-      'Precipitation_rate' ...   % surface precipitation rate [kg/m^2/s]
-      'U-component_of_wind' ...    % 10 m u wind [m/s]
-      'V-component_of_wind' ...    % 10 m v wind [m/s]
-      'Specific_humidity'};       % 2 m specific humidity [kg/kg]
-
-  vnames2={'Land_cover_1land_2sea' ...    % surface land-sea mask [1=land; 0=sea]
-      'Temperature_height_above_ground' ...      % 2 m temp. [k]
-      'Downward_Long_2dWave_Rad_Flux' ...   % surface downward long wave flux [w/m^2]
-      'Upward_Long_2dWave_Rad_Flux_surface' ...   % surface upward longwave flux [w/m^2]
-      'Temperature_surface' ...     % surface temp. [k]
-      'Downward_Short_2dWave_Rad_Flux_surface' ...   % surface downward solar radiation flux [w/m^2]
-      'Upward_Short_2dWave_Rad_Flux_surface' ...   % surface upward solar radiation flux [w/m^2]
-      'Precipitation_rate' ...   % surface precipitation rate [kg/m^2/s]
-      'U_2dcomponent_of_wind' ...    % 10 m u wind [m/s]
-      'V_2dcomponent_of_wind' ...    % 10 m v wind [m/s]
-      'Specific_humidity'};       % 2 m specific humidity [kg/kg]
-  %       lan  temp down up temp down up pre  uwind   vwind    sh
-  level={'' '[0:0]' '' ''  ''   ''  ''  '' '[0:0]' '[0:0]' '[0:0]'};
-else
-  error('Wrong NCEP version')
-end
+ncep_url='https://nomads.ncdc.noaa.gov/thredds/dodsC/modeldata/cmd_flxf/';
+vnames={'Land_cover_1land_2sea' ...    % surface land-sea mask [1=land; 0=sea]
+        'Temperature_height_above_ground' ...      % 2 m temp. [k]
+        'Downward_Long-Wave_Rad_Flux' ...   % surface downward long wave flux [w/m^2]
+        'Upward_Long-Wave_Rad_Flux_surface'   ...   % surface upward long wave flux [w/m^2]
+        'Temperature_surface' ...     % surface temp. [k]
+        'Downward_Short-Wave_Rad_Flux_surface' ...   % surface downward solar radiation flux [w/m^2]
+        'Upward_Short-Wave_Rad_Flux_surface' ...   % surface upward solar radiation flux [w/m^2]
+        'Precipitation_rate' ...   % surface precipitation rate [kg/m^2/s]
+        'U-component_of_wind' ...    % 10 m u wind [m/s]
+        'V-component_of_wind' ...    % 10 m v wind [m/s]
+        'Specific_humidity'};       % 2 m specific humidity [kg/kg]
+  
+vnames2={'Land_cover_1land_2sea' ...    % surface land-sea mask [1=land; 0=sea]
+         'Temperature_height_above_ground' ...      % 2 m temp. [k]
+         'Downward_Long_2dWave_Rad_Flux' ...   % surface downward long wave flux [w/m^2]
+         'Upward_Long_2dWave_Rad_Flux_surface' ...   % surface upward longwave flux [w/m^2]
+         'Temperature_surface' ...     % surface temp. [k]
+         'Downward_Short_2dWave_Rad_Flux_surface' ...   % surface downward solar radiation flux [w/m^2]
+         'Upward_Short_2dWave_Rad_Flux_surface' ...   % surface upward solar radiation flux [w/m^2]
+         'Precipitation_rate' ...   % surface precipitation rate [kg/m^2/s]
+         'U_2dcomponent_of_wind' ...    % 10 m u wind [m/s]
+         'V_2dcomponent_of_wind' ...    % 10 m v wind [m/s]
+         'Specific_humidity'};       % 2 m specific humidity [kg/kg]
+                                     %       lan  temp down up temp down up pre  uwind   vwind    sh
+level={'' '[0:0]' '' ''  ''   ''  ''  '' '[0:0]' '[0:0]' '[0:0]'};
 
 %
 %Common OpenDAP FTP
@@ -121,8 +114,8 @@ for k=1:length(vnames)
     disp(['=========================='])
 %
     [i1min,i1max,i2min,i2max,i3min,i3max,jrange,jmin,jmax,lon,lat]=...
-        get_NCEP_grid([ncep_url,catalog],...
-                      lonmin,lonmax,latmin,latmax,Get_My_Data);	     
+        get_CFSR_grid([ncep_url,catalog],...
+                      lonmin,lonmax,latmin,latmax);	     
     lat=flipud(lat);     % latitude inversion in CFSR
 %
     disp('GET LAND MASK');

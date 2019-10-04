@@ -49,18 +49,18 @@ meanflow=nanmean(FLOW_clm(:,:),1)'; % pour les autres
 %plot(meanflow)
 %size(maxflow)
 
-%%% => by default : all rivers in the domain 
-%rivdetectype='DEFAULT';
-%my_riv=find(latriv_mou>=minlat & latriv_mou<=maxlat & lonriv_mou >= minlon & lonriv_mou <= maxlon);
-%
-%%% => megatl : rivers in the boxes + max value >= 20%*max val of the flow amazonia peak)
-rivdetectype='MEGATL';
-%thold=0.1;
-thold=0.03;
-%thold=0.01;
-%my_riv=find(latriv_mou>=minlat & latriv_mou<=maxlat & lonriv_mou >= minlon & lonriv_mou <= maxlon & maxflow >= thold.*maxmaxflow);
-my_riv=find(latriv_mou>=minlat & latriv_mou<=maxlat & lonriv_mou >= minlon & lonriv_mou <= maxlon & meanflow >= thold.*meanflowmax);
+%==========================================================================================================
+%% => by default : all rivers in the domain 
+rivdetectype='DEFAULT';
+my_riv=find(latriv_mou>=minlat & latriv_mou<=maxlat & lonriv_mou >= minlon & lonriv_mou <= maxlon);
 
+%==
+
+% => megatl : rivers in the boxes + max value >= 20%*max val of the flow amazonia peak)
+%rivdetectype='MEGATL';
+%thold=0.1;
+%thold=0.03;
+%my_riv=find(latriv_mou>=minlat & latriv_mou<=maxlat & lonriv_mou >= minlon & lonriv_mou <= maxlon & meanflow >= thold.*meanflowmax);
 %========================================
 %
 disp(['There are ',num2str(length(my_riv)),' rivers in the domain : '])

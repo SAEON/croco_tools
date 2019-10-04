@@ -24,20 +24,53 @@
 %  MA  02111-1307  USA
 %
 %
-%  July 2013: G.Cambon (IRD/LEGOS) & M. Herrmann (IRD/LEGOS)
+%  July 2013: G. Cambon (IRD/LEGOS) & M. Herrmann (IRD/LEGOS)
 %
 clear all
 close all
 %%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
 %%
 crocotools_param
+
+%#Choose the grid level into which you ant to set up the runoffs
+gridlevel=0
+if ( gridlevel == 0 ) 
+    % #-> Parent / zoom #O 
+    grdname  = [CROCO_files_dir,'croco_grd.nc'];
+    rivname =  [CROCO_files_dir,'croco_runoff.nc']
+    clmname = [CROCO_files_dir,'croco_clm.nc'];    % <- climato file for runoff
+else 
+    % # -> Child / zoom #XX
+    grdname  = [CROCO_files_dir,'croco_grd.nc.',num2str(gridlevel)];
+    rivname =  [CROCO_files_dir,'croco_runoff.nc.',num2str(gridlevel)];
+    clmname = [CROCO_files_dir,'croco_clm.nc.',num2str(gridlevel)]; % <- climato file for runoff                             
+end
+%% Choose the monthly runoff forcing time and cycle in days
+
+clim_run=0
+
+%% clim_run =1 
+%%     => climato experiment month of 30 days : qbar_time=[15:15:360] / qbar_cycle=360
+%% clim_run = 0
+%%     =>  interannual experiment with real calendar
+%%     qbar_time=[15.2188:30.4375:350.0313]/ qbar_cycle=365.25;
+
+if (clim_run == 1)
+    qbar_time=[15:30:365]; 
+    qbar_cycle=360; 
+else
+    qbar_time=[15.2188:30.4375:350.0313];
+    qbar_cycle=365.25;
+end
 %%
-plotting=1;
-plotting_zoom=1;
+plotting=0;
+plotting_zoom=0;
 %%
-psource_ts=0;
-psource_ts_auto=1;
-psource_ts_manual=0; 
+psource_ts=1;
+if psource_ts
+    psource_ts_auto=1 ;
+    psource_ts_manual=0;
+end
 %%
 if (makenpzd | makepisces | makebioebus)     makebio = 1;
 else     
@@ -48,9 +81,6 @@ disp(' ')
 disp(['Create runoff forcing from Dai and Trenberth''s global monthly climatological run-off dataset'])
 disp(' ')
 title_name='runoff forcing file (Dai and Trenberth, 2002 dataset)'
-%%
-plotting=1;
-plotting_zoom=1;
 %%
 define_dir=0 ;  %%->flag to define directly the orientation / direction of the runoff
 %%
@@ -447,9 +477,13 @@ else
                 %%
                 %% For salinity ... ?
                 %%
-% $$$                     S=squeeze(ncclim{'salt'}(:,N,J(k)+1,I(k)+1))-10; % hum...
-% $$$                     S(S<2)=2; % to prevent negative salinities in the equation of state
-                S=2;
+                S=squeeze(ncclim{'salt'}(:,N,J(k)+1,I(k)+1))-10; % hum...
+                S(S<2)=2; % to prevent negative salinities in the
+                          % equation of state
+                disp(['  Use psource_ts_auto using S = sclim -10 '])
+                disp(['  Check line 464 in make_runoff.m to change ' ...
+                       'this arbitrary runoff salinity'])
+                %%S=2;
                 my_salt_src0(k,:)=S';
                 if makebio==1
                     NO3=squeeze(ncclim{'NO3'}(:,N,J(k)+1,I(k)+1));
@@ -572,19 +606,18 @@ else
             if makebio
 % $$$           my_no3_src0=[0 0 0 0 0 0 0 0 0 0 0 0];
             end
-            
-            %%
-            %%Effectivelly processed rivers
-            %%
-            my_temp_src= my_temp_src0(find(indomain_last==1),:);
-            my_salt_src= my_salt_src0(find(indomain_last==1),:);
-            if makebio 
-                my_no3_src = my_no3_src0(find(indomain_last==1),:);
-            end
-            %%==============================================================
+        end
+        %%
+        %%Effectivelly processed rivers
+        %%
+        my_temp_src= my_temp_src0(find(indomain_last==1),:);
+        my_salt_src= my_salt_src0(find(indomain_last==1),:);
+        if makebio 
+            my_no3_src = my_no3_src0(find(indomain_last==1),:);
         end
     end
-    
+    %%
+    %%==============================================================
     %% Continue the figure
     
     if plotting
@@ -698,8 +731,8 @@ else
             T=mean(my_temp_src0(k,:));
             S=mean(my_salt_src0(k,:));
         else
-            T=5;
-            S=1;
+            T=20;
+            S=15;
         end
         if dir(k,1) == 1     %%flow meridien
             disp(['                        ',num2str(I2(k)-1),'  ',num2str(J2(k)),...
