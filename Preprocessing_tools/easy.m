@@ -99,16 +99,16 @@ if strcmp(get(hObject,'Visible'),'off')
  % Plot domain grid outline
  %
  colormap(jet(256))
- dlon = max(size_x,size_y)/R_earth*rad2deg;
- dll  = 0.2*dlon;
+ radius = sqrt(size_x^2+size_y^2)/R_earth*rad2deg;
+ dll  = 0.1*radius;
  lonmin0 = min(min(lon)) - dll;
  lonmax0 = max(max(lon)) + dll;
  latmin0 = min(min(lat)) - dll;
  latmax0 = max(max(lat)) + dll;
- if rotate==0,
-  m_proj ('mercator','longitude',[lonmin0 lonmax0],'latitude',[latmin0 latmax0]);
+ if rotate==0 | radius>40,
+  m_proj ('miller cylindrical','longitude',[lonmin0 lonmax0],'latitude',[latmin0 latmax0]);
  else
-  m_proj('Gnomonic','lon',tra_lon,'lat',tra_lat,'rad',dlon+2*dll,'rec','on')
+  m_proj('Gnomonic','lon',tra_lon,'lat',tra_lat,'rad',radius,'rec','on')
  end
  out_lon = [lon(1,:) lon(:,end)' lon(end,end:-1:1) lon(end:-1:1,1)'];
  out_lat = [lat(1,:) lat(:,end)' lat(end,end:-1:1) lat(end:-1:1,1)'];
@@ -122,6 +122,7 @@ if strcmp(get(hObject,'Visible'),'off')
  end
  hold off
 end
+clear
 
 % --------------------------------------------------------------------
 function varargout = easy_OutputFcn(hObject, eventdata, handles)
@@ -191,16 +192,16 @@ save('easy_grid_params', ...
 % Set plot projection
 %
 colormap(jet(256))
-dlon = max(size_x,size_y)/R_earth*rad2deg;
-dll  = 0.2*dlon;
+radius = sqrt(size_x^2+size_y^2)/R_earth*rad2deg;
+dll  = 0.1*radius;
 lonmin0 = min(min(lon)) - dll;
 lonmax0 = max(max(lon)) + dll;
 latmin0 = min(min(lat)) - dll;
 latmax0 = max(max(lat)) + dll;
-if rotate==0,
- m_proj ('mercator','longitude',[lonmin0 lonmax0],'latitude',[latmin0 latmax0]);
+if rotate==0 | radius>40,
+ m_proj ('miller cylindrical','longitude',[lonmin0 lonmax0],'latitude',[latmin0 latmax0]);
 else
- m_proj('Gnomonic','lon',tra_lon,'lat',tra_lat,'rad',dlon+2*dll,'rec','on')
+ m_proj('Gnomonic','lon',tra_lon,'lat',tra_lat,'rad',radius,'rec','on')
 end
 out_lon = [lon(1,:) lon(:,end)' lon(end,end:-1:1) lon(end:-1:1,1)'];
 out_lat = [lat(1,:) lat(:,end)' lat(end,end:-1:1) lat(end:-1:1,1)'];
