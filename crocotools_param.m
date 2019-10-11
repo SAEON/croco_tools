@@ -301,13 +301,23 @@ woa_cycle=360;        % repetition of a typical year of 360 days
 %                     qbar_cycle=365.25;
 %
 %     - Tracer runoff concentration processing flag
-%          - pource_ts = 1  => Runoff tracers concentration processing is activated. 
-%                            It needs the climatology file created with make_clim.m
-%          - psource_ts = 0 => No Runoff tracers concentration processing 
-%                            It reads analytical values in croco.in 
+%        - pource_ncfile_ts = 1  => Variable runoff tracers
+%                                   concentration  processing is activated.  
+%                                   It needs the climatology
+%                                   file created with make_clim.m
+%                                      
+%                                    In this case, either choose: 
+%                                      - psource_ts_auto : auto definition using
+%                                                          the nearest point in the climatlogy file 
+%                                               
+%                                       - psource_ts_manual : manually definition the
+%                                                             variable tracer concentration
+
+%        - psource_ncfile_ts = 0 => Constant analytical runoff tracers concentration no processing 
+%                            It reads analytical values in croco.in
 %                            or use default value defined in
 %                            analytical.F
-%          - psource_ts_auto / psource_ts_manual
+%
 %          - define_dir= [0 or 1]
 %        
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

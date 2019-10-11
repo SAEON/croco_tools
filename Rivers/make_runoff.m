@@ -66,10 +66,10 @@ end
 plotting=0;
 plotting_zoom=0;
 %%
-psource_ts=1;
-if psource_ts
-    psource_ts_auto=1 ;
-    psource_ts_manual=0;
+psource_ncfile_ts=1;
+if psource_ncfile_ts
+    psource_ncfile_ts_auto=1 ;
+    psource_ncfile_ts_manual=0;
 end
 %%
 if (makenpzd | makepisces | makebioebus)     makebio = 1;
@@ -115,12 +115,12 @@ if rivernumber == 0  %%at least a river
     disp(['Create a "fictive" runoff forcing file :  river with no discharge'])
     create_runoff(rivname,grdname,title_name,...
                   qbar_time,qbar_cycle, ...
-                  'fictiveriver_@nest',1,18,1,psource_ts,makebio)
+                  'fictiveriver_@nest',1,18,1,psource_ncfile_ts,makebio)
     my_flow=0;
     nw=netcdf(rivname,'w');
     disp(['Write in runoff file'])
     nw{'Qbar'}(:) = my_flow';
-    if psource_ts==1
+    if psource_ncfile_ts==1
         nw{'temp_src'}(:) = my_temp_src';
         nw{'salt_src'}(:) = my_salt_src';
         if makebio
@@ -345,7 +345,7 @@ else
     disp(' Create the runoff file...')
     create_runoff(rivname,grdname,title_name,...
                   qbar_time,qbar_cycle, ...
-                  rivername,number_rivertoprocess,rivname_StrLen,dir,psource_ts,makebio)
+                  rivername,number_rivertoprocess,rivname_StrLen,dir,psource_ncfile_ts,makebio)
     %%
     %% Adjust the rivers positions relative to the mask
     %%
@@ -451,7 +451,7 @@ else
     %%
     %% Adjust the rivers temperature and salinity
     %%
-    if psource_ts==1
+    if psource_ncfile_ts==1
         disp([' '])
         disp([' Adjust the rivers temperature and salinity '])
         %%disp([' Use the closest surface point in the climatology file '])
@@ -461,7 +461,7 @@ else
             my_no3_src0=zeros(rivernumber,length(woa_time));
         end
         
-        if psource_ts_auto
+        if psource_ncfile_ts_auto
             %%==============================================================
             ncclim=netcdf(clmname);
             N=length(ncclim('s_rho'));
@@ -480,7 +480,7 @@ else
                 S=squeeze(ncclim{'salt'}(:,N,J(k)+1,I(k)+1))-10; % hum...
                 S(S<2)=2; % to prevent negative salinities in the
                           % equation of state
-                disp(['  Use psource_ts_auto using S = sclim -10 '])
+                disp(['  Use psource_ncfile_ts_auto using S = sclim -10 '])
                 disp(['  Check line 464 in make_runoff.m to change ' ...
                        'this arbitrary runoff salinity'])
                 %%S=2;
@@ -493,7 +493,7 @@ else
             close(ncclim)
             
             %%==============================================================
-        elseif psource_ts_manual
+        elseif psource_ncfile_ts_manual
             
             %% Alternativaly : Define all mannually the tracer 
             %% t, s, and eventually biogeochemical tracer concentration
@@ -696,7 +696,7 @@ else
     my_flow=cff.*my_flow;
     nw{'Qbar'}(:) = my_flow';
     disp(['... discharges'])
-    if psource_ts==1
+    if psource_ncfile_ts==1
         %% take care : no transpostion needed !!
         nw{'temp_src'}(:) = my_temp_src;
         disp(['... temperature concentration'])
@@ -707,13 +707,38 @@ else
             disp(['... NO3 concentration'])
         end
         
-        disp([' ...'])
+
+    end
+    if psource_ncfile_ts == 1
+        disp([' ==>'])
+        disp([' PSOURCE_NCFILE_TS = 1'])
+        disp([' Variable river discharge in m3/s +  variable tracer ' ...
+              '(temp/salt) concentration '])
+        if psource_ncfile_ts_auto
+            disp([' PSOURCE_NCFILE_TS_AUTO = 1'])
+            disp(['   auto definition of the variable runoff tracer '])
+            disp(['   concentration using the nearest point'])
+            disp(['   in the climatlogy file'])
+        else
+            disp([' PSOURCE_NCFILE_TS_MANUAL = 1'])
+            disp(['    manual definition of the variable runoff tracer'])
+            disp(['    concentration (see example in make_runoff.m directly)'])
+        end
+        
         disp([' ...Note : '])
         disp([' ... The Tsrc value reported in croco.in are the annual-mean tracer value'])
         disp([' ... It''s just for information !'])
-        disp([' ... The Tsrc used are read in the runoff netCDF file created'])
-        
+        disp([' ... The Tsrc used are read in the runoff netCDF ' ...
+              'file created'])
+    else
+        disp([' ==> '])
+        disp([' PSOURCE_NCFILE_TS = 0'])
+        disp([' Variable river discharge in m3/s + constant tracer (temp/salt) concentration ' ...
+              'fluxes'])
+        disp([' ... The Tsrc value reported in croco.in are the ' ...
+              'constant value imposed manually'])
     end
+    
     close(nw)
     %%
     %% Line to enter in the croco.in file in the psource section
@@ -727,7 +752,7 @@ else
     for k0=1:number_rivertoprocess
         k=rivertoprocess(k0);
         
-        if psource_ts==1
+        if psource_ncfile_ts==1
             T=mean(my_temp_src0(k,:));
             S=mean(my_salt_src0(k,:));
         else
@@ -750,7 +775,7 @@ else
     %% Plot the seasonal cycle
     %%
     figure(30)
-    if psource_ts==1
+    if psource_ncfile_ts==1
         subplot(3,1,1)
     end
     hold on
@@ -760,7 +785,7 @@ else
     title(['\bf Monthly clim of the domain run off'])
     xlabel(['\bf Month']);ylabel(['\bf Discharge in m3/s'])
     set(gca,'Xtick',[0.5:11.5],'XtickLabel',['J';'F';'M';'A';'M';'J';'J';'A';'S';'O';'N';'D']);
-    if psource_ts==1
+    if psource_ncfile_ts==1
         subplot(3,1,2)
         plot([1:12],my_temp_src)
         box on, grid on
