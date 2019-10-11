@@ -390,8 +390,8 @@ if NCEP_version  == 1;
 elseif NCEP_version  == 2;
   NCEP_dir= [FORC_DATA_DIR,'NCEP2_',CROCO_config,'/'];
 elseif NCEP_version  == 3;
-  %NCEP_dir= [FORC_DATA_DIR,'CFSR_',CROCO_config,'/']; % CFSR data directory [in a "croco" format]
-  NCEP_dir= '/home/datawork-croco/datarmor-only/DATA/METEOROLOGICAL_FORCINGS/CFSR/BENGUELA/CROCO_format/';
+  NCEP_dir= [FORC_DATA_DIR,'CFSR_',CROCO_config,'/']; % CFSR data directory [in a "croco" format]
+  %NCEP_dir= '/home/datawork-croco/datarmor-only/DATA/METEOROLOGICAL_FORCINGS/CFSR/BENGUELA/CROCO_format/';
 end
 makefrc      = 0;       % 1: create forcing files
 makeblk      = 1;       % 1: create bulk files
@@ -419,10 +419,10 @@ QSCAT_clim_file  = [DATADIR,'QuikSCAT_clim/',...             % QuikSCAT climatol
 %  Options for make_ECMWF and make_ECMWF_daily  
 %--------------------------------------------------
 %
-%ECMWF_dir= [FORC_DATA_DIR,'ECMWF_',CROCO_config,'/'];  % ERA-I data directory [processed into a "croco" format]
-%My_ECMWF_dir=[FORC_DATA_DIR,'ERAI/'];                  % ERA-I native native data downloaded with python script
-ECMWF_dir= ['/home/datawork-croco/datarmor-only/METEOROLOGICAL_FORCINGS/BENGUELA/CROCO_format/6h/'];
-My_ECMWF_dir=['/home/datawork-croco/datarmor-only/METEOROLOGICAL_FORCINGS/BENGUELA/NATIVE_format/6h/'];
+ECMWF_dir= [FORC_DATA_DIR,'ECMWF_',CROCO_config,'/'];  % ERA-I data directory [processed into a "croco" format]
+My_ECMWF_dir=[FORC_DATA_DIR,'ERAI/'];                  % ERA-I native native data downloaded with python script
+%ECMWF_dir= ['/home/datawork-croco/datarmor-only/METEOROLOGICAL_FORCINGS/BENGUELA/CROCO_format/6h/'];
+%My_ECMWF_dir=['/home/datawork-croco/datarmor-only/METEOROLOGICAL_FORCINGS/BENGUELA/NATIVE_format/6h/'];
 itolap_ecmwf = 3;                                       %3 records for daily  ECMWF
 % 
 %
@@ -434,7 +434,7 @@ OGCM        = 'SODA';        % Select the OGCM: SODA, ECCO
 %
 OGCM_dir    = [FORC_DATA_DIR,OGCM,'_',CROCO_config,'/'];  % OGCM data directory
                                                           % [processed into a "crocotools" format]
-OGCM_dir    = '/home/datawork-croco/datarmor-only/DATA/3D_OCEAN_FORCING/SODA/BENGUELA/'
+%OGCM_dir    = '/home/datawork-croco/datarmor-only/DATA/3D_OCEAN_FORCING/SODA/BENGUELA/'
 
 bry_prefix  = [CROCO_files_dir,'croco_bry_',OGCM,'_'];    % generic boundary file name
 clm_prefix  = [CROCO_files_dir,'croco_clm_',OGCM,'_'];    % generic climatology file name
