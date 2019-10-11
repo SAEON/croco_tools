@@ -138,8 +138,8 @@ makeplot     = 0;                 % 1: create a few graphics after each preproce
 %
 %  CROCOTOOLS directory
 %
-%CROCOTOOLS_dir = '../';
-CROCOTOOLS_dir = [getenv('tools') '/'];
+CROCOTOOLS_dir = '../';
+%CROCOTOOLS_dir = [getenv('tools') '/'];
 %
 %  Run directory
 %
@@ -151,13 +151,13 @@ CROCO_files_dir=[RUN_dir,'CROCO_FILES/'];
 %
 %  Global data directory (etopo, coads, datasets download from ftp, etc..)
 %
-%DATADIR='../../croco_tools/'; 
-DATADIR=[getenv('CROCO_DIR') '/DATA/DATASETS_CROCOTOOLS/'];
+DATADIR='../../croco_tools/'; 
+%DATADIR=[getenv('CROCO_DIR') '/DATA/DATASETS_CROCOTOOLS/'];
 %
 %  Forcing data directory (ncep, quikscat, datasets download with opendap, etc..)
 %
-%FORC_DATA_DIR = [RUN_dir,'DATA/'];
-FORC_DATA_DIR = [getenv('CROCO_DIR') '/DATA/'];
+FORC_DATA_DIR = [RUN_dir,'DATA/'];
+%FORC_DATA_DIR = [getenv('CROCO_DIR') '/DATA/'];
 %
 if (isoctave == 0)
 	eval(['!mkdir ',CROCO_files_dir])

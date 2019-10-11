@@ -45,9 +45,9 @@ else
     rivname =  [CROCO_files_dir,'croco_runoff.nc.',num2str(gridlevel)];
     clmname = [CROCO_files_dir,'croco_clm.nc.',num2str(gridlevel)]; % <- climato file for runoff                             
 end
-%% Choose the monthly runoff forcing time and cycle in days
 
-clim_run=0
+%% Choose the monthly runoff forcing time and cycle in days
+clim_run=1
 
 %% clim_run =1 
 %%     => climato experiment month of 30 days : qbar_time=[15:15:360] / qbar_cycle=360
