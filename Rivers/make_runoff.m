@@ -32,7 +32,9 @@ close all
 %%
 crocotools_param
 
-%#Choose the grid level into which you ant to set up the runoffs
+%=========================================================================================
+% Choose the grid level into which you ant to set up the runoffs
+
 gridlevel=0
 if ( gridlevel == 0 ) 
     % #-> Parent / zoom #O 
@@ -46,14 +48,8 @@ else
     clmname = [CROCO_files_dir,'croco_clm.nc.',num2str(gridlevel)]; % <- climato file for runoff                             
 end
 
-%% Choose the monthly runoff forcing time and cycle in days
+% Choose the monthly runoff forcing time and cycle in days
 clim_run=1
-
-%% clim_run =1 
-%%     => climato experiment month of 30 days : qbar_time=[15:15:360] / qbar_cycle=360
-%% clim_run = 0
-%%     =>  interannual experiment with real calendar
-%%     qbar_time=[15.2188:30.4375:350.0313]/ qbar_cycle=365.25;
 
 if (clim_run == 1)
     qbar_time=[15:30:365]; 
@@ -62,16 +58,51 @@ else
     qbar_time=[15.2188:30.4375:350.0313];
     qbar_cycle=365.25;
 end
-%%
-plotting=0;
-plotting_zoom=0;
-%%
+
+%     - times and cycles for runoff conditions:
+%           - clim_run = 1 % climato forcing experiments with climato calendar
+%                     qbar_time=[15:30:365];
+%                     qbar_cycle=360;
+%
+%           - clim_run = 0 % interanual forcing experiments with real calendar
+%                     qbar_time=[15.2188:30.4375:350.0313];
+%                     qbar_cycle=365.25;
+
+%=========================================================================================
+% Choose if you process variable tracer concentration(temp, salt, NO3, ...)
+
 psource_ncfile_ts=1;
+
 if psource_ncfile_ts
     psource_ncfile_ts_auto=1 ;
     psource_ncfile_ts_manual=0;
 end
-%%
+
+%        - psource_ncfile_ts = 0 => Constant analytical runoff tracers concentration no processing
+%                            It reads analytical values in croco.in
+%                            or use default value defined in
+%                            analytical.F
+%
+%        - pource_ncfile_ts = 1  => Variable runoff tracers
+%                                    concentration  processing is activated.
+%                                   It needs the climatology
+%                                   file created with make_clim.m 
+%
+%                                    In this case, either choose:
+%                                      - psource_ts_auto : auto definition using
+%                                                          the nearest point in the climatlogy file
+%
+%                                       - psource_ts_manual : manually definition the
+%                                                             variable tracer concentration
+
+%=========================================================================================
+% Fancy plots
+
+plotting=0;
+plotting_zoom=0;
+%
+%=========================================================================================
+% Add biogeochemical variables 
 if (makenpzd | makepisces | makebioebus)     makebio = 1;
 else     
     makebio = 0;
@@ -81,9 +112,10 @@ disp(' ')
 disp(['Create runoff forcing from Dai and Trenberth''s global monthly climatological run-off dataset'])
 disp(' ')
 title_name='runoff forcing file (Dai and Trenberth, 2002 dataset)'
-%%
+
+%=========================================================================================
 define_dir=0 ;  %%->flag to define directly the orientation / direction of the runoff
-%%
+%
 if define_dir==1
     
     %% Define orientation/direction of the flow. First column is the u- (0) or v- (1)
@@ -102,11 +134,10 @@ if define_dir==1
 % $$$     dir(10,:)= [1 ,  1];  % # Magdalena
 % $$$     dir(11,:)= [1,  -1];  % # Urugay same dir/sense as Parana
 % $$$     dir(12,:)= [0 ,  0];  % # Danube (not used)
-% $$$     dir(13,:)= [0 , -1];  % # Niger
-     
+% $$$     dir(13,:)= [0 , -1];  % # Niger     
 end
-%
-%%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
+%=========================================================================================
+%%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 [latriv,lonriv,my_flow,myrivername,rivernumber]=runoff_glob_extract(grdname,global_clim_rivername);
 %% => rivernumber is the total number of river in the domain

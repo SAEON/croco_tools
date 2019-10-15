@@ -287,38 +287,8 @@ woa_cycle=360;        % repetition of a typical year of 360 days
 %woa_cycle=365.25;                    % of QSCAT experiments with 
 %                                     % climatological boundary conditions
 %
-% For RIVER FORCING : 
-% =================
-%  Go in the routine Rivers/make_runoff.m to setup your options as 
-%   
-%     - times and cycles for runoff conditions:        
-%           - clim_run = 1 % climato forcing experiments with climato calendar 
-%                     qbar_time=[15:30:365]; 
-%                     qbar_cycle=360; 
-%         
-%           - clim_run = 0 % interanual forcing experiments with real calendar 
-%                     qbar_time=[15.2188:30.4375:350.0313];
-%                     qbar_cycle=365.25;
-%
-%     - Tracer runoff concentration processing flag
-%        - pource_ncfile_ts = 1  => Variable runoff tracers
-%                                   concentration  processing is activated.  
-%                                   It needs the climatology
-%                                   file created with make_clim.m
-%                                      
-%                                    In this case, either choose: 
-%                                      - psource_ts_auto : auto definition using
-%                                                          the nearest point in the climatlogy file 
-%                                               
-%                                       - psource_ts_manual : manually definition the
-%                                                             variable tracer concentration
-
-%        - psource_ncfile_ts = 0 => Constant analytical runoff tracers concentration no processing 
-%                            It reads analytical values in croco.in
-%                            or use default value defined in
-%                            analytical.F
-%
-%          - define_dir= [0 or 1]
+%   For rivers setup : go in the routine Rivers/make_runoff.m to
+%   setup your options
 %        
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
