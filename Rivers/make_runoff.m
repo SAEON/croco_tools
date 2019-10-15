@@ -71,7 +71,7 @@ end
 %=========================================================================================
 % Choose if you process variable tracer concentration(temp, salt, NO3, ...)
 
-psource_ncfile_ts=1;
+psource_ncfile_ts=0;
 
 if psource_ncfile_ts
     psource_ncfile_ts_auto=1 ;
@@ -98,7 +98,7 @@ end
 %=========================================================================================
 % Fancy plots
 
-plotting=0;
+plotting=1;
 plotting_zoom=0;
 %
 %=========================================================================================
@@ -248,6 +248,7 @@ else
             h2=m_text(lon(J(k),I(k)),lat(J(k),I(k))+0.1,myrivername(k,:));
             set(h2,'fontweight','demi','fontsize',13);
         end
+        pause
         %% to be adapeted regarding the configuration
 % $$$         extendpointY=[500 500 500 500 ...
 % $$$                       500 600 900 500 ...
@@ -651,7 +652,7 @@ else
     %%==============================================================
     %% Continue the figure
     
-    if plotting
+    if plotting==1
         figure(1)
         hold on
         for k0=1:number_rivertoprocess
