@@ -88,7 +88,7 @@ export wconf=$CPL_WORKDIR/CONFIGS/BENGUELA
 # Model sources directory
 # --------------------------
 echo 'define Model sources directories'
-export wrf=$CPL_HOME/wrf/WRFV3.7.1_dev_cpl_vagues_suite_new
+export wrf=$CPL_HOME/wrf/WRFV3.7.1
 export croco=$CPL_HOME/croco
 export ww3=$CPL_HOME/ww3/model
 export oasisdir=$CPL_HOME/oasis/OASIS3-MCT_3.0_branch/compile_oasis3-mct

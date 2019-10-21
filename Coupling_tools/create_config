@@ -16,7 +16,7 @@
 # $WORKDIR/CONFIGS/MYCONFIG
 #                       - wrf_files
 #                       - ww3_files
-#                       - CROCO_FILES
+#                       - croco_files
 #                       - oasis_files
 #                       - toy_files
 # --------------------------------------------------
@@ -76,7 +76,7 @@ if [ $use_croco == 1 ] ; then
  echo '-----------------------------------------'
  mkdir -p $hconf/croco_in
  mkdir -p $wconf/croco_files
- cp -r $croco/croco_tools/Coupling_tools/scripts_croco/* $hconf/croco_in/.
+ cp -r $croco/croco_tools/Coupling_tools/croco_in/* $hconf/croco_in/.
  cp -f $croco/croco/OCEAN/param.h $hconf/croco_in/.
  cp -f $croco/croco/OCEAN/jobcomp $hconf/croco_in/.
 
@@ -87,7 +87,7 @@ if [ $use_ww3 == 1 ] ; then
  echo '-----------------------------------------'
  mkdir -p $hconf/ww3_in
  mkdir -p $wconf/ww3_files
- cp -r $croco/croco_tools/Coupling_tools/scripts_ww3/* $hconf/ww3_in/.
+ cp -r $croco/croco_tools/Coupling_tools/ww3_in/* $hconf/ww3_in/.
 fi
 
 if [ $use_wrf == 1 ] ; then
@@ -95,14 +95,14 @@ if [ $use_wrf == 1 ] ; then
  echo '-----------------------------------------'
  mkdir -p $hconf/wrf_in
  mkdir -p $wconf/wrf_files
- cp -r $croco/croco_tools/Coupling_tools/scripts_wrf/* $hconf/wrf_in/.
+ cp -r $croco/croco_tools/Coupling_tools/wrf_in/* $hconf/wrf_in/.
 fi
 if [ $use_oasis == 1 ] ; then
  echo 'Copy OASIS useful scripts and input files'
  echo '-----------------------------------------'
  mkdir -p $hconf/oasis_in
  mkdir -p $wconf/oasis_files
- cp -r $croco/croco_tools/Coupling_tools/scripts_oasis/* $hconf/oasis_in/.
+ cp -r $croco/croco_tools/Coupling_tools/oasis_in/* $hconf/oasis_in/.
 fi
 if [ $use_toy == 1 ] ; then
  echo 'Copy TOY sources, useful scripts and input files'
@@ -115,6 +115,5 @@ fi
 echo 'Copy run scripts'
 echo '----------------'
 
-cp $croco/croco_tools/Coupling_tools/readme_cpl $hconf/.
-cp -r $croco/croco_tools/Coupling_tools/scripts_run/* $hconf/.
+cp $croco/croco_tools/Coupling_tools/* $hconf/.
 
