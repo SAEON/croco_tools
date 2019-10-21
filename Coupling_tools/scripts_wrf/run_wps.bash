@@ -86,13 +86,13 @@ switch_ungrib=1
 # SWITCH to degribs a second time from another SOURCE? (1 : yes / 0 : no)
 # Example: different SST or 2nd type of surface files (e.g. CFSR)
 switch_ungrib_sfc=1
-is_ungrib_sfc=1 # for use of a 2nd type of surface files in metgrid
 #
 # SWITCH to horizontally interpolates the intermediate-format meteorological 
 # data that are extracted by the ungrib program onto the simulation domains 
 # defined by the geogrid program. 
 # (process $WPS_ROOT/metgrid) ? (1 : yes / 0 : no)
 switch_metgrid=1
+is_ungrib_sfc=1 # for use of a 2nd type of surface files in metgrid
 #
 #============= Set Environment ======================================= 
 #
@@ -428,7 +428,7 @@ cp namelist.wps namelist.wps.ungrib.${LBC_type}.${domain_name}
   echo "   Run ungrib for initial and boundary data"
   echo " "
 
- ${myMPI}ungrib.exe >& ungrib.log
+ ./ungrib.exe >& ungrib.log
 
   mv -f ${LBC_type}:* $O_DATAROOT
   rm -f GRIBFILE.*
@@ -506,7 +506,7 @@ cp namelist.wps namelist.wps.ungrib.${LSM_type}.${domain_name}
 
     echo " "
     echo " Run ungrib for surface forcing data " 
-    ${myMPI}ungrib.exe >& ungrib_${LSM_type}.log
+    ./ungrib.exe >& ungrib_${LSM_type}.log
 
     mv -f ${LSM_type}:* $O_DATAROOT
     rm -f GRIBFILE.*
