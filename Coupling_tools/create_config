@@ -109,7 +109,7 @@ if [ $use_toy == 1 ] ; then
  echo '------------------------------------------------'
  mkdir -p $hconf/toy_in
  mkdir -p $wconf/toy_files
- cp -r $croco/croco_tools/Coupling_tools/toy_model/* $hconf/toy_in/.
+ cp -r $croco/croco_tools/Coupling_tools/toy_in/* $hconf/toy_in/.
 fi
 
 echo 'Copy run scripts'

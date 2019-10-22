@@ -114,6 +114,16 @@ elif  [ $model == ww3 ] ; then
     echo '---> Set the variable to 0 and rename it var0...'
     ncap2 -O -v -s "var0=MAPSTA*0" ${filetmp} ${filetmp}
 
+elif  [ $model == toy ] ; then
+
+    # Extract mask
+    echo '---> Extract imask_t variable...'
+    ncks -O -3 -v imask_t $filein ${filetmp}
+
+    # set the variable to 0 and rename it var0
+    echo '---> Set the variable to 0 and rename it var0...'
+    ncap2 -O -v -s "var0=imask_t*0" ${filetmp} ${filetmp}
+
 else
     
     echo 'ERROR: '$model' case is not implemented yet. Exit...'
