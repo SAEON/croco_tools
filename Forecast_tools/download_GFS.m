@@ -66,13 +66,14 @@ eval(['!mkdir ',FRCST_dir])
 %
 % Get the GFS file name (first check if there is an available forecast)
 %
+gfsftype=1;  % GFS files
 gfs_run_time0=0;
 gfs_date0=today-0.5;
 gfs_run_time=gfs_run_time0;
 gfs_date=gfs_date0;
 foundfile=0;
 while foundfile==0
-  fname=get_GFS_fname(gfs_date,gfs_run_time,1);
+  fname=get_GFS_fname(gfs_date,gfs_run_time,gfsftype);
   warning off
   try
     x=loaddap('-A -e +v ', fname);
@@ -101,7 +102,7 @@ end
 %
 gfs_run_time_GFS=gfs_run_time; 
 gfs_date_GFS=gfs_date;  
-fname=get_GFS_fname(gfs_date_GFS,gfs_run_time_GFS,1); 
+fname=get_GFS_fname(gfs_date_GFS,gfs_run_time_GFS,gfsftype); 
 [i1min,i1max,i2min,i2max,i3min,i3max,jrange,lon,lat]=...
          get_GFS_subgrid(fname,lonmin,lonmax,latmin,latmax);
 mask=getdap('',fname,'landsfc','[1:1]','',jrange,...
@@ -133,11 +134,14 @@ LAT=lat;
 % Get the variables for hindcast
 %==================================================
 %
-% Get GDAS 1 deg grid
+gfsftype=1; % 0 --> GDAS
+            % 1 --> GFS
+%
+% Get GDAS/GFS grid
 %
 gfs_run_time=12;
 gfs_date=today-(hdays+1);
-fname=get_GFS_fname(gfs_date,gfs_run_time,0);
+fname=get_GFS_fname(gfs_date,gfs_run_time,gfsftype);
 [i1min,i1max,i2min,i2max,i3min,i3max,jrange,lon,lat]=...
          get_GFS_subgrid(fname,lonmin,lonmax,latmin,latmax);
 mask=getdap('',fname,'landsfc','[0:0]','',jrange,... 
@@ -145,26 +149,34 @@ mask=getdap('',fname,'landsfc','[0:0]','',jrange,...
 mask(mask==1)=NaN;
 mask(isfinite(mask))=1;
 %
-% Loop on GDAS analyses 
-% (starts hdays day ago 18Z, 1 analysis every 6h
-%  ends before yesterday 18Z).
+% Loop on GDAS analyses (or 3h forecast in GFS files)
+%   - Starts hdays day ago 18Z, 1 analysis every 6h
+%   - Ends before yesterday 18Z
 %
-gfs_run_time0=12;
+if gfsftype==1
+  gfs_run_time0=9;          % GFS:  use rec 2 (+ 3h)
+else
+  gfs_run_time0=12;         % GDAS: use rec 1
+end
 gfs_date0=today-(hdays+1); 
-for frcst=1:4*hdays-2             % number of files until yesterday 00Z 
+for frcst=1:4*hdays-2       % number of files until yesterday 00Z 
   gfs_run_time0=gfs_run_time0+6;  
   if gfs_run_time0>18
     gfs_date0=gfs_date0+1;
     gfs_run_time0=0;
   end
 %
-% 1.1: check if the GDAS is available.
+% 1.1: check if the GDAS/GFS file is available.
 %
   gfs_run_time=gfs_run_time0;
   gfs_date=gfs_date0;
-  t1=1;
-  t1dap=t1-1;
-  fname=get_GFS_fname(gfs_date,gfs_run_time,0);
+  t1=0;
+  if gfsftype==1
+    t1dap=t1+1; % rec 2 of GFS
+  else
+    t1dap=t1;   % rec 1 of GDAS
+  end
+  fname=get_GFS_fname(gfs_date,gfs_run_time,gfsftype);
   warning off
   try
     x=loaddap('-A -e +v ', fname);
@@ -175,7 +187,7 @@ for frcst=1:4*hdays-2             % number of files until yesterday 00Z
   if foundfile==1 & ~isempty(x)
     disp('  File found')
     gfs_run_time1=gfs_run_time0;  % Increment Forecast 
-    gfs_date1=gfs_date0;          %           start time
+    gfs_date1=gfs_date0;          % Start time
   else
     foundfile=0;
     disp(['  GDAS: file not found, try next file'])
@@ -192,8 +204,8 @@ for frcst=1:4*hdays-2             % number of files until yesterday 00Z
    disp(['N=',num2str(n)])
    [gfstime(n),tx0,ty0,tair0,rhum0,...
 	 prate0,wspd0,uwnd0,vwnd0,radlw0,radlw_in0,radsw0]= ...
-   get_GDAS(fname,mask,t1dap,jrange,i1min,i1max,i2min,i2max,i3min,i3max,missvalue);
-%
+   get_GFS(fname,mask,t1dap,jrange,i1min,i1max,i2min,i2max,i3min,i3max,missvalue);
+
    TX=interp2(lon,lat',tx0,LON,LAT');
    TY=interp2(lon,lat',ty0,LON,LAT');
    TAIR=interp2(lon,lat',tair0,LON,LAT');
@@ -223,6 +235,8 @@ end
 % 2: Get the variables for Forecast starting  yesterday 00Z
 %==================================================================
 %
+gfsftype=1; % GFS files
+%
 % Get starting GFS date following last GDAS date
 %
 gfs_run_time0=gfs_run_time1;
@@ -235,7 +249,7 @@ gfs_run_time=gfs_run_time0;
 gfs_date=gfs_date0;
 
 % Get the grid and the indices of the subgrid for GFS
-fname=get_GFS_fname(gfs_date,gfs_run_time,1);
+fname=get_GFS_fname(gfs_date,gfs_run_time,gfsftype);
 [i1min,i1max,i2min,i2max,i3min,i3max,jrange,lon,lat]=...
          get_GFS_subgrid(fname,lonmin,lonmax,latmin,latmax);
 
@@ -251,7 +265,7 @@ mask(isfinite(mask))=1;
 t1=1;
 foundfile=0;
 while foundfile==0
-  fname=get_GFS_fname(gfs_date,gfs_run_time,1);
+  fname=get_GFS_fname(gfs_date,gfs_run_time,gfsftype);
   warning off
   try
     x=loaddap('-A -e +v ', fname);

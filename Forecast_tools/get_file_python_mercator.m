@@ -54,7 +54,7 @@ if mercator_type==1, % Mercator data 1/12 deg
 	   sprintf('%s',pathmotu)
 	   'motuclient-python/motuclient.py'
 	   sprintf(' -u %s -p %s',info{1},info{2}) 
-	   ' -m http://nrtcmems.mercator-ocean.fr/motu-web/Motu'
+	   ' -m http://nrt.cmems-du.eu/motu-web/Motu'
 	   ' -s GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS'
 	   ' -d global-analysis-forecast-phy-001-024'
 	   sprintf(' -t %s -T %s',date{1},date{2})
