@@ -1,6 +1,6 @@
 function  create_runoff(runoffname,grdname,title,...
     qbart,qbarc,rivername,rivernumber,...
-    runoffname_StrLen,dir,psource_ts,biol)
+    runoffname_StrLen,dir,psource_ncfile_ts,biol)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % 	Create an empty netcdf runoff file
@@ -48,7 +48,7 @@ nw{'qbar_time'}.long_name = ncchar('runoff time');
 nw{'qbar_time'}.units = ncchar('days');
 nw{'qbar_time'}.cycle_length = qbarc;
 
-if psource_ts
+if psource_ncfile_ts
     nw{'temp_src_time'} = ncdouble('qbar_time');
     nw{'temp_src_time'}.long_name = ncchar('runoff time');
     nw{'temp_src_time'}.units = ncchar('days');
@@ -74,7 +74,7 @@ nw{'Qbar'} = ncdouble('n_qbar','qbar_time');
 nw{'Qbar'}.long_name = ncchar('runoff discharge');
 nw{'Qbar'}.units = ncchar('m3.s-1');
 
-if psource_ts
+if psource_ncfile_ts
     nw{'temp_src'} = ncdouble('n_qbar','qbar_time');
     nw{'temp_src'}.long_name = ncchar('runoff temp conc.');
     nw{'temp_src'}.units = ncchar('deg.celsius');
@@ -111,7 +111,7 @@ nw.type = 'CROCO runoff file';
 %
 % Write time variables
 nw{'qbar_time'} (:) = qbart;
-if psource_ts
+if psource_ncfile_ts
     nw{'temp_src_time'} (:) = qbart;
     nw{'salt_src_time'} (:) = qbart;
     if biol

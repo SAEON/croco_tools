@@ -138,8 +138,8 @@ makeplot     = 0;                 % 1: create a few graphics after each preproce
 %
 %  CROCOTOOLS directory
 %
-%CROCOTOOLS_dir = '../';
-CROCOTOOLS_dir = [getenv('tools') '/'];
+CROCOTOOLS_dir = '../';
+%CROCOTOOLS_dir = [getenv('tools') '/'];
 %
 %  Run directory
 %
@@ -151,13 +151,13 @@ CROCO_files_dir=[RUN_dir,'CROCO_FILES/'];
 %
 %  Global data directory (etopo, coads, datasets download from ftp, etc..)
 %
-%DATADIR='../../croco_tools/'; 
-DATADIR=[getenv('CROCO_DIR') '/DATA/DATASETS_CROCOTOOLS/'];
+DATADIR='../../croco_tools/'; 
+%DATADIR=[getenv('CROCO_DIR') '/DATA/DATASETS_CROCOTOOLS/'];
 %
 %  Forcing data directory (ncep, quikscat, datasets download with opendap, etc..)
 %
-%FORC_DATA_DIR = [RUN_dir,'DATA/'];
-FORC_DATA_DIR = [getenv('CROCO_DIR') '/DATA/'];
+FORC_DATA_DIR = [RUN_dir,'DATA/'];
+%FORC_DATA_DIR = [getenv('CROCO_DIR') '/DATA/'];
 %
 if (isoctave == 0)
 	eval(['!mkdir ',CROCO_files_dir])
@@ -287,28 +287,8 @@ woa_cycle=360;        % repetition of a typical year of 360 days
 %woa_cycle=365.25;                    % of QSCAT experiments with 
 %                                     % climatological boundary conditions
 %
-% For RIVER FORCING : 
-% =================
-%  Go in the routine Rivers/make_runoff.m to setup your options as 
-%   
-%     - times and cycles for runoff conditions:        
-%           - clim_run = 1 % climato forcing experiments with climato calendar 
-%                     qbar_time=[15:30:365]; 
-%                     qbar_cycle=360; 
-%         
-%           - clim_run = 0 % interanual forcing experiments with real calendar 
-%                     qbar_time=[15.2188:30.4375:350.0313];
-%                     qbar_cycle=365.25;
-%
-%     - Tracer runoff concentration processing flag
-%          - pource_ts = 1  => Runoff tracers concentration processing is activated. 
-%                            It needs the climatology file created with make_clim.m
-%          - psource_ts = 0 => No Runoff tracers concentration processing 
-%                            It reads analytical values in croco.in 
-%                            or use default value defined in
-%                            analytical.F
-%          - psource_ts_auto / psource_ts_manual
-%          - define_dir= [0 or 1]
+%   For rivers setup : go in the routine Rivers/make_runoff.m to
+%   setup your options
 %        
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -390,8 +370,8 @@ if NCEP_version  == 1;
 elseif NCEP_version  == 2;
   NCEP_dir= [FORC_DATA_DIR,'NCEP2_',CROCO_config,'/'];
 elseif NCEP_version  == 3;
-  %NCEP_dir= [FORC_DATA_DIR,'CFSR_',CROCO_config,'/']; % CFSR data directory [in a "croco" format]
-  NCEP_dir= '/home/datawork-croco/datarmor-only/DATA/METEOROLOGICAL_FORCINGS/CFSR/BENGUELA/CROCO_format/';
+  NCEP_dir= [FORC_DATA_DIR,'CFSR_',CROCO_config,'/']; % CFSR data directory [in a "croco" format]
+  %NCEP_dir= '/home/datawork-croco/datarmor-only/DATA/METEOROLOGICAL_FORCINGS/CFSR/BENGUELA/CROCO_format/';
 end
 makefrc      = 0;       % 1: create forcing files
 makeblk      = 1;       % 1: create bulk files
@@ -419,10 +399,10 @@ QSCAT_clim_file  = [DATADIR,'QuikSCAT_clim/',...             % QuikSCAT climatol
 %  Options for make_ECMWF and make_ECMWF_daily  
 %--------------------------------------------------
 %
-%ECMWF_dir= [FORC_DATA_DIR,'ECMWF_',CROCO_config,'/'];  % ERA-I data directory [processed into a "croco" format]
-%My_ECMWF_dir=[FORC_DATA_DIR,'ERAI/'];                  % ERA-I native native data downloaded with python script
-ECMWF_dir= ['/home/datawork-croco/datarmor-only/METEOROLOGICAL_FORCINGS/BENGUELA/CROCO_format/6h/'];
-My_ECMWF_dir=['/home/datawork-croco/datarmor-only/METEOROLOGICAL_FORCINGS/BENGUELA/NATIVE_format/6h/'];
+ECMWF_dir= [FORC_DATA_DIR,'ECMWF_',CROCO_config,'/'];  % ERA-I data directory [processed into a "croco" format]
+My_ECMWF_dir=[FORC_DATA_DIR,'ERAI/'];                  % ERA-I native native data downloaded with python script
+%ECMWF_dir= ['/home/datawork-croco/datarmor-only/METEOROLOGICAL_FORCINGS/BENGUELA/CROCO_format/6h/'];
+%My_ECMWF_dir=['/home/datawork-croco/datarmor-only/METEOROLOGICAL_FORCINGS/BENGUELA/NATIVE_format/6h/'];
 itolap_ecmwf = 3;                                       %3 records for daily  ECMWF
 % 
 %
@@ -434,7 +414,7 @@ OGCM        = 'SODA';        % Select the OGCM: SODA, ECCO
 %
 OGCM_dir    = [FORC_DATA_DIR,OGCM,'_',CROCO_config,'/'];  % OGCM data directory
                                                           % [processed into a "crocotools" format]
-OGCM_dir    = '/home/datawork-croco/datarmor-only/DATA/3D_OCEAN_FORCING/SODA/BENGUELA/'
+%OGCM_dir    = '/home/datawork-croco/datarmor-only/DATA/3D_OCEAN_FORCING/SODA/BENGUELA/'
 
 bry_prefix  = [CROCO_files_dir,'croco_bry_',OGCM,'_'];    % generic boundary file name
 clm_prefix  = [CROCO_files_dir,'croco_clm_',OGCM,'_'];    % generic climatology file name

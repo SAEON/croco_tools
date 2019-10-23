@@ -32,7 +32,9 @@ close all
 %%
 crocotools_param
 
-%#Choose the grid level into which you ant to set up the runoffs
+%=========================================================================================
+% Choose the grid level into which you ant to set up the runoffs
+
 gridlevel=0
 if ( gridlevel == 0 ) 
     % #-> Parent / zoom #O 
@@ -45,15 +47,9 @@ else
     rivname =  [CROCO_files_dir,'croco_runoff.nc.',num2str(gridlevel)];
     clmname = [CROCO_files_dir,'croco_clm.nc.',num2str(gridlevel)]; % <- climato file for runoff                             
 end
-%% Choose the monthly runoff forcing time and cycle in days
 
-clim_run=0
-
-%% clim_run =1 
-%%     => climato experiment month of 30 days : qbar_time=[15:15:360] / qbar_cycle=360
-%% clim_run = 0
-%%     =>  interannual experiment with real calendar
-%%     qbar_time=[15.2188:30.4375:350.0313]/ qbar_cycle=365.25;
+% Choose the monthly runoff forcing time and cycle in days
+clim_run=1
 
 if (clim_run == 1)
     qbar_time=[15:30:365]; 
@@ -62,16 +58,51 @@ else
     qbar_time=[15.2188:30.4375:350.0313];
     qbar_cycle=365.25;
 end
-%%
-plotting=0;
-plotting_zoom=0;
-%%
-psource_ts=1;
-if psource_ts
-    psource_ts_auto=1 ;
-    psource_ts_manual=0;
+
+%     - times and cycles for runoff conditions:
+%           - clim_run = 1 % climato forcing experiments with climato calendar
+%                     qbar_time=[15:30:365];
+%                     qbar_cycle=360;
+%
+%           - clim_run = 0 % interanual forcing experiments with real calendar
+%                     qbar_time=[15.2188:30.4375:350.0313];
+%                     qbar_cycle=365.25;
+
+%=========================================================================================
+% Choose if you process variable tracer concentration(temp, salt, NO3, ...)
+
+psource_ncfile_ts=0;
+
+if psource_ncfile_ts
+    psource_ncfile_ts_auto=1 ;
+    psource_ncfile_ts_manual=0;
 end
-%%
+
+%        - psource_ncfile_ts = 0 => Constant analytical runoff tracers concentration no processing
+%                            It reads analytical values in croco.in
+%                            or use default value defined in
+%                            analytical.F
+%
+%        - pource_ncfile_ts = 1  => Variable runoff tracers
+%                                    concentration  processing is activated.
+%                                   It needs the climatology
+%                                   file created with make_clim.m 
+%
+%                                    In this case, either choose:
+%                                      - psource_ts_auto : auto definition using
+%                                                          the nearest point in the climatlogy file
+%
+%                                       - psource_ts_manual : manually definition the
+%                                                             variable tracer concentration
+
+%=========================================================================================
+% Fancy plots
+
+plotting=1;
+plotting_zoom=0;
+%
+%=========================================================================================
+% Add biogeochemical variables 
 if (makenpzd | makepisces | makebioebus)     makebio = 1;
 else     
     makebio = 0;
@@ -81,9 +112,10 @@ disp(' ')
 disp(['Create runoff forcing from Dai and Trenberth''s global monthly climatological run-off dataset'])
 disp(' ')
 title_name='runoff forcing file (Dai and Trenberth, 2002 dataset)'
-%%
+
+%=========================================================================================
 define_dir=0 ;  %%->flag to define directly the orientation / direction of the runoff
-%%
+%
 if define_dir==1
     
     %% Define orientation/direction of the flow. First column is the u- (0) or v- (1)
@@ -102,11 +134,10 @@ if define_dir==1
 % $$$     dir(10,:)= [1 ,  1];  % # Magdalena
 % $$$     dir(11,:)= [1,  -1];  % # Urugay same dir/sense as Parana
 % $$$     dir(12,:)= [0 ,  0];  % # Danube (not used)
-% $$$     dir(13,:)= [0 , -1];  % # Niger
-     
+% $$$     dir(13,:)= [0 , -1];  % # Niger     
 end
-%
-%%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
+%=========================================================================================
+%%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 [latriv,lonriv,my_flow,myrivername,rivernumber]=runoff_glob_extract(grdname,global_clim_rivername);
 %% => rivernumber is the total number of river in the domain
@@ -115,12 +146,12 @@ if rivernumber == 0  %%at least a river
     disp(['Create a "fictive" runoff forcing file :  river with no discharge'])
     create_runoff(rivname,grdname,title_name,...
                   qbar_time,qbar_cycle, ...
-                  'fictiveriver_@nest',1,18,1,psource_ts,makebio)
+                  'fictiveriver_@nest',1,18,1,psource_ncfile_ts,makebio)
     my_flow=0;
     nw=netcdf(rivname,'w');
     disp(['Write in runoff file'])
     nw{'Qbar'}(:) = my_flow';
-    if psource_ts==1
+    if psource_ncfile_ts==1
         nw{'temp_src'}(:) = my_temp_src';
         nw{'salt_src'}(:) = my_salt_src';
         if makebio
@@ -217,6 +248,7 @@ else
             h2=m_text(lon(J(k),I(k)),lat(J(k),I(k))+0.1,myrivername(k,:));
             set(h2,'fontweight','demi','fontsize',13);
         end
+        pause
         %% to be adapeted regarding the configuration
 % $$$         extendpointY=[500 500 500 500 ...
 % $$$                       500 600 900 500 ...
@@ -345,7 +377,7 @@ else
     disp(' Create the runoff file...')
     create_runoff(rivname,grdname,title_name,...
                   qbar_time,qbar_cycle, ...
-                  rivername,number_rivertoprocess,rivname_StrLen,dir,psource_ts,makebio)
+                  rivername,number_rivertoprocess,rivname_StrLen,dir,psource_ncfile_ts,makebio)
     %%
     %% Adjust the rivers positions relative to the mask
     %%
@@ -451,7 +483,7 @@ else
     %%
     %% Adjust the rivers temperature and salinity
     %%
-    if psource_ts==1
+    if psource_ncfile_ts==1
         disp([' '])
         disp([' Adjust the rivers temperature and salinity '])
         %%disp([' Use the closest surface point in the climatology file '])
@@ -461,7 +493,7 @@ else
             my_no3_src0=zeros(rivernumber,length(woa_time));
         end
         
-        if psource_ts_auto
+        if psource_ncfile_ts_auto
             %%==============================================================
             ncclim=netcdf(clmname);
             N=length(ncclim('s_rho'));
@@ -480,7 +512,7 @@ else
                 S=squeeze(ncclim{'salt'}(:,N,J(k)+1,I(k)+1))-10; % hum...
                 S(S<2)=2; % to prevent negative salinities in the
                           % equation of state
-                disp(['  Use psource_ts_auto using S = sclim -10 '])
+                disp(['  Use psource_ncfile_ts_auto using S = sclim -10 '])
                 disp(['  Check line 464 in make_runoff.m to change ' ...
                        'this arbitrary runoff salinity'])
                 %%S=2;
@@ -493,7 +525,7 @@ else
             close(ncclim)
             
             %%==============================================================
-        elseif psource_ts_manual
+        elseif psource_ncfile_ts_manual
             
             %% Alternativaly : Define all mannually the tracer 
             %% t, s, and eventually biogeochemical tracer concentration
@@ -620,7 +652,7 @@ else
     %%==============================================================
     %% Continue the figure
     
-    if plotting
+    if plotting==1
         figure(1)
         hold on
         for k0=1:number_rivertoprocess
@@ -696,7 +728,7 @@ else
     my_flow=cff.*my_flow;
     nw{'Qbar'}(:) = my_flow';
     disp(['... discharges'])
-    if psource_ts==1
+    if psource_ncfile_ts==1
         %% take care : no transpostion needed !!
         nw{'temp_src'}(:) = my_temp_src;
         disp(['... temperature concentration'])
@@ -707,13 +739,38 @@ else
             disp(['... NO3 concentration'])
         end
         
-        disp([' ...'])
+
+    end
+    if psource_ncfile_ts == 1
+        disp([' ==>'])
+        disp([' PSOURCE_NCFILE_TS = 1'])
+        disp([' Variable river discharge in m3/s +  variable tracer ' ...
+              '(temp/salt) concentration '])
+        if psource_ncfile_ts_auto
+            disp([' PSOURCE_NCFILE_TS_AUTO = 1'])
+            disp(['   auto definition of the variable runoff tracer '])
+            disp(['   concentration using the nearest point'])
+            disp(['   in the climatlogy file'])
+        else
+            disp([' PSOURCE_NCFILE_TS_MANUAL = 1'])
+            disp(['    manual definition of the variable runoff tracer'])
+            disp(['    concentration (see example in make_runoff.m directly)'])
+        end
+        
         disp([' ...Note : '])
         disp([' ... The Tsrc value reported in croco.in are the annual-mean tracer value'])
         disp([' ... It''s just for information !'])
-        disp([' ... The Tsrc used are read in the runoff netCDF file created'])
-        
+        disp([' ... The Tsrc used are read in the runoff netCDF ' ...
+              'file created'])
+    else
+        disp([' ==> '])
+        disp([' PSOURCE_NCFILE_TS = 0'])
+        disp([' Variable river discharge in m3/s + constant tracer (temp/salt) concentration ' ...
+              'fluxes'])
+        disp([' ... The Tsrc value reported in croco.in are the ' ...
+              'constant value imposed manually'])
     end
+    
     close(nw)
     %%
     %% Line to enter in the croco.in file in the psource section
@@ -727,7 +784,7 @@ else
     for k0=1:number_rivertoprocess
         k=rivertoprocess(k0);
         
-        if psource_ts==1
+        if psource_ncfile_ts==1
             T=mean(my_temp_src0(k,:));
             S=mean(my_salt_src0(k,:));
         else
@@ -750,7 +807,7 @@ else
     %% Plot the seasonal cycle
     %%
     figure(30)
-    if psource_ts==1
+    if psource_ncfile_ts==1
         subplot(3,1,1)
     end
     hold on
@@ -760,7 +817,7 @@ else
     title(['\bf Monthly clim of the domain run off'])
     xlabel(['\bf Month']);ylabel(['\bf Discharge in m3/s'])
     set(gca,'Xtick',[0.5:11.5],'XtickLabel',['J';'F';'M';'A';'M';'J';'J';'A';'S';'O';'N';'D']);
-    if psource_ts==1
+    if psource_ncfile_ts==1
         subplot(3,1,2)
         plot([1:12],my_temp_src)
         box on, grid on
