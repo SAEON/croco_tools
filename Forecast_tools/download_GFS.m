@@ -154,7 +154,7 @@ mask(isfinite(mask))=1;
 %   - Ends before yesterday 18Z
 %
 if gfsftype==1
-  gfs_run_time0=9;          % GFS:  use rec 2 (+ 3h)
+  gfs_run_time0= 6;         % GFS:  use rec 2 (+ 3h)
 else
   gfs_run_time0=12;         % GDAS: use rec 1
 end
@@ -172,7 +172,7 @@ for frcst=1:4*hdays-2       % number of files until yesterday 00Z
   gfs_date=gfs_date0;
   t1=0;
   if gfsftype==1
-    t1dap=t1+1; % rec 2 of GFS
+    t1dap=t1+2; % rec 2 of GFS
   else
     t1dap=t1;   % rec 1 of GDAS
   end
