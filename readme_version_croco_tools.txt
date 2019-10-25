@@ -13,9 +13,13 @@ New in v1.1 :
 
 - Aforc_CFSR : new specific directory dedicated to CFSR atmospheric forcing processing
 
-- croco_pyvisu : a new powerful visualization gui (as croco_gui) in Python (thanks to S. Le Gentil, LOPS/Ifremer), portable on every supercomputer.
+- croco_pyvisu : a new powerful visualization gui (as croco_gui) in Python (Thanks to S. Le Gentil, LOPS/Ifremer), portable on every supercomputer.
 
-- Preprocessing_tools: Integration of the easy grid package to easily manage grid generation with rotation (Thanks to J. Moelmaker, UCLA).
+- Preprocessing_tools: 
+	- Insert Easy interactive grid maker (adapted from J Molemaker package) within make_grid 
+	       and the croco_tools package (allows grid rotation and parameter ajustment)
+	
+	- Add new filter used in smoothgrid (adapted by P. Penven from Sasha) with option set in crocotools_param.h
 
 - Rivers : several update to manage variable flows and/or concentration (temperature, salinity, bigeochemical tracers, ...) from input netCDF files.
 
