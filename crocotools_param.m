@@ -399,6 +399,7 @@ QSCAT_clim_file  = [DATADIR,'QuikSCAT_clim/',...             % QuikSCAT climatol
 %  Options for make_ECMWF and make_ECMWF_daily  
 %--------------------------------------------------
 %
+Reformat_ECMWF = 1;
 ECMWF_dir= [FORC_DATA_DIR,'ECMWF_',CROCO_config,'/'];  % ERA-I data directory [processed into a "croco" format]
 My_ECMWF_dir=[FORC_DATA_DIR,'ERAI/'];                  % ERA-I native native data downloaded with python script
 %ECMWF_dir= [FORC_DATA_DIR,'METEOROLOGICAL_FORCINGS/ERAI/BENGUELA/CROCO_format/6h/'];

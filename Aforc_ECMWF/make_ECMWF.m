@@ -77,7 +77,7 @@ close(nc);
 % Extract data from global Grib format saved on my computer
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-if Download_data==1
+if Reformat_ECMWF==1
   %
   % Download ECMWF
   %
@@ -85,11 +85,11 @@ if Download_data==1
   disp('Get ECMWF data from my DOWNLAODED data')
   disp(['===================='])
 
-  download_ECMWF(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,...
+  reformat_ECMWF(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,...
                 ECMWF_dir,Yorig,My_ECMWF_dir)
 
   disp(['====================='])
-  disp(['DOWNLOAD STEP FINISH'])
+  disp(['REFORMAT STEP FINISH'])
   disp(['====================='])
 end
 
