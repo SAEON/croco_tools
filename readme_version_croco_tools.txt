@@ -11,15 +11,13 @@ CROCO sources and CROCO_TOOLS (the follow-on of ROMS_TOOLS) are now distributed 
 New in v1.1 :
 =============
 
-- Aforc_CFSR : an updated and cleaned new directory, dedicated to CFSR atmopheric forcing processing
+- Aforc_CFSR : new specific directory dedicated to CFSR atmospheric forcing processing
 
-- Coupling_tools :  
+- croco_pyvisu : a new powerful visualization gui (as croco_gui) in Python (thanks to S. Le Gentil, LOPS/Ifremer), portable on every supercomputer.
 
-- croco_pyvisu : new visualization gui (as croco_gui) but in Python (thanks to S. LeGentil, LOPS/Ifremer). 
+- Preprocessing_tools: Integration of the easy grid package to easily manage grid generation with rotation (Thanks to J. Moelmaker, UCLA).
 
-- Preprocessing_tools : several update, espacially the easy grid package andle grid rotation (Thanks to J. Moelmaker, UCLA)
-
-- Rivers : several update and bug fix to manage variable flows and/or concentration from netCDF files
+- Rivers : several update to manage variable flows and/or concentration (temperature, salinity, bigeochemical tracers, ...) from input netCDF files.
 
 
 CONTENTS:
@@ -38,9 +36,10 @@ CONTENTS:
 
 - Coupling_tools/: Scripts for building and running coupled configurations (with atmosphere and/or wave models)
 
-- croco_pytools/: Preprocessing Python scripts for preparing the grid, forcing, initialization files
+- croco_pytools/ : Preprocessing Python scripts for preparing the grid, forcing, initialization files
 
-- croco_pyvzu/
+- croco_pyvisu/ : A new portable visualization gui (as croco_gui) but in Python
+
 - Diagnostic_tools/ : A few Matlab scripts for animations and basic statistical analysis
 
 - Forecast_tools/ : Scripts for the generation of an operational oceanic forecast system
@@ -66,6 +65,8 @@ CONTENTS:
 - UTILITIES/: Matlab utilities
 
 - Visualization_tools/ : Matlab scripts for the CROCO visualization graphic user interface
+
+
 
  _   _                      __                 _
 | | | | __ ___   _____     / _|_   _ _ __     | |
