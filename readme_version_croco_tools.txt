@@ -16,10 +16,10 @@ New in v1.1 :
 - croco_pyvisu : a new powerful visualization gui (as croco_gui) in Python (Thanks to S. Le Gentil, LOPS/Ifremer), portable on every supercomputer.
 
 - Preprocessing_tools: 
-	- Insert Easy interactive grid maker (adapted from J Molemaker package) within make_grid 
-	       and the croco_tools package (allows grid rotation and parameter ajustment)
+	- Insert Easy interactive grid maker (adapted from J. Molemaker (UCLA) package) within make_grid 
+	       and the croco_tools package (allows grid rotation and parameter adjustment)
 	
-	- Add new filter used in smoothgrid (adapted by P. Penven from Sasha) with option set in crocotools_param.h
+	- Add new filter used in smoothgrid.m (adapted by P. Penven from A. Shchepetkin) with option set in crocotools_param.h
 
 - Rivers : several update to manage variable flows and/or concentration (temperature, salinity, bigeochemical tracers, ...) from input netCDF files.
 
