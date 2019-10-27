@@ -293,7 +293,7 @@ end
 %
 % 2.2: read time steps in forecast file (dt = 3h * it)
 %
-tend=(fdays+1)*8+4;
+tend=(fdays+1)*8+6;
 for tndx=t1+it:it:tend
   tndxdap=tndx-1;
   n=n+1;
