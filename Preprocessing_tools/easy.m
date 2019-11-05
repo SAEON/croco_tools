@@ -299,6 +299,9 @@ bgClr = get(handles.pushbutton4,'BackgroundColor');
 set(handles.pushbutton4,'BackgroundColor',[0 0 1]);
 
 str = evalc('crocotools_param');
+R_earth=6367442.76;   % Earth radius
+deg2rad=pi/180;
+rad2deg=180/pi;
 %
 % Get metrics
 %
@@ -313,6 +316,21 @@ tra_lon= str2double(get(handles.edit4,'String'));
 tra_lat= str2double(get(handles.edit5,'String'));
 nx     = str2num(get(handles.edit6,   'String'));
 ny     = str2num(get(handles.edit7,   'String')); 
+dl     = str2num(get(handles.edit10,  'String'));
+%
+% Update nx,ny from updated sizes 
+% (security in case "Update" stage skipped)
+% 
+dx=R_earth*dl*deg2rad;
+dy=dx;
+nx=floor(size_x/dx);
+ny=floor(size_y/dy);
+nx=max(nx,5);
+ny=max(ny,5);
+if nx==5, dl=(size_x/nx)/R_earth*rad2deg; end;
+set(handles.edit6, 'String',num2str(nx));           %% nx
+set(handles.edit7, 'String',num2str(ny));           %% ny
+set(handles.edit10,'String',num2str(dl));          % Mesh size dl (deg)
 %
 [lon,lat,pm,pn,ang] = easy_grid(nx,ny,dl,size_x,size_y,tra_lon,tra_lat,rotate);
 %
