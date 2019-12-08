@@ -1,3 +1,0 @@
-motu-client
-motu_utils
-motuclient
