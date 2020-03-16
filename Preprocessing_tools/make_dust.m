@@ -56,6 +56,8 @@ disp(' Read in the grid...')
 nc=netcdf(grdname,'r');
 Lp=length(nc('xi_rho'));
 Mp=length(nc('eta_rho'));
+L=Lp-1;
+M=Mp-1;
 lon=nc{'lon_rho'}(:);
 lat=nc{'lat_rho'}(:);
 angle=nc{'angle'}(:);
@@ -67,7 +69,11 @@ disp(' Creating file')
 nc = netcdf(bioname, 'clobber');
 %%result = redef(nc);
 %
+nc('xi_u') = L;
+nc('xi_v') = Lp;
 nc('xi_rho') = Lp;
+nc('eta_u') = Mp;
+nc('eta_v') = M;
 nc('eta_rho') = Mp;
 %
 nc('dust_time') = length(time);
