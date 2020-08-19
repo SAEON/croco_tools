@@ -169,21 +169,21 @@ if wkb_obc(3)==1
   nc{'wac_north'}.coordinates = ncchar('lon_rho brywkb_time');
   nc{'wac_north'}.coordinates = 'lon_rho brywkb_time';
 %
-  nc{'wac_north'} = ncdouble('brywkb_time','xi_rho') ;
-  nc{'wac_north'}.long_name = ncchar('northern boundary xi-dir wavenumber vector');
-  nc{'wac_north'}.long_name = 'northern boundary xi-dir wavenumber vector';
-  nc{'wac_north'}.units = ncchar('radian/meter');
-  nc{'wac_north'}.units = 'radian/meter';
-  nc{'wac_north'}.coordinates = ncchar('lon_rho brywkb_time');
-  nc{'wac_north'}.coordinates = 'lon_rho brywkb_time';
+  nc{'wkx_north'} = ncdouble('brywkb_time','xi_rho') ;
+  nc{'wkx_north'}.long_name = ncchar('northern boundary xi-dir wavenumber vector');
+  nc{'wkx_north'}.long_name = 'northern boundary xi-dir wavenumber vector';
+  nc{'wkx_north'}.units = ncchar('radian/meter');
+  nc{'wkx_north'}.units = 'radian/meter';
+  nc{'wkx_north'}.coordinates = ncchar('lon_rho brywkb_time');
+  nc{'wkx_north'}.coordinates = 'lon_rho brywkb_time';
 %
-  nc{'wac_north'} = ncdouble('brywkb_time','xi_rho') ;
-  nc{'wac_north'}.long_name = ncchar('northern boundary eta-dir wavenumber vector');
-  nc{'wac_north'}.long_name = 'northern boundary eta-dir wavenumber vector';
-  nc{'wac_north'}.units = ncchar('radian/meter');
-  nc{'wac_north'}.units = 'radian/meter';
-  nc{'wac_north'}.coordinates = ncchar('lon_rho brywkb_time');
-  nc{'wac_north'}.coordinates = 'lon_rho brywkb_time';
+  nc{'wke_north'} = ncdouble('brywkb_time','xi_rho') ;
+  nc{'wke_north'}.long_name = ncchar('northern boundary eta-dir wavenumber vector');
+  nc{'wke_north'}.long_name = 'northern boundary eta-dir wavenumber vector';
+  nc{'wke_north'}.units = ncchar('radian/meter');
+  nc{'wke_north'}.units = 'radian/meter';
+  nc{'wke_north'}.coordinates = ncchar('lon_rho brywkb_time');
+  nc{'wke_north'}.coordinates = 'lon_rho brywkb_time';
 %
 end
 %

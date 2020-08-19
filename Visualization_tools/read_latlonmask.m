@@ -45,7 +45,7 @@ function [lat,lon,mask]=read_latlonmask(fname,type);
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-nc=netcdf(fname);
+nc=netcdf(fname,'r');
 lat=readlat(nc);
 lon=readlon(nc);
 mask=nc{'mask_rho'}(:);
