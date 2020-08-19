@@ -25,9 +25,9 @@
 %
 %  Copyright (c) 2003-2006 by Patrick Marchesiello and Meinte Blass
 %
-%  Updated   1-Sep-2006 by Pierrick Penven (generalisation of crocotools_param.m)
-%  Updated   3-Oct-2006 by Pierrick Penven (cleaning + phase lag for Yorig time)
-%  Updated  20-Jun-2015 by Patrick Marchesiello (add tidal potential)
+%  Updated   1-Sep-2006 by P. Penven (generalisation of crocotools_param.m)
+%  Updated   3-Oct-2006 by P. Penven (cleaning + phase lag for Yorig time)
+%  Updated  20-Jun-2015 by P. Marchesiello (added tidal potential)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all
@@ -82,6 +82,13 @@ Ntides=min([Nmax Ntides]);
 %
 % Tidal potential:
 %
+%  includes the direct astronomical contribution from the sun and moon 
+%  (amplitudes A), the contributions from solid Earth body tide
+%  (elasticity factor B), and the self-attraction of ocean tide 
+%  + load tide (read in 'salname' : global array of each constituants 
+%  from GOT99.2b). 
+%  --> See, e.g., book chapter on tides from Kantha and Clayson (2000).
+%
 %    amplitudes and elasticity factors for:
 %        M2 S2 N2 K2 K1 O1 P1 Q1 Mf Mm
 %
@@ -90,7 +97,7 @@ A=[0.242334 0.113033 0.046398 0.030704 ...
    0.041742 0.022026];                       % Amplitude (Schwiderski, 1978)
 B=[0.693 0.693 0.693 0.693 ...
    0.736 0.695 0.706 0.695 ...
-   0.693 0.693];                             % Elasticity factor
+   0.693 0.693];                             % Elasticity factor (Wahr, 1981)
 %
 coslat2=cos(rad*latr).^2;                    % Phase arrays
 sin2lat=sin(2.*rad*latr);
