@@ -264,7 +264,7 @@ if makeplot==1
     m_grid('box','fancy',...
            'xtick',5,'ytick',5,...
            'fontsize',7);
-    fname=['Potential Tides: M2 Phase [m]'];
+    fname=['Potential Tides: M2 Phase [deg]'];
     title(fname,'fontsize',16)
 % K1 AMP
     Pamp=squeeze(ncfrc{'tide_Pamp'}(5,:,:));
@@ -296,7 +296,7 @@ if makeplot==1
     m_grid('box','fancy',...
            'xtick',5,'ytick',5,...
            'fontsize',7);
-    fname=['Potential Tides: K1 Phase [m]'];
+    fname=['Potential Tides: K1 Phase [deg]'];
     title(fname,'fontsize',16)
     close(ncfrc)
   end  % <-- pot_tides
