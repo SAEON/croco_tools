@@ -38,7 +38,7 @@ crocotools_param
 %
 % Directory and file names
 %
-directory=[RUN_dir,'SCRATCH/'];
+directory=[RUN_dir,'CROCO_FILES/'];
 model='croco';
 Ymin=6;
 Ymax=10;
@@ -57,11 +57,15 @@ outfile=[directory,model,'_Mmean.nc'];
 %
 % Create the file
 %
-eval(['! ',DIAG_dir,'copycdf.csh ',infile,' ',outfile,' "CROCO monthly mean file"'])
+if (isoctave == 0)
+  eval(['! ',DIAG_dir,'copycdf.csh ',infile,' ',outfile,' "CROCO monthly mean file"'])
+else
+  system([DIAG_dir,'copycdf.csh ',infile,' ',outfile,' "CROCO monthly mean file"'])
+end
 %
 % Initialisation
 %
-nc=netcdf(infile);
+nc=netcdf(infile,'r');
 Lm=length(nc('xi_rho'));
 Mm=length(nc('eta_rho'));
 Nm=length(nc('s_rho'));
@@ -106,7 +110,7 @@ for Y=Ymin:Ymax
   for M=mo_min:mo_max
     fname=[directory,model,'_',filetype,'_Y',num2str(Y),'M',num2str(M),'.nc'];
     disp(['Opening : ',fname])
-    nc=netcdf(fname);
+    nc=netcdf(fname,'r');
     ntime=length(nc('time'));
     if (filetype=='his' & ~(Y==Ymin & M==Mmin))
       nstart=2;
