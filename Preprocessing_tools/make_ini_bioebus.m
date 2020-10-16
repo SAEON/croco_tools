@@ -84,15 +84,15 @@ add_ini_Szoo_Lzoo(ininame);
 % Remove low values for oligotrophic areas
 %
 nc=netcdf(ininame,'write');
-NO3=nc{'NO3'}(:,:,:);
+NO3=nc{'NO3'}(:,:,:,:);
 NO3(NO3<NO3min)=NO3min;
-nc{'NO3'}(:,:,:)=NO3;
+nc{'NO3'}(:,:,:,:)=NO3;
 close(nc)
 
 nc=netcdf(ininame,'write');
-O2=nc{'O2'}(:,:,:);
+O2=nc{'O2'}(:,:,:,:);
 O2(O2<O2min)=O2min;
-nc{'O2'}(:,:,:)=O2;
+nc{'O2'}(:,:,:,:)=O2;
 close(nc)
 %
 
