@@ -66,36 +66,38 @@
 # |--------------------------------------------------------------|
 # |     t(:,:,N,nnew,itemp)  |    SRMSSTV0                       |
 # |                   zeta   |    SRMSSHV0                       |
-# |     u v (at rho points)  |    SRMVOCE0 SRMUOCE0              |
+# |     u,v (at rho points)  |    SRMUOCE0 SRMVOCE0              |
+# |     u,v (at rho points)                                      |
+# | in E/N dir(rotated grids)|    SRMEOCE0 SRMNOCE0              |
 # |--------------------------------------------------------------|
 # | Possibly received fields by CROCO:            CROCO | OASIS  |
 # |--------------------------------------------------------------|
 # |                  srflx   |    RRMSRFL0                       |
 # |       stflx(:,:,isalt)   |    RRMEVPR0                       |
 # |      stflx(,:,:,itemp)   |    RRMSTFL0                       |
-# |                  sustr   |    RRMTAUX0                       |
-# |                  svstr   |    RRMTAUY0                       |
+# |                  sustr   |    RRMTAUX0  RRMTAUE0             |
+# |                  svstr   |    RRMTAUY0  RRMTAUN0             |
 # |                  smstr   |    RRMTAUM0                       |
 # |                  whrm    |    RRM__HS0                       |
 # |                  wfrq    |    RRMT0M10                       |
 # |                  wdrx    |    RRMCDIR0                       |
 # |                  wdre    |    RRMSDIR0                       |
+# |            wdrx, wdre    |    RRM_DIR0                       |
 # |--------------------------------------------------------------|
 # | Possibly sent fields by WW3:                    WW3 | OASIS  |
 # |--------------------------------------------------------------|
 # |            not defined   |    WW3_ODRY                       |
 # |                   T0M1   |    WW3_T0M1                       |
-# |                     HS   |    WW3__OHS                       |
-# |                    DIR   |    WW3_CDIR WW3_SDIR              |
-# |                    BHD   |    WW3__BHD                       |
+# |                     HS   |    WW3__OHS WW3__AHS              |
+# |                    DIR   |    WW3_CDIR WW3_SDIR WW3__DIR     |
+# |                    TAW   |    WW3_TAWX WW3_TAWY              |
 # |                    TWO   |    WW3_TWOX WW3_TWOY              |
+# |                    BHD   |    WW3__BHD                       |
 # |                    UBR   |    WW3__UBR                       |
 # |                    FOC   |    WW3__FOC                       |
-# |                    TAW   |    WW3_TAWX WW3_TAWY              |
 # |                     LM   |    WW3___LM                       |
 # |                    CUR   |    WW3_WSSU WW3_WSSV              |
-# |                    CHA   |    WW3__CHA                       |
-# |                     HS   |    WW3__AHS                       |
+# |                    CHA   |    WW3_ACHA WW3_OCHA              |
 # |                     FP   |    WW3___FP                       |
 # |--------------------------------------------------------------|
 # | Possibly received fields by WW3:                WW3 | OASIS  |
@@ -107,22 +109,37 @@
 # |--------------------------------------------------------------|
 # | Possibly sent fields by WRF:                    WRF | OASIS  |
 # |--------------------------------------------------------------|
+# |  QFX-(RAINCV+RAINNCV+                                        |
+# |   SNOWNCV+HAILNCV+                                           |
+# |   GRAUPELNCV)/DT     |    WRF_d01_EXT_d01_EVAP-PRECIP        |
+# |  (RAINCV+RAINNCV)/DT |    WRF_d01_EXT_d01_LIQUID_PRECIP      |
+# |  (SNOWNCV+HAILNCV+                                           |
+# |       GRAUPELNCV)/DT |    WRF_d01_EXT_d01_SOLID_PRECIP       |
+# |                QFX   |    WRF_d01_EXT_d01_TOTAL_EVAP         |
 # |                GSW   |    WRF_d01_EXT_d01_SURF_NET_SOLAR     |
-# |        QFX-(RAINCV                                           |
-# |       +RAINNCV)/DT   |    WRF_d01_EXT_d01_EVAP-PRECIP        |
+# |   GLW-STBOLT*EMISS                                           |
+# |     *SST**4          |    WRF_d01_EXT_d01_SURF_NET_LONGWAVE  |
+# |                -LH   |    WRF_d01_EXT_d01_SURF_LATENT        |
+# |               -HFX   |    WRF_d01_EXT_d01_SURF_SENSIBLE      |
 # |   GLW-STBOLT*EMISS                                           |
 # |     *SST**4-LH-HFX   |    WRF_d01_EXT_d01_SURF_NET_NON-SOLAR |
 # | taut * u_uo / wspd   |    WRF_d01_EXT_d01_TAUX               |
 # | taut * u_uo / wspd   |    WRF_d01_EXT_d01_TAUY               |
 # |               taut   |    WRF_d01_EXT_d01_TAUMOD             |
-# |               u_uo   |    WRF_d01_EXT_d01_U_01               |
-# |               v_vo   |    WRF_d01_EXT_d01_V_01               |
+# | cosa*taui - sina*tauj|    WRF_d01_EXT_d01_TAUE               |
+# | cosa*tauj - sina*taui|    WRF_d01_EXT_d01_TAUN               |
+# |               u_uo   |    WRF_d01_EXT_d01_WND_U_01           |
+# |               v_vo   |    WRF_d01_EXT_d01_WND_V_01           |
+# | cosa*u_uo - sina*v_vo|    WRF_d01_EXT_d01_WND_E_01           |
+# | cosa*v_vo - sina*u_uo|    WRF_d01_EXT_d01_WND_N_01           |
 # |--------------------------------------------------------------|
 # | Possibly received fields by WRF:                WRF | OASIS  |
 # |--------------------------------------------------------------|
 # |                    SST   |    WRF_d01_EXT_d01_SST            |
 # |                   UOCE   |    WRF_d01_EXT_d01_UOCE           |
 # |                   VOCE   |    WRF_d01_EXT_d01_VOCE           |
+# |                   UOCE   |    WRF_d01_EXT_d01_EOCE           |
+# |                   VOCE   |    WRF_d01_EXT_d01_NOCE           |
 # |               CHA_COEF   |    WRF_d01_EXT_d01_CHA_COEF       |
 # |--------------------------------------------------------------|
 #
@@ -132,7 +149,7 @@
 #~~~~~~~~~~~
 # U_01 : wind U component at first level (m/s)
 #~~~~~~~~~~~
-WRF_d01_EXT_d01_U_01 TOY__U10 1 <cpldt>  1  atm.nc  EXPORTED
+WRF_d01_EXT_d01_WND_U_01 TOY__U10 1 <cpldt>  1  atm.nc  EXPORTED
 <atmnx> <atmny> <wavnx> <wavny> atmt toyt LAG=<atmdt>
 R 0 R 0
 SCRIPR
