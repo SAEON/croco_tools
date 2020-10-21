@@ -43,7 +43,7 @@ for time=thetime
   if isempty(stime)
     error('TEST_BIOFORCING: dust_time missing ?')
   end
-  field=nc{thefield}(time,:,:);
+  field=squeeze(nc{thefield}(time,:,:));
   fieldname=nc{thefield}.long_name(:);
   close(nc);
 %
@@ -72,7 +72,7 @@ nc=netcdf(grdname,'r');
       m_usercoast(coastfileplot,'patch',[.9 .9 .9]);
     end
     hold off
-    title([fieldname,' - day: ',num2str(stime)])
+    title([fieldname',' - day: ',num2str(stime)])
     m_grid('box','fancy',...
            'xtick',5,'ytick',5,'tickdir','out',...
            'fontsize',7);
