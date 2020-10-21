@@ -35,6 +35,7 @@ niceplot=1;
 %
 nc=netcdf(clim_file,'r');
 var=squeeze(nc{tracer}(l,:,:,:));
+units=nc{tracer}.units(:);
 [N M L]=size(var);
 u=squeeze(nc{'u'}(l,N,:,:));
 v=squeeze(nc{'v'}(l,N,:,:));
@@ -100,7 +101,8 @@ for j=1:jstep:M
   
   pcolor(x,squeeze(z(:,j,:)),field) 
   drawnow
-  colorbar
+  hc=colorbar;
+  set(get(hc,'label'),'string',units);
   shading interp
   hold on
   plot(xrad,-topo,'k')
@@ -121,7 +123,8 @@ if niceplot==1
      'lat',[domaxis(3) domaxis(4)]);
   m_pcolor(lon,lat,mask.*field);
   shading flat
-  colorbar
+  hc=colorbar;
+  title(hc,units);
   hold on
   m_quiver(lonred,latred,ured,vred,'k');
   if ~isempty(coastfileplot)
