@@ -86,8 +86,8 @@ if [ $model == wrf ] ; then
     
     # set the variable to 0 and rename it var0
     echo '---> Set the variable to 0 and rename it var0...'
-    ncap2 -O -v -s "var0=LANDMASK*0" ${filetmp} ${filetmp}
-    
+    ncap2 -O -v -s "var0=double(LANDMASK*0)" ${filetmp} ${filetmp}
+
 elif  [ $model == croco ] ; then
 
     # Extract dimensions
@@ -102,7 +102,7 @@ elif  [ $model == croco ] ; then
 
     # set the variable to 0 and rename it var0
     echo '---> Set the variable to 0 and rename it var0...'
-    ncap2 -O -v -s "var0=mask_rho*0" ${filetmp} ${filetmp}
+    ncap2 -O -v -s "var0=double(mask_rho*0)" ${filetmp} ${filetmp}
 
 elif  [ $model == ww3 ] ; then
     
@@ -112,7 +112,7 @@ elif  [ $model == ww3 ] ; then
 
     # set the variable to 0 and rename it var0
     echo '---> Set the variable to 0 and rename it var0...'
-    ncap2 -O -v -s "var0=MAPSTA*0" ${filetmp} ${filetmp}
+    ncap2 -O -v -s "var0=double(MAPSTA*0)" ${filetmp} ${filetmp}
 
 elif  [ $model == toy ] ; then
 
@@ -122,7 +122,7 @@ elif  [ $model == toy ] ; then
 
     # set the variable to 0 and rename it var0
     echo '---> Set the variable to 0 and rename it var0...'
-    ncap2 -O -v -s "var0=imask_t*0" ${filetmp} ${filetmp}
+    ncap2 -O -v -s "var0=double(imask_t*0)" ${filetmp} ${filetmp}
 
 else
     

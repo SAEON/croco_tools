@@ -88,14 +88,14 @@ $          Namelist type selection is used here                     -- $
 $                   start with N                                    -- $
 $                   Possibly sent fields by ww3 :                   -- $
 $                      T0M1 OHS DIR BHD TWO UBR FOC TAW TUS USS     -- $
-$                      LM DRY CHA AHS TP (or FP)                    -- $
+$                      LM DRY ACHA OCHA AHS TP (or FP)              -- $
 $                   Possibly received fields by ww3 :               -- $
 $                      SSH CUR WND                                  -- $
 $                   NB: SSH and CUR cannot be used separately       -- $
 $
   <yr1><mo1><dy1> <hr1>0000  <wavdt>  <yr2><mo2><dy2> <hr2>0000
   N
-  T0M1 OHS DIR TAW TWO CHA
+  T0M1 OHS DIR TAW TWO ACHA
   SSH CUR WND
 $
 $ -------------------------------------------------------------------- $

@@ -51,9 +51,11 @@ for time=thetime
     if thefield(1:3)=='spd'
       field=sqrt((u2rho_2d(u)).^2+(v2rho_2d(v)).^2);
       fieldname='wind speed';
+      units='m/s';
     else
       field=nc{thefield}(time,:,:);
       fieldname=nc{thefield}.long_name(:);
+      units=nc{thefield}.units(:);
     end
   else  
     u=nc{'sustr'}(time,:,:);
@@ -61,9 +63,11 @@ for time=thetime
     if thefield(1:3)=='spd'
       field=sqrt((u2rho_2d(u)).^2+(v2rho_2d(v)).^2);
       fieldname='wind stress';
+      units='N/m^2',
     else
       field=nc{thefield}(time,:,:);
       fieldname=nc{thefield}.long_name(:);
+      units=nc{thefield}.units(:);
     end
   end
   close(nc);
@@ -105,7 +109,8 @@ if (isoctave == 0);
     m_pcolor(lon,lat,mask.*field);
     shading flat
     drawnow
-    colorbar
+    hc=colorbar;
+    set(get(hc,'label'),'string',units);
     hold on
     m_quiver(lonred,latred,ured,vred,'k');
     if ~isempty(coastfileplot)
