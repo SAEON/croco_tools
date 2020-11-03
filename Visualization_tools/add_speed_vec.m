@@ -81,16 +81,21 @@ else
   u=get_hslice(fname,gname,'u',tindex,level,'u');
   v=get_hslice(fname,gname,'v',tindex,level,'v');
 end
-[u,v,lon,lat,mask]=uv_vec2rho(u,v,lon,lat,angle,mask,skp,npts);
+[u,v,lon,lat,mask]=uv_vec2rho(u,v,lon,lat,angle,mask,abs(skp),npts);
   
 if nargin < 8
   u=u*scale/20;
   v=v*scale/20;
-  h=m_quiver_cst(lon,lat,u,v,0,'k');
+  if skp>0
+   h=m_quiver_cst(lon,lat,u,v,0,'k');      % vectors
+  else
+   h=m_streamslice(lon,lat,u,v,5*scale);   % streamlines
+  end
 else
   h=m_quiver_fix(lon,lat,u,v,scale,x0,y0,u_unit,units,...
                          fontsize);
 end
+
 if ~hold_state, hold off; 
 end
 return

@@ -37,6 +37,7 @@ function download_GFS(today,lonmin,lonmax,latmin,latmax,FRCST_dir,Yorig,it)
 %  Updated    9-Sep-2006 by Pierrick Penven
 %  Updated    20-Aug-2008 by Matthieu Caillaud & P. Marchesiello
 %  Updated    12-Feb-2016 by P. Marchesiello
+%  Updated    31-Oct-2020 by P. Marchesiello
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 crocotools_param
@@ -47,6 +48,7 @@ rundate=datenum(today)-datenum(Yorig,1,1);
 %
 % GFS output name
 %
+gfsftype=1;  % GFS files
 gfs_name=[FRCST_dir,'GFS_',num2str(rundate),'.nc'];
 %
 % start
@@ -55,22 +57,19 @@ disp([' '])
 disp(['Get GFS data for ',datestr(today)])
 disp(['Minimum Longitude: ',num2str(lonmin)])
 disp(['Maximum Longitude: ',num2str(lonmax)])
-disp(['Minimum Latitude: ',num2str(latmin)])
-disp(['Maximum Latitude: ',num2str(latmax)])
+disp(['Minimum Latitude:  ',num2str(latmin)])
+disp(['Maximum Latitude:  ',num2str(latmax)])
 disp([' '])
 %
-% Create the directory
+% Create directory if needed
 %
 disp(['Making output data directory ',FRCST_dir])
 eval(['!mkdir ',FRCST_dir])
 %
-% Get the GFS file name (first check if there is an available forecast)
+% Get GFS file name (first check if a forecast is available)
 %
-gfsftype=1;  % GFS files
-gfs_run_time0=0;
-gfs_date0=today-0.5;
-gfs_run_time=gfs_run_time0;
-gfs_date=gfs_date0;
+gfs_run_time=0;
+gfs_date=today-0.5;
 foundfile=0;
 while foundfile==0
   fname=get_GFS_fname(gfs_date,gfs_run_time,gfsftype);
@@ -98,22 +97,26 @@ while foundfile==0
   warning on
 end
 %
-% Get the grid and the indices of the subgrid for GFS
+% Get subgrid for GFS extraction
 %
 gfs_run_time_GFS=gfs_run_time; 
-gfs_date_GFS=gfs_date;  
-fname=get_GFS_fname(gfs_date_GFS,gfs_run_time_GFS,gfsftype); 
+gfs_date_GFS=gfs_date;
+fname=get_GFS_fname(gfs_date_GFS,gfs_run_time_GFS,gfsftype);
 [i1min,i1max,i2min,i2max,i3min,i3max,jrange,lon,lat]=...
          get_GFS_subgrid(fname,lonmin,lonmax,latmin,latmax);
+%
+% Get mask on this grid
+%
 mask=getdap('',fname,'landsfc','[1:1]','',jrange,...
-             i1min,i1max,i2min,i2max,i3min,i3max);
+               i1min,i1max,i2min,i2max,i3min,i3max);
 mask(mask==1)=NaN;
 mask(isfinite(mask))=1;
 %
-% Initialisation
-N=(hdays+fdays)*8/it+3;
+% Initialize arrays with subgrid dimensions
+%
+Nrec=(hdays+fdays+1)*8/it;
 [M,L]=size(mask);
-tx=zeros(N,M,L);
+tx=zeros(Nrec,M,L);
 ty=tx;
 tair=tx;
 rhum=tx;
@@ -126,56 +129,36 @@ uwnd=tx;
 vwnd=tx;
 %
 n=0;
-gfstime=0*(1:N);
-LON=lon;
-LAT=lat;
+gfstime=0*(1:Nrec);
 %
 %==================================================
-% Get the variables for hindcast
+% 1: Get Hindcast data from past GFS forecast files
 %==================================================
 %
-gfsftype=1; % 0 --> GDAS
-            % 1 --> GFS
+disp([char(10) ' ... READ HINDCAST FILES ... ' char(10)])
 %
-% Get GDAS/GFS grid
+% Starting date : (hdays+1) days ago 06Z (12h will be added)
 %
-gfs_run_time=12;
-gfs_date=today-(hdays+1);
-fname=get_GFS_fname(gfs_date,gfs_run_time,gfsftype);
-[i1min,i1max,i2min,i2max,i3min,i3max,jrange,lon,lat]=...
-         get_GFS_subgrid(fname,lonmin,lonmax,latmin,latmax);
-mask=getdap('',fname,'landsfc','[0:0]','',jrange,... 
-             i1min,i1max,i2min,i2max,i3min,i3max);
-mask(mask==1)=NaN;
-mask(isfinite(mask))=1;
+gfs_run_time=6;
+gfs_date=today-(hdays+1); % (hdays+1) days ago 6Z
 %
-% Loop on GDAS analyses (or 3h forecast in GFS files)
-%   - Starts hdays day ago 18Z, 1 analysis every 6h
-%   - Ends before yesterday 18Z
+% Loop on past GFS forecast files 
+%     - Starts (hdays+1) days ago 18Z
+%     - Increment every 6h
+%     - Ends yesterday 12Z
 %
-if gfsftype==1
-  gfs_run_time0= 6;         % GFS:  use rec 2 (+ 3h)
-else
-  gfs_run_time0=12;         % GDAS: use rec 1
-end
-gfs_date0=today-(hdays+1); 
-for frcst=1:4*hdays-2       % number of files until yesterday 00Z 
-  gfs_run_time0=gfs_run_time0+6;  
-  if gfs_run_time0>18
-    gfs_date0=gfs_date0+1;
-    gfs_run_time0=0;
+for ihind=1:4*hdays    % loop on files until time=yesterday 12Z 
+%
+  gfs_run_time=gfs_run_time+6;  % add 6 hours
+  if gfs_run_time>18
+    gfs_date=gfs_date+1;
+    gfs_run_time=0;
   end
 %
-% 1.1: check if the GDAS/GFS file is available.
+  tndxdap=2;  % take 3rd rec. of each file => add another 6 hours
 %
-  gfs_run_time=gfs_run_time0;
-  gfs_date=gfs_date0;
-  t1=0;
-  if gfsftype==1
-    t1dap=t1+2; % rec 2 of GFS
-  else
-    t1dap=t1;   % rec 1 of GDAS
-  end
+% 1.1: check if GFS file is available.
+%
   fname=get_GFS_fname(gfs_date,gfs_run_time,gfsftype);
   warning off
   try
@@ -186,83 +169,48 @@ for frcst=1:4*hdays-2       % number of files until yesterday 00Z
   end
   if foundfile==1 & ~isempty(x)
     disp('  File found')
-    gfs_run_time1=gfs_run_time0;  % Increment Forecast 
-    gfs_date1=gfs_date0;          % Start time
+    gfs_run_time1=gfs_run_time;  % Increment Forecast 
+    gfs_date1=gfs_date;          % Start time
+    missvalue=x.ugrd10m.missing_value;
   else
     foundfile=0;
-    disp(['  GDAS: file not found, try next file'])
-%    error(['  GDAS: file not found'])
+    disp(['  GFS: file not found, try next file'])
   end
   warning on
 %
 % 1.2: read file 
 %
   if foundfile, 
-   missvalue=x.ugrd10m.missing_value;
-% 
    n=n+1;
-   disp(['N=',num2str(n)])
-   [gfstime(n),tx0,ty0,tair0,rhum0,...
-	 prate0,wspd0,uwnd0,vwnd0,radlw0,radlw_in0,radsw0]= ...
-   get_GFS(fname,mask,t1dap,jrange,i1min,i1max,i2min,i2max,i3min,i3max,missvalue);
+   disp([char(10) 'N_hindcast=',num2str(n)])
 
-   TX=interp2(lon,lat',tx0,LON,LAT');
-   TY=interp2(lon,lat',ty0,LON,LAT');
-   TAIR=interp2(lon,lat',tair0,LON,LAT');
-   RHUM=interp2(lon,lat',rhum0,LON,LAT');
-   PRATE=interp2(lon,lat',prate0,LON,LAT');
-   WSPD=interp2(lon,lat',wspd0,LON,LAT');
-   UWND=interp2(lon,lat',uwnd0,LON,LAT');
-   VWND=interp2(lon,lat',vwnd0,LON,LAT');
-   RADLW=interp2(lon,lat',radlw0,LON,LAT');
-   RADLW_IN=interp2(lon,lat',radlw_in0,LON,LAT');
-   RADSW=interp2(lon,lat',radsw0,LON,LAT');
-   tx(n,:,:)=TX;
-   ty(n,:,:)=TY;
-   tair(n,:,:)=TAIR;
-   rhum(n,:,:)=RHUM;
-   prate(n,:,:)=PRATE;
-   wspd(n,:,:)=WSPD;
-   uwnd(n,:,:)=UWND;
-   vwnd(n,:,:)=VWND;
-   radlw(n,:,:)=RADLW;
-   radlw_in(n,:,:)=RADLW_IN;
-   radsw(n,:,:)=RADSW;
+   [gfstime(n),tx(n,:,:),ty(n,:,:),tair(n,:,:),rhum(n,:,:),...
+              prate(n,:,:),wspd(n,:,:),uwnd(n,:,:),vwnd(n,:,:),...
+              radlw(n,:,:),radlw_in(n,:,:),radsw(n,:,:)]=...
+       get_GFS(fname,mask,tndxdap,jrange,i1min,i1max,i2min,i2max, ...
+                                         i3min,i3max,missvalue);
   end 
-end
+end % ihind (nb of hindcast record)
 %
 %==================================================================
-% 2: Get the variables for Forecast starting  yesterday 00Z
+% 2: Get Forecast data, starting yesterday 18Z
 %==================================================================
 %
-gfsftype=1; % GFS files
+disp([char(10) ' ... READ FORECAST FILES ... ' char(10)])
 %
-% Get starting GFS date following last GDAS date
+% Get starting GFS date following last hindcast date
 %
-gfs_run_time0=gfs_run_time1;
-gfs_date0=gfs_date1;
-if gfs_run_time0>18
-  gfs_date0=gfs_date0+1;
-  gfs_run_time0=0;
+gfs_run_time=gfs_run_time1+6; % add 6 hours => 12Z
+gfs_date=gfs_date1;
+if gfs_run_time>18
+  gfs_date=gfs_date+1;
+  gfs_run_time=0;
 end
-gfs_run_time=gfs_run_time0;
-gfs_date=gfs_date0;
-
-% Get the grid and the indices of the subgrid for GFS
-fname=get_GFS_fname(gfs_date,gfs_run_time,gfsftype);
-[i1min,i1max,i2min,i2max,i3min,i3max,jrange,lon,lat]=...
-         get_GFS_subgrid(fname,lonmin,lonmax,latmin,latmax);
-
-mask=getdap('',fname,'landsfc','[0:0]','',jrange,...
-             i1min,i1max,i2min,i2max,i3min,i3max);
-mask(mask==1)=NaN;
-mask(isfinite(mask))=1;
-[M,L]=size(mask);
 %
-% 2.1: check if the GFS forecast has been done for this time.
-% if not: take the previous one (but increment time index)
+% 2.1: check if GFS forecast is available for this time.
+%      if not: take previous one (but increment time index)
 %
-t1=1;
+t1=2;
 foundfile=0;
 while foundfile==0
   fname=get_GFS_fname(gfs_date,gfs_run_time,gfsftype);
@@ -291,22 +239,23 @@ while foundfile==0
   warning on
 end
 %
-% 2.2: read time steps in forecast file (dt = 3h * it)
+% 2.2: loop on records in same forecast file (dt = 3h * it)
 %
-tend=(fdays+1)*8+6;
-for tndx=t1+it:it:tend
+tend=(fdays+1)*8;
+for tndx=t1+1:it:tend
   tndxdap=tndx-1;
   n=n+1;
-  %disp(['tndxdap=',num2str(tndxdap)])
-  %disp(['tndx=',num2str(tndx)])
-  disp(['N_gfs=',num2str(n)])
+  disp([char(10) 'N_forecast=',num2str(n)])
   [gfstime(n),tx(n,:,:),ty(n,:,:),tair(n,:,:),rhum(n,:,:),...
-      prate(n,:,:),wspd(n,:,:),uwnd(n,:,:),vwnd(n,:,:),...
-      radlw(n,:,:),radlw_in(n,:,:),...
-      radsw(n,:,:)]=...
-           get_GFS(fname,mask,tndxdap,jrange,i1min,i1max,i2min,i2max, ...
-                   i3min,i3max,missvalue);
+              prate(n,:,:),wspd(n,:,:),uwnd(n,:,:),vwnd(n,:,:),...
+              radlw(n,:,:),radlw_in(n,:,:),radsw(n,:,:)]=...
+       get_GFS(fname,mask,tndxdap,jrange,i1min,i1max,i2min,i2max, ...
+                                         i3min,i3max,missvalue);
 end
+%
+%==================================================================
+% 3: Finalize data processing and write in file
+%==================================================================
 %
 % Reduce the matrices
 %
@@ -323,14 +272,15 @@ radlw=radlw(1:n,:,:);
 radlw_in=radlw_in(1:n,:,:);
 radsw=radsw(1:n,:,:);
 %
-% Put the time in Yorig time
+% Set time in Yorig time
 %
 gfstime=gfstime-datenum(Yorig,1,1);
 %
 % Create the GFS output file and write everything down
 %
 mask(isnan(mask))=0;
-write_GFS(gfs_name,Yorig,lon,lat,mask,gfstime,tx,ty,tair,rhum,prate,wspd,uwnd,vwnd,radlw,radlw_in,radsw)
+write_GFS(gfs_name,Yorig,lon,lat,mask,gfstime,...
+          tx,ty,tair,rhum,prate,wspd,uwnd,vwnd,radlw,radlw_in,radsw)
 %
 disp('Download GFS: done')
 %

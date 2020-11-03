@@ -86,6 +86,10 @@ else
 end
 %
 month=Month(imonth,:);
-thedate=[num2str(day),' ',month,' ',num2str(year)];
+if isnan(Yorig)
+ thedate=[num2str(day),' ',month,' ',num2str(year)];
+else
+ thedate=[num2str(day),' ',month,' ',num2str(year),' ',num2str(h),'H'];
+end
 %
 return

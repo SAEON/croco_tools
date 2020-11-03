@@ -103,7 +103,7 @@ handles.rempts=[1 1 1 1];
 handles.units='';
 handles.longname='';
 handles.townfile=[];
-handles.isobath='0 500 1000';
+handles.isobath='0 200 1000';
 handles.skipanim=1;
 handles.plot=1;
 handles.Yorig=NaN;
@@ -877,8 +877,8 @@ return
 function varargout = downcstep_Callback(h, eventdata, handles, varargin)
 % Stub for Callback of the pushbutton 'down cstep'
 handles.cstep=handles.cstep - 1;
-if handles.cstep <= 0
-  handles.cstep=0;
+if handles.cstep < 0
+  handles.cstep=-1;
 end
 set(handles.editcstep,'String',num2str(handles.cstep))
 if handles.plot==1
@@ -892,8 +892,8 @@ return
 function varargout = editcstep_Callback(h, eventdata, handles, varargin)
 % Stub for Callback of the cstep text box
 handles.cstep = floor(str2num(get(handles.editcstep,'String')));
-if handles.cstep <= 0
-  handles.cstep=0;
+if handles.cstep < 0
+  handles.cstep=-1;
   set(handles.editcstep,'String',num2str(handles.cstep))
 end
 if handles.plot==1
@@ -1370,6 +1370,3 @@ guidata(h,handles)
 % ---------------------------   fin   ------------------------
 % ------------------------------------------------------------
 % ------------------------------------------------------------
-
-
-

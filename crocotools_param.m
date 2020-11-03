@@ -460,13 +460,13 @@ if strcmp(OGCM,'ECCO')
   hdays=1;
   fdays=6;
 elseif strcmp(OGCM,'mercator')
-  hdays=2;
+  hdays=1;
   fdays=3;
 end
 %
 % Local time= UTC + timezone
 %
-timezone = +7;
+timezone = +2;
 %
 % Add tides
 %
@@ -482,7 +482,7 @@ if strcmp(OGCM,'mercator')
   user     = 'XXX';
   password = 'XXX';
   pathMotu ='../Forecast_tools/';
-  mercator_type=2;   % 1 -->  1/12 deg Mercator forecast
+  mercator_type=1;   % 1 -->  1/12 deg Mercator forecast
                      % 2 -->  1/4  deg Met-Office forecast (GloSea5)
 end
 %

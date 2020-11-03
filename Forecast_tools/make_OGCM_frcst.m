@@ -28,24 +28,25 @@
 %  e-mail:Pierrick.Penven@ird.fr
 %
 %  Updated    8-Sep-2006 by Pierrick Penven
-%  Updated    20-Aug-2008 by Matthieu Caillaud & P. Marchesiello
+%  Updated   20-Aug-2008 by Matthieu Caillaud & P. Marchesiello
 %  Updated   12-Feb-2016 by P. Marchesiello
+%  Updated   14-Oct-2020 by P. Marchesiello
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %clear all
 %close all
+tic
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Common parameters
 %
-tic
 crocotools_param
 %
 % Specific to forecast
 %
 makeplot = 0;
 %
-% Get the date
+% Get date
 %
 rundate_str=date;
 rundate=datenum(rundate_str)-datenum(Yorig,1,1);
@@ -58,7 +59,6 @@ if strcmp(OGCM,'ECCO')
   %
   % Kalman filter
   %
-  %%url = 'http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/kf066b/kf066b_';
   url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf080/kf080_';
   %
 elseif strcmp(OGCM,'mercator')
@@ -88,52 +88,47 @@ lon=nc{'lon_rho'}(:);
 lat=nc{'lat_rho'}(:);
 angle=nc{'angle'}(:);
 h=nc{'h'}(:);
+pm=nc{'pm'}(:);
+pn=nc{'pn'}(:);
+rmask=nc{'mask_rho'}(:);
 close(nc)
-%
-% Extract data over the internet
-%
-%
-% Get the model limits
-%
-lonmin=min(min(lon));
-lonmax=max(max(lon));
-latmin=min(min(lat));
-latmax=max(max(lat));
 
+%---------------------------------------------------------------
+% Extract data from the Internet
+%---------------------------------------------------------------
 if Download_data
+ %
+ % Get model limits
+ %
+ lonmin=min(min(lon)); 
+ lonmax=max(max(lon));
+ latmin=min(min(lat));
+ latmax=max(max(lat));
+ %
+ % Download data (matlab routine for download depends on OGCM)
+ %
+ if strcmp(OGCM,'ECCO')
+  disp('Download data...')
+  eval(['OGCM_name=download_', ...
+         OGCM,'_frcst(lonmin,lonmax,latmin,latmax,',...
+                     'FRCST_dir,FRCST_prefix,url,Yorig);'])
+
+ elseif strcmp(OGCM,'mercator')
   %
+  % Use Motu python
   %
-  % Download data with Motu python (the download matlab routine depends on the OGCM)
-  %
-  if strcmp(OGCM,'ECCO')
-	disp('Download data...')
-	eval(['OGCM_name=download_',OGCM,'_frcst(lonmin,lonmax,latmin,latmax,',...
-	  'FRCST_dir,FRCST_prefix,url,Yorig);'])
-  elseif strcmp(OGCM,'mercator')
-	disp('Download data...')
-	eval(['OGCM_name=download_',OGCM,'_frcst_python(pathMotu,user,password,', ...
-                                                        'mercator_type,hdays,fdays,' ...
-                                                        'lonmin,lonmax,latmin,latmax,hmax,', ...
-	                                        	'FRCST_dir,FRCST_prefix,url,Yorig);'])
-% % 	if ~exist(OGCM_name);
-% % 	  disp([' '])
-% % 	  disp(['  ==> Download the raw motu Mercator file :',url])
-% % 	  disp(['  ==> Then create the CROCO format Mercator file :',OGCM_name])
-% % 	  disp(['============================'])
-% % 	  eval(['OGCM_name=download_',OGCM,'_frcst_python(lonmin,lonmax,latmin,latmax,',...
-% % 		'FRCST_dir,FRCST_prefix,url,Yorig);'])
-% % 	else
-% % 	  disp(['  ==> No processing needed: CROCO Mercator file exists : ', OGCM_name])
-% % 	  if ~exist(url)
-% % 		disp([char({'  CROCO Mercator file exists';'  but not the Motu Mercator file. TAKE CARE'})])
-% % 		disp(['==========================================='])
-% % 	  end
-% % 	end
+  disp('Download data...')
+  eval(['OGCM_name=download_', ...
+         OGCM,'_frcst_python(pathMotu,user,password,', ...
+                            'mercator_type,hdays,fdays,' ...
+                            'lonmin,lonmax,latmin,latmax,hmax,', ...
+                            'FRCST_dir,FRCST_prefix,url,Yorig);'])
   end
 end
-%
-% Get the OGCM grid 
-% 
+
+%---------------------------------------------------------------
+% Get OGCM grid 
+%---------------------------------------------------------------
 nc=netcdf(OGCM_name)
 lonT=nc{'lonT'}(:);
 latT=nc{'latT'}(:);
@@ -145,71 +140,48 @@ Z=-nc{'depth'}(:);
 NZ=length(Z);
 NZ=NZ-rmdepth;
 Z=Z(1:NZ);
+
+%---------------------------------------------------------------
+% Get time array 
+%---------------------------------------------------------------
 if strcmp(OGCM,'ECCO')
   time=[90 270];
   time_cycle=360;
   trange=[1 1];
-  %hdays=1;
 elseif strcmp(OGCM,'mercator')
-  OGCM_time=floor(nc{'time'}(:));
-  ntimes=length(OGCM_time);
-  dt=max(gradient(OGCM_time));
+  OGCM_time=nc{'time'}(:);
   time_cycle=0;
-  %hdays=5;
-  if floor(OGCM_time(end))~=rundate+6
-    if floor(OGCM_time(end))==rundate+5
-      croco_time=0*(1:ntimes+1);
-      croco_time(1:end-1)=OGCM_time;
-      croco_time(end)=croco_time(end-1)+dt;
-    else
-      croco_time=0*(1:ntimes+2);
-      croco_time(1:end-2)=OGCM_time;
-      croco_time(end-1)=croco_time(end-2)+dt;
-      croco_time(end)=croco_time(end-1)+dt;
-    end
-  else
-    croco_time=OGCM_time;
+  delta=1; % >1 if subsampling
+  trange=[1:delta:length(OGCM_time)];
+  time=zeros(length(trange),1);
+  for i=1:length(trange)
+    time(i)=OGCM_time(trange(i));
   end
-  nrec=1;
-  if nrec==1  % nrec=1 3 records are used
-    time=0*(1:3);
-    time(1)=croco_time(1);
-    time(2)=croco_time(OGCM_time==rundate);
-    time(3)=croco_time(end);
-  else        % nrec=0 all records are used
-    for i=1:delta:length(croco_time)
-      time(i)=croco_time(i);
-    end
-  end
-  p=find(OGCM_time==OGCM_time(1));
-  q=find(OGCM_time==OGCM_time(5));
-  r=find(OGCM_time==OGCM_time(end));
-  trange=[p q r];
-end   % MERCATOR
+end
 close(nc)
 
-%
+%---------------------------------------------------------------
 % Initial file 
-%
+%---------------------------------------------------------------
 if makeini==1
   ininame=[ini_prefix,num2str(rundate),nc_suffix];
   disp(['Create an initial file for ',num2str(rundate);])
   create_inifile(ininame,grdname,CROCO_title,...
                  theta_s,theta_b,hc,N,...
-                 rundate-hdays,'clobber',vtransform);
+                 rundate-hdays,'clobber',vtransform); % starts at 00:00
   nc_ini=netcdf(ininame,'write');
  
   interp_OGCM_frcst(OGCM_name,Roa,interp_method,...
               lonU,latU,lonV,latV,lonT,latT,Z,1,...
-              nc_ini,[],lon,lat,angle,h,1)
+              nc_ini,[],lon,lat,angle,h,pm,pn,rmask,...
+              1,vtransform,obc)
   close(nc_ini)
   eval(['!cp ',ininame,' ',ini_prefix,'hct',nc_suffix])
 end
-%
-%
 
+%---------------------------------------------------------------
 % Clim and Bry files
-%
+%---------------------------------------------------------------
 if makeclim==1 | makebry==1
   if makebry==1
     bryname=[bry_prefix,num2str(rundate),nc_suffix];
@@ -230,18 +202,19 @@ if makeclim==1 | makebry==1
     nc_clm=[];
   end
 
-%
-% Perform the interpolations for all selected records
-%
+%---------------------------------------------------------------
+% Perform interpolations for all selected records
+%---------------------------------------------------------------
 for tndx=1:length(time)
   disp([' Time step : ',num2str(tndx),' of ',num2str(length(time)),' :'])
   interp_OGCM_frcst(OGCM_name,Roa,interp_method,...
                     lonU,latU,lonV,latV,lonT,latT,Z,trange(tndx),...
-		    nc_clm,nc_bry,lon,lat,angle,h,tndx,vtransform)
+		    nc_clm,nc_bry,lon,lat,angle,h,pm,pn,rmask, ...
+                    tndx,vtransform,obc)
 end
 
 %
-% Close the CROCO files
+% Close CROCO files
 %
   if ~isempty(nc_clm)
     close(nc_clm);

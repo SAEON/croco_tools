@@ -59,11 +59,11 @@ end
 rundate_str=date;
 rundate=datenum(rundate_str)-datenum(Yorig,1,1);
 
-for i=1:lh
-  time1(i)=datenum(rundate_str)-(lh+1-i);
+for i=1:lh+1
+  time1(i)=datenum(rundate_str)-(lh+2-i);
 end
 time2=datenum(rundate_str);
-for j=1:lf
+for j=1:lf+1
   time3(j)=datenum(rundate_str)+j;
 end
 time=cat(2,time1,time2,time3);
@@ -104,11 +104,11 @@ disp(['Making output data directory ',FRCST_dir]) % create directory
 eval(['!mkdir ',FRCST_dir])
 %
 mercator_name=[FRCST_dir,FRCST_prefix,num2str(rundate),'.cdf'];
-if ~exist(mercator_name)  
-  write_mercator_frcst(FRCST_dir,FRCST_prefix,url, ...
-                       mercator_type,vars,time,Yorig); % write data
-else
-  disp('Mercator file already exist')
+if exist(mercator_name)  
+  disp('Mercator file already exist => overwrite it')
 end
+write_mercator_frcst(FRCST_dir,FRCST_prefix,url, ...
+                     mercator_type,vars,time,Yorig); % write data
+
 
 return

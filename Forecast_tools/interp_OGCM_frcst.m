@@ -1,6 +1,7 @@
 function interp_OGCM_frcst(OGCM_name,Roa,interp_method,...
                            lonU,latU,lonV,latV,lonT,latT,Z,tin,...
-		           nc_clm,nc_bry,lon,lat,angle,h,tout,vtransform)
+		           nc_clm,nc_bry,lon,lat,angle,h,pm,pn,rmask,...
+                           tout,vtransform,obc)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
@@ -38,7 +39,6 @@ function interp_OGCM_frcst(OGCM_name,Roa,interp_method,...
 conserv=1; % same barotropic velocities as the OGCM
 %
 disp(['  Horizontal interpolation: ',OGCM_name])
-%
 %
 % CROCO grid angle
 %
@@ -97,24 +97,12 @@ if ~isempty(nc_clm)
   theta_b=nc_clm{'theta_b'}(:);
   hc=nc_clm{'hc'}(:);
   N=length(nc_clm('s_rho'));
-  vtransform=nc{'Vtransform'}(:);
-    if  ~exist('vtransform')
-        vtransform=1; %Old Vtransform
-        disp([' NO VTRANSFORM parameter found'])
-        disp([' USE TRANSFORM default value vtransform = 1'])
-    end
 end
 if ~isempty(nc_bry)
   theta_s=nc_bry{'theta_s'}(:);
   theta_b=nc_bry{'theta_b'}(:);
   hc=nc_bry{'hc'}(:);
   N=length(nc_bry('s_rho'));
-  vtransform=nc{'Vtransform'}(:);
-    if  ~exist('vtransform')
-        vtransform=1; %Old Vtransform
-        disp([' NO VTRANSFORM parameter found'])
-        disp([' USE TRANSFORM default value vtransform = 1'])
-    end
 end
 zr=zlevs(h,zeta,theta_s,theta_b,hc,N,'r',vtransform);
 zu=rho2u_3d(zr);
