@@ -73,6 +73,7 @@ y=Y(j);
 %
 %  Get dimensions
 %
+%vname
 ndims=length(dim(nc{vname}));
 %
 % Get data (Horizontal 2D matrix)
@@ -126,3 +127,6 @@ else
 end
 %
 return
+
+end
+

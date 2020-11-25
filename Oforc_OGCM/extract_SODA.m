@@ -32,7 +32,7 @@ function extract_SODA(SODA_dir,SODA_prefix,url,year,month,...
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %  Updated   6-Sep-2006 by Pierrick Penven
-%  Updated : 23-Oct-2009 by Gildas Cambon Adapatation for the special tratment 
+%  Updated : 23-Oct-2009 by Gildas Cambon Adaptation for the special tratment 
 %            for the bry file
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %

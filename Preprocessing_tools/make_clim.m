@@ -116,14 +116,13 @@ if (makeoa)
   %
   disp(' ')
   disp(' Create the OA file...')
-      nc=netcdf(temp_ann_data,'r');
+  nc=netcdf(temp_ann_data,'r');
   Z=nc{'Z'}(:);
   kmax=max(find(Z<hmax))-1;
   Z=Z(1:kmax);
   close(nc)
   create_oafile(oaname,grdname,CROCO_title,Z,...
                 woa_time,woa_cycle,'clobber');
-
   %
   % Horizontal extrapolations 
   %

@@ -1,19 +1,19 @@
 function extract_mercator(OGCM_dir,OGCM_prefix,url,Y,M,...
-                      lon,lon_u,lat,lat_v,depth,...
-                      krange,jrange,jrange_v,...
-                      i1min,i1max,i2min,i2max,i3min,i3max,...
-                      i1min_u,i1max_u,i2min_u,i2max_u,i3min_u,i3max_u,...
-                      Yorig)
+                          lon,lon_u,lat,lat_v,depth,...
+                          krange,jrange,jrange_v,...
+                          i1min,i1max,i2min,i2max,i3min,i3max,...
+                          i1min_u,i1max_u,i2min_u,i2max_u,i3min_u,i3max_u,...
+                          Yorig)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Extract a subset from ECCO using DODS
 % Write it in a local file (keeping the classic
-% SODA netcdf format)
-% 
+% SODA netcdf format) 
 %
-%  Further Information:  
+%
+%  Further Information:
 %  http://www.croco-ocean.org
-%  
+%
 %  This file is part of CROCOTOOLS
 %
 %  CROCOTOOLS is free software; you can redistribute it and/or modify
@@ -207,3 +207,6 @@ create_OGCM([OGCM_dir,OGCM_prefix,'Y',num2str(Y),'M',num2str(M),'.cdf'],...
              temp,salt,u,v,ssh,Yorig)
 %
 return
+
+end
+

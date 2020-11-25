@@ -34,8 +34,8 @@
 %                   and F. Colberg (UCT)
 %
 %  Updated    6-Sep-2006 by Pierrick Penven
-%  Update     13 -Sep-2009 by Gildas Cambon (IRD)
-%  Update     14 -March-2011 by Gildas Cambon & Serena Illig (IRD)
+%  Update     13-Sep-2009 by Gildas Cambon (IRD)
+%  Update     14-March-2011 by Gildas Cambon & Serena Illig (IRD)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %start % to be used in batch mode %
 clear all
@@ -72,6 +72,7 @@ elseif strcmp(OGCM,'ECCO')
   %
 else
   error(['Unknown OGCM: ',OGCM])
+  % for mercator/glorys12 reanalysis use make_OGCM_mercator.m
 end
 %
 itolap_tot=itolap_a + itolap_p;
@@ -116,21 +117,9 @@ if Download_data==1
   %
   % Download data with DODS (the download matlab routine depends on the OGCM)
   % 
-  if ~exist('Get_My_DataOGCM') | ( Get_My_DataOGCM == 0) ;
-    disp('Download data...')
-    eval(['download_',OGCM,'(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,',...
-	  'OGCM_dir,OGCM_prefix,url,Yorig)'])
-  else
-    %Reference to Oforc_OGCM/Mydata routines : specific routines to your own data
-    disp('Use my own data...')
-    disp('Specific routines for your own OGCM datasets')
-    disp(['Flag Get_My_DataOGCM declared and =1'])
-    disp([' '])
-    disp(['Located at ',url_mydataOGCM])
-    eval(['download_',OGCM,'_Mydata(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,',...
-	  'OGCM_dir,OGCM_prefix,url_mydataOGCM,Yorig)'])  
-  end
-
+  disp('Download data...')
+  eval(['download_',OGCM,'(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,',...
+        'OGCM_dir,OGCM_prefix,url,Yorig)'])
 end
 %
 %------------------------------------------------------------------------------------

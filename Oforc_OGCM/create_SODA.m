@@ -28,9 +28,10 @@ function create_SODA(fname,lonT,latT,lonU,latU,lonV,latV,depth,time,...
 %  e-mail:Pierrick.Penven@ird.fr  
 %
 %  Updated    6-Sep-2006 by Pierrick Penven
-%
+%  Updated    7-Oct-2013 by Gildas Cambon
+%  Updated   14-Fev-2013 by Gildas Cambon
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
+
 missval=NaN;
 disp('    Create the OGCM file')
 nc=netcdf(fname,'clobber');
@@ -193,3 +194,6 @@ end
 close(nc)
 %
 return
+
+end
+

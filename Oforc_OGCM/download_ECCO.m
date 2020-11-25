@@ -89,7 +89,7 @@ for Y=Ymin:Ymax
         %
         % Extract ECCO data
         %
-        extract_ECCO_V2(OGCM_dir,OGCM_prefix,url,Y,M,...
+        extract_ECCO(OGCM_dir,OGCM_prefix,url,Y,M,...
                         catalog_vname,catalog_vname2,...
                         lon,lat,depth,krange,jrange,...
                         i1min,i1max,i2min,i2max,i3min,i3max,Yorig)
@@ -97,3 +97,6 @@ for Y=Ymin:Ymax
     end
 end
 return
+
+end
+
