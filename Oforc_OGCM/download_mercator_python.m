@@ -1,8 +1,8 @@
-function mercator_name=download_mercator_frcst_python(pathMotu,user,password,mercator_type, ...
-                                                      motu_url, service_id,product_id, ...
-                                                      lh,lf, ...
-                                                      lonmin,lonmax,latmin,latmax,zmax, ...
-                                                      FRCST_dir,FRCST_prefix,raw_mercator_name,Yorig)
+function download_mercator_python(pathMotu,user,password,mercator_type, ...
+                                  motu_url,service_id,product_id, ...
+                                  Y,M, ...
+                                  lonmin,lonmax,latmin,latmax,zmax, ...
+                                  OGCM_dir,OGCM_prefix,thedatemonth,Yorig)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Extract a subgrid from mercator to get a CROCO forcing
@@ -43,48 +43,44 @@ convert_raw2crocotools=1; % convert -> crocotools format data
 %
 % Set variable names according to mercator type data
 %
-if mercator_type==1,
-  vars = {'zos' ...
-	  'uo' ...
-	  'vo' ...
-	  'thetao' ...
-	  'so'};
-else
-  vars = {'zos' ...
-	  'uo' ...
-	  'vo' ...
-	  'thetao' ...
-	  'so'};
-end
-%
-% Get dates
-%
-rundate_str=date;
-rundate=datenum(rundate_str)-datenum(Yorig,1,1);
+vars = {'zos' ...
+        'uo' ...
+        'vo' ...
+        'thetao' ...
+        'so'};
 
-for i=1:lh+1
-    time1(i)=datenum(rundate_str)-(lh+2-i);
-end
-time2=datenum(rundate_str);
-for j=1:lf+1
-    time3(j)=datenum(rundate_str)+j;
-end
-time=cat(2,time1,time2,time3);
-tiempo_inicial = time1(1);
-tiempo_final = time3(end);
+disp([' '])
+disp(['Get data for Y',num2str(Y),'M',num2str(M)])
+disp(['Minimum Longitude: ',num2str(lonmin)])
+disp(['Maximum Longitude: ',num2str(lonmax)])
+disp(['Minimum Latitude: ',num2str(latmin)])
+disp(['Maximum Latitude: ',num2str(latmax)])
+disp([' '])
+%
+% Create the directory
+%
+disp(['Making output data directory ',OGCM_dir])
+eval(['!mkdir ',OGCM_dir])                 
+
+%
+% Get files and dates
+%
+% for interanual monthly files
+time1=datenum(Y,M,01);
+time2=datenum(Y,M+1,01) - 1;
+%time2=datenum(Y,M,02);  %for debug
+%e debug
+time=cat(2,time1,time2);
+tiempo_inicial = time(1);
+tiempo_final = time(end);
+    
 if (lonmin > 180)
     lonmin = lonmin - 360;
 end
 if (lonmax > 180)
     lonmax = lonmax - 360;
 end
-disp([' '])
-disp(['Get data for ',rundate_str])
-disp(['Minimum Longitude: ',num2str(lonmin)])
-disp(['Maximum Longitude: ',num2str(lonmax)])
-disp(['Minimum Latitude:  ',num2str(latmin)])
-disp(['Maximum Latitude:  ',num2str(latmax)])
-disp([' '])
+raw_mercator_name=[OGCM_dir,'raw_motu_',OGCM_prefix,thedatemonth,'.nc'];
 
 if download_raw_data
     %
@@ -98,7 +94,7 @@ if download_raw_data
     setenv('DYLD_LIBRARY_PATH','');
     pathld=getenv('LD_LIBRARY_PATH');
     setenv('LD_LIBRARY_PATH','');
-    
+
     get_file_python_mercator(pathMotu,mercator_type, ...
                              motu_url,service_id,product_id, ...
                              vars, ...
@@ -107,6 +103,7 @@ if download_raw_data
                              datestr(tiempo_final,  'yyyy-mm-dd')}, ...
                              {user password}, ...
                              raw_mercator_name);
+    
     setenv('DYLD_LIBRARY_PATH',pathdyld); % set back Matlab libs path
     setenv('LD_LIBRARY_PATH',pathld);     % set back Matlab libs path
 end  %end download_raw_data
@@ -117,15 +114,12 @@ if convert_raw2crocotools
     % Convert data format and write in a more CROCOTOOLS 
     % compatible input file 
     %
-    disp(['Making output data directory ',FRCST_dir]) % create directory
-    eval(['!mkdir ',FRCST_dir])
-    %
-    mercator_name=[FRCST_dir,FRCST_prefix,num2str(rundate),'.cdf'];
+    mercator_name=[OGCM_dir,'raw_motu_',OGCM_prefix,thedatemonth,'.nc'];
     if exist(mercator_name)  
         disp('Mercator file already exist => overwrite it')
     end
-    write_mercator_frcst(FRCST_dir,FRCST_prefix,raw_mercator_name, ...
-                         mercator_type,vars,time,Yorig); % write data
+    write_mercator(OGCM_dir,OGCM_prefix,raw_mercator_name, ...
+                   mercator_type,vars,time,thedatemonth,Yorig); % write data
     eval(['! rm -f ',raw_mercator_name]);
 end
 

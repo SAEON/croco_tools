@@ -421,6 +421,14 @@ bry_prefix  = [CROCO_files_dir,'croco_bry_',OGCM,'_'];    % generic boundary fil
 clm_prefix  = [CROCO_files_dir,'croco_clm_',OGCM,'_'];    % generic climatology file name
 ini_prefix  = [CROCO_files_dir,'croco_ini_',OGCM,'_'];    % generic initial file name
 OGCM_prefix = [OGCM,'_'];                                 % generic OGCM file name 
+
+if strcmp(OGCM,'mercator')
+    % For GLORYS 12 reanalysis extraction + download using the python motuclient
+    % ========================
+    motu_url_reana='http://my.cmems-du.eu/motu-web/Motu'
+    service_id_reana='GLOBAL_REANALYSIS_PHY_001_030-TDS';
+    product_id_reana='global-reanalysis-phy-001-030-daily';
+end
 %
 % Number of OGCM bottom levels to remove 
 % (usefull if CROCO depth is shallower than OGCM depth)
@@ -429,9 +437,9 @@ rmdepth     = 2;
 %
 % Overlap parameters : nb of records around each monthly sequence
 %
-itolap_a    = 2;   % before
-itolap_p    = 2;   % after
-%
+itolap_a    = 1;   % before
+itolap_p    = 1;   % after
+                   %
 %--------------------------
 % Options for make_bry_WKB 
 %--------------------------
@@ -481,9 +489,19 @@ add_tides_fcst = 1;       % 1: add tides
 if strcmp(OGCM,'mercator')
   user     = 'XXX';
   password = 'XXX';
-  pathMotu ='../Forecast_tools/';
+  pathMotu ='../Forecast_tools/';  %deprecated option
   mercator_type=1;   % 1 -->  1/12 deg Mercator forecast
                      % 2 -->  1/4  deg Met-Office forecast (GloSea5)
+  if mercator_type==1
+      motu_url_frct='http://nrt.cmems-du.eu/motu-web/Motu';
+      service_id_frct='GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS';
+      product_id_frct='global-analysis-forecast-phy-001-024';
+      
+  elseif mercator_type==2
+      motu_url_frct='http://nrt.cmems-du.eu/motu-web/Motu';
+      service_id_frct='GLOBAL_ANALYSISFORECAST_PHY_CPL_001_015-TDS';
+      product_id_frct='MetO-GLO-PHY-CPL-dm-TEM'
+  end
 end
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
