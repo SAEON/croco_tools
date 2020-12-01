@@ -50,7 +50,10 @@ makeplot = 0;
 %
 rundate_str=date;
 rundate=datenum(rundate_str)-datenum(Yorig,1,1);
-FRCST_prefix=[OGCM,'_'];      % generic OGCM file name
+%
+% Set generic OGCM file name
+%
+FRCST_prefix=[OGCM,'_'];
 OGCM_name=[FRCST_dir,FRCST_prefix,num2str(rundate),'.cdf'];
 %
 if strcmp(OGCM,'ECCO')
@@ -120,16 +123,10 @@ if Download_data
   disp('Download data...')
     eval(['OGCM_name=download_', ...
           OGCM,'_frcst_python(pathMotu,user,password,mercator_type,', ...
-                              'motu_url_frct,service_id_frct,product_id_frct,', ...
+                              'motu_url_fcst,service_id_fcst,product_id_fcst,', ...
                               'hdays,fdays,', ...
                               'lonmin,lonmax,latmin,latmax,hmax,', ...
                               'FRCST_dir,FRCST_prefix,raw_mercator_name,Yorig);'])
-  
-% $$$   OGCM_name=download_mercator_frcst_python(pathMotu,user,password,mercator_type, ...
-% $$$                                    motu_url_frct,service_id_frct,product_id_frct,
-% $$$                                    hdays,fdays, ...
-% $$$                                    lonmin,lonmax,latmin,latmax,hmax, ...
-% $$$                                    FRCST_dir,FRCST_prefix,raw_mercator_name,Yorig);
   end
 end
 

@@ -1,11 +1,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Create and fill CROCO clim and bry files with OGCM data.
+%  Create and fill CROCO clim and bry files with OGCM 
+%  MERCATOR data.
 %
-% The on-line reference to SODA is at
-% http://iridl.ldeo.columbia.edu./SOURCES/.CARTON-GIESE/.SODA/
-% The on-line reference to ECCO is at
-% http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/
+%  Online reference to MERCATOR is at http://marine.copernicus.eu
 % 
 %  Further Information:  
 %  http://www.croco-ocean.org

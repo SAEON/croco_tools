@@ -125,9 +125,9 @@ coastfilemask = 'coastline_l_mask.mat';
 %Roa=300e3;
 Roa=0;
 %
-interp_method = 'cubic';         % Interpolation method: 'linear' or 'cubic'
+interp_method = 'spline'; % Interpolation method: 'linear' or 'spline'
 %
-makeplot     = 0;                 % 1: create a few graphics after each preprocessing step
+makeplot     = 0;         % 1: create graphics after each preprocessing step
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -139,7 +139,6 @@ makeplot     = 0;                 % 1: create a few graphics after each preproce
 %  CROCOTOOLS directory
 %
 CROCOTOOLS_dir = '../';
-%CROCOTOOLS_dir = [getenv('tools') '/'];
 %
 %  Run directory
 %
@@ -152,12 +151,10 @@ CROCO_files_dir=[RUN_dir,'CROCO_FILES/'];
 %  Global data directory (etopo, coads, datasets download from ftp, etc..)
 %
 DATADIR='../../croco_tools/'; 
-%DATADIR=[getenv('CROCO_DIR') '/DATA/DATASETS_CROCOTOOLS/'];
 %
 %  Forcing data directory (ncep, quikscat, datasets download with opendap, etc..)
 %
 FORC_DATA_DIR = [RUN_dir,'DATA/'];
-%FORC_DATA_DIR = [getenv('CROCO_DIR') '/DATA/'];
 %
 if (isoctave == 0)
 	eval(['!mkdir ',CROCO_files_dir])
@@ -211,9 +208,9 @@ coads_dir=[DATADIR,'COADS05/'];
 coads_time=(15:30:345); % days: middle of each month
 coads_cycle=360;        % repetition of a typical year of 360 days  
 %
-%coads_time=(15.2188:30.4375:350.0313); % year of 365.25 days in the case
-%coads_cycle=365.25;                    % of QSCAT experiments with 
-%                                         climatological heat flux.
+%coads_time=(15.2188:30.4375:350.0313); % year of 365.25 days in case
+%coads_cycle=365.25;                    % interannual QSCAT winds  
+%                                       % are used with clim. heat flux
 %
 % Pathfinder SST data used by pathfinder_sst.m
 %
@@ -284,8 +281,8 @@ woa_time=(15:30:345); % days: middle of each month
 woa_cycle=360;        % repetition of a typical year of 360 days  
 %
 %woa_time=(15.2188:30.4375:350.0313); % year of 365.25 days in case
-%woa_cycle=365.25;                    % of QSCAT experiments with 
-%                                     % climatological boundary conditions
+%woa_cycle=365.25;                    % interannual QSCAT winds are used 
+%                                     % with clim. boundary conditions
 %
 %   For rivers setup : go in the routine Rivers/make_runoff.m to
 %   setup your options
@@ -349,7 +346,7 @@ SPIN_Long     = 0;             % SPIN-UP duration in Years
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-Download_data = 0;   % Get data from OPENDAP sites  
+Download_data = 1;   % Get data from OPENDAP sites  
 level         = 0;   % AGRIF level; 0 = parent grid
 %					  
 NCEP_version  = 3;   % NCEP version: 
@@ -370,8 +367,7 @@ if NCEP_version  == 1;
 elseif NCEP_version  == 2;
   NCEP_dir= [FORC_DATA_DIR,'NCEP2_',CROCO_config,'/'];
 elseif NCEP_version  == 3;
-  NCEP_dir= [FORC_DATA_DIR,'CFSR_',CROCO_config,'/']; % CFSR data directory [in a "croco" format]
-  %NCEP_dir= [FORC_DATA_DIR,'METEOROLOGICAL_FORCINGS/CFSR/BENGUELA/CROCO_format/'];
+  NCEP_dir= [FORC_DATA_DIR,'CFSR_',CROCO_config,'/']; % CFSR data dir. [croco format]
 end
 makefrc      = 0;       % 1: create forcing files
 makeblk      = 1;       % 1: create bulk files
@@ -382,17 +378,17 @@ add_tides    = 0;       % 1: add tides
 %
 % Overlap parameters 
 %
-itolap_qscat = 2;      % 2 records for daily  QSCAT
-itolap_ncep  = 8;      % 8 records for 4-daily NCEP
+itolap_qscat = 2;       % 2 records for daily  QSCAT
+itolap_ncep  = 8;       % 8 records for 4-daily NCEP
 %
 %--------------------------------------------------
 % Options for make_QSCAT_daily and make_QSCAT_clim   
 %--------------------------------------------------
 %
-QSCAT_dir        = [FORC_DATA_DIR,'QSCAT_',CROCO_config,'/']; % QSCAT data directory [processed into a "croco" format]
-QSCAT_frc_prefix = [frc_prefix,'_QSCAT_'];                   %  generic file name
-                                                             %  for interannual simulations
-QSCAT_clim_file  = [DATADIR,'QuikSCAT_clim/',...             % QuikSCAT climatology file
+QSCAT_dir        = [FORC_DATA_DIR,'QSCAT_',CROCO_config,'/']; % QSCAT data dir. [croco format]
+QSCAT_frc_prefix = [frc_prefix,'_QSCAT_'];                    % QSCAT Generic file name for
+                                                              % interannual simulations
+QSCAT_clim_file  = [DATADIR,'QuikSCAT_clim/',...              % QSCAT climatology file
                     'croco_SCOW_month_clim_1999_2009.nc'];    % for make_QSCAT_clim.
 %
 %--------------------------------------------------
@@ -400,32 +396,28 @@ QSCAT_clim_file  = [DATADIR,'QuikSCAT_clim/',...             % QuikSCAT climatol
 %--------------------------------------------------
 %
 Reformat_ECMWF = 1;
-ECMWF_dir= [FORC_DATA_DIR,'ECMWF_',CROCO_config,'/'];  % ERA-I data directory [processed into a "croco" format]
-My_ECMWF_dir=[FORC_DATA_DIR,'ERAI/'];                  % ERA-I native native data downloaded with python script
-%ECMWF_dir= [FORC_DATA_DIR,'METEOROLOGICAL_FORCINGS/ERAI/BENGUELA/CROCO_format/6h/'];
-%My_ECMWF_dir= [FORC_DATA_DIR,'METEOROLOGICAL_FORCINGS/ERAI/BENGUELA/NATIVE_format/6h/'];
-itolap_ecmwf = 3;                                       %3 records for daily  ECMWF
-% 
+ECMWF_dir= [FORC_DATA_DIR,'ECMWF_',CROCO_config,'/'];  % ERA-I data dir. [croco format]
+My_ECMWF_dir=[FORC_DATA_DIR,'ERAI/'];                  % ERA-I native data downloaded 
+                                                       % with python script
+itolap_ecmwf = 3;                                      % 3 records for daily  ECMWF
 %
-%-----------------------
-% Options for make_OGCM 
-%-----------------------
+%--------------------------------------------
+% Options for make_OGCM or make_OGCM_mercator
+%--------------------------------------------
 %
-OGCM        = 'SODA';        % Select the OGCM: SODA, ECCO
+OGCM        = 'SODA';        % Select OGCM: SODA, ECCO, mercator
 %
-OGCM_dir    = [FORC_DATA_DIR,OGCM,'_',CROCO_config,'/'];  % OGCM data directory
-                                                          % [processed into a "crocotools" format]
-%OGCM_dir    = [FORC_DATA_DIR,'3D_OCEAN_FORCING/SODA/BENGUELA/'];
-
+OGCM_dir    = [FORC_DATA_DIR,OGCM,'_',CROCO_config,'/'];  % OGCM data dir. [croco format]
+%
 bry_prefix  = [CROCO_files_dir,'croco_bry_',OGCM,'_'];    % generic boundary file name
 clm_prefix  = [CROCO_files_dir,'croco_clm_',OGCM,'_'];    % generic climatology file name
 ini_prefix  = [CROCO_files_dir,'croco_ini_',OGCM,'_'];    % generic initial file name
 OGCM_prefix = [OGCM,'_'];                                 % generic OGCM file name 
 
 if strcmp(OGCM,'mercator')
-    % For GLORYS 12 reanalysis extraction + download using the python motuclient
+    % For GLORYS 12 reanalysis extraction + download using python motuclient
     % ========================
-    motu_url_reana='http://my.cmems-du.eu/motu-web/Motu'
+    motu_url_reana='http://my.cmems-du.eu/motu-web/Motu';
     service_id_reana='GLOBAL_REANALYSIS_PHY_001_030-TDS';
     product_id_reana='global-reanalysis-phy-001-030-daily';
 end
@@ -480,27 +472,32 @@ timezone = +2;
 %
 add_tides_fcst = 1;       % 1: add tides
 %
-% MERCATOR case: Set login/password (see http://marine.copernicus.eu)
-%                and path to your motu-client-python/ package to
-%                download the data.
-%                Various sets of data are proposed in the 
-%                Copernicus web site (Mercator, UK Met Office ...)
+%  MERCATOR case: 
+%  =============
+%  To download data: set login/password (http://marine.copernicus.eu)
+%  and path to croco's motuclient python package;
+%  or set pathMotu='' (empty) to use your own motuclient
+%
+%  Various sets of data are proposed in the 
+%  Copernicus web site (Mercator, UK Met Office ...)
 %
 if strcmp(OGCM,'mercator')
   user     = 'XXX';
   password = 'XXX';
-  pathMotu ='../Forecast_tools/';  %deprecated option
+
+  pathMotu =[CROCOTOOLS_dir,'Forecast_tools/'];
+
   mercator_type=1;   % 1 -->  1/12 deg Mercator forecast
                      % 2 -->  1/4  deg Met-Office forecast (GloSea5)
   if mercator_type==1
-      motu_url_frct='http://nrt.cmems-du.eu/motu-web/Motu';
-      service_id_frct='GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS';
-      product_id_frct='global-analysis-forecast-phy-001-024';
+      motu_url_fcst='http://nrt.cmems-du.eu/motu-web/Motu';
+      service_id_fcst='GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS';
+      product_id_fcst='global-analysis-forecast-phy-001-024';
       
   elseif mercator_type==2
-      motu_url_frct='http://nrt.cmems-du.eu/motu-web/Motu';
-      service_id_frct='GLOBAL_ANALYSISFORECAST_PHY_CPL_001_015-TDS';
-      product_id_frct='MetO-GLO-PHY-CPL-dm-TEM'
+      motu_url_fcst='http://nrt.cmems-du.eu/motu-web/Motu';
+      service_id_fcst='GLOBAL_ANALYSISFORECAST_PHY_CPL_001_015-TDS';
+      product_id_fcst='MetO-GLO-PHY-CPL-dm-TEM'
   end
 end
 %
