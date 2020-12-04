@@ -1,9 +1,9 @@
-function extract_ECCO_V2(OGCM_dir,OGCM_prefix,url,Y,M,catalog_vname,...
-    catalog_vname2,...
-    lon,lat,depth,...
-    krange,jrange,...
-    i1min,i1max,i2min,i2max,i3min,i3max,......
-    Yorig)
+function extract_ECCO(OGCM_dir,OGCM_prefix,url,Y,M,catalog_vname,...
+                      catalog_vname2,...
+                      lon,lat,depth,...
+                      krange,jrange,...
+                      i1min,i1max,i2min,i2max,i3min,i3max,......
+                      Yorig)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % Extract a subset from ECCO using DODS
@@ -34,7 +34,7 @@ function extract_ECCO_V2(OGCM_dir,OGCM_prefix,url,Y,M,catalog_vname,...
 %  Copyright (c) 2006 by Pierrick Penven
 %  e-mail:Pierrick.Penven@ird.fr
 %
-%  Updated    6-Sep-2006 by Pierrick Penvenmake_C
+%  Updated    6-Sep-2006 by Pierrick Penven
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -77,7 +77,7 @@ for vv=1:length(catalog_vname)
         Dst=1;
         disp(['-->'])
         disp([' Check ',vname,' for ',datestr(datenum(Y,M,Dst,0,0,0))])
-        fname0=get_filename_ECCO2(vname,Y,M,Dst);
+        fname0=get_filename_ECCO(vname,Y,M,Dst);
         fname=[url,prefix,fname0];
         % Determine if dap file exists at day D0
         %   --> if not, increment
@@ -85,7 +85,7 @@ for vv=1:length(catalog_vname)
         try; dok=loaddap('-A -e +v ',fname); end;
         while isempty(dok)==1
             Dst=Dst+1;
-            fname0=get_filename_ECCO2(vname,Y,M,Dst);
+            fname0=get_filename_ECCO(vname,Y,M,Dst);
             fname=[url,prefix,fname0];
             try; dok=loaddap('-A -e +v ',fname); end;
         end
@@ -98,7 +98,7 @@ for vv=1:length(catalog_vname)
             tndx=tndx+1;
             disp(['===>'])
             disp([' Downloading ',vname,' for ',datestr(datenum(Y,M,D,0,0,0))])
-            fname0=get_filename_ECCO2(vname,Y,M,D);
+            fname0=get_filename_ECCO(vname,Y,M,D);
             fname=[url,prefix,fname0];
             time=readdap(fname,'TIME',[]);
             time3d(tndx)=time+datenum(1992,1,1)-datenum(Yorig,1,1);
@@ -124,7 +124,7 @@ for vv=1:length(catalog_vname)
             salt=var;
         end
         % disp(['Write variable ',vname2])
-        % create_ECCO2_3D([OGCM_dir,vname2,'_Y',num2str(Y),'M',num2str(M),'.cdf'], ...
+        % create_ECCO_3D([OGCM_dir,vname2,'_Y',num2str(Y),'M',num2str(M),'.cdf'], ...
         %                 vname2,lon,lat,depth,time3d,var,Yorig)
         clear var
         
@@ -137,7 +137,7 @@ for vv=1:length(catalog_vname)
             tndx=tndx+1;
             disp(['===>'])
             disp([' Downloading ',vname,' for ',datestr(datenum(Y,M,D,0,0,0))])
-            fname0=get_filename_ECCO2(vname,Y,M,D);
+            fname0=get_filename_ECCO(vname,Y,M,D);
             fname=[url,prefix,fname0];
             time=readdap(fname,'TIME',[]);
             time3d(tndx)=time+datenum(1992,1,1)-datenum(Yorig,1,1);
@@ -152,7 +152,7 @@ for vv=1:length(catalog_vname)
             ssh=var;
         end
         % disp(['Write variable ',vname2])
-        % create_ECCO2_2D([OGCM_dir,vname2,'_Y',num2str(Y),'M',num2str(M),'.cdf'], ...
+        % create_ECCO_2D([OGCM_dir,vname2,'_Y',num2str(Y),'M',num2str(M),'.cdf'], ...
         %                 vname2,lon,lat,time3d,var,Yorig)
         clear var
 
@@ -163,7 +163,10 @@ end     %-> catalogue_vname list
 %
 % Create ECCO file and write variables
 %
-create_ECCO2([OGCM_dir,OGCM_prefix,'Y',num2str(Y),'M',num2str(M),'.cdf'],...
+create_OGCM([OGCM_dir,OGCM_prefix,'Y',num2str(Y),'M',num2str(M),'.cdf'],...
              lon,lat,lon,lat,lon,lat,depth,time3d,temp,salt,u,v,ssh,Yorig)
 
 return
+
+end
+

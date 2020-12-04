@@ -1,11 +1,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Create and fill CROCO clim and bry files with OGCM data.
+%  Create and fill CROCO clim and bry files with OGCM 
+%  MERCATOR data.
 %
-% The on-line reference to SODA is at
-% http://iridl.ldeo.columbia.edu./SOURCES/.CARTON-GIESE/.SODA/
-% The on-line reference to ECCO is at
-% http://ecco.jpl.nasa.gov/cgi-bin/nph-dods/datasets/
+%  Online reference to MERCATOR is at http://marine.copernicus.eu
 % 
 %  Further Information:  
 %  http://www.croco-ocean.org
@@ -36,6 +34,7 @@
 %  Updated    6-Sep-2006 by Pierrick Penven
 %  Update     13-Sep-2009 by Gildas Cambon (IRD)
 %  Update     14-March-2011 by Gildas Cambon & Serena Illig (IRD)
+%  Update     24-November-2020 by Gildas Cambon(IRD)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %start % to be used in batch mode %
 clear all
@@ -46,34 +45,7 @@ close all
 %
 crocotools_param
 %
-if strcmp(OGCM,'SODA')
-  %
-  %  SODA DODS URL
-  %
-  % SODA 2.0.2-4
-  %url= 'http://apdrc.soest.hawaii.edu:80/dods/public_data/SODA/soda_pop2.0.4'
-  
-  % SODA_2.1.6 [ ERA40/QSCAT 1958-2008 / POP2.1 / WOD09 ]
-  %%url='http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p1p6' ;
-  %url='http://apdrc.soest.hawaii.edu:80/dods/public_data/SODA/soda_pop2.1.6' ;
-  
-  % SODA_2.2.4/ [ C20R-2 1871-2008 / POP2.1 ]
-  %%url='http://iridl.ldeo.columbia.edu/SOURCES/.CARTON-GIESE/.SODA/.v2p2p4' ;
-  url='http://apdrc.soest.hawaii.edu:80/dods/public_data/SODA/soda_pop2.2.4' ;
-  
-elseif strcmp(OGCM,'ECCO')
-  %
-  %  ECCO DODS URL
-  %
-  % Kalman filter 
-  %
-  %  url = 'http://ecco.jpl.nasa.gov/thredds/dodsC/las/kf080/kf080_'; 
-     url = 'http://ecco2.jpl.nasa.gov:80/opendap/data1/cube/cube92/lat_lon/quart_90S_90N/'
-  %
-else
-  error(['Unknown OGCM: ',OGCM])
-  % for mercator/glorys12 reanalysis use make_OGCM_mercator.m
-end
+%  MERCATOR : see get_file_python_mercator.m for python-motu, url, and others options
 %
 itolap_tot=itolap_a + itolap_p;
 disp(['Overlap before =',num2str(itolap_a)])
@@ -107,20 +79,42 @@ close(nc)
 % Extract data over the internet
 %
 if Download_data==1
-  %
-  % Get the model limits
-  %
-  lonmin=min(min(lon));
-  lonmax=max(max(lon));
-  latmin=min(min(lat));
-  latmax=max(max(lat));
-  %
-  % Download data with DODS (the download matlab routine depends on the OGCM)
-  % 
-  disp('Download data...')
-  eval(['download_',OGCM,'(Ymin,Ymax,Mmin,Mmax,lonmin,lonmax,latmin,latmax,',...
-        'OGCM_dir,OGCM_prefix,url,Yorig)'])
-end
+    %
+    % Get the model limits
+    %
+    lonmin=min(min(lon));
+    lonmax=max(max(lon));
+    latmin=min(min(lat));
+    latmax=max(max(lat));
+    %
+    % Download data with DODS (the download matlab routine depends on the OGCM)
+    % 
+    disp('Download data...')
+    % Loop on the years
+    %
+    for Y=Ymin:Ymax
+        disp(['Processing year: ',num2str(Y)])
+        if Y==Ymin
+            mo_min=Mmin;
+        else
+            mo_min=1;
+        end
+        if Y==Ymax
+            mo_max=Mmax;
+        else
+            mo_max=12;
+        end
+        for M=mo_min:mo_max
+            %motu_url_reana
+            thedatemonth=['Y',num2str(Y),'M',num2str(M)];          
+            download_mercator_python(pathMotu,user,password,1,...
+                                     motu_url_reana,service_id_reana,product_id_reana, ...
+                                     Y,M, ...
+                                     lonmin,lonmax,latmin,latmax,hmax, ...
+                                     OGCM_dir,OGCM_prefix,thedatemonth,Yorig)           
+        end
+    end  %End loop over month and years for the downloading with python/motu client 
+end %End loop for Download_data
 %
 %------------------------------------------------------------------------------------
 %

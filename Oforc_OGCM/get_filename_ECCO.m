@@ -1,4 +1,4 @@
-function fname=get_filename_ECCO2(vname,Y,M,D)
+function fname=get_filename_ECCO(vname,Y,M,D)
 
 stryear=num2str(Y);
 if M<10
@@ -19,3 +19,6 @@ else
     fname=[vname,'.1440x720x50.',stryear,strmonth,strday,'.nc'] ;
 end
 return
+
+end
+

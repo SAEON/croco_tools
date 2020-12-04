@@ -1,8 +1,9 @@
-function write_mercator_frcst(FRCST_dir,FRCST_prefix,raw_mercator_name,...
-                              mercator_type,vars,time,Yorig)
+function write_mercator(OGCM_dir,OGCM_prefix,raw_mercator_name,...
+                         mercator_type,vars,time,thedatemonth,Yorig)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-% Extract a subset from Marcator using python motu client (cls)
+% Extract a subset from Mercator in the case of hindcast
+% using python motu client (cls)
 % Write it in a local file (keeping the classic SODA netcdf format)
 % 
 %  Further Information:  
@@ -45,12 +46,6 @@ if mercator_type==1,
   depth = nc{'depth'}(:);
   time = nc{'time'}(:);
   time = time / 24 + datenum(1950,1,1) - datenum(Yorig,1,1);
-else
-  lon = nc{'lon'}(:);
-  lat = nc{'lat'}(:);
-  depth = nc{'depth'}(:);
-  time = nc{'time'}(:);
-  time = time / 86400 + datenum(2014,1,9) - datenum(Yorig,1,1);
 end
 %
 % Get SSH
@@ -118,11 +113,9 @@ salt = salt.*scale_factor + add_offset;
 %
 % Create the Mercator file
 %
-rundate_str=date;
-rundate=datenum(rundate_str)-datenum(Yorig,1,1);
-close(nc)
+close(nc) % close raw_mercator_name
 
-create_OGCM([FRCST_dir,FRCST_prefix,num2str(rundate),'.cdf'],...
+create_OGCM([OGCM_dir,OGCM_prefix,thedatemonth,'.cdf'],...
              lon,lat,lon,lat,lon,lat,depth,time,...
              squeeze(temp),squeeze(salt),squeeze(u),...
              squeeze(v),squeeze(ssh),Yorig)

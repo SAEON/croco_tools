@@ -50,7 +50,10 @@ makeplot = 0;
 %
 rundate_str=date;
 rundate=datenum(rundate_str)-datenum(Yorig,1,1);
-FRCST_prefix=[OGCM,'_'];      % generic OGCM file name
+%
+% Set generic OGCM file name
+%
+FRCST_prefix=[OGCM,'_'];
 OGCM_name=[FRCST_dir,FRCST_prefix,num2str(rundate),'.cdf'];
 %
 if strcmp(OGCM,'ECCO')
@@ -65,7 +68,7 @@ elseif strcmp(OGCM,'mercator')
   %
   %  MERCATOR : see get_file_python_mercator.m
   %
-  url=[FRCST_dir,'motu_primaryrawformat_mercator_',num2str(rundate),'.nc'];
+  raw_mercator_name=[FRCST_dir,'raw_motu_mercator_',num2str(rundate),'.nc'];
 else
   error(['Unknown OGCM: ',OGCM])
 end
@@ -118,11 +121,12 @@ if Download_data
   % Use Motu python
   %
   disp('Download data...')
-  eval(['OGCM_name=download_', ...
-         OGCM,'_frcst_python(pathMotu,user,password,', ...
-                            'mercator_type,hdays,fdays,' ...
-                            'lonmin,lonmax,latmin,latmax,hmax,', ...
-                            'FRCST_dir,FRCST_prefix,url,Yorig);'])
+    eval(['OGCM_name=download_', ...
+          OGCM,'_frcst_python(pathMotu,user,password,mercator_type,', ...
+                              'motu_url_fcst,service_id_fcst,product_id_fcst,', ...
+                              'hdays,fdays,', ...
+                              'lonmin,lonmax,latmin,latmax,hmax,', ...
+                              'FRCST_dir,FRCST_prefix,raw_mercator_name,Yorig);'])
   end
 end
 

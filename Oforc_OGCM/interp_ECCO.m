@@ -1,6 +1,6 @@
-function interp_ECCO2(OGCM_dir,OGCM_prefix,year,month,Roa,interp_method,...
-             lon,lat,Z,tin,...
-		     nc_clm,nc_bry,angle,h,tout,obc,vtransform)
+function interp_ECCO(OGCM_dir,OGCM_prefix,year,month,Roa,interp_method,...
+                      lon,lat,Z,tin,...
+		      nc_clm,nc_bry,angle,h,tout,obc,vtransform)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 %
@@ -422,3 +422,6 @@ if ~isempty(nc_bry)
     nc_bry{'vbar_west'}(tout,:,:)=vbar_west;  
   end
 end
+
+end
+
