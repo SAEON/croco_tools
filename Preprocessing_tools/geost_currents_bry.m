@@ -225,10 +225,22 @@ for l=1:tlen
       svstr(end)=svstr(end-1);
     end
     k_ekman=min(find(Z<=-De));
-    u_r(1:k_ekman,:)=u_r(1:k_ekman,:)+squeeze(tridim(rmask.*...
+
+    try 
+       u_r(1:k_ekman,:)=u_r(1:k_ekman,:)+squeeze(tridim(rmask.*...
                        svstr./(rho0*De*f),k_ekman));
-    v_r(1:k_ekman,:)=v_r(1:k_ekman,:)+squeeze(tridim(-rmask.*...
+    catch
+       u_r(1:k_ekman,:)=u_r(1:k_ekman,:)+squeeze(tridim(rmask.*...
+                       svstr'./(rho0*De*f),k_ekman));
+    end
+
+    try
+       v_r(1:k_ekman,:)=v_r(1:k_ekman,:)+squeeze(tridim(-rmask.*...
                       sustr./(rho0*De*f),k_ekman));
+    catch                      
+       v_r(1:k_ekman,:)=v_r(1:k_ekman,:)+squeeze(tridim(-rmask.*...
+                      sustr'./(rho0*De*f),k_ekman));
+    end
  end
 
 
