@@ -55,7 +55,7 @@ CROCO_config = 'Benguela_LR';
 %
 lonmin =   8;   % Minimum longitude [degree east]
 lonmax =  22;   % Maximum longitude [degree east]
-latmin = -38;   % Minimum latitudeF  [degree north]
+latmin = -38;   % Minimum latitude  [degree north]
 latmax = -26;   % Maximum latitude  [degree north]
 %
 % Grid resolution [degree]
