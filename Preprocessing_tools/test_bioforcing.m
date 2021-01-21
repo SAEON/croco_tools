@@ -63,7 +63,7 @@ nc=netcdf(grdname,'r');
 % 
 if (isoctave);
     aux_plot=mask.*squeeze(field);
-    aux_field=flipud(aux_lot);
+    aux_field=flipud(aux_plot);
     imagesc(aux_field)
     colorbar
     try 
