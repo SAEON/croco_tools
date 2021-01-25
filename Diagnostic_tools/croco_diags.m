@@ -37,7 +37,7 @@ crocotools_param
 %
 % Directory and file names
 %
-directory=[RUN_dir,'SCRATCH/'];
+directory=[RUN_dir,'CROCO_FILES/'];
 model='croco';
 filetype='avg';  % 'his' or 'avg'
 Ymin=1;
