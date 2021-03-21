@@ -82,8 +82,13 @@ end
 %  Apply a selective filter on log(h) to reduce grad(h)/h.
 %
 disp(' Apply a selective filter on log(h) to reduce grad(h)/h :')
-if hmin<0, h=h-hmin+1; end % wet/dry case
-h=log_topo_filter(h,maskr,masku,maskv,maskr_ext,hmin,hmax_coast,r_max);
+if hmin<0, 
+ h=h-hmin+1;  % wet/dry case
+ hmin0=1;
+else
+ hmin0=hmin;
+end
+h=log_topo_filter(h,maskr,masku,maskv,maskr_ext,hmin0,hmax_coast,r_max);
 if hmin<0, h=h+hmin-1; end
 %
 %  Smooth the topography again to prevent 2D noise
