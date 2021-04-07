@@ -170,7 +170,9 @@ for k=1:length(vnames)
                  %--> do running daily mean with filter function
                  b=[0.5 1 1 1 0.5]/4.;
                  a=[1 0 0 0 0];
+                 var(isnan(var))=9999;
                  var=filtfilt(b,a,var);
+                 var(var==9999)=NaN;
                 end
                 var2=var(5:end-4,:,:);clear var;
                 %

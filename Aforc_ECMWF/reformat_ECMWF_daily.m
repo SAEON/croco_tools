@@ -169,7 +169,9 @@ for k=1:length(vnames)
                 %--> do running daily mean with filter function
                 b=[0.5 1 1 1 0.5]/4.;
                 a=[1 0 0 0 0];
+                var(isnan(var))=9999;
                 var2=filtfilt(b,a,var); clear var;
+                var2(var2==9999)=NaN;
                 var3=var2(5+2:end-2,:,:);clear var2;
                 %
                 %--> Extract noon ponts
