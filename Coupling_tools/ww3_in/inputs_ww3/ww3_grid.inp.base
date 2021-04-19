@@ -92,7 +92,7 @@ $
 $
      -<hmin> 10 23 1 1 1 '(....)' 'NAME' 'bottom.inp'
 $               24 1 1 1 '(....)'  'NAME' 'obst.inp'
-               25 1 1 '(....)'  'NAME' 'mask.inp'
+               25 1 1 '(....)'  'NAME' 'mask_and_bdy.inp'
 $
 $ Input boundary points ---------------------------------------------- $
 $  Points at which input boundary conditions are to be defined ------- $

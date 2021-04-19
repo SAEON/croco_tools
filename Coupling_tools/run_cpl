@@ -526,56 +526,98 @@ if [ $MPI_LAUNCH_CMD == poe ] ; then
  fi
  chmod +x run_file
  mpirun_cmd="poe  -pgmmodel MPMD -cmdfile ./run_file"
-else
-#elif [ $MPI_LAUNCH_CMD == mpirun ] ; then
- if [ $mod1 != no ] ; then
-  mpirun_cmd="$MPI_LAUNCH_CMD -np $NBPROC_1 $mod1"
- fi
- if [ $mod2 != no ] ; then
-  if [ ! -z $mpirun_cmd ] ; then
-    mpirun_cmd="$mpirun_cmd : -np $NBPROC_2 $mod2"
-  else
-    mpirun_cmd="$MPI_LAUNCH_CMD -np $NBPROC_2 $mod2"
-  fi
- fi
- if [ $mod3 != no ] ; then
-  mpirun_cmd="$mpirun_cmd : -np $NBPROC_3 $mod3" 
- fi
 
-#else
-# echo 'ERROR: '$MPI_LAUNCH_CMD' not implemented yet... Exit'
-# exit
+ # for srun JZA
+elif [ $MPI_LAUNCH_CMD == srun ] ; then
+    mod1_Str=''
+    mod2_Str=''
+    mod3_Str=''
+    mystartproc=0
+    myoffset=-1
+    myNBPROC_1=0
+    myNBPROC_2=0
+    myNBPROC_3=0
+    
+    if [ $mod1 != no ] ; then
+	myNBPROC_1=$NBPROC_1
+	mystartproc=$(( $mystartproc ))
+	myendproc=$(( $myNBPROC_1 - 1 ))
+	mod1_Str=$mystartproc"-"$myendproc
+	echo "$mod1_Str ./$mod1" >> run_file
+	echo '=='
+	myoffset=0
+    fi
+    
+    if [ $mod2 != no ] ; then
+	myNBPROC_2=$NBPROC_2
+	mystartproc=$(( $myoffset + $myendproc + 1))
+	myendproc=$(( $mystartproc +  $myNBPROC_2 -1 ))
+	mod2_Str=$mystartproc"-"$myendproc
+	echo "$mod2_Str ./$mod2" >> run_file
+	echo '=='
+	myoffset=0
+    fi
+    
+    if [ $mod3 != no ] ; then
+	myNBPROC_3=$NBPROC_3
+	mystartproc=$(( $myoffset + $myendproc +  1 ))
+	myendproc=$(( $mystartproc +  $myNBPROC_3 - 1 ))
+	mod3_Str=$mystartproc"-"$myendproc
+	echo "$mod3_Str ./$mod3" >> run_file
+	echo '=='
+    fi
+    chmod +x run_file
+    mpirun_cmd="srun --multi-prog ./run_file"
+    
+    #else
+elif [ $MPI_LAUNCH_CMD == mpirun ] ; then
+    if [ $mod1 != no ] ; then
+	mpirun_cmd="$MPI_LAUNCH_CMD -np $NBPROC_1 $mod1"
+    fi
+    if [ $mod2 != no ] ; then
+	if [ ! -z $mpirun_cmd ] ; then
+	    mpirun_cmd="$mpirun_cmd : -np $NBPROC_2 $mod2"
+	else
+	    mpirun_cmd="$MPI_LAUNCH_CMD -np $NBPROC_2 $mod2"
+	fi
+    fi
+    if [ $mod3 != no ] ; then
+	mpirun_cmd="$mpirun_cmd : -np $NBPROC_3 $mod3" 
+    fi
+else
+    # echo 'ERROR: '$MPI_LAUNCH_CMD' not implemented yet... Exit'
+    # exit
 fi
 
 if [ $mod1 = wwatch -o $mod2 = wwatch -o $mod3 = wwatch ] ; then
-
- echo 'WW3 pre-processing before run:'
- # WW3 grid 
- echo "${SERIAL_LAUNCH_WW3}ww3_grid &> grid.out"
- ${SERIAL_LAUNCH_WW3}ww3_grid &> grid.out
- if [ ! -e mod_def.ww3 ]; then
-   echo 'ERROR when running ww3_grid, mod_def.ww3 does not exist'
-   exit 1
+    
+    echo 'WW3 pre-processing before run:'
+    # WW3 grid 
+    echo "${SERIAL_LAUNCH_WW3}ww3_grid &> grid.out"
+    ${SERIAL_LAUNCH_WW3}ww3_grid &> grid.out
+    if [ ! -e mod_def.ww3 ]; then
+	echo 'ERROR when running ww3_grid, mod_def.ww3 does not exist'
+	exit 1
+    fi
+    # WW3 prnc
+    for  k in `seq 0 $(( ${lengthforc} - 1))` ; do
+	echo "ln -sf ww3_prnc.inp.${forcww3[$k]} ww3_prnc.inp"
+	ln -sf ww3_prnc.inp.${forcww3[$k]} ww3_prnc.inp
+	echo "${SERIAL_LAUNCH_WW3}ww3_prnc &> prnc.${forcww3[$k]}.out"
+	${SERIAL_LAUNCH_WW3}ww3_prnc &> prnc.${forcww3[$k]}.out
+	if [ ! -e ${forcww3[$k]}.ww3 ]; then
+	    echo 'ERROR when running ww3_prnc for '${forcww3[$k]}
+	    exit 1
+	fi
+    done
+    # WW3 strt
+    echo "${SERIAL_LAUNCH_WW3}ww3_strt &> strt.out"
+    ${SERIAL_LAUNCH_WW3}ww3_strt &> strt.out
+    if [ ! -e restart.ww3 ]; then
+     echo 'ERROR when running ww3_strt, restart.ww3 does not exist'
+     exit 1
  fi
- # WW3 prnc
- for  k in `seq 0 $(( ${lengthforc} - 1))` ; do
-  echo "ln -sf ww3_prnc.inp.${forcww3[$k]} ww3_prnc.inp"
-  ln -sf ww3_prnc.inp.${forcww3[$k]} ww3_prnc.inp
-  echo "${SERIAL_LAUNCH_WW3}ww3_prnc &> prnc.${forcww3[$k]}.out"
-  ${SERIAL_LAUNCH_WW3}ww3_prnc &> prnc.${forcww3[$k]}.out
-  if [ ! -e ${forcww3[$k]}.ww3 ]; then
-   echo 'ERROR when running ww3_prnc for '${forcww3[$k]}
-   exit 1
-  fi
- done
- # WW3 strt
- echo "${SERIAL_LAUNCH_WW3}ww3_strt &> strt.out"
- ${SERIAL_LAUNCH_WW3}ww3_strt &> strt.out
- if [ ! -e restart.ww3 ]; then
-   echo 'ERROR when running ww3_strt, restart.ww3 does not exist'
-   exit 1
- fi
-
+ 
 fi
 
 echo 'launch run: '$mpirun_cmd
@@ -583,16 +625,16 @@ echo 'launch run: '$mpirun_cmd
 $mpirun_cmd
 
 if [ $mod1 = wwatch -o $mod2 = wwatch -o $mod3 = wwatch ] ; then
-
- # WW3 format to netcdf
- if [ -e out_grd.ww3 ]; then
-  echo 'WW3 post-processing after run:'
-  # WW3 format to netcdf
-  echo "${SERIAL_LAUNCH_WW3}ww3_ounf &> ounf.out"
-  ${SERIAL_LAUNCH_WW3}ww3_ounf &> ounf.out
-  #${SERIAL_LAUNCH_WW3}ww3_ounp &> ounp.out
- fi
-
+    
+    # WW3 format to netcdf
+    if [ -e out_grd.ww3 ]; then
+	echo 'WW3 post-processing after run:'
+	# WW3 format to netcdf
+	echo "${SERIAL_LAUNCH_WW3}ww3_ounf &> ounf.out"
+	${SERIAL_LAUNCH_WW3}ww3_ounf &> ounf.out
+	#${SERIAL_LAUNCH_WW3}ww3_ounp &> ounp.out
+    fi
+    
 fi
 
 
