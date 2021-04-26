@@ -10,7 +10,7 @@
 #
 # NFIELDS: total number of fields being exchanged
  $NFIELDS
- 7
+ 6
 #########################################################################
 # NBMODEL: number of models and their names (6 characters) 
  $NBMODEL
