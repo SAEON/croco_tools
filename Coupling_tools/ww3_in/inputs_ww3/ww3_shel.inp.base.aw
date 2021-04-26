@@ -87,7 +87,7 @@ $          Time stride must be the same as the maximum global time step$
 $          Namelist type selection is used here                     -- $
 $                   start with N                                    -- $
 $                   Possibly sent fields by ww3 :                   -- $
-$                      T0M1 OHS DIR BHD TWO UBR FOC TAW TUS USS     -- $
+$                      T0M1 OHS DIR THM BHD TWO UBR FOC TAW TUS USS -- $
 $                      LM DRY ACHA OCHA AHS TP (or FP)              -- $
 $                   Possibly received fields by ww3 :               -- $
 $                      SSH CUR WND                                  -- $

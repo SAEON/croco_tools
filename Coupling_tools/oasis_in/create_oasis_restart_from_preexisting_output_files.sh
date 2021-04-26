@@ -79,8 +79,8 @@ if [ $model == wrf ] ; then
     varlist=(${gridlevels}_TAUX \
             ${gridlevels}_TAUY \
             ${gridlevels}_TAUMOD \
-            ${gridlevels}_U_01 \
-            ${gridlevels}_V_01 \
+            ${gridlevels}_WND_U_01 \
+            ${gridlevels}_WND_V_01 \
             ${gridlevels}_SURF_NET_SOLAR \
             ${gridlevels}_SURF_NET_NON-SOLAR \
             ${gridlevels}_EVAP-PRECIP)
@@ -104,25 +104,16 @@ elif  [ $model == croco ] ; then
     timerange=1
 
 elif  [ $model == ww3 ] ; then
-
-#    varlist=(WW3_T0M1 \
-#            WW3___HS \
+    varlist=(WW3_T0M1 \
+            WW3__OHS \
 #            WW3_CDIR \
 #            WW3_SDIR \
-#            WW3_TWOX \
-#            WW3_TWOY \
-#            WW3_TAWX \
-#            WW3_TAWY \
-#            WW3__CHA)
-
-    varlist=(WW3_T0M1 \
-            WW3___HS \
             WW3__DIR \
             WW3_TWOX \
             WW3_TWOY \
             WW3_TAWX \
             WW3_TAWY \
-            WW3__CHA)
+            WW3_ACHA)
 
     dimtime=time
     timerange=1

@@ -1,3 +1,4 @@
+
 #########################################################################
 # This is a typical input file for OASIS3-MCT.
 # Keywords used in previous versions of OASIS3 
@@ -89,7 +90,8 @@
 # |            not defined   |    WW3_ODRY                       |
 # |                   T0M1   |    WW3_T0M1                       |
 # |                     HS   |    WW3__OHS WW3__AHS              |
-# |                    DIR   |    WW3_CDIR WW3_SDIR WW3__DIR     |
+# |                    DIR   |    WW3_CDIR WW3_SDIR              |
+# |                    THM   |    WW3__DIR                       |
 # |                    TAW   |    WW3_TAWX WW3_TAWY              |
 # |                    TWO   |    WW3_TWOX WW3_TWOY              |
 # |                    BHD   |    WW3__BHD                       |
