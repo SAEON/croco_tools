@@ -199,10 +199,19 @@ SCRIPR
 DISTWGT LR SCALAR LATLON 1 4
 #
 #~~~~~~~~~~~
-# THM / ww_thm : mean direction  
+# COS(THM) / ww_thm : cos of mean direction  
 #~~~~~~~~~~~
-WW3__DIR RRM_DIR0 1 <cpldt> 1 wav.nc EXPORTED
-<wavnx> <wavny> <ocenx> <oceny> ww3t ocnt LAG=<wavdt>
+TOY_CDIR RRMCDIR0 1 <cpldt> 1 wav.nc EXPORTED
+<wavnx> <wavny> <ocenx> <oceny> toyt ocnt LAG=<wavdt>
+R  0  R  0
+SCRIPR
+DISTWGT LR SCALAR LATLON 1 4
+#
+#~~~~~~~~~~~
+# SIN(THM) / ww_thm : sin of mean direction  
+#~~~~~~~~~~~
+TOY_SDIR RRMSDIR0 1 <cpldt> 1 wav.nc EXPORTED
+<wavnx> <wavny> <ocenx> <oceny> toyt ocnt LAG=<wavdt>
 R  0  R  0
 SCRIPR
 DISTWGT LR SCALAR LATLON 1 4

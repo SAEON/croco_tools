@@ -197,12 +197,20 @@ WW3__OHS TOY___HS 1 <cpldt> 1 wav.nc EXPORTED
 R  0  R  0
 SCRIPR
 DISTWGT LR SCALAR LATLON 1 4
+#~~~~~~~~~~~
+# COS(THM) / ww_thm : cos of mean direction  
+#~~~~~~~~~~~
+WW3_CDIR TOY_CDIR 1 <cpldt> 1 wav.nc EXPORTED
+<wavnx> <wavny> <ocenx> <oceny> ww3t toyt LAG=<wavdt>
+R  0  R  0
+SCRIPR
+DISTWGT LR SCALAR LATLON 1 4
 #
 #~~~~~~~~~~~
-# THM / ww_thm : mean direction  
+# SIN(THM) / ww_thm : sin of mean direction  
 #~~~~~~~~~~~
-WW3__DIR RRM_DIR0 1 <cpldt> 1 wav.nc EXPORTED
-<wavnx> <wavny> <ocenx> <oceny> ww3t ocnt LAG=<wavdt>
+WW3_SDIR TOY_SDIR 1 <cpldt> 1 wav.nc EXPORTED
+<wavnx> <wavny> <ocenx> <oceny> ww3t toyt LAG=<wavdt>
 R  0  R  0
 SCRIPR
 DISTWGT LR SCALAR LATLON 1 4
