@@ -97,7 +97,7 @@ end
 %
 % Get the model grid
 %
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 lon=nc{'lon_rho'}(:);
 lat=nc{'lat_rho'}(:);
 angle=nc{'angle'}(:);
@@ -126,7 +126,7 @@ end
 %
 % Get the OGCM grid 
 % 
-nc=netcdf([OGCM_dir,OGCM_prefix,'Y',num2str(Ymin),'M',num2str(Mmin),'.cdf']);
+nc=netcdf([OGCM_dir,OGCM_prefix,'Y',num2str(Ymin),'M',num2str(Mmin),'.cdf'],'r');
 lonT=nc{'lonT'}(:);
 latT=nc{'latT'}(:);
 lonU=nc{'lonU'}(:);
@@ -208,7 +208,7 @@ if makeclim==1 | makebry==1
       %
       % Add 2 times step in the CROCO files: 1 at the beginning and 1 at the end 
       %
-      nc=netcdf([OGCM_dir,OGCM_prefix,'Y',num2str(Y),'M',num2str(M),'.cdf']);
+      nc=netcdf([OGCM_dir,OGCM_prefix,'Y',num2str(Y),'M',num2str(M),'.cdf'],'r');
       OGCM_time=nc{'time'}(:);
       ntimes=length(OGCM_time);
       if ntimes==1
@@ -282,7 +282,7 @@ if makeclim==1 | makebry==1
 	Ym=Y;
 	tndx_OGCM=ones(itolap_a,1);
       else
-	nc=netcdf(fname);
+	nc=netcdf(fname,'r');
 	tndx_OGCM=[(length(nc('time'))- (itolap_a -1) ):1: (length(nc('time')))];
 	close(nc)
       end
