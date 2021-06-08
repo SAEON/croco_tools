@@ -67,7 +67,7 @@ fi
 
 if [ $need_mt_mp_flag == 1 ]; then
   # replace compilation flags in jobcomp:
-  sed -i -e '#FFLAGS1="-O3 -fno-alias -i4 -r8 -fp-model precise -mcmodel=medium"#FFLAGS1="-O3 -fno-alias -i4 -r8 -fp-model precise -mcmodel=medium -mt_mpi"#g' jobcompi
+  sed -i -e '#FFLAGS1="-O3 -fno-alias -i4 -r8 -fp-model precise -mcmodel=medium"#FFLAGS1="-O3 -fno-alias -i4 -r8 -fp-model precise -mcmodel=medium -mt_mpi"#g' jobcomp
 fi
 
 # if necessary add additional netcdf lib and include flags after oasis ones

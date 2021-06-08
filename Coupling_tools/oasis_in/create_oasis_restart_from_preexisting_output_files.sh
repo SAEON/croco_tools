@@ -105,10 +105,19 @@ elif  [ $model == croco ] ; then
 
 elif  [ $model == ww3 ] ; then
 
+#    varlist=(WW3_T0M1 \
+#            WW3___HS \
+#            WW3_CDIR \
+#            WW3_SDIR \
+#            WW3_TWOX \
+#            WW3_TWOY \
+#            WW3_TAWX \
+#            WW3_TAWY \
+#            WW3__CHA)
+
     varlist=(WW3_T0M1 \
             WW3___HS \
-            WW3_CDIR \
-            WW3_SDIR \
+            WW3__DIR \
             WW3_TWOX \
             WW3_TWOY \
             WW3_TAWX \
