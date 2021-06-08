@@ -52,7 +52,11 @@ flag_clean=1
 NBPROC_1=$1
 #MPI_LAUNCH_CMD="mpirun"
 #MPI_LAUNCH_CMD="poe"
-MPI_LAUNCH_CMD=$MPI_LAUNCH
+#MPI_LAUNCH_CMD=$MPI_LAUNCH
+#MPI_LAUNCH_CMD="srun"
+#--JEAN-ZAY
+MPI_LAUNCH_CMD="srun"
+SERIAL_LAUNCH_WW3="srun --ntasks=1 "
 
 # Runtime Settings
 # ----------------------------
@@ -62,16 +66,17 @@ runtime=$((31*24*3600))
 
 # Time Steps
 # ----------------------------
-atmdt=150
+atmdt=100
 
 # Outputs Settings
 # ----------------------------
-wrf_rst_flag=false                 # start from restart ?
-wrf_rst_h=24                       # restart interval (h)
-wrf_his_h=1                        # output interval (h)
-wrf_his_frames=$((31*24))          # nb of outputs per file
-wrf_diag_int_m=$((${wrf_his_h}*60))  # diag output interval (m)
-wrf_diag_frames=$wrf_his_frames    # nb of diag outputs per file
+wrf_rst_flag=false                    # start from restart ?
+wrf_rst_h=24                          # restart interval (h)
+wrf_his_h=3                           # output interval (h)
+wrf_his_frames=$((31*24/8))           # nb of outputs per file
+#wrf_his_frames=$((1000))             # nb of outputs per file
+wrf_diag_int_m=$((${wrf_his_h}*60*8)) # diag output interval (m)
+wrf_diag_frames=$((31))               # nb of diag outputs per file
 
 # MPI Settings for WRF (see WRF namelist documentation README.namelist in real_in directory)
 wrf_nprocX=-1      # -1 for automatic settings
@@ -186,13 +191,16 @@ if [ $MPI_LAUNCH_CMD == poe ] ; then
  done
  chmod +x run_file
  mpirun_cmd="poe  -pgmmodel MPMD -cmdfile ./run_file"
-else
-#elif [ $MPI_LAUNCH_CMD == mpirun ] ; then
- mpirun_cmd="$MPI_LAUNCH_CMD -np $NBPROC_1 wrfexe"
 
-#else
-# echo 'ERROR: '$MPI_LAUNCH_CMD' not implemented yet... Exit'
-# exit
+elif [ $MPI_LAUNCH_CMD == mpirun ] ; then
+    mpirun_cmd="$MPI_LAUNCH_CMD -np $NBPROC_1 wrfexe"
+
+elif [ $MPI_LAUNCH_CMD == mpirun ] ; then
+    mpirun_cmd="$MPI_LAUNCH_CMD -n $NBPROC_1 wrfexe"
+    
+else
+    echo 'ERROR: '$MPI_LAUNCH_CMD' not implemented yet... Exit'
+    exit
 fi
 
 echo 'launch run: '$mpirun_cmd

@@ -61,7 +61,7 @@ echo 'loading modules'
 #module load nco/4.6.4_gcc-6.3.0
 #module load matlab/2017a
 
-## ADA case
+## Jean-ZAY case
 #module load netcdf/mpi/4.3.3.1
 #module load nco/4.4.2
 

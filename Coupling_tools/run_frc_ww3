@@ -51,9 +51,12 @@ flag_clean=1
 NBPROC_1=$1
 #MPI_LAUNCH_CMD="mpirun"
 #MPI_LAUNCH_CMD="poe"
-MPI_LAUNCH_CMD=$MPI_LAUNCH
+#MPI_LAUNCH_CMD=$MPI_LAUNCH
 #SERIAL_LAUNCH_WW3='./'
-SERIAL_LAUNCH_WW3="$MPI_LAUNCH -np 1 "
+#SERIAL_LAUNCH_WW3="$MPI_LAUNCH -np 1 "
+#--JEAN-ZAY
+MPI_LAUNCH_CMD="srun"
+SERIAL_LAUNCH_WW3="srun --ntasks=1 "
 
 # Runtime Settings
 # ----------------------------
@@ -176,13 +179,17 @@ if [ $MPI_LAUNCH_CMD == poe ] ; then
  done
  chmod +x run_file
  mpirun_cmd="poe  -pgmmodel MPMD -cmdfile ./run_file"
-else
-#elif [ $MPI_LAUNCH_CMD == mpirun ] ; then
+
+elif [ $MPI_LAUNCH_CMD == mpirun ] ; then
  mpirun_cmd="$MPI_LAUNCH_CMD -np $NBPROC_1 wwatch"
 
-#else
-# echo 'ERROR: '$MPI_LAUNCH_CMD' not implemented yet... Exit'
-# exit
+elif [ $MPI_LAUNCH_CMD == srun ] ; then
+  mpirun_cmd="$MPI_LAUNCH_CMD -n $NBPROC_1 wwatch"
+
+else
+echo 'ERROR: '$MPI_LAUNCH_CMD' not implemented yet... Exit'
+exit
+
 fi
 
 echo 'WW3 pre-processing before run:'

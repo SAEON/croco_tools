@@ -74,9 +74,12 @@ NBPROC_2=$2
 NBPROC_3=$3
 #MPI_LAUNCH_CMD="mpirun"
 #MPI_LAUNCH_CMD="poe"
-MPI_LAUNCH_CMD=$MPI_LAUNCH
+#MPI_LAUNCH_CMD=$MPI_LAUNCH
 #SERIAL_LAUNCH_WW3='./'
-SERIAL_LAUNCH_WW3="$MPI_LAUNCH -np 1 "
+#SERIAL_LAUNCH_WW3="$MPI_LAUNCH -np 1 "
+#--JEAN-ZAY 
+MPI_LAUNCH_CMD="srun"
+SERIAL_LAUNCH_WW3="srun -n 1 "
 
 # Runtime Settings
 # ----------------------------
@@ -88,7 +91,7 @@ runtime=$((10*24*3600))
 
 # Time Steps
 # ----------------------------
-atmdt=150
+atmdt=100
 wavdt=3600 ; wavdtPRO=1200 ; wavdtREF=2400 ; wavdtSRC=60
 ocedt=3600 ; ocendtfast=60 ; ocentimes=$((${runtime}/${ocedt}))
 cpldt=3600
@@ -103,21 +106,22 @@ hmin=75; # minimum water depth in CROCO, delimiting coastline in WW3
 # Outputs Settings
 # ----------------------------
 # WRF
-wrf_rst_flag=false                 # start from restart ?
-wrf_rst_h=24                       # restart interval (h)
-wrf_his_h=1                        # output interval (h)
-wrf_his_frames=$((31*24))          # nb of outputs per file
-wrf_diag_int_m=$((${wrf_his_h}*60))  # diag output interval (m)
-wrf_diag_frames=$wrf_his_frames    # nb of diag outputs per file
+wrf_rst_flag=false                    # start from restart ?
+wrf_rst_h=24                          # restart interval (h)
+wrf_his_h=3                           # output interval (h)
+wrf_his_frames=$((31*24/8))           # nb of outputs per file
+#wrf_his_frames=$((1000))             # nb of outputs per file
+wrf_diag_int_m=$((${wrf_his_h}*60*8)) # diag output interval (m)
+wrf_diag_frames=$((31))               # nb of diag outputs per file
 
 # WW3 (everything in seconds)
 wav_int=3600            # output interval (s)
 wav_rst=$((24*3600))    # restart interval (s)
 
 # CROCO
-oce_nrst=24    # restart interval (in number of timesteps) 
-oce_nhis=1     # history output interval (in number of timesteps) 
-oce_navg=1     # average output interval (in number of timesteps) 
+oce_nrst=${ocentimes}             # restart interval (in number of timesteps)
+oce_nhis=$(( 24*3600 / ${ocedt} ))   # history output interval (in number of timesteps)
+oce_navg=$(( 24*3600 / ${ocedt} ))   # average output interval (in number of timesteps)
 
 # MPI Settings for WRF (see WRF namelist documentation README.namelist in real_in directory)
 wrf_nprocX=-1      # -1 for automatic settings
@@ -424,13 +428,13 @@ sed -e "s/<runtime>/$runtime/g" \
   cd $MYWORKDIR
 
   if [ $mod1 = wrfexe -o $mod2 = wrfexe -o $mod3 = wrfexe ] ; then
-   varlist='WRF_d01_EXT_d01_SURF_NET_SOLAR WRF_d01_EXT_d01_EVAP-PRECIP WRF_d01_EXT_d01_SURF_NET_NON-SOLAR WRF_d01_EXT_d01_TAUX WRF_d01_EXT_d01_TAUY WRF_d01_EXT_d01_TAUMOD WRF_d01_EXT_d01_U_01 WRF_d01_EXT_d01_V_01'
+      varlist='WRF_d01_EXT_d01_SURF_NET_SOLAR WRF_d01_EXT_d01_EVAP-PRECIP WRF_d01_EXT_d01_SURF_NET_NON-SOLAR WRF_d01_EXT_d01_TAUX WRF_d01_EXT_d01_TAUY WRF_d01_EXT_d01_TAUMOD WRF_d01_EXT_d01_WND_U_01 WRF_d01_EXT_d01_WND_V_01'
    echo 'create restart file for oasis from calm conditions for variables:'$varlist
    ./create_oasis_restart_from_calm_conditions.sh wrfinput_d01 atm.nc wrf "$varlist"
   fi
 
   if [ $mod1 = wwatch -o $mod2 = wwatch -o $mod3 = wwatch ] ; then 
-   varlist='WW3_T0M1 WW3__OHS WW3_CDIR WW3_SDIR WW3__CHA WW3_TAWX WW3_TAWY WW3_TWOX WW3_TWOY'
+      varlist='WW3_T0M1 WW3__OHS WW3__DIR WW3_ACHA WW3_OCHA WW3_TAWX WW3_TAWY WW3_TWOX WW3_TWOY'  
    echo 'create restart file for oasis from calm conditions for variables:'$varlist
    ./create_oasis_restart_from_calm_conditions.sh $ww3file wav.nc ww3 "$varlist"
   fi
@@ -501,6 +505,9 @@ fi
 ## - Execution - #
 ## ------------- #
 
+cp -f ${OASIS_IN_DIR}/mpmdconf_create.sh $MYWORKDIR/
+
+
 echo ' '
 echo '-- RUN section --------------'
 echo 'enter in the working directory'
@@ -509,67 +516,24 @@ pwd
 
 # Prepare MPI run command
 if [ $MPI_LAUNCH_CMD == poe ] ; then
- if [ $mod1 != no ] ; then
-  for nn in $(seq 1 $NBPROC_1); do
-   echo "./$mod1" >> run_file
-  done
- fi
- if [ $mod2 != no ] ; then
-  for nn in $(seq 1 $NBPROC_2); do
-   echo "./$mod2" >> run_file
-  done
- fi
- if [ $mod3 != no ] ; then
-  for nn in $(seq 1 $NBPROC_3); do
-   echo "./$mod3" >> run_file
-  done
- fi
- chmod +x run_file
- mpirun_cmd="poe  -pgmmodel MPMD -cmdfile ./run_file"
-
- # for srun JZA
-elif [ $MPI_LAUNCH_CMD == srun ] ; then
-    mod1_Str=''
-    mod2_Str=''
-    mod3_Str=''
-    mystartproc=0
-    myoffset=-1
-    myNBPROC_1=0
-    myNBPROC_2=0
-    myNBPROC_3=0
-    
     if [ $mod1 != no ] ; then
-	myNBPROC_1=$NBPROC_1
-	mystartproc=$(( $mystartproc ))
-	myendproc=$(( $myNBPROC_1 - 1 ))
-	mod1_Str=$mystartproc"-"$myendproc
-	echo "$mod1_Str ./$mod1" >> run_file
-	echo '=='
-	myoffset=0
+	for nn in $(seq 1 $NBPROC_1); do
+	    echo "./$mod1" >> run_file
+	done
     fi
-    
     if [ $mod2 != no ] ; then
-	myNBPROC_2=$NBPROC_2
-	mystartproc=$(( $myoffset + $myendproc + 1))
-	myendproc=$(( $mystartproc +  $myNBPROC_2 -1 ))
-	mod2_Str=$mystartproc"-"$myendproc
-	echo "$mod2_Str ./$mod2" >> run_file
-	echo '=='
-	myoffset=0
+	for nn in $(seq 1 $NBPROC_2); do
+	    echo "./$mod2" >> run_file
+	done
     fi
-    
     if [ $mod3 != no ] ; then
-	myNBPROC_3=$NBPROC_3
-	mystartproc=$(( $myoffset + $myendproc +  1 ))
-	myendproc=$(( $mystartproc +  $myNBPROC_3 - 1 ))
-	mod3_Str=$mystartproc"-"$myendproc
-	echo "$mod3_Str ./$mod3" >> run_file
-	echo '=='
+	for nn in $(seq 1 $NBPROC_3); do
+	    echo "./$mod3" >> run_file
+	done
     fi
     chmod +x run_file
-    mpirun_cmd="srun --multi-prog ./run_file"
+    mpirun_cmd="poe  -pgmmodel MPMD -cmdfile ./run_file"
     
-    #else
 elif [ $MPI_LAUNCH_CMD == mpirun ] ; then
     if [ $mod1 != no ] ; then
 	mpirun_cmd="$MPI_LAUNCH_CMD -np $NBPROC_1 $mod1"
@@ -584,9 +548,15 @@ elif [ $MPI_LAUNCH_CMD == mpirun ] ; then
     if [ $mod3 != no ] ; then
 	mpirun_cmd="$mpirun_cmd : -np $NBPROC_3 $mod3" 
     fi
+
+elif   [ $MPI_LAUNCH_CMD == srun ] ; then
+    ./mpmdconf_create.sh $mod1 $mod2 $mod3 $NBPROC_1 $NBPROC_2 $NBPROC_3
+    chmod +x run_file
+    mpirun_cmd="srun --multi-prog ./run_file"
+
 else
-    # echo 'ERROR: '$MPI_LAUNCH_CMD' not implemented yet... Exit'
-    # exit
+    echo 'ERROR: '$MPI_LAUNCH_CMD' not implemented yet... Exit'
+    exit
 fi
 
 if [ $mod1 = wwatch -o $mod2 = wwatch -o $mod3 = wwatch ] ; then
@@ -610,14 +580,23 @@ if [ $mod1 = wwatch -o $mod2 = wwatch -o $mod3 = wwatch ] ; then
 	    exit 1
 	fi
     done
+    
     # WW3 strt
     echo "${SERIAL_LAUNCH_WW3}ww3_strt &> strt.out"
     ${SERIAL_LAUNCH_WW3}ww3_strt &> strt.out
     if [ ! -e restart.ww3 ]; then
-     echo 'ERROR when running ww3_strt, restart.ww3 does not exist'
-     exit 1
- fi
- 
+	echo 'ERROR when running ww3_strt, restart.ww3 does not exist'
+	exit 1
+    fi
+    
+    # # WW3 bounc
+    # echo "${SERIAL_LAUNCH_WW3}ww3_bounc &> bounc.out"
+    # ${SERIAL_LAUNCH_WW3}ww3_bounc &> bounc.out
+    # if [ ! -e nest.ww3 ]; then
+    # 	echo 'ERROR when running ww3_bounc, nest.ww3 does not exist'
+    # 	exit 1
+    # fi
+    #
 fi
 
 echo 'launch run: '$mpirun_cmd

@@ -53,18 +53,21 @@ export OASISDIR=$oasisdir
 # define your compiler extension 
 # (see what is available in $ww3/bin as comp.EXTENSION)
 # for SPICA
-mycompil=Ubuntu.intel.mpich
-# for ADA
-#mycompil=Altix
+#mycompil=Ubuntu.intel.mpich
+# for JZA
+mycompil=Altix.JZ
 # for DATARMOR
 #mycompil=DATARMOR
 
 # define your switch extension to be used for compilation 
 # (see what is available in $ww3/bin or create one)
 # (some examples are given in $WW3_IN_DIR/inputs_ww3/)
+#my_switches=(frc_BENGUELA \
+#	     ow_BENGUELA \
+#	     aw_BENGUELA \
+#	     owa_BENGUELA)
 my_switches=(frc_BENGUELA \
              ow_BENGUELA)
-#my_switches=(ow_BENGUELA)
 # flag to copy switches if you have defined them on your local ww3_in/inputs_ww3 directory
 flag_copy_switches=1
 

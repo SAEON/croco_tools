@@ -1,4 +1,3 @@
-
 #########################################################################
 # This is a typical input file for OASIS3-MCT.
 # Keywords used in previous versions of OASIS3 
@@ -160,7 +159,7 @@ DISTWGT LR SCALAR LATLON 1 4
 #~~~~~~~~~~~
 # V_01 : wind V component at first level (m/s)
 #~~~~~~~~~~~
-WRF_d01_EXT_d01_V_01 WW3__V10 1 <cpldt>  1  atm.nc  EXPORTED
+WRF_d01_EXT_d01_WND_V_01 WW3__V10 1 <cpldt>  1  atm.nc  EXPORTED
 <atmnx> <atmny> <wavnx> <wavny> atmt ww3t LAG=<atmdt>
 R 0 R 0
 SCRIPR

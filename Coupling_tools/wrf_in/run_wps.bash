@@ -99,8 +99,8 @@ is_ungrib_sfc=1 # for use of a 2nd type of surface files in metgrid
 source ../run_env
 #
 # add WPS dependencies to your library path: libpng and zlib (dynamic libraries)
-export LD_LIBRARY_PATH=$HOME/softs/libpng-1.2.59/install/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=$HOME/softs/zlib-1.2.11/install/lib:$LD_LIBRARY_PATH
+##export LD_LIBRARY_PATH=$HOME/softs/libpng-1.2.59/install/lib:$LD_LIBRARY_PATH
+##export LD_LIBRARY_PATH=$HOME/softs/zlib-1.2.11/install/lib:$LD_LIBRARY_PATH
 
 # WPS paths
 # WPS source dir
@@ -132,9 +132,8 @@ else
 fi
 #
 # MPI launch commands
-# for ADA ----------
-#export myMPI="poe ./"
-# ------------------
+# for JEAN-ZAY
+#export myMPI="./"
 # for NEA ----------
 #export myMPI="mpirun -np $NBPROCS "
 # for DATARMOR ----------
@@ -293,8 +292,8 @@ End_Of_Namelist
 
 cp namelist.wps namelist.wps.geogrid.${domain_name}
 
-${myMPI}geogrid.exe  >& geogrid.log
-
+#${myMPI}geogrid.exe  >& geogrid.log
+./geogrid.exe  >& geogrid.log
   echo "%  list geogrid output directory $O_DATAROOT :"
   ls $O_DATAROOT
 fi
@@ -387,7 +386,7 @@ cat << End_Of_Namelist | sed -e 's/#.*//; s/  *$//' > ./namelist.wps
 /
 
 &ungrib
- out_format = 'SI',
+ out_format = 'WPS',
  prefix = $LBC_type,
 /
 End_Of_Namelist
@@ -566,7 +565,8 @@ End_Of_Namelist
 
 cp namelist.wps namelist.wps.metgrid.${domain_name}
 
-${myMPI}metgrid.exe >& metgrid.log
+#${myMPI}metgrid.exe >& metgrid.log
+./metgrid.exe >& metgrid.log
 
   echo "   ls -rtl $O_DATAROOT"
   ls -rtl $O_DATAROOT*

@@ -109,12 +109,11 @@ else
  mkdir -p $REAL_WORK_DIR
 fi
 # MPI launch commands
-# for ADA ----------
-#export myMPI='poe ./'
 # ------------------
+# for JEAN-ZAY ----------
+#export myMPI="srun "
 # for NEA ----------
 #export myMPI="mpirun -np $NBPROCS "
-# ------------------
 # for DATARMOR ----------
 export myMPI="$MPI_LAUNCH -np $NBPROCS "
 #

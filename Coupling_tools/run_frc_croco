@@ -51,7 +51,10 @@ flag_clean=1
 NBPROC_1=$1
 #MPI_LAUNCH_CMD="mpirun"
 #MPI_LAUNCH_CMD="poe"
-MPI_LAUNCH_CMD=$MPI_LAUNCH
+#MPI_LAUNCH_CMD=$MPI_LAUNCH
+#--JEAN-ZAY
+MPI_LAUNCH_CMD="srun"
+SERIAL_LAUNCH_WW3="srun --ntasks=1 "
 
 # Runtime Settings
 # ----------------------------
@@ -65,10 +68,10 @@ ocedt=3600 ; ocendtfast=60; ocentimes=$((${runtime}/${ocedt}))
 
 # Outputs Settings
 # ----------------------------
-oce_nrst=24    # restart interval (in number of timesteps) 
-oce_nhis=1     # history output interval (in number of timesteps) 
-oce_navg=1     # average output interval (in number of timesteps) 
-
+# CROCO
+oce_nrst=${ocentimes}                # restart interval (in number of timesteps)
+oce_nhis=$(( 24*3600 / ${ocedt} ))   # history output interval (in number of timesteps)
+oce_navg=$(( 24*3600 / ${ocedt} ))   # average output interval (in number of timesteps)
 # Path for executables
 # ----------------------------
 export CROCO_EXE_DIR=$PWD/croco_in
@@ -133,14 +136,12 @@ done
 if [ $interponline == 1 ] ; then
  for varlist in Downward_Short-Wave_Rad_Flux_surface \
                 Downward_Long-Wave_Rad_Flux \
-                Upward_Long-Wave_Rad_Flux_surface \
                 Upward_Short-Wave_Rad_Flux_surface \
                 U-component_of_wind \
                 V-component_of_wind \
                 Precipitation_rate \
                 Temperature_height_above_ground \
-                Specific_humidity \
-                Temperature_surface
+                Specific_humidity
  do
   echo "ln -sf ${CROCO_FILES_DIR}/*/${varlist}${datesuffixcfsr}.nc $MYWORKDIR/."
   ln -sf ${CROCO_FILES_DIR}/*/${varlist}${datesuffixcfsr}.nc $MYWORKDIR/.
@@ -157,18 +158,21 @@ pwd
 
 # Prepare MPI run command
 if [ $MPI_LAUNCH_CMD == poe ] ; then
- for nn in $(seq 1 $NBPROC_1); do
-  echo "./crocox" >> run_file
+    for nn in $(seq 1 $NBPROC_1); do
+	echo "./crocox" >> run_file
  done
- chmod +x run_file
- mpirun_cmd="poe  -pgmmodel MPMD -cmdfile ./run_file"
+    chmod +x run_file
+    mpirun_cmd="poe  -pgmmodel MPMD -cmdfile ./run_file"
+    
+elif [ $MPI_LAUNCH_CMD == mpirun ] ; then
+    mpirun_cmd="$MPI_LAUNCH_CMD -np $NBPROC_1 crocox"
+    
+elif [ $MPI_LAUNCH_CMD == srun ] ; then
+    mpirun_cmd="$MPI_LAUNCH_CMD -n $NBPROC_1 crocox"
+    
 else
-#elif [ $MPI_LAUNCH_CMD == mpirun ] ; then
- mpirun_cmd="$MPI_LAUNCH_CMD -np $NBPROC_1 crocox"
-
-#else
-# echo 'ERROR: '$MPI_LAUNCH_CMD' not implemented yet... Exit'
-# exit
+    echo 'ERROR: '$MPI_LAUNCH_CMD' not implemented yet... Exit'
+    exit
 fi
 
 echo 'launch run: '$mpirun_cmd
