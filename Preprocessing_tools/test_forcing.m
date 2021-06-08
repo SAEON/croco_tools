@@ -46,8 +46,8 @@ for time=thetime
     if isempty(stime)
       error('TEST_FORCING: Is it a forcing or a bulk file ?')
     end
-    u=nc{'uwnd'}(time,:,:);
-    v=nc{'vwnd'}(time,:,:);
+    u=squeeze(nc{'uwnd'}(time,:,:));
+    v=squeeze(nc{'vwnd'}(time,:,:));
     if thefield(1:3)=='spd'
       field=sqrt((u2rho_2d(u)).^2+(v2rho_2d(v)).^2);
       fieldname='wind speed';
@@ -58,8 +58,8 @@ for time=thetime
       units=nc{thefield}.units(:);
     end
   else  
-    u=nc{'sustr'}(time,:,:);
-    v=nc{'svstr'}(time,:,:);
+    u=squeeze(nc{'sustr'}(time,:,:));
+    v=squeeze(nc{'svstr'}(time,:,:));
     if thefield(1:3)=='spd'
       field=sqrt((u2rho_2d(u)).^2+(v2rho_2d(v)).^2);
       fieldname='wind stress';
@@ -99,7 +99,17 @@ nc=netcdf(grdname,'r');
 %
 % Make the plot
 %  
-if (isoctave == 0);
+if (isoctave);
+    aux_plot=mask.*squeeze(field);
+    aux_field=flipud(aux_plot);
+    imagesc(aux_field)
+    colorbar
+    try 
+       title([fieldname',' - day: ',num2str(stime)])
+    catch
+       title([fieldname,' - day: ',num2str(stime)])
+    end
+else
   if niceplot==1
     domaxis=[min(min(lon)) max(max(lon)) min(min(lat)) max(max(lat))];
     m_proj('mercator',...

@@ -92,13 +92,13 @@ z=z(1:Nz);
 for l=1:tlen
 %for l=1:1
 %  disp([' Time index: ',num2str(l),' of total: ',num2str(tlen)])
-  var=squeeze(noa{vname}(l,:));
+  var=squeeze(noa{vname}(l,:,:));
 %  disp(['SIZE VAR=',num2str(size(var))])
   if addsurf
-    var=cat(1,var(1,:),var);
+    var=cat(1,var(1,:,:),var);
   end
   if addbot
-    var=cat(1,var,var(end,:));
+    var=cat(1,var,var(end,:,:));
   end
   var=var(1:Nz,:);
   nc{vname}(l,:,:)=ztosigma_1d(flipdim(var,1),zcroco,flipud(z));

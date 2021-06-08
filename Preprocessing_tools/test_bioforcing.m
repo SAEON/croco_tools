@@ -31,6 +31,7 @@ function test_forcing(bioname,grdname,thefield,thetime,skip,coastfileplot)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
+isoctave=exist('octave_config_info');
 niceplot=1;
 i=0;
 for time=thetime
@@ -59,7 +60,18 @@ nc=netcdf(grdname,'r');
   mask(mask==0)=NaN;
 %
 % Make the plot
-%  
+% 
+if (isoctave);
+    aux_plot=mask.*squeeze(field);
+    aux_field=flipud(aux_plot);
+    imagesc(aux_field)
+    colorbar
+    try 
+       title([fieldname',' - day: ',num2str(stime)])
+    catch
+       title([fieldname,' - day: ',num2str(stime)])
+    end
+else
   if niceplot==1
     domaxis=[min(min(lon)) max(max(lon)) min(min(lat)) max(max(lat))];
     m_proj('mercator',...
@@ -82,6 +94,7 @@ nc=netcdf(grdname,'r');
     imagesc(mask.*field)
     title([fieldname,' - day: ',num2str(stime)])
   end
+end
 end
 
 

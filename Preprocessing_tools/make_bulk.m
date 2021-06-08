@@ -187,7 +187,7 @@ end
 % Compute wind stress rotated and at u,v points
 %
 for tindex=1:length(coads_time)
-  time=nc{'sms_time'}(tindex);
+  time=nc{'bulk_time'}(tindex);
   tx=ext_data(taux_file,taux_name,tindex,...
              lon,lat,time,Roa,2);
   ty=ext_data(tauy_file,tauy_name,tindex,...

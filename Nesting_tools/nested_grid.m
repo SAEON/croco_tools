@@ -347,15 +347,33 @@ if newtopo==1
         n_filter_deep,n_filter_final);
     disp(' ')
     disp(' Connect the topography...')
+    if hmin<0, 
+     hnew=hnew-hmin+1;  % wet/dry case
+     h_parent_fine=h_parent_fine-hmin+1;
+     h_coarse=h_coarse-hmin+1;
+    end
     [hnew,alph]=connect_topo(hnew,h_parent_fine,h_coarse,maskrchild,maskr_coarse,...
         pm_coarse,pn_coarse, ...
         pm,pn,nband,refinecoeff,matchvolume);
+    if hmin<0, 
+      hnew=hnew+hmin-1;
+      h_parent_fine=h_parent_fine+hmin-1;
+      h_coarse=h_coarse+hmin-1;
+    end
 else
     alph=1+0.*hnew;
     if matchvolume==1
+        if hmin<0, 
+         hnew=hnew-hmin+1;  % wet/dry case
+         h_coarse=h_coarse-hmin+1;
+        end
         hnew=connect_volume(hnew,h_coarse,maskr_coarse,...
             pm_coarse,pn_coarse,...
             pm,pn,refinecoeff);
+        if hmin<0, 
+         hnew=hnew+hmin-1;
+         h_coarse=h_coarse+hmin-1;
+        end
     end
 end
 %
@@ -424,7 +442,7 @@ h8=plot(lonr_parent,latr_parent,'g.');
 hold off
 title('alpha parameter : 0<alpha<1')
 axis([min(min(lonrchild)) max(max(lonrchild)),...
-    min(min(latrchild)) max(max(latrchild))])
+      min(min(latrchild)) max(max(latrchild))])
 warning off
 
 if newtopo==1
