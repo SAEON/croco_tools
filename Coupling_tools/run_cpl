@@ -53,7 +53,6 @@ RUN=ow
 #RUN=aw
 #RUN=oa
 #RUN=owa
-#RUN=FRC
 #
 # "no" if no model
 #mod1=wrfexe

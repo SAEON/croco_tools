@@ -56,7 +56,6 @@ NBPROC_1=$1
 #MPI_LAUNCH_CMD="srun"
 #--JEAN-ZAY
 MPI_LAUNCH_CMD="srun"
-SERIAL_LAUNCH_WW3="srun --ntasks=1 "
 
 # Runtime Settings
 # ----------------------------
@@ -195,7 +194,7 @@ if [ $MPI_LAUNCH_CMD == poe ] ; then
 elif [ $MPI_LAUNCH_CMD == mpirun ] ; then
     mpirun_cmd="$MPI_LAUNCH_CMD -np $NBPROC_1 wrfexe"
 
-elif [ $MPI_LAUNCH_CMD == mpirun ] ; then
+elif [ $MPI_LAUNCH_CMD == srun ] ; then
     mpirun_cmd="$MPI_LAUNCH_CMD -n $NBPROC_1 wrfexe"
     
 else

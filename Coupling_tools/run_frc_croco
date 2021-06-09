@@ -54,7 +54,6 @@ NBPROC_1=$1
 #MPI_LAUNCH_CMD=$MPI_LAUNCH
 #--JEAN-ZAY
 MPI_LAUNCH_CMD="srun"
-SERIAL_LAUNCH_WW3="srun --ntasks=1 "
 
 # Runtime Settings
 # ----------------------------

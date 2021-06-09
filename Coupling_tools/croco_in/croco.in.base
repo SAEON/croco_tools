@@ -29,15 +29,15 @@ averages: NTSAVG, NAVG, NRPFAVG / filename
 
 primary_history_fields: zeta UBAR VBAR  U  V   wrtT(1:NT)
                           T    T   T   T  T    30*T
-auxiliary_history_fields:   rho Omega  W  Akv  Akt  Aks Visc3d Diff3d  HBL HBBL Bostr Wstr Ustr Vstr Shfl Swfl rsw rlw lat sen  HEL
-                             F   F     T   F    T    F    F     F       T   T    T     T    T    T    T    T   10*T             
+auxiliary_history_fields:   rho Omega  W  Akv  Akt  Aks bvf Visc3d Diff3d  HBL HBBL Bostr Wstr Ustr Vstr Shfl Swfl rsw rlw lat sen  HEL 
+                             F   F     T   F    T    F   F   F     F       T   T    T     T    T    T    T    T   10*T             
 gls_history_fields:   TKE  GLS  Lscale
                        T     T    T
 
 primary_averages: zeta UBAR VBAR  U  V   wrtT(1:NT)
                    T    T    T    T  T   30*T
-auxiliary_averages: rho Omega  W  Akv  Akt  Aks  Visc3d Diff3d HBL HBBL Bostr Wstr Ustr Vstr Shfl Swfl rsw rlw lat sen HEL
-                     F   T     T   F    T    F     F     F      T   T    T     T   T    T     T    T   10*T
+auxiliary_averages: rho Omega  W  Akv  Akt  Aks bvf Visc3d Diff3d HBL HBBL Bostr Wstr Ustr Vstr Shfl Swfl rsw rlw lat sen HEL
+                     F   T     T   F    T    F   F    F     F      T   T    T     T   T    T     T    T   10*T
 gls_averages:   TKE  GLS  Lscale
                  T     T    T
 
@@ -63,8 +63,8 @@ bottom_drag:     RDRG [m/s],  RDRG2,  Zob [m],  Cdb_min, Cdb_max
 gamma2:
                  1.d0
 
-sponge:          X_SPONGE [m]
-                    XXX
+sponge:          X_SPONGE [m],    V_SPONGE [m^2/sec]
+                    XXX               XXX  
 
 nudg_cof:    TauT_in, TauT_out, TauM_in, TauM_out  [days for all]
                 1.       360.      3.      360.
@@ -104,11 +104,11 @@ diagM_average_fields: diag_momentum_avg(1:2)
 		            T T
 
 diagnostics_bio:   ldefdiabio   nwrtdiabio    nrpfdiabio /filename
-                        T          72             0
+                        T         <oce_nhis>              0
                                  ./croco_diabio.nc
 
 diagbio_avg: ldefdiabio_avg  ntsdiabio_avg  nwrtdiabio_avg  nprfdiabio_avg /filename
-                  T              1              72              0
+                  T              1           <oce_navg>              0
                                  ./croco_diabio_avg.nc
 
 diagbioFlux_history_fields:    wrtdiabioFlux 
@@ -132,25 +132,29 @@ diagbioGasExc_average_fields:  wrtdiabioGasExc_avg
 biology:   forcing file
            ./croco_frcbio.nc
 
+wkb_boundary: filename
+             ./croco_wkb.nc
+wkb_wwave:  amp [m], ang [deg], prd [s], tide [m], B_tg, gamma_tg
+            0.25     190.        8.      -2.       1.3    0.38
+wkb_roller:  roller_sinb  roller_fraction
+                  0.1         0.5
+
+wave_history_fields: hrm  frq  action  k_xi  k_eta  eps_b  eps_d Erol eps_r
+                     T    T    T       T     T      20*F
+wave_average_fields: hrm  frq  action  k_xi  k_eta  eps_b  eps_d Erol eps_r
+                     T    T    T       T     T      20*F
+wci_history_fields:  SUP UST2D VST2D UST VST WST AKB AKW KVF CALP KAPS
+                      20*F
+wci_average_fields:  SUP UST2D VST2D UST VST WST AKB AKW KVF CALP KAPS
+                      20*F
+
 sediments: input file
            sediment.in
 sediment_history_fields: bed_thick bed_poros bed_fra(sand,silt)
-                            T         F        T  T
+                            20*F 
 
 bbl_history_fields: Abed Hripple Lripple Zbnot Zbapp Bostrw
                      T      F       F      T     F     T
-
-wci_history_fields:  SUP UST2D VST2D UST VST WST AKB AKW KVF CALP KAPS
-                      T   T     T     T   T   T   T   T  T    T    T
-
-wave_history_fields: swh  frq  action  k_xi  k_eta  eps_b  eps_d Erol eps_r
-                      T   T     T      T     T       T      T     T    T
-
-wkb_wwave:  amp [m], ang [deg], prd [s], tide [m], B_tg, gamma_tg
-            0.5       0.         10.      0.0       1.3    0.38
-
-wkb_roller:  roller_sinb  roller_fraction
-                  0.1          0.5
 
 floats: LDEFFLT, NFLT, NRPFFLT / inpname, hisname
            T      6      0
@@ -168,14 +172,14 @@ station_fields:  Grdvar Temp Salt Rho Vel
 
 psource:   Nsrc  Isrc  Jsrc  Dsrc  Qbar [m3/s]    Lsrc        Tsrc
             2
-                  3    54     1    200.            T T      5. 0.
-                  3    40     0    200.            T T      5. 0.
+                  3    54     1    200.            T T      20. 15.
+                  3    40     0    200.            T T      20. 15.
 
 psource_ncfile:   Nsrc  Isrc  Jsrc  Dsrc qbardir  Lsrc  Tsrc   runoff file name
                                   ./croco_runoff.nc
                  2
-                        24  35  0  -1   30*T   5.0  0.0
-                        35  13  1  -1   30*T   5.0  0.0
+                        24  35  0  -1   30*T   20.0  15.0
+                        35  13  1  -1   30*T   20.0  15.0
 
 online:    byear  bmonth recordsperday byearend bmonthend / data path
            <yr1>   <mo1>      4          <yr2>    <mo2>

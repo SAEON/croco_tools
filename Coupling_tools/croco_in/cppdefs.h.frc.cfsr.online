@@ -17,6 +17,7 @@
 #undef  CANYON          /* Canyon Example */
 #undef  EQUATOR         /* Equator Example  */
 #undef  INNERSHELF      /* Inner Shelf Example */
+#undef  SINGLE_COLUMN   /* 1DV vertical Example */
 #undef  RIVER           /* River run-off Example */
 #undef  OVERFLOW        /* Graviational/Overflow Example */
 #undef  SEAMOUNT        /* Seamount Example */
@@ -33,9 +34,10 @@
 #undef  SANDBAR         /* Bar-generating Flume Example */
 #undef  SWASH           /* Swash Test Case on a Planar Beach */
 #undef  TANK            /* Tank Example */
+#undef  MOVING_BATHY    /* Moving Bathymetry Example */
 #undef  ACOUSTIC        /* Acoustic wave Example */
 #undef  GRAV_ADJ        /* Graviational Adjustment Example */
-#undef  I_SOLITON       /* Internal Soliton Example */
+#undef  ISOLITON        /* Internal Soliton Example */
 #undef  KH_INST         /* Kelvin-Helmholtz Instability Example */
 #undef  TS_HADV_TEST    /* Horizontal tracer advection Example */ 
 #define REGIONAL        /* REGIONAL Applications */
@@ -56,7 +58,6 @@
                       /* Parallelization */
 # undef  OPENMP
 # define  MPI
-# undef  MPI_NOLAND
                       /* I/O server */
 # undef  XIOS
                       /* Non-hydrostatic option */
@@ -96,8 +97,9 @@
                       /* Parallelization */
 # ifdef MPI
 #  undef  PARALLEL_FILES
+#  undef  NC4PAR
+#  undef  MPI_NOLAND
 # endif
-# undef  NC4PAR
 # undef  AUTOTILING
                       /* Non-hydrostatic options */
 # ifdef NBQ
@@ -141,8 +143,8 @@
 # undef  TS_DIF4
 # undef  TS_MIX_S
                       /* Vertical Tracer Advection  */
-# undef  TS_VADV_SPLINES
-# define TS_VADV_AKIMA
+# define TS_VADV_SPLINES
+# undef  TS_VADV_AKIMA
 # undef  TS_VADV_WENO5
                       /* Sponge layers for UV and TS */
 # define SPONGE
@@ -160,9 +162,9 @@
 #  define LMD_BKPP
 #  define LMD_RIMIX
 #  define LMD_CONVEC
-#  undef  LMD_DDMIX
 #  define LMD_NONLOCAL
-#  undef  MLCONVEC
+#  undef  LMD_DDMIX
+#  undef  LMD_LANGMUIR
 # endif
                       /* Surface Forcing */
 # define BULK_FLUX
@@ -197,7 +199,8 @@
 # endif
 # ifdef MRL_WCI
 #  ifndef OW_COUPLING
-#   define WAVE_OFFLINE
+#   undef  WAVE_OFFLINE
+#   define ANA_WWAVE
 #   undef  WKB_WWAVE
 #  endif
 #  undef  WAVE_ROLLER
@@ -207,12 +210,12 @@
 #  ifdef WKB_WWAVE
 #   undef  WKB_OBC_NORTH
 #   undef  WKB_OBC_SOUTH
-#   undef  WKB_OBC_WEST
+#   define WKB_OBC_WEST
 #   undef  WKB_OBC_EAST
 #  endif
 # endif
                       /* Lateral Forcing */
-# undef CLIMATOLOGY
+# define CLIMATOLOGY
 # ifdef CLIMATOLOGY
 #  define ZCLIMATOLOGY
 #  define M2CLIMATOLOGY
@@ -226,7 +229,7 @@
 #  undef  ROBUST_DIAG
 # endif
 
-# define  FRC_BRY
+# undef  FRC_BRY
 # ifdef FRC_BRY
 #  define Z_FRC_BRY
 #  define M2_FRC_BRY
@@ -263,15 +266,17 @@
                       /* Input/Output */
 # define AVERAGES
 # define AVERAGES_K
-# undef  OUTPUTS_SURFACE /* 2d surface fields with higher sampling */
+# undef  OUTPUTS_SURFACE
+                     /* Parallel reproducibility  */
+# undef  RVTK_DEBUG
 /*
 !                        Diagnostics 
-!---------------------------------
-! Tracers, momentum balances
-! Mixing layer balances 
-! Vertically integrated vorticity and energy balances 
+!--------------------------------------------
+! 3D Tracer & momentum balance
+! 2D Mixing layer balance 
+! Depth-mean vorticity and energy balance
 ! Eddy terms
-!---------------------------------
+!--------------------------------------------
 !
 */
 # undef  DIAGNOSTICS_TS
@@ -334,8 +339,6 @@
 #  define DIAGNOSTICS_BIO
 #  if defined DIAGNOSTICS_BIO && defined PISCES
 #   define key_trc_diaadd
-#   define key_trc_dia3d
-#   define key_iomput
 #  endif
 # endif
                       /*   Lagrangian floats model    */
@@ -385,6 +388,7 @@
 # define ANA_STFLUX
 # define ANA_BTFLUX
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
 
 #elif defined CANYON
 /*
@@ -404,6 +408,7 @@
 # define ANA_STFLUX
 # define ANA_BTFLUX
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
 
 #elif defined EQUATOR
 /*
@@ -433,6 +438,7 @@
 # define LMD_RIMIX
 # define LMD_CONVEC
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
 
 #elif defined INNERSHELF
 /*
@@ -480,6 +486,39 @@
 #  endif
 # endif
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
+
+#elif defined SINGLE_COLUMN
+/*
+!                       Single Column Example
+!                       ====== ====== =======
+!
+!                              Seven  sets up are encompassed :
+*/
+# define KATO_PHILIPS          /* erosion of a linear stratification by a constant surface wind stress */
+# undef WILLIS_DEARDORFF       /* erosion of a linear stratification by a constant loss of surface buoyancy */
+# undef DIURNAL_CYCLE          /* erosion of a linear stratification by a constant loss of surface buoyancy */
+# undef FORCED_EKBBL           /* forced Ekman bottom boundary layer */
+# undef FORCED_DBLEEK          /* forced Ekman bottom and surface boundary layers */
+# undef FORCED_NONROTBBL       /* non rotating forced bottom boundary layer : Prandt layer  */
+# undef FORCED_OSCNONROTBBL    /* non rotating oscillatory forced bottom boundary layer  */
+# undef  OPENMP
+# undef  MPI
+# define UV_ADV
+# define NEW_S_COORD
+# define UV_COR
+# define SOLVE3D
+# undef  LMD_MIXING
+# define GLS_MIXING
+# define ANA_GRID
+# define ANA_INITIAL
+# define ANA_SMFLUX
+# define ANA_SRFLUX
+# define ANA_STFLUX
+# define ANA_BTFLUX
+# define EW_PERIODIC
+# define NS_PERIODIC
+# undef  RVTK_DEBUG
 
 #elif defined INTERNAL
 /*
@@ -522,6 +561,7 @@
 #  define  TNUDGING
 # endif
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
 
 #elif defined IGW
 /*
@@ -572,6 +612,7 @@
 # define M3NUDGING
 # define TNUDGING
 # undef  ONLINE_ANALYSIS
+# undef  RVTK_DEBUG
 
 #elif defined RIVER
 /*
@@ -612,6 +653,7 @@
 #  endif
 # endif
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
 
 #elif defined SEAMOUNT
 /*
@@ -634,6 +676,7 @@
 # define ANA_BTFLUX
 # define ANA_BSFLUX
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
 
 # elif defined SHELFRONT
 /*
@@ -656,6 +699,7 @@
 # define ANA_BSFLUX
 # define EW_PERIODIC
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
 
 #elif defined SOLITON
 /*
@@ -672,6 +716,7 @@
 # define EW_PERIODIC
 # define ANA_SMFLUX
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
 
 #elif defined THACKER
 /*
@@ -698,6 +743,7 @@
 # define ANA_SRFLUX
 # define ANA_STFLUX
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
 
 # elif defined OVERFLOW
 /*
@@ -718,6 +764,8 @@
 # define ANA_STFLUX
 # define ANA_BTFLUX
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
+                      
 /*
 !                       Plume Example
 !                       ===== =======
@@ -754,6 +802,7 @@
 #  undef  MLCONVEC
 # endif
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
 
 #elif defined UPWELLING
 /*
@@ -783,6 +832,7 @@
 # define LMD_CONVEC
 # define EW_PERIODIC
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
 
 #elif defined VORTEX
 /*
@@ -816,6 +866,7 @@
 # define M3NUDGING
 # define TNUDGING
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
 
 #elif defined JET
 /*
@@ -867,6 +918,7 @@
 #  define LMD_CONVEC
 # endif 
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
 
 #elif defined SHOREFACE
 /*
@@ -913,10 +965,12 @@
 # undef  BBL
 # undef  SEDIMENT
 # ifdef SEDIMENT
+#  define ANA_SEDIMENT
 #  define TCLIMATOLOGY
 #  define TNUDGING
 #  define ANA_TCLIMA
 # endif
+# undef  RVTK_DEBUG
 
 #elif defined SANDBAR
 /*
@@ -962,12 +1016,14 @@
 # define BBL
 # define SEDIMENT
 # ifdef SEDIMENT
+#  define ANA_SEDIMENT
 #  define TCLIMATOLOGY
 #  define TNUDGING
 #  define ANA_TCLIMA
 #  define MORPHODYN
 # endif
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
 
 #elif defined RIP
 /*
@@ -994,7 +1050,6 @@
 #  define RIP_TOPO_2D
 # endif
 # undef ANA_TIDES
-!
 # undef  OPENMP
 # undef  MPI
 # define SOLVE3D
@@ -1081,6 +1136,7 @@
 #  undef  ANA_BPFLUX
 # endif
 # undef  DIAGNOSTICS_UV
+# undef  RVTK_DEBUG
 
 #elif defined SWASH
 /*
@@ -1121,6 +1177,7 @@
 # define T_FRC_BRY
 # define WET_DRY
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
 
 #elif defined TANK
 /*
@@ -1142,6 +1199,41 @@
 # define NEW_S_COORD
 # define ANA_GRID
 # define ANA_INITIAL
+# define ANA_BTFLUX
+# define ANA_SMFLUX
+# define ANA_SRFLUX
+# define ANA_STFLUX
+# define NO_FRCFILE
+# undef  RVTK_DEBUG
+                      
+#elif defined MOVING_BATHY
+/*
+!                       Moving Bathy Example
+!                       ====== ===== =======
+
+  Auclair et al., Ocean Mod. 2014: Implementation of a time-dependent 
+     bathymetry in a free-surface ocean model: Application to internal 
+     wave generation
+
+*/
+# undef  MPI
+# define ANA_MORPHODYN
+# define NBQ
+# define NBQ_PRECISE
+# define M2FILTER_NONE
+# define SOLVE3D
+# define NEW_S_COORD
+# undef  PASSIVE_TRACER
+# define UV_ADV
+# define TS_HADV_WENO5
+# define TS_VADV_WENO5
+# define UV_HADV_WENO5
+# define UV_VADV_WENO5
+# define W_HADV_WENO5
+# define W_VADV_WENO5
+# define ANA_GRID
+# define ANA_INITIAL
+# define ANA_VMIX
 # define ANA_BTFLUX
 # define ANA_SMFLUX
 # define ANA_SRFLUX
@@ -1169,6 +1261,7 @@
 # define ANA_SRFLUX
 # define ANA_BTFLUX
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
 
 #elif defined GRAV_ADJ
 /*
@@ -1192,13 +1285,14 @@
 # define ANA_BTFLUX
 # undef  PASSIVE_TRACER
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
 
-#elif defined I_SOLITON
+#elif defined ISOLITON
 /*
 !                       Gravitational Adjustment Example
 !                       ============= ========== =======
 !
-!  Internal soliton case I_SOLITON (non-hydrostatic) is setup from:
+!  Internal soliton case ISOLITON (non-hydrostatic) is setup from:
 !  Horn, D.A., J. Imberger, & G.N. Ivey, (2001). 
 !  The degeneration of large-scale interfacial gravity waves in lakes. 
 !  J. Fluid Mech., 434:181-207. 
@@ -1221,6 +1315,7 @@
 # define ANA_BTFLUX
 # undef  PASSIVE_TRACER
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
 
 #elif defined KH_INST 
 /*
@@ -1230,7 +1325,7 @@
 */
 # undef  KH_INSTY
 # undef  KH_INST3D
-# define MPI
+# undef MPI
 # define NBQ
 # undef  NBQ_PRECISE
 # undef  XIOS
@@ -1259,6 +1354,7 @@
 #  define NS_PERIODIC
 # endif
 # define NO_FRCFILE
+# undef  RVTK_DEBUG
 
 #elif defined TS_HADV_TEST
 /*
@@ -1296,6 +1392,7 @@
 #undef  TS_HADV_UP5
 #undef  TS_HADV_WENO5
 #undef  TS_HADV_C6
+#undef  RVTK_DEBUG
 
 #endif /* END OF CONFIGURATION CHOICE */
 
