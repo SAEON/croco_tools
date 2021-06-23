@@ -331,8 +331,9 @@ else
     %% Choose which river you really want to process...
     %%
     indomain_last=indomain;
-    for k = 1 : number_rivertoprocess
-        indomain_last(k)=input(['Do you want to use river (Yes[1], No[0]) ?  ', rivername(k,:)]);
+    for k0=1:number_rivertoprocess
+        k=rivertoprocess(k0);
+        indomain_last(k)=input(['Do you want to use river (Yes[1], No[0]) ?  ', rivername(k0,:)]);
     end
     rivertoprocess=find(indomain_last==1);
     if isempty(rivertoprocess)
