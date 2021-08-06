@@ -141,43 +141,43 @@ sin2lat=sin(2.*rad*rlat);
 for itide=1:Ntides
   it=tidalrank(itide);
   disp(['Processing tide : ',num2str(itide),' of ',num2str(Ntides)])
-  ncfrc{'tide_period'}(it)=periods(itide);
+  ncfrc{'tide_period'}(itide)=periods(it);
 %
 % Get the phase corrections
 %
-  correc_amp=pf(itide);
-  correc_phase=-phase_mkB(itide)-pu(itide)+360.*t0./periods(itide);           
+  correc_amp=pf(it);
+  correc_phase=-phase_mkB(it)-pu(it)+360.*t0./periods(it);
 %
 % Process the surface elevation
 %
   disp('  ssh...')
-  ur=nctides{'ssh_r'}(itide,jminr:jmaxr,iminr:imaxr);
+  ur=nctides{'ssh_r'}(it,jminr:jmaxr,iminr:imaxr);
   ur(ur==0)=NaN;  
   ur(isnan(ur))=griddata(Xr(isfinite(ur)),Yr(isfinite(ur)),...
                          ur(isfinite(ur)),...
                          Xr(isnan(ur)),Yr(isnan(ur)),'nearest');
   ur=interp2(xr,yr,ur,rlon,rlat,interp_method);
-  ui=nctides{'ssh_i'}(itide,jminr:jmaxr,iminr:imaxr);
+  ui=nctides{'ssh_i'}(it,jminr:jmaxr,iminr:imaxr);
   ui(ui==0)=NaN;
   ui(isnan(ui))=griddata(Xr(isfinite(ui)),Yr(isfinite(ui)),...
                          ui(isfinite(ui)),...
                          Xr(isnan(ui)),Yr(isnan(ui)),'nearest');
   ui=interp2(xr,yr,ui,rlon,rlat,interp_method);
   ei=complex(ur,ui);
-  ncfrc{'tide_Ephase'}(it,:,:)=mod(-deg*angle(ei)+correc_phase,360.0);     
-  ncfrc{'tide_Eamp'}(it,:,:)=abs(ei)*correc_amp;
+  ncfrc{'tide_Ephase'}(itide,:,:)=mod(-deg*angle(ei)+correc_phase,360.0);
+  ncfrc{'tide_Eamp'}(itide,:,:)=abs(ei)*correc_amp;
 %
 % Process U
 %
   disp('  u...')
-  ur=nctides{'u_r'}(itide,jminu:jmaxu,iminu:imaxu);
+  ur=nctides{'u_r'}(it,jminu:jmaxu,iminu:imaxu);
   ur(ur==0)=NaN;
   ur=ur./hu;
   ur(isnan(ur))=griddata(Xu(isfinite(ur)),Yu(isfinite(ur)),...
                          ur(isfinite(ur)),...
                          Xu(isnan(ur)),Yu(isnan(ur)),'nearest');
   ur=interp2(xu,yu,ur,rlon,rlat,interp_method);
-  ui=nctides{'u_i'}(itide,jminu:jmaxu,iminu:imaxu);
+  ui=nctides{'u_i'}(it,jminu:jmaxu,iminu:imaxu);
   ui(ui==0)=NaN;
   ui=ui./hu;
   ui(isnan(ui))=griddata(Xu(isfinite(ui)),Yu(isfinite(ui)),...
@@ -191,14 +191,14 @@ for itide=1:Ntides
 % Process V
 %
   disp('  v...')
-  vr=nctides{'v_r'}(itide,jminv:jmaxv,iminv:imaxv);
+  vr=nctides{'v_r'}(it,jminv:jmaxv,iminv:imaxv);
   vr(vr==0)=NaN;
   vr=vr./hv;
   vr(isnan(vr))=griddata(Xv(isfinite(vr)),Yv(isfinite(vr)),...
                          vr(isfinite(vr)),...
                          Xv(isnan(vr)),Yv(isnan(vr)),'nearest');
   vr=interp2(xv,yv,vr,rlon,rlat,interp_method);
-  vi=nctides{'v_i'}(itide,jminv:jmaxv,iminv:imaxv);
+  vi=nctides{'v_i'}(it,jminv:jmaxv,iminv:imaxv);
   vi(vi==0)=NaN;
   vi=vi./hv;
   vi(isnan(vi))=griddata(Xv(isfinite(vi)),Yv(isfinite(vi)),...
@@ -213,34 +213,34 @@ for itide=1:Ntides
 %
   disp('  Convert to tidal ellipse parameters...')
   [major,eccentricity,inclination,phase]=ap2ep(uamp,upha,vamp,vpha);
-  ncfrc{'tide_Cmin'}(it,:,:)=major.*eccentricity;
-  ncfrc{'tide_Cmax'}(it,:,:)=major;
-  ncfrc{'tide_Cangle'}(it,:,:)=inclination;
-  ncfrc{'tide_Cphase'}(it,:,:)=phase;
+  ncfrc{'tide_Cmin'}(itide,:,:)=major.*eccentricity;
+  ncfrc{'tide_Cmax'}(itide,:,:)=major;
+  ncfrc{'tide_Cangle'}(itide,:,:)=inclination;
+  ncfrc{'tide_Cphase'}(itide,:,:)=phase;
 %
   if pot_tides,
 %
 % Process equilibrium tidal potential
 %
    disp('Process equilibrium tidal potential...')
-   if periods(itide)<13.0                 % semidiurnal
-     Pamp=correc_amp*A(itide)*B(itide)*coslat2;
+   if periods(it)<13.0                 % semidiurnal
+     Pamp=correc_amp*A(it)*B(it)*coslat2;
      Ppha=mod(-2.*rlon+correc_phase,360.0);
-   elseif periods(itide)<26.0             % diurnal
-     Pamp=correc_amp*A(itide)*B(itide)*sin2lat;
+   elseif periods(it)<26.0             % diurnal
+     Pamp=correc_amp*A(it)*B(it)*sin2lat;
      Ppha=mod(-rlon+correc_phase,360.0);
-   else                                   % long-term
-     Pamp=correc_amp*A(itide)*B(itide)*(1-1.5*coslat2);
+   else                                % long-term
+     Pamp=correc_amp*A(it)*B(it)*(1-1.5*coslat2);
      Ppha=mod(correc_phase,360.0);
    end
 %
 % Process tidal loading and self-attraction potential
 %            from GOT99.2b model
 %
-   if sal_tides & itide<9
+   if sal_tides & it<9
     disp('Process tidal loading and self-attraction potential...')
     [SALamp,SALpha]=ext_data_sal(grdname,salname, ...
-                                 'tide_SALamp','tide_SALpha',itide);
+                                 'tide_SALamp','tide_SALpha',it);
     SALamp=SALamp*correc_amp;
     SALpha=mod(SALpha+correc_phase,360.0);
 %
