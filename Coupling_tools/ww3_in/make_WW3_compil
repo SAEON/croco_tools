@@ -32,23 +32,23 @@
 #=======================  USER CHANGES  ==================================
 #=========================================================================
 
-source ../run_env
+source ../myenv_mypath.sh
 
 # Environment variables requested for ww3 compilation:
 #
 # define your local ww3 environment file
-export WWATCH3_ENV=$hconf/wwatch3.env
+export WWATCH3_ENV=${CHOME}/wwatch3.env
 # define your compilers
 export WWATCH3_F77=ifort
 export WWATCH3_CC=icc
 # define your netcdf format
 export WWATCH3_NETCDF=NC4
 # define your ww3 source model
-export WWATCH3_DIR=$ww3
+export WWATCH3_DIR=$WAV
 # define your ww3 temporary directory for compilation
-export WWATCH3_TMP=$ww3/tmp
+export WWATCH3_TMP=$WAV/tmp
 # define your oasis libraries directory (where oasis has been compiled)
-export OASISDIR=$oasisdir
+export OASISDIR=${CPL}
 
 # define your compiler extension 
 # (see what is available in $ww3/bin as comp.EXTENSION)
@@ -58,6 +58,7 @@ export OASISDIR=$oasisdir
 mycompil=Altix.JZ
 # for DATARMOR
 #mycompil=DATARMOR
+mycompil=Intel
 
 # define your switch extension to be used for compilation 
 # (see what is available in $ww3/bin or create one)
@@ -69,13 +70,13 @@ mycompil=Altix.JZ
 my_switches=(frc_BENGUELA \
              ow_BENGUELA)
 # flag to copy switches if you have defined them on your local ww3_in/inputs_ww3 directory
-flag_copy_switches=1
+flag_copy_switches=0
 
 # define the ww3 programs you want to compile 
 # make_MPI will compile all programs...
 #my_pgm=make_MPI
-my_pgm=w3_automake
-#my_pgm='ww3_prnc ww3_grid ww3_bounc ww3_strt ww3_shel ww3_ounf'
+#my_pgm=w3_automake
+my_pgm='ww3_prnc ww3_grid ww3_bounc ww3_strt ww3_shel ww3_ounf'
 #my_pgm='w3_shel'
 
 #=========================================================================
