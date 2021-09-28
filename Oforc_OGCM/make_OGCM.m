@@ -151,7 +151,7 @@ if makeini==1
         disp([' NO VTRANSFORM parameter found'])
         disp([' USE vtransform default value  Vtransfor = 1'])
     end
-  ininame=[ini_prefix,'Y',num2str(Ymin),'M',num2str(Mmin),nc_suffix];
+  ininame=[ini_prefix,'Y',num2str(Ymin),'M',num2str(sprintf('%02d',Mmin)),nc_suffix];
   %
   % Process the time in Yorig time (i.e days since Yorig-01-01)
   %
@@ -192,7 +192,7 @@ if makeclim==1 | makebry==1
     for M=mo_min:mo_max
       disp(' ')
       disp(['Processing  year ',num2str(Y),...
-	    ' - month ',num2str(M)])
+	    ' - month ',num2str(sprintf('%02d',M))])
       disp(' ')
       %
       Mm=M-1;Ym=Y;
@@ -254,7 +254,7 @@ if makeclim==1 | makebry==1
       %
       if makebry==1
 	bryname=[bry_prefix,'Y',num2str(Y),...
-		 'M',num2str(M),nc_suffix];
+		 'M',num2str(sprintf('%02d',M)),nc_suffix];
 	create_bryfile(bryname,grdname,CROCO_title,[1 1 1 1],...
 		       theta_s,theta_b,hc,N,...
 		       croco_time,0,'clobber',vtransform);
@@ -264,7 +264,7 @@ if makeclim==1 | makebry==1
       end
       if makeclim==1
 	clmname=[clm_prefix,'Y',num2str(Y),...
-		 'M',num2str(M),nc_suffix];
+		 'M',num2str(sprintf('%02d',M)),nc_suffix];
 	create_climfile(clmname,grdname,CROCO_title,...
 			theta_s,theta_b,hc,N,...
 			croco_time,0,'clobber',vtransform);
@@ -363,8 +363,8 @@ if SPIN_Long>0
     %
     % Copy the file
     %
-    ininame=[ini_prefix,'Y',num2str(Ymin),'M',num2str(Mmin),nc_suffix];
-    ininame2=[ini_prefix,'Y',num2str(Ymin-SPIN_Long),'M',num2str(Mmin),nc_suffix];
+    ininame=[ini_prefix,'Y',num2str(Ymin),'M',num2str(sprintf('%02d',Mmin)),nc_suffix];
+    ininame2=[ini_prefix,'Y',num2str(Ymin-SPIN_Long),'M',num2str(sprintf('%02d',M)),nc_suffix];
     disp(['Create ',ininame2]) 
     eval(['!cp ',ininame,' ',ininame2])
     %
@@ -391,8 +391,8 @@ if SPIN_Long>0
       %
       % Copy the file
       %
-      clmname=[clm_prefix,'Y',num2str(Ymin),'M',num2str(M),nc_suffix];
-      clmname2=[clm_prefix,'Y',num2str(Y),'M',num2str(M),nc_suffix];
+      clmname=[clm_prefix,'Y',num2str(Ymin),'M',num2str(sprintf('%02d',M)),nc_suffix];
+      clmname2=[clm_prefix,'Y',num2str(Y),'M',num2str(sprintf('%02d',M)),nc_suffix];
       disp(['Create ',clmname2]) 
       eval(['!cp ',clmname,' ',clmname2]) 
       %
@@ -419,8 +419,8 @@ if SPIN_Long>0
       %
       % Copy the file
       %
-      bryname=[bry_prefix,'Y',num2str(Ymin),'M',num2str(M),nc_suffix];
-      bryname2=[bry_prefix,'Y',num2str(Y),'M',num2str(M),nc_suffix];
+      bryname=[bry_prefix,'Y',num2str(Ymin),'M',num2str(sprintf('%02d',M)),nc_suffix];
+      bryname2=[bry_prefix,'Y',num2str(Y),'M',num2str(sprintf('%02d',M)),nc_suffix];
       disp(['Create ',bryname2]) 
       eval(['!cp ',bryname,' ',bryname2]) 
       %
@@ -440,21 +440,21 @@ if makeplot==1
   disp(' ')
   disp(' Make a few plots...')
   if makeini==1
-    ininame=[ini_prefix,'Y',num2str(Ymin),'M',num2str(Mmin),nc_suffix];
+    ininame=[ini_prefix,'Y',num2str(Ymin),'M',num2str(sprintf('%02d',Mmin)),nc_suffix];
     figure
     test_clim(ininame,grdname,'temp',1,coastfileplot)
     figure
     test_clim(ininame,grdname,'salt',1,coastfileplot)
   end
   if makeclim==1
-    clmname=[clm_prefix,'Y',num2str(Y),'M',num2str(M),nc_suffix];
+    clmname=[clm_prefix,'Y',num2str(Y),'M',num2str(sprintf('%02d',M)),nc_suffix];
     figure
     test_clim(clmname,grdname,'temp',1,coastfileplot)
     figure
     test_clim(clmname,grdname,'salt',1,coastfileplot)
   end
   if makebry==1
-    bryname=[bry_prefix,'Y',num2str(Y),'M',num2str(M),nc_suffix];
+    bryname=[bry_prefix,'Y',num2str(Y),'M',num2str(sprintf('%02d',M)),nc_suffix];
     figure
     test_bry(bryname,grdname,'temp',1,obc)
     figure
