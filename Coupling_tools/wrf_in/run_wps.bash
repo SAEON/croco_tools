@@ -96,7 +96,7 @@ is_ungrib_sfc=1 # for use of a 2nd type of surface files in metgrid
 #
 #============= Set Environment ======================================= 
 #
-source ../run_env
+source ../myenv_mypath.sh
 #
 # add WPS dependencies to your library path: libpng and zlib (dynamic libraries)
 ##export LD_LIBRARY_PATH=$HOME/softs/libpng-1.2.59/install/lib:$LD_LIBRARY_PATH
@@ -104,14 +104,14 @@ source ../run_env
 
 # WPS paths
 # WPS source dir
-export WPS_EXE_DIR="$wrf/../WPSV3.7.1"
+export WPS_EXE_DIR="${ATM}/../WPSV3.7.1"
 #
 # Geographical data for WPS
 export GEOG_DATAROOT="$DATA_DIR/geog"
 #
 # Variable Table Location
 #export Vtable_ROOT="${WPS_EXE_DIR}/ungrib/Variable_Tables"
-export Vtable_ROOT="$WRF_IN_DIR/inputs_wrf"
+export Vtable_ROOT="${ATM_NAM_DIR}/inputs_wrf"
 #
 # Inputs directory and prefix (initial and boundary data)
 export I_DATAROOT="$DATA_DIR/CFSR_grib"
@@ -121,10 +121,10 @@ export SFC_DATAROOT="$DATA_DIR/CFSR_grib"
 export SFC_DATAprefix="200901*flxf06.gdas"
 #
 # Outputs data directory
-export O_DATAROOT="$WRF_FILES_DIR/WPS_DATA"
+export O_DATAROOT="${ATM_FILES_DIR}/WPS_DATA"
 #
 # Path to workdir
-export MYWORKDIR="$wconf/outputs_wps"
+export MYWORKDIR="${CWORK}/outputs_wps"
 if [ -e $MYWORKDIR ] ; then
  rm -f $MYWORKDIR/*
 else
@@ -133,12 +133,13 @@ fi
 #
 # MPI launch commands
 # for JEAN-ZAY
-#export myMPI="./"
+#export myMPI="srun -n $NBPROCS "
 # for NEA ----------
 #export myMPI="mpirun -np $NBPROCS "
 # for DATARMOR ----------
 export myMPI="$MPI_LAUNCH -np $NBPROCS "
 # ------------------
+
 
 #=========================================================================
 #=======================  END USER CHANGES  ==============================

@@ -86,22 +86,22 @@ nudge_end_h=144
 #
 #============= Set Environment ======================================= 
 #
-source ../run_env
+source ../myenv_mypath.sh
 #
 # Metgrid outputs path
 export O_DATAROOT="$WRF_FILES_DIR/WPS_DATA"
 #
 # real exe path
-export REAL_EXE_DIR="$wrf/exe_uncoupled"
+export REAL_EXE_DIR="${ATM}/exe_uncoupled"
 #
 # workdir path
-export REAL_WORK_DIR="$wconf/outputs_real"
+export REAL_WORK_DIR="${CWORK}/outputs_real"
 #
 # real outputs path
-export REAL_OUT_DIR="$WRF_FILES_DIR"
+export REAL_OUT_DIR="${ATM_FILES_DIR}"
 #
 # wrf in dir
-export WRF_IN_DIR="$WRF_IN_DIR"
+export WRF_IN_DIR="${ATM_NAM_DIR}"
 #
 if [ -e $REAL_WORK_DIR ] ; then
  rm -f $REAL_WORK_DIR/*
@@ -111,7 +111,7 @@ fi
 # MPI launch commands
 # ------------------
 # for JEAN-ZAY ----------
-#export myMPI="srun "
+#export myMPI="srun -n $NBPROCS "
 # for NEA ----------
 #export myMPI="mpirun -np $NBPROCS "
 # for DATARMOR ----------
