@@ -66,56 +66,48 @@ fi
 mydir=$(dirname "$fileout")
 mytmp=$mydir/from_ww3_tmp.nc
 
-# Model variables
-if [ $var == WW3__CHA ] ; then
-    varin=MAPSTA
-    #    elif [ $var == WW3_SDIR ] ; then
-    #      varin=dir
-    #    elif [ $var == WW3_CDIR ] ; then
-    #      varin=dir
-elif [ $var == WW3__DIR ] ; then
-    varin=dir
-elif [ $var == WW3__OHS ] ; then
-    varin=hs
-elif [ $var == WW3_T0M1 ] ; then
-    varin=t0m1
-elif [ $var == WW3_TWOX ] ; then
-    varin=utwo
-elif [ $var == WW3_TWOY ] ; then
-    varin=vtwo
-elif [ $var == WW3_TAWX ] ; then
-    varin=utaw
-elif [ $var == WW3_TAWY ] ; then
-    varin=vtaw
-else
-    echo 'ERROR: '$var' variable not implemented yet'
-    echo 'Exit...'
-    echo ' '
-    exit 1
-fi
+    # Model variables
+    if [ $var == WW3_ACHA ] ; then
+      varin=MAPSTA
+    elif [ $var == WW3__DIR ] ; then
+      varin=dir
+    elif [ $var == WW3__OHS ] ; then
+      varin=hs
+    elif [ $var == WW3_T0M1 ] ; then
+      varin=t0m1
+    elif [ $var == WW3_TWOX ] ; then
+      varin=utwo
+    elif [ $var == WW3_TWOY ] ; then
+      varin=vtwo
+    elif [ $var == WW3_TAWX ] ; then
+      varin=utaw
+    elif [ $var == WW3_TAWY ] ; then
+      varin=vtaw
+    else
+      echo 'ERROR: '$var' variable not implemented yet'
+      echo 'Exit...'
+      echo ' '
+      exit 1
+    fi
 
     # Extract variable 
     echo '---> Extract '$varin'...'
     ncks -A -F -d time,$timerange -v $varin $filein $mytmp
 
     # compute or rename variable
-    if [ $var == WW3__CHA ] ; then
-	echo '---> Create charnock coef = 0.0185...'
-	ncap2 -A -v -s "WW3__CHA=MAPSTA*0+0.0185" $mytmp $fileout
-	
-	# elif [ $var == WW3_SDIR ] ; then
-	#   echo '---> Compute sin of dir...'
-	#   ncap2 -A -v -s "WW3_SDIR=sin((270-dir)*3.1415926/180)" $mytmp $fileout
-	
-	# elif [ $var == WW3_CDIR ] ; then
-	#   echo '---> Compute cos of dir...'
-	#   ncap2 -A -v -s "WW3_CDIR=cos((270-dir)*3.1415926/180)" $mytmp $fileout
-	
-    elif [ $var == WW3__DIR ] ; then
-	echo '---> Compute dir...'
-	ncap2 -A -v -s "WW3__DIR=((270-dir)*3.1415926/180)" $mytmp $fileout
-    else
-	
+    if [ $var == WW3_ACHA ] ; then
+      echo '---> Create charnock coef = 0.0185...'
+      ncap2 -A -v -s "WW3_ACHA=MAPSTA*0+0.0185" $mytmp $fileout
+
+#    elif [ $var == WW3_SDIR ] ; then
+#      echo '---> Compute sin of dir...'
+#      ncap2 -A -v -s "WW3_SDIR=sin((270-dir)*3.1415926/180)" $mytmp $fileout
+#
+#    elif [ $var == WW3_CDIR ] ; then
+#      echo '---> Compute cos of dir...'
+#      ncap2 -A -v -s "WW3_CDIR=cos((270-dir)*3.1415926/180)" $mytmp $fileout
+#
+    else 
       echo '---> Rename '$varin' in '$var
       ncrename -v $varin,$var $mytmp
       ncks -A -v $var $mytmp $fileout
