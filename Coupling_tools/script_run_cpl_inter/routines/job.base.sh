@@ -46,7 +46,7 @@ cd ${EXEDIR}
 	    [ ${USE_WAV}  -eq 1 ] && { cp ${WAV_EXE_DIR}/ww3_* . && mv ww3_shel wwatch ; . ${SCRIPTDIR}/routines/getversion.sh ${WAV} ;}
 	    [ ${USE_XIOS} -ge 1 ] && cpfile ${XIOS_EXE_DIR}/xios_server.exe .
             # If toy is used #
-            if [ ${USE_TOY}  -eq 1 ]; then
+            if [ ${USE_TOY}  -ge 1 ]; then
 	        if [ ${nbtoy} -eq 1 ]; then
 		    cpfile ${TOY_EXE_DIR}/toy_model toyexe
 		else
@@ -90,8 +90,8 @@ cd ${EXEDIR}
 	[ ${USE_CPL} -ge 1 ] && printf "\n ************* get OA3MCT RESTART files *****************\n"
 	[ ${USE_CPL} -ge 1 ] && { . ${SCRIPTDIR}/routines/cpl_getrst.sh ; }
 
-        [ ${USE_TOY} -eq 1 ] && printf "\n ************* get TOY CONFIGURATION files *****************\n"
-        [ ${USE_TOY} -eq 1 ] && { . ${SCRIPTDIR}/routines/toy_getfile.sh ; }
+        [ ${USE_TOY} -ge 1 ] && printf "\n ************* get TOY CONFIGURATION files *****************\n"
+        [ ${USE_TOY} -ge 1 ] && { . ${SCRIPTDIR}/routines/toy_getfile.sh ; }
 
 
 # make the namelists from the namelist.base files
@@ -99,7 +99,7 @@ cd ${EXEDIR}
 	[ ${USE_OCE} -eq 1 ] && ${SCRIPTDIR}/routines/oce_nam.sh
 	[ ${USE_ATM} -eq 1 ] && ${SCRIPTDIR}/routines/atm_nam.sh
         [ ${USE_WAV} -eq 1 ] && echo "No namelist for WAV"
-        [ ${USE_TOY} -eq 1 ] && { . ${SCRIPTDIR}/routines/toy_nam.sh ; }
+        [ ${USE_TOY} -ge 1 ] && { . ${SCRIPTDIR}/routines/toy_nam.sh ; }
 	[ ${USE_CPL} -ge 1 ] && { . ${SCRIPTDIR}/routines/cpl_nam.sh ; }
         printf "\n date_chris : `date "+%Y%m%d-%H:%M:%S"`\n"
 

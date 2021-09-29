@@ -39,7 +39,7 @@ if [ ${DATE_BEGIN_JOB} -eq ${DATE_BEGIN_EXP} ]; then
         ./create_oasis_restart_from_calm_conditions.sh ${wavfile} wav.nc ww3 "${varlist}"
     fi
 #
-    if [ ${USE_TOY} -eq 1 ] ; then
+    if [ ${USE_TOY} -ge 1 ] ; then
         varlist='TOY_V_01 TOY_U_01 TOY_TAUX TOY_TAUY TOY_TAUM TOYSRFLX TOYSTFLX TOY__EMP TOY_UOCE TOY_VOCE TOY__SST TOY__SSH TOY_T0M1 TOY___HS TOY__DIR TOY_TWOX TOY_TWOY TOY_TAWX TOY_TAWY TOY__CHA'
         echo 'create restart file for oasis from calm conditions for variables:'${varlist}
         for k in `seq 0 $(( ${nbtoy} - 1 ))`; do
@@ -58,7 +58,7 @@ else
     [[ ${USE_ATM} -eq 1 && ${USE_WAV} -eq 1 ]] && cp ${RESTDIR_IN}/*atmt_to_ww3t* . && cp ${RESTDIR_IN}/*ww3t_to_atmt* .
     [[ ${USE_OCE} -eq 1 && ${USE_WAV} -eq 1 ]] && cp ${RESTDIR_IN}/*ocn*_to_ww3t* . && cp ${RESTDIR_IN}/*ww3t_to_ocnt* .  
 
-    if [ ${USE_TOY} -eq 1 ] ; then
+    if [ ${USE_TOY} -ge 1 ] ; then
         for k in `seq 0 $(( ${nbtoy} - 1 ))`; do
             cpfile ${RESTDIR_IN}/${toytype[$k]}_${CEXPER}_${DATE_END_JOBm1}.nc ${toytype[$k]}.nc
         done

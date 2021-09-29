@@ -38,7 +38,7 @@ if [ ${USE_WAV} -eq 1 ]; then
     echo "${mod_Str} ./wwatch" >> app.conf
 fi
 
-if [ ${USE_TOY} -eq 1 ]; then
+if [ ${USE_TOY} -ge 1 ]; then
     if [ ${USE_ATM} -eq 1 ] || [ ${USE_OCE} -eq 1 ] || [ ${USE_WAV} -eq 1 ]; then
         mystartproc=$(( ${myendproc} + 1 ))
         myendproc=$(( ${mystartproc} + ${NP_TOY} - 1 ))

@@ -18,7 +18,7 @@ if [ ${USE_WAV} -eq 1 ]; then
     echo "-n ${NP_WAV} ./wwatch" >> app.conf
 fi
 
-if [ ${USE_TOY} -eq 1 ]; then
+if [ ${USE_TOY} -ge 1 ]; then
     if [ ${nbtoy} -eq 1 ]; then
         echo "-n ${NP_TOY} ./toyexe" >> app.conf
      else

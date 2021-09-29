@@ -10,7 +10,7 @@
    [[ ${USE_ATM} -eq 1 && ${USE_WAV} -eq 1 ]] && cp *atmt_to_ww3t* ${RESTDIR_OUT}/. && cp *ww3t_to_atmt* ${RESTDIR_OUT}/.
    [[ ${USE_OCE} -eq 1 && ${USE_WAV} -eq 1 ]] && cp *ocn*_to_ww3t* ${RESTDIR_OUT}/. && cp *ww3t_to_ocnt* ${RESTDIR_OUT}/. 
 
-    if [ ${USE_TOY} -eq 1 ] ; then
+    if [ ${USE_TOY} -ge 1 ] ; then
         for k in `seq 0 $(( ${nbtoy} - 1 ))`; do
             printf "move ${toytype[$k]}.nc"
             ${io_putfile} ${toytype[$k]}.nc ${RESTDIR_OUT}/${toytype[$k]}_${CEXPER}_${DATE_END_JOB}.nc
