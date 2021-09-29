@@ -32,7 +32,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp(['Add the paths of the different toolboxes'])
-[err, my_crocodir] = system('echo $croco');
+[err, my_crocodir] = system('echo $OCE/..');
 tools_path = [my_crocodir(1:end-1) '/croco_tools/'];
 croco_path = [my_crocodir(1:end-1) '/croco/'];
 myutilpath=[tools_path,'UTILITIES/'];

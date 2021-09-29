@@ -8,6 +8,8 @@ source /usr/share/Modules/3.2.10/init/bash
 module purge
 module load intel-comp/18
 module load impi/2018.1.163
+module load matlab/2016a
+alias matlab='matlab -nodesktop'
 export PATH=${PATH}:/home/datawork-wave/NETCDF2019/INTEL/bin
 export CPATH=${CPATH}:/home/datawork-wave/NETCDF2019/INTEL/include
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/home/datawork-wave/NETCDF2019/INTEL/lib

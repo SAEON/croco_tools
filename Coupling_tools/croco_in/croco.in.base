@@ -1,5 +1,5 @@
 title:
-        BENGUELA TEST MODEL
+        <title>
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
            <ocentimes>  <ocedt> <ocendtfast> 1
 S-coord: THETA_S,   THETA_B,    Hc (m)
