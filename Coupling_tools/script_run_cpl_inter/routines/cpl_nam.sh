@@ -95,8 +95,8 @@ if [ ${USE_TOY} -ge 1 ]; then
         fi
 #
         if [ ${toytype[$k]} == "wav" ]; then
-            dimx=$( ncdump -h  ${toyfile[$k]}  | grep "longitude =" | cut -d ' ' -f 3)
-            dimy=$( ncdump -h  ${toyfile[$k]}  | grep "latitude =" | cut -d ' ' -f 3)
+            dimx=$( ncdump -h  ${toyfile[$k]}  | grep "longitude =" | head -1 | cut -d ' ' -f 3)
+            dimy=$( ncdump -h  ${toyfile[$k]}  | grep "latitude =" | head -1 |cut -d ' ' -f 3)
             sed -e "s/<wavdt>/${TSP_TOY[$k]}/g"   -e "s/<wavnx>/${dimx}/g"   -e "s/<wavny>/${dimy}/g" \
             ./namcouple>tmp$$
             mv tmp$$ namcouple

@@ -95,8 +95,8 @@ for k in `seq 0 $(( ${nbtoy} - 1))` ; do
         TSP_TOY+=("${tsp}")
     elif [ ${toytype[$k]} == "wav" ]; then
         targ=$( ncdump -v time ${toyfile[$k]} | grep "time =" | sed -n '2p' | cut -d ' ' -f 4-5)
-        arg1=$( echo "${time}" | cut -d ',' -f 2 )
-        arg2=$( echo "${time}" | cut -d ',' -f 1 )
+        arg1=$( echo "${targ}" | cut -d ',' -f 2 )
+        arg2=$( echo "${targ}" | cut -d ',' -f 1 )
         tsp=$( echo "(${arg1}  - ${arg2})*86400" | bc | cut -d '.' -f 1)
         TSP_TOY+=("${tsp}")
     fi

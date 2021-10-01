@@ -16,7 +16,7 @@ month$( printf "%02d"  ${MONTH_BEGIN_JOB} )
  fi
  module load $ncomod
  ncrcat -O ww3.*.nc ww3.${year}${month}.nc #Concatenate all ww3*.nc file before exporting to OUTPUTDIR
- ncks -O -F -d time,1,-1 ww3.${year}${month}.nc ww3.${year}${month}.nc
+ ncrcat -O -F -d time,1,-1 ww3.${year}${month}.nc ww3.${year}${month}.nc
  module unload $ncomod
 
 
