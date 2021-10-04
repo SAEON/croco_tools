@@ -49,9 +49,27 @@ if [ ${DATE_BEGIN_JOB} -eq ${DATE_BEGIN_EXP} ]; then
     module unload $ncomod
 
 else   
-    
-    [ ${USE_ATM} -eq 1 ] && cpfile ${RESTDIR_IN}/atm_${CEXPER}_${DATE_END_JOBm1}.nc atm.nc
-    [ ${USE_OCE} -eq 1 ] && cpfile ${RESTDIR_IN}/oce_${CEXPER}_${DATE_END_JOBm1}.nc oce.nc
+
+    if [ ${USE_ATM} -eq 1 ]; then
+        for dom in `seq 1 $wrfcpldom`; do
+            if [ $dom == "d01" ]; then
+                cpfile ${RESTDIR_IN}/atm_${CEXPER}_${DATE_END_JOBm1}.nc atm.nc
+            else
+                cpfile ${RESTDIR_IN}/atm${dom}_${CEXPER}_${DATE_END_JOBm1}.nc atm${dom}.nc
+            fi
+        done
+    fi
+    if [ ${USE_OCE} -eq 1 ]; then
+        for nn in $( seq 0 ${AGRIFZ} ); do
+            if [ ${nn} -gt 0 ];    then
+                agrif_ext=".${nn}"
+            else
+                agrif_ext=""
+            fi
+            cpfile ${RESTDIR_IN}/oce_${CEXPER}_${DATE_END_JOBm1}.nc${agrif_ext} oce.nc${agrif_ext}
+        done
+    fi
+
     [ ${USE_WAV} -eq 1 ] && cpfile ${RESTDIR_IN}/wav_${CEXPER}_${DATE_END_JOBm1}.nc wav.nc 
 
     [[ ${USE_ATM} -eq 1 && ${USE_OCE} -eq 1 ]] && cp ${RESTDIR_IN}/*atmt_to_ocnt* . && cp ${RESTDIR_IN}/*ocnt_to_atmt* . 

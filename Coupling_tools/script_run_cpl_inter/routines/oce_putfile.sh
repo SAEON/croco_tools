@@ -16,7 +16,7 @@ else
             agrif_ext=""
         fi
         for ff in croco_his.nc${agrif_ext} croco_avg.nc${agrif_ext} ; do
-            [ ${ff} == "croco_his.nc${agrif_ext}" ] && { name=croco_his ; ncks -O -F -d time,1,-1 croco_his.nc${agrif_ext} croco_his.nc${agrif_ext} ;} 
+            [ ${ff} == "croco_his.nc${agrif_ext}" ] && { name=croco_his ; ncrcat -O -F -d time,1,-1 croco_his.nc${agrif_ext} croco_his.nc${agrif_ext} ;} 
             [ ${ff} == "croco_avg.nc${agrif_ext}" ] && name=croco_avg
             mv ${ff} ${OUTPUTDIR}/${name}_${DATE_BEGIN_JOB}_${DATE_END_JOB}.nc${agrif_ext}
         done
