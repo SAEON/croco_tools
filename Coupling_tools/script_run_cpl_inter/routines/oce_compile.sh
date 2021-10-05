@@ -42,6 +42,8 @@ sed -e "s|SOURCE=.*|SOURCE=${OCE} |g" \
     printf "\nGrid size is (in Lx X Ly X Nz ) : ${dimx}X${dimy}X${dimz}\n"
     #add new line for new conf in param.h
     sed -e "s/(LLm0=xx, MMm0=xx, N=xx)/(LLm0=$(( ${dimx} - 2 )), MMm0=$(( ${dimy} - 2 )), N=${dimz})/g" \
+        param.h > tmp$$
+    mv tmp$$ param.h
 #    sed -i '187i#  elif defined NEWCONFIG' param.h
 #    sed -i '188i      parameter (LLm0=DIMX,   MMm0=DIMY,   N=DIMZ)' param.h
     # update necessary things
