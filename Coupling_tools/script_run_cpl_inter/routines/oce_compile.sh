@@ -41,17 +41,21 @@ sed -e "s|SOURCE=.*|SOURCE=${OCE} |g" \
     dimz=$( ncdump -h  ${OCE_FILES_DIR}/croco_${ini_ext}*.nc | grep "s_rho =" | cut -d ' ' -f 3)
     printf "\nGrid size is (in Lx X Ly X Nz ) : ${dimx}X${dimy}X${dimz}\n"
     #add new line for new conf in param.h
-    sed -i '187i#  elif defined NEWCONFIG' param.h
-    sed -i '188i      parameter (LLm0=DIMX,   MMm0=DIMY,   N=DIMZ)' param.h
+    sed -e "s/(LLm0=xx, MMm0=xx, N=xx)/(LLm0=$(( ${dimx} - 2 )), MMm0=$(( ${dimy} - 2 )), N=${dimz})/g" \
+#    sed -i '187i#  elif defined NEWCONFIG' param.h
+#    sed -i '188i      parameter (LLm0=DIMX,   MMm0=DIMY,   N=DIMZ)' param.h
     # update necessary things
     sed -e "s/NP_XI *= *[0-9]* *,/NP_XI=${NP_OCEX},/g" \
         -e "s/NP_ETA *= *[0-9]* *,/NP_ETA=${NP_OCEY},/g" \
-        -e "s/NEWCONFIG/${CEXPER}/g" \
-        -e "s/DIMX/$(( ${dimx} - 2 ))/g" \
-        -e "s/DIMY/$(( ${dimy} - 2 ))/g" \
-        -e "s/DIMZ/${dimz}/g" \
-        param.h > tmp$$
-    mv tmp$$ param.h
+        param.h > tmp$$ 
+   mv tmp$$ param.h
+
+#        -e "s/NEWCONFIG/${CEXPER}/g" \
+#        -e "s/DIMX/$(( ${dimx} - 2 ))/g" \
+#        -e "s/DIMY/$(( ${dimy} - 2 ))/g" \
+#        -e "s/DIMZ/${dimz}/g" \
+#        param.h > tmp$$
+#    mv tmp$$ param.h
 #
     if [ $USE_CPL -ge 1 ]; then
         if [ $USE_ATM -eq 1 ] || [ $USE_TOYATM -eq 1 ]; then 
