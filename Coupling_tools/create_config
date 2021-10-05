@@ -57,21 +57,20 @@ export MACHINE="DATARMOR"
 # Home and Work configuration directories
 # ---------------------------------------
 export CONFIG=BENGUELA
-export hconf=${DATAWORK}/${CONFIG} 
-export wconf=$SCRATCH/${CONFIG}
+export hconf=$PWD/${CONFIG} 
+export wconf=$PWD/${CONFIG}
 
 # CROCO parent directory 
 # (where croco_tools directory and croco source directory can be found)
 # -----------------
-export croco=/home2/datawork/mlecorre/COUPLING/croco
+export croco=~/croco
 
 # Options for you configuration
 # -----------------------------
-
+# Possible keys: cpl oce atm wav toy xios
 models=("cpl" "oce" "atm" "wav") #av: "cpl" "oce" "atm" "wav" "xios"
-
-
 interannual_run=1
+
 #=========================================================================
 #=====================  END USER CHANGES  ================================
 #=========================================================================
@@ -84,7 +83,6 @@ if [[ ${models[@]} =~ "oce" ]] ; then
  cp -r ${croco}/croco_tools/Coupling_tools/croco_in/* $hconf/croco_in/.
  cp -f $croco/croco/OCEAN/param.h $hconf/croco_in/.
  cp -f $croco/croco/OCEAN/jobcomp $hconf/croco_in/.
-
 fi
 
 if [[ ${models[@]} =~ "wav" ]] ; then
@@ -102,12 +100,14 @@ if [[ ${models[@]} =~ "atm" ]] ; then
  mkdir -p $wconf/wrf_files
  cp -r ${croco}/croco_tools/Coupling_tools/wrf_in/* $hconf/wrf_in/.
 fi
+
 if [[ ${models[@]} =~ "cpl" ]] ; then
  echo 'Copy OASIS useful scripts and input files'
  echo '-----------------------------------------'
  mkdir -p $hconf/oasis_in
  cp -r ${croco}/croco_tools/Coupling_tools/oasis_in/* $hconf/oasis_in/.
 fi
+
 if [[ ${models[@]} =~ "toy" ]] ; then
  echo 'Copy TOY sources, useful scripts and input files'
  echo '------------------------------------------------'
@@ -115,13 +115,12 @@ if [[ ${models[@]} =~ "toy" ]] ; then
  mkdir -p $wconf/toy_files
  cp -r ${croco}/croco_tools/Coupling_tools/toy_in/* $hconf/toy_in/.
 fi
+
 if [[ ${models[@]} =~ "xios" ]] ; then
  echo 'Create XIOS file'
  echo '------------------------------------------------'
  mkdir -p $hconf/xios_in
 fi
-
-
 
 echo 'Copy run scripts'
 echo '----------------'
@@ -129,8 +128,8 @@ if [ $interannual_run == 1 ]; then
     [ -d $hconf/my_script_cpl ] && \rm -Rf $hconf/my_script_cpl 
     cp -Rf ${croco}/croco_tools/Coupling_tools/script_run_cpl_inter $hconf/my_script_cpl
     mv $hconf/my_script_cpl/create_config $hconf/my_script_cpl/create_config.bck
-#    cp -r ${croco}/croco_tools/Coupling_tools/script_run_cpl_inter $hconf/.
-##### Create path file #####
+
+    ##### Create path file #####
     cd $hconf/my_script_cpl/routines/paths
     cat ./path_base.sh >> tmppath
 
@@ -145,7 +144,6 @@ if [ $interannual_run == 1 ]; then
     done
 
     #add path to files
-
     for k in ${models[@]} ; do
         cat ./path_${k}.sh >> tmppath
     done
@@ -161,8 +159,9 @@ if [ $interannual_run == 1 ]; then
     cd ${hconf}
     cat my_script_cpl/routines/myenv.${MACHINE} tmppath > myenv_mypath.sh
     chmod 755 myenv_mypath.sh
-    \rm tmppath
-##### Create namelist file #####
+    rm -f tmppath
+
+    ##### Create namelist file #####
     cd my_script_cpl/routines/namelists
     head -n 35 ./namelist_base.sh > mynamelist.sh
 
@@ -188,7 +187,7 @@ if [ $interannual_run == 1 ]; then
     mv mynamelist1.sh mynamelist.sh
     chmod 755 mynamelist.sh
     mv mynamelist.sh ../../.
-######
+    ######
 else
     cp ${croco}/croco_tools/Coupling_tools/* $hconf/.
 fi
