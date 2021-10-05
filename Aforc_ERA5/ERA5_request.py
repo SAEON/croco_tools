@@ -72,15 +72,15 @@ latmax=-20
 area = [latmax, lonmin, latmin, lonmax]
 
 # Request variables (see available at ERA5_variables.json)
-#variables = ['meets','mntss','msnswrf','msnlwrf','msshf','mslhf','mer','mtpr', \
-#             'sst','t2m','d2m','q','msl','u10','v10']
+variables = ['meets','mntss','msnswrf','msnlwrf','msshf','mslhf','mer','mtpr', \
+             'sst','t2m','d2m','q','msl','u10','v10']
 
 #variables = ['lsm','tp','strd','ssr','t2m','q','u10','v10']
 #add lsm: land_sea_mask
 
 #Gc => add the sst to deal with the mask
 #variables = ['sst','tp','strd','ssr','t2m','q','u10','v10']
-variables = ['sst']
+#variables = ['sst']
 # -------------------------------------------------
 # Getting libraries and utilities
 # -------------------------------------------------
@@ -99,9 +99,9 @@ import os
 main_dir = os.getcwd()
 
 # Output directory
-#era5_dir = main_dir + '/ERA5'
+era5_dir = main_dir + '/ERA5'
 #era5_dir = '/media/ppenven/SWAG/ERA5/ORIG_FILES'
-era5_dir='/local/tmp/3/gcambon/CONFIGS/BENGUELA_CPL/croco_files/DATA_ATMO_ERA5_raw'
+#era5_dir='/local/tmp/3/gcambon/CONFIGS/BENGUELA_CPL/croco_files/DATA_ATMO_ERA5_raw'
 # Making output directory 
 #os.makedirs(era5_dir,exist_ok=True)'
 
