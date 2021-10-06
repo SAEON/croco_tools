@@ -7,8 +7,8 @@
 export ONLINE_COMP=0
 
 # Time steps
-export TSP_OCE=1200
-export TSP_OCEF=60
+export DT_OCE=1200
+export NDTFAST=60
 
 # Parameter 
 export hmin=75; # minimum water depth in CROCO, delimiting coastline in WW3 

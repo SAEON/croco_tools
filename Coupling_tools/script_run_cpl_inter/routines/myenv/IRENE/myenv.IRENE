@@ -32,12 +32,3 @@ export CC=mpicc
 export FC=ifort
 export MPIF90=mpif90
 
-
-### WRF ###
-export NETCDF4=1
-export NETCDF_classic=1
-export WRFIO_NCD_LARGE_FILE_SUPPORT=1
-
-### WW3 ###
-export WWATCH3_NETCDF=NC4
-

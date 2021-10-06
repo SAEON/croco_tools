@@ -4,10 +4,10 @@
 # namelist
 
 # Time steps
-export TSP_WAV=3600     # TMAX = 3*TCFL
-export TSP_WW_PRO=1200  # TCFL --> ww3.grid to see the definition
-export TSP_WW_REF=1800  # TMAX / 2
-export TSP_WW_SRC=10
+export DT_WAV=3600     # TMAX = 3*TCFL
+export DT_WW_PRO=1200  # TCFL --> ww3.grid to see the definition
+export DT_WW_REF=1800  # TMAX / 2
+export DT_WW_SRC=10
 
 # Grid size
 export wavnx=41 ; export wavny=42

@@ -2,7 +2,7 @@
 #MSUB -r <exp>       # request name
 #MSUB -o <exp>.jobid_%I.o
 #MSUB -e <exp>.jobid_%I.e
-#MSUB -j oe          #  VERIFIER que c'est OK sur Curie XXX
+#MSUB -j oe 
 #MSUB -n <nmpi>        # Total number of mpi task to use
 #MSUB -T <timedur>         
 #MSUB -x

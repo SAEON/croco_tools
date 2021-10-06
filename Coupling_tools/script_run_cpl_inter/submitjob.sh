@@ -2,7 +2,6 @@
 
 source ../myenv_mypath.sh
 set -u
-set +x     # pour CURIE
 umask 022
 
 #-------------------------------------------------------------------------------
@@ -10,6 +9,7 @@ umask 022
 #-------------------------------------------------------------------------------
 #cat mypath.sh >> mynamelist.tmp
 cat mynamelist.sh > mynamelist.tmp
+cat ./routines/namelists/namelist_tail.sh >> mynamelist.tmp
 cat myjob.sh >> mynamelist.tmp
 cat ./routines/common_definitions.sh >> mynamelist.tmp
 
@@ -32,14 +32,14 @@ cd -
 # calendar computations (to check dates consistency)
 #-------------------------------------------------------------------------------
 if [ ${USE_CPL} -ge 1 ]; then
-  if [ $(( ${CPL_FREQ} % ${TSP_ATM} )) -ne 0 ] || \
-     [ $(( ${CPL_FREQ} % ${TSP_OCE} )) -ne 0 ] || \
-     [ $(( ${CPL_FREQ} % ${TSP_WAV} )) -ne 0 ] ; then
+  if [ $(( ${CPL_FREQ} % ${DT_ATM} )) -ne 0 ] || \
+     [ $(( ${CPL_FREQ} % ${DT_OCE} )) -ne 0 ] || \
+     [ $(( ${CPL_FREQ} % ${DT_WAV} )) -ne 0 ] ; then
      printf "\n\n Problem of consistency between Coupling Frequency and Time Step with ATM, OCE or WAV model, we stop...\n\n" && exit 1
   fi
   if [ ${USE_TOY} -eq 1 ]; then 
       for k in `seq 0 $(( ${nbtoy} - 1))` ; do
-          if [ $(( ${CPL_FREQ} % ${TSP_TOY[$k]} )) -ne 0 ] ; then
+          if [ $(( ${CPL_FREQ} % ${DT_TOY[$k]} )) -ne 0 ] ; then
               printf "\n\n Problem of consistency between Coupling Frequency and Time Step for TOY model, we stop...\n\n" && exit 1
           fi
       done

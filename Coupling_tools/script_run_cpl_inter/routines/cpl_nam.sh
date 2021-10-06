@@ -38,7 +38,7 @@ if [ ${USE_ATM} == 1 ]; then
         dimx=$( ncdump -h  $file  | grep "west_east_stag =" | cut -d ' ' -f 3)
         dimy=$( ncdump -h  $file  | grep "south_north_stag =" | cut -d ' ' -f 3)
     
-        sed -e "s/${searchf[0]}/${TSP_ATM}/g"   -e "s/${searchf[1]}/${dimx}/g"   -e "s/${searchf[2]}/${dimy}/g" \
+        sed -e "s/${searchf[0]}/${DT_ATM}/g"   -e "s/${searchf[1]}/${dimx}/g"   -e "s/${searchf[2]}/${dimy}/g" \
         ./namcouple>tmp$$
         mv tmp$$ namcouple
     done
@@ -46,7 +46,7 @@ fi
 
 ### For WAV ###
 if [ ${USE_WAV} == 1 ]; then
-    sed -e "s/<wavdt>/${TSP_WAV}/g"   -e "s/<wavnx>/${wavnx}/g"   -e "s/<wavny>/${wavny}/g"  \
+    sed -e "s/<wavdt>/${DT_WAV}/g"   -e "s/<wavnx>/${wavnx}/g"   -e "s/<wavny>/${wavny}/g"  \
     ./namcouple>tmp$$
     mv tmp$$ namcouple
 fi
@@ -58,11 +58,11 @@ if [ ${USE_OCE} == 1 ]; then
             agrif_ext=".${nn}"
             SUBTIME=$( sed -n -e "$(( 2 * ${nn} )) p" AGRIF_FixedGrids.in | awk '{print $7 }' )
             searchf=("<ocedt${nn}>" "<ocenx${nn}>" "<oceny${nn}>" )
-            tsp=$(( ${TSP_OCE} / ${SUBTIME} ))
+            tsp=$(( ${DT_OCE} / ${SUBTIME} ))
         else
             agrif_ext=""
             searchf=("<ocedt>" "<ocenx>" "<oceny>" )
-            tsp=${TSP_OCE}
+            tsp=${DT_OCE}
         fi
 
         dimx=$( ncdump -h  croco_grd.nc${agrif_ext}  | grep "xi_rho =" | cut -d ' ' -f 3)
@@ -81,7 +81,7 @@ if [ ${USE_TOY} -ge 1 ]; then
         if [ ${toytype[$k]} == "oce" ]; then
             dimx=$( ncdump -h  ${toyfile[$k]}  | grep "xi_rho =" | cut -d ' ' -f 3)
             dimy=$( ncdump -h  ${toyfile[$k]}  | grep "eta_rho =" | cut -d ' ' -f 3)
-            sed -e "s/<ocedt>/${TSP_TOY[$k]}/g"   -e "s/<ocenx>/$(( ${dimx} - 2 ))/g"   -e "s/<oceny>/$(( ${dimy} - 2 ))/g" \
+            sed -e "s/<ocedt>/${DT_TOY[$k]}/g"   -e "s/<ocenx>/$(( ${dimx} - 2 ))/g"   -e "s/<oceny>/$(( ${dimy} - 2 ))/g" \
             ./namcouple>tmp$$
             mv tmp$$ namcouple
         fi
@@ -89,7 +89,7 @@ if [ ${USE_TOY} -ge 1 ]; then
         if [ ${toytype[$k]} == "atm" ]; then
             dimx=$( ncdump -h  ${toyfile[$k]}  | grep "west_east_stag =" | cut -d ' ' -f 3)
             dimy=$( ncdump -h  ${toyfile[$k]}  | grep "south_north_stag =" | cut -d ' ' -f 3)
-            sed -e "s/<atmdt>/${TSP_TOY[$k]}/g"   -e "s/<atmnx>/${dimx}/g"   -e "s/<atmny>/${dimy}/g" \
+            sed -e "s/<atmdt>/${DT_TOY[$k]}/g"   -e "s/<atmnx>/${dimx}/g"   -e "s/<atmny>/${dimy}/g" \
             ./namcouple>tmp$$
             mv tmp$$ namcouple
         fi
@@ -97,7 +97,7 @@ if [ ${USE_TOY} -ge 1 ]; then
         if [ ${toytype[$k]} == "wav" ]; then
             dimx=$( ncdump -h  ${toyfile[$k]}  | grep "longitude =" | head -1 | cut -d ' ' -f 3)
             dimy=$( ncdump -h  ${toyfile[$k]}  | grep "latitude =" | head -1 |cut -d ' ' -f 3)
-            sed -e "s/<wavdt>/${TSP_TOY[$k]}/g"   -e "s/<wavnx>/${dimx}/g"   -e "s/<wavny>/${dimy}/g" \
+            sed -e "s/<wavdt>/${DT_TOY[$k]}/g"   -e "s/<wavnx>/${dimx}/g"   -e "s/<wavny>/${dimy}/g" \
             ./namcouple>tmp$$
             mv tmp$$ namcouple
         fi

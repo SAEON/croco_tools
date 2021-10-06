@@ -25,22 +25,3 @@ export FC=ifort
 export MPIF90=mpiifort
 export CC=icc
 
-#-------------
-# WRF
-#-------------
-export NETCDF4=1
-export NETCDF_classic=1
-export WRFIO_NCD_LARGE_FILE_SUPPORT=1
-
-#-------------
-# WW3
-#-------------
-export LD_LIBRARY_PATH=$NETCDF/lib:$LD_LIBRARY_PATH
-export WWATCH3_NETCDF=NC4
-
-#-------------
-# WPS
-#-------------
-export JASPERLIB="$HOME/softs/grib2/lib"
-export JASPERINC="$HOME/softs/grib2/include"
-

@@ -48,9 +48,13 @@
  e_we                                = <xdim_d01>,<xdim_d02>,<xdim_d03>,
  e_sn                                = <ydim_d01>,<ydim_d02>,<ydim_d03>,
  e_vert                              = <nbvertlev>,<nbvertlev>,<nbvertlev>,
- eta_levels                          = <eta_lev>,
- p_top_requested                     = <ptop>,
- num_metgrid_levels                  = <nbmetlev>,
+ p_top_requested                     = 1000,
+ auto_levels_opt                     = 2
+ max_dz                              = 1000.
+ dzbot                               = 20.
+ dzstretch_s                         = 1.3
+ dzstretch_u                         = 1.1
+ num_metgrid_levels                  = 38,
  num_metgrid_soil_levels             = <nbmetsoil>,
  dx                                  = <dx_d01>,<dx_d02>,<dx_d03>,
  dy                                  = <dy_d01>,<dy_d02>,<dy_d03>,
@@ -92,7 +96,7 @@
  icloud                              = 1,
  surface_input_source                = 1,
  num_soil_layers                     = 4,
- sst_update                          = 1,
+ sst_update                          = 1,     1,     1,
  usemonalb                           = .false.,
  tmn_update                          = 0,
  lagday                              = 150,
@@ -160,34 +164,4 @@
  /
 
  &fdda
- grid_fdda                           = <nudge_d01>,0,0,
- gfdda_inname                        = "wrffdda_d<domain>",
- gfdda_end_h                         = <nudge_end_h>, <nudge_end_h>, <nudge_end_h>,
- gfdda_interval_m                    = <nudge_int_m>,<nudge_int_m>,<nudge_int_m>,
- fgdt                                = 0,     0,     0,
- fgdtzero                            = 0,     0,     0,
- if_no_pbl_nudging_uv                = 1,     1,     1,
- if_no_pbl_nudging_t                 = 1,     1,     1,
- if_no_pbl_nudging_ph                = 1,     1,     1,
- if_no_pbl_nudging_q                 = 1,     1,     1,
- if_zfac_uv                          = 1,     1,     1,
- k_zfac_uv                           = 9,     9,     9,
- if_zfac_t                           = 1,     1,     1,
- k_zfac_t                            = 9,     9,     9,
- if_zfac_ph                          = 1,     1,     1,
- k_zfac_ph                           = 9,     9,     9,
- if_zfac_q                           = 1,     1,     1,
- k_zfac_q                            = 9,     9,     9,
- dk_zfac_uv                          = 1,     1,     1,
- dk_zfac_t                           = 1,     1,     1,
- dk_zfac_ph                          = 1,     1,     1,
- guv                                 = <nudge_coef>,     0,     0,
- gt                                  = <nudge_coef>,     0,     0,
- gph                                 = <nudge_coef>,     0,     0,
- gq                                  = 0,     0,     0,
- xwavenum                            = 3,0,0
- ywavenum                            = 3,0,0
- if_ramping                          = 0,
- dtramp_min                          = 60.0,
- io_form_gfdda                       = 2,
  /

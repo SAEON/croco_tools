@@ -28,21 +28,3 @@ export F90=ifort
 export F77=ifort
 export MPIF90=mpiifort
 
-
-#-------------
-# WRF
-#-------------
-export NETCDF4=1
-export WRFIO_NCD_LARGE_FILE_SUPPORT=1
-# #-------------
-# # for WPS  
-# #-------------
-export JASPERLIB=$NETCDF/lib
-export JASPERINC=$NETCDF/include/jasper
-#-------------
-# WW3
-#-------------
-export NETCDF_CONFIG=/home/datawork-wave/NETCDF2019/INTEL/bin/nf-config
-export WWATCH3_NETCDF=NC4
-
-

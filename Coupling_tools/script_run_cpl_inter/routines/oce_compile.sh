@@ -9,16 +9,16 @@ if [ ${DATE_BEGIN_JOB} -eq ${DATE_BEGIN_EXP} ]; then
     cd ${JOBDIR_ROOT}
     printf "\n\n CROCO online compilation is on \n\n" 
 #    rsync -a ${OCE}/OCEAN/ OCEAN/
-    [ ! -d Run_croco ] && rm -rf Run_croco
-    mkdir Run_croco
-    rsync -a ${OCE}/param.h   Run_croco/.
-    rsync -a ${OCE}/cppdefs.h Run_croco/.
-    rsync -a ${OCE}/jobcomp   Run_croco/.
+    [ ! -d Comp_croco ] && rm -rf Comp_croco
+    mkdir Comp_croco
+    rsync -a ${OCE}/param.h   Comp_croco/.
+    rsync -a ${OCE}/cppdefs.h Comp_croco/.
+    rsync -a ${OCE}/jobcomp   Comp_croco/.
 
 #-------------------------------------------------------------------------------
 #   sed on files
 #-------------------------------------------------------------------------------
-    cd Run_croco
+    cd Comp_croco
     # Option of compilation
 #    sed -e "s/-O3 /-O3 -xAVX /" jobcomp > tmp$$i
 sed -e "s|SOURCE=.*|SOURCE=${OCE} |g" \
@@ -44,20 +44,11 @@ sed -e "s|SOURCE=.*|SOURCE=${OCE} |g" \
     sed -e "s/(LLm0=xx, MMm0=xx, N=xx)/(LLm0=$(( ${dimx} - 2 )), MMm0=$(( ${dimy} - 2 )), N=${dimz})/g" \
         param.h > tmp$$
     mv tmp$$ param.h
-#    sed -i '187i#  elif defined NEWCONFIG' param.h
-#    sed -i '188i      parameter (LLm0=DIMX,   MMm0=DIMY,   N=DIMZ)' param.h
     # update necessary things
     sed -e "s/NP_XI *= *[0-9]* *,/NP_XI=${NP_OCEX},/g" \
         -e "s/NP_ETA *= *[0-9]* *,/NP_ETA=${NP_OCEY},/g" \
         param.h > tmp$$ 
    mv tmp$$ param.h
-
-#        -e "s/NEWCONFIG/${CEXPER}/g" \
-#        -e "s/DIMX/$(( ${dimx} - 2 ))/g" \
-#        -e "s/DIMY/$(( ${dimy} - 2 ))/g" \
-#        -e "s/DIMZ/${dimz}/g" \
-#        param.h > tmp$$
-#    mv tmp$$ param.h
 #
     if [ $USE_CPL -ge 1 ]; then
         if [ $USE_ATM -eq 1 ] || [ $USE_TOYATM -eq 1 ]; then 
@@ -146,7 +137,7 @@ sed -e "s|SOURCE=.*|SOURCE=${OCE} |g" \
     cd ${EXEDIR}
 else
     
-    rsync -av ${JOBDIR_ROOT}/Run_croco/croco.${RUNtype} crocox
+    rsync -av ${JOBDIR_ROOT}/Comp_croco/croco.${RUNtype} crocox
 
 fi
 

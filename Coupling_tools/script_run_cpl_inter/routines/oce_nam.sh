@@ -46,12 +46,12 @@ do
 	cp ${OCE_NAM_DIR}/croco.in.base ${namfile}
 	SUBTIME=1
     fi
-    TSP_OCE_2=$(( ${TSP_OCE} / ${SUBTIME} ))
+    DT_OCE_2=$(( ${DT_OCE} / ${SUBTIME} ))
 #-------
 ## Number of time step per day
 #-------
-    OCE_NTSP_DAY=$(( 86400 / ${TSP_OCE_2} ))
-    OCE_NTIMES=$(( ( ${JDAY_END_JOB} - ${JDAY_BEGIN_JOB} + 1 ) * ${OCE_NTSP_DAY}     ))
+    OCE_NDT_DAY=$(( 86400 / ${DT_OCE_2} ))
+    OCE_NTIMES=$(( ( ${JDAY_END_JOB} - ${JDAY_BEGIN_JOB} + 1 ) * ${OCE_NDT_DAY}     ))
 #
 #-------
 # change some namelist values
@@ -64,7 +64,7 @@ do
 #
 
 
-sed -e "s/<ocentimes>/${OCE_NTIMES}/g" -e "s/<ocedt>/${TSP_OCE_2}/g"   -e "s/<ocendtfast>/${TSP_OCEF}/g" \
+sed -e "s/<ocentimes>/${OCE_NTIMES}/g" -e "s/<ocedt>/${DT_OCE_2}/g"   -e "s/<ocendtfast>/${NDTFAST}/g" \
     -e "s/<oce_nrst>/${OCE_NTIMES}/g"   -e "s/<oce_nhis>/${oce_nhis}/g" -e "s/<oce_navg>/${oce_navg}/g"     \
     -e "s/<yr1>/${YEAR_BEGIN_JOB}/g"             -e "s/<mo1>/${MONTH_BEGIN_JOB}/g"           \
     -e "s/<yr2>/${end_Y}/g"             -e "s/<mo2>/${end_M}/g"           \

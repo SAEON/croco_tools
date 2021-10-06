@@ -12,8 +12,8 @@ ds=$( printf "%02d"  ${DAY_BEGIN_JOB} )
 de=$( printf "%02d"  ${DAY_END_JOB} )
 
  ## - Fill ww3_grid.inp file -##
-sed -e "s/<wavdt>/${TSP_WAV}/g" \
-    -e "s/<wavdtPRO>/${TSP_WW_PRO}/g"  -e "s/<wavdtREF>/${TSP_WW_REF}/g"  -e "s/<wavdtSRC>/${TSP_WW_SRC}/g"  \
+sed -e "s/<wavdt>/${DT_WAV}/g" \
+    -e "s/<wavdtPRO>/${DT_WW_PRO}/g"  -e "s/<wavdtREF>/${DT_WW_REF}/g"  -e "s/<wavdtSRC>/${DT_WW_SRC}/g"  \
     -e "s/<wavnx>/${wavnx}/g"   -e "s/<wavny>/${wavny}/g"  \
     -e "s/<hmin>/${hmin}/g" \
     ${WAV_NAM_DIR}/ww3_grid.inp.base > ./ww3_grid.inp
@@ -27,7 +27,7 @@ sed -e "s/<wav_int>/${wav_int}/g" \
 sed -e "s/<yr1>/${YEAR_BEGIN_JOB}/g"  -e "s/<mo1>/${ms}/g"  -e "s/<dy1>/${ds}/g"  -e "s/<hr1>/00/g"  \
     -e "s/<yr2>/${YEAR_END_JOB}/g"  -e "s/<mo2>/${me}/g"  -e "s/<dy2>/${de}/g"  -e "s/<hr2>/24/g" \
     -e "s/<wav_int>/${wav_int}/g"  -e "s/<wav_rst>/$(( ${TOTAL_JOB_DUR} * 24 * 3600))/g" \
-    -e "s/<wavdt>/${TSP_WAV}/g" \
+    -e "s/<wavdt>/${DT_WAV}/g" \
     ${WAV_NAM_DIR}/ww3_shel.inp.base.${RUNtype} > ./ww3_shel.inp
 
 

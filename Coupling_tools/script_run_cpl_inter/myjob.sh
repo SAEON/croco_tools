@@ -46,14 +46,15 @@ export CHAINED_JOB="FALSE" #If TRUE , place all the jobs in the queue at the beg
 # However, production mode and test mode cannot be used simultaneously
 export MODE_TEST=""    #   mode Production 
 
+# DEBUG for test
+# To help debug the submit_job. Can be of some use when working on chained_job.sh
+export SCRIPT_DEBUG="FALSE"
+
 #-------------------------------------------------------------------------------
 # Multi-Step
 #-------------------------------------------------------------------------------
 LOADL_STEP_NAME="XXX"   # XXX will do all steps
                         # otherwise "get_file"/"run_model"/"put_file" individual steps can be selected 
-
-# DEBUG for test
-export SCRIPT_DEBUG="FALSE"
 
 #-------------------------------------------------------------------------------
 # Number of core used
@@ -61,20 +62,9 @@ export SCRIPT_DEBUG="FALSE"
 # mpi launch command: ccc_mprun :for irene / $MPI_LAUNCH for datarmor (or mpiexec.hydra )
 MPI_LAUNCH_CMD=$MPI_LAUNCH  
 export SERIAL_LAUNCH_WAV="$MPI_LAUNCH -n 1 " # serial launch for WW3 prepro: getrst_ww3.sh
-# nb of CPUs for each model
-export NP_OCEX=2
-export NP_OCEY=2
-export NP_ATM=12
-export NP_WAV=14
-export NP_TOY=2
-export NP_XIOS_ATM=1
-export NP_XIOS_OCE=1
 
-# additional MPI Settings for ATM (WRF)
-export atm_nprocX=-1      # -1 for automatic settings
-export atm_nprocY=-1      # -1 for automatic settings
-export atm_niotaskpg=0    # 0 for default settings
-export atm_niogp=1        # 1 for default settings
+# nb of CPUs for each model
+# < insert here CPU > !!! DO NOT REMOVE THIS LIST used in create_config
 
 ################################################################################
 ############################ END USER CHANGE ###################################
@@ -115,7 +105,8 @@ elif [ ${MACHINE} == "DATARMOR" ]; then
    export COMPUTER="DATARMOR"
    export jobname="job_${ROOT_NAME_1}.pbs"
 else
-   printf "\n\n Machine unknown  => EXIT \n\n"; exit;
+   printf "\n\n Machine unknown  => EXIT \n\n"
+   printf "To define your Machine:\n - Define your environement in ./routines/myenv \n - Prepare your header in ./routines \n - Prepare a launch_${MACHINE} in ./routines";  exit;
 fi
 
 echo ${COMPUTER}

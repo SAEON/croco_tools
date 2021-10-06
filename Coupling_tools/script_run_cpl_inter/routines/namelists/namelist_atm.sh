@@ -2,10 +2,10 @@
 # ATM
 #-------------------------------------------------------------------------------
 # namelist
-export atmnamelist=namelist.input.prep.${CEXPER}.${RUNtype}
+export atmnamelist=namelist.input.base.complete
 
 # Time steps
-export TSP_ATM=100 #100   # 100 90 75 72 60 45
+export DT_ATM=100 #100   # 100 90 75 72 60 45
 
 # Grid size
 #[ Grid size should be already put in the namelist. When coupled it is directly read in cpl_nam.sh ]
@@ -13,6 +13,10 @@ export TSP_ATM=100 #100   # 100 90 75 72 60 45
 # domains
 export NB_dom=1 # Number of coupled domains
 export wrfcpldom='d01'
+
+# Boundaries interval 
+export interval_seconds=21600 # interval ( in sec ) of the latteral input
+export auxinput4_interval=360 # interval ( in min ) of bottom input
 
 # output settings
 #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
