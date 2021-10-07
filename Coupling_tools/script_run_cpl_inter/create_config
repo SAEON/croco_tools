@@ -56,7 +56,7 @@ export MACHINE="DATARMOR"
 
 # Home and Work configuration directories
 # ---------------------------------------
-export CONFIG=BENGUELA_test
+export CONFIG=BENGUELA
 export hconf=${PWD}/${CONFIG} 
 export wconf=${PWD}/${CONFIG}
 
@@ -185,7 +185,7 @@ if [ $interannual_run == 1 ]; then
 
     cp myenv.${MACHINE} tmpenv
     for k in `seq 0 $(( ${#models[@]} - 1))` ; do
-        [ ${models[$k]} == "atm" ] && cat ./myenv.${MACHINE}.wrf >> tmpenv || echo "do noting"
+        [ ${models[$k]} == "atm" ] && cat ./myenv.${MACHINE}.wrf >> tmpenv
         [ ${models[$k]} == "wav" ] && cat ./myenv.${MACHINE}.ww3 >> tmpenv
     done
     mv tmpenv ${hconf}/

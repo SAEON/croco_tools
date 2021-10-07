@@ -5,5 +5,5 @@
 export namcouplename=namcouple.base.${RUNtype}${istoy}
 
 # coupling frequency
-export CPL_FREQ=21600
+export CPL_FREQ=3600
 
