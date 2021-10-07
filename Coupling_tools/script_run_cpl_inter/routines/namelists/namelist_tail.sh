@@ -2,6 +2,18 @@
 ############################ END USER CHANGE ###################################
 ################################################################################
 
+# Avoid error when a model is not used
+[[ -z ${USE_ATM+x} ]] && export USE_ATM=0
+[[ -z ${USE_OCE+x} ]] && export USE_OCE=0
+[[ -z ${USE_WAV+x} ]] && export USE_WAV=0
+[[ -z ${USE_XIOS_ATM+x} ]] && export USE_WAV=0
+[[ -z ${USE_XIOS_OCE+x} ]] && export USE_WAV=0
+[[ -z ${USE_TOYATM+x} ]] && export USE_TOYATM=0
+[[ -z ${USE_TOYOCE+x} ]] && export USE_TOYOCE=0
+[[ -z ${USE_TOYWAV+x} ]] && export USE_TOYWAV=0
+[[ -z ${istoy+x} ]] && export istoy=""
+
+
 if [ ${USE_ATM} == 0 ]; then
     export DT_ATM=1
 fi

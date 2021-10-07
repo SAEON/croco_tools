@@ -96,7 +96,7 @@
  icloud                              = 1,
  surface_input_source                = 1,
  num_soil_layers                     = 4,
- sst_update                          = 1,     1,     1,
+ sst_update                          = 1,
  usemonalb                           = .false.,
  tmn_update                          = 0,
  lagday                              = 150,
