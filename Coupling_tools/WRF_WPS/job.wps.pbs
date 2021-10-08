@@ -5,5 +5,5 @@ cd $PBS_O_WORKDIR
 
 source /usr/share/Modules/3.2.10/init/bash
 
-#./run_wps.bash configure.namelist.wps_BENGUELA 8
-./run_real.bash configure.namelist.wps_BENGUELA 8
+./run_wps.bash configure.namelist.wps_BENGUELA 8
+

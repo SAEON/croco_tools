@@ -96,7 +96,7 @@ is_ungrib_sfc=1 # for use of a 2nd type of surface files in metgrid
 #
 #============= Set Environment ======================================= 
 #
-source ../myenv_mypath.sh
+source ../../myenv_mypath.sh
 #
 # add WPS dependencies to your library path: libpng and zlib (dynamic libraries)
 ##export LD_LIBRARY_PATH=$HOME/softs/libpng-1.2.59/install/lib:$LD_LIBRARY_PATH
@@ -132,12 +132,18 @@ else
 fi
 #
 # MPI launch commands
-# for JEAN-ZAY
-#export myMPI="srun -n $NBPROCS "
+if [ ${MACHINE} == "JEANZAY" ]; then
+    export myMPI="srun -n $NBPROCS "
+elif [ ${MACHINE} == "DATARMOR" ]; then
+    export myMPI="$MPI_LAUNCH -np $NBPROCS "
+elif [ ${MACHINE} == "IRENE" ]; then
+    export myMPI="ccc_mprun -n $NBPROCS "
+else
+    echo "Define how to run the job in run_wps.bash"
+    exit
+fi
 # for NEA ----------
 #export myMPI="mpirun -np $NBPROCS "
-# for DATARMOR ----------
-export myMPI="$MPI_LAUNCH -np $NBPROCS "
 # ------------------
 
 
