@@ -32,9 +32,9 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp(['Add the paths of the different toolboxes'])
-[err, my_crocodir] = system('echo $OCE/..');
-tools_path = [my_crocodir(1:end-1) '/croco_tools/'];
-croco_path = [my_crocodir(1:end-1) '/croco/'];
+my_crocodir = [ getenv('OCE') '/../..'];
+tools_path = [my_crocodir '/croco_tools/'];
+croco_path = [my_crocodir '/croco/'];
 myutilpath=[tools_path,'UTILITIES/'];
 %
 % Other software directories
@@ -58,7 +58,7 @@ addpath([tools_path,'Tides/T_TIDE'])
 addpath([tools_path,'Visualization_tools'])
 addpath([tools_path,'Rivers'])
 addpath([tools_path,'Town'])
-addpath([croco_path,'Run/TEST_CASES'])
+addpath([croco_path,'TEST_CASES'])
 %
 %-------------------------------------------------------
 %

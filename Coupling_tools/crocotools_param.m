@@ -47,17 +47,18 @@
 %
 %  CROCO title names and directories
 %
-[err, my_workdir] = system('echo $wconf');
-[err, my_crocodir] = system('echo $croco');
-[err, my_datadir] = system('echo $DATA_DIR');
-my_workdir = my_workdir(1:end-1)
-my_crocodir = my_crocodir(1:end-1)
-my_datadir = my_datadir(1:end-1)
+my_workdir  = getenv('CWORK');
+my_crocodir = getenv('OCE');
+%my_datadir  = getenv('');
+my_datadir  = [ '/home/datawork-croco/datarmor-only/TRAININGS/TRAINING_2019'];
+%my_workdir = my_workdir(1:end-1)
+%my_crocodir = my_crocodir(1:end-1)
+%my_datadir = my_datadir(1:end-1)
 %
-CROCOTOOLS_dir = [my_crocodir '/'];       % CROCOTOOLS directory
+CROCOTOOLS_dir = [my_crocodir '/../../croco_tools'];       % CROCOTOOLS directory
 RUN_dir = [my_workdir '/'];               % Configuration run directory
-CROCO_files_dir=[RUN_dir,'croco_files/']; % CROCO input netcdf files directory
-DATADIR= [my_datadir '/DATASETS/'];      % Global data directory (etopo, coads, datasets download from ftp, etc..)
+CROCO_files_dir=[RUN_dir,'CROCO_FILES/']; % CROCO input netcdf files directory
+DATADIR= [my_datadir '/DATA/DATASETS_CROCOTOOLS/'];      % Global data directory (etopo, coads, datasets download from ftp, etc..)
 FORC_DATA_DIR = DATADIR;                  % Forcing data directory (ncep, quikscat, datasets download with opendap, etc..)
 %
 CROCO_title  = 'Benguela Model';
