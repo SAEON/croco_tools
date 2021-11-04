@@ -36,9 +36,9 @@ close all
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
 %
 crocotools_param
-wrf_file='/home2/datawork/mlecorre/COUPLING/CONFIG/BENGUELA_oa_AGRIF/wrf_files/WPS_DATA/geo_em.d01.nc'; %input
-croco_file='../croco_files_test/croco_grd.nc'; %output
-coef=3; % If your are preparing a nest please make sure that THIS coeff is a multiple of WRF coefficient (otherwise your will have inconsistencies between grids) || Else do as you want :) 
+wrf_file='../WRF_FILES/geo_em.d01.nc'; %input
+croco_file='../CROCO_FILES/croco_grd.nc'; %output
+coef=3; % If your are preparing a nest please make sure that THIS coeff is a multiple of WRF coefficient (otherwise your will have inconsistencies between grids) || Else do as you want :)
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
 warning off
@@ -59,57 +59,81 @@ disp([' Refine coefficient from WRF is : ',num2str(coef)])
 %lonr=(lonmin:dl:lonmax);
 %
 nc=netcdf(wrf_file);
+Lonp0=squeeze(nc{'XLONG_C'}(1,:,:));
 Lonr0=squeeze(nc{'XLONG_M'}(1,:,:));
-Lonr0(Lonr0<0)=Lonr0(Lonr0<0)+360;
-
-Lonr=zeros((coef*size(Lonr0,1))+2-(coef-1),(coef*size(Lonr0,2))+2-(coef-1));
-
-dx=(Lonr0(1,2:end)-Lonr0(1,1:end-1))/coef;
-
-for n = 1:size(Lonr,1)
-    Lonr(n,2:coef:end-1)=Lonr0(1,:);
-end
-
-cpt=1;
-for j = 2:coef:(size(Lonr,2)-2)
-    for n = 1:coef-1 
-        Lonr(:,j+n)=Lonr(:,j)+n*dx(cpt);
-    end
-    cpt=cpt+1;
-end
-
-Lonr(:,1)=Lonr(:,2)-dx(1);
-Lonr(:,end)=Lonr(:,end-1)+dx(end);
-
-%
-%
-%
+Latp0=squeeze(nc{'XLAT_C'}(1,:,:));
 Latr0=squeeze(nc{'XLAT_M'}(1,:,:));
-Latr=zeros(coef*size(Latr0,1)+2-(coef-1),coef*size(Latr0,2)+2-(coef-1));
+Lonp0(Lonp0<0)=Lonp0(Lonp0<0)+360;
+Lonr0(Lonr0<0)=Lonr0(Lonr0<0)+360;
+close(nc)
 
-dy=(Latr0(2:end,1)-Latr0(1:end-1,1))/coef;
+Lonp=zeros((coef*size(Lonp0,1))-(coef-1),(coef*size(Lonp0,2))-(coef-1));
 
-for n = 1:size(Latr,2)
-    Latr(2:coef:end-1,n)=Latr0(:,1);
+dx = (Lonp0(1,2:end)-Lonp0(1,1:end-1))/coef;
+
+for n = 1:size(Lonp,1)
+    Lonp(n,1:coef:end)=Lonp0(1,1:end);
 end
 
 cpt=1;
-for j = 2:coef:(size(Latr,1)-2)
+for j = 1:coef:(size(Lonp,2)-2)
     for n = 1:coef-1
-        Latr(j+n,:)=Latr(j,:)+n*dy(cpt);
+        Lonp(:,j+n)=Lonp(:,j)+n*dx(cpt);
     end
     cpt=cpt+1;
 end
 
-Latr(1,:)=Latr(2,:)-dy(1);
-Latr(end,:)=Latr(end-1,:)+dy(end);
-
-
-close(nc)
+Lonp(:,end)=Lonp(:,end-1)+dx(end);
 %
-%[Lonr,Latr]=meshgrid(lonr,latr);
-[Lonu,Lonv,Lonp]=rho2uvp(Lonr); 
-[Latu,Latv,Latp]=rho2uvp(Latr);
+%
+Latp=zeros((coef*size(Latp0,1))-(coef-1),(coef*size(Latp0,2))-(coef-1));
+
+dy = (Latp0(2:end,1)-Latp0(1:end-1,1))/coef;
+
+for n = 1:size(Latp,2)
+    Latp(1:coef:end,n)=Latp0(1:end,1);
+end
+
+cpt=1;
+for j = 1:coef:(size(Latp,1)-2)
+    for n = 1:coef-1
+        Latp(j+n,:)=Latp(j,:)+n*dy(cpt);
+    end
+    cpt=cpt+1;
+end
+
+Latp(end,:)=Latp(end-1,:)+dy(end);
+%
+% Make rho-grid
+%
+
+Lonr=zeros([size(Lonp,1)+1,size(Lonp,2)+1]);
+Latr=zeros([size(Latp,1)+1,size(Latp,2)+1]);
+
+[M,L]=size(Lonp);
+Mp=M+1;
+Lp=L+1;
+Mm=M-1;
+Lm=L-1;
+
+Lonr(2:M,2:L)=0.25*(Lonp(1:Mm,1:Lm)+Lonp(1:Mm,2:L)+Lonp(2:M,1:Lm)+Lonp(2:M,2:L));
+Lonr(1,:)=Lonr(2,:)-dx(1);
+Lonr(Mp,:)=Lonr(M,:)+dx(end);
+Lonr(:,1)=Lonr(:,2)-dx(1);
+Lonr(:,Lp)=Lonr(:,L)+dx(end);
+
+Latr(2:M,2:L)=0.25*(Latp(1:Mm,1:Lm)+Latp(1:Mm,2:L)+Latp(2:M,1:Lm)+Latp(2:M,2:L));
+Latr(1,:)=Latr(2,:)-dy(1);
+Latr(Mp,:)=Latr(M,:)+dy(end);
+Latr(:,1)=Latr(:,2)-dy(1);
+Latr(:,Lp)=Latr(:,L)+dy(end);
+
+Lonu=rho2u_2d(Lonr);
+Lonv=rho2v_2d(Lonr);
+Latu=rho2u_2d(Latr);
+Latv=rho2v_2d(Latr);
+
+
 %
 % Create the grid file
 %
@@ -134,9 +158,6 @@ nc{'lon_rho'}(:)=Lonr;
 nc{'lat_psi'}(:)=Latp;
 nc{'lon_psi'}(:)=Lonp;
 close(nc)
-%
-%  Compute the metrics
-%
 disp(' ')
 disp(' Compute the metrics...')
 [pm,pn,dndx,dmde]=get_metrics(croco_file);
@@ -201,37 +222,43 @@ h=add_topo(croco_file,topofile);
 %
 % Compute the mask
 %
+%nc=netcdf(wrf_file);
+%maskr0=squeeze(nc{'LANDMASK'}(1,:,:));
 
-nc=netcdf(wrf_file);
-maskr0=squeeze(nc{'LANDMASK'}(1,:,:));
-
-maskr=zeros((coef*size(maskr0,1))+2-(coef-1),(coef*size(maskr0,2))+2-(coef-1));
-
-[Mp,Lp]=size(maskr0);
-[igrd_r,jgrd_r]=meshgrid((1:1:Lp),(1:1:Mp));
-irchild=(1:1/coef:Lp);
-jrchild=(1:1/coef:Mp);
-[ichildgrd_r,jchildgrd_r]=meshgrid(irchild,jrchild);
-maskr_coarse=interp2(igrd_r,jgrd_r,maskr0,ichildgrd_r,jchildgrd_r,'nearest');
+%maskr=zeros(size(Lonr,1),size(Lonr,2));
+%size(maskr)
+%size(maskr0)
+%[Mp,Lp]=size(maskr0);
+%[igrd_r,jgrd_r]=meshgrid((3:1:Lp+2),(3:1:Mp+2));
+%irchild=(1:1/coef:Lp+3);
+%jrchild=(1:1/coef:Mp+3);
+%[ichildgrd_r,jchildgrd_r]=meshgrid(irchild,jrchild);
+%maskr_coarse=interp2(igrd_r,jgrd_r,maskr0,ichildgrd_r,jchildgrd_r,'nearest');
+%maskr_coarse(1:10,4)
 % To avoid some problem at the boundaries
-maskr_coarse(1,:)=maskr_coarse(2,:);
-maskr_coarse(end,:)=maskr_coarse(end-1,:);
-maskr_coarse(:,1)=maskr_coarse(:,2);
-maskr_coarse(:,end)=maskr_coarse(:,end-1);
+%maskr_coarse(1,:)=maskr_coarse(2,:);
+%maskr_coarse(end,:)=maskr_coarse(end-1,:);
+%maskr_coarse(:,1)=maskr_coarse(:,2);
+%maskr_coarse(:,end)=maskr_coarse(:,end-1);
 %
-maskr(2:end-1,2:end-1)=get_embeddedmask(maskr_coarse,h(2:end-1,2:end-1),coef,0);
+%maskr(2:end-1,2:end-1)=get_embeddedmask(maskr_coarse,h(2:end-1,2:end-1),coef,0);
 
-maskr(:,1)=maskr(:,2);
-maskr(:,end)=maskr(:,end-1);
 
-maskr(1,:)=maskr(2,:);
-maskr(end,:)=maskr(end-1,:);
-maskr2=maskr;
+%maskr(:,1)=maskr(:,2);
+%maskr(:,end)=maskr(:,end-1);
 
-maskr(maskr2==0)=1;
-maskr(maskr2==1)=0;
-clear mask
-close(nc)
+%maskr(1,:)=maskr(2,:);
+%maskr(end,:)=maskr(end-1,:);
+%maskr2=maskr;
+
+%maskr(maskr2==0)=1;
+%maskr(maskr2==1)=0;
+%clear mask
+%clone(nc)
+
+
+maskr=h>0;
+maskr=process_mask(maskr);
 %
 [masku,maskv,maskp]=uvp_mask(maskr);
 %
@@ -275,7 +302,6 @@ maskr=nc{'mask_rho'}(:);
 %
 h=smoothgrid(h,maskr,hmin,hmax_coast,hmax,...
                         rtarget,n_filter_deep_topo,n_filter_final);
-         
 %
 %  Write it down
 %
@@ -290,7 +316,7 @@ if makeplot==1
   disp(' ')
   disp(' Do a plot...')
   themask=ones(size(maskr));
-  themask(maskr==0)=NaN; 
+  themask(maskr==0)=NaN;
   domaxis=[min(min(Lonr)) max(max(Lonr)) min(min(Latr)) max(max(Latr))];
   colaxis=[min(min(h)) max(max(h))];
   fixcolorbar([0.25 0.05 0.5 0.03],colaxis,...
@@ -319,9 +345,5 @@ if makeplot==1
          'fontsize',7);
   hold off
 end
-warning on
-%
-% End
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 

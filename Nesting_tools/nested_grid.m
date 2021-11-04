@@ -152,6 +152,8 @@ while (bbound_east | bbound_west | bbound_south | bbound_north)
     disp(' ')
     disp(' Do the  interpolations...')
     lonpchild=interp2(igrd_p,jgrd_p,lonp_parent,ichildgrd_p,jchildgrd_p,'cubic');
+    lonpchild(1,1)
+    lonp_parent(imin,1)
     latpchild=interp2(igrd_p,jgrd_p,latp_parent,ichildgrd_p,jchildgrd_p,'cubic');
     xpchild=interp2(igrd_p,jgrd_p,xp_parent,ichildgrd_p,jchildgrd_p,'cubic');
     ypchild=interp2(igrd_p,jgrd_p,yp_parent,ichildgrd_p,jchildgrd_p,'cubic');

@@ -78,8 +78,7 @@ while 1==1
   if strcmp(myline(1:14),'time_stepping:');
     tline=fgetl(fid1);
 %    A=sscanf(tline,'%f'); % %f if float %s string
-    A=textscan(tline,'%f %s %s %f')
-    isempty(A{1})
+    A=textscan(tline,'%f %s %s %f');
     if isempty(A{1})
        disp('Warning: Fist argument is not an integer...')
        A=textscan(tline,'%s %s %s %f');
