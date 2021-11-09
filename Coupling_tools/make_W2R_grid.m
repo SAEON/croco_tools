@@ -36,12 +36,15 @@ close all
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
 %
 crocotools_param
-wrf_file='../WRF_FILES/geo_em.d01.nc'; %input
+wrf_file='../WRF_FILES/WPS/geo_em.d01.nc'; %input
 croco_file='../CROCO_FILES/croco_grd.nc'; %output
-coef=3; % If your are preparing a nest please make sure that THIS coeff is a multiple of WRF coefficient (otherwise your will have inconsistencies between grids) || Else do as you want :)
-%
+coef=3% Only works with odd number. Otherwise rho/M points can not match
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
 warning off
+
+if rem(coef,2)==0
+  error('To have a perfect match coefficient need to be an odd number') 
+end
 %
 % Title
 %
@@ -53,10 +56,9 @@ disp(' ')
 disp([' Title: ',CROCO_title])
 disp(' ')
 disp([' Refine coefficient from WRF is : ',num2str(coef)])
+
 %
 % Get the Longitude
-%
-%lonr=(lonmin:dl:lonmax);
 %
 nc=netcdf(wrf_file);
 Lonp0=squeeze(nc{'XLONG_C'}(1,:,:));
@@ -67,12 +69,11 @@ Lonp0(Lonp0<0)=Lonp0(Lonp0<0)+360;
 Lonr0(Lonr0<0)=Lonr0(Lonr0<0)+360;
 close(nc)
 
-Lonp=zeros((coef*size(Lonp0,1))-(coef-1),(coef*size(Lonp0,2))-(coef-1));
-
+Lonp=zeros((coef*(size(Lonp0,1)-2)-(coef-1)),(coef*(size(Lonp0,2)-2)-(coef-1)));
 dx = (Lonp0(1,2:end)-Lonp0(1,1:end-1))/coef;
 
 for n = 1:size(Lonp,1)
-    Lonp(n,1:coef:end)=Lonp0(1,1:end);
+    Lonp(n,1:coef:end)=Lonp0(1,2:end-1);
 end
 
 cpt=1;
@@ -83,15 +84,13 @@ for j = 1:coef:(size(Lonp,2)-2)
     cpt=cpt+1;
 end
 
-Lonp(:,end)=Lonp(:,end-1)+dx(end);
 %
 %
-Latp=zeros((coef*size(Latp0,1))-(coef-1),(coef*size(Latp0,2))-(coef-1));
+Latp=zeros((coef*(size(Latp0,1)-2)-(coef-1)),(coef*(size(Latp0,2)-2)-(coef-1)));
 
-dy = (Latp0(2:end,1)-Latp0(1:end-1,1))/coef;
-
+dy=(Latp0(2:end,1)-Latp0(1:end-1,1))/coef;
 for n = 1:size(Latp,2)
-    Latp(1:coef:end,n)=Latp0(1:end,1);
+    Latp(1:coef:end,n)=Latp0(2:end-1,1);
 end
 
 cpt=1;
@@ -101,8 +100,6 @@ for j = 1:coef:(size(Latp,1)-2)
     end
     cpt=cpt+1;
 end
-
-Latp(end,:)=Latp(end-1,:)+dy(end);
 %
 % Make rho-grid
 %
@@ -117,16 +114,16 @@ Mm=M-1;
 Lm=L-1;
 
 Lonr(2:M,2:L)=0.25*(Lonp(1:Mm,1:Lm)+Lonp(1:Mm,2:L)+Lonp(2:M,1:Lm)+Lonp(2:M,2:L));
-Lonr(1,:)=Lonr(2,:)-dx(1);
-Lonr(Mp,:)=Lonr(M,:)+dx(end);
+Lonr(1,:)=Lonr(2,:);
+Lonr(Mp,:)=Lonr(M,:);
 Lonr(:,1)=Lonr(:,2)-dx(1);
 Lonr(:,Lp)=Lonr(:,L)+dx(end);
 
 Latr(2:M,2:L)=0.25*(Latp(1:Mm,1:Lm)+Latp(1:Mm,2:L)+Latp(2:M,1:Lm)+Latp(2:M,2:L));
 Latr(1,:)=Latr(2,:)-dy(1);
 Latr(Mp,:)=Latr(M,:)+dy(end);
-Latr(:,1)=Latr(:,2)-dy(1);
-Latr(:,Lp)=Latr(:,L)+dy(end);
+Latr(:,1)=Latr(:,2);
+Latr(:,Lp)=Latr(:,L);
 
 Lonu=rho2u_2d(Lonr);
 Lonv=rho2v_2d(Lonr);
@@ -345,5 +342,4 @@ if makeplot==1
          'fontsize',7);
   hold off
 end
-
 
