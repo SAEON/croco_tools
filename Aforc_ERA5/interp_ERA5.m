@@ -1,11 +1,12 @@
 function interp_ERA5(NCEP_dir,Y,M,Roa,interp_method,...
                      lon1,lat1,mask1,tin,...
-		     nc_frc,nc_blk,lon,lat,angle,tout)
+		     nc_blk,lon,lat,angle,tout)
 %
-% Read the local ECMWF files and perform the space interpolations
+% Read the local ERA5 files and perform the space interpolations
 %
 %  Illig, 2010, from interp_NCEP
 %  Updated    January 2016 (E. Cadier and S. Illig)
+%  Updated    D.Donoso, G. Cambon. P. Penven (Oct 2021) 
 %---------------------------------------------------------------------------------
 %
 % 1: Air temperature: Convert from Kelvin to Celsius
