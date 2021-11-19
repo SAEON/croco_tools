@@ -69,11 +69,11 @@ Lonp0(Lonp0<0)=Lonp0(Lonp0<0)+360;
 Lonr0(Lonr0<0)=Lonr0(Lonr0<0)+360;
 close(nc)
 
-Lonp=zeros((coef*(size(Lonp0,1)-2)-(coef-1)),(coef*(size(Lonp0,2)-2)-(coef-1)));
-dx = (Lonp0(1,2:end)-Lonp0(1,1:end-1))/coef;
+Lonp=zeros((coef*(size(Lonp0,1)-8)-(coef-1)),(coef*(size(Lonp0,2)-8)-(coef-1)));
+dx = (Lonp0(1,5:end-4)-Lonp0(1,4:end-5))/coef;
 
 for n = 1:size(Lonp,1)
-    Lonp(n,1:coef:end)=Lonp0(1,2:end-1);
+    Lonp(n,1:coef:end)=Lonp0(1,5:end-4);
 end
 
 cpt=1;
@@ -86,11 +86,11 @@ end
 
 %
 %
-Latp=zeros((coef*(size(Latp0,1)-2)-(coef-1)),(coef*(size(Latp0,2)-2)-(coef-1)));
+Latp=zeros((coef*(size(Latp0,1)-8)-(coef-1)),(coef*(size(Latp0,2)-8)-(coef-1)));
 
-dy=(Latp0(2:end,1)-Latp0(1:end-1,1))/coef;
+dy=(Latp0(5:end-4,1)-Latp0(4:end-5,1))/coef;
 for n = 1:size(Latp,2)
-    Latp(1:coef:end,n)=Latp0(2:end-1,1);
+    Latp(1:coef:end,n)=Latp0(5:end-4,1);
 end
 
 cpt=1;
