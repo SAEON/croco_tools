@@ -1,3 +1,7 @@
+CROCO_TOOLS v2.0
+---------------
+Released date : 15 December 2021
+
 CROCO_TOOLS v1.1
 ---------------
 Released date : 25 October 2019
