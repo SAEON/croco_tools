@@ -35,11 +35,11 @@ crocotools_param
 %=========================================================================================
 % Choose the grid level into which you ant to set up the runoffs
 
-gridlevel=0
+gridlevel=0;
 if ( gridlevel == 0 ) 
     % #-> Parent / zoom #O 
     grdname  = [CROCO_files_dir,'croco_grd.nc'];
-    rivname =  [CROCO_files_dir,'croco_runoff.nc']
+    rivname =  [CROCO_files_dir,'croco_runoff.nc'];
     clmname = [CROCO_files_dir,'croco_clm.nc'];    % <- climato file for runoff
 else 
     % # -> Child / zoom #XX
@@ -49,7 +49,7 @@ else
 end
 
 % Choose the monthly runoff forcing time and cycle in days
-clim_run=1
+clim_run=1;
 
 if (clim_run == 1)
     qbar_time=[15:30:365]; 
@@ -111,7 +111,7 @@ end
 disp(' ')
 disp(['Create runoff forcing from Dai and Trenberth''s global monthly climatological run-off dataset'])
 disp(' ')
-title_name='runoff forcing file (Dai and Trenberth, 2002 dataset)'
+title_name='runoff forcing file (Dai and Trenberth, 2002 dataset)';
 
 %=========================================================================================
 define_dir=0 ;  %%->flag to define directly the orientation / direction of the runoff
@@ -229,18 +229,17 @@ else
     if plotting==1
         fig1=figure(1);
         set(fig1,'Position',[659 34 1334 1307],'units','pixels');
-        m_proj('mercator',...
-               'lon',[lonmin lonmax],...
-               'lat',[latmin latmax]);
-        m_pcolor(lon,lat,mask)
+        m_proj('mercator',...            % dl/2 shift to have cells centered on lon/lat
+               'lon',[lonmin-dl/2 lonmax-dl/2],...
+               'lat',[latmin-dl/2 latmax-dl/2]);
+        m_pcolor(lon-dl/2,lat-dl/2,mask) 
         shading flat
-        number_rivertoprocess
         m_grid('box','fancy','xtick',5,'ytick',5,'tickdir','out');
         set(findobj('tag','m_grid_color'),'facecolor','white');
         hold on
         for k=1:number_rivertoprocess
-            lon_src=lon(J(k)+1,I(k)+1);
-            lat_src=lat(J(k)+1,I(k)+1);
+            lon_src=lon(J(k),I(k));
+            lat_src=lat(J(k),I(k));
             [px,py]=m_ll2xy(lon_src,lat_src);
             h1=plot(px,py,'ro');
             set(h1,'Clipping','off')
@@ -249,6 +248,8 @@ else
             set(h2,'fontweight','demi','fontsize',13);
         end
         pause
+        %%
+        if plotting_zoom
         %% to be adapeted regarding the configuration
 % $$$         extendpointY=[500 500 500 500 ...
 % $$$                       500 600 900 500 ...
@@ -258,40 +259,28 @@ else
 % $$$                       500 600 900 500 ...
 % $$$                       500 500 500 50 ...
 % $$$                       500 ];
-        extendpointY=[100 100 100 100 ...
-                      100 100 100 100 ...
-                      100 100 100 2 ...
-                      100 ];
-        extendpointX=[100 100 100 100 ...
-                      100 100 100 100 ...
-                      100 100 100 2 ...
-                      100 ];
-        
-        
-        %%
-        if plotting_zoom
+            extendpointY=50*ones(number_rivertoprocess,1);
+            extendpointX=50*ones(number_rivertoprocess,1);
             nfig0=5;
             for k=1:number_rivertoprocess
-                nfig=nfig0+k
+                nfig=nfig0+k;
                 figure(nfig)
                 
-                lon_src=lon(J(k)+1,I(k)+1);
-                lat_src=lat(J(k)+1,I(k)+1);
+                lon_src=lon(J(k),I(k));
+                lat_src=lat(J(k),I(k));
                 
                 extendpointYkk=extendpointY(k);
                 extendpointXkk=extendpointX(k);
                 
+                Izoom_start=max(1,I(k) - extendpointXkk);
+                Izoom_end=min(size(mask,2),I(k) + extendpointXkk); 
+                Jzoom_start=max(1,J(k) - extendpointYkk);
+                Jzoom_end=min(size(mask,1),J(k) + extendpointYkk); 
+                
                 %% Generic case    
-                mylon_point=lon(J(k)+1 - extendpointYkk : J(k)+1 +  extendpointYkk,...
-                                I(k)+1 - extendpointXkk : I(k)+1 +  extendpointXkk);
-                
-                mylat_point=lat(J(k)+1 - extendpointYkk : J(k)+1 + extendpointYkk,...
-                                I(k)+1 - extendpointXkk : I(k)+1 + extendpointXkk);
-                
-                mymask_point=mask(J(k)+1 - extendpointYkk : J(k)+1 + extendpointYkk,...
-                                  I(k)+1 - extendpointXkk : I(k)+1 ...
-                                  + extendpointXkk);     
-                
+                mylon_point=lon(Jzoom_start : Jzoom_end,Izoom_start : Izoom_end);
+                mylat_point=lat(Jzoom_start : Jzoom_end,Izoom_start : Izoom_end);
+                mymask_point=mask(Jzoom_start : Jzoom_end,Izoom_start : Izoom_end);    
                 
 % $$$                 %%-Replace by specific case for  GIGATL1
 % $$$                 if (k ~= 12 )
@@ -314,15 +303,15 @@ else
 % $$$                 %%- end Specific plotting  
                 
                 
-                m_proj('mercator',...
-                       'lon',[min(min(mylon_point)) max(max(mylon_point)) ],...
-                       'lat',[min(min(mylat_point)) max(max(mylat_point)) ] );
-                m_pcolor(mylon_point,mylat_point,mymask_point) ; shading flat
+                m_proj('mercator',...    % dl/2 shift to have cells centered on lon/lat
+                       'lon',[min(min(mylon_point-dl/2)) max(max(mylon_point-dl/2)) ],...
+                       'lat',[min(min(mylat_point-dl/2)) max(max(mylat_point-dl/2)) ] );
+                m_pcolor(mylon_point-dl/2,mylat_point-dl/2,mymask_point) ; shading flat
                 m_grid('box','fancy','xtick',5,'ytick',5,'tickdir','out');
                 set(findobj('tag','m_grid_color'),'facecolor','white');
                 hold on
                 [px,py]=m_ll2xy(lon_src,lat_src);
-                h33=plot(px,py,'ko');
+                h11=plot(px,py,'ro');
                 title(['\bf', myrivername(k,:)]);
             end
         end
@@ -330,10 +319,13 @@ else
     %%
     %% Choose which river you really want to process...
     %%
-    indomain_last=indomain;
+    indomain_last=indomain-indomain;
     for k0=1:number_rivertoprocess
         k=rivertoprocess(k0);
         indomain_last(k)=input(['Do you want to use river (Yes[1], No[0]) ?  ', rivername(k0,:)]);
+        if indomain_last(k)==0 && plotting_zoom % Close the (zoom) figure if the river is not used
+            close(nfig0+k0);
+        end
     end
     rivertoprocess=find(indomain_last==1);
     if isempty(rivertoprocess)
@@ -502,16 +494,25 @@ else
             for k0=1:number_rivertoprocess
                 k=rivertoprocess(k0);
                 %%
-                %% For temperature, use the closest surface point in the clim file
+                %% For temperature, use the target surface rho_point in the clim file
                 %% to reduce any heat flux induced by the rivers
                 %%
-                T=squeeze(ncclim{'temp'}(:,N,J(k)+1,I(k)+1));
+                if dir(k,1)==0 & dir(k,2)==1         %Zonal flux W->E
+                   i_rho=I2(k); j_rho=J2(k);
+                elseif dir(k,1)==0 & dir(k,2)==-1    %Zonal flux E->W
+                   i_rho=I2(k)-1; j_rho=J2(k);                      
+                elseif dir(k,1)==1 & dir(k,2)==1     %Meridional flux S->N
+                   i_rho=I2(k); j_rho=J2(k);                   
+                elseif dir(k,1)==1 & dir(k,2)==-1    %Meridional flux N->S
+                   i_rho=I2(k); j_rho=J2(k)-1;                      
+                end 
+                T=squeeze(ncclim{'temp'}(:,N,j_rho,i_rho));
                 my_temp_src0(k,:)=T';
                 %%
                 %% For salinity ... ?
                 %%
-                S=squeeze(ncclim{'salt'}(:,N,J(k)+1,I(k)+1))-10; % hum...
-                S(S<2)=2; % to prevent negative salinities in the
+                S=squeeze(ncclim{'salt'}(:,N,j_rho,i_rho))-10; % hum...
+                S(S<2)=2.0001; % to prevent negative salinities in the
                           % equation of state
                 disp(['  Use psource_ncfile_ts_auto using S = sclim -10 '])
                 disp(['  Check line 464 in make_runoff.m to change ' ...
@@ -519,7 +520,7 @@ else
                 %%S=2;
                 my_salt_src0(k,:)=S';
                 if makebio==1
-                    NO3=squeeze(ncclim{'NO3'}(:,N,J(k)+1,I(k)+1));
+                    NO3=squeeze(ncclim{'NO3'}(:,N,j_rho,i_rho));
                     my_no3_src0(k,:)=NO3';
                 end
             end
@@ -656,55 +657,91 @@ else
     if plotting==1
         figure(1)
         hold on
+        m_proj('mercator',...     %  dl/2 shift to have cells centered on lon/lat
+               'lon',[lonmin-dl/2 lonmax-dl/2],...
+               'lat',[latmin-dl/2 latmax-dl/2]);
         for k0=1:number_rivertoprocess
             k=rivertoprocess(k0);
-            lon_src=lon(J2(k)+1,I2(k)+1);
-            lat_src=lat(J2(k)+1,I2(k)+1);
+            if dir(k,1)==0 %zonal flow (u-grid)
+               lon_src=lonu(J2(k),I2(k));
+               lat_src=latu(J2(k),I2(k));
+            else           %meridional flow (v-grid)
+               lon_src=lonv(J2(k),I2(k));
+               lat_src=latv(J2(k),I2(k));               
+            end
             [px,py]=m_ll2xy(lon_src,lat_src);
-            h3=plot(px,py,'ko');
+            if dir(k,1)==0 & dir(k,2)==1
+               h3=plot(px,py,'k>');
+            elseif dir(k,1)==0 & dir(k,2)==-1
+               h3=plot(px,py,'k<');     
+            elseif dir(k,1)==1 & dir(k,2)==1
+               h3=plot(px,py,'k^');
+            elseif dir(k,1)==1 & dir(k,2)==-1
+               h3=plot(px,py,'kv');  
+            end    
             set(h3,'Clipping','off')
         end
         legend([h1,h3],{'Approximative first guess river location','final adjusted river location'});
         title({'\bf Location of river in the croco grid';'(from Dai and Trenberth dataset)'});
         
         if plotting_zoom
-            nfig0=5
+            nfig0=5;
             for k0=1:number_rivertoprocess
                 k=rivertoprocess(k0);
                 
-                nfig=nfig0+k
-                figure(nfig)
+                nfig=nfig0+k;
+                close(nfig);
+                figure(nfig);
                 
-                lon_src=lon(J2(k)+1,I2(k)+1);
-                lat_src=lat(J2(k)+1,I2(k)+1);
+                if dir(k,1)==0 %zonal flow (u-grid)
+                   lon_src0=lonu(J(k),I(k));  % First guess position
+                   lat_src0=latu(J(k),I(k));
+                   lon_src=lonu(J2(k),I2(k)); % Adjusted position
+                   lat_src=latu(J2(k),I2(k));
+                else           %meridional flow (v-grid)
+                   lon_src0=lonv(J(k),I(k));  % First guess position
+                   lat_src0=latv(J(k),I(k));  
+                   lon_src=lonv(J2(k),I2(k)); % Adjusted position
+                   lat_src=latv(J2(k),I2(k));               
+                end
                 
                 extendpointYkk=extendpointY(k);
                 extendpointXkk=extendpointX(k);
                 
-                mylon_point=lon(J(k)+1 - extendpointYkk : J(k)+1 + extendpointYkk,...
-                                I(k)+1 - extendpointXkk : I(k)+1 + ...
-                                extendpointXkk);
+                Izoom_start=max(1,I(k) - extendpointXkk);
+                Izoom_end=min(size(mask,2),I(k) + extendpointXkk); 
+                Jzoom_start=max(1,J(k) - extendpointYkk);
+                Jzoom_end=min(size(mask,1),J(k) + extendpointYkk); 
                 
-                mylat_point=lat(J(k)+1 - extendpointYkk : J(k)+1 + extendpointYkk,...
-                                I(k)+1 - extendpointXkk : I(k)+1 + ...
-                                extendpointXkk);
-                
-                
-                mymask_point=mask(J(k)+1 - extendpointYkk : J(k)+1 + extendpointYkk,...
-                                  I(k)+1 - extendpointXkk : I(k)+1 + extendpointXkk);
+                %% Generic case    
+                mylon_point=lon(Jzoom_start : Jzoom_end,Izoom_start : Izoom_end);
+                mylat_point=lat(Jzoom_start : Jzoom_end,Izoom_start : Izoom_end);
+                mymask_point=mask(Jzoom_start : Jzoom_end,Izoom_start : Izoom_end); 
                 
                 %%
-                m_proj('mercator',...
-                       'lon',[min(min(mylon_point)) max(max(mylon_point)) ],...
-                       'lat',[min(min(mylat_point)) max(max(mylat_point)) ] );
+                m_proj('mercator',...   %  dl/2 shift to have cells centered on lon/lat
+                       'lon',[min(min(mylon_point-dl/2)) max(max(mylon_point-dl/2)) ],...
+                       'lat',[min(min(mylat_point-dl/2)) max(max(mylat_point-dl/2)) ] );
                 
-                m_pcolor(mylon_point,mylat_point,mymask_point) ; shading flat
+                m_pcolor(mylon_point-dl/2,mylat_point-dl/2,mymask_point) ; shading flat
                 m_grid('box','fancy','xtick',5,'ytick',5,'tickdir','out');
                 set(findobj('tag','m_grid_color'),'facecolor','white');
                 hold on
-                [px,py]=m_ll2xy(lon_src,lat_src);
-                h33=plot(px,py,'ro');
-                %%title(['\bf Final position', myrivername(k,:)]);
+                [px0,py0]=m_ll2xy(lon_src0,lat_src0); % First guess position
+                h11=plot(px0,py0,'ro');
+                [px,py]=m_ll2xy(lon_src,lat_src);     % Adjusted position
+                if dir(k,1)==0 & dir(k,2)==1
+                   h33=plot(px,py,'k>');
+                elseif dir(k,1)==0 & dir(k,2)==-1
+                   h33=plot(px,py,'k<');     
+                elseif dir(k,1)==1 & dir(k,2)==1
+                   h33=plot(px,py,'k^');
+                elseif dir(k,1)==1 & dir(k,2)==-1
+                   h33=plot(px,py,'kv');  
+                end 
+                legend([h11,h33],{'Approximative first guess river location','final adjusted river location'});
+
+                title(['\bf', myrivername(k,:)]);
             end
         end
     end
@@ -714,9 +751,9 @@ else
     
     nw=netcdf(rivname,'w');
     disp(['Write in runoff file'])
-    nw{'river_position'}(:,:)=[I2 J2];
-    nw{'river_direction'}(:,:)=dir;
-    disp(['... river positions'])
+    %%nw{'runoff_position'}(:,:)=[I2(find(indomain_last==1)) J2(find(indomain_last==1))];
+    %%nw{'runoff_direction'}(:,:)=dir(find(indomain_last==1),:);
+    %%disp(['... river positions'])
     %% Write qbar, temp,salt and bgc variables conc.
     cff=1;
     %%
@@ -792,15 +829,10 @@ else
             T=20;
             S=15;
         end
-        if dir(k,1) == 1     %%flow meridien
-            disp(['                        ',num2str(I2(k)-1),'  ',num2str(J2(k)),...
+        %% listing...
+        disp(['                        ',num2str(I2(k)),'  ',num2str(J2(k)),...
                   '  ',num2str(dir(k,1)),'  ',num2str(dir(k,2)),'   30*T   ',...
                   num2str(T),' ',num2str(S)])
-        elseif dir(k,1) == 0 %flow zonal
-            disp(['                        ',num2str(I2(k)),'  ',num2str(J2(k)-1),...
-                  '  ',num2str(dir(k,1)),'  ',num2str(dir(k,2)),'   30*T   ',...
-                  num2str(T),' ',num2str(S)])
-        end
     end
     disp(['-----------------------------------------------------------------'])
     

@@ -21,66 +21,6 @@
 #  You may see all available ERA5 variables at the following website
 #  https://confluence.ecmwf.int/display/CKB/ERA5%3A+data+documentation#ERA5:datadocumentation-Parameterlistings
 
-
-# *******************************************************************************
-#                         U S E R  *  O P T I O N S
-# *******************************************************************************
-# Dates limits
-#year_start = 1993
-#month_start = 1
-#year_end = 2020
-#month_end = 12
-
-# # BENGUELA_CPL
-# year_start = 2005
-# month_start = 1
-# year_end = 2006
-# month_end = 12
-
-# BENGUELA_CPL_TEST
-year_start = 2005
-month_start = 1
-year_end = 2006
-month_end = 12
-# Overlapping days (at the beginning/end of each month)
-n_overlap = 0
-
-# Request time (daily hours '00/01/.../23')
-time = '00/01/02/03/04/05/06/07/08/09/10/11/12/13/14/15/16/17/18/19/20/21/22/23'
-
-#
-# Request area ([north, west, south, east])
-#
-
-#lonmin = -20
-#lonmax =  70
-#latmin = -60
-#latmax =  6
-
-# # BENGUELA_CPL
-lonmin=4
-lonmax=30
-latmin=-45
-latmax=-20
-
-# BENGUELA_CPL_TEST
-#lonmin=-20
-#lonmax=70
-#latmin=-60
-#latmax=6
-
-area = [latmax, lonmin, latmin, lonmax]
-
-# Request variables (see available at ERA5_variables.json)
-variables = ['meets','mntss','msnswrf','msnlwrf','msshf','mslhf','mer','mtpr', \
-             'sst','t2m','d2m','q','msl','u10','v10']
-
-#variables = ['lsm','tp','strd','ssr','t2m','q','u10','v10']
-#add lsm: land_sea_mask
-
-#Gc => add the sst to deal with the mask
-#variables = ['sst','tp','strd','ssr','t2m','q','u10','v10']
-#variables = ['sst']
 # -------------------------------------------------
 # Getting libraries and utilities
 # -------------------------------------------------
@@ -91,19 +31,63 @@ import datetime
 import json
 import os
 
+# -------------------------------------------------
+# Import my crocotools_param_python file
+from era5_crocotools_param import *
+print('year_start is '+str(year_start))
 
 # -------------------------------------------------
-# Setting output directory
+
+if ownArea == 0:
+    dl = 2    
+    lines = [line.rstrip('\n') for line in open(paramFile)]
+    for line in lines:
+        if "lonmin" in line:
+            for i in range(len(line)):
+                if line[i] == "=":
+                    iStart = i+1
+                elif line[i] == ";":
+                    iEnd = i
+            lonmin = line[iStart:iEnd]
+        elif "lonmax" in line:
+            for i in range(len(line)):
+                if line[i] == "=":
+                    iStart = i+1
+                elif line[i] == ";":
+                    iEnd = i
+            lonmax = line[iStart:iEnd]
+        elif "latmin" in line:
+            for i in range(len(line)):
+                if line[i] == "=":
+                    iStart = i+1
+                elif line[i] == ";":
+                    iEnd = i
+            latmin = line[iStart:iEnd]
+        elif "latmax" in line:
+            for i in range(len(line)):
+                if line[i] == "=":
+                    iStart = i+1
+                elif line[i] == ";":
+                    iEnd = i
+            latmax = line[iStart:iEnd]
+
+lonmin = str(float(lonmin)-dl)
+lonmax = str(float(lonmax)+dl)
+latmin = str(float(latmin)-dl)
+latmax = str(float(latmax)+dl)
+print ('lonmin-dl = ', lonmin)
+print ('lonmax+dl =', lonmax)
+print ('latmin-dl =', latmin)
+print ('latmax+dl =', latmax)
+# -------------------------------------------------
+
+area = [latmax, lonmin, latmin, lonmax]
+
+# -------------------------------------------------
+# Setting raw output directory
 # -------------------------------------------------
 # Get the current directory
-main_dir = os.getcwd()
-
-# Output directory
-era5_dir = main_dir + '/ERA5'
-#era5_dir = '/media/ppenven/SWAG/ERA5/ORIG_FILES'
-#era5_dir='/local/tmp/3/gcambon/CONFIGS/BENGUELA_CPL/croco_files/DATA_ATMO_ERA5_raw'
-# Making output directory 
-#os.makedirs(era5_dir,exist_ok=True)'
+os.makedirs(era5_dir_raw,exist_ok=True)
 
 
 # -------------------------------------------------
@@ -193,7 +177,7 @@ for j in range(len_monthly_dates):
 
         # Output filename
         fname = 'ERA5_ecmwf_' + vname.upper() + '_Y' + str(year) + 'M' + str(month).zfill(2) + '.nc'
-        output = era5_dir + '/' + fname
+        output = era5_dir_raw + '/' + fname
 
         # Information strings
         info_time_clock = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
