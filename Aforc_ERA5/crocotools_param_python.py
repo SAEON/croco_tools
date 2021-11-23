@@ -8,7 +8,7 @@
 # General path
 #
 config_dir = '/local/tmp/3/gcambon/CI_MASTER/croco/Run/' # must be the same than crocotools_param
-config_name = 'BENGUELA_LR'
+config_name = 'Benguela_LR'
 #
 # Original ERA5 directory
 #
