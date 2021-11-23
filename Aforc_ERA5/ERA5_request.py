@@ -33,7 +33,7 @@ import os
 
 # -------------------------------------------------
 # Import my crocotools_param_python file
-from crocotools_param_python import *
+from era5_crocotools_param import *
 print('year_start is '+str(year_start))
 
 # -------------------------------------------------

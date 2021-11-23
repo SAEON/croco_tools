@@ -11,7 +11,7 @@ Here is a set of matlab and python routines allowing to :
 #####################
 --> Pre-requisite : First the user need to install the ERA5 python API : https://cds.climate.copernicus.eu/api-how-to
 
---> Edit the crocotools_param_python.py parameter file 
+--> Edit the era5_crocotools_param.py parameter file 
 
 --> Then to download the ERA5 data (step 1 above)
     ./ERA5_request.py
