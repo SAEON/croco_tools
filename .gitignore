@@ -17,3 +17,13 @@ UTILITIES/m_map1.4f/private/*.b
 UTILITIES/m_map1.4f/private/*.TXT
 UTILITIES/m_map1.4h/private/*.b
 UTILITIES/m_map1.4h/private/*.TXT
+
+#Compiled python
+#####################
+*.pyc
+
+#
+#####################
+**/.ipynb_checkpoints
+
+
