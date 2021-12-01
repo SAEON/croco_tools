@@ -31,7 +31,12 @@ export JASPERLIB="$HOME/softs/jasper-2.0.14/install_dir/lib64 -L$HOME/softs/libp
 export JASPERINC="$HOME/softs/jasper-2.0.14/install_dir/include -I$HOME/softs/libpng-1.2.59/install/include -I$HOME/softs/zlib-1.2.11/install/include"
 export NETCDF=$(nf-config --prefix)
 
-Compilation: 
+Compilation:
+- Edit WPS path in compile_wps.bash
+- ./compile_wps.bash
+If succesfull, you will find geogrid.exe, ungrib.exe and metgrid.exe in your WPS directory
+
+If not, you can:
 - Go in WPS directory
 - ./configure
 - in configure.wps, set : WRF_DIR to your actual WRF directory, and netcdf dependancy flags in WRF_LIB

@@ -104,7 +104,7 @@ source ../../myenv_mypath.sh
 
 # WPS paths
 # WPS source dir
-export WPS_EXE_DIR="${ATM}/../WPSV3.7.1"
+export WPS_EXE_DIR="${ATM}/../WPS4.2"
 #
 # Geographical data for WPS
 export GEOG_DATAROOT="$DATA_DIR/geog"
