@@ -65,7 +65,7 @@ Download CFSR source data
 ----------------
 Vtables:
 Choose and eventually edit Vtable. 
-Exsiting Vtables can be found in the source wps directory under : /workgpfs/rech/dgw/rdgw001/wrf/WPSV3.7.1/ungrib/Variable_Tables 
+Exsiting Vtables can be found in the WPS source directory under : ungrib/Variable_Tables 
 
 
 Run WPS : 

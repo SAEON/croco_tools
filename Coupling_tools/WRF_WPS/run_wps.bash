@@ -111,7 +111,7 @@ export GEOG_DATAROOT="$DATA_DIR/geog"
 #
 # Variable Table Location
 #export Vtable_ROOT="${WPS_EXE_DIR}/ungrib/Variable_Tables"
-export Vtable_ROOT="${ATM_NAM_DIR}/inputs_wrf"
+export Vtable_ROOT="$PWD"
 #
 # Inputs directory and prefix (initial and boundary data)
 export I_DATAROOT="$DATA_DIR/CFSR_grib"
