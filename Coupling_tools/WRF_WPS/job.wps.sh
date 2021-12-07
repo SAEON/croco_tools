@@ -1,7 +1,7 @@
 #!/bin/bash
-#MSUB -r Comp_wps       # request name
-#MSUB -o Comp_wps.o
-#MSUB -e Comp_wps.e
+#MSUB -r Run_wps       # request name
+#MSUB -o Run_wps.o
+#MSUB -e Run_wps.e
 #MSUB -j oe          #  VERIFIER que c'est OK sur Curie XXX
 #MSUB -n 16        # Total number of mpi task to use
 #MSUB -T 7200        
