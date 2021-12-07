@@ -36,10 +36,20 @@ close all
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
 %
 crocotools_param
-wrf_file='../WRF_FILES/WPS/geo_em.d01.nc'; %input
-croco_file='../CROCO_FILES/croco_grd.nc'; %output
-coef=3% Only works with odd number. Otherwise rho/M points can not match
+% WRF grid file used to create croco grid (input)
+wrf_file='../WRF_FILES/WPS_DATA/geo_em.d01.nc'; 
+% CROCO grid filen (output)
+croco_file='../CROCO_FILES/croco_grd.nc'; 
+% Refinement coefficient:
+%  coef=1: CROCO grid is similar to WRF grid
+%  coef=N: Each WRF cell is divided into N CROCO cells in x and y
+%  Only works with odd number; otherwise rho/M points can not match
+coef=1
+% number of points to remove close to the boundary to avoid WRF 'sponge'
+nbdy=0
+%
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
+%
 warning off
 
 if rem(coef,2)==0
@@ -69,11 +79,11 @@ Lonp0(Lonp0<0)=Lonp0(Lonp0<0)+360;
 Lonr0(Lonr0<0)=Lonr0(Lonr0<0)+360;
 close(nc)
 
-Lonp=zeros((coef*(size(Lonp0,1)-8)-(coef-1)),(coef*(size(Lonp0,2)-8)-(coef-1)));
-dx = (Lonp0(1,5:end-4)-Lonp0(1,4:end-5))/coef;
+Lonp=zeros((coef*(size(Lonp0,1)-(nbdy+1)*2)-(coef-1)),(coef*(size(Lonp0,2)-(nbdy+1)*2)-(coef-1)));
+dx = (Lonp0(1,2+nbdy:end-1-nbdy)-Lonp0(1,1+nbdy:end-2-nbdy))/coef;
 
 for n = 1:size(Lonp,1)
-    Lonp(n,1:coef:end)=Lonp0(1,5:end-4);
+    Lonp(n,1:coef:end)=Lonp0(1,2+nbdy:end-1-nbdy);
 end
 
 cpt=1;
@@ -86,11 +96,11 @@ end
 
 %
 %
-Latp=zeros((coef*(size(Latp0,1)-8)-(coef-1)),(coef*(size(Latp0,2)-8)-(coef-1)));
+Latp=zeros((coef*(size(Latp0,1)-(nbdy+1)*2)-(coef-1)),(coef*(size(Latp0,2)-(nbdy+1)*2)-(coef-1)));
 
-dy=(Latp0(5:end-4,1)-Latp0(4:end-5,1))/coef;
+dy=(Latp0(2+nbdy:end-1-nbdy,1)-Latp0(1+nbdy:end-2-nbdy,1))/coef;
 for n = 1:size(Latp,2)
-    Latp(1:coef:end,n)=Latp0(5:end-4,1);
+    Latp(1:coef:end,n)=Latp0(2+nbdy:end-1-nbdy,1);
 end
 
 cpt=1;

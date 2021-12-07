@@ -1,0 +1,24 @@
+#!/bin/bash
+#PBS -l mem=2g
+
+#--------------------------------------
+### PBS walltime: max for one job: 48h
+#--------------------------------------
+#PBS -l walltime=01:00:00
+
+#-----------------
+### PBS job name
+#----------------
+#PBS -N CROCO_prepro
+
+source /usr/share/Modules/3.2.10/init/bash
+source ~/croco_env.sh
+
+cd $PBS_O_WORKDIR
+pwd
+date
+
+matlab -nojvm -nodesktop -nosplash< prepro_cfsr.m >& prepro_cfsr.log
+matlab -nojvm -nodesktop -nosplash< prepro_soda.m >& prepro_soda.log
+
+date
