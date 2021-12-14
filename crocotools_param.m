@@ -389,7 +389,7 @@ QSCAT_dir        = [FORC_DATA_DIR,'QSCAT_',CROCO_config,'/']; % QSCAT data dir. 
 QSCAT_frc_prefix = [frc_prefix,'_QSCAT_'];                    % QSCAT Generic file name for
                                                               % interannual simulations
 QSCAT_clim_file  = [DATADIR,'QuikSCAT_clim/',...              % QSCAT climatology file
-                    'croco_SCOW_month_clim_1999_2009.nc'];    % for make_QSCAT_clim.
+                    'roms_SCOW_month_clim_1999_2009.nc'];    % for make_QSCAT_clim.
 %
 %--------------------------------------------------
 %  Options for make_ECMWF and make_ECMWF_daily  
