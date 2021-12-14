@@ -34,10 +34,10 @@
 #          USER CHANGES
 #===============================================
 # source run_env where paths to the config. are defined
-source ../run_env
+source ../../myenv_mypath.sh
 
 # Directory where to find CFSR wind files
-dirin=$wconf/croco_files/2009
+dirin=$CWORK/croco_files/2009
 # Name of CFSR netcdf files to be transformed for ww3
 fileu=U-component_of_wind_Y2009M1.nc
 filev=V-component_of_wind_Y2009M1.nc
@@ -48,7 +48,7 @@ flag_concatenate=0
 ww3windfile='CFSR_wind_Y2009M1.nc'
 
 # WW3 files input directory
-dir_ww3_files=$wconf/ww3_files/
+dir_ww3_files=$WAV_FILES_DIR
 
 #===============================================
 #          END USER CHANGES

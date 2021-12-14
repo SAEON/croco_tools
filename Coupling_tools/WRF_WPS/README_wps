@@ -69,7 +69,7 @@ Exsiting Vtables can be found in the WPS source directory under : ungrib/Variabl
 
 
 Run WPS : 
-- edit all required lines, paths... in configure.namelist.wps_BENGUELA and in run_wps.bash
-- ./run_wps.bash configure.namelist.wps_BENGUELA NBPROCS
+- edit all required lines, paths... in configure.namelist.wps and in run_wps.bash
+- ./run_wps.bash configure.namelist.wps NBPROCS
 
 

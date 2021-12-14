@@ -34,10 +34,10 @@
 #          USER CHANGES
 #===============================================
 # source run_env where paths to the config. are defined
-source ../run_env
+source ../../myenv_mypath.sh
 
 # Directory where to find CROCO files
-dirin=$wconf/outputs_croco_frc_clim
+dirin=$CWORK/outputs_croco_frc_clim
 # Name of CROCO netcdf files to be transformed for ww3
 file=croco_avg.nc
 # Flag if concatenatenation is necessary
@@ -54,7 +54,7 @@ crocostartdate='2009-01-01 00:00:00'
 Ns_rho=32
 
 # WW3 files input directory
-dir_ww3_files=$wconf/ww3_files/
+dir_ww3_files=$WAV_FILES_DIR
 
 # directory where UV2T.sh function is available
 dirsh=$PWD

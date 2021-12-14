@@ -7,8 +7,8 @@ close all
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
 %
 crocotools_param
-prt_grd='../CROCO_FILES/croco_grd.nc';
-chd_grd='../CROCO_FILES/croco_grd.nc.1';
+prt_grd=[RUN_dir,'/CROCO_FILES/croco_grd.nc'];
+chd_grd=[RUN_dir,'/CROCO_FILES/croco_grd.nc.1'];
 %
 %%%%%%%%%%%%%%%%%%% END USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%
 warning off

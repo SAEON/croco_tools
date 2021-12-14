@@ -6,14 +6,14 @@
 #
 # --------------------------------------------------
 #
-# Run : ./run_wps.bash configure.namelist.wps_CONFIG NBPROCS
+# Run : ./run_wps.bash configure.namelist.wps NBPROCS
 #
 # Usage : 
 #  - multiple nested domains (3 max currently)
 #  - possible use of SST data from a different source
 # 
 # Dependence : 
-#  - read "configure.namelist.wps_CONFIG" defining basic domain and 
+#  - read "configure.namelist.wps" defining basic domain and 
 #    run parameters
 #  - Vtable : Vtable.$LBC_type
 #  - Vtable : Vtable.$LSM_type    

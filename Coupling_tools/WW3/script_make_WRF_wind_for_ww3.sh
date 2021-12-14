@@ -34,10 +34,10 @@
 #          USER CHANGES
 #===============================================
 # source run_env where paths to the config. are defined
-source ../run_env
+source ../../myenv_mypath.sh
 
 # Directory where to find WRF wind files
-dirin=$wconf/outputs_wrf_frc
+dirin=$CWORK/outputs_wrf_frc
 # Name or prefix of WRF netcdf files to be transformed for ww3
 filewrf=wrfout_d01_2009-01-
 # Names of u, v variables in WRF input file(s). NB: time variable XTIME has to be in WRF file too!
@@ -49,7 +49,7 @@ flag_concatenate=1
 ww3windfile='WRF_wind_Y2009M1.nc'
 
 # WW3 files input directory
-dir_ww3_files=$wconf/ww3_files/
+dir_ww3_files=$WAV_FILES_DIR
 
 #===============================================
 #          END USER CHANGES

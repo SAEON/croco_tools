@@ -37,9 +37,9 @@ close all
 %
 crocotools_param
 % WRF grid file used to create croco grid (input)
-wrf_file='../WRF_FILES/WPS_DATA/geo_em.d01.nc'; 
+wrf_file=[RUN_dir,'/WRF_FILES/WPS_DATA/geo_em.d01.nc'];
 % CROCO grid filen (output)
-croco_file='../CROCO_FILES/croco_grd.nc'; 
+croco_file=[RUN_dir, '/CROCO_FILES/croco_grd.nc'];
 % Refinement coefficient:
 %  coef=1: CROCO grid is similar to WRF grid
 %  coef=N: Each WRF cell is divided into N CROCO cells in x and y

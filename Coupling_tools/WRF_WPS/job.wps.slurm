@@ -14,5 +14,5 @@ cd ${SLURM_SUBMIT_DIR}
 umask 022
 set -u
 
-./run_wps.bash configure.namelist.wps_BENGUELA 16
+./run_wps.bash configure.namelist.wps 16
 

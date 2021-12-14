@@ -30,8 +30,9 @@ clear all
 close all
 %%%%%%%%%%%%%%%%%%%%% USERS DEFINED VARIABLES %%%%%%%%%%%%%%%%%%%%%%%%
 %
-crocotools_param
-WW3_files_dir = [CROCO_files_dir,'../ww3_files/'];
+run( '../CROCO/start' );
+run( '../CROCO/crocotools_param' );
+WW3_files_dir = [getenv('WAV_FILES_DIR') '/'];
 eval(['!mkdir ',WW3_files_dir])
 ww3bathyfile   = [WW3_files_dir,'bottom.inp'];
 ww3lonfile     = [WW3_files_dir,'x.inp'];
