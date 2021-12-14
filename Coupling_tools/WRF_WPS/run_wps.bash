@@ -94,6 +94,9 @@ switch_ungrib_sfc=1
 switch_metgrid=1
 is_ungrib_sfc=1 # for use of a 2nd type of surface files in metgrid
 #
+# Flag to remove eventual old files or not
+remove_flag=0
+#
 #============= Set Environment ======================================= 
 #
 source ../../myenv_mypath.sh
@@ -198,14 +201,16 @@ export dx_d01=`echo "$dx*1000" | bc -l`
 #-------------------------------------------
 # Remove old files
 #-------------------------------------------
-if [ $switch_ungrib -eq 1 ]; then
-  rm -f $O_DATAROOT/${LBC_type}:*
- if [ $switch_ungrib_sfc -eq 1 ]; then
-  rm -f $O_DATAROOT/${LSM_type}:*
+if [ $remove_flag -eq 1 ]; then
+ if [ $switch_ungrib -eq 1 ]; then
+   rm -f $O_DATAROOT/${LBC_type}:*
+  if [ $switch_ungrib_sfc -eq 1 ]; then
+   rm -f $O_DATAROOT/${LSM_type}:*
+  fi
  fi
-fi
-if [ $switch_metgrid -eq 1 ]; then
-  rm -f $O_DATAROOT/met_em*
+ if [ $switch_metgrid -eq 1 ]; then
+   rm -f $O_DATAROOT/met_em*
+ fi
 fi
 
 #---------------------------------------------
