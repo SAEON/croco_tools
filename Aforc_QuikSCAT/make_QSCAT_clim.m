@@ -72,9 +72,11 @@ close(nc)
 %
 % Make a few plots
 %
-disp(' ')
-disp(' Make a few plots...')
-test_forcing(frcname,grdname,'spd',[1 4 7 10],3,coastfileplot)
+if makeplot
+    disp(' ')
+    disp(' Make a few plots...')
+    test_forcing(frcname,grdname,'spd',[1 4 7 10],3,coastfileplot)
+end
 %
 % End
 %
