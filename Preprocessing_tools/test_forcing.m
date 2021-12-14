@@ -63,7 +63,7 @@ for time=thetime
     if thefield(1:3)=='spd'
       field=sqrt((u2rho_2d(u)).^2+(v2rho_2d(v)).^2);
       fieldname='wind stress';
-      units='N/m^2',
+      units='N/m^2';
     else
       field=nc{thefield}(time,:,:);
       fieldname=nc{thefield}.long_name(:);

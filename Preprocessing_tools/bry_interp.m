@@ -109,52 +109,53 @@ Z=-nc{'Z'}(:);
 Nz=length(Z);
 %
 % Check the time
-%
 tbry=nc{'bry_time'}(:); 
 T=T*30; % if time in month in the dataset !!!
-if (tbry~=T)
-  error(['time mismatch  tbry = ',num2str(tbry),...
-         '  t = ',num2str(T)])
-end
+%
+%% Comment => check only if woa_time=(15:30:345) and woa_cycle=360
+% if tbry~=T ;    
+%     error(['time mismatch  tbry = ',num2str(tbry),...
+%            '  t = ',num2str(T)])
+% end
 %
 % Read the annual dataset
 %
 if Nz > Nzseas
-  ncann=netcdf(ann_datafile,'r');
-  zann=-ncann{'Z'}(1:Nz);
-  if (Z~=zann)
-    error('Vertical levels mismatch')
-  end
+    ncann=netcdf(ann_datafile,'r');
+    zann=-ncann{'Z'}(1:Nz);
+    if (Z~=zann)
+        error('Vertical levels mismatch')
+    end
 %
 % Interpole the annual dataset on the horizontal CROCO grid
 %
-  disp(' Ext tracers: horizontal interpolation of the annual data')
-  if Zseas~=zann(1:length(Zseas)) 
-    error('vertical levels dont match')
-  end
-  dims=size(lon);
-  datazgrid=zeros(Nz,length(lon));
-  missval=ncann{dataname}.missing_value(:);
-  for k=Nzseas+1:Nz
-    if ~isempty(i2)
-      data=squeeze(ncann{dataname}(k,j,i2));
-    else
-      data=[];
+    disp(' Ext tracers: horizontal interpolation of the annual data')
+    if Zseas~=zann(1:length(Zseas)) 
+        error('vertical levels dont match')
     end
-    if ~isempty(i1)
-      data=cat(2,squeeze(ncann{dataname}(k,j,i1)),data);
+    dims=size(lon);
+    datazgrid=zeros(Nz,length(lon));
+    missval=ncann{dataname}.missing_value(:);
+    for k=Nzseas+1:Nz
+        if ~isempty(i2)
+            data=squeeze(ncann{dataname}(k,j,i2));
+        else
+            data=[];
+        end
+        if ~isempty(i1)
+            data=cat(2,squeeze(ncann{dataname}(k,j,i1)),data);
+        end
+        if ~isempty(i3)
+            data=cat(2,data,squeeze(ncann{dataname}(k,j,i3)));
+        end
+        data=get_missing_val(x,y,data,missval,Roa,default);
+        if dims(1)==1
+            datazgrid(k,:)=interp2(x,y,data,lon,lat,'cubic');
+        else
+            datazgrid(k,:)=(interp2(x,y,data,lon,lat,'cubic'))';    
+        end
     end
-    if ~isempty(i3)
-      data=cat(2,data,squeeze(ncann{dataname}(k,j,i3)));
-    end
-    data=get_missing_val(x,y,data,missval,Roa,default);
-    if dims(1)==1
-      datazgrid(k,:)=interp2(x,y,data,lon,lat,'cubic');
-    else
-      datazgrid(k,:)=(interp2(x,y,data,lon,lat,'cubic'))';    
-    end
-  end
-  close(ncann);
+    close(ncann);
 end
 
 %Else read seasonal datafile 
@@ -167,42 +168,42 @@ disp([' Ext tracers: horizontal interpolation of the seasonal data'])
 %
 missval=ncseas{dataname}.missing_value(:);
 for l=1:tlen
-%for l=1:1
-  disp(['time index: ',num2str(l),' of total: ',num2str(tlen)])
-  dims=size(lon);
-  if Nz <= Nzseas
-%    datazgrid=zeros(Nz,M,L);
-    datazgrid=zeros(Nz,length(lon));
-  end
-  for k=1:min([Nz Nzseas])
-    if ~isempty(i2)
-      data=squeeze(ncseas{dataname}(l,k,j,i2));
-    else
-      data=[];
+    %for l=1:1
+    disp(['time index: ',num2str(l),' of total: ',num2str(tlen)])
+    dims=size(lon);
+    if Nz <= Nzseas
+        %    datazgrid=zeros(Nz,M,L);
+        datazgrid=zeros(Nz,length(lon));
     end
-    if ~isempty(i1)
-      data=cat(2,squeeze(ncseas{dataname}(l,k,j,i1)),data);
+    for k=1:min([Nz Nzseas])
+        if ~isempty(i2)
+            data=squeeze(ncseas{dataname}(l,k,j,i2));
+        else
+            data=[];
+        end
+        if ~isempty(i1)
+            data=cat(2,squeeze(ncseas{dataname}(l,k,j,i1)),data);
+        end
+        if ~isempty(i3)
+            data=cat(2,data,squeeze(ncseas{dataname}(l,k,j,i3)));
+        end
+        data=get_missing_val(x,y,data,missval,Roa,default);
+        if dims(1)==1
+            datazgrid(k,:)=interp2(x,y,data,lon,lat,'cubic');
+        else
+            datazgrid(k,:)=(interp2(x,y,data,lon,lat,'cubic'))';    
+        end
     end
-    if ~isempty(i3)
-      data=cat(2,data,squeeze(ncseas{dataname}(l,k,j,i3)));
-    end
-    data=get_missing_val(x,y,data,missval,Roa,default);
-    if dims(1)==1
-      datazgrid(k,:)=interp2(x,y,data,lon,lat,'cubic');
-    else
-      datazgrid(k,:)=(interp2(x,y,data,lon,lat,'cubic'))';    
-    end
-  end
 %
 % Test for salinity (no negative salinity !)
 %
-  if strcmp(vname,'salt_south') | strcmp(vname,'salt_north') | ...
-     strcmp(vname,'salt_east') | strcmp(vname,'salt_west')
-    disp('salinity test')
-    datazgrid(datazgrid<2)=2;
-  end
+    if strcmp(vname,'salt_south') | strcmp(vname,'salt_north') | ...
+            strcmp(vname,'salt_east') | strcmp(vname,'salt_west')
+        disp('salinity test')
+        datazgrid(datazgrid<2)=2;
+    end
 %
-  nc{vname}(l,:,:,:)=datazgrid;
+    nc{vname}(l,:,:,:)=datazgrid;
 end
 close(nc);
 close(ncseas);

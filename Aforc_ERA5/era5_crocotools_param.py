@@ -8,8 +8,8 @@
 #
 # General path
 #
-config_dir = '/local/tmp/3/gcambon/CI_DEV2021_CPL_LAST/croco/Run_TEST/' # must be the same than crocotools_param
-config_dir = 'path_to_my_run_dir/'                                      # must be the same than crocotools_param
+##config_dir = '../croco/Run_TEST/'           # must be the same than crocotools_param
+config_dir = 'path_to_my_run_dir/'            # must be the same than crocotools_param
 config_name = 'Benguela_LR'
 #
 # Original ERA5 directory
