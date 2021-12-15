@@ -153,14 +153,14 @@ for Y=Ymin:Ymax
     % Copy forcing and bulk NCEP files to NCEP modified by  QSCAT wind and
     % stress forcing and bulk file
     %    
-    file_frc_ncep=[ncep_frc_prefix,'Y',num2str(Y),'M',num2str(M),'.nc'];
-    file_frc_qscat=[QSCAT_frc_prefix,'Y',num2str(Y),'M',num2str(M),'.nc'];
+    file_frc_ncep=[ncep_frc_prefix,'Y',num2str(Y),'M',num2str(sprintf(Mth_format,M)),'.nc'];
+    file_frc_qscat=[QSCAT_frc_prefix,'Y',num2str(Y),'M',num2str(sprintf(Mth_format,M)),'.nc'];
     disp(['Copying NCEP file ',file_frc_ncep,' in NCEP_wQS file : ',file_frc_qscat])     
     copyfile(file_frc_ncep,file_frc_qscat,'f')
 
     if QSCAT_blk==1 
-      file_blk_ncep=[ncep_blk_prefix,'Y',num2str(Y),'M',num2str(M),'.nc'];
-      file_blk_qscat=[QSCAT_blk_prefix,'Y',num2str(Y),'M',num2str(M),'.nc'];    
+      file_blk_ncep=[ncep_blk_prefix,'Y',num2str(Y),'M',num2str(sprintf(Mth_format,M)),'.nc'];
+      file_blk_qscat=[QSCAT_blk_prefix,'Y',num2str(Y),'M',num2str(sprintf(Mth_format,M)),'.nc'];    
       disp(['Copying NCEP file ',file_blk_ncep,' in NCEP_wQS file : ',file_blk_qscat])     
       copyfile(file_blk_ncep,file_blk_qscat,'f')
     end
@@ -452,8 +452,8 @@ if SPIN_Long>0
       %
       % Copy the file
       %
-      frcname=[QSCAT_frc_prefix,'Y',num2str(Ymin),'M',num2str(M),nc_suffix];
-      frcname2=[QSCAT_frc_prefix,'Y',num2str(Y),'M',num2str(M),nc_suffix];
+      frcname=[QSCAT_frc_prefix,'Y',num2str(Ymin),'M',num2str(sprintf(Mth_format,M)),nc_suffix];
+      frcname2=[QSCAT_frc_prefix,'Y',num2str(Y),'M',num2str(sprintf(Mth_format,M)),nc_suffix];
       disp(['Create ',frcname2]) 
       eval(['!cp ',frcname,' ',frcname2]) 
       %
@@ -476,8 +476,8 @@ if SPIN_Long>0
       %
       % Copy the file
       %
-      blkname=[QSCAT_blk_prefix,'Y',num2str(Ymin),'M',num2str(M),nc_suffix];
-      blkname2=[QSCAT_blk_prefix,'Y',num2str(Y),'M',num2str(M),nc_suffix];
+      blkname=[QSCAT_blk_prefix,'Y',num2str(Ymin),'M',num2str(sprintf(Mth_format,M)),nc_suffix];
+      blkname2=[QSCAT_blk_prefix,'Y',num2str(Y),'M',num2str(sprintf(Mth_format,M)),nc_suffix];
       disp(['Create ',blkname2]) 
       eval(['!cp ',blkname,' ',blkname2]) 
       %

@@ -1,0 +1,75 @@
+-------------------
+- WPS compilation -
+-------------------
+WPS required the following libraries for grib2:
+- zlib
+- libpng
+- jasper
+
+You need to download them and install them: 
+Download links: 
+• http://www.ece.uvic.ca/ ̃mdadams/jasper/ Go down to ”Downloads”
+• http://www.libpng.org/pub/png/libpng.htmlGodownto”sourcecode”
+• http://www.zlib.net/ Go down to ”The current release is publicly avail- able here”
+Note that latest version of libpng does not work woth WPS, download version 1.2 instead. 
+Here is a set of versions that have been used with WPS3.7.1: 
+- jasper-1.900.1
+- libpng-1.2.59
+- zlib-1.2.8
+
+Installation (NB : note that these buildings will use $CC compiler, if you want to use icc for example, you need to place export CC=icc): 
+- decompress in a given directory (let's say MYLIB for the following lines):
+- ./configure --prefix=$HOME/softs/MYLIB/install
+- make ; make install
+Latest version of jasper have to be compiled with cmake:
+- cmake -G "Unix Makefiles" -H./ -B./build_dir -DCMAKE_INSTALL_PREFIX=./install_dir
+- cd build_dir
+- make clean all ; make test ARGS="-V" ; make install
+
+Then you need to place some environment variables:
+export JASPERLIB="$HOME/softs/jasper-2.0.14/install_dir/lib64 -L$HOME/softs/libpng-1.2.59/install/lib -L$HOME/softs/zlib-1.2.11/install/lib"
+export JASPERINC="$HOME/softs/jasper-2.0.14/install_dir/include -I$HOME/softs/libpng-1.2.59/install/include -I$HOME/softs/zlib-1.2.11/install/include"
+export NETCDF=$(nf-config --prefix)
+
+Compilation:
+- Edit WPS path in compile_wps.bash
+- ./compile_wps.bash
+If succesfull, you will find geogrid.exe, ungrib.exe and metgrid.exe in your WPS directory
+
+If not, you can:
+- Go in WPS directory
+- ./configure
+- in configure.wps, set : WRF_DIR to your actual WRF directory, and netcdf dependancy flags in WRF_LIB
+- ./compile &> compile_wps.out
+If succesfull, you will find geogrid.exe, ungrib.exe and metgrid.exe in your WPS directory
+
+----------------
+- DATA for WPS -
+----------------
+Geographical data
+
+Geographical data for WRF are available on WRF users website http://www2. mmm.ucar.edu/wrf/users/download/get_source.html. Geographical data will be available following the link in ”here” under WPS download section. You can download the full complete set, but note that topo files are not all in it. Download them individually in addition (e.g. topo_30s).
+Note that Geographical data file is a VERY LARGE file (∼ 49 Go uncompressed). Uncompress them (tar xvjf or tar -zxvf).
+
+Download CFSR source data
+
+  Download CFSR data from: https://rda.ucar.edu/datasets/ds093.0/index.html#!description
+   (need to request an account, log in, and request the data subset you need, 
+    then NCAR will provide a wgetXXX.csh script to download the data. 
+    You need to get both pressure levels and surface data, specific WRF case exists on the NCAR website)
+
+  => more information in dedicated readme
+
+----------------
+- Running WPS  -
+----------------
+Vtables:
+Choose and eventually edit Vtable. 
+Exsiting Vtables can be found in the WPS source directory under : ungrib/Variable_Tables 
+
+
+Run WPS : 
+- edit all required lines, paths... in configure.namelist.wps and in run_wps.bash
+- ./run_wps.bash configure.namelist.wps NBPROCS
+
+

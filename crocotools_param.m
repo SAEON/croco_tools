@@ -340,6 +340,8 @@ Smin          = 0;             % Second of initialization
 %
 SPIN_Long     = 0;             % SPIN-UP duration in Years
 %
+Mth_format    = '%02d';        % Number of digit for month on input files
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % 7 - Parameters for Interannual forcing (SODA, ECCO, CFSR, NCEP, ...)
@@ -389,7 +391,7 @@ QSCAT_dir        = [FORC_DATA_DIR,'QSCAT_',CROCO_config,'/']; % QSCAT data dir. 
 QSCAT_frc_prefix = [frc_prefix,'_QSCAT_'];                    % QSCAT Generic file name for
                                                               % interannual simulations
 QSCAT_clim_file  = [DATADIR,'QuikSCAT_clim/',...              % QSCAT climatology file
-                    'croco_SCOW_month_clim_1999_2009.nc'];    % for make_QSCAT_clim.
+                    'roms_SCOW_month_clim_1999_2009.nc'];    % for make_QSCAT_clim.
 %
 %--------------------------------------------------
 %  Options for make_ECMWF and make_ECMWF_daily  
@@ -400,6 +402,16 @@ ECMWF_dir= [FORC_DATA_DIR,'ECMWF_',CROCO_config,'/'];  % ERA-I data dir. [croco 
 My_ECMWF_dir=[FORC_DATA_DIR,'ERAI/'];                  % ERA-I native data downloaded 
                                                        % with python script
 itolap_ecmwf = 3;                                      % 3 records for daily  ECMWF
+%
+%--------------------------------------------------
+%  Options for make_ERA5 
+%--------------------------------------------------
+%
+ERA5_dir= [FORC_DATA_DIR,'ERA5_native_',CROCO_config,'/'];   % ERA-I data dir. [croco format]
+My_ERA5_dir=[FORC_DATA_DIR,'ERA5/'];                  % ERA-I native data downloaded 
+                                                      % with python script
+itolap_era5 = 1;                                      % 2 records = 2 hours
+%
 %
 %--------------------------------------------
 % Options for make_OGCM or make_OGCM_mercator

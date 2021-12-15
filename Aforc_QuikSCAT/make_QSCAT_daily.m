@@ -186,7 +186,7 @@ for Y=Ymin:Ymax
 % Create a CROCO forcing file for each month
 %
     frcname=[QSCAT_frc_prefix,'Y',num2str(Y),...
-             'M',num2str(M),nc_suffix];
+             'M',num2str(sprintf(Mth_format,M)),nc_suffix];
     disp(['Create a new forcing file: ' frcname])
     create_forcing_QSCAT(frcname,grdname,CROCO_title,QSCAT_blk,...
                    time,coads_time,coads_time,...
@@ -353,8 +353,8 @@ if SPIN_Long>0
 %
 % Copy the file
 %
-      frcname=[QSCAT_frc_prefix,'Y',num2str(Ymin),'M',num2str(M),nc_suffix];
-      frcname2=[QSCAT_frc_prefix,'Y',num2str(Y),'M',num2str(M),nc_suffix];
+      frcname=[QSCAT_frc_prefix,'Y',num2str(Ymin),'M',num2str(sprintf(Mth_format,M)),nc_suffix];
+      frcname2=[QSCAT_frc_prefix,'Y',num2str(Y),'M',num2str(sprintf(Mth_format,M)),nc_suffix];
       disp(['Create ',frcname2]) 
       eval(['!cp ',frcname,' ',frcname2]) 
 %
