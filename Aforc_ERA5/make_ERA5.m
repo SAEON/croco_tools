@@ -25,7 +25,7 @@
 %  Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 %  MA  02111-1307  USA
 %
-%  Updated    D.Donoso, G. Cambon. P. Penven (Oct 2021) 
+%  Updated    D. Donoso, G. Cambon. P. Penven (Oct 2021) 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all
 close all
