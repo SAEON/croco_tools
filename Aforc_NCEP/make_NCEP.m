@@ -198,9 +198,9 @@ if makefrc==1 | makeblk==1
             disp(['====================='])
             % Create the CROCO forcing files
             blkname=[blk_prefix,'Y',num2str(Y),...
-                'M',num2str(M),nc_suffix];
+                'M',num2str(sprintf(Mth_format,M)),nc_suffix];
             frcname=[frc_prefix,'Y',num2str(Y),...
-                'M',num2str(M),nc_suffix];
+                'M',num2str(sprintf(Mth_format,M)),nc_suffix];
             if makeblk==1
                 disp(['Create a new bulk file: ' blkname])
                 create_bulk(blkname,grdname,CROCO_title,time,0);
@@ -404,8 +404,8 @@ if SPIN_Long>0
             %
             % Copy the file
             %
-            frcname=[frc_prefix,'Y',num2str(Ymin),'M',num2str(M),nc_suffix];
-            frcname2=[frc_prefix,'Y',num2str(Y),'M',num2str(M),nc_suffix];
+            frcname=[frc_prefix,'Y',num2str(Ymin),'M',num2str(sprintf(Mth_format,M)),nc_suffix];
+            frcname2=[frc_prefix,'Y',num2str(Y),'M',num2str(sprintf(Mth_format,M)),nc_suffix];
             disp(['Create ',frcname2])
             eval(['!cp ',frcname,' ',frcname2])
             %
@@ -423,8 +423,8 @@ if SPIN_Long>0
             %
             % Copy the file
             %
-            blkname=[blk_prefix,'Y',num2str(Ymin),'M',num2str(M),nc_suffix];
-            blkname2=[blk_prefix,'Y',num2str(Y),'M',num2str(M),nc_suffix];
+            blkname=[blk_prefix,'Y',num2str(Ymin),'M',num2str(sprintf(Mth_format,M)),nc_suffix];
+            blkname2=[blk_prefix,'Y',num2str(Y),'M',num2str(sprintf(Mth_format,M)),nc_suffix];
             disp(['Create ',blkname2])
             eval(['!cp ',blkname,' ',blkname2])
             %

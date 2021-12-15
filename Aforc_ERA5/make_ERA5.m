@@ -146,7 +146,7 @@ for Y=Ymin:Ymax
         disp(['====================='])
         %
         blkname=[blk_prefix,'Y',num2str(Y),...
-                 'M',num2str(M),nc_suffix];        
+                 'M',num2str(sprintf(Mth_format,M)),nc_suffix];        
         disp(['Create a new bulk file: ' blkname])
         create_bulk(blkname,grdname,CROCO_title,time,0);
         disp([' '])
@@ -297,8 +297,8 @@ if SPIN_Long>0
         %
         % Copy the file
         %
-        blkname=[blk_prefix,'Y',num2str(Ymin),'M',num2str(M),nc_suffix];
-        blkname2=[blk_prefix,'Y',num2str(Y),'M',num2str(M),nc_suffix];
+        blkname=[blk_prefix,'Y',num2str(Ymin),'M',num2str(sprintf(Mth_format,M)),nc_suffix];
+        blkname2=[blk_prefix,'Y',num2str(Y),'M',num2str(sprintf(Mth_format,M)),nc_suffix];
         disp(['Create ',blkname2]) 
         eval(['!cp ',blkname,' ',blkname2]) 
         %

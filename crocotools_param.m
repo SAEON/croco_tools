@@ -340,6 +340,8 @@ Smin          = 0;             % Second of initialization
 %
 SPIN_Long     = 0;             % SPIN-UP duration in Years
 %
+Mth_format    = '%02d';        % Number of digit for month on input files
+%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % 7 - Parameters for Interannual forcing (SODA, ECCO, CFSR, NCEP, ...)
