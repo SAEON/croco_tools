@@ -109,10 +109,10 @@ source ../../myenv_mypath.sh
 # WPS source dir
 export WPS_EXE_DIR="${ATM}/../WPS4.2"
 # Data dir
-DATA_DIR=${HOME}/DATA
+DATA_DIR=${CWORK}/DATA
 #
 # Geographical data for WPS
-export GEOG_DATAROOT="$DATA_DIR/geog"
+export GEOG_DATAROOT="$DATA_DIR/WPS_GEOG"
 #
 # Variable Table Location
 #export Vtable_ROOT="${WPS_EXE_DIR}/ungrib/Variable_Tables"
