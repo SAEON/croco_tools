@@ -430,8 +430,8 @@ if strcmp(OGCM,'mercator')
     % For GLORYS 12 reanalysis extraction + download using python motuclient
     % ========================
     motu_url_reana='http://my.cmems-du.eu/motu-web/Motu';
-    service_id_reana='GLOBAL_REANALYSIS_PHY_001_030-TDS';
-    product_id_reana='global-reanalysis-phy-001-030-daily';
+    service_id_reana='GLOBAL_MULTIYEAR_PHY_001_030-TDS';
+    product_id_reana='cmems_mod_glo_phy_my_0.083_P1D-m';
 end
 %
 % Number of OGCM bottom levels to remove 
