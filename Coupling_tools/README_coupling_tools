@@ -46,7 +46,7 @@ The coupling toolbox manages:
 
 The usual configuration architecture is: 
 
-HOMEDIR/CONFIGS/MY_CONFIF_NAME
+HOMEDIR/CONFIGS/MY_CONFIG_NAME
              create_config.bash.bck
              myenv_mypath.sh
              mynamelist.sh
@@ -60,7 +60,7 @@ HOMEDIR/CONFIGS/MY_CONFIF_NAME
              - XIOS_IN
              - PREPRO
 
-WORKDIR/CONFIGS/MY_CONFIF_NAME
+WORKDIR/CONFIGS/MY_CONFIG_NAME
              - OASIS_FILES
              - CROCO_FILES
              - WW3_FILES
