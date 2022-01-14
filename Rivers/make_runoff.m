@@ -52,7 +52,7 @@ end
 clim_run=1;
 
 if (clim_run == 1)
-    qbar_time=[15:30:365]; 
+    qbar_time=[15:30:345]; 
     qbar_cycle=360; 
 else
     qbar_time=[15.2188:30.4375:350.0313];
