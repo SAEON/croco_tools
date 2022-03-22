@@ -26,9 +26,20 @@ sig =3
 cutratio = 0.01
 
 ## Output file ##
+foldout=iodir+'/OASIS_FILES' # where OASIS_FILES should be
 fileout = 'mapping_o2a_gauss'+'{:02d}'.format(int(sig))+'_cut'+'{:02d}'.format(int(cutratio*100))+'.nc'
 
 ##########################
+import os
+# check if OASIS_FILES exits
+CHECK_FOLDER = os.path.isdir(foldout)
+# If doesn't exist, then create it.
+if not CHECK_FOLDER:
+    os.makedirs(MYDIR)
+    print("created folder : ", MYDIR)
+else:
+    print(MYDIR, "folder already exists.")
+##########
 
 def lonlat_to_m(lon,lat,plon,plat):
     # follow Haversine formula
@@ -357,7 +368,7 @@ if __name__ == "__main__":
     addo2afull = addo2afull[ok[:,0],ok[:,1]]
     weio2afull = weio2afull[ok[:,0],ok[:,1]]
 
-    ncf                 = nc.Dataset( fileout , 'w' )
+    ncf                 = nc.Dataset(foldout+'/'+fileout , 'w' )
 
     ncf.Python_Program_Name = 'build_weight_smth_crocowrf'
     ncf.Sigma_Value         = sig
