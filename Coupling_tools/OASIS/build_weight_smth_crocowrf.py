@@ -35,10 +35,10 @@ import os
 CHECK_FOLDER = os.path.isdir(foldout)
 # If doesn't exist, then create it.
 if not CHECK_FOLDER:
-    os.makedirs(MYDIR)
-    print("created folder : ", MYDIR)
+    os.makedirs(foldout)
+    print("created folder : ", foldout)
 else:
-    print(MYDIR, "folder already exists.")
+    print(foldout, "folder already exists.")
 ##########
 
 def lonlat_to_m(lon,lat,plon,plat):
