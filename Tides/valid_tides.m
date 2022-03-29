@@ -3,7 +3,7 @@
 % valid_tides: compares CROCO tidal time series with tide-gauge data
 %              and CROCO forcing data (TPXO), then computes harmonic
 %              constituants using Rich Pawlowicz's T_TIDE package 
-%              and intercompare model/data/forcing for each the 
+%              and intercompare model/data/forcing for the 
 %              strongest model tidal constituents.
 %
 %  T_TIDE  -->  http://www.eos.ubc.ca/~rich/#T_Tide
@@ -35,11 +35,20 @@
 %  e-mail:Pierrick.Penven@ird.fr
 %
 %  Updated    12-Aug-2011 by Patrick Marchesiello
+%  Updated    29-Mar-2022 by Patrick Marchesiello
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 clear all; 
 close all;
+
+crocotools_param
+
 %==================== USER DEFINED VARIABLES ============================
+%
+% time series : start and duration ........
+%
+year=2004; month=1; day=3; % Start date of analysis
+ndays=24;                  % Duration in days
 %
 % Output  ................
 %
@@ -49,27 +58,17 @@ t_tide_out='none';         % t_tide output: 'none' 'screen' or outfile
 %
 % MODEL ....................................
 %
-crocotools_param
-%
 hisname =[CROCO_files_dir,'croco_his.nc'];
-%
-% time series parameters: start, interval and duration
-%
-year=2004; month=1; day=3; % year can be different from Yorig in crocotools_param
-timestep=2;                % tide sampling interval in days
-ndays=24;                   % Duration of tide sampling in days
 %
 % TIDAL STATIONS .............................
 %
 nbstations=3;
 %
 % files
-% (all file names must have same length)
 %
 dir='Tides_Minh/';
 stafile(1,:)=[dir,'HD2004.dat     '];
 stafile(2,:)=[dir,'BL2004_orig.dat'];
-%stafile(3,:)=[dir,'CC2004_orig.dat'];
 stafile(3,:)=[dir,'HN2004.dat     '];
 %
 % positions (lat,lon)
@@ -80,57 +79,81 @@ lonsta(1)=106.80; latsta(1)=20.67;
 staname(2,:)='Bach Long Vi';
 lonsta(2)=107.72; latsta(2)=20.13;
 %
-%staname(3,:)='Con Co      ';
-%lonsta(3)=107.37; latsta(3)=17.17;
-%
-%staname(4,:)='Co To       ';
-%lonsta(4)=107.77; latsta(4)=20.98;
-%
 staname(3,:)='Hon Ngu     ';
 lonsta(3)=105.77; latsta(3)=18.80;
-
+% 
 %================ END USERS DEFINED VARIABLES =========================
 %
-% Set model time array
+%........................................................................
+% Set time references and new time array for interpolations
+%........................................................................
 %
-res=24/timestep;            % nb points a day
-time0 = mjd(year,month,day);
-tmin  = mjd(Ymin,Mmin,Dmin);
-tstr  = time0-tmin;
+torig=mjd(Yorig,1,1);               % origin time
+t0=mjd(year,month,day)-torig;       % start time
+interval = 1.;                      % time interval (hours)
+timeref=[t0:interval/24:t0+ndays];  % new time array
+%
+%........................................................................
+% Read tidal gauge data
+%
+% The columns are: year month day hours (min) SSH
+%........................................................................
+%
+for k=1:nbstations
+ tides=load(strtrim(stafile(k,:)));
+ y_data=tides(:,1);
+ m_data=tides(:,2);
+ d_data=tides(:,3);
+ h_data=tides(:,4)-timezone;  % convert to Greenwich hour
+ if size(tides,2)==5,
+  ssh_d(:,k)=tides(:,5);
+  time_d(:,k)=mjd(y_data,m_data,d_data,h_data) - torig;
+ else
+  min_data=tides(:,5);
+  ssh_d(:,k)=tides(:,6);
+  time_d(:,k)=mjd(y_data,m_data,d_data,h_data) ...
+                       + min_data/(60*24) - torig;
+ end
+ ssh_d(:,k)=ssh_d(:,k)-mean(ssh_d(:,k));
+end
+%
+%........................................................................
+% Read CROCO time array and grid
+%........................................................................
+%
 nc=netcdf(hisname);
-timem=nc{'scrum_time'}(:)/86400;
+time=nc{'scrum_time'}(:)/86400;
 close(nc)
-ndays=min(ndays,floor(timem(end)-tstr));
-Tstr=1+res*tstr;
-Tend=Tstr+res*ndays;
-T =Tend-Tstr+1;
-jul_off = mjd(Yorig,1,1);
-for i=1:T;
-  time(i)=time0+(i-1)/res-jul_off;
-end;
-%
-% Read CROCO grid
+T=length(time);
 %
 nc=netcdf(grdname);
 lon=nc{'lon_rho'}(:);
 lat=nc{'lat_rho'}(:);
-lonu=nc{'lon_u'}(:);
-latv=nc{'lat_v'}(:);
 h=nc{'h'}(:);
 mask=nc{'mask_rho'}(:);
 close(nc);
 latmid=mean(mean(lat));
+lonmin=min(min(lon));
+lonmax=max(max(lon));
+latmin=min(min(lat));
+latmax=max(max(lat));
 %
 %....................................................................
 % Find j,i indices for tide stations
 %....................................................................
-%
 for k=1:nbstations
- [J(k),I(k)]=find((latv(1:end-1,2:end-1)<latsta(k) & latv(2:end,2:end-1)>=latsta(k) &...
-                   lonu(2:end-1,1:end-1)<lonsta(k) & lonu(2:end-1,2:end)>=lonsta(k))==1);
- I(k)=I(k)+1; J(k)=J(k)+1;
- if isempty(I(k)) |  isempty(J(k))
-  disp(' Warning: location of tide station not found, use model middle point ...')
+ I(k)=0;J(k)=0;ii=1;
+ [j0 i0]=find(lat(1:end-5,1:end-5)< latsta(k) & ...
+              lat(6:end  ,6:end  )>=latsta(k) & ...
+              lon(1:end-5,1:end-5)< lonsta(k) & ...
+              lon(6:end  ,6:end  )>=lonsta(k));
+ for j=j0(1):j0(end); for i=i0(1):i0(end);
+  if ii==1 & mask(j,i)==1, 
+   J(k)=j; I(k)=i; ii=0;
+  end
+ end; end;
+ if I(k)==0 | J(k)==0
+  disp(' Warning: location of station not found, use model middle point ...')
   [M,L]=size(lon);
   I(k)=round(L/2);
   J(k)=round(M/2);
@@ -140,11 +163,12 @@ for k=1:nbstations
  end
  lonsta_m(k)=lon(J(k),I(k));
  latsta_m(k)=lat(J(k),I(k));
+%
 % disp(' ')
-% disp(['Station ',staname(k,:),' : '])
-% disp([' model position (index i,j) = ',int2str(I(k)),'  ',int2str(J(k))])
-% disp([' real  position (lon,lat)   = ',num2str(lonsta(k)),'  ',num2str(latsta(k))])
-% disp([' model position (lon,lat)   = ',num2str(lonsta_m(k)),'  ',num2str(latsta_m(k))])
+% disp(['Station ',staname(k,:),' position : '])
+% disp(['model (i,j)     = ',int2str(I(k)),'  ',int2str(J(k))])
+% disp(['model (lon,lat) = ',num2str(lonsta_m(k)),'  ',num2str(latsta_m(k))])
+% disp(['real  (lon,lat) = ',num2str(lonsta(k)),'  ',num2str(latsta(k))])
 end
 %
 %....................................................................
@@ -153,7 +177,8 @@ end
 %
 nc=netcdf(hisname);
 for k=1:nbstations
- ssh_m(:,k)=squeeze(nc{'zeta'}(Tstr:Tend,J(k),I(k)));
+ ssh_m(:,k)=squeeze(nc{'zeta'}(:,J(k),I(k)));
+ ssh_m(:,k)=ssh_m(:,k)-mean(ssh_m(:,k));
 end
 close(nc);
 %
@@ -178,7 +203,7 @@ end
 disp(' ')
 disp(['Model forcing tidal components : ',components])
 disp(' ')
-%
+
 ssh_f=zeros(T,nbstations);
 for k=1:nbstations
  for itime=1:T
@@ -188,26 +213,53 @@ for k=1:nbstations
                    Eamp(itide,k).*cos(omega - Ephase(itide,k));
   end
  end
+ ssh_f(:,k)=ssh_f(:,k)-mean(ssh_f(:,k));
 end
 %
-%........................................................................
-% Tidal data: read tidal gauge data
-%........................................................................
+%  Check harmonics
 %
-ssh_d=zeros(10000,nbstations);
-time_d=zeros(10000,nbstations);
+plotmap=0;
+if plotmap,
+ nc=netcdf(frcname);
+ Tper=squeeze(nc{'tide_period'}(1)./24);     % hours-->days
+ Epha0 =squeeze(nc{'tide_Ephase'}(1,:,:));   % deg
+ Eamp0 =squeeze(nc{'tide_Eamp'}(1,:,:));     % m
+ close(nc);
+ mask(mask==0)=NaN;
+
+ figure
+ pcolor(lon,lat,Eamp0.*mask)
+ shading flat
+ colorbar
+ hold on
+ text(lonsta,latsta,'*','fontsize',30)
+ hold off
+ title('amplitude M2 (m)')
+ axis([lonmin lonmax latmin latmax])
+ caxis([0 2.5]);
+
+ figure
+ pcolor(lon,lat,Epha0.*mask)
+ shading flat
+ colorbar
+ hold on
+ text(lonsta,latsta,'*','fontsize',30)
+ hold off
+ title('Phase M2 (deg)')
+ axis([lonmin lonmax latmin latmax])
+ caxis([0 360]);
+ return
+end
+%
+%.....................................................................
+% Interpolate time series on the same time vector timeref
+%.....................................................................
+%
+method='linear';
 for k=1:nbstations
-  tides=load(strtrim(stafile(k,:))) ;
-  y_data=tides(:,1);
-  m_data=tides(:,2);
-  d_data=tides(:,3);
-  h_data=tides(:,4)-timezone;  % converted to Greenwich hour
-  Td=length(y_data);
-  ssh_d(1:Td,k)=tides(:,5)-mean(tides(:,5));
-  time_d(1:Td,k)=mjd(y_data,m_data,d_data,h_data)-jul_off;
-  for i=Td:10000
-    time_d(i,k)=time_d(Td,k)+i*1/24;
-  end
+ sshd(:,k)=interp1(time_d(:,k),ssh_d(:,k),timeref,method);
+ sshf(:,k)=interp1(time,ssh_f(:,k),timeref,method);
+ sshm(:,k)=interp1(time,ssh_m(:,k),timeref,method);
 end
 %
 %==============================================================
@@ -233,7 +285,8 @@ m_proj('mercator',...
        'lat',[domaxis(3) domaxis(4)]);
 m_pcolor(lon,lat,h.*themask); hold on;
 shading flat; caxis(colaxis)
-[C1,h1]=m_contour(lon,lat,h,[5 10 20 30 40 50 70 100 500 1000 2000 4000],'k');
+[C1,h1]=m_contour(lon,lat,h, ...
+         [5 10 20 30 40 50 70 100 500 1000 2000 4000],'k');
 clabel(C1,h1,'LabelSpacing',1000,'Rotation',0,'Color','r')
 if ~isempty(coastfileplot)
   m_usercoast(coastfileplot,'color','r');
@@ -242,38 +295,36 @@ else
   m_gshhs_l('speckle','color','r');
 end
 for k=1:nbstations
-  m_text(lonsta(k),latsta(k),sprintf('+ %s',staname(k,:)),'fontsize',18);
+  m_text(lonsta_m(k),latsta_m(k),sprintf('+ %s', ...
+         staname(k,:)),'fontsize',18);
 end
 m_grid('box','fancy','tickdir','in');
 hold off
+%export_fig -transparent valid_tide_domain.pdf
 %
 %-------------------------------------------
 % Plot tidal series: model, data and forcing
 %-------------------------------------------
 f=figure(2);
-set(f,'Position',[200 400 700 500]);
-time_m=time;
-timeref=[time_m(1):1/24:time_m(end)];
-method='spline';
-
-for k=1:ceil(nbstations/4):nbstations  % select 4 stations
- subplot(2,2,k)
- sshf(:,k)=interp1(time_m,ssh_f(:,k),timeref,method);
- a=plot(timeref,sshf(:,k),'k--'); hold on;
+nsta=min(4,nbstations);  % max of 4 stations
+set(f,'Position',[200 400 1000 min(1000,nsta*400)]);
 %
- timed=time_d(:,k);
- sshd(:,k)=interp1(timed,ssh_d(:,k),timeref,method);
- b=plot(timeref,sshd(:,k),'b'); hold on;
-%
- sshm(:,k)=interp1(time_m,ssh_m(:,k),timeref,method);
- c=plot(timeref,sshm(:,k),'r');
-%
+for k=1:nsta  
+ subplot(nsta,1,k)
+ a=plot(timeref,sshf(:,k),'k','linewidth',2); hold on;
+ b=plot(timeref,sshd(:,k),'b','linewidth',2); hold on;
+ c=plot(timeref,sshm(:,k),'r','linewidth',2); hold on;
  h_legend=legend([a b c],'TPXO','Tidal Gauge','Model');
- set(h_legend,'FontSize',7,'Location','Southeast');
+ set(h_legend,'FontSize',15,'Location','Southeast');
  title(staname(k,:));
+ ylabel('Tidal level [m]')
+ xlabel('Time [days]')
+ grid on
  hold off;
- axis([timeref(1) timeref(end) -2 2]);
+ axis([t0 t0+ndays -3.5 3.5]);
+ set(gca,'fontsize',15)
 end
+%export_fig -transparent valid_tide_series.pdf
 %
 %===================================================================
 % Tidal harminic analysis using T_TIDE
@@ -325,11 +376,11 @@ while ianalysis>0
   disp('---------------------------------------------------------')
   disp(' ')
  
-  [tidestruc,xout]=t_tide(sshm0,'interval',1,'start',datenum(Yorig,1,1), ...
-                               'latitude',latmid,'output',t_tide_out);
-%
+  [tidestruc,xout]=t_tide(sshm0,'interval',interval,'start',datenum(Yorig,1,1), ...
+                                'latitude',latmid,'output',t_tide_out);
+
   if type_const==2,
-% sort significant tidal constituents by order of intensity
+   % sort significant tidal constituents by order of intensity
    fsig=tidestruc.tidecon(:,1)>tidestruc.tidecon(:,2); % Significant peaks
    tmp=tidestruc.tidecon(fsig,1);
    [Atides,Itides]=sort(tmp,'descend'); 
@@ -338,7 +389,7 @@ while ianalysis>0
    tmp=tidestruc.name(fsig,:); Ttides=tmp(Itides,:);
    Atides_m=Atides; Ptides_m=Ptides; Ttides_m=Ttides;
   elseif type_const==1,
-% take constituents of forcing file
+   % take constituents of forcing file
    Itides(1:Ntides)=0;
    nconst=length(tidestruc.name);
    for i=1:nconst;
@@ -357,16 +408,16 @@ while ianalysis>0
   end
 %
 % Plot frequency spectrum of tidal amplitude
+%
   f=figure(3);
   set(f,'Units','normalized','Position',[0. 0. 0.4 0.4]);
-%
   fsig=tidestruc.tidecon(:,1)>tidestruc.tidecon(:,2); % Significant peaks
   semilogy([tidestruc.freq(~fsig),tidestruc.freq(~fsig)]', ...
        [.0005*ones(sum(~fsig),1),tidestruc.tidecon(~fsig,1)]','.-r');
   line([tidestruc.freq(fsig),tidestruc.freq(fsig)]', ...
        [.0005*ones(sum(fsig),1),tidestruc.tidecon(fsig,1)]','marker','.','color','b');
   line(tidestruc.freq,tidestruc.tidecon(:,2),'linestyle',':','color',[0 .5 0]);
-  set(gca,'ylim',[.0005 1],'xlim',[0 .5]);
+  set(gca,'ylim',[.0005 5],'xlim',[0 .5]);
   xlabel('frequency (cph)');
   text(tidestruc.freq,tidestruc.tidecon(:,1),tidestruc.name,'rotation',45,'vertical','base');
   ylabel('Amplitude (m)');
@@ -382,9 +433,9 @@ while ianalysis>0
   disp('---------------------------------------------------------')
   disp(' ')
 
-  [tidestruc,xout]=t_tide(sshd0,'interval',1,'start',datenum(Yorig,1,1), ...
+  [tidestruc,xout]=t_tide(sshd0,'interval',interval,'start',datenum(Yorig,1,1), ...
                                 'latitude',latmid,'output',t_tide_out);
-%
+
 % Select model constituents
   Itides(1:Nbtides)=0;
   nconst=length(tidestruc.name);
@@ -400,14 +451,13 @@ while ianalysis>0
 %
   f=figure(4);
   set(f,'Units','normalized','Position',[0. 0. 0.4 0.4]);
-%
   fsig=tidestruc.tidecon(:,1)>tidestruc.tidecon(:,2); % Significant peaks
   semilogy([tidestruc.freq(~fsig),tidestruc.freq(~fsig)]', ...
        [.0005*ones(sum(~fsig),1),tidestruc.tidecon(~fsig,1)]','.-r');
   line([tidestruc.freq(fsig),tidestruc.freq(fsig)]', ...
        [.0005*ones(sum(fsig),1),tidestruc.tidecon(fsig,1)]','marker','.','color','b');
   line(tidestruc.freq,tidestruc.tidecon(:,2),'linestyle',':','color',[0 .5 0]);
-  set(gca,'ylim',[.0005 1],'xlim',[0 .5]);
+  set(gca,'ylim',[.0005 5],'xlim',[0 .5]);
   xlabel('frequency (cph)');
   text(tidestruc.freq,tidestruc.tidecon(:,1),tidestruc.name,'rotation',45,'vertical','base');
   ylabel('Amplitude (m)');
@@ -423,14 +473,14 @@ while ianalysis>0
   disp('---------------------------------------------------------')
   disp(' ')
 
-  [tidestruc,xout]=t_tide(sshf0,'interval',1,'start',datenum(Yorig,1,1), ...
-                              'latitude',latmid,'output',t_tide_out);
-%
+  [tidestruc,xout]=t_tide(sshf0,'interval',interval,'start',datenum(Yorig,1,1), ...
+                                'latitude',latmid,'output',t_tide_out);
+
 % Select model constituents
   Itides(1:Nbtides)=0;
   nconst=length(tidestruc.name);
-  for k=1:Nbtides;
-   for i=1:nconst;
+  for i=1:nconst;
+   for k=1:Nbtides;
      if tidestruc.name(i,1:3)==Ttides_m(k,1:3), Itides(k)=i; end
    end
   end
@@ -438,17 +488,16 @@ while ianalysis>0
   Ptides_f=tidestruc.tidecon(Itides,3);
   Ttides_f=tidestruc.name(Itides,:);
   Ptides_f=zero22pi(Ptides_f+180)-180;
-%
- f=figure(5);
- set(f,'Units','normalized','Position',[0. 0. 0.4 0.4]);
-%
+
+  f=figure(5);
+  set(f,'Units','normalized','Position',[0. 0. 0.4 0.4]);
   fsig=tidestruc.tidecon(:,1)>tidestruc.tidecon(:,2); % Significant peaks
   semilogy([tidestruc.freq(~fsig),tidestruc.freq(~fsig)]', ...
            [.0005*ones(sum(~fsig),1),tidestruc.tidecon(~fsig,1)]','.-r');
   line([tidestruc.freq(fsig),tidestruc.freq(fsig)]', ...
        [.0005*ones(sum(fsig),1),tidestruc.tidecon(fsig,1)]','marker','.','color','b');
   line(tidestruc.freq,tidestruc.tidecon(:,2),'linestyle',':','color',[0 .5 0]);
-  set(gca,'ylim',[.0005 1],'xlim',[0 .5]);
+  set(gca,'ylim',[.0005 5],'xlim',[0 .5]);
   xlabel('frequency (cph)');
   text(tidestruc.freq,tidestruc.tidecon(:,1),tidestruc.name,'rotation',45,'vertical','base');
   ylabel('Amplitude (m)');
@@ -475,8 +524,8 @@ while ianalysis>0
   Ptides_errmf=zero22pi(Ptides_errmf+180)-180;
  
   if fid>1, fid = fopen(outfile,'w'); end;
-%
-  fprintf(fid,'\n                      model/data err         model/forcing err');
+
+  fprintf(fid,'\n           Model       model/data err         model/forcing err');
   fprintf(fid,'\n tide     Amp[cm]    Amp[cm]  Phase[deg]    Amp[cm]  Phase[deg]\n');
   for i=1:Nbtides
    fprintf(fid,' ');
@@ -485,7 +534,9 @@ while ianalysis>0
   end
   disp(' ')
 %
-% TEST FORCING
+%------------------------------------------
+%  TEST OF T_TIDE ON FORCING DATA TPXO
+%------------------------------------------
 %
 % get t-tide constituents
 % then recover original TPXO tidal amp and phase and refer phase to
@@ -493,9 +544,9 @@ while ianalysis>0
 %
   testforcing=1;
   if type_const==1 & testforcing,
-% 
-    [tidestruc,xout]=t_tide(sshf0,'output',t_tide_out);
-%
+
+    [tidestruc,xout]=t_tide(sshf0,'interval',interval,'output',t_tide_out);
+
     Itides(1:Nbtides)=0;
     nconst=length(tidestruc.name);
     for k=1:Nbtides;
@@ -506,13 +557,13 @@ while ianalysis>0
     Atides_f=tidestruc.tidecon(Itides,1);
     Ptides_f=tidestruc.tidecon(Itides,3);
     Ptides_f=zero22pi(Ptides_f+180)-180;
-%
+
     for k=1:Nbtides;
      for i=1:Ntides;
        if Ttides_m(k,1:2)==components(3*i-2:3*i-1),
          Eampsta(k)=Eamp(i,istation);
          Ephasesta(k)=Ephase(i,istation)*180/pi;
-         central_time=tstr+(timeref(end)-timeref(1))/2;
+         central_time=(timeref(end)-timeref(1))/2+timeref(1);
          omega=mod(360*central_time/Tperiod(i,istation),360);
          Ephasesta(k)=Ephasesta(k)-omega;
        end
@@ -520,8 +571,8 @@ while ianalysis>0
     end
     Ephasesta=zero22pi(Ephasesta+180)-180;
     disp(' ')
-    disp(' Test T_TIDE decomposition :')
-    disp('============================')
+    disp(' Test T_TIDE decomposition on TPXO: ')
+    disp(' ================================== ')
     fprintf(fid,'\n           Amplitude [cm]         Phase [deg]');
     fprintf(fid,'\n tide     Original  T_tide     Original  T_tide\n');
     for i=1:Nbtides
@@ -540,7 +591,7 @@ while ianalysis>0
   P_errmf(istation,1:Nbtides)=Ptides_errmf;
 
  end % istation
-
+% 
  if fstation==nbstations+1,
   disp(' ')
   disp('===================================================================')
