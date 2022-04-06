@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 source ../../myenv_mypath.sh
 ##########################
 # python
@@ -69,7 +70,6 @@ variables=""
 for field in ${vars}; do
     variables="${variables} -v ${field} "
 done
-echo ${variables}
 ###
 
 ### motu command ###
@@ -109,12 +109,19 @@ fi
 ###
 
 ### loop ###
+lmonth=( 1 3 5 7 8 10 12 )
 for YEAR in `seq ${YEAR_START} ${YEAR_END}`; do
     [[ ${YEAR} == ${YEAR_START} ]] && mstart=${MONTH_START} || mstart=1 
     [[ ${YEAR} == ${YEAR_END} ]] && mend=${MONTH_END} || mend=12
+    [[ $(($YEAR % 4)) -eq 0  && ( $(($YEAR % 100)) -ne 0  ||  $(($YEAR % 400)) -eq 0 )]] && { leapyear=1 ;} || { leapyear=0 ;}
     for MONTH in `seq ${mstart} ${mend}`; do
+## handle leap year
+        [[ ${lmonth[@]} =~ $MONTH ]] && { maxendday=31 ;} || { maxendday=30 ;} 
+        [[ $MONTH == 2 && $leapyear == 1 ]] && { maxendday=29 ;}
+        [[ $MONTH == 2 && $leapyear == 0 ]] && { maxendday=28 ;}
         [[ $YEAR == ${YEAR_START} && $MONTH == ${MONTH_START} ]] && { dstart=${DAY_START} ;} || { dstart=1 ;}
-        [[ $YEAR == ${YEAR_END}   && $MONTH == ${MONTH_END}   ]] && { dend=${DAY_END} ;} || { dend=31 ;}
+        [[ $YEAR == ${YEAR_END} && $MONTH == ${MONTH_END} ]] && { dend=${DAY_END} ;} || { dend=$maxendday ;}
+##
         if [[ ${kdata} == "MONTHLY" ]]; then
             daystrt=1
             start_date=$( printf "%04d-%02d-%02d" $YEAR $MONTH $daystrt)
