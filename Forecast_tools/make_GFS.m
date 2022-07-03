@@ -72,7 +72,7 @@ end
 %
 % Get the model grid
 %
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 lon=nc{'lon_rho'}(:);
 lat=nc{'lat_rho'}(:);
 angle=nc{'angle'}(:);
@@ -101,7 +101,7 @@ end
 %
 % Get the GFS grid 
 % 
-nc=netcdf(gfs_name);
+nc=netcdf(gfs_name),'r';
 lon1=nc{'lon'}(:);
 lat1=nc{'lat'}(:);
 time=nc{'time'}(:);
