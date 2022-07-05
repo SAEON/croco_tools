@@ -86,7 +86,7 @@ end
 %
 % Get the model grid
 %
-nc=netcdf(grdname);
+nc=netcdf(grdname,'r');
 lon=nc{'lon_rho'}(:);
 lat=nc{'lat_rho'}(:);
 angle=nc{'angle'}(:);
@@ -133,7 +133,7 @@ end
 %---------------------------------------------------------------
 % Get OGCM grid 
 %---------------------------------------------------------------
-nc=netcdf(OGCM_name)
+nc=netcdf(OGCM_name,'r')
 lonT=nc{'lonT'}(:);
 latT=nc{'latT'}(:);
 lonU=nc{'lonU'}(:);
@@ -180,7 +180,11 @@ if makeini==1
               nc_ini,[],lon,lat,angle,h,pm,pn,rmask,...
               1,vtransform,obc)
   close(nc_ini)
-  eval(['!cp ',ininame,' ',ini_prefix,'hct',nc_suffix])
+  if (isoctave == 0)
+      eval(['!cp ',ininame,' ',ini_prefix,'hct',nc_suffix])
+  else
+     eval(['cp ',ininame,' ',ini_prefix,'hct',nc_suffix])
+  end 
 end
 
 %---------------------------------------------------------------
