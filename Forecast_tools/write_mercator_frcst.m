@@ -38,7 +38,7 @@ disp(['    writing MERCATOR file'])
 %
 % Get grid and time frame
 %
-nc = netcdf(raw_mercator_name);
+nc = netcdf(raw_mercator_name,'r');
 if mercator_type==1,
   lon = nc{'longitude'}(:);
   lat = nc{'latitude'}(:);
