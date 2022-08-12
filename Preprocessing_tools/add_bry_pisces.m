@@ -83,7 +83,7 @@ nc{'talk_time'}.units = 'day';
 nc{'talk_time'}.cycle_length = cycle;%
 %
 nc{'no3_time'} = ncdouble('no3_time') ;
-nc{'no3_time'}.long_name = ncchar('time for NO3 climatology')
+nc{'no3_time'}.long_name = ncchar('time for NO3 climatology');
 nc{'no3_time'}.long_name = 'time for NO3 climatology';
 nc{'no3_time'}.units = ncchar('day');
 nc{'no3_time'}.units = 'day';
