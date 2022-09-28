@@ -39,7 +39,7 @@ source ../../myenv_mypath.sh
 # Directory where to find CROCO files
 dirin=$CWORK/rundir/BENGUELA_LR_BAR_exp1_Ofrc_outputs/20050101_20050131
 # Name of CROCO netcdf files to be transformed for ww3
-file=croco_avg.nc
+file=croco_avg_20050101_20050131.nc
 # Flag if concatenatenation is necessary
 flag_concatenate=0
 
@@ -52,7 +52,7 @@ flag_current=0
 flag_level=1
 
 # date of CROCO simulation start
-crocostartdate='2005-01-01 00:00:00'
+crocostartdate='2000-01-01 00:00:00'
 
 # number of CROCO rho vertical levels
 Ns_rho=32

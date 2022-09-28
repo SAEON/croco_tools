@@ -42,9 +42,8 @@ dirin=$CWORK/DATA/CFSR_Benguela_LR/
 fileu=U-component_of_wind_Y2005M1.nc
 filev=V-component_of_wind_Y2005M1.nc
 
-# date of CROCO simulation start [ add to be compatible with the crocotools_param.m ]
-#                                [ follow the nomenclature"days since  yyyy-mm-dd hh:mm:ss" ]
-crocostartdate="days since 2000-01-01 00:00:00"
+# date of origin ( days) of the CFSR data [ have to be compatible with the crocotools_param.m ]
+startdate="2000-01-01 00:00:00"
 
 # Flag if concatenatenation is necessary
 flag_concatenate=0
@@ -87,7 +86,7 @@ ncatted -O -a _FillValue,V10M,o,f,9999 $ww3windfile
 # Set the time attributes of the files
 #===========================================
 ncatted -O -a calendar,time,o,c,'proleptic_gregorian' $ww3windfile
-ncatted -O -a units,time,m,c,"seconds since $crocostartdate" $ww3windfile
+ncatted -O -a units,time,m,c,"days since $startdate" $ww3windfile
 
 
 
