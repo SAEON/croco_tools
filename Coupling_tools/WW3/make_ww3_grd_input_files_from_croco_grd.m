@@ -32,6 +32,8 @@ close all
 %
 run( '../CROCO/start' );
 run( '../CROCO/crocotools_param' );
+!source ../../myenv_mypath.sh
+
 WW3_files_dir = [getenv('WAV_FILES_DIR') '/'];
 eval(['!mkdir ',WW3_files_dir])
 ww3bathyfile   = [WW3_files_dir,'bottom.inp'];

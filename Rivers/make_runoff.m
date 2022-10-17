@@ -52,7 +52,7 @@ end
 clim_run=1;
 
 if (clim_run == 1)
-    qbar_time=[15:30:365]; 
+    qbar_time=[15:30:345]; 
     qbar_cycle=360; 
 else
     qbar_time=[15.2188:30.4375:350.0313];
@@ -831,7 +831,7 @@ else
         end
         %% listing...
         disp(['                        ',num2str(I2(k)),'  ',num2str(J2(k)),...
-                  '  ',num2str(dir(k,1)),'  ',num2str(dir(k,2)),'   30*T   ',...
+                  '  ',num2str(dir(k,1)),'  ',num2str(dir(k,2)),'   T  T   ',...
                   num2str(T),' ',num2str(S)])
     end
     disp(['-----------------------------------------------------------------'])

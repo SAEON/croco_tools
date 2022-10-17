@@ -203,7 +203,7 @@ if (vtransform ==1)
     nc{'sc_r'}.standard_name = 'ocean_s_coordinate_g1';
 elseif (vtransform ==2)
     nc{'sc_r'}.standard_name = ncchar('ocean_s_coordinate_g2');
-    nc{'sc_r'}.standard_name = 'ocean_s_coordinate_g2'     
+    nc{'sc_r'}.standard_name = 'ocean_s_coordinate_g2';     
 end
 nc{'sc_r'}.formula_terms = ncchar('s: s_rho C: Cs_r eta: zeta depth: h depth_c: hc');
 nc{'sc_r'}.formula_terms = 's: s_rho C: Cs_r eta: zeta depth: h depth_c: hc';
@@ -215,11 +215,11 @@ nc{'sc_w'}.valid_max = 0. ;
 nc{'sc_w'}.positive = ncchar('up');
 nc{'sc_w'}.positive = 'up';
 if (vtransform == 1)
-    nc{'sc_w'}.standard_name = ncchar('ocena_s_coordinate_g1');
-    nc{'sc_w'}.standard_name = 'ocena_s_coordinate_g1';
+    nc{'sc_w'}.standard_name = ncchar('ocean_s_coordinate_g1');
+    nc{'sc_w'}.standard_name = 'ocean_s_coordinate_g1';
 elseif (vtransform == 2)
-    nc{'sc_w'}.standard_name = ncchar('ocena_s_coordinate_g2');
-    nc{'sc_w'}.standard_name = 'ocena_s_coordinate_g2';
+    nc{'sc_w'}.standard_name = ncchar('ocean_s_coordinate_g2');
+    nc{'sc_w'}.standard_name = 'ocean_s_coordinate_g2';
 end
 nc{'sc_w'}.formula_terms = ncchar('s: s_w C: Cs_w eta: zeta depth: h depth_c: hc');
 nc{'sc_w'}.formula_terms = 's: s_w C: Cs_w eta: zeta depth: h depth_c: hc';

@@ -37,15 +37,19 @@
 source ../../myenv_mypath.sh
 
 # Directory where to find CFSR wind files
-dirin=$CWORK/croco_files/2009
+dirin=$CWORK/DATA/CFSR_Benguela_LR/
 # Name of CFSR netcdf files to be transformed for ww3
-fileu=U-component_of_wind_Y2009M1.nc
-filev=V-component_of_wind_Y2009M1.nc
+fileu=U-component_of_wind_Y2005M1.nc
+filev=V-component_of_wind_Y2005M1.nc
+
+# date of origin ( days) of the CFSR data [ have to be compatible with the crocotools_param.m ]
+startdate="2000-01-01 00:00:00"
+
 # Flag if concatenatenation is necessary
 flag_concatenate=0
 
 # Name of ww3 wind input file (declared in ww3_prnc.inp)
-ww3windfile='CFSR_wind_Y2009M1.nc'
+ww3windfile='CFSR_wind_Y2005M01.nc'
 
 # WW3 files input directory
 dir_ww3_files=$WAV_FILES_DIR
@@ -72,5 +76,17 @@ fi
 
 # Rename u, v variables
 #===========================================
-ncrename -v U-component_of_wind,U10 -v V-component_of_wind,V10 $ww3windfile
+ncrename -v U-component_of_wind,U10M -v V-component_of_wind,V10M $ww3windfile
+
+# Add needed attribute : _FillValue
+#===========================================
+ncatted -O -a _FillValue,U10M,o,f,9999 $ww3windfile
+ncatted -O -a _FillValue,V10M,o,f,9999 $ww3windfile
+
+# Set the time attributes of the files
+#===========================================
+ncatted -O -a calendar,time,o,c,'proleptic_gregorian' $ww3windfile
+ncatted -O -a units,time,m,c,"days since $startdate" $ww3windfile
+
+
 
