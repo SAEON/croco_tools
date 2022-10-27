@@ -122,4 +122,23 @@ if (makeclim)
   nc{'dic_time'}(:)=t*30; % if time in month in the dataset !!!
   close(nc)
 end
+%
+% Same thing for the Initial file
+%
+%disp('Add_no3: creating variables and attributes for the Initial file')
+%
+% open the clim file  
+% 
+%nc=netcdf(inifile,'write');
+%redef(nc);
+%nc{'NO3'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+%
+%nc{'NO3'}.long_name = ncchar('Nitrate');
+%nc{'NO3'}.long_name = 'Nitrate';
+%nc{'NO3'}.units = ncchar('mMol N m-3');
+%nc{'NO3'}.units = 'mMol N m-3';
+%
+%endef(nc);
+%close(nc)
+
 return
