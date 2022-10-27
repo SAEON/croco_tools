@@ -1,9 +1,10 @@
 function [] = add_tidal_data(tidename,grdname,frcname,Ntides,tidalrank,...
                              Yorig,year,month,coastfileplot, ...
+                             makeplot,pot_tides, ...
                              sal_tides,salname)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Add tidal forcing in interannual forcing file 
-% of the type croco_frc_NCEP2_Y--M--.nc
+% of the type croco_frc_XXX_Y--M--.nc
 %
 %   tidename : TPXO file name
 %   grdname : croco grid file
@@ -16,10 +17,10 @@ function [] = add_tidal_data(tidename,grdname,frcname,Ntides,tidalrank,...
 %   last modified: P. Marchesiello, Oct 2020 (lon<0 + fix pot. tides)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 interp_method = 'linear';
-makeplot      = 1;
+%makeplot      = 1;
 
-pot_tides=1;            % Potential tidal forcing
-if nargin < 10          % if Self-Attraction/Loading not  
+%pot_tides=1;            % Potential tidal forcing
+if nargin < 12          % if Self-Attraction/Loading not  
   sal_tides=0;          % given, set to none
 end
 %
