@@ -174,32 +174,26 @@ if makefrc==1 | makeblk==1
             disp(['====================='])
             % Create the CROCO forcing files
             blkname=[blk_prefix,'Y',num2str(Y),...
-                'M',num2str(sprintf(Mth_format,M)),nc_suffix];
+                    'M',num2str(sprintf(Mth_format,M)),nc_suffix];
             frcname=[frc_prefix,'Y',num2str(Y),...
-                'M',num2str(sprintf(Mth_format,M)),nc_suffix];
+                    'M',num2str(sprintf(Mth_format,M)),nc_suffix];
             if makeblk==1
                 disp(['Create a new bulk file: ' blkname])
                 create_bulk(blkname,grdname,CROCO_title,time,0);
+                nc_add_globatt(blkname,Yorig,Mmin,Dmin,Hmin,Min_min,Smin,'CFSR');
                 disp([' '])
             end
             if makefrc==1
                 disp(['Create a new forcing file: ' frcname])
                 disp([' '])
-                create_forcing(frcname,grdname,CROCO_title,...
-                    time,0,0,...
-                    0,0,0,...
-                    0,0,0,0,0,0)
-            end
-            %
-            % Add the tides (needs to be tested for this version of make_NCEP)
-            %
-            if add_tides==1
-                disp(['Add tidal data'])
-                disp(['=============='])
-                %add_tidal_data(tidename,grdname,frcname,Ntides,tidalrank,...
-                %    Y,M,Dmin,Hmin,Min_min,Smin,coastfileplot)
-                add_tides(tidename,grdname,frcname,Ntides,tidalrank,...
-                                               Yorig,Y,M,coastfileplot)
+                create_forcing(frcname,grdname,CROCO_title,time,0,0,0,0,0,0,0,0,0,0,0)
+                nc_add_globatt(frcname,Yorig,Mmin,Dmin,Hmin,Min_min,Smin,'CFSR');
+               if add_tides==1
+                 disp(['Add tidal data'])
+                 disp(['=============='])
+                 add_tidal_data(tidename,grdname,frcname,Ntides,tidalrank,...
+                            Yorig,year,month,coastfileplot,0,1,1,salname)
+               end
             end
             %
             % Open the CROCO forcing files

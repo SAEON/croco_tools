@@ -82,7 +82,7 @@ disp(['   ext_tracers_ini: time index: ',num2str(l),' of total: ',num2str(tlen)]
 %
 % get a subgrid
 %
-dl=1;
+dl=2;
 lonmin=min(min(lon))-dl;
 lonmax=max(max(lon))+dl;
 latmin=min(min(lat))-dl;

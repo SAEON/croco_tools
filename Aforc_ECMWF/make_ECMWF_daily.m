@@ -181,22 +181,19 @@ if makefrc==1 | makeblk==1
       if makeblk==1
         disp(['Create a new bulk file: ' blkname])
         create_bulk(blkname,grdname,CROCO_title,time,0);
-	    disp([' '])
+        nc_add_globatt(blkname,Yorig,Mmin,Dmin,Hmin,Min_min,Smin,'ERAI'); 
+	      disp([' '])
       end
       if makefrc==1
         disp(['Create a new forcing file: ' frcname])
-	    disp([' '])
+	      disp([' '])
         create_forcing(frcname,grdname,CROCO_title,...
-                       time,0,0,...
-                       0,0,0,...
-                       0,0,0,0,0,0)
-      end
-      %
-      % Add the tides (needs to be tested for this version of make_ECMWF)
-      %
-      if add_tides==1
-        add_tidal_data(tidename,grdname,frcname,Ntides,tidalrank,...
-                                            Yorig,Y,M,coastfileplot)
+                       time,0,0,0,0,0,0,0,0,0,0,0) 
+        nc_add_globatt(frcname,Yorig,Mmin,Dmin,Hmin,Min_min,Smin,'ERAI'); 
+        if add_tides==1
+          add_tidal_data(tidename,grdname,frcname,Ntides,tidalrank,...
+                         Yorig,Y,M,coastfileplot,0,1,1,salname)
+        end
       end
       %
       % Open the CROCO forcing files

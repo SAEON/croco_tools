@@ -193,6 +193,7 @@ for Y=Ymin:Ymax
                    coads_time,coads_time,coads_time,...
                    0,coads_cycle,coads_cycle,...
                    coads_cycle,coads_cycle,coads_cycle)
+    nc_add_globatt(frcname,Yorig,Mmin,Dmin,Hmin,Min_min,Smin,'QSCAT');
     nc_frc=netcdf(frcname,'write');
 
 % Add the wind

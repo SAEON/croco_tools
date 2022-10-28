@@ -149,15 +149,8 @@ for Y=Ymin:Ymax
                  'M',num2str(sprintf(Mth_format,M)),nc_suffix];        
         disp(['Create a new bulk file: ' blkname])
         create_bulk(blkname,grdname,CROCO_title,time,0);
+        nc_add_globatt(blkname,Yorig,Mmin,Dmin,Hmin,Min_min,Smin,'ERA5'); 
         disp([' '])
-        % %
-        % % Add the tides (needs to be tested for this version of make_ERA5)
-        % %
-        % if add_tides==1
-        %     add_tidal_data(tidename,grdname,frcname,Ntides,tidalrank,...
-        %                    Yorig,Y,M,coastfileplot)
-        % end
-        %
         % Open the CROCO forcing files
         nc_blk=netcdf(blkname,'write');
         %
