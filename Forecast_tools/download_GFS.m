@@ -64,7 +64,7 @@ disp([' '])
 % Create directory if needed
 %
 disp(['Making output data directory ',FRCST_dir])
-if (isctave == 0)
+if (isoctave == 0)
    eval(['!mkdir ',FRCST_dir])
 else
    system(['mkdir ',FRCST_dir])
