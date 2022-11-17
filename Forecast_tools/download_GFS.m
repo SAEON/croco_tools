@@ -64,7 +64,7 @@ disp([' '])
 % Create directory if needed
 %
 disp(['Making output data directory ',FRCST_dir])
-if (isctave == 0)
+if (isoctave == 0)
    eval(['!mkdir ',FRCST_dir])
 else
    system(['mkdir ',FRCST_dir])
@@ -88,13 +88,13 @@ while foundfile==0
     disp('  File found')
   else
     foundfile=0;
-    disp(['  GFS : did not found ',fname])
+    disp(['  GFS : did not find ',fname])
     gfs_run_time=gfs_run_time-6;
     if gfs_run_time<0
       gfs_date=gfs_date-1;
       gfs_run_time=18;
       if gfs_date<gfs_date0-8;
-        error(['  GFS: did not found anything'])
+        error(['  GFS: did not find anything'])
       end
     end 
   end
@@ -178,7 +178,7 @@ for ihind=1:4*hdays    % loop on files until time=yesterday 12Z
     missvalue=x.ugrd10m.missing_value;
   else
     foundfile=0;
-    disp(['  GFS: file not found, try next file'])
+    disp(['  GFS: file not find, try next file'])
   end
   warning on
 %
@@ -229,14 +229,14 @@ while foundfile==0
     disp('  File found')
   else
     foundfile=0;
-    disp(['  GFS : did not found ',fname])
+    disp(['  GFS : did not find ',fname])
     t1=t1+2;
     gfs_run_time=gfs_run_time-6;
     if gfs_run_time<0
       gfs_date=gfs_date-1;
       gfs_run_time=18;
       if gfs_date<gfs_date0-8;
-        error(['  GFS: did not found anything'])
+        error(['  GFS: did not find anything'])
       end
     end
   end

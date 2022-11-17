@@ -71,7 +71,7 @@ h=nc{'h'}(:);
 rmask=nc{'mask_rho'}(:);
 close(nc)
 %
-% Read in TPX file
+% Read in TPXO file
 %
 nctides=netcdf(tidename,'r');
 periods=nctides{'periods'}(:);
@@ -123,7 +123,7 @@ for itide=1:Ntides
 % Get phase corrections
 %
   correc_amp=pf(it);
-  correc_phase=-phase_mkB(it)-pu(it)+360.*t0./periods(it);	   
+  correc_phase=-phase_mkB(it)-pu(it)+360.*t0./periods(it);
 %
 % Process surface elevation
 %
@@ -131,7 +131,7 @@ for itide=1:Ntides
   ur=ext_data_tpxo(tidename,'ssh_r',it,lonr,latr,'r',Roa);
   ui=ext_data_tpxo(tidename,'ssh_i',it,lonr,latr,'r',Roa);
   ei=complex(ur,ui);
-  ncfrc{'tide_Ephase'}(itide,:,:)=mod(-deg*angle(ei)+correc_phase,360.0);     
+  ncfrc{'tide_Ephase'}(itide,:,:)=mod(-deg*angle(ei)+correc_phase,360.0);
   ncfrc{'tide_Eamp'}(itide,:,:)=abs(ei)*correc_amp;
 %
 % Process U
@@ -160,7 +160,7 @@ for itide=1:Ntides
   ncfrc{'tide_Cmax'}(itide,:,:)=major;
   ncfrc{'tide_Cangle'}(itide,:,:)=inclination;
   ncfrc{'tide_Cphase'}(itide,:,:)=phase;
-
+%
   if pot_tides,
 %
 % Process equilibrium tidal potential
@@ -169,7 +169,7 @@ for itide=1:Ntides
    if periods(it)<13.0                 % semidiurnal
      Pamp=correc_amp*A(it)*B(it)*coslat2;
      Ppha=mod(-2.*lonr+correc_phase,360.0);
-   elseif periods(it)<26.0            % diurnal
+   elseif periods(it)<26.0             % diurnal
      Pamp=correc_amp*A(it)*B(it)*sin2lat;
      Ppha=mod(-lonr+correc_phase,360.0);
    else                                % long-term
@@ -183,7 +183,7 @@ for itide=1:Ntides
    if sal_tides & it<9
     disp('Process tidal loading and self-attraction potential...')
     [SALamp,SALpha]=ext_data_sal(grdname,salname, ...
-                                  'tide_SALamp','tide_SALpha',it);
+                                 'tide_SALamp','tide_SALpha',it);
     SALamp=SALamp*correc_amp;
     SALpha=mod(SALpha+correc_phase,360.0);
 %
@@ -206,7 +206,7 @@ for itide=1:Ntides
 %
 end % <-- itide ----
 %
-% Close the file
+% Close file
 %
 close(ncfrc)
 %
@@ -218,7 +218,12 @@ close(ncfrc)
 %
 if makeplot==1
   warning off
-  for itide=[1 5]; %1:Ntides
+  if Ntides>=5, 
+   tiderg=[1 5];
+  else
+   tiderg=1;
+  end
+  for itide=tiderg;
     figure
     plot_tide(grdname,frcname,itide,0.5,2,coastfileplot)
   end
@@ -245,9 +250,7 @@ if makeplot==1
     colorbar
     m_gshhs_i('color','r');
     m_gshhs_i('patch','k');
-    m_grid('box','fancy',...
-           'xtick',5,'ytick',5,...
-           'fontsize',7);
+    m_grid('box','fancy','xtick',5,'ytick',5,'fontsize',7);
     fname=['Potential Tides: M2 Amplitude [m]'];
     title(fname,'fontsize',16)
 % M2 PHASE
@@ -261,44 +264,41 @@ if makeplot==1
     colorbar
     m_gshhs_i('color','r');
     m_gshhs_i('patch','k');
-    m_grid('box','fancy',...
-           'xtick',5,'ytick',5,...
-           'fontsize',7);
+    m_grid('box','fancy','xtick',5,'ytick',5,'fontsize',7);
     fname=['Potential Tides: M2 Phase [deg]'];
     title(fname,'fontsize',16)
+
+    if Ntides>=5
 % K1 AMP
-    Pamp=squeeze(ncfrc{'tide_Pamp'}(5,:,:));
-    figure
-    m_proj('mercator',...
-           'lon',[domaxis(1) domaxis(2)],...
-           'lat',[domaxis(3) domaxis(4)]);
-    m_pcolor(lonr,latr,Pamp);
-    shading flat;
-    colorbar
-    m_gshhs_i('color','r');
-    m_gshhs_i('patch','k');
-    m_grid('box','fancy',...
-           'xtick',5,'ytick',5,...
-           'fontsize',7);
-    fname=['Potential Tides: K1 Amplitude [m]'];
-    title(fname,'fontsize',16)
+     Pamp=squeeze(ncfrc{'tide_Pamp'}(5,:,:));
+     figure
+     m_proj('mercator',...
+            'lon',[domaxis(1) domaxis(2)],...
+            'lat',[domaxis(3) domaxis(4)]);
+     m_pcolor(lonr,latr,Pamp);
+     shading flat;
+     colorbar
+     m_gshhs_i('color','r');
+     m_gshhs_i('patch','k');
+     m_grid('box','fancy','xtick',5,'ytick',5,'fontsize',7);
+     fname=['Potential Tides: K1 Amplitude [m]'];
+     title(fname,'fontsize',16)
 % K1 PHASE
-    Ppha=squeeze(ncfrc{'tide_Pphase'}(5,:,:));
-    figure
-    m_proj('mercator',...
-           'lon',[domaxis(1) domaxis(2)],...
-           'lat',[domaxis(3) domaxis(4)]);
-    m_pcolor(lonr,latr,Ppha);
-    shading flat;
-    colorbar
-    m_gshhs_i('color','r');
-    m_gshhs_i('patch','k');
-    m_grid('box','fancy',...
-           'xtick',5,'ytick',5,...
-           'fontsize',7);
-    fname=['Potential Tides: K1 Phase [deg]'];
-    title(fname,'fontsize',16)
-    close(ncfrc)
+     Ppha=squeeze(ncfrc{'tide_Pphase'}(5,:,:));
+     figure
+     m_proj('mercator',...
+            'lon',[domaxis(1) domaxis(2)],...
+            'lat',[domaxis(3) domaxis(4)]);
+     m_pcolor(lonr,latr,Ppha);
+     shading flat;
+     colorbar
+     m_gshhs_i('color','r');
+     m_gshhs_i('patch','k');
+     m_grid('box','fancy','xtick',5,'ytick',5,'fontsize',7);
+     fname=['Potential Tides: K1 Phase [deg]'];
+     title(fname,'fontsize',16)
+     close(ncfrc)
+    end
   end  % <-- pot_tides
 
 end  % <-- makeplot
