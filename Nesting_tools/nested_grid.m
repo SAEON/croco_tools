@@ -450,11 +450,11 @@ warning off
 if newtopo==1
     legend([h1(1),h2(1),h3(1),h4(1),h5(1),h8(1)],...
         'Child topo','Parent topo','Raw topo','Child mask','Parent mask',...
-        'Parent rho points',1)
+        'Parent rho points')
 else
     legend([h1(1),h2(1),h4(1),h5(1),h8(1)],...
         'Child topo','Parent topo','Child mask','Parent mask',...
-        'Parent rho points',1)
+        'Parent rho points')
 end
 
 
