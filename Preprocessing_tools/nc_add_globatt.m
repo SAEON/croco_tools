@@ -27,7 +27,7 @@ function nc_add_globatt(filename,Yorig,Mmin,Dmin,Hmin,Min_min,Smin,product)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 if nargin < 8
-    product = 'unknow'
+    product = 'unknown'
 end
 %
 origin_date = datestr(datenum(Yorig,Mmin,Dmin,Hmin,Min_min,Smin),0);
