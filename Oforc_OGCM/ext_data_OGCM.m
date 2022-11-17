@@ -64,10 +64,10 @@ else
   x=[];
 end
 if ~isempty(i1)
-  x=cat(2,X(i1)-360,x);
+  x=cat(1,X(i1)-360,x);
 end
 if ~isempty(i3)
-  x=cat(2,x,X(i3)+360);
+  x=cat(1,x,X(i3)+360);
 end
 y=Y(j);
 %
