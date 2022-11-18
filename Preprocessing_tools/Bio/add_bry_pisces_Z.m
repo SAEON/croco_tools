@@ -42,6 +42,8 @@ nc('talk_time') = length(time);
 nc('si_time') = length(time);
 nc('fer_time') = length(time);
 nc('o2_time') = length(time);
+nc('dop_time') = length(time);
+nc('don_time') = length(time);
 nc('one') = 1;
 %
 if obc(1)==1
@@ -89,6 +91,18 @@ if obc(1)==1
   nc{'DOC_south'}.long_name = 'southern boundary DOC';
   nc{'DOC_south'}.units = ncchar('mMol N m-3');
   nc{'DOC_south'}.units = 'mMol N m-3';
+%
+  nc{'DOP_south'} = ncdouble('dop_time','Z','xi_rho') ;
+  nc{'DOP_south'}.long_name = ncchar('southern boundary DOP');
+  nc{'DOP_south'}.long_name = 'southern boundary DOP';
+  nc{'DOP_south'}.units = ncchar('mMol N m-3');
+  nc{'DOP_south'}.units = 'mMol N m-3';
+%
+  nc{'DON_south'} = ncdouble('don_time','Z','xi_rho') ;
+  nc{'DON_south'}.long_name = ncchar('southern boundary DON');
+  nc{'DON_south'}.long_name = 'southern boundary DON';
+  nc{'DON_south'}.units = ncchar('mMol N m-3');
+  nc{'DON_south'}.units = 'mMol N m-3';
 %
   nc{'FER_south'} = ncdouble('fer_time','Z','xi_rho') ;
   nc{'FER_south'}.long_name = ncchar('southern boundary Iron');
@@ -142,6 +156,18 @@ if obc(2)==1
   nc{'DOC_east'}.long_name = 'eastern boundary DOC';
   nc{'DOC_east'}.units = ncchar('mMol N m-3');
   nc{'DOC_east'}.units = 'mMol N m-3';
+%
+  nc{'DOP_east'} = ncdouble('dop_time','Z','eta_rho') ;
+  nc{'DOP_east'}.long_name = ncchar('eastern boundary DOP');
+  nc{'DOP_east'}.long_name = 'eastern boundary DOP';
+  nc{'DOP_east'}.units = ncchar('mMol N m-3');
+  nc{'DOP_east'}.units = 'mMol N m-3';
+%
+  nc{'DON_east'} = ncdouble('don_time','Z','eta_rho') ;
+  nc{'DON_east'}.long_name = ncchar('eastern boundary DON');
+  nc{'DON_east'}.long_name = 'eastern boundary DON';
+  nc{'DON_east'}.units = ncchar('mMol N m-3');
+  nc{'DON_east'}.units = 'mMol N m-3';
 %
   nc{'FER_east'} = ncdouble('fer_time','Z','eta_rho') ;
   nc{'FER_east'}.long_name = ncchar('eastern boundary Iron');
@@ -197,6 +223,18 @@ if obc(3)==1
   nc{'DOC_north'}.units = ncchar('mMol N m-3');
   nc{'DOC_north'}.units = 'mMol N m-3';
 %
+  nc{'DOP_north'} = ncdouble('dop_time','Z','xi_rho') ;
+  nc{'DOP_north'}.long_name = ncchar('northern boundary DOP');
+  nc{'DOP_north'}.long_name = 'northern boundary DOP';
+  nc{'DOP_north'}.units = ncchar('mMol N m-3');
+  nc{'DOP_north'}.units = 'mMol N m-3';
+%
+  nc{'DON_north'} = ncdouble('don_time','Z','xi_rho') ;
+  nc{'DON_north'}.long_name = ncchar('northern boundary DON');
+  nc{'DON_north'}.long_name = 'northern boundary DON';
+  nc{'DON_north'}.units = ncchar('mMol N m-3');
+  nc{'DON_north'}.units = 'mMol N m-3';
+%
   nc{'FER_north'} = ncdouble('fer_time','Z','xi_rho') ;
   nc{'FER_north'}.long_name = ncchar('northern boundary Iron');
   nc{'FER_north'}.long_name = 'northern boundary Iron';
@@ -251,6 +289,18 @@ if obc(4)==1
   nc{'DOC_west'}.units = ncchar('mMol N m-3');
   nc{'DOC_west'}.units = 'mMol N m-3';
 %
+  nc{'DOP_west'} = ncdouble('dop_time','Z','eta_rho') ;
+  nc{'DOP_west'}.long_name = ncchar('western boundary DOP');
+  nc{'DOP_west'}.long_name = 'western boundary DOP';
+  nc{'DOP_west'}.units = ncchar('mMol N m-3');
+  nc{'DOP_west'}.units = 'mMol N m-3';
+%
+  nc{'DON_west'} = ncdouble('don_time','Z','eta_rho') ;
+  nc{'DON_west'}.long_name = ncchar('western boundary DON');
+  nc{'DON_west'}.long_name = 'western boundary DON';
+  nc{'DON_west'}.units = ncchar('mMol N m-3');
+  nc{'DON_west'}.units = 'mMol N m-3';
+%
   nc{'FER_west'} = ncdouble('fer_time','Z','eta_rho') ;
   nc{'FER_west'}.long_name = ncchar('western boundary Iron');
   nc{'FER_west'}.long_name = 'western boundary Iron';
@@ -273,6 +323,8 @@ nc('talk_time') = time;
 nc('si_time') = time;
 nc('fer_time') = time;
 nc('o2_time') = time;
+nc('dop_time') = time;
+nc('don_time') = time;
 if obc(1)==1
   nc{'NO3_south'}(:)  =  0;
   nc{'PO4_south'}(:)  =  0;
@@ -282,6 +334,8 @@ if obc(1)==1
   nc{'TALK_south'}(:) =  0;
   nc{'DOC_south'}(:)  =  0;
   nc{'FER_south'}(:)  =  0;
+  nc{'DOP_south'}(:)  =  0;
+  nc{'DON_south'}(:)  =  0;
 end 
 if obc(2)==1 
   nc{'NO3_east'}(:)  =  0;
@@ -292,6 +346,8 @@ if obc(2)==1
   nc{'TALK_east'}(:) =  0;
   nc{'DOC_east'}(:)  =  0;
   nc{'FER_east'}(:)  =  0;
+  nc{'DOP_east'}(:)  =  0;
+  nc{'DON_east'}(:)  =  0;
 end 
 if obc(3)==1 
   nc{'NO3_north'}(:)  =  0;
@@ -302,6 +358,8 @@ if obc(3)==1
   nc{'TALK_north'}(:) =  0;
   nc{'DOC_north'}(:)  =  0;
   nc{'FER_north'}(:)  =  0;
+  nc{'DOP_north'}(:)  =  0;
+  nc{'DON_north'}(:)  =  0;
 end 
 if obc(4)==1 
   nc{'NO3_west'}(:)  =  0;
@@ -312,6 +370,8 @@ if obc(4)==1
   nc{'TALK_west'}(:) =  0;
   nc{'DOC_west'}(:)  =  0;
   nc{'FER_west'}(:)  =  0;
+  nc{'DOP_west'}(:)  =  0;
+  nc{'DON_west'}(:)  =  0;
 end 
 close(nc)
 return

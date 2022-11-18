@@ -184,6 +184,14 @@ if (makeZbry)
       disp('  Dissolved Organic Carbon...')
       bry_interp_pisces(Zbryname,lon,lat,doc_seas_data,doc_ann_data,...
                'doc',['DOC',suffix],obcndx,Roa);        
+      if makequota
+         disp('  Dissolved Organic Nitrogen...')
+         bry_interp_pisces(Zbryname,lon,lat,doc_seas_data,doc_ann_data,...
+               'doc',['DON',suffix],obcndx,Roa);
+         disp('  Dissolved Organic Phosphorus...')
+         bry_interp_pisces(Zbryname,lon,lat,doc_seas_data,doc_ann_data,...
+               'doc',['DOP',suffix],obcndx,Roa);
+      end
       disp('  Iron...')
       bry_interp_pisces(Zbryname,lon,lat,fer_seas_data,fer_ann_data,...
                'fer',['FER',suffix],obcndx,Roa);        
@@ -235,6 +243,14 @@ if (makebry)
       disp(' ')
       disp('  Dissolved Organic Carbon...')
       vinterp_bry(bryname,grdname,Zbryname,['DOC',suffix],obcndx);
+      if makequota
+         disp(' ')
+         disp('  Dissolved Organic Nitrogen...')
+         vinterp_bry(bryname,grdname,Zbryname,['DON',suffix],obcndx);
+         disp(' ')
+         disp('  Dissolved Organic Phosphorus...')
+         vinterp_bry(bryname,grdname,Zbryname,['DOP',suffix],obcndx);
+      end
       disp(' ')
       disp('  Iron...')
       vinterp_bry(bryname,grdname,Zbryname,['FER',suffix],obcndx);
@@ -260,6 +276,10 @@ figure
 test_bry(bryname,grdname,'TALK',6,obc)
 figure
 test_bry(bryname,grdname,'DOC',6,obc)
+if makequota
+figure
+test_bry(bryname,grdname,'DON',6,obc)
+end
 figure
 test_bry(bryname,grdname,'FER',6,obc)
 end
