@@ -43,32 +43,20 @@ if ownArea == 0:
     lines = [line.rstrip('\n') for line in open(paramFile)]
     for line in lines:
         if "lonmin" in line:
-            for i in range(len(line)):
-                if line[i] == "=":
-                    iStart = i+1
-                elif line[i] == ";":
-                    iEnd = i
-            lonmin = line[iStart:iEnd]
+            iStart=line.find('=')+1
+            iEnd=line.find(';')
+            lonmin = line[iStart:iEnd
         elif "lonmax" in line:
-            for i in range(len(line)):
-                if line[i] == "=":
-                    iStart = i+1
-                elif line[i] == ";":
-                    iEnd = i
+            iStart=line.find('=')+1
+            iEnd=line.find(';')
             lonmax = line[iStart:iEnd]
         elif "latmin" in line:
-            for i in range(len(line)):
-                if line[i] == "=":
-                    iStart = i+1
-                elif line[i] == ";":
-                    iEnd = i
+            iStart=line.find('=')+1
+            iEnd=line.find(';')
             latmin = line[iStart:iEnd]
         elif "latmax" in line:
-            for i in range(len(line)):
-                if line[i] == "=":
-                    iStart = i+1
-                elif line[i] == ";":
-                    iEnd = i
+            iStart=line.find('=')+1
+            iEnd=line.find(';')
             latmax = line[iStart:iEnd]
 
 lonmin = str(float(lonmin)-dl)

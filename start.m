@@ -42,7 +42,7 @@ addpath([myutilpath,'m_map1.4h'])
 addpath([myutilpath,'air_sea'])
 addpath([myutilpath,'mask'])
 %
-% ROMSTOOLS directories
+% CROCOTOOLS directories
 %
 addpath([tools_path,'Aforc_CFSR'])
 addpath([tools_path,'Aforc_ERA5'])

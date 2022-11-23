@@ -377,6 +377,7 @@ QSCAT_blk    = 0;       % 1: a) correct NCEP frc/bulk files with
                         %        u,v,wspd fields from daily QSCAT data
                         %    b) download u,v,wspd in QSCAT frc file
 add_tides    = 0;       % 1: add tides
+add_waves    = 0;       % 1: add waves
 %
 % Overlap parameters 
 %
@@ -428,11 +429,20 @@ ini_prefix  = [CROCO_files_dir,'croco_ini_',OGCM,'_'];    % generic initial file
 OGCM_prefix = [OGCM,'_'];                                 % generic OGCM file name 
 
 if strcmp(OGCM,'mercator')
+    % ========================
     % For GLORYS 12 reanalysis extraction + download using python motuclient
     % ========================
+    raw_mercator_name = 'mercator';
+    kdata="MONTHLY" ; % or DAILY 
     motu_url_reana='http://my.cmems-du.eu/motu-web/Motu';
     service_id_reana='GLOBAL_MULTIYEAR_PHY_001_030-TDS';
-    product_id_reana='cmems_mod_glo_phy_my_0.083_P1D-m';
+    if strcmp(kdata,"DAILY")
+      product_id_reana='cmems_mod_glo_phy_my_0.083_P1D-m';
+    elseif strcmp(kdata,"MONTHLY")
+      product_id_reana='cmems_mod_glo_phy_my_0.083_P1M-m'
+    else
+       disp("Please specify what reanalysis frequency you want (DAILY or MONTHLY)")
+    end
 end
 %
 % Number of OGCM bottom levels to remove 
@@ -523,14 +533,10 @@ end
 DIAG_dir = [CROCOTOOLS_dir,'Diagnostic_tools/'];
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-
-
-
-
-
-
-
-
+%
+% 10 Change default netCDF file format for writing
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+netcdf.setDefaultFormat('FORMAT_NETCDF4');
+%

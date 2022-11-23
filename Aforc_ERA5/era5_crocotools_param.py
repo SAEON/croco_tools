@@ -20,6 +20,9 @@ era5_dir_raw = config_dir + 'DATA/ERA5_native_' + config_name
 #
 era5_dir_processed = config_dir + 'DATA/ERA5_' + config_name
 #
+# extraction wave variables
+#
+wave_extract=False # True to extract wave variables
 #
 # Dates limits
 #
@@ -72,6 +75,11 @@ variables = ['lsm'  , 'sst' , 'tp'        ,'strd'   ,'ssr'     ,'t2m'  ,'q'     
 conv_cff  = [1.     ,  1.   ,  cff_tp     ,cff_heat ,cff_heat  ,1.     ,1.       ,1.     ,1.     ] 
 units     = ['(0-1)',  'K'  , 'kg m-2 s-1','W m-2'  ,'W m-2'   ,'K'    ,'kg kg-1','m s-1','m s-1']
 
+if wave_extract:
+    ## append waves variables
+    wave_var=['swh', 'mwd', 'pp1d' ,'cdww'];variables.extend(wave_var)
+    wave_conv_cff=[1.,  1., 1. , 1.];  conv_cff.extend(wave_conv_cff)
+    wave_units=['m','Degrees true','s', 'dimensionless']; units.extend(wave_units)
 
 
 # *******************************************************************************
