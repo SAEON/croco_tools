@@ -105,8 +105,8 @@ fi
 if [ $flag_current == 1 ] ; then
     ncatted -O -a calendar,time,o,c,'proleptic_gregorian' ${ww3curfile}
     ncatted -O -a units,time,o,c,"seconds since $crocostartdate" ${ww3curfile} 
-    ncatted -O -a _FillValue,ucurr,o,f,9999 ${ww3curfile} 
-    ncatted -O -a _FillValue,vcurr,o,f,9999 ${ww3curfile} 
+    ncatted -O -a _FillValue,ucur,o,f,9999 ${ww3curfile} 
+    ncatted -O -a _FillValue,vcur,o,f,9999 ${ww3curfile} 
 fi
 if [ $flag_level == 1 ] ; then
     ncatted -O -a calendar,time,o,c,'proleptic_gregorian' ${ww3levfile}

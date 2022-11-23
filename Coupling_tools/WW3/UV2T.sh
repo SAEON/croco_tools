@@ -65,9 +65,9 @@ ncks -F -A -v $var -d ${dimUV},2,$N $filein ${filein}.tmpgridT
 ncap2 -O -v -s "${var}=0.5*(${var}+${var}_1)" ${filein}.tmpgridT ${fileout}
 
 # extract var at first U or V point
-ncks -F -O -v $var -d ${dimUV},1 $filein ${filein}.tmpgridT
+ncks -C -F -O -v $var -d ${dimUV},1 $filein ${filein}.tmpgridT
 # extract var at last U or V point
-ncks -F -O -v $var -d ${dimUV},$N $filein ${filein}.tmpgridT.end
+ncks -C -F -O -v $var -d ${dimUV},$N $filein ${filein}.tmpgridT.end
 # set dimUV as unlimited dimension to be able to concatenate along dimUV
 ncpdq -O -a ${dimUV},${dimT} ${filein}.tmpgridT ${filein}.tmpgridT
 ncpdq -O -a ${dimUV},${dimT} ${filein}.tmpgridT.end ${filein}.tmpgridT.end
