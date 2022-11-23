@@ -100,12 +100,12 @@ topo_res_d03='3s+30s'
 # Dates of parent simulation
 #-------------------------------------------------------------------------
 # real-time mode
-start_y=2009
+start_y=2005
 start_m=01
 start_d=01
 start_h=00
 
-end_y=2009
+end_y=2005
 end_m=01
 end_d=31
 end_h=18
