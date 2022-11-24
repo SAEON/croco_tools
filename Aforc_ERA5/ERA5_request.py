@@ -37,9 +37,8 @@ from era5_crocotools_param import *
 print('year_start is '+str(year_start))
 
 # -------------------------------------------------
-
+dl=2
 if ownArea == 0:
-    dl = 2    
     lines = [line.rstrip('\n') for line in open(paramFile)]
     for line in lines:
         if "lonmin" in line:
