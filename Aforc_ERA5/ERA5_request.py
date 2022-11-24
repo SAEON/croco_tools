@@ -45,7 +45,7 @@ if ownArea == 0:
         if "lonmin" in line:
             iStart=line.find('=')+1
             iEnd=line.find(';')
-            lonmin = line[iStart:iEnd
+            lonmin = line[iStart:iEnd]
         elif "lonmax" in line:
             iStart=line.find('=')+1
             iEnd=line.find(';')
