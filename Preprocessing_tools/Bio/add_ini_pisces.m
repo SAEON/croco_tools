@@ -42,6 +42,8 @@ nc{'O2'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 nc{'DIC'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 nc{'TALK'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 nc{'DOC'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+nc{'DON'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
+nc{'DOP'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 nc{'FER'} = ncdouble('time','s_rho','eta_rho','xi_rho') ;
 
 %
@@ -89,6 +91,18 @@ nc{'DOC'}.units = ncchar('mMol C m-3');
 nc{'DOC'}.units = 'mMol C m-3';
 %
 %
+nc{'DON'}.long_name = ncchar('DON');
+nc{'DON'}.long_name = 'DON';
+nc{'DON'}.units = ncchar('mMol C m-3');
+nc{'DON'}.units = 'mMol C m-3';
+%
+%
+nc{'DOP'}.long_name = ncchar('DOP');
+nc{'DOP'}.long_name = 'DOP';
+nc{'DOP'}.units = ncchar('mMol C m-3');
+nc{'DOP'}.units = 'mMol C m-3';
+%
+%
 nc{'FER'}.long_name = ncchar('FER');
 nc{'FER'}.long_name = 'FER';
 nc{'FER'}.units = ncchar('mMol Fe m-3');
@@ -107,6 +121,8 @@ nc{'O2'}(:)   =  0;
 nc{'DIC'}(:)  =  0;
 nc{'TALK'}(:) =  0;
 nc{'DOC'}(:)  =  0;
+nc{'DON'}(:)  =  0;
+nc{'DOP'}(:)  =  0;
 nc{'FER'}(:)  =  0;
 %
 % Synchronize on disk

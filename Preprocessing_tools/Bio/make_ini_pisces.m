@@ -99,6 +99,18 @@ disp(' ')
 disp('Dissolved Organic Carbon...')
 ext_tracers_ini(ininame,grdname,doc_month_data,doc_ann_data,...
              'doc','DOC','r',tini);
+
+if makequota
+disp(' ')
+disp('Dissolved Organic Nitrogen...')
+ext_tracers_ini(ininame,grdname,doc_month_data,doc_ann_data,...
+             'doc','DON','r',tini);
+disp(' ')
+disp('Dissolved Organic Phosphorus...')
+ext_tracers_ini(ininame,grdname,doc_month_data,doc_ann_data,...
+             'doc','DOP','r',tini);
+end
+
 disp(' ')
 disp('Iron ...')
 ext_tracers_ini(ininame,grdname,fer_month_data,fer_ann_data,...
@@ -121,6 +133,8 @@ if (makeplot == 1)disp(' ')
    test_clim(ininame,grdname,'TALK',1,coastfileplot)
    figure
    test_clim(ininame,grdname,'DOC',1,coastfileplot)
+   figure
+   test_clim(ininame,grdname,'DON',1,coastfileplot)
    figure
    test_clim(ininame,grdname,'FER',1,coastfileplot)
 end

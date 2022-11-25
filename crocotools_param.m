@@ -243,6 +243,7 @@ makebry    = 1;   % lateral boundary data
 makenpzd   = 0;   % initial and boundary data for NChlPZD and N2ChlPZD2 models
 makebioebus= 0;   % initial and boundary data for BioEBUS model
 makepisces = 0;   % initial and boundary data for PISCES model
+makequota  = 0;   % initial and boundary data for quota version of PISCES model
 %
 %
 makeoa     = 1;   % oa data (intermediate file)

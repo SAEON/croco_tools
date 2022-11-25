@@ -82,6 +82,13 @@ add_talk(oaname,clmname,ininame,grdname,talk_seas_data,...
 
 add_doc(oaname,clmname,ininame,grdname,doc_seas_data,...
        doc_ann_data,cycle,makeoa,makeclim)
+
+if makequota
+   add_don(oaname,clmname,ininame,grdname,doc_seas_data,...
+       doc_ann_data,cycle,makeoa,makeclim)
+   add_dop(oaname,clmname,ininame,grdname,doc_seas_data,...
+       doc_ann_data,cycle,makeoa,makeclim)
+end
             
 add_fer(oaname,clmname,ininame,grdname,fer_seas_data,...
        fer_ann_data,cycle,makeoa,makeclim)
@@ -110,6 +117,14 @@ if (makeoa)
 
   ext_tracers(oaname,doc_seas_data,doc_ann_data,...
              'doc','DOC','doc_time','Zdoc',Roa);
+
+     if makequota
+     ext_tracers(oaname,doc_seas_data,doc_ann_data,...
+             'doc','DON','don_time','Zdon',Roa);
+
+     ext_tracers(oaname,doc_seas_data,doc_ann_data,...
+             'doc','DOP','dop_time','Zdop',Roa);
+     end
 
   ext_tracers(oaname,fer_seas_data,fer_ann_data,...
              'fer','FER','fer_time','Zfer',Roa);
@@ -173,6 +188,26 @@ if (makeclim)
   disp(' ')
   disp(' DOC...')
   vinterp_clm(clmname,grdname,oaname,'DOC','doc_time','Zdoc',0,'r');
+
+if makequota
+%
+% DON
+%
+  disp(' ')
+  disp(' Vertical interpolations')
+  disp(' ')
+  disp(' DON...')
+  vinterp_clm(clmname,grdname,oaname,'DON','don_time','Zdon',0,'r');
+%
+% DOP
+%
+  disp(' ')
+  disp(' Vertical interpolations')
+  disp(' ')
+  disp(' DOP...')
+  vinterp_clm(clmname,grdname,oaname,'DOP','dop_time','Zdop',0,'r');
+end
+
 %
 % FER
 %
@@ -200,6 +235,10 @@ figure
 test_clim(clmname,grdname,'TALK',1,coastfileplot)
 figure
 test_clim(clmname,grdname,'DOC',1,coastfileplot)
+if makequota
+figure
+test_clim(clmname,grdname,'DON',1,coastfileplot)
+end
 figure
 test_clim(clmname,grdname,'FER',1,coastfileplot)
 end
