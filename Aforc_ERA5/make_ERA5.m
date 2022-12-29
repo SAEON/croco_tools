@@ -97,6 +97,10 @@ if add_waves == 1
     maskwave(maskwave ~= missvalue_wave ) = 1;
     maskwave(maskwave == missvalue_wave ) = NaN ;
     close(nc);
+else
+	lon1wave = NaN;
+	lat1wave = NaN;
+	maskwave = NaN;
 end
 
 
