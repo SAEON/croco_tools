@@ -24,11 +24,3 @@ CROCO sources and CROCO_TOOLS (the follow-on of ROMS_TOOLS) are now distributed 
 
 * Nesting_tools: some small corrections
 
-
- _   _                      __                 _
-| | | | __ ___   _____     / _|_   _ _ __     | |
-| |_| |/ _` \ \ / / _ \   | |_| | | | '_ \    | |
-|  _  | (_| |\ V /  __/   |  _| |_| | | | |   |_|
-|_| |_|\__,_| \_/ \___|   |_|  \__,_|_| |_|   (_)
-
-
