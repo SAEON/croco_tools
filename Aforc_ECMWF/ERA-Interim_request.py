@@ -98,10 +98,10 @@ lonmin = str(float(lonmin)-dl)
 lonmax = str(float(lonmax)+dl)
 latmin = str(float(latmin)-dl)
 latmax = str(float(latmax)+dl)
-print 'lonmin-dl = ', lonmin
-print 'lonmax+dl =', lonmax
-print 'latmin-dl =', latmin
-print 'latmax+dl =', latmax
+print ('lonmin-dl = ', lonmin)
+print ('lonmax+dl =', lonmax)
+print ('latmin-dl =', latmin)
+print ('latmax+dl =', latmax)
 
 
 ######################
@@ -171,7 +171,7 @@ for year in range(yearStart, yearEnd+1):
 
         date = str(yearBefore) + "-" + monthBefore2 + "-" + \
             str(nDays) + "/to/" + str(yearNext) + "-" + monthNext2 + "-01"
-        print 'date=', date
+        print ('date=', date)
 
         # 1. Sea surface temperature
         filename = 'EI_ecmwf_SSTK_' + str(year) + str(month2) + '.nc'

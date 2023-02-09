@@ -434,15 +434,15 @@ if strcmp(OGCM,'mercator')
     % For GLORYS 12 reanalysis extraction + download using python motuclient
     % ========================
     raw_mercator_name = 'mercator';
-    kdata="MONTHLY" ; % or DAILY 
+    kdata='MONTHLY' ; % or DAILY 
     motu_url_reana='http://my.cmems-du.eu/motu-web/Motu';
     service_id_reana='GLOBAL_MULTIYEAR_PHY_001_030-TDS';
-    if strcmp(kdata,"DAILY")
+    if strcmp(kdata,'DAILY')
       product_id_reana='cmems_mod_glo_phy_my_0.083_P1D-m';
-    elseif strcmp(kdata,"MONTHLY")
+    elseif strcmp(kdata,'MONTHLY')
       product_id_reana='cmems_mod_glo_phy_my_0.083_P1M-m'
     else
-       disp("Please specify what reanalysis frequency you want (DAILY or MONTHLY)")
+       disp('Please specify what reanalysis frequency you want (DAILY or MONTHLY)')
     end
 end
 %
