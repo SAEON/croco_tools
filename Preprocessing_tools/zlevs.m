@@ -1,22 +1,31 @@
-function z = zlevs(h,zeta,theta_s,theta_b,hc,N,type,vtransform);
+function z = zlevs(h,zeta,theta_s,theta_b,hc,N,type,vtransform,vstretching)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  function z = zlevs(h,zeta,theta_s,theta_b,hc,N,type,vtransform);
+%  function z = zlevs(h,zeta,theta_s,theta_b,hc,N,type,vtransform,vstretching)
 %
-%  this function compute the depth of rho or w points for CROCO
+%  this function compute the depth of rho or w points for CROCO/ROMS
 %
 %  On Input:
 %
-%    type    'r': rho point 'w': w point 
-%    vtransform  1=> old v transform (Song, 1994); 
-%                2=> new v transform (Shcheptekin, 2006)
+%    type         'r': rho point 'w': w point
+%    vtransform   1=> old v transform (Song, 1994);
+%                 2=> new v transform (Shchepetkin, 2006)
+%    vstretching  Vertical stretching function (optional, integer 1-5):
+%                   1 => Song and Haidvogel (1994)
+%                   2 => A. Shchepetkin (UCLA-ROMS, 2005)
+%                   3 => R. Geyer BBL refinement
+%                   4 => A. Shchepetkin (UCLA-ROMS, 2010)
+%                   5 => Souza et al. (2015) quadratic Legendre polynomial
+%                 If omitted: defaults to 1 for vtransform=1, 4 for vtransform=2.
+%                 See: https://www.myroms.org/wiki/Vertical_S-coordinate
+%
 %  On Output:
 %
 %    z       Depths (m) of RHO- or W-points (3D matrix).
-% 
-%  Further Information:  
+%
+%  Further Information:
 %  http://www.croco-ocean.org
-%  
+%
 %  This file is part of CROCOTOOLS
 %
 %  CROCOTOOLS is free software; you can redistribute it and/or modify
@@ -34,127 +43,144 @@ function z = zlevs(h,zeta,theta_s,theta_b,hc,N,type,vtransform);
 %  Foundation, Inc., 59 Temple Place, Suite 330, Boston,
 %  MA  02111-1307  USA
 %
-%  Copyright (c) 2002-2006 by Pierrick Penven 
-%  e-mail:Pierrick.Penven@ird.fr  
+%  Copyright (c) 2002-2006 by Pierrick Penven
+%  e-mail:Pierrick.Penven@ird.fr
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [M,L]=size(h);
+%
+% Handle vtransform default
+%
 if nargin < 8
     disp(['WARNING no vtransform defined'])
-    vtransform = 1 ; %old vtranform = 1
+    vtransform = 1;
     disp(['Default S-coordinate system use : Vtransform=1 (old one)'])
 end
 %
-% Set S-Curves in domain [-1 < sc < 0] at vertical W- and RHO-points.
-
-
-sc_r=zeros(N,1);
-Cs_r=zeros(N,1);
-sc_w=zeros(N+1,1);
-Cs_w=zeros(N+1,1);
-
-if (vtransform == 2)
-    ds=1./N;
-    if type=='w'
-
-      sc_w(1) = -1.0;
-      sc_w(N+1) =  0;
-      Cs_w(1) = -1.0;
-      Cs_w(N+1) =  0;
-      
-      sc_w(2:N) = ds*([1:N-1]-N);
-      Cs_w=csf(sc_w, theta_s,theta_b);
-      N=N+1;
-
-%    disp(['===================================='])
-%    for k=N:-1:1
-%        disp(['Niveau S=',num2str(k),' Cs=',num2str( Cs_w(k), '%8.7f')])
-%    end
-%    disp(['===================================='])
-
+% Handle vstretching default
+%
+if nargin < 9
+    if vtransform == 1
+        vstretching = 1;
     else
-
-      sc= ds*([1:N]-N-0.5);    
-      Cs_r=csf(sc, theta_s,theta_b);
-      sc_r=sc;
-%    disp(['===================================='])
-%    for k=N:-1:1
-%        disp(['Niveau S=',num2str(k),' Cs=',num2str( Cs_r(k), '%8.7f')])
-%    end
-%    disp(['===================================='])
+        vstretching = 4;
+        warning('zlevs:defaultVstretching', ...
+            ['Vstretching not specified for Vtransform=2, defaulting to 4 ', ...
+             '(Shchepetkin 2010). If your ROMS/CROCO file uses a different ', ...
+             'Vstretching (e.g. 5), pass it as the 9th argument.']);
     end
-
-else
-    cff1=1./sinh(theta_s);
-    cff2=0.5/tanh(0.5*theta_s);
-    if type=='w'
-        sc=((0:N)-N)/N;
-        N=N+1;
-    else
-        sc=((1:N)-N-0.5)/N;
-    end
-    Cs=(1.-theta_b)*cff1*sinh(theta_s*sc)...
-        +theta_b*(cff2*tanh(theta_s*(sc+0.5))-0.5);
-%    disp(['===================================='])
-%    for k=N:-1:1
-%        disp(['Niveau S=',num2str(k),' Cs=',num2str( Cs(k), '%8.7f')])
-%    end
-%    disp(['===================================='])
 end
 %
-% Create S-coordinate system: based on model topography h(i,j),
-% fast-time-averaged free-surface field and vertical coordinate
-% transformation metrics compute evolving depths of of the three-
-% dimensional model grid. Also adjust zeta for dry cells.
-%  
-h(h==0)=1.e-2;
-Dcrit=0.01;   % min water depth in dry cells
-zeta(zeta<(Dcrit-h))=Dcrit-h(zeta<(Dcrit-h));
+% Step 1: Compute S-coordinates (sc) and stretching function (Cs)
 %
-hinv=1./h;
-z=zeros(N,M,L);
-if (vtransform == 2)
+% Compute fractional sigma coordinate
+%
+if vstretching == 5
+    % Quadratic Legendre polynomial (Souza et al., 2015)
     if type=='w'
-        cff1=Cs_w;
-        cff2=sc_w+1;
-        sc=sc_w;
+        lev = 0:N;
+        sc = -(lev.*lev - 2.0.*lev.*N + lev + N*N - N) ./ (N*N - N) - ...
+              0.01.*(lev.*lev - lev.*N) ./ (1.0 - N);
+        sc(1) = -1.0;
+        N = N + 1;
     else
-        cff1=Cs_r;
-        cff2=sc_r+1;
-        sc=sc_r;
-    end
-    h2=(h+hc);
-    cff=hc*sc;
-    h2inv=1./h2;
-    for k=1:N
-        z0=cff(k)+cff1(k)*h;
-        z(k,:,:)=z0.*h./(h2) + zeta.*(1.+z0.*h2inv);
+        lev = (1:N) - 0.5;
+        sc = -(lev.*lev - 2.0.*lev.*N + lev + N*N - N) ./ (N*N - N) - ...
+              0.01.*(lev.*lev - lev.*N) ./ (1.0 - N);
     end
 else
-    cff1=Cs;
-    cff2=sc+1;
-    cff=hc*(sc-Cs);
-    cff2=sc+1;
-    for k=1:N
-        z0=cff(k)+cff1(k)*h;
-        z(k,:,:)=z0+zeta.*(1.+z0.*hinv);
+    % Standard linear sigma for Vstretching 1-4
+    if type=='w'
+        sc = ((0:N) - N) ./ N;
+        N = N + 1;
+    else
+        sc = ((1:N) - N - 0.5) ./ N;
     end
 end
-%if type=='w'
-%  hmin=min(min(h));
-%  hmax=max(max(h));
-%  for k=N:-1:1
-%    cff1=sc(k)*hc+(hmin-hc)*Cs(k);
-%    cff2=sc(k)*hc+(0.5*(hmin+hmax)-hc)*Cs(k);
-%    cff3=sc(k)*hc+(hmax-hc)*Cs(k);
-%    disp([num2str(k,6),' | ',num2str(sc(k),6),' | ',num2str(Cs(k)),' | ',...
-%         num2str(cff1),' | ',num2str(cff2),' | ',num2str(cff3)])
-%  end
-%end
-
+%
+% Compute stretching function C(sigma)
+%
+if vstretching == 1
+    % Song and Haidvogel (1994)
+    if theta_s > 0
+        Cs = (1.0-theta_b) .* sinh(theta_s.*sc) ./ sinh(theta_s) + ...
+             theta_b .* (tanh(theta_s.*(sc+0.5)) ./ (2.0*tanh(0.5*theta_s)) - 0.5);
+    else
+        Cs = sc;
+    end
+elseif vstretching == 2
+    % A. Shchepetkin (UCLA-ROMS, 2005)
+    alfa = 1.0;
+    beta = 1.0;
+    if theta_s > 0
+        Csur = (1.0-cosh(theta_s.*sc)) ./ (cosh(theta_s)-1.0);
+        if theta_b > 0
+            Cbot = -1.0 + sinh(theta_b.*(sc+1.0)) ./ sinh(theta_b);
+            weight = (sc+1.0).^alfa .* (1.0+(alfa/beta).*(1.0-(sc+1.0).^beta));
+            Cs = weight.*Csur + (1.0-weight).*Cbot;
+        else
+            Cs = Csur;
+        end
+    else
+        Cs = sc;
+    end
+elseif vstretching == 3
+    % R. Geyer BBL refinement
+    if theta_s > 0
+        exp_s = theta_s;
+        exp_b = theta_b;
+        alpha = 3;
+        Cbot = log(cosh(alpha.*(sc+1).^exp_b)) ./ log(cosh(alpha)) - 1;
+        Csur = -log(cosh(alpha.*abs(sc).^exp_s)) ./ log(cosh(alpha));
+        weight = (1 - tanh(alpha.*(sc+0.5))) ./ 2;
+        Cs = weight.*Cbot + (1-weight).*Csur;
+    else
+        Cs = sc;
+    end
+elseif vstretching == 4 || vstretching == 5
+    % A. Shchepetkin (UCLA-ROMS, 2010) / Souza et al. (2015)
+    % Same C(sigma) formula; Vstretching=5 differs only in sigma above
+    if theta_s > 0
+        Cs = (1.0-cosh(theta_s.*sc)) ./ (cosh(theta_s)-1.0);
+    else
+        Cs = -sc.^2;
+    end
+    if theta_b > 0
+        Cs = (exp(theta_b.*Cs)-1.0) ./ (1.0-exp(-theta_b));
+    end
+else
+    error('zlevs:badVstretching', ...
+        'Vstretching=%d is not supported. Use 1-5.', vstretching);
+end
+%
+% Step 2: Compute depths using Vtransform
+%
+% Adjust for dry cells
+%
+h(h==0) = 1.e-2;
+Dcrit = 0.01;
+zeta(zeta<(Dcrit-h)) = Dcrit - h(zeta<(Dcrit-h));
+%
+z = zeros(N,M,L);
+if vtransform == 1
+    hinv = 1./h;
+    cff = hc*(sc-Cs);
+    cff1 = Cs;
+    for k = 1:N
+        z0 = cff(k) + cff1(k)*h;
+        z(k,:,:) = z0 + zeta.*(1.0+z0.*hinv);
+    end
+elseif vtransform == 2
+    h2 = h + hc;
+    h2inv = 1./h2;
+    cff = hc*sc;
+    for k = 1:N
+        z0 = cff(k) + Cs(k)*h;
+        z(k,:,:) = z0.*h./h2 + zeta.*(1.0+z0.*h2inv);
+    end
+else
+    error('zlevs:badVtransform', ...
+        'Vtransform=%d is not supported. Use 1 or 2.', vtransform);
+end
 
 return
-
-            
-        
-
